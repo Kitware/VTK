@@ -84,8 +84,8 @@ public:
   virtual void Start() = 0;
 
   // Description:
-  // Performed at the end of the rendering process to swap buffers
-  // if necessary etc.
+  // A termination method performed at the end of the rendering process
+  // to do things like swapping buffers (if necessary) or similar actions.
   virtual void Frame() = 0;
 
   virtual void SetDisplayId(void *) = 0;
@@ -120,13 +120,13 @@ public:
 
   // Description:
   // Create a device specific texture. This is used by vtkTexture to create
-  // the correct type of vtkTextureDevice
+  // the correct type of vtkTextureDevice.
   virtual vtkTextureDevice     *MakeTexture() = 0;
 
   // Description:
   // Create an interactor to control renderers in this window. We need
-  // to know what type of interactor to create because we might be in
-  // X windows or MS windows. 
+  // to know what type of interactor to create, because we might be in
+  // X Windows or MS Windows. 
   virtual vtkRenderWindowInteractor *MakeRenderWindowInteractor() = 0;
 
   // Description:
@@ -148,8 +148,8 @@ public:
   vtkBooleanMacro(FullScreen,int);
 
   // Description:
-  // Turn on/off window manager borders. Typically you shouldn't turn the 
-  // borders off because that bypasses the window manager and can cause
+  // Turn on/off window manager borders. Typically, you shouldn't turn the 
+  // borders off, because that bypasses the window manager and can cause
   // undesirable behavior.
   vtkSetMacro(Borders,int);
   vtkGetMacro(Borders,int);
@@ -219,7 +219,7 @@ public:
   // Description:
   // Set/Get the pixel data of an image, transmitted as RGBRGBRGB. The
   // front argument indicates if the front buffer should be used or the back 
-  // buffer. It is the callers responsibility to delete the resulting 
+  // buffer. It is the caller's responsibility to delete the resulting 
   // array. It is very important to realize that the memory in this array
   // is organized from the bottom of the window to the top. The origin
   // of the screen is in the lower left corner. The y axis increases as
@@ -229,7 +229,7 @@ public:
   virtual void SetPixelData(int x,int y,int x2,int y2,unsigned char *,int front) = 0;
 
   // Description:
-  // Set the number of frames for doing anti aliasing. The default is
+  // Set the number of frames for doing antialiasing. The default is
   // zero. Typically five or six will yield reasonable results without
   // taking too long.
   vtkGetMacro(AAFrames,int);
@@ -238,8 +238,8 @@ public:
   // Description:
   // Set the number of frames for doing focal depth. The default is zero.
   // Depending on how your scene is organized you can get away with as
-  // few as for frames for focal depth or you might need thirty.
-  // One thing to note is that if you are using focal depth frames
+  // few as four frames for focal depth or you might need thirty.
+  // One thing to note is that if you are using focal depth frames,
   // then you will not need many (if any) frames for antialiasing. 
   vtkGetMacro(FDFrames,int);
   vtkSetMacro(FDFrames,int);
@@ -247,7 +247,7 @@ public:
   // Description:
   // Set the number of sub frames for doing motion blur. The default is zero.
   // Once this is set greater than one, you will no longer see a new frame
-  // for every Render().  If you set this to five you will need to do 
+  // for every Render().  If you set this to five, you will need to do 
   // five Render() invocations before seeing the result. This isn't
   // very impressive unless something is changing between the Renders.
   vtkGetMacro(SubFrames,int);

@@ -40,7 +40,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkHyperStreamline - generate hyperstreamline in arbitrary dataset
 // .SECTION Description
-// vtkHyperStreamline is a filter that integrates through tensor field to 
+// vtkHyperStreamline is a filter that integrates through a tensor field to 
 // generate a hyperstreamline. The integration is along the maximum eigenvector
 // and the cross section of the hyperstreamline is defined by the two other
 // eigenvectors. Thus the shape of the hyperstreamline is "tube-like", with 

@@ -51,12 +51,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // SetTexture() method. Actors can share texture maps (this is encouraged
 // to save memory resources.) 
 // .SECTION Caveats
-// Currently only 2D texture maps are supported even though the data pipeline
+// Currently only 2D texture maps are supported, even though the data pipeline
 // supports 1,2, and 3D texture coordinates. 
 // 
 // Some renderers such as OpenGL require that the texture map dimensions are
 // a power of two in each direction. Other renderers may have similar
-// (ridiculous) restrictions so be careful out there...
+// (ridiculous) restrictions, so be careful out there...
 // .SECTION See Also
 // vtkActor vtkRenderer vtkTextureDevice
 
@@ -79,7 +79,7 @@ public:
 
   // Description:
   // Renders a texture map. It first checks the object's modified time
-  // to make sure the texture maps Input is valid then it invokes the 
+  // to make sure the texture maps Input is valid, then it invokes the 
   // Load() method.
   virtual void Render(vtkRenderer *ren);
 

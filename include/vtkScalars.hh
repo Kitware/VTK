@@ -52,7 +52,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // and volumes).
 //
 // Because of the close relationship between scalars and colors, scalars 
-// also maintain in internal lookup table. If provided, this table is used 
+// also maintain an internal lookup table. If provided, this table is used 
 // to map scalars into colors, rather than the lookup table that the vtkMapper
 // objects are associated with.
 

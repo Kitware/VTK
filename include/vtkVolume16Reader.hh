@@ -83,7 +83,7 @@ public:
   vtkGetStringMacro(FilePrefix);
 
   // Description:
-  // The sprintf format to use to build filename from FilePrefix and number.
+  // The sprintf format used to build filename from FilePrefix and number.
   vtkSetStringMacro(FilePattern);
   vtkGetStringMacro(FilePattern);
 
@@ -114,12 +114,12 @@ public:
   vtkGetMacro(DataMask,short);
 
   // Description:
-  // Specify the number of bytes to seek over at start of image
+  // Specify the number of bytes to seek over at start of image.
   vtkSetMacro(HeaderSize,int);
   vtkGetMacro(HeaderSize,int);
 
   // Description:
-  // Turn on/off byte swapping
+  // Turn on/off byte swapping.
   vtkSetMacro(SwapBytes,int);
   vtkGetMacro(SwapBytes,int);
   vtkBooleanMacro(SwapBytes,int);

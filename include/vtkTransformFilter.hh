@@ -40,7 +40,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkTransformFilter - transform points and associated normals and vectors
 // .SECTION Description
-// vtkTransformFilter is a filter to transform point coordinates and 
+// vtkTransformFilter is a filter to transform point coordinates, and 
 // associated point normals and vectors. Other point data is passed
 // through the filter.
 //

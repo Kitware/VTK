@@ -42,11 +42,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .SECTION Description
 // vtkActor is used to represent an entity in a rendering scene.  It
 // handles functions related to the actors position, orientation and
-// scaling. It combines these instance variables into one four by four
+// scaling. It combines these instance variables into one 4x4
 // transformation matrix as follows: [x y z 1] = [x y z 1]
 // Translate(-origin) Scale(scale) Rot(y) Rot(x) Rot (z) Trans(origin)
 // Trans(position). The actor also maintains a reference to the
-// defining geometry (i.e., the mapper), rendering properties and
+// defining geometry (i.e., the mapper), rendering properties, and
 // possibly a texture map.
 
 // .SECTION See Also
@@ -75,9 +75,9 @@ class vtkActor : public vtkObject
 
   // Description: 
   // Set/Get the property object that controls this
-  // actors surface properties.  This is should be an instance of a
+  // actors surface properties.  This should be an instance of a
   // vtkProperty object.  Every actor must have a property associated
-  // with it.  If one isn't specified then one will be generated
+  // with it.  If one isn't specified, then one will be generated
   // automatically. Multiple actors can share one property object.
   void SetProperty(vtkProperty *lut);
   void SetProperty(vtkProperty& lut) {this->SetProperty(&lut);};
@@ -99,13 +99,13 @@ class vtkActor : public vtkObject
   vtkSetObjectMacro(Mapper,vtkMapper);
 
   // Description:
-  // Returns the Mapper that this actor is getting it's data from.
+  // Returns the Mapper that this actor is getting its data from.
   vtkGetObjectMacro(Mapper,vtkMapper);
 
   // Description:
   // In addition to the instance variables such as position and orientation,
-  // you can specify your own four by four transformation matrix that will
-  // get concatenated with the actor's four by four matrix as determined
+  // you can specify your own 4x4 transformation matrix that will
+  // get concatenated with the actor's 4x4 matrix as determined
   // by the other instance variables. If the other instance variables such
   // as position and orientation are left with  their default values then 
   // they will result in the identity matrix. And the resulting matrix
@@ -128,7 +128,7 @@ class vtkActor : public vtkObject
 
   // Description:
   // Set/Get the scale of the actor. Scaling in performed independently on the
-  // X, Y and Z axis. A scale of zero is illegal and will be replace with one.
+  // X, Y and Z axis. A scale of zero is illegal and will be replaced with one.
   vtkSetVector3Macro(Scale,float);
   vtkGetVectorMacro(Scale,float,3);
 
@@ -148,9 +148,9 @@ class vtkActor : public vtkObject
 
   // Description:
   // Set/Get the value of the dragable instance variable. This determines if 
-  // an actor once picked, can be dragged (translated) through space.
+  // an actor, once picked, can be dragged (translated) through space.
   // This is typically done through an interactive mouse interface.
-  // This does not affect methods such as SetPosition which will continue
+  // This does not affect methods such as SetPosition, which will continue
   // to work.  It is just intended to prevent some actors from being
   // dragged from within a user interface.
   vtkSetMacro(Dragable,int);

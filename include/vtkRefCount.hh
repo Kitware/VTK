@@ -49,8 +49,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .SECTION Caveats
 // Note: in vtk objects are generally created with combinations of 
 // new/Delete() methods. This works great until you want to allocate
-// objects off the stack (i.e., automatic objects). Automatic objects
-// when automatically deleted (by exiting scope) will cause warnings to
+// objects off the stack (i.e., automatic objects). Automatic objects,
+// when automatically deleted (by exiting scope), will cause warnings to
 // occur. You can avoid this by turing reference counting off (i.e., use
 // the method ReferenceCountingOff()).
 
@@ -82,7 +82,7 @@ private:
 // Turn off reference counting for this object. This allows you to create
 // automatic reference counted objects and avoid warning messages when scope
 // is existed. (Note: It is preferable to use the combination new/Delete() 
-// to create and delete vtk objects).
+// to create and delete vtk objects.)
 inline void vtkRefCount::ReferenceCountingOff()
 {
   this->ReferenceCounting = 0;

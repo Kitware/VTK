@@ -43,11 +43,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkThreshold is a filter that extracts cells from any dataset type that 
 // satisfy a threshold criterion. A cell satisfies the criterion if the 
 // scalar value of every point satisfies the criterion. The criterion can 
-// take three forms: greater than a particular value, less than a particular 
-// value, or between two values. The output of this filter is an unstructured 
-// grid.
+// take three forms: 1) greater than a particular value; 2) less than a 
+// particular value; or 3) between two values. The output of this filter
+// is an unstructured grid.
 // .SECTION See Also
-// vtkThresholdPoints, vtkThresholdTextureCoords
+// vtkThresholdPoints vtkThresholdTextureCoords
 
 #ifndef __vtkThreshold_h
 #define __vtkThreshold_h

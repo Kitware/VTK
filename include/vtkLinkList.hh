@@ -40,9 +40,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkLinkList - object represents upward pointers from points to list of cells using each point
 // .SECTION Description
-// vtkLinkList is a supplemental object to CellArray and CellList to allow
-// access from points to cells using the points. LinkList is a collection 
-// of Links, each link represents a dynamic list of cell id's using the 
+// vtkLinkList is a supplemental object to vtkCellArray and vtkCellList, 
+// enabling access from points to the cells using the points. vtkLinkList is
+// a list of Links, each link represents a dynamic list of cell id's using the 
 // point. The information provided by this object can be used to determine 
 // neighbors and construct other local topological information.
 // .SECTION See Also
@@ -97,7 +97,7 @@ private:
 inline _vtkLink_s &vtkLinkList::GetLink(int ptId) {return this->Array[ptId];};
 
 // Description:
-// Get the number of cells using this point.
+// Get the number of cells using the point specified by ptId.
 inline unsigned short vtkLinkList::GetNcells(int ptId) 
 {
   return this->Array[ptId].ncells;
@@ -133,7 +133,7 @@ inline void vtkLinkList::DeletePoint(int ptId)
 // Description:
 // Insert a cell id into the list of cells (at the end) using the cell id 
 // provided. (Make sure to extend the link list (if necessary) using the
-// method ResizeCellList()).
+// method ResizeCellList().)
 inline void vtkLinkList::InsertNextCellReference(int ptId, int cellId) 
 {
   this->Array[ptId].cells[this->Array[ptId].ncells++] = cellId;

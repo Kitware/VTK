@@ -42,7 +42,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .SECTION Description
 // vtkNormals provides an abstract interface to 3D normals. The data model
 // for vtkNormals is an array of nx-ny-nz triplets accessible by point id.
-// (Each normal is assumed normalized |n| = 1). The subclasses of 
+// (Each normal is assumed normalized |n| = 1.) The subclasses of 
 // vtkNormals are concrete data types (float, int, etc.) that implement 
 // the interface of vtkNormals. 
 

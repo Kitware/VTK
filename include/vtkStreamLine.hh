@@ -42,11 +42,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .SECTION Description
 // vtkStreamLine is a filter that generates a streamline for an arbitrary 
 // dataset. A streamline is a line that is everywhere tangent to the vector
-// field. Scalar values are also calculated along the streamline and can be 
+// field. Scalar values also are calculated along the streamline and can be 
 // used to color the line. Streamlines are calculated by integrating from
 // a starting point through the vector field. Integration can be performed
 // forward in time (see where the line goes), backward in time (see where the
-// line came from), or in both directions. It is also possible to compute
+// line came from), or in both directions. It also is possible to compute
 // vorticity along the streamline. Vorticity is the projection (i.e., dot
 // product) of the flow rotation on the velocity vector, i.e., the rotation
 // of flow around the streamline.
@@ -57,11 +57,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // segment lengths of size StepLength. Smaller values reduce in more line 
 // primitives but smoother streamlines. The StepLength instance variable is 
 // defined in terms of time (i.e., the distance that the particle travels in
-// the specified time period). Thus the line segments will be smaller in areas
+// the specified time period). Thus, the line segments will be smaller in areas
 // of low velocity and larger in regions of high velocity. (NOTE: This is
 // different than the IntegrationStepLength defined by the superclass
 // vtkStreamer. IntegrationStepLength is used to control integration step 
-// size and is expressed as a fraction of the cell length). The StepLength
+// size and is expressed as a fraction of the cell length.) The StepLength
 // instance variable is important because subclasses of vtkStreamLine (e.g.,
 // vtkDashedStreamLine) depend on this value to build their representation.
 // .SECTION See Also
@@ -81,7 +81,7 @@ public:
 
   // Description:
   // Specify the length of a line segment. The length is expressed in terms of
-  // elapsed time. Smaller values result in smoother appearing streamlines but
+  // elapsed time. Smaller values result in smoother appearing streamlines, but
   // greater numbers of line primitives.
   vtkSetClampMacro(StepLength,float,0.000001,VTK_LARGE_FLOAT);
   vtkGetMacro(StepLength,float);

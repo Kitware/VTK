@@ -41,8 +41,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .NAME vtkPolyDataCollection - maintain a list of polygonal data objects
 // .SECTION Description
 // vtkPolyDataCollection is an object that creates and manipulates lists of
-// datasets of type vtkPolyData. See also vtkDataSetCollection and vtkCollection
-// and subclasses. 
+// datasets of type vtkPolyData. 
+// .SECTION See Also
+// vtkDataSetCollection vtkCollection
 
 #ifndef __vtkPolyDataCollection_hh
 #define __vtkPolyDataCollection_hh

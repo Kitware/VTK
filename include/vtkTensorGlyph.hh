@@ -95,7 +95,7 @@ public:
 
   // Description:
   // Specify scale factor to scale object by. (Scale factor always affects
-  // output even if scaling is off).
+  // output even if scaling is off.)
   vtkSetMacro(ScaleFactor,float);
   vtkGetMacro(ScaleFactor,float);
 

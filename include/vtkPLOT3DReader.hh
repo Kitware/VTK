@@ -40,11 +40,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkPLOT3DReader - read PLOT3D data files
 // .SECTION Description
-// vtkPLOT3DReader is a reader object that reads PLOT3D formatted files and generates
-// a structured grid on output. PLOT3D is a computer graphics program designed
-// to visualize the grids and solutions of computational fluid dynamics.
-// Please see the "PLOT3D User's Manual" available from NASA Ames Research 
-// Center, Moffett Field CA.
+// vtkPLOT3DReader is a reader object that reads PLOT3D formatted files and 
+// generates a structured grid on output. PLOT3D is a computer graphics 
+// program designed to visualize the grids and solutions of computational 
+// fluid dynamics. Please see the "PLOT3D User's Manual" available from 
+// NASA Ames Research Center, Moffett Field CA.
 //
 // PLOT3D files consist of a grid file (also known as XYZ file), an 
 // optional solution file (also known as a Q file), and an optional function 
@@ -69,18 +69,19 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 //    153 - velocity magnitude
 //    163 - stagnation energy
 //    170 - entropy
-//    184 - swirl
+//    184 - swirl.
 //
 // The vector functions are:
 //    -1  - don't read or compute any vectors
 //    200 - velocity
 //    201 - vorticity
 //    202 - momentum
-//    210 - pressure gradient
+//    210 - pressure gradient.
+//
 // (Other functions are described in the PLOT3D spec, but only those listed are
-// implemented here). Note that by default, this reader creates the density 
+// implemented here.) Note that by default, this reader creates the density 
 // scalar (100) and momentum vector (202) as output. (These are just read in
-// from the solution file). Please note that the validity of computation is
+// from the solution file.) Please note that the validity of computation is
 // a function of this class's gas constants (R, Gamma) and the equations used.
 // They may not be suitable for your computational domain.
 //

@@ -41,7 +41,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .NAME vtkPolyLine - cell represents a set of 1D lines
 // .SECTION Description
 // vtkPolyLine is a concrete implementation of vtkCell to represent a set
-// of 1D lines
+// of 1D lines.
 
 #ifndef __vtkPolyLine_h
 #define __vtkPolyLine_h

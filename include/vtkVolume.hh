@@ -41,7 +41,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .NAME vtkVolume - a volumetric entity in a rendered image
 // .SECTION Description
 // vtkVolume is used to represent a volume entity in a rendering scene.  
-// It handles functions related to the volumes position, orientation and 
+// It handles functions related to the volume's position, orientation, and 
 // scaling. It combines these instance variables into one matrix as 
 // follows: [x y z 1] = [x y z 1] Translate(-origin) Scale(scale) Rot(y) 
 // Rot(x) Rot (z) Trans(origin) Trans(position).
@@ -68,12 +68,12 @@ class vtkVolume : public vtkObject
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // This is the method that is used to connect an Volume to the end of a
+  // This is the method that is used to connect a volume to the end of a
   // visualization pipeline.
   vtkSetObjectMacro(Input,vtkStructuredPoints);
 
   // Description:
-  // Returns the Input that this Volume is getting it's data from.
+  // Returns the input that this volume is getting its data from.
   vtkGetObjectMacro(Input,vtkStructuredPoints);
 
   // Description:
@@ -94,28 +94,28 @@ class vtkVolume : public vtkObject
   vtkGetVectorMacro(ScalarRange,float,2);
 
   // Description:
-  // Set/Get/Add the position of the Volume.
+  // Set/Get/Add the position of the volume.
   vtkGetVectorMacro(Position,float,3);
   vtkSetVector3Macro(Position,float);
   void AddPosition(float deltaPosition[3]);
   void AddPosition(float deltaX,float deltaY,float deltaZ);
 
   // Description:
-  // Set/Get the origin of the Volume. This is the point about which all 
+  // Set/Get the origin of the volume. This is the point about which all 
   // rotations take place.
   vtkGetVectorMacro(Origin,float,3);
   vtkSetVector3Macro(Origin,float);
 
   // Description:
-  // Set/Get the scale of the Volume. Scaling in performed independently on the
+  // Set/Get the scale of the volume. Scaling in performed independently on the
   // X,Y and Z axis. Any scale values that are zero will be automatically
   // converted to one.
   vtkGetVectorMacro(Scale,float,3);
   vtkSetVector3Macro(Scale,float);
 
   // Description:
-  // Set/Get the visibility of the Volume. Visibility is like a light switch
-  // for Volumes. Use it to turn them on or off.
+  // Set/Get the visibility of the volume. Visibility is like a light switch:
+  // use it to turn them on or off.
   vtkGetMacro(Visibility,int);
   vtkSetMacro(Visibility,int);
   vtkBooleanMacro(Visibility,int);
@@ -130,7 +130,7 @@ class vtkVolume : public vtkObject
 
   // Description:
   // Set/Get the value of the dragable instance variable. This determines if 
-  // an Volume once picked, can be dragged (translated) through space.
+  // a volume, once picked, can be dragged (translated) through space.
   // This is typically done through an interactive mouse interface.
   // This does not affect methods such as SetPosition.
   vtkGetMacro(Dragable,int);

@@ -123,7 +123,7 @@ public:
   // Get a device specific geometry representation. vtkMapper and its
   // subclasses need to get device specific GeometryPrimitives to
   // render their polygons, lines, triangle strips and vertices.
-  // This method which must be supplied by subclasses of vtkRenderer
+  // This method, which must be supplied by all subclasses of vtkRenderer,
   // takes a string indicating what type of primitive to create.
   virtual vtkGeometryPrimitive *GetPrimitive(char *) = 0;
   
@@ -132,7 +132,7 @@ public:
   virtual int UpdateActors(void) = 0;
 
   // Description:
-  // Ask the active camera to do whatever it needs to do to.
+  // Ask the active camera to do whatever it needs to do prior to rendering.
   // This method returns one if there was an active camera and it 
   // was on. It returns zero otherwise.
   virtual int UpdateCameras(void) = 0;
@@ -161,7 +161,7 @@ public:
   // Description:
   // Specify a point location in view coordinates. The origin is in the 
   // middle of the viewport and it extends from -1 to 1 in all three
-  // dimensions
+  // dimensions.
   vtkSetVector3Macro(ViewPoint,float);
   vtkGetVectorMacro(ViewPoint,float,3);
 
@@ -173,7 +173,7 @@ public:
 
   // Description:
   // Specify the viewport for the renderer to draw in the rendering window. 
-  // Coordinates are expressed as (xmin,ymin,xmax,ymax) where each
+  // Coordinates are expressed as (xmin,ymin,xmax,ymax), where each
   // coordinate is 0 <= coordinate <= 1.0.
   vtkSetVector4Macro(Viewport,float);
   vtkGetVectorMacro(Viewport,float,4);

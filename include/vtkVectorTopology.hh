@@ -44,7 +44,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vanishes. At these points various important flow features are found, 
 // including regions of circulation, separation, etc. The region around these
 // areas are good places to start streamlines. (The vector field vanishes in 
-// cells where the x-y-z vector components each pass through zero).
+// cells where the x-y-z vector components each pass through zero.)
 //
 // The output of this filter is a set of vertices. These vertices mark the 
 // vector field singularities. You can use an object like vtkGlyph3D to place
@@ -57,7 +57,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vertices is found by sampling the cell in parametric space. Sampling is
 // repeated until the Distance criterion is satisfied.
 // .SECTION See Also
-// vtkGlyph3D, vtkStreamLine
+// vtkGlyph3D vtkStreamLine
 
 #ifndef __vtkVectorTopology_h
 #define __vtkVectorTopology_h

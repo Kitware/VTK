@@ -42,7 +42,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .SECTION Description
 // vtkPointSetToPointSetFilter is an abstract filter class whose subclasses
 // take as input a point set and generates a point set on output.
-// At a minimum the concrete subclasses of vtkPointSetToPointSetFilter
+// At a minimum, the concrete subclasses of vtkPointSetToPointSetFilter
 // modify their point coordinates. They never modify their topological 
 // form, however.
 

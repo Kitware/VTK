@@ -41,7 +41,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .NAME vtkIdList - list of point or cell ids
 // .SECTION Description
 // vtkIdList is used to represent and pass data id's between objects. vtkIdList
-// may represent any type of integer id but usually represent point and
+// may represent any type of integer id, but usually represents point and
 // cell ids.
 
 #ifndef __vtkIdList_h

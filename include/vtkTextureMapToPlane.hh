@@ -43,7 +43,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkTextureMapToPlane is a filter that generates 2D texture coordinates
 // by mapping input dataset points onto a plane. The plane can either be
 // user specified or generated automatically. (A least squares method is
-// used to generate the plane).
+// used to generate the plane.)
 
 #ifndef __vtkTextureMapToPlane_h
 #define __vtkTextureMapToPlane_h

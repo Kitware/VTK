@@ -43,9 +43,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkDataSetMapper is a mapper to map data sets (i.e., vtkDataSet and 
 // all derived classes) to graphics primitives. The mapping procedure
 // is as follows: all 0D, 1D, and 2D cells are converted into points,
-// lines, and polygons/triangle strips and mapped. The 2D faces of
-// 3D cells are mapped only if they are used by only one cell, i.e.,
-// on the boundary of the data set.
+// lines, and polygons/triangle strips and then mapped to the graphics 
+// system. The 2D faces of 3D cells are mapped only if they are used by 
+// only one cell, i.e., on the boundary of the data set.
 
 #ifndef __vtkDataSetMapper_h
 #define __vtkDataSetMapper_h

@@ -63,7 +63,7 @@ public:
 
   // Description:
   // All filters must provide a method to update the visualization 
-  // pipeline. (Method interface inherited from vtkSource).
+  // pipeline. (Method interface inherited from vtkSource.)
   void Update();
 
 protected:

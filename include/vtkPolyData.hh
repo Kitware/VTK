@@ -43,7 +43,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkPolyData is a data object that is a concrete implementation of 
 // vtkDataSet. vtkPolyData represents a geometric structure consisting of 
 // vertices, lines, polygons, and triangle strips. Point attribute values 
-// (e.g., scalars, vectors, etc.) are also represented.
+// (e.g., scalars, vectors, etc.) also are represented.
 //
 // The actual cell types (CellType.hh) supported by vtkPolyData are: 
 // vtkVertex, vtkPolyVertex, vtkLine, vtkPolyLine, vtkTriangle, 

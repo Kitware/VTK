@@ -52,7 +52,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // strip) is capped with the generating geometry via the "Capping" instance
 // variable. Also, you can control the angle of rotation, and whether 
 // translation along the z-axis is performed along with the rotation.
-// (Translation is useful for creating "springs"). You can also adjust 
+// (Translation is useful for creating "springs".) You also can adjust 
 // the radius of the generating geometry using the "DeltaRotation" instance 
 // variable.
 //
@@ -66,11 +66,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // like springs or corkscrews.
 //
 // .SECTION Caveats
-// If the objects sweeps 360 degrees, radius does not vary, and the object 
+// If the object sweeps 360 degrees, radius does not vary, and the object 
 // does not translate, capping is not performed. This is because the cap 
 // is unnecessary.
 //
-// Some polygonal objects have no free edges (e.g., sphere). When swept 
+// Some polygonal objects have no free edges (e.g., sphere). When swept,
 // this will result in two separate surfaces if capping is on, or no surface
 // if capping is off.
 // .SECTION See Also

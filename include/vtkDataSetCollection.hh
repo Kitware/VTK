@@ -62,21 +62,21 @@ public:
 };
 
 // Description:
-// Add an DataSet to the list.
+// Add a dataset to the list.
 inline void vtkDataSetCollection::AddItem(vtkDataSet *ds) 
 {
   this->vtkCollection::AddItem((vtkObject *)ds);
 }
 
 // Description:
-// Remove an DataSet from the list.
+// Remove a dataset from the list.
 inline void vtkDataSetCollection::RemoveItem(vtkDataSet *ds) 
 {
   this->vtkCollection::RemoveItem((vtkObject *)ds);
 }
 
 // Description:
-// Determine whether a particular DataSet is present. Returns its position
+// Determine whether a particular dataset is present. Returns its position
 // in the list.
 inline int vtkDataSetCollection::IsItemPresent(vtkDataSet *ds) 
 {
@@ -84,7 +84,7 @@ inline int vtkDataSetCollection::IsItemPresent(vtkDataSet *ds)
 }
 
 // Description:
-// Get the next DataSet in the list.
+// Get the next dataset in the list.
 inline vtkDataSet *vtkDataSetCollection::GetNextItem() 
 { 
   return (vtkDataSet *)(this->vtkCollection::GetNextItem());

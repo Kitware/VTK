@@ -43,7 +43,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkPointLoad is a source object that computes stress tensors on a volume. 
 // The tensors are computed from the application of a point load on a 
 // semi-infinite domain. (The analytical results are adapted from Saada - see 
-// text). It is also possible to compute effective stress scalars if desired.
+// text.) It also is possible to compute effective stress scalars if desired.
 // This object serves as a specialized data generator for some of the examples
 // in the text.
 // .SECTION See Also

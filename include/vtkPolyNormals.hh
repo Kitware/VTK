@@ -50,6 +50,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // averaging them at shared points. When sharp edges are present, the edges
 // are split and new points generated to prevent blurry edges (due to 
 // Gouraud shading).
+// .SECTION Caveats
+// Currently normals are computed only for polygonal data in vtkPolyData.
+// Future releases will compute normals for lines and triangle strips as well.
+// In the mean time, you can use vtkTriangleFilter to convert triangle strips
+// to polygons, and then generate the normals.
 
 #ifndef __vtkPolyNormals_h
 #define __vtkPolyNormals_h

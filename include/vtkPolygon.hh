@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkPolygon - a cell that represents a n-sided polygon
+// .NAME vtkPolygon - a cell that represents an n-sided polygon
 // .SECTION Description
 // vtkPolygon is a concrete implementation of vtkCell to represent a 2D 
 // n-sided polygon. The polygons cannot have any internal holes, and cannot

@@ -44,7 +44,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // values into rgba (red-green-blue-alpha transparency) color specification, 
 // or rgba into scalar values. The difference between this class and its
 // superclass vtkLookupTable is that this class performs scalar mapping based
-// on a logarithmic lookup process. (Uses log base 10).
+// on a logarithmic lookup process. (Uses log base 10.)
 //
 // If non-positive ranges are encountered, then they are converted to 
 // positive values using absolute value.

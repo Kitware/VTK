@@ -43,8 +43,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkFeatureVertices is a filter to extract special types of vertices from
 // input polygonal data. In particular, the filter operates on the line
 // primitives in the polygonal data. The vertex types are: 1) boundary 
-// (used by one line) or a vertex cell type, 2) non-manifold (used by three 
-// or more lines), or 3) feature edges (vertices used by two lines 
+// (used by one line) or a vertex cell type; 2) non-manifold (used by three 
+// or more lines); or 3) feature edges (vertices used by two lines 
 // and whose orientation angle > FeatureAngle). The orientation angle is 
 // computed from the dot product between the two lines. These vertices may 
 // be extracted in any combination. Vertices may also be "colored" (i.e., 
@@ -53,7 +53,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // This filter operates only on line primitives in polygonal data. Some data
 // may require pre-processing with vtkCleanPolyData to merge coincident points.
 // Otherwise points may be flagged as boundary. (This is true when running
-// vtkFeatureEdges and then vtkFeatureVertices).
+// vtkFeatureEdges and then vtkFeatureVertices.)
 // .SECTION See Also
 // vtkFeatureEdges
 

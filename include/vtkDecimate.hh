@@ -64,7 +64,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // decimation algorithm. The error may be increased over each iteration 
 // with the error increment. Edge preservation may be disabled or enabled.
 // You can turn on/off edge vertex deletion. (Edge vertices are vertices that
-// lie along boundaries of meshes). Sub iterations are iterations that are 
+// lie along boundaries of meshes.) Sub iterations are iterations that are 
 // performed without changing the decimation criterion. The aspect ratio
 // controls the shape of the triangles that are created, and is the ratio 
 // of maximum edge length to minimum edge length. The degree is the number 
@@ -72,7 +72,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // "complex" and are never deleted.
 //
 // This implementation has been adapted for a global error bound decimation
-// criterion. That is, the error is a global bounds on distance to original
+// criterion. That is, the error is a global bound on distance to original
 // surface.
 
 #ifndef __vtkDecimate_h
@@ -163,8 +163,8 @@ public:
   vtkGetMacro(ErrorIncrement,float);
 
   // Description:
-  // Set the largest decimation error that can be achieved during
-  // by incrementing error.
+  // Set the largest decimation error that can be achieved 
+  // by incrementing the error.
   vtkSetClampMacro(MaximumError,float,0.0,1.0);
   vtkGetMacro(MaximumError,float);
 
@@ -192,7 +192,7 @@ public:
   vtkGetMacro(InitialFeatureAngle,float);
 
   // Description:
-  // Increment by which to increase feature angle over each iteration.
+  // Set/Get the angle by which to increase feature angle over each iteration.
   vtkSetClampMacro(FeatureAngleIncrement,float,0.0,180.0);
   vtkGetMacro(FeatureAngleIncrement,float);
 
@@ -214,7 +214,7 @@ public:
   vtkBooleanMacro(BoundaryVertexDeletion,int);
 
   // Description:
-  // Specify the maximum allowable feature angle during triangulation.
+  // Specify the maximum allowable aspect ratio during triangulation.
   vtkSetClampMacro(AspectRatio,float,1.0,1000.0);
   vtkGetMacro(AspectRatio,float);
 

@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkVoidArray - dynamic, self adjusting array of void* pointers
+// .NAME vtkVoidArray - dynamic, self-adjusting array of void* pointers
 // .SECTION Description
 // vtkVoidArray is an array of pointers to void. It provides methods
 // for insertion and retrieval of these pointers values, and will 

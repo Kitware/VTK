@@ -67,7 +67,7 @@ public:
 
   // Description:
   // Specify the radius of propagation of the splat. This value is expressed
-  // as percentage  of the sampling structured point set. Smaller numbers 
+  // as a percentage  of the sampling structured point set. Smaller numbers 
   // greatly reduce execution time.
   vtkSetClampMacro(Radius,float,0.0,1.0);
   vtkGetMacro(Radius,float);

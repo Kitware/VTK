@@ -46,7 +46,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Data consisting of 3D cells will generate isosurfaces, data 
 // consisting of 2D cells will generate isolines, and data with 1D 
 // or 0D cells will generate isopoints. Combinations of output type 
-// is possible if the input dimension is mixed.
+// are possible if the input dimension is mixed.
 //
 // If the input type is volume (e.g., 3D structured point dataset), 
 // you may wish to use vtkMarchingCubes. This class is specifically tailored

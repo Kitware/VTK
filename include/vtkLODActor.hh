@@ -50,8 +50,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // box outline of the actor. The middle level of detail is a point
 // cloud of a fixed number of points that have been randomly sampled
 // from the Mappers input data.  Point attributes are copied over to
-// the point cloud.  These two lover levels of detail are accomplished by
-// creating instances of a vtkOutlineFilter, vtkGlyph3D and vtkPointSource.
+// the point cloud.  These two lower levels of detail are accomplished by
+// creating instances of a vtkOutlineFilter, vtkGlyph3D, and vtkPointSource.
 
 // .SECTION see also
 // vtkActor vtkRenderer

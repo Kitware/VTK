@@ -44,7 +44,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkCone is a concrete implementation of vtkImplicitFunction. The cone vertex
 // is located at the origin with axis of rotation coincident with z-axis. (Use
 // the superclass' vtkImplicitFunction transformation matrix if necessary to 
-// reposition). The angle specifies the angle between the axis of rotation 
+// reposition.) The angle specifies the angle between the axis of rotation 
 // and the side of the cone.
 // .SECTION Caveats
 // The cone is infinite in extent. To truncate the cone use the 

@@ -42,9 +42,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .SECTION Description
 // vtkProperty is an object that represents lighting and other surface
 // properties of a geometric object. The primary properties that can be 
-// set are colors (overall, ambient, diffuse, specular, and edge color),
-// specular power, opacity of the object, the representation of the
-// object (points, wireframe, or surface), and the shading method to be 
+// set are colors (overall, ambient, diffuse, specular, and edge color);
+// specular power; opacity of the object; the representation of the
+// object (points, wireframe, or surface); and the shading method to be 
 // used (flat, Gouraud, and Phong).
 // .SECTION See Also
 // vtkActor vtkPropertyDevice
@@ -70,7 +70,7 @@ public:
   // Description:
   // This method causes the property to set up whatever is required for
   // its instance variables. This is actually handled by an instance of
-  // vtkPropertyDevice which is created automatically. 
+  // vtkPropertyDevice, which is created automatically. 
   virtual void Render(vtkRenderer *ren);
 
   // Description:
@@ -121,7 +121,7 @@ public:
   vtkGetMacro(SpecularPower,float);
 
   // Description:
-  // Set/Get the objects opacity. 1.0 is totally opaque and 0.0 is completely
+  // Set/Get the object's opacity. 1.0 is totally opaque and 0.0 is completely
   // transparent.
   vtkSetClampMacro(Opacity,float,0.0,1.0);
   vtkGetMacro(Opacity,float);
@@ -135,7 +135,7 @@ public:
   vtkBooleanMacro(EdgeVisibility,int);
 
   // Description:
-  // Turn backface properties on and off. (not implemented yet)
+  // Turn backface properties on and off (not implemented yet).
   vtkGetMacro(Backface,int);
   vtkSetMacro(Backface,int);
   vtkBooleanMacro(Backface,int);
@@ -144,7 +144,7 @@ public:
   // Set/Get the ambient surface color. Not all renderers support separate
   // ambient and diffuse colors. From a physical standpoint it really
   // doesn't make too much sense to have both. For the rendering
-  // libraries that don't support both the diffuse color is used.
+  // libraries that don't support both, the diffuse color is used.
   vtkSetVector3Macro(AmbientColor,float);
   vtkGetVectorMacro(AmbientColor,float,3);
 
@@ -154,12 +154,12 @@ public:
   vtkGetVectorMacro(DiffuseColor,float,3);
 
   // Description:
-  // Set the specular surface color.
+  // Set/Get the specular surface color.
   vtkSetVector3Macro(SpecularColor,float);
   vtkGetVectorMacro(SpecularColor,float,3);
 
   // Description:
-  // Set the color of primitive edges (if edge visibility enabled).
+  // Set/Get the color of primitive edges (if edge visibility enabled).
   vtkSetVector3Macro(EdgeColor,float);
   vtkGetVectorMacro(EdgeColor,float,3);
 

@@ -41,18 +41,18 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .NAME vtkStreamer - abstract object implements integration of massless particle through vector field
 // .SECTION Description
 // vtkStreamer is a filter that integrates a massless particle through a vector
-// field. The integration is performed using 2cnd order Runge-Kutta method. 
+// field. The integration is performed using second order Runge-Kutta method. 
 // vtkStreamer often serves as a base class for other classes that perform 
 // numerical integration through a vector field (e.g., vtkStreamLine).
 //
 // Note that vtkStreamer can integrate both forward and backward in time,
-// or in both directions. The length of the streamer time) is controlled by 
+// or in both directions. The length of the streamer is controlled by 
 // specifying an elapsed time. (The elapsed time is the time each particle 
-// travels). Otherwise, the integration terminates after exiting the dataset or
+// travels.) Otherwise, the integration terminates after exiting the dataset or
 // if the particle speed is reduced to a value less than the terminal speed.
 //
-// vtkStreamer integrates through any type of dataset. Thus if the dataset
-// contains 2D cells such as polygons or triangles, the integration is
+// vtkStreamer integrates through any type of dataset. As a result, if the 
+// dataset contains 2D cells such as polygons or triangles, the integration is
 // constrained to lie on the surface defined by the 2D cells.
 //
 // The starting point of streamers may be defined in three different ways.
@@ -66,7 +66,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkStreamer implements the integration process in the Integrate() method.
 // Because vtkStreamer does not implement the Execute() method that its 
 // superclass (i.e., Filter) requires, it is an abstract class. Its subclasses
-// implement the execute method and use the Integrate() method and then build
+// implement the execute method and use the Integrate() method, and then build
 // their own representation of the integration path (i.e., lines, dashed 
 // lines, points, etc.).
 // .SECTION See Also

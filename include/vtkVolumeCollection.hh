@@ -65,21 +65,21 @@ class vtkVolumeCollection : public vtkCollection
 };
 
 // Description:
-// Add an Volume to the list.
+// Add a volume to the list.
 inline void vtkVolumeCollection::AddItem(vtkVolume *a) 
 {
   this->vtkCollection::AddItem((vtkObject *)a);
 }
 
 // Description:
-// Remove an Volume from the list.
+// Remove a volume from the list.
 inline void vtkVolumeCollection::RemoveItem(vtkVolume *a) 
 {
   this->vtkCollection::RemoveItem((vtkObject *)a);
 }
 
 // Description:
-// Determine whether a particular Volume is present. Returns its position
+// Determine whether a particular volume is present. Returns its position
 // in the list.
 inline int vtkVolumeCollection::IsItemPresent(vtkVolume *a) 
 {
@@ -87,7 +87,7 @@ inline int vtkVolumeCollection::IsItemPresent(vtkVolume *a)
 }
 
 // Description:
-// Get the next Volume in the list. Return NULL when the end of the list
+// Get the next volume in the list. Return NULL when the end of the list
 // is reached.
 inline vtkVolume *vtkVolumeCollection::GetNextItem() 
 { 

@@ -41,10 +41,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .NAME vtkMatrix4x4 - represent and manipulate 4x4 transformation matrices
 // .SECTION Description
 // vtkMatrix4x4 is a class to represent and manipulate 4x4 matrices. 
-// Specifically it is designed to work on 4x4 transformation matrices
+// Specifically, it is designed to work on 4x4 transformation matrices
 // found in 3D rendering using homogeneous coordinates [x y z w].
 
-// .SECTION see also
+// .SECTION See Also
 // vtkTransform
 
 #ifndef __vtkMatrix4x4_hh

@@ -42,9 +42,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .SECTION Description
 // vtkVoxelModeller is a filter that converts an arbitrary data set to a
 // structured point (i.e., voxel) representation. It is very similar to 
-// vtkImplicitModeller except that it doesn't record distance it records
-// occupancy. As such it stores its results in the more compact form of 0/1
-// bits.
+// vtkImplicitModeller, except that it doesn't record distance; instead it
+// records occupancy. As such, it stores its results in the more compact
+// form of 0/1 bits.
 // .SECTION see also
 // vtkBitScalars vtkImplicitModeller
 

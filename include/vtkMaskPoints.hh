@@ -41,7 +41,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .NAME vtkMaskPoints - selectively filter points
 // .SECTION Description
 // vtkMaskPoints is a filter that passes through points and point attributes 
-// from input dataset. (Other geometry is not passed through). It is 
+// from input dataset. (Other geometry is not passed through.) It is 
 // possible to mask every nth point, and to specify an initial offset
 // to begin masking from. A special random mode feature enables random 
 // selection of points.
@@ -64,7 +64,7 @@ public:
   vtkGetMacro(OnRatio,int);
 
   // Description:
-  // Limit the number of points that can be passed through
+  // Limit the number of points that can be passed through.
   vtkSetClampMacro(MaximumNumberOfPoints,int,0,VTK_LARGE_INTEGER);
   vtkGetMacro(MaximumNumberOfPoints,int);
 

@@ -65,7 +65,7 @@ class vtkLightCollection : public vtkCollection
 };
 
 // Description:
-// Add an light to the list.
+// Add a light to the list.
 inline void vtkLightCollection::AddItem(vtkLight *a) 
 {
   this->vtkCollection::AddItem((vtkObject *)a);

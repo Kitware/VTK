@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkDoubleArray - dynamic, self adjusting double precision array
+// .NAME vtkDoubleArray - dynamic, self-adjusting double precision array
 // .SECTION Description
 // vtkDoubleArray is an array of double precision numbers. It provides methods
 // for insertion and retrieval of double precision values, and will 
@@ -151,7 +151,7 @@ inline int vtkDoubleArray::GetSize() {return this->Size;};
 inline int vtkDoubleArray::GetMaxId() {return this->MaxId;};
 
 // Description:
-// Reuse the memory allocated by this object. Objects appears like
+// Reuse the memory allocated by this object. Objects appear as if
 // no data has been previously inserted.
 inline void vtkDoubleArray::Reset() {this->MaxId = -1;};
 

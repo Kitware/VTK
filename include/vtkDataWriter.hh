@@ -41,7 +41,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .NAME vtkDataWriter - helper class for objects that write vtk data files
 // .SECTION Description
 // vtkDataWriter is a helper class that opens and writes the vtk header and 
-// point data (e.g., scalars, vectors, normals, etc) from a vtk data file. 
+// point data (e.g., scalars, vectors, normals, etc.) from a vtk data file. 
 // See text for various formats.
 
 #ifndef __vtkDataWriter_hh

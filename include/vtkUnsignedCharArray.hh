@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkUnsignedCharArray - dynamic, self adjusting unsigned character array
+// .NAME vtkUnsignedCharArray - dynamic, self-adjusting unsigned character array
 // .SECTION Description
 // vtkUnsignedCharArray is an array of unsigned character values. It provides 
 // methods for insertion and retrieval of characters, and will automatically 

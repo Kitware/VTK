@@ -94,8 +94,8 @@ public:
   vtkBooleanMacro(ScalarsVisible,int);
 
   // Description:
-  // Specify range in terms of (smin,smax) through which to map scalars
-  // into lookup table.
+  // Specify range in terms of scalar minimum and maximum (smin,smax). These
+  // values are used to map scalars into lookup table.
   vtkSetVector2Macro(ScalarRange,float);
   vtkGetVectorMacro(ScalarRange,float,2);
 

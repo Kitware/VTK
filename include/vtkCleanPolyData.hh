@@ -42,7 +42,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .SECTION Description
 // vtkCleanPolyData is a filter that takes polygonal data as input and 
 // generates polygonal as output. vtkCleanPolyData merges duplicate 
-// points (within specified tolerance) and transforms degenerate 
+// points (within specified tolerance), and transforms degenerate 
 // topology into appropriate form (for example, triangle is converted
 // into line if two points of triangle are merged).
 //
@@ -50,7 +50,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // the vtkMergePoints object to merge points (very fast). Otherwise the 
 // slower vtkLocator is used.
 // .SECTION Caveats
-// Merging points can alter topology including introducing non-manifold 
+// Merging points can alter topology, including introducing non-manifold 
 // forms. Tolerance should be chosen carefully to avoid these problems.
 
 #ifndef __vtkCleanPolyData_h

@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkExtractGeometry - extract cells that lie either entirely in or outside of a specified implicit function
+// .NAME vtkExtractGeometry - extract cells that lie either entirely inside or outside of a specified implicit function
 // .SECTION Description
 // vtkExtractGeometry extracts from its input dataset all cells that are either
 // completely inside or outside of a specified implicit function. Any type of

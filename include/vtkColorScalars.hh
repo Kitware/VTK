@@ -86,7 +86,7 @@ public:
   int GetNumberOfColors() {return this->GetNumberOfScalars();};  
 
   // Description:
-  // Return a unsigned char rgba for a particular point id. No matter
+  // Return an unsigned char rgba for a particular point id. No matter
   // what internal representation of color, derived class must convert it
   // to rgba.
   virtual unsigned char *GetColor(int id) = 0;

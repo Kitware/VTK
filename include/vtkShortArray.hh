@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkShortArray - dynamic, self adjusting short integer array
+// .NAME vtkShortArray - dynamic, self-adjusting short integer array
 // .SECTION Description
 // vtkShortArray is an array of short integer numbers. It provides methods
 // for insertion and retrieval of integer values, and will 

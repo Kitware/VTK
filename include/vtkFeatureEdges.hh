@@ -40,10 +40,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkFeatureEdges - extract boundary, non-manifold, and/or sharp edges from polygonal data
 // .SECTION Description
-// vtkFeatureEdges is a filter to extract special types edges of edges from
-// input polygonal data. These edges that are either 1) boundary (used by 
-// one polygon) or a line cell, 2) non-manifold (used by three or more 
-// polygons) 3) feature edges (edges used by two triangles and whose
+// vtkFeatureEdges is a filter to extract special types of edges from
+// input polygonal data. These edges are either 1) boundary (used by 
+// one polygon) or a line cell; 2) non-manifold (used by three or more 
+// polygons); or 3) feature edges (edges used by two triangles and whose
 // dihedral angle > FeatureAngle). These edges may be extracted in any
 // combination. Edges may also be "colored" (i.e., scalar values assigned)
 // based on edge type.

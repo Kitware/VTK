@@ -41,8 +41,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .NAME vtkDataSet - abstract class to specify dataset behavior
 // .SECTION Description
 // vtkDataSet is an abstract class that specifies an interface for 
-// data objects. (Data objects are synonymous with datasets). vtkDataSet
-// also provides methods to provide informations about the data such
+// data objects. (Data objects are synonymous with datasets.) vtkDataSet
+// also provides methods to provide informations about the data, such
 // as center, bounding box, and representative length.
 
 #ifndef __vtkDataSet_h
@@ -93,7 +93,7 @@ public:
   virtual int GetNumberOfCells() = 0;
 
   // Description:
-  // Get point coordinates with ptId such that: 0 <= ptId < NumberOfPoints
+  // Get point coordinates with ptId such that: 0 <= ptId < NumberOfPoints.
   virtual float *GetPoint(int ptId) = 0;
 
   // Description:
@@ -102,11 +102,11 @@ public:
   virtual void GetPoint(int id, float x[3]);
 
   // Description:
-  // Get cell with cellId such that: 0 <= cellId < NumberOfCells
+  // Get cell with cellId such that: 0 <= cellId < NumberOfCells.
   virtual vtkCell *GetCell(int cellId) = 0;
 
   // Description:
-  // Get type of cell with cellId such that: 0 <= cellId < NumberOfCells
+  // Get type of cell with cellId such that: 0 <= cellId < NumberOfCells.
   virtual int GetCellType(int cellId) = 0;
 
   // Description:
@@ -119,7 +119,7 @@ public:
 
   // Description:
   // Topological inquiry to get all cells using list of points exclusive of
-  // cell specified (e.g., cellId)
+  // cell specified (e.g., cellId).
   virtual void GetCellNeighbors(int cellId, vtkIdList& ptIds, vtkIdList& cellIds);
 
   // Description:
@@ -188,8 +188,8 @@ public:
   virtual void Initialize();
 
   // Description:
-  // Convenience method to get the range of the scalar data if there is any.
-  // Otherwise it will return (0,1).
+  // Convenience method to get the range of the scalar data (if there is any 
+  // scalar data). Otherwise the method will return (0,1).
   float *GetScalarRange();
   
   // Description:

@@ -40,7 +40,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkOutlineSource - create wireframe outline around bounding box
 // .SECTION Description
-// vtkOutlineSource creates a wireframe outline around a user specified 
+// vtkOutlineSource creates a wireframe outline around a user-specified 
 // bounding box.
 
 #ifndef __vtkOutlineSource_h

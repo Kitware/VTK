@@ -45,7 +45,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // representations are created. If resolution=0 a line is created; if 
 // resolution=1, a single triangle is created; if resolution=2, two 
 // crossed triangles are created. For resolution > 2, a 3D cone (with 
-// resolution number of sides) is created. It is also possible to control 
+// resolution number of sides) is created. It also is possible to control 
 // whether the bottom of the cone is capped with a (resolution-sided) 
 // polygon, and to specify the height and radius of the cone.
 
@@ -72,12 +72,12 @@ public:
   vtkGetMacro(Radius,float);
 
   // Description:
-  // Set the number of facets used to represent cone.
+  // Set the number of facets used to represent the cone.
   vtkSetClampMacro(Resolution,int,0,VTK_CELL_SIZE)
   vtkGetMacro(Resolution,int);
 
   // Description:
-  // Turn on/off whether to cap cone with polygon.
+  // Turn on/off whether to cap the cone with a polygon.
   vtkSetMacro(Capping,int);
   vtkGetMacro(Capping,int);
   vtkBooleanMacro(Capping,int);

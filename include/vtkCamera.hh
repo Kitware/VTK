@@ -42,7 +42,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .SECTION Description
 // vtkCamera is a virtual camera for 3D rendering. It provides methods
 // to position and orient the view point and focal point. Convenience 
-// methods for moving about the focal point are also provided. More 
+// methods for moving about the focal point also are provided. More 
 // complex methods allow the manipulation of the computer graphics
 // model including view up vector, clipping planes, and 
 // camera perspective.
@@ -80,7 +80,7 @@ class vtkCamera : public vtkObject
   vtkGetVectorMacro(FocalPoint,float,3);
 
   // Description:
-  // Set/Get the view-up direction for the camera.
+  // Set/Get the view up direction for the camera.
   void SetViewUp(float vx, float vy, float vz);
   void SetViewUp(float a[3]);
   vtkGetVectorMacro(ViewUp,float,3);
@@ -100,7 +100,7 @@ class vtkCamera : public vtkObject
   // Description:
   // This method causes the camera to set up whatever is required for
   // viewing the scene. This is actually handled by an instance of
-  // vtkCameraDevice which is created automatically. 
+  // vtkCameraDevice, which is created automatically. 
   virtual void Render(vtkRenderer *ren);
 
   // Description:
@@ -110,7 +110,7 @@ class vtkCamera : public vtkObject
   vtkGetMacro(ViewAngle,float);
 
   // Description:
-  // Set/Get the separation between eyes (in degrees). This is used to 
+  // Set/Get the separation between eyes (in degrees). This is used
   // when generating stereo images.
   vtkSetMacro(EyeAngle,float);
   vtkGetMacro(EyeAngle,float);

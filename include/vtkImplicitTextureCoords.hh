@@ -45,7 +45,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // In combinations with a vtkBooleanTexture map, the texture coordinates 
 // can be used to highlight (via color or intensity) or cut (via 
 // transparency) dataset geometry without any complex geometric processing. 
-// (Note: the texture coordinates are referred to as r-s-t coordinates).
+// (Note: the texture coordinates are referred to as r-s-t coordinates.)
 //
 // The texture coordinates are automatically normalized to lie between (0,1). 
 // Thus, no matter what the implicit functions evaluate to, the resulting 
@@ -86,17 +86,17 @@ public:
   vtkGetObjectMacro(RFunction,vtkImplicitFunction);
 
   // Description:
-  // Specify a implicit function to compute the s texture coordinate.
+  // Specify an implicit function to compute the s texture coordinate.
   vtkSetObjectMacro(SFunction,vtkImplicitFunction);
   vtkGetObjectMacro(SFunction,vtkImplicitFunction);
 
   // Description:
-  // Specify a implicit function to compute the t texture coordinate.
+  // Specify an implicit function to compute the t texture coordinate.
   vtkSetObjectMacro(TFunction,vtkImplicitFunction);
   vtkGetObjectMacro(TFunction,vtkImplicitFunction);
 
   // Description:
-  // Specify a implicit function to compute the t texture coordinate.
+  // Specify an implicit function to compute the t texture coordinate.
   vtkSetMacro(FlipTexture,int);
   vtkGetMacro(FlipTexture,int);
   vtkBooleanMacro(FlipTexture,int);

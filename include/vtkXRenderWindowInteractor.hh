@@ -49,7 +49,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkRenderWindowInteractor vtkXRenderWindow
 
 // .SECTION Event Bindings
-// Mouse bindings: Button 1 - rotate, Button 2 - pan, Button 3 - zoom
+// Mouse bindings: Button 1 - rotate; Button 2 - pan; and Button 3 - zoom.
 // The distance from the center of the renderer viewport determines
 // how quickly to rotate, pan and zoom.
 // Keystrokes:

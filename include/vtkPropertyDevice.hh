@@ -40,10 +40,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkPropertyDevice - abstract definition of a hardware dependent property
 // .SECTION Description
-// vtkPropertyDevice is the superclass of the hardware dependent Propertys
-// such as vtkOglrProperty and vtkSbrProperty. This object is typically created
-// automatically by a vtkProperty object when it renders. The user should
-// never see this class.
+// vtkPropertyDevice is an abstract superclass for the hardware dependent 
+// property objects such as vtkOglrProperty and vtkSbrProperty. This object
+// is typically created automatically by a vtkProperty object during the
+// rendering process. The user should never directly manipulate this class.
 
 // .SECTION see also
 // vtkProperty

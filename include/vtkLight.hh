@@ -43,9 +43,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkLight is a virtual light for 3D rendering. It provides methods to locate
 // and point the light, turn it on and off, and set its brightness and color.
 // In addition to the basic infinite distance point light source attributes,
-// you can also specify the light attenuation values and cone angle.
+// you also can specify the light attenuation values and cone angle.
 // These attributes are only used if the light is a positional light.
-// The default is a directional light (e.g. infinite point light source)
+// The default is a directional light (e.g. infinite point light source).
 
 // .SECTION see also
 // vtkLightDevice
@@ -69,9 +69,9 @@ public:
 
   // Description:
   // Abstract interface to renderer. Each concrete subclass of vtkLight
-  // will load its data into graphics system in response to this method
+  // will load its data into the graphics system in response to this method
   // invocation. The actual loading is performed by a vtkLightDevice
-  // subclass which will get created automatically.
+  // subclass, which will get created automatically.
   virtual void Render(vtkRenderer *ren,int light_index);
 
   // Description:
@@ -118,7 +118,7 @@ public:
 
   // Description:
   // Set/Get the quadratic attenuation constants. They are specified as
-  // constant, linear, quadratic in that order.
+  // constant, linear, and quadratic, in that order.
   vtkSetVector3Macro(AttenuationValues,float);
   vtkGetVectorMacro(AttenuationValues,float,3);
 

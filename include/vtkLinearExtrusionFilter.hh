@@ -60,10 +60,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // polylines. Vertices generate lines.
 //
 // This filter can be used to create 3D fonts, 3D irregular bar charts,
-// or to model 2 1/2D objects like punched plates. It can also be used to 
+// or to model 2 1/2D objects like punched plates. It also can be used to 
 // create solid objects from 2D polygonal meshes.
 // .SECTION Caveats
-// Some polygonal objects have no free edges (e.g., sphere). When swept 
+// Some polygonal objects have no free edges (e.g., sphere). When swept,
 // this will result in two separate surfaces if capping is on, or no surface
 // if capping is off.
 // .SECTION See Also

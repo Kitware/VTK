@@ -42,7 +42,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .SECTION Description
 // vtkImplicitFunction specifies an abstract interface for implicit 
 // functions. Implicit functions are of the form F(x,y,z) = 0. Two primitive 
-// operations are required: the ability to evaluate the function and the 
+// operations are required: the ability to evaluate the function, and the 
 // function gradient at a given point.
 //
 // vtkImplicitFunction provides a mechanism to transform the implicit

@@ -65,14 +65,14 @@ class vtkActorCollection : public vtkCollection
 };
 
 // Description:
-// Adds an actor to the list.
+// Add an actor to the list.
 inline void vtkActorCollection::AddItem(vtkActor *a) 
 {
   this->vtkCollection::AddItem((vtkObject *)a);
 }
 
 // Description:
-// Removes an actor from the list.
+// Remove an actor from the list.
 inline void vtkActorCollection::RemoveItem(vtkActor *a) 
 {
   this->vtkCollection::RemoveItem((vtkObject *)a);

@@ -50,7 +50,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // UseNormal boolean to true.
 //
 // If XYPlane boolean is set true, then the z-value is considered to be 
-// a scalar value (still scaled by scale factor) and the displacement is
+// a scalar value (still scaled by scale factor), and the displacement is
 // along the z-axis. If scalars are also present, these are copied through
 // and can be used to color the surface.
 

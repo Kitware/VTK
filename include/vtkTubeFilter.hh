@@ -46,15 +46,15 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // computed automatically.) The radius of the tube can be set to vary with 
 // scalar or vector value. If the radius varies with scalar value the radius
 // is linearly adjusted. If the radius varies with vector value, a mass
-// flux preserving variation is used. The number of sides for the tube can 
-// also be  specified.
+// flux preserving variation is used. The number of sides for the tube also 
+// can be specified.
 // .SECTION Caveats
 // The number of tube sides must be greater than 3. If you wish to use fewer
 // sides (i.e., a ribbon), use vtkRibbonFilter.
 //
 // The input line must not have duplicate points, or normals at points that
 // are parallel to the incoming/outgoing line segments. (Duplicate points
-// can be removed with vtkCleanPolyData).
+// can be removed with vtkCleanPolyData.)
 // .SECTION See Also
 // vtkRibbonFilter
 

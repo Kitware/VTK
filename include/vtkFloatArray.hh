@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkFloatArray - dynamic, self adjusting floating point array
+// .NAME vtkFloatArray - dynamic, self-adjusting floating point array
 // .SECTION Description
 // vtkFloatArray is an array of floating point numbers. It provides methods
 // for insertion and retrieval of floating point values, and will 
@@ -151,7 +151,7 @@ inline int vtkFloatArray::GetSize() {return this->Size;};
 inline int vtkFloatArray::GetMaxId() {return this->MaxId;};
 
 // Description:
-// Reuse the memory allocated by this object. Objects appears like
+// Reuse the memory allocated by this object. Object appears as if
 // no data has been previously inserted.
 inline void vtkFloatArray::Reset() {this->MaxId = -1;};
 

@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkPixel - a cell that represents a orthogonal quadrilateral
+// .NAME vtkPixel - a cell that represents an orthogonal quadrilateral
 // .SECTION Description
 // vtkPixel is a concrete implementation of vtkCell to represent a 2D
 // orthogonal quadrilateral. Unlike vtkQuad, the corners are at right angles,

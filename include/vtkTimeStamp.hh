@@ -59,14 +59,14 @@ public:
   // just a monotonically increasing unsigned long integer. It is
   // possible for this number to wrap around back to zero.
   // This should only happen for processes that have been running
-  // for a very long time while constantly changing objects
+  // for a very long time, while constantly changing objects
   // within the program. When this does occur, the typical consequence
   // should be that some filters will update themselves when really
   // they don't need to.
   void Modified() {this->ModifiedTime = ++vtkTime;};
 
   // Description:
-  // Return this objects Modified time.
+  // Return this object's Modified time.
   unsigned long int GetMTime() {return ModifiedTime;};
 
   int operator>(vtkTimeStamp& ts) {return (this->ModifiedTime > ts.ModifiedTime);};

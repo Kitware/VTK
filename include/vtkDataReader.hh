@@ -41,7 +41,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .NAME vtkDataReader - helper class for objects that read vtk data files
 // .SECTION Description
 // vtkDataReader is a helper class that reads the vtk data file header and 
-// point data (e.g., scalars, vectors, normals, etc) from a vtk data file. 
+// point data (e.g., scalars, vectors, normals, etc.) from a vtk data file. 
 // See text for format.
 
 #ifndef __vtkDataReader_hh

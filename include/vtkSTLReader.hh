@@ -45,11 +45,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkSTLReader. The object automatically detects whether the file is
 // ASCII or binary.
 //
-// .stl files are quite inefficient and duplicate vertex definitions. 
-// By setting the Merging boolean you can control wether the point data
-// is merged after reading. Merging is performed by default, however,
-// merging requires a large amount of temporary storage since a 3D hash
-// table must be constructed.
+// .stl files are quite inefficient since they duplicate vertex 
+// definitions. By setting the Merging boolean you can control wether the 
+// point data is merged after reading. Merging is performed by default, 
+// however, merging requires a large amount of temporary storage since a 
+// 3D hash table must be constructed.
 // .SECTION Caveats
 // Binary files written on one system may not be readable on other systems.
 // vtkSTLWriter uses VAX or PC byte ordering and swaps bytes on other systems.

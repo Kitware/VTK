@@ -45,7 +45,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 //
 // The function value is the closest distance of a point to any of the 
 // planes. The function gradient is the plane normal at the function value.
-// Note that the normals must point outside of the convex region. Thus a 
+// Note that the normals must point outside of the convex region. Thus, a 
 // negative function value means that a point is inside the convex region.
 //
 // To define the planes you must create two objects: a subclass of 

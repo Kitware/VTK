@@ -41,9 +41,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .NAME vtkMath - performs common math operations
 // .SECTION Description
 // vtkMath is provides methods to perform common math operations. These 
-// include providing constants such as Pi, conversion from degrees to 
-// radians, vector operations such as dot and cross products and vector 
-// norm, matrix determinant for 2x2, 3x3, and 4x4 matrices, and random 
+// include providing constants such as Pi; conversion from degrees to 
+// radians; vector operations such as dot and cross products and vector 
+// norm; matrix determinant for 2x2 and 3x3 matrices; and random 
 // number generation.
 
 #ifndef __vtkMath_hh
@@ -108,7 +108,7 @@ inline float vtkMath::Normalize(float x[3])
 }
 
 // Description:
-// Compute Determinant of 2x2 matrix. Two columns of matrix are input.
+// Compute determinant of 2x2 matrix. Two columns of matrix are input.
 inline float vtkMath::Determinant2x2(float c1[2], float c2[2])
 {
   return (c1[0]*c2[1] - c2[0]*c1[1]);
@@ -123,7 +123,7 @@ inline double vtkMath::Determinant2x2(double a, double b, double c, double d)
 }
 
 // Description:
-// Compute Determinant of 3x3 matrix. Three columns of matrix are input.
+// Compute determinant of 3x3 matrix. Three columns of matrix are input.
 inline float vtkMath::Determinant3x3(float c1[3], float c2[3], float c3[3])
 {
   return c1[0]*c2[1]*c3[2] + c2[0]*c3[1]*c1[2] + c3[0]*c1[1]*c2[2] -
@@ -153,7 +153,7 @@ inline float vtkMath::Distance2BetweenPoints(float x[3], float y[3])
 }
 
 // Description:
-// Generate random number between (min,max)
+// Generate random number between (min,max).
 inline float vtkMath::Random(float min, float max)
 {
   return (min + this->Random()*(max-min));

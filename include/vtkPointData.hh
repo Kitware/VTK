@@ -43,7 +43,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkPointData is a class that is used to represent and manipulate
 // point attribute data (e.g., scalars, vectors, normals, texture 
 // coordinates, etc.) Special methods are provided to work with filter
-// objects such as passing data through filter, copying data from one 
+// objects, such as passing data through filter, copying data from one 
 // point to another, and interpolating data given cell interpolation weights.
 
 #ifndef __vtkPointData_h

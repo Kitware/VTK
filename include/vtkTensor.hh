@@ -149,7 +149,7 @@ inline void vtkTensor::operator=(vtkTensor &t)
 }
 
 // Description:
-// Return column vector from tensor. (Assumes 2D matrix form). 0-offset.
+// Return column vector from tensor. (Assumes 2D matrix form and 0-offset.)
 inline float *vtkTensor::GetColumn(int j)
 {
   return this->T + this->Dimension*j;

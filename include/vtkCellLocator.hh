@@ -44,11 +44,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkCellLocator uses a uniform-level octree subdivision, where each octant
 // carries an indication of whether it is empty or not, and each leaf octant 
 // carries a list of the cells inside of it. (An octant is not empty if it 
-// has one or more cells inside of it.) Typical operation are intersection 
+// has one or more cells inside of it.) Typical operations are intersection 
 // with a line to return candidate cells, or intersection with another 
 // vtkCellLocator to return candidate cells.
 // .SECTION Caveats
-// Many other types of spatial locators have been developed such as 
+// Many other types of spatial locators have been developed, such as 
 // variable depth octrees and kd-trees. These are often more efficient 
 // for the operations described here.
 

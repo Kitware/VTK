@@ -50,7 +50,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // The Build(), MapValue(), and SetTableRange() methods are virtual and may 
 // require overloading in subclasses.
 // .SECTION Caveats
-// vtkLookupTable is a reference counted object. Therefore you should 
+// vtkLookupTable is a reference counted object. Therefore, you should 
 // always use operator "new" to construct new objects. This procedure will
 // avoid memory problems (see text).
 // .SECTION See Also
@@ -81,19 +81,20 @@ public:
   vtkGetVectorMacro(TableRange,float,2);
 
   // Description:
-  // Set the range in hue (using automatic generation). Hue ranges from (0,1).
+  // Set the range in hue (using automatic generation). Hue ranges 
+  // between (0,1).
   vtkSetVector2Macro(HueRange,float);
   vtkGetVectorMacro(HueRange,float,2);
 
   // Description:
-  // Set the range in saturation (using automatic generation). Hue ranges from
-  // (0,1).
+  // Set the range in saturation (using automatic generation). Saturation 
+  // ranges between (0,1).
   vtkSetVector2Macro(SaturationRange,float);
   vtkGetVectorMacro(SaturationRange,float,2);
 
   // Description:
-  // Set the range in value (using automatic generation). Value ranges from
-  // (0,1).
+  // Set the range in value (using automatic generation). Value ranges 
+  // between (0,1).
   vtkSetVector2Macro(ValueRange,float);
   vtkGetVectorMacro(ValueRange,float,2);
 

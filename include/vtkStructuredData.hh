@@ -42,7 +42,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .SECTION Description
 // vtkStructuredData is an abstract class that specifies an interface for
 // topologically regular data. Regular data is data that can be accessed
-// in rectangular fashion using a i-j-k index. A finite difference grid,
+// in rectangular fashion using an i-j-k index. A finite difference grid,
 // a volume, or a pixmap are all considered regular.
 
 #ifndef __vtkStructuredData_h

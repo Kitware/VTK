@@ -42,7 +42,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .SECTION Description
 // vtkCell is an abstract class that specifies the interfaces for data cells.
 // Data cells are simple topological elements like points, lines, polygons, 
-// and tetrahedra that visualization datasets are composed of. In some 
+// and tetrahedra of which visualization datasets are composed. In some 
 // cases visualization datasets may explicitly represent cells (e.g., 
 // vtkPolyData, vtkUnstructuredGrid), and in some cases, the datasets are 
 // implicitly composed of cells (e.g., vtkStructuredPoints).
@@ -102,7 +102,7 @@ public:
   virtual int GetNumberOfFaces() = 0;
 
   // Description:
-  // Return the list of point ids defining cell.
+  // Return the list of point ids defining the cell.
   vtkIdList *GetPointIds() {return &this->PointIds;};
 
   // Description:
@@ -146,7 +146,7 @@ public:
   // Description:
   // Determine global coordinate (x[3]) from subId and parametric coordinates.
   // Also returns interpolation weights. (The number of weights is equal to
-  // the number of points in the cell).
+  // the number of points in the cell.)
   virtual void EvaluateLocation(int& subId, float pcoords[3], 
                                 float x[3], float *weights) = 0;
 
@@ -159,7 +159,7 @@ public:
 
   // Description:
   // Intersect with a ray. Return parametric coordinates (both line and cell)
-  // and global intersection coordinates given ray definition and tolerance. 
+  // and global intersection coordinates, given ray definition and tolerance. 
   // The method returns non-zero value if intersection occurs.
   virtual int IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
                                 float x[3], float pcoords[3], int& subId) = 0;

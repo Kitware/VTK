@@ -44,9 +44,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // camera. More specifically it will not change its position or scale,
 // but it will continually update its orientation so that it is right side
 // up and facing the camera. This is typically used for text labels in a
-// scene. All of the adjustments that can be made to an actor will also
-// take effect with a follower.  So if you change the orientation of the
-// follower by 90 degrees then it will follow the camera, but be off by 
+// scene. All of the adjustments that can be made to an actor also will
+// take effect with a follower.  So, if you change the orientation of the
+// follower by 90 degrees, then it will follow the camera, but be off by 
 // 90 degrees.
 
 // .SECTION see also
@@ -69,7 +69,7 @@ class vtkFollower : public vtkActor
   virtual void GetMatrix(vtkMatrix4x4& m);
 
   // Description:
-  // Set/Get the Camera to follow. If this is not set, then the follower
+  // Set/Get the camera to follow. If this is not set, then the follower
   // won't know who to follow.
   vtkSetObjectMacro(Camera,vtkCamera);
   vtkGetObjectMacro(Camera,vtkCamera);

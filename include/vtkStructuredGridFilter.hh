@@ -41,7 +41,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .NAME vtkStructuredGridFilter - filter that takes vtkStructuredGrid as input
 // .SECTION Description
 // vtkStructuredGridFilter is a filter that takes a single 
-// vtkStructuredGrid Grid object as input.
+// vtkStructuredGrid object as input.
 
 #ifndef __vtkStructuredGridFilter_h
 #define __vtkStructuredGridFilter_h

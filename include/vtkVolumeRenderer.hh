@@ -44,7 +44,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // polygonal data. A vtkVolumeRenderer renders its image during the normal
 // rendering cycle, after the renderer has rendered its surfaces, but
 // before any doublebuffer switching is done. Many of the attributes this
-// object requires for rendering are obtained from the renderer which
+// object requires for rendering are obtained from the renderer, which
 // invokes its Render() method. This object must be associated with a 
 // renderer in order to work.
 
@@ -77,7 +77,7 @@ public:
   // select will make a big difference in the required rendering time
   // and possibly the results as well. A larger step size will render 
   // more quickly. Too large of a step size will result in under sampling
-  // your volumes yielding less accurate results.
+  // the volume(s), yielding less accurate results.
   vtkGetMacro(StepSize,float);
   vtkSetMacro(StepSize,float);
 
@@ -95,7 +95,7 @@ protected:
 };
 
 // Description:
-// Get the list of Volumes for this renderer.
+// Get the list of volumes for this renderer.
 inline vtkVolumeCollection *vtkVolumeRenderer::GetVolumes() 
   {return &(this->Volumes);};
 

@@ -39,8 +39,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 // .NAME vtkRenderWindowInteractor - provide event driven interface to rendering window
-// .SECTION Description
 
+// .SECTION Description
 // vtkRenderWindowInteractor is a convenience object that provides event
 // bindings to common graphics functions. For example, camera
 // zoom-in/zoom-out, pan, rotate, resetting; picking of actors, points,
@@ -53,7 +53,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // mouse events as well as keyboard presses. See vtkXRenderWindowInteractor  
 // and vtkWin32RenderWindowInteractor for specific information.
 
-// .SECTION see also
+// .SECTION See Also
 // vtkXRenderWindowInteractor vtkWin32RenderWindowInteractor vtkPicker
 
 #ifndef __vtkRenderWindowInteractor_h
@@ -92,8 +92,8 @@ public:
   // Set/Get the desired update rate. This is used by vtkLODActor's to tell 
   // them how quickly they need to render.  This update is in effect only
   // when the camera is being rotated, or zoomed.  When the interactor is
-  // still the StillUpdateRate is used instead. A value of zero indicates
-  // that the update rate is unimportant. (i.e. take as long as you want)
+  // still, the StillUpdateRate is used instead. A value of zero indicates
+  // that the update rate is unimportant.
   vtkSetMacro(DesiredUpdateRate,float);
   vtkGetMacro(DesiredUpdateRate,float);
 
@@ -108,8 +108,8 @@ public:
   vtkGetMacro(Initialized,int);
 
   // Description:
-  // When an event occurs we must determine which Renderer the event
-  // occurred within since one RenderWindow may contain multiple 
+  // When an event occurs, we must determine which Renderer the event
+  // occurred within, since one RenderWindow may contain multiple 
   // renderers. We also need to know what camera to operate on.
   // This is just the ActiveCamera of the poked renderer. 
   void FindPokedCamera(int,int);

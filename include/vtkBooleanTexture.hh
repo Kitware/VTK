@@ -44,7 +44,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // combinations of inside, outside, and on region boundary. The "region" is
 // implicitly represented via 2D texture coordinates. These texture 
 // coordinates are normally generated using a filter like 
-// vtkImplicitTextureCoords which generates the texture coordinates for 
+// vtkImplicitTextureCoords, which generates the texture coordinates for 
 // any implicit function.
 //
 // vtkBooleanTexture generates the map according to the s-t texture

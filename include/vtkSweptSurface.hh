@@ -41,7 +41,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .NAME vtkSweptSurface - given a path and input geometry generate an (implicit) representation of a swept surface
 // .SECTION Description
 // vtkSweptSurface is a filter that is used to create a surface defined by 
-// moving a part along a path. In this implementation the path is defined as
+// moving a part along a path. In this implementation, the path is defined as
 // a list of transformation matrices (vtkTransform), and the part geometry is
 // implicitly defined using a volume (i.e., distance scalars in structured 
 // point dataset). The input to the filter is the geometry (i.e., a 
@@ -49,13 +49,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // (i.e., an implicit representation of the swept surface). If you wish to
 // generate a polygonal representation of swept surface you will have to 
 // use a contouring filter (e.g., vtkContourFilter). (You may also wish to
-// use vtkDecimate to reduce mesh size).
+// use vtkDecimate to reduce mesh size.)
 //
 // The swept surface algorithm can be summarized as follows. A geometry 
 // (i.e. the input) is swept along a path (list of transforms). At each point
 // on the path the input is re-sampled into a volume using a union operation.
 // (Union means that the minimum scalar value is retained - minimum distance
-// value for example). At the end an implicit representation of the swept
+// value for example.) At the end, an implicit representation of the swept
 // surface is defined.
 // .SECTION See Also
 // vtkImplicitModeller vtkContourFilter vtkDecimate
@@ -87,7 +87,7 @@ public:
 
   // Description:
   // Voxels are initialized to this value. By default a large floating point
-  // value is used since the scalar values are assumed to be a distance 
+  // value is used, since the scalar values are assumed to be a distance 
   // function.
   vtkSetMacro(FillValue,float);
   vtkGetMacro(FillValue,float);
