@@ -25,8 +25,9 @@
 #include "vtkPolyData.h"
 #include "vtkPolygon.h"
 #include "vtkTriangle.h"
+#include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkDelaunay2D, "1.60");
+vtkCxxRevisionMacro(vtkDelaunay2D, "1.61");
 vtkStandardNewMacro(vtkDelaunay2D);
 vtkCxxSetObjectMacro(vtkDelaunay2D,Transform,vtkAbstractTransform);
 
@@ -41,6 +42,7 @@ vtkDelaunay2D::vtkDelaunay2D()
   this->BoundingTriangulation = 0;
   this->Offset = 1.0;
   this->Transform = NULL;
+  this->ProjectionPlaneMode = VTK_XY_PLANE;
 }
 
 vtkDelaunay2D::~vtkDelaunay2D()
@@ -315,6 +317,11 @@ void vtkDelaunay2D::Execute()
     vtkWarningMacro(<<"Bounding triangulation cannot be used when an input transform is specified.  Output will not contain bounding triangulation.");
     }
   
+  if (this->ProjectionPlaneMode == VTK_BEST_FITTING_PLANE && this->BoundingTriangulation)
+    {
+    vtkWarningMacro(<<"Bounding triangulation cannot be used when the best fitting plane option is on.  Output will not contain bounding triangulation.");
+    }
+  
   // Initialize; check input
   //
   if ( (inPoints=input->GetPoints()) == NULL )
@@ -352,6 +359,18 @@ void vtkDelaunay2D::Execute()
     {
     tPoints = vtkPoints::New();
     this->Transform->TransformPoints(inPoints, tPoints);
+    }
+  else
+    {
+    // If the user asked this filter to compute the best fitting plane,
+    // proceed to compute the plane and generate a transform that will
+    // map the input points into that plane.
+    if(this->ProjectionPlaneMode == VTK_BEST_FITTING_PLANE)
+      {
+      this->SetTransform( this->ComputeBestFittingPlane() );
+      tPoints = vtkPoints::New();
+      this->Transform->TransformPoints(inPoints, tPoints);
+      }
     }
   
   // Create initial bounding triangulation. Have to create bounding points.
@@ -727,6 +746,17 @@ void vtkDelaunay2D::Execute()
   this->Mesh->Delete();
   neighbors->Delete();
   cells->Delete();
+
+  // If the best fitting option was ON, then the current transform
+  // is the one that was computed internally. We must now destroy it.
+  if( this->ProjectionPlaneMode == VTK_BEST_FITTING_PLANE )
+    {
+    if (this->Transform)
+      {
+      this->Transform->UnRegister(this);
+      this->Transform = NULL;
+      }
+    }
 
   output->Squeeze();
 }
@@ -1124,11 +1154,130 @@ int vtkDelaunay2D::FillInputPortInformation(int port, vtkInformation* info)
   return 1;
 }
 
+//----------------------------------------------------------------------------
+vtkAbstractTransform * vtkDelaunay2D::ComputeBestFittingPlane()
+{
+  vtkPointSet *input= this->GetInput();
+  vtkIdType numPts=input->GetNumberOfPoints();
+  double m[9], v[3], x[3];
+  vtkIdType ptId;
+  int dir = 0, i;
+  double length, w, *c1, *c2, *c3, det;
+  double *bounds;
+  double normal[3];
+  double origin[3];
+
+  const double tolerance = 1.0e-03;
+    
+  //  First thing to do is to get an initial normal and point to define
+  //  the plane.  Then, use this information to construct better
+  //  matrices. This code was taken from the vtkTextureMapToPlane class
+  //  and slightly modified.
+  //  
+  //  Get minimum width of bounding box.
+  bounds = input->GetBounds();
+  length = input->GetLength();
+
+  for (w=length, i=0; i<3; i++)
+    {
+    normal[i] = 0.0;
+    if ( (bounds[2*i+1] - bounds[2*i]) < w ) 
+      {
+      dir = i;
+      w = bounds[2*i+1] - bounds[2*i];
+      }
+    }
+
+  //  If the bounds is perpendicular to one of the axes, then can
+  //  quickly compute normal.
+  //
+  normal[dir] = 1.0;
+  if ( w > (length*tolerance) )
+    {
+    //  Need to compute least squares approximation.  Depending on major
+    //  normal direction (dir), construct matrices appropriately.
+    //
+    //  Compute 3x3 least squares matrix
+    v[0] = v[1] = v[2] = 0.0;
+    for (i=0; i<9; i++)
+      {
+      m[i] = 0.0;
+      }
+
+    for (ptId=0; ptId < numPts; ptId++) 
+      {
+      input->GetPoint(ptId, x);
+
+      v[0] += x[0]*x[2];
+      v[1] += x[1]*x[2];
+      v[2] += x[2];
+
+      m[0] += x[0]*x[0];
+      m[1] += x[0]*x[1];
+      m[2] += x[0];
+
+      m[3] += x[0]*x[1];
+      m[4] += x[1]*x[1];
+      m[5] += x[1];
+
+      m[6] += x[0];
+      m[7] += x[1];
+      }
+    m[8] = numPts;
+
+    origin[0] = m[2] / numPts;
+    origin[1] = m[5] / numPts;
+    origin[2] = v[2] / numPts;
+
+    //  Solve linear system using Kramers rule
+    //
+    c1 = m; c2 = m+3; c3 = m+6;
+    if ( (det = vtkMath::Determinant3x3 (c1,c2,c3)) > tolerance )
+      {
+      normal[0] =  vtkMath::Determinant3x3 (v,c2,c3) / det;
+      normal[1] =  vtkMath::Determinant3x3 (c1,v,c3) / det;
+      normal[2] = -1.0; // because of the formulation
+      }
+    }
+
+  vtkTransform * transform = vtkTransform::New();
+
+  // Set the new Z axis as the normal to the best fitting
+  // plane.
+  double zaxis[3];
+  zaxis[0] = 0;
+  zaxis[1] = 0;
+  zaxis[2] = 1;
+
+  double rotationAxis[3];
+  
+  vtkMath::Normalize(normal);
+  vtkMath::Cross(normal,zaxis,rotationAxis);
+  vtkMath::Normalize(rotationAxis);
+
+  const double rotationAngle = 
+    180.0*acos(vtkMath::Dot(zaxis,normal))/3.1415926; 
+
+  transform->PreMultiply();
+  transform->Identity();
+
+  transform->RotateWXYZ(rotationAngle,
+    rotationAxis[0], rotationAxis[1], rotationAxis[2]);
+
+  // Set the center of mass as the origin of coordinates
+  transform->Translate( -origin[0], -origin[1], -origin[2] );
+
+  return transform;
+}
+
+//----------------------------------------------------------------------------
 void vtkDelaunay2D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Alpha: " << this->Alpha << "\n";
+  os << indent << "ProjectionPlaneMode: " 
+     << ((this->ProjectionPlaneMode == VTK_BEST_FITTING_PLANE)? "Best Fitting Plane" : "XY Plane") << "\n";
   os << indent << "Transform: " << (this->Transform ? "specified" : "none") << "\n";
   os << indent << "Tolerance: " << this->Tolerance << "\n";
   os << indent << "Offset: " << this->Offset << "\n";

@@ -127,6 +127,10 @@ class vtkCellArray;
 class vtkIdList;
 class vtkPointSet;
 
+#define VTK_XY_PLANE 0
+#define VTK_SET_TRANSFORM_PLANE 1
+#define VTK_BEST_FITTING_PLANE 2
+
 class VTK_GRAPHICS_EXPORT vtkDelaunay2D : public vtkPolyDataSource
 {
 public:
@@ -194,11 +198,19 @@ public:
   virtual void SetTransform(vtkAbstractTransform*);
   vtkGetObjectMacro(Transform, vtkAbstractTransform);
 
+  // Description:
+  // Define
+  vtkSetClampMacro(ProjectionPlaneMode,int,
+                   VTK_XY_PLANE,VTK_BEST_FITTING_PLANE);
+  vtkGetMacro(ProjectionPlaneMode,int);
+
 protected:
   vtkDelaunay2D();
   ~vtkDelaunay2D();
 
   void Execute();
+
+  vtkAbstractTransform * ComputeBestFittingPlane();
 
   double Alpha;
   double Tolerance;
@@ -206,6 +218,8 @@ protected:
   double Offset;
 
   vtkAbstractTransform *Transform;
+
+  int ProjectionPlaneMode; //selects the plane in 3D where the Delaunay triangulation will be computed.
 
 private:
   vtkPolyData *Mesh; //the created mesh
