@@ -74,7 +74,7 @@ void vlRenderWindow::Render()
     // free old and get new memory on first sub frame
     if (!this->CurrentSubFrame)
       {
-      if (this->SubBuffer) delete SubBuffer;
+      if (this->SubBuffer) delete [] SubBuffer;
       this->SubBuffer = new unsigned char *[this->SubFrames];
       }
 
@@ -127,7 +127,8 @@ void vlRenderWindow::Render()
 	{
 	delete this->SubBuffer[i];
 	}
-      delete this->SubBuffer;
+      delete [] this->SubBuffer;
+      this->SubBuffer = NULL;
       this->CopyResultFrame();
       }
     }
@@ -162,7 +163,7 @@ void vlRenderWindow::DoAARender()
     size = this->GetSize();
 
     // free old and get new memory
-    if (this->AABuffer) delete AABuffer;
+    if (this->AABuffer) delete [] AABuffer;
     this->AABuffer = new unsigned char *[this->AAFrames];
     origfocus[3] = 1.0;
 
@@ -277,7 +278,8 @@ void vlRenderWindow::DoAARender()
       {
       delete this->AABuffer[i];
       }
-    delete this->AABuffer;
+    delete [] this->AABuffer;
+    this->AABuffer = NULL;
     }
   else
     {
@@ -313,7 +315,7 @@ void vlRenderWindow::DoFDRender()
     size = this->GetSize();
 
     // free old and get new memory
-    if (this->FDBuffer) delete FDBuffer;
+    if (this->FDBuffer) delete [] FDBuffer;
     this->FDBuffer = new unsigned char *[this->FDFrames];
     viewUp[3] = 1.0;
 
@@ -377,7 +379,7 @@ void vlRenderWindow::DoFDRender()
       }
     
     // free memory
-    delete orig;
+    delete [] orig;
     
     this->ResultFrame = this->FDBuffer[0];
     
@@ -408,7 +410,8 @@ void vlRenderWindow::DoFDRender()
       {
       delete this->FDBuffer[i];
       }
-    delete this->FDBuffer;
+    delete [] this->FDBuffer;
+    this->FDBuffer = NULL;
     }
   else
     {
@@ -495,7 +498,7 @@ void vlRenderWindow::SaveImageAsPPM()
     if (!fp)
       {
       vlErrorMacro(<< "RenderWindow unable to open image file for writing\n");
-      delete buffer;
+      delete [] buffer;
       return;
       }
  
@@ -507,7 +510,7 @@ void vlRenderWindow::SaveImageAsPPM()
     fclose(fp);
     }
 
-  delete buffer;
+  delete [] buffer;
 }
 
 
