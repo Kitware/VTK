@@ -4,27 +4,37 @@
 #
 # The following variables are defined to help external projects use VTK:
 #
-# VTK_MAJOR_VERSION   - The VTK major version number.
-# VTK_MINOR_VERSION   - The VTK minor version number (odd for non-release).
-# VTK_BUILD_VERSION   - The VTK patch level (meaningless for odd minor).
+# VTK_MAJOR_VERSION     - The VTK major version number.
+# VTK_MINOR_VERSION     - The VTK minor version number (odd for non-release).
+# VTK_BUILD_VERSION     - The VTK patch level (meaningless for odd minor).
 #
-# VTK_USE_FILE        - A CMake source file that can be included
-#                       to set the include directories, library
-#                       directories, and preprocessor macros.
+# VTK_USE_FILE          - A CMake source file that can be included
+#                         to set the include directories, library
+#                         directories, and preprocessor macros.
 #
-# VTK_INCLUDE_DIRS    - Include directories for VTK headers.
-# VTK_LIBRARY_DIRS    - Link directories for VTK libraries.
-# VTK_DEFINITIONS     - Preprocessor macros needed for including VTK headers.
+# VTK_INCLUDE_DIRS      - Include directories for VTK headers.
+# VTK_LIBRARY_DIRS      - Link directories for VTK libraries.
+# VTK_DEFINITIONS       - Preprocessor macros needed for including VTK headers.
 #
-# VTK_TCL_EXE         - Location of Tcl wrapper executable (vtk).
-# VTK_TCL_HOME        - Location of vtk tcl package directory.
-# VTK_PYTHON_EXE      - Location of Python wrapper executable (vtkpython).
-# VTK_JAVA_HOME       - Location of Java wrapper class directory.
-# VTK_PARSE_JAVA_EXE  - Location of vtkParseJava executable.
-# VTK_WRAP_JAVA_EXE   - Location of vtkWrapJava executable.
-# VTK_WRAP_PYTHON_EXE - Location of vtkWrapPython executable.
-# VTK_WRAP_TCL_EXE    - Location of vtkWrapTcl executable.
-# VTK_DOXYGEN_HOME    - Location of VTK doxygen helper perl scripts.
+# VTK_TCL_EXE           - Location of Tcl wrapper executable (vtk).
+# VTK_TCL_HOME          - Location of vtk tcl package directory.
+# VTK_PYTHON_EXE        - Location of Python wrapper executable (vtkpython).
+# VTK_JAVA_HOME         - Location of Java wrapper class directory.
+# VTK_PARSE_JAVA_EXE    - Location of vtkParseJava executable.
+# VTK_WRAP_JAVA_EXE     - Location of vtkWrapJava executable.
+# VTK_WRAP_PYTHON_EXE   - Location of vtkWrapPython executable.
+# VTK_WRAP_TCL_EXE      - Location of vtkWrapTcl executable.
+#
+# Many projects that use VTK try to follow the same coding style and
+# testing configuration.  These settings provide the scripts used by
+# VTK for these purposes:
+#
+# VTK_DOXYGEN_HOME      - Location of VTK doxygen helper perl scripts.
+# VTK_HEADER_TESTING_PY - Location of HeaderTesting.py.
+# VTK_FIND_STRING_TCL   - Location of FindString.tcl.
+# VTK_PRINT_SELF_CHECK  - Location of PrintSelfCheck.tcl.
+# VTK_RT_IMAGE_TEST     - Location of rtImageTest.tcl.
+# VTK_PRT_IMAGE_TEST    - Location of prtImageTest.tcl.
 #
 # There are many configuration settings controlling how VTK is built.
 # These settings are available through the following settings:
@@ -221,6 +231,13 @@ SET(VTK_WRAP_JAVA_EXE "@VTK_WRAP_JAVA_EXE_CONFIG@")
 SET(VTK_WRAP_PYTHON_EXE "@VTK_WRAP_PYTHON_EXE_CONFIG@")
 SET(VTK_WRAP_TCL_EXE "@VTK_WRAP_TCL_EXE_CONFIG@")
 SET(VTK_DOXYGEN_HOME "@VTK_DOXYGEN_HOME_CONFIG@")
+
+# The VTK test script locations.
+SET(VTK_HEADER_TESTING_PY "@VTK_HEADER_TESTING_PY_CONFIG@")
+SET(VTK_FIND_STRING_TCL "@VTK_FIND_STRING_TCL_CONFIG@")
+SET(VTK_PRINT_SELF_CHECK "@VTK_PRINT_SELF_CHECK_CONFIG@")
+SET(VTK_RT_IMAGE_TEST "@VTK_RT_IMAGE_TEST_CONFIG@")
+SET(VTK_PRT_IMAGE_TEST "@VTK_PRT_IMAGE_TEST_CONFIG@")
 
 # The list of library dependencies used by CMake for automatic
 # chainging of dependent libraries.

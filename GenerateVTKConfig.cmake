@@ -115,7 +115,19 @@ IF(VTK_WRAP_JAVA)
   SET(VTK_WRAP_JAVA_EXE_CONFIG ${VTK_WRAP_JAVA_EXE})
   SET(VTK_JAVA_HOME_CONFIG ${VTK_JAVA_HOME})
 ENDIF(VTK_WRAP_JAVA)
+
+# VTK style script locations.
 SET(VTK_DOXYGEN_HOME_CONFIG ${VTK_SOURCE_DIR}/Utilities/Doxygen)
+SET(VTK_HEADER_TESTING_PY_CONFIG ${VTK_SOURCE_DIR}/Common/Testing/HeaderTesting.py)
+SET(VTK_FIND_STRING_TCL_CONFIG ${VTK_SOURCE_DIR}/Common/Testing/Tcl/FindString.tcl)
+SET(VTK_PRINT_SELF_CHECK_CONFIG ${VTK_SOURCE_DIR}/Common/Testing/Tcl/PrintSelfCheck.tcl)
+SET(VTK_RT_IMAGE_TEST_CONFIG ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl)
+
+IF(VTK_USE_PARALLEL)
+  SET(VTK_PRT_IMAGE_TEST_CONFIG ${VTK_SOURCE_DIR}/Common/Testing/Tcl/prtImageTest.tcl)
+ELSE(VTK_USE_PARALLEL)
+  SET(VTK_PRT_IMAGE_TEST_CONFIG "")
+ENDIF(VTK_USE_PARALLEL)
 
 #-----------------------------------------------------------------------------
 # Configure VTKConfig.cmake for the build tree.
@@ -162,7 +174,19 @@ IF(VTK_WRAP_JAVA)
   SET(VTK_WRAP_JAVA_EXE_CONFIG ${CMAKE_INSTALL_PREFIX}/bin/vtkWrapJava)
   #SET(VTK_JAVA_HOME_CONFIG ${CMAKE_INSTALL_PREFIX}/lib/vtk/java})
 ENDIF(VTK_WRAP_JAVA)
+
+# VTK style script locations.
 SET(VTK_DOXYGEN_HOME_CONFIG ${CMAKE_INSTALL_PREFIX}/lib/vtk/doxygen)
+SET(VTK_HEADER_TESTING_PY_CONFIG ${CMAKE_INSTALL_PREFIX}/lib/vtk/testing/HeaderTesting.py)
+SET(VTK_FIND_STRING_TCL_CONFIG ${CMAKE_INSTALL_PREFIX}/lib/vtk/testing/FindString.tcl)
+SET(VTK_PRINT_SELF_CHECK_CONFIG ${CMAKE_INSTALL_PREFIX}/lib/vtk/testing/PrintSelfCheck.tcl)
+SET(VTK_RT_IMAGE_TEST_CONFIG ${CMAKE_INSTALL_PREFIX}/lib/vtk/testing/rtImageTest.tcl)
+
+IF(VTK_USE_PARALLEL)
+  SET(VTK_PRT_IMAGE_TEST_CONFIG ${CMAKE_INSTALL_PREFIX}/lib/vtk/testing/prtImageTest.tcl)
+ELSE(VTK_USE_PARALLEL)
+  SET(VTK_PRT_IMAGE_TEST_CONFIG "")
+ENDIF(VTK_USE_PARALLEL)
 
 #-----------------------------------------------------------------------------
 # Configure VTKConfig.cmake for the build tree.
