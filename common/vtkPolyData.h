@@ -104,6 +104,7 @@ public:
   // Standard vtkDataSet interface.
   int GetNumberOfCells();
   vtkCell *GetCell(int cellId);
+  void GetCell(int cellId, vtkGenericCell *cell);
   int GetCellType(int cellId);
 
   // Description:

@@ -274,6 +274,25 @@ vtkCell *vtkUnstructuredGrid::GetCell(int cellId)
   return cell;
 }
 
+void vtkUnstructuredGrid::GetCell(int cellId, vtkGenericCell *cell)
+{
+  int i, loc, numPts, *pts;
+
+  cell->SetCellType(this->Cells->GetCellType(cellId));
+
+  loc = this->Cells->GetCellLocation(cellId);
+  this->Connectivity->GetCell(loc,numPts,pts); 
+
+  cell->PointIds->SetNumberOfIds(numPts);
+  cell->Points->SetNumberOfPoints(numPts);
+
+  for (i=0; i<numPts; i++)
+    {
+    cell->PointIds->SetId(i,pts[i]);
+    cell->Points->SetPoint(i,this->Points->GetPoint(pts[i]));
+    }
+}
+
 int vtkUnstructuredGrid::GetMaxCellSize()
 {
   if (this->Connectivity)

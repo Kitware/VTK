@@ -90,6 +90,7 @@ public:
   void CopyStructure(vtkDataSet *ds);
   int GetNumberOfCells();
   vtkCell *GetCell(int cellId);
+  void GetCell(int cellId, vtkGenericCell *cell);
   void GetCellPoints(int cellId, vtkIdList *ptIds);
   void GetPointCells(int ptId, vtkIdList *cellIds);
   int GetCellType(int cellId);

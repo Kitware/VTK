@@ -172,25 +172,25 @@ vtkCell *vtkStructuredGrid::GetCell(int cellId)
     {
     case VTK_SINGLE_POINT: // cellId can only be = 0
       cell = this->Vertex;
-      cell->PointIds->InsertId(0,0);
+      cell->PointIds->SetId(0,0);
       break;
 
     case VTK_X_LINE:
       cell = this->Line;
-      cell->PointIds->InsertId(0,cellId);
-      cell->PointIds->InsertId(1,cellId+1);
+      cell->PointIds->SetId(0,cellId);
+      cell->PointIds->SetId(1,cellId+1);
       break;
 
     case VTK_Y_LINE:
       cell = this->Line;
-      cell->PointIds->InsertId(0,cellId);
-      cell->PointIds->InsertId(1,cellId+1);
+      cell->PointIds->SetId(0,cellId);
+      cell->PointIds->SetId(1,cellId+1);
       break;
 
     case VTK_Z_LINE:
       cell = this->Line;
-      cell->PointIds->InsertId(0,cellId);
-      cell->PointIds->InsertId(1,cellId+1);
+      cell->PointIds->SetId(0,cellId);
+      cell->PointIds->SetId(1,cellId+1);
       break;
 
     case VTK_XY_PLANE:
@@ -201,10 +201,10 @@ vtkCell *vtkStructuredGrid::GetCell(int cellId)
       offset1 = 1;
       offset2 = this->Dimensions[0];
 
-      cell->PointIds->InsertId(0,idx);
-      cell->PointIds->InsertId(1,idx+offset1);
-      cell->PointIds->InsertId(2,idx+offset1+offset2);
-      cell->PointIds->InsertId(3,idx+offset2);
+      cell->PointIds->SetId(0,idx);
+      cell->PointIds->SetId(1,idx+offset1);
+      cell->PointIds->SetId(2,idx+offset1+offset2);
+      cell->PointIds->SetId(3,idx+offset2);
       break;
 
     case VTK_YZ_PLANE:
@@ -215,10 +215,10 @@ vtkCell *vtkStructuredGrid::GetCell(int cellId)
       offset1 = 1;
       offset2 = this->Dimensions[1];
 
-      cell->PointIds->InsertId(0,idx);
-      cell->PointIds->InsertId(1,idx+offset1);
-      cell->PointIds->InsertId(2,idx+offset1+offset2);
-      cell->PointIds->InsertId(3,idx+offset2);
+      cell->PointIds->SetId(0,idx);
+      cell->PointIds->SetId(1,idx+offset1);
+      cell->PointIds->SetId(2,idx+offset1+offset2);
+      cell->PointIds->SetId(3,idx+offset2);
       break;
 
     case VTK_XZ_PLANE:
@@ -229,10 +229,10 @@ vtkCell *vtkStructuredGrid::GetCell(int cellId)
       offset1 = 1;
       offset2 = this->Dimensions[0];
 
-      cell->PointIds->InsertId(0,idx);
-      cell->PointIds->InsertId(1,idx+offset1);
-      cell->PointIds->InsertId(2,idx+offset1+offset2);
-      cell->PointIds->InsertId(3,idx+offset2);
+      cell->PointIds->SetId(0,idx);
+      cell->PointIds->SetId(1,idx+offset1);
+      cell->PointIds->SetId(2,idx+offset1+offset2);
+      cell->PointIds->SetId(3,idx+offset2);
       break;
 
     case VTK_XYZ_GRID:
@@ -245,15 +245,15 @@ vtkCell *vtkStructuredGrid::GetCell(int cellId)
       offset1 = 1;
       offset2 = this->Dimensions[0];
 
-      cell->PointIds->InsertId(0,idx);
-      cell->PointIds->InsertId(1,idx+offset1);
-      cell->PointIds->InsertId(2,idx+offset1+offset2);
-      cell->PointIds->InsertId(3,idx+offset2);
+      cell->PointIds->SetId(0,idx);
+      cell->PointIds->SetId(1,idx+offset1);
+      cell->PointIds->SetId(2,idx+offset1+offset2);
+      cell->PointIds->SetId(3,idx+offset2);
       idx += d01;
-      cell->PointIds->InsertId(4,idx);
-      cell->PointIds->InsertId(5,idx+offset1);
-      cell->PointIds->InsertId(6,idx+offset1+offset2);
-      cell->PointIds->InsertId(7,idx+offset2);
+      cell->PointIds->SetId(4,idx);
+      cell->PointIds->SetId(5,idx+offset1);
+      cell->PointIds->SetId(6,idx+offset1+offset2);
+      cell->PointIds->SetId(7,idx+offset2);
       break;
     }
 
@@ -263,10 +263,121 @@ vtkCell *vtkStructuredGrid::GetCell(int cellId)
   for (i=0; i<NumberOfIds; i++)
     {
     idx = cell->PointIds->GetId(i);
-    cell->Points->InsertPoint(i,this->Points->GetPoint(idx));
+    cell->Points->SetPoint(i,this->Points->GetPoint(idx));
     }
 
   return cell;
+}
+
+void vtkStructuredGrid::GetCell(int cellId, vtkGenericCell *cell)
+{
+  int idx;
+  int i, j, k;
+  int d01, offset1, offset2;
+ 
+  // Make sure data is defined
+  if ( ! this->Points )
+    {
+    vtkErrorMacro (<<"No data");
+    }
+ 
+  switch (this->DataDescription)
+    {
+    case VTK_SINGLE_POINT: // cellId can only be = 0
+      cell->SetCellTypeToVertex();
+      cell->PointIds->SetId(0,0);
+      break;
+
+    case VTK_X_LINE:
+      cell->SetCellTypeToLine();
+      cell->PointIds->SetId(0,cellId);
+      cell->PointIds->SetId(1,cellId+1);
+      break;
+
+    case VTK_Y_LINE:
+      cell->SetCellTypeToLine();
+      cell->PointIds->SetId(0,cellId);
+      cell->PointIds->SetId(1,cellId+1);
+      break;
+
+    case VTK_Z_LINE:
+      cell->SetCellTypeToLine();
+      cell->PointIds->SetId(0,cellId);
+      cell->PointIds->SetId(1,cellId+1);
+      break;
+
+    case VTK_XY_PLANE:
+      cell->SetCellTypeToQuad();
+      i = cellId % (this->Dimensions[0]-1);
+      j = cellId / (this->Dimensions[0]-1);
+      idx = i + j*this->Dimensions[0];
+      offset1 = 1;
+      offset2 = this->Dimensions[0];
+
+      cell->PointIds->SetId(0,idx);
+      cell->PointIds->SetId(1,idx+offset1);
+      cell->PointIds->SetId(2,idx+offset1+offset2);
+      cell->PointIds->SetId(3,idx+offset2);
+      break;
+
+    case VTK_YZ_PLANE:
+      cell->SetCellTypeToQuad();
+      j = cellId % (this->Dimensions[1]-1);
+      k = cellId / (this->Dimensions[1]-1);
+      idx = j + k*this->Dimensions[1];
+      offset1 = 1;
+      offset2 = this->Dimensions[1];
+
+      cell->PointIds->SetId(0,idx);
+      cell->PointIds->SetId(1,idx+offset1);
+      cell->PointIds->SetId(2,idx+offset1+offset2);
+      cell->PointIds->SetId(3,idx+offset2);
+      break;
+
+    case VTK_XZ_PLANE:
+      cell->SetCellTypeToQuad();
+      i = cellId % (this->Dimensions[0]-1);
+      k = cellId / (this->Dimensions[0]-1);
+      idx = i + k*this->Dimensions[0];
+      offset1 = 1;
+      offset2 = this->Dimensions[0];
+
+      cell->PointIds->SetId(0,idx);
+      cell->PointIds->SetId(1,idx+offset1);
+      cell->PointIds->SetId(2,idx+offset1+offset2);
+      cell->PointIds->SetId(3,idx+offset2);
+      break;
+
+    case VTK_XYZ_GRID:
+      cell->SetCellTypeToHexahedron();
+      d01 = this->Dimensions[0]*this->Dimensions[1];
+      i = cellId % (this->Dimensions[0] - 1);
+      j = (cellId / (this->Dimensions[0] - 1)) % (this->Dimensions[1] - 1);
+      k = cellId / ((this->Dimensions[0] - 1) * (this->Dimensions[1] - 1));
+      idx = i+ j*this->Dimensions[0] + k*d01;
+      offset1 = 1;
+      offset2 = this->Dimensions[0];
+
+      cell->PointIds->SetId(0,idx);
+      cell->PointIds->SetId(1,idx+offset1);
+      cell->PointIds->SetId(2,idx+offset1+offset2);
+      cell->PointIds->SetId(3,idx+offset2);
+      idx += d01;
+      cell->PointIds->SetId(4,idx);
+      cell->PointIds->SetId(5,idx+offset1);
+      cell->PointIds->SetId(6,idx+offset1+offset2);
+      cell->PointIds->SetId(7,idx+offset2);
+      break;
+    }
+
+  // Extract point coordinates and point ids. NOTE: the ordering of the vtkQuad
+  // and vtkHexahedron cells are tricky.
+  int NumberOfIds = cell->PointIds->GetNumberOfIds();
+  for (i=0; i<NumberOfIds; i++)
+    {
+    idx = cell->PointIds->GetId(i);
+    cell->Points->SetPoint(i,this->Points->GetPoint(idx));
+    }
 }
 
 // Turn on data blanking. Data blanking is the ability to turn off
@@ -363,7 +474,7 @@ void vtkStructuredGrid::SetDimensions(int dim[3])
 // Get the points defining a cell. (See vtkDataSet for more info.)
 void vtkStructuredGrid::GetCellPoints(int cellId, vtkIdList *ptIds)
 {
-  int idx, loc[3], npts;
+  int idx, loc[3];
   int iMin, iMax, jMin, jMax, kMin, kMax;
   int d01 = this->Dimensions[0]*this->Dimensions[1];
  

@@ -67,7 +67,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkPoints.h"
 #include "vtkCellData.h"
 #include "vtkPointData.h"
-#include "vtkCell.h"
+#include "vtkGenericCell.h"
 
 class VTK_EXPORT vtkDataSet : public vtkDataObject
 {
@@ -113,6 +113,12 @@ public:
   // Description:
   // Get cell with cellId such that: 0 <= cellId < NumberOfCells.
   virtual vtkCell *GetCell(int cellId) = 0;
+
+  // Description:
+  // Get cell with cellId such that: 0 <= cellId < NumberOfCells. 
+  // This is a thread-safe alternative to the previous GetCell()
+  // method.
+  virtual void GetCell(int cellId, vtkGenericCell *cell) = 0;
 
   // Description:
   // Get type of cell with cellId such that: 0 <= cellId < NumberOfCells.
