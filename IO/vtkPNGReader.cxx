@@ -23,7 +23,7 @@
 
 #include <png.h>
 
-vtkCxxRevisionMacro(vtkPNGReader, "1.16");
+vtkCxxRevisionMacro(vtkPNGReader, "1.17");
 vtkStandardNewMacro(vtkPNGReader);
 
 void vtkPNGReader::ExecuteInformation()
@@ -355,7 +355,7 @@ int vtkPNGReader::CanReadFile(const char* fname)
   png_destroy_read_struct(&png_ptr, &info_ptr, &end_info);
   
   fclose(fp);
-  return 1; 
+  return 3; 
 }
 
 //----------------------------------------------------------------------------
