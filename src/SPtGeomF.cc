@@ -46,7 +46,7 @@ void vlStructuredPointsGeometryFilter::Execute()
   this->Initialize();
 
   pd = input->GetPointData();
-  this->PointData.CopyNormalsOff();
+//  this->PointData.CopyNormalsOff();
   dims = input->GetDimensions();
 //
 // Based on the dimensions of the structured data, and the extent of the geometry,
