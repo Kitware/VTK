@@ -48,7 +48,7 @@ i.e. set to some initial value.  Don't forget that 'None' means
 
 import Tkinter
 from Tkinter import *
-import math, os
+import math, os, sys
 from vtkpython import *
 
 class vtkTkRenderWidget(Tkinter.Widget):
@@ -62,7 +62,10 @@ class vtkTkRenderWidget(Tkinter.Widget):
         try: # check for VTK_TK_WIDGET_PATH environment variable
 	    tkWidgetPath = os.environ['VTK_TK_WIDGET_PATH']
         except KeyError:
-            tkWidgetPath = "."
+            if __name__ == "__main__":
+                tkWidgetPath = os.path.dirname(os.path.abspath(sys.argv[0]))
+            else:
+                tkWidgetPath = os.path.abspath(os.path.dirname(__file__))
 
         try: # try specified path or current directory
             master.tk.call('load',os.path.join(tkWidgetPath, \
