@@ -45,7 +45,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkNormals.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
-//#include "vtkGhostLevels.h"
 
 //------------------------------------------------------------------------------
 vtkSphereSource* vtkSphereSource::New()

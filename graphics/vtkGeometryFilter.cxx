@@ -163,7 +163,6 @@ void vtkGeometryFilter::Execute()
   vtkCellData *outputCD = output->GetCellData();
   // ghost cell stuff
   unsigned char  updateLevel = (unsigned char)(output->GetUpdateGhostLevel());
-  vtkDataArray *levels = NULL;
   unsigned char  *cellGhostLevels = NULL;
   
   if (numCells == 0)
@@ -184,21 +183,21 @@ void vtkGeometryFilter::Execute()
       return;
     }
 
-  // Get a pointer to ghost level array (if there is one).
-  vtkFieldData* fd;
-  if ((fd = input->GetCellData()->GetFieldData()))
+  vtkFieldData* fd = input->GetCellData()->GetFieldData();
+  vtkDataArray* temp = 0;
+  if (fd)
     {
-    levels = fd->GetArray("vtkGhostLevels");
+    temp = fd->GetArray("vtkGhostLevels");
     }
-  if (levels)
+  if ( (!temp) || (temp->GetDataType() != VTK_UNSIGNED_CHAR)
+    || (temp->GetNumberOfComponents() != 1))
     {
-    if ((levels->GetDataType() != VTK_UNSIGNED_CHAR) ||
-	(levels->GetNumberOfComponents() != 1))
-      { // sanity check
-      vtkErrorMacro("Expecting unsigned char levels with one component.");
-      }  
-    cellGhostLevels = (unsigned char *)(levels->GetVoidPointer(0));
-    }  
+    vtkDebugMacro("No appropriate ghost levels field available.");
+    }
+  else
+    {
+    cellGhostLevels = ((vtkUnsignedCharArray*)temp)->GetPointer(0);
+    }
   
   cellIds = vtkIdList::New();
   pts = vtkIdList::New();
@@ -464,26 +463,25 @@ void vtkGeometryFilter::PolyDataExecute()
   float *x;
   // ghost cell stuff
   unsigned char  updateLevel = (unsigned char)(output->GetUpdateGhostLevel());
-  vtkDataArray *levels = NULL;
-  unsigned char  *cellGhostLevels = NULL;
+  unsigned char  *cellGhostLevels = 0;
   
   vtkDebugMacro(<<"Executing geometry filter for poly data input");
 
-  // Get a pointer to ghost level array (if there is one).
-  vtkFieldData* fd;
-  if ((fd = input->GetCellData()->GetFieldData()))
+  vtkFieldData* fd = input->GetCellData()->GetFieldData();
+  vtkDataArray* temp = 0;
+  if (fd)
     {
-    levels = fd->GetArray("vtkGhostLevels");
+    temp = fd->GetArray("vtkGhostLevels");
     }
-  if (levels)
+  if ( (!temp) || (temp->GetDataType() != VTK_UNSIGNED_CHAR)
+    || (temp->GetNumberOfComponents() != 1))
     {
-    if ((levels->GetDataType() != VTK_UNSIGNED_CHAR) ||
-	(levels->GetNumberOfComponents() != 1))
-      { // sanity check
-      vtkErrorMacro("Expecting unsigned char levels with one component.");
-      }  
-    cellGhostLevels = (unsigned char *)(levels->GetVoidPointer(0));
-    }  
+    vtkDebugMacro("No appropriate ghost levels field available.");
+    }
+  else
+    {
+    cellGhostLevels = ((vtkUnsignedCharArray*)temp)->GetPointer(0);
+    }
   
   if ( (!this->CellClipping) && (!this->PointClipping) &&
        (!this->ExtentClipping) )
@@ -591,8 +589,7 @@ void vtkGeometryFilter::UnstructuredGridExecute()
   int PixelConvert[4];
   // ghost cell stuff
   unsigned char  updateLevel = (unsigned char)(output->GetUpdateGhostLevel());
-  vtkDataArray *levels = NULL;
-  unsigned char  *cellGhostLevels = NULL;  
+  unsigned char  *cellGhostLevels = 0;  
   
   PixelConvert[0] = 0;
   PixelConvert[1] = 1;
@@ -601,21 +598,21 @@ void vtkGeometryFilter::UnstructuredGridExecute()
   
   vtkDebugMacro(<<"Executing geometry filter for unstructured grid input");
 
-  // Get a pointer to ghost level array (if there is one).
-  vtkFieldData* fd;
-  if ((fd = input->GetCellData()->GetFieldData()))
+  vtkFieldData* fd = input->GetCellData()->GetFieldData();
+  vtkDataArray* temp = 0;
+  if (fd)
     {
-    levels = fd->GetArray("vtkGhostLevels");
+    temp = fd->GetArray("vtkGhostLevels");
     }
-  if (levels)
+  if ( (!temp) || (temp->GetDataType() != VTK_UNSIGNED_CHAR)
+    || (temp->GetNumberOfComponents() != 1))
     {
-    if ((levels->GetDataType() != VTK_UNSIGNED_CHAR) ||
-	(levels->GetNumberOfComponents() != 1))
-      { // sanity check
-      vtkErrorMacro("Expecting unsigned char levels with one component.");
-      }  
-    cellGhostLevels = (unsigned char *)(levels->GetVoidPointer(0));
-    }  
+    vtkDebugMacro("No appropriate ghost levels field available.");
+    }
+  else
+    {
+    cellGhostLevels = ((vtkUnsignedCharArray*)temp)->GetPointer(0);
+    }
   
   // Check input
   if ( Connectivity == NULL )
@@ -911,8 +908,7 @@ void vtkGeometryFilter::StructuredGridExecute()
   vtkCellArray *cells;
   // ghost cell stuff
   unsigned char  updateLevel = (unsigned char)(output->GetUpdateGhostLevel());
-  vtkDataArray *levels = NULL;
-  unsigned char  *cellGhostLevels = NULL;
+  unsigned char  *cellGhostLevels = 0;
   
   cellIds = vtkIdList::New();
   pts = vtkIdList::New();
@@ -921,21 +917,21 @@ void vtkGeometryFilter::StructuredGridExecute()
 
   cell = vtkGenericCell::New();
 
-  // Get a pointer to ghost level array (if there is one).
-  vtkFieldData* fd;
-  if ((fd = input->GetCellData()->GetFieldData()))
+  vtkFieldData* fd = input->GetCellData()->GetFieldData();
+  vtkDataArray* temp = 0;
+  if (fd)
     {
-    levels = fd->GetArray("vtkGhostLevels");
+    temp = fd->GetArray("vtkGhostLevels");
     }
-  if (levels)
+  if ( (!temp) || (temp->GetDataType() != VTK_UNSIGNED_CHAR)
+    || (temp->GetNumberOfComponents() != 1))
     {
-    if ((levels->GetDataType() != VTK_UNSIGNED_CHAR) ||
-	(levels->GetNumberOfComponents() != 1))
-      { // sanity check
-      vtkErrorMacro("Expecting unsigned char levels with one component.");
-      }  
-    cellGhostLevels = (unsigned char *)(levels->GetVoidPointer(0));
-    }  
+    vtkDebugMacro("No appropriate ghost levels field available.");
+    }
+  else
+    {
+    cellGhostLevels = ((vtkUnsignedCharArray*)temp)->GetPointer(0);
+    }
   
   if ( (!this->CellClipping) && (!this->PointClipping) && 
   (!this->ExtentClipping) )
