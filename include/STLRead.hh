@@ -13,9 +13,13 @@ written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-//
-// Read ASCII/Binary Stereo Lithography Files
-//
+// .NAME vlSTLReader - read ASCII or binary stereo lithography files
+// .SECTION Description
+// vlSTLReader is a source object that reads ASCII or binary stereo 
+// lithography files (.stl files). The filename must be specified to
+// vlSTLReader. The object automatically senses whether the file is
+// ASCII or binary.
+
 #ifndef __vlSTLReader_h
 #define __vlSTLReader_h
 
