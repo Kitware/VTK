@@ -51,12 +51,12 @@ Q190351 and Q150956.
 
 /* The whole child pipeline will have one standard output and one
    standard error.  */
-#define CMPE_PIPE_COUNT 2
-#define CMPE_PIPE_STDOUT 0
-#define CMPE_PIPE_STDERR 1
+#define KWSYSPE_PIPE_COUNT 2
+#define KWSYSPE_PIPE_STDOUT 0
+#define KWSYSPE_PIPE_STDERR 1
 
 /* The maximum amount to read from a pipe at a time.  */
-#define CMPE_PIPE_BUFFER_SIZE 1024
+#define KWSYSPE_PIPE_BUFFER_SIZE 1024
 
 #define kwsysEncodedWriteArrayProcessFwd9x kwsys(EncodedWriteArrayProcessFwd9x)
 
@@ -112,7 +112,7 @@ struct kwsysProcessPipeData_s
   /* ------------- Data managed per call to Execute ------------- */
   
   /* Buffer for data read in this pipe's thread.  */
-  char DataBuffer[CMPE_PIPE_BUFFER_SIZE];
+  char DataBuffer[KWSYSPE_PIPE_BUFFER_SIZE];
     
   /* The length of the data stored in the buffer.  */
   DWORD DataLength;
@@ -168,7 +168,7 @@ struct kwsysProcess_s
   int Deleting;
   
   /* Data specific to each pipe and its thread.  */
-  kwsysProcessPipeData Pipe[CMPE_PIPE_COUNT];  
+  kwsysProcessPipeData Pipe[KWSYSPE_PIPE_COUNT];  
   
   /* ------------- Data managed per call to Execute ------------- */
   
@@ -210,7 +210,7 @@ struct kwsysProcess_s
   int PipesLeft;
   
   /* Buffer for error messages (possibly from Win9x child).  */
-  char ErrorMessage[CMPE_PIPE_BUFFER_SIZE+1];
+  char ErrorMessage[KWSYSPE_PIPE_BUFFER_SIZE+1];
   int ErrorMessageLength;
 
   /* Windows process information data.  */
@@ -346,7 +346,7 @@ kwsysProcess* kwsysProcess_New()
     }
     
   /* Create the thread to read each pipe.  */
-  for(i=0; i < CMPE_PIPE_COUNT; ++i)
+  for(i=0; i < KWSYSPE_PIPE_COUNT; ++i)
     {
     DWORD dummy=0;
     
@@ -406,7 +406,7 @@ void kwsysProcess_Delete(kwsysProcess* cp)
   cp->Deleting = 1;
   
   /* Terminate each of the threads.  */
-  for(i=0; i < CMPE_PIPE_COUNT; ++i)
+  for(i=0; i < KWSYSPE_PIPE_COUNT; ++i)
     {
     if(cp->Pipe[i].Thread)
       {
@@ -849,8 +849,8 @@ void kwsysProcess_Execute(kwsysProcess* cp)
   
   /* Create the stderr pipe to be shared by all processes.  Neither
      end is directly inherited.  */
-  if(!CreatePipe(&cp->Pipe[CMPE_PIPE_STDERR].Read,
-                 &cp->Pipe[CMPE_PIPE_STDERR].Write, 0, 0))
+  if(!CreatePipe(&cp->Pipe[KWSYSPE_PIPE_STDERR].Read,
+                 &cp->Pipe[KWSYSPE_PIPE_STDERR].Write, 0, 0))
     {
     kwsysProcessCleanup(cp, 1);
     return;
@@ -858,17 +858,17 @@ void kwsysProcess_Execute(kwsysProcess* cp)
     
   /* Create an inherited duplicate of the write end.  This also closes
      the non-inherited version. */
-  if(!DuplicateHandle(GetCurrentProcess(), cp->Pipe[CMPE_PIPE_STDERR].Write,
-                      GetCurrentProcess(), &cp->Pipe[CMPE_PIPE_STDERR].Write,
+  if(!DuplicateHandle(GetCurrentProcess(), cp->Pipe[KWSYSPE_PIPE_STDERR].Write,
+                      GetCurrentProcess(), &cp->Pipe[KWSYSPE_PIPE_STDERR].Write,
                       0, TRUE, (DUPLICATE_CLOSE_SOURCE |
                                 DUPLICATE_SAME_ACCESS)))
     {
     /* Write end is already closed.  */
-    cp->Pipe[CMPE_PIPE_STDERR].Write = 0;
+    cp->Pipe[KWSYSPE_PIPE_STDERR].Write = 0;
     kwsysProcessCleanup(cp, 1);
     return;
     }
-  si.hStdError = cp->Pipe[CMPE_PIPE_STDERR].Write;
+  si.hStdError = cp->Pipe[KWSYSPE_PIPE_STDERR].Write;
 
   /* Create the pipeline of processes.  */
   {
@@ -895,8 +895,8 @@ void kwsysProcess_Execute(kwsysProcess* cp)
       }
     }
   /* Save handles to the output pipe for the last process.  */
-  cp->Pipe[CMPE_PIPE_STDOUT].Write = si.hStdOutput;
-  cp->Pipe[CMPE_PIPE_STDOUT].Read = readEnd;
+  cp->Pipe[KWSYSPE_PIPE_STDOUT].Write = si.hStdOutput;
+  cp->Pipe[KWSYSPE_PIPE_STDOUT].Read = readEnd;
   }
 
   /* The timeout period starts now.  */
@@ -919,7 +919,7 @@ void kwsysProcess_Execute(kwsysProcess* cp)
 
   /* ---- It is no longer safe to call kwsysProcessCleanup. ----- */  
   /* Tell the pipe threads that a process has started.  */
-  for(i=0; i < CMPE_PIPE_COUNT; ++i)
+  for(i=0; i < KWSYSPE_PIPE_COUNT; ++i)
     {
     ReleaseSemaphore(cp->Pipe[i].Ready, 1, 0);
     }
@@ -931,8 +931,8 @@ void kwsysProcess_Execute(kwsysProcess* cp)
     }
   
   /* No pipe has reported data.  */
-  cp->CurrentIndex = CMPE_PIPE_COUNT;
-  cp->PipesLeft = CMPE_PIPE_COUNT;
+  cp->CurrentIndex = KWSYSPE_PIPE_COUNT;
+  cp->PipesLeft = KWSYSPE_PIPE_COUNT;
   
   /* The process has now started.  */
   cp->State = kwsysProcess_State_Executing;
@@ -972,10 +972,10 @@ int kwsysProcess_WaitForData(kwsysProcess* cp, int pipes, char** data, int* leng
     {
     /* If we previously got data from a thread, let it know we are
        done with the data.  */
-    if(cp->CurrentIndex < CMPE_PIPE_COUNT)
+    if(cp->CurrentIndex < KWSYSPE_PIPE_COUNT)
       {
       ReleaseSemaphore(cp->Pipe[cp->CurrentIndex].Empty, 1, 0);
-      cp->CurrentIndex = CMPE_PIPE_COUNT;
+      cp->CurrentIndex = KWSYSPE_PIPE_COUNT;
       }
     
     /* Setup a timeout if required.  */
@@ -1104,14 +1104,14 @@ int kwsysProcess_WaitForExit(kwsysProcess* cp, double* userTimeout)
 
   /* When the last pipe closes in WaitForData, the loop terminates
      without releaseing the pipe's thread.  Release it now.  */
-  if(cp->CurrentIndex < CMPE_PIPE_COUNT)
+  if(cp->CurrentIndex < KWSYSPE_PIPE_COUNT)
     {
     ReleaseSemaphore(cp->Pipe[cp->CurrentIndex].Empty, 1, 0);
-    cp->CurrentIndex = CMPE_PIPE_COUNT;
+    cp->CurrentIndex = KWSYSPE_PIPE_COUNT;
     }
 
   /* Wait for all pipe threads to reset.  */
-  for(i=0; i < CMPE_PIPE_COUNT; ++i)
+  for(i=0; i < KWSYSPE_PIPE_COUNT; ++i)
     {
     WaitForSingleObject(cp->Pipe[i].Reset, INFINITE);
     }
@@ -1199,14 +1199,14 @@ void kwsysProcess_Kill(kwsysProcess* cp)
   
   /* If we are killing a process that just reported data, release
      the pipe's thread.  */
-  if(cp->CurrentIndex < CMPE_PIPE_COUNT)
+  if(cp->CurrentIndex < KWSYSPE_PIPE_COUNT)
     {
     ReleaseSemaphore(cp->Pipe[cp->CurrentIndex].Empty, 1, 0);
-    cp->CurrentIndex = CMPE_PIPE_COUNT;
+    cp->CurrentIndex = KWSYSPE_PIPE_COUNT;
     }
   
   /* Wake up all the pipe threads with dummy data.  */
-  for(i=0; i < CMPE_PIPE_COUNT; ++i)
+  for(i=0; i < KWSYSPE_PIPE_COUNT; ++i)
     {
     DWORD dummy;
     WriteFile(cp->Pipe[i].Write, "", 1, &dummy, 0);
@@ -1285,7 +1285,7 @@ void kwsysProcessPipeThreadReadPipe(kwsysProcess* cp, kwsysProcessPipeData* td)
   while((WaitForSingleObject(td->Empty, INFINITE), !td->Closed))
     {
     /* Read data from the pipe.  This may block until data are available.  */
-    if(!ReadFile(td->Read, td->DataBuffer, CMPE_PIPE_BUFFER_SIZE,
+    if(!ReadFile(td->Read, td->DataBuffer, KWSYSPE_PIPE_BUFFER_SIZE,
                  &td->DataLength, 0))
       {
       if(GetLastError() != ERROR_BROKEN_PIPE)
@@ -1421,7 +1421,7 @@ int kwsysProcessCreate(kwsysProcess* cp, int index, STARTUPINFO* si,
          close the error pipe to report success.  */
       DWORD nRead = 0;
       if(ReadFile(errorReadEnd, cp->ErrorMessage,
-                  CMPE_PIPE_BUFFER_SIZE, &nRead, 0) ||
+                  KWSYSPE_PIPE_BUFFER_SIZE, &nRead, 0) ||
          GetLastError() != ERROR_BROKEN_PIPE)
         {
         /* The forwarding executable could not run the process, or
@@ -1497,7 +1497,7 @@ void kwsysProcessDestroy(kwsysProcess* cp, int event)
 
     /* Close our copies of the pipe write handles so the pipe threads
        can detect end-of-data.  */
-    for(i=0; i < CMPE_PIPE_COUNT; ++i)
+    for(i=0; i < KWSYSPE_PIPE_COUNT; ++i)
       {
       kwsysProcessCleanupHandle(&cp->Pipe[i].Write);
       }
@@ -1534,11 +1534,11 @@ void kwsysProcessCleanup(kwsysProcess* cp, int error)
       DWORD length = FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM |
                                    FORMAT_MESSAGE_IGNORE_INSERTS, 0, original,
                                    MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-                                   cp->ErrorMessage, CMPE_PIPE_BUFFER_SIZE, 0);
+                                   cp->ErrorMessage, KWSYSPE_PIPE_BUFFER_SIZE, 0);
       if(length < 1)
         {
         /* FormatMessage failed.  Use a default message.  */
-        _snprintf(cp->ErrorMessage, CMPE_PIPE_BUFFER_SIZE,
+        _snprintf(cp->ErrorMessage, KWSYSPE_PIPE_BUFFER_SIZE,
                   "Process execution failed with error 0x%X.  "
                   "FormatMessage failed with error 0x%X",
                   original, GetLastError());
@@ -1590,7 +1590,7 @@ void kwsysProcessCleanup(kwsysProcess* cp, int error)
     }
 
   /* Close each pipe.  */
-  for(i=0; i < CMPE_PIPE_COUNT; ++i)
+  for(i=0; i < KWSYSPE_PIPE_COUNT; ++i)
     {
     kwsysProcessCleanupHandle(&cp->Pipe[i].Write);
     kwsysProcessCleanupHandle(&cp->Pipe[i].Read);
