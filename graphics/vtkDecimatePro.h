@@ -97,7 +97,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Once mesh splitting begins, the feature angle is set to the split angle.
 
 // .SECTION See Also
-// vtkDecimate
+// vtkDecimate vtkQuadricClustering vtkQuadricDecimation
 
 
 #ifndef __vtkDecimatePro_h

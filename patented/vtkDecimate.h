@@ -101,7 +101,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // form non-manifold attachments).
 
 // .SECTION See Also
-// vtkDecimatePro
+// vtkDecimatePro vtkQuadricClustering vtkQuadricDecimation
 
 #ifndef __vtkDecimate_h
 #define __vtkDecimate_h
