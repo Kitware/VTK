@@ -70,7 +70,7 @@ vtkStructuredGridGeometryFilter::vtkStructuredGridGeometryFilter()
 void vtkStructuredGridGeometryFilter::Execute()
 {
   int *dims, dimension, dir[3], diff[3];
-  int i, j, k, extent[6];
+  int i, j, k, extent[6], *inExt;
   vtkIdType ptIds[4], idx = 0, startIdx, startCellIdx, cellId;
   vtkPoints *newPts=0;
   vtkCellArray *newVerts=0;
@@ -98,32 +98,55 @@ void vtkStructuredGridGeometryFilter::Execute()
   cd = input->GetCellData();
   outCD = output->GetCellData();
   dims = input->GetDimensions();
-
+  inExt = input->GetExtent();
+  
   // Based on the dimensions of the structured data, and the extent of 
   // the geometry, compute the combined extent plus the dimensionality 
   // of the data.
   //
-  for (dimension=3, i=0; i<3; i++)
+  dimension = 3;
+  for (i=0; i<3; i++)
     {
-    extent[2*i] = this->Extent[2*i] < 0 ? 0 : this->Extent[2*i];
-    extent[2*i] = this->Extent[2*i] >= dims[i] ? dims[i]-1 : this->Extent[2*i];
-    extent[2*i+1] = 
-      this->Extent[2*i+1] >= dims[i] ? dims[i]-1 : this->Extent[2*i+1];
-    if ( extent[2*i+1] < extent[2*i] )
+    extent[2*i] = this->Extent[2*i];
+    if (extent[2*i] < inExt[2*i])
       {
-      extent[2*i+1] = extent[2*i];
+      extent[2*i] = inExt[2*i];
       }
+    extent[2*i+1] = this->Extent[2*i+1];
+    if (extent[2*i+1] > inExt[2*i+1])
+      {
+      extent[2*i+1] = inExt[2*i+1];
+      }
+    
+    // Handle empty extent.
+    if (extent[2*i] > extent[2*i+1])
+      {
+      return;
+      }
+    
+    // Compute dimensions.
     if ( (extent[2*i+1] - extent[2*i]) == 0 )
       {
       dimension--;
       }
     }
-
+  
+  // The easiest way to handle the rest of this is to use the "electric slide".
+  // Translate the input extent so that it has minimums 0, 0, 0.  
+  // It is only internal to this method, so it is OK.
+  extent[0] -= inExt[0];
+  extent[1] -= inExt[0];
+  extent[2] -= inExt[2];
+  extent[3] -= inExt[2];
+  extent[4] -= inExt[4];
+  extent[5] -= inExt[4];
+  
   // Now create polygonal data based on dimension of data
   //
   // Compute starting index of the point and cell. First the starting
   // point index.
-  startIdx = extent[0] + extent[2]*dims[0] + extent[4]*dims[0]*dims[1];
+  startIdx = (extent[0]) + (extent[2])*dims[0] 
+              + (extent[4])*dims[0]*dims[1];
 
   // The cell index is a bit more complicated at the boundaries
   if (dims[0] == 1)
