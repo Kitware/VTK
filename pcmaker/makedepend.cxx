@@ -13,7 +13,7 @@
 
 struct DEPENDS_STRUCT
 {
-	int indices[100];  // aloows up to 100 includes in a single files
+	int indices[100];  // allows up to 100 includes in a single file
 	int numIndices;
 	char name[256];
 };
@@ -22,9 +22,7 @@ static DEPENDS_STRUCT *DependsStructArray[MAX_DEPENDS];
 static int NumInDepends = 0;
 
 static int  num;
-
-// 1000 leaves a LOT of room to grow (8/97)
-static int dependIndices[1000];
+static int dependIndices[MAX_DEPENDS];
 
 void GetDepends(int index)
 {
@@ -270,7 +268,7 @@ Messy but gets the job done!!!!
 *****************************************************************/
 
 
-int GLibFlag[1000];
+int GLibFlag[MAX_DEPENDS];
 
 DEPENDS_STRUCT *GLibDependsArray[MAX_DEPENDS];
 static int NumInGLibDepends = 0, NumInGLibDependsOriginal;
@@ -442,7 +440,8 @@ void GetGLibDependency(int index)
 int GetGraphicsSplit(int maxSet[])
 {
   int i, theIndex;
-  int SetOfClasses[1000], numInSet;
+  int SetOfClasses[MAX_DEPENDS], numInSet;
+
 //  FILE *fp = fopen("GraphicsDependenciesMore.txt","w");
   int maxNumInSet=0, maxNumIndex;
 
@@ -453,23 +452,21 @@ int GetGraphicsSplit(int maxSet[])
   
     for (i=0;i<NumInGLibDepends;i++)
       {
-      SetOfClasses[i] = 0;
       if ( GLibFlag[i] != - 1)
         GLibFlag[i] = 0;
       }
 
     GLibFlag[theIndex] = 1;
-    // now get lib dependency for this class
-  
-    GetGLibDependency(theIndex);
 
+    // now get lib dependency for this class
+    GetGLibDependency(theIndex);
 
     // count how many use
     numInSet = 0;
     for (i=0;i<NumInGLibDependsOriginal;i+=2)
       {
       if (GLibFlag[i] > 0)
-      SetOfClasses[numInSet++] = i;
+        SetOfClasses[numInSet++] = i;
       }
 
     if ( numInSet > maxNumInSet )
