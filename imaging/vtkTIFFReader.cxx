@@ -143,6 +143,7 @@ void vtkTIFFReader::UpdateImageInformation()
   short numTags;
   long ltmp;
   int numComp, bpp;
+  int numSlices = 1;
   
   // if the user has not set the extent, but has set the VOI
   // set the zaxis extent to the VOI z axis
@@ -282,10 +283,19 @@ void vtkTIFFReader::UpdateImageInformation()
 	  vtkWarningMacro(" vtkTIFFReader requires planar contiguous images!");
 	  }
 	break;
+      case 297:
+	// logic 700 stores volume of data, need to find out how big
+	if (aTag.DataCount == 2)
+	  {
+	  this->Swap2(((short *)(&aTag.DataOffset))+1);
+	  numSlices = *(((short *)&aTag.DataOffset)+1); 
+	  }
+	break;
       }
     }
-
-    
+  
+  fclose(fp);
+  
   // if the user has set the VOI, just make sure its valid
   if (this->DataVOI[0] || this->DataVOI[1] || 
       this->DataVOI[2] || this->DataVOI[3] ||
@@ -308,6 +318,14 @@ void vtkTIFFReader::UpdateImageInformation()
   this->DataExtent[1] = xsize - 1;
   this->DataExtent[2] = 0;
   this->DataExtent[3] = ysize - 1;
+  
+  // if this is a volumetric TIFF then use numSlices
+  if (numSlices > 1)
+    {
+    this->DataExtent[4] = 0;
+    this->DataExtent[5] = numSlices - 1;
+    this->SetFileDimensionality(3);
+    }
   
   if (bpp == 8)
     {

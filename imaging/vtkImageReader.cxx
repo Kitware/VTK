@@ -327,8 +327,11 @@ void vtkImageReader::UpdateImageInformation()
 // Manual initialization.
 void vtkImageReader::SetHeaderSize(int size)
 {
-  this->HeaderSize = size;
-  this->Modified();
+  if (size != this->HeaderSize)
+    {
+    this->HeaderSize = size;
+    this->Modified();
+    }
   this->ManualHeaderSize = 1;
 }
   
@@ -558,7 +561,11 @@ static void vtkImageReaderUpdate2(vtkImageReader *self, vtkImageData *data,
     
   // read from the bottom up
   if (!self->FileLowerLeft) 
+    {
     streamSkip0 = -streamRead - self->DataIncrements[1];
+    streamSkip1 = self->DataIncrements[2] + 
+      (dataExtent[3] - dataExtent[2] + 1)* self->DataIncrements[1];
+    }
   
   self->InternalFileName = new char [1024];
     
