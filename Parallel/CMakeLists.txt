@@ -182,4 +182,6 @@ TARGET_LINK_LIBRARIES (vtkParallel vtkRendering vtkIO)
 
 INSTALL_TARGETS(/lib/vtk vtkParallel)
 INSTALL_FILES(/include/vtk .h ${Parallel_SRCS})
-INSTALL_FILES(/include/vtk "vtkMPI\\.h")
+IF (VTK_USE_MPI)
+  INSTALL_FILES(/include/vtk "vtkMPI\\.h")
+ENDIF (VTK_USE_MPI)
