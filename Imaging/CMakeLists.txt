@@ -51,6 +51,7 @@ vtkImageGaussianSource.cxx
 vtkImageGradient.cxx
 vtkImageGradientMagnitude.cxx
 vtkImageGridSource.cxx
+vtkImageHSIToRGB.cxx
 vtkImageHSVToRGB.cxx
 vtkImageHybridMedian2D.cxx
 vtkImageIdealHighPass.cxx
@@ -81,6 +82,7 @@ vtkImagePadFilter.cxx
 vtkImagePermute.cxx
 vtkImageQuantizeRGBToIndex.cxx
 vtkImageRFFT.cxx
+vtkImageRGBToHSI.cxx
 vtkImageRGBToHSV.cxx
 vtkImageRange3D.cxx
 vtkImageRectilinearWipe.cxx

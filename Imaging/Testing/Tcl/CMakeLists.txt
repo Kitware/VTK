@@ -47,6 +47,7 @@ IF (VTK_USE_RENDERING)
         TestFFTCorrelation
         TestGradientMagnitude
         TestGradientMagnitude2
+        TestHSIToRGB
         TestHSVToRGB
         TestHybridMedian2D
         TestIdealLowPass
