@@ -956,7 +956,7 @@ static float parse_float_percentage(vtk3DSImporter *importer)
 
 static void start_chunk (vtk3DSImporter *importer, Chunk *chunk)
 {
-    chunk->start  = ftell(importer->FileFD);
+    chunk->start  = ftell(importer->GetFileFD());
     chunk->tag    = read_word(importer);
     chunk->length = read_dword(importer);
     if (chunk->length == 0) chunk->length = 1;
@@ -967,7 +967,7 @@ static void start_chunk (vtk3DSImporter *importer, Chunk *chunk)
 
 static void end_chunk (vtk3DSImporter *importer, Chunk *chunk)
 {
-    fseek (importer->FileFD, chunk->end, 0);
+    fseek (importer->GetFileFD(), chunk->end, 0);
 }
 
 
@@ -975,7 +975,7 @@ static byte read_byte(vtk3DSImporter *importer)
 {
     byte data;
 
-    data = fgetc (importer->FileFD);
+    data = fgetc (importer->GetFileFD());
 
     return data;
 }
@@ -985,7 +985,7 @@ static word read_word(vtk3DSImporter *importer)
 {
     word data;
 
-    fread (&data, 2, 1, importer->FileFD);
+    fread (&data, 2, 1, importer->GetFileFD());
     vtkByteSwap::Swap2LE ((short *) &data);
 /*    swab ((char *) &data, (char *) &sdata, 2);*/
 
@@ -996,7 +996,7 @@ static dword read_dword(vtk3DSImporter *importer)
 {
   dword data;
 
-  if (fread (&data, 4, 1, importer->FileFD) != 1)
+  if (fread (&data, 4, 1, importer->GetFileFD()) != 1)
     {
     vtkGenericWarningMacro(<<"Pre-mature end of file in read_dword\n");
     data = 0;
@@ -1011,7 +1011,7 @@ static float read_float(vtk3DSImporter *importer)
 {
     float data;
 
-    fread (&data, 4, 1, importer->FileFD);
+    fread (&data, 4, 1, importer->GetFileFD());
     vtkByteSwap::Swap4LE ((char *) &data);
 /*    TIFFSwabLong (&data);*/
 
