@@ -19,10 +19,11 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // field. The integration is performed using 2cnd order Runge-Kutta method. 
 // vtkStreamer often serves as a base class for other classes that perform 
 // numerical integration through a vector field (e.g., vtkStreamLine).
-//    Note that vtkStreamer can integrate both forward and backward in time, or 
-// in both directions. The length of the streamer time) is controlled by 
+//    Note that vtkStreamer can integrate both forward and backward in time,
+// or in both directions. The length of the streamer time) is controlled by 
 // specifying an elapsed time. (The elapsed time is the time each particle 
-// travels). Otherwise, the integration terminates after exiting the dataset.
+// travels). Otherwise, the integration terminates after exiting the dataset or
+// if the particle speed is reduced to a value less than the terminal speed.
 //    vtkStreamer integrates through any type of dataset. Thus if the dataset
 // contains 2D cells such as polygons or triangles, the integration is
 // constrained to lie on the surface defined by the 2D cells.
@@ -31,11 +32,16 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // at a specified x-y-z coordinate. Starting from "location" allows you to 
 // start at a specified cell, subId, and parametric coordinate. Finally, you 
 // may specify a source object to start multiple streamers. If you start 
-// streamers using a source object, for each point (that is inside the dataset)
-// a streamer is created.
-//    vtkStreamer implements the Execute() method that its superclass vtkFilter
-// requires. However, its subclasses use this method to generate data, and then
-// build their own data.
+// streamers using a source object, for each point in the source that is 
+// inside the dataset a streamer is created.
+//    vtkStreamer implements the integration process in the Integrate() method.
+// Because vtkStreamer does not implement the Execute() method that its 
+// superclass (i.e., Filter) requires, it is an abstract class. Its subclasses
+// implement the execute method and use the Integrate() method and then build
+// their own representation of the integration path (i.e., lines, dashed 
+// lines, points, etc.).
+// .SECTION See Also
+// vtkStreamLine, vtkDashedStreamLine, vtkStreamPoints
 
 #ifndef __vtkStreamer_h
 #define __vtkStreamer_h
@@ -83,10 +89,10 @@ public:
   void Reset() {this->MaxId = -1;};
 
   vtkStreamPoint *Array;  // pointer to data
-  int MaxId;             // maximum index inserted thus far
-  int Size;       // allocated size of data
-  int Extend;     // grow array by this amount
-  float Direction;  // integration direction
+  int MaxId;              // maximum index inserted thus far
+  int Size;               // allocated size of data
+  int Extend;             // grow array by this amount
+  float Direction;        // integration direction
 };
 //ETX - end tcl exclude
 //
@@ -145,7 +151,9 @@ public:
   vtkGetMacro(TerminalSpeed,float);
 
   // Description:
-  // Turn on/off the computation of vorticity.
+  // Turn on/off the computation of vorticity. Vorticity is an indication of
+  // the rotation of the flow. In combination with vtkStreamLine and 
+  // vtkTubeFilter can be used to create rotated tubes.
   vtkSetMacro(Vorticity,int);
   vtkGetMacro(Vorticity,int);
   vtkBooleanMacro(Vorticity,int);
