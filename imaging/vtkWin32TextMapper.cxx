@@ -83,6 +83,83 @@ int vtkWin32TextMapper::GetCompositingMode(vtkActor2D* actor)
 }
 
 
+void vtkWin32TextMapper::GetSize(vtkViewport* viewport, int *size)
+{
+  // Check for input
+  if (this->Input == NULL) 
+    {
+    vtkErrorMacro (<<"vtkWin32TextMapper::Render - No input");
+    return;
+    }
+
+  // Get the window information for display
+  vtkWindow*  window = viewport->GetVTKWindow();
+  // Get the device context from the window
+  HDC hdc = (HDC) window->GetGenericContext();
+ 
+  // Create the font
+  LOGFONT fontStruct;
+  char fontname[32];
+  DWORD family;
+  switch (this->FontFamily)
+    {
+    case VTK_ARIAL:
+      strcpy(fontname, "Arial");
+	  family = FF_SWISS;
+	  break;
+	case VTK_TIMES:
+      strcpy(fontname, "Times Roman");
+	  family = FF_ROMAN;
+	  break;
+	case VTK_COURIER:
+      strcpy(fontname, "Courier");
+	  family = FF_MODERN;
+	  break;
+	default:
+      strcpy(fontname, "Arial");
+	  family = FF_SWISS;
+	  break;
+    }
+  fontStruct.lfHeight = MulDiv(this->FontSize, 
+			       window->GetDPI(), 72);  
+  // height in logical units
+  fontStruct.lfWidth = 0;  // default width
+  fontStruct.lfEscapement = 0;
+  fontStruct.lfOrientation = 0;
+  if (this->Bold == 1)
+    {
+    fontStruct.lfWeight = FW_BOLD;
+    }
+  else 
+    {
+    fontStruct.lfWeight = FW_NORMAL;
+    }
+  fontStruct.lfItalic = this->Italic;
+  fontStruct.lfUnderline = 0;
+  fontStruct.lfStrikeOut = 0;
+  fontStruct.lfCharSet = ANSI_CHARSET;
+  fontStruct.lfOutPrecision = OUT_DEFAULT_PRECIS;
+  fontStruct.lfClipPrecision = CLIP_DEFAULT_PRECIS;
+  fontStruct.lfQuality = DEFAULT_QUALITY;
+  fontStruct.lfPitchAndFamily = DEFAULT_PITCH | family;
+  strcpy(fontStruct.lfFaceName, fontname);
+   
+  HFONT hFont = CreateFontIndirect(&fontStruct);
+  HFONT hOldFont = (HFONT) SelectObject(hdc, hFont);
+
+  // Define bounding rectangle
+  RECT rect;
+  rect.left = 0;
+  rect.top = 0;
+  rect.bottom = 0;
+  rect.right = 0;
+
+  // Calculate the size of the bounding rectangle
+  size[1] = DrawText(hdc, this->Input, strlen(this->Input), &rect, 
+		     DT_CALCRECT|DT_LEFT|DT_NOPREFIX);
+  size[0] = rect.right - rect.left + 1;
+}
+
 void vtkWin32TextMapper::Render(vtkViewport* viewport, vtkActor2D* actor)
 {
 
@@ -161,8 +238,7 @@ void vtkWin32TextMapper::Render(vtkViewport* viewport, vtkActor2D* actor)
 	  family = FF_SWISS;
 	  break;
     }
-  fontStruct.lfHeight = MulDiv(this->FontSize, 
-			       window->GetDPI(), 72);  
+  fontStruct.lfHeight = MulDiv(this->FontSize,window->GetDPI(), 72);  
   // height in logical units
   fontStruct.lfWidth = 0;  // default width
   fontStruct.lfEscapement = 0;
@@ -205,11 +281,29 @@ void vtkWin32TextMapper::Render(vtkViewport* viewport, vtkActor2D* actor)
   rect.bottom = ptDestOff.y;
   rect.right = ptDestOff.x;
 
+      
   // Calculate the size of the bounding rectangle
   DrawText(hdc, this->Input, strlen(this->Input), &rect, 
 	   DT_CALCRECT|DT_LEFT|DT_NOPREFIX);
 
   // adjust the rectangle to account for lower left origin
+  int winJust;
+  switch (this->Justification)
+    {
+    int tmp;
+    case 0: winJust = DT_LEFT; break;
+    case 1:
+      winJust = DT_CENTER;
+      tmp = rect.right - rect.left + 1;
+      rect.left = rect.left - tmp/2;
+      rect.right = rect.left + tmp;
+      break;
+    case 2: 
+      winJust = DT_RIGHT;
+      tmp = rect.right - rect.left + 1;
+      rect.left = rect.right;
+      rect.right = rect.right - tmp;
+    }
   rect.top = 2*rect.top - rect.bottom;
   rect.bottom = ptDestOff.y;
 
@@ -226,7 +320,7 @@ void vtkWin32TextMapper::Render(vtkViewport* viewport, vtkActor2D* actor)
 
     // Draw the shadow text
     rect.left++;  rect.top++; rect.bottom++; rect.right++;
-    DrawText(hdc, this->Input, strlen(this->Input), &rect,DT_LEFT|DT_NOPREFIX);
+    DrawText(hdc, this->Input, strlen(this->Input), &rect,winJust|DT_NOPREFIX);
     rect.left--;  rect.top--; rect.bottom--; rect.right--;
     }
   
@@ -239,7 +333,7 @@ void vtkWin32TextMapper::Render(vtkViewport* viewport, vtkActor2D* actor)
   SetBkMode(hdc, TRANSPARENT);
 
   // Draw the text
-  DrawText(hdc, this->Input, strlen(this->Input), &rect, DT_LEFT|DT_NOPREFIX);
+  DrawText(hdc, this->Input, strlen(this->Input), &rect, winJust|DT_NOPREFIX);
 
   SelectObject(hdc, hOldFont);
   DeleteObject(hFont);
