@@ -25,8 +25,8 @@ char *Capitalized(const char *input)
 
 /* this roputine creates the init file */
 static void CreateInitFile(const char *libName, 
-                           int numConcrete, const char **concrete, 
-                           int numCommands, const char **commands,
+                           int numConcrete, char **concrete, 
+                           int numCommands, char **commands,
                            FILE *fout) 
 {
   /* we have to make sure that the name is the correct case */
