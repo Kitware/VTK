@@ -54,6 +54,7 @@ vtkGlyph3D::vtkGlyph3D()
   this->NumberOfSources = 1;
   this->Source = new vtkPolyData *[1]; this->Source[0] = NULL;
   this->Scaling = 1;
+  this->ColorMode = VTK_COLOR_BY_SCALE;
   this->ScaleMode = VTK_SCALE_BY_SCALAR;
   this->ScaleFactor = 1.0;
   this->Range[0] = 0.0;
@@ -169,7 +170,7 @@ void vtkGlyph3D::Execute()
 
   newPts = vtkFloatPoints::New();
   newPts->Allocate(numPts*numSourcePts);
-  if ( inScalars )
+  if ( inScalars || (this->ColorMode == VTK_COLOR_BY_VECTOR && haveVectors))
     {
     newScalars = vtkFloatScalars::New();
     newScalars->Allocate(numPts*numSourcePts);
@@ -292,9 +293,24 @@ void vtkGlyph3D::Execute()
     if ( inScalars )
       {
       // Copy scalar value
-      for (i=0; i < numSourcePts; i++) 
-        newScalars->InsertScalar(i+ptIncr, scale);
+      if (this->ColorMode == VTK_COLOR_BY_SCALE)
+	{
+	for (i=0; i < numSourcePts; i++) 
+	  newScalars->InsertScalar(i+ptIncr, scale);
+	}
+      else if (this->ColorMode == VTK_COLOR_BY_SCALAR)
+	{
+	s = inScalars->GetScalar(inPtId);
+	for (i=0; i < numSourcePts; i++) 
+	  newScalars->InsertScalar(i+ptIncr, s);
+	}
       }
+    if (haveVectors && this->ColorMode == VTK_COLOR_BY_VECTOR)
+      {
+      for (i=0; i < numSourcePts; i++) 
+	newScalars->InsertScalar(i+ptIncr, vMag);
+      }
+    
 
     // scale data if appropriate
     if ( this->Scaling )
@@ -454,6 +470,8 @@ void vtkGlyph3D::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkDataSetToPolyDataFilter::PrintSelf(os,indent);
 
+  os << indent << "Color Mode: " << this->GetColorModeAsString() << endl;
+
   if ( this->NumberOfSources < 2 )
     {
     if ( this->Source[0] != NULL ) os << indent << "Source: (" << this->Source[0] << ")\n";
@@ -465,7 +483,7 @@ void vtkGlyph3D::PrintSelf(ostream& os, vtkIndent indent)
     }
 
   os << indent << "Scaling: " << (this->Scaling ? "On\n" : "Off\n");
-
+  
   os << indent << "Scale Mode: ";
   if ( this->ScaleMode == VTK_SCALE_BY_SCALAR ) os << "Scale by scalar\n";
   else if ( this->ScaleMode == VTK_SCALE_BY_VECTOR ) os << "Scale by vector\n";

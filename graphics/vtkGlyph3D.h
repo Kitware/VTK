@@ -97,6 +97,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define VTK_SCALE_BY_VECTOR 1
 #define VTK_DATA_SCALING_OFF 2
 
+#define VTK_COLOR_BY_SCALE  0
+#define VTK_COLOR_BY_SCALAR 1
+#define VTK_COLOR_BY_VECTOR 2
+
 #define VTK_USE_VECTOR 0
 #define VTK_USE_NORMAL 1
 
@@ -143,6 +147,18 @@ public:
   void SetScaleModeToDataScalingOff() 
     {this->SetScaleMode(VTK_DATA_SCALING_OFF);};
   char *GetScaleModeAsString();
+
+  // Description:
+  // Either color by scale, scalar or by vector/normal magnitude.
+  vtkSetMacro(ColorMode,int);
+  vtkGetMacro(ColorMode,int);
+  void SetColorModeToColorByScale() 
+    {this->SetColorMode(VTK_COLOR_BY_SCALE);};
+  void SetColorModeToColorByScalar() 
+    {this->SetColorMode(VTK_COLOR_BY_SCALAR);};
+  void SetColorModeToColorByVector() 
+    {this->SetColorMode(VTK_COLOR_BY_VECTOR);};
+  char *GetColorModeAsString();
 
   // Description:
   // Specify scale factor to scale object by.
@@ -193,6 +209,7 @@ protected:
   vtkPolyData **Source; // Geometry to copy to each point
   int Scaling; // Determine whether scaling of geometry is performed
   int ScaleMode; // Scale by scalar value or vector magnitude
+  int ColorMode; // new scalars based on scale, scalar or vector
   float ScaleFactor; // Scale factor to use to scale geometry
   float Range[2]; // Range to use to perform scalar scaling
   int Orient; // boolean controls whether to "orient" data
@@ -216,6 +233,24 @@ inline char *vtkGlyph3D::GetScaleModeAsString(void)
   else 
     {
     return "DataScalingOff";
+    }
+}
+
+// Description:
+// Return the method of coloring as a descriptive character string.
+inline char *vtkGlyph3D::GetColorModeAsString(void)
+{
+  if ( this->ColorMode == VTK_COLOR_BY_SCALAR )
+    {
+    return "ColorByScalar";
+    }
+  else if ( this->ColorMode == VTK_COLOR_BY_VECTOR ) 
+    {
+    return "ColorByVector";
+    }
+  else 
+    {
+    return "ColorByScale";
     }
 }
 
