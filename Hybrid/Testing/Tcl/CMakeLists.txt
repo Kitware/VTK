@@ -32,6 +32,7 @@ IF (VTK_USE_RENDERING)
       TestGridWarpNearest
       TestICPTransform
       TestImageStencilWithPolydata
+      TestPCA
       TestProcrustes
       TestThinPlateWarp
       TestThinPlateWarp3D
@@ -65,6 +66,7 @@ IF (VTK_USE_RENDERING)
       depthSort
       MassProperties
       TestICPTransform
+      TestPCA
       TestProcrustes
       text
       WarpPolyData
