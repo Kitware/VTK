@@ -84,6 +84,17 @@ float *vtkPolyDataMapper::GetBounds()
   return this->vtkMapper::GetBounds();
 }
 
+// Get the bounds
+void vtkPolyDataMapper::GetBounds(float bounds[6])
+{
+  float *boundsPtr;
+  
+  boundsPtr = this->GetBounds();
+  for (int i=0; i<6; i++)
+    {
+    bounds[i] = boundsPtr[i];
+    }
+}
 
 // Update the network connected to this mapper.
 void vtkPolyDataMapper::Update()
