@@ -25,7 +25,7 @@
 #include "vtkMultiBlockDataSet.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkMultiBlockDataSetGeometryFilter, "1.1");
+vtkCxxRevisionMacro(vtkMultiBlockDataSetGeometryFilter, "1.2");
 vtkStandardNewMacro(vtkMultiBlockDataSetGeometryFilter);
 
 vtkMultiBlockDataSetGeometryFilter::vtkMultiBlockDataSetGeometryFilter()
@@ -36,12 +36,27 @@ vtkMultiBlockDataSetGeometryFilter::~vtkMultiBlockDataSetGeometryFilter()
 {
 }
 
-int vtkMultiBlockDataSetGeometryFilter::FillOutputPortInformation(
-  int, vtkInformation *info)
+int vtkMultiBlockDataSetGeometryFilter::FillInputPortInformation(
+  int vtkNotUsed(port), vtkInformation* info)
 {
-  info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkPolyData");
-  info->Remove(vtkCompositeDataPipeline::COMPOSITE_DATA_TYPE_NAME());
+  // now add our info
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkMultiBlockDataSet");
   return 1;
+}
+
+int vtkMultiBlockDataSetGeometryFilter::ProcessRequest(
+  vtkInformation* request, 
+  vtkInformationVector** inputVector, 
+  vtkInformationVector* outputVector)
+{
+  // generate the data
+  if(request->Has(vtkCompositeDataPipeline::REQUEST_COMPOSITE_DATA()))
+    {
+    int retVal = this->RequestCompositeData(request, inputVector, outputVector);
+    return retVal;
+    }
+
+ return this->Superclass::ProcessRequest(request, inputVector, outputVector);
 }
 
 int vtkMultiBlockDataSetGeometryFilter::RequestCompositeData(
@@ -88,16 +103,6 @@ int vtkMultiBlockDataSetGeometryFilter::RequestCompositeData(
 vtkExecutive* vtkMultiBlockDataSetGeometryFilter::CreateDefaultExecutive()
 {
   return vtkCompositeDataPipeline::New();
-}
-
-vtkPolyData* vtkMultiBlockDataSetGeometryFilter::GetOutput()
-{
-  return this->GetOutput(0);
-}
-
-vtkPolyData* vtkMultiBlockDataSetGeometryFilter::GetOutput(int port)
-{
-  return vtkPolyData::SafeDownCast(this->GetOutputDataObject(port));
 }
 
 void vtkMultiBlockDataSetGeometryFilter::PrintSelf(ostream& os, vtkIndent indent)

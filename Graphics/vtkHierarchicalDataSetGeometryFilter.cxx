@@ -25,7 +25,7 @@
 #include "vtkHierarchicalDataSet.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkHierarchicalDataSetGeometryFilter, "1.1");
+vtkCxxRevisionMacro(vtkHierarchicalDataSetGeometryFilter, "1.2");
 vtkStandardNewMacro(vtkHierarchicalDataSetGeometryFilter);
 
 vtkHierarchicalDataSetGeometryFilter::vtkHierarchicalDataSetGeometryFilter()
@@ -36,12 +36,27 @@ vtkHierarchicalDataSetGeometryFilter::~vtkHierarchicalDataSetGeometryFilter()
 {
 }
 
-int vtkHierarchicalDataSetGeometryFilter::FillOutputPortInformation(
-  int, vtkInformation *info)
+int vtkHierarchicalDataSetGeometryFilter::FillInputPortInformation(
+  int vtkNotUsed(port), vtkInformation* info)
 {
-  info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkPolyData");
-  info->Remove(vtkCompositeDataPipeline::COMPOSITE_DATA_TYPE_NAME());
+  // now add our info
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkHierarchicalDataSet");
   return 1;
+}
+
+int vtkHierarchicalDataSetGeometryFilter::ProcessRequest(
+  vtkInformation* request, 
+  vtkInformationVector** inputVector, 
+  vtkInformationVector* outputVector)
+{
+  // generate the data
+  if(request->Has(vtkCompositeDataPipeline::REQUEST_COMPOSITE_DATA()))
+    {
+    int retVal = this->RequestCompositeData(request, inputVector, outputVector);
+    return retVal;
+    }
+
+ return this->Superclass::ProcessRequest(request, inputVector, outputVector);
 }
 
 int vtkHierarchicalDataSetGeometryFilter::RequestCompositeData(
@@ -88,16 +103,6 @@ int vtkHierarchicalDataSetGeometryFilter::RequestCompositeData(
 vtkExecutive* vtkHierarchicalDataSetGeometryFilter::CreateDefaultExecutive()
 {
   return vtkCompositeDataPipeline::New();
-}
-
-vtkPolyData* vtkHierarchicalDataSetGeometryFilter::GetOutput()
-{
-  return this->GetOutput(0);
-}
-
-vtkPolyData* vtkHierarchicalDataSetGeometryFilter::GetOutput(int port)
-{
-  return vtkPolyData::SafeDownCast(this->GetOutputDataObject(port));
 }
 
 void vtkHierarchicalDataSetGeometryFilter::PrintSelf(ostream& os, vtkIndent indent)

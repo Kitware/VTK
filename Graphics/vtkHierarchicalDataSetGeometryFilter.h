@@ -19,33 +19,31 @@
 // pipeline before a polydata consumer such as a polydata mapper to extract
 // geometry from all blocks and append them to one polydata object.
 
-// .SECTION See Also
-
 #ifndef __vtkHierarchicalDataSetGeometryFilter_h
 #define __vtkHierarchicalDataSetGeometryFilter_h
 
-#include "vtkHierarchicalDataSetAlgorithm.h"
+#include "vtkPolyDataAlgorithm.h"
 
 class vtkPolyData;
 
-class VTK_GRAPHICS_EXPORT vtkHierarchicalDataSetGeometryFilter : public vtkHierarchicalDataSetAlgorithm
+class VTK_GRAPHICS_EXPORT vtkHierarchicalDataSetGeometryFilter : public vtkPolyDataAlgorithm
 {
 public:
   static vtkHierarchicalDataSetGeometryFilter *New();
-  vtkTypeRevisionMacro(vtkHierarchicalDataSetGeometryFilter,vtkHierarchicalDataSetAlgorithm);
+  vtkTypeRevisionMacro(vtkHierarchicalDataSetGeometryFilter,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Returns the polygonal data output
-  vtkPolyData* GetOutput();
+  // see vtkAlgorithm for details
+  virtual int ProcessRequest(vtkInformation* request, 
+                             vtkInformationVector** inputVector, 
+                             vtkInformationVector* outputVector);
 
 protected:
   vtkHierarchicalDataSetGeometryFilter();
   ~vtkHierarchicalDataSetGeometryFilter();
 
-  vtkPolyData* GetOutput(int port);
-
-  virtual int FillOutputPortInformation(int, vtkInformation *);
+  virtual int FillInputPortInformation(int port, vtkInformation* info);
 
   // Create a default executive.
   virtual vtkExecutive* CreateDefaultExecutive();
