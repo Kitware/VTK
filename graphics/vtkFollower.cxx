@@ -270,6 +270,7 @@ void vtkFollower::Render(vtkRenderer *ren)
     // force creation of a property
     this->GetProperty();
     }
+  this->Device->SetProperty (this->Property);
   this->Property->Render(this, ren);
 
   /* render the texture */
