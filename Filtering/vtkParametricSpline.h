@@ -21,9 +21,13 @@
 // evaluate outside this interval will cause the parameter u to be clamped in
 // the range [0,1].
 //
-// When constructed, this class creates instanced of vtkCardinalSpline for
+// When constructed, this class creates instances of vtkCardinalSpline for
 // each of the x-y-z coordinates. The user may choose to replace these with
-// their own instances of vtkSpline.
+// their own instances of subclasses of vtkSpline.
+//
+// .SECTION Caveats
+// If you wish to tessellate the spline, use the class 
+// vtkParametricFunctionSource.
 //
 // .SECTION See Also
 // vtkSpline vtkKochankeSpline vtkCardinalSpline
@@ -140,6 +144,10 @@ protected:
   // Initializing the spline
   unsigned long InitializeTime;
   int Initialize();
+  
+  // Internal variable for managing parametric coordinates
+  double Length;
+  double ClosedLength;
   
 private:
   vtkParametricSpline(const vtkParametricSpline&);  // Not implemented.

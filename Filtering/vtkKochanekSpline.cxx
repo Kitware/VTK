@@ -17,7 +17,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPiecewiseFunction.h"
 
-vtkCxxRevisionMacro(vtkKochanekSpline, "1.25");
+vtkCxxRevisionMacro(vtkKochanekSpline, "1.26");
 vtkStandardNewMacro(vtkKochanekSpline);
 
 // Construct a KochanekSpline wth the following defaults:
@@ -99,7 +99,7 @@ void vtkKochanekSpline::Compute ()
 
   if(size < 2)
     {
-    vtkErrorMacro("Cannot compute a spline with less than 2 points. # of points is: " << size);
+    vtkErrorMacro("Spline requires at least 2 points. # of points is: " <<size);
     return;
     }
 
@@ -114,7 +114,7 @@ void vtkKochanekSpline::Compute ()
     ts = this->PiecewiseFunction->GetDataPointer ();  
     for (i = 0; i < size; i++)
       {
-      this->Intervals[i] = *(ts + 2 * i);    
+      this->Intervals[i] = *(ts + 2*i);    
       }
 
     // allocate memory for coefficients
@@ -122,7 +122,7 @@ void vtkKochanekSpline::Compute ()
       {
       delete [] this->Coefficients;
       }
-    this->Coefficients = new double [4 * size];
+    this->Coefficients = new double [4*size];
 
     // allocate memory for dependent variables
     dependent = new double [size];

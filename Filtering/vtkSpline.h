@@ -12,27 +12,35 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkSpline - spline abstract class
+// .NAME vtkSpline - spline abstract class for interpolating splines
 // .SECTION Description
-// vtkSpline is used to create interpolated data points for specified
-// data. vtkSpline is an abstract class: its subclasses vtkCardinalSpline
-// and vtkKochenekSpline do the interpolation. The current implementation 
-// of splines is limited to data dimensions not exceeding four.
+// vtkSpline interpolates a set of data points (i.e., interpolation means
+// that the spline passes through the points).  vtkSpline is an abstract
+// class: its subclasses vtkCardinalSpline and vtkKochenekSpline do the
+// interpolation. Note that this spline maps the 1D parametric coordinate
+// t into a single value x. Thus if you want to use the spline to 
+// interpolate points (i.e. x[3]), you have to create three splines for
+// each of the x-y-z coordinates. Fortunately, the vtkParametricSpline
+// class does this for you.
 //
-// Typically a spline is used by adding a sequence of points followed by
-// use of an evaluation function (e.g., vtkCardinalSpline::Evaluate()).
-// Since these splines are 1D, a point in this context is a independent/
-// dependent variable pair. Note that the parameter space of the spline
-// ranges from (0,N-1), where N is the number of points in the spline.
+// Typically a spline is used by adding a sequence of parametric coordinate /
+// data (t,x) values followed by use of an evaluation function (e.g.,
+// vtkCardinalSpline::Evaluate()).  Since these splines are 1D, a point in
+// this context is an independent / dependent variable pair. 
 //
 // Splines can also be set up to be closed or open. Closed splines continue
 // from the last point to the first point with continuous function and 
 // derivative values. (You don't need to duplicate the first point to close
-// the spline, just set ClosedOn.) If the spline is closed, the parameter
-// space of the spline becomes (0,N).
+// the spline, just set ClosedOn.) 
+//
+// This implementation of splines does not use a normalized parametric
+// coordinate. If the spline is open, then the parameter space is
+// (tMin <= t <= tMax) where tMin and tMax are the minimum and maximum
+// parametric values seen when performing AddPoint().
 
 // .SECTION See Also
-// vtkCardinalSpline vtkKochenekSpline
+// vtkCardinalSpline vtkKochenekSpline vtkParametricSpline
+// vtkParametricFunctionSource
 
 
 #ifndef __vtkSpline_h
