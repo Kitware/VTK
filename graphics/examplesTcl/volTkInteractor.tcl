@@ -2,6 +2,7 @@
 #
 
 source ../../examplesTcl/vtkInt.tcl
+source ../../examplesTcl/WidgetObject.tcl
 
 proc BindTkRenderWidget {widget} {
     bind $widget <Any-ButtonPress> {StartMotion %W %x %y}
@@ -14,11 +15,23 @@ proc BindTkRenderWidget {widget} {
     bind $widget <KeyPress-u> {wm deiconify .vtkInteract}
     bind $widget <Enter> {Enter %W %x %y}
     bind $widget <Leave> {focus $oldFocus}
-    bind $widget <Expose> {%W Render}
+    bind $widget <Expose> {Expose %W}
 }
 
 # Global variable keeps track of whether active renderer was found
 set RendererFound 0
+
+# a litle more complex than just "bind $widget <Expose> {%W Render}"
+# we have to handle all pending expose events otherwise they que up.
+proc Expose {widget} {
+   if {[GetWidgetVariableValue $widget InExpose] == 1} {
+      return
+   }
+   SetWidgetVariableValue $widget InExpose 1
+   update
+   [$widget GetRenderWindow] Render
+   SetWidgetVariableValue $widget InExpose 0
+}
 
 # Create event bindings
 #
