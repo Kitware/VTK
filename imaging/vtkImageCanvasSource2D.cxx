@@ -100,8 +100,8 @@ void vtkImageCanvasSource2D::PrintSelf(ostream& os, vtkIndent indent)
   
   vtkStructuredPoints::PrintSelf(os,indent);
   os << indent << "ImageData: (" << this->ImageData << ")\n";
-  os << indent << "DrawColor: (" << this->DrawColor[0];
   os << indent << "DefaultZ: " << this->DefaultZ << endl;
+  os << indent << "DrawColor: (" << this->DrawColor[0];
   for (idx = 1; idx < 4; ++idx)
     {
     os << ", " << this->DrawColor[idx];
