@@ -229,16 +229,33 @@ int main (int argc, char *argv[])
     }
   fprintf(fp,"\n\n");
 
-  for (i = concrete_start; i < argc; i++)
+  for (i = concrete_start; i <= concrete_end; i++)
     {
-    if (strcmp(argv[i],"abstract")&&
-	strcmp(argv[i],"concrete_h")&&strcmp(argv[i],"abstract_h"))
-      {
+      fprintf(fp,"../java/vtk/%s.java: %s.h ${VTK_OBJ}/wrap/vtkParseJava ../wrap/hints\n\trm -f ../java/vtk/%s.java; ${VTK_OBJ}/wrap/vtkParseJava ${srcdir}/%s.h ${srcdir}/../wrap/hints 1 > ../java/vtk/%s.java\n",
+	      argv[i],argv[i],argv[i], argv[i], argv[i]);
+      fprintf(fp,"java/%sJava.cxx: %s.h ${VTK_OBJ}/wrap/vtkWrapJava ../wrap/hints\n\trm -f java/%sJava.cxx; ${VTK_OBJ}/wrap/vtkWrapJava ${srcdir}/%s.h ${srcdir}/../wrap/hints 1 > java/%sJava.cxx\n",
+	      argv[i],argv[i],argv[i], argv[i], argv[i]);
+    }
+  for (i = abstract_start; i <= abstract_end; i++)
+    {
       fprintf(fp,"../java/vtk/%s.java: %s.h ${VTK_OBJ}/wrap/vtkParseJava ../wrap/hints\n\trm -f ../java/vtk/%s.java; ${VTK_OBJ}/wrap/vtkParseJava ${srcdir}/%s.h ${srcdir}/../wrap/hints 0 > ../java/vtk/%s.java\n",
 	      argv[i],argv[i],argv[i], argv[i], argv[i]);
       fprintf(fp,"java/%sJava.cxx: %s.h ${VTK_OBJ}/wrap/vtkWrapJava ../wrap/hints\n\trm -f java/%sJava.cxx; ${VTK_OBJ}/wrap/vtkWrapJava ${srcdir}/%s.h ${srcdir}/../wrap/hints 0 > java/%sJava.cxx\n",
 	      argv[i],argv[i],argv[i], argv[i], argv[i]);
-      }
+    }
+  for (i = concrete_h_start; i <= concrete_h_end; i++)
+    {
+      fprintf(fp,"../java/vtk/%s.java: %s.h ${VTK_OBJ}/wrap/vtkParseJava ../wrap/hints\n\trm -f ../java/vtk/%s.java; ${VTK_OBJ}/wrap/vtkParseJava ${srcdir}/%s.h ${srcdir}/../wrap/hints 1 > ../java/vtk/%s.java\n",
+	      argv[i],argv[i],argv[i], argv[i], argv[i]);
+      fprintf(fp,"java/%sJava.cxx: %s.h ${VTK_OBJ}/wrap/vtkWrapJava ../wrap/hints\n\trm -f java/%sJava.cxx; ${VTK_OBJ}/wrap/vtkWrapJava ${srcdir}/%s.h ${srcdir}/../wrap/hints 1 > java/%sJava.cxx\n",
+	      argv[i],argv[i],argv[i], argv[i], argv[i]);
+    }
+  for (i = abstract_h_start; i <= abstract_h_end; i++)
+    {
+      fprintf(fp,"../java/vtk/%s.java: %s.h ${VTK_OBJ}/wrap/vtkParseJava ../wrap/hints\n\trm -f ../java/vtk/%s.java; ${VTK_OBJ}/wrap/vtkParseJava ${srcdir}/%s.h ${srcdir}/../wrap/hints 0 > ../java/vtk/%s.java\n",
+	      argv[i],argv[i],argv[i], argv[i], argv[i]);
+      fprintf(fp,"java/%sJava.cxx: %s.h ${VTK_OBJ}/wrap/vtkWrapJava ../wrap/hints\n\trm -f java/%sJava.cxx; ${VTK_OBJ}/wrap/vtkWrapJava ${srcdir}/%s.h ${srcdir}/../wrap/hints 0 > java/%sJava.cxx\n",
+	      argv[i],argv[i],argv[i], argv[i], argv[i]);
     }
 
   /* create PYTHON_WRAP */

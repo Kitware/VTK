@@ -353,11 +353,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     fprintf(fp,"\n  protected %s(int dmy) { super(dmy); };\n",data->ClassName);
     }
 
-  if ((!data->IsAbstract)&&
-      strcmp(data->ClassName,"vtkDataWriter") &&
-      strcmp(data->ClassName,"vtkPointSet") &&
-      strcmp(data->ClassName,"vtkDataSetSource") 
-      )
+  if (data->IsConcrete)
     {
     fprintf(fp,"  public native void   VTKInit();\n");
     }
