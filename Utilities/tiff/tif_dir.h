@@ -127,7 +127,7 @@ typedef struct {
   
         /* uic data */
         uint32  td_uic2tagLength;
-        int32 *td_uic2tagData;
+        uint32 *td_uic2tagData;
 
 } TIFFDirectory;
 

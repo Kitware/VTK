@@ -859,7 +859,7 @@ _TIFFVGetField(TIFF* tif, ttag_t tag, va_list ap)
           break;
         case TIFFTAG_UIC2TAG:
           *va_arg(ap, uint32*) = td->td_uic2tagLength;
-          *va_arg(ap, int32**) = td->td_uic2tagData;
+          *va_arg(ap, uint32**) = td->td_uic2tagData;
           break;
         default:
                 /*
