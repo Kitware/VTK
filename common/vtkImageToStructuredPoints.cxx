@@ -64,8 +64,10 @@ vtkImageToStructuredPoints::vtkImageToStructuredPoints()
       
   this->Input = NULL;
   this->InputMemoryLimit = 500000;  // A very big image indeed (in kB).
-  this->SetSplitOrder(VTK_IMAGE_TIME_AXIS, VTK_IMAGE_Z_AXIS,
-		      VTK_IMAGE_Y_AXIS, VTK_IMAGE_X_AXIS);
+  this->SplitOrder[0] = VTK_IMAGE_TIME_AXIS;
+  this->SplitOrder[1] = VTK_IMAGE_Z_AXIS;
+  this->SplitOrder[2] = VTK_IMAGE_Y_AXIS;
+  this->SplitOrder[3] = VTK_IMAGE_X_AXIS;
 }
 
 
