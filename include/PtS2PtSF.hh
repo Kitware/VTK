@@ -36,10 +36,15 @@ public:
 
   // dataset interface
   vlDataSet *MakeObject() {return this->PointSet->MakeObject();};
-  int GetNumberOfCells() {return this->PointSet->GetNumberOfCells();}
-  int GetNumberOfPoints() {return this->PointSet->GetNumberOfPoints();}
-  float *GetPoint(int i) {return this->PointSet->GetPoint(i);}
-  vlCell *GetCell(int cellId) {return this->PointSet->GetCell(cellId);}
+  int GetNumberOfCells() {return this->PointSet->GetNumberOfCells();};
+  int GetNumberOfPoints() {return this->PointSet->GetNumberOfPoints();};
+  float *GetPoint(int i) {return this->PointSet->GetPoint(i);};
+  vlCell *GetCell(int cellId) {return this->PointSet->GetCell(cellId);};
+  int GetCellType(int cellId) {return this->PointSet->GetCellType(cellId);};
+  void GetCellPoints(int cellId, vlIdList& ptIds)
+    {this->PointSet->GetCellPoints(cellId, ptIds);};
+  void GetPointCells(int ptId, vlIdList& cellIds)
+    {this->PointSet->GetPointCells(ptId, cellIds);};
   void Initialize();
 
   void ComputeBounds() {this->PointSet->ComputeBounds();};
