@@ -166,7 +166,8 @@ void vtkSurfaceReconstructionFilter::Execute()
   const unsigned long COUNT = input->GetNumberOfPoints();
   SurfacePoint *surfacePoints = new SurfacePoint[COUNT];
 
-  int i,j,k;
+  unsigned int i;
+  int j,k;
 
   if ( COUNT < 1 )
     {
