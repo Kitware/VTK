@@ -62,20 +62,20 @@ if {[catch {set channel [open $dir/test.tmp w]}] == 0 } {
    psw2 SetFileName $dir/psw2.ps
 
    vtkPNGWriter pngw1
-   psw1 SetInput [image1 GetOutput]
-   psw1 SetFileName $dir/pngw1.png
+   pngw1 SetInput [image1 GetOutput]
+   pngw1 SetFileName $dir/pngw1.png
 
    vtkPNGWriter pngw2
-   psw2 SetInput [luminance GetOutput]
-   psw2 SetFileName $dir/pngw2.png
+   pngw2 SetInput [luminance GetOutput]
+   pngw2 SetFileName $dir/pngw2.png
 
    vtkJPEGWriter jpgw1
-   psw1 SetInput [image1 GetOutput]
-   psw1 SetFileName $dir/jpgw1.jpg
+   jpgw1 SetInput [image1 GetOutput]
+   jpgw1 SetFileName $dir/jpgw1.jpg
 
    vtkJPEGWriter jpgw2
-   psw2 SetInput [luminance GetOutput]
-   psw2 SetFileName $dir/jpgw2.jpg
+   jpgw2 SetInput [luminance GetOutput]
+   jpgw2 SetFileName $dir/jpgw2.jpg
 
    tiff1 Write
    tiff2 Write
