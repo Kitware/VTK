@@ -58,8 +58,6 @@ public:
 protected:
   vtkIntArray *P;
 };
-// some compiler can't initialize static file scope objects -ugh
-static vtkNeighborPoints *Buckets; 
 
 inline int vtkNeighborPoints::InsertNextPoint(int *x) 
 {
@@ -74,9 +72,8 @@ inline int vtkNeighborPoints::InsertNextPoint(int *x)
 // 25 points per bucket.
 vtkPointLocator::vtkPointLocator()
 {
-  static vtkNeighborPoints BucketStorage(26,50);
-  Buckets = &BucketStorage;
 
+  this->Buckets = new vtkNeighborPoints(26,50);
   this->Points = NULL;
   this->Divisions[0] = this->Divisions[1] = this->Divisions[2] = 50;
   this->NumberOfPointsPerBucket = 3;
@@ -93,6 +90,10 @@ vtkPointLocator::~vtkPointLocator()
     {
     this->Points->UnRegister(this);
     this->Points = NULL;
+    }
+  if ( this->Buckets)
+    {
+     delete this->Buckets;
     }
   this->FreeSearchStructure();
 }
@@ -167,9 +168,9 @@ int vtkPointLocator::FindClosestPoint(float x[3])
     {
     this->GetBucketNeighbors (ijk, this->Divisions, level);
 
-    for (i=0; i<Buckets->GetNumberOfNeighbors(); i++) 
+    for (i=0; i<this->Buckets->GetNumberOfNeighbors(); i++) 
       {
-      nei = Buckets->GetPoint(i);
+      nei = this->Buckets->GetPoint(i);
       cno = nei[0] + nei[1]*this->Divisions[0] + 
             nei[2]*this->Divisions[0]*this->Divisions[1];
 
@@ -197,9 +198,9 @@ int vtkPointLocator::FindClosestPoint(float x[3])
     {
     this->GetOverlappingBuckets (x, ijk, sqrt(dist2));
 
-    for (i=0; i<Buckets->GetNumberOfNeighbors(); i++) 
+    for (i=0; i<this->Buckets->GetNumberOfNeighbors(); i++) 
       {
-      nei = Buckets->GetPoint(i);
+      nei = this->Buckets->GetPoint(i);
       cno = nei[0] + nei[1]*this->Divisions[0] + 
             nei[2]*this->Divisions[0]*this->Divisions[1];
 
@@ -348,13 +349,13 @@ void vtkPointLocator::GetBucketNeighbors(int ijk[3], int ndivs[3], int level)
   //
   //  Initialize
   //
-  Buckets->Reset();
+  this->Buckets->Reset();
   //
   //  If at this bucket, just place into list
   //
   if ( level == 0 ) 
     {
-    Buckets->InsertNextPoint(ijk);
+    this->Buckets->InsertNextPoint(ijk);
     return;
     }
   //
@@ -380,7 +381,7 @@ void vtkPointLocator::GetBucketNeighbors(int ijk[3], int ndivs[3], int level)
 	    k == (ijk[2] + level) || k == (ijk[2] - level) ) 
           {
           nei[0]=i; nei[1]=j; nei[2]=k;
-          Buckets->InsertNextPoint(nei);
+          this->Buckets->InsertNextPoint(nei);
           }
         }
       }
@@ -396,7 +397,7 @@ void vtkPointLocator::GetOverlappingBuckets(float x[3], int ijk[3], float dist)
   int i, j, k, nei[3], minLevel[3], maxLevel[3];
 
   // Initialize
-  Buckets->Reset();
+  this->Buckets->Reset();
 
   // Determine the range of indices in each direction
   for (i=0; i < 3; i++)
@@ -425,7 +426,7 @@ void vtkPointLocator::GetOverlappingBuckets(float x[3], int ijk[3], float dist)
         if ( i != ijk[0] || j != ijk[1] || k != ijk[2] )
           {
           nei[0]=i; nei[1]=j; nei[2]=k;
-          Buckets->InsertNextPoint(nei);
+          this->Buckets->InsertNextPoint(nei);
           }
         }
       }
@@ -434,7 +435,7 @@ void vtkPointLocator::GetOverlappingBuckets(float x[3], int ijk[3], float dist)
 
 
 // specifically for point insertion
-static float InsertionLevel;
+float InsertionLevel;
 
 // Initialize the point insertion process. The newPts is an object representing
 // point coordinates into which incremental insertion methods place their 
@@ -642,9 +643,9 @@ int vtkPointLocator::IsInsertedPoint(float x[3])
       {
       this->GetBucketNeighbors (ijk, this->Divisions, lvtk);
 
-      for ( i=0; i < Buckets->GetNumberOfNeighbors(); i++ ) 
+      for ( i=0; i < this->Buckets->GetNumberOfNeighbors(); i++ ) 
         {
-        nei = Buckets->GetPoint(i);
+        nei = this->Buckets->GetPoint(i);
         cno = nei[0] + nei[1]*this->Divisions[0] + 
               nei[2]*this->Divisions[0]*this->Divisions[1];
 
@@ -710,9 +711,9 @@ int vtkPointLocator::FindClosestInsertedPoint(float x[3])
     {
     this->GetBucketNeighbors (ijk, this->Divisions, level);
 
-    for (i=0; i<Buckets->GetNumberOfNeighbors(); i++) 
+    for (i=0; i<this->Buckets->GetNumberOfNeighbors(); i++) 
       {
-      nei = Buckets->GetPoint(i);
+      nei = this->Buckets->GetPoint(i);
       cno = nei[0] + nei[1]*this->Divisions[0] + 
             nei[2]*this->Divisions[0]*this->Divisions[1];
 
@@ -741,9 +742,9 @@ int vtkPointLocator::FindClosestInsertedPoint(float x[3])
   //  Don't want to search all the neighbors, only those that could
   //  possibly have points closer than the current closest.
   //
-  for (i=0; i<Buckets->GetNumberOfNeighbors(); i++) 
+  for (i=0; i<this->Buckets->GetNumberOfNeighbors(); i++) 
     {
-    nei = Buckets->GetPoint(i);
+    nei = this->Buckets->GetPoint(i);
 
     for (dist2=0,j=0; j<3; j++) 
       {

@@ -66,6 +66,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkPoints.h"
 #include "vtkIdList.h"
 
+class vtkNeighborPoints;
+
 class VTK_EXPORT vtkPointLocator : public vtkLocator
 {
 public:
@@ -157,6 +159,7 @@ protected:
   vtkIdList **HashTable; // lists of point ids in buckets
   int NumberOfBuckets; // total size of hash table
   float H[3]; // width of each bucket in x-y-z directions
+  vtkNeighborPoints *Buckets;
 
   float InsertionTol2;
   int InsertionPointId;
