@@ -1152,8 +1152,6 @@ int vtkEnSightGoldBinaryReader::ReadVectorsPerNode(char* fileName,
 	this->ReadFloatArray(comp1, numPts);
 	this->ReadFloatArray(comp2, numPts);
 	this->ReadFloatArray(comp3, numPts);
-
-	delete [] vectorsRead;
 	}
       
       this->ReadLine(line); // END TIME STEP
@@ -2773,7 +2771,7 @@ int vtkEnSightGoldBinaryReader::ReadInt(int *result)
 // Internal function to read an integer array.
 // Returns zero if there was an error.
 int vtkEnSightGoldBinaryReader::ReadIntArray(int *result,
-                                          int numInts)
+                                             int numInts)
 {
   int i;
   
@@ -2793,7 +2791,7 @@ int vtkEnSightGoldBinaryReader::ReadIntArray(int *result,
 // Internal function to read a float array.
 // Returns zero if there was an error.
 int vtkEnSightGoldBinaryReader::ReadFloatArray(float *result,
-                                            int numFloats)
+                                               int numFloats)
 {
   int i;
   

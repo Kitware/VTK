@@ -14,7 +14,7 @@
 int main( int argc, char *argv[] )
 {
   float range[2], c[3];
-  float maxVelocity, maxTime;
+  float maxVelocity, maxTime = 0;
   
   vtkRenderer *aren = vtkRenderer::New();
   vtkRenderWindow *renWin = vtkRenderWindow::New();

@@ -88,7 +88,7 @@ int main(int argc, char **argv)
   FILE *fp;
   char lbuf[128],keywd[16],atomId[16],atomSym[8],tok[16],*charPtr;
   int idx, atomIdNum[MAXATOM], atomIdx1,atomIdx2,
-    srcAtomIdx,srcAtom,dstAtom, bondsFlag;
+    srcAtomIdx = 0,srcAtom,dstAtom, bondsFlag;
   float atomRadius, sphereResolution, bondRadius, cylResolution;
   double xval,yval,zval;
 
