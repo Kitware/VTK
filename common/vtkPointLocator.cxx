@@ -924,6 +924,10 @@ int vtkPointLocator::InitPointInsertion(vtkPoints *newPts, float bounds[6],
     vtkErrorMacro(<<"Must define points for point insertion");
     return 0;
     }
+  if (this->Points != NULL)
+    {
+    this->Points->UnRegister(this);
+    }
   this->Points = newPts;
   this->Points->Register(this);
 
