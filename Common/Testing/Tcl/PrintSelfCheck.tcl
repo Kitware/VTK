@@ -696,8 +696,6 @@ proc measure_vtk {kits} {
   foreach toolkit $kits {
     clear_results
 
-    puts $pd_id " "
-
     read_directory $path$toolkit
 
     print_toolkit_results $toolkit
