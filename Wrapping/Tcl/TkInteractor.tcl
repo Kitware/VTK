@@ -5,7 +5,13 @@ set TkInteractor_EndRenderMethod ""
 set TkInteractor_InteractiveUpdateRate 15.0
 set TkInteractor_StillUpdateRate 0.1
 
+set TkInteractor_IsInitialized 0
+set PickedAssembly ""
+set PrePickedProperty ""
+
 proc BindTkRenderWidget {widget} {
+    global TkInteractor_IsInitialized
+
     bind $widget <Any-ButtonPress> {StartMotion %W %x %y}
     bind $widget <Any-ButtonRelease> {EndMotion %W %x %y}
     bind $widget <B1-Motion> {Rotate %W %x %y}
@@ -21,6 +27,59 @@ proc BindTkRenderWidget {widget} {
     bind $widget <Enter> {Enter %W %x %y}
     bind $widget <Leave> {focus $oldFocus}
     bind $widget <Expose> {Expose %W}
+
+    if {!$TkInteractor_IsInitialized} {
+	# Objects used to display rubberband
+	vtkPoints            RubberBandPoints
+	vtkCellArray         RubberBandLines
+	vtkFloatArray        RubberBandScalars
+	vtkPolyData          RubberBandPolyData
+	vtkPolyDataMapper2D  RubberBandMapper
+	vtkActor2D           RubberBandActor
+	vtkLookupTable       RubberBandColors
+	
+	RubberBandPolyData SetPoints      RubberBandPoints
+	RubberBandPolyData SetLines       RubberBandLines
+	RubberBandMapper   SetInput       RubberBandPolyData
+	RubberBandMapper   SetLookupTable RubberBandColors
+	RubberBandActor    SetMapper      RubberBandMapper
+	
+	RubberBandColors SetNumberOfTableValues 2
+	RubberBandColors SetNumberOfColors 2
+	RubberBandColors SetTableValue 0 1.0 0.0 0.0 1.0
+	RubberBandColors SetTableValue 1 1.0 1.0 1.0 1.0
+	
+	[RubberBandPolyData GetPointData] SetScalars RubberBandScalars
+	
+	RubberBandMapper SetScalarRange 0 1
+	
+	RubberBandPoints InsertPoint 0  0  0  0
+	RubberBandPoints InsertPoint 1  0 10  0
+	RubberBandPoints InsertPoint 2 10 10  0
+	RubberBandPoints InsertPoint 3 10  0  0
+	
+	RubberBandLines  InsertNextCell 5
+	RubberBandLines  InsertCellPoint 0
+	RubberBandLines  InsertCellPoint 1
+	RubberBandLines  InsertCellPoint 2
+	RubberBandLines  InsertCellPoint 3
+	RubberBandLines  InsertCellPoint 0
+	
+	RubberBandScalars InsertNextValue 0
+	RubberBandScalars InsertNextValue 1
+	RubberBandScalars InsertNextValue 0
+	RubberBandScalars InsertNextValue 1
+	
+	RubberBandMapper ScalarVisibilityOn
+
+	# Used to support picking operations
+	#
+	vtkCellPicker ActorPicker
+	vtkProperty PickedProperty
+	PickedProperty SetColor 1 0 0
+	set TkInteractor_IsInitialized 1
+
+    }
 }
 
 # a litle more complex than just "bind $widget <Expose> {%W Render}"
@@ -148,48 +207,6 @@ proc EndMotion {widget x y} {
     Render $widget
 }
 
-# Objects used to display rubberband
-vtkPoints            RubberBandPoints
-vtkCellArray         RubberBandLines
-vtkScalars           RubberBandScalars
-vtkPolyData          RubberBandPolyData
-vtkPolyDataMapper2D  RubberBandMapper
-vtkActor2D           RubberBandActor
-vtkLookupTable       RubberBandColors
-
-RubberBandPolyData SetPoints      RubberBandPoints
-RubberBandPolyData SetLines       RubberBandLines
-RubberBandMapper   SetInput       RubberBandPolyData
-RubberBandMapper   SetLookupTable RubberBandColors
-RubberBandActor    SetMapper      RubberBandMapper
-
-RubberBandColors SetNumberOfTableValues 2
-RubberBandColors SetNumberOfColors 2
-RubberBandColors SetTableValue 0 1.0 0.0 0.0 1.0
-RubberBandColors SetTableValue 1 1.0 1.0 1.0 1.0
-
-[RubberBandPolyData GetPointData] SetScalars RubberBandScalars
-
-RubberBandMapper SetScalarRange 0 1
-
-RubberBandPoints InsertPoint 0  0  0  0
-RubberBandPoints InsertPoint 1  0 10  0
-RubberBandPoints InsertPoint 2 10 10  0
-RubberBandPoints InsertPoint 3 10  0  0
-
-RubberBandLines  InsertNextCell 5
-RubberBandLines  InsertCellPoint 0
-RubberBandLines  InsertCellPoint 1
-RubberBandLines  InsertCellPoint 2
-RubberBandLines  InsertCellPoint 3
-RubberBandLines  InsertCellPoint 0
-
-RubberBandScalars InsertNextScalar 0
-RubberBandScalars InsertNextScalar 1
-RubberBandScalars InsertNextScalar 0
-RubberBandScalars InsertNextScalar 1
-
-RubberBandMapper ScalarVisibilityOn
 
 # Called when the mouse button is release - do the zoom
 proc DoRubberZoom { widget } {
@@ -545,13 +562,6 @@ proc Surface {widget} {
     Render $widget
 }
 
-# Used to support picking operations
-#
-set PickedAssembly ""
-vtkCellPicker ActorPicker
-vtkProperty PickedProperty
-    PickedProperty SetColor 1 0 0
-set PrePickedProperty ""
 
 proc PickActor {widget x y} {
     global CurrentRenderer RendererFound
