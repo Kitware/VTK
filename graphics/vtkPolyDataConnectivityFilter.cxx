@@ -346,6 +346,14 @@ void vtkPolyDataConnectivityFilter::Execute()
   Mesh->Delete();
   output->Squeeze();
 
+  int num = this->GetNumberOfExtractedRegions();
+  int count = 0;
+
+  for (int ii = 0; ii < num; ii++)
+    {
+    count += this->RegionSizes->GetValue (ii);
+    }
+  vtkDebugMacro (<< "Total # of cells accounted for: " << count);
   vtkDebugMacro (<<"Extracted " << output->GetNumberOfCells() << " cells");
 
   return;
@@ -361,14 +369,14 @@ void vtkPolyDataConnectivityFilter::TraverseAndMark (int cellId)
   unsigned short ncells;
 
   Visited[cellId] = RegionNumber;
-  NumCellsInRegion++;
-
   if ( RecursionDepth++ > this->MaxRecursionDepth ) 
     {
     RecursionSeeds->InsertNextId(cellId);
     NumExceededMaxDepth++;
     return;
     }
+
+  NumCellsInRegion++;
 
   Mesh->GetCellPoints(cellId, npts, pts);
 
