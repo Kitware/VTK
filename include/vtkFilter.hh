@@ -60,15 +60,15 @@ public:
 
   // Description:
   // All filters must provide a method to update the visualization 
-  // pipeline.
-  virtual void Update();
+  // pipeline. (Method interface inherited from vtkSource).
+  void Update();
 
 protected:
   vtkDataSet *Input;
   char Updating;
 
   // Every filter must have execute method.
-  virtual void Execute();
+  void Execute();
 };
 
 #endif
