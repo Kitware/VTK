@@ -114,7 +114,8 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
 			 data->Functions[i].ReturnClass);
       if (data->Functions[i].Comment)
         {
-        fprintf(fp,"    <li><a href=\"#method%i\">%s%s (", i, rtype, data->Functions[i].Name);
+        fprintf(fp,"    <li><a href=\"#method%i\">%s%s (", i, rtype, 
+		data->Functions[i].Name);
         for (j = 0; j < data->Functions[i].NumberOfArguments; j++)
           {
           rtype = vtkGetType(data->Functions[i].ArgTypes[j],
@@ -164,18 +165,26 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
         fprintf(fp,"%s",rtype);
         }
       fprintf(fp,")</a></li>\n");
-      if (i == data->NumberOfFunctions ||
-          ((i < (data->NumberOfFunctions - 1)) &&
-            data->Functions[i].Comment &&
-            data->Functions[i+1].Comment &&
-            strcmp(data->Functions[i].Comment,
-                   data->Functions[i+1].Comment)))
-        {
-        closed = 1;
-        fprintf(fp,"<blockquote>");
-        fprintf(fp,"   <p>%s</p>\n</blockquote></ul><hr>\n\n",
-	        data->Functions[i].Comment);
-        }
+      // if we have a comment
+      if (data->Functions[i].Comments)
+	{
+	// and this is the last method
+	if (i == (data->NumberOfFunctions - 1) ||
+	    // or it isn't the last
+	    (i < (data->NumberOfFunctions - 1) &&
+	     // and the next comment either doesn't exist
+	     (!data->Functions[i+1].Comment ||
+	      // or it does exist but is different
+	      (data->Functions[i+1].Comment &&
+	       strcmp(data->Functions[i].Comment,
+		      data->Functions[i+1].Comment)))))
+	  {
+	  closed = 1;
+	  fprintf(fp,"<blockquote>");
+	  fprintf(fp,"   <p>%s</p>\n</blockquote></ul><hr>\n\n",
+		  data->Functions[i].Comment);
+	  }
+	}
       }
     }
   fprintf(fp,"<p>&nbsp;</p>\n</body>\n</html>\n");
