@@ -24,34 +24,23 @@
 #ifndef __vtkImageToStructuredPoints_h
 #define __vtkImageToStructuredPoints_h
 
-#include "vtkSource.h"
+#include "vtkImageAlgorithm.h"
  
 class vtkImageData;
 class vtkStructuredPoints;
 
-class VTK_FILTERING_EXPORT vtkImageToStructuredPoints : public vtkSource
+class VTK_FILTERING_EXPORT vtkImageToStructuredPoints : public vtkImageAlgorithm
 {
 public:
   static vtkImageToStructuredPoints *New();
-  vtkTypeRevisionMacro(vtkImageToStructuredPoints,vtkSource);
+  vtkTypeRevisionMacro(vtkImageToStructuredPoints,vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
   
-  // Description:
-  // Set/Get the input object from the image pipeline.
-  void SetInput(vtkImageData *input);
-  vtkImageData *GetInput();
-
-
   // Description:
   // Set/Get the input object from the image pipeline.
   void SetVectorInput(vtkImageData *input);
   vtkImageData *GetVectorInput();
 
-  // Description:
-  // Get the output of this source.
-  vtkStructuredPoints *GetOutput();
-  vtkStructuredPoints *GetOutput(int idx);
-  
 protected:
   vtkImageToStructuredPoints();
   ~vtkImageToStructuredPoints();
@@ -59,9 +48,9 @@ protected:
   // to translate the wholeExtent to have min 0 ( I do not like this hack).
   int Translate[3];
   
-  void Execute();
-  void ExecuteInformation();
-  void ComputeInputUpdateExtents(vtkDataObject *data);
+  virtual void RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual void RequestInformation (vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual void RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   virtual int FillOutputPortInformation(int, vtkInformation*);
   virtual int FillInputPortInformation(int, vtkInformation*);

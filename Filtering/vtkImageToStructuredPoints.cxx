@@ -17,23 +17,22 @@
 #include "vtkCellData.h"
 #include "vtkFieldData.h"
 #include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStructuredPoints.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageToStructuredPoints, "1.58");
+vtkCxxRevisionMacro(vtkImageToStructuredPoints, "1.59");
 vtkStandardNewMacro(vtkImageToStructuredPoints);
 
 //----------------------------------------------------------------------------
 vtkImageToStructuredPoints::vtkImageToStructuredPoints()
 {
-  this->NumberOfRequiredInputs = 1;
-  this->SetNumberOfInputPorts(1);
+  this->SetNumberOfInputPorts(2);
   this->Translate[0] = this->Translate[1] = this->Translate[2] = 0;
-  this->SetNthOutput(0,vtkStructuredPoints::New());
-  this->Outputs[0]->Delete();
 }
 
 //----------------------------------------------------------------------------
@@ -49,57 +48,32 @@ void vtkImageToStructuredPoints::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-vtkStructuredPoints *vtkImageToStructuredPoints::GetOutput()
-{
-  if (this->NumberOfOutputs < 1)
-    {
-    return NULL;
-    }
-  
-  return (vtkStructuredPoints *)(this->Outputs[0]);
-}
-
-//----------------------------------------------------------------------------
-void vtkImageToStructuredPoints::SetInput(vtkImageData *input)
-{
-  this->vtkProcessObject::SetNthInput(0, input);
-}
-
-//----------------------------------------------------------------------------
-vtkImageData *vtkImageToStructuredPoints::GetInput()
-{
-  if (this->NumberOfInputs < 1)
-    {
-    return NULL;
-    }
-  
-  return (vtkImageData *)(this->Inputs[0]);
-}
-
-
-//----------------------------------------------------------------------------
 void vtkImageToStructuredPoints::SetVectorInput(vtkImageData *input)
 {
-  this->vtkProcessObject::SetNthInput(1, input);
+  this->SetInput(1, input);
 }
 
 //----------------------------------------------------------------------------
 vtkImageData *vtkImageToStructuredPoints::GetVectorInput()
 {
-  if (this->NumberOfInputs < 2)
+  if (this->GetNumberOfInputConnections(1) < 1)
     {
     return NULL;
     }
   
-  return (vtkImageData *)(this->Inputs[1]);
+  return vtkImageData::SafeDownCast(this->GetExecutive()->GetInputData(1, 0));
 }
 
-
-
-
 //----------------------------------------------------------------------------
-void vtkImageToStructuredPoints::Execute()
+void vtkImageToStructuredPoints::RequestData(
+  vtkInformation *,
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *vectorInfo = inputVector[1]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
   int uExtent[6];
   int *wExtent;
 
@@ -109,17 +83,19 @@ void vtkImageToStructuredPoints::Execute()
   int maxZ = 0;;
   int inIncX, inIncY, inIncZ, rowLength;
   unsigned char *inPtr1, *inPtr, *outPtr;
-  vtkStructuredPoints *output = this->GetOutput();
-  vtkImageData *data = this->GetInput();
-  vtkImageData *vData = this->GetVectorInput();
-  
-  if (!data && !vData)
+  vtkStructuredPoints *output = vtkStructuredPoints::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkImageData *data = vtkImageData::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkImageData *vData = 0;
+  if (vectorInfo)
     {
-    vtkErrorMacro("Unable to generate data!");
-    return;
+    vData = vtkImageData::SafeDownCast(
+      vectorInfo->Get(vtkDataObject::DATA_OBJECT()));
     }
 
-  output->GetUpdateExtent(uExtent);
+  outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
+               uExtent);
   output->SetExtent(uExtent);
 
   uExtent[0] += this->Translate[0];
@@ -240,42 +216,31 @@ void vtkImageToStructuredPoints::Execute()
 
 //----------------------------------------------------------------------------
 // Copy WholeExtent, Spacing and Origin.
-void vtkImageToStructuredPoints::ExecuteInformation()
+void vtkImageToStructuredPoints::RequestInformation (
+  vtkInformation * vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
-  vtkImageData *input = this->GetInput();
-  vtkImageData *vInput = this->GetVectorInput();
-  vtkStructuredPoints *output = this->GetOutput();
+  // get the info objects
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *vInfo = inputVector[1]->GetInformationObject(0);
+  
   int whole[6], *tmp;
   double *spacing, origin[3];
   
-  if (output == NULL)
-    {
-    return;
-    }
-  
-  if (input)
-    {
-    output->SetScalarType(input->GetScalarType());
-    output->SetNumberOfScalarComponents(input->GetNumberOfScalarComponents());
-    input->GetWholeExtent(whole);    
-    spacing = input->GetSpacing();
-    input->GetOrigin(origin);
-    }
-  else if (vInput)
-    {
-    whole[0] = whole[2] = whole[4] = -VTK_LARGE_INTEGER;
-    whole[1] = whole[3] = whole[5] = VTK_LARGE_INTEGER;
-    spacing = vInput->GetSpacing();
-    vInput->GetOrigin(origin);
-    }
-  else
-    {
-    return;
-    }
+  outInfo->Set(vtkDataObject::SCALAR_TYPE(),
+               inInfo->Get(vtkDataObject::SCALAR_TYPE()));
+  outInfo->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(),
+               inInfo->Get(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS()));
+  inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),whole);    
+  spacing = inInfo->Get(vtkDataObject::SPACING());
+  inInfo->Get(vtkDataObject::ORIGIN(), origin);
+
   // intersections for whole extent
-  if (vInput)
+  if (vInfo)
     {
-    tmp = vInput->GetWholeExtent();
+    tmp = vInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
     if (tmp[0] > whole[0]) {whole[0] = tmp[0];}
     if (tmp[2] > whole[2]) {whole[2] = tmp[2];}
     if (tmp[4] > whole[4]) {whole[4] = tmp[4];}
@@ -297,27 +262,26 @@ void vtkImageToStructuredPoints::ExecuteInformation()
   whole[5] -= whole[4];
   whole[0] = whole[2] = whole[4] = 0;
   
-  output->SetWholeExtent(whole);
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),whole,6);
   // Now should Origin and Spacing really be part of information?
   // How about xyx arrays in RectilinearGrid of Points in StructuredGrid?
-  output->SetOrigin(origin);
-  output->SetSpacing(spacing);
+  outInfo->Set(vtkDataObject::ORIGIN(),origin,3);
+  outInfo->Set(vtkDataObject::SPACING(),spacing,3);
 }
 
 //----------------------------------------------------------------------------
-vtkStructuredPoints *vtkImageToStructuredPoints::GetOutput(int idx)
+void vtkImageToStructuredPoints::RequestUpdateExtent(
+  vtkInformation *,
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
-  return (vtkStructuredPoints *) this->vtkSource::GetOutput(idx); 
-}
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *vInfo = inputVector[1]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-//----------------------------------------------------------------------------
-void vtkImageToStructuredPoints::ComputeInputUpdateExtents(vtkDataObject *data)
-{
-  vtkStructuredPoints *output = (vtkStructuredPoints*)data;
   int ext[6];
-  vtkImageData *input;
 
-  output->GetUpdateExtent(ext);
+  outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), ext);
   ext[0] += this->Translate[0];
   ext[1] += this->Translate[0];
   ext[2] += this->Translate[1];
@@ -325,16 +289,11 @@ void vtkImageToStructuredPoints::ComputeInputUpdateExtents(vtkDataObject *data)
   ext[4] += this->Translate[2];
   ext[5] += this->Translate[2];
   
-  input = this->GetInput();
-  if (input)
-    {
-    input->SetUpdateExtent(ext);
-    }
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), ext, 6);
 
-  input = this->GetVectorInput();
-  if (input)
+  if (vInfo)
     {
-    input->SetUpdateExtent(ext);
+    vInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), ext, 6);
     }
 }
 
@@ -352,12 +311,15 @@ int vtkImageToStructuredPoints::FillOutputPortInformation(int port,
 
 //----------------------------------------------------------------------------
 int vtkImageToStructuredPoints::FillInputPortInformation(int port,
-                                                         vtkInformation* info)
+                                                         vtkInformation *info)
 {
-  if(!this->Superclass::FillInputPortInformation(port, info))
+  if (!this->Superclass::FillInputPortInformation(port, info))
     {
     return 0;
     }
-  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkImageData");
+  if (port == 1)
+    {
+    info->Set(vtkAlgorithm::INPUT_IS_OPTIONAL(), 1);
+    }
   return 1;
 }
