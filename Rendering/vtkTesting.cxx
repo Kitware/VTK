@@ -29,7 +29,7 @@
 #include <sys/stat.h>
 
 vtkStandardNewMacro(vtkTesting);
-vtkCxxRevisionMacro(vtkTesting, "1.9");
+vtkCxxRevisionMacro(vtkTesting, "1.10");
 vtkCxxSetObjectMacro(vtkTesting, RenderWindow, vtkRenderWindow);
 
 // Function returning either a command line argument, an environment variable
@@ -411,32 +411,6 @@ int vtkTesting::RegressionTest(double thresh, ostream &os)
     // read the front buffer
     rt_w2if->ReadFrontBufferOn();
     }
-  this->GetValidImageFileName();
-  FILE *rt_fin = fopen(this->ValidImageFileName,"r"); 
-  if (rt_fin) 
-    { 
-    fclose(rt_fin);
-    }
-  else
-    {
-    FILE *rt_fout = fopen(this->ValidImageFileName,"wb"); 
-    if (rt_fout) 
-      { 
-      fclose(rt_fout);
-      vtkPNGWriter *rt_pngw = vtkPNGWriter::New();
-      rt_pngw->SetFileName(this->ValidImageFileName);
-      rt_pngw->SetInput(rt_w2if->GetOutput());
-      rt_pngw->Write();
-      rt_pngw->Delete();
-      }
-    else
-      {
-      os << "Unable to open file for writing: " << 
-        this->ValidImageFileName << endl;
-      rt_w2if->Delete(); 
-      return FAILED;
-      }
-    }
 
   int res = this->RegressionTest(rt_w2if->GetOutput(), thresh, os);
   rt_w2if->Delete(); 
@@ -448,7 +422,34 @@ int vtkTesting::RegressionTest(vtkImageData* image, double thresh, ostream& os)
   // do a get to compute the real value
   this->GetValidImageFileName();
   const char * tmpDir = this->GetTempDirectory();
-  
+
+  // construct the names for the error images
+  vtkstd::string validName = this->ValidImageFileName;
+  vtkstd::string::size_type slash_pos = validName.rfind("/");
+  if(slash_pos != vtkstd::string::npos)
+    {
+    validName = validName.substr(slash_pos + 1);
+    }  
+
+  // check the valid image
+  FILE *rt_fin = fopen(this->ValidImageFileName,"r"); 
+  if (rt_fin) 
+    { 
+    fclose(rt_fin);
+    }
+  else // there was no valid image, so write one to the temp dir
+    {
+    char* vImage = new char[strlen(tmpDir) + validName.size() + 30];
+    sprintf(vImage, "%s/%s", tmpDir, validName.c_str());
+    vtkPNGWriter *rt_pngw = vtkPNGWriter::New();
+    rt_pngw->SetFileName(vImage);
+    rt_pngw->SetInput(image);
+    rt_pngw->Write();
+    rt_pngw->Delete();
+    delete [] vImage;
+    return FAILED;
+    }
+
   vtkPNGReader *rt_png = vtkPNGReader::New(); 
   rt_png->SetFileName(this->ValidImageFileName); 
   vtkImageDifference *rt_id = vtkImageDifference::New(); 
@@ -465,9 +466,9 @@ int vtkTesting::RegressionTest(vtkImageData* image, double thresh, ostream& os)
     passed = 1;
     }
 
-  // If the test failed with the first image (foo.png)
-  // check if there are images of the form foo_N.png
-  // (where N=1,2,3...) and compare against them.
+  // If the test failed with the first image (foo.png) check if there are
+  // images of the form foo_N.png (where N=1,2,3...) and compare against
+  // them.
   double error=0;
   int count=1, errIndex=-1;
   char* newFileName;
@@ -542,14 +543,6 @@ int vtkTesting::RegressionTest(vtkImageData* image, double thresh, ostream& os)
   if (rt_dout) 
     { 
     fclose(rt_dout);
-    
-    // construct the names for the error images
-    vtkstd::string validName = this->ValidImageFileName;
-    vtkstd::string::size_type slash_pos = validName.rfind("/");
-    if(slash_pos != vtkstd::string::npos)
-      {
-      validName = validName.substr(slash_pos + 1);
-      }
     
     vtkPNGWriter *rt_pngw = vtkPNGWriter::New();
     rt_pngw->SetFileName(rt_diffName);
@@ -635,16 +628,12 @@ int vtkTesting::Test(int argc, char *argv[], vtkRenderWindow *rw,
     testing->AddArgument(argv[i]);
     }
   
-  for (i=0; i<argc; i++)
+  if (testing->IsInteractiveModeSpecified())
     {
-    if ( strcmp("-I", argv[i]) == 0 )
-      {
-      testing->Delete();
-      return DO_INTERACTOR;
-      }
+    testing->Delete();
+    return DO_INTERACTOR;
     }
-
-
+  
   testing->FrontBufferOff();
   for (i=0; i<argc; i++)
     {
