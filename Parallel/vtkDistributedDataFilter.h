@@ -17,33 +17,33 @@
  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
 ----------------------------------------------------------------------------*/
 
-// .NAME vtkDistributedDataFilter
+// .NAME vtkDistributedDataFilter - Distribute data among processors
 //
 // .SECTION Description
-//    This filter redistributes data among processors in a parallel
-//    application into spatially contiguous vtkUnstructuredGrids.
-//    The execution model anticipated is that all processes read in
-//    part of a large vtkDataSet.  Each process sets the input of
-//    filter to be that DataSet.  When executed, this filter builds
-//    in parallel a k-d tree decomposing the space occupied by the
-//    distributed DataSet into spatial regions.  It assigns each
-//    spatial region to a processor.  The data is then redistributed
-//    and the output is a single vtkUnstructuredGrid containing the
-//    cells in the process' assigned regions.
+// This filter redistributes data among processors in a parallel
+// application into spatially contiguous vtkUnstructuredGrids.
+// The execution model anticipated is that all processes read in
+// part of a large vtkDataSet. Each process sets the input of
+// filter to be that DataSet. When executed, this filter builds
+// in parallel a k-d tree, decomposing the space occupied by the
+// distributed DataSet into spatial regions.  It assigns each
+// spatial region to a processor.  The data is then redistributed
+// and the output is a single vtkUnstructuredGrid containing the
+// cells in the process' assigned regions.
 //
 // .SECTION Caveats
-//    The Execute() method must be called by all processes in the
-//    parallel application, or it will hang.  If you are not certain
-//    that your pipelines will execute identically on all processors,
-//    you may want to use this filter in an explicit execution mode.
+// The Execute() method must be called by all processes in the
+// parallel application, or it will hang.  If you are not certain
+// that your pipeline will execute identically on all processors,
+// you may want to use this filter in an explicit execution mode.
 //
 // .SECTION See Also
-//      vtkKdTree vtkPKdTree
+// vtkKdTree vtkPKdTree
 
 #ifndef __vtkDistributedDataFilter_h
 #define __vtkDistributedDataFilter_h
 
-#include <vtkDataSetToUnstructuredGridFilter.h>
+#include "vtkDataSetToUnstructuredGridFilter.h"
 
 class vtkUnstructuredGrid;
 class vtkPKdTree;
@@ -69,7 +69,6 @@ public:
 
   // Description:
   //   Set/Get the communicator object
-
   void SetController(vtkMultiProcessController *c);
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
 
@@ -214,7 +213,6 @@ public:
   unsigned long GetMTime();
 
 protected:
-
   vtkDistributedDataFilter();
   ~vtkDistributedDataFilter();
 
