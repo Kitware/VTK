@@ -875,7 +875,7 @@ float vtkRenderer::GetZ (int x, int y)
   if (zPtr)
     {
     z = *zPtr;
-    delete zPtr;
+    delete [] zPtr;
     }
   else
     {
