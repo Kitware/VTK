@@ -269,10 +269,13 @@ void vtkImageMultipleInputFilter::ExecuteData(vtkDataObject *out)
 void vtkImageMultipleInputFilter::ThreadedExecute(vtkImageData 
 				  **vtkNotUsed(inData), 
 				  vtkImageData *vtkNotUsed(outData),
-				  int extent[6], int vtkNotUsed(threadId))
+				  int extent[6], int threadId)
 {
   extent = extent;
-  vtkErrorMacro("subclase should override this method!!!");
+  if (threadId == 0)
+    {
+    vtkErrorMacro("subclass must override ThreadedExecute!!!");
+    }
 }
 
   
