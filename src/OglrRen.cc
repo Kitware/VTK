@@ -142,7 +142,7 @@ int vtkOglrRenderer::UpdateLights ()
       // and we aren't out of lights
       if ((this->BackLight > 0.0) && 
 	  (cur_light < (GL_LIGHT0+MAX_LIGHTS)) &&
-	  (light->GetPositional()))
+	  ((!light->GetPositional())))
 	{
 	glEnable(cur_light);
 	// if backlighting is on then increment the current light again 
