@@ -17,7 +17,7 @@
 #include <vtkstd/set>
 #include <vtkstd/queue>
 
-vtkCxxRevisionMacro(vtkGarbageCollector, "1.4");
+vtkCxxRevisionMacro(vtkGarbageCollector, "1.5");
 
 //----------------------------------------------------------------------------
 class vtkGarbageCollectorQueue: public vtkstd::queue<vtkObjectBase*> {};
@@ -71,6 +71,7 @@ void vtkGarbageCollector::Check(vtkObjectBase* root)
     collector.SetDebug(obj->GetDebug());
     }
   collector.CheckReferenceLoops(root);
+  collector.SetDebug(0);
 }
 
 //----------------------------------------------------------------------------
@@ -130,9 +131,6 @@ void vtkGarbageCollector::CheckReferenceLoops(vtkObjectBase* root)
       }
 #endif
 
-    // Make sure this garbage collector is not deleted.
-    this->Register(this);
-
     // Notify all objects they are about to be garbage collected.
     // They will disable reference loop checking.
     for(obj = this->Queued->begin(); obj != this->Queued->end(); ++obj)
@@ -152,9 +150,6 @@ void vtkGarbageCollector::CheckReferenceLoops(vtkObjectBase* root)
       {
       (*obj)->GarbageCollectionFinishing();
       }
-
-    // It is now safe to delete this garbage collector.
-    this->UnRegister(this);
     }
 }
 
