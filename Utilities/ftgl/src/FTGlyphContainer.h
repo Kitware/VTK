@@ -10,12 +10,14 @@
 
 class FTFace;
 
-
+#ifdef FTGL_DO_NOT_USE_STL
+#include <NoSTL/FTGlyphVector.h>
+#else
 #include <vector>
 #ifdef USE_STD_NAMESPACE
 using namespace std;
 #endif
-
+#endif
 
 /**
  * FTGlyphContainer holds the post processed FTGlyph objects.
@@ -114,7 +116,12 @@ class FTGL_EXPORT FTGlyphContainer
     /**
      * A structure to hold the glyphs
      */
-    vector<FTGlyph*> glyphs;
+#ifdef FTGL_DO_NOT_USE_STL
+    typedef FTGlyphVector GlyphVector;
+#else
+    typedef vector<FTGlyph*> GlyphVector;
+#endif
+    GlyphVector glyphs;
 
     /**
      * Current error code. Zero means no error.

@@ -25,7 +25,7 @@ FTPolyGlyph::FTPolyGlyph( FT_Glyph glyph)
   numPoints = vectoriser->MeshPoints();
 
   bBox = FTBBox( glyph);
-  advance = glyph->advance.x >> 16;
+  advance = (float)(glyph->advance.x >> 16);
 
   if ( numPoints < 3)
   {
@@ -76,9 +76,9 @@ float FTPolyGlyph::Render( const FT_Vector& pen)
 {
   if( glList)
   {
-    glTranslatef( pen.x, pen.y, 0);
+    glTranslatef( (float)pen.x, (float)pen.y, 0);
       glCallList( glList);  
-    glTranslatef( -pen.x, -pen.y, 0);
+    glTranslatef( (float)-pen.x, (float)-pen.y, 0);
   }
   
   return advance;

@@ -27,7 +27,7 @@ FTExtrdGlyph::FTExtrdGlyph( FT_Glyph glyph, float d)
   
   bBox = FTBBox( glyph);
   bBox.z2 = -depth;
-  advance = glyph->advance.x >> 16;
+  advance = (float)(glyph->advance.x >> 16);
   
   int numPoints = vectoriser->MeshPoints();
   if ( numPoints < 3)
@@ -213,9 +213,9 @@ float FTExtrdGlyph::Render( const FT_Vector& pen)
 {
   if( glList)
   {
-    glTranslatef( pen.x, pen.y, 0);
+    glTranslatef( (float)pen.x, (float)pen.y, 0);
       glCallList( glList);  
-    glTranslatef( -pen.x, -pen.y, 0);
+    glTranslatef( (float)-pen.x, (float)-pen.y, 0);
   }
   
   return advance;

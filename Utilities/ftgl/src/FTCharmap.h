@@ -8,7 +8,7 @@
 #include "FTGL.h"
 
 #ifdef FTGL_DO_NOT_USE_STL
-#include <NoSTL/FTCharmapInternal.h>
+#include <NoSTL/FTCharToGlyphIndexMap.h>
 #else
 #include <map>
 #ifdef USE_STD_NAMESPACE
@@ -111,7 +111,7 @@ class FTGL_EXPORT FTCharmap
      * < character code, face glyph index>
      */
 #ifdef FTGL_DO_NOT_USE_STL
-    typedef FTCharmapInternal CharacterMap;
+    typedef FTCharToGlyphIndexMap CharacterMap;
 #else
     typedef map< unsigned long, unsigned long> CharacterMap;
 #endif

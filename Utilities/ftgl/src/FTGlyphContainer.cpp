@@ -19,7 +19,7 @@ FTGlyphContainer::FTGlyphContainer( FTFace* f, unsigned int g, bool p)
 
 FTGlyphContainer::~FTGlyphContainer()
 {
-  vector<FTGlyph*>::iterator iter;
+  GlyphVector::iterator iter;
   for( iter = glyphs.begin(); iter != glyphs.end(); ++iter)
   {
     if( *iter)
@@ -56,7 +56,7 @@ float FTGlyphContainer::Advance( unsigned int index, unsigned int next)
   unsigned int left = face->CharIndex( index);
   unsigned int right = face->CharIndex( next);
   
-  float width = face->KernAdvance( left, right).x;
+  float width = (float)face->KernAdvance( left, right).x;
   width += glyphs[left]->Advance();
   
   return width;

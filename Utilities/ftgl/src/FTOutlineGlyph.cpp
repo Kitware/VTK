@@ -27,7 +27,7 @@ FTOutlineGlyph::FTOutlineGlyph( FT_Glyph glyph)
   numContours = vectoriser->contours();
   
   bBox = FTBBox( glyph);
-  advance = glyph->advance.x >> 16;
+  advance = (float)(glyph->advance.x >> 16);
   
   if ( ( numContours < 1) || ( numPoints < 3))
   {
@@ -80,9 +80,9 @@ float FTOutlineGlyph::Render( const FT_Vector& pen)
 {
   if( glList)
   {
-    glTranslatef( pen.x, pen.y, 0);
+    glTranslatef( (float)pen.x, (float)pen.y, 0);
       glCallList( glList);
-    glTranslatef( -pen.x, -pen.y, 0);
+    glTranslatef( (float)-pen.x, (float)-pen.y, 0);
   }
   
   return advance;

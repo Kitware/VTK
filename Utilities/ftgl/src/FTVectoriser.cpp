@@ -205,9 +205,12 @@ int FTVectoriser::Conic( const int index, const int first, const int last)
   
   if( ftOutline.tags[next] != FT_Curve_Tag_Conic)
   {
-    ctrlPtArray[0][0] = ftOutline.points[prev].x;  ctrlPtArray[0][1] = ftOutline.points[prev].y;
-    ctrlPtArray[1][0] = ftOutline.points[index].x;  ctrlPtArray[1][1] = ftOutline.points[index].y;
-    ctrlPtArray[2][0] = ftOutline.points[next].x;  ctrlPtArray[2][1] = ftOutline.points[next].y;
+    ctrlPtArray[0][0] = (float)ftOutline.points[prev].x;  
+    ctrlPtArray[0][1] = (float)ftOutline.points[prev].y;
+    ctrlPtArray[1][0] = (float)ftOutline.points[index].x;  
+    ctrlPtArray[1][1] = (float)ftOutline.points[index].y;
+    ctrlPtArray[2][0] = (float)ftOutline.points[next].x;  
+    ctrlPtArray[2][1] = (float)ftOutline.points[next].y;
     
     evaluateCurve( 2);
     return 1;
@@ -219,20 +222,26 @@ int FTVectoriser::Conic( const int index, const int first, const int last)
       next2 = first;
     
     //create a phantom point
-    float x = ( ftOutline.points[index].x + ftOutline.points[next].x) / 2;
-    float y = ( ftOutline.points[index].y + ftOutline.points[next].y) / 2;
+    float x = (float)(ftOutline.points[index].x + ftOutline.points[next].x)/ 2;
+    float y = (float)(ftOutline.points[index].y + ftOutline.points[next].y)/ 2;
     
     // process first curve
-    ctrlPtArray[0][0] = ftOutline.points[prev].x;  ctrlPtArray[0][1] = ftOutline.points[prev].y;
-    ctrlPtArray[1][0] = ftOutline.points[index].x;  ctrlPtArray[1][1] = ftOutline.points[index].y;
-    ctrlPtArray[2][0] = x;              ctrlPtArray[2][1] = y;
+    ctrlPtArray[0][0] = (float)ftOutline.points[prev].x;  
+    ctrlPtArray[0][1] = (float)ftOutline.points[prev].y;
+    ctrlPtArray[1][0] = (float)ftOutline.points[index].x;  
+    ctrlPtArray[1][1] = (float)ftOutline.points[index].y;
+    ctrlPtArray[2][0] = (float)x;              
+    ctrlPtArray[2][1] = (float)y;
     
     evaluateCurve( 2);
     
     // process second curve
-    ctrlPtArray[0][0] = x;              ctrlPtArray[0][1] = y;
-    ctrlPtArray[1][0] = ftOutline.points[next].x;  ctrlPtArray[1][1] = ftOutline.points[next].y;
-    ctrlPtArray[2][0] = ftOutline.points[next2].x;  ctrlPtArray[2][1] = ftOutline.points[next2].y;
+    ctrlPtArray[0][0] = (float)x;              
+    ctrlPtArray[0][1] = (float)y;
+    ctrlPtArray[1][0] = (float)ftOutline.points[next].x;  
+    ctrlPtArray[1][1] = (float)ftOutline.points[next].y;
+    ctrlPtArray[2][0] = (float)ftOutline.points[next2].x;  
+    ctrlPtArray[2][1] = (float)ftOutline.points[next2].y;
     evaluateCurve( 2);
     
     return 2;
@@ -256,10 +265,14 @@ int FTVectoriser::Cubic( const int index, const int first, const int last)
   if( index == first)
     prev = last; 
 
-  ctrlPtArray[0][0] = ftOutline.points[prev].x;    ctrlPtArray[0][1] = ftOutline.points[prev].y;
-  ctrlPtArray[1][0] = ftOutline.points[index].x;    ctrlPtArray[1][1] = ftOutline.points[index].y;
-  ctrlPtArray[2][0] = ftOutline.points[next].x;    ctrlPtArray[2][1] = ftOutline.points[next].y;
-  ctrlPtArray[3][0] = ftOutline.points[next2].x;    ctrlPtArray[3][1] = ftOutline.points[next2].y;
+  ctrlPtArray[0][0] = (float)ftOutline.points[prev].x;    
+  ctrlPtArray[0][1] = (float)ftOutline.points[prev].y;
+  ctrlPtArray[1][0] = (float)ftOutline.points[index].x;    
+  ctrlPtArray[1][1] = (float)ftOutline.points[index].y;
+  ctrlPtArray[2][0] = (float)ftOutline.points[next].x;    
+  ctrlPtArray[2][1] = (float)ftOutline.points[next].y;
+  ctrlPtArray[3][0] = (float)ftOutline.points[next2].x;    
+  ctrlPtArray[3][1] = (float)ftOutline.points[next2].y;
 
   evaluateCurve( 3);
   return 2;
@@ -321,7 +334,7 @@ void FTVectoriser::GetOutline( FTGL_DOUBLE* data)
 }
 
 
-void FTVectoriser::MakeMesh( int zNormal)
+void FTVectoriser::MakeMesh( FTGL_DOUBLE zNormal)
 {
   if( mesh)
   {

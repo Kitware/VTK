@@ -28,7 +28,6 @@ SOURCE_FILES (FTGL_SRCS
   src/FTSize.cpp
   src/FTTextureGlyph.cpp
   src/FTVectoriser.cpp
-  src/NoSTL/FTCharmapInternal.cpp
 )
 
 ADD_DEFINITIONS(-DFTGL_DO_NOT_USE_STL)

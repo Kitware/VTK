@@ -8,13 +8,6 @@
 #include "FTGL.h"
 #include "FTGlyph.h"
 
-
-#include <vector>
-#ifdef USE_STD_NAMESPACE
-using namespace std;
-#endif
-
-
 #ifndef CALLBACK
 #define CALLBACK
 #endif
@@ -74,6 +67,14 @@ class FTGL_EXPORT ftPoint
   private:
 };
 
+#ifdef FTGL_DO_NOT_USE_STL
+#include <NoSTL/FTPointVector.h>
+#else
+#include <vector>
+#ifdef USE_STD_NAMESPACE
+using namespace std;
+#endif
+#endif
 
 /**
  * FTContour class is a container of points that describe an outline
@@ -134,7 +135,12 @@ class FTGL_EXPORT FTContour
     /**
      *  The list of points in this contour
      */
-    vector< ftPoint> pointList;
+#ifdef FTGL_DO_NOT_USE_STL
+    typedef FTPointVector PointVector;
+#else
+    typedef vector< ftPoint> PointVector;
+#endif
+    PointVector pointList;
     
   private:
     /**
@@ -169,10 +175,25 @@ class FTGL_EXPORT FTTesselation
     size_t size() const { return pointList.size();}
 
     GLenum meshType;
-    vector<ftPoint> pointList;
+#ifdef FTGL_DO_NOT_USE_STL
+    typedef FTPointVector PointVector;
+#else
+    typedef vector< ftPoint> PointVector;
+#endif
+    PointVector pointList;
   private:
     
 };
+
+#ifdef FTGL_DO_NOT_USE_STL
+#include <NoSTL/FTContourVector.h>
+#include <NoSTL/FTTesselationVector.h>
+#else
+#include <vector>
+#ifdef USE_STD_NAMESPACE
+using namespace std;
+#endif
+#endif
 
 
 class FTGL_EXPORT FTMesh
@@ -191,8 +212,19 @@ class FTGL_EXPORT FTMesh
     void Error( GLenum e) { err = e;}
     GLenum Error() const { return err;}
 
-    vector< ftPoint> tempPool;
-    vector< FTTesselation*> tess;
+#ifdef FTGL_DO_NOT_USE_STL
+    typedef FTPointVector PointVector;
+#else
+    typedef vector< ftPoint> PointVector;
+#endif
+    PointVector tempPool;
+
+#ifdef FTGL_DO_NOT_USE_STL
+    typedef FTTesselationVector TesselationVector;
+#else
+    typedef vector< FTTesselation*> TesselationVector;
+#endif
+    TesselationVector tess;
   protected:
   
   private:
@@ -251,7 +283,7 @@ class FTGL_EXPORT FTVectoriser
      * @param zNormal  The direction of the z axis of the normal
      * for this mesh
      */
-    void MakeMesh( int zNormal = 1.0);
+    void MakeMesh( FTGL_DOUBLE zNormal = 1.0);
     
     /**
      * Copy the tesselation data into a block of <code>FTGL_DOUBLEs</code>
@@ -334,7 +366,12 @@ class FTGL_EXPORT FTVectoriser
     /**
      * The list of contours in this outline
      */
-    vector< const FTContour*> contourList;
+#ifdef FTGL_DO_NOT_USE_STL
+    typedef FTContourVector ContourVector;
+#else
+    typedef vector< FTContour*> ContourVector;
+#endif
+    ContourVector contourList;
       
     /**
      * A Mesh for tesselations
