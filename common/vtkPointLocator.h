@@ -92,8 +92,10 @@ public:
   vtkGetMacro(NumberOfPointsPerBucket,int);
 
   // Description:
-  // Given a position x, return the id of the point closest to it.
+  // Given a position x, return the id of the point closest to it. Alternative
+  // method requires separate x-y-z values.
   virtual int FindClosestPoint(float x[3]);
+  int FindClosestPoint(float x, float y, float z);
 
   // Description:
   // Initialize the point insertion process. The newPts is an object
