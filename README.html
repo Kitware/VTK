@@ -177,6 +177,13 @@ If you will be using C++ as your development language:
   3) cd vtk
   4) cmake 
   5) read and edit CMakeCache.txt adding options like python or tcl/tk support.
+    5.1) for tcl/tk support, you have to install the cygwin sources for tcl/tk, then
+         set the following variables in the cache file:
+
+        TK_INCLUDE_PATH:PATH=/usr/src/tcltk-20001125-1/tk/generic/
+        TK_INTERNAL_PATH:PATH=/usr/src/tcltk-20001125-1/tk/win/
+        TK_XLIB_PATH:PATH=/usr/src/tcltk-20001125-1/tk/xlib
+
   6) cmake
   7) make
 </pre>
