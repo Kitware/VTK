@@ -9,7 +9,7 @@
 This file's contents may be copied, reproduced or altered in any way 
 without the express written consent of the author.
 
-Copyright (c) Ken Martin 1995
+Copyright (c) 1993-2000 Ken Martin, Will Schroeder, Bill Lorensen.
 
 =========================================================================*/
 

@@ -9,7 +9,7 @@
              Informatics, Eastman Dental Institute, London, UK) who
              developed and contributed this class.
 
-Copyright (c) 1993-1999 Ken Martin, Will Schroeder, Bill Lorensen.
+Copyright (c) 1993-2000 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
 The following terms apply to all files associated with the software unless

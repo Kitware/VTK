@@ -9,7 +9,7 @@
 
 
 
-Copyright (c) 1993-1996 Ken Martin, Will Schroeder, Bill Lorensen.
+Copyright (c) 1993-2000 Ken Martin, Will Schroeder, Bill Lorensen.
 
     THIS CLASS IS PATENT PENDING.
 

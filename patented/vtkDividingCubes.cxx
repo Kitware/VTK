@@ -7,7 +7,7 @@
   Version:   $Revision$
 
 
-Copyright (c) 1993-1999 Ken Martin, Will Schroeder, Bill Lorensen.
+Copyright (c) 1993-2000 Ken Martin, Will Schroeder, Bill Lorensen.
 
     THIS CLASS IS PATENTED UNDER UNITED STATES PATENT NUMBER 4,719,585
     "Dividing Cubes System and Method for the Display of Surface Structures

@@ -7,7 +7,7 @@
   Version:   $Revision$
 
 
-Copyright (c) 1993-1999 Ken Martin, Will Schroeder, Bill Lorensen.
+Copyright (c) 1993-2000 Ken Martin, Will Schroeder, Bill Lorensen.
 
     THIS CLASS IS PATENTED UNDER UNITED STATES PATENT NUMBER 5,559,388
     "Method for Reducting the Complexity of a Polygonal Mesh".

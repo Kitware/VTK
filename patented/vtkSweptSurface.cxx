@@ -7,7 +7,7 @@
   Version:   $Revision$
 
 
-Copyright (c) 1993-1999 Ken Martin, Will Schroeder, Bill Lorensen.
+Copyright (c) 1993-2000 Ken Martin, Will Schroeder, Bill Lorensen.
 
     THIS CLASS IS PATENTED UNDER UNITED STATES PATENT NUMBER 5,542,036
     "Implicit Modeling of Swept Volumes and Swept Surfaces"
