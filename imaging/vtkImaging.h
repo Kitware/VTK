@@ -117,3 +117,4 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkImageWrapPad.h"
 #include "vtkImageXViewer.h"
 #include "vtkPNMReader.h"
+#include "vtkPNMWriter.h"
