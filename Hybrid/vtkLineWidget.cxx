@@ -33,7 +33,7 @@
 #include "vtkSphereSource.h"
 #include "vtkRenderWindow.h"
 
-vtkCxxRevisionMacro(vtkLineWidget, "1.17");
+vtkCxxRevisionMacro(vtkLineWidget, "1.18");
 vtkStandardNewMacro(vtkLineWidget);
 
 vtkLineWidget::vtkLineWidget()
@@ -490,12 +490,6 @@ void vtkLineWidget::OnLeftButtonUp()
   this->EventCallbackCommand->SetAbortFlag(1);
   this->EndInteraction();
   this->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
-
-  vtkRenderWindow *renWin = this->Interactor->GetRenderWindow();
-  if (renWin)
-    {
-    renWin->SetDesiredUpdateRate(this->Interactor->GetStillUpdateRate());
-    }
 
   this->Interactor->Render();
 }
