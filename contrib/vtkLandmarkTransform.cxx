@@ -59,6 +59,7 @@ vtkLandmarkTransform* vtkLandmarkTransform::New()
 vtkLandmarkTransform::vtkLandmarkTransform()
 {
   this->Mode = VTK_LANDMARK_SIMILARITY;
+  this->Matrix=NULL;
   this->SourceLandmarks=NULL;
   this->TargetLandmarks=NULL;
 
