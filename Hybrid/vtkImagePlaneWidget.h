@@ -15,7 +15,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImagePlaneWidget - 3D widget for reslicing image data plane
+// .NAME vtkImagePlaneWidget - 3D widget for reslicing image data
 // .SECTION Description
 // This 3D widget defines a plane that can be interactively placed in an
 // image volume. A nice feature of the object is that the
@@ -52,11 +52,12 @@
 //
 // Some additional features of this class include the ability to control the
 // properties of the widget. You can set the properties of the selected and
-// unselected representations of the plane. In addition there are methods to
-// constrain the plane so that it is aligned along the x-y-z axes.
+// unselected representations of the plane's outline. In addition there are methods
+// to constrain the plane so that it is aligned along the x-y-z axes.
 
 // .SECTION Thanks
 // Thanks to Dean Inglis for developing and contributing this class.
+// Based on the Python SlicePlaneFactory from Atamai, Inc.
 
 // .SECTION Caveats
 // Note that handles and plane can be picked even when they are "behind" other
@@ -64,7 +65,6 @@
 
 // .SECTION See Also
 // vtk3DWidget vtkBoxWidget vtkLineWidget  vtkPlaneWidget
-
 
 #ifndef __vtkImagePlaneWidget_h
 #define __vtkImagePlaneWidget_h
@@ -106,7 +106,7 @@ public:
   virtual void PlaceWidget(float bounds[6]);
   void PlaceWidget()
     {this->Superclass::PlaceWidget();}
-  void PlaceWidget(float xmin, float xmax, float ymin, float ymax, 
+  void PlaceWidget(float xmin, float xmax, float ymin, float ymax,
                    float zmin, float zmax)
     {this->Superclass::PlaceWidget(xmin,xmax,ymin,ymax,zmin,zmax);}
 
@@ -118,24 +118,24 @@ public:
 
   // Description:
   // Set/Get the origin of the plane.
-  void SetOrigin(float x, float y, float z) 
+  void SetOrigin(float x, float y, float z)
     {this->PlaneSource->SetOrigin(x,y,z);}
-  void SetOrigin(float x[3]) 
+  void SetOrigin(float x[3])
     {this->PlaneSource->SetOrigin(x);}
-  float* GetOrigin() 
+  float* GetOrigin()
     {return this->PlaneSource->GetOrigin();}
   void GetOrigin(float xyz[3])
     {this->PlaneSource->GetOrigin(xyz);}
 
   // Description:
   // Set/Get the position of the point defining the first axis of the plane.
-  void SetPoint1(float x, float y, float z) 
+  void SetPoint1(float x, float y, float z)
     {this->PlaneSource->SetPoint1(x,y,z);}
-  void SetPoint1(float x[3]) 
+  void SetPoint1(float x[3])
     {this->PlaneSource->SetPoint1(x);}
-  float* GetPoint1() 
+  float* GetPoint1()
     {return this->PlaneSource->GetPoint1();}
-  void GetPoint1(float xyz[3]) 
+  void GetPoint1(float xyz[3])
     {this->PlaneSource->GetPoint1(xyz);}
 
   // Description:
@@ -162,6 +162,22 @@ public:
     {return this->PlaneSource->GetNormal();}
   void GetNormal(float xyz[3]) 
     {this->PlaneSource->GetNormal(xyz);}
+
+  // Description:
+  // Get the slice position in terms of the data extent.
+  int GetSliceIndex();
+
+  // Description:
+  // Set the slice position in terms of the data extent.
+  void SetSliceIndex(int index);
+
+  // Description:
+  // Get the position of the slice along its normal.
+  float GetSlicePosition();
+
+  // Description:
+  // Set the position of the slice along its normal.
+  void SetSlicePosition(float position);
 
   // Description:
   // Set the interpolation to use when texturing the plane.
@@ -210,6 +226,13 @@ public:
   void SetPlaneOrientationToZAxes()
     { this->SetPlaneOrientation(2); }
 
+  // Description:
+  // Set the internal picker to one defined by the user.  In this way,
+  // a set of three orthogonal planes can share the same picker so that
+  // picking is performed correctly.
+  void SetPicker(vtkCellPicker*);
+
+
 protected:
   vtkImagePlaneWidget();
   ~vtkImagePlaneWidget();
@@ -239,12 +262,13 @@ protected:
   void OnMouseMove(int ctrl, int shift, int X, int Y);
 
   // controlling ivars
-  int PlaneOrientation;
-  int RestrictPlaneToVolume;
+  int   PlaneOrientation;
+  int   RestrictPlaneToVolume;
   float OriginalWindow;
   float OriginalLevel;
-  int ResliceInterpolate;
-  int TextureInterpolate;
+  int   ResliceInterpolate;
+  int   TextureInterpolate;
+  int   UserPickerEnabled;
 
   // the plane
   vtkActor          *PlaneActor;

@@ -26,7 +26,6 @@
 #include "vtkPlanes.h"
 #include "vtkCallbackCommand.h"
 #include "vtkObjectFactory.h"
-
 #include "vtkLookupTable.h"
 #include "vtkImageReslice.h"
 #include "vtkImageMapToColors.h"
@@ -37,7 +36,7 @@
 #include "vtkTransform.h"
 #include "vtkMatrix4x4.h"
 
-vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.1");
+vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.2");
 vtkStandardNewMacro(vtkImagePlaneWidget);
 
 vtkImagePlaneWidget::vtkImagePlaneWidget()
@@ -51,6 +50,7 @@ vtkImagePlaneWidget::vtkImagePlaneWidget()
   this->OriginalLevel = 0.5;
   this->TextureInterpolate = 1;
   this->ResliceInterpolate = VTK_CUBIC_RESLICE;
+  this->UserPickerEnabled = 0;
 
   // Represent the plane
   this->PlaneSource = vtkPlaneSource::New();
@@ -114,8 +114,16 @@ vtkImagePlaneWidget::~vtkImagePlaneWidget()
   this->PlaneActor->Delete();
   this->PlaneMapper->Delete();
   this->PlaneSource->Delete();
-  this->PlaneOutline->Delete();  
-  this->PlanePicker->Delete();
+  this->PlaneOutline->Delete();
+
+  if ( !this->UserPickerEnabled )
+    {
+    this->PlanePicker->Delete();
+    }
+  else
+    {
+    this->PlanePicker = NULL;
+    }
 
   if ( this->PlaneProperty )
     {
@@ -391,7 +399,24 @@ void vtkImagePlaneWidget::OnLeftButtonDown (int vtkNotUsed(ctrl),
   this->PlanePicker->Pick(X,Y,0.0,this->CurrentRenderer);
   path = this->PlanePicker->GetPath();
 
-  if ( path == NULL ) //nothing picked
+  int found = 0;
+  int i;
+  if ( path != NULL )
+    {
+// Deal with the possibility that we may be using a shared picker
+    path->InitTraversal();
+    vtkAssemblyNode *node;
+    for(i = 0; i< path->GetNumberOfItems() && !found ;i++)
+      {
+      node = path->GetNextNode();
+      if(node->GetProp() == (vtkProp*)(this->TexturePlaneActor))
+        {
+        found = 1;
+        }
+      }
+    }
+
+  if( !found || path == NULL )
     {
     this->State = vtkImagePlaneWidget::Outside;
     this->HighlightPlane(0);
@@ -436,7 +461,24 @@ void vtkImagePlaneWidget::OnMiddleButtonDown (int vtkNotUsed(ctrl),
   this->PlanePicker->Pick(X,Y,0.0,this->CurrentRenderer);
   path = this->PlanePicker->GetPath();
 
-  if ( path == NULL ) //nothing picked
+  int found = 0;
+  int i;
+  if ( path != NULL )
+    {
+// Deal with the possibility that we may be using a shared picker
+    path->InitTraversal();
+    vtkAssemblyNode *node;
+    for(i = 0; i< path->GetNumberOfItems() && !found ;i++)
+      {
+      node = path->GetNextNode();
+      if(node->GetProp() == (vtkProp*)(this->TexturePlaneActor))
+        {
+        found = 1;
+        }
+      }
+    }
+
+  if( !found || path == NULL )
     {
     this->State = vtkImagePlaneWidget::Outside;
     this->HighlightPlane(0);
@@ -474,22 +516,38 @@ void vtkImagePlaneWidget::OnRightButtonDown (int vtkNotUsed(ctrl),
 {
   this->State = vtkImagePlaneWidget::WindowLevelling;
 
-  // Okay, we can process this. Try to pick handles first;
-  // if no handles picked, then pick the bounding box.
+  // Okay, we can process this. If anything is picked, then we
+  // can start pushing the plane.
   vtkAssemblyPath *path;
   this->Interactor->FindPokedRenderer(X,Y);
   this->PlanePicker->Pick(X,Y,0.0,this->CurrentRenderer);
   path = this->PlanePicker->GetPath();
-  if ( path == NULL )
+
+  int found = 0;
+  int i;
+  if ( path != NULL )
+    {
+// Deal with the possibility that we may be using a shared picker
+    path->InitTraversal();
+    vtkAssemblyNode *node;
+    for(i = 0; i< path->GetNumberOfItems() && !found ;i++)
+      {
+      node = path->GetNextNode();
+      if(node->GetProp() == (vtkProp*)(this->TexturePlaneActor))
+        {
+        found = 1;
+        }
+      }
+    }
+
+  if( !found || path == NULL )
     {
     this->State = vtkImagePlaneWidget::Outside;
     this->HighlightPlane(0);
     return;
     }
-  else
-    {
-    this->HighlightPlane(1);
-    }
+
+  this->HighlightPlane(1);
 
   this->EventCallbackCommand->SetAbortFlag(1);
   this->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
@@ -650,9 +708,9 @@ void vtkImagePlaneWidget::PlaceWidget(float bds[6])
 
 void vtkImagePlaneWidget::SetPlaneOrientation(int i)
 {
-  // generate a XY plane if i = 2
-  // or a YZ plane if i = 0
-  // or a ZX plane if i = 1
+  // generate a XY plane if i = 2, z-normal
+  // or a YZ plane if i = 0, x-normal
+  // or a ZX plane if i = 1, y-normal
   if ( this->PlaneOrientation == i )
     {
     return;
@@ -696,23 +754,23 @@ void vtkImagePlaneWidget::SetPlaneOrientation(int i)
     zbounds[1] = t;
     }
 
-  if (i == 2)   //XY    z normal
+  if (i == 2) //XY, z-normal
     {
-    this->PlaneSource->SetOrigin(xbounds[0],ybounds[0],0.0f);
-    this->PlaneSource->SetPoint1(xbounds[1],ybounds[0],0.0f);
-    this->PlaneSource->SetPoint2(xbounds[0],ybounds[1],0.0f);
+    this->PlaneSource->SetOrigin(xbounds[0],ybounds[0],zbounds[0]);
+    this->PlaneSource->SetPoint1(xbounds[1],ybounds[0],zbounds[0]);
+    this->PlaneSource->SetPoint2(xbounds[0],ybounds[1],zbounds[0]);
     }
-  else if (i == 0 ) //YZ        x normal
+  else if (i == 0 ) //YZ, x-normal
     {
-    this->PlaneSource->SetOrigin(0.0f,ybounds[0],zbounds[0]);
-    this->PlaneSource->SetPoint1(0.0f,ybounds[1],zbounds[0]);
-    this->PlaneSource->SetPoint2(0.0f,ybounds[0],zbounds[1]);
+    this->PlaneSource->SetOrigin(xbounds[0],ybounds[0],zbounds[0]);
+    this->PlaneSource->SetPoint1(xbounds[0],ybounds[1],zbounds[0]);
+    this->PlaneSource->SetPoint2(xbounds[0],ybounds[0],zbounds[1]);
     }
-  else  //ZX                            y normal
+  else  //ZX, y-normal
     {
-    this->PlaneSource->SetOrigin(xbounds[0],0.0f,zbounds[0]);
-    this->PlaneSource->SetPoint1(xbounds[0],0.0f,zbounds[1]);
-    this->PlaneSource->SetPoint2(xbounds[1],0.0f,zbounds[0]);
+    this->PlaneSource->SetOrigin(xbounds[0],ybounds[0],zbounds[0]);
+    this->PlaneSource->SetPoint1(xbounds[0],ybounds[0],zbounds[1]);
+    this->PlaneSource->SetPoint2(xbounds[1],ybounds[0],zbounds[0]);
     }
 
   this->PlaneSource->Update();
@@ -725,7 +783,7 @@ void vtkImagePlaneWidget::GenerateTexturePlane()
 {
   if(! this->ImageData)
     {
-    vtkGenericWarningMacro(<<"No input data to slice through!");
+    vtkGenericWarningMacro(<<"No vtkImageData to slice through!");
     return;
     }
   float range[2];
@@ -870,8 +928,8 @@ void vtkImagePlaneWidget::UpdateNormal()
   this->PlaneSource->GetPoint1(planePoint1);
   float planePoint2[3];
   this->PlaneSource->GetPoint2(planePoint2);
-  float planeNormal[3];
-  this->PlaneSource->GetNormal(planeNormal);
+  this->PlaneSource->GetNormal(this->Normal);
+  vtkMath::Normalize(this->Normal);
 
   float planeAxis1[3];
   float planeAxis2[3];
@@ -894,9 +952,9 @@ void vtkImagePlaneWidget::UpdateNormal()
   this->ResliceAxes->SetElement(0,1,planeAxis2[0]);
   this->ResliceAxes->SetElement(1,1,planeAxis2[1]);
   this->ResliceAxes->SetElement(2,1,planeAxis2[2]);
-  this->ResliceAxes->SetElement(0,2,planeNormal[0]);
-  this->ResliceAxes->SetElement(1,2,planeNormal[1]);
-  this->ResliceAxes->SetElement(2,2,planeNormal[2]);
+  this->ResliceAxes->SetElement(0,2,this->Normal[0]);
+  this->ResliceAxes->SetElement(1,2,this->Normal[1]);
+  this->ResliceAxes->SetElement(2,2,this->Normal[2]);
 
   // transpose in an exact way to invert a rotation matrix
   this->ResliceAxes->Transpose();
@@ -980,31 +1038,179 @@ void vtkImagePlaneWidget::SetRepresentation()
 
 void vtkImagePlaneWidget::SetResliceInterpolateToNearestNeighbour()
 {
-  if(!this->Reslice)
+  if ( !this->Reslice )
     {
     return;
     }
-  
+
   this->Reslice->SetInterpolationModeToNearestNeighbor();
 }
 
 void vtkImagePlaneWidget::SetResliceInterpolateToLinear()
 {
-  if(!this->Reslice)
+  if ( !this->Reslice )
     {
     return;
     }
-  
+
   this->Reslice->SetInterpolationModeToLinear();
 }
 
 void vtkImagePlaneWidget::SetResliceInterpolateToCubic()
 {
-  if(!this->Reslice)
+  if ( !this->Reslice )
     {
     return;
     }
-  
+
   this->Reslice->SetInterpolationModeToCubic();
 }
 
+void vtkImagePlaneWidget::SetPicker(vtkCellPicker* picker)
+{
+  if( this->PlanePicker )
+    {
+    this->PlanePicker->Delete();
+    }
+  else
+    {
+    vtkGenericWarningMacro(<<"SetInput() with vtkImageData* must be called first!");
+    return;
+    }
+
+  this->PlanePicker = picker;
+  this->PlanePicker->AddPickList(this->TexturePlaneActor);
+  this->UserPickerEnabled = 1;
+}
+
+void vtkImagePlaneWidget::SetSlicePosition(float position)
+{
+  float amount = 0.0f; 
+  float planeOrigin[3];
+  this->PlaneSource->GetOrigin(planeOrigin);
+
+  if ( this->PlaneOrientation == 2 ) // z axis
+    {
+    amount = position - planeOrigin[2];
+    }
+  else if ( this->PlaneOrientation == 0 ) // x axis
+    {
+    amount = position - planeOrigin[0];
+    }
+  else if ( this->PlaneOrientation == 1 )  //y axis
+    {
+    amount = position - planeOrigin[1];
+    }
+  else
+    {
+    vtkGenericWarningMacro("only works for ortho planes: set plane orientation first");
+    return;
+    } 
+
+  this->PlaneSource->Push(amount);
+  this->PlaneSource->Update();
+  this->PositionHandles();
+  this->UpdateOrigin();
+}
+
+float vtkImagePlaneWidget::GetSlicePosition()
+{
+  float planeOrigin[3];
+  this->PlaneSource->GetOrigin(planeOrigin);
+
+  if ( this->PlaneOrientation == 2 )
+    {
+    return planeOrigin[2];
+    }  
+  else if ( this->PlaneOrientation == 1 )
+    { 
+    return planeOrigin[1];
+    }
+  else if ( this->PlaneOrientation == 0 )
+    {  
+    return planeOrigin[0];
+    } 
+  else
+    {
+    vtkGenericWarningMacro("only works for ortho planes: set plane orientation first");
+    } 
+   return 0.0f;
+}
+
+void vtkImagePlaneWidget::SetSliceIndex(int index)
+{
+  this->ImageData = this->Reslice->GetInput();
+  this->ImageData->UpdateInformation();
+  float origin[3];
+  this->ImageData->GetOrigin(origin);
+  float spacing[3];
+  this->ImageData->GetSpacing(spacing);
+  float planeOrigin[3];
+  this->PlaneSource->GetOrigin(planeOrigin);
+  float pt1[3];
+  this->PlaneSource->GetPoint1(pt1);
+  float pt2[3];
+  this->PlaneSource->GetPoint2(pt2);
+
+  if ( this->PlaneOrientation == 2 )
+    {
+    planeOrigin[2] = origin[2] + (index + 0.5)*spacing[2];
+    pt1[2] = planeOrigin[2];
+    pt2[2] = planeOrigin[2];
+    }
+  else if ( this->PlaneOrientation == 1 )
+    {
+    planeOrigin[1] = origin[1] + (index + 0.5)*spacing[1]; 
+    pt1[1] = planeOrigin[1];
+    pt2[1] = planeOrigin[1];
+    }
+  else if ( this->PlaneOrientation == 0 )
+    {
+    planeOrigin[0] = origin[0] + (index + 0.5)*spacing[0]; 
+    pt1[0] = planeOrigin[0];
+    pt2[0] = planeOrigin[0];
+    }
+  else
+    {
+    vtkGenericWarningMacro("only works for ortho planes: set plane orientation first");
+    return; 
+    } 
+
+  this->PlaneSource->SetOrigin(planeOrigin);
+  this->PlaneSource->SetPoint1(pt1);
+  this->PlaneSource->SetPoint2(pt2);
+  this->PlaneSource->Update();
+  this->PositionHandles();
+  this->UpdateOrigin();
+}
+
+int vtkImagePlaneWidget::GetSliceIndex()
+{
+  this->ImageData = this->Reslice->GetInput();
+  this->ImageData->UpdateInformation();
+  float origin[3];
+  this->ImageData->GetOrigin(origin);
+  float spacing[3];
+  this->ImageData->GetSpacing(spacing);
+  float planeOrigin[3];
+  this->PlaneSource->GetOrigin(planeOrigin);
+
+  if ( this->PlaneOrientation == 2 )
+    {
+    return vtkMath::Round((planeOrigin[2]-origin[2])/spacing[2] + 0.5);
+    }
+  else if ( this->PlaneOrientation == 1 )
+    {
+    return vtkMath::Round((planeOrigin[1]-origin[1])/spacing[1] + 0.5);
+    }
+  else if ( this->PlaneOrientation == 0 )
+    {
+    return vtkMath::Round((planeOrigin[0]-origin[0])/spacing[0] + 0.5);
+    }
+  else
+    {
+    vtkGenericWarningMacro("only works for ortho planes: set plane orientation first");
+    } 
+
+  return 0;
+}
