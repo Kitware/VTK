@@ -28,7 +28,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.29");
+vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.30");
 vtkStandardNewMacro(vtkCarbonRenderWindow);
 
 
@@ -499,7 +499,7 @@ void vtkCarbonRenderWindow::SetSize(int x, int y)
           {
           SizeWindow(this->WindowId, x, y, TRUE);
           }
-
+        aglUpdateContext(this->ContextId);
         resizing = 0;
         }
       }
