@@ -65,10 +65,3 @@ for { set i 8698560 } { $i < 8698585 } { incr i 1 } {
     renWin EraseOff
 }
 
-
-vtkWindowToImageFilter w2if
-vtkTIFFWriter tw 
-w2if SetInput renWin
-tw SetInput [w2if GetOutput]
-tw SetFileName "LargeData.tcl.tif"
-tw Write
