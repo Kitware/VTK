@@ -46,7 +46,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 vtkAxes* vtkAxes::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -72,6 +72,7 @@ vtkAxes::vtkAxes()
   this->ScaleFactor = 1.0;
   
   this->Symmetric = 0;
+  this->ComputeNormals = 1;
 }
 
 void vtkAxes::Execute()
@@ -167,7 +168,10 @@ void vtkAxes::Execute()
   output->GetPointData()->SetScalars(newScalars);
   newScalars->Delete();
 
-  output->GetPointData()->SetNormals(newNormals);
+  if (this->ComputeNormals)
+    {
+    output->GetPointData()->SetNormals(newNormals);
+    }
   newNormals->Delete();
 
   output->SetLines(newLines);
@@ -199,4 +203,5 @@ void vtkAxes::PrintSelf(ostream& os, vtkIndent indent)
                << this->Origin[2] << ")\n";
   os << indent << "Scale Factor: " << this->ScaleFactor << "\n";
   os << indent << "Symmetric: " << this->Symmetric << "\n";
+  os << indent << "ComputeNormals: " << this->ComputeNormals << "\n";
 }

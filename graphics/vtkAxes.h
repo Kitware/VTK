@@ -75,6 +75,12 @@ public:
   vtkGetMacro(Symmetric,int);
   vtkBooleanMacro(Symmetric,int);
 
+  // Description:
+  // Option for computing normals.  By default they are computed.
+  vtkSetMacro(ComputeNormals, int);
+  vtkGetMacro(ComputeNormals, int);
+  vtkBooleanMacro(ComputeNormals, int);
+  
 protected:
   vtkAxes();
   ~vtkAxes() {};
@@ -90,6 +96,7 @@ protected:
   float ScaleFactor;
   
   int Symmetric;
+  int ComputeNormals;
 };
 
 #endif
