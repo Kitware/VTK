@@ -14,7 +14,7 @@ set VTK_INTEGRATE_BOTH_DIRECTIONS 2
 # generate tensors
 vtkPointLoad ptLoad
     ptLoad SetLoadValue 100.0
-    ptLoad SetSampleDimensions 30 30 30
+    ptLoad SetSampleDimensions 20 20 20
     ptLoad ComputeEffectiveStressOn
     ptLoad SetModelBounds -10 10 -10 10 -10 10
 vtkDataSetWriter wSP
