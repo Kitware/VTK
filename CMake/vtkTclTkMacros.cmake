@@ -132,8 +132,44 @@ MACRO (VTK_COPY_TCL_TK_SUPPORT_FILES tcl_support_lib_dir tcl_support_lib_dest tk
 ENDMACRO (VTK_COPY_TCL_TK_SUPPORT_FILES)
 
 # ----------------------------------------------------------------------------
-# VTK_COPY_TCL_TK_SUPPORT_FILES_TO_BUILD_DIR
+# VTK_COPY_TCL_TK_SUPPORT_FILES_TO_DIR
 # Front-end to VTK_COPY_TCL_TK_SUPPORT_FILES, this macro will copy the
+# appropriate Tcl/Tk support files to a project directory.
+# The Tcl/Tk version is retrieved automatically and used to create
+# the subdirectories (see example below)
+#
+# in: tcl_support_lib_dir: path to the Tcl support lib dir
+#     tk_support_lib_dir:  path to the Tk support lib dir
+#     project_dir:         project dir
+#
+# ex: VTK_COPY_TCL_TK_SUPPORT_FILES_TO_DIR (
+#        "c:/tcl/lib/tcl8.4" "c:/tcl/lib/tk8.4" "d:/vtk-bin/lib")
+#     if this project is configured to use TclTk 8.4, this will copy support 
+#     files from:
+#       c:/tcl/lib/tcl8.4
+#       c:/tcl/lib/tk8.4
+#     to:
+#       d:/vtk-bin/lib/tcl8.4
+#       d:/vtk-bin/lib/tk8.4
+
+MACRO (VTK_COPY_TCL_TK_SUPPORT_FILES_TO_DIR tcl_support_lib_dir tk_support_lib_dir project_dir)
+
+  VTK_GET_TCL_TK_VERSION ("TCL_TK_MAJOR_VERSION" "TCL_TK_MINOR_VERSION")
+  IF (TCL_TK_MAJOR_VERSION AND TCL_TK_MINOR_VERSION)
+    SET (TCL_TK_VERSION "${TCL_TK_MAJOR_VERSION}.${TCL_TK_MINOR_VERSION}")
+    VTK_COPY_TCL_TK_SUPPORT_FILES (
+      "${tcl_support_lib_dir}"
+      "${project_dir}/tcl${TCL_TK_VERSION}"
+      "${tk_support_lib_dir}"
+      "${project_dir}/tk${TCL_TK_VERSION}"
+    )
+  ENDIF (TCL_TK_MAJOR_VERSION AND TCL_TK_MINOR_VERSION)
+
+ENDMACRO (VTK_COPY_TCL_TK_SUPPORT_FILES_TO_DIR)
+
+# ----------------------------------------------------------------------------
+# VTK_COPY_TCL_TK_SUPPORT_FILES_TO_BUILD_DIR
+# Front-end to VTK_COPY_TCL_TK_SUPPORT_FILES_TO_DIR, this macro will copy the
 # appropriate Tcl/Tk support files to a project build directory.
 # The support files will be copied simultaneously to all configuration 
 # sub-directories (Release, RelInfo, Debug, etc.) if needed.
@@ -168,22 +204,17 @@ MACRO (VTK_COPY_TCL_TK_SUPPORT_FILES_TO_BUILD_DIR tcl_support_lib_dir tk_support
   # Copy the TclTk support files to the corresponding sub-directory inside
   # the build dir
 
-  VTK_GET_TCL_TK_VERSION ("TCL_TK_MAJOR_VERSION" "TCL_TK_MINOR_VERSION")
-  IF (TCL_TK_MAJOR_VERSION AND TCL_TK_MINOR_VERSION)
-    SET (TCL_TK_VERSION "${TCL_TK_MAJOR_VERSION}.${TCL_TK_MINOR_VERSION}")
-    IF (CMAKE_CONFIGURATION_TYPES)
-      SET (CONFIG_TYPES ${CMAKE_CONFIGURATION_TYPES})
-    ELSE (CMAKE_CONFIGURATION_TYPES)
-      SET (CONFIG_TYPES .)
-    ENDIF (CMAKE_CONFIGURATION_TYPES)
-    FOREACH (config ${CONFIG_TYPES})
-     VTK_COPY_TCL_TK_SUPPORT_FILES (
+  IF (CMAKE_CONFIGURATION_TYPES)
+    SET (CONFIG_TYPES ${CMAKE_CONFIGURATION_TYPES})
+  ELSE (CMAKE_CONFIGURATION_TYPES)
+    SET (CONFIG_TYPES .)
+  ENDIF (CMAKE_CONFIGURATION_TYPES)
+  FOREACH (config ${CONFIG_TYPES})
+    VTK_COPY_TCL_TK_SUPPORT_FILES_TO_DIR (
        "${tcl_support_lib_dir}"
-       "${build_dir}/${config}/${dir}/tcl${TCL_TK_VERSION}"
        "${tk_support_lib_dir}"
-       "${build_dir}/${config}/${dir}/tk${TCL_TK_VERSION}"
-	   )
-    ENDFOREACH (config)
-  ENDIF (TCL_TK_MAJOR_VERSION AND TCL_TK_MINOR_VERSION)
+       "${build_dir}/${config}/${dir}"
+    )
+  ENDFOREACH (config)
 
 ENDMACRO (VTK_COPY_TCL_TK_SUPPORT_FILES_TO_BUILD_DIR)
