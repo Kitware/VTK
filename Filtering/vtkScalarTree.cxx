@@ -96,9 +96,9 @@ void vtkScalarTree::Initialize()
 // and modified time from input and reconstructs the tree if necessaery.
 void vtkScalarTree::BuildTree()
 {
-  int numCells, numLeafs, level;
-  int offset, parentOffset, prod, numNodes;
-  int i, j, node, cellId, numScalars, leaf, numParentLeafs;
+  vtkIdType numCells, cellId, i, j, numScalars;
+  int level, offset, parentOffset, prod;
+  vtkIdType numNodes, node, numLeafs, leaf, numParentLeafs;
   vtkCell *cell;
   vtkIdList *cellPts;
   vtkScalarRange *tree, *parent;
@@ -136,7 +136,7 @@ void vtkScalarTree::BuildTree()
   //
   numLeafs = (int) ceil((double)numCells/this->BranchingFactor);
   for (prod=1, numNodes=1, this->Level=0; 
-  prod < numLeafs && this->Level <= this->MaxLevel; this->Level++ )
+       prod < numLeafs && this->Level <= this->MaxLevel; this->Level++ )
     {
     prod *= this->BranchingFactor;
     numNodes += prod;
@@ -232,11 +232,13 @@ void vtkScalarTree::InitTraversal(float scalarValue)
     }
 }
 
-int vtkScalarTree::FindStartLeaf(int index, int level)
+int vtkScalarTree::FindStartLeaf(vtkIdType index, int level)
 {
   if ( level < this->Level )
     {
-    int i, childIndex=this->BranchingFactor*index+1;
+    int i;
+    vtkIdType childIndex=this->BranchingFactor*index+1;
+    
     level++;
     for ( i=0; i < this->BranchingFactor; i++ )  
       {
@@ -273,11 +275,11 @@ int vtkScalarTree::FindStartLeaf(int index, int level)
     }
 }
 
-int vtkScalarTree::FindNextLeaf(int childIndex, int childLevel)
+int vtkScalarTree::FindNextLeaf(vtkIdType childIndex, int childLevel)
 {
-  int myIndex=(childIndex-1)/this->BranchingFactor;
+  vtkIdType myIndex=(childIndex-1)/this->BranchingFactor;
   int myLevel=childLevel-1;
-  int firstChildIndex, childNum, index;
+  vtkIdType firstChildIndex, childNum, index;
 
   //Find which child invoked this method
   firstChildIndex = myIndex*this->BranchingFactor + 1;
@@ -318,9 +320,9 @@ vtkCell *vtkScalarTree::GetNextCell(vtkIdType& cellId, vtkIdList* &cellPts,
                                     vtkScalars *cellScalars)
 {
   float *s, min=VTK_LARGE_FLOAT, max=(-VTK_LARGE_FLOAT);
-  int i, numScalars;
+  vtkIdType i, numScalars;
   vtkCell *cell;
-  int numCells = this->DataSet->GetNumberOfCells();
+  vtkIdType numCells = this->DataSet->GetNumberOfCells();
 
   while ( this->TreeIndex < this->TreeSize )
     {

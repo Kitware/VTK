@@ -203,8 +203,7 @@ protected:
 
 private:
   vtkPolyData *Mesh;
-  void GetPointNeighbors (int ptId, vtkIdList *nei);
-
+  void GetPointNeighbors (vtkIdType ptId, vtkIdList *nei);
 };
 
 // Description:

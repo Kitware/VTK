@@ -143,12 +143,12 @@ protected:
 
 private:
   float ScalarValue; //current scalar value for traversal
-  int TreeIndex; //traversal location within tree
-  int LeafOffset; //offset to leaf nodes of tree
+  vtkIdType TreeIndex; //traversal location within tree
+  vtkIdType LeafOffset; //offset to leaf nodes of tree
   int ChildNumber; //current child in traversal
   vtkIdType CellId; //current cell id being examined
-  int FindStartLeaf(int index, int level);
-  int FindNextLeaf(int index,int level);
+  int FindStartLeaf(vtkIdType index, int level);
+  int FindNextLeaf(vtkIdType index,int level);
 };
 
 #endif
