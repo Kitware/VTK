@@ -23,6 +23,7 @@ vtkPNMReader
 vtkPNMWriter
 vtkPolyDataReader
 vtkPolyDataWriter
+vtkPostScriptWriter
 vtkRectilinearGridReader
 vtkRectilinearGridWriter
 vtkSLCReader

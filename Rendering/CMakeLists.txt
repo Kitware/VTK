@@ -62,6 +62,8 @@ vtkRenderWindowInteractor
 vtkRenderer
 vtkRendererCollection
 vtkRendererSource
+vtkScalarBarActor
+vtkScaledTextActor
 vtkSelectVisiblePoints
 vtkTextMapper
 vtkTexture
@@ -127,10 +129,13 @@ IF (WIN32)
 ELSE (WIN32)
   IF (OPENGL_LIB_PATH)
     SOURCE_FILES(RenderingOpenGL_SRCS 
+      vtkOpenGLImageWindow
       vtkOpenGLRenderWindow
       vtkXImageWindow
+      vtkXOpenGLTextMapper
       vtkXRenderWindowInteractor
-      vtkXRenderWindow)
+      vtkXRenderWindow
+      vtkXTextMapper)
     LINK_LIBRARIES (${OPENGL_LIBRARY})
     LINK_DIRECTORIES (${OPENGL_LIB_PATH})
     INCLUDE_DIRECTORIES(${OPENGL_INCLUDE_PATH})
