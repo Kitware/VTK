@@ -32,20 +32,7 @@
 #include "vtkProperty.h"
 #include "vtkTimerLog.h"
 #include "vtkTriangle.h"
-
-#ifdef VTK_USE_CARBON
- #include "vtkCarbonRenderWindow.h"
-#else
- #ifdef VTK_USE_COCOA
-  #include "vtkCocoaRenderWindow.h"
- #else
-  #ifdef _WIN32
-   #include "vtkWin32OpenGLRenderWindow.h"
-  #else
-   #include "vtkOpenGLRenderWindow.h"
-  #endif
- #endif
-#endif
+#include "vtkOpenGLRenderWindow.h"
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
   #if defined(__APPLE__) && (defined(VTK_USE_CARBON) || defined(VTK_USE_COCOA))
@@ -59,7 +46,7 @@
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLPolyDataMapper, "1.76");
+vtkCxxRevisionMacro(vtkOpenGLPolyDataMapper, "1.77");
 vtkStandardNewMacro(vtkOpenGLPolyDataMapper);
 #endif
 

@@ -15,11 +15,10 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-
 #include "vtkObjectFactory.h"
+
 #include "vtkGraphicsFactory.h"
 #include "vtkToolkits.h"
-#include "stdlib.h"
 #include "vtkDebugLeaks.h"
 
 // if using some sort of opengl, then include these files
@@ -38,24 +37,31 @@
 
 // Win32 specific stuff
 #ifdef _WIN32
-#include "vtkWin32OpenGLRenderWindow.h"
-#include "vtkWin32RenderWindowInteractor.h"
+# ifndef VTK_USE_OGLR
+#  include "vtkWin32OpenGLRenderWindow.h"
+#  include "vtkWin32RenderWindowInteractor.h"
+#  define VTK_DISPLAY_WIN32_OGL
+# endif // VTK_USE_OGLR
 #endif
 
 // Apple OSX stuff
 #ifdef VTK_USE_CARBON
-#include "vtkCarbonRenderWindow.h"
-#include "vtkCarbonRenderWindowInteractor.h"
+# include "vtkCarbonRenderWindow.h"
+# include "vtkCarbonRenderWindowInteractor.h"
+# define VTK_DISPLAY_CARBON
 #endif
+
 #ifdef VTK_USE_COCOA
-#include "vtkCocoaRenderWindow.h"
-#include "vtkCocoaRenderWindowInteractor.h"
+# include "vtkCocoaRenderWindow.h"
+# include "vtkCocoaRenderWindowInteractor.h"
+# define VTK_DISPLAY_COCOA
 #endif
 
 // X OpenGL stuff
 #ifdef VTK_USE_OGLR
-#include "vtkXRenderWindowInteractor.h"
-#include "vtkXOpenGLRenderWindow.h"
+# include "vtkXRenderWindowInteractor.h"
+# include "vtkXOpenGLRenderWindow.h"
+# define VTK_DISPLAY_X11_OGL
 #endif
 
 #if defined(VTK_USE_MANGLED_MESA)
@@ -73,10 +79,13 @@
 #endif
 
 #include "vtkCriticalSection.h"
+
+#include "stdlib.h"
+
 static vtkSimpleCriticalSection vtkUseMesaClassesCriticalSection;
 int vtkGraphicsFactory::UseMesaClasses = 0;
 
-vtkCxxRevisionMacro(vtkGraphicsFactory, "1.31");
+vtkCxxRevisionMacro(vtkGraphicsFactory, "1.32");
 vtkStandardNewMacro(vtkGraphicsFactory);
 
 const char *vtkGraphicsFactory::GetRenderLibrary()
@@ -108,16 +117,16 @@ const char *vtkGraphicsFactory::GetRenderLibrary()
   // if nothing is set then work down the list of possible renderers
   if ( !temp )
     {
-#ifdef VTK_USE_OGLR
+#ifdef VTK_DISPLAY_X11_OGL
     temp = "OpenGL";
 #endif
-#ifdef _WIN32
+#ifdef VTK_DISPLAY_WIN32_OGL
     temp = "Win32OpenGL";
 #endif
-#ifdef VTK_USE_CARBON
+#ifdef VTK_DISPLAY_CARBON
     temp = "CarbonOpenGL";
 #endif
-#ifdef VTK_USE_COCOA
+#ifdef VTK_DISPLAY_COCOA
     temp = "CocoaOpenGL";
 #endif
     }
@@ -161,7 +170,7 @@ vtkObject* vtkGraphicsFactory::CreateInstance(const char* vtkclassname )
     }
 #endif
 
-#ifdef _WIN32
+#ifdef VTK_DISPLAY_WIN32_OGL
   if(strcmp(vtkclassname, "vtkRenderWindowInteractor") == 0)
     {
     return vtkWin32RenderWindowInteractor::New();

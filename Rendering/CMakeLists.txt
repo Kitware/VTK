@@ -175,10 +175,18 @@ ENDIF(VTK_USE_X)
 SET(Rendering_LIBS vtkGraphics vtkImaging)
 
 IF (WIN32)
-  SET(RenderingOpenGL_SRCS ${RenderingOpenGL_SRCS}
-               vtkWin32OpenGLRenderWindow.cxx
-               vtkWin32RenderWindowInteractor.cxx)
-  SET (Rendering_LIBS ${Rendering_LIBS} ${OPENGL_LIBRARY} )
+  IF(VTK_USE_X)
+    IF (OPENGL_LIBRARY)
+      SET(RenderingOpenGL_SRCS ${RenderingOpenGL_SRCS}
+                   vtkXOpenGLRenderWindow.cxx)
+      SET (Rendering_LIBS ${Rendering_LIBS} ${OPENGL_LIBRARY} )
+    ENDIF (OPENGL_LIBRARY)    
+  ELSE(VTK_USE_X)
+    SET(RenderingOpenGL_SRCS ${RenderingOpenGL_SRCS}
+                 vtkWin32OpenGLRenderWindow.cxx
+                 vtkWin32RenderWindowInteractor.cxx)
+    SET (Rendering_LIBS ${Rendering_LIBS} ${OPENGL_LIBRARY} )
+  ENDIF(VTK_USE_X)
 ELSE (WIN32)
   IF (APPLE)
     IF(VTK_USE_COCOA)
@@ -415,8 +423,11 @@ ENDIF (VTK_WRAP_JAVA)
 
 
 IF(VTK_USE_X)
-TARGET_LINK_LIBRARIES(vtkRendering -lXt ${CMAKE_X_LIBS})
-ADD_DEFINITIONS(${CMAKE_X_CFLAGS})
+  TARGET_LINK_LIBRARIES(vtkRendering -lXt ${CMAKE_X_LIBS})
+  FIND_LIBRARY(VTK_SM_LIB NAMES SM PATHS /usr/X11R6/lib)
+  FIND_LIBRARY(VTK_ICE_LIB NAMES ICE PATHS /usr/X11R6/lib)
+  TARGET_LINK_LIBRARIES(vtkRendering ${VTK_SM_LIB} ${VTK_ICE_LIB})
+  ADD_DEFINITIONS(${CMAKE_X_CFLAGS})
 ENDIF(VTK_USE_X)
 
 INSTALL_TARGETS(/lib/vtk vtkRendering)
