@@ -376,8 +376,8 @@ void  vtkRuledSurfaceFilter::Resample(vtkPolyData *output, vtkPoints *inPts,
       newPts->SetPoint(id, pt);
       this->Weights[0] = 1.0 - uu;
       this->Weights[1] = uu;
-      this->Weights[2] = 1.0 - vv;
-      this->Weights[3] = vv;
+      this->Weights[2] = vv;
+      this->Weights[3] = 1.0 - vv;
       outPD->InterpolatePoint(inPD, id, this->Ids, this->Weights);
       }
     }
@@ -388,17 +388,86 @@ void  vtkRuledSurfaceFilter::PointWalk(vtkPolyData *output, vtkPoints *inPts,
                                        int npts2, int *pts2)
 {
   int loc, loc2;
+  vtkCellArray *newPolys=output->GetPolys();
+  float x[3], y[3], a[3], b[3], xa, xb, ya, distance2;
       
-  // Allocate memory for surface...we're gonna pass the points through
+  // Compute distance factor based on first two points
   //
+  inPts->GetPoint(pts[0],x);
+  inPts->GetPoint(pts2[0],y);
+  distance2 = vtkMath::Distance2BetweenPoints(x,y) * 
+              this->DistanceFactor * this->DistanceFactor;
 
   // Walk "edge" along the two lines maintaining closest distance
   // and generating triangles as we go.
   loc = loc2 = 0;
-  while ( loc<npts && loc2<npts2 )
+  while ( loc < (npts-1) || loc2 < (npts2-1) )
     {
+    if ( loc >= (npts-1) ) //clamped at end of first line
+      {
+      inPts->GetPoint(pts[loc],x);
+      inPts->GetPoint(pts2[loc2],a);
+      inPts->GetPoint(pts2[loc2+1],b);
+      xa = vtkMath::Distance2BetweenPoints(x,a);
+      xb = vtkMath::Distance2BetweenPoints(x,b);
+      if ( xa <= distance2 && xb <= distance2 )
+        {
+        newPolys->InsertNextCell(3);
+        newPolys->InsertCellPoint(pts[loc]); //x
+        newPolys->InsertCellPoint(pts2[loc2+1]); //b
+        newPolys->InsertCellPoint(pts2[loc2]); //a
+        }
+      loc2++;
+      }
+    else if ( loc2 >= (npts2-1) ) //clamped at end of second line
+      {
+      inPts->GetPoint(pts[loc],x);
+      inPts->GetPoint(pts[loc+1],y);
+      inPts->GetPoint(pts2[loc2],a);
+      xa = vtkMath::Distance2BetweenPoints(x,a);
+      ya = vtkMath::Distance2BetweenPoints(y,a);
+      if ( xa <= distance2 && ya <= distance2 )
+        {
+        newPolys->InsertNextCell(3);
+        newPolys->InsertCellPoint(pts[loc]); //x
+        newPolys->InsertCellPoint(pts[loc+1]); //y
+        newPolys->InsertCellPoint(pts2[loc2]); //a
+        }
+      loc++;
+      }
+    else //not at either end
+      {
+      inPts->GetPoint(pts[loc],x);
+      inPts->GetPoint(pts[loc+1],y);
+      inPts->GetPoint(pts2[loc2],a);
+      inPts->GetPoint(pts2[loc2+1],b);
+      xa = vtkMath::Distance2BetweenPoints(x,a);
+      xb = vtkMath::Distance2BetweenPoints(x,b);
+      ya = vtkMath::Distance2BetweenPoints(a,y);
+      if ( xb <= ya )
+        {
+        if ( xb <= distance2 && xa <= distance2 )
+          {
+          newPolys->InsertNextCell(3);
+          newPolys->InsertCellPoint(pts[loc]); //x
+          newPolys->InsertCellPoint(pts2[loc2+1]); //b
+          newPolys->InsertCellPoint(pts2[loc2]); //a
+          }
+        loc2++;
+        }
+      else 
+        {
+        if ( ya <= distance2 && xa <= distance2 )
+          {
+          newPolys->InsertNextCell(3);
+          newPolys->InsertCellPoint(pts[loc]); //x
+          newPolys->InsertCellPoint(pts[loc+1]); //y
+          newPolys->InsertCellPoint(pts2[loc2]); //a
+          }
+        loc++;
+        }
+      }//where in the lines
     }//while still building the stripe
-  
 }
   
 const char *vtkRuledSurfaceFilter::GetRuledModeAsString(void)

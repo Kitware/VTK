@@ -46,7 +46,7 @@ vtkActor postActor
 
 # streamsurface
 vtkLineSource rake
-  rake SetResolution 20
+  rake SetResolution 40
   rake SetPoint1  -5 -1 1.3
   rake SetPoint2  -5  1 1.3
 #  rake SetPoint1  -5 -1 0.3
@@ -62,9 +62,10 @@ vtkStreamLine streamers
 vtkRuledSurfaceFilter scalarSurface
   scalarSurface SetInput [streamers GetOutput]
   scalarSurface SetOffset 0
-  scalarSurface SetOnRatio 1
-  scalarSurface PassLinesOff
-  scalarSurface SetResolution 100 1; #resolution per stripe
+  scalarSurface SetOnRatio 2
+  scalarSurface PassLinesOn
+  scalarSurface SetRuledModeToPointWalk
+  scalarSurface SetDistanceFactor 30
 vtkPolyDataMapper scalarSurfaceMapper
   scalarSurfaceMapper SetInput [scalarSurface GetOutput]
   eval scalarSurfaceMapper SetScalarRange [[pl3d GetOutput] GetScalarRange]
@@ -78,11 +79,12 @@ vtkRuledSurfaceFilter stripedSurface
   stripedSurface SetInput [streamers GetOutput]
   stripedSurface SetOffset 1
   stripedSurface SetOnRatio 2
+  stripedSurface SetRuledModeToPointWalk
+  stripedSurface SetDistanceFactor 10
 vtkPolyDataMapper stripedSurfaceMapper
-  stripedSurfaceMapper SetInput [streamers GetOutput]
+  stripedSurfaceMapper SetInput [stripedSurface GetOutput]
   eval stripedSurfaceMapper SetScalarRange [[pl3d GetOutput] GetScalarRange]
-  stripedSurfaceMapper SetLookupTable lut
-#  stripedSurfaceMapper ScalarVisibilityOff
+  stripedSurfaceMapper ScalarVisibilityOff
 vtkActor stripedSurfaceActor
   stripedSurfaceActor SetMapper stripedSurfaceMapper
   [stripedSurfaceActor GetProperty] SetColor 0 0 1
@@ -102,9 +104,11 @@ ren1 AddActor scalarSurfaceActor
 ren1 AddActor stripedSurfaceActor
 
 vtkCamera aCam
-  aCam SetFocalPoint 0.00657892 0 2.41026
-  aCam SetPosition -1.94838 -47.1275 39.4607
-  aCam SetViewUp 0.00653193 0.617865 0.786257
+  aCam SetFocalPoint 0.283834 -0.677403 3.68526
+  aCam SetPosition -0.934847 -4.27021 9.21436
+  aCam SetViewUp 0.164623 0.810109 0.562693
+  aCam SetViewAngle 30
+  aCam SetClippingRange 0.36 36
 
 ren1 SetBackground 1 1 1
 ren1 SetActiveCamera aCam
