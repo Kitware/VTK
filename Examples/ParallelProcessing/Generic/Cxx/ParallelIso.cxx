@@ -251,15 +251,21 @@ int main( int argc, char *argv[] )
     {
     sprintf( save_filename, "%s.cxx.tif", argv[0] );
     }
-    
+
+  // Note that this will create a vtkMPIController if MPI
+  // is configured, vtkThreadedController otherwise.
   controller = vtkMultiProcessController::New();
 
   controller->Initialize(&argc, &argv);
 
   controller->SetSingleMethod(MyMain, save_filename);
 
+  // When using MPI, the number of processes is determined
+  // by the external program which launches this application.
+  // However, when using threads, we need to set it ourselves.
   if (controller->IsA("vtkThreadedController"))
     {
+    // Set the number of processes to 2 for this example.
     controller->SetNumberOfProcesses(2);
     } 
   controller->SingleMethodExecute();
