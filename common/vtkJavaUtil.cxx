@@ -128,7 +128,6 @@ vtkHashTable::vtkHashTable()
 vtkHashTable *vtkInstanceLookup = NULL;
 vtkHashTable *vtkPointerLookup = NULL;
 vtkHashTable *vtkTypecastLookup = NULL;
-vtkHashTable *vtkDeleteLookup = NULL;
 
 void vtkHashTable::AddHashEntry(void *key,void *value)
 {
@@ -229,14 +228,13 @@ JNIEXPORT void vtkJavaSetId(JNIEnv *env,jobject obj, int newVal)
 
 // add an object to the hash table
 JNIEXPORT void vtkJavaAddObjectToHash(JNIEnv *env, jobject obj, void *ptr,
-			    void *tcFunc,int deleteMe)
+				      void *tcFunc)
 { 
   if (!vtkInstanceLookup)
     {
     vtkInstanceLookup = new vtkHashTable;
     vtkTypecastLookup = new vtkHashTable;
     vtkPointerLookup = new vtkHashTable;
-    vtkDeleteLookup = new vtkHashTable;
 #ifdef _WIN32
     vtkGlobalMutex = CreateMutex(NULL, FALSE, NULL);
 #endif
@@ -269,7 +267,6 @@ VTK_GET_MUTEX();
   vtkInstanceLookup->AddHashEntry((void *)vtkJavaIdCount,ptr);
   vtkTypecastLookup->AddHashEntry((void *)vtkJavaIdCount,tcFunc);
   vtkPointerLookup->AddHashEntry(ptr,(void *)env->NewGlobalRef(obj));
-  vtkDeleteLookup->AddHashEntry((void *)vtkJavaIdCount,(void *)deleteMe);
 
   vtkJavaSetId(env,obj,vtkJavaIdCount);
   
@@ -281,27 +278,17 @@ VTK_GET_MUTEX();
 }
 
 // should we delete this object
-JNIEXPORT int vtkJavaShouldIDeleteObject(JNIEnv *env,jobject obj)
+JNIEXPORT void vtkJavaDeleteObject(JNIEnv *env,jobject obj)
 {
   int id = vtkJavaGetId(env,obj);
   
   VTK_GET_MUTEX();
-  if ((int)(vtkDeleteLookup->GetHashTableValue((void *)id)))
-    {
-#ifdef VTKJAVADEBUG
-    vtkGenericWarningMacro("Decided to delete id = " << id);
-#endif
-    vtkJavaDeleteObjectFromHash(env, id);
-    VTK_RELEASE_MUTEX();
-    return 1;
-    }
 
 #ifdef VTKJAVADEBUG
-  vtkGenericWarningMacro("Decided to NOT delete id = " << id);
+  vtkGenericWarningMacro("Deleting id = " << id);
 #endif
   vtkJavaDeleteObjectFromHash(env, id);
   VTK_RELEASE_MUTEX();
-  return 0;
 }
 
 
@@ -317,7 +304,7 @@ JNIEXPORT void vtkJavaDeleteObjectFromHash(JNIEnv *env, int id)
   if (!ptr) 
     {
 #ifdef VTKJAVADEBUG
-    vtkGenericWarningMacro("Attempt to delete an object that doesnt exist!!!");
+    vtkGenericWarningMacro("Attempt to delete an object that doesn't exist!");
 #endif  
     return;
     }
@@ -326,7 +313,6 @@ JNIEXPORT void vtkJavaDeleteObjectFromHash(JNIEnv *env, int id)
   vptr = vtkPointerLookup->GetHashTableValue(ptr);
   env->DeleteGlobalRef((jobject)vptr);
   vtkPointerLookup->DeleteHashEntry(ptr);
-  vtkDeleteLookup->DeleteHashEntry((void *)id);
 }
 
 JNIEXPORT jobject vtkJavaGetObjectFromPointer(void *ptr)

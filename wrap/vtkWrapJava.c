@@ -303,7 +303,8 @@ void do_return(FILE *fp)
       fprintf(fp,"  if (!tempH)\n    {\n");
       fprintf(fp,"    vtk_%s_NoCPP();\n",currentFunction->ReturnClass);
       fprintf(fp,"    tempH = env->NewObject(env->FindClass(\"vtk/%s\"),env->GetMethodID(env->FindClass(\"vtk/%s\"),\"<init>\",\"()V\"));\n",currentFunction->ReturnClass,currentFunction->ReturnClass);
-      fprintf(fp,"    vtkJavaAddObjectToHash(env, tempH,(void *)temp%i,(void *)%s_Typecast,0);\n    }\n",MAX_ARGS, currentFunction->ReturnClass);
+      fprintf(fp,"    vtkJavaAddObjectToHash(env, tempH,(void *)temp%i,(void *)%s_Typecast);\n",MAX_ARGS, currentFunction->ReturnClass);
+      fprintf(fp,"    }\n");
       fprintf(fp,"  return tempH;\n");
       break;
       }
@@ -592,8 +593,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     fprintf(fp,"{\n  %s *op;\n",data->ClassName);
     fprintf(fp,"  op = (%s *)vtkJavaGetPointerFromObject(env,obj,\"%s\");\n",
 	    data->ClassName,data->ClassName);
-    fprintf(fp,"  if (vtkJavaShouldIDeleteObject(env,obj))\n");
-    fprintf(fp,"    {\n    op->Delete();\n    }\n");
+    fprintf(fp,"  op->Delete();\n");
     
     fprintf(fp,"}\n");
     }
@@ -610,7 +610,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     fprintf(fp,"{\n  if (!vtk_%s_NoCreate)\n",data->ClassName);
     fprintf(fp,"    {\n    %s *aNewOne = %s::New();\n",data->ClassName,
 	    data->ClassName);
-    fprintf(fp,"    vtkJavaAddObjectToHash(env,obj,(void *)aNewOne,(void *)%s_Typecast,1);\n",data->ClassName);
+    fprintf(fp,"    vtkJavaAddObjectToHash(env,obj,(void *)aNewOne,(void *)%s_Typecast);\n",data->ClassName);
     fprintf(fp,"    }\n  vtk_%s_NoCreate = 0;\n}\n",data->ClassName);
     }
   else

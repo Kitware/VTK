@@ -42,8 +42,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <string.h>
 #include <jni.h>
 
-extern JNIEXPORT void vtkJavaAddObjectToHash(JNIEnv *env,jobject obj,void *anInstance,
-				   void *tcFunc, int);
+extern JNIEXPORT void vtkJavaAddObjectToHash(JNIEnv *env,jobject obj,
+					     void *anInstance,
+					     void *tcFunc);
 extern JNIEXPORT void *vtkJavaGetPointerFromObject(JNIEnv *env,jobject obj, 
 					 char *result_type);
 extern JNIEXPORT void vtkJavaDeleteObjectFromHash(JNIEnv *env, int id);
