@@ -46,7 +46,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkToolkits.h"
 
-vtkCxxRevisionMacro(vtkTreeComposite, "1.24");
+vtkCxxRevisionMacro(vtkTreeComposite, "1.25");
 vtkStandardNewMacro(vtkTreeComposite);
 
 //-------------------------------------------------------------------------
@@ -112,13 +112,23 @@ void vtkCompositeImagePair(float *localZdata, float *localPdata,
 }
 
 
-
-
-
-
-
-
 #define vtkTCPow2(j) (1 << (j))
+
+static inline int vtkTCLog2(int j, int& exact)
+{
+  int counter=0;
+  exact = 1;
+  while(j)
+    {
+    if ( ( j & 1 ) && (j >> 1) )
+      {
+      exact = 0;
+      }
+    j = j >> 1;
+    counter++;
+    }
+  return counter-1;
+}
 
 void vtkTreeComposite::CompositeBuffer(int width, int height, int useCharFlag,
                                       void *pBuf, float *zBuf,
@@ -126,11 +136,18 @@ void vtkTreeComposite::CompositeBuffer(int width, int height, int useCharFlag,
 {
   int myId = this->Controller->GetLocalProcessId();
   int numProcs = this->Controller->GetNumberOfProcesses();
-  double doubleLogProcs = log((double)numProcs)/log((double)2);
-  int logProcs = (int)doubleLogProcs;
   int totalPixels;
   int pSize, zSize;
   int i, id;
+
+  int exactLog;
+  int logProcs = vtkTCLog2(numProcs,exactLog);
+
+  // not a power of 2 -- need an additional level
+  if ( !exactLog ) 
+    {
+    logProcs++;
+    }
 
   totalPixels = width*height;
   zSize = totalPixels;
@@ -143,11 +160,6 @@ void vtkTreeComposite::CompositeBuffer(int width, int height, int useCharFlag,
     pSize = 4*totalPixels;
     }
 
-  // not a power of 2 -- need an additional level
-  if (doubleLogProcs != (double)logProcs) 
-    {
-    logProcs++;
-    }
 
   for (i = 0; i < logProcs; i++) 
     {
