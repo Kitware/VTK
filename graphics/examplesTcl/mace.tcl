@@ -2,6 +2,7 @@ catch {load vtktcl}
 #
 # this is a tcl version of the Mace example
 # get the interactor ui
+
 source ../../examplesTcl/vtkInt.tcl
 
 # Create the RenderWindow, Renderer and both Actors
