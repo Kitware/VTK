@@ -273,13 +273,15 @@ public:
   vtkGetMacro( UpdateNumberOfPieces, int );
 
   // Description:
-  // Get the maximum number of pieces this data can be broken into
+  // Set / Get the maximum number of pieces this data can be broken into
+  vtkSetMacro( MaximumNumberOfPieces, int );
   vtkGetMacro( MaximumNumberOfPieces, int );
 
   // Description:
-  // Get the whole extent of this data object
+  // Set/Get the whole extent of this data object
+  vtkSetVector6Macro( WholeExtent, int );
   vtkGetVector6Macro( WholeExtent, int );
-
+  
   // Description:
   // This method is called by the source when it executes to generate data.
   // It is sort of the opposite of ReleaseData.

@@ -49,10 +49,10 @@ vtkThinPlateSplineTransform \
 vtkTransformToGrid \
 vtkVideoSource \
 vtkVolumeProMapper \
+vtkInputPort \
+vtkOutputPort \
 ${CONTROLLER_API_OBJ}
 
-#vtkOutputPort \
-#vtkInputPort \
 #vtkPolyDataCollector \
 
 WIN32_OBJ = \

@@ -47,8 +47,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkRectilinearGrid.h"
 #include "vtkStructuredPoints.h"
 #include "vtkImageData.h"
-#include "vtkDataInformation.h"
-#include "vtkExtent.h"
 #include "vtkObjectFactory.h"
 
 
@@ -78,7 +76,7 @@ vtkInputPort::vtkInputPort()
   
   // Controller keeps a reference to this object as well.
   this->Controller = 
-    vtkMultiProcessController::RegisterAndGetGlobalController(this);
+    vtkMultiProcessController::GetGlobalController();
 
   // State variables.
   this->TransferNeeded = 0;
@@ -89,12 +87,7 @@ vtkInputPort::vtkInputPort()
 // We need to have a "GetNetReferenceCount" to avoid memory leaks.
 vtkInputPort::~vtkInputPort()
 {
-  vtkMultiProcessController *tmp;
-  
-  // as a precaution.
-  tmp = this->Controller;
   this->Controller = NULL;
-  tmp->UnRegister(this);
 }
 
 //----------------------------------------------------------------------------
@@ -314,13 +307,18 @@ void vtkInputPort::UpdateInformation()
   this->Controller->TriggerRMI(this->RemoteProcessId, this->Tag);
   
   // Now receive the information
-  this->Controller->Receive(output->GetDataInformation(), 
-                            this->RemoteProcessId,
-                            VTK_PORT_INFORMATION_TRANSFER_TAG);
+  int wholeInformation[7];
+  this->Controller->Receive( wholeInformation, 7, 
+                             this->RemoteProcessId,
+                             VTK_PORT_INFORMATION_TRANSFER_TAG);
 
-  // Convert Pipeline MTime into a value meaningful in this process.
-  pmt = output->GetDataInformation()->GetPipelineMTime();
+  this->Controller->Receive( &pmt, 1, 
+                             this->RemoteProcessId,
+                             VTK_PORT_INFORMATION_TRANSFER_TAG);
 
+  output->SetWholeExtent( wholeInformation );
+  output->SetMaximumNumberOfPieces( wholeInformation[6] );
+  
   // Save the upstream PMT for execute check (this may not be necessary)
   this->UpStreamMTime = pmt;
 
@@ -333,7 +331,7 @@ void vtkInputPort::UpdateInformation()
     }
   output->SetPipelineMTime(this->GetMTime());
   // Locality has to be changed too.
-  output->GetDataInformation()->SetLocality(1.0);
+  //output->GetDataInformation()->SetLocality(1.0);
   
 }
 
@@ -341,7 +339,7 @@ void vtkInputPort::UpdateInformation()
 //----------------------------------------------------------------------------
 // The only tricky thing here is the translation of the PipelineMTime
 // into a value meaningful to this process.
-void vtkInputPort::PreUpdate(vtkDataObject *output)
+void vtkInputPort::TriggerAsynchronousUpdate()
 {
   // This should be cleared by this point.
   // UpdateInformation and Update calls need to be made in pairs.
@@ -350,7 +348,9 @@ void vtkInputPort::PreUpdate(vtkDataObject *output)
     vtkWarningMacro("Transfer should have been received.");
     return;
     }
-  
+
+  vtkDataObject *output = this->Outputs[0];
+
   // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   // This would normally be done in the Update method, but since
   // we want task parallelism with multiple input filters, 
@@ -370,9 +370,14 @@ void vtkInputPort::PreUpdate(vtkDataObject *output)
   // remotePort should have the same tag.
   this->Controller->TriggerRMI(this->RemoteProcessId, this->Tag+1);
 
-  // Send the UpdateExtent request.
-  this->Controller->Send((vtkObject*)(output->GetGenericUpdateExtent()),
-			 this->RemoteProcessId, VTK_PORT_UPDATE_EXTENT_TAG);
+  // Send the UpdateExtent request. The first 6 ints are the 3d extent, the next
+  // to are the pieces extent (we don't know which type it is - just send both)
+  int extent[8];
+  output->GetUpdateExtent( extent );
+  extent[6] = output->GetUpdatePiece();
+  extent[7] = output->GetUpdateNumberOfPieces();  
+  this->Controller->Send( extent, 8, this->RemoteProcessId, 
+                          VTK_PORT_UPDATE_EXTENT_TAG);
 
   // This is for pipeline parallism.
   // The Upstream port may or may not promote its data (execute).
@@ -388,13 +393,19 @@ void vtkInputPort::PreUpdate(vtkDataObject *output)
 
 
 //----------------------------------------------------------------------------
-void vtkInputPort::InternalUpdate(vtkDataObject *output)
+void vtkInputPort::UpdateData(vtkDataObject *output)
 {
+
+  if (this->UpStreamMTime <= this->DataTime && ! output->GetDataReleased())
+    { 
+    // No, we do not need to update.
+    return;
+    }
 
   if ( ! this->TransferNeeded)
     {
     // If something unexpected happened, let me know.
-    vtkWarningMacro("InternalUpdate was called when no data was needed.");
+    vtkWarningMacro("UpdateData was called when no data was needed.");
     return;
     }
   
@@ -406,15 +417,16 @@ void vtkInputPort::InternalUpdate(vtkDataObject *output)
   // Well here is a bit of a hack.
   // Since the reader will overwrite whole extents, we need to save the whole
   // extent and reset it.
-  vtkDataInformation *info = output->GetDataInformation()->MakeObject();
-  info->Copy(output->GetDataInformation());  
+  int maxPieces = output->GetMaximumNumberOfPieces();
+  int wholeExtent[6];
+  output->GetWholeExtent(wholeExtent);
   // receive the data
 
   this->Controller->Receive(output, this->RemoteProcessId,
 			    VTK_PORT_DATA_TRANSFER_TAG);
 
-  output->GetDataInformation()->Copy(info);
-  info->Delete();
+  output->SetWholeExtent( wholeExtent );
+  output->SetMaximumNumberOfPieces( maxPieces );
 
   if ( this->EndMethod )
     {

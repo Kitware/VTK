@@ -41,7 +41,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkOutputPort.h"
 #include "vtkInputPort.h"
 #include "vtkMultiProcessController.h"
-#include "vtkExtent.h"
 #include "vtkObjectFactory.h"
 
 
@@ -69,7 +68,7 @@ vtkOutputPort::vtkOutputPort()
   
   // Controller keeps a reference to this object as well.
   this->Controller = 
-    vtkMultiProcessController::RegisterAndGetGlobalController(this);
+    vtkMultiProcessController::GetGlobalController();
   
   this->PipelineFlag = 0;
   this->ParameterMethod = NULL;
@@ -81,12 +80,7 @@ vtkOutputPort::vtkOutputPort()
 // We need to have a "GetNetReferenceCount" to avoid memory leaks.
 vtkOutputPort::~vtkOutputPort()
 {
-  vtkMultiProcessController *tmp;
-  
-  // as a precaution set ivar to NULL before deleting.
-  tmp = this->Controller;
   this->Controller = NULL;
-  tmp->UnRegister(this);
 
   if ((this->ParameterMethodArg)&&(this->ParameterMethodArgDelete))
     {
@@ -108,7 +102,7 @@ void vtkOutputPort::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 // Remote method call to UpdateInformation and send the information downstream.
 // This should be a friend.
-void vtkOutputPortUpdateInformationCallBack(void *arg, int remoteProcessId)  
+void vtkOutputPortUpdateInformationCallBack(void *arg, void *remoteArgs, int remoteArgsLength, int remoteProcessId)  
 {
   vtkOutputPort *self = (vtkOutputPort*)arg;
   
@@ -140,15 +134,24 @@ void vtkOutputPort::TriggerUpdateInformation(int remoteProcessId)
   // Now just send the information downstream.
   // PipelineMTime is part of information, so downstream
   // port will make the time comparison, and call Update if necessary.
-  this->Controller->Send( (vtkObject*)(input->GetDataInformation()), 
-		  remoteProcessId, VTK_PORT_INFORMATION_TRANSFER_TAG);
+  int wholeInformation[8];
+  input->GetWholeExtent( wholeInformation );
+  wholeInformation[6] = input->GetMaximumNumberOfPieces();
+  
+  this->Controller->Send( wholeInformation, 7,
+                          remoteProcessId, VTK_PORT_INFORMATION_TRANSFER_TAG);
+  
+  unsigned long mtime = input->GetPipelineMTime();
+  
+  this->Controller->Send( &mtime, 1,
+                          remoteProcessId, VTK_PORT_INFORMATION_TRANSFER_TAG );
 }
 
 
 //----------------------------------------------------------------------------
 // Remote method call to Update and send data downstream.
 // This should be a friend.
-void vtkOutputPortUpdateCallBack(void *arg, int remoteProcessId)  
+void vtkOutputPortUpdateCallBack(void *arg, void *remoteArgs, int remoteArgsLength, int remoteProcessId)  
 {
   vtkOutputPort *self = (vtkOutputPort*)arg;
   
@@ -162,9 +165,13 @@ void vtkOutputPort::TriggerUpdate(int remoteProcessId)
   vtkDataObject *input = this->GetInput();
   
   // First get the update extent requested.
-  this->Controller->Receive((vtkObject*)(input->GetGenericUpdateExtent()),
-			    remoteProcessId, 
+  int extent[8];
+  this->Controller->Receive( extent, 8, remoteProcessId, 
 			    VTK_PORT_UPDATE_EXTENT_TAG);
+  input->SetUpdateExtent( extent );
+  input->SetUpdatePiece( extent[6] );
+  input->SetUpdateNumberOfPieces( extent[7] );
+  
   
   // Note:  Receiving DataTime was the start of a more intelligent promotion
   // for pipeline parallism.  Unfortunately there was no way (I knew of)
@@ -184,8 +191,10 @@ void vtkOutputPort::TriggerUpdate(int remoteProcessId)
   // Handle no input gracefully. (Not true: Later we will send a NULL input.)
   if ( input != NULL && input->GetDataReleased())
     {
-    input->PreUpdate();
-    input->InternalUpdate();
+    input->UpdateInformation();
+    input->PropagateUpdateExtent();
+    input->TriggerAsynchronousUpdate();
+    input->UpdateData();
     }
 
   // Did the input change?
@@ -247,8 +256,9 @@ void vtkOutputPort::TriggerUpdate(int remoteProcessId)
     if ( input != NULL )
       {
       input->UpdateInformation();
-      input->PreUpdate();
-      input->InternalUpdate();
+      input->PropagateUpdateExtent();
+      input->TriggerAsynchronousUpdate();
+      input->UpdateData();
       }
     }
 }
@@ -290,10 +300,10 @@ void vtkOutputPort::SetTag(int tag)
   // remove old RMI.
   if (this->Tag != -1)
     {
-    this->Controller->RemoveRMI(vtkOutputPortUpdateInformationCallBack, 
-                                (void *)this, this->Tag);
-    this->Controller->RemoveRMI(vtkOutputPortUpdateCallBack, 
-                                (void *)this, this->Tag + 1);
+//    this->Controller->RemoveRMI(vtkOutputPortUpdateInformationCallBack, 
+//                                (void *)this, this->Tag);
+//    this->Controller->RemoveRMI(vtkOutputPortUpdateCallBack, 
+//                                (void *)this, this->Tag + 1);
     }
   
   this->Tag = tag;

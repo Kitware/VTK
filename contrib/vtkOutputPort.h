@@ -104,7 +104,7 @@ public:
   
   // Description:
   // This method is called after the port updates.  It is meant to change
-  // a parameter if a series is being processes.
+  // a parameter if a series is being processed.
   void SetParameterMethod(void (*f)(void *), void *arg);
 
   // Description:

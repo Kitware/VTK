@@ -101,11 +101,20 @@ public:
   vtkGetMacro(Tag, int);
   
   // Description:
-  // We need special UpdateInformation and Update methods to 
-  // communicate with the up-stream process.
+  // Need to override to propagate across port
   void UpdateInformation();
-  void PreUpdate(vtkDataObject *output);
-  void InternalUpdate(vtkDataObject *output);
+
+  // Description:
+  // Need to override to propagate across port
+  void PropagateUpdateExtent(vtkDataObject *output) {};
+
+  // Description:
+  // Need to override to propagate across port
+  void UpdateData( vtkDataObject *out );
+
+  // Description:
+  // Need to override to trigger the update across the port
+  void TriggerAsynchronousUpdate();  
   
   // Description:
   // Access to the global controller.
