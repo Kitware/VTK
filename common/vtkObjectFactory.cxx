@@ -587,12 +587,12 @@ public:
 
 
 // collect up information about current registered factories  
-vtkOverrideInformationCollection*
-vtkObjectFactory::GetOverrideInformation(const char* name)
+void
+vtkObjectFactory::GetOverrideInformation(const char* name,
+                                         vtkOverrideInformationCollection* 
+                                         ret)
 {
   // create the collection to return
-  vtkOverrideInformationCollection* ret = 
-    vtkOverrideInformationCollection::New();
   vtkOverrideInformation* overInfo = 0; // info object pointer
   vtkObjectFactory* factory = 0; // factory pointer for traversal
   vtkObjectFactoryCollectionIterator* it = 
@@ -622,7 +622,6 @@ vtkObjectFactory::GetOverrideInformation(const char* name)
       }
     }
   it->Delete();
-  return ret;
 }
 
 // set enable flag for all registered factories for the given className

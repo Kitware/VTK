@@ -103,10 +103,10 @@ public:
   static int HasOverrideAny(const char* className);
   
   // Description:
-  // return a vtkOverrideInformation object collection, NOTE: caller must
-  // call Delete on returned object.
-  static vtkOverrideInformationCollection* 
-    GetOverrideInformation(const char* name);
+  // Fill the given collection with all the overrides for
+  // the class with the given name.
+  static void GetOverrideInformation(const char* name,
+                                     vtkOverrideInformationCollection*);
   
   // Description:
   // Set the enable flag for a given named class for all registered
