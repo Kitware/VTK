@@ -303,7 +303,7 @@ static VTK_THREAD_RETURN_TYPE vtkStreamer_ThreadedIntegrate( void *arg )
     = vtkInterpolatedVelocityField::New();
   func->SetDataSet(input);
 
-  int counter=0;
+//  int counter=0;
 
   if (self->GetIntegrator() == 0)
     {
@@ -679,6 +679,11 @@ void vtkStreamer::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Terminal Speed: " << this->TerminalSpeed << "\n";
 
   os << indent << "Speed Scalars: " << (this->SpeedScalars ? "On\n" : "Off\n");
+
+  os << indent << "Interval with which points are stored:" 
+     << this->SavePointInterval << endl;
+
+  os << indent << "Integrator: " << this->Integrator << endl;
 
   os << indent << "Number Of Streamers: " << this->NumberOfStreamers << "\n";
   os << indent << "Number Of Threads: " << this->NumberOfThreads << "\n";
