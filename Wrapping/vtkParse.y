@@ -232,9 +232,9 @@ maybe_const: | CONST {postSig(" const");};
 
 func_beg: any_id '('  {postSig(" ("); } args_list ')';
 
-const_mod: CONST {postSig("const ");}
+const_mod: CONST {postSig("const ");};
 
-static_mod: STATIC {postSig("static ");}
+static_mod: STATIC {postSig("static ");};
 
 any_id: VTK_ID {postSig($<str>1);} | ID {postSig($<str>1);};
 
@@ -1046,8 +1046,8 @@ int main(int argc,char *argv[])
   if (ret)
     {
     fprintf(stdout,
-            "*** SYNTAX ERROR found in parsing the header file %s ***\n", 
-            argv[1]);
+            "*** SYNTAX ERROR found in parsing the header file %s before line %d ***\n", 
+            argv[1], yylineno);
     return ret;
     }
 
