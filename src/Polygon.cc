@@ -202,7 +202,7 @@ int vlPolygon::ParameterizePolygon(float *p0, float *p10, float& l10,
 {
   int i, j;
   float s, t, p[3], p1[3], p2[3], sbounds[2], tbounds[2];
-  int numPts;
+  int numPts=this->Points.NumberOfPoints();
   float *x1, *x2;
   vlMath math;
 //

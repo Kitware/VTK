@@ -12,9 +12,10 @@ public:
   ~vlIdList() {};
 
   int NumberOfIds() {return (this->Ia.GetMaxId() + 1);};
+  int GetId(const int i) {return this->Ia[i];};
+  void SetId(const int i, const int id) {this->Ia[i]=id;};
   void InsertId(const int i, const int id) {this->Ia.InsertValue(i,id);};
   int InsertNextId(const int id) {return this->Ia.InsertNextValue(id);};
-  int GetId(const int i) {return this->Ia[i];};
   void operator+=(vlIdList& ids) {this->Ia += ids.Ia;};
   void operator+=(const int i) {this->Ia += i;};
   int getChunk(const int sz) { // get chunk of memory

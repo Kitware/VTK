@@ -167,7 +167,7 @@ vlCell *vlStructuredPoints::GetCell(int cellId)
         x[0] = this->Origin[0] + loc[0] * this->AspectRatio[0]; 
         idx = loc[0] + loc[1]*this->Dimension[0] + loc[2]*d01;
         cell->PointIds.InsertId(npts,idx);
-        cell->Points.SetPoint(npts++,x);
+        cell->Points.InsertPoint(npts++,x);
         }
       }
     }

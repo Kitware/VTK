@@ -70,6 +70,8 @@ void vlContourFilter::Execute()
   vlFloatScalars *newScalars;
   vlCellArray *newVerts, *newLines, *newPolys;
   vlFloatPoints *newPoints;
+
+  vlDebugMacro(<< "Executing contour filter");
 //
 // Initialize and check input
 //
@@ -109,6 +111,9 @@ void vlContourFilter::Execute()
 // Update ourselves.  Because we don't know upfront how many verts, lines,
 // polys we've created, take care to reclaim memory. 
 //
+  newPoints->Squeeze();
+  this->SetPoints(newPoints);
+
   if (newVerts->GetNumberOfCells()) 
     {
     newVerts->Squeeze();    
@@ -141,3 +146,21 @@ void vlContourFilter::Execute()
 
   this->PointData.SetScalars(newScalars);
 }
+
+void vlContourFilter::PrintSelf(ostream& os, vlIndent indent)
+{
+  int i;
+
+  if (this->ShouldIPrint(vlContourFilter::GetClassName()))
+    {
+    vlDataSetToPolyFilter::PrintSelf(os,indent);
+
+    os << indent << "Number Of Contours : " << this->NumberOfContours << "\n";
+    os << indent << "Contour Values: \n";
+    for ( i=0; i<this->NumberOfContours; i++)
+      {
+      os << indent << "  Value " << i << ": " << this->Values[i] << "\n";
+      }
+    }
+}
+

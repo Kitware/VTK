@@ -15,6 +15,7 @@ without the express written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
+#include <math.h>
 #include "ImpMod.hh"
 #include "FScalars.hh"
 
@@ -29,9 +30,7 @@ vlImplicitModeller::vlImplicitModeller()
   this->ModelBounds[4] = 0.0;
   this->ModelBounds[5] = 0.0;
 
-  this->Dimension[0] = 50;
-  this->Dimension[1] = 50;
-  this->Dimension[2] = 50;
+  this->SetDimension(50,50,50);
 }
 
 void vlImplicitModeller::PrintSelf(ostream& os, vlIndent indent)
@@ -90,8 +89,10 @@ void vlImplicitModeller::Execute()
   int numPts, idx;
   int subId;
   int min[3], max[3];
-  float x[3], prevDistance, distance;
+  float x[3], prevDistance2, distance2;
   int jkFactor;
+
+  vlDebugMacro(<< "Executing implicit model");
 //
 // Initialize self; create output objects
 //
@@ -106,6 +107,7 @@ void vlImplicitModeller::Execute()
 
   numPts = this->Dimension[0] * this->Dimension[1] * this->Dimension[2];
   newScalars = new vlFloatScalars(numPts);
+  for (i=0; i<numPts; i++) newScalars->SetScalar(i,LARGE_FLOAT);
 
   maxDistance = this->ComputeModelBounds();
 //
@@ -141,13 +143,21 @@ void vlImplicitModeller::Execute()
           {
           x[0] = this->AspectRatio[0] * i + this->Origin[0];
           idx = jkFactor*k + this->Dimension[0]*j + i;
-          prevDistance = newScalars->GetScalar(idx);
-          distance = cell->EvaluatePosition(x,subId,pcoords);
-          if (distance < prevDistance)
-            newScalars->SetScalar(idx,distance);
+          prevDistance2 = newScalars->GetScalar(idx);
+          distance2 = cell->EvaluatePosition(x,subId,pcoords);
+          if (distance2 < prevDistance2)
+            newScalars->SetScalar(idx,distance2);
           }
         }
       }
+    }
+//
+// Run through scalars and take square root
+//
+  for (i=0; i<numPts; i++)
+    {
+    distance2 = newScalars->GetScalar(i);
+    newScalars->SetScalar(i,sqrt(distance2));
     }
 //
 // Update self
@@ -158,5 +168,45 @@ void vlImplicitModeller::Execute()
 
 float vlImplicitModeller::ComputeModelBounds()
 {
-  return 1.0;
+  float *bounds, maxDist;
+  int i, adjustBounds=0;
+
+  // compute model bounds if not set previously
+  if ( this->ModelBounds[0] >= this->ModelBounds[1] ||
+  this->ModelBounds[2] >= this->ModelBounds[3] ||
+  this->ModelBounds[4] >= this->ModelBounds[5] )
+    {
+    adjustBounds = 1;
+    bounds = this->Input->GetBounds();
+    }
+  else
+    {
+    bounds = this->ModelBounds;
+    }
+
+  for (maxDist=0.0, i=0; i<3; i++)
+    if ( (bounds[2*i+1] - bounds[2*i]) > maxDist )
+      maxDist = bounds[2*i+1] - bounds[2*i];
+
+  maxDist *= this->MaximumDistance;
+
+  // adjust bounds so model fits strictly inside (only if not set previously)
+  if ( adjustBounds )
+    {
+    for (i=0; i<3; i++)
+      {
+      this->ModelBounds[2*i] = bounds[2*i] - maxDist;
+      this->ModelBounds[2*i+1] = bounds[2*i+1] + maxDist;
+      }
+    }
+
+  // Set volume origin and aspect ratio
+  for (i=0; i<3; i++)
+    {
+    this->Origin[i] = this->ModelBounds[2*i];
+    this->AspectRatio[i] = (this->ModelBounds[2*i+1] - this->ModelBounds[2*i]) / 
+                           (this->Dimension[i] - 1);
+    }
+
+  return maxDist;  
 }

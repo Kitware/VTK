@@ -20,6 +20,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "PolyMap.hh"
 #include "CellType.hh"
 #include "Point.hh"
+#include "PolyPts.hh"
 #include "Line.hh"
 #include "PolyLine.hh"
 #include "Triangle.hh"
@@ -102,6 +103,7 @@ vlDataSet* vlPolyData::MakeObject()
 vlCell *vlPolyData::GetCell(int cellId)
 {
   static vlPoint point;
+  static vlPolyPoints ppoints;
   static vlLine line;
   static vlPolyLine pline;
   static vlTriangle triangle;
@@ -121,6 +123,11 @@ vlCell *vlPolyData::GetCell(int cellId)
     {
     case vlPOINT:
      cell = &point;
+     this->Verts->GetCell(loc,numPts,pts);
+     break;
+
+    case vlPOLY_POINTS:
+     cell = &ppoints;
      this->Verts->GetCell(loc,numPts,pts);
      break;
 
@@ -156,7 +163,7 @@ vlCell *vlPolyData::GetCell(int cellId)
     }
   for (i=0; i<numPts; i++)
     {
-    cell->PointIds.InsertId(i,pts[i]);
+    cell->PointIds.SetId(i,pts[i]);
     cell->Points.SetPoint(i,this->Points->GetPoint(i));
     }
 
@@ -436,9 +443,9 @@ void vlPolyData::BuildCells()
       for (verts->InitTraversal(); verts->GetNextCell(npts,pts); )
         {
         if ( npts > 1 )
-          cells->InsertNextCell(vlPOLY_POINTS,verts->GetLocation());
+          cells->InsertNextCell(vlPOLY_POINTS,verts->GetLocation(npts));
         else
-          cells->InsertNextCell(vlPOINT,verts->GetLocation());
+          cells->InsertNextCell(vlPOINT,verts->GetLocation(npts));
         }
       }
 
@@ -447,9 +454,9 @@ void vlPolyData::BuildCells()
       for (lines->InitTraversal(); lines->GetNextCell(npts,pts); )
         {
         if ( npts > 1 )
-          cells->InsertNextCell(vlPOLY_LINE,lines->GetLocation());
+          cells->InsertNextCell(vlPOLY_LINE,lines->GetLocation(npts));
         else
-          cells->InsertNextCell(vlLINE,lines->GetLocation());
+          cells->InsertNextCell(vlLINE,lines->GetLocation(npts));
         }
       }
 
@@ -458,11 +465,11 @@ void vlPolyData::BuildCells()
       for (polys->InitTraversal(); polys->GetNextCell(npts,pts); )
         {
         if ( npts == 3 )
-          cells->InsertNextCell(vlTRIANGLE,polys->GetLocation());
+          cells->InsertNextCell(vlTRIANGLE,polys->GetLocation(npts));
         else if ( npts == 4 )
-          cells->InsertNextCell(vlQUAD,polys->GetLocation());
+          cells->InsertNextCell(vlQUAD,polys->GetLocation(npts));
         else
-          cells->InsertNextCell(vlPOLYGON,polys->GetLocation());
+          cells->InsertNextCell(vlPOLYGON,polys->GetLocation(npts));
         }
       }
 
@@ -470,7 +477,7 @@ void vlPolyData::BuildCells()
       {
       for (strips->InitTraversal(); strips->GetNextCell(npts,pts); )
         {
-        cells->InsertNextCell(vlTRIANGLE_STRIP,strips->GetLocation());
+        cells->InsertNextCell(vlTRIANGLE_STRIP,strips->GetLocation(npts));
         }
       }
     }
@@ -485,7 +492,7 @@ void vlPolyData::BuildCells()
         {
         if ( npts == 3 )
           {
-          cells->InsertNextCell(vlTRIANGLE,polys->GetLocation());
+          cells->InsertNextCell(vlTRIANGLE,polys->GetLocation(npts));
           polys->InsertNextCell(npts,pts);
           }
         else // triangulate poly
@@ -494,7 +501,7 @@ void vlPolyData::BuildCells()
           poly.Triangulate(outVerts);
           for (i=0; i<outVerts.NumberOfIds()/3; i++)
             {
-            cells->InsertNextCell(vlTRIANGLE,polys->GetLocation());
+            cells->InsertNextCell(vlTRIANGLE,polys->GetLocation(npts));
             polys->InsertNextCell(3);
             for (j=0; j<3; j++)
               polys->InsertCellPoint(outVerts.GetId(3*i+j));
@@ -512,7 +519,7 @@ void vlPolyData::BuildCells()
         p3 = pts[2];
         for (i=0; i<(npts-2); i++)
           {
-          cells->InsertNextCell(vlTRIANGLE,polys->GetLocation());
+          cells->InsertNextCell(vlTRIANGLE,polys->GetLocation(npts));
           polys->InsertNextCell(3);
           if ( (i % 2) ) // flip ordering to preserve consistency
             {

@@ -29,6 +29,7 @@ public:
   vlContourFilter();
   ~vlContourFilter() {};
   char *GetClassName() {return "vlContourFilter";};
+  void PrintSelf(ostream& os, vlIndent indent);
 
   void SetValue(int i, float value);
   vlGetVectorMacro(Values,float);

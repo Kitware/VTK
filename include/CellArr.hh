@@ -52,7 +52,7 @@ public:
   int GetSize() {return Ia.GetSize();};
   void GetCell(int loc, int &npts, int* &pts)
     {npts=this->Ia.GetValue(loc++); pts=this->Ia.GetPtr(loc);};
-  int GetLocation() {return this->Location;};
+  int GetLocation(int npts) {return (this->Location - npts - 1);};
   
 protected:
   int NumberOfCells;
