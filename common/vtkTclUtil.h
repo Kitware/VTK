@@ -95,7 +95,7 @@ public:
   void SetStringCommand(char *arg) { this->StringCommand = arg; };
   void SetInterp(Tcl_Interp *interp) { this->Interp = interp; };
   
-  void Execute(vtkObject *, void *callData)
+  void Execute(vtkObject *, void *)
     {
       int res;
       res = Tcl_GlobalEval(this->Interp, this->StringCommand);
