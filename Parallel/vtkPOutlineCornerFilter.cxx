@@ -20,7 +20,7 @@
 #include "vtkOutlineCornerSource.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPOutlineCornerFilter, "1.1");
+vtkCxxRevisionMacro(vtkPOutlineCornerFilter, "1.2");
 vtkStandardNewMacro(vtkPOutlineCornerFilter);
 vtkCxxSetObjectMacro(vtkPOutlineCornerFilter, Controller, vtkMultiProcessController);
 
@@ -54,27 +54,31 @@ void vtkPOutlineCornerFilter::Execute()
     }
 
   this->GetInput()->GetBounds(bds);
+  //cerr << "Bounds: " << bds[0] << ", " << bds[1] << ", " 
+  //                   << bds[2] << ", " << bds[3] << ", "
+  //                   << bds[4] << ", " << bds[5] << endl;
 
   int procid = this->Controller->GetLocalProcessId();
   if ( procid )
     {
     // Satellite node
-    this->Controller->Send(bds, 6, 0, 1970);
+    this->Controller->Send(bds, 6, 0, 792390);
     }
   else
     {
     int numProcs = this->Controller->GetNumberOfProcesses();
     int idx;
-    int tmp[6];
+    float tmp[6];
 
     for (idx = 1; idx < numProcs; ++idx)
       {
       this->Controller->Receive(tmp, 6, idx, 792390);
+
       if (tmp[0] < bds[0])
         {
         bds[0] = tmp[0];
         }
-      if (tmp[1] < bds[1])
+      if (tmp[1] > bds[1])
         {
         bds[1] = tmp[1];
         }
@@ -82,7 +86,7 @@ void vtkPOutlineCornerFilter::Execute()
         {
         bds[2] = tmp[2];
         }
-      if (tmp[3] < bds[3])
+      if (tmp[3] > bds[3])
         {
         bds[3] = tmp[3];
         }
@@ -90,7 +94,7 @@ void vtkPOutlineCornerFilter::Execute()
         {
         bds[4] = tmp[4];
         }
-      if (tmp[5] < bds[5])
+      if (tmp[5] > bds[5])
         {
         bds[5] = tmp[5];
         }

@@ -20,7 +20,7 @@
 #include "vtkOutlineSource.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPOutlineFilter, "1.1");
+vtkCxxRevisionMacro(vtkPOutlineFilter, "1.2");
 vtkStandardNewMacro(vtkPOutlineFilter);
 vtkCxxSetObjectMacro(vtkPOutlineFilter, Controller, vtkMultiProcessController);
 
@@ -58,7 +58,7 @@ void vtkPOutlineFilter::Execute()
   if ( procid )
     {
     // Satellite node
-    this->Controller->Send(bds, 6, 0, 1970);
+    this->Controller->Send(bds, 6, 0, 792390);
     }
   else
     {
@@ -73,7 +73,7 @@ void vtkPOutlineFilter::Execute()
         {
         bds[0] = tmp[0];
         }
-      if (tmp[1] < bds[1])
+      if (tmp[1] > bds[1])
         {
         bds[1] = tmp[1];
         }
@@ -81,7 +81,7 @@ void vtkPOutlineFilter::Execute()
         {
         bds[2] = tmp[2];
         }
-      if (tmp[3] < bds[3])
+      if (tmp[3] > bds[3])
         {
         bds[3] = tmp[3];
         }
@@ -89,7 +89,7 @@ void vtkPOutlineFilter::Execute()
         {
         bds[4] = tmp[4];
         }
-      if (tmp[5] < bds[5])
+      if (tmp[5] > bds[5])
         {
         bds[5] = tmp[5];
         }
