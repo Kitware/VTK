@@ -99,6 +99,14 @@ int vtkImageData::Allocate()
     inc *= this->Size[idx];
     }
   
+  // special case zero length array
+  if (inc <= 0)
+    {
+    this->Length = inc;
+    this->Data = NULL;
+    return 1;
+    }
+  
   // allocate more memory
   this->Data = new float[inc];
   if (this->Data)
@@ -122,6 +130,22 @@ int vtkImageData::Allocate()
 // image origin.
 float *vtkImageData::GetPointer(int coordinates[3])
 {
+  int idx;
+    
+  // error checking: since most acceses will be from pointer arithmatic.
+  // this should not waste much time.
+  for (idx = 0; idx < 3; ++idx)
+    {
+    if (coordinates[idx] < this->Offset[idx] ||
+	coordinates[idx] >= this->Offset[idx] + this->Size[idx])
+      {
+      vtkErrorMacro(<< "GetPointer: Pixel (" << coordinates[0] << ", " 
+                    << coordinates[1] << ", " << coordinates[2]
+                    << ") not in memory.");
+      return NULL;
+      }
+    }
+  
   return this->Data 
     + (coordinates[0] - this->Offset[0]) * this->Inc[0]
       + (coordinates[1] - this->Offset[1]) * this->Inc[1]

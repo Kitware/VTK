@@ -90,7 +90,6 @@ void vtkImageVolumeShortReader::SetSize(int *size)
 // This function opens a file for reading.
 void vtkImageVolumeShortReader::SetFileRoot(char *fileRoot)
 {
-  long fileLength;
 
   strcpy(this->FileRoot, fileRoot);
   
@@ -98,6 +97,7 @@ void vtkImageVolumeShortReader::SetFileRoot(char *fileRoot)
   if (this->File)
     {
     this->File->close();
+    delete this->File;
     this->File = NULL;
     }
   
@@ -114,15 +114,16 @@ void vtkImageVolumeShortReader::SetFileRoot(char *fileRoot)
   
   // Get the size of the header from the size of the image
   this->File->seekg(0,ios::end);
-  fileLength = this->File->tellg();
+  this->FileSize = this->File->tellg();
 
-  this->HeaderSize = fileLength
+  this->HeaderSize = this->FileSize
     - sizeof(unsigned short int) * this->Inc[2];
   
   vtkDebugMacro(<< "SetFileName: Header " << this->HeaderSize 
-                << " bytes, fileLength = " << fileLength << " bytes.");
+                << " bytes, fileLength = " << this->FileSize << " bytes.");
   
   this->File->close();
+  delete this->File;
   this->File = NULL;
 }
 
@@ -143,7 +144,7 @@ void vtkImageVolumeShortReader::GenerateSlice(vtkImageRegion *region,
   unsigned char swap[2];
   unsigned short *pshort;
   int idx0, idx1;
-  
+
   // get the information needed to find a location in the file
   offset = region->GetOffset();
   region->GetSize(size0, size1, size2);
@@ -157,6 +158,13 @@ void vtkImageVolumeShortReader::GenerateSlice(vtkImageRegion *region,
   streamRowSkip = (this->Inc[1] - size0 * this->Inc[0]) 
     * sizeof(unsigned short int);
 
+  // error checking
+  if (streamStartPos < 0 || streamStartPos > this->FileSize)
+    {
+    vtkErrorMacro(<< "GenerateSlice: bad offset");
+    return;
+    }
+    
   // move to the correct location in the file (offset of region)
   this->File->seekg(streamStartPos, ios::beg);
   if (this->File->fail())

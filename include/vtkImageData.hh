@@ -68,6 +68,9 @@ public:
   vtkGetVector3Macro(Size,int);
   vtkSetVector3Macro(Offset,int);
   vtkGetVector3Macro(Offset,int);
+  
+  // HACK DONT USE
+  void SetData(float *data){this->Data = data;};
 
   // Description:
   // Gets the increments between columns, rows, and images.  These

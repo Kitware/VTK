@@ -80,7 +80,7 @@ public:
   vtkGetMacro(FlipYFlag,int);
   vtkBooleanMacro(FlipYFlag,int);
 
-  void Update();
+  void ConditionalUpdate(int forcedFlag);
   
   
 protected:

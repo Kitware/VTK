@@ -90,6 +90,7 @@ protected:
   char FileRoot[100];
   char FileName[110];
   ifstream *File;
+  int FileSize;
   int HeaderSize;
   int Signed;
   int SwapBytes;

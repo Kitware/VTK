@@ -78,7 +78,8 @@ vtkImageCache::~vtkImageCache()
 //----------------------------------------------------------------------------
 // Description:
 // This Method returns the MTime of the pipeline before this cache.
-// It considers both the source and the cache.
+// It considers both the source and the cache.  This method assumes
+// that the pipeline does not changed until the next RequestRegion call.
 unsigned long int vtkImageCache::GetPipelineMTime()
 {
   unsigned long int time1, time2;
@@ -169,7 +170,7 @@ void vtkImageCache::SetReleaseDataFlag(int value)
 vtkImageRegion *vtkImageCache::RequestRegion(int offset[3], int size[3])
 {
   long requestMemory;
-
+  vtkImageRegion *region;
   
   vtkDebugMacro(<< "RequestRegion: offset = (" 
 		<< offset[0] << ", " << offset[1] << ", " << offset[2] 
@@ -185,7 +186,7 @@ vtkImageRegion *vtkImageCache::RequestRegion(int offset[3], int size[3])
                   << this->SplitFactor);
     return NULL;
     }
-
+  
   // Must have a source to generate the data
   if ( ! this->Source)
     {
@@ -199,13 +200,15 @@ vtkImageRegion *vtkImageCache::RequestRegion(int offset[3], int size[3])
   if (this->ReleaseDataFlag)
     {
     // Since SaveData is off, Data must be NULL.  Generate request.
-    return this->RequestUnCachedRegion(offset, size);
+    region = this->RequestUnCachedRegion(offset, size);
     }
   else
     {
     // look to cached data to fill request
-    return this->RequestCachedRegion(offset, size);
+    region = this->RequestCachedRegion(offset, size);
     }
+  
+  return region;
 }
 
 

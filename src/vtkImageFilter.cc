@@ -131,9 +131,21 @@ void vtkImageFilter::GenerateRegion(int *outOffset, int *outSize)
   // get the required input Region 
   this->RequiredRegion(outOffset, outSize, inOffset, inSize);
 
-  // get the required tile from the Input 
-  inRegion = this->Input->RequestRegion(inOffset, inSize);
-
+  // get the required tile from the Input
+  if (inSize[0] > 0 && inSize[1] > 0 && inSize[2] > 0)
+    {
+    inRegion = this->Input->RequestRegion(inOffset, inSize);
+    }
+  else
+    {
+    // no data is needed to generate the tile.
+    // Set up a dummy region.
+    inRegion = new vtkImageRegion;
+    inRegion->SetOffset(inOffset);
+    inRegion->SetSize(inSize);
+    inRegion->Allocate();
+    }
+  
   // Make sure the requested tile was not too large 
   if ( ! inRegion)
     {

@@ -74,6 +74,7 @@ void vtkImageUpperThresholdFilter::RequiredRegion(int *outOffset, int *outSize,
 // This method is passed a input and output region, and executes the filter
 // algorithm to fill the output from the input.
 // UpperThresholdFilter just copies pixel by pixel
+
 void vtkImageUpperThresholdFilter::Execute(vtkImageRegion *inRegion, 
 					   vtkImageRegion *outRegion)
 {
@@ -130,5 +131,69 @@ void vtkImageUpperThresholdFilter::Execute(vtkImageRegion *inRegion,
     }
 }
 
+/*
+
+//----------------------------------------------------------------------------
+// Description:
+// This method is passed a input and output region, and executes the filter
+// algorithm to fill the output from the input.
+// UpperThresholdFilter just copies pixel by pixel
+template <class T>
+void TypeExecute(vtkImageUpperThresholdFilter *this,
+		 vtkImageRegion *inRegion, vtkImageRegion *outRegion)
+{
+  int *size;
+  int size0, size1, size2;
+  int idx0, idx1, idx2;
+  int *inInc;
+  int inInc0, inInc1, inInc2;
+  int *outInc;
+  int outInc0, outInc1, outInc2;
+  float *inPtr0, *inPtr1, *inPtr2;
+  float *outPtr0, *outPtr1, *outPtr2;
+
+  
+  // Get information to march through data 
+  inPtr2 = inRegion->GetPointer(inRegion->GetOffset());
+  inInc = inRegion->GetInc();
+  inInc0 = inInc[0];  inInc1 = inInc[1];  inInc2 = inInc[2];  
+  outPtr2 = outRegion->GetPointer(outRegion->GetOffset());
+  outInc = outRegion->GetInc();
+  outInc0 = outInc[0];  outInc1 = outInc[1];  outInc2 = outInc[2];  
+  size = outRegion->GetSize();
+  size0 = size[0];  size1 = size[1];  size2 = size[2];  
+
+  vtkDebugMacro(<< "Execute: inRegion = " << inRegion 
+		<< ", outRegion = " << outRegion);
+  
+  // Loop through ouput pixels
+  for (idx2 = 0; idx2 < size2; ++idx2)
+    {
+    outPtr1 = outPtr2;
+    inPtr1 = inPtr2;
+    for (idx1 = 0; idx1 < size1; ++idx1)
+      {
+      outPtr0 = outPtr1;
+      inPtr0 = inPtr1;
+      for (idx0 = 0; idx0 < size0; ++idx0)
+	{
+
+	// Pixel operation
+	if (*inPtr0 > this->Threshold)
+	  *outPtr0 = this->Replace;
+	else
+	  *outPtr0 = *inPtr0;
+	
+	outPtr0 += outInc0;
+	inPtr0 += inInc0;
+	}
+      outPtr1 += outInc1;
+      inPtr1 += inInc1;
+      }
+    outPtr2 += outInc2;
+    inPtr2 += inInc2;
+    }
+}
+*/
 
 

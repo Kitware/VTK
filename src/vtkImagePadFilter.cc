@@ -138,35 +138,43 @@ void vtkImagePadFilter::Execute(vtkImageRegion *inRegion,
   outRegion->GetInc(outInc0, outInc1, outInc2);
   inRegion->GetSize(inSize0, inSize1, inSize2);
 
-  // Copy the input region to the output region (assumed to be contained in).
-  inPtr2 = inRegion->GetPointer(inRegion->GetOffset());
-  outPtr2 = outRegion->GetPointer(inRegion->GetOffset());
-  for (idx2 = 0; idx2 < inSize2; ++idx2)
+  if (inSize0 > 0 && inSize1 > 0 && inSize2 > 0)
     {
-    outPtr1 = outPtr2;
-    inPtr1 = inPtr2;
-    for (idx1 = 0; idx1 < inSize1; ++idx1)
+    // Copy the input region to the output region (assumed to be contained in).
+    inPtr2 = inRegion->GetPointer(inRegion->GetOffset());
+    outPtr2 = outRegion->GetPointer(inRegion->GetOffset());
+    for (idx2 = 0; idx2 < inSize2; ++idx2)
       {
-      outPtr0 = outPtr1;
-      inPtr0 = inPtr1;
-      for (idx0 = 0; idx0 < inSize0; ++idx0)
+      outPtr1 = outPtr2;
+      inPtr1 = inPtr2;
+      for (idx1 = 0; idx1 < inSize1; ++idx1)
 	{
-
-	// Copy the pixel
-	*outPtr0 = *inPtr0;
-	
-	outPtr0 += outInc0;
-	inPtr0 += inInc0;
+	outPtr0 = outPtr1;
+	inPtr0 = inPtr1;
+	for (idx0 = 0; idx0 < inSize0; ++idx0)
+	  {
+	  
+	  // Copy the pixel
+	  *outPtr0 = *inPtr0;
+	  
+	  outPtr0 += outInc0;
+	  inPtr0 += inInc0;
+	  }
+	outPtr1 += outInc1;
+	inPtr1 += inInc1;
 	}
-      outPtr1 += outInc1;
-      inPtr1 += inInc1;
+      outPtr2 += outInc2;
+      inPtr2 += inInc2;
       }
-    outPtr2 += outInc2;
-    inPtr2 += inInc2;
-    }
 
-  // Pad the rest og the output
-  this->Pad(inRegion, outRegion);
+    // Pad the rest of the output
+    this->Pad(inRegion, outRegion);
+    }
+  else
+    {
+    // Special case: No overlap.  Just fill the entire region with pad value
+    this->PadRegion(outRegion, outRegion->GetOffset(), outRegion->GetSize());
+    }
 }
 
 
@@ -191,6 +199,12 @@ void vtkImagePadFilter::Pad(vtkImageRegion *inRegion,
   inRegion->GetSize(filledSize);
   outOffset = outRegion->GetOffset();
   outSize = outRegion->GetSize();
+
+  vtkDebugMacro(<< "Pad: inOffset = (" << padOffset[0] << ", " << padOffset[1] 
+                << ", " << padOffset[2] << "), inSize = (" << padSize[0] << ", "
+                << padSize[1] << ", " << padSize[2] << ")");
+  
+  
   // loop through the axes
   for (idx = 0; idx < 3; ++idx) 
     {

@@ -52,11 +52,14 @@ vtkImageToStructuredPoints::vtkImageToStructuredPoints()
 
 
 
-
+//----------------------------------------------------------------------------
 // Description:
-// Update input to this filter and the filter itself.
-void vtkImageToStructuredPoints::Update()
+// This filter executes if it or a previous filter has been modified or
+// if its data has been released and it is forced to update.
+void vtkFilter::ConditionalUpdate(int forcedFlag)
 {
+  int executeFlag;
+  
   // make sure input is available
   if ( !this->Input )
     {
@@ -64,9 +67,21 @@ void vtkImageToStructuredPoints::Update()
     return;
     }
 
-  if (this->Input->GetPipelineMTime() > this->ExecuteTime ||
-      this->GetMTime() > this->ExecuteTime)
+  // prevent chasing our tail
+  if (this->Updating) return;
+
+  executeFlag = this->Input->GetPipelineMTime() > this->ExecuteTime
+    || this->GetMTime() > this->ExecuteTime 
+    || (forcedFlag && this->Output->GetDataReleased());
+  
+  if (executeFlag)
     {
+    vtkDebugMacro(<< "ConditionalUpdate: Condition satisfied, forcedFlag = "
+                  << forcedFlag << ", executeTime = " << this->ExecuteTime
+                  << ", modifiedTime = " << this->GetMTime() 
+                  << ", input MTime = " << this->Input->GetPipelineMTime()
+                  << ", released = " << this->Output->GetDataReleased());
+    
     if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);
     this->Output->Initialize(); //clear output
     this->Execute();
@@ -74,10 +89,11 @@ void vtkImageToStructuredPoints::Update()
     this->SetDataReleased(0);
     if ( this->EndMethod ) (*this->EndMethod)(this->EndMethodArg);
     }
+
+  // now that we are done with the inputs data, it can be released.
+  // (should this be in the condition statement?)
+  if ( this->Input->ShouldIReleaseData() ) this->Input->ReleaseData();
 }
-
-
-
 
 
 
@@ -116,7 +132,9 @@ void vtkImageToStructuredPoints::Execute()
     
   // setup the structured points with the scalars
   region->GetOffset(dim);
-  origin[0] = (float)(dim[0]);   origin[1] = (float)(dim[1]);   origin[2] = (float)(dim[2]); 
+  origin[0] = (float)(dim[0]); 
+  origin[1] = (float)(dim[1]); 
+  origin[2] = (float)(dim[2]); 
   region->GetSize(dim);
   
   output->SetDimensions(dim);
