@@ -31,7 +31,7 @@
 
 #include <sys/stat.h>
 
-vtkCxxRevisionMacro(vtkXMLReader, "1.6");
+vtkCxxRevisionMacro(vtkXMLReader, "1.7");
 
 //----------------------------------------------------------------------------
 vtkXMLReader::vtkXMLReader()
@@ -382,7 +382,10 @@ int vtkXMLReader::CanReadFile(const char* name)
   // First make sure the file exists.  This prevents an empty file
   // from being created on older compilers.
   struct stat fs;
-  if(stat(name, &fs) != 0) { return 0; }
+  if(stat(name, &fs) != 0) 
+    { 
+    return 0; 
+    }
   
   // Test if the file with the given name is a VTKFile with the given
   // type.
@@ -399,12 +402,12 @@ int vtkXMLReader::CanReadFile(const char* name)
         {
         if(this->CanReadFileVersionString(version))
           {
-          result = 1;
+          result = 3;
           }
         }
       else
         {
-        result = 1;
+        result = 3;
         }
       }
     }
