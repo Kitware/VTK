@@ -114,6 +114,16 @@ int main (int argc, char *argv[])
     fprintf(fp,"\n");
     }
 
+  // if this is the imaging library we need to add dependencies
+  if (!strcmp(vtkLocal + strlen(vtkLocal) - 7,"imaging"))
+    {
+    fprintf(fp,"vtkTkImageWindowWidget.o : %s/vtkTkImageWindowWidget.cxx",
+	    vtkLocal);
+    sprintf(filename,"%s/vtkTkImageWindowWidget.cxx",vtkLocal);
+    OutputUNIXDepends(filename,fp, vtkHome, argv+extra_start,extra_num);
+    fprintf(fp,"\n");
+    }
+
   // generate depends for all the tcl wrappers
   for (i = concrete_start; i < argc; i++)
     {
