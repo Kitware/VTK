@@ -724,6 +724,20 @@ proc CreatePipeline {} {
       [viewError GetImageWindow] DoubleBufferOn
 }
 
+proc DeletePipeline {} {
+   readValid Delete
+   magValid Delete
+   viewValid Delete
+   
+   readGenerated Delete
+   magGenerated Delete
+   viewGenerated Delete
+   
+   readError Delete
+   magError Delete
+   viewError Delete
+}
+
 proc CreateBrowser {valid generated error} {
    toplevel .rt
    wm title .rt "Compare Images (Valid image is far left)"
@@ -832,6 +846,7 @@ proc InvokeBrowser {file} {
       readValid SetFileName $validFile
       readValid Update
    } else {
+      DeletePipeline
       return
    }
    set dims [[readValid GetOutput] GetDimensions]
@@ -903,19 +918,9 @@ proc CloseBrowser {} {
    global BrowserOpen
    set BrowserOpen 0
    destroy .rt
-
-   readValid Delete
-   magValid Delete
-   viewValid Delete
-
-   readGenerated Delete
-   magGenerated Delete
-   viewGenerated Delete
-
-   readError Delete
-   magError Delete
-   viewError Delete
+   DeletePipeline
 }
+ 
 
 ######## Advertising: the About popup and initial spash screen ##########
 ###
