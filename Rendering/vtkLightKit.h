@@ -117,8 +117,7 @@ public:
     Azimuth,
     KFRatio,
     KBRatio,
-    KHRatio,
-    Undefined
+    KHRatio
   };
   //ETX
 
@@ -274,6 +273,14 @@ public:
   void DeepCopy(vtkLightKit *kit);
 
   void Update();
+
+  // Description:
+  // Helper method to go from a enum type to a string type
+  static const char *GetStringFromType(int type);
+
+  // Description:
+  // Helper method to go from a enum type to a string type
+  static const char *GetStringFromSubType(int type);
 
 protected:
   vtkLightKit();

@@ -19,16 +19,15 @@
 #include "vtkPiecewiseFunction.h"
 #include "vtkRenderer.h"
 
-vtkCxxRevisionMacro(vtkLightKit, "1.15");
+vtkCxxRevisionMacro(vtkLightKit, "1.16");
 vtkStandardNewMacro(vtkLightKit);
 
-#if 0 /* || Mathieu Finishes This */
 static const char *vtkLightKitTypeStrings[] = {
   "Key Light",
   "Fill Light",
   "Back Light",
   "Head Light",
-  NULL,
+  NULL
 };
 
 static const char *vtkLightKitSubTypeStrings[] = {
@@ -41,49 +40,7 @@ static const char *vtkLightKitSubTypeStrings[] = {
   "K:H Ratio",
   NULL
 };
-#endif 
 
-//const char *vtkCommand::GetStringFromEventId(unsigned long event)
-//{
-//  static unsigned long numevents = 0;
-//  
-//  // find length of table
-//  if (!numevents)
-//    {
-//    while (vtkCommandEventStrings[numevents] != NULL)
-//      {
-//      numevents++;
-//      }
-//    }
-//
-//  if (event < numevents)
-//    {
-//    return vtkCommandEventStrings[event];
-//    }
-//  else if (event == vtkCommand::UserEvent)
-//    {
-//    return "UserEvent";
-//    }
-//  else
-//    {
-//    return "NoEvent";
-//    }
-//}
-  
-//int vtkLightKit::GetLightKitTypeFromString(const char *type)
-//{  
-//  int i;
-//
-//  for (i = 0; vtkLightKitTypeStrings[i] != NULL; i++)
-//    { 
-//    if (!strcmp(vtkCommandEventStrings[i],event))
-//      {
-//      return i;
-//      }
-//    }
-//
-//  return -1;
-//}
 
 //----------------------------------------------------------------------------
 vtkLightKit::vtkLightKit()
@@ -443,4 +400,31 @@ void vtkLightKit::InitializeWarmthFunctions()
     }
 }
 
+//----------------------------------------------------------------------------
+const char *vtkLightKit::GetStringFromType(int type)
+{
+  static const int n = sizeof(vtkLightKitTypeStrings)/sizeof(char*);
+  if( type < n )
+    {
+    return vtkLightKitTypeStrings[type];
+    }
+  else
+    {
+    return NULL;
+    }
+}
+
+//----------------------------------------------------------------------------
+const char *vtkLightKit::GetStringFromSubType(int subtype)
+{
+  static const int n = sizeof(vtkLightKitSubTypeStrings)/sizeof(char*);
+  if( subtype < n )
+    {
+    return vtkLightKitSubTypeStrings[subtype];
+    }
+  else
+    {
+    return NULL;
+    }
+}
 
