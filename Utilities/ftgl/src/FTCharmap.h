@@ -1,16 +1,17 @@
 #ifndef    __FTCharmap__
 #define    __FTCharmap__
 
-#include <map>
-
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #include FT_GLYPH_H
 
 #include "FTGL.h"
 
+#ifndef FTGL_DO_NOT_USE_STL
+#include <map>
 #ifdef USE_STD_NAMESPACE
 using namespace std;
+#endif
 #endif
 
 /**

@@ -5,10 +5,6 @@
 #endif
 
 
-#ifdef USE_STD_NAMESPACE
-using namespace std; // for memset
-#endif
-
 inline GLuint NextPowerOf2( GLuint in)
 {
      in -= 1;

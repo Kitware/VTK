@@ -1,8 +1,6 @@
 #ifndef    __FTFont__
 #define    __FTFont__
 
-#include <string>
-
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
@@ -11,10 +9,6 @@
 
 class FTGlyphContainer;
 class FTGlyph;
-
-#ifdef USE_STD_NAMESPACE
-using namespace std;
-#endif
 
 /**
  * FTFont is the public interface for the FTGL library.
