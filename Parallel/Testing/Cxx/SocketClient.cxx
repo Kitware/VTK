@@ -335,5 +335,5 @@ int main(int argc, char** argv)
   ugrid->Delete();
   CleanUp(comm, contr);
 
-  return retVal;
+  return !retVal;
 }
