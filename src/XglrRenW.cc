@@ -828,9 +828,9 @@ unsigned char *vlXglrRenderWindow::GetPixelData(int x1, int y1, int x2, int y2)
       {
       pos.x = xloop;
       xgl_context_get_pixel(this->Context,&pos,&col);
-      *p_data = (unsigned char)(col.rgb.r*255); p_data++;
-      *p_data = (unsigned char)(col.rgb.g*255); p_data++;
-      *p_data = (unsigned char)(col.rgb.b*255); p_data++;
+      *p_data = (unsigned char)(col.rgb.r*255.0); p_data++;
+      *p_data = (unsigned char)(col.rgb.g*255.0); p_data++;
+      *p_data = (unsigned char)(col.rgb.b*255.0); p_data++;
       }
     }
   
@@ -869,6 +869,13 @@ void vlXglrRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
     x_hi  = x1;
     }
   
+  col.rgb.r = 0;
+  col.rgb.g = 0;
+  col.rgb.b = 0;
+  xgl_object_set(this->Context,XGL_CTX_BACKGROUND_COLOR,
+		 &col,0);
+  xgl_context_new_frame(this->Context);
+
   // now write the binary info one row at a time 
   p_data = data;
   for (yloop = y_low; yloop <= y_hi; yloop++)
@@ -884,3 +891,23 @@ void vlXglrRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
       }
     }
 }
+
+// Description:
+// Handles work required at end of render cycle
+void vlXglrRenderWindow::CopyResultFrame(void)
+{
+  if (this->ResultFrame)
+    {
+    int *size;
+
+    // get the size
+    size = this->GetSize();
+
+    this->SetPixelData(0,0,size[0]-1,size[1]-1,this->ResultFrame);
+    delete this->ResultFrame;
+    this->ResultFrame = NULL;
+    }
+
+  this->Frame();
+}
+
