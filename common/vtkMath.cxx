@@ -1415,8 +1415,8 @@ void vtkMath::LUSolve3x3(const double A[3][3],
 
 //----------------------------------------------------------------------------
 // this method solves Ay = x for y
-template<class T, class T2, class T3>
-static inline void vtkLinearSolve3x3(T A[3][3], T2 x[3], T3 y[3])
+template<class T1, class T2, class T3>
+static inline void vtkLinearSolve3x3(const T1 A[3][3], const T2 x[3], T3 y[3])
 {
   int index[3];
   T3 B[3][3];
@@ -1445,8 +1445,8 @@ void vtkMath::LinearSolve3x3(const double A[3][3],
 }
 
 //----------------------------------------------------------------------------
-template<class T, class T2, class T3>
-static inline void vtkMultiply3x3(T A[3][3], T2 v[3], T3 u[3])
+template<class T1, class T2, class T3>
+static inline void vtkMultiply3x3(const T1 A[3][3], const T2 v[3], T3 u[3])
 {
   T3 x = A[0][0]*v[0] + A[0][1]*v[1] + A[0][2]*v[2];
   T3 y = A[1][0]*v[0] + A[1][1]*v[1] + A[1][2]*v[2];
@@ -1469,7 +1469,8 @@ void vtkMath::Multiply3x3(const double A[3][3], const double v[3], double u[3])
 
 //----------------------------------------------------------------------------
 template<class T, class T2, class T3>
-static inline void vtkMultiplyMatrix3x3(T A[3][3], T2 B[3][3], T3 C[3][3])
+static inline void vtkMultiplyMatrix3x3(const T A[3][3], const T2 B[3][3],
+                                        T3 C[3][3])
 {
   T3 D[3][3];
 
