@@ -69,7 +69,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 vtkSynchronizedTemplates3D* vtkSynchronizedTemplates3D::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -99,10 +99,6 @@ vtkSynchronizedTemplates3D::vtkSynchronizedTemplates3D()
   this->ComputeGradients = 0;
   this->ComputeScalars = 1;
 
-  this->MinimumPieceSize[0] = 1;
-  this->MinimumPieceSize[1] = 1;
-  this->MinimumPieceSize[2] = 1;
-
   this->ExecuteExtent[0] = this->ExecuteExtent[1] 
     = this->ExecuteExtent[2] = this->ExecuteExtent[3] 
     = this->ExecuteExtent[4] = this->ExecuteExtent[5] = 0;
@@ -113,6 +109,12 @@ vtkSynchronizedTemplates3D::vtkSynchronizedTemplates3D()
     {
     this->Threads[idx] = NULL;
     }
+
+  this->ExtentTranslator = NULL;
+  vtkExtentTranslator *t = vtkExtentTranslator::New();
+  this->SetExtentTranslator(t);
+  t->Delete();
+  t = NULL;
 }
 
 //----------------------------------------------------------------------------
@@ -120,6 +122,8 @@ vtkSynchronizedTemplates3D::~vtkSynchronizedTemplates3D()
 {
   this->ContourValues->Delete();
   this->Threader->Delete();
+  
+  this->SetExtentTranslator(NULL);
 }
 
 //----------------------------------------------------------------------------
@@ -678,85 +682,6 @@ void vtkSynchronizedTemplates3D::InitializeOutput(int *ext,vtkPolyData *o)
 }
 
 //----------------------------------------------------------------------------
-
-int vtkSynchronizedTemplates3D::SplitExtent(int piece, int numPieces,
-                                                int *ext)
-{
-  int numPiecesInFirstHalf;
-  int size[3], mid, splitAxis;
-
-  // keep splitting until we have only one piece.
-  // piece and numPieces will always be relative to the current ext. 
-  while (numPieces > 1)
-    {
-    // Get the dimensions for each axis.
-    size[0] = ext[1]-ext[0];
-    size[1] = ext[3]-ext[2];
-    size[2] = ext[5]-ext[4];
-    // choose the biggest axis
-    if (size[2] >= size[1] && size[2] >= size[0] && 
-	size[2]/2 >= this->MinimumPieceSize[2])
-      {
-      splitAxis = 2;
-      }
-    else if (size[1] >= size[0] && size[1]/2 >= this->MinimumPieceSize[1])
-      {
-      splitAxis = 1;
-      }
-    else if (size[0]/2 >= this->MinimumPieceSize[0])
-      {
-      splitAxis = 0;
-      }
-    else
-      {
-      // signal no more splits possible
-      splitAxis = -1;
-      }
-
-    if (splitAxis == -1)
-      {
-      // can not split any more.
-      if (piece == 0)
-        {
-        // just return the remaining piece
-        numPieces = 1;
-        }
-      else
-        {
-        // the rest must be empty
-        return 0;
-        }
-      }
-    else
-      {
-      // split the chosen axis into two pieces.
-      numPiecesInFirstHalf = (numPieces / 2);
-      mid = (size[splitAxis] * numPiecesInFirstHalf / numPieces) 
-	+ ext[splitAxis*2];
-      if (piece < numPiecesInFirstHalf)
-        {
-        // piece is in the first half
-        // set extent to the first half of the previous value.
-        ext[splitAxis*2+1] = mid;
-        // piece must adjust.
-        numPieces = numPiecesInFirstHalf;
-        }
-      else
-        {
-        // piece is in the second half.
-        // set the extent to be the second half. (two halves share points)
-        ext[splitAxis*2] = mid;
-        // piece must adjust
-        numPieces = numPieces - numPiecesInFirstHalf;
-        piece -= numPiecesInFirstHalf;
-        }
-      }
-    } // end of while
-
-  return 1;
-}
-
-//----------------------------------------------------------------------------
 VTK_THREAD_RETURN_TYPE vtkSyncTempThreadedExecute( void *arg )
 {
   vtkSynchronizedTemplates3D *self;
@@ -777,9 +702,26 @@ VTK_THREAD_RETURN_TYPE vtkSyncTempThreadedExecute( void *arg )
   ext[3] = tmp[3];
   ext[4] = tmp[4];
   ext[5] = tmp[5];
-  if (self->SplitExtent(threadId, threadCount, ext))
+  
+  vtkExtentTranslator *translator = self->GetExtentTranslator();
+  if (translator == NULL)
     {
-    self->ThreadedExecute(self->GetInput(), ext, threadId);
+    // No translator means only do one thread.
+    if (threadId == 0)
+      {
+      self->ThreadedExecute(self->GetInput(), ext, threadId);
+      }
+    }
+  else
+    {
+    translator->SetWholeExtent(ext);
+    translator->SetPiece(threadId);
+    translator->SetNumberOfPieces(threadCount);
+    if (translator->PieceToExtent())
+      {
+      translator->GetExtent(ext);
+      self->ThreadedExecute(self->GetInput(), ext, threadId);
+      }
     }
   
   return VTK_THREAD_RETURN_VALUE;
@@ -904,13 +846,29 @@ void vtkSynchronizedTemplates3D::ComputeInputUpdateExtents(vtkDataObject *out)
   input->GetWholeExtent(ext);  
 
   // get the extent associated with the piece.
-  this->SplitExtent(piece, numPieces, ext);
-
+  if (this->ExtentTranslator == NULL)
+    {
+    // Default behavior
+    if (piece != 0)
+      {
+      ext[0] = ext[2] = ext[4] = 0;
+      ext[1] = ext[3] = ext[5] = -1;
+      }
+    }
+  else
+    {    
+    this->ExtentTranslator->SetWholeExtent(ext);
+    this->ExtentTranslator->SetPiece(piece);
+    this->ExtentTranslator->SetNumberOfPieces(numPieces);
+    this->ExtentTranslator->PieceToExtent();
+    this->ExtentTranslator->GetExtent(ext);
+    }
+  
   // As a side product of this call, ExecuteExtent is set.
   // This is the region that we are really updating, although
   // we may require a larger input region in order to generate
   // it if normals / gradients are being computed
-
+  
   this->ExecuteExtent[0] = ext[0];
   this->ExecuteExtent[1] = ext[1];
   this->ExecuteExtent[2] = ext[2];
@@ -992,6 +950,9 @@ void vtkSynchronizedTemplates3D::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Compute Gradients: " << (this->ComputeGradients ? "On\n" : "Off\n");
   os << indent << "Compute Scalars: " << (this->ComputeScalars ? "On\n" : "Off\n");
   os << indent << "Number Of Threads: " << this->NumberOfThreads << "\n";
+  
+  os << indent << "ExtentTranslator: " << this->ExtentTranslator << endl;
+  
 }
 
 

@@ -71,6 +71,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkImageData.h"
 #include "vtkContourValues.h"
 #include "vtkMultiThreader.h"
+#include "vtkExtentTranslator.h"
 
 class VTK_EXPORT vtkSynchronizedTemplates3D : public vtkPolyDataSource
 {
@@ -163,8 +164,6 @@ public:
   // Description:
   // Needed by templated functions.
   int *GetExecuteExtent() {return this->ExecuteExtent;}
-  int SplitExtent(int piece, int numPieces, int *ext);
-  int SplitExtent2(int piece, int numPieces, int *ext);
   void ThreadedExecute(vtkImageData *data, int *exExt, int threadId);
 
   // Description:
@@ -179,6 +178,12 @@ public:
   void SetInputMemoryLimit(unsigned long limit);
   unsigned long GetInputMemoryLimit();
 
+  // Description:
+  // By changing this object, you sould be able to select how the structured
+  // extent is resolved (ie, blocks vs slabs).
+  vtkSetObjectMacro(ExtentTranslator, vtkExtentTranslator);
+  vtkGetObjectMacro(ExtentTranslator, vtkExtentTranslator);
+  
 
 protected:
   vtkSynchronizedTemplates3D();
@@ -196,8 +201,9 @@ protected:
 
   void ComputeInputUpdateExtents(vtkDataObject *output);
 
+  vtkExtentTranslator *ExtentTranslator;
+  
   int ExecuteExtent[6];
-  int MinimumPieceSize[3];
 
   int NumberOfThreads;
   vtkMultiThreader *Threader;
