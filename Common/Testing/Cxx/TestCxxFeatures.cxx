@@ -234,6 +234,37 @@ int TestIfScope()
 
 //----------------------------------------------------------------------------
 
+/* Test non-type template parameter.  */
+
+template <int I>
+struct NonTypeTemplate
+{
+  static int GetValue() { return I; }
+};
+
+int TestNonTypeTemplate()
+{
+  int result = 1;
+  if(NonTypeTemplate<0>::GetValue() != 0)
+    {
+    cerr << "NonTypeTemplate<0>::GetValue() != 0\n";
+    result = 0;
+    }
+  if(NonTypeTemplate<1>::GetValue() != 1)
+    {
+    cerr << "NonTypeTemplate<1>::GetValue() != 1\n";
+    result = 0;
+    }
+  if(NonTypeTemplate<2>::GetValue() != 2)
+    {
+    cerr << "NonTypeTemplate<2>::GetValue() != 2\n";
+    result = 0;
+    }
+  return result;
+}
+
+//----------------------------------------------------------------------------
+
 #define DO_TEST(x) \
   if(x()) { cout << "Passed: " #x "\n"; } \
   else { cout << "Failed: " #x "\n"; result = 1; }
@@ -247,5 +278,6 @@ int main()
 #endif
   DO_TEST(TestFullySpecializedClass);
   DO_TEST(TestIfScope);
+  DO_TEST(TestNonTypeTemplate);
   return result;
 }
