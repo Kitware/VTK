@@ -79,7 +79,7 @@ XrmOptionDescRec Desc[] =
 
 
 // Description:
-// Construct object so that light follows camera motion.
+// Construct an instance so that the light follows the camera motion.
 vtkXRenderWindowInteractor::vtkXRenderWindowInteractor()
 {
   this->State = VTKXI_START;
@@ -91,18 +91,38 @@ vtkXRenderWindowInteractor::~vtkXRenderWindowInteractor()
 {
 }
 
+// Description:
+// Specify the Xt widget to use for interaction. This method is
+// one of a couple steps that are required for setting up a
+// RenderWindowInteractor as a widget inside of another user 
+// interface. You do not need to use this method if the RenderWindow
+// will be a stand alone window. This is only used when you want the
+// RenderWindow to be a subwindow within a larger user interface.
+// In that case, you must tell the RenderWindow what X display id
+// to use and then ask the RenderWindow what depth, visual and 
+// colormap it wants. The you must create an Xt TopLevelShell with
+// those settings. Then you can create the rest of your user interface
+// as a child of the TopLevelShell you created. Eventually you will 
+// create a drawing area or some other widget to serve as the rendering
+// window. You must use the SetWidget method to tell this Interactor
+// about that widget. It's X and it's not terribly easy but it looks cool.
 void  vtkXRenderWindowInteractor::SetWidget(Widget foo)
 {
   this->top = foo;
 } 
   
-void  vtkXRenderWindowInteractor::Start()
+// Description:
+// This will start up the X event loop and never return. If you
+// call this method it will loop processing X events until the
+// application is exited.
+void vtkXRenderWindowInteractor::Start()
 {
   XtAppMainLoop(this->App);
 }
 
-// Description:
-// Initializes the event handlers
+// Description: 
+// Initializes the event handlers using an XtAppContext that you have
+// provided.  This assumes that you want to own the event loop.
 void vtkXRenderWindowInteractor::Initialize(XtAppContext app)
 {
   this->App = app;
@@ -111,7 +131,9 @@ void vtkXRenderWindowInteractor::Initialize(XtAppContext app)
 }
 
 // Description:
-// Begin processing keyboard strokes.
+// Initializes the event handlers without an XtAppContext.  This is
+// good for when you don't have a user interface but you still
+// want to have mouse interaction.
 void vtkXRenderWindowInteractor::Initialize()
 {
   static int any_initialized = 0;
