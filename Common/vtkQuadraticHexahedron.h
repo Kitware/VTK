@@ -112,9 +112,7 @@ protected:
   vtkCellData      *CellData;
   vtkFloatArray    *Scalars;
   
-  void Subdivide(float *weights);
-  void InterpolateAttributes(vtkPointData *inPd, vtkCellData *inCd,
-                             vtkIdType cellId, float *weights);
+  void Subdivide(vtkPointData *inPd, vtkCellData *inCd, vtkIdType cellId);
 
 private:
   vtkQuadraticHexahedron(const vtkQuadraticHexahedron&);  // Not implemented.

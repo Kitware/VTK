@@ -25,7 +25,7 @@
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkQuadraticHexahedron, "1.6");
+vtkCxxRevisionMacro(vtkQuadraticHexahedron, "1.7");
 vtkStandardNewMacro(vtkQuadraticHexahedron);
 
 // Construct the hex with 20 points + 7 extra points for internal
@@ -70,7 +70,7 @@ vtkCell *vtkQuadraticHexahedron::MakeObject()
   return (vtkCell *)cell;
 }
 
-static int LinearHexs[8][8] = { {0,8,24,11,16,17,26,20},
+static int LinearHexs[8][8] = { {0,8,24,11,16,22,26,20},
                                 {8,1,9,24,22,17,21,26},
                                 {11,24,10,3,20,26,23,19},
                                 {24,9,2,10,26,21,18,23},
@@ -90,9 +90,9 @@ static int HexEdges[12][3] = { {0,1,8}, {1,2,9}, {3,2,10}, {0,3,11},
                                {4,5,12}, {5,6,13}, {7,6,14}, {4,7,15},
                                {0,4,16}, {1,5,17}, {3,7,19}, {2,6,18} };
 
-static float MidPoints[7][3] = { {-0.5,0.0,0.0}, {0.5,0.0,0.0}, 
-                                 {0.0,-0.5,0.0}, {0.0,0.5,0.0},
-                                 {0.0,0.0,-0.5}, {0.0,0.0,0.5},
+static float MidPoints[7][3] = { {0.0,0.5,0.5}, {1.0,0.5,0.5}, 
+                                 {0.5,0.0,0.5}, {0.5,1.0,0.5},
+                                 {0.5,0.5,0.0}, {0.5,0.5,1.0},
                                  {0.5,0.5,0.5} };
 
 
@@ -122,11 +122,24 @@ vtkCell *vtkQuadraticHexahedron::GetFace(int faceId)
   return this->Quad;
 }
 
-void vtkQuadraticHexahedron::Subdivide(float *weights)
+void vtkQuadraticHexahedron::Subdivide(vtkPointData *inPd, vtkCellData *inCd, 
+                                       vtkIdType cellId)
 {
   int numMidPts, i, j;
+  float weights[20];
   float x[3];
 
+  //Copy point and cell attribute data
+  this->PointData->CopyAllocate(inPd,27);
+  this->CellData->CopyAllocate(inCd,8);
+  for (i=0; i<20; i++)
+    {
+    this->PointData->CopyData(inPd,this->PointIds->GetId(i),i);
+    }
+  this->CellData->CopyData(inCd,cellId,0);
+  
+  //Interpolate new values
+  this->PointIds->SetNumberOfIds(20);
   float *p = ((vtkFloatArray *)this->Points->GetData())->GetPointer(0);
   for ( numMidPts=0; numMidPts < 7; numMidPts++ )
     {
@@ -141,28 +154,10 @@ void vtkQuadraticHexahedron::Subdivide(float *weights)
         }
       }
     this->Points->SetPoint(20+numMidPts,x);
+    this->PointData->InterpolatePoint(inPd, 20+numMidPts, 
+                                      this->PointIds, weights);
     }
-}
-
-void vtkQuadraticHexahedron::InterpolateAttributes(vtkPointData *inPd, 
-                                                   vtkCellData *inCd, 
-                                                   vtkIdType cellId,
-                                                   float *weights)
-{
-  this->PointData->CopyAllocate(inPd,27);
-  this->CellData->CopyAllocate(inCd,8);
-  
-  // copy the point data over into point ids 0->7
-  for (int i=0; i<20; i++)
-    {
-    this->PointData->CopyData(inPd,this->PointIds->GetId(i),i);
-    }
-
-  // now interpolate the center point
-  this->PointData->InterpolatePoint(inPd, 8, this->PointIds, weights);
-  
-  // copy the cell data over to the linear cell
-  this->CellData->CopyData(inCd,cellId,0);
+  this->PointIds->SetNumberOfIds(27);
 }
 
 static const float VTK_DIVERGED = 1.e6;
@@ -336,13 +331,8 @@ void vtkQuadraticHexahedron::Contour(float value,
                                      vtkIdType cellId, 
                                      vtkCellData* outCd)
 {
-  float weights[20];
-
-  //first define the midquad point
-  this->Subdivide(weights);
-  
-  //interpolate point and cell data
-  this->InterpolateAttributes(inPd,inCd,cellId,weights);
+  //subdivide into 8 linear hexes
+  this->Subdivide(inPd,inCd,cellId);
   
   //contour each linear quad separately
   vtkDataArray *localScalars = this->PointData->GetScalars();
@@ -474,13 +464,8 @@ void vtkQuadraticHexahedron::Clip(float value,
                                   vtkCellData* outCd,
                                   int insideOut)
 {
-  float weights[20];
-
-  //first define the midquad point
-  this->Subdivide(weights);
-  
-  //interpolate point and cell data
-  this->InterpolateAttributes(inPd,inCd,cellId,weights);
+  //create eight linear hexes
+  this->Subdivide(inPd,inCd,cellId);
   
   //contour each linear quad separately
   vtkDataArray *localScalars = this->PointData->GetScalars();
@@ -506,7 +491,7 @@ void vtkQuadraticHexahedron::InterpolationFunctions(float pcoords[3],
   //coordinate system conversion from (0,1) to (-1,1).
   float r = 2.0*(pcoords[0]-0.5);
   float s = 2.0*(pcoords[1]-0.5);
-  float t = 2.0*(pcoords[1]-0.5);
+  float t = 2.0*(pcoords[2]-0.5);
 
   float rm = 1.0 - r;
   float rp = 1.0 + r;
@@ -530,9 +515,9 @@ void vtkQuadraticHexahedron::InterpolationFunctions(float pcoords[3],
   
   //The mid-edge nodes
   weights[8] =  0.25 * r2 * sm * tm;
-  weights[9] =  0.25 * s2 * rm * tm;
+  weights[9] =  0.25 * s2 * rp * tm;
   weights[10] = 0.25 * r2 * sp * tm;
-  weights[11] = 0.25 * s2 * rp * tm;
+  weights[11] = 0.25 * s2 * rm * tm;
   weights[12] = 0.25 * r2 * sm * tp;
   weights[13] = 0.25 * s2 * rp * tp;
   weights[14] = 0.25 * r2 * sp * tp;
