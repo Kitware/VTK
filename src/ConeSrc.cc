@@ -4,6 +4,14 @@
 #include <math.h>
 #include "ConeSrc.hh"
 
+vlConeSource::vlConeSource(int res)
+{
+  this->Resolution = res;
+  this->Height = 1.0;
+  this->Radius = 0.5;
+  this->Capping = 1;
+}
+
 void vlConeSource::Execute()
 {
   float angle= 2.0*3.141592654/this->Resolution;

@@ -13,8 +13,7 @@
 class vlConeSource : public vlPolySource 
 {
 public:
-  vlConeSource() : Resolution(6),Height(1.0),Radius(0.5),Capping(1) {};
-  vlConeSource(int res) {this->Resolution=res;};
+  vlConeSource(int res=6);
   char *GetClassName() {return "vlConeSource";};
   void Execute();
 
