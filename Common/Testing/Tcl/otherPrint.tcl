@@ -43,11 +43,7 @@ proc rtOtherTest { fileid } {
 
 # All tests should end with the following...
 
-vtkDebugLeaks lk
-lk PromptUserOff
-
 rtOtherTest stdout
 
-lk Delete
 exit
 
