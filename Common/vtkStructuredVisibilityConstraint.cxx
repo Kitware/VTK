@@ -21,7 +21,7 @@
 #include "vtkUnsignedCharArray.h"
 
 vtkCxxRevisionMacro(vtkStructuredVisibilityConstraint, 
-                    "1.1");
+                    "1.2");
 vtkStandardNewMacro(vtkStructuredVisibilityConstraint);
 
 vtkCxxSetObjectMacro(vtkStructuredVisibilityConstraint,
@@ -34,7 +34,7 @@ vtkStructuredVisibilityConstraint::vtkStructuredVisibilityConstraint()
   this->VisibilityById = 0;
   for (int i=0; i<3; i++)
     {
-    this->Dimensions[3] = 0;
+    this->Dimensions[i] = 0;
     }
   this->NumberOfIds = 0;
   this->Initialized = 0;
