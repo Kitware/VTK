@@ -9,6 +9,9 @@ source ../../examplesTcl/colors.tcl
 # Create the RenderWindow, Renderer and both Actors
 #
 vtkRenderWindow renWin
+vtkRenderer ren1
+  ren1 SetBackground .8 .8 .2
+renWin AddRenderer ren1
 vtkRenderWindowInteractor iren
     iren SetRenderWindow renWin
 
@@ -63,6 +66,7 @@ foreach vectorFunction $vectorFunctions {
     incr column
     if { $column > 2 } {set column 1; incr row}
 }
+
 
 camera SetViewUp 1 0 0
 camera SetFocalPoint 0 0 0
