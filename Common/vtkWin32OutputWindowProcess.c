@@ -13,7 +13,13 @@
 
 =========================================================================*/
 #include <windows.h>
-#include <tchar.h>
+
+#undef _T
+#ifdef UNICODE
+# define _T(x) L x
+#else
+# define _T(x) x
+#endif
 
 static HWND MainWindow = 0;
 static HWND EditWindow = 0;
