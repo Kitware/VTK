@@ -11,6 +11,8 @@ public class vtkCanvas extends vtkPanel implements MouseListener, MouseMotionLis
   protected int shiftPressed = 0;
   protected vtkPlaneWidget pw = new vtkPlaneWidget();
   protected vtkBoxWidget bw = new vtkBoxWidget();
+
+  public vtkGenericRenderWindowInteractor GetRenderWindowInteractor () { return iren; }
   
   static { 
     // load up hybrid for 3d widgets
