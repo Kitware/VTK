@@ -400,10 +400,16 @@ void makeMakefile(CPcmakerDlg *vals)
   //remove any UNIX only stuff
   removeUNIXOnlyFiles();
 
+  if (vals->m_Imaging)
+    {
+	  concrete[num_concrete] = strdup("vtkImageWin32Viewer");
+    concrete_lib[num_concrete] = strdup("imaging");
+    num_concrete++;
+    }
   // add in the OpenGL stuff etc that we need
   if (vals->m_Graphics)
-  {
-	concrete[num_concrete] = strdup("vtkOglrRenderer");
+    {
+	  concrete[num_concrete] = strdup("vtkOglrRenderer");
     concrete_lib[num_concrete] = strdup("graphics");
     num_concrete++;
     concrete[num_concrete] = strdup("vtkOglrTexture");
@@ -422,12 +428,12 @@ void makeMakefile(CPcmakerDlg *vals)
     concrete_lib[num_concrete] = strdup("graphics");
     num_concrete++;
 
-  if (vals->m_GEMSVOLUME)
-  {
-    concrete[num_concrete] = strdup("vtkOglrPolyDepthMapper");
-    concrete_lib[num_concrete] = strdup("volume");
-    num_concrete++;
-  }
+    if (vals->m_GEMSVOLUME)
+      {
+      concrete[num_concrete] = strdup("vtkOglrPolyDepthMapper");
+      concrete_lib[num_concrete] = strdup("volume");
+      num_concrete++;
+      }
     concrete[num_concrete] = strdup("vtkOglrLight");
     concrete_lib[num_concrete] = strdup("graphics");
     num_concrete++;
@@ -440,7 +446,7 @@ void makeMakefile(CPcmakerDlg *vals)
     concrete[num_concrete] = strdup("vtkMFCInteractor");
     concrete_lib[num_concrete] = strdup("graphics");
     num_concrete++;
-  }
+    }
 
   // we must create CommonInit.cxx etc
   sprintf(fname,"%s\\vtktcl\\src\\vtktcl.cxx",vals->m_WhereBuild);
@@ -909,8 +915,8 @@ void doMSCTclHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue)
     sprintf(file,"%s\\%s\\%s.h",vals->m_WhereVTK,abstract_lib[i],abstract[i]);
     OutputDepends(file,fp,vals->m_WhereVTK);
     vals->m_Progress.OffsetPos(1);
-    fprintf(fp,"\"src\\%sTcl.cxx\" : \"%s\\%s\\%s.h\" \"$(OUTDIR)\"\n",
-		abstract[i],vals->m_WhereVTK,abstract_lib[i],abstract[i]);
+    fprintf(fp,"\"src\\%sTcl.cxx\" : \"%s\\%s\\%s.h\" \"%s\\common\\vtkTclUtil.h\" \"%s\\tcl\\cpp_parse.y\" \"$(OUTDIR)\"\n",
+		abstract[i],vals->m_WhereVTK,abstract_lib[i],abstract[i],vals->m_WhereVTK,vals->m_WhereVTK);
     fprintf(fp,"   %s\\pcmaker\\cpp_parse\\Debug\\cpp_parse %s\\%s\\%s.h\\\n",
 		vals->m_WhereVTK, vals->m_WhereVTK, abstract_lib[i], abstract[i]);
     fprintf(fp,"  %s\\tcl\\hints 0 > src\\%sTcl.cxx\n\n",
@@ -925,8 +931,8 @@ void doMSCTclHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue)
     sprintf(file,"%s\\%s\\%s.h",vals->m_WhereVTK,concrete_lib[i],concrete[i]);
     OutputDepends(file,fp,vals->m_WhereVTK);
     vals->m_Progress.OffsetPos(1);
-    fprintf(fp,"\"src\\%sTcl.cxx\" : %s\\%s\\%s.h \"$(OUTDIR)\"\n",
-		concrete[i],vals->m_WhereVTK,concrete_lib[i],concrete[i]);
+    fprintf(fp,"\"src\\%sTcl.cxx\" : %s\\%s\\%s.h \"%s\\common\\vtkTclUtil.h\" \"%s\\tcl\\cpp_parse.y\" \"$(OUTDIR)\"\n",
+		concrete[i],vals->m_WhereVTK,concrete_lib[i],concrete[i],vals->m_WhereVTK,vals->m_WhereVTK);
     fprintf(fp,"   %s\\pcmaker\\cpp_parse\\Debug\\cpp_parse %s\\%s\\%s.h\\\n",
 		vals->m_WhereVTK, vals->m_WhereVTK, concrete_lib[i], concrete[i]);
     fprintf(fp,"  %s\\tcl\\hints 1 > src\\%sTcl.cxx\n\n",
@@ -941,8 +947,8 @@ void doMSCTclHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue)
     sprintf(file,"%s\\%s\\%s.h",vals->m_WhereVTK,abstract_h_lib[i],abstract_h[i]);
     OutputDepends(file,fp,vals->m_WhereVTK);
     vals->m_Progress.OffsetPos(1);
-    fprintf(fp,"\"src\\%sTcl.cxx\" : %s\\%s\\%s.h \"$(OUTDIR)\"\n",
-		abstract_h[i],vals->m_WhereVTK,abstract_h_lib[i],abstract_h[i]);
+    fprintf(fp,"\"src\\%sTcl.cxx\" : %s\\%s\\%s.h \"%s\\common\\vtkTclUtil.h\" \"%s\\tcl\\cpp_parse.y\" \"$(OUTDIR)\"\n",
+		abstract_h[i],vals->m_WhereVTK,abstract_h_lib[i],abstract_h[i],vals->m_WhereVTK,vals->m_WhereVTK);
     fprintf(fp,"   %s\\pcmaker\\cpp_parse\\Debug\\cpp_parse %s\\%s\\%s.h\\\n",
 		vals->m_WhereVTK, vals->m_WhereVTK, abstract_h_lib[i], abstract_h[i]);
     fprintf(fp,"  %s\\tcl\\hints 0 > src\\%sTcl.cxx\n\n",
@@ -957,8 +963,8 @@ void doMSCTclHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue)
     sprintf(file,"%s\\%s\\%s.h",vals->m_WhereVTK,concrete_h_lib[i],concrete_h[i]);
     OutputDepends(file,fp,vals->m_WhereVTK);
     vals->m_Progress.OffsetPos(1);
-    fprintf(fp,"\"src\\%sTcl.cxx\" : %s\\%s\\%s.h \"$(OUTDIR)\"\n",
-		concrete_h[i],vals->m_WhereVTK,concrete_h_lib[i],concrete_h[i]);
+    fprintf(fp,"\"src\\%sTcl.cxx\" : %s\\%s\\%s.h \"%s\\common\\vtkTclUtil.h\" \"%s\\tcl\\cpp_parse.y\" \"$(OUTDIR)\"\n",
+		concrete_h[i],vals->m_WhereVTK,concrete_h_lib[i],concrete_h[i],vals->m_WhereVTK,vals->m_WhereVTK);
     fprintf(fp,"   %s\\pcmaker\\cpp_parse\\Debug\\cpp_parse %s\\%s\\%s.h\\\n",
 		vals->m_WhereVTK, vals->m_WhereVTK, concrete_h_lib[i], concrete_h[i]);
     fprintf(fp,"  %s\\tcl\\hints 1 > src\\%sTcl.cxx\n\n",
