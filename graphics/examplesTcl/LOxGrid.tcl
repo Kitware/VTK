@@ -1,3 +1,4 @@
+catch {load 
 ## LOx post CFD case study
 
 # get helper scripts
