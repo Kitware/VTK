@@ -53,7 +53,7 @@ struct vtkFontStruct
   
 static vtkFontStruct *cache[10] = {NULL,NULL,NULL,NULL,NULL,
 				   NULL,NULL,NULL,NULL,NULL};
-static numCached = 0;
+static int numCached = 0;
 
 int vtkXOpenGLTextMapper::GetListBaseForFont(vtkTextMapper *tm, 
 					     vtkViewport *vp, 
