@@ -105,6 +105,7 @@ IF (VTK_USE_RENDERING)
       quadricCut
       rectGrid
       recursiveDC
+      reverseNormals
       scalarColors
       scalarConn
       schwarz
