@@ -122,6 +122,5 @@ proc EndInteraction {} {
 vtkPlanes planes
 proc ClipVolumeRender {} {
    boxWidget GetPlanes planes
-   planes Modified
    volumeMapper SetClippingPlanes planes
 }
