@@ -28,7 +28,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 
-vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.22");
+vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.23");
 vtkStandardNewMacro(vtkStreamingDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, CONTINUE_EXECUTING, Integer);
@@ -229,6 +229,10 @@ vtkStreamingDemandDrivenPipeline
       vtkInformation* info = this->GetOutputInformation(i);
       vtkDataObject* data = info->Get(vtkDataObject::DATA_OBJECT());
 
+      if (!data)
+        {
+        return 0;
+        }
       // Set default maximum request.
       if(data->GetExtentType() == VTK_PIECES_EXTENT)
         {
@@ -294,8 +298,13 @@ vtkStreamingDemandDrivenPipeline
       vtkInformation* outInfo = this->GetOutputInformation(i);
 
       // The data object will exist because UpdateDataObject has already
-      // succeeded.
+      // succeeded. Except when this method is called by a subclass
+      // that does not provide this key in certain cases.
       vtkDataObject* dataObject = outInfo->Get(vtkDataObject::DATA_OBJECT());
+      if (!dataObject)
+        {
+        continue;
+        }
       vtkInformation* dataInfo = dataObject->GetInformation();
       if(dataInfo->Get(vtkDataObject::DATA_EXTENT_TYPE()) == VTK_PIECES_EXTENT)
         {
