@@ -174,6 +174,16 @@ ENDIF(VTK_USE_X)
 # Build a list of libraries to link to vtkRendering.
 SET(Rendering_LIBS vtkGraphics vtkImaging)
 
+IF(VTK_USE_VOLUMEPRO)
+  IF(VTK_HAVE_VG500)
+    SET(Rendering_LIBS ${Rendering_LIBS} ${VLI_LIBRARY_FOR_VG500})
+  ENDIF(VTK_HAVE_VG500)
+  IF(VTK_HAVE_VP1000)
+    SET(Rendering_LIBS ${Rendering_LIBS} ${VLI_LIBRARY_FOR_VP1000})
+  ENDIF(VTK_HAVE_VP1000)
+ENDIF(VTK_USE_VOLUMEPRO)
+
+
 IF (WIN32)
   IF(VTK_USE_X)
     IF (OPENGL_LIBRARY)
