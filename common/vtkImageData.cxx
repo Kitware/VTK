@@ -291,6 +291,21 @@ void vtkImageData::ClipUpdateExtentWithWholeExtent()
       this->UpdateExtent[maxIdx] = this->WholeExtent[maxIdx];
       }
     }
+  
+  // Now check to see if the UpdateExtent is in the current Extent.
+  
+  // If the requested extent is not completely in the data structure already,
+  // release the data to cause the source to execute.
+  if (this->Extent[0] > this->UpdateExtent[0] || 
+      this->Extent[1] < this->UpdateExtent[1] || 
+      this->Extent[2] > this->UpdateExtent[2] || 
+      this->Extent[3] < this->UpdateExtent[3] ||
+      this->Extent[4] > this->UpdateExtent[4] ||
+      this->Extent[5] < this->UpdateExtent[5])
+    {
+    this->ReleaseData();
+    }
+  
 }
 
 //----------------------------------------------------------------------------
@@ -1012,14 +1027,6 @@ void vtkImageData::SetUpdateExtent(int extent[6])
 {
   int idx;
   
-  // If the requested extent is not completely in the data structure already,
-  // modify the data structure to cause the source to execute.
-  if (this->Extent[0] > extent[0] || this->Extent[1] < extent[1] || 
-      this->Extent[2] > extent[2] || this->Extent[3] < extent[3] ||
-      this->Extent[4] > extent[4] || this->Extent[5] < extent[5])
-    {
-    this->ReleaseData();
-    }
   for (idx = 0; idx < 6; ++idx)
     {
     if (this->UpdateExtent[idx] != extent[idx])
