@@ -26,7 +26,7 @@
 #include "vtkCallbackCommand.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkSphereWidget, "1.4");
+vtkCxxRevisionMacro(vtkSphereWidget, "1.5");
 vtkStandardNewMacro(vtkSphereWidget);
 
 vtkSphereWidget::vtkSphereWidget()
@@ -98,6 +98,10 @@ vtkSphereWidget::~vtkSphereWidget()
   this->SphereSource->Delete();
 
   this->SpherePicker->Delete();
+
+  this->HandleSource->Delete();
+  this->HandleMapper->Delete();
+  this->HandleActor->Delete();
 
   if ( this->SphereProperty )
     {
