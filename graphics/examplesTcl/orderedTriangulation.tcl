@@ -4,7 +4,7 @@ catch {load vtktcl}
 if { [catch {set VTK_TCL $env(VTK_TCL)}] != 0} { set VTK_TCL "../../examplesTcl" }
 if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdata" }
 
-# Setup: interactor and colors
+# Setup: interactor and colors<
 wm withdraw .
 source $VTK_TCL/vtkInt.tcl
 source $VTK_TCL/colors.tcl
@@ -45,7 +45,7 @@ vtkUnstructuredGrid Grid
 
 # Procedure to control order of triangulation
 #
-proc tri {i1 i2 i3 i4 i5 i6 i7 i8} {
+proc triFoo {i1 i2 i3 i4 i5 i6 i7 i8} {
     global ifoo
 
     set ii(0) $i1
@@ -302,7 +302,7 @@ iren SetUserMethod {wm deiconify .vtkInteract}
 
 # Perform the ordered triangulation
 renWin SetSize 350 350
-tri 5 7 2 1 6 4 3 0
+triFoo 5 7 2 1 6 4 3 0
 ren1 ResetCamera
 
 [ren1 GetActiveCamera] Dolly 1.2
