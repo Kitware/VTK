@@ -26,25 +26,30 @@
 #include "vtkSLCReader.h"
 #include "vtkTIFFReader.h"
 
-vtkCxxRevisionMacro(vtkImageReader2Factory, "1.15");
+// Destroying the prototype readers requires information keys.
+// Include the manager here to make sure the keys are not destroyed
+// until after the AvailableReaders singleton has been destroyed.
+#include "vtkInformationKeyManager.h"
+
+vtkCxxRevisionMacro(vtkImageReader2Factory, "1.16");
 vtkStandardNewMacro(vtkImageReader2Factory);
 
-class vtkCleanUpImageReader2Factory
+class vtkImageReader2FactoryCleanup
 {
 public:
-  inline void Use() 
+  inline void Use()
     {
     }
-  ~vtkCleanUpImageReader2Factory()
+  ~vtkImageReader2FactoryCleanup()
     {
-      if(vtkImageReader2Factory::AvailableReaders)
-        {
-        vtkImageReader2Factory::AvailableReaders->Delete();
-        vtkImageReader2Factory::AvailableReaders = 0;
-        }
-    }  
+    if(vtkImageReader2Factory::AvailableReaders)
+      {
+      vtkImageReader2Factory::AvailableReaders->Delete();
+      vtkImageReader2Factory::AvailableReaders = 0;
+      }
+    }
 };
-static vtkCleanUpImageReader2Factory vtkCleanUpImageReader2FactoryGlobal;
+static vtkImageReader2FactoryCleanup vtkImageReader2FactoryCleanupGlobal;
 
 vtkImageReader2Collection* vtkImageReader2Factory::AvailableReaders;
 
@@ -120,7 +125,7 @@ void vtkImageReader2Factory::InitializeReaders()
     {
     return;
     }
-  vtkCleanUpImageReader2FactoryGlobal.Use();
+  vtkImageReader2FactoryCleanupGlobal.Use();
   vtkImageReader2Factory::AvailableReaders = vtkImageReader2Collection::New();
   vtkImageReader2* reader;
 

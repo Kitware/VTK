@@ -34,8 +34,10 @@
 
 
 #include "vtkObject.h"
-class vtkImageReader2Collection;
+
 class vtkImageReader2;
+class vtkImageReader2Collection;
+class vtkImageReader2FactoryCleanup;
 
 class VTK_IO_EXPORT vtkImageReader2Factory : public vtkObject
 {
@@ -71,7 +73,7 @@ private:
   vtkImageReader2Factory(const vtkImageReader2Factory&);  // Not implemented.
   void operator=(const vtkImageReader2Factory&);  // Not implemented.
 //BTX
-  friend class vtkCleanUpImageReader2Factory;
+  friend class vtkImageReader2FactoryCleanup;
 //ETX
 };
 
