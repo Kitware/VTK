@@ -22,7 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkGESignaReader, "1.16");
+vtkCxxRevisionMacro(vtkGESignaReader, "1.17");
 vtkStandardNewMacro(vtkGESignaReader);
 
 
@@ -43,7 +43,7 @@ int vtkGESignaReader::CanReadFile(const char* fname)
     fclose(fp);
     return 0;
     }
-  return 1;
+  return 3;
 }
 
 
