@@ -118,7 +118,6 @@ void vtkOglrCamera::Render(vtkCamera *cam, vtkOglrRenderer *ren)
   float aspect[3];
   float *vport;
   float *bg_color;
-  long clr;
   int left,right,bottom,top;
   float twist;
   int stereo;
