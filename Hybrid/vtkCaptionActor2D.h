@@ -237,8 +237,8 @@ public:
 protected:
   vtkCaptionActor2D();
   ~vtkCaptionActor2D();
-  vtkCaptionActor2D(const vtkCaptionActor2D&) {}
-  void operator=(const vtkCaptionActor2D&) {}
+  vtkCaptionActor2D(const vtkCaptionActor2D&);
+  void operator=(const vtkCaptionActor2D&);
 
   vtkCoordinate *AttachmentPointCoordinate;
 
