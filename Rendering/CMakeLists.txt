@@ -234,3 +234,4 @@ vtkRendering
 )
 
 
+ADD_EXECUTABLE(Mace Mace)
