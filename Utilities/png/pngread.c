@@ -174,13 +174,12 @@ png_create_read_struct_2(png_const_charp user_png_ver, png_voidp error_ptr,
    and it will eventually disappear. */
 #undef png_read_init
 void PNGAPI
-png_read_init(png_structp png_ptr)
+vtk_png_read_init(png_structp png_ptr)
 {
    /* We only come here via pre-1.0.7-compiled applications */
    png_read_init_2(png_ptr, "1.0.6 or earlier", 0, 0);
 }
 
-#undef png_read_init_2
 void PNGAPI
 png_read_init_2(png_structp png_ptr, png_const_charp user_png_ver,
    png_size_t png_struct_size, png_size_t png_info_size)

@@ -1293,6 +1293,7 @@ extern PNG_EXPORT(png_infop,png_create_info_struct)
 
 /* Initialize the info structure (old interface - DEPRECATED) */
 extern PNG_EXPORT(void,png_info_init) PNGARG((png_infop info_ptr));
+#undef png_info_init
 #define png_info_init(info_ptr) png_info_init_3(&info_ptr, sizeof(png_info));
 extern PNG_EXPORT(void,png_info_init_3) PNGARG((png_infopp info_ptr,
     png_size_t png_info_struct_size));
@@ -2502,6 +2503,7 @@ PNG_EXTERN png_uint_16 png_get_uint_16 PNGARG((png_bytep buf));
  * (old interface - DEPRECATED - use png_create_read_struct instead).
  */
 extern PNG_EXPORT(void,png_read_init) PNGARG((png_structp png_ptr));
+#undef png_read_init
 #define png_read_init(png_ptr) png_read_init_3(&png_ptr, \
     PNG_LIBPNG_VER_STRING,  sizeof(png_struct));
 extern PNG_EXPORT(void,png_read_init_3) PNGARG((png_structpp ptr_ptr,
@@ -2514,6 +2516,7 @@ extern PNG_EXPORT(void,png_read_init_2) PNGARG((png_structp png_ptr,
  * (old interface - DEPRECATED - use png_create_write_struct instead).
  */
 extern PNG_EXPORT(void,png_write_init) PNGARG((png_structp png_ptr));
+#undef png_write_init
 #define png_write_init(png_ptr) png_write_init_3(&png_ptr, \
     PNG_LIBPNG_VER_STRING, sizeof(png_struct));
 extern PNG_EXPORT(void,png_write_init_3) PNGARG((png_structpp ptr_ptr,
