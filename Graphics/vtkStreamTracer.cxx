@@ -28,7 +28,7 @@
 #include "vtkRungeKutta4.h"
 #include "vtkRungeKutta45.h"
 
-vtkCxxRevisionMacro(vtkStreamTracer, "1.13");
+vtkCxxRevisionMacro(vtkStreamTracer, "1.14");
 vtkStandardNewMacro(vtkStreamTracer);
 vtkCxxSetObjectMacro(vtkStreamTracer,Integrator,vtkInitialValueProblemSolver);
 
@@ -532,8 +532,6 @@ void vtkStreamTracer::Integrate(vtkDataArray* seedSource,
   vtkDataArray* inVectors = 0;
 
   int direction=1;
-  // Used in GetCell() 
-  vtkGenericCell* cell = vtkGenericCell::New();
 
   // Set the function set to be integrated
   vtkInterpolatedVelocityField* func = vtkInterpolatedVelocityField::New();
@@ -565,6 +563,7 @@ void vtkStreamTracer::Integrate(vtkDataArray* seedSource,
   if ( numInputs == 0 )
     {
     vtkErrorMacro("No appropriate inputs have been found. Can not execute.");
+    func->Delete();
     return;
     }
 
@@ -578,9 +577,11 @@ void vtkStreamTracer::Integrate(vtkDataArray* seedSource,
     {
     vtkErrorMacro("No integrator is specified.");
     func->Delete();
-    cell->Delete();
     return;
     }
+
+  // Used in GetCell() 
+  vtkGenericCell* cell = vtkGenericCell::New();
 
   // Create a new integrator, the type is the same as Integrator
   vtkInitialValueProblemSolver* integrator = 
