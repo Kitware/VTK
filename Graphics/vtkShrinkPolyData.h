@@ -27,6 +27,8 @@
 // .SECTION Caveats
 // It is possible to turn cells inside out or cause self intersection
 // in special cases.
+// Users should use the vtkTriangleFilter to triangulate meshes that 
+// contain triangle strips.
 
 // .SECTION See Also
 // vtkShrinkFilter
