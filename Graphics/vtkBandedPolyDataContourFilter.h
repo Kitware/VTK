@@ -16,7 +16,7 @@
 // .SECTION Description
 // vtkBandedPolyDataContourFilter is a filter that takes as input vtkPolyData
 // and produces as output filled contours (also represented as vtkPolyData).
-// Filled conoturs are bands of cells that all have the same cell scalar
+// Filled contours are bands of cells that all have the same cell scalar
 // value, and can therefore be colored the same. The method is also referred
 // to as filled contour generation.
 //
@@ -105,7 +105,7 @@ public:
   vtkBooleanMacro(GenerateContourEdges,int);
 
   // Description:
-  // Get the second output which contains the edges divinding the contour 
+  // Get the second output which contains the edges dividing the contour 
   // bands. This output is empty unless GenerateContourEdges is enabled.
   vtkPolyData *GetContourEdgesOutput();
 
