@@ -45,8 +45,19 @@ IF(JAVA_COMPILE)
     ENDIF(VTK_USE_RENDERING)
 
     ADD_EXECUTABLE(VTKJavaExecutable VTKJava.cxx)
+    SET(JAVA_LIBRARIES)
 
     FOREACH(kit ${KITS})
+      IF(APPLE)
+        SET(src ${LIBRARY_OUTPUT_PATH}/libvtk${kit}Java.dylib)
+        SET(tgt ${LIBRARY_OUTPUT_PATH}/libvtk${kit}Java.jnilib)
+        ADD_CUSTOM_COMMAND(SOURCE ${src}
+                             COMMAND ${CMAKE_COMMAND}
+                             ARGS -E copy ${src} ${tgt}
+                             OUTPUTS ${tgt}
+                             TARGET VTKJava)
+        SET(JAVA_LIBRARIES ${JAVA_LIBRARIES} ${tgt})
+      ENDIF(APPLE)
       TARGET_LINK_LIBRARIES(VTKJavaExecutable vtk${kit}Java)
       SET(VTK_JAVA_DEPENDENCIES "")
       ADD_CUSTOM_TARGET(VTKJava${kit} ALL)
@@ -64,7 +75,7 @@ IF(JAVA_COMPILE)
                             -C ${VTK_BINARY_DIR}/java
                             vtk
                        TARGET VTKJavaJar
-                       DEPENDS ${CLASS_FILES}
+                       DEPENDS ${CLASS_FILES} ${JAVA_LIBRARIES}
                        OUTPUTS ${LIBRARY_OUTPUT_PATH}/vtk.jar
                        COMMENT "Java Archive")
     ADD_CUSTOM_COMMAND(SOURCE VTKJavaJar
