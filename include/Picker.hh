@@ -60,7 +60,9 @@ public:
   vlGetVectorMacro(SelectionPoint,float,3);
 
   // Description:
-  // Specify tolerance for performing pick operation.
+  // Specify tolerance for performing pick operation. Tolerance is specified
+  // as fraction of rendering window size. (Rendering window size is measured
+  // across diagonal).
   vlSetMacro(Tolerance,float);
   vlGetMacro(Tolerance,float);
 
