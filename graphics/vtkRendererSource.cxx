@@ -65,6 +65,7 @@ vtkRendererSource::vtkRendererSource()
 {
   this->Input = NULL;
   this->WholeWindow = 0;
+  this->DepthValues = 0;
 }
 
 
@@ -77,18 +78,14 @@ vtkRendererSource::~vtkRendererSource()
     }
 }
 
-
 void vtkRendererSource::Execute()
 {
   int numOutPts;
   vtkScalars *outScalars;
   float x1,y1,x2,y2;
   unsigned char *pixels, *ptr;
-  float *zBuf, *zPtr;
   int dims[3];
   vtkStructuredPoints *output = this->GetOutput();
-  vtkFieldData *zField;
-  vtkFloatArray *zArray;
   vtkRenderWindow *renWin;
   
 
@@ -137,42 +134,43 @@ void vtkRendererSource::Execute()
   outScalars = vtkScalars::New(VTK_UNSIGNED_CHAR,3);
 
   pixels = (this->Input->GetRenderWindow())->GetPixelData((int)x1,(int)y1,
-							  (int)x2,(int)y2,1);
+                                                          (int)x2,(int)y2,1);
 
   // copy scalars over
   ptr = ((vtkUnsignedCharArray *)outScalars->GetData())->WritePointer(0,numOutPts*3);
   memcpy(ptr,pixels,3*numOutPts);
 
-  // Lets get the ZBuffer also.
-  zBuf = (this->Input->GetRenderWindow())->GetZbufferData((int)x1,(int)y1,
-							  (int)x2,(int)y2);
-  zArray = vtkFloatArray::New();
-  zArray->Allocate(numOutPts);
-  zArray->SetNumberOfTuples(numOutPts);
-  zPtr = zArray->WritePointer(0, numOutPts);
-  memcpy(zPtr,zBuf,numOutPts*sizeof(float));
+  // Lets get the ZBuffer also, if requested.
+  if ( this->DepthValues )
+    {
+    float *zBuf, *zPtr;
+    zBuf = (this->Input->GetRenderWindow())->GetZbufferData((int)x1,(int)y1,
+                                                            (int)x2,(int)y2);
 
-  zField = vtkFieldData::New();
-  zField->SetArray(0, zArray);
-  zField->SetArrayName(0, "ZBuffer");
-  zArray->Delete();
+    vtkFloatArray *zArray = vtkFloatArray::New();
+    zArray->Allocate(numOutPts);
+    zArray->SetNumberOfTuples(numOutPts);
+    zPtr = zArray->WritePointer(0, numOutPts);
+    memcpy(zPtr,zBuf,numOutPts*sizeof(float));
 
+    vtkFieldData *zField = vtkFieldData::New();
+    zField->SetArray(0, zArray);
+    zField->SetArrayName(0, "ZBuffer");
+    zArray->Delete();
+    output->GetPointData()->SetFieldData(zField);
+    zField->Delete();
+    delete [] zBuf;
+    }
+  
   // Update ourselves
   output->GetPointData()->SetScalars(outScalars);
   outScalars->Delete();
-  output->GetPointData()->SetFieldData(zField);
-  zField->Delete();
-
-  // free the memory
   delete [] pixels;
-  delete [] zBuf;
 }
 
 void vtkRendererSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkStructuredPointsSource::PrintSelf(os,indent);
-
-  os << indent << "Whole Window: " << (this->WholeWindow ? "On\n" : "Off\n");
 
   if ( this->Input )
     {
@@ -183,6 +181,10 @@ void vtkRendererSource::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "Input: (none)\n";
     }
+
+  os << indent << "Whole Window: " << (this->WholeWindow ? "On\n" : "Off\n");
+  os << indent << "Depth Values: " << (this->DepthValues ? "On\n" : "Off\n");
+
 }
 
 
@@ -258,24 +260,24 @@ void vtkRendererSource::UpdateInformation()
       {
       t2 = mapper->GetMTime();
       if (t2 > t1)
-	{
-	t1 = t2;
-	}
+        {
+        t1 = t2;
+        }
       data = mapper->GetInput();
       if (data)
-	{
-	data->UpdateInformation();
-	}
+        {
+        data->UpdateInformation();
+        }
       t2 = data->GetMTime();
       if (t2 > t1)
-	{
-	t1 = t2;
-	}
+        {
+        t1 = t2;
+        }
       t2 = data->GetPipelineMTime();
       if (t2 > t1)
-	{
-	t1 = t2;
-	}
+        {
+        t1 = t2;
+        }
       }  
     }
 

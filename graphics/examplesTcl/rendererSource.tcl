@@ -93,6 +93,7 @@ renWin Render
 
 vtkRendererSource ren1Image
   ren1Image SetInput ren1
+  ren1Image DepthValuesOn
 vtkTexture aTexture
   aTexture SetInput [ren1Image GetOutput]
 

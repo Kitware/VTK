@@ -46,6 +46,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Modify() to this object to get it to reload its data from the
 // renderer. Consider using vtkWindowToImageFilter instead of this
 // class.
+//
+// The data placed into the output is the renderer's image rgb values.
+// Optionally, you can also grab the image depth (e.g., z-buffer) values, and
+// place then into the output (point) field data.
 
 // .SECTION see also
 // vtkWindowToImageFilter vtkRenderer vtkStructuredPoints
@@ -82,6 +86,14 @@ public:
   vtkGetMacro(WholeWindow,int);
   vtkBooleanMacro(WholeWindow,int);
   
+  // Description:
+  // A boolean value to control whether to grab z-buffer 
+  // (i.e., depth values) along with the image data. The z-buffer data
+  // is placed into the field data attributes.
+  vtkSetMacro(DepthValues,int);
+  vtkGetMacro(DepthValues,int);
+  vtkBooleanMacro(DepthValues,int);
+  
 protected:
   vtkRendererSource();
   ~vtkRendererSource();
@@ -94,6 +106,7 @@ protected:
   
   vtkRenderer *Input;
   int WholeWindow;
+  int DepthValues;
 };
 
 #endif
