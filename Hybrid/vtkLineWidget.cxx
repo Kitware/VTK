@@ -35,7 +35,7 @@
 #include "vtkPointWidget.h"
 #include "vtkCommand.h"
 
-vtkCxxRevisionMacro(vtkLineWidget, "1.25");
+vtkCxxRevisionMacro(vtkLineWidget, "1.26");
 vtkStandardNewMacro(vtkLineWidget);
 
 // This class is used to coordinate the interaction between the point widget (point 1) and
@@ -154,6 +154,7 @@ vtkLineWidget::vtkLineWidget()
                                   this->PW1Callback, 0.0);
   this->PointWidget2->AddObserver(vtkCommand::InteractionEvent,
                                   this->PW2Callback, 0.0);
+  this->CurrentPointWidget = NULL;
 }
 
 vtkLineWidget::~vtkLineWidget()
@@ -424,6 +425,11 @@ int vtkLineWidget::HighlightHandle(vtkProp *prop)
 
 void vtkLineWidget::ForwardEvent(unsigned long event)
 {
+  if ( ! this->CurrentPointWidget )
+    {
+    return;
+    }
+  
   this->CurrentPointWidget->ProcessEvents(this,event,
                                           this->CurrentPointWidget,NULL);
 }
@@ -461,6 +467,7 @@ void vtkLineWidget::DisablePointWidget()
     }
 
   this->CurrentPointWidget->Off();
+  this->CurrentPointWidget = NULL;
 }
 
 void vtkLineWidget::HighlightHandles(int highlight)
@@ -540,8 +547,12 @@ void vtkLineWidget::OnLeftButtonUp()
     return;
     }
 
-  this->ForwardEvent(vtkCommand::LeftButtonReleaseEvent);
-  this->DisablePointWidget();
+  if ( this->State == vtkLineWidget::MovingHandle )
+    {
+    this->ForwardEvent(vtkCommand::LeftButtonReleaseEvent);
+    this->DisablePointWidget();
+    }
+  
   this->State = vtkLineWidget::Start;
   this->HighlightHandle(NULL);
   this->HighlightLine(0);
