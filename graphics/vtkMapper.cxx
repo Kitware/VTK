@@ -451,6 +451,14 @@ const char *vtkMapper::GetScalarModeAsString(void)
     {
     return "UsePointData";
     }
+  else if ( this->ScalarMode == VTK_SCALAR_MODE_USE_POINT_FIELD_DATA )
+    {
+    return "UsePointFieldData";
+    }
+  else if ( this->ScalarMode == VTK_SCALAR_MODE_USE_CELL_FIELD_DATA )
+    {
+    return "UseCellFieldData";
+    }
   else 
     {
     return "Default";

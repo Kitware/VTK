@@ -236,6 +236,13 @@ public:
   void ColorByArrayComponent(char* arrayName, int component);
   
   // Description:
+  // Get the array name or number and component to color by.
+  char* GetArrayName() { return this->ArrayName; }
+  int GetArrayId() { return this->ArrayId; }
+  int GetArrayAccessMode() { return this->ArrayAccessMode; }
+  int GetArrayComponent() { return this->ArrayComponent; }
+
+  // Description:
   // Return the method for obtaining scalar data.
   const char *GetScalarModeAsString();
 
