@@ -190,7 +190,13 @@ class vtkScreenEdge
 public:
   // If the edge is a composite edge (top+bottom) switch to the bottom edge.
   // Otherwise, do nothing.
-  virtual void OnBottom() {}
+  virtual void OnBottom(int skipped, int y)
+    {
+      if(!skipped)
+        {
+        this->NextLine(y);
+        }
+    }
   // Increment edge state to the next line.
   virtual void NextLine(int y)=0;
   // Increment edge state to the next deltaY line.
@@ -1434,6 +1440,8 @@ protected:
   
   // Slope of each projected values on the edge
   double Dpv[VTK_VALUES_SIZE];
+  
+  
   // Current projected values
   double PValues[VTK_VALUES_SIZE];
   // Dpv*XStep
@@ -1486,9 +1494,10 @@ public:
   double GetZview() { return this->Current->GetZview(); }
   double *GetPValues() { return this->Current->GetPValues(); }
  
-  void OnBottom()
+  void OnBottom(int skipped, int y)
     {
       this->Current=&this->Bottom;
+      this->Current->OnBottom(skipped,y);
     }
   
   void NextLine(int y)
@@ -1980,6 +1989,7 @@ public:
       this->FaceIds[0]=faceIds[0];
       this->FaceIds[1]=faceIds[1];
       this->FaceIds[2]=faceIds[2];
+      this->Count=0;
     }
   
   // Return the 3 face ids.
@@ -1992,8 +2002,23 @@ public:
         &&(this->FaceIds[2]==faceIds[2]);
     }
   
+  void Ref() { ++this->Count; }
+  void Unref()
+    {
+      --this->Count;
+      if(this->Count==0)
+        {
+        delete this;
+        }
+    }
+  
+  int GetRendered() { return this->Rendered; }
+  void SetRendered(int value) { this->Rendered=value; }
+  
 protected:
   vtkIdType FaceIds[3];
+  int Count;
+  int Rendered;
  
 private:
   vtkFace(); // not implemented
@@ -2009,6 +2034,8 @@ class vtkUseSet
 public:
   typedef vtkstd::vector<vtkstd::list<vtkFace *> *> VectorType;
   VectorType Vector;
+  
+  vtkstd::list<vtkFace *> AllFaces; // to set up rendering to false.
   
   // Initialize with the number of vertices.
   vtkUseSet(int size)
@@ -2034,12 +2061,17 @@ public:
           {
           while(!this->Vector[i]->empty())
             {
-            delete (*this->Vector[i]->begin());
+            (*this->Vector[i]->begin())->Unref();
             this->Vector[i]->pop_front();
             }
           delete this->Vector[i];
           }
         ++i;
+        }
+      while(!this->AllFaces.empty())
+        {
+        (*this->AllFaces.begin())->Unref();
+        this->AllFaces.pop_front();
         }
     }
   
@@ -2054,13 +2086,18 @@ public:
           {
           while(!this->Vector[i]->empty())
             {
-            delete (*this->Vector[i]->begin());
+            (*this->Vector[i]->begin())->Unref();
             this->Vector[i]->pop_front();
             }
           delete this->Vector[i];
           this->Vector[i]=0;
           }
         ++i;
+        }
+      while(!this->AllFaces.empty())
+        {
+        (*this->AllFaces.begin())->Unref();
+        this->AllFaces.pop_front();
         }
     }
   
@@ -2071,6 +2108,9 @@ public:
              && faceIds[1]<faceIds[2]);
       if(!this->HasFace(faceIds))
         {
+        vtkFace *f=new vtkFace(faceIds);
+        this->AllFaces.push_back(f);
+        f->Ref();
         // All the vertices of this face need to be fed
         int i=0;
         while(i<3)
@@ -2081,12 +2121,25 @@ public:
             p=new vtkstd::list<vtkFace *>;
             this->Vector[faceIds[i]]=p;
             }
-          p->push_back(new vtkFace(faceIds));
+          p->push_back(f);
+          f->Ref();
           ++i;
           }
         }
     }
-  
+
+  void SetNotRendered()
+    {
+      vtkstd::list<vtkFace *>::iterator it;
+      vtkstd::list<vtkFace *>::iterator end;
+      it=this->AllFaces.begin();
+      end=this->AllFaces.end();
+      while(it!=end)
+        {
+        (*it)->SetRendered(0);
+        ++it;
+        }
+    }
 protected:
   // Does the use set of vertex faceIds[0] have face faceIds?
   int HasFace(vtkIdType faceIds[3])
@@ -2130,7 +2183,7 @@ public:
 //-----------------------------------------------------------------------------
 // Implementation of the public class.
 
-vtkCxxRevisionMacro(vtkUnstructuredGridVolumeZsweepMapper, "1.7");
+vtkCxxRevisionMacro(vtkUnstructuredGridVolumeZsweepMapper, "1.8");
 vtkStandardNewMacro(vtkUnstructuredGridVolumeZsweepMapper);
 
 vtkCxxSetObjectMacro(vtkUnstructuredGridVolumeZsweepMapper, RayIntegrator,
@@ -2198,8 +2251,11 @@ vtkUnstructuredGridVolumeZsweepMapper::vtkUnstructuredGridVolumeZsweepMapper()
   this->RealRayIntegrator = NULL;
   
   this->IntersectionLengths=vtkDoubleArray::New();
+  this->IntersectionLengths->SetNumberOfValues(1);
   this->NearIntersections=vtkDoubleArray::New();
+  this->NearIntersections->SetNumberOfValues(1);
   this->FarIntersections=vtkDoubleArray::New();
+  this->FarIntersections->SetNumberOfValues(1);
   
   this->MemoryManager=0;
 }
@@ -3073,6 +3129,8 @@ void vtkUnstructuredGridVolumeZsweepMapper::MainLoop(vtkRenderWindow *renWin)
     this->MemoryManager=new vtkPixelListEntryMemory;
     }
   
+  this->UseSet->SetNotRendered();
+  
   int aborded=0;
   // for each vertex of the "event list"
   while(this->EventList->GetNumberOfItems()>0)
@@ -3185,6 +3243,13 @@ void vtkUnstructuredGridVolumeZsweepMapper::MainLoop(vtkRenderWindow *renWin)
     while(it!=itEnd)
       {
       vtkFace *face=(*it);
+      if(!face->GetRendered())
+        {
+        vtkIdType *vids=face->GetFaceIds();
+        this->RasterizeFace(vids);
+        face->SetRendered(1);
+        }
+#if 0 // face search
       // for each point of the face, get the closest z
       vtkIdType *vids=face->GetFaceIds();
       vtkIdType minVertex=vids[0];
@@ -3207,9 +3272,14 @@ void vtkUnstructuredGridVolumeZsweepMapper::MainLoop(vtkRenderWindow *renWin)
         }
       if(minVertex==vertex)
         {
+//        if(face->GetRendered())
+//          {
+//          cout<<"FACE ALREADY RENDERED!!!!"<<endl;
+//          }
         this->RasterizeFace(vids);
+//        face->SetRendered(1);
         }
-      
+#endif // face search      
       ++it;
       }
       } // if useset of vertex is not null
@@ -3302,6 +3372,7 @@ void vtkUnstructuredGridVolumeZsweepMapper::RasterizeFace(vtkIdType faceIds[3])
   // second vertex v1 (y-order)
   // Hence, on one side there one edge (v0v2), on the other side there are two
   // edges (v0v1 and v1v2).
+  
   vtkVertexEntry *v0=&(this->Vertices->Vector[faceIds[0]]);
   vtkVertexEntry *v1=&(this->Vertices->Vector[faceIds[1]]);
   vtkVertexEntry *v2=&(this->Vertices->Vector[faceIds[2]]);
@@ -3543,6 +3614,8 @@ void  vtkUnstructuredGridVolumeZsweepMapper::RasterizeTriangle(
   int y1=v1->GetScreenY();
   int y2=v2->GetScreenY();
   
+  int skipped=0;
+  
   if(y1>=0) // clipping
     {
     
@@ -3570,12 +3643,13 @@ void  vtkUnstructuredGridVolumeZsweepMapper::RasterizeTriangle(
     leftEdge->SkipLines(y1-y,y1);
     rightEdge->SkipLines(y1-y,y1);
     y=y1;
+    skipped=1;
     }
   
   if(y<this->ImageInUseSize[1]) // clipping
     {
-    leftEdge->OnBottom();
-    rightEdge->OnBottom();
+    leftEdge->OnBottom(skipped,y);
+    rightEdge->OnBottom(skipped,y);
     
     if(y2>=this->ImageInUseSize[1]) // clipping
       {
@@ -3624,6 +3698,8 @@ void vtkUnstructuredGridVolumeZsweepMapper::RasterizeSpan(int y,
       vtkPixelListEntry *p=this->MemoryManager->AllocateEntry();
       p->Init(this->Span->GetValues(),this->Span->GetZview());
       this->PixelListFrame->AddAndSort(j,p);
+      
+      
 //      if(this->PixelListFrame->GetListSize(j)>this->MaxRecordedPixelListSize)
 //        {
 //        this->MaxRecordedPixelListSize=this->PixelListFrame->GetListSize(j);
@@ -3909,25 +3985,38 @@ void vtkUnstructuredGridVolumeZsweepMapper::CompositeFunction(double zTarget)
   newXBounds[1]=0;
   newYBounds[0]=this->ImageInUseSize[1];
   newYBounds[1]=0;
+
+  int xMin=this->XBounds[0];
+  int xMax=this->XBounds[1];
+  int yMax=this->YBounds[1];
+  
+  vtkPixelList *pixel;
+  int x;
+  vtkIdType j;
+  vtkIdType index2;
+  int done;
+  int doIntegration;
+  double length;
+  float *color;
   
   // for each pixel in the bounding box
-  while(y<=this->YBounds[1])
+  while(y<=yMax)
     {
-    int x=this->XBounds[0];
-    vtkIdType j=i;
-    vtkIdType index2=index;
-    while(x<=this->XBounds[1])
+    x=xMin;
+    j=i;
+    index2=index;
+    while(x<=xMax)
       {
-      vtkPixelList *pixel=this->PixelListFrame->GetList(j);
+      pixel=this->PixelListFrame->GetList(j);
       // we need at least two entries per pixel to perform compositing
       if(pixel->GetSize()>=2)
         {
         current=pixel->GetFirst();
         next=current->GetNext();
 #ifdef BACK_TO_FRONT
-        int done=current->GetZview()<=zTarget || next->GetZview()<=zTarget;
+        done=current->GetZview()<=zTarget || next->GetZview()<=zTarget;
 #else
-        int done=current->GetZview()>=zTarget || next->GetZview()>=zTarget;
+        done=current->GetZview()>=zTarget || next->GetZview()>=zTarget;
 #endif
         
         if(!done && this->ZBuffer!=0)
@@ -3938,7 +4027,6 @@ void vtkUnstructuredGridVolumeZsweepMapper::CompositeFunction(double zTarget)
         
         while(!done)
           {
-          int doIntegration;
           if(this->ZBuffer!=0)
             {
             // check that current and next are in front of the z-buffer value
@@ -3955,20 +4043,15 @@ void vtkUnstructuredGridVolumeZsweepMapper::CompositeFunction(double zTarget)
             if(current->GetZview()!=next->GetZview())
               {
               // length in world coordinates
-              double length=sqrt(vtkMath::Distance2BetweenPoints(
-                                   current->GetValues(),next->GetValues()));
+              length=sqrt(vtkMath::Distance2BetweenPoints(
+                            current->GetValues(),next->GetValues()));
               if(length!=0)
 //              if(length>=0.4)
                 {
-                float *color=this->RealRGBAImage+index2;
-                
-                this->IntersectionLengths->Reset();
-                this->IntersectionLengths->InsertNextValue(length);
-                this->NearIntersections->Reset();
-                
-                this->NearIntersections->InsertNextTuple1(current->GetValues()[VTK_VALUES_SCALAR_INDEX]);
-                this->FarIntersections->Reset();
-                this->FarIntersections->InsertNextTuple1(next->GetValues()[VTK_VALUES_SCALAR_INDEX]);
+                color=this->RealRGBAImage+index2;
+                this->IntersectionLengths->SetValue(0,length);
+                this->NearIntersections->SetValue(0,current->GetValues()[VTK_VALUES_SCALAR_INDEX]);
+                this->FarIntersections->SetValue(0,next->GetValues()[VTK_VALUES_SCALAR_INDEX]);
 #ifdef BACK_TO_FRONT
                 this->RealRayIntegrator->Integrate(this->IntersectionLengths,
                                                    this->FarIntersections,
@@ -4033,16 +4116,17 @@ void vtkUnstructuredGridVolumeZsweepMapper::CompositeFunction(double zTarget)
       }
     // next ordinate
     i=i+this->ImageInUseSize[0];
-    index=index+indexStep;
+    index+=indexStep;
     ++y;
     }
   
   // Update the bounding box. Useful for the delayed compositing
+
   this->XBounds[0]=newXBounds[0];
   this->XBounds[1]=newXBounds[1];
   this->YBounds[0]=newYBounds[0];
   this->YBounds[1]=newYBounds[1];
-  
+
   this->MaxPixelListSizeReached=0;
 }
  
