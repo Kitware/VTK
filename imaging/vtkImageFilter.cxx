@@ -163,8 +163,7 @@ unsigned long int vtkImageFilter::GetPipelineMTime()
 
 //----------------------------------------------------------------------------
 // Description:
-// Set the Input of a filter. If a ScalarType has not been set for this filter,
-// then the ScalarType of the input is used.
+// Set the Input of a filter. 
 void vtkImageFilter::SetInput(vtkImageCache *input)
 {
   vtkDebugMacro(<< "SetInput: input = " << input->GetClassName()

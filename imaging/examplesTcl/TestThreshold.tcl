@@ -21,7 +21,7 @@ thresh SetOutputScalarType $VTK_UNSIGNED_CHAR
 thresh ThresholdByUpper 2000.0
 thresh SetInValue 255
 thresh SetOutValue 0
-thresh ReleaseDataFlagOffo
+thresh ReleaseDataFlagOff
 
 vtkImageViewer viewer
 viewer SetInput [thresh GetOutput]

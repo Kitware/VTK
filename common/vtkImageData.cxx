@@ -281,10 +281,6 @@ void vtkImageData::SetExtent(int num, int *extent)
   int idx, modified = 0;
   vtkDebugMacro(<< "SetExtent: ...");
 
-  if (this->GetReferenceCount() > 1)
-    {
-    vtkWarningMacro(<< "SetExtent: This object has more than one reference!");
-    }
   if (this->ScalarsAllocated)
     {
     vtkErrorMacro(<< "SetExtent: Data object has already been allocated.");

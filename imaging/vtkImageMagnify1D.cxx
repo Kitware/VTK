@@ -180,10 +180,12 @@ static void vtkImageMagnify1DExecute(vtkImageMagnify1D *self,
       }
     for (outIdx0 = outMin0; outIdx0 <= outMax0; ++outIdx0)
       {
-      
-      // Treat first pixel as special case
-      if (magIdx == 0)
-	{
+      if ( ! interpolate)
+	{ // slow pixel replication (should be nearest neighbor not this)
+	*outPtr0 = *inPtr0;
+	}
+      else if (magIdx == 0)
+	{ // Treat first pixel as special case
 	val = (float)(*inPtr0);
 	*outPtr0 = *inPtr0;
 	}

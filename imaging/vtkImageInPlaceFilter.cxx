@@ -151,8 +151,7 @@ unsigned long int vtkImageInPlaceFilter::GetPipelineMTime()
 
 //----------------------------------------------------------------------------
 // Description:
-// Set the Input of a filter. If a ScalarType has not been set for this filter,
-// then the ScalarType of the input is used.
+// Set the Input of a filter. 
 void vtkImageInPlaceFilter::SetInput(vtkImageCache *input)
 {
   vtkDebugMacro(<< "SetInput: input = " << input->GetClassName()
@@ -166,17 +165,6 @@ void vtkImageInPlaceFilter::SetInput(vtkImageCache *input)
   
   this->Input = input;
   this->Modified();
-
-  // Should we use the data type from the input?
-  this->CheckCache();      // make sure a cache exists
-  if (this->Output->GetScalarType() == VTK_VOID)
-    {
-    this->Output->SetScalarType(input->GetScalarType());
-    if (this->Output->GetScalarType() == VTK_VOID)
-      {
-      vtkErrorMacro(<< "SetInput: Cannot determine ScalarType of input.");
-      }
-    }
 }
 
 
@@ -215,12 +203,12 @@ void vtkImageInPlaceFilter::Update()
     this->Output->SetScalarData(this->Input->GetScalarData());
     this->Output->SetNumberOfScalarComponents(
 		      this->Input->GetNumberOfScalarComponents());
+    this->Updating = 0;
     // release input data
     if (this->Input->ShouldIReleaseData())
       {
       this->Input->ReleaseData();
       }
-    this->Updating = 0;
     return;
     }  
   
@@ -256,6 +244,13 @@ void vtkImageInPlaceFilter::Update()
   // Get the input region
   this->Input->Update();
   inRegion = this->Input->GetScalarRegion();
+  
+  // relase data here so we can operate in place
+  if (this->Input->ShouldIReleaseData())
+    {
+    this->Input->ReleaseData();
+    }
+  
   inRegion->SetAxes(5, this->ExecutionAxes);
   // Make sure we got the input.
   if ( ! inRegion->AreScalarsAllocated())
@@ -309,9 +304,28 @@ void vtkImageInPlaceFilter::UpdateImageInformation()
     vtkErrorMacro(<< "UpdateImageInformation: Input is not set.");
     return;
     }
+  // make sure we have an output
+  this->CheckCache();
   
   this->Input->UpdateImageInformation();
-  this->ExecuteImageInformation(this->Input, this->Output);
+  // Set up the defaults
+  this->Output->SetWholeExtent(this->Input->GetWholeExtent());
+  this->Output->SetSpacing(this->Input->GetSpacing());
+  this->Output->SetOrigin(this->Input->GetOrigin());
+  this->Output->SetNumberOfScalarComponents(
+			    this->Input->GetNumberOfScalarComponents());
+  if ( ! this->Bypass)
+    {
+    // Let the subclass modify the default.
+    this->ExecuteImageInformation(this->Input, this->Output);
+    }
+
+  // If the ScalarType of the output has not been set yet,
+  // set it to be the same as input.
+  if (this->Output->GetScalarType() == VTK_VOID)
+    {
+    this->Output->SetScalarType(this->Input->GetScalarType());
+    }
 }
 
 
