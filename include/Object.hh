@@ -9,6 +9,8 @@
 
 #include <iostream.h>
 #include "TimeSt.hh"
+#include "SetGet.hh"
+
 //
 // Common #defines / parameters
 //
@@ -30,6 +32,7 @@ public:
   int GetDebug();
   vlTimeStamp Mtime; // Keep track of modification time
   void Modified() {Mtime.Modified();};
+  virtual char *GetClassName() {return "vlObject";};
 
 protected:
   int Debug;       // Enable debug messages
