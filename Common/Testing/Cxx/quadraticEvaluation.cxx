@@ -370,15 +370,15 @@ int TestQE(ostream& strm)
   ComputeDataValues(hex->Points,hexValues);
   hex->Derivatives(subId, hexPCoords, hexValues, 1, hexDerivs);
   
-  // vtkQuadraticWedge - temporarily commented out
-//  double wedgeValues[20], wedgeDerivs[3];
-//  ComputeDataValues(wedge->Points,wedgeValues);
-//  wedge->Derivatives(subId, wedgePCoords, wedgeValues, 1, wedgeDerivs);
+  // vtkQuadraticWedge
+  double wedgeValues[15], wedgeDerivs[3];
+  ComputeDataValues(wedge->Points,wedgeValues);
+  wedge->Derivatives(subId, wedgePCoords, wedgeValues, 1, wedgeDerivs);
 
-  // vtkQuadraticPyramid - temporarily commented out
-//  double pyraValues[20], pyraDerivs[3];
-//  ComputeDataValues(pyra->Points,pyraValues);
-//  pyra->Derivatives(subId, pyraPCoords, pyraValues, 1, pyraDerivs);
+  // vtkQuadraticPyramid
+  double pyraValues[13], pyraDerivs[3];
+  ComputeDataValues(pyra->Points,pyraValues);
+  pyra->Derivatives(subId, pyraPCoords, pyraValues, 1, pyraDerivs);
 
   strm << "Test vtkCell::CellDerivs End" << endl;
 
