@@ -41,7 +41,7 @@
 #include "vtkSphereSource.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkPlaneWidget, "1.35");
+vtkCxxRevisionMacro(vtkPlaneWidget, "1.36");
 vtkStandardNewMacro(vtkPlaneWidget);
 
 vtkCxxSetObjectMacro(vtkPlaneWidget,PlaneProperty,vtkProperty);
@@ -837,8 +837,7 @@ void vtkPlaneWidget::OnMouseMove()
     }
   else if ( this->State == vtkPlaneWidget::Spinning )
     {
-    camera->GetViewPlaneNormal(vpn);
-    this->Spin(prevPickPoint, pickPoint, vpn);
+    this->Spin(prevPickPoint, pickPoint);
     }
 
 
@@ -1095,7 +1094,7 @@ void vtkPlaneWidget::Rotate(int X, int Y, double *p1, double *p2, double *vpn)
   this->PositionHandles();
 }
 
-void vtkPlaneWidget::Spin(double *p1, double *p2, double *vpn)
+void vtkPlaneWidget::Spin(double *p1, double *p2)
 {
   // Mouse motion vector in world space
   double v[3];
