@@ -43,81 +43,141 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkRenderWindow.h"
 #include "vtkTimerLog.h"
 
-// Description:
-// Creates a vtkLODActor with the following defaults: origin(0,0,0) 
-// position=(0,0,0) scale=(1,1,1) visibility=1 pickable=1 dragable=1
-// orientation=(0,0,0). NumberOfCloudPoints is set to 150.
+//----------------------------------------------------------------------------
 vtkLODActor::vtkLODActor()
 {
-  this->NumberOfCloudPoints = 150;
-  this->Timings[0] = -2; // highest LOD
-  this->Timings[1] = -2;
-  this->Timings[2] = -2; // lowest LOD
   // get a hardware dependent actor and mappers
   this->Device = vtkActor::New();
-  this->MediumMapper = vtkPolyDataMapper::New();
-  this->LowMapper = vtkPolyDataMapper::New();
+  this->Mappers = vtkMapperCollection::New();
+  this->BuildLODs = 1;
+  // stuff for creating own LODs
+  this->PointSource = NULL;
+  this->MaskPoints = NULL;
+  this->Glyph3D = NULL;
+  this->OutlineFilter = NULL;
+  this->NumberOfCloudPoints = 150;
+
 }
 
+//----------------------------------------------------------------------------
 vtkLODActor::~vtkLODActor()
 {
   this->Device->Delete();
-  this->MediumMapper->Delete();
-  this->LowMapper->Delete();
+  if (this->BuildLODs)
+    {
+    this->DeleteMappers();
+    }
+  this->Mappers->Delete();
+
+  // delete the filters used to create the LODs
+  if (this->PointSource)
+    {
+    this->PointSource->Delete();
+    this->PointSource = NULL;
+    }
+  if (this->Glyph3D)
+    {
+    this->Glyph3D->Delete();
+    this->Glyph3D = NULL;
+    }
+  if (this->MaskPoints)
+    {
+    this->MaskPoints->Delete();
+    this->MaskPoints = NULL;
+    }
+  if (this->OutlineFilter)
+    {
+    this->OutlineFilter->Delete();
+    this->OutlineFilter = NULL;
+    }
 }
 
 
-// Description:
-// This causes the actor to be rendered. It, in turn, will render the actor's
-// property and then mapper.  
+//----------------------------------------------------------------------------
+void vtkLODActor::PrintSelf(ostream& os, vtkIndent indent)
+{
+  vtkActor::PrintSelf(os,indent);
+
+  os << indent << "Cloud Points: " << this->NumberOfCloudPoints << "\n";
+
+  os << indent << "BuildLODs: " << this->BuildLODs << endl;
+  // how should we print out the mappers?
+  os << indent << "NumberOfMappers: " << this->Mappers->GetNumberOfItems() 
+     << endl;
+}
+
+
+//----------------------------------------------------------------------------
 void vtkLODActor::Render(vtkRenderer *ren)
 {
-  int choice;
-  float myTime;
+  float myTime, bestTime, tempTime;
   double aTime;
-  static int refreshCount = 0; // every 97 calls decay some timings
   vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
+  vtkMapper *mapper, *bestMapper;
+  
+
+  // has anything changed ???
+  if (this->BuildLODs)
+    {
+    if (this->GetMTime() > this->BuildTime || 
+	this->Mapper->GetMTime() > this->BuildTime)
+      {
+      this->GenerateLODs();
+      }
+    }
+  
+  // put culling here for now. (to test set inside frustrum)
+  if (this->AllocatedRenderTime == 0.0)
+    {
+    return;
+    }
   
   // figure out how much time we have to render
-  myTime = ren->GetAllocatedRenderTime();
-  myTime /= (ren->GetActors())->GetNumberOfItems();
-  
-  if (this->GetMTime() > this->BuildTime || 
-      this->Mapper->GetMTime() > this->BuildTime)
-    {
-    // make sure the filters are connected
-    this->PointSource.SetRadius(0);
-    this->PointSource.SetNumberOfPoints(1);
-    this->MediumMapper->SetInput(this->Glyph3D.GetOutput());
-    this->MediumMapper->SetScalarRange(this->Mapper->GetScalarRange());
-    this->MediumMapper->SetScalarVisibility(this->Mapper->GetScalarVisibility());
-    this->MaskPoints.SetInput(this->Mapper->GetInput());
-    this->MaskPoints.SetMaximumNumberOfPoints(this->NumberOfCloudPoints);
-    this->MaskPoints.SetRandomMode(1);
-    this->Glyph3D.SetInput(this->MaskPoints.GetOutput());
-    this->Glyph3D.SetSource(this->PointSource.GetOutput());
-    this->LowMapper->SetInput(this->OutlineFilter.GetOutput());
-    this->OutlineFilter.SetInput(this->Mapper->GetInput());
-    
-    this->Timings[0] = -2;
-    this->Timings[1] = -2;
-    this->Timings[2] = -2;
-    this->BuildTime.Modified();
-    }
+  myTime = this->AllocatedRenderTime;
 
-  // figure out which resolution to use
-  if ((myTime > this->Timings[0])|| (myTime == 0))
+  // cerr << "AllocatedRenderTime: " << myTime << endl;
+  
+  //   Figure out which resolution to use 
+  // none is a valid resolution. Do we want to have a lowest:
+  // bbox, single point, ...
+  //   There is no order to the list, so it is assumed that mappers that take
+  // longer to render are better quality.
+  //   Timings might become out of date, but we rely on 
+
+  bestMapper = this->Mapper;
+  bestTime = bestMapper->GetRenderTime();
+  // cerr << "  Start (" << bestMapper << ") with time: " << bestTime << endl;
+  this->Mappers->InitTraversal();
+  while ((mapper = this->Mappers->GetNextItem()) != NULL && bestTime != 0.0)
     {
-    choice = 0;
+    tempTime = mapper->GetRenderTime();
+    // cerr << "    Mapper (" << mapper << ") RenderTime: " << tempTime <<endl;
+
+    // If the LOD has never been rendered, select it!
+    if (tempTime == 0.0)
+      { 
+      // cerr << "      Has never been rendererd\n";
+      bestMapper = mapper;
+      bestTime = 0.0;
+      }
+    else
+      {
+      if (bestTime > myTime && tempTime < bestTime)
+	{
+	// cerr << "      Less than best in violation\n";
+	bestMapper = mapper;
+	bestTime = tempTime;
+	}
+      if (tempTime > bestTime && tempTime < myTime)
+	{ 
+	// cerr << "      Larger than best\n";
+	bestMapper = mapper;
+	bestTime = tempTime;
+	}
+      }
     }
-  else if (myTime > this->Timings[1])
-    {
-    choice = 1;
-    }
-  else
-    {
-    choice = 2;
-    }
+  
+  // record start rendering time
   aTime = vtkTimerLog::GetCurrentTime();
   
   /* render the property */
@@ -142,54 +202,139 @@ void vtkLODActor::Render(vtkRenderer *ren)
   this->GetMatrix(*matrix);
   this->Device->SetUserMatrix(matrix);
   
-  if (!choice)
+  // Store information on time it takes to render.
+  // We might want to estimate time from the number of polygons in mapper.
+  this->Device->Render(ren,bestMapper);
+  // Aborted render will give incorrect times
+  if (!(ren->GetRenderWindow()->GetAbortRender()))
     {
-    this->Device->Render(ren,this->Mapper);
-    }
-  if (choice == 1)
-    {
-    this->Device->Render(ren,this->MediumMapper);
-    }
-  if (choice == 2)
-    {
-    this->Device->Render(ren,this->LowMapper);
-    }
-  
-  if (this->Timings[choice] == -2)
-    {
-    this->Timings[choice] = -1;
-    }
-  else
-    {
-    if (!(refreshCount % 97))
-      {
-      if (this->Timings[0] < (myTime*2.0))
-	      {
-	      this->Timings[0] = -1;
-	      }
-      this->Timings[1] = -1;
-      this->Timings[2] = -1;
+    myTime = (float)(vtkTimerLog::GetCurrentTime() - aTime);
+    // combine time with a moving average
+    if (bestTime == 0.0)
+      { // This is the first render. 
+      bestMapper->SetRenderTime(myTime);
+      // cerr << "          SETTING (" << bestMapper << ") RenderTime to " << myTime << endl;
       }
-    
-    // make sure this wasn't an aborted render because that will
-    // screwe up the timings
-    if (!(ren->GetRenderWindow()->GetAbortRender()))
-      {
-      this->Timings[choice] = (float)(vtkTimerLog::GetCurrentTime() - aTime);
+    else
+      { // Running average of render time as a temporary fix for
+      // openGL buffering.
+      bestMapper->SetRenderTime(0.1 * myTime + 0.9 * bestTime);
       }
     }
 
-  refreshCount++;
   delete matrix;
 }
 
-void vtkLODActor::PrintSelf(ostream& os, vtkIndent indent)
+      
+//----------------------------------------------------------------------------
+// does not matter if mapper is in mapper collection.
+void vtkLODActor::AddMapper(vtkMapper *mapper)
 {
-  vtkActor::PrintSelf(os,indent);
+  if (this->Mapper == NULL)
+    {
+    this->SetMapper(mapper);
+    }
+  
+  this->Mappers->AddItem(mapper);
+}
 
-  os << indent << "Cloud Points: " << this->NumberOfCloudPoints << "\n";
 
-  os << indent << "Timings: (" << this->Timings[0] << ", " 
-     << this->Timings[1] << ", " << this->Timings[2] << ")\n";
+//----------------------------------------------------------------------------
+void vtkLODActor::SetBuildLODs(int val)
+{
+  if (( ! val &&  ! this->BuildLODs) || (val && this->BuildLODs))
+    {
+    return;
+    }
+  
+  this->Modified();
+  this->BuildLODs = val;
+  
+  if (val)
+    { // user now wants this object to manage LOD mappers
+    this->Mappers->RemoveAllItems();
+    this->GenerateLODs();
+    }
+  else
+    { // delete mappers created by this object.
+    this->DeleteMappers();
+    // delete the filters too?
+    }
+}
+
+//----------------------------------------------------------------------------
+// Deletes Mappers and there input data.
+void vtkLODActor::GenerateLODs()
+{
+  vtkPolyDataMapper *mediumMapper, *lowMapper;
+  
+  // cerr << "-------- Building LODs\n";
+  
+  if ( this->Mapper == NULL)
+    {
+    vtkErrorMacro("Cannot create LODs with out a mapper.");
+    return;
+    }
+
+  // delete the old mappers
+  this->DeleteMappers();
+  
+  // create filters if necessary
+  if (this->PointSource == NULL)
+    {
+    this->PointSource = vtkPointSource::New();
+    }
+  if (this->Glyph3D == NULL)
+    {
+    this->Glyph3D = vtkGlyph3D::New();
+    }
+  if (this->MaskPoints == NULL)
+    {
+    this->MaskPoints = vtkMaskPoints::New();
+    }
+  if (this->OutlineFilter == NULL)
+    {
+    this->OutlineFilter = vtkOutlineFilter::New();
+    }
+  
+  // connect the filters
+  this->PointSource->SetRadius(0);
+  this->PointSource->SetNumberOfPoints(1);
+  this->MaskPoints->SetInput(this->Mapper->GetInput());
+  this->MaskPoints->SetMaximumNumberOfPoints(this->NumberOfCloudPoints);
+  this->MaskPoints->SetRandomMode(1);
+  this->Glyph3D->SetInput(this->MaskPoints->GetOutput());
+  this->Glyph3D->SetSource(this->PointSource->GetOutput());
+  this->OutlineFilter->SetInput(this->Mapper->GetInput());
+  
+  mediumMapper = vtkPolyDataMapper::New();
+  lowMapper = vtkPolyDataMapper::New();
+  
+  mediumMapper->SetInput(this->Glyph3D->GetOutput());
+  mediumMapper->SetScalarRange(this->Mapper->GetScalarRange());
+  mediumMapper->SetScalarVisibility(this->Mapper->GetScalarVisibility());
+  lowMapper->SetInput(this->OutlineFilter->GetOutput());
+
+  this->AddMapper(mediumMapper);
+  this->AddMapper(lowMapper);
+  
+  this->BuildTime.Modified();
+}
+
+
+//----------------------------------------------------------------------------
+// Deletes Mappers and filters used when creating own LODs.
+void vtkLODActor::DeleteMappers()
+{
+  vtkMapper *mapper;
+  
+  this->Mappers->InitTraversal();
+  while ((mapper = this->Mappers->GetNextItem()))
+    {
+    // deleting and then removing scares me so InitTraversal each time.
+    this->Mappers->RemoveItem(mapper);
+    this->Mappers->InitTraversal();
+    mapper->Delete();
+    }  
 }
 

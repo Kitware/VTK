@@ -65,36 +65,64 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkPolyDataMapper.h"
 #include "vtkGlyph3D.h"
 #include "vtkPointSource.h"
+#include "vtkMapperCollection.h"
 
 class VTK_EXPORT vtkLODActor : public vtkActor
 {
  public:
+  // Description:
+  // Creates a vtkLODActor with the following defaults: origin(0,0,0) 
+  // position=(0,0,0) scale=(1,1,1) visibility=1 pickable=1 dragable=1
+  // orientation=(0,0,0). NumberOfCloudPoints is set to 150.
   vtkLODActor();
   ~vtkLODActor();
   static vtkLODActor *New() {return new vtkLODActor;};
   const char *GetClassName() {return "vtkLODActor";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
+  // Description:
+  // This causes the actor to be rendered. It, in turn, will render the actor's
+  // property and then mapper.  
   virtual void Render(vtkRenderer *ren);
   virtual void Render(vtkRenderer *, vtkMapper *) {};
+
+  // Description:
+  // Add another level of detail.  They do not have to be in any order
+  // of complexity.
+  void AddMapper(vtkMapper *mapper);
+
   
   // Description:
   // Set/Get the number of random points for the point cloud.
   vtkGetMacro(NumberOfCloudPoints,int);
   vtkSetMacro(NumberOfCloudPoints,int);
 
+  // Description:
+  // All the mappers for differnt LODs are stored here.
+  // The order is not important.
+  vtkGetObjectMacro(Mappers, vtkMapperCollection);
+  
+  // Description:
+  // If this flag is on, this object will create and manage the LOD
+  // mappers on its own.  If not, it is the users resposibility.
+  void SetBuildLODs(int val);
+  vtkGetMacro(BuildLODs, int);
+  vtkBooleanMacro(BuildLODs, int);
+  
 protected:
-  vtkPointSource      PointSource;
-  vtkGlyph3D          Glyph3D;
-  vtkPolyDataMapper       *MediumMapper;
-  vtkPolyDataMapper       *LowMapper;
-  vtkMaskPoints       MaskPoints;
-  vtkOutlineFilter    OutlineFilter;
+  vtkPointSource      *PointSource;
+  vtkGlyph3D          *Glyph3D;
+  vtkMaskPoints       *MaskPoints;
+  vtkOutlineFilter    *OutlineFilter;
   vtkTimeStamp        BuildTime;
-  float               Size;
   int                 NumberOfCloudPoints;
-  float               Timings[3];
-  vtkActor           *Device;
+  vtkActor            *Device;
+  
+  vtkMapperCollection *Mappers;
+  int                 BuildLODs;
+
+  void GenerateLODs();
+  void DeleteMappers();
 };
 
 #endif
