@@ -11,3 +11,6 @@ SET (CVS_WEB_URL "http://${DROP_SITE}/cgi-bin/cvsweb.cgi/vtknew/")
 SET (CVS_WEB_CVSROOT "vtknew")
 SET (DOXYGEN_URL "http://${DROP_SITE}/" )
 SET (GNATS_WEB_URL "http://${DROP_SITE}/")
+
+# copy over the testing logo
+CONFIGURE_FILE(TestingLogo.gif ${VTK_BINARY_DIR}/Testing/HTML/TestingResults/Icons/Logo.gif COPYONLY)

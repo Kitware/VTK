@@ -24,13 +24,6 @@ IF (VTK_WRAP_TCL)
   SUBDIRS(Wrapping/Tcl)
 ENDIF (VTK_WRAP_TCL)
 
-# add some testing dependencies
-IF(BUILD_TESTING)
-  IF (DART_ROOT)
-    SUBDIRS(Graphics/Testing)
-  ENDIF (DART_ROOT)
-ENDIF(BUILD_TESTING)
-
 CONFIGURE_FILE(
 ${VTK_SOURCE_DIR}/vtkConfigure.h.in 
 ${VTK_BINARY_DIR}/vtkConfigure.h)
@@ -42,5 +35,11 @@ ${VTK_BINARY_DIR}/vtkToolkits.h)
 # Include the standard Dart testing module
 INCLUDE (${CMAKE_ROOT}/Modules/Dart.cmake)
 
+# add some testing dependencies
+IF(BUILD_TESTING)
+  IF (DART_ROOT)
+    SUBDIRS(Graphics/Testing)
+  ENDIF (DART_ROOT)
+ENDIF(BUILD_TESTING)
 
 INSTALL_FILES(/include/vtk .h vtkConfigure vtkToolkits)
