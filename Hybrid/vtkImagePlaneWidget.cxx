@@ -40,7 +40,7 @@
 #include "vtkTextureMapToPlane.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.29");
+vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.30");
 vtkStandardNewMacro(vtkImagePlaneWidget);
 
 vtkCxxSetObjectMacro(vtkImagePlaneWidget, PlaneProperty, vtkProperty);
@@ -63,9 +63,9 @@ vtkImagePlaneWidget::vtkImagePlaneWidget()
   this->UserPickerEnabled = 0;
   this->UserLookupTableEnabled = 0;
   this->DisplayText = 0;
-  this->CurrentCursorPosition[0] = 0.0;
-  this->CurrentCursorPosition[1] = 0.0;
-  this->CurrentCursorPosition[2] = 0.0;
+  this->CurrentCursorPosition[0] = 0;
+  this->CurrentCursorPosition[1] = 0;
+  this->CurrentCursorPosition[2] = 0;
   this->CurrentImageValue = VTK_FLOAT_MAX;
 
   // Represent the plane
@@ -112,6 +112,7 @@ vtkImagePlaneWidget::vtkImagePlaneWidget()
   // Set up the initial properties
   this->PlaneProperty = 0;
   this->SelectedPlaneProperty = 0;
+  this->CursorProperty = 0;
   this->CreateDefaultProperties();
 
   this->SetRepresentation();
@@ -813,6 +814,7 @@ void vtkImagePlaneWidget::CreateDefaultProperties()
     this->PlaneProperty->SetAmbient(1.0);
     this->PlaneProperty->SetColor(1.0,1.0,1.0);
     }
+
   if ( ! this->SelectedPlaneProperty )
     {
     this->SelectedPlaneProperty = vtkProperty::New();
@@ -820,11 +822,12 @@ void vtkImagePlaneWidget::CreateDefaultProperties()
     this->SelectedPlaneProperty->SetAmbient(1.0);
     this->SelectedPlaneProperty->SetColor(0.0,1.0,0.0);
     }
+
   if ( ! this->CursorProperty )
     {
     this->CursorProperty = vtkProperty::New();
-    this->CursorProperty->SetColor(1.0,0.0,0.0);
     this->CursorProperty->SetAmbient(1.0);
+    this->CursorProperty->SetColor(1.0,0.0,0.0);
     this->CursorProperty->SetRepresentationToWireframe();
     } 
 }
@@ -1778,6 +1781,18 @@ void vtkImagePlaneWidget::GetNormal(float xyz[3])
 }
 
 void vtkImagePlaneWidget::GetPolyData(vtkPolyData *pd)
-{ 
-  pd->ShallowCopy(this->PlaneSource->GetOutput()); 
+{
+  pd->ShallowCopy(this->PlaneSource->GetOutput());
 }
+
+void vtkImagePlaneWidget::SetTextProperty(vtkTextProperty* tprop)
+{
+  this->TextActor->SetTextProperty(tprop);
+  this->TextActor->Modified();
+}
+
+vtkTextProperty* vtkImagePlaneWidget::GetTextProperty()
+{
+  return this->TextActor->GetTextProperty();
+}
+
