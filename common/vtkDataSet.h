@@ -281,7 +281,7 @@ public:
   // Note: Update needs to be called to create the scalars.
   // THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
   // THE DATASET IS NOT MODIFIED
-  void GetScalarRange(float range[2]);
+  virtual void GetScalarRange(float range[2]);
 
   // Description:
   // Convenience method to get the range of the scalar data (if there is any 
