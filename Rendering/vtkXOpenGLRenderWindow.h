@@ -61,8 +61,6 @@ class VTK_EXPORT vtkXOpenGLRenderWindow : public vtkOpenGLRenderWindow
 {
 protected:
   GLXContext ContextId;
-  int MultiSamples;
-  long OldMonitorSetting;
 
 public:
   static vtkXOpenGLRenderWindow *New();
