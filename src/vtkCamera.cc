@@ -68,7 +68,8 @@ vtkCamera::vtkCamera()
   this->ClippingRange[0] = 0.01;
   this->ClippingRange[1] = 1000.01;
 
-  this->Switch = 1;
+  this->ParallelProjection = 0;
+  this->ParallelScale = 1.0;
   this->LeftEye = 1;
   this->EyeAngle = 2.0;
 
@@ -601,28 +602,51 @@ void vtkCamera::CalcPerspectiveTransform(float aspect,
   matrix[3][3] = 1;
   
   this->PerspectiveTransform.Concatenate(matrix);
-  
-  // now scale according to page 269 Foley & VanDam 2nd Edition
-  this->PerspectiveTransform.Scale(1.0/(tan(this->ViewAngle*3.1415926/360.0)*
-				   this->ClippingRange[1]*aspect),
-				   1.0/(tan(this->ViewAngle*3.1415926/360.0)*
-				   this->ClippingRange[1]),
-				   1.0/this->ClippingRange[1]);
 
+  if (this->ParallelProjection)
+    {
+    // now scale according to page 269 Foley & VanDam 2nd Edition
+    this->PerspectiveTransform.Scale(1.0/(this->ParallelScale*aspect),
+				     1.0/this->ParallelScale,
+				     1.0/(this->ClippingRange[1]-
+					  this->ClippingRange[0]));
+    }
+  else
+    {
+    // now scale according to page 269 Foley & VanDam 2nd Edition
+    this->PerspectiveTransform.Scale(1.0/(tan(this->ViewAngle*3.1415926/360.0)*
+					  this->ClippingRange[1]*aspect),
+				     1.0/(tan(this->ViewAngle*3.1415926/360.0)*
+					  this->ClippingRange[1]),
+				     1.0/this->ClippingRange[1]);
+    }
+  
   // now set the orientation
   Rz = this->PerspectiveTransform.GetOrientation();
   this->Orientation[0] = Rz[0];
   this->Orientation[1] = Rz[1];
   this->Orientation[2] = Rz[2];
 
-  ftemp = this->ClippingRange[0]/this->ClippingRange[1];
-  matrix[0][2] = 0;
-  matrix[1][2] = 0;
-  matrix[2][2] = (nearz - farz)/(1 - ftemp) - nearz;
-  matrix[2][3] = (nearz - farz)*ftemp/(1 - ftemp);
-  matrix[3][2] = -1;
-  matrix[3][3] = 0;
-
+  if (this->ParallelProjection)
+    {
+    matrix[0][2] = 0;
+    matrix[1][2] = 0;
+    matrix[2][2] = (nearz - farz);
+    matrix[2][3] = nearz;
+    matrix[3][2] = 0;
+    matrix[3][3] = 1;
+    }
+  else
+    {
+    ftemp = this->ClippingRange[0]/this->ClippingRange[1];
+    matrix[0][2] = 0;
+    matrix[1][2] = 0;
+    matrix[2][2] = (nearz - farz)/(1 - ftemp) - nearz;
+    matrix[2][3] = (nearz - farz)*ftemp/(1 - ftemp);
+    matrix[3][2] = -1;
+    matrix[3][3] = 0;
+    }
+  
   this->PerspectiveTransform.Concatenate(matrix);
 }
 
@@ -979,7 +1003,8 @@ void vtkCamera::PrintSelf(ostream& os, vtkIndent indent)
     << this->Orientation[1] << ", " << this->Orientation[2] << ")\n";
   os << indent << "Position: (" << this->Position[0] << ", " 
     << this->Position[1] << ", " << this->Position[2] << ")\n";
-  os << indent << "Switch: " << (this->Switch ? "On\n" : "Off\n");
+  os << indent << "ParallelProjection: " << 
+    (this->ParallelProjection ? "On\n" : "Off\n");
   os << indent << "Thickness: " << this->Thickness << "\n";
   os << indent << "View Angle: " << this->ViewAngle << "\n";
   os << indent << "View Plane Normal: (" << this->ViewPlaneNormal[0] << ", " 

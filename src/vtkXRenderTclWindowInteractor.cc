@@ -607,10 +607,18 @@ void vtkXRenderWindowInteractorTimer(XtPointer client_data,XtIntervalId *id)
 		    &root,&child,&root_x,&root_y,&x,&y,&keys);
       yf = ((me->Size[1] - y) - me->Center[1])/(float)me->Center[1];
       zoomFactor = pow(1.1,yf);
-      clippingRange = me->CurrentCamera->GetClippingRange();
-      me->CurrentCamera->SetClippingRange(clippingRange[0]/zoomFactor,
-      					  clippingRange[1]/zoomFactor);
-      me->CurrentCamera->Dolly(zoomFactor);
+      if (me->CurrentCamera->GetParallelProjection())
+	{
+	me->CurrentCamera->
+	  SetParallelScale(me->CurrentCamera->GetParallelScale()/zoomFactor);
+	}
+      else
+	{
+	clippingRange = me->CurrentCamera->GetClippingRange();
+	me->CurrentCamera->SetClippingRange(clippingRange[0]/zoomFactor,
+					    clippingRange[1]/zoomFactor);
+	me->CurrentCamera->Dolly(zoomFactor);
+	}
       me->RenderWindow->Render();
       Tk_CreateTimerHandler(10,vtkXTclTimerProc,(ClientData)client_data);
       }
