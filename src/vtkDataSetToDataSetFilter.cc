@@ -53,10 +53,14 @@ void vtkDataSetToDataSetFilter::SetInput(vtkDataSet *input)
     if ( this->Input == NULL ) return;
 
     if ( ! this->Output )
+      {
       this->Output = this->Input->MakeObject();
+      this->Output->SetSource(this);
+      return;
+      }
 
     // since the input has changed we might need to create a new output
-    if (strcmp(this->Output->GetClassName(),this->Input->GetClassName()))
+    if (!strcmp(this->Output->GetClassName(),this->Input->GetClassName()))
       {
       this->Output->Delete();
       this->Output = this->Input->MakeObject();
