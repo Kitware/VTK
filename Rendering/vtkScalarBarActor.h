@@ -174,11 +174,14 @@ protected:
   int   FontFamily;
   char  *LabelFormat;
 
+  vtkTextMapper **TextMappers;
+  virtual void AllocateAndSizeLabels(int *labelSize, int *size,
+                                     vtkViewport *viewport, float *range);
+
 private:
   vtkTextMapper *TitleMapper;
   vtkActor2D    *TitleActor;
 
-  vtkTextMapper **TextMappers;
   vtkActor2D    **TextActors;
 
   vtkPolyData         *ScalarBar;
@@ -190,8 +193,7 @@ private:
   int LastOrigin[2];
 
   void SizeTitle(int *titleSize, int *size, vtkViewport *viewport);
-  void AllocateAndSizeLabels(int *labelSize, int *size,
-                             vtkViewport *viewport, float *range);
+
 private:
   vtkScalarBarActor(const vtkScalarBarActor&);  // Not implemented.
   void operator=(const vtkScalarBarActor&);  // Not implemented.
