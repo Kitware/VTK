@@ -41,7 +41,7 @@
 #include "vtkTextureMapToPlane.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.84");
+vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.85");
 vtkStandardNewMacro(vtkImagePlaneWidget);
 
 vtkCxxSetObjectMacro(vtkImagePlaneWidget, PlaneProperty, vtkProperty);
@@ -1910,7 +1910,12 @@ void vtkImagePlaneWidget::UpdateCursor(int X, int Y )
     {
     return;
     }
-  this->ImageData->UpdateInformation();
+  // We're going to be extracting values with GetScalarComponentAsDouble(),
+  // we might as well make sure that the data is there.  If the data is
+  // up to date already, this call doesn't cost very much.  If we don't make
+  // this call and the data is not up to date, the GetScalar... call will
+  // cause a segfault.
+  this->ImageData->Update();
 
   vtkAssemblyPath *path;
   this->PlanePicker->Pick(X,Y,0.0,this->CurrentRenderer);
