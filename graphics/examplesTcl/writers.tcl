@@ -93,6 +93,7 @@ vtkBYUWriter byu
 vtkMCubesWriter mcubes
   mcubes SetInput [triangles GetOutput]
   mcubes SetFileName brain.tri
+  mcubes SetLimitsFileName brain.lim
   mcubes Write
 
 vtkSTLWriter stl
