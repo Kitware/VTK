@@ -181,7 +181,7 @@ static void ComputePointGradient(int i, int j, int k, T *s, int dims[3],
 //
 template <class T>
 static void ContourVolume(vtkMarchingCubes *self,T *scalars, int dims[3], 
-                          float origin[3], float Spacing[3],
+                          float Origin[3], float Spacing[3],
                           vtkPointLocator *locator, vtkScalars *newScalars, 
                           vtkVectors *newGradients, 
                           vtkNormals *newNormals, 
@@ -199,6 +199,7 @@ static void ContourVolume(vtkMarchingCubes *self,T *scalars, int dims[3],
   int ComputeScalars = newScalars != NULL;
   int NeedGradients;
   float t, *x1, *x2, x[3], *n1, *n2, n[3], min, max;
+  float Shift[3];
   float pts[8][3], gradients[8][3], xp, yp, zp;
   static int edges[12][2] = { {0,1}, {1,2}, {3,2}, {0,3},
                               {4,5}, {5,6}, {7,6}, {4,7},
@@ -221,6 +222,45 @@ static void ContourVolume(vtkMarchingCubes *self,T *scalars, int dims[3],
       max = values[i];
       }
     }
+
+  //create voxel points for a generic voxel
+  pts[0][0] = Origin[0];
+  pts[0][1] = Origin[1];
+  pts[0][2] = Origin[2];
+  xp = Origin[0] + Spacing[0];
+  yp = Origin[1] + Spacing[1];
+  zp = Origin[2] + Spacing[2];
+
+  pts[1][0] = xp;
+  pts[1][1] = pts[0][1];
+  pts[1][2] = pts[0][2];
+
+  pts[2][0] = xp;
+  pts[2][1] = yp;
+  pts[2][2] = pts[0][2];
+
+  pts[3][0] = pts[0][0];
+  pts[3][1] = yp;
+  pts[3][2] = pts[0][2];
+
+  pts[4][0] = pts[0][0];
+  pts[4][1] = pts[0][1];
+  pts[4][2] = zp;
+
+  pts[5][0] = xp;
+  pts[5][1] = pts[0][1];
+  pts[5][2] = zp;
+
+  pts[6][0] = xp;
+  pts[6][1] = yp;
+  pts[6][2] = zp;
+
+  pts[7][0] = pts[0][0];
+  pts[7][1] = yp;
+  pts[7][2] = zp;
+
+  NeedGradients = ComputeGradients || ComputeNormals;
+
 //
 // Traverse all voxel cells, generating triangles and point gradients
 // using marching cubes algorithm.
@@ -234,13 +274,11 @@ static void ContourVolume(vtkMarchingCubes *self,T *scalars, int dims[3],
       break;
       }
     kOffset = k*sliceSize;
-    pts[0][2] = origin[2] + k*Spacing[2];
-    zp = origin[2] + (k+1)*Spacing[2];
+    Shift[2] = k * Spacing[2];
     for ( j=0; j < (dims[1]-1); j++)
       {
       jOffset = j*dims[0];
-      pts[0][1] = origin[1] + j*Spacing[1];
-      yp = origin[1] + (j+1)*Spacing[1];
+      Shift[1] = j * Spacing[1];
       for ( i=0; i < (dims[0]-1); i++)
         {
         //get scalar values
@@ -262,39 +300,6 @@ static void ContourVolume(vtkMarchingCubes *self,T *scalars, int dims[3],
           continue; // no contours possible
           }
 
-        //create voxel points
-        pts[0][0] = origin[0] + i*Spacing[0];
-        xp = origin[0] + (i+1)*Spacing[0];
-
-        pts[1][0] = xp;
-        pts[1][1] = pts[0][1];
-        pts[1][2] = pts[0][2];
-
-        pts[2][0] = xp;
-        pts[2][1] = yp;
-        pts[2][2] = pts[0][2];
-
-        pts[3][0] = pts[0][0];
-        pts[3][1] = yp;
-        pts[3][2] = pts[0][2];
-
-        pts[4][0] = pts[0][0];
-        pts[4][1] = pts[0][1];
-        pts[4][2] = zp;
-
-        pts[5][0] = xp;
-        pts[5][1] = pts[0][1];
-        pts[5][2] = zp;
-
-        pts[6][0] = xp;
-        pts[6][1] = yp;
-        pts[6][2] = zp;
-
-        pts[7][0] = pts[0][0];
-        pts[7][1] = yp;
-        pts[7][2] = zp;
-
-        NeedGradients = ComputeGradients || ComputeNormals;
 
         //create gradients if needed
         if (NeedGradients)
@@ -308,6 +313,7 @@ static void ContourVolume(vtkMarchingCubes *self,T *scalars, int dims[3],
           ComputePointGradient(i+1,j+1,k+1, scalars, dims, sliceSize, Spacing, gradients[6]);
           ComputePointGradient(i,j+1,k+1, scalars, dims, sliceSize, Spacing, gradients[7]);
           }
+        Shift[0] = i * Spacing[0];
         for (contNum=0; contNum < numValues; contNum++)
           {
           value = values[contNum];
@@ -336,7 +342,7 @@ static void ContourVolume(vtkMarchingCubes *self,T *scalars, int dims[3],
               x2 = pts[vert[1]];
               for (jj=0; jj<3; jj++)
                 {
-                x[jj] = x1[jj] + t * (x2[jj] - x1[jj]);
+                x[jj] = Shift[jj] + x1[jj] + t * (x2[jj] - x1[jj]);
                 }
               // check for a new point
               if ( (ptIds[ii] = locator->IsInsertedPoint (x)) < 0)
@@ -396,7 +402,7 @@ void vtkMarchingCubes::Execute()
   vtkScalars *inScalars=pd->GetScalars();
   int dims[3];
   int estimatedSize;
-  float Spacing[3], origin[3];
+  float Spacing[3], Origin[3];
   float bounds[6];
   vtkPolyData *output = this->GetOutput();
   int numContours=this->ContourValues->GetNumberOfContours();
@@ -418,7 +424,7 @@ void vtkMarchingCubes::Execute()
     return;
     }
   input->GetDimensions(dims);
-  input->GetOrigin(origin);
+  input->GetOrigin(Origin);
   input->GetSpacing(Spacing);
 
   // estimate the number of points from the volume dimensions
@@ -433,8 +439,8 @@ void vtkMarchingCubes::Execute()
   // compute bounds for merging points
   for ( int i=0; i<3; i++)
     {
-    bounds[2*i] = origin[i];
-    bounds[2*i+1] = origin[i] + (dims[i]-1) * Spacing[i];
+    bounds[2*i] = Origin[i];
+    bounds[2*i+1] = Origin[i] + (dims[i]-1) * Spacing[i];
     }
   if ( this->Locator == NULL )
     {
@@ -463,7 +469,7 @@ void vtkMarchingCubes::Execute()
     }
 
   newPolys = vtkCellArray::New();
-  newPolys->Allocate(estimatedSize,estimatedSize/2);
+  newPolys->Allocate(newPolys->EstimateSize(2*estimatedSize,3));
 
   if (this->ComputeScalars)
     {
@@ -482,7 +488,7 @@ void vtkMarchingCubes::Execute()
       case VTK_CHAR:
         {
         char *scalars = ((vtkCharArray *)inScalars->GetData())->GetPointer(0);
-        ContourVolume(this,scalars,dims,origin,Spacing,this->Locator,
+        ContourVolume(this,scalars,dims,Origin,Spacing,this->Locator,
                       newScalars,newGradients,
                       newNormals,newPolys,values,numContours);
         }
@@ -490,7 +496,7 @@ void vtkMarchingCubes::Execute()
       case VTK_UNSIGNED_CHAR:
         {
         unsigned char *scalars = ((vtkUnsignedCharArray *)inScalars->GetData())->GetPointer(0);
-        ContourVolume(this,scalars,dims,origin,Spacing,this->Locator,
+        ContourVolume(this,scalars,dims,Origin,Spacing,this->Locator,
                       newScalars,newGradients,
                       newNormals,newPolys,values,numContours);
         }
@@ -498,7 +504,7 @@ void vtkMarchingCubes::Execute()
       case VTK_SHORT:
         {
         short *scalars = ((vtkShortArray *)inScalars->GetData())->GetPointer(0);
-        ContourVolume(this,scalars,dims,origin,Spacing,this->Locator,
+        ContourVolume(this,scalars,dims,Origin,Spacing,this->Locator,
                       newScalars,newGradients,
                       newNormals,newPolys,values,numContours);
         }
@@ -506,7 +512,7 @@ void vtkMarchingCubes::Execute()
       case VTK_UNSIGNED_SHORT:
         {
         unsigned short *scalars = ((vtkUnsignedShortArray *)inScalars->GetData())->GetPointer(0);
-        ContourVolume(this,scalars,dims,origin,Spacing,this->Locator,
+        ContourVolume(this,scalars,dims,Origin,Spacing,this->Locator,
                       newScalars,newGradients,
                       newNormals,newPolys,values,numContours);
         }
@@ -514,7 +520,7 @@ void vtkMarchingCubes::Execute()
       case VTK_INT:
         {
         int *scalars = ((vtkIntArray *)inScalars->GetData())->GetPointer(0);
-        ContourVolume(this,scalars,dims,origin,Spacing,this->Locator,
+        ContourVolume(this,scalars,dims,Origin,Spacing,this->Locator,
                       newScalars,newGradients,
                       newNormals,newPolys,values,numContours);
         }
@@ -522,7 +528,7 @@ void vtkMarchingCubes::Execute()
       case VTK_UNSIGNED_INT:
         {
         unsigned int *scalars = ((vtkUnsignedIntArray *)inScalars->GetData())->GetPointer(0);
-        ContourVolume(this,scalars,dims,origin,Spacing,this->Locator,
+        ContourVolume(this,scalars,dims,Origin,Spacing,this->Locator,
                       newScalars,newGradients,
                       newNormals,newPolys,values,numContours);
         }
@@ -530,7 +536,7 @@ void vtkMarchingCubes::Execute()
       case VTK_LONG:
         {
         long *scalars = ((vtkLongArray *)inScalars->GetData())->GetPointer(0);
-        ContourVolume(this,scalars,dims,origin,Spacing,this->Locator,
+        ContourVolume(this,scalars,dims,Origin,Spacing,this->Locator,
                       newScalars,newGradients,
                       newNormals,newPolys,values,numContours);
         }
@@ -538,7 +544,7 @@ void vtkMarchingCubes::Execute()
       case VTK_UNSIGNED_LONG:
         {
         unsigned long *scalars = ((vtkUnsignedLongArray *)inScalars->GetData())->GetPointer(0);
-        ContourVolume(this,scalars,dims,origin,Spacing,this->Locator,
+        ContourVolume(this,scalars,dims,Origin,Spacing,this->Locator,
                       newScalars,newGradients,
                       newNormals,newPolys,values,numContours);
         }
@@ -546,7 +552,7 @@ void vtkMarchingCubes::Execute()
       case VTK_FLOAT:
         {
         float *scalars = ((vtkFloatArray *)inScalars->GetData())->GetPointer(0);
-        ContourVolume(this,scalars,dims,origin,Spacing,this->Locator,
+        ContourVolume(this,scalars,dims,Origin,Spacing,this->Locator,
                       newScalars,newGradients,
                       newNormals,newPolys,values,numContours);
         }
@@ -554,7 +560,7 @@ void vtkMarchingCubes::Execute()
       case VTK_DOUBLE:
         {
         double *scalars = ((vtkDoubleArray *)inScalars->GetData())->GetPointer(0);
-        ContourVolume(this,scalars,dims,origin,Spacing,this->Locator,
+        ContourVolume(this,scalars,dims,Origin,Spacing,this->Locator,
                       newScalars,newGradients,
                       newNormals,newPolys,values,numContours);
         }
@@ -569,7 +575,7 @@ void vtkMarchingCubes::Execute()
     inScalars->GetScalars(0,dataSize,image);
 
     float *scalars = ((vtkFloatArray *)image->GetData())->GetPointer(0);
-    ContourVolume(this,scalars,dims,origin,Spacing,this->Locator,
+    ContourVolume(this,scalars,dims,Origin,Spacing,this->Locator,
                   newScalars,newGradients,
                   newNormals,newPolys,values,numContours);
     image->Delete();
@@ -655,7 +661,8 @@ void vtkMarchingCubes::PrintSelf(ostream& os, vtkIndent indent)
 
   if ( this->Locator )
     {
-    os << indent << "Locator: " << this->Locator << "\n";
+    os << indent << "Locator:" << this->Locator << "\n";
+    this->Locator->PrintSelf(os,indent.GetNextIndent());
     }
   else
     {
