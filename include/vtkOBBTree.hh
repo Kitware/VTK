@@ -53,6 +53,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // is found that (approximately) divides the number cells in half. These are 
 // then assigned to the children OBB's. This process then continues until
 // the MaxLevel ivar limits the recursion, or no split plane can be found.
+//
+// A good reference for OBB-trees is Gottschalk & Manocha in Proceedings of 
+// Siggraph `96.
 
 // .SECTION Caveats
 // Since this algorithms works from a list of cells, the OBB tree will only 
