@@ -3,58 +3,108 @@ VTK Tcl wrappers
 
 Using VTK inside Tcl/Tk is a two step process :
 
+  I) Invoking the VTK Tcl package
+ II) Invoking the 'generic interactor' package
+III) Invoking the 'vtkTkRenderWidget bindings' package
+ IV) Installing the package index file
+
+
 =============================
-I) Load the 'vtktcl' package by issuing the following command before any invocation of a VTK function (typically at the top of your Tcl script) :
+  I) Invoking the VTK Tcl package
+
+Load the 'vtktcl' package by issuing the following command before any invocation of a VTK function (typically at the top of your Tcl script):
 
         package require vtktcl
 
-NOTE: the previous VTK version was built such that the Tcl wrappers were stored in a single DLL (i.e. shared library) file. Windows users were accustomed to issue 'catch { load vtktcl }' in their Tcl scripts to load the VTK commands inside the Tcl interpreter. The Tcl wrappers are now split in numerous DLL files. Unless a compatibility path is found, you will have to replace any 'catch { load vtktcl }' with the line presented above. A Tcl or Perl script might be posted later to automate this task.
+MIGRATION NOTE: the previous VTK version was built such that the Tcl wrappers were stored in a single DLL (i.e. shared library) file. Windows users were accustomed to issue 'catch { load vtktcl }' in their Tcl scripts to load the VTK commands inside the Tcl interpreter. The Tcl wrappers are now split in numerous DLL files. Upgrade your scripts by replacing any 'catch { load vtktcl }' with the line presented above.
+
 
 =============================
-II) Install the package :
+ II) Invoking the 'generic interactor' package
+
+The following package can be loaded to create a generic interactor inside a console widget:
+
+        package require vtktcl_interactor
+
+It will allow you to issue any Tcl commands while running the Tcl script. Once loaded, a hidden .vtkInteract widget is created. Bind a key or set the user method of a vtkRenderWindowInteractor to deiconify that widget:
+
+vtkRenderWindowInteractor iren
+    [...]
+    iren SetUserMethod {wm deiconify .vtkInteract}
+
+Have a look at Examples/GUI/Tcl/Mace.tcl too.
+
+NOTE: loading that package will indeed load the vtktcl package too.
+
+
+=============================
+III) Invoking the 'vtkTkRenderWidget bindings' package
+
+For these of us familiar with the good old vtkTkRenderWidget, the following package can be loaded to bring a set of useful bindings:
+        package require vtktcl_interactor
+
+It will allow you to use the Tk widget much like a usual VTK interactor. Once loaded, call BindTkRenderWidget to associate the bindings to the render widget:
+
+set ren [vtkTkRenderWidget .ren -width 300 -height 300 -rw renWin]
+BindTkRenderWidget $ren
+
+Have a look at Examples/GUI/Tcl/MaceTk.tcl too.
+
+NOTE: loading that package will indeed load the vtktcl AND the vtktcl_interactor packages too. It will bind the 'u' key to the interactor.
+
+
+=============================
+ IV) Installing the package index file
 
 A good description of the package and library facilities is given in the Chapter 12 "Script, Libraries and Packages" (page 135) of "Practical Programming in Tcl & Tk", Brent B. Welch, ISBN 0-13-616830-2.
 
-When a package is "required" by the 'package' command (see part I), the Tcl interpreter looks through a set of directories and their subdirectories for pkgIndex.tcl files. It sources those to build an internal database of packages (and version information).
+When a package is "required" by the 'package' command (see part I to III), the Tcl interpreter looks through a set of directories and their subdirectories for pkgIndex.tcl files. It sources those to build an internal database of packages (and version information).
 
-A pkgIndex.tcl file has been included in this VTK distribution to provide the 'vtktcl' package to the interpreter. It will load the DLLs, set some default behaviours and exits with an error message if the package could not be provided (DLL not found, for example).
+A pkgIndex.tcl file has been included in this VTK distribution to provide the packages described in the previous sections to the interpreter. It will load the DLLs, set some default behaviours, bindings, widgets and exits with an error message if the package could not be provided (DLL not found, for example).
 
 The package facility assume that Tcl libraries (and packages) are kept in well-known directories (and their subdirectories). The list of well-known directories is kept in the auto_path Tcl variable. This is initialized by tclsh or wish to include many default directories, including the default Tcl script library directory. For example :
 
 Windows:
+
 % puts $auto_path
 C:/devel/langages/tcl/8.3/lib/tcl8.3 C:/devel/langages/tcl/8.3/lib C:/devel/langages/tcl/8.3/lib/tk8.3
 
 Linux/Unix:
+
 root [1003] ~/tmp# wish
 % puts $auto_path
 /usr/lib/tcl8.3 /usr/lib /usr/lib/tk8.3
 
 Now let's see how we can make Tcl aware of the vtktcl package. Two different ways :
 
-o) EITHER copy the pkgIndex.tcl file :
+o) EITHER modify the TCLLIBPATH :
+
+This is the way to go, especially for developpers :) Tcl provides a way for you to tell the Tcl interpreter to search for pkgIndex.tcl files in any user-specified directory. Just set the TCLLIBPATH environment variable to a set of space-separated directories to search in (warning: Windows users shall use '/' instead of '\'). If you store the VTK sources on your hard disk or if you use the CVS, add the directory holding the pkgIndex.tcl file (Wrapping/Tcl) to TCLLIBPATH. For example :
+
+Windows:
+
+TCLLIBPATH=S:/src/vtk/vtknew/Wrapping/Tcl
+
+Now check auto_path :
+
+% puts $auto_path
+S:/src/vtk/vtknew/Wrapping/Tcl C:/devel/langages/tcl/8.3/lib/tcl8.3 C:/devel/langages/tcl/8.3/lib C:/devel/langages/tcl/8.3/lib/tk8.3
+
+Linux/Unix:
+
+root [1011] ~/tmp# export TCLLIBPATH=/usr/lib/vtk3.3
+root [1012] ~/tmp# wish
+% puts $auto_path
+/usr/lib/vtk3.3 /usr/lib/tcl8.3 /usr/lib /usr/lib/tk8.3
+
+
+o) OR copy the pkgIndex.tcl file :
 
 - locate your Tcl install directory (see auto_path) and the lib directory (typically "C:/Program Files/Tcl/lib" or, in my example, "C:/devel/langages/tcl/8.3/lib" for Windows, /usr/lib for Linux/Unix).
 - create whatever directory inside the lib directory (for example C":/Program Files/Tcl/lib/vtktcl" for Windows, /usr/lib/vtk3.3 for Linux/Unix).
 - copy the pkgIndex.tcl file to this directory.
 
 That's it. As the subdirectories inside the lib directory are browsed too, the pkgIndex.tcl file will be found and interpreted. The major disadvantage of this method is that you will have to keep this file up-to-date with modifications made to the pkgIndex.tcl file provided by subsequent VTK distribution (but most probably the VTK binary installer will copy the pkgIndex.tcl file for you).
-
-o) OR Modify the TCLLIBPATH :
-
-This is the way to go, especially for developpers :) Tcl provides a way for you to tell the Tcl interpreter to search for pkgIndex.tcl files in any user-specified directory. Just set the TCLLIBPATH environment variable to a set of space-separated directories to search in (warning: Windows users shall use '/' instead of '\'). If you store the VTK sources on your hard disk or if you use the CVS, add the directory holding the pkgIndex.tcl file (Wrapping/Tcl) to TCLLIBPATH. For example :
-
-Windows:
-TCLLIBPATH=S:/src/vtk/vtknew/Wrapping/Tcl
-Now check auto_path :
-% puts $auto_path
-S:/src/vtk/vtknew/Wrapping/Tcl C:/devel/langages/tcl/8.3/lib/tcl8.3 C:/devel/langages/tcl/8.3/lib C:/devel/langages/tcl/8.3/lib/tk8.3
-
-Linux/Unix:
-root [1011] ~/tmp# export TCLLIBPATH=/usr/lib/vtk3.3
-root [1012] ~/tmp# wish
-% puts $auto_path
-/usr/lib/vtk3.3 /usr/lib/tcl8.3 /usr/lib /usr/lib/tk8.3
 
 
 This shall do the trick :))
