@@ -22,7 +22,7 @@ What you should do:
 
 - Add the path to your build-dir bin/ directory to your PATH environment variable, so these C++ and Tcl DLL can be found (if any).
 
-- Add the path to your vtkMy/Wrapping/Tcl directory to your TCLLIBPATH environment variable. Windows users should use forward slashes (/) instead of the usual backward slashes (\), and should surround the path by quotes (") if it contains any space.
+- Add the path to your vtkMy/Wrapping/Tcl directory to your TCLLIBPATH environment variable. TCLLIBPATH is a space separated set of paths to Tcl libraries. Windows users should use forward slashes (/) instead of the usual backward slashes (\), and should surround the path by quotes (") if it contains any space.
 
 Distribute or exchange your modules:
 ------------------------------------
