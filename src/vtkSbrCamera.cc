@@ -43,133 +43,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkSbrRenderWindow.hh"
 #include "vtkSbrRenderer.hh"
 
-void rotate(int fd, float Cosine,float Sine, char axis)
-{
-  static float tform[4][4] = {{1,0,0,0}, {0,1,0,0}, {0,0,1,0}, {0,0,0,1}};
-  int i,j;
-
-  for (i = 0; i < 3; i++)
-    {
-    for (j = 0; j < 3; j++)
-      {
-       if (j == i) tform[i][j] = 1.0;
-       else tform[i][j] = 0.0;
-      }
-    }
-
-  switch (axis)
-    {
-  case 'x' :
-  case 'X' : 
-    tform[1][1] = Cosine;
-    tform[2][2] = tform[1][1];
-    tform[1][2] = Sine;
-    tform[2][1] = -tform[1][2];
-    break;
-  case 'y' :
-  case 'Y' : 
-    tform[0][0] = Cosine;
-    tform[2][2] = tform[0][0];
-    tform[2][0] = Sine;
-    tform[0][2] = -tform[2][0];
-    break;
-  case 'z' :
-  case 'Z' : 
-    tform[0][0] = Cosine;
-    tform[1][1] = tform[0][0];
-    tform[0][1] = Sine;
-    tform[1][0] = -tform[0][1];
-    break;
-    }
-  
-  view_matrix3d(fd, tform, PRE_CONCAT_VW);
-}
-
-void translate(int fd, float x, float y, float z)
-{
-  static float tform[4][4] = {{1,0,0,0}, {0,1,0,0}, {0,0,1,0}, {0,0,0,1}};
-
-  tform[3][0] = x;
-  tform[3][1] = y;
-  tform[3][2] = z;
-
-  view_matrix3d(fd, tform, PRE_CONCAT_VW);
-}
-
-void kens_view_volume(int fd, float left, float right, float bottom, 
-		      float top, float nearz, float farz)
-{
-  static float tform[4][4] = {{1,0,0,0}, {0,1,0,0}, {0,0,1,0}, {0,0,0,1}};
-
-  tform[0][0] = 2.0*nearz/(right-left);
-  tform[1][1] = 2.0*nearz/(top-bottom);
-  tform[2][0] = (right+left)/(right-left);
-  tform[2][1] = (top+bottom)/(top-bottom);
-  tform[2][2] = -0.5*(farz+nearz)/(farz-nearz) - 0.5;
-  tform[2][3] = -1.0;
-  tform[3][2] = -1.0*farz*nearz/(farz-nearz);
-  tform[3][3] = 0.0;
-
-  view_matrix3d(fd, tform, REPLACE_VW);
-}
-
-void lookat(int fd, float vx,float vy,float vz,float px,float py,float pz,
-	    float twist)
-{
-  float mag;
-  
-  rotate(fd,cos(-1.0*twist),sin(-1.0*twist),'z');
-  
-  mag = sqrt((pz-vz)*(pz-vz) + (py-vy)*(py-vy) + (px-vx)*(px-vx));
-  if (mag != 0)
-    rotate(fd,sqrt((px-vx)*(px-vx) + (pz-vz)*(pz-vz))/mag,(vy-py)/mag,'x');
-  
-  mag = sqrt((pz-vz)*(pz-vz) + (px-vx)*(px-vx));
-  if (mag != 0)
-    {
-    rotate(fd, (vz-pz)/mag, (px-vx)/mag, 'y');
-    }
-  else
-    {
-    if (py < vy)
-      {
-      rotate(fd, 1, 0, 'y');
-      }
-    else
-      {
-      rotate(fd, -1, 0, 'y');
-      }
-    }
-
-  translate(fd,-vx,-vy,-vz);
-
-  viewpoint(fd,POSITIONAL,vx,vy,vz);
-}
-
-/* bonus stereo perspective function - from manual */
-void stereopersp(int fd, float fovy, float aspect, float near, 
-		 float far, float conv, float eye)
-{
-  float left, right, top, bottom;
-  float gltan;
-
-  eye = tan(eye*3.1415926/180.0)*conv;
-  gltan = tan(fovy*M_PI/360.0);
-  top = gltan*near;
-  bottom = -top;
-
-  gltan = tan(fovy*aspect*M_PI/360.0);
-  left = bottom*aspect - eye/conv*near;
-  right = top*aspect - eye/conv*near;
-
-  kens_view_volume(fd,left,right,bottom,top,near,far);
-
-  /* now translate */
-  translate(fd, -eye, 0, 0);
-}
-
-
-
 
 // Description:
 // Implement base class method.
@@ -185,7 +58,6 @@ void vtkSbrCamera::Render(vtkCamera *cam, vtkSbrRenderer *ren)
   float aspect[3];
   float viewport[4];
   float *background;
-  float twist;
   int stereo;
   int fd;
   int *size;
@@ -193,8 +65,8 @@ void vtkSbrCamera::Render(vtkCamera *cam, vtkSbrRenderer *ren)
   vtkSbrRenderWindow *rw;
   float view_size[2];
   float vdc_vals[6];
-  float *Position, *FocalPoint, *ClippingRange;
   fd = ren->GetFd();
+  vtkMatrix4x4 matrix;
 
   // get the background color
   background = ren->GetBackground();
@@ -202,9 +74,9 @@ void vtkSbrCamera::Render(vtkCamera *cam, vtkSbrRenderer *ren)
   rw = (vtkSbrRenderWindow*)(ren->GetRenderWindow());
   size = rw->GetSize();
   screen_size = rw->GetScreenSize();
-  // find out if we should stereo render
-  stereo = rw->GetStereoRender();
 
+  // find out if we should stereo render
+  stereo = cam->GetStereo();
 
   // set this renderer's viewport, must turn off z-buffering when changing
   // viewport
@@ -241,7 +113,6 @@ void vtkSbrCamera::Render(vtkCamera *cam, vtkSbrRenderer *ren)
   vdc_vals[1] = vdc_vals[4] - 2.0*screen_size[1]/view_size[1];
   vdc_vals[2] = 0;
   vdc_vals[5] = 1.0;
-
 
   // make sure the aspect is up to date
   if (stereo)
@@ -306,45 +177,11 @@ void vtkSbrCamera::Render(vtkCamera *cam, vtkSbrRenderer *ren)
   hidden_surface(fd, TRUE, FALSE);
   vtkDebugMacro(<< " SB_hidden_surface: True False\n");
 
-  twist = cam->GetTwist();
-
-  ClippingRange = cam->GetClippingRange();
-  Position = cam->GetPosition();
-  FocalPoint = cam->GetFocalPoint();
-  if (stereo)
-    {
-    if (cam->GetLeftEye())
-      {
-      stereopersp(fd,cam->GetViewAngle(), aspect[0] / aspect[1],
-		  ClippingRange[0],ClippingRange[1],
-		  cam->GetDistance(),-1.0*cam->GetEyeAngle());
-      }
-    else
-      {
-      stereopersp(fd,cam->GetViewAngle(), aspect[0] / aspect[1],
-		  ClippingRange[0],ClippingRange[1],
-		  cam->GetDistance(),1.0*cam->GetEyeAngle());
-      }
-
-    lookat(fd,Position[0], Position[1], Position[2], 
-	   FocalPoint[0], FocalPoint[1], FocalPoint[2],twist);
-    }
-  else
-    {
-    stereopersp(fd,cam->GetViewAngle(), aspect[0] / aspect[1],
-		ClippingRange[0],ClippingRange[1],
-		cam->GetDistance(),0.0);
-
-    lookat(fd,Position[0], Position[1], Position[2], 
-	   FocalPoint[0], FocalPoint[1], FocalPoint[2],twist);
-    }
-
-  clip_depth(fd,0.0,ClippingRange[1]);
-
-  // if we have a stereo renderer, draw other eye next time 
-  if (stereo)
-    {
-    if (cam->GetLeftEye()) cam->SetLeftEye(0);
-    else cam->SetLeftEye(1);
-    }
+  matrix = cam->GetCompositePerspectiveTransform(aspect[0]/aspect[1],0,1);
+  matrix.Transpose();
+ 
+  // insert model transformation 
+  view_matrix3d(fd, (float (*)[4])(matrix[0]),REPLACE_VW);
+  
+  clip_depth(fd,0.0,1.0);
 }
