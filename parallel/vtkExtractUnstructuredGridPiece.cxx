@@ -77,8 +77,6 @@ void vtkExtractUnstructuredGridPiece::ComputeInputUpdateExtents(vtkDataObject *o
 
 void vtkExtractUnstructuredGridPiece::ExecuteInformation()
 {
-  vtkUnstructuredGrid *output = this->GetOutput();
-  
   if (this->GetInput() == NULL)
     {
     vtkErrorMacro("Missing input");

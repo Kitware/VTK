@@ -228,7 +228,7 @@ void vtkConnectivityFilter::Execute()
     else if ( this->ExtractionMode == VTK_EXTRACT_CLOSEST_POINT_REGION )
       {//loop over points, find closest one
       float minDist2, dist2, x[3];
-      int minId;
+      int minId = 0;
       for (minDist2=VTK_LARGE_FLOAT, i=0; i<numPts; i++)
         {
         input->GetPoint(i,x);

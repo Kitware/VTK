@@ -78,8 +78,6 @@ void vtkExtractPolyDataPiece::ComputeInputUpdateExtents(vtkDataObject *out)
 
 void vtkExtractPolyDataPiece::ExecuteInformation()
 {
-  vtkPolyData *output = this->GetOutput();
-  
   if (this->GetInput() == NULL)
     {
     vtkErrorMacro("Missing input");

@@ -144,7 +144,7 @@ void vtkClipPolyData::Execute()
   int numberOfPoints;
   vtkPointData *inPD=input->GetPointData(), *outPD = output->GetPointData();
   vtkCellData *inCD=input->GetCellData(), *outCD = output->GetCellData();
-  vtkCellData *outClippedCD;
+  vtkCellData *outClippedCD = NULL;
   
   vtkDebugMacro(<< "Clipping polygonal data");
   

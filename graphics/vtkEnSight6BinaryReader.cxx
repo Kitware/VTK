@@ -675,7 +675,7 @@ int vtkEnSight6BinaryReader::ReadScalarsPerElement(char* fileName, char* descrip
     // type (and what their ids are) -- IF THIS IS NOT A BLOCK SECTION
     if (strcmp(line, "block") != 0)
       {
-      while (lineRead = this->ReadLine(line) &&
+      while ((lineRead = this->ReadLine(line)) &&
              strncmp(line, "part", 4) != 0)
         {
         elementType = this->GetElementType(line);
@@ -790,7 +790,7 @@ int vtkEnSight6BinaryReader::ReadVectorsPerElement(char* fileName,
     // type (and what their ids are) -- IF THIS IS NOT A BLOCK SECTION
     if (strcmp(line, "block") != 0)
       {
-      while (lineRead = this->ReadLine(line) &&
+      while ((lineRead = this->ReadLine(line)) &&
              strncmp(line, "part", 4) != 0)
         {
         elementType = this->GetElementType(line);
@@ -904,7 +904,7 @@ int vtkEnSight6BinaryReader::ReadTensorsPerElement(char* fileName,
     // type (and what their ids are) -- IF THIS IS NOT A BLOCK SECTION
     if (strcmp(line, "block") != 0)
       {
-      while (lineRead = this->ReadLine(line) &&
+      while ((lineRead = this->ReadLine(line)) &&
              strncmp(line, "part", 4) != 0)
         {
         elementType = this->GetElementType(line);

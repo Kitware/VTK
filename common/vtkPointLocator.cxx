@@ -194,7 +194,8 @@ int vtkPointLocator::FindClosestPoint(float x, float y, float z)
 int vtkPointLocator::FindClosestPoint(const float x[3])
 {
   int i, j;
-  float minDist2, dist2;
+  float minDist2;
+  float dist2 = VTK_LARGE_FLOAT;
   float *pt;
   int closest, level;
   int ptId, cno;

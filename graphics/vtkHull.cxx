@@ -715,7 +715,6 @@ void vtkHull::ClipPolygonsFromPlanes( vtkPoints *outPoints,
 
 void vtkHull::CreateInitialPolygon( double *verts, int i, float *bounds)
 {
-  vtkPolyData    *input       = this->GetInput();
   double         center[3], d, planeCenter[3];
   double         v1[3], v2[3], norm, dotProduct;
   int            j;

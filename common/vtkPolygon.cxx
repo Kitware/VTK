@@ -658,7 +658,6 @@ vtkPolyVertexList::vtkPolyVertexList(vtkIdList *ptIds, vtkPoints *pts,
   for (vtx=this->Head, i=0; i<numVerts; i++)
     {
     next = vtx->next;
-    float d2 = vtkMath::Distance2BetweenPoints(vtx->x,next->x);
     if ( vtkMath::Distance2BetweenPoints(vtx->x,next->x) < tol2 )
       {
       next->next->previous = vtx;

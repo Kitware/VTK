@@ -408,9 +408,11 @@ void vtkStructuredGrid::GetCell(int cellId, vtkGenericCell *cell)
 // constructing a cell.
 void vtkStructuredGrid::GetCellBounds(int cellId, float bounds[6])
 {
-  int idx;
+  int idx = 0;
   int i, j, k;
-  int d01, offset1, offset2;
+  int d01;
+  int offset1 = 0;
+  int offset2 = 0;
   float x[3];
   
   bounds[0] = bounds[2] = bounds[4] =  VTK_LARGE_FLOAT;

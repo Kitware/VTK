@@ -78,7 +78,7 @@ public:
 
   // Description:
   // Set the number of facets used to represent the cone.
-  vtkSetClampMacro(Resolution,int,0,VTK_CELL_SIZE)
+  vtkSetClampMacro(Resolution,int,1,VTK_CELL_SIZE)
   vtkGetMacro(Resolution,int);
 
   // Description:

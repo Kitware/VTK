@@ -120,7 +120,8 @@ void vtkFieldData::Initialize()
 // Allocate data for each array.
 int vtkFieldData::Allocate(const int sz, const int ext)
 {
-  int i, status;
+  int i;
+  int status = 0;
   
   for ( i=0; i < this->NumberOfArrays; i++ )
     {

@@ -157,7 +157,8 @@ void vtkPointLocator2D::FreeSearchStructure()
 int vtkPointLocator2D::FindClosestPoint(float x[2])
 {
   int i, j;
-  float minDist2, dist2;
+  float minDist2;
+  float dist2 = VTK_LARGE_FLOAT;
   float *pt;
   int closest, level;
   int ptId, cno;

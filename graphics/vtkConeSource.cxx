@@ -109,6 +109,11 @@ void vtkConeSource::Execute()
     {
     angle = 2.0*3.141592654/this->Resolution;
     }
+  else
+    {
+    vtkErrorMacro (<<"Resolution is zero!");
+    angle = 0.0;
+    }
   //
   // Set things up; allocate memory
   //

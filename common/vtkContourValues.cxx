@@ -123,7 +123,7 @@ void vtkContourValues::SetNumberOfContours(const int number)
   int    currentNumber = this->Contours->GetMaxId()+1;
   int    n = ( number < 0 ? 0 : number);
   int    i;
-  float  *oldValues;
+  float  *oldValues = NULL;
 
   if ( n != currentNumber )
     {

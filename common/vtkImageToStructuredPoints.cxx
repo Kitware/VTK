@@ -141,7 +141,10 @@ void vtkImageToStructuredPoints::Execute()
   int uExtent[6];
   int *wExtent;
 
-  int idxX, idxY, idxZ, maxX, maxY, maxZ;
+  int idxX, idxY, idxZ;
+  int maxX = 0;
+  int maxY = 0;
+  int maxZ = 0;;
   int inIncX, inIncY, inIncZ, rowLength;
   unsigned char *inPtr1, *inPtr, *outPtr;
   vtkStructuredPoints *output = this->GetOutput();

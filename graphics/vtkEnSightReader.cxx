@@ -1284,7 +1284,7 @@ void vtkEnSightReader::SetCaseFileName(char* fileName)
     }
   
   // strip off the path and save it as FilePath if it was included in the filename
-  if (endingSlash = strrchr(this->CaseFileName, '/'))
+  if ((endingSlash = strrchr(this->CaseFileName, '/')))
     {
     position = endingSlash - this->CaseFileName + 1;
     path = new char[position + 1];

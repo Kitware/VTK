@@ -199,7 +199,7 @@ int vtkDataArray::InsertNextTuple(const double * tuple)
 unsigned long vtkDataArray::GetActualMemorySize()
 {
   unsigned long numPrims;
-  float size;
+  float size = 0.0;
   numPrims = this->GetNumberOfTuples() * this->GetNumberOfComponents();
 
   switch (this->GetDataType())
