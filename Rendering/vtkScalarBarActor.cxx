@@ -27,8 +27,9 @@
 #include "vtkTextProperty.h"
 #include "vtkViewport.h"
 #include "vtkWindow.h"
+#include "vtkLogLookupTable.h"
 
-vtkCxxRevisionMacro(vtkScalarBarActor, "1.47");
+vtkCxxRevisionMacro(vtkScalarBarActor, "1.48");
 vtkStandardNewMacro(vtkScalarBarActor);
 
 vtkCxxSetObjectMacro(vtkScalarBarActor,LookupTable,vtkScalarsToColors);
@@ -243,9 +244,11 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
       delete [] this->TextActors;
       }
 
-    // Build scalar bar object
+    // Build scalar bar object; determine its type
     //
     vtkScalarsToColors *lut = this->LookupTable;
+    int isLogTable = lut->IsA("vtkLogLookupTable");
+    
     // we hard code how many steps to display
     int numColors = this->MaximumNumberOfColors;
     float *range = lut->GetRange();
@@ -281,7 +284,6 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
     this->LastSize[1] = size[1];
     
     // Update all the composing objects
-    
     this->TitleActor->SetProperty(this->GetProperty());
     this->TitleMapper->SetInput(this->Title);
     if (this->TitleTextProperty->GetMTime() > this->BuildTime)
@@ -348,8 +350,18 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
       ptIds[3] = ptIds[0] + 2;
       polys->InsertNextCell(4,ptIds);
 
-      rgba = lut->MapValue(range[0] + (range[1] - range[0])*
-                           ((float)i /(numColors-1.0)));
+      if ( isLogTable )
+        {
+        float rgbval = log10(range[0]) + 
+          i*(log10(range[1])-log10(range[0]))/(numColors -1);
+        rgba = lut->MapValue(pow(10,rgbval));
+        }
+      else
+        {
+        rgba = lut->MapValue(range[0] + (range[1] - range[0])*
+                             ((float)i /(numColors-1.0)));
+        }
+
       rgb = colors->GetPointer(3*i); //write into array directly
       rgb[0] = rgba[0];
       rgb[1] = rgba[1];
@@ -509,12 +521,25 @@ void vtkScalarBarActor::AllocateAndSizeLabels(int *labelSize,
   // their underlying text properties (i.e. each time a mapper is
   // created, text properties are created and shallow-assigned a font size
   // which value might be "far" from the target font size).
-  
+
+  vtkScalarsToColors *lut = this->LookupTable;
+  int isLogTable = lut->IsA("vtkLogLookupTable");
+
   for (i=0; i < this->NumberOfLabels; i++)
     {
     this->TextMappers[i] = vtkTextMapper::New();
 
-    val = range[0] + (float)i/(this->NumberOfLabels-1) * (range[1]-range[0]);
+    if ( isLogTable )
+      {
+      float lval = log10(range[0]) + (float)i/(this->NumberOfLabels-1) *
+        (log10(range[1])-log10(range[0]));
+      val = pow(10,lval);
+      }
+    else
+      {
+      val = range[0] + (float)i/(this->NumberOfLabels-1) * (range[1]-range[0]);
+      }
+
     sprintf(string, this->LabelFormat, val);
     this->TextMappers[i]->SetInput(string);
 
