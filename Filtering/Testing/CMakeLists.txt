@@ -9,6 +9,7 @@ IF(PYTHON_EXECUTABLE)
            ${VTK_SOURCE_DIR}/Common/Testing/HeaderTesting.py
            "${VTK_SOURCE_DIR}/Filtering"
            vtkActor2DCollection.h
+           vtkAMRBox.h
            vtkApplyFilterCommandInternal.h
            vtkCellType.h
            vtkDataSetCollection.h

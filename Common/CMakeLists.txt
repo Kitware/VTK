@@ -281,7 +281,6 @@ ENDIF(LOCALUSERMACRODEFINED)
 # -----------------------------------------------------------------
 
 INSTALL_FILES(/include/vtk .h
-  vtkAMRBox
   vtkDataArrayTemplate
   vtkIOStream
   vtkIOStreamFwd
