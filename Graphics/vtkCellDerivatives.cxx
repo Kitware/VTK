@@ -107,6 +107,7 @@ void vtkCellDerivatives::Execute()
       }
     outVectors = vtkVectors::New();
     outVectors->SetNumberOfVectors(numCells);
+    outVectors->GetData()->SetName("Vorticity");
     outCD->SetVectors(outVectors);
     outVectors->Delete(); //okay reference counted
     outCD->CopyVectorsOff();
@@ -121,6 +122,7 @@ void vtkCellDerivatives::Execute()
     {
     outTensors = vtkTensors::New();
     outTensors->SetNumberOfTensors(numCells);
+    outTensors->GetData()->SetName("Tensors");
     outCD->SetTensors(outTensors);
     outTensors->Delete(); //okay reference counted
     outCD->CopyTensorsOff();
@@ -134,8 +136,10 @@ void vtkCellDerivatives::Execute()
     int cellId;
     vtkScalars *cellScalars=vtkScalars::New(); 
     cellScalars->Allocate(VTK_CELL_SIZE);
+    cellScalars->GetData()->SetName("Scalars");
     vtkVectors *cellVectors=vtkVectors::New(); 
     cellVectors->Allocate(VTK_CELL_SIZE);
+    cellVectors->GetData()->SetName("Vectors");
     vtkTensor *tens = vtkTensor::New();
 
     // Loop over all cells computing derivatives

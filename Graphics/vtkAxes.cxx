@@ -93,9 +93,12 @@ void vtkAxes::Execute()
   newLines->Allocate(newLines->EstimateSize(numLines,2));
   newScalars = vtkFloatArray::New();
   newScalars->Allocate(numPts);
+  newScalars->SetName("Axes");
   newNormals = vtkFloatArray::New();
   newNormals->SetNumberOfComponents(3);
   newNormals->Allocate(numPts);
+  newNormals->SetName("Normals");
+  
 //
 // Create axes
 //

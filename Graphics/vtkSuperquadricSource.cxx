@@ -244,8 +244,10 @@ void vtkSuperquadricSource::Execute()
   newPoints->Allocate(numPts);
   newNormals = vtkNormals::New();
   newNormals->Allocate(numPts);
+  newNormals->GetData()->SetName("Normals");
   newTCoords = vtkTCoords::New();
   newTCoords->Allocate(numPts);
+  newTCoords->GetData()->SetName("TextureCoords");
 
   newPolys = vtkCellArray::New();
   newPolys->Allocate(newPolys->EstimateSize(numStrips,ptsPerStrip));

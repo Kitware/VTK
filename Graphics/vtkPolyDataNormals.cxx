@@ -228,6 +228,7 @@ void vtkPolyDataNormals::Execute()
   //
   this->PolyNormals = vtkNormals::New();
   this->PolyNormals->Allocate(numPolys);
+  this->PolyNormals->GetData()->SetName("Normals");
   this->PolyNormals->SetNumberOfNormals(numPolys);
 
   for (cellId=0, newPolys->InitTraversal(); newPolys->GetNextCell(npts,pts); 
@@ -313,6 +314,7 @@ void vtkPolyDataNormals::Execute()
 
   newNormals = vtkNormals::New();
   newNormals->SetNumberOfNormals(numNewPts);
+  newNormals->GetData()->SetName("Normals");
   n[0] = n[1] = n[2] = 0.0;
   for (i=0; i < numNewPts; i++)
     {
