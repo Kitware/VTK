@@ -97,7 +97,7 @@ void vtkCleanPolyData::Execute()
   // Begin to adjust topology.
   //
   // Vertices are renumbered and we remove duplicate vertices
-  if ( inVerts->GetNumberOfCells() > 0 )
+  if ( !this->GetAbortExecute() && inVerts->GetNumberOfCells() > 0 )
     {
     newVerts = vtkCellArray::New();
     newVerts->Allocate(inVerts->GetSize());
@@ -125,7 +125,7 @@ void vtkCleanPolyData::Execute()
   this->UpdateProgress(0.25);
 
   // lines reduced to one point are eliminated
-  if ( inLines->GetNumberOfCells() > 0 )
+  if ( !this->GetAbortExecute() && inLines->GetNumberOfCells() > 0 )
     {
     newLines = vtkCellArray::New();
     newLines->Allocate(inLines->GetSize());
@@ -160,7 +160,7 @@ void vtkCleanPolyData::Execute()
   this->UpdateProgress(0.50);
 
   // polygons reduced to two points or less are eliminated
-  if ( inPolys->GetNumberOfCells() > 0 )
+  if ( !this->GetAbortExecute() && inPolys->GetNumberOfCells() > 0 )
     {
     newPolys = vtkCellArray::New();
     newPolys->Allocate(inPolys->GetSize());
@@ -200,7 +200,7 @@ void vtkCleanPolyData::Execute()
   this->UpdateProgress(0.75);
 
   // triangle strips reduced to two points or less are eliminated
-  if ( inStrips->GetNumberOfCells() > 0 ) 
+  if ( !this->GetAbortExecute() && inStrips->GetNumberOfCells() > 0 ) 
     {
     newStrips = vtkCellArray::New();
     newStrips->Allocate(inStrips->GetSize());
