@@ -22,7 +22,7 @@
 
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkHierarchicalDataSet, "1.4");
+vtkCxxRevisionMacro(vtkHierarchicalDataSet, "1.5");
 vtkStandardNewMacro(vtkHierarchicalDataSet);
 
 vtkCxxSetObjectMacro(vtkHierarchicalDataSet,HierarchicalDataInformation,vtkHierarchicalDataInformation);
@@ -89,7 +89,6 @@ void vtkHierarchicalDataSet::SetNumberOfLevels(unsigned int numLevels)
     return;
     }
   this->Internal->DataSets.resize(numLevels);
-  this->HierarchicalDataInformation->SetNumberOfLevels(numLevels);
   this->Modified();
 }
 
@@ -138,7 +137,6 @@ void vtkHierarchicalDataSet::SetNumberOfDataSets(unsigned int level,
       ldataSets[i] = 0;
       }
     }
-  this->HierarchicalDataInformation->SetNumberOfDataSets(level, numDataSets);
   this->Modified();
 }
 
