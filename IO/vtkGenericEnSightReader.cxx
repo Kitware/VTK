@@ -27,7 +27,7 @@
 
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.63");
+vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.64");
 vtkStandardNewMacro(vtkGenericEnSightReader);
 
 vtkCxxSetObjectMacro(vtkGenericEnSightReader,TimeSets, 
@@ -1209,6 +1209,10 @@ void vtkGenericEnSightReader::PrintSelf(ostream& os, vtkIndent indent)
      << (this->CaseFileName ? this->CaseFileName : "(none)") << endl;
   os << indent << "FilePath: "
      << (this->FilePath ? this->FilePath : "(none)") << endl;
+  os << indent << "NumberOfComplexVariables: "
+     << this->NumberOfComplexVariables << endl;
+  os << indent << "NumberOfVariables: "
+     << this->NumberOfVariables << endl;
   os << indent << "NumberOfComplexScalarsPerNode: "
      << this->NumberOfComplexScalarsPerNode << endl;
   os << indent << "NumberOfVectorsPerElement :"
