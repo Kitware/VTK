@@ -169,6 +169,7 @@ vtkImplicitWindowFunction \
 vtkInteractorStyle \
 vtkInteractorStyleFlight \
 vtkInteractorStyleTrackball \
+vtkInteractorStyleTrackballCamera \
 vtkInteractorStyleUser \
 vtkInterpolateDataSetAttributes \
 vtkIVExporter \
