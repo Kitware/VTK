@@ -32,7 +32,7 @@
 #include "vtkPolyDataMapper.h"
 #include "vtkSphereSource.h"
 
-vtkCxxRevisionMacro(vtkPlaneWidget, "1.10");
+vtkCxxRevisionMacro(vtkPlaneWidget, "1.11");
 vtkStandardNewMacro(vtkPlaneWidget);
 
 vtkCxxSetObjectMacro(vtkPlaneWidget,PlaneProperty,vtkProperty);
@@ -1146,9 +1146,9 @@ void vtkPlaneWidget::PlaceWidget(float bds[6])
     this->HandleGeometry[i]->SetRadius(0.025*this->InitialLength);
     }
 
-  // Set the height of the cone
+  // Set the height and radius of the cone
   this->ConeSource->SetHeight(0.060*this->InitialLength);
-  
+  this->ConeSource->SetRadius(0.025*this->InitialLength);  
 }
 
 void vtkPlaneWidget::SelectRepresentation()
