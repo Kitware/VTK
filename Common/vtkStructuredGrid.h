@@ -144,7 +144,7 @@ public:
   // Description:
   // Return non-zero value if specified point is visible. Use this method 
   // only if blanking has been enabled (with BlankingOn()).
-  unsigned char IsPointVisible(int ptId)
+  unsigned char IsPointVisible(vtkIdType ptId)
     {return (this->Blanking ? this->PointVisibility->GetValue(ptId) : 1);}
   
   // Description:
