@@ -17,7 +17,7 @@
 // .SECTION Description
 // vtkSynchronizedTemplates3D is a 3D implementation of the synchronized 
 // template algorithm. Note that vtkContourFilter will automatically
-// use this class when appropriate if vtk was built with patents.
+// use this class when appropriate.
 
 // .SECTION Caveats
 // This filter is specialized to 3D images (aka volumes).
