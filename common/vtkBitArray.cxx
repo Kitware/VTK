@@ -165,8 +165,10 @@ unsigned char *vtkBitArray::Resize(const int sz)
   unsigned char *newArray;
   int newSize;
 
-  if ( sz >= this->Size ) newSize = this->Size + 
+  if ( sz > this->Size ) newSize = this->Size + 
     this->Extend*(((sz-this->Size)/this->Extend)+1);
+  else if (sz == this->Size)
+    return this->Array;
   else newSize = sz;
 
   if ( (newArray = new unsigned char[(newSize+7)/8]) == NULL )

@@ -156,8 +156,10 @@ void** vtkVoidArray::Resize(const int sz)
   void** newArray;
   int newSize;
 
-  if (sz >= this->Size) newSize = this->Size + 
+  if ( sz > this->Size ) newSize = this->Size + 
     this->Extend*(((sz-this->Size)/this->Extend)+1);
+  else if (sz == this->Size)
+    return this->Array;
   else newSize = sz;
 
   if ( (newArray = new voidPtr[newSize]) == NULL )
