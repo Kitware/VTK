@@ -940,7 +940,7 @@ Entry:
   elem_ptr - pointer to location where the element information should be put
 ******************************************************************************/
 
-vtkPLY::ply_get_element(PlyFile *plyfile, void *elem_ptr)
+void vtkPLY::ply_get_element(PlyFile *plyfile, void *elem_ptr)
 {
   if (plyfile->file_type == PLY_ASCII)
     ascii_get_element (plyfile, (char *) elem_ptr);

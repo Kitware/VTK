@@ -171,7 +171,7 @@ public:
   static void ply_get_element_setup( PlyFile *, char *, int, PlyProperty *);
   static void ply_get_property(PlyFile *, char *, PlyProperty *);
   static PlyOtherProp *ply_get_other_properties(PlyFile *, char *, int);
-  static ply_get_element(PlyFile *, void *);
+  static void ply_get_element(PlyFile *, void *);
   static char **ply_get_comments(PlyFile *, int *);
   static char **ply_get_obj_info(PlyFile *, int *);
   static void ply_close(PlyFile *);
@@ -206,7 +206,7 @@ public:
   static void ascii_get_element(PlyFile *, char *);
   static void binary_get_element(PlyFile *, char *);
   static char *my_alloc(int, int, char *);
-  static get_prop_type(char *);
+  static int get_prop_type(char *);
   
 };
 
