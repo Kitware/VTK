@@ -52,7 +52,7 @@ void vtkOpenGLCamera::Render(vtkRenderer *ren)
   float aspect[2];
   float *vport;
   int left,right,bottom,top;
-  int  *size;
+  int  *size, lowerLeft[2], upperRight[2];
   vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
 
   // get the bounds of the window 
@@ -62,8 +62,10 @@ void vtkOpenGLCamera::Render(vtkRenderer *ren)
   this->Stereo = (ren->GetRenderWindow())->GetStereoRender();
   vport = ren->GetViewport();
 
-  left = (int)(vport[0]*(size[0] -1));
-  right = (int)(vport[2]*(size[0] - 1));
+  lowerLeft[0] = (int)(this->Viewport[0]*size[0] + 0.5);
+  lowerLeft[1] = (int)(this->Viewport[1]*size[1] + 0.5);
+  upperRight[0] = (int)(this->Viewport[2]*size[0] + 0.5);
+  upperRight[1] = (int)(this->Viewport[3]*size[1] + 0.5);
 
   // if were on a stereo renderer draw to special parts of screen
   if (this->Stereo)
@@ -96,13 +98,13 @@ void vtkOpenGLCamera::Render(vtkRenderer *ren)
       }
     }
   
-  // we will set this for all modes on the sparc
-  bottom = (int)(vport[1]*(size[1] -1));
-  top = (int)(vport[3]*(size[1] - 1));
-  
-  glViewport(left,bottom,(right-left+1),(top-bottom+1));
+  glViewport(lowerLeft[0],lowerLeft[1],
+	     (upperRight[0]-lowerLeft[0]+1),
+	     (upperRight[1]-lowerLeft[1]+1));
   glEnable( GL_SCISSOR_TEST );
-  glScissor( left, bottom,(right-left+1),(top-bottom+1));   
+  glScissor(lowerLeft[0],lowerLeft[1],
+	    (upperRight[0]-lowerLeft[0]+1),
+	    (upperRight[1]-lowerLeft[1]+1));
     
   /* for stereo we have to fiddle with aspect */
   if (this->Stereo)

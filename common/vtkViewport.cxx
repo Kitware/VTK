@@ -427,10 +427,10 @@ void vtkViewport::NormalizedDisplayToViewport(float &u, float &v)
 
   // determine the inclusive bounds of the viewport
   // then find the corresponding pixel 
-  lowerLeft[0] = this->Viewport[0]*size[0] + 0.5;
-  lowerLeft[1] = this->Viewport[1]*size[1] + 0.5;
-  upperRight[0] = this->Viewport[2]*size[0] + 0.5;
-  upperRight[1] = this->Viewport[3]*size[1] + 0.5;
+  lowerLeft[0] = (int)(this->Viewport[0]*size[0] + 0.5);
+  lowerLeft[1] = (int)(this->Viewport[1]*size[1] + 0.5);
+  upperRight[0] = (int)(this->Viewport[2]*size[0] + 0.5);
+  upperRight[1] = (int)(this->Viewport[3]*size[1] + 0.5);
   upperRight[0]--;
   upperRight[1]--;
   
@@ -438,9 +438,9 @@ void vtkViewport::NormalizedDisplayToViewport(float &u, float &v)
   v = v - this->Viewport[1];
 
   u = lowerLeft[0] + 
-    u * (upperRight[0] - lowerLeft[0])/(this->Viewport[2] - this->Viewport[0]) + 0.5;
+    u * (upperRight[0] - lowerLeft[0])/(this->Viewport[2] - this->Viewport[0]);
   v = lowerLeft[1] + 
-    v * (upperRight[1] - lowerLeft[1])/(this->Viewport[3] - this->Viewport[1]) + 0.5;
+    v * (upperRight[1] - lowerLeft[1])/(this->Viewport[3] - this->Viewport[1]);
 }
 
 void vtkViewport::ViewportToNormalizedViewport(float &u, float &v)
@@ -452,10 +452,10 @@ void vtkViewport::ViewportToNormalizedViewport(float &u, float &v)
 
   // determine the inclusive bounds of the viewport
   // then find the corresponding pixel 
-  lowerLeft[0] = this->Viewport[0]*size[0] + 0.5;
-  lowerLeft[1] = this->Viewport[1]*size[1] + 0.5;
-  upperRight[0] = this->Viewport[2]*size[0] + 0.5;
-  upperRight[1] = this->Viewport[3]*size[1] + 0.5;
+  lowerLeft[0] = (int)(this->Viewport[0]*size[0] + 0.5);
+  lowerLeft[1] = (int)(this->Viewport[1]*size[1] + 0.5);
+  upperRight[0] = (int)(this->Viewport[2]*size[0] + 0.5);
+  upperRight[1] = (int)(this->Viewport[3]*size[1] + 0.5);
   upperRight[0]--;
   upperRight[1]--;
   
@@ -492,10 +492,10 @@ void vtkViewport::ViewportToNormalizedDisplay(float &u, float &v)
 
   // determine the inclusive bounds of the viewport
   // then find the corresponding pixel 
-  lowerLeft[0] = this->Viewport[0]*size[0] + 0.5;
-  lowerLeft[1] = this->Viewport[1]*size[1] + 0.5;
-  upperRight[0] = this->Viewport[2]*size[0] + 0.5;
-  upperRight[1] = this->Viewport[3]*size[1] + 0.5;
+  lowerLeft[0] = (int)(this->Viewport[0]*size[0] + 0.5);
+  lowerLeft[1] = (int)(this->Viewport[1]*size[1] + 0.5);
+  upperRight[0] = (int)(this->Viewport[2]*size[0] + 0.5);
+  upperRight[1] = (int)(this->Viewport[3]*size[1] + 0.5);
   upperRight[0]--;
   upperRight[1]--;
   
@@ -516,10 +516,10 @@ void vtkViewport::NormalizedViewportToViewport(float &u, float &v)
 
   // determine the inclusive bounds of the viewport
   // then find the corresponding pixel 
-  lowerLeft[0] = this->Viewport[0]*size[0] + 0.5;
-  lowerLeft[1] = this->Viewport[1]*size[1] + 0.5;
-  upperRight[0] = this->Viewport[2]*size[0] + 0.5;
-  upperRight[1] = this->Viewport[3]*size[1] + 0.5;
+  lowerLeft[0] = (int)(this->Viewport[0]*size[0] + 0.5);
+  lowerLeft[1] = (int)(this->Viewport[1]*size[1] + 0.5);
+  upperRight[0] = (int)(this->Viewport[2]*size[0] + 0.5);
+  upperRight[1] = (int)(this->Viewport[3]*size[1] + 0.5);
   upperRight[0]--;
   upperRight[1]--;
   

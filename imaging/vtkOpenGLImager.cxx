@@ -44,25 +44,28 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 int vtkOpenGLImager::RenderOpaqueGeometry()
 {
-  float *vport;
-  int left,right,bottom,top;
-  int  *size;
+  int *size, lowerLeft[2], upperRight[2];
 
-  // get the bounds of the window 
-  size = (this->GetVTKWindow())->GetSize();
-  
-  // find out if we should stereo render
-  vport = this->GetViewport();
+  /* get physical window dimensions */
+  size = this->VTKWindow->GetSize();
 
-  left = (int)(vport[0]*(size[0] -1) + 0.5);
-  right = (int)(vport[2]*(size[0] - 1) + 0.5);
+  // determine the inclusive bounds of the viewport
+  // then find the corresponding pixel 
+  lowerLeft[0] = (int)(this->Viewport[0]*size[0] + 0.5);
+  lowerLeft[1] = (int)(this->Viewport[1]*size[1] + 0.5);
+  upperRight[0] = (int)(this->Viewport[2]*size[0] + 0.5);
+  upperRight[1] = (int)(this->Viewport[3]*size[1] + 0.5);
+  upperRight[0]--;
+  upperRight[1]--;
 
   // we will set this for all modes on the sparc
-  bottom = (int)(vport[1]*(size[1] -1) + 0.5);
-  top = (int)(vport[3]*(size[1] - 1) + 0.5);
-  glViewport(left,bottom,(right-left+1),(top-bottom+1));
+  glViewport(lowerLeft[0],lowerLeft[1],
+	     (upperRight[0]-lowerLeft[0]+1),
+	     (upperRight[1]-lowerLeft[1]+1));
   glEnable( GL_SCISSOR_TEST );
-  glScissor( left, bottom,(right-left+1),(top-bottom+1));   
+  glScissor(lowerLeft[0],lowerLeft[1],
+	    (upperRight[0]-lowerLeft[0]+1),
+	    (upperRight[1]-lowerLeft[1]+1));
   return vtkImager::RenderOpaqueGeometry();
 }
 
