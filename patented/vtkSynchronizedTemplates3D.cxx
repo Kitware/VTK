@@ -851,11 +851,8 @@ void vtkSynchronizedTemplates3D::ComputeInputUpdateExtents(vtkDataObject *out)
     }
   else
     {    
-    translator->SetWholeExtent(ext);
-    translator->SetPiece(piece);
-    translator->SetNumberOfPieces(numPieces);
-    translator->PieceToExtent();
-    translator->GetExtent(ext);
+    translator->PieceToExtentThreadSafe(piece, numPieces, 0, wholeExt, ext, 
+                                        translator->GetSplitMode(),0);
     }
   
   // As a side product of this call, ExecuteExtent is set.
