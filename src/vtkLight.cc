@@ -46,8 +46,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkLightDevice.hh"
 
 // Description:
-// Create a light with focal point at origin and position=(0,0,1).
-// Light color is white, intensity=1, and the light is turned on.
+// Create a light with the focal point at the origin and its position
+// set to (0,0,1). The lights color is white, intensity=1, and the light 
+// is turned on. 
 vtkLight::vtkLight()
 {
   this->FocalPoint[0] = 0.0;
