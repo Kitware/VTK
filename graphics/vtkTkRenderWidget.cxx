@@ -307,10 +307,10 @@ static void Vtkrenderwidget_EventProc(ClientData clientData, XEvent *eventPtr)
 //----------------------------------------------------------------------------
 // Vtkrenderwidget_Init
 // Called upon system startup to create Vtkrenderwidget command.
-extern "C" {int Vtkrenderwidget_Init(Tcl_Interp *interp);}
-int Vtkrenderwidget_Init(Tcl_Interp *interp)
+extern "C" {int Vtktkrenderwidget_Init(Tcl_Interp *interp);}
+int Vtktkrenderwidget_Init(Tcl_Interp *interp)
 {
-  if (Tcl_PkgProvide(interp, "Vtkrenderwidget", "1.2") != TCL_OK) 
+  if (Tcl_PkgProvide(interp, "Vtktkrenderwidget", "1.2") != TCL_OK) 
     {
     return TCL_ERROR;
     }
