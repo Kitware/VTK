@@ -104,7 +104,15 @@ char vtkCell::HitBBox (float bounds[6], float origin[3], float dir[3],
 //
 //  Check whether origin of ray is inside bbox
 //
-  if (inside) return 1;
+  if (inside) 
+    {
+    coord[0] = origin[0];
+    coord[1] = origin[1];
+    coord[2] = origin[2];
+    t = 0;
+    return 1;
+    }
+  
 //
 //  Calculate parametric distances to plane
 //
