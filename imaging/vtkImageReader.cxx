@@ -697,7 +697,8 @@ static void vtkImageReaderUpdate2(vtkImageReader *self, vtkImageData *data,
       // handle swapping
       if (self->GetSwapBytes())
 	{
-	vtkByteSwap::SwapVoidRange(buf, pixelRead, sizeof(IT));
+	// pixelSkip is the number of components in data
+	vtkByteSwap::SwapVoidRange(buf, pixelRead*pixelSkip, sizeof(IT));
 	}
       
       // copy the bytes into the typed data
