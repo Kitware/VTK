@@ -32,12 +32,6 @@ public class vtkPanel extends Canvas implements MouseListener, MouseMotionListen
       rw.SetSize(200,200);
     }
 
-  public void setSize(int x, int y)
-    {
-      super.setSize(x,y);
-      rw.SetSize(x,y);
-    }
-  
   public vtkRenderer GetRenderer()
     {
       return ren;
@@ -50,6 +44,13 @@ public class vtkPanel extends Canvas implements MouseListener, MouseMotionListen
 
   private native void RenderCreate(vtkRenderWindow id0);
   private native void RenderInternal(vtkRenderWindow id0);
+  private native void SetSizeInternal(vtkRenderWindow id0, int x, int y);
+  
+  public void setSize(int x, int y)
+    {
+      super.setSize(x,y);
+      SetSizeInternal(rw,x,y);
+    }
   
   public synchronized void Render() 
     {
@@ -62,11 +63,11 @@ public class vtkPanel extends Canvas implements MouseListener, MouseMotionListen
           if (windowset == 0)
             {
             // set the window id and the active camera
-            RenderCreate(rw);
             cam = ren.GetActiveCamera();
             ren.AddLight(lgt);
             lgt.SetPosition(cam.GetPosition());
             lgt.SetFocalPoint(cam.GetFocalPoint());
+            RenderCreate(rw);
             windowset = 1;
             }
           RenderInternal(rw);
