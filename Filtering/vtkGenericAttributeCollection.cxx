@@ -22,7 +22,7 @@
 #include <vtkstd/vector>
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkGenericAttributeCollection,"1.5");
+vtkCxxRevisionMacro(vtkGenericAttributeCollection,"1.6");
 vtkStandardNewMacro(vtkGenericAttributeCollection);
 
 class vtkGenericAttributeInternalVector
@@ -181,7 +181,7 @@ int vtkGenericAttributeCollection::FindAttribute(const char *name)
 
   int result=-1;
   
-  const char *attributeName=0;
+  const char *attributeName;
   int numAtt = this->GetNumberOfAttributes();
   int i=0;
   
@@ -372,7 +372,7 @@ void vtkGenericAttributeCollection::ComputeNumbers()
     {
     int nb = 0;
     int pnb = 0;
-    int count = 0;
+    int count;
     int maxNb = 0;
     unsigned long memory=0;
     int firstComponentIndex=0;

@@ -35,7 +35,7 @@
 #include "vtkQuad.h"
 #include "vtkHexahedron.h"
 
-vtkCxxRevisionMacro(vtkGenericAdaptorCell, "1.19");
+vtkCxxRevisionMacro(vtkGenericAdaptorCell, "1.20");
 
 vtkGenericAdaptorCell::vtkGenericAdaptorCell()
 {
@@ -303,7 +303,7 @@ void vtkGenericAdaptorCell::Contour(vtkContourValues *contourValues,
     double *locals=this->GetParametricCoords();
     double point[3];
     
-    vtkGenericAttribute *a = 0;
+    vtkGenericAttribute *a;
     int count = attributes->GetNumberOfAttributes();
     int attribute_idx;
     
@@ -543,7 +543,7 @@ void vtkGenericAdaptorCell::Clip(double value,
     double *locals=this->GetParametricCoords();
     double point[3];
     
-    vtkGenericAttribute *a = 0;
+    vtkGenericAttribute *a;
     int count = attributes->GetNumberOfAttributes();
     int attribute_idx;
     
@@ -765,7 +765,7 @@ void vtkGenericAdaptorCell::Tessellate(vtkGenericAttributeCollection *attributes
     vtkIdType ptId;
     i=0;
     
-    vtkGenericAttribute *a = 0;
+    vtkGenericAttribute *a;
     int count = attributes->GetNumberOfAttributes();
     int attribute_idx;
     int newpoint=1;
@@ -960,10 +960,9 @@ void vtkGenericAdaptorCell::TriangulateFace(vtkGenericAttributeCollection *attri
         }
       attrib++;
       }
-    vtkGenericAttribute *a = 0;
+    vtkGenericAttribute *a;
     int count = attributes->GetNumberOfAttributes();
     
-    c=internalPd->GetNumberOfArrays();
     int attribute_idx;
     
     this->InternalIds->Reset();
