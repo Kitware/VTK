@@ -99,7 +99,7 @@ void vtkThreshold::Execute()
   vtkPointData *pd, *outPD;
   int i, ptId, newId, numPts, numCellPts;
   float *x;
-  vtkUnstructuredGrid *output=(vtkUnstructuredGrid *)this->Output;
+  vtkUnstructuredGrid *output= this->GetOutput();
 
   vtkDebugMacro(<< "Executing threshold filter");
 
@@ -114,6 +114,7 @@ void vtkThreshold::Execute()
   output->Allocate(this->Input->GetNumberOfCells());
   newPoints = new vtkFloatPoints(numPts);
   pd = this->Input->GetPointData();
+  outPD = output->GetPointData();
   outPD->CopyAllocate(pd);
 
   pointMap = new vtkIdList(numPts); // maps old point ids into new
