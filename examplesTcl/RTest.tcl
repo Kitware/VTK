@@ -1,5 +1,5 @@
 # RTest.tcl - a little application to run regression tests
-# 	Written by Will
+# 	Written by Will Schroeder
 #
 
 # Start by setting environment variables - most of them are found 
@@ -73,8 +73,13 @@ if { [catch {set tmp $env(VTK_VALID_IMAGE_PATH) }] != 0} {
    # Create default
    set env(VTK_VALID_IMAGE_PATH) $env(VTK_ROOT)/vtkbaseline/images
    if { [file isdir $env(VTK_VALID_IMAGE_PATH)] == 0 } {
-      tk_messageBox -icon error -message "Can't find vtkimages!"
-      exit
+      set dirname [tk_getSaveFile -initialdir "$env(VTK_ROOT)" \
+              -title "Location of vtkbaseline/images" ]
+      if { $dirname != "" && [file isdir $env(VTK_VALID_IMAGE_PATH)] != 0 } {
+         set $env(VTK_VALID_IMAGE_PATH) $dirname
+      } else {
+	  exit
+      }
    }
 }
 
@@ -83,8 +88,13 @@ if { [catch {set tmp $env(VTK_DATA) }] != 0} {
    # Create default
    set env(VTK_DATA) $env(VTK_ROOT)/vtkdata
    if { [file isdir $env(VTK_DATA)] == 0 } {
-      tk_messageBox -icon error -message "Can't find vtkdata!"
-      exit
+      set dirname [tk_getSaveFile -initialdir "$env(VTK_ROOT)" \
+              -title "Location of vtkdata/" ]
+      if { $dirname != "" && [file isdir $env(VTK_DATA)] != 0 } {
+         set $env(VTK_DATA) $dirname
+      } else {
+	  exit
+      }
    }
 }
 
@@ -93,8 +103,13 @@ if { [catch {set tmp $env(VTK_TCL) }] != 0} {
    # Create default
    set env(VTK_TCL) $env(VTK_ROOT)/vtk/examplesTcl
    if { [file isdir $env(VTK_TCL)] == 0 } {
-      tk_messageBox -icon error -message "Can't find vtk Tcl!"
-      exit
+      set dirname [tk_getSaveFile -initialdir "$env(VTK_TCL)" \
+              -title "Location of vtk/examplesTcl/" ]
+      if { $dirname != "" && [file isdir $env(VTK_TCL)] != 0 } {
+         set $env(VTK_TCL) $dirname
+      } else {
+	  exit
+      }
    }
 }
 
@@ -137,13 +152,76 @@ if { [catch {set tmp $env(VTK_REGRESSION_LOG) }] != 0} {
    set env(VTK_REGRESSION_LOG) $env(VTK_RESULTS_PATH)/rt.log
 }
 
-if { [catch {set tmp $env(VTK_PLATFORM) }] != 0} {
-   # Create default
-   set env(VTK_PLATFORM) "WinNT"
+proc DestroySelf {} {
+  destroy .plat
 }
 
 # Make sure the splash shows for at least 1 second
 after 1000
+
+# Check operating system to get correct images
+#
+if { [catch {set tmp $env(VTK_PLATFORM) }] != 0} {
+    # Offer the user a choice
+    set vtkPlatform ""
+    toplevel .plat
+    wm title .plat "OS Choice"
+    wm protocol .plat WM_DELETE_WINDOW {wm withdraw .plat}
+    
+    frame .plat.f1
+    label .plat.f1.l -text "Choose operating system"
+    pack .plat.f1.l -padx 5 -pady 5 -fill both -expand t
+
+    frame .plat.f2
+    frame .plat.f2.fl
+    radiobutton .plat.f2.fl.generic -variable vtkPlatform -text Generic \
+	    -value ""
+    radiobutton .plat.f2.fl.windows -variable vtkPlatform -text Windows \
+	    -value WinNT
+    radiobutton .plat.f2.fl.linuxRH -variable vtkPlatform -text LinuxRH \
+	    -value linuxRH52
+    radiobutton .plat.f2.fl.irix6n32 -variable vtkPlatform -text Irix6n32 \
+	    -value irix6n32
+    frame .plat.f2.fr
+    radiobutton .plat.f2.fl.irix6x64 -variable vtkPlatform -text Irix6x64 \
+	    -value irix6x64
+    radiobutton .plat.f2.fr.irix65 -variable vtkPlatform -text Irix65 \
+	    -value irix65
+    radiobutton .plat.f2.fr.solaris26 -variable vtkPlatform -text Solaris26 \
+	    -value solaris26
+    radiobutton .plat.f2.fr.solaris26m6 -variable vtkPlatform -text Solaris26m6 \
+	    -value solaris26m6
+    radiobutton .plat.f2.fr.solaris27 -variable vtkPlatform -text Solaris27 \
+	    -value solaris27
+    radiobutton .plat.f2.fr.hp -variable vtkPlatform -text Hp \
+	    -value hp
+
+    pack .plat.f2.fl.generic .plat.f2.fl.windows .plat.f2.fl.linuxRH \
+	    .plat.f2.fl.irix6n32 .plat.f2.fl.irix6x64 \
+            -padx 3 -pady 3 -side top -anchor w -expand 0 -fill y
+
+    pack .plat.f2.fr.irix65 .plat.f2.fr.solaris26 \
+	    .plat.f2.fr.solaris26m6 .plat.f2.fr.solaris27 .plat.f2.fr.hp \
+            -padx 3 -pady 3 -side top -anchor w -expand 0 -fill y
+
+    pack .plat.f2.fl .plat.f2.fr \
+	    -side left -expand 1 -fill both
+
+    frame .plat.fb
+    button .plat.fb.apply -text Apply -command DestroySelf
+    button .plat.fb.cancel -text Cancel \
+	    -command {set vtkPlatform ""; DestroySelf}
+    pack .plat.fb.apply .plat.fb.cancel -side left \
+	    -expand 1 -fill x
+    pack .plat.f1 .plat.f2 .plat.fb -side top -fill both -expand 1
+
+    update
+    tkwait window .plat
+
+    set env(VTK_PLATFORM) $vtkPlatform
+}
+
+# Can quit advertising now
 if { $splash } {
    wm withdraw .
 }

@@ -1,5 +1,5 @@
 # RTestGUI.tcl - the regression test GUI and associated methods.
-# 	Written by Will
+# 	Written by Will Schroeder
 #
 catch {load vtktcl}
 
