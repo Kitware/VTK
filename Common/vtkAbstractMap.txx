@@ -21,6 +21,16 @@
 #define __vtkAbstractMap_txx
 
 #include "vtkAbstractMap.h"
+#include "vtkDebugLeaks.h"
+
+template<class KeyType, class DataType>
+vtkAbstractMap<KeyType,DataType>* vtkAbstractMap<KeyType,DataType>::New()
+{
+#ifdef VTK_DEBUG_LEAKS
+  vtkDebugLeaks::ConstructClass("vtkAbstractMap");
+#endif
+  return new vtkAbstractMap<KeyType,DataType>;
+}
 
 template<class KeyType, class DataType>
 vtkAbstractMap<KeyType,DataType>::vtkAbstractMap() {}

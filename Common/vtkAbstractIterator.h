@@ -32,14 +32,14 @@
 #define __vtkAbstractIterator_h
 
 template<class KeyType, class DataType>
-class VTK_COMMON_EXPORT vtkAbstractIterator 
+class VTK_COMMON_EXPORT vtkAbstractIterator : public vtkObjectBase
 {
   friend class vtkContainer;
 
 public:
   // Description:
   // Return the class name as a string.
-  virtual const char* GetClassName() { return "vtkAbstractIterator"; }
+  virtual const char* GetClassName() const { return "vtkAbstractIterator"; }
 
   // Description:
   // The counterpart to New(), Delete simply calls UnRegister to lower the
@@ -49,14 +49,14 @@ public:
   // Description:
   // Increase the reference count of this container.
   void Register();
-  void Register(vtkObject *) { this->Register(); }
+  void Register(vtkObjectBase *) { this->Register(); }
   
   // Description:
   // Decrease the reference count (release by another object). This has
   // the same effect as invoking Delete() (i.e., it reduces the reference
   // count by 1).
   void UnRegister();
-  void UnRegister(vtkObject *) { this->UnRegister(); }
+  void UnRegister(vtkObjectBase *) { this->UnRegister(); }
 
   // Description:
   // Retrieve the key from the iterator. For lists, the key is the
