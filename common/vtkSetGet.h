@@ -179,6 +179,8 @@ virtual char* Get##name () { \
 // Set built-in type where value is constrained between min/max limits.
 // Create member Set"name"() (eg., SetRadius()). #defines are 
 // convenience for clamping open-ended values.
+// The Get"name"MinValue() and Get"name"MaxValue() members return the
+// min and max limits.
 //
 #define vtkSetClampMacro(name,type,min,max) \
 virtual void Set##name (type _arg) \
@@ -189,7 +191,15 @@ virtual void Set##name (type _arg) \
     this->name = (_arg<min?min:(_arg>max?max:_arg)); \
     this->Modified(); \
     } \
-  } 
+  } \
+virtual type Get##name##MinValue () \
+  { \
+  return min; \
+  } \
+virtual type Get##name##MaxValue () \
+  { \
+  return max; \
+  }
 
 //
 // Set pointer to object; uses vtkObject reference counting methodology.
