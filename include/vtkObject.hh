@@ -38,11 +38,18 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkObject - abstract base class for visualization library
+// .NAME vtkObject - abstract base class for most of vtk
 // .SECTION Description
 // vtkObject is the base class for many objects in the visualization 
-// library. vtkObject provides methods for tracking modification time, 
-// debugging, and printing.
+// toolkit. vtkObject provides methods for tracking modification times, 
+// debugging, and printing. Most objects created within the vtk 
+// framework should be a subclass of vtkObject or one of its children.
+// The few exceptions tend to be very small helper classes that usually
+// never get instantiated or situtations where mutliple inheritance
+// gets in the way.  Then LWObject might be required.
+
+// .SECTION see also
+// vtkLWObject
 
 #ifndef __vtkObject_hh
 #define __vtkObject_hh
@@ -84,7 +91,9 @@ private:
 };
 
 // Description:
-// Update the modification time for this object.
+// Update the modification time for this object. Many filters rely on
+// the modification time to determine if they need to recompute their
+// data.
 inline void vtkObject::Modified()
 {
   this->MTime.Modified();

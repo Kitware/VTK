@@ -41,7 +41,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkObject.hh"
 
 // Description:
-// Operator allows all subclasses of vtkObject to be printed via <<.
+// This operator allows all subclasses of vtkObject to be printed via <<.
+// It in turn invokes the Print method which in turn will invoke the
+// PrintSelf method that all objects should define if they have anything
+// interesting to print out.
 ostream& operator<<(ostream& os, vtkObject& o)
 {
   o.Print(os);
@@ -58,8 +61,9 @@ vtkObject::vtkObject()
 }
 
 // Description:
-// Delete a vtk object. Delete() should always be used to delete an object 
-// when the new operator is used.
+// Delete a vtk object. This method should always be used to delete an object 
+// when the new operator was used to create it. Using the C++ delete method
+// will not work with reference counting.
 void vtkObject::Delete() 
 {
   delete this;
@@ -92,8 +96,8 @@ void vtkObject::PrintHeader(ostream& os, vtkIndent indent)
 }
 
 // Description:
-// Chaining method to print object instance variables as well as
-// superclasses.
+// Chaining method to print an objects instance variables as well as
+// its superclasses.
 void vtkObject::PrintSelf(ostream& os, vtkIndent indent)
 {
   os << indent << "Debug: " << (this->Debug ? "On\n" : "Off\n");
@@ -106,14 +110,14 @@ void vtkObject::PrintTrailer(ostream& os, vtkIndent indent)
 }
 
 // Description:
-// Turn debug printout on.
+// Turn debugging output on.
 void vtkObject::DebugOn()
 {
   this->Debug = 1;
 }
 
 // Description:
-// Turn debug printout off.
+// Turn debuggin output off.
 void vtkObject::DebugOff()
 {
   this->Debug = 0;
