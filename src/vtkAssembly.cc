@@ -120,6 +120,12 @@ vtkActor *vtkAssembly::GetNextPart()
     }
 }
 
+int vtkAssembly::GetNumberOfParts()
+{
+  this->UpdatePaths();
+  return this->Paths->GetNumberOfItems();
+}
+
 // Build the assembly paths if necessary.
 void vtkAssembly::UpdatePaths()
 {

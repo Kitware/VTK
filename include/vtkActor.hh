@@ -194,6 +194,7 @@ class vtkActor : public vtkObject
   // a list of the parts that are first level children of the assembly.)
   virtual void InitPartTraversal() {this->TraversalLocation = 0;};
   virtual vtkActor *GetNextPart();
+  virtual int GetNumberOfParts() {return 1;};
 
   // Description:
   // Used to construct assembly paths and perform part traversal.

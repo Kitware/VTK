@@ -110,6 +110,7 @@ public:
   // GetNextPart() returns a NULL pointer when the list is exhausted.
   void InitPartTraversal();
   vtkActor *GetNextPart();
+  int GetNumberOfParts();
 
   void BuildPaths(vtkAssemblyPaths *paths, vtkActorCollection *path);
 
