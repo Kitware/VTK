@@ -27,7 +27,7 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkEnSightGoldBinaryReader, "1.27");
+vtkCxxRevisionMacro(vtkEnSightGoldBinaryReader, "1.28");
 vtkStandardNewMacro(vtkEnSightGoldBinaryReader);
 
 //----------------------------------------------------------------------------
@@ -2855,8 +2855,15 @@ int vtkEnSightGoldBinaryReader::ReadInt(int *result)
     return 0;
     }
 
-  vtkByteSwap::Swap4BE(result);
-  
+  if (this->ByteOrder == FILE_LITTLE_ENDIAN)
+    {
+    vtkByteSwap::Swap4LE(result);
+    }
+  else
+    {
+    vtkByteSwap::Swap4BE(result);
+    }
+
   return 1;
 }
 
@@ -2865,17 +2872,19 @@ int vtkEnSightGoldBinaryReader::ReadInt(int *result)
 int vtkEnSightGoldBinaryReader::ReadIntArray(int *result,
                                              int numInts)
 {
-  int i;
-  
   fread(result, sizeof(int), numInts, this->IFile);
   if (feof(this->IFile) || ferror(this->IFile))
     {
     return 0;
     }
 
-  for (i = 0; i < numInts; i++)
+  if (this->ByteOrder == FILE_LITTLE_ENDIAN)
     {
-    vtkByteSwap::Swap4BE(&result[i]);
+    vtkByteSwap::Swap4LERange(result, numInts);
+    }
+  else
+    {
+    vtkByteSwap::Swap4BERange(result, numInts);
     }
   
   return 1;
@@ -2886,17 +2895,19 @@ int vtkEnSightGoldBinaryReader::ReadIntArray(int *result,
 int vtkEnSightGoldBinaryReader::ReadFloatArray(float *result,
                                                int numFloats)
 {
-  int i;
-  
   fread(result, sizeof(float), numFloats, this->IFile);
   if (feof(this->IFile) || ferror(this->IFile))
     {
     return 0;
     }
 
-  for (i = 0; i < numFloats; i++)
+  if (this->ByteOrder == FILE_LITTLE_ENDIAN)
     {
-    vtkByteSwap::Swap4BE(&result[i]);
+    vtkByteSwap::Swap4LERange(result, numFloats);
+    }
+  else
+    {
+    vtkByteSwap::Swap4BERange(result, numFloats);
     }
   
   return 1;

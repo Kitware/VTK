@@ -26,7 +26,7 @@
 #include "vtkIdListCollection.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.34");
+vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.35");
 vtkStandardNewMacro(vtkGenericEnSightReader);
 
 vtkCxxSetObjectMacro(vtkGenericEnSightReader,TimeSets, 
@@ -76,6 +76,8 @@ vtkGenericEnSightReader::vtkGenericEnSightReader()
   this->NumberOfRequestedCellVariables = 0;
   this->RequestedPointVariables = NULL;
   this->RequestedCellVariables = NULL;
+
+  this->ByteOrder = FILE_BIG_ENDIAN;
 }
 
 //----------------------------------------------------------------------------
@@ -659,6 +661,7 @@ void vtkGenericEnSightReader::ExecuteInformation()
   
   this->Reader->SetCaseFileName(this->GetCaseFileName());
   this->Reader->SetFilePath(this->GetFilePath());
+  this->Reader->SetByteOrder(this->ByteOrder);
   this->Reader->UpdateInformation();
   
   this->SetTimeSets(this->Reader->GetTimeSets());
@@ -1294,6 +1297,28 @@ int vtkGenericEnSightReader::GetNumberOfCellArrays()
     this->NumberOfComplexVectorsPerElement;
 }
 
+void vtkGenericEnSightReader::SetByteOrderToBigEndian()
+{
+  this->ByteOrder = FILE_BIG_ENDIAN;
+}
+
+void vtkGenericEnSightReader::SetByteOrderToLittleEndian()
+{
+  this->ByteOrder = FILE_LITTLE_ENDIAN;
+}
+
+const char *vtkGenericEnSightReader::GetByteOrderAsString()
+{
+  if ( this->ByteOrder ==  FILE_LITTLE_ENDIAN)
+    {
+    return "LittleEndian";
+    }
+  else
+    {
+    return "BigEndian";
+    }
+}
+
 void vtkGenericEnSightReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
@@ -1331,4 +1356,5 @@ void vtkGenericEnSightReader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "MaximumTimeValue: " << this->MaximumTimeValue << endl;
   os << indent << "TimeSets: " << this->TimeSets << endl;
   os << indent << "ReadAllVariables: " << this->ReadAllVariables << endl;
+  os << indent << "ByteOrder: " << this->ByteOrder << endl;
 }
