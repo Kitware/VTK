@@ -120,7 +120,7 @@ double *vtkImageMedian3DAccumulateMedian(int &UpNum, int &DownNum,
     max = (UpNum < UpMax) ? UpNum : UpMax;
     ptr = Median;
     idx = 0;
-    while (val >= *ptr && idx < max)
+    while (idx < max && val >= *ptr)
       {
       ++ptr;
       ++idx;
@@ -158,7 +158,7 @@ double *vtkImageMedian3DAccumulateMedian(int &UpNum, int &DownNum,
     max = (DownNum < DownMax) ? DownNum : DownMax;
     ptr = Median;
     idx = 0;
-    while (val <= *ptr && idx < max)
+    while (idx < max && val <= *ptr)
       {
       --ptr;
       ++idx;
