@@ -86,7 +86,7 @@ vtkXOpenGLRenderWindowInternal::vtkXOpenGLRenderWindowInternal(
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.27");
+vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.28");
 vtkStandardNewMacro(vtkXOpenGLRenderWindow);
 #endif
 
@@ -251,38 +251,41 @@ vtkXOpenGLRenderWindow::~vtkXOpenGLRenderWindow()
   vtkOpenGLRenderer *ren;
   
   // free the cursors
-  XUndefineCursor(this->DisplayId,this->WindowId);
-  if (this->XCArrow)
+  if (this->DisplayId)
     {
-    XFreeCursor(this->DisplayId,this->XCArrow);
-    }
-  if (this->XCSizeAll)
-    {
-    XFreeCursor(this->DisplayId,this->XCSizeAll);
-    }
-  if (this->XCSizeNS)
-    {
-    XFreeCursor(this->DisplayId,this->XCSizeNS);
-    }
-  if (this->XCSizeWE)
-    {
-    XFreeCursor(this->DisplayId,this->XCSizeWE);
-    }
-  if (this->XCSizeNE)
-    {
-    XFreeCursor(this->DisplayId,this->XCSizeNE);
-    }
-  if (this->XCSizeNW)
-    {
-    XFreeCursor(this->DisplayId,this->XCSizeNW);
-    }
-  if (this->XCSizeSE)
-    {
-    XFreeCursor(this->DisplayId,this->XCSizeSE);
-    }
-  if (this->XCSizeSW)
-    {
-    XFreeCursor(this->DisplayId,this->XCSizeSW);
+    XUndefineCursor(this->DisplayId,this->WindowId);
+    if (this->XCArrow)
+      {
+      XFreeCursor(this->DisplayId,this->XCArrow);
+      }
+    if (this->XCSizeAll)
+      {
+      XFreeCursor(this->DisplayId,this->XCSizeAll);
+      }
+    if (this->XCSizeNS)
+      {
+      XFreeCursor(this->DisplayId,this->XCSizeNS);
+      }
+    if (this->XCSizeWE)
+      {
+      XFreeCursor(this->DisplayId,this->XCSizeWE);
+      }
+    if (this->XCSizeNE)
+      {
+      XFreeCursor(this->DisplayId,this->XCSizeNE);
+      }
+    if (this->XCSizeNW)
+      {
+      XFreeCursor(this->DisplayId,this->XCSizeNW);
+      }
+    if (this->XCSizeSE)
+      {
+      XFreeCursor(this->DisplayId,this->XCSizeSE);
+      }
+    if (this->XCSizeSW)
+      {
+      XFreeCursor(this->DisplayId,this->XCSizeSW);
+      }
     }
   
   // make sure we have been initialized 
