@@ -1,10 +1,12 @@
 //
 //  3D vectors, floating representation
 //
-//  Assumptions:
-//
-//
 #include "FVectors.hh"
+
+vlVectors *vlFloatVectors::MakeObject(int sze, int ext)
+{
+  return new vlFloatVectors(sze,ext);
+}
 
 vlFloatVectors& vlFloatVectors::operator=(const vlFloatVectors& fv)
 {
@@ -12,10 +14,3 @@ vlFloatVectors& vlFloatVectors::operator=(const vlFloatVectors& fv)
   return *this;
 }
 
-void vlFloatVectors::GetVectors(vlIdList& ptId, vlFloatVectors& fv)
-{
-  for (int i=0; i<ptId.NumIds(); i++)
-    {
-    fv += (*this)[ptId[i]];
-    }
-}

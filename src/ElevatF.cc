@@ -3,6 +3,7 @@
 //
 #include "ElevatF.hh"
 #include "vlMath.hh"
+#include "FScalars.hh"
 
 vlElevationFilter::vlElevationFilter()
 {
@@ -40,8 +41,7 @@ void vlElevationFilter::Execute()
 //
 // Allocate
 //
-  newScalars = new vlFloatScalars;
-  newScalars->Initialize(numPts);
+  newScalars = new vlFloatScalars(numPts);
 //
 // Set up 1D parametric system
 //
@@ -60,7 +60,7 @@ void vlElevationFilter::Execute()
   diffScalar = this->ScalarRange[1] - this->ScalarRange[0];
   for (i=0; i<numPts; i++)
     {
-    x = this->PointCoord(i);
+    x = this->GetPoint(i);
     s = vlDOT(x,diffVector) / l;
     s = (s < 0.0 ? 0.0 : s > 1.0 ? 1.0 : s);
     newScalars->InsertScalar(i,this->ScalarRange[0]+s*diffScalar);

@@ -17,14 +17,14 @@ class vlDataSet : virtual public vlObject
 public:
   vlDataSet();
   char *GetClassName() {return "vlDataSet";};
-  virtual vlDataSet *CopySelf() = 0;
+  virtual vlDataSet *MakeObject() = 0;
   virtual int NumCells() = 0;
   virtual int NumPoints() = 0;
   virtual int CellDimension(int cellId) = 0;
   virtual void CellPoints(int cellId, vlIdList& ptId) = 0;
   virtual void Initialize();
-  virtual vlFloatTriple& PointCoord(int i) = 0;
-  virtual void PointCoords(vlIdList& ptId, vlFloatPoints& fp) = 0;
+  virtual float *GetPoint(int i) = 0;
+  virtual void GetPoints(vlIdList& ptId, vlFloatPoints& fp) = 0;
   virtual void Update() {};
 
   unsigned long int GetMtime();

@@ -20,20 +20,20 @@ public:
   vlPolyData();
   vlPolyData(const vlPolyData& pd);
   ~vlPolyData();
-  vlDataSet *CopySelf();
+  vlDataSet *MakeObject();
   char *GetClassName() {return "vlPolyData";};
   int NumCells();
   int NumPoints();
   int CellDimension(int cellId);
   void CellPoints(int cellId, vlIdList& ptId);
   void Initialize();
-  vlFloatTriple& PointCoord(int i) {return this->Points->operator[](i);};
-  void PointCoords(vlIdList& ptId, vlFloatPoints& fp);
+  float *GetPoint(int i) {return this->Points->GetPoint(i);};
+  void GetPoints(vlIdList& ptId, vlFloatPoints& fp);
   vlMapper *MakeMapper(vlDataSet *ds);
 
   // PolyData specific stuff follows
-  vlSetObjectMacro(Points,vlFloatPoints);
-  vlGetObjectMacro(Points,vlFloatPoints);
+  vlSetObjectMacro(Points,vlPoints);
+  vlGetObjectMacro(Points,vlPoints);
 
   // Can't use macros to support traversal methods
   void SetVerts (vlCellArray* v);
@@ -55,7 +55,7 @@ public:
 
 private:
   // point data (i.e., scalars, vectors, normals, tcoords) inherited
-  vlFloatPoints *Points;
+  vlPoints *Points;
   vlCellArray *Verts;
   vlCellArray *Lines;
   vlCellArray *Polys;

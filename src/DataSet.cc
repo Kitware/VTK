@@ -33,7 +33,7 @@ void vlDataSet::ComputeBounds()
     this->Bounds[1] = this->Bounds[3] = this->Bounds[5] = -LARGE_FLOAT;
     for (i=0; i<this->NumPoints(); i++)
       {
-      x = this->PointCoord(i);
+      x = this->GetPoint(i);
       for (j=0; j<3; j++)
         {
         if ( x[j] < this->Bounds[2*j] ) this->Bounds[2*j] = x[j];

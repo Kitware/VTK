@@ -18,7 +18,7 @@ void vlDataSetToDataSetFilter::Initialize()
   if ( this->Input )
     {
     this->DataSet->UnRegister((void *)this);
-    this->DataSet = this->Input->CopySelf();
+    this->DataSet = this->Input->MakeObject();
     this->DataSet->Register((void *)this);
     }
   else

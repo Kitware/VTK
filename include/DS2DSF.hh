@@ -14,17 +14,16 @@ public:
   vlDataSetToDataSetFilter();
   ~vlDataSetToDataSetFilter();
   char *GetClassName() {return "vlDataSetToDataSetFilter";};
-  vlDataSet *CopySelf() {return this->DataSet->CopySelf();};
+  vlDataSet *MakeObject() {return this->DataSet->MakeObject();};
   int NumCells() {return this->DataSet->NumCells();}
   int NumPoints() {return this->DataSet->NumPoints();}
   int CellDimension(int cellId) {return this->DataSet->CellDimension(cellId);}
   void CellPoints(int cellId, vlIdList& ptId) 
     {this->DataSet->CellPoints(cellId, ptId);}
   void Initialize();
-  vlFloatTriple& PointCoord(int i)
-    {return this->DataSet->PointCoord(i);}
-  void PointCoords(vlIdList& ptId, vlFloatPoints& fp)
-    {this->DataSet->PointCoords(ptId,fp);}
+  float *GetPoint(int i) {return this->DataSet->GetPoint(i);}
+  void GetPoints(vlIdList& ptId, vlFloatPoints& fp)
+    {this->DataSet->GetPoints(ptId,fp);}
   void ComputeBounds() {this->DataSet->ComputeBounds();};
   vlMapper *MakeMapper(vlDataSet *ds);
   void Update();

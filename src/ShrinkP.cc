@@ -11,7 +11,7 @@ void vlShrinkPolyData::Execute()
 {
   int i, j, k;
   float center[3], *p;
-  vlFloatPoints *inPts;
+  vlPoints *inPts;
   vlPointData *pd;
   vlCellArray *inVerts,*inLines,*inPolys,*inStrips;
   int numNewPts, numNewLines, numNewPolys, poly_alloc_size;
@@ -65,11 +65,9 @@ void vlShrinkPolyData::Execute()
 //
 // Allocate
 //
-  newPoints = new vlFloatPoints;
-  newPoints->Initialize(numNewPts);
+  newPoints = new vlFloatPoints(numNewPts);
 
-  newVerts = new vlCellArray;
-  newVerts->Initialize(this->Input->NumVerts());
+  newVerts = new vlCellArray(this->Input->NumVerts());
 
   newLines = new vlCellArray;
   newLines->Initialize(numNewLines*3);
@@ -84,7 +82,7 @@ void vlShrinkPolyData::Execute()
     {
     for (j=0; j<npts; j++)
       {
-      newIds[j] = newPoints->InsertNextPoint((*inPts)[pts[j]]);
+      newIds[j] = newPoints->InsertNextPoint(inPts->GetPoint(pts[j]));
       this->PointData.CopyData(pd,pts[j],newIds[j]);
       }    
     newVerts->InsertNextCell(npts,newIds);
@@ -96,8 +94,8 @@ void vlShrinkPolyData::Execute()
     {
     for (j=0; j<(npts-1); j++)
       {
-      p1 = (*inPts)[pts[j]];
-      p2 = (*inPts)[pts[j+1]];
+      p1 = inPts->GetPoint(pts[j]);
+      p2 = inPts->GetPoint(pts[j+1]);
       for (k=0; k<3; k++) center[k] = (p1[k] + p2[k]) / 2.0;
 
       for (k=0; k<3; k++)
@@ -120,7 +118,7 @@ void vlShrinkPolyData::Execute()
     {
     for (center[0]=center[1]=center[2]=0.0, j=0; j<npts; j++)
       {
-      p1 = (*inPts)[pts[j]];
+      p1 = inPts->GetPoint(pts[j]);
       for (k=0; k<3; k++) center[k] += p1[k];
       }
 
@@ -128,7 +126,7 @@ void vlShrinkPolyData::Execute()
 
     for (j=0; j<npts; j++)
       {
-      p1 = (*inPts)[pts[j]];
+      p1 = inPts->GetPoint(pts[j]);
       for (k=0; k<3; k++)
         pt[k] = center[k] + this->ShrinkFactor*(p1[k] - center[k]);
       newIds[j] = newPoints->InsertNextPoint(pt);
@@ -143,9 +141,9 @@ void vlShrinkPolyData::Execute()
     {
     for (j=0; j<(npts-2); j++)
       {
-      p1 = (*inPts)[pts[j]];
-      p2 = (*inPts)[pts[j+1]];
-      p3 = (*inPts)[pts[j+1]];
+      p1 = inPts->GetPoint(pts[j]);
+      p2 = inPts->GetPoint(pts[j+1]);
+      p3 = inPts->GetPoint(pts[j+1]);
       for (k=0; k<3; k++) center[k] = (p1[k] + p2[k] + p3[k]) / 3.0;
 
       for (k=0; k<3; k++)

@@ -3,6 +3,8 @@
 //
 #include <math.h>
 #include "LineSrc.hh"
+#include "FPoints.hh"
+#include "FTCoords.hh"
 
 vlLineSource::vlLineSource(int res)
 {

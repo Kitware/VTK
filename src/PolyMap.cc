@@ -45,7 +45,7 @@ void vlPolyMapper::Render(vlRenderer *ren)
 {
   vlPointData *pd;
   vlRGBArray *colors;
-  vlFloatScalars *scalars;
+  vlScalars *scalars;
   int i;
   char forceBuild = 0;
 //
@@ -83,7 +83,7 @@ void vlPolyMapper::Render(vlRenderer *ren)
     this->Lut->SetTableRange(this->ScalarRange);
     for (i=0; i<this->Input->NumPoints(); i++)
       {
-      (*colors)[i] = this->Lut->MapValue((*scalars)[i]);
+      colors->SetColor(i,this->Lut->MapValue(scalars->GetScalar(i)));
       }
     }
   else

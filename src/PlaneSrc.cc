@@ -2,6 +2,9 @@
 // Methods for plane generator
 //
 #include "PlaneSrc.hh"
+#include "FPoints.hh"
+#include "FNormals.hh"
+#include "FTCoords.hh"
 
 void vlPlaneSource::SetResolution(const int xR, const int yR)
 {

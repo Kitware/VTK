@@ -3,6 +3,11 @@
 //
 #include "FTCoords.hh"
 
+vlTCoords *vlFloatTCoords::MakeObject(int sze, int d, int ext)
+{
+  return new vlFloatTCoords(sze,d,ext);
+}
+
 vlFloatTCoords& vlFloatTCoords::operator=(const vlFloatTCoords& ftc)
 {
   if ( this->Debug ) cerr << "Assignment\n";
@@ -13,10 +18,3 @@ vlFloatTCoords& vlFloatTCoords::operator=(const vlFloatTCoords& ftc)
   return *this;
 }
 
-void vlFloatTCoords::GetTCoords(vlIdList& ptId, vlFloatTCoords& ftc)
-{
-  for (int i=0; i<ptId.NumIds(); i++)
-    {
-    ftc += (*this)[ptId[i]];
-    }
-}

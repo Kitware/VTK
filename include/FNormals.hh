@@ -13,6 +13,7 @@ class vlFloatNormals : public vlNormals
 {
 public:
   vlFloatNormals() {};
+  vlNormals *MakeObject(int sze, int ext=1000);
   int Initialize(const int sz, const int ext=1000) 
     {return this->N.Initialize(3*sz,3*ext);};
   vlFloatNormals(const vlFloatNormals& fn) {this->N = fn.N;};
@@ -24,7 +25,10 @@ public:
   vlFloatNormals &operator=(const vlFloatNormals& fn);
   void operator+=(const vlFloatNormals& fn);
 
-  void InsertNormal(const int i, float *x) {
+  float *GetNormal(int i) {return this->N.GetPtr(3*i);};
+  void SetNormal(int i, float x[3]) 
+    {i*=3; this->N[i]=x[0]; this->N[i+1]=x[1]; this->N[i+2]=x[2];};
+  void InsertNormal(int i, float *x) {
       this->N.InsertValue(3*i+2, x[2]);
       this->N[3*i] =  x[0];
       this->N[3*i+1] =  x[1];

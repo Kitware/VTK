@@ -24,10 +24,10 @@ void vlShrinkFilter::Execute()
     this->CellPoints(i,ptId);
     if ( ptId.NumIds() > 0 )
       {
-      this->PointCoords(ptId, pt);
+      this->GetPoints(ptId, pt);
       for (center[0]=center[1]=center[2]=0.0, j=0; j<pt.NumPoints(); j++)
         {
-        p = pt[j];
+        p = pt.GetPoint(j);
         for (k=0; k<3; k++) center[k] += p[k];
         }
       for (k=0; k<3; k++) center[k] /= pt.NumPoints();

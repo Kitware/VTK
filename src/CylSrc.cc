@@ -3,6 +3,9 @@
 //
 #include <math.h>
 #include "CylSrc.hh"
+#include "FPoints.hh"
+#include "FNormals.hh"
+#include "FTCoords.hh"
 
 vlCylinderSource::vlCylinderSource (int res)
 {
@@ -40,14 +43,9 @@ void vlCylinderSource::Execute()
     numPolys = this->Resolution;
     }
 
-  newPoints = new vlFloatPoints;
-  newPoints->Initialize(numPts);
-
-  newNormals = new vlFloatNormals;
-  newNormals->Initialize(numPts);
-
-  newTCoords = new vlFloatTCoords;
-  newTCoords->Initialize(numPts,2);
+  newPoints = new vlFloatPoints(numPts);
+  newNormals = new vlFloatNormals(numPts);
+  newTCoords = new vlFloatTCoords(numPts,2);
 
   newPolys = new vlCellArray;
   newPolys->Initialize(newPolys->EstimateSize(numPolys,this->Resolution));

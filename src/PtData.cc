@@ -23,83 +23,65 @@ vlPointData::~vlPointData()
   vlPointData::Initialize();
 }
 
-vlPointData& vlPointData::operator=(const vlPointData& pd)
+vlPointData& vlPointData::operator=(vlPointData& pd)
 {
-  if ( this != &pd )
+  vlScalars *s;
+  vlVectors *v;
+  vlNormals *n;
+  vlTCoords *t;
+
+  if ( (s = pd.GetScalars()) ) 
     {
-    if ( this->Scalars != pd.Scalars )
-      {
-      if (this->Scalars) this->Scalars->UnRegister((void *)this);
-      this->Scalars = pd.Scalars;
-      if (this->Scalars) this->Scalars->Register((void *)this);
-      }
-        
-    if ( this->Vectors != pd.Vectors )
-      {
-      if (this->Vectors) this->Vectors->UnRegister((void *)this);
-      this->Vectors = pd.Vectors;
-      if (this->Vectors) this->Vectors->Register((void *)this);
-      }
-        
-    if ( this->Normals != pd.Normals )
-      {
-      if (this->Normals) this->Normals->UnRegister((void *)this);
-      this->Normals = pd.Normals;
-      if (this->Normals) this->Normals->Register((void *)this);
-      }
-        
-    if ( this->TCoords != pd.TCoords )
-      {
-      if (this->TCoords) this->TCoords->UnRegister((void *)this);
-      this->TCoords = pd.TCoords;
-      if (this->TCoords) this->TCoords->Register((void *)this);
-      }
-    this->Modified();
-    }        
-    return *this;
+    this->SetScalars(s);
+    }
+
+  if ( (v = pd.GetVectors()) ) 
+    {
+    this->SetVectors(v);
+    }
+
+  if ( (n = pd.GetNormals()) ) 
+    {
+    this->SetNormals(n);
+    }
+
+  if ( (t = pd.GetTCoords()) ) 
+    {
+    this->SetTCoords(t);
+    }
+
+  return *this;
 }
 
 //
 // Copy the point data from one point to another
 //
-void vlPointData::CopyData(const vlPointData* const from_pd, int from_id, int to_id)
+void vlPointData::CopyData(vlPointData* from_pd, int from_id, int to_id)
 {
   if ( from_pd->Scalars && this->Scalars )
     {
-    this->Scalars->InsertScalar(to_id,(*from_pd->Scalars)[from_id]);
+    this->Scalars->InsertScalar(to_id,from_pd->Scalars->GetScalar(from_id));
     }
 
   if ( from_pd->Vectors && this->Vectors )
     {
-    this->Vectors->InsertVector(to_id,(*from_pd->Vectors)[from_id]);
+    this->Vectors->InsertVector(to_id,from_pd->Vectors->GetVector(from_id));
     }
 
   if ( from_pd->Normals && this->Normals )
     {
-    this->Normals->InsertNormal(to_id,(*from_pd->Normals)[from_id]);
+    this->Normals->InsertNormal(to_id,from_pd->Normals->GetNormal(from_id));
     }
 
   if ( from_pd->TCoords && this->TCoords )
     {
-    this->TCoords->InsertTCoord(to_id,(*from_pd->TCoords)[from_id]);
+    this->TCoords->InsertTCoord(to_id,from_pd->TCoords->GetTCoord(from_id));
     }
 }
 
 
-//
-// Initializes data depending upon input.  If pd=0 (default value), then data
-// is deleted and pointers set to null values; if pd!=0 but sze=0 (default),
-// then the point data is copied from the input pd.  If pd!=0 and sze!=0
-// then the point data is sized according to sze. Note: only those components
-// e.g. scalars, vectors, ... that are non-NULL in the input are created on
-// output. are created in point data. 
-//
-void vlPointData::Initialize(vlPointData* const pd,const int sze,const int ext)
+void vlPointData::Initialize()
 {
-  vlFloatScalars *s;
-  vlFloatVectors *v;
-  vlFloatNormals *n;
-  vlFloatTCoords *t;
 //
 // Modify ourselves
 //
@@ -130,6 +112,21 @@ void vlPointData::Initialize(vlPointData* const pd,const int sze,const int ext)
     this->TCoords->UnRegister((void *)this);
     this->TCoords = 0;
     }
+};
+
+//
+// Initializes point data for point-by-point copy operation.  If sze=0, then use 
+// the input PointData to create (i.e., find initial size of) new objects; otherwise
+// use the sze variable.
+//
+void vlPointData::CopyInitialize(vlPointData* pd, int sze, int ext)
+{
+  vlScalars *s, *newScalars;
+  vlVectors *v, *newVectors;
+  vlNormals *n, *newNormals;
+  vlTCoords *t, *newTCoords;
+
+  vlPointData::Initialize();
 //
 // Now create various point data depending upon input
 //
@@ -137,33 +134,29 @@ void vlPointData::Initialize(vlPointData* const pd,const int sze,const int ext)
 
   if ( (s = pd->GetScalars()) ) 
     {
-    this->Scalars = new vlFloatScalars;
-    if ( sze > 1 ) this->Scalars->Initialize(sze,ext);
-    else this->Scalars = s;
-    this->SetScalars(s);
+    if ( sze > 0 ) newScalars = s->MakeObject(sze,ext);
+    else newScalars = s->MakeObject(s->NumScalars());
+    this->SetScalars(newScalars);
     }
 
   if ( (v = pd->GetVectors()) ) 
     {
-    this->Vectors = new vlFloatVectors;
-    if ( sze > 1 ) this->Vectors->Initialize(sze,ext);
-    else this->Vectors = v;
-    this->SetVectors(v);
+    if ( sze > 0 ) newVectors = v->MakeObject(sze,ext);
+    else newVectors = v->MakeObject(v->NumVectors());
+    this->SetVectors(newVectors);
     }
 
   if ( (n = pd->GetNormals()) ) 
     {
-    this->Normals = new vlFloatNormals;
-    if ( sze > 1 ) this->Normals->Initialize(sze,ext);
-    else this->Normals = n;
-    this->SetNormals(n);
+    if ( sze > 0 ) newNormals = n->MakeObject(sze,ext);
+    else newNormals = n->MakeObject(n->NumNormals());
+    this->SetNormals(newNormals);
     }
 
   if ( (t = pd->GetTCoords()) ) 
     {
-    this->TCoords = new vlFloatTCoords;
-    if ( sze > 1 ) this->TCoords->Initialize(sze,ext);
-    else this->TCoords = t;
-    this->SetTCoords(t);
+    if ( sze > 0 ) newTCoords = t->MakeObject(sze,t->GetDimension(),ext);
+    else newTCoords = t->MakeObject(t->NumTCoords(),t->GetDimension());
+    this->SetTCoords(newTCoords);
     }
 };

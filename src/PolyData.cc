@@ -44,9 +44,9 @@ vlPolyData::~vlPolyData()
   vlPolyData::Initialize();
 }
 
-vlDataSet* vlPolyData::CopySelf()
+vlDataSet* vlPolyData::MakeObject()
 {
-  return new vlPolyData(*this);;
+  return new vlPolyData(*this);
 }
 int vlPolyData::CellDimension (int cellId)
 {
@@ -58,7 +58,7 @@ void vlPolyData::CellPoints (int cellId, vlIdList& ptId)
 
 }
 
-void vlPolyData::PointCoords (vlIdList& ptId, vlFloatPoints& fp)
+void vlPolyData::GetPoints (vlIdList& ptId, vlFloatPoints& fp)
 {
 
 }

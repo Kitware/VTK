@@ -3,6 +3,8 @@
 //
 #include <math.h>
 #include "CubeSrc.hh"
+#include "FPoints.hh"
+#include "FNormals.hh"
 
 vlCubeSource::vlCubeSource(float xL, float yL, float zL)
 {

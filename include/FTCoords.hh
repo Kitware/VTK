@@ -1,39 +1,36 @@
 //
-// Floating point representation of 3D TCoords.
+// Floating point representation of 1,2,3D texture coordinates
 //
 //  use internal floating point array to represent data
 //
 #ifndef __vlFloatTCoords_h
 #define __vlFloatTCoords_h
 
-#include "Object.hh"
+#include "TCoords.hh"
 #include "FArray.hh"
-#include "FTriple.hh"
-#include "IdList.hh"
 
-class vlFloatTCoords : public vlObject 
+class vlFloatTCoords : public vlTCoords
 {
 public:
   vlFloatTCoords() {};
+  vlTCoords *MakeObject(int sze, int d=2, int ext=1000);
   int Initialize(const int sz, const int dim=2, const int ext=1000) 
     {return this->TC.Initialize(dim*sz,dim*ext);};
   vlFloatTCoords(const vlFloatTCoords& ftc) 
     {this->TC = ftc.TC;this->Dimension = ftc.Dimension;};
   vlFloatTCoords(const int sz, const int d=2, const int ext=1000):Dimension(d), TC(d*sz,d*ext) {};
   ~vlFloatTCoords() {};
+  vlFloatTCoords &operator=(const vlFloatTCoords& ftc);
   char *GetClassName() {return "vlFloatTCoords";};
+
+  void operator+=(const vlFloatTCoords& ftc) {this->TC += ftc.TC;};
   int NumTCoords() {return (this->TC.GetMaxId()+1)/this->Dimension;};
   void Reset() {this->TC.Reset();};
-  vlFloatTCoords &operator=(const vlFloatTCoords& ftc);
-  void operator+=(const vlFloatTCoords& ftc) {this->TC += ftc.TC;};
-  void operator+=(const vlFloatTriple& ft) {
-    for(int j=0; j<this->Dimension; j++) this->TC += ft.X[j];
-  }
-  vlFloatTriple &operator[](const int i) {this->Ft.X = this->TC.GetPtr(3*i); return this->Ft;};
-  void InsertTCoord(const int i, vlFloatTriple &ft) {
-    for(int j=0; j<this->Dimension; j++) this->TC.InsertValue(3*i+j, ft.X[j]);
-  }
-  void InsertTCoord(const int i, float *x) {
+
+  float *GetTCoord(int i) {return this->TC.GetPtr(this->Dimension*i);};
+  void SetTCoord(int i, float *x) 
+    {i*=this->Dimension; for(int j=0;j<this->Dimension;j++) this->TC[i+j]=x[j];};
+  void InsertTCoord(int i, float *x) {
     for(int j=0; j<this->Dimension; j++) this->TC.InsertValue(3*i+j, x[j]);
   }
   int InsertNextTCoord(float *x) {
@@ -45,11 +42,8 @@ public:
   vlSetClampMacro(Dimension,int,1,3);
   vlGetMacro(Dimension,int);
 
-  void GetTCoords(vlIdList& ptId, vlFloatTCoords& ftc);
-  float *GetArray();
 private:
   vlFloatArray TC;
-  vlFloatTriple Ft;
   int Dimension;
 };
 

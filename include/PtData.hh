@@ -5,40 +5,41 @@
 #define __vlPointData_h
 
 #include "Object.hh"
-#include "FScalars.hh"
-#include "FVectors.hh"
-#include "FNormals.hh"
-#include "FTCoords.hh"
+#include "Scalars.hh"
+#include "Vectors.hh"
+#include "Normals.hh"
+#include "TCoords.hh"
 
 class vlPointData : public vlObject 
 {
 public:
   vlPointData() : Scalars(0), Vectors(0), Normals(0), TCoords(0) {};
-  void Initialize(vlPointData* const pd=0,const int sze=0,const int ext=1000);
+  void Initialize();
+  void CopyInitialize(vlPointData* pd, int sze=0, int ext=1000);
   ~vlPointData();
   char *GetClassName() {return "vlPointData";};
   vlPointData (const vlPointData& pd);
-  vlPointData &operator=(const vlPointData& pd);
+  vlPointData &operator=(vlPointData& pd);
   virtual void Update() {};
-  void CopyData(const vlPointData *const from_pd, int from_id, int to_id);
+  void CopyData(vlPointData *from_pd, int from_id, int to_id);
 
-  vlSetObjectMacro (Scalars, vlFloatScalars);
-  vlGetObjectMacro (Scalars, vlFloatScalars);
+  vlSetObjectMacro (Scalars, vlScalars);
+  vlGetObjectMacro (Scalars, vlScalars);
 
-  vlSetObjectMacro (Vectors, vlFloatVectors);
-  vlGetObjectMacro (Vectors, vlFloatVectors);
+  vlSetObjectMacro (Vectors, vlVectors);
+  vlGetObjectMacro (Vectors, vlVectors);
 
-  vlSetObjectMacro (Normals, vlFloatNormals);
-  vlGetObjectMacro (Normals, vlFloatNormals);
+  vlSetObjectMacro (Normals, vlNormals);
+  vlGetObjectMacro (Normals, vlNormals);
 
-  vlSetObjectMacro (TCoords, vlFloatTCoords);
-  vlGetObjectMacro (TCoords, vlFloatTCoords);
+  vlSetObjectMacro (TCoords, vlTCoords);
+  vlGetObjectMacro (TCoords, vlTCoords);
 
 protected:
-  vlFloatScalars *Scalars;
-  vlFloatVectors *Vectors;
-  vlFloatNormals *Normals;
-  vlFloatTCoords *TCoords;
+  vlScalars *Scalars;
+  vlVectors *Vectors;
+  vlNormals *Normals;
+  vlTCoords *TCoords;
 };
 
 #endif
