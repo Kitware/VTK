@@ -27,7 +27,8 @@ VTK_LIB_FILE  = @VTK_LIB_FILE@
 EXAMPLES = medical1 \
 	medical2 \
 	medical3 \
-	sweptMac
+	sweptMac \
+	sweptMac2
   
 CXX_FLAGS = ${CPPFLAGS} ${USER_CXXFLAGS} ${CXXFLAGS} -I${srcdir} \
 	${KIT_FLAGS} -I. ${USE_TOOLKIT_FLAGS} ${GRAPHICS_API_FLAGS} \
@@ -58,6 +59,9 @@ medical3: medical3.o ${VTKLIB}
 	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
 sweptMac: sweptMac.o ${VTKLIB}
 	${CXX} -o sweptMac ${CXX_FLAGS} sweptMac.o ${XLDFLAGS} ${LDLIBS} \
+	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
+sweptMac2: sweptMac2.o ${VTKLIB}
+	${CXX} -o sweptMac2 ${CXX_FLAGS} sweptMac2.o ${XLDFLAGS} ${LDLIBS} \
 	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
 
 #------------------------------------------------------------------------------
