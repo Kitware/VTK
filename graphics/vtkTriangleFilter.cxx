@@ -44,9 +44,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkTriangleStrip.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
+//------------------------------------------------------------------------
 vtkTriangleFilter* vtkTriangleFilter::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -58,9 +56,6 @@ vtkTriangleFilter* vtkTriangleFilter::New()
   // If the factory was unable to create the object, then create it here.
   return new vtkTriangleFilter;
 }
-
-
-
 
 void vtkTriangleFilter::Execute()
 {
@@ -76,7 +71,6 @@ void vtkTriangleFilter::Execute()
   int updateInterval;
   int numPoints=input->GetNumberOfPoints();
 
-  
   output->Allocate(numPoints, numPoints);
   outCD->CopyAllocate(inCD,numPoints);
 
