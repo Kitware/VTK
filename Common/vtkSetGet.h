@@ -491,9 +491,12 @@ extern VTK_COMMON_EXPORT void vtkOutputWindowDisplayDebugText(const char*);
 
 //
 // This macro is used to print out errors
-// vtkErrorMacroWithObject(self, << "Error message" << variable);
+// vtkErrorWithObjectMacro(self, << "Error message" << variable);
 //
-#define vtkErrorMacroWithObject(self, x)                        \
+#define vtkErrorMacroWithObject(self, x)        \
+   vtkErrorWithObjectMacro(self, x)
+
+#define vtkErrorWithObjectMacro(self, x)                        \
    {                                                            \
    if (vtkObject::GetGlobalWarningDisplay())                    \
      {                                                          \
@@ -517,9 +520,12 @@ extern VTK_COMMON_EXPORT void vtkOutputWindowDisplayDebugText(const char*);
 
 //
 // This macro is used to print out warnings
-// vtkWarningMacroWithObject(self, << "Warning message" << variable);
+// vtkWarningWithObjectMacro(self, << "Warning message" << variable);
 //
-#define vtkWarningMacroWithObject(self, x)                      \
+#define vtkWarningMacroWithObject(self, x)      \
+   vtkWarningWithObjectMacro(self, x)
+
+#define vtkWarningWithObjectMacro(self, x)                      \
    {                                                            \
    if (vtkObject::GetGlobalWarningDisplay())                    \
      {                                                          \
