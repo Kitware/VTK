@@ -214,6 +214,8 @@ public:
   // cell dimension) defining a simplex. The index is a parameter that controls
   // which triangulation to use (if more than one is possible). If numerical
   // degeneracy encountered, 0 is returned, otherwise 1 is returned.
+  // This method does not insert new points: all the points that define the
+  // simplices are the points that define the cell.
   virtual int Triangulate(int index, vtkIdList *ptIds, vtkPoints *pts) = 0;
 
   // Description:
