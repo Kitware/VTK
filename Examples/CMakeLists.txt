@@ -3,24 +3,30 @@ IF (VTK_USE_PARALLEL)
 ENDIF (VTK_USE_PARALLEL)
 
 IF(BUILD_TESTING)
-  GET_FILENAME_COMPONENT(VTK_CMAKE_DIR ${CMAKE_COMMAND} PATH)
-  FIND_PROGRAM(VTK_CMAKETEST_EXE
-    NAMES cmaketest
-    PATHS ${VTK_CMAKE_DIR}
-    NO_SYSTEM_PATH
-    )
-  MARK_AS_ADVANCED(VTK_CMAKETEST_EXE)
-
-  IF(VTK_CMAKETEST_EXE)
-    ADD_TEST(Example-vtkLocal ${VTK_CMAKETEST_EXE}
-             ${VTK_SOURCE_DIR}/Examples/Build/vtkLocal
-             ${VTK_BINARY_DIR}/Examples/Build/vtkLocal
-             vtkLocalTest ${VTK_BINARY_DIR}/Examples/Build/vtkLocal/bin
-             VTKLOCAL CMAKE_ARGS -DVTK_DIR:PATH=${VTK_BINARY_DIR})
-    ADD_TEST(Example-vtkMy ${VTK_CMAKETEST_EXE}
-             ${VTK_SOURCE_DIR}/Examples/Build/vtkMy
-             ${VTK_BINARY_DIR}/Examples/Build/vtkMy
-             vtkmyEx1 ${VTK_BINARY_DIR}/Examples/Build/vtkMy/bin
-             VTKMY CMAKE_ARGS -DVTK_DIR:PATH=${VTK_BINARY_DIR})
-  ENDIF(VTK_CMAKETEST_EXE)
+  IF(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 1.8)
+    ADD_TEST(Example-vtkLocal ${CMAKE_CTEST_COMMAND}
+      --build-and-test
+      ${VTK_SOURCE_DIR}/Examples/Build/vtkLocal
+      ${VTK_BINARY_DIR}/Examples/Build/vtkLocal
+      --build-two-config
+      --build-generator ${CMAKE_GENERATOR}
+      --build-makeprogram ${MAKEPROGRAM}
+      --build-project VTKLOCAL
+      --build-options -DVTK_DIR:PATH=${VTK_BINARY_DIR}
+      --test-command
+      ${VTK_BINARY_DIR}/Examples/Build/vtkLocal/bin/vtkLocalTest
+      )
+    ADD_TEST(Example-vtkMy ${CMAKE_CTEST_COMMAND}
+      --build-and-test
+      ${VTK_SOURCE_DIR}/Examples/Build/vtkMy
+      ${VTK_BINARY_DIR}/Examples/Build/vtkMy
+      --build-two-config
+      --build-generator ${CMAKE_GENERATOR}
+      --build-makeprogram ${MAKEPROGRAM}
+      --build-project VTKLOCAL
+      --build-options -DVTK_DIR:PATH=${VTK_BINARY_DIR}
+      --test-command
+      ${VTK_BINARY_DIR}/Examples/Build/vtkMy/bin/vtkmyEx1
+      )
+  ENDIF(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 1.8)
 ENDIF(BUILD_TESTING)
