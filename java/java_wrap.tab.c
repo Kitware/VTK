@@ -91,7 +91,7 @@ typedef union
 #include <memory.h>
 #endif
 
-#ifndef _WIN32
+#ifndef WIN32
 #include <values.h>
 #endif
 
@@ -528,7 +528,9 @@ output_function()
 	(arg_types[i]%1000 != 109)&&
 	((arg_types[i]%1000)/100)) args_ok = 0;
     if (arg_types[i] == 313) args_ok = 0;
+    if (arg_types[i] == 314) args_ok = 0;
     if (arg_types[i] == 315) args_ok = 0;
+    if (arg_types[i] == 316) args_ok = 0;
     }
   if ((arg_types[10]%10) == 8) args_ok = 0;
   if (arg_types[10] == 9) args_ok = 0;
@@ -539,7 +541,9 @@ output_function()
 
   /* eliminate unsigned char * */
   if (arg_types[10] == 313) args_ok = 0;
+  if (arg_types[10] == 314) args_ok = 0;
   if (arg_types[10] == 315) args_ok = 0;
+  if (arg_types[10] == 316) args_ok = 0;
 
   /* look for VAR FUNCTIONS */
   if ((arg_types[0] == 5000)&&(num_args == 2)) 
