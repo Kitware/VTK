@@ -37,8 +37,8 @@
 //       SetBoxClip(xmin,xmax,ymin,ymax,zmin,zmax)  
 //    if(SetOrientation(1)): hexahedral box (Default)
 //       SetBoxClip(n[0],o[0],n[1],o[1],n[2],o[2],n[3],o[3],n[4],o[4],n[5],o[5])  
-//       n[] normal of each plane
-//       o[] point on the plane 
+//       PlaneNormal[] normal of each plane
+//       PlanePoint[] point on the plane 
 // 2) Apply the GenerateClipScalarsOn() 
 // 3) Execute clipping  Update();
 
@@ -94,8 +94,8 @@ public:
   // the vertices of cells. This tolerance is used to prevent the generation
   // of degenerate primitives. Note that only 3D cells actually use this
   // instance variable.
-  vtkSetClampMacro(MergeTolerance,double,0.0001,0.25);
-  vtkGetMacro(MergeTolerance,double);
+  //vtkSetClampMacro(MergeTolerance,double,0.0001,0.25);
+  //vtkGetMacro(MergeTolerance,double);
   
   // Description:
   // Return the Clipped output.
@@ -177,15 +177,15 @@ protected:
 
   int GenerateClippedOutput;
 
-  double MergeTolerance;
+  //double MergeTolerance;
 
   char *InputScalarsSelection;
   vtkSetStringMacro(InputScalarsSelection);
 
   double BoundBoxClip[3][2];
   unsigned int Orientation;
-  double n_pl[6][3];
-  double o_pl[6][3];
+  double PlaneNormal[6][3]; //normal of each plane
+  double PlanePoint[6][3]; //point on the plane 
 
 private:
   vtkBoxClipDataSet(const vtkBoxClipDataSet&);  // Not implemented.

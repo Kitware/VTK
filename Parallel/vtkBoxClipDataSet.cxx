@@ -32,9 +32,8 @@
 #include "vtkIdList.h"
 
 #include <math.h>
-#include <stdio.h>
 
-vtkCxxRevisionMacro(vtkBoxClipDataSet, "1.9");
+vtkCxxRevisionMacro(vtkBoxClipDataSet, "1.10");
 vtkStandardNewMacro(vtkBoxClipDataSet);
 
 //----------------------------------------------------------------------------
@@ -44,7 +43,7 @@ vtkBoxClipDataSet::vtkBoxClipDataSet()
   this->GenerateClipScalars = 0;
 
   this->GenerateClippedOutput = 0;
-  this->MergeTolerance = 0.01;
+  //this->MergeTolerance = 0.01;
 
   this->vtkSource::SetNthOutput(1,vtkUnstructuredGrid::New());
   this->Outputs[1]->Delete();
@@ -69,9 +68,9 @@ vtkBoxClipDataSet::~vtkBoxClipDataSet()
 int vtkBoxClipDataSet::GetNumberOfOutputs()
 {
   if (this->GenerateClippedOutput)
-  {
+    {
     return 2;
-  }
+    }
   return 1;
 }
 
@@ -109,7 +108,7 @@ vtkUnstructuredGrid *vtkBoxClipDataSet::GetClippedOutput()
 //
 void vtkBoxClipDataSet::Execute()
 {
-  vtkDataSet          *input = this->GetInput();
+  vtkDataSet          *input  = this->GetInput();
   vtkUnstructuredGrid *output = this->GetOutput();
   vtkUnstructuredGrid *clippedOutput = this->GetClippedOutput();
   if (input == NULL)
@@ -129,7 +128,7 @@ void vtkBoxClipDataSet::Execute()
   vtkPoints     *newPoints;
   vtkPoints     *cellPts;
   vtkIdTypeArray   *locs[2];
-  vtkDebugMacro(<< "Clip by Box");
+  vtkDebugMacro( << "Clip by Box\n" );
   vtkUnsignedCharArray *types[2];
 
   int   j;
@@ -229,7 +228,7 @@ void vtkBoxClipDataSet::Execute()
   num[0]    = num[1]      = 0;
   numNew[0] = numNew[1]   = 0;
 
-  unsigned orientation = GetOrientation();   //Test if there is a transformation 
+  unsigned orientation = this->GetOrientation();   //Test if there is a transformation 
 
   //clock_t init_tmp = clock();
   for (cellId=0; cellId < numCells && !abort; cellId++)
@@ -270,8 +269,8 @@ void vtkBoxClipDataSet::Execute()
           {
           if (orientation)
             {
-            ClipHexahedronInOut2D(newPoints,cell,this->Locator, conn,
-                                  inPD, outPD, inCD, cellId, outCD);
+            this->ClipHexahedronInOut2D(newPoints,cell,this->Locator, conn,
+                                        inPD, outPD, inCD, cellId, outCD);
             }
           else 
             {
@@ -427,33 +426,33 @@ void vtkBoxClipDataSet::SetBoxClip(double *n0,double *o0,double *n1,double *o1,
 
   for ( i=0;i<3;i++) 
     {
-    n_pl[0][i] = n0[i];
-    o_pl[0][i] = o0[i];
+    this->PlaneNormal[0][i] = n0[i];
+    this->PlanePoint[0][i] = o0[i];
     }
   for ( i=0;i<3;i++) 
     {
-    n_pl[1][i] = n1[i];
-    o_pl[1][i] = o1[i];
+    this->PlaneNormal[1][i] = n1[i];
+    this->PlanePoint[1][i] = o1[i];
     }
   for ( i=0;i<3;i++) 
     {
-    n_pl[2][i] = n2[i];
-    o_pl[2][i] = o2[i];
+    this->PlaneNormal[2][i] = n2[i];
+    this->PlanePoint[2][i] = o2[i];
     }
   for ( i=0;i<3;i++) 
     {
-    n_pl[3][i] = n3[i];
-    o_pl[3][i] = o3[i];
+    this->PlaneNormal[3][i] = n3[i];
+    this->PlanePoint[3][i] = o3[i];
     }
   for ( i=0;i<3;i++) 
     {
-    n_pl[4][i] = n4[i];
-    o_pl[4][i] = o4[i];
+    this->PlaneNormal[4][i] = n4[i];
+    this->PlanePoint[4][i] = o4[i];
     }
   for ( i=0;i<3;i++) 
     {
-    n_pl[5][i] = n5[i];
-    o_pl[5][i] = o5[i];
+    this->PlaneNormal[5][i] = n5[i];
+    this->PlanePoint[5][i] = o5[i];
     }
 }
 
@@ -465,12 +464,12 @@ void vtkBoxClipDataSet::SetBoxClip(double xmin,double xmax,
                                    double zmin,double zmax)
 {
   this->SetOrientation(0);
-  BoundBoxClip[0][0] = xmin;
-  BoundBoxClip[0][1] = xmax;
-  BoundBoxClip[1][0] = ymin;
-  BoundBoxClip[1][1] = ymax;
-  BoundBoxClip[2][0] = zmin;
-  BoundBoxClip[2][1] = zmax;
+  this->BoundBoxClip[0][0] = xmin;
+  this->BoundBoxClip[0][1] = xmax;
+  this->BoundBoxClip[1][0] = ymin;
+  this->BoundBoxClip[1][1] = ymax;
+  this->BoundBoxClip[2][0] = zmin;
+  this->BoundBoxClip[2][1] = zmax;
 }
 
 //----------------------------------------------------------------------------
@@ -478,7 +477,7 @@ void vtkBoxClipDataSet::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  os << indent << "Merge Tolerance: " << this->MergeTolerance << "\n";
+  //os << indent << "Merge Tolerance: " << this->MergeTolerance << "\n";
   os << indent << "Orientation: " << this->Orientation << "\n";
   
   if ( this->Locator )
@@ -499,7 +498,11 @@ void vtkBoxClipDataSet::PrintSelf(ostream& os, vtkIndent indent)
   if (this->InputScalarsSelection)
     {
     os << indent << "InputScalarsSelection: " 
-       << this->InputScalarsSelection << endl;
+       << this->InputScalarsSelection << "\n";
+    }
+  else
+    {
+    os << indent << "InputScalarsSelection: (none)\n";
     }
 }
 
@@ -569,7 +572,6 @@ void vtkBoxClipDataSet::MinEdgeF(unsigned *id_v, vtkIdType *cellIds,unsigned *ed
         edgF[1] = id;
         }
       break;
-  
     case 3:
       if(id < id_v[1])
         {
@@ -970,33 +972,33 @@ void vtkBoxClipDataSet::CellGrid(vtkIdType typeobj, vtkIdType npts, vtkIdType *c
           {
           case 5:   // edge(v0,v5):10*0 + 5
           case 27:  // edge(v2,v7):10*2 + 7
-            WedgeToTetra(vwedge[0],cellIds,newCellArray);
-            WedgeToTetra(vwedge[1],cellIds,newCellArray);
+            this->WedgeToTetra(vwedge[0],cellIds,newCellArray);
+            this->WedgeToTetra(vwedge[1],cellIds,newCellArray);
             break;
           case 3:   // edge(v0,v2)
           case 47:  // edge(v4,v6)
-            WedgeToTetra(vwedge[2],cellIds,newCellArray);
-            WedgeToTetra(vwedge[3],cellIds,newCellArray);
+            this->WedgeToTetra(vwedge[2],cellIds,newCellArray);
+            this->WedgeToTetra(vwedge[3],cellIds,newCellArray);
             break;
           case 6:
           case 17:
-            WedgeToTetra(vwedge[4],cellIds,newCellArray);
-            WedgeToTetra(vwedge[5],cellIds,newCellArray);
+            this->WedgeToTetra(vwedge[4],cellIds,newCellArray);
+            this->WedgeToTetra(vwedge[5],cellIds,newCellArray);
             break;
           case 12:
           case 56:
-            WedgeToTetra(vwedge[6],cellIds,newCellArray);
-            WedgeToTetra(vwedge[7],cellIds,newCellArray);
+            this->WedgeToTetra(vwedge[6],cellIds,newCellArray);
+            this->WedgeToTetra(vwedge[7],cellIds,newCellArray);
             break;
           case 24:
           case 35:
-            WedgeToTetra(vwedge[8],cellIds,newCellArray);
-            WedgeToTetra(vwedge[9],cellIds,newCellArray);
+            this->WedgeToTetra(vwedge[8],cellIds,newCellArray);
+            this->WedgeToTetra(vwedge[9],cellIds,newCellArray);
             break;
           case 14:
           case 36:
-            WedgeToTetra(vwedge[10],cellIds,newCellArray);
-            WedgeToTetra(vwedge[11],cellIds,newCellArray);
+            this->WedgeToTetra(vwedge[10],cellIds,newCellArray);
+            this->WedgeToTetra(vwedge[11],cellIds,newCellArray);
             break;
           }
         }
@@ -1114,33 +1116,33 @@ void vtkBoxClipDataSet::CellGrid(vtkIdType typeobj, vtkIdType npts, vtkIdType *c
           {
           case 5:  // edge(v0,v5):10*0 + 5
           case 36: // edge(v3,v6):10*3 + 6
-            WedgeToTetra(vwedge[0],cellIds,newCellArray);
-            WedgeToTetra(vwedge[1],cellIds,newCellArray);
+            this->WedgeToTetra(vwedge[0],cellIds,newCellArray);
+            this->WedgeToTetra(vwedge[1],cellIds,newCellArray);
             break;
           case 2:  // edge(v0,v2)
           case 46: // edge(v4,v6)
-            WedgeToTetra(vwedge[2],cellIds,newCellArray);
-            WedgeToTetra(vwedge[3],cellIds,newCellArray);
+            this->WedgeToTetra(vwedge[2],cellIds,newCellArray);
+            this->WedgeToTetra(vwedge[3],cellIds,newCellArray);
             break;
           case 7:
           case 16:
-            WedgeToTetra(vwedge[4],cellIds,newCellArray);
-            WedgeToTetra(vwedge[5],cellIds,newCellArray);
+            this->WedgeToTetra(vwedge[4],cellIds,newCellArray);
+            this->WedgeToTetra(vwedge[5],cellIds,newCellArray);
             break;
           case 13:
           case 57:
-            WedgeToTetra(vwedge[6],cellIds,newCellArray);
-            WedgeToTetra(vwedge[7],cellIds,newCellArray);
+            this->WedgeToTetra(vwedge[6],cellIds,newCellArray);
+            this->WedgeToTetra(vwedge[7],cellIds,newCellArray);
             break;
           case 34:
           case 25:
-            WedgeToTetra(vwedge[8],cellIds,newCellArray);
-            WedgeToTetra(vwedge[9],cellIds,newCellArray);
+            this->WedgeToTetra(vwedge[8],cellIds,newCellArray);
+            this->WedgeToTetra(vwedge[9],cellIds,newCellArray);
             break;
           case 14:
           case 27:
-            WedgeToTetra(vwedge[10],cellIds,newCellArray);
-            WedgeToTetra(vwedge[11],cellIds,newCellArray);
+            this->WedgeToTetra(vwedge[10],cellIds,newCellArray);
+            this->WedgeToTetra(vwedge[11],cellIds,newCellArray);
             break;
           }
         }
@@ -1242,7 +1244,6 @@ void vtkBoxClipDataSet::CellGrid(vtkIdType typeobj, vtkIdType npts, vtkIdType *c
 //  
 void vtkBoxClipDataSet::CreateTetra(vtkIdType npts,vtkIdType *cellIds,vtkCellArray *newCellArray)
 {
-
   vtkIdType tabp[5];
   vtkIdType tab[3][4];
   
@@ -1389,7 +1390,7 @@ void vtkBoxClipDataSet::CreateTetra(vtkIdType npts,vtkIdType *cellIds,vtkCellArr
 //
 //    You can extend this idea to 3D.
 //
-//    Note: xmin = BoundBoxClip[0][0], xmax=  BoundBoxClip[0][1],... 
+//    Note: xmin = this->BoundBoxClip[0][0], xmax=  this->BoundBoxClip[0][1],... 
 // 
 //----------------------------------------------------------------------------  
 // (2) Intersection between Tetrahedron and Plane:
@@ -1615,37 +1616,48 @@ void vtkBoxClipDataSet::ClipBox(vtkPoints *newPoints,
       {       
       cellPts->GetPoint(v_id[i],v);
 
-      if (v[0] > BoundBoxClip[0][0])
+      if (v[0] > this->BoundBoxClip[0][0])
+        {
         test[0] = 0;
-      if (v[0] < BoundBoxClip[0][1])
-        test[1] = 0;  
-      if (v[1] > BoundBoxClip[1][0])
+        }
+      if (v[0] < this->BoundBoxClip[0][1])
+        {
+        test[1] = 0;
+        }
+      if (v[1] > this->BoundBoxClip[1][0])
+        {
         test[2] = 0;
-      if (v[1] < BoundBoxClip[1][1])
+        }
+      if (v[1] < this->BoundBoxClip[1][1])
+        {
         test[3] = 0;
-      if (v[2] > BoundBoxClip[2][0])
+        }
+      if (v[2] > this->BoundBoxClip[2][0])
+        {
         test[4] = 0;
-      if (v[2] < BoundBoxClip[2][1])
+        }
+      if (v[2] < this->BoundBoxClip[2][1])
+        {
         test[5] = 0;
+        }
              
       }//for all points of the cell.
 
     if ((test[0] == 1)|| (test[1] == 1) ||
-    (test[2] == 1)|| (test[3] == 1) ||
-    (test[4] == 1)|| (test[5] == 1))
+        (test[2] == 1)|| (test[3] == 1) ||
+        (test[4] == 1)|| (test[5] == 1))
       {
-        continue;                         // Tetrahedron is outside.
+      continue;                         // Tetrahedron is outside.
       }
 
-    //float  *pPtr = (float *)cellPts->GetVoidPointer(0);   
     for (allInside=1, i=0; i<4; i++)
       {
         ptId = cellIds->GetId(v_id[i]);
         cellPts->GetPoint(v_id[i],v);
 
-        if (!(((v[0] >= BoundBoxClip[0][0])&&(v[0] <= BoundBoxClip[0][1]) &&
-         (v[1] >= BoundBoxClip[1][0])&&(v[1] <= BoundBoxClip[1][1])&& 
-         (v[2] >= BoundBoxClip[2][0])&&(v[2] <= BoundBoxClip[2][1]))))
+        if (!(((v[0] >= this->BoundBoxClip[0][0])&&(v[0] <= this->BoundBoxClip[0][1]) &&
+               (v[1] >= this->BoundBoxClip[1][0])&&(v[1] <= this->BoundBoxClip[1][1])&& 
+               (v[2] >= this->BoundBoxClip[2][0])&&(v[2] <= this->BoundBoxClip[2][1]))))
           { 
           //outside,its type might change later (nearby intersection)
           allInside = 0;      
@@ -1662,16 +1674,15 @@ void vtkBoxClipDataSet::ClipBox(vtkPoints *newPoints,
 
     if ( allInside )
       {   
-        // Tetrahedron inside.
-        vtkIdType newCellId = tets->InsertNextCell(4,iid);
-        outCD->CopyData(inCD,cellId,newCellId);
-        continue;
+      // Tetrahedron inside.
+      vtkIdType newCellId = tets->InsertNextCell(4,iid);
+      outCD->CopyData(inCD,cellId,newCellId);
+      continue;
       }
 
-    //float *pc1  , *pc2;
     double *pedg1,*pedg2;
 
-      // tab4: tetrahedron intersection in 4 edges.see (2)
+    // tab4: tetrahedron intersection in 4 edges.see (2)
 
     unsigned tab4[6][6] = { {0,1,1,2,3,3},   // Tetrahedron Intersection Cases
                             {2,0,0,3,2,1},
@@ -1712,7 +1723,7 @@ void vtkBoxClipDataSet::ClipBox(vtkPoints *newPoints,
     vtkIdType newCellId = cellarray->InsertNextCell(4,iid);
     unsigned planes;
 
-            // Test Cell intersection with each plane of box
+    // Test Cell intersection with each plane of box
     for (planes = 0; planes < 6; planes++) 
       {
       switch(planes)
@@ -1738,7 +1749,7 @@ void vtkBoxClipDataSet::ClipBox(vtkPoints *newPoints,
         }
         
       // The plane is always parallel to unitary cube. 
-      value = BoundBoxClip[ind[0]][planes%2];
+      value = this->BoundBoxClip[ind[0]][planes%2];
         
       unsigned totalnewcells = cellarray->GetNumberOfCells();
       vtkCellArray *newcellArray = vtkCellArray::New();
@@ -1785,17 +1796,10 @@ void vtkBoxClipDataSet::ClipBox(vtkPoints *newPoints,
             t = ( deltaScalar == 0.0 ? 0.0 :
             (value - pedg1[ind[0]]) / deltaScalar );
       
-            if ( t == 0.0 )
+            if ( t == 0.0 || t == 1.0 )
               {
               continue;
               }
-            else if ( t == 1.0 )
-              {
-              continue;
-              }
-      
-            //pc1 = pPtr + 3*v1;
-            //pc2 = pPtr + 3*v2;
       
             for (j=0; j<3; j++)
               {
@@ -1807,9 +1811,8 @@ void vtkBoxClipDataSet::ClipBox(vtkPoints *newPoints,
             if ( locator->InsertUniquePoint(x, p_id[num_inter]) )
               {
               outPD->InterpolateEdge(inPD, p_id[num_inter], cellIds->GetId(v1),
-                   cellIds->GetId(v2), t);
+                                     cellIds->GetId(v2), t);
               }
-      
             num_inter++;        
             }//if edge intersects value
           }//for all edges
@@ -2104,16 +2107,22 @@ void vtkBoxClipDataSet::ClipHexahedron(vtkPoints *newPoints,
       // Use plane equation 
       for(k=0;k<6;k++)
         {
-        p[k] = n_pl[k][0]*(v[0] - o_pl[k][0])+ 
-               n_pl[k][1]*(v[1] - o_pl[k][1]) +  
-               n_pl[k][2]*(v[2] - o_pl[k][2]);
+        p[k] = this->PlaneNormal[k][0]*(v[0] - this->PlanePoint[k][0])+ 
+               this->PlaneNormal[k][1]*(v[1] - this->PlanePoint[k][1]) +  
+               this->PlaneNormal[k][2]*(v[2] - this->PlanePoint[k][2]);
         }
 
      
       for(k=0;k<3;k++)
         {
-        if (p[2*k] < 0) test[2*k] = 0;
-        if (p[2*k+1] < 0) test[2*k+1] = 0;
+        if (p[2*k] < 0)
+          {
+          test[2*k] = 0;
+          }
+        if (p[2*k+1] < 0) 
+          {
+          test[2*k+1] = 0;
+          }
         }
            
       }//for all points of the cell.
@@ -2125,16 +2134,17 @@ void vtkBoxClipDataSet::ClipHexahedron(vtkPoints *newPoints,
       continue;                         // Tetrahedron is outside.
       }
    
-    //float  *pPtr = (float *)cellPts->GetVoidPointer(0);   
     for (allInside=1, i=0; i<4; i++)
       {
       ptId = cellIds->GetId(v_id[i]);
       cellPts->GetPoint(v_id[i],v);
         
-        for(k=0;k<6;k++)
-          p[k] = n_pl[k][0]*(v[0] - o_pl[k][0])+ 
-                 n_pl[k][1]*(v[1] - o_pl[k][1]) +  
-                 n_pl[k][2]*(v[2] - o_pl[k][2]);
+      for(k=0;k<6;k++)
+        {
+        p[k] = this->PlaneNormal[k][0]*(v[0] - this->PlanePoint[k][0])+ 
+               this->PlaneNormal[k][1]*(v[1] - this->PlanePoint[k][1]) +  
+               this->PlaneNormal[k][2]*(v[2] - this->PlanePoint[k][2]);
+        }
 
       if (!((p[0] <= 0) && (p[1] <= 0) &&
            (p[2] <= 0) && (p[3] <= 0) &&
@@ -2158,8 +2168,6 @@ void vtkBoxClipDataSet::ClipHexahedron(vtkPoints *newPoints,
       continue;
       }
 
-    //float  pc[3];
-    //float *pc1  , *pc2;
     double *pedg1,*pedg2;
 
     unsigned tab4[6][6] = { {0,1,1,2,3,3},   // Tetrahedron Intersection Cases
@@ -2220,18 +2228,18 @@ void vtkBoxClipDataSet::ClipHexahedron(vtkPoints *newPoints,
         newPoints->GetPoint(v_id[2],v_tetra[2]); 
         newPoints->GetPoint(v_id[3],v_tetra[3]); 
 
-        p[0] = n_pl[planes][0]*(v_tetra[0][0] - o_pl[planes][0]) +
-               n_pl[planes][1]*(v_tetra[0][1] - o_pl[planes][1]) +  
-               n_pl[planes][2]*(v_tetra[0][2] - o_pl[planes][2]);  
-        p[1] = n_pl[planes][0]*(v_tetra[1][0] - o_pl[planes][0]) + 
-               n_pl[planes][1]*(v_tetra[1][1] - o_pl[planes][1]) +  
-               n_pl[planes][2]*(v_tetra[1][2] - o_pl[planes][2]);
-        p[2] = n_pl[planes][0]*(v_tetra[2][0] - o_pl[planes][0]) + 
-               n_pl[planes][1]*(v_tetra[2][1] - o_pl[planes][1]) +  
-               n_pl[planes][2]*(v_tetra[2][2] - o_pl[planes][2]);
-        p[3] = n_pl[planes][0]*(v_tetra[3][0] - o_pl[planes][0]) + 
-               n_pl[planes][1]*(v_tetra[3][1] - o_pl[planes][1]) +  
-               n_pl[planes][2]*(v_tetra[3][2] - o_pl[planes][2]);
+        p[0] = this->PlaneNormal[planes][0]*(v_tetra[0][0] - this->PlanePoint[planes][0]) +
+               this->PlaneNormal[planes][1]*(v_tetra[0][1] - this->PlanePoint[planes][1]) +  
+               this->PlaneNormal[planes][2]*(v_tetra[0][2] - this->PlanePoint[planes][2]);  
+        p[1] = this->PlaneNormal[planes][0]*(v_tetra[1][0] - this->PlanePoint[planes][0]) + 
+               this->PlaneNormal[planes][1]*(v_tetra[1][1] - this->PlanePoint[planes][1]) +  
+               this->PlaneNormal[planes][2]*(v_tetra[1][2] - this->PlanePoint[planes][2]);
+        p[2] = this->PlaneNormal[planes][0]*(v_tetra[2][0] - this->PlanePoint[planes][0]) + 
+               this->PlaneNormal[planes][1]*(v_tetra[2][1] - this->PlanePoint[planes][1]) +  
+               this->PlaneNormal[planes][2]*(v_tetra[2][2] - this->PlanePoint[planes][2]);
+        p[3] = this->PlaneNormal[planes][0]*(v_tetra[3][0] - this->PlanePoint[planes][0]) + 
+               this->PlaneNormal[planes][1]*(v_tetra[3][1] - this->PlanePoint[planes][1]) +  
+               this->PlaneNormal[planes][2]*(v_tetra[3][2] - this->PlanePoint[planes][2]);
       
         for (int edgeNum=0; edgeNum < 6; edgeNum++)
           {
@@ -2270,14 +2278,9 @@ void vtkBoxClipDataSet::ClipHexahedron(vtkPoints *newPoints,
               continue;
               }
       
-            //pc1 = pPtr + 3*v1;
-            //pc2 = pPtr + 3*v2;
-      
             for (j=0; j<3; j++)
               {
               x[j]  = pedg1[j]  + t*(pedg2[j] - pedg1[j]);
-              //pc[j] = pc1[j] + t*(pc2[j] - pc1[j]);
-              //p_inter[num_inter][j] = x[j];
               }
       
             // Incorporate point into output and interpolate edge data as necessary
@@ -2571,8 +2574,6 @@ void vtkBoxClipDataSet::ClipBoxInOut(vtkPoints *newPoints,
     {
     arraytetra->GetNextCell(ptstetra,v_id);
 
-    //float  *pPtr = (float *)cellPts->GetVoidPointer(0);   
-
     // Test Outside: see(1)
     unsigned test[6] = {1,1,1,1,1,1};
     for (i=0; i<4; i++)
@@ -2580,27 +2581,27 @@ void vtkBoxClipDataSet::ClipBoxInOut(vtkPoints *newPoints,
       ptIdout[i] = cellIds->GetId(v_id[i]);
       cellPts->GetPoint(v_id[i],v_tetra[i]);
 
-      if (v_tetra[i][0] > BoundBoxClip[0][0])
+      if (v_tetra[i][0] > this->BoundBoxClip[0][0])
         {
         test[0] = 0;
         }
-      if (v_tetra[i][0] < BoundBoxClip[0][1])
+      if (v_tetra[i][0] < this->BoundBoxClip[0][1])
         {
         test[1] = 0;
         }
-      if (v_tetra[i][1] > BoundBoxClip[1][0])
+      if (v_tetra[i][1] > this->BoundBoxClip[1][0])
         {
         test[2] = 0;
         }
-      if (v_tetra[i][1] < BoundBoxClip[1][1])
+      if (v_tetra[i][1] < this->BoundBoxClip[1][1])
         {
         test[3] = 0;
         }
-      if (v_tetra[i][2] > BoundBoxClip[2][0])
+      if (v_tetra[i][2] > this->BoundBoxClip[2][0])
         {
         test[4] = 0;
         }
-      if (v_tetra[i][2] < BoundBoxClip[2][1])
+      if (v_tetra[i][2] < this->BoundBoxClip[2][1])
         {
         test[5] = 0;
         }
@@ -2627,9 +2628,9 @@ void vtkBoxClipDataSet::ClipBoxInOut(vtkPoints *newPoints,
       ptId = cellIds->GetId(v_id[i]);
       cellPts->GetPoint(v_id[i],v);
 
-      if (!(((v[0] >= BoundBoxClip[0][0])&&(v[0] <= BoundBoxClip[0][1]) &&
-             (v[1] >= BoundBoxClip[1][0])&&(v[1] <= BoundBoxClip[1][1])&& 
-             (v[2] >= BoundBoxClip[2][0])&&(v[2] <= BoundBoxClip[2][1]))))
+      if (!(((v[0] >= this->BoundBoxClip[0][0])&&(v[0] <= this->BoundBoxClip[0][1]) &&
+             (v[1] >= this->BoundBoxClip[1][0])&&(v[1] <= this->BoundBoxClip[1][1])&& 
+             (v[2] >= this->BoundBoxClip[2][0])&&(v[2] <= this->BoundBoxClip[2][1]))))
         { 
         //outside,its type might change later (nearby intersection)
         allInside = 0;      
@@ -2652,8 +2653,6 @@ void vtkBoxClipDataSet::ClipBoxInOut(vtkPoints *newPoints,
       continue;
       }
 
-    //float  pc[3];
-    //float *pc1  , *pc2;
     double *pedg1,*pedg2;
 
     // tab4: tetrahedron intersection in 4 edges.see (2)
@@ -2722,7 +2721,7 @@ void vtkBoxClipDataSet::ClipBoxInOut(vtkPoints *newPoints,
         break;
         }
       
-      value = BoundBoxClip[ind[0]][planes%2];   // The plane is always parallel to unitary cube. 
+      value = this->BoundBoxClip[ind[0]][planes%2];   // The plane is always parallel to unitary cube. 
       
       unsigned totalnewcells = cellarray->GetNumberOfCells();
       vtkCellArray *newcellArray = vtkCellArray::New();
@@ -2776,13 +2775,9 @@ void vtkBoxClipDataSet::ClipBoxInOut(vtkPoints *newPoints,
               continue;
               }
       
-            //pc1 = pPtr + 3*v1;
-            //pc2 = pPtr + 3*v2;
-      
             for (j=0; j<3; j++)
               {
               x[j]  = pedg1[j]  + t*(pedg2[j] - pedg1[j]);
-              //pc[j] = pc1[j] + t*(pc2[j] - pc1[j]);
               }
       
             // Incorporate point into output and interpolate edge data as necessary
@@ -3116,7 +3111,6 @@ void vtkBoxClipDataSet::ClipHexahedronInOut(vtkPoints *newPoints,
 
   int i,j,k;
   int allInside;
-  //int ind[3];
 
   vtkIdType edges[6][2] = { {0,1}, {1,2}, {2,0},
                             {0,3}, {1,3}, {2,3} };  /* Edges Tetrahedron */
@@ -3142,7 +3136,6 @@ void vtkBoxClipDataSet::ClipHexahedronInOut(vtkPoints *newPoints,
     {
     arraytetra->GetNextCell(ptstetra,v_id);
 
-    //float  *pPtr = (float *)cellPts->GetVoidPointer(0);   
     // Test Outside
     unsigned test[6] = {1,1,1,1,1,1};
     for (i=0; i<4; i++)
@@ -3153,9 +3146,9 @@ void vtkBoxClipDataSet::ClipHexahedronInOut(vtkPoints *newPoints,
       // Use plane equation
       for(k=0;k<6;k++)
         {
-        p[k] = n_pl[k][0]*(v_tetra[i][0] - o_pl[k][0]) +  
-               n_pl[k][1]*(v_tetra[i][1] - o_pl[k][1]) +  
-               n_pl[k][2]*(v_tetra[i][2] - o_pl[k][2]);
+        p[k] = this->PlaneNormal[k][0]*(v_tetra[i][0] - this->PlanePoint[k][0]) +  
+               this->PlaneNormal[k][1]*(v_tetra[i][1] - this->PlanePoint[k][1]) +  
+               this->PlaneNormal[k][2]*(v_tetra[i][2] - this->PlanePoint[k][2]);
         }
 
      
@@ -3196,14 +3189,14 @@ void vtkBoxClipDataSet::ClipHexahedronInOut(vtkPoints *newPoints,
   
       for(k=0;k<6;k++)
         {
-        p[k] = n_pl[k][0]*(v[0] - o_pl[k][0]) + 
-               n_pl[k][1]*(v[1] - o_pl[k][1]) +  
-               n_pl[k][2]*(v[2] - o_pl[k][2]);
+        p[k] = this->PlaneNormal[k][0]*(v[0] - this->PlanePoint[k][0]) + 
+               this->PlaneNormal[k][1]*(v[1] - this->PlanePoint[k][1]) +  
+               this->PlaneNormal[k][2]*(v[2] - this->PlanePoint[k][2]);
         }
 
       if (!((p[0] <= 0) && (p[1] <= 0) &&
-           (p[2] <= 0) && (p[3] <= 0) &&
-           (p[4] <= 0) && (p[5] <= 0)))
+            (p[2] <= 0) && (p[3] <= 0) &&
+            (p[4] <= 0) && (p[5] <= 0)))
         {
         allInside = 0;
         }
@@ -3268,127 +3261,103 @@ void vtkBoxClipDataSet::ClipHexahedronInOut(vtkPoints *newPoints,
     int newCellId = cellarray->InsertNextCell(4,iid);
 
     // Test Cell intersection with each plane of box
+    // FIXME: there is no difference in the for loop (planes has no influence!)
     for (planes = 0; planes < 6; planes++) 
       {
-      /*switch(planes) 
+      unsigned totalnewcells = cellarray->GetNumberOfCells();
+      vtkCellArray *newcellArray = vtkCellArray::New();
+      
+      for (idcellnew = 0 ; idcellnew < totalnewcells; idcellnew++) 
         {
-        case 0:
-        case 1:
-          ind[0] = 0;
-          ind[1] = 1;
-          ind[2] = 2;
-          break;
-        case 2:
-        case 3:
-          ind[0] = 1;
-          ind[1] = 0;
-          ind[2] = 2;
-          break;
-        case 4:
-        case 5:
-          ind[0] = 2;
-          ind[1] = 0;
-          ind[2] = 1;
-        break;
-        }*/
-      
-    unsigned totalnewcells = cellarray->GetNumberOfCells();
-    vtkCellArray *newcellArray = vtkCellArray::New();
-      
-    for (idcellnew = 0 ; idcellnew < totalnewcells; idcellnew++) 
-      {
-      unsigned i0,i1;
-      unsigned num_inter = 0;
-      unsigned edges_inter = 0;
-      vtkIdType p_id[4];
+        unsigned i0,i1;
+        unsigned num_inter = 0;
+        unsigned edges_inter = 0;
+        vtkIdType p_id[4];
 
-      cellarray->GetNextCell(npts,v_id);
+        cellarray->GetNextCell(npts,v_id);
       
-      newPoints->GetPoint(v_id[0],v_tetra[0]); //coord (x,y,z) 
-      newPoints->GetPoint(v_id[1],v_tetra[1]); 
-      newPoints->GetPoint(v_id[2],v_tetra[2]); 
-      newPoints->GetPoint(v_id[3],v_tetra[3]); 
+        newPoints->GetPoint(v_id[0],v_tetra[0]); //coord (x,y,z) 
+        newPoints->GetPoint(v_id[1],v_tetra[1]); 
+        newPoints->GetPoint(v_id[2],v_tetra[2]); 
+        newPoints->GetPoint(v_id[3],v_tetra[3]); 
 
-      p[0] = n_pl[planes][0]*(v_tetra[0][0] - o_pl[planes][0]) +
-             n_pl[planes][1]*(v_tetra[0][1] - o_pl[planes][1]) +  
-             n_pl[planes][2]*(v_tetra[0][2] - o_pl[planes][2]);  
-      p[1] = n_pl[planes][0]*(v_tetra[1][0] - o_pl[planes][0]) + 
-             n_pl[planes][1]*(v_tetra[1][1] - o_pl[planes][1]) +  
-             n_pl[planes][2]*(v_tetra[1][2] - o_pl[planes][2]);
-      p[2] = n_pl[planes][0]*(v_tetra[2][0] - o_pl[planes][0]) + 
-             n_pl[planes][1]*(v_tetra[2][1] - o_pl[planes][1]) +  
-             n_pl[planes][2]*(v_tetra[2][2] - o_pl[planes][2]);
-      p[3] = n_pl[planes][0]*(v_tetra[3][0] - o_pl[planes][0]) + 
-             n_pl[planes][1]*(v_tetra[3][1] - o_pl[planes][1]) +  
-             n_pl[planes][2]*(v_tetra[3][2] - o_pl[planes][2]);
+        p[0] = this->PlaneNormal[planes][0]*(v_tetra[0][0] - this->PlanePoint[planes][0]) +
+               this->PlaneNormal[planes][1]*(v_tetra[0][1] - this->PlanePoint[planes][1]) +  
+               this->PlaneNormal[planes][2]*(v_tetra[0][2] - this->PlanePoint[planes][2]);  
+        p[1] = this->PlaneNormal[planes][0]*(v_tetra[1][0] - this->PlanePoint[planes][0]) + 
+               this->PlaneNormal[planes][1]*(v_tetra[1][1] - this->PlanePoint[planes][1]) +  
+               this->PlaneNormal[planes][2]*(v_tetra[1][2] - this->PlanePoint[planes][2]);
+        p[2] = this->PlaneNormal[planes][0]*(v_tetra[2][0] - this->PlanePoint[planes][0]) + 
+               this->PlaneNormal[planes][1]*(v_tetra[2][1] - this->PlanePoint[planes][1]) +  
+               this->PlaneNormal[planes][2]*(v_tetra[2][2] - this->PlanePoint[planes][2]);
+        p[3] = this->PlaneNormal[planes][0]*(v_tetra[3][0] - this->PlanePoint[planes][0]) + 
+               this->PlaneNormal[planes][1]*(v_tetra[3][1] - this->PlanePoint[planes][1]) +  
+               this->PlaneNormal[planes][2]*(v_tetra[3][2] - this->PlanePoint[planes][2]);
     
-      for (int edgeNum=0; edgeNum < 6; edgeNum++)
-        {
-        verts = edges[edgeNum]; 
+        for (int edgeNum=0; edgeNum < 6; edgeNum++)
+          {
+          verts = edges[edgeNum]; 
         
-        p1 = v_tetra[verts[0]];
-        p2 = v_tetra[verts[1]];
-        double s1 = p[verts[0]];
-        double s2 = p[verts[1]];    
-        if ( (s1 * s2) <=0)
-          {
-          deltaScalar = s2 - s1;
+          p1 = v_tetra[verts[0]];
+          p2 = v_tetra[verts[1]];
+          double s1 = p[verts[0]];
+          double s2 = p[verts[1]];    
+          if ( (s1 * s2) <=0)
+            {
+            deltaScalar = s2 - s1;
               
-          if (deltaScalar > 0)
-            {
-            pedg1 = p1;   pedg2 = p2;
-            v1 = verts[0]; v2 = verts[1];
-            }
-          else
-            {
-            pedg1 = p2;   pedg2 = p1;
-            v1 = verts[1]; v2 = verts[0];
-            deltaScalar = -deltaScalar;
-            t = s1; s1 = s2; s2 = t;
-            }
+            if (deltaScalar > 0)
+              {
+              pedg1 = p1;   pedg2 = p2;
+              v1 = verts[0]; v2 = verts[1];
+              }
+            else
+              {
+              pedg1 = p2;   pedg2 = p1;
+              v1 = verts[1]; v2 = verts[0];
+              deltaScalar = -deltaScalar;
+              t = s1; s1 = s2; s2 = t;
+              }
           
-          // linear interpolation
-          t = ( deltaScalar == 0.0 ? 0.0 :
-                ( - s1) / deltaScalar );
+            // linear interpolation
+            t = ( deltaScalar == 0.0 ? 0.0 :
+                  ( - s1) / deltaScalar );
           
-          if ( t == 0.0 || t == 1.0 )
-            {
-            continue;
-            }
+            if ( t == 0.0 || t == 1.0 )
+              {
+              continue;
+              }
           
-          //pc1 = pPtr + 3*v1;
-          //pc2 = pPtr + 3*v2;
+            for (j=0; j<3; j++)
+              {
+              x[j]  = pedg1[j]  + t*(pedg2[j] - pedg1[j]);
+              }
           
-          for (j=0; j<3; j++)
-            {
-            x[j]  = pedg1[j]  + t*(pedg2[j] - pedg1[j]);
-            }
-          
-          // Incorporate point into output and interpolate edge data as necessary
-          edges_inter = edges_inter * 10 + (edgeNum+1);
+            // Incorporate point into output and interpolate edge data as necessary
+            edges_inter = edges_inter * 10 + (edgeNum+1);
     
-          if ( locator->InsertUniquePoint(x, p_id[num_inter]) )
-            {
-            outPD->InterpolateEdge(inPD, p_id[num_inter], cellIds->GetId(v1),
-                                   cellIds->GetId(v2), t);
-            }
+            if ( locator->InsertUniquePoint(x, p_id[num_inter]) )
+              {
+              outPD->InterpolateEdge(inPD, p_id[num_inter], cellIds->GetId(v1),
+                                     cellIds->GetId(v2), t);
+              }
           
-          num_inter++;        
-          }//if edge intersects value
-        }//for all edges
+            num_inter++;        
+            }//if edge intersects value
+          }//for all edges
 
-      if (num_inter == 0) 
-        {  
-        unsigned outside = 0;
-        for(i=0;i<4;i++)
-          {
-          if (p[i] > 0) 
-            {  // If only one vertex is ouside, so the tetrahedron is outside 
-            outside = 1;   // because there is not intersection.
-            break; // some vertex could be on plane, so you need to test all vertex
+        if (num_inter == 0) 
+          {  
+          unsigned outside = 0;
+          for(i=0;i<4;i++)
+            {
+            if (p[i] > 0) 
+              {  // If only one vertex is ouside, so the tetrahedron is outside 
+              outside = 1;   // because there is not intersection.
+              break; // some vertex could be on plane, so you need to test all vertex
+              }
             }
-          }
-          if (outside == 0)
+            if (outside == 0)
             {
             // else it is possible intersection if other plane
             newCellId = newcellArray->InsertNextCell(4,v_id);
@@ -3562,7 +3531,7 @@ void vtkBoxClipDataSet::ClipHexahedronInOut(vtkPoints *newPoints,
               } 
     
             if (((p[i1] > 0) && ((planes % 2) == 0)) ||   // Isolate vertex is outside box, so
-               ((p[i1] > 0) && ((planes % 2) == 1)))    // the tetrahedron is outside
+                ((p[i1] > 0) && ((planes % 2) == 1)))    // the tetrahedron is outside
               {
               tab_id[0] = v_id[tab2[i0][0]];  // Inside
               tab_id[1] = p_id[tab2[i0][1]];
@@ -3718,27 +3687,27 @@ void vtkBoxClipDataSet::ClipBox2D(vtkPoints *newPoints,
       {       
       cellPts->GetPoint(v_id[i],v);
       
-      if (v[0] > BoundBoxClip[0][0])
+      if (v[0] > this->BoundBoxClip[0][0])
         {
         test[0] = 0;
         }
-      if (v[0] < BoundBoxClip[0][1])
+      if (v[0] < this->BoundBoxClip[0][1])
         {
         test[1] = 0;
         }
-      if (v[1] > BoundBoxClip[1][0])
+      if (v[1] > this->BoundBoxClip[1][0])
         {
         test[2] = 0;
         }
-      if (v[1] < BoundBoxClip[1][1])
+      if (v[1] < this->BoundBoxClip[1][1])
         {
         test[3] = 0;
         }
-      if (v[2] > BoundBoxClip[2][0])
+      if (v[2] > this->BoundBoxClip[2][0])
         {
         test[4] = 0;
         }
-      if (v[2] < BoundBoxClip[2][1])
+      if (v[2] < this->BoundBoxClip[2][1])
         {
         test[5] = 0;
         }
@@ -3751,7 +3720,6 @@ void vtkBoxClipDataSet::ClipBox2D(vtkPoints *newPoints,
       continue;                         // Triangle is outside.
       }
     
-    //float  *pPtr = (float *)cellPts->GetVoidPointer(0);   
     for (allInside=1, i=0; i<3; i++)
       {
       ptId = cellIds->GetId(v_id[i]);
@@ -3872,9 +3840,6 @@ void vtkBoxClipDataSet::ClipBox2D(vtkPoints *newPoints,
               continue;
               }
 
-            //pc1 = pPtr + 3*v1;
-            //pc2 = pPtr + 3*v2;
-
             for (j=0; j<3; j++)
               {
               x[j]  = pedg1[j]  + t*(pedg2[j] - pedg1[j]);
@@ -3932,7 +3897,7 @@ void vtkBoxClipDataSet::ClipBox2D(vtkPoints *newPoints,
                 continue;
               }                                                         
             if (((v_triangle[i0][ind[0]] < value) && ((planes % 2) == 0)) ||
-              ((v_triangle[i0][ind[0]] > value) && ((planes % 2) == 1))) 
+                ((v_triangle[i0][ind[0]] > value) && ((planes % 2) == 1))) 
               { 
               // The v_triangle[i0] is outside box, so
               // The Quad is inside: two triangles: (v0,v1,p0) and (p0,p1,v1)
@@ -3973,7 +3938,7 @@ void vtkBoxClipDataSet::ClipBox2D(vtkPoints *newPoints,
                 continue;
               }                                                              
             if (((v_triangle[i0][ind[0]] < value) && ((planes % 2) == 0)) ||
-              ((v_triangle[i0][ind[0]] > value) && ((planes % 2) == 1)))
+                ((v_triangle[i0][ind[0]] > value) && ((planes % 2) == 1)))
               {
               // Test one of the vertices  vertex i0 is outside          
               tab_id[0] = v_id[tab1[i0][0]];
@@ -4059,8 +4024,6 @@ void vtkBoxClipDataSet::ClipBoxInOut2D(vtkPoints *newPoints,
     {
     arraytriangle->GetNextCell(ptstriangle,v_id);
 
-    //float  *pPtr = (float *)cellPts->GetVoidPointer(0);   
-
     // Test Outside: see(1)
     unsigned test[6] = {1,1,1,1,1,1};
     for (i=0; i<3; i++)
@@ -4068,27 +4031,27 @@ void vtkBoxClipDataSet::ClipBoxInOut2D(vtkPoints *newPoints,
       ptIdout[i] = cellIds->GetId(v_id[i]);
       cellPts->GetPoint(v_id[i],v_triangle[i]);
 
-      if (v_triangle[i][0] > BoundBoxClip[0][0])
+      if (v_triangle[i][0] > this->BoundBoxClip[0][0])
         {
         test[0] = 0;
         }
-      if (v_triangle[i][0] < BoundBoxClip[0][1])
+      if (v_triangle[i][0] < this->BoundBoxClip[0][1])
         {
         test[1] = 0;  
         }
-      if (v_triangle[i][1] > BoundBoxClip[1][0])
+      if (v_triangle[i][1] > this->BoundBoxClip[1][0])
         {
         test[2] = 0;
         }
-      if (v_triangle[i][1] < BoundBoxClip[1][1])
+      if (v_triangle[i][1] < this->BoundBoxClip[1][1])
         {
         test[3] = 0;
         }
-      if (v_triangle[i][2] > BoundBoxClip[2][0])
+      if (v_triangle[i][2] > this->BoundBoxClip[2][0])
         {
         test[4] = 0;
         }
-      if (v_triangle[i][2] < BoundBoxClip[2][1])
+      if (v_triangle[i][2] < this->BoundBoxClip[2][1])
         {
         test[5] = 0;
         }
@@ -4117,9 +4080,9 @@ void vtkBoxClipDataSet::ClipBoxInOut2D(vtkPoints *newPoints,
       ptId = cellIds->GetId(v_id[i]);
       cellPts->GetPoint(v_id[i],v);
 
-      if (!(((v[0] >= BoundBoxClip[0][0])&&(v[0] <= BoundBoxClip[0][1]) &&
-             (v[1] >= BoundBoxClip[1][0])&&(v[1] <= BoundBoxClip[1][1])&& 
-             (v[2] >= BoundBoxClip[2][0])&&(v[2] <= BoundBoxClip[2][1]))))
+      if (!(((v[0] >= this->BoundBoxClip[0][0])&&(v[0] <= this->BoundBoxClip[0][1]) &&
+             (v[1] >= this->BoundBoxClip[1][0])&&(v[1] <= this->BoundBoxClip[1][1])&& 
+             (v[2] >= this->BoundBoxClip[2][0])&&(v[2] <= this->BoundBoxClip[2][1]))))
         { 
         //outside,its type might change later (nearby intersection)
         allInside = 0;      
@@ -4131,7 +4094,6 @@ void vtkBoxClipDataSet::ClipBoxInOut2D(vtkPoints *newPoints,
         {
         outPD->CopyData(inPD,ptId, iid[i]);
         }
-      
       }//for all points of the triangle.
 
     if ( allInside )
@@ -4184,7 +4146,7 @@ void vtkBoxClipDataSet::ClipBoxInOut2D(vtkPoints *newPoints,
         }
       
       // The plane is always parallel to unitary cube. 
-      value = BoundBoxClip[ind[0]][planes%2];   
+      value = this->BoundBoxClip[ind[0]][planes%2];   
       
       unsigned totalnewcells = cellarray->GetNumberOfCells();
       vtkCellArray *newcellArray = vtkCellArray::New();
@@ -4236,9 +4198,6 @@ void vtkBoxClipDataSet::ClipBoxInOut2D(vtkPoints *newPoints,
               continue;
               }
       
-            //pc1 = pPtr + 3*v1;
-            //pc2 = pPtr + 3*v2;
-      
             for (j=0; j<3; j++)
               {
               x[j]  = pedg1[j]  + t*(pedg2[j] - pedg1[j]);
@@ -4249,7 +4208,7 @@ void vtkBoxClipDataSet::ClipBoxInOut2D(vtkPoints *newPoints,
             if ( locator->InsertUniquePoint(x, p_id[num_inter]) )
               {
               outPD->InterpolateEdge(inPD, p_id[num_inter], cellIds->GetId(v1),
-                   cellIds->GetId(v2), t);
+                                     cellIds->GetId(v2), t);
               }
       
             num_inter++;        
@@ -4472,9 +4431,9 @@ void vtkBoxClipDataSet::ClipHexahedron2D(vtkPoints *newPoints,
       // Use plane equation 
       for(k=0;k<6;k++)
         {
-        p[k] = n_pl[k][0]*(v[0] - o_pl[k][0])+ 
-               n_pl[k][1]*(v[1] - o_pl[k][1]) +  
-               n_pl[k][2]*(v[2] - o_pl[k][2]);
+        p[k] = this->PlaneNormal[k][0]*(v[0] - this->PlanePoint[k][0])+ 
+               this->PlaneNormal[k][1]*(v[1] - this->PlanePoint[k][1]) +  
+               this->PlaneNormal[k][2]*(v[2] - this->PlanePoint[k][2]);
         }
        
       for(k=0;k<3;k++)
@@ -4497,7 +4456,6 @@ void vtkBoxClipDataSet::ClipHexahedron2D(vtkPoints *newPoints,
         continue;                         // Triangle is outside.
         }
 
-      //float  *pPtr = (float *)cellPts->GetVoidPointer(0);   
       for (allInside=1, i=0; i<3; i++)
         {
         ptId = cellIds->GetId(v_id[i]);
@@ -4505,9 +4463,9 @@ void vtkBoxClipDataSet::ClipHexahedron2D(vtkPoints *newPoints,
           
         for(k=0;k<6;k++)
           {
-          p[k] = n_pl[k][0]*(v[0] - o_pl[k][0])+ 
-                 n_pl[k][1]*(v[1] - o_pl[k][1]) +  
-                 n_pl[k][2]*(v[2] - o_pl[k][2]);
+          p[k] = this->PlaneNormal[k][0]*(v[0] - this->PlanePoint[k][0])+ 
+                 this->PlaneNormal[k][1]*(v[1] - this->PlanePoint[k][1]) +  
+                 this->PlaneNormal[k][2]*(v[2] - this->PlanePoint[k][2]);
           }
 
         if (!((p[0] <= 0) && (p[1] <= 0) &&
@@ -4565,15 +4523,15 @@ void vtkBoxClipDataSet::ClipHexahedron2D(vtkPoints *newPoints,
           newPoints->GetPoint(v_id[1],v_triangle[1]); 
           newPoints->GetPoint(v_id[2],v_triangle[2]); 
 
-          p[0] = n_pl[planes][0]*(v_triangle[0][0] - o_pl[planes][0]) +
-                 n_pl[planes][1]*(v_triangle[0][1] - o_pl[planes][1]) +  
-                 n_pl[planes][2]*(v_triangle[0][2] - o_pl[planes][2]);  
-          p[1] = n_pl[planes][0]*(v_triangle[1][0] - o_pl[planes][0]) + 
-                 n_pl[planes][1]*(v_triangle[1][1] - o_pl[planes][1]) +  
-                 n_pl[planes][2]*(v_triangle[1][2] - o_pl[planes][2]);
-          p[2] = n_pl[planes][0]*(v_triangle[2][0] - o_pl[planes][0]) + 
-                 n_pl[planes][1]*(v_triangle[2][1] - o_pl[planes][1]) +  
-                 n_pl[planes][2]*(v_triangle[2][2] - o_pl[planes][2]);
+          p[0] = this->PlaneNormal[planes][0]*(v_triangle[0][0] - this->PlanePoint[planes][0]) +
+                 this->PlaneNormal[planes][1]*(v_triangle[0][1] - this->PlanePoint[planes][1]) +  
+                 this->PlaneNormal[planes][2]*(v_triangle[0][2] - this->PlanePoint[planes][2]);  
+          p[1] = this->PlaneNormal[planes][0]*(v_triangle[1][0] - this->PlanePoint[planes][0]) + 
+                 this->PlaneNormal[planes][1]*(v_triangle[1][1] - this->PlanePoint[planes][1]) +  
+                 this->PlaneNormal[planes][2]*(v_triangle[1][2] - this->PlanePoint[planes][2]);
+          p[2] = this->PlaneNormal[planes][0]*(v_triangle[2][0] - this->PlanePoint[planes][0]) + 
+                 this->PlaneNormal[planes][1]*(v_triangle[2][1] - this->PlanePoint[planes][1]) +  
+                 this->PlaneNormal[planes][2]*(v_triangle[2][2] - this->PlanePoint[planes][2]);
         
           for (int edgeNum=0; edgeNum < 3; edgeNum++)
             {
@@ -4603,17 +4561,10 @@ void vtkBoxClipDataSet::ClipHexahedron2D(vtkPoints *newPoints,
               // linear interpolation
               t = ( deltaScalar == 0.0 ? 0.0 : ( - s1) / deltaScalar );
         
-              if ( t == 0.0 )
+              if ( t == 0.0 || t == 1.0 )
                 {
                 continue;
                 }
-              else if ( t == 1.0 )
-                {
-                continue;
-                }
-        
-              //pc1 = pPtr + 3*v1;
-              //pc2 = pPtr + 3*v2;
         
               for (j=0; j<3; j++)
                 {
@@ -4798,7 +4749,6 @@ void vtkBoxClipDataSet::ClipHexahedronInOut2D(vtkPoints *newPoints,
     {
     arraytriangle->GetNextCell(ptstriangle,v_id);
 
-    //float  *pPtr = (float *)cellPts->GetVoidPointer(0);   
     // Test Outside
     unsigned test[6] = {1,1,1,1,1,1};
     for (i=0; i<3; i++)
@@ -4809,9 +4759,9 @@ void vtkBoxClipDataSet::ClipHexahedronInOut2D(vtkPoints *newPoints,
       // Use plane equation 
       for(k=0;k<6;k++)
         {
-        p[k] = n_pl[k][0]*(v_triangle[i][0] - o_pl[k][0])+ 
-               n_pl[k][1]*(v_triangle[i][1] - o_pl[k][1]) +  
-               n_pl[k][2]*(v_triangle[i][2] - o_pl[k][2]);
+        p[k] = this->PlaneNormal[k][0]*(v_triangle[i][0] - this->PlanePoint[k][0])+ 
+               this->PlaneNormal[k][1]*(v_triangle[i][1] - this->PlanePoint[k][1]) +  
+               this->PlaneNormal[k][2]*(v_triangle[i][2] - this->PlanePoint[k][2]);
         }
      
       for(k=0;k<3;k++)
@@ -4851,9 +4801,9 @@ void vtkBoxClipDataSet::ClipHexahedronInOut2D(vtkPoints *newPoints,
         
       for(k=0;k<6;k++)
         {
-        p[k] = n_pl[k][0]*(v[0] - o_pl[k][0])+ 
-               n_pl[k][1]*(v[1] - o_pl[k][1]) +  
-               n_pl[k][2]*(v[2] - o_pl[k][2]);
+        p[k] = this->PlaneNormal[k][0]*(v[0] - this->PlanePoint[k][0])+ 
+               this->PlaneNormal[k][1]*(v[1] - this->PlanePoint[k][1]) +  
+               this->PlaneNormal[k][2]*(v[2] - this->PlanePoint[k][2]);
         }
 
       if (!((p[0] <= 0) && (p[1] <= 0) &&
@@ -4879,7 +4829,6 @@ void vtkBoxClipDataSet::ClipHexahedronInOut2D(vtkPoints *newPoints,
       continue;
       }
 
-    //float *pc1  , *pc2;
     double *pedg1,*pedg2;
 
     unsigned tab2[3][4] = { {1, 2, 1, 0},
@@ -4912,15 +4861,15 @@ void vtkBoxClipDataSet::ClipHexahedronInOut2D(vtkPoints *newPoints,
         newPoints->GetPoint(v_id[1],v_triangle[1]); 
         newPoints->GetPoint(v_id[2],v_triangle[2]); 
 
-        p[0] = n_pl[planes][0]*(v_triangle[0][0] - o_pl[planes][0]) +
-               n_pl[planes][1]*(v_triangle[0][1] - o_pl[planes][1]) +  
-               n_pl[planes][2]*(v_triangle[0][2] - o_pl[planes][2]);  
-        p[1] = n_pl[planes][0]*(v_triangle[1][0] - o_pl[planes][0]) + 
-               n_pl[planes][1]*(v_triangle[1][1] - o_pl[planes][1]) +  
-               n_pl[planes][2]*(v_triangle[1][2] - o_pl[planes][2]);
-        p[2] = n_pl[planes][0]*(v_triangle[2][0] - o_pl[planes][0]) + 
-               n_pl[planes][1]*(v_triangle[2][1] - o_pl[planes][1]) +  
-               n_pl[planes][2]*(v_triangle[2][2] - o_pl[planes][2]);
+        p[0] = this->PlaneNormal[planes][0]*(v_triangle[0][0] - this->PlanePoint[planes][0]) +
+               this->PlaneNormal[planes][1]*(v_triangle[0][1] - this->PlanePoint[planes][1]) +  
+               this->PlaneNormal[planes][2]*(v_triangle[0][2] - this->PlanePoint[planes][2]);  
+        p[1] = this->PlaneNormal[planes][0]*(v_triangle[1][0] - this->PlanePoint[planes][0]) + 
+               this->PlaneNormal[planes][1]*(v_triangle[1][1] - this->PlanePoint[planes][1]) +  
+               this->PlaneNormal[planes][2]*(v_triangle[1][2] - this->PlanePoint[planes][2]);
+        p[2] = this->PlaneNormal[planes][0]*(v_triangle[2][0] - this->PlanePoint[planes][0]) + 
+               this->PlaneNormal[planes][1]*(v_triangle[2][1] - this->PlanePoint[planes][1]) +  
+               this->PlaneNormal[planes][2]*(v_triangle[2][2] - this->PlanePoint[planes][2]);
       
         for (int edgeNum=0; edgeNum < 3; edgeNum++)
           {
@@ -4954,9 +4903,6 @@ void vtkBoxClipDataSet::ClipHexahedronInOut2D(vtkPoints *newPoints,
               {
               continue;
               }
-      
-            //pc1 = pPtr + 3*v1;
-            //pc2 = pPtr + 3*v2;
       
             for (j=0; j<3; j++)
               {
