@@ -1243,12 +1243,15 @@ case 70:
 break;
 case 71:
 #line 316 "vtkParse.y"
-{ postSig(yyvsp[0].str); postSig(" "); yyval.integer = 8;}
+{ char ctmpid[2048]; sprintf(ctmpid,"%s ",yyvsp[0].str);
+      postSig(ctmpid); yyval.integer = 8;}
 break;
 case 72:
 #line 318 "vtkParse.y"
 { 
-      postSig(yyvsp[0].str); postSig(" ");
+      char ctmpid[2048];
+      sprintf(ctmpid,"%s ",yyvsp[0].str);
+      postSig(ctmpid);
       yyval.integer = 9; 
       currentFunction->ArgClasses[currentFunction->NumberOfArguments] =
         strdup(yyvsp[0].str); 
@@ -1423,7 +1426,7 @@ case 101:
 break;
 case 102:
 #line 432 "vtkParse.y"
-{postSig("Get");}
+{postSig("*Get");}
 break;
 case 103:
 #line 433 "vtkParse.y"
