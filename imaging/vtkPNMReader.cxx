@@ -134,12 +134,27 @@ void vtkPNMReader::UpdateImageInformation()
 
   // read max pixel value into comp for now
   comp = vtkPNMReaderGetInt(fp);
-  do
-    {
-    c = getc(fp);
-    }
-  while (c != 0x0a);
-  
+
+  // if file is ascii, any amount of whitespace may follow.
+  // if file is binary, a single whitespace character will follow.
+  // We only support binary ppm and pgm files right now.  So the next
+  // character IS always ignored.
+  c = getc(fp);
+
+  // if this file was "written" on the PC, then a CR will have been
+  // written as a CR/LF combination.  So, if this single whitespace
+  // character is a CR and it is followed by a LF, then swallow the
+  // linefeed character as well. (Not part of the PPM standard, but a
+  // a hard fact of life. 
+  if ( c == 0x0d )
+     {
+     c = getc(fp);
+     if ( c != 0x0a )
+        {
+	ungetc( c, fp );
+        }
+     }
+     
   
   // Set the header size now that we have parsed it
   this->SetHeaderSize(ftell(fp));
