@@ -49,7 +49,6 @@ vtkImageExtractComponents::vtkImageExtractComponents()
   this->Components[0] = 0;
   this->Components[1] = 1;
   this->Components[2] = 2;
-  this->Components[3] = 3;
   this->NumberOfComponents = 1;
 }
 

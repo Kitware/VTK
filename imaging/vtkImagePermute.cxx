@@ -42,6 +42,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkImagePermute.h"
 
 //----------------------------------------------------------------------------
+vtkImagePermute::vtkImagePermute()
+{
+  this->FilteredAxes[0] = 0;
+  this->FilteredAxes[1] = 1;
+  this->FilteredAxes[2] = 2;
+}
+
+//----------------------------------------------------------------------------
 void vtkImagePermute::ExecuteImageInformation() 
 {
   int idx, axis;

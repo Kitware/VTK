@@ -83,7 +83,6 @@ vtkTIFFWriter
 #vtkImageFeatureAnd \
 #vtkImageFourierCenter \
 #vtkImageFourierCenter1D \
-#vtkImageGaussianSmooth1D \
 #vtkImageGaussianSource \
 #vtkImageGradient \
 #vtkImageGradientMagnitude \
