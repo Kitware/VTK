@@ -87,6 +87,12 @@ public:
   vtkBooleanMacro(WholeWindow,int);
   
   // Description:
+  // If this flag is on, the Executing causes a render first.
+  vtkSetMacro(RenderFlag, int);
+  vtkGetMacro(RenderFlag, int);
+  vtkBooleanMacro(RenderFlag, int);
+
+  // Description:
   // A boolean value to control whether to grab z-buffer 
   // (i.e., depth values) along with the image data. The z-buffer data
   // is placed into the field data attributes.
@@ -106,7 +112,9 @@ protected:
   
   vtkRenderer *Input;
   int WholeWindow;
+  int RenderFlag;
   int DepthValues;
+
 };
 
 #endif

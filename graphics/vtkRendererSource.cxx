@@ -45,7 +45,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkStructuredInformation.h"
 
 
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 vtkRendererSource* vtkRendererSource::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -65,6 +65,7 @@ vtkRendererSource::vtkRendererSource()
 {
   this->Input = NULL;
   this->WholeWindow = 0;
+  this->RenderFlag = 0;
   this->DepthValues = 0;
 }
 
@@ -103,7 +104,10 @@ void vtkRendererSource::Execute()
     return;
     }
   
-  renWin->Render();
+  if (this->RenderFlag)
+    {
+    renWin->Render();
+    }
   
   // calc the pixel range for the renderer
   x1 = this->Input->GetViewport()[0]*
@@ -171,6 +175,8 @@ void vtkRendererSource::Execute()
 void vtkRendererSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkStructuredPointsSource::PrintSelf(os,indent);
+
+  os << indent << "RenderFlag: " << (this->RenderFlag ? "On\n" : "Off\n");
 
   if ( this->Input )
     {
