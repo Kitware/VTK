@@ -238,7 +238,6 @@ public:
   
 protected:
   vtkCellArray();
-  vtkCellArray (const vtkIdType sz, const int ext=1000);
   ~vtkCellArray();
 
   vtkIdType NumberOfCells;

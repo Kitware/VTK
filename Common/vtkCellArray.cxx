@@ -68,15 +68,6 @@ vtkCellArray::vtkCellArray()
   this->TraversalLocation = 0;
 }
 
-vtkCellArray::vtkCellArray(const vtkIdType sz, const int ext)
-{
-  this->Ia = vtkIdTypeArray::New();
-  this->Ia->Allocate(sz,ext);
-  this->NumberOfCells = 0;
-  this->InsertLocation = 0;
-  this->TraversalLocation = 0;
-}
-
 void vtkCellArray::DeepCopy (vtkCellArray *ca)
 {
   this->Ia->DeepCopy(ca->Ia);
