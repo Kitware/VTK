@@ -95,6 +95,8 @@ vtkDataObject::vtkDataObject()
   this->UpdateNumberOfPieces =   1;
 
   this->MaximumNumberOfPieces = 1;
+
+  this->PipelineMTime = 0;
 }
 
 //----------------------------------------------------------------------------
