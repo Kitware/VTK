@@ -44,8 +44,10 @@ proc StartMotion {widget x y} {
     set WindowY [lindex [$widget configure -height] 4]
 }
 
+set CurrentRenderWindow ""
 proc EndMotion {widget x y} {
     global CurrentRenderWindow
+    if { $CurrentRenderWindow == "" } {return}
 
     $CurrentRenderWindow SetDesiredUpdateRate 0.01
     Render
