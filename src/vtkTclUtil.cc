@@ -40,7 +40,7 @@ int vtkTclDeleteObjectFromHash(ClientData cd)
   int (*command)(ClientData, Tcl_Interp *,int, char *[]);
 
   // lookup the objects name
-  sprintf(temps,"%x",(void *)cd);
+  sprintf(temps,"%p",(void *)cd);
   entry = Tcl_FindHashEntry(&vtkPointerLookup,temps); 
   temp = (char *)(Tcl_GetHashValue(entry));
 
@@ -87,7 +87,7 @@ void vtkTclGenericDeleteObject(ClientData cd)
   args[1] = "Delete";
 
   // lookup the objects name
-  sprintf(temps,"%x",(void *)cd);
+  sprintf(temps,"%p",(void *)cd);
   entry = Tcl_FindHashEntry(&vtkPointerLookup,temps); 
   temp = (char *)(Tcl_GetHashValue(entry));
   args[0] = temp;
@@ -105,6 +105,8 @@ int vtkCommand(ClientData cd, Tcl_Interp *interp, int argc, char *argv[])
 {
   Tcl_HashEntry *entry;
   Tcl_HashSearch search;
+  
+  cd = 0; // shut up the compiler
 
   if (argc < 2) return TCL_OK;
   
@@ -142,7 +144,7 @@ void vtkTclGetObjectFromPointer(Tcl_Interp *interp,void *temp,
 
   /* return a pointer to a vtk Object */
   /* first we must look up the pointer to see if it already exists */
-  sprintf(temps,"%x",temp);
+  sprintf(temps,"%p",temp);
   if ((entry = Tcl_FindHashEntry(&vtkPointerLookup,temps))) 
     {
     sprintf(interp->result,"%s",(char *)(Tcl_GetHashValue(entry)));
@@ -184,7 +186,7 @@ void *vtkTclGetPointerFromObject(char *name,char *result_type)
     {
     return NULL;
     }
-  if (entry = Tcl_FindHashEntry(&vtkInstanceLookup,name))
+  if ((entry = Tcl_FindHashEntry(&vtkInstanceLookup,name)))
     {
     temp = (ClientData)Tcl_GetHashValue(entry);
     }
@@ -195,13 +197,13 @@ void *vtkTclGetPointerFromObject(char *name,char *result_type)
     }
   
   /* now handle the typecasting, get the command proc */
-  if (entry = Tcl_FindHashEntry(&vtkCommandLookup,name))
+  if ((entry = Tcl_FindHashEntry(&vtkCommandLookup,name)))
     {
     command = (int (*)(ClientData,Tcl_Interp *,int,char *[]))Tcl_GetHashValue(entry);
     }
   else
     {
-    fprintf(stderr,"vtk bad argument, could not find command process.\n", name);
+    fprintf(stderr,"vtk bad argument, could not find command process for %s.\n", name);
     return NULL;
     }
 
@@ -211,7 +213,7 @@ void *vtkTclGetPointerFromObject(char *name,char *result_type)
     }
   else
     {
-    fprintf(stderr,"vtk bad argument, type conversion failed.\n", name);
+    fprintf(stderr,"vtk bad argument, type conversion failed for %s.\n", name);
     return NULL;
     }
 
