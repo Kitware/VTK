@@ -108,6 +108,7 @@ vtkOutlineCornerSource.cxx
 vtkOutlineFilter.cxx
 vtkOutlineSource.cxx
 vtkPlaneSource.cxx
+vtkPlanesIntersection.cxx
 vtkPlatonicSolidSource.cxx
 vtkPointDataToCellData.cxx
 vtkPointsProjectedHull.cxx

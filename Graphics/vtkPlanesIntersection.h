@@ -46,7 +46,7 @@ class vtkRenderer;
 class vtkPointsProjectedHull;
 class vtkCell;
 
-class VTK_RENDERING_EXPORT vtkPlanesIntersection : public vtkPlanes
+class VTK_GRAPHICS_EXPORT vtkPlanesIntersection : public vtkPlanes
 {
   vtkTypeRevisionMacro(vtkPlanesIntersection, vtkPlanes);
 
@@ -81,20 +81,6 @@ public:
   static int PolygonIntersectsBBox(double bounds[6], vtkPoints *pts);
 
   // Description:
-  //   Another convenience function provided by this class, it returns
-  //   the vtkPlanesIntersection object representing the view frustum
-  //   created by projecting a sub-rectangle of the view
-  //   plane.  Sub-rectangle range is [-1,1],[-1,1].
-  //
-  //   If you want the entire view plane, you can instead use
-  //   vtkCamera::GetFrustumPlanes() to get the planes, then
-  //   create a vtkPlanesIntersection object and
-  //   use vtkPlanes::SetFrustumPlanes() to set the planes.
-
-  static vtkPlanesIntersection *ConvertFrustumToWorld(vtkRenderer *ren,
-                                                      double x0, double x1, double y0, double y1);
-
-  // Description:
   //   Another convenience function provided by this class, returns
   //   the vtkPlanesIntersection object representing a 3D
   //   cell.  The point IDs for each face must be given in
@@ -126,16 +112,6 @@ private:
   static void PlaneEquation(double *n, double *x, double *p);
   static void ComputeNormal(double *p1, double *p2, double *p3, double normal[3]);
   static int GoodNormal(double *n);
-  static void PointOnPlane(double a, double b, double c, double d, double pt[3]);
-  static double SensibleZCoordinate(vtkRenderer *ren);
-    
-  static vtkPlanesIntersection *ConvertFrustumToWorldPerspective(
-    vtkRenderer *ren,
-    double xmin, double xmax, double ymin, double ymax);
-  static vtkPlanesIntersection *ConvertFrustumToWorldParallel(
-    vtkRenderer *ren,
-    double xmin, double xmax, double ymin, double ymax);
-    
     
   static int Invert3x3(double M[3][3]);
 
