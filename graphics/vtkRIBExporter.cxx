@@ -40,6 +40,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkRIBExporter.h"
 #include "vtkRIBProperty.h"
+#include "vtkRIBLight.h"
 #include "vtkGeometryFilter.h"
 #include "vtkMath.h"
 #include "vtkPolygon.h"
@@ -75,7 +76,6 @@ void vtkRIBExporter::WriteData()
   vtkCollection *textures = new vtkCollection;
   vtkLight *aLight;
   vtkTexture *aTexture;
-  int *size;
   
   // make sure the user specified a FilePrefix
   if ( this->FilePrefix == NULL)
@@ -141,15 +141,8 @@ void vtkRIBExporter::WriteData()
   //
   // Write viewport
   //
-  if (this->Size[0] == -1 && this->Size[1] == -1)
-    {
-    size = this->RenderWindow->GetSize();
-    }
-  else
-    {
-    size = this->GetSize ();
-    }
-  this->WriteViewport (ren, size);
+  this->WriteViewport (ren, this->Size);
+
 
   //
   // Write camera
@@ -366,6 +359,17 @@ void vtkRIBExporter::WriteLight (vtkLight *aLight, int count)
   dy = FocalPoint[1] - Position[1];
   dz = FocalPoint[2] - Position[2];
 
+//
+// Now we need to check to see if an RIBLight has been specified
+//
+  if (strcmp ("vtkRIBLight", aLight->GetClassName ()) == 0)
+    {
+    if (((vtkRIBLight *) aLight)->GetShadows())
+
+      {
+      fprintf (this->FilePtr, "Attribute \"light\" \"shadows\" \"on\"\n");
+      }
+    }
   // define the light source
   if (!aLight->GetPositional())
     {
@@ -381,7 +385,13 @@ void vtkRIBExporter::WriteLight (vtkLight *aLight, int count)
   else
     {
     }
-
+  if (strcmp ("vtkRIBLight", aLight->GetClassName ()) == 0)
+    {
+    if (((vtkRIBLight *) aLight)->GetShadows())
+      {
+      fprintf (this->FilePtr, "Attribute \"light\" \"shadows\" \"off\"\n");
+      }
+    }
 }
 
 void vtkRIBExporter::WriteAmbientLight (int count)
@@ -395,24 +405,26 @@ void vtkRIBExporter::WriteViewport (vtkRenderer *ren, int size[2])
   float *vport;
   int left,right,bottom,top;
   
-  vport = ren->GetViewport();
+  if (size[0] != -1 || size[1] != -1)
+    {
+    vport = ren->GetViewport();
 
-  left = (int)(vport[0]*(size[0] -1));
-  right = (int)(vport[2]*(size[0] - 1));
+    left = (int)(vport[0]*(size[0] -1));
+    right = (int)(vport[2]*(size[0] - 1));
 
-  bottom = (int)(vport[1]*(size[1] -1));
-  top = (int)(vport[3]*(size[1] - 1));
+    bottom = (int)(vport[1]*(size[1] -1));
+    top = (int)(vport[3]*(size[1] - 1));
   
-  fprintf (this->FilePtr, "Format %d %d 1\n", size[0], size[1]);
+    fprintf (this->FilePtr, "Format %d %d 1\n", size[0], size[1]);
 
-  fprintf (this->FilePtr, "CropWindow %f %f %f %f\n",
+    fprintf (this->FilePtr, "CropWindow %f %f %f %f\n",
 	vport[0], vport[2], vport[1], vport[3]);	
     
-  aspect[0] = (float)(right-left+1)/(float)(top-bottom+1);
-  aspect[1] = 1.0;
-  fprintf (this->FilePtr, "ScreenWindow %f %f %f %f\n",
+    aspect[0] = (float)(right-left+1)/(float)(top-bottom+1);
+    aspect[1] = 1.0;
+    fprintf (this->FilePtr, "ScreenWindow %f %f %f %f\n",
 	-aspect[0], aspect[0], -1.0, 1.0);
-
+    }
 }
 
 static void PlaceCamera (FILE *filePtr, RtPoint, RtPoint, float);

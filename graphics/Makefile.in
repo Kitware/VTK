@@ -206,6 +206,7 @@ vtkRendererSource \
 vtkReverseSense \
 vtkRibbonFilter \
 vtkRIBExporter \
+vtkRIBLight \
 vtkRIBProperty \
 vtkRotationalExtrusionFilter \
 vtkSLCReader \
