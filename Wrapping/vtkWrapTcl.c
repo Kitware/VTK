@@ -525,6 +525,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
   fprintf(fp,"#include \"vtkSystemIncludes.h\"\n");
   fprintf(fp,"#include \"%s.h\"\n\n",data->ClassName);
   fprintf(fp,"#include \"vtkTclUtil.h\"\n");
+  fprintf(fp,"#include <vtkstd/stdexcept>\n");
   if (data->IsConcrete)
     {
     if (strcmp(data->ClassName, "vtkRenderWindowInteractor") == 0)
@@ -602,6 +603,8 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     fprintf(fp,"    }\n\n");      
     }
   
+  fprintf(fp,"  try\n    {\n");
+
   /* insert function handling code here */
   for (i = 0; i < data->NumberOfFunctions; i++)
     {
@@ -719,6 +722,17 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     }
   fprintf(fp,"\n  if ((argc >= 2)&&(!strstr(interp->result,\"Object named:\")))\n    {\n");
   fprintf(fp,"    char temps2[256];\n    sprintf(temps2,\"Object named: %%s, could not find requested method: %%s\\nor the method was called with incorrect arguments.\\n\",argv[0],argv[1]);\n    Tcl_AppendResult(interp,temps2,NULL);\n    }\n");
+  fprintf(fp,"    }\n");
+  fprintf(fp,"  catch (vtkstd::exception &e)\n");
+  fprintf(fp,"    {\n");
+  fprintf(fp,"    Tcl_AppendResult(interp, \"Uncaught exception: \",  e.what(), \"\\n\", NULL);\n");
+  fprintf(fp,"    return TCL_ERROR;\n");
+  fprintf(fp,"    }\n");
+  fprintf(fp,"  catch (...)\n");
+  fprintf(fp,"    {\n");
+  fprintf(fp,"    Tcl_AppendResult(interp, \"nUncaught unknown exception\\n\", NULL);\n");
+  fprintf(fp,"    return TCL_ERROR;\n");
+  fprintf(fp,"    }\n");
   fprintf(fp,"  return TCL_ERROR;\n}\n");
 
 }
