@@ -67,6 +67,10 @@ protected:
   // VolumePro board
   virtual void GetDepthBufferValues( vtkRenderer *ren, int size[2],
                                      unsigned int *outData);
+  
+  // Render a bounding box of the volume because the texture map would be
+  // too large
+  virtual void RenderBoundingBox(vtkRenderer *ren, vtkVolume *vol);
 };
 
 

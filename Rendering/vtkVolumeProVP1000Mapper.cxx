@@ -28,7 +28,7 @@
 #include <stdio.h>
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkVolumeProVP1000Mapper, "1.12");
+vtkCxxRevisionMacro(vtkVolumeProVP1000Mapper, "1.13");
 
 vtkVolumeProVP1000Mapper::vtkVolumeProVP1000Mapper()
 {
@@ -91,6 +91,8 @@ vtkVolumeProVP1000Mapper::vtkVolumeProVP1000Mapper()
     vtkErrorMacro( << "Cut plane could not be created!" );
     return;    
     }
+  
+  this->DrawBoundingBox = 0;
 }
 
 
@@ -920,131 +922,188 @@ void vtkVolumeProVP1000Mapper::Render( vtkRenderer *ren, vtkVolume *vol )
   
   this->Context->SetRayTermination(1.0, VLIfalse);
 
-  if ( ! this->IntermixIntersectingGeometry )
+  int width = 0, height = 0;
+  
+  this->CheckSubSampling(this->Volume, this->Context, width, height);
+  
+  int imageWidth, imageHeight;
+  imageWidth = this->ImageBuffer->GetWidth();
+  imageHeight = this->ImageBuffer->GetHeight();
+  
+  this->DrawBoundingBox = 0;
+  
+  if ( (width > imageWidth || height > imageHeight) &&
+       (width < 2000 && height < 2000) )
     {
-    status = this->Volume->Render(this->Context, this->ImageBuffer);
+    float aspectRatio = (float)imageWidth / (float)imageHeight;
+    int widthDiff, heightDiff, newWidth, newHeight;
+    float increase;
+    
+    widthDiff = width - imageWidth;
+    heightDiff = height - imageHeight;
+    if (widthDiff > heightDiff)
+      {
+      increase = (float)width / (float)imageWidth;
+      newWidth = width;
+      newHeight = ceil(imageHeight*increase);
+      }
+    else
+      {
+      increase = (float)height / (float)imageHeight;
+      newWidth = ceil(imageWidth*increase);
+      newHeight = height;
+      }
+    this->ImageBuffer->Release();
+    static VLIFieldDescriptor sImageBufferFields[4] =
+    {
+      VLIFieldDescriptor(0, 8, kVLIUnsignedFraction),
+      VLIFieldDescriptor(8, 8, kVLIUnsignedFraction),
+      VLIFieldDescriptor(16, 8, kVLIUnsignedFraction),
+      VLIFieldDescriptor(24, 8, kVLIUnsignedFraction)
+    };
+    
+    this->ImageBuffer = VLIImageBuffer::Create(kVLIBoard0, newWidth,
+                                               newHeight, 32, 4,
+                                               sImageBufferFields);
+    this->ImageBuffer->SetBorderValue(0, 0, 0, 0);
     }
   else
     {
-    VLIImageRange iRange = VLIImageRange(windowSize[0], windowSize[1]);
-    if ( this->DepthBuffer )
+    this->DrawBoundingBox = 1;
+    }
+  
+  if ( ! this->DrawBoundingBox)
+    {
+    if ( ! this->IntermixIntersectingGeometry )
       {
-      unsigned int width, height;
-      this->DepthBuffer->GetSize(width, height);
-      if (static_cast<int>(width) != windowSize[0] || 
-          static_cast<int>(height) != windowSize[1])
+      status = this->Volume->Render(this->Context, this->ImageBuffer);
+      }
+    else
+      {
+      VLIImageRange iRange = VLIImageRange(windowSize[0], windowSize[1]);
+      if ( this->DepthBuffer )
         {
-        this->DepthBuffer->Release();
-        this->DepthBuffer = NULL;
+        unsigned int width, height;
+        this->DepthBuffer->GetSize(width, height);
+        if (static_cast<int>(width) != windowSize[0] || 
+            static_cast<int>(height) != windowSize[1])
+          {
+          this->DepthBuffer->Release();
+          this->DepthBuffer = NULL;
+          }
         }
+      if ( ! this->DepthBuffer )
+        {
+        this->DepthBuffer = VLIDepthBuffer::Create(kVLIBoard0, windowSize[0],
+                                                   windowSize[1]);
+        this->DepthBuffer->SetBorderValue(0);
+        this->DepthBuffer->SetInputLimits(iRange);
+        status = this->Context->SetDepthTest(VLIContext::kDepthBuffer1,
+                                             VLIContext::kDepthTestLess);
+        }
+      unsigned int *depthData = new unsigned int[windowSize[0]*windowSize[1]];
+      this->GetDepthBufferValues(ren, windowSize, depthData);
+      
+      status = this->DepthBuffer->Update(depthData,
+                                         VLIImageRange(windowSize[0],
+                                                       windowSize[1]));
+      if ( status != kVLIOK )
+        {
+        switch ( status )
+          {
+          case kVLIErrArgument:
+            vtkErrorMacro( << "Invalid argument for updating depth buffer!" );
+            break;
+          case kVLIErrAlloc:
+            vtkErrorMacro( << "Not enough resources to update depth buffer!" );
+            break;
+          default:
+            // Don't know what the error is, but can't update the depth buffer.
+            // Shouldn't get to this error message.
+            vtkErrorMacro( << "Unknown error updating depth buffer!" );
+            break;
+          }
+        return;
+        }
+      this->ImageBuffer->Clear(iRange, 0);
+      status = this->Volume->Render(this->Context, this->ImageBuffer, 0, 0,    
+                                    this->DepthBuffer);
+      
+      delete [] depthData;
       }
-    if ( ! this->DepthBuffer )
-      {
-      this->DepthBuffer = VLIDepthBuffer::Create(kVLIBoard0, windowSize[0],
-                                                 windowSize[1]);
-      this->DepthBuffer->SetBorderValue(0);
-      this->DepthBuffer->SetInputLimits(iRange);
-      status = this->Context->SetDepthTest(VLIContext::kDepthBuffer1,
-                                           VLIContext::kDepthTestLess);
-      }
-    unsigned int *depthData = new unsigned int[windowSize[0]*windowSize[1]];
-    this->GetDepthBufferValues(ren, windowSize, depthData);
     
-    status = this->DepthBuffer->Update(depthData,
-                                       VLIImageRange(windowSize[0],
-                                                     windowSize[1]));
     if ( status != kVLIOK )
       {
       switch ( status )
         {
         case kVLIErrArgument:
-          vtkErrorMacro( << "Invalid argument for updating depth buffer!" );
+          vtkErrorMacro( << "Volume could not be rendered - bad argument!" );
+          break;
+        case kVLIErrCantSubsample:
+          vtkErrorMacro( << "Volume could not be rendered - volume too large for viewport!");
+          break;
+        case kVLIErrClassifier:
+          vtkErrorMacro( << "Volume could not be rendered - invalid classifier!");
+          break;
+        case kVLIErrTransform:
+          vtkErrorMacro( << "Volume could not be rendered - invalid transform state!");
+          break;
+        case kVLIErrAccess:
+          vtkErrorMacro( << "Volume could not be rendered - could not access volume!" );
+          break;
+        case kVLIErrPermission:
+          vtkErrorMacro( << "Volume could not be rendered - do not have permission to perform render!");
+          break;
+        case kVLIErrVolume:
+          vtkErrorMacro( << "Volume could not be rendered - no attached buffer!");
           break;
         case kVLIErrAlloc:
-          vtkErrorMacro( << "Not enough resources to update depth buffer!" );
+          vtkErrorMacro( << "Volume could not be rendered - not enough resources!" );
           break;
         default:
-          // Don't know what the error is, but can't update the depth buffer.
-          // Shouldn't get to this error message.
-          vtkErrorMacro( << "Unknown error updating depth buffer!" );
-          break;
+          // Don't report the error - this volume just won't render
+          vtkErrorMacro( << "Volume could not be rendered - unkown error!" );
+          break;    
         }
+      
       return;
       }
-    this->ImageBuffer->Clear(iRange, 0);
-    status = this->Volume->Render(this->Context, this->ImageBuffer, 0, 0,    
-                                  this->DepthBuffer);
     
-    delete [] depthData;
-    }
-  
-  if ( status != kVLIOK )
-    {
-    switch ( status )
+    size[0] = this->ImageBuffer->GetWidth();
+    size[1] = this->ImageBuffer->GetHeight();
+    
+    unsigned int *outData = new unsigned int[size[0]*size[1]];
+    
+    status = this->ImageBuffer->Unload(outData,
+                                       this->ImageBuffer->GetOutputLimits());
+    
+    if ( status != kVLIOK )
       {
-      case kVLIErrArgument:
-        vtkErrorMacro( << "Volume could not be rendered - bad argument!" );
-        break;
-      case kVLIErrCantSubsample:
-        vtkErrorMacro( << "Volume could not be rendered - volume too large for viewport!");
-        break;
-      case kVLIErrClassifier:
-        vtkErrorMacro( << "Volume could not be rendered - invalid classifier!");
-        break;
-      case kVLIErrTransform:
-        vtkErrorMacro( << "Volume could not be rendered - invalid transform state!");
-        break;
-      case kVLIErrAccess:
-        vtkErrorMacro( << "Volume could not be rendered - could not access volume!" );
-        break;
-      case kVLIErrPermission:
-        vtkErrorMacro( << "Volume could not be rendered - do not have permission to perform render!");
-        break;
-      case kVLIErrVolume:
-        vtkErrorMacro( << "Volume could not be rendered - no attached buffer!");
-        break;
-      case kVLIErrAlloc:
-        vtkErrorMacro( << "Volume could not be rendered - not enough resources!" );
-        break;
-      default:
-        // Don't report the error - this volume just won't render
-        vtkErrorMacro( << "Volume could not be rendered - unkown error!" );
-        break;    
+      switch (status)
+        {
+        case kVLIErrArgument:
+          vtkErrorMacro("Image buffer could not be unloaded - invalid argument!");
+          break;
+        case kVLIErrAlloc:
+          vtkErrorMacro("Image buffer could not be unloaded - not enough resources!");
+          break;
+        case kVLIErrInternal:
+          vtkErrorMacro("Image buffer could not be unloaded - internal VLI error!");
+          break;
+        default:
+          vtkErrorMacro("Image buffer could not be unloaded - unknown error!");
+        }
       }
     
-    return;
+    // Render the image buffer we've been returned.
+    this->RenderImageBuffer(ren, vol, size, outData);
+    
+    delete [] outData;
     }
-
-  size[0] = this->ImageBuffer->GetWidth();
-  size[1] = this->ImageBuffer->GetHeight();
-  
-  unsigned int *outData = new unsigned int[size[0]*size[1]];
-
-  status = this->ImageBuffer->Unload(outData,
-                                     this->ImageBuffer->GetOutputLimits());
- 
-  if ( status != kVLIOK )
+  else
     {
-    switch (status)
-      {
-      case kVLIErrArgument:
-        vtkErrorMacro("Image buffer could not be unloaded - invalid argument!");
-        break;
-      case kVLIErrAlloc:
-        vtkErrorMacro("Image buffer could not be unloaded - not enough resources!");
-        break;
-      case kVLIErrInternal:
-        vtkErrorMacro("Image buffer could not be unloaded - internal VLI error!");
-        break;
-      default:
-        vtkErrorMacro("Image buffer could not be unloaded - unknown error!");
-      }
+    this->RenderBoundingBox(ren, vol);
     }
-
-  // Render the image buffer we've been returned.
-  this->RenderImageBuffer(ren, vol, size, outData);
-  
-  delete [] outData;
 }
 
 #if ((VTK_MAJOR_VERSION == 3)&&(VTK_MINOR_VERSION == 2))
@@ -1054,3 +1113,260 @@ void vtkVolumeProVP1000Mapper::ConvertCroppingRegionPlanesToVoxels()
           sizeof ( this->VoxelCroppingRegionPlanes ) );
 }
 #endif
+
+VLIStatus vtkVolumeProVP1000Mapper::CheckSubSampling(const VLIVolume *inVolume,
+                                                     const VLIContext *inContext,
+                                                     int &outMinImageWidth,
+                                                     int &outMinImageHeight)
+{
+  enum VGAxis
+  {
+    kU = 0,
+    kV = 1,
+    kW = 2
+  };
+  
+  enum VGNeg
+  {
+    kNotNeg = 0,
+    kIsNeg = 1
+  };
+
+  const double kEpsilonSubSample = 1.999;
+  
+  
+  //////////////////////////////////////////////////////////////////////////
+  //
+  // 1) Initialize and calculate matrices: 
+  //
+  //////////////////////////////////////////////////////////////////////////
+  
+  VLIStatus status = kVLIOK;
+  
+  double depthNear, depthFar;
+  int viewportMinX, viewportMinY, viewportWidth, viewportHeight;
+  inContext->GetCamera().GetViewport(viewportMinX, viewportMinY,
+                                     viewportWidth, viewportHeight);
+  inContext->GetCamera().GetDepthRange(depthNear, depthFar);
+  
+  if (viewportWidth <=0 || viewportHeight <=0)
+    {
+    viewportWidth  = 3;
+    viewportHeight = 3;
+    viewportMinX = 0;
+    viewportMinY = 0;
+    status = kVLIErrCantSubsample;
+    }
+  
+  //------------------------------------------------------
+  // Calculate viewport matrix from viewport paramteres
+  //------------------------------------------------------
+  
+  VLIMatrix viewportMatrix;
+  viewportMatrix.Assign(
+    (viewportWidth -1)/2.0, 0, 0, (viewportWidth -1)/2.0  + viewportMinX,
+    0, (viewportHeight-1)/2.0, 0, (viewportHeight-1)/2.0  + viewportMinY,
+    0, 0, (depthFar-depthNear)/2.0, (depthFar+depthNear)/2.0,
+    0, 0, 0, 1.0);
+  
+  //------------------------------------------------------
+  // Calculate viewport-viewmapping(projection)-CorrectedModelView matrix 
+  //-------------------------------------------------------
+  
+  VLIMatrix projection = inContext->GetCamera().GetProjectionMatrix();
+  VLIMatrix viewMatrix = inContext->GetCamera().GetViewMatrix();
+  VLIMatrix model = inContext->GetCamera().GetModelMatrix();
+  VLIMatrix correction = inVolume->GetCorrectionMatrix();
+  
+  VLIMatrix VP_VM_CRMVMatrix = 
+    viewportMatrix * 
+    inContext->GetCamera().GetProjectionMatrix() *
+    inContext->GetCamera().GetViewMatrix() *
+    inContext->GetCamera().GetModelMatrix() *
+    inVolume->GetCorrectionMatrix();
+  
+  if (VP_VM_CRMVMatrix.IsSingular())
+    {
+    return kVLIErrTransform;
+    }
+  
+  
+  //////////////////////////////////////////////////////////////////////////
+  //
+  // 2) Calculate permutation matrix
+  //   a) Choose primary axis to permuted space
+  //   b) Decide the select and neg values in transform
+  //   c) Construct permutation matrix considering min block
+  //////////////////////////////////////////////////////////////////////////
+  
+  //------------------------------------------------------
+  //   a) Choose primary axis to permuted space,
+  //
+  //      The Z axis of the permuted space  
+  //      is one axis of object space that is 
+  //      closest to the casting ray direction
+  //------------------------------------------------------
+  
+  
+  VLIVector4D view(0.0, 0.0, 1.0, 0.0);  // view vector in image space
+  
+  VLIMatrix VP_VM_CRMVInverse = VP_VM_CRMVMatrix.Inverse();
+  
+  VLIVector4D viewVectorInObjectSpace = (VP_VM_CRMVInverse * view).Normalize();
+  
+  double max = fabs (viewVectorInObjectSpace[0]);
+  VGAxis primaryAxis = kU;
+  
+  if (fabs (viewVectorInObjectSpace[1]) > max) 
+    {
+    primaryAxis = kV;
+    max = fabs(viewVectorInObjectSpace[1]);
+    }
+  
+  if (fabs (viewVectorInObjectSpace[2]) > max) 
+    {
+    primaryAxis = kW;
+    max = fabs(viewVectorInObjectSpace[2]);
+    }
+  
+  //------------------------------------------------------
+  //    b) Decide the select and neg values in transform
+  //
+  //       selectZ is the primary axis, negZ as its direction
+  //
+  //       selectX, selectY is chosen
+  //       to keep the coordinate system order
+  //------------------------------------------------------
+  
+  int dirSignOfViewVector[3]; // sign of du, dv, dw direction
+  int i;
+  for ( i = 0; i < 3 ; i++)
+    {
+    dirSignOfViewVector[i] =(viewVectorInObjectSpace[i] < 0 )? -1:1;
+    }
+  
+  // even: 1, odd -1
+  int even = dirSignOfViewVector[0] * dirSignOfViewVector[1]* 
+    dirSignOfViewVector[2];
+  
+  
+  int axisObj = primaryAxis; // axis of Object Space
+  int negSign[3];
+  
+  // SelectZ, negZ
+  VGAxis select[3];
+  VGNeg neg[3];
+  select[2] = primaryAxis; 
+  neg[2] = (dirSignOfViewVector[axisObj] == 1)?kNotNeg:kIsNeg;
+  negSign[2] = dirSignOfViewVector[axisObj];
+  
+  // SelectX, SelectY, negX, negY
+  int axisP; // Axis of Permuted Space
+  
+  // The permuted axes are chosen to keep the same coordinate order
+  // (right or left) as object space
+  for ( i = 1; i < 3; i++)
+    {
+    axisP = (2+ i* even)%3;
+    axisObj = (primaryAxis +i) %3;
+    
+    select[axisP] = (VGAxis)(axisObj);
+    neg[axisP] = (dirSignOfViewVector[axisObj] == 1)?kNotNeg:kIsNeg;
+    negSign[axisP] = dirSignOfViewVector[axisObj];
+    }
+  
+  //-----------------------------------------------------------
+  //    c) Construct permutation matrix considering mini block
+  //------------------------------------------------------------
+  
+#define SELECT_AXIS(select, axisObj) ((select == axisObj)?1:0) 
+#define PERMUTE(axisP,axisObj) negSign[axisP] * SELECT_AXIS(select[axisP], axisObj)
+  
+  // shift -1 if du, dv, dw < 0
+#define SHIFT(index) ((negSign[index]==1)? 0:-1)
+  VLIMatrix permutation;
+  permutation.Assign(
+    PERMUTE(0,kU), PERMUTE(0,kV),PERMUTE(0,kW), SHIFT(0),
+    PERMUTE(1,kU), PERMUTE(1,kV),PERMUTE(1,kW), SHIFT(1),
+    PERMUTE(2,kU), PERMUTE(2,kV),PERMUTE(2,kW), SHIFT(2),
+    0, 0, 0, 1);
+  
+  //////////////////////////////////////////////////////////////////////////
+  //  3) Calculate sample space increment registers using matrices
+  //////////////////////////////////////////////////////////////////////////
+  
+  VLIMatrix VP_VM_CRMVPermuted = VP_VM_CRMVMatrix * permutation.Inverse();
+  
+  // 3.a) The 2x2 upper part of dI_DV Matrix is same in  dS_dV Matrix
+  
+  VLIMatrix dS_dVsubMatrix = VLIMatrix::Identity();
+  
+  dS_dVsubMatrix[0][0] = VP_VM_CRMVPermuted[0][0];
+  dS_dVsubMatrix[0][1] = VP_VM_CRMVPermuted[0][1];
+  dS_dVsubMatrix[1][0] = VP_VM_CRMVPermuted[1][0];
+  dS_dVsubMatrix[1][1] = VP_VM_CRMVPermuted[1][1];
+  
+  VLIMatrix dV_dSsubMatrix  = dS_dVsubMatrix.Inverse();
+  
+  dV_dSsubMatrix[0][0] = fabs(dV_dSsubMatrix[0][0]);
+  dV_dSsubMatrix[0][1] = fabs(dV_dSsubMatrix[0][1]);
+  dV_dSsubMatrix[1][0] = fabs(dV_dSsubMatrix[1][0]);
+  dV_dSsubMatrix[1][1] = fabs(dV_dSsubMatrix[1][1]);
+  
+  //////////////////////////////////////////////////////////
+  //  A Scaling method that will
+  //
+  //  1) Change only the image size, (viewport)
+  //
+  //  2) keep the same permutation matrix
+  //  
+  //  3) keep valid DepthWarp Matrix
+  //
+  //  4) avoid sub sampling, so that
+  // 
+  //     VLIAbs(dXv_dXs) + VLIAbs(dXv_dYs) <=2
+  //     VLIAbs(dYv_dXs) + VLIAbs(dYv_dYs) <=2
+  //
+  //     To conclude, get a scaleX, scaleY in imageSize
+  // so that
+  //     VLIAbs(dXv_dXs)/ScaleX+ VLIAbs(dXv_dYs)/ScaleY <=2
+  //     VLIAbs(dXv_dYs)/ScaleX+ VLIAbs(dYv_dYs)/ScaleY <=2
+  //
+  //  Different ways to choose ScaleX, ScaleY to avoid sub Sampling
+  //  We choose here when ScaleX == ScaleY, and most close to 
+  //  ScaleX =1 , ScaleY =1
+  //
+  
+  double dXvSampleMax= dV_dSsubMatrix[0][0] + dV_dSsubMatrix[0][1];
+  double dYvSampleMax= dV_dSsubMatrix[1][0] + dV_dSsubMatrix[1][1];
+  
+  if (dXvSampleMax > 2.0 || dYvSampleMax > 2.0)
+    {
+    status = kVLIErrCantSubsample;
+    }
+  
+  double viewportScale = dXvSampleMax > dYvSampleMax? dXvSampleMax:dYvSampleMax;
+  
+  viewportScale /= kEpsilonSubSample;
+  //*************************************************
+  //Solution I:
+  //double dXvSampleMax= dV_dSsubMatrix[0][0] > dV_dSsubMatrix[1][0]? dV_dSsubMatrix[0][0]:dV_dSsubMatrix[1][0];
+  //double dYvSampleMax= dV_dSsubMatrix[0][1] > dV_dSsubMatrix[1][1]? dV_dSsubMatrix[0][1]:dV_dSsubMatrix[1][1];
+  //**************************************
+  
+  //*******************************
+  //Solution II:
+  /*Not proper to choose the interesection of the two equation!!!!
+    VLIVector4D imageScale(2,2,0,0);
+    dS_dVsubMatrix = dV_dSsubMatrix.Inverse();
+    imageScale = dS_dVsubMatrix * imageScale;
+    
+    outMinImageWidth  = (int)ceil( (viewportWidth -1)/imageScale[0] +1);
+    outMinImageHeight = (int)ceil( (viewportHeight-1)/imageScale[1] +1);*/
+    
+    // Instead of using scaling dXvSampleMax/2.0, using dZvSampleMax/kEpsionSubSample
+    outMinImageWidth  = (int)ceil( double (viewportWidth -1)*viewportScale +1);
+    outMinImageHeight = (int)ceil( double (viewportHeight-1)*viewportScale +1);
+    
+    return status;
+}

@@ -70,10 +70,11 @@ public:
   // Render the image using the hardware and place it in the frame buffer
   virtual void Render( vtkRenderer *, vtkVolume * );
   virtual int GetAvailableBoardMemory();
-  virtual void GetLockSizesForBoardMemory( unsigned int type,
-                                           unsigned int *xSize,
-                                           unsigned int *ySize,
-                                           unsigned int *zSize );
+  virtual void GetLockSizesForBoardMemory(unsigned int type,
+                                          unsigned int *xSize,
+                                          unsigned int *ySize,
+                                          unsigned int *zSize);
+  
 protected:
   vtkVolumeProVP1000Mapper();
   ~vtkVolumeProVP1000Mapper();
@@ -111,6 +112,12 @@ protected:
                                   unsigned int * outData )
     {(void)vol; (void)size; (void)outData;}
 
+  // Render a bounding box of the volume because the texture map would
+  // be too large.
+  virtual void RenderBoundingBox( vtkRenderer * vtkNotUsed(ren),
+                                  vtkVolume   * vol )
+    {(void)vol;}
+
   // Get the depth buffer values
   virtual void GetDepthBufferValues( vtkRenderer *vtkNotUsed(ren),
                                      int size[2],
@@ -131,6 +138,12 @@ protected:
 
   VLIImageBuffer *ImageBuffer;
   VLIDepthBuffer *DepthBuffer;
+  
+  VLIStatus CheckSubSampling(const VLIVolume *inVolume,
+                             const VLIContext *inContext,
+                             int &outImageWidth, int &outImageHeight);
+  
+  int DrawBoundingBox;
 };
 
 
