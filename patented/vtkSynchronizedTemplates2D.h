@@ -67,11 +67,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef __vtkSynchronizedTemplates2D_h
 #define __vtkSynchronizedTemplates2D_h
 
-#include "vtkStructuredPointsToPolyDataFilter.h"
+#include "vtkImageToPolyDataFilter.h"
 #include "vtkContourValues.h"
 #include "vtkKitwareContourFilter.h"
 
-class VTK_EXPORT vtkSynchronizedTemplates2D : public vtkStructuredPointsToPolyDataFilter
+class VTK_EXPORT vtkSynchronizedTemplates2D : public vtkPolyDataSource
 {
 public:
   static vtkSynchronizedTemplates2D *New();
@@ -79,6 +79,11 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
+  // Set / get the input data or filter.
+  void SetInput(vtkImageData *input);
+  vtkImageData *GetInput();
+  
+// Description:
   // Because we delegate to vtkContourValues
   unsigned long int GetMTime();
 
