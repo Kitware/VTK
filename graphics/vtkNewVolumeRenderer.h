@@ -29,6 +29,9 @@ public:
 
   virtual float *GetCurrentColorBuffer();
   virtual float *GetCurrentZBuffer();
+
+  virtual float GetViewportScaleFactor( vtkRenderer *ren );
+
 protected:
 
 //  vtkNewVolumeCollection Volumes;

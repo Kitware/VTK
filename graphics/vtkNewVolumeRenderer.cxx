@@ -38,6 +38,11 @@ float *vtkNewVolumeRenderer::GetCurrentZBuffer()
   return NULL;
 }
 
+float vtkNewVolumeRenderer::GetViewportScaleFactor( vtkRenderer *ren )
+{
+  return 1.0;
+}
+
 void vtkNewVolumeRenderer::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->vtkObject::PrintSelf(os,indent);

@@ -220,12 +220,46 @@ int vtkOglrRenderer::UpdateLights ()
 // Concrete open gl render method.
 void vtkOglrRenderer::Render(void)
 {
-  int  actor_count;
-  int  volume_count;
+  int    actor_count;
+  int    volume_count;
+  float  scale_factor;
+  float  saved_viewport[4];
+  float  new_viewport[4];
+  int    saved_erase;
 
   if (this->StartRenderMethod) 
     {
     (*this->StartRenderMethod)(this->StartRenderMethodArg);
+    }
+
+  // If there is a volume renderer, get it's desired viewport size
+  // since it may want to render actors into a smaller area for multires
+  // rendering during motion
+  if ( this->NewVolumeRenderer )
+    {
+    // Get the scale factor 
+    scale_factor = this->NewVolumeRenderer->GetViewportScaleFactor( 
+      (vtkRenderer *)this );
+    
+    // If the volume renderer wants a different resolution than this
+    // renderer was going to produce we need to set up the viewport
+    if ( scale_factor != 1.0 )
+      {
+      // Get the current viewport 
+      this->GetViewport( saved_viewport );
+      
+      // Create a new viewport size based on the scale factor
+      new_viewport[0] = saved_viewport[0];
+      new_viewport[1] = saved_viewport[1];
+      new_viewport[2] = saved_viewport[0] + 
+	scale_factor * ( saved_viewport[2] - saved_viewport[0] );
+      new_viewport[3] = saved_viewport[1] + 
+	scale_factor * ( saved_viewport[3] - saved_viewport[1] );
+      
+      // Set this as the new viewport.  This will cause the OpenGL
+      // viewport to be set correctly in the camera render method
+      this->SetViewport( new_viewport );
+      }
     }
 
   // standard render method 
@@ -235,6 +269,26 @@ void vtkOglrRenderer::Render(void)
   this->UpdateLights();
 
   actor_count =  this->UpdateActors();
+
+  // If we are rendering with a reduced size image for the volume
+  // rendering, then we need to reset the viewport so that the
+  // volume renderer can access the whole window to draw the image.
+  // We'll pop off what we've done so far, then we'll save the state
+  // of the erase variable in the render window. We will then set the
+  // erase variable in the render window to 0, and render the camera
+  // again.  This will set our viewport back to the right size.
+  // Finally, we restore the erase variable in the render window
+  if ( this->NewVolumeRenderer && scale_factor != 1.0 )
+    {
+    glMatrixMode(GL_MODELVIEW);
+    glPopMatrix();
+    saved_erase = this->RenderWindow->GetErase();
+    this->RenderWindow->SetErase( 0 );
+    this->SetViewport( saved_viewport );
+    this->ActiveCamera->Render( (vtkRenderer *)this );
+    this->RenderWindow->SetErase( saved_erase );
+    }
+
   volume_count = this->UpdateVolumes();
 
   if ( !(actor_count + volume_count) )
