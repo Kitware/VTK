@@ -80,12 +80,10 @@ public:
   void ComputeBounds();
   int GetMaxCellSize() {return 8;}; //voxel is the largest
 
-  // specific to structured data
-  void GetVoxelGradient(int i,int j,int k, vtkScalars *s, vtkFloatVectors& g);
-  void GetPointGradient(int i, int j, int k, vtkScalars *s, float g[3]);
+
+  // following methods are specific to structured data
   void SetDimensions(int i, int j, int k);
   void SetDimensions(int dim[3]);
-  int GetDataDimension();
 
   // Description:
   // Get dimensions of this structured points dataset.
@@ -103,13 +101,19 @@ public:
   vtkSetVector3Macro(Origin,float);
   vtkGetVectorMacro(Origin,float,3);
 
+  int ComputeStructuredCoordinates(float x[3], int ijk[3], float pcoords[3]);
+  void GetVoxelGradient(int i,int j,int k, vtkScalars *s, vtkFloatVectors& g);
+  void GetPointGradient(int i, int j, int k, vtkScalars *s, float g[3]);
+  int GetDataDimension();
+
+  int ComputePointId(int ijk[3]);
+  int ComputeCellId(int ijk[3]);
+
 protected:
   int Dimensions[3];
   int DataDescription;
   float Origin[3];
   float AspectRatio[3];
-
-  vtkStructuredData StructuredData; //helper class for structured data
 };
 
 inline void vtkStructuredPoints::GetPoint(int id, float x[3])
@@ -137,18 +141,32 @@ inline int vtkStructuredPoints::GetNumberOfPoints()
 
 inline int vtkStructuredPoints::GetDataDimension()
 {
-  return this->StructuredData.GetDataDimension(this->DataDescription);
+  return vtkStructuredData::GetDataDimension(this->DataDescription);
 }
 
 inline void vtkStructuredPoints::GetCellPoints(int cellId, vtkIdList& ptIds)
 {
-  this->StructuredData.GetCellPoints(cellId,ptIds,this->DataDescription,
+  vtkStructuredData::GetCellPoints(cellId,ptIds,this->DataDescription,
                                      this->Dimensions);
 }
 
 inline void vtkStructuredPoints::GetPointCells(int ptId, vtkIdList& cellIds)
 {
-  this->StructuredData.GetPointCells(ptId,cellIds,this->Dimensions);
+  vtkStructuredData::GetPointCells(ptId,cellIds,this->Dimensions);
+}
+
+// Description:
+// Given a location in structured coordinates (i-j-k), return the point id.
+inline int vtkStructuredPoints::ComputePointId(int ijk[3])
+{
+  return vtkStructuredData::ComputePointId(this->Dimensions,ijk);
+}
+
+// Description:
+// Given a location in structured coordinates (i-j-k), return the cell id.
+inline int vtkStructuredPoints::ComputeCellId(int ijk[3])
+{
+  return vtkStructuredData::ComputeCellId(this->Dimensions,ijk);
 }
 
 #endif

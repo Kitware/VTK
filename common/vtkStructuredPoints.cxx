@@ -280,27 +280,14 @@ int vtkStructuredPoints::FindCell(float x[3], vtkCell *vtkNotUsed(cell),
                                   float vtkNotUsed(tol2), int& subId, 
                                   float pcoords[3], float *weights)
 {
-  int i, loc[3];
-  float d, floatLoc[3];
-  static vtkVoxel voxel;
-//
-//  Compute the ijk location
-//
-  for (i=0; i<3; i++) 
+  int loc[3];
+
+  if ( this->ComputeStructuredCoordinates(x, loc, pcoords) == 0 )
     {
-    d = x[i] - this->Origin[i];
-    if ( d < 0.0 || d > ((this->Dimensions[i]-1)*this->AspectRatio[i]) ) 
-      {
-      return -1;
-      } 
-    else 
-      {
-      floatLoc[i] = d / this->AspectRatio[i];
-      loc[i] = (int) floatLoc[i];
-      pcoords[i] = floatLoc[i] - (float)loc[i];
-      }
+    return -1;
     }
-  voxel.InterpolationFunctions(pcoords,weights);
+
+  vtkVoxel::InterpolationFunctions(pcoords,weights);
 //
 //  From this location get the cell id
 //
@@ -316,31 +303,18 @@ vtkCell *vtkStructuredPoints::FindAndGetCell(float x[3], vtkCell *vtkNotUsed(cel
   int i, j, k, loc[3];
   int npts, idx;
   int d01 = this->Dimensions[0]*this->Dimensions[1];
-  float d, floatLoc[3];
   float xOut[3];
-  static vtkVoxel voxel;
   static vtkCell *cell;
-//
-//  Compute the ijk location
-//
-  for (i=0; i<3; i++) 
+  static vtkVoxel voxel;
+
+  if ( this->ComputeStructuredCoordinates(x, loc, pcoords) == 0 )
     {
-    d = x[i] - this->Origin[i];
-    if ( d < 0.0 || d >= ((this->Dimensions[i]-1)*this->AspectRatio[i]) ) 
-      {
-      return NULL;
-      } 
-    else 
-      {
-      floatLoc[i] = d / this->AspectRatio[i];
-      loc[i] = (int) floatLoc[i];
-      pcoords[i] = floatLoc[i] - (float)loc[i];
-      }
+    return NULL;
     }
 //
 // Get the parametric coordinates and weights for interpolation
 //
-  voxel.InterpolationFunctions(pcoords,weights);
+  vtkVoxel::InterpolationFunctions(pcoords,weights);
 //
 // Build a voxel
 //
@@ -531,13 +505,47 @@ void vtkStructuredPoints::SetDimensions(int i, int j, int k)
 // Set dimensions of structured points dataset.
 void vtkStructuredPoints::SetDimensions(int dim[3])
 {
-  int returnStatus=this->StructuredData.SetDimensions(dim,this->Dimensions);
+  int returnStatus=vtkStructuredData::SetDimensions(dim,this->Dimensions);
 
   if ( returnStatus > -1 ) 
     {
     this->DataDescription = returnStatus;
     this->Modified();
     }
+  else
+   {
+   vtkErrorMacro (<< "Bad Dimensions, retaining previous values");
+   }
+}
+
+// Description:
+// Convenience function computes the structured coordinates for a point x[3].
+// The voxel is specified by the array ijk[3], and the parametric coordinates
+// in the cell are specified with pcoords[3]. The function returns a 0 if the
+// point x is outside of the volume, and a 1 if inside the volume.
+int vtkStructuredPoints::ComputeStructuredCoordinates(float x[3], int ijk[3], 
+                                                      float pcoords[3])
+{
+  int i;
+  float d, floatLoc[3];
+//
+//  Compute the ijk location
+//
+  for (i=0; i<3; i++) 
+    {
+    d = x[i] - this->Origin[i];
+    if ( d < 0.0 || d > ((this->Dimensions[i]-1)*this->AspectRatio[i]) ) 
+      {
+      return 0;
+      } 
+    else 
+      {
+      floatLoc[i] = d / this->AspectRatio[i];
+      ijk[i] = (int) floatLoc[i];
+      pcoords[i] = floatLoc[i] - (float)ijk[i];
+      }
+    }
+  return 1;
 }
 
 void vtkStructuredPoints::PrintSelf(ostream& os, vtkIndent indent)

@@ -69,13 +69,10 @@ int vtkStructuredData::SetDimensions(int inDim[3], int dim[3])
   int dataDim, i;
   int dataDescription=(-1);
 
-  vtkDebugMacro(<< " setting Dimensions to (" << inDim[0] << "," << inDim[1] << "," << inDim[2] << ")");
-
   if ( inDim[0] != dim[0] || inDim[1] != dim[1] || inDim[2] != dim[2] )
     {
     if ( inDim[0]<1 || inDim[1]<1 || inDim[2]<1 )
       {
-      vtkErrorMacro (<< "Bad Dimensions, retaining previous values");
       return -1;
       }
 
