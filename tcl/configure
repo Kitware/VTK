@@ -2721,6 +2721,7 @@ fi
 
 USE_GRAPHICS_DEPENDS=""
 USE_IMAGING_DEPENDS=""
+COMMON_DEPENDS=""
 
 if test "$vtk_shared_ok" = "yes"; then
     VTK_SHLIB_CFLAGS="${SHLIB_CFLAGS}"
@@ -2730,6 +2731,7 @@ else
     SHLIB_LD_LIBS=""
     VTK_SHLIB_CFLAGS=""
     VTK_LD_SEARCH_FLAGS=""
+    COMMON_DEPENDS="../common/libVTKCommonTcl.a"
     if test "$vtk_use_graphics" = "yes"; then
        USE_GRAPHICS_DEPENDS="../graphics/libVTKGraphicsTcl.a"
     fi
@@ -2933,7 +2935,7 @@ s%@USE_IMAGING_FLAG@%$USE_IMAGING_FLAG%g
 s%@USE_IMAGING_LIBS@%$USE_IMAGING_LIBS%g
 s%@USE_IMAGING_DEPENDS@%$USE_IMAGING_DEPENDS%g
 s%@VTK_SHLIB_CFLAGS@%$VTK_SHLIB_CFLAGS%g
-s%@VTK_LIB_FILE@%$VTK_LIB_FILE%g
+s%@COMMON_DEPENDS@%$COMMON_DEPENDS%g
 s%@SHLIB_LD@%$SHLIB_LD%g
 s%@DL_LIBS@%$DL_LIBS%g
 s%@SHLIB_LD_LIBS@%$SHLIB_LD_LIBS%g

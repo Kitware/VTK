@@ -432,6 +432,7 @@ AC_ARG_WITH(imaging,
 
 USE_GRAPHICS_DEPENDS=""
 USE_IMAGING_DEPENDS=""
+COMMON_DEPENDS=""
 
 if test "$vtk_shared_ok" = "yes"; then
     VTK_SHLIB_CFLAGS="${SHLIB_CFLAGS}"
@@ -441,6 +442,7 @@ else
     SHLIB_LD_LIBS=""
     VTK_SHLIB_CFLAGS=""
     VTK_LD_SEARCH_FLAGS=""
+    COMMON_DEPENDS="../common/libVTKCommonTcl.a"
     if test "$vtk_use_graphics" = "yes"; then
        USE_GRAPHICS_DEPENDS="../graphics/libVTKGraphicsTcl.a"
     fi
@@ -458,7 +460,7 @@ AC_SUBST(USE_IMAGING_LIBS)
 AC_SUBST(USE_IMAGING_DEPENDS)
 
 AC_SUBST(VTK_SHLIB_CFLAGS)
-AC_SUBST(VTK_LIB_FILE)
+AC_SUBST(COMMON_DEPENDS)
 AC_SUBST(SHLIB_LD)
 AC_SUBST(DL_LIBS)
 AC_SUBST(SHLIB_LD_LIBS)

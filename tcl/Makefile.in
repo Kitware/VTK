@@ -33,6 +33,7 @@ XGL_HOME      = @XGL_HOME@
 X_EXTRA_LIBS  = @X_EXTRA_LIBS@
 X_PRE_LIBS    = @X_PRE_LIBS@
 DL_LIBS       = @DL_LIBS@
+COMMON_DEPEND = @COMMON_DEPEND@
 VTK_INLINE_FLAGS  = @VTK_INLINE_FLAGS@
 USE_GRAPHICS_FLAG = @USE_GRAPHICS_FLAG@
 USE_GRAPHICS_LIBS = @USE_GRAPHICS_LIBS@
@@ -95,7 +96,8 @@ y.tab.c: cpp_parse.y
 #------------------------------------------------------------------------------
 # build the vtk executable
 #
-vtk: 	tkAppInit.o ${USE_GRAPHICS_DEPENDS} ${USE_IMAGING_DEPENDS}
+vtk: 	tkAppInit.o ${COMMON_DEPENDS} ${USE_GRAPHICS_DEPENDS} \
+	${USE_IMAGING_DEPENDS}
 	$(CXX) -o vtk tkAppInit.o \
 	-L. ${XLDFLAGS} ${LDLIBS} \
 	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
