@@ -162,6 +162,16 @@
 #define yyerror(a) fprintf(stderr,"%s\n",a)
 #define yywrap() 1
 
+/* MSVC Does not define __STDC__ properly. */
+#if defined(_MSC_VER) && _MSC_VER >= 1200 && !defined(__STDC__)
+# define __STDC__ 1
+#endif
+
+/* Disable warnings in generated code. */
+#if defined(_MSC_VER)
+# pragma warning (disable: 4127) /* conditional expression is constant */
+#endif
+
 int yylex(void);
 void output_function();
 
@@ -1234,8 +1244,8 @@ yyparse ()
 #endif
 {
   
-  register int yystate;
-  register int yyn;
+  register short yystate;
+  register short yyn;
   int yyresult;
   /* Number of tokens to shift before error messages enabled.  */
   int yyerrstatus;
