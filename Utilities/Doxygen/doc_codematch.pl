@@ -34,6 +34,7 @@ my %default =
    codematch => "\w(?:->|\.)InvokeEvent\s*\(\s*(vtkCommand::\w+)[\s,]",
    dirs => ["../../Common", 
             "../../Filtering", 
+            "../../GenericFiltering", 
             "../../Graphics", 
             "../../Hybrid", 
             "../../Imaging", 

@@ -108,6 +108,7 @@ my %default =
   (
    dirs => ["../../Common", 
             "../../Filtering", 
+            "../../GenericFiltering", 
             "../../Graphics", 
             "../../Hybrid", 
             "../../Imaging", 
