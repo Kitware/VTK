@@ -20,7 +20,7 @@
 #include "vtkMath.h"
 #include "vtkCommand.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleJoystickActor, "1.15");
+vtkCxxRevisionMacro(vtkInteractorStyleJoystickActor, "1.16");
 vtkStandardNewMacro(vtkInteractorStyleJoystickActor);
 
 //----------------------------------------------------------------------------
@@ -28,26 +28,26 @@ vtkInteractorStyleJoystickActor::vtkInteractorStyleJoystickActor()
 {
   int i;
   
-  this->MotionFactor = 10.0;
-  this->State = VTK_INTERACTOR_STYLE_ACTOR_NONE;
-  this->RadianToDegree = 180.0 / vtkMath::Pi();
+  this->MotionFactor    = 10.0;
+  this->RadianToDegree  = 180.0 / vtkMath::Pi();
   this->InteractionProp = NULL;
 
   for (i = 0; i < 3; i++)
     {
-    this->ViewUp[i] = 0.0;
-    this->ViewLook[i] = 0.0;
-    this->ViewRight[i] = 0.0;
-    this->ObjCenter[i] = 0.0;
+    this->ViewUp[i]        = 0.0;
+    this->ViewLook[i]      = 0.0;
+    this->ViewRight[i]     = 0.0;
+    this->ObjCenter[i]     = 0.0;
     this->DispObjCenter[i] = 0.0;
-    this->NewPickPoint[i] = 0.0;
-    this->OldPickPoint[i] = 0.0;
-    this->MotionVector[i] = 0.0;
-    this->ViewPoint[i] = 0.0;
-    this->ViewFocus[i] = 0.0;
+    this->NewPickPoint[i]  = 0.0;
+    this->OldPickPoint[i]  = 0.0;
+    this->MotionVector[i]  = 0.0;
+    this->ViewPoint[i]     = 0.0;
+    this->ViewFocus[i]     = 0.0;
     }
-  this->NewPickPoint[3] = 1.0;
-  this->OldPickPoint[3] = 1.0;
+
+  this->NewPickPoint[3]    = 1.0;
+  this->OldPickPoint[3]    = 1.0;
   
   this->Radius = 0.0;
 
@@ -61,38 +61,205 @@ vtkInteractorStyleJoystickActor::~vtkInteractorStyleJoystickActor()
 }
 
 //----------------------------------------------------------------------------
+void vtkInteractorStyleJoystickActor::OnTimer(void) 
+{
+  vtkRenderWindowInteractor *rwi = this->Interactor;
+
+  switch (this->State) 
+    {
+    case VTKIS_START:
+      if (this->AnimState == VTKIS_ANIM_ON)
+        {
+        rwi->DestroyTimer();
+        rwi->Render();
+        rwi->CreateTimer(VTKI_TIMER_FIRST);
+        }
+      break;
+
+    case VTKIS_ROTATE:
+      this->RotateXY(this->LastPos[0], this->LastPos[1]);
+      rwi->CreateTimer(VTKI_TIMER_UPDATE);
+      break;
+
+    case VTKIS_PAN:
+      this->PanXY(this->LastPos[0], this->LastPos[1]);
+      rwi->CreateTimer(VTKI_TIMER_UPDATE);
+      break;
+
+    case VTKIS_DOLLY:
+      this->DollyXY(this->LastPos[0], this->LastPos[1]);
+      rwi->CreateTimer(VTKI_TIMER_UPDATE);
+      break;
+
+    case VTKIS_SPIN:
+      this->SpinXY(this->LastPos[0], this->LastPos[1]);
+      rwi->CreateTimer(VTKI_TIMER_UPDATE);
+      break;
+
+    case VTKIS_TIMER:
+      rwi->Render();
+      rwi->CreateTimer(VTKI_TIMER_UPDATE);
+      break;
+
+    default :
+      break;
+    }
+}
+//----------------------------------------------------------------------------
 void vtkInteractorStyleJoystickActor::OnMouseMove(int vtkNotUsed(ctrl), 
                                                   int vtkNotUsed(shift),
-                                                  int x, int y) 
+                                                  int x, 
+                                                  int y) 
 {
-  if (this->State == VTK_INTERACTOR_STYLE_ACTOR_ROTATE)
+  switch (this->State) 
     {
-    this->FindPokedCamera(x, y);
-    this->RotateXY(x, y);
-    }
-  else if (this->State == VTK_INTERACTOR_STYLE_ACTOR_PAN)
-    {
-    this->FindPokedCamera(x, y);
-    this->PanXY(x, y);
-    }
-  else if (this->State == VTK_INTERACTOR_STYLE_ACTOR_ZOOM)
-    {
-    this->FindPokedCamera(x, y);
-    this->DollyXY(x, y);
-    }
-  else if (this->State == VTK_INTERACTOR_STYLE_ACTOR_SPIN)
-    {
-    this->FindPokedCamera(x, y);
-    this->SpinXY(x, y);
-    }
-  else if (this->State == VTK_INTERACTOR_STYLE_ACTOR_SCALE)
-    {
-    this->FindPokedCamera(x, y);
-    this->ScaleXY(x, y);
+    case VTKIS_ROTATE:
+      this->FindPokedCamera(x, y);
+      this->RotateXY(x, y);
+      break;
+
+    case VTKIS_PAN:
+      this->FindPokedCamera(x, y);
+      this->PanXY(x, y);
+      break;
+
+    case VTKIS_DOLLY:
+      this->FindPokedCamera(x, y);
+      this->DollyXY(x, y);
+      break;
+
+    case VTKIS_SPIN:
+      this->FindPokedCamera(x, y);
+      this->SpinXY(x, y);
+      break;
+
+    case VTKIS_USCALE:
+      this->FindPokedCamera(x, y);
+      this->ScaleXY(x, y);
+      break;
     }
 
   this->LastPos[0] = x;
   this->LastPos[1] = y;
+}
+
+//----------------------------------------------------------------------------
+void vtkInteractorStyleJoystickActor::OnLeftButtonDown(int ctrl, 
+                                                       int shift, 
+                                                       int x, 
+                                                       int y) 
+{
+  this->FindPokedRenderer(x, y);
+  this->FindPickedActor(x, y);
+  if (this->CurrentRenderer == NULL || this->InteractionProp == NULL)
+    {
+    return;
+    }
+
+  if (shift)
+    {
+    this->StartPan();
+    }
+  else if (ctrl)
+    {
+    this->StartSpin();
+    }
+  else
+    {
+    this->StartRotate();
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkInteractorStyleJoystickActor::OnLeftButtonUp(int vtkNotUsed(ctrl),
+                                                     int vtkNotUsed(shift), 
+                                                     int vtkNotUsed(x), 
+                                                     int vtkNotUsed(y)) 
+{
+  switch (this->State) 
+    {
+    case VTKIS_PAN:
+      this->EndPan();
+      break;
+
+    case VTKIS_SPIN:
+      this->EndSpin();
+      break;
+
+    case VTKIS_ROTATE:
+      this->EndRotate();
+      break;
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkInteractorStyleJoystickActor::OnMiddleButtonDown(int ctrl, 
+                                                         int shift, 
+                                                         int x, 
+                                                         int y) 
+{
+  this->FindPokedRenderer(x, y);
+  this->FindPickedActor(x, y);
+  if (this->CurrentRenderer == NULL || this->InteractionProp == NULL)
+    {
+    return;
+    }
+
+  if (ctrl)
+    {
+    this->StartDolly();
+    }
+  else
+    {
+    this->StartPan();
+    }
+}
+//----------------------------------------------------------------------------
+void vtkInteractorStyleJoystickActor::OnMiddleButtonUp(int vtkNotUsed(ctrl),
+                                                       int vtkNotUsed(shift), 
+                                                       int vtkNotUsed(x),
+                                                       int vtkNotUsed(y)) 
+{
+  switch (this->State) 
+    {
+    case VTKIS_DOLLY:
+      this->EndDolly();
+      break;
+
+    case VTKIS_PAN:
+      this->EndPan();
+      break;
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkInteractorStyleJoystickActor::OnRightButtonDown(int vtkNotUsed(ctrl),
+                                                        int vtkNotUsed(shift), 
+                                                        int x, 
+                                                        int y) 
+{
+  this->FindPokedRenderer(x, y);
+  this->FindPickedActor(x, y);
+  if (this->CurrentRenderer == NULL || this->InteractionProp == NULL)
+    {
+    return;
+    }
+  
+  this->StartUniformScale();
+}
+
+//----------------------------------------------------------------------------
+void vtkInteractorStyleJoystickActor::OnRightButtonUp(int vtkNotUsed(ctrl),
+                                                      int vtkNotUsed(shift), 
+                                                      int vtkNotUsed(x),
+                                                      int vtkNotUsed(y)) 
+{
+  switch (this->State) 
+    {
+    case VTKIS_USCALE:
+      this->EndUniformScale();
+      break;
+    }
 }
 
 
@@ -423,126 +590,6 @@ void vtkInteractorStyleJoystickActor::ScaleXY(int vtkNotUsed(x), int y)
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleJoystickActor::OnLeftButtonDown(int ctrl, int shift, 
-                                                       int x, int y) 
-{
-  this->FindPokedRenderer(x, y);
-  this->FindPickedActor(x, y);
-  
-  if (this->CurrentRenderer == NULL || this->InteractionProp == NULL)
-    {
-    return;
-    }
-
-  this->UpdateInternalState(ctrl, shift, x, y);
-  if (shift)
-    {
-    this->StartPan();
-    this->State = VTK_INTERACTOR_STYLE_ACTOR_PAN;
-    }
-  else if (this->CtrlKey)
-    {
-    this->StartSpin();
-    this->State = VTK_INTERACTOR_STYLE_ACTOR_SPIN;
-    }
-  else
-    {
-    this->StartRotate();
-    this->State = VTK_INTERACTOR_STYLE_ACTOR_ROTATE;
-    }
-}
-
-//----------------------------------------------------------------------------
-void vtkInteractorStyleJoystickActor::OnLeftButtonUp(int vtkNotUsed(ctrl),
-                                                     int vtkNotUsed(shift), 
-                                                     int vtkNotUsed(x), 
-                                                     int vtkNotUsed(y)) 
-{
-  if (this->State == VTK_INTERACTOR_STYLE_ACTOR_SPIN)
-    {
-    this->EndSpin();
-    }
-  else if (this->State == VTK_INTERACTOR_STYLE_ACTOR_PAN)
-    {
-    this->EndPan();
-    }
-  else
-    {
-    this->EndRotate();
-    }
-  
-  this->State = VTK_INTERACTOR_STYLE_ACTOR_NONE;
-}
-
-//----------------------------------------------------------------------------
-void vtkInteractorStyleJoystickActor::OnMiddleButtonDown(int ctrl, int shift, 
-                                                         int x, int y) 
-{
-  this->FindPokedRenderer(x, y);
-  this->FindPickedActor(x, y);
-  
-  if (this->CurrentRenderer == NULL)
-    {
-    return;
-    }
-
-  this->UpdateInternalState(ctrl, shift, x, y);
-  if (this->CtrlKey)
-    {
-    this->StartDolly();
-    this->State = VTK_INTERACTOR_STYLE_ACTOR_ZOOM;
-    }
-  else
-    {
-    this->StartPan();
-    this->State = VTK_INTERACTOR_STYLE_ACTOR_PAN;
-    }
-}
-//----------------------------------------------------------------------------
-void vtkInteractorStyleJoystickActor::OnMiddleButtonUp(int vtkNotUsed(ctrl),
-                                                       int vtkNotUsed(shift), 
-                                                       int vtkNotUsed(x),
-                                                       int vtkNotUsed(y)) 
-{
-  if (this->State == VTK_INTERACTOR_STYLE_ACTOR_ZOOM)
-    {
-    this->EndDolly();
-    }
-  else
-    {
-    this->EndPan();
-    }
-  this->State = VTK_INTERACTOR_STYLE_ACTOR_NONE;
-}
-
-//----------------------------------------------------------------------------
-void vtkInteractorStyleJoystickActor::OnRightButtonDown(int vtkNotUsed(ctrl),
-                                                        int vtkNotUsed(shift), 
-                                                        int x, int y) 
-{
-  this->FindPokedRenderer(x, y);
-  this->FindPickedActor(x, y);
-  
-  if (this->CurrentRenderer == NULL)
-    {
-    return;
-    }
-  
-  this->StartUniformScale();
-  this->State = VTK_INTERACTOR_STYLE_ACTOR_SCALE;
-}
-
-//----------------------------------------------------------------------------
-void vtkInteractorStyleJoystickActor::OnRightButtonUp(int vtkNotUsed(ctrl),
-                                                      int vtkNotUsed(shift), 
-                                                      int vtkNotUsed(x),
-                                                      int vtkNotUsed(y)) 
-{
-  this->EndUniformScale();
-  this->State = VTK_INTERACTOR_STYLE_ACTOR_NONE;
-}
-
-//----------------------------------------------------------------------------
 void vtkInteractorStyleJoystickActor::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
@@ -640,40 +687,3 @@ void vtkInteractorStyleJoystickActor::Prop3DTransform(vtkProp3D *prop3D,
   this->Prop3DTransform(prop3D,boxCenter2,numRotation,rotate,scale);
 }
 
-void vtkInteractorStyleJoystickActor::OnTimer(void) 
-{
-  vtkRenderWindowInteractor *rwi = this->Interactor;
-  switch (this->State) 
-    {
-    case VTKIS_START:
-      if (this->AnimState == VTKIS_ANIM_ON)
-        {
-                rwi->DestroyTimer();
-                rwi->Render();
-                rwi->CreateTimer(VTKI_TIMER_FIRST);
-         }
-      break;
-    case VTK_INTERACTOR_STYLE_ACTOR_ROTATE:
-      this->RotateXY(this->LastPos[0], this->LastPos[1]);
-      rwi->CreateTimer(VTKI_TIMER_UPDATE);
-      break;
-    case VTK_INTERACTOR_STYLE_ACTOR_PAN:
-      this->PanXY(this->LastPos[0], this->LastPos[1]);
-      rwi->CreateTimer(VTKI_TIMER_UPDATE);
-      break;
-    case VTK_INTERACTOR_STYLE_ACTOR_ZOOM:
-      this->DollyXY(this->LastPos[0], this->LastPos[1]);
-      rwi->CreateTimer(VTKI_TIMER_UPDATE);
-      break;
-    case VTK_INTERACTOR_STYLE_ACTOR_SPIN:
-      this->SpinXY(this->LastPos[0], this->LastPos[1]);
-      rwi->CreateTimer(VTKI_TIMER_UPDATE);
-      break;
-    case VTKIS_TIMER:
-      rwi->Render();
-      rwi->CreateTimer(VTKI_TIMER_UPDATE);
-      break;
-    default :
-      break;
-    }
-}
