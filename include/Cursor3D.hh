@@ -35,12 +35,12 @@ public:
 
   void SetModelBounds(float *bounds);
   void SetModelBounds(float xmin, float xmax, float ymin, float ymax, float zmin, float zmax);
-  vlGetVectorMacro(ModelBounds,float);
+  vlGetVectorMacro(ModelBounds,float,6);
 
   // Description:
   // Specify the position of cursor focus.
   vlSetVector3Macro(FocalPoint,float);
-  vlGetVectorMacro(FocalPoint,float);
+  vlGetVectorMacro(FocalPoint,float,3);
 
   // Description:
   // Turn on/off the wireframe bounding box.

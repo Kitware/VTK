@@ -35,7 +35,7 @@ public:
 
   void SetSampleDimensions(int i, int j, int k);
   void SetSampleDimensions(int dim[3]);
-  vlGetVectorMacro(SampleDimensions,int);
+  vlGetVectorMacro(SampleDimensions,int,3);
 
   // Description:
   // Specify distance away from surface of input geometry to sample. Smaller
@@ -46,7 +46,7 @@ public:
   // Specify the position in space to perform the sampling.
   void SetModelBounds(float *bounds);
   void SetModelBounds(float xmin, float xmax, float ymin, float ymax, float zmin, float zmax);
-  vlGetVectorMacro(ModelBounds,float);
+  vlGetVectorMacro(ModelBounds,float,6);
 
   void Write(char *);
 

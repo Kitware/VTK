@@ -36,12 +36,12 @@ public:
   // Description:
   // Set position of first end point.
   vlSetVector3Macro(Pt1,float);
-  vlGetVectorMacro(Pt1,float);
+  vlGetVectorMacro(Pt1,float,3);
 
   // Description:
   // Set position of other end point.
   vlSetVector3Macro(Pt2,float);
-  vlGetVectorMacro(Pt2,float);
+  vlGetVectorMacro(Pt2,float,3);
 
   // Description:
   // Divide line into resolution number of pieces.

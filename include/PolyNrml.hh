@@ -13,7 +13,7 @@ without the express written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-// .NAME vlPolyNormals - compute normals for polygonal mes
+// .NAME vlPolyNormals - compute normals for polygonal mesh
 // .SECTION Description
 // vlPolyNormals is a filter that computes point normals for a polygonal 
 // mesh. The filter can reorder polygons to insure consistent orientation
@@ -22,7 +22,8 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // also possible to globally flip the normal orientation.
 //     The algorithm works by determing normals for each polyon and then
 // averaging them at shared points. When sharp edges are present, the edges
-// are split and new points generated to prevent blurry edges.
+// are split and new points generated to prevent blurry edges (due to 
+// Gouraud shading).
 
 #ifndef __vlPolyNormals_h
 #define __vlPolyNormals_h

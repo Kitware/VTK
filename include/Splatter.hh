@@ -39,7 +39,7 @@ public:
 
   void SetSampleDimensions(int i, int j, int k);
   void SetSampleDimensions(int dim[3]);
-  vlGetVectorMacro(SampleDimensions,int);
+  vlGetVectorMacro(SampleDimensions,int,3);
 
   // Description:
   // Specify the radius of propagation of the splat. This value is expressed
@@ -67,7 +67,7 @@ public:
 
   void SetModelBounds(float *bounds);
   void SetModelBounds(float xmin, float xmax, float ymin, float ymax, float zmin, float zmax);
-  vlGetVectorMacro(ModelBounds,float);
+  vlGetVectorMacro(ModelBounds,float,6);
 
   // Description:
   // Turn on/off the generation of elliptical splats.

@@ -67,7 +67,7 @@ public:
   // Description:
   // Specify range to map scalar values into.
   vlSetVector2Macro(Range,float);
-  vlGetVectorMacro(Range,float);
+  vlGetVectorMacro(Range,float,2);
 
   // Description:
   // Turn on/off orienting of input geometry along vector/normal.

@@ -36,7 +36,7 @@ public:
   // Description:
   // Set the origin of the axes.
   vlSetVector3Macro(Origin,float);
-  vlGetVectorMacro(Origin,float);
+  vlGetVectorMacro(Origin,float,3);
 
   // Description:
   // Set the scale factor of the axes. Used to control size.

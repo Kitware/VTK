@@ -47,7 +47,7 @@ public:
 
   // Description:
   // Return pointer to array of contour values (size of numContours).
-  vlGetVectorMacro(Values,float);
+  vlGetVectorMacro(Values,float,MAX_CONTOURS);
 
   void GenerateValues(int numContours, float range[2]);
 

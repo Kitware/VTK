@@ -39,7 +39,7 @@ public:
   // Description:
   // Set the center of the sphere.
   vlSetVector3Macro(Center,float);
-  vlGetVectorMacro(Center,float);
+  vlGetVectorMacro(Center,float,3);
 
 protected:
   // Usual data generation method

@@ -41,7 +41,7 @@ public:
   // Description:
   // Specify i-j-k dimensions to sample input with.
   vlSetVector3Macro(SampleDimensions,int);
-  vlGetVectorMacro(SampleDimensions,int);
+  vlGetVectorMacro(SampleDimensions,int,3);
 
   // Description:
   // All voxels not within input structured point set are assigned this value.
@@ -50,7 +50,7 @@ public:
 
   void SetModelBounds(float *bounds);
   void SetModelBounds(float xmin, float xmax, float ymin, float ymax, float zmin, float zmax);
-  vlGetVectorMacro(ModelBounds,float);
+  vlGetVectorMacro(ModelBounds,float,6);
 
   // Description:
   // Specify object to transform output voxels prior to sampling.

@@ -36,17 +36,17 @@ public:
   // Description:
   // Define one end of the line (small scalar values).
   vlSetVector3Macro(LowPoint,float);
-  vlGetVectorMacro(LowPoint,float);
+  vlGetVectorMacro(LowPoint,float,3);
 
   // Description:
   // Define other end of the line (large scalar values).
   vlSetVector3Macro(HighPoint,float);
-  vlGetVectorMacro(HighPoint,float);
+  vlGetVectorMacro(HighPoint,float,3);
 
   // Description:
   // Specify range to map scalars into.
   vlSetVector2Macro(ScalarRange,float);
-  vlGetVectorMacro(ScalarRange,float);
+  vlGetVectorMacro(ScalarRange,float,2);
 
 protected:
   void Execute();

@@ -39,7 +39,7 @@ public:
   // Description:
   // Set the center of the point cloud.
   vlSetVector3Macro(Center,float);
-  vlGetVectorMacro(Center,float);
+  vlGetVectorMacro(Center,float,3);
 
   // Description:
   // Set the radius of the point cloud.

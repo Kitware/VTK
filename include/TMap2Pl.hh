@@ -35,17 +35,17 @@ public:
   // Description:
   // Specify plane normal.
   vlSetVector3Macro(Normal,float);
-  vlGetVectorMacro(Normal,float);
+  vlGetVectorMacro(Normal,float,3);
 
   // Description:
   // Specify s-coordinate range for texture s-t coordinate pair.
   vlSetVector2Macro(SRange,float);
-  vlGetVectorMacro(SRange,float);
+  vlGetVectorMacro(SRange,float,2);
 
   // Description:
   // Specify t-coordinate range for texture s-t coordinate pair.
   vlSetVector2Macro(TRange,float);
-  vlGetVectorMacro(TRange,float);
+  vlGetVectorMacro(TRange,float,2);
 
   // Description:
   // Turn on/off automatic plane generation.
