@@ -38,13 +38,14 @@ static int InitialPass(void *inf, void *mf, int argc, char *argv[])
   char* javaPath = 0;
   const char *libpath = info->CAPI->GetDefinition(mf,"LIBRARY_OUTPUT_PATH");
   const char *vtkpath = info->CAPI->GetDefinition(mf,"VTK_BINARY_DIR");
+  const char *userjavapath = info->CAPI->GetDefinition(mf,"USER_JAVA_CLASSPATH");
   const char *startTempFile;
   const char *endTempFile;
 
   FILE* outfile = 0;
   const char* filename = 0;
 
-  if(argc < 3 )
+  if(argc < 2 )
     {
     info->CAPI->SetError(info, "called with incorrect number of arguments");
     return 0;
@@ -64,8 +65,16 @@ static int InitialPass(void *inf, void *mf, int argc, char *argv[])
   /* keep the library name */
   target = strdup(newArgv[0]);
 
-  javaPath = (char *)malloc(strlen(vtkpath) + 20);
-  sprintf(javaPath, "%s/java", vtkpath);
+  if (userjavapath)
+    {
+    javaPath = (char *)malloc(strlen(vtkpath) + 20 + strlen(userjavapath));
+    sprintf(javaPath, "%s;%s/java", userjavapath, vtkpath);
+    }
+  else
+    {
+    javaPath = (char *)malloc(strlen(vtkpath) + 20);
+    sprintf(javaPath, "%s/java", vtkpath);
+    }
 
   args[0] = strdup("-classpath");
   args[1] = strdup(javaPath);
