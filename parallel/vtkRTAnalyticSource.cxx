@@ -129,28 +129,15 @@ void vtkRTAnalyticSource::SetWholeExtent(int xMin, int xMax,
 void vtkRTAnalyticSource::ExecuteInformation()
 {
   vtkImageData *output = this->GetOutput();
-  unsigned long mem;
   
   output->SetWholeExtent(this->WholeExtent);
   output->SetScalarType(VTK_DOUBLE);
   output->SetNumberOfScalarComponents(1);
-  
-  // What if we are trying to process a VERY large 2D image?
-  mem = output->GetScalarSize();
-  mem = mem * (this->WholeExtent[1] - this->WholeExtent[0] + 1);
-  mem = mem * (this->WholeExtent[3] - this->WholeExtent[2] + 1);
-  mem = mem / 1000;
-  mem = mem * (this->WholeExtent[5] - this->WholeExtent[4] + 1);
-  if (mem < 1)
-    {
-    mem = 1;
-    }
-  
-  //  output->SetEstimatedWholeMemorySize(mem);
 }
 
-void vtkRTAnalyticSource::Execute(vtkImageData *data)
+void vtkRTAnalyticSource::ExecuteData(vtkDataObject *output)
 {
+  vtkImageData *data = this->AllocateOutputData(output);
   double *outPtr;
   int idxX, idxY, idxZ;
   int maxX, maxY, maxZ;

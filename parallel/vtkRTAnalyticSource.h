@@ -110,9 +110,8 @@ protected:
   float Center[3];
   float Maximum;
 
-  void ExecuteInformation();
-  void Execute(vtkImageData *data);
-  void Execute() { this->vtkImageSource::Execute(); };
+  virtual void ExecuteInformation();
+  virtual void ExecuteData(vtkDataObject *data);
 };
 
 
