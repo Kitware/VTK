@@ -128,6 +128,10 @@ void vtkClipPolyData::Execute()
 {
   vtkPolyData *input = this->GetInput();
   vtkPolyData *output = this->GetOutput();
+  if (!input || !output)
+    {
+    return;
+    }
   vtkIdType cellId, i, updateTime;
   vtkPoints *cellPts;
   vtkDataArray *clipScalars;
