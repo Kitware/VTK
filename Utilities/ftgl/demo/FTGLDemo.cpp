@@ -324,13 +324,13 @@ void myinit ()
 
 }
 
-#ifndef CALLBACK
-#define CALLBACK
+#ifndef GLUTCALLBACK
+#define GLUTCALLBACK
 #endif
 
 extern "C" {
 
-void CALLBACK display()
+void GLUTCALLBACK display()
 {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -359,7 +359,7 @@ void CALLBACK display()
 
 }
 
-void CALLBACK parsekey(unsigned char key, int, int)
+void GLUTCALLBACK parsekey(unsigned char key, int, int)
 {
   switch (key)
   {
@@ -400,7 +400,7 @@ void CALLBACK parsekey(unsigned char key, int, int)
 }
 
 
-void CALLBACK parsekey_special(int key, int, int)
+void GLUTCALLBACK parsekey_special(int key, int, int)
 {
   switch (key)
   {
@@ -419,17 +419,17 @@ void CALLBACK parsekey_special(int key, int, int)
   }
 }
 
-void CALLBACK motion(int x, int y)
+void GLUTCALLBACK motion(int x, int y)
 {
   tbMotion( x, y);
 }
 
-void CALLBACK mouse(int button, int state, int x, int y)
+void GLUTCALLBACK mouse(int button, int state, int x, int y)
 {
   tbMouse( button, state, x, y);
 }
 
-void CALLBACK myReshape(int w, int h)
+void GLUTCALLBACK myReshape(int w, int h)
 {
   glMatrixMode (GL_MODELVIEW);
   glViewport (0, 0, w, h);
@@ -484,7 +484,7 @@ int main(int argc, char *argv[])
   glutInitWindowPosition(50, 50);
   glutInitWindowSize( w_win, h_win);
   glutCreateWindow("FTGL TEST");
-  glutDisplayFunc(display);
+  glutDisplayFunc(&display);
   glutKeyboardFunc(parsekey);
   glutMouseFunc(mouse);
     glutMotionFunc(motion);

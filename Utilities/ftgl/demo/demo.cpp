@@ -10,10 +10,6 @@
   #include <GL/glut.h>
 #endif
 
-#ifdef USE_STD_NAMESPACE
-using namespace std;
-#endif
-
 #include "FTGLOutlineFont.h"
 #include "FTGLPolygonFont.h"
 #include "FTGLBitmapFont.h"
@@ -128,14 +124,14 @@ do_ortho()
   glLoadIdentity();
 }
 
-#ifndef CALLBACK
-#define CALLBACK
+#ifndef GLUTCALLBACK
+#define GLUTCALLBACK
 #endif
 
 extern "C" {
 
 void
-CALLBACK my_display(void)
+GLUTCALLBACK my_display(void)
 {
     glClear(GL_COLOR_BUFFER_BIT);
 
@@ -145,7 +141,7 @@ CALLBACK my_display(void)
 }
 
 void
-CALLBACK my_reshape(int w, int h)
+GLUTCALLBACK my_reshape(int w, int h)
 {
   width = w;
   height = h;
@@ -154,7 +150,7 @@ CALLBACK my_reshape(int w, int h)
 }
 
 void
-CALLBACK my_handle_key(unsigned char key, int x, int y)
+GLUTCALLBACK my_handle_key(unsigned char key, int x, int y)
 {
    switch (key) {
 
