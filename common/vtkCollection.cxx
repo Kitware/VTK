@@ -122,7 +122,6 @@ void vtkCollection::RemoveItem(vtkObject *a)
 void vtkCollection::RemoveAllItems()
 {
   int i;
-  vtkCollectionElement *p, *next;
 
   for (i = this->NumberOfItems - 1; i >= 0; i--)
     {
