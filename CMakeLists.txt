@@ -1,5 +1,4 @@
 PROJECT(VTK)
-
 BUILD_SHARED_LIBRARIES()
 
 IF (WIN32)
@@ -46,5 +45,7 @@ ${VTK_BINARY_DIR}/vtkConfigure.h)
 CONFIGURE_FILE(
 ${VTK_SOURCE_DIR}/vtkToolkits.h.in 
 ${VTK_BINARY_DIR}/vtkToolkits.h)
+
+ENABLE_TESTING()
 
 INSTALL_FILES(/include/vtk .h vtkConfigure vtkToolkits)
