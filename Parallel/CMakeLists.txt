@@ -68,7 +68,9 @@ IF (VTK_WRAP_TCL)
                          vtkGraphicsTCL 
                          vtkImagingTCL 
                          vtkFilteringTCL 
-                         vtkCommonTCL)
+                         vtkCommonTCL
+			 ${TCL_LIBRARY}
+			 ${TK_LIBRARY})
 
     IF (VTK_USE_PATENTED)
       TARGET_LINK_LIBRARIES(pvtk vtkPatentedTCL vtkPatented)
