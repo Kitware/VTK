@@ -172,6 +172,7 @@ int main()
          << oi->GetDescription() << "\n";
     failed = 1;
     }
+  oic->Delete();
   vtkObjectFactory::UnRegisterAllFactories();
   return failed;
 }
