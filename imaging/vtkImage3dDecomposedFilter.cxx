@@ -218,7 +218,7 @@ void vtkImage3dDecomposedFilter::SetReleaseDataFlag(int flag)
   if ( ! this->Filter2)
     {
     vtkErrorMacro(<< "SetReleaseDataFlag: Sub filter not created yet.");
-    return NULL;
+    return;
     }
   
   this->Filter2->SetReleaseDataFlag(flag);
