@@ -81,7 +81,7 @@ vtkLabeledDataMapper::~vtkLabeledDataMapper()
   this->SetInput(NULL);
 }
 
-void vtkLabeledDataMapper::RenderPostSwap(vtkViewport *viewport, 
+void vtkLabeledDataMapper::RenderOverlay(vtkViewport *viewport, 
 					  vtkActor2D *actor)
 {
   int i, j, numComp, pointIdLabels, activeComp;

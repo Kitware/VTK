@@ -100,7 +100,7 @@ public:
   // Description:
   // Draw the text to the screen at each input point.
   void RenderGeometry(vtkViewport* viewport, vtkActor2D* actor) {};
-  void RenderPostSwap(vtkViewport* viewport, vtkActor2D* actor);
+  void RenderOverlay(vtkViewport* viewport, vtkActor2D* actor);
 
   // Description:
   // Set the input dataset to the mapper.  
