@@ -158,6 +158,7 @@ vtkGetGhostCells \
 vtkGetPolyDataGhostCells \
 vtkGlyph2D \
 vtkGlyph3D \
+vtkGhostLevelToScalarFilter \
 vtkHedgeHog \
 vtkHull \
 vtkHyperStreamline \
