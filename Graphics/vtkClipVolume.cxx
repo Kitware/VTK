@@ -30,7 +30,7 @@
 #include "vtkIdTypeArray.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkClipVolume, "1.65");
+vtkCxxRevisionMacro(vtkClipVolume, "1.65.2.1");
 vtkStandardNewMacro(vtkClipVolume);
 vtkCxxSetObjectMacro(vtkClipVolume,ClipFunction,vtkImplicitFunction);
 
@@ -136,6 +136,7 @@ void vtkClipVolume::Execute()
   vtkCellData *clippedCD=clippedOutput->GetCellData();
   vtkCellData *outputCD;
   int dims[3], dimension, numICells, numJCells, numKCells, sliceSize;
+  int extOffset;
   int above, below;
   vtkIdList *tetraIds;
   vtkPoints *tetraPts; 
@@ -149,6 +150,9 @@ void vtkClipVolume::Execute()
   input->GetDimensions(dims);
   input->GetOrigin(origin);
   input->GetSpacing(spacing);
+  
+  extOffset = 
+    input->GetExtent()[0] + input->GetExtent()[2] + input->GetExtent()[4];
   
   for (dimension=3, i=0; i<3; i++)
     {
@@ -278,7 +282,7 @@ void vtkClipVolume::Execute()
       {
       for ( i=0; i < numICells; i++ )
         {
-        flip = (i+j+k) % 2;
+        flip = (extOffset+i+j+k) & 0x1;
         cellId = i + j*numICells + k*sliceSize;
         
         input->GetCell(cellId,cell);
