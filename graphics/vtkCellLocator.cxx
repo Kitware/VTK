@@ -1622,6 +1622,6 @@ void vtkCellLocator::GenerateRepresentation(int level, vtkPolyData *pd)
     vtkLocator::PrintSelf(os,indent);
     
     os << indent << "Number of Cells Per Bucket: " << this->NumberOfCellsPerBucket << "\n";
-    
+    os << indent << "Cache Cell Bounds: " << this->CacheCellBounds << "\n";  
     }
   
