@@ -38,10 +38,8 @@ CONECT 1963 1895
 #include <string.h>
 #include "vtkRenderWindow.h"
 #include "vtkPolyData.h"
-#include "vtkFloatPoints.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkFloatPoints.h"
 #include "vtkSphereSource.h"
 #include "vtkLineSource.h"
 #include "vtkCylinderSource.h"
@@ -255,9 +253,11 @@ void main(int argc, char **argv)
   // ---- Atoms (as spheres) -----
 
   // Create points for the starting positions of the particles
-  vtkFloatPoints *atomPoints = vtkFloatPoints::New();
+  vtkPoints *atomPoints = vtkPoints::New();
   vtkScalars *atomScalars = vtkScalars::New();
 
+  atomPoints->SetDataTypeToFloat();
+  
   for (int i=0; i<nAtoms; i++)
     {
     atomPoints->InsertNextPoint(atomPos[i]);
