@@ -197,9 +197,9 @@ void vtkHexahedron::EvaluateLocation(int& subId, float pcoords[3], float x[3],
                                     float weights[MAX_CELL_SIZE])
 {
   int i, j;
-  float *pt, pc[3];
+  float *pt;
 
-  this->InterpolationFunctions(pc, weights);
+  this->InterpolationFunctions(pcoords, weights);
 
   x[0] = x[1] = x[2] = 0.0;
   for (i=0; i<8; i++)
