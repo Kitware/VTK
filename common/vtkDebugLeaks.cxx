@@ -11,7 +11,6 @@ public:
     }
   ~vtkPrintLeaksAtExit()
     {
-      vtkObjectFactory::UnRegisterAllFactories();
       vtkDebugLeaks::PrintCurrentLeaks();
       vtkDebugLeaks::DeleteTable();
     }  
@@ -270,6 +269,7 @@ void vtkDebugLeaks::PrintCurrentLeaks()
     return;
     }
   vtkGenericWarningMacro("vtkDebugLeaks has detected LEAKS!\n ");
+  vtkObjectFactory::UnRegisterAllFactories();
   vtkDebugLeaks::MemoryTable->PrintTable();
 }
 

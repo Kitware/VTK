@@ -58,6 +58,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VTK_EXPORT vtkWin32OutputWindow : public vtkOutputWindow
 {
 public:
+// Methods from vtkObject
+  vtkTypeMacro(vtkWin32OutputWindow,vtkOutputWindow);
+  // Description:
+  // Create a vtkWin32OutputWindow.
   static vtkWin32OutputWindow* New();
   // Description:  Put the text into the display window.
   // New lines are converted to carriage return new lines.
