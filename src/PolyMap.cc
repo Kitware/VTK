@@ -75,7 +75,7 @@ void vlPolyMapper::Render(vlRenderer *ren)
 {
   vlPointData *pd;
   vlScalars *scalars;
-  int i;
+  int i, numPts;
   vlPolyData *input=(vlPolyData *)this->Input;
   vlColorScalars *colors;
 //
@@ -87,7 +87,10 @@ void vlPolyMapper::Render(vlRenderer *ren)
     return;
     }
   else
+    {
     input->Update();
+    numPts = input->GetNumberOfPoints();
+    } 
 
   if ( this->LookupTable == NULL ) this->CreateDefaultLookupTable();
   this->LookupTable->Build();
@@ -108,21 +111,23 @@ void vlPolyMapper::Render(vlRenderer *ren)
         {
         if ( this->Colors == NULL ) 
           {
-          this->Colors = colors = (vlColorScalars *) 
-                                new vlAPixmap(input->GetNumberOfPoints());
+          this->Colors = colors = (vlColorScalars *) new vlAPixmap(numPts);
           }
         else
           {
+          int numColors=this->Colors->GetNumberOfColors();
           colors = this->Colors;
+          if ( numColors < numPts ) colors->Squeeze();
+          else if ( numColors > numPts ) colors->Allocate(numPts);
           }
 
         this->LookupTable->SetTableRange(this->ScalarRange);
-        for (i=0; i<input->GetNumberOfPoints(); i++)
+        for (i=0; i < numPts; i++)
           {
           colors->SetColor(i,this->LookupTable->MapValue(scalars->GetScalar(i)));
           }
         }
-      else
+      else //color scalar
         {
         colors = (vlColorScalars *)scalars;
         }
