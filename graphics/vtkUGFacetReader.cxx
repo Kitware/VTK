@@ -94,6 +94,8 @@ void vtkUGFacetReader::Execute()
   vtkNormals *newNormals, *mergedNormals;
   vtkCellArray *newPolys, *mergedPolys;
   vtkPolyData *output=(vtkPolyData *)this->Output;
+  fpos_t pos;
+  int triEstimate;
 
   vtkDebugMacro(<<"Reading UG facet file...");
   if ( this->FileName == NULL )
@@ -121,6 +123,13 @@ void vtkUGFacetReader::Execute()
   // swap bytes since this is a binary file format
   vtkByteSwap::Swap4BE(&numFacetSets);
   
+  // Estimate how much space we need - find out the size of the
+  // file and divide by 72 bytes per triangle
+  fgetpos( fp, &pos );
+  fseek( fp, 0L, SEEK_END );
+  triEstimate = ftell( fp ) / 72;
+  fsetpos( fp, &pos );
+
   // allocate memory
   if ( ! this->PartColors ) 
     {
@@ -133,11 +142,11 @@ void vtkUGFacetReader::Execute()
     }
 
   newPts = vtkPoints::New();
-  newPts->Allocate(25000,25000);
+  newPts->Allocate(triEstimate,triEstimate);
   newNormals = vtkNormals::New();
-  newNormals->Allocate(25000,25000);
+  newNormals->Allocate(triEstimate,triEstimate);
   newPolys = vtkCellArray::New();
-  newPolys->Allocate(newPolys->EstimateSize(25000,3),25000);
+  newPolys->Allocate(newPolys->EstimateSize(triEstimate,3),triEstimate);
 
   // loop over all facet sets, extracting triangles
   for (setNumber=0; setNumber < numFacetSets; setNumber++) 
