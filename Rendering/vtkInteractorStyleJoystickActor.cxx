@@ -20,7 +20,7 @@
 #include "vtkMath.h"
 #include "vtkCommand.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleJoystickActor, "1.23");
+vtkCxxRevisionMacro(vtkInteractorStyleJoystickActor, "1.24");
 vtkStandardNewMacro(vtkInteractorStyleJoystickActor);
 
 //----------------------------------------------------------------------------
@@ -50,23 +50,12 @@ void vtkInteractorStyleJoystickActor::OnMouseMove()
   switch (this->State) 
     {
     case VTKIS_ROTATE:
-      this->FindPokedRenderer(x, y);
-      break;
-
     case VTKIS_PAN:
-      this->FindPokedRenderer(x, y);
-      break;
-
     case VTKIS_DOLLY:
-      this->FindPokedRenderer(x, y);
-      break;
-
     case VTKIS_SPIN:
-      this->FindPokedRenderer(x, y);
-      break;
-
     case VTKIS_USCALE:
       this->FindPokedRenderer(x, y);
+      this->InvokeEvent(vtkCommand::InteractionEvent, NULL);
       break;
     }
 }
@@ -292,7 +281,11 @@ void vtkInteractorStyleJoystickActor::Rotate()
   delete [] rotate[1];
   delete [] rotate;
   
-  this->ResetCameraClippingRange();
+  if (this->AutoAdjustCameraClippingRange)
+    {
+    this->CurrentRenderer->ResetCameraClippingRange();
+    }
+
   rwi->Render();
 }
   
@@ -372,7 +365,11 @@ void vtkInteractorStyleJoystickActor::Spin()
   delete [] rotate[0];
   delete [] rotate;
 
-  this->ResetCameraClippingRange();
+  if (this->AutoAdjustCameraClippingRange)
+    {
+    this->CurrentRenderer->ResetCameraClippingRange();
+    }
+  
   rwi->Render();
 }
 
@@ -478,7 +475,11 @@ void vtkInteractorStyleJoystickActor::Dolly()
     this->InteractionProp->AddPosition(motion_vector);
     }
 
-  this->ResetCameraClippingRange();
+  if (this->AutoAdjustCameraClippingRange)
+    {
+    this->CurrentRenderer->ResetCameraClippingRange();
+    }
+
   rwi->Render();
 }
 
@@ -520,7 +521,11 @@ void vtkInteractorStyleJoystickActor::UniformScale()
                         rotate, 
                         scale);
   
-  this->ResetCameraClippingRange();
+  if (this->AutoAdjustCameraClippingRange)
+    {
+    this->CurrentRenderer->ResetCameraClippingRange();
+    }
+  
   rwi->Render();
 }
 

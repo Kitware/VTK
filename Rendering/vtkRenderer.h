@@ -77,9 +77,8 @@ public:
   void RemoveLight(vtkLight *);
 
   // Description:
-  // Return the collection of lights or first light (as convenience method).
+  // Return the collection of lights.
   vtkLightCollection *GetLights();
-  vtkLight* GetFirstLight();
   
   // Description:
   // Create and add a light to renderer.
@@ -107,16 +106,20 @@ public:
   // If LightFollowCamera is off, the lights will not be adjusted.  
   //
   // (Note: In previous versions of vtk, this light-tracking
-  // functionality was part of the interactors, not the renderer.  For
+  // functionality was part of the interactors, not the renderer. For
   // backwards compatibility, the older, more limited interactor
-  // behavior is enabled by default.  This mode has the possibly
-  // unexpected property of turning the first light into a headlight,
-  // no matter what its light type is.  To disable this mode, turn the
+  // behavior is enabled by default. To disable this mode, turn the
   // interactor's LightFollowCamera flag OFF, and leave the renderer's
   // LightFollowCamera flag ON.)
   vtkSetMacro(LightFollowCamera,int);
   vtkGetMacro(LightFollowCamera,int);
   vtkBooleanMacro(LightFollowCamera,int);
+
+  // Description:
+  // Ask the lights in the scene that are not in world space
+  // (for instance, Headlights or CameraLights that are attached to the 
+  // camera) to update their geometry to match the active camera.
+  virtual int UpdateLightsGeometryToFollowCamera(void);
 
   // Description:
   // Return the collection of volumes.
@@ -310,7 +313,6 @@ public:
   vtkRayCaster *GetRayCaster() 
     {VTK_LEGACY_METHOD(GetRayCaster,"4.0");return this->RayCaster;};
   
-  
 protected:
   vtkRenderer();
   ~vtkRenderer();
@@ -396,12 +398,6 @@ private:
 
 inline vtkLightCollection *vtkRenderer::GetLights() {
   return this->Lights;
-}
-
-inline vtkLight* vtkRenderer::GetFirstLight()
-{
-  this->Lights->InitTraversal();
-  return this->Lights->GetNextItem();
 }
 
 // Description:

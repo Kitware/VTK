@@ -32,7 +32,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-vtkCxxRevisionMacro(vtkRenderer, "1.179");
+vtkCxxRevisionMacro(vtkRenderer, "1.180");
 
 // Create a vtkRenderer with a black background, a white ambient light, 
 // two-sided lighting turned on, a viewport of (0,0,1,1), and backface culling
@@ -311,45 +311,56 @@ int vtkRenderer::UpdateCamera ()
   return 1;
 }
 
-int vtkRenderer::UpdateLightGeometry()
+int vtkRenderer::UpdateLightsGeometryToFollowCamera()
 {
   vtkCamera *camera;
   vtkLight *light;
   vtkMatrix4x4 *lightMatrix;
 
+  // only update the light's geometry if this Renderer is tracking
+  // this lights.  That allows one renderer to view the lights that
+  // another renderer is setting up.
+
+  camera = this->GetActiveCamera();
+  lightMatrix = camera->GetCameraLightTransformMatrix();
+
+  for(this->Lights->InitTraversal(); 
+      (light = this->Lights->GetNextItem()); )
+    {
+    if (light->LightTypeIsSceneLight())
+      {
+      // nothing needs to be done.
+      ;
+      }
+    else if (light->LightTypeIsHeadlight())
+      {
+      // update position and orientation of light to match camera.
+      light->SetPosition(camera->GetPosition());
+      light->SetFocalPoint(camera->GetFocalPoint());
+      }
+    else if (light->LightTypeIsCameraLight())
+      {
+      light->SetTransformMatrix(lightMatrix);
+      }
+    else 
+      {
+      vtkErrorMacro(<< "light has unknown light type");
+      }
+    }
+  return 1;
+}
+
+int vtkRenderer::UpdateLightGeometry()
+{
   if (this->LightFollowCamera) 
-  {
+    {
     // only update the light's geometry if this Renderer is tracking
     // this lights.  That allows one renderer to view the lights that
     // another renderer is setting up.
-
-    camera = this->GetActiveCamera();
-    lightMatrix = camera->GetCameraLightTransformMatrix();
-
-    for(this->Lights->InitTraversal(); 
-        (light = this->Lights->GetNextItem()); )
-    {
-      if (light->LightTypeIsSceneLight())
-        {
-          // nothing needs to be done.
-          ;
-        }
-      else if (light->LightTypeIsHeadlight())
-        {
-          // update position and orientation of light to match camera.
-          light->SetPosition(camera->GetPosition());
-          light->SetFocalPoint(camera->GetFocalPoint());
-        }
-      else if (light->LightTypeIsCameraLight())
-        {
-          light->SetTransformMatrix(lightMatrix);
-        }
-      else 
-        {
-          vtkErrorMacro(<< "light has unknown light type");
-        }
+  
+    return this->UpdateLightsGeometryToFollowCamera();
     }
-  }
+  
   return 1;
 }
 

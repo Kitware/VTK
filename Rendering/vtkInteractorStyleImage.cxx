@@ -20,7 +20,7 @@
 #include "vtkMath.h"
 #include "vtkCommand.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleImage, "1.20");
+vtkCxxRevisionMacro(vtkInteractorStyleImage, "1.21");
 vtkStandardNewMacro(vtkInteractorStyleImage);
 
 //----------------------------------------------------------------------------
@@ -46,6 +46,7 @@ void vtkInteractorStyleImage::StartWindowLevel()
     return;
     }
   this->StartState(VTKIS_WINDOW_LEVEL);
+  this->InvokeEvent(vtkCommand::StartWindowLevelEvent,this);
 }
 
 //----------------------------------------------------------------------------
@@ -55,6 +56,7 @@ void vtkInteractorStyleImage::EndWindowLevel()
     {
     return;
     }
+  this->InvokeEvent(vtkCommand::EndWindowLevelEvent, this);
   this->StopState();
 }
 
@@ -66,6 +68,7 @@ void vtkInteractorStyleImage::StartPick()
     return;
     }
   this->StartState(VTKIS_PICK);
+  this->InvokeEvent(vtkCommand::StartPickEvent, this);
 }
 
 //----------------------------------------------------------------------------
@@ -75,6 +78,7 @@ void vtkInteractorStyleImage::EndPick()
     {
     return;
     }
+  this->InvokeEvent(vtkCommand::EndPickEvent, this);
   this->StopState();
 }
 
@@ -89,11 +93,13 @@ void vtkInteractorStyleImage::OnMouseMove()
     case VTKIS_WINDOW_LEVEL:
       this->FindPokedRenderer(x, y);
       this->WindowLevel();
+      this->InvokeEvent(vtkCommand::InteractionEvent, NULL);
       break;
 
     case VTKIS_PICK:
       this->FindPokedRenderer(x, y);
       this->Pick();
+      this->InvokeEvent(vtkCommand::InteractionEvent, NULL);
       break;
     }
 
@@ -118,13 +124,9 @@ void vtkInteractorStyleImage::OnLeftButtonDown()
 
   if (!this->Interactor->GetShiftKey() && !this->Interactor->GetControlKey()) 
     {
-    this->StartWindowLevel();
     this->WindowLevelStartPosition[0] = x;
     this->WindowLevelStartPosition[1] = y;      
-    if (this->HasObserver(vtkCommand::StartWindowLevelEvent)) 
-      {
-      this->InvokeEvent(vtkCommand::StartWindowLevelEvent,this);
-      }
+    this->StartWindowLevel();
     }
 
   // The rest of the button + key combinations remain the same
@@ -141,10 +143,6 @@ void vtkInteractorStyleImage::OnLeftButtonUp()
   switch (this->State) 
     {
     case VTKIS_WINDOW_LEVEL:
-      if (this->HasObserver(vtkCommand::EndWindowLevelEvent))
-        {
-        this->InvokeEvent(vtkCommand::EndWindowLevelEvent, this);
-        }
       this->EndWindowLevel();
       break;
     }
@@ -171,10 +169,6 @@ void vtkInteractorStyleImage::OnRightButtonDown()
   if (this->Interactor->GetShiftKey())
     {
     this->StartPick();
-    if (this->HasObserver(vtkCommand::StartPickEvent)) 
-      {
-      this->InvokeEvent(vtkCommand::StartPickEvent, this);
-      }
     }
 
   // The rest of the button + key combinations remain the same
@@ -191,10 +185,6 @@ void vtkInteractorStyleImage::OnRightButtonUp()
   switch (this->State) 
     {
     case VTKIS_PICK:
-      if (this->HasObserver(vtkCommand::EndPickEvent)) 
-        {
-        this->InvokeEvent(vtkCommand::EndPickEvent, this);
-        }
       this->EndPick();
       break;
     }
@@ -244,10 +234,7 @@ void vtkInteractorStyleImage::OnChar()
         }
       else
         {
-        if (this->HasObserver(vtkCommand::ResetWindowLevelEvent)) 
-          {
           this->InvokeEvent(vtkCommand::ResetWindowLevelEvent, this);
-          }
         }
       break;
 
@@ -265,19 +252,13 @@ void vtkInteractorStyleImage::WindowLevel()
   this->WindowLevelCurrentPosition[0] = rwi->GetEventPosition()[0];
   this->WindowLevelCurrentPosition[1] = rwi->GetEventPosition()[1];
   
-  if (this->HasObserver(vtkCommand::WindowLevelEvent)) 
-    {
-    this->InvokeEvent(vtkCommand::WindowLevelEvent, this);
-    }
+  this->InvokeEvent(vtkCommand::WindowLevelEvent, this);
 }
 
 //----------------------------------------------------------------------------
 void vtkInteractorStyleImage::Pick()
 {
-  if (this->HasObserver(vtkCommand::PickEvent)) 
-    {
-    this->InvokeEvent(vtkCommand::PickEvent, this);
-    }
+  this->InvokeEvent(vtkCommand::PickEvent, this);
 }
 
 //----------------------------------------------------------------------------

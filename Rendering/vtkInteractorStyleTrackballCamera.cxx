@@ -20,7 +20,7 @@
 #include "vtkMath.h"
 #include "vtkCommand.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleTrackballCamera, "1.25");
+vtkCxxRevisionMacro(vtkInteractorStyleTrackballCamera, "1.26");
 vtkStandardNewMacro(vtkInteractorStyleTrackballCamera);
 
 //----------------------------------------------------------------------------
@@ -45,21 +45,25 @@ void vtkInteractorStyleTrackballCamera::OnMouseMove()
     case VTKIS_ROTATE:
       this->FindPokedRenderer(x, y);
       this->Rotate();
+      this->InvokeEvent(vtkCommand::InteractionEvent, NULL);
       break;
 
     case VTKIS_PAN:
       this->FindPokedRenderer(x, y);
       this->Pan();
+      this->InvokeEvent(vtkCommand::InteractionEvent, NULL);
       break;
 
     case VTKIS_DOLLY:
       this->FindPokedRenderer(x, y);
       this->Dolly();
+      this->InvokeEvent(vtkCommand::InteractionEvent, NULL);
       break;
 
     case VTKIS_SPIN:
       this->FindPokedRenderer(x, y);
       this->Spin();
+      this->InvokeEvent(vtkCommand::InteractionEvent, NULL);
       break;
     }
 }
@@ -195,17 +199,15 @@ void vtkInteractorStyleTrackballCamera::Rotate()
   camera->Elevation(ryf);
   camera->OrthogonalizeViewUp();
 
-  this->ResetCameraClippingRange();
-
-  if (rwi->GetLightFollowCamera())
+  if (this->AutoAdjustCameraClippingRange)
     {
-    vtkLight* light = this->CurrentRenderer->GetFirstLight();
-    if (light != NULL) 
-      {
-      light->SetPosition(camera->GetPosition());
-      light->SetFocalPoint(camera->GetFocalPoint());
-      }
-    }   
+    this->CurrentRenderer->ResetCameraClippingRange();
+    }
+
+  if (rwi->GetLightFollowCamera()) 
+    {
+    this->CurrentRenderer->UpdateLightsGeometryToFollowCamera();
+    }
 
   rwi->Render();
 }
@@ -290,14 +292,9 @@ void vtkInteractorStyleTrackballCamera::Pan()
                       motionVector[1] + viewPoint[1],
                       motionVector[2] + viewPoint[2]);
       
-  if (rwi->GetLightFollowCamera())
+  if (rwi->GetLightFollowCamera()) 
     {
-    vtkLight* light = this->CurrentRenderer->GetFirstLight();
-    if (light != NULL) 
-      {
-      light->SetPosition(camera->GetPosition());
-      light->SetFocalPoint(camera->GetFocalPoint());
-      }
+    this->CurrentRenderer->UpdateLightsGeometryToFollowCamera();
     }
     
   rwi->Render();
@@ -312,14 +309,13 @@ void vtkInteractorStyleTrackballCamera::Dolly()
     }
   
   vtkRenderWindowInteractor *rwi = this->Interactor;
-
+  vtkCamera *camera = this->CurrentRenderer->GetActiveCamera();
   float *center = this->CurrentRenderer->GetCenter();
 
   int dy = rwi->GetEventPosition()[1] - rwi->GetLastEventPosition()[1];
   double dyf = this->MotionFactor * (double)(dy) / (double)(center[1]);
   double zoomFactor = pow((double)1.1, dyf);
   
-  vtkCamera *camera = this->CurrentRenderer->GetActiveCamera();
   if (camera->GetParallelProjection())
     {
     camera->SetParallelScale(camera->GetParallelScale()/zoomFactor);
@@ -327,17 +323,15 @@ void vtkInteractorStyleTrackballCamera::Dolly()
   else
     {
     camera->Dolly(zoomFactor);
-    this->ResetCameraClippingRange();
+    if (this->AutoAdjustCameraClippingRange)
+      {
+      this->CurrentRenderer->ResetCameraClippingRange();
+      }
     }
   
-  if (rwi->GetLightFollowCamera())
+  if (rwi->GetLightFollowCamera()) 
     {
-    vtkLight* light = this->CurrentRenderer->GetFirstLight();
-    if (light != NULL) 
-      {
-      light->SetPosition(camera->GetPosition());
-      light->SetFocalPoint(camera->GetFocalPoint());
-      }
+    this->CurrentRenderer->UpdateLightsGeometryToFollowCamera();
     }
   
   rwi->Render();

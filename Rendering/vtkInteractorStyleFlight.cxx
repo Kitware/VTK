@@ -21,7 +21,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleFlight, "1.22");
+vtkCxxRevisionMacro(vtkInteractorStyleFlight, "1.23");
 vtkStandardNewMacro(vtkInteractorStyleFlight);
 
 //---------------------------------------------------------------------------
@@ -123,19 +123,16 @@ void vtkInteractorStyleFlight::OnTimer()
       {
       camera->SetViewUp(this->FixedUpVector);
       }
-    this->ResetCameraClippingRange();
+
+    if (this->AutoAdjustCameraClippingRange)
+      {
+      this->CurrentRenderer->ResetCameraClippingRange();
+      }
 
     vtkRenderWindowInteractor *rwi = this->Interactor;
-
-    // Make sure light follows camera if desired
     if (rwi->GetLightFollowCamera()) 
       {
-      vtkLight* light = this->CurrentRenderer->GetFirstLight();
-      if (light != NULL) 
-        {
-        light->SetPosition(camera->GetPosition());
-        light->SetFocalPoint(camera->GetFocalPoint());
-        }
+      this->CurrentRenderer->UpdateLightsGeometryToFollowCamera();
       }
 
     rwi->Render();
@@ -330,19 +327,18 @@ void vtkInteractorStyleFlight::JumpTo(double campos[3], double focpos[3])
     {
     camera->SetViewUp(this->FixedUpVector);
     }
-  this->ResetCameraClippingRange();
 
-  // Make sure light follows camera if desired
+  if (this->AutoAdjustCameraClippingRange)
+    {
+    this->CurrentRenderer->ResetCameraClippingRange();
+    }
+
   vtkRenderWindowInteractor *rwi = this->Interactor;
   if (rwi->GetLightFollowCamera()) 
     {
-    vtkLight* light = this->CurrentRenderer->GetFirstLight();
-    if (light != NULL) 
-      {
-      light->SetPosition(camera->GetPosition());
-      light->SetFocalPoint(camera->GetFocalPoint());
-      }
+    this->CurrentRenderer->UpdateLightsGeometryToFollowCamera();
     }
+
   rwi->Render();
 }
 

@@ -264,10 +264,6 @@ public:
 protected:
   vtkInteractorStyle();
   ~vtkInteractorStyle();
-
-  // Description:
-  // Will the clipping range be automatically adjust before each render?
-  void ResetCameraClippingRange();
   
   // Description:
   // Main process event method

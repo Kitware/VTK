@@ -24,7 +24,7 @@
 #include "vtkOldStyleCallbackCommand.h"
 #include "vtkCallbackCommand.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyle, "1.73");
+vtkCxxRevisionMacro(vtkInteractorStyle, "1.74");
 
 //----------------------------------------------------------------------------
 vtkInteractorStyle *vtkInteractorStyle::New() 
@@ -565,6 +565,7 @@ void vtkInteractorStyle::StartState(int newstate)
     {
     vtkRenderWindowInteractor *rwi = this->Interactor;
     rwi->GetRenderWindow()->SetDesiredUpdateRate(rwi->GetDesiredUpdateRate());
+    this->InvokeEvent(vtkCommand::StartInteractionEvent, NULL);
     if (this->UseTimers && !rwi->CreateTimer(VTKI_TIMER_FIRST)) 
       {
       vtkErrorMacro(<< "Timer start failed");
@@ -586,6 +587,7 @@ void vtkInteractorStyle::StopState()
       {
       vtkErrorMacro(<< "Timer stop failed");
       }
+    this->InvokeEvent(vtkCommand::EndInteractionEvent, NULL);
     rwi->Render();
     }   
 }
@@ -764,17 +766,6 @@ void vtkInteractorStyle::EndTimer()
 }
 
 //----------------------------------------------------------------------------
-// Reset the camera clipping range only if AutoAdjustCameraClippingRange 
-// is on.
-void vtkInteractorStyle::ResetCameraClippingRange()
-{
-  if ( this->AutoAdjustCameraClippingRange )
-    {
-    this->CurrentRenderer->ResetCameraClippingRange();
-    }
-}
-
-//----------------------------------------------------------------------------
 // By overriding the Rotate, Rotate members we can
 // use this timer routine for Joystick or Trackball - quite tidy
 //----------------------------------------------------------------------------
@@ -890,20 +881,21 @@ void vtkInteractorStyle::OnChar()
     case 'F' :
       {
       this->AnimState = VTKIS_ANIM_ON;
-      vtkAssemblyPath *path=NULL;
+      vtkAssemblyPath *path = NULL;
       this->FindPokedRenderer(rwi->GetEventPosition()[0],
                               rwi->GetEventPosition()[1]);
       rwi->GetPicker()->Pick(rwi->GetEventPosition()[0],
-                             rwi->GetEventPosition()[1], 0.0, 
+                             rwi->GetEventPosition()[1], 
+                             0.0, 
                              this->CurrentRenderer);
       vtkAbstractPropPicker *picker;
-      if ( (picker=vtkAbstractPropPicker::SafeDownCast(rwi->GetPicker())) )
+      if ((picker=vtkAbstractPropPicker::SafeDownCast(rwi->GetPicker())))
         {
         path = picker->GetPath();
         }
-      if ( path != NULL )
+      if (path != NULL)
         {
-        rwi->FlyTo(this->CurrentRenderer,picker->GetPickPosition());
+        rwi->FlyTo(this->CurrentRenderer, picker->GetPickPosition());
         }
       this->AnimState = VTKIS_ANIM_OFF;
       }

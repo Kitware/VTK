@@ -20,7 +20,7 @@
 #include "vtkCommand.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleJoystickCamera, "1.24");
+vtkCxxRevisionMacro(vtkInteractorStyleJoystickCamera, "1.25");
 vtkStandardNewMacro(vtkInteractorStyleJoystickCamera);
 
 //----------------------------------------------------------------------------
@@ -47,19 +47,11 @@ void vtkInteractorStyleJoystickCamera::OnMouseMove()
   switch (this->State) 
     {
     case VTKIS_ROTATE:
-      this->FindPokedRenderer(x, y);
-      break;
-
     case VTKIS_PAN:
-      this->FindPokedRenderer(x, y);
-      break;
-
     case VTKIS_DOLLY:
-      this->FindPokedRenderer(x, y);
-      break;
-
     case VTKIS_SPIN:
       this->FindPokedRenderer(x, y);
+      this->InvokeEvent(vtkCommand::InteractionEvent, NULL);
       break;
     }
 }
@@ -198,16 +190,14 @@ void vtkInteractorStyleJoystickCamera::Rotate()
   camera->Elevation(ryf);
   camera->OrthogonalizeViewUp();
 
-  this->ResetCameraClippingRange();
-
-  if (rwi->GetLightFollowCamera())
+  if (this->AutoAdjustCameraClippingRange)
     {
-    vtkLight* light = this->CurrentRenderer->GetFirstLight();
-      if (light != NULL) 
-        {
-        light->SetPosition(camera->GetPosition());
-        light->SetFocalPoint(camera->GetFocalPoint());
-        }
+    this->CurrentRenderer->ResetCameraClippingRange();
+    }
+
+  if (rwi->GetLightFollowCamera()) 
+    {
+    this->CurrentRenderer->UpdateLightsGeometryToFollowCamera();
     }
 
   rwi->Render();
@@ -294,15 +284,10 @@ void vtkInteractorStyleJoystickCamera::Pan()
   camera->SetPosition(MotionVector[0] + ViewPoint[0],
                       MotionVector[1] + ViewPoint[1],
                       MotionVector[2] + ViewPoint[2]);
-
-  if (rwi->GetLightFollowCamera())
+  
+  if (rwi->GetLightFollowCamera()) 
     {
-    vtkLight* light = this->CurrentRenderer->GetFirstLight();
-    if (light != NULL) 
-      {
-      light->SetPosition(camera->GetPosition());
-      light->SetFocalPoint(camera->GetFocalPoint());
-      }
+    this->CurrentRenderer->UpdateLightsGeometryToFollowCamera();
     }
 
   rwi->Render();
@@ -337,17 +322,15 @@ void vtkInteractorStyleJoystickCamera::Dolly()
   else
     {
     camera->Dolly(zoomFactor);
-    this->ResetCameraClippingRange();
+    if (this->AutoAdjustCameraClippingRange)
+      {
+      this->CurrentRenderer->ResetCameraClippingRange();
+      }
     }
 
-  if (rwi->GetLightFollowCamera())
+  if (rwi->GetLightFollowCamera()) 
     {
-    vtkLight* light = this->CurrentRenderer->GetFirstLight();
-    if (light != NULL) 
-      {
-      light->SetPosition(camera->GetPosition());
-      light->SetFocalPoint(camera->GetFocalPoint());
-      }
+    this->CurrentRenderer->UpdateLightsGeometryToFollowCamera();
     }
 
   rwi->Render();

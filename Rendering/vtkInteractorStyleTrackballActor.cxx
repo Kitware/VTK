@@ -20,7 +20,7 @@
 #include "vtkMath.h"
 #include "vtkCommand.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleTrackballActor, "1.25");
+vtkCxxRevisionMacro(vtkInteractorStyleTrackballActor, "1.26");
 vtkStandardNewMacro(vtkInteractorStyleTrackballActor);
 
 //----------------------------------------------------------------------------
@@ -48,26 +48,31 @@ void vtkInteractorStyleTrackballActor::OnMouseMove()
     case VTKIS_ROTATE:
       this->FindPokedRenderer(x, y);
       this->Rotate();
+      this->InvokeEvent(vtkCommand::InteractionEvent, NULL);
       break;
 
     case VTKIS_PAN:
       this->FindPokedRenderer(x, y);
       this->Pan();
+      this->InvokeEvent(vtkCommand::InteractionEvent, NULL);
       break;
 
     case VTKIS_DOLLY:
       this->FindPokedRenderer(x, y);
       this->Dolly();
+      this->InvokeEvent(vtkCommand::InteractionEvent, NULL);
       break;
 
     case VTKIS_SPIN:
       this->FindPokedRenderer(x, y);
       this->Spin();
+      this->InvokeEvent(vtkCommand::InteractionEvent, NULL);
       break;
 
     case VTKIS_USCALE:
       this->FindPokedRenderer(x, y);
       this->UniformScale();
+      this->InvokeEvent(vtkCommand::InteractionEvent, NULL);
       break;
     }
 }
@@ -283,7 +288,11 @@ void vtkInteractorStyleTrackballActor::Rotate()
     delete [] rotate[1];
     delete [] rotate;
     
-    this->ResetCameraClippingRange();
+    if (this->AutoAdjustCameraClippingRange)
+      {
+      this->CurrentRenderer->ResetCameraClippingRange();
+      }
+
     rwi->Render();
     }
 }
@@ -358,7 +367,11 @@ void vtkInteractorStyleTrackballActor::Spin()
   delete [] rotate[0];
   delete [] rotate;
   
-  this->ResetCameraClippingRange();
+  if (this->AutoAdjustCameraClippingRange)
+    {
+    this->CurrentRenderer->ResetCameraClippingRange();
+    }
+
   rwi->Render();
 }
 
@@ -409,7 +422,11 @@ void vtkInteractorStyleTrackballActor::Pan()
     this->InteractionProp->AddPosition(motion_vector);
     }
   
-  this->ResetCameraClippingRange();
+  if (this->AutoAdjustCameraClippingRange)
+    {
+    this->CurrentRenderer->ResetCameraClippingRange();
+    }
+
   rwi->Render();
 }
 
@@ -456,7 +473,11 @@ void vtkInteractorStyleTrackballActor::Dolly()
     this->InteractionProp->AddPosition(motion_vector);
     }
   
-  this->ResetCameraClippingRange();
+  if (this->AutoAdjustCameraClippingRange)
+    {
+    this->CurrentRenderer->ResetCameraClippingRange();
+    }
+
   rwi->Render();
 }
 
@@ -489,7 +510,11 @@ void vtkInteractorStyleTrackballActor::UniformScale()
                         rotate, 
                         scale);
   
-  this->ResetCameraClippingRange();
+  if (this->AutoAdjustCameraClippingRange)
+    {
+    this->CurrentRenderer->ResetCameraClippingRange();
+    }
+
   rwi->Render();
 }
 
