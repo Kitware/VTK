@@ -22,7 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkFloatArray.h"
 
-vtkCxxRevisionMacro(vtkRibbonFilter, "1.65");
+vtkCxxRevisionMacro(vtkRibbonFilter, "1.66");
 vtkStandardNewMacro(vtkRibbonFilter);
 
 // Construct ribbon so that width is 0.1, the width does 
@@ -61,7 +61,7 @@ void vtkRibbonFilter::Execute()
   vtkCellData *outCD=output->GetCellData();
   vtkCellArray *inLines = NULL;
   vtkDataArray *inNormals;
-  vtkDataArray *inScalars=NULL;
+  vtkDataArray *inScalars=pd->GetScalars();
 
   vtkPoints *inPts;
   vtkIdType numPts = 0;
@@ -105,7 +105,9 @@ void vtkRibbonFilter::Execute()
 
   // Point data: copy scalars, vectors, tcoords. Normals may be computed here.
   outPD->CopyNormalsOff();
-  if ( this->GenerateTCoords != VTK_TCOORDS_OFF )
+  if ( (this->GenerateTCoords == VTK_TCOORDS_FROM_SCALARS && inScalars) ||
+       this->GenerateTCoords == VTK_TCOORDS_FROM_LENGTH ||
+       this->GenerateTCoords == VTK_TCOORDS_FROM_NORMALIZED_LENGTH )
     {
     newTCoords = vtkFloatArray::New();
     newTCoords->SetNumberOfComponents(2);
@@ -141,7 +143,7 @@ void vtkRibbonFilter::Execute()
 
   // If varying width, get appropriate info.
   //
-  if ( this->VaryWidth && (inScalars=pd->GetScalars()) )
+  if ( this->VaryWidth && inScalars )
     {
     inScalars->GetRange(range,0);
     }
@@ -199,7 +201,7 @@ void vtkRibbonFilter::Execute()
 
     // Generate the texture coordinates for this polyline
     //
-    if ( this->GenerateTCoords != VTK_TCOORDS_OFF )
+    if ( newTCoords )
       {
       this->GenerateTextureCoords(offset,npts,pts,inPts,inScalars,newTCoords);
       }
@@ -218,7 +220,7 @@ void vtkRibbonFilter::Execute()
     inNormals->Delete();
     }
 
-  if ( this->GenerateTCoords != VTK_TCOORDS_OFF )
+  if ( newTCoords )
     {
     outPD->SetTCoords(newTCoords);
     newTCoords->Delete();
@@ -424,7 +426,7 @@ void vtkRibbonFilter::GenerateTextureCoords(vtkIdType offset,
         }
       }
     }
-  else //we know it's from line length
+  else if ( this->GenerateTCoords == VTK_TCOORDS_FROM_LENGTH )
     {
     float xPrev[3], x[3], len=0.0;
     inPts->GetPoint(pts[0],xPrev);
@@ -440,7 +442,30 @@ void vtkRibbonFilter::GenerateTextureCoords(vtkIdType offset,
       xPrev[0]=x[0]; xPrev[1]=x[1]; xPrev[2]=x[2];
       }
     }
-  
+  else if ( this->GenerateTCoords == VTK_TCOORDS_FROM_NORMALIZED_LENGTH )
+    {
+    float xPrev[3], x[3], length=0.0, len=0.0;
+    inPts->GetPoint(pts[0],xPrev);
+    for (i=1; i < npts; i++)
+      {
+      inPts->GetPoint(pts[i],x);
+      length += sqrt(vtkMath::Distance2BetweenPoints(x,xPrev));
+      xPrev[0]=x[0]; xPrev[1]=x[1]; xPrev[2]=x[2];
+      }
+
+    inPts->GetPoint(pts[0],xPrev);
+    for (i=1; i < npts; i++)
+      {
+      inPts->GetPoint(pts[i],x);
+      len += sqrt(vtkMath::Distance2BetweenPoints(x,xPrev));
+      tc = len / length;
+      for ( k=0; k < 2; k++)
+        {
+        newTCoords->InsertTuple2(offset+i*2+k,tc,0.0);
+        }
+      xPrev[0]=x[0]; xPrev[1]=x[1]; xPrev[2]=x[2];
+      }
+    }
 }
 
 // Compute the number of points in this ribbon
@@ -462,9 +487,13 @@ const char *vtkRibbonFilter::GetGenerateTCoordsAsString(void)
     {
     return "GenerateTCoordsFromScalar";
     }
-  else 
+  else if ( this->GenerateTCoords == VTK_TCOORDS_FROM_LENGTH ) 
     {
     return "GenerateTCoordsFromLength";
+    }
+  else 
+    {
+    return "GenerateTCoordsFromNormalizedLength";
     }
 }
 

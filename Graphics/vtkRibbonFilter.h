@@ -38,9 +38,10 @@
 
 #include "vtkPolyDataToPolyDataFilter.h"
 
-#define VTK_TCOORDS_OFF 0
-#define VTK_TCOORDS_FROM_LENGTH 1
-#define VTK_TCOORDS_FROM_SCALARS 2
+#define VTK_TCOORDS_OFF                    0
+#define VTK_TCOORDS_FROM_NORMALIZED_LENGTH 1
+#define VTK_TCOORDS_FROM_LENGTH            2
+#define VTK_TCOORDS_FROM_SCALARS           3
 
 class VTK_GRAPHICS_EXPORT vtkRibbonFilter : public vtkPolyDataToPolyDataFilter 
 {
@@ -97,6 +98,8 @@ public:
   vtkGetMacro(GenerateTCoords,int);
   void SetGenerateTCoordsToOff()
     {this->SetGenerateTCoords(VTK_TCOORDS_OFF);}
+  void SetGenerateTCoordsToNormalizedLength()
+    {this->SetGenerateTCoords(VTK_TCOORDS_FROM_NORMALIZED_LENGTH);}
   void SetGenerateTCoordsToUseLength()
     {this->SetGenerateTCoords(VTK_TCOORDS_FROM_LENGTH);}
   void SetGenerateTCoordsToUseScalars()

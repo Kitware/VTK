@@ -43,6 +43,11 @@
 #define VTK_SUBDIVIDE_SPECIFIED 0
 #define VTK_SUBDIVIDE_LENGTH    1
 
+#define VTK_TCOORDS_OFF                    0
+#define VTK_TCOORDS_FROM_NORMALIZED_LENGTH 1
+#define VTK_TCOORDS_FROM_LENGTH            2
+#define VTK_TCOORDS_FROM_SCALARS           3
+
 class VTK_GRAPHICS_EXPORT vtkSplineFilter : public vtkPolyDataToPolyDataFilter
 {
 public:
@@ -89,6 +94,33 @@ public:
   vtkSetObjectMacro(Spline,vtkSpline);
   vtkGetObjectMacro(Spline,vtkSpline);
 
+  // Description:
+  // Control whether and how texture coordinates are produced. This is
+  // useful for striping the output polyline. The texture coordinates
+  // can be generated in three ways: a normalized (0,1) generation;
+  // based on the length (divided by the texture length); and by using
+  // the input scalar values.
+  vtkSetClampMacro(GenerateTCoords,int,VTK_TCOORDS_OFF,
+                   VTK_TCOORDS_FROM_SCALARS);
+  vtkGetMacro(GenerateTCoords,int);
+  void SetGenerateTCoordsToOff()
+    {this->SetGenerateTCoords(VTK_TCOORDS_OFF);}
+  void SetGenerateTCoordsToNormalizedLength()
+    {this->SetGenerateTCoords(VTK_TCOORDS_FROM_NORMALIZED_LENGTH);}
+  void SetGenerateTCoordsToUseLength()
+    {this->SetGenerateTCoords(VTK_TCOORDS_FROM_LENGTH);}
+  void SetGenerateTCoordsToUseScalars()
+    {this->SetGenerateTCoords(VTK_TCOORDS_FROM_SCALARS);}
+  const char *GetGenerateTCoordsAsString();
+
+  // Description:
+  // Control the conversion of units during the texture coordinates
+  // calculation. The TextureLength indicates what length (whether 
+  // calculated from scalars or length) is mapped to the [0,1)
+  // texture space.
+  vtkSetClampMacro(TextureLength,float,0.000001,VTK_LARGE_INTEGER);
+  vtkGetMacro(TextureLength,float);
+
 protected:
   vtkSplineFilter();
   ~vtkSplineFilter();
@@ -104,11 +136,14 @@ protected:
   vtkSpline *XSpline;
   vtkSpline *YSpline;
   vtkSpline *ZSpline;
+  int       GenerateTCoords;
+  float     TextureLength; //this length is mapped to [0,1) texture space
 
   //helper methods
   int GeneratePoints(vtkIdType offset, vtkIdType npts, vtkIdType *pts, 
                      vtkPoints *inPts, vtkPoints *newPts, vtkPointData *pd, 
-                     vtkPointData *outPD, vtkFloatArray *newTCoords);
+                     vtkPointData *outPD, int genTCoords,
+                     vtkFloatArray *newTCoords);
 
   void GenerateLine(vtkIdType offset, vtkIdType numGenPts, vtkIdType inCellId,
                   vtkCellData *cd, vtkCellData *outCD, vtkCellArray *newLines);

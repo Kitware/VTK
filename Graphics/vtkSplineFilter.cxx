@@ -21,7 +21,7 @@
 #include "vtkFloatArray.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkSplineFilter, "1.1");
+vtkCxxRevisionMacro(vtkSplineFilter, "1.2");
 vtkStandardNewMacro(vtkSplineFilter);
 
 vtkSplineFilter::vtkSplineFilter()
@@ -30,6 +30,9 @@ vtkSplineFilter::vtkSplineFilter()
   this->MaximumNumberOfSubdivisions = VTK_LARGE_INTEGER;
   this->NumberOfSubdivisions = 100;
   this->Length = 0.1;
+  this->GenerateTCoords = VTK_TCOORDS_FROM_NORMALIZED_LENGTH;
+  this->TextureLength = 1.0;
+
   this->Spline = vtkCardinalSpline::New();
   this->TCoordMap = vtkFloatArray::New();
 }
@@ -61,6 +64,7 @@ void vtkSplineFilter::Execute()
   vtkFloatArray *newTCoords=NULL;
   int abort=0;
   vtkIdType inCellId, numGenPts;
+  int genTCoords = VTK_TCOORDS_OFF;
 
   // Check input and initialize
   //
@@ -89,10 +93,17 @@ void vtkSplineFilter::Execute()
   newLines->Allocate(newLines->EstimateSize(1,numNewPts));
 
   // Point data
-  newTCoords = vtkFloatArray::New();
-  newTCoords->SetNumberOfComponents(2);
-  newTCoords->Allocate(numNewPts);
-  outPD->CopyTCoordsOff();
+  if ( (this->GenerateTCoords == VTK_TCOORDS_FROM_SCALARS &&
+        pd->GetScalars() != NULL) ||
+       (this->GenerateTCoords == VTK_TCOORDS_FROM_LENGTH ||
+        this->GenerateTCoords == VTK_TCOORDS_FROM_NORMALIZED_LENGTH) )
+    {
+    genTCoords = this->GenerateTCoords;
+    newTCoords = vtkFloatArray::New();
+    newTCoords->SetNumberOfComponents(2);
+    newTCoords->Allocate(numNewPts);
+    outPD->CopyTCoordsOff();
+    }
   outPD->InterpolateAllocate(pd,numNewPts);
   this->TCoordMap->Allocate(VTK_CELL_SIZE);
 
@@ -128,7 +139,7 @@ void vtkSplineFilter::Execute()
     //
     this->TCoordMap->Reset();
     numGenPts = this->GeneratePoints(offset, npts, pts, inPts, newPts,
-                                     pd, outPD, newTCoords);
+                                     pd, outPD, genTCoords, newTCoords);
     if ( ! numGenPts )
       {
       vtkWarningMacro(<< "Could not generate points!");
@@ -158,8 +169,11 @@ void vtkSplineFilter::Execute()
   output->SetLines(newLines);
   newLines->Delete();
 
-  outPD->SetTCoords(newTCoords);
-  newTCoords->Delete();
+  if ( newTCoords )
+    {
+    outPD->SetTCoords(newTCoords);
+    newTCoords->Delete();
+    }
 
   output->Squeeze();
 }
@@ -167,7 +181,7 @@ void vtkSplineFilter::Execute()
 int vtkSplineFilter::GeneratePoints(vtkIdType offset, vtkIdType npts, 
                                     vtkIdType *pts, vtkPoints *inPts, 
                                     vtkPoints *newPts, vtkPointData *pd, 
-                                    vtkPointData *outPD, 
+                                    vtkPointData *outPD, int genTCoords,
                                     vtkFloatArray *newTCoords)
 {
   vtkIdType i;
@@ -178,7 +192,7 @@ int vtkSplineFilter::GeneratePoints(vtkIdType offset, vtkIdType npts,
   this->ZSpline->RemoveAllPoints();
     
   // Compute the length of the resulting spline
-  float xPrev[3], x[3], length=0.0, len, t, tp;
+  float xPrev[3], x[3], length=0.0, len, t, tc;
   inPts->GetPoint(pts[0],xPrev);
   for (i=1; i < npts; i++)
     {
@@ -230,6 +244,11 @@ int vtkSplineFilter::GeneratePoints(vtkIdType offset, vtkIdType npts,
   // Now compute the new points
   numNewPts = numDivs + 1;
   vtkIdType idx;
+  float s, s0;
+  if ( genTCoords == VTK_TCOORDS_FROM_SCALARS )
+    {
+    s0=pd->GetScalars()->GetTuple1(pts[0]);
+    }
   float tLo = this->TCoordMap->GetValue(0);
   float tHi = this->TCoordMap->GetValue(1);
   for (idx=0, i=0; i < numNewPts; i++)
@@ -239,22 +258,36 @@ int vtkSplineFilter::GeneratePoints(vtkIdType offset, vtkIdType npts,
     x[1] = this->YSpline->Evaluate(t);
     x[2] = this->ZSpline->Evaluate(t);
     newPts->InsertPoint(offset+i,x);
-    newTCoords->InsertTuple2(offset+i,t,0.0);
 
     // interpolate point data
-    if ( t > tHi && idx < (npts-2) )
+    while ( t > tHi && idx < (npts-2))
       {
-      while ( t > tHi && idx < (npts-2))
-        {
-        idx++;
-        tLo = this->TCoordMap->GetValue(idx);
-        tHi = this->TCoordMap->GetValue(idx+1);
-        }
+      idx++;
+      tLo = this->TCoordMap->GetValue(idx);
+      tHi = this->TCoordMap->GetValue(idx+1);
       }
-    tp = (t - tLo) / (tHi - tLo);
-      
-    outPD->InterpolateEdge(pd,offset+i,pts[idx],pts[idx+1],tp);
-    }
+    tc = (t - tLo) / (tHi - tLo);
+    outPD->InterpolateEdge(pd,offset+i,pts[idx],pts[idx+1],tc);
+
+    // generate texture coordinates if desired
+    if ( genTCoords != VTK_TCOORDS_OFF )
+      {
+      if ( genTCoords == VTK_TCOORDS_FROM_NORMALIZED_LENGTH )
+        {
+        tc = t;
+        }
+      else if ( genTCoords == VTK_TCOORDS_FROM_LENGTH )
+        {
+        tc = t * length / this->TextureLength;
+        }
+      else if ( genTCoords == VTK_TCOORDS_FROM_SCALARS )
+        {
+        s = outPD->GetScalars()->GetTuple1(offset+i); //data just interpolated
+        tc = (s - s0) / this->TextureLength;
+        }
+      newTCoords->InsertTuple2(offset+i,tc,0.0);
+      } //if generating tcoords
+    } //for all new points
 
   return numNewPts;
 }
@@ -287,6 +320,26 @@ const char *vtkSplineFilter::GetSubdivideAsString()
     }
 }
 
+// Return the method of generating the texture coordinates.
+const char *vtkSplineFilter::GetGenerateTCoordsAsString(void)
+{
+  if ( this->GenerateTCoords == VTK_TCOORDS_OFF )
+    {
+    return "GenerateTCoordsOff";
+    }
+  else if ( this->GenerateTCoords == VTK_TCOORDS_FROM_SCALARS ) 
+    {
+    return "GenerateTCoordsFromScalar";
+    }
+  else if ( this->GenerateTCoords == VTK_TCOORDS_FROM_LENGTH ) 
+    {
+    return "GenerateTCoordsFromLength";
+    }
+  else 
+    {
+    return "GenerateTCoordsFromNormalizedLength";
+    }
+}
 
 void vtkSplineFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
@@ -297,5 +350,8 @@ void vtkSplineFilter::PrintSelf(ostream& os, vtkIndent indent)
      << this->NumberOfSubdivisions << "\n";
   os << indent << "Length: " << this->Length << "\n";
   os << indent << "Spline: " << this->Spline << "\n";
+  os << indent << "Generate TCoords: " 
+     << this->GetGenerateTCoordsAsString() << endl;
+  os << indent << "Texture Length: " << this->TextureLength << endl;
 }
 
