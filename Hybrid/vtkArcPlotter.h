@@ -57,7 +57,7 @@ public:
   // Description:
   // Instantiate with no default camera and plot mode set to
   // VTK_SCALARS.
-  static vtkArcPlotter *New() {return new vtkArcPlotter;};
+  static vtkArcPlotter *New();
 
   vtkTypeRevisionMacro(vtkArcPlotter,vtkPolyDataToPolyDataFilter);
   void PrintSelf(ostream& os, vtkIndent indent);

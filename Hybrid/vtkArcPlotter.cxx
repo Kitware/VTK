@@ -19,8 +19,10 @@
 #include "vtkMath.h"
 #include "vtkPlane.h"
 #include "vtkFloatArray.h"
+#include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkArcPlotter, "1.15");
+vtkCxxRevisionMacro(vtkArcPlotter, "1.16");
+vtkStandardNewMacro(vtkArcPlotter);
 
 vtkArcPlotter::vtkArcPlotter()
 {
