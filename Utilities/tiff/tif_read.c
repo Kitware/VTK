@@ -92,7 +92,7 @@ TIFFSeek(TIFF* tif, uint32 row, tsample_t sample)
 }
 
 int
-TIFFReadScanline(TIFF* tif, tdata_t buf, uint32 row, tsample_t sample)
+TEXPORT TIFFReadScanline(TIFF* tif, tdata_t buf, uint32 row, tsample_t sample)
 {
         int e;
 

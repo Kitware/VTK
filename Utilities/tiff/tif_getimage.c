@@ -394,7 +394,7 @@ TIFFRGBAImageGet(TIFFRGBAImage* img, uint32* raster, uint32 w, uint32 h)
  * Read the specified image into an ABGR-format raster.
  */
 int
-TIFFReadRGBAImage(TIFF* tif,
+TEXPORT TIFFReadRGBAImage(TIFF* tif,
     uint32 rwidth, uint32 rheight, uint32* raster, int stop)
 {
     char emsg[1024];

@@ -24,6 +24,10 @@
  * OF THIS SOFTWARE.
  */
 
+#ifdef ZIP_SUPPORT
+#include "zlib.h"
+#endif
+
 #include "tiffiop.h"
 #ifdef ZIP_SUPPORT
 /*
@@ -47,7 +51,6 @@
  * last found at ftp://ftp.uu.net/pub/archiving/zip/zlib/zlib-0.99.tar.gz.
  */
 #include "tif_predict.h"
-#include "zlib.h"
 
 #include <stdio.h>
 #include <assert.h>
