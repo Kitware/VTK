@@ -177,7 +177,7 @@ void vtkWin32OpenGLTextMapper::RenderOpaqueGeometry(vtkViewport* viewport,
   // Check for input
   if ( this->NumberOfLines > 1 )
     {
-    this->RenderMultipleLines(viewport, actor);
+    this->RenderOpaqueGeometryMultipleLines(viewport, actor);
     return;
     }
 

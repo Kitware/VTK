@@ -197,7 +197,8 @@ protected:
   int  GetNumberOfLines(char *input);
   char *NextLine(char *input, int lineNum);
   void GetMultiLineSize(vtkViewport* viewport, int size[2]);
-  void RenderMultipleLines(vtkViewport *viewport, vtkActor2D *actor);
+  void RenderOverlayMultipleLines(vtkViewport *viewport, vtkActor2D *actor);
+  void RenderOpaqueGeometryMultipleLines(vtkViewport *viewport, vtkActor2D *actor);
   
 };
 

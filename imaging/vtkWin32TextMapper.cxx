@@ -58,16 +58,16 @@ vtkWin32TextMapper::~vtkWin32TextMapper()
 
 void vtkWin32TextMapper::GetSize(vtkViewport* viewport, int *size)
 {
+  if ( this->NumberOfLines > 1 )
+    {
+    this->GetMultiLineSize(viewport, size);
+    return;
+    }
+
   if (this->Input == NULL)
     {
     size[0] = 0;
     size[1] = 0;
-    return;
-    }
-
-  if ( this->NumberOfLines > 1 )
-    {
-    this->GetMultiLineSize(viewport, size);
     return;
     }
 
@@ -170,7 +170,7 @@ void vtkWin32TextMapper::RenderOverlay(vtkViewport* viewport,
   // Check for input
   if ( this->NumberOfLines > 1 )
     {
-    this->RenderMultipleLines(viewport, actor);
+    this->RenderOverlayMultipleLines(viewport, actor);
     return;
     }
 

@@ -99,6 +99,12 @@ void vtkXTextMapper::SetFontSize(int size)
 
 void vtkXTextMapper::GetSize(vtkViewport* viewport, int *size)
 {
+  if ( this->NumberOfLines > 1 )
+    {
+    this->GetMultiLineSize(viewport, size);
+    return;
+    }
+
   if (this->Input == NULL)
     {
     size[0] = 0;
@@ -188,7 +194,7 @@ void vtkXTextMapper::RenderOverlay(vtkViewport* viewport, vtkActor2D* actor)
 
   if ( this->NumberOfLines > 1 )
     {
-    this->RenderMultipleLines(viewport, actor);
+    this->RenderOverlayMultipleLines(viewport, actor);
     return;
     }
 

@@ -217,6 +217,10 @@ void vtkTextMapper::SetInput(char *input)
     for (i=0; i < this->NumberOfLines; i++)
       {
       line = this->NextLine(input, i);
+      if (!this->TextLines[i]->GetInput() || strcmp(line,this->TextLines[i]->GetInput()))
+        {
+        this->Modified();
+        }
       this->TextLines[i]->SetInput( line );
       delete [] line;
       }
@@ -282,6 +286,11 @@ void vtkTextMapper::GetMultiLineSize(vtkViewport* viewport, int size[2])
   lineSize[0] = lineSize[1] = size[0] = size[1] = 0;
   for ( i=0; i < this->NumberOfLines; i++ )
     {
+    this->TextLines[i]->SetItalic(this->Italic);
+    this->TextLines[i]->SetBold(this->Bold);
+    this->TextLines[i]->SetShadow(this->Shadow);
+    this->TextLines[i]->SetFontSize(this->FontSize);
+    this->TextLines[i]->SetFontFamily(this->FontFamily);
     this->TextLines[i]->GetSize(viewport, lineSize);
     size[0] = (lineSize[0] > size[0] ? lineSize[0] : size[0]);
     size[1] = (lineSize[1] > size[1] ? lineSize[1] : size[1]);
@@ -291,8 +300,8 @@ void vtkTextMapper::GetMultiLineSize(vtkViewport* viewport, int size[2])
   size[1] += this->NumberOfLines * this->LineSpacing * size[1];
 }
 
-void vtkTextMapper::RenderMultipleLines(vtkViewport *viewport, 
-                                        vtkActor2D *actor)    
+void vtkTextMapper::RenderOverlayMultipleLines(vtkViewport *viewport, 
+                                               vtkActor2D *actor)    
 {
   float offset;
 
@@ -320,7 +329,37 @@ void vtkTextMapper::RenderMultipleLines(vtkViewport *viewport,
     this->TextLines[lineNum]->SetLineOffset((float)lineNum+offset);
     this->TextLines[lineNum]->SetLineSpacing(this->LineSpacing);
     this->TextLines[lineNum]->RenderOverlay(viewport,actor);
-    this->TextLines[lineNum]->RenderOpaqueGeometry(viewport,actor);
     }
 }
 
+void vtkTextMapper::RenderOpaqueGeometryMultipleLines(vtkViewport *viewport, 
+                                                      vtkActor2D *actor)    
+{
+  float offset;
+
+  switch (this->VerticalJustification)
+    {
+    case VTK_TEXT_TOP:
+      offset = 1.0;
+      break;
+    case VTK_TEXT_CENTERED:
+      offset = -this->NumberOfLines/2.0 + 1;
+      break;
+    case VTK_TEXT_BOTTOM:
+      offset = -(this->NumberOfLines - 1.0);
+      break;
+    }
+
+  for (int lineNum=0; lineNum < this->NumberOfLines; lineNum++)
+    {
+    this->TextLines[lineNum]->SetItalic(this->Italic);
+    this->TextLines[lineNum]->SetBold(this->Bold);
+    this->TextLines[lineNum]->SetShadow(this->Shadow);
+    this->TextLines[lineNum]->SetFontSize(this->FontSize);
+    this->TextLines[lineNum]->SetFontFamily(this->FontFamily);
+    this->TextLines[lineNum]->SetJustification(this->Justification);
+    this->TextLines[lineNum]->SetLineOffset((float)lineNum+offset);
+    this->TextLines[lineNum]->SetLineSpacing(this->LineSpacing);
+    this->TextLines[lineNum]->RenderOpaqueGeometry(viewport,actor);
+    }
+}

@@ -178,20 +178,33 @@ int vtkScaledTextActor::RenderOpaqueGeometry(vtkViewport *viewport)
       }
     
     // now set the position of the TextActor
+    int fpos[2];
     switch (tMapper->GetJustification())
       {
       case VTK_TEXT_LEFT:
-        this->TextActor->SetPosition(textOrigin[0],textOrigin[1]);
+        fpos[0] = textOrigin[0];
         break;
       case VTK_TEXT_CENTERED:
-        this->TextActor->SetPosition(textOrigin[0]+size[0]/2,
-                                     textOrigin[1]);
+        fpos[0] = textOrigin[0] + size[0]/2;
         break;
       case VTK_TEXT_RIGHT:
-        this->TextActor->SetPosition(textOrigin[0]+size[0],
-                                     textOrigin[1]);
+        fpos[0] = textOrigin[0]+size[0];        
         break;
       }
+    switch (tMapper->GetVerticalJustification())
+      {
+      case VTK_TEXT_TOP:
+        fpos[1] = textOrigin[1] + size[1];
+        break;
+      case VTK_TEXT_CENTERED:
+        fpos[1] = textOrigin[1] + size[1]/2;
+        break;
+      case VTK_TEXT_BOTTOM:
+        fpos[1] = textOrigin[1];        
+        break;
+      }
+        
+    this->TextActor->SetPosition(fpos[0],fpos[1]);
     this->TextActor->SetProperty(this->GetProperty());
     this->BuildTime.Modified();
     }
