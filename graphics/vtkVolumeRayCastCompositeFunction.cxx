@@ -270,9 +270,8 @@ static void CastRay_NN_Unshaded( T *data_ptr,
     remaining_opacity = 0.0;
     }
 
-  // Set the return pixel value.  The depth value is currently useless and
-  // should be fixed.  What should depth be in this case?  First 
-  // non-opaque or total opacity or what??
+  // Set the return pixel value.  The depth value is the distance to the
+  // center of the volume.
   rayInfo->RayColor[0] = accum_red_intensity;
   rayInfo->RayColor[1] = accum_green_intensity;
   rayInfo->RayColor[2] = accum_blue_intensity;
@@ -569,9 +568,8 @@ static void CastRay_NN_Shaded( T *data_ptr,
     remaining_opacity = 0.0;
     }
   
-  // Set the return pixel value.  The depth value is currently useless and
-  // should be fixed.  What should depth be in this case?  First 
-  // non-opaque or total opacity or what??
+  // Set the return pixel value.  The depth value is the distance to the
+  // center of the volume.
   rayInfo->RayColor[0] = accum_red_intensity;
   rayInfo->RayColor[1] = accum_green_intensity;
   rayInfo->RayColor[2] = accum_blue_intensity;
@@ -931,9 +929,8 @@ static void CastRay_TrilinSample_Unshaded( T *data_ptr,
     remaining_opacity = 0.0;
     }
 
-  // Set the return pixel value.  The depth value is currently useless and
-  // should be fixed.  What should depth be in this case?  First 
-  // non-opaque or total opacity or what??
+  // Set the return pixel value.  The depth value is the distance to the
+  // center of the volume.
   rayInfo->RayColor[0] = accum_red_intensity;
   rayInfo->RayColor[1] = accum_green_intensity;
   rayInfo->RayColor[2] = accum_blue_intensity;
@@ -1396,9 +1393,8 @@ static void CastRay_TrilinSample_Shaded( T *data_ptr,
     remaining_opacity = 0.0;
     }
 
-  // Set the return pixel value.  The depth value is currently useless and
-  // should be fixed.  What should depth be in this case?  First 
-  // non-opaque or total opacity or what??
+  // Set the return pixel value.  The depth value is the distance to the
+  // center of the volume.
   rayInfo->RayColor[0] = accum_red_intensity;
   rayInfo->RayColor[1] = accum_green_intensity;
   rayInfo->RayColor[2] = accum_blue_intensity;
@@ -1415,9 +1411,1030 @@ static void CastRay_TrilinSample_Shaded( T *data_ptr,
     }
 }
 
+// Description:
+// This is the templated function that actually casts a ray and computes
+// the composite value.  This version uses trilinear interpolation and
+// does not compute shading
+template <class T>
+static void CastRay_TrilinVertices_Unshaded( T *data_ptr,
+					   struct VolumeRayCastRayInfoStruct *rayInfo,
+					   struct VolumeRayCastVolumeInfoStruct *volumeInfo )
+{
+  unsigned char   *grad_mag_ptr = NULL;
+  unsigned char   *goptr;
+  float           accum_intensity;
+  float           accum_red_intensity;
+  float           accum_green_intensity;
+  float           accum_blue_intensity;
+  float           remaining_opacity;
+  float           red_value, green_value, blue_value;
+  float           opacity;
+  int             loop;
+  int             xinc, yinc, zinc;
+  int             voxel[3];
+  float           ray_position[3];
+  int             prev_voxel[3];
+  float           A, B, C, D, E, F, G, H;
+  float           Ago, Bgo, Cgo, Dgo, Ego, Fgo, Ggo, Hgo;
+  int             Binc, Cinc, Dinc, Einc, Finc, Ginc, Hinc;
+  T               *dptr;
+  float           *SOTF;
+  float           *CTF;
+  float           *GTF;
+  float           *GOTF;
+  float           x, y, z, t1, t2, t3;
+  float           weight;
+  int             offset;
+  int             steps_this_ray = 0;
+  int             num_steps;
+  float           *ray_start, *ray_increment;
+  int             grad_op_is_constant;
+  float           gradient_opacity_constant;
+
+  num_steps = rayInfo->VolumeRayNumberOfSamples;
+  ray_start = rayInfo->VolumeRayStart;
+  ray_increment = rayInfo->VolumeRayIncrement;
+ 
+  // Get the scalar opacity transfer function which maps scalar input values
+  // to opacities
+  SOTF =  volumeInfo->Volume->GetCorrectedScalarOpacityArray();
+
+  // Get the color transfer function which maps scalar input values
+  // to RGB colors
+  CTF =  volumeInfo->Volume->GetRGBArray();
+  GTF =  volumeInfo->Volume->GetGrayArray();
+
+  // Get the gradient opacity transfer function for this volume (which maps
+  // gradient magnitudes to opacities)
+  GOTF =  volumeInfo->Volume->GetGradientOpacityArray();
+
+  // Get the gradient opacity constant. If this number is greater than
+  // or equal to 0.0, then the gradient opacity transfer function is
+  // a constant at that value, otherwise it is not a constant function
+  gradient_opacity_constant = volumeInfo->Volume->GetGradientOpacityConstant();
+  grad_op_is_constant = ( gradient_opacity_constant >= 0.0 );
+
+  // Get a pointer to the gradient magnitudes for this volume
+  if ( !grad_op_is_constant )
+    {
+    grad_mag_ptr = volumeInfo->GradientMagnitudes;
+    }
+
+  // Move the increments into local variables
+  xinc = volumeInfo->DataIncrement[0];
+  yinc = volumeInfo->DataIncrement[1];
+  zinc = volumeInfo->DataIncrement[2];
+
+  // Initialize the ray position and voxel location
+  ray_position[0] = ray_start[0];
+  ray_position[1] = ray_start[1];
+  ray_position[2] = ray_start[2];
+  voxel[0] = (int)( ray_position[0] );
+  voxel[1] = (int)( ray_position[1] );
+  voxel[2] = (int)( ray_position[2] );
+
+  // So far we have not accumulated anything
+  accum_intensity         = 0.0;
+  accum_red_intensity     = 0.0;
+  accum_green_intensity   = 0.0;
+  accum_blue_intensity    = 0.0;
+  remaining_opacity       = 1.0;
+
+  // Compute the increments to get to the other 7 voxel vertices from A
+  Binc = xinc;
+  Cinc = yinc;
+  Dinc = xinc + yinc;
+  Einc = zinc;
+  Finc = zinc + xinc;
+  Ginc = zinc + yinc;
+  Hinc = zinc + xinc + yinc;
+  
+  // Compute the values for the first pass through the loop
+  offset = voxel[2] * zinc + voxel[1] * yinc + voxel[0];
+  dptr   = data_ptr + offset;
+
+  A = SOTF[(*(dptr))];
+  B = SOTF[(*(dptr + Binc))];
+  C = SOTF[(*(dptr + Cinc))];
+  D = SOTF[(*(dptr + Dinc))];
+  E = SOTF[(*(dptr + Einc))];
+  F = SOTF[(*(dptr + Finc))];
+  G = SOTF[(*(dptr + Ginc))];
+  H = SOTF[(*(dptr + Hinc))];  
+
+  if ( !grad_op_is_constant )
+    {
+    goptr  = grad_mag_ptr + offset;
+    Ago = GOTF[(*(goptr))];
+    Bgo = GOTF[(*(goptr + Binc))];
+    Cgo = GOTF[(*(goptr + Cinc))];
+    Dgo = GOTF[(*(goptr + Dinc))];
+    Ego = GOTF[(*(goptr + Einc))];
+    Fgo = GOTF[(*(goptr + Finc))];
+    Ggo = GOTF[(*(goptr + Ginc))];
+    Hgo = GOTF[(*(goptr + Hinc))];  
+    }
+  else 
+    {
+    Ago = Bgo = Cgo = Dgo = Ego = Fgo = Ggo = Hgo = 1.0;
+    }
+
+  // Keep track of previous voxel to know when we step into a new one  
+  prev_voxel[0] = voxel[0];
+  prev_voxel[1] = voxel[1];
+  prev_voxel[2] = voxel[2];
+
+  // Two cases - we are working with a gray or RGB transfer
+  // function - break them up to make it more efficient
+  if ( volumeInfo->ColorChannels == 1 ) 
+    {
+    // For each step along the ray
+    for ( loop = 0; 
+          loop < num_steps && remaining_opacity > VTK_REMAINING_OPACITY; 
+	  loop++ )
+      {	    
+      // We've taken another step
+      steps_this_ray++;
+      
+      // Have we moved into a new voxel? If so we need to recompute A-H
+      if ( prev_voxel[0] != voxel[0] ||
+	   prev_voxel[1] != voxel[1] ||
+	   prev_voxel[2] != voxel[2] )
+	{
+	offset = voxel[2] * zinc + voxel[1] * yinc + voxel[0];
+	dptr   = data_ptr + offset;
+	
+	A = SOTF[(*(dptr))];
+	B = SOTF[(*(dptr + Binc))];
+	C = SOTF[(*(dptr + Cinc))];
+	D = SOTF[(*(dptr + Dinc))];
+	E = SOTF[(*(dptr + Einc))];
+	F = SOTF[(*(dptr + Finc))];
+	G = SOTF[(*(dptr + Ginc))];
+	H = SOTF[(*(dptr + Hinc))];
+
+	if ( !grad_op_is_constant )
+	  {
+	  goptr  = grad_mag_ptr + offset;
+	  Ago = GOTF[(*(goptr))];
+	  Bgo = GOTF[(*(goptr + Binc))];
+	  Cgo = GOTF[(*(goptr + Cinc))];
+	  Dgo = GOTF[(*(goptr + Dinc))];
+	  Ego = GOTF[(*(goptr + Einc))];
+	  Fgo = GOTF[(*(goptr + Finc))];
+	  Ggo = GOTF[(*(goptr + Ginc))];
+	  Hgo = GOTF[(*(goptr + Hinc))];  
+	  }
+	else 
+	  {
+	    Ago = Bgo = Cgo = Dgo = Ego = Fgo = Ggo = Hgo = 1.0;
+	  }
+
+	prev_voxel[0] = voxel[0];
+	prev_voxel[1] = voxel[1];
+	prev_voxel[2] = voxel[2];
+	}
+      
+      // Compute our offset in the voxel, and use that to trilinearly
+      // interpolate the value
+      x = ray_position[0] - (float) voxel[0];
+      y = ray_position[1] - (float) voxel[1];
+      z = ray_position[2] - (float) voxel[2];
+      
+      t1 = 1.0 - x;
+      t2 = 1.0 - y;
+      t3 = 1.0 - z;
+      
+      // For this sample we have do not yet have any opacity
+      opacity          = 0.0;
+      red_value        = 0.0;
+      
+      // Now add the opacity in vertex by vertex.  If any of the A-H
+      // have a non-transparent opacity value, then add its contribution
+      // to the opacity
+      if ( A && Ago )
+	{
+	weight     = t1*t2*t3 * A * Ago;
+	opacity   += weight;
+	red_value += weight * GTF[((*dptr))];
+	}
+      
+      if ( B && Bgo )
+	{
+	weight     = x*t2*t3 * B * Bgo;
+	opacity   += weight;
+	red_value += weight * GTF[((*(dptr + Binc)))];
+	}
+      
+      if ( C && Cgo )
+	{
+	weight     = t1*y*t3 * C * Cgo;
+	opacity   += weight;
+	red_value += weight * GTF[((*(dptr + Cinc)))];
+	}
+      
+      if ( D && Dgo )
+	{
+	weight     = x*y*t3 * D * Dgo;
+	opacity   += weight;
+	red_value += weight * GTF[((*(dptr + Dinc)))];
+	}
+      
+      if ( E && Ego )
+	{
+	weight     = t1*t2*z * E * Ego; 
+	opacity   += weight;
+	red_value += weight * GTF[((*(dptr + Einc)))];
+	}
+      
+      if ( F && Fgo )
+	{
+        weight     = x*t2*z * F * Fgo;
+	opacity   += weight;
+	red_value += weight * GTF[((*(dptr + Finc)))];
+	}
+      
+      if ( G && Ggo )
+	{
+	weight     = t1*y*z * G * Ggo;
+	opacity   += weight;
+	red_value += weight * GTF[((*(dptr + Ginc)))];
+	} 
+      
+      if ( H && Hgo )
+	{
+	weight     = x*z*y * H * Hgo;
+	opacity   += weight;
+	red_value += weight * GTF[((*(dptr + Hinc)))];
+	}
+      
+      // Accumulate intensity and opacity for this sample location
+      accum_red_intensity   += remaining_opacity * red_value;
+      remaining_opacity *= (1.0 - opacity);
+      
+      // Increment our position and compute our voxel location
+      ray_position[0] += ray_increment[0];
+      ray_position[1] += ray_increment[1];
+      ray_position[2] += ray_increment[2];      
+      voxel[0] = (int)( ray_position[0] );
+      voxel[1] = (int)( ray_position[1] );
+      voxel[2] = (int)( ray_position[2] );
+      }
+    accum_green_intensity = accum_red_intensity;
+    accum_blue_intensity = accum_red_intensity;
+    }
+  else if ( volumeInfo->ColorChannels == 3 )
+    {
+    // For each step along the ray
+    for ( loop = 0; 
+          loop < num_steps && remaining_opacity > VTK_REMAINING_OPACITY; 
+	  loop++ )
+      {	    
+      // We've taken another step
+      steps_this_ray++;
+      
+      // Have we moved into a new voxel? If so we need to recompute A-H
+      if ( prev_voxel[0] != voxel[0] ||
+	   prev_voxel[1] != voxel[1] ||
+	   prev_voxel[2] != voxel[2] )
+	{
+	offset = voxel[2] * zinc + voxel[1] * yinc + voxel[0];
+	dptr = data_ptr + offset;
+	
+	A = SOTF[(*(dptr))];
+	B = SOTF[(*(dptr + Binc))];
+	C = SOTF[(*(dptr + Cinc))];
+	D = SOTF[(*(dptr + Dinc))];
+	E = SOTF[(*(dptr + Einc))];
+	F = SOTF[(*(dptr + Finc))];
+	G = SOTF[(*(dptr + Ginc))];
+	H = SOTF[(*(dptr + Hinc))];
+
+	if ( !grad_op_is_constant ) 
+	  {
+	  goptr  = grad_mag_ptr + offset;
+	  Ago = GOTF[(*(goptr))];
+	  Bgo = GOTF[(*(goptr + Binc))];
+	  Cgo = GOTF[(*(goptr + Cinc))];
+	  Dgo = GOTF[(*(goptr + Dinc))];
+	  Ego = GOTF[(*(goptr + Einc))];
+	  Fgo = GOTF[(*(goptr + Finc))];
+	  Ggo = GOTF[(*(goptr + Ginc))];
+	  Hgo = GOTF[(*(goptr + Hinc))];  
+	  }
+	else 
+	  {
+	    Ago = Bgo = Cgo = Dgo = Ego = Fgo = Ggo = Hgo = 1.0;
+	  }
+
+	prev_voxel[0] = voxel[0];
+	prev_voxel[1] = voxel[1];
+	prev_voxel[2] = voxel[2];
+	}
+      
+      // Compute our offset in the voxel, and use that to trilinearly
+      // interpolate the value
+      x = ray_position[0] - (float) voxel[0];
+      y = ray_position[1] - (float) voxel[1];
+      z = ray_position[2] - (float) voxel[2];
+      
+      t1 = 1.0 - x;
+      t2 = 1.0 - y;
+      t3 = 1.0 - z;
+      
+      // For this sample we have do not yet have any opacity
+      opacity           = 0.0;
+      red_value         = 0.0;
+      green_value       = 0.0;
+      blue_value        = 0.0;
+      
+      // Now add the opacity in vertex by vertex.  If any of the A-H
+      // have a non-transparent opacity value, then add its contribution
+      // to the opacity
+      if ( A && Ago )
+	{
+	weight         = t1*t2*t3 * A * Ago;
+	opacity       += weight;
+	red_value     += weight * CTF[((*dptr)) * 3    ];
+	green_value   += weight * CTF[((*dptr)) * 3 + 1];
+	blue_value    += weight * CTF[((*dptr)) * 3 + 2];
+	}
+      
+      if ( B && Bgo )
+	{
+	weight         = x*t2*t3 * B * Bgo;
+	opacity       += weight;
+	red_value     += weight * CTF[((*(dptr + Binc))) * 3    ];
+	green_value   += weight * CTF[((*(dptr + Binc))) * 3 + 1];
+	blue_value    += weight * CTF[((*(dptr + Binc))) * 3 + 2];
+	}
+      
+      if ( C && Cgo )
+	{
+	weight         = t1*y*t3 * C * Cgo;
+	opacity       += weight;
+	red_value     += weight * CTF[((*(dptr + Cinc))) * 3    ];
+	green_value   += weight * CTF[((*(dptr + Cinc))) * 3 + 1];
+	blue_value    += weight * CTF[((*(dptr + Cinc))) * 3 + 2];
+	}
+      
+      if ( D && Dgo )
+	{
+	weight         = x*y*t3 * D * Dgo;
+	opacity       += weight;
+	red_value     += weight * CTF[((*(dptr + Dinc))) * 3    ];
+	green_value   += weight * CTF[((*(dptr + Dinc))) * 3 + 1];
+	blue_value    += weight * CTF[((*(dptr + Dinc))) * 3 + 2];
+	}
+      
+      if ( E && Ego )
+	{
+	weight         = t1*t2*z * E * Ego;
+	opacity       += weight;
+	red_value     += weight * CTF[((*(dptr + Einc))) * 3    ];
+	green_value   += weight * CTF[((*(dptr + Einc))) * 3 + 1];
+	blue_value    += weight * CTF[((*(dptr + Einc))) * 3 + 2];
+	}
+      
+      if ( F && Fgo )
+	{
+	weight         = x*t2*z * F * Fgo;
+	opacity       += weight;
+	red_value     += weight * CTF[((*(dptr + Finc))) * 3    ];
+	green_value   += weight * CTF[((*(dptr + Finc))) * 3 + 1];
+	blue_value    += weight * CTF[((*(dptr + Finc))) * 3 + 2];
+	}
+      
+      if ( G && Ggo )
+	{
+	weight         = t1*y*z * G * Ggo;
+	opacity       += weight;
+	red_value     +=  weight * CTF[((*(dptr + Ginc))) * 3    ];
+	green_value   +=  weight * CTF[((*(dptr + Ginc))) * 3 + 1];
+	blue_value    +=  weight * CTF[((*(dptr + Ginc))) * 3 + 2];
+	} 
+      
+      if ( H && Hgo )
+	{
+	weight         = x*z*y * H * Hgo;
+	opacity       += weight;
+	red_value     += weight * CTF[((*(dptr + Hinc))) * 3    ];
+	green_value   += weight * CTF[((*(dptr + Hinc))) * 3 + 1];
+	blue_value    += weight * CTF[((*(dptr + Hinc))) * 3 + 2];
+	}
+      
+      // Accumulate intensity and opacity for this sample location
+      accum_red_intensity   += remaining_opacity * red_value;
+      accum_green_intensity += remaining_opacity * green_value;
+      accum_blue_intensity  += remaining_opacity * blue_value;
+      remaining_opacity *= (1.0 - opacity);
+      
+      // Increment our position and compute our voxel location
+      ray_position[0] += ray_increment[0];
+      ray_position[1] += ray_increment[1];
+      ray_position[2] += ray_increment[2];      
+      voxel[0] = (int)( ray_position[0] );
+      voxel[1] = (int)( ray_position[1] );
+      voxel[2] = (int)( ray_position[2] );
+      }
+    }
+
+  // Cap the accumulated intensity at 1.0
+  if ( accum_red_intensity > 1.0 )
+    {
+    accum_red_intensity = 1.0;
+    }
+  if ( accum_green_intensity > 1.0 )
+    {
+    accum_green_intensity = 1.0;
+    }
+  if ( accum_blue_intensity > 1.0 )
+    {
+    accum_blue_intensity = 1.0;
+    }
+  
+  if( remaining_opacity < VTK_REMAINING_OPACITY )
+    {
+    remaining_opacity = 0.0;
+    }
+
+  // Set the return pixel value.  The depth value is the distance to the
+  // center of the volume.
+  rayInfo->RayColor[0] = accum_red_intensity;
+  rayInfo->RayColor[1] = accum_green_intensity;
+  rayInfo->RayColor[2] = accum_blue_intensity;
+  rayInfo->RayColor[3] = 1.0 - remaining_opacity;
+  rayInfo->VolumeRayStepsTaken = steps_this_ray;
+
+  if ( remaining_opacity < 1.0 )
+    {
+    rayInfo->RayDepth = volumeInfo->CenterDistance;
+    }
+  else 
+    {
+    rayInfo->RayDepth = VTK_LARGE_FLOAT;
+    }
+}
+
+
+// Description:
+// This is the templated function that actually casts a ray and computes
+// the composite value.  This version uses trilinear interpolation, and
+// does perform shading.
+template <class T>
+static void CastRay_TrilinVertices_Shaded( T *data_ptr,
+					   struct VolumeRayCastRayInfoStruct *rayInfo,
+					   struct VolumeRayCastVolumeInfoStruct *volumeInfo )
+{
+  unsigned char   *grad_mag_ptr = NULL;
+  unsigned char   *goptr;
+  float           accum_red_intensity;
+  float           accum_green_intensity;
+  float           accum_blue_intensity;
+  float           remaining_opacity;
+  float           opacity;
+  int             loop;
+  int             xinc, yinc, zinc;
+  int             voxel[3];
+  float           ray_position[3];
+  int             prev_voxel[3];
+  float           A, B, C, D, E, F, G, H;
+  float           Ago, Bgo, Cgo, Dgo, Ego, Fgo, Ggo, Hgo;
+  int             Binc, Cinc, Dinc, Einc, Finc, Ginc, Hinc;
+  T               *dptr;
+  float           *SOTF;
+  float           *CTF;
+  float           *GTF;
+  float           *GOTF;
+  float           x, y, z, t1, t2, t3;
+  float           weight;
+  float           *red_d_shade, *green_d_shade, *blue_d_shade;
+  float           *red_s_shade, *green_s_shade, *blue_s_shade;
+  unsigned short  *encoded_normals, *nptr;
+  float           red_shaded_value, green_shaded_value, blue_shaded_value;
+  int             offset;
+  int             steps_this_ray = 0;
+  int             grad_op_is_constant;
+  float           gradient_opacity_constant;
+  int             num_steps;
+  float           *ray_start, *ray_increment;
+
+
+  num_steps = rayInfo->VolumeRayNumberOfSamples;
+  ray_start = rayInfo->VolumeRayStart;
+  ray_increment = rayInfo->VolumeRayIncrement;
+
+  // Get diffuse shading table pointers
+  red_d_shade = volumeInfo->RedDiffuseShadingTable;
+  green_d_shade = volumeInfo->GreenDiffuseShadingTable;
+  blue_d_shade = volumeInfo->BlueDiffuseShadingTable;
+
+
+  // Get diffuse shading table pointers
+  red_s_shade = volumeInfo->RedSpecularShadingTable;
+  green_s_shade = volumeInfo->GreenSpecularShadingTable;
+  blue_s_shade = volumeInfo->BlueSpecularShadingTable;
+
+  // Get a pointer to the encoded normals for this volume
+  encoded_normals = volumeInfo->EncodedNormals;
+
+  // Get the scalar opacity transfer function which maps scalar input values
+  // to opacities
+  SOTF =  volumeInfo->Volume->GetCorrectedScalarOpacityArray();
+
+  // Get the color transfer function which maps scalar input values
+  // to RGB values
+  CTF =  volumeInfo->Volume->GetRGBArray();
+  GTF =  volumeInfo->Volume->GetGrayArray();
+
+  // Get the gradient opacity transfer function for this volume (which maps
+  // gradient magnitudes to opacities)
+  GOTF =  volumeInfo->Volume->GetGradientOpacityArray();
+
+  // Get the gradient opacity constant. If this number is greater than
+  // or equal to 0.0, then the gradient opacity transfer function is
+  // a constant at that value, otherwise it is not a constant function
+  gradient_opacity_constant = volumeInfo->Volume->GetGradientOpacityConstant();
+  grad_op_is_constant = ( gradient_opacity_constant >= 0.0 );
+
+  // Get a pointer to the gradient magnitudes for this volume
+  if ( !grad_op_is_constant )
+    {
+    grad_mag_ptr = volumeInfo->GradientMagnitudes;
+    }
+
+  // Move the increments into local variables
+  xinc = volumeInfo->DataIncrement[0];
+  yinc = volumeInfo->DataIncrement[1];
+  zinc = volumeInfo->DataIncrement[2];
+
+  // Initialize the ray position and voxel location
+  ray_position[0] = ray_start[0];
+  ray_position[1] = ray_start[1];
+  ray_position[2] = ray_start[2];
+  voxel[0] = (int)( ray_position[0] );
+  voxel[1] = (int)( ray_position[1] );
+  voxel[2] = (int)( ray_position[2] );
+
+  // So far we haven't accumulated anything
+  accum_red_intensity     = 0.0;
+  accum_green_intensity   = 0.0;
+  accum_blue_intensity    = 0.0;
+  remaining_opacity       = 1.0;
+
+  // Compute the increments to get to the other 7 voxel vertices from A
+  Binc = xinc;
+  Cinc = yinc;
+  Dinc = xinc + yinc;
+  Einc = zinc;
+  Finc = zinc + xinc;
+  Ginc = zinc + yinc;
+  Hinc = zinc + xinc + yinc;
+  
+   // Compute the values for the first pass through the loop
+  offset = voxel[2] * zinc + voxel[1] * yinc + voxel[0];
+  dptr   = data_ptr + offset;
+  nptr   = encoded_normals + offset;
+
+  A = SOTF[(*(dptr))];
+  B = SOTF[(*(dptr + Binc))];
+  C = SOTF[(*(dptr + Cinc))];
+  D = SOTF[(*(dptr + Dinc))];
+  E = SOTF[(*(dptr + Einc))];
+  F = SOTF[(*(dptr + Finc))];
+  G = SOTF[(*(dptr + Ginc))];
+  H = SOTF[(*(dptr + Hinc))];
+
+  if ( !grad_op_is_constant )
+    {
+    goptr  = grad_mag_ptr + offset;
+    Ago = GOTF[(*(goptr))];
+    Bgo = GOTF[(*(goptr + Binc))];
+    Cgo = GOTF[(*(goptr + Cinc))];
+    Dgo = GOTF[(*(goptr + Dinc))];
+    Ego = GOTF[(*(goptr + Einc))];
+    Fgo = GOTF[(*(goptr + Finc))];
+    Ggo = GOTF[(*(goptr + Ginc))];
+    Hgo = GOTF[(*(goptr + Hinc))];  
+    }
+  else
+    {
+    Ago = Bgo = Cgo = Dgo = Ego = Fgo = Ggo = Hgo = 1.0;
+    }
+
+
+  // Keep track of previous voxel to know when we step into a new one   
+  prev_voxel[0] = voxel[0];
+  prev_voxel[1] = voxel[1];
+  prev_voxel[2] = voxel[2];
+
+  // Two cases - we are working with a single color or a color transfer
+  // function - break them up to make it more efficient
+  if ( volumeInfo->ColorChannels == 1 )
+    {
+    // For each step along the ray
+    for ( loop = 0; 
+          loop < num_steps && remaining_opacity > VTK_REMAINING_OPACITY; 
+	  loop++ )
+      {	    
+      // We've taken another step
+      steps_this_ray++;
+      
+      // Have we moved into a new voxel? If so we need to recompute A-H
+      if ( prev_voxel[0] != voxel[0] ||
+	   prev_voxel[1] != voxel[1] ||
+	   prev_voxel[2] != voxel[2] )
+	{
+	offset = voxel[2] * zinc + voxel[1] * yinc + voxel[0];
+	dptr   = data_ptr + offset;
+	nptr   = encoded_normals + offset;
+	goptr  = grad_mag_ptr + offset;
+	
+	A = SOTF[(*(dptr))];
+	B = SOTF[(*(dptr + Binc))];
+	C = SOTF[(*(dptr + Cinc))];
+	D = SOTF[(*(dptr + Dinc))];
+	E = SOTF[(*(dptr + Einc))];
+	F = SOTF[(*(dptr + Finc))];
+	G = SOTF[(*(dptr + Ginc))];
+	H = SOTF[(*(dptr + Hinc))];
+	
+	if ( !grad_op_is_constant )
+	  {
+	  goptr  = grad_mag_ptr + offset;
+	  Ago = GOTF[(*(goptr))];
+	  Bgo = GOTF[(*(goptr + Binc))];
+	  Cgo = GOTF[(*(goptr + Cinc))];
+	  Dgo = GOTF[(*(goptr + Dinc))];
+	  Ego = GOTF[(*(goptr + Einc))];
+	  Fgo = GOTF[(*(goptr + Finc))];
+	  Ggo = GOTF[(*(goptr + Ginc))];
+	  Hgo = GOTF[(*(goptr + Hinc))];  
+	  }
+	else
+	  {
+	  Ago = Bgo = Cgo = Dgo = Ego = Fgo = Ggo = Hgo = 1.0;
+	  }
+
+	prev_voxel[0] = voxel[0];
+	prev_voxel[1] = voxel[1];
+	prev_voxel[2] = voxel[2];
+	}
+      
+      // Compute our offset in the voxel, and use that to trilinearly
+      // interpolate a value
+      x = ray_position[0] - (float) voxel[0];
+      y = ray_position[1] - (float) voxel[1];
+      z = ray_position[2] - (float) voxel[2];
+      
+      t1 = 1.0 - x;
+      t2 = 1.0 - y;
+      t3 = 1.0 - z;
+      
+      // For this sample we have do not yet have any opacity or
+      // shaded intensity yet
+      opacity = 0.0;
+      red_shaded_value = 0.0;
+      
+      // Now add the opacity and shaded intensity value in vertex by 
+      // vertex.  If any of the A-H have a non-transparent opacity value, 
+      // then add its contribution to the opacity
+      if ( A && Ago )
+	{
+	weight = t1*t2*t3 * A * Ago;
+	opacity += weight;
+	red_shaded_value   += weight * ( red_d_shade[ *(nptr) ] * 
+				     GTF[*(dptr)] + 
+				     red_s_shade[ *(nptr) ] );
+	}
+      
+      if ( B && Bgo )
+	{
+	weight = x*t2*t3 * B * Bgo;
+	opacity += weight;
+	red_shaded_value   += weight * ( red_d_shade[ *(nptr + Binc) ] * 
+				     GTF[*(dptr+Binc)] + 
+				     red_s_shade[ *(nptr + Binc) ] );
+	}
+      
+      if ( C && Cgo )
+	{
+	weight = t1*y*t3 * C * Cgo;
+	opacity += weight;
+	red_shaded_value   += weight * ( red_d_shade[ *(nptr + Cinc) ] *
+				     GTF[*(dptr+Cinc)] + 
+				     red_s_shade[ *(nptr + Cinc) ] );
+	}
+
+      if ( D && Dgo )
+	{
+	weight = x*y*t3 * D * Dgo;
+	opacity += weight;
+	red_shaded_value   += weight * ( red_d_shade[ *(nptr + Dinc) ] *
+				     GTF[*(dptr+Dinc)] + 
+				     red_s_shade[ *(nptr + Dinc) ] );
+	}
+      
+      if ( E && Ego )
+	{
+	weight = t1*t2*z * E * Ego;
+	opacity += weight;
+	red_shaded_value   += weight * ( red_d_shade[ *(nptr + Einc) ] *
+				     GTF[*(dptr+Einc)] + 
+				     red_s_shade[ *(nptr + Einc) ] );
+	}
+      
+      if ( F && Fgo )
+	{
+	weight = x*z*t2 * F * Fgo;
+	opacity += weight;
+	red_shaded_value   += weight * ( red_d_shade[ *(nptr + Finc) ] *
+				     GTF[*(dptr+Finc)] + 
+				     red_s_shade[ *(nptr + Finc) ] );
+	}
+      
+      if ( G && Ggo )
+	{
+	weight = t1*y*z * G * Ggo;
+	opacity += weight;
+	red_shaded_value   += weight * ( red_d_shade[ *(nptr + Ginc) ] *
+				     GTF[*(dptr+Ginc)] + 
+				     red_s_shade[ *(nptr + Ginc) ] );
+      } 
+      
+      if ( H && Hgo )
+	{
+	weight = x*z*y * H * Hgo;
+	opacity += weight;
+	red_shaded_value   += weight * ( red_d_shade[ *(nptr + Hinc) ] *
+				     GTF[*(dptr+Hinc)] + 
+				     red_s_shade[ *(nptr + Hinc) ] );
+	}
+      
+      // Accumulate intensity and opacity for this sample location   
+      accum_red_intensity   += red_shaded_value   * remaining_opacity;
+      remaining_opacity *= (1.0 - opacity);
+      
+      // Increment our position and compute our voxel location
+      ray_position[0] += ray_increment[0];
+      ray_position[1] += ray_increment[1];
+      ray_position[2] += ray_increment[2];      
+      voxel[0] = (int)( ray_position[0] );
+      voxel[1] = (int)( ray_position[1] );
+      voxel[2] = (int)( ray_position[2] );
+      }
+    accum_green_intensity = accum_red_intensity;
+    accum_blue_intensity = accum_red_intensity;
+    }
+  else if ( volumeInfo->ColorChannels == 3 )
+    {
+    // For each step along the ray
+    for ( loop = 0; 
+          loop < num_steps && remaining_opacity > VTK_REMAINING_OPACITY; 
+	  loop++ )
+      {	    
+      // We've taken another step
+      steps_this_ray++;
+      
+      // Have we moved into a new voxel? If so we need to recompute A-H
+      if ( prev_voxel[0] != voxel[0] ||
+	   prev_voxel[1] != voxel[1] ||
+	   prev_voxel[2] != voxel[2] )
+	{
+	offset = voxel[2] * zinc + voxel[1] * yinc + voxel[0];
+	dptr   = data_ptr + offset;
+	nptr   = encoded_normals + offset;
+	goptr  = grad_mag_ptr + offset;
+	
+	A = SOTF[(*(dptr))];
+	B = SOTF[(*(dptr + Binc))];
+	C = SOTF[(*(dptr + Cinc))];
+	D = SOTF[(*(dptr + Dinc))];
+	E = SOTF[(*(dptr + Einc))];
+	F = SOTF[(*(dptr + Finc))];
+	G = SOTF[(*(dptr + Ginc))];
+	H = SOTF[(*(dptr + Hinc))];
+	
+	if ( !grad_op_is_constant )
+	  {
+	  goptr  = grad_mag_ptr + offset;
+	  Ago = GOTF[(*(goptr))];
+	  Bgo = GOTF[(*(goptr + Binc))];
+	  Cgo = GOTF[(*(goptr + Cinc))];
+	  Dgo = GOTF[(*(goptr + Dinc))];
+	  Ego = GOTF[(*(goptr + Einc))];
+	  Fgo = GOTF[(*(goptr + Finc))];
+	  Ggo = GOTF[(*(goptr + Ginc))];
+	  Hgo = GOTF[(*(goptr + Hinc))];  
+	  }
+	else
+	  {
+	  Ago = Bgo = Cgo = Dgo = Ego = Fgo = Ggo = Hgo = 1.0;
+	  }
+
+	prev_voxel[0] = voxel[0];
+	prev_voxel[1] = voxel[1];
+	prev_voxel[2] = voxel[2];
+	}
+      
+      // Compute our offset in the voxel, and use that to trilinearly
+      // interpolate a value
+      x = ray_position[0] - (float) voxel[0];
+      y = ray_position[1] - (float) voxel[1];
+      z = ray_position[2] - (float) voxel[2];
+      
+      t1 = 1.0 - x;
+      t2 = 1.0 - y;
+      t3 = 1.0 - z;
+      
+      // For this sample we have do not yet have any opacity or
+      // shaded intensity yet
+      opacity = 0.0;
+      red_shaded_value = 0.0;
+      green_shaded_value = 0.0;
+      blue_shaded_value = 0.0;
+      
+      // Now add the opacity and shaded intensity value in vertex by 
+      // vertex.  If any of the A-H have a non-transparent opacity value, 
+      // then add its contribution to the opacity
+      if ( A )
+	{
+	weight = t1*t2*t3 * A * Ago;
+	opacity += weight;
+	red_shaded_value   += weight * ( red_d_shade[ *(nptr) ] * 
+				     CTF[*(dptr) * 3] + 
+				     red_s_shade[ *(nptr) ] );
+	green_shaded_value += weight * ( green_d_shade[ *(nptr) ] * 
+				     CTF[*(dptr) * 3 + 1] + + 
+				     green_s_shade[ *(nptr) ] );
+	blue_shaded_value  += weight * ( blue_d_shade[ *(nptr) ] * 
+				     CTF[*(dptr) * 3 + 2] +
+				     blue_s_shade[ *(nptr) ]  );
+	}
+      
+      if ( B )
+	{
+	weight = x*t2*t3 * B * Bgo;
+	opacity += weight;
+	red_shaded_value   += weight * ( red_d_shade[ *(nptr + Binc) ] * 
+				     CTF[*(dptr+Binc) * 3] + 
+				     red_s_shade[ *(nptr + Binc) ] );
+	green_shaded_value += weight * ( green_d_shade[ *(nptr + Binc) ] *
+				     CTF[*(dptr+Binc) * 3 + 1] + 
+				     green_s_shade[ *(nptr + Binc) ] );
+	blue_shaded_value  += weight * ( blue_d_shade[ *(nptr + Binc) ] *
+				     CTF[*(dptr+Binc) * 3 + 2] +
+				     blue_s_shade[ *(nptr + Binc) ] );
+	}
+      
+      if ( C )
+	{
+	weight = t1*y*t3 * C * Cgo;
+	opacity += weight;
+	red_shaded_value   += weight * ( red_d_shade[ *(nptr + Cinc) ] *
+				     CTF[*(dptr+Cinc) * 3] + 
+				     red_s_shade[ *(nptr + Cinc) ] );
+	green_shaded_value += weight * ( green_d_shade[ *(nptr + Cinc) ] *
+				     CTF[*(dptr+Cinc) * 3 + 1] + 
+				     green_s_shade[ *(nptr + Cinc) ] );
+	blue_shaded_value  += weight * ( blue_d_shade[ *(nptr + Cinc) ] *
+				     CTF[*(dptr+Cinc) * 3 + 2] +
+				     blue_s_shade[ *(nptr + Cinc) ] );
+	}
+
+      if ( D )
+	{
+	weight = x*y*t3 * D * Dgo;
+	opacity += weight;
+	red_shaded_value   += weight * ( red_d_shade[ *(nptr + Dinc) ] *
+				     CTF[*(dptr+Dinc) * 3] + 
+				     red_s_shade[ *(nptr + Dinc) ] );
+	green_shaded_value += weight * ( green_d_shade[ *(nptr + Dinc) ] *
+				     CTF[*(dptr+Dinc) * 3 + 1] + 
+				     green_s_shade[ *(nptr + Dinc) ] );
+	blue_shaded_value  += weight * ( blue_d_shade[ *(nptr + Dinc) ] *
+				     CTF[*(dptr+Dinc) * 3 + 2] +
+				     blue_s_shade[ *(nptr + Dinc) ] );
+	}
+      
+      if ( E )
+	{
+	weight = t1*t2*z * E * Ego;
+	opacity += weight;
+	red_shaded_value   += weight * ( red_d_shade[ *(nptr + Einc) ] *
+				     CTF[*(dptr+Einc) * 3] + 
+				     red_s_shade[ *(nptr + Einc) ] );
+	green_shaded_value += weight * ( green_d_shade[ *(nptr + Einc) ] *
+				     CTF[*(dptr+Einc) * 3 + 1] + 
+				     green_s_shade[ *(nptr + Einc) ] );
+	blue_shaded_value  += weight * ( blue_d_shade[ *(nptr + Einc) ] *
+				     CTF[*(dptr+Einc) * 3 + 2] +
+				     blue_s_shade[ *(nptr + Einc) ] );
+	}
+      
+      if ( F )
+	{
+	weight = x*z*t2 * F * Fgo;
+	opacity += weight;
+	red_shaded_value   += weight * ( red_d_shade[ *(nptr + Finc) ] *
+				     CTF[*(dptr+Finc) * 3] + 
+				     red_s_shade[ *(nptr + Finc) ] );
+	green_shaded_value += weight * ( green_d_shade[ *(nptr + Finc) ] *
+				     CTF[*(dptr+Finc) * 3 + 1] + 
+				     green_s_shade[ *(nptr + Finc) ] );
+	blue_shaded_value  += weight * ( blue_d_shade[ *(nptr + Finc) ] *
+				     CTF[*(dptr+Finc) * 3 + 2] +
+				     blue_s_shade[ *(nptr + Finc) ] );
+	}
+      
+      if ( G )
+	{
+	weight = t1*y*z * G * Ggo;
+	opacity += weight;
+	red_shaded_value   += weight * ( red_d_shade[ *(nptr + Ginc) ] *
+				     CTF[*(dptr+Ginc) * 3] + 
+				     red_s_shade[ *(nptr + Ginc) ] );
+	green_shaded_value += weight * ( green_d_shade[ *(nptr + Ginc) ] *
+				     CTF[*(dptr+Ginc) * 3 + 1] + 
+				     green_s_shade[ *(nptr + Ginc) ] );
+	blue_shaded_value  += weight * ( blue_d_shade[ *(nptr + Ginc) ] *
+				     CTF[*(dptr+Ginc) * 3 + 2] +
+				     blue_s_shade[ *(nptr + Ginc) ] );
+      } 
+      
+      if ( H )
+	{
+	weight = x*z*y * H * Hgo;
+	opacity += weight;
+	red_shaded_value   += weight * ( red_d_shade[ *(nptr + Hinc) ] *
+				     CTF[*(dptr+Hinc) * 3] + 
+				     red_s_shade[ *(nptr + Hinc) ] );
+	green_shaded_value += weight * ( green_d_shade[ *(nptr + Hinc) ] *
+				     CTF[*(dptr+Hinc) * 3 + 1] + 
+				     green_s_shade[ *(nptr + Hinc) ] );
+	blue_shaded_value  += weight * ( blue_d_shade[ *(nptr + Hinc) ] *
+				     CTF[*(dptr+Hinc) * 3 + 2] +
+				     blue_s_shade[ *(nptr + Hinc) ] );
+	}
+      
+      // Accumulate intensity and opacity for this sample location   
+      accum_red_intensity   += red_shaded_value   * remaining_opacity;
+      accum_green_intensity += green_shaded_value * remaining_opacity;
+      accum_blue_intensity  += blue_shaded_value  * remaining_opacity;
+      remaining_opacity *= (1.0 - opacity);
+      
+      // Increment our position and compute our voxel location
+      ray_position[0] += ray_increment[0];
+      ray_position[1] += ray_increment[1];
+      ray_position[2] += ray_increment[2];      
+      voxel[0] = (int)( ray_position[0] );
+      voxel[1] = (int)( ray_position[1] );
+      voxel[2] = (int)( ray_position[2] );
+      }
+    }
+
+  // Cap the accumulated intensity at 1.0
+  if ( accum_red_intensity > 1.0 )
+    {
+    accum_red_intensity = 1.0;
+    }
+  if ( accum_green_intensity > 1.0 )
+    {
+    accum_green_intensity = 1.0;
+    }
+  if ( accum_blue_intensity > 1.0 )
+    {
+    accum_blue_intensity = 1.0;
+    }
+  
+  if( remaining_opacity < VTK_REMAINING_OPACITY )
+    {
+    remaining_opacity = 0.0;
+    }
+
+  // Set the return pixel value.  The depth value is the distance to the
+  // center of the volume.
+  rayInfo->RayColor[0] = accum_red_intensity;
+  rayInfo->RayColor[1] = accum_green_intensity;
+  rayInfo->RayColor[2] = accum_blue_intensity;
+  rayInfo->RayColor[3] = 1.0 - remaining_opacity;
+  rayInfo->VolumeRayStepsTaken = steps_this_ray;
+
+  if ( remaining_opacity < 1.0 )
+    {
+    rayInfo->RayDepth = volumeInfo->CenterDistance;
+    }
+  else 
+    {
+    rayInfo->RayDepth = VTK_LARGE_FLOAT;
+    }
+
+}
+
 // Constructor for the vtkVolumeRayCastCompositeFunction class
 vtkVolumeRayCastCompositeFunction::vtkVolumeRayCastCompositeFunction()
 {
+  this->CompositeMethod = VTK_COMPOSITE_INTERPOLATE_FIRST;
 }
 
 // Destruct the vtkVolumeRayCastCompositeFunction
@@ -1470,36 +2487,70 @@ void vtkVolumeRayCastCompositeFunction::CastRay( struct VolumeRayCastRayInfoStru
     }
   else 
     {
+    // Trilinear interpolation and no shading
     if ( volumeInfo->Shading == 0 )
       {
-      // Trilinear interpolation at vertices and no shading
-      switch ( volumeInfo->ScalarDataType )
+      if ( this->CompositeMethod == VTK_COMPOSITE_INTERPOLATE_FIRST )
 	{
-	case VTK_UNSIGNED_CHAR:
-	  CastRay_TrilinSample_Unshaded( (unsigned char *)data_ptr,  
-					 rayInfo, volumeInfo );
-	  break;
-	case VTK_UNSIGNED_SHORT:
-	  CastRay_TrilinSample_Unshaded( (unsigned short *)data_ptr, 
-					 rayInfo, volumeInfo );
-	  break;
+	switch ( volumeInfo->ScalarDataType )
+	  {
+	  case VTK_UNSIGNED_CHAR:
+	    CastRay_TrilinSample_Unshaded( (unsigned char *)data_ptr,  
+					   rayInfo, volumeInfo );
+	    break;
+	  case VTK_UNSIGNED_SHORT:
+	    CastRay_TrilinSample_Unshaded( (unsigned short *)data_ptr, 
+					   rayInfo, volumeInfo );
+	    break;
+	  }
+	}
+      else
+	{
+	switch ( volumeInfo->ScalarDataType )
+	  {
+	  case VTK_UNSIGNED_CHAR:
+	    CastRay_TrilinVertices_Unshaded( (unsigned char *)data_ptr,  
+					   rayInfo, volumeInfo );
+	    break;
+	  case VTK_UNSIGNED_SHORT:
+	    CastRay_TrilinVertices_Unshaded( (unsigned short *)data_ptr, 
+					   rayInfo, volumeInfo );
+	    break;
+	  }
 	}
       }	
     else
       {
       // Trilinear interpolation and shading
-      switch ( volumeInfo->ScalarDataType )
+      if ( this->CompositeMethod == VTK_COMPOSITE_INTERPOLATE_FIRST )
 	{
-	case VTK_UNSIGNED_CHAR:
-	  CastRay_TrilinSample_Shaded( (unsigned char *)data_ptr, 
-				       rayInfo, volumeInfo );
-	  break;
-	case VTK_UNSIGNED_SHORT:
-	  CastRay_TrilinSample_Shaded( (unsigned short *)data_ptr, 
-				       rayInfo, volumeInfo );
-	  break;
+	switch ( volumeInfo->ScalarDataType )
+	  {
+	  case VTK_UNSIGNED_CHAR:
+	    CastRay_TrilinSample_Shaded( (unsigned char *)data_ptr, 
+					 rayInfo, volumeInfo );
+	    break;
+	  case VTK_UNSIGNED_SHORT:
+	    CastRay_TrilinSample_Shaded( (unsigned short *)data_ptr, 
+					 rayInfo, volumeInfo );
+	    break;
+	  }
+	}	
+      else
+	{
+	switch ( volumeInfo->ScalarDataType )
+	  {
+	  case VTK_UNSIGNED_CHAR:
+	    CastRay_TrilinVertices_Shaded( (unsigned char *)data_ptr, 
+					 rayInfo, volumeInfo );
+	    break;
+	  case VTK_UNSIGNED_SHORT:
+	    CastRay_TrilinVertices_Shaded( (unsigned short *)data_ptr, 
+					 rayInfo, volumeInfo );
+	    break;
+	  }
 	}
-      }	
+      }
     }
 }
 
