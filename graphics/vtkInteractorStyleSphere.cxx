@@ -258,7 +258,7 @@ void vtkInteractorStyleSphere::MoveRadius(int x, int y)
 
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleSphere::MoveCenterZ(int dx, int dy)
+void vtkInteractorStyleSphere::MoveCenterZ(int vtkNotUsed(dx), int dy)
 {
   vtkCamera *cam;
   float v1[4], d[4];
@@ -435,20 +435,26 @@ void vtkInteractorStyleSphere::OnLeftButtonDown(int ctrl, int shift,
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleSphere::OnLeftButtonUp(int ctrl, int shift, 
-					      int x, int y) 
+void vtkInteractorStyleSphere::OnLeftButtonUp(int vtkNotUsed(ctrl), 
+					      int vtkNotUsed(shift), 
+					      int vtkNotUsed(x), 
+					      int vtkNotUsed(y)) 
 {
   this->Button = -1;
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleSphere::OnMiddleButtonDown(int ctrl, int shift, 
-						  int x, int y) 
+void vtkInteractorStyleSphere::OnMiddleButtonDown(int vtkNotUsed(ctrl), 
+						  int vtkNotUsed(shift), 
+						  int  vtkNotUsed(x), 
+						  int  vtkNotUsed(y))
 {
 }
 //----------------------------------------------------------------------------
-void vtkInteractorStyleSphere::OnMiddleButtonUp(int ctrl, int shift, 
-						int x, int y) 
+void vtkInteractorStyleSphere::OnMiddleButtonUp(int vtkNotUsed(ctrl), 
+						int vtkNotUsed(shift), 
+						int vtkNotUsed(x), 
+						int vtkNotUsed(y)) 
 {
 }
 
@@ -473,8 +479,10 @@ void vtkInteractorStyleSphere::OnRightButtonDown(int ctrl, int shift,
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleSphere::OnRightButtonUp(int ctrl, int shift, 
-					       int X, int Y) 
+void vtkInteractorStyleSphere::OnRightButtonUp(int vtkNotUsed(ctrl), 
+					       int vtkNotUsed(shift), 
+					       int vtkNotUsed(X),
+					       int vtkNotUsed(Y)) 
 {
   this->Button = -1;
 }

@@ -481,7 +481,7 @@ void vtkInteractorStylePlane::TranslateXY(int dx, int dy)
 
 
 //----------------------------------------------------------------------------
-void vtkInteractorStylePlane::TranslateZ(int dx, int dy)
+void vtkInteractorStylePlane::TranslateZ(int vtkNotUsed(dx), int dy)
 {
   vtkCamera *cam;
   float v1[4], d[4];
@@ -720,6 +720,7 @@ void vtkInteractorStylePlane::OnLeftButtonDown(int ctrl, int shift,
 void vtkInteractorStylePlane::OnLeftButtonUp(int ctrl, int shift, 
 					      int x, int y) 
 {
+  this->UpdateInternalState(ctrl, shift, x, y);
   this->Button = -1;
 }
 
@@ -746,6 +747,7 @@ void vtkInteractorStylePlane::OnMiddleButtonDown(int ctrl, int shift,
 void vtkInteractorStylePlane::OnMiddleButtonUp(int ctrl, int shift, 
 					       int x, int y) 
 {
+  this->UpdateInternalState(ctrl, shift, x, y);
   this->Button = -1;
 }
 
@@ -771,8 +773,9 @@ void vtkInteractorStylePlane::OnRightButtonDown(int ctrl, int shift,
 
 //----------------------------------------------------------------------------
 void vtkInteractorStylePlane::OnRightButtonUp(int ctrl, int shift, 
-					      int X, int Y) 
+					      int x, int y) 
 {
+  this->UpdateInternalState(ctrl, shift, x, y);
   this->Button = -1;
 }
 
