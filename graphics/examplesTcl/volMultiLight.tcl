@@ -1,12 +1,11 @@
+# Volume rendering example with multiple lights
+
 catch {load vtktcl}
-# get the interactor ui
 source ../../examplesTcl/vtkInt.tcl
 
-# Volume rendering example with multiple lights
 vtkSLCReader reader
     reader SetFileName "../../../vtkdata/sphere.slc"
 
-# Create transfer functions for opacity and color
 vtkPiecewiseFunction opacityTransferFunction
     opacityTransferFunction AddPoint   80  0.0
     opacityTransferFunction AddPoint  100  1.0
@@ -15,7 +14,6 @@ vtkColorTransferFunction colorTransferFunction
     colorTransferFunction AddRGBPoint     0 1.0 1.0 1.0
     colorTransferFunction AddRGBPoint   255 1.0 1.0 1.0
 
-# Create properties, mappers, volume actors, and ray cast function
 vtkVolumeProperty volumeProperty
     volumeProperty SetColor colorTransferFunction
     volumeProperty SetScalarOpacity opacityTransferFunction
@@ -36,8 +34,6 @@ vtkVolume volume
     volume SetVolumeMapper volumeMapper
     volume SetVolumeProperty volumeProperty
 
-
-# Okay now the graphics stuff
 vtkRenderer ren1
 vtkRenderWindow renWin
     renWin AddRenderer ren1
@@ -45,12 +41,28 @@ vtkRenderWindow renWin
 vtkRenderWindowInteractor iren
     iren SetRenderWindow renWin
 
+vtkSphereSource sphere
+sphere SetRadius 20
+sphere SetCenter 70 25 25
+sphere SetThetaResolution 50
+sphere SetPhiResolution 50
+
+vtkPolyDataMapper mapper
+mapper SetInput [sphere GetOutput]
+mapper ImmediateModeRenderingOn
+
+vtkActor actor
+actor SetMapper mapper
+[actor GetProperty] SetColor 1 1 1
+[actor GetProperty] SetAmbient 0.01
+[actor GetProperty] SetDiffuse 0.7
+[actor GetProperty] SetSpecular 0.5
+[actor GetProperty] SetSpecularPower 70.0
+
 ren1 AddVolume volume
+ren1 AddActor actor
 ren1 SetBackground 0.1 0.2 0.4
-[ren1 GetActiveCamera] Azimuth 30.0
-[ren1 GetActiveCamera] Elevation 20.0
-[ren1 GetActiveCamera] Roll 30.0
-[ren1 GetActiveCamera] Zoom 1.8
+[ren1 GetActiveCamera] Zoom 1.6
 ren1 Render
 
 set lights [ren1 GetLights]
