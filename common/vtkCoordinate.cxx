@@ -176,18 +176,22 @@ float *vtkCoordinate::GetComputedWorldValue(vtkViewport* viewport)
       {
       case VTK_NORMALIZED_DISPLAY:
 	viewport->DisplayToNormalizedDisplay(RefValue[0],RefValue[1]);
+	break;
       case VTK_VIEWPORT:
 	viewport->DisplayToNormalizedDisplay(RefValue[0],RefValue[1]);
 	viewport->NormalizedDisplayToViewport(RefValue[0],RefValue[1]);
+	break;
       case VTK_NORMALIZED_VIEWPORT:
 	viewport->DisplayToNormalizedDisplay(RefValue[0],RefValue[1]);
 	viewport->NormalizedDisplayToViewport(RefValue[0],RefValue[1]);
 	viewport->ViewportToNormalizedViewport(RefValue[0],RefValue[1]);
+	break;
       case VTK_VIEW:
 	viewport->DisplayToNormalizedDisplay(RefValue[0],RefValue[1]);
 	viewport->NormalizedDisplayToViewport(RefValue[0],RefValue[1]);
 	viewport->ViewportToNormalizedViewport(RefValue[0],RefValue[1]);
 	viewport->NormalizedViewportToView(RefValue[0],RefValue[1],RefValue[2]);
+	break;
       }
     
     // add to current value
@@ -318,8 +322,7 @@ int *vtkCoordinate::GetComputedDisplayValue(vtkViewport* viewport)
   if (viewport == NULL)
     {
     // for DISPLAY and VIEWPORT just use the value
-    if (this->CoordinateSystem == VTK_DISPLAY ||
-	this->CoordinateSystem == VTK_VIEWPORT)
+    if (this->CoordinateSystem == VTK_DISPLAY)
       {
       this->ComputedDisplayValue[0] = (int)VTK_RINT(val[0]);
       this->ComputedDisplayValue[1] = (int)VTK_RINT(val[1]);
@@ -339,7 +342,7 @@ int *vtkCoordinate::GetComputedDisplayValue(vtkViewport* viewport)
     return this->ComputedDisplayValue;
     }
   
-  // compute our WC
+  // compute our DC
   switch (this->CoordinateSystem)
     {
     case VTK_WORLD:
@@ -358,6 +361,17 @@ int *vtkCoordinate::GetComputedDisplayValue(vtkViewport* viewport)
     case VTK_NORMALIZED_VIEWPORT:
       viewport->NormalizedViewportToViewport(val[0],val[1]);
     case VTK_VIEWPORT:
+      if ((this->CoordinateSystem == VTK_NORMALIZED_VIEWPORT ||
+	   this->CoordinateSystem == VTK_VIEWPORT) &&
+	  this->ReferenceCoordinate)
+	{
+	int *RefValue;
+	
+	RefValue = 
+	  this->ReferenceCoordinate->GetComputedViewportValue(viewport);
+	val[0] += RefValue[0];
+	val[1] += RefValue[1];
+	}
       viewport->ViewportToNormalizedDisplay(val[0],val[1]);
     case VTK_NORMALIZED_DISPLAY:
       viewport->NormalizedDisplayToDisplay(val[0],val[1]);
@@ -366,8 +380,8 @@ int *vtkCoordinate::GetComputedDisplayValue(vtkViewport* viewport)
   this->ComputedDisplayValue[0] = (int)VTK_RINT(val[0]);
   this->ComputedDisplayValue[1] = (int)VTK_RINT(val[1]);
   
-  // if we have a reference coordinate then get that first
-  if (this->ReferenceCoordinate && this->CoordinateSystem != VTK_WORLD)
+  // if we have a reference coordinate and we haven't handled it yet
+  if (this->ReferenceCoordinate && this->CoordinateSystem == VTK_DISPLAY)
     {
     int *RefValue;
     
