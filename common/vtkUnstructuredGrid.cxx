@@ -925,7 +925,7 @@ void vtkUnstructuredGrid::GetListOfUniqueCellTypes(vtkUnsignedCharArray *uniqueT
     }
 }
 
-bool vtkUnstructuredGrid::IsHomogeneous() {
+int vtkUnstructuredGrid::IsHomogeneous() {
 
   unsigned char type;
   if (this->Types)
@@ -935,12 +935,12 @@ bool vtkUnstructuredGrid::IsHomogeneous() {
 	{
 	  if (this->Types->GetValue(cellId) != type)
 	    {
-	      return false;
+	      return 0;
 	    }
 	}
-      return true;
+      return 1;
     }
-  return false;
+  return 0;
 
 }
 

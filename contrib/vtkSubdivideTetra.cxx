@@ -88,7 +88,7 @@ void vtkSubdivideTetra::Execute()
   
   vtkDebugMacro(<<"Executing mesh subdivide");
 
-  if (!input->IsHomogeneous() ||
+  if (input->IsHomogeneous() == 0 ||
       input->GetCellType(0) != VTK_TETRA)
     {
       vtkErrorMacro(<<"all cells must be tetrahedra.");

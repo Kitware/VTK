@@ -184,7 +184,7 @@ public:
 
   // Description:
   // Traverse cells and determine if cells are all of the same type.
-  bool IsHomogeneous();
+  int IsHomogeneous();
 
 
 #ifndef VTK_REMOVE_LEGACY_CODE
