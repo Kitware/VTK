@@ -24,6 +24,7 @@ IF (VTK_USE_RENDERING)
       TestStyleJoystickCamera
       TestStyleTrackballActor
       TestStyleTrackballCamera
+      TestStyleTerrain
       TestTiling
       volRCClipPlanes
       volRCCropRegions

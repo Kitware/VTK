@@ -49,28 +49,42 @@
 #ifndef __vtkInteractorStyleTerrain_h
 #define __vtkInteractorStyleTerrain_h
 
-#include "vtkInteractorObserver.h"
+#include "vtkInteractorStyle.h"
 
-class vtkCallbackCommand;
-class vtkPropPicker;
 class vtkPolyDataMapper;
 class vtkSphereSource;
+class vtkExtractEdges;
 
-class VTK_HYBRID_EXPORT vtkInteractorStyleTerrain : public vtkInteractorObserver
+class VTK_RENDERING_EXPORT vtkInteractorStyleTerrain : public vtkInteractorStyle
 {
 public:
   // Description:
   // Instantiate the object.
   static vtkInteractorStyleTerrain *New();
 
-  vtkTypeRevisionMacro(vtkInteractorStyleTerrain,vtkInteractorObserver);
+  vtkTypeRevisionMacro(vtkInteractorStyleTerrain,vtkInteractorStyle);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Set/Get the Interactor wrapper being controlled by this object.
-  // (Satisfy superclass API.)
-  virtual void SetInteractor(vtkRenderWindowInteractor *interactor);
-  virtual void SetEnabled(int);
+  // Event bindings controlling the effects of pressing mouse buttons
+  // or moving the mouse.
+  virtual void OnMouseMove();
+  virtual void OnLeftButtonDown();
+  virtual void OnLeftButtonUp();
+  virtual void OnMiddleButtonDown();
+  virtual void OnMiddleButtonUp();
+  virtual void OnRightButtonDown();
+  virtual void OnRightButtonUp();
+
+  // Description:
+  // Override the "fly-to" (f keypress) for images.
+  virtual void OnChar();
+
+  // These methods for the different interactions in different modes
+  // are overridden in subclasses to perform the correct motion.
+  virtual void Rotate();
+  virtual void Pan();
+  virtual void Dolly();
 
   // Description:
   // Turn on/off the latitude/longitude lines.
@@ -82,39 +96,18 @@ protected:
   vtkInteractorStyleTerrain();
   ~vtkInteractorStyleTerrain();
 
-//BTX - manage the state of the widget
-  int State;
-  enum WidgetState
-  {
-    Start=0,
-    Rotating,
-    Panning,
-    Zooming,
-    Outside
-  };
-//ETX
-    
-  //handles the char widget activation event. Also handles the delete event.
-  static void ProcessEvents(vtkObject* object, unsigned long event,
-                            void* clientdata, void* calldata);
-
-  // ProcessEvents() dispatches to these methods.
-  void OnLeftButtonDown(int ctrl, int shift, int X, int Y);
-  void OnLeftButtonUp(int ctrl, int shift, int X, int Y);
-  void OnMiddleButtonDown(int ctrl, int shift, int X, int Y);
-  void OnMiddleButtonUp(int ctrl, int shift, int X, int Y);
-  void OnRightButtonDown(int ctrl, int shift, int X, int Y);
-  void OnRightButtonUp(int ctrl, int shift, int X, int Y);
-  void OnMouseMove(int ctrl, int shift, int X, int Y);
-  void OnChar();
-
   // Internal helper attributes
   int LatLongLines;
-  void SelectRepresentation();
-  vtkPropPicker *Picker;
+
   vtkSphereSource *LatLongSphere;
   vtkPolyDataMapper *LatLongMapper;
   vtkActor *LatLongActor;
+  vtkExtractEdges *LatLongExtractEdges;
+
+  void SelectRepresentation();
+  void CreateLatLong();
+  
+  float MotionFactor;
 
 private:
   vtkInteractorStyleTerrain(const vtkInteractorStyleTerrain&);  // Not implemented.

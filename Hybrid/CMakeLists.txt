@@ -24,7 +24,6 @@ vtkRIBExporter.cxx
 vtkRIBLight.cxx
 vtkRIBProperty.cxx
 vtkSphereWidget.cxx
-vtkInteractorStyleTerrain.cxx
 vtkThinPlateSplineTransform.cxx
 vtkTransformToGrid.cxx
 vtkVectorText.cxx

@@ -34,6 +34,7 @@ vtkInteractorStyleImage.cxx
 vtkInteractorStyleJoystickActor.cxx
 vtkInteractorStyleJoystickCamera.cxx
 vtkInteractorStyleSwitch.cxx
+vtkInteractorStyleTerrain.cxx
 vtkInteractorStyleTrackball.cxx
 vtkInteractorStyleTrackballActor.cxx
 vtkInteractorStyleTrackballCamera.cxx
