@@ -528,10 +528,12 @@ static void *vtkVideoSourceGrabThread(struct ThreadInfoStruct *data)
 #ifdef _WIN32
       Sleep((int)(1000*remaining));
 #else
+#if defined(__FreeBSD__) || defined(__linux__) || defined(sgi)
       struct timespec sleep_time, dummy;
       sleep_time.tv_sec = (int)remaining;
       sleep_time.tv_nsec = (int)(1000000000*(remaining-sleep_time.tv_sec));
       nanosleep(&sleep_time,&dummy);
+#endif
 #endif
       }
     }
