@@ -20,15 +20,16 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // zoom-in/zoom-out, azimuth, and roll.
 
 // .SECTION Event Bindings
-// These are the current keyboard bindings:
-//    i - up camera elevation
-//    m - down camera elevation
-//    j - left camera azimuth
-//    k - right camera azimuth
-//    a - zoom in
-//    z - zoom out
+// Mouse bindings:
+//    Button 1 - rotate
+//    Button 2 - pan
+//    Button 3 - zoom
+// (Distance from center of renderer viewport controls amount of 
+// rotate, pan, zoom).
+// Keystrokes:
 //    w - turn all actors wireframe
 //    s - turn all actors surface
+
 
 #ifndef __vlXInteractiveRenderer_h
 #define __vlXInteractiveRenderer_h
