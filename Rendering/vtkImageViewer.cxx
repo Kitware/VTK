@@ -116,7 +116,11 @@ void vtkImageViewer::Render()
     // get the size from the mappers input
     this->ImageMapper->GetInput()->UpdateInformation();
     int *ext = this->ImageMapper->GetInput()->GetWholeExtent();
-    this->ImageWindow->SetSize(ext[1] - ext[0] + 1, ext[3] - ext[2] + 1);
+    // if it would be smaller than 100 by 100 then limit to 100 by 100
+    int xs = ext[1] - ext[0] + 1;
+    int ys = ext[3] - ext[2] + 1;
+    this->ImageWindow->SetSize(xs < 100 ? 100 : xs,
+                               ys < 100 ? 100 : ys);
     }
   
   this->ImageWindow->Render();
