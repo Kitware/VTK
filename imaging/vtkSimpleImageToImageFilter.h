@@ -90,11 +90,9 @@ protected:
   virtual void ComputeInputUpdateExtent(int inExt[6], int outExt[6]);
 
   // You don't have to touch this unless you have a good reason.
-  virtual void Execute();
+  virtual void ExecuteData(vtkDataObject *output);
   // In the simplest case, this is the only method you need to define.
-  virtual void Execute(vtkImageData* input, vtkImageData* output) = 0;
-  void Execute(vtkImageData* outData)
-    {this->vtkImageSource::Execute(outData);}
+  virtual void SimpleExecute(vtkImageData* input, vtkImageData* output) = 0;
 };
 
 #endif

@@ -103,7 +103,7 @@ void vtkSimpleImageToImageFilter::ComputeInputUpdateExtent( int inExt[6],
   memcpy(inExt,wholeExtent,sizeof(int)*6);
 }
 
-void vtkSimpleImageToImageFilter::Execute()
+void vtkSimpleImageToImageFilter::ExecuteData(vtkDataObject *out)
 {
 
   vtkDebugMacro("Executing.");
@@ -120,5 +120,5 @@ void vtkSimpleImageToImageFilter::Execute()
   output->SetExtent(output->GetWholeExtent());
   output->AllocateScalars();
 
-  this->Execute(input, output);
+  this->SimpleExecute(input, output);
 }

@@ -81,8 +81,8 @@ static void vtkSimpleImageFilterExampleExecute(vtkImageData* input,
     }
 }
 
-void vtkSimpleImageFilterExample::Execute(vtkImageData* input,
-					  vtkImageData* output)
+void vtkSimpleImageFilterExample::SimpleExecute(vtkImageData* input,
+                                                vtkImageData* output)
 {
 
   void* inPtr = input->GetScalarPointer();
