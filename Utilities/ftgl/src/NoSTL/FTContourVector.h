@@ -16,6 +16,6 @@
 #endif
 #define FT_VECTOR_ITEM_TYPE FTContour*
 
-#include "FTVector.i"
+#include "FTVector.h"
 
 #endif  //  __FTContourVector__

@@ -16,6 +16,6 @@
 #endif
 #define FT_VECTOR_ITEM_TYPE FTGlyph*
 
-#include "FTVector.i"
+#include "FTVector.h"
 
 #endif  //  __FTGlyphVector__
