@@ -27,28 +27,28 @@ vtkPolyData TempPolyData
 vtkCellTypes CellTypes
 
 vtkDecimatePro deci
-    deci SetStartMethod StartProgress
-    deci SetProgressMethod ShowProgress
+    deci SetStartMethod {StartProgress deci "Decimating..."}
+    deci SetProgressMethod {ShowProgress deci "Decimating..."}
     deci SetEndMethod EndProgress
 vtkSmoothPolyDataFilter smooth
-    smooth SetStartMethod StartProgress
-    smooth SetProgressMethod ShowProgress
+    smooth SetStartMethod {StartProgress smooth "Smoothing..."}
+    smooth SetProgressMethod {ShowProgress smooth "Smoothing..."}
     smooth SetEndMethod EndProgress
 vtkCleanPolyData cleaner
-    cleaner SetStartMethod StartProgress
-    cleaner SetProgressMethod ShowProgress
+    cleaner SetStartMethod {StartProgress cleaner "Cleaning..."}
+    cleaner SetProgressMethod {ShowProgress cleaner "Cleaning..."}
     cleaner SetEndMethod EndProgress
 vtkPolyDataConnectivityFilter connect
-    connect SetStartMethod StartProgress
-    connect SetProgressMethod ShowProgress
+    connect SetStartMethod {StartProgress connect "Connectivity..."}
+    connect SetProgressMethod {ShowProgress connect "Connectivity..."}
     connect SetEndMethod EndProgress
 vtkTriangleFilter tri
-    tri SetStartMethod StartProgress
-    tri SetProgressMethod ShowProgress
+    tri SetStartMethod {StartProgress tri "Triangulating..."}
+    tri SetProgressMethod {ShowProgress tri "Triangulating..."}
     tri SetEndMethod EndProgress
 vtkPolyDataNormals normals
-    normals SetStartMethod StartProgress
-    normals SetProgressMethod ShowProgress
+    normals SetStartMethod {StartProgress normals "Generating Normals..."}
+    normals SetProgressMethod {ShowProgress normals "Generating Normals..."}
     normals SetEndMethod EndProgress
 
 ######################################## Create top-level GUI
@@ -188,8 +188,8 @@ proc OpenFile {} {
             return
         }
 
-	reader SetStartMethod StartProgress
-	reader SetProgressMethod ShowProgress
+	reader SetStartMethod {StartProgress reader "Reading..."}
+	reader SetProgressMethod {ShowProgress reader "Reading..."}
 	reader SetEndMethod EndProgress
 
         UpdateUndo "reader"
@@ -214,7 +214,7 @@ proc SaveFile {} {
         {{Stereo-Lithography}                   {.stl}        }
         {{Visualization Toolkit (polygonal)}    {.vtk}        }
         {{VRML}                                 {.wrl}        }
-        {{Wavefront}                            {.obj}        }
+        {{Wavefront OBJ}                            {.obj}        }
         {{All Files }                           *             }
     }
     set filename [tk_getSaveFile -filetypes $types]
@@ -894,8 +894,9 @@ proc ApplyProperties {} {
 }
 
 #------------------------Procedures for ProgressWidget----------------------
-proc StartProgress {} {
+proc StartProgress {filter label} {
    global BarId
+   global TextId
 
    set height [winfo height .bottomF.status]
    set width [winfo width .bottomF.status]
@@ -906,25 +907,32 @@ proc StartProgress {} {
    } else {
       .bottomF.canvas configure -height $height -width $width
       .bottomF.canvas delete $BarId
+      .bottomF.canvas delete $TextId
    }
 
-   set BarId [.bottomF.canvas create rect 0 0 0 $height -fill black]
+   set BarId [.bottomF.canvas create rect 0 0 0 $height -fill #888]
+   set TextId [.bottomF.canvas create text [expr $width/2] [expr $height/2] \
+	   -anchor center -justify center -text $label]
    pack forget .bottomF.status
    pack .bottomF.canvas -padx 0 -pady 0
 
    update
 }
 
-proc ShowProgress {} {
-   global BarId CurrentFilter
+proc ShowProgress {filter label} {
+   global BarId
+   global TextId
 
-   set progress [$CurrentFilter GetProgress]
+   set progress [$filter GetProgress]
    set height [winfo height .bottomF.status]
    set width [winfo width .bottomF.status]
 
    .bottomF.canvas delete $BarId
+   .bottomF.canvas delete $TextId
    set BarId [.bottomF.canvas create rect 0 0 [expr $progress*$width] $height \
-	 -fill black]
+	 -fill #888]
+   set TextId [.bottomF.canvas create text [expr $width/2] [expr $height/2] \
+	   -anchor center -justify center -text $label]
 
    update
 }
@@ -935,3 +943,4 @@ proc EndProgress {} {
 
    update
 }
+
