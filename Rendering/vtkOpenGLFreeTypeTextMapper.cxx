@@ -47,8 +47,10 @@
 //----------------------------------------------------------------------------
 // GL2PS related internal helper functions.
 
-void vtkOpenGLFreeTypeTextMapper_GetGL2PSFontName(vtkTextProperty *tprop, 
-                                                  char *ps_font)
+#ifdef VTK_USE_GL2PS
+static void
+vtkOpenGLFreeTypeTextMapper_GetGL2PSFontName(vtkTextProperty *tprop,
+                                             char *ps_font)
 {
  // For speed we use ARIAL == 0, COURIER == 1, TIMES == 2
   static char *family[] = {"Helvetica", "Courier", "Times"};
@@ -67,10 +69,10 @@ void vtkOpenGLFreeTypeTextMapper_GetGL2PSFontName(vtkTextProperty *tprop,
     if (tprop->GetItalic())
       {
       sprintf(ps_font, "%s%s", ps_font, "Italic");
-      }        
+      }
       return;
     }
-  
+
   if (tprop->GetBold())
     {
     sprintf(ps_font, "%s-%s", family[font], "Bold");
@@ -88,10 +90,11 @@ void vtkOpenGLFreeTypeTextMapper_GetGL2PSFontName(vtkTextProperty *tprop,
     sprintf(ps_font, "%s%s", family[font], base[font]);
     }
 }
+#endif
 
 //----------------------------------------------------------------------------
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLFreeTypeTextMapper, "1.33");
+vtkCxxRevisionMacro(vtkOpenGLFreeTypeTextMapper, "1.34");
 vtkStandardNewMacro(vtkOpenGLFreeTypeTextMapper);
 #endif
 
