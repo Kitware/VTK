@@ -99,43 +99,6 @@ VTKTCL_EXPORT void vtkTclDeleteObjectFromHash(void *cd)
 // then tcl must have been able to find the command function and object
 VTKTCL_EXPORT void vtkTclDeleteObjectFromHash2(void *cd)
 {
-  char temps[80];
-  Tcl_HashEntry *entry;
-  char *temp;
-  int (*command)(ClientData, Tcl_Interp *,int, char *[]);
-
-  // lookup the objects name
-  sprintf(temps,"%p",cd);
-  entry = Tcl_FindHashEntry(&vtkPointerLookup,temps); 
-  temp = (char *)(Tcl_GetHashValue(entry));
-
-  // now delete the three hash entries
-  entry = Tcl_FindHashEntry(&vtkCommandLookup,temp);
-  command = 
-    (int (*)(ClientData,Tcl_Interp *,int,char *[]))Tcl_GetHashValue(entry);
-  Tcl_DeleteHashEntry(entry);
-  entry = Tcl_FindHashEntry(&vtkPointerLookup,temps); 
-  Tcl_DeleteHashEntry(entry);
-  entry = Tcl_FindHashEntry(&vtkInstanceLookup,temp);
-  Tcl_DeleteHashEntry(entry);
-
-  if (vtkTclDebugOn)
-    {
-    vtkGenericWarningMacro("vtkTcl Attempting to free object named " << temp);
-    }
-  free (temp);
-}
-
-void vtkTclDeleteObjectFromHashByName(char *name)
-{
-  void *cd;
-  Tcl_HashEntry *entry;
-
-  // lookup the objects name
-  entry = Tcl_FindHashEntry(&vtkInstanceLookup,name); 
-  cd = (void *)(Tcl_GetHashValue(entry));
-  
-  vtkTclDeleteObjectFromHash2(cd);
 }
 
 // we do no error checking in this.  We assume that if we were called
@@ -147,7 +110,6 @@ VTKTCL_EXPORT void vtkTclGenericDeleteObject(ClientData cd)
   int (*command)(ClientData, Tcl_Interp *,int, char *[]);
   char *args[2];
   char *temp;
-  Tcl_Interp *i;
   vtkObject *tobject;
   int error;
   
@@ -160,33 +122,38 @@ VTKTCL_EXPORT void vtkTclGenericDeleteObject(ClientData cd)
   temp = strdup((char *)(Tcl_GetHashValue(entry)));
   args[0] = temp;
   
-
-  i = Tcl_CreateInterp();
-
   // first we clear the delete callback since we will
   // always remove this object from the hash regardless
   // of if it has really been freed.
   tobject = (vtkObject *)vtkTclGetPointerFromObject(temp,"vtkObject",
-						    i, error);
+						    vtkGlobalTclInterp, 
+						    error);
   tobject->SetDeleteMethod(NULL);
+  // get the command function and invoke the delete operation
+  entry = Tcl_FindHashEntry(&vtkCommandLookup,temp);
+  command = (int (*)(ClientData,Tcl_Interp *,int,char *[]))
+    Tcl_GetHashValue(entry);
   
   // do we need to delete the c++ obj
   if (strncmp(temp,"vtkTemp",7))
     {
-      // get the command function and invoke the delete operation
-      entry = Tcl_FindHashEntry(&vtkCommandLookup,temp);
-      command = (int (*)(ClientData,Tcl_Interp *,int,char *[]))
-				Tcl_GetHashValue(entry);
-      vtkInDelete = 1;
-      command(cd,i,2,args);
-      vtkInDelete = 0;
+    vtkInDelete = 1;
+    command(cd,vtkGlobalTclInterp,2,args);
+    vtkInDelete = 0;
     }
-  Tcl_DeleteInterp(i);
 
   // the actual C++ object may not be freed yet. So we 
-  // force it to be free from the hash table and
-  // clear its delete callback
-  vtkTclDeleteObjectFromHashByName(temp);
+  // force it to be free from the hash table.
+  Tcl_DeleteHashEntry(entry);
+  entry = Tcl_FindHashEntry(&vtkPointerLookup,temps); 
+  Tcl_DeleteHashEntry(entry);
+  entry = Tcl_FindHashEntry(&vtkInstanceLookup,temp);
+  Tcl_DeleteHashEntry(entry);
+
+  if (vtkTclDebugOn)
+    {
+    vtkGenericWarningMacro("vtkTcl Attempting to free object named " << temp);
+    }
   if (temp)
     {
     free(temp);
@@ -209,18 +176,18 @@ int vtkCommand(ClientData cd, Tcl_Interp *interp, int argc, char *argv[])
   if (!strcmp(argv[1],"DeleteAllObjects"))
     {
     for (entry = Tcl_FirstHashEntry(&vtkPointerLookup,&search); 
-				 entry != NULL;
-				 entry = Tcl_FirstHashEntry(&vtkPointerLookup,&search))
+	 entry != NULL;
+	 entry = Tcl_FirstHashEntry(&vtkPointerLookup,&search))
       {
       tmp = strdup((char *)Tcl_GetHashValue(entry));
       if (tmp)
-				{
-				Tcl_DeleteCommand(interp,tmp);
-				}
+	{
+	Tcl_DeleteCommand(interp,tmp);
+	}
       if (tmp)
-				{
-				free(tmp);
-				}
+	{
+	free(tmp);
+	}
       }
     return TCL_OK;
     }
