@@ -69,6 +69,9 @@ void Test(ostream& strm)
   ctf1->RemoveAllPoints();
   strm << *ctf1;
 
+  ctf1->Delete();
+  ctf2->Delete();
+
   strm << "Test vtkColorTransferFunction End" << endl;
 }
 
