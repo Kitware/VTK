@@ -234,7 +234,7 @@ int vtkPointSet::FindCell(float x[3], vtkCell *cell, vtkGenericCell *gencell,
       }
     }
 
-  // If a cell is supplied, or we were able to find a starting cell (in the
+  // If a cell is supplied, or we were unable to find a starting cell (in the
   // previous chunk of code), then we use this to start our search. A
   // walking scheme is used, where we walk towards the point and eventually
   // locate the cell that contains the point.
