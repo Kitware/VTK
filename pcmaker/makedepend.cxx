@@ -162,6 +162,7 @@ void GetDepends(char *file, const char *vtkHome)
       } // end if (!strncmp(line,"#include"))
     } // end while
 
+  IS->close();
   delete IS;  
 }
 

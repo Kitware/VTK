@@ -1268,7 +1268,7 @@ void doMSCJavaHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue)
 
   for (i = 0; i < num_abstract; i++)
   {
-    sprintf(file,"%s\\%s\\%s.h",vals->m_WhereVTK,abstract_lib[i],abstract_h[i]);
+    sprintf(file,"%s\\%s\\%s.h",vals->m_WhereVTK,abstract_lib[i],abstract[i]);
     OutputDepends(file,fp,vals->m_WhereVTK);
     vals->m_Progress.OffsetPos(1);
     fprintf(fp,"\"src\\%sJava.cxx\" : %s\\%s\\%s.h \"$(OUTDIR)\"\n",
