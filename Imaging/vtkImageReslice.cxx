@@ -2502,22 +2502,34 @@ static void vtkOptimizedPermuteExecuteLinear(vtkImageReslice *self,
       inId0 = trunc - inExt[2*k];
       inId1 = inId0+doInterp;
 
-        if (inId0 < 0 || inId1 >= inExtK)
-	  {
-	  if (region == 1)
-	    { // leaving the input extent
-	    region = 2;
-	    clipExt[2*j+1] = i-1;
-	    }
+      if (self->GetMirror())
+	{
+	inId0 = vtkInterpolateMirror(inId0, inExtK);
+	inId1 = vtkInterpolateMirror(inId1, inExtK);
+	region = 1;
+	}
+      else if (self->GetWrap())
+	{
+	inId0 = vtkInterpolateWrap(inId0, inExtK);
+	inId1 = vtkInterpolateWrap(inId1, inExtK);
+	region = 1;
+	}
+      else if (inId0 < 0 || inId1 >= inExtK)
+	{
+        if (region == 1)
+	  { // leaving the input extent
+	  region = 2;
+	  clipExt[2*j+1] = i-1;
 	  }
-        else 
-	  {
-	  if (region == 0)
-	    { // entering the input extent
-	    region = 1;
-	    clipExt[2*j] = i;	   
-	    }
+	}
+      else 
+	{
+	if (region == 0)
+	  { // entering the input extent
+	  region = 1;
+	  clipExt[2*j] = i;	   
 	  }
+	}
       traversal[j][2*i] = inId0*inInc[k];
       traversal[j][2*i+1] = inId1*inInc[k];
       }
