@@ -16,16 +16,16 @@ vtkUnsignedCharArray chars
   chars SetNumberOfComponents 3
   chars SetNumberOfTuples 3
   chars InsertComponent 0 0 255
-  chars InsertComponent 0 1 0
-  chars InsertComponent 0 2 0
+  chars InsertComponent 0 1 99
+  chars InsertComponent 0 2 71
 
-  chars InsertComponent 1 0 0
+  chars InsertComponent 1 0 125
   chars InsertComponent 1 1 255
   chars InsertComponent 1 2 0
 
-  chars InsertComponent 2 0 0
-  chars InsertComponent 2 1 0
-  chars InsertComponent 2 2 255
+  chars InsertComponent 2 0 226
+  chars InsertComponent 2 1 207
+  chars InsertComponent 2 2 87
 
 
 vtkScalars scalars
