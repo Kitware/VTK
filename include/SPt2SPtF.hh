@@ -29,7 +29,7 @@ class vlStructuredPointsToStructuredPointsFilter : public vlStructuredPoints,
                                               public vlStructuredPointsFilter
 {
 public:
-  char *GetClassName() {return "vlDataSetToStructuredPointsFilter";};
+  char *GetClassName() {return "vlStructuredPointsToStructuredPointsFilter";};
   void PrintSelf(ostream& os, vlIndent indent);
 
   // Object interface
