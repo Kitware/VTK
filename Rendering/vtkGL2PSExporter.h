@@ -23,13 +23,15 @@
 // very useful when one requires publication quality pictures.  This
 // class works best with simple 3D scenes and most 2D plots.  Please
 // note that GL2PS has its limitations since PostScript is not an
-// ideal language to represent complex 3D scenes.  Please do read the
-// caveats section of this documentation.
+// ideal language to represent complex 3D scenes.  However, this class
+// does allow one to write mixed vector/raster files by using the
+// Write3DPropsAsRasterImage ivar.  Please do read the caveats section
+// of this documentation.
 //
 // By default vtkGL2PSExporter generates Encapsulated PostScript (EPS)
 // output along with the text in portrait orientation with the
 // background color of the window being drawn.  The various other
-// options are set to sensible defaults.
+// options are set to sensible defaults.  
 //
 // The output file format (FileFormat) can be either PostScript (PS),
 // Encapsulated PostScript (EPS) or TeX.  The file extension is
@@ -45,8 +47,13 @@
 // options can be set.  The names of the ivars for these options are
 // similar to the ones that GL2PS provides.  SimpleLineOffset, Silent,
 // BestRoot, PS3Shading and OcclusionCull are similar to the options
-// provided by GL2PS.  Please read the method documentation or the
-// GL2PS documentation for more details.
+// provided by GL2PS.  The ivar Write3DPropsAsRasterImage allows one
+// to generate mixed vector/raster images.  All the 3D props in the
+// scene will be written as a raster image and all 2D actors will be
+// written as vector graphic primitives.  This makes it possible to
+// handle transparency and complex 3D scenes.  This ivar is set to Off
+// by default.  Please read the method documentation or the GL2PS
+// documentation for more details.
 //
 // To use this class you need to have GL2PS installed.  You need to
 // configure VTK to compile this class and also need to tell VTK where
@@ -62,15 +69,19 @@
 // $ ar crvu libgl2ps.a gl2ps.o; ranlib libgl2ps.a
 
 // .SECTION Caveats
-// Exporting complex 3D scenes can result in huge output files.
-// Generating correct output for scenes with transparency is almost
-// impossible.
+// By default (with Write3DPropsAsRasterImage set to Off) exporting
+// complex 3D scenes can take a long while and result in huge output
+// files.  Generating correct vector graphics output for scenes with
+// transparency is almost impossible.  However, one can set
+// Write3DPropsAsRasterImageOn and generate mixed vector/raster files.
+// This should work fine with complex scenes along with transparent
+// actors.
 
 // .SECTION See Also
 // vtkExporter
 
 // .SECTION Thanks
-// Thanks to Prabhu Ramachandran for this class.
+// Thanks to Goodwin Lawlor and Prabhu Ramachandran for this class.
 
 
 #ifndef __vtkGL2PSExporter_h
@@ -203,6 +214,14 @@ public:
   vtkGetMacro(OcclusionCull, int);
   vtkBooleanMacro(OcclusionCull, int);
 
+  //Description:
+  // Turn on/off writing 3D props as raster images.  2D props are
+  // rendered using vector graphics primitives.  If you have hi-res
+  // actors and are using transparency you probably need to turn this
+  // on.  Defaults to Off.
+  vtkSetMacro(Write3DPropsAsRasterImage, int);
+  vtkGetMacro(Write3DPropsAsRasterImage, int);
+  vtkBooleanMacro(Write3DPropsAsRasterImage, int);
 
 protected:
   vtkGL2PSExporter();
@@ -221,6 +240,7 @@ protected:
   int Landscape;
   int PS3Shading;
   int OcclusionCull;
+  int Write3DPropsAsRasterImage;
   
 private:
   vtkGL2PSExporter(const vtkGL2PSExporter&); // Not implemented
