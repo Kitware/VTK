@@ -29,11 +29,16 @@ vtkActor outlineActor
 # Create the RenderWindow, Renderer and Interactor
 # the Interactor is needed for the widgets
 #
+
+vtkTkRenderWidget .renWin
+set renWin [.renWin GetRenderWindow]
 vtkRenderer ren1
-vtkRenderWindow renWin
-  renWin AddRenderer ren1  
+# vtkRenderWindow renWin
+$renWin AddRenderer ren1
+
+
 vtkRenderWindowInteractor iren
-  iren SetRenderWindow renWin  
+  iren SetRenderWindow $renWin  
 
 # The shared picker enables us to use 3 planes at one time
 # and gets the picking order right
@@ -93,7 +98,7 @@ ren1 AddActor outlineActor
 [ren1 GetCullers] RemoveAllItems
 
 ren1 SetBackground  0.1 0.1 0.2
-renWin SetSize 400 400
+$renWin SetSize 400 400
 
 set cam1 [ren1 GetActiveCamera]
 $cam1 Elevation 110
@@ -104,7 +109,7 @@ ren1 ResetCameraClippingRange
 # render the image
 #
 iren AddObserver UserEvent {wm deiconify .vtkInteract}
-renWin Render
+$renWin Render
 
 # Prevent the tk window from showing up then start the event loop.
-wm withdraw .
+# wm withdraw .
