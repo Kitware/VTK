@@ -280,11 +280,19 @@ vtkCell *vtkPolyData::GetCell(int cellId)
   switch (type)
     {
     case VTK_VERTEX:
+      if (!this->Vertex)
+        {
+	this->Vertex = vtkVertex::New();
+        }
       cell = this->Vertex;
       this->Verts->GetCell(loc,numPts,pts);
       break;
 
     case VTK_POLY_VERTEX:
+      if (! this->PolyVertex)
+        {
+	this->PolyVertex = vtkPolyVertex::New();
+        }
       cell = this->PolyVertex;
       this->Verts->GetCell(loc,numPts,pts);
       cell->PointIds->SetNumberOfIds(numPts); //reset number of points
@@ -292,11 +300,19 @@ vtkCell *vtkPolyData::GetCell(int cellId)
       break;
 
     case VTK_LINE: 
+      if (! this->Line )
+        {
+	this->Line = vtkLine::New();
+        }
       cell = this->Line;
       this->Lines->GetCell(loc,numPts,pts);
       break;
 
     case VTK_POLY_LINE:
+      if (!this->PolyLine)
+        {
+	this->PolyLine = vtkPolyLine::New();
+        }
       cell = this->PolyLine;
       this->Lines->GetCell(loc,numPts,pts);
       cell->PointIds->SetNumberOfIds(numPts); //reset number of points
@@ -304,16 +320,28 @@ vtkCell *vtkPolyData::GetCell(int cellId)
       break;
 
     case VTK_TRIANGLE:
+      if (!this->Triangle)
+        {
+	this->Triangle = vtkTriangle::New();
+        }
       cell = this->Triangle;
       this->Polys->GetCell(loc,numPts,pts);
       break;
 
     case VTK_QUAD:
+      if (!this->Quad)
+        {
+	this->Quad = vtkQuad::New();
+        }
       cell = this->Quad;
       this->Polys->GetCell(loc,numPts,pts);
       break;
 
     case VTK_POLYGON:
+      if (!this->Polygon)
+        {
+	this->Polygon = vtkPolygon::New();
+        }
       cell = this->Polygon;
       this->Polys->GetCell(loc,numPts,pts);
       cell->PointIds->SetNumberOfIds(numPts); //reset number of points
@@ -321,6 +349,10 @@ vtkCell *vtkPolyData::GetCell(int cellId)
       break;
 
     case VTK_TRIANGLE_STRIP:
+      if (!this->TriangleStrip)
+        {
+	this->TriangleStrip = vtkTriangleStrip::New();
+        }
       cell = this->TriangleStrip;
       this->Strips->GetCell(loc,numPts,pts);
       cell->PointIds->SetNumberOfIds(numPts); //reset number of points
@@ -328,6 +360,10 @@ vtkCell *vtkPolyData::GetCell(int cellId)
       break;
 
     default:
+      if (!this->EmptyCell)
+        {
+	this->EmptyCell = vtkEmptyCell::New();
+        }
       cell = this->EmptyCell;
       return cell;
     }
