@@ -26,7 +26,7 @@
 #include "vtkTextProperty.h"
 #include "vtkViewport.h"
 
-vtkCxxRevisionMacro(vtkParallelCoordinatesActor, "1.24");
+vtkCxxRevisionMacro(vtkParallelCoordinatesActor, "1.24.4.1");
 vtkStandardNewMacro(vtkParallelCoordinatesActor);
 
 vtkCxxSetObjectMacro(vtkParallelCoordinatesActor,Input,vtkDataObject);
@@ -206,6 +206,7 @@ int vtkParallelCoordinatesActor::RenderOpaqueGeometry(vtkViewport *viewport)
 
   // Viewport change may not require rebuild
 
+  int positionsHaveChanged = 0;
   if (viewport->GetMTime() > this->BuildTime || 
       (viewport->GetVTKWindow() && 
        viewport->GetVTKWindow()->GetMTime() > this->BuildTime))
@@ -223,7 +224,7 @@ int vtkParallelCoordinatesActor::RenderOpaqueGeometry(vtkViewport *viewport)
       this->LastPosition[1] = lastPosition[1];
       this->LastPosition2[0] = lastPosition2[0];
       this->LastPosition2[1] = lastPosition2[1];
-      this->Modified();
+      positionsHaveChanged = 1;
       }
     }
   
@@ -231,7 +232,8 @@ int vtkParallelCoordinatesActor::RenderOpaqueGeometry(vtkViewport *viewport)
 
   this->Input->Update();
 
-  if (this->GetMTime() > this->BuildTime ||
+  if (positionsHaveChanged ||
+      this->GetMTime() > this->BuildTime ||
       this->Input->GetMTime() > this->BuildTime ||
       this->LabelTextProperty->GetMTime() > this->BuildTime ||
       this->TitleTextProperty->GetMTime() > this->BuildTime)
@@ -400,8 +402,8 @@ int vtkParallelCoordinatesActor::PlaceAxes(vtkViewport *viewport, int *vtkNotUse
   for (i=0; i<this->N; i++)
     {
     this->Axes[i] = vtkAxisActor2D::New();
-    this->Axes[i]->GetPoint1Coordinate()->SetCoordinateSystemToViewport();
-    this->Axes[i]->GetPoint2Coordinate()->SetCoordinateSystemToViewport();
+    this->Axes[i]->GetPositionCoordinate()->SetCoordinateSystemToViewport();
+    this->Axes[i]->GetPosition2Coordinate()->SetCoordinateSystemToViewport();
     this->Axes[i]->SetRange(this->Mins[i],this->Maxs[i]);
     this->Axes[i]->AdjustLabelsOff();
     this->Axes[i]->SetNumberOfLabels(this->NumberOfLabels);
@@ -425,8 +427,8 @@ int vtkParallelCoordinatesActor::PlaceAxes(vtkViewport *viewport, int *vtkNotUse
   for (i=0; i<this->N; i++)
     {
     this->Xs[i] = (int) (p1[0] + (float)i/((float)this->N) * (p2[0]-p1[0]));
-    this->Axes[i]->GetPoint1Coordinate()->SetValue(this->Xs[i], this->YMin);
-    this->Axes[i]->GetPoint2Coordinate()->SetValue(this->Xs[i], this->YMax);
+    this->Axes[i]->GetPositionCoordinate()->SetValue(this->Xs[i], this->YMin);
+    this->Axes[i]->GetPosition2Coordinate()->SetValue(this->Xs[i], this->YMax);
     }
 
   // Now generate the lines to plot
