@@ -27,7 +27,7 @@
 #include "vtkStructuredGrid.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkPLOT3DReader, "1.77");
+vtkCxxRevisionMacro(vtkPLOT3DReader, "1.78");
 vtkStandardNewMacro(vtkPLOT3DReader);
 
 #define VTK_RHOINF 1.0
@@ -332,7 +332,7 @@ void vtkPLOT3DReader::SkipByteCountV(char** buf)
     }
 }
 
-int vtkPLOT3DReader::VerifySettings(char* buf, int bufSize)
+int vtkPLOT3DReader::VerifySettings(char* buf, int vtkNotUsed(bufSize))
 {
   int numGrid=0;
 
