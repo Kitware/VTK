@@ -105,7 +105,11 @@ Java_vtk_vtkPanel_RenderCreate(JNIEnv *env, jobject canvas, jobject id0)
 #elif defined(VTK_USE_CARBON) || defined(VTK_USE_COCOA)
   JAWT_MacOSXDrawingSurfaceInfo* dsi_mac;
   dsi_mac = (JAWT_MacOSXDrawingSurfaceInfo*)dsi->platformInfo;
-  temp0->SetWindowId((void *)dsi_mac->cgWindowID); 
+#ifdef VTK_USE_CARBON
+  temp0->SetWindowId((void *)dsi_mac->carbonWindowRef);
+#else
+  temp0->SetWindowId((void *)dsi_mac->cocoaWindowRef);
+#endif
 // otherwise use X11 code
 #else
   JAWT_X11DrawingSurfaceInfo* dsi_x11;
