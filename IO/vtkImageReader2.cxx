@@ -73,8 +73,6 @@ vtkImageReader2* vtkImageReader2::New()
 //----------------------------------------------------------------------------
 vtkImageReader2::vtkImageReader2()
 {
-  int idx;
-  
   this->FilePrefix = NULL;
   this->FilePattern = new char[strlen("%s.%d") + 1];
   strcpy (this->FilePattern, "%s.%d");
@@ -83,14 +81,16 @@ vtkImageReader2::vtkImageReader2()
   this->DataScalarType = VTK_SHORT;
   this->NumberOfScalarComponents = 1;
   
-  for (idx = 0; idx < 3; ++idx)
-    {
-    this->DataIncrements[idx] = 1;
-    this->DataExtent[idx*2] = this->DataExtent[idx*2 + 1] = 0;
-    this->DataSpacing[idx] = 1.0;
-    this->DataOrigin[idx] = 0.0;
-    }
-  this->DataIncrements[3] = 1;
+  this->SetDataOrigin(0.0, 0.0, 0.0);
+
+  this->SetDataSpacing(1.0, 1.0, 1.0);
+
+  this->SetDataExtent(0, 0, 
+                      0, 0, 
+                      0, 0);
+
+  this->DataIncrements[0] = this->DataIncrements[1] = 
+    this->DataIncrements[2] = this->DataIncrements[3] = 1;
   
   this->FileName = NULL;
   this->InternalFileName = NULL;

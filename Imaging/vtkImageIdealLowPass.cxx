@@ -67,12 +67,7 @@ vtkImageIdealLowPass* vtkImageIdealLowPass::New()
 //----------------------------------------------------------------------------
 vtkImageIdealLowPass::vtkImageIdealLowPass()
 {
-  int idx;
-  
-  for (idx = 0; idx < 3; ++idx)
-    {
-    this->CutOff[idx] = VTK_LARGE_FLOAT;
-    }
+  this->SetCutOff(VTK_LARGE_FLOAT, VTK_LARGE_FLOAT, VTK_LARGE_FLOAT);
 }
 
 

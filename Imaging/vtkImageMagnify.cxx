@@ -66,13 +66,8 @@ vtkImageMagnify* vtkImageMagnify::New()
 // Constructor: Sets default filter to be identity.
 vtkImageMagnify::vtkImageMagnify()
 {
-  int idx;
-  
   this->Interpolate = 0;
-  for (idx = 0; idx < 3; ++idx)
-    {
-    this->MagnificationFactors[idx] = 1;
-    }
+  this->SetMagnificationFactors(1, 1, 1);
 }
 
 

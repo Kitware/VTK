@@ -70,11 +70,9 @@ vtkImageClip::vtkImageClip()
 
   this->ClipData = 0;
   this->Initialized = 0;
-  for (idx = 0; idx < 3; ++idx)
-    {
-    this->OutputWholeExtent[idx*2]  = -VTK_LARGE_INTEGER;
-    this->OutputWholeExtent[idx*2+1] = VTK_LARGE_INTEGER;
-    }
+  this->SetOutputWholeExtent(-VTK_LARGE_INTEGER, VTK_LARGE_INTEGER,
+                             -VTK_LARGE_INTEGER, VTK_LARGE_INTEGER,
+                             -VTK_LARGE_INTEGER, VTK_LARGE_INTEGER);
 }
 
 

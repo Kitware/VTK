@@ -583,6 +583,7 @@ vtkImageQuantizeRGBToIndex::vtkImageQuantizeRGBToIndex()
 {
   this->LookupTable = vtkLookupTable::New();
   this->NumberOfColors = 256;
+  this->InputType = VTK_UNSIGNED_SHORT;
   
   this->InitializeExecuteTime = 0.0;
   this->BuildTreeExecuteTime = 0.0;

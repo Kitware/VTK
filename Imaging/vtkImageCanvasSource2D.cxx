@@ -65,12 +65,7 @@ vtkImageCanvasSource2D* vtkImageCanvasSource2D::New()
 // Construct an instance of vtkImageCanvasSource2D with no data.
 vtkImageCanvasSource2D::vtkImageCanvasSource2D()
 {
-  int idx;
-  
-  for (idx = 0; idx < 4; ++idx)
-    {
-    this->DrawColor[idx] = 0.0;
-    }
+  this->SetDrawColor(0.0, 0.0, 0.0, 0.0);
   this->SetNumberOfScalarComponents(1);
   this->ImageData = this;
   this->DefaultZ = 0;

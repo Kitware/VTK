@@ -79,6 +79,8 @@ vtkImageWriter::vtkImageWriter()
   this->FilePrefix = NULL;
   this->FilePattern = NULL;
   this->FileName = NULL;
+  this->InternalFileName = NULL;
+  this->FileNumber = 0;
   this->FileDimensionality = 2;
 
   this->SetFilePattern("%s.%d");
