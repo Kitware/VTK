@@ -17,14 +17,15 @@
 =========================================================================*/
 // .NAME vtkClipVolume - clip volume data with user-specified implicit function or input scalar data
 // .SECTION Description
-// vtkClipVolume is a filter that clips volume data (i.e., structured points)
-// using either: any subclass of vtkImplicitFunction; or the input scalar
-// data. Clipping means that it actually "cuts" through the cells of the
-// dataset, returning everything inside of the specified implicit function (or
-// greater than the scalar value) including "pieces" of a cell. (Compare this
-// with vtkExtractGeometry or vtkGeometryFilter, which pulls out entire,
-// uncut cells.) The output of this filter is a 3D unstructured grid (e.g.,
-// tetrahedra).
+// vtkClipVolume is a filter that clips volume data (i.e., vtkImageData)
+// using either: any subclass of vtkImplicitFunction or the input scalar
+// data. The clipping operation cuts through the cells of the
+// dataset--converting 3D image data into a 3D unstructured grid--returning
+// everything inside of the specified implicit function (or greater than the
+// scalar value). During the clipping the filter will produce pieces of a
+// cell. (Compare this with vtkExtractGeometry or vtkGeometryFilter, which
+// produces entire, uncut cells.) The output of this filter is a 3D
+// unstructured grid (e.g., tetrahedra or other 3D cell types).
 //
 // To use this filter, you must decide if you will be clipping with an
 // implicit function, or whether you will be using the input scalar data.  If
@@ -47,11 +48,11 @@
 // this behavior by setting the Mixed3DCellGeneration. By default the
 // Mixed3DCellGeneration is on and a combination of cell types will be
 // produced. Note that producing mixed cell types is a faster than producing
-// strictly tetrahedra.
+// only tetrahedra.
 
 // .SECTION Caveats
 // This filter is designed to function with 3D structured points. Clipping
-// 2D images can be better done by converting the image to polygonal data
+// 2D images should be done by converting the image to polygonal data
 // and using vtkClipPolyData,
 
 // .SECTION See Also
@@ -86,8 +87,7 @@ public:
 
   // Description:
   // Construct with user-specified implicit function; InsideOut turned off;
-  // value set to 0.0; and generate clip scalars turned off. The merge
-  // tolerance is set to 0.01.
+  // value set to 0.0; and generate clip scalars turned off.
   static vtkClipVolume *New();
 
   // Description:
@@ -135,21 +135,21 @@ public:
   vtkUnstructuredGrid *GetClippedOutput();
 
   // Description:
+  // Control whether the filter produces a mix of 3D cell types on output, or
+  // whether the output cells are all tetrahedra. By default, a mixed set of
+  // cells (e.g., tetrahedra and wedges) is produced. (Note: mixed type
+  // generation is faster and less overall data is generated.)
+  vtkSetMacro(Mixed3DCellGeneration,int);
+  vtkGetMacro(Mixed3DCellGeneration,int);
+  vtkBooleanMacro(Mixed3DCellGeneration,int);
+
+  // Description:
   // Set the tolerance for merging clip intersection points that are near
   // the corners of voxels. This tolerance is used to prevent the generation
   // of degenerate tetrahedra.
   vtkSetClampMacro(MergeTolerance,float,0.0001,0.25);
   vtkGetMacro(MergeTolerance,float);
   
-  // Description:
-  // Control whether the filter produces a mix of 3D cell types on output, or
-  // whether the output cells are all tetrahedra. By default, a mixed set
-  // of cells (e.g., tetrahedra and wedges) is produced. (Note: mixed type generation
-  // is faster and less overall data is generated.)
-  vtkSetMacro(Mixed3DCellGeneration,int);
-  vtkGetMacro(Mixed3DCellGeneration,int);
-  vtkBooleanMacro(Mixed3DCellGeneration,int);
-
   // Description:
   // Set / Get a spatial locator for merging points. By default, 
   // an instance of vtkMergePoints is used.
@@ -171,9 +171,10 @@ protected:
 
   void Execute();
   void ClipTets(float value, vtkTetra *clipTetra, vtkDataArray *clipScalars, 
-                vtkDataArray *cellScalars, vtkIdList *tetraIds, vtkPoints *tetraPts, 
-                vtkPointData *inPD, vtkPointData *outPD, vtkCellData *inCD, vtkIdType cellId, 
-                vtkCellData *outCD, vtkCellData *clippedCD, int insideOut);
+                vtkDataArray *cellScalars, vtkIdList *tetraIds, 
+                vtkPoints *tetraPts, vtkPointData *inPD, vtkPointData *outPD, 
+                vtkCellData *inCD, vtkIdType cellId, vtkCellData *outCD, 
+                vtkCellData *clippedCD, int insideOut);
   void ClipVoxel(float value, vtkDataArray *cellScalars, int flip,
                  float origin[3], float spacing[3], vtkIdList *cellIds,
                  vtkPoints *cellPts, vtkPointData *inPD, vtkPointData *outPD, 
@@ -187,7 +188,6 @@ protected:
   int                  GenerateClipScalars;
   float                MergeTolerance;
   int                  Mixed3DCellGeneration;
-  
   int                  GenerateClippedOutput;
   vtkUnstructuredGrid *ClippedOutput;
   

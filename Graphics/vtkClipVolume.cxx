@@ -33,7 +33,7 @@
 #include "vtkIntArray.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkClipVolume, "1.56");
+vtkCxxRevisionMacro(vtkClipVolume, "1.57");
 vtkStandardNewMacro(vtkClipVolume);
 vtkCxxSetObjectMacro(vtkClipVolume,ClipFunction,vtkImplicitFunction);
 
@@ -137,6 +137,7 @@ void vtkClipVolume::Execute()
   vtkPointData *inPD=input->GetPointData(), *outPD=output->GetPointData();
   vtkCellData *inCD=input->GetCellData(), *outCD=output->GetCellData();
   vtkCellData *clippedCD=clippedOutput->GetCellData();
+  vtkCellData *outputCD;
   int dims[3], dimension, numICells, numJCells, numKCells, sliceSize;
   int above, below;
   vtkIdList *tetraIds;
@@ -236,6 +237,7 @@ void vtkClipVolume::Execute()
     }
   outPD->InterpolateAllocate(inPD,estimatedSize,estimatedSize/2);
   outCD->CopyAllocate(inCD,estimatedSize,estimatedSize/2);
+  clippedCD->CopyAllocate(inCD,estimatedSize,estimatedSize/2);
 
   // If generating second output, setup clipped output
   if ( this->GenerateClippedOutput )
@@ -262,12 +264,17 @@ void vtkClipVolume::Execute()
   vtkGenericCell *cell=vtkGenericCell::New();
   vtkTetra *clipTetra = vtkTetra::New();
   
-  // Loop over i-j-k directions so that we can control the direction of
-  // face diagonals on voxels (i.e., the flip variable). The flip variable
-  // also controls the ordered Delaunay triangulation used in ClipVoxel().
+  // Interior voxels (i.e., inside the clip region) are tetrahedralized using
+  // 5 tetrahedra. This requires swapping the face diagonals on alternating
+  // voxels to insure compatibility. Loop over i-j-k directions so that we
+  // can control the direction of face diagonals on voxels (i.e., the flip
+  // variable). The flip variable also controls the generation of tetrahedra
+  // in boundary voxels in ClipTets() and the ordered Delaunay triangulation 
+  // used in ClipVoxel().
   int abort=0;
   for ( k=0; k < numKCells && !abort; k++)
     {
+    // Check for progress and abort on every z-slice
     this->UpdateProgress((float)k / numKCells);
     abort = this->GetAbortExecute();
     for ( j=0; j < numJCells; j++)
@@ -303,7 +310,8 @@ void vtkClipVolume::Execute()
           below = !below;
           }
         
-        // see whether voxel is fully inside or outside
+        // See whether voxel is fully inside or outside and triangulate
+        // according to the flup variable.
         if ( (above && !below) || 
              (this->GenerateClippedOutput && (below && !above)) )
           {
@@ -316,6 +324,7 @@ void vtkClipVolume::Execute()
             outputLoc = this->Locations;
             outputTypes = this->Types;
             outputCount = &this->NumberOfCells;
+            outputCD = outCD;
             }
           else
             {
@@ -323,6 +332,7 @@ void vtkClipVolume::Execute()
             outputLoc = this->ClippedLocations;
             outputTypes = this->ClippedTypes;
             outputCount = &this->NumberOfClippedCells;
+            outputCD = clippedCD;
             }
 
           for (ii=0; ii<ntetra; ii++)
@@ -341,7 +351,7 @@ void vtkClipVolume::Execute()
             outputLoc->InsertNextValue(outputConn->GetTraversalLocation());
             outputConn->GetNextCell(npts,dpts); //updates traversal location
             outputTypes->InsertNextValue( VTK_TETRA );
-            outCD->CopyData(inCD,cellId,newCellId);
+            outputCD->CopyData(inCD,cellId,newCellId);
             }//for each tetra produced by triangulation
           }
         
@@ -350,13 +360,15 @@ void vtkClipVolume::Execute()
           if ( this->Mixed3DCellGeneration ) //use vtkTetra clipping templates
             {
             cell->Triangulate(flip, tetraIds, tetraPts);
-            this->ClipTets(value, clipTetra, clipScalars, cellScalars, tetraIds, tetraPts, 
-                           inPD, outPD, inCD, cellId, outCD, clippedCD, this->InsideOut);
+            this->ClipTets(value, clipTetra, clipScalars, cellScalars, 
+                           tetraIds, tetraPts, inPD, outPD, 
+                           inCD, cellId, outCD, clippedCD, this->InsideOut);
             }
           else //use vtkOrderedTriangulator to produce tetrahedra
             {
             this->ClipVoxel(value, cellScalars, flip, origin, spacing,
-                            cellIds, cellPts, inPD, outPD, inCD, cellId, outCD, clippedCD);
+                            cellIds, cellPts, inPD, outPD, 
+                            inCD, cellId, outCD, clippedCD);
             }
           } // using ordered triangulator
         }// for i
@@ -382,6 +394,7 @@ void vtkClipVolume::Execute()
     this->ClippedTypes->Delete(); 
     this->ClippedLocations->Delete(); 
     this->ClippedConnectivity->Delete();
+    clippedOutput->GetPointData()->PassData(outPD);
     clippedOutput->Squeeze();
     vtkDebugMacro(<<"Created (clipped output): " 
                   << clippedOutput->GetNumberOfCells() << " tetra");
@@ -408,17 +421,19 @@ void vtkClipVolume::Execute()
 }
 
 
-// Method to triangulate and clip voxel using vtkTetra clip method.
+// Method to triangulate and clip voxel using vtkTetra::Clip() method.
 // This produces a mixed mesh of tetrahedra and wedges but it is faster
 // than using the ordered triangulator. It works by using the usual
 // alternating five tetrahedra template per voxel, and then using the
 // vtkTetra::Clip() method to produce the output.
 // 
-void vtkClipVolume::ClipTets(float value, vtkTetra *clipTetra, vtkDataArray *clipScalars,
+void vtkClipVolume::ClipTets(float value, vtkTetra *clipTetra, 
+                             vtkDataArray *clipScalars,
                              vtkDataArray *cellScalars, vtkIdList *tetraIds, 
                              vtkPoints *tetraPts, vtkPointData *inPD, 
-                             vtkPointData *outPD, vtkCellData *inCD, vtkIdType cellId, 
-                             vtkCellData *outCD, vtkCellData *clippedCD, int insideOut)
+                             vtkPointData *outPD, vtkCellData *inCD, 
+                             vtkIdType cellId, vtkCellData *outCD, 
+                             vtkCellData *clippedCD, int insideOut)
 {
   // Tesselate this cell as if it were inside
   vtkIdType ntetra = tetraPts->GetNumberOfPoints() / 4;
@@ -433,53 +448,55 @@ void vtkClipVolume::ClipTets(float value, vtkTetra *clipTetra, vtkDataArray *cli
       {
       clipTetra->PointIds->SetId(j,tetraIds->GetId(id+j));
       clipTetra->Points->SetPoint(j,tetraPts->GetPoint(id+j));
-      cellScalars->SetComponent(j,0,clipScalars->GetComponent(tetraIds->GetId(id+j),0));
+      cellScalars->
+        SetComponent(j,0,clipScalars->GetComponent(tetraIds->GetId(id+j),0));
       }
-    clipTetra->Clip(value, cellScalars, this->Locator, this->Connectivity, inPD,
-                    outPD, inCD, cellId, outCD, insideOut);
+    clipTetra->Clip(value, cellScalars, this->Locator, this->Connectivity, 
+                    inPD, outPD, inCD, cellId, outCD, insideOut);
     numNew = this->Connectivity->GetNumberOfCells() - this->NumberOfCells;
     this->NumberOfCells = this->Connectivity->GetNumberOfCells();
     for (k=0; k<numNew; k++)
       {
-      this->Locations->InsertNextValue(this->Connectivity->GetTraversalLocation());
+      this->Locations->
+        InsertNextValue(this->Connectivity->GetTraversalLocation());
       this->Connectivity->GetNextCell(npts,pts);
-      this->Types->InsertNextValue( (npts==4 ? VTK_TETRA : VTK_WEDGE));
+      this->Types->InsertNextValue((npts==4?VTK_TETRA:VTK_WEDGE));
       }
 
     if ( this->GenerateClippedOutput )
       {
-      clipTetra->Clip(value, cellScalars, this->Locator, this->ClippedConnectivity, inPD,
-                      outPD, inCD, cellId, clippedCD, !insideOut);
-      numNew = this->ClippedConnectivity->GetNumberOfCells() - this->NumberOfClippedCells;
-      this->NumberOfClippedCells = this->ClippedConnectivity->GetNumberOfCells();
+      clipTetra->Clip(value, cellScalars, this->Locator, 
+                      this->ClippedConnectivity, inPD, outPD, 
+                      inCD, cellId, clippedCD, !insideOut);
+      numNew = this->ClippedConnectivity->GetNumberOfCells() - 
+        this->NumberOfClippedCells;
+      this->NumberOfClippedCells = 
+        this->ClippedConnectivity->GetNumberOfCells();
       for (k=0; k<numNew; k++)
         {
-        this->ClippedLocations->InsertNextValue(this->ClippedConnectivity->GetTraversalLocation());
+        this->ClippedLocations->InsertNextValue(
+          this->ClippedConnectivity->GetTraversalLocation() );
         this->ClippedConnectivity->GetNextCell(npts,pts);
-        this->ClippedTypes->InsertNextValue( (npts==4 ? VTK_TETRA : VTK_WEDGE));
+        this->ClippedTypes->InsertNextValue((npts==4?VTK_TETRA:VTK_WEDGE));
         }
       }
     }
 }
 
 // Method to triangulate and clip voxel using ordered Delaunay
-// triangulation. Voxel is initially triangulated with 8 corner points in
-// special order (to control direction of face diagonals). Then edge
-// intersection points are injected into triangulation. Because of convex,
-// regular spacing of voxel points, we don't have to worry about constrained
-// Delaunay problems.
+// triangulation to produce tetrahedra. Voxel is initially triangulated 
+// using 8 voxel corner points inserted in order (to control direction 
+// of face diagonals). Then edge intersection points are injected into the
+// triangulation. The ordering controls the orientation of any face
+// diagonals.
 void vtkClipVolume::ClipVoxel(float value, vtkDataArray *cellScalars, 
                               int flip, float vtkNotUsed(origin)[3],
                               float spacing[3], vtkIdList *cellIds, 
                               vtkPoints *cellPts, vtkPointData *inPD, 
-                              vtkPointData *outPD, vtkCellData *inCD,
-                              vtkIdType cellId, vtkCellData *outCD,
+                              vtkPointData *outPD, vtkCellData *inCD, 
+                              vtkIdType cellId, vtkCellData *outCD, 
                               vtkCellData *clippedCD)
 {
-  (void)inCD;
-  (void)cellId;
-  (void)outCD;
-  (void)clippedCD;
   float x[3], *xPtr, s1, s2, t, voxelOrigin[3];
   float bounds[6], p1[3], p2[3];
   int i, k, edgeNum, numPts, numNew;
@@ -519,7 +536,8 @@ void vtkClipVolume::ClipVoxel(float value, vtkDataArray *cellScalars,
       }
     else
       {
-      type = 4; //no insert, but its type might change later
+      //type 1 is "outside"; type 4 is don't insert
+      type = (this->GenerateClippedOutput ? 1 : 4); 
       }
 
     xPtr = cellPts->GetPoint(ptId);
@@ -581,26 +599,32 @@ void vtkClipVolume::ClipVoxel(float value, vtkDataArray *cellScalars,
   this->Triangulator->Triangulate();
 
   // Add the triangulation to the mesh
+  vtkIdType newCellId;
   this->Triangulator->AddTetras(0,this->Connectivity);
   numNew = this->Connectivity->GetNumberOfCells() - this->NumberOfCells;
   this->NumberOfCells = this->Connectivity->GetNumberOfCells();
   for (k=0; k<numNew; k++)
     {
-    this->Locations->InsertNextValue(this->Connectivity->GetTraversalLocation());
+    newCellId = this->Locations->
+      InsertNextValue(this->Connectivity->GetTraversalLocation());
     this->Connectivity->GetNextCell(npts,pts); //updates traversal location
     this->Types->InsertNextValue(VTK_TETRA);
+    outCD->CopyData(inCD,cellId,newCellId);
     }
 
   if ( this->GenerateClippedOutput )
     {
     this->Triangulator->AddTetras(1,this->ClippedConnectivity);
-    numNew = this->ClippedConnectivity->GetNumberOfCells() - this->NumberOfClippedCells;
+    numNew = this->ClippedConnectivity->GetNumberOfCells() - 
+      this->NumberOfClippedCells;
     this->NumberOfClippedCells = this->ClippedConnectivity->GetNumberOfCells();
     for (k=0; k<numNew; k++)
       {
-      this->ClippedLocations->InsertNextValue(this->ClippedConnectivity->GetTraversalLocation());
+      newCellId = this->ClippedLocations->
+        InsertNextValue(this->ClippedConnectivity->GetTraversalLocation());
       this->ClippedConnectivity->GetNextCell(npts,pts);
       this->ClippedTypes->InsertNextValue(VTK_TETRA);
+      clippedCD->CopyData(inCD,cellId,newCellId);
       }
     }
 }
@@ -667,5 +691,6 @@ void vtkClipVolume::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Generate Clipped Output: " 
      << (this->GenerateClippedOutput ? "On\n" : "Off\n");
 
-  os << indent << "Mixed 3D Cell Type: " << (this->Mixed3DCellGeneration ? "On\n" : "Off\n");
+  os << indent << "Mixed 3D Cell Type: " 
+     << (this->Mixed3DCellGeneration ? "On\n" : "Off\n");
 }
