@@ -1,3 +1,5 @@
+catch {load vtktcl}
+#
 source ../../examplesTcl/vtkInt.tcl
 source ../../examplesTcl/colors.tcl
 source permutes.tcl
@@ -8,12 +10,12 @@ vtkRenderer ren1
 vtkRenderer ren2
 vtkRenderer ren3
 vtkRenderWindow renWin
-    renWin AddRenderer ren1
-    renWin AddRenderer ren2
-    renWin AddRenderer ren3
+  renWin AddRenderer ren1
+  renWin AddRenderer ren2
+  renWin AddRenderer ren3
 
 vtkRenderWindowInteractor iren
-    iren SetRenderWindow renWin
+  iren SetRenderWindow renWin
 
 set sliceNumber 40
 set ROWS 470
@@ -35,10 +37,10 @@ set originY [expr ( $ROWS / 2.0 ) * $PIXEL_SIZE * -1.0]
 set SLICE_ORDER si
 
 vtkPNMReader greyReader
-    eval greyReader SetFilePrefix $GREYSTUDY
-    eval greyReader SetDataSpacing $PIXEL_SIZE $PIXEL_SIZE $SPACING
-    eval greyReader SetImageRange $sliceNumber $sliceNumber
-    greyReader DebugOn
+  eval greyReader SetFilePrefix $GREYSTUDY
+  eval greyReader SetDataSpacing $PIXEL_SIZE $PIXEL_SIZE $SPACING
+  eval greyReader SetImageRange $sliceNumber $sliceNumber
+  greyReader DebugOn
 
 vtkImageConstantPad greyPadder
   greyPadder SetInput [greyReader GetOutput]
@@ -56,14 +58,14 @@ vtkPolyDataNormals greyNormals
   greyNormals FlipNormalsOff
 
 vtkWindowLevelLookupTable wllut
-    wllut SetWindow 255
-    wllut SetLevel 128
-    wllut SetTableRange 0 255
-    wllut Build
+  wllut SetWindow 255
+  wllut SetLevel 128
+  wllut SetTableRange 0 255
+  wllut Build
 
 vtkPolyDataMapper greyMapper
-    greyMapper SetInput [greyPlane GetOutput]
-    greyMapper ImmediateModeRenderingOn
+  greyMapper SetInput [greyPlane GetOutput]
+  greyMapper ImmediateModeRenderingOn
 
 vtkTexture greyTexture
   greyTexture SetInput [greyPadder GetOutput]
@@ -76,10 +78,10 @@ vtkActor greyActor
   greyActor SetTexture greyTexture
 
 vtkPNMReader segmentReader
-    eval segmentReader SetFilePrefix $SEGMENTSTUDY
-    eval segmentReader SetDataSpacing $PIXEL_SIZE $PIXEL_SIZE $SPACING
-    eval segmentReader SetImageRange $sliceNumber $sliceNumber
-    segmentReader DebugOn
+  eval segmentReader SetFilePrefix $SEGMENTSTUDY
+  eval segmentReader SetDataSpacing $PIXEL_SIZE $PIXEL_SIZE $SPACING
+  eval segmentReader SetImageRange $sliceNumber $sliceNumber
+  segmentReader DebugOn
 
 vtkImageConstantPad segmentPadder
   segmentPadder SetInput [segmentReader GetOutput]
