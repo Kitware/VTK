@@ -6,6 +6,8 @@ for {set i  0} {$i < [expr $argc - 1]} {incr i} {
 
 package require vtktcl
 
+vtkDebugLeaks rtDebugLeaks
+rtDebugLeaks PromptUserOff
 
 proc rtOtherTest { fileid } {
 #actual test
