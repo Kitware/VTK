@@ -120,6 +120,7 @@ vtkImageQuantizeRGBToIndex \
 vtkImager \
 vtkImagerCollection \
 vtkImageReader \
+vtkImageReader2 \
 vtkImageResample \
 vtkImageRFFT \
 vtkImageRGBToHSV \
