@@ -53,12 +53,20 @@ void vtkTriangleFilter::Execute()
   vtkCellData *inCD=input->GetCellData();
   vtkCellData *outCD=output->GetCellData();
   vtkCell *cell;
+  int updateInterval;
+  int numPoints=input->GetNumberOfPoints();
 
-  output->Allocate(3*numCells, numCells);
+  
+  output->Allocate(numPoints, numPoints);
 
+  updateInterval = numCells/100.0;
+  if (updateInterval < 1)
+    {
+    updateInterval = 1;
+    }
   for (cellNum=0; cellNum < numCells; cellNum++)
     {
-    if ( ! (cellNum % 5000) ) //manage progress reports / early abort
+    if ( ! (cellNum % updateInterval) ) //manage progress reports / early abort
       {
       this->UpdateProgress ((float)cellNum / numCells);
       if ( this->GetAbortExecute() ) 
