@@ -330,7 +330,7 @@ static unsigned long long _const6   = 0x00000000000000FFLL;
 static png_uint_32  _FullLength;
 static png_uint_32  _MMXLength;
 static int          _dif;
-static int          _patemp;	// temp variables for Paeth routine
+static int          _patemp;    // temp variables for Paeth routine
 static int          _pbtemp;
 static int          _pctemp;
 
@@ -374,9 +374,9 @@ static int _mmx_supported = 2;
 #if defined(PNG_HAVE_ASSEMBLER_COMBINE_ROW)
 
 #define BPP2  2
-#define BPP3  3		/* bytes per pixel (a.k.a. pixel_bytes) */
+#define BPP3  3         /* bytes per pixel (a.k.a. pixel_bytes) */
 #define BPP4  4
-#define BPP6  6		/* (defined only to help avoid cut-and-paste errors) */
+#define BPP6  6         /* (defined only to help avoid cut-and-paste errors) */
 #define BPP8  8
 
 /* Combines the row recently read in with the previous row.
@@ -1719,7 +1719,7 @@ png_do_read_interlace(png_structp png_ptr)
                         : "1" (sptr),      // esi      // input regs
                           "2" (dp),        // edi
                           "0" (width)      // ecx
-// doesn't work           "i" (0x0000000000FFFFFFLL)   // %1 (a.k.a. _const4)
+// does not work           "i" (0x0000000000FFFFFFLL)   // %1 (a.k.a. _const4)
 
 #if 0  /* %mm0, ..., %mm4 not supported by gcc 2.7.2.3 or egcs 1.1 */
                         : "%mm0", "%mm1", "%mm2"       // clobber list
@@ -2840,7 +2840,7 @@ png_read_filter_row_mmx_avg(png_row_infop row_info, png_bytep row,
             // add 1st active group (Raw(x-bpp)/2) to average with LBCarry
             "movq %%mm3, %%mm1            \n\t" // now use mm1 for getting LBCarrys
             "pand %%mm2, %%mm1            \n\t" // get LBCarrys for each byte where both
-                               // lsb's were == 1 (only valid for active group)
+                               // lsbs were == 1 (only valid for active group)
             "psrlq $1, %%mm2              \n\t" // divide raw bytes by 2
             "pand  %%mm4, %%mm2           \n\t" // clear invalid bit 7 of each byte
             "paddb %%mm1, %%mm2           \n\t" // add LBCarrys to (Raw(x-bpp)/2) for each byte
@@ -2853,7 +2853,7 @@ png_read_filter_row_mmx_avg(png_row_infop row_info, png_bytep row,
             "psllq _ShiftBpp, %%mm2       \n\t" // shift data to pos. correctly
             "movq %%mm3, %%mm1            \n\t" // now use mm1 for getting LBCarrys
             "pand %%mm2, %%mm1            \n\t" // get LBCarrys for each byte where both
-                               // lsb's were == 1 (only valid for active group)
+                               // lsbs were == 1 (only valid for active group)
             "psrlq $1, %%mm2              \n\t" // divide raw bytes by 2
             "pand  %%mm4, %%mm2           \n\t" // clear invalid bit 7 of each byte
             "paddb %%mm1, %%mm2           \n\t" // add LBCarrys to (Raw(x-bpp)/2) for each byte
@@ -2870,7 +2870,7 @@ png_read_filter_row_mmx_avg(png_row_infop row_info, png_bytep row,
                               // get the correct x-bpp offset.
             "movq %%mm3, %%mm1            \n\t" // now use mm1 for getting LBCarrys
             "pand %%mm2, %%mm1            \n\t" // get LBCarrys for each byte where both
-                              // lsb's were == 1 (only valid for active group)
+                              // lsbs were == 1 (only valid for active group)
             "psrlq $1, %%mm2              \n\t" // divide raw bytes by 2
             "pand  %%mm4, %%mm2           \n\t" // clear invalid bit 7 of each byte
             "paddb %%mm1, %%mm2           \n\t" // add LBCarrys to (Raw(x-bpp)/2) for each byte
@@ -2902,7 +2902,7 @@ png_read_filter_row_mmx_avg(png_row_infop row_info, png_bytep row,
 
       case 6:
       case 4:
-      //case 7:   // who wrote this?  PNG doesn't support 5 or 7 bytes/pixel
+      //case 7:   // who wrote this?  PNG does not support 5 or 7 bytes/pixel
       //case 5:   // GRR BOGUS
       {
          _ActiveMask.use  = 0xffffffffffffffffLL; // use shift below to clear
@@ -2941,7 +2941,7 @@ png_read_filter_row_mmx_avg(png_row_infop row_info, png_bytep row,
             // add 1st active group (Raw(x-bpp)/2) to average with _LBCarry
             "movq %%mm3, %%mm1           \n\t" // now use mm1 for getting LBCarrys
             "pand %%mm2, %%mm1           \n\t" // get LBCarrys for each byte where both
-                              // lsb's were == 1 (only valid for active group)
+                              // lsbs were == 1 (only valid for active group)
             "psrlq $1, %%mm2             \n\t" // divide raw bytes by 2
             "pand  %%mm4, %%mm2          \n\t" // clear invalid bit 7 of each byte
             "paddb %%mm1, %%mm2          \n\t" // add LBCarrys to (Raw(x-bpp)/2) for each byte
@@ -2954,7 +2954,7 @@ png_read_filter_row_mmx_avg(png_row_infop row_info, png_bytep row,
             "addl $8, %%ecx              \n\t"
             "movq %%mm3, %%mm1           \n\t" // now use mm1 for getting LBCarrys
             "pand %%mm2, %%mm1           \n\t" // get LBCarrys for each byte where both
-                              // lsb's were == 1 (only valid for active group)
+                              // lsbs were == 1 (only valid for active group)
             "psrlq $1, %%mm2             \n\t" // divide raw bytes by 2
             "pand  %%mm4, %%mm2          \n\t" // clear invalid bit 7 of each byte
             "paddb %%mm1, %%mm2          \n\t" // add LBCarrys to (Raw(x-bpp)/2) for each byte
@@ -3017,7 +3017,7 @@ png_read_filter_row_mmx_avg(png_row_infop row_info, png_bytep row,
             // add 1st active group (Raw(x-bpp)/2) to average with _LBCarry
             "movq %%mm3, %%mm1           \n\t" // now use mm1 for getting LBCarrys
             "pand %%mm2, %%mm1           \n\t" // get LBCarrys for each byte where both
-                                               // lsb's were == 1 (only valid for active group)
+                                               // lsbs were == 1 (only valid for active group)
             "psrlq $1, %%mm2             \n\t" // divide raw bytes by 2
             "pand  %%mm4, %%mm2          \n\t" // clear invalid bit 7 of each byte
             "paddb %%mm1, %%mm2          \n\t" // add LBCarrys to (Raw(x-bpp)/2) for each byte
@@ -3030,7 +3030,7 @@ png_read_filter_row_mmx_avg(png_row_infop row_info, png_bytep row,
             "psllq _ShiftBpp, %%mm2      \n\t" // shift data to pos. correctly
             "movq %%mm3, %%mm1           \n\t" // now use mm1 for getting LBCarrys
             "pand %%mm2, %%mm1           \n\t" // get LBCarrys for each byte where both
-                                               // lsb's were == 1 (only valid for active group)
+                                               // lsbs were == 1 (only valid for active group)
             "psrlq $1, %%mm2             \n\t" // divide raw bytes by 2
             "pand  %%mm4, %%mm2          \n\t" // clear invalid bit 7 of each byte
             "paddb %%mm1, %%mm2          \n\t" // add LBCarrys to (Raw(x-bpp)/2) for each byte
@@ -3043,7 +3043,7 @@ png_read_filter_row_mmx_avg(png_row_infop row_info, png_bytep row,
             "psllq _ShiftBpp, %%mm2      \n\t" // shift data to pos. correctly
             "movq %%mm3, %%mm1           \n\t" // now use mm1 for getting LBCarrys
             "pand %%mm2, %%mm1           \n\t" // get LBCarrys for each byte where both
-                                               // lsb's were == 1 (only valid for active group)
+                                               // lsbs were == 1 (only valid for active group)
             "psrlq $1, %%mm2             \n\t" // divide raw bytes by 2
             "pand  %%mm4, %%mm2          \n\t" // clear invalid bit 7 of each byte
             "paddb %%mm1, %%mm2          \n\t" // add LBCarrys to (Raw(x-bpp)/2) for each byte
@@ -3057,7 +3057,7 @@ png_read_filter_row_mmx_avg(png_row_infop row_info, png_bytep row,
             "addl $8, %%ecx              \n\t"
             "movq %%mm3, %%mm1           \n\t" // now use mm1 for getting LBCarrys
             "pand %%mm2, %%mm1           \n\t" // get LBCarrys for each byte where both
-                                               // lsb's were == 1 (only valid for active group)
+                                               // lsbs were == 1 (only valid for active group)
             "psrlq $1, %%mm2             \n\t" // divide raw bytes by 2
             "pand  %%mm4, %%mm2          \n\t" // clear invalid bit 7 of each byte
             "paddb %%mm1, %%mm2          \n\t" // add LBCarrys to (Raw(x-bpp)/2) for each byte
@@ -3161,7 +3161,7 @@ png_read_filter_row_mmx_avg(png_row_infop row_info, png_bytep row,
             "pand %%mm1, %%mm3           \n\t" // get lsb for each prev_row byte
             "psrlq $1, %%mm1             \n\t" // divide prev_row bytes by 2
             "pand %%mm2, %%mm3           \n\t" // get LBCarrys for each byte
-                                               //  where both lsb's were == 1
+                                               //  where both lsbs were == 1
             "psrlq $1, %%mm2             \n\t" // divide raw bytes by 2
             "pand  %%mm4, %%mm1          \n\t" // clear invalid bit 7, each byte
             "paddb %%mm3, %%mm0          \n\t" // add LBCarrys to Avg, each byte
@@ -3213,7 +3213,7 @@ png_read_filter_row_mmx_avg(png_row_infop row_info, png_bytep row,
             "movq (%%edx,%%ebx,), %%mm2  \n\t"
             "psrlq $1, %%mm1             \n\t" // divide prev_row bytes by 2
             "pand %%mm2, %%mm3           \n\t" // get LBCarrys for each byte where both
-                                // lsb's were == 1
+                                // lsbs were == 1
             "psrlq $1, %%mm2             \n\t" // divide raw bytes by 2
             "pand  %%mm4, %%mm1          \n\t" // clear invalid bit 7 of each byte
             "paddb %%mm3, %%mm0          \n\t" // add LBCarrys to Avg for each byte
@@ -4691,7 +4691,7 @@ png_read_filter_row_mmx_sub(png_row_infop row_info, png_bytep row)
       }
       break;
 
-      default:                // bpp greater than 8 bytes	GRR BOGUS
+      default:                // bpp greater than 8 bytes       GRR BOGUS
       {
          __asm__ __volatile__ (
             "movl _dif, %%edx             \n\t"
