@@ -106,7 +106,7 @@ void vtkTexturedSphereSource::Execute()
       x[0] /= norm; x[1] /= norm; x[2] /= norm; 
       newNormals->InsertNextNormal(x);
 
-      tc[1] = phi/3.1415926;
+      tc[1] = 1.0 - phi/3.1415926;
       newTCoords->InsertNextTCoord(tc);
       }
     }
