@@ -268,7 +268,7 @@ AC_ARG_WITH(graphics,
 	 if test "$withval" = yes; then
          graphicsdir=graphics
          USE_GRAPHICS_LIBS="-L\${VTK_OBJ}/graphics -lVTKGraphicsTcl -lVTKGraphics "
-         USE_GRAPHICS_PYTHON="-L\${VTK_OBJ}/graphics -lVTKGraphicsPython "
+         USE_GRAPHICS_PYTHON="-L\${VTK_OBJ}/graphics -lVTKGraphicsPython -lVTKGraphics"
          USE_GRAPHICS_JAVA="-L\${VTK_OBJ}/graphics -lVTKGraphicsJava -lVTKGraphics "
          USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\${srcdir}/../graphics -DVTK_USE_GRAPHICS"
          INSTALL_TOOLKITS="${INSTALL_TOOLKITS} install_graphics"
@@ -280,7 +280,7 @@ AC_ARG_WITH(graphics,
          ,
          graphicsdir=graphics
          USE_GRAPHICS_LIBS="-L\${VTK_OBJ}/graphics -lVTKGraphicsTcl -lVTKGraphics"
-         USE_GRAPHICS_PYTHON="-L\${VTK_OBJ}/graphics -lVTKGraphicsPython "
+         USE_GRAPHICS_PYTHON="-L\${VTK_OBJ}/graphics -lVTKGraphicsPython -lVTKGraphics"
          USE_GRAPHICS_JAVA="-L\${VTK_OBJ}/graphics -lVTKGraphicsJava -lVTKGraphics"
          USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\${srcdir}/../graphics -DVTK_USE_GRAPHICS"
          INSTALL_TOOLKITS="${INSTALL_TOOLKITS} install_graphics"
@@ -294,7 +294,7 @@ AC_ARG_WITH(imaging,
 	 if test "$withval" = yes; then
          imagingdir=imaging
          USE_IMAGING_LIBS="-L\${VTK_OBJ}/imaging -lVTKImagingTcl -lVTKImaging"
-         USE_IMAGING_PYTHON="-L\${VTK_OBJ}/imaging -lVTKImagingPython"
+         USE_IMAGING_PYTHON="-L\${VTK_OBJ}/imaging -lVTKImagingPython -lVTKImaging"
          USE_IMAGING_JAVA="-L\${VTK_OBJ}/imaging -lVTKImagingJava -lVTKImaging"
          USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\${srcdir}/../imaging -DVTK_USE_IMAGING"
          INSTALL_TOOLKITS="${INSTALL_TOOLKITS} install_imaging"
@@ -305,7 +305,7 @@ AC_ARG_WITH(imaging,
          fi,
          imagingdir=imaging
          USE_IMAGING_LIBS="-L\${VTK_OBJ}/imaging -lVTKImagingTcl -lVTKImaging"
-         USE_IMAGING_PYTHON="-L\${VTK_OBJ}/imaging -lVTKImagingPython"
+         USE_IMAGING_PYTHON="-L\${VTK_OBJ}/imaging -lVTKImagingPython -lVTKImaging"
          USE_IMAGING_JAVA="-L\${VTK_OBJ}/imaging -lVTKImagingJava -lVTKImaging"
          USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\${srcdir}/../imaging -DVTK_USE_IMAGING"
          INSTALL_TOOLKITS="${INSTALL_TOOLKITS} install_imaging"
@@ -322,7 +322,7 @@ AC_ARG_WITH(patented,
 	 if test "$withval" = yes; then
          patenteddir=patented
          USE_PATENTED_LIBS="-L\${VTK_OBJ}/patented -lVTKPatentedTcl -lVTKPatented"
-         USE_PATENTED_PYTHON="-L\${VTK_OBJ}/patented -lVTKPatentedPython"
+         USE_PATENTED_PYTHON="-L\${VTK_OBJ}/patented -lVTKPatentedPython -lVTKPatented"
          USE_PATENTED_JAVA="-L\${VTK_OBJ}/patented -lVTKPatentedJava -lVTKPatented"
          USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\${srcdir}/../patented -DVTK_USE_PATENTED"
          INSTALL_TOOLKITS="${INSTALL_TOOLKITS} install_patented"
@@ -337,7 +337,7 @@ AC_ARG_WITH(contrib,
 	 if test "$withval" = yes; then
          contribdir=contrib
          USE_CONTRIB_LIBS="-L\${VTK_OBJ}/contrib -lVTKContribTcl -lVTKContrib "
-         USE_CONTRIB_PYTHON="-L\${VTK_OBJ}/contrib -lVTKContribPython "
+         USE_CONTRIB_PYTHON="-L\${VTK_OBJ}/contrib -lVTKContribPython -lVTKContrib"
          USE_CONTRIB_JAVA="-L\${VTK_OBJ}/contrib -lVTKContribJava -lVTKContrib "
          USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\${srcdir}/../contrib -DVTK_USE_CONTRIB"
          INSTALL_TOOLKITS="${INSTALL_TOOLKITS} install_contrib"
@@ -352,7 +352,7 @@ AC_ARG_WITH(local,
 	 if test "$withval" = yes; then
          localdir=local
          USE_LOCAL_LIBS="-L\${VTK_OBJ}/local -lVTKLocalTcl -lVTKLocal "
-         USE_LOCAL_PYTHON="-L\${VTK_OBJ}/local -lVTKLocalPython "
+         USE_LOCAL_PYTHON="-L\${VTK_OBJ}/local -lVTKLocalPython -lVTKLocal"
          USE_LOCAL_JAVA="-L\${VTK_OBJ}/local -lVTKLocalJava -lVTKLocal "
          USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\${srcdir}/../local -DVTK_USE_LOCAL"
          INSTALL_TOOLKITS="${INSTALL_TOOLKITS} install_local"

@@ -31,7 +31,7 @@ LDLIBS =  \
 	${USE_PATENTED_PYTHON}	\
 	${USE_IMAGING_PYTHON}	\
 	${USE_GRAPHICS_PYTHON}	\
-        -L../common -lVTKCommonPython \
+        -L../common -lVTKCommonPython -lVTKCommon \
 	${XLIBS} ${GRAPHICS_API_LIBS} \
 	${DL_LIBS} \
 	${THREAD_LIBS}

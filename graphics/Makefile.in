@@ -385,7 +385,7 @@ KIT_TCL_OBJ = vtkXRenderWindowTclInteractor.o ${TCL_OBJ}
 KIT_NEWS = ${TCL_NEWS} 
 
 KIT_FLAGS = 
-PYTHON_LIBS = -L../common -lVTKCommonPython ${XLIBS} ${GRAPHICS_API_LIBS}
+PYTHON_LIBS = -lVTK${ME} -L../common -lVTKCommonPython ${XLIBS} ${GRAPHICS_API_LIBS}
 
 
 #------------------------------------------------------------------------------

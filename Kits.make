@@ -88,20 +88,24 @@ libVTK$(ME)Java$(SHLIB_SUFFIX): ${JAVA_O_ADD} ${JAVA_WRAP}
 #------------------------------------------------------------------------------
 # rules for the python library
 #
-build_python: ${PYTHON_O_ADD} ${PYTHON_WRAP} libVTK${ME}Python${SHLIB_SUFFIX} 
+build_python: ${PYTHON_O_ADD} ${PYTHON_WRAP} ${PYTHON_LIB_FILE} 
 
 python/${ME}Init.cxx: ../wrap/vtkWrapPythonInit ${KIT_NEWS} Makefile
 	../wrap/vtkWrapPythonInit libVTK${ME}Python ${KIT_NEWS} > python/${ME}Init.cxx
 
-libVTK$(ME)Python$(SHLIB_SUFFIX): python/${ME}Init.o ${KIT_OBJ} \
+libVTK${ME}Python.a: python/${ME}Init.o ${PYTHON_O_ADD} ${PYTHON_WRAP} 
+	${AR} cr libVTK${ME}Python.a python/${ME}Init.o \
+	${PYTHON_O_ADD} ${PYTHON_WRAP} 
+	${RANLIB} libVTK$(ME)Python.a
+
+libVTK$(ME)Python$(SHLIB_SUFFIX): python/${ME}Init.o \
 	${PYTHON_O_ADD} ${PYTHON_WRAP}
 	rm -f libVTK$(ME)Python$(SHLIB_SUFFIX)
 	$(CXX) ${CXX_FLAGS} ${VTK_SHLIB_BUILD_FLAGS} \
 	-o libVTK$(ME)Python$(SHLIB_SUFFIX) python/${ME}Init.o \
-	  ${KIT_OBJ} ${PYTHON_O_ADD} ${PYTHON_WRAP} \
-	-L. ${XLDFLAGS} ${PYTHON_LIBS} \
-	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} ${DL_LIBS} \
-	${THREAD_LIBS}
+	${PYTHON_O_ADD} ${PYTHON_WRAP} 	-L. ${XLDFLAGS} \
+	${PYTHON_LIBS} 	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 \
+	${X_EXTRA_LIBS} ${DL_LIBS} ${THREAD_LIBS}
 
 
 #------------------------------------------------------------------------------
@@ -119,8 +123,8 @@ clean_python:
 
 #------------------------------------------------------------------------------
 install_python: install build_python
-	@echo "Installing libVTK${ME}Python${SHLIB_SUFFIX}"
-	${INSTALL} -m 755 libVTK${ME}Python${SHLIB_SUFFIX} $(LIB_INSTALL_DIR)/libVTK${ME}Python${SHLIB_SUFFIX}
+	@echo "Installing ${PYTHON_LIB_FILE}"
+	${INSTALL} -m 755 ${PYTHON_LIB_FILE} $(LIB_INSTALL_DIR)/${PYTHON_LIB_FILE}
 
 install_java: install build_java
 	@echo "Installing libVTK${ME}Java${SHLIB_SUFFIX}"

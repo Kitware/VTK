@@ -183,8 +183,9 @@ vtkWin32PolyDataMapper2D
 
 VTK_LIB_FILE  = libVTK${ME}${VTK_LIB_EXT}
 TCL_LIB_FILE  = libVTK${ME}Tcl${VTK_LIB_EXT}
+PYTHON_LIB_FILE  = libVTK${ME}Python${VTK_LIB_EXT}
 
-# add in any extra libraies here
+# add in any extra libraries here
 KIT_LIBS = @TKWIDGET@ 
 
 # standard stuff here
@@ -192,7 +193,7 @@ KIT_OBJ = ${SRC_OBJ}
 KIT_TCL_OBJ = ${TCL_OBJ}
 KIT_NEWS = ${TCL_NEWS}
 
-PYTHON_LIBS = -L../common -lVTKCommonPython ${XLIBS} ${GRAPHICS_API_LIBS}
+PYTHON_LIBS = -lVTK${ME} -L../common -lVTKCommonPython ${XLIBS} ${GRAPHICS_API_LIBS}
 
 
 #------------------------------------------------------------------------------

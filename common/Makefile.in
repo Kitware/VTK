@@ -189,9 +189,11 @@ KIT_OBJ = ${SRC_OBJ}
 KIT_TCL_OBJ = ${TCL_OBJ}
 KIT_NEWS = ${TCL_NEWS}
 
+PYTHON_LIBS = -lVTK${ME}
 
 VTK_LIB_FILE  = libVTK${ME}${VTK_LIB_EXT}
 TCL_LIB_FILE  = libVTK${ME}Tcl${VTK_LIB_EXT}
+PYTHON_LIB_FILE = libVTK${ME}Python${VTK_LIB_EXT}
 
 #------------------------------------------------------------------------------
 # Include the generic stuff here
