@@ -9,7 +9,7 @@ vtkRenderWindow renWin
 vtkRenderWindowInteractor iren
     iren SetRenderWindow renWin
 
-vtkEnSightCompoundReader reader
+vtkEnSightMasterServerReader reader
     reader SetCaseFileName $VTK_DATA_ROOT/Data/EnSight/elements.sos
     reader SetCurrentPiece 0
     reader Update
