@@ -36,6 +36,47 @@ CPcmakerApp::CPcmakerApp()
 
 CPcmakerApp theApp;
 
+
+// here is a simple helper function to help parse command line args
+char *GetNextArg(char *in)
+{
+  static int pos = 0;
+  static char result[1024];
+  int len = strlen(in);
+  int pos2;
+
+  // skip any white space
+  while ((pos <= len)&&(in[pos] == ' ')) pos++;
+
+  if (pos > len) return NULL;
+
+  // if we are at a quote then return quoted string
+  if (in[pos] == '"')
+    {
+    pos++;
+    pos2 = 0;
+    while ((pos <= len)&&(in[pos] != '"'))
+      {
+      result[pos2] = in[pos];
+      pos++;
+      pos2++;
+      }
+    }
+  else
+    {
+    pos2 = 0;
+    while ((pos <= len)&&(in[pos] != ' '))
+      {
+      result[pos2] = in[pos];
+      pos++;
+      pos2++;
+      }
+    }
+
+  result[pos2] = '\0';
+  return result;
+}
+
 /////////////////////////////////////////////////////////////////////////////
 // CPcmakerApp initialization
 
@@ -57,81 +98,80 @@ BOOL CPcmakerApp::InitInstance()
 
   if (m_lpCmdLine[0] != '\0')
     {
-    char temps[256];
+    char *temps;
     int tempi;
-    int count = 0;
 
-    if (sscanf(strtok(m_lpCmdLine," "),"%s",temps) == 1)
+    if (temps = GetNextArg(m_lpCmdLine))
       dlg.m_WhereVTK = strdup(temps);
     else
       AfxMessageBox("Incorrect command line arguments!");
 
-    if (sscanf(strtok(NULL," "),"%s",temps) == 1)
+    if (temps = GetNextArg(m_lpCmdLine))
       dlg.m_WhereBuild = strdup(temps);
     else
       AfxMessageBox("Incorrect command line arguments!");
     
-    if (sscanf(strtok(NULL," "),"%s",temps) == 1)
+    if (temps = GetNextArg(m_lpCmdLine))
       dlg.m_WhereCompiler = strdup(temps);
     else
       AfxMessageBox("Incorrect command line arguments!");
     
-    if (sscanf(strtok(NULL," "),"%s",temps) == 1)
+    if (temps = GetNextArg(m_lpCmdLine))
       dlg.m_WhereJDK = strdup(temps);
     else
       AfxMessageBox("Incorrect command line arguments!");
 
-    if (sscanf(strtok(NULL," "),"%i",&tempi) == 1)
+    if (sscanf(GetNextArg(m_lpCmdLine),"%i",&tempi) == 1)
       dlg.m_MSComp = tempi;
     else
       AfxMessageBox("Incorrect command line arguments!");
 
-    if (sscanf(strtok(NULL," "),"%i",&tempi) == 1)
+    if (sscanf(GetNextArg(m_lpCmdLine),"%i",&tempi) == 1)
       dlg.m_BorlandComp = tempi;
     else
       AfxMessageBox("Incorrect command line arguments!");
 
-    if (sscanf(strtok(NULL," "),"%i",&tempi) == 1)
+    if (sscanf(GetNextArg(m_lpCmdLine),"%i",&tempi) == 1)
       dlg.m_Debug = tempi;
     else
       AfxMessageBox("Incorrect command line arguments!");
 
-    if (sscanf(strtok(NULL," "),"%i",&tempi) == 1)
+    if (sscanf(GetNextArg(m_lpCmdLine),"%i",&tempi) == 1)
       dlg.m_Patented = tempi;
     else
       AfxMessageBox("Incorrect command line arguments!");
 
-    if (sscanf(strtok(NULL," "),"%i",&tempi) == 1)
+    if (sscanf(GetNextArg(m_lpCmdLine),"%i",&tempi) == 1)
       dlg.m_Lean = tempi;
     else
       AfxMessageBox("Incorrect command line arguments!");
 
-    if (sscanf(strtok(NULL," "),"%i",&tempi) == 1)
+    if (sscanf(GetNextArg(m_lpCmdLine),"%i",&tempi) == 1)
       dlg.m_Graphics = tempi;
     else
       AfxMessageBox("Incorrect command line arguments!");
 
-    if (sscanf(strtok(NULL," "),"%i",&tempi) == 1)
+    if (sscanf(GetNextArg(m_lpCmdLine),"%i",&tempi) == 1)
       dlg.m_Imaging = tempi;
     else
       AfxMessageBox("Incorrect command line arguments!");
 
-    if (sscanf(strtok(NULL," "),"%i",&tempi) == 1)
+    if (sscanf(GetNextArg(m_lpCmdLine),"%i",&tempi) == 1)
       dlg.m_Contrib = tempi;
     else
       AfxMessageBox("Incorrect command line arguments!");
 
-    if (sscanf(strtok(NULL," "),"%i",&tempi) == 1)
+    if (sscanf(GetNextArg(m_lpCmdLine),"%i",&tempi) == 1)
       dlg.m_GEMSIO = tempi;
     else
       AfxMessageBox("Incorrect command line arguments!");
 
-    if (sscanf(strtok(NULL," "),"%i",&tempi) == 1)
+    if (sscanf(GetNextArg(m_lpCmdLine),"%i",&tempi) == 1)
       dlg.m_GEMSIP = tempi;
     else
       AfxMessageBox("Incorrect command line arguments!");
 
-    if (sscanf(strtok(NULL," "),"%i",&tempi) == 1)
+    if (sscanf(GetNextArg(m_lpCmdLine),"%i",&tempi) == 1)
       dlg.m_GEMSVOLUME = tempi;
     else
       AfxMessageBox("Incorrect command line arguments!");
