@@ -304,8 +304,7 @@ protected:
 
   void GetAutoCroppedOutputBounds(vtkImageData *input, float bounds[6]);
   void ExecuteInformation(vtkImageData *input, vtkImageData *output);
-  void ExecuteInformation() {
-    this->vtkImageToImageFilter::ExecuteInformation(); };
+  void ExecuteInformation();
   void ComputeInputUpdateExtents(vtkDataObject *output);
   void ComputeInputUpdateExtent(int inExt[6], int outExt[6]);
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData, 

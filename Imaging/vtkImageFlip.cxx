@@ -19,7 +19,7 @@
 #include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageFlip, "1.32");
+vtkCxxRevisionMacro(vtkImageFlip, "1.33");
 vtkStandardNewMacro(vtkImageFlip);
 
 //----------------------------------------------------------------------------
@@ -92,14 +92,6 @@ void vtkImageFlip::ExecuteInformation(vtkImageData *input,
   output->SetOrigin(origin);
   output->SetScalarType(input->GetScalarType());
   output->SetNumberOfScalarComponents(input->GetNumberOfScalarComponents());
-
-  // update information related to clipping the data
-  vtkImageStencilData *stencil = this->GetStencil();
-  if (stencil)
-    {
-    stencil->SetSpacing(spacing);
-    stencil->SetOrigin(origin);
-    }
 }
 
 //----------------------------------------------------------------------------

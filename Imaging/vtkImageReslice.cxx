@@ -24,7 +24,7 @@
 #include <float.h>
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageReslice, "1.24");
+vtkCxxRevisionMacro(vtkImageReslice, "1.25");
 vtkStandardNewMacro(vtkImageReslice);
 
 //----------------------------------------------------------------------------
@@ -293,7 +293,7 @@ unsigned long int vtkImageReslice::GetMTime()
 //----------------------------------------------------------------------------
 void vtkImageReslice::ComputeInputUpdateExtents(vtkDataObject *output)
 {
-  this->vtkImageToImageFilter::ComputeInputUpdateExtents(output);
+  this->Superclass::ComputeInputUpdateExtents(output);
 
   vtkImageStencilData *stencil = this->GetStencil();
   if (stencil)
@@ -513,6 +513,20 @@ void vtkImageReslice::GetAutoCroppedOutputBounds(vtkImageData *input,
 }
 
 //----------------------------------------------------------------------------
+void vtkImageReslice::ExecuteInformation()
+{
+  this->Superclass::ExecuteInformation();
+
+  vtkImageData *input = this->GetInput();
+  vtkImageStencilData *stencil = this->GetStencil();
+  if (stencil && input)
+    {
+    stencil->SetSpacing(input->GetSpacing());
+    stencil->SetOrigin(input->GetOrigin());
+    }
+}
+
+//----------------------------------------------------------------------------
 void vtkImageReslice::ExecuteInformation(vtkImageData *input, 
                                          vtkImageData *output) 
 {
@@ -659,14 +673,6 @@ void vtkImageReslice::ExecuteInformation(vtkImageData *input,
   output->SetOrigin(outOrigin);
   output->SetScalarType(input->GetScalarType());
   output->SetNumberOfScalarComponents(input->GetNumberOfScalarComponents());
-
-  // update information related to clipping the data
-  vtkImageStencilData *stencil = this->GetStencil();
-  if (stencil)
-    {
-    stencil->SetSpacing(outSpacing);
-    stencil->SetOrigin(outOrigin);
-    }
 }
 
 //----------------------------------------------------------------------------

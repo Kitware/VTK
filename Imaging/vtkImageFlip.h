@@ -77,7 +77,7 @@ protected:
 
   void ExecuteInformation(vtkImageData *input, vtkImageData *output);
   void ExecuteInformation() {
-    this->vtkImageToImageFilter::ExecuteInformation(); };
+    this->Superclass::ExecuteInformation(); };
 
   int FilteredAxis;
   int FlipAboutOrigin;
