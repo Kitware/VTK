@@ -15,9 +15,11 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 =========================================================================*/
 // .NAME - create an array of quadrilaterals located in the plane
 // .SECTION Description
-// vlPlaneSource creates an m x n array of quadrilaterals oriented in a 
-// plane. The plane is centered at the origin. It is possible to control
-// the resolution of the plane in both directions (i.e., set m,n).
+// vlPlaneSource creates an m x n array of quadrilaterals arranged as a
+// regular tiling in the plane. The plane is centered at the origin, and 
+// orthogonal to the global z-axis.  The resolution of the plane can be
+// specified in both the x and y directions (i.e., specify m and n, 
+// respectively).
 
 #ifndef __vlPlaneSource_h
 #define __vlPlaneSource_h
