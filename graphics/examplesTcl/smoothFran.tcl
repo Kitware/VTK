@@ -25,7 +25,7 @@ vtkDecimate deci;
     deci SetMaximumIterations 6
 vtkSmoothPolyDataFilter smooth
     smooth SetInput [deci GetOutput]
-    smooth SetNumberOfIterations 20
+    smooth SetNumberOfIterations 50
 vtkPolyDataNormals normals
     normals SetInput [smooth GetOutput]
 vtkPolyDataMapper cyberMapper
@@ -54,7 +54,7 @@ vtkCamera cam1
 ren1 SetActiveCamera cam1
 
 iren Initialize
-#renWin SetFileName "smoothFran.tcl.ppm"
+renWin SetFileName "valid/smoothFran.tcl.ppm"
 #renWin SaveImageAsPPM
 
 # prevent the tk window from showing up then start the event loop

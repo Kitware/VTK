@@ -12,6 +12,7 @@ vtkSampleFunction sample
   sample SetImplicitFunction quadric
   sample Update
   sample Print
+  sample ComputeNormalsOff
 
 # Extract cells that contains isosurface of interest
 vtkConnectivityFilter conn
@@ -65,7 +66,7 @@ ren1 AddActor outlineActor
 iren SetUserMethod {wm deiconify .vtkInteract}
 iren Initialize
 
-renWin SetFileName scalarConn.tcl.ppm
+renWin SetFileName valid/scalarConn.tcl.ppm
 #renWin SaveImageAsPPM
 
 wm withdraw .

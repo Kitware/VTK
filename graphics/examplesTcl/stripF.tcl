@@ -27,7 +27,7 @@ vtkPolyDataMapper cyberMapper
     cyberMapper SetInput [mask GetOutput]
 vtkActor cyberActor
     cyberActor SetMapper cyberMapper
-eval [cyberActor GetProperty] SetColor 1.0 0.49 0.25
+    [cyberActor GetProperty] SetColor 1.0 0.49 0.25
 
 # Add the actors to the renderer, set the background and size
 #

@@ -28,6 +28,7 @@ vtkClipPolyData clipper
     clipper SetInput [sphere GetOutput]
     clipper SetClipFunction iwf
     clipper SetValue 0.0
+    clipper GenerateClipScalarsOn
 vtkDataSetMapper clipMapper
     clipMapper SetInput [clipper GetOutput]
     clipMapper ScalarVisibilityOff

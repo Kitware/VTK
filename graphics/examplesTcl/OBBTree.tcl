@@ -20,6 +20,8 @@ vtkPolyDataMapper boxMapper
   boxMapper SetInput [boxes GetOutput]
 vtkActor boxActor
   boxActor SetMapper boxMapper
+  [boxActor GetProperty] SetAmbient 1
+  [boxActor GetProperty] SetDiffuse 0
   [boxActor GetProperty] SetRepresentationToWireframe
 
 vtkRenderer ren1

@@ -46,8 +46,8 @@ iren SetUserMethod {wm deiconify .vtkInteract}
 set cam1 [ren1 GetActiveCamera]
 $cam1 Zoom 1.4
 iren Initialize
-#$renWin SetFileName "mace.tcl.ppm"
-#$renWin SaveImageAsPPM
+#renWin SetFileName "mace.tcl.ppm"
+#renWin SaveImageAsPPM
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .

@@ -30,9 +30,10 @@ vtkGlyph3D lines
 vtkPolyDataMapper vectorMapper
     vectorMapper SetInput [lines GetOutput]
     eval vectorMapper SetScalarRange [[lines GetOutput] GetScalarRange]
+    vectorMapper ImmediateModeRenderingOn
 vtkActor vectorActor
     vectorActor SetMapper vectorMapper
-
+[vectorActor GetProperty] SetOpacity 0.99
 # 8 texture maps
 vtkStructuredPointsReader tmap1
   tmap1 SetFileName "../../../vtkdata/vecTex/vecAnim1.vtk"
@@ -110,7 +111,6 @@ renWin Render
 wm withdraw .
 
 # go into loop
-
 for {set i 0} {$i<5} {incr i} {
     vectorActor SetTexture texture1; renWin Render
     vectorActor SetTexture texture2; renWin Render
@@ -129,6 +129,5 @@ for {set i 0} {$i<5} {incr i} {
     vectorActor SetTexture texture7; renWin Render
     vectorActor SetTexture texture8; renWin Render
 } 
-
 #renWin SetFileName animVectors.tcl.ppm
 #renWin SaveImageAsPPM

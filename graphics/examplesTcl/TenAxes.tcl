@@ -50,6 +50,8 @@ vtkPolyDataMapper ellipMapper
 
 vtkActor ellipActor
     ellipActor SetMapper ellipMapper
+    [ellipActor GetProperty] SetAmbient 1
+    [ellipActor GetProperty] SetDiffuse 0
 #
 # Create outline around data
 #
@@ -61,7 +63,7 @@ vtkPolyDataMapper outlineMapper
 
 vtkActor outlineActor
     outlineActor SetMapper outlineMapper
-    eval [outlineActor GetProperty] SetColor 0 0 0
+    [outlineActor GetProperty] SetColor 0 0 0
 
 #
 # Create cone indicating application of load

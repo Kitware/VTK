@@ -19,7 +19,7 @@ vtkVolume16Reader v16
     v16 SetDataDimensions 256 256
     v16 SetDataByteOrderToBigEndian
     v16 SetFilePrefix "../../../vtkdata/pineRoot/pine_root"
-    v16 SetImageRange 1 256
+    v16 SetImageRange 50 100
     v16 SetDataSpacing 0.3125 0.3125 0.390625
     v16 SetDataMask 0x7fff
 
@@ -51,7 +51,10 @@ eval ren1 SetBackground $slate_grey
 # render the image
 #
 iren SetUserMethod {wm deiconify .vtkInteract}
+iren Initialize
+
+#renWin SetFileName "valid/genPineRoot.tcl.ppm"
+#renWin SaveImageAsPPM
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .
-iren Initialize

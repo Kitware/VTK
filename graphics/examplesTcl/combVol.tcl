@@ -105,6 +105,8 @@ proc Cut {n} {
 
 # Generate 10 cut planes
 Cut 10
+#renWin SetFileName "valid/combVol.tcl.ppm"
+#renWin SaveImageAsPPM
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .

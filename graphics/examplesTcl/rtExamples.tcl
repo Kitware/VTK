@@ -21,6 +21,9 @@ if {[set pos [lsearch $files "RenderWidget.tcl"]] != -1} {
 if {[set pos [lsearch $files "rtExamples.tcl"]] != -1} {
    set files [lreplace $files $pos $pos ]
 }
+if {[set pos [lsearch $files "polyViewer.tcl"]] != -1} {
+   set files [lreplace $files $pos $pos ]
+}
 # remove files that are not appropriate or include random sources
 # or just take way too long
 # assembly 2 should be in there
@@ -48,13 +51,22 @@ if {[set pos [lsearch $files "deciPineRoot.tcl"]] != -1} {
 if {[set pos [lsearch $files "deleted.tcl"]] != -1} {
    set files [lreplace $files $pos $pos ]
 }
-if {[set pos [lsearch $files "genPineRoot.tcl"]] != -1} {
-   set files [lreplace $files $pos $pos ]
-}
 if {[set pos [lsearch $files "mcTest.tcl"]] != -1} {
    set files [lreplace $files $pos $pos ]
 }
 if {[set pos [lsearch $files "viewMCubesFile.tcl"]] != -1} {
+   set files [lreplace $files $pos $pos ]
+}
+if {[set pos [lsearch $files "vol.tcl"]] != -1} {
+   set files [lreplace $files $pos $pos ]
+}
+if {[set pos [lsearch $files "volTkInteractor.tcl"]] != -1} {
+   set files [lreplace $files $pos $pos ]
+}
+if {[set pos [lsearch $files "spikeColor.tcl"]] != -1} {
+   set files [lreplace $files $pos $pos ]
+}
+if {[set pos [lsearch $files "streamV.tcl"]] != -1} {
    set files [lreplace $files $pos $pos ]
 }
 if {[set pos [lsearch $files "tkwin.tcl"]] != -1} {
@@ -88,14 +100,14 @@ foreach afile $files {
        puts "Passed Test for $afile"
    } else {
        puts "Failed Test for $afile with an error of [imgDiff GetThresholdedError]"
-      #   vtkPNMWriter pnmw
-      #   pnmw SetInput [imgDiff GetOutput]
-      #   pnmw SetFileName "$afile.error.ppm"
-      #   pnmw Write
-      #   vtkPNMWriter pnmw2
-      #   pnmw2 SetInput [renSrc GetOutput]
-      #   pnmw2 SetFileName "$afile.test.ppm"
-      #   pnmw2 Write
+         vtkPNMWriter pnmw
+         pnmw SetInput [imgDiff GetOutput]
+         pnmw SetFileName "$afile.error.ppm"
+         pnmw Write
+         vtkPNMWriter pnmw2
+         pnmw2 SetInput [renSrc GetOutput]
+         pnmw2 SetFileName "$afile.test.ppm"
+         pnmw2 Write
    }
    
    vtkCommand DeleteAllObjects

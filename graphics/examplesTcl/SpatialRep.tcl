@@ -39,6 +39,8 @@ vtkPolyDataMapper boxMapper
 #  boxMapper SetInput [boxes GetOutput 2]
 vtkActor boxActor
   boxActor SetMapper boxMapper
+  [boxActor GetProperty] SetDiffuse 0
+  [boxActor GetProperty] SetAmbient 1
   [boxActor GetProperty] SetRepresentationToWireframe
 
 vtkRenderer ren1
@@ -61,7 +63,7 @@ iren SetUserMethod {wm deiconify .vtkInteract}
 [ren1 GetActiveCamera] Zoom 1.4
 iren Initialize
 
-#renWin SetFileName SpatialRep.tcl.ppm
+#renWin SetFileName valid/SpatialRep.tcl.ppm
 #renWin SaveImageAsPPM
 
 # prevent the tk window from showing up then start the event loop

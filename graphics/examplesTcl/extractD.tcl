@@ -15,6 +15,7 @@ vtkQuadric quadric
 vtkSampleFunction sample
     sample SetSampleDimensions 50 50 50
     sample SetImplicitFunction quadric
+    sample ComputeNormalsOff
 vtkTransform trans
     trans Scale 1 .5 .333
 vtkSphere sphere
@@ -63,7 +64,7 @@ iren Initialize
 #
 iren SetUserMethod {wm deiconify .vtkInteract}
 
-#renWin SetFileName "extractD.tcl.ppm"
+#renWin SetFileName "valid/extractD.tcl.ppm"
 #renWin SaveImageAsPPM
 
 # prevent the tk window from showing up then start the event loop
