@@ -57,7 +57,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // is placed into the generated fields along with the scalars, vectors, etc.
 
 // .SECTION See Also
-// vtkFieldData vtkDataObject vtkDataSet vtkFieldDataToAttributeData
+// vtkFieldData vtkDataObject vtkDataSet vtkFieldDataToAttributeDataFilter
 
 #ifndef __vtkAttributeDataToFieldDataFilter_h
 #define __vtkAttributeDataToFieldDataFilter_h
