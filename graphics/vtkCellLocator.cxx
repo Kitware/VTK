@@ -223,7 +223,7 @@ int vtkCellLocator::IntersectWithLine(float a0[3], float a1[3], float tol,
   int i, leafStart, prod, loop;
   int bestCellId = -1;
   int idx, cId;
-  float tMax, tMax1, dist[3];
+  float tMax, dist[3];
   int npos[3];
   int pos[3];
   int bestDir;
@@ -234,7 +234,6 @@ int vtkCellLocator::IntersectWithLine(float a0[3], float a1[3], float tol,
   
   // convert the line into i,j,k coordinates
   tMax = 0.0;
-  tMax1 = 0.0;
   for (i = 0; i < 3; i++) 
     {
     direction1[i]   = a1[i] - a0[i];
@@ -243,15 +242,12 @@ int vtkCellLocator::IntersectWithLine(float a0[3], float a1[3], float tol,
     bounds2[2*i]   = 0;
     bounds2[2*i+1] = 1.0;
     tMax += direction2[i]*direction2[i];
-    tMax1 += direction1[i]*direction1[i];
     }
   tMax = sqrt(tMax);
-  tMax1 = sqrt(tMax1);
   stopDist = tMax*this->NumberOfDivisions;
   for (i = 0; i < 3; i++) 
     {
     direction3[i] = direction2[i]/tMax;
-    direction1[i] /= tMax1;
     }
   
   if (vtkCell::HitBBox(bounds2, origin, direction2, hitPosition, result))
