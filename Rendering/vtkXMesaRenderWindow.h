@@ -157,6 +157,10 @@ public:
   void ShowCursor();
 
   // Description:
+  // Change the shape of the cursor
+  virtual void SetCurrentCursor(int);
+
+  // Description:
   // Get the properties available at runtime that would result in 
   // the best Xwindow for 3D rendering.
   virtual  int GetEventPending();
@@ -194,6 +198,16 @@ protected:
   int      ScreenSize[2];
   int      CursorHidden;
   int      ForceMakeCurrent;
+
+  // we must keep track of the cursors we are using
+  Cursor XCArrow;
+  Cursor XCSizeAll;
+  Cursor XCSizeNS;
+  Cursor XCSizeWE;
+  Cursor XCSizeNE;
+  Cursor XCSizeNW;
+  Cursor XCSizeSE;
+  Cursor XCSizeSW;
 
 private:
   vtkXMesaRenderWindow(const vtkXMesaRenderWindow&);  // Not implemented.
