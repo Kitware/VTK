@@ -148,10 +148,10 @@ public:
   // Set/Get the scalar data.
   int SetScalars(vtkDataArray* da) 
     { return this->SetAttribute(da, SCALARS); }
-  int SetScalars(const char* name)
-    { return this->SetActiveAttribute(name, SCALARS); }
   void SetScalars(vtkScalars* scalars)
     { this->SetAttributeData(scalars, SCALARS); }
+  int SetActiveScalars(const char* name)
+    { return this->SetActiveAttribute(name, SCALARS); }
   vtkScalars* GetScalars();
   vtkDataArray* GetActiveScalars() 
     { return this->GetActiveAttribute(SCALARS); }
@@ -162,7 +162,7 @@ public:
     { return this->SetAttribute(da, VECTORS); }
   void SetVectors(vtkVectors* vectors)
     { this->SetAttributeData(vectors, VECTORS); }
-  int SetVectors(const char* name)
+  int SetActiveVectors(const char* name)
     { return this->SetActiveAttribute(name, VECTORS); }
   vtkVectors* GetVectors();
   vtkDataArray* GetActiveVectors() 
@@ -174,7 +174,7 @@ public:
     { return this->SetAttribute(da, NORMALS); }
   void SetNormals(vtkNormals* normals)
     { this->SetAttributeData(normals, NORMALS); }
-  int SetNormals(const char* name)
+  int SetActiveNormals(const char* name)
     { return this->SetActiveAttribute(name, NORMALS); }
   vtkNormals* GetNormals();
   vtkDataArray* GetActiveNormals() 
@@ -186,7 +186,7 @@ public:
     { return this->SetAttribute(da, TCOORDS); }
   void SetTCoords(vtkTCoords* tcoords)
     { this->SetAttributeData(tcoords, TCOORDS); }
-  int SetTCoords(const char* name)
+  int SetActiveTCoords(const char* name)
     { return this->SetActiveAttribute(name, TCOORDS); }
   vtkTCoords* GetTCoords();
   vtkDataArray* GetActiveTCoords() 
@@ -198,7 +198,7 @@ public:
     { return this->SetAttribute(da, TENSORS); }
   void SetTensors(vtkTensors* Tensors)
     { this->SetAttributeData(Tensors, TENSORS); }
-  int SetTensors(const char* name)
+  int SetActiveTensors(const char* name)
     { return this->SetActiveAttribute(name, TENSORS); }
   vtkTensors* GetTensors();
   vtkDataArray* GetActiveTensors() 
