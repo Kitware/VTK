@@ -1419,20 +1419,17 @@ void vtkImageData::AllocateScalars()
     }
   
   // if we currently have scalars then just adjust the size
-  if (this->PointData->GetScalars()) 
+  scalars = this->PointData->GetScalars();
+  if (scalars) 
     {
-    this->PointData->GetScalars()->SetNumberOfComponents(this->NumberOfScalarComponents);
-    this->PointData->GetScalars()->
-      SetNumberOfScalars((this->Extent[1] - this->Extent[0] + 1)*
-			 (this->Extent[3] - this->Extent[2] + 1)*
-			 (this->Extent[5] - this->Extent[4] + 1));
+    scalars->SetNumberOfComponents(this->NumberOfScalarComponents);
+    scalars->SetNumberOfScalars((this->Extent[1] - this->Extent[0] + 1)*
+				(this->Extent[3] - this->Extent[2] + 1)*
+				(this->Extent[5] - this->Extent[4] + 1));
+    // Since the execute method will be modifying the scalars
+    // directly.
+    scalars->Modified();
     return;
-    }
-  
-  // otherwise delete the old data (if any) 
-  if (this->PointData->GetScalars())
-    {
-    this->PointData->SetScalars(NULL);
     }
   
   // allocate the new scalars
@@ -1745,22 +1742,42 @@ void vtkImageData::GetAxisUpdateExtent(int idx, int &min, int &max)
 }
 
 //----------------------------------------------------------------------------
-// This method returns the memory that would be required for scalars on update.
-// The returned value is in units KBytes.
-// This method is used for determining when to stream.
-unsigned long vtkImageData::GetEstimatedMemorySize()
+void vtkImageData::UpdateInformation()
+{
+  if (this->Source)
+    {
+    this->Source->UpdateInformation();
+    this->ComputeEstimatedMemorySize();
+    }
+}
+
+//----------------------------------------------------------------------------
+// Estimated memory size is implicit in the other image information.
+// It is computed automatically (superclass) during UpdateInformation.
+void vtkImageData::ComputeEstimatedMemorySize()
 {
   double size = (float)this->NumberOfScalarComponents;
   int idx;
   
-  // Consider the size of each scalar.
   switch (this->GetScalarType())
     {
     case VTK_FLOAT:
       size *= sizeof(float);
       break;
+    case VTK_DOUBLE:
+      size *= sizeof(double);
+      break;
     case VTK_INT:
       size *= sizeof(int);
+      break;
+    case VTK_UNSIGNED_INT:
+      size *= sizeof(unsigned int);
+      break;
+    case VTK_LONG:
+      size *= sizeof(long);
+      break;
+    case VTK_UNSIGNED_LONG:
+      size *= sizeof(unsigned long);
       break;
     case VTK_SHORT:
       size *= sizeof(short);
@@ -1771,6 +1788,9 @@ unsigned long vtkImageData::GetEstimatedMemorySize()
     case VTK_UNSIGNED_CHAR:
       size *= sizeof(unsigned char);
       break;
+    case VTK_CHAR:
+      size *= sizeof(char);
+      break;
     default:
       vtkWarningMacro(<< "GetExtentMemorySize: "
         << "Cannot determine input scalar type");
@@ -1779,9 +1799,8 @@ unsigned long vtkImageData::GetEstimatedMemorySize()
   // Compute the number of scalars.
   for (idx = 0; idx < 3; ++idx)
     {
-    size = size*(this->UpdateExtent[idx*2+1] - this->UpdateExtent[idx*2] + 1);
+    size = size*(this->WholeExtent[idx*2+1] - this->WholeExtent[idx*2] + 1);
     }
-  
 
   // In case the extent is set improperly
   // Now Improperly might mean the filter will update no memory,
@@ -1789,13 +1808,11 @@ unsigned long vtkImageData::GetEstimatedMemorySize()
   if (size < 0)
     {
     this->EstimatedMemorySize = 0;
-    return 0;
     }
 
   long lsize = (long)(size / 1000.0);
   
   this->EstimatedMemorySize = lsize;
-  return lsize;
 }
 
 //----------------------------------------------------------------------------

@@ -110,17 +110,19 @@ proc MandelbrotUpdate {} {
 }
 
 proc SelectJuliaMandelbrot {} {
-  global JULIA_MANDELBROT_RADIO XDIM YDIM
+  global JULIA_MANDELBROT_RADIO XDIM YDIM MAX_ITERATIONS
   
   if {[string compare $JULIA_MANDELBROT_RADIO "mandelbrot"] == 0} {
     mandelbrot JuliaSetOff
-    mandelbrot SetWholeExtent 0 [expr $XDIM-1] 0 [expr $YDIM-1] 0 0
     mandelbrot SetSpacing [expr 3.0 / $XDIM]
     mandelbrot SetOrigin -2.2 -1.5 0
+    set MAX_ITERATIONS 150
   } else {
     mandelbrot SetOrigin -1.5 -1.5 0.12
+    mandelbrot SetWholeExtent 0 [expr $XDIM-1] 0 [expr $YDIM-1] 0 0
     mandelbrot SetSpacing [expr 3.0 / $XDIM]
     mandelbrot JuliaSetOn
+    set MAX_ITERATIONS 150
   }
 
   MandelbrotUpdate

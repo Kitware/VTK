@@ -119,6 +119,7 @@ void vtkImageIterateFilter::Execute()
       outData->AllocateScalars();      
       }
     // execute for this iteration
+    outData->GetUpdateExtent(this->ExecuteExtent);
     this->Execute(inData, outData);
     
     // Part of me thinks we should always release the 
@@ -192,14 +193,27 @@ void vtkImageIterateFilter::ExecuteImageInformation(vtkImageData *inData,
 
 
 //----------------------------------------------------------------------------
-int vtkImageIterateFilter::ComputeInputUpdateExtents(vtkDataObject *output)
+int vtkImageIterateFilter::ComputeDivisionExtents(vtkDataObject *output,
+						  int division, int numDivisions)
 {
   vtkImageData *in, *out = (vtkImageData*)output;
-  int inExt[6], idx;
+  int inExt[6], *outExt, idx;
+  
+  // For now, lets disable streaming on iteration filters.  To be truly 
+  // streaming (FFT) each iteration needs to break up it processing.  
+  // Since this superclass no longer has an Update method 
+  // (streming initiated in Execute) this is not possible.
+  if (division != 0)
+    {
+    return 0;
+    }
+  
+  // Since we are not interleaved with Execute calls,
+  // we need to set ExecuteExtent somewhere else.
+  // ...
   
   // well even though we only support one output, 
   // use the output passed in anyway.
-  out = (vtkImageData*)output;
   for (idx = this->NumberOfIterations - 1; idx >= 0; --idx)
     {
     this->Iteration = idx;

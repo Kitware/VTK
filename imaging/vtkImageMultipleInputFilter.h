@@ -113,9 +113,10 @@ protected:
   void ExecuteInformation();
   virtual void ExecuteImageInformation() {};
 
-  int ComputeInputUpdateExtents(vtkDataObject *out);
+  int ComputeDivisionExtents(vtkDataObject *out,
+			     int division, int numDivisions);
   virtual void ComputeInputUpdateExtent(int inExt[6], int outExt[6],
-						int whichInput);
+					int whichInput);
 
   void Execute();
   virtual void Execute(vtkImageData **inDatas, vtkImageData *outData);

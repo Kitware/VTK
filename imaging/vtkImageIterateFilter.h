@@ -80,7 +80,8 @@ protected:
   
   // Ends up calling ComputeInputUpdateExtent(int inExt[6],int outExt[6])
   // for each iteration.
-  int ComputeInputUpdateExtents(vtkDataObject *output);
+  int ComputeDivisionExtents(vtkDataObject *output,
+			     int division, int numDivisions);
 
   // Superclass API: Calls Execute(vtkImageData *inData, vtkImageData *outData)
   // for each iteration.

@@ -122,21 +122,35 @@ void vtkImageMultipleInputFilter::ExecuteInformation()
 
 
 //----------------------------------------------------------------------------
-int vtkImageMultipleInputFilter::ComputeInputUpdateExtents(vtkDataObject *out)
+int vtkImageMultipleInputFilter::ComputeDivisionExtents(vtkDataObject *out,
+					      int division, int numDivisions)
 {
-  vtkImageData *output = (vtkImageData*)out;
-  int idx, inExt[6], *outExt;
-
-  outExt = output->GetUpdateExtent();
-  for (idx = 0; idx < this->NumberOfInputs; ++idx)
-    {
-    if (this->GetInput(idx) != NULL)
+  vtkImageData *input;
+  int idx, actualSplits;
+  int *outExt, inExt[6];
+  
+  outExt = this->GetOutput()->GetUpdateExtent();
+  actualSplits = this->SplitExtent(this->ExecuteExtent, outExt, 
+				   idx, numDivisions);
+  
+  if (idx < actualSplits)
+    { // yes this is a vaid piece.
+    for (idx = 0; idx < this->NumberOfInputs; ++idx)
       {
-      this->ComputeInputUpdateExtent(inExt, outExt, idx);
-      this->GetInput(idx)->SetUpdateExtent(inExt);
+      input = this->GetInput(idx);
+      if (input != NULL)
+	{
+	this->ComputeInputUpdateExtent(inExt, this->ExecuteExtent, idx);
+	input->SetUpdateExtent(inExt);
+	}
       }
+    return 1;
     }
-  return 1;
+  else
+    {
+    // We could not split to this piece.
+    return 0;
+    }
 }
 
 

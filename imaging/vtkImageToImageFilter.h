@@ -124,7 +124,10 @@ protected:
   void ExecuteInformation();
   virtual void ExecuteImageInformation() {};
 
-  int ComputeInputUpdateExtents(vtkDataObject *output);
+  int GetNumberOfStreamDivisions();
+  
+  int ComputeDivisionExtents(vtkDataObject *output, 
+			     int division, int numDivisions);
   virtual void ComputeInputUpdateExtent(int inExt[6],int outExt[6]);
 
   void Execute();

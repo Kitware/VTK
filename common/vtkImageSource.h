@@ -76,6 +76,12 @@ public:
   // Legacy.  Sets the UpdateExtent to the WholeExtent, and Updates.
   void UpdateWholeExtent();
   
+  // Description:
+  // For streaming.  ExecuteExtent is set to the extent
+  // of the output that is currently being generated. 
+  // Note: Threaded execution might break this up further.
+  int *GetExecuteExtent() {return this->ExecuteExtent;}
+  
 protected:
   // Used by streaming: The extent of the output being processed
   // by the execute method. Set in the ComputeInputUpdateExtent method.

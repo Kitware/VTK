@@ -118,22 +118,35 @@ void vtkImageToImageFilter::ExecuteInformation()
     }
 }
 
-
-
 //----------------------------------------------------------------------------
-// This is the superclasses method.  Call the legacy imaging method.
-int vtkImageToImageFilter::ComputeInputUpdateExtents(vtkDataObject *data)
+int vtkImageToImageFilter::ComputeDivisionExtents(vtkDataObject *output,
+						  int idx, int numDivisions)
 {
-  vtkImageData *output = (vtkImageData*)data;
+  vtkImageData *input = this->GetInput();
+  int actualSplits;
   int *outExt, inExt[6];
-
-  // Multiple inputs will be handled in a subclass.
-  outExt = output->GetUpdateExtent();
-  this->ComputeInputUpdateExtent(inExt, outExt);
-
-  this->GetInput()->SetUpdateExtent(inExt);
-
-  return 1;
+  
+  if (input == NULL)
+    {
+    vtkErrorMacro("No input");
+    return;
+    }
+  
+  outExt = this->GetOutput()->GetUpdateExtent();
+  actualSplits = this->SplitExtent(this->ExecuteExtent, outExt, 
+				   idx, numDivisions);
+  
+  if (idx < actualSplits)
+    { // yes this is a valid piece.
+    this->ComputeInputUpdateExtent(inExt, this->ExecuteExtent);
+    input->SetUpdateExtent(inExt);
+    return 1;
+    }
+  else
+    {
+    // We could not split to this piece.
+    return 0;
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -141,7 +154,8 @@ int vtkImageToImageFilter::ComputeInputUpdateExtents(vtkDataObject *data)
 // UpdateExtent needed to generate the output UpdateExtent.
 // By default the input is set to the same as the output before this
 // method is called.
-void vtkImageToImageFilter::ComputeInputUpdateExtent(int inExt[6], int outExt[6])
+void vtkImageToImageFilter::ComputeInputUpdateExtent(int inExt[6], 
+						     int outExt[6])
 {
   memcpy(inExt,outExt,sizeof(int)*6);
 }
@@ -173,8 +187,7 @@ VTK_THREAD_RETURN_TYPE vtkImageThreadedExecute( void *arg )
   threadCount = ((ThreadInfoStruct *)(arg))->NumberOfThreads;
 
   str = (vtkImageThreadStruct *)(((ThreadInfoStruct *)(arg))->UserData);
-  memcpy(ext,str->Output->GetUpdateExtent(),
-	 sizeof(int)*6);
+  memcpy(ext,str->Filter->GetExecuteExtent(), sizeof(int)*6);
 
   // execute the actual method with appropriate extent
   // first find out how many pieces extent can be split into.
@@ -218,6 +231,36 @@ void vtkImageToImageFilter::Execute()
     }
 }
 
+//----------------------------------------------------------------------------
+// This assumes that there is no overlap of pieces.
+// Not a good assumption! OH Well....
+int vtkImageToImageFilter::GetNumberOfStreamDivisions()
+{
+  vtkImageData *input = this->GetInput();
+  float fraction;
+  int *ext;
+  int num;
+  
+  if (input == NULL)
+    {
+    return 1;
+    }
+  
+  // What fraction of whole extent is the OUTPUT UpdateExtent.
+  ext = this->GetOutput()->GetWholeExtent();
+  fraction = (ext[1]-ext[0]+1) * (ext[3]-ext[2]+1) * (ext[5]-ext[4]+1);
+  ext = this->GetOutput()->GetUpdateExtent();
+  fraction = (ext[1]-ext[0]+1)*(ext[3]-ext[2]+1)*(ext[5]-ext[4]+1) / fraction;
+  
+  // Estimated memory size is of the WholeExtent
+  num =(int)(fraction*input->GetEstimatedMemorySize()/input->GetMemoryLimit());
+  
+  if (num < 1)
+    {
+    return 1;
+    }
+  return num;
+}
 
 //----------------------------------------------------------------------------
 void vtkImageToImageFilter::Execute(vtkImageData *inData, 
