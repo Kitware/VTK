@@ -44,7 +44,7 @@ clip SetInput [canvas GetOutput]
 clip AutomaticOn
 clip ReleaseDataFlagOff
 
-vtkImageXViewer viewer
+vtkImageViewer viewer
 viewer SetAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS
 viewer SetInput [clip GetOutput]
 viewer SetColorWindow 120

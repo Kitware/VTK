@@ -35,7 +35,7 @@ matte SetBorderValue 2000
 matte ReleaseDataFlagOff
 #matte DebugOn
 
-vtkImageXViewer viewer
+vtkImageViewer viewer
 viewer SetAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS $VTK_IMAGE_Z_AXIS
 viewer SetInput [matte GetOutput]
 viewer SetCoordinate2 $sliceNumber

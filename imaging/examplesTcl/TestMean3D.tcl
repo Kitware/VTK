@@ -36,7 +36,7 @@ mean SetKernelSize 3 3 3
 mean SetStrides 3 2 1
 mean ReleaseDataFlagOff
 
-vtkImageXViewer viewer
+vtkImageViewer viewer
 #viewer DebugOn
 viewer SetAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS $VTK_IMAGE_Z_AXIS
 viewer SetInput [mean GetOutput]

@@ -60,7 +60,7 @@ vtkImageHistogram hist2
 	hist2 SetInput [histequal GetOutput]
 	hist2 ReleaseDataFlagOff
 
-vtkImageXViewer viewer3
+vtkImageViewer viewer3
 	viewer3 SetAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS $VTK_IMAGE_Z_AXIS
 	viewer3 SetInput [hist2 GetOutput]
 	viewer3 SetCoordinate2 $slicenumber
@@ -70,7 +70,7 @@ vtkImageXViewer viewer3
 	viewer3 SetYOffset $ydim;	
 	viewer3 Render
 
-vtkImageXViewer viewer
+vtkImageViewer viewer
 	#viewer DebugOn
 	viewer SetAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS $VTK_IMAGE_Z_AXIS
 	viewer SetInput [reader GetOutput]
@@ -80,7 +80,7 @@ vtkImageXViewer viewer
 	viewer SetXOffset 0
 	viewer SetWindow [viewer3 GetWindow]
 
-vtkImageXViewer viewer1
+vtkImageViewer viewer1
 	viewer1 SetAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS $VTK_IMAGE_Z_AXIS
 	viewer1 SetInput [histequal GetOutput]
 	viewer1 SetCoordinate2 $slicenumber
@@ -89,7 +89,7 @@ vtkImageXViewer viewer1
 	viewer1 SetXOffset $xdim
 	viewer1 SetWindow [viewer3 GetWindow]
 
-vtkImageXViewer viewer2
+vtkImageViewer viewer2
 	viewer2 SetAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS $VTK_IMAGE_Z_AXIS
 	viewer2 SetInput [hist1 GetOutput]
 	viewer2 SetCoordinate2 $slicenumber

@@ -111,7 +111,7 @@ vtkImageMIPFilter mip
 	mip SetInput [composite GetOutput]
 	mip ReleaseDataFlagOff
 
-vtkImageXViewer viewer
+vtkImageViewer viewer
 	viewer SetAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS $VTK_IMAGE_Z_AXIS
 	viewer SetInput [mip GetOutput]
 	viewer SetCoordinate2 0
@@ -120,7 +120,7 @@ vtkImageXViewer viewer
 	viewer SetXOffset 512
         #viewer Render
 
-vtkImageXViewer viewer1
+vtkImageViewer viewer1
 	viewer1 SetAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS $VTK_IMAGE_Z_AXIS
 	viewer1 SetInput [ss GetOutput]
 	viewer1 SetCoordinate2 0

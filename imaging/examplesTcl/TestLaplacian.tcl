@@ -34,7 +34,7 @@ laplacian SetAxes 0 1 2
 laplacian SetInput [reader GetOutput]
 laplacian ReleaseDataFlagOff
 
-vtkImageXViewer viewer
+vtkImageViewer viewer
 viewer SetAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS $VTK_IMAGE_Z_AXIS
 viewer SetInput [laplacian GetOutput]
 viewer SetCoordinate2 $sliceNumber

@@ -36,7 +36,7 @@ thresh ThresholdBetween 500.0 2200.0
 thresh SetOutValue 500
 thresh ReleaseDataFlagOff
 
-vtkImageXViewer viewer
+vtkImageViewer viewer
 viewer SetAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS $VTK_IMAGE_Z_AXIS
 viewer SetInput [thresh GetOutput]
 viewer SetExtent 0 255 0 255

@@ -62,7 +62,7 @@ canvas FillPixel 450 350
 
 
 
-vtkImageXViewer viewer
+vtkImageViewer viewer
 viewer SetAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS $VTK_IMAGE_COMPONENT_AXIS
 viewer SetInput [canvas GetOutput]
 viewer SetColorWindow 256

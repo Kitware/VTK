@@ -44,7 +44,7 @@ space AddSegment 0 0 -52 -22
 # show start and goal.
 #space SetDrawValue 50
 
-#vtkImageXViewer viewer
+#vtkImageViewer viewer
 #viewer SetInput [[space GetCanvas] GetOutput]
 #viewer Render
 

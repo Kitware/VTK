@@ -66,7 +66,7 @@ robotActor SetY 255
 
 
 
-vtkImageXViewer viewer
+vtkImageViewer viewer
 viewer SetInput [canvas GetOutput]
 viewer SetColorWindow 256
 viewer SetColorLevel 128

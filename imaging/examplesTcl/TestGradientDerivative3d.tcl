@@ -41,7 +41,7 @@ derivative ReleaseDataFlagOff
 #surface SetInput [gradient GetOutput]
 #surface Update
 
-vtkImageXViewer viewer
+vtkImageViewer viewer
 viewer SetAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS $VTK_IMAGE_Z_AXIS
 #viewer SetInput [derivative GetOutput]
 viewer SetInput [derivative GetOutput]

@@ -17,7 +17,7 @@ reader SetPixelMask 0x7fff
 #reader DebugOn
 
 
-vtkImageXViewer viewer
+vtkImageViewer viewer
 viewer SetAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS $VTK_IMAGE_Z_AXIS
 viewer SetInput [reader GetOutput]
 viewer SetCoordinate2 $sliceNumber

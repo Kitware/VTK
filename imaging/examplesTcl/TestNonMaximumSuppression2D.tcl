@@ -41,7 +41,7 @@ suppress SetMagnitudeInput [magnitude GetOutput]
 suppress SetAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS
 suppress ReleaseDataFlagOff
 
-vtkImageXViewer viewer
+vtkImageViewer viewer
 viewer SetInput [suppress GetOutput]
 viewer SetCoordinate2 $sliceNumber
 viewer SetColorWindow 1000

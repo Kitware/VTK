@@ -34,7 +34,7 @@ shiftScale SetInput [reader GetOutput]
 shiftScale SetShift 270.0
 shiftScale SetScale 0.085
 
-vtkImageXViewer viewer
+vtkImageViewer viewer
 #viewer DebugOn
 viewer SetAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS $VTK_IMAGE_Z_AXIS
 viewer SetInput [shiftScale GetOutput]

@@ -86,7 +86,7 @@ puts [space GetRotationFactor]
 puts [robot GetFactor]
 
 
-vtkImageXViewer viewer
+vtkImageViewer viewer
 viewer SetInput [[space GetCanvas] GetOutput]
 viewer SetColorWindow 256
 viewer SetColorLevel 128

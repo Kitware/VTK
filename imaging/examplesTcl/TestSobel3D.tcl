@@ -38,7 +38,7 @@ sobel ReleaseDataFlagOff
 
 
 
-vtkImageXViewer viewer
+vtkImageViewer viewer
 #viewer DebugOn
 viewer SetAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS $VTK_IMAGE_COMPONENT_AXIS $VTK_IMAGE_Z_AXIS
 viewer SetInput [sobel GetOutput]

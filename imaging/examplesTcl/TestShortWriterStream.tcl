@@ -58,7 +58,7 @@ reader2 SwapBytesOn
 reader2 SetDataDimensions 256 256 93
 reader2 SetFilePrefix "test"
 
-vtkImageXViewer viewer
+vtkImageViewer viewer
 #viewer DebugOn
 viewer SetAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS $VTK_IMAGE_Z_AXIS
 viewer SetInput [reader2 GetOutput]

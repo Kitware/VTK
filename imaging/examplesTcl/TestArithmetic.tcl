@@ -42,7 +42,7 @@ subtract SetInput1 [reader GetOutput]
 subtract SetInput2 [smooth GetOutput]
 subtract ReleaseDataFlagOff
 
-vtkImageXViewer viewer
+vtkImageViewer viewer
 #viewer DebugOn
 viewer SetAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS $VTK_IMAGE_Z_AXIS
 viewer SetInput [subtract GetOutput]

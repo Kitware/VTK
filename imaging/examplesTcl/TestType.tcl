@@ -39,7 +39,7 @@ puts [region Print]
 [reader GetOutput] UpdateRegion region
 
 
-vtkImageXViewer viewer
+vtkImageViewer viewer
 viewer SetAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS $VTK_IMAGE_Z_AXIS
 viewer SetInput [region GetOutput]
 viewer SetCoordinate2 $sliceNumber

@@ -47,7 +47,7 @@ close SetCloseValue 255
 close SetKernelSize 5 5 5
 close ReleaseDataFlagOff
 
-vtkImageXViewer viewer
+vtkImageViewer viewer
 viewer SetAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS $VTK_IMAGE_Z_AXIS
 viewer SetInput [close GetOutput]
 viewer SetExtent 0 255 0 255

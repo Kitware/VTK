@@ -47,7 +47,7 @@ dilate SetErodeValue 0
 dilate SetKernelSize 5 5 5
 dilate ReleaseDataFlagOff
 
-vtkImageXViewer viewer
+vtkImageViewer viewer
 viewer SetAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS $VTK_IMAGE_Z_AXIS
 viewer SetInput [dilate GetOutput]
 viewer SetExtent 0 255 0 255

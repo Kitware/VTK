@@ -77,7 +77,7 @@ space AddJoint joint
 space SetDrawValue 50
 space DrawRobot 120 65 0 0
 space DrawRobot 135 230 1.5708 0
-vtkImageXViewer viewer
+vtkImageViewer viewer
 viewer SetInput [[space GetCanvas] GetOutput]
 viewer Render
 

@@ -73,7 +73,7 @@ rd SetOutputMaximum 255
 rd SetOutputMaximum 255
 rd ReleaseDataFlagOff
 
-vtkImageXViewer viewerR
+vtkImageViewer viewerR
 viewerR SetAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS $VTK_IMAGE_COMPONENT_AXIS
 viewerR SetInput [rd GetOutput]
 viewerR SetColorWindow 256
@@ -82,7 +82,7 @@ viewerR ColorFlagOn
 viewerR SetXOffset 512
 viewerR Render
 
-vtkImageXViewer viewerD
+vtkImageViewer viewerD
 viewerD SetAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS $VTK_IMAGE_COMPONENT_AXIS
 viewerD SetInput [canvas GetOutput]
 viewerD SetColorWindow 256
@@ -95,14 +95,14 @@ viewerD Render
 
 
 
-vtkImageXViewer viewer0
+vtkImageViewer viewer0
 viewer0 SetInput [duotone GetOutput0]
 viewer0 SetColorWindow 256
 viewer0 SetColorLevel 128
 viewer0 SetXOffset 512
 viewer0 Render
 
-vtkImageXViewer viewer1
+vtkImageViewer viewer1
 viewer1 SetInput [duotone GetOutput1]
 viewer1 SetColorWindow 256
 viewer1 SetColorLevel 128

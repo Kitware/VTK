@@ -37,7 +37,7 @@ vtkImageDivergence derivative
 derivative SetInput [gradient GetOutput]
 derivative ReleaseDataFlagOff
 
-vtkImageXViewer viewer
+vtkImageViewer viewer
 viewer SetAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS $VTK_IMAGE_Z_AXIS
 viewer SetInput [derivative GetOutput]
 viewer SetCoordinate2 $sliceNumber

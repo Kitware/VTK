@@ -34,7 +34,7 @@ fft ReleaseDataFlagOff
 #fft DebugOn
 
 
-vtkImageXViewer viewer
+vtkImageViewer viewer
 viewer SetAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS $VTK_IMAGE_Z_AXIS $VTK_IMAGE_COMPONENT_AXIS
 viewer SetInput [fft GetOutput]
 viewer SetCoordinate2 $sliceNumber

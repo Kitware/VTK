@@ -36,7 +36,7 @@ vtkImageRegion region
 	region SetExtent 0 127 0 127 0 29
 	[ss GetOutput] UpdateRegion region
 
-vtkImageXViewer viewer
+vtkImageViewer viewer
 #viewer DebugOn
 	viewer SetAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS $VTK_IMAGE_Z_AXIS
 	viewer SetInput [region GetOutput]

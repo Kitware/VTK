@@ -33,7 +33,7 @@ pad SetOutputImageExtent -300 355 -300 370 0 92
 pad SetConstant 2000
 pad ReleaseDataFlagOff
 
-vtkImageXViewer viewer
+vtkImageViewer viewer
 viewer SetAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS $VTK_IMAGE_Z_AXIS
 viewer SetInput [pad GetOutput]
 viewer SetCoordinate2 $sliceNumber
