@@ -34,6 +34,7 @@ public:
   void PrintSelf(ostream& os, vlIndent indent);
   void operator=(const vlMapper& m);
   virtual void Render(vlRenderer *) = 0;
+  virtual float *GetBounds() = 0;
   void SetStartRender(void (*f)());
   void SetEndRender(void (*f)());
 
