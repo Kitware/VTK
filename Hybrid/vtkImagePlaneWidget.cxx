@@ -40,7 +40,7 @@
 #include "vtkTextureMapToPlane.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.36");
+vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.37");
 vtkStandardNewMacro(vtkImagePlaneWidget);
 
 vtkCxxSetObjectMacro(vtkImagePlaneWidget, PlaneProperty, vtkProperty);
@@ -1949,8 +1949,8 @@ void vtkImagePlaneWidget::AdjustState(int X, int Y)
   float x1 = planeSize1 - marginX;
   float y1 = planeSize2 - marginY;
 
-  float *raPtr;
-  float *rvPtr;
+  float *raPtr = 0;
+  float *rvPtr = 0;
   float rvfac = 1.0;
 
   if ( x2D < x0  )    //left margin
