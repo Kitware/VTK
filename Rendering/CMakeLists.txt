@@ -376,6 +376,36 @@ IF (VTK_WRAP_PYTHON)
                             ${TCL_LIBRARY}
                             ${TK_LIBRARY})
      INSTALL_TARGETS(/lib/vtk vtkRenderingPythonTkWidgets)
+
+     # add in the Tk values if found
+     IF (TK_INCLUDE_PATH)
+       INCLUDE_DIRECTORIES(${TK_INCLUDE_PATH})
+     ENDIF (TK_INCLUDE_PATH)
+
+     # find the tk internals for win32
+     IF (WIN32)
+       # look for the internals header files in a few places
+       IF (TK_LIBRARY)
+         IF (TK_LIBRARY MATCHES tk83.lib)
+           FIND_PATH(TK_INTERNAL_PATH tkWinInt.h 
+             ${VTK_SOURCE_DIR}/Rendering/tkInternals/tk83)
+         ENDIF (TK_LIBRARY MATCHES tk83.lib)
+         IF (TK_LIBRARY MATCHES tk82.lib)
+           FIND_PATH(TK_INTERNAL_PATH tkWinInt.h 
+             ${VTK_SOURCE_DIR}/Rendering/tkInternals)
+         ENDIF (TK_LIBRARY MATCHES tk82.lib)
+       ENDIF (TK_LIBRARY)
+       IF (TK_INTERNAL_PATH)
+         INCLUDE_DIRECTORIES(${TK_INTERNAL_PATH})
+       ENDIF (TK_INTERNAL_PATH) 
+       # for builds against the source tree on windows
+       FIND_PATH(TK_XLIB_PATH X11/Xlib.h ${TK_INCLUDE_PATH} ${TK_INCLUDE_PATH}/../xlib)
+       MARK_AS_ADVANCED(TK_XLIB_PATH)
+       IF (TK_XLIB_PATH)
+         INCLUDE_DIRECTORIES(${TK_XLIB_PATH})
+       ENDIF (TK_XLIB_PATH) 
+     ENDIF (WIN32)  
+  
   ENDIF (TK_LIBRARY)
 
 ENDIF (VTK_WRAP_PYTHON)
