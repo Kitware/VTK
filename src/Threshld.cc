@@ -130,11 +130,12 @@ void vtkThreshold::Execute()
                << " number of cells.");
 
   // now clean up / update ourselves
-  delete pointMap;
-  this->Squeeze();
-  newPoints->Squeeze();
+  pointMap->Delete();
 
   this->SetPoints(newPoints);
+  newPoints->Delete();
+
+  this->Squeeze();
 }
 
 void vtkThreshold::PrintSelf(ostream& os, vtkIndent indent)
