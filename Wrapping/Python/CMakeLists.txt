@@ -27,6 +27,13 @@ IF (CMAKE_MAJOR_VERSION MATCHES [1-9][0-9]*)
         ENDIF (VTK_HAVE_FRAMEWORK_PYTHON)
         TARGET_LINK_LIBRARIES (vtkpython vtkIO vtkGraphics vtkImaging)
       ELSE (APPLE)
+        IF(WIN32)
+          TARGET_LINK_LIBRARIES (vtkpython
+                                 debug ${PYTHON_DEBUG_LIBRARY}
+                                 optimized ${PYTHON_LIBRARY})
+        ELSE(WIN32)
+          TARGET_LINK_LIBRARIES (vtkpython ${PYTHON_LIBRARY})
+        ENDIF(WIN32)
         TARGET_LINK_LIBRARIES (vtkpython vtkIO vtkGraphics vtkImaging
                                vtkIOPython vtkGraphicsPython vtkImagingPython)
 

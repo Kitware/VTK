@@ -120,8 +120,6 @@ IF (VTK_WRAP_PYTHON)
     TARGET_LINK_LIBRARIES (vtkIOPython
                            debug ${PYTHON_DEBUG_LIBRARY}
                            optimized ${PYTHON_LIBRARY})
-  ELSE(WIN32)
-    TARGET_LINK_LIBRARIES (vtkIOPython ${PYTHON_LIBRARY})
   ENDIF(WIN32)
   TARGET_LINK_LIBRARIES(vtkIOPython vtkIO)
 

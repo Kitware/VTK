@@ -141,8 +141,6 @@ IF (VTK_WRAP_PYTHON)
     TARGET_LINK_LIBRARIES (vtkFilteringPython
                            debug ${PYTHON_DEBUG_LIBRARY}
                            optimized ${PYTHON_LIBRARY})
-  ELSE(WIN32)
-    TARGET_LINK_LIBRARIES (vtkFilteringPython ${PYTHON_LIBRARY})
   ENDIF(WIN32)
   TARGET_LINK_LIBRARIES(vtkFilteringPython vtkFiltering)
 
