@@ -111,7 +111,7 @@ vtkOpenGLImageMapper::~vtkOpenGLImageMapper()
 } 
 
 // pad an integer to a multiply of four, for OpenGL
-static inline vtkPadToFour(int n)
+static inline int vtkPadToFour(int n)
 {
   return (((n+3)/4)*4);
 }
