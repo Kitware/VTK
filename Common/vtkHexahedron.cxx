@@ -406,7 +406,8 @@ void vtkHexahedron::Contour(float value, vtkScalars *cellScalars,
 			    vtkCellArray *vtkNotUsed(lines), 
 			    vtkCellArray *polys, 
                             vtkPointData *inPd, vtkPointData *outPd,
-                            vtkCellData *inCd, int cellId, vtkCellData *outCd)
+                            vtkCellData *inCd, vtkIdType cellId,
+                            vtkCellData *outCd)
 {
   static int CASE_MASK[8] = {1,2,4,8,16,32,64,128};
   TRIANGLE_CASES *triCase;

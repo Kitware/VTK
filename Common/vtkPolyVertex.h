@@ -70,11 +70,12 @@ public:
                vtkPointLocator *locator, vtkCellArray *verts, 
                vtkCellArray *lines, vtkCellArray *polys,
                vtkPointData *inPd, vtkPointData *outPd,
-               vtkCellData *inCd, int cellId, vtkCellData *outCd);
+               vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd);
   void Clip(float value, vtkScalars *cellScalars, 
             vtkPointLocator *locator, vtkCellArray *verts,
             vtkPointData *inPd, vtkPointData *outPd,
-            vtkCellData *inCd, int cellId, vtkCellData *outCd, int insideOut);
+            vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd,
+            int insideOut);
   int EvaluatePosition(float x[3], float* closestPoint, 
                        int& subId, float pcoords[3],
                        float& dist2, float *weights);

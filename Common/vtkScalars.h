@@ -97,30 +97,31 @@ public:
   // Description:
   // Specify the number of scalars for this object to hold. Make sure
   // that you set the number of components in texture first.
-  void SetNumberOfScalars(int number) {this->Data->SetNumberOfTuples(number);};
+  void SetNumberOfScalars(vtkIdType number)
+    {this->Data->SetNumberOfTuples(number);};
 
   // Description:
   // Return number of scalars in the array.
-  int GetNumberOfScalars() {return this->Data->GetNumberOfTuples();};
+  vtkIdType GetNumberOfScalars() {return this->Data->GetNumberOfTuples();};
 
   // Description:
   // Return the scalar value as a float for a specific id.
-  float GetScalar(int id);
+  float GetScalar(vtkIdType id);
 
   // Description:
   // Insert Scalar into object. No range checking performed (fast!).
   // Make sure you use SetNumberOfScalars() to allocate memory prior
   // to using SetScalar().
-  void SetScalar(int id, float s);
+  void SetScalar(vtkIdType id, float s);
 
   // Description:
   // Insert Scalar into object. Range checking performed and memory
   // allocated as necessary.
-  void InsertScalar(int id, float s);
+  void InsertScalar(vtkIdType id, float s);
 
   // Description:
   // Insert Scalar at end of array and return its location (id) in the array.
-  int InsertNextScalar(float s);
+  vtkIdType InsertNextScalar(float s);
 
   // Description:
   // Specify/Get the number of components in scalar data.
@@ -176,7 +177,7 @@ public:
   // Get the scalar values for the range of points ids specified 
   // (i.e., p1->p2 inclusive). You must insure that the vtkScalars has 
   // been previously allocated with enough space to hold the data.
-  void GetScalars(int p1, int p2, vtkScalars *fs);
+  void GetScalars(vtkIdType p1, vtkIdType p2, vtkScalars *fs);
   
   // Description:
   // Initialize the traversal of the scalar data to generate colors 
@@ -192,7 +193,7 @@ public:
   // Get the color value at a particular id. Returns a pointer to a 4-byte
   // array of rgba. Make sure you call InitColorTraversal() before
   // invoking this method.
-  unsigned char *GetColor(int id) {
+  unsigned char *GetColor(vtkIdType id) {
     return (this->*(this->CurrentColorFunction))(id);};
 
 protected:
@@ -208,16 +209,16 @@ protected:
   float CurrentAlpha;
   vtkScalarsToColors *CurrentLookupTable;
   //BTX
-  unsigned char *(vtkScalars::*CurrentColorFunction)(int id);
-  unsigned char *PassRGBA(int id);
-  unsigned char *PassRGB(int id);
-  unsigned char *PassIA(int id);
-  unsigned char *PassI(int id);
-  unsigned char *CompositeRGBA(int id);
-  unsigned char *CompositeIA(int id);
-  unsigned char *CompositeMapThroughLookupTable(int id);  
-  unsigned char *MapThroughLookupTable(int id);  
-  unsigned char *Luminance(int id);  
+  unsigned char *(vtkScalars::*CurrentColorFunction)(vtkIdType id);
+  unsigned char *PassRGBA(vtkIdType id);
+  unsigned char *PassRGB(vtkIdType id);
+  unsigned char *PassIA(vtkIdType id);
+  unsigned char *PassI(vtkIdType id);
+  unsigned char *CompositeRGBA(vtkIdType id);
+  unsigned char *CompositeIA(vtkIdType id);
+  unsigned char *CompositeMapThroughLookupTable(vtkIdType id);
+  unsigned char *MapThroughLookupTable(vtkIdType id);
+  unsigned char *Luminance(vtkIdType id);
   vtkUnsignedCharArray *Colors;
   unsigned char RGBA[4];
   int ActiveComponent;
@@ -235,25 +236,25 @@ inline void vtkScalars::SetNumberOfComponents(int num)
   this->Data->SetNumberOfComponents(num);
 }
 
-inline float vtkScalars::GetScalar(int id)
+inline float vtkScalars::GetScalar(vtkIdType id)
 {
   return this->Data->GetComponent(id,this->GetActiveComponent());
 }
 
-inline void vtkScalars::SetScalar(int id, float s)
+inline void vtkScalars::SetScalar(vtkIdType id, float s)
 {
   this->Data->SetComponent(id,this->GetActiveComponent(),s);
 }
 
-inline void vtkScalars::InsertScalar(int id, float s)
+inline void vtkScalars::InsertScalar(vtkIdType id, float s)
 {
   this->Data->InsertComponent(id,this->GetActiveComponent(),s);
 }
 
-inline int vtkScalars::InsertNextScalar(float s)
+inline vtkIdType vtkScalars::InsertNextScalar(float s)
 {
   int tupleSize = this->Data->GetNumberOfComponents();
-  int id=(this->Data->GetMaxId() + tupleSize)/tupleSize;
+  vtkIdType id=(this->Data->GetMaxId() + tupleSize)/tupleSize;
   this->Data->InsertComponent(id,this->GetActiveComponent(),s);
   return id;
 }

@@ -91,7 +91,7 @@ public:
   virtual void Clip(float value, vtkScalars *cellScalars, 
                     vtkPointLocator *locator, vtkCellArray *connectivity,
                     vtkPointData *inPd, vtkPointData *outPd,
-                    vtkCellData *inCd, int cellId, vtkCellData *outCd, 
+                    vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd, 
                     int insideOut);
 
   // Description:

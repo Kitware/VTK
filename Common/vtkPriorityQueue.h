@@ -63,13 +63,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define __vtkPriorityQueue_h
 
 #include "vtkObject.h"
-#include "vtkIntArray.h"
+#include "vtkIdTypeArray.h"
 
 //BTX
 typedef struct _vtkPriorityItem
   {
   float priority;
-  int id;
+  vtkIdType id;
   } vtkPriorityItem;
 //ETX
 
@@ -85,48 +85,48 @@ public:
 
   // Description:
   // Allocate initial space for priority queue.
-  void Allocate(const int sz, const int ext=1000);
+  void Allocate(const vtkIdType sz, const vtkIdType ext=1000);
 
   // Description:
   // Insert id with priority specified. The id is generally an
   // index like a point id or cell id.
-  void Insert(float priority, int id);
+  void Insert(float priority, vtkIdType id);
 
   // Description:
   // Removes item at specified location from tree; then reorders and
   // balances tree. The location == 0 is the root of the tree. If queue
   // is exhausted, then a value < 0 is returned. (Note: the location
   // is not the same as deleting an id; id is mapped to location.)
-  int Pop(float &priority, int location=0);
+  vtkIdType Pop(float &priority, vtkIdType location=0);
   
   // Description:
   // Same as above but simplified for easier wrapping into interpreted
   // languages.
-  int Pop(int location=0);
+  vtkIdType Pop(vtkIdType location=0);
   
   // Description:
   // Peek into the queue without actually removing anything. Returns the
   // id and the priority.
-  int Peek(float &priority, int location=0);
+  vtkIdType Peek(float &priority, vtkIdType location=0);
   
   // Description:
   // Peek into the queue without actually removing anything. Returns the
   // id.
-  int Peek(int location=0);
+  vtkIdType Peek(vtkIdType location=0);
   
   // Description:
   // Delete entry in queue with specified id. Returns priority value
   // associated with that id; or VTK_LARGE_FLOAT if not in queue.
-  float DeleteId(int id);
+  float DeleteId(vtkIdType id);
 
   // Description:
   // Get the priority of an entry in the queue with specified id. Returns
   // priority value of that id or VTK_LARGE_FLOAT if not in queue.
-  float GetPriority(int id);
+  float GetPriority(vtkIdType id);
 
   // Description:
   // Return the number of items in this queue.
-  int GetNumberOfItems() {return this->MaxId+1;};
+  vtkIdType GetNumberOfItems() {return this->MaxId+1;};
 
   // Description:
   // Empty the queue but without releasing memory. This avoids the
@@ -139,16 +139,16 @@ protected:
   vtkPriorityQueue(const vtkPriorityQueue&) {};
   void operator=(const vtkPriorityQueue&) {};
   
-  vtkPriorityItem *Resize(const int sz);
+  vtkPriorityItem *Resize(const vtkIdType sz);
 
-  vtkIntArray *ItemLocation;
+  vtkIdTypeArray *ItemLocation;
   vtkPriorityItem *Array;
-  int Size;
-  int MaxId;
-  int Extend;
+  vtkIdType Size;
+  vtkIdType MaxId;
+  vtkIdType Extend;
 };
 
-inline float vtkPriorityQueue::DeleteId(int id)
+inline float vtkPriorityQueue::DeleteId(vtkIdType id)
 {
   float priority=VTK_LARGE_FLOAT;
   int loc;
@@ -161,7 +161,7 @@ inline float vtkPriorityQueue::DeleteId(int id)
   return priority;
 }
 
-inline float vtkPriorityQueue::GetPriority(int id)
+inline float vtkPriorityQueue::GetPriority(vtkIdType id)
 {
   int loc;
 
@@ -173,7 +173,7 @@ inline float vtkPriorityQueue::GetPriority(int id)
   return VTK_LARGE_FLOAT;
 }
 
-inline int vtkPriorityQueue::Peek(float &priority, int location)
+inline vtkIdType vtkPriorityQueue::Peek(float &priority, vtkIdType location)
 {
   if ( this->MaxId < 0 )
     {
@@ -186,7 +186,7 @@ inline int vtkPriorityQueue::Peek(float &priority, int location)
     }
 }
 
-inline int vtkPriorityQueue::Peek(int location)
+inline vtkIdType vtkPriorityQueue::Peek(vtkIdType location)
 {
   if ( this->MaxId < 0 )
     {

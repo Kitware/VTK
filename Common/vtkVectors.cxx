@@ -80,10 +80,10 @@ vtkVectors::vtkVectors()
 void vtkVectors::GetVectors(vtkIdList *ptIds, vtkVectors *v)
 {
   float vector[3];
-  int num=ptIds->GetNumberOfIds();
+  vtkIdType num=ptIds->GetNumberOfIds();
   
   v->SetNumberOfVectors(num);
-  for (int i=0; i<num; i++)
+  for (vtkIdType i=0; i<num; i++)
     {
     this->GetVector(ptIds->GetId(i),vector);
     v->SetVector(i,vector);
@@ -93,7 +93,7 @@ void vtkVectors::GetVectors(vtkIdList *ptIds, vtkVectors *v)
 // Compute the largest norm for these vectors.
 void vtkVectors::ComputeMaxNorm()
 {
-  int i;
+  vtkIdType i;
   float *v, norm;
 
   if ( this->GetMTime() > this->ComputeTime )

@@ -239,7 +239,7 @@ void vtkLine::Contour(float value, vtkScalars *cellScalars,
                       vtkCellArray *vtkNotUsed(lines), 
                       vtkCellArray *vtkNotUsed(polys), 
                       vtkPointData *inPd, vtkPointData *outPd,
-                      vtkCellData *inCd, int cellId, vtkCellData *outCd)
+                      vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd)
 {
   static int CASE_MASK[2] = {1,2};
   int index, i, newCellId;
@@ -528,7 +528,7 @@ static LINE_CASES lineCases[] = {
 void vtkLine::Clip(float value, vtkScalars *cellScalars, 
                    vtkPointLocator *locator, vtkCellArray *lines,
                    vtkPointData *inPd, vtkPointData *outPd,
-                   vtkCellData *inCd, int cellId, vtkCellData *outCd,
+                   vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd,
                    int insideOut)
 {
   static int CASE_MASK[3] = {1,2};

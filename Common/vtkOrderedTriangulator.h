@@ -122,7 +122,7 @@ public:
   // appropriate connectivity ids. The method returns an internal id that
   // can be used prior to the Triangulate() method to update the type of
   // the point with UpdatePointType().
-  int InsertPoint(int id, float x[3], int type);
+  vtkIdType InsertPoint(vtkIdType id, float x[3], int type);
 
   // Description:
   // Perform the triangulation. (Complete all calls to InsertPoint() prior
@@ -135,7 +135,7 @@ public:
   // from InsertPoint(). The method should be invoked prior to the
   // Triangulate method. The type is specified as inside (type=0), 
   // outside (type=1), or on the boundary (type=2). 
-  void UpdatePointType(int internalId, int type);
+  void UpdatePointType(vtkIdType internalId, int type);
 
   // Description:
   // Boolean indicates whether the points have been pre-sorted. If 
@@ -156,7 +156,7 @@ public:
   // "boundary."  Outside tetrahedron have at least one point classified
   // "outside."  The method returns the number of tetrahedrahedron of the
   // type requested.
-  int GetTetras(int classification, vtkUnstructuredGrid *ugrid);
+  vtkIdType GetTetras(int classification, vtkUnstructuredGrid *ugrid);
   
   // Description:
   // Add the tetras to the unstructured grid provided. The unstructured
@@ -167,7 +167,7 @@ public:
   // Outside tetrahedron have at least one point classified "outside." 
   // The method returns the number of tetrahedrahedron of the type 
   // requested.
-  int AddTetras(int classification, vtkUnstructuredGrid *ugrid);
+  vtkIdType AddTetras(int classification, vtkUnstructuredGrid *ugrid);
   
   // Description:
   // Add the tetrahedra classified (0=inside,1=outside) to the connectivity
@@ -175,7 +175,7 @@ public:
   // classified "inside." Outside tetrahedron have at least one point
   // classified "outside." The method returns the number of tetrahedron
   // of the type requested.    
-  int AddTetras(int classification, vtkCellArray *connectivity);
+  vtkIdType AddTetras(int classification, vtkCellArray *connectivity);
   
 protected:
   vtkOrderedTriangulator();

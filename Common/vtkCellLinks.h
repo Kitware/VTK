@@ -156,7 +156,7 @@ protected:
   // Increment the count of the number of cells using the point.
   void IncrementLinkCount(vtkIdType ptId) { this->Array[ptId].ncells++;};
 
-  void AllocateLinks(int n);
+  void AllocateLinks(vtkIdType n);
 
   // Description:
   // Insert a cell id into the list of cells using the point.

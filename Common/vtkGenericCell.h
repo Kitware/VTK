@@ -79,17 +79,17 @@ public:
 		       int& subId, float pcoords[3], 
 		       float& dist2, float *weights);
   void EvaluateLocation(int& subId, float pcoords[3], 
-                                float x[3], float *weights);
+                        float x[3], float *weights);
   void Contour(float value, vtkScalars *cellScalars, 
 	       vtkPointLocator *locator, vtkCellArray *verts, 
 	       vtkCellArray *lines, vtkCellArray *polys, 
 	       vtkPointData *inPd, vtkPointData *outPd,
-	       vtkCellData *inCd, int cellId, vtkCellData *outCd);
+	       vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd);
   void Clip(float value, vtkScalars *cellScalars, 
 	    vtkPointLocator *locator, vtkCellArray *connectivity,
 	    vtkPointData *inPd, vtkPointData *outPd,
-	    vtkCellData *inCd, int cellId, vtkCellData *outCd, 
-                    int insideOut);
+	    vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd, 
+            int insideOut);
   int IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
 			float x[3], float pcoords[3], int& subId);
   int Triangulate(int index, vtkIdList *ptIds, vtkPoints *pts);

@@ -92,8 +92,8 @@ public:
 
   // Description:
   // Return the cell id cached from last evaluation.
-  vtkGetMacro(LastCellId, int);
-  vtkSetMacro(LastCellId, int);
+  vtkGetMacro(LastCellId, vtkIdType);
+  vtkSetMacro(LastCellId, vtkIdType);
 
   // Description:
   // Set the last cell id to -1 so that the next search does not
@@ -129,7 +129,7 @@ protected:
   vtkGenericCell* Cell;
   float* Weights; // last weights
   float LastPCoords[3]; // last local coordinates
-  int LastCellId;
+  vtkIdType LastCellId;
   int CacheHit;
   int CacheMiss;
   int Caching;

@@ -406,7 +406,7 @@ void vtkWedge::Contour(float value, vtkScalars *cellScalars,
                        vtkCellArray *vtkNotUsed(lines), 
                        vtkCellArray *polys,
                        vtkPointData *inPd, vtkPointData *outPd,
-                       vtkCellData *inCd, int cellId, vtkCellData *outCd)
+                       vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd)
 {
   static int CASE_MASK[6] = {1,2,4,8,16,32};
   TRIANGLE_CASES *triCase;

@@ -79,9 +79,9 @@ vtkPoints::vtkPoints(int dataType) : vtkAttributeData(dataType)
 // Given a list of pt ids, return an array of points.
 void vtkPoints::GetPoints(vtkIdList *ptIds, vtkPoints *fp)
 {
-  int num = ptIds->GetNumberOfIds();
+  vtkIdType num = ptIds->GetNumberOfIds();
 
-  for (int i=0; i < num; i++)
+  for (vtkIdType i=0; i < num; i++)
     {
     fp->InsertPoint(i, this->GetPoint(ptIds->GetId(i)));
     }

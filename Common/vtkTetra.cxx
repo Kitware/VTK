@@ -292,7 +292,7 @@ void vtkTetra::Contour(float value, vtkScalars *cellScalars,
                        vtkCellArray *vtkNotUsed(lines), 
                        vtkCellArray *polys,
                        vtkPointData *inPd, vtkPointData *outPd,
-                       vtkCellData *inCd, int cellId, vtkCellData *outCd)
+                       vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd)
 {
   static int CASE_MASK[4] = {1,2,4,8};
   TRIANGLE_CASES *triCase;
@@ -721,7 +721,7 @@ void vtkTetra::GetFacePoints(int faceId, int* &pts)
 void vtkTetra::Clip(float value, vtkScalars *cellScalars, 
                     vtkPointLocator *locator, vtkCellArray *tets,
                     vtkPointData *inPD, vtkPointData *outPD,
-                    vtkCellData *inCD, int cellId, vtkCellData *outCD,
+                    vtkCellData *inCD, vtkIdType cellId, vtkCellData *outCD,
                     int insideOut)
 {
   int inject;

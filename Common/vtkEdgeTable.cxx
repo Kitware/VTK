@@ -78,7 +78,7 @@ vtkEdgeTable::vtkEdgeTable()
 // Free memory and return to instantiated state.
 void vtkEdgeTable::Initialize()
 {
-  int i;
+  vtkIdType i;
   
   if ( this->Table )
     {
@@ -121,7 +121,7 @@ void vtkEdgeTable::Initialize()
 // Free memory and return to instantiated state.
 void vtkEdgeTable::Reset()
 {
-  int i;
+  vtkIdType i;
 
   if ( this->Table )
     {
@@ -161,9 +161,9 @@ vtkEdgeTable::~vtkEdgeTable()
   this->Initialize();
 }
 
-int vtkEdgeTable::InitEdgeInsertion(int numPoints, int storeAttributes)
+int vtkEdgeTable::InitEdgeInsertion(vtkIdType numPoints, int storeAttributes)
 {
-  int i;
+  vtkIdType i;
   
   if ( numPoints < 1 )
     {
@@ -210,9 +210,9 @@ int vtkEdgeTable::InitEdgeInsertion(int numPoints, int storeAttributes)
 }
 
 // Return non-negative if edge (p1,p2) is an edge; otherwise -1.
-int vtkEdgeTable::IsEdge(int p1, int p2)
+int vtkEdgeTable::IsEdge(vtkIdType p1, vtkIdType p2)
 {
-  int index, search;
+  vtkIdType index, search;
 
   if ( p1 < p2 )
     {
@@ -231,7 +231,7 @@ int vtkEdgeTable::IsEdge(int p1, int p2)
     }
   else
     {
-    int loc;
+    vtkIdType loc;
     if ( (loc=this->Table[index]->IsId(search)) == (-1) )
       {
       return (-1);
@@ -252,9 +252,9 @@ int vtkEdgeTable::IsEdge(int p1, int p2)
 
 // Insert the edge (p1,p2) into the table. It is the user's responsibility to
 // check if the edge has already been inserted.
-int vtkEdgeTable::InsertEdge(int p1, int p2)
+vtkIdType vtkEdgeTable::InsertEdge(vtkIdType p1, vtkIdType p2)
 {
-  int index, search;
+  vtkIdType index, search;
 
   if ( p1 < p2 )
     {
@@ -302,9 +302,9 @@ int vtkEdgeTable::InsertEdge(int p1, int p2)
   return (this->NumberOfEdges - 1);
 }
 
-void vtkEdgeTable::InsertEdge(int p1, int p2, int attributeId)
+void vtkEdgeTable::InsertEdge(vtkIdType p1, vtkIdType p2, int attributeId)
 {
-  int index, search;
+  vtkIdType index, search;
 
   if ( p1 < p2 )
     {
@@ -358,7 +358,7 @@ void vtkEdgeTable::InitTraversal()
 // are point id's. Method return value is non-negative if list is exhausted; 
 // >= 0 otherwise. The value of p1 is guaranteed to be <= p2. The return value
 // is an id that can be used for accessing attributes.
-int vtkEdgeTable::GetNextEdge(int &p1, int &p2)
+int vtkEdgeTable::GetNextEdge(vtkIdType &p1, vtkIdType &p2)
 {
   for ( ; this->Position[0] <= this->TableMaxId; 
   this->Position[0]++, this->Position[1]=(-1) )
@@ -375,12 +375,12 @@ int vtkEdgeTable::GetNextEdge(int &p1, int &p2)
   return (-1);
 }
 
-vtkIdList **vtkEdgeTable::Resize(int sz)
+vtkIdList **vtkEdgeTable::Resize(vtkIdType sz)
 {
   vtkIdList **newTableArray;
   vtkIdList **newAttributeArray;
-  int newSize, i;
-  int extend=this->TableSize/2 + 1;
+  vtkIdType newSize, i;
+  vtkIdType extend=this->TableSize/2 + 1;
 
   if (sz >= this->TableSize)
     {
@@ -421,7 +421,7 @@ vtkIdList **vtkEdgeTable::Resize(int sz)
   return this->Table;
 }
 
-int vtkEdgeTable::InitPointInsertion(vtkPoints *newPts, int estSize)
+int vtkEdgeTable::InitPointInsertion(vtkPoints *newPts, vtkIdType estSize)
 {
   // Initialize
   if ( this->Table )
@@ -446,7 +446,8 @@ int vtkEdgeTable::InitPointInsertion(vtkPoints *newPts, int estSize)
   return 1;
 }
 
-int vtkEdgeTable::InsertUniquePoint(int p1, int p2, float x[3], int &ptId)
+int vtkEdgeTable::InsertUniquePoint(vtkIdType p1, vtkIdType p2, float x[3],
+                                    vtkIdType &ptId)
 {
   int loc = this->IsEdge(p1,p2);
 

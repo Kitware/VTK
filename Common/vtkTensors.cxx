@@ -82,23 +82,23 @@ vtkTensors::~vtkTensors()
 }
 
 
-void vtkTensors::GetTensor(int id, vtkTensor *ft)
+void vtkTensors::GetTensor(vtkIdType id, vtkTensor *ft)
 {
   vtkTensor *t = this->GetTensor(id);
   ft->DeepCopy(t);
 }
 
-void vtkTensors::SetTensor(int id, vtkTensor *t)
+void vtkTensors::SetTensor(vtkIdType id, vtkTensor *t)
 {
   this->Data->SetTuple(id, t->T);
 }
 
-void vtkTensors::InsertTensor(int id, vtkTensor *t)
+void vtkTensors::InsertTensor(vtkIdType id, vtkTensor *t)
 {
   this->Data->InsertTuple(id, t->T);
 }
 
-void vtkTensors::InsertTensor(int id, float t11, float t12, float t13, 
+void vtkTensors::InsertTensor(vtkIdType id, float t11, float t12, float t13, 
                               float t21, float t22, float t23, 
                               float t31, float t32, float t33)
 {
@@ -117,14 +117,14 @@ void vtkTensors::InsertTensor(int id, float t11, float t12, float t13,
   t->Delete();
 }
 
-int vtkTensors::InsertNextTensor(vtkTensor *t)
+vtkIdType vtkTensors::InsertNextTensor(vtkTensor *t)
 {
   return this->Data->InsertNextTuple(t->T);
 }
 
-int vtkTensors::InsertNextTensor(float t11, float t12, float t13, 
-                                 float t21, float t22, float t23, 
-                                 float t31, float t32, float t33)
+vtkIdType vtkTensors::InsertNextTensor(float t11, float t12, float t13, 
+                                       float t21, float t22, float t23, 
+                                       float t31, float t32, float t33)
 {
   vtkTensor *t = vtkTensor::New();
   t->SetComponent(0,0,t11);
@@ -137,7 +137,7 @@ int vtkTensors::InsertNextTensor(float t11, float t12, float t13,
   t->SetComponent(2,1,t32);
   t->SetComponent(2,2,t33);
 
-  int id = this->InsertNextTensor(t);
+  vtkIdType id = this->InsertNextTensor(t);
   t->Delete();
   return id;
 }
@@ -145,10 +145,10 @@ int vtkTensors::InsertNextTensor(float t11, float t12, float t13,
 // Given a list of pt ids, return an array of tensors.
 void vtkTensors::GetTensors(vtkIdList *ptIds, vtkTensors *t)
 {
-  int num=ptIds->GetNumberOfIds();
+  vtkIdType num=ptIds->GetNumberOfIds();
 
   t->SetNumberOfTensors(num);
-  for (int i=0; i<num; i++)
+  for (vtkIdType i=0; i<num; i++)
     {
     t->SetTensor(i,this->GetTensor(ptIds->GetId(i)));
     }

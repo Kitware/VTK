@@ -158,27 +158,29 @@ void vtkGenericCell::EvaluateLocation(int& subId, float pcoords[3],
 }
 
 void vtkGenericCell::Contour(float value, vtkScalars *cellScalars, 
-			    vtkPointLocator *locator, vtkCellArray *verts, 
-			    vtkCellArray *lines, vtkCellArray *polys, 
-			    vtkPointData *inPd, vtkPointData *outPd,
-			    vtkCellData *inCd, int cellId, vtkCellData *outCd)
+                             vtkPointLocator *locator, vtkCellArray *verts, 
+                             vtkCellArray *lines, vtkCellArray *polys, 
+                             vtkPointData *inPd, vtkPointData *outPd,
+                             vtkCellData *inCd, vtkIdType cellId,
+                             vtkCellData *outCd)
 {
   this->Cell->Contour(value, cellScalars, locator, verts, lines, polys,
 		      inPd, outPd, inCd, cellId, outCd);
 }
 
 void vtkGenericCell::Clip(float value, vtkScalars *cellScalars, 
-			 vtkPointLocator *locator, vtkCellArray *connectivity,
-			 vtkPointData *inPd, vtkPointData *outPd,
-			 vtkCellData *inCd, int cellId, vtkCellData *outCd, 
-			 int insideOut)
+                          vtkPointLocator *locator, vtkCellArray *connectivity,
+                          vtkPointData *inPd, vtkPointData *outPd,
+                          vtkCellData *inCd, vtkIdType cellId,
+                          vtkCellData *outCd, int insideOut)
 {
   this->Cell->Clip(value, cellScalars, locator, connectivity, inPd,
 		   outPd, inCd, cellId, outCd, insideOut);
 }
 
-int vtkGenericCell::IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
-				     float x[3], float pcoords[3], int& subId)
+int vtkGenericCell::IntersectWithLine(float p1[3], float p2[3], float tol,
+                                      float& t, float x[3], float pcoords[3],
+                                      int& subId)
 {
   return this->Cell->IntersectWithLine(p1, p2, tol, t, x, pcoords, subId);
 }
@@ -189,7 +191,7 @@ int vtkGenericCell::Triangulate(int index, vtkIdList *ptIds, vtkPoints *pts)
 }
 
 void vtkGenericCell::Derivatives(int subId, float pcoords[3], float *values, 
-				int dim, float *derivs)
+                                 int dim, float *derivs)
 {
   this->Cell->Derivatives(subId, pcoords, values, dim, derivs);
 }

@@ -364,12 +364,13 @@ static TRIANGLE_CASES triCases[] = {
 };
 
 void vtkPyramid::Contour(float value, vtkScalars *cellScalars, 
-                       vtkPointLocator *locator,
-                       vtkCellArray *vtkNotUsed(verts), 
-                       vtkCellArray *vtkNotUsed(lines), 
-                       vtkCellArray *polys,
-                       vtkPointData *inPd, vtkPointData *outPd,
-                       vtkCellData *inCd, int cellId, vtkCellData *outCd)
+                         vtkPointLocator *locator,
+                         vtkCellArray *vtkNotUsed(verts), 
+                         vtkCellArray *vtkNotUsed(lines), 
+                         vtkCellArray *polys,
+                         vtkPointData *inPd, vtkPointData *outPd,
+                         vtkCellData *inCd, vtkIdType cellId,
+                         vtkCellData *outCd)
 {
   static int CASE_MASK[5] = {1,2,4,8,16};
   TRIANGLE_CASES *triCase;

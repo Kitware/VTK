@@ -95,18 +95,18 @@ public:
   // method requires separate x-y-z values.
   // These methods are thread safe if BuildLocator() is directly or
   // indirectly called from a single thread first.
-  virtual int FindClosestPoint(const float x[3]);
-  int FindClosestPoint(float x, float y, float z);
+  virtual vtkIdType FindClosestPoint(const float x[3]);
+  vtkIdType FindClosestPoint(float x, float y, float z);
 
   // Description:
   // Given a position x and a radius r, return the id of the point 
   // closest to the point in that radius.
   // These methods are thread safe if BuildLocator() is directly or
   // indirectly called from a single thread first.
-  int FindClosestPointWithinRadius(float radius, const float x[3],
-				   float& dist2);
-  int FindClosestPointWithinRadius(float radius, const float x[3], 
-				   float inputDataLength, float& dist2);
+  vtkIdType FindClosestPointWithinRadius(float radius, const float x[3],
+                                         float& dist2);
+  vtkIdType FindClosestPointWithinRadius(float radius, const float x[3], 
+                                         float inputDataLength, float& dist2);
 
   // Description:
   // Initialize the point insertion process. The newPts is an object
@@ -131,7 +131,7 @@ public:
   // newPts have been supplied, the bounds has been set properly, and that 
   // divs are properly set. (See InitPointInsertion().)
   // Not thread safe.
-  virtual void InsertPoint(int ptId, const float x[3]);
+  virtual void InsertPoint(vtkIdType ptId, const float x[3]);
 
   // Description:
   // Incrementally insert a point into search structure. The method returns
@@ -142,19 +142,19 @@ public:
   // supplied, the bounds has been set properly, and that divs are 
   // properly set. (See InitPointInsertion().)
   // Not thread safe.
-  virtual int InsertNextPoint(const float x[3]);
+  virtual vtkIdType InsertNextPoint(const float x[3]);
 
   // Description:
   // Determine whether point given by x[3] has been inserted into points list.
   // Return id of previously inserted point if this is true, otherwise return
   // -1. This method is thread safe.
-  int IsInsertedPoint(float x, float  y, float z)
+  vtkIdType IsInsertedPoint(float x, float  y, float z)
     {
     float xyz[3];
     xyz[0] = x; xyz[1] = y; xyz[2] = z;
     return this->IsInsertedPoint (xyz);
     };
-  virtual int IsInsertedPoint(const float x[3]);
+  virtual vtkIdType IsInsertedPoint(const float x[3]);
 
   // Description:
   // Determine whether point given by x[3] has been inserted into points list.
@@ -172,7 +172,7 @@ public:
   // indicates that no point was found.
   // This method is thread safe if  BuildLocator() is directly or
   // indirectly called from a single thread first.
-  virtual int FindClosestInsertedPoint(const float x[3]);
+  virtual vtkIdType FindClosestInsertedPoint(const float x[3]);
 
   // Description:
   // Find the closest N points to a position. This returns the closest
@@ -247,11 +247,11 @@ protected:
   int NumberOfPointsPerBucket; //Used with previous boolean to control subdivide
   float Bounds[6]; // bounds of points
   vtkIdList **HashTable; // lists of point ids in buckets
-  int NumberOfBuckets; // total size of hash table
+  vtkIdType NumberOfBuckets; // total size of hash table
   float H[3]; // width of each bucket in x-y-z directions
 
   float InsertionTol2;
-  int InsertionPointId;
+  vtkIdType InsertionPointId;
 
   float InsertionLevel; 
 };

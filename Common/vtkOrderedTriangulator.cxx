@@ -60,8 +60,8 @@ class vtkOTVector
 {
 private:
   T* Array;
-  int MaxId;
-  int Size;
+  vtkIdType MaxId;
+  vtkIdType Size;
   T* Front; //to support Pop()
   
 public:
@@ -76,7 +76,7 @@ public:
       this->MaxId = -1;
     }
   ~vtkOTVector() {if ( this->Array ) {delete [] this->Array;}}
-  void Allocate(int size)
+  void Allocate(vtkIdType size)
     {
       this->MaxId = -1;
       if ( size <= this->Size ) return;
@@ -84,7 +84,7 @@ public:
       this->Front = this->Array = new T [size];
       this->Size = size;
     }
-  void SetNumberOfValues(int num)
+  void SetNumberOfValues(vtkIdType num)
     {
       this->Allocate(num);
       this->MaxId = num-1;
@@ -114,15 +114,15 @@ public:
       this->Array[this->MaxId] = item;
       return this->Array + MaxId;
     }
-  T& operator[](int i)
+  T& operator[](vtkIdType i)
     {
       return *(this->Array + i);
     }
-  Iterator GetPointer(int i)
+  Iterator GetPointer(vtkIdType i)
     {
       return this->Array + i;
     }
-  unsigned int GetNumberOfValues()
+  vtkIdType GetNumberOfValues()
     {
       return this->MaxId + 1;
     }
@@ -135,7 +135,7 @@ public:
     {
       return (this->Front == this->End() ? this->End() : this->Front++);
     }
-  int GetMaxId() {return this->MaxId;}
+  vtkIdType GetMaxId() {return this->MaxId;}
 };
 
 
@@ -245,8 +245,8 @@ public:
     {this->X[0] = this->X[1] = this->X[2] = 0.0;}
   enum PointClassification 
     {Inside=0,Outside=1,Boundary=2,Added=3,NoInsert=4};
-  int Id; //Id to data outside this class
-  int InternalId; //Id (order) of point insertion
+  vtkIdType Id; //Id to data outside this class
+  vtkIdType InternalId; //Id (order) of point insertion
   double X[3];
   PointClassification Type; //inside, outside
 };
@@ -466,9 +466,10 @@ void vtkOrderedTriangulator::InitTriangulation(float bounds[6], int numPts)
 
 
 //------------------------------------------------------------------------
-int vtkOrderedTriangulator::InsertPoint(int id, float x[3], int type)
+vtkIdType vtkOrderedTriangulator::InsertPoint(vtkIdType id, float x[3],
+                                              int type)
 {
-  int idx = this->NumberOfPoints++;
+  vtkIdType idx = this->NumberOfPoints++;
   if ( idx > this->MaximumNumberOfPoints )
     {
     vtkErrorMacro(<< "Trying to insert more points than specified");
@@ -486,7 +487,7 @@ int vtkOrderedTriangulator::InsertPoint(int id, float x[3], int type)
 }
 
 //------------------------------------------------------------------------
-void vtkOrderedTriangulator::UpdatePointType(int internalId, int type)
+void vtkOrderedTriangulator::UpdatePointType(vtkIdType internalId, int type)
 {
   this->Mesh->Points[internalId].Type = (vtkOTPoint::PointClassification) type;
 }
@@ -573,7 +574,7 @@ inline vtkOTTetra::TetraClassification vtkOTTetra::GetType()
     }
 }
 
-inline static int IsAPoint(vtkOTTetra *t, int id)
+inline static int IsAPoint(vtkOTTetra *t, vtkIdType id)
 {
   if ( id == t->Points[0]->InternalId || id == t->Points[1]->InternalId ||
        id == t->Points[2]->InternalId || id == t->Points[3]->InternalId )
@@ -754,8 +755,9 @@ void vtkOrderedTriangulator::Triangulate()
 {
   vtkOTLinkedList<vtkOTTetra*>::Iterator tptr;
   vtkOTPoint *p;
-  int ptId, i;
-
+  int i;
+  vtkIdType ptId;
+  
   // Sort the points according to id. The last six points are left
   // where they are (at the end of the list).
   if ( ! this->PreSorted )
@@ -802,8 +804,8 @@ void vtkOrderedTriangulator::Triangulate()
     // up tetrahedron face neighbors, so we'll use an edge table
     // to keep track of the tetrahedron that generated the face as
     // a result of sweeping an edge.
-    int v1, v2;
-    int tetraId, id;
+    vtkIdType v1, v2;
+    vtkIdType tetraId, id;
 
     this->Mesh->EdgeTable->InitEdgeInsertion(this->MaximumNumberOfPoints+6,1);
     this->Mesh->TetraQueue.Reset();
@@ -845,12 +847,12 @@ void vtkOrderedTriangulator::Triangulate()
 }
 
 
-int vtkOrderedTriangulator::GetTetras(int classification, 
-                                       vtkUnstructuredGrid *ugrid)
+vtkIdType vtkOrderedTriangulator::GetTetras(int classification, 
+                                            vtkUnstructuredGrid *ugrid)
 {
   // Create the points
   //
-  int numTetras=0;
+  vtkIdType numTetras=0;
   vtkOTVector<vtkOTPoint>::Iterator p;
   vtkPoints *points = vtkPoints::New();
   points->SetNumberOfPoints(this->MaximumNumberOfPoints+6);
@@ -887,12 +889,12 @@ int vtkOrderedTriangulator::GetTetras(int classification,
 }
 
 //------------------------------------------------------------------------
-int vtkOrderedTriangulator::AddTetras(int classification, 
-                                       vtkCellArray *outConnectivity)
+vtkIdType vtkOrderedTriangulator::AddTetras(int classification, 
+                                            vtkCellArray *outConnectivity)
 {
   vtkOTLinkedList<vtkOTTetra*>::Iterator tptr;
   vtkOTTetra::TetraClassification type; //inside, outside
-  int numTetras=0;
+  vtkIdType numTetras=0;
 
   // loop over all tetras getting the ones with the classification requested
   for (tptr=this->Mesh->Tetras.Begin(); 
@@ -914,10 +916,10 @@ int vtkOrderedTriangulator::AddTetras(int classification,
   return numTetras;
 }
 
-int vtkOrderedTriangulator::AddTetras(int classification, 
-                                      vtkUnstructuredGrid *ugrid)
+vtkIdType vtkOrderedTriangulator::AddTetras(int classification, 
+                                            vtkUnstructuredGrid *ugrid)
 {
-  int numTetras=0;
+  vtkIdType numTetras=0;
   vtkOTLinkedList<vtkOTTetra*>::Iterator tptr;
   vtkOTTetra::TetraClassification type; //inside, outside
 

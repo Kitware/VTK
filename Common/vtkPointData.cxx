@@ -57,7 +57,7 @@ vtkPointData* vtkPointData::New()
   return new vtkPointData;
 }
 
-void vtkPointData::NullPoint (int ptId)
+void vtkPointData::NullPoint (vtkIdType ptId)
 {
   vtkFieldData::Iterator it(this);
   vtkDataArray* da;

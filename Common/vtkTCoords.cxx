@@ -96,10 +96,10 @@ void vtkTCoords::SetData(vtkDataArray *data)
 // Given a list of pt ids, return an array of texture coordinates.
 void vtkTCoords::GetTCoords(vtkIdList *ptIds, vtkTCoords *tc)
 {
-  int num = ptIds->GetNumberOfIds();
+  vtkIdType num = ptIds->GetNumberOfIds();
 
   tc->SetNumberOfTCoords(num);
-  for (int i=0; i<num; i++)
+  for (vtkIdType i=0; i<num; i++)
     {
     tc->SetTCoord(i,this->GetTCoord(ptIds->GetId(i)));
     }

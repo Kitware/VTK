@@ -89,8 +89,8 @@ vtkCell *vtkVertex::MakeObject()
 }
 
 int vtkVertex::EvaluatePosition(float x[3], float* closestPoint,
-                              int& subId, float pcoords[3], 
-                              float& dist2, float *weights)
+                                int& subId, float pcoords[3], 
+                                float& dist2, float *weights)
 {
   float *X;
 
@@ -162,7 +162,7 @@ void vtkVertex::Contour(float value, vtkScalars *cellScalars,
 			vtkCellArray *vtkNotUsed(lines), 
 			vtkCellArray *vtkNotUsed(polys), 
                         vtkPointData *inPd, vtkPointData *outPd,
-                        vtkCellData *inCd, int cellId, vtkCellData *outCd)
+                        vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd)
 {
   if ( value == cellScalars->GetScalar(0) )
     {
@@ -231,7 +231,8 @@ int vtkVertex::IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
 
 // Triangulate the vertex. This method fills pts and ptIds with information
 // from the only point in the vertex.
-int vtkVertex::Triangulate(int vtkNotUsed(index),vtkIdList *ptIds, vtkPoints *pts)
+int vtkVertex::Triangulate(int vtkNotUsed(index),vtkIdList *ptIds,
+                           vtkPoints *pts)
 {
   pts->Reset();
   ptIds->Reset();
@@ -262,7 +263,7 @@ void vtkVertex::Derivatives(int vtkNotUsed(subId),
 void vtkVertex::Clip(float value, vtkScalars *cellScalars, 
                      vtkPointLocator *locator, vtkCellArray *verts,
                      vtkPointData *inPd, vtkPointData *outPd,
-                     vtkCellData *inCd, int cellId, vtkCellData *outCd,
+                     vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd,
                      int insideOut)
 {
   float s, *x;

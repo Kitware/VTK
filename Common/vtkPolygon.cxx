@@ -1002,11 +1002,12 @@ int vtkPolygon::CellBoundary(int vtkNotUsed(subId), float pcoords[3],
 }
 
 void vtkPolygon::Contour(float value, vtkScalars *cellScalars, 
-                        vtkPointLocator *locator,
-                        vtkCellArray *verts, vtkCellArray *lines, 
-                        vtkCellArray *polys,
-                        vtkPointData *inPd, vtkPointData *outPd,
-                        vtkCellData *inCd, int cellId, vtkCellData *outCd)
+                         vtkPointLocator *locator,
+                         vtkCellArray *verts, vtkCellArray *lines, 
+                         vtkCellArray *polys,
+                         vtkPointData *inPd, vtkPointData *outPd,
+                         vtkCellData *inCd, vtkIdType cellId,
+                         vtkCellData *outCd)
 {
   int i, success;
   float *bounds, d;
@@ -1286,7 +1287,7 @@ void vtkPolygon::Derivatives(int vtkNotUsed(subId), float pcoords[3],
 void vtkPolygon::Clip(float value, vtkScalars *cellScalars, 
                       vtkPointLocator *locator, vtkCellArray *tris,
                       vtkPointData *inPD, vtkPointData *outPD,
-                      vtkCellData *inCD, int cellId, vtkCellData *outCD,
+                      vtkCellData *inCD, vtkIdType cellId, vtkCellData *outCD,
                       int insideOut)
 {
   int i, success;

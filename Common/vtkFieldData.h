@@ -85,7 +85,7 @@ public:
   // Description:
   // Allocate data for each array.
   // Note that ext is no longer used.
-  int Allocate(const int sz, const int ext=1000);
+  int Allocate(const vtkIdType sz, const vtkIdType ext=1000);
 
   // Description:
   // Virtual constructor creates a field with the same number of data 
@@ -223,7 +223,7 @@ public:
   // This is because in those cases, the attribute data is 
   // stored with the other fields and will cause the method
   // to behave in an unexpected way.
-  int GetNumberOfTuples();
+  vtkIdType GetNumberOfTuples();
 
   // Description:
   // Set the number of tuples for each data array in the field.
@@ -232,7 +232,7 @@ public:
   // This is because in those cases, the attribute data is 
   // stored with the other fields and will cause the method
   // to behave in an unexpected way.
-  void SetNumberOfTuples(const int number);
+  void SetNumberOfTuples(const vtkIdType number);
 
   // Description:
   // Return a tuple consisting of a concatenation of all data from all
@@ -243,7 +243,7 @@ public:
   // This is because in those cases, the attribute data is 
   // stored with the other fields and will cause the method
   // to behave in an unexpected way.
-  float *GetTuple(const int i);
+  float *GetTuple(const vtkIdType i);
 
   // Description:
   // Copy the ith tuple value into a user provided tuple array. Make
@@ -253,7 +253,7 @@ public:
   // This is because in those cases, the attribute data is 
   // stored with the other fields and will cause the method
   // to behave in an unexpected way.
-  void GetTuple(const int i, float * tuple);
+  void GetTuple(const vtkIdType i, float * tuple);
 
   // Description:
   // Set the tuple value at the ith location. Set operations
@@ -263,7 +263,7 @@ public:
   // This is because in those cases, the attribute data is 
   // stored with the other fields and will cause the method
   // to behave in an unexpected way.
-  void SetTuple(const int i, const float * tuple);
+  void SetTuple(const vtkIdType i, const float * tuple);
 
   // Description:
   // Insert the tuple value at the ith location. Range checking is
@@ -273,7 +273,7 @@ public:
   // This is because in those cases, the attribute data is 
   // stored with the other fields and will cause the method
   // to behave in an unexpected way.
-  void InsertTuple(const int i, const float * tuple);
+  void InsertTuple(const vtkIdType i, const float * tuple);
 
   // Description:
   // Insert the tuple value at the end of the tuple matrix. Range
@@ -283,7 +283,7 @@ public:
   // This is because in those cases, the attribute data is 
   // stored with the other fields and will cause the method
   // to behave in an unexpected way.
-  int InsertNextTuple(const float * tuple);
+  vtkIdType InsertNextTuple(const float * tuple);
 
   // Description:
   // Get the component value at the ith tuple (or row) and jth component (or
@@ -293,7 +293,7 @@ public:
   // This is because in those cases, the attribute data is 
   // stored with the other fields and will cause the method
   // to behave in an unexpected way.
-  float GetComponent(const int i, const int j);
+  float GetComponent(const vtkIdType i, const int j);
 
   // Description:
   // Set the component value at the ith tuple (or row) and jth component (or
@@ -304,7 +304,7 @@ public:
   // This is because in those cases, the attribute data is 
   // stored with the other fields and will cause the method
   // to behave in an unexpected way.
-  void SetComponent(const int i, const int j, const float c);
+  void SetComponent(const vtkIdType i, const int j, const float c);
   
   // Description:
   // Insert the component value at the ith tuple (or row) and jth component
@@ -315,7 +315,7 @@ public:
   // This is because in those cases, the attribute data is 
   // stored with the other fields and will cause the method
   // to behave in an unexpected way.
-  void InsertComponent(const int i, const int j, const float c);
+  void InsertComponent(const vtkIdType i, const int j, const float c);
 
 protected:
 

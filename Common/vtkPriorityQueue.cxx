@@ -67,11 +67,11 @@ vtkPriorityQueue::vtkPriorityQueue()
 
 // Allocate priority queue with specified size and amount to extend
 // queue (if reallocation required).
-void vtkPriorityQueue::Allocate(const int sz, const int ext)
+void vtkPriorityQueue::Allocate(const vtkIdType sz, const vtkIdType ext)
 {
-  this->ItemLocation = vtkIntArray::New();
+  this->ItemLocation = vtkIdTypeArray::New();
   this->ItemLocation->Allocate(sz,ext);
-  for (int i=0; i < sz; i++)
+  for (vtkIdType i=0; i < sz; i++)
     {
     this->ItemLocation->SetValue(i,-1);
     }
@@ -100,9 +100,9 @@ vtkPriorityQueue::~vtkPriorityQueue()
 }
 
 // Insert id with priority specified.
-void vtkPriorityQueue::Insert(float priority, int id)
+void vtkPriorityQueue::Insert(float priority, vtkIdType id)
 {
-  int i, idx;
+  vtkIdType i, idx;
   vtkPriorityItem temp;
 
   // check and make sure item hasn't been inserted before
@@ -121,7 +121,7 @@ void vtkPriorityQueue::Insert(float priority, int id)
   this->Array[this->MaxId].id = id;
   if ( id >= this->ItemLocation->GetSize() ) //might have to resize and initialize
     {
-    int oldSize = this->ItemLocation->GetSize();
+    vtkIdType oldSize = this->ItemLocation->GetSize();
     this->ItemLocation->InsertValue(id,this->MaxId); 
     for (i=oldSize; i < this->ItemLocation->GetSize(); i++) 
       {
@@ -148,7 +148,7 @@ void vtkPriorityQueue::Insert(float priority, int id)
 }
 
 // Simplified call for easier wrapping for Tcl.
-int vtkPriorityQueue::Pop(int location)
+vtkIdType vtkPriorityQueue::Pop(vtkIdType location)
 {
   float priority;
   return this->Pop(priority, location);
@@ -156,9 +156,9 @@ int vtkPriorityQueue::Pop(int location)
 
 // Removes item at specified location from tree; then reorders and
 // balances tree. The location == 0 is the root of the tree.
-int vtkPriorityQueue::Pop(float &priority, int location)
+vtkIdType vtkPriorityQueue::Pop(float &priority, vtkIdType location)
 {
-  int id, i, j, idx;
+  vtkIdType id, i, j, idx;
   vtkPriorityItem temp;
 
   if ( this->MaxId < 0 )
@@ -216,10 +216,10 @@ int vtkPriorityQueue::Pop(float &priority, int location)
 }
 
 // Protected method reallocates queue.
-vtkPriorityItem *vtkPriorityQueue::Resize(const int sz)
+vtkPriorityItem *vtkPriorityQueue::Resize(const vtkIdType sz)
 {
   vtkPriorityItem *newArray;
-  int newSize;
+  vtkIdType newSize;
 
   if (sz >= this->Size)
     {
