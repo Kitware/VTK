@@ -62,6 +62,8 @@ vtkActor planeActor
 ren1 AddActor planeActor
 ren1 SetBackground 0.5 0.5 0.5
 renWin SetSize 450 450
+#renWin SetFileName "testTexThres.tcl.ppm"
+#renWin SaveImageAsPPM
 
 iren Initialize
 
