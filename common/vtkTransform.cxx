@@ -530,11 +530,7 @@ float *vtkTransform::GetOrientationWXYZ ()
   float	scaleX, scaleY, scaleZ;
   vtkTransform *temp1 = new vtkTransform;
   vtkMatrix4x4 temp;
-  float cT, sT;
-  float cP, sP;
-  float cS, sS;
   float quat[4];
-  float *orient;
   static float WXYZ[4];
   float mag;
   
