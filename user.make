@@ -12,8 +12,9 @@ MESA_INCLUDE=-I/home/martink/storage/Mesa-1.2.6/include
 MESA_LIB=/home/martink/storage/Mesa-1.2.6/lib-sun4-solaris/libMesaGL.a
 
 # Add additional CFLAGS and CXXFLAGS for compilation
-USER_CFLAGS = 
-USER_CXXFLAGS = 
+# uncomment the following two lines to set your own flags
+#USER_CFLAGS =  
+#USER_CXXFLAGS = 
 
 # if you want to try the java support you'll need to set the following
 # variables to match your environment
