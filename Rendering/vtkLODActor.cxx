@@ -92,11 +92,11 @@ void vtkLODActor::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkActor::PrintSelf(os,indent);
 
-  os << indent << "Cloud Points: " << this->NumberOfCloudPoints << "\n";
+  os << indent << "Cloud Points: " << this->NumberOfCloudPoints << endl;
 
   // how should we print out the LODMappers?
-  os << indent << "NumberOfLODMappers: " << this->LODMappers->GetNumberOfItems() 
-     << endl;
+  os << indent << "Number Of LOD Mappers: " 
+     << this->LODMappers->GetNumberOfItems() << endl;
 }
 
 
@@ -119,7 +119,6 @@ void vtkLODActor::Render(vtkRenderer *ren, vtkMapper *vtkNotUsed(m))
     this->CreateOwnLODs();
     }
   
-  
   // If the actor has changed or the primary mapper has changed ...
   // Is this the correct test?
   if (this->MediumMapper)
@@ -134,12 +133,12 @@ void vtkLODActor::Render(vtkRenderer *ren, vtkMapper *vtkNotUsed(m))
   // figure out how much time we have to render
   myTime = this->AllocatedRenderTime;
 
-  //   Figure out which resolution to use 
+  // Figure out which resolution to use 
   // none is a valid resolution. Do we want to have a lowest:
   // bbox, single point, ...
-  //   There is no order to the list, so it is assumed that mappers that take
+  // There is no order to the list, so it is assumed that mappers that take
   // longer to render are better quality.
-  //   Timings might become out of date, but we rely on 
+  // Timings might become out of date, but we rely on 
 
   bestMapper = this->Mapper;
   bestTime = bestMapper->GetTimeToDraw();
@@ -176,7 +175,7 @@ void vtkLODActor::Render(vtkRenderer *ren, vtkMapper *vtkNotUsed(m))
       }
     }
     
-  /* render the property */
+  // render the property
   if (!this->Property)
     {
     // force creation of a property
@@ -191,7 +190,7 @@ void vtkLODActor::Render(vtkRenderer *ren, vtkMapper *vtkNotUsed(m))
   this->Device->SetProperty(this->Property);
   
   
-  /* render the texture */
+  // render the texture
   if (this->Texture)
     {
     this->Texture->Render(ren);
@@ -286,8 +285,6 @@ void vtkLODActor::AddLODMapper(vtkMapper *mapper)
 // Maybe we should remove this exculsive feature.
 void vtkLODActor::CreateOwnLODs()
 {
-  int num;
-
   if (this->MediumMapper)
     {
     return;
@@ -300,8 +297,7 @@ void vtkLODActor::CreateOwnLODs()
     }
   
   // There are ways of getting arround this limitation ...
-  num = this->LODMappers->GetNumberOfItems();
-  if (num > 0)
+  if ( this->LODMappers->GetNumberOfItems() > 0 )
     {
     vtkErrorMacro(<<
 	  "Cannot generate LOD mappers when some have been added already");
@@ -312,13 +308,11 @@ void vtkLODActor::CreateOwnLODs()
   this->MaskPoints = vtkMaskPoints::New();
   this->MaskPoints->RandomModeOn();
   this->MaskPoints->GenerateVerticesOn();
+  this->MediumMapper = vtkPolyDataMapper::New();
+
   this->OutlineFilter = vtkOutlineFilter::New();
   this->LowMapper = vtkPolyDataMapper::New();
-  this->MediumMapper = vtkPolyDataMapper::New();
-  
-  // connect the filters
-  this->MediumMapper->SetInput(this->MaskPoints->GetOutput());
-  this->LowMapper->SetInput(this->OutlineFilter->GetOutput());
+
   this->LODMappers->AddItem(this->MediumMapper);
   this->LODMappers->AddItem(this->LowMapper);
   
@@ -348,9 +342,13 @@ void vtkLODActor::UpdateOwnLODs()
   this->MaskPoints->SetInput(this->Mapper->GetInput());
   this->MaskPoints->SetMaximumNumberOfPoints(this->NumberOfCloudPoints);
   this->OutlineFilter->SetInput(this->Mapper->GetInput());
-  this->MediumMapper->SetScalarRange(this->Mapper->GetScalarRange());
-  this->MediumMapper->SetScalarVisibility(this->Mapper->GetScalarVisibility());
   
+  // copy all parameters including LUTs, scalar range, etc.
+  this->MediumMapper->ShallowCopy(this->Mapper);
+  this->MediumMapper->SetInput(this->MaskPoints->GetOutput());
+  this->LowMapper->ShallowCopy(this->Mapper);
+  this->LowMapper->SetInput(this->OutlineFilter->GetOutput());
+
   this->BuildTime.Modified();
 }
 
@@ -380,8 +378,6 @@ void vtkLODActor::DeleteOwnLODs()
   this->MediumMapper->Delete();
   this->MediumMapper = NULL;
 }
-
-
 
 //----------------------------------------------------------------------------
 void vtkLODActor::Modified()

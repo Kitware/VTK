@@ -102,7 +102,7 @@ public:
 
   // Description:
   // Make a shallow copy of this mapper.
-  void ShallowCopy(vtkMapper *m);
+  void ShallowCopy(vtkAbstractMapper *m);
 
   // Description:
   // Overload standard modified time function. If lookup table is modified,

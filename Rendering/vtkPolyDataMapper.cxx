@@ -146,6 +146,21 @@ float *vtkPolyDataMapper::GetBounds()
     }
 }
 
+void vtkPolyDataMapper::ShallowCopy(vtkAbstractMapper *mapper)
+{
+  vtkPolyDataMapper *m = vtkPolyDataMapper::SafeDownCast(mapper);
+  if ( m != NULL )
+    {
+    this->SetInput(m->GetInput());
+    this->SetGhostLevel(m->GetGhostLevel());
+    this->SetNumberOfPieces(m->GetNumberOfPieces());
+    this->SetNumberOfSubPieces(m->GetNumberOfSubPieces());
+    }
+
+  // Now do superclass
+  this->vtkMapper::ShallowCopy(mapper);
+}
+
 void vtkPolyDataMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkMapper::PrintSelf(os,indent);

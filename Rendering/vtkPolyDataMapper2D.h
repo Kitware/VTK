@@ -188,7 +188,7 @@ public:
   
   // Description:
   // Make a shallow copy of this mapper.
-  void ShallowCopy(vtkPolyDataMapper2D *m);
+  void ShallowCopy(vtkAbstractMapper *m);
 
   // Description:
   // Calculate and return the colors for the input. After invoking this

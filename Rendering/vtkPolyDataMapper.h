@@ -102,6 +102,10 @@ public:
   virtual void GetBounds(float bounds[6]) 
     {this->vtkMapper::GetBounds(bounds);};
   
+  // Description:
+  // Make a shallow copy of this mapper.
+  void ShallowCopy(vtkAbstractMapper *m);
+
 protected:  
   vtkPolyDataMapper();
   ~vtkPolyDataMapper() {};

@@ -63,6 +63,15 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // For greater control on levels of detail, see also vtkLODProp3D. That
 // class allows arbitrary definition of each LOD.
 
+// .SECTION Caveats
+// If you provide your own mappers, you are responsible for setting its
+// ivars correctly, such as ScalarRange, LookupTable, and so on.
+//
+// On some systems the point cloud rendering (the default, medium level of
+// detail) can result in points so small that they can hardly be seen. In
+// this case, use the GetProperty()->SetPointSize() method to increase the
+// rendered size of the points.
+
 // .SECTION see also
 // vtkActor vtkRenderer vtkLODProp3D
 
@@ -93,8 +102,8 @@ public:
   virtual void Render(vtkRenderer *, vtkMapper *);
 
   // Description:
-  // This method is used internally by the rendering process.
-  // We overide the superclass method to properly set the estimated render time.
+  // This method is used internally by the rendering process. We overide 
+  // the superclass method to properly set the estimated render time.
   int RenderOpaqueGeometry(vtkViewport *viewport);
 
   // Description:
@@ -144,6 +153,7 @@ protected:
   void CreateOwnLODs();
   void UpdateOwnLODs();
   void DeleteOwnLODs();
+
 private:
   vtkLODActor(const vtkLODActor&);  // Not implemented.
   void operator=(const vtkLODActor&);  // Not implemented.

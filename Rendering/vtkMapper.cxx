@@ -202,15 +202,25 @@ unsigned long vtkMapper::GetMTime()
   return mTime;
 }
 
-void vtkMapper::ShallowCopy(vtkMapper *m)
+void vtkMapper::ShallowCopy(vtkAbstractMapper *mapper)
 {
-  this->SetLookupTable(m->GetLookupTable());
-  this->SetClippingPlanes(m->GetClippingPlanes());
-  this->SetScalarVisibility(m->GetScalarVisibility());
-  this->SetScalarRange(m->GetScalarRange());
-  this->SetColorMode(m->GetColorMode());
-  this->SetScalarMode(m->GetScalarMode());
-  this->SetImmediateModeRendering(m->GetImmediateModeRendering());
+  vtkMapper *m = vtkMapper::SafeDownCast(mapper);
+  if ( m != NULL )
+    {
+    this->SetLookupTable(m->GetLookupTable());
+    this->SetScalarVisibility(m->GetScalarVisibility());
+    this->SetScalarRange(m->GetScalarRange());
+    this->SetColorMode(m->GetColorMode());
+    this->SetScalarMode(m->GetScalarMode());
+    this->SetImmediateModeRendering(m->GetImmediateModeRendering());
+    this->SetUseLookupTableScalarRange(m->GetUseLookupTableScalarRange());
+    this->ColorByArrayComponent(m->GetArrayName(),m->GetArrayComponent());
+    this->ColorByArrayComponent(m->GetArrayId(),m->GetArrayComponent());
+    }
+
+  // Now do superclass
+  this->vtkAbstractMapper3D::ShallowCopy(mapper);
+
 }
 
 vtkScalars *vtkMapper::GetColors()

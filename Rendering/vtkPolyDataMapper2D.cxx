@@ -67,14 +67,25 @@ vtkPolyDataMapper2D::vtkPolyDataMapper2D()
   this->ArrayAccessMode = VTK_GET_ARRAY_BY_ID;
 }
 
-void vtkPolyDataMapper2D::ShallowCopy(vtkPolyDataMapper2D *m)
+void vtkPolyDataMapper2D::ShallowCopy(vtkAbstractMapper *mapper)
 {
-  this->SetLookupTable(m->GetLookupTable());
-  this->SetClippingPlanes(m->GetClippingPlanes());
-  this->SetColorMode(m->GetColorMode());
-  this->SetScalarVisibility(m->GetScalarVisibility());
-  this->SetScalarRange(m->GetScalarRange());
-  this->SetTransformCoordinate(m->GetTransformCoordinate());
+  vtkPolyDataMapper2D *m = vtkPolyDataMapper2D::SafeDownCast(mapper);
+  if ( m != NULL )
+    {
+    this->SetLookupTable(m->GetLookupTable());
+    this->SetScalarVisibility(m->GetScalarVisibility());
+    this->SetScalarRange(m->GetScalarRange());
+    this->SetColorMode(m->GetColorMode());
+    this->SetScalarMode(m->GetScalarMode());
+    this->SetUseLookupTableScalarRange(m->GetUseLookupTableScalarRange());
+    this->ColorByArrayComponent(m->GetArrayName(),m->GetArrayComponent());
+    this->ColorByArrayComponent(m->GetArrayId(),m->GetArrayComponent());
+    this->SetTransformCoordinate(m->GetTransformCoordinate());
+    }
+
+  // Now do superclass
+  this->vtkMapper2D::ShallowCopy(mapper);
+
 }
 
 vtkPolyDataMapper2D::~vtkPolyDataMapper2D()
