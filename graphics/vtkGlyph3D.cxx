@@ -215,6 +215,12 @@ void vtkGlyph3D::Execute()
   for (ptIncr=0, inPtId=0; inPtId < numPts; inPtId++, ptIncr += numSourcePts)
     {
 
+    if ( ! (inPtId % 10000) ) 
+      {
+      this->UpdateProgress ((float)inPtId/numPts);
+      if (this->GetAbortExecute()) break;
+      }
+
     // Get the scalar and vector data
     if ( inScalars ) 
       {
