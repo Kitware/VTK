@@ -39,7 +39,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
-#include "vtkImageRegion.h"
 #include "vtkImageCache.h"
 #include "vtkRenderLargeImage.h"
 #include "vtkRenderWindow.h"
@@ -49,14 +48,11 @@ vtkRenderLargeImage::vtkRenderLargeImage()
 {
   this->Input = NULL;
   this->Magnification = 3;
-  this->NumberOfExecutionAxes = 5;
 }
 
 //----------------------------------------------------------------------------
 void vtkRenderLargeImage::PrintSelf(ostream& os, vtkIndent indent)
 {
-  int idx;
-  
   vtkImageSource::PrintSelf(os,indent);
   
   if ( this->Input )
@@ -94,13 +90,13 @@ void vtkRenderLargeImage::UpdateImageInformation()
 			       0, 
 			       this->Magnification*
 			       this->Input->GetRenderWindow()->GetSize()[1] - 1,
-			       0, 0, 0, 0);
+			       0, 0);
 
   // set the spacing
-  this->Output->SetSpacing(1.0, 1.0, 1.0, 1.0);
+  this->Output->SetSpacing(1.0, 1.0, 1.0);
 
   // set the origin.
-  this->Output->SetOrigin(0.0, 0.0, 0.0, 0.0);
+  this->Output->SetOrigin(0.0, 0.0, 0.0);
   
   // set the scalar components
   this->Output->SetNumberOfScalarComponents(3);
@@ -113,10 +109,10 @@ void vtkRenderLargeImage::UpdateImageInformation()
 // Description:
 // This function reads a region from a file.  The regions extent/axes
 // are assumed to be the same as the file extent/order.
-void vtkRenderLargeImage::Execute(vtkImageRegion *region)
+void vtkRenderLargeImage::Execute(vtkImageData *data)
 {
-  int inExtent[8];
-  int inIncr[4];
+  int inExtent[6];
+  int inIncr[3];
   int *size;
   int inWindowExtent[4];
   float viewAngle;
@@ -132,9 +128,9 @@ void vtkRenderLargeImage::Execute(vtkImageRegion *region)
     }
   
   // Get the requested extents.
-  region->GetExtent(4,inExtent);
+  this->Output->GetUpdateExtent(inExtent);
   // get and transform the increments
-  region->GetIncrements(4,inIncr);
+  data->GetIncrements(inIncr);
   
   // get the size of the render window
   size = this->Input->GetRenderWindow()->GetSize();
@@ -161,7 +157,7 @@ void vtkRenderLargeImage::Execute(vtkImageRegion *region)
       this->Input->GetRenderWindow()->Render();
       pixels = this->Input->GetRenderWindow()->GetPixelData(0,0,size[0] - 1,
 							    size[1] - 1, 1);
-      // now stuff the pixels into the region row by row
+      // now stuff the pixels into the data row by row
       colStart = inExtent[0] - x*size[0];
       if (colStart < 0) colStart = 0;
       colEnd = size[0] - 1;
@@ -173,7 +169,7 @@ void vtkRenderLargeImage::Execute(vtkImageRegion *region)
 	  
       // get the output pointer and do arith on it if necc
       outPtr = 
-	(unsigned char *)region->GetScalarPointer(inExtent[0],inExtent[2]);
+	(unsigned char *)data->GetScalarPointer(inExtent[0],inExtent[2],0);
       outPtr = outPtr + (x*size[0] - inExtent[0])*inIncr[0] + 
 	(y*size[1] - inExtent[2])*inIncr[1];
 
@@ -198,14 +194,4 @@ void vtkRenderLargeImage::Execute(vtkImageRegion *region)
   cam->SetWindowCenter(0.0,0.0);
 }
 
-
-
-//----------------------------------------------------------------------------
-// Description:
-// Returns the cache.
-vtkImageCache *vtkRenderLargeImage::GetOutput()
-{
-  this->CheckCache();
-  return this->Output;
-}
 

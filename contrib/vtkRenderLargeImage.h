@@ -73,12 +73,11 @@ public:
   vtkGetObjectMacro(Input,vtkRenderer);
 
   void UpdateImageInformation();
-  vtkImageCache *GetOutput();
   
 protected:
   int Magnification;
   vtkRenderer *Input;
-  void Execute(vtkImageRegion *region);
+  void Execute(vtkImageData *data);
 };
 
 #endif
