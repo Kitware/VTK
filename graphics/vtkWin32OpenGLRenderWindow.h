@@ -85,7 +85,7 @@ public:
   int *GetScreenSize();
   int *GetPosition();
 
-  virtual SetWindowName(char *);
+  virtual void SetWindowName(char *);
   
   void SetWindowInfo(char *);
   //BTX
@@ -105,7 +105,6 @@ public:
   //ETX
 
   // supply base class virtual function
-  void SetDisplayId(void *) {};
   vtkSetMacro(MultiSamples,int);
   vtkGetMacro(MultiSamples,int);
 
