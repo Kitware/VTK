@@ -104,6 +104,11 @@ public:
   vtkInformation* GetOutputPortInformation(int port);
 
   // Description:
+  // Set/Get the information object associated with this algorithm.
+  vtkGetObjectMacro(Information, vtkInformation);
+  virtual void SetInformation(vtkInformation*);
+
+  // Description:
   // Set an input of this algorithm.  The input must correspond to the
   // output of another algorithm.
   //
@@ -191,6 +196,9 @@ public:
 protected:
   vtkAlgorithm();
   ~vtkAlgorithm();
+
+  // Arbitrary extra information associated with this algorithm
+  vtkInformation* Information;
 
   // Description:
   // Fill the input port information objects for this algorithm.  This

@@ -26,8 +26,10 @@
 #include <vtkstd/set>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkAlgorithm, "1.14");
+vtkCxxRevisionMacro(vtkAlgorithm, "1.15");
 vtkStandardNewMacro(vtkAlgorithm);
+
+vtkCxxSetObjectMacro(vtkAlgorithm,Information,vtkInformation);
 
 //----------------------------------------------------------------------------
 class vtkAlgorithmInternals
@@ -169,11 +171,13 @@ vtkAlgorithm::vtkAlgorithm()
   this->ProgressText = NULL;
   this->AlgorithmInternal = new vtkAlgorithmInternals;
   this->GarbageCollecting = 0;
+  this->Information = vtkInformation::New();
 }
 
 //----------------------------------------------------------------------------
 vtkAlgorithm::~vtkAlgorithm()
 {
+  this->SetInformation(0);
   delete this->AlgorithmInternal;
   delete [] this->ProgressText;
   this->ProgressText = NULL;
@@ -201,6 +205,15 @@ void vtkAlgorithm::PrintSelf(ostream& os, vtkIndent indent)
   else
     {
     os << indent << "Executive: (none)\n";
+    }
+
+  if ( this->Information )
+    {
+    os << indent << "Information: " << this->Information << "\n";
+    }
+  else
+    {
+    os << indent << "Information: (none)\n";
     }
 
   os << indent << "AbortExecute: " << (this->AbortExecute ? "On\n" : "Off\n");
