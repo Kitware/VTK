@@ -831,37 +831,38 @@ void vtkQuadricDecimation::GetAttributeComponents()
     this->AttributeComponents[i] = 0;
     }
 
-  if (pd->GetScalars() != NULL)
+  // Attributes are not working yet.
+  if (0 && pd->GetScalars() != NULL)
     {
     this->AttributeComponents[0] = pd->GetScalars()->GetNumberOfComponents();
     this->NumberOfComponents += this->AttributeComponents[0];
     vtkDebugMacro("scalars");
     }
-  if (pd->GetVectors() != NULL)
+  if (0 && pd->GetVectors() != NULL)
     {
     this->AttributeComponents[1] = 3;
     this->NumberOfComponents += 3;
     vtkDebugMacro("vectors");
     }
-  if (pd->GetNormals() != NULL)
+  if (0 && pd->GetNormals() != NULL)
     {
     this->AttributeComponents[2] = 3;
     this->NumberOfComponents += 3;
     vtkDebugMacro("normals");
     }
-  if (pd->GetTCoords() != NULL)
+  if (0 && pd->GetTCoords() != NULL)
     {
     this->AttributeComponents[3] = pd->GetTCoords()->GetNumberOfComponents();
     this->NumberOfComponents += this->AttributeComponents[3];
     vtkDebugMacro("tcoords");
     }
-  if (pd->GetTensors() != NULL)
+  if (0 && pd->GetTensors() != NULL)
     {
     this->AttributeComponents[4] = 9;
     this->NumberOfComponents += 9;
     vtkDebugMacro("tensors");
     }
-  if (pd->GetFieldData() != NULL)
+  if (0 && pd->GetFieldData() != NULL)
     {
     this->AttributeComponents[5] = pd->GetFieldData()->GetNumberOfComponents();
     this->NumberOfComponents += this->AttributeComponents[5];
