@@ -96,3 +96,4 @@ proc SelectPolygons {} {
 
 recorder Play
 recorder Off
+set threshold 15
