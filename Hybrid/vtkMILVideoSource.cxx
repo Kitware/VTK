@@ -24,7 +24,7 @@
 #include <ctype.h>
 #include <string.h>
 
-vtkCxxRevisionMacro(vtkMILVideoSource, "1.20");
+vtkCxxRevisionMacro(vtkMILVideoSource, "1.21");
 vtkStandardNewMacro(vtkMILVideoSource);
 
 //----------------------------------------------------------------------------
@@ -38,6 +38,8 @@ vtkMILVideoSource::vtkMILVideoSource()
   this->BrightnessLevel = 128;
   this->HueLevel = 0.0;
   this->SaturationLevel = 1.0;
+  this->BlackLevel = 0.0;
+  this->WhiteLevel = 255.0;
 
   this->VideoChannel = 0;
   this->VideoInput = VTK_MIL_MONO;
@@ -105,6 +107,10 @@ void vtkMILVideoSource::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "HueLevel: " << this->HueLevel << "\n";
 
   os << indent << "SaturationLevel: " << this->SaturationLevel << "\n";
+
+  os << indent << "BlackLevel: " << this->BlackLevel << "\n";
+
+  os << indent << "WhiteLevel: " << this->WhiteLevel << "\n";
 
   os << indent << "VideoInput: ";
   switch (this->VideoInput)
@@ -282,7 +288,8 @@ static void vtkMILVideoSourceSetLevel(long digID, int ref, float level)
     return;
     }
 
-  int int_level = M_MIN_LEVEL + level*(M_MAX_LEVEL-M_MIN_LEVEL);
+  long int_level = M_MIN_LEVEL + level*(M_MAX_LEVEL-M_MIN_LEVEL);
+  
   if (int_level < M_MIN_LEVEL)
     {
     int_level = M_MIN_LEVEL;
@@ -968,6 +975,34 @@ void vtkMILVideoSource::SetSaturationLevel(float saturation)
 }
 
 //----------------------------------------------------------------------------
+void vtkMILVideoSource::SetBlackLevel(float black)
+{
+  if (this->BlackLevel == black)
+    {
+    return;
+    }
+
+  this->BlackLevel = black;
+  this->Modified();
+
+  vtkMILVideoSourceSetLevel(this->MILDigID,M_BLACK_REF,black/255);
+}
+
+//----------------------------------------------------------------------------
+void vtkMILVideoSource::SetWhiteLevel(float white)
+{
+  if (this->WhiteLevel == white)
+    {
+    return;
+    }
+
+  this->WhiteLevel = white;
+  this->Modified();
+
+  vtkMILVideoSourceSetLevel(this->MILDigID,M_WHITE_REF,white/255);
+}
+
+//----------------------------------------------------------------------------
 void vtkMILVideoSource::AllocateMILDigitizer()
 {
   char *format = "M_NTSC";
@@ -1074,6 +1109,16 @@ void vtkMILVideoSource::AllocateMILDigitizer()
     {
     vtkMILVideoSourceSetLevel(this->MILDigID,M_SATURATION_REF,
                               this->SaturationLevel/2.0);
+    }
+  if (this->BlackLevel != 0.0)
+    {
+    vtkMILVideoSourceSetLevel(this->MILDigID,M_BLACK_REF,
+                              this->BlackLevel/255);
+    }
+  if (this->WhiteLevel != 255.0)
+    {
+    vtkMILVideoSourceSetLevel(this->MILDigID,M_WHITE_REF,
+                              this->WhiteLevel/255);
     }
 
   if (this->MILDigID && this->MILBufID)
