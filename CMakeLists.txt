@@ -30,6 +30,10 @@ IF (VTK_USE_PARALLEL)
     SUBDIRS(Parallel)
 ENDIF (VTK_USE_PARALLEL)
 
+IF (VTK_WRAP_TCL)
+  SUBDIRS(Wrapping/Tcl)
+ENDIF (VTK_WRAP_TCL)
+
 CONFIGURE_FILE(
 ${VTK_SOURCE_DIR}/vtkConfigure.h.in 
 ${VTK_BINARY_DIR}/vtkConfigure.h)

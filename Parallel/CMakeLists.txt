@@ -25,7 +25,7 @@ vtkRemoveGhostCells
 ABSTRACT_FILES( vtkCommunicator )
 
 IF (VTK_USE_MPI)
-  INCLUDE (${CMAKE_SOURCE_DIR}/CMake/Modules/FindMPI.cmake)
+  INCLUDE (${CMAKE_ROOT}/Modules/FindMPI.cmake)
   IF (MPI_LIBRARY)
     SOURCE_FILES ( Parallel_SRCS
       vtkMPICommunicator 
@@ -49,8 +49,53 @@ IF (VTK_WRAP_TCL)
                          vtkFilteringTCL 
                          vtkCommonTCL)
   INSTALL_TARGETS(/lib vtkParallelTCL)
-ENDIF (VTK_WRAP_TCL)
 
+  IF (VTK_USE_MPI)
+    ADD_EXECUTABLE(pvtk tkAppInit)
+
+    TARGET_LINK_LIBRARIES (pvtk
+			 vtkParallelTCL
+                         vtkRenderingTCL
+                         vtkIOTCL 
+                         vtkGraphicsTCL 
+                         vtkImagingTCL 
+                         vtkFilteringTCL 
+                         vtkCommonTCL)
+
+    IF (VTK_USE_PATENTED)
+      TARGET_LINK_LIBRARIES(pvtk vtkPatentedTCL vtkPatented)
+    ENDIF (VTK_USE_PATENTED)
+    IF (VTK_USE_HYBRID)
+      TARGET_LINK_LIBRARIES(pvtk vtkHybridTCL vtkHybrid)
+    ENDIF (VTK_USE_HYBRID)
+
+    # add in opengl
+    IF (WIN32)
+      TARGET_LINK_LIBRARIES (pvtk  ${OPENGL_LIBRARY} )
+    ELSE (WIN32)
+      IF (OPENGL_LIBRARY)
+        TARGET_LINK_LIBRARIES (pvtk ${OPENGL_LIBRARY})
+      ENDIF (OPENGL_LIBRARY)
+    ENDIF (WIN32)
+
+    # add in the Tk values if found
+    IF (TK_INCLUDE_PATH)
+      INCLUDE_DIRECTORIES(${TK_INCLUDE_PATH})
+    ENDIF (TK_INCLUDE_PATH)
+    IF (TK_LIBRARY)
+      TARGET_LINK_LIBRARIES (pvtk ${TK_LIBRARY})
+    ENDIF (TK_LIBRARY)
+
+    # add in xwindows stuff
+    IF (CMAKE_HAS_X)
+      TARGET_LINK_LIBRARIES(pvtk -lXt)
+      TARGET_LINK_LIBRARIES(pvtk ${CMAKE_X_LIBS})
+      ADD_DEFINITIONS(${CMAKE_X_CFLAGS})
+    ENDIF (CMAKE_HAS_X)
+
+    INSTALL_TARGETS(/bin pvtk)
+  ENDIF (VTK_USE_MPI)
+ENDIF (VTK_WRAP_TCL)
 
 # if we are wrapping into Python then add the library and extra 
 # source files
@@ -85,13 +130,13 @@ IF (VTK_WRAP_JAVA)
 ENDIF (VTK_WRAP_JAVA)
 
 LINK_LIBRARIES (
-vtkCommon 
-vtkFiltering 
+vtkParallel
+vtkRendering
 vtkImaging
 vtkGraphics
 vtkIO
-vtkRendering
-vtkParallel
+vtkFiltering 
+vtkCommon 
 )
 
 
