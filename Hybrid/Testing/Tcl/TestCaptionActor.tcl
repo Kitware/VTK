@@ -30,8 +30,8 @@ vtkCaptionActor2D caption
     [caption GetPositionCoordinate] SetCoordinateSystemToNormalizedViewport
     [caption GetPositionCoordinate] SetReferenceCoordinate ""
     [caption GetPositionCoordinate] SetValue 0.05 0.05
-    caption SetWidth 0.15
-    caption SetHeight 0.05
+    caption SetWidth 0.25
+    caption SetHeight 0.15
     caption ThreeDimensionalLeaderOn
     caption SetLeaderGlyph [coneGlyph GetOutput]
 
@@ -43,11 +43,14 @@ vtkCaptionActor2D caption2
     caption2 BorderOff
     caption2 SetPosition 25 10
     caption2 ThreeDimensionalLeaderOff
-    caption2 SetLeaderGlyph [sphereGlyph GetOutput]
+    caption2 SetMaximumLeaderGlyphSize 5
+    caption2 SetLeaderGlyph [coneGlyph GetOutput]
+    caption2 SetWidth .35
+    caption2 SetHeight .1
 
-ren1 AddActor sphereActor
 ren1 AddActor2D caption2
 ren1 AddActor2D caption
+ren1 AddActor sphereActor
 ren1 SetBackground 1 1 1
 [ren1 GetActiveCamera] SetFocalPoint 0 0 0
 [ren1 GetActiveCamera] SetPosition 1 0 0
