@@ -280,7 +280,10 @@ void vtkCell::PrintSelf(ostream& os, vtkIndent indent)
 	}
       else
 	{
-	if ( i != (numIds-1) ) os << ", ";
+	if ( i != (numIds-1) )
+	  {
+	  os << ", ";
+	  }
 	}
       }
     os << indent << "\n";
