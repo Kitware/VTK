@@ -18,16 +18,16 @@
 #ifndef __vtkExtractPolyDataPiece_h
 #define __vtkExtractPolyDataPiece_h
 
-#include "vtkPolyDataToPolyDataFilter.h"
+#include "vtkPolyDataAlgorithm.h"
 
 class vtkIdList;
 class vtkIntArray;
 
-class VTK_PARALLEL_EXPORT vtkExtractPolyDataPiece : public vtkPolyDataToPolyDataFilter
+class VTK_PARALLEL_EXPORT vtkExtractPolyDataPiece : public vtkPolyDataAlgorithm
 {
 public:
   static vtkExtractPolyDataPiece *New();
-  vtkTypeRevisionMacro(vtkExtractPolyDataPiece, vtkPolyDataToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkExtractPolyDataPiece, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:
@@ -41,13 +41,13 @@ protected:
   ~vtkExtractPolyDataPiece() {};
 
   // Usual data generation method
-  void Execute();
-  void ExecuteInformation();
-  void ComputeInputUpdateExtents(vtkDataObject *out);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
  
   // A method for labeling which piece the cells belong to.
   void ComputeCellTags(vtkIntArray *cellTags, vtkIdList *pointOwnership,
-                       int piece, int numPieces);
+                       int piece, int numPieces, vtkPolyData *input);
   
   void AddGhostLevel(vtkPolyData *input, vtkIntArray *cellTags, int ghostLevel);
   

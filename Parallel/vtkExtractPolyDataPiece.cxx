@@ -18,13 +18,16 @@
 #include "vtkCellData.h"
 #include "vtkGenericCell.h"
 #include "vtkIdList.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkOBBDicer.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkExtractPolyDataPiece, "1.19");
+vtkCxxRevisionMacro(vtkExtractPolyDataPiece, "1.20");
 vtkStandardNewMacro(vtkExtractPolyDataPiece);
 
 //=============================================================================
@@ -34,42 +37,45 @@ vtkExtractPolyDataPiece::vtkExtractPolyDataPiece()
 }
 
 //=============================================================================
-void vtkExtractPolyDataPiece::ComputeInputUpdateExtents(vtkDataObject *out)
+int vtkExtractPolyDataPiece::RequestUpdateExtent(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *vtkNotUsed(outputVector))
 {
-  vtkPolyData *input = this->GetInput();
-  
-  if (this->GetInput() == NULL)
-    {
-    vtkErrorMacro("Missing input");
-    return;
-    }
+  // get the info object
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
 
-  out = out;
-  input->SetUpdateExtent(0, 1, 0);
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(), 0);
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(), 1);
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(), 0);
+
+  return 1;
 }
 
 //=============================================================================
-void vtkExtractPolyDataPiece::ExecuteInformation()
+int vtkExtractPolyDataPiece::RequestInformation(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **vtkNotUsed(inputVector),
+  vtkInformationVector *outputVector)
 {
-  if (this->GetInput() == NULL)
-    {
-    vtkErrorMacro("Missing input");
-    return;
-    }
-  this->GetOutput()->SetMaximumNumberOfPieces(-1);
-}
+  // get the info object
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(),
+               -1);
+
+  return 1;
+}
   
 //=============================================================================
 void vtkExtractPolyDataPiece::ComputeCellTags(vtkIntArray *tags, 
                                               vtkIdList *pointOwnership,
-                                              int piece, int numPieces)
+                                              int piece, int numPieces,
+                                              vtkPolyData *input)
 {
-  vtkPolyData *input;
   vtkIdType idx, j, numCells, ptId;
   vtkIdList *cellPtIds;
 
-  input = this->GetInput();
   numCells = input->GetNumberOfCells();
   
   cellPtIds = vtkIdList::New();
@@ -116,10 +122,21 @@ void vtkExtractPolyDataPiece::ComputeCellTags(vtkIntArray *tags,
 }
 
 //=============================================================================
-void vtkExtractPolyDataPiece::Execute()
+int vtkExtractPolyDataPiece::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
-  vtkPolyData *input = this->GetInput();
-  vtkPolyData *output = this->GetOutput();
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkPolyData *input = vtkPolyData::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   vtkPointData *pd=input->GetPointData(), *outPD=output->GetPointData();
   vtkCellData *cd=input->GetCellData(), *outCD=output->GetCellData();
   vtkIntArray *cellTags;
@@ -137,9 +154,9 @@ void vtkExtractPolyDataPiece::Execute()
   double *x=NULL;
 
   // Pipeline update piece will tell us what to generate.
-  ghostLevel = output->GetUpdateGhostLevel();
-  piece = output->GetUpdatePiece();
-  numPieces = output->GetUpdateNumberOfPieces();
+  ghostLevel = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
+  piece = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
+  numPieces = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
   
   outPD->CopyAllocate(pd);
   outCD->CopyAllocate(cd);
@@ -159,7 +176,7 @@ void vtkExtractPolyDataPiece::Execute()
   pointOwnership->Allocate(input->GetNumberOfPoints());
   // Cell tags end up being 0 for cells in piece and -1 for all others.
   // Point ownership is the cell that owns the point.
-  this->ComputeCellTags(cellTags, pointOwnership, piece, numPieces);
+  this->ComputeCellTags(cellTags, pointOwnership, piece, numPieces, input);
   
   // Find the layers of ghost cells.
   if (this->CreateGhostCells)
@@ -283,6 +300,7 @@ void vtkExtractPolyDataPiece::Execute()
   cellTags->Delete();
   pointOwnership->Delete();
 
+  return 1;
 }
 
 //=============================================================================
