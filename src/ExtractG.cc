@@ -74,7 +74,7 @@ void vlExtractGeometry::Execute()
   pointMap = new int[numPts]; // maps old point ids into new
   for (i=0; i < numPts; i++) pointMap[i] = -1;
 
-  this->Allocate(numCells/4);
+  this->Allocate(numCells/4); //allocate storage for geometry/topology
   newPts = new vlFloatPoints(numPts/4,numPts);
   pd = this->Input->GetPointData();
   this->PointData.CopyAllocate(pd);
