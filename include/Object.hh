@@ -19,13 +19,14 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // functions/parameters.
 //
 
-#ifndef __vlObject_h
-#define __vlObject_h
+#ifndef __vlObject_hh
+#define __vlObject_hh
 
 #include <iostream.h>
 #include "TimeSt.hh"
 #include "SetGet.hh"
 #include "Indent.hh"
+#include "PrintLst.hh"
 
 //
 // Common #defines / parameters
@@ -53,7 +54,10 @@ public:
   void Print(ostream& os);
   virtual void PrintHeader(ostream& os, vlIndent indent);
   virtual void PrintSelf(ostream& os, vlIndent indent);
+  int ShouldIPrint(char *a) { return this->PrintList.ShouldIPrint(a);};
   virtual void PrintTrailer(ostream& os, vlIndent indent);
+  void PrintWatchOn() {this->PrintList.ActiveOn();};
+  void PrintWatchOff() {this->PrintList.ActiveOff();};
 
 protected:
   int Debug;       // Enable debug messages
@@ -61,6 +65,7 @@ protected:
 
 private:
   int RefCount;    // Number of uses of this object by other objects
+  vlPrintList PrintList;
 
 friend ostream& operator<<(ostream& os, vlObject& o) {o.Print(os);return os;}
 };
