@@ -1,5 +1,6 @@
 catch {load vtktcl}
-if { [catch {set VTK_TCL $env(VTK_TCL)}] != 0} { set VTK_TCL "D:/vtk31_source/examplesTcl" }
+if { [catch {set VTK_TCL $env(VTK_TCL)}] != 0} { set VTK_TCL "../../examplesTcl" }
+if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdata" }
 
 # Demonstrates vtkCellDerivatives for all cell types
 #
@@ -435,7 +436,7 @@ vtkActor aPolyVertexActor
   [aPolyVertexActor GetProperty] BackfaceCullingOn
 
 
-ren1 SetBackground .1 .2 .1
+ren1 SetBackground 1 1 1
 
 ren1 AddActor aVoxelActor; [aVoxelActor GetProperty] SetDiffuseColor 1 0 0
 ren1 AddActor aHexahedronActor; [aHexahedronActor GetProperty] SetDiffuseColor 1 1 0
@@ -516,10 +517,10 @@ eval  ${cell}hogActor SetPosition [${cell}Actor GetPosition]
 
 [ren1 GetActiveCamera] Azimuth 30
 [ren1 GetActiveCamera] Elevation 20
-[ren1 GetActiveCamera] Dolly 1.25
+[ren1 GetActiveCamera] Dolly 3.0
 ren1 ResetCameraClippingRange
 
-renWin SetSize 500 500
+renWin SetSize 300 150
 renWin Render
 
 # render the image
