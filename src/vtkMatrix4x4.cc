@@ -141,11 +141,9 @@ void vtkMatrix4x4::PointMultiply(float in[4],float result[4])
 void vtkMatrix4x4::Invert (vtkMatrix4x4 in,vtkMatrix4x4 & out)
 {
 
-#define SMALL_NUMBER	1.e-9
-
 // inverse( original_matrix, inverse_matrix )
 // calculate the inverse of a 4x4 matrix
-
+//
 //     -1     
 //     A  = ___1__ adjoint A
 //         det A
@@ -159,18 +157,16 @@ void vtkMatrix4x4::Invert (vtkMatrix4x4 in,vtkMatrix4x4 & out)
   // then the inverse matrix is not unique.
 
   det = in.Determinant(in);
-  if ( fabs( det ) < SMALL_NUMBER) {
-    vtkErrorMacro(<< "Singular matrix, no inverse! Determinant= " << det );
-    det = 0.0;
+  if ( det == 0.0 ) 
+    {
+    vtkErrorMacro(<< "Singular matrix, no inverse!" );
     return;
-  }
+    }
 
   // calculate the adjoint matrix
-
   this->Adjoint( in, out );
 
   // scale the adjoint matrix to get the inverse
-
   for (i=0; i<4; i++)
     for(j=0; j<4; j++)
       out.Element[i][j] = out.Element[i][j] / det;
