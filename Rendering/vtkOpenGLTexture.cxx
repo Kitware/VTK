@@ -41,7 +41,7 @@
 #endif
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
- #if defined(__APPLE__) && (defined(VTK_USE_CARBON) || defined(VTK_USE_COCOA))
+ #if !defined(__APPLE__) || (defined(__APPLE__) && !(defined(VTK_USE_CARBON) || defined(VTK_USE_COCOA)))
   #include <GL/gl.h>
  #endif
 #endif
@@ -49,7 +49,7 @@
 #include <math.h>
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLTexture, "1.52");
+vtkCxxRevisionMacro(vtkOpenGLTexture, "1.53");
 vtkStandardNewMacro(vtkOpenGLTexture);
 #endif
 
