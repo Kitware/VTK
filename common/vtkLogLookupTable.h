@@ -79,7 +79,11 @@ public:
   // values).
   unsigned char *MapValue(float v);
 
-
+  // Description:
+  // map a set of scalars through the lookup table
+  void MapScalarsThroughTable(void *input, unsigned char *output,
+			      int inputDataType, int numberOfValues,
+			      int inputIncrement);
 protected:
   float LogMinRange;
   float LogMaxRange;

@@ -125,6 +125,79 @@ unsigned char *vtkLogLookupTable::MapValue(float v)
   return this->Table->GetPointer(4*indx);
 }
 
+template <class T>
+void vtkLogLookupTableMapDataToRGBA(vtkLogLookupTable *self,
+				    T *input, unsigned char *output,
+				    int i, int incr) 
+{
+  unsigned char *cptr;
+  
+  while (--i >= 0) 
+    {
+    cptr = self->MapValue(*input);
+    *output++ = *cptr++;
+    *output++ = *cptr++;
+    *output++ = *cptr++;
+    *output++ = *cptr++;
+    input += incr;
+    }
+}
+
+void vtkLogLookupTable::MapScalarsThroughTable(void *input, 
+					       unsigned char *output,
+					       int inputDataType, 
+					       int numberOfValues,
+					       int inputIncrement)
+{
+  int i = numberOfValues;
+  switch (inputDataType)
+    {
+    case VTK_CHAR:
+      vtkLogLookupTableMapDataToRGBA(this,(char *)input,output,numberOfValues,inputIncrement);
+      break;
+      
+    case VTK_UNSIGNED_CHAR:
+      vtkLogLookupTableMapDataToRGBA(this,(unsigned char *)input,output,numberOfValues,inputIncrement);
+      break;
+      
+    case VTK_SHORT:
+      vtkLogLookupTableMapDataToRGBA(this,(short *)input,output,numberOfValues,inputIncrement);
+      break;
+      
+    case VTK_UNSIGNED_SHORT:
+      vtkLogLookupTableMapDataToRGBA(this,(unsigned short *)input,output,numberOfValues,inputIncrement);
+      break;
+      
+    case VTK_INT:
+      vtkLogLookupTableMapDataToRGBA(this,(int *)input,output,numberOfValues,inputIncrement);
+      break;
+      
+    case VTK_UNSIGNED_INT:
+      vtkLogLookupTableMapDataToRGBA(this,(unsigned int *)input,output,numberOfValues,inputIncrement);
+      break;
+      
+    case VTK_LONG:
+      vtkLogLookupTableMapDataToRGBA(this,(long *)input,output,numberOfValues,inputIncrement);
+      break;
+      
+    case VTK_UNSIGNED_LONG:
+      vtkLogLookupTableMapDataToRGBA(this,(unsigned long *)input,output,numberOfValues,inputIncrement);
+      break;
+      
+    case VTK_FLOAT:
+      vtkLogLookupTableMapDataToRGBA(this,(float *)input,output,numberOfValues,inputIncrement);
+      break;
+      
+    case VTK_DOUBLE:
+      vtkLogLookupTableMapDataToRGBA(this,(double *)input,output,numberOfValues,inputIncrement);
+      break;
+      
+    default:
+      vtkErrorMacro(<< "MapImageThroughTable: Unknown input ScalarType");
+      return;
+    }
+}  
+
 void vtkLogLookupTable::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkLookupTable::PrintSelf(os,indent);
