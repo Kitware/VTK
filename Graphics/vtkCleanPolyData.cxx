@@ -19,7 +19,7 @@
 #include "vtkMergePoints.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkCleanPolyData, "1.67");
+vtkCxxRevisionMacro(vtkCleanPolyData, "1.68");
 vtkStandardNewMacro(vtkCleanPolyData);
 
 //---------------------------------------------------------------------------
@@ -610,10 +610,14 @@ void vtkCleanPolyData::CreateDefaultLocator()
     if (tol==0.0) 
       {
       this->Locator = vtkMergePoints::New();
+      this->Locator->Register(this);
+      this->Locator->Delete();
       } 
     else 
       {
       this->Locator = vtkPointLocator::New();
+      this->Locator->Register(this);
+      this->Locator->Delete();
       }
     } 
   else 
@@ -623,6 +627,8 @@ void vtkCleanPolyData::CreateDefaultLocator()
       {
       this->ReleaseLocator();
       this->Locator = vtkPointLocator::New();
+      this->Locator->Register(this);
+      this->Locator->Delete();
       }
     }
 }
