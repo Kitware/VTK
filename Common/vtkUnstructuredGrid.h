@@ -158,12 +158,6 @@ public:
   virtual void DeepCopy(vtkDataObject *src);
 
   // Description:
-  // Fill vtkUnsignedCharArray container with list of unique cell types.  This
-  // method traverses all cells and, for each unique cell type it encounters,
-  // inserts the type into the container.
-  void GetListOfUniqueCellTypes(vtkUnsignedCharArray *uniqueTypes);
-
-  // Description:
   // Fill vtkIntArray container with list of cell Ids.  This
   // method traverses all cells and, for a particular cell type,
   // inserts the cell Id into the container.
