@@ -78,7 +78,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkVersion.h"
 
 //BTX
-#ifdef VTK_HAVE_VP1000
+#if defined (VTK_HAVE_VP1000) || defined (VTK_FORCE_COMPILE_VP1000)
 namespace vli3 {
 #endif
 class VLIContext;
@@ -86,7 +86,7 @@ class VLIVolume;
 class VLILookupTable;
 class VLILight;
 class VLICutPlane;
-#ifdef VTK_HAVE_VP1000
+#if defined (VTK_HAVE_VP1000) || defined (VTK_FORCE_COMPILE_VP1000)
 }
 using namespace vli3;
 #endif

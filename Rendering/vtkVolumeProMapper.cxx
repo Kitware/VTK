@@ -44,16 +44,16 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkRenderer.h"
 #include "vtkToolkits.h"
 
-#ifdef VTK_HAVE_VG500
+#if defined (VTK_HAVE_VG500) || defined (VTK_FORCE_COMPILE_VG500)
 #include "vtkVolumeProVG500Mapper.h"
 #endif
-#ifdef VTK_HAVE_VP1000
+#if defined (VTK_HAVE_VP1000) || defined (VTK_FORCE_COMPILE_VP1000)
 #include "vtkVolumeProVP1000Mapper.h"
 #endif
 
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkVolumeProMapper, "1.27");
+vtkCxxRevisionMacro(vtkVolumeProMapper, "1.28");
 
 // Create the mapper. No context has been created, no volume has
 // been created yet.
@@ -140,11 +140,11 @@ vtkVolumeProMapper *vtkVolumeProMapper::New()
     return (vtkVolumeProMapper*)ret;
     }
   
-#ifdef VTK_HAVE_VP1000
+#if defined (VTK_HAVE_VP1000) || defined (VTK_FORCE_COMPILE_VP1000)
   return vtkVolumeProVP1000Mapper::New();
 #else
 
-#ifdef VTK_HAVE_VG500
+#if defined (VTK_HAVE_VG500) || defined (VTK_FORCE_COMPILE_VG500)
   return vtkVolumeProVG500Mapper::New();
 #else
   // if not using vli, then return the stub class, which will render
