@@ -1784,7 +1784,7 @@ int vtkEnSight6BinaryReader::CreateUnstructuredGridOutput(int partId,
                                                           char line[80])
 {
   int lineRead = 1;
-  int i;
+  int i, j;
   int *nodeIdList;
   vtkIdType *nodeIds;
   int numElements;
@@ -1867,13 +1867,17 @@ int vtkEnSight6BinaryReader::CreateUnstructuredGridOutput(int partId,
       
       for (i = 0; i < numElements; i++)
         {
-        nodeIds[0] = nodeIdList[2*i] - 1;
-        nodeIds[1] = nodeIdList[2*i+1] - 1;
+        for (j = 0; j < 2; j++)
+          {
+          nodeIds[j] = nodeIdList[2*i+j] - 1;
+          }
 
         if (this->UnstructuredNodeIds)
           {
-          nodeIds[0] = this->UnstructuredNodeIds->IsId(nodeIds[0]);
-          nodeIds[1] = this->UnstructuredNodeIds->IsId(nodeIds[1]);
+          for (j = 0; j < 2; j++)
+            {
+            nodeIds[j] = this->UnstructuredNodeIds->IsId(nodeIds[j]);
+            }
           }
         cellId = ((vtkUnstructuredGrid*)this->GetOutput(partId))->
           InsertNextCell(VTK_LINE, 2, nodeIds);
@@ -1902,13 +1906,17 @@ int vtkEnSight6BinaryReader::CreateUnstructuredGridOutput(int partId,
       
       for (i = 0; i < numElements; i++)
         {
-        nodeIds[0] = nodeIdList[3*i] - 1;
-        nodeIds[1] = nodeIdList[3*i+2] - 1;
+        for (j = 0; j < 2; j++)
+          {
+          nodeIds[j] = nodeIdList[3*i+2*j] - 1;
+          }
 
         if (this->UnstructuredNodeIds)
           {
-          nodeIds[0] = this->UnstructuredNodeIds->IsId(nodeIds[0]);
-          nodeIds[1] = this->UnstructuredNodeIds->IsId(nodeIds[1]);
+          for (j = 0; j < 2; j++)
+            {
+            nodeIds[j] = this->UnstructuredNodeIds->IsId(nodeIds[j]);
+            }
           }
         cellId = ((vtkUnstructuredGrid*)this->GetOutput(partId))->
           InsertNextCell(VTK_LINE, 2, nodeIds);
@@ -1957,21 +1965,24 @@ int vtkEnSight6BinaryReader::CreateUnstructuredGridOutput(int partId,
         {
         if (cellType == VTK_ENSIGHT_TRIA3)
           {
-          nodeIds[0] = nodeIdList[3*i] - 1;
-          nodeIds[1] = nodeIdList[3*i+1] - 1;
-          nodeIds[2] = nodeIdList[3*i+2] - 1;
+          for (j = 0; j < 3; j++)
+            {
+            nodeIds[j] = nodeIdList[3*i+j] - 1;
+            }
           }
         else
           {
-          nodeIds[0] = nodeIdList[6*i] - 1;
-          nodeIds[1] = nodeIdList[6*i+1] - 1;
-          nodeIds[2] = nodeIdList[6*i+2] - 1;
+          for (j = 0; j < 3; j++)
+            {
+            nodeIds[j] = nodeIdList[6*i+j] - 1;
+            }
           }
         if (this->UnstructuredNodeIds)
           {
-          nodeIds[0] = this->UnstructuredNodeIds->IsId(nodeIds[0]);
-          nodeIds[1] = this->UnstructuredNodeIds->IsId(nodeIds[1]);
-          nodeIds[2] = this->UnstructuredNodeIds->IsId(nodeIds[2]);
+          for (j = 0; j < 3; j++)
+            {
+            nodeIds[j] = this->UnstructuredNodeIds->IsId(nodeIds[j]);
+            }
           }
         cellId = ((vtkUnstructuredGrid*)this->GetOutput(partId))->
           InsertNextCell(VTK_TRIANGLE, 3, nodeIds);
@@ -2020,24 +2031,24 @@ int vtkEnSight6BinaryReader::CreateUnstructuredGridOutput(int partId,
         {
         if (cellType == VTK_ENSIGHT_QUAD4)
           {
-          nodeIds[0] = nodeIdList[4*i] - 1;
-          nodeIds[1] = nodeIdList[4*i+1] - 1;
-          nodeIds[2] = nodeIdList[4*i+2] - 1;
-          nodeIds[3] = nodeIdList[4*i+3] - 1;
+          for (j = 0; j < 4; j++)
+            {
+            nodeIds[j] = nodeIdList[4*i+j] - 1;
+            }
           }
         else
           {
-          nodeIds[0] = nodeIdList[8*i] - 1;
-          nodeIds[1] = nodeIdList[8*i+1] - 1;
-          nodeIds[2] = nodeIdList[8*i+2] - 1;
-          nodeIds[3] = nodeIdList[8*i+3] - 1;
+          for (j = 0; j < 4; j++)
+            {
+            nodeIds[j] = nodeIdList[8*i+j] - 1;
+            }
           }
         if (this->UnstructuredNodeIds)
           {
-          nodeIds[0] = this->UnstructuredNodeIds->IsId(nodeIds[0]);
-          nodeIds[1] = this->UnstructuredNodeIds->IsId(nodeIds[1]);
-          nodeIds[2] = this->UnstructuredNodeIds->IsId(nodeIds[2]);
-          nodeIds[3] = this->UnstructuredNodeIds->IsId(nodeIds[3]);
+          for (j = 0; j < 4; j++)
+            {
+            nodeIds[j] = this->UnstructuredNodeIds->IsId(nodeIds[j]);
+            }
           }
         cellId = ((vtkUnstructuredGrid*)this->GetOutput(partId))->
           InsertNextCell(VTK_QUAD, 4, nodeIds);
@@ -2086,24 +2097,24 @@ int vtkEnSight6BinaryReader::CreateUnstructuredGridOutput(int partId,
         {
         if (cellType == VTK_ENSIGHT_TETRA4)
           {
-          nodeIds[0] = nodeIdList[4*i] - 1;
-          nodeIds[1] = nodeIdList[4*i+1] - 1;
-          nodeIds[2] = nodeIdList[4*i+2] - 1;
-          nodeIds[3] = nodeIdList[4*i+3] - 1;
+          for (j = 0; j < 4; j++)
+            {
+            nodeIds[j] = nodeIdList[4*i+j] - 1;
+            }
           }
         else
           {
-          nodeIds[0] = nodeIdList[10*i] - 1;
-          nodeIds[1] = nodeIdList[10*i+1] - 1;
-          nodeIds[2] = nodeIdList[10*i+2] - 1;
-          nodeIds[3] = nodeIdList[10*i+3] - 1;
+          for (j = 0; j < 4; j++)
+            {
+            nodeIds[j] = nodeIdList[10*i+j] - 1;
+            }
           }
         if (this->UnstructuredNodeIds)
           {
-          nodeIds[0] = this->UnstructuredNodeIds->IsId(nodeIds[0]);
-          nodeIds[1] = this->UnstructuredNodeIds->IsId(nodeIds[1]);
-          nodeIds[2] = this->UnstructuredNodeIds->IsId(nodeIds[2]);
-          nodeIds[3] = this->UnstructuredNodeIds->IsId(nodeIds[3]);
+          for (j = 0; j < 3; j++)
+            {
+            nodeIds[j] = this->UnstructuredNodeIds->IsId(nodeIds[j]);
+            }
           }
         cellId = ((vtkUnstructuredGrid*)this->GetOutput(partId))->
           InsertNextCell(VTK_TETRA, 4, nodeIds);
@@ -2152,27 +2163,24 @@ int vtkEnSight6BinaryReader::CreateUnstructuredGridOutput(int partId,
         {
         if (cellType == VTK_ENSIGHT_PYRAMID5)
           {
-          nodeIds[0] = nodeIdList[5*i] - 1;
-          nodeIds[1] = nodeIdList[5*i+1] - 1;
-          nodeIds[2] = nodeIdList[5*i+2] - 1;
-          nodeIds[3] = nodeIdList[5*i+3] - 1;
-          nodeIds[4] = nodeIdList[5*i+4] - 1;
+          for (j = 0; j < 5; j++)
+            {
+            nodeIds[j] = nodeIdList[5*i+j] - 1;
+            }
           }
         else
           {
-          nodeIds[0] = nodeIdList[13*i] - 1;
-          nodeIds[1] = nodeIdList[13*i+1] - 1;
-          nodeIds[2] = nodeIdList[13*i+2] - 1;
-          nodeIds[3] = nodeIdList[13*i+3] - 1;
-          nodeIds[4] = nodeIdList[13*i+4] - 1;
+          for (j = 0; j < 5; j++)
+            {
+            nodeIds[j] = nodeIdList[13*i+j] - 1;
+            }
           }
         if (this->UnstructuredNodeIds)
           {
-          nodeIds[0] = this->UnstructuredNodeIds->IsId(nodeIds[0]);
-          nodeIds[1] = this->UnstructuredNodeIds->IsId(nodeIds[1]);
-          nodeIds[2] = this->UnstructuredNodeIds->IsId(nodeIds[2]);
-          nodeIds[3] = this->UnstructuredNodeIds->IsId(nodeIds[3]);
-          nodeIds[4] = this->UnstructuredNodeIds->IsId(nodeIds[4]);
+          for (j = 0; j < 5; j++)
+            {
+            nodeIds[j] = this->UnstructuredNodeIds->IsId(nodeIds[j]);
+            }
           }
         cellId = ((vtkUnstructuredGrid*)this->GetOutput(partId))->
           InsertNextCell(VTK_PYRAMID, 5, nodeIds);
@@ -2221,36 +2229,24 @@ int vtkEnSight6BinaryReader::CreateUnstructuredGridOutput(int partId,
         {
         if (cellType == VTK_ENSIGHT_HEXA8)
           {
-          nodeIds[0] = nodeIdList[8*i] - 1;
-          nodeIds[1] = nodeIdList[8*i+1] - 1;
-          nodeIds[2] = nodeIdList[8*i+2] - 1;
-          nodeIds[3] = nodeIdList[8*i+3] - 1;
-          nodeIds[4] = nodeIdList[8*i+4] - 1;
-          nodeIds[5] = nodeIdList[8*i+5] - 1;
-          nodeIds[6] = nodeIdList[8*i+6] - 1;
-          nodeIds[7] = nodeIdList[8*i+7] - 1;
+          for (j = 0; j < 8; j++)
+            {
+            nodeIds[j] = nodeIdList[8*i+j] - 1;
+            }
           }
         else
           {
-          nodeIds[0] = nodeIdList[20*i] - 1;
-          nodeIds[1] = nodeIdList[20*i+1] - 1;
-          nodeIds[2] = nodeIdList[20*i+2] - 1;
-          nodeIds[3] = nodeIdList[20*i+3] - 1;
-          nodeIds[4] = nodeIdList[20*i+4] - 1;
-          nodeIds[5] = nodeIdList[20*i+5] - 1;
-          nodeIds[6] = nodeIdList[20*i+6] - 1;
-          nodeIds[7] = nodeIdList[20*i+7] - 1;
+          for (j = 0; j < 8; j++)
+            {
+            nodeIds[j] = nodeIdList[20*i+j] - 1;
+            }
           }
         if (this->UnstructuredNodeIds)
           {
-          nodeIds[0] = this->UnstructuredNodeIds->IsId(nodeIds[0]);
-          nodeIds[1] = this->UnstructuredNodeIds->IsId(nodeIds[1]);
-          nodeIds[2] = this->UnstructuredNodeIds->IsId(nodeIds[2]);
-          nodeIds[3] = this->UnstructuredNodeIds->IsId(nodeIds[3]);
-          nodeIds[4] = this->UnstructuredNodeIds->IsId(nodeIds[4]);
-          nodeIds[5] = this->UnstructuredNodeIds->IsId(nodeIds[5]);
-          nodeIds[6] = this->UnstructuredNodeIds->IsId(nodeIds[6]);
-          nodeIds[7] = this->UnstructuredNodeIds->IsId(nodeIds[7]);
+          for (j = 0; j < 8; j++)
+            {
+            nodeIds[j] = this->UnstructuredNodeIds->IsId(nodeIds[j]);
+            }
           }
         cellId = ((vtkUnstructuredGrid*)this->GetOutput(partId))->
           InsertNextCell(VTK_HEXAHEDRON, 8, nodeIds);
@@ -2299,30 +2295,24 @@ int vtkEnSight6BinaryReader::CreateUnstructuredGridOutput(int partId,
         {
         if (cellType == VTK_ENSIGHT_PENTA6)
           {
-          nodeIds[0] = nodeIdList[6*i] - 1;
-          nodeIds[1] = nodeIdList[6*i+1] - 1;
-          nodeIds[2] = nodeIdList[6*i+2] - 1;
-          nodeIds[3] = nodeIdList[6*i+3] - 1;
-          nodeIds[4] = nodeIdList[6*i+4] - 1;
-          nodeIds[5] = nodeIdList[6*i+5] - 1;
+          for (j = 0; j < 6; j++)
+            {
+            nodeIds[j] = nodeIdList[6*i+j] - 1;
+            }
           }
         else
           {
-          nodeIds[0] = nodeIdList[15*i] - 1;
-          nodeIds[1] = nodeIdList[15*i+1] - 1;
-          nodeIds[2] = nodeIdList[15*i+2] - 1;
-          nodeIds[3] = nodeIdList[15*i+3] - 1;
-          nodeIds[4] = nodeIdList[15*i+4] - 1;
-          nodeIds[5] = nodeIdList[15*i+5] - 1;
+          for (j = 0; j < 6; j++)
+            {
+            nodeIds[j] = nodeIdList[15*i+j] - 1;
+            }
           }
         if (this->UnstructuredNodeIds)
           {
-          nodeIds[0] = this->UnstructuredNodeIds->IsId(nodeIds[0]);
-          nodeIds[1] = this->UnstructuredNodeIds->IsId(nodeIds[1]);
-          nodeIds[2] = this->UnstructuredNodeIds->IsId(nodeIds[2]);
-          nodeIds[3] = this->UnstructuredNodeIds->IsId(nodeIds[3]);
-          nodeIds[4] = this->UnstructuredNodeIds->IsId(nodeIds[4]);
-          nodeIds[5] = this->UnstructuredNodeIds->IsId(nodeIds[5]);
+          for (j = 0; j < 6; j++)
+            {
+            nodeIds[j] = this->UnstructuredNodeIds->IsId(nodeIds[j]);
+            }
           }
         cellId = ((vtkUnstructuredGrid*)this->GetOutput(partId))->
           InsertNextCell(VTK_WEDGE, 6, nodeIds);

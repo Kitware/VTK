@@ -118,6 +118,11 @@ public:
   vtkSetMacro(TimeValue, float);
   vtkGetMacro(TimeValue, float);
 
+  // Description:
+  // Get the minimum or maximum time value for this data set.
+  vtkGetMacro(MinimumTimeValue, float);
+  vtkGetMacro(MaximumTimeValue, float);
+  
 protected:
   vtkGenericEnSightReader();
   ~vtkGenericEnSightReader();
@@ -200,6 +205,8 @@ protected:
   int NumberOfComplexVectorsPerElement;
   
   float TimeValue;
+  float MinimumTimeValue;
+  float MaximumTimeValue;
 };
 
 #endif
