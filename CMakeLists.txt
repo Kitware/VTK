@@ -585,7 +585,7 @@ LINK_DIRECTORIES(.)
 IF(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 1.4)
   INCLUDE(${CMAKE_ROOT}/Modules/CMakeExportBuildSettings.cmake)
   CMAKE_EXPORT_BUILD_SETTINGS(${VTK_BINARY_DIR}/VTKBuildSettings.cmake)
-  INSTALL_FILES(/lib/vtk VTKBuildSettings)
+  INSTALL_FILES(/lib/vtk .cmake VTKBuildSettings)
 ENDIF(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 1.4)
 
 # Create the VTKConfig.cmake file containing the VTK configuration.
