@@ -171,11 +171,11 @@ public:
                 int extSize=1000);
 
   // Description:
-  // Insert a cell of type vtkVERTEX, vtkPOLY_VERTEX, vtkLINE, vtkPOLY_LINE,
-  // vtkTRIANGLE, vtkQUAD, vtkPOLYGON, or vtkTRIANGLE_STRIP.  Make sure that
+  // Insert a cell of type VTK_VERTEX, VTK_POLY_VERTEX, VTK_LINE, VTK_POLY_LINE,
+  // VTK_TRIANGLE, VTK_QUAD, VTK_POLYGON, or VTK_TRIANGLE_STRIP.  Make sure that
   // the PolyData::Allocate() function has been called first or that vertex,
   // line, polygon, and triangle strip arrays have been supplied.
-  // Note: will also insert vtkPIXEL, but converts it to vtkQUAD.
+  // Note: will also insert VTK_PIXEL, but converts it to VTK_QUAD.
   int InsertNextCell(int type, int npts, vtkIdType *pts);
 
   // Description:
