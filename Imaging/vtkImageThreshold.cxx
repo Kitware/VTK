@@ -17,8 +17,9 @@
 =========================================================================*/
 #include "vtkImageThreshold.h"
 #include "vtkObjectFactory.h"
+#include "vtkImageProgressIterator.h"
 
-vtkCxxRevisionMacro(vtkImageThreshold, "1.37");
+vtkCxxRevisionMacro(vtkImageThreshold, "1.38");
 vtkStandardNewMacro(vtkImageThreshold);
 
 //----------------------------------------------------------------------------
@@ -118,15 +119,12 @@ void vtkImageThreshold::ExecuteInformation(vtkImageData *inData,
 // This templated function executes the filter for any type of data.
 template <class IT, class OT>
 static void vtkImageThresholdExecute(vtkImageThreshold *self,
-                                     vtkImageData *inData, IT *inPtr,
-                                     vtkImageData *outData, OT *outPtr, 
-                                     int outExt[6], int id)
+                                     vtkImageData *inData,
+                                     vtkImageData *outData, 
+                                     int outExt[6], int id, IT *, OT *)
 {
-  int idxR, idxY, idxZ;
-  int maxY, maxZ;
-  int inIncX, inIncY, inIncZ;
-  int outIncX, outIncY, outIncZ;
-  int rowLength;
+  vtkImageIterator<IT> inIt(inData, outExt);
+  vtkImageProgressIterator<OT> outIt(outData, outExt, self, id);
   IT  lowerThreshold;
   IT  upperThreshold;
   int replaceIn = self->GetReplaceIn();
@@ -134,8 +132,6 @@ static void vtkImageThresholdExecute(vtkImageThreshold *self,
   int replaceOut = self->GetReplaceOut();
   OT  outValue;
   IT temp;
-  unsigned long count = 0;
-  unsigned long target;
   
   // Make sure the thresholds are valid for the input scalar range
   if (self->GetLowerThreshold() < (float) inData->GetScalarTypeMin())
@@ -189,66 +185,45 @@ static void vtkImageThresholdExecute(vtkImageThreshold *self,
     outValue = (OT) self->GetOutValue();
     }
 
-  // find the region to loop over
-  rowLength = (outExt[1] - outExt[0]+1)*inData->GetNumberOfScalarComponents();
-  maxY = outExt[3] - outExt[2]; 
-  maxZ = outExt[5] - outExt[4];
-  target = (unsigned long)((maxZ+1)*(maxY+1)/50.0);
-  target++;
-  
-  // Get increments to march through data 
-  inData->GetContinuousIncrements(outExt, inIncX, inIncY, inIncZ);
-  outData->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
-
   // Loop through output pixels
-  for (idxZ = 0; idxZ <= maxZ; idxZ++)
+  while (!outIt.IsAtEnd())
     {
-    for (idxY = 0; !self->AbortExecute && idxY <= maxY; idxY++)
+    IT* inSI = inIt.BeginSpan();
+    OT* outSI = outIt.BeginSpan();
+    OT* outSIEnd = outIt.EndSpan();
+    while (outSI != outSIEnd)
       {
-      if (!id) 
+      // Pixel operation
+      temp = (*inSI);
+      if (lowerThreshold <= temp && temp <= upperThreshold)
         {
-        if (!(count%target))
+        // match
+        if (replaceIn)
           {
-          self->UpdateProgress(count/(50.0*target));
-          }
-        count++;
-        }
-      for (idxR = 0; idxR < rowLength; idxR++)
-        {
-        // Pixel operation
-        temp = (*inPtr);
-        if (lowerThreshold <= temp && temp <= upperThreshold)
-          {
-          // match
-          if (replaceIn)
-            {
-            *outPtr = inValue;
-            }
-          else
-            {
-            *outPtr = (OT)(temp);
-            }
+          *outSI = inValue;
           }
         else
           {
-          // not match
-          if (replaceOut)
-            {
-            *outPtr = outValue;
-            }
-          else
-            {
-            *outPtr = (OT)(temp);
-            }
+          *outSI = (OT)(temp);
           }
-        outPtr++;
-        inPtr++;
         }
-      outPtr += outIncY;
-      inPtr += inIncY;
+      else
+        {
+        // not match
+        if (replaceOut)
+          {
+          *outSI = outValue;
+          }
+        else
+          {
+          *outSI = (OT)(temp);
+          }
+        }
+      ++inSI;
+      ++outSI;
       }
-    outPtr += outIncZ;
-    inPtr += inIncZ;
+    inIt.NextSpan();
+    outIt.NextSpan();
     }
 }
 
@@ -256,16 +231,15 @@ static void vtkImageThresholdExecute(vtkImageThreshold *self,
 //----------------------------------------------------------------------------
 template <class T>
 static void vtkImageThresholdExecute1(vtkImageThreshold *self,
-                                      vtkImageData *inData, T *inPtr,
+                                      vtkImageData *inData,
                                       vtkImageData *outData,
-                                      int outExt[6], int id)
+                                      int outExt[6], int id, T *)
 {
-  void *outPtr = outData->GetScalarPointerForExtent(outExt);
-  
   switch (outData->GetScalarType())
     {
-    vtkTemplateMacro7(vtkImageThresholdExecute, self, inData, inPtr,
-                      outData, (VTK_TT *)(outPtr),outExt, id);
+    vtkTemplateMacro7(vtkImageThresholdExecute, self, inData,
+                      outData, outExt, id, 
+                      static_cast<T *>(0), static_cast<VTK_TT *>(0));
     default:
       vtkGenericWarningMacro("Execute: Unknown input ScalarType");
       return;
@@ -283,12 +257,11 @@ void vtkImageThreshold::ThreadedExecute(vtkImageData *inData,
                                         vtkImageData *outData,
                                         int outExt[6], int id)
 {
-  void *inPtr = inData->GetScalarPointerForExtent(outExt);
-  
   switch (inData->GetScalarType())
     {
     vtkTemplateMacro6(vtkImageThresholdExecute1, this, inData, 
-                      (VTK_TT *)(inPtr), outData, outExt, id);
+                      outData, outExt, id, 
+                      static_cast<VTK_TT *>(0));
     default:
       vtkErrorMacro(<< "Execute: Unknown input ScalarType");
       return;
