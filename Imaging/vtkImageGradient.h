@@ -26,13 +26,13 @@
 #define __vtkImageGradient_h
 
 
-#include "vtkImageToImageFilter.h"
+#include "vtkImageAlgorithm.h"
 
-class VTK_IMAGING_EXPORT vtkImageGradient : public vtkImageToImageFilter
+class VTK_IMAGING_EXPORT vtkImageGradient : public vtkImageAlgorithm
 {
 public:
   static vtkImageGradient *New();
-  vtkTypeRevisionMacro(vtkImageGradient,vtkImageToImageFilter);
+  vtkTypeRevisionMacro(vtkImageGradient,vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:
@@ -62,10 +62,10 @@ protected:
   int HandleBoundaries;
   int Dimensionality;
   
-  void ExecuteInformation(vtkImageData *inData, vtkImageData *outData); 
-  void ComputeInputUpdateExtent(int inExt[6], int outExt[6]);
-  void ExecuteInformation(){this->vtkImageToImageFilter::ExecuteInformation();};
-  void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
+  void ExecuteInformation (vtkInformation *, vtkInformationVector *, vtkInformationVector *); 
+  void ComputeInputUpdateExtent (vtkInformation *, vtkInformationVector *, vtkInformationVector *);
+  
+  void ThreadedExecute (vtkImageData ***inData, vtkImageData **outData,
                        int extent[6], int id);
 private:
   vtkImageGradient(const vtkImageGradient&);  // Not implemented.
