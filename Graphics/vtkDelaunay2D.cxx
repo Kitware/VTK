@@ -44,7 +44,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkTriangle.h"
 #include "vtkPolygon.h"
 #include "vtkPlane.h"
-#include "vtkDoubleArray.h" 
+#include "vtkDoubleArray.h"
 #include "vtkObjectFactory.h"
 
 //---------------------------------------------------------------------------
@@ -69,10 +69,15 @@ vtkDelaunay2D::vtkDelaunay2D()
   this->Tolerance = 0.00001;
   this->BoundingTriangulation = 0;
   this->Offset = 1.0;
+  this->Transform = NULL;
 }
 
 vtkDelaunay2D::~vtkDelaunay2D()
 {
+  if (this->Transform)
+    {
+    this->Transform->UnRegister(this);
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -317,6 +322,7 @@ void vtkDelaunay2D::Execute()
   vtkIdType p2 = 0;
   vtkPoints *inPoints;
   vtkPoints *points;
+  vtkPoints *tPoints = NULL;
   vtkCellArray *triangles;
   vtkPointSet *input= this->GetInput();
   vtkPolyData *output= this->GetOutput();
@@ -330,6 +336,11 @@ void vtkDelaunay2D::Execute()
 
   vtkDebugMacro(<<"Generating 2D Delaunay triangulation");
 
+  if (this->Transform && this->BoundingTriangulation)
+    {
+    vtkWarningMacro(<<"Bounding triangulation cannot be used when an input transform is specified.  Output will not contain bounding triangulation.");
+    }
+  
   // Initialize; check input
   //
   if ( (inPoints=input->GetPoints()) == NULL )
@@ -352,15 +363,40 @@ void vtkDelaunay2D::Execute()
 
   this->Mesh = vtkPolyData::New();
   
+
+  // If the user specified a transform, apply it to the input data.
+  //
+  // Only the input points are transformed.  We do not bother
+  // transforming the source points (if specified).  The reason is
+  // that only the topology of the Source is used during the constrain
+  // operation.  The point ids in the Source topology are assumed to
+  // reference points in the input. So, when an input transform is
+  // used, only the input points are transformed.  We do not bother
+  // with transforming the Source points since they are never
+  // referenced.
+  if (this->Transform)
+    {
+    tPoints = vtkPoints::New();
+    this->Transform->TransformPoints(inPoints, tPoints);
+    }
+  
   // Create initial bounding triangulation. Have to create bounding points.
   // Initialize mesh structure.
   //
   points = vtkPoints::New(); 
+  // This will copy doubles to doubles if the input is double. 
   points->SetDataTypeToDouble();
   points->SetNumberOfPoints(numPoints);
-  
-  // This will copy doubles to doubles if the input is double. 
-  points->DeepCopy(inPoints);
+  if (!this->Transform)
+    {
+    points->DeepCopy(inPoints);
+    }
+  else
+    {
+    points->DeepCopy(tPoints);
+    tPoints->Delete();
+    tPoints = NULL;
+    }
 
   fCenter = input->GetCenter();
   center[0] = fCenter[0];
@@ -644,7 +680,7 @@ void vtkDelaunay2D::Execute()
 
   // Update output; free up supporting data structures.
   //
-  if ( this->BoundingTriangulation )
+  if ( this->BoundingTriangulation && !this->Transform)
     {
     output->SetPoints(points);
     }  
@@ -688,6 +724,12 @@ void vtkDelaunay2D::Execute()
 
 // Methods used to recover edges. Uses lines and polygons to determine boundary
 // and inside/outside.
+//
+// Only the topology of the Source is used during the constrain operation.
+// The point ids in the Source topology are assumed to reference points
+// in the input. So, when an input transform is used, only the input points
+// are transformed.  We do not bother with transforming the Source points
+// since they are never referenced.
 int *vtkDelaunay2D::RecoverBoundary()
 {
   vtkPolyData *source=this->GetSource();

@@ -70,9 +70,15 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // is a list of points specified in 3D, even though the triangulation
 // is 2D. Thus the triangulation is constructed in the x-y plane, and
 // the z coordinate is ignored (although carried through to the
-// output). (If you desire to triangulate in a different plane, you'll
-// have to use the vtkTransformFilter to transform the points into and
-// out of the x-y plane.)
+// output). If you desire to triangulate in a different plane, you
+// can use the vtkTransformFilter to transform the points into and
+// out of the x-y plane or you can specify a transform to the Delaunay2D
+// directly.  In the latter case, the input points are transformed, the
+// transformed points are triangulated, and the output will use the
+// triangulated topology for the original (non-transformed) points.  This
+// avoids transforming the data back as would be required when using the
+// vtkTransformFilter method.  Specifying a transform directly also allows
+// any transform to be used: rigid, non-rigid, non-invertible, etc.
 // 
 // The Delaunay triangulation can be numerically sensitive in some cases. To
 // prevent problems, try to avoid injecting points that will result in
@@ -82,21 +88,35 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // add extra points to create a better point distribution.) If numerical
 // problems are present, you will see a warning message to this effect at
 // the end of the triangulation process.
+
 //
-// To create constrained meshes, you must define an additional input. This
-// input is an instance of vtkPolyData which contains lines, polylines,
-// and/or polygons that define constrained edges and loops. Lines and
-// polylines found in the input will be mesh edges in the output. Polygons
-// define a loop with inside and outside regions. The inside of the polygon
-// is determined by using the right-hand-rule, i.e., looking down the z-axis
-// a polygon should be ordered counter-clockwise. Holes in a polygon should
-// be ordered clockwise. If you choose to create a constrained triangulation,
-// the final mesh may not satisfy the Delaunay criterion. (Noted: the
-// lines/polygon edges must not intersect when projected onto the 2D plane.
-// It may not be possible to recover all edges due to not enough points in
-// the triangulation, or poorly defined edges (coincident or excessively
-// long).  The form of the lines or polygons is a list of point ids that
-// correspond to the input point ids used to generate the triangulation.)
+// To create constrained meshes, you must define an additional
+// input. This input is an instance of vtkPolyData which contains
+// lines, polylines, and/or polygons that define constrained edges and
+// loops. Only the topology of (lines and polygones) from this second
+// input are used.  The topology is assumed to reference points in the
+// input point set (the one to be triangulated). In other words, the
+// lines and polygons use point ids from the first input point
+// set. Lines and polylines found in the input will be mesh edges in
+// the output. Polygons define a loop with inside and outside
+// regions. The inside of the polygon is determined by using the
+// right-hand-rule, i.e., looking down the z-axis a polygon should be
+// ordered counter-clockwise. Holes in a polygon should be ordered
+// clockwise. If you choose to create a constrained triangulation, the
+// final mesh may not satisfy the Delaunay criterion. (Noted: the
+// lines/polygon edges must not intersect when projected onto the 2D
+// plane.  It may not be possible to recover all edges due to not
+// enough points in the triangulation, or poorly defined edges
+// (coincident or excessively long).  The form of the lines or
+// polygons is a list of point ids that correspond to the input point
+// ids used to generate the triangulation.)
+//
+// If an input transform is used, constraints are defined in the
+// "transformed" space.  So when the right hand rule is used for a
+// polygon constraint, that operation is applied using the transformed
+// points.  Since the input transform can be any transformation (rigid
+// or non-rigid), care must be taken in constructing constraints when
+// an input transform is used.
 
 // .SECTION Caveats
 // Points arranged on a regular lattice (termed degenerate cases) can be 
@@ -126,6 +146,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkPointSet.h"
 #include "vtkPolyDataSource.h"
+#include "vtkAbstractTransform.h"
 
 class VTK_EXPORT vtkDelaunay2D : public vtkPolyDataSource
 {
@@ -141,7 +162,9 @@ public:
   // Description:
   // Specify the source object used to specify constrained edges and loops.
   // (This is optional.) If set, and lines/polygons are defined, a constrained
-  // triangulation is created.
+  // triangulation is created. The lines/polygons are assumed to reference
+  // points in the input point set (i.e. point ids are identical in the
+  // input and source).
   void SetSource(vtkPolyData *);
   vtkPolyData *GetSource();
   
@@ -180,6 +203,18 @@ public:
   virtual void SetInput(vtkPointSet *input);
   vtkPointSet *GetInput();
 
+  // Description:
+  // Set / get the transform which is applied to points to generate a
+  // 2D problem.  This maps a 3D dataset into a 2D dataset where
+  // triangulation can be done on the XY plane.  The points are
+  // transformed and triangulated.  The topology of triangulated
+  // points is used as the output topology.  The output points are the
+  // original (untransformed) points.  The transform can be any
+  // subclass of vtkAbstractTransform (thus it does not need to be a
+  // linear or invertible transform).
+  vtkSetObjectMacro(Transform, vtkAbstractTransform);
+  vtkGetObjectMacro(Transform, vtkAbstractTransform);
+
 protected:
   vtkDelaunay2D();
   ~vtkDelaunay2D();
@@ -192,6 +227,8 @@ protected:
   double Tolerance;
   int BoundingTriangulation;
   double Offset;
+
+  vtkAbstractTransform *Transform;
 
 private:
   vtkPolyData *Mesh; //the created mesh
