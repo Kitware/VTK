@@ -22,7 +22,7 @@
 #include "vtkTextProperty.h"
 #include "vtkViewport.h"
 
-vtkCxxRevisionMacro(vtkCubeAxesActor2D, "1.49");
+vtkCxxRevisionMacro(vtkCubeAxesActor2D, "1.50");
 vtkStandardNewMacro(vtkCubeAxesActor2D);
 
 vtkCxxSetObjectMacro(vtkCubeAxesActor2D,Input, vtkDataSet);
@@ -791,6 +791,7 @@ void vtkCubeAxesActor2D::PrintSelf(ostream& os, vtkIndent indent)
      << this->Ranges[0] << ", " << this->Ranges[1] << ", "
      << this->Ranges[2] << ", " << this->Ranges[3] << ", "
      << this->Ranges[4] << ", " << this->Ranges[5] << "\n";
+  os << indent << "Show Actual Bounds: " << (this->ShowActualBounds ? "On\n" : "Off\n");
 }
 
 //----------------------------------------------------------------------------
