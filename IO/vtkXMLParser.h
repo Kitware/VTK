@@ -44,8 +44,8 @@ public:
   //ETX
   
   // Description:
-  // Parse the input stream.
-  int Parse();
+  // Parse the XML input.
+  virtual int Parse();
   
 protected:
   vtkXMLParser();
@@ -58,7 +58,10 @@ protected:
   void* Parser;
   
   // Called by Parse() to read the stream and call ParseBuffer.  Can
-  // be replaced by subclasses to change how the stream is read.
+  // be replaced by subclasses to change how input is read.
+  virtual int ParseXML();
+  
+  // Legacy method.  Deprecated.  Use ParseXML instead.
   virtual int ParseStream();
   
   // Called before each block of input is read from the stream to
@@ -126,6 +129,9 @@ protected:
   // CharacterDataHandler.
   static void CharacterDataHandlerFunction(void* parser, const char* data,
                                            int length);
+  
+  int LegacyHack;
+  
 private:
   vtkXMLParser(const vtkXMLParser&);  // Not implemented.
   void operator=(const vtkXMLParser&);  // Not implemented.

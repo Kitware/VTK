@@ -21,7 +21,7 @@
 #include "expat.h"
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkXMLParser, "1.2");
+vtkCxxRevisionMacro(vtkXMLParser, "1.3");
 vtkStandardNewMacro(vtkXMLParser);
 
 //----------------------------------------------------------------------------
@@ -29,6 +29,7 @@ vtkXMLParser::vtkXMLParser()
 {
   this->Stream = 0;
   this->Parser = 0;
+  this->LegacyHack = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -54,13 +55,6 @@ void vtkXMLParser::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 int vtkXMLParser::Parse()
 {
-  // Make sure we have input.
-  if(!this->Stream)
-    {
-    vtkErrorMacro("Parse() called with no Stream set.");
-    return 0;
-    }
-  
   // Create the expat XML parser.
   this->Parser = XML_ParserCreate(0);
   XML_SetElementHandler(this->Parser,
@@ -70,8 +64,8 @@ int vtkXMLParser::Parse()
                               &vtkXMLParser::CharacterDataHandlerFunction);
   XML_SetUserData(this->Parser, this);
   
-  // Parse the input stream.
-  int result = this->ParseStream();
+  // Parse the input.
+  int result = this->ParseXML();
   
   if(result)
     {
@@ -91,8 +85,29 @@ int vtkXMLParser::Parse()
 }
 
 //----------------------------------------------------------------------------
+int vtkXMLParser::ParseXML()
+{
+  // Make sure we have input.
+  if(!this->Stream)
+    {
+    vtkErrorMacro("Parse() called with no Stream set.");
+    return 0;
+    }
+  
+  this->LegacyHack = 1;
+  int result = this->ParseStream();
+  if(this->LegacyHack)
+    {
+    vtkWarningMacro("The ParseStream() method has been deprectated and "
+                    "will soon be removed.  Use ParseXML() instead.");
+    }
+  return result;
+}
+
+//----------------------------------------------------------------------------
 int vtkXMLParser::ParseStream()
 {
+  this->LegacyHack = 0;
   // Default stream parser just reads a block at a time.
   istream& in = *(this->Stream);
   const int bufferSize = 4096;  
