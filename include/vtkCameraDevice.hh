@@ -38,11 +38,15 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkDeviceObject - an object that requires hardware independence.
+// .NAME vtkCameraDevice - abstract definition of a hardware dependent camera
 // .SECTION Description
-// vtkDeviceObject is the superclass that any device dependent object should
-// use.  It allows a device independent object to create a device dependent
-// object to execute hardware specific calls.
+// vtkCamereaDevice is the superclass of the hardware dependent cameras
+// such as vtkOglrCamera and vtkSbrCamera. This object is typically created
+// automatically by a vtkCamera object when it renders. The user should
+// never see this class.
+
+// .SECTION see also
+// vtkCamera vtkDeviceObject
 
 #ifndef __vtkCameraDevice_hh
 #define __vtkCameraDevice_hh
@@ -55,7 +59,10 @@ class vtkCameraDevice : public vtkObject
 {
 public:
   char *GetClassName() {return "vtkCameraDevice";};
-  virtual void Render(vtkCamera *lgt, vtkRenderer *ren) = 0;
+
+  // Description:
+  // This is the only method that the subclasses must supply.
+  virtual void Render(vtkCamera *cam, vtkRenderer *ren) = 0;
 };
 
 #endif
