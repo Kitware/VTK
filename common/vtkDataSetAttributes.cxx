@@ -288,7 +288,7 @@ void vtkDataSetAttributes::Initialize()
     {
     if (this->Attributes[attributeType])
       {
-      this->Attributes[attributeType]->Delete();
+      this->Attributes[attributeType]->UnRegister(this);
       this->Attributes[attributeType] = 0;
       }
     this->AttributeIndices[attributeType] = -1;
@@ -1452,7 +1452,10 @@ vtkScalars* vtkDataSetAttributes::GetScalars()
     }
   else
     {
-    this->Attributes[SCALARS] = vtkScalars::New();
+    vtkScalars *s = vtkScalars::New();
+    this->Attributes[SCALARS] = s;
+    s->Register(this);
+    s->Delete();
     this->Attributes[SCALARS]->SetData(this->GetActiveScalars());
     retVal = (vtkScalars*)this->Attributes[SCALARS];
     }
@@ -1469,6 +1472,8 @@ vtkVectors* vtkDataSetAttributes::GetVectors()
   else
     {
     this->Attributes[VECTORS] = vtkVectors::New();
+    this->Attributes[VECTORS]->Register(this);
+    this->Attributes[VECTORS]->Delete();
     this->Attributes[VECTORS]->SetData(this->GetActiveVectors());
     return (vtkVectors*)this->Attributes[VECTORS];
     }
@@ -1483,6 +1488,8 @@ vtkNormals* vtkDataSetAttributes::GetNormals()
   else
     {
     this->Attributes[NORMALS] = vtkNormals::New();
+    this->Attributes[NORMALS]->Register(this);
+    this->Attributes[NORMALS]->Delete();
     this->Attributes[NORMALS]->SetData(this->GetActiveNormals());
     return (vtkNormals*)this->Attributes[NORMALS];
     }
@@ -1497,6 +1504,8 @@ vtkTCoords* vtkDataSetAttributes::GetTCoords()
   else
     {
     this->Attributes[TCOORDS] = vtkTCoords::New();
+    this->Attributes[TCOORDS]->Register(this);
+    this->Attributes[TCOORDS]->Delete();
     this->Attributes[TCOORDS]->SetData(this->GetActiveTCoords());
     return (vtkTCoords*)this->Attributes[TCOORDS];
     }
@@ -1511,6 +1520,8 @@ vtkTensors* vtkDataSetAttributes::GetTensors()
   else
     {
     this->Attributes[TENSORS] = vtkTensors::New();
+    this->Attributes[TENSORS]->Register(this);
+    this->Attributes[TENSORS]->Delete();
     this->Attributes[TENSORS]->SetData(this->GetActiveTensors());
     return (vtkTensors*)this->Attributes[TENSORS];
     }

@@ -76,7 +76,10 @@ vtkDataObject::vtkDataObject()
   this->DataReleased = 0;
 
   this->ReleaseDataFlag = 0;
-  this->FieldData = vtkFieldData::New();
+  this->FieldData = NULL;
+  vtkFieldData *fd = vtkFieldData::New();
+  this->SetFieldData(fd);
+  fd->Delete();
 
   // The extent is uninitialized
   this->WholeExtent[0] = this->WholeExtent[2] = this->WholeExtent[4] = 0;
@@ -121,7 +124,7 @@ vtkDataObject::vtkDataObject()
 //----------------------------------------------------------------------------
 vtkDataObject::~vtkDataObject()
 {
-  this->FieldData->Delete();
+  this->SetFieldData(NULL);
 
   this->SetExtentTranslator(NULL);
   delete [] this->Consumers;
