@@ -131,7 +131,7 @@ void vtkStructuredPointsToImage::UpdateImageInformation()
   scalars = this->Input->GetPointData()->GetScalars();
   this->Output->SetWholeExtent(0, size[0]-1, 
 			       0, size[1]-1, 0, size[2]-1);
-  if (strcmp(scalars->GetScalarType(), "ColorScalar") == 0)
+  if ( scalars->GetScalarType() == VTK_COLOR_SCALAR )
     {
     int bpp;
     bpp = ((vtkColorScalars *)scalars)->GetNumberOfValuesPerScalar();

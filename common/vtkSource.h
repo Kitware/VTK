@@ -63,8 +63,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // possible to specify a function to delete the argument via 
 // StartMethodArgDelete and EndMethodArgDelete.
 //
-// Another method, ProgressMethod can be specified. Some filters invoke this method
-// periodically during their execution. The use is similar to that of the Start and End Methods.
+// Another method, ProgressMethod() can be specified. Some filters invoke this 
+// method periodically during their execution. The use is similar to that of 
+// StartMethod() and EndMethod().
 //
 // An important feature of subclasses of vtkSource is that it is possible 
 // to control the memory-management model (i.e., retain output versus delete
@@ -104,14 +105,14 @@ public:
   void SetEndMethodArgDelete(void (*f)(void *));
 
   // Description:
-  // Set/Get the AbortExecute flag for the filter. It's up to the filter writer
-  // to handle premature ending of a filter
+  // Set/Get the AbortExecute flag for the filter. Filters handle
+  // premature termination of execution in different ways.
   vtkSetMacro(AbortExecute,int);
   vtkGetMacro(AbortExecute,int);
   vtkBooleanMacro(AbortExecute,int);
 
   // Description:
-  // Specify progress of a filter.
+  // Set/Get the execution progress of a filter.
   vtkSetClampMacro(Progress,float,0.0,1.0);
   vtkGetMacro(Progress,float);
 

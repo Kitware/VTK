@@ -172,7 +172,7 @@ void vtkPointData::CopyData(vtkPointData* fromPd, int fromId, int toId)
 {
   if ( fromPd->Scalars && this->Scalars && this->CopyScalars )
     {
-    if (strcmp(this->Scalars->GetScalarType(),"ColorScalar"))
+    if ( this->Scalars->GetScalarType() != VTK_COLOR_SCALAR )
       {
       this->Scalars->InsertScalar(toId,fromPd->Scalars->GetScalar(fromId));
       }
@@ -509,7 +509,7 @@ void vtkPointData::InterpolateEdge(vtkPointData *fromPd, int toId,
 {
   if ( fromPd->Scalars && this->Scalars && this->CopyScalars )
     {
-    if (strcmp(this->Scalars->GetScalarType(),"ColorScalar"))
+    if ( this->Scalars->GetScalarType() != VTK_COLOR_SCALAR )
       {
       float s1 = fromPd->Scalars->GetScalar(p1);
       float s2 = fromPd->Scalars->GetScalar(p2);

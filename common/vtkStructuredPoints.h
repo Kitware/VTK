@@ -61,7 +61,7 @@ public:
   ~vtkStructuredPoints();
   static vtkStructuredPoints *New() {return new vtkStructuredPoints;};
   const char *GetClassName() {return "vtkStructuredPoints";};
-  char *GetDataType() {return "vtkStructuredPoints";};
+  int GetDataSetType() {return VTK_STRUCTURED_POINTS;};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // dataset interface

@@ -74,7 +74,7 @@ public:
   ~vtkPolyData();
   static vtkPolyData *New() {return new vtkPolyData;};
   const char *GetClassName() {return "vtkPolyData";};
-  char *GetDataType() {return "vtkPolyData";};
+  int GetDataSetType() {return VTK_POLY_DATA;};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // dataset interface

@@ -71,7 +71,7 @@ public:
   ~vtkRectilinearGrid();
   static vtkRectilinearGrid *New() {return new vtkRectilinearGrid;};
   const char *GetClassName() {return "vtkRectilinearGrid";};
-  char *GetDataType() {return "vtkRectilinearGrid";};
+  int GetDataSetType() {return VTK_RECTILINEAR_GRID;};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // dataset interface

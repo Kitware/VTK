@@ -70,7 +70,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define VTK_UNSIGNED_CHAR_MIN 0
 #define VTK_UNSIGNED_CHAR_MAX 255
 
-// These types are returned by GetScalarType to indicate pixel type.
+// These types are returned by GetDataType to indicate pixel type.
 #define VTK_VOID            0
 #define VTK_FLOAT           1
 #define VTK_INT             2
@@ -78,6 +78,17 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define VTK_UNSIGNED_SHORT  4
 #define VTK_UNSIGNED_CHAR   5
 #define VTK_BIT             6 
+
+// These types are returned to distinguish scalar type
+#define VTK_SINGLE_VALUED 0
+#define VTK_COLOR_SCALAR  1
+
+// These types are returned to distinguish dataset types
+#define VTK_POLY_DATA          0
+#define VTK_STRUCTURED_POINTS  1
+#define VTK_STRUCTURED_GRID    2
+#define VTK_RECTILINEAR_GRID   3
+#define VTK_UNSTRUCTURED_GRID  4
 
 // A macro to get the name of a type
 #define vtkImageScalarTypeNameMacro(type) \

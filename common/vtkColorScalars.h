@@ -72,7 +72,7 @@ public:
   const char *GetClassName() {return "vtkColorScalars";};
 
   // vtkScalars interface
-  char *GetScalarType() {return "ColorScalar";};
+  int GetScalarType() {return VTK_COLOR_SCALAR;};
   int GetDataType() {return VTK_UNSIGNED_CHAR;};
   void GetDataTypeRange (float* range) { range[0] = VTK_UNSIGNED_CHAR_MIN;
   range[1] = VTK_UNSIGNED_CHAR_MAX; return;}

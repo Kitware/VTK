@@ -107,8 +107,8 @@ public:
   // Description:
   // Return the type of scalar. Want to differentiate between
   // single-valued scalars and multiple-valued (e.g., "color" scalars).
-  // Returns either "SingleValued" or "ColorScalar".
-  virtual char *GetScalarType() {return "SingleValued";};
+  // Returns either VTK_SINGLE_VALUED or VTK_COLOR_SCALAR.
+  virtual int GetScalarType() {return VTK_SINGLE_VALUED;};
 
   // Description:
   // Return the number of values per scalar. Should range between (1,4).

@@ -61,7 +61,7 @@ public:
   ~vtkUnstructuredGrid();
   static vtkUnstructuredGrid *New() {return new vtkUnstructuredGrid;};
   const char *GetClassName() {return "vtkUnstructuredGrid";};
-  char *GetDataType() {return "vtkUnstructuredGrid";};
+  int GetDataSetType() {return VTK_UNSTRUCTURED_GRID;};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // cell creation/manipulation methods

@@ -61,7 +61,7 @@ public:
   ~vtkStructuredGrid();
   static vtkStructuredGrid *New() {return new vtkStructuredGrid;};
   const char *GetClassName() {return "vtkStructuredGrid";};
-  char *GetDataType() {return "vtkStructuredGrid";};
+  int GetDataSetType() {return VTK_STRUCTURED_GRID;};
   void PrintSelf(ostream& os, vtkIndent indent);
  
   // dataset interface
