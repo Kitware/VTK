@@ -38,6 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
+#include <math.h>
 #include "vtkImplicitBoolean.hh"
 
 // Description:
@@ -109,6 +110,15 @@ float vtkImplicitBoolean::EvaluateFunction(float x[3])
     f=this->FunctionList.GetNextItem(); )
       {
       if ( (v=f->FunctionValue(x)) > value ) value = v;
+      }
+    }
+
+  else if ( this->OperationType == VTK_UNION_OF_MAGNITUDES )
+    { //take minimum absolute value
+    for (value = VTK_LARGE_FLOAT, this->FunctionList.InitTraversal(); 
+    f=this->FunctionList.GetNextItem(); )
+      {
+      if ( (v=fabs(f->FunctionValue(x))) < value ) value = v;
       }
     }
 
