@@ -25,7 +25,6 @@ viewer SetInput [magnify GetOutput]
 viewer SetZSlice 22
 viewer SetColorWindow 2000
 viewer SetColorLevel 1000
-viewer Render
 
 
 # make interface

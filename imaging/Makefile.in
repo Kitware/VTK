@@ -71,6 +71,7 @@ vtkImageIdealLowPass \
 vtkImageIslandRemoval2D \
 vtkImageLaplacian \
 vtkImageLogarithmicScale \
+vtkImageLogic \
 vtkImageMIPFilter \
 vtkImageMagnify \
 vtkImageMagnify1D \
@@ -81,7 +82,6 @@ vtkImageMedian3D \
 vtkImageMirrorPad \
 vtkImageNoiseSource \
 vtkImageNonMaximumSuppression \
-vtkImageLogic \
 vtkImageOpenClose3D \
 vtkImagePermute \
 vtkImageRFFT \

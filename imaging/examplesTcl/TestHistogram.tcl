@@ -50,7 +50,7 @@ vtkImageViewer viewer
 	viewer SetCoordinate2 $slicenumber
 	viewer SetColorWindow $window
 	viewer SetColorLevel $level
-	viewer Render
+#	viewer Render
 
 vtkImageViewer viewer1
 	viewer1 SetInput [hist GetOutput]
@@ -105,8 +105,8 @@ proc SliceUp {} {
    puts $slicenumber
    .slice.snum delete 0 10
    .slice.snum insert 0 $slicenumber
-   viewer SetCoordinate2 $slicenumber
-   viewer Render
+#   viewer SetCoordinate2 $slicenumber
+#   viewer Render
    viewer1 SetCoordinate2 $slicenumber
    viewer1 Render
 }
@@ -118,8 +118,8 @@ proc SliceDown {} {
    puts $slicenumber
    .slice.snum delete 0 10
    .slice.snum insert 0 $slicenumber
-   viewer SetCoordinate2 $slicenumber
-   viewer Render
+#   viewer SetCoordinate2 $slicenumber
+#   viewer Render
    viewer1 SetCoordinate2 $slicenumber
    viewer1 Render
 
@@ -129,24 +129,24 @@ proc SetSlice {} {
    set slicenumber [.slice.snum  get]
    if {$slicenumber > [expr $numslices-1]} {set slicenumber [expr $numslices-1]}
    puts  $slicenumber
-   viewer SetCoordinate2 $slicenumber
-   viewer Render
+#   viewer SetCoordinate2 $slicenumber
+#   viewer Render
    viewer1 SetCoordinate2 $slicenumber
    viewer1 Render
 }
 
 proc SetWindow window {
    global viewer viewer1 
-   viewer SetColorWindow $window
-   viewer Render
+#   viewer SetColorWindow $window
+#   viewer Render
    viewer1 SetColorWindow $window
    viewer1 Render
 }
 
 proc SetLevel level {
    global viewer viewer1 
-   viewer SetColorLevel $level
-   viewer Render
+#   viewer SetColorLevel $level
+#   viewer Render
    viewer1 SetColorLevel $level
    viewer1 Render
 

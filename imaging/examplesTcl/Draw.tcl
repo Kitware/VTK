@@ -48,7 +48,6 @@ vtkImageViewer viewer
 viewer SetInput [canvas GetOutput]
 viewer SetColorWindow 256
 viewer SetColorLevel 128
-viewer Render
 
 
 # make interface

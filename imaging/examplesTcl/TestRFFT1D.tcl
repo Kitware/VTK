@@ -27,10 +27,6 @@ viewer SetInput [rfft GetOutput]
 viewer SetZSlice 22
 viewer SetColorWindow 2000
 viewer SetColorLevel 1000
-viewer SetRedComponent 0
-viewer SetGreenComponent 1
-viewer SetBlueComponent 1
-
 
 source WindowLevelInterface.tcl
 

@@ -13,12 +13,12 @@ reader SetDataMask 0x7fff
 
 vtkImageVariance3D var
 var SetInput [reader GetOutput]
-var SetKernelSize 1 1 1
+var SetKernelSize 3 3 1
 
 vtkImageViewer viewer
 viewer SetInput [var GetOutput]
 viewer SetZSlice 22
-viewer SetColorWindow 2000
+viewer SetColorWindow 3000
 viewer SetColorLevel 1000
 #viewer DebugOn
 

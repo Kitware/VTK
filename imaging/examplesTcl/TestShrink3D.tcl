@@ -24,7 +24,6 @@ viewer SetInput [shrink GetOutput]
 viewer SetZSlice 11
 viewer SetColorWindow 2000
 viewer SetColorLevel 1000
-viewer Render
 
 
 # make interface

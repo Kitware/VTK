@@ -50,6 +50,7 @@ vtkImageFeatureAnd::vtkImageFeatureAnd()
   this->OutputUnconnectedValue = 0;
   this->Connector = vtkImageConnector::New();
   this->SetFilteredAxes(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS);
+  this->NumberOfExecutionAxes = 3;
 }
 
 //----------------------------------------------------------------------------

@@ -23,15 +23,11 @@ pack .top.f1.r1 -side left -padx 3 -pady 3 -fill both -expand t
 pack .top.f1  -fill both -expand t
 pack .top.btn -fill x
 
-vtkImageFileReader reader
+vtkPNMReader reader
 reader ReleaseDataFlagOff
-reader SetAxes $VTK_IMAGE_COMPONENT_AXIS $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS 
-reader SetDataDimensions 3 512 256
-reader SetFileName "../../../vtkdataearth.ppm"
-reader SetDataScalarType $VTK_UNSIGNED_CHAR
+reader SetFileName "../../../vtkdata/earth.ppm"
 
 set viewer [.top.f1.r1 GetImageViewer]
-$viewer SetAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS $VTK_IMAGE_COMPONENT_AXIS
 $viewer SetInput [reader GetOutput]
 $viewer SetColorWindow 256
 $viewer SetColorLevel 128

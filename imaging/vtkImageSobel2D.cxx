@@ -81,7 +81,7 @@ void vtkImageSobel2D::SetFilteredAxes(int axis0, int axis1)
 //----------------------------------------------------------------------------
 void vtkImageSobel2D::ExecuteImageInformation()
 {
-  this->Output->SetNumberOfScalarComponents(this->NumberOfFilteredAxes);
+  this->Output->SetNumberOfScalarComponents(2);
 }
 
 
@@ -98,7 +98,7 @@ void vtkImageSobel2D::ComputeRequiredInputUpdateExtent()
   this->Output->GetUpdateExtent(extent);
   
   // grow input extent.
-  for (idx = 0; idx < this->NumberOfFilteredAxes; ++idx)
+  for (idx = 0; idx < 2; ++idx)
     {
     axis = this->FilteredAxes[idx];
     extent[axis*2] -= 1;

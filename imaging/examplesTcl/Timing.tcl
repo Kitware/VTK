@@ -8,7 +8,7 @@ source vtkImageInclude.tcl
 vtkImageReader reader
 reader ReleaseDataFlagOff
 reader SetDataByteOrderToLittleEndian
-reader SetDataDimensions 256 256 1
+reader SetDataExtent 0 255 0 255 1 2
 reader SetFilePrefix "../../../vtkdata/fullHead/headsq"
 reader SetDataMask 0x7fff
 #reader DebugOn
@@ -25,7 +25,7 @@ vtkImageViewer viewer
 #viewer SetAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Z_AXIS $VTK_IMAGE_Y_AXIS
 #viewer SetInput [reader GetOutput]
 viewer SetInput [magnify GetOutput]
-viewer SetCoordinate2 0
+viewer SetCoordinate2 1
 viewer SetColorWindow 2000
 viewer SetColorLevel 1000
 #viewer DebugOn
@@ -38,8 +38,13 @@ wm withdraw .
 set i 0;
 proc timeit {} {
   global i
-  puts [expr 1000000.0/[lindex [time {viewer SetColorLevel $i; viewer Render; incr i} 100] 0]]
+   puts start
+   puts [expr 1000000.0/[lindex [time {viewer SetColorLevel $i; viewer Render; incr i} 100] 0]]
+   puts end
 }
+
+timeit
+
 
 
 

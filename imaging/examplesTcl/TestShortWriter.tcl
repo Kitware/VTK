@@ -11,7 +11,7 @@ source vtkImageInclude.tcl
 vtkImageReader reader
 #reader DebugOn
 reader SetDataByteOrderToLittleEndian
-reader SetDataDimensions 0 255 0 255 1 93
+reader SetDataExtent 0 255 0 255 1 94
 reader SetFilePrefix "../../../vtkdata/fullHead/headsq"
 reader SetDataMask 0x7fff
 
@@ -36,7 +36,7 @@ vtkImageReader reader2
 #reader2 DebugOn
 reader2 ReleaseDataFlagOff
 reader2 SetDataByteOrderToBigEndian
-reader2 SetDataExtent 0 255 0 255 1 93
+reader2 SetDataExtent 0 255 0 255 1 94
 reader2 SetFilePrefix "test"
 
 vtkImageViewer viewer
@@ -45,7 +45,6 @@ viewer SetInput [reader2 GetOutput]
 viewer SetZSlice 22
 viewer SetColorWindow 3000
 viewer SetColorLevel 1500
-viewer Render
 
 
 # make interface

@@ -24,7 +24,6 @@ viewer SetInput [sobel GetOutput]
 viewer SetZSlice 22
 viewer SetColorWindow 400
 viewer SetColorLevel 0
-viewer SetBlueComponent 0
 
 
 # make interface

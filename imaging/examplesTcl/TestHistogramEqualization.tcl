@@ -30,7 +30,7 @@ set VTK_IMAGE_COMPONENT_AXIS     4
 vtkImageReader reader
 	#reader DebugOn
 	reader SetDataByteOrderToLittleEndian
-	reader SetDataDimensions $xdim $ydim $numslices 1
+	reader SetDataExtent 1 $xdim 1 $ydim 1 $numslices
 	reader SetFilePrefix $prefix
 	reader SetDataMask 0x7fff
 	reader ReleaseDataFlagOff
@@ -62,9 +62,9 @@ vtkImageViewer viewer3
 	viewer3 SetCoordinate2 $slicenumber
 	viewer3 SetColorWindow $window
 	viewer3 SetColorLevel $level
-	viewer3 SetXOffset $xdim
-	viewer3 SetYOffset $ydim;	
-	viewer3 Render
+#	viewer3 SetXOffset $xdim
+#	viewer3 SetYOffset $ydim;	
+#	viewer3 Render
 
 vtkImageViewer viewer
 	#viewer DebugOn
@@ -72,25 +72,25 @@ vtkImageViewer viewer
 	viewer SetCoordinate2 $slicenumber
 	viewer SetColorWindow $window
 	viewer SetColorLevel  $level
-	viewer SetXOffset 0
-	viewer SetWindow [viewer3 GetWindow]
+#	viewer SetXOffset 0
+#	viewer SetWindow [viewer3 GetWindow]
 
 vtkImageViewer viewer1
 	viewer1 SetInput [histequal GetOutput]
 	viewer1 SetCoordinate2 $slicenumber
 	viewer1 SetColorWindow $window
 	viewer1 SetColorLevel $level
-	viewer1 SetXOffset $xdim
-	viewer1 SetWindow [viewer3 GetWindow]
+#	viewer1 SetXOffset $xdim
+#	viewer1 SetWindow [viewer3 GetWindow]
 
 vtkImageViewer viewer2
 	viewer2 SetInput [hist1 GetOutput]
 	viewer2 SetCoordinate2 $slicenumber
 	viewer2 SetColorWindow $window
 	viewer2 SetColorLevel $level
-	viewer2 SetXOffset 0
-	viewer2 SetYOffset $xdim
-	viewer2 SetWindow [viewer3 GetWindow]
+#	viewer2 SetXOffset 0
+#	viewer2 SetYOffset $xdim
+#	viewer2 SetWindow [viewer3 GetWindow]
 
 #make interface
 #
@@ -138,14 +138,14 @@ proc SliceUp {} {
    puts $slicenumber
    .slice.snum delete 0 10
    .slice.snum insert 0 $slicenumber
-   viewer SetCoordinate2 $slicenumber
-   viewer Render
+#   viewer SetCoordinate2 $slicenumber
+#   viewer Render
    viewer1 SetCoordinate2 $slicenumber
    viewer1 Render
-   viewer2 SetCoordinate2 $slicenumber
-   viewer2 Render
-   viewer3 SetCoordinate2 $slicenumber
-   viewer3 Render
+#   viewer2 SetCoordinate2 $slicenumber
+#   viewer2 Render
+#   viewer3 SetCoordinate2 $slicenumber
+#   viewer3 Render
 }
 
 proc SliceDown {} {
@@ -155,14 +155,14 @@ proc SliceDown {} {
    puts $slicenumber
    .slice.snum delete 0 10
    .slice.snum insert 0 $slicenumber
-   viewer SetCoordinate2 $slicenumber
-   viewer Render
+#   viewer SetCoordinate2 $slicenumber
+#   viewer Render
    viewer1 SetCoordinate2 $slicenumber
    viewer1 Render
-   viewer2 SetCoordinate2 $slicenumber
-   viewer2 Render
-   viewer3 SetCoordinate2 $slicenumber
-   viewer3 Render
+#   viewer2 SetCoordinate2 $slicenumber
+#   viewer2 Render
+#   viewer3 SetCoordinate2 $slicenumber
+#   viewer3 Render
 
 }
 proc SetSlice {} {
@@ -170,28 +170,28 @@ proc SetSlice {} {
    set slicenumber [.slice.snum  get]
    if {$slicenumber > [expr $numslices-1]} {set slicenumber [expr $numslices-1]}
    puts  $slicenumber
-   viewer SetCoordinate2 $slicenumber
-   viewer Render
+#   viewer SetCoordinate2 $slicenumber
+#   viewer Render
    viewer1 SetCoordinate2 $slicenumber
    viewer1 Render
-   viewer2 SetCoordinate2 $slicenumber
-   viewer2 Render
-   viewer3 SetCoordinate2 $slicenumber
-   viewer3 Render
+#   viewer2 SetCoordinate2 $slicenumber
+#   viewer2 Render
+#   viewer3 SetCoordinate2 $slicenumber
+#   viewer3 Render
 }
 
 proc SetWindow window {
    global viewer viewer1 
-   viewer SetColorWindow $window
-   viewer Render
+#   viewer SetColorWindow $window
+#   viewer Render
    viewer1 SetColorWindow $window
    viewer1 Render
 }
 
 proc SetLevel level {
    global viewer viewer1 
-   viewer SetColorLevel $level
-   viewer Render
+#   viewer SetColorLevel $level
+#   viewer Render
    viewer1 SetColorLevel $level
    viewer1 Render
 
@@ -201,10 +201,10 @@ proc SetNumofbins numbofbins {
    set numberofbins $numbofbins
    hist1 SetNumberOfBins $numbofbins
    hist2 SetNumberOfBins $numbofbins
-   viewer Render
+#   viewer Render
    viewer1 Render
-   viewer2 Render
-   viewer3 Render
+#   viewer2 Render
+#   viewer3 Render
 }
 
 proc Setoffsetlevel leveloffset {
@@ -212,10 +212,10 @@ proc Setoffsetlevel leveloffset {
    set offsetlevel $leveloffset
    hist1 SetOffsetLevel $offsetlevel
    hist2 SetOffsetLevel $offsetlevel
-   viewer Render
+#   viewer Render
    viewer1 Render
-   viewer2 Render
-   viewer3 Render
+#   viewer2 Render
+#   viewer3 Render
 }
 
 

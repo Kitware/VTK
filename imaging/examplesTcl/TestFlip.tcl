@@ -1,7 +1,4 @@
 catch {load vtktcl}
-# Simple viewer for images.
-
-
 source vtkImageInclude.tcl
 
 # Image pipeline
@@ -12,21 +9,19 @@ reader SetDataByteOrderToLittleEndian
 reader SetDataExtent 0 255 0 255 1 93
 reader SetFilePrefix "../../../vtkdata/fullHead/headsq"
 reader SetDataMask 0x7fff
-#reader DebugOn
-#reader Update
+reader DebugOn
 
-vtkImageClip clip
-clip SetInput [reader GetOutput]
-clip SetOutputAxisWholeExtent $VTK_IMAGE_Y_AXIS 50 150
-clip ReleaseDataFlagOff
+vtkImageFlip flip
+flip SetInput [reader GetOutput]
+flip SetFilteredAxes $VTK_IMAGE_X_AXIS 
+#flip BypassOn
+#flip PreserveImageExtentOn
 
 vtkImageViewer viewer
-#viewer SetAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Z_AXIS $VTK_IMAGE_Y_AXIS
-viewer SetInput [clip GetOutput]
+viewer SetInput [flip GetOutput]
 viewer SetZSlice 22
 viewer SetColorWindow 2000
 viewer SetColorLevel 1000
-#viewer DebugOn
 
 #make interface
 source WindowLevelInterface.tcl

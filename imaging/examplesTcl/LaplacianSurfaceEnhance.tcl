@@ -19,8 +19,8 @@ vtkImageLaplacian lap
 lap SetInput [reader GetOutput]
 lap SetFilteredAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS $VTK_IMAGE_Z_AXIS
 
-vtkImageArithmetic subtract
-subtract SetOperatorToSubtract
+vtkImageMathematics subtract
+subtract SetOperationToSubtract
 subtract SetInput1 [reader GetOutput]
 subtract SetInput2 [lap GetOutput]
 subtract ReleaseDataFlagOff

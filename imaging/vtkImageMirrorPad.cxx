@@ -183,7 +183,7 @@ static void vtkImageMirrorPadExecute(vtkImageMirrorPad *self,
   cycle = (min0 >= imageMin0) ? ((min0-imageMin0) / (imageMax0-imageMin0+1)) :
     ((1+min0-imageMin0) / (imageMax0-imageMin0+1)) - 1;
   mirror = (cycle > 0) ? cycle % 2 : -cycle % 2; 
-  inIdx0 = start0 = (min0 - imageMin0) - (imageMax0 - imageMin0 + 1) * cycle;
+  inIdx0 = start0 = (min0) - (imageMax0 - imageMin0 + 1) * cycle;
   if (mirror)
     {
     inIdx0 = (imageMax0 - imageMin0 - inIdx0);
@@ -194,7 +194,7 @@ static void vtkImageMirrorPadExecute(vtkImageMirrorPad *self,
   cycle = (min1 >= imageMin1) ? ((min1-imageMin1) / (imageMax1-imageMin1+1)) :
     ((1+min1-imageMin1) / (imageMax1-imageMin1+1)) - 1;
   mirror = (cycle > 0) ? cycle % 2 : -cycle % 2; 
-  inIdx1 = start1 = (min1 - imageMin1) - (imageMax1 - imageMin1 + 1) * cycle;
+  inIdx1 = start1 = (min1) - (imageMax1 - imageMin1 + 1) * cycle;
   if (mirror)
     {
     inIdx1 = (imageMax1 - imageMin1 - inIdx1);
@@ -205,7 +205,7 @@ static void vtkImageMirrorPadExecute(vtkImageMirrorPad *self,
   cycle = (min2 >= imageMin2) ? ((min2-imageMin2) / (imageMax2-imageMin2+1)) :
     ((1+min2-imageMin2) / (imageMax2-imageMin2+1)) - 1;
   mirror = (cycle > 0) ? cycle % 2 : -cycle % 2; 
-  inIdx2 = start2 = (min2 - imageMin2) - (imageMax2 - imageMin2 + 1) * cycle;
+  inIdx2 = start2 = (min2) - (imageMax2 - imageMin2 + 1) * cycle;
   if (mirror)
     {
     inIdx2 = (imageMax2 - imageMin2 - inIdx2);
@@ -216,7 +216,7 @@ static void vtkImageMirrorPadExecute(vtkImageMirrorPad *self,
   cycle = (min3 >= imageMin3) ? ((min3-imageMin3) / (imageMax3-imageMin3+1)) :
     ((1+min3-imageMin3) / (imageMax3-imageMin3+1)) - 1;
   mirror = (cycle > 0) ? cycle % 2 : -cycle % 2; 
-  inIdx3 = start3 = (min3 - imageMin3) - (imageMax3 - imageMin3 + 1) * cycle;
+  inIdx3 = start3 = (min3) - (imageMax3 - imageMin3 + 1) * cycle;
   if (mirror)
     {
     inIdx3 = (imageMax3 - imageMin3 - inIdx3);
@@ -317,6 +317,12 @@ void vtkImageMirrorPad::Execute(vtkImageRegion *inRegion,
 {
   void *inPtr = inRegion->GetScalarPointer();
   void *outPtr = outRegion->GetScalarPointer();
+
+  if ( ! inPtr || ! outPtr)
+    {
+    vtkErrorMacro("Could not get pointer.");
+    return;
+    }
   
   vtkDebugMacro(<< "Execute: inRegion = " << inRegion 
 		<< ", outRegion = " << outRegion);

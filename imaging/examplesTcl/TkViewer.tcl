@@ -6,15 +6,11 @@ source vtkImageInclude.tcl
 # Tk widget that is associated with a vtkRenderWindow.
 #source TkInteractor.tcl
 
-vtkImageFileReader reader
+vtkPNMReader reader
 reader ReleaseDataFlagOff
-reader SetAxes $VTK_IMAGE_COMPONENT_AXIS $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS 
-reader SetDataDimensions 3 512 256
-reader SetFileName "../../../vtkdataearth.ppm"
-reader SetDataScalarType $VTK_UNSIGNED_CHAR
+reader SetFileName "../../../vtkdata/earth.ppm"
 
 vtkImageViewer viewer
-viewer SetAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS $VTK_IMAGE_COMPONENT_AXIS
 viewer SetInput [reader GetOutput]
 viewer SetColorWindow 256
 viewer SetColorLevel 128

@@ -29,10 +29,15 @@ rfft SetFilteredAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS
 rfft SetInput [highPass GetOutput]
 #fft DebugOn
 
+vtkImageExtractComponents real
+real SetInput [rfft GetOutput]
+real SetComponents 0
+
+
 vtkImageViewer viewer
-viewer SetInput [rfft GetOutput]
+viewer SetInput [real GetOutput]
 viewer SetZSlice 22
-viewer SetColorWindow 1000
+viewer SetColorWindow 500
 viewer SetColorLevel 0
 #viewer DebugOn
 

@@ -456,7 +456,7 @@ void vtkImageShortWriter::WriteRegion2D(vtkImageRegion *region)
   int *WholeExtent = region->GetWholeExtent();
   int fileNumber;
   
-  fileNumber = extent[4] * (WholeExtent[7] - WholeExtent[6] + 1) + extent[6]+1;
+  fileNumber = extent[4] * (WholeExtent[7] - WholeExtent[6] + 1) + extent[6];
   sprintf(this->FileName, this->FilePattern, this->FilePrefix, fileNumber);
   vtkDebugMacro(<<"WriteRegion2D: " << this->FileName);
   
