@@ -92,6 +92,7 @@ vtkObject::vtkObject()
   this->Modified(); // Insures modified time > than any other time
   // initial reference count = 1 and reference counting on.
   this->ReferenceCount = 1;
+  this->DeleteMethod = NULL;
 }
 
 // Delete a vtk object. This method should always be used to delete an object 
@@ -106,11 +107,26 @@ vtkObject::~vtkObject()
 {
   vtkDebugMacro(<< "Destructing!");
 
+  // invoke the delete method
+  if ( this->DeleteMethod )
+    {
+      (*this->DeleteMethod)(this);
+    }
+
   // warn user if reference counting is on and the object is being referenced
   // by another object
   if ( this->ReferenceCount > 0)
     {
     vtkErrorMacro(<< "Trying to delete object with non-zero reference count.");
+    }
+}
+
+void vtkObject::SetDeleteMethod(void (*f)(void *))
+{
+  if (f != this->DeleteMethod)
+    {
+    this->DeleteMethod = f;
+    this->Modified();
     }
 }
 
@@ -139,6 +155,14 @@ void vtkObject::PrintHeader(ostream& os, vtkIndent indent)
 void vtkObject::PrintSelf(ostream& os, vtkIndent indent)
 {
   os << indent << "Debug: " << (this->Debug ? "On\n" : "Off\n");
+  if ( this->DeleteMethod )
+    {
+    os << indent << "Delete Method defined\n";
+    }
+  else
+    {
+    os << indent <<"No Delete Method\n";
+    }
   os << indent << "Modified Time: " << this->GetMTime() << "\n";
   os << indent << "Reference Count: " << this->ReferenceCount << "\n";
   os << indent << "Reference Counting: "<< ((this->ReferenceCount == -1) ? "Off\n" : "On\n");

@@ -154,8 +154,6 @@ public:
     {vtkObject::SetGlobalWarningDisplay(0);};
   static int  GetGlobalWarningDisplay();
   
-  // Reference Counting
-
   // Description:
   // Increase the reference count (mark as used by another object).
   void Register(vtkObject* o);
@@ -176,10 +174,19 @@ public:
   // Works now by making reference count negative.
   void ReferenceCountingOff();
 
+  //BTX
+  // Description:
+  // A callback for when the destructor is called. Scripting
+  // languages use this to know when a C++ object has been freed.
+  // This is not intended for any use other than scripting.
+  void SetDeleteMethod(void (*f)(void *));
+  //ETX
+  
 protected:
   unsigned char Debug;         // Enable debug messages
   vtkTimeStamp MTime; // Keep track of modification time
   int ReferenceCount;      // Number of uses of this object by other objects
+  void (*DeleteMethod)(void *);
 
 private:
   //BTX
