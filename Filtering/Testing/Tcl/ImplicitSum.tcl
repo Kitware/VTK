@@ -20,7 +20,8 @@ vtkImplicitSum sum
 vtkSampleFunction sample
     sample SetImplicitFunction sum
     sample SetSampleDimensions 60 60 60
-    sample ComputeNormalsOff
+    sample ComputeNormalsOn
+
 vtkContourFilter surface
     surface SetInput [sample GetOutput]
     surface SetValue 0 0.0
