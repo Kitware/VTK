@@ -187,6 +187,7 @@ vtkUnstructuredGridSource.cxx
 vtkUnstructuredGridToPolyDataFilter.cxx
 vtkUnstructuredGridToUnstructuredGridFilter.cxx
 vtkVertex.cxx
+vtkViewDependentErrorMetric.cxx
 vtkVoxel.cxx
 vtkWedge.cxx
 vtkViewport.cxx
