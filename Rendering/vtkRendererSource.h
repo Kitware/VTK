@@ -88,10 +88,23 @@ protected:
   vtkRendererSource();
   ~vtkRendererSource();
 
-  virtual void ExecuteData(vtkDataObject *data);
-  
+#ifdef VTK_USE_EXECUTIVES
+  void AlgorithmExecute(vtkInformation *request, 
+                        vtkInformationVector *inputVector, 
+                        vtkInformationVector *outputVector);
+#else
+  virtual void ExecuteData(vtkDataObject *outp);
   void UpdateInformation();
+#endif  
   
+  virtual int ProcessUpstreamRequest(vtkInformation *, 
+                                      vtkInformationVector *, 
+                                      vtkInformationVector *);
+  virtual int ProcessDownstreamRequest(vtkInformation *, 
+                                        vtkInformationVector *, 
+                                        vtkInformationVector *);
+  virtual int FillOutputPortInformation(int port, vtkInformation* info);
+
   vtkRenderer *Input;
   int WholeWindow;
   int RenderFlag;
