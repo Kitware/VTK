@@ -264,7 +264,7 @@ int vtkCaptionActor2D::RenderOpaqueGeometry(vtkViewport *viewport)
   //
   float *w1, *w2;
   int *x1, *x2, *x3;
-  float p1[3], p2[3], p3[3];
+  float p1[4], p2[4], p3[4];
   x1 = this->AttachmentPointCoordinate->GetComputedDisplayValue(viewport);
   x2 = this->PositionCoordinate->GetComputedDisplayValue(viewport);
   x3 = this->Position2Coordinate->GetComputedDisplayValue(viewport);
