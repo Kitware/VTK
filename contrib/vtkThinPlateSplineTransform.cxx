@@ -358,60 +358,18 @@ void vtkThinPlateSplineTransform::InternalUpdate()
     DeleteMatrix(X);
 
     // now the linear portion of the warp must be checked
-    // for singular values
+    // (this is a very poor check for now)
     if (fabs(vtkMath::Determinant3x3((double (*)[3]) *A)) < 1e-16)
       {
-      double (*M)[3] = (double (*)[3]) *A;
-      double Y[3][3];
-      double VT[3][3];
-      double S[3][3];
-      double s[3];
-
-      // perform decomposition M = Y*S*VT
-      vtkMath::SingularValueDecomposition3x3(M, Y, s, VT);
-
-      // check for singular eigenvalues
-      double avg = 1.0;
-      int navg = 0;
       for (i = 0; i < 3; i++)
 	{
-	if (fabs(s[i]) >= 1e-16)
+	if (sqrt(A[0][i]*A[0][i] + A[1][i]*A[1][i] + A[2][i]*A[2][i])
+	    < 1e-16)
 	  {
-	  avg *= s[i];
-	  navg++;
-	  }
-	else
-	  {
-	  s[i] = 0;
+	  A[0][i] = A[1][i] = A[2][i] = A[i][0] = A[i][1] = A[i][2] = 0;
+	  A[i][i] = 1.0;
 	  }
 	}
-
-      if (navg == 2)
-	{ // two non-singular eigenvalues, take the geometric mean
-	avg = ((avg < 0) ? -sqrt(-avg) : sqrt(avg));
-	}
-	
-      // replace singular values
-      for (i = 0; i < 3; i++)
-	{
-	if (s[i] == 0)
-	  {
-	  s[i] = avg;
-	  if (avg < 0) 
-	    { // switch sign to try for positive determinant 
-	    avg = -avg;
-	    }
-	  }
-	// build W matrix
-	S[i][0] = S[i][1] = S[i][2] = 0;
-	S[i][i] = s[i];
-	}
-
-      // recompose M = Y*S*VT
-      vtkMath::Identity3x3(M);
-      vtkMath::Multiply3x3(M, VT, M);
-      vtkMath::Multiply3x3(M, S, M);
-      vtkMath::Multiply3x3(M, Y, M);
       }
     }
   // special cases, I added these to ensure that this class doesn't 
