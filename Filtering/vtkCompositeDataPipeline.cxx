@@ -1,15 +1,15 @@
 /*=========================================================================
 
-  Program:   Visualization Toolkit
-  Module:    vtkCompositeDataPipeline.cxx
+Program:   Visualization Toolkit
+Module:    vtkCompositeDataPipeline.cxx
 
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+All rights reserved.
+See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
+This software is distributed WITHOUT ANY WARRANTY; without even
+the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
 #include "vtkCompositeDataPipeline.h"
@@ -35,16 +35,16 @@
 #include "vtkStructuredGrid.h"
 #include "vtkUniformGrid.h"
 
-vtkCxxRevisionMacro(vtkCompositeDataPipeline, "1.7");
+vtkCxxRevisionMacro(vtkCompositeDataPipeline, "1.8");
 vtkStandardNewMacro(vtkCompositeDataPipeline);
 
 vtkInformationKeyMacro(vtkCompositeDataPipeline,BEGIN_LOOP,Integer);
 vtkInformationKeyMacro(vtkCompositeDataPipeline,END_LOOP,Integer);
 vtkInformationKeyMacro(vtkCompositeDataPipeline,COMPOSITE_DATA_TYPE_NAME,String);
 vtkInformationKeyMacro(vtkCompositeDataPipeline,COMPOSITE_DATA_INFORMATION,ObjectBase);
-vtkInformationKeyMacro(vtkCompositeDataPipeline,UPDATE_COST,Double);
 vtkInformationKeyMacro(vtkCompositeDataPipeline,MARKED_FOR_UPDATE,Integer);
 vtkInformationKeyMacro(vtkCompositeDataPipeline,INPUT_REQUIRED_COMPOSITE_DATA_TYPE, String);
+vtkInformationKeyMacro(vtkCompositeDataPipeline,UPDATE_BLOCKS, ObjectBase);
 
 //----------------------------------------------------------------------------
 vtkCompositeDataPipeline::vtkCompositeDataPipeline()
@@ -65,8 +65,35 @@ int vtkCompositeDataPipeline::ProcessRequest(vtkInformation* request)
 
   if(this->Algorithm && request->Has(BEGIN_LOOP()))
     {
-    this->InSubPass = 1;
-    return 1;
+    int appendKey = 1;
+    vtkInformationKey** keys = request->Get(vtkExecutive::KEYS_TO_COPY());
+    if (keys)
+      {
+      int len = request->Length(vtkExecutive::KEYS_TO_COPY());
+      for (int i=0; i<len; i++)
+        {
+        if (keys[i] == vtkCompositeDataPipeline::UPDATE_BLOCKS())
+          {
+          appendKey = 0;
+          break;
+          }
+        }
+      }
+    if (appendKey)
+      {
+      request->Append(vtkExecutive::KEYS_TO_COPY(), 
+                      vtkCompositeDataPipeline::UPDATE_BLOCKS());
+      }
+
+    // Invoke the request on the algorithm.
+    int retVal = this->CallAlgorithm(request, vtkExecutive::RequestDownstream);
+
+    if (retVal)
+      {
+      this->InSubPass = 1;
+      }
+
+    return retVal;
     }
 
   if(this->Algorithm && request->Has(END_LOOP()))
@@ -367,6 +394,19 @@ int vtkCompositeDataPipeline::ExecuteData(vtkInformation* request)
 
   int i, j;
 
+  // Prepare outputs that will be generated to receive new data.
+  vtkInformationVector* outputs = this->GetOutputInformation();
+  for(i=0; i < outputs->GetNumberOfInformationObjects(); ++i)
+    {
+    vtkInformation* outInfo = outputs->GetInformationObject(i);
+    vtkDataObject* data = 
+      outInfo->Get(vtkCompositeDataSet::COMPOSITE_DATA_SET());
+    if(data)
+      {
+      data->PrepareForNewData();
+      }
+    }
+
   // Loop over all input ports.
   for(i=0; i < this->Algorithm->GetNumberOfInputPorts(); ++i)
     {
@@ -374,14 +414,33 @@ int vtkCompositeDataPipeline::ExecuteData(vtkInformation* request)
     int numInConnections = this->Algorithm->GetNumberOfInputConnections(i);
     for (j=0; j<numInConnections; j++)
       {
-      vtkInformation* inInfo = this->GetInputInformation(i, j);
+      // Tell the producer upstream that looping is about to start
+      vtkSmartPointer<vtkInformation> rb = 
+        vtkSmartPointer<vtkInformation>::New();
+      rb->Set(BEGIN_LOOP(), 1);
+        
+      // The request is forwarded upstream through the pipeline.
+      rb->Set(vtkExecutive::FORWARD_DIRECTION(), 
+              vtkExecutive::RequestUpstream);
 
-      vtkHierarchicalDataInformation* dataInf = 
-        vtkHierarchicalDataInformation::SafeDownCast(
-          inInfo->Get(vtkCompositeDataPipeline::COMPOSITE_DATA_INFORMATION()));
-
-      if (!dataInf)
+      rb->Set(vtkExecutive::ALGORITHM_AFTER_FORWARD(), 1);
+        
+      // Send the request.
+      if (!this->ForwardUpstream(i, j, rb))
         {
+        return 0;
+        }
+
+      vtkInformation* inInfo = this->GetInputInformation(i, j);
+      vtkHierarchicalDataInformation* updateInfo = 
+        vtkHierarchicalDataInformation::SafeDownCast(
+          inInfo->Get(vtkCompositeDataPipeline::UPDATE_BLOCKS()));
+
+      if (!updateInfo)
+        {
+        vtkDebugMacro(<< "No UPDATE_BLOCKS() for input " << i << "," << j
+                      << " was provided. Skipping.");
+        this->SendEndLoop(i,j);
         continue;
         }
 
@@ -391,6 +450,7 @@ int vtkCompositeDataPipeline::ExecuteData(vtkInformation* request)
       // There is a composite input, no need to loop
       if (input)
         {
+        this->SendEndLoop(i,j);
         continue;
         }
 
@@ -399,6 +459,7 @@ int vtkCompositeDataPipeline::ExecuteData(vtkInformation* request)
       // looped, it will cause unnecessary execution(s)
       if (!inInfo->Has(MARKED_FOR_UPDATE()))
         {
+        this->SendEndLoop(i,j);
         continue;
         }
 
@@ -441,31 +502,16 @@ int vtkCompositeDataPipeline::ExecuteData(vtkInformation* request)
           }
         }
             
-      // Tell the producer upstream that looping is about to start
-      vtkSmartPointer<vtkInformation> rb = 
-        vtkSmartPointer<vtkInformation>::New();
-      rb->Set(BEGIN_LOOP(), 1);
-        
-      // The request is forwarded upstream through the pipeline.
-      rb->Set(vtkExecutive::FORWARD_DIRECTION(), 
-              vtkExecutive::RequestUpstream);
-        
-      // Send the request.
-      if (!this->ForwardUpstream(i, j, rb))
-        {
-        return 0;
-        }
-
       // Execute the streaming demand driven pipeline for each block
-      unsigned int numLevels = dataInf->GetNumberOfLevels();
+      unsigned int numLevels = updateInfo->GetNumberOfLevels();
       for (unsigned int k=0; k<numLevels; k++)
         {
-        unsigned int numDataSets = dataInf->GetNumberOfDataSets(k);
+        unsigned int numDataSets = updateInfo->GetNumberOfDataSets(k);
         for (unsigned l=0; l<numDataSets; l++)
           {
-          if (dataInf)
+          if (updateInfo)
             {
-            vtkInformation* partInf = dataInf->GetInformation(k, l);
+            vtkInformation* partInf = updateInfo->GetInformation(k, l);
             if (!partInf->Has(MARKED_FOR_UPDATE()))
               {
               vtkDebugMacro(<< k << "," << l << "  not marked for update");
@@ -489,6 +535,7 @@ int vtkCompositeDataPipeline::ExecuteData(vtkInformation* request)
           // Send the request.
           if (!this->ForwardUpstream(i, j, r1))
             {
+            this->SendEndLoop(i,j);
             return 0;
             }
             
@@ -512,6 +559,7 @@ int vtkCompositeDataPipeline::ExecuteData(vtkInformation* request)
           // Send the request.
           if (!this->ForwardUpstream(i, j, r1_5))
             {
+            this->SendEndLoop(i,j);
             return 0;
             }
               
@@ -533,6 +581,7 @@ int vtkCompositeDataPipeline::ExecuteData(vtkInformation* request)
           // Send the request.
           if (!this->ForwardUpstream(i, j, r2))
             {
+            this->SendEndLoop(i,j);
             return 0;
             }
             
@@ -572,6 +621,7 @@ int vtkCompositeDataPipeline::ExecuteData(vtkInformation* request)
           // Send the request.
           if (!this->ForwardUpstream(i, j, r3))
             {
+            this->SendEndLoop(i,j);
             return 0;
             }
             
@@ -594,6 +644,7 @@ int vtkCompositeDataPipeline::ExecuteData(vtkInformation* request)
           // Send the request.
           if (!this->ForwardUpstream(i, j, r4))
             {
+            this->SendEndLoop(i,j);
             return 0;
             }
               
@@ -607,18 +658,7 @@ int vtkCompositeDataPipeline::ExecuteData(vtkInformation* request)
             }
           }
         }
-
-      // Tell the producer upstream that looping is over
-      vtkSmartPointer<vtkInformation> re = 
-        vtkSmartPointer<vtkInformation>::New();
-      re->Set(END_LOOP(), 1);
-      
-      // The request is forwarded upstream through the pipeline.
-      re->Set(vtkExecutive::FORWARD_DIRECTION(), 
-              vtkExecutive::RequestUpstream);
-      
-      // Send the request.
-      if (!this->ForwardUpstream(i, j, re))
+      if (!this->SendEndLoop(i, j))
         {
         return 0;
         }
@@ -629,6 +669,38 @@ int vtkCompositeDataPipeline::ExecuteData(vtkInformation* request)
 
   if (result)
     {
+    // If none of the outputs ports has UPDATE_BLOCKS(), we
+    // need to call BEGIN_LOOP(). RequestData() might require
+    // UPDATE_BLOCKS(). This happens when Update() is called
+    // directly on the algorithm.
+    for(int jj=0; jj < this->Algorithm->GetNumberOfOutputPorts(); ++jj)
+      {
+      vtkInformation* info = this->GetOutputInformation(jj);
+      vtkInformation* outPortInfo = 
+        this->Algorithm->GetOutputPortInformation(jj);
+      if (outPortInfo->Has(COMPOSITE_DATA_TYPE_NAME()) &&
+          !info->Has(UPDATE_BLOCKS()))
+        {
+        vtkSmartPointer<vtkInformation> rb = 
+          vtkSmartPointer<vtkInformation>::New();
+        rb->Set(BEGIN_LOOP(), 1);
+        
+        // The request is forwarded upstream through the pipeline.
+        rb->Set(vtkExecutive::FORWARD_DIRECTION(), 
+                vtkExecutive::RequestUpstream);
+
+        rb->Set(vtkExecutive::ALGORITHM_AFTER_FORWARD(), 1);
+        
+        // Send the request.
+        if (!this->CallAlgorithm(rb, vtkExecutive::RequestDownstream))
+          {
+          return 0;
+          }
+
+        break;
+        }
+      }
+
     int inputPortComposite = 0;
     int inputComposite = 0;
     int compositePort = -1;
@@ -685,11 +757,11 @@ int vtkCompositeDataPipeline::ExecuteData(vtkInformation* request)
       vtkCompositeDataSet* input = vtkCompositeDataSet::SafeDownCast(
         inInfo->Get(vtkCompositeDataSet::COMPOSITE_DATA_SET()));
 
-      vtkHierarchicalDataInformation* dataInf = 
+      vtkHierarchicalDataInformation* updateInfo = 
         vtkHierarchicalDataInformation::SafeDownCast(
-          inInfo->Get(vtkCompositeDataPipeline::COMPOSITE_DATA_INFORMATION()));
+          inInfo->Get(vtkCompositeDataPipeline::UPDATE_BLOCKS()));
 
-      if (input && dataInf)
+      if (input && updateInfo)
         {
         vtkSmartPointer<vtkInformation> r = 
           vtkSmartPointer<vtkInformation>::New();
@@ -702,7 +774,7 @@ int vtkCompositeDataPipeline::ExecuteData(vtkInformation* request)
         // Algorithms process this request after it is forwarded.
         r->Set(vtkExecutive::ALGORITHM_AFTER_FORWARD(), 1);
 
-        unsigned int numLevels = dataInf->GetNumberOfLevels();
+        unsigned int numLevels = updateInfo->GetNumberOfLevels();
         vtkDataObject* prevInput = inInfo->Get(vtkDataObject::DATA_OBJECT());
         prevInput->Register(this);
 
@@ -714,10 +786,10 @@ int vtkCompositeDataPipeline::ExecuteData(vtkInformation* request)
         this->PushInformation(inInfo);
         for (unsigned int k=0; k<numLevels; k++)
           {
-          unsigned int numDataSets = dataInf->GetNumberOfDataSets(k);
+          unsigned int numDataSets = updateInfo->GetNumberOfDataSets(k);
           for (unsigned l=0; l<numDataSets; l++)
             {
-            vtkInformation* partInf = dataInf->GetInformation(k, l);
+            vtkInformation* partInf = updateInfo->GetInformation(k, l);
             if (partInf->Has(MARKED_FOR_UPDATE()))
               {
               r->Set(vtkHierarchicalDataSet::LEVEL(), k);
@@ -775,9 +847,9 @@ int vtkCompositeDataPipeline::ExecuteData(vtkInformation* request)
           }
         vtkDataObject* curOutput = outInfo->Get(vtkDataObject::DATA_OBJECT());
         if (curOutput != prevOutput)
-           {
-           prevOutput->SetPipelineInformation(outInfo);
-           }
+          {
+          prevOutput->SetPipelineInformation(outInfo);
+          }
         }
       this->ExecuteDataEnd(request);
       }
@@ -788,6 +860,26 @@ int vtkCompositeDataPipeline::ExecuteData(vtkInformation* request)
     }
 
   return result;
+}
+
+//----------------------------------------------------------------------------
+int vtkCompositeDataPipeline::SendEndLoop(int i, int j)
+{
+  // Tell the producer upstream that looping is over
+  vtkSmartPointer<vtkInformation> re = 
+    vtkSmartPointer<vtkInformation>::New();
+  re->Set(END_LOOP(), 1);
+  
+  // The request is forwarded upstream through the pipeline.
+  re->Set(vtkExecutive::FORWARD_DIRECTION(), 
+          vtkExecutive::RequestUpstream);
+  
+  // Send the request.
+  if (!this->ForwardUpstream(i, j, re))
+    {
+    return 0;
+    }
+  return 1;
 }
 
 //----------------------------------------------------------------------------
@@ -845,6 +937,14 @@ int vtkCompositeDataPipeline::ForwardUpstream(
     request->Set(FROM_OUTPUT_PORT(), port);
     }
   return result;
+}
+
+//----------------------------------------------------------------------------
+void
+vtkCompositeDataPipeline
+::CopyDefaultInformation(vtkInformation* request, int direction)
+{
+  this->Superclass::CopyDefaultInformation(request, direction);
 }
 
 //----------------------------------------------------------------------------

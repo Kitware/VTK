@@ -27,19 +27,18 @@
 // the contents of the composite dataset in this pass. This is accomplished
 // by creating and populating a vtkHierarchicalDataInformation and setting
 // it using the COMPOSITE_DATA_INFORMATION() key in the output information
-// vector.  An UPDATE_COST() should be set for each block in the composite
-// dataset.  A cost of 0 implies that the dataset can be produced easily
-// (for example without accessing a remote disk) whereas a cost of 1
-// implies that the dataset cannot be produced by the current process.
-// Sources that can produce more than one piece (note that a piece is
+// vector. Sources that can produce more than one piece (note that a piece is
 // different than a block; each piece consistes of 0 or more blocks) should
 // set MAXIMUM_NUMBER_OF_PIECES to -1.
 //
 // * REQUEST_UPDATE_EXTENT: This pass is identical to the one implemented
-// in vtkStreamingDemandDrivenPipeline except the source has to perform
-// the "extent translation". This is the process by which the piece request
-// is converted to a block request. This is done by adding a MARKED_FOR_UPDATE()
-// key to the appropriate blocks in COMPOSITE_DATA_INFORMATION().
+// in vtkStreamingDemandDrivenPipeline
+//
+// * BEGIN_LOOP: The source is told that looping is about to start. 
+// The source has to perform  "extent translation". This is the process 
+// by which the piece request is converted to a block request. 
+// This is done by adding a MARKED_FOR_UPDATE() key to the appropriate blocks 
+// in UPDATE_BLOCKS().
 //
 // * REQUEST_DATA: This is where the algorithms execute. If a composite
 // data algorithm is consuming the output of a simple data algorithm, the
@@ -95,13 +94,13 @@ public:
 
   // Description:
   // vtkCompositeDataPipeline specific keys
-  static vtkInformationIntegerKey*    BEGIN_LOOP();
-  static vtkInformationIntegerKey*    END_LOOP();
-  static vtkInformationStringKey*     COMPOSITE_DATA_TYPE_NAME();
-  static vtkInformationObjectBaseKey* COMPOSITE_DATA_INFORMATION();
-  static vtkInformationIntegerKey*    MARKED_FOR_UPDATE();
-  static vtkInformationDoubleKey*     UPDATE_COST();
-  static vtkInformationStringKey*     INPUT_REQUIRED_COMPOSITE_DATA_TYPE();
+  static vtkInformationIntegerKey*       BEGIN_LOOP();
+  static vtkInformationIntegerKey*       END_LOOP();
+  static vtkInformationStringKey*        COMPOSITE_DATA_TYPE_NAME();
+  static vtkInformationObjectBaseKey*    COMPOSITE_DATA_INFORMATION();
+  static vtkInformationIntegerKey*       MARKED_FOR_UPDATE();
+  static vtkInformationStringKey*        INPUT_REQUIRED_COMPOSITE_DATA_TYPE();
+  static vtkInformationObjectBaseKey*    UPDATE_BLOCKS();
 
 protected:
   vtkCompositeDataPipeline();
@@ -109,6 +108,9 @@ protected:
 
   virtual int ForwardUpstream(vtkInformation* request);
   virtual int ForwardUpstream(int i, int j, vtkInformation* request);
+
+  // Copy information for the given request.
+  virtual void CopyDefaultInformation(vtkInformation* request, int direction);
 
   virtual void CopyFromDataToInformation(
     vtkDataObject* dobj, vtkInformation* inInfo);
@@ -132,6 +134,7 @@ protected:
   virtual int ExecuteData(vtkInformation* request);
 
   int CheckCompositeData(int port);
+  int SendEndLoop(int i, int j);
 
   vtkInformation* InformationCache;
 
