@@ -76,7 +76,6 @@ void vlPolyMapper::Render(vlRenderer *ren)
   vlPointData *pd;
   vlScalars *scalars;
   int i;
-  char forceBuild = 0;
   vlPolyData *input=(vlPolyData *)this->Input;
   vlColorScalars *colors;
 //
@@ -95,7 +94,8 @@ void vlPolyMapper::Render(vlRenderer *ren)
 //
 // Now send data down to primitives and draw it
 //
-  if ( forceBuild || input->GetMTime() > this->BuildTime || 
+  if ( this->GetMTime() > this->BuildTime || 
+  input->GetMTime() > this->BuildTime || 
   this->LookupTable->GetMTime() > this->BuildTime )
     {
 //
@@ -104,7 +104,7 @@ void vlPolyMapper::Render(vlRenderer *ren)
     if ( this->ScalarsVisible && (pd=input->GetPointData()) && 
     (scalars=pd->GetScalars()) )
       {
-      if ( scalars->GetNumberOfValuesPerPoint() == 1 )
+      if ( scalars->GetNumberOfValuesPerScalar() == 1 )
         {
         if ( this->Colors == NULL ) 
           {
