@@ -8,7 +8,6 @@ Based on vtkTkRenderWindget.py
 """
 
 import math, os, sys
-from vtkpython import *
 from qt import *
 
 class QVTKRenderWidget(QWidget):
@@ -22,6 +21,9 @@ class QVTKRenderWidget(QWidget):
 
         # private attributes
         self.__oldFocus = None
+        self.__saveX = 0
+        self.__saveY = 0
+        self.__saveState = 0
         self.__connected = 0  # is QT->VTK connection done?
 
         # create qt-level widget
@@ -63,7 +65,7 @@ class QVTKRenderWidget(QWidget):
         self._ViewportCenterY = 0
         
         self._Picker = vtkCellPicker()
-        self._PickedAssembly = None
+        self._PickedActor = None
         self._PickedProperty = vtkProperty()
         self._PickedProperty.SetColor(1,0,0)
         self._PrePickedProperty = None
@@ -71,7 +73,10 @@ class QVTKRenderWidget(QWidget):
         # these record the previous mouse position
         self._LastX = 0
         self._LastY = 0
-        self._LastState = 0
+
+        # the current interaction mode (Rotate, Pan, Zoom, etc)
+        self._Mode = None
+        self._ActiveButton = 0
 
     def paintEvent(self,ev):
         if self.isVisible():
@@ -92,35 +97,57 @@ class QVTKRenderWidget(QWidget):
             self.setFocus()
 
     def leaveEvent(self,ev):
-        if (self._LastState & 0x7) == 0 and self.__oldFocus:
+        if (self.__saveState & 0x7) == 0 and self.__oldFocus:
             self.__oldFocus.setFocus()
             self.__oldFocus = None
 
     def mousePressEvent(self,ev):
+        if self._Mode != None:
+            return
+        
+        if ev.button() == 2 or \ # right button
+             ev.button() == 1 and ev.state() & 16: # left button and ctrl 
+            self._Mode = "Zoom"
+            self._ActiveButton = ev.button()
+        elif ev.button() == 4 or \ # middle button
+           ev.button() == 1 and ev.state() & 8: # left button and shift
+            self._Mode = "Pan"
+            self._ActiveButton = ev.button()
+        elif ev.button() == 1: # left button
+            self._Mode = "Rotate"
+            self._ActiveButton = ev.button()
         self.UpdateRenderer(ev.x(),ev.y())
 
     def mouseReleaseEvent(self,ev):
+        if self._Mode == None:
+            return
+
         if self._CurrentRenderer:
             self.Render()
+        if ev.button() == self._ActiveButton:
+            self._Mode = None
+            self._ActiveButton = 0
 
     def mouseMoveEvent(self,ev):
-        self._LastState = ev.state()
-        if (ev.state() & 1) != 0:
-            self.Rotate(ev.x(),ev.y())
-        elif (ev.state() & 4) != 0 or (ev.state() & 12) == 12:
+        self.__saveState = ev.state()
+        self.__saveX = ev.x()
+        self.__saveY = ev.y()
+        if self._Mode == "Pan":
             self.Pan(ev.x(),ev.y())
-        elif (ev.state() & 2) != 0:
+        elif self._Mode == "Rotate":
+            self.Rotate(ev.x(),ev.y())
+        elif self._Mode == "Zoom":
             self.Zoom(ev.x(),ev.y())
 
     def keyPressEvent(self,ev):
-        if chr(ev.key()) == 'R':
-            self.Reset(self._LastX,self._LastY)
-        if chr(ev.key()) == 'W':
+        if ev.key() == ord('R'):
+            self.Reset(self.__saveX,self.__saveY)
+        if ev.key() == ord('W'):
             self.Wireframe()
-        if chr(ev.key()) == 'S':
+        if ev.key() == ord('S'):
             self.Surface()
-        if chr(ev.key()) == 'P':
-            self.PickActor(self._LastX,self._LastY)
+        if ev.key() == ord('P'):
+            self.PickActor(self.__saveX,self.__saveY)
 
     def GetZoomFactor(self):
         return self._CurrentZoom
@@ -311,21 +338,21 @@ class QVTKRenderWidget(QWidget):
             
             windowY = self.height()
             picker.Pick(x,(windowY - y - 1),0.0,renderer)
-            assembly = picker.GetAssembly()
+            actor = picker.GetActor()
 
-            if (self._PickedAssembly != None and
+            if (self._PickedActor != None and
                 self._PrePickedProperty != None):
-                self._PickedAssembly.SetProperty(self._PrePickedProperty)
+                self._PickedActor.SetProperty(self._PrePickedProperty)
                 # release hold of the property
                 self._PrePickedProperty.UnRegister(self._PrePickedProperty)
                 self._PrePickedProperty = None
 
-            if (assembly != None):
-                self._PickedAssembly = assembly
-                self._PrePickedProperty = self._PickedAssembly.GetProperty()
+            if (actor != None):
+                self._PickedActor = actor
+                self._PrePickedProperty = self._PickedActor.GetProperty()
                 # hold onto the property
                 self._PrePickedProperty.Register(self._PrePickedProperty)
-                self._PickedAssembly.SetProperty(self._PickedProperty)
+                self._PickedActor.SetProperty(self._PickedProperty)
 
             self.Render()
 
@@ -359,5 +386,6 @@ def QVTKRenderWidgetConeExample():
     app.exec_loop()
     
 if __name__ == "__main__":
+    from vtkpython import *
     QVTKRenderWidgetConeExample()
 
