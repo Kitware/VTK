@@ -76,6 +76,7 @@ public:
   virtual void Next() = 0;
 
 protected:
+  vtkGenericCellIterator();
   virtual ~vtkGenericCellIterator();
   
 private:

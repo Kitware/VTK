@@ -25,7 +25,7 @@
 #include <vtkstd/vector>
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkGenericAttributeCollection,"1.2");
+vtkCxxRevisionMacro(vtkGenericAttributeCollection,"1.3");
 vtkStandardNewMacro(vtkGenericAttributeCollection);
 
 class vtkGenericAttributeInternalVector
@@ -47,7 +47,7 @@ vtkGenericAttributeCollection::vtkGenericAttributeCollection()
   this->NumberOfComponents = 0;
   this->MaxNumberOfComponents = 0; // cache
   this->ActualMemorySize = 0;
-  vtkTimeStamp ComputeTime; // cache time stamp
+  //vtkTimeStamp ComputeTime; // cache time stamp
 }
 
 //----------------------------------------------------------------------------

@@ -14,7 +14,12 @@
 =========================================================================*/
 #include "vtkGenericCellIterator.h"
 
-vtkCxxRevisionMacro(vtkGenericCellIterator, "1.1");
+vtkCxxRevisionMacro(vtkGenericCellIterator, "1.2");
+
+//----------------------------------------------------------------------------
+vtkGenericCellIterator::vtkGenericCellIterator()
+{
+}
 
 //----------------------------------------------------------------------------
 vtkGenericCellIterator::~vtkGenericCellIterator()

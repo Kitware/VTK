@@ -154,6 +154,10 @@ class VTK_COMMON_EXPORT vtkGenericAttribute : public vtkObject
   // \pre other_exists: other!=0
   // \pre not_self: other!=this
   virtual void ShallowCopy(vtkGenericAttribute *other) = 0;
+
+protected:
+  vtkGenericAttribute();
+  ~vtkGenericAttribute();
   
 private:
   vtkGenericAttribute(const vtkGenericAttribute&);  // Not implemented.
