@@ -32,8 +32,6 @@ class VTK_COMMON_EXPORT vtkDebugLeaksManager
 public:
   vtkDebugLeaksManager();
   ~vtkDebugLeaksManager();
-private:
-  static unsigned int Count;
 };
 
 // This instance will show up in any translation unit that uses
