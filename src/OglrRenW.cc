@@ -208,7 +208,7 @@ vtkOglrRenderWindow::~vtkOglrRenderWindow()
   /* first delete all the old lights */
   for (cur_light = GL_LIGHT0; cur_light < GL_LIGHT0+MAX_LIGHTS; cur_light++)
     {
-    glDisable((enum GLenum)cur_light);
+    glDisable((GLenum)cur_light);
     }
   
   glXDestroyContext( this->DisplayId, this->ContextId);
@@ -569,7 +569,7 @@ void vtkOglrRenderWindow::WindowRemap()
   /* first delete all the old lights */
   for (cur_light = GL_LIGHT0; cur_light < GL_LIGHT0+MAX_LIGHTS; cur_light++)
     {
-    glDisable((enum GLenum)cur_light);
+    glDisable((GLenum)cur_light);
     }
   
   glXDestroyContext( this->DisplayId, this->ContextId);
