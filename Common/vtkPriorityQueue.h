@@ -95,12 +95,12 @@ public:
 
   // Description:
   // Delete entry in queue with specified id. Returns priority value
-  // associated with that id; or VTK_LARGE_DOUBLE if not in queue.
+  // associated with that id; or VTK_DOUBLE_MAX if not in queue.
   double DeleteId(vtkIdType id);
 
   // Description:
   // Get the priority of an entry in the queue with specified id. Returns
-  // priority value of that id or VTK_LARGE_DOUBLE if not in queue.
+  // priority value of that id or VTK_DOUBLE_MAX if not in queue.
   double GetPriority(vtkIdType id);
 
   // Description:
