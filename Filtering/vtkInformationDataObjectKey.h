@@ -46,7 +46,7 @@ public:
   // Copy the entry associated with this key from one information
   // object to another.  If there is no entry in the first information
   // object for this key, the value is removed from the second.
-  virtual void Copy(vtkInformation* from, vtkInformation* to);
+  virtual void ShallowCopy(vtkInformation* from, vtkInformation* to);
 
   // Description:
   // Report a reference this key has in the given information object.

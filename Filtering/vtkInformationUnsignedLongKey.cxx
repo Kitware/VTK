@@ -14,7 +14,7 @@
 =========================================================================*/
 #include "vtkInformationUnsignedLongKey.h"
 
-vtkCxxRevisionMacro(vtkInformationUnsignedLongKey, "1.6");
+vtkCxxRevisionMacro(vtkInformationUnsignedLongKey, "1.7");
 
 //----------------------------------------------------------------------------
 vtkInformationUnsignedLongKey::vtkInformationUnsignedLongKey(const char* name, const char* location):
@@ -83,7 +83,7 @@ int vtkInformationUnsignedLongKey::Has(vtkInformation* info)
 }
 
 //----------------------------------------------------------------------------
-void vtkInformationUnsignedLongKey::Copy(vtkInformation* from,
+void vtkInformationUnsignedLongKey::ShallowCopy(vtkInformation* from,
                                          vtkInformation* to)
 {
   this->Set(to, this->Get(from));

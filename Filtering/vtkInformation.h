@@ -60,28 +60,34 @@ public:
 
   // Description:
   // Copy all information entries from the given vtkInformation
-  // instance.  Any previously existing entries are removed.
-  void Copy(vtkInformation* from);
+  // instance.  Any previously existing entries are removed.  If 
+  // deep==1, a deep copy of the information structure is performed (new 
+  // instances of any contained vtkInformation and vtkInformationVector 
+  // objects are created).
+  void Copy(vtkInformation* from, int deep=0);
 
   // Description:
   // Copy the key/value pair associated with the given key in the
-  // given information object.
-  void CopyEntry(vtkInformation* from, vtkInformationKey* key);
-  void CopyEntry(vtkInformation* from, vtkInformationDataObjectKey* key);
-  void CopyEntry(vtkInformation* from, vtkInformationDoubleVectorKey* key);
-  void CopyEntry(vtkInformation* from, vtkInformationExecutivePortKey* key);
-  void CopyEntry(vtkInformation* from, vtkInformationInformationKey* key);
-  void CopyEntry(vtkInformation* from, vtkInformationInformationVectorKey* key);
-  void CopyEntry(vtkInformation* from, vtkInformationIntegerKey* key);
-  void CopyEntry(vtkInformation* from, vtkInformationIntegerVectorKey* key);
-  void CopyEntry(vtkInformation* from, vtkInformationStringKey* key);
-  void CopyEntry(vtkInformation* from, vtkInformationUnsignedLongKey* key);
+  // given information object.  If deep=1, a deep copy of the information
+  // structure is performed (new instances of any contained vtkInformation and 
+  // vtkInformationVector objects are created).
+  void CopyEntry(vtkInformation* from, vtkInformationKey* key, int deep=0);
+  void CopyEntry(vtkInformation* from, vtkInformationDataObjectKey* key, int deep=0);
+  void CopyEntry(vtkInformation* from, vtkInformationDoubleVectorKey* key, int deep=0);
+  void CopyEntry(vtkInformation* from, vtkInformationExecutivePortKey* key, int deep=0);
+  void CopyEntry(vtkInformation* from, vtkInformationInformationKey* key, int deep=0);
+  void CopyEntry(vtkInformation* from, vtkInformationInformationVectorKey* key, int deep=0);
+  void CopyEntry(vtkInformation* from, vtkInformationIntegerKey* key, int deep=0);
+  void CopyEntry(vtkInformation* from, vtkInformationIntegerVectorKey* key, int deep=0);
+  void CopyEntry(vtkInformation* from, vtkInformationStringKey* key, int deep=0);
+  void CopyEntry(vtkInformation* from, vtkInformationUnsignedLongKey* key, int deep=0);
 
   // Description:
   // Use the given key to lookup a list of other keys in the given
   // information object.  The key/value pairs associated with these
-  // other keys will be copied.
-  void CopyEntries(vtkInformation* from, vtkInformationKeyVectorKey* key);
+  // other keys will be copied.  If deep==1, a deep copy of the
+  // information structure is performed.
+  void CopyEntries(vtkInformation* from, vtkInformationKeyVectorKey* key, int deep=0);
 
   // Description:
   // Get/Set an integer-valued entry.

@@ -16,7 +16,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkInformationKeyVectorKey, "1.5");
+vtkCxxRevisionMacro(vtkInformationKeyVectorKey, "1.6");
 
 //----------------------------------------------------------------------------
 vtkInformationKeyVectorKey::vtkInformationKeyVectorKey(const char* name, const char* location):
@@ -125,7 +125,7 @@ int vtkInformationKeyVectorKey::Has(vtkInformation* info)
 }
 
 //----------------------------------------------------------------------------
-void vtkInformationKeyVectorKey::Copy(vtkInformation* from, vtkInformation* to)
+void vtkInformationKeyVectorKey::ShallowCopy(vtkInformation* from, vtkInformation* to)
 {
   this->Set(to, this->Get(from), this->Length(from));
 }

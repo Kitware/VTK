@@ -19,7 +19,7 @@
 #include <vtkstd/algorithm>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkInformationIntegerVectorKey, "1.7");
+vtkCxxRevisionMacro(vtkInformationIntegerVectorKey, "1.8");
 
 //----------------------------------------------------------------------------
 vtkInformationIntegerVectorKey
@@ -153,7 +153,7 @@ int vtkInformationIntegerVectorKey::Has(vtkInformation* info)
 }
 
 //----------------------------------------------------------------------------
-void vtkInformationIntegerVectorKey::Copy(vtkInformation* from,
+void vtkInformationIntegerVectorKey::ShallowCopy(vtkInformation* from,
                                           vtkInformation* to)
 {
   this->Set(to, this->Get(from), this->Length(from));

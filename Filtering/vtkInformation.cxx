@@ -33,7 +33,7 @@
 
 #include <vtkstd/map>
 
-vtkCxxRevisionMacro(vtkInformation, "1.12");
+vtkCxxRevisionMacro(vtkInformation, "1.13");
 vtkStandardNewMacro(vtkInformation);
 
 //----------------------------------------------------------------------------
@@ -119,7 +119,7 @@ void vtkInformation::Clear()
 }
 
 //----------------------------------------------------------------------------
-void vtkInformation::Copy(vtkInformation* from)
+void vtkInformation::Copy(vtkInformation* from, int deep)
 {
   vtkInformationInternals* oldInternal = this->Internal;
   this->Internal = new vtkInformationInternals;
@@ -128,81 +128,95 @@ void vtkInformation::Copy(vtkInformation* from)
     vtkInformationInternals::MapType::const_iterator i;
     for(i=from->Internal->Map.begin(); i != from->Internal->Map.end(); ++i)
       {
-      this->CopyEntry(from, i->first);
-    }
+      this->CopyEntry(from, i->first, deep);
+      }
     }
   delete oldInternal;
 }
 
 //----------------------------------------------------------------------------
-void vtkInformation::CopyEntry(vtkInformation* from, vtkInformationKey* key)
+void vtkInformation::CopyEntry(vtkInformation* from, vtkInformationKey* key, int)
 {
-  key->Copy(from, this);
+  key->ShallowCopy(from, this);
 }
 
 //----------------------------------------------------------------------------
-void vtkInformation::CopyEntry(vtkInformation* from, vtkInformationDataObjectKey* key)
+void vtkInformation::CopyEntry(vtkInformation* from, vtkInformationDataObjectKey* key, int)
 {
-  key->Copy(from, this);
+  key->ShallowCopy(from, this);
 }
 
 //----------------------------------------------------------------------------
-void vtkInformation::CopyEntry(vtkInformation* from, vtkInformationExecutivePortKey* key)
+void vtkInformation::CopyEntry(vtkInformation* from, vtkInformationExecutivePortKey* key, int)
 {
-  key->Copy(from, this);
+  key->ShallowCopy(from, this);
 }
 
 //----------------------------------------------------------------------------
-void vtkInformation::CopyEntry(vtkInformation* from, vtkInformationInformationKey* key)
+void vtkInformation::CopyEntry(vtkInformation* from, vtkInformationInformationKey* key, int deep)
 {
-  key->Copy(from, this);
+  if (!deep)
+    {
+    key->ShallowCopy(from, this);
+    }
+  else
+    {
+    key->DeepCopy(from, this);
+    }
 }
 
 //----------------------------------------------------------------------------
-void vtkInformation::CopyEntry(vtkInformation* from, vtkInformationInformationVectorKey* key)
-{
-  key->Copy(from, this);
+void vtkInformation::CopyEntry(vtkInformation* from, vtkInformationInformationVectorKey* key, int deep)
+{  
+  if (!deep)
+    {
+    key->ShallowCopy(from, this);
+    }
+  else
+    {
+    key->DeepCopy(from, this);
+    }
 }
 
 //----------------------------------------------------------------------------
-void vtkInformation::CopyEntry(vtkInformation* from, vtkInformationIntegerKey* key)
+void vtkInformation::CopyEntry(vtkInformation* from, vtkInformationIntegerKey* key, int)
 {
-  key->Copy(from, this);
+  key->ShallowCopy(from, this);
 }
 
 //----------------------------------------------------------------------------
-void vtkInformation::CopyEntry(vtkInformation* from, vtkInformationIntegerVectorKey* key)
+void vtkInformation::CopyEntry(vtkInformation* from, vtkInformationIntegerVectorKey* key, int)
 {
-  key->Copy(from, this);
+  key->ShallowCopy(from, this);
 }
 
 //----------------------------------------------------------------------------
-void vtkInformation::CopyEntry(vtkInformation* from, vtkInformationDoubleVectorKey* key)
+void vtkInformation::CopyEntry(vtkInformation* from, vtkInformationDoubleVectorKey* key, int)
 {
-  key->Copy(from, this);
+  key->ShallowCopy(from, this);
 }
 
 //----------------------------------------------------------------------------
-void vtkInformation::CopyEntry(vtkInformation* from, vtkInformationStringKey* key)
+void vtkInformation::CopyEntry(vtkInformation* from, vtkInformationStringKey* key, int)
 {
-  key->Copy(from, this);
+  key->ShallowCopy(from, this);
 }
 
 //----------------------------------------------------------------------------
-void vtkInformation::CopyEntry(vtkInformation* from, vtkInformationUnsignedLongKey* key)
+void vtkInformation::CopyEntry(vtkInformation* from, vtkInformationUnsignedLongKey* key, int)
 {
-  key->Copy(from, this);
+  key->ShallowCopy(from, this);
 }
 
 //----------------------------------------------------------------------------
 void vtkInformation::CopyEntries(vtkInformation* from,
-                                 vtkInformationKeyVectorKey* key)
+                                 vtkInformationKeyVectorKey* key, int deep)
 {
   int numberOfKeys = from->Length(key);
   vtkInformationKey** keys = from->Get(key);
   for(int i=0; i < numberOfKeys; ++i)
     {
-    this->CopyEntry(from, keys[i]);
+    this->CopyEntry(from, keys[i], deep);
     }
 }
 

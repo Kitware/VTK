@@ -20,7 +20,7 @@
 #include <vtkstd/algorithm>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkInformationExecutivePortVectorKey, "1.2");
+vtkCxxRevisionMacro(vtkInformationExecutivePortVectorKey, "1.3");
 
 //----------------------------------------------------------------------------
 vtkInformationExecutivePortVectorKey::vtkInformationExecutivePortVectorKey(const char* name, const char* location):
@@ -220,7 +220,7 @@ int vtkInformationExecutivePortVectorKey::Has(vtkInformation* info)
 }
 
 //----------------------------------------------------------------------------
-void vtkInformationExecutivePortVectorKey::Copy(vtkInformation* from,
+void vtkInformationExecutivePortVectorKey::ShallowCopy(vtkInformation* from,
                                                 vtkInformation* to)
 {
   this->Set(to, this->GetExecutives(from), this->GetPorts(from),

@@ -16,7 +16,7 @@
 
 #include "vtkInformation.h" // For vtkErrorWithObjectMacro
 
-vtkCxxRevisionMacro(vtkInformationObjectBaseKey, "1.4");
+vtkCxxRevisionMacro(vtkInformationObjectBaseKey, "1.5");
 
 //----------------------------------------------------------------------------
 vtkInformationObjectBaseKey
@@ -69,7 +69,7 @@ int vtkInformationObjectBaseKey::Has(vtkInformation* info)
 }
 
 //----------------------------------------------------------------------------
-void vtkInformationObjectBaseKey::Copy(vtkInformation* from,
+void vtkInformationObjectBaseKey::ShallowCopy(vtkInformation* from,
                                        vtkInformation* to)
 {
   this->Set(to, this->Get(from));
