@@ -482,6 +482,31 @@ JNIEXPORT jarray vtkJavaMakeJArrayOfIntFromInt(JNIEnv *env, int *ptr, int size)
   return ret;
 }
 
+JNIEXPORT jarray vtkJavaMakeJArrayOfByteFromUnsignedChar(JNIEnv *env, unsigned char *ptr, int size)
+{
+  jbyteArray ret;
+  int i;
+  jbyte *array;
+
+  ret = env->NewByteArray(size);
+  if (ret == 0)
+    {
+    // should throw an exception here
+    return 0;
+    }
+
+  array = env->GetByteArrayElements(ret,NULL);
+
+  // copy the data
+  for (i = 0; i < size; i++)
+    {
+    array[i] = ptr[i];
+    }
+  
+  env->ReleaseByteArrayElements(ret,array,0);
+  return ret;
+}
+
 JNIEXPORT char *vtkJavaUTFToChar(JNIEnv *env, jstring in)
 {
   char *result;
