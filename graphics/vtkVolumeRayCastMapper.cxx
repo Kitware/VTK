@@ -846,7 +846,7 @@ void vtkVolumeRayCastMapper::GeneralImageInitialization( vtkRenderer *ren,
   viewToVolumeTransform->Inverse();
 
   // Store the matrix of the volume in a temporary transformation matrix
-  worldToVolumeTransform->SetMatrix(*( vol->vtkProp3D::GetMatrixPointer()) );
+  worldToVolumeTransform->SetMatrix(*( vol->vtkProp3D::GetMatrix()) );
 
   // Get the origin of the data.  This translation is not accounted for in
   // the volume's matrix, so we must add it in.
@@ -864,7 +864,7 @@ void vtkVolumeRayCastMapper::GeneralImageInitialization( vtkRenderer *ren,
 
   // Now concatenate the volume's matrix with this scalar data matrix
   worldToVolumeTransform->PostMultiply();
-  worldToVolumeTransform->Concatenate( scalarTransform->GetMatrixPointer() );
+  worldToVolumeTransform->Concatenate( scalarTransform->GetMatrix() );
 
   // Save this matrix now as the volume to world matrix before we invert it
   for ( j = 0; j < 4; j++ )
@@ -872,7 +872,7 @@ void vtkVolumeRayCastMapper::GeneralImageInitialization( vtkRenderer *ren,
     for ( i = 0; i < 4; i++ )
       {
       this->VolumeToWorldMatrix[j*4 + i] = 
-        worldToVolumeTransform->GetMatrixPointer()->Element[j][i];
+        worldToVolumeTransform->GetMatrix()->Element[j][i];
       }
     }
 
@@ -883,14 +883,14 @@ void vtkVolumeRayCastMapper::GeneralImageInitialization( vtkRenderer *ren,
   // Now concatenate the camera to world matrix with the world to volume
   // matrix to get the camera to volume matrix
   viewToVolumeTransform->PostMultiply();
-  viewToVolumeTransform->Concatenate( worldToVolumeTransform->GetMatrixPointer() );
+  viewToVolumeTransform->Concatenate( worldToVolumeTransform->GetMatrix() );
 
   for ( j = 0; j < 4; j++ )
     {
     for ( i = 0; i < 4; i++ )
       {
       this->WorldToVolumeMatrix[j*4 + i] = 
-        worldToVolumeTransform->GetMatrixPointer()->Element[j][i];
+        worldToVolumeTransform->GetMatrix()->Element[j][i];
       }
     }
 
@@ -899,7 +899,7 @@ void vtkVolumeRayCastMapper::GeneralImageInitialization( vtkRenderer *ren,
     for ( i = 0; i < 4; i++ )
       {
       this->ViewToVolumeMatrix[j*4 + i] = 
-        viewToVolumeTransform->GetMatrixPointer()->Element[j][i];
+        viewToVolumeTransform->GetMatrix()->Element[j][i];
       }
     }
   // Get the size of the data for limit checks and compute increments

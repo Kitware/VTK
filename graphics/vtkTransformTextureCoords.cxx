@@ -148,7 +148,7 @@ void vtkTransformTextureCoords::Execute()
                       this->Origin[1] + this->Position[1],
 		      this->Origin[2] + this->Position[2]);
 
-  matrix->DeepCopy(transform->GetMatrixPointer());
+  matrix->DeepCopy(transform->GetMatrix());
 
   newTC[0] = newTC[1] = newTC[2] = 0.0;
   newTC[0] = newTC[1] = newTC[2] = 0.0;

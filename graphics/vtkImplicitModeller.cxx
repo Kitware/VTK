@@ -512,11 +512,11 @@ void vtkImplicitModeller::Append(vtkDataSet *input)
     else
       {
       // if not PolyData, then copy the input for each thread
-      if ( input->GetDataSetType() != VTK_POLY_DATA )
+      if ( input->GetDataObjectType() != VTK_POLY_DATA )
         {
         for (i = 0; i < this->NumberOfThreads; i++)
           {
-          switch( input->GetDataSetType() )
+          switch( input->GetDataObjectType() )
             {
             case VTK_STRUCTURED_GRID:
               info.Input[i] = vtkStructuredGrid::New();
@@ -642,7 +642,7 @@ void vtkImplicitModeller::Append(vtkDataSet *input)
         {
         info.ProgressMutex->Delete();
         }
-      if ( input->GetDataSetType() != VTK_POLY_DATA )
+      if ( input->GetDataObjectType() != VTK_POLY_DATA )
         {
         for (i = 0; i < this->NumberOfThreads; i++)
           {

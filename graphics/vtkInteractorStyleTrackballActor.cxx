@@ -264,7 +264,7 @@ void vtkInteractorStyleTrackballActor::PanXY(int x, int y, int oldX, int oldY)
     t->SetMatrix(*(this->InteractionProp->GetUserMatrix()));
     t->Translate(this->MotionVector[0], this->MotionVector[1], 
 		 this->MotionVector[2]);
-    this->InteractionProp->GetUserMatrix()->DeepCopy(t->GetMatrixPointer());
+    this->InteractionProp->GetUserMatrix()->DeepCopy(t->GetMatrix());
     t->Delete();
     }
   else
@@ -313,7 +313,7 @@ void vtkInteractorStyleTrackballActor::DollyXY(int vtkNotUsed(dx), int dy)
     t->SetMatrix(*(this->InteractionProp->GetUserMatrix()));
     t->Translate(this->MotionVector[0], this->MotionVector[1], 
 		 this->MotionVector[2]);
-    this->InteractionProp->GetUserMatrix()->DeepCopy(t->GetMatrixPointer());
+    this->InteractionProp->GetUserMatrix()->DeepCopy(t->GetMatrix());
     t->Delete();
     }
   else

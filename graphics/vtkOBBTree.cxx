@@ -749,7 +749,7 @@ void vtkOBBTree::BuildTree(vtkIdList *cells, vtkOBBNode *OBBptr, int level)
       for ( i=0; i < numCells; i++ )
         {
         cellId = cells->GetId(i);
-        this->DataSet->GetCellPoints(cellId, *cellPts);
+        this->DataSet->GetCellPoints(cellId, cellPts);
         c[0] = c[1] = c[2] = 0.0;
         numPts = cellPts->GetNumberOfIds();
         for ( negative=positive=j=0; j < numPts; j++ )

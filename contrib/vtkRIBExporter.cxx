@@ -1118,10 +1118,10 @@ void vtkRIBExporter::WriteTexture (vtkTexture *aTexture)
     iac2 = vtkImageAppendComponents::New();
     icp = vtkImageConstantPad::New();
 
-    iac1->SetInput1( anImage);
-    iac1->SetInput2( anImage);
-    iac2->SetInput1(iac1->GetOutput ());
-    iac2->SetInput2( anImage);
+    iac1->SetInput(0, anImage);
+    iac1->SetInput(1, anImage);
+    iac2->SetInput(0, iac1->GetOutput ());
+    iac2->SetInput(1, anImage);
     icp->SetInput( iac2->GetOutput ());
     icp->SetConstant(255);
     icp->SetOutputNumberOfScalarComponents(4);
@@ -1136,10 +1136,10 @@ void vtkRIBExporter::WriteTexture (vtkTexture *aTexture)
 
     iec->SetInput( anImage);
     iec->SetComponents (0);
-    iac1->SetInput1( iec->GetOutput ());
-    iac1->SetInput2( anImage);
-    iac2->SetInput1( iec->GetOutput ());
-    iac2->SetInput2( iac1->GetOutput ());
+    iac1->SetInput(0, iec->GetOutput ());
+    iac1->SetInput(1, anImage);
+    iac2->SetInput(0, iec->GetOutput ());
+    iac2->SetInput(1, iac1->GetOutput ());
 
     aWriter->SetInput (iac2->GetOutput());
     }

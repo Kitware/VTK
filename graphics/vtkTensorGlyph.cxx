@@ -308,10 +308,10 @@ void vtkTensorGlyph::Execute()
     trans->Scale(w[0], w[1], w[2]);
 
     // multiply points (and normals if available) by resulting matrix
-    trans->MultiplyPoints(sourcePts,newPts);
+    trans->TransformPoints(sourcePts,newPts);
     if ( newNormals )
       {
-      trans->MultiplyNormals(sourceNormals,newNormals);
+      trans->TransformNormals(sourceNormals,newNormals);
       }
 
     // Copy point data from source

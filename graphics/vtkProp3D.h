@@ -237,6 +237,10 @@ public:
   // the documentation for vtkProp.
   void InitPathTraversal();
 
+  // Description:
+  // Get a pointer to an internal vtkMatrix4x4. that represents
+  vtkMatrix4x4 *GetMatrix() { return this->Matrix; };
+
 #ifndef VTK_REMOVE_LEGACY_CODE
   // Description:
   // For legacy compatibility. Do not use.

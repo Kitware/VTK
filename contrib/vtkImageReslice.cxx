@@ -159,7 +159,7 @@ unsigned long int vtkImageReslice::GetMTime()
     if (this->ResliceTransform->IsA("vtkHomogeneousTransform"))
       {
       time = ((vtkHomogeneousTransform *)this->ResliceTransform)
-	->GetMatrixPointer()->GetMTime();
+	->GetMatrix()->GetMTime();
       mTime = ( time > mTime ? time : mTime );
       }    
     }
@@ -227,7 +227,7 @@ void vtkImageReslice::ComputeInputUpdateExtent(int inExt[6],
   float point[4],f;
   float *inSpacing,*inOrigin,*outSpacing,*outOrigin,inInvSpacing[3];
 
-  int wrap = (this->GetWrap() || this->GetInterpolate());
+  int wrap = (this->GetWrap() || this->GetInterpolationMode() != VTK_RESLICE_NEAREST);
   
   inOrigin = this->GetInput()->GetOrigin();
   inSpacing = this->GetInput()->GetSpacing();
@@ -374,7 +374,7 @@ void vtkImageReslice::ExecuteInformation(vtkImageData *input,
       this->ResliceTransform->IsA("vtkHomogeneousTransform"))
     {
     vtkMatrix4x4 *transformMatrix = 
-      ((vtkHomogeneousTransform *)this->ResliceTransform)->GetMatrixPointer();
+      ((vtkHomogeneousTransform *)this->ResliceTransform)->GetMatrix();
     this->ResliceTransform->Update();
     vtkMatrix4x4::Multiply4x4(transformMatrix,matrix,matrix);
     }
@@ -1377,7 +1377,7 @@ void vtkImageReslice::OptimizedComputeInputUpdateExtent(int inExt[6],
   float xAxis[4], yAxis[4], zAxis[4], origin[4];
   float point[4],f;
 
-  int wrap = (this->GetWrap() || this->GetInterpolate());
+  int wrap = (this->GetWrap() || this->GetInterpolationMode() != VTK_RESLICE_NEAREST);
 
   // convert matrix from world coordinates to pixel indices
   vtkMatrix4x4 *matrix = this->GetIndexMatrix();
@@ -2985,11 +2985,11 @@ vtkMatrix4x4 *vtkImageReslice::GetIndexMatrix()
     {
     transform->PostMultiply();
     transform->Concatenate(((vtkHomogeneousTransform *)
-			    this->ResliceTransform)->GetMatrixPointer());
+			    this->ResliceTransform)->GetMatrix());
     }
   
   // check to see if we have an identity matrix
-  isIdentity = vtkIsIdentityMatrix(transform->GetMatrixPointer());
+  isIdentity = vtkIsIdentityMatrix(transform->GetMatrix());
 
   // the outMatrix takes OutputData indices to OutputData coordinates,
   // the inMatrix takes InputData coordinates to InputData indices

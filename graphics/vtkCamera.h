@@ -272,7 +272,7 @@ class VTK_EXPORT vtkCamera : public vtkObject
   // Description:
   // Return the matrix of the view transform.
   vtkMatrix4x4 *GetViewTransformMatrix() { 
-    return this->ViewTransform->GetMatrixPointer(); };
+    return this->ViewTransform->GetMatrix(); };
   
   // Description:
   // Return the perspective transform matrix, which converts from camera

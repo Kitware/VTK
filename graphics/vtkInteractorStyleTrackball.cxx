@@ -483,7 +483,7 @@ void vtkInteractorStyleTrackball::TrackballPanActor(int x, int y)
       t->SetMatrix(*(this->InteractionProp->GetUserMatrix()));
       t->Translate(this->MotionVector[0], this->MotionVector[1], 
                    this->MotionVector[2]);
-      this->InteractionProp->GetUserMatrix()->DeepCopy(t->GetMatrixPointer());
+      this->InteractionProp->GetUserMatrix()->DeepCopy(t->GetMatrix());
       t->Delete();
       }
     else
@@ -533,7 +533,7 @@ void vtkInteractorStyleTrackball::TrackballDollyActor(int x, int y)
       t->SetMatrix(*(this->InteractionProp->GetUserMatrix()));
       t->Translate(this->MotionVector[0], this->MotionVector[1], 
                    this->MotionVector[2]);
-      this->InteractionProp->GetUserMatrix()->DeepCopy(t->GetMatrixPointer());
+      this->InteractionProp->GetUserMatrix()->DeepCopy(t->GetMatrix());
       t->Delete();
       }
     else
@@ -815,7 +815,7 @@ void vtkInteractorStyleTrackball::JoystickPanActor(int x, int y)
     t->SetMatrix(*(this->InteractionProp->GetUserMatrix()));
     t->Translate(this->MotionVector[0], this->MotionVector[1],
                  this->MotionVector[2]);
-    this->InteractionProp->GetUserMatrix()->DeepCopy(t->GetMatrixPointer());
+    this->InteractionProp->GetUserMatrix()->DeepCopy(t->GetMatrix());
     t->Delete();
     }
   else
@@ -868,7 +868,7 @@ void vtkInteractorStyleTrackball::JoystickDollyActor(int vtkNotUsed(x), int y)
     t->SetMatrix(*(this->InteractionProp->GetUserMatrix()));
     t->Translate(this->MotionVector[0], this->MotionVector[1],
                  this->MotionVector[2]);
-    this->InteractionProp->GetUserMatrix()->DeepCopy(t->GetMatrixPointer());
+    this->InteractionProp->GetUserMatrix()->DeepCopy(t->GetMatrix());
     t->Delete();
     }
   else

@@ -151,6 +151,7 @@ void vtkImageMultipleInputFilter::ExecuteInformation()
   // Set the defaults from input1
   output->CopyTypeSpecificInformation(input);
 
+#ifndef VTK_REMOVE_LEGACY_CODE
   this->LegacyHack = 1;
   this->ExecuteImageInformation();
   if (this->LegacyHack)
@@ -158,7 +159,7 @@ void vtkImageMultipleInputFilter::ExecuteInformation()
     vtkWarningMacro("ExecuteImageInformation should be changed to ExecuteInformation(vtkImageData*, vtkImageData*)");
     return;
     }
-    
+#endif    
   // Let the subclass modify the default.
   this->ExecuteInformation((vtkImageData**)(this->Inputs), output);
 }

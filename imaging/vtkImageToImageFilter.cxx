@@ -132,6 +132,7 @@ void vtkImageToImageFilter::ExecuteInformation()
 
   // take this opportunity to modify the defaults
 
+#ifndef VTK_REMOVE_LEGACY_CODE
   // for legacy
   this->LegacyHack = 1;
   this->ExecuteImageInformation();
@@ -141,6 +142,7 @@ void vtkImageToImageFilter::ExecuteInformation()
 		    << "You should write an ExecuteInformation(vtkImageData*, vtkImageData*)");
     return;
     }    
+#endif
   this->ExecuteInformation(input, output);
 }
 

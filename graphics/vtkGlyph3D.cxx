@@ -460,11 +460,11 @@ void vtkGlyph3D::Execute()
       }
     
     // multiply points and normals by resulting matrix
-    trans->MultiplyPoints(sourcePts,newPts);
+    trans->TransformPoints(sourcePts,newPts);
     
     if ( haveNormals )
       {
-      trans->MultiplyNormals(sourceNormals,newNormals);
+      trans->TransformNormals(sourceNormals,newNormals);
       }
     
     // Copy point data from source (if possible)

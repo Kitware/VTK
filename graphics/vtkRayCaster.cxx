@@ -855,7 +855,7 @@ void vtkRayCaster::InitializeRayCasting(vtkRenderer *ren)
     for ( i = 0; i < 4; i++ )
       {
       this->ViewToWorldMatrix[j][i] = 
-	this->ViewToWorldTransform->GetMatrixPointer()->Element[j][i];
+	this->ViewToWorldTransform->GetMatrix()->Element[j][i];
       }
     }
 
@@ -877,7 +877,7 @@ void vtkRayCaster::InitializeRayCasting(vtkRenderer *ren)
   // To speed things up, we pull the matrix out of the transform. 
   // This way, we can decode z values faster since we know which elements
   // of the matrix are important, and which are zero.
-  matrix = transform->GetMatrixPointer();
+  matrix = transform->GetMatrix();
 
   // Do initialization for orthographic view - we need to 
   // know the starting position of the first ray, and the increments

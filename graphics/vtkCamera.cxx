@@ -221,7 +221,7 @@ void vtkCamera::ComputeViewTransform()
   // main view through the camera
   this->Transform->Identity();
   this->Transform->SetupCamera(this->Position, this->FocalPoint, this->ViewUp);
-  this->ViewTransform->SetMatrix(this->Transform->GetMatrixPointer());
+  this->ViewTransform->SetMatrix(this->Transform->GetMatrix());
 }
 
 //----------------------------------------------------------------------------
@@ -246,7 +246,7 @@ void vtkCamera::ComputeCameraLightTransform()
 void vtkCamera::OrthogonalizeViewUp()
 {
   // the orthogonalized ViewUp is just the second row of the view matrix
-  vtkMatrix4x4 *matrix = this->ViewTransform->GetMatrixPointer();
+  vtkMatrix4x4 *matrix = this->ViewTransform->GetMatrix();
   this->ViewUp[0] = matrix->GetElement(1,0);
   this->ViewUp[1] = matrix->GetElement(1,1);
   this->ViewUp[2] = matrix->GetElement(1,2);
@@ -411,9 +411,9 @@ void vtkCamera::Pitch(double angle)
   this->Transform->Identity();
 
   // the axis is the first row of the view transform matrix
-  axis[0] = this->ViewTransform->GetMatrixPointer()->GetElement(0,0);
-  axis[1] = this->ViewTransform->GetMatrixPointer()->GetElement(0,1);
-  axis[2] = this->ViewTransform->GetMatrixPointer()->GetElement(0,2);
+  axis[0] = this->ViewTransform->GetMatrix()->GetElement(0,0);
+  axis[1] = this->ViewTransform->GetMatrix()->GetElement(0,1);
+  axis[2] = this->ViewTransform->GetMatrix()->GetElement(0,2);
   
   // translate the camera to the origin,
   // rotate about axis,
@@ -457,9 +457,9 @@ void vtkCamera::Elevation(double angle)
   this->Transform->Identity();
 
   // snatch the axis from the view transform matrix
-  axis[0] = -this->ViewTransform->GetMatrixPointer()->GetElement(0,0);
-  axis[1] = -this->ViewTransform->GetMatrixPointer()->GetElement(0,1);
-  axis[2] = -this->ViewTransform->GetMatrixPointer()->GetElement(0,2);
+  axis[0] = -this->ViewTransform->GetMatrix()->GetElement(0,0);
+  axis[1] = -this->ViewTransform->GetMatrix()->GetElement(0,1);
+  axis[2] = -this->ViewTransform->GetMatrix()->GetElement(0,2);
   
   // translate the focal point to the origin,
   // rotate about axis,
@@ -725,7 +725,7 @@ vtkMatrix4x4 *vtkCamera::GetPerspectiveTransformMatrix(double aspect,
   this->ComputePerspectiveTransform(aspect, nearz, farz);
   
   // return the transform 
-  return this->PerspectiveTransform->GetMatrixPointer();
+  return this->PerspectiveTransform->GetMatrix();
 }
 
 //----------------------------------------------------------------------------
@@ -748,7 +748,7 @@ vtkMatrix4x4 *vtkCamera::GetCompositePerspectiveTransformMatrix(double aspect,
   this->Stereo = stereo;
   
   // return the transform 
-  return this->Transform->GetMatrixPointer();
+  return this->Transform->GetMatrix();
 }
 
 //----------------------------------------------------------------------------
@@ -756,7 +756,7 @@ vtkMatrix4x4 *vtkCamera::GetCompositePerspectiveTransformMatrix(double aspect,
 vtkMatrix4x4 *vtkCamera::GetCameraLightTransformMatrix()
 {
   // return the transform 
-  return this->CameraLightTransform->GetMatrixPointer();
+  return this->CameraLightTransform->GetMatrix();
 }
 
 
