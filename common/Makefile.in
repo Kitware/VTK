@@ -30,7 +30,9 @@ vtkPoints \
 vtkScalars \
 vtkTCoords \
 vtkTensors \
-vtkVectors
+vtkVectors \
+vtkViewport \
+vtkWindow
 
 # put all concrete classes here
 CONCRETE = \
