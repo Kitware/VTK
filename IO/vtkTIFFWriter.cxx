@@ -23,7 +23,7 @@
 #include "vtkErrorCode.h"
 #include <tiffio.h>
 
-vtkCxxRevisionMacro(vtkTIFFWriter, "1.26");
+vtkCxxRevisionMacro(vtkTIFFWriter, "1.27");
 vtkStandardNewMacro(vtkTIFFWriter);
 
 //----------------------------------------------------------------------------
@@ -52,7 +52,8 @@ public:
     {
     ostream *out = reinterpret_cast<ostream *>(fd);
 
-    ios::seekdir dir;
+    streampos dir;
+    //ios::seekdir dir;
     switch (whence) 
       {
     case SEEK_SET:
