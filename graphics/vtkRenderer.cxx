@@ -1143,7 +1143,7 @@ vtkAssemblyPath* vtkRenderer::PickProp(float selectionX, float selectionY)
     props = this->Props;
     }
   // number determined from number of rendering passes plus reserved "0" slot
-  numberPickFrom = props->GetNumberOfPaths()*3 + 1;
+  numberPickFrom = 2*props->GetNumberOfPaths()*3 + 1;
   
   this->IsPicking = 1; // turn on picking
   this->StartPick(numberPickFrom);
