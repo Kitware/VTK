@@ -45,17 +45,22 @@ public:
   virtual int GetNumberOfVectors() = 0;
 
   // Description:
-  // Return a float vector v[3] for a particular point id.
-  virtual float *GetVector(int i) = 0;
+  // Return a pointer to a float vector v[3] for a specific point id.
+  virtual float *GetVector(int id) = 0;
+
+  // Description:
+  // Copy vector componenets into user provided array v[3] for specified
+  // point id.
+  virtual void GetVector(int id, float v[3]);
 
   // Description:
   // Insert vector into object. No range checking performed (fast!).
-  virtual void SetVector(int i,float v[3]) = 0;
+  virtual void SetVector(int id, float v[3]) = 0;
 
   // Description:
   // Insert vector into object. Range checking performed and memory
   // allocated as necessary.
-  virtual void InsertVector(int i, float v[3]) = 0;
+  virtual void InsertVector(int id, float v[3]) = 0;
 
   // Description:
   // Insert vector into next available slot. Returns point id of slot.

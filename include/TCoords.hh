@@ -48,16 +48,21 @@ public:
 
   // Description:
   // Return a float texture coordinate tc[2/3] for a particular point id.
-  virtual float *GetTCoord(int i) = 0;
+  virtual float *GetTCoord(int id) = 0;
+
+  // Description:
+  // Copy float texture coordinates into user provided array tc[2/3] 
+  // for specified point id.
+  virtual void GetTCoord(int id, float tc[3]);
 
   // Description:
   // Insert texture coordinate into object. No range checking performed (fast!).
-  virtual void SetTCoord(int i,float *tc) = 0;
+  virtual void SetTCoord(int id, float *tc) = 0;
 
   // Description:
   // Insert texture coordinate into object. Range checking performed and 
   // memory allocated as necessary.
-  virtual void InsertTCoord(int i, float *tc) = 0;
+  virtual void InsertTCoord(int id, float *tc) = 0;
 
   // Description:
   // Insert texture coordinate into next available slot. Returns point

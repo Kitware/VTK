@@ -45,17 +45,22 @@ public:
   virtual int GetNumberOfPoints() = 0;
 
   // Description:
-  // Return a float point x[3] for a particular point id.
-  virtual float *GetPoint(int i) = 0;
+  // Return a pointer to a float array x[3] for a specified point id.
+  virtual float *GetPoint(int id) = 0;
+
+  // Description:
+  // Copy point coordinates into user provided array x[3] for specified
+  // point id.
+  virtual void GetPoint(int id, float x[3]);
 
   // Description:
   // Insert point into object. No range checking performed (fast!).
-  virtual void SetPoint(int i,float x[3]) = 0;
+  virtual void SetPoint(int id, float x[3]) = 0;
 
   // Description:
   // Insert point into object. Range checking performed and memory
   // allocated as necessary.
-  virtual void InsertPoint(int i, float x[3]) = 0;
+  virtual void InsertPoint(int id, float x[3]) = 0;
 
   // Description:
   // Insert point into next available slot. Returns point id of slot.

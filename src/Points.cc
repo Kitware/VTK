@@ -23,6 +23,12 @@ vlPoints::vlPoints()
   this->Bounds[1] = this->Bounds[3] = this->Bounds[5] = 1.0;
 }
 
+void vlPoints::GetPoint(int id, float x[3])
+{
+  float *xp = this->GetPoint(id);
+  for (int i=0; i<3; i++) x[i] = xp[i];
+}
+
 // Description:
 // Given a list of pt ids, return an array of point coordinates.
 void vlPoints::GetPoints(vlIdList& ptId, vlFloatPoints& fp)

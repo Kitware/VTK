@@ -17,6 +17,12 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "IdList.hh"
 #include "FTCoords.hh"
 
+void vlTCoords::GetTCoord(int id, float tc[3])
+{
+  float *tcp = this->GetTCoord(id);
+  for (int i=0; i<this->Dimension; i++) tc[i] = tcp[i];
+}
+
 // Description:
 // Construct object whose texture coordinates are of specified dimension.
 vlTCoords::vlTCoords(int dim)

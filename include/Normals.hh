@@ -47,16 +47,21 @@ public:
 
   // Description:
   // Return a float normal n[3] for a particular point id.
-  virtual float *GetNormal(int i) = 0;
+  virtual float *GetNormal(int id) = 0;
+
+  // Description:
+  // Copy normal components into user provided array n[3] for specified
+  // point id.
+  virtual void GetNormal(int id, float n[3]);
 
   // Description:
   // Insert normal into object. No range checking performed (fast!).
-  virtual void SetNormal(int i,float n[3]) = 0;
+  virtual void SetNormal(int id, float n[3]) = 0;
 
   // Description:
   // Insert normal into object. Range checking performed and memory
   // allocated as necessary.
-  virtual void InsertNormal(int i, float n[3]) = 0;
+  virtual void InsertNormal(int id, float n[3]) = 0;
 
   // Description:
   // Insert normal into next available slot. Returns point id of slot.

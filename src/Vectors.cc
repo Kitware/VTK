@@ -23,6 +23,12 @@ vlVectors::vlVectors()
   this->MaxNorm = 0.0;
 }
 
+void vlVectors::GetVector(int id, float v[3])
+{
+  float *vp = this->GetVector(id);
+  for (int i=0; i<3; i++) v[i] = vp[i];
+}
+
 // Description:
 // Given a list of pt ids, return an array of vectors.
 void vlVectors::GetVectors(vlIdList& ptId, vlFloatVectors& fp)
