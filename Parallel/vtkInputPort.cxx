@@ -25,7 +25,7 @@
 #include "vtkStructuredPoints.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkInputPort, "1.12");
+vtkCxxRevisionMacro(vtkInputPort, "1.13");
 vtkStandardNewMacro(vtkInputPort);
 
 vtkCxxSetObjectMacro(vtkInputPort,Controller, vtkMultiProcessController);
@@ -45,6 +45,14 @@ vtkInputPort::vtkInputPort()
   this->DataTime = 0;
 
   this->DoUpdateInformation = 1;
+
+  this->LastUpdatePiece = -1;
+  this->LastUpdateNumberOfPieces = -1;
+  this->LastUpdateGhostLevel = -1;
+
+  this->LastUpdateExtent[0] = this->LastUpdateExtent[1] = 
+    this->LastUpdateExtent[2] = this->LastUpdateExtent[3] = 
+    this->LastUpdateExtent[4] = this->LastUpdateExtent[5] = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -340,7 +348,8 @@ void vtkInputPort::TriggerAsynchronousUpdate()
   // !!! I am uneasy about the Released check.  Although a new update extent
   // will cause the data to be released,  released data does not imply 
   // Update will be called !!!!
-  if (this->UpStreamMTime <= this->DataTime && ! output->GetDataReleased())
+  if (this->UpStreamMTime <= this->DataTime && ! output->GetDataReleased() &&
+    !this->UpdateExtentIsOutsideOfTheExtent(output) )
     { 
     // No, we do not need to update.
     return;
@@ -377,7 +386,8 @@ void vtkInputPort::TriggerAsynchronousUpdate()
 void vtkInputPort::UpdateData(vtkDataObject *output)
 {
 
-  if (this->UpStreamMTime <= this->DataTime && ! output->GetDataReleased())
+  if (this->UpStreamMTime <= this->DataTime && ! output->GetDataReleased() &&
+    !this->UpdateExtentIsOutsideOfTheExtent(output) )
     { 
     // No, we do not need to update.
     return;
@@ -411,7 +421,51 @@ void vtkInputPort::UpdateData(vtkDataObject *output)
                             vtkInputPort::NEW_DATA_TIME_TAG);
      
   this->TransferNeeded = 0;
+
+  this->LastUpdatePiece = output->GetUpdatePiece();
+  this->LastUpdateNumberOfPieces = output->GetUpdateNumberOfPieces();
+  this->LastUpdateGhostLevel = output->GetUpdateGhostLevel();
+
+  this->SetLastUpdateExtent( output->GetUpdateExtent() );
 }
+
+
+
+int vtkInputPort::UpdateExtentIsOutsideOfTheExtent(vtkDataObject *output)
+  {
+  switch ( output->GetExtentType() )
+    {
+    case VTK_PIECES_EXTENT:
+      if ( this->LastUpdatePiece != output->GetUpdatePiece() ||
+           this->LastUpdateNumberOfPieces != output->GetUpdateNumberOfPieces() ||
+           this->LastUpdateGhostLevel != output->GetUpdateGhostLevel())
+        {
+        return 1;
+        }
+      break;
+
+    case VTK_3D_EXTENT:
+      int extent[6];
+      output->GetUpdateExtent(extent);
+      if ( extent[0] < this->LastUpdateExtent[0] ||
+           extent[1] > this->LastUpdateExtent[1] ||
+           extent[2] < this->LastUpdateExtent[2] ||
+           extent[3] > this->LastUpdateExtent[3] ||
+           extent[4] < this->LastUpdateExtent[4] ||
+           extent[5] > this->LastUpdateExtent[5] )
+        {
+        return 1;
+        }
+      break;
+
+    // We should never have this case occur
+    default:
+      vtkErrorMacro( << "Internal error - invalid extent type!" );
+      break;
+    }
+  return 0;
+
+  }
 
 
 

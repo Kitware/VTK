@@ -124,6 +124,16 @@ protected:
   unsigned long UpStreamMTime;
   int TransferNeeded;
   int DoUpdateInformation;
+
+  int LastUpdatePiece;
+  int LastUpdateNumberOfPieces;
+  int LastUpdateGhostLevel;
+
+  vtkSetVector6Macro(LastUpdateExtent, int);
+  int LastUpdateExtent[6];
+
+  int UpdateExtentIsOutsideOfTheExtent(vtkDataObject *output);
+
 private:
   vtkInputPort(const vtkInputPort&);  // Not implemented.
   void operator=(const vtkInputPort&);  // Not implemented.
