@@ -2,7 +2,7 @@
 # Show the internal model of the colon.
 
 
-source define.tcl
+source ../imaging/examplesTcl/vtkImageInclude.tcl
 
 set sliceNumber 176
 set sliceMax 177
@@ -18,39 +18,47 @@ reader SetPixelMask 0x7fff;
 reader SetOutputScalarType $VTK_SHORT;
 reader DebugOn;
 
+vtkImageThreshold thresh;
+thresh ThresholdByLower 600;
+thresh SetInValue 255.0;
+thresh SetOutValue 0.0;
+thresh SetInput [reader GetOutput];
+thresh SetOutputScalarType $VTK_UNSIGNED_CHAR;
+thresh SetInputMemoryLimit 5000;
 
 # Set up the path planner
 vtkImageDraw region;
-region SetScalarType $VTK_SHORT;
 region SetExtent 0 255 0 255 0 177;
-[reader GetOutput] UpdateRegion region;
+[thresh GetOutput] UpdateRegion region;
 
 #region DrawSegment 0 216 255 216;
 #region DrawSegment 107 0 107 255;
 
 vtkImageStateSpace space;
-space SetNumberOfDimensions 3;
+space SetStateDimensionality 3;
 space SetRegion region;
-space SetThreshold 600;
 
 
 puts "Generating path ------------------------------------";
 
 vtkClaw claw;
-#claw SetChildFraction 0.70;
-#claw SetNeighborFraction 0.75;
 claw ClearSearchStrategies;
 claw AddSearchStrategy $VTK_CLAW_NEAREST_NETWORK;
 claw AddSearchStrategy $VTK_CLAW_PIONEER_LOCAL;
 claw SetStateSpace space;
 claw SetStartState 69 118 11;
 claw SetGoalState 107 216 176;
-#claw DebugOn;
 claw GeneratePath;
+
+puts "Exploring ------------------------------------------------";
+claw SetChildFraction 0.6;
+claw SetNeighborFraction 0.7;
+claw ExplorePath 5;
+
 puts "Smoothing ------------------------------------------------";
-#claw DebugOn;
-claw SmoothPath 20;
-claw SavePath "ClawColonSmooth.path";
+claw SmoothPath 3;
+
+puts "Finished  ------------------------------------------------";
 
 region ReleaseData;
 
