@@ -246,7 +246,7 @@ static void vtkNearestNeighborInterpolation(float point[3],
        gridId0[1] | (ext[1] - gridId1[1]) |
        gridId0[2] | (ext[2] - gridId1[2])) < 0)
     {
-    for (int i = 0; i < 3; i++)
+    for (int i = 0; i < 3; i++) 
       {
       if (gridId0[i] < 0)
         {
@@ -320,15 +320,16 @@ static inline void vtkLinearHelper(float displacement[3],
 
   if (!derivatives)
     {
-    for (int i = 0; i < 3; i++)
+    int i = 3;
+    do
       {
-      T *gridPtr0 = gridPtr + i;
-
-      displacement[i] = rxryrz*gridPtr0[i000]+rxryfz*gridPtr0[i001] +
-	                rxfyrz*gridPtr0[i010]+rxfyfz*gridPtr0[i011] +
-                        fxryrz*gridPtr0[i100]+fxryfz*gridPtr0[i101] +
-		        fxfyrz*gridPtr0[i110]+fxfyfz*gridPtr0[i111];
+      *displacement++ = (rxryrz*gridPtr[i000] + rxryfz*gridPtr[i001] +
+			 rxfyrz*gridPtr[i010] + rxfyfz*gridPtr[i011] +
+			 fxryrz*gridPtr[i100] + fxryfz*gridPtr[i101] +
+			 fxfyrz*gridPtr[i110] + fxfyfz*gridPtr[i111]);
+      gridPtr++;
       }
+    while (--i);
     }
   else
     {
@@ -342,30 +343,34 @@ static inline void vtkLinearHelper(float displacement[3],
     float fxry = fx*ry;
     float fxfy = fx*fy;
     
-    for (int i = 0; i < 3; i++)
+    float *derivative = *derivatives;
+
+    int i = 3;
+    do
       {
-      T *gridPtr0 = gridPtr + i;
+      *displacement++ = (rxryrz*gridPtr[i000] + rxryfz*gridPtr[i001] +
+			 rxfyrz*gridPtr[i010] + rxfyfz*gridPtr[i011] +
+			 fxryrz*gridPtr[i100] + fxryfz*gridPtr[i101] +
+			 fxfyrz*gridPtr[i110] + fxfyfz*gridPtr[i111]);
 
-      displacement[i] = rxryrz*gridPtr0[i000]+rxryfz*gridPtr0[i001] +
-                        rxfyrz*gridPtr0[i010]+rxfyfz*gridPtr0[i011] +
-                        fxryrz*gridPtr0[i100]+fxryfz*gridPtr0[i101] +
-                        fxfyrz*gridPtr0[i110]+fxfyfz*gridPtr0[i111];
+      *derivative++ = (ryrz*(gridPtr[i100] - gridPtr[i000]) +
+		       ryfz*(gridPtr[i101] - gridPtr[i001]) +
+		       fyrz*(gridPtr[i110] - gridPtr[i010]) +
+		       fyfz*(gridPtr[i111] - gridPtr[i011]));
+      
+      *derivative++ = (rxrz*(gridPtr[i010] - gridPtr[i000]) +
+		       rxfz*(gridPtr[i011] - gridPtr[i001]) +
+		       fxrz*(gridPtr[i110] - gridPtr[i100]) +
+		       fxfz*(gridPtr[i111] - gridPtr[i101]));
+      
+      *derivative++ = (rxry*(gridPtr[i001] - gridPtr[i000]) +
+		       rxfy*(gridPtr[i011] - gridPtr[i010]) +
+		       fxry*(gridPtr[i101] - gridPtr[i100]) +
+		       fxfy*(gridPtr[i111] - gridPtr[i110]));
 
-      derivatives[i][0] = (ryrz*gridPtr0[i100]+ryfz*gridPtr0[i101] +
-			   fyrz*gridPtr0[i110]+fyfz*gridPtr0[i111])
-	                - (ryrz*gridPtr0[i000]+ryfz*gridPtr0[i001] +
-			   fyrz*gridPtr0[i010]+fyfz*gridPtr0[i011]);
-
-      derivatives[i][1] = (rxrz*gridPtr0[i010]+rxfz*gridPtr0[i011] +
-			   fxrz*gridPtr0[i110]+fxfz*gridPtr0[i111])
-	                - (rxrz*gridPtr0[i000]+rxfz*gridPtr0[i001] +
-			   fxrz*gridPtr0[i100]+fxfz*gridPtr0[i101]);
-
-      derivatives[i][2] = (rxry*gridPtr0[i001]+rxfy*gridPtr0[i010] +
-			   fxry*gridPtr0[i101]+fxfy*gridPtr0[i111])
-	                 -(rxry*gridPtr0[i000]+rxfy*gridPtr0[i010] +
-			   fxry*gridPtr0[i100]+fxfy*gridPtr0[i110]);
+      gridPtr++;
       }
+    while (--i);
     }
 }
 
