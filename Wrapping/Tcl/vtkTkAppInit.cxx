@@ -317,9 +317,24 @@ int Tcl_AppInit(Tcl_Interp *interp)
       char dir[1024], dir_unix[1024], buffer[1024];
       vtkTkAppInitGetFilenamePath(nameofexec, dir);
       vtkTkAppInitConvertToUnixSlashes(dir, dir_unix);
+
+      // Installed application, otherwise build tree/windows
       sprintf(buffer, "%s/TclTk", dir_unix);
-      if (vtkTkAppInitFileExists(buffer))
+      int exists = vtkTkAppInitFileExists(buffer);
+      if (!exists)
         {
+        sprintf(buffer, "%s/../lib/vtk/TclTk", dir_unix);
+        exists = vtkKWDirectoryUtilities::FileExists(buffer);
+        }
+      if (exists)
+        {
+        // Also prepend our Tcl Tk lib path to the library paths
+        // This *is* mandatory if we want encodings files to be found, as they
+        // are searched by browsing TclGetLibraryPath().
+        // (nope, updating the Tcl tcl_libPath var won't do the trick)
+        
+        Tcl_Obj *new_libpath = Tcl_NewObj();
+
         if (!has_tcllibpath_env)
           {
           char tcl_library[1024] = "";
@@ -329,8 +344,14 @@ int Tcl_AppInit(Tcl_Interp *interp)
             // Setting TCL_LIBRARY won't do the trick, it's too late
             Tcl_SetVar(interp, "tcl_library", tcl_library, 
                        TCL_GLOBAL_ONLY | TCL_LEAVE_ERR_MSG);
+            Tcl_Obj *obj = Tcl_NewStringObj(tcl_library, -1);
+            if (obj)
+              {
+              Tcl_ListObjAppendElement(interp, new_libpath, obj);
+              }
             }
           }
+
 #ifdef VTK_USE_RENDERING
         if (!has_tklibpath_env)
           {
@@ -341,9 +362,14 @@ int Tcl_AppInit(Tcl_Interp *interp)
             // Setting TK_LIBRARY won't do the trick, it's too late
             Tcl_SetVar(interp, "tk_library", tk_library, 
                        TCL_GLOBAL_ONLY | TCL_LEAVE_ERR_MSG);
+            if (obj)
+              {
+              Tcl_ListObjAppendElement(interp, new_libpath, obj);
+              }
             }
           }
 #endif
+        TclSetLibraryPath(new_libpath);
         }
       }
     }
