@@ -79,8 +79,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkCellLocator.h"
 #include "vtkMatrix4x4.h"
-#include "vtkCellTriMacro.h"
-//
+
 // Special class defines node for the OBB tree
 //
 //BTX

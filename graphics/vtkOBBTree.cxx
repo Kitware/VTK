@@ -46,6 +46,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkPolyData.h"
 #include "vtkMatrix4x4.h"
 
+#define vtkCELLTRIANGLES(CELLPTIDS, TYPE, IDX, PTID0, PTID1, PTID2) \
+	{ switch( TYPE ) \
+	  { \
+	  case VTK_TRIANGLE: \
+	  case VTK_POLYGON: \
+	  case VTK_QUAD: \
+	    PTID0 = CELLPTIDS[0]; \
+	    PTID1 = CELLPTIDS[(IDX)+1]; \
+	    PTID2 = CELLPTIDS[(IDX)+2]; \
+	    break; \
+	  case VTK_TRIANGLE_STRIP: \
+	    PTID0 = CELLPTIDS[IDX]; \
+	    PTID1 = CELLPTIDS[(IDX)+1+((IDX)&1)]; \
+	    PTID2 = CELLPTIDS[(IDX)+2-((IDX)&1)]; \
+	    break; \
+	  default: \
+	    PTID0 = PTID1 = PTID2 = -1; \
+	  } }
+
 vtkOBBNode::vtkOBBNode()
 {
   this->Cells = NULL;
@@ -291,7 +310,7 @@ void vtkOBBTree::ComputeOBB(vtkIdList *cells, float corner[3], float max[3],
     ((vtkPolyData *)this->DataSet)->GetCellPoints( cellId, numPts, ptIds );
     for ( j=0; j<numPts-2; j++ )
       {
-      CELLTRIANGLES( ptIds, type, j, pId, qId, rId );
+      vtkCELLTRIANGLES( ptIds, type, j, pId, qId, rId );
       if ( pId < 0 )
         continue;
       p = this->DataSet->GetPoint( pId );
