@@ -46,40 +46,6 @@ static int vtkAbstractMapDefaultCompareFunction(const DType& k1,
 template<class DType>
 static void vtkAbstractMapDefaultDeleteFunction(DType&) {};
 
-
-// Since auxilary functions are static, we have to assign them
-// default values.
-template<class KeyType, class DataType>
-vtkAbstractMap<KeyType,DataType>::KeyCreateFunctionType
-vtkAbstractMap<KeyType,DataType>::KeyCreateFunction
-= &vtkAbstractMapDefaultCreateFunction;
-
-template<class KeyType, class DataType>
-vtkAbstractMap<KeyType,DataType>::KeyCompareFunctionType
-vtkAbstractMap<KeyType,DataType>::KeyCompareFunction
-= &vtkAbstractMapDefaultCompareFunction;
-
-template<class KeyType, class DataType>
-vtkAbstractMap<KeyType,DataType>::KeyDeleteFunctionType
-vtkAbstractMap<KeyType,DataType>::KeyDeleteFunction
-= &vtkAbstractMapDefaultDeleteFunction;
-
-template<class KeyType, class DataType>
-vtkAbstractMap<KeyType,DataType>::DataCreateFunctionType
-vtkAbstractMap<KeyType,DataType>::DataCreateFunction
-= &vtkAbstractMapDefaultCreateFunction;
-
-template<class KeyType, class DataType>
-vtkAbstractMap<KeyType,DataType>::DataCompareFunctionType
-vtkAbstractMap<KeyType,DataType>::DataCompareFunction
-= &vtkAbstractMapDefaultCompareFunction;
-
-template<class KeyType, class DataType>
-vtkAbstractMap<KeyType,DataType>::DataDeleteFunctionType
-vtkAbstractMap<KeyType,DataType>::DataDeleteFunction
-= &vtkAbstractMapDefaultDeleteFunction;
-
-
 // Description:
 // This is a comparison function for C string keys or data.
 template<class DType>
@@ -130,12 +96,11 @@ static void vtkAbstractMapReferenceCountedCreateFunction(DType& k1,
 // If the key is C string, we assign the auxilary function pointers 
 // to string functions.
 template<class KeyType, class DataType>
-void vtkAbstractMapKeyIsString(const vtkAbstractMap<KeyType,DataType>*)
+void vtkAbstractMapKeyIsString(vtkAbstractMap<KeyType,DataType>* ma)
 {
-  typedef vtkAbstractMap<KeyType,DataType> Superclass;
-  Superclass::SetKeyCompareFunction(vtkAbstractMapStringCompareFunction);
-  Superclass::SetKeyDeleteFunction(vtkAbstractMapStringDeleteFunction);
-  Superclass::SetKeyCreateFunction(vtkAbstractMapStringCreateFunction); 
+  ma->SetKeyCompareFunction(vtkAbstractMapStringCompareFunction);
+  ma->SetKeyDeleteFunction(vtkAbstractMapStringDeleteFunction);
+  ma->SetKeyCreateFunction(vtkAbstractMapStringCreateFunction); 
 }
  
 // Description:
@@ -144,13 +109,23 @@ void vtkAbstractMapKeyIsString(const vtkAbstractMap<KeyType,DataType>*)
 // Note that we can mostly compare pointers as integers, so we do not
 // have to set the compare function.
 template<class KeyType, class DataType>
-void vtkAbstractMapDataIsReferenceCounted(
-  const vtkAbstractMap<KeyType,DataType>*)
+void vtkAbstractMapDataIsReferenceCounted(vtkAbstractMap<KeyType,DataType>*)
 {
-  typedef vtkAbstractMap<KeyType,DataType> Superclass;
-  Superclass::SetDataDeleteFunction(
-    vtkAbstractMapReferenceCountedDeleteFunction);
-  Superclass::SetDataCreateFunction(
-    vtkAbstractMapReferenceCountedCreateFunction); 
+  ma->SetDataDeleteFunction(vtkAbstractMapReferenceCountedDeleteFunction);
+  ma->SetDataCreateFunction(vtkAbstractMapReferenceCountedCreateFunction); 
 }
+
+template<class KeyType, class DataType>
+vtkAbstractMap<KeyType,DataType>::vtkAbstractMap()
+{
+  this->KeyCreateFunction  = vtkAbstractMapDefaultCreateFunction;
+  this->KeyDeleteFunction  = vtkAbstractMapDefaultDeleteFunction;
+  this->KeyCompareFunction = vtkAbstractMapDefaultCompareFunction;
+
+  this->DataCreateFunction  = vtkAbstractMapDefaultCreateFunction;
+  this->DataDeleteFunction  = vtkAbstractMapDefaultDeleteFunction;
+  this->DataCompareFunction = vtkAbstractMapDefaultCompareFunction;
+}
+
+
 #endif

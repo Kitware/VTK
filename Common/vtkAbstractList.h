@@ -149,20 +149,34 @@ public:
 
   // Description:
   // Set compare, create, and delete functions for keys and data.
-  // These function pointers are static, so that you do not have
-  // to set them for every map but only once for the same types.
-  static void SetCreateFunction(CreateFunctionType cf)
-  { vtkAbstractList<DType>::CreateFunction = cf; }
-  static void SetCompareFunction(CompareFunctionType cf)
-  { vtkAbstractList<DType>::CompareFunction = cf;}
-  static void SetDeleteFunction(DeleteFunctionType cf)
-  { vtkAbstractList<DType>::DeleteFunction = cf; }
+  void SetCreateFunction(CreateFunctionType cf)
+    { this->CreateFunction = cf; }
+  void SetCompareFunction(CompareFunctionType cf)
+    { this->CompareFunction = cf;}
+  void SetDeleteFunction(DeleteFunctionType cf)
+    { this->DeleteFunction = cf; }
   
+  CompareFunctionType CompareFunction;
+  CreateFunctionType CreateFunction;
+  DeleteFunctionType DeleteFunction;
+
 protected:
-  static CompareFunctionType CompareFunction;
-  static CreateFunctionType CreateFunction;
-  static DeleteFunctionType DeleteFunction;
+  vtkAbstractList();
 };
+
+// Description:
+// If the key is C string, we assign the auxilary function pointers 
+// to string functions.
+template<class DataType>
+void vtkAbstractListDataIsString(vtkAbstractList<DataType>* me);
+ 
+// Description:
+// If the data is reference counted, we assign the auxilary function 
+// pointers to reference counted functions.
+// Note that we can mostly compare pointers as integers, so we do not
+// have to set the compare function.
+template<class DataType>
+void vtkAbstractListDataIsReferenceCounted(vtkAbstractList<DataType>* me);
 
 #ifdef VTK_NO_EXPLICIT_TEMPLATE_INSTANTIATION
 #include "vtkAbstractList.txx"

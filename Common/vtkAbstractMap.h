@@ -135,22 +135,21 @@ public:
 
   // Description:
   // Set compare, create, and delete functions for keys and data.
-  // These function pointers are static, so that you do not have
-  // to set them for every map but only once for the same types.
-  static void SetKeyCreateFunction(KeyCreateFunctionType cf)
-  { vtkAbstractMap<KeyType,DataType>::KeyCreateFunction = cf; }
-  static void SetKeyCompareFunction(KeyCompareFunctionType cf)
-  { vtkAbstractMap<KeyType,DataType>::KeyCompareFunction = cf;}
-  static void SetKeyDeleteFunction(KeyDeleteFunctionType cf)
-  { vtkAbstractMap<KeyType,DataType>::KeyDeleteFunction = cf; }
-  static void SetDataCreateFunction(DataCreateFunctionType cf)
-  { vtkAbstractMap<KeyType,DataType>::DataCreateFunction = cf; }
-  static void SetDataCompareFunction(DataCompareFunctionType cf)
-  { vtkAbstractMap<KeyType,DataType>::DataCompareFunction = cf;}
-  static void SetDataDeleteFunction(DataDeleteFunctionType cf)
-  { vtkAbstractMap<KeyType,DataType>::DataDeleteFunction = cf; }
+  void SetKeyCreateFunction(KeyCreateFunctionType cf)
+  { this->KeyCreateFunction = cf; }
+  void SetKeyCompareFunction(KeyCompareFunctionType cf)
+  { this->KeyCompareFunction = cf;}
+  void SetKeyDeleteFunction(KeyDeleteFunctionType cf)
+  { this->KeyDeleteFunction = cf; }
+  void SetDataCreateFunction(DataCreateFunctionType cf)
+  { this->DataCreateFunction = cf; }
+  void SetDataCompareFunction(DataCompareFunctionType cf)
+  { this->DataCompareFunction = cf;}
+  void SetDataDeleteFunction(DataDeleteFunctionType cf)
+  { this->DataDeleteFunction = cf; }
 
-private:
+//protected:
+  vtkAbstractMap();
   // Description:
   // These are pointers to auxilary functions to abstract certain object
   // operations out of the map.
@@ -162,21 +161,20 @@ private:
   // are equal or not.
   // The delete function has to do all the necessary memory deallocation,
   // so that map can forget the object.
-  static KeyCreateFunctionType  KeyCreateFunction;
-  static KeyCompareFunctionType KeyCompareFunction;  
-  static KeyDeleteFunctionType  KeyDeleteFunction;  
-  static DataCreateFunctionType  DataCreateFunction;
-  static DataCompareFunctionType DataCompareFunction;  
-  static DataDeleteFunctionType  DataDeleteFunction;  
+  KeyCreateFunctionType  KeyCreateFunction;
+  KeyCompareFunctionType KeyCompareFunction;  
+  KeyDeleteFunctionType  KeyDeleteFunction;  
+  DataCreateFunctionType  DataCreateFunction;
+  DataCompareFunctionType DataCompareFunction;  
+  DataDeleteFunctionType  DataDeleteFunction;  
 };
-
 
 // Description:
 // This function sets the map to have key of C string.
 // If the key is not a C string (const char*), there will
 // be a compile time error.
 template<class KeyType, class DataType>
-void vtkAbstractMapKeyIsString(const vtkAbstractMap<KeyType,DataType>*);
+void vtkAbstractMapKeyIsString(vtkAbstractMap<KeyType,DataType>*);
 
 // Description:
 // This function sets the map to have a reference counted data.
@@ -184,8 +182,7 @@ void vtkAbstractMapKeyIsString(const vtkAbstractMap<KeyType,DataType>*);
 // methods Register(void*) and UnRegister(void*)), there will
 // be a compile time error.
 template<class KeyType, class DataType>
-void vtkAbstractMapDataIsReferenceCounted(
-  const vtkAbstractMap<KeyType,DataType>*);
+void vtkAbstractMapDataIsReferenceCounted(vtkAbstractMap<KeyType,DataType>*);
 
 #ifdef VTK_NO_EXPLICIT_TEMPLATE_INSTANTIATION
 #include "vtkAbstractMap.txx"
