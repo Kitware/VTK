@@ -66,13 +66,14 @@ public:
 
   // Description:
   // Specify the InputString for use when reading from a character array.
-  SetInputString(char *in) {this->Reader.SetInputString(in);};
+  void SetInputString(char *in) {this->Reader.SetInputString(in);};
+  void SetInputString(char *in,int len) {this->Reader.SetInputString(in,len);};
   char *GetInputString() { return this->Reader.GetInputString();};
 
   // Description:
   // Set/Get reading from an InputString instead of the default, a file.
-  SetReadFromInputString(int in) {this->Reader.SetReadFromInputString(in);};
-  int GetReadFromInputString() {this->Reader.GetReadFromInputString();};
+  void SetReadFromInputString(int i) {this->Reader.SetReadFromInputString(i);};
+  int GetReadFromInputString() {return this->Reader.GetReadFromInputString();};
   vtkBooleanMacro(ReadFromInputString,int);
 
   int GetFileType();
