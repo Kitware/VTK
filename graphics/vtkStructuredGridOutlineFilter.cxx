@@ -46,7 +46,6 @@ void vtkStructuredGridOutlineFilter::Execute()
   vtkPoints *inPts;
   int i, j, k;
   int idx, gridIdx;
-  vtkPointData *pd;
   int *dim, pts[2];
   vtkPoints *newPts;
   vtkCellArray *newLines;
@@ -59,19 +58,18 @@ void vtkStructuredGridOutlineFilter::Execute()
     vtkErrorMacro("No input!");
     return;
     }
-  pd = input->GetPointData();
   dim = input->GetDimensions();
-//
-//  Allocate storage for lines and points
-//
+
+  //  Allocate storage for lines and points
+  //
   newPts = vtkPoints::New();
   newPts->Allocate(4*(dim[0]+dim[1]+dim[2]));
   newLines = vtkCellArray::New();
   newLines->Allocate(newLines->EstimateSize(4*((dim[0]-1)+(dim[1]-1)+(dim[2]-1)),2));
-//
-//  Load data
-//  x-data
-//
+
+  //  Load data
+  //  x-data
+  //
   for (idx=j=0; j<4; j++) 
     {
     if ( j == 0 )
@@ -87,9 +85,9 @@ void vtkStructuredGridOutlineFilter::Execute()
       newPts->InsertNextPoint(inPts->GetPoint(gridIdx+i));
 
     }
-//
-//  y-data
-//
+
+  //  y-data
+  //
   for (j=0; j<4; j++) 
     {
     if ( j == 0 )
@@ -105,9 +103,9 @@ void vtkStructuredGridOutlineFilter::Execute()
       newPts->InsertNextPoint(inPts->GetPoint(gridIdx+i*dim[0]));
 
     }
-//
-//  z-data
-//
+
+  //  z-data
+  //
   idx = dim[0]*dim[1];
   for (j=0; j<4; j++) 
     {
@@ -124,10 +122,10 @@ void vtkStructuredGridOutlineFilter::Execute()
       newPts->InsertNextPoint(inPts->GetPoint(gridIdx+i*idx));
 
     }
-//
-// Create lines. Rely on the fact that x, then y, then z points have been 
-// created.
-//
+
+  // Create lines. Rely on the fact that x, then y, then z points have been 
+  // created.
+  //
   idx = -1;
   for (k=0; k<3; k++) //loop over x-y-z directions
     {
@@ -142,9 +140,9 @@ void vtkStructuredGridOutlineFilter::Execute()
         }
       }
     }
-//
-// Update selves and release memory
-//
+
+  // Update selves and release memory
+  //
   output->SetPoints(newPts);
   newPts->Delete();
 
