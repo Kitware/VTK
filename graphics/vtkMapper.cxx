@@ -329,6 +329,13 @@ vtkScalars *vtkMapper::GetColors()
 
 void vtkMapper::ColorByArrayComponent(int arrayNum, int component)
 {
+  if (this->ArrayId == arrayNum && component == this->ArrayComponent &&
+      this->ArrayAccessMode == VTK_GET_ARRAY_BY_ID)
+    {
+    return;
+    }
+  this->Modified();
+  
   this->ArrayId = arrayNum;
   this->ArrayComponent = component;
   this->ArrayAccessMode = VTK_GET_ARRAY_BY_ID;
@@ -336,6 +343,13 @@ void vtkMapper::ColorByArrayComponent(int arrayNum, int component)
 
 void vtkMapper::ColorByArrayComponent(char* arrayName, int component)
 {
+  if (strcmp(this->ArrayName, arrayName) == 0 && component == this->ArrayComponent &&
+      this->ArrayAccessMode == VTK_GET_ARRAY_BY_ID)
+    {
+    return;
+    }
+  this->Modified();
+  
   strcpy(this->ArrayName, arrayName);
   this->ArrayComponent = component;
   this->ArrayAccessMode = VTK_GET_ARRAY_BY_NAME;
