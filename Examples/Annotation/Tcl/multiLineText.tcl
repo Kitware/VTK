@@ -9,13 +9,15 @@
 package require vtk
 package require vtkinteraction
 
+set font_size 14
+
 # Create the text mappers and the associated Actor2Ds.  The font and text
 # properties (except justification) are the same for each mapper.
 
 # The text is on a single line and bottom-justified.
 vtkTextMapper singleLineTextB
     singleLineTextB SetInput "Single line (bottom)"
-    singleLineTextB SetFontSize 14
+    singleLineTextB SetFontSize $font_size
     singleLineTextB SetFontFamilyToArial
     singleLineTextB BoldOff
     singleLineTextB ItalicOff
@@ -31,7 +33,7 @@ vtkActor2D singleLineTextActorB
 # The text is on a single line and center-justified (vertical justification).
 vtkTextMapper singleLineTextC
     singleLineTextC SetInput "Single line (centered)"
-    singleLineTextC SetFontSize 14
+    singleLineTextC SetFontSize $font_size
     singleLineTextC SetFontFamilyToArial
     singleLineTextC BoldOff
     singleLineTextC ItalicOff
@@ -47,7 +49,7 @@ vtkActor2D singleLineTextActorC
 # The text is on a single line and top-justified.
 vtkTextMapper singleLineTextT
     singleLineTextT SetInput "Single line (top)"
-    singleLineTextT SetFontSize 14
+    singleLineTextT SetFontSize $font_size
     singleLineTextT SetFontFamilyToArial
     singleLineTextT BoldOff
     singleLineTextT ItalicOff
@@ -63,7 +65,7 @@ vtkActor2D singleLineTextActorT
 # The text is on multiple lines and left- and top-justified.
 vtkTextMapper textMapperL
     textMapperL SetInput "This is\nmulti-line\ntext output\n(left-top)"
-    textMapperL SetFontSize 14
+    textMapperL SetFontSize $font_size
     textMapperL SetFontFamilyToArial
     textMapperL BoldOn
     textMapperL ItalicOn
@@ -81,7 +83,7 @@ vtkActor2D textActorL
 # vertical).
 vtkTextMapper textMapperC
     textMapperC SetInput "This is\nmulti-line\ntext output\n(centered)"
-    textMapperC SetFontSize 14
+    textMapperC SetFontSize $font_size
     textMapperC SetFontFamilyToArial
     textMapperC BoldOn
     textMapperC ItalicOn
@@ -98,7 +100,7 @@ vtkActor2D textActorC
 # The text is on multiple lines and right- and bottom-justified.
 vtkTextMapper textMapperR
     textMapperR SetInput "This is\nmulti-line\ntext output\n(right-bottom)"
-    textMapperR SetFontSize 14
+    textMapperR SetFontSize $font_size
     textMapperR SetFontFamilyToArial
     textMapperR BoldOn
     textMapperR ItalicOn
