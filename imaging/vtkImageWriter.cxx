@@ -81,7 +81,6 @@ vtkImageWriter::vtkImageWriter()
   this->FileName = NULL;
   this->FileDimensionality = 2;
 
-  this->SetFilePrefix("");
   this->SetFilePattern("%s.%d");
   
   this->FileLowerLeft = 0;
@@ -242,7 +241,7 @@ void vtkImageWriter::Write()
     vtkErrorMacro(<<"Write:Please specify an input!");
     return;
     }
-  if ( ! this->FileName && (! this->FilePrefix || ! this->FilePattern))
+  if ( ! this->FileName && !this->FilePattern)
     {
     vtkErrorMacro(<<"Write:Please specify either a FileName or a file prefix and pattern");
     return;
@@ -257,7 +256,7 @@ void vtkImageWriter::Write()
   // Fill in image information.
   this->GetInput()->UpdateInformation();
   this->GetInput()->SetUpdateExtent(this->GetInput()->GetWholeExtent());
-  this->FileNumber = 1;
+  this->FileNumber = this->GetInput()->GetWholeExtent()[4];
   this->UpdateProgress(0.0);
   this->RecursiveWrite(2, this->GetInput(), NULL);
   delete [] this->InternalFileName;
@@ -279,14 +278,21 @@ void vtkImageWriter::RecursiveWrite(int axis, vtkImageData *cache,
   if (!file && (axis + 1) == this->FileDimensionality)
     {
     // determine the name
-    if (this->FilePrefix)
+    if (this->FileName)
       {
-      sprintf(this->InternalFileName, this->FilePattern, 
-	      this->FilePrefix, this->FileNumber);
+      sprintf(this->InternalFileName,"%s",this->FileName);
       }
-    else
+    else 
       {
-      sprintf(this->InternalFileName, "%s", this->FileName);
+      if (this->FilePrefix)
+        {
+        sprintf(this->InternalFileName, this->FilePattern, 
+                this->FilePrefix, this->FileNumber);
+        }
+      else
+        {
+        sprintf(this->InternalFileName, this->FilePattern,this->FileNumber);
+        }
       }
     // Open the file
 #ifdef _WIN32
@@ -419,14 +425,21 @@ void vtkImageWriter::RecursiveWrite(int axis, vtkImageData *cache,
   if (!file && (axis + 1) == this->FileDimensionality)
     {
     // determine the name
-    if (this->FilePrefix)
+    if (this->FileName)
       {
-      sprintf(this->InternalFileName, this->FilePattern, 
-	      this->FilePrefix, this->FileNumber);
+      sprintf(this->InternalFileName,"%s",this->FileName);
       }
-    else
+    else 
       {
-      sprintf(this->InternalFileName, "%s", this->FileName);
+      if (this->FilePrefix)
+        {
+        sprintf(this->InternalFileName, this->FilePattern, 
+                this->FilePrefix, this->FileNumber);
+        }
+      else
+        {
+        sprintf(this->InternalFileName, this->FilePattern,this->FileNumber);
+        }
       }
     // Open the file
 #ifdef _WIN32

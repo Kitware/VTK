@@ -128,9 +128,9 @@ void vtkPNMReader::ExecuteInformation()
     this->DataExtent[5] = this->DataVOI[5];
     }
 
-  if (!this->FileName && !this->FilePrefix)
+  if (!this->FileName && !this->FilePattern)
     {
-    vtkErrorMacro(<<"Either a FileName or FilePrefix must be specified.");
+    vtkErrorMacro(<<"Either a FileName or FilePattern must be specified.");
     return;
     }
 
