@@ -53,9 +53,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkWriter.hh"
 #include "vtkPolyData.hh"
 
-#define VTK_STL_ASCII 0
-#define VTK_STL_BINARY 1
-
 class vtkSTLWriter : public vtkWriter
 {
 public:
@@ -75,14 +72,14 @@ public:
 
   // Description:
   // Specify type of file to write (ascii or binary).
-  vtkSetClampMacro(WriteMode,int,VTK_STL_ASCII,VTK_STL_BINARY);
-  vtkGetMacro(WriteMode,int);
+  vtkSetClampMacro(FileType,int,VTK_ASCII,VTK_BINARY);
+  vtkGetMacro(FileType,int);
 
 protected:
   void WriteData();
 
   char *Filename;
-  int WriteMode;
+  int FileType;
 
   void WriteBinarySTL(vtkPoints *pts, vtkCellArray *polys);
   void WriteAsciiSTL(vtkPoints *pts, vtkCellArray *polys);

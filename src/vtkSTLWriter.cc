@@ -45,7 +45,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 vtkSTLWriter::vtkSTLWriter()
 {
   this->Filename = NULL;
-  this->WriteMode = VTK_STL_ASCII;
+  this->FileType = VTK_ASCII;
 }
 
 vtkSTLWriter::~vtkSTLWriter()
@@ -84,7 +84,7 @@ void vtkSTLWriter::WriteData()
     return;
     }
 
-  if ( this->WriteMode == VTK_STL_BINARY ) this->WriteBinarySTL(pts,polys);
+  if ( this->FileType == VTK_BINARY ) this->WriteBinarySTL(pts,polys);
   else this->WriteAsciiSTL(pts,polys);
 }
 
@@ -191,10 +191,9 @@ void vtkSTLWriter::PrintSelf(ostream& os, vtkIndent indent)
  
   os << indent << "Filename: " << this->Filename << "\n";
 
-  if ( this->WriteMode == VTK_STL_ASCII  )
-    os << indent << "Write Mode: ASCII\n";
+  if ( this->FileType == VTK_ASCII  )
+    os << indent << "FileType: ASCII\n";
   else
-    os << indent << "Write Mode: BINARY\n";
-
+    os << indent << "FileType: BINARY\n";
 }
 
