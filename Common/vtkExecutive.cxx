@@ -15,9 +15,10 @@
 #include "vtkExecutive.h"
 
 #include "vtkDataObject.h"
+#include "vtkInformation.h"
 #include "vtkGarbageCollector.h"
 
-vtkCxxRevisionMacro(vtkExecutive, "1.4");
+vtkCxxRevisionMacro(vtkExecutive, "1.5");
 
 //----------------------------------------------------------------------------
 vtkExecutive::vtkExecutive()
