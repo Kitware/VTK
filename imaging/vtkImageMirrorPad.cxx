@@ -85,7 +85,7 @@ static void vtkImageMirrorPadExecute(vtkImageMirrorPad *self,
   unsigned long count = 0;
   unsigned long target;
   int *wExtent = self->GetInput()->GetWholeExtent();
-  int pad[6], idx;
+  int idx;
   int inIdxStart[3];
   int inIdx[3];
   T *inPtr, *inPtrX, *inPtrY, *inPtrZ;
@@ -104,24 +104,6 @@ static void vtkImageMirrorPadExecute(vtkImageMirrorPad *self,
   inData->GetIncrements(inIncX, inIncY, inIncZ);
   outData->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
 
-  // how much padding is required ?
-  // if padding is required on a boundary then we know we need the whole extent
-  // for that boundary. The following code handles the cases where the outputextent
-  // is all inside or outside of the whole extent
-  for (idx = 0; idx < 3; idx++)
-    {
-    pad[idx*2] = 0;
-    pad[idx*2+1] = 0;
-    if (outExt[idx*2] < wExtent[idx*2])
-      {
-      pad[idx*2] = wExtent[idx*2] - outExt[idx*2];
-      }
-    if (outExt[idx*2+1] > wExtent[idx*2+1])
-      {
-      pad[idx*2+1] = outExt[idx*2+1] - wExtent[idx*2+1];
-      }
-    }
-  
   // find the starting point
   for (idx = 0; idx < 3; idx++)
     {
