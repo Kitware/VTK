@@ -77,6 +77,7 @@ vtkPolyData \
 vtkPolyLine \
 vtkPolyVertex \
 vtkPolygon \
+vtkPriorityQueue \
 vtkQuad \
 vtkRefCount \
 vtkShortArray \
