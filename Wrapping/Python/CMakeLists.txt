@@ -18,27 +18,28 @@ IF (APPLE)
   ENDIF (VTK_HAVE_FRAMEWORK_PYTHON)
 ELSE (APPLE)
   TARGET_LINK_LIBRARIES (vtkpython
-    vtkCommonPython
-    vtkFilteringPython
-    vtkIOPython
-    vtkGraphicsPython
-    vtkImagingPython
+    ${PYTHON_LIBRARY}
+    vtkCommon
+    vtkFiltering
+    vtkIO
+    vtkGraphics
+    vtkImaging
   )
 
   IF (VTK_USE_RENDERING)
-    TARGET_LINK_LIBRARIES(vtkpython vtkRenderingPython)
+    TARGET_LINK_LIBRARIES(vtkpython vtkRendering)
   ENDIF (VTK_USE_RENDERING)
 
   IF (VTK_USE_PATENTED)
-    TARGET_LINK_LIBRARIES(vtkpython vtkPatentedPython)
+    TARGET_LINK_LIBRARIES(vtkpython vtkPatented)
   ENDIF (VTK_USE_PATENTED)
 
   IF (VTK_USE_HYBRID)
-    TARGET_LINK_LIBRARIES(vtkpython vtkHybridPython)
+    TARGET_LINK_LIBRARIES(vtkpython vtkHybrid)
   ENDIF (VTK_USE_HYBRID)
 
   IF (VTK_USE_PARALLEL)
-    TARGET_LINK_LIBRARIES(vtkpython vtkParallelPython)
+    TARGET_LINK_LIBRARIES(vtkpython vtkParallel)
   ENDIF (VTK_USE_PARALLEL)
 ENDIF (APPLE)
 
@@ -48,19 +49,19 @@ IF (VTK_USE_PARALLEL)
     ADD_EXECUTABLE(pvtkpython vtkParaPythonAppInit.cxx)
 
     TARGET_LINK_LIBRARIES (pvtkpython
-      vtkCommonPython
-      vtkFilteringPython
-      vtkIOPython
-      vtkGraphicsPython
-      vtkImagingPython
-      vtkParallelPython
+      vtkCommon
+      vtkFiltering
+      vtkIO
+      vtkGraphics
+      vtkImaging
+      vtkParallel
     )
 
     IF (VTK_USE_PATENTED)
-      TARGET_LINK_LIBRARIES(pvtkpython vtkPatentedPython)
+      TARGET_LINK_LIBRARIES(pvtkpython vtkPatented)
     ENDIF (VTK_USE_PATENTED)
     IF (VTK_USE_HYBRID)
-      TARGET_LINK_LIBRARIES(pvtkpython vtkHybridPython)
+      TARGET_LINK_LIBRARIES(pvtkpython vtkHybrid)
     ENDIF (VTK_USE_HYBRID)
 
     INSTALL_TARGETS(/bin pvtkpython)
