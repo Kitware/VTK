@@ -138,6 +138,19 @@ public:
   vtkIdType InsertNextValue(const long);
 
   // Description:
+  // Return the data component at the ith tuple and jth component location.
+  // Note that i is less then NumberOfTuples and j is less then 
+  // NumberOfComponents.
+  float GetComponent(const vtkIdType i, const int j);
+  
+  // Description:
+  // Set the data component at the ith tuple and jth component location.
+  // Note that i is less then NumberOfTuples and j is less then 
+  // NumberOfComponents. Make sure enough memory has been allocated 
+  // (use SetNumberOfTuples() and SetNumberOfComponents()).
+  void SetComponent(const vtkIdType i, const int j, const float c);
+  
+  // Description:
   // Insert the data component at ith tuple and jth component location. 
   // Note that memory allocation is performed as necessary to hold the data.
   virtual void InsertComponent(const vtkIdType i, const int j, const float c);
