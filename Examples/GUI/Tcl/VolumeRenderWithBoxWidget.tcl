@@ -102,20 +102,26 @@ set selectedOutlineProperty [boxWidget GetSelectedOutlineProperty]
 iren AddObserver UserEvent {wm deiconify .vtkInteract}
 iren Initialize
 
-# prevent the tk window from showing up then start the event loop
+# Prevent the tk window from showing up then start the event loop.
 wm withdraw .
 
+# When interaction starts, the requested frame rate is increased.
 proc StartInteraction {} {
    renWin SetDesiredUpdateRate 10
 }
+
+# When interaction ends, the requested frame rate is decreased to
+# normal levels. THis causes a full resolution render to occur.
 proc EndInteraction {} {
    renWin SetDesiredUpdateRate 0.001
 }
 
+# The implicit function vtkPlanes is used in conjunction with the
+# volume ray cast mapper to limit which portion of the volume is
+# volume rendered.
 vtkPlanes planes
 proc ClipVolumeRender {} {
    boxWidget GetPlanes planes
    planes Modified
    volumeMapper SetClippingPlanes planes
-   renWin Render
 }
