@@ -148,7 +148,7 @@ void CPcmakerDlg::DoOKStuff()
   CWnd::UpdateData();
 
   // make sure we can find vtk
-  sprintf(fname,"%s\\targets.c",this->m_WhereVTK);
+  sprintf(fname,"%s\\common\\vtkObject.h",this->m_WhereVTK);
   fp = fopen(fname,"r");
   if (!fp)
     {
