@@ -78,6 +78,12 @@ public:
   int GetScalarType();
 
   // Description:
+  // These returns the minimum and maximum values the ScalarType can hold
+  // without overflowing.
+  double GetScalarTypeMin();
+  double GetScalarTypeMax();
+  
+  // Description:
   // Set the size of the scalar type in bytes.
   int GetScalarSize();
 
