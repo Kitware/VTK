@@ -364,28 +364,11 @@ href="Wrapping/Python/README.txt">Wrapping/Python/README.txt</A> file.
 </P>
 
 <HR>
-<h1><A NAME="NewClass">Adding A New Class</h1> There are several ways to
+<h1><A NAME="NewClass">Writing Your Own Class</h1> There are several ways to
 extend VTK. The simplest way is, in your own code, create classes that
-inherit from the appropriate VTK classes. This does not provide the benefit
-of wrapping the C++ class into Tcl, Java, and Python. If you would like your
-class to be wrapped into these languages, you will have to add your class to
-the VTK build. This is the recommended procedure.
-
-<pre>
-  1) Create a new directory called VTK/Local.
-  2) Create a file called LocalUserOptions.cmake in VTK/. In that file, 
-     add the command "SUBDIRS(Local)". This will add the Local directory 
-     to the build.
-  3) Create the .cxx and .h file for the new class in VTK/Local. Make 
-     sure that you use VTK conventions to insure that the wrapping 
-     occurs correctly. Complex code may break the wrapper parser; 
-     use //BTX and //ETX around the  code to fix this.
-  4) Create a CMakeLists.txt in VTK/Local. You can model it after 
-     a CMakeList.txt file found in another directory 
-     (like VTK/IO/CMakeLists.txt).
-  5) Rerun ccmake (Unix) or CMakeSetup.exe (Windows).
-  6) Then make/gmake (Unix) or msdev (Windows).
-</pre>
+inherit from the appropriate VTK classes.  Please see the
+<a href="Examples/Build/vtkLocal/README"><code>vtkLocal</code></a> example
+for instructions to build your classes outside VTK.
 
 <HR>
 <h1><A NAME="Help">Getting Help / Mailing List</h1> 
