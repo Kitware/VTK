@@ -27,7 +27,7 @@ planes SetNormals norms
 
 # texture
 vtkStructuredPointsReader texReader
-    texReader SetFileName "../../../vtkdata/texThres.vtk"
+    texReader SetFileName "../../../vtkdata/texThres2.vtk"
 vtkTexture texture
     texture SetInput [texReader GetOutput]
     texture InterpolateOff
@@ -70,8 +70,12 @@ vtkActor byuActor2
 vtkBYUReader byu3
     byu3 SetGeometryFileName "../../../vtkdata/motor.g"
     byu3 SetPartNumber 3
+
+vtkTriangleFilter triangle3
+  triangle3 SetInput [byu3 GetOutput]
+
 vtkPolyDataNormals normals3
-    normals3 SetInput [byu3 GetOutput]
+    normals3 SetInput [triangle3 GetOutput]
 vtkImplicitTextureCoords tex3
     tex3 SetInput [normals3 GetOutput]
     tex3 SetRFunction planes
@@ -120,6 +124,7 @@ vtkActor byuActor5
 ren1 AddActor byuActor
 ren1 AddActor byuActor2
 ren1 AddActor byuActor3
+byuActor3 VisibilityOff
 ren1 AddActor byuActor4
 ren1 AddActor byuActor5
 ren1 SetBackground 1 1 1
@@ -130,6 +135,7 @@ vtkCamera camera
     camera SetPosition 1.37067 1.08629 -1.30349
     camera ComputeViewPlaneNormal
     camera SetViewAngle 17.673
+    camera SetClippingRange 1 10
     camera SetViewUp  -0.376306 -0.5085 -0.774482
 
 ren1 SetActiveCamera camera
