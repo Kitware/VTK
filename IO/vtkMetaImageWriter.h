@@ -82,9 +82,11 @@ public:
   virtual void SetRAWFileName(const char* fname);
   virtual char* GetRAWFileName();
 
-  // Description:
-  // Write the actual file
-  virtual void Write();
+  // This is called by the superclass.
+  // This is the method you should override.
+  virtual void RequestData(vtkInformation *request,
+                           vtkInformationVector** inputVector,
+                           vtkInformationVector* outputVector);
 
 protected:
   vtkMetaImageWriter();

@@ -14,8 +14,11 @@
 =========================================================================*/
 #include "vtkMetaImageWriter.h"
 
-#include "vtkObjectFactory.h"
 #include "vtkImageData.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
+#include "vtkObjectFactory.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkXMLImageDataWriter.h"
 
 #include <vtkstd/string>
@@ -23,7 +26,7 @@
 #include <sys/stat.h>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMetaImageWriter, "1.8");
+vtkCxxRevisionMacro(vtkMetaImageWriter, "1.9");
 vtkStandardNewMacro(vtkMetaImageWriter);
 
 //----------------------------------------------------------------------------
@@ -56,13 +59,19 @@ char* vtkMetaImageWriter::GetRAWFileName()
   return this->Superclass::GetFileName();
 }
 
-//----------------------------------------------------------------------------
-void vtkMetaImageWriter::Write()
+void vtkMetaImageWriter::RequestData(
+  vtkInformation* request,
+  vtkInformationVector** inputVector,
+  vtkInformationVector* outputVector)
 {
-  vtkImageData* id = this->GetInput();
-  if ( !id )
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkImageData *input = 
+    vtkImageData::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  
+  // Error checking
+  if (input == NULL )
     {
-    vtkErrorMacro("Input not specified");
+    vtkErrorMacro(<<"Write:Please specify an input!");
     return;
     }
 
@@ -71,7 +80,7 @@ void vtkMetaImageWriter::Write()
     vtkErrorMacro("Output file name not specified");
     return;
     }
-  id->Update();
+
   if ( !this->GetRAWFileName() )
     {
     vtkDebugMacro("Raw file name not specified. Specifying one...");
@@ -109,7 +118,7 @@ void vtkMetaImageWriter::Write()
 
   int ndims = 3;
   int ext[6];
-  id->GetWholeExtent(ext);
+  inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),ext);
   if ( ext[4] == ext[5] )
     {
     ndims = 2;
@@ -120,27 +129,28 @@ void vtkMetaImageWriter::Write()
     }
   double origin[3];
   double spacing[3];
-  id->GetOrigin(origin);
-  id->GetSpacing(spacing);
-
+  inInfo->Get(vtkDataObject::ORIGIN(),origin);
+  inInfo->Get(vtkDataObject::SPACING(),spacing);
+  
   const char* scalar_type;
-  switch ( id->GetScalarType() )
+  switch ( inInfo->Get(vtkDataObject::SCALAR_TYPE()) )
     {
-  case VTK_CHAR:           scalar_type = "MET_CHAR"; break;
-  case VTK_UNSIGNED_CHAR:  scalar_type = "MET_UCHAR"; break;
-  case VTK_SHORT:          scalar_type = "MET_SHORT"; break;
-  case VTK_UNSIGNED_SHORT: scalar_type = "MET_USHORT"; break;
-  case VTK_INT:            scalar_type = "MET_INT"; break;
-  case VTK_UNSIGNED_INT:   scalar_type = "MET_UINT"; break;
-  case VTK_LONG:           scalar_type = "MET_LONG"; break;
-  case VTK_UNSIGNED_LONG:  scalar_type = "MET_ULONG"; break;
-  case VTK_FLOAT:          scalar_type = "MET_FLOAT"; break;
-  case VTK_DOUBLE:         scalar_type = "MET_DOUBLE"; break;
-  default:
-    vtkErrorMacro("Unknown scalar type: " << id->GetScalarTypeAsString());
-    return;
+    case VTK_CHAR:           scalar_type = "MET_CHAR"; break;
+    case VTK_UNSIGNED_CHAR:  scalar_type = "MET_UCHAR"; break;
+    case VTK_SHORT:          scalar_type = "MET_SHORT"; break;
+    case VTK_UNSIGNED_SHORT: scalar_type = "MET_USHORT"; break;
+    case VTK_INT:            scalar_type = "MET_INT"; break;
+    case VTK_UNSIGNED_INT:   scalar_type = "MET_UINT"; break;
+    case VTK_LONG:           scalar_type = "MET_LONG"; break;
+    case VTK_UNSIGNED_LONG:  scalar_type = "MET_ULONG"; break;
+    case VTK_FLOAT:          scalar_type = "MET_FLOAT"; break;
+    case VTK_DOUBLE:         scalar_type = "MET_DOUBLE"; break;
+    default:
+      vtkErrorMacro("Unknown scalar type: " 
+                    << inInfo->Get(vtkDataObject::SCALAR_TYPE()));
+      return;
     }
-
+  
   origin[0] += ext[0] * spacing[0];
   origin[1] += ext[2] * spacing[1];
   origin[2] += ext[4] * spacing[2];
@@ -172,14 +182,19 @@ void vtkMetaImageWriter::Write()
 #else
     << "BinaryDataByteOrderMSB = False" << endl
 #endif
-    << "ElementSpacing = " << spacing[0] << " " << spacing[1] << " " << spacing[2] << endl
-    << "DimSize = " << (ext[1]-ext[0]+1) << " " << (ext[3]-ext[2]+1) << " " << (ext[5]-ext[4]+1) << endl
-    << "Position = " << origin[0] << " " << origin[1] << " " << origin[2] << endl
-    << "ElementNumberOfChannels = " << id->GetNumberOfScalarComponents() << endl
-    << "ElementType = " << scalar_type << (id->GetNumberOfScalarComponents() > 1?"_ARRAY":"") << endl
+    << "ElementSpacing = " 
+    << spacing[0] << " " << spacing[1] << " " << spacing[2] << endl
+    << "DimSize = " << (ext[1]-ext[0]+1) << " " 
+    << (ext[3]-ext[2]+1) << " " << (ext[5]-ext[4]+1) << endl
+    << "Position = " 
+    << origin[0] << " " << origin[1] << " " << origin[2] << endl
+    << "ElementNumberOfChannels = " 
+    << inInfo->Get(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS()) << endl
+    << "ElementType = " << scalar_type 
+    << (inInfo->Get(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS()) > 1?"_ARRAY":"") << endl
     << "ElementDataFile = " << data_file << endl;
   this->SetFileDimensionality(ndims);
-  this->Superclass::Write();
+  this->Superclass::RequestData(request,inputVector,outputVector);
 }
 
 //----------------------------------------------------------------------------
