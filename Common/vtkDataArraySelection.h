@@ -59,6 +59,10 @@ public:
   int ArrayExists(const char* name);
 
   // Description:
+  // Add array without calling modified.
+  int AddArray(const char* name);
+
+  // Description:
   // Enable all arrays that currently have an entry.
   void EnableAllArrays();
   

@@ -19,7 +19,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkVector.txx"
 
-vtkCxxRevisionMacro(vtkDataArraySelection, "1.3");
+vtkCxxRevisionMacro(vtkDataArraySelection, "1.4");
 vtkStandardNewMacro(vtkDataArraySelection);
 
 //----------------------------------------------------------------------------
@@ -41,6 +41,19 @@ void vtkDataArraySelection::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "Number of Arrays: " << this->GetNumberOfArrays() << "\n";
+}
+
+//----------------------------------------------------------------------------
+int vtkDataArraySelection::AddArray(const char* name)
+{
+  vtkIdType pos=0;
+  if(this->ArrayNames->FindItem(name, pos) == VTK_OK)
+    {
+    return 0;
+    }
+  this->ArrayNames->AppendItem(name);
+  this->ArraySettings->AppendItem(1);
+  return 1;
 }
 
 //----------------------------------------------------------------------------
