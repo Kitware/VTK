@@ -5,7 +5,27 @@ INCLUDE_REGULAR_EXPRESSION("^(lex|vtk|png|j).*$")
 # Figure out which version of the VTK_MAKE_INSTANTIATOR command is
 # available with this version of CMake.
 IF(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 1.4)
-  SET(VTK_USE_INSTANTIATOR_NEW "1")
+   IF (COMMAND VTK_MAKE_INSTANTIATOR2)
+   ELSE (COMMAND VTK_MAKE_INSTANTIATOR2)
+      TRY_COMPILE(COMPILE_OK 
+         ${VTK_BINARY_DIR}/CMake 
+         ${VTK_SOURCE_DIR}/CMake 
+         VTK_LOADED_COMMANDS)
+      IF (COMPILE_OK)
+         # load the four extra CMake commands 
+         LOAD_COMMAND(VTK_WRAP_TCL2 
+            ${VTK_BINARY_DIR}/CMake ${VTK_BINARY_DIR}/CMake/Debug)
+         LOAD_COMMAND(VTK_WRAP_PYTHON2 
+            ${VTK_BINARY_DIR}/CMake ${VTK_BINARY_DIR}/CMake/Debug)
+         LOAD_COMMAND(VTK_WRAP_JAVA2 
+            ${VTK_BINARY_DIR}/CMake ${VTK_BINARY_DIR}/CMake/Debug)
+         LOAD_COMMAND(VTK_MAKE_INSTANTIATOR2 
+            ${VTK_BINARY_DIR}/CMake ${VTK_BINARY_DIR}/CMake/Debug)
+      ELSE (COMPILE_OK)
+         MESSAGE("failed to compile VTK extensions to CMake")
+      ENDIF (COMPILE_OK)
+   ENDIF (COMMAND VTK_MAKE_INSTANTIATOR2)
+   SET(VTK_USE_INSTANTIATOR_NEW "1")
 ENDIF(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 1.4)
 
 OPTION(BUILD_SHARED_LIBS "Build VTK with shared libraries." OFF)
