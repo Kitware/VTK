@@ -35,7 +35,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkKitwareContourFilter, "1.31");
+vtkCxxRevisionMacro(vtkKitwareContourFilter, "1.32");
 vtkStandardNewMacro(vtkKitwareContourFilter);
 
 // Construct object with initial range (0,1) and single contour value
@@ -184,7 +184,6 @@ void vtkKitwareContourFilter::Execute()
   if ( input->GetDataObjectType() == VTK_STRUCTURED_POINTS || 
        input->GetDataObjectType() == VTK_IMAGE_DATA )
     {
-    // We need a better way to determine dimensionality for images.
     int dim = 3;
     int *uExt = input->GetUpdateExtent();
     if (uExt[0] == uExt[1])
@@ -200,7 +199,7 @@ void vtkKitwareContourFilter::Execute()
       --dim;
       }
 
-    if ( input->GetCell(0)->GetCellDimension() >= 2 ) 
+    if ( dim >= 2 ) 
       {
       this->StructuredPointsContour(dim);
       return;
@@ -209,18 +208,6 @@ void vtkKitwareContourFilter::Execute()
 
   if ( input->GetDataObjectType() == VTK_STRUCTURED_GRID )
     {
-    int dim = input->GetCell(0)->GetCellDimension();
-    // only do 3D structured grids (to be extended in the future)
-    if ( input->GetCell(0)->GetCellDimension() >= 3 ) 
-      {
-      this->StructuredGridContour(dim);
-      return;
-      }
-    }
-
-  if ( input->GetDataObjectType() == VTK_RECTILINEAR_GRID )
-    {
-    // We need a better way to determine dimensionality for images.
     int dim = 3;
     int *uExt = input->GetUpdateExtent();
     if (uExt[0] == uExt[1])
@@ -236,7 +223,32 @@ void vtkKitwareContourFilter::Execute()
       --dim;
       }
 
-    if ( input->GetCell(0)->GetCellDimension() == 3 ) 
+    // only do 3D structured grids (to be extended in the future)
+    if ( dim == 3 ) 
+      {
+      this->StructuredGridContour(dim);
+      return;
+      }
+    }
+
+  if ( input->GetDataObjectType() == VTK_RECTILINEAR_GRID )
+    {
+    int dim = 3;
+    int *uExt = input->GetUpdateExtent();
+    if (uExt[0] == uExt[1])
+      {
+      --dim;
+      }
+    if (uExt[2] == uExt[3])
+      {
+      --dim;
+      }
+    if (uExt[4] == uExt[5])
+      {
+      --dim;
+      }
+
+    if ( dim == 3 ) 
       {
       this->RectilinearGridContour(dim);
       return;
