@@ -32,6 +32,7 @@ IF (VTK_USE_RENDERING)
       combIso
       coneResolution
       contourCells
+      contoursToSurface
       contour2DAll
       contour3DAll
       createBFont
@@ -82,6 +83,7 @@ IF (VTK_USE_RENDERING)
       teapotHulls
       TenEllip
       testDataSetTriangleFilter
+      testDataSetTriangleFilter2
       TestGraphLayoutFilter
       testQuadricDecimation
       TransformConcatenation
