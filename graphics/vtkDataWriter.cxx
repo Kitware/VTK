@@ -160,11 +160,6 @@ ostream *vtkDataWriter::OpenVTKFile()
     vtkErrorMacro(<< "No FileName specified! Can't write!");
     return NULL;
     }
-  if (input == NULL)
-    {
-    vtkErrorMacro(<< "No input! Can't write!");
-    return NULL;    
-    }
   
   vtkDebugMacro(<<"Opening vtk file for writing...");
 
@@ -179,6 +174,11 @@ ostream *vtkDataWriter::OpenVTKFile()
       this->OutputStringAllocatedLength = 0;
       }
     // Allocate the new output string. (Note: this will only work with binary).
+    if (input == NULL)
+      {
+      vtkErrorMacro(<< "No input! Can't write!");
+      return NULL;    
+      }
     input->Update();
     this->OutputStringAllocatedLength = 500 
       + 1000 * input->GetActualMemorySize();
