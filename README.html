@@ -155,9 +155,9 @@ http://public.kitware.com/VTK/doc/nightly/html/</a><p>
 <h1><A NAME="Installation">Installation</h1>
 
 The Visualization Toolkit can be built on both Unix and PC 
-(Windows 95/98/NT/2000) systems.  VTK uses <A HREF="http://public.kitware.com/CMake">CMake</A>
+(Windows 95/98/NT/2000) systems.  VTK uses <A HREF="http://www.cmake.org">CMake</A>
 for its build process.  To build VTK for UNIX or Windows, you will first have to install CMake.
-You can download CMake from: <A HREF="http://public.kitware.com/CMake"</A>http://public.kitware.com/CMake </A>
+You can download CMake from: <A HREF="http://www.cmake.org"</A>http://www.cmake.org</A>
 The following instructions assume that cmake is already installed.
 <p>
 
@@ -190,9 +190,9 @@ otherwise you must set CXX and CC in your environment and then
 run ccmake (or cmake -i).<p>
 
 If you want to build the VTK interpreter then you will
-need to have Tcl and Tk (8.2 or newer). Look to http://www.scriptics.com/
+need to have Tcl and Tk (8.2 or newer). Look to <A href="http://www.scriptics.com">http://www.scriptics.com</A>
 for information about getting Tcl and Tk. To turn on Tcl wrapping,
-set VTK_WRAP_TCL to ON during the configuration process. You will then have
+set VTK_WRAP_TCL to ON during the configuration process (as a post-build step, you might want to check the <A href="Wrapping/Tcl/README">Wrapping/Tcl/README</A> file). You will then have
 to set the values for Tcl/Tk include directories and libraries.
 
 If you are planning to build VTK for multiple architectures then you can
@@ -288,7 +288,7 @@ during the link phase.<p>
 Many of the examples require data. There are two ways to get data. The
 first is to download the file VTKData.tgz. The second is to access the
 data via CVS checkout. The CVS checkout also includes many test images
-used by the testing process (see http://public.kitware.com/dashboard.php).
+used by the testing process (see <A href="http://public.kitware.com/dashboard.php">http://public.kitware.com/dashboard.php</A>).
 These can be used if you wish to test VTK or submit testing dashboards. 
 The VTKData.tgz contains only data in compressed form is therefore can
 be obtained much faster.
@@ -312,7 +312,7 @@ make sure the PATH environment variable (Windows) or the LD_LIBRARY_PATH
 (Unix) point to the shared libraries.
 
 If you have enabled Tcl wrapping, you will want to set TCLLIBPATH to point to
-the VTK/Wrapping/Tcl directory. You will then run the vtk executable found in
+the VTK/Wrapping/Tcl directory and check the instructions located in the <A href="Wrapping/Tcl/README">Wrapping/Tcl/README</A> file. You will then run the vtk executable found in
 the bin directory where the code was compiled. Assuming that the executable
 vtk is in your path, or has been aliased, you would type:
 <pre>
