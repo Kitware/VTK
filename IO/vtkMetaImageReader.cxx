@@ -23,7 +23,7 @@
 #include <sys/stat.h>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMetaImageReader, "1.1");
+vtkCxxRevisionMacro(vtkMetaImageReader, "1.2");
 vtkStandardNewMacro(vtkMetaImageReader);
 
 //----------------------------------------------------------------------------
@@ -69,7 +69,7 @@ public:
     const char* with);
   static void ConvertToUnixSlashes(vtkstd::string& path);
   static vtkstd::string GetFilenamePath(const vtkstd::string& filename);
-  static int StringEquals(const char* s1, const char* s2, int maxlen);
+  static int StringEquals(const char* s1, const char* s2, size_t maxlen);
   static int GetLineFromStream(istream& is, vtkstd::string& line,
     bool *has_newline /* = 0 */);
 };
@@ -175,10 +175,7 @@ vtkstd::string vtkMetaImageReaderInternal::GetFilenamePath(const vtkstd::string&
     {
     return fn.substr(0, slash_pos);
     }
-  else
-    {
-    return "";
-    }
+  return "";
 }
 
 //----------------------------------------------------------------------------
@@ -223,7 +220,7 @@ int vtkMetaImageReaderInternal::GetLineFromStream(istream& is, vtkstd::string& l
 }
 
 //----------------------------------------------------------------------------
-int vtkMetaImageReaderInternal::StringEquals(const char* s1, const char* s2, int maxlen)
+int vtkMetaImageReaderInternal::StringEquals(const char* s1, const char* s2, size_t maxlen)
 {
   if ( s1 == s2 )
     {
@@ -449,7 +446,7 @@ void vtkMetaImageReader::ExecuteInformation()
         {
         datafile = path + "/";
         datafile.append(value, valuelen);
-        struct stat fs;
+
         if ( stat( datafile.c_str(), &fs) )
           {
           vtkErrorMacro(<< "Initialize: Could not open file " << datafile.c_str());
