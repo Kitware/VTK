@@ -644,24 +644,24 @@ void doMSTclHeader(FILE *fp, const char *vtkHome,
     fprintf(fp,"SOURCE=%s\\%s\\%s.h\n",vtkHome,abstract_lib[i],abstract[i]);
     fprintf(fp,"\n!IF \"$(CFG)\" == \"vtktcl - Win32 Release\"\n\n");
     fprintf(fp,"# Begin Custom Build\n");
-    fprintf(fp,"ProjDir=.\n");
+    //fprintf(fp,"ProjDir=.\n");
     fprintf(fp,"InputPath=%s\\%s\\%s.h \n",vtkHome,abstract_lib[i],abstract[i]); 
-    fprintf(fp,"\"$(ProjDir)\\src\\%sTcl.cxx\" : $(SOURCE) \"$(INTDIR)\" \"$(OUTDIR)\"\n",
+    fprintf(fp,"\".\\src\\%sTcl.cxx\" : $(SOURCE) \"$(INTDIR)\" \"$(OUTDIR)\"\n",
 		abstract[i]);
     fprintf(fp,"   %s\\pcmaker\\cpp_parse\\Debug\\cpp_parse %s\\%s\\%s.h\\\n",
 		vtkHome, vtkHome, abstract_lib[i], abstract[i]);
-    fprintf(fp,"  %s\\tcl\\hints 0 > $(ProjDir)\\src\\%sTcl.cxx\n\n",
+    fprintf(fp,"  %s\\tcl\\hints 0 > .\\src\\%sTcl.cxx\n\n",
 		vtkHome, abstract[i]);
     fprintf(fp,"# End Custom Build\n\n");
     fprintf(fp,"!ELSEIF \"$(CFG)\" == \"vtktcl - Win32 Debug\"\n\n");
     fprintf(fp,"# Begin Custom Build\n");
-    fprintf(fp,"ProjDir=.\n");
+    //fprintf(fp,"ProjDir=.\n");
     fprintf(fp,"InputPath=%s\\%s\\%s.h \n",vtkHome,abstract_lib[i],abstract[i]); 
-    fprintf(fp,"\"$(ProjDir)\\src\\%sTcl.cxx\" : $(SOURCE) \"$(INTDIR)\" \"$(OUTDIR)\"\n",
+    fprintf(fp,"\".\\src\\%sTcl.cxx\" : $(SOURCE) \"$(INTDIR)\" \"$(OUTDIR)\"\n",
 		abstract[i]);
     fprintf(fp,"   %s\\pcmaker\\cpp_parse\\Debug\\cpp_parse %s\\%s\\%s.h\\\n",
 		vtkHome, vtkHome, abstract_lib[i], abstract[i]);
-    fprintf(fp,"  %s\\tcl\\hints 0 > $(ProjDir)\\src\\%sTcl.cxx\n\n",
+    fprintf(fp,"  %s\\tcl\\hints 0 > .\\src\\%sTcl.cxx\n\n",
 		vtkHome, abstract[i]);
     fprintf(fp,"# End Custom Build\n\n");
     fprintf(fp,"!ENDIF\n\n");
@@ -671,7 +671,8 @@ void doMSTclHeader(FILE *fp, const char *vtkHome,
     fprintf(fp,"\n");
     fprintf(fp,"SOURCE=.\\src\\%sTcl.cxx\n",abstract[i]);
     fprintf(fp,"\n");
-    fprintf(fp,"\"$(INTDIR)\\%sTcl.obj\" : $(SOURCE) \"$(INTDIR)\"\n",abstract[i]);
+    fprintf(fp,"\"$(INTDIR)\\%sTcl.obj\" : $(SOURCE) \"$(INTDIR)\"\n",
+		abstract[i],vtkHome,abstract_lib[i],abstract[i]);
     fprintf(fp,"  $(CPP) $(CPP_PROJ) $(SOURCE)\n\n");
     fprintf(fp,"# End Source File\n");
   }
@@ -684,24 +685,24 @@ void doMSTclHeader(FILE *fp, const char *vtkHome,
     fprintf(fp,"SOURCE=%s\\%s\\%s.h\n",vtkHome,concrete_lib[i],concrete[i]);
     fprintf(fp,"\n!IF \"$(CFG)\" == \"vtktcl - Win32 Release\"\n\n");
     fprintf(fp,"# Begin Custom Build\n");
-    fprintf(fp,"ProjDir=.\n");
+    //fprintf(fp,"ProjDir=.\n");
     fprintf(fp,"InputPath=%s\\%s\\%s.h \n",vtkHome,concrete_lib[i],concrete[i]); 
-    fprintf(fp,"\"$(ProjDir)\\src\\%sTcl.cxx\" : $(SOURCE) \"$(INTDIR)\" \"$(OUTDIR)\"\n",
+    fprintf(fp,"\".\\src\\%sTcl.cxx\" : $(SOURCE) \"$(INTDIR)\" \"$(OUTDIR)\"\n",
 		concrete[i]);
     fprintf(fp,"   %s\\pcmaker\\cpp_parse\\Debug\\cpp_parse %s\\%s\\%s.h\\\n",
 		vtkHome, vtkHome, concrete_lib[i], concrete[i]);
-    fprintf(fp,"  %s\\tcl\\hints 1 > $(ProjDir)\\src\\%sTcl.cxx\n\n",
+    fprintf(fp,"  %s\\tcl\\hints 1 > .\\src\\%sTcl.cxx\n\n",
 		vtkHome, concrete[i]);
     fprintf(fp,"# End Custom Build\n\n");
     fprintf(fp,"!ELSEIF \"$(CFG)\" == \"vtktcl - Win32 Debug\"\n\n");
     fprintf(fp,"# Begin Custom Build\n");
-    fprintf(fp,"ProjDir=.\n");
+    //fprintf(fp,"ProjDir=.\n");
     fprintf(fp,"InputPath=%s\\%s\\%s.h \n",vtkHome,concrete_lib[i],concrete[i]); 
-    fprintf(fp,"\"$(ProjDir)\\src\\%sTcl.cxx\" : $(SOURCE) \"$(INTDIR)\" \"$(OUTDIR)\"\n",
+    fprintf(fp,"\".\\src\\%sTcl.cxx\" : $(SOURCE) \"$(INTDIR)\" \"$(OUTDIR)\"\n",
 		concrete[i]);
     fprintf(fp,"   %s\\pcmaker\\cpp_parse\\Debug\\cpp_parse %s\\%s\\%s.h\\\n",
 		vtkHome, vtkHome, concrete_lib[i], concrete[i]);
-    fprintf(fp,"  %s\\tcl\\hints 1 > $(ProjDir)\\src\\%sTcl.cxx\n\n",
+    fprintf(fp,"  %s\\tcl\\hints 1 > .\\src\\%sTcl.cxx\n\n",
 		vtkHome, concrete[i]);
     fprintf(fp,"# End Custom Build\n\n");
     fprintf(fp,"!ENDIF\n\n");
@@ -711,7 +712,8 @@ void doMSTclHeader(FILE *fp, const char *vtkHome,
     fprintf(fp,"\n");
     fprintf(fp,"SOURCE=.\\src\\%sTcl.cxx\n",concrete[i]);
     fprintf(fp,"\n");
-    fprintf(fp,"\"$(INTDIR)\\%sTcl.obj\" : $(SOURCE) \"$(INTDIR)\"\n",concrete[i]);
+    fprintf(fp,"\"$(INTDIR)\\%sTcl.obj\" : $(SOURCE) \"$(INTDIR)\"\n",
+		concrete[i],vtkHome,concrete_lib[i],concrete[i]);
     fprintf(fp,"  $(CPP) $(CPP_PROJ) $(SOURCE)\n\n");
     fprintf(fp,"# End Source File\n");
   }
@@ -724,24 +726,24 @@ void doMSTclHeader(FILE *fp, const char *vtkHome,
     fprintf(fp,"SOURCE=%s\\%s\\%s.h\n",vtkHome,abstract_h_lib[i],abstract_h[i]);
     fprintf(fp,"\n!IF \"$(CFG)\" == \"vtktcl - Win32 Release\"\n\n");
     fprintf(fp,"# Begin Custom Build\n");
-    fprintf(fp,"ProjDir=.\n");
+    //fprintf(fp,"ProjDir=.\n");
     fprintf(fp,"InputPath=%s\\%s\\%s.h \n",vtkHome,abstract_h_lib[i],abstract_h[i]); 
-    fprintf(fp,"\"$(ProjDir)\\src\\%sTcl.cxx\" : $(SOURCE) \"$(INTDIR)\" \"$(OUTDIR)\"\n",
+    fprintf(fp,"\".\\src\\%sTcl.cxx\" : $(SOURCE) \"$(INTDIR)\" \"$(OUTDIR)\"\n",
 		abstract_h[i]);
     fprintf(fp,"   %s\\pcmaker\\cpp_parse\\Debug\\cpp_parse %s\\%s\\%s.h\\\n",
 		vtkHome, vtkHome, abstract_h_lib[i], abstract_h[i]);
-    fprintf(fp,"  %s\\tcl\\hints 0 > $(ProjDir)\\src\\%sTcl.cxx\n\n",
+    fprintf(fp,"  %s\\tcl\\hints 0 > .\\src\\%sTcl.cxx\n\n",
 		vtkHome, abstract_h[i]);
     fprintf(fp,"# End Custom Build\n\n");
     fprintf(fp,"!ELSEIF \"$(CFG)\" == \"vtktcl - Win32 Debug\"\n\n");
     fprintf(fp,"# Begin Custom Build\n");
-    fprintf(fp,"ProjDir=.\n");
+    //fprintf(fp,"ProjDir=.\n");
     fprintf(fp,"InputPath=%s\\%s\\%s.h \n",vtkHome,abstract_h_lib[i],abstract_h[i]); 
-    fprintf(fp,"\"$(ProjDir)\\src\\%sTcl.cxx\" : $(SOURCE) \"$(INTDIR)\" \"$(OUTDIR)\"\n",
+    fprintf(fp,"\".\\src\\%sTcl.cxx\" : $(SOURCE) \"$(INTDIR)\" \"$(OUTDIR)\"\n",
 		abstract_h[i]);
     fprintf(fp,"   %s\\pcmaker\\cpp_parse\\Debug\\cpp_parse %s\\%s\\%s.h\\\n",
 		vtkHome, vtkHome, abstract_h_lib[i], abstract_h[i]);
-    fprintf(fp,"  %s\\tcl\\hints 0 > $(ProjDir)\\src\\%sTcl.cxx\n\n",
+    fprintf(fp,"  %s\\tcl\\hints 0 > .\\src\\%sTcl.cxx\n\n",
 		vtkHome, abstract_h[i]);
     fprintf(fp,"# End Custom Build\n\n");
     fprintf(fp,"!ENDIF\n\n");
@@ -751,7 +753,8 @@ void doMSTclHeader(FILE *fp, const char *vtkHome,
     fprintf(fp,"\n");
     fprintf(fp,"SOURCE=.\\src\\%sTcl.cxx\n",abstract_h[i]);
     fprintf(fp,"\n");
-    fprintf(fp,"\"$(INTDIR)\\%sTcl.obj\" : $(SOURCE) \"$(INTDIR)\"\n",abstract_h[i]);
+    fprintf(fp,"\"$(INTDIR)\\%sTcl.obj\" : $(SOURCE) \"$(INTDIR)\"\n",
+		abstract_h[i],vtkHome,abstract_h_lib[i],abstract_h[i]);
     fprintf(fp,"  $(CPP) $(CPP_PROJ) $(SOURCE)\n\n");
     fprintf(fp,"# End Source File\n");
   }
@@ -764,24 +767,24 @@ void doMSTclHeader(FILE *fp, const char *vtkHome,
     fprintf(fp,"SOURCE=%s\\%s\\%s.h\n",vtkHome,concrete_h_lib[i],concrete_h[i]);
     fprintf(fp,"\n!IF \"$(CFG)\" == \"vtktcl - Win32 Release\"\n\n");
     fprintf(fp,"# Begin Custom Build\n");
-    fprintf(fp,"ProjDir=.\n");
+    //fprintf(fp,"ProjDir=.\n");
     fprintf(fp,"InputPath=%s\\%s\\%s.h \n",vtkHome,concrete_h_lib[i],concrete_h[i]); 
-    fprintf(fp,"\"$(ProjDir)\\src\\%sTcl.cxx\" : $(SOURCE) \"$(INTDIR)\" \"$(OUTDIR)\"\n",
+    fprintf(fp,"\".\\src\\%sTcl.cxx\" : $(SOURCE) \"$(INTDIR)\" \"$(OUTDIR)\"\n",
 		concrete_h[i]);
     fprintf(fp,"   %s\\pcmaker\\cpp_parse\\Debug\\cpp_parse %s\\%s\\%s.h\\\n",
 		vtkHome, vtkHome, concrete_h_lib[i], concrete_h[i]);
-    fprintf(fp,"  %s\\tcl\\hints 1 > $(ProjDir)\\src\\%sTcl.cxx\n\n",
+    fprintf(fp,"  %s\\tcl\\hints 1 > .\\src\\%sTcl.cxx\n\n",
 		vtkHome, concrete_h[i]);
     fprintf(fp,"# End Custom Build\n\n");
     fprintf(fp,"!ELSEIF \"$(CFG)\" == \"vtktcl - Win32 Debug\"\n\n");
     fprintf(fp,"# Begin Custom Build\n");
-    fprintf(fp,"ProjDir=.\n");
+    //fprintf(fp,"ProjDir=.\n");
     fprintf(fp,"InputPath=%s\\%s\\%s.h \n",vtkHome,concrete_h_lib[i],concrete_h[i]); 
-    fprintf(fp,"\"$(ProjDir)\\src\\%sTcl.cxx\" : $(SOURCE) \"$(INTDIR)\" \"$(OUTDIR)\"\n",
+    fprintf(fp,"\".\\src\\%sTcl.cxx\" : $(SOURCE) \"$(INTDIR)\" \"$(OUTDIR)\"\n",
 		concrete_h[i]);
     fprintf(fp,"   %s\\pcmaker\\cpp_parse\\Debug\\cpp_parse %s\\%s\\%s.h\\\n",
 		vtkHome, vtkHome, concrete_h_lib[i], concrete_h[i]);
-    fprintf(fp,"  %s\\tcl\\hints 1 > $(ProjDir)\\src\\%sTcl.cxx\n\n",
+    fprintf(fp,"  %s\\tcl\\hints 1 > .\\src\\%sTcl.cxx\n\n",
 		vtkHome, concrete_h[i]);
     fprintf(fp,"# End Custom Build\n\n");
     fprintf(fp,"!ENDIF\n\n");
@@ -791,7 +794,8 @@ void doMSTclHeader(FILE *fp, const char *vtkHome,
     fprintf(fp,"\n");
     fprintf(fp,"SOURCE=.\\src\\%sTcl.cxx\n",concrete_h[i]);
     fprintf(fp,"\n");
-    fprintf(fp,"\"$(INTDIR)\\%sTcl.obj\" : $(SOURCE) \"$(INTDIR)\"\n",concrete_h[i]);
+    fprintf(fp,"\"$(INTDIR)\\%sTcl.obj\" : $(SOURCE) \"$(INTDIR)\"\n",
+		concrete_h[i],vtkHome, concrete_h_lib[i], concrete_h[i]);
     fprintf(fp,"  $(CPP) $(CPP_PROJ) $(SOURCE)\n\n");
     fprintf(fp,"# End Source File\n");
   }
