@@ -595,6 +595,7 @@ void vtkImageEuclideanDistanceExecuteSaitoCached(vtkImageEuclideanDistance *self
     }
   
   free(buff);
+  free(temp);
   free(sq);
 }
 
