@@ -383,7 +383,7 @@ LRESULT vtkWin32OpenGLRenderWindow::MessageProc(HWND hWnd, UINT message,
         this->DeviceContext = GetDC(hWnd);
         this->SetupPixelFormat(this->DeviceContext,
 			       PFD_SUPPORT_OPENGL | PFD_DRAW_TO_WINDOW |
-			       PFD_STEREO | PFD_SUPPORT_GDI |PFD_DOUBLEBUFFER, 
+			       PFD_STEREO |PFD_DOUBLEBUFFER, 
 			       this->GetDebug());
         this->SetupPalette(this->DeviceContext);
 	this->ContextId = wglCreateContext(this->DeviceContext);
@@ -553,7 +553,7 @@ void vtkWin32OpenGLRenderWindow::WindowInitialize (void)
       this->DeviceContext = GetDC(this->WindowId);
       this->SetupPixelFormat(this->DeviceContext, PFD_SUPPORT_OPENGL |
 			     PFD_DRAW_TO_WINDOW | PFD_DOUBLEBUFFER |
-			     PFD_SUPPORT_GDI | PFD_STEREO, this->GetDebug());
+			     PFD_STEREO, this->GetDebug());
       this->SetupPalette(this->DeviceContext);
       this->ContextId = wglCreateContext(this->DeviceContext);
       wglMakeCurrent(this->DeviceContext, this->ContextId);
