@@ -139,13 +139,11 @@ void vtkPDataSetReader::SetNumberOfPieces(int num)
     {
     this->PieceFileNames[i] = new char[512];
     }
-  if (this->StructuredFlag)
+  // Allocate piece extents even for unstructured data.
+  this->PieceExtents = new int*[num];
+  for (i = 0; i < num; ++i)
     {
-    this->PieceExtents = new int*[num];
-    for (i = 0; i < num; ++i)
-      {
-      this->PieceExtents[i] = new int[6];
-      }
+    this->PieceExtents[i] = new int[6];
     }
 
 
@@ -163,6 +161,11 @@ void vtkPDataSetReader::SetOutput(vtkDataSet *output)
 vtkDataSet *vtkPDataSetReader::GetOutput()
 {
   vtkDataSet *output;
+
+  if (this->Outputs && this->Outputs[0])
+    {
+    return (vtkDataSet*)(this->Outputs[0]);
+    }
 
   if (this->FileName == NULL || strlen(this->FileName) == 0)
     {
@@ -252,18 +255,33 @@ vtkDataSet *vtkPDataSetReader::CheckOutput()
 
 //----------------------------------------------------------------------------
 // Returns 0 for end of file.
-// Returns 1 for start block, 2 for end block.  Puts block name in Param.
-// Returns 3 for parameter-value pair.
-int vtkPDataSetReader::ReadXML(ifstream *file, char **pb, char **retVal)
+// Returns 1 for start block,
+// Returns 2 for parameter-value pair (occurs after 1 but before 3).
+// Returns 3 for termination of start block. 
+// Returns 4 for string inside block.  Puts string in retVal. (param = NULL)
+// Returns 5 for end block.
+// =======
+// The statics should be instance variables ...
+int vtkPDataSetReader::ReadXML(ifstream *file, 
+                               char **retBlock, char **retParam, char **retVal)
 {
   static char str[1024];
   static char* ptr = NULL;
   static char block[256];
   static char param[256];
   static char value[512];
+  // I could keep track of the blocks on a stack, but I don't need to.
+  static int inStartBlock = 0;
   char *tmp;
+
+  // Initialize the strings.
+  if (ptr == NULL)
+    {
+    block[0] = param[0] = value[0] = '\0';
+    }
     
-  // skip white space
+  // Skip white space
+  // We could do this with a get char ...
   while (ptr == NULL || *ptr == ' ' || *ptr == '\t' || *ptr == '\n' || *ptr == '\0')
     {
     if (ptr == NULL || *ptr == '\0')
@@ -271,7 +289,8 @@ int vtkPDataSetReader::ReadXML(ifstream *file, char **pb, char **retVal)
       file->getline(str, 1024);
       if (file->fail())
         {
-        *pb = NULL;
+        *retBlock = NULL;
+        *retParam = NULL;
         *retVal = NULL;
         return 0;
         }
@@ -284,44 +303,105 @@ int vtkPDataSetReader::ReadXML(ifstream *file, char **pb, char **retVal)
       }
     }
 
-  // Handle end block.
-  if (ptr[0] == '<' && ptr[1] == '/')
+  // Handle normal end block.  </Block>
+  if (!inStartBlock && ptr[0] == '<' && ptr[1] == '/')
     { // Assumes no spaces 
     ptr += 2;
     // We could check to see if the block name matches the start block...
+    // Copy block name into block var.
     tmp = block;
     while (*ptr != '>' && *ptr != ' ' && *ptr != '\0')
       {
       *tmp++ = *ptr++;
       }
     *tmp = '\0';
-    *pb = block;
+    // Now scan to the end of the end block.
+    while (*ptr != '>' && *ptr != '\0')
+      {
+      *tmp++ = *ptr++;
+      }
+    *retBlock = block;
+    *retParam = NULL;
     *retVal = NULL;
-    return 2;
+    if (*ptr == '\0')
+      {
+      vtkErrorMacro("Newline in end block.");
+      return 0;
+      }
+    return 5;
     }
 
-  // Handle start block.
-  if (ptr[0] == '<')
+  // Handle start block. <Block>
+  if (!inStartBlock && ptr[0] == '<')
     { // Assumes no spaces 
     ptr += 1;
+    // Copy block name from read string.
     tmp = block;
     while (*ptr != '>' && *ptr != ' ' && *ptr != '\0')
       {
       *tmp++ = *ptr++;
       }
     *tmp = '\0';
-    *pb = block;
+    inStartBlock = 1;
+    *retBlock = block;
+    *retParam = NULL;
     *retVal = NULL;
     return 1;
     }
 
-  // Handle short version of end block.
-  if (ptr[0] == '/' && ptr[1] == '>')
-    { // Assumes no spaces 
-    ptr += 2;
+  // Handle the termination of a start block.
+  if (inStartBlock && *ptr == '>')
+    {
+    ++ptr;
+    inStartBlock = 0;
+    *retBlock = block;
+    *retParam = NULL;
+    *retVal = NULL;
+    return 3;
+    }
+
+  // Handle short version of end block. <Block    ...  />
+  // Now we want to return twice. 
+  // First for termination of the start block,
+  // and second for ending of the block.
+  // This implementation uses in start block as a state variable ...
+  if (inStartBlock && ptr[0] == '/' && ptr[1] == '>')
+    {
+    if (inStartBlock == 2)
+      { // Second pass: Return end block.
+      ptr += 2;
+      inStartBlock = 0;
+      *retBlock = block;
+      *retParam = NULL;
+      *retVal = NULL;
+      return 5;
+      }
+    // First pass: inStartBlock == 1.  Return Terminate start block.
     // Uses block name saved from start block.
-    tmp = block;
-    return 2;
+    // Do not skip over the '/>' characters.
+    inStartBlock = 2;
+    *retBlock = block;
+    *retParam = NULL;
+    *retVal = NULL;
+    return 3;
+    }
+
+  // If we are not in a start block, we will just return the string verbatim.
+  if (!inStartBlock)
+    {
+    // Copy string to value string.
+    tmp = value;
+    while (*ptr != '\0')
+      {
+      *tmp++ = *ptr++;
+      }
+    *tmp = '\0';
+    // We do not return the block because we do not have a block stack,
+    // so cannot be sure what the block is.
+    *retBlock = NULL;
+    *retParam = NULL;
+    *retVal = value;
+    return 4;
     }
   
   // Must be a parameter
@@ -330,11 +410,15 @@ int vtkPDataSetReader::ReadXML(ifstream *file, char **pb, char **retVal)
     {
     *tmp++ = *ptr++;
     }
+  // Terminate the parameter string.
+  *tmp = '\0';
+  // Expect an equals sign imediately after parameter string (no spaces).
   if (*ptr != '=')
     {
     vtkErrorMacro("Reached end of line before =");
     return 0;
     }
+  // skip over = sign.
   ++ptr;
   if (*ptr != '"')
     {
@@ -347,22 +431,85 @@ int vtkPDataSetReader::ReadXML(ifstream *file, char **pb, char **retVal)
     {
     *tmp++ = *ptr++;
     }
-  
-  *pb = param;
+  // Terminate the value string
+  *tmp = '\0';
+  if (*ptr != '"')
+    {
+    vtkErrorMacro("Newline found in parameter string.");
+    return 0;
+    }
+  // Skip over the last quote
+  ++ptr;
+
+  *retBlock = block;
+  *retParam = param;
   *retVal = value;
-  return 3;
+  return 2;
 }
 
 //----------------------------------------------------------------------------
 void vtkPDataSetReader::ExecuteInformation()
 {
   ifstream *file;
-  char str[1024];
-  char dir[512];
+  char* block;
+  char* param;
+  char* value;
+  int type;
+  
+  // Start reading the meta-data pvtk file.
+  file = this->OpenFile();
+  if (file == NULL)
+    {
+    return;
+    }
+
+  type = this->ReadXML(file, &block, &param, &value);
+  if (type == 1 && strcmp(block, "File") == 0)
+    {
+    this->ReadPVTKFileInformation(file);
+    this->VTKFileFlag = 0;
+    }
+  else if (type == 4 && strncmp(value, "# vtk DataFile Version", 22) != 0)
+    {
+    // This is a vtk file not a PVTK file.
+    this->ReadVTKFileInformation(file);
+    this->VTKFileFlag = 1;
+    }
+  else
+    {
+    vtkErrorMacro("This does not look like a VTK file: " << this->FileName);
+    }
+  file->close();
+  delete file;
+}
+
+
+//----------------------------------------------------------------------------
+void vtkPDataSetReader::ReadPVTKFileInformation(ifstream *file)
+{
+  char* block;
+  char* param;
+  char* val;
+  int type;
+  vtkDataSet *output = NULL;
+  int ext[6];
+  float vect[3];
+  int i;
   char *pfn, *pdir;
   int count, dirLength;
-  vtkDataSet *output;
-  int i;
+  char dir[512];
+
+  // The file block should have a version parameter.
+  type = this->ReadXML(file, &block, &param, &val);
+  if (type != 2 || strcmp(param,"version"))
+    {
+    vtkErrorMacro("Could not find file version.");
+    return;
+    }
+  if (strcmp(val,"pvtk-1.0") != 0)
+    {
+    vtkDebugMacro("Unexpected Version.");
+    }
 
   // Extract the directory form the filename so we can complete relative paths.
   count = dirLength = 0;
@@ -382,237 +529,196 @@ void vtkPDataSetReader::ExecuteInformation()
   // This trims off every thing after the last slash.
   dir[dirLength] = '\0';
 
-  // Start writing the meta-data pvtk file.
-  file = this->OpenFile();
-  if (file == NULL)
+  // We are in the start file block.
+  // Read parameters until we terminate the start block.
+  while ( (type = this->ReadXML(file, &block, &param, &val)) != 3)
     {
-    return;
-    }
-  file->getline(str, 1024);
-  str[1023] = '\0';
-
-  if (strncmp(str, "<File version=\"pvtk-1.0\"", 24) != 0)
-    {
-    // Find out the type from the file.
-    if (strncmp(str, "# vtk DataFile Version", 22) != 0)
+    if (type == 0)
       {
-      vtkErrorMacro("This does not look like a VTK file: " 
-                    << this->FileName << ", " << str);
-      file->close();
-      delete file;
+      vtkErrorMacro("Early termination of pvtk file.");
       return;
       }
-    // This is a vtk file not a PVTK file.
-    this->ReadVTKFileInformation(str, file);
-    this->VTKFileFlag = 1;
-    file->close();
-    delete file;
-    return;
-    }
+    if (type != 2)
+      { // There should be no other possibility. Param will not be NULL.
+      vtkErrorMacro("Expecting a parameter.");
+      return;
+      }
 
-  // Read PVTK meta data.
-  this->VTKFileFlag = 0;
-  file->getline(str, 1024);
-  if (strncmp(str, "      dataType=", 15) != 0)
-    {
-    vtkErrorMacro("Expecting DataType.");
-    return;
-    }
-  // Take the last quote off.
-  str[strlen(str)-1] = '\0';
-  if (strcmp(str+16, "vtkPolyData") == 0)
-    {
-    this->DataType = VTK_POLY_DATA;
-    this->StructuredFlag = 0;
-    }
-  else if (strcmp(str+16, "vtkUnstructuredGrid") == 0)
-    {
-    this->DataType = VTK_UNSTRUCTURED_GRID;
-    this->StructuredFlag = 0;
-    }
-  else if (strcmp(str+16, "vtkStructuredGrid") == 0)
-    {
-    this->DataType = VTK_STRUCTURED_GRID;
-    this->StructuredFlag = 1;
-    }
-  else if (strcmp(str+16, "vtkRectilinearGrid") == 0)
-    {
-    this->DataType = VTK_RECTILINEAR_GRID;
-    this->StructuredFlag = 1;
-    }
-  else if (strcmp(str+16, "vtkImageData") == 0)
-    {
-    this->DataType = VTK_IMAGE_DATA;
-    this->StructuredFlag = 1;
-    }
-  else 
-    {
-    vtkErrorMacro("Unknown data type " << str+16);
-    return;
-    }
-  // Get output after the DataType is set. 
-  output = this->CheckOutput();
-  if (output == NULL)
-    {
-    return;
-    }  
+    // Handle parameter: numberOfPieces.
+    if (strcmp(param, "numberOfPieces") == 0)
+      {
+      if (output == NULL)
+        {
+        vtkErrorMacro("DataType should be set first.");
+        return;
+        }
+      this->SetNumberOfPieces(atoi(val));
+      if (! this->StructuredFlag)
+        {
+        output->SetMaximumNumberOfPieces(this->NumberOfPieces);
+        }
+      }
 
-  // Read Image specific information
-  if (this->DataType == VTK_IMAGE_DATA)
-    {
-    this->ReadImageInformation(vtkImageData::SafeDownCast(output), str, file);
-    }
-  // Read whole extent for structured data.
-  if (this->StructuredFlag)
-    {
-    this->ReadWholeExtent(output, str, file);
-    }
+    // Handle parameter: wholeExtent.
+    if (strcmp(param, "wholeExtent") == 0)
+      {
+      if (output == NULL)
+        {
+        vtkErrorMacro("DataType should be set first.");
+        return;
+        }
+      if (! this->StructuredFlag)
+        {
+        vtkWarningMacro("Extent mismatch.");
+        }
+      sscanf(val, "%d %d %d %d %d %d", ext, ext+1, ext+2, ext+3, ext+4, ext+5);
+      output->SetWholeExtent(ext);
+      }
 
-  // Read the number of pieces.
-  file->getline(str, 1024);
-  if (strncmp(str, "      numberOfPieces=", 21) != 0)
-    {
-    vtkErrorMacro("Expecting numberOfPieces.");
-    return;
-    }
-  // Take the last > off.
-  str[strlen(str)-3] = '\0';
-  this->SetNumberOfPieces(atoi(str+22));
-  if (output->IsA("vtkPolyData") || output->IsA("vtkUnstructuredGrid"))
-    {
-    output->SetMaximumNumberOfPieces(this->NumberOfPieces);
+    // Handle parameter: scalarType.
+    if (strcmp(param, "scalarType") == 0)
+      {
+      vtkImageData *image = vtkImageData::SafeDownCast(output);
+      if (image == NULL)
+        {
+        vtkErrorMacro("Expecting an image.");
+        return;
+        }
+      image->SetScalarType(atoi(val));
+      }
+
+    // Handle parameter: spacing.
+    if (strcmp(param, "spacing") == 0)
+      {
+      vtkImageData *image = vtkImageData::SafeDownCast(output);
+      if (image == NULL)
+        {
+        vtkErrorMacro("Expecting an image.");
+        return;
+        }
+      sscanf(val, "%f %f %f", vect, vect+1, vect+2);
+      image->SetSpacing(vect);
+      }
+
+    // Handle parameter: origin.
+    if (strcmp(param, "origin") == 0)
+      {
+      vtkImageData *image = vtkImageData::SafeDownCast(output);
+      if (image == NULL)
+        {
+        vtkErrorMacro("Expecting an image.");
+        return;
+        }
+      sscanf(val, "%f %f %f", vect, vect+1, vect+2);
+      image->SetOrigin(vect);
+      }
+
+    // Handle parameter: dataType.
+    if (strcmp(param, "dataType") == 0)
+      {
+      if (strcmp(val, "vtkPolyData") == 0)
+        {
+        this->DataType = VTK_POLY_DATA;
+        this->StructuredFlag = 0;
+        }
+      else if (strcmp(val, "vtkUnstructuredGrid") == 0)
+        {
+        this->DataType = VTK_UNSTRUCTURED_GRID;
+        this->StructuredFlag = 0;
+        }
+      else if (strcmp(val, "vtkStructuredGrid") == 0)
+        {
+        this->DataType = VTK_STRUCTURED_GRID;
+        this->StructuredFlag = 1;
+        }
+      else if (strcmp(val, "vtkRectilinearGrid") == 0)
+        {
+        this->DataType = VTK_RECTILINEAR_GRID;
+        this->StructuredFlag = 1;
+        }
+      else if (strcmp(val, "vtkImageData") == 0)
+        {
+        this->DataType = VTK_IMAGE_DATA;
+        this->StructuredFlag = 1;
+        }
+      else 
+        {
+        vtkErrorMacro("Unknown data type " << val);
+        return;
+        }
+      // Now that the output type is set, create it.
+      output = this->CheckOutput();
+      }
     }
 
   // Read the filename and extents for each piece.
   for (i = 0; i < this->NumberOfPieces; ++i)
     {
-    if (this->StructuredFlag)
+    int *pi = this->PieceExtents[i];
+    // Initialize extent to nothing.
+    pi[0] = pi[2] = pi[4] = 0;
+    pi[1] = pi[3] = pi[5] = -1;
+
+    // Read the start tag of the Piece block.
+    type = this->ReadXML(file, &block, &param, &val);
+    if ( type != 1 || strcmp(block,"Piece") != 0)
       {
-      int *pi = this->PieceExtents[i];
-      file->getline(str, 512);
-      // Take all characters after the quote off.
-      str[strlen(str)-1] = '\0';
-      if (str[19] != '/' && str[20] != ':' && dirLength > 0)
-        { // Must be a relative path.
-        sprintf(this->PieceFileNames[i], "%s%s", dir, str+19);
-        }
-      else
-        {
-        strcpy(this->PieceFileNames[i], str+19);
-        }
-      // Now read the extent.
-      file->getline(str, 512);
-      // Take all characters after the quote off.
-      str[strlen(str)-4] = '\0';
-      sscanf(str+14, "%d %d %d %d %d %d", pi, pi+1, pi+2, pi+3, pi+4, pi+5);
+      vtkErrorMacro("Expecting the start of a 'Piece' block");
+      return;
       }
-    else
+    while ( (type = this->ReadXML(file, &block, &param, &val)) != 3)
       {
-      file->getline(str, 512);
-      // Take all characters after the quote off.
-      str[strlen(str)-4] = '\0';
-      if (str[19] != '/' && str[20] != ':' && dirLength > 0)
-        { // Must be a relative path.
-        sprintf(this->PieceFileNames[i], "%s%s", dir, str+19);
+      if (type != 2)
+        { // There should be no other possibility. Param will not be NULL.
+        vtkErrorMacro("Expecting a parameter.");
+        return;
         }
-      else
+
+      // Handle the file name parameter.
+      if (strcmp(param,"fileName") == 0)
         {
-        strcpy(this->PieceFileNames[i], str+19);
+        // Copy filename (relative path?)
+        if (val[0] != '/' && val[0] != ':' && dirLength > 0)
+          { // Must be a relative path.
+          sprintf(this->PieceFileNames[i], "%s%s", dir, val);
+          }
+        else
+          {
+          strcpy(this->PieceFileNames[i], val); 
+          }
         }
+
+      // Handle the extent parameter.
+      if (strcmp(param,"extent") == 0)
+        {
+        if ( ! this->StructuredFlag)
+          {
+          vtkWarningMacro("Found extent parameter for unstructured data.");
+          }
+          sscanf(val, "%d %d %d %d %d %d", pi, pi+1, pi+2, pi+3, pi+4, pi+5);
+        }
+      }
+    // Start termination was consumed by while loop.
+
+    // Now read the ending piece block.
+    type = this->ReadXML(file, &block, &param, &val);
+    if ( type != 5 || strcmp(block,"Piece") != 0)
+      {
+      vtkErrorMacro("Expecting termination of the Piece block.");
+      return;
       }
     }
 }
 
 
-
 //----------------------------------------------------------------------------
-// Does not read whole extent.
-void vtkPDataSetReader::ReadImageInformation(vtkImageData *output, 
-                                             char *str, ifstream *fp)
-{
-  float origin[3];
-  float spacing[3];
-
-  if (output == NULL)
-    {
-    vtkErrorMacro("Expecting and image.");
-    return;
-    }
-
-  //    scalarType="10"
-  //    origin="-1.75 -1.25 0"
-  //    spacing="0.1 0.1 0.1"
-
-  // Read the scalar type.
-  fp->getline(str, 1024);
-  if (strncmp(str, "      scalarType=", 17) != 0)
-    {
-    vtkErrorMacro("Expecting scalarType.");
-    return;
-    }
-  // Take the quotes off.
-  str[strlen(str)-1] = '\0';
-  output->SetScalarType(atoi(str+18));
-
-  // Read the origin.
-  fp->getline(str, 1024);
-  if (strncmp(str, "      origin=", 13) != 0)
-    {
-    vtkErrorMacro("Expecting origin.");
-    return;
-    }
-  // Take the quotes off.
-  str[strlen(str)-1] = '\0';
-  sscanf(str+14, "%f %f %f", origin, origin+1, origin+2);
-  output->SetOrigin(origin);
-
-  // Read the spacing.
-  fp->getline(str, 1024);
-  if (strncmp(str, "      spacing=", 14) != 0)
-    {
-    vtkErrorMacro("Expecting spacing.");
-    return;
-    }
-  // Take the quotes off.
-  str[strlen(str)-1] = '\0';
-  sscanf(str+15, "%f %f %f", spacing, spacing+1, spacing+2);
-  output->SetSpacing(spacing);
-}
-
-//----------------------------------------------------------------------------
-void vtkPDataSetReader::ReadWholeExtent(vtkDataSet *output, 
-                                        char *str, ifstream *fp)
-{
-  int ext[6];
-
-  if (output == NULL)
-    {
-    vtkErrorMacro("Expecting a data set.");
-    return;
-    }
-
-  //      wholeExtent="0 25 0 25 0 10"
-
-  // Read the wholeExtent.
-  fp->getline(str, 1024);
-  if (strncmp(str, "      wholeExtent=", 18) != 0)
-    {
-    vtkErrorMacro("Expecting wholeExtent.");
-    return;
-    }
-  // Take the quotes off.
-  str[strlen(str)-1] = '\0';
-  sscanf(str+19, "%d %d %d %d %d %d", ext, ext+1, ext+2, ext+3, ext+4, ext+5);
-  output->SetWholeExtent(ext);
-}
-
-//----------------------------------------------------------------------------
-void vtkPDataSetReader::ReadVTKFileInformation(char *str, ifstream *file)
+void vtkPDataSetReader::ReadVTKFileInformation(ifstream *file)
 {
   int i;
   int dx, dy, dz;
   float x, y, z;
   vtkDataSet *output;
+  char str[1024];
 
   // Try to find the line that specifies the dataset type.
   i = 0;
@@ -971,7 +1077,7 @@ void vtkPDataSetReader::ImageDataExecute()
             ext[j*2+1] = uExt[j*2+1];
             }
           }
-          output->CopyAndCastFrom(reader->GetOutput(), ext);
+        output->CopyAndCastFrom(reader->GetOutput(), ext);
         }
       }
     }
