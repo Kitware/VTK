@@ -1,6 +1,9 @@
 catch {load vtktcl}
 
-# Test field data reading - Thanks Alexander Supalov
+# get the interactor ui
+source ../../examplesTcl/vtkInt.tcl
+
+# Test field data reading - Thanks to Alexander Supalov
 
 wm withdraw .
 
@@ -9,7 +12,6 @@ vtkUnstructuredGridReader r
     r Update
 
 set a [[[[r GetOutput] GetCellData] GetFieldData] GetArray 0]
-puts stderr "Array 0: [[[[r GetOutput] GetCellData] GetFieldData] GetArrayName 0]"
 
 vtkScalars s
     s SetData $a
@@ -39,10 +41,14 @@ vtkRenderer ren
     ren AddActor a
     ren SetBackground 1 1 1
 
-vtkRenderWindowInteractor i
+vtkRenderWindowInteractor iren
+iren SetUserMethod {wm deiconify .vtkInteract}
 
-vtkRenderWindow renwin
-    renwin AddRenderer ren
-    renwin SetInteractor i
-    renwin Render
+vtkRenderWindow renWin
+    renWin AddRenderer ren
+    renWin SetInteractor iren
+    renWin Render
+
+renWin SetFileName valid/fieldfile.tcl.ppm
+#renWin SaveImageAsPPM
 
