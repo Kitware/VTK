@@ -47,6 +47,7 @@ static int doArrayTest (ostream& strm, T *ptr, A *array, int size)
     {
     if (ptr2->GetNumberOfComponents() == 10) strm << "OK" << endl;
     else strm << "FAILED" << endl;
+    ptr2->Delete();
     }
   else
     {
