@@ -38,6 +38,7 @@ IF (VTK_USE_RENDERING)
       TestInteractorEventRecorder
       TestPCA
       TestProcrustes
+      TestProjectedTerrainPath
       TestThinPlateWarp
       TestThinPlateWarp3D
       text
