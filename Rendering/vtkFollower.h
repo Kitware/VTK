@@ -33,7 +33,8 @@
 #define __vtkFollower_h
 
 #include "vtkActor.h"
-#include "vtkCamera.h"
+
+class vtkCamera;
 
 class VTK_RENDERING_EXPORT vtkFollower : public vtkActor
 {
@@ -48,7 +49,7 @@ class VTK_RENDERING_EXPORT vtkFollower : public vtkActor
   // Description:
   // Set/Get the camera to follow. If this is not set, then the follower
   // won't know who to follow.
-  vtkSetObjectMacro(Camera,vtkCamera);
+  virtual void SetCamera(vtkCamera*);
   vtkGetObjectMacro(Camera,vtkCamera);
 
   // Description:
