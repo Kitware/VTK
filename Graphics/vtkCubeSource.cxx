@@ -26,7 +26,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCubeSource, "1.52");
+vtkCxxRevisionMacro(vtkCubeSource, "1.53");
 vtkStandardNewMacro(vtkCubeSource);
 
 vtkCubeSource::vtkCubeSource(double xL, double yL, double zL)
@@ -44,7 +44,7 @@ vtkCubeSource::vtkCubeSource(double xL, double yL, double zL)
 
 int vtkCubeSource::RequestData(
   vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
+  vtkInformationVector **vtkNotUsed(inputVector),
   vtkInformationVector *outputVector)
 {
   // get the info object
