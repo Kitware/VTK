@@ -17,15 +17,6 @@ namespace eval ::vtk {
 
     proc load_component {name} {
 
-        # Already loaded ?
-
-        set ifloaded [string totitle $name]
-	foreach pkg [info loaded] {
-	    if {$ifloaded == [lindex $pkg 1]} {
-                return ""
-	    }
-        }
-
         global tcl_platform auto_path env
 
         # First dir is empty, to let Tcl try in the current dir
