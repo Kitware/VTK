@@ -48,6 +48,7 @@ public:
   vlPicker();
   ~vlPicker() {};
   char *GetClassName() {return "vlPicker";};
+  void PrintSelf(ostream& os, vlIndent indent);
 
   // Description:
   // Specify the rendering window to pick from.
