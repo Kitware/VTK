@@ -44,14 +44,18 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Construct cylinder radius of 0.5.
 vtkCylinder::vtkCylinder()
 {
+  this->Center[0] = this->Center[1] = this->Center[2] = 0.0;
   this->Radius = 0.5;
 }
 
 // Description
-// Evaluate cylinder equation F(x,y,z) = (x-x0)^2 + (y-y0)^2 - R^2.
-float vtkCylinder::EvaluateFunction(float x[3])
+// Evaluate cylinder equation F(x,y,z) = (x-x0)^2 + (z-z0)^2 - R^2.
+float vtkCylinder::EvaluateFunction(float xyz[3])
 {
-  return x[0]*x[0] + x[1]*x[1] - this->Radius*this->Radius;
+  float x = xyz[0] - this->Center[0];
+  float z = xyz[2] - this->Center[2];
+
+  return ( x * x + z * z - this->Radius*this->Radius );
 }
 
 // Description
@@ -59,8 +63,8 @@ float vtkCylinder::EvaluateFunction(float x[3])
 void vtkCylinder::EvaluateGradient(float x[3], float g[3])
 {
   g[0] = 2.0 * x[0];
-  g[1] = 2.0 * x[1];
-  g[2] = 0.0;
+  g[1] = 0.0;
+  g[2] = 2.0 * x[2];
 }
 
 void vtkCylinder::PrintSelf(ostream& os, vtkIndent indent)
