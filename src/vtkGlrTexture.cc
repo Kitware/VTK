@@ -80,7 +80,8 @@ void vtkGlrTexture::Load(vtkTexture *txt, vtkGlrRenderer *vtkNotUsed(ren))
     }
   
   // need to reload the texture
-  if (txt->GetInput()->GetMTime() > this->LoadTime.GetMTime())
+  if (txt->GetInput()->GetMTime() > this->LoadTime.GetMTime() ||
+      (txt->GetLookupTable () && txt->GetLookupTable()->GetMTime () >  this->LoadTime.GetMTime()))
     {
     int bytesPerPixel;
     int *size;
@@ -105,13 +106,15 @@ void vtkGlrTexture::Load(vtkTexture *txt, vtkGlrRenderer *vtkNotUsed(ren))
 
     // make sure using unsigned char data of color scalars type
     if ( strcmp(scalars->GetDataType(),"unsigned char") ||
-    strcmp(scalars->GetScalarType(),"ColorScalar") )
+         strcmp(scalars->GetScalarType(),"ColorScalar") )
       {
-      vtkErrorMacro(<< "Cannot do quick coversion to unsigned char.\n");
-      return;
+      dataPtr = txt->MapScalarsToColors (scalars);
+      bytesPerPixel = 4;
       }
-
-    dataPtr = ((vtkColorScalars *)scalars)->GetPtr(0);    
+    else
+      {
+      dataPtr = ((vtkColorScalars *)scalars)->GetPtr(0);    
+      }
 
     // we only support 2d texture maps right now
     // so one of the three sizes must be 1, but it 
