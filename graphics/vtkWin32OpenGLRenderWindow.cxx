@@ -66,7 +66,7 @@ vtkWin32OpenGLRenderWindow::vtkWin32OpenGLRenderWindow()
   this->NextWindowId = 0;
   this->DeviceContext = (HDC)0;		// hsr
   this->MFChandledWindow = FALSE;	// hsr
-
+  this->StereoType = VTK_STEREO_CRYSTAL_EYES;  
   this->SetWindowName("Visualization Toolkit - Win32OpenGL");
 }
 
@@ -187,7 +187,37 @@ void vtkWin32OpenGLRenderWindow::Frame(void)
 // Update system if needed due to stereo rendering.
 void vtkWin32OpenGLRenderWindow::StereoUpdate(void)
 {
-  // no stereo right now
+  // if stereo is on and it wasn't before
+  if (this->StereoRender && (!this->StereoStatus))
+    {
+    switch (this->StereoType) 
+      {
+      case VTK_STEREO_CRYSTAL_EYES:
+	{
+        this->StereoStatus = 1;
+	}
+	break;
+      case VTK_STEREO_RED_BLUE:
+	{
+        this->StereoStatus = 1;
+	}
+      }
+    }
+  else if ((!this->StereoRender) && this->StereoStatus)
+    {
+    switch (this->StereoType) 
+      {
+      case VTK_STEREO_CRYSTAL_EYES:
+	{
+        this->StereoStatus = 0;
+	}
+	break;
+      case VTK_STEREO_RED_BLUE:
+	{
+        this->StereoStatus = 0;
+	}
+      }
+    }
 }
 
 // Description:
@@ -204,6 +234,7 @@ void vtkWin32OpenGLSetupPixelFormat(HDC hDC)
         1,                              /* version */
         PFD_SUPPORT_OPENGL |
         PFD_DRAW_TO_WINDOW |
+	PFD_STEREO |
         PFD_DOUBLEBUFFER,               /* support double-buffering */
         PFD_TYPE_RGBA,                  /* color type */
         16,                             /* prefered color depth */
@@ -227,7 +258,14 @@ void vtkWin32OpenGLSetupPixelFormat(HDC hDC)
                 MB_ICONERROR | MB_OK);
         exit(1);
     }
-
+    
+    DescribePixelFormat(hDC, pixelFormat,sizeof(pfd), &pfd); 
+ 
+    if (!(pfd.dwFlags & PFD_STEREO))
+      {
+      vtkGenericWarningMacro("No Stereo Available!");
+      }
+    
     if (SetPixelFormat(hDC, pixelFormat, &pfd) != TRUE) {
         MessageBox(WindowFromDC(hDC), "SetPixelFormat failed.", "Error",
                 MB_ICONERROR | MB_OK);
