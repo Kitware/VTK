@@ -233,6 +233,7 @@ int vtkQuadricClustering::HashPoint(float point[3])
   return binId;
 }
 
+
 //----------------------------------------------------------------------------
 void vtkQuadricClustering::ComputeRepresentativePoint(float quadric[4][4],
 						      int binId,
@@ -268,7 +269,7 @@ void vtkQuadricClustering::ComputeRepresentativePoint(float quadric[4][4],
       }
     }
   
-#define SVTHRESHOLD 1E-3
+#define VTK_SVTHRESHOLD 1E-3
   float invsig, maxW = 0.0;
   vtkMath::SingularValueDecomposition3x3(A, U, w, VT);
   for (i = 0; i < 3; i++)
@@ -284,7 +285,7 @@ void vtkQuadricClustering::ComputeRepresentativePoint(float quadric[4][4],
       {
       if (i == j)
 	{
-	if ( (w[i] / maxW) > SVTHRESHOLD)
+	if ( (w[i] / maxW) > VTK_SVTHRESHOLD)
 	  {
 	  // If this is true, then w[i] != 0, so this division is ok.
 	  invsig = 1.0/w[i];
