@@ -144,8 +144,8 @@ void vtkMarchingContourFilter::Execute()
   vtkDataSet *input=this->GetInput();
   vtkPolyData *output=this->GetOutput();
   int numCells;
-  vtkPointData *inPd, *outPd=output->GetPointData();
-  vtkCellData *inCd, *outCd=output->GetCellData();
+  vtkPointData *outPd=output->GetPointData();
+  vtkCellData *outCd=output->GetCellData();
   int numContours=this->ContourValues->GetNumberOfContours();
   float *values=this->ContourValues->GetValues();
   
@@ -156,8 +156,6 @@ void vtkMarchingContourFilter::Execute()
       vtkErrorMacro(<<"Input is NULL");
       return;
     }
-  inPd=input->GetPointData();
-  inCd=input->GetCellData();
 
   numCells = input->GetNumberOfCells();
   inScalars = input->GetPointData()->GetScalars();
