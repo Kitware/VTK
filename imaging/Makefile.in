@@ -106,7 +106,6 @@ vtkImageAnisotropicDiffusion3D.h \
 vtkImageArithmetic.h \
 vtkImageConnectivity.h \
 vtkImageConvolution1D.h \
-vtkImageDecomposedFilter.h \
 vtkImageDilate1D.h \
 vtkImageDilateErode3D.h \
 vtkImageDistance1D.h \
