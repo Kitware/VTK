@@ -6,7 +6,6 @@
   Date:      $Date$
   Version:   $Revision$
 
-
 Copyright (c) 1993-1998 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
@@ -55,6 +54,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkCylinderSource.h"
 #include "vtkFloatPoints.h"
 #include "vtkFloatNormals.h"
+#include "vtkSystemIncludes.h"
 
 #include "vtkVRML.h"
 
@@ -461,8 +461,6 @@ typedef
 #define YYLTYPE yyltype
 #endif
 
-#include <stdio.h>
-
 #ifndef __cplusplus
 #ifndef __STDC__
 #define const
@@ -550,13 +548,13 @@ static const short yyrhs[] = {    41,
 #if YYDEBUG != 0
 static const short yyrline[] = { 0,
    106,   109,   111,   114,   116,   117,   120,   122,   123,   124,
-   125,   129,   131,   134,   136,   140,   142,   144,   146,   148,
-   151,   154,   156,   158,   159,   161,   164,   166,   169,   172,
-   174,   176,   180,   185,   187,   190,   192,   195,   197,   198,
-   199,   202,   203,   204,   207,   208,   210,   214,   216,   217,
-   218,   219,   220,   221,   222,   223,   224,   225,   226,   227,
-   228,   229,   230,   231,   233,   234,   235,   236,   239,   241,
-   244,   246
+   125,   128,   130,   133,   135,   139,   141,   143,   145,   147,
+   150,   153,   155,   157,   158,   160,   163,   165,   168,   171,
+   173,   175,   179,   184,   186,   189,   191,   194,   196,   197,
+   198,   201,   202,   203,   206,   207,   209,   213,   215,   216,
+   217,   218,   219,   220,   221,   222,   223,   224,   225,   226,
+   227,   228,   229,   230,   232,   233,   234,   235,   238,   240,
+   243,   245
 };
 
 static const char * const yytname[] = {   "$","error","$undefined.","IDENTIFIER",
@@ -1186,17 +1184,16 @@ yyreduce:
   switch (yyn) {
 
 case 8:
-{ cout << "Starting Def" << endl;creatingDEF = 1; ;
+{ creatingDEF = 1; ;
     break;}
 case 9:
 { curDEFName = yyvsp[0].string; ;
     break;}
 case 10:
-{ cout << "DEFed: " << yyvsp[-2].string << endl;creatingDEF = 0; ;
+{ creatingDEF = 0; ;
     break;}
 case 11:
-{ cout << "USEing: " << yyvsp[0].string << endl;
-								  curImporter->useNode(yyvsp[0].string);free(yyvsp[0].string); ;
+{ curImporter->useNode(yyvsp[0].string);free(yyvsp[0].string); ;
     break;}
 case 14:
 { beginProto(yyvsp[0].string); ;
@@ -1637,7 +1634,11 @@ expect(int type)
 
 #define FLEX_SCANNER
 
-#include "vtkSystemIncludes.h"
+#ifdef WIN32
+#include <io.h>
+#else
+#include <unistd.h>
+#endif
 
 /* cfront 1.2 defines "c_plusplus" instead of "__cplusplus" */
 #ifdef c_plusplus
@@ -1648,13 +1649,6 @@ expect(int type)
 
 
 #ifdef __cplusplus
-
-#include <stdlib.h>
-#ifdef WIN32
-#include <io.h>
-#else
-#include <unistd.h>
-#endif
 
 /* Use prototypes in function declarations. */
 #define YY_USE_PROTOS
@@ -5399,7 +5393,6 @@ vtkVRMLImporter::vtkVRMLImporter ()
 	curMapper = NULL;
 	curLut = NULL;
 	curTransform = vtkTransform::New();
-
 }
 
 
@@ -5488,7 +5481,6 @@ vtkVRMLImporter::enterNode(const char *nodeType)
     fr->nodeType = t;
     fr->fieldName = NULL;
     currentField += fr;
-	cout << "Making node: " << fr->nodeType->getName() << endl;
 	if (strcmp(fr->nodeType->getName(), "Appearance") == 0) {
 		this->curProperty = vtkProperty::New();
 		if (creatingDEF) {
@@ -5664,9 +5656,6 @@ vtkVRMLImporter::enterField(const char *fieldName)
         }
     }
     // else expect(ANY_FIELD);
-
-	cout << "\tEntering field -> fieldName: " << fr->fieldName << endl;
-
 }
 
 void
@@ -5783,8 +5772,6 @@ vtkVRMLImporter::exitField()
 		pd = vtkPolyData::New();
 		cells = vtkCellArray::New();
 		index = i = cnt = 0;
-		cout << "Generating coordIndex of size: " << yylval.mfint32->GetMaxId()
-			<< " yytext: " << yytext << endl;
 		for (i = 0;i <= yylval.mfint32->GetMaxId();i++) {
 			if (yylval.mfint32->GetValue(i) == -1) {
 				cells->InsertNextCell(cnt, yylval.mfint32->GetPointer(index));
@@ -5874,7 +5861,6 @@ vtkVRMLImporter::exitField()
 			}
 			else {
 				// Redirect color into scalar position
-				cout << " ScalarInsert: " << yylval.mfint32->GetValue(index) << endl;
 				this->curScalars->SetScalar(pts[j++],
 					yylval.mfint32->GetValue(index++));
 			}
@@ -5922,7 +5908,6 @@ vtkVRMLImporter::exitField()
 		}
 		yylval.vec3f->Reset();yylval.vec3f->Delete();
 	}
-	cout << "\tExiting field -> fieldName: " << fr->fieldName << endl;
 	fr->fieldName = NULL;
 }
 
@@ -5931,7 +5916,6 @@ vtkVRMLImporter::useNode(const char *name) {
 
 	vtkObject *useO;
 	if (useO = this->GetVRMLDEFObject(name)) {
-		cout << "  Creating use: " << useO->GetClassName() << " name: " << endl;
 		if (strstr(useO->GetClassName(), "Actor")) {
 			vtkActor *_act = vtkActor::New();
 			_act->ShallowCopy((vtkActor *)useO);
