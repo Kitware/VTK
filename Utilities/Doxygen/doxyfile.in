@@ -1,6 +1,6 @@
 # -------------------------------------------------------------------------
 # doxyfile for VTK
-# modified by S. Barre (Time-stamp: <2002-10-25 20:33:32 barre>
+# modified by S. Barre (Time-stamp: <2002-10-28 15:58:53 barre>
 # -------------------------------------------------------------------------
 
 PROJECT_NAME         = VTK
@@ -56,6 +56,19 @@ INPUT                = \
           "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/doc_VTK_events.dox" \
           "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/doc_VTK_index.dox"
 
+EXCLUDE_PATTERNS     =
+EXCLUDE              = \
+    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Common/vtkSetGet.h" \
+    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Common/vtkMarchingSquaresCases.h" \
+    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Common/vtkMarchingCubesCases.h" \
+    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Common/vtkWinCE.h" \
+    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Common/vtkJavaUtil.h" \
+    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Common/vtkPythonUtil.h" \
+    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Common/vtkTclUtil.h" \
+    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Hybrid/vtk3DS.h" \
+    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/IO/vtkPLY.h" \
+    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Rendering/vtkFreeTypeFontCache.h"
+
 # TAGFILES           = "@VTK_BINARY_DIR@/Utilities/Doxygen/vtk4-nightly.tag"=http://www.vtk.org/doc/nightly/html
 
 EXTRACT_ALL          = YES
@@ -79,8 +92,6 @@ DETAILS_AT_TOP       = YES
 
 FILE_PATTERNS        = *.h
 RECURSIVE            = NO
-EXCLUDE              = Common/vtkSetGet.h
-EXCLUDE_PATTERNS     =
 
 HTML_ALIGN_MEMBERS   = YES
 HTML_HEADER          = "@VTK_SOURCE_DIR@/Utilities/Doxygen/header.html"
