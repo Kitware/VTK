@@ -85,7 +85,6 @@ vtkXRenderWindowInteractor::vtkXRenderWindowInteractor()
   this->State = VTKXI_START;
   this->App = 0;
   this->top = 0;
-  this->WaitingForMarker = 0;
 }
 
 vtkXRenderWindowInteractor::~vtkXRenderWindowInteractor()
@@ -316,24 +315,15 @@ void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
 
   switch (event->type) 
     {
-    case ClientMessage :
-      me->WaitingForMarker = 0;
-      break;
-  
-    case Expose : 
-      if (!me->WaitingForMarker)
+    case Expose :
+      XEvent result;
+      while (XCheckTypedWindowEvent(me->DisplayId, me->WindowId,
+				    Expose, &result))
 	{
-	// put in a marker
-	marker.type = ClientMessage;
-	marker.xclient.display = me->DisplayId;
-	marker.xclient.window = me->WindowId;
-	marker.xclient.format = 32;
-	XSendEvent(me->DisplayId, me->WindowId,
-		   (Bool) 0, (long) 0, &marker);
-	XSync(me->DisplayId,False);
-	me->WaitingForMarker = 1;
-	me->GetRenderWindow()->Render();
+	// just getting the expose configure event
+	event = &result;
 	}
+      me->GetRenderWindow()->Render();
       break;
       
     case ConfigureNotify : 
@@ -350,16 +340,7 @@ void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
 	{
 	me->UpdateSize(((XConfigureEvent *)event)->width,
 		       ((XConfigureEvent *)event)->height); 
-	// while we are at it clear out any expose events
-	// put in a marker
-	marker.type = ClientMessage;
-	marker.xclient.display = me->DisplayId;
-	marker.xclient.window = me->WindowId;
-	marker.xclient.format = 32;
-	XSendEvent(me->DisplayId, me->WindowId,
-		   (Bool) 0, (long) 0, &marker);
-	XSync(me->DisplayId,False);
-	me->WaitingForMarker = 1;
+
 	me->GetRenderWindow()->Render(); 
 	}
       }
