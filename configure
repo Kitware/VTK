@@ -682,11 +682,12 @@ then
     cp $srcdir/Config.mk  Config.mk || exit 1
 fi
 
-if test ! -r Kits.make
+if test -r Kits.make
 then
-    echo "Copying $srcdir/Kits.make to build directory"
-    cp $srcdir/Kits.make Kits.make || exit 1
+    echo "Removing Kits.make prior to copying it over (normal)."
+    rm -f Kits.make
 fi
+cp $srcdir/Kits.make Kits.make || exit 1
 
 trap '' 1 2 15
 cat > confcache <<\EOF
