@@ -16,20 +16,26 @@ public:
   ~vlIntArray();
   int GetValue(const int id) {return this->Array[id];};
   int *GetPtr(const int id) {return this->Array + id;};
-  vlIntArray &InsertValue(const int id, const int i);
-  int InsertNextValue(const int i);
+  vlIntArray &InsertValue(const int id, const int i)
+    {if ( id >= this->Size ) this->Resize(id);
+     this->Array[id] = i;
+     if ( id > this->MaxId ) this->MaxId = id;
+     return *this;
+    }
+  int InsertNextValue(const int i)
+    {this->InsertValue (++this->MaxId,i); return this->MaxId;};
   vlIntArray &operator=(vlIntArray& ia);
   void operator+=(vlIntArray& ia);
   void operator+=(const int i) {this->InsertNextValue(i);};
   // operator[] can be used on both left and right side of expression;
-  // Note: if used on left hand side, user's responsibility to do range checking
+  // Note: if used on lh side, user's responsibility to do range checking
   int& operator[](const int i) {return this->Array[i];};
-  void Squeeze();
-  int GetSize();
-  int GetMaxId();
-  void SetMaxId(int id);
-  int *GetArray();
-  void Reset();
+  void Squeeze() {this->Resize (this->MaxId+1);};
+  int GetSize() {return this->Size;};
+  int GetMaxId() {return this->MaxId;};
+  void SetMaxId(int id) {this->MaxId = (id < this->Size ? id : this->Size-1);};
+  int *GetArray() {return this->Array;};
+  void Reset() {this->MaxId = -1;};
   virtual char *GetClassName() {return "vlIntArray";};
 
 private:

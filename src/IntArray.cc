@@ -94,57 +94,6 @@ void vlIntArray::operator+=(vlIntArray& ia)
 }
 
 //
-// Copy on write if used by more than one object
-//
-vlIntArray& vlIntArray::InsertValue(const int id, const int i)
-{
-
-  if ( this->Debug ) cerr << "insert value\n";
-
-  if ( id >= this->Size ) this->Resize(id);
-
-  this->Array[id] = i;
-  if ( id > this->MaxId ) this->MaxId = id;
-
-  return *this;
-}
-
-int vlIntArray::InsertNextValue(const int i)
-{
-  this->InsertValue (++this->MaxId,i);
-  return this->MaxId;
-}
-
-void vlIntArray::Squeeze()
-{
-  this->Resize (this->MaxId+1);
-}
-
-int vlIntArray::GetSize()
-{
-  return this->Size;    
-}
-
-int vlIntArray::GetMaxId()
-{
-  return this->MaxId;
-}
-
-void vlIntArray::SetMaxId(int id)
-{
-  this->MaxId = (id < this->Size ? id : this->Size-1);
-}
-
-int *vlIntArray::GetArray()
-{
-  return this->Array;
-}
-
-void vlIntArray::Reset()
-{
-  this->MaxId = -1;
-}
-//
 // Private function does "reallocate"
 //
 int *vlIntArray::Resize(const int sz)

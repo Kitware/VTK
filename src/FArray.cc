@@ -29,15 +29,12 @@ vlFloatArray::vlFloatArray(const int sz, const int ext)
 
 vlFloatArray::~vlFloatArray()
 {
-  if ( this->Debug ) cerr << "Destructor\n";
-
   delete [] this->Array;
 }
 
 vlFloatArray::vlFloatArray(const vlFloatArray& fa)
 {
   int i;
-  if ( this->Debug ) cerr << "Copy constructor\n";
 
   this->MaxId = fa.MaxId;
   this->Size = fa.Size;
@@ -52,8 +49,6 @@ vlFloatArray::vlFloatArray(const vlFloatArray& fa)
 vlFloatArray& vlFloatArray::operator=(const vlFloatArray& fa)
 {
   int i;
-
-  if ( this->Debug ) cerr << "Assignment\n";
 
   if ( this != &fa )
     {
@@ -77,8 +72,6 @@ vlFloatArray& vlFloatArray::operator+=(const vlFloatArray& fa)
 {
   int i, sz;
 
-  if ( this->Debug ) cerr << "Add method\n";
-
   if ( this->Size <= (sz = this->MaxId + fa.MaxId + 2) ) this->Resize(sz);
 
   for (i=0; i<=fa.MaxId; i++)
@@ -90,56 +83,7 @@ vlFloatArray& vlFloatArray::operator+=(const vlFloatArray& fa)
   return *this;
 }
 
-//
-// Copy on write if used by more than one object
-//
-vlFloatArray& vlFloatArray::InsertValue(const int id, const float f)
-{
-  if ( this->Debug ) cerr << "insert value\n";
 
-  if ( id >= this->Size ) this->Resize(id);
-
-  this->Array[id] = f;
-  if ( id > this->MaxId ) this->MaxId = id;
-
-  return *this;
-}
-
-int vlFloatArray::InsertNextValue(const float f)
-{
-  this->InsertValue (++this->MaxId,f);
-  return this->MaxId;
-}
-
-void vlFloatArray::Squeeze()
-{
-  this->Resize (this->MaxId+1);
-}
-
-int vlFloatArray::GetSize()
-{
-  return this->Size;    
-}
-
-int vlFloatArray::GetMaxId()
-{
-  return this->MaxId;
-}
-
-void vlFloatArray::SetMaxId(int id)
-{
-  this->MaxId = (id < this->Size ? id : this->Size-1);
-}
-
-float *vlFloatArray::GetArray()
-{
-  return this->Array;
-}
-
-void vlFloatArray::Reset()
-{
-  this->MaxId = -1;
-}
 //
 // Private function does "reallocate"
 //
@@ -148,8 +92,6 @@ float *vlFloatArray::Resize(const int sz)
   int i;
   float *newArray;
   int newSize;
-
-  if ( this->Debug ) cerr << "Resize\n";
 
   if (sz >= this->Size) newSize = this->Size + 
     this->Extend*(((sz-this->Size)/this->Extend)+1);
