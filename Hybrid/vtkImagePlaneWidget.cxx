@@ -40,7 +40,7 @@
 #include "vtkTextureMapToPlane.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.39");
+vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.40");
 vtkStandardNewMacro(vtkImagePlaneWidget);
 
 vtkCxxSetObjectMacro(vtkImagePlaneWidget, PlaneProperty, vtkProperty);
@@ -174,13 +174,20 @@ vtkImagePlaneWidget::~vtkImagePlaneWidget()
     {
     this->PlaneProperty->Delete();
     }
+    
   if ( this->SelectedPlaneProperty )
     {
     this->SelectedPlaneProperty->Delete();
     }
+
   if ( this->CursorProperty )
     {
     this->CursorProperty->Delete();
+    }
+
+  if ( this->MarginProperty )
+    {
+    this->MarginProperty->Delete();
     }
 
   this->ResliceAxes->Delete();
