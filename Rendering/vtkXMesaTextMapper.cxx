@@ -25,7 +25,7 @@
 #include "vtkXMesaTextMapper.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkXMesaTextMapper, "1.14");
+vtkCxxRevisionMacro(vtkXMesaTextMapper, "1.15");
 vtkStandardNewMacro(vtkXMesaTextMapper);
 
 static void
@@ -339,15 +339,15 @@ vtkXMesaTextMapper::vtkXMesaTextMapper()
 {
 }
 
-void vtkXMesaTextMapper::RenderOpaqueGeometry(vtkViewport* viewport, 
-                                                vtkActor2D* actor)
+void vtkXMesaTextMapper::RenderOverlay(vtkViewport* viewport,
+                                       vtkActor2D* actor)
 {
-  vtkDebugMacro (<< "RenderOpaqueGeometry");
+  vtkDebugMacro (<< "RenderOverlay");
 
   // Check for input
   if ( this->NumberOfLines > 1 )
     {
-    this->RenderOpaqueGeometryMultipleLines(viewport, actor);
+    this->RenderOverlayMultipleLines(viewport, actor);
     return;
     }
 
