@@ -126,6 +126,8 @@ void vtkMaskPoints::Execute()
 // Update ourselves
 //
   output->SetPoints(newPts);
+  newPts->Delete();
+  
   output->Squeeze();
 
   vtkDebugMacro(<<"Masked " << numPts << " original points to " << id+1 << " points");
