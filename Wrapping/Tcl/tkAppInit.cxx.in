@@ -17,7 +17,8 @@
 #include "vtkToolkits.h"
 
 #ifdef VTK_COMPILED_USING_MPI
-#include "vtkMPIController.h"
+# include <mpi.h>
+# include "vtkMPIController.h"
 #endif // VTK_COMPILED_USING_MPI
 
 #cmakedefine VTK_MAKE_INSTANTIATOR
@@ -64,15 +65,42 @@
  *
  *----------------------------------------------------------------------
  */
+#ifdef VTK_COMPILED_USING_MPI
+class vtkMPICleanup {
+public:
+  vtkMPICleanup()
+    {
+      this->Controller = 0;
+    }
+  void Initialize(int argc, char **argv)
+    {
+      this->Controller = vtkMPIController::New();
+      this->Controller->Initialize(&argc, &argv, 1);
+      vtkMultiProcessController::SetGlobalController(this->Controller);      
+    }
+  ~vtkMPICleanup()
+    {
+      if ( this->Controller )
+        {
+        this->Controller->Delete();
+        }
+    }
+private:
+  vtkMPIController *Controller;
+};
+
+static vtkMPICleanup VTKMPICleanup;
+
+#endif // VTK_COMPILED_USING_MPI
+
 int
 main(int argc, char **argv)
 {
   ios::sync_with_stdio();
 
 #ifdef VTK_COMPILED_USING_MPI
-  vtkMPIController* controller = vtkMPIController::New();
-  controller->Initialize(&argc, &argv);
-  vtkMultiProcessController::SetGlobalController(controller);
+  MPI_Init(&argc, &argv);
+  VTKMPICleanup.Initialize(argc, argv);
 #endif // VTK_COMPILED_USING_MPI
 
 #ifdef VTK_USE_RENDERING
@@ -80,10 +108,6 @@ main(int argc, char **argv)
 #else
   Tcl_Main(argc, argv, Tcl_AppInit);
 #endif
-
-#ifdef VTK_COMPILED_USING_MPI
-  controller->Delete();
-#endif // VTK_COMPILED_USING_MPI
 
   return 0;                  /* Needed only to prevent compiler warning. */
 }
