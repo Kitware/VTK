@@ -262,7 +262,7 @@ vtkVolume16Reader \
 vtkVoxelModeller \
 vtkWarpScalar \
 vtkWarpTo \
-vtkWarpVector  @OGLR_OBJ@ @GLR_OBJ@ @XGLR_OBJ@ @SBR_OBJ@
+vtkWarpVector  @GRAPHICS_API_OBJ@
 
 
 # The following is all boiler plate 
@@ -285,7 +285,6 @@ srcdir        = @srcdir@
 VPATH         = @srcdir@
 prefix        = @prefix@
 exec_prefix   = @exec_prefix@
-XGL_HOME      = @XGL_HOME@
 HAVE_SETMON   = @HAVE_SETMON@
 WORDS_BIGENDIAN = @BIGENDIAN@
 VTK_SHLIB_CFLAGS = @VTK_SHLIB_CFLAGS@
@@ -301,7 +300,6 @@ BUILD_TCL          = @BUILD_TCL@
 CLEAN_TCL          = @CLEAN_TCL@
 BUILD_JAVA         = @BUILD_JAVA@
 CLEAN_JAVA         = @CLEAN_JAVA@
-OGLR_INCLUDE       = @OGLR_INCLUDE@
 
 # add in any extra libraies here
 KIT_LIBS = @TKWIDGET@ 
@@ -324,7 +322,7 @@ KIT_TCL_OBJ = vtkXRenderTclWindowInteractor.o ${TCL_OBJ} ${SRC_OBJ}
 
 KIT_NEWS = ${TCL_NEWS} 
 
-KIT_FLAGS = @SBR_FLAGS@ @XGLR_FLAGS@ @GLR_FLAGS@ @OGLR_FLAGS@ @USE_TOOLKIT_FLAGS@ @THREAD_FLAGS@
+KIT_FLAGS = @GRAPHICS_API_FLAGS@ @USE_TOOLKIT_FLAGS@ @THREAD_FLAGS@
 
 #------------------------------------------------------------------------------
 # Include user-editable defines.

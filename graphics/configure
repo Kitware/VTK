@@ -812,34 +812,11 @@ VTK_TEMPLATE_FLAGS=$TMP_VTK_TEMPLATE_FLAGS
 
 HAVE_SETMON=$TMP_HAVE_SETMON
 
-SBR_OBJ=$TMP_SBR_OBJ
+GRAPHICS_API_OBJ=$TMP_GRAPHICS_API_OBJ
 
-SBR_FLAGS=$TMP_SBR_FLAGS
+GRAPHICS_API_FLAGS=$TMP_GRAPHICS_API_FLAGS
 
-SBR_LIBS=$TMP_SBR_LIBS
-
-GLR_OBJ=$TMP_GLR_OBJ
-
-GLR_FLAGS=$TMP_GLR_FLAGS
-
-GLR_LIBS=$TMP_GLR_LIBS
-
-OGLR_LIBS=$TMP_OGLR_LIBS
-
-OGLR_OBJ=$TMP_OGLR_OBJ
-
-OGLR_INCLUDE=$TMP_OGLR_INCLUDE
-
-OGLR_FLAGS=$TMP_OGLR_FLAGS
-
-XGLR_OBJ=$TMP_XGLR_OBJ
-
-XGLR_FLAGS=$TMP_XGLR_FLAGS
-
-XGL_HOME=$TMP_XGL_HOME
-
-XGLR_LIBS=$TMP_XGLR_LIBS
-
+GRAPHICS_API_LIBS=$TMP_GRAPHICS_API_LIBS
 
 
 ac_aux_dir=
@@ -880,13 +857,13 @@ else
   # On the NeXT, cc -E runs the code through the compiler's parser,
   # not just through cpp.
   cat > conftest.$ac_ext <<EOF
-#line 884 "configure"
+#line 861 "configure"
 #include "confdefs.h"
 #include <assert.h>
 Syntax Error
 EOF
 ac_try="$ac_cpp conftest.$ac_ext >/dev/null 2>conftest.out"
-{ (eval echo configure:890: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
+{ (eval echo configure:867: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
 ac_err=`grep -v '^ *+' conftest.out`
 if test -z "$ac_err"; then
   :
@@ -895,13 +872,13 @@ else
   rm -rf conftest*
   CPP="${CC-cc} -E -traditional-cpp"
   cat > conftest.$ac_ext <<EOF
-#line 899 "configure"
+#line 876 "configure"
 #include "confdefs.h"
 #include <assert.h>
 Syntax Error
 EOF
 ac_try="$ac_cpp conftest.$ac_ext >/dev/null 2>conftest.out"
-{ (eval echo configure:905: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
+{ (eval echo configure:882: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
 ac_err=`grep -v '^ *+' conftest.out`
 if test -z "$ac_err"; then
   :
@@ -1005,12 +982,12 @@ if test "$ac_x_includes" = NO; then
 
   # First, try using that file with no special directory specified.
 cat > conftest.$ac_ext <<EOF
-#line 1009 "configure"
+#line 986 "configure"
 #include "confdefs.h"
 #include <$x_direct_test_include>
 EOF
 ac_try="$ac_cpp conftest.$ac_ext >/dev/null 2>conftest.out"
-{ (eval echo configure:1014: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
+{ (eval echo configure:991: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
 ac_err=`grep -v '^ *+' conftest.out`
 if test -z "$ac_err"; then
   rm -rf conftest*
@@ -1077,7 +1054,7 @@ if test "$ac_x_libraries" = NO; then
   ac_save_LIBS="$LIBS"
   LIBS="-l$x_direct_test_library $LIBS"
 cat > conftest.$ac_ext <<EOF
-#line 1081 "configure"
+#line 1058 "configure"
 #include "confdefs.h"
 
 int main() { return 0; }
@@ -1085,7 +1062,7 @@ int t() {
 ${x_direct_test_function}()
 ; return 0; }
 EOF
-if { (eval echo configure:1089: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; }; then
+if { (eval echo configure:1066: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; }; then
   rm -rf conftest*
   LIBS="$ac_save_LIBS"
 # We can link X programs with no special library path.
@@ -1206,7 +1183,7 @@ else
   ac_save_LIBS="$LIBS"
 LIBS="-lICE  $LIBS"
 cat > conftest.$ac_ext <<EOF
-#line 1210 "configure"
+#line 1187 "configure"
 #include "confdefs.h"
 /* Override any gcc2 internal prototype to avoid an error.  */
 char IceConnectionNumber();
@@ -1216,7 +1193,7 @@ int t() {
 IceConnectionNumber()
 ; return 0; }
 EOF
-if { (eval echo configure:1220: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; }; then
+if { (eval echo configure:1197: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; }; then
   rm -rf conftest*
   eval "ac_cv_lib_$ac_lib_var=yes"
 else
@@ -1252,7 +1229,7 @@ else
   ac_save_LIBS="$LIBS"
 LIBS="-ldnet  $LIBS"
 cat > conftest.$ac_ext <<EOF
-#line 1256 "configure"
+#line 1233 "configure"
 #include "confdefs.h"
 /* Override any gcc2 internal prototype to avoid an error.  */
 char dnet_ntoa();
@@ -1262,7 +1239,7 @@ int t() {
 dnet_ntoa()
 ; return 0; }
 EOF
-if { (eval echo configure:1266: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; }; then
+if { (eval echo configure:1243: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; }; then
   rm -rf conftest*
   eval "ac_cv_lib_$ac_lib_var=yes"
 else
@@ -1289,7 +1266,7 @@ else
   ac_save_LIBS="$LIBS"
 LIBS="-ldnet_stub  $LIBS"
 cat > conftest.$ac_ext <<EOF
-#line 1293 "configure"
+#line 1270 "configure"
 #include "confdefs.h"
 /* Override any gcc2 internal prototype to avoid an error.  */
 char dnet_ntoa();
@@ -1299,7 +1276,7 @@ int t() {
 dnet_ntoa()
 ; return 0; }
 EOF
-if { (eval echo configure:1303: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; }; then
+if { (eval echo configure:1280: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; }; then
   rm -rf conftest*
   eval "ac_cv_lib_$ac_lib_var=yes"
 else
@@ -1331,7 +1308,7 @@ else
   ac_save_LIBS="$LIBS"
 LIBS="-lnsl  $LIBS"
 cat > conftest.$ac_ext <<EOF
-#line 1335 "configure"
+#line 1312 "configure"
 #include "confdefs.h"
 /* Override any gcc2 internal prototype to avoid an error.  */
 char t_accept();
@@ -1341,7 +1318,7 @@ int t() {
 t_accept()
 ; return 0; }
 EOF
-if { (eval echo configure:1345: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; }; then
+if { (eval echo configure:1322: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; }; then
   rm -rf conftest*
   eval "ac_cv_lib_$ac_lib_var=yes"
 else
@@ -1372,7 +1349,7 @@ else
   ac_save_LIBS="$LIBS"
 LIBS="-lsocket  $LIBS"
 cat > conftest.$ac_ext <<EOF
-#line 1376 "configure"
+#line 1353 "configure"
 #include "confdefs.h"
 /* Override any gcc2 internal prototype to avoid an error.  */
 char socket();
@@ -1382,7 +1359,7 @@ int t() {
 socket()
 ; return 0; }
 EOF
-if { (eval echo configure:1386: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; }; then
+if { (eval echo configure:1363: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; }; then
   rm -rf conftest*
   eval "ac_cv_lib_$ac_lib_var=yes"
 else
@@ -1557,20 +1534,9 @@ s%@THREAD_LIBS@%$THREAD_LIBS%g
 s%@VTK_INLINE_FLAGS@%$VTK_INLINE_FLAGS%g
 s%@VTK_TEMPLATE_FLAGS@%$VTK_TEMPLATE_FLAGS%g
 s%@HAVE_SETMON@%$HAVE_SETMON%g
-s%@SBR_OBJ@%$SBR_OBJ%g
-s%@SBR_FLAGS@%$SBR_FLAGS%g
-s%@SBR_LIBS@%$SBR_LIBS%g
-s%@GLR_OBJ@%$GLR_OBJ%g
-s%@GLR_FLAGS@%$GLR_FLAGS%g
-s%@GLR_LIBS@%$GLR_LIBS%g
-s%@OGLR_LIBS@%$OGLR_LIBS%g
-s%@OGLR_OBJ@%$OGLR_OBJ%g
-s%@OGLR_INCLUDE@%$OGLR_INCLUDE%g
-s%@OGLR_FLAGS@%$OGLR_FLAGS%g
-s%@XGLR_OBJ@%$XGLR_OBJ%g
-s%@XGLR_FLAGS@%$XGLR_FLAGS%g
-s%@XGL_HOME@%$XGL_HOME%g
-s%@XGLR_LIBS@%$XGLR_LIBS%g
+s%@GRAPHICS_API_OBJ@%$GRAPHICS_API_OBJ%g
+s%@GRAPHICS_API_FLAGS@%$GRAPHICS_API_FLAGS%g
+s%@GRAPHICS_API_LIBS@%$GRAPHICS_API_LIBS%g
 s%@subdirs@%$subdirs%g
 s%@CPP@%$CPP%g
 s%@X_CFLAGS@%$X_CFLAGS%g

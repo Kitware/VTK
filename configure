@@ -968,18 +968,15 @@ fi
 done
 
 
+GRAPHICS_API_LIBS=""
+GRAPHICS_API_FLAGS=""
+GRAPHICS_API_OBJ=""
+
 if test "$use_sbr" = "yes"; then
-	SBR_LIBS="-ldld -lXwindow -lsb -lXhp11"
-	SBR_OBJ="\${SBR_OBJ}"
-	SBR_FLAGS="-DVTK_USE_SBR ${SBR_INCLUDE}"
-else
-	SBR_LIBS=""
-	SBR_OBJ=""
-	SBR_FLAGS=""
+	GRAPHICS_API_LIBS="${GRAPHICS_API_LIBS} -ldld -lXwindow -lsb -lXhp11"
+	GRAPHICS_API_OBJ="${GRAPHICS_API_OBJ} \${SBR_OBJ}"
+	GRAPHICS_API_FLAGS="${GRAPHICS_API_FLAGS} -DVTK_USE_SBR"
 fi
-
-
-
 
 ##########################
 ##			##
@@ -995,12 +992,12 @@ if eval "test \"`echo '$''{'ac_cv_header_$ac_safe'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   cat > conftest.$ac_ext <<EOF
-#line 999 "configure"
+#line 996 "configure"
 #include "confdefs.h"
 #include <$ac_hdr>
 EOF
 ac_try="$ac_cpp conftest.$ac_ext >/dev/null 2>conftest.out"
-{ (eval echo configure:1004: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
+{ (eval echo configure:1001: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
 ac_err=`grep -v '^ *+' conftest.out`
 if test -z "$ac_err"; then
   rm -rf conftest*
@@ -1032,17 +1029,10 @@ fi
 
 
 if test "$use_glr" = "yes"; then
-	GLR_LIBS="-lgl"
-	GLR_OBJ="\${GLR_OBJ}"
-	GLR_FLAGS="-DVTK_USE_GLR ${GLR_INCLUDE}"
-else
-	GLR_LIBS=""
-	GLR_OBJ=""
-	GLR_FLAGS=""
+	GRAPHICS_API_LIBS="${GRAPHICS_API_LIBS} -lgl"
+	GRAPHICS_API_OBJ="${GRAPHICS_API_OBJ} \${GLR_OBJ}"
+	GRAPHICS_API_FLAGS="${GRAPHICS_API_FLAGS} -DVTK_USE_GLR"
 fi
-
-
-
 
 ##########################
 ##			##
@@ -1069,12 +1059,12 @@ if eval "test \"`echo '$''{'ac_cv_header_$ac_safe'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   cat > conftest.$ac_ext <<EOF
-#line 1073 "configure"
+#line 1063 "configure"
 #include "confdefs.h"
 #include <$ac_hdr>
 EOF
 ac_try="$ac_cpp conftest.$ac_ext >/dev/null 2>conftest.out"
-{ (eval echo configure:1078: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
+{ (eval echo configure:1068: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
 ac_err=`grep -v '^ *+' conftest.out`
 if test -z "$ac_err"; then
   rm -rf conftest*
@@ -1106,12 +1096,12 @@ if eval "test \"`echo '$''{'ac_cv_header_$ac_safe'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   cat > conftest.$ac_ext <<EOF
-#line 1110 "configure"
+#line 1100 "configure"
 #include "confdefs.h"
 #include <$ac_hdr>
 EOF
 ac_try="$ac_cpp conftest.$ac_ext >/dev/null 2>conftest.out"
-{ (eval echo configure:1115: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
+{ (eval echo configure:1105: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
 ac_err=`grep -v '^ *+' conftest.out`
 if test -z "$ac_err"; then
   rm -rf conftest*
@@ -1138,24 +1128,16 @@ done
 
 
 if test "$use_oglr" = "yes"; then
-	OGLR_OBJ="\${OGLR_OBJ}"
+	GRAPHICS_API_OBJ="${GRAPHICS_API_OBJ} \${OGLR_OBJ}"
 
 	if test "$use_mesa_oglr" = "yes"; then
-		OGLR_LIBS="\${MESA_LIB}"
-		OGLR_FLAGS="\${MESA_INCLUDE} -DVTK_USE_OGLR"
+	        GRAPHICS_API_LIBS="${GRAPHICS_API_LIBS} \${MESA_INCLUDE}"
+	        GRAPHICS_API_FLAGS="${GRAPHICS_API_FLAGS} \${MESA_INCLUDE} -DVTK_USE_OGLR"
 	else
-		OGLR_LIBS="-lGL"
-		OGLR_FLAGS="-DVTK_USE_OGLR ${OGLR_INCLUDE}"
+	        GRAPHICS_API_LIBS="${GRAPHICS_API_LIBS} -lGL"
+	        GRAPHICS_API_FLAGS="${GRAPHICS_API_FLAGS} -DVTK_USE_OGLR ${OGLR_INCLUDE}"
 	fi
-else
-	OGLR_LIBS=""
-	OGLR_OBJ=""
-	OGLR_FLAGS=""
 fi
-
-
-
-
 
 ##########################
 ##			##
@@ -1176,12 +1158,12 @@ if eval "test \"`echo '$''{'ac_cv_header_$ac_safe'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   cat > conftest.$ac_ext <<EOF
-#line 1180 "configure"
+#line 1162 "configure"
 #include "confdefs.h"
 #include <$ac_hdr>
 EOF
 ac_try="$ac_cpp conftest.$ac_ext >/dev/null 2>conftest.out"
-{ (eval echo configure:1185: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
+{ (eval echo configure:1167: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
 ac_err=`grep -v '^ *+' conftest.out`
 if test -z "$ac_err"; then
   rm -rf conftest*
@@ -1214,12 +1196,12 @@ if eval "test \"`echo '$''{'ac_cv_header_$ac_safe'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   cat > conftest.$ac_ext <<EOF
-#line 1218 "configure"
+#line 1200 "configure"
 #include "confdefs.h"
 #include <$ac_hdr>
 EOF
 ac_try="$ac_cpp conftest.$ac_ext >/dev/null 2>conftest.out"
-{ (eval echo configure:1223: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
+{ (eval echo configure:1205: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
 ac_err=`grep -v '^ *+' conftest.out`
 if test -z "$ac_err"; then
   rm -rf conftest*
@@ -1245,13 +1227,9 @@ fi
 done
 
 if test "$use_xglr" = "yes"; then
-	XGLR_LIBS="-lxgl"
-	XGLR_OBJ="\${XGLR_OBJ}"
-	XGLR_FLAGS="-DVTK_USE_XGLR -I${XGLR_INCLUDE}"
-else
-	XGLR_LIBS=""
-	XGLR_OBJ=""
-	XGLR_FLAGS=""
+	GRAPHICS_API_LIBS="${GRAPHICS_API_LIBS} -lxgl"
+	GRAPHICS_API_OBJ="${GRAPHICS_API_OBJ} \${XGLR_OBJ}"
+	GRAPHICS_API_FLAGS="${GRAPHICS_API_FLAGS} -DVTK_USE_XGLR -I${XGLR_INCLUDE}"
 fi
 
 
@@ -1569,7 +1547,7 @@ else
   ac_save_LIBS="$LIBS"
 LIBS="-ldl  $LIBS"
 cat > conftest.$ac_ext <<EOF
-#line 1573 "configure"
+#line 1551 "configure"
 #include "confdefs.h"
 /* Override any gcc2 internal prototype to avoid an error.  */
 char dlopen();
@@ -1579,7 +1557,7 @@ int t() {
 dlopen()
 ; return 0; }
 EOF
-if { (eval echo configure:1583: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; }; then
+if { (eval echo configure:1561: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; }; then
   rm -rf conftest*
   eval "ac_cv_lib_$ac_lib_var=yes"
 else
@@ -1636,7 +1614,7 @@ else
   ac_save_LIBS="$LIBS"
 LIBS="-lld  $LIBS"
 cat > conftest.$ac_ext <<EOF
-#line 1640 "configure"
+#line 1618 "configure"
 #include "confdefs.h"
 /* Override any gcc2 internal prototype to avoid an error.  */
 char printf();
@@ -1646,7 +1624,7 @@ int t() {
 printf()
 ; return 0; }
 EOF
-if { (eval echo configure:1650: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; }; then
+if { (eval echo configure:1628: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; }; then
   rm -rf conftest*
   eval "ac_cv_lib_$ac_lib_var=yes"
 else
@@ -1724,12 +1702,12 @@ if eval "test \"`echo '$''{'ac_cv_header_$ac_safe'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   cat > conftest.$ac_ext <<EOF
-#line 1728 "configure"
+#line 1706 "configure"
 #include "confdefs.h"
 #include <dld.h>
 EOF
 ac_try="$ac_cpp conftest.$ac_ext >/dev/null 2>conftest.out"
-{ (eval echo configure:1733: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
+{ (eval echo configure:1711: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
 ac_err=`grep -v '^ *+' conftest.out`
 if test -z "$ac_err"; then
   rm -rf conftest*
@@ -2017,12 +1995,12 @@ if eval "test \"`echo '$''{'ac_cv_header_$ac_safe'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   cat > conftest.$ac_ext <<EOF
-#line 2021 "configure"
+#line 1999 "configure"
 #include "confdefs.h"
 #include <$ac_hdr>
 EOF
 ac_try="$ac_cpp conftest.$ac_ext >/dev/null 2>conftest.out"
-{ (eval echo configure:2026: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
+{ (eval echo configure:2004: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
 ac_err=`grep -v '^ *+' conftest.out`
 if test -z "$ac_err"; then
   rm -rf conftest*
@@ -2063,12 +2041,12 @@ if eval "test \"`echo '$''{'ac_cv_header_$ac_safe'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   cat > conftest.$ac_ext <<EOF
-#line 2067 "configure"
+#line 2045 "configure"
 #include "confdefs.h"
 #include <$ac_hdr>
 EOF
 ac_try="$ac_cpp conftest.$ac_ext >/dev/null 2>conftest.out"
-{ (eval echo configure:2072: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
+{ (eval echo configure:2050: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
 ac_err=`grep -v '^ *+' conftest.out`
 if test -z "$ac_err"; then
   rm -rf conftest*
@@ -2102,7 +2080,7 @@ else
   ac_save_LIBS="$LIBS"
 LIBS="-lpthreads  $LIBS"
 cat > conftest.$ac_ext <<EOF
-#line 2106 "configure"
+#line 2084 "configure"
 #include "confdefs.h"
 /* Override any gcc2 internal prototype to avoid an error.  */
 char pthread_create();
@@ -2112,7 +2090,7 @@ int t() {
 pthread_create()
 ; return 0; }
 EOF
-if { (eval echo configure:2116: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; }; then
+if { (eval echo configure:2094: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; }; then
   rm -rf conftest*
   eval "ac_cv_lib_$ac_lib_var=yes"
 else
@@ -2138,7 +2116,7 @@ else
   ac_save_LIBS="$LIBS"
 LIBS="-lpthread  $LIBS"
 cat > conftest.$ac_ext <<EOF
-#line 2142 "configure"
+#line 2120 "configure"
 #include "confdefs.h"
 /* Override any gcc2 internal prototype to avoid an error.  */
 char pthread_create();
@@ -2148,7 +2126,7 @@ int t() {
 pthread_create()
 ; return 0; }
 EOF
-if { (eval echo configure:2152: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; }; then
+if { (eval echo configure:2130: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; }; then
   rm -rf conftest*
   eval "ac_cv_lib_$ac_lib_var=yes"
 else
@@ -2390,20 +2368,9 @@ s%@CC@%$CC%g
 s%@CXX@%$CXX%g
 s%@BIGENDIAN@%$BIGENDIAN%g
 s%@CPP@%$CPP%g
-s%@SBR_OBJ@%$SBR_OBJ%g
-s%@SBR_FLAGS@%$SBR_FLAGS%g
-s%@SBR_LIBS@%$SBR_LIBS%g
-s%@GLR_OBJ@%$GLR_OBJ%g
-s%@GLR_FLAGS@%$GLR_FLAGS%g
-s%@GLR_LIBS@%$GLR_LIBS%g
-s%@OGLR_LIBS@%$OGLR_LIBS%g
-s%@OGLR_OBJ@%$OGLR_OBJ%g
-s%@OGLR_INCLUDE@%$OGLR_INCLUDE%g
-s%@OGLR_FLAGS@%$OGLR_FLAGS%g
-s%@XGLR_OBJ@%$XGLR_OBJ%g
-s%@XGLR_FLAGS@%$XGLR_FLAGS%g
-s%@XGL_HOME@%$XGL_HOME%g
-s%@XGLR_LIBS@%$XGLR_LIBS%g
+s%@GRAPHICS_API_OBJ@%$GRAPHICS_API_OBJ%g
+s%@GRAPHICS_API_FLAGS@%$GRAPHICS_API_FLAGS%g
+s%@GRAPHICS_API_LIBS@%$GRAPHICS_API_LIBS%g
 s%@HAVE_SETMON@%$HAVE_SETMON%g
 s%@BUILD_TCL@%$BUILD_TCL%g
 s%@CLEAN_TCL@%$CLEAN_TCL%g

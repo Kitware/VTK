@@ -22,18 +22,15 @@ AC_SUBST(BIGENDIAN)
 use_sbr=no
 AC_CHECK_HEADERS(starbase.c.h, [use_sbr=yes])
 
+GRAPHICS_API_LIBS=""
+GRAPHICS_API_FLAGS=""
+GRAPHICS_API_OBJ=""
+
 if test "$use_sbr" = "yes"; then
-	SBR_LIBS="-ldld -lXwindow -lsb -lXhp11"
-	SBR_OBJ="\${SBR_OBJ}"
-	SBR_FLAGS="-DVTK_USE_SBR ${SBR_INCLUDE}"
-else
-	SBR_LIBS=""
-	SBR_OBJ=""
-	SBR_FLAGS=""
+	GRAPHICS_API_LIBS="${GRAPHICS_API_LIBS} -ldld -lXwindow -lsb -lXhp11"
+	GRAPHICS_API_OBJ="${GRAPHICS_API_OBJ} \${SBR_OBJ}"
+	GRAPHICS_API_FLAGS="${GRAPHICS_API_FLAGS} -DVTK_USE_SBR"
 fi
-AC_SUBST(SBR_OBJ)
-AC_SUBST(SBR_FLAGS)
-AC_SUBST(SBR_LIBS)
 
 ##########################
 ##			##
@@ -47,17 +44,10 @@ AC_ARG_WITH(gl,
          [use_glr=no])
 
 if test "$use_glr" = "yes"; then
-	GLR_LIBS="-lgl"
-	GLR_OBJ="\${GLR_OBJ}"
-	GLR_FLAGS="-DVTK_USE_GLR ${GLR_INCLUDE}"
-else
-	GLR_LIBS=""
-	GLR_OBJ=""
-	GLR_FLAGS=""
+	GRAPHICS_API_LIBS="${GRAPHICS_API_LIBS} -lgl"
+	GRAPHICS_API_OBJ="${GRAPHICS_API_OBJ} \${GLR_OBJ}"
+	GRAPHICS_API_FLAGS="${GRAPHICS_API_FLAGS} -DVTK_USE_GLR"
 fi
-AC_SUBST(GLR_OBJ)
-AC_SUBST(GLR_FLAGS)
-AC_SUBST(GLR_LIBS)
 
 ##########################
 ##			##
@@ -79,24 +69,16 @@ AC_CHECK_HEADERS(/usr/openwin/share/include/GL/glxmd.h,
 		OGLR_INCLUDE="-I/usr/openwin/share/include/")
 
 if test "$use_oglr" = "yes"; then
-	OGLR_OBJ="\${OGLR_OBJ}"
+	GRAPHICS_API_OBJ="${GRAPHICS_API_OBJ} \${OGLR_OBJ}"
 
 	if test "$use_mesa_oglr" = "yes"; then
-		OGLR_LIBS="\${MESA_LIB}"
-		OGLR_FLAGS="\${MESA_INCLUDE} -DVTK_USE_OGLR"
+	        GRAPHICS_API_LIBS="${GRAPHICS_API_LIBS} \${MESA_INCLUDE}"
+	        GRAPHICS_API_FLAGS="${GRAPHICS_API_FLAGS} \${MESA_INCLUDE} -DVTK_USE_OGLR"
 	else
-		OGLR_LIBS="-lGL"
-		OGLR_FLAGS="-DVTK_USE_OGLR ${OGLR_INCLUDE}"
+	        GRAPHICS_API_LIBS="${GRAPHICS_API_LIBS} -lGL"
+	        GRAPHICS_API_FLAGS="${GRAPHICS_API_FLAGS} -DVTK_USE_OGLR ${OGLR_INCLUDE}"
 	fi
-else
-	OGLR_LIBS=""
-	OGLR_OBJ=""
-	OGLR_FLAGS=""
 fi
-AC_SUBST(OGLR_LIBS)
-AC_SUBST(OGLR_OBJ)
-AC_SUBST(OGLR_INCLUDE)
-AC_SUBST(OGLR_FLAGS)
 
 ##########################
 ##			##
@@ -116,18 +98,14 @@ AC_CHECK_HEADERS(/usr/openwin/include/xgl/xgl.h,
   [use_xglr=yes]
   XGLR_INCLUDE=/usr/openwin/include)
 if test "$use_xglr" = "yes"; then
-	XGLR_LIBS="-lxgl"
-	XGLR_OBJ="\${XGLR_OBJ}"
-	XGLR_FLAGS="-DVTK_USE_XGLR -I${XGLR_INCLUDE}"
-else
-	XGLR_LIBS=""
-	XGLR_OBJ=""
-	XGLR_FLAGS=""
+	GRAPHICS_API_LIBS="${GRAPHICS_API_LIBS} -lxgl"
+	GRAPHICS_API_OBJ="${GRAPHICS_API_OBJ} \${XGLR_OBJ}"
+	GRAPHICS_API_FLAGS="${GRAPHICS_API_FLAGS} -DVTK_USE_XGLR -I${XGLR_INCLUDE}"
 fi
-AC_SUBST(XGLR_OBJ)
-AC_SUBST(XGLR_FLAGS)
-AC_SUBST(XGL_HOME)
-AC_SUBST(XGLR_LIBS)
+
+AC_SUBST(GRAPHICS_API_OBJ)
+AC_SUBST(GRAPHICS_API_FLAGS)
+AC_SUBST(GRAPHICS_API_LIBS)
 
 ac_save_path="$PATH"
 PATH=/usr/gfx
