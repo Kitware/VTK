@@ -48,7 +48,7 @@
     return 0; \
     }
 
-vtkCxxRevisionMacro(vtkSocketCommunicator, "1.34");
+vtkCxxRevisionMacro(vtkSocketCommunicator, "1.35");
 vtkStandardNewMacro(vtkSocketCommunicator);
 
 //----------------------------------------------------------------------------
@@ -301,7 +301,7 @@ int vtkSocketCommunicator::ReceiveMessage(char *data, int *length,
     }
 #endif
 
-  if ( length < 0 )
+  if ( *length < 0 )
     {
     return VTK_ERROR;
     }
