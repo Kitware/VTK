@@ -117,8 +117,8 @@ void TIFFInternal::Clean()
 TIFFInternal::TIFFInternal()
 {
   this->Image           = NULL;
-  //TIFFSetErrorHandler(&TIFFInternal::ErrorHandler);
-  //TIFFSetWarningHandler(&TIFFInternal::ErrorHandler);
+  TIFFSetErrorHandler(&TIFFInternal::ErrorHandler);
+  TIFFSetWarningHandler(&TIFFInternal::ErrorHandler);
   this->Clean();
 }
 

@@ -67,7 +67,7 @@ public:
   void ComputeInverseTransformedIncrements(int inIncr[3],
                                            int outIncr[3]);
 
-  void OpenAndSeekFile(int extent[6], int slice);
+  int OpenAndSeekFile(int extent[6], int slice);
 protected:
   vtkImageReader();
   ~vtkImageReader();
