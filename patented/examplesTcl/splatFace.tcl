@@ -27,7 +27,7 @@ vtkMaskPoints mask
 #    mask RandomModeOn
 vtkGaussianSplatter splatter
     splatter SetInput [mask GetOutput]
-    splatter SetSampleDimensions 100 100 100
+    splatter SetSampleDimensions 100 110 120
     splatter SetEccentricity 2.5
     splatter NormalWarpingOn
     splatter SetScaleFactor 1.0
