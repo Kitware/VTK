@@ -18,7 +18,7 @@
 #include "vtkTextActor.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkTextActor, "1.1");
+vtkCxxRevisionMacro(vtkTextActor, "1.2");
 vtkStandardNewMacro(vtkTextActor);
 // ----------------------------------------------------------------------------
 vtkTextActor::vtkTextActor()
@@ -68,17 +68,6 @@ void vtkTextActor::SetMapper(vtkMapper2D *mapper)
     }
   }
 // ----------------------------------------------------------------------------
-vtkTextMapper *vtkTextActor::GetMapper(void)
-{
-  vtkMapper2D *m = vtkActor2D::GetMapper();
-  if (m->IsA("vtkTextMapper"))
-    {
-    return (vtkTextMapper*)m;
-    }
-  vtkErrorMacro("Must use vtkTextMapper for this class");
-  return NULL;
-}
-// ----------------------------------------------------------------------------
 void vtkTextActor::ShallowCopy(vtkProp *prop)
 {
   vtkTextActor *a = vtkTextActor::SafeDownCast(prop);
@@ -114,7 +103,7 @@ int vtkTextActor::RenderOpaqueGeometry(vtkViewport *viewport)
   int size[2];
   int fontSize, oldfontsize;
 
-  vtkTextMapper *mapper = this->GetMapper();
+  vtkTextMapper *mapper = (vtkTextMapper *)this->GetMapper();
   if (!mapper)
     {
     return 0;
@@ -310,7 +299,7 @@ void vtkTextActor::PrintSelf(ostream& os, vtkIndent indent)
 }
 // ----------------------------------------------------------------------------
 #define SetStuffMacro(function,param)          \
-    vtkTextMapper *mapper = this->GetMapper(); \
+    vtkTextMapper *mapper = (vtkTextMapper *)this->GetMapper(); \
     if (!mapper) { return; }                   \
     unsigned long mtime1 = mapper->GetMTime(); \
     mapper->Set##function(param);              \
@@ -321,7 +310,7 @@ void vtkTextActor::PrintSelf(ostream& os, vtkIndent indent)
       }
 
 #define GetStuffMacro(function,default)        \
-    vtkTextMapper *mapper = this->GetMapper(); \
+    vtkTextMapper *mapper = (vtkTextMapper *)this->GetMapper(); \
     if (!mapper) { return default; }           \
     return mapper->Get##function();            \
 
@@ -427,7 +416,7 @@ float vtkTextActor::GetLineSpacing(void)
 // ----------------------------------------------------------------------------
 int vtkTextActor::GetNumberOfLines(const char *input)
 {
-    vtkTextMapper *mapper = this->GetMapper();
+    vtkTextMapper *mapper = (vtkTextMapper *)this->GetMapper();
     if (mapper)
       {
       return mapper->GetNumberOfLines(input);
@@ -445,7 +434,7 @@ int vtkTextActor::GetNumberOfLines(void)
 // ----------------------------------------------------------------------------
 void vtkTextActor::GetSize(vtkViewport *v, int size[2])
 {
-    vtkTextMapper *mapper = this->GetMapper();
+    vtkTextMapper *mapper = (vtkTextMapper *)this->GetMapper();
     if (mapper)
       {
       mapper->GetSize(v, size);
@@ -454,7 +443,7 @@ void vtkTextActor::GetSize(vtkViewport *v, int size[2])
 // ----------------------------------------------------------------------------
 int vtkTextActor::GetWidth(vtkViewport*v)
 {
-    vtkTextMapper *mapper = this->GetMapper();
+    vtkTextMapper *mapper = (vtkTextMapper *)this->GetMapper();
     if (mapper)
       {
       return mapper->GetWidth(v);
@@ -467,7 +456,7 @@ int vtkTextActor::GetWidth(vtkViewport*v)
 // ----------------------------------------------------------------------------
 int vtkTextActor::GetHeight(vtkViewport*v)
 {
-    vtkTextMapper *mapper = this->GetMapper();
+    vtkTextMapper *mapper = (vtkTextMapper *)this->GetMapper();
     if (mapper)
       {
       return mapper->GetHeight(v);

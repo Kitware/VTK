@@ -57,7 +57,6 @@ public:
   // Get the vtkTextMapper that defines the text to be drawn.
   // One will be created by default if none is supplied
   void SetMapper(vtkTextMapper *mapper);
-  vtkTextMapper *GetMapper(void);
 
   // Description:
   // Set the text string to be displayed. "\n" is recognized
