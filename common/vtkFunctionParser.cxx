@@ -964,7 +964,7 @@ void vtkFunctionParser::RemoveSpaces()
   this->FunctionLength = 0;
   length = strlen(this->Function);
   
-  tempString = new char[length];
+  tempString = new char[length+1];
   for (i = 0; i < length; i++)
     {
     if (!isspace(this->Function[i]))

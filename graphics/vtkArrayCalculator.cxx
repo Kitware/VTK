@@ -337,7 +337,7 @@ void vtkArrayCalculator::SetFunction(const char* function)
   
   if (function)
     {
-    this->Function = new char[strlen(function)];
+    this->Function = new char[strlen(function)+1];
     strcpy(this->Function, function);
     this->FunctionParser->SetFunction(this->Function);
     }
