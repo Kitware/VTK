@@ -147,13 +147,13 @@ public:
   // method name.
   static vtkInformationIntegerKey* INPUT_IS_OPTIONAL();
   static vtkInformationIntegerKey* INPUT_IS_REPEATABLE();
+  static vtkInformationInformationVectorKey* INPUT_CONNECTION_INFORMATION();
   static vtkInformationInformationVectorKey* INPUT_REQUIRED_FIELDS();
   static vtkInformationStringKey* INPUT_REQUIRED_DATA_TYPE();
   static vtkInformationStringKey* OUTPUT_DATA_TYPE();
   static vtkInformationIntegerKey* DATA_TYPE();
   static vtkInformationInformationVectorKey* OUTPUT_PROVIDED_FIELDS();
   static vtkInformationDataObjectKey* DATA_OBJECT();
-  static vtkInformationDataObjectVectorKey* DATA_OBJECTS();
   static vtkInformationIntegerKey* FIELD_ARRAY_TYPE();
   static vtkInformationIntegerKey* FIELD_ASSOCIATION();
   static vtkInformationIntegerKey* FIELD_ATTRIBUTE_TYPE();
