@@ -1,6 +1,6 @@
 #####################################
 # doxyfile for vtk (w) by jan stifter
-# modified by S. Barre (Time-stamp: <2000-08-03 20:21:00 barre>
+# modified by S. Barre (Time-stamp: <2001-06-28 03:07:10 barre>
 #####################################
 
 # things you should change:
@@ -189,9 +189,9 @@ TAB_SIZE             = 3
 INPUT             = ../vtk-doxygen/common ../vtk-doxygen/contrib ../vtk-doxygen/graphics \
                     ../vtk-doxygen/imaging ../vtk-doxygen/patented \
                     ../vtk-doxygen/doc_version.dox ../vtk-doxygen/doc_class2example.dox ../vtk-doxygen/doc_index.dox
-#INPUT            = ../vtk-dox/contrib ../vtk-dox/doc_version.dox ../vtk-dox/doc_class2example.dox ../vtk-dox/doc_index.dox
-#INPUT            = ..:vtk../vtk-dox/doc_index.dox
-#INPUT            = ../vtk-dox/common ../vtk-dox/doc_version.dox
+
+# INPUT             = ../vtk-doxygen/common \
+#                    ../vtk-doxygen/doc_version.dox ../vtk-doxygen/doc_class2example.dox ../vtk-doxygen/doc_index.dox
  
 # If the value of the INPUT tag contains directories, you can use the 
 # FILE_PATTERNS tag to specify one or more wildcard pattern (like *.cpp
@@ -512,7 +512,7 @@ ALLEXTERNALS         = NO
 
 PERL_PATH            = /usr/bin/perl
 
-DOT_PATH             = /usr/local/bin
+# DOT_PATH             = /usr/local/bin
 
 #---------------------------------------------------------------------------
 # Configuration options related to the search engine
