@@ -39,13 +39,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // This will be the default.
 #include "vtkMultiProcessController.h"
-#include "vtkThreadController.h"
+//#include "vtkThreadController.h"
+#include "vtkMPIController.h"
 
 #include "vtkCollection.h"
 #include "vtkPolyDataReader.h"
 #include "vtkPolyDataWriter.h"
-#include "vtkUnstructuredExtent.h"
-#include "vtkStructuredExtent.h"
+#include "vtkExtent.h"
+#include "vtkDataInformation.h"
 
 
 // The special tag used for RMI communication.
@@ -107,7 +108,8 @@ vtkMultiProcessController::~vtkMultiProcessController()
 //----------------------------------------------------------------------------
 vtkMultiProcessController *vtkMultiProcessController::New()
 {
-  return vtkThreadController::New();
+  //return vtkThreadController::New();
+  return vtkMPIController::New();
 }
 
 
@@ -123,6 +125,8 @@ void vtkMultiProcessController::PrintSelf(ostream& os, vtkIndent indent)
      << this->MaximumNumberOfProcesses << endl;
   os << indent << "NumberOfProcesses: " << this->NumberOfProcesses << endl;
   os << indent << "LocalProcessId: " << this->LocalProcessId << endl;
+  os << indent << "MarshalStringLength: " << this->MarshalStringLength << endl;
+  os << indent << "MarshalDataLength: " << this->MarshalDataLength << endl;
   os << indent << "RMIs: \n";
   
   this->RMIs->InitTraversal();
@@ -366,16 +370,18 @@ int vtkMultiProcessController::WriteObject(vtkObject *data)
     {
     return this->WritePolyData((vtkPolyData*)data);
     }  
-  if (strcmp(data->GetClassName(), "vtkUnstructuredExtent") == 0)
+  if (strcmp(data->GetClassName(), "vtkExtent") == 0 ||
+      strcmp(data->GetClassName(), "vtkStructuredExtent") == 0 ||
+      strcmp(data->GetClassName(), "vtkUnstructuredExtent") == 0)
     {
-    return this->WriteUnstructuredExtent((vtkUnstructuredExtent*)data);
+    return this->WriteExtent((vtkExtent*)data);
     }
   if (strcmp(data->GetClassName(), "vtkDataInformation") == 0  ||
       strcmp(data->GetClassName(), "vtkUnstructuredInformation") == 0  ||
       strcmp(data->GetClassName(), "vtkStructuredInformation") == 0  ||
       strcmp(data->GetClassName(), "vtkImageInformation") == 0)
     {
-    return this->WriteInformation((vtkDataInformation*)data);
+    return this->WriteDataInformation((vtkDataInformation*)data);
     }
   
   vtkErrorMacro("Cannot marshal object of type "
@@ -401,7 +407,7 @@ int vtkMultiProcessController::ReadObject(vtkObject *data)
       strcmp(data->GetClassName(), "vtkStructuredInformation") == 0  ||
       strcmp(data->GetClassName(), "vtkImageInformation") == 0)
     {
-    return this->ReadInformation((vtkDataInformation*)data);
+    return this->ReadDataInformation((vtkDataInformation*)data);
     }
   
   vtkErrorMacro("Cannot marshal object of type "
@@ -418,6 +424,7 @@ int vtkMultiProcessController::WritePolyData(vtkPolyData *data)
   int numPts, numCells;
   unsigned long size;
   char *str;
+  vtkCellArray *ca;
   vtkPolyDataWriter *writer = vtkPolyDataWriter::New();
   vtkPointData *pd;
   
@@ -428,11 +435,34 @@ int vtkMultiProcessController::WritePolyData(vtkPolyData *data)
   // Compute the size
   pd = data->GetPointData();
   numPts = data->GetNumberOfPoints();
-  numCells = data->GetNumberOfCells();
+
+  // headers and stuff
+  size = 200;
   // points
-  size = 1+ numPts * 3 * sizeof(float);
-  // Cells (assume quads)
-  size += numCells * 5 * sizeof(int);
+  size += numPts * 3 * sizeof(float);
+  
+  // Cells
+  ca = data->GetPolys();
+  if (ca)
+    {
+    size += ca->GetSize() * sizeof(int);
+    }
+  ca = data->GetStrips();
+  if (ca)
+    {
+    size += ca->GetSize() * sizeof(int);
+    }
+  ca = data->GetLines();
+  if (ca)
+    {
+    size += ca->GetSize() * sizeof(int);
+    }
+  ca = data->GetVerts();
+  if (ca)
+    {
+    size += ca->GetSize() * sizeof(int);
+    }
+
   // point data
   if (pd->GetScalars())
     {
@@ -447,7 +477,6 @@ int vtkMultiProcessController::WritePolyData(vtkPolyData *data)
     size += pd->GetNormals()->GetNumberOfNormals() * 3 * sizeof(float);
     }
 
-  
   // use the previous string if it is long enough.
   if (this->MarshalStringLength < size)
     {
@@ -474,6 +503,9 @@ int vtkMultiProcessController::WritePolyData(vtkPolyData *data)
     writer->Write();
     size = writer->GetOutputStringLength();
     }
+
+  //cerr << "actual size: " << size << endl;
+  
   
   // save the actual length of the data string.
   this->MarshalDataLength = size;

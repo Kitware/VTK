@@ -41,7 +41,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkDownStreamPort.h"
 #include "vtkMultiProcessController.h"
 #include "vtkPolyData.h"
-
+#include "vtkExtent.h"
 
 //----------------------------------------------------------------------------
 vtkUpStreamPort::vtkUpStreamPort()
@@ -98,8 +98,8 @@ void vtkUpStreamPort::TriggerUpdateInformation(int remoteProcessId)
   // Now just send the information downstream.
   // PipelineMTime is part of information, so downstream
   // port will make the time comparison, and call Update if necessary.
-  this->Controller->Send( input->GetDataInformation(), remoteProcessId,
-			  VTK_PORT_INFORMATION_TRANSFER_TAG);
+  this->Controller->Send( (vtkObject*)(input->GetDataInformation()), 
+		  remoteProcessId, VTK_PORT_INFORMATION_TRANSFER_TAG);
 }
 
 
@@ -116,14 +116,15 @@ void vtkUpStreamPortUpdateCallBack(void *arg, int remoteProcessId)
 //----------------------------------------------------------------------------
 void vtkUpStreamPort::TriggerUpdate(int remoteProcessId)
 {
+  unsigned long downDataTime;
   vtkDataObject *input = this->GetInput();
   
   // First get the update extent requested.
   this->Controller->Receive((vtkObject*)(input->GetGenericUpdateExtent()),
 			    remoteProcessId, 
 			    VTK_PORT_UPDATE_EXTENT_TAG);
-    
-  // Handle no input gracefully.
+  
+  // Handle no input gracefully. (Not true: Later we will send a NULL input.)
   if ( input != NULL )
     {
     input->InternalUpdate();
@@ -196,15 +197,15 @@ void vtkUpStreamPort::SetTag(int tag)
   // remove old RMI.
   if (this->Tag != -1)
     {
-    this->Controller->RemoveRMI(vtkUpStreamPortUpdateCallBack, 
-                                (void *)this, this->Tag);
     this->Controller->RemoveRMI(vtkUpStreamPortUpdateInformationCallBack, 
+                                (void *)this, this->Tag);
+    this->Controller->RemoveRMI(vtkUpStreamPortUpdateCallBack, 
                                 (void *)this, this->Tag + 1);
     }
   
   this->Tag = tag;
-  this->Controller->AddRMI(vtkUpStreamPortUpdateCallBack, (void *)this, tag);
-  this->Controller->AddRMI(vtkUpStreamPortUpdateInformationCallBack, 
+  this->Controller->AddRMI(vtkUpStreamPortUpdateInformationCallBack, (void *)this, tag);
+  this->Controller->AddRMI(vtkUpStreamPortUpdateCallBack, 
                            (void *)this, tag+1);
 }
 

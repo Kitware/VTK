@@ -42,6 +42,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkMultiProcessController.h"
 #include "vtkPolyData.h"
 #include "vtkUnstructuredInformation.h"
+#include "vtkExtent.h"
 
 
 //----------------------------------------------------------------------------
@@ -118,15 +119,17 @@ vtkPolyData *vtkDownStreamPort::GetPolyDataOutput()
 // the UpdateInformation call.
 void vtkDownStreamPort::UpdateInformation()
 {
-  vtkDataObject *output = this->GetOutput();
+  vtkDataObject *output;
   unsigned long pmt;
-
-  if (this->Output == NULL)
+  
+  if (this->Outputs == NULL || this->Outputs[0] == NULL)
     {
     vtkErrorMacro("No output.");
     return;
     }
 
+  output = this->Outputs[0];
+  
   // This should be cleared by this point.
   // UpdateInformation and Update calls need to be made in pairs.
   if (this->TransferNeeded)
@@ -146,8 +149,12 @@ void vtkDownStreamPort::UpdateInformation()
 
   // Convert Pipeline MTime into a value meaningful in this process.
   pmt = output->GetDataInformation()->GetPipelineMTime();
-  if (pmt > this->DataTime)
+  
+  // !!! Make sure that Update is called if data is released. !!!
+  if (pmt > this->DataTime || output->GetDataReleased())
     {
+    // Our data is out of data.  We will need a transfer.
+    // This Modified call will ensure Update will get called.
     this->Modified();
     }
   output->SetPipelineMTime(this->GetMTime());
@@ -159,11 +166,10 @@ void vtkDownStreamPort::UpdateInformation()
   // we want task parallelism whith multiple input filters, 
   // it needs to be here.
 
-  // Do the normal clipping which also may release data if we do not
-  // have the UpdateExtent.
-  output->ClipUpdateExtentWithWholeExtent();
-
   // Do we need to update?
+  // !!! I am uneasy about the Released check.  Although a new update extent
+  // will cause the data to be released,  released data does not imply 
+  // Update will be called !!!!
   if (pmt <= this->DataTime && ! output->GetDataReleased())
     { 
     // No, we do not need to update.

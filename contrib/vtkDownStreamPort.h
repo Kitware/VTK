@@ -39,7 +39,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkDownStreamPort - First pass at new ports: DownStreamPort.
 // .SECTION Description
-// 
+// Warning:  I do not think the logic handles output->ReleaseDataFlagOn()
+// condition.  It is the UpdateInformation/Update role reversal issue.
 
 // .SECTION see also
 // vtkUpStreamPort vtkMultiProcessController

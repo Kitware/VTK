@@ -427,3 +427,109 @@ void vtkAppendPolyData::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "ParallelStreamingOff\n";
     }
 }
+
+// hack until I get a real fix
+//----------------------------------------------------------------------------
+void vtkAppendPolyData::UpdateInformation()
+{
+  unsigned long t1, t2, size;
+  int locality, l2, idx;
+  vtkDataObject *pd;
+  vtkDataObject *output;
+
+  if (this->Outputs[0] == NULL)
+    {
+    return;
+    }
+
+  this->ComputeInputUpdateExtents(this->GetOutput());
+
+  if (this->Updating)
+    {
+    // We are in a pipeline loop.
+    // Force an update
+    this->GetOutput()->Modified();
+    return;
+    }
+  
+  // Update information on the input and
+  // compute information that is general to vtkDataObject.
+  t1 = this->GetMTime();
+  size = 0;
+  locality = 0;
+
+  for (idx = 0; idx < this->NumberOfInputs; ++idx)
+    {
+    if (this->Inputs[idx] != NULL)
+      {
+      pd = this->Inputs[idx];
+
+      this->Updating = 1;
+      pd->UpdateInformation();
+      this->Updating = 0;
+      
+      // for MPI port stuff
+      l2 = pd->GetLocality();
+      if (l2 > locality)
+	{
+	locality = l2;
+	}
+      
+      // Pipeline MTime stuff
+      t2 = pd->GetPipelineMTime();
+      if (t2 > t1)
+	{
+	t1 = t2;
+	}
+      // Pipeline MTime does not include the MTime of the data object itself.
+      // Factor these mtimes into the next PipelineMTime
+      t2 = pd->GetMTime();
+      if (t2 > t1)
+	{
+	t1 = t2;
+	}
+      
+      // Default estimated size is just the sum of the sizes of the inputs.
+      size += pd->GetEstimatedWholeMemorySize();
+      }
+    }
+
+  // for copying information
+  if (this->Inputs && this->Inputs[0])
+    {
+    pd = this->Inputs[0];
+    }
+  else
+    {
+    pd = NULL;
+    }
+  
+  // Call ExecuteInformation for subclass specific information.
+  // Some sources (readers) have an expensive ExecuteInformation method.
+  if (t1 > this->InformationTime.GetMTime())
+    {
+    // Here is where we set up defaults.
+    // I feel funny about setting the PipelineMTime inside the conditional,
+    // but it should work.
+    output = this->GetOutput();
+    if (output)
+      {
+      output->SetPipelineMTime(t1);
+      output->SetLocality(locality + 1);
+      output->SetEstimatedWholeMemorySize(size);
+      // By default, copy information from first input.
+      if (pd)
+	{
+	output->CopyInformation(pd);
+	}
+      }  
+    
+    this->ExecuteInformation();
+    // This call to modify is almost useless.  Update invalidates this time.
+    // InformationTime is modified at the end of InternalUpdate too.
+    // Keep this modified in case we have multiple calls to UpdateInformation.
+    this->InformationTime.Modified();
+    }
+}
+
+

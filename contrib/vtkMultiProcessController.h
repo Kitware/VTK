@@ -53,8 +53,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkMultiThreader.h"
 class vtkPolyData;
 class vtkCollection;
-class vtkUnstructuredExtent;
-class vtkStructuredExtent;
+class vtkExtent;
+class vtkDataInformation;
 
 
 #define VTK_MP_CONTROLLER_MAX_PROCESSES 256
@@ -204,8 +204,8 @@ protected:
   int ReadPolyData(vtkPolyData *object);
   void CopyPolyData(vtkPolyData *src, vtkPolyData *dest);
 
-  int WriteExtent(vtkExtent *object);
-  int ReadExtent(vtkExtent *object);
+  int WriteExtent(vtkExtent *ext);
+  int ReadExtent(vtkExtent *ext);
 
   int WriteDataInformation(vtkDataInformation *info);
   int ReadDataInformation(vtkDataInformation *info);
