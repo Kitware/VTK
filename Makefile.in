@@ -98,6 +98,7 @@ clean: ${CLEAN_TCL} ${CLEAN_PYTHON} ${CLEAN_JAVA} ${CLEAN_TOOLKITS}
 	cd common;    ${MAKE} -${MAKEFLAGS} clean
 	cd wrap;    ${MAKE} -${MAKEFLAGS} clean
 	rm -f config.cache
+	rm -f targets
 
 clean_tcl:
 	cd tcl;       ${MAKE} -${MAKEFLAGS} clean
