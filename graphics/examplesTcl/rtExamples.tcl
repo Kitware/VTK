@@ -4,10 +4,10 @@ catch {load vtktcl}
 #
 
 #
-# if VTK_RESULTING_IMAGE_PATH is defined, then use if to qualify the error 
+# if VTK_RESULTS_PATH is defined, then use if to qualify the error 
 # and test images
 #
-if { [catch {set VTK_RESULTING_IMAGE_PATH $env(VTK_RESULTING_IMAGE_PATH)/}] != 0} { set VTK_RESULTING_IMAGE_PATH "" }
+if { [catch {set VTK_RESULTS_PATH $env(VTK_RESULTS_PATH)/}] != 0} { set VTK_RESULTS_PATH "" }
 
 # on windows shut off global warnings because they hold up the tests
 if {$tcl_platform(os) == "Windows NT"} {
@@ -149,11 +149,11 @@ foreach afile $files {
 	puts $logFile "but failed with an error of [imgDiff GetThresholdedError]"
 	vtkPNMWriter rtpnmw
 	rtpnmw SetInput [imgDiff GetOutput]
-	rtpnmw SetFileName "${VTK_RESULTING_IMAGE_PATH}$afile.error.ppm"
+	rtpnmw SetFileName "${VTK_RESULTS_PATH}$afile.error.ppm"
 	rtpnmw Write
 	vtkPNMWriter rtpnmw2
 	rtpnmw2 SetInput [w2if GetOutput]
-	rtpnmw2 SetFileName "${VTK_RESULTING_IMAGE_PATH}$afile.test.ppm"
+	rtpnmw2 SetFileName "${VTK_RESULTS_PATH}$afile.test.ppm"
 	rtpnmw2 Write
     }
     
