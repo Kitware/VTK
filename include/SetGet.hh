@@ -243,6 +243,6 @@ type *Get##name () { \
 // vlErrorMacro(<< "Error message" << variable);
 //
 #define vlErrorMacro(x) \
-  cerr << "In " __FILE__ << ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): " x << "\n\n"
+  cerr << "ERROR In " __FILE__ << ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): " x << "\n\n"
 
 #endif
