@@ -537,13 +537,15 @@ void vtkWin32OpenGLRenderWindow::WindowInitialize (void)
         wndClass.style = CS_HREDRAW | CS_VREDRAW;
         wndClass.lpfnWndProc = vtkWin32OpenGLRenderWindow::WndProc;
         wndClass.cbClsExtra = 0;
-        wndClass.cbWndExtra = 0;
         wndClass.hInstance = this->ApplicationInstance;
         wndClass.hIcon = LoadIcon(NULL, IDI_APPLICATION);
         wndClass.hCursor = LoadCursor(NULL, IDC_ARROW);
         wndClass.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
         wndClass.lpszMenuName = NULL;
         wndClass.lpszClassName = "vtkOpenGL";
+        // vtk doesn't use these extra 4 bytes, but app writers
+        // may want them, so we provide them.
+        wndClass.cbWndExtra = 4;
         RegisterClass(&wndClass);
         }
       
