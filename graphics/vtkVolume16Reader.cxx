@@ -166,6 +166,8 @@ void vtkVolume16Reader::ExecuteInformation()
   output->SetScalarType(VTK_UNSIGNED_SHORT);
   output->SetNumberOfScalarComponents(1);
   
+  output->SetSpacing(this->DataSpacing);
+  output->SetOrigin(this->DataOrigin);
   // spacing and origin ?
 }
     
