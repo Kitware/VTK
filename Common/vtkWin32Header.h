@@ -35,7 +35,9 @@
 #endif
 
 #ifdef VTK_USE_ANSI_STDLIB
+#ifndef NOMINMAX
 #define NOMINMAX
+#endif
 #endif
 
 #include <windows.h>
