@@ -54,8 +54,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Make sure that the dimensions of the grid match the number of coordinates
 // in the x-y-z directions. If not, unpredictable results (including
 // program failure) may result. Also, you must supply coordinates in all
-// three directions, even if the dataset topology is 2D, 1D, or 0D. Finally,
-// the coordinates values in each direction must be montonically increasing.
+// three directions, even if the dataset topology is 2D, 1D, or 0D.
 
 #ifndef __vtkRectilinearGrid_h
 #define __vtkRectilinearGrid_h

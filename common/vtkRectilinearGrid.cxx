@@ -428,6 +428,8 @@ int vtkRectilinearGrid::GetCellType(int vtkNotUsed(cellId))
 
 void vtkRectilinearGrid::ComputeBounds()
 {
+  float tmp;
+
   this->Bounds[0] = this->XCoordinates->GetScalar(0);
   this->Bounds[2] = this->YCoordinates->GetScalar(0);
   this->Bounds[4] = this->ZCoordinates->GetScalar(0);
@@ -438,6 +440,16 @@ void vtkRectilinearGrid::ComputeBounds()
                         this->YCoordinates->GetNumberOfScalars()-1);
   this->Bounds[5] = this->ZCoordinates->GetScalar(
                         this->ZCoordinates->GetNumberOfScalars()-1);
+  // ensure that the bounds are increasing
+  for (int i = 0; i < 5; i += 2)
+    {
+    if (this->Bounds[i + 1] < this->Bounds[i])
+      {
+      tmp = this->Bounds[i + 1];
+      this->Bounds[i + 1] = this->Bounds[i];
+      this->Bounds[i] = tmp;
+      }
+    }
 }
 
 // Set dimensions of rectilinear grid dataset.
@@ -475,7 +487,7 @@ int vtkRectilinearGrid::ComputeStructuredCoordinates(float x[3], int ijk[3],
                                                       float pcoords[3])
 {
   int i, j, loc[3];
-  float xPrev, xNext;
+  float xPrev, xNext, tmp;
   vtkScalars *scalars[3];
 
   scalars[0] = this->XCoordinates;
@@ -492,6 +504,12 @@ int vtkRectilinearGrid::ComputeStructuredCoordinates(float x[3], int ijk[3],
     loc[j] = 0;
     xPrev = scalars[j]->GetScalar(0);
     xNext = scalars[j]->GetScalar(scalars[j]->GetNumberOfScalars()-1);
+    if (xNext < xPrev)
+      {
+      tmp = xNext;
+      xNext = xPrev;
+      xPrev = tmp;
+      }
     if ( x[j] < xPrev || x[j] > xNext )
       {
       return 0;
