@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkMultiProcessController.h"
 
-vtkCxxRevisionMacro(vtkCollectPolyData, "1.6");
+vtkCxxRevisionMacro(vtkCollectPolyData, "1.7");
 vtkStandardNewMacro(vtkCollectPolyData);
 
 vtkCxxSetObjectMacro(vtkCollectPolyData,Controller, vtkMultiProcessController);
@@ -39,6 +39,7 @@ vtkCollectPolyData::vtkCollectPolyData()
 //----------------------------------------------------------------------------
 vtkCollectPolyData::~vtkCollectPolyData()
 {
+  this->SetController(0);
 }
 
 //----------------------------------------------------------------------------
