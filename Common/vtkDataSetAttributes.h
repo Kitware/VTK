@@ -80,11 +80,12 @@ public:
 
   // Description:
   // Pass entire arrays of input data through to output. Obey the "copy"
-  // flags. Note that if the copy flag of an attribute is off,
-  // the corresponding array will not be passed. However if the
-  // copy flag of an attribute is on, the corresponding array
-  // will be copied even if the array is in not the list of arrays
-  // to be copied.
+  // flags. When passing a field,  the following copying rules are 
+  // followed: 1) Check if a field is an attribute, if yes and if there
+  // is a copy flag for that attribute (on or off), obey the  flag for 
+  // that attribute, ignore (2) and (3), 2) if there is a copy field for
+  // that field (on or off), obey the flag, ignore (3) 3) obey
+  // CopyAllOn/Off
   virtual void PassData(vtkFieldData* fd);
 
   // Description:
@@ -100,7 +101,13 @@ public:
 
   // Description:
   // Copy the attribute data from one id to another. Make sure CopyAllocate()
-  // has been invoked before using this method.
+  // has been invoked before using this method. When copying a field,  
+  // the following copying rules are 
+  // followed: 1) Check if a field is an attribute, if yes and if there
+  // is a copy flag for that attribute (on or off), obey the  flag for 
+  // that attribute, ignore (2) and (3), 2) if there is a copy field for
+  // that field (on or off), obey the flag, ignore (3) 3) obey
+  // CopyAllOn/Off
   void CopyData(vtkDataSetAttributes *fromPd, vtkIdType fromId, vtkIdType toId);
 
   // Description:
