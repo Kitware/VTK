@@ -34,6 +34,7 @@ vtkConvexPointSet.cxx
 vtkCoordinate.cxx
 vtkCylinder.cxx
 vtkDataObject.cxx
+vtkDataObjectAlgorithm.cxx
 vtkDataObjectCollection.cxx
 vtkDataObjectSource.cxx
 vtkDataSet.cxx
