@@ -47,7 +47,8 @@ CXXFLAGS=-O
 #
 #CFLAGS=-O2 -Wall
 #CXXFLAGS=-O2 -Wall
-#MAKE_DEPEND_COMMAND=${CXX} -MM  $(CPPFLAGS) $(CXX_FLAGS) $(srcdir)/*.cxx > depend.make
+#MAKE_DEPEND_COMMAND=${CXX} -MM  $(CPPFLAGS) $(CXX_FLAGS) $(srcdir)/*.cxx > depend.make; ${CXX} -MM $(CPPFLAGS) $(CXX_FLAGS) tcl/*.cxx | sed -e "sz^\([^.]*\)\.oztcl/\1\.ozg" >> depend.make
+
 
 
 
