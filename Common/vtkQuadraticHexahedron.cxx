@@ -25,7 +25,7 @@
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkQuadraticHexahedron, "1.4");
+vtkCxxRevisionMacro(vtkQuadraticHexahedron, "1.5");
 vtkStandardNewMacro(vtkQuadraticHexahedron);
 
 // Construct the hex with 20 points + 7 extra points for internal
@@ -547,18 +547,18 @@ void vtkQuadraticHexahedron::InterpolationDerivs(float pcoords[3],
   derivs[5] =  0.125*(sm*tp + 2.0*r*sm*tp - s*sm*tp + t*sm*tp - 2.0*sm*tp);
   derivs[6] =  0.125*(sp*tp + 2.0*r*sp*tp + s*sp*tp + t*sp*tp - 2.0*sp*tp);
   derivs[7] = -0.125*(sp*tp - 2.0*r*sp*tp + s*sp*tp + t*sp*tp - 2.0*sp*tp);
-  derivs[8] = 0.0;
-  derivs[9] = 0.0;
-  derivs[10] = 0.0;
-  derivs[11] = 0.0;
-  derivs[12] = 0.0;
-  derivs[13] = 0.0;
-  derivs[14] = 0.0;
-  derivs[15] = 0.0;
-  derivs[16] = 0.0;
-  derivs[17] = 0.0;
-  derivs[18] = 0.0;
-  derivs[19] = 0.0;
+  derivs[8] = -0.5*r*sm*tm;
+  derivs[9] =  0.25*(tm - s*s*tm);
+  derivs[10] = -0.5*r*sp*tm;
+  derivs[11] = -0.25*(tm - s*s*tm);
+  derivs[12] = -0.5*r*sm*tp;
+  derivs[13] =  0.25*(tp - s*s*tp);
+  derivs[14] = -0.5*r*sp*tp;
+  derivs[15] = -0.25*(tp - s*s*tp);
+  derivs[16] = -0.25*(sm - t*t*sm);
+  derivs[17] =  0.25*(sm - t*t*sm);
+  derivs[18] =  0.25*(sp - t*t*sp);
+  derivs[19] = -0.25*(sp - t*t*sp);
 
   //s-derivatives
   derivs[20] = -0.125*(rm*tm - 2.0*s*rm*tm - r*rm*tm - t*rm*tm - 2.0*rm*tm);
@@ -569,18 +569,18 @@ void vtkQuadraticHexahedron::InterpolationDerivs(float pcoords[3],
   derivs[25] = -0.125*(rp*tp - 2.0*s*rp*tp + r*rp*tp + t*rp*tp - 2.0*rp*tp); 
   derivs[26] =  0.125*(rp*tp + 2.0*s*rp*tp + r*rp*tp + t*rp*tp - 2.0*rp*tp); 
   derivs[27] =  0.125*(rm*tp + 2.0*s*rm*tp - r*rm*tp + t*rm*tp - 2.0*rm*tp); 
-  derivs[28] = 0.0;
-  derivs[29] = 0.0;
-  derivs[20] = 0.0;
-  derivs[31] = 0.0;
-  derivs[32] = 0.0;
-  derivs[33] = 0.0;
-  derivs[34] = 0.0;
-  derivs[35] = 0.0;
-  derivs[36] = 0.0;
-  derivs[37] = 0.0;
-  derivs[38] = 0.0;
-  derivs[39] = 0.0;
+  derivs[28] = -0.25*(tm - r*r*tm);
+  derivs[29] = -0.5*s*rp*tm;
+  derivs[20] =  0.25*(tm - r*r*tm);
+  derivs[31] = -0.5*s*rm*tm;
+  derivs[32] = -0.25*(tp - r*r*tp);
+  derivs[33] = -0.5*s*rp*tp;
+  derivs[34] =  0.25*(tp - r*r*tp);
+  derivs[35] = -0.5*s*rm*tp;
+  derivs[36] = -0.25*(rm - t*t*rm);
+  derivs[37] = -0.25*(rp - t*t*rp); 
+  derivs[38] =  0.25*(rp - t*t*rp);
+  derivs[39] =  0.25*(rm - t*t*rm);
 
   //t-derivatives
   derivs[40] = -0.125*(rm*sm - 2.0*t*rm*sm - r*rm*sm - s*rm*sm - 2.0*rm*sm); 
@@ -591,17 +591,17 @@ void vtkQuadraticHexahedron::InterpolationDerivs(float pcoords[3],
   derivs[45] =  0.125*(rp*sm + 2.0*t*rp*sm + r*rp*sm - s*rp*sm - 2.0*rp*sm);  
   derivs[46] =  0.125*(rp*sp + 2.0*t*rp*sp + r*rp*sp + s*rp*sp - 2.0*rp*sp);  
   derivs[47] =  0.125*(rm*sp + 2.0*t*rm*sp - r*rm*sp + s*rm*sp - 2.0*rm*sp);  
-  derivs[48] = 0.0;
-  derivs[49] = 0.0;
-  derivs[50] = 0.0;
-  derivs[51] = 0.0;
-  derivs[52] = 0.0;
-  derivs[53] = 0.0;
-  derivs[54] = 0.0;
-  derivs[55] = 0.0;
-  derivs[56] = 0.0;
-  derivs[57] = 0.0;
-  derivs[58] = 0.0;
-  derivs[59] = 0.0;
+  derivs[48] = -0.25*(sm - r*r*sm);
+  derivs[49] = -0.25*(rp - s*s*rp);
+  derivs[50] = -0.25*(sp - r*r*sp);
+  derivs[51] = -0.25*(rm - s*s*rm);
+  derivs[52] =  0.25*(sm - r*r*sm);
+  derivs[53] =  0.25*(rp - s*s*rp);
+  derivs[54] =  0.25*(sp - r*r*sp);
+  derivs[55] =  0.25*(rm - s*s*rm);
+  derivs[56] = -0.5*t*rm*sm;
+  derivs[57] = -0.5*t*rp*sm;
+  derivs[58] = -0.5*t*rp*sp;
+  derivs[59] = -0.5*t*rm*sp;
 }
 
