@@ -173,17 +173,20 @@ int Tcl_AppInit(Tcl_Interp *interp)
    * Append path to VTK packages to auto_path
    */
 
-  Tcl_SetVar(interp, "auto_path", ":test", TCL_GLOBAL_ONLY|TCL_APPEND_VALUE);
-
-  static char package_require_hook[] = "\
+  static char script[] = "\
+foreach dir {\"${VTK_SOURCE_DIR}/Wrapping/Tcl\" \"${CMAKE_INSTALL_PREFIX}/lib/vtk/tcl\"} { \n\
+    if {[file isdirectory $dir]} { \n\
+        lappend auto_path $dir \n\
+    } \n\
+} \n\
 rename package package.orig;\n\
 proc package {args} {\n\
     if {[catch {set package_res [eval package.orig $args]} catch_res]} {\n\
-        global errorInfo;\n\
+        global errorInfo env;\n\
         if {[lindex $args 0] == \"require\"} {\n\
             set expecting \"can't find package vtk\";\n\
             if {![string compare -length [string length $expecting] $catch_res $expecting]} {\n\
-                set errorInfo \"The Tcl interpreter was probably not able to find the VTK packages. Please check that your TCLLIBPATH environment variable includes the Wrapping/Tcl source directory. More informations can be found in the Wrapping/Tcl/README file (also available online at http://public.kitware.com/cgi-bin/cvsweb.cgi/~checkout~/VTK/Wrapping/Tcl/README).\n$errorInfo\";\n\
+                set errorInfo \"The Tcl interpreter was probably not able to find the VTK packages. Please check that your TCLLIBPATH environment variable includes either the {VTK_SOURCE_DIR}/Wrapping/Tcl or the {CMAKE_INSTALL_PREFIX}/lib/vtk/tcl directory (current value is: $env(TCLLIBPATH)). More informations can be found in the {VTK_SOURCE_DIR}/Wrapping/Tcl/README file (also available online at http://public.kitware.com/cgi-bin/cvsweb.cgi/~checkout~/VTK/Wrapping/Tcl/README).\n$errorInfo\";\n\
             }\n\
         }\n\
         error $catch_res $errorInfo;\n\
@@ -191,7 +194,7 @@ proc package {args} {\n\
     return $package_res;\n\
 }";
 
-  Tcl_Eval(interp, package_require_hook);
+  Tcl_Eval(interp, script);
 
   /*
    * Specify a user-specific startup file to invoke if the application

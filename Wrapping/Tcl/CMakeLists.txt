@@ -1,5 +1,8 @@
 # create the vtk executable
-ADD_EXECUTABLE(vtk tkAppInit)
+CONFIGURE_FILE(
+  ${VTK_SOURCE_DIR}/Wrapping/Tcl/tkAppInit.cxx.in 
+  ${VTK_BINARY_DIR}/Wrapping/Tcl/tkAppInit.cxx)
+ADD_EXECUTABLE(vtk ${VTK_BINARY_DIR}/Wrapping/Tcl/tkAppInit.cxx)
 
 LINK_LIBRARIES (
   vtkImagingTCL
@@ -101,6 +104,28 @@ ENDIF (VTK_USE_PARALLEL)
 TARGET_LINK_LIBRARIES(vtk png zlib vtkjpeg)
 
 INSTALL_TARGETS(/bin vtk)
+
+# Process all packages
+
+SUBDIRS(vtk vtkbase vtkcommon vtkfiltering vtkgraphics vtkimaging vtkinteraction vtkio vtktesting)
+
+INSTALL_FILES(/lib/vtk/tcl "" README)
+
+IF (VTK_USE_HYBRID)
+  SUBDIRS(vtkhybrid)
+ENDIF (VTK_USE_HYBRID)
+
+IF (VTK_USE_PARALLEL)
+  SUBDIRS(vtkparallel)
+ENDIF (VTK_USE_PARALLEL)
+
+IF (VTK_USE_PATENTED)
+  SUBDIRS(vtkpatented)
+ENDIF (VTK_USE_PATENTED)
+
+IF (VTK_USE_RENDERING)
+  SUBDIRS(vtkrendering)
+ENDIF (VTK_USE_RENDERING)
 
 # Allow the user to customize their build with some local options
 #
