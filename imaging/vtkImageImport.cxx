@@ -46,7 +46,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 vtkImageImport* vtkImageImport::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -175,6 +175,7 @@ void vtkImageImport::Execute(vtkImageData *data)
     (this->DataExtent[5] - this->DataExtent[4]+1) *
     this->NumberOfScalarComponents;    
   data->GetPointData()->GetScalars()->GetData()->SetVoidArray(ptr,size,1);
+  data->SetExtent(this->DataExtent);
 }
 
 
