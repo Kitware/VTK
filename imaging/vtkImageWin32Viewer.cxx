@@ -211,13 +211,18 @@ static void vtkImageWin32ViewerRenderGray(vtkImageWin32Viewer *self,
   {
 	  inMax1 =  inMin1 - 1 + Size[1];
   }
-
+#if 0
   if (self->GetOriginLocation() == VTK_IMAGE_VIEWER_LOWER_LEFT)
     {
     inInc1 = -inInc1;
     inPtr = (T *)(region->GetScalarPointer(inMin0, inMax1));
     }  
-  
+#endif
+
+  // #### 8/15/97 by
+    inInc1 = -inInc1;
+    inPtr = (T *)(region->GetScalarPointer(inMin0, inMax1));
+
   // Loop through in regions pixels
   rowAdder = (4 - ((inMax0-inMin0 + 1)*3)%4)%4;
   inPtr1 = inPtr;
@@ -574,6 +579,13 @@ void vtkImageWin32Viewer::RenderRegion(vtkImageRegion *region)
   shift = this->ColorWindow / 2.0 - this->ColorLevel;
   scale = 255.0 / this->ColorWindow;
 
+
+  BITMAP bm;
+  GetObject(this->HBitmap, sizeof (BITMAP), (LPSTR) &bm);
+
+  vtkDebugMacro(<< "vtkImageWin32Viewer::RenderRegion - Bitmap width: " << bm.bmWidth);
+  vtkDebugMacro(<< "vtkImageWin32Viewer::RenderRegion - Bitmap height: " << bm.bmHeight);
+
   // create the DIBSection if not done already
   if (!this->HBitmap)
     {
@@ -592,6 +604,37 @@ void vtkImageWin32Viewer::RenderRegion(vtkImageRegion *region)
     this->HBitmap = CreateDIBSection(this->DeviceContext, &dataHeader, 
                              DIB_RGB_COLORS, (void **)(&(this->DataOut)), NULL, 0);
     }
+   // free and then realloc the DIB if it needs to change size (Window resize)
+   // if region size differs from bitmap size, reallocate the bitmap
+   else if ((width != bm.bmWidth) || (height != bm.bmHeight))
+     {
+
+	vtkDebugMacro(<< "vtkImageWin32Viewer::RenderRegion - Changing bitmap size to: "
+	   << width << "," << height << "(" << dataWidth*height << " bytes)");
+    	
+    DeleteObject(this->HBitmap);
+
+    BITMAPINFO dataHeader;
+    dataHeader.bmiHeader.biSize = 40;
+    dataHeader.bmiHeader.biWidth = width;
+    dataHeader.bmiHeader.biHeight = height;
+    dataHeader.bmiHeader.biPlanes = 1;
+    dataHeader.bmiHeader.biBitCount = 24;
+    dataHeader.bmiHeader.biCompression = BI_RGB;
+    dataHeader.bmiHeader.biSizeImage = dataWidth*height;
+    dataHeader.bmiHeader.biClrUsed = 0;
+    dataHeader.bmiHeader.biClrImportant = 0;  
+
+    // try using a DIBsection
+    this->HBitmap = CreateDIBSection(this->DeviceContext, &dataHeader, 
+                         DIB_RGB_COLORS, (void **)(&(this->DataOut)), NULL, 0);
+
+     }
+   else 
+     {
+	   vtkDebugMacro(<<"vtkImageWin32Viewer::RenderRegion - No bitmap size change");
+     }
+
 
   if (this->ColorFlag)
     {
