@@ -14,11 +14,18 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
 #include <ctype.h>
+#include <math.h>
 #include "Pl3dRead.hh"
 #include "ByteSwap.hh"
 
 #define BINARY 0
 #define ASCII 1
+
+#define RHOINF 1.0
+#define CINF 1.0
+#define PINF ((RHOINF*CINF) * (RHOINF*CINF) / this->Gamma)
+#define CV (this->R / (this->Gamma-1.0))
+#define VINF (this->Fsmach*CINF)
 
 vlPLOT3DReader::vlPLOT3DReader()
 {
@@ -166,14 +173,17 @@ void vlPLOT3DReader::Execute()
 
 int vlPLOT3DReader::ReadASCIIGrid(FILE *fp)
 {
+  return 1;
 }
 
 int vlPLOT3DReader::ReadASCIISolution(FILE *fp)
 {
+  return 1;
 }
 
 int vlPLOT3DReader::ReadASCIIFunctionFile(FILE *fp)
 {
+  return 1;
 }
 
 int vlPLOT3DReader::ReadBinaryGrid(FILE *fp)
@@ -540,6 +550,38 @@ void vlPLOT3DReader::ComputePressure()
 
 void vlPLOT3DReader::ComputeEnthalpy()
 {
+  float *m, e, u, v, w, v2, d, rr;
+  int i;
+  vlFloatScalars *enthalpy;
+//
+//  Check that the required data is available
+//
+  if ( this->Density == NULL || this->Momentum == NULL || 
+  this->Energy == NULL )
+    {
+    vlErrorMacro(<<"Cannot compute enthalpy");
+    return;
+    }
+
+  enthalpy = new vlFloatScalars(this->NumPts);
+//
+//  Compute the enthalpy
+//
+  for (i=0; i < this->NumPts; i++) 
+    {
+    d = this->Density->GetScalar(i);
+    d = (d != 0.0 ? d : 1.0);
+    m = this->Momentum->GetVector(i);
+    e = this->Energy->GetScalar(i);
+    rr = 1.0 / d;
+    u = m[0] * rr;        
+    v = m[1] * rr;        
+    w = m[2] * rr;        
+    v2 = u*u + v*v + w*w;
+    enthalpy->SetScalar(i, this->Gamma*(e*rr - 0.5*v2));
+  }
+  this->PointData.SetScalars(enthalpy);
+  vlDebugMacro(<<"Created enthalpy scalar");
 }
 
 void vlPLOT3DReader::ComputeInternalEnergy()
@@ -550,32 +592,422 @@ void vlPLOT3DReader::ComputeInternalEnergy()
 
 void vlPLOT3DReader::ComputeKineticEnergy()
 {
+  float *m, u, v, w, v2, d, rr;
+  int i;
+  vlFloatScalars *kineticEnergy;
+//
+//  Check that the required data is available
+//
+  if ( this->Density == NULL || this->Momentum == NULL )
+    {
+    vlErrorMacro(<<"Cannot compute kinetic energy");
+    return;
+    }
+
+  kineticEnergy = new vlFloatScalars(this->NumPts);
+//
+//  Compute the kinetic energy
+//
+  for (i=0; i < this->NumPts; i++) 
+    {
+    d = this->Density->GetScalar(i);
+    d = (d != 0.0 ? d : 1.0);
+    m = this->Momentum->GetVector(i);
+    rr = 1.0 / d;
+    u = m[0] * rr;        
+    v = m[1] * rr;        
+    w = m[2] * rr;        
+    v2 = u*u + v*v + w*w;
+    kineticEnergy->SetScalar(i, 0.5*v2);
+  }
+  this->PointData.SetScalars(kineticEnergy);
+  vlDebugMacro(<<"Created kinetic energy scalar");
 }
 
 void vlPLOT3DReader::ComputeVelocityMagnitude()
 {
+  float *m, u, v, w, v2, d, rr, e;
+  int i;
+  vlFloatScalars *velocityMag;
+//
+//  Check that the required data is available
+//
+  if ( this->Density == NULL || this->Momentum == NULL ||
+  this->Energy == NULL )
+    {
+    vlErrorMacro(<<"Cannot compute velocity magnitude");
+    return;
+    }
+
+  velocityMag = new vlFloatScalars(this->NumPts);
+//
+//  Compute the velocity magnitude
+//
+  for (i=0; i < this->NumPts; i++) 
+    {
+    d = this->Density->GetScalar(i);
+    d = (d != 0.0 ? d : 1.0);
+    m = this->Momentum->GetVector(i);
+    e = this->Energy->GetScalar(i);
+    rr = 1.0 / d;
+    u = m[0] * rr;        
+    v = m[1] * rr;        
+    w = m[2] * rr;        
+    v2 = u*u + v*v + w*w;
+    velocityMag->SetScalar(i, sqrt((double)v2));
+  }
+  this->PointData.SetScalars(velocityMag);
+  vlDebugMacro(<<"Created velocity magnitude scalar");
 }
 
 void vlPLOT3DReader::ComputeStagnationEnergy()
 {
+  this->PointData.SetScalars(this->Energy);
+  vlDebugMacro(<<"Created stagnation energy scalar");
 }
 
 void vlPLOT3DReader::ComputeEntropy()
 {
+  float *m, u, v, w, v2, d, rr, s, p, e;
+  int i;
+  vlFloatScalars *entropy;
+//
+//  Check that the required data is available
+//
+  if ( this->Density == NULL || this->Momentum == NULL ||
+  this->Energy == NULL )
+    {
+    vlErrorMacro(<<"Cannot compute entropy");
+    return;
+    }
+
+  entropy = new vlFloatScalars(this->NumPts);
+//
+//  Compute the entropy
+//
+  for (i=0; i < this->NumPts; i++) 
+    {
+    d = this->Density->GetScalar(i);
+    d = (d != 0.0 ? d : 1.0);
+    m = this->Momentum->GetVector(i);
+    e = this->Energy->GetScalar(i);
+    rr = 1.0 / d;
+    u = m[0] * rr;        
+    v = m[1] * rr;        
+    w = m[2] * rr;        
+    v2 = u*u + v*v + w*w;
+    p = (this->Gamma-1.)*(e - 0.5*d*v2);
+    s = CV * log( pow((double)(p/PINF)/d/RHOINF,(double)this->Gamma) );
+    entropy->SetScalar(i, s);
+  }
+  this->PointData.SetScalars(entropy);
+  vlDebugMacro(<<"Created entropy scalar");
 }
 
 void vlPLOT3DReader::ComputeSwirl()
 {
+  vlVectors *currentVector;
+  vlVectors *vorticity;
+  float d, rr, *m, u, v, w, v2, *vort, s;
+  int i;
+  vlFloatScalars *swirl;
+//
+//  Check that the required data is available
+//
+  if ( this->Density == NULL || this->Momentum == NULL ||
+  this->Energy == NULL )
+    {
+    vlErrorMacro(<<"Cannot compute swirl");
+    return;
+    }
+
+  swirl = new vlFloatScalars(this->NumPts);
+
+  currentVector = this->PointData.GetVectors();
+  currentVector->Register(this);
+
+  this->ComputeVorticity();
+  vorticity = this->PointData.GetVectors();
+//
+//  Compute the swirl
+//
+  for (i=0; i < this->NumPts; i++) 
+    {
+    d = this->Density->GetScalar(i);
+    d = (d != 0.0 ? d : 1.0);
+    m = this->Momentum->GetVector(i);
+    vort = vorticity->GetVector(i);
+    rr = 1.0 / d;
+    u = m[0] * rr;        
+    v = m[1] * rr;        
+    w = m[2] * rr;        
+    v2 = u*u + v*v + w*w;
+    if ( v2 != 0.0 ) 
+      s = (vort[0]*m[0] + vort[1]*m[1] + vort[2]*m[2]) / v2;
+    else 
+      s = 0.0;
+
+    swirl->SetScalar(i,s);
+  }
+  this->PointData.SetScalars(swirl);
+  vlDebugMacro(<<"Created swirl scalar");
+
+  // reset current vector
+  this->PointData.SetVectors(currentVector);
+  currentVector->UnRegister(this);
 }
 
-
-
+// Vector functions
 void vlPLOT3DReader::ComputeVelocity()
 {
+  float *m, v[3], d, rr;
+  int i;
+  vlFloatVectors *velocity;
+//
+//  Check that the required data is available
+//
+  if ( this->Density == NULL || this->Momentum == NULL ||
+  this->Energy == NULL )
+    {
+    vlErrorMacro(<<"Cannot compute velocity");
+    return;
+    }
+
+  velocity = new vlFloatVectors(this->NumPts);
+//
+//  Compute the velocity
+//
+  for (i=0; i < this->NumPts; i++) 
+    {
+    d = this->Density->GetScalar(i);
+    d = (d != 0.0 ? d : 1.0);
+    m = this->Momentum->GetVector(i);
+    rr = 1.0 / d;
+    v[0] = m[0] * rr;        
+    v[1] = m[1] * rr;        
+    v[2] = m[2] * rr;        
+    velocity->SetVector(i, v);
+  }
+  this->PointData.SetVectors(velocity);
+  vlDebugMacro(<<"Created velocity vector");
 }
 
 void vlPLOT3DReader::ComputeVorticity()
 {
+  vlVectors *velocity;
+  vlFloatVectors *vorticity;
+  int dims[3], ijsize;
+  vlPoints *points;
+  int i, j, k, idx, idx2;
+  float vort[3], xp[3], xm[3], vp[3], vm[3], factor;
+  float xxi, yxi, zxi, uxi, vxi, wxi;
+  float xeta, yeta, zeta, ueta, veta, weta;
+  float xzeta, yzeta, zzeta, uzeta, vzeta, wzeta;
+  float aj, xix, xiy, xiz, etax, etay, etaz, zetax, zetay, zetaz;
+//
+//  Check that the required data is available
+//
+  if ( (points=this->GetPoints()) == NULL || this->Density == NULL || 
+  this->Momentum == NULL || this->Energy == NULL )
+    {
+    vlErrorMacro(<<"Cannot compute vorticity");
+    return;
+    }
+
+  vorticity = new vlFloatVectors(this->NumPts);
+
+  this->ComputeVelocity();
+  velocity = this->PointData.GetVectors();
+
+  this->GetDimensions(dims);
+  ijsize = dims[0]*dims[1];
+
+  for (k=0; k<dims[2]; k++) 
+    {
+    for (j=0; j<dims[1]; j++) 
+      {
+      for (i=0; i<dims[0]; i++) 
+        {
+//
+//  Xi derivatives.
+//
+        if ( dims[0] == 1 ) // 2D in this direction
+          {
+          factor = 1.0;
+          for (i=0; i<3; i++) vp[i] = vm[i] = xp[i] = xm[i] = 0.0;
+          xp[0] = 1.0;
+          }
+        else if ( i == 0 ) 
+          {
+          factor = 1.0;
+          idx = (i+1) + j*dims[0] + k*ijsize;
+          idx2 = i + j*dims[0] + k*ijsize;
+          points->GetPoint(idx,xp);
+          points->GetPoint(idx2,xm);
+          velocity->GetVector(idx,vp);
+          velocity->GetVector(idx2,vm);
+          } 
+        else if ( i == (dims[0]-1) ) 
+          {
+          factor = 1.0;
+          idx = i + j*dims[0] + k*ijsize;
+          idx2 = i-1 + j*dims[0] + k*ijsize;
+          points->GetPoint(idx,xp);
+          points->GetPoint(idx2,xm);
+          velocity->GetVector(idx,vp);
+          velocity->GetVector(idx2,vm);
+          } 
+        else 
+          {
+          factor = 0.5;
+          idx = (i+1) + j*dims[0] + k*ijsize;
+          idx2 = (i-1) + j*dims[0] + k*ijsize;
+          points->GetPoint(idx,xp);
+          points->GetPoint(idx2,xm);
+          velocity->GetVector(idx,vp);
+          velocity->GetVector(idx2,vm);
+          }
+
+        xxi = factor * (xp[0] - xm[0]);
+        yxi = factor * (xp[1] - xm[1]);
+        zxi = factor * (xp[2] - xm[2]);
+        uxi = factor * (vp[0] - vm[0]);
+        vxi = factor * (vp[1] - vm[1]);
+        wxi = factor * (vp[2] - vm[2]);
+//
+//  Eta derivatives.
+//
+        if ( dims[1] == 1 ) // 2D in this direction
+          {
+          factor = 1.0;
+          for (i=0; i<3; i++) vp[i] = vm[i] = xp[i] = xm[i] = 0.0;
+          xp[1] = 1.0;
+          }
+        else if ( j == 0 ) 
+          {
+          factor = 1.0;
+          idx = i + (j+1)*dims[0] + k*ijsize;
+          idx2 = i + j*dims[0] + k*ijsize;
+          points->GetPoint(idx,xp);
+          points->GetPoint(idx2,xm);
+          velocity->GetVector(idx,vp);
+          velocity->GetVector(idx2,vm);
+          } 
+        else if ( j == (dims[1]-1) ) 
+          {
+          factor = 1.0;
+          idx = i + j*dims[0] + k*ijsize;
+          idx2 = i + (j-1)*dims[0] + k*ijsize;
+          points->GetPoint(idx,xp);
+          points->GetPoint(idx2,xm);
+          velocity->GetVector(idx,vp);
+          velocity->GetVector(idx2,vm);
+          } 
+        else 
+          {
+          factor = 0.5;
+          idx = i + (j+1)*dims[0] + k*ijsize;
+          idx2 = i + (j-1)*dims[0] + k*ijsize;
+          points->GetPoint(idx,xp);
+          points->GetPoint(idx2,xm);
+          velocity->GetVector(idx,vp);
+          velocity->GetVector(idx2,vm);
+          }
+
+        xeta = factor * (xp[0] - xm[0]);
+        yeta = factor * (xp[1] - xm[1]);
+        zeta = factor * (xp[2] - xm[2]);
+        ueta = factor * (vp[0] - vm[0]);
+        veta = factor * (vp[1] - vm[1]);
+        weta = factor * (vp[2] - vm[2]);
+//
+//  Zeta derivatives.
+//
+        if ( dims[2] == 1 ) // 2D in this direction
+          {
+          factor = 1.0;
+          for (i=0; i<3; i++) vp[i] = vm[i] = xp[i] = xm[i] = 0.0;
+          xp[2] = 1.0;
+          }
+        else if ( k == 0 ) 
+          {
+          factor = 1.0;
+          idx = i + j*dims[0] + (k+1)*ijsize;
+          idx2 = i + j*dims[0] + k*ijsize;
+          points->GetPoint(idx,xp);
+          points->GetPoint(idx2,xm);
+          velocity->GetVector(idx,vp);
+          velocity->GetVector(idx2,vm);
+          } 
+        else if ( k == (dims[2]-1) ) 
+          {
+          factor = 1.0;
+          idx = i + j*dims[0] + k*ijsize;
+          idx2 = i + j*dims[0] + (k-1)*ijsize;
+          points->GetPoint(idx,xp);
+          points->GetPoint(idx2,xm);
+          velocity->GetVector(idx,vp);
+          velocity->GetVector(idx2,vm);
+          } 
+        else 
+          {
+          factor = 0.5;
+          idx = i + j*dims[0] + (k+1)*ijsize;
+          idx2 = i + j*dims[0] + (k-1)*ijsize;
+          points->GetPoint(idx,xp);
+          points->GetPoint(idx2,xm);
+          velocity->GetVector(idx,vp);
+          velocity->GetVector(idx2,vm);
+          }
+
+        xzeta = factor * (xp[0] - xm[0]);
+        yzeta = factor * (xp[1] - xm[1]);
+        zzeta = factor * (xp[2] - xm[2]);
+        uzeta = factor * (vp[0] - vm[0]);
+        vzeta = factor * (vp[1] - vm[1]);
+        wzeta = factor * (vp[2] - vm[2]);
+//
+//  Now calculate the Jacobian.  Grids occasionally have singularities, or
+//  points where the Jacobian is infinite (the inverse is zero).  For these
+//  cases, we'll set the Jacobian to zero, which will result in a zero 
+//  vorticity.
+//
+        aj =  xxi*yeta*zzeta+yxi*zeta*xzeta+zxi*xeta*yzeta
+              -zxi*yeta*xzeta-yxi*xeta*zzeta-xxi*zeta*yzeta;
+        if (aj != 0.0) aj = 1. / aj;
+//
+//  Xi metrics.
+//
+        xix  =  aj*(yeta*zzeta-zeta*yzeta);
+        xiy  = -aj*(xeta*zzeta-zeta*xzeta);
+        xiz  =  aj*(xeta*yzeta-yeta*xzeta);
+//
+//  Eta metrics.
+//
+        etax = -aj*(yxi*zzeta-zxi*yzeta);
+        etay =  aj*(xxi*zzeta-zxi*xzeta);
+        etaz = -aj*(xxi*yzeta-yxi*xzeta);
+//
+//  Zeta metrics.
+//
+        zetax=  aj*(yxi*zeta-zxi*yeta);
+        zetay= -aj*(xxi*zeta-zxi*xeta);
+        zetaz=  aj*(xxi*yeta-yxi*xeta);
+//
+//
+//  Finally, the vorticity components.
+//
+        vort[0]= xiy*wxi+etay*weta+zetay*wzeta - xiz*vxi-etaz*veta-zetaz*vzeta;
+        vort[1]= xiz*uxi+etaz*ueta+zetaz*uzeta - xix*wxi-etax*weta-zetax*wzeta;
+        vort[2]= xix*vxi+etax*veta+zetax*vzeta - xiy*uxi-etay*ueta-zetay*uzeta;
+        idx = i + j*dims[0] + k*ijsize;
+        vorticity->SetVector(idx,vort);
+        }
+      }
+    }
+
+  this->PointData.SetVectors(vorticity);
+  vlDebugMacro(<<"Created vorticity vector");
 }
 
 void vlPLOT3DReader::ComputeMomentum()
@@ -586,6 +1018,223 @@ void vlPLOT3DReader::ComputeMomentum()
 
 void vlPLOT3DReader::ComputePressureGradient()
 {
+  vlScalars *currentScalar;
+  vlScalars *pressure;
+  vlFloatVectors *gradient;
+  int dims[3], ijsize;
+  vlPoints *points;
+  int i, j, k, idx, idx2;
+  float g[3], xp[3], xm[3], pp, pm, factor;
+  float xxi, yxi, zxi, pxi;
+  float xeta, yeta, zeta, peta;
+  float xzeta, yzeta, zzeta, pzeta;
+  float aj, xix, xiy, xiz, etax, etay, etaz, zetax, zetay, zetaz;
+//
+//  Check that the required data is available
+//
+  if ( (points=this->GetPoints()) == NULL || this->Density == NULL || 
+  this->Momentum == NULL || this->Energy == NULL )
+    {
+    vlErrorMacro(<<"Cannot compute pressure gradient");
+    return;
+    }
+
+  gradient = new vlFloatVectors(this->NumPts);
+
+  currentScalar = this->PointData.GetScalars();
+  currentScalar->Register(this);
+
+  this->ComputePressure();
+  pressure = this->PointData.GetScalars();
+
+  this->GetDimensions(dims);
+  ijsize = dims[0]*dims[1];
+
+  for (k=0; k<dims[2]; k++) 
+    {
+    for (j=0; j<dims[1]; j++) 
+      {
+      for (i=0; i<dims[0]; i++) 
+        {
+//
+//  Xi derivatives.
+//
+        if ( dims[0] == 1 ) // 2D in this direction
+          {
+          factor = 1.0;
+          for (i=0; i<3; i++) xp[i] = xm[i] = 0.0;
+          xp[0] = 1.0; pp = pm = 0.0;
+          }
+        else if ( i == 0 ) 
+          {
+          factor = 1.0;
+          idx = (i+1) + j*dims[0] + k*ijsize;
+          idx2 = i + j*dims[0] + k*ijsize;
+          points->GetPoint(idx,xp);
+          points->GetPoint(idx2,xm);
+          pp = pressure->GetScalar(idx);
+          pm = pressure->GetScalar(idx2);
+          } 
+        else if ( i == (dims[0]-1) ) 
+          {
+          factor = 1.0;
+          idx = i + j*dims[0] + k*ijsize;
+          idx2 = i-1 + j*dims[0] + k*ijsize;
+          points->GetPoint(idx,xp);
+          points->GetPoint(idx2,xm);
+          pp = pressure->GetScalar(idx);
+          pm = pressure->GetScalar(idx2);
+          } 
+        else 
+          {
+          factor = 0.5;
+          idx = (i+1) + j*dims[0] + k*ijsize;
+          idx2 = (i-1) + j*dims[0] + k*ijsize;
+          points->GetPoint(idx,xp);
+          points->GetPoint(idx2,xm);
+          pp = pressure->GetScalar(idx);
+          pm = pressure->GetScalar(idx2);
+          }
+
+        xxi = factor * (xp[0] - xm[0]);
+        yxi = factor * (xp[1] - xm[1]);
+        zxi = factor * (xp[2] - xm[2]);
+        pxi = factor * (pp - pm);
+//
+//  Eta derivatives.
+//
+        if ( dims[1] == 1 ) // 2D in this direction
+          {
+          factor = 1.0;
+          for (i=0; i<3; i++) xp[i] = xm[i] = 0.0;
+          xp[1] = 1.0; pp = pm = 0.0;
+          }
+        else if ( j == 0 ) 
+          {
+          factor = 1.0;
+          idx = i + (j+1)*dims[0] + k*ijsize;
+          idx2 = i + j*dims[0] + k*ijsize;
+          points->GetPoint(idx,xp);
+          points->GetPoint(idx2,xm);
+          pp = pressure->GetScalar(idx);
+          pm = pressure->GetScalar(idx2);
+          } 
+        else if ( j == (dims[1]-1) ) 
+          {
+          factor = 1.0;
+          idx = i + j*dims[0] + k*ijsize;
+          idx2 = i + (j-1)*dims[0] + k*ijsize;
+          points->GetPoint(idx,xp);
+          points->GetPoint(idx2,xm);
+          pp = pressure->GetScalar(idx);
+          pm = pressure->GetScalar(idx2);
+          } 
+        else 
+          {
+          factor = 0.5;
+          idx = i + (j+1)*dims[0] + k*ijsize;
+          idx2 = i + (j-1)*dims[0] + k*ijsize;
+          points->GetPoint(idx,xp);
+          points->GetPoint(idx2,xm);
+          pp = pressure->GetScalar(idx);
+          pm = pressure->GetScalar(idx2);
+          }
+
+        xeta = factor * (xp[0] - xm[0]);
+        yeta = factor * (xp[1] - xm[1]);
+        zeta = factor * (xp[2] - xm[2]);
+        peta = factor * (pp - pm);
+//
+//  Zeta derivatives.
+//
+        if ( dims[2] == 1 ) // 2D in this direction
+          {
+          factor = 1.0;
+          for (i=0; i<3; i++) xp[i] = xm[i] = 0.0;
+          xp[2] = 1.0; pp = pm = 0.0;
+          }
+        else if ( k == 0 ) 
+          {
+          factor = 1.0;
+          idx = i + j*dims[0] + (k+1)*ijsize;
+          idx2 = i + j*dims[0] + k*ijsize;
+          points->GetPoint(idx,xp);
+          points->GetPoint(idx2,xm);
+          pp = pressure->GetScalar(idx);
+          pm = pressure->GetScalar(idx2);
+          } 
+        else if ( k == (dims[2]-1) ) 
+          {
+          factor = 1.0;
+          idx = i + j*dims[0] + k*ijsize;
+          idx2 = i + j*dims[0] + (k-1)*ijsize;
+          points->GetPoint(idx,xp);
+          points->GetPoint(idx2,xm);
+          pp = pressure->GetScalar(idx);
+          pm = pressure->GetScalar(idx2);
+          } 
+        else 
+          {
+          factor = 0.5;
+          idx = i + j*dims[0] + (k+1)*ijsize;
+          idx2 = i + j*dims[0] + (k-1)*ijsize;
+          points->GetPoint(idx,xp);
+          points->GetPoint(idx2,xm);
+          pp = pressure->GetScalar(idx);
+          pm = pressure->GetScalar(idx2);
+          }
+
+        xzeta = factor * (xp[0] - xm[0]);
+        yzeta = factor * (xp[1] - xm[1]);
+        zzeta = factor * (xp[2] - xm[2]);
+        pzeta = factor * (pp - pm);
+//
+//  Now calculate the Jacobian.  Grids occasionally have singularities, or
+//  points where the Jacobian is infinite (the inverse is zero).  For these
+//  cases, we'll set the Jacobian to zero, which will result in a zero 
+//  vorticity.
+//
+        aj =  xxi*yeta*zzeta+yxi*zeta*xzeta+zxi*xeta*yzeta
+              -zxi*yeta*xzeta-yxi*xeta*zzeta-xxi*zeta*yzeta;
+        if (aj != 0.0) aj = 1. / aj;
+//
+//  Xi metrics.
+//
+        xix  =  aj*(yeta*zzeta-zeta*yzeta);
+        xiy  = -aj*(xeta*zzeta-zeta*xzeta);
+        xiz  =  aj*(xeta*yzeta-yeta*xzeta);
+//
+//  Eta metrics.
+//
+        etax = -aj*(yxi*zzeta-zxi*yzeta);
+        etay =  aj*(xxi*zzeta-zxi*xzeta);
+        etaz = -aj*(xxi*yzeta-yxi*xzeta);
+//
+//  Zeta metrics.
+//
+        zetax=  aj*(yxi*zeta-zxi*yeta);
+        zetay= -aj*(xxi*zeta-zxi*xeta);
+        zetaz=  aj*(xxi*yeta-yxi*xeta);
+//
+//
+//  Finally, the vorticity components.
+//
+        g[0]= xix*pxi+etax*peta+zetax*pzeta;
+        g[1]= xiy*pxi+etay*peta+zetay*pzeta;
+        g[2]= xiz*pxi+etaz*peta+zetaz*pzeta;
+
+        idx = i + j*dims[0] + k*ijsize;
+        gradient->SetVector(idx,g);
+        }
+      }
+    }
+
+  this->PointData.SetVectors(gradient);
+  vlDebugMacro(<<"Created pressure gradient vector");
+
+  // reset current scalar
+  this->PointData.SetScalars(currentScalar);
+  currentScalar->UnRegister(this);
 }
 
 int vlPLOT3DReader::GetFileType(FILE *fp)
