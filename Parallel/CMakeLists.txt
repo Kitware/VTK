@@ -142,12 +142,11 @@ ENDIF (VTK_WRAP_TCL)
 # source files
 #
 IF (VTK_WRAP_PYTHON)
+  VTK_WRAP_PYTHON(vtkParallelPython ParallelPython_SRCS Parallel_SRCS)
   IF (APPLE)  
     ADD_LIBRARY(vtkParallelPython MODULE ParallelPython_SRCS)
   ELSE (APPLE)
     ADD_LIBRARY(vtkParallelPython SHARED ParallelPython_SRCS)
-  ENDIF (APPLE)
-  VTK_WRAP_PYTHON(vtkParallelPython ParallelPython_SRCS Parallel_SRCS)
   TARGET_LINK_LIBRARIES (vtkParallelPython 
                          vtkIOPython
                          vtkRenderingPython
@@ -157,6 +156,8 @@ IF (VTK_WRAP_PYTHON)
                          vtkCommonPython)
   TARGET_LINK_LIBRARIES (vtkParallelPython 
 			 ${OPENGL_LIBRARY})
+  ENDIF (APPLE)
+
   IF(WIN32)
     TARGET_LINK_LIBRARIES (vtkParallelPython 
                            debug ${PYTHON_DEBUG_LIBRARY} 
