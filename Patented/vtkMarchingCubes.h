@@ -14,6 +14,21 @@
      the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
      PURPOSE.  See the above copyright notice for more information.
 
+     THIS CLASS IS PATENTED UNDER UNITED STATES PATENT NUMBER 4,710,876
+     "System and Method for the Display of Surface Structures Contained
+     Within the Interior Region of a Solid Body".
+     Application of this software for commercial purposes requires 
+     a license grant from GE. Contact:
+
+         Carl B. Horton
+         Sr. Counsel, Intellectual Property
+         3000 N. Grandview Blvd., W-710
+         Waukesha, WI  53188
+         Phone:  (262) 513-4022
+         E-Mail: Carl.Horton@med.ge.com
+
+     for more information.
+
 =========================================================================*/
 // .NAME vtkMarchingCubes - generate isosurface(s) from volume
 // .SECTION Description
