@@ -32,7 +32,7 @@ vlTextureMapToPlane::vlTextureMapToPlane()
   this->TRange[0] = 0.0;
   this->TRange[1] = 1.0;
 
-  this->AutomaticNormalGeneration = 1;
+  this->AutomaticPlaneGeneration = 1;
 }
 
 void vlTextureMapToPlane::PrintSelf(ostream& os, vlIndent indent)
@@ -46,7 +46,7 @@ void vlTextureMapToPlane::PrintSelf(ostream& os, vlIndent indent)
     os << indent << "T Range: (" << this->TRange[0] << ", "
                                  << this->TRange[1] << ")\n";
     os << indent << "Automatic Normal Generation: " << 
-                    (this->AutomaticNormalGeneration ? "On\n" : "Off\n");
+                    (this->AutomaticPlaneGeneration ? "On\n" : "Off\n");
     os << indent << "Normal: (" << this->Normal[0] << ", "
                                   << this->Normal[1] << ", "
                                   << this->Normal[2] << ")\n";
@@ -67,7 +67,7 @@ void vlTextureMapToPlane::Execute()
 
   vlDebugMacro(<<"Generating texture coordinates!");
   this->Initialize();
-  if ( numPts < 3 )
+  if ( (numPts=this->Input->GetNumberOfPoints()) < 3 )
     {
     vlErrorMacro(<< "Not enough points to map with\n");
     return;
@@ -80,7 +80,7 @@ void vlTextureMapToPlane::Execute()
 //  Compute least squares plane if on automatic mode; otherwise use
 //  point and normal specified.
 //
-  if ( this->AutomaticNormalGeneration )
+  if ( this->AutomaticPlaneGeneration )
     this->ComputeNormal();
 
   math.Normalize (this->Normal);
