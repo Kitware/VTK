@@ -31,7 +31,7 @@
 #include "vtkGenericAttribute.h"
 #include "vtkGenericCellTessellator.h"
 
-vtkCxxRevisionMacro(vtkGenericAdaptorCell, "1.7");
+vtkCxxRevisionMacro(vtkGenericAdaptorCell, "1.8");
 
 vtkGenericAdaptorCell::vtkGenericAdaptorCell()
 {
@@ -204,6 +204,8 @@ void vtkGenericAdaptorCell::Contour(vtkContourValues *contourValues,
       ptsCount=3;
       break;
     default:
+      linearCell=0;
+      ptsCount=0;
       assert("TODO: dimension 1 and 0" && 0);
     }
     
@@ -331,6 +333,8 @@ void vtkGenericAdaptorCell::Clip(double value,
       ptsCount=3;
       break;
     default:
+      linearCell=0;
+      ptsCount=0;
       assert("TODO: dimension 1 and 0" && 0);
     }
     
