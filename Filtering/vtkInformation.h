@@ -136,32 +136,39 @@ public:
   // Description:
   // Get/Set an InformationKey-vector-valued entry.
   void Append(vtkInformationKeyVectorKey* key, vtkInformationKey* value);
-  void Append(vtkInformationKeyVectorKey* key, 
-              vtkInformationDataObjectKey* value);
-  void Append(vtkInformationKeyVectorKey* key, vtkInformationDoubleKey* value);
-  void Append(vtkInformationKeyVectorKey* key, 
-              vtkInformationDoubleVectorKey* value);
-  void Append(vtkInformationKeyVectorKey* key, 
-              vtkInformationExecutivePortKey* value);
-  void Append(vtkInformationKeyVectorKey* key, 
-              vtkInformationInformationKey* value);
-  void Append(vtkInformationKeyVectorKey* key, 
-              vtkInformationInformationVectorKey* value);
-  void Append(vtkInformationKeyVectorKey* key, 
-              vtkInformationIntegerKey* value);
-  void Append(vtkInformationKeyVectorKey* key, 
-              vtkInformationIntegerVectorKey* value);
-  void Append(vtkInformationKeyVectorKey* key, vtkInformationStringKey* value);
-  void Append(vtkInformationKeyVectorKey* key, 
-              vtkInformationObjectBaseKey* value);
-  void Append(vtkInformationKeyVectorKey* key,   
-              vtkInformationUnsignedLongKey* value);
   void Set(vtkInformationKeyVectorKey* key, vtkInformationKey** value, int length);
   vtkInformationKey** Get(vtkInformationKeyVectorKey* key);
   void Get(vtkInformationKeyVectorKey* key, vtkInformationKey** value);
   int Length(vtkInformationKeyVectorKey* key);
   void Remove(vtkInformationKeyVectorKey* key);
   int Has(vtkInformationKeyVectorKey* key);
+
+  // Provide extra overloads of this method to avoid requiring user
+  // code to include the headers for these key types.  Avoid wrapping
+  // them because the original method can be called from the wrappers
+  // anyway and this causes a python help string to be too long.
+  //BTX
+  void Append(vtkInformationKeyVectorKey* key,
+              vtkInformationDataObjectKey* value);
+  void Append(vtkInformationKeyVectorKey* key, vtkInformationDoubleKey* value);
+  void Append(vtkInformationKeyVectorKey* key,
+              vtkInformationDoubleVectorKey* value);
+  void Append(vtkInformationKeyVectorKey* key,
+              vtkInformationExecutivePortKey* value);
+  void Append(vtkInformationKeyVectorKey* key,
+              vtkInformationInformationKey* value);
+  void Append(vtkInformationKeyVectorKey* key,
+              vtkInformationInformationVectorKey* value);
+  void Append(vtkInformationKeyVectorKey* key,
+              vtkInformationIntegerKey* value);
+  void Append(vtkInformationKeyVectorKey* key,
+              vtkInformationIntegerVectorKey* value);
+  void Append(vtkInformationKeyVectorKey* key, vtkInformationStringKey* value);
+  void Append(vtkInformationKeyVectorKey* key,
+              vtkInformationObjectBaseKey* value);
+  void Append(vtkInformationKeyVectorKey* key,
+              vtkInformationUnsignedLongKey* value);
+  //ETX
 
   // Description:
   // Get/Set a string-valued entry.
