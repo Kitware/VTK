@@ -36,7 +36,7 @@
 #include "vtkVoxel.h"
 #include "vtkWedge.h"
 
-vtkCxxRevisionMacro(vtkDataSetSurfaceFilter, "1.24.2.1");
+vtkCxxRevisionMacro(vtkDataSetSurfaceFilter, "1.24.2.2");
 vtkStandardNewMacro(vtkDataSetSurfaceFilter);
 
 //----------------------------------------------------------------------------
@@ -1205,13 +1205,6 @@ void vtkDataSetSurfaceFilter::InsertTriInHash(vtkIdType a, vtkIdType b,
     c = b;
     b = tmp;
     }
-  // We might as well order b and c for efficient comparison.
-  if (c < b)
-    {
-    tmp = c;
-    c = b;
-    b = tmp;
-    }
 
   // Look for existing tri in the hash;
   end = this->QuadHash + a;
@@ -1223,7 +1216,7 @@ void vtkDataSetSurfaceFilter::InsertTriInHash(vtkIdType a, vtkIdType b,
     // Tris have p0 == p3 
     if (quad->p0 == quad->p3)
       { 
-      if ((b == quad->p1 && c == quad->p2))
+      if ((b == quad->p1 && c == quad->p2) || (b == quad->p2 && c == quad->p1))
         {
         // We have a match.
         quad->SourceId = -1;
