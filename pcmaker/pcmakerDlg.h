@@ -24,13 +24,12 @@ public:
 	BOOL	m_Graphics;
 	BOOL	m_Imaging;
 	CString	m_WhereCompiler;
+	BOOL	m_Debug;
 	BOOL	m_GEMSIP;
 	BOOL	m_GEMSVOLUME;
 	BOOL	m_Patented;
 	BOOL	m_Lean;
 	BOOL	m_Working;
-	BOOL	m_GEAE;
-	BOOL	m_DFA;
 	//}}AFX_DATA
 
 	// ClassWizard generated virtual function overrides

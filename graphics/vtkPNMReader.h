@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkWindow.h
+  Module:    vtkPNMReader.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -38,77 +38,63 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkWindow - window superclass for ImageWindow and RenderWindow
+// .NAME vtkPNMReader - read pnm (i.e., portable anymap) files
 // .SECTION Description
-// vtkWindow is an abstract object to specify the behavior of a
-// rendering or imaging window. 
+// vtkPNMReader is a source object that reads pnm (portable anymap) files.
+// This includes .pbm (bitmap), .pgm (grayscale), and .ppm (pixmap) files.
+// (Currently this object only reads binary versions of these files.)
+//
+// PNMReader creates structured point datasets. The dimension of the 
+// dataset depends upon the number of files read. Reading a single file 
+// results in a 2D image, while reading more than one file results in a 
+// 3D volume.
+//
+// To read a volume, files must be of the form "FileName.<number>"
+// (e.g., foo.ppm.0, foo.ppm.1, ...). You must also specify the image 
+// range. This range specifies the beginning and ending files to read (range
+// can be any pair of non-negative numbers). 
+//
+// The default behavior is to read a single file. In this case, the form
+// of the file is simply "FileName" (e.g., foo.bar, foo.ppm, foo.pnm). To 
+// differentiate between reading images and volumes, the image range is set
+// to  (-1,-1) to read a single image file.
 
-// .SECTION see also
-// vtkImageWindow vtkRenderWindow
+#ifndef __vtkPNMReader_h
+#define __vtkPNMReader_h
 
-#ifndef __vtkWindow_h
-#define __vtkWindow_h
-
-#include "vtkObject.h"
 #include <stdio.h>
+#include "vtkVolumeReader.h"
+#include "vtkPixmap.h"
+#include "vtkGraymap.h"
+#include "vtkBitmap.h"
 
-class VTK_EXPORT vtkWindow : public vtkObject
+class VTK_EXPORT vtkPNMReader : public vtkVolumeReader
 {
 public:
-  vtkWindow();
-  ~vtkWindow();
-  const char *GetClassName() {return "vtkWindow";};
+  vtkPNMReader();
+  static vtkPNMReader *New() {return new vtkPNMReader;};
+  const char *GetClassName() {return "vtkPNMReader";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  virtual void SetDisplayId(void *) = 0;
-  virtual void SetWindowId(void *)  = 0;
-  virtual void SetParentId(void *)  = 0;
-  virtual void *GetGenericDisplayId() = 0;
-  virtual void *GetGenericWindowId()  = 0;
-  virtual void *GetGenericParentId()  = 0;
+  // Description:
+  // Specify file name of pnm file(s).
+  vtkSetStringMacro(FileName);
+  vtkGetStringMacro(FileName);
 
+  vtkStructuredPoints *GetImage(int ImageNum);
   
-  // useful for scripting languages
-  virtual void SetWindowInfo(char *) = 0;
-
-  // Description:
-  // Set/Get the position in screen coordinates of the rendering window.
-  virtual int *GetPosition();
-  virtual void SetPosition(int,int);
-  virtual void SetPosition(int a[2]);
-
-  // Description:
-  // Set/Get the size of the window in screen coordinates.
-  virtual int *GetSize();
-  virtual void SetSize(int,int);
-  virtual void SetSize(int a[2]);
-
-  // Description:
-  // Keep track of whether the rendering window has been mapped to screen.
-  vtkSetMacro(Mapped,int);
-  vtkGetMacro(Mapped,int);
-  vtkBooleanMacro(Mapped,int);
-
-  // Description:
-  // Turn on/off erasing the screen between images. This allows multiple 
-  // exposure sequences if turned on. You will need to turn double 
-  // buffering off or make use of the SwapBuffers methods to prevent
-  // you from swapping buffers between exposures.
-  vtkSetMacro(Erase,int);
-  vtkGetMacro(Erase,int);
-  vtkBooleanMacro(Erase,int);
-
-  // Description:
-  // Get name of rendering window
-  vtkGetStringMacro(WindowName);
-  virtual void SetWindowName(char * );
-
 protected:
-  char *WindowName;
-  int Size[2];
-  int Position[2];
-  int Mapped;
-  int Erase;
+  void Execute();
+  char *FileName;
+
+  vtkColorScalars *ReadImage(int dim[3]);
+  vtkColorScalars *ReadVolume(int dim[3]);
+
+  vtkColorScalars *ReadBinaryPNM(FILE *fp, vtkColorScalars *s, int &type, 
+                                 int offset, int &xsize, int &ysize);
+  int ReadBinaryPBM(FILE *fp, vtkBitmap *s, int offset, int xsize, int ysize);
+  int ReadBinaryPGM(FILE *fp, vtkGraymap *s, int offset, int xsize, int ysize);
+  int ReadBinaryPPM(FILE *fp, vtkPixmap *s, int offset, int xsize, int ysize);
 };
 
 #endif

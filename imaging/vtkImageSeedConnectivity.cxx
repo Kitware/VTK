@@ -155,7 +155,7 @@ void vtkImageSeedConnectivity::InterceptCacheUpdate()
 
 //----------------------------------------------------------------------------
 void vtkImageSeedConnectivity::Execute(vtkImageRegion *inRegion,
-				       vtkImageRegion *outRegion)
+                                   vtkImageRegion *outRegion)
 {
   vtkImageConnectorSeed *seed;
   int idx0, idx1, idx2;
@@ -164,7 +164,7 @@ void vtkImageSeedConnectivity::Execute(vtkImageRegion *inRegion,
   int min0, max0, min1, max1, min2, max2;
   unsigned char *inPtr0, *inPtr1, *inPtr2;
   unsigned char *outPtr0, *outPtr1, *outPtr2;
-  unsigned char temp1, temp2;
+  unsigned char intermediateValue;
   int temp;
 
   if (inRegion->GetScalarType() != VTK_UNSIGNED_CHAR ||
@@ -175,21 +175,8 @@ void vtkImageSeedConnectivity::Execute(vtkImageRegion *inRegion,
     }
 
   // Pick an intermediate value (In some cases, we could eliminate the last threshold.)
-  temp1 = 1;
-  while (temp1 == this->InputConnectValue || 
-	 temp1 == this->OutputUnconnectedValue ||
-	 temp1 == this->OutputConnectedValue)
-    {
-    ++temp1;
-    }
-  temp2 = temp1 + 1;
-  while (temp2 == this->InputConnectValue || 
-	 temp2 == this->OutputUnconnectedValue ||
-	 temp2 == this->OutputConnectedValue)
-    {
-    ++temp2;
-    }
-  
+  intermediateValue = 1;
+
   //-------
   // threshold to eliminate unknown values ( only intermediate and 0)
   inRegion->GetIncrements(inInc0, inInc1, inInc2);
@@ -209,7 +196,7 @@ void vtkImageSeedConnectivity::Execute(vtkImageRegion *inRegion,
         {
         if (*inPtr0 == this->InputConnectValue)
           {
-          *outPtr0 = temp1;
+          *outPtr0 = intermediateValue;
           }
         else
           {
@@ -235,7 +222,7 @@ void vtkImageSeedConnectivity::Execute(vtkImageRegion *inRegion,
     outPtr0 = (unsigned char *)(outRegion->GetScalarPointer(this->NumberOfFilteredAxes, seed->Index));
     for (idx0 = temp; idx0 <= max0; ++idx0)
       {
-      if (*outPtr0 == temp1)
+      if (*outPtr0 == intermediateValue)
         { // we found our seed
         seed->Index[0] = idx0;
         this->Connector->AddSeed(this->Connector->NewSeed(seed->Index, outPtr0));
@@ -249,8 +236,8 @@ void vtkImageSeedConnectivity::Execute(vtkImageRegion *inRegion,
 
   //-------
   // connect
-  this->Connector->SetUnconnectedValue(temp1);
-  this->Connector->SetConnectedValue(temp2);
+  this->Connector->SetUnconnectedValue(intermediateValue);
+  this->Connector->SetConnectedValue(this->OutputConnectedValue);
   this->Connector->MarkRegion(outRegion, this->NumberOfFilteredAxes);
 
   //-------
@@ -264,11 +251,7 @@ void vtkImageSeedConnectivity::Execute(vtkImageRegion *inRegion,
       outPtr0 = outPtr1;
       for (idx0 = min0; idx0 <= max0; ++idx0)
         {
-        if (*outPtr0 == temp2)
-          {
-          *outPtr0 = this->OutputConnectedValue;
-          }
-	else
+        if (*outPtr0 == intermediateValue)
           {
           *outPtr0 = this->OutputUnconnectedValue;
           }

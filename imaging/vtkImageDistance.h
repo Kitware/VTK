@@ -1,13 +1,13 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkOpenGLPolyMapper.h
+  Module:    vtkImageDistance.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
+  Thanks:    Thanks to C. Charles Law who developed this class.
 
-
-Copyright (c) 1993-1996 Ken Martin, Will Schroeder, Bill Lorensen.
+Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
 The following terms apply to all files associated with the software unless
@@ -38,42 +38,32 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkOpenGLPolyMapper - a PolyMapper for the OpenGL library
+// .NAME vtkImageDistance - 2d image distance map.
 // .SECTION Description
-// vtkOpenGLPolyMapper is a subclass of vtkPolyMapperDevice. 
-// vtkOpenGLPolyMapper is a geometric PolyMapper for the OpenGL 
-// rendering library.
-
-#ifndef __vtkOpenGLPolyMapper_h
-#define __vtkOpenGLPolyMapper_h
-
-#include <stdlib.h>
-
-#include "vtkPolyMapper.h"
-#include <GL/gl.h>
+// vtkImageDistance creates a Manhatten distance map from
+// a mask.  It used two 1d distance filters along each axis.
 
 
-class vtkOpenGLRenderer;
-class vtkProperty;
+#ifndef __vtkImageDistance_h
+#define __vtkImageDistance_h
 
-class VTK_EXPORT vtkOpenGLPolyMapper : public vtkPolyMapper
+
+#include "vtkImageDecomposedFilter.h"
+#include "vtkImageDistance1D.h"
+
+class VTK_EXPORT vtkImageDistance : public vtkImageDecomposedFilter
 {
- public:
-  vtkOpenGLPolyMapper();
-  ~vtkOpenGLPolyMapper();
-  static vtkOpenGLPolyMapper *New() {return new vtkOpenGLPolyMapper;};
-  char *GetClassName() {return "vtkOpenGLPolyMapper";};
-
-  void Render(vtkRenderer *ren, vtkActor *a);
-
-  void Draw(vtkRenderer *ren, vtkActor *a);
+public:
+  vtkImageDistance();
+  static vtkImageDistance *New() {return new vtkImageDistance;};
+  const char *GetClassName() {return "vtkImageDistance";};
   
-  //BTX  begine tcl exclude
-  GLenum GetLmcolorMode(vtkProperty *prop);
-  //ETX
-
- private:
-   int ListId;
+  void SetDimensionality(int num);
+  
+protected:
 };
 
 #endif
+
+
+

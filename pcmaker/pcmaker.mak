@@ -810,8 +810,6 @@ DEP_CPP_GETCL=\
 	".\pcmaker.h"\
 	".\pcmakerDlg.h"\
 	".\StdAfx.h"\
-	{$(INCLUDE)}"\sys\Stat.h"\
-	{$(INCLUDE)}"\sys\Types.h"\
 	
 
 "$(INTDIR)\getclasses.obj" : $(SOURCE) $(DEP_CPP_GETCL) "$(INTDIR)"
@@ -876,13 +874,8 @@ DEP_CPP_GETCL=\
 # Begin Source File
 
 SOURCE=.\makedepend.cxx
-DEP_CPP_MAKED=\
-	".\pcmaker.h"\
-	".\pcmakerDlg.h"\
-	".\StdAfx.h"\
-	
 
-"$(INTDIR)\makedepend.obj" : $(SOURCE) $(DEP_CPP_MAKED) "$(INTDIR)"
+"$(INTDIR)\makedepend.obj" : $(SOURCE) "$(INTDIR)"
 
 
 # End Source File
@@ -917,9 +910,6 @@ DEP_CPP_HELP_=\
 # Begin Source File
 
 SOURCE=..\tcl\y.tab.c
-
-!IF  "$(CFG)" == "cpp_parse - Win32 Release"
-
 DEP_CPP_Y_TAB=\
 	"..\tcl\lex.yy.c"\
 	
@@ -927,18 +917,6 @@ DEP_CPP_Y_TAB=\
 "$(INTDIR)\y.tab.obj" : $(SOURCE) $(DEP_CPP_Y_TAB) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF  "$(CFG)" == "cpp_parse - Win32 Debug"
-
-DEP_CPP_Y_TAB=\
-	"..\tcl\lex.yy.c"\
-	
-
-"$(INTDIR)\y.tab.obj" : $(SOURCE) $(DEP_CPP_Y_TAB) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF 
 
 # End Source File
 # End Target

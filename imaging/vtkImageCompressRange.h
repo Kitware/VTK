@@ -1,13 +1,13 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkOBJReader.h
+  Module:    vtkImageCompressRange.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
+  Thanks:    Thanks to C. Charles Law who developed this class.
 
-
-Copyright (c) 1993-1998 Ken Martin, Will Schroeder, Bill Lorensen.
+Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
 The following terms apply to all files associated with the software unless
@@ -38,38 +38,37 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkOBJReader - read Wavefront .obj files
+// .NAME vtkImageCompressRange - Reduces range of positive pixel values.
 // .SECTION Description
-// vtkOBJReader is a source object that reads Wavefront .obj
-// files. The output of this source object is polygonal data.
-// .SECTION See Also
-// vtkOBJImporter
+// vtkImageCompressRange passes each pixel through the function
+// c*log(1+x).  It also handles negative values with the function
+// -c*log(1-x).
 
-#ifndef __vtkOBJReader_h
-#define __vtkOBJReader_h
 
-#include <stdio.h>
-#include "vtkPolyDataSource.h"
 
-class VTK_EXPORT vtkOBJReader : public vtkPolyDataSource 
+#ifndef __vtkImageCompressRange_h
+#define __vtkImageCompressRange_h
+
+
+#include "vtkImageFilter.h"
+
+class VTK_EXPORT vtkImageCompressRange : public vtkImageFilter
 {
 public:
-  vtkOBJReader();
-  static vtkOBJReader *New() {return new vtkOBJReader;};
-  const char *GetClassName() {return "vtkOBJReader";};
-  void PrintSelf(ostream& os, vtkIndent indent);
+  vtkImageCompressRange();
+  static vtkImageCompressRange *New() {return new vtkImageCompressRange;};
+  const char *GetClassName() {return "vtkImageCompressRange";};
 
-  // Description:
-  // Specify file name of Wavefront .obj file.
-  vtkSetStringMacro(FileName);
-  vtkGetStringMacro(FileName);
-
+  vtkSetMacro(Constant,float);
+  vtkGetMacro(Constant,float);
+  
 protected:
-  char *FileName;
-
-  void Execute();
+  float Constant;
+  
+  void Execute(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
 };
 
 #endif
+
 
 

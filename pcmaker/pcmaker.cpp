@@ -132,10 +132,10 @@ BOOL CPcmakerApp::InitInstance()
     else
       AfxMessageBox("Incorrect command line arguments!");
 
-/*    if (sscanf(GetNextArg(m_lpCmdLine),"%i",&tempi) == 1)
+    if (sscanf(GetNextArg(m_lpCmdLine),"%i",&tempi) == 1)
       dlg.m_Debug = tempi;
     else
-      AfxMessageBox("Incorrect command line arguments!");*/
+      AfxMessageBox("Incorrect command line arguments!");
 
     if (sscanf(GetNextArg(m_lpCmdLine),"%i",&tempi) == 1)
       dlg.m_Patented = tempi;
@@ -177,25 +177,14 @@ BOOL CPcmakerApp::InitInstance()
     else
       AfxMessageBox("Incorrect command line arguments!");
 
-    if (sscanf(GetNextArg(m_lpCmdLine),"%i",&tempi) == 1)
-      dlg.m_GEAE = tempi;
-    else
-      AfxMessageBox("Incorrect command line arguments!");
-
-    if (sscanf(GetNextArg(m_lpCmdLine),"%i",&tempi) == 1)
-      dlg.m_DFA = tempi;
-    else
-      AfxMessageBox("Incorrect command line arguments!");
-
     dlg.Create(IDD_PCMAKER_DIALOG,NULL);
-
     dlg.DoOKStuff();
     }
   else
     {
     dlg.m_WhereVTK = "C:\\vtk";
     dlg.m_WhereBuild = "C:\\vtkbin";
-	dlg.m_WhereCompiler = "C:\\MSDEV";
+	  dlg.m_WhereCompiler = "C:\\msdev";
     dlg.m_WhereJDK = "";
   	dlg.DoModal();
     }

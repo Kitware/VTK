@@ -1,14 +1,13 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageWriter.h
+  Module:    vtkImageFileReader.cxx
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
   Thanks:    Thanks to C. Charles Law who developed this class.
 
-
-Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
+Copyright (c) 1993-1995 Ken Martin, Will Schroeder,ill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
 The following terms apply to all files associated with the software unless
@@ -37,69 +36,83 @@ PARTICULAR PURPOSE, AND NON-INFRINGEMENT.  THIS SOFTWARE IS PROVIDED ON AN
 "AS IS" BASIS, AND THE AUTHORS AND DISTRIBUTORS HAVE NO OBLIGATION TO PROVIDE
 MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
-
 =========================================================================*/
-// .NAME vtkImageWriter - Writes no header files.
-// .SECTION Description
-// vtkImageWriter writes no header files with any data type. The data type
-// of the file is the same scalar type as the input.
-// The dimensionality determines whether the data will be written in one or
-// multiple files.
-
-
-#ifndef __vtkImageWriter_h
-#define __vtkImageWriter_h
-
-#include <iostream.h>
-#include <fstream.h>
-#include "vtkObject.h"
+#include <stdio.h>
+#include <ctype.h>
+#include <string.h>
+#include "vtkImageFileReader.h"
 #include "vtkImageCache.h"
-#include "vtkStructuredPoints.h"
-#include "vtkStructuredPointsToImage.h"
-#include "vtkImageRegion.h"
 
-class VTK_EXPORT vtkImageWriter : public vtkObject
+//----------------------------------------------------------------------------
+vtkImageFileReader::vtkImageFileReader()
 {
-public:
-  vtkImageWriter();
-  ~vtkImageWriter();
-  static vtkImageWriter *New() {return new vtkImageWriter;};
-  const char *GetClassName() {return "vtkImageWriter";};
-  void PrintSelf(ostream& os, vtkIndent indent);
+  this->NumberOfExecutionAxes = 4;
+}
+
+//----------------------------------------------------------------------------
+vtkImageFileReader::~vtkImageFileReader()
+{ 
+}
+
+//----------------------------------------------------------------------------
+void vtkImageFileReader::PrintSelf(ostream& os, vtkIndent indent)
+{
+  vtkImageReader::PrintSelf(os,indent);
+}
+
+//----------------------------------------------------------------------------
+// Description:
+// This function opens the first file to determine the header size.
+void vtkImageFileReader::Initialize()
+{
+  int idx;
   
-  void SetFilePrefix(char *filePrefix);
-  void SetFilePattern(char *filePattern);
-
-  vtkSetMacro(FileDimensionality, int);
-  vtkGetMacro(FileDimensionality, int);
+  if (this->Initialized)
+    {
+    return;
+    }
   
-  // Description:
-  // Set/Get the input object from the image pipeline.
-  vtkSetObjectMacro(Input,vtkImageCache);
-  vtkGetObjectMacro(Input,vtkImageCache);
-  void SetInput(vtkStructuredPoints *spts)
-    {this->SetInput(spts->GetStructuredPointsToImage()->GetOutput());}
+  // Call the superclass initialize
+  this->vtkImageReader::Initialize();
+  
+  // Set the FileExtent here since it is constant.
+  for (idx = 0; idx < VTK_IMAGE_EXTENT_DIMENSIONS; ++idx)
+    {
+    this->FileExtent[idx] = this->DataExtent[idx];
+    }
+  
+  this->Initialized = 1;
+}
 
-  // Description:
-  // The main interface which triggers the writer to start.
-  virtual void Write();
+//----------------------------------------------------------------------------
+// Description:
+// This method sets the file name.
+void vtkImageFileReader::SetFileName(char *name)
+{
+  if (this->FileName)
+    {
+    delete [] this->FileName;
+    }
+  this->FileName = new char[strlen(name) + 1];
+  strcpy(this->FileName, name);
+  this->Initialized = 0;
+  this->Modified();
+}
 
-  // Public for templated function
-  char *FileName;
 
-protected:
-  vtkImageCache *Input;
-  int FileDimensionality;
-  char *FilePrefix;
-  char *FilePattern;
-  int FileNumber;
+//----------------------------------------------------------------------------
+// Description:
+// This function is called by the cache to update a region.
+void vtkImageFileReader::Execute(vtkImageRegion *region)
+{
+  if ( ! this->Initialized)
+    {
+    this->Initialize();
+    }
+  // The file has already been opened, and FileExtent has been set
+  // by the initialize method.
+  this->UpdateFromFile(region);
+}
 
-  void RecursiveWrite(int dim, vtkImageRegion *region);
-  virtual void WriteFile(vtkImageRegion *region);
-  virtual void WriteFileHeader(ofstream *file, vtkImageRegion *region)
-    {file = file; region = region;}
-};
-
-#endif
 
 

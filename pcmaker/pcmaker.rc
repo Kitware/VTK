@@ -94,19 +94,21 @@ BEGIN
     CONTROL         "Graphics",IDC_Graphics,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,15,140,48,10
     CONTROL         "Imaging",IDC_Imaging,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,75,140,41,10
+                    WS_TABSTOP,68,140,41,10
     CONTROL         "Contrib",IDC_Contrib,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,129,140,38,10
+                    WS_TABSTOP,117,140,38,10
     LTEXT           "Where is your compiler",IDC_STATIC,7,63,148,13
     EDITTEXT        IDC_WHERECOMPILER,16,75,153,14,ES_AUTOHSCROLL
+    CONTROL         "Build a Debug Version",IDC_Debug,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,189,39,85,10
     CONTROL         "Working",IDC_WORKING,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,15,157,41,10
     CONTROL         "GemsIO/IP",IDC_GEMSIP,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,75,157,47,10
+                    WS_TABSTOP,68,157,47,10
     CONTROL         "GemsVolume",IDC_GEMSVOLUME,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,130,157,57,10
+                    WS_TABSTOP,117,157,57,10
     CONTROL         "Include Patented Algorithms",IDC_PATENTED,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,190,38,109,10
+                    BS_AUTOCHECKBOX | WS_TABSTOP,189,57,109,10
     LTEXT           "Where is your Java JDK (this is optional)",IDC_STATIC,
                     10,93,141,13
     EDITTEXT        IDC_WHEREJDK,16,105,153,15,ES_AUTOHSCROLL
@@ -114,12 +116,8 @@ BEGIN
                     7,188,321,14
     LTEXT           "Progress",IDC_STATIC,7,177,77,10
     CONTROL         "Build VTK Lean and Mean",IDC_LEAN,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,190,52,124,19
+                    BS_AUTOCHECKBOX | WS_TABSTOP,189,71,124,19
     PUSHBUTTON      "Help",IDC_HELP1,207,208,50,14
-    CONTROL         "Geae",IDC_GEAE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,
-                    187,157,33,10
-    CONTROL         "DFA",IDC_DFA,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,227,
-                    157,41,10
 END
 
 IDD_HELPDIALOG DIALOG DISCARDABLE  0, 0, 263, 274
