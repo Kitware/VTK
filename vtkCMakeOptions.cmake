@@ -106,8 +106,6 @@ IF (UNIX)
   LINK_LIBRARIES(${CMAKE_THREAD_LIBS} ${CMAKE_DL_LIBS} -lm)
 ENDIF (UNIX)
 
-IF (WIN32)
-  SET (LIBRARY_OUTPUT_PATH ${VTK_BINARY_DIR}/lib/ CACHE PATH "Single output directory for building all libraries.")
-  SET (EXECUTABLE_OUTPUT_PATH ${VTK_BINARY_DIR}/bin/ CACHE PATH "Single output directory for building all executables.")
-ENDIF (WIN32)
+SET (LIBRARY_OUTPUT_PATH ${VTK_BINARY_DIR}/lib/ CACHE PATH "Single output directory for building all libraries.")
+SET (EXECUTABLE_OUTPUT_PATH ${VTK_BINARY_DIR}/bin/ CACHE PATH "Single output directory for building all executables.")
 
