@@ -103,7 +103,9 @@ public:
   
   // Description:
   // Draw the scalar bar and annotation text to the screen.
-  void Render(vtkViewport*);
+  void RenderOpaqueGeometry(vtkViewport* viewport);
+  void RenderTranslucentGeometry(vtkViewport* viewport) {};
+  void RenderOverlay(vtkViewport* viewport);
 
   // Description:
   // Set/Get the vtkLookupTable to use. The lookup table specifies the number

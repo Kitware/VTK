@@ -81,7 +81,8 @@ vtkLabeledDataMapper::~vtkLabeledDataMapper()
   this->SetInput(NULL);
 }
 
-void vtkLabeledDataMapper::Render(vtkViewport *viewport, vtkActor2D *actor)
+void vtkLabeledDataMapper::RenderPostSwap(vtkViewport *viewport, 
+					  vtkActor2D *actor)
 {
   int i, j, numComp, pointIdLabels, activeComp;
   char string[1024], format[1024];
@@ -241,7 +242,7 @@ void vtkLabeledDataMapper::Render(vtkViewport *viewport, vtkActor2D *actor)
     this->Input->GetPoint(i,x);
     actor->GetPositionCoordinate()->SetCoordinateSystemToWorld();
     actor->GetPositionCoordinate()->SetValue(x);
-    this->TextMappers[i]->Render(viewport, actor);
+    this->TextMappers[i]->RenderOverlay(viewport, actor);
     }
 }
 

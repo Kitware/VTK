@@ -42,6 +42,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkImager.h"
 #include "vtkImageWindow.h"
 
+vtkImager* vtkImager::New()
+{
+  return new vtkImager;
+}
+
 // Create an imager with viewport (0, 0, 1, 1)
 vtkImager::vtkImager()
 {
@@ -51,39 +56,63 @@ vtkImager::vtkImager()
   this->Viewport[1] = 0.0; // min y
   this->Viewport[2] = 1.0; // max x
   this->Viewport[3] = 1.0; // max y
-
 }
 
-void vtkImager::Render()
+void vtkImager::RenderOpaqueGeometry()
 {
-  vtkActor2D* tempActor;
+  vtkProp* tempActor;
 
-  vtkDebugMacro (<< "vtkImager::Render");
+  vtkDebugMacro (<< "vtkImager::RenderOpaque");
   
   if (this->StartRenderMethod) 
     {
     (*this->StartRenderMethod)(this->StartRenderMethodArg);
     }
   
-  int numActors = this->Actors2D->GetNumberOfItems();
-  if (numActors == 0)
-    {
-    vtkDebugMacro (<< "vtkImager::Render - No actors in collection");
-    return;
-    }
-  
-  vtkDebugMacro(<<"vtkImager::Render - " << numActors << " actors in collection");
-  vtkDebugMacro(<<"vtkImager::Render - Sorting actor collection.");
-  
-  this->Actors2D->Sort();  
-
-  for ( this->Actors2D->InitTraversal(); 
-	(tempActor = this->Actors2D->GetNextItem());)
+  for ( this->Props->InitTraversal(); 
+	(tempActor = this->Props->GetNextItem());)
     {
     // Make sure that the actor is visible before rendering
     if (tempActor->GetVisibility() == 1)
       {
-      tempActor->Render(this);
+      tempActor->RenderOpaqueGeometry(this);
+      }
+    }
+  return; 
+}
+
+void vtkImager::RenderTranslucentGeometry()
+{
+  vtkProp* tempActor;
+
+  vtkDebugMacro (<< "vtkImager::RenderTranslucent");
+  
+  for ( this->Props->InitTraversal(); 
+	(tempActor = this->Props->GetNextItem());)
+    {
+    // Make sure that the actor is visible before rendering
+    if (tempActor->GetVisibility() == 1)
+      {
+      tempActor->RenderTranslucentGeometry(this);
+      }
+    }
+  
+  return; 
+}
+
+void vtkImager::RenderOverlay()
+{
+  vtkProp *tempActor;
+
+  vtkDebugMacro (<< "vtkImager::RenderOverlay");
+  
+  for (this->Props->InitTraversal(); 
+       (tempActor = this->Props->GetNextItem());)
+    {
+    // Make sure that the actor is visible before rendering
+    if (tempActor->GetVisibility() == 1)
+      {
+      tempActor->RenderOverlay(this);
       }
     }
   

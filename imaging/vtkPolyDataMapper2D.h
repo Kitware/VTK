@@ -74,11 +74,6 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:
-  // Draw the polydata to the screen.  This function is implemented in
-  // the device dependent subclasses.
-  virtual void Render(vtkViewport*, vtkActor2D*) {};
-
-  // Description:
   // Set the input to the mapper.  
   vtkSetObjectMacro(Input, vtkPolyData);
   vtkGetObjectMacro(Input, vtkPolyData);

@@ -110,9 +110,9 @@ float vtkImageMapper::GetColorScale()
   return 255.0 / this->ColorWindow;
 }
 
-void vtkImageMapper::Render(vtkViewport* viewport, vtkActor2D* actor)
+void vtkImageMapper::RenderOverlay(vtkViewport* viewport, vtkActor2D* actor)
 {
-  vtkDebugMacro(<< "vtkImageMapper::Render");
+  vtkDebugMacro(<< "vtkImageMapper::RenderOverlay");
 
   vtkImageData *data;
   int displayExtent[6];

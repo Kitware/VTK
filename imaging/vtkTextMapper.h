@@ -78,11 +78,6 @@ public:
   // Creates a new text mapper with Font size 12, bold off, italic off,
   // and Arial font
   static vtkTextMapper *New();
-  
-  // Description:
-  // Draw the text to the screen.  This function is implemented in
-  // the device dependent subclasses.
-  virtual void Render(vtkViewport*, vtkActor2D*) {};
 
   // Description:
   // What is the size of the rectangle required to draw this

@@ -102,7 +102,7 @@ public:
 
   // Description:
   // Draw the image to the screen.
-  void Render(vtkViewport* viewport, vtkActor2D* actor);
+  void RenderOverlay(vtkViewport* viewport, vtkActor2D* actor);
 
   // Description:
   // Function called by Render to actually draw the image to to the screen

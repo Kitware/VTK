@@ -153,7 +153,23 @@ float vtkScalarBarActor::GetHeight()
   return this->Position2Coordinate->GetValue()[1];
 }
 
-void vtkScalarBarActor::Render(vtkViewport *viewport)
+void vtkScalarBarActor::RenderOverlay(vtkViewport *viewport)
+{
+  int i;
+  
+  // Everything is built, just have to render
+  if (this->Title != NULL)
+    {
+    this->TitleActor->RenderOverlay(viewport);
+    }
+  this->ScalarBarActor->RenderOverlay(viewport);
+  for (i=0; i<this->NumberOfLabels; i++)
+    {
+    this->TextActors[i]->RenderOverlay(viewport);
+    }
+}
+
+void vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
 {
   int i;
   int size[2];
@@ -168,7 +184,7 @@ void vtkScalarBarActor::Render(vtkViewport *viewport)
 
   // Check to see whether we have to rebuild everything
   if ( this->GetMTime() > this->BuildTime || 
-  viewport->GetMTime() > this->BuildTime ||
+       // viewport->GetMTime() > this->BuildTime ||
   this->LookupTable->GetMTime() > this->BuildTime )
     {
     vtkDebugMacro(<<"Rebuilding subobjects");
@@ -346,8 +362,6 @@ void vtkScalarBarActor::Render(vtkViewport *viewport)
       rgb[2] = rgba[2];
       }
 
-
-
     // Now position everything properly
     //
     if (this->Orientation == VTK_ORIENT_VERTICAL)
@@ -378,12 +392,12 @@ void vtkScalarBarActor::Render(vtkViewport *viewport)
   // Everything is built, just have to render
   if (this->Title != NULL)
     {
-    this->TitleActor->Render(viewport);
+    this->TitleActor->RenderOpaqueGeometry(viewport);
     }
-  this->ScalarBarActor->Render(viewport);
+  this->ScalarBarActor->RenderOpaqueGeometry(viewport);
   for (i=0; i<this->NumberOfLabels; i++)
     {
-    this->TextActors[i]->Render(viewport);
+    this->TextActors[i]->RenderOpaqueGeometry(viewport);
     }
 }
 

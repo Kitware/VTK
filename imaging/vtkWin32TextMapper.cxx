@@ -160,9 +160,9 @@ void vtkWin32TextMapper::GetSize(vtkViewport* viewport, int *size)
   size[0] = rect.right - rect.left + 1;
 }
 
-void vtkWin32TextMapper::Render(vtkViewport* viewport, vtkActor2D* actor)
+void vtkWin32TextMapper::RenderOverlay(vtkViewport* viewport, 
+				       vtkActor2D* actor)
 {
-
   vtkDebugMacro (<< "vtkWin32TextMapper::Render");
 
   // Check for input
