@@ -6,6 +6,7 @@
 #include "vtkInteractorEventRecorder.h"
 #include "vtkKochanekSpline.h"
 #include "vtkOutlineFilter.h"
+#include "vtkParametricSpline.h"
 #include "vtkPlaneSource.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
@@ -238,9 +239,11 @@ int TestSplineWidget( int argc, char *argv[] )
   vtkKochanekSpline* yspline = vtkKochanekSpline::New();
   vtkKochanekSpline* zspline = vtkKochanekSpline::New();
 
-  spline->SetXSpline(xspline);
-  spline->SetYSpline(yspline);
-  spline->SetZSpline(zspline);
+  vtkParametricSpline* para = spline->GetParametricSpline();
+
+  para->SetXSpline(xspline);
+  para->SetYSpline(yspline);
+  para->SetZSpline(zspline);
 
   xspline->Delete();
   yspline->Delete();

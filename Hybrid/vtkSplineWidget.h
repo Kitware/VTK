@@ -81,6 +81,7 @@
 
 class vtkActor;
 class vtkCellPicker;
+class vtkParametricSpline;
 class vtkPlaneSource;
 class vtkPoints;
 class vtkPolyData;
@@ -88,7 +89,6 @@ class vtkPolyDataMapper;
 class vtkProp;
 class vtkProperty;
 class vtkSphereSource;
-class vtkSpline;
 class vtkTransform;
 
 #define VTK_PROJECTION_YZ 0
@@ -154,15 +154,15 @@ public:
 
   // Description:
   // Grab the polydata (including points) that defines the spline.  The
-  // polydata consists of the NumberOfSplinePoints points. These point values
-  // are guaranteed to be up-to-date when either the InteractionEvent or
-  // EndInteraction events are invoked. The user provides the vtkPolyData and
-  // the points and polyline are added to it.
+  // polydata consists of points and line segments numbering Resolution + 1
+  // and Resoltuion, respectively. Points are guaranteed to be up-to-date when
+  // either the InteractionEvent or  EndInteraction events are invoked. The
+  // user provides the vtkPolyData and the points and polyline are added to it.
   void GetPolyData(vtkPolyData *pd);
 
   // Description:
-  // Set/Get the handle properties (the little balls are the handles). The
-  // properties of the handles when selected and normal can be manipulated.
+  // Set/Get the handle properties (the spheres are the handles). The
+  // properties of the handles when selected and unselected can be manipulated.
   virtual void SetHandleProperty(vtkProperty*);
   vtkGetObjectMacro(HandleProperty, vtkProperty);
   virtual void SetSelectedHandleProperty(vtkProperty*);
@@ -188,13 +188,14 @@ public:
   vtkGetMacro(Resolution,int);
 
   // Description:
-  // Set the spline objects.  The user can supply one of currently
-  // two types of spline: vtkCardinalSpline, vtkKochanekSpline.
+  // Set the parametric spline object. Through vtkParametricSpline's API, the
+  // user can supply and configure one of currently two types of spline:
+  // vtkCardinalSpline, vtkKochanekSpline. The widget controls the open
+  // or closed configuration of the spline.
   // WARNING: The widget does not enforce internal consistency so that all
   // three are of the same type.
-  void SetXSpline(vtkSpline*);
-  void SetYSpline(vtkSpline*);
-  void SetZSpline(vtkSpline*);
+  virtual void SetParametricSpline(vtkParametricSpline*);
+  vtkGetObjectMacro(ParametricSpline,vtkParametricSpline);
 
   // Description:
   // Set/Get the position of the spline handles. Call GetNumberOfHandles
@@ -262,22 +263,16 @@ protected:
   void ProjectPointsToObliquePlane();
 
   // The spline
-  vtkSpline *XSpline;
-  vtkSpline *YSpline;
-  vtkSpline *ZSpline;
+  vtkParametricSpline *ParametricSpline;
   int NumberOfHandles;
-  vtkSpline* CreateDefaultSpline();// default is vtkCardinalSpline
   int Closed;
-  double Offset;
-
+  void BuildRepresentation();
+  
   // The line segments
-  vtkActor          *LineActor;
-  vtkPolyDataMapper *LineMapper;
-  vtkPolyData       *LineData;
+  vtkActor           *LineActor;
+  vtkPolyData        *LineData;
   void HighlightLine(int highlight);
-  int NumberOfSplinePoints;
   int Resolution;
-  double* SplinePositions;
 
   // Glyphs representing hot spots (e.g., handles)
   vtkActor          **Handle;
@@ -286,7 +281,6 @@ protected:
   void Initialize();
   int  HighlightHandle(vtkProp *prop); //returns handle index or -1 on fail
   virtual void SizeHandles();
-  void BuildRepresentation();
 
   // Do the picking
   vtkCellPicker *HandlePicker;
