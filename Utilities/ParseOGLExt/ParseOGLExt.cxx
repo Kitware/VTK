@@ -45,17 +45,13 @@
 #include <string.h>
 #include <ctype.h>
 
-using vtkstd::list;
-using vtkstd::set;
-using vtkstd::map;
-using vtkstd::pair;
 using vtkstd::string;
 
 // #define this if you want debug output as the parser does its work
 
 // #define DEBUG_PARSE
 
-static set< pair< string, string > > ConstantsAlreadyWritten;
+static vtkstd::set< vtkstd::pair< string, string > > ConstantsAlreadyWritten;
 
 static string ToUpper(string s)
 {
@@ -179,7 +175,7 @@ public:
   bool operator<(const Constant &obj) const { return this->name < obj.name; }
 };
 
-static map<string, string> EncounteredConstants;
+static vtkstd::map<string, string> EncounteredConstants;
 
 Constant::Constant(char *line)
 {
@@ -208,7 +204,8 @@ Constant::Constant(char *line)
 
   this->value = t.GetNextToken();
   // Sometimes, one constant points to another.  Handle this properly.
-  map<string, string>::iterator found = EncounteredConstants.find(value);
+  vtkstd::map<string, string>::iterator found
+    = EncounteredConstants.find(value);
   if (found != EncounteredConstants.end())
     {
     this->value = found->second;
@@ -414,11 +411,11 @@ const char *Function::GetProcType()
   return proctype.c_str();
 }
 
-static list<Extension> extensions;
-static set<Extension> extensionset;
-static map<Extension, list<Constant> > consts;
-static map<Extension, list<Typedef> > types;
-static map<Extension, list<Function> > functs;
+static vtkstd::list<Extension> extensions;
+static vtkstd::set<Extension> extensionset;
+static vtkstd::map<Extension, vtkstd::list<Constant> > consts;
+static vtkstd::map<Extension, vtkstd::list<Typedef> > types;
+static vtkstd::map<Extension, vtkstd::list<Function> > functs;
 
 static void ParseLine(char *line)
 {
@@ -537,18 +534,19 @@ static void WriteHeader(ostream &file, const char *generator,
 
 static void WriteClassDeclarationGuts(ostream &hfile, int type)
 {
-  for (list<Extension>::iterator iextension = extensions.begin();
+  for (vtkstd::list<Extension>::iterator iextension = extensions.begin();
        iextension != extensions.end(); iextension++)
     {
     if (iextension->type != type) continue;
     hfile << "  //Definitions for " << iextension->name << endl;
-    map<Extension, list<Constant> >::iterator cExts = consts.find(*iextension);
+    vtkstd::map<Extension, vtkstd::list<Constant> >::iterator cExts
+      = consts.find(*iextension);
     if (cExts != consts.end())
       {
       hfile << "  enum " << cExts->first.name << "_consts {" << endl;
       bool wroteFirst = false;
 
-      for (list<Constant>::iterator iconst = cExts->second.begin();
+      for (vtkstd::list<Constant>::iterator iconst = cExts->second.begin();
            iconst != cExts->second.end(); iconst++)
         {
 
@@ -585,19 +583,21 @@ static void WriteClassDeclarationGuts(ostream &hfile, int type)
         }
       hfile << endl << "  };" << endl;
       }
-    map<Extension, list<Typedef> >::iterator tExts = types.find(*iextension);
+    vtkstd::map<Extension, vtkstd::list<Typedef> >::iterator tExts
+      = types.find(*iextension);
     if (tExts != types.end())
       {
-      for (list<Typedef>::iterator itype = tExts->second.begin();
+      for (vtkstd::list<Typedef>::iterator itype = tExts->second.begin();
            itype != tExts->second.end(); itype++)
         {
         hfile << "  " << itype->definition << endl;
         }
       }
-    map<Extension, list<Function> >::iterator fExts = functs.find(*iextension);
+    vtkstd::map<Extension, vtkstd::list<Function> >::iterator fExts
+      = functs.find(*iextension);
     if (fExts != functs.end())
       {
-      for (list<Function>::iterator ifunc = fExts->second.begin();
+      for (vtkstd::list<Function>::iterator ifunc = fExts->second.begin();
            ifunc != fExts->second.end(); ifunc++)
         {
         hfile << "  extern VTK_RENDERING_EXPORT " << ifunc->GetProcType()
@@ -610,12 +610,13 @@ static void WriteClassDeclarationGuts(ostream &hfile, int type)
 static void WriteFunctionPointerDeclarations(ostream &cxxfile, int type)
 {
   Extension::WriteSupportWrapperBegin(cxxfile, type);
-  for (map<Extension, list<Function> >::iterator fExts = functs.begin();
+  for (vtkstd::map<Extension, vtkstd::list<Function> >::iterator fExts
+         = functs.begin();
        fExts != functs.end(); fExts++)
     {
     if (fExts->first.type != type) continue;
     cxxfile << "//Functions for " << fExts->first.name << endl;
-    for (list<Function>::iterator ifunc = fExts->second.begin();
+    for (vtkstd::list<Function>::iterator ifunc = fExts->second.begin();
          ifunc != fExts->second.end(); ifunc++)
       {
       cxxfile << "vtk" << Extension::TypeToString(type) << "::"
@@ -659,10 +660,11 @@ static void WriteCode(ostream &hfile, ostream &cxxfile)
   hfile << "/* Undefine all constants to avoid name conflicts.  They should be defined  */" << endl
         << "/* with GL_, GLX_, or WGL_ preprended to them anyway, but sometimes you run */" << endl
         << "/* into a header file that gets it wrong.                                   */" << endl;
-  for (map<Extension, list<Constant> >::iterator constlist = consts.begin();
+  for (vtkstd::map<Extension, vtkstd::list<Constant> >::iterator constlist
+         = consts.begin();
        constlist != consts.end(); constlist++)
     {
-    for (list<Constant>::iterator c = (*constlist).second.begin();
+    for (vtkstd::list<Constant>::iterator c = (*constlist).second.begin();
          c != (*constlist).second.end(); c++)
       {
       hfile << "#ifdef " << (*c).name.c_str() << endl;
@@ -716,7 +718,7 @@ static void WriteCode(ostream &hfile, ostream &cxxfile)
   // Write function to load function pointers.
   cxxfile << "int vtkgl::LoadExtension(const char *name, vtkOpenGLExtensionManager *manager)" << endl
           << "{" << endl;
-  for (list<Extension>::iterator iextension = extensions.begin();
+  for (vtkstd::list<Extension>::iterator iextension = extensions.begin();
        iextension != extensions.end(); iextension++)
     {
     iextension->WriteSupportWrapperBegin(cxxfile);
@@ -725,7 +727,7 @@ static void WriteCode(ostream &hfile, ostream &cxxfile)
             << "    {" << endl;
     string vtkglclass = "vtk";
     vtkglclass += Extension::TypeToString(iextension->type);
-    list<Function>::iterator ifunct;
+    vtkstd::list<Function>::iterator ifunct;
     for (ifunct = functs[*iextension].begin();
          ifunct != functs[*iextension].end(); ifunct++)
       {
