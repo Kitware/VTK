@@ -313,10 +313,16 @@ type_primitive:
   SHORT  { postSig("short "); $<integer>$ = 5;} | 
   LONG   { postSig("long "); $<integer>$ = 6;} | 
   DOUBLE { postSig("double "); $<integer>$ = 7;} | 
-  ID     { postSig($<str>1); postSig(" "); $<integer>$ = 8;} |
+  ID     {       
+      char ctmpid[2048];
+      sprintf(ctmpid,"%s ",$<str>1);
+      postSig(ctmpid);
+      $<integer>$ = 8;} |
   VTK_ID  
     { 
-      postSig($<str>1); postSig(" ");
+      char ctmpid[2048];
+      sprintf(ctmpid,"%s ",$<str>1);
+      postSig(ctmpid);
       $<integer>$ = 9; 
       currentFunction->ArgClasses[currentFunction->NumberOfArguments] =
         strdup($1); 
@@ -429,7 +435,7 @@ macro:
    currentFunction->ReturnType = 2;
    output_function();
    }
-| GetObjectMacro '(' {postSig("Get");} any_id ',' 
+| GetObjectMacro '(' {postSig("*Get");} any_id ',' 
    {postSig(" ();"); invertSig = 1;} type_red2 ')'
    { 
    sprintf(temps,"Get%s",$<str>4); 
