@@ -39,7 +39,7 @@
 #include "vtkTransformCollection.h"
 #include "vtkVoxel.h"
 
-vtkCxxRevisionMacro(vtkSweptSurface, "1.77");
+vtkCxxRevisionMacro(vtkSweptSurface, "1.78");
 vtkStandardNewMacro(vtkSweptSurface);
 
 vtkCxxSetObjectMacro(vtkSweptSurface,Transforms, vtkTransformCollection);
@@ -108,8 +108,6 @@ void vtkSweptSurface::ComputeInputUpdateExtent(int inExt[6],
 void vtkSweptSurface::ExecuteInformation(vtkImageData *input, 
                                          vtkImageData *output)
 {
-  float origin[3], spacing[3], bbox[24];
-
   // make sure there is input
   if (input == NULL)
     {
@@ -139,9 +137,8 @@ void vtkSweptSurface::ExecuteInformation(vtkImageData *input,
                          0, this->SampleDimensions[1]-1,
                          0, this->SampleDimensions[2]-1);
 
-  this->ComputeBounds(origin, spacing, bbox);
-  output->SetSpacing(spacing);
-  output->SetOrigin(origin);
+  output->SetSpacing(input->GetSpacing());
+  output->SetOrigin(output->GetOrigin());
 }
 
 void vtkSweptSurface::ExecuteData(vtkDataObject *)
@@ -176,6 +173,12 @@ void vtkSweptSurface::ExecuteData(vtkDataObject *)
     }
   pd = input->GetPointData();
   
+  if ( pd == NULL )
+    {
+    vtkErrorMacro(<<"No point data!");
+    return;
+    }
+
   inScalars = pd->GetScalars();
   if ( input->GetNumberOfPoints() < 1 ||
   inScalars == NULL )
@@ -590,10 +593,8 @@ void vtkSweptSurface::ComputeBounds(float origin[3], float spacing[3],
     this->Transforms->InitTraversal();
     transform2 = this->Transforms->GetNextItem();
     transform2->GetMatrix(t->GetMatrix());
-
     this->GetRelativePosition(*t,actorOrigin,position2);
     t->GetOrientation(orient2);
-
     // Initialize process with initial transformed position of input
     x[3] = 1.0;
     for (i=0; i<8; i++)
