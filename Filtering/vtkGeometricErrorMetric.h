@@ -43,16 +43,16 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:
-  // Return the absolute geometric accuracy.
+  // Return the squared absolute geometric accuracy.
   // \post positive_result: result>0
   vtkGetMacro(GeometricTolerance, double);
  
   // Description:
-  // Set the geometric accuracy with an absolute value.
+  // Set the geometric accuracy with a squared absolute value.
   // This is the geometric object-based accuracy.
   // Subdivision will be required if the square distance between the real
-  // point and the interpolated point is greater than `value'. For instance
-  // 0.01 will give better result than 0.1.
+  // point and the straight line passing through the vertices of the edge is
+  // greater than `value'. For instance 0.01 will give better result than 0.1.
   // \pre positive_value: value>0
   void SetAbsoluteGeometricTolerance(double value);
   
