@@ -71,9 +71,16 @@ public:
   void SetStartPickMethod(void (*f)(void *), void *arg);
   void SetEndPickMethod(void (*f)(void *), void *arg);
 
+  void SetPicker(vlPicker *picker);
+  void SetPicker(vlPicker& picker) {this->SetPicker(&picker);};
+
   // Description:
   // Get the object used to perform pick operations.
   vlGetObjectMacro(Picker,vlPicker);
+
+  // Description:
+  // Create default picker. Used to create one when none is specified.
+  virtual vlPicker *CreateDefaultPicker();
 
 protected:
   vlRenderWindow *RenderWindow;
@@ -91,6 +98,7 @@ protected:
 
   // for picking actors
   vlPicker *Picker;
+  int SelfCreatedPicker;
   vlCubeSource Outline;
   vlPolyMapper OutlineMapper;
   vlActor *OutlineActor;

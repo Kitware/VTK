@@ -15,6 +15,10 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 =========================================================================*/
 #include "SGridF.hh"
 
+vlStructuredGridFilter::vlStructuredGridFilter()
+{
+}
+
 vlStructuredGridFilter::~vlStructuredGridFilter()
 {
 }

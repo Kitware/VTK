@@ -15,6 +15,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 =========================================================================*/
 #include "Interact.hh"
 #include "Actor.hh"
+#include "CellPick.hh"
 
 // Description:
 // Construct object so that light follows camera motion.
@@ -28,7 +29,8 @@ vlRenderWindowInteractor::vlRenderWindowInteractor()
   this->LightFollowCamera = 1;
   this->Initialized = 0;
 
-  this->Picker = new vlPicker;
+  this->Picker = this->CreateDefaultPicker();
+  this->SelfCreatedPicker = 0;
   this->OutlineActor = NULL;
   this->OutlineMapper.SetInput(this->Outline);
   this->PickedRenderer = NULL;
@@ -37,8 +39,8 @@ vlRenderWindowInteractor::vlRenderWindowInteractor()
 
 vlRenderWindowInteractor::~vlRenderWindowInteractor()
 {
-  if ( this->Picker ) delete this->Picker;
   if ( this->OutlineActor ) delete this->OutlineActor;
+  if ( this->SelfCreatedPicker && this->Picker) delete this->Picker;
 }
 
 void vlRenderWindowInteractor::FindPokedRenderer(int x,int y)
@@ -143,6 +145,27 @@ void vlRenderWindowInteractor::SetEndPickMethod(void (*f)(void *), void *arg)
     this->EndPickMethodArg = arg;
     this->Modified();
     }
+}
+
+// Description:
+// Set the object used to perform pick operations. You can use this to 
+// control what type of data is picked.
+void vlRenderWindowInteractor::SetPicker(vlPicker *picker)
+{
+  if ( this->Picker != picker ) 
+    {
+    if ( this->SelfCreatedPicker ) delete this->Picker;
+    this->SelfCreatedPicker = 0;
+    this->Picker = picker;
+    this->Modified();
+    }
+}
+
+vlPicker *vlRenderWindowInteractor::CreateDefaultPicker()
+{
+  if ( this->SelfCreatedPicker ) delete this->Picker;
+  this->SelfCreatedPicker = 1;
+  return new vlCellPicker;
 }
 
 void vlRenderWindowInteractor::PrintSelf(ostream& os, vlIndent indent)
