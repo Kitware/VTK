@@ -57,7 +57,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #endif
 
 
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 vtkMultiThreader* vtkMultiThreader::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -144,6 +144,12 @@ vtkMultiThreader::vtkMultiThreader()
 #endif  
 #endif  
 #endif
+  
+  // Lets limit the number of threads to 8
+  if (this->NumberOfThreads > 8)
+    {
+    this->NumberOfThreads = 8;
+    }
 }
 
 // Destructor. Nothing allocated so nothing needs to be done here.
