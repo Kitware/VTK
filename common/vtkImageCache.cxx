@@ -495,14 +495,8 @@ int vtkImageCache::ShouldIReleaseData()
 // This method is used for determining when to stream.
 long vtkImageCache::GetUpdateExtentMemorySize()
 {
-  long size = this->NumberOfScalarComponents;
+  double size = (float)this->NumberOfScalarComponents;
   int idx;
-  
-  // Compute the number of scalars.
-  for (idx = 0; idx < 3; ++idx)
-    {
-    size *= (this->UpdateExtent[idx*2+1] - this->UpdateExtent[idx*2] + 1);
-    }
   
   // Consider the size of each scalar.
   switch (this->ScalarType)
@@ -527,6 +521,13 @@ long vtkImageCache::GetUpdateExtentMemorySize()
         << "Cannot determine input scalar type");
     }  
 
+  // Compute the number of scalars.
+  for (idx = 0; idx < 3; ++idx)
+    {
+    size = size*(this->UpdateExtent[idx*2+1] - this->UpdateExtent[idx*2] + 1);
+    }
+  
+
   // In case the extent is set improperly
   // Now Improperly might mean the filter will update no memory,
   // (multiple input filters) so do not give an error.
@@ -534,8 +535,10 @@ long vtkImageCache::GetUpdateExtentMemorySize()
     {
     return 0;
     }
+
+  long lsize = (long)(size / 1000.0);
   
-  return size / 1000;
+  return lsize;
 }
 
 
