@@ -5,7 +5,7 @@
 //    - no bounds/range checking -> user responsibility
 //    - the Register/Free methods called only by container class
 //
-#include "IntArray.h"
+#include "IntArray.hh"
 
 //
 // External integer array provided; responsibility of user 

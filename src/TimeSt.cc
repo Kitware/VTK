@@ -1,6 +1,6 @@
 //
 // Initialize static member
 //
-#include "TimeSt.h"
+#include "TimeSt.hh"
 
 unsigned long vlTimeStamp::vlTime = 0;

@@ -8,7 +8,7 @@
 #define __vlObject_h
 
 #include <iostream.h>
-#include "TimeSt.h"
+#include "TimeSt.hh"
 //
 // Common #defines / parameters
 //

@@ -1,9 +1,9 @@
-#include "Object.h"
+#include "Object.hh"
 
 vlObject::vlObject()
 {
-  RefCount = 0;
-  Debug = 0;
+  this->RefCount = 0;
+  this->Debug = 0;
 }
 
 vlObject::~vlObject() 
@@ -16,15 +16,15 @@ vlObject::~vlObject()
 
 void vlObject::DebugOn()
 {
-  Debug = 1;
+  this->Debug = 1;
 }
 
 void vlObject::DebugOff()
 {
-  Debug = 0;
+  this->Debug = 0;
 }
 
 int vlObject::GetDebug()
 {
-  return Debug;
+  return this->Debug;
 }

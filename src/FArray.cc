@@ -5,7 +5,7 @@
 //    - no bounds/range checking -> user responsibility
 //    - the Register/unRegister methods called only by container class
 //
-#include "FArray.h"
+#include "FArray.hh"
 
 int vlFloatArray::Initialize(const int sz, const int ext)
 {

@@ -4,7 +4,7 @@
 #ifndef __vlFloatArray_h
 #define __vlFloatArray_h
 
-#include "Object.h"
+#include "Object.hh"
 
 class vlFloatArray : public vlObject 
 {
