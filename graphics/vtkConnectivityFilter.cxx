@@ -44,6 +44,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Construct with default extraction mode to extract largest regions.
 vtkConnectivityFilter::vtkConnectivityFilter()
 {
+  this->RegionSizes = new vtkIntArray;
   this->ExtractionMode = VTK_EXTRACT_LARGEST_REGION;
   this->ColorRegions = 0;
   this->MaxRecursionDepth = 10000;
@@ -52,6 +53,14 @@ vtkConnectivityFilter::vtkConnectivityFilter()
   this->ScalarRange[0] = 0.0;
   this->ScalarRange[1] = 1.0;
 }
+
+
+vtkConnectivityFilter::~vtkConnectivityFilter()
+{
+  this->RegionSizes->Delete();
+}
+
+
 
 static int NumExceededMaxDepth;
 static int *Visited, *PointMap;
@@ -100,7 +109,7 @@ void vtkConnectivityFilter::Execute()
   //
   // Initialize.  Keep track of points and cells visited.
   //
-  this->RegionSizes.Reset();
+  this->RegionSizes->Reset();
   Visited = new int[numCells];
   for ( i=0; i < numCells; i++ ) Visited[i] = -1;
   PointMap = new int[numPts];  
@@ -143,7 +152,7 @@ void vtkConnectivityFilter::Execute()
           largestRegionId = RegionNumber;
           }
 
-        this->RegionSizes.InsertValue(RegionNumber++,NumCellsInRegion);
+        this->RegionSizes->InsertValue(RegionNumber++,NumCellsInRegion);
         RecursionSeeds->Reset();
         }
       }
@@ -180,7 +189,7 @@ void vtkConnectivityFilter::Execute()
       RecursionDepth = 0;
       this->TraverseAndMark (RecursionSeeds->GetId(i));
       }
-    this->RegionSizes.InsertValue(RegionNumber,NumCellsInRegion);
+    this->RegionSizes->InsertValue(RegionNumber,NumCellsInRegion);
     }
 
   vtkDebugMacro (<<"Extracted " << RegionNumber << " region(s)");
@@ -365,7 +374,7 @@ void vtkConnectivityFilter::TraverseAndMark (int cellId)
 // Obtain the number of connected regions.
 int vtkConnectivityFilter::GetNumberOfExtractedRegions()
 {
-  return this->RegionSizes.GetMaxId() + 1;
+  return this->RegionSizes->GetMaxId() + 1;
 }
 
 // Description:

@@ -78,6 +78,7 @@ class VTK_EXPORT vtkPolyConnectivityFilter : public vtkPolyToPolyFilter
 {
 public:
   vtkPolyConnectivityFilter();
+  ~vtkPolyConnectivityFilter();
   char *GetClassName() {return "vtkPolyConnectivityFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -132,7 +133,7 @@ protected:
   vtkIdList Seeds; //id's of points or cells used to seed regions
   int MaxRecursionDepth; //prevent excessive recursion
   vtkIdList SpecifiedRegionIds; //regions specified for extraction
-  vtkIntArray RegionSizes; //size (in cells) of each region extracted
+  vtkIntArray *RegionSizes; //size (in cells) of each region extracted
 
   int ScalarConnectivity;
   float ScalarRange[2];

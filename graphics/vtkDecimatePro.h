@@ -282,7 +282,7 @@ protected:
   int PreserveTopology;
   int Degree;
   float InflectionPointRatio;
-  vtkFloatArray InflectionPoints;
+  vtkFloatArray *InflectionPoints;
 
 
   void SplitMesh();

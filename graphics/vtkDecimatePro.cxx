@@ -96,6 +96,7 @@ static float ComputeSingleTriangleError(float x[3], float x1[3], float x2[3]);
 // degree is 25. Error accumulation is turned off.
 vtkDecimatePro::vtkDecimatePro()
 {
+  this->InflectionPoints = new vtkFloatArray;
   this->TargetReduction = 0.90;
   this->FeatureAngle = 15.0;
   this->PreserveTopology = 0;
@@ -114,6 +115,7 @@ vtkDecimatePro::vtkDecimatePro()
 
 vtkDecimatePro::~vtkDecimatePro()
 {
+  this->InflectionPoints->Delete();
   if ( this->Queue ) delete this->Queue;
   if ( this->VertexError ) delete this->VertexError;
 }
@@ -263,7 +265,7 @@ void vtkDecimatePro::Execute()
         (previousError != 0.0 && 
         fabs(error/previousError) > this->InflectionPointRatio) )
           {
-          this->InflectionPoints.InsertNextValue(numPops);
+          this->InflectionPoints->InsertNextValue(numPops);
           }
         previousError = error;
         }
@@ -1172,7 +1174,7 @@ void vtkDecimatePro::GetInflectionPoints(float *inflectionPoints)
 
   for (i=0; i < this->GetNumberOfInflectionPoints(); i++)
     {
-    inflectionPoints[i] = this->InflectionPoints.GetValue(i);
+    inflectionPoints[i] = this->InflectionPoints->GetValue(i);
     }
 }
 
@@ -1184,7 +1186,7 @@ void vtkDecimatePro::GetInflectionPoints(float *inflectionPoints)
 // This method returns a pointer to a list of inflection points.
 float *vtkDecimatePro::GetInflectionPoints()
 {
-  return this->InflectionPoints.GetPtr(0);
+  return this->InflectionPoints->GetPtr(0);
 }
 
 // Description:
@@ -1192,7 +1194,7 @@ float *vtkDecimatePro::GetInflectionPoints()
 // after the filter has executed.
 int vtkDecimatePro::GetNumberOfInflectionPoints()
 {
-  return this->InflectionPoints.GetMaxId()+1;
+  return this->InflectionPoints->GetMaxId()+1;
 }
 
 //
