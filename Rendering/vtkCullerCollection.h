@@ -68,7 +68,7 @@ class VTK_EXPORT vtkCullerCollection : public vtkCollection
   // Description:
   // Get the next Culler in the list.
   vtkCuller *GetNextItem() { 
-    return vtkCuller::SafeDownCast(this->GetNextItemAsObject());};
+    return static_cast<vtkCuller *>(this->GetNextItemAsObject());};
   
   // Description:
   // Get the last Culler in the list.
@@ -96,7 +96,7 @@ inline vtkCuller *vtkCullerCollection::GetLastItem()
     }
   else
     {
-    return vtkCuller::SafeDownCast(this->Bottom->Item);
+    return static_cast<vtkCuller *>(this->Bottom->Item);
     }
 }
 
