@@ -1,3 +1,5 @@
+PROJECT(VTKJPEG)
+
 # memmgr back ends: compile only one of these into a working library
 # (For now, let's use the mode that requires the image fit into memory.
 # This is the recommended mode for Win32 anyway.)

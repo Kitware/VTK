@@ -42,5 +42,5 @@ vtkFiltering
 vtkCommon 
 )
 
-LINK_LIBRARIES( png zlib vtkjpeg)
+LINK_LIBRARIES( vtkpng vtkzlib vtkjpeg)
 

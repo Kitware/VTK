@@ -1,4 +1,4 @@
-PROJECT(ZLIB)
+PROJECT(VTKZLIB)
 
 # source files for zlib
 SOURCE_FILES(ZLIB_SRCS
@@ -22,6 +22,7 @@ IF(WIN32)
     SOURCE_FILES(ZLIB_SRCS zlib.def zlib.rc  )
   ENDIF(NOT UNIX)
 ENDIF(WIN32)
-ADD_LIBRARY(zlib ZLIB_SRCS)
 
-INSTALL_TARGETS(/lib/vtk zlib)
+ADD_LIBRARY(vtkzlib ZLIB_SRCS)
+
+INSTALL_TARGETS(/lib/vtk vtkzlib)
