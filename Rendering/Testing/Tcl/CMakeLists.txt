@@ -22,6 +22,7 @@ IF (VTK_USE_RENDERING)
       TestParallelCoordinates
       TestStyleJoystickActor
       TestStyleJoystickCamera
+      TestStyleTerrain
       TestStyleTrackballActor
       TestStyleTrackballCamera
       TestTiling
