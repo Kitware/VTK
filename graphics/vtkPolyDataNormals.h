@@ -46,7 +46,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // across polygon neighbors. Sharp edges can be split and points duplicated
 // with separate normals to give crisp (rendered) surface definition. It is
 // also possible to globally flip the normal orientation.
-//<P>
+//
 // The algorithm works by determining normals for each polygon and then
 // averaging them at shared points. When sharp edges are present, the edges
 // are split and new points generated to prevent blurry edges (due to 
@@ -96,13 +96,13 @@ public:
   vtkBooleanMacro(Consistency,int);
 
   // Description:
-  // Turn on/off the computation of Point Normals.
+  // Turn on/off the computation of point normals.
   vtkSetMacro(ComputePointNormals,int);
   vtkGetMacro(ComputePointNormals,int);
   vtkBooleanMacro(ComputePointNormals,int);
 
   // Description:
-  // Turn on/off the computation of Cell Normals.
+  // Turn on/off the computation of cell normals.
   vtkSetMacro(ComputeCellNormals,int);
   vtkGetMacro(ComputeCellNormals,int);
   vtkBooleanMacro(ComputeCellNormals,int);
@@ -117,12 +117,6 @@ public:
   vtkBooleanMacro(FlipNormals,int);
 
   // Description:
-  // Control the depth of recursion used in this algorithm. (Some systems
-  // have limited stack depth.)
-  vtkSetClampMacro(MaxRecursionDepth,int,10,VTK_LARGE_INTEGER);
-  vtkGetMacro(MaxRecursionDepth,int);
-
-  // Description:
   // Turn on/off traversal across non-manifold edges. This will prevent
   // problems where the consistency of polygonal ordering is corrupted due
   // to topological loops.
@@ -130,6 +124,18 @@ public:
   vtkGetMacro(NonManifoldTraversal,int);
   vtkBooleanMacro(NonManifoldTraversal,int);
 
+#ifndef VTK_REMOVE_LEGACY_CODE
+  // Description:
+  // FOR LEGACY COMPATIBILITY ONLY, DO NOT USE.
+  // The connectivity extraction algorithm works recursively. In some systems 
+  // the stack depth is limited. This methods specifies the maximum recursion 
+  // depth.
+  void SetMaxRecursionDepth(int) 
+    {VTK_LEGACY_METHOD(SetMaxRecursionDepth,"4.0");}
+  int GetMaxRecursionDepth()
+    {VTK_LEGACY_METHOD(GetMaxRecursionDepth,"4.0"); return 0;}
+#endif
+  
 protected:
   vtkPolyDataNormals();
   ~vtkPolyDataNormals() {};
@@ -145,36 +151,30 @@ protected:
   int Splitting;
   int Consistency;
   int FlipNormals;
-  int MaxRecursionDepth;
   int NonManifoldTraversal;
   int ComputePointNormals;
   int ComputeCellNormals;
-
-  int Mark;
   int NumFlips;
 
 private:
   vtkIdList *Wave;
   vtkIdList *Wave2;
   vtkIdList *CellIds;
-  vtkIdList *EdgeNeighbors;
   vtkIdList *Map;
   vtkPolyData *OldMesh;
   vtkPolyData *NewMesh;
   int *Visited;
+  vtkNormals *PolyNormals;
+  float CosAngle;
 
-  // Returns 1 if neighbor cells need to be checked, 0 otherwise.
-  // edgeNeighbors is temp storage for this routine to use. We do not
-  // access its values outside this routine. This is to avoid
-  // New/Delete's within the routine.
-  int TraverseAndOrder(int cellId);
+  // Uses the list of cell ids (this->Wave) to propagate a wave of
+  // checked and properly ordered polygons.
+  void TraverseAndOrder(void);
 
-  // edgeNeighbors is temp storage for this routine to use. We do not
-  // access its values outside this routine. This is to avoid
-  // New/Delete's within the routine.
-  void MarkAndReplace(int cellId, int n, int replacement,
-                      vtkNormals *PolyNormals,
-                      float CosAngle);
+  // Check the point id give to see whether it lies on a feature
+  // edge. If so, split the point (i.e., duplicate it) to topologically
+  // separate the mesh.
+  void MarkAndSplit(int ptId);
 
 };
 

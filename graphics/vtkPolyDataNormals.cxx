@@ -70,15 +70,12 @@ vtkPolyDataNormals::vtkPolyDataNormals()
   this->ComputePointNormals = 1;
   this->ComputeCellNormals = 0;
   this->NonManifoldTraversal = 1;
-  this->MaxRecursionDepth = 1000;
   // some internal data
   this->NumFlips = 0;
-  this->Mark = 0;
 }
 
 #define VTK_CELL_NOT_VISITED     0
 #define VTK_CELL_VISITED         1
-#define VTK_CELL_NEEDS_VISITING  2
 
 // Generate normals for polygon meshes
 void vtkPolyDataNormals::Execute()
@@ -88,7 +85,7 @@ void vtkPolyDataNormals::Execute()
   int numNewPts;
   float *polyNormal, *vertNormal, length;
   float flipDirection=1.0;
-  int replacementPoint, numPolys, numStrips;
+  int numPolys, numStrips;
   int cellId, numPts;
   vtkPoints *inPts;
   vtkCellArray *inPolys, *inStrips, *polys;
@@ -102,9 +99,6 @@ void vtkPolyDataNormals::Execute()
   int ptId, oldId;
   vtkPolyData *input = this->GetInput();
   vtkPolyData *output = this->GetOutput();
-  int noCellsNeedVisiting;
-  vtkNormals *PolyNormals;
-  float CosAngle;
 
   vtkDebugMacro(<<"Generating surface normals");
 
@@ -187,32 +181,28 @@ void vtkPolyDataNormals::Execute()
     {
     this->Visited = new int[numPolys];
     memset(this->Visited, VTK_CELL_NOT_VISITED, numPolys*sizeof(int));
-    this->Mark = 1;
-    this->Wave = vtkIdList::New();
-    this->Wave->Allocate(numPolys/4+1,numPolys);
-    this->Wave2 = vtkIdList::New();
-    this->Wave2->Allocate(numPolys/4+1,numPolys);
     this->CellIds = vtkIdList::New();
     this->CellIds->Allocate(VTK_CELL_SIZE);
-    this->EdgeNeighbors = vtkIdList::New();
-    this->EdgeNeighbors->Allocate(2);
     }
   else
     {
     this->Visited = NULL;
     }
 
-  //  Traverse all elements insuring proper direction of ordering.  This
-  //  is a recursive neighbor search.  Note: have to truncate recursion
-  //  and keep track of seeds to start up again.
+  //  Traverse all polygons insuring proper direction of ordering.  This
+  //  works by propagating a wave from a seed polygon to the polygon's
+  //  edge neighbors. Each neighbor may be reordered to maintain consistency
+  //  with its (already checked) neighbors.
   //
   this->NumFlips = 0;
-
   if ( this->Consistency ) 
     {    
+    this->Wave = vtkIdList::New();
+    this->Wave->Allocate(numPolys/4+1,numPolys);
+    this->Wave2 = vtkIdList::New();
+    this->Wave2->Allocate(numPolys/4+1,numPolys);
     for (cellId=0; cellId < numPolys; cellId++)
       {
-      noCellsNeedVisiting = 1;
       if ( this->Visited[cellId] == VTK_CELL_NOT_VISITED) 
         {
         if ( this->FlipNormals ) 
@@ -220,37 +210,27 @@ void vtkPolyDataNormals::Execute()
           this->NumFlips++;
           this->NewMesh->ReverseCell(cellId);
           }
-        if (this->TraverseAndOrder(cellId))
-          {
-          noCellsNeedVisiting = 0;
-          }
+        this->Wave->InsertNextId(cellId);
+        this->Visited[cellId] = VTK_CELL_VISITED; 
+        this->TraverseAndOrder();
         }
 
-      while (!noCellsNeedVisiting)
-        {
-        noCellsNeedVisiting = 1;
-        for (i=0; i < numPolys; i++) 
-          {
-          if ( this->Visited[i] == VTK_CELL_NEEDS_VISITING )
-            {
-            if (this->TraverseAndOrder(i))
-              {
-              noCellsNeedVisiting = 0;
-              }
-            }
-          }
-        }
+      this->Wave->Reset();
+      this->Wave2->Reset(); 
       }
+
+    this->Wave->Delete();
+    this->Wave2->Delete();
     vtkDebugMacro(<<"Reversed ordering of " << this->NumFlips << " polygons");
-    }
-  this->Mark = VTK_CELL_NEEDS_VISITING + 1;
+    }//Consistent ordering
+  
   this->UpdateProgress(0.333);
 
-  //  Compute polygon normals
+  //  Initial pass to compute polygon normals without effects of neighbors
   //
-  PolyNormals = vtkNormals::New();
-  PolyNormals->Allocate(numPolys);
-  PolyNormals->SetNumberOfNormals(numPolys);
+  this->PolyNormals = vtkNormals::New();
+  this->PolyNormals->Allocate(numPolys);
+  this->PolyNormals->SetNumberOfNormals(numPolys);
 
   for (cellId=0, newPolys->InitTraversal(); newPolys->GetNextCell(npts,pts); 
   cellId++ )
@@ -260,21 +240,24 @@ void vtkPolyDataNormals::Execute()
       this->UpdateProgress (0.333 + 0.333 * (float) cellId / (float) numPolys);
       if (this->GetAbortExecute())
         {
-          break; 
+        break; 
         }
       }
     poly->ComputeNormal(inPts, npts, pts, n);
-    PolyNormals->SetNormal(cellId,n);
+    this->PolyNormals->SetNormal(cellId,n);
     }
 
-  //  Traverse all nodes; evaluate loops and feature edges.  If feature
-  //  edges found, split mesh creating new nodes.  Update element connectivity.
-  //
+  // Split mesh if sharp features
   if ( this->Splitting ) 
     {
-    CosAngle = cos ((double) vtkMath::DegreesToRadians() * this->FeatureAngle);
-    //  Splitting will create new points.  Have to create index array to map
-    //  new points into old points.
+    //  Traverse all nodes; evaluate loops and feature edges.  If feature
+    //  edges found, split mesh creating new nodes.  Update polygon 
+    // connectivity.
+    //
+    this->CosAngle = cos ((double) 
+                          vtkMath::DegreesToRadians() * this->FeatureAngle);
+    //  Splitting will create new points.  We have to create index array 
+    // to map new points into old points.
     //
     this->Map = vtkIdList::New();
     this->Map->SetNumberOfIds(numPts);
@@ -283,30 +266,16 @@ void vtkPolyDataNormals::Execute()
       this->Map->SetId(i,i);
       }
 
-    for (ptId=0; ptId < this->OldMesh->GetNumberOfPoints(); ptId++)
+    for (ptId=0; ptId < numPts; ptId++)
       {
-      this->Mark++;
-      replacementPoint = ptId;
-      this->OldMesh->GetPointCells(ptId, this->CellIds);
-      for (j=0; j < this->CellIds->GetNumberOfIds(); j++)
-        {
-        if ( this->Visited[this->CellIds->GetId(j)] != this->Mark )
-          {
-          this->MarkAndReplace(this->CellIds->GetId(j), ptId, 
-                               replacementPoint,
-                               PolyNormals,
-                               CosAngle);
-          }
-
-        replacementPoint = this->Map->GetNumberOfIds();
-        }
-      }
+      this->MarkAndSplit(ptId);
+      }//for all input points
 
     numNewPts = this->Map->GetNumberOfIds();
 
     vtkDebugMacro(<<"Created " << numNewPts-numPts << " new points");
 
-    //  Now need to map values of old points into new points.
+    //  Now need to map attributes of old points into new points.
     //
     outPD->CopyNormalsOff();
     outPD->CopyAllocate(pd,numNewPts);
@@ -321,7 +290,7 @@ void vtkPolyDataNormals::Execute()
     this->Map->Delete();
     } //splitting
 
-  else //no splitting
+  else //no splitting, so no new points
     {
     numNewPts = numPts;
     outPD->CopyNormalsOff();
@@ -331,10 +300,7 @@ void vtkPolyDataNormals::Execute()
   if ( this->Consistency || this->Splitting )
     {
     delete [] this->Visited;
-    this->Wave->Delete();
-    this->Wave2->Delete();
     this->CellIds->Delete();
-    this->EdgeNeighbors->Delete();
     }
 
   this->UpdateProgress(0.80);
@@ -360,7 +326,7 @@ void vtkPolyDataNormals::Execute()
     for (cellId=0, newPolys->InitTraversal(); newPolys->GetNextCell(npts,pts); 
           cellId++ )
       {
-      polyNormal = PolyNormals->GetNormal(cellId);
+      polyNormal = this->PolyNormals->GetNormal(cellId);
 
       for (i=0; i < npts; i++) 
         {
@@ -389,7 +355,7 @@ void vtkPolyDataNormals::Execute()
     }
 
   //  Update ourselves.  If no new nodes have been created (i.e., no
-  //  splitting), can simply pass data through.
+  //  splitting), we can simply pass data through.
   //
   if ( ! this->Splitting ) 
     {
@@ -406,9 +372,9 @@ void vtkPolyDataNormals::Execute()
 
   if (this->ComputeCellNormals)
     {
-    outCD->SetNormals(PolyNormals);
+    outCD->SetNormals(this->PolyNormals);
     }
-  PolyNormals->Delete();
+  this->PolyNormals->Delete();
 
   if (this->ComputePointNormals)
     {
@@ -424,149 +390,232 @@ void vtkPolyDataNormals::Execute()
   poly->Delete();
 }
 
-//  Mark current polygon as visited, make sure that all neighboring
-//  polygons are ordered consistent with this one.
+//  Propagate wave of consistently ordered polygons.
 //
-int vtkPolyDataNormals::TraverseAndOrder (int cellId)
+void vtkPolyDataNormals::TraverseAndOrder (void)
 {
   int p1, p2;
-  int j, k, l;
-  int npts, *pts;
+  int i, j, k, l;
+  int npts, *pts, numIds, cellId;
   int numNeiPts, *neiPts, neighbor;
-  int queuedCells = 0;
+  vtkIdList *tmpWave;
 
-  //means that it's been ordered properly
-  this->Visited[cellId] = VTK_CELL_VISITED; 
-
-  this->NewMesh->GetCellPoints(cellId, npts, pts);
-
-  for (j=0; j < npts; j++) 
+  // propagate wave until nothing left in wave
+  while ( (numIds=this->Wave->GetNumberOfIds()) > 0 )
     {
-    p1 = pts[j];
-    p2 = pts[(j+1)%npts];
-
-    this->OldMesh->GetCellEdgeNeighbors(cellId, p1, p2, this->CellIds);
-
-    //  Check the direction of the neighbor ordering.  Should be
-    //  consistent with us (i.e., if we are n1->n2, neighbor should be n2->n1).
-    //
-    if ( this->CellIds->GetNumberOfIds() == 1 ||
-    this->NonManifoldTraversal )
+    for ( i=0; i < numIds; i++ )
       {
-      for (k=0; k < this->CellIds->GetNumberOfIds(); k++) 
+      cellId = this->Wave->GetId(i);
+
+      this->NewMesh->GetCellPoints(cellId, npts, pts);
+
+      for (j=0; j < npts; j++) //for each edge neighbor
         {
-        if ( this->Visited[this->CellIds->GetId(k)] == VTK_CELL_NOT_VISITED) 
+        p1 = pts[j];
+        p2 = pts[(j+1)%npts];
+
+        this->OldMesh->GetCellEdgeNeighbors(cellId, p1, p2, this->CellIds);
+
+        //  Check the direction of the neighbor ordering.  Should be
+        //  consistent with us (i.e., if we are n1->n2, 
+        // neighbor should be n2->n1).
+        if ( this->CellIds->GetNumberOfIds() == 1 ||
+             this->NonManifoldTraversal )
           {
-          neighbor = this->CellIds->GetId(k);
-          this->NewMesh->GetCellPoints(neighbor,numNeiPts,neiPts);
-          for (l=0; l < numNeiPts; l++)
+          for (k=0; k < this->CellIds->GetNumberOfIds(); k++) 
             {
-            if (neiPts[l] == p2)
+            if (this->Visited[this->CellIds->GetId(k)]==VTK_CELL_NOT_VISITED) 
               {
-               break;
-              }
-            }
+              neighbor = this->CellIds->GetId(k);
+              this->NewMesh->GetCellPoints(neighbor,numNeiPts,neiPts);
+              for (l=0; l < numNeiPts; l++)
+                {
+                if (neiPts[l] == p2)
+                  {
+                  break;
+                  }
+                }
 
-          //  Have to reverse ordering if neighbor not consistent
-          //
-           if ( neiPts[(l+1)%numNeiPts] != p1 ) 
-             {
-             this->NumFlips++;
-             this->NewMesh->ReverseCell(neighbor);
-             }
-           this->Visited[neighbor] = VTK_CELL_NEEDS_VISITING;
-           queuedCells = 1;
-          }
-        } // for each edge neighbor
-      } //for manifold or non-manifold traversal allowed
-    } // for all edges of this polygon
+              //  Have to reverse ordering if neighbor not consistent
+              //
+              if ( neiPts[(l+1)%numNeiPts] != p1 ) 
+                {
+                this->NumFlips++;
+                this->NewMesh->ReverseCell(neighbor);
+                }
+              this->Visited[neighbor] = VTK_CELL_VISITED; 
+              this->Wave2->InsertNextId(neighbor);
+              }// if cell not visited
+            } // for each edge neighbor
+          } //for manifold or non-manifold traversal allowed
+        } // for all edges of this polygon
+      } //for all cells in wave
 
-  return queuedCells;
+    //swap wave and proceed with propagation
+    tmpWave = this->Wave;
+    this->Wave = this->Wave2;
+    this->Wave2 = tmpWave;
+    this->Wave2->Reset();
+    } //while wave still propagating
+
+  return;
 }
 
 //
 //  Mark polygons around vertex.  Create new vertex (if necessary) and
 //  replace (i.e., split mesh).
 //
-void vtkPolyDataNormals::MarkAndReplace (int cellId, int n, 
-                                         int replacementPoint, 
-                                         vtkNormals *PolyNormals,
-                                         float CosAngle)
+void vtkPolyDataNormals::MarkAndSplit (int ptId)
 {
-  int i, spot;
-  int neiNode[2];
+  int i,j;
+
+  // Get the cells using this point and make sure that we have to do something
+  unsigned short ncells;
+  int *cells;
+  this->OldMesh->GetPointCells(ptId,ncells,cells);
+  if ( ncells <= 1 )
+    {
+    return; //point does not need to be further disconnected
+    }
+
+  // Start moving around the "cycle" of points using the point. Label
+  // each point as requiring a visit. Then label each subregion of cells
+  // connected to this point that are connected (and not separated by
+  // a feature edge) with a given region number. For each N regions
+  // created, N-1 duplicate (split) points are created. The split point
+  // replaces the current point ptId in the polygons connectivity array.
+  //
+  // Start by initializing the cells as unvisited
+  for (i=0; i<ncells; i++)
+    {
+    this->Visited[cells[i]] = -1;
+    }
+
+  // Loop over all cells and mark the region that each is in.
+  //
+  int numPts, *pts;
+  int numRegions = 0;
+  int neiPt[2], nei, spot, cellId, neiCellId;
   float *thisNormal, *neiNormal;
-  int numOldPts, *oldPts;
-  int numNewPts, *newPts;
-
-  this->Visited[cellId] = this->Mark;
-  this->OldMesh->GetCellPoints(cellId,numOldPts,oldPts);
-  //
-  //  Replace the node if necessary
-  //
-  if ( n != replacementPoint ) 
+  for (j=0; j<ncells; j++) //for all cells connected to point
     {
-    this->Map->InsertId(replacementPoint, n);
-
-    this->NewMesh->GetCellPoints(cellId,numNewPts,newPts);
-    for (i=0; i < numNewPts; i++) 
+    if ( this->Visited[cells[j]] < 0 ) //for all unvisited cells
       {
-      if ( newPts[i] == n ) 
+      this->Visited[cells[j]] = numRegions;
+      //okay, mark all the cells connected to this seed cell and using ptId
+      this->OldMesh->GetCellPoints(cells[j],numPts,pts);
+
+      //find the two edges
+      for (spot=0; spot < numPts; spot++)
         {
-        newPts[i] = replacementPoint; // this is very nasty! direct write!
-        break;
+        if ( pts[spot] == ptId )
+          {
+          break;
+          }
         }
-      }
-    }
-//
-//  Look at neighbors who share central point and see whether a
-//  feature edge separates us.  If not, can recursively call this
-//  routine. 
-//
-  for (spot=0; spot < numOldPts; spot++)
-    {
-    if ( oldPts[spot] == n )
-      {
-      break;
-      }
-    }
 
-  if ( spot == 0 ) 
-    {
-    neiNode[0] = oldPts[spot+1];
-    neiNode[1] = oldPts[numOldPts-1];
-    } 
-  else if ( spot == (numOldPts-1) ) 
-    {
-    neiNode[0] = oldPts[spot-1];
-    neiNode[1] = oldPts[0];
-    } 
-  else 
-    {
-    neiNode[0] = oldPts[spot+1];
-    neiNode[1] = oldPts[spot-1];
-    }
-
-  for (i=0; i<2; i++) 
-    {
-    this->OldMesh->GetCellEdgeNeighbors(cellId, n, neiNode[i], 
-                                        this->EdgeNeighbors);
-    if ( this->EdgeNeighbors->GetNumberOfIds() == 1 && 
-         this->Visited[this->EdgeNeighbors->GetId(0)] != this->Mark)
-      {
-      thisNormal = PolyNormals->GetNormal(cellId);
-      neiNormal =  PolyNormals->GetNormal(this->EdgeNeighbors->GetId(0));
-
-      if ( vtkMath::Dot(thisNormal,neiNormal) > CosAngle )
+      if ( spot == 0 ) 
         {
-        // NOTE: EdgeNeighbors are reused recursively without harm because
-        // after the recusion call, it is no longer used
-        this->MarkAndReplace (this->EdgeNeighbors->GetId(0), n, 
-                              replacementPoint, PolyNormals,
-                              CosAngle);
+        neiPt[0] = pts[spot+1];
+        neiPt[1] = pts[numPts-1];
+        } 
+      else if ( spot == (numPts-1) ) 
+        {
+        neiPt[0] = pts[spot-1];
+        neiPt[1] = pts[0];
+        } 
+      else 
+        {
+        neiPt[0] = pts[spot+1];
+        neiPt[1] = pts[spot-1];
         }
-      }
+
+      for (i=0; i<2; i++) //for each of the two edges of the seed cell
+        {
+        cellId = cells[j];
+        nei = neiPt[i];
+        while ( cellId >= 0 ) //while we can grow this region
+          {
+          this->OldMesh->GetCellEdgeNeighbors(cellId,ptId,nei,this->CellIds);
+          if ( this->CellIds->GetNumberOfIds() == 1 && 
+               this->Visited[(neiCellId=this->CellIds->GetId(0))] < 0 )
+            {
+            thisNormal = this->PolyNormals->GetNormal(cellId);
+            neiNormal =  this->PolyNormals->GetNormal(neiCellId);
+
+            if ( vtkMath::Dot(thisNormal,neiNormal) > CosAngle )
+              {
+              //visit and arrange to visit next edge neighbor
+              this->Visited[neiCellId] = numRegions;
+              cellId = neiCellId;
+              this->OldMesh->GetCellPoints(cellId,numPts,pts);
+
+              for (spot=0; spot < numPts; spot++)
+                {
+                if ( pts[spot] == ptId )
+                  {
+                  break;
+                  }
+                }
+
+              if (spot == 0) 
+                {
+                nei = (pts[spot+1] != nei ? pts[spot+1] : pts[numPts-1]);
+                } 
+              else if (spot == (numPts-1)) 
+                {
+                nei = (pts[spot-1] != nei ? pts[spot-1] : pts[0]);
+                } 
+              else 
+                {
+                nei = (pts[spot+1] != nei ? pts[spot+1] : pts[spot-1]);
+                }
+
+              }//if not separated by edge angle
+            else
+              {
+              cellId = -1; //separated by edge angle
+              }
+            }//if can move to edge neighbor
+          else
+            {
+            cellId = -1;//separated by previous visit, bounary, or non-manifold
+            }
+          }//while visit wave is propagating
+        }//for each of the two edges of the starting cell
+      numRegions++;
+      }//if cell is unvisited
+    }//for all cells connected to point ptId
+  
+  if ( numRegions <=1 )
+    {
+    return; //a single region, no splitting ever required
     }
+
+  // Okay, for all cells not in the first region, the ptId is
+  // replaced with a new ptId, which is a duplicate of the first
+  // point, but disconnected topologically.
+  //
+  int lastId = this->Map->GetNumberOfIds();
+  int replacementPoint;
+  for (j=0; j<ncells; j++)
+    {
+    if (this->Visited[cells[j]] > 0 ) //replace point if splitting needed
+      {
+      replacementPoint = lastId + this->Visited[cells[j]] - 1;
+      this->Map->InsertId(replacementPoint, ptId);
+
+      this->NewMesh->GetCellPoints(cells[j],numPts,pts);
+      for (i=0; i < numPts; i++) 
+        {
+        if ( pts[i] == ptId ) 
+          {
+          pts[i] = replacementPoint; // this is very nasty! direct write!
+          break;
+          }
+        }//replace ptId with split point
+      }//if not in first regions and requiring splitting
+    }//for all cells connected to ptId
 
   return;
 }
@@ -583,8 +632,6 @@ void vtkPolyDataNormals::PrintSelf(ostream& os, vtkIndent indent)
      << (this->ComputePointNormals ? "On\n" : "Off\n");
   os << indent << "Compute Cell Normals: " 
      << (this->ComputeCellNormals ? "On\n" : "Off\n");
-  os << indent << "Maximum Recursion Depth: " 
-     << this->MaxRecursionDepth << "\n";
   os << indent << "Non-manifold Traversal: " 
      << (this->NonManifoldTraversal ? "On\n" : "Off\n");
 }
