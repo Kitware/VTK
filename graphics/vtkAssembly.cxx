@@ -92,15 +92,22 @@ void vtkAssembly::Render(vtkRenderer *ren)
 {
   vtkActor *actor;
   vtkActorCollection *path;
+  float fraction;
 
   this->UpdatePaths();
 
+  // for allocating render time between components
+  // simple equal allocation
+  fraction = this->AllocatedRenderTime 
+    / (float)(this->Paths->GetNumberOfItems());
+  
   // render the Paths
   for ( this->Paths->InitTraversal(); (path = this->Paths->GetNextItem()); )
     {
     actor = path->GetLastItem();
     if ( actor->GetVisibility() )
       {
+      actor->SetAllocatedRenderTime(fraction);
       actor->Render(ren);
       }
     }

@@ -356,3 +356,30 @@ void vtkLODActor::Modified()
   this->vtkActor::Modified();
 }
 
+// This method is used in conjunction with the assembly object to build a copy
+// of the assembly hierarchy. This hierarchy can then be traversed for 
+// rendering or other operations.
+void vtkLODActor::BuildPaths(vtkAssemblyPaths *vtkNotUsed(paths), 
+                          vtkActorCollection *path)
+{
+  vtkLODActor *copy= vtkLODActor::New();
+  vtkActor *previous;
+  vtkMapper *mapper;
+
+  // shallow copy
+  *((vtkActor *)copy) = *this;
+  this->LODMappers->InitTraversal();
+  while ( (mapper = this->LODMappers->GetNextItem()) )
+    {
+    copy->AddLODMapper(mapper);
+    }
+  
+  previous = path->GetLastItem();
+  vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
+  matrix->DeepCopy(previous->vtkProp::GetMatrixPointer());
+  copy->SetUserMatrix(matrix);
+  matrix->Delete();
+
+  path->AddItem(copy);
+}
+

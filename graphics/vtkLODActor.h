@@ -107,6 +107,9 @@ class VTK_EXPORT vtkLODActor : public vtkActor
   // When this objects gets modified, this method also modifies the object.
   void Modified();
   
+  // Description:
+  // Used to construct assembly paths and perform part traversal.
+  void BuildPaths(vtkAssemblyPaths *paths, vtkActorCollection *path);
   
 protected:
   vtkActor            *Device;
