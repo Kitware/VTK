@@ -61,7 +61,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkDataReader, "1.115");
+vtkCxxRevisionMacro(vtkDataReader, "1.116");
 vtkStandardNewMacro(vtkDataReader);
 
 // this undef is required on the hp. vtkMutexLock ends up including
@@ -90,6 +90,8 @@ vtkDataReader::vtkDataReader()
   this->ReadFromInputString = 0;
   this->IS = NULL;
   this->Header = NULL;
+
+  this->InputArray = 0;
 
   this->NumberOfScalarsInFile = 0;
   this->ScalarsNameInFile = NULL;
@@ -158,6 +160,7 @@ vtkDataReader::~vtkDataReader()
     delete [] this->Header;
     }
 
+  this->SetInputArray(0);
   this->InitializeCharacteristics();
 }
 
@@ -360,7 +363,15 @@ int vtkDataReader::OpenVTKFile()
 {
   if (this->ReadFromInputString)
     {
-    if (this->InputString)
+    if (this->InputArray)
+      {
+      vtkDebugMacro(<< "Reading from InputArray");
+      this->IS = new istrstream(this->InputArray->GetPointer(0), 
+                                this->InputArray->GetNumberOfTuples()*
+        this->InputArray->GetNumberOfComponents());
+      return 1;
+      }
+    else if (this->InputString)
       {
       vtkDebugMacro(<< "Reading from InputString");
       this->IS = new istrstream(this->InputString, this->InputStringLength);

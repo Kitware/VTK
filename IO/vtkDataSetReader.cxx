@@ -47,7 +47,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkUnstructuredGridReader.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkDataSetReader, "1.56");
+vtkCxxRevisionMacro(vtkDataSetReader, "1.57");
 vtkStandardNewMacro(vtkDataSetReader);
 
 vtkDataSetReader::vtkDataSetReader()
@@ -71,7 +71,7 @@ vtkDataSet * vtkDataSetReader::GetOutput()
   // We need to re execute.
   if (this->GetFileName() == NULL && 
       (this->GetReadFromInputString() == 0 || 
-       this->GetInputString() == NULL))
+       (this->GetInputArray() == NULL && this->GetInputString() == NULL)))
     {
     vtkWarningMacro(<< "FileName must be set");
     return (vtkDataSet *) NULL;
@@ -124,6 +124,7 @@ void vtkDataSetReader::Execute()
       {
       vtkPolyDataReader *preader = vtkPolyDataReader::New();
       preader->SetFileName(this->GetFileName());
+      preader->SetInputArray(this->GetInputArray());
       preader->SetInputString(this->GetInputString(),
                               this->GetInputStringLength());
       preader->SetReadFromInputString(this->GetReadFromInputString());
@@ -153,6 +154,7 @@ void vtkDataSetReader::Execute()
       {
       vtkStructuredPointsReader *preader = vtkStructuredPointsReader::New();
       preader->SetFileName(this->GetFileName());
+      preader->SetInputArray(this->GetInputArray());
       preader->SetInputString(this->GetInputString(),
                               this->GetInputStringLength());
       preader->SetReadFromInputString(this->GetReadFromInputString());
@@ -183,6 +185,7 @@ void vtkDataSetReader::Execute()
       {
       vtkStructuredGridReader *preader = vtkStructuredGridReader::New();
       preader->SetFileName(this->GetFileName());
+      preader->SetInputArray(this->GetInputArray());
       preader->SetInputString(this->GetInputString(),
                               this->GetInputStringLength());
       preader->SetReadFromInputString(this->GetReadFromInputString());
@@ -213,6 +216,7 @@ void vtkDataSetReader::Execute()
       {
       vtkRectilinearGridReader *preader = vtkRectilinearGridReader::New();
       preader->SetFileName(this->GetFileName());
+      preader->SetInputArray(this->GetInputArray());
       preader->SetInputString(this->GetInputString(),
                               this->GetInputStringLength());
       preader->SetReadFromInputString(this->GetReadFromInputString());
@@ -243,6 +247,7 @@ void vtkDataSetReader::Execute()
       {
       vtkUnstructuredGridReader *preader = vtkUnstructuredGridReader::New();
       preader->SetFileName(this->GetFileName());
+      preader->SetInputArray(this->GetInputArray());
       preader->SetInputString(this->GetInputString(),
                               this->GetInputStringLength());
       preader->SetReadFromInputString(this->GetReadFromInputString());

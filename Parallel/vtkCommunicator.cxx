@@ -52,7 +52,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkDoubleArray.h"
 #include "vtkIdTypeArray.h"
 
-vtkCxxRevisionMacro(vtkCommunicator, "1.8");
+vtkCxxRevisionMacro(vtkCommunicator, "1.9");
 
 template <class T>
 static int SendDataArray(T* data, int length, int handle, int tag, vtkCommunicator *self)
@@ -472,7 +472,14 @@ int vtkCommunicator::ReadImageData(vtkImageData *object)
     }
   
   reader->ReadFromInputStringOn();
-  reader->SetInputString(this->MarshalString, this->MarshalDataLength);
+  
+  vtkCharArray* mystring = vtkCharArray::New();
+  // mystring should not delete the string when it's done,
+  // that's our job.
+  mystring->SetArray(this->MarshalString, this->MarshalDataLength, 1);
+  reader->SetInputArray(mystring);
+  mystring->Delete();
+
   reader->GetOutput()->Update();
 
   object->ShallowCopy(reader->GetOutput());
@@ -520,7 +527,14 @@ int vtkCommunicator::ReadDataSet(vtkDataSet *object)
     }
   
   reader->ReadFromInputStringOn();
-  reader->SetInputString(this->MarshalString, this->MarshalDataLength);
+
+  vtkCharArray* mystring = vtkCharArray::New();
+  // mystring should not delete the string when it's done,
+  // that's our job.
+  mystring->SetArray(this->MarshalString, this->MarshalDataLength, 1);
+  reader->SetInputArray(mystring);
+  mystring->Delete();
+
   output = reader->GetOutput();
   output->Update();
 

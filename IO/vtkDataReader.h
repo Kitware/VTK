@@ -55,6 +55,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkSource.h"
 #include "vtkDataSetAttributes.h"
+#include "vtkCharArray.h"
 
 #define VTK_ASCII 1
 #define VTK_BINARY 2
@@ -92,19 +93,32 @@ public:
   
   // Description:
   // Specify the InputString for use when reading from a character array.
-  // Optionally include the length for binary strings.
+  // Optionally include the length for binary strings. Note that a copy
+  // of the string is made and stored. If this causes exceedingly large
+  // memory consumption, consider using InputArray instead.
   void SetInputString(const char *in);
   vtkGetStringMacro(InputString);
   void SetInputString(const char *in, int len);
   vtkGetMacro(InputStringLength, int);
   void SetBinaryInputString(const char *, int len);
+
+  // Description:
+  // Specify the vtkCharArray to be used  when reading from a string.
+  // If set, this array has precendence over InputString.
+  // Use this instead of InputString to avoid the extra memory copy.
+  // It should be noted that if the underlying char* is owned by the
+  // user ( vtkCharArray::SetArray(array, 1); ) and is deleted before
+  // the reader, bad things will happen during a pipeline update.
+  vtkSetObjectMacro(InputArray, vtkCharArray);
+  vtkGetObjectMacro(InputArray, vtkCharArray);
     
   // Description:
   // Get the header from the vtk data file.
   vtkGetStringMacro(Header);
 
   // Description:
-  // Enable reading from an InputString instead of the default, a file.
+  // Enable reading from an InputString or InputArray instead of the default, 
+  // a file.
   vtkSetMacro(ReadFromInputString,int);
   vtkGetMacro(ReadFromInputString,int);
   vtkBooleanMacro(ReadFromInputString,int);
@@ -328,6 +342,8 @@ protected:
   int CharacterizeFile(); //read entire file, storing important characteristics
   void CheckFor(const char* name, char *line, int &num, char** &array, 
                 int& allocSize);
+
+  vtkCharArray* InputArray;
 
 private:
   vtkDataReader(const vtkDataReader&);  // Not implemented.
