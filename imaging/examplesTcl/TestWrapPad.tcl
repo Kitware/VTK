@@ -11,7 +11,7 @@ set sliceNumber 22
 vtkImageVolume16Reader reader
 reader SetDataByteOrderToLittleEndian
 reader SetDataDimensions 256 256 93
-reader SetFilePrefix "../../../data/fullHead/headsq"
+reader SetFilePrefix "../../../../vtkdata/fullHead/headsq"
 reader SetDataMask 0x7fff
 #reader ReleaseDataFlagOff
 #reader DebugOn

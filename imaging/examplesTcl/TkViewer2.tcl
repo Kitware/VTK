@@ -27,7 +27,7 @@ vtkImageFileReader reader
 reader ReleaseDataFlagOff
 reader SetAxes $VTK_IMAGE_COMPONENT_AXIS $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS 
 reader SetDataDimensions 3 512 256
-reader SetFileName "../../../data/earth.ppm"
+reader SetFileName "../../../../vtkdata/earth.ppm"
 reader SetDataScalarType $VTK_UNSIGNED_CHAR
 
 set viewer [.top.f1.r1 GetImageViewer]

@@ -14,7 +14,7 @@ vtkImageVolume16Reader reader
 #reader DebugOn
 reader SetDataByteOrderToLittleEndian
 reader SetDataDimensions 256 256 93
-reader SetFilePrefix "../../../data/fullHead/headsq"
+reader SetFilePrefix "../../../../vtkdata/fullHead/headsq"
 reader SetDataMask 0x7fff
 
 vtkImageGradient gradient
