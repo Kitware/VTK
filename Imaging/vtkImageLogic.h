@@ -56,15 +56,15 @@ public:
 
   // Description:
   // Set the value to use for true in the output.
-  vtkSetMacro(OutputTrueValue, float);
-  vtkGetMacro(OutputTrueValue, float);
+  vtkSetMacro(OutputTrueValue, double);
+  vtkGetMacro(OutputTrueValue, double);
   
 protected:
   vtkImageLogic();
   ~vtkImageLogic() {};
 
   int Operation;
-  float OutputTrueValue;
+  double OutputTrueValue;
   
   void ThreadedExecute(vtkImageData **inDatas, vtkImageData *outData,
                        int extent[6], int id);

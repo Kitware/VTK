@@ -35,13 +35,13 @@ public:
 
   // Description:
   // Set/Get the shift value.
-  vtkSetMacro(Shift,float);
-  vtkGetMacro(Shift,float);
+  vtkSetMacro(Shift,double);
+  vtkGetMacro(Shift,double);
 
   // Description:
   // Set/Get the scale value.
-  vtkSetMacro(Scale,float);
-  vtkGetMacro(Scale,float);
+  vtkSetMacro(Scale,double);
+  vtkGetMacro(Scale,double);
 
   // Description:
   // Set the desired output scalar type. The result of the shift 
@@ -81,8 +81,8 @@ protected:
   vtkImageShiftScale();
   ~vtkImageShiftScale() {};
 
-  float Shift;
-  float Scale;
+  double Shift;
+  double Scale;
   int OutputScalarType;
   int ClampOverflow;
   

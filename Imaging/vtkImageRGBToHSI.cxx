@@ -20,7 +20,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageRGBToHSI, "1.2");
+vtkCxxRevisionMacro(vtkImageRGBToHSI, "1.3");
 vtkStandardNewMacro(vtkImageRGBToHSI);
 
 //----------------------------------------------------------------------------
@@ -40,9 +40,9 @@ void vtkImageRGBToHSIExecute(vtkImageRGBToHSI *self,
   vtkImageIterator<T> inIt(inData, outExt);
   vtkImageProgressIterator<T> outIt(outData, outExt, self, id);
   int idxC, maxC;
-  float R, G, B, H, S, I;
-  float max = self->GetMaximum();
-  float temp;
+  double R, G, B, H, S, I;
+  double max = self->GetMaximum();
+  double temp;
   
   // find the region to loop over
   maxC = inData->GetNumberOfScalarComponents()-1;
@@ -56,9 +56,9 @@ void vtkImageRGBToHSIExecute(vtkImageRGBToHSI *self,
     while (outSI != outSIEnd)
       {
       // Pixel operation
-      R = (float)(*inSI); inSI++;
-      G = (float)(*inSI); inSI++;
-      B = (float)(*inSI); inSI++;
+      R = (double)(*inSI); inSI++;
+      G = (double)(*inSI); inSI++;
+      B = (double)(*inSI); inSI++;
       // Saturation
       temp = R;
       if (G < temp)
@@ -69,7 +69,7 @@ void vtkImageRGBToHSIExecute(vtkImageRGBToHSI *self,
         {
         temp = B;
         }
-      float sumRGB = R+G+B;
+      double sumRGB = R+G+B;
       if(sumRGB == 0.0)
         {
         S = 0.0;
@@ -79,7 +79,7 @@ void vtkImageRGBToHSIExecute(vtkImageRGBToHSI *self,
         S = max * (1.0 - (3.0 * temp / sumRGB));
         }
       
-      temp = (float)(R + G + B);
+      temp = (double)(R + G + B);
       // Intensity is easy
       I = temp / 3.0;
       

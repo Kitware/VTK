@@ -19,7 +19,7 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageRGBToHSV, "1.27");
+vtkCxxRevisionMacro(vtkImageRGBToHSV, "1.28");
 vtkStandardNewMacro(vtkImageRGBToHSV);
 
 //----------------------------------------------------------------------------
@@ -39,8 +39,8 @@ void vtkImageRGBToHSVExecute(vtkImageRGBToHSV *self,
   vtkImageIterator<T> inIt(inData, outExt);
   vtkImageProgressIterator<T> outIt(outData, outExt, self, id);
   int idxC, maxC;
-  float R, G, B, H, S, V;
-  float max = self->GetMaximum();
+  double R, G, B, H, S, V;
+  double max = self->GetMaximum();
   
   // find the region to loop over
   maxC = inData->GetNumberOfScalarComponents()-1;
@@ -54,9 +54,9 @@ void vtkImageRGBToHSVExecute(vtkImageRGBToHSV *self,
     while (outSI != outSIEnd)
       {
       // Pixel operation
-      R = (float)(*inSI) / max; inSI++;
-      G = (float)(*inSI) / max; inSI++;
-      B = (float)(*inSI) / max; inSI++;
+      R = (double)(*inSI) / max; inSI++;
+      G = (double)(*inSI) / max; inSI++;
+      B = (double)(*inSI) / max; inSI++;
 
       vtkMath::RGBToHSV(R, G, B, &H, &S, &V);
 

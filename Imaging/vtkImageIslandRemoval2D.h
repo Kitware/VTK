@@ -57,13 +57,13 @@ public:
 
   // Description:
   // Set/Get the value to remove.
-  vtkSetMacro(IslandValue, float);
-  vtkGetMacro(IslandValue, float);
+  vtkSetMacro(IslandValue, double);
+  vtkGetMacro(IslandValue, double);
 
   // Description:
   // Set/Get the value to put in the place of removed pixels.
-  vtkSetMacro(ReplaceValue, float);
-  vtkGetMacro(ReplaceValue, float);
+  vtkSetMacro(ReplaceValue, double);
+  vtkGetMacro(ReplaceValue, double);
   
 protected:
   vtkImageIslandRemoval2D();
@@ -71,8 +71,8 @@ protected:
 
   int AreaThreshold;
   int SquareNeighborhood;
-  float IslandValue;
-  float ReplaceValue;
+  double IslandValue;
+  double ReplaceValue;
 
   void ExecuteData(vtkDataObject *output);
 private:
