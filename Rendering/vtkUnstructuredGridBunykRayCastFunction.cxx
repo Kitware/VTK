@@ -31,7 +31,7 @@
 #include "vtkColorTransferFunction.h"
 #include "vtkVolumeProperty.h"
 
-vtkCxxRevisionMacro(vtkUnstructuredGridBunykRayCastFunction, "1.19.2.1");
+vtkCxxRevisionMacro(vtkUnstructuredGridBunykRayCastFunction, "1.19.2.2");
 vtkStandardNewMacro(vtkUnstructuredGridBunykRayCastFunction);
 
 #define VTK_BUNYKRCF_NUMLISTS 100000
@@ -1319,8 +1319,8 @@ void vtkUnstructuredGridBunykRayCastFunction::PrintSelf(ostream& os, vtkIndent i
   this->Superclass::PrintSelf(os,indent);
   
   // Do not want to print this->ViewToWorldMatrix , this->ImageViewportSize
-  // or this->ImageOrigin - these are internal ivar and not part of the
-  // public API for this class
+  // this->ScalarOpacityUnitDistance , or this->ImageOrigin - these are
+  // internal ivar and not part of the public API for this class
 }
 
 
