@@ -449,6 +449,15 @@ void vtkPiecewiseFunction::RemovePoint( float x )
 
       this->FunctionSize--;
 
+      if (this->FunctionSize > 0)
+	{
+	this->FunctionRange[0] = this->Function[0];
+	this->FunctionRange[1] = this->Function[2*(this->FunctionSize-1)];
+	}
+      else
+	{
+	this->FunctionRange[0] = this->FunctionRange[1] = 0.0;
+	}
       this->Modified();
       }
     }
