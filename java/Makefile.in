@@ -32,7 +32,7 @@ LDLIBS = -L../common \
         ${USE_GEMSIO_LIBS}	\
         ${USE_GEMSVOLUME_LIBS}	\
         ${USE_GEMSIP_LIBS}	\
-        ${USE_VOLUME_LIBS}		\
+        ${USE_WORKING_LIBS}		\
         ${USE_PATENTED_LIBS}		\
 	${USE_IMAGING_LIBS}	\
 	${USE_GRAPHICS_LIBS}	\
