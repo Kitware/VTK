@@ -1,21 +1,11 @@
 
-#ifdef WIN32 
-#pragma warning (push, 1) 
-#pragma warning (disable:4503)
-#pragma warning (disable:4514) 
-#pragma warning (disable:4702)
-#pragma warning (disable:4710) 
-#pragma warning (disable:4786)
-#endif 
 
-#include <string>
-#include <fstream>
-#include <map>
-#include <iomanip>
-
-
-#ifdef WIN32 
-#pragma warning(pop) 
+#ifdef _MSC_VER
+#pragma warning ( disable : 4514 )
+#pragma warning ( disable : 4786 )
+#pragma warning ( disable : 4503 )
+#pragma warning ( disable : 4710 )
+#pragma warning ( push, 3 )
 #endif 
 
 
@@ -28,6 +18,12 @@
 #if !defined(__MWERKS__)
 #include <sys/types.h>
 #endif
+
+#include <string>
+#include <fstream>
+#include <map>
+#include <iomanip>
+
 
 #include "DICOMParser.h"
 #include "DICOMCallback.h"
@@ -54,17 +50,31 @@ DICOMParser::DICOMParser() : ParserOutputFile()
   this->ToggleByteSwapImageData = false;
   this->TransferSyntaxCB = new DICOMMemberCallback<DICOMParser>;
   this->InitTypeMap();
+  this->FileName = "";
 }
 
-bool DICOMParser::OpenFile(const char* filename)
+const std::string&
+DICOMParser::GetFileName()
+{
+  return this->FileName;
+}
+
+bool DICOMParser::OpenFile(const std::string& filename)
 {
   if (this->DataFile)
     {
+    // Deleting the DataFile closes the file
     delete this->DataFile;
     }
   this->DataFile = new DICOMFile();
   bool val = this->DataFile->Open(filename);
 
+  if (val)
+    {
+    this->FileName = filename;
+    }
+
+  
 #ifdef DEBUG_DICOM
   if (this->ParserOutputFile.is_open())
     {
@@ -109,11 +119,6 @@ bool DICOMParser::ReadHeader() {
     return false;
     }
 
-  // DICOMMemberCallback<DICOMParser>* cb4 = new DICOMMemberCallback<DICOMParser>;
-  // cb4->SetCallbackFunction(this, &DICOMParser::TransferSyntaxCallback);
-  // this->AddDICOMTagCallback(0x0002, 0x0010, DICOMParser::VR_UI, cb4);
-
-  // DICOMMemberCallback<DICOMParser>* cb4 = new DICOMMemberCallback<DICOMParser>;
   this->TransferSyntaxCB->SetCallbackFunction(this, &DICOMParser::TransferSyntaxCallback);
   this->AddDICOMTagCallback(0x0002, 0x0010, DICOMParser::VR_UI, this->TransferSyntaxCB);
 
@@ -127,6 +132,7 @@ bool DICOMParser::ReadHeader() {
   this->Elements.clear();
   this->Datatypes.clear();
 
+  long fileSize = DataFile->GetSize();
   do 
     {
     this->ReadNextRecord(group, element, datatype);
@@ -135,7 +141,7 @@ bool DICOMParser::ReadHeader() {
     this->Elements.push_back(element);
     this->Datatypes.push_back(datatype);
 
-    } while (DataFile->Tell() < DataFile->GetSize());
+    } while (DataFile->Tell() < fileSize);
 
 
   return true;
@@ -313,7 +319,7 @@ void DICOMParser::ReadNextRecord(doublebyte& group, doublebyte& element, DICOMPa
     std::pair<const DICOMMapKey,DICOMMapValue> p = *iter;
     DICOMMapValue mv = p.second;
 
-    bool doSwap = (this->ToggleByteSwapImageData ^ this->DataFile->GetByteSwap()) && callbackType == VR_OW;
+    bool doSwap = (this->ToggleByteSwapImageData ^ this->DataFile->GetPlatformIsBigEndian()) && callbackType == VR_OW;
 
     if (group == 0x7FE0 &&
         element == 0x0010 )
@@ -324,7 +330,7 @@ void DICOMParser::ReadNextRecord(doublebyte& group, doublebyte& element, DICOMPa
         std::cout << "==============================" << std::endl;
         std::cout << "TOGGLE BS FOR IMAGE" << std::endl;
         std::cout << " ToggleByteSwapImageData : " << this->ToggleByteSwapImageData << std::endl;
-        std::cout << " DataFile Byte Swap : " << this->DataFile->GetByteSwap() << std::endl;
+        std::cout << " DataFile Byte Swap : " << this->DataFile->GetPlatformIsBigEndian() << std::endl;
         std::cout << "==============================" << std::endl;
 #endif
         DICOMFile::swapShorts((ushort*) tempdata, (ushort*) tempdata, length/sizeof(ushort));
@@ -335,7 +341,7 @@ void DICOMParser::ReadNextRecord(doublebyte& group, doublebyte& element, DICOMPa
         std::cout << "==============================" << std::endl;
         std::cout << " AT IMAGE DATA " << std::endl;
         std::cout << " ToggleByteSwapImageData : " << this->ToggleByteSwapImageData << std::endl;
-        std::cout << " DataFile Byte Swap : " << this->DataFile->GetByteSwap() << std::endl;
+        std::cout << " DataFile Byte Swap : " << this->DataFile->GetPlatformIsBigEndian() << std::endl;
 #endif
 
         int t2 = int((0x0000FF00 & callbackType) >> 8);
@@ -358,7 +364,7 @@ void DICOMParser::ReadNextRecord(doublebyte& group, doublebyte& element, DICOMPa
       }
     else
       {
-      if (this->DataFile->GetByteSwap() == true)  
+      if (this->DataFile->GetPlatformIsBigEndian() == true)  
         { 
         switch (callbackType)
           {
@@ -372,7 +378,7 @@ void DICOMParser::ReadNextRecord(doublebyte& group, doublebyte& element, DICOMPa
           case DICOMParser::VR_FD:
             // std::cout << "Float byte swap needed!" << std::endl;
             /*
-            if (this->DataFile->GetByteSwap())
+            if (this->DataFile->GetPlatformIsBigEndian())
               {
               DICOMFile::swapShorts((ushort*) tempdata, (ushort*) tempdata, length/sizeof(ushort));
               }
@@ -397,7 +403,8 @@ void DICOMParser::ReadNextRecord(doublebyte& group, doublebyte& element, DICOMPa
          cbiter != cbVector->end();
          cbiter++)
       {
-      (*cbiter)->Execute(ge.first,  // group
+      (*cbiter)->Execute(this,      // parser
+                       ge.first,  // group
                        ge.second,  // element
                        callbackType,  // type
                        tempdata, // data
@@ -468,14 +475,14 @@ void DICOMParser::InitTypeMap()
     group = dicom_tags[i].group;
     element = dicom_tags[i].element;
     datatype = (VRTypes) dicom_tags[i].datatype;
-    TypeMap.insert(std::pair<DICOMMapKey, DICOMTypeValue>(DICOMMapKey(group, element), (unsigned short) datatype));
+    TypeMap.insert(std::pair<DICOMMapKey, DICOMTypeValue>(DICOMMapKey(group, element), datatype));
     }
 
 }
 
 void DICOMParser::SetDICOMTagCallbacks(doublebyte group, doublebyte element, VRTypes datatype, std::vector<DICOMCallback*>* cbVector)
 {
-  Map.insert(std::pair<DICOMMapKey, DICOMMapValue>(DICOMMapKey(group, element), DICOMMapValue((unsigned short)datatype, cbVector)));
+  Map.insert(std::pair<DICOMMapKey, DICOMMapValue>(DICOMMapKey(group, element), DICOMMapValue((int)datatype, cbVector)));
 }
 
 
@@ -501,8 +508,8 @@ void DICOMParser::DumpTag(std::ostream& out, doublebyte group, doublebyte elemen
     t2 = '?';
     }
 
-  char ct2 = static_cast<char> (t2);
-  char ct1 = static_cast<char> (t1);
+  char ct2(t2);
+  char ct1(t1);
     
   out << "(0x";
 
@@ -648,11 +655,12 @@ bool DICOMParser::ParseImplicitRecord(doublebyte group, doublebyte element,
 
 
 
-void DICOMParser::TransferSyntaxCallback(doublebyte,
-                                            doublebyte,
-                                            DICOMParser::VRTypes,
-                                            unsigned char* val,
-                                            quadbyte) 
+void DICOMParser::TransferSyntaxCallback(DICOMParser *parser,
+                                         doublebyte,
+                                         doublebyte,
+                                         DICOMParser::VRTypes,
+                                         unsigned char* val,
+                                         quadbyte) 
 
 {
 #ifdef DEBUG_DICOM
@@ -741,3 +749,7 @@ void DICOMParser::operator=(const DICOMParser&)
 {
   std::cerr << "DICOMParser assignment operator should not be called!" << std::endl;
 }
+
+#ifdef _MSC_VER
+#pragma warning ( pop )
+#endif

@@ -2,13 +2,9 @@
 #ifndef __DICOM_APP_HELPER_H_
 #define __DICOM_APP_HELPER_H_
 
-#ifdef _MSC_VER 
-#pragma warning (push, 1) 
-#pragma warning (disable:4503)
-#pragma warning (disable:4514) 
-#pragma warning (disable:4702)
-#pragma warning (disable:4710) 
-#pragma warning (disable:4786)
+#ifdef _MSC_VER
+#pragma warning ( disable : 4514 )
+#pragma warning ( push, 3 )
 #endif 
 
 #include <fstream>
@@ -17,22 +13,12 @@
 #include <iomanip>
 #include <iostream>
 
-#ifdef _MSC_VER 
-#pragma warning(pop) 
-#endif 
-
 #include "DICOMTypes.h"
 #include "DICOMParser.h"
 #include "DICOMCallback.h"
 
-struct ltstr
-{
-  bool operator()(const char* s1, const char* s2) const
-  {
-    return strcmp(s1, s2) < 0;
-  }
-};
 
+// Function object for sorting strings
 struct ltstdstr
 {
   bool operator()(const std::string s1, const std::string s2) const
@@ -41,6 +27,7 @@ struct ltstdstr
   }
 };
 
+// Helper structure for DICOM elements
 struct DICOMTagInfo
 {
   doublebyte group;
@@ -49,140 +36,262 @@ struct DICOMTagInfo
   char* description;
 };
 
+
+// Helper class use for ordering DICOM images based on different
+// (group, element) tags.
+class DICOMOrderingElements
+{
+public:
+  DICOMOrderingElements()
+    {
+      // Default values to something "valid"
+      SliceNumber = -1;
+      SliceLocation = 0.0;
+      ImagePositionPatient[0] = 0.0;
+      ImagePositionPatient[1] = 0.0;
+      ImagePositionPatient[2] = 0.0;
+      ImageOrientationPatient[0] = 1.0;
+      ImageOrientationPatient[1] = 0.0;
+      ImageOrientationPatient[2] = 0.0;
+      ImageOrientationPatient[3] = 0.0;
+      ImageOrientationPatient[4] = 1.0;
+      ImageOrientationPatient[5] = 0.0;
+    }
+      
+  int SliceNumber;
+  float SliceLocation;
+  float ImagePositionPatient[3];
+  float ImageOrientationPatient[6];
+};
+
+
+
+/**
+ * \class DICOMAppHelper
+ * \brief Class to interface an application to a DICOMParser
+ *
+ * DICOMAppHelper assists an application in communicating with a
+ * DICOMParser. DICOMAppHelper registers a series of callbacks to the
+ * DICOMParser which allows it to cache the information from a DICOM
+ * file in a format that is appropriate for an application to
+ * use. Once a DICOM file is read, an application can query the
+ * DICOMAppHelper for the resolution, pixel size, and pixel data.
+ *
+ * If a DICOMParser scans more than one file, the DICOMAppHelper will
+ * group filesnames by SeriesUID.  This allows an application to pass
+ * a series of DICOM files to the DICOMParser (which via the callback
+ * mechanism allows the DICOMAppHelper to cache information) and then
+ * query the DICOMAppHelper for the files that are from the same
+ * series.  The application can request the filenames for a particular
+ * series to be sorted based on image number, slice location, or
+ * patient position. This allows the DICOMAppHelper to assist an
+ * application is collecting all the images from one series into a
+ * volume.
+ */
 class DICOMAppHelper
 {
- public:
+public:
+  /** Standard constructor */
   DICOMAppHelper();
+
+  /** Standard destructor */
   virtual ~DICOMAppHelper();
-  
-  void SetFileName(const char* filename);
 
-  virtual void RescaleSlopeCallback(doublebyte group,
-                     doublebyte element,
-                     DICOMParser::VRTypes type,
-                     unsigned char* val,
-                     quadbyte len);
+  /** Callbacks that are registered with the DICOMParser.  The
+   * DICOMParser will call one of these callbacks whenever it
+   * encounters a (group, element) that has an associated callback */
+  virtual void RescaleSlopeCallback(DICOMParser *parser,
+                                     doublebyte group,
+                                    doublebyte element,
+                                    DICOMParser::VRTypes type,
+                                    unsigned char* val,
+                                    quadbyte len);
 
-
-  virtual void ArrayCallback(doublebyte group,
-                     doublebyte element,
-                     DICOMParser::VRTypes type,
-                     unsigned char* val,
-                     quadbyte len);
-  
-  virtual void SliceNumberCallback(doublebyte group,
-                           doublebyte element,
-                           DICOMParser::VRTypes type,
-                           unsigned char* val,
-                           quadbyte len) ;
-  
-  virtual void SeriesUIDCallback(doublebyte group,
-                         doublebyte element,
-                         DICOMParser::VRTypes type,
-                         unsigned char* val,
-                         quadbyte len) ;
-    
-  virtual void TransferSyntaxCallback(doublebyte group,
-                              doublebyte element,
-                              DICOMParser::VRTypes type,
-                              unsigned char* val,
-                              quadbyte len) ;
-  
-  virtual void BitsAllocatedCallback(doublebyte group,
+  virtual void ArrayCallback(DICOMParser *parser,
+                             doublebyte group,
                              doublebyte element,
                              DICOMParser::VRTypes type,
                              unsigned char* val,
-                             quadbyte len) ;
+                             quadbyte len);
   
-  void OutputSeries();
+  virtual void SliceNumberCallback(DICOMParser *parser,
+                                   doublebyte group,
+                                   doublebyte element,
+                                   DICOMParser::VRTypes type,
+                                   unsigned char* val,
+                                   quadbyte len) ;
 
-  virtual void RegisterCallbacks(DICOMParser* parser);
+  virtual void SliceLocationCallback(DICOMParser *parser,
+                                     doublebyte group,
+                                     doublebyte element,
+                                     DICOMParser::VRTypes type,
+                                     unsigned char* val,
+                                     quadbyte len) ;
 
-  virtual void SetDICOMDataFile(DICOMFile* f)
-    {
-    this->DICOMDataFile = f;
-    }
-
-  virtual void ToggleSwapBytesCallback(doublebyte,
-                               doublebyte,
-                               DICOMParser::VRTypes,
-                               unsigned char*,
-                               quadbyte);
-
-  virtual void PixelSpacingCallback(doublebyte group,
+  virtual void ImagePositionPatientCallback(DICOMParser *parser,
+                                            doublebyte group,
+                                            doublebyte element,
+                                            DICOMParser::VRTypes type,
+                                            unsigned char* val,
+                                            quadbyte len) ;
+  
+  virtual void ImageOrientationPatientCallback(DICOMParser *parser,
+                                               doublebyte group,
+                                               doublebyte element,
+                                               DICOMParser::VRTypes type,
+                                               unsigned char* val,
+                                               quadbyte len) ;
+  
+  virtual void SeriesUIDCallback(DICOMParser *parser,
+                                 doublebyte group,
+                                 doublebyte element,
+                                 DICOMParser::VRTypes type,
+                                 unsigned char* val,
+                                 quadbyte len) ;
+  
+  virtual void TransferSyntaxCallback(DICOMParser *parser,
+                                      doublebyte group,
+                                      doublebyte element,
+                                      DICOMParser::VRTypes type,
+                                      unsigned char* val,
+                                      quadbyte len) ;
+  
+  virtual void BitsAllocatedCallback(DICOMParser *parser,
+                                     doublebyte group,
+                                     doublebyte element,
+                                     DICOMParser::VRTypes type,
+                                     unsigned char* val,
+                                     quadbyte len) ;
+  
+  virtual void ToggleSwapBytesCallback(DICOMParser *parser,
+                                       doublebyte,
+                                       doublebyte,
+                                       DICOMParser::VRTypes,
+                                       unsigned char*,
+                                       quadbyte);
+  
+  virtual void PixelSpacingCallback(DICOMParser *parser,
+                                    doublebyte group,
                                     doublebyte element,
                                     DICOMParser::VRTypes type,
                                     unsigned char* val,
                                     quadbyte len) ;
 
-  virtual void HeightCallback(doublebyte group,
+  virtual void HeightCallback(DICOMParser *parser,
+                              doublebyte group,
                               doublebyte element,
                               DICOMParser::VRTypes type,
                               unsigned char* val,
                               quadbyte len);
 
-  virtual void WidthCallback( doublebyte group,
+  virtual void WidthCallback( DICOMParser *parser,
+                              doublebyte group,
                               doublebyte element,
                               DICOMParser::VRTypes type,
                               unsigned char* val,
                               quadbyte len);
 
-  virtual void PixelRepresentationCallback(doublebyte group,
+  virtual void PixelRepresentationCallback(DICOMParser *parser,
+                                           doublebyte group,
                                            doublebyte element,
                                            DICOMParser::VRTypes type,
                                            unsigned char* val,
                                            quadbyte len);
 
-  virtual void PhotometricInterpretationCallback(doublebyte,
+  virtual void PhotometricInterpretationCallback(DICOMParser *parser,
+                                                 doublebyte,
                                                  doublebyte,
                                                  DICOMParser::VRTypes,
                                                  unsigned char* val,
                                                  quadbyte len);
 
-  virtual void PixelDataCallback(doublebyte,
+  virtual void PixelDataCallback(DICOMParser *parser,
+                                 doublebyte,
                                  doublebyte,
                                  DICOMParser::VRTypes,
                                  unsigned char* val,
                                  quadbyte len);
 
-  virtual void RescaleOffsetCallback( doublebyte,
-                                    doublebyte,
-                                    DICOMParser::VRTypes,
-                                    unsigned char* val,
-                                    quadbyte);
+  virtual void RescaleOffsetCallback( DICOMParser *parser,
+                                      doublebyte,
+                                      doublebyte,
+                                      DICOMParser::VRTypes,
+                                      unsigned char* val,
+                                      quadbyte);
 
+  /** Register all the standard callbacks with the DICOM Parser.  This
+   * associates a callback with each (group, element) tag pair in the
+   * header of the file whose data needs to be cached. */
+  virtual void RegisterCallbacks(DICOMParser* parser);
+
+  /** Register a callback for retrieving the pixel data from a DICOM
+   *  file */
+  virtual void RegisterPixelDataCallback(DICOMParser* parser);
+
+
+  /** Output information associated with a DICOM series */
+  void OutputSeries();
+
+
+  /** The next set of methods are for accessing information which is
+   * cached when a DICOM file is processed.  This allows access to
+   * information from the header as well as the pixel data. */
+  
+  
+  /** Get the pixel spacing of the last image processed by the
+   *  DICOMParser */
   float* GetPixelSpacing()
     {
     return this->PixelSpacing;
     }
 
+  /** Get the image width of the last image processed by the
+   *  DICOMParser */
   int GetWidth()
     {
     return this->Width;
     }
 
+  /** Get the image height of the last image processed by the
+   *  DICOMParser */
   int GetHeight()
     {
     return this->Height;
     }
 
+  /** Get the dimensions (width, height) of the last image processed
+   *  by the DICOMParser */
   int* GetDimensions()
     {
     return this->Dimensions;
     }
 
+  /** Get the (DICOM) x,y,z coordinates of the first pixel in the
+   * image (upper left hand corner) of the last image processed by the
+   * DICOMParser */
+  float *GetImagePositionPatient()
+    {
+      return this->ImagePositionPatient;
+    }
+  
+  
+  /** Get the number of bits allocated per pixel of the last image
+   *  processed by the DICOMParser */
   int GetBitsAllocated()
     {
     return this->BitsAllocated;
     }
 
-  // 0 unsigned
-  // 1 signed
+  /** Get the pixel representation of the last image processed by the
+   * DICOMParser. A zero is a unsigned quantity.  A one indicates a
+   * signed quantity. */
   int GetPixelRepresentation()
     {
     return this->PixelRepresentation;
     }
 
+  /** Get the number of components of the last image processed by the
+   *  DICOMParser. */
   int GetNumberOfComponents()
     {
     if (!this->PhotometricInterpretation)
@@ -208,37 +317,74 @@ class DICOMAppHelper
       }
     }
 
-
-  virtual void RegisterPixelDataCallback();
-
+  /** Get the transfer syntax UID for the last image processed by the
+   *  DICOMParser. */
   std::string GetTransferSyntaxUID()
     {
     return *(this->TransferSyntaxUID);
     }
 
+  /** Get a textual description of the transfer syntax of the last
+   *  image processed by the DICOMParser. */
   const char* TransferSyntaxUIDDescription(const char* uid);
 
-
+  /** Get the image data from the last image processed by the
+   * DICOMParser.  The data is only valid if the PixelDataCallback was
+   * registered.
+   * \sa RegisterPixelDataCallback()
+  */
   void GetImageData(void* & data, DICOMParser::VRTypes& dataType, unsigned long& len);
 
+  /** Determine whether the image data was rescaled (by the
+   *  RescaleSlope tag) to be floating point. */
   bool RescaledImageDataIsFloat();
 
+  /** Determine whether the image data was rescaled (by the
+   * RescaleSlope tag) to be a signed data type. */
   bool RescaledImageDataIsSigned();
 
+  /** Get the slice number of the last image processed by the
+      DICOMParser. */
   int GetSliceNumber()
     {
     return this->SliceNumber;
     }
 
-  void ClearSliceNumberMap();
+  /** Clear the internal databases. This will reset the internal
+   * databases that are grouping filenames based on SeriesUID's and
+   * ordering filenames based on image locations. */
+  void Clear();
 
-  void ClearSeriesUIDMap();
+  /** Get the series UIDs for the files processed since the last
+   * clearing of the cache. */
+  void GetSeriesUIDs(std::vector<std::string> &v); 
+  
+  /** Get the filenames for a series ordered by slice number. */
+  void GetSliceNumberFilenamePairs(const std::string &seriesUID,
+                              std::vector<std::pair<int, std::string> > &v);
 
-  void GetSliceNumberFilenamePairs(std::vector<std::pair<int, std::string> > & v);
+  /** Get the filenames for a series order by slice number.  Use the
+      first series by default. */
+  void GetSliceNumberFilenamePairs(std::vector<std::pair<int, std::string> > &v);
 
-  std::string GetFilenameForSlice(unsigned int slice_number);
-  void SortFilenamesBySlice();
-  unsigned int GetNumberOfSortedFilenames();
+  /* Get the filenames for a series ordered by slice location. */
+  void GetSliceLocationFilenamePairs(const std::string &seriesUID,
+                              std::vector<std::pair<float, std::string> > &v);
+
+  /* Get the filenames for a series ordered by slice location. Use the
+   * first series by default. */
+  void GetSliceLocationFilenamePairs(std::vector<std::pair<float, std::string> > &v);
+
+  /* Get the filenames for a series ordered by image position
+     patient. This is the most reliable way to order the images in a
+     series. */
+  void GetImagePositionPatientFilenamePairs(const std::string &seriesUID,
+                            std::vector<std::pair<float, std::string> > &v);
+
+  /* Get the filenames for a series ordered by image position
+     patient. This is the most reliable way to order the images in a
+     series. Use the first series by default. */
+  void GetImagePositionPatientFilenamePairs(std::vector<std::pair<float, std::string> > &v);
 
  protected:
   int BitsAllocated;
@@ -248,33 +394,19 @@ class DICOMAppHelper
   int Height;
   int SliceNumber; 
   int Dimensions[2];
+  float ImagePositionPatient[3];
 
-  char* GetOutputFilename()
-  {
-    int len = static_cast<int>(strlen(this->FileName));
-    char* output = new char[len + 5];
-    strcpy(output, this->FileName);
-    strcat(output, ".raw");
-    return output;
-  }
-  
-  char* FileName;
-  
   // map from series UID to vector of files in the series 
-  // std::map<char*, std::vector<char*>, ltstr > SeriesUIDMap;  
-  // std::map<char*, int, ltstr> SliceNumberMap;  
   std::map<std::string, std::vector<std::string>, ltstdstr> SeriesUIDMap;
-  std::map<std::string, int, ltstdstr> SliceNumberMap;
+
+  // map from filename to intraseries sortable tags
+  std::map<std::string, DICOMOrderingElements, ltstdstr> SliceOrderingMap;
 
   typedef std::map<std::pair<doublebyte, doublebyte>, DICOMTagInfo> TagMapType;
   TagMapType TagMap;
 
   std::ofstream HeaderFile;
   
-  DICOMFile* DICOMDataFile;
-
-  DICOMParser* Parser;
-
   // 0 unsigned
   // 1 2s complement (signed)
   int PixelRepresentation;
@@ -288,6 +420,9 @@ class DICOMAppHelper
 
   DICOMMemberCallback<DICOMAppHelper>* SeriesUIDCB;
   DICOMMemberCallback<DICOMAppHelper>* SliceNumberCB;
+  DICOMMemberCallback<DICOMAppHelper>* SliceLocationCB;
+  DICOMMemberCallback<DICOMAppHelper>* ImagePositionPatientCB;
+  DICOMMemberCallback<DICOMAppHelper>* ImageOrientationPatientCB;
   DICOMMemberCallback<DICOMAppHelper>* TransferSyntaxCB;
   DICOMMemberCallback<DICOMAppHelper>* BitsAllocatedCB;
   DICOMMemberCallback<DICOMAppHelper>* PixelSpacingCB;
@@ -299,12 +434,14 @@ class DICOMAppHelper
   DICOMMemberCallback<DICOMAppHelper>* RescaleSlopeCB;
   DICOMMemberCallback<DICOMAppHelper>* PixelDataCB;
 
-  std::vector<std::pair<int, std::string> > SortedFilenames;
-
  private:
   DICOMAppHelper(const DICOMAppHelper&);  
   void operator=(const DICOMAppHelper&); 
    
 };
+
+#ifdef _MSC_VER
+#pragma warning ( pop )
+#endif
 
 #endif

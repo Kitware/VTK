@@ -1,26 +1,19 @@
 
-#ifndef __DICOMPARSER_h_
-#define __DICOMPARSER_h_
+#ifndef __DICOMParser_h_
+#define __DICOMParser_h_
 
-#ifdef _MSC_VER 
-#pragma warning (push, 1) 
-#pragma warning (disable:4503)
-#pragma warning (disable:4514) 
-#pragma warning (disable:4702)
-#pragma warning (disable:4710) 
-#pragma warning (disable:4786)
+
+#ifdef _MSC_VER
+#pragma warning ( disable : 4514 )
+#pragma warning ( push, 3 )
 #endif 
+
 
 #include <map>
 #include <utility> 
 #include <fstream>
 #include <vector>
 
-#ifdef _MSC_VER 
-#pragma warning(pop) 
-#endif 
-
-#include "DICOMHeaderValues.h"
 #include "DICOMFile.h"
 #include "DICOMTypes.h"
 #include "DICOMParserMap.h"
@@ -52,8 +45,13 @@ class DICOMParser
   //
   // Opens a file and initializes the parser.
   //
-  bool OpenFile(const char* filename);
+  bool OpenFile(const std::string& filename);
 
+  //
+  // Return the name of the file last processed.
+  //
+  const std::string& GetFileName();
+  
   //
   // This method kicks off the parser.
   // OpenFile needs to be called first.
@@ -133,11 +131,12 @@ class DICOMParser
   void ClearAllDICOMTagCallbacks();
 
 
-  void TransferSyntaxCallback(doublebyte,
-                                            doublebyte,
-                                            DICOMParser::VRTypes,
-                                            unsigned char* val,
-                                            quadbyte) ;
+  void TransferSyntaxCallback(DICOMParser *parser,
+                              doublebyte,
+                              doublebyte,
+                              DICOMParser::VRTypes,
+                              unsigned char* val,
+                              quadbyte) ;
 
   void GetGroupsElementsDatatypes(std::vector<doublebyte>& groups,
                                   std::vector<doublebyte>& elements,
@@ -216,7 +215,8 @@ class DICOMParser
   // Pointer to the DICOMFile we're parsing.
   //
   DICOMFile* DataFile;
-
+  std::string FileName;
+  
   bool ToggleByteSwapImageData;
 
   std::vector<doublebyte> Groups;
@@ -228,7 +228,10 @@ class DICOMParser
  private:
   DICOMParser(const DICOMParser&);  
   void operator=(const DICOMParser&); 
-
 };
 
-#endif   // DICOMParser_h_
+#ifdef _MSC_VER
+#pragma warning ( pop )
+#endif
+
+#endif   // __DICOMParser_h_

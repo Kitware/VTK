@@ -2,24 +2,16 @@
 #ifndef __DICOMFILE_H_
 #define __DICOMFILE_H_
 
-#ifdef WIN32 
-#pragma warning (push, 1) 
-#pragma warning (disable:4503)
-#pragma warning (disable:4514) 
-#pragma warning (disable:4702)
-#pragma warning (disable:4710) 
-#pragma warning (disable:4786)
+#ifdef _MSC_VER
+#pragma warning ( disable : 4514 )
+#pragma warning ( push, 3 )
 #endif 
 
+#include <stdio.h>
+#include <stdlib.h>
 #include <iostream>
 #include <fstream>
-#include <strstream>
 #include <string>
-#include <stdlib.h> // some platforms need for atol, atoi, etc
-
-#ifdef WIN32
-#pragma warning(pop) 
-#endif 
 
 #include "DICOMTypes.h"
 
@@ -39,7 +31,7 @@ class DICOMFile
   // that is true if the file is successfully
   // opened.
   //
-  bool Open(const char* filename);
+  bool Open(const std::string& filename);
   
   //
   // Close a file.
@@ -151,12 +143,7 @@ class DICOMFile
   //
   static int ReturnAsInteger(unsigned char* data, bool)
   {
-    unsigned char* data2 = data;
-
-    std::istrstream in_string((char*) data2);
-    int val = 0;
-    in_string >> val;
-    return val;
+    return static_cast<int> (atoi((const char*) data));
   }
   
   static float ReturnAsFloat(unsigned char* data, bool)
@@ -164,14 +151,14 @@ class DICOMFile
     return static_cast<float> (atof((const char*) data));
     }
 
-  bool GetByteSwap()
+  bool GetPlatformIsBigEndian()
     {
-    return ByteSwap;
+    return PlatformIsBigEndian;
     }
 
-  void SetByteSwap(bool v)
+  void SetPlatformIsBigEndian(bool v)
     {
-    this->ByteSwap = v;
+    this->PlatformIsBigEndian = v;
     }
 
   //
@@ -232,12 +219,12 @@ class DICOMFile
   //
   // FILE* Fptr;
   
-  std::ifstream inputStream;
+  std::ifstream InputStream;
   
   //
   // Flag for swaping bytes.
   //
-  bool ByteSwap;
+  bool PlatformIsBigEndian;
 
   //
   // Platform endianness
@@ -250,7 +237,10 @@ class DICOMFile
 
 };
 
+#ifdef _MSC_VER
+#pragma warning ( pop )
+#endif
 
-#endif // __DICOM_FILE_H_
+#endif __DICOMFILE_H_
 
 

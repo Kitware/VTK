@@ -1,51 +1,36 @@
 
-
-#ifdef WIN32
-#pragma warning (push, 1) 
-#pragma warning (disable:4503)
-#pragma warning (disable:4514) 
-#pragma warning (disable:4702)
-#pragma warning (disable:4710) 
-#pragma warning (disable:4786)
+#ifdef _MSC_VER
+#pragma warning ( disable : 4514 )
+#pragma warning ( disable : 4710 )
+#pragma warning ( push, 3 )
 #endif 
-
 
 #include <iostream>
 #include <fstream>
 #include <iomanip>
-#include <strstream>
+#include <stdio.h>
 #include <string>
-
-
-#ifdef WIN32 
-#pragma warning(pop) 
-#endif 
-
 
 #include "DICOMFile.h"
 
-#ifdef WIN32
-#define DICOM_PLATFORM_WORDS_LITTLE_ENDIAN
-#endif
-#ifdef __CYGWIN__
-#define DICOM_PLATFORM_WORDS_LITTLE_ENDIAN
-#endif
-#ifdef __FreeBSD__
-#define DICOM_PLATFORM_WORDS_LITTLE_ENDIAN
-#endif
-
-
-DICOMFile::DICOMFile() : inputStream()
+DICOMFile::DICOMFile() : InputStream()
 {
-  // Filename = NULL;
-#ifdef DICOM_PLATFORM_WORDS_LITTLE_ENDIAN
-  PlatformEndian = "LittleEndian";
-  ByteSwap = false;
-#else
-  PlatformEndian = "BigEndian";
-  ByteSwap = true;
-#endif  
-
+  /* Are we little or big endian?  From Harbison&Steele.  */
+  union
+  {
+    long l;
+    char c[sizeof (long)];
+  } u;
+  u.l = 1;
+  PlatformIsBigEndian = (u.c[sizeof (long) - 1] == 1);
+  if (PlatformIsBigEndian)
+    {
+    PlatformEndian = "BigEndian";
+    }
+  else
+    {
+    PlatformEndian = "LittleEndian";
+    }
 }
 
 DICOMFile::~DICOMFile()
@@ -63,7 +48,7 @@ DICOMFile::DICOMFile(const DICOMFile& in)
     {
     PlatformEndian = "BigEndian";
     }
-  ByteSwap = in.ByteSwap;
+  InputStream = in.InputStream;
 }
 
 void DICOMFile::operator=(const DICOMFile& in)
@@ -76,14 +61,14 @@ void DICOMFile::operator=(const DICOMFile& in)
     {
     PlatformEndian = "BigEndian";
     }
-  ByteSwap = in.ByteSwap;
+  InputStream = in.InputStream;
 }
 
-bool DICOMFile::Open(const char* filename)
+bool DICOMFile::Open(const std::string& filename)
 {
-  inputStream.open(filename, std::ios::binary | std::ios::in);
+  InputStream.open(filename.c_str(), std::ios::binary | std::ios::in);
 
-  if (inputStream.is_open())
+  if (InputStream.is_open())
     {
     return true;
     }
@@ -95,26 +80,26 @@ bool DICOMFile::Open(const char* filename)
 
 void DICOMFile::Close()
 {
-  inputStream.close();
+  InputStream.close();
 }
 
 long DICOMFile::Tell() 
 {
-  long loc = inputStream.tellg();
+  long loc = InputStream.tellg();
   // std::cout << "Tell: " << loc << std::endl;
   return loc;
 }
 
 void DICOMFile::SkipToPos(long increment) 
 {
-  inputStream.seekg(increment, std::ios::beg);
+  InputStream.seekg(increment, std::ios::beg);
 }
 
 long DICOMFile::GetSize() 
 {
   long curpos = this->Tell();
 
-  inputStream.seekg(0,std::ios::end);
+  InputStream.seekg(0,std::ios::end);
 
   long size = this->Tell();
   // std::cout << "Tell says size is: " << size << std::endl;
@@ -125,17 +110,17 @@ long DICOMFile::GetSize()
 
 void DICOMFile::Skip(long increment) 
 {
-  inputStream.seekg(increment, std::ios::cur);
+  InputStream.seekg(increment, std::ios::cur);
 }
 
 void DICOMFile::SkipToStart() 
 {
-  inputStream.seekg(0, std::ios::beg);
+  InputStream.seekg(0, std::ios::beg);
 }
 
 void DICOMFile::Read(void* ptr, long nbytes) 
 {
-  inputStream.read((char*)ptr, nbytes);
+  InputStream.read((char*)ptr, nbytes);
   // std::cout << (char*) ptr << std::endl;
 }
 
@@ -144,7 +129,7 @@ doublebyte DICOMFile::ReadDoubleByte()
   doublebyte sh = 0;
   int sz = sizeof(doublebyte);
   this->Read((char*)&(sh),sz); 
-  if (ByteSwap) 
+  if (PlatformIsBigEndian) 
     {
     sh = swapShort(sh);
     }
@@ -156,9 +141,10 @@ doublebyte DICOMFile::ReadDoubleByteAsLittleEndian()
   doublebyte sh = 0;
   int sz = sizeof(doublebyte);
   this->Read((char*)&(sh),sz); 
-#ifndef DICOM_PLATFORM_WORDS_LITTLE_ENDIAN
-   sh = swapShort(sh);
-#endif
+  if (PlatformIsBigEndian)
+    {
+    sh = swapShort(sh);
+    }
   return(sh);
 }
 
@@ -167,7 +153,7 @@ quadbyte DICOMFile::ReadQuadByte()
   quadbyte sh;
   int sz = sizeof(quadbyte);
   this->Read((char*)&(sh),sz);
-  if (ByteSwap) 
+  if (PlatformIsBigEndian) 
     {
     sh = swapLong(sh);
     }
@@ -206,6 +192,7 @@ float DICOMFile::ReadAsciiFloat(int len)
   this->Read(val,len);
   val[len] = '\0';
 
+#if 0
   //
   // istrstream destroys the data during formatted input.
   //
@@ -215,15 +202,14 @@ float DICOMFile::ReadAsciiFloat(int len)
 
   std::istrstream data(val2);
   data >> ret;
+  delete [] val2;
+#else
+  sscanf(val,"%e",&ret);
+#endif
 
   std::cout << "Read ASCII float: " << ret << std::endl;
 
-  //
-  //sscanf(val,"%e",&ret);
-  //
-
   delete [] val;
-  delete [] val2;
   return (ret);
 }
 
@@ -235,6 +221,7 @@ int DICOMFile::ReadAsciiInt(int len)
   this->Read(val,len);
   val[len] = '\0';
 
+#if 0
   //
   // istrstream destroys the data during formatted input.
   //
@@ -244,15 +231,14 @@ int DICOMFile::ReadAsciiInt(int len)
 
   std::istrstream data(val2);
   data >> ret;
+  delete [] val2;
+#else
+  sscanf(val,"%d",&ret);
+#endif
 
   std::cout << "Read ASCII int: " << ret << std::endl;
 
-  //
-  //sscanf(val,"%d",&ret);
-  //
-
   delete [] val;
-  delete [] val2;
   return (ret);
 }
 
@@ -268,3 +254,6 @@ char* DICOMFile::ReadAsciiCharArray(int len)
   return val;
 }
 
+#ifdef _MSC_VER
+#pragma warning ( pop )
+#endif
