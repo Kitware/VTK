@@ -311,9 +311,6 @@ tcl/vtkImageShortReaderTcl.cxx: vtkImageShortReader.h ../tcl/cpp_parse
 tcl/vtkImageShrink3DTcl.cxx: vtkImageShrink3D.h ../tcl/cpp_parse
 	 rm -f tcl/vtkImageShrink3DTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageShrink3D.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageShrink3DTcl.cxx
 
-tcl/vtkImageSpatial1DTcl.cxx: vtkImageSpatial1D.h ../tcl/cpp_parse
-	 rm -f tcl/vtkImageSpatial1DTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageSpatial1D.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageSpatial1DTcl.cxx
-
 tcl/vtkImageSpatial3DTcl.cxx: vtkImageSpatial3D.h ../tcl/cpp_parse
 	 rm -f tcl/vtkImageSpatial3DTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageSpatial3D.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageSpatial3DTcl.cxx
 
