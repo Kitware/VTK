@@ -23,15 +23,15 @@
 #ifndef __vtkTransmitPolyDataPiece_h
 #define __vtkTransmitPolyDataPiece_h
 
-#include "vtkPolyDataToPolyDataFilter.h"
+#include "vtkPolyDataAlgorithm.h"
 
 class vtkMultiProcessController;
 
-class VTK_PARALLEL_EXPORT vtkTransmitPolyDataPiece : public vtkPolyDataToPolyDataFilter
+class VTK_PARALLEL_EXPORT vtkTransmitPolyDataPiece : public vtkPolyDataAlgorithm
 {
 public:
   static vtkTransmitPolyDataPiece *New();
-  vtkTypeRevisionMacro(vtkTransmitPolyDataPiece, vtkPolyDataToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkTransmitPolyDataPiece, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:
@@ -51,11 +51,11 @@ protected:
   ~vtkTransmitPolyDataPiece();
 
   // Data generation method
-  void Execute();
-  void RootExecute();
-  void SatelliteExecute(int procId);
-  void ExecuteInformation();
-  void ComputeInputUpdateExtents(vtkDataObject *out);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  void RootExecute(vtkPolyData *input, vtkPolyData *output, vtkInformation *outInfo);
+  void SatelliteExecute(int procId, vtkPolyData *output, vtkInformation *outInfo);
+  int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
  
   vtkPolyData *Buffer;
   int BufferPiece;

@@ -16,12 +16,15 @@
 
 #include "vtkCellData.h"
 #include "vtkExtractPolyDataPiece.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkMultiProcessController.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkTransmitPolyDataPiece, "1.17");
+vtkCxxRevisionMacro(vtkTransmitPolyDataPiece, "1.18");
 vtkStandardNewMacro(vtkTransmitPolyDataPiece);
 
 vtkCxxSetObjectMacro(vtkTransmitPolyDataPiece,Controller,
@@ -51,65 +54,91 @@ vtkTransmitPolyDataPiece::~vtkTransmitPolyDataPiece()
 }
 
 //----------------------------------------------------------------------------
-void vtkTransmitPolyDataPiece::ComputeInputUpdateExtents(vtkDataObject *out)
+int vtkTransmitPolyDataPiece::RequestUpdateExtent(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *vtkNotUsed(outputVector))
 {
-  vtkPolyData *input = this->GetInput();
-  
-  out = out;
-  if (this->GetInput() == NULL)
-    {
-    vtkErrorMacro("Missing input");
-    return;
-    }
+  // get the info object
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
 
   if (this->Controller == NULL)
     {
-    input->SetUpdateNumberOfPieces(1);
-    input->SetUpdatePiece(0);
-    input->SetUpdateGhostLevel(0);
-    return;
+    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(),
+                1);
+    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(), 0);
+    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
+                0);
+    return 1;
     }
   
   if (this->Controller->GetLocalProcessId() == 0)
     { // Request everything.
-    input->SetUpdateNumberOfPieces(1);
-    input->SetUpdatePiece(0);
-    input->SetUpdateGhostLevel(0);
+    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(),
+                1);
+    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(), 0);
+    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
+                0);
     }
   else
     { // Request nothing.
-    input->SetUpdateNumberOfPieces(0);
-    input->SetUpdatePiece(0);
-    input->SetUpdateGhostLevel(0);
+    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(),
+                0);
+    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(),
+                0);
+    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
+                0);
     }
+  return 1;
 }
 
 //----------------------------------------------------------------------------
-void vtkTransmitPolyDataPiece::ExecuteInformation()
+int vtkTransmitPolyDataPiece::RequestInformation(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
-  if (this->GetOutput() == NULL)
-    {
-    vtkErrorMacro("Missing output");
-    return;
-    }
-  if (this->GetInput())
-    {
-    this->GetOutput()->CopyInformation(this->GetInput());
-    }
-  this->GetOutput()->SetMaximumNumberOfPieces(-1);
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::EXTENT_TRANSLATOR(),
+               inInfo->Get(vtkStreamingDemandDrivenPipeline::EXTENT_TRANSLATOR()));
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(),
+               -1);
+  return 1;
 }
   
 //----------------------------------------------------------------------------
-void vtkTransmitPolyDataPiece::Execute()
+int vtkTransmitPolyDataPiece::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkPolyData *input = vtkPolyData::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   int procId;
-  vtkPolyData *output = this->GetOutput();
-  int updateGhostLevel = output->GetUpdateGhostLevel();
+  int updateGhostLevel =
+    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
+  int updatePiece =
+    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
+  int updateNumPieces =
+    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
+  unsigned long outMTime =
+    outInfo->Get(vtkDemandDrivenPipeline::PIPELINE_MODIFIED_TIME());
 
   // Just use the buffer if possible.
-  if (output->GetPipelineMTime() < this->Buffer->GetMTime()
-      && output->GetUpdatePiece() == this->BufferPiece
-      && output->GetUpdateNumberOfPieces() == this->BufferNumberOfPieces
+  if (outMTime < this->Buffer->GetMTime()
+      && updatePiece == this->BufferPiece
+      && updateNumPieces == this->BufferNumberOfPieces
       && updateGhostLevel <= this->BufferGhostLevel)
     {
     // We deep copy, because we do not want to modify the buffer 
@@ -119,13 +148,13 @@ void vtkTransmitPolyDataPiece::Execute()
       {
       output->RemoveGhostCells(updateGhostLevel+1);
       }
-    return;
+    return 1;
     }
 
   if (this->Controller == NULL)
     {
     vtkErrorMacro("Could not find Controller.");
-    return;
+    return 0;
     }
 
   procId = this->Controller->GetLocalProcessId();
@@ -133,29 +162,30 @@ void vtkTransmitPolyDataPiece::Execute()
     {
     // It is important to synchronize these calls (all processes execute)
     // cerr << "Root Execute\n";
-    this->RootExecute();
+    this->RootExecute(input, output, outInfo);
     }
   else
     {
     // cerr << "Satellite Execute " << procId << endl;
-    this->SatelliteExecute(procId);
+    this->SatelliteExecute(procId, output, outInfo);
     }
 
   // Save the output in the buffer.
   this->Buffer->ShallowCopy(output);
   // Piece inforomation is not set by this point.
   // We do not have access to buffers piece, so save in ivars.
-  this->BufferPiece = output->GetUpdatePiece();
-  this->BufferNumberOfPieces = output->GetUpdateNumberOfPieces();
+  this->BufferPiece = updatePiece;
+  this->BufferNumberOfPieces = updateNumPieces;
   this->BufferGhostLevel = updateGhostLevel;
+  return 1;
 }
 
 //----------------------------------------------------------------------------
-void vtkTransmitPolyDataPiece::RootExecute()
+void vtkTransmitPolyDataPiece::RootExecute(vtkPolyData *input,
+                                           vtkPolyData *output,
+                                           vtkInformation *outInfo)
 {
-  vtkPolyData *input = this->GetInput();
   vtkPolyData *tmp = vtkPolyData::New();
-  vtkPolyData *output = this->GetOutput();
   vtkExtractPolyDataPiece *extract = vtkExtractPolyDataPiece::New();
   int ext[3];
   int numProcs, i;
@@ -165,11 +195,14 @@ void vtkTransmitPolyDataPiece::RootExecute()
   tmp->SetReleaseDataFlag(0);
   extract->SetCreateGhostCells(this->CreateGhostCells);
   extract->SetInput(tmp);
-  extract->GetOutput()->SetUpdateNumberOfPieces(
-                                output->GetUpdateNumberOfPieces());
-  extract->GetOutput()->SetUpdatePiece(output->GetUpdatePiece());
-  extract->GetOutput()->SetUpdateGhostLevel(output->GetUpdateGhostLevel());
 
+  vtkInformation *extractInfo = extract->GetOutputPortInformation(0);
+  extractInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(),
+                   outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES()));
+  extractInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(),
+                   outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()));
+  extractInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
+                   outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS()));
   extract->Update();
   // Copy geometry without copying information.
   output->CopyStructure(extract->GetOutput());
@@ -182,9 +215,12 @@ void vtkTransmitPolyDataPiece::RootExecute()
   for (i = 1; i < numProcs; ++i)
     {
     this->Controller->Receive(ext, 3, i, 22341);
-    extract->GetOutput()->SetUpdateNumberOfPieces(ext[1]);
-    extract->GetOutput()->SetUpdatePiece(ext[0]);
-    extract->GetOutput()->SetUpdateGhostLevel(ext[2]);
+    extractInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(),
+                     ext[1]);
+    extractInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(),
+                     ext[0]);
+    extractInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
+                     ext[2]);
     extract->Update();
     this->Controller->Send(extract->GetOutput(), i, 22342);
     }
@@ -193,15 +229,18 @@ void vtkTransmitPolyDataPiece::RootExecute()
 }
 
 //----------------------------------------------------------------------------
-void vtkTransmitPolyDataPiece::SatelliteExecute(int)
+void vtkTransmitPolyDataPiece::SatelliteExecute(int, vtkPolyData *output,
+                                                vtkInformation *outInfo)
 {
   vtkPolyData *tmp = vtkPolyData::New();
-  vtkPolyData *output = this->GetOutput();
   int ext[3];
 
-  ext[0] = output->GetUpdatePiece();
-  ext[1] = output->GetUpdateNumberOfPieces();
-  ext[2] = output->GetUpdateGhostLevel();
+  ext[0] =
+    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
+  ext[1] =
+    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
+  ext[2] =
+    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
 
   this->Controller->Send(ext, 3, 0, 22341);
   this->Controller->Receive(tmp, 0, 22342);
@@ -225,4 +264,3 @@ void vtkTransmitPolyDataPiece::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Controller: (" << this->Controller << ")\n";
 
 }
-
