@@ -8,7 +8,7 @@ vtkFiltering
 vtkCommon 
 )
 
-LINK_LIBRARIES( vtkpng vtkzlib vtkjpeg)
+LINK_LIBRARIES( vtkpng vtkzlib vtkjpeg vtktiff)
 
 IF (VTK_USE_HYBRID)
     ADD_EXECUTABLE(ParallelIsoTest ParallelIso)
