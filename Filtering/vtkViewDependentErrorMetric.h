@@ -52,7 +52,7 @@ public:
   // anti-aliasing?
   // \post positive_result: result>0
   vtkGetMacro(PixelTolerance, double);
- 
+
   // Description:
   // Set the squared screen-based geometric accuracy measured in pixels.
   // Subdivision will be required if the square distance between the projection
@@ -60,15 +60,12 @@ public:
   // of the vertices of the edge is greater than `value'.
   // For instance, 0.25 will give better result than 1.
   // \pre positive_value: value>0
-  void SetPixelTolerance(double value);
-  
+  vtkSetClampMacro(PixelTolerance,double,0.0,VTK_DOUBLE_MAX);
+
   // Description:
-  // Return the renderer on which the error metric is based. The error metric
-  // use the active camera of the renderer.
-  vtkViewport *GetViewport();
-  
-  // Description:
-  // Set the renderer with `renderer'.
+  // Set/Get the renderer with `renderer' on which the error metric 
+  // is based. The error metric use the active camera of the renderer.
+  vtkGetObjectMacro(Viewport,vtkViewport);
   void SetViewport(vtkViewport *viewport);
   
   // Description:
@@ -96,7 +93,7 @@ public:
 
 protected:
   vtkViewDependentErrorMetric();
-  virtual ~vtkViewDependentErrorMetric();
+  ~vtkViewDependentErrorMetric();
   
   // Description:
   // Square distance between a straight line (defined by points x and y)

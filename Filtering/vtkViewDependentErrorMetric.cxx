@@ -23,15 +23,15 @@
 #include <assert.h>
 #include "vtkCoordinate.h"
 
-vtkCxxRevisionMacro(vtkViewDependentErrorMetric,"1.1");
+vtkCxxRevisionMacro(vtkViewDependentErrorMetric,"1.2");
 vtkStandardNewMacro(vtkViewDependentErrorMetric);
 
 //-----------------------------------------------------------------------------
 vtkViewDependentErrorMetric::vtkViewDependentErrorMetric()
 {
   this->PixelTolerance = 0.25; // arbitrary positive value
-  this->Viewport=0;
-  this->Coordinate=vtkCoordinate::New();
+  this->Viewport = 0;
+  this->Coordinate = vtkCoordinate::New();
   this->Coordinate->SetCoordinateSystemToWorld();
 }
 
@@ -42,35 +42,10 @@ vtkViewDependentErrorMetric::~vtkViewDependentErrorMetric()
 }
 
 //-----------------------------------------------------------------------------
-// Description:
-// Set the squared screen-based geometric accuracy measured in pixels.
-// Subdivision will be required if the square distance between the projection
-// of the real point and the straight line passing through the projection
-// of the vertices of the edge is greater than `value'.
-// For instance, 0.25 will give better result than 1.
-// \pre positive_value: value>0
-void vtkViewDependentErrorMetric::SetPixelTolerance(double value)
-{
-  assert("pre: positive_value" && value>0);
-  this->PixelTolerance=value;
-  this->Modified();
-}
-
-//-----------------------------------------------------------------------------
-// Description:
-// Return the viewport on which the error metric is based. The error metric
-// use the active camera of the viewport.
-vtkViewport *vtkViewDependentErrorMetric::GetViewport()
-{
-  return this->Viewport;
-}
-
-//-----------------------------------------------------------------------------
-// Description:
-// Set the viewport with `viewport'.
+// Avoid reference loop
 void vtkViewDependentErrorMetric::SetViewport(vtkViewport *viewport)
 {
-  this->Viewport=viewport;
+  this->Viewport = viewport;
   this->Modified();
 }
 
@@ -103,21 +78,21 @@ int vtkViewDependentErrorMetric::NeedEdgeSubdivision(double *leftPoint,
 //  double rightProjPoint[2];
   
   this->Coordinate->SetValue(leftPoint);
-  double *pix=this->Coordinate->GetComputedDoubleDisplayValue(this->Viewport);
+  double *pix = this->Coordinate->GetComputedDoubleDisplayValue(this->Viewport);
   
   // pix is a volatile pointer
-  leftProjPoint[0]=pix[0];
-  leftProjPoint[1]=pix[1];
+  leftProjPoint[0] = pix[0];
+  leftProjPoint[1] = pix[1];
   
   this->Coordinate->SetValue(midPoint);
-  pix=this->Coordinate->GetComputedDoubleDisplayValue(this->Viewport);
+  pix = this->Coordinate->GetComputedDoubleDisplayValue(this->Viewport);
   
   // pix is a volatile pointer
-  midProjPoint[0]=pix[0];
-  midProjPoint[1]=pix[1];
+  midProjPoint[0] = pix[0];
+  midProjPoint[1] = pix[1];
   
   this->Coordinate->SetValue(rightPoint);
-  pix=this->Coordinate->GetComputedDoubleDisplayValue(this->Viewport);
+  pix = this->Coordinate->GetComputedDoubleDisplayValue(this->Viewport);
   
   // distance between the line (leftProjPoint,rightProjPoint) and the point midProjPoint.
   return this->Distance2LinePoint(leftProjPoint,pix,midProjPoint)>this->PixelTolerance;
@@ -135,20 +110,19 @@ double vtkViewDependentErrorMetric::Distance2LinePoint(double x[2],
   double u[2];
   double v[2];
   double w[2];
-  double dot;
   
-  u[0]=y[0]-x[0];
-  u[1]=y[1]-x[1];
+  u[0] = y[0] - x[0];
+  u[1] = y[1] - x[1];
   
   vtkMath::Normalize2D(u);
   
-  v[0]=z[0]-x[0];
-  v[1]=z[1]-x[1];
+  v[0] = z[0] - x[0];
+  v[1] = z[1] - x[1];
   
-  dot=vtkMath::Dot2D(u,v);
+  double dot = vtkMath::Dot2D(u,v);
   
-  w[0]=v[0]-dot*u[0];
-  w[1]=v[1]-dot*u[1];
+  w[0] = v[0] - dot*u[0];
+  w[1] = v[1] - dot*u[1];
   
   return vtkMath::Dot2D(w,w);
 }

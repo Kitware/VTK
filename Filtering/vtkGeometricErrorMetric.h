@@ -43,19 +43,15 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:
-  // Return the squared absolute geometric accuracy.
-  // \post positive_result: result>0
-  vtkGetMacro(GeometricTolerance, double);
- 
-  // Description:
-  // Set the geometric accuracy with a squared absolute value.
+  // Set/Get the geometric accuracy with a squared absolute value.
   // This is the geometric object-based accuracy.
   // Subdivision will be required if the square distance between the real
   // point and the straight line passing through the vertices of the edge is
   // greater than `value'. For instance 0.01 will give better result than 0.1.
   // \pre positive_value: value>0
-  void SetAbsoluteGeometricTolerance(double value);
-  
+  vtkGetMacro(GeometricTolerance, double);
+  vtkSetClampMacro(GeometricTolerance,double,0.0,VTK_DOUBLE_MAX);
+
   // Description:
   // Set the geometric accuracy with a value relative to the length of the
   // bounding box of the dataset. Internally compute the absolute tolerance.

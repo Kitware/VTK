@@ -50,13 +50,9 @@ public:
   // than AttributeTolerance.
   // This is the attribute accuracy.
   // 0.01 will give better result than 0.1.
-  vtkGetMacro(AttributeTolerance, double);
-  
-  // Description:
-  // Set the relative attribute accuracy to `value'. See
-  // GetAttributeTolerance() for details.
   // \pre valid_range_value: value>0 && value<1
-  void SetAttributeTolerance(double value);
+  vtkGetMacro(AttributeTolerance, double);
+  vtkSetClampMacro(AttributeTolerance, double, 0.0, 1.0);
 
   // Description:
   // Does the edge need to be subdivided according to the distance between

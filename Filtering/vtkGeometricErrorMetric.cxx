@@ -22,31 +22,18 @@
 #include "vtkMath.h"
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkGeometricErrorMetric,"1.2");
+vtkCxxRevisionMacro(vtkGeometricErrorMetric,"1.3");
 vtkStandardNewMacro(vtkGeometricErrorMetric);
 
 //-----------------------------------------------------------------------------
 vtkGeometricErrorMetric::vtkGeometricErrorMetric()
 {
-  this->GeometricTolerance = 1; // arbitrary positive value
+  this->GeometricTolerance = 1.0; // arbitrary positive value
 }
 
 //-----------------------------------------------------------------------------
 vtkGeometricErrorMetric::~vtkGeometricErrorMetric()
 {
-}
-
-//-----------------------------------------------------------------------------
-// Description :
-// Set the geometric accuracy with an absolute value.
-// Subdivision will be required if the square distance is greater than
-// value. For instance 0.01 will give better result than 0.1.
-// \pre positive_value: value>0
-void vtkGeometricErrorMetric::SetAbsoluteGeometricTolerance(double value)
-{
-  assert("pre: positive_value" && value>0);
-  this->GeometricTolerance=value;
-  this->Modified();
 }
 
 //-----------------------------------------------------------------------------
@@ -66,29 +53,29 @@ void vtkGeometricErrorMetric::SetRelativeGeometricTolerance(double value,
   ds->GetBounds(bounds);
   double smallest;
   double length;
-  smallest=bounds[1]-bounds[0];
-  length=bounds[3]-bounds[2];
-  if(length<smallest || smallest==0)
+  smallest = bounds[1] - bounds[0];
+  length   = bounds[3] - bounds[2];
+  if(length < smallest || smallest == 0.0)
     {
-    smallest=length;
+    smallest = length;
     }
-  length=bounds[5]-bounds[4];
-  if(length<smallest|| smallest==0)
+  length = bounds[5] - bounds[4];
+  if(length < smallest || smallest == 0.0)
     {
-    smallest=length;
+    smallest = length;
     }
-  length=ds->GetLength();
-  if(length<smallest|| smallest==0)
+  length = ds->GetLength();
+  if(length < smallest || smallest == 0.0)
     {
-    smallest=length;
+    smallest = length;
     }
-  if(smallest==0)
+  if(smallest == 0)
     {
-    smallest=1;
+    smallest = 1;
     }
-  double tmp=value*smallest;
+  double tmp = value*smallest;
 
-  this->GeometricTolerance=tmp*tmp;
+  this->GeometricTolerance = tmp*tmp;
   this->Modified();
 }
 
@@ -123,23 +110,22 @@ double vtkGeometricErrorMetric::Distance2LinePoint(double x[3],
   double u[3];
   double v[3];
   double w[3];
-  double dot;
-  
-  u[0]=y[0]-x[0];
-  u[1]=y[1]-x[1];
-  u[2]=y[2]-x[2];
+
+  u[0] = y[0] - x[0];
+  u[1] = y[1] - x[1];
+  u[2] = y[2] - x[2];
   
   vtkMath::Normalize(u);
   
-  v[0]=z[0]-x[0];
-  v[1]=z[1]-x[1];
-  v[2]=z[2]-x[2];
+  v[0] = z[0] - x[0];
+  v[1] = z[1] - x[1];
+  v[2] = z[2] - x[2];
   
-  dot=vtkMath::Dot(u,v);
+  double dot = vtkMath::Dot(u,v);
   
-  w[0]=v[0]-dot*u[0];
-  w[1]=v[1]-dot*u[1];
-  w[2]=v[2]-dot*u[2];
+  w[0] = v[0] - dot*u[0];
+  w[1] = v[1] - dot*u[1];
+  w[2] = v[2] - dot*u[2];
   
   return vtkMath::Dot(w,w);
 }
