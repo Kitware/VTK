@@ -59,10 +59,7 @@ int vtkTclDeleteObjectFromHash(ClientData cd)
     cerr << "vtkTcl Attempting to free object named " << temp << "\n";
     }
   // if it isn't a temp object (i.e. we created it) then delete it 
-  // except for two classes
-  if (strncmp(temp,"vtkTemp",7)||
-      (command == vtkRenderWindowCommand)||
-      (command == vtkRendererCommand))
+  if (strncmp(temp,"vtkTemp",7))
     {
     // finally free the name we got from the hash table
     // it was created using strdup
