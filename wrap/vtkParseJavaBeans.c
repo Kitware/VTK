@@ -40,6 +40,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 
 #include <stdio.h>
+#include <string.h>
 #include "vtkParse.h"
 
 int numberOfWrappedFunctions = 0;
@@ -49,6 +50,7 @@ FunctionInfo *currentFunction;
 void output_temp(FILE *fp,int i)
 {
   /* ignore void */
+
   if (((currentFunction->ArgTypes[i] % 10) == 2)&&
       (!((currentFunction->ArgTypes[i]%1000)/100)))
     {
@@ -309,7 +311,7 @@ void outputFunction(FILE *fp, FileInfo *data)
 	{
 	/* only care about set methods and On/Off methods */
 	if (!strncmp(beanfunc,"set",3) && 
-	    currentFunction->NumberOfArguements == 1 && 
+	    currentFunction->NumberOfArguments == 1 && 
 	    (currentFunction->ArgTypes[0] < 10 || 
 	     currentFunction->ArgTypes[0] == 303 || 
 	     currentFunction->ArgTypes[0]%10 == 9))
