@@ -78,6 +78,9 @@ public:
   void GetBounds(int *bounds){this->Region.GetBounds3d(bounds);};
   void GetBounds(int &min0,int &max0,int &min1,int &max1,int &min2,int &max2)
   {this->Region.GetBounds3d(min0,max0,min1,max1,min2,max2);};
+  void SetAxes(int axis0, int axis1, int axis2)
+  {this->Region.SetAxes3d(axis0,axis1,axis2);};
+    
   // Description:
   // Get the region to set bounds of higher dimensions
   vtkImageRegion *GetRegion(){return &(this->Region);};

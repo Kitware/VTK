@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImage2dMagnifyFilter.hh
+  Module:    vtkImage1dMagnifyFilter.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -37,41 +37,47 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImage2dMagnifyFilter - Magnifies an image with pixel replication.
+// .NAME vtkImage1dMagnifyFilter - Magnifies an image.
 // .SECTION Description
-// vtkImage2dMagnifyFilter maps each pixel of the input onto a nxn region
-// of the output.  Location (0,0) remains in the same place.
+// vtkImage1dMagnifyFilter maps each pixel of the input onto a n (integer)
+// region of the output.  Location (0,0) remains in the same place.
+// The filter can use pixel replication (nearest neighbor) or interpolation.
 
 
-#ifndef __vtkImage2dMagnifyFilter_h
-#define __vtkImage2dMagnifyFilter_h
+#ifndef __vtkImage1dMagnifyFilter_h
+#define __vtkImage1dMagnifyFilter_h
 
 
-#include "vtkImage2dDecomposedFilter.hh"
-#include "vtkImage1dMagnifyFilter.hh"
+#include "vtkImageFilter.hh"
 
-class vtkImage2dMagnifyFilter : public vtkImage2dDecomposedFilter
+class vtkImage1dMagnifyFilter : public vtkImageFilter
 {
 public:
-  vtkImage2dMagnifyFilter();
-  char *GetClassName() {return "vtkImage2dMagnifyFilter";};
+  vtkImage1dMagnifyFilter();
+  char *GetClassName() {return "vtkImage1dMagnifyFilter";};
 
   // Description:
-  // Set/Get Magnification factors
-  void SetMagnificationFactors(int f0, int f1);
-  void SetMagnificationFactors(int *factors)
-  {this->SetMagnificationFactors(factors[0], factors[1]);};
-  vtkGetVector2Macro(MagnificationFactors,int);
-  
+  // Set/Get the convolution axis.
+  vtkSetMacro(MagnificationFactor,int);
+  vtkGetMacro(MagnificationFactor,int);
+
   // Description:
-  // Turn interpolation on and off (pixel replication)
-  void SetInterpolate(int interpolate);
-  int GetInterpolate();
+  // Pixel replication or Interpolation.
+  vtkSetMacro(Interpolate,int);
+  vtkGetMacro(Interpolate,int);
   vtkBooleanMacro(Interpolate,int);
   
+  void InterceptCacheUpdate(vtkImageRegion *region);
 
 protected:
-  int MagnificationFactors[2];
+  int MagnificationFactor;
+  int Interpolate;
+
+  void ComputeOutputImageInformation(vtkImageRegion *inRegion,
+				     vtkImageRegion *outRegion);
+  void ComputeRequiredInputRegionBounds(vtkImageRegion *outRegion,
+					vtkImageRegion *inRegion);
+  void Execute2d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);  
 };
 
 #endif

@@ -69,11 +69,11 @@ protected:
   int ProjectionRange[2];
   int MinMaxIP;
 
-  void Execute3d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
   void ComputeOutputImageInformation(vtkImageRegion *inRegion,
 				     vtkImageRegion *outRegion);
   void ComputeRequiredInputRegionBounds(vtkImageRegion *outRegion, 
-					vtkImageRegion *inRegion);
+				   vtkImageRegion *inRegion);
+  void Execute3d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
 };
 
 #endif

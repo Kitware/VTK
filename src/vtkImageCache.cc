@@ -129,7 +129,7 @@ void vtkImageCache::UpdateImageInformation(vtkImageRegion *region)
     // Get the ImageBounds
     this->Source->UpdateImageInformation(region);
     // Save the ImageBounds to satisfy later calls.
-    // We do not have the method GetAbsoluteBounds(int *), so ...
+    // Choose some constant coordinate system.
     region->SetAxes5d(0, 1, 2, 3, 4);
     region->GetImageBounds(this->ImageBounds);
     this->ImageBoundsTime.Modified();
@@ -142,7 +142,7 @@ void vtkImageCache::UpdateImageInformation(vtkImageRegion *region)
   
   // No modifications have been made, so return our own copy.
   vtkDebugMacro(<< "UpdateImageInformation: Using own copy of ImageBounds");
-  // We do not have a method SetAbsoluteBounds(int *), so ...
+  // Image bounds Are saved in some constant coordinate system.
   region->SetAxes5d(0, 1, 2, 3, 4);
   region->SetImageBounds(this->ImageBounds);
 
@@ -266,14 +266,22 @@ void vtkImageCache::UpdateRegion(vtkImageRegion *region)
 // outBBox is not modified or deleted.
 void vtkImageCache::GenerateUnCachedRegionData(vtkImageRegion *region)
 {
+  int saveAxes[VTK_IMAGE_DIMENSIONS];
+
   vtkDebugMacro(<< "GenerateUnCachedRegionData: ");
+  
+  // Save the axes just in case it is important to restore coordinate system.
+  // (Update region probably does not care but ...)
+  region->GetAxes(saveAxes);
   
   // Create the data object for this region, but delay allocating the
   // memory for as long as possible.
   this->Data = new vtkImageData;
-  this->Data->SetBounds(region->GetAbsoluteBounds());
+  region->SetAxes(this->Data->GetAxes());
+  this->Data->SetBounds(region->GetBounds());
   this->Data->SetType(this->DataType);
-
+  region->SetAxes(saveAxes);
+  
   // Tell the filter to generate the data for this region
   this->Source->UpdateRegion(region);
 
@@ -308,11 +316,16 @@ void vtkImageCache::GenerateUnCachedRegionData(vtkImageRegion *region)
 // may or may not be the same region passed to GenerateRegion method.
 void vtkImageCache::AllocateRegion(vtkImageRegion *region)
 {
+  int saveAxes[VTK_IMAGE_DIMENSIONS];
+
   // Allocate memory at the last possible moment
   if ( ! this->Data)
     {
     this->Data = new vtkImageData;
-    this->Data->SetBounds(region->GetAbsoluteBounds());
+    region->GetAxes(saveAxes);
+    region->SetAxes(this->Data->GetAxes());
+    this->Data->SetBounds(region->GetBounds());
+    region->SetAxes(saveAxes);
     this->Data->SetType(this->DataType);
     }
 

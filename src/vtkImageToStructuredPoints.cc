@@ -76,6 +76,7 @@ void vtkImageToStructuredPoints::ConditionalUpdate(int forced)
 
   execute = this->Input->GetPipelineMTime() > this->ExecuteTime
     || this->GetMTime() > this->ExecuteTime 
+    || this->Region.GetMTime() > this->ExecuteTime 
     || (forced && this->Output->GetDataReleased());
   
   if (execute)

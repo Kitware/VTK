@@ -46,223 +46,45 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Constructor: Sets default filter to be identity.
 vtkImage2dMagnifyFilter::vtkImage2dMagnifyFilter()
 {
+  // create the filter chain 
+  this->Filter0 = new vtkImage1dMagnifyFilter;
+  this->Filter1 = new vtkImage1dMagnifyFilter;
+
   this->SetAxes2d(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS);
   this->SetMagnificationFactors(1, 1);
 }
 
 
 //----------------------------------------------------------------------------
-// Description:
-// This method computes the Region of input necessary to generate outRegion.
-// It assumes offset and size are multiples of Magnify Factors.
-void vtkImage2dMagnifyFilter::ComputeRequiredInputRegionBounds(
-					       vtkImageRegion *outRegion,
-					       vtkImageRegion *inRegion)
+void vtkImage2dMagnifyFilter::SetMagnificationFactors(int f0, int f1)
 {
-  int bounds[4];
-  int idx;
+  // Having my own copy simplifies the Get methods.
+  this->MagnificationFactors[0] = f0;
+  this->MagnificationFactors[1] = f1;
+  this->Modified();
   
-  outRegion->GetBounds2d(bounds);
-  
-  // ignoring boundaries for now
-  for (idx = 0; idx < 2; ++idx)
-    {
-    // For Min. Round Down
-    if (bounds[idx*2] >= 0)
-      {
-      bounds[idx*2] /= this->MagnificationFactors[idx];
-      }
-    else
-      {
-      bounds[idx*2]= -1-(-bounds[idx*2]-1)/this->MagnificationFactors[idx];
-      }
-    // For Max. Round Down
-    if (bounds[idx*2+1] >= 0)
-      {
-      bounds[idx*2+1] /= this->MagnificationFactors[idx];
-      }
-    else
-      {
-      bounds[idx*2+1]= -1-(-bounds[idx*2+1]-1)/this->MagnificationFactors[idx];
-      }
-    }
-  
-  inRegion->SetBounds2d(bounds);
+  ((vtkImage1dMagnifyFilter *)(this->Filter0))->SetMagnificationFactor(f0);
+  ((vtkImage1dMagnifyFilter *)(this->Filter1))->SetMagnificationFactor(f1);
 }
 
 
 //----------------------------------------------------------------------------
-// Description:
-// Computes any global image information associated with regions.
-void vtkImage2dMagnifyFilter::ComputeOutputImageInformation(
-		    vtkImageRegion *inRegion, vtkImageRegion *outRegion)
+void vtkImage2dMagnifyFilter::SetInterpolate(int interpolate)
 {
-  int idx;
-  int imageBounds[4];
-  float aspectRatio[2];
-
-  inRegion->GetImageBounds2d(imageBounds);
-  inRegion->GetAspectRatio2d(aspectRatio);
-
-  for (idx = 0; idx < 2; ++idx)
-    {
-    // Scale the output bounds
-    imageBounds[2*idx] *= this->MagnificationFactors[idx];
-    imageBounds[2*idx+1]
-      = (imageBounds[2*idx+1]+1) * this->MagnificationFactors[idx] - 1;
-    // Change the aspect ratio.
-    aspectRatio[idx] *= (float)(this->MagnificationFactors[idx]);
-    }
-
-  outRegion->SetImageBounds2d(imageBounds);
-  outRegion->SetAspectRatio2d(aspectRatio);
+  this->Modified();
+  
+  ((vtkImage1dMagnifyFilter *)(this->Filter0))->SetInterpolate(interpolate);
+  ((vtkImage1dMagnifyFilter *)(this->Filter1))->SetInterpolate(interpolate);
 }
 
 
 
 //----------------------------------------------------------------------------
-// Description:
-// Intercepts the caches UpdateRegion to make the region larger than requested.
-// Updating the extra pixels is a small price to pay for the reduced
-// complexity of boundry checking of the output.
-void vtkImage2dMagnifyFilter::InterceptCacheUpdate(vtkImageRegion *region)
+int vtkImage2dMagnifyFilter::GetInterpolate()
 {
-  int bounds[4];
-  int idx;
-  
-  this->ComputeRequiredInputRegionBounds(region, region);
-  
-  region->GetBounds2d(bounds);
-  for (idx = 0; idx < 2; ++idx)
-    {
-    bounds[idx*2] *= this->MagnificationFactors[idx];
-    bounds[idx*2+1]= (bounds[idx*2+1]+1) * this->MagnificationFactors[idx] - 1;
-    }
-    
-  region->SetBounds2d(bounds);
+  // Assume filter1 has same interpolate value as filter0
+  return ((vtkImage1dMagnifyFilter *)(this->Filter0))->GetInterpolate();
 }
-
-
-
-//----------------------------------------------------------------------------
-// The templated execute function handles all the data types.
-template <class T>
-void vtkImage2dMagnifyFilterExecute(vtkImage2dMagnifyFilter *self,
-				    vtkImageRegion *inRegion, T *inPtr,
-				    vtkImageRegion *outRegion, T *outPtr)
-{
-  int min0, max0, min1, max1;
-  int idx0, idx1;
-  int magIdx0, magIdx1;
-  int inInc0, inInc1;
-  int tmpInc0, tmpInc1;
-  int outInc0, outInc1;
-  T *inPtr0, *inPtr1;
-  T *tmpPtr0, *tmpPtr1;
-  T *outPtr0, *outPtr1;
-  int mag0, mag1;
-
-  self->GetMagnificationFactors(mag0, mag1);
-  
-  // Get information to march through data 
-  inRegion->GetIncrements2d(inInc0, inInc1);
-  outRegion->GetIncrements2d(outInc0, outInc1);
-  tmpInc0 = outInc0 * mag0;
-  tmpInc1 = outInc1 * mag1;
-  inRegion->GetBounds2d(min0, max0, min1, max1);
-
-  // Loop through ouput pixels
-  inPtr1 = inPtr;
-  tmpPtr1 = outPtr;
-  for (idx1 = min1; idx1 <= max1; ++idx1)
-    {
-    inPtr0 = inPtr1;
-    tmpPtr0 = tmpPtr1;
-    for (idx0 = min0; idx0 <= max0; ++idx0)
-      {
-      
-      // loop over magnified pixel
-      outPtr1 = tmpPtr0;
-      for (magIdx1 = 0; magIdx1 < mag1; ++magIdx1)
-	{
-	outPtr0 = outPtr1;
-	for (magIdx0 = 0; magIdx0 < mag0; ++magIdx0)
-	  {
-	  // Replicate the pixel
-	  *outPtr0 = *inPtr0;
-	  
-	  outPtr0 += outInc0;
-	  }
-	outPtr1 += outInc1;
-	}
-      
-      inPtr0 += inInc0;
-      tmpPtr0 += tmpInc0;
-      }
-    inPtr1 += inInc1;
-    tmpPtr1 += tmpInc1;
-    }
-}
-
-    
-//----------------------------------------------------------------------------
-// Description:
-// This method uses the input region to fill the output region.
-// It can handle any type data, but the two regions must have the same 
-// data type.
-void vtkImage2dMagnifyFilter::Execute2d(vtkImageRegion *inRegion, 
-					vtkImageRegion *outRegion)
-{
-  void *inPtr = inRegion->GetVoidPointer2d();
-  void *outPtr = outRegion->GetVoidPointer2d();
-  
-  vtkDebugMacro(<< "Execute2d: inRegion = " << inRegion 
-		<< ", outRegion = " << outRegion);
-  
-  // this filter expects that input is the same type as output.
-  if (inRegion->GetDataType() != outRegion->GetDataType())
-    {
-    vtkErrorMacro(<< "Execute2d: input DataType, " << inRegion->GetDataType()
-                  << ", must match out DataType " << outRegion->GetDataType());
-    return;
-    }
-  
-  switch (inRegion->GetDataType())
-    {
-    case VTK_IMAGE_FLOAT:
-      vtkImage2dMagnifyFilterExecute(this, 
-			  inRegion, (float *)(inPtr), 
-			  outRegion, (float *)(outPtr));
-      break;
-    case VTK_IMAGE_INT:
-      vtkImage2dMagnifyFilterExecute(this, 
-			  inRegion, (int *)(inPtr), 
-			  outRegion, (int *)(outPtr));
-      break;
-    case VTK_IMAGE_SHORT:
-      vtkImage2dMagnifyFilterExecute(this, 
-			  inRegion, (short *)(inPtr), 
-			  outRegion, (short *)(outPtr));
-      break;
-    case VTK_IMAGE_UNSIGNED_SHORT:
-      vtkImage2dMagnifyFilterExecute(this, 
-			  inRegion, (unsigned short *)(inPtr), 
-			  outRegion, (unsigned short *)(outPtr));
-      break;
-    case VTK_IMAGE_UNSIGNED_CHAR:
-      vtkImage2dMagnifyFilterExecute(this, 
-			  inRegion, (unsigned char *)(inPtr), 
-			  outRegion, (unsigned char *)(outPtr));
-      break;
-    default:
-      vtkErrorMacro(<< "Execute2d: Unknown DataType");
-      return;
-    }
-}
-
-
-
-
 
 
 

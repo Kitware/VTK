@@ -305,16 +305,16 @@ public:
   // Description:
   // Set the current volume, image or line.  Used to disambiguate the
   // 3d, 2d and 1d coordinates.
-  vtkSetMacro(DefaultCoordinate4,int);
-  vtkGetMacro(DefaultCoordinate4,int);
-  vtkSetMacro(DefaultCoordinate3,int);
-  vtkGetMacro(DefaultCoordinate3,int);
-  vtkSetMacro(DefaultCoordinate2,int);
-  vtkGetMacro(DefaultCoordinate2,int);
-  vtkSetMacro(DefaultCoordinate1,int);
-  vtkGetMacro(DefaultCoordinate1,int);
-  vtkSetMacro(DefaultCoordinate0,int);
-  vtkGetMacro(DefaultCoordinate0,int);
+  void SetDefaultCoordinate4(int v) {this->DefaultCoordinates[4] = v;};
+  int GetDefaultCoordinate4() {return this->DefaultCoordinates[4];};
+  void SetDefaultCoordinate3(int v) {this->DefaultCoordinates[3] = v;};
+  int GetDefaultCoordinate3() {return this->DefaultCoordinates[3];};
+  void SetDefaultCoordinate2(int v) {this->DefaultCoordinates[2] = v;};
+  int GetDefaultCoordinate2() {return this->DefaultCoordinates[2];};
+  void SetDefaultCoordinate1(int v) {this->DefaultCoordinates[1] = v;};
+  int GetDefaultCoordinate1() {return this->DefaultCoordinates[1];};
+  void SetDefaultCoordinate0(int v) {this->DefaultCoordinates[0] = v;};
+  int GetDefaultCoordinate0() {return this->DefaultCoordinates[0];};
   
   // Description:
   // Returns a pointer relative to the current volume, image or line.
@@ -350,10 +350,6 @@ public:
   // Different methods for getting the bounds.
   void GetBounds(int *bounds, int dim);
   vtkImageRegionGetBoundsMacro(Bounds);
-  // Description:
-  // Get Bounds in Data coordinate system (used by cache).
-  int *GetAbsoluteBounds() {return this->AbsoluteBounds;};
-  
   
   // Description:
   // Different methods for setting the ImageBounds.
@@ -427,19 +423,11 @@ public:
 protected:
   vtkImageData *Data;   // Data is stored in this object.
   int DataType;         // Remember the pixel type of this region.
-  
-  int DefaultCoordinate4;          // The current spectral component
-  int DefaultCoordinate3;          // The current volume
-  int DefaultCoordinate2;          // The current image
-  int DefaultCoordinate1;          // The current line
-  int DefaultCoordinate0;          // The current pixel
+  int DefaultCoordinates[VTK_IMAGE_DIMENSIONS];
 
   // Defines the relative coordinate system
-  int Axes[VTK_IMAGE_DIMENSIONS]; // Reorder the axis of the Data.
+  int Axes[VTK_IMAGE_DIMENSIONS]; // Coordinate system of this region.
 
-  // Absolute Coordinates: Is not affected by Axes instance variable.
-  int AbsoluteBounds[VTK_IMAGE_BOUNDS_DIMENSIONS]; // Min/Max for each axis.
-  
   // Bounds reordered to match Axes (relative coordinate system).
   int Bounds[VTK_IMAGE_BOUNDS_DIMENSIONS];         // Min/Max for each axis.
   // Increments in relative coordinate system
@@ -447,16 +435,11 @@ protected:
 
   // Possibly make a new object to hold global information like ImageBounds.
   int ImageBounds[VTK_IMAGE_BOUNDS_DIMENSIONS];
-  int AbsoluteImageBounds[VTK_IMAGE_BOUNDS_DIMENSIONS];
   float AspectRatio[VTK_IMAGE_DIMENSIONS];
-  float AbsoluteAspectRatio[VTK_IMAGE_DIMENSIONS];
-  
 
   // Helper methods.
-  //void ShuffleRelativeToAbsolute(int *relative, int *absolute);
-  //void ShuffleAbsoluteToRelative(int *absolute, int *relative);
-  void ShuffleBoundsRelativeToAbsolute(int *relative, int *absolute);
-  void ShuffleBoundsAbsoluteToRelative(int *absolute, int *relative);
+  void ChangeBoundsCoordinateSystem(int *boundsIn, int *axesIn,
+				    int *boundsOut, int *axesOut);
 };
 
 

@@ -272,8 +272,8 @@ unsigned long vtkImageCachedSource::GetPipelineMTime()
 void vtkImageCachedSource::SetMemoryLimit(long limit)
 {
   this->CheckCache();
-
   this->Output->SetMemoryLimit(limit);
+  this->Modified();
 }
 
 
@@ -411,6 +411,7 @@ void vtkImageCachedSource::SetAxes(int *axes)
     {
     this->Axes[idx] = axes[idx];
     }
+  this->Modified();
 }
 
 

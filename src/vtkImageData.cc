@@ -52,6 +52,7 @@ vtkImageData::vtkImageData()
   this->Type = VTK_IMAGE_VOID;
   for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
     {
+    this->Axes[idx] = idx;
     this->Increments[idx] = 0;
     this->Bounds[idx*2] = 0;
     this->Bounds[idx*2 + 1] = 0;

@@ -121,9 +121,14 @@ public:
   int Allocate();
   void *GetVoidPointer(int coordinates[VTK_IMAGE_DIMENSIONS]);
   void *GetVoidPointer();
+
+  // Description:
+  // Get the coordinate system of the data (data order)
+  vtkGetVectorMacro(Axes,int,VTK_IMAGE_DIMENSIONS);
   
 protected:
   vtkScalars *Scalars;  // Store the data in native VTK format.
+  int Axes[VTK_IMAGE_DIMENSIONS];   
   int Type;             // What type of data is in this object.
   int Bounds[VTK_IMAGE_BOUNDS_DIMENSIONS]; // bounds of data.
   int Increments[VTK_IMAGE_DIMENSIONS];    // Values used to move around data.

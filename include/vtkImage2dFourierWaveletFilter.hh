@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImage2dMagnifyFilter.hh
+  Module:    vtkImage2dFourierWaveletFilter.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -37,41 +37,56 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImage2dMagnifyFilter - Magnifies an image with pixel replication.
+// .NAME vtkImage2dFourierWaveletFilter - Fourier wavelet decomposition.
 // .SECTION Description
-// vtkImage2dMagnifyFilter maps each pixel of the input onto a nxn region
-// of the output.  Location (0,0) remains in the same place.
+// vtkImage2dFourierWaveletFilter Fourier components (NxN) are used
+// as a Wavelet set.  The set is orthogonal, but they overlap.
+// The output is a multispectral image whose spatial dimensions
+// are smaller than the original image.
+// Channel 0 has a lowres version of the original image.  For a multi
+// resolution decomposition, chain these filters (multiple instanceses of 
+// this class together).  
 
 
-#ifndef __vtkImage2dMagnifyFilter_h
-#define __vtkImage2dMagnifyFilter_h
+#ifndef __vtkImage2dFourierWaveletFilter_h
+#define __vtkImage2dFourierWaveletFilter_h
 
+#include <math.h>
+#include "vtkImageFilter.hh"
 
-#include "vtkImage2dDecomposedFilter.hh"
-#include "vtkImage1dMagnifyFilter.hh"
-
-class vtkImage2dMagnifyFilter : public vtkImage2dDecomposedFilter
+class vtkImage2dFourierWaveletFilter : public vtkImageFilter
 {
 public:
-  vtkImage2dMagnifyFilter();
-  char *GetClassName() {return "vtkImage2dMagnifyFilter";};
+  vtkImage2dFourierWaveletFilter();
+  char *GetClassName() {return "vtkImage2dFourierWaveletFilter";};
+
+  void InitializeWavelets(int dim);
+
+  void InterceptCacheUpdate(vtkImageRegion *region);
 
   // Description:
-  // Set/Get Magnification factors
-  void SetMagnificationFactors(int f0, int f1);
-  void SetMagnificationFactors(int *factors)
-  {this->SetMagnificationFactors(factors[0], factors[1]);};
-  vtkGetVector2Macro(MagnificationFactors,int);
-  
+  // Get the region that holds the wavelets.
+  vtkGetObjectMacro(Wavelets, vtkImageRegion);
+
   // Description:
-  // Turn interpolation on and off (pixel replication)
-  void SetInterpolate(int interpolate);
-  int GetInterpolate();
-  vtkBooleanMacro(Interpolate,int);
-  
+  // Set/Get the spacing between subsamples
+  vtkSetMacro(Spacing, int);
+  vtkGetMacro(Spacing, int);
 
 protected:
-  int MagnificationFactors[2];
+  vtkImageRegion *Wavelets;
+  int Spacing;
+
+  void ComputeWaveletReal(int f1, int f2, int w0);
+  void ComputeWaveletImaginary(int f1, int f2, int w0);  
+  int  TestWaveletOrthogonality(int waveletIdx);
+
+  void ComputeOutputImageInformation(vtkImageRegion *inRegion,
+				     vtkImageRegion *outRegion);
+  void ComputeRequiredInputRegionBounds(vtkImageRegion *outRegion, 
+					vtkImageRegion *inRegion);
+  
+  void Execute3d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);  
 };
 
 #endif

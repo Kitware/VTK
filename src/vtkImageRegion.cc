@@ -47,9 +47,11 @@ vtkImageRegion::vtkImageRegion()
 {
   this->Data = NULL;
   this->DataType = VTK_IMAGE_VOID;
-  this->SetAxes5d(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS,
-		VTK_IMAGE_Z_AXIS, VTK_IMAGE_TIME_AXIS,
-		VTK_IMAGE_COMPONENT_AXIS);
+  this->Axes[0] = VTK_IMAGE_X_AXIS;
+  this->Axes[1] = VTK_IMAGE_Y_AXIS;
+  this->Axes[2] = VTK_IMAGE_Z_AXIS;
+  this->Axes[3] = VTK_IMAGE_TIME_AXIS;
+  this->Axes[4] = VTK_IMAGE_COMPONENT_AXIS;
   this->SetBounds5d(0,0, 0,0, 0,0, 0,0, 0,0);
   this->SetImageBounds5d(0,0, 0,0, 0,0, 0,0, 0,0);
   this->ResetDefaultCoordinates(5);
@@ -90,10 +92,10 @@ void vtkImageRegion::PrintSelf(ostream& os, vtkIndent indent)
   os << this->Bounds[6] << ", " << this->Bounds[7] << ")\n";
   
   os << indent << "Default Coordinates: (";
-  os << this->DefaultCoordinate0 << ", ";
-  os << this->DefaultCoordinate1 << ", ";
-  os << this->DefaultCoordinate2 << ", ";
-  os << this->DefaultCoordinate3 << ")\n";
+  os << this->DefaultCoordinates[0] << ", ";
+  os << this->DefaultCoordinates[1] << ", ";
+  os << this->DefaultCoordinates[2] << ", ";
+  os << this->DefaultCoordinates[3] << ")\n";
   
   os << indent << "ImageBounds: (";
   os << this->ImageBounds[0] << ", " << this->ImageBounds[1] << ", ";
@@ -359,65 +361,51 @@ unsigned long vtkImageRegion::GetPipelineMTime()
 
 //----------------------------------------------------------------------------
 // Description:
-// Convert 4d vector (not bounds!) from absolute coordinates into
-// relative coordinate system of region.
+// Convert 4d vector (not bounds!) from one coordinate system into another
+// coordinate system.  "vectIn" and "vectOut" may be the same array.
 template <class T>
-void vtkImageRegionShuffleRelativeToAbsolute(T *relative, T *absolute, int *axes)
+void
+vtkImageRegionChangeVectorCoordinateSystem(T *vectIn, int *axesIn, 
+					   T *vectOut, int *axesOut)
 {
   int idx;
-  
-  for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
-    {
-    absolute[axes[idx]] = relative[idx];
-    }
-}
+  T absolute[VTK_IMAGE_DIMENSIONS];
 
-//----------------------------------------------------------------------------
-// Description:
-// Convert 4d vector (not bounds!) from relative coordinates into
-// absolute coordinate system.
-template <class T>
-void vtkImageRegionShuffleAbsoluteToRelative(T *absolute, T *relative, int *axes)
-{
-  int idx;
-  
+  // Convert to an intermediate coordinate system (0,1,2,...)
   for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
     {
-    relative[idx] = absolute[axes[idx]];
+    absolute[axesIn[idx]] = vectIn[idx];
+    }
+  // Change back into the new coordinate system
+  for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
+    {
+    vectOut[idx] = absolute[axesOut[idx]];
     }
 }
 
 
-
 //----------------------------------------------------------------------------
 // Description:
-// Convert 4d bounds from absolute coordinates into
-// relative coordinate system of region.
-void vtkImageRegion::ShuffleBoundsRelativeToAbsolute(int *relative, 
-						     int *absolute)
+// Convert 4d bounds from one coordinate system into another.
+// "boundsIn" and "boundsOut" may be the same array.
+void vtkImageRegion::ChangeBoundsCoordinateSystem(int *boundsIn, int *axesIn,
+						  int *boundsOut, int *axesOut)
 {
   int idx;
-  
+  int absolute[VTK_IMAGE_BOUNDS_DIMENSIONS];
+
+  // Change into a known coordinate system (0,1,2,...)
   for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
     {
-    absolute[this->Axes[idx]*2] = relative[idx*2];
-    absolute[this->Axes[idx]*2+1] = relative[idx*2+1];
+    absolute[axesIn[idx]*2] = boundsIn[idx*2];
+    absolute[axesIn[idx]*2+1] = boundsIn[idx*2+1];
     }
-}
 
-//----------------------------------------------------------------------------
-// Description:
-// Convert 4d bounds from relative coordinates into
-// absolute coordinate system.
-void vtkImageRegion::ShuffleBoundsAbsoluteToRelative(int *absolute, 
-						     int *relative)
-{
-  int idx;
-  
+  // Change into the desired coordinate system.
   for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
     {
-    relative[idx*2] = absolute[this->Axes[idx]*2];
-    relative[idx*2+1] = absolute[this->Axes[idx]*2+1];
+    boundsOut[idx*2] = absolute[axesOut[idx]*2];
+    boundsOut[idx*2+1] = absolute[axesOut[idx]*2+1];
     }
 }
 
@@ -430,6 +418,8 @@ void vtkImageRegion::ShuffleBoundsAbsoluteToRelative(int *absolute,
 // object and setting it explicitley.
 void vtkImageRegion::Allocate()
 {
+  int bounds[VTK_IMAGE_BOUNDS_DIMENSIONS];
+  
   this->Modified();
 
   if (this->Data)
@@ -440,12 +430,16 @@ void vtkImageRegion::Allocate()
 
   this->Data = new vtkImageData;
   this->Data->SetType(this->DataType);
-  this->Data->SetBounds(this->AbsoluteBounds);
+  this->GetBounds(bounds);
+  this->ChangeBoundsCoordinateSystem(this->Bounds, this->Axes,
+				     bounds, this->Data->GetAxes());
+  this->Data->SetBounds(bounds);
   this->Data->Allocate();
   
-  // Compute the relative increments.
-  vtkImageRegionShuffleAbsoluteToRelative(this->Data->GetIncrements(), 
-					  this->Increments, this->Axes);
+  // Compute the increments.
+  vtkImageRegionChangeVectorCoordinateSystem(this->Data->GetIncrements(),
+					     this->Data->GetAxes(),
+					     this->Increments, this->Axes);
 }
 
 
@@ -493,9 +487,10 @@ void vtkImageRegion::SetData(vtkImageData *data)
 
   this->Data = data;
   
-  // Compute the relative increments.
-  vtkImageRegionShuffleAbsoluteToRelative(data->GetIncrements(), 
-					  this->Increments, this->Axes);
+  // Compute the increments.
+  vtkImageRegionChangeVectorCoordinateSystem(this->Data->GetIncrements(),
+					     this->Data->GetAxes(),
+					     this->Increments, this->Axes);
 }
 
 
@@ -527,12 +522,12 @@ void vtkImageRegion::GetIncrements(int *increments, int dim)
 //----------------------------------------------------------------------------
 // Description:
 // These methods return pointers at locations in the region.  The coordinates
-// of the location are in pixel units and are relative to the absolute
+// of the location are in pixel units and are relative to the
 // origin of the whole image. The region just forwards the message
 // to its vtkImageData object.
 void *vtkImageRegion::GetVoidPointer5d(int coordinates[5])
 {
-  int absoluteCoordinates[VTK_IMAGE_DIMENSIONS];
+  int temp[VTK_IMAGE_DIMENSIONS];
   
   if ( ! this->Data){
     vtkErrorMacro(<<"Data must be set or allocated.");
@@ -540,9 +535,10 @@ void *vtkImageRegion::GetVoidPointer5d(int coordinates[5])
   }
 
   // Convert into data coordinates
-  vtkImageRegionShuffleRelativeToAbsolute(coordinates, absoluteCoordinates, this->Axes);
+  vtkImageRegionChangeVectorCoordinateSystem(coordinates, this->Axes,
+					     temp, this->Data->GetAxes());
   
-  return this->Data->GetVoidPointer(absoluteCoordinates);
+  return this->Data->GetVoidPointer(temp);
 }
 //----------------------------------------------------------------------------
 void *vtkImageRegion::GetVoidPointer4d(int coordinates[4])
@@ -553,7 +549,7 @@ void *vtkImageRegion::GetVoidPointer4d(int coordinates[4])
   coords[1] = coordinates[1];
   coords[2] = coordinates[2];
   coords[3] = coordinates[3];
-  coords[4] = this->DefaultCoordinate4;
+  coords[4] = this->DefaultCoordinates[4];
   
   return this->GetVoidPointer5d(coords);
 }
@@ -565,8 +561,8 @@ void *vtkImageRegion::GetVoidPointer3d(int coordinates[3])
   coords[0] = coordinates[0];
   coords[1] = coordinates[1];
   coords[2] = coordinates[2];
-  coords[3] = this->DefaultCoordinate3;
-  coords[4] = this->DefaultCoordinate4;
+  coords[3] = this->DefaultCoordinates[3];
+  coords[4] = this->DefaultCoordinates[4];
   
   return this->GetVoidPointer5d(coords);
 }
@@ -577,9 +573,9 @@ void *vtkImageRegion::GetVoidPointer2d(int coordinates[2])
   
   coords[0] = coordinates[0];
   coords[1] = coordinates[1];
-  coords[2] = this->DefaultCoordinate2;
-  coords[3] = this->DefaultCoordinate3;
-  coords[4] = this->DefaultCoordinate4;
+  coords[2] = this->DefaultCoordinates[2];
+  coords[3] = this->DefaultCoordinates[3];
+  coords[4] = this->DefaultCoordinates[4];
   
   return this->GetVoidPointer5d(coords);
 }
@@ -589,10 +585,10 @@ void *vtkImageRegion::GetVoidPointer1d(int coordinates[1])
   int coords[VTK_IMAGE_DIMENSIONS];
   
   coords[0] = coordinates[0];
-  coords[1] = this->DefaultCoordinate1;
-  coords[2] = this->DefaultCoordinate2;
-  coords[3] = this->DefaultCoordinate3;
-  coords[4] = this->DefaultCoordinate4;
+  coords[1] = this->DefaultCoordinates[1];
+  coords[2] = this->DefaultCoordinates[2];
+  coords[3] = this->DefaultCoordinates[3];
+  coords[4] = this->DefaultCoordinates[4];
   
   return this->GetVoidPointer5d(coords);
 }
@@ -665,7 +661,7 @@ void *vtkImageRegion::GetVoidPointer4d()
   coords[1] = this->Bounds[2];
   coords[2] = this->Bounds[4];
   coords[3] = this->Bounds[6];
-  coords[4] = this->DefaultCoordinate4;
+  coords[4] = this->DefaultCoordinates[4];
   
   return this->GetVoidPointer5d(coords);
 }
@@ -677,8 +673,8 @@ void *vtkImageRegion::GetVoidPointer3d()
   coords[0] = this->Bounds[0];
   coords[1] = this->Bounds[2];
   coords[2] = this->Bounds[4];
-  coords[3] = this->DefaultCoordinate3;
-  coords[4] = this->DefaultCoordinate4;
+  coords[3] = this->DefaultCoordinates[3];
+  coords[4] = this->DefaultCoordinates[4];
   
   return this->GetVoidPointer5d(coords);
 }
@@ -689,9 +685,9 @@ void *vtkImageRegion::GetVoidPointer2d()
   
   coords[0] = this->Bounds[0];
   coords[1] = this->Bounds[2];
-  coords[2] = this->DefaultCoordinate2;
-  coords[3] = this->DefaultCoordinate3;
-  coords[4] = this->DefaultCoordinate4;
+  coords[2] = this->DefaultCoordinates[2];
+  coords[3] = this->DefaultCoordinates[3];
+  coords[4] = this->DefaultCoordinates[4];
   
   return this->GetVoidPointer5d(coords);
 }
@@ -701,10 +697,10 @@ void *vtkImageRegion::GetVoidPointer1d()
   int coords[VTK_IMAGE_DIMENSIONS];
   
   coords[0] = this->Bounds[0];
-  coords[1] = this->DefaultCoordinate1;
-  coords[2] = this->DefaultCoordinate2;
-  coords[3] = this->DefaultCoordinate3;
-  coords[4] = this->DefaultCoordinate4;
+  coords[1] = this->DefaultCoordinates[1];
+  coords[2] = this->DefaultCoordinates[2];
+  coords[3] = this->DefaultCoordinates[3];
+  coords[4] = this->DefaultCoordinates[4];
   
   return this->GetVoidPointer5d(coords);
 }
@@ -778,25 +774,24 @@ void vtkImageRegion::SetAxes(int *axes, int dim)
   
   // Axes have been modified
   this->Modified();
+  
+  // Change the coordinate system of the ivars.
+  vtkImageRegionChangeVectorCoordinateSystem(
+				     this->DefaultCoordinates, this->Axes,
+				     this->DefaultCoordinates, allAxes);
+  vtkImageRegionChangeVectorCoordinateSystem(this->AspectRatio, this->Axes,
+					     this->AspectRatio, allAxes);
+  vtkImageRegionChangeVectorCoordinateSystem(this->Increments, this->Axes,
+					     this->Increments, allAxes);
+  this->ChangeBoundsCoordinateSystem(this->Bounds, this->Axes,
+				     this->Bounds, allAxes);
+  this->ChangeBoundsCoordinateSystem(this->ImageBounds, this->Axes,
+				     this->ImageBounds, allAxes);
+
+  // Actually change the regions axes.
   for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
     {
     this->Axes[idx] = allAxes[idx];
-    }
-  
-  // Any DefaultCoordinates set must be invalid now.
-  this->ResetDefaultCoordinates(VTK_IMAGE_DIMENSIONS);
-  
-  // Recompute relative IVARs
-  this->ShuffleBoundsAbsoluteToRelative(this->AbsoluteBounds, this->Bounds);
-  this->ShuffleBoundsAbsoluteToRelative(this->AbsoluteImageBounds, 
-					this->ImageBounds);
-  vtkImageRegionShuffleAbsoluteToRelative(this->AbsoluteAspectRatio, this->AspectRatio,
-					  this->Axes);
-
-  if (this->Data)
-    {
-    vtkImageRegionShuffleAbsoluteToRelative(this->Data->GetIncrements(), 
-					    this->Increments, this->Axes);
     }
 }
 //----------------------------------------------------------------------------
@@ -817,15 +812,15 @@ void vtkImageRegion::GetAxes(int *axes, int dim)
 void vtkImageRegion::ResetDefaultCoordinates(int dim)
 {
   if (dim > 0) 
-    this->DefaultCoordinate0 = this->Bounds[0];
+    this->DefaultCoordinates[0] = this->Bounds[0];
   if (dim > 1) 
-    this->DefaultCoordinate1 = this->Bounds[2];
+    this->DefaultCoordinates[1] = this->Bounds[2];
   if (dim > 2) 
-    this->DefaultCoordinate2 = this->Bounds[4];
+    this->DefaultCoordinates[2] = this->Bounds[4];
   if (dim > 3)
-    this->DefaultCoordinate3 = this->Bounds[6];
+    this->DefaultCoordinates[3] = this->Bounds[6];
   if (dim > 4)
-    this->DefaultCoordinate4 = this->Bounds[8];
+    this->DefaultCoordinates[4] = this->Bounds[8];
 }
 
 
@@ -835,7 +830,8 @@ void vtkImageRegion::ResetDefaultCoordinates(int dim)
 
 //----------------------------------------------------------------------------
 // Description:
-// These methods set the bounds of the region.
+// These methods set the bounds of the region.  Don't forget that
+// bounds are relative to the coordinate system of the region (Axes).
 void vtkImageRegion::SetBounds(int *bounds, int dim)
 {
   int idx;
@@ -845,8 +841,8 @@ void vtkImageRegion::SetBounds(int *bounds, int dim)
     {
     this->Bounds[idx] = bounds[idx];
     }
-  this->ShuffleBoundsRelativeToAbsolute(this->Bounds, this->AbsoluteBounds);
   this->ResetDefaultCoordinates(dim);
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------
@@ -867,7 +863,8 @@ void vtkImageRegion::GetBounds(int *bounds, int dim)
 
 //----------------------------------------------------------------------------
 // Description:
-// These methods set the ImageBounds of the region.
+// These methods set the image bounds of the region.  Don't forget that
+// image bounds are relative to the coordinate system of the region (Axes).
 void vtkImageRegion::SetImageBounds(int *bounds, int dim)
 {
   int idx;
@@ -876,10 +873,9 @@ void vtkImageRegion::SetImageBounds(int *bounds, int dim)
   for (idx = 0; idx < boundsDim; ++idx)
     {
     this->ImageBounds[idx] = bounds[idx];
-    }
-  this->ShuffleBoundsRelativeToAbsolute(this->ImageBounds, 
-					this->AbsoluteImageBounds);
+    }  
   this->ResetDefaultCoordinates(dim);
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------
@@ -909,8 +905,7 @@ void vtkImageRegion::SetAspectRatio(float *ratio, int dim)
     this->AspectRatio[idx] = ratio[idx];
     }
   
-  vtkImageRegionShuffleRelativeToAbsolute(this->AspectRatio, this->AbsoluteAspectRatio,
-					  this->Axes);
+  this->Modified();
 }
 //----------------------------------------------------------------------------
 void vtkImageRegion::GetAspectRatio(float *ratio, int dim)
@@ -982,6 +977,7 @@ void vtkImageRegion::ImportMemory(void *ptr)
 {
   // Get rid of old data, and allocate new
   this->Allocate();
+  this->Modified();
   
   switch (this->GetDataType())
     {

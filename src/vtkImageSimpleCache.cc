@@ -65,9 +65,14 @@ void vtkImageSimpleCache::GenerateCachedRegionData(vtkImageRegion *region)
   // Check Data to see if the region already exists
   if (this->CachedData)
     {
-    int *cacheBounds, *regionBounds;
+    int saveAxes[VTK_IMAGE_DIMENSIONS];
+    int *cacheBounds, regionBounds[VTK_IMAGE_BOUNDS_DIMENSIONS];
     cacheBounds = this->CachedData->GetBounds();
-    regionBounds = region->GetAbsoluteBounds();
+
+    region->GetAxes(saveAxes);
+    region->SetAxes(this->CachedData->GetAxes());
+    region->GetBounds(regionBounds);
+    region->SetAxes(saveAxes);
     // Is the new region contained in the cache?
     if (regionBounds[0] >= cacheBounds[0] &&
 	regionBounds[1] <= cacheBounds[1] &&
@@ -77,8 +82,8 @@ void vtkImageSimpleCache::GenerateCachedRegionData(vtkImageRegion *region)
 	regionBounds[5] <= cacheBounds[5] &&
 	regionBounds[6] >= cacheBounds[6] &&
 	regionBounds[7] <= cacheBounds[7] &&
-	regionBounds[6] >= cacheBounds[8] &&
-	regionBounds[7] <= cacheBounds[9])
+	regionBounds[8] >= cacheBounds[8] &&
+	regionBounds[9] <= cacheBounds[9])
       {
       // check the gtime of cache to see if it is more recent than mtime */
       if (this->GenerateTime.GetMTime() >= this->GetPipelineMTime())
