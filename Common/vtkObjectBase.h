@@ -117,7 +117,16 @@ public:
   // Description:
   // Sets the reference count. (This is very dangerous, use with care.)
   void SetReferenceCount(int);
-
+  
+  // Description:
+  // Prints a list of the class .cxx file CVS revisions for all
+  // classes in the object's inheritance chain.  The format of the
+  // list is "vtkObjectBase 1.4\n" with one class per line.  The list
+  // always starts with the least-derived class (vtkObjectBase), and
+  // ends with the most-derived class.  This is useful for programs
+  // wishing to do serialization of VTK objects.
+  void PrintRevisions(ostream& os);
+  
 protected:
   vtkObjectBase(); 
   virtual ~vtkObjectBase(); 

@@ -163,5 +163,51 @@ void vtkObjectBase::UnRegister(vtkObjectBase* o)
 
 void vtkObjectBase::CollectRevisions(ostream& os)
 {
-  os << "vtkObjectBase 1.4\n";
+  os << "vtkObjectBase 1.5\n";
+}
+
+void vtkObjectBase::PrintRevisions(ostream& os)
+{
+  ostrstream revisions;
+  this->CollectRevisions(revisions);
+  revisions << ends;
+  const char* c = revisions.str();
+  while(*c)
+    {
+    const char* beginClass = 0;
+    const char* endClass = 0;
+    const char* beginRevision = 0;
+    const char* endRevision = 0;
+    for(;*c && *c != '\n'; ++c)
+      {
+      if(!beginClass && *c != ' ')
+        {
+        beginClass = c;
+        }
+      else if(beginClass && !endClass && *c == ' ')
+        {
+        endClass = c;
+        }
+      else if(endClass && !beginRevision && (*c >= '0' && *c <= '9'))
+        {
+        beginRevision = c;
+        }
+      else if(beginRevision && !endRevision && *c == ' ')
+        {
+        endRevision = c;
+        }
+      }
+    if(beginClass && endClass && beginRevision && endRevision)
+      {
+      os.write(beginClass, endClass-beginClass);
+      os << " ";
+      os.write(beginRevision, endRevision-beginRevision);
+      os << "\n";
+      }
+    if(*c == '\n')
+      {
+      ++c;
+      }
+    }
+  revisions.rdbuf()->freeze(0);
 }
