@@ -21,7 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkReverseSense, "1.25");
+vtkCxxRevisionMacro(vtkReverseSense, "1.26");
 vtkStandardNewMacro(vtkReverseSense);
 
 // Construct object so that behavior is to reverse cell ordering and
@@ -82,7 +82,7 @@ void vtkReverseSense::Execute()
     }
 
   //If specified and normals available, reverse orientation of normals.
-  // Using MakeObject() creates normals of the same data type.
+  // Using NewInstance() creates normals of the same data type.
   if ( this->ReverseNormals && normals )
     {
     //first do point normals
