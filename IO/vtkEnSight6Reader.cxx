@@ -27,7 +27,7 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkEnSight6Reader, "1.31");
+vtkCxxRevisionMacro(vtkEnSight6Reader, "1.32");
 vtkStandardNewMacro(vtkEnSight6Reader);
 
 //----------------------------------------------------------------------------
@@ -1882,6 +1882,10 @@ int vtkEnSight6Reader::CreateUnstructuredGridOutput(int partId,
         }
       delete [] nodeIds;
       delete [] intIds;
+      }
+    else if (strncmp(line, "END TIME STEP", 13) == 0)
+      {
+      break;
       }
     }
 

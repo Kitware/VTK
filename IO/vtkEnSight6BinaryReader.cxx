@@ -27,7 +27,7 @@
 #include "vtkByteSwap.h"
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkEnSight6BinaryReader, "1.21");
+vtkCxxRevisionMacro(vtkEnSight6BinaryReader, "1.22");
 vtkStandardNewMacro(vtkEnSight6BinaryReader);
 
 //----------------------------------------------------------------------------
@@ -95,7 +95,7 @@ int vtkEnSight6BinaryReader::ReadGeometryFile(char* fileName, int timeStep)
     return 0;
     }
   
-  this->ReadLine(line);
+  lineRead = this->ReadLine(line);
   sscanf(line, " %*s %s", subLine);
   if (strcmp(subLine, "Binary") != 0 &&
       strcmp(subLine, "binary") != 0)
@@ -111,9 +111,9 @@ int vtkEnSight6BinaryReader::ReadGeometryFile(char* fileName, int timeStep)
       {
       this->SkipTimeStep();
       }
-    while (strncmp(line, "BEGIN TIME STEP", 15) != 0)
+    while (strncmp(line, "BEGIN TIME STEP", 15) != 0 && lineRead)
       {
-      this->ReadLine(line);
+      lineRead = this->ReadLine(line);
       }
     }
 
@@ -291,7 +291,6 @@ void vtkEnSight6BinaryReader::SkipTimeStep()
       lineRead = this->SkipUnstructuredGrid(line);
       }
     }
-  this->ReadLine(line); // END TIME STEP
 }
 
 //----------------------------------------------------------------------------
@@ -400,12 +399,12 @@ int vtkEnSight6BinaryReader::SkipUnstructuredGrid(char line[256])
       if (strncmp(line, "tria3", 5) == 0)
         {
         vtkDebugMacro("tria3");
-        vtkWarningMacro("Only vertex nodes of this element will be read.");
         cellType = vtkEnSightReader::TRIA3;
         }
       else
         {
         vtkDebugMacro("tria6");
+        vtkWarningMacro("Only vertex nodes of this element will be read.");
         cellType = vtkEnSightReader::TRIA6;
         }
       
@@ -610,6 +609,10 @@ int vtkEnSight6BinaryReader::SkipUnstructuredGrid(char line[256])
       
       delete [] nodeIdList;
       }
+    else if (strncmp(line, "END TIME STEP", 13) == 0)
+      {
+      break;
+      }
     lineRead = this->ReadLine(line);
     }
   
@@ -767,6 +770,7 @@ int vtkEnSight6BinaryReader::ReadScalarsPerNode(char* fileName,
   float* scalarsRead;
   fpos_t pos;
   vtkDataSet *output;
+  int lineRead;
   
   // Initialize
   //
@@ -837,20 +841,18 @@ int vtkEnSight6BinaryReader::ReadScalarsPerNode(char* fileName,
 
         delete [] scalarsRead;
         }
-      
-      this->ReadLine(line); // END TIME STEP
       }
-    this->ReadLine(line);
-    while (strncmp(line, "BEGIN TIME STEP", 15) != 0)
+    lineRead = this->ReadLine(line);
+    while (strncmp(line, "BEGIN TIME STEP", 15) != 0 && lineRead)
       {
-      this->ReadLine(line);
+      lineRead = this->ReadLine(line);
       }
     }
   
   this->ReadLine(line); // skip the description line
 
   fgetpos(this->IFile, &pos);
-  this->ReadLine(line); // 1st data line or part #
+  lineRead = this->ReadLine(line); // 1st data line or part #
   if (strncmp(line, "part", 4) != 0)
     {
     fsetpos(this->IFile, &pos);
@@ -921,7 +923,7 @@ int vtkEnSight6BinaryReader::ReadScalarsPerNode(char* fileName,
     }
 
   // scalars for structured parts
-  while (this->ReadLine(line) && strncmp(line, "part", 4) == 0)
+  while (lineRead && strncmp(line, "part", 4) == 0)
     {
     sscanf(line, " part %d", &partId);
     partId--;
@@ -961,6 +963,7 @@ int vtkEnSight6BinaryReader::ReadScalarsPerNode(char* fileName,
       output->GetPointData()->AddArray(scalars);
       }
     delete [] scalarsRead;
+    lineRead = this->ReadLine(line);
     }
   
   fclose(this->IFile);
@@ -980,6 +983,7 @@ int vtkEnSight6BinaryReader::ReadVectorsPerNode(char* fileName,
   float *vectorsRead;
   fpos_t pos;
   vtkDataSet *output;
+  int lineRead;
   
   // Initialize
   //
@@ -1051,20 +1055,18 @@ int vtkEnSight6BinaryReader::ReadVectorsPerNode(char* fileName,
 
         delete [] vectorsRead;
         }
-      
-      this->ReadLine(line); // END TIME STEP
       }
-    this->ReadLine(line);
-    while (strncmp(line, "BEGIN TIME STEP", 15) != 0)
+    lineRead = this->ReadLine(line);
+    while (strncmp(line, "BEGIN TIME STEP", 15) != 0 && lineRead)
       {
-      this->ReadLine(line);
+      lineRead = this->ReadLine(line);
       }
     }
   
   this->ReadLine(line); // skip the description line
 
   fgetpos(this->IFile, &pos);
-  this->ReadLine(line); // 1st data line or part #
+  lineRead = this->ReadLine(line); // 1st data line or part #
   if (strncmp(line, "part", 4) != 0)
     {
     fsetpos(this->IFile, &pos);
@@ -1122,7 +1124,7 @@ int vtkEnSight6BinaryReader::ReadVectorsPerNode(char* fileName,
     }
 
   // vectors for structured parts
-  while (this->ReadLine(line) && strncmp(line, "part", 4) == 0)
+  while (lineRead && strncmp(line, "part", 4) == 0)
     {
     sscanf(line, " part %d", &partId);
     partId--;
@@ -1152,6 +1154,7 @@ int vtkEnSight6BinaryReader::ReadVectorsPerNode(char* fileName,
       }
     vectors->Delete();
     delete [] vectorsRead;
+    lineRead = this->ReadLine(line);
     }
   
   fclose(this->IFile);
@@ -1171,6 +1174,7 @@ int vtkEnSight6BinaryReader::ReadTensorsPerNode(char* fileName,
   float* tensorsRead;
   fpos_t pos;
   vtkDataSet *output;
+  int lineRead;
   
   // Initialize
   //
@@ -1233,8 +1237,6 @@ int vtkEnSight6BinaryReader::ReadTensorsPerNode(char* fileName,
 
         delete [] tensorsRead;
         }      
-      
-      this->ReadLine(line); // END TIME STEP
       }
     this->ReadLine(line);
     while (strncmp(line, "BEGIN TIME STEP", 15) != 0)
@@ -1246,7 +1248,7 @@ int vtkEnSight6BinaryReader::ReadTensorsPerNode(char* fileName,
   this->ReadLine(line); // skip the description line
 
   fgetpos(this->IFile, &pos);
-  this->ReadLine(line); // 1st data line or part #
+  lineRead = this->ReadLine(line); // 1st data line or part #
   if (strncmp(line, "part", 4) != 0)
     {
     fsetpos(this->IFile, &pos);
@@ -1279,8 +1281,7 @@ int vtkEnSight6BinaryReader::ReadTensorsPerNode(char* fileName,
     }
 
   // vectors for structured parts
-  while (this->ReadLine(line) &&
-         strncmp(line, "part", 4) == 0)
+  while (lineRead && strncmp(line, "part", 4) == 0)
     {
     sscanf(line, " part %d", &partId);
     partId--;
@@ -1309,6 +1310,8 @@ int vtkEnSight6BinaryReader::ReadTensorsPerNode(char* fileName,
     output->GetPointData()->AddArray(tensors);
     tensors->Delete();
     delete [] tensorsRead;
+    
+    lineRead = this->ReadLine(line);
     }
   
   fclose(this->IFile);
@@ -1373,14 +1376,14 @@ int vtkEnSight6BinaryReader::ReadScalarsPerElement(char* fileName,
         sscanf(line, " part %d", &partId);
         partId--; // EnSight starts #ing with 1.
         numCells = this->GetOutput(partId)->GetNumberOfCells();
-        this->ReadLine(line); // element type or "block"
+        lineRead = this->ReadLine(line); // element type or "block"
         
         // need to find out from CellIds how many cells we have of this element
         // type (and what their ids are) -- IF THIS IS NOT A BLOCK SECTION
         if (strcmp(line, "block") != 0)
           {
-          while ((lineRead = this->ReadLine(line)) &&
-                 strncmp(line, "part", 4) != 0)
+          while (lineRead && strncmp(line, "part", 4) != 0 &&
+                 strncmp(line, "END TIME STEP", 13) != 0)
             {
             elementType = this->GetElementType(line);
             if (elementType < 0)
@@ -1397,6 +1400,7 @@ int vtkEnSight6BinaryReader::ReadScalarsPerElement(char* fileName,
             this->ReadFloatArray(scalarsRead, numCellsPerElement);
 
             delete [] scalarsRead;
+            lineRead = this->ReadLine(line);
             } // end while
           }
         else
@@ -1408,8 +1412,6 @@ int vtkEnSight6BinaryReader::ReadScalarsPerElement(char* fileName,
           lineRead = this->ReadLine(line);
           }
         }
-      
-      this->ReadLine(line); // END TIME STEP
       }
     this->ReadLine(line);
     while (strncmp(line, "BEGIN TIME STEP", 15) != 0)
@@ -1427,7 +1429,7 @@ int vtkEnSight6BinaryReader::ReadScalarsPerElement(char* fileName,
     partId--; // EnSight starts #ing with 1.
     output = this->GetOutput(partId);
     numCells = output->GetNumberOfCells();
-    this->ReadLine(line); // element type or "block"
+    lineRead = this->ReadLine(line); // element type or "block"
     if (component == 0)
       {
       scalars = vtkFloatArray::New();
@@ -1444,8 +1446,8 @@ int vtkEnSight6BinaryReader::ReadScalarsPerElement(char* fileName,
     // type (and what their ids are) -- IF THIS IS NOT A BLOCK SECTION
     if (strcmp(line, "block") != 0)
       {
-      while ((lineRead = this->ReadLine(line)) &&
-             strncmp(line, "part", 4) != 0)
+      while (lineRead && strncmp(line, "part", 4) != 0 &&
+        strncmp(line, "END TIME STEP", 13) != 0)
         {
         elementType = this->GetElementType(line);
         if (elementType < 0)
@@ -1465,6 +1467,7 @@ int vtkEnSight6BinaryReader::ReadScalarsPerElement(char* fileName,
                                    component, scalarsRead[i]);
           }
         delete [] scalarsRead;
+        lineRead = this->ReadLine(line);
         } // end while
       }
     else
@@ -1556,14 +1559,14 @@ int vtkEnSight6BinaryReader::ReadVectorsPerElement(char* fileName,
         sscanf(line, " part %d", &partId);
         partId--; // EnSight starts #ing with 1.
         numCells = this->GetOutput(partId)->GetNumberOfCells();
-        this->ReadLine(line); // element type or "block"
+        lineRead = this->ReadLine(line); // element type or "block"
         
         // need to find out from CellIds how many cells we have of this element
         // type (and what their ids are) -- IF THIS IS NOT A BLOCK SECTION
         if (strcmp(line, "block") != 0)
           {
-          while ((lineRead = this->ReadLine(line)) &&
-                 strncmp(line, "part", 4) != 0)
+          while (lineRead && strncmp(line, "part", 4) != 0 &&
+                  strncmp(line, "END TIME STEP", 13) != 0)
             {
             elementType = this->GetElementType(line);
             if (elementType < 0)
@@ -1580,6 +1583,7 @@ int vtkEnSight6BinaryReader::ReadVectorsPerElement(char* fileName,
             this->ReadFloatArray(vectorsRead, numCellsPerElement*3);
 
             delete [] vectorsRead;
+            lineRead = this->ReadLine(line);
             } // end while
           }
         else
@@ -1591,7 +1595,6 @@ int vtkEnSight6BinaryReader::ReadVectorsPerElement(char* fileName,
           lineRead = this->ReadLine(line);
           }
         }
-      this->ReadLine(line); // END TIME STEP
       }
     this->ReadLine(line);
     while (strncmp(line, "BEGIN TIME STEP", 15) != 0)
@@ -1610,7 +1613,7 @@ int vtkEnSight6BinaryReader::ReadVectorsPerElement(char* fileName,
     partId--; // EnSight starts #ing with 1.
     output = this->GetOutput(partId);
     numCells = output->GetNumberOfCells();
-    this->ReadLine(line); // element type or "block"
+    lineRead = this->ReadLine(line); // element type or "block"
     vectors->SetNumberOfTuples(numCells);
     vectors->SetNumberOfComponents(3);
     vectors->Allocate(numCells*3);
@@ -1619,8 +1622,8 @@ int vtkEnSight6BinaryReader::ReadVectorsPerElement(char* fileName,
     // type (and what their ids are) -- IF THIS IS NOT A BLOCK SECTION
     if (strcmp(line, "block") != 0)
       {
-      while ((lineRead = this->ReadLine(line)) &&
-             strncmp(line, "part", 4) != 0)
+      while (lineRead && strncmp(line, "part", 4) != 0 &&
+        strncmp(line, "END TIME STEP", 13) != 0)
         {
         elementType = this->GetElementType(line);
         if (elementType < 0)
@@ -1644,6 +1647,7 @@ int vtkEnSight6BinaryReader::ReadVectorsPerElement(char* fileName,
                                vector);
           }
         delete [] vectorsRead;
+        lineRead = this->ReadLine(line);
         } // end while
       }
     else
@@ -1730,14 +1734,14 @@ int vtkEnSight6BinaryReader::ReadTensorsPerElement(char* fileName,
         sscanf(line, " part %d", &partId);
         partId--; // EnSight starts #ing with 1.
         numCells = this->GetOutput(partId)->GetNumberOfCells();
-        this->ReadLine(line); // element type or "block"
+        lineRead = this->ReadLine(line); // element type or "block"
         
         // need to find out from CellIds how many cells we have of this element
         // type (and what their ids are) -- IF THIS IS NOT A BLOCK SECTION
         if (strcmp(line, "block") != 0)
           {
-          while ((lineRead = this->ReadLine(line)) &&
-                 strncmp(line, "part", 4) != 0)
+          while (lineRead && strncmp(line, "part", 4) != 0 &&
+                 strncmp(line, "END TIME STEP", 13) != 0)
             {
             elementType = this->GetElementType(line);
             if (elementType < 0)
@@ -1754,6 +1758,7 @@ int vtkEnSight6BinaryReader::ReadTensorsPerElement(char* fileName,
             this->ReadFloatArray(tensorsRead, numCellsPerElement*6);
 
             delete [] tensorsRead;
+            lineRead = this->ReadLine(line);
             } // end while
           }
         else
@@ -1765,8 +1770,6 @@ int vtkEnSight6BinaryReader::ReadTensorsPerElement(char* fileName,
           lineRead = this->ReadLine(line);
           }
         }
-      
-      this->ReadLine(line); // END TIME STEP
       }
     this->ReadLine(line);
     while (strncmp(line, "BEGIN TIME STEP", 15) != 0)
@@ -1785,7 +1788,7 @@ int vtkEnSight6BinaryReader::ReadTensorsPerElement(char* fileName,
     partId--; // EnSight starts #ing with 1.
     output = this->GetOutput(partId);
     numCells = output->GetNumberOfCells();
-    this->ReadLine(line); // element type or "block"
+    lineRead = this->ReadLine(line); // element type or "block"
     tensors->SetNumberOfTuples(numCells);
     tensors->SetNumberOfComponents(6);
     tensors->Allocate(numCells*6);
@@ -1794,8 +1797,8 @@ int vtkEnSight6BinaryReader::ReadTensorsPerElement(char* fileName,
     // type (and what their ids are) -- IF THIS IS NOT A BLOCK SECTION
     if (strcmp(line, "block") != 0)
       {
-      while ((lineRead = this->ReadLine(line)) &&
-             strncmp(line, "part", 4) != 0)
+      while (lineRead && strncmp(line, "part", 4) != 0 &&
+             strncmp(line, "END TIME STEP", 13) != 0)
         {
         elementType = this->GetElementType(line);
         if (elementType < 0)
@@ -1823,6 +1826,7 @@ int vtkEnSight6BinaryReader::ReadTensorsPerElement(char* fileName,
                                tensor);
           }
         delete [] tensorsRead;
+        lineRead = this->ReadLine(line);
         } // end while
       }
     else
@@ -2014,12 +2018,12 @@ int vtkEnSight6BinaryReader::CreateUnstructuredGridOutput(int partId,
       if (strncmp(line, "tria3", 5) == 0)
         {
         vtkDebugMacro("tria3");
-        vtkWarningMacro("Only vertex nodes of this element will be read.");
         cellType = vtkEnSightReader::TRIA3;
         }
       else
         {
         vtkDebugMacro("tria6");
+        vtkWarningMacro("Only vertex nodes of this element will be read.");
         cellType = vtkEnSightReader::TRIA6;
         }
       
