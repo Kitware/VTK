@@ -66,8 +66,6 @@ vtkImageClip* vtkImageClip::New()
 //----------------------------------------------------------------------------
 vtkImageClip::vtkImageClip()
 {
-  int idx;
-
   this->ClipData = 0;
   this->Initialized = 0;
   this->SetOutputWholeExtent(-VTK_LARGE_INTEGER, VTK_LARGE_INTEGER,
