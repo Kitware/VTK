@@ -252,3 +252,17 @@ void vlMatrix4x4::PrintSelf (ostream& os, vlIndent indent)
     }
 }
 
+
+void vlMatrix4x4::Transpose (vlMatrix4x4 in,vlMatrix4x4 & out)
+{
+  int i, j;
+  float temp;
+
+  for (i=0; i<4; i++)
+    for(j=i; j<4; j++)
+      {
+      temp = in.Element[i][j];
+      out.Element[i][j] = in.Element[j][i];
+      out.Element[j][i] = temp;
+      }
+}
