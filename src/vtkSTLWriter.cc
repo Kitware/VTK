@@ -84,7 +84,7 @@ void vtkSTLWriter::WriteData()
     return;
     }
 
-  if ( this->WriteMode == STL_BINARY ) this->WriteBinarySTL(pts,polys);
+  if ( this->WriteMode == VTK_STL_BINARY ) this->WriteBinarySTL(pts,polys);
   else this->WriteAsciiSTL(pts,polys);
 }
 
@@ -191,7 +191,7 @@ void vtkSTLWriter::PrintSelf(ostream& os, vtkIndent indent)
  
   os << indent << "Filename: " << this->Filename << "\n";
 
-  if ( this->WriteMode == STL_ASCII  )
+  if ( this->WriteMode == VTK_STL_ASCII  )
     os << indent << "Write Mode: ASCII\n";
   else
     os << indent << "Write Mode: BINARY\n";
