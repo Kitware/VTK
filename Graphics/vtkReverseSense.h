@@ -28,12 +28,12 @@
 #ifndef __vtkReverseSense_h
 #define __vtkReverseSense_h
 
-#include "vtkPolyDataToPolyDataFilter.h"
+#include "vtkPolyDataAlgorithm.h"
 
-class VTK_GRAPHICS_EXPORT vtkReverseSense : public vtkPolyDataToPolyDataFilter
+class VTK_GRAPHICS_EXPORT vtkReverseSense : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkReverseSense,vtkPolyDataToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkReverseSense,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -59,7 +59,7 @@ protected:
   ~vtkReverseSense() {};
 
   // Usual data generation method
-  void Execute();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   int ReverseCells;
   int ReverseNormals;
@@ -69,5 +69,3 @@ private:
 };
 
 #endif
-
-
