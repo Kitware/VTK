@@ -47,23 +47,26 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // structures and to create new and complex shapes.  Unlike a
 // traditional transform filter (which has one transform for a data
 // set) or an assembly (which has one transform per part or group of
-// parts), a weighted transform produces the weighted sum of transforms
-// on a per-point or per-cell basis.  
+// parts), a weighted transform produces the weighted sum of
+// transforms on a per-point or per-cell basis.
 //
 // Each point or cell in the filter's input has an attached DataArray
 // that contains tuples of weighting functions, one per point or cell.
-// The filter also has a set of fixed, linear transforms.  When the
-// filter executes, each input point/cell is transformed by each of
-// the transforms.  These results are weighted by the point/cell's
+// The filter also has a set of fixed transforms.  When the filter
+// executes, each input point/cell is transformed by each of the
+// transforms.  These results are weighted by the point/cell's
 // weighting factors to produce final output data.
 //
-// Here's how the weighted filter can be used for "skinning."
-// Skinning is the process of putting a mesh cover over an underlying
-// structure, like skin over bone.  Joints are difficult to skin
-// because deformation is hard to do.  Visualize skin over an elbow
-// joint.  Part of the skin moves with one bone, part of the skin
-// moves with the other bone, and the skin in the middle moves a
-// little with each.  
+// Linear transforms are performance-optimized.  Using arbitrary
+// transforms will work, but performance may suffer.
+//
+// As an example of the utility of weighted transforms, here's how
+// this filter can be used for "skinning."  Skinning is the process of
+// putting a mesh cover over an underlying structure, like skin over
+// bone.  Joints are difficult to skin because deformation is hard to
+// do.  Visualize skin over an elbow joint.  Part of the skin moves
+// with one bone, part of the skin moves with the other bone, and the
+// skin in the middle moves a little with each.
 //
 // Weighted filtering can be used for a simple and efficient kind of
 // skinning.  Begin with a cylindrical mesh.  Create a FloatArray with
@@ -72,8 +75,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // the cylinder (one component is the distance along the cylinder, the
 // other is one minus that distance).  Set the filter up to use two
 // transforms, the two used to transform the two bones.  Now, when the
-// transforms change, the mesh will deform so as to, hopefully, continue
-// to cover the bones.
+// transforms change, the mesh will deform so as to, hopefully,
+// continue to cover the bones.
 //
 // vtkWeightedTransformFilter is also useful for creating "strange and
 // complex" shapes using pinching, bending, and blending.
@@ -83,15 +86,17 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // in many cases.  Surface normals are treated somewhat specially, but
 // in many cases you may need to regenerate the surface normals.
 //
+// Cell data can only be transformed if all transforms are linear.
+//
 //
 // .SECTION See Also
-// vtkLinearTransform vtkTransformPolyDataFilter vtkActor
+// vtkAbstractTransform vtkLinearTransform vtkTransformPolyDataFilter vtkActor
 
 #ifndef __vtkWeightedTransformFilter_h
 #define __vtkWeightedTransformFilter_h
 
 #include "vtkPointSetToPointSetFilter.h"
-#include "vtkLinearTransform.h"
+#include "vtkAbstractTransform.h"
 
 class VTK_EXPORT vtkWeightedTransformFilter : public vtkPointSetToPointSetFilter
 {
@@ -129,8 +134,8 @@ public:
   // be less than the number of transforms allocated for the object.  Setting
   // a transform slot to NULL is equivalent to assigning an overriding weight
   // of zero to that filter slot.
-  virtual void SetTransform(vtkLinearTransform *transform, int num);
-  virtual vtkLinearTransform *GetTransform(int num);
+  virtual void SetTransform(vtkAbstractTransform *transform, int num);
+  virtual vtkAbstractTransform *GetTransform(int num);
 
   // Description:
   // Set the number of transforms for the filter.  References to non-existent
@@ -148,7 +153,7 @@ public:
   vtkGetMacro(AddInputValues, int);
 
 protected:
-  vtkLinearTransform **Transforms;
+  vtkAbstractTransform **Transforms;
   int NumberOfTransforms;
   int AddInputValues;
 

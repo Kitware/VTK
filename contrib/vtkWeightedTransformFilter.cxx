@@ -42,6 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 #include "vtkWeightedTransformFilter.h"
 #include "vtkObjectFactory.h"
+#include "vtkLinearTransform.h"
 #include "vtkMath.h"
 
 //----------------------------------------------------------------------------
@@ -119,7 +120,7 @@ vtkWeightedTransformFilter::~vtkWeightedTransformFilter()
 void vtkWeightedTransformFilter::SetNumberOfTransforms(int num)
 {
   int i;
-  vtkLinearTransform **newTransforms;
+  vtkAbstractTransform **newTransforms;
 
   if(num < 0)
   {
@@ -130,7 +131,7 @@ void vtkWeightedTransformFilter::SetNumberOfTransforms(int num)
   if(this->Transforms == NULL)
   {
     // first time
-    this->Transforms = new vtkLinearTransform*[num];
+    this->Transforms = new vtkAbstractTransform*[num];
     for(i = 0; i < num; i++)
     {
       this->Transforms[i] = NULL;
@@ -156,7 +157,7 @@ void vtkWeightedTransformFilter::SetNumberOfTransforms(int num)
 	this->Transforms[i] = NULL;
       }
     }
-    newTransforms = new vtkLinearTransform*[num];
+    newTransforms = new vtkAbstractTransform*[num];
     for(i = 0; i < num; i++) 
     {
       newTransforms[i] = this->Transforms[i];
@@ -167,7 +168,7 @@ void vtkWeightedTransformFilter::SetNumberOfTransforms(int num)
   else
   {
     // create a new array and copy elements, no unregistering needed.
-    newTransforms = new vtkLinearTransform*[num];
+    newTransforms = new vtkAbstractTransform*[num];
     for(i = 0; i < this->NumberOfTransforms; i++) {
       newTransforms[i] = this->Transforms[i];
     }
@@ -186,7 +187,7 @@ void vtkWeightedTransformFilter::SetNumberOfTransforms(int num)
 
 //----------------------------------------------------------------------------
 
-void vtkWeightedTransformFilter::SetTransform(vtkLinearTransform *trans,
+void vtkWeightedTransformFilter::SetTransform(vtkAbstractTransform *trans,
 						   int num)
 {
   if(num < 0) {
@@ -214,7 +215,7 @@ void vtkWeightedTransformFilter::SetTransform(vtkLinearTransform *trans,
 
 //----------------------------------------------------------------------------
 
-vtkLinearTransform *vtkWeightedTransformFilter::GetTransform(int num)
+vtkAbstractTransform *vtkWeightedTransformFilter::GetTransform(int num)
 {
   if(num < 0) 
   {
@@ -243,7 +244,7 @@ void vtkWeightedTransformFilter::Execute()
   vtkVectors *newVectors=NULL, *newCellVectors=NULL;
   vtkNormals *newNormals=NULL, *newCellNormals=NULL;
   int numPts, numCells;
-  int activeTransforms;
+  int activeTransforms, allLinear;
   int i, p, c;
   int pdComponents, cdComponents;
   double **linearPtMtx;
@@ -251,6 +252,7 @@ void vtkWeightedTransformFilter::Execute()
   double inNorm[3], xformNorm[3], cumNorm[3];
   double inPt[3], xformPt[3], cumPt[3];
   double inVec[3], xformVec[3], cumVec[3];
+  double derivMatrix[3][3];
   float *weights = NULL;
   float thisWeight;
   vtkDataArray *pdArray, *cdArray;
@@ -259,6 +261,7 @@ void vtkWeightedTransformFilter::Execute()
   vtkPointSet *output = this->GetOutput();
   vtkPointData *pd=input->GetPointData(), *outPD=output->GetPointData();
   vtkCellData *cd=input->GetCellData(), *outCD=output->GetCellData();
+  vtkLinearTransform *linearTransform;
 
   vtkDebugMacro(<<"Executing weighted transform filter");
 
@@ -274,9 +277,9 @@ void vtkWeightedTransformFilter::Execute()
   }
 
   activeTransforms = 0;
-  for(i = 0; i < this->NumberOfTransforms; i++) 
+  for(c = 0; c < this->NumberOfTransforms; c++) 
   {
-    if(this->Transforms[i] != NULL) 
+    if(this->Transforms[c] != NULL) 
     {
       activeTransforms++;
     }
@@ -290,21 +293,31 @@ void vtkWeightedTransformFilter::Execute()
 
   linearPtMtx   = new double*[this->NumberOfTransforms];
   linearNormMtx = new double*[this->NumberOfTransforms];
-
-  for(i = 0; i < this->NumberOfTransforms; i++) 
+  allLinear = 1;
+  for(c = 0; c < this->NumberOfTransforms; c++) 
   {
-    if(!this->Transforms[i] || 
-       ! this->Transforms[i]->IsA("vtkLinearTransform")) 
+    if(this->Transforms[c] == NULL)
     {
-      linearPtMtx[i] = NULL;
-      linearNormMtx[i] = NULL;
+      linearPtMtx[c] = NULL;
+      linearNormMtx[c] = NULL;
       continue;
     }
-    linearPtMtx[i] = (double *)this->Transforms[i]->GetMatrix()->Element;
-    linearNormMtx[i] = new double[16];
-    vtkMatrix4x4::DeepCopy(linearNormMtx[i], this->Transforms[i]->GetMatrix());
-    vtkMatrix4x4::Invert(linearNormMtx[i], linearNormMtx[i]);
-    vtkMatrix4x4::Transpose(linearNormMtx[i], linearNormMtx[i]);
+
+    this->Transforms[c]->Update();
+
+    if(! this->Transforms[c]->IsA("vtkLinearTransform"))
+    {
+      linearPtMtx[c] = NULL;
+      linearNormMtx[c] = NULL;
+      allLinear = 0;
+      continue;
+    }
+    linearTransform = vtkLinearTransform::SafeDownCast(this->Transforms[c]);
+    linearPtMtx[c] = (double *)linearTransform->GetMatrix()->Element;
+    linearNormMtx[c] = new double[16];
+    vtkMatrix4x4::DeepCopy(linearNormMtx[c], linearTransform->GetMatrix());
+    vtkMatrix4x4::Invert(linearNormMtx[c], linearNormMtx[c]);
+    vtkMatrix4x4::Transpose(linearNormMtx[c], linearNormMtx[c]);
   }
 
   pdArray = NULL;
@@ -414,16 +427,31 @@ void vtkWeightedTransformFilter::Execute()
       inPts->GetPoint(p, inPt);
       if(this->AddInputValues) 
       {
-	for(i = 0; i < 3; i++)
-	{
-	  cumPt[i] = inPt[i];
-	}
+	cumPt[0] = inPt[0];
+	cumPt[1] = inPt[1];
+	cumPt[2] = inPt[2];
       }
       else
       {
-	for(i = 0; i < 3; i++)
+	cumPt[0] = 0.0;
+	cumPt[1] = 0.0;
+	cumPt[2] = 0.0;
+      }
+      // -------- vectors init ---------------
+      if(inVectors)
+      {
+	inVectors->GetVector(p, inVec);
+	if(this->AddInputValues)
 	{
-	  cumPt[i] = 0.0;
+	  cumVec[0] = inVec[0];
+	  cumVec[1] = inVec[1];
+	  cumVec[2] = inVec[2];
+	}
+	else
+	{
+	  cumVec[0] = 0.0;
+	  cumVec[1] = 0.0;
+	  cumVec[2] = 0.0;
 	}
       }
       // -------- normals init ---------------
@@ -432,36 +460,15 @@ void vtkWeightedTransformFilter::Execute()
 	inNormals->GetNormal(p, inNorm);
 	if(this->AddInputValues)
 	{
-	  for(i = 0; i < 3; i++)
-	  {
-	    cumNorm[i] = inNorm[i];
-	  }
+	  cumNorm[0] = inNorm[0];
+	  cumNorm[1] = inNorm[1];
+	  cumNorm[2] = inNorm[2];
 	}
 	else
 	{
-	  for(i = 0; i < 3; i++)
-	  {
-	    cumNorm[i] = 0.0;
-	  }
-	}
-      }
-      // -------- vectors init ---------------
-      if(inVectors)
-      {
-	inVectors->GetVector(p, inVec);
-	if(this->AddInputValues)
-	{
-	  for(i = 0; i < 3; i++)
-	  {
-	    cumVec[i] = inVec[i];
-	  }
-	}
-	else
-	{
-	  for(i = 0; i < 3; i++)
-	  {
-	    cumVec[i] = 0.0;
-	  }
+	  cumNorm[0] = 0.0;
+	  cumNorm[1] = 0.0;
+	  cumNorm[2] = 0.0;
 	}
       }
 
@@ -476,37 +483,71 @@ void vtkWeightedTransformFilter::Execute()
 	  continue;
 	}
 
-	LinearTransformPoint((double (*)[4])linearPtMtx[c], 
-				  inPt, xformPt);
+	if(linearPtMtx[c] != NULL)
+	{ 
+	  // -------------------- linear fast path ------------------------
+	  LinearTransformPoint((double (*)[4])linearPtMtx[c], 
+			       inPt, xformPt);
+
+	  if(inVectors)
+	  {
+	    LinearTransformVector((double (*)[4])linearPtMtx[c], 
+				  inVec, xformVec);
+	  }
+
+	  if(inNormals)
+	  {
+	    LinearTransformVector((double (*)[4])linearNormMtx[c], 
+				  inNorm, xformNorm);
+	    // normalize below
+	  }
+	}
+	else
+	{  
+	  // -------------------- general, slow path ------------------------
+	  this->Transforms[c]->InternalTransformDerivative(inPt, xformPt,
+							   derivMatrix);
+	  if(inVectors)
+	  {
+	    vtkMath::Multiply3x3(derivMatrix, inVec, xformVec);
+	  }
+
+	  if(inNormals)
+	  {
+	    vtkMath::Transpose3x3(derivMatrix, derivMatrix);
+	    vtkMath::LinearSolve3x3(derivMatrix, inNorm, xformNorm);
+	    // normalize below
+	  }
+	}
+
+	// ------ accumulate the results into respective tuples -------
 	cumPt[0] += xformPt[0]*thisWeight;
 	cumPt[1] += xformPt[1]*thisWeight;
 	cumPt[2] += xformPt[2]*thisWeight;
 
-	// linear interpolation of normals and vectors is pretty dubious
-	// but I can't think of anything better to do.
+	if(inVectors)
+	{
+	  cumVec[0] += xformVec[0]*thisWeight;
+	  cumVec[1] += xformVec[1]*thisWeight;
+	  cumVec[2] += xformVec[2]*thisWeight;
+	}
+
 	if(inNormals)
 	{
-	  LinearTransformVector((double (*)[4])linearNormMtx[c], 
-				     inNorm, xformNorm);
-
 	  vtkMath::Normalize(xformNorm);	  
 	  cumNorm[0] += xformNorm[0]*thisWeight;
 	  cumNorm[1] += xformNorm[1]*thisWeight;
 	  cumNorm[2] += xformNorm[2]*thisWeight;
 	}
-
-	if(inVectors)
-	{
-	  inVectors->GetVector(p, inVec);
-	  LinearTransformVector((double (*)[4])linearPtMtx[c], 
-				   inVec, xformVec);
-	  cumVec[0] += xformVec[0]*thisWeight;
-	  cumVec[1] += xformVec[1]*thisWeight;
-	  cumVec[2] += xformVec[2]*thisWeight;
-	}
       }
-      // assign point
+
+      // assign components
       newPts->InsertNextPoint(cumPt);
+
+      if (inVectors)
+      {
+	newVectors->InsertNextVector(cumVec);
+      }
 
       if (inNormals)
       {
@@ -515,10 +556,6 @@ void vtkWeightedTransformFilter::Execute()
 	newNormals->InsertNextNormal(cumNorm);
       }
 	
-      if (inVectors)
-      {
-	newVectors->InsertNextVector(cumVec);
-      }
     }
     delete [] weights;
     weights = NULL;
@@ -527,7 +564,9 @@ void vtkWeightedTransformFilter::Execute()
   this->UpdateProgress (.6);
 
   // -------------------------- CELL DATA -------------------------------
-  if(cdArray != NULL)
+
+  // can only work on cell data if the transforms are all linear
+  if(cdArray != NULL && allLinear)
   {
     if( inCellVectors )
     {
@@ -589,7 +628,7 @@ void vtkWeightedTransformFilter::Execute()
       for(c = 0; c < cdComponents; c++)
       {
 	thisWeight = weights[c];
-	if(this->Transforms[c] == NULL || thisWeight == 0.0)
+	if(linearPtMtx[c] == NULL || thisWeight == 0.0)
 	{
 	  continue;
 	}
@@ -598,8 +637,8 @@ void vtkWeightedTransformFilter::Execute()
 	{
 	  LinearTransformVector((double (*)[4])linearNormMtx[c], 
 				     inNorm, xformNorm);
-	  vtkMath::Normalize(xformNorm);
 
+	  vtkMath::Normalize(xformNorm);
 	  cumNorm[0] += xformNorm[0]*thisWeight;
 	  cumNorm[1] += xformNorm[1]*thisWeight;
 	  cumNorm[2] += xformNorm[2]*thisWeight;
@@ -607,7 +646,6 @@ void vtkWeightedTransformFilter::Execute()
 
 	if(inVectors)
 	{
-	  inVectors->GetVector(p, inVec);
 	  LinearTransformVector((double (*)[4])linearPtMtx[c], 
 				   inVec, xformVec);
 	  cumVec[0] += xformVec[0]*thisWeight;
@@ -628,15 +666,15 @@ void vtkWeightedTransformFilter::Execute()
 	newCellVectors->InsertNextVector(cumVec);
       }
     }
+    delete [] weights;
   }
 
   // ----- cleanup ------
-  delete [] weights;
-  for(i = 0; i < this->NumberOfTransforms; i++)
+  for(c = 0; c < this->NumberOfTransforms; c++)
   {
-    if(linearNormMtx[i])
+    if(linearNormMtx[c])
     {
-      delete [] linearNormMtx[i];
+      delete [] linearNormMtx[c];
     }
   }
   delete [] linearNormMtx;
