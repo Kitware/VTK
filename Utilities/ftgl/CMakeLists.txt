@@ -146,7 +146,7 @@ SET (VTKFTGL_LIBS "${VTKFTGL_LIBS};vtkfreetype")
 #
 ADD_LIBRARY (vtkftgl ${FTGL_SRCS})
 TARGET_LINK_LIBRARIES(vtkftgl ${VTKFTGL_LIBS})
-INSTALL_TARGETS (/lib/vtk vtkftgl)
+INSTALL_TARGETS (${VTK_INSTALL_LIB_DIR} vtkftgl)
 
 #
 # Do not cover this lib

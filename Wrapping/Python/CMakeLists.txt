@@ -128,11 +128,11 @@ IF (VTK_USE_PARALLEL)
     IF (VTK_USE_HYBRID)
       TARGET_LINK_LIBRARIES(pvtkpython vtkHybrid)
     ENDIF (VTK_USE_HYBRID)
-    INSTALL_TARGETS(/bin pvtkpython)
+    INSTALL_TARGETS(${VTK_INSTALL_BIN_DIR} pvtkpython)
   ENDIF (VTK_USE_MPI)
 ENDIF (VTK_USE_PARALLEL)
 
-INSTALL_TARGETS(/bin vtkpython)    
+INSTALL_TARGETS(${VTK_INSTALL_BIN_DIR} vtkpython)    
 
 # Handle out-of-source builds correctly.
 #

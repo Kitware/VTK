@@ -313,7 +313,7 @@ IF (VTK_WRAP_TCL)
                 COMMANDS ${Kit_TCL_EXTRA_CMDS})
   ADD_LIBRARY(vtk${KIT}TCL ${KitTCL_SRCS} ${Kit_TCL_EXTRA_SRCS})
   TARGET_LINK_LIBRARIES (vtk${KIT}TCL vtk${KIT} ${KIT_TCL_LIBS})
-  INSTALL_TARGETS(/lib/vtk vtk${KIT}TCL)
+  INSTALL_TARGETS(${VTK_INSTALL_LIB_DIR} vtk${KIT}TCL)
 ENDIF (VTK_WRAP_TCL)
 
 # if we are wrapping into Python then add the library and extra
@@ -327,7 +327,7 @@ IF (VTK_WRAP_PYTHON)
     TARGET_LINK_LIBRARIES(vtk${KIT}PythonD vtk${KIT} ${KIT_PYTHON_LIBS}
                           ${VTK_PYTHON_LIBRARIES})
     TARGET_LINK_LIBRARIES(vtk${KIT}Python vtk${KIT}PythonD)
-    INSTALL_TARGETS(/lib/vtk vtk${KIT}PythonD)
+    INSTALL_TARGETS(${VTK_INSTALL_LIB_DIR} vtk${KIT}PythonD)
   ELSE (APPLE)
     ADD_LIBRARY(vtk${KIT}Python MODULE ${KitPython_SRCS} ${Kit_PYTHON_EXTRA_SRCS})
     TARGET_LINK_LIBRARIES (vtk${KIT}Python vtk${KIT} ${KIT_PYTHON_LIBS})
@@ -335,7 +335,7 @@ IF (VTK_WRAP_PYTHON)
   IF(WIN32)
     TARGET_LINK_LIBRARIES (vtk${KIT}Python ${VTK_PYTHON_LIBRARIES})
   ENDIF(WIN32)
-  INSTALL_TARGETS(/lib/vtk vtk${KIT}Python)
+  INSTALL_TARGETS(${VTK_INSTALL_LIB_DIR} vtk${KIT}Python)
 ENDIF (VTK_WRAP_PYTHON)
 
 # if we are wrapping into Java then add the library and extra
@@ -345,13 +345,13 @@ IF (VTK_WRAP_JAVA)
   VTK_WRAP_JAVA3(vtk${KIT}Java KitJava_SRCS "${Kit_SRCS}")
   ADD_LIBRARY(vtk${KIT}Java SHARED ${KitJava_SRCS} ${Kit_JAVA_EXTRA_SRCS})
   TARGET_LINK_LIBRARIES(vtk${KIT}Java vtk${KIT} ${KIT_JAVA_LIBS})
-  INSTALL_TARGETS(/lib/vtk vtk${KIT}Java)
+  INSTALL_TARGETS(${VTK_INSTALL_LIB_DIR} vtk${KIT}Java)
 ENDIF (VTK_WRAP_JAVA)
 
 TARGET_LINK_LIBRARIES(vtk${KIT} ${KIT_LIBS})
 
-INSTALL_TARGETS(/lib/vtk vtk${KIT})
-INSTALL_FILES(/include/vtk .h ${Kit_SRCS})
+INSTALL_TARGETS(${VTK_INSTALL_LIB_DIR} vtk${KIT})
+INSTALL_FILES(${VTK_INSTALL_INCLUDE_DIR} .h ${Kit_SRCS})
 
 VTK_EXPORT_KIT("${KIT}" "${UKIT}" "${Kit_SRCS}")
 
@@ -367,12 +367,12 @@ ENDIF(LOCALUSERMACRODEFINED)
 # End of common section
 # -----------------------------------------------------------------
 
-INSTALL_FILES(/include/vtk .h
+INSTALL_FILES(${VTK_INSTALL_INCLUDE_DIR} .h
   vtkAMRBox
   vtkCellType
 )
 
-INSTALL_FILES(/include/vtk .txx
+INSTALL_FILES(${VTK_INSTALL_INCLUDE_DIR} .txx
   vtkImageIterator
   vtkImageProgressIterator
 )

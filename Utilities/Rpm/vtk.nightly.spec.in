@@ -176,13 +176,13 @@ ls ./patented/*.h >> README.patented-classes
 rm -rf $RPM_BUILD_ROOT
 
 #creating all the directories
-install -d $RPM_BUILD_ROOT/usr/bin
-install -d $RPM_BUILD_ROOT/usr/lib/vtk/{contrib/examplesTcl,examplesTcl/frog}
-install -d $RPM_BUILD_ROOT/usr/lib/vtk/graphics/examples{Cxx,Tcl/RenderMan/Shaders,Python}
-install -d $RPM_BUILD_ROOT/usr/lib/vtk/imaging/examples{,Cxx,Tcl}
-install -d $RPM_BUILD_ROOT/usr/lib/vtk/patented/examplesTcl
-install -d $RPM_BUILD_ROOT/usr/lib/vtk/java/vtk
-install -d $RPM_BUILD_ROOT/usr/include/vtk
+install -d $RPM_BUILD_ROOT/usr@VTK_INSTALL_BIN_DIR@
+install -d $RPM_BUILD_ROOT/usr@VTK_INSTALL_LIB_DIR@/{contrib/examplesTcl,examplesTcl/frog}
+install -d $RPM_BUILD_ROOT/usr@VTK_INSTALL_LIB_DIR@/graphics/examples{Cxx,Tcl/RenderMan/Shaders,Python}
+install -d $RPM_BUILD_ROOT/usr@VTK_INSTALL_LIB_DIR@/imaging/examples{,Cxx,Tcl}
+install -d $RPM_BUILD_ROOT/usr@VTK_INSTALL_LIB_DIR@/patented/examplesTcl
+install -d $RPM_BUILD_ROOT/usr@VTK_INSTALL_LIB_DIR@/java/vtk
+install -d $RPM_BUILD_ROOT/usr@VTK_INSTALL_INCLUDE_DIR@
 
 # this installs the libs and the vtk tcl interpretor
 
@@ -190,41 +190,41 @@ make INSTALL_ROOT=$RPM_BUILD_ROOT install
 # make prefix=/usr install
 
 #stripping all the shared libraries and the vtk interpreter
-strip $RPM_BUILD_ROOT/usr/bin/vtk
+strip $RPM_BUILD_ROOT/usr@VTK_INSTALL_BIN_DIR@/vtk
 strip $RPM_BUILD_ROOT/usr/lib/lib*
 
 # this installs all the header files.
-install -m 644 ./common/*.h $RPM_BUILD_ROOT/usr/include/vtk
-install -m 644 ./contrib/*.h $RPM_BUILD_ROOT/usr/include/vtk
-install -m 644 ./wrap/*.h $RPM_BUILD_ROOT/usr/include/vtk
-install -m 644 ./graphics/*.h $RPM_BUILD_ROOT/usr/include/vtk
-install -m 644 ./imaging/*.h $RPM_BUILD_ROOT/usr/include/vtk
-install -m 644 ./patented/*.h $RPM_BUILD_ROOT/usr/include/vtk
+install -m 644 ./common/*.h $RPM_BUILD_ROOT/usr@VTK_INSTALL_INCLUDE_DIR@
+install -m 644 ./contrib/*.h $RPM_BUILD_ROOT/usr@VTK_INSTALL_INCLUDE_DIR@
+install -m 644 ./wrap/*.h $RPM_BUILD_ROOT/usr@VTK_INSTALL_INCLUDE_DIR@
+install -m 644 ./graphics/*.h $RPM_BUILD_ROOT/usr@VTK_INSTALL_INCLUDE_DIR@
+install -m 644 ./imaging/*.h $RPM_BUILD_ROOT/usr@VTK_INSTALL_INCLUDE_DIR@
+install -m 644 ./patented/*.h $RPM_BUILD_ROOT/usr@VTK_INSTALL_INCLUDE_DIR@
 
 #installing all the examples...
 
-install  -m 644 ./contrib/examplesTcl/*.tcl $RPM_BUILD_ROOT/usr/lib/vtk/contrib/examplesTcl/
+install  -m 644 ./contrib/examplesTcl/*.tcl $RPM_BUILD_ROOT/usr@VTK_INSTALL_LIB_DIR@/contrib/examplesTcl/
 
-install  -m 644 ./examplesTcl/*.tcl $RPM_BUILD_ROOT/usr/lib/vtk/examplesTcl/
+install  -m 644 ./examplesTcl/*.tcl $RPM_BUILD_ROOT/usr@VTK_INSTALL_LIB_DIR@/examplesTcl/
 
-install  -m 644 ./examplesTcl/frog/*.tcl $RPM_BUILD_ROOT/usr/lib/vtk/examplesTcl/frog
+install  -m 644 ./examplesTcl/frog/*.tcl $RPM_BUILD_ROOT/usr@VTK_INSTALL_LIB_DIR@/examplesTcl/frog
 
-install  -m 644 ./graphics/examplesCxx/*.cxx $RPM_BUILD_ROOT/usr/lib/vtk/graphics/examplesCxx/
-install  -m 644 ./graphics/examplesCxx/Makefile* $RPM_BUILD_ROOT/usr/lib/vtk/graphics/examplesCxx/
-install  -m 644 ./graphics/examplesPython/*.py $RPM_BUILD_ROOT/usr/lib/vtk/graphics/examplesPython/
-install  -m 644 ./graphics/examplesTcl/{*.tcl,*.ppm} $RPM_BUILD_ROOT/usr/lib/vtk/graphics/examplesTcl/
-install  -m 644 ./graphics/examplesTcl/RenderMan/{*.so,*.tcl} $RPM_BUILD_ROOT/usr/lib/vtk/graphics/examplesTcl/RenderMan/
-install  -m 644 ./graphics/examplesTcl/RenderMan/Shaders/*.sl $RPM_BUILD_ROOT/usr/lib/vtk/graphics/examplesTcl/RenderMan/Shaders
+install  -m 644 ./graphics/examplesCxx/*.cxx $RPM_BUILD_ROOT/usr@VTK_INSTALL_LIB_DIR@/graphics/examplesCxx/
+install  -m 644 ./graphics/examplesCxx/Makefile* $RPM_BUILD_ROOT/usr@VTK_INSTALL_LIB_DIR@/graphics/examplesCxx/
+install  -m 644 ./graphics/examplesPython/*.py $RPM_BUILD_ROOT/usr@VTK_INSTALL_LIB_DIR@/graphics/examplesPython/
+install  -m 644 ./graphics/examplesTcl/{*.tcl,*.ppm} $RPM_BUILD_ROOT/usr@VTK_INSTALL_LIB_DIR@/graphics/examplesTcl/
+install  -m 644 ./graphics/examplesTcl/RenderMan/{*.so,*.tcl} $RPM_BUILD_ROOT/usr@VTK_INSTALL_LIB_DIR@/graphics/examplesTcl/RenderMan/
+install  -m 644 ./graphics/examplesTcl/RenderMan/Shaders/*.sl $RPM_BUILD_ROOT/usr@VTK_INSTALL_LIB_DIR@/graphics/examplesTcl/RenderMan/Shaders
 
-# install  -m 644 ./imaging/examples/* $RPM_BUILD_ROOT/usr/lib/vtk/imaging/examples/
-install  -m 644 ./imaging/examplesTcl/*.tcl $RPM_BUILD_ROOT/usr/lib/vtk/imaging/examplesTcl/
-install  -m 644 ./imaging/examplesCxx/*.cxx $RPM_BUILD_ROOT/usr/lib/vtk/imaging/examplesCxx/
+# install  -m 644 ./imaging/examples/* $RPM_BUILD_ROOT/usr@VTK_INSTALL_LIB_DIR@/imaging/examples/
+install  -m 644 ./imaging/examplesTcl/*.tcl $RPM_BUILD_ROOT/usr@VTK_INSTALL_LIB_DIR@/imaging/examplesTcl/
+install  -m 644 ./imaging/examplesCxx/*.cxx $RPM_BUILD_ROOT/usr@VTK_INSTALL_LIB_DIR@/imaging/examplesCxx/
 
-install  -m 644 ./patented/examplesTcl/*.tcl $RPM_BUILD_ROOT/usr/lib/vtk/patented/examplesTcl/
+install  -m 644 ./patented/examplesTcl/*.tcl $RPM_BUILD_ROOT/usr@VTK_INSTALL_LIB_DIR@/patented/examplesTcl/
 
 # installing java classes
 
-install  -m 644 ./java/vtk.jar $RPM_BUILD_ROOT/usr/lib/vtk/
+install  -m 644 ./java/vtk.jar $RPM_BUILD_ROOT/usr@VTK_INSTALL_LIB_DIR@/
 
 %post
 # Check for /usr/lib in /etc/ld.so.conf...
@@ -272,7 +272,7 @@ fi
 %attr(644, root, root) %doc README.patented-classes vtkLogo.jpg
 
 %files devel
-%attr(644, root, root) /usr/include/vtk/
+%attr(644, root, root) /usr@VTK_INSTALL_INCLUDE_DIR@/
 
 %files tcl
 %attr(755, root, root) /usr/lib/libVTKCommonTcl.so 
@@ -280,7 +280,7 @@ fi
 %attr(755, root, root) /usr/lib/libVTKGraphicsTcl.so 
 %attr(755, root, root) /usr/lib/libVTKImagingTcl.so
 %attr(755, root, root) /usr/lib/libVTKPatentedTcl.so
-%attr(755, root, root) /usr/bin/vtk
+%attr(755, root, root) /usr@VTK_INSTALL_BIN_DIR@/vtk
 
 %attr(-, root, root) %doc README.html VTK-Linux-HOWTO README.patented-dir 
 # %attr(644, root, root) %doc README.patented-classes README vtkLogo.jpg
@@ -293,10 +293,10 @@ fi
 %attr(755, root, root) /usr/lib/libVTKGraphicsPython.so 
 %attr(755, root, root) /usr/lib/libVTKImagingPython.so
 %attr(755, root, root) /usr/lib/libVTKPatentedPython.so
-%attr(755, root, root) /usr/lib/vtkTkRenderWidget
-%attr(755, root, root) /usr/lib/vtkTkImageWindowWidget
-%attr(755, root, root) /usr/lib/vtkTkImageViewerWidget
-%attr(-, root, root)   /usr/lib/vtk/python/
+%attr(755, root, root) /usr@VTK_INSTALL_LIB_DIR@TkRenderWidget
+%attr(755, root, root) /usr@VTK_INSTALL_LIB_DIR@TkImageWindowWidget
+%attr(755, root, root) /usr@VTK_INSTALL_LIB_DIR@TkImageViewerWidget
+%attr(-, root, root)   /usr@VTK_INSTALL_LIB_DIR@/python/
 %attr(644, root, root) %(python -c "import sys, os; print os.path.join(sys.prefix,'lib','python'+sys.version[0:3],'site-packages','vtkpython.pth')")
 
 
@@ -307,7 +307,7 @@ fi
 %attr(755, root, root) /usr/lib/libVTKImagingJava.so
 %attr(755, root, root) /usr/lib/libVTKPatentedJava.so
 %attr(755, root, root) /usr/lib/libvtkJava.so
-%attr(-, root, root) /usr/lib/vtk.jar
+%attr(-, root, root) /usr@VTK_INSTALL_LIB_DIR@.jar
 
 # 
 # %attr(-, root, root) %doc README.html VTK-Linux-HOWTO README.patented-dir 
@@ -315,11 +315,11 @@ fi
 
 
 %files examples
-%attr(-, root, root) /usr/lib/vtk/contrib
-%attr(-, root, root) /usr/lib/vtk/examplesTcl
-%attr(-, root, root) /usr/lib/vtk/graphics
-%attr(-, root, root) /usr/lib/vtk/imaging
-%attr(-, root, root) /usr/lib/vtk/patented
+%attr(-, root, root) /usr@VTK_INSTALL_LIB_DIR@/contrib
+%attr(-, root, root) /usr@VTK_INSTALL_LIB_DIR@/examplesTcl
+%attr(-, root, root) /usr@VTK_INSTALL_LIB_DIR@/graphics
+%attr(-, root, root) /usr@VTK_INSTALL_LIB_DIR@/imaging
+%attr(-, root, root) /usr@VTK_INSTALL_LIB_DIR@/patented
 
 
 %clean 

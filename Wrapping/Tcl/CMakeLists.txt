@@ -70,7 +70,7 @@ FOREACH(lib ${VTK_EXTRA_TCL_LIBRARIES})
   TARGET_LINK_LIBRARIES(vtk ${lib})
 ENDFOREACH(lib)
 
-INSTALL_TARGETS(/bin vtk)
+INSTALL_TARGETS(${VTK_INSTALL_BIN_DIR} vtk)
 
 # Create the pvtk Tcl wrapper executable with MPI support.
 IF (VTK_USE_PARALLEL)
@@ -104,15 +104,15 @@ IF (VTK_USE_PARALLEL)
       TARGET_LINK_LIBRARIES(pvtk vtkHybridTCL)
     ENDIF (VTK_USE_HYBRID)
 
-    INSTALL_TARGETS(/bin pvtk)
+    INSTALL_TARGETS(${VTK_INSTALL_BIN_DIR} pvtk)
   ENDIF (VTK_USE_MPI)
 ENDIF (VTK_USE_PARALLEL)
 
 # Process all packages
 SUBDIRS(vtk vtkbase vtkcommon vtkfiltering vtkgraphics vtkimaging vtkinteraction vtkio vtktesting)
 
-INSTALL_FILES(/lib/vtk/tcl "" README)
-INSTALL_FILES(/lib/vtk/tcl .c vtktcl)
+INSTALL_FILES(${VTK_INSTALL_LIB_DIR}/tcl "" README)
+INSTALL_FILES(${VTK_INSTALL_LIB_DIR}/tcl .c vtktcl)
 
 SET(VTK_TCL_RENDERING_CONFIG "")
 SET(VTK_TCL_HYBRID_CONFIG "")
@@ -170,7 +170,7 @@ ENDIF(UNIX)
 CONFIGURE_FILE(${VTK_SOURCE_DIR}/Wrapping/Tcl/pkgIndex.tcl.in
                ${VTK_BINARY_DIR}/Wrapping/Tcl/Install/Hide/pkgIndex.tcl
                @ONLY IMMEDIATE)
-INSTALL_FILES(/lib/vtk/tcl FILES
+INSTALL_FILES(${VTK_INSTALL_LIB_DIR}/tcl FILES
               ${VTK_BINARY_DIR}/Wrapping/Tcl/Install/Hide/pkgIndex.tcl)
 
 # Allow the user to customize their build with some local options

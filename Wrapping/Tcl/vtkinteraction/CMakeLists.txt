@@ -1,4 +1,4 @@
-INSTALL_FILES(/lib/vtk/tcl/vtkinteraction .tcl
+INSTALL_FILES(${VTK_INSTALL_LIB_DIR}/tcl/vtkinteraction .tcl
   vtkinteraction
   Interactor
   bindings

@@ -1,3 +1,3 @@
-INSTALL_FILES(/lib/vtk/tcl/vtkrendering .tcl
+INSTALL_FILES(${VTK_INSTALL_LIB_DIR}/tcl/vtkrendering .tcl
   vtkrendering
 )

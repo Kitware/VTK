@@ -34,5 +34,6 @@ CONFIGURE_FILE(${VTKZLIB_SOURCE_DIR}/zlibDllConfig.h.in
 
 ADD_LIBRARY(vtkzlib ${ZLIB_SRCS})
 
-INSTALL_TARGETS(/lib/vtk vtkzlib)
-INSTALL_FILES(/include/vtk/vtkzlib .h zlib zconf zlibDllConfig vtk_zlib_mangle)
+INSTALL_TARGETS(${VTK_INSTALL_LIB_DIR} vtkzlib)
+INSTALL_FILES(${VTK_INSTALL_INCLUDE_DIR}/vtkzlib .h
+              zlib zconf zlibDllConfig vtk_zlib_mangle)

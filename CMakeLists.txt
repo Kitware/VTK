@@ -29,6 +29,21 @@ SET(CXX_TEST_PATH ${EXECUTABLE_OUTPUT_PATH})
 LINK_DIRECTORIES(.)
 
 #-----------------------------------------------------------------------------
+# Configure install locations.  This allows parent projects to modify
+# the install location.  Optionally allow the project to specify a
+# single VTK_INSTALL_ROOT which basically adds to its install prefix
+# for VTK only.
+IF(NOT VTK_INSTALL_BIN_DIR)
+  SET(VTK_INSTALL_BIN_DIR ${VTK_INSTALL_ROOT}/bin)
+ENDIF(NOT VTK_INSTALL_BIN_DIR)
+IF(NOT VTK_INSTALL_INCLUDE_DIR)
+  SET(VTK_INSTALL_INCLUDE_DIR ${VTK_INSTALL_ROOT}/include/vtk)
+ENDIF(NOT VTK_INSTALL_INCLUDE_DIR)
+IF(NOT VTK_INSTALL_LIB_DIR)
+  SET(VTK_INSTALL_LIB_DIR ${VTK_INSTALL_ROOT}/lib/vtk)
+ENDIF(NOT VTK_INSTALL_LIB_DIR)
+
+#-----------------------------------------------------------------------------
 # Load some macros.
 INCLUDE(${VTK_SOURCE_DIR}/CMake/vtkDependentOption.cmake)
 INCLUDE(${VTK_SOURCE_DIR}/CMake/vtkThirdParty.cmake)
@@ -39,7 +54,7 @@ INCLUDE(${CMAKE_ROOT}/Modules/CMakeExportBuildSettings.cmake)
 #-----------------------------------------------------------------------------
 # Save the compiler settings so another project can import them.
 CMAKE_EXPORT_BUILD_SETTINGS(${VTK_BINARY_DIR}/VTKBuildSettings.cmake)
-INSTALL_FILES(/lib/vtk .cmake VTKBuildSettings)
+INSTALL_FILES(${VTK_INSTALL_LIB_DIR} .cmake VTKBuildSettings)
 
 #-----------------------------------------------------------------------------
 # Choose static or shared libraries.
@@ -701,7 +716,8 @@ FOREACH(header algorithm deque iterator list map numeric queue set stack string
   SET(VTK_STL_HEADER "${header}")
   CONFIGURE_FILE(${VTK_SOURCE_DIR}/Utilities/vtkstd.h.in
                  ${VTK_BINARY_DIR}/vtkstd/${header} @ONLY IMMEDIATE)
-  INSTALL_FILES(/include/vtk/vtkstd FILES ${VTK_BINARY_DIR}/vtkstd/${header})
+  INSTALL_FILES(${VTK_INSTALL_INCLUDE_DIR}/vtkstd
+                FILES ${VTK_BINARY_DIR}/vtkstd/${header})
 ENDFOREACH(header)
 
 #-----------------------------------------------------------------------------
@@ -767,8 +783,8 @@ IF(VTK_WRAP_TCL)
 
 ENDIF(VTK_WRAP_TCL)
 
-INSTALL_FILES(/lib/vtk/CMake FILES
-              ${VTK_SOURCE_DIR}/CMake/vtkTclTkMacros.cmake)
+INSTALL_FILES(${VTK_INSTALL_LIB_DIR}/CMake
+              FILES ${VTK_SOURCE_DIR}/CMake/vtkTclTkMacros.cmake)
 
 #-----------------------------------------------------------------------------
 # Configure Python wrapping support.
@@ -973,23 +989,25 @@ INCLUDE_DIRECTORIES(
 # Help other projects use VTK.
 
 # Install the instantiator headers.
-INSTALL_FILES(/include/vtk .h vtkCommonInstantiator vtkFilteringInstantiator
-              vtkIOInstantiator vtkImagingInstantiator  vtkGraphicsInstantiator vtkGenericFilteringInstantiator)
+INSTALL_FILES(${VTK_INSTALL_INCLUDE_DIR} .h vtkCommonInstantiator
+              vtkFilteringInstantiator vtkIOInstantiator
+              vtkImagingInstantiator vtkGraphicsInstantiator
+              vtkGenericFilteringInstantiator)
 IF(VTK_USE_RENDERING)
-  INSTALL_FILES(/include/vtk .h vtkRenderingInstantiator)
+  INSTALL_FILES(${VTK_INSTALL_INCLUDE_DIR} .h vtkRenderingInstantiator)
 ENDIF(VTK_USE_RENDERING)
 IF(VTK_USE_HYBRID)
-  INSTALL_FILES(/include/vtk .h vtkHybridInstantiator)
+  INSTALL_FILES(${VTK_INSTALL_INCLUDE_DIR} .h vtkHybridInstantiator)
 ENDIF(VTK_USE_HYBRID)
 IF(VTK_USE_PATENTED)
-  INSTALL_FILES(/include/vtk .h vtkPatentedInstantiator)
+  INSTALL_FILES(${VTK_INSTALL_INCLUDE_DIR} .h vtkPatentedInstantiator)
 ENDIF(VTK_USE_PATENTED)
 IF(VTK_USE_PARALLEL)
-  INSTALL_FILES(/include/vtk .h vtkParallelInstantiator)
+  INSTALL_FILES(${VTK_INSTALL_INCLUDE_DIR} .h vtkParallelInstantiator)
 ENDIF(VTK_USE_PARALLEL)
 
 # Install cmake extensions so user projects can load them.
-INSTALL_FILES(/lib/vtk/CMake FILES
+INSTALL_FILES(${VTK_INSTALL_LIB_DIR}/CMake FILES
   ${VTK_SOURCE_DIR}/CMake/vtkLoadCMakeExtensions.cmake 
   ${VTK_SOURCE_DIR}/CMake/vtkMakeInstantiator.cmake
   ${VTK_SOURCE_DIR}/CMake/vtkMakeInstantiator.h.in
@@ -998,10 +1016,10 @@ IF (VTK_NEED_LOADED_COMMANDS)
   FOREACH(cmd VTK_WRAP_TCL2 VTK_WRAP_PYTHON2 VTK_WRAP_JAVA2
       VTK_GENERATE_JAVA_DEPENDENCIES)
     IF("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" GREATER 2.0)
-      INSTALL_FILES(/lib/vtk/CMake FILES ${CMAKE_LOADED_COMMAND_${cmd}})
+      INSTALL_FILES(${VTK_INSTALL_LIB_DIR}/CMake FILES ${CMAKE_LOADED_COMMAND_${cmd}})
     ELSE("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" GREATER 2.0)
       IF(UNIX)
-        INSTALL_FILES(/lib/vtk/CMake FILES
+        INSTALL_FILES(${VTK_INSTALL_LIB_DIR}/CMake FILES
           "${VTK_BINARY_DIR}/CMake/${CMAKE_SHARED_MODULE_PREFIX}cm${cmd}${CMAKE_SHARED_MODULE_SUFFIX}")
       ENDIF(UNIX)
     ENDIF("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" GREATER 2.0)
@@ -1012,10 +1030,10 @@ ENDIF (VTK_NEED_LOADED_COMMANDS)
 EXPORT_LIBRARY_DEPENDENCIES(${VTK_BINARY_DIR}/VTKLibraryDepends.cmake)
 
 # Install some files.
-INSTALL_FILES(/include/vtk .h vtkConfigure vtkToolkits)
-INSTALL_FILES(/lib/vtk .cmake UseVTK VTKLibraryDepends)
+INSTALL_FILES(${VTK_INSTALL_INCLUDE_DIR} .h vtkConfigure vtkToolkits)
+INSTALL_FILES(${VTK_INSTALL_LIB_DIR} .cmake UseVTK VTKLibraryDepends)
 IF(VTK_WRAP_HINTS)
-  INSTALL_FILES(/lib/vtk FILES ${VTK_WRAP_HINTS})
+  INSTALL_FILES(${VTK_INSTALL_LIB_DIR} FILES ${VTK_WRAP_HINTS})
 ENDIF(VTK_WRAP_HINTS)
 
 #-----------------------------------------------------------------------------

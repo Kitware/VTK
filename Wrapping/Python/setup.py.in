@@ -22,7 +22,7 @@ build_bin_dir = "${EXECUTABLE_OUTPUT_PATH}"
 
 # You can change this to suit your needs.  However you must make sure
 # that under *nix the libvtk*Python*.so in the specified directory.
-install_lib_dir = "${CMAKE_INSTALL_PREFIX}/lib/vtk"
+install_lib_dir = "${CMAKE_INSTALL_PREFIX}${VTK_INSTALL_LIB_DIR}"
 
 
 def get_libs():

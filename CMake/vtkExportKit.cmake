@@ -17,7 +17,7 @@ MACRO(VTK_EXPORT_KIT kit ukit sources)
   ENDFOREACH(src)
   SET(VTK_EXPORT_KIT ${kit})
   SET(VTK_EXPORT_UKIT ${ukit})
-  SET(VTK_EXPORT_HEADER_DIR ${CMAKE_INSTALL_PREFIX}/include/vtk)
+  SET(VTK_EXPORT_HEADER_DIR ${CMAKE_INSTALL_PREFIX}${VTK_INSTALL_INCLUDE_DIR})
   CONFIGURE_FILE(${VTK_SOURCE_DIR}/CMake/vtkKit.cmake.in
                  ${VTK_BINARY_DIR}/Utilities/InstallOnly/vtk${kit}Kit.cmake
                  @ONLY IMMEDIATE)
@@ -25,7 +25,7 @@ MACRO(VTK_EXPORT_KIT kit ukit sources)
   CONFIGURE_FILE(${VTK_SOURCE_DIR}/CMake/vtkKit.cmake.in
                  ${VTK_BINARY_DIR}/Utilities/vtk${kit}Kit.cmake
                  @ONLY IMMEDIATE)
-  INSTALL_FILES(/lib/vtk FILES
+  INSTALL_FILES(${VTK_INSTALL_LIB_DIR} FILES
     ${VTK_BINARY_DIR}/Utilities/InstallOnly/vtk${kit}Kit.cmake
     )
 ENDMACRO(VTK_EXPORT_KIT)

@@ -55,6 +55,6 @@ CONFIGURE_FILE(${VTKTIFF_SOURCE_DIR}/tiffDllConfig.h.in
 ADD_LIBRARY(vtktiff ${common_SRCS})
 TARGET_LINK_LIBRARIES( vtktiff ${VTK_ZLIB_LIBRARIES} ${VTK_JPEG_LIBRARIES} )
 
-INSTALL_TARGETS(/lib/vtk vtktiff)
-INSTALL_FILES(/include/vtk/vtktiff .h tiffDllConfig tiffvers tiff tiffio tconf
-                                      vtk_tiff_mangle)
+INSTALL_TARGETS(${VTK_INSTALL_LIB_DIR} vtktiff)
+INSTALL_FILES(${VTK_INSTALL_INCLUDE_DIR}/vtktiff .h
+              tiffDllConfig tiffvers tiff tiffio tconf vtk_tiff_mangle)

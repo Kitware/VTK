@@ -339,7 +339,7 @@ int Tcl_AppInit(Tcl_Interp *interp)
       int exists = vtkTkAppInitFileExists(buffer);
       if (!exists)
         {
-        sprintf(buffer, "%s/../lib/vtk/TclTk", dir_unix);
+        sprintf(buffer, "%s/.." VTK_TCL_INSTALL_LIB_DIR "/TclTk", dir_unix);
         exists = vtkTkAppInitFileExists(buffer);
         }
       if (exists)
@@ -497,7 +497,7 @@ int Tcl_AppInit(Tcl_Interp *interp)
     " VTK packages.  Please check that your TCLLIBPATH environment variable"
     " includes the path to your VTK Tcl directory.  You might find it under"
     " your VTK binary directory in Wrapping/Tcl, or under your"
-    " site-specific {CMAKE_INSTALL_PREFIX}/lib/vtk/tcl directory.}\n"
+    " site-specific \"" VTK_TCL_INSTALL_DIR "\" directory.}\n"
     "        if {[info exists env(TCLLIBPATH)]} {\n"
     "          append msg \"  The TCLLIBPATH current value is: $env(TCLLIBPATH).\"\n"
     "        }\n"

@@ -105,7 +105,7 @@ ADD_LIBRARY (vtkfreetype ${FREETYPE_SRCS})
 IF (APPLE)
   TARGET_LINK_LIBRARIES (vtkfreetype "-framework AppKit")
 ENDIF (APPLE)
-INSTALL_TARGETS (/lib/vtk vtkfreetype)
+INSTALL_TARGETS (${VTK_INSTALL_LIB_DIR} vtkfreetype)
 
 #
 # Do not cover this lib
@@ -117,6 +117,6 @@ CONFIGURE_FILE (${VTKFREETYPE_SOURCE_DIR}/.NoDartCoverage
 # Create the configuration file
 #
 ADD_DEFINITIONS (-DVTKFREETYPE)
-CONFIGURE_FILE (${VTKFREETYPE_SOURCE_DIR}/include/vtkFreeTypeConfig.h.in
-                ${VTKFREETYPE_BINARY_DIR}/include/vtkFreeTypeConfig.h)
+CONFIGURE_FILE (${VTKFREETYPE_SOURCE_DIR}${VTK_INSTALL_INCLUDE_DIR}FreeTypeConfig.h.in
+                ${VTKFREETYPE_BINARY_DIR}${VTK_INSTALL_INCLUDE_DIR}FreeTypeConfig.h)
 
