@@ -25,8 +25,8 @@ vtkImage4dShortReader reader;
 #reader DebugOn
 [reader GetCache] ReleaseDataFlagOff;
 reader SwapBytesOn;
-reader SetSize 256 256 94 1;
-reader SetFileRoot "../../data/fullHead/headsq.%d"
+reader SetDimensions 256 256 94 1;
+reader SetFilePrefix "../../data/fullHead/headsq"
 reader SetPixelMask 0x7fff;
 reader SetOutputDataType $VTK_IMAGE_SHORT;
 
@@ -44,9 +44,9 @@ vtkImageXViewer viewer;
 viewer SetAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS $VTK_IMAGE_Z_AXIS;
 viewer SetInput [subtract GetOutput];
 viewer SetBounds 0 255 0 255;
-viewer SetDefaultCoordinate2 $sliceNumber;
+viewer SetCoordinate2 $sliceNumber;
 viewer SetColorWindow 3000
-viewer SetColorLevel 1500
+viewer SetColorLevel 700
 viewer Render;
 
 
@@ -68,7 +68,7 @@ checkbutton .wl.video -text "Inverse Video" -variable inverseVideo -command SetI
 
 
 .wl.f1.window set 3000
-.wl.f2.level set 1500
+.wl.f2.level set 700
 
 
 pack .slice .wl -side left
@@ -82,7 +82,7 @@ proc SliceUp {} {
    global sliceNumber viewer
    if {$sliceNumber < 93} {set sliceNumber [expr $sliceNumber + 1]}
    puts $sliceNumber
-   viewer SetDefaultCoordinate2 $sliceNumber;
+   viewer SetCoordinate2 $sliceNumber;
    viewer Render;
 }
 
@@ -90,7 +90,7 @@ proc SliceDown {} {
    global sliceNumber viewer
    if {$sliceNumber > 0} {set sliceNumber [expr $sliceNumber - 1]}
    puts $sliceNumber
-   viewer SetDefaultCoordinate2 $sliceNumber;
+   viewer SetCoordinate2 $sliceNumber;
    viewer Render;
 }
 

@@ -20,10 +20,10 @@ set VTK_IMAGE_COMPONENT_AXIS     4
 
 # Image pipeline
 vtkImage4dShortReader reader;
-reader DebugOn
+#reader DebugOn
 reader SwapBytesOn;
-reader SetSize 256 256 94 1;
-reader SetFileRoot "../../data/fullHead/headsq.%d"
+reader SetDimensions 256 256 94 1;
+reader SetFilePrefix "../../data/fullHead/headsq"
 reader SetPixelMask 0x7fff;
 
 vtkImage3dGradientFilter gradient;
@@ -36,7 +36,7 @@ suppress ReleaseDataFlagOff;
 vtkImageXViewer viewer;
 #viewer DebugOn;
 viewer SetInput [suppress GetOutput];
-viewer SetDefaultCoordinate2 $sliceNumber;
+viewer SetCoordinate2 $sliceNumber;
 viewer SetColorWindow 1000
 viewer SetColorLevel 500
 viewer Render;
@@ -73,7 +73,7 @@ pack .wl.f2.levelLabel .wl.f2.level -side left
 proc SliceUp {} {
         global sliceNumber viewer
         if {$sliceNumber < 93} {set sliceNumber [expr $sliceNumber + 1]}
-        viewer SetDefaultCoordinate2 $sliceNumber;
+        viewer SetCoordinate2 $sliceNumber;
 	viewer Render
         puts $sliceNumber;
 }
@@ -81,7 +81,7 @@ proc SliceUp {} {
 proc SliceDown {} {
         global sliceNumber tform renWin
         if {$sliceNumber > 0} {set sliceNumber [expr $sliceNumber - 1]}
-        viewer SetDefaultCoordinate2 $sliceNumber;
+        viewer SetCoordinate2 $sliceNumber;
 	viewer Render
         puts $sliceNumber;
 }

@@ -24,15 +24,15 @@ vtkImage4dShortReader reader;
 #reader DebugOn
 reader ReleaseDataFlagOff;
 reader SwapBytesOn;
-reader SetSize 256 256 94 1;
-reader SetFileRoot "../../data/fullHead/headsq.%d";
+reader SetDimensions 256 256 94 1;
+reader SetFilePrefix "../../data/fullHead/headsq";
 reader SetPixelMask 0x7fff;
 
 vtkImageXViewer viewer;
 #viewer DebugOn;
 viewer SetAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS $VTK_IMAGE_Z_AXIS;
 viewer SetInput [reader GetOutput];
-viewer SetDefaultCoordinate2 $sliceNumber;
+viewer SetCoordinate2 $sliceNumber;
 viewer SetColorWindow 3000
 viewer SetColorLevel 1500
 viewer Render;
@@ -70,7 +70,7 @@ proc SliceUp {} {
    global sliceNumber viewer
    if {$sliceNumber < 93} {set sliceNumber [expr $sliceNumber + 1]}
    puts $sliceNumber
-   viewer SetDefaultCoordinate2 $sliceNumber;
+   viewer SetCoordinate2 $sliceNumber;
    viewer Render;
 }
 
@@ -78,7 +78,7 @@ proc SliceDown {} {
    global sliceNumber viewer
    if {$sliceNumber > 0} {set sliceNumber [expr $sliceNumber - 1]}
    puts $sliceNumber
-   viewer SetDefaultCoordinate2 $sliceNumber;
+   viewer SetCoordinate2 $sliceNumber;
    viewer Render;
 }
 
