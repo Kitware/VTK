@@ -157,15 +157,23 @@ IF (WIN32)
 ELSE (WIN32)
   IF (APPLE)
     SET(HAVE_OPENGL_SRCS ON)
-    SOURCE_FILES(RenderingOpenGL_SRCS
-                 vtkQuartzTextMapper.cxx
-                 vtkQuartzRenderWindowInteractor.mm
-                 vtkQuartzRenderWindow.mm
-                 vtkQuartzWindow.mm
-                 vtkQuartzGLView.mm)
-    WRAP_EXCLUDE_FILES(vtkQuartzGLView
-		       vtkQuartzWindow)
-    LINK_LIBRARIES (${OPENGL_LIBRARY} )
+      IF(VTK_USE_COCOA)
+        SOURCE_FILES(RenderingOpenGL_SRCS
+	             vtkCocoaTextMapper.cxx
+                     vtkCocoaRenderWindowInteractor.mm
+                     vtkCocoaRenderWindow.mm
+                     vtkCocoaWindow.mm
+                     vtkCocoaGLView.mm)
+        WRAP_EXCLUDE_FILES(vtkCocoaGLView
+		           vtkCocoaWindow)
+      ENDIF(VTK_USE_COCOA)
+      IF(VTK_USE_CARBON)
+        SOURCE_FILES(RenderingOpenGL_SRCS
+	             vtkCarbonTextMapper.cxx
+		     vtkCarbonRenderWindowInteractor.cxx
+		     vtkCarbonRenderWindow.cxx)
+      ENDIF(VTK_USE_CARBON)
+      LINK_LIBRARIES (${OPENGL_LIBRARY} )
   ELSE (APPLE)
     IF (OPENGL_LIBRARY)
       SET(HAVE_OPENGL_SRCS ON)
