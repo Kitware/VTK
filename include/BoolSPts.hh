@@ -73,9 +73,6 @@ protected:
 
   // various operations
   int OperationType;
-  void Union();
-  void Intersection();
-  void Difference();
 };
 
 #endif
