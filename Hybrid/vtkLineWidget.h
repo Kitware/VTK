@@ -148,6 +148,15 @@ public:
   void SetAlignToNone()  { this->SetAlign(None); }
 
   // Description:
+  // Enable/disable clamping of the point end points to the bounding box
+  // of the data. The bounding box is defined from the last PlaceWidget()
+  // invocation, and includes the effect of the PlaceFactor which is used
+  // to gram/shrink the bounding box.
+  vtkSetMacro(ClampToBounds,int);
+  vtkGetMacro(ClampToBounds,int);
+  vtkBooleanMacro(ClampToBounds,int);
+
+  // Description:
   // Grab the polydata (including points) that defines the line.  The
   // polydata consists of n+1 points, where n is the resolution of the
   // line. These point values are guaranteed to be up-to-date when either the
@@ -173,6 +182,8 @@ protected:
   ~vtkLineWidget();
 
 //BTX - manage the state of the widget
+  friend class vtkPWCallback;
+
   int State;
   enum WidgetState
   {
@@ -221,7 +232,9 @@ protected:
   vtkActor          **Handle;
   vtkPolyDataMapper **HandleMapper;
   vtkSphereSource   **HandleGeometry;
-  void PositionHandles();
+
+  void BuildRepresentation();
+  void SizeHandles();
   void HandlesOn(double length);
   void HandlesOff();
   int HighlightHandle(vtkProp *prop); //returns cell id
@@ -231,7 +244,10 @@ protected:
   vtkCellPicker *HandlePicker;
   vtkCellPicker *LinePicker;
   vtkActor *CurrentHandle;
+  int   ValidPick;
   float LastPickPosition[3];
+  float LastPosition[3];
+  void  SetLinePosition(float x[3]);
   
   // Methods to manipulate the hexahedron.
   void Scale(double *p1, double *p2, int X, int Y);
@@ -239,6 +255,9 @@ protected:
   // Initial bounds
   float InitialBounds[6];
   float InitialLength;
+  int   ClampToBounds;
+  void  ClampPosition(float x[3]);
+  int   InBounds(float x[3]);
 
   // Properties used to control the appearance of selected objects and
   // the manipulator in general.
