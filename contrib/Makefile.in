@@ -38,6 +38,7 @@ KIT_OBJ = ${SRC_OBJ}
 KIT_TCL_OBJ = ${TCL_OBJ} ${KIT_OBJ}
 KIT_NEWS = ${TCL_NEWS}
 KIT_FLAGS = 
+PYTHON_LIBS = -L ../common -lVTKCommonPython ${XLIBS} ${GRAPHICS_API_LIBS} ${DL_LIBS} ${THREAD_LIBS}
 
 #------------------------------------------------------------------------------
 # Autoconfig defines that can be overridden in user.make
