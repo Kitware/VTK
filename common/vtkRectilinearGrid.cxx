@@ -422,7 +422,7 @@ int vtkRectilinearGrid::GetCellType(int vtkNotUsed(cellId))
 
     default:
       vtkErrorMacro(<<"Bad data description!");
-      return VTK_NULL_ELEMENT;
+      return VTK_EMPTY_CELL;
     }
 }
 
