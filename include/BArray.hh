@@ -34,14 +34,14 @@ public:
   char *GetPtr(const int id) {return this->Array + id/8;};
   vlBitArray &SetValue(const int id, const int i)
   {
-  if (i) this->Array[id/8] != (0x80 >> id%8);
+  if (i) this->Array[id/8] |= (0x80 >> id%8);
   else this->Array[id/8] &= (~(0x80 >> id%8));
   if ( id > this->MaxId ) this->MaxId = id;
   }
   vlBitArray &InsertValue(const int id, const int i)
   {
   if ( id >= this->Size ) this->Resize(id);
-  if (i) this->Array[id/8] != (0x80 >> id%8);
+  if (i) this->Array[id/8] |= (0x80 >> id%8);
   else this->Array[id/8] &= (~(0x80 >> id%8));
   if ( id > this->MaxId ) this->MaxId = id;
   return *this;
