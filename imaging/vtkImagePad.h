@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageSourceCons.h
+  Module:    vtkImagePad.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -37,40 +37,48 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageSourceCons - Cons for creating a linked list of sources.
+// .NAME vtkImagePad - Pads an image to change its boundaries.
 // .SECTION Description
-// vtkImageSourceCons is one link of a list of sources.
-// It is used by vtkImageSourceList.
-
-#ifndef __vtkImageSourceCons_h
-#define __vtkImageSourceCons_h
+// vtkImagePad is a filter class that will change the boundaries of 
+// an image.  Pixels out of the input bounds are set to PadValue.
 
 
-#include "vtkObject.h"
-#include "vtkImageSource.h"
+#ifndef __vtkImagePad_h
+#define __vtkImagePad_h
 
-class vtkImageSourceCons : public vtkObject 
+
+#include "vtkImageFilter.h"
+
+class vtkImagePad : public vtkImageFilter
 {
 public:
-  vtkImageSourceCons();
-  char *GetClassName() {return "vtkImageSourceCons";};
+  vtkImagePad();
+  char *GetClassName() {return "vtkImagePad";};
 
   // Description:
-  // Set/Get the item(source) of the cons
-  vtkSetObjectMacro(Source,vtkImageSource);
-  vtkGetObjectMacro(Source,vtkImageSource);
-  
+  // Set/Get the PadValue of the filter
+  vtkSetMacro(PadValue,float);
+  vtkGetMacro(PadValue,float);
   // Description:
-  // Set/Get the next cons object
-  vtkSetObjectMacro(Next,vtkImageSourceCons);
-  vtkGetObjectMacro(Next,vtkImageSourceCons);
+  // Set/Get the new boundaries of the image
+  vtkSetVector3Macro(BoundaryOffset,int);
+  vtkGetVector3Macro(BoundaryOffset,int);
+  vtkSetVector3Macro(BoundarySize,int);
+  vtkGetVector3Macro(BoundarySize,int);
   
-  
+  void GetBoundary(int *offset, int *size);
+
 protected:
-  vtkImageSource *Source;   // An non NULL item in the list.
-  vtkImageSourceCons *Next;
+  float PadValue;
+  int BoundaryOffset[3];
+  int BoundarySize[3];
+  
+  void RequiredRegion(int *outOffset, int *outSize, 
+		      int *inOffset, int *inSize);
+  void Execute(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
 };
 
 #endif
+
 
 

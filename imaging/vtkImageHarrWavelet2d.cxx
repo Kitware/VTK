@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageHar2d.cxx
+  Module:    vtkImageHarrWavelet2d.cxx
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -37,14 +37,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkImageHar2d.h"
+#include "vtkImageHarrWavelet2d.h"
 #include "vtkImageCache.h"
 
 
 //----------------------------------------------------------------------------
 // Description:
 // Constructor: Sets default filter to be identity.
-vtkImageHar2d::vtkImageHar2d()
+vtkImageHarrWavelet2d::vtkImageHarrWavelet2d()
 {
   this->SetAxes2d(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS);
   this->SetNumberLevels(1);
@@ -57,7 +57,7 @@ vtkImageHar2d::vtkImageHar2d()
 // Description:
 // Intercepts the caches UpdateRegion to make the region larger than requested.
 // The whole image is generated when any region is requested.
-void vtkImageHar2d::InterceptCacheUpdate(vtkImageRegion *region)
+void vtkImageHarrWavelet2d::InterceptCacheUpdate(vtkImageRegion *region)
 {
   int bounds[4];
 
@@ -79,7 +79,7 @@ void vtkImageHar2d::InterceptCacheUpdate(vtkImageRegion *region)
 // Create an addition resolution level.
 // Regions bound only the lores. quadrent of the last resolution level.
 template <class T>
-void vtkImageHar2dExecute(vtkImageHar2d *self,
+void vtkImageHarrWavelet2dExecute(vtkImageHarrWavelet2d *self,
 				int qSize0, int qSize1,
 				vtkImageRegion *inRegion, T *inPtr,
 				vtkImageRegion *outRegion, T *outPtr)
@@ -142,7 +142,7 @@ void vtkImageHar2dExecute(vtkImageHar2d *self,
 // This method uses the input region to fill the output region.
 // It can handle any type data, but the two regions must have the same 
 // data type.  Assumes that in and out have the same lower bounds.
-void vtkImageHar2d::Execute2d(vtkImageRegion *inRegion, 
+void vtkImageHarrWavelet2d::Execute2d(vtkImageRegion *inRegion, 
 				    vtkImageRegion *outRegion)
 {
   vtkImageRegion *tempRegion = NULL;
@@ -180,27 +180,27 @@ void vtkImageHar2d::Execute2d(vtkImageRegion *inRegion,
     switch (inRegion->GetDataType())
       {
       case VTK_IMAGE_FLOAT:
-	vtkImageHar2dExecute(this, qSize0, qSize1,
+	vtkImageHarrWavelet2dExecute(this, qSize0, qSize1,
 				   inRegion, (float *)(inPtr), 
 				   outRegion, (float *)(outPtr));
 	break;
       case VTK_IMAGE_INT:
-	vtkImageHar2dExecute(this, qSize0, qSize1,
+	vtkImageHarrWavelet2dExecute(this, qSize0, qSize1,
 				   inRegion, (int *)(inPtr), 
 				   outRegion, (int *)(outPtr));
 	break;
       case VTK_IMAGE_SHORT:
-	vtkImageHar2dExecute(this, qSize0, qSize1,
+	vtkImageHarrWavelet2dExecute(this, qSize0, qSize1,
 				   inRegion, (short *)(inPtr), 
 				   outRegion, (short *)(outPtr));
 	break;
       case VTK_IMAGE_UNSIGNED_SHORT:
-	vtkImageHar2dExecute(this, qSize0, qSize1,
+	vtkImageHarrWavelet2dExecute(this, qSize0, qSize1,
 				   inRegion, (unsigned short *)(inPtr), 
 				   outRegion, (unsigned short *)(outPtr));
 	break;
       case VTK_IMAGE_UNSIGNED_CHAR:
-	vtkImageHar2dExecute(this, qSize0, qSize1,
+	vtkImageHarrWavelet2dExecute(this, qSize0, qSize1,
 				   inRegion, (unsigned char *)(inPtr), 
 				   outRegion, (unsigned char *)(outPtr));
 	break;

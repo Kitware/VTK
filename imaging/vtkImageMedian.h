@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageMIPFilter.h
+  Module:    vtkImageMedian.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -37,43 +37,42 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageMIPFilter - Maximum Intensity Projections of pixel values
+// .NAME vtkImageMedian - Median Filter
 // .SECTION Description
-// vtkImageMIPFilter is a filter that takes the maximum or minimum intensity 
-// projecttions along any orthogonal plane (x-y, x-z, or y-z).
+// vtkImageMedian a Median filter that replaces each pixel with the 
+// median value from a square neighborhood around that pixel.
 
 
-#ifndef __vtkImageMIPFilter_h
-#define __vtkImageMIPFilter_h
+#ifndef __vtkImageMedian_h
+#define __vtkImageMedian_h
 
 
-#include "vtkImageFilter.h"
+#include "vtkImageSpatial3d.h"
 
-class vtkImageMIPFilter : public vtkImageFilter
+class vtkImageMedian : public vtkImageSpatial3d
 {
 public:
-  vtkImageMIPFilter();
-  char *GetClassName() {return "vtkImageMIPFilter";};
+  vtkImageMedian();
+  ~vtkImageMedian();
+  char *GetClassName() {return "vtkImageMedian";};
 
-  // Description:
-  // Set/Get the range of slices for MIPs
-     vtkSetVector2Macro(ProjectionRange,int);
-     vtkGetVector2Macro(ProjectionRange,int);
-
-  // Description:
-  // Set/Get Min Intensity Projection = 0 or Max Intensity Projection = 1
-     vtkSetMacro(MinMaxIP,int);
-     vtkGetMacro(MinMaxIP,int);
-
+  void SetKernelSize(int size0, int size1, int size2);
+  void ClearMedian();
+  void AccumulateMedian(double val);
+  double GetMedian();
+  
 protected:
-  int ProjectionRange[2];
-  int MinMaxIP;
+  // stuff for sorting the pixels
+  int NumNeighborhood;
+  double *Sort;
+  double *Median;
+  int UpMax;
+  int DownMax;
+  int UpNum;
+  int DownNum;
 
-  void ComputeOutputImageInformation(vtkImageRegion *inRegion,
-				     vtkImageRegion *outRegion);
-  void ComputeRequiredInputRegionBounds(vtkImageRegion *outRegion, 
-				   vtkImageRegion *inRegion);
   void Execute3d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
+
 };
 
 #endif

@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageScatterPlotFilter.cxx
+  Module:    vtkImageScatterPlot.cxx
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -37,12 +37,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkImageScatterPlotFilter.h"
+#include "vtkImageScatterPlot.h"
 
 
 
 //----------------------------------------------------------------------------
-vtkImageScatterPlotFilter::vtkImageScatterPlotFilter()
+vtkImageScatterPlot::vtkImageScatterPlot()
 {
   this->SetAxes4d(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS, 
 		  VTK_IMAGE_Z_AXIS, VTK_IMAGE_COMPONENT_AXIS);
@@ -61,7 +61,7 @@ vtkImageScatterPlotFilter::vtkImageScatterPlotFilter()
 // Description:
 // Set the input of the filter, sets the default bounds of the InRegion as
 // the ImageBounds of the input.
-void vtkImageScatterPlotFilter::SetInput(vtkImageSource *input)
+void vtkImageScatterPlot::SetInput(vtkImageSource *input)
 {
   this->vtkImageFilter::SetInput(input);
   input->UpdateImageInformation(&(this->InRegion));
@@ -71,7 +71,7 @@ void vtkImageScatterPlotFilter::SetInput(vtkImageSource *input)
 //----------------------------------------------------------------------------
 // Description:
 // Set coordinate system of the filter.
-void vtkImageScatterPlotFilter::SetAxes(int *axes)
+void vtkImageScatterPlot::SetAxes(int *axes)
 {
   this->vtkImageCachedSource::SetAxes(axes);
   this->InRegion.SetAxes(axes);
@@ -82,7 +82,7 @@ void vtkImageScatterPlotFilter::SetAxes(int *axes)
 //----------------------------------------------------------------------------
 // Description:
 // Just sets the ImageBounds to be the bounds of the OutRegion.
-void vtkImageScatterPlotFilter::ComputeOutputImageInformation(
+void vtkImageScatterPlot::ComputeOutputImageInformation(
 		    vtkImageRegion *inRegion, vtkImageRegion *outRegion)
 {
   // Avoid warnings
@@ -96,7 +96,7 @@ void vtkImageScatterPlotFilter::ComputeOutputImageInformation(
 // Description:
 // The Required input bounds are the bounds of the InRegion.
 // Note used in this implementation
-void vtkImageScatterPlotFilter::ComputeRequiredInputRegionBounds(
+void vtkImageScatterPlot::ComputeRequiredInputRegionBounds(
 				       vtkImageRegion *outRegion, 
 				       vtkImageRegion *inRegion)
 {
@@ -109,7 +109,7 @@ void vtkImageScatterPlotFilter::ComputeRequiredInputRegionBounds(
 // Description:
 // This templated function executes the filter for any type of data.
 template <class T>
-void vtkImageScatterPlotFilterUpdate(vtkImageScatterPlotFilter *self,
+void vtkImageScatterPlotUpdate(vtkImageScatterPlot *self,
 			     vtkImageRegion *inRegion, T *inPtr,
 			     vtkImageRegion *outRegion, unsigned short *outPtr)
 {
@@ -155,7 +155,7 @@ void vtkImageScatterPlotFilterUpdate(vtkImageScatterPlotFilter *self,
 // Description:
 // This function requests the input as 2d images. It does not handle
 // failed input requests at all.
-void vtkImageScatterPlotFilter::UpdateRegion(vtkImageRegion *outRegion)
+void vtkImageScatterPlot::UpdateRegion(vtkImageRegion *outRegion)
 {
   // only handle 4d.
   vtkImageRegion *inRegion = NULL;
@@ -227,24 +227,24 @@ void vtkImageScatterPlotFilter::UpdateRegion(vtkImageRegion *outRegion)
     switch (inRegion->GetDataType())
       {
       case VTK_IMAGE_FLOAT:
-	vtkImageScatterPlotFilterUpdate(this, inRegion, (float *)(inPtr), 
+	vtkImageScatterPlotUpdate(this, inRegion, (float *)(inPtr), 
 					outRegion, (unsigned short *)(outPtr));
 	break;
       case VTK_IMAGE_INT:
-	vtkImageScatterPlotFilterUpdate(this, inRegion, (int *)(inPtr), 
+	vtkImageScatterPlotUpdate(this, inRegion, (int *)(inPtr), 
 					outRegion, (unsigned short *)(outPtr));
 	break;
       case VTK_IMAGE_SHORT:
-	vtkImageScatterPlotFilterUpdate(this, inRegion, (short *)(inPtr), 
+	vtkImageScatterPlotUpdate(this, inRegion, (short *)(inPtr), 
 					outRegion, (unsigned short *)(outPtr));
 	break;
       case VTK_IMAGE_UNSIGNED_SHORT:
-	vtkImageScatterPlotFilterUpdate(this, 
+	vtkImageScatterPlotUpdate(this, 
 					inRegion, (unsigned short *)(inPtr),
 					outRegion, (unsigned short *)(outPtr));
 	break;
       case VTK_IMAGE_UNSIGNED_CHAR:
-	vtkImageScatterPlotFilterUpdate(this, 
+	vtkImageScatterPlotUpdate(this, 
 					inRegion, (unsigned char *)(inPtr), 
 					outRegion, (unsigned short *)(outPtr));
 	break;

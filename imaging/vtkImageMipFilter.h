@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageScatterPlotFilter.h
+  Module:    vtkImageMipFilter.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -37,57 +37,43 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageScatterPlotFilter - Produces a scatter plot from 1 axis.
+// .NAME vtkImageMipFilter - Maximum Intensity Projections of pixel values
 // .SECTION Description
-// vtkImageScatterPlotFilter Was written to test the T2Median filter.
-// It converts one axis into a space, all other axis are ignored.
-// For example, it will convert an image with 2 spectral channels (components)
-// into a 2d scatter plot. All pixels become dots in the plot.  The
-// output of this filter is an image of unsigned bytes whose values
-// are 0 or 255. InRegion specifies the region to use from the input
-// that will create the plot.  OutRegion Specifies the dimensions of the
-// scatter plot.  AspectRatio specifies how the components are converted
-// into the OutRegion.  This filter will only work on 4d data 
-// (3d + components).
+// vtkImageMipFilter is a filter that takes the maximum or minimum intensity 
+// projecttions along any orthogonal plane (x-y, x-z, or y-z).
 
 
-#ifndef __vtkImageScatterPlotFilter_h
-#define __vtkImageScatterPlotFilter_h
+#ifndef __vtkImageMipFilter_h
+#define __vtkImageMipFilter_h
 
 
 #include "vtkImageFilter.h"
 
-class vtkImageScatterPlotFilter : public vtkImageFilter
+class vtkImageMipFilter : public vtkImageFilter
 {
 public:
-  vtkImageScatterPlotFilter();
-  char *GetClassName() {return "vtkImageScatterPlotFilter";};
-  
+  vtkImageMipFilter();
+  char *GetClassName() {return "vtkImageMipFilter";};
+
   // Description:
-  // You can modify the bounds of InRegion and OutRegions, 
-  // but you nust get them first.
-  vtkImageRegion *GetInRegion(){return &(this->InRegion);};
-  vtkImageRegion *GetImageRegion(){return &(this->ImageRegion);};
-  
-  void SetInput(vtkImageSource *input);
-  void SetAxes(int *axes);
-  
+  // Set/Get the range of slices for MIPs
+     vtkSetVector2Macro(ProjectionRange,int);
+     vtkGetVector2Macro(ProjectionRange,int);
+
   // Description:
-  // Set/Get The aspect ratio (same for all axes)
-  vtkSetMacro(AspectRatio,float);
-  vtkGetMacro(AspectRatio,float);
-  
+  // Set/Get Min Intensity Projection = 0 or Max Intensity Projection = 1
+     vtkSetMacro(MinMaxIP,int);
+     vtkGetMacro(MinMaxIP,int);
+
 protected:
-  float AspectRatio;
-  vtkImageRegion InRegion;   // filter is performed over this region.
-  vtkImageRegion ImageRegion;  // Just a way to provide ImageBounds.
-  
+  int ProjectionRange[2];
+  int MinMaxIP;
+
   void ComputeOutputImageInformation(vtkImageRegion *inRegion,
 				     vtkImageRegion *outRegion);
   void ComputeRequiredInputRegionBounds(vtkImageRegion *outRegion, 
-					vtkImageRegion *inRegion);
-
-  void UpdateRegion(vtkImageRegion *outRegion);
+				   vtkImageRegion *inRegion);
+  void Execute3d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
 };
 
 #endif

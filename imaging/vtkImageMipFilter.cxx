@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageMIPFilter.cxx
+  Module:    vtkImageMipFilter.cxx
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -37,14 +37,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkImageMIPFilter.h"
+#include "vtkImageMipFilter.h"
 
 
 
 //----------------------------------------------------------------------------
 // Description:
 // Constructor sets default values
-vtkImageMIPFilter::vtkImageMIPFilter()
+vtkImageMipFilter::vtkImageMipFilter()
 {
   this->ProjectionRange[0] = 0;
   this->ProjectionRange[1] = 0;
@@ -58,7 +58,7 @@ vtkImageMIPFilter::vtkImageMIPFilter()
 // Description:
 // This templated function executes the filter for any type of data.
 template <class T>
-void vtkImageMIPFilterExecute3d(vtkImageMIPFilter *self,
+void vtkImageMipFilterExecute3d(vtkImageMipFilter *self,
 				   vtkImageRegion *inRegion, T *inPtr,
 				   vtkImageRegion *outRegion, T *outPtr)
 {
@@ -135,7 +135,7 @@ void vtkImageMIPFilterExecute3d(vtkImageMIPFilter *self,
 // algorithm to fill the output from the input.
 // It just executes a switch statement to call the correct function for
 // the regions data types.
-void vtkImageMIPFilter::Execute3d(vtkImageRegion *inRegion, 
+void vtkImageMipFilter::Execute3d(vtkImageRegion *inRegion, 
 				  vtkImageRegion *outRegion)
 {
   void *inPtr = inRegion->GetVoidPointer3d();
@@ -155,27 +155,27 @@ void vtkImageMIPFilter::Execute3d(vtkImageRegion *inRegion,
   switch (inRegion->GetDataType())
     {
     case VTK_IMAGE_FLOAT:
-      vtkImageMIPFilterExecute3d(this, 
+      vtkImageMipFilterExecute3d(this, 
 			  inRegion, (float *)(inPtr), 
 			  outRegion, (float *)(outPtr));
       break;
     case VTK_IMAGE_INT:
-      vtkImageMIPFilterExecute3d(this, 
+      vtkImageMipFilterExecute3d(this, 
 			  inRegion, (int *)(inPtr), 
 			  outRegion, (int *)(outPtr));
       break;
     case VTK_IMAGE_SHORT:
-      vtkImageMIPFilterExecute3d(this, 
+      vtkImageMipFilterExecute3d(this, 
 			  inRegion, (short *)(inPtr), 
 			  outRegion, (short *)(outPtr));
       break;
     case VTK_IMAGE_UNSIGNED_SHORT:
-      vtkImageMIPFilterExecute3d(this, 
+      vtkImageMipFilterExecute3d(this, 
 			  inRegion, (unsigned short *)(inPtr), 
 			  outRegion, (unsigned short *)(outPtr));
       break;
     case VTK_IMAGE_UNSIGNED_CHAR:
-      vtkImageMIPFilterExecute3d(this, 
+      vtkImageMipFilterExecute3d(this, 
 			  inRegion, (unsigned char *)(inPtr), 
 			  outRegion, (unsigned char *)(outPtr));
       break;
@@ -192,7 +192,7 @@ void vtkImageMIPFilter::Execute3d(vtkImageRegion *inRegion,
 // input, and changes the region to hold the boundary of this filters
 // output.
 void 
-vtkImageMIPFilter::ComputeOutputImageInformation(vtkImageRegion *inRegion,
+vtkImageMipFilter::ComputeOutputImageInformation(vtkImageRegion *inRegion,
 						 vtkImageRegion *outRegion)
 {
   int bounds[6];
@@ -214,7 +214,7 @@ vtkImageMIPFilter::ComputeOutputImageInformation(vtkImageRegion *inRegion,
 // an output region.  Before this method is called "region" should have the 
 // bounds of the output region.  After this method finishes, "region" should 
 // have the bounds of the required input region.
-void vtkImageMIPFilter::ComputeRequiredInputRegionBounds(
+void vtkImageMipFilter::ComputeRequiredInputRegionBounds(
                                                     vtkImageRegion *outRegion, 
 			                            vtkImageRegion *inRegion)
 {

@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageUpperThresholdFilter.h
+  Module:    vtkImageShiftScale.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -37,38 +37,38 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageUpperThresholdFilter - Upper threshold on pixel values
+// .NAME vtkImageShiftScale - Upper threshold on pixel values
 // .SECTION Description
-// vtkImageUpperThresholdFilter is a pixel filter class that implements a 
+// vtkImageShiftScale is a pixel filter class that implements a 
 // nonlinear upper threshold.  If a pixel is above Threshold, it is replaced
 // with Replace.
 
 
-#ifndef __vtkImageUpperThresholdFilter_h
-#define __vtkImageUpperThresholdFilter_h
+#ifndef __vtkImageShiftScale_h
+#define __vtkImageShiftScale_h
 
 
 #include "vtkImageFilter.h"
 
-class vtkImageUpperThresholdFilter : public vtkImageFilter
+class vtkImageShiftScale : public vtkImageFilter
 {
 public:
-  vtkImageUpperThresholdFilter();
-  char *GetClassName() {return "vtkImageUpperThresholdFilter";};
+  vtkImageShiftScale();
+  char *GetClassName() {return "vtkImageShiftScale";};
 
   // Description:
-  // Set/Get the Threshold
-  vtkSetMacro(Threshold,float);
-  vtkGetMacro(Threshold,float);
+  // Set/Get the Shift
+  vtkSetMacro(Shift,float);
+  vtkGetMacro(Shift,float);
 
   // Description:
-  // Set/Get the Replace Value;
-  vtkSetMacro(Replace,float);
-  vtkGetMacro(Replace,float);
+  // Set/Get the scale Value;
+  vtkSetMacro(Scale,float);
+  vtkGetMacro(Scale,float);
 
 protected:
-  float Threshold;
-  float Replace;
+  float Shift;
+  float Scale;
 
   void Execute2d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
 };

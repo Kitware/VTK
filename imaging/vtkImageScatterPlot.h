@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageHar2d.h
+  Module:    vtkImageScatterPlot.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -37,49 +37,57 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageHar2d - Har wavelet decomposition.
+// .NAME vtkImageScatterPlot - Produces a scatter plot from 1 axis.
 // .SECTION Description
-// vtkImageHar2d Uses har wavelets to decompose an image to
-// a specified number of resolution levels.  It is written so that
-// it uses the whole input, and generates the whole output, when
-// any region is requested.
+// vtkImageScatterPlot Was written to test the T2Median filter.
+// It converts one axis into a space, all other axis are ignored.
+// For example, it will convert an image with 2 spectral channels (components)
+// into a 2d scatter plot. All pixels become dots in the plot.  The
+// output of this filter is an image of unsigned bytes whose values
+// are 0 or 255. InRegion specifies the region to use from the input
+// that will create the plot.  OutRegion Specifies the dimensions of the
+// scatter plot.  AspectRatio specifies how the components are converted
+// into the OutRegion.  This filter will only work on 4d data 
+// (3d + components).
 
 
-#ifndef __vtkImageHar2d_h
-#define __vtkImageHar2d_h
+#ifndef __vtkImageScatterPlot_h
+#define __vtkImageScatterPlot_h
 
 
 #include "vtkImageFilter.h"
 
-class vtkImageHar2d : public vtkImageFilter
+class vtkImageScatterPlot : public vtkImageFilter
 {
 public:
-  vtkImageHar2d();
-  char *GetClassName() {return "vtkImageHar2d";};
-
-  // Description:
-  // Set/Get the number of resolution levels.
-  vtkSetMacro(NumberLevels,int);
-  vtkGetMacro(NumberLevels,int);
+  vtkImageScatterPlot();
+  char *GetClassName() {return "vtkImageScatterPlot";};
   
   // Description:
-  // Set/Get offset for the 3 wavelet quadrents.
-  vtkSetMacro(PixelOffset,float);
-  vtkGetMacro(PixelOffset,float);
-
+  // You can modify the bounds of InRegion and OutRegions, 
+  // but you nust get them first.
+  vtkImageRegion *GetInRegion(){return &(this->InRegion);};
+  vtkImageRegion *GetImageRegion(){return &(this->ImageRegion);};
+  
+  void SetInput(vtkImageSource *input);
+  void SetAxes(int *axes);
+  
   // Description:
-  // Set/Get scale for the 3 wavelet quadrents.
-  vtkSetMacro(PixelScale,float);
-  vtkGetMacro(PixelScale,float);
-
-  void InterceptCacheUpdate(vtkImageRegion *region);
-
+  // Set/Get The aspect ratio (same for all axes)
+  vtkSetMacro(AspectRatio,float);
+  vtkGetMacro(AspectRatio,float);
+  
 protected:
-  int NumberLevels;
-  float PixelScale;
-  float PixelOffset;
+  float AspectRatio;
+  vtkImageRegion InRegion;   // filter is performed over this region.
+  vtkImageRegion ImageRegion;  // Just a way to provide ImageBounds.
+  
+  void ComputeOutputImageInformation(vtkImageRegion *inRegion,
+				     vtkImageRegion *outRegion);
+  void ComputeRequiredInputRegionBounds(vtkImageRegion *outRegion, 
+					vtkImageRegion *inRegion);
 
-  void Execute2d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);  
+  void UpdateRegion(vtkImageRegion *outRegion);
 };
 
 #endif

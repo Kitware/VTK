@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImage4dShortReader.h
+  Module:    vtkImageShortReader4d.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -37,9 +37,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImage4dShortReader - Generic Reader Class.
+// .NAME vtkImageShortReader4d - Generic Reader Class.
 // .SECTION Description
-// vtkImage4dShortReader will read an image saved as unsigned shorts.
+// vtkImageShortReader4d will read an image saved as unsigned shorts.
 // The dimensions of the image has to be prespecified.
 // The header of the file is completely ignored.  
 // Images are stored in individual files: i.e. prefix.1, prefix.2 ...
@@ -47,19 +47,19 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // duplicate the 3d volume for each slice of the extra dimension.
 
 
-#ifndef __vtkImage4dShortReader_h
-#define __vtkImage4dShortReader_h
+#ifndef __vtkImageShortReader4d_h
+#define __vtkImageShortReader4d_h
 
 #include <iostream.h>
 #include <fstream.h>
 #include "vtkImageCachedSource.h"
 
-class vtkImage4dShortReader : public vtkImageCachedSource
+class vtkImageShortReader4d : public vtkImageCachedSource
 {
 public:
-  vtkImage4dShortReader();
-  ~vtkImage4dShortReader();
-  char *GetClassName() {return "vtkImage4dShortReader";};
+  vtkImageShortReader4d();
+  ~vtkImageShortReader4d();
+  char *GetClassName() {return "vtkImageShortReader4d";};
   void PrintSelf(ostream& os, vtkIndent indent);   
   
   void SetDimensions(int size0, int size1, int size2, int size3);
@@ -106,20 +106,20 @@ public:
   vtkGetMacro(HeaderSize, int);
   
   // Templated function that reads into different data types.
-  friend void vtkImage4dShortReaderGenerateRegion2d(
-			     vtkImage4dShortReader *self,
+  friend void vtkImageShortReader4dGenerateRegion2d(
+			     vtkImageShortReader4d *self,
 			     vtkImageRegion *region, float *ptr);
-  friend void vtkImage4dShortReaderGenerateRegion2d(
-			     vtkImage4dShortReader *self,
+  friend void vtkImageShortReader4dGenerateRegion2d(
+			     vtkImageShortReader4d *self,
 			     vtkImageRegion *region, int *ptr);
-  friend void vtkImage4dShortReaderGenerateRegion2d(
-			     vtkImage4dShortReader *self,
+  friend void vtkImageShortReader4dGenerateRegion2d(
+			     vtkImageShortReader4d *self,
 			     vtkImageRegion *region, short *ptr);
-  friend void vtkImage4dShortReaderGenerateRegion2d(
-			     vtkImage4dShortReader *self,
+  friend void vtkImageShortReader4dGenerateRegion2d(
+			     vtkImageShortReader4d *self,
 			     vtkImageRegion *region, unsigned short *ptr);
-  friend void vtkImage4dShortReaderGenerateRegion2d(
-			     vtkImage4dShortReader *self,
+  friend void vtkImageShortReader4dGenerateRegion2d(
+			     vtkImageShortReader4d *self,
 			     vtkImageRegion *region, unsigned char *ptr);
   
 protected:

@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImagePadFilter.h
+  Module:    vtkImageDifference.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -37,45 +37,29 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImagePadFilter - Pads an image to change its boundaries.
+// .NAME vtkImageDifference - Subtracts two images.
 // .SECTION Description
-// vtkImagePadFilter is a filter class that will change the boundaries of 
-// an image.  Pixels out of the input bounds are set to PadValue.
+// vtkImageDifference subtracts two images pixel by pixel.
+// The two input and oputput data types all have to be the same.
+//  (output = input1 - input2)
 
 
-#ifndef __vtkImagePadFilter_h
-#define __vtkImagePadFilter_h
+#ifndef __vtkImageDifference_h
+#define __vtkImageDifference_h
 
 
-#include "vtkImageFilter.h"
+#include "vtkImageDyadicFilter.h"
 
-class vtkImagePadFilter : public vtkImageFilter
+class vtkImageDifference : public vtkImageDyadicFilter
 {
 public:
-  vtkImagePadFilter();
-  char *GetClassName() {return "vtkImagePadFilter";};
-
-  // Description:
-  // Set/Get the PadValue of the filter
-  vtkSetMacro(PadValue,float);
-  vtkGetMacro(PadValue,float);
-  // Description:
-  // Set/Get the new boundaries of the image
-  vtkSetVector3Macro(BoundaryOffset,int);
-  vtkGetVector3Macro(BoundaryOffset,int);
-  vtkSetVector3Macro(BoundarySize,int);
-  vtkGetVector3Macro(BoundarySize,int);
-  
-  void GetBoundary(int *offset, int *size);
+  vtkImageDifference();
+  char *GetClassName() {return "vtkImageDifference";};
 
 protected:
-  float PadValue;
-  int BoundaryOffset[3];
-  int BoundarySize[3];
-  
-  void RequiredRegion(int *outOffset, int *outSize, 
-		      int *inOffset, int *inSize);
-  void Execute(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
+  void Execute2d(vtkImageRegion *inRegion1, 
+		 vtkImageRegion *inRegion2, 
+		 vtkImageRegion *outRegion);
 };
 
 #endif

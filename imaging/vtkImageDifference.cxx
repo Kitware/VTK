@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageUpperThresholdFilter.cxx
+  Module:    vtkImageDifference.cxx
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -37,17 +37,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkImageUpperThresholdFilter.h"
+#include "vtkImageDifference.h"
 
 
 
 //----------------------------------------------------------------------------
-// Description:
-// Constructor sets default values
-vtkImageUpperThresholdFilter::vtkImageUpperThresholdFilter()
+vtkImageDifference::vtkImageDifference()
 {
-  this->Threshold = 0.0;
-  this->Replace = 0.0;
   this->SetAxes2d(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS);
 }
 
@@ -57,45 +53,50 @@ vtkImageUpperThresholdFilter::vtkImageUpperThresholdFilter()
 // Description:
 // This templated function executes the filter for any type of data.
 template <class T>
-void vtkImageUpperThresholdFilterExecute2d(vtkImageUpperThresholdFilter *self,
-				   vtkImageRegion *inRegion, T *inPtr,
-				   vtkImageRegion *outRegion, T *outPtr)
+void vtkImageDifferenceExecute2d(vtkImageDifference *self,
+				       vtkImageRegion *in1Region, T *in1Ptr,
+				       vtkImageRegion *in2Region, T *in2Ptr,
+				       vtkImageRegion *outRegion, T *outPtr)
 {
   int min0, max0, min1, max1;
   int idx0, idx1;
-  int inInc0, inInc1;
+  int in1Inc0, in1Inc1;
+  int in2Inc0, in2Inc1;
   int outInc0, outInc1;
-  T *inPtr0, *inPtr1;
+  T *in1Ptr0, *in1Ptr1;
+  T *in2Ptr0, *in2Ptr1;
   T *outPtr0, *outPtr1;
-  T threshold = (T)(self->GetThreshold());
-  T replace = (T)(self->GetReplace());
+  
+  self = self;
   
   // Get information to march through data 
-  inRegion->GetIncrements2d(inInc0, inInc1);
+  in1Region->GetIncrements2d(in1Inc0, in1Inc1);
+  in2Region->GetIncrements2d(in2Inc0, in2Inc1);
   outRegion->GetIncrements2d(outInc0, outInc1);
   outRegion->GetBounds2d(min0, max0, min1, max1);
 
   // Loop through ouput pixels
-  inPtr1 = inPtr;
+  in1Ptr1 = in1Ptr;
+  in2Ptr1 = in2Ptr;
   outPtr1 = outPtr;
   for (idx1 = min1; idx1 <= max1; ++idx1)
     {
     outPtr0 = outPtr1;
-    inPtr0 = inPtr1;
+    in1Ptr0 = in1Ptr1;
+    in2Ptr0 = in2Ptr1;
     for (idx0 = min0; idx0 <= max0; ++idx0)
       {
       
       // Pixel operation
-      if (*inPtr0 > threshold)
-	*outPtr0 = replace;
-      else
-	*outPtr0 = *inPtr0;
+      *outPtr0 = *in1Ptr0 - *in2Ptr0;
       
       outPtr0 += outInc0;
-      inPtr0 += inInc0;
+      in1Ptr0 += in1Inc0;
+      in2Ptr0 += in2Inc0;
       }
     outPtr1 += outInc1;
-    inPtr1 += inInc1;
+    in1Ptr1 += in1Inc1;
+    in2Ptr1 += in2Inc1;
     }
 }
 
@@ -103,52 +104,58 @@ void vtkImageUpperThresholdFilterExecute2d(vtkImageUpperThresholdFilter *self,
 
 //----------------------------------------------------------------------------
 // Description:
-// This method is passed a input and output region, and executes the filter
-// algorithm to fill the output from the input.
+// This method is passed a input and output regions, and executes the filter
+// algorithm to fill the output from the inputs.
 // It just executes a switch statement to call the correct function for
 // the regions data types.
-void vtkImageUpperThresholdFilter::Execute2d(vtkImageRegion *inRegion, 
-					     vtkImageRegion *outRegion)
+void vtkImageDifference::Execute2d(vtkImageRegion *inRegion1, 
+					 vtkImageRegion *inRegion2, 
+					 vtkImageRegion *outRegion)
 {
-  void *inPtr = inRegion->GetVoidPointer2d();
+  void *inPtr1 = inRegion1->GetVoidPointer2d();
+  void *inPtr2 = inRegion2->GetVoidPointer2d();
   void *outPtr = outRegion->GetVoidPointer2d();
   
-  vtkDebugMacro(<< "Execute: inRegion = " << inRegion 
-		<< ", outRegion = " << outRegion);
-  
-  // this filter expects that input is the same type as output.
-  if (inRegion->GetDataType() != outRegion->GetDataType())
+  // this filter expects that inputs are the same type as output.
+  if (inRegion1->GetDataType() != outRegion->GetDataType() ||
+      inRegion2->GetDataType() != outRegion->GetDataType())
     {
-    vtkErrorMacro(<< "Execute: input DataType, " << inRegion->GetDataType()
+    vtkErrorMacro(<< "Execute: input DataTypes, " << inRegion1->GetDataType()
+                  << " and " << inRegion2->GetDataType()
                   << ", must match out DataType " << outRegion->GetDataType());
     return;
     }
   
-  switch (inRegion->GetDataType())
+  switch (inRegion1->GetDataType())
     {
     case VTK_IMAGE_FLOAT:
-      vtkImageUpperThresholdFilterExecute2d(this, 
-			  inRegion, (float *)(inPtr), 
+      vtkImageDifferenceExecute2d(this, 
+			  inRegion1, (float *)(inPtr1), 
+			  inRegion2, (float *)(inPtr2), 
 			  outRegion, (float *)(outPtr));
       break;
     case VTK_IMAGE_INT:
-      vtkImageUpperThresholdFilterExecute2d(this, 
-			  inRegion, (int *)(inPtr), 
+      vtkImageDifferenceExecute2d(this, 
+			  inRegion1, (int *)(inPtr1), 
+			  inRegion2, (int *)(inPtr2), 
 			  outRegion, (int *)(outPtr));
       break;
     case VTK_IMAGE_SHORT:
-      vtkImageUpperThresholdFilterExecute2d(this, 
-			  inRegion, (short *)(inPtr), 
+      vtkImageDifferenceExecute2d(this, 
+			  inRegion1, (short *)(inPtr1), 
+			  inRegion2, (short *)(inPtr2), 
 			  outRegion, (short *)(outPtr));
       break;
     case VTK_IMAGE_UNSIGNED_SHORT:
-      vtkImageUpperThresholdFilterExecute2d(this, 
-			  inRegion, (unsigned short *)(inPtr), 
+      vtkImageDifferenceExecute2d(this, 
+			  inRegion1, (unsigned short *)(inPtr1), 
+			  inRegion2, (unsigned short *)(inPtr2), 
 			  outRegion, (unsigned short *)(outPtr));
       break;
     case VTK_IMAGE_UNSIGNED_CHAR:
-      vtkImageUpperThresholdFilterExecute2d(this, 
-			  inRegion, (unsigned char *)(inPtr), 
+      vtkImageDifferenceExecute2d(this, 
+			  inRegion1, (unsigned char *)(inPtr1), 
+			  inRegion2, (unsigned char *)(inPtr2), 
 			  outRegion, (unsigned char *)(outPtr));
       break;
     default:

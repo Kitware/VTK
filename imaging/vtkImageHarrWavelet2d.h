@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageSourceCons.cxx
+  Module:    vtkImageHarrWavelet2d.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -37,20 +37,52 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkImageSourceCons.h"
+// .NAME vtkImageHarrWavelet2d - Har wavelet decomposition.
+// .SECTION Description
+// vtkImageHarrWavelet2d Uses har wavelets to decompose an image to
+// a specified number of resolution levels.  It is written so that
+// it uses the whole input, and generates the whole output, when
+// any region is requested.
 
-//----------------------------------------------------------------------------
-// Description:
-// Construct an empty instance of vtkImageSourceCons.
-vtkImageSourceCons::vtkImageSourceCons()
+
+#ifndef __vtkImageHarrWavelet2d_h
+#define __vtkImageHarrWavelet2d_h
+
+
+#include "vtkImageFilter.h"
+
+class vtkImageHarrWavelet2d : public vtkImageFilter
 {
-  this->Source = NULL;
-  this->Next = NULL;
-}
+public:
+  vtkImageHarrWavelet2d();
+  char *GetClassName() {return "vtkImageHarrWavelet2d";};
 
+  // Description:
+  // Set/Get the number of resolution levels.
+  vtkSetMacro(NumberLevels,int);
+  vtkGetMacro(NumberLevels,int);
+  
+  // Description:
+  // Set/Get offset for the 3 wavelet quadrents.
+  vtkSetMacro(PixelOffset,float);
+  vtkGetMacro(PixelOffset,float);
 
+  // Description:
+  // Set/Get scale for the 3 wavelet quadrents.
+  vtkSetMacro(PixelScale,float);
+  vtkGetMacro(PixelScale,float);
 
+  void InterceptCacheUpdate(vtkImageRegion *region);
 
+protected:
+  int NumberLevels;
+  float PixelScale;
+  float PixelOffset;
+
+  void Execute2d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);  
+};
+
+#endif
 
 
 

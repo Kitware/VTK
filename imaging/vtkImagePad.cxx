@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImagePadFilter.cxx
+  Module:    vtkImagePad.cxx
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -37,13 +37,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkImagePadFilter.h"
+#include "vtkImagePad.h"
 
 
 //----------------------------------------------------------------------------
 // Description:
 // Constructor
-vtkImagePadFilter::vtkImagePadFilter()
+vtkImagePad::vtkImagePad()
 {
   this->PadValue = 0.0;
 
@@ -61,7 +61,7 @@ vtkImagePadFilter::vtkImagePadFilter()
 // Description:
 // Returns the largest region which can be requested.
 // Just returns the boundary defined for this object.
-void vtkImagePadFilter::GetBoundary(int *offset, int *size)
+void vtkImagePad::GetBoundary(int *offset, int *size)
 {
   int idx;
   
@@ -85,7 +85,7 @@ void vtkImagePadFilter::GetBoundary(int *offset, int *size)
 // This method computes the Region of input necessary to generate out Region.
 // For this filter the input region is the output region clipped by the real
 // boundaries.
-void vtkImagePadFilter::RequiredRegion(int *outOffset, int *outSize,
+void vtkImagePad::RequiredRegion(int *outOffset, int *outSize,
 				       int *inOffset, int *inSize)
 {
   int idx;
@@ -116,33 +116,33 @@ void vtkImagePadFilter::RequiredRegion(int *outOffset, int *outSize,
 // This method is passed a input and output region, and executes the filter
 // algorithm to fill the output from the input.
 // Pad just copies pixel by pixel and fills the rest with the pad value.
-void vtkImagePadFilter::Execute(vtkImageRegion *inRegion, 
+void vtkImagePad::Execute(vtkImageRegion *inRegion, 
 				vtkImageRegion *outRegion)
 {
   switch (inRegion->GetType())
     {
     case VTK_IMAGE_FLOAT:
-      vtkImagePadFilterExecute(this, 
+      vtkImagePadExecute(this, 
 	       (vtkImageTemplateRegion<float>)(inRegion), 
 	       (vtkImageTemplateRegion<float>)(outRegion));
       break;
     case VTK_IMAGE_INT:
-      vtkImagePadFilterExecute(this, 
+      vtkImagePadExecute(this, 
 	       (vtkImageTemplateRegion<int>)(inRegion), 
 	       (vtkImageTemplateRegion<int>)(outRegion));
       break;
     case VTK_IMAGE_SHORT:
-      vtkImagePadFilterExecute(this, 
+      vtkImagePadExecute(this, 
 	       (vtkImageTemplateRegion<short int>)(inRegion), 
 	       (vtkImageTemplateRegion<short int>)(outRegion));
       break;
     case VTK_IMAGE_UNSIGNED_SHORT:
-      vtkImagePadFilterExecute(this, 
+      vtkImagePadExecute(this, 
 	       (vtkImageTemplateRegion<unsigned short int>)(inRegion), 
 	       (vtkImageTemplateRegion<unsigned short int>)(outRegion));
       break;
     case VTK_IMAGE_UNSIGNED_CHAR:
-      vtkImagePadFilterExecute(this, 
+      vtkImagePadExecute(this, 
 	       (vtkImageTemplateRegion<unsigned char>)(inRegion), 
 	       (vtkImageTemplateRegion<unsigned char>)(outRegion));
       break;
@@ -153,7 +153,7 @@ void vtkImagePadFilter::Execute(vtkImageRegion *inRegion,
 // Description:
 // Templated execute function.
 template <class T>
-void vtkImagePadFilterExecute(vtkImagePadFilter *self,
+void vtkImagePadExecute(vtkImagePad *self,
 			      vtkImageTemplatedRegion<T> *inRegion, 
 			      vtkImageTemplatedRegion<T> *outRegion)
 {
@@ -200,12 +200,12 @@ void vtkImagePadFilterExecute(vtkImagePadFilter *self,
       }
 
     // Pad the rest of the output
-    vtkImagePadFilterPad(self, inRegion, outRegion);
+    vtkImagePadPad(self, inRegion, outRegion);
     }
   else
     {
     // Special case: No overlap.  Just fill the entire region with pad value
-    vtkImagePadFilterPadRegion(self, outRegion, 
+    vtkImagePadPadRegion(self, outRegion, 
 			       outRegion->GetOffset(), outRegion->GetSize());
     }
 }
@@ -218,7 +218,7 @@ void vtkImagePadFilterExecute(vtkImagePadFilter *self,
 // It fills the output region not covered by input region with the pad value.
 // IT ASSUMES INPUT IS CONTAINED IN OUTPUT.
 template <class T>
-void vtkImagePadFilterPad(vtkImageTemplatedRegion<T> *inRegion, 
+void vtkImagePadPad(vtkImageTemplatedRegion<T> *inRegion, 
 			  vtkImageTemplatedRegion<T> *outRegion)
 {
   int padOffset[3], padSize[3];
@@ -274,7 +274,7 @@ void vtkImagePadFilterPad(vtkImageTemplatedRegion<T> *inRegion,
 // This function fills a rectangular portion of a region with the pad value.
 // It has to be templated also.
 template <class T>
-void vtkImagePadFilterPadRegion(vtkImagePadFilter *self,
+void vtkImagePadPadRegion(vtkImagePad *self,
 				vtkImageTemplatedRegion<T> *region,
 				int *offset, int *size)
 {

@@ -98,7 +98,7 @@ protected:
   // own UpdateRegion methods.  They create the region object as well as 
   // getting the input source to fill it with data.  The bounds
   // of the unspecified dimensions default to [0, 0];
-  // Used in vtkImageScatterPlotFilter.
+  // Used in vtkImageScatterPlot.
   vtkImageRegion *GetInputRegion(int *bounds, int dim);    
   vtkImageRegion *GetInputRegion5d(int bounds[10])
     {return this->GetInputRegion(bounds, 5);};

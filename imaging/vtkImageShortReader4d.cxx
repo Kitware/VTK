@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImage4dShortReader.cxx
+  Module:    vtkImageShortReader4d.cxx
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -39,11 +39,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
-#include "vtkImage4dShortReader.h"
+#include "vtkImageShortReader4d.h"
 #include "vtkImageCache.h"
 
 //----------------------------------------------------------------------------
-vtkImage4dShortReader::vtkImage4dShortReader()
+vtkImageShortReader4d::vtkImageShortReader4d()
 {
   this->File = NULL;
 
@@ -72,7 +72,7 @@ vtkImage4dShortReader::vtkImage4dShortReader()
 
 
 //----------------------------------------------------------------------------
-vtkImage4dShortReader::~vtkImage4dShortReader()
+vtkImageShortReader4d::~vtkImageShortReader4d()
 { 
   if (this->FilePrefix)
     {
@@ -94,7 +94,7 @@ vtkImage4dShortReader::~vtkImage4dShortReader()
 
 
 //----------------------------------------------------------------------------
-void vtkImage4dShortReader::PrintSelf(ostream& os, vtkIndent indent)
+void vtkImageShortReader4d::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkObject::PrintSelf(os,indent);
 
@@ -126,7 +126,7 @@ void vtkImage4dShortReader::PrintSelf(ostream& os, vtkIndent indent)
 // Description:
 // This sets the dimensions of the image in the file
 void
-vtkImage4dShortReader::SetDimensions(int size0,int size1,int size2,int size3)
+vtkImageShortReader4d::SetDimensions(int size0,int size1,int size2,int size3)
 {
   vtkDebugMacro(<< "SetDimensions: (" << size0 << ", " 
                 << size1 << ", " << size2 << ", " << size3 << ")");
@@ -144,7 +144,7 @@ vtkImage4dShortReader::SetDimensions(int size0,int size1,int size2,int size3)
   this->Initialized = 0;
   this->Modified();
 }
-void vtkImage4dShortReader::SetDimensions(int *size)
+void vtkImageShortReader4d::SetDimensions(int *size)
 {
   this->SetDimensions(size[0], size[1], size[2], size[3]);
 }
@@ -153,7 +153,7 @@ void vtkImage4dShortReader::SetDimensions(int *size)
 //----------------------------------------------------------------------------
 // Description:
 // This method returns the largest region that can be generated.
-void vtkImage4dShortReader::UpdateImageInformation(vtkImageRegion *region)
+void vtkImageShortReader4d::UpdateImageInformation(vtkImageRegion *region)
 {
   region->SetImageBounds4d(0, this->Dimensions[0]-1, 
 			   0, this->Dimensions[1]-1, 
@@ -168,7 +168,7 @@ void vtkImage4dShortReader::UpdateImageInformation(vtkImageRegion *region)
 //----------------------------------------------------------------------------
 // Description:
 // This function opens the first file to determine the header size.
-void vtkImage4dShortReader::Initialize()
+void vtkImageShortReader4d::Initialize()
 {
   if (this->Initialized)
     {
@@ -229,7 +229,7 @@ void vtkImage4dShortReader::Initialize()
 // Description:
 // This function sets the prefix of the file name. "image" would be the
 // name of a series: image.1, image.2 ...
-void vtkImage4dShortReader::SetFilePrefix(char *prefix)
+void vtkImageShortReader4d::SetFilePrefix(char *prefix)
 {
   if (this->FilePrefix)
     {
@@ -246,7 +246,7 @@ void vtkImage4dShortReader::SetFilePrefix(char *prefix)
 // This function sets the pattern of the file name which turn a prefix
 // into a file name. "%s.%3d" would be the
 // pattern of a series: image.001, image.002 ...
-void vtkImage4dShortReader::SetFilePattern(char *pattern)
+void vtkImageShortReader4d::SetFilePattern(char *pattern)
 {
   if (this->FilePattern)
     {
@@ -263,7 +263,7 @@ void vtkImage4dShortReader::SetFilePattern(char *pattern)
 // This function reads a whole image.
 // This is a special cass that should speed reads.
 template <class T>
-void vtkImage4dShortReaderGenerateImage2d(vtkImage4dShortReader *self,
+void vtkImageShortReader4dGenerateImage2d(vtkImageShortReader4d *self,
 					  vtkImageRegion *region, T *ptr)
 {
   int min0, max0,  min1, max1;
@@ -364,7 +364,7 @@ void vtkImage4dShortReaderGenerateImage2d(vtkImage4dShortReader *self,
 // This function reads in one region of one slice.
 // templated to handle different data types.
 template <class T>
-void vtkImage4dShortReaderGenerateRegion2d(vtkImage4dShortReader *self,
+void vtkImageShortReader4dGenerateRegion2d(vtkImageShortReader4d *self,
 					   vtkImageRegion *region, T *ptr)
 {
   int min0, max0,  min1, max1;
@@ -402,7 +402,7 @@ void vtkImage4dShortReaderGenerateRegion2d(vtkImage4dShortReader *self,
   // error checking
   if (streamStartPos < 0 || streamStartPos > self->FileSize)
     {
-    cerr << "vtkImage4dShortReader GenerateData2d: bad offset";
+    cerr << "vtkImageShortReader4d GenerateData2d: bad offset";
     return;
     }
     
@@ -495,7 +495,7 @@ void vtkImage4dShortReaderGenerateRegion2d(vtkImage4dShortReader *self,
 //----------------------------------------------------------------------------
 // Description:
 // This function reads an image.
-void vtkImage4dShortReader::UpdateRegion2d(vtkImageRegion *region)
+void vtkImageShortReader4d::UpdateRegion2d(vtkImageRegion *region)
 {
   void *ptr;
   int *bounds = region->GetBounds();
@@ -534,20 +534,20 @@ void vtkImage4dShortReader::UpdateRegion2d(vtkImageRegion *region)
   switch (region->GetDataType())
     {
     case VTK_IMAGE_FLOAT:
-      vtkImage4dShortReaderGenerateRegion2d(this, region, (float *)(ptr));
+      vtkImageShortReader4dGenerateRegion2d(this, region, (float *)(ptr));
       break;
     case VTK_IMAGE_INT:
-      vtkImage4dShortReaderGenerateRegion2d(this, region, (int *)(ptr));
+      vtkImageShortReader4dGenerateRegion2d(this, region, (int *)(ptr));
       break;
     case VTK_IMAGE_SHORT:
-      vtkImage4dShortReaderGenerateRegion2d(this, region, (short *)(ptr));
+      vtkImageShortReader4dGenerateRegion2d(this, region, (short *)(ptr));
       break;
     case VTK_IMAGE_UNSIGNED_SHORT:
-      vtkImage4dShortReaderGenerateRegion2d(this, region, 
+      vtkImageShortReader4dGenerateRegion2d(this, region, 
 					    (unsigned short *)(ptr));
       break;
     case VTK_IMAGE_UNSIGNED_CHAR:
-      vtkImage4dShortReaderGenerateRegion2d(this, region, 
+      vtkImageShortReader4dGenerateRegion2d(this, region, 
 					    (unsigned char *)(ptr));
       break;
     }   
@@ -563,7 +563,7 @@ void vtkImage4dShortReader::UpdateRegion2d(vtkImageRegion *region)
 //----------------------------------------------------------------------------
 // Description:
 // Sets the default DataType of the cache.
-vtkImageSource *vtkImage4dShortReader::GetOutput()
+vtkImageSource *vtkImageShortReader4d::GetOutput()
 {
   this->CheckCache();
   if (this->Output->GetDataType() == VTK_IMAGE_VOID)

@@ -41,7 +41,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .SECTION Description
 // vtkImageSpatial3d is a class of filters that use a 3d neighborhood
 // of input pixels to compute a output pixel.  
-// An example is vtkImageMedianFilter.
+// An example is vtkImageMedian.
 
 
 #ifndef __vtkImageSpatial3d_h
