@@ -1,42 +1,33 @@
 Documenting VTK with doxygen
 ----------------------------
 
-Sebastien BARRE (Time-stamp: <2001-09-24 13:42:01 barre>)
+Sebastien BARRE (Time-stamp: <2001-10-01 11:24:41 barre>)
 
-This file describes how to generate a doxygen-compliant documentation
-featuring cross-references between classes and examples, index,
-and accurate VTK version. 
+This file describes how to generate a Doxygen-compliant documentation
+featuring cross-references between classes and examples, a full-text index
+and an accurate VTK version. 
 
 Warning
 -------
 
-These scripts are now part of the VTK CVS and source distribution.
+These scripts are now part of the VTK source distribution.
 
-Think twice before letting doxygen eat your CPU cycles : Kitware is
-now using these scripts to build an up-to-date doxygen-compliant
-documentation every night, as part of the "nightly build"
-process. Thus, you might browse a pre-built documentation here :
+Think twice before letting Doxygen eat your CPU cycles: Kitware is
+now using these scripts to build an up-to-date Doxygen-compliant
+documentation every night as part of the "nightly build"
+process. Thus, you might browse or download a pre-built documentation here:
 
-OOOPS WE SHOULD UPDATE THAT:
-vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-         http://www.visualizationtoolkit.org/vtk/quality/Doc/html/
+         http://public.kitware.com/doc/
 
-...and download the whole documentation (vtkMan.tar.gz) from the usual
-nightly mirrors : 
-
-        http://www.kitware.com/vtkhtml/vtkdata/Nightly.html
-        ftp://public.kitware.com/pub/vtk/nightly/vtkMan.tar.gz
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Nevertheless, doxygen might still be useful to generate additional
-PDF, Postscript, plain LaTeX or Windows Compressed HTML output.
+Nevertheless, Doxygen might still be useful to generate additional
+PDF, Postscript or plain LaTeX output.
 
 This package is made of he following Perl scripts:
 
-- doc_header2doxygen.pl : convert the VTK headers to the doxygen format
-- doc_version.pl : extract the VTK version and add it to the documentation set
-- doc_class2example.pl : build cross-references between classes and examples
-- doc_index.pl : build the full-text index 
+- doc_header2doxygen.pl: convert the VTK headers to the Doxygen format
+- doc_version.pl: extract the VTK version and add it to the documentation set
+- doc_class2example.pl: build cross-references between classes and examples
+- doc_index.pl: build the full-text index 
 
 Use the --help option to display the parameters that are allowed for each
 script.
@@ -47,239 +38,287 @@ Thanks to Vetle Roeim and Jan Stifter who started the project :)
 A. Preamble
    --------
 
-I assume that your VTK distribution is in a 'vtk' directory and that
-you do NOT want to modify it in any ways. You'd but rather create a
-modified copy of the VTK files in a different location (here,
-the '../vtk-doxygen' directory). Hence, you might use this main 'vtk'
-directory for CVS purposes (updating it from time to time), and rerun
-the process described below to update your documentation (which is a
-straightforward process once you get it).
+I assume that your VTK distribution is in a 'VTK' directory and that
+you do NOT want to modify it in any ways. You would rather create a
+modified copy of the VTK files in a different location (here, the
+'../VTK-doxygen' directory, assuming that you are in the 'VTK'
+directory now). Hence, you might use this main 'VTK' directory for CVS
+and development purposes (updating it from time to time) and rerun
+the process described below to update your documentation (a
+straightforward process once you get used to it).
 
-I assume that the Perl scripts described below are stored in the 'vtk/wrap'
-directory, which is where they usually are in the source distribution.
+The Perl scripts described in that document are stored in the
+'VTK/Utilities/Doxygen' directory. You will also find a couple of
+additional files like a VTK logo and a batch script automating the
+whole conversion process. Thus, the directories that are of some
+interest in that README are:
 
-I also assume that your doxygen configuration script, i.e. the script
-controlling how this VTK documentation will be created, is named
-'doxyfile'. I assume that it is also stored in the 'vtk/wrap' directory.
+   VTK/ : the VTK repository
+   VTK/Utilities/Doxygen : the Doxygen scripts and configuration files
+   VTK-Doxygen/ : the intermediate VTK repository
 
-It is read by doxygen and contains directives like :
+The doxygen configuration script, i.e. the script controlling how this
+VTK documentation is created, is named 'doxyfile'; it is also stored
+in the 'VTK/Utilities/Doxygen' directory. It is read by doxygen and
+lists option/value pairs like:
 
     PARAMETER = VALUE
  
 Comment lines are allowed and start with '#'. Commenting a directive
-is a simple way to hide it to doxygen :
+is a simple way to hide it to doxygen:
 
 #   PARAMETER = VALUE
 
-Do not forget to set the OUTPUT_DIRECTORY directive, which holds the
-location where the whole documentation will be stored. Example :
+Do not forget to set the OUTPUT_DIRECTORY directive specifying the
+location where the whole documentation is to be stored. Example:
 
-    OUTPUT_DIRECTORY = ../html/Doc
+    OUTPUT_DIRECTORY     = ../../../doc
 
-The crucial INPUT directive controls which directory or files will be
+The crucial INPUT directive controls which directory or files are
 processed by doxygen to produce the documentation. Each directory/file
-is separated by a space. Whenever you will be requested to add a file
-name to INPUT, just add it to the end of the list. Example :
+is separated by a space. Whenever you will be requested to add a
+filename to INPUT, just add it to the end of the list. Example:
 
-     INPUT = ../vtk-doxygen/common ../vtk-doxygen/contrib ../vtk-doxygen/graphics ../vtk-doxygen/imaging ../vtk-doxygen/patented ../vtk-doxygen/doc_class2example.dox
+    INPUT = ../../../VTK-doxygen/Common ../../../VTK-doxygen/Filtering ../../../VTK-doxygen/Graphics ../../../VTK-doxygen/Hybrid ../../../VTK-doxygen/Imaging ../../../VTK-doxygen/IO ../../../VTK-doxygen/Parallel ../../../VTK-doxygen/Patented ../../../VTK-doxygen/Rendering ../../../VTK-doxygen/doc_version.dox ../../../VTK-doxygen/doc_class2examples.dox ../../../VTK-doxygen/doc_class2tests.dox ../../../VTK-doxygen/doc_index.dox
 
-    WARNING : disable the HAVE_DOT directive if you have not installed
-    graphviz (http://www.research.att.com/~north/graphviz/download.html).
-
-
-B. Download doxygen, make sure it runs 
-   -----------------------------------
-
-   http://www.stack.nl/~dimitri/doxygen
+WARNING: disable the HAVE_DOT directive if you have not installed graphviz
+(http://www.research.att.com/~north/graphviz/download.html).
 
 
-C1. Convert the VTK headers to doxygen format
+B.  Download doxygen, make sure it runs 
+    -----------------------------------
+
+    http://www.doxygen.org
+
+
+C0. Go to the VTK/Utilities/Doxygen directory
+    -----------------------------------------
+ 
+    You are supposed to run all scripts as well as Doxygen from this
+    directory.
+
+For example:
+
+    D:\src\kitware\vtk\VTK> cd Utilities\Doxygen
+    D:\src\kitware\vtk\VTK\Utilities\Doxygen>
+
+
+C1. Convert the VTK headers to Doxygen format
     -----------------------------------------
 
-     Use the conversion script : doc_header2doxygen.pl 
+    Use the conversion script: doc_header2doxygen.pl 
 
-For example : 
+For example: 
 
-     E:\src\vtk\vtk> perl wrap\doc_header2doxygen.pl --to ..\vtk-doxygen
+    D:\src\kitware\vtk\VTK\Utilities\Doxygen> perl doc_header2doxygen.pl --to ../../../VTK-doxygen
+    doc_header2doxygen.pl 0.8, by Sebastien Barre et al.
+    Collecting...
+    Converting...
+     => 729 files converted in 6 s.
+    Finished in 7 s.
 
-     doc_header2doxygen.pl 0.75, by Sebastien Barre et al.
-     Converting...
-     620 files converted in 8 s.
+Meaning that:
 
-Meaning that :
+    The optional '--to ../../../VTK-doxygen' parameter specifies that the
+    script stores the modified C++ *headers* (*.h files)  in the
+    '../../../VTK-doxygen' directory (here: 'D:\src\kitware\vtk\VTK-doxygen',
+    as I issued the command from 'D:\src\kitware\vtk\VTK\Utilities\Doxygen').
+    The files located in 'VTK' remain untouched. The script browses
+    the directories located two levels up (i.e. ../../) automatically.
 
-     The optional '--to ..\vtk-doxygen' parameter specifies that the
-     script searches for C++ *headers* (*.h files) in the current
-     directory (and below) but stores the modified headers in the
-     '..\vtk-doxygen' directory (here: E:\src\vtk\vtk-doxygen, as I
-     issued the command from E:\src\vtk\vtk). The files located in
-     'vtk' remain untouched.
-
-     Use --help to display the default value associated to --to.
+    Use --help to display the default value associated to --to.
      
-     Note that you might restrict the conversion to a set of particuliar
-     directories/files if you want to document a specific VTK part only :
-     just add these parts as parameters.
-       Ex : perl wrap\doc_header2doxygen.pl --to ..\vtk-doxygen contrib
+    Note that you might restrict the conversion to a set of particuliar
+    directories or files if you want to document a specific VTK part only:
+    just add these parts as parameters. Example:
 
-Update the doxygen configuration file (wrap\doxyfile) :
+    D:\src\kitware\vtk\VTK\Utilities\Doxygen> perl doc_header2doxygen.pl --to ../../../VTK-doxygen ../../Hybrid
 
-     Depending on the location from where you are going to run doxygen
-     (here: E:\src\vtk\vtk), update the paths to the VTK
-     components (directories) to document. Since the headers have been
-     created in '../vtk-doxygen', the following values will be fine :
+Update the Doxygen configuration file ('doxyfile'):
 
-     INPUT = ../vtk-doxygen/common ../vtk-doxygen/contrib ../vtk-doxygen/graphics ../vtk-doxygen/imaging ../vtk-doxygen/patented
+    Depending on the location from where you are going to run Doxygen
+    (here: 'D:\src\kitware\vtk\VTK\Utilities\Doxygen') update or add
+    the paths to the VTK components/directories that you want to
+    document. Since the headers have been created in
+    '../../../VTK-doxygen', the following values will be fine:
+
+    INPUT = ../../../VTK-doxygen/Common ../../../VTK-doxygen/Filtering ../../../VTK-doxygen/Graphics ../../../VTK-doxygen/Hybrid ../../../VTK-doxygen/Imaging ../../../VTK-doxygen/IO ../../../VTK-doxygen/Parallel ../../../VTK-doxygen/Patented ../../../VTK-doxygen/Rendering
 
 
 C2. Extract VTK version
     -------------------
 
-     Use the extraction script : doc_version.pl 
+    Use the extraction script: doc_version.pl 
 
-For example : 
+For example: 
 
-     E:\src\vtk\vtk> perl wrap\doc_version.pl --to ..\vtk-doxygen
+    D:\src\kitware\vtk\VTK\Utilities\Doxygen> perl doc_version.pl --logo "vtk-logo.gif" --to ../../../VTK-doxygen
+    doc_version.pl 0.22, by Sebastien Barre
+     => 4.0.0
+     => $Revision$ $Date$
+    Building version documentation to ../../../VTK-doxygen/doc_version.dox
+    Finished in 0 s.
 
-     doc_version.pl 0.16, by Sebastien Barre
-     Building version documentation to ../vtk-doxygen/doc_version.dox...
-     Finished in 0 s.
+Meaning that:
 
-Meaning that :
+    The optional '--to ../../../VTK-doxygen' parameter specifies that
+    the script stores the related documentation part in the
+    '../../../VTK-doxygen' directory (more precisely in the
+    '../../../VTK-doxygen/doc_version.dox' file). The VTK logo is
+    incorporated by using the --logo option. The script searchs for
+    the VTK version in the '../../Common/vtkVersion.h'. Use --help to
+    check how to override these default values.
 
-     The optional '--to ..\vtk-doxygen' parameter specifies that the
-     script searchs for the VTK version in the current directory
-     (common/vtkVersion.h) but stores the related documentation part
-     in the '../vtk-doxygen' directory (here, in the
-     ../vtk-doxygen/doc_version.dox file).
+Update the Doxygen configuration file ('doxyfile'):
 
-Update the doxygen configuration file (doxyfile) :
-
-     Comment the PROJECT_NUMBER directive: you do not need it anymore
-     as you have just created a more accurate description based on the
-     current vtkVersion.h.
+    Comment the PROJECT_NUMBER directive: you do not need it anymore
+    as you have just created a more accurate description based on the
+    current vtkVersion.h.
 
     # PROJECT_NUMBER       =
 
 
-C3. Generate the 'class to example' table 
-    -------------------------------------
+C3. Generate the 'class to examples' pages 
+    --------------------------------------
 
-     Use the referencing script : doc_class2example.pl 
+    Use the referencing script: doc_class2example.pl 
 
-For example : 
-
-     E:\src\vtk\vtk> perl wrap\doc_class2example.pl --to ..\vtk-doxygen
-
-     doc_class2example.pl 0.55, by Sebastien Barre
-     Collecting files...
-      => 896 file(s) collected in 3 s.
-     Parsing files...
-      => 896 file(s) parsed in 1 s.
-     Eliminating some classes...
-      => 1 class(es) eliminated (vtkCommand) in 0 s.
-     Locating headers to update...
-      => 394 found, 10 orphan class(es) removed (vtkImageShortReader, vtkImageAdaptiveFilter, vtkMINCReader, vtkImageXViewer, vtkImageMIPFilter, vtkImageConnectivity, vtkInteract, vtkImageMarkBoundary, vtkImageSubSampling, vtkImageRegion) in 1 s.
-      Building documentation to ..\vtk-doxygen/doc_class2example.dox...
-       => VTK 3.1.1, $Revision$, $Date$ (GMT)
-       => 394 class(es) examplified by 896 file(s) on Sat Apr 15 18:32:23 2000
-       => 3 parser(s) : [Python, C++, Tcl]
-       => max limit is 20 example(s) per parser (8% over)
-       => in 0 s.
-      Updating headers...
-       => 393 header(s) updated in 2 s.
-      Finished in 7 s.
+For example: 
+    
+    D:\src\kitware\vtk\VTK\Utilities\Doxygen> perl doc_class2example.pl --link http://public.kitware.com/cgi-bin/cvsweb.cgi/~checkout~/VTK/Utilities/Doxygen --to ../../../VTK-doxygen
+    doc_class2example.pl 0.7, by Sebastien Barre
+    Collecting files...
+     => 17 file(s) collected in 2 s.
+    Parsing files...
+     => 17 file(s) parsed in 0 s.
+    Eliminating some classes...
+     => 1 class(es) eliminated (vtkCommand) in 0 s.
+    Locating headers to update...
+     => 33 found, 8 orphan class(es) removed (vtkIOJava, vtkRenderingJava, vtkCommonJava, vtkImagingJava, vtkGraphicsJava, vtkInteract, vtkTkWidget, vtkFilteringJava) in 0 s.
+    Building classes doc and alphabetical section(s) weight(s)...
+     => 33 classes(s) documented in 0 s.
+     => total weight is 38604 in 13 section(s) (mean is 2969)
+    Computing alphabetical group(s)/page(s)...
+     => max weight is 90000 per group/page, but a section can not be divided
+     => 1 group(s) for 13 section(s)
+    Building pages header...
+    Writing documentation to ../../../VTK-doxygen/doc_class2examples.dox...
+      - 33 class(es) in 17 file(s) from directories matching @c ^Examples$ on Mon Oct  1 10:53:04 2001
+      - 4 parser(s) : [Java, Python, C++, Tcl]
+      - at most 20 file(s) per parser (0% over)
+     => in 0 s.
+    Updating headers...
+     => 32 header(s) updated in 0 s.
+Finished in 2 s.
 
 Meaning that :
 
-     The optional '--to ..\vtk-doxygen' parameter specifies that the
-     script searches (and parses) the *examples* (896 here) in the
-     current directory (and below) but updates the *headers* (393
-     here) stored in the '..\vtk-doxygen' directory (which is good
-     because they have just been created in the previous step). These
-     headers are updated to include a cross-link between the class and
-     the examples using it. The script stores the documentation file
-     describing/listing all examples in the
-     ..\vtk-doxygen\doc_class2example.dox file. Once again, the files
-     located in 'vtk' remain untouched.
+    The optional '--to ../../../VTK-doxygen' parameter specifies that
+    the script searches (and parses) the Python, Tcl, Java or C++
+    *examples* (17 here) in the directories two level up (i.e. ../../
+    and below) but updates the C++ class *headers* (32 here) stored in
+    the '../../../VTK-doxygen' directory (which is good because they
+    have just been created in step C1). These headers are updated to
+    include cross-links between the class and the examples using
+    it. The script stores the documentation file listing all examples
+    in the '../../../VTK-doxygen/doc_class2example.dox' file. Once
+    again, the files located in 'VTK' remain untouched. The --link
+    option is a path or a URL that is prepended to each example's name
+    to provide a physical link to that example (here, the CVSweb).
 
-Update the doxygen configuration file (doxyfile) :
+    Use --help to check how to override these default values. More
+    specifically you can override the --dirmatch option (a regexp) so
+    that the parsers will only look into specific directories. The
+    default value "^Examples\$" constrains the script to any
+    directory which name is 'Example'; --dirmatch "^Testing$" will
+    actually make the script parse all examples found in the 'Testing'
+    directories (the --label, --title and --unique option should be changed
+    appropriately, check 'doc_makeall.bat' for example).
 
-     Add the relative path to doc_class2example.dox (here :
-     ../vtk-doxygen/doc_class2example.dox) to the INPUT directive, so that
-     doxygen might process it (see also section D)
+Update the Doxygen configuration file ('doxyfile'):
+
+    Add the relative path to 'doc_class2example.dox' (here :
+    '../../../VTK-doxygen/doc_class2example.dox') to the INPUT
+    directive, so that Doxygen might process it (see also section D).
 
 
 C4. Build full-text index 
     ---------------------
 
-     Use the indexing script : doc_index.pl 
+    Use the indexing script: doc_index.pl 
 
-For example : 
+For example: 
 
-    E:\src\vtk\vtk>perl wrap\doc_index.pl --stop wrap\doc_index.stop --to ..\vtk-doxygen
-    doc_index.pl 0.15, by Sebastien Barre
-    Reading stop-words from wrap\doc_index.stop...
-    849 word(s) read.
+    D:\src\kitware\vtk\VTK\Utilities\Doxygen> perl doc_index.pl --to ../../../VTK-doxygen
+    doc_index.pl 0.2, by Sebastien Barre
+    Reading stop-words from doc_index.stop...
+     => 724 stop-word(s) read.
     Collecting files...
     Indexing...
-    6875 word(s) grabbed in 620 file(s).
+     => 8174 word(s) grabbed in 729 file(s) in 2 s.
     Removing...
-    2734 word(s) removed.
+     => 3126 word(s) removed.
     Grouping...
-    1585 word(s) grouped.
+     => 2075 word(s) grouped.
     Normalizing...
-    normalized to lowercase.
-    Building documentation to ../vtk-doxygen/doc_index.dox...
-     => 620 file(s) indexed by 2556 word(s) on Sat May 27 18:36:52 2000
-     => max limit is 10 xref(s) per word
-     => in 7 s.
+     => normalized to lowercase.
+    Building indexes doc and alphabetical section(s) weight(s)...
+     => 2973 words(s) documented in 2 s.
+     => total weight is 400800 in 47 section(s) (mean is 8527)
+    Computing alphabetical group(s)/page(s)...
+     => max weight is 90000 per group/page, but a section can not be divided
+     => 6 group(s) for 47 section(s)
+    Building pages header...
+    Writing documentation to ../../../VTK-doxygen/doc_index.dox...
+      - 729 file(s) indexed by 2973 word(s) on Mon Oct  1 11:13:44 2001
+      - max limit is 10 xref(s) per word
+    Finished in 5 s.
 
-Meaning that :
+Meaning that:
 
-     The optional '--to ..\vtk-doxygen' parameter specifies that the
-     script parses the VTK headers in the current directory (and
-     below) but stores the full-text index in the '..\vtk-doxygen'
-     directory, in the ../vtk-doxygen/doc_index.dox file.
+    The optional '--to ../../../VTK-doxygen' parameter specifies that
+    the script stores the full-text index in the
+    '../../../VTK-doxygen' directory (more precisely in the
+    '../../../VTK-doxygen/doc_index.dox' file).
 
-     The optional '--stop wrap\doc_index.stop' parameter specifies
-     that the script reads its stop-words from a file named
-     'wrap\doc_index.stop'.  This file is a list of trivial words (one
-     per line) that won't be indexed.
+    The optional --stop parameter can be used to specify that the
+    script should read its stop-words from a different file (default
+    is 'doc_index.stop').  This file is a list of trivial words (one
+    per line) that won't be indexed.
 
-Update the doxygen configuration file (doxyfile) :
+Update the Doxygen configuration file ('doxyfile'):
 
-     Add the relative path to doc_index.dox (here :
-     ../vtk-doxygen/doc_index.dox) to the INPUT directive, so that
-     doxygen might process it (see also section D)
+    Add the relative path to 'doc_index.dox' (here :
+    '../../../VTK-doxygen/doc_index.dox') to the INPUT directive, so that
+    Doxygen might process it (see also section D)
 
 
-D. Run doxygen 
-   -----------
+D.  Run doxygen 
+    -----------
 
-Firt check that your doxygen configuration file is OK (doxyfile). The important directives are (for me) :
+    Check that your Doxygen configuration file is OK
+    ('doxyfile'). The important directives are:
 
     PROJECT_NAME         = VTK
     # PROJECT_NUMBER     =
-    OUTPUT_DIRECTORY = ../html/Doc
-    INPUT                = ../vtk-doxygen/common ../vtk-doxygen/contrib ../vtk-doxygen/graphics ../vtk-doxygen/imaging ../vtk-doxygen/patented ../vtk-doxygen/doc_version.dox ../vtk-doxygen/doc_class2example.dox ../vtk-doxygen/doc_index.dox
+    OUTPUT_DIRECTORY     = ../../../doc
+    INPUT = ../../../VTK-doxygen/Common ../../../VTK-doxygen/Filtering ../../../VTK-doxygen/Graphics ../../../VTK-doxygen/Hybrid ../../../VTK-doxygen/Imaging ../../../VTK-doxygen/IO ../../../VTK-doxygen/Parallel ../../../VTK-doxygen/Patented ../../../VTK-doxygen/Rendering ../../../VTK-doxygen/doc_version.dox ../../../VTK-doxygen/doc_class2examples.dox ../../../VTK-doxygen/doc_class2tests.dox ../../../VTK-doxygen/doc_index.dox
 
-Then run doxygen. Be *patient* :)
+    Then run doxygen. Be *patient* :)
 
-For example : 
+For example: 
 
-     E:\src\vtk\vtk> doxygen wrap\doxyfile
+    D:\src\kitware\vtk\VTK\Utilities\Doxygen> doxygen
 
-The 'wrap/doxyfile' parameter is the name of your doxygen configuration file.
+    The documentation will be located in the '../../../doc'
+    directory. If that directory does not exist, doxygen will create it,
+    *unless* the its parent directory does not exist either.
 
-The documentation will be located in the '../html/Doc' directory. If
-that directory does not exist, doxygen will create it, *unless* the
-intermediate directories do not exist either. In my case, I had to
-create the '../html' directory manually so that doxygen could create
-'Doc' inside '../html'.
-
-You are done.
+    You are done.
+    Browse the HTML documentation starting from:
+    doc/html/index.html
 
 
 Just my 2 cents.
 
+Sebastien BARRE
