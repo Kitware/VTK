@@ -106,6 +106,10 @@ extern "C" int Vtkcontribtcl_Init(Tcl_Interp *interp);
 extern "C" int Vtklocaltcl_Init(Tcl_Interp *interp);
 #endif
 
+#ifdef VTK_USE_PARALLEL
+extern "C" int Vtkparalleltcl_Init(Tcl_Interp *interp);
+#endif
+
 int Tcl_AppInit(Tcl_Interp *interp)
 {
   if (Tcl_Init(interp) == TCL_ERROR) {
@@ -172,6 +176,13 @@ int Tcl_AppInit(Tcl_Interp *interp)
 
 #ifdef VTK_USE_LOCAL
   if (Vtklocaltcl_Init(interp) == TCL_ERROR) 
+    {
+    return TCL_ERROR;
+    }
+#endif
+
+#ifdef VTK_USE_PARALLEL
+  if (Vtkparalleltcl_Init(interp) == TCL_ERROR) 
     {
     return TCL_ERROR;
     }
