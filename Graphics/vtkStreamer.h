@@ -184,9 +184,6 @@ protected:
   // Integrate data
   void Integrate();
 
-  // Special method for computing streamer vorticity
-  void ComputeVorticity();
-
   // Controls where streamlines start from (either position or location).
   int StartFrom;
 
