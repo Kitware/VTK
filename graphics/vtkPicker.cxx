@@ -77,7 +77,6 @@ vtkPicker::vtkPicker()
   this->Actors = vtkActorCollection::New();
   this->Prop3Ds = vtkProp3DCollection::New();
   this->PickedPositions = vtkPoints::New();
-  this->PickList = vtkActorCollection::New();
   this->Transform = vtkTransform::New();
 }
 
