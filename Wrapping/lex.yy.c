@@ -37,7 +37,6 @@ extern "C" {
 # define unput(c) {yytchar= (c);if(yytchar=='\n')yylineno--;*yysptr++=yytchar;}
 # define yymore() (yymorfg=1)
 # define ECHO (void)fprintf(yyout, "%s",yytext)
-# define REJECT { nstr = yyreject(); goto yyfussy;}
 int yyleng; extern char yytext[];
 int yymorfg;
 extern char *yysptr, yysbuf[];
@@ -51,10 +50,10 @@ struct yysvf {
 struct yysvf *yyestate;
 extern struct yysvf yysvec[], *yybgin;
 # define YYNEWLINE 10
-yylex(void){
-int nstr; extern int yyprevious;
+int yylex(void){
+int nstr;
 while((nstr = yylook()) >= 0)
-yyfussy: switch(nstr){
+  switch(nstr){
 case 0:
 if(yywrap()) return(0); break;
 case 1:
