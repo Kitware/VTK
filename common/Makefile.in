@@ -76,6 +76,8 @@ vtkLookupTable \
 vtkMath \
 vtkMatrix4x4 \
 vtkMultiThreader \
+vtkMutexLock \
+vtkMutexFunctionLock \
 vtkObject \
 vtkPixel \
 vtkPixmap \
