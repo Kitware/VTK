@@ -85,7 +85,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkRotationalExtrusionFilter : public vtkPolyDataToPolyDataFilter 
 {
 public:
-  vtkRotationalExtrusionFilter();
   const char *GetClassName() {return "vtkRotationalExtrusionFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -124,6 +123,8 @@ public:
   vtkGetMacro(DeltaRadius,float);
 
 protected:
+  vtkRotationalExtrusionFilter();
+  ~vtkRotationalExtrusionFilter() {};
   void Execute();
   int Resolution;
   int Capping;

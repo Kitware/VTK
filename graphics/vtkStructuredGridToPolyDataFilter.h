@@ -63,6 +63,10 @@ public:
   // Set / get the input Grid or filter.
   void SetInput(vtkStructuredGrid *input);
   vtkStructuredGrid *GetInput();
+  
+protected:  
+  vtkStructuredGridToPolyDataFilter() {};
+  ~vtkStructuredGridToPolyDataFilter() {};
 
 };
 

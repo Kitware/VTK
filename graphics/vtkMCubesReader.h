@@ -81,8 +81,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkMCubesReader : public vtkPolyDataSource 
 {
 public:
-  vtkMCubesReader();
-  ~vtkMCubesReader();
   const char *GetClassName() {return "vtkMCubesReader";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -134,6 +132,9 @@ public:
   void SetLocator(vtkPointLocator& locator) {this->SetLocator(&locator);};
 
 protected:
+  vtkMCubesReader();
+  ~vtkMCubesReader();
+
   void Execute();
 
   char *FileName;

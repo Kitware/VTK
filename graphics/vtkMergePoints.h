@@ -72,6 +72,11 @@ public:
   // Note this combines the functionality of IsInsertedPoint() followed
   // by a call to InsertNextPoint().
   int InsertUniquePoint(float x[3], int &ptId);
+  
+protected:
+  vtkMergePoints() {};
+  ~vtkMergePoints() {};
+  
 };
 
 #endif

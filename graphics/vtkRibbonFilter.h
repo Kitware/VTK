@@ -62,7 +62,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkRibbonFilter : public vtkPolyDataToPolyDataFilter 
 {
 public:
-  vtkRibbonFilter();
   const char *GetClassName() {return "vtkRibbonFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -107,6 +106,8 @@ public:
   vtkBooleanMacro(UseDefaultNormal,int);
 
 protected:
+  vtkRibbonFilter();
+  ~vtkRibbonFilter() {};
   void Execute();
   float Width;
   float Angle;

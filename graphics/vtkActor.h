@@ -70,8 +70,6 @@ class vtkActorCollection;
 class VTK_EXPORT vtkActor : public vtkProp3D
 {
  public:
-  vtkActor();
-  ~vtkActor();
   const char *GetClassName() {return "vtkActor";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -199,6 +197,9 @@ class VTK_EXPORT vtkActor : public vtkProp3D
   virtual unsigned long GetRedrawMTime();
 
 protected:
+  vtkActor();
+  ~vtkActor();
+
   vtkProperty *Property; 
   vtkProperty *BackfaceProperty; 
   vtkTexture *Texture; 

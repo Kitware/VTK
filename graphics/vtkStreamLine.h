@@ -76,7 +76,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkStreamLine : public vtkStreamer
 {
 public:
-  vtkStreamLine();
   const char *GetClassName() {return "vtkStreamLine";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -92,6 +91,9 @@ public:
   vtkGetMacro(StepLength,float);
 
 protected:
+  vtkStreamLine();
+  ~vtkStreamLine() {};
+
   // Convert streamer array into vtkPolyData
   void Execute();
 

@@ -67,7 +67,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkExtractVOI : public vtkStructuredPointsToStructuredPointsFilter
 {
 public:
-  vtkExtractVOI();
   const char *GetClassName() {return "vtkExtractVOI";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -91,6 +90,9 @@ public:
   vtkGetVectorMacro(SampleRate, int, 3);
 
 protected:
+  vtkExtractVOI();
+  ~vtkExtractVOI() {};
+
   void Execute();
 
   int VOI[6];

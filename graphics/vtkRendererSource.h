@@ -59,8 +59,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkRendererSource : public vtkStructuredPointsSource
 {
 public:
-  vtkRendererSource();
-  ~vtkRendererSource();
   static vtkRendererSource *New() {return new vtkRendererSource;};
   const char *GetClassName() {return "vtkRendererSource";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -85,6 +83,8 @@ public:
   vtkBooleanMacro(WholeWindow,int);
   
 protected:
+  vtkRendererSource();
+  ~vtkRendererSource();
   void Execute();
   vtkRenderer *Input;
   int WholeWindow;

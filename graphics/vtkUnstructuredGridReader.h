@@ -54,8 +54,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkUnstructuredGridReader : public vtkUnstructuredGridSource
 {
 public:
-  vtkUnstructuredGridReader();
-  ~vtkUnstructuredGridReader();
   static vtkUnstructuredGridReader *New() 
     {return new vtkUnstructuredGridReader;}
   const char *GetClassName() {return "vtkUnstructuredGridReader";};
@@ -134,6 +132,8 @@ public:
   char *GetFieldDataName();
 
 protected:
+  vtkUnstructuredGridReader();
+  ~vtkUnstructuredGridReader();
   void Execute();
   vtkDataReader *Reader;
 

@@ -54,13 +54,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkPlane : public vtkImplicitFunction
 {
 public:
-  static vtkPlane *New() {return new vtkPlane;};
-  const char *GetClassName() {return "vtkPlane";};
-  void PrintSelf(ostream& os, vtkIndent indent);
-
   // Description
   // Construct plane passing through origin and normal to z-axis.
-  vtkPlane();
+  static vtkPlane *New() {return new vtkPlane;};
+
+  const char *GetClassName() {return "vtkPlane";};
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description
   // Evaluate plane equation for point x[3].
@@ -118,6 +117,9 @@ public:
 
 
 protected:
+  vtkPlane();
+  ~vtkPlane() {};
+
   float Normal[3];
   float Origin[3];
 

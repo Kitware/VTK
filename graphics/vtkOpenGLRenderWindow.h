@@ -64,8 +64,6 @@ protected:
   long OldMonitorSetting;
 
 public:
-  vtkOpenGLRenderWindow();
-  ~vtkOpenGLRenderWindow();
   static vtkOpenGLRenderWindow *New() {return new vtkOpenGLRenderWindow;};
   const char *GetClassName() {return "vtkOpenGLRenderWindow";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -155,12 +153,15 @@ public:
   // Description:
   // Make this window the current OpenGL context.
   void MakeCurrent();
-
+  
   // Description:
   // Register a texture name with this render window
   void RegisterTextureResource (GLuint id);
   
- protected:
+protected:
+  vtkOpenGLRenderWindow();
+  ~vtkOpenGLRenderWindow();
+
   vtkIdList *TextureResourceIds;
 };
 

@@ -67,8 +67,6 @@ class vtkEncodedGradientEstimator;
 class VTK_EXPORT vtkEncodedGradientShader : public vtkObject
 {
 public:
-  vtkEncodedGradientShader();
-  ~vtkEncodedGradientShader();
   static vtkEncodedGradientShader *New() {
     return new vtkEncodedGradientShader;};
   const char *GetClassName() {return "vtkEncodedGradientShader";};
@@ -100,6 +98,9 @@ public:
   float *GetBlueSpecularShadingTable(  vtkVolume *vol );
 
 protected:
+  vtkEncodedGradientShader();
+  ~vtkEncodedGradientShader();
+
 
   // Description:
   // Build a shading table for a light with the specified direction,

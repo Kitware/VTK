@@ -58,7 +58,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageNoiseSource : public vtkImageSource 
 {
 public:
-  vtkImageNoiseSource();
   static vtkImageNoiseSource *New() {return new vtkImageNoiseSource;};
   const char *GetClassName() {return "vtkImageNoiseSource";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -79,7 +78,10 @@ public:
   // updates the inage information, (Extent, Scalar type, etc).
   void UpdateInformation();
 
-private:
+protected:
+  vtkImageNoiseSource();
+  ~vtkImageNoiseSource() {};
+
   float Minimum;
   float Maximum;
   int WholeExtent[6];

@@ -52,8 +52,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkPolyVertex : public vtkCell
 {
 public:
-  vtkPolyVertex();
-  ~vtkPolyVertex();
   static vtkPolyVertex *New() {return new vtkPolyVertex;};
   const char *GetClassName() {return "vtkPolyVertex";};
 
@@ -100,6 +98,9 @@ public:
 
   
 protected:
+  vtkPolyVertex();
+  ~vtkPolyVertex();
+
   vtkVertex *Vertex;
 
 };

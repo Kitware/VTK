@@ -64,6 +64,10 @@ public:
   // -1.
   int IsInsertedPoint(float x[2]);
 
+protected:
+  vtkMergePoints2D() {};
+  ~vtkMergePoints2D() {};
+
 };
 
 #endif

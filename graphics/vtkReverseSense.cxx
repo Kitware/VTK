@@ -66,10 +66,14 @@ void vtkReverseSense::Execute()
     vtkCellArray *verts, *lines, *polys, *strips;
 
     //Instantiate necessary topology arrays
-    verts = new vtkCellArray(*(input->GetVerts()));
-    lines = new vtkCellArray(*(input->GetLines()));
-    polys = new vtkCellArray(*(input->GetPolys()));
-    strips = new vtkCellArray(*(input->GetStrips()));
+    verts = vtkCellArray::New();
+    verts->DeepCopy(input->GetVerts());
+    lines = vtkCellArray::New();
+    lines->DeepCopy(input->GetLines());
+    polys = vtkCellArray::New();
+    polys->DeepCopy(input->GetPolys());
+    strips = vtkCellArray::New();
+    strips->DeepCopy(input->GetStrips());
 
     output->SetVerts(verts); verts->Delete();
     output->SetLines(lines); lines->Delete();

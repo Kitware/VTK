@@ -56,6 +56,8 @@ public:
   const char *GetClassName() {return "vtkImageMagnitude";};
 
 protected:
+  vtkImageMagnitude() {};
+  ~vtkImageMagnitude() {};
 
   void ExecuteInformation(vtkImageData *inData, vtkImageData *outData);
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,

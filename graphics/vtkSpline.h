@@ -71,8 +71,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkSpline : public vtkObject
 {
 public:
-  vtkSpline();
-  ~vtkSpline ();
   const char *GetClassName() {return "vtkSpline";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -133,6 +131,9 @@ public:
   unsigned long GetMTime();
 
 protected:
+  vtkSpline();
+  ~vtkSpline ();
+
   unsigned long ComputeTime;
   int ClampValue;
   float *Intervals;

@@ -57,9 +57,8 @@ class VTK_EXPORT vtkGenericCell : public vtkCell
 public:
   // Description:
   // Create handle to any type of cell; by default a vtkEmptyCell.
-  vtkGenericCell();
-  ~vtkGenericCell();
   static vtkGenericCell *New() {return new vtkGenericCell;};
+
   const char *GetClassName() {return "vtkGenericCell";};
 
   // Description:
@@ -121,6 +120,9 @@ public:
   void SetCellTypeToPyramid() {this->SetCellType(VTK_PYRAMID);};
 
 protected:
+  vtkGenericCell();
+  ~vtkGenericCell();
+
   vtkCell *Cell;
 };
 

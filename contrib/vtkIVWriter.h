@@ -59,6 +59,9 @@ public:
   const char *GetClassName() {return "vtkIVWriter";};
 
 protected:
+  vtkIVWriter() {};
+  ~vtkIVWriter() {};
+
   void WriteData();
   void WritePolyData(vtkPolyData *polyData, FILE *fp);
 };

@@ -54,7 +54,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImagePermute : public vtkImageToImageFilter
 {
 public:
-  vtkImagePermute();
   static vtkImagePermute *New() {return new vtkImagePermute;};
   const char *GetClassName() {return "vtkImagePermute";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -65,6 +64,9 @@ public:
   vtkGetVector3Macro(FilteredAxes, int);
   
 protected:
+  vtkImagePermute();
+  ~vtkImagePermute() {};
+
   int  FilteredAxes[3];
   void ExecuteInformation(vtkImageData *inData, vtkImageData *outData);
   void ComputeRequiredInputUpdateExtent(int inExt[6], int outExt[6]);

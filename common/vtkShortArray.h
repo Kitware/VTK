@@ -52,9 +52,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkShortArray : public vtkDataArray
 {
 public:
-  vtkShortArray(int numComp=1);
-  ~vtkShortArray();
   static vtkShortArray *New() {return new vtkShortArray;};
+
   const char *GetClassName() {return "vtkShortArray";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -178,6 +177,9 @@ public:
   void DeepCopy(vtkDataArray &da) {this->DeepCopy(&da);}
 
 private:
+  vtkShortArray(int numComp=1);
+  ~vtkShortArray();
+
   short *Array;   // pointer to data
   short *Resize(const int sz);  // function to resize data
 

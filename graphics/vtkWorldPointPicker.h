@@ -59,7 +59,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkWorldPointPicker : public vtkPicker
 {
 public:
-  vtkWorldPointPicker ();
   static vtkWorldPointPicker *New() {return new vtkWorldPointPicker;};
   const char *GetClassName() {return "vtkWorldPointPicker";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -74,6 +73,8 @@ public:
            vtkRenderer *renderer);  
 
 protected:
+  vtkWorldPointPicker ();
+  ~vtkWorldPointPicker() {};
   int PointId; //picked point
   void Initialize();
 };

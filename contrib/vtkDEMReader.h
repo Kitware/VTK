@@ -56,8 +56,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkDEMReader : public vtkImageSource
 {
 public:
-  vtkDEMReader();
-  ~vtkDEMReader();
   static vtkDEMReader *New() {return new vtkDEMReader;};
   const char *GetClassName() {return "vtkDEMReader";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -138,6 +136,9 @@ public:
   void UpdateInformation();
 
 protected:
+  vtkDEMReader();
+  ~vtkDEMReader();
+
   vtkTimeStamp ReadHeaderTime;
   int NumberOfColumns;
   int NumberOfRows;

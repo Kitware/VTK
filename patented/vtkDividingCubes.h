@@ -72,8 +72,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkDividingCubes : public vtkStructuredPointsToPolyDataFilter
 {
 public:
-  vtkDividingCubes();
-  ~vtkDividingCubes();
   static vtkDividingCubes *New() {return new vtkDividingCubes;};
   const char *GetClassName() {return "vtkDividingCubes";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -96,6 +94,8 @@ public:
   vtkGetMacro(Increment,int);
 
 protected:
+  vtkDividingCubes();
+  ~vtkDividingCubes();
   void Execute();
   void SubDivide(float origin[3], int dim[3], float h[3], float values[8]);
 

@@ -129,8 +129,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkDelaunay2D : public vtkPolyDataSource
 {
 public:
-  vtkDelaunay2D();
-  ~vtkDelaunay2D();
   const char *GetClassName() {return "vtkDelaunay2D";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -182,6 +180,9 @@ public:
   vtkPointSet *GetInput();
 
 protected:
+  vtkDelaunay2D();
+  ~vtkDelaunay2D();
+
   void Execute();
 
   double Alpha;

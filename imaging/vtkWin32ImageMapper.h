@@ -57,8 +57,6 @@ class vtkImageActor2D;
 class VTK_EXPORT vtkWin32ImageMapper : public vtkImageMapper
 {
 public:
-  vtkWin32ImageMapper();
-  ~vtkWin32ImageMapper();
   static vtkWin32ImageMapper *New() {return new vtkWin32ImageMapper;};
   const char *GetClassName() {return "vtkWin32ImageMapper";};
   
@@ -77,6 +75,8 @@ public:
   HBITMAP HBitmap;			// our handle to the DIBSection
 
 protected:
+  vtkWin32ImageMapper();
+  ~vtkWin32ImageMapper();
 
 };
 

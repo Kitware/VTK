@@ -67,8 +67,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageViewer : public vtkObject 
 {
 public:
-  vtkImageViewer();
-  ~vtkImageViewer();
   static vtkImageViewer *New() {return new vtkImageViewer;};
   
   const char *GetClassName() {return "vtkImageViewer";};
@@ -138,6 +136,9 @@ public:
   vtkActor2D     *GetActor2D() {return this->Actor2D;};
   
 protected:
+  vtkImageViewer();
+  ~vtkImageViewer();
+
   vtkImageMapper *ImageMapper;
   vtkImageWindow *ImageWindow;
   vtkImager      *Imager;

@@ -54,9 +54,9 @@ class vtkVectors;
 class VTK_EXPORT vtkVectors : public vtkAttributeData
 {
 public:
-  vtkVectors(int dataType=VTK_FLOAT);
   static vtkVectors *New(int dataType=VTK_FLOAT) {
     return new vtkVectors(dataType);};
+
   const char *GetClassName() {return "vtkVectors";};
   void PrintSelf(ostream& os, vtkIndent indent);
   
@@ -126,6 +126,9 @@ public:
 
 
 protected:
+  vtkVectors(int dataType=VTK_FLOAT);
+  ~vtkVectors() {};
+
   float MaxNorm;
   vtkTimeStamp ComputeTime; // Time at which MaxNorm computed
 };

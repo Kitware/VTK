@@ -51,7 +51,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkWarpLens : public vtkPointSetToPointSetFilter
 {
 public:
-  vtkWarpLens();
   static vtkWarpLens *New() {return new vtkWarpLens;};
   const char *GetClassName() {return "vtkWarpLens";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -67,6 +66,8 @@ public:
   vtkGetVectorMacro(Center,float,2);
 
 protected:
+  vtkWarpLens();
+  ~vtkWarpLens() {};
   void Execute();
 
   float Kappa;

@@ -40,14 +40,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkCellTypes.h"
 
-vtkCellTypes::vtkCellTypes(int sz, int ext)
-{
-  this->Size = sz;
-  this->Array = new _vtkCell_s[sz];
-  this->Extend = ext;
-  this->MaxId = -1;
-}
-
 vtkCellTypes::~vtkCellTypes()
 {
   delete [] this->Array;
@@ -58,7 +50,10 @@ int vtkCellTypes::Allocate(int sz, int ext)
 {
   if ( sz > this->Size || this->Array == NULL )
     {
-    delete [] this->Array;
+    if ( this->Array != NULL )
+      {
+      delete [] this->Array;
+      }
 
     this->Size = ( sz > 0 ? sz : 1);
     if ( (this->Array = new _vtkCell_s[this->Size]) == NULL )

@@ -61,16 +61,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageWindow : public vtkWindow
 {
 public:
-
   // Description:
   // Creates a vtkImageWindow with 
   // background erasing disabled and gray scale hint off
-  vtkImageWindow();
-  ~vtkImageWindow();
+  static vtkImageWindow *New();
 
   void PrintSelf(ostream& os, vtkIndent indent);
   const char *GetClassName() {return "vtkImageWindow";};
-  static vtkImageWindow *New();
 
   // Description:
   // Set the position of the window on the screen
@@ -164,6 +161,9 @@ public:
   vtkGetStringMacro(FileName);
 
 protected:
+  vtkImageWindow();
+  ~vtkImageWindow();
+
   vtkImagerCollection *Imagers;
   int WindowCreated;
   int GrayScaleHint;

@@ -56,7 +56,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkVoxelModeller : public vtkDataSetToStructuredPointsFilter 
 {
 public:
-  vtkVoxelModeller();
   const char *GetClassName() {return "vtkVoxelModeller";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -98,6 +97,8 @@ public:
   void Write(char *);
 
 protected:
+  vtkVoxelModeller();
+  ~vtkVoxelModeller() {};
   void Execute();
   int SampleDimensions[3];
   float MaximumDistance;

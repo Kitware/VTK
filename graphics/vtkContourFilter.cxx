@@ -245,7 +245,7 @@ void vtkContourFilter::Execute()
     {
     if ( this->ScalarTree == NULL )
       {
-      this->ScalarTree = new vtkScalarTree;
+		this->ScalarTree = vtkScalarTree::New();
       }
     this->ScalarTree->SetDataSet(input);
     //

@@ -60,8 +60,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkLogLookupTable : public vtkLookupTable
 {
 public:
-  vtkLogLookupTable(int sze=256, int ext=256);
   static vtkLogLookupTable *New() {return new vtkLogLookupTable;};
+
   const char *GetClassName() {return "vtkLogLookupTable";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -85,6 +85,9 @@ public:
 			      int inputDataType, int numberOfValues,
 			      int inputIncrement);
 protected:
+  vtkLogLookupTable(int sze=256, int ext=256);
+  ~vtkLogLookupTable() {};
+
   float LogMinRange;
   float LogMaxRange;
   float UseAbsoluteValue;

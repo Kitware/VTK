@@ -65,8 +65,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkEncodedGradientEstimator : public vtkObject
 {
 public:
-  vtkEncodedGradientEstimator();
-  ~vtkEncodedGradientEstimator();
   const char *GetClassName() {return "vtkEncodedGradientEstimator";};
   void PrintSelf( ostream& os, vtkIndent index );
 
@@ -162,6 +160,9 @@ public:
   vtkGetMacro( ZeroNormalThreshold, float );
 
   // These variables should be protected but are being
+  vtkEncodedGradientEstimator();
+  ~vtkEncodedGradientEstimator();
+
   // made public to be accessible to the templated function.
   // We used to have the templated function as a friend, but
   // this does not work with all compilers

@@ -148,7 +148,8 @@ void vtkMassProperties::Execute()
       return;
     }
   
-  ptIds = new vtkIdList(VTK_CELL_SIZE);
+  ptIds = vtkIdList::New();
+  ptIds->Allocate(VTK_CELL_SIZE);
   
   //
   // Traverse all cells, obtaining node coordinates.

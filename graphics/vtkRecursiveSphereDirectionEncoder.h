@@ -57,9 +57,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkRecursiveSphereDirectionEncoder : public vtkDirectionEncoder
 {
 public:
-
-  vtkRecursiveSphereDirectionEncoder();
-  ~vtkRecursiveSphereDirectionEncoder();
   const char *GetClassName() {return "vtkRecursiveSphereDirectionEncoder";};
   void PrintSelf( ostream& os, vtkIndent index );
 
@@ -107,6 +104,9 @@ public:
   vtkGetMacro( RecursionDepth, int );					     
 
 protected:
+  vtkRecursiveSphereDirectionEncoder();
+  ~vtkRecursiveSphereDirectionEncoder();
+
   // How far to recursively divide the sphere
   int                     RecursionDepth;
   

@@ -51,7 +51,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkDataSetSource : public vtkSource
 {
 public:
-  vtkDataSetSource();
   static vtkDataSetSource *New() {return new vtkDataSetSource;};
   const char *GetClassName() {return "vtkDataSetSource";};
 
@@ -59,6 +58,11 @@ public:
   // Get the output of this source.
   vtkDataSet *GetOutput();
   void SetOutput(vtkDataSet *);
+  
+protected:  
+  vtkDataSetSource();
+  ~vtkDataSetSource() {};
+
 };
 
 #endif

@@ -58,8 +58,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkExtractGeometry : public vtkDataSetToUnstructuredGridFilter
 {
 public:
-  vtkExtractGeometry(vtkImplicitFunction *f=NULL);
-  ~vtkExtractGeometry();
   const char *GetClassName() {return "vtkExtractGeometry";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -85,6 +83,9 @@ public:
   vtkBooleanMacro(ExtractInside,int);
 
 protected:
+  vtkExtractGeometry(vtkImplicitFunction *f=NULL);
+  ~vtkExtractGeometry();
+
   // Usual data generation method
   void Execute();
 

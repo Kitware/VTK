@@ -60,7 +60,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageSkeleton2D : public vtkImageIterateFilter
 {
 public:
-  vtkImageSkeleton2D();
   static vtkImageSkeleton2D *New() {return new vtkImageSkeleton2D;};
   const char *GetClassName() {return "vtkImageSkeleton2D";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -76,6 +75,9 @@ public:
   void SetNumberOfIterations(int num);
   
 protected:
+  vtkImageSkeleton2D();
+  ~vtkImageSkeleton2D() {};
+
   int Prune;
 
   void ComputeRequiredInputUpdateExtent(int *extent, int *wholeExtent);

@@ -63,7 +63,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkCellCenters : public vtkDataSetToPolyDataFilter
 {
 public:
-  vtkCellCenters();
   const char *GetClassName() {return "vtkCellCenters";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -78,6 +77,9 @@ public:
   vtkBooleanMacro(VertexCells,int);
 
 protected:
+  vtkCellCenters();
+  ~vtkCellCenters() {};
+
   void Execute();
 
   int VertexCells;

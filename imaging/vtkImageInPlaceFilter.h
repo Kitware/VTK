@@ -70,6 +70,9 @@ public:
   virtual void InternalUpdate(vtkDataObject *data);
 
 protected:
+  vtkImageInPlaceFilter() {};
+  ~vtkImageInPlaceFilter() {};
+
   virtual void RecursiveStreamUpdate(vtkImageData *outData,int splitAxis);
   void CopyData(vtkImageData *in, vtkImageData *out);
 

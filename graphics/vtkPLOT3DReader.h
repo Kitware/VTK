@@ -108,8 +108,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkPLOT3DReader : public vtkStructuredGridSource 
 {
 public:
-  vtkPLOT3DReader();
-  ~vtkPLOT3DReader();
   static vtkPLOT3DReader *New() {return new vtkPLOT3DReader;};
   const char *GetClassName() {return "vtkPLOT3DReader";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -199,6 +197,9 @@ public:
   vtkGetMacro(Wvinf,float);
 
 protected:
+  vtkPLOT3DReader();
+  ~vtkPLOT3DReader();
+
   void Execute();
   void ExecuteInformation();
   int GetFileType(FILE *fp);

@@ -55,12 +55,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageDecomposeFilter : public vtkImageIterateFilter
 {
 public:
-
   // Description:
   // Construct an instance of vtkImageDecomposeFilter fitler with default
   // dimensionality 3.
-  vtkImageDecomposeFilter();
-
   static vtkImageDecomposeFilter *New() {return new vtkImageDecomposeFilter;};
   const char *GetClassName() {return "vtkImageDecomposeFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -84,6 +81,9 @@ public:
 		     int &min2, int &max2);
   
 protected:
+  vtkImageDecomposeFilter();
+  ~vtkImageDecomposeFilter() {};
+
   int Dimensionality;
 
 

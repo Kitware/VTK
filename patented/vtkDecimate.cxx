@@ -117,7 +117,8 @@ vtkDecimate::vtkDecimate()
 
   this->PreserveTopology = 1;
   
-  this->Neighbors = new vtkIdList(VTK_MAX_TRIS_PER_VERTEX);
+  this->Neighbors = vtkIdList::New();
+  this->Neighbors->Allocate(VTK_MAX_TRIS_PER_VERTEX);
   this->V = new vtkVertexArray(VTK_MAX_TRIS_PER_VERTEX + 1);
   this->T = new vtkTriArray(VTK_MAX_TRIS_PER_VERTEX + 1);
 }

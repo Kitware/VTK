@@ -66,7 +66,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkStructuredPointsGeometryFilter : public vtkStructuredPointsToPolyDataFilter
 {
 public:
-  vtkStructuredPointsGeometryFilter();
   const char *GetClassName() {return "vtkStructuredPointsGeometryFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
   
@@ -83,6 +82,8 @@ public:
   int *GetExtent() { return this->Extent;};
 
 protected:
+  vtkStructuredPointsGeometryFilter();
+  ~vtkStructuredPointsGeometryFilter() {};
   void Execute();
   int Extent[6];
 };

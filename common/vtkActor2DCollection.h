@@ -61,8 +61,6 @@ class VTK_EXPORT vtkActor2DCollection : public vtkPropCollection
   // Description:
   // Desctructor for the vtkActor2DCollection class. This removes all 
   // objects from the collection.
-  ~vtkActor2DCollection();
-
   static vtkActor2DCollection *New() {return new vtkActor2DCollection;};
   const char *GetClassName() {return "vtkActor2DCollection";};
 
@@ -96,6 +94,7 @@ class VTK_EXPORT vtkActor2DCollection : public vtkPropCollection
 
 
 protected:
+  ~vtkActor2DCollection();
   virtual void DeleteElement(vtkCollectionElement *); 
 };
 

@@ -65,6 +65,10 @@ public:
     this->SetInput(tmp->GetOutput()); tmp->Delete();}
   vtkDataSet *GetInput();
 
+protected:
+  vtkDataSetToStructuredGridFilter() {};
+  ~vtkDataSetToStructuredGridFilter() {};
+  
 };
 
 #endif

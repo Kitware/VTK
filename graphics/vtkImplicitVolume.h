@@ -68,8 +68,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImplicitVolume : public vtkImplicitFunction
 {
 public:
-  vtkImplicitVolume();
-  ~vtkImplicitVolume();
   const char *GetClassName() {return "vtkImplicitVolume";}
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -107,6 +105,9 @@ public:
   vtkGetVector3Macro(OutGradient,float);
 
 protected:
+  vtkImplicitVolume();
+  ~vtkImplicitVolume();
+
   vtkStructuredPoints *Volume; // the structured points
   float OutValue;
   float OutGradient[3];

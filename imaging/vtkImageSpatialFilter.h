@@ -57,7 +57,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageSpatialFilter : public vtkImageToImageFilter
 {
 public:
-  vtkImageSpatialFilter();
   static vtkImageSpatialFilter *New() {return new vtkImageSpatialFilter;};
   const char *GetClassName() {return "vtkImageSpatialFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -71,6 +70,9 @@ public:
   int *GetKernelMiddle() {return this->KernelMiddle;}
 
 protected:
+  vtkImageSpatialFilter();
+  ~vtkImageSpatialFilter() {};
+
   int   KernelSize[3];
   int   KernelMiddle[3];      // Index of kernel origin
   int   Strides[3];      // Shrink factor

@@ -60,9 +60,7 @@ class vtkCollection;
 
 class VTK_EXPORT vtkMPIController : public vtkObject
 {
- public:
-  vtkMPIController();
-  ~vtkMPIController();
+public:
   static vtkMPIController *New() {return new vtkMPIController;};
   const char *GetClassName() {return "vtkMPIController";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -108,6 +106,8 @@ class VTK_EXPORT vtkMPIController : public vtkObject
   void ProcessRMIs();
   
 protected:
+  vtkMPIController();
+  ~vtkMPIController();
   
   int LocalProcessId;
   vtkCollection *RMIs;

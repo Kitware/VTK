@@ -55,8 +55,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkWindow : public vtkObject
 {
 public:
-  vtkWindow();
-  ~vtkWindow();
   const char *GetClassName() {return "vtkWindow";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -135,6 +133,9 @@ public:
   vtkSetClampMacro(DPI,int,1,3000);
   
 protected:
+  vtkWindow();
+  ~vtkWindow();
+
   char *WindowName;
   int Size[2];
   int Position[2];

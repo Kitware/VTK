@@ -64,9 +64,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkWindowLevelLookupTable : public vtkLookupTable
 {
 public:
-  vtkWindowLevelLookupTable(int sze=256, int ext=256);
   static vtkWindowLevelLookupTable *New() {
     return new vtkWindowLevelLookupTable;};
+
   const char *GetClassName() {return "vtkWindowLevelLookupTable";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -106,6 +106,9 @@ public:
   vtkGetVectorMacro(MaximumColor,unsigned char,4);
 
 protected:
+  vtkWindowLevelLookupTable(int sze=256, int ext=256);
+  ~vtkWindowLevelLookupTable() {};
+
   float Window;
   float Level;
   int MapScalarToIndex (float scalar);

@@ -65,8 +65,6 @@ class vtkPortController;
 class VTK_EXPORT vtkAsynchronousBuffer : public vtkDataSetToDataSetFilter
 {
 public:
-  vtkAsynchronousBuffer();
-  ~vtkAsynchronousBuffer();
   const char *GetClassName() {return "vtkAsynchronousBuffer";};
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkAsynchronousBuffer *New() {return new vtkAsynchronousBuffer;}
@@ -112,6 +110,9 @@ public:
   unsigned char OutputConsumed;
   
 protected:
+  vtkAsynchronousBuffer();
+  ~vtkAsynchronousBuffer();
+
   int Blocking;
   vtkMultiThreader *Threader;
   int ThreadId;

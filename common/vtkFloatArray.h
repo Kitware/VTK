@@ -52,8 +52,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkFloatArray : public vtkDataArray
 {
 public:
-  vtkFloatArray(int numComp=1);
-  ~vtkFloatArray();
   static vtkFloatArray *New() {return new vtkFloatArray;};
   const char *GetClassName() {return "vtkFloatArray";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -177,6 +175,9 @@ public:
   
   
 private:
+  vtkFloatArray(int numComp=1);
+  ~vtkFloatArray();
+
   float *Array;  // pointer to data
   float *Resize(const int sz);  // function to reallocate data
 

@@ -66,8 +66,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkTransformPolyDataFilter : public vtkPolyDataToPolyDataFilter
 {
 public:
-  vtkTransformPolyDataFilter();
-  ~vtkTransformPolyDataFilter();
   static vtkTransformPolyDataFilter *New() {
     return new vtkTransformPolyDataFilter;};
   const char *GetClassName() {return "vtkTransformPolyDataFilter";};
@@ -83,6 +81,8 @@ public:
   vtkGetObjectMacro(Transform,vtkTransform);
 
 protected:
+  vtkTransformPolyDataFilter();
+  ~vtkTransformPolyDataFilter();
   void Execute();
   vtkTransform *Transform;
 };

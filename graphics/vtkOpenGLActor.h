@@ -61,6 +61,10 @@ public:
   // Description:
   // Actual actor render method.
   void Render(vtkRenderer *ren, vtkMapper *mapper);
+  
+protected:
+  vtkOpenGLActor() {};
+  ~vtkOpenGLActor() {};
 
 };
 

@@ -52,8 +52,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageGaussianSmooth : public vtkImageToImageFilter
 {
 public:
-  vtkImageGaussianSmooth();
-  ~vtkImageGaussianSmooth();
   const char *GetClassName() {return "vtkImageGaussianSmooth";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -97,6 +95,9 @@ public:
   vtkGetMacro(Dimensionality, int);
 
 protected:
+  vtkImageGaussianSmooth();
+  ~vtkImageGaussianSmooth();
+
   int Dimensionality;
   float StandardDeviations[3];
   float RadiusFactors[3];

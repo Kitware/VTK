@@ -62,8 +62,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkCleanPolyData : public vtkPolyDataToPolyDataFilter
 {
 public:
-  vtkCleanPolyData();
-  ~vtkCleanPolyData();
   static vtkCleanPolyData *New() {return new vtkCleanPolyData;};
   const char *GetClassName() {return "vtkCleanPolyData";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -92,6 +90,9 @@ public:
   void SetLocator(vtkPointLocator& locator) {this->SetLocator(&locator);};  
 
 protected:
+  vtkCleanPolyData();
+  ~vtkCleanPolyData();
+
   // Usual data generation method
   void Execute();
 

@@ -59,9 +59,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkBYUWriter : public vtkPolyDataWriter
 {
 public:
-  vtkBYUWriter();
-  ~vtkBYUWriter();
   static vtkBYUWriter *New() {return new vtkBYUWriter;};
+
   const char *GetClassName() {return "vtkBYUWriter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -104,6 +103,9 @@ public:
   vtkBooleanMacro(WriteTexture,int);
 
 protected:
+  vtkBYUWriter();
+  ~vtkBYUWriter();
+
   void WriteData();
 
   char *GeometryFileName;

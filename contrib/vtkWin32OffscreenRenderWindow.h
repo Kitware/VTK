@@ -6,9 +6,6 @@
 class VTK_EXPORT vtkWin32OffscreenRenderWindow : public vtkWin32OpenGLRenderWindow
 {
 public:
-  vtkWin32OffscreenRenderWindow();
-  ~vtkWin32OffscreenRenderWindow();
-
   static vtkWin32OffscreenRenderWindow *New() { return new vtkWin32OffscreenRenderWindow; }
   const char *GetClassName() { return "vtkWin32OffscreenRenderWindow"; }
   void PrintSelf(ostream &os, vtkIndent indent);
@@ -35,6 +32,9 @@ public:
   virtual  int GetEventPending() { return 0; }
 //BTX
 protected:
+  vtkWin32OffscreenRenderWindow();
+  ~vtkWin32OffscreenRenderWindow();
+
   HBITMAP MhBitmap, MhOldBitmap;
   int MBpp, MZBpp;
   

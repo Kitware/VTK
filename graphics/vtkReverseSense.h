@@ -57,7 +57,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkReverseSense : public vtkPolyDataToPolyDataFilter
 {
 public:
-  vtkReverseSense();
   const char *GetClassName() {return "vtkReverseSense";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -80,6 +79,8 @@ public:
 
 
 protected:
+  vtkReverseSense();
+  ~vtkReverseSense() {};
   // Usual data generation method
   void Execute();
 

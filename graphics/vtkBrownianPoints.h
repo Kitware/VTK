@@ -52,7 +52,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkBrownianPoints : public vtkDataSetToDataSetFilter
 {
 public:
-  vtkBrownianPoints();
   static vtkBrownianPoints *New() {return new vtkBrownianPoints;};
   const char *GetClassName() {return "vtkBrownianPoints";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -68,6 +67,9 @@ public:
   vtkGetMacro(MaximumSpeed,float);
 
 protected:
+  vtkBrownianPoints();
+  ~vtkBrownianPoints() {};
+
   void Execute();
   float MinimumSpeed;
   float MaximumSpeed;

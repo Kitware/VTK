@@ -72,12 +72,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkDataSet : public vtkDataObject
 {
 public:
-  // Description:
-  // Constructor with default bounds (0,1, 0,1, 0,1).
-  vtkDataSet();
-
-  ~vtkDataSet();  
-  vtkDataSet(const vtkDataSet& ds);
   const char *GetClassName() {return "vtkDataSet";};
   void PrintSelf(ostream& os, vtkIndent indent);
   
@@ -316,6 +310,11 @@ public:
   virtual int GetDataSetType() {return this->GetDataObjectType();}
   
 protected:
+  // Constructor with default bounds (0,1, 0,1, 0,1).
+  vtkDataSet();
+  ~vtkDataSet();  
+  vtkDataSet(const vtkDataSet& ds);
+
   vtkCellData *CellData;   // Scalars, vectors, etc. associated w/ each cell
   vtkPointData *PointData;   // Scalars, vectors, etc. associated w/ each point
   vtkTimeStamp ComputeTime; // Time at which bounds, center, etc. computed

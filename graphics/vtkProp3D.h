@@ -63,9 +63,7 @@ class vtkAbstractMapper;
 
 class VTK_EXPORT vtkProp3D : public vtkProp
 {
- public:
-  vtkProp3D();
-  ~vtkProp3D();
+public:
   const char *GetClassName() {return "vtkProp3D";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -249,6 +247,9 @@ class VTK_EXPORT vtkProp3D : public vtkProp
 
 
 protected:
+  vtkProp3D();
+  ~vtkProp3D();
+
   vtkMatrix4x4  *UserMatrix;
   vtkMatrix4x4  *Matrix;
   vtkTimeStamp  MatrixMTime;

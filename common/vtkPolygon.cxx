@@ -628,7 +628,8 @@ int vtkPolygon::RecursiveTriangulate (int numVerts, int *verts)
       float dist2, *p1, *p2;
 
       // quick fix until constructors are changed
-      EdgeLengths = new vtkPriorityQueue(VTK_CELL_SIZE);
+      EdgeLengths = vtkPriorityQueue::New();
+      EdgeLengths->Allocate(VTK_CELL_SIZE);
       
       // find the minimum distance between points as candidates for the split line
       for (i=0; i<(numVerts-2); i++) 

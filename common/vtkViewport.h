@@ -64,14 +64,6 @@ class vtkWindow;
 class VTK_EXPORT vtkViewport : public vtkObject
 {
 public:
-
-  // Description:
-  // Create a vtkViewport with a black background, a white ambient light, 
-  // two-sided lighting turned on, a viewport of (0,0,1,1), and backface 
-  // culling turned off.
-  vtkViewport();
-
-  ~vtkViewport();
   const char *GetClassName() {return "vtkViewport";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -227,6 +219,13 @@ public:
   int *GetOrigin();
 
 protected:
+  // Create a vtkViewport with a black background, a white ambient light, 
+  // two-sided lighting turned on, a viewport of (0,0,1,1), and backface 
+  // culling turned off.
+  vtkViewport();
+  ~vtkViewport();
+
+
   vtkPropCollection *Props;
   vtkActor2DCollection *Actors2D;
   vtkWindow *VTKWindow;

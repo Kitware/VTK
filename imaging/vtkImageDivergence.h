@@ -53,7 +53,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageDivergence : public vtkImageToImageFilter
 {
 public:
-  vtkImageDivergence();
   static vtkImageDivergence *New() {return new vtkImageDivergence;};
   const char *GetClassName() {return "vtkImageDivergence";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -64,6 +63,9 @@ public:
   vtkGetMacro(Dimensionality,int);
 
 protected:
+  vtkImageDivergence();
+  ~vtkImageDivergence() {};
+
   int Dimensionality;
 
   void ComputeRequiredInputUpdateExtent(int inExt[6], int outExt[6]);

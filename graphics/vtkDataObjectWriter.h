@@ -59,8 +59,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkDataObjectWriter : public vtkWriter
 {
 public:
-  vtkDataObjectWriter();
-  ~vtkDataObjectWriter();
   static vtkDataObjectWriter *New() {return new vtkDataObjectWriter;};
   const char *GetClassName() {return "vtkDataObjectWriter";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -88,6 +86,9 @@ public:
   void SetInput(vtkDataObject &input) {this->SetInput(&input);};
 
 protected:
+  vtkDataObjectWriter();
+  ~vtkDataObjectWriter();
+
   void WriteData();
   vtkDataWriter *Writer;
   

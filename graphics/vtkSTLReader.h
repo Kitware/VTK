@@ -66,8 +66,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkSTLReader : public vtkPolyDataSource 
 {
 public:
-  vtkSTLReader();
-  ~vtkSTLReader();
   const char *GetClassName() {return "vtkSTLReader";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -106,6 +104,9 @@ public:
   void SetLocator(vtkPointLocator& locator) {this->SetLocator(&locator);};
 
 protected:
+  vtkSTLReader();
+  ~vtkSTLReader();
+
   char *FileName;
   int Merging;
   vtkPointLocator *Locator;

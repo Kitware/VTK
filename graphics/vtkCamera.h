@@ -58,8 +58,6 @@ class vtkRenderer;
 class VTK_EXPORT vtkCamera : public vtkObject
 {
  public:
-  vtkCamera();
-  ~vtkCamera();
   void PrintSelf(ostream& os, vtkIndent indent);
   const char *GetClassName() {return "vtkCamera";};
 
@@ -324,6 +322,9 @@ class VTK_EXPORT vtkCamera : public vtkObject
 
 
 protected:
+  vtkCamera();
+  ~vtkCamera();
+
   double WindowCenter[2];
   double FocalPoint[3];
   double Position[3];

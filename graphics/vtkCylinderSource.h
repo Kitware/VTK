@@ -54,7 +54,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkCylinderSource : public vtkPolyDataSource 
 {
 public:
-  vtkCylinderSource(int res=6);
   static vtkCylinderSource *New() {return new vtkCylinderSource;};
   const char *GetClassName() {return "vtkCylinderSource";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -86,6 +85,9 @@ public:
   vtkBooleanMacro(Capping,int);
 
 protected:
+  vtkCylinderSource(int res=6);
+  ~vtkCylinderSource() {};
+
   void Execute();
   float Height;
   float Radius;

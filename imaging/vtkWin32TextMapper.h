@@ -55,8 +55,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkWin32TextMapper : public vtkTextMapper
 {
 public:
-  vtkWin32TextMapper();
-  ~vtkWin32TextMapper();
   const char *GetClassName() {return "vtkWin32TextMapper";};
   static vtkWin32TextMapper *New() {return new vtkWin32TextMapper;};
 
@@ -70,6 +68,9 @@ public:
   void GetSize(vtkViewport* viewport, int size[2]);
 
 protected:
+  vtkWin32TextMapper();
+  ~vtkWin32TextMapper();
+
   vtkTimeStamp  BuildTime;
   int LastSize[2];
   HFONT Font;

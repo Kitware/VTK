@@ -62,7 +62,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkVectorNorm : public vtkDataSetToDataSetFilter 
 {
 public:
-  vtkVectorNorm();
   const char *GetClassName() {return "vtkVectorNorm";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -95,6 +94,8 @@ public:
   char *GetAttributeModeAsString();
 
 protected:
+  vtkVectorNorm();
+  ~vtkVectorNorm() {};
   void Execute();
 
   int Normalize;  // normalize 0<=n<=1 if true.

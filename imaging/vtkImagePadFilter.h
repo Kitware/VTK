@@ -54,7 +54,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImagePadFilter : public vtkImageToImageFilter
 {
 public:
-  vtkImagePadFilter();
   static vtkImagePadFilter *New() {return new vtkImagePadFilter;};
   const char *GetClassName() {return "vtkImagePadFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -73,6 +72,9 @@ public:
   vtkGetMacro(OutputNumberOfScalarComponents, int);
   
 protected:
+  vtkImagePadFilter();
+  ~vtkImagePadFilter() {};
+
   int OutputWholeExtent[6];
   int OutputNumberOfScalarComponents;
 

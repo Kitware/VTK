@@ -86,15 +86,14 @@ class vtkDataSetCollection;
 class VTK_EXPORT vtkXYPlotActor : public vtkActor2D
 {
 public:
-  vtkXYPlotActor();
-  ~vtkXYPlotActor();
   const char *GetClassName() {return "vtkXYPlotActor";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Instantiate object with autorange computation; bold, italic, and shadows
-  // on; arial font family; the number of labels set to 5 for the x and y axes; 
-  // a label format of "%-#6.3g"; and x coordinates computed from point ids.
+  // on; arial font family; the number of labels set to 5 for the x and y
+  // axes; a label format of "%-#6.3g"; and x coordinates computed from point
+  // ids.
   static vtkXYPlotActor *New() {return new vtkXYPlotActor;};
   
   // Description: Access the Position2 instance variable. This variable
@@ -228,6 +227,9 @@ public:
   void ReleaseGraphicsResources(vtkWindow *);
 
 protected:
+  vtkXYPlotActor();
+  ~vtkXYPlotActor();
+
   vtkCoordinate *Position2Coordinate;
   vtkDataSetCollection *InputList; //list of data sets to plot
   char  *Title;

@@ -53,8 +53,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 class VTK_EXPORT vtkImageMaskBits : public vtkImageToImageFilter
 {
- public:
-  vtkImageMaskBits();
+public:
   static vtkImageMaskBits *New()
     {return new vtkImageMaskBits;};
   const char *GetClassName() {return "vtkImageMaskBits";};
@@ -83,6 +82,9 @@ class VTK_EXPORT vtkImageMaskBits : public vtkImageToImageFilter
    
   
 protected:
+  vtkImageMaskBits();
+  ~vtkImageMaskBits() {};
+
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData, 
 		       int ext[6], int id);
 

@@ -70,9 +70,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 class VTK_EXPORT vtkLODActor : public vtkActor
 {
- public:
-  vtkLODActor();
-  ~vtkLODActor();
+public:
   const char *GetClassName() {return "vtkLODActor";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -117,6 +115,9 @@ class VTK_EXPORT vtkLODActor : public vtkActor
   void BuildPaths(vtkAssemblyPaths *paths, vtkActorCollection *path);
   
 protected:
+  vtkLODActor();
+  ~vtkLODActor();
+
   vtkActor            *Device;
   vtkMapperCollection *LODMappers;
 

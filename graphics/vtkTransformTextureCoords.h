@@ -63,7 +63,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkTransformTextureCoords : public vtkDataSetToDataSetFilter 
 {
 public:
-  vtkTransformTextureCoords();
   const char *GetClassName() {return "vtkTransformTextureCoords";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -121,6 +120,8 @@ public:
   vtkBooleanMacro(FlipT,int);
 
 protected:
+  vtkTransformTextureCoords();
+  ~vtkTransformTextureCoords() {};
   void Execute();
 
   float Origin[3]; //point around which map rotates

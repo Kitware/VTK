@@ -73,9 +73,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkObject 
 {
 public:
-  vtkObject(); 
-  virtual ~vtkObject(); 
-
   // Description:
   // Return the class name as a string.
   virtual const char *GetClassName() {return "vtkObject";};
@@ -132,16 +129,15 @@ public:
   virtual void Modified();
   
   // Description:
-  // Chaining method to print an object's instance variables, as well as
-  // its superclasses.
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
-
-  // Description:
   // Print an object to an ostream.
   void Print(ostream& os);
 
   // Description:
-  // Support methods for the printing process.
+  // Methods invoked by print to print information about
+  // the object including superclasses. Typically not called by the
+  // user (use Print() instead) but used in the hierarchical print
+  // process to combine the output of several classes.
+  virtual void PrintSelf(ostream& os, vtkIndent indent);
   virtual void PrintHeader(ostream& os, vtkIndent indent);
   virtual void PrintTrailer(ostream& os, vtkIndent indent);
 
@@ -157,7 +153,6 @@ public:
   // Description:
   // Increase the reference count (mark as used by another object).
   void Register(vtkObject* o);
-
 
   // Description:
   // Decrease the reference count (release by another object).
@@ -178,6 +173,9 @@ public:
   //ETX
   
 protected:
+  vtkObject(); 
+  virtual ~vtkObject(); 
+
   unsigned char Debug;         // Enable debug messages
   vtkTimeStamp MTime; // Keep track of modification time
   int ReferenceCount;      // Number of uses of this object by other objects

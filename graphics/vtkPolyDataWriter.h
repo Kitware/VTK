@@ -54,7 +54,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkPolyDataWriter : public vtkDataWriter
 {
 public:
-  vtkPolyDataWriter() {};
   static vtkPolyDataWriter *New() {return new vtkPolyDataWriter;};
   const char *GetClassName() {return "vtkPolyDataWriter";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -65,6 +64,8 @@ public:
   vtkPolyData *GetInput();
                                
 protected:
+  vtkPolyDataWriter() {};
+  ~vtkPolyDataWriter() {};
   void WriteData();
 
 };

@@ -75,8 +75,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkGeometryFilter : public vtkDataSetToPolyDataFilter
 {
 public:
-  vtkGeometryFilter();
-  ~vtkGeometryFilter();
   static vtkGeometryFilter *New() {return new vtkGeometryFilter;};
   const char *GetClassName() {return "vtkGeometryFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -156,6 +154,9 @@ public:
   void SetLocator(vtkPointLocator& locator) {this->SetLocator(&locator);};
   
 protected:
+  vtkGeometryFilter();
+  ~vtkGeometryFilter();
+
   void Execute();
   int PointMinimum;
   int PointMaximum;

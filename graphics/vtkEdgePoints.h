@@ -59,8 +59,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkEdgePoints : public vtkDataSetToPolyDataFilter
 {
 public:
-  vtkEdgePoints();
-  ~vtkEdgePoints();
   const char *GetClassName() {return "vtkEdgePoints";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -74,6 +72,9 @@ public:
   vtkGetMacro(Value,float);
 
 protected:
+  vtkEdgePoints();
+  ~vtkEdgePoints();
+
   void Execute();
 
   float Value;

@@ -53,7 +53,6 @@ class VTK_EXPORT vtkFloatNormals : public vtkNormals
 {
 public:
   static vtkFloatNormals *New() {return new vtkFloatNormals;};
-  vtkFloatNormals():vtkNormals(VTK_FLOAT) {};
   
   // Description:
   // Set the data type for this object.
@@ -73,6 +72,10 @@ public:
   // location you wish to write into; number is the number of normals to
   // write.
   float *WritePointer(const int id, const int number);
+  
+protected:
+  vtkFloatNormals():vtkNormals(VTK_FLOAT) {};
+  ~vtkFloatNormals() {};
 
 };
 

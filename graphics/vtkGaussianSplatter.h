@@ -55,7 +55,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkGaussianSplatter : public vtkDataSetToStructuredPointsFilter 
 {
 public:
-  vtkGaussianSplatter();
   const char *GetClassName() {return "vtkGaussianSplatter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -131,6 +130,9 @@ public:
   vtkGetMacro(CapValue,float);
 
 protected:
+  vtkGaussianSplatter();
+  ~vtkGaussianSplatter() {};
+
   void Execute();
   void Cap(vtkScalars *s);
 

@@ -81,9 +81,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkMarchingSquares : public vtkStructuredPointsToPolyDataFilter
 {
 public:
-  vtkMarchingSquares();
   static vtkMarchingSquares *New() {return new vtkMarchingSquares;};
-  ~vtkMarchingSquares();
   const char *GetClassName() {return "vtkMarchingSquares";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -123,6 +121,8 @@ public:
   void SetLocator(vtkPointLocator& locator) {this->SetLocator(&locator);};
   
 protected:
+  vtkMarchingSquares();
+  ~vtkMarchingSquares();
   void Execute();
 
   vtkContourValues *ContourValues;

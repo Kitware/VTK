@@ -56,10 +56,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageFlip : public vtkImageToImageFilter
 {
 public:
-  vtkImageFlip();
   static vtkImageFlip *New() {return new vtkImageFlip;};
-  const char *GetClassName() {return "vtkImageFlip";};
 
+  const char *GetClassName() {return "vtkImageFlip";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -81,6 +80,9 @@ public:
   vtkBooleanMacro(PreserveImageExtent, int);
   
 protected:
+  vtkImageFlip();
+  ~vtkImageFlip() {};
+
   int FilteredAxis;
   int PreserveImageExtent;
   

@@ -58,8 +58,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkOBJExporter : public vtkExporter
 {
 public:
-  vtkOBJExporter();
-  ~vtkOBJExporter();
   static vtkOBJExporter *New() {return new vtkOBJExporter;};
   const char *GetClassName() {return "vtkOBJExporter";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -71,6 +69,9 @@ public:
   vtkGetStringMacro(FilePrefix);
 
 protected:
+  vtkOBJExporter();
+  ~vtkOBJExporter();
+
   void WriteData();
   void WriteAnActor(vtkActor *anActor, FILE *fpObj, FILE *fpMat, int &id);
   char *FilePrefix;

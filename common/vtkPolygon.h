@@ -55,8 +55,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkPolygon : public vtkCell
 {
 public:
-  vtkPolygon();
-  ~vtkPolygon();
   static vtkPolygon *New() {return new vtkPolygon;};
   const char *GetClassName() {return "vtkPolygon";};
 
@@ -172,6 +170,9 @@ public:
   
 
 protected:
+  vtkPolygon();
+  ~vtkPolygon();
+
   // variables used by instances of this class
   float   Tolerance; // Intersection tolerance
   int     SuccessfulTriangulation; // Stops recursive tri. if necessary

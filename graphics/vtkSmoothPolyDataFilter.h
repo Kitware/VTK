@@ -123,7 +123,6 @@ class vtkSmoothPoints;
 class VTK_EXPORT vtkSmoothPolyDataFilter : public vtkPolyDataToPolyDataFilter
 {
 public:
-  vtkSmoothPolyDataFilter();
   const char *GetClassName() {return "vtkSmoothPolyDataFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -198,6 +197,8 @@ public:
   vtkPolyData *GetSource();
   
 protected:
+  vtkSmoothPolyDataFilter();
+  ~vtkSmoothPolyDataFilter() {};
   void Execute();
 
   float Convergence;

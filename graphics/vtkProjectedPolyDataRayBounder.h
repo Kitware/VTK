@@ -65,8 +65,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkProjectedPolyDataRayBounder : public vtkRayBounder
 {
 public:
-  vtkProjectedPolyDataRayBounder();
-  ~vtkProjectedPolyDataRayBounder();
   const char *GetClassName() {return "vtkProjectedPolyDataRayBounder";};
   void PrintSelf(ostream& os, vtkIndent indent);
   
@@ -99,6 +97,8 @@ public:
   unsigned long GetMTime();
 
 protected:
+  vtkProjectedPolyDataRayBounder();
+  ~vtkProjectedPolyDataRayBounder();
 
   vtkPolyData   *PolyData;
   vtkActor      *ActorMatrixSource;

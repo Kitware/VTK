@@ -62,8 +62,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkInterpolateDataSetAttributes : public vtkDataSetToDataSetFilter
 {
 public:
-  vtkInterpolateDataSetAttributes();
-  ~vtkInterpolateDataSetAttributes();
   static vtkInterpolateDataSetAttributes *New() {return new vtkInterpolateDataSetAttributes;};
   const char *GetClassName() {return "vtkInterpolateDataSetAttributes";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -82,6 +80,9 @@ public:
   vtkGetMacro(T,float);
 
 protected:
+  vtkInterpolateDataSetAttributes();
+  ~vtkInterpolateDataSetAttributes();
+
   void Execute();
   int ComputeInputUpdateExtents(vtkDataObject *output);
   

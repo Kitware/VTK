@@ -54,8 +54,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkStructuredPointsReader : public vtkStructuredPointsSource
 {
 public:
-  vtkStructuredPointsReader();
-  ~vtkStructuredPointsReader();
   static vtkStructuredPointsReader *New() 
     {return new vtkStructuredPointsReader;}
   const char *GetClassName() {return "vtkStructuredPointsReader";};
@@ -134,6 +132,8 @@ public:
   char *GetFieldDataName();
 
 protected:
+  vtkStructuredPointsReader();
+  ~vtkStructuredPointsReader();
   void Execute();
   vtkDataReader *Reader;
 };

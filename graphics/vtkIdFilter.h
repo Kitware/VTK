@@ -58,7 +58,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkIdFilter : public vtkDataSetToDataSetFilter 
 {
 public:
-  vtkIdFilter();
   const char *GetClassName() {return "vtkIdFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -88,6 +87,9 @@ public:
   vtkBooleanMacro(FieldData,int);
 
 protected:
+  vtkIdFilter();
+  ~vtkIdFilter() {};
+
   void Execute();
 
   int PointIds;

@@ -57,8 +57,6 @@ class vtkUnstructuredGrid;
 class VTK_EXPORT vtkPyramid : public vtkCell
 {
 public:
-  vtkPyramid();
-  ~vtkPyramid();
   const char *GetClassName() {return "vtkPyramid";};
 
   // Description:
@@ -107,6 +105,9 @@ public:
   int JacobianInverse(float pcoords[3], double **inverse, float derivs[15]);
 
 protected:
+  vtkPyramid();
+  ~vtkPyramid();
+
   vtkLine *Line;
   vtkTriangle *Triangle;
   vtkQuad *Quad;

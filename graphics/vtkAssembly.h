@@ -86,9 +86,8 @@ class vtkAssemblyPaths;
 class VTK_EXPORT vtkAssembly : public vtkActor
 {
 public:
-  vtkAssembly();
-  ~vtkAssembly();
   static vtkAssembly *New() {return new vtkAssembly;};
+
   const char *GetClassName() {return "vtkAssembly";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -158,6 +157,9 @@ public:
   vtkAssembly &operator=(const vtkAssembly& assembly);
 
 protected:
+  vtkAssembly();
+  ~vtkAssembly();
+
   vtkActorCollection *Parts;
 
   // stuff that follows is used to build the assembly hierarchy

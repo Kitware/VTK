@@ -66,8 +66,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkXRenderWindowInteractor : public vtkRenderWindowInteractor
 {
 public:
-  vtkXRenderWindowInteractor();
-  ~vtkXRenderWindowInteractor();
   static vtkXRenderWindowInteractor *New() {
     return new vtkXRenderWindowInteractor;};
   const char *GetClassName() {return "vtkXRenderWindowInteractor";};
@@ -167,6 +165,9 @@ public:
   friend void vtkXRenderWindowInteractorTimer(XtPointer,XtIntervalId *);
 
 protected:
+  vtkXRenderWindowInteractor();
+  ~vtkXRenderWindowInteractor();
+
   Display *DisplayId;
   Window WindowId;
   Widget top;

@@ -55,7 +55,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageResample : public vtkImageToImageFilter
 {
 public:
-  vtkImageResample();
   static vtkImageResample *New() {return new vtkImageResample;};
   const char *GetClassName() {return "vtkImageResample";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -86,6 +85,9 @@ public:
   vtkGetMacro(Dimensionality,int);
 
 protected:
+  vtkImageResample();
+  ~vtkImageResample() {};
+
   float MagnificationFactors[3];
   float OutputSpacing[3];
   int Interpolate;

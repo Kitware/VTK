@@ -56,7 +56,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkCellPicker : public vtkPicker
 {
 public:
-  vtkCellPicker();
   static vtkCellPicker *New() {return new vtkCellPicker;};
   const char *GetClassName() {return "vtkCellPicker";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -75,6 +74,9 @@ public:
   vtkGetVectorMacro(PCoords,float,3);
 
 protected:
+  vtkCellPicker();
+  ~vtkCellPicker() {};
+
   int CellId; // picked cell
   int SubId; // picked cell subId
   float PCoords[3]; // picked cell parametric coordinates

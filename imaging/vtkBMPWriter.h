@@ -54,11 +54,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkBMPWriter : public vtkImageWriter
 {
 public:
-  vtkBMPWriter();
   static vtkBMPWriter *New() {return new vtkBMPWriter;};
   const char *GetClassName() {return "vtkBMPWriter";};
 
 protected:
+  vtkBMPWriter();
+  ~vtkBMPWriter() {};
+
   virtual void WriteFile(ofstream *file, vtkImageData *data, int ext[6]);
   virtual void WriteFileHeader(ofstream *, vtkImageData *);
 };

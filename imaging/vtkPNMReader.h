@@ -69,6 +69,8 @@ public:
   const char *GetClassName() {return "vtkPNMReader";};
   
 protected:
+  vtkPNMReader() {};
+  ~vtkPNMReader() {};
   void UpdateInformation();
 };
 

@@ -85,6 +85,10 @@ class VTK_EXPORT vtkRendererCollection : public vtkCollection
   // Forward the Render() method to each renderer in the list.
   void Render();
   void RenderOverlay();
+
+protected:  
+  vtkRendererCollection() {};
+  ~vtkRendererCollection() {};
 };
 
 

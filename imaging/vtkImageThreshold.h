@@ -54,7 +54,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageThreshold : public vtkImageToImageFilter
 {
 public:
-  vtkImageThreshold();
   static vtkImageThreshold *New() {return new vtkImageThreshold;};
   const char *GetClassName() {return "vtkImageThreshold";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -111,6 +110,9 @@ public:
     {this->SetOutputScalarType(VTK_UNSIGNED_CHAR);};
   
 protected:
+  vtkImageThreshold();
+  ~vtkImageThreshold() {};
+
   float UpperThreshold;
   float LowerThreshold;
   int ReplaceIn;

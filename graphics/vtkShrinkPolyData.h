@@ -65,7 +65,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkShrinkPolyData : public vtkPolyDataToPolyDataFilter 
 {
 public:
-  vtkShrinkPolyData(float sf=0.5);
   static vtkShrinkPolyData *New() {return new vtkShrinkPolyData;};
   const char *GetClassName() {return "vtkShrinkPolyData";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -79,6 +78,8 @@ public:
   vtkGetMacro(ShrinkFactor,float);
 
 protected:
+  vtkShrinkPolyData(float sf=0.5);
+  ~vtkShrinkPolyData() {};
   void Execute();
   float ShrinkFactor;
 };

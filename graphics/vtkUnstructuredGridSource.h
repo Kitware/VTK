@@ -55,7 +55,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkUnstructuredGridSource : public vtkSource
 {
 public:
-  vtkUnstructuredGridSource();
   static vtkUnstructuredGridSource *New() {
     return new vtkUnstructuredGridSource;};
   const char *GetClassName() {return "vtkUnstructuredGridSource";};
@@ -66,6 +65,8 @@ public:
   void SetOutput(vtkUnstructuredGrid *output);
   
 protected:
+  vtkUnstructuredGridSource();
+  ~vtkUnstructuredGridSource() {};
   
   // Since the Outputs[0] has the same UpdateExtent format
   // as the generic DataObject we can copy the UpdateExtent

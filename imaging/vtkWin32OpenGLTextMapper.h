@@ -55,7 +55,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkWin32OpenGLTextMapper : public vtkWin32TextMapper
 {
 public:
-  vtkWin32OpenGLTextMapper();
   const char *GetClassName() {return "vtkWin32OpenGLTextMapper";};
   static vtkWin32OpenGLTextMapper *New() {
     return new vtkWin32OpenGLTextMapper;};
@@ -76,6 +75,8 @@ public:
   static int GetListBaseForFont(vtkTextMapper *tm, vtkViewport *vp);
 
 protected:
+  vtkWin32OpenGLTextMapper();
+  ~vtkWin32OpenGLTextMapper() {};
 };
 
 

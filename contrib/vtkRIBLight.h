@@ -57,8 +57,6 @@ class vtkRIBRenderer;
 class VTK_EXPORT vtkRIBLight : public vtkLight
 {
 public:
-  vtkRIBLight();
-  ~vtkRIBLight();
   static vtkRIBLight *New() {return new vtkRIBLight;};
   const char *GetClassName() {return "vtkRIBLight";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -69,6 +67,9 @@ public:
 
   void Render(vtkRenderer *ren, int index);
 protected:
+  vtkRIBLight();
+  ~vtkRIBLight();
+
   vtkLight *Light;
   int Shadows;
 };

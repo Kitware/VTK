@@ -76,6 +76,11 @@ public:
   // Get the next Transform in the list. Return NULL when the end of the
   // list is reached.
   vtkTransform *GetNextItem();
+
+protected:
+  vtkTransformCollection() {};
+  ~vtkTransformCollection() {};
+
 };
 
 inline void vtkTransformCollection::AddItem(vtkTransform *t) 

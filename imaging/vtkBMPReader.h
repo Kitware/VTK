@@ -68,8 +68,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkBMPReader : public vtkImageReader
 {
 public:
-  vtkBMPReader();
-  ~vtkBMPReader();
   static vtkBMPReader *New() {return new vtkBMPReader;};
   const char *GetClassName() {return "vtkBMPReader";};
 
@@ -86,6 +84,9 @@ public:
 //ETX
 
 protected:
+  vtkBMPReader();
+  ~vtkBMPReader();
+
   unsigned char *Colors;
   short Depth;
   

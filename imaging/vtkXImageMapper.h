@@ -64,9 +64,8 @@ class vtkActor2D;
 class VTK_EXPORT vtkXImageMapper : public vtkImageMapper
 {
 public:
-  vtkXImageMapper();
-  ~vtkXImageMapper();
   static vtkXImageMapper *New() {return new vtkXImageMapper;};
+
   const char *GetClassName() {return "vtkXImageMapper";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -106,6 +105,8 @@ public:
   vtkGetMacro(NumberOfColors,int);
 
 protected:
+  vtkXImageMapper();
+  ~vtkXImageMapper();
 
   XImage          *Image;
   unsigned char   *DataOut;

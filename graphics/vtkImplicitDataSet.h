@@ -69,8 +69,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImplicitDataSet : public vtkImplicitFunction
 {
 public:
-  vtkImplicitDataSet();
-  ~vtkImplicitDataSet();
   const char *GetClassName() {return "vtkImplicitDataSet";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -108,6 +106,9 @@ public:
   vtkGetVector3Macro(OutGradient,float);
 
 protected:
+  vtkImplicitDataSet();
+  ~vtkImplicitDataSet();
+
   vtkDataSet *DataSet;
   float OutValue;
   float OutGradient[3];

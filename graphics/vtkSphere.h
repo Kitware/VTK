@@ -51,7 +51,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkSphere : public vtkImplicitFunction
 {
 public:
-  vtkSphere();
   const char *GetClassName() {return "vtkSphere";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -78,6 +77,9 @@ public:
   vtkGetVectorMacro(Center,float,3);
 
 protected:
+  vtkSphere();
+  ~vtkSphere() {};
+
   float Radius;
   float Center[3];
 

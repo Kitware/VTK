@@ -57,6 +57,9 @@ public:
   const char *GetClassName() {return "vtkImageDotProduct";};
 
 protected:
+  vtkImageDotProduct() {};
+  ~vtkImageDotProduct() {};
+
   void ExecuteInformation(vtkImageData **inDatas, vtkImageData *outData);
   void ThreadedExecute(vtkImageData **inDatas, vtkImageData *outData,
 		       int extent[6], int id);

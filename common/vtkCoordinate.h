@@ -84,10 +84,8 @@ class vtkViewport;
 class VTK_EXPORT vtkCoordinate : public vtkObject
 {
 public:
-  vtkCoordinate();
-  ~vtkCoordinate();
-  void PrintSelf(ostream& os, vtkIndent indent);
   const char *GetClassName() {return "vtkCoordinate";};
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Creates an instance of this class with the following defaults: 
@@ -146,6 +144,9 @@ public:
   float *GetComputedValue(vtkViewport *);
   
 protected:
+  vtkCoordinate();
+  ~vtkCoordinate();
+
   float Value[3];
   int   CoordinateSystem;
   vtkCoordinate *ReferenceCoordinate;

@@ -57,8 +57,9 @@ class VTK_EXPORT vtkMapper2D : public vtkObject
 {
 public:
   static vtkMapper2D* New() {return new vtkMapper2D;};
-  void PrintSelf(ostream& os, vtkIndent indent);
+
   const char *GetClassName() {return "vtkMapper2D";};
+  void PrintSelf(ostream& os, vtkIndent indent);
   
   virtual void RenderOverlay(vtkViewport*, vtkActor2D*) {};
   virtual void RenderOpaqueGeometry(vtkViewport*, vtkActor2D*) {};
@@ -71,6 +72,8 @@ public:
   virtual void ReleaseGraphicsResources(vtkWindow *) {};
 
 protected:
+  vtkMapper2D() {};
+  ~vtkMapper2D() {};
 
 };
 

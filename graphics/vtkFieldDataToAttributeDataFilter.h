@@ -90,8 +90,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkFieldDataToAttributeDataFilter : public vtkDataSetToDataSetFilter
 {
 public:
-  vtkFieldDataToAttributeDataFilter();
-  ~vtkFieldDataToAttributeDataFilter();
   void PrintSelf(ostream& os, vtkIndent indent);
   const char *GetClassName() {return "vtkFieldDataToAttributeDataFilter";};
 
@@ -241,6 +239,9 @@ public:
   static int UpdateComponentRange(vtkDataArray *da, int compRange[2]);
 
 protected:
+  vtkFieldDataToAttributeDataFilter();
+  ~vtkFieldDataToAttributeDataFilter();
+
   void Execute(); //generate output data
 
   int InputField;

@@ -54,8 +54,8 @@ class vtkPoints;
 class VTK_EXPORT vtkPoints : public vtkAttributeData
 {
 public:
-  vtkPoints(int dataType=VTK_FLOAT);
   static vtkPoints *New() {return new vtkPoints;};
+
   const char *GetClassName() {return "vtkPoints";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -131,6 +131,9 @@ public:
   void GetPoints(vtkIdList &ptId, vtkPoints &fp) {this->GetPoints(&ptId, &fp);}
 
 protected:
+  vtkPoints(int dataType=VTK_FLOAT);
+  ~vtkPoints() {};
+
   float Bounds[6];
   vtkTimeStamp ComputeTime; // Time at which bounds computed
 

@@ -61,8 +61,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageSeedConnectivity : public vtkImageToImageFilter
 {
 public:
-  vtkImageSeedConnectivity();
-  ~vtkImageSeedConnectivity();
   static vtkImageSeedConnectivity *New() 
     {return new vtkImageSeedConnectivity;};
   const char *GetClassName() {return "vtkImageSeedConnectivity";};
@@ -100,6 +98,9 @@ public:
   vtkGetMacro(Dimensionality,int);
   
 private:
+  vtkImageSeedConnectivity();
+  ~vtkImageSeedConnectivity();
+
   unsigned char InputConnectValue;
   unsigned char OutputConnectedValue;
   unsigned char OutputUnconnectedValue;

@@ -74,10 +74,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkSynchronizedTemplates3D : public vtkPolyDataSource
 {
 public:
-  vtkSynchronizedTemplates3D();
   static vtkSynchronizedTemplates3D *New() {
     return new vtkSynchronizedTemplates3D;};
-  ~vtkSynchronizedTemplates3D();
   const char *GetClassName() {return "vtkSynchronizedTemplates3D";};
   void PrintSelf(ostream& os, vtkIndent indent);
   
@@ -187,6 +185,9 @@ public:
   unsigned long GetInputMemoryLimit();
 
 protected:
+  vtkSynchronizedTemplates3D();
+  ~vtkSynchronizedTemplates3D();
+
   int ComputeNormals;
   int ComputeGradients;
   int ComputeScalars;

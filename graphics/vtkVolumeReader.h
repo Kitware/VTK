@@ -74,8 +74,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkVolumeReader : public vtkStructuredPointsSource
 {
 public:
-  vtkVolumeReader();
-  ~vtkVolumeReader();
   const char *GetClassName() {return "vtkVolumeReader";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -109,6 +107,9 @@ public:
   virtual vtkStructuredPoints *GetImage(int ImageNumber) = 0;
 
 protected:
+  vtkVolumeReader();
+  ~vtkVolumeReader();
+
   char *FilePrefix;
   char *FilePattern;
   int ImageRange[2];

@@ -61,8 +61,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkVolumeRayCastIsosurfaceFunction : public vtkVolumeRayCastFunction
 {
 public:
-  vtkVolumeRayCastIsosurfaceFunction();
-  ~vtkVolumeRayCastIsosurfaceFunction();
   const char *GetClassName() {return "vtkVolumeRayCastIsosurfaceFunction";};
   void PrintSelf( ostream& os, vtkIndent index );
 
@@ -95,6 +93,8 @@ public:
 //ETX
 
 protected:
+  vtkVolumeRayCastIsosurfaceFunction();
+  ~vtkVolumeRayCastIsosurfaceFunction();
 
 //BTX
   void SpecificFunctionInitialize( vtkRenderer *ren,

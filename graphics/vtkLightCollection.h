@@ -78,6 +78,8 @@ class VTK_EXPORT vtkLightCollection : public vtkCollection
   vtkLight *GetNextItem();
 
 protected:
+  vtkLightCollection() {};
+  ~vtkLightCollection() {};
 };
 
 

@@ -52,7 +52,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkLineSource : public vtkPolyDataSource 
 {
 public:
-  vtkLineSource(int res=1);
   static vtkLineSource *New() {return new vtkLineSource;};
   const char *GetClassName() {return "vtkLineSource";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -73,6 +72,9 @@ public:
   vtkGetMacro(Resolution,int);
 
 protected:
+  vtkLineSource(int res=1);
+  ~vtkLineSource() {};
+
   void Execute();
   float Point1[3];
   float Point2[3];

@@ -54,7 +54,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkMaskPoints : public vtkDataSetToPolyDataFilter
 {
 public:
-  vtkMaskPoints();
   static vtkMaskPoints *New() {return new vtkMaskPoints;};
   const char *GetClassName() {return "vtkMaskPoints";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -82,6 +81,9 @@ public:
   vtkBooleanMacro(RandomMode,int);
 
 protected:
+  vtkMaskPoints();
+  ~vtkMaskPoints() {};
+
   void Execute();
   void ExecuteInformation();
 

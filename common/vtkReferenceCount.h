@@ -52,12 +52,15 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkReferenceCount : public vtkObject
 {
 public:
+  static vtkReferenceCount *New() {return new vtkReferenceCount;};
+
+  const char *GetClassName() {return "vtkReferenceCount";};
+  void PrintSelf(ostream& os, vtkIndent indent);
+  
+protected:  
   vtkReferenceCount();
   ~vtkReferenceCount();
 
-  void PrintSelf(ostream& os, vtkIndent indent);
-  static vtkReferenceCount *New() {return new vtkReferenceCount;};
-  const char *GetClassName() {return "vtkReferenceCount";};
 };
 
 

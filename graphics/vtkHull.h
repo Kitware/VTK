@@ -59,8 +59,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkHull : public vtkPolyDataToPolyDataFilter
 {
 public:
-  vtkHull();
-  ~vtkHull();
   static vtkHull *New() {return new vtkHull;};
   const char *GetClassName() {return "vtkHull";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -119,6 +117,9 @@ public:
   void AddRecursiveSpherePlanes( int level );
 
 protected:
+  vtkHull();
+  ~vtkHull();
+
   // The planes - 4 floats per plane for A, B, C, D
   float     *Planes;
 

@@ -83,6 +83,10 @@ class VTK_EXPORT vtkMapperCollection : public vtkCollection
   // Description:
   // Get the last mapper in the list.
   vtkMapper *GetLastItem();
+  
+protected:  
+  vtkMapperCollection() {};
+  ~vtkMapperCollection() {};
 };
 
 

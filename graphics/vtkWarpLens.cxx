@@ -73,7 +73,7 @@ void vtkWarpLens::Execute()
     return;
     }
 
-  newPts = new vtkPoints; 
+  newPts = vtkPoints::New(); 
   newPts->SetNumberOfPoints(numPts);
 
   //

@@ -72,10 +72,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkGridSynchronizedTemplates3D : public vtkStructuredGridToPolyDataFilter
 {
 public:
-  vtkGridSynchronizedTemplates3D();
   static vtkGridSynchronizedTemplates3D *New() {
     return new vtkGridSynchronizedTemplates3D;};
-  ~vtkGridSynchronizedTemplates3D();
   const char *GetClassName() {return "vtkGridSynchronizedTemplates3D";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -178,6 +176,9 @@ public:
   void SetInputMemoryLimit(long limit);
 
 protected:
+  vtkGridSynchronizedTemplates3D();
+  ~vtkGridSynchronizedTemplates3D();
+
   int ComputeNormals;
   int ComputeGradients;
   int ComputeScalars;

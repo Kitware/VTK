@@ -82,8 +82,6 @@ class vtkVolumeTransform;
 class VTK_EXPORT vtkVolumeRayCastMapper : public vtkVolumeMapper
 {
 public:
-  vtkVolumeRayCastMapper();
-  ~vtkVolumeRayCastMapper();
   static vtkVolumeRayCastMapper *New() {return new vtkVolumeRayCastMapper;};
   const char *GetClassName() {return "vtkVolumeRayCastMapper";};
   void PrintSelf( ostream& os, vtkIndent index );
@@ -151,6 +149,8 @@ public:
 //ETX
 
 protected:
+  vtkVolumeRayCastMapper();
+  ~vtkVolumeRayCastMapper();
 
   vtkVolumeRayCastFunction     *VolumeRayCastFunction;
 

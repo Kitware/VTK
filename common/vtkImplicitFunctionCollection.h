@@ -74,6 +74,11 @@ public:
   // Description:
   // Get the next implicit function in the list.
   vtkImplicitFunction *GetNextItem();
+  
+protected:
+  vtkImplicitFunctionCollection() {};
+  ~vtkImplicitFunctionCollection() {};
+  
 };
 
 inline void vtkImplicitFunctionCollection::AddItem(vtkImplicitFunction *f) 

@@ -65,6 +65,8 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
 protected:
+  vtkTriangularTCoords() {};
+  ~vtkTriangularTCoords() {};
   // Usual data generation method
   void Execute();
 };

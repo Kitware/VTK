@@ -64,8 +64,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkProgrammableDataObjectSource : public vtkSource
 {
 public:
-  vtkProgrammableDataObjectSource();
-  ~vtkProgrammableDataObjectSource();
   static vtkProgrammableDataObjectSource *New() {return new vtkProgrammableDataObjectSource;};
   const char *GetClassName() {return "vtkProgrammableDataObjectSource";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -84,6 +82,8 @@ public:
   vtkDataObject *GetOutput();
 
 protected:
+  vtkProgrammableDataObjectSource();
+  ~vtkProgrammableDataObjectSource();
   void Execute();
 
   void (*ExecuteMethod)(void *); //function to invoke

@@ -43,37 +43,39 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkProgrammableGlyphFilter is a filter that allows you to place a glyph at
 // each input point in the dataset. In addition, the filter is programmable
 // which means the user has control over the generation of the glyph. The
-// glyphs can be controlled via the point data attributes (e.g., scalars, vectors, 
-// etc.) or any other information in the input dataset.
+// glyphs can be controlled via the point data attributes (e.g., scalars,
+// vectors, etc.) or any other information in the input dataset.
 //
-// This is the way the filter works. You must define an input dataset which at a
-// minimum contains points with associated attribute values. Also, the Source
-// instance variable must be set which is of type vtkPolyData. Then, for each 
-// point in the input, the PointId is set to the current point id, and a user-defined
-// function is called (i.e., GlyphMethod). In this method you can manipulate the
-// Source data (including changing to a different Source object). After the
-// GlyphMethod is called, vtkProgrammableGlyphFilter will invoke an Update() on
-// its Source object, and then copy its data to the output of the
+// This is the way the filter works. You must define an input dataset which
+// at a minimum contains points with associated attribute values. Also, the
+// Source instance variable must be set which is of type vtkPolyData. Then,
+// for each point in the input, the PointId is set to the current point id,
+// and a user-defined function is called (i.e., GlyphMethod). In this method
+// you can manipulate the Source data (including changing to a different
+// Source object). After the GlyphMethod is called,
+// vtkProgrammableGlyphFilter will invoke an Update() on its Source object,
+// and then copy its data to the output of the
 // vtkProgrammableGlyphFilter. Therefore the output of this filter is of type
 // vtkPolyData.
 //
-// Another option to this filter is the way you color the glyphs. You can use the
-// scalar data from the input or the source. The instance variable ColorMode controls
-// this behavior.
+// Another option to this filter is the way you color the glyphs. You can use
+// the scalar data from the input or the source. The instance variable
+// ColorMode controls this behavior.
 
 // .SECTION Caveats
-// This filter operates on point data attributes. If you want to use cell data 
-// attributes, use a filter like vtkCellCenters to generate points at the centers
-// of cells, and then use these points.
+// This filter operates on point data attributes. If you want to use cell
+// data attributes, use a filter like vtkCellCenters to generate points at
+// the centers of cells, and then use these points.
 //
-// Note that the data attributes (cell and point) are passed to the output of this
-// filter from the Source object. This works well as long as you are not changing
-// the class of the Source object during execution. However, if the class of the 
-// Source object changes, then the potential exists that the data attributes might 
-// change during execution (e.g., scalars available from one source and not the next),
-// possibly fouling up the copying of data attributes to the output. In this case, 
-// you may have to manually set the output's copy flags (e.g., CopyScalarsOn/Off(), 
-// CopyVectorsOn/Off(), etc.) to control what's being copied.
+// Note that the data attributes (cell and point) are passed to the output of
+// this filter from the Source object. This works well as long as you are not
+// changing the class of the Source object during execution. However, if the
+// class of the Source object changes, then the potential exists that the
+// data attributes might change during execution (e.g., scalars available
+// from one source and not the next), possibly fouling up the copying of data
+// attributes to the output. In this case, you may have to manually set the
+// output's copy flags (e.g., CopyScalarsOn/Off(), CopyVectorsOn/Off(), etc.)
+// to control what's being copied.
 
 // .SECTION See Also
 // vtkGlyph3D vtkTensorGlyph vtkCellCenters
@@ -89,8 +91,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkProgrammableGlyphFilter : public vtkDataSetToPolyDataFilter
 {
 public:
-  vtkProgrammableGlyphFilter();
-  ~vtkProgrammableGlyphFilter();
   const char *GetClassName() {return "vtkProgrammableGlyphFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -141,6 +141,8 @@ public:
   char *GetColorModeAsString();
 
 protected:
+  vtkProgrammableGlyphFilter();
+  ~vtkProgrammableGlyphFilter();
   void Execute();
 
   float Point[3]; // Coordinates of point

@@ -55,12 +55,18 @@ class VTK_EXPORT vtkCellData : public vtkDataSetAttributes
 {
 public:
   static vtkCellData *New() {return new vtkCellData;};
+
   const char *GetClassName() {return "vtkCellData";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Set cell data to null values
   void NullCell(int cellId);
+  
+protected:
+  vtkCellData() {}; //make sure constructor and desctructor are protected
+  ~vtkCellData() {};
+  
 };
 
 #endif

@@ -52,7 +52,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkFloatPoints : public vtkPoints
 {
 public:
-  vtkFloatPoints():vtkPoints(VTK_FLOAT) {};
   static vtkFloatPoints *New() {return new vtkFloatPoints;};
   
   // Description:
@@ -73,6 +72,10 @@ public:
   // location you wish to write into; number is the number of points to
   // write.
   float *WritePointer(const int id, const int number);
+  
+protected:
+  vtkFloatPoints():vtkPoints(VTK_FLOAT) {};
+  ~vtkFloatPoints() {};
 
 };
 

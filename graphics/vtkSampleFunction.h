@@ -59,8 +59,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkSampleFunction : public vtkStructuredPointsSource
 {
 public:
-  vtkSampleFunction();
-  ~vtkSampleFunction();
   const char *GetClassName() {return "vtkSampleFunction";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -118,6 +116,8 @@ public:
   unsigned long GetMTime();
 
 protected:
+  vtkSampleFunction();
+  ~vtkSampleFunction();
   void Execute();
   void ExecuteInformation();
   void Cap(vtkScalars *s);

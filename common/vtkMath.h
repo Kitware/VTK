@@ -321,6 +321,8 @@ public:
                                double **yt, int yOrder, double **mt);
   
 protected:
+  vtkMath() {};
+  ~vtkMath() {};
   static long Seed;
 };
 

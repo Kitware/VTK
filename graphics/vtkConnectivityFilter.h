@@ -85,8 +85,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkConnectivityFilter : public vtkDataSetToUnstructuredGridFilter
 {
 public:
-  vtkConnectivityFilter();
-  ~vtkConnectivityFilter();
   const char *GetClassName() {return "vtkConnectivityFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -174,6 +172,9 @@ public:
   vtkBooleanMacro(ColorRegions,int);
 
 protected:
+  vtkConnectivityFilter();
+  ~vtkConnectivityFilter();
+
   // Usual data generation method
   void Execute();
 

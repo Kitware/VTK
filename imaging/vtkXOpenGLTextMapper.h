@@ -55,7 +55,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkXOpenGLTextMapper : public vtkXTextMapper
 {
 public:
-  vtkXOpenGLTextMapper();
   const char *GetClassName() {return "vtkXOpenGLTextMapper";};
   static vtkXOpenGLTextMapper *New() {
     return new vtkXOpenGLTextMapper;};
@@ -77,6 +76,8 @@ public:
 				Font);
 
 protected:
+  vtkXOpenGLTextMapper();
+  ~vtkXOpenGLTextMapper() {};
 };
 
 

@@ -817,7 +817,9 @@ void vtkPolyData::BuildLinks()
     {
     this->BuildCells();
     }
-  this->Links = new vtkCellLinks(this->GetNumberOfPoints());
+
+  this->Links = vtkCellLinks::New();
+  this->Links->Allocate(this->GetNumberOfPoints());
   this->Links->Register(this);
   this->Links->Delete();
 
@@ -951,7 +953,8 @@ int vtkPolyData::InsertNextCell(int type, int npts, int *pts)
     {
     // if we get to this point, the user has not made any guess at the
     // number of cells, so this guess is as good as any
-    this->Cells = new vtkCellTypes(5000,10000);
+    this->Cells = vtkCellTypes::New();
+    this->Cells->Allocate(5000,10000);
     }
 
   switch (type)
@@ -1008,7 +1011,8 @@ int vtkPolyData::InsertNextCell(int type, vtkIdList *pts)
 
   if ( !this->Cells ) 
     {
-    this->Cells = new vtkCellTypes(5000,10000);
+    this->Cells = vtkCellTypes::New();
+    this->Cells->Allocate(5000,10000);
     }
 
   switch (type)

@@ -55,8 +55,6 @@ class vtkRenderWindow;
 class VTK_EXPORT vtkOpenGLTexture : public vtkTexture
 {
 public:
-  vtkOpenGLTexture();
-  ~vtkOpenGLTexture();
   static vtkOpenGLTexture *New() {return new vtkOpenGLTexture;};
   const char *GetClassName() {return "vtkOpenGLTexture";};
 
@@ -72,6 +70,9 @@ public:
   void ReleaseGraphicsResources(vtkWindow *);
 
 protected:
+  vtkOpenGLTexture();
+  ~vtkOpenGLTexture();
+
   unsigned char *ResampleToPowerOfTwo(int &xsize, int &ysize, 
                                       unsigned char *dptr, int bpp);
 

@@ -58,8 +58,6 @@ class vtkIdList;
 class VTK_EXPORT vtkWin32OpenGLRenderWindow : public vtkRenderWindow
 {
 public:
-  vtkWin32OpenGLRenderWindow();
-  ~vtkWin32OpenGLRenderWindow();
   static vtkWin32OpenGLRenderWindow *New() {
     return new vtkWin32OpenGLRenderWindow;};
   const char *GetClassName() {return "vtkWin32OpenGLRenderWindow";};
@@ -217,11 +215,13 @@ public:
   // Clean up device contexts, rendering contexts, etc.
   void Clean();
 
-  // Description:
+protected:
+  vtkWin32OpenGLRenderWindow();
+  ~vtkWin32OpenGLRenderWindow();
+
   // Register a texture name with this render window
   void RegisterTextureResource (GLuint id);
 
- protected:
   HINSTANCE ApplicationInstance;
   HPALETTE  Palette;
   HPALETTE  OldPalette;

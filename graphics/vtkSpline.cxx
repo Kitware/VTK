@@ -47,7 +47,7 @@ vtkSpline::vtkSpline ()
 {
   this->ComputeTime = 0;
   this->ClampValue = 0;
-  this->PiecewiseFunction = new vtkPiecewiseFunction;
+  this->PiecewiseFunction = vtkPiecewiseFunction::New();
   this->Intervals = NULL;
   this->Coefficients = NULL;
   this->LeftConstraint = 1;

@@ -74,9 +74,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkSource : public vtkProcessObject
 {
 public:
-  vtkSource();
-  ~vtkSource();
   static vtkSource *New() {return new vtkSource;};
+
   const char *GetClassName() {return "vtkSource";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -118,6 +117,9 @@ public:
   vtkGetMacro(NumberOfOutputs,int);
     
 protected:
+  vtkSource();
+  ~vtkSource();
+
   virtual void Execute();
 
   // By default, UpdateInformation calls this method to copy information

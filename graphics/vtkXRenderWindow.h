@@ -61,8 +61,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkXRenderWindow : public vtkRenderWindow
 {
 public:
-  vtkXRenderWindow();
-  ~vtkXRenderWindow();
   static vtkXRenderWindow *New() 
   {return (vtkXRenderWindow *)(vtkRenderWindow::New());};
   const char *GetClassName() {return "vtkXRenderWindow";};
@@ -139,6 +137,9 @@ public:
   void     SetWindowInfo(char *info);
 
 protected:
+  vtkXRenderWindow();
+  ~vtkXRenderWindow();
+
   Window   ParentId;
   Window   WindowId;
   Window   NextWindowId;

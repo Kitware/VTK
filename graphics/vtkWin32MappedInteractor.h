@@ -71,8 +71,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkWin32MappedInteractor : public vtkRenderWindowInteractor
 {
 public:
-  vtkWin32MappedInteractor();
-  ~vtkWin32MappedInteractor();
   static vtkWin32MappedInteractor *New() {
     return new vtkWin32MappedInteractor;};
   const char *GetClassName() {return "vtkWin32MappedInteractor";};
@@ -125,6 +123,9 @@ public:
 
 
 protected:
+  vtkWin32MappedInteractor();
+  ~vtkWin32MappedInteractor();
+
   HWND  WindowId;
   UINT  TimerId;
   int   WindowLeft;

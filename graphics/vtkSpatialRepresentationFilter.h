@@ -88,8 +88,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkSpatialRepresentationFilter : public vtkPolyDataSource
 {
 public:
-  vtkSpatialRepresentationFilter();
-  ~vtkSpatialRepresentationFilter();
   static vtkSpatialRepresentationFilter *New() {
     return new vtkSpatialRepresentationFilter;};
   const char *GetClassName() {return "vtkSpatialRepresentationFilter";};
@@ -129,6 +127,8 @@ public:
   vtkDataSet *GetInput();
 
 protected:
+  vtkSpatialRepresentationFilter();
+  ~vtkSpatialRepresentationFilter();
   void Execute();
   void GenerateOutput();
 

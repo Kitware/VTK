@@ -122,7 +122,8 @@ void vtkPolyDataNormals::Execute()
     vtkTriangleStrip *strip = vtkTriangleStrip::New();
     if ( numPolys > 0 )
       {
-      polys = new vtkCellArray(*(inPolys));
+      polys = vtkCellArray::New();
+      polys->DeepCopy(inPolys);
       }
     else 
       {
@@ -152,7 +153,8 @@ void vtkPolyDataNormals::Execute()
   NewMesh = vtkPolyData::New();
   NewMesh->SetPoints(inPts);
   // create a copy because we're modifying it
-  newPolys = new vtkCellArray(*(polys));
+  newPolys = vtkCellArray::New();
+  newPolys->DeepCopy(polys);
   NewMesh->SetPolys(newPolys);
   NewMesh->BuildCells(); //builds connectivity
 

@@ -61,6 +61,9 @@ public:
   void SetInput(vtkUnstructuredGrid *input);
   vtkUnstructuredGrid *GetInput();
 
+protected:
+  vtkUnstructuredGridToUnstructuredGridFilter() {};
+  ~vtkUnstructuredGridToUnstructuredGridFilter() {};
 };
 
 #endif

@@ -59,8 +59,6 @@ class vtkDataSet;
 class VTK_EXPORT vtkAbstractMapper : public vtkProcessObject
 {
 public:
-  vtkAbstractMapper();
-  ~vtkAbstractMapper();
   const char *GetClassName() {return "vtkAbstractMapper";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -115,6 +113,9 @@ public:
   vtkGetMacro( TimeToDraw, float );
 
 protected:
+  vtkAbstractMapper();
+  ~vtkAbstractMapper();
+
   float TimeToDraw;
 
   float Bounds[6];

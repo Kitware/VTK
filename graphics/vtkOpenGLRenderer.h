@@ -55,7 +55,6 @@ protected:
   int NumberOfLightsBound;
 
 public:
-  vtkOpenGLRenderer();
   static vtkOpenGLRenderer *New() {return new vtkOpenGLRenderer;};
   const char *GetClassName() {return "vtkOpenGLRenderer";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -74,6 +73,11 @@ public:
   // Description:
   // Ask lights to load themselves into graphics pipeline.
   int UpdateLights(void);
+  
+protected:
+  vtkOpenGLRenderer();
+  ~vtkOpenGLRenderer() {};
+  
 
 };
 

@@ -79,8 +79,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkPolyDataConnectivityFilter : public vtkPolyDataToPolyDataFilter
 {
 public:
-  vtkPolyDataConnectivityFilter();
-  ~vtkPolyDataConnectivityFilter();
   const char *GetClassName() {return "vtkPolyDataConnectivityFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -170,6 +168,9 @@ public:
   vtkBooleanMacro(ColorRegions,int);
 
 protected:
+  vtkPolyDataConnectivityFilter();
+  ~vtkPolyDataConnectivityFilter();
+
   // Usual data generation method
   void Execute();
 

@@ -72,7 +72,6 @@ class vtkRenderer;
 class VTK_EXPORT vtkFrustumCoverageCuller : public vtkCuller
 {
 public:
-  vtkFrustumCoverageCuller();
   static vtkFrustumCoverageCuller *New() {
     return new vtkFrustumCoverageCuller;};
   const char *GetClassName() {return "vtkFrustumCoverageCuller";};
@@ -116,6 +115,8 @@ public:
 //ETX
 
 protected:
+  vtkFrustumCoverageCuller();
+  ~vtkFrustumCoverageCuller() {};
 
   float        MinimumCoverage;
   float        MaximumCoverage;

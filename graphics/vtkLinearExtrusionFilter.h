@@ -83,7 +83,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkLinearExtrusionFilter : public vtkPolyDataToPolyDataFilter 
 {
 public:
-  vtkLinearExtrusionFilter();
   const char *GetClassName() {return "vtkLinearExtrusionFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -128,6 +127,9 @@ public:
   vtkGetVectorMacro(ExtrusionPoint,float,3);
 
 protected:
+  vtkLinearExtrusionFilter();
+  ~vtkLinearExtrusionFilter() {};
+
   void Execute();
   int ExtrusionType;
   int Capping;

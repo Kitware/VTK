@@ -80,8 +80,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkAxisActor2D : public vtkActor2D
 {
 public:
-  vtkAxisActor2D();
-  ~vtkAxisActor2D();
   const char *GetClassName() {return "vtkAxisActor2D";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -244,6 +242,9 @@ public:
 			 int &stringWidth, int &stringHeight);
 
 protected:
+  vtkAxisActor2D();
+  ~vtkAxisActor2D();
+
   vtkCoordinate *Point1Coordinate;
   vtkCoordinate *Point2Coordinate;
   char  *Title;

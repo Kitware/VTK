@@ -74,7 +74,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkTextureMapToCylinder : public vtkDataSetToDataSetFilter 
 {
 public:
-  vtkTextureMapToCylinder();
   const char *GetClassName() {return "vtkTextureMapToCylinder";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -111,6 +110,8 @@ public:
   vtkBooleanMacro(PreventSeam,int);
 
 protected:
+  vtkTextureMapToCylinder();
+  ~vtkTextureMapToCylinder() {};
   void Execute();
 
   float Point1[3];

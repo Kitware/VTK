@@ -63,6 +63,8 @@ public:
   virtual void RenderOverlay(vtkViewport* viewport, vtkActor2D* actor);
 
 protected:
+  vtkWin32PolyDataMapper2D() {};
+  ~vtkWin32PolyDataMapper2D() {};
   
 };
 

@@ -72,6 +72,10 @@ public:
   // Description:
   // For legacy compatibiltiy. Do not use.
   //void SetInput(vtkStructuredPoints &input) {this->SetInput(&input);};
+  
+protected:  
+  vtkStructuredPointsFilter() {};
+  ~vtkStructuredPointsFilter() {};
 };
 
 #endif

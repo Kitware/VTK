@@ -65,8 +65,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkVolumeRayCastMIPFunction : public vtkVolumeRayCastFunction
 {
 public:
-  vtkVolumeRayCastMIPFunction();
-  ~vtkVolumeRayCastMIPFunction();
   static vtkVolumeRayCastMIPFunction *New() {
     return new vtkVolumeRayCastMIPFunction;};
   const char *GetClassName() {return "vtkVolumeRayCastMIPFunction";};
@@ -96,6 +94,8 @@ public:
 
 
 protected:
+  vtkVolumeRayCastMIPFunction();
+  ~vtkVolumeRayCastMIPFunction();
   int MaximizeMethod;
 
 //BTX

@@ -158,6 +158,10 @@ public:
   // assumes the word size is divisible by two.
   static void SwapVoidRange(void *buffer, int numWords, int wordSize);
 
+protected:
+  vtkByteSwap() {};
+  ~vtkByteSwap() {};
+
 };
 
 #endif

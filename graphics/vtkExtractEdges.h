@@ -54,8 +54,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkExtractEdges : public vtkDataSetToPolyDataFilter
 {
 public:
-  vtkExtractEdges();
-  ~vtkExtractEdges();
   static vtkExtractEdges *New() {return new vtkExtractEdges;};
   const char *GetClassName() {return "vtkExtractEdges";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -79,6 +77,9 @@ public:
   void SetLocator(vtkPointLocator& locator) {this->SetLocator(&locator);};
 
 protected:
+  vtkExtractEdges();
+  ~vtkExtractEdges();
+
   // Usual data generation method
   void Execute();
 

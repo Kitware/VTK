@@ -59,6 +59,10 @@ public:
   // Description:
   // Implement base class method.
   void Render(vtkRenderer *ren,int light_index);
+  
+protected:  
+  vtkOpenGLLight() {};
+  ~vtkOpenGLLight() {};
 };
 
 #endif

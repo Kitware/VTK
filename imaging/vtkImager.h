@@ -61,7 +61,6 @@ class vtkImageWindow;
 class VTK_EXPORT vtkImager : public vtkViewport
 { 
 public:
-  vtkImager();
   static vtkImager *New();
   const char *GetClassName() {return "vtkImager";};
 
@@ -91,6 +90,9 @@ public:
   void Erase(){vtkErrorMacro(<<"vtkImager::Erase - Not implemented!");};
 
 protected:
+  vtkImager();
+  ~vtkImager() {};
+
 };
 
 

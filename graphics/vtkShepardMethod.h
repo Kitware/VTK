@@ -65,7 +65,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkShepardMethod : public vtkDataSetToStructuredPointsFilter 
 {
 public:
-  vtkShepardMethod();
   const char *GetClassName() {return "vtkShepardMethod";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -112,6 +111,8 @@ public:
   vtkGetMacro(NullValue,float);
 
 protected:
+  vtkShepardMethod();
+  ~vtkShepardMethod() {};
   void Execute();
 
   int SampleDimensions[3];

@@ -64,12 +64,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkCellArray : public vtkObject
 {
 public:
-  vtkCellArray();
-  vtkCellArray (const int sz, const int ext=1000);
-  vtkCellArray(const vtkCellArray& ca);
-  ~vtkCellArray();
-  static vtkCellArray *New() {return new vtkCellArray;};
   const char *GetClassName() {return "vtkCellArray";};
+
+  // Description:
+  // Instantiate cell array (connectivity list).
+  static vtkCellArray *New() {return new vtkCellArray;};
 
   // Description:
   // Allocate memory and set the size to extend by.
@@ -186,14 +185,19 @@ public:
   int *WritePointer(const int ncells, const int size);
 
   // Description:
-  // Define multiple cells by providing a connectivity list. The list is in the
-  // form (npts,p0,p1,...p(npts-1), repeated for each cell). Be careful using this
-  // method because it discards the old cells, and anything refering these cells
-  // becomes invalid (for example, if BuildCells() has been called see vtkPolyData).
-  // The traversal location is reset to the beginning of the list; the insertion
-  // location is set to the end of the list.
+  // Define multiple cells by providing a connectivity list. The list is in
+  // the form (npts,p0,p1,...p(npts-1), repeated for each cell). Be careful
+  // using this method because it discards the old cells, and anything
+  // refering these cells becomes invalid (for example, if BuildCells() has
+  // been called see vtkPolyData).  The traversal location is reset to the
+  // beginning of the list; the insertion location is set to the end of the
+  // list.
   void SetCells(int ncells, vtkIntArray *cells);
   
+  // Description:
+  // Perform a deep copy (no reference countsing) of the given cell array.
+  void DeepCopy(vtkCellArray *ca);
+
   // Description:
   // Return the underlying data as a data array.
   vtkDataArray *GetData() {return this->Ia;};
@@ -211,6 +215,10 @@ public:
   int InsertNextCell(vtkIdList &pts);
   
 protected:
+  vtkCellArray();
+  vtkCellArray (const int sz, const int ext=1000);
+  ~vtkCellArray();
+
   int NumberOfCells;
   int InsertLocation;     //keep track of current insertion point
   int TraversalLocation;   //keep track of traversal position

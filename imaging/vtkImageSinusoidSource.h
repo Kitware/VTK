@@ -52,7 +52,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageSinusoidSource : public vtkImageSource
 {
 public:
-  vtkImageSinusoidSource();
   static vtkImageSinusoidSource *New() {return new vtkImageSinusoidSource;};
   const char *GetClassName() {return "vtkImageSinusoidSource";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -86,7 +85,10 @@ public:
 
   void UpdateInformation();
 
-private:
+protected:
+  vtkImageSinusoidSource();
+  ~vtkImageSinusoidSource() {};
+
   int WholeExtent[6];
   float Direction[3];
   float Period;

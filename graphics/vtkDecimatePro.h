@@ -174,8 +174,6 @@ public:
 class VTK_EXPORT vtkDecimatePro : public vtkPolyDataToPolyDataFilter
 {
 public:
-  vtkDecimatePro();
-  ~vtkDecimatePro();
   const char *GetClassName() {return "vtkDecimatePro";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -306,6 +304,9 @@ public:
   float *GetInflectionPoints();
 
 protected:
+  vtkDecimatePro();
+  ~vtkDecimatePro();
+
   void Execute();
 
   float TargetReduction;

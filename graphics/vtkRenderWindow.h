@@ -78,8 +78,6 @@ class vtkPolyDataMapperDevice;
 class VTK_EXPORT vtkRenderWindow : public vtkWindow
 {
 public:
-  vtkRenderWindow();
-  ~vtkRenderWindow();
   const char *GetClassName() {return "vtkRenderWindow";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -342,6 +340,8 @@ public:
   virtual void MakeCurrent() {};
 
 protected:
+  vtkRenderWindow();
+  ~vtkRenderWindow();
   virtual void DoStereoRender();
   virtual void DoFDRender();
   virtual void DoAARender();

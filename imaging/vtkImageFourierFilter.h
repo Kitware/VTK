@@ -136,6 +136,9 @@ public:
   //ETX
   
 protected:
+  vtkImageFourierFilter() {};
+  ~vtkImageFourierFilter() {};
+
   //BTX
   void ExecuteFftStep2(vtkImageComplex *p_in, vtkImageComplex *p_out, 
 		       int N, int bsize, int fb);

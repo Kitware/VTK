@@ -59,8 +59,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageQuantizeRGBToIndex : public vtkImageToImageFilter
 {
 public:
-  vtkImageQuantizeRGBToIndex();
-  ~vtkImageQuantizeRGBToIndex();
   static vtkImageQuantizeRGBToIndex *New() {return new vtkImageQuantizeRGBToIndex;};
   const char *GetClassName() {return "vtkImageQuantizeRGBToIndex";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -93,6 +91,9 @@ public:
 //ETX
 
 protected:
+  vtkImageQuantizeRGBToIndex();
+  ~vtkImageQuantizeRGBToIndex();
+
   vtkLookupTable  *LookupTable;
   int             NumberOfColors;
   int             InputType;

@@ -55,6 +55,9 @@ public:
   const char *GetClassName() {return "vtkImageLuminance";};
 
 protected:
+  vtkImageLuminance() {};
+  ~vtkImageLuminance() {};
+  
   void ExecuteInformation(vtkImageData *inData, vtkImageData *outData);
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData, 
 		       int ext[6], int id);

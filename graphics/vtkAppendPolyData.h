@@ -58,9 +58,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkAppendPolyData : public vtkPolyDataToPolyDataFilter
 {
 public:
-  vtkAppendPolyData();
-  ~vtkAppendPolyData();
   static vtkAppendPolyData *New() {return new vtkAppendPolyData;}
+
   const char *GetClassName() {return "vtkAppendPolyData";}
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -90,6 +89,9 @@ public:
   vtkBooleanMacro(ParallelStreaming, int); 
 
 protected:
+  vtkAppendPolyData();
+  ~vtkAppendPolyData();
+
   // Flag for selecting parallel streaming bejhavior
   int ParallelStreaming;
 

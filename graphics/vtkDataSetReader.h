@@ -61,8 +61,6 @@ class vtkRectilinearGrid;
 class VTK_EXPORT vtkDataSetReader : public vtkSource
 {
 public:
-  vtkDataSetReader();
-  ~vtkDataSetReader();
   static vtkDataSetReader *New() {return new vtkDataSetReader;};
   const char *GetClassName() {return "vtkDataSetReader";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -161,6 +159,9 @@ public:
   void Update();
   
 protected:
+  vtkDataSetReader();
+  ~vtkDataSetReader();
+
   void Execute();
   vtkDataReader *Reader;
 

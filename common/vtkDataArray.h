@@ -70,14 +70,11 @@ class vtkFloatArray;
 class VTK_EXPORT vtkDataArray : public vtkObject 
 {
 public:
-  // Description:
-  // Construct object with default tuple dimension (number of components) of 1.
-  vtkDataArray(int numComp=1);
+  const char *GetClassName() {return "vtkDataArray";};
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   virtual int Allocate(const int sz, const int ext=1000) = 0;
   virtual void Initialize() = 0;
-  const char *GetClassName() {return "vtkDataArray";};
-  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Virtual constructor creates an object of the same type as this one.
@@ -211,6 +208,10 @@ public:
   virtual void SetVoidArray(void *array,int size, int save) {};
 
 protected:
+  // Construct object with default tuple dimension (number of components) of 1.
+  vtkDataArray(int numComp=1);
+  ~vtkDataArray() {};
+
   int Size;      // allocated size of data
   int MaxId;     // maximum index inserted thus far
   int Extend;    // grow array by this amount

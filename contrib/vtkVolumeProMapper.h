@@ -111,10 +111,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 class VTK_EXPORT vtkVolumeProMapper : public vtkVolumeMapper
 {
- public:
-
-  vtkVolumeProMapper();
-  ~vtkVolumeProMapper();
+public:
   const char *GetClassName() {return "vtkVolumeProMapper";};
   void PrintSelf( ostream& os, vtkIndent index );
 
@@ -239,7 +236,9 @@ class VTK_EXPORT vtkVolumeProMapper : public vtkVolumeMapper
 				   unsigned int *ySize,
 				   unsigned int *zSize );
  
- protected:
+protected:
+  vtkVolumeProMapper();
+  ~vtkVolumeProMapper();
 
   // Update the camera - set the camera matrix
   void UpdateCamera( vtkRenderer *, vtkVolume * );

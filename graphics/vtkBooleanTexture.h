@@ -72,8 +72,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkBooleanTexture : public vtkStructuredPointsSource
 {
 public:
-  vtkBooleanTexture();
   static vtkBooleanTexture *New() {return new vtkBooleanTexture;};
+
   const char *GetClassName() {return "vtkBooleanTexture";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -138,6 +138,9 @@ public:
   vtkGetVectorMacro(OutOn,unsigned char,2);
 
 protected:
+  vtkBooleanTexture();
+  ~vtkBooleanTexture() {};
+
   void Execute();
 
   int XSize;

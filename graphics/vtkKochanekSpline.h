@@ -75,7 +75,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkKochanekSpline : public vtkSpline
 {
 public:
-  vtkKochanekSpline();
   const char *GetClassName() {return "vtkKochanekSpline";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -108,6 +107,9 @@ public:
   vtkGetMacro(DefaultContinuity,float);
 
 protected:
+  vtkKochanekSpline();
+  ~vtkKochanekSpline() {};
+
   void Fit1D (int n, float *x, float *y,
               float tension, float bias, float continuity,
               float coefficients[][4],

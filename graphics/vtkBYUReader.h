@@ -54,9 +54,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkBYUReader : public vtkPolyDataSource 
 {
 public:
-  vtkBYUReader();
-  ~vtkBYUReader();
   static vtkBYUReader *New() {return new vtkBYUReader;};
+
   const char *GetClassName() {return "vtkBYUReader";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -105,6 +104,9 @@ public:
   vtkGetMacro(PartNumber,int);
 
 protected:
+  vtkBYUReader();
+  ~vtkBYUReader();
+
   void Execute();
   // This source does not know how to generate pieces yet.
   int ComputeDivisionExtents(vtkDataObject *output, 

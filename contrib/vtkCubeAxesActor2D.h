@@ -75,8 +75,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkCubeAxesActor2D : public vtkActor2D
 {
 public:
-  vtkCubeAxesActor2D();
-  ~vtkCubeAxesActor2D();
   const char *GetClassName() {return "vtkCubeAxesActor2D";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -222,6 +220,9 @@ public:
   vtkBooleanMacro(ZAxisVisibility,int);
 
 protected:
+  vtkCubeAxesActor2D();
+  ~vtkCubeAxesActor2D();
+
   vtkDataSet *Input;    //Define bounds from input data, or
   vtkProp    *Prop;     //Define bounds from actor/assembly, or
   float      Bounds[6]; //Define bounds explicitly

@@ -59,8 +59,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkDataSetMapper : public vtkMapper 
 {
 public:
-  vtkDataSetMapper();
-  ~vtkDataSetMapper();
   static vtkDataSetMapper *New() {return new vtkDataSetMapper;};
   const char *GetClassName() {return "vtkDataSetMapper";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -81,6 +79,9 @@ public:
   unsigned long GetMTime();
 
 protected:
+  vtkDataSetMapper();
+  ~vtkDataSetMapper();
+
   vtkGeometryFilter *GeometryExtractor;
   vtkPolyDataMapper *PolyDataMapper;
 };

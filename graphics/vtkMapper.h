@@ -89,8 +89,6 @@ class vtkActor;
 class VTK_EXPORT vtkMapper : public vtkAbstractMapper
 {
 public:
-  vtkMapper();
-  ~vtkMapper();
   const char *GetClassName() {return "vtkMapper";};
   void PrintSelf(ostream& os, vtkIndent indent);
   void operator=(const vtkMapper& m);
@@ -228,6 +226,9 @@ public:
   vtkGetObjectMacro(ClippingPlanes,vtkPlaneCollection);
 
 protected:
+  vtkMapper();
+  ~vtkMapper();
+
   vtkScalars *Colors;
 
   vtkScalarsToColors *LookupTable;

@@ -56,7 +56,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageIdealLowPass : public vtkImageToImageFilter
 {
 public:
-  vtkImageIdealLowPass();
   static vtkImageIdealLowPass *New() 
     {return new vtkImageIdealLowPass;};
   const char *GetClassName() {return "vtkImageIdealLowPass";};
@@ -77,6 +76,9 @@ public:
   float GetZCutOff() {return this->CutOff[2];}
 
 protected:
+  vtkImageIdealLowPass();
+  ~vtkImageIdealLowPass() {};
+
   float CutOff[3];
   
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,

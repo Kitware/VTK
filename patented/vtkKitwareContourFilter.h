@@ -87,8 +87,6 @@ class vtkScalarTree;
 class VTK_EXPORT vtkKitwareContourFilter : public vtkDataSetToPolyDataFilter
 {
 public:
-  vtkKitwareContourFilter();
-  ~vtkKitwareContourFilter();
   const char *GetClassName() {return "vtkKitwareContourFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -160,6 +158,8 @@ public:
   void SetLocator(vtkPointLocator& locator) {this->SetLocator(&locator);};
 
 protected:
+  vtkKitwareContourFilter();
+  ~vtkKitwareContourFilter();
   void Execute();
 
   vtkContourValues *ContourValues;

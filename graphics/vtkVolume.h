@@ -68,8 +68,6 @@ class vtkWindow;
 class VTK_EXPORT vtkVolume : public vtkProp3D
 {
 public:
-  vtkVolume();
-  ~vtkVolume();
   const char *GetClassName() {return "vtkVolume";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -242,6 +240,8 @@ public:
 //ETX
 
 protected:
+  vtkVolume();
+  ~vtkVolume();
 
   vtkVolumeMapper              *Mapper;
 

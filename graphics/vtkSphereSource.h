@@ -60,7 +60,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkSphereSource : public vtkPolyDataSource 
 {
 public:
-  vtkSphereSource(int res=8);
   const char *GetClassName() {return "vtkSphereSource";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -113,6 +112,8 @@ public:
   vtkGetMacro(EndPhi,float);
 
 protected:
+  vtkSphereSource(int res=8);
+  ~vtkSphereSource() {};
   void Execute();
   void ExecuteInformation();
   

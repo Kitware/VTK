@@ -57,8 +57,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkInteractorStyleTrackball : public vtkInteractorStyle 
 {
 public:
-  vtkInteractorStyleTrackball();
-  ~vtkInteractorStyleTrackball();
   static vtkInteractorStyleTrackball *New() {return new vtkInteractorStyleTrackball;}
   const char *GetClassName() {return "vtkInteractorStyleTrackball";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -91,6 +89,9 @@ public:
   virtual void OnTimer(void);
 
 protected:
+  vtkInteractorStyleTrackball();
+  ~vtkInteractorStyleTrackball();
+
   // used to track picked objects in actor mode
   // reason for existence: user may use any kind of picker.  Interactor
   //    need the high precision of cell picker at all time.

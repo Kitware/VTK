@@ -63,8 +63,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkXImageWindow : public vtkImageWindow
 {
 public:
-  vtkXImageWindow();
-  ~vtkXImageWindow();
   static vtkXImageWindow *New() {return new vtkXImageWindow;};
   const char *GetClassName() {return "vtkXImageWindow";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -159,9 +157,12 @@ public:
 
 
 protected:
+  vtkXImageWindow();
+  ~vtkXImageWindow();
+
   // X stuff
   Window               ParentId;
-  Window	           WindowId;
+  Window	       WindowId;
   Display             *DisplayId;
   Visual              *VisualId;
   int                  VisualDepth;

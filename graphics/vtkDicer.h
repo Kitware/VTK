@@ -69,7 +69,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkDicer : public vtkDataSetToDataSetFilter 
 {
 public:
-  vtkDicer();
   const char *GetClassName() {return "vtkDicer";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -88,6 +87,9 @@ public:
   vtkGetMacro(NumberOfPieces,int);
 
 protected:
+  vtkDicer();
+  ~vtkDicer() {};
+
   // Usual data generation method
   void Execute();
 

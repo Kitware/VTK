@@ -73,13 +73,11 @@ class VTK_EXPORT vtkInteractorStyle : public vtkObject
 {
 public:
   // Description:
-  // Constructor for this class must be supplied with a
-  // vtkRenderWindowInteractor wrapper or parent. This class
-  // should not normally be created by application programmers.
-  vtkInteractorStyle();
-  ~vtkInteractorStyle();
-
+  // This class must be supplied with a vtkRenderWindowInteractor wrapper or
+  // parent. This class should not normally be instantiated by application
+  // programmers.
   static vtkInteractorStyle *New();
+
   const char *GetClassName() {return "vtkInteractorStyle";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -138,6 +136,9 @@ public:
   void SetRightButtonReleaseMethodArgDelete(void (*f)(void *));
 
 protected:
+  vtkInteractorStyle();
+  ~vtkInteractorStyle();
+
   // convenience methods for converting between coordinate systems
   virtual void ComputeDisplayToWorld(double x, double y, double z,
                                      double *worldPt);

@@ -815,7 +815,8 @@ vtkDataArray *vtkDataReader::ReadArray(char *dataType, int numTuples, int numCom
 
   if ( ! strncmp(type, "bit", 3) )
     {
-    array = new vtkBitArray(numComp);
+    array = vtkBitArray::New();
+    array->SetNumberOfComponents(numComp);
     unsigned char *ptr=((vtkBitArray *)array)->WritePointer(0,numTuples*numComp);
     if ( this->FileType == VTK_BINARY )
       {
@@ -833,7 +834,6 @@ vtkDataArray *vtkDataReader::ReadArray(char *dataType, int numTuples, int numCom
       int b;
       for (int i=0; i<numTuples; i++)
         {
-
         for (int j=0; j<numComp; j++)
           {
           if ( !this->Read(&b) )
@@ -852,7 +852,8 @@ vtkDataArray *vtkDataReader::ReadArray(char *dataType, int numTuples, int numCom
   
   else if ( ! strncmp(type, "char", 4) )
     {
-    array = new vtkCharArray(numComp);
+    array = vtkCharArray::New();
+    array->SetNumberOfComponents(numComp);
     char *ptr = ((vtkCharArray *)array)->WritePointer(0,numTuples*numComp);
     if ( this->FileType == VTK_BINARY )
       {
@@ -866,7 +867,8 @@ vtkDataArray *vtkDataReader::ReadArray(char *dataType, int numTuples, int numCom
   
   else if ( ! strncmp(type, "unsigned_char", 13) )
     {
-    array = new vtkUnsignedCharArray(numComp);
+    array = vtkUnsignedCharArray::New();
+    array->SetNumberOfComponents(numComp);
     unsigned char *ptr = ((vtkUnsignedCharArray *)array)->WritePointer(0,numTuples*numComp);
     if ( this->FileType == VTK_BINARY )
       {
@@ -880,7 +882,8 @@ vtkDataArray *vtkDataReader::ReadArray(char *dataType, int numTuples, int numCom
   
   else if ( ! strncmp(type, "short", 5) )
     {
-    array = new vtkShortArray(numComp);
+    array = vtkShortArray::New();
+    array->SetNumberOfComponents(numComp);
     short *ptr = ((vtkShortArray *)array)->WritePointer(0,numTuples*numComp);
     if ( this->FileType == VTK_BINARY )
       {
@@ -895,7 +898,8 @@ vtkDataArray *vtkDataReader::ReadArray(char *dataType, int numTuples, int numCom
   
   else if ( ! strncmp(type, "unsigned_short", 14) )
     {
-    array = new vtkUnsignedShortArray(numComp);
+    array = vtkUnsignedShortArray::New();
+    array->SetNumberOfComponents(numComp);
     unsigned short *ptr = ((vtkUnsignedShortArray *)array)->WritePointer(0,numTuples*numComp);
     if ( this->FileType == VTK_BINARY )
       {
@@ -910,7 +914,8 @@ vtkDataArray *vtkDataReader::ReadArray(char *dataType, int numTuples, int numCom
   
   else if ( ! strncmp(type, "int", 3) )
     {
-    array = new vtkIntArray(numComp);
+    array = vtkIntArray::New();
+    array->SetNumberOfComponents(numComp);
     int *ptr = ((vtkIntArray *)array)->WritePointer(0,numTuples*numComp);
     if ( this->FileType == VTK_BINARY )
       {
@@ -925,7 +930,8 @@ vtkDataArray *vtkDataReader::ReadArray(char *dataType, int numTuples, int numCom
   
   else if ( ! strncmp(type, "unsigned_int", 12) )
     {
-    array = new vtkUnsignedIntArray(numComp);
+    array = vtkUnsignedIntArray::New();
+    array->SetNumberOfComponents(numComp);
     unsigned int *ptr = ((vtkUnsignedIntArray *)array)->WritePointer(0,numTuples*numComp);
     if ( this->FileType == VTK_BINARY )
       {
@@ -940,7 +946,8 @@ vtkDataArray *vtkDataReader::ReadArray(char *dataType, int numTuples, int numCom
   
   else if ( ! strncmp(type, "long", 4) )
     {
-    array = new vtkLongArray(numComp);
+    array = vtkLongArray::New();
+    array->SetNumberOfComponents(numComp);
     long *ptr = ((vtkLongArray *)array)->WritePointer(0,numTuples*numComp);
     if ( this->FileType == VTK_BINARY )
       {
@@ -956,7 +963,8 @@ vtkDataArray *vtkDataReader::ReadArray(char *dataType, int numTuples, int numCom
   
   else if ( ! strncmp(type, "unsigned_long", 13) )
     {
-    array = new vtkUnsignedLongArray(numComp);
+    array = vtkUnsignedLongArray::New();
+    array->SetNumberOfComponents(numComp);
     unsigned long *ptr = ((vtkUnsignedLongArray *)array)->WritePointer(0,numTuples*numComp);
     if ( this->FileType == VTK_BINARY )
       {
@@ -971,7 +979,8 @@ vtkDataArray *vtkDataReader::ReadArray(char *dataType, int numTuples, int numCom
   
   else if ( ! strncmp(type, "float", 5) )
     {
-    array = new vtkFloatArray(numComp);
+    array = vtkFloatArray::New();
+    array->SetNumberOfComponents(numComp);
     float *ptr = ((vtkFloatArray *)array)->WritePointer(0,numTuples*numComp);
     if ( this->FileType == VTK_BINARY )
       {
@@ -986,7 +995,8 @@ vtkDataArray *vtkDataReader::ReadArray(char *dataType, int numTuples, int numCom
   
   else if ( ! strncmp(type, "double", 6) )
     {
-    array = new vtkDoubleArray(numComp);
+    array = vtkDoubleArray::New();
+    array->SetNumberOfComponents(numComp);
     double *ptr = ((vtkDoubleArray *)array)->WritePointer(0,numTuples*numComp);
     if ( this->FileType == VTK_BINARY )
       {

@@ -69,7 +69,7 @@ void vtkAxes::Execute()
 
   newPts = vtkPoints::New();
   newPts->Allocate(numPts);
-  newLines = new vtkCellArray();
+  newLines = vtkCellArray::New();
   newLines->Allocate(newLines->EstimateSize(numLines,2));
   newScalars = vtkScalars::New();
   newScalars->Allocate(numPts);

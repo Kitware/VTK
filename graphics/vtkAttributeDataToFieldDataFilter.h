@@ -40,21 +40,23 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkAttributeDataToFieldDataFilter - map attribute data to field data
 // .SECTION Description
-// vtkAttributeDataToFieldDataFilter is a class that maps attribute data
-// into field data. Since this filter is a subclass of vtkDataSetToDataSetFilter,
-// the output dataset (whose structure is the same as the input dataset), will
-// contain the field data that is generated. The filter will convert point and 
-// cell attribute data to field data and assign it as point and cell field data,
-// replacing any point or field data that was there previously. By default, the 
-// original non-field point and cell attribute data will be passed to the output 
-// of the filter, although you can shut this behavior down.
+// vtkAttributeDataToFieldDataFilter is a class that maps attribute data into
+// field data. Since this filter is a subclass of vtkDataSetToDataSetFilter,
+// the output dataset (whose structure is the same as the input dataset),
+// will contain the field data that is generated. The filter will convert
+// point and cell attribute data to field data and assign it as point and
+// cell field data, replacing any point or field data that was there
+// previously. By default, the original non-field point and cell attribute
+// data will be passed to the output of the filter, although you can shut
+// this behavior down.
 
 // .SECTION Caveats
-// Reference counting the underlying data arrays is used to create the field data.
-// Therefore, no extra memory is utilized.
+// Reference counting the underlying data arrays is used to create the field
+// data.  Therefore, no extra memory is utilized.
 //
-// The original field data (if any) associated with the point and cell attribute data
-// is placed into the generated fields along with the scalars, vectors, etc.
+// The original field data (if any) associated with the point and cell
+// attribute data is placed into the generated fields along with the scalars,
+// vectors, etc.
 
 // .SECTION See Also
 // vtkFieldData vtkDataObject vtkDataSet vtkFieldDataToAttributeDataFilter
@@ -67,7 +69,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkAttributeDataToFieldDataFilter : public vtkDataSetToDataSetFilter
 {
 public:
-  vtkAttributeDataToFieldDataFilter();
   void PrintSelf(ostream& os, vtkIndent indent);
   const char *GetClassName() {return "vtkAttributeDataToFieldDataFilter";};
 
@@ -84,6 +85,9 @@ public:
   vtkBooleanMacro(PassAttributeData,int);
 
 protected:
+  vtkAttributeDataToFieldDataFilter();
+  ~vtkAttributeDataToFieldDataFilter() {};
+
   void Execute(); //generate output data
 
   int PassAttributeData;

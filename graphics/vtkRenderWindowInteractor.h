@@ -67,8 +67,6 @@ class vtkCellPicker;
 class VTK_EXPORT vtkRenderWindowInteractor : public vtkObject
 {
 public:
-  vtkRenderWindowInteractor();
-  ~vtkRenderWindowInteractor();
   static vtkRenderWindowInteractor *New();
   const char *GetClassName() {return "vtkRenderWindowInteractor";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -229,6 +227,9 @@ public:
   void Render();
   
 protected:
+  vtkRenderWindowInteractor();
+  ~vtkRenderWindowInteractor();
+
   vtkRenderWindow    *RenderWindow;
   vtkInteractorStyle *InteractorStyle;
   // used to track picked objects in actor mode

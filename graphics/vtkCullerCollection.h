@@ -83,6 +83,11 @@ class VTK_EXPORT vtkCullerCollection : public vtkCollection
   // Description:
   // Get the last Culler in the list.
   vtkCuller *GetLastItem();
+  
+protected:
+  vtkCullerCollection() {};
+  ~vtkCullerCollection() {};
+  
 };
 
 

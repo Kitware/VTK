@@ -57,8 +57,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageIterateFilter : public vtkImageToImageFilter
 {
 public:
-  vtkImageIterateFilter();
-  ~vtkImageIterateFilter();
   static vtkImageIterateFilter *New() {return new vtkImageIterateFilter;};
   const char *GetClassName() {return "vtkImageIterateFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -70,6 +68,8 @@ public:
   vtkGetMacro(NumberOfIterations,int);  
   
 protected:
+  vtkImageIterateFilter();
+  ~vtkImageIterateFilter();
 
   // Superclass API. Sets defaults, then calls 
   // ExecuteInformation(vtkImageData *inData, vtkImageData *outData)

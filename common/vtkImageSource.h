@@ -57,7 +57,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageSource : public vtkSource
 {
 public:
-  vtkImageSource();
   const char *GetClassName() {return "vtkImageSource";};
   static vtkImageSource *New() {return new vtkImageSource;};
 
@@ -82,6 +81,8 @@ public:
   int LegacyHack;
 
 protected:
+  vtkImageSource();
+
   // Used by streaming: The extent of the output being processed
   // by the execute method. Set in the ComputeInputUpdateExtent method.
   int ExecuteExtent[6];

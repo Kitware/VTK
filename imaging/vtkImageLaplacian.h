@@ -58,7 +58,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageLaplacian : public vtkImageToImageFilter
 {
 public:
-  vtkImageLaplacian();
   static vtkImageLaplacian *New() {return new vtkImageLaplacian;};
   const char *GetClassName() {return "vtkImageLaplacian";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -69,6 +68,9 @@ public:
   vtkGetMacro(Dimensionality,int);
   
 protected:
+  vtkImageLaplacian();
+  ~vtkImageLaplacian() {};
+
   int Dimensionality;
 
   void ComputeRequiredInputUpdateExtent(int inExt[6], int outExt[6]);

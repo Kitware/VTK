@@ -59,10 +59,8 @@ class vtkHexahedron;
 
 class VTK_EXPORT vtkStructuredGrid : public vtkPointSet {
 public:
-  vtkStructuredGrid();
-  vtkStructuredGrid(const vtkStructuredGrid& sg);
-  ~vtkStructuredGrid();
   static vtkStructuredGrid *New() {return new vtkStructuredGrid;};
+
   const char *GetClassName() {return "vtkStructuredGrid";};
   void PrintSelf(ostream& os, vtkIndent indent);
  
@@ -185,6 +183,10 @@ public:
   unsigned long GetEstimatedUpdateMemorySize();  
   
 protected:
+  vtkStructuredGrid();
+  vtkStructuredGrid(const vtkStructuredGrid& sg);
+  ~vtkStructuredGrid();
+
   // for the GetCell method
   vtkVertex *Vertex;
   vtkLine *Line;

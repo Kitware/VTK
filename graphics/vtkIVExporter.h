@@ -56,8 +56,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkIVExporter : public vtkExporter
 {
 public:
-  vtkIVExporter();
-  ~vtkIVExporter();
   static vtkIVExporter *New() {return new vtkIVExporter;};
   const char *GetClassName() {return "vtkIVExporter";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -68,6 +66,9 @@ public:
   vtkGetStringMacro(FileName);
 
 protected:
+  vtkIVExporter();
+  ~vtkIVExporter();
+
   void WriteData();
   void WriteALight(vtkLight *aLight, FILE *fp);
   void WriteAnActor(vtkActor *anActor, FILE *fp);

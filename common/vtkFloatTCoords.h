@@ -53,7 +53,6 @@ class VTK_EXPORT vtkFloatTCoords : public vtkTCoords
 {
 public:
   static vtkFloatTCoords *New() {return new vtkFloatTCoords;};
-  vtkFloatTCoords():vtkTCoords(VTK_FLOAT) {};
   
   // Description:
   // Set the data type for this object.
@@ -74,6 +73,10 @@ public:
   // write.
   float *WritePointer(const int id, const int number);
 
+protected:
+  vtkFloatTCoords():vtkTCoords(VTK_FLOAT) {};
+  ~vtkFloatTCoords() {};
+  
 };
 
 inline float *vtkFloatTCoords::GetPointer(const int id)

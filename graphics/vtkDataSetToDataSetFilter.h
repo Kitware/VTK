@@ -78,8 +78,6 @@ class VTK_EXPORT vtkDataSetToDataSetFilter : public vtkDataSetSource
 {
 
 public:
-  vtkDataSetToDataSetFilter();
-  ~vtkDataSetToDataSetFilter();
   static vtkDataSetToDataSetFilter *New() {
     return new vtkDataSetToDataSetFilter;};
   const char *GetClassName() {return "vtkDataSetToDataSetFilter";};
@@ -128,6 +126,9 @@ public:
   void InternalUpdate(vtkDataObject *output);
   
 protected:
+  vtkDataSetToDataSetFilter();
+  ~vtkDataSetToDataSetFilter();
+
 
   // Since we know Inputs[0] is the same type as Outputs[0] we can
   // use CopyUpdateExtent of the data object to propagate extents.

@@ -59,7 +59,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkSurfaceReconstructionFilter : public vtkDataSetToStructuredPointsFilter
 {
 public:
-  vtkSurfaceReconstructionFilter();
   const char *GetClassName() { return "vtkSurfaceReconstructionFilter"; }
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -85,6 +84,7 @@ public:
   vtkSetMacro(SampleSpacing,float);
 
 protected:
+  vtkSurfaceReconstructionFilter();
   void Execute();
 
   int NeighborhoodSize;

@@ -55,7 +55,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkRectilinearGridSource : public vtkSource
 {
 public:
-  vtkRectilinearGridSource();
   static vtkRectilinearGridSource *New() {
     return new vtkRectilinearGridSource;};
   const char *GetClassName() {return "vtkRectilinearGridSource";};
@@ -66,6 +65,9 @@ public:
   void SetOutput(vtkRectilinearGrid *output);
 
 protected:
+  vtkRectilinearGridSource();
+  ~vtkRectilinearGridSource() {};
+
   // Used by streaming: The extent of the output being processed
   // by the execute method. Set in the ComputeInputUpdateExtent method.
   int ExecuteExtent[6];

@@ -51,7 +51,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkOutlineSource : public vtkPolyDataSource 
 {
 public:
-  vtkOutlineSource();
   static vtkOutlineSource *New() {return new vtkOutlineSource;};
   const char *GetClassName() {return "vtkOutlineSource";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -62,6 +61,9 @@ public:
   vtkGetVectorMacro(Bounds,float,6);
 
 protected:
+  vtkOutlineSource();
+  ~vtkOutlineSource() {};
+
   void Execute();
   void ExecuteInformation();
   float Bounds[6];

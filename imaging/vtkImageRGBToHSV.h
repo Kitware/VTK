@@ -54,7 +54,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageRGBToHSV : public vtkImageToImageFilter
 {
 public:
-  vtkImageRGBToHSV();
   static vtkImageRGBToHSV *New() 
     {return new vtkImageRGBToHSV;};
   const char *GetClassName() {return "vtkImageRGBToHSV";};
@@ -69,6 +68,9 @@ public:
   vtkGetMacro(Maximum,float);
   
 protected:
+  vtkImageRGBToHSV();
+  ~vtkImageRGBToHSV() {};
+
   float Maximum;
   
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,

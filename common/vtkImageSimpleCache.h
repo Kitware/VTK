@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageCityBlockDistance.h
+  Module:    vtkImageSimpleCache.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -38,48 +38,65 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageCityBlockDistance - 1,2 or 3D distance map.
+// .NAME vtkImageSimpleCache - Caches the last region generated
 // .SECTION Description
-// vtkImageCityBlockDistance creates a distance map using the city block
-// (Manhatten) distance measure.  The input is a mask.  Zero values are
-// considered boundaries.  The output pixel is the minimum of the input pixel
-// and the distance to a boundary (or neighbor value + 1 unit).
-// distance values are calculated in pixels.
-// The filter works by taking 6 passes (for 3d distasnce map): 2 along each 
-// axis (forward and backward). Each pass keeps a running minimum distance.
-// For some reason, I preserve the sign if the distance.  If the input 
-// mask is initially negative, the output distances will be negative.
-// Distances maps can have inside (negative regions) 
-// and outsides (positive regions).
-
-#ifndef __vtkImageCityBlockDistance_h
-#define __vtkImageCityBlockDistance_h
+// vtkImageSimpleCache saves the last generated region.
+// If a subsequent region is contained in the cached data, the
+// cached data is returned with no call to the filters Update method.
+// If the new region is not completely contained in the cached data,
+// the cached data is not used.
 
 
-#include "vtkImageDecomposeFilter.h"
-#include "vtkImageCityBlockDistance.h"
+#ifndef __vtkImageSimpleCache_h
+#define __vtkImageSimpleCache_h
 
-class VTK_EXPORT vtkImageCityBlockDistance : public vtkImageDecomposeFilter
+#include "vtkImageCache.h"
+
+class VTK_EXPORT vtkImageSimpleCache : public vtkImageCache
 {
 public:
-  static vtkImageCityBlockDistance *New() 
-    {return new vtkImageCityBlockDistance;};
-  const char *GetClassName() {return "vtkImageCityBlockDistance";};
-  
-protected:
-  vtkImageCityBlockDistance();
-  ~vtkImageCityBlockDistance() {};
+  static vtkImageSimpleCache *New() {return new vtkImageSimpleCache;};
 
-  void ComputeRequiredInputUpdateExtent(int inExt[6], int outExt[6]);
-  void Execute(vtkImageData *inData, vtkImageData *outData);
+  const char *GetClassName() {return "vtkImageSimpleCache";};
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Generate more than requested.  Called by the superclass before
-  // an execute, and before output memory is allocated.
-  void ModifyOutputUpdateExtent();
+  // This method updates the region specified by "UpdateExtent".  
+  void Update();
+
+  // Description:
+  // This is the most common way to obtain data from a cache.
+  // After setting the update extent invoke this method and it
+  // will return an ImageData instance containing the requested data.
+  vtkImageData *UpdateAndReturnData();
+
+  // Description:
+  // This method deletes any data in the cache.
+  void ReleaseData();
+
+  // Description:
+  // Allocates the scalar data required for the current update extent.
+  void AllocateData();
+
+  // Description:
+  // return the un filled data of the UpdateExtent in this cache.
+  vtkImageData *GetData(); 
+
+  // Description:
+  // Convenience method to get the range of the scalar data in the
+  // current "UpdateExtent". Returns the (min/max) range.  The components
+  // are lumped into one range.  If there are no scalars the method will 
+  // return (0,1). Note: Update needs to be called first to create the scalars.
+  void GetScalarRange(float range[2]);  
+  
+protected:
+  vtkImageSimpleCache();
+  ~vtkImageSimpleCache();
+
+  vtkImageData *CachedData;
+  vtkTimeStamp GenerateTime;
 };
 
 #endif
-
 
 

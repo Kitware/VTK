@@ -55,38 +55,41 @@ class vtkActor;
 
 class VTK_EXPORT vtkActorCollection : public vtkPropCollection
 {
-  public:
-    static vtkActorCollection *New() {return new vtkActorCollection;};
-    const char *GetClassName() {return "vtkActorCollection";};
-    
-    // Description:
-    // Add an actor to the list.
-    void AddItem(vtkActor *a);
-    
-    // Description:
-    // Remove an actor from the list.
-    void RemoveItem(vtkActor *a);
-    
-    // Description:
-    // Determine whether a particular actor is present. Returns its position
-    // in the list.
-    int IsItemPresent(vtkActor *a);
+public:
+  static vtkActorCollection *New() {return new vtkActorCollection;};
+  const char *GetClassName() {return "vtkActorCollection";};
 
-    // Description:
-    // Get the next actor in the list.
-    vtkActor *GetNextActor();
-    
-    // Description:
-    // Get the last actor in the list.
-    vtkActor *GetLastActor();
+  // Description:
+  // Add an actor to the list.
+  void AddItem(vtkActor *a);
 
-    // Description:
-    // Access routines that are provided for compatibility with previous
-    // version of VTK.  Please use the GetNextActor(), GetLastActor() variants
-    // where possible.
-    vtkActor *GetNextItem();
-    vtkActor *GetLastItem();
+  // Description:
+  // Remove an actor from the list.
+  void RemoveItem(vtkActor *a);
 
+  // Description:
+  // Determine whether a particular actor is present. Returns its position
+  // in the list.
+  int IsItemPresent(vtkActor *a);
+
+  // Description:
+  // Get the next actor in the list.
+  vtkActor *GetNextActor();
+
+  // Description:
+  // Get the last actor in the list.
+  vtkActor *GetLastActor();
+
+  // Description:
+  // Access routines that are provided for compatibility with previous
+  // version of VTK.  Please use the GetNextActor(), GetLastActor() variants
+  // where possible.
+  vtkActor *GetNextItem();
+  vtkActor *GetLastItem();
+
+protected:
+  vtkActorCollection() {};
+  ~vtkActorCollection() {};
     
 };
 

@@ -68,8 +68,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkExporter : public vtkObject 
 {
 public:
-  vtkExporter();
-  ~vtkExporter();
   const char *GetClassName() {return "vtkExporter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -116,6 +114,9 @@ public:
   unsigned long GetMTime();
 
 protected:
+  vtkExporter();
+  ~vtkExporter();
+
   vtkRenderWindow *RenderWindow;
   virtual void WriteData() = 0;
 

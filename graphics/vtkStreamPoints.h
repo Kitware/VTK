@@ -56,7 +56,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkStreamPoints : public vtkStreamer
 {
 public:
-  vtkStreamPoints();
   const char *GetClassName() {return "vtkStreamPoints";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -70,6 +69,9 @@ public:
   vtkGetMacro(TimeIncrement,float);
 
 protected:
+  vtkStreamPoints();
+  ~vtkStreamPoints() {};
+
   // Convert streamer array into vtkPolyData
   void Execute();
 

@@ -79,8 +79,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkPicker : public vtkObject
 {
 public:
-  vtkPicker();
-  ~vtkPicker();
   static vtkPicker *New() {return new vtkPicker;};
   const char *GetClassName() {return "vtkPicker";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -203,6 +201,9 @@ public:
   vtkActorCollection *GetPickList() {return this->PickList;}
 
 protected:
+  vtkPicker();
+  ~vtkPicker();
+
   void MarkPicked(vtkActor *assem, vtkActor *a, vtkMapper *m, 
                   float tMin, float mapperPos[3]);
   virtual float IntersectWithLine(float p1[3], float p2[3], float tol, 

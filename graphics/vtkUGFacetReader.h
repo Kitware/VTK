@@ -54,8 +54,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkUGFacetReader : public vtkPolyDataSource 
 {
 public:
-  vtkUGFacetReader();
-  ~vtkUGFacetReader();
   const char *GetClassName() {return "vtkUGFacetReader";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -111,6 +109,8 @@ public:
   void SetLocator(vtkPointLocator& locator) {this->SetLocator(&locator);};
 
 protected:
+  vtkUGFacetReader();
+  ~vtkUGFacetReader();
   void Execute();
 
   char *FileName;

@@ -64,19 +64,15 @@ class VTK_EXPORT vtkMatrix4x4 : public vtkObject
   // which is inefficient.
 
  public:
+  vtkMatrix4x4(const vtkMatrix4x4& m);
   double Element[4][4];
-  static vtkMatrix4x4 *New() {return new vtkMatrix4x4;};
-  const char *GetClassName() {return "vtkMatrix4x4";};
-  void PrintSelf (ostream& os, vtkIndent indent);
 
   // Description:
   // Construct a 4x4 identity matrix.
-  vtkMatrix4x4();
+  static vtkMatrix4x4 *New() {return new vtkMatrix4x4;};
 
-  // Description:
-  // Construct a 4x4 matrix with the values which are contained in the
-  // argument m.
-  vtkMatrix4x4(const vtkMatrix4x4& m);
+  const char *GetClassName() {return "vtkMatrix4x4";};
+  void PrintSelf (ostream& os, vtkIndent indent);
   
   // Description:
   // Set the elements of the matrix to the same values as the elements
@@ -170,6 +166,11 @@ class VTK_EXPORT vtkMatrix4x4 : public vtkObject
     {this->Invert(&in,&out);}
   void Transpose(vtkMatrix4x4 &in,vtkMatrix4x4 &out)
     {this->Transpose(&in,&out);}
+
+protected:
+  vtkMatrix4x4();
+  ~vtkMatrix4x4() {};
+  
 };
 
 inline void vtkMatrix4x4::SetElement (int i, int j, float value)

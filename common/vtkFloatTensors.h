@@ -52,7 +52,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkFloatTensors : public vtkTensors
 {
 public:
-  vtkFloatTensors():vtkTensors(VTK_FLOAT) {};
   static vtkFloatTensors *New() {return new vtkFloatTensors;};
   
   // Description:
@@ -74,6 +73,10 @@ public:
   // write.
   float *WritePointer(const int id, const int number);
 
+protected:
+  vtkFloatTensors():vtkTensors(VTK_FLOAT) {};
+  ~vtkFloatTensors() {};
+  
 };
 
 

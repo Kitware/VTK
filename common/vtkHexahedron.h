@@ -53,8 +53,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkHexahedron : public vtkCell
 {
 public:
-  vtkHexahedron();
-  ~vtkHexahedron();
   static vtkHexahedron *New() {return new vtkHexahedron;};
   const char *GetClassName() {return "vtkHexahedron";};
 
@@ -107,6 +105,9 @@ public:
     {return this->Triangulate(index, &ptIds, &pts);}
 
 protected:
+  vtkHexahedron();
+  ~vtkHexahedron();
+
   vtkLine *Line;
   vtkQuad *Quad;
 

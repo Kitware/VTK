@@ -58,6 +58,8 @@ public:
   const char *GetClassName() {return "vtkImageNormalize";};
 
 protected:
+  vtkImageNormalize() {};
+  ~vtkImageNormalize() {};
 
   void ExecuteInformation(vtkImageData *inData, vtkImageData *outData);
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,

@@ -85,16 +85,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkLabeledDataMapper : public vtkMapper2D
 {
 public:
-
   // Description:
   // Instantiate object with font size 12 of font Arial (bolding,
   // italic, shadows on) and %%-#6.3g label format. By default, point ids
   // are labeled.
-  vtkLabeledDataMapper();
-  
-  ~vtkLabeledDataMapper();
-  const char *GetClassName() {return "vtkLabeledDataMapper";};
   static vtkLabeledDataMapper *New() {return new vtkLabeledDataMapper;};
+
+  const char *GetClassName() {return "vtkLabeledDataMapper";};
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:
@@ -190,6 +187,9 @@ public:
   vtkGetMacro(FieldDataArray,int);
 
 protected:
+  vtkLabeledDataMapper();
+  ~vtkLabeledDataMapper();
+
   vtkDataSet *Input;
   int LabelMode;
 

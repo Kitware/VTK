@@ -105,7 +105,6 @@ void vtkSimpleMutexLock::Unlock()
 #endif
 }
 
-
 void vtkMutexLock::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkObject::PrintSelf(os, indent);

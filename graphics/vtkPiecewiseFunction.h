@@ -53,8 +53,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkPiecewiseFunction : public vtkDataObject
 {
 public:
-  vtkPiecewiseFunction();
-  ~vtkPiecewiseFunction();
   static vtkPiecewiseFunction *New() {return new vtkPiecewiseFunction;};
   const char *GetClassName() {return "vtkPiecewiseFunction";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -135,6 +133,8 @@ public:
   float GetFirstNonZeroValue();
 
 protected:
+  vtkPiecewiseFunction();
+  ~vtkPiecewiseFunction();
 
   // Size of the array used to store function points
   int	ArraySize;

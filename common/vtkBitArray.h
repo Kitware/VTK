@@ -53,8 +53,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkBitArray : public vtkDataArray
 {
 public:
-  vtkBitArray(int numComp=1);
-  ~vtkBitArray();
   static vtkBitArray *New() {return new vtkBitArray;};
   virtual const char *GetClassName() {return "vtkBitArray";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -108,9 +106,6 @@ public:
   // Description:
   // Fast method based setting of values without memory checks. First
   // use SetNumberOfValues then use SetValue to actually set them.
-
-  
-  // Description:
   // Specify the number of values for this object to hold. Does an
   // allocation as well as setting the MaxId ivar. Used in conjunction with
   // SetValue() method for fast insertion.
@@ -157,6 +152,9 @@ public:
   void DeepCopy(vtkBitArray &da) {this->DeepCopy(&da);}
 
 private:
+  vtkBitArray(int numComp=1);
+  ~vtkBitArray();
+
   unsigned char *Array;   // pointer to data
   unsigned char *Resize(const int sz);  // function to resize data
 

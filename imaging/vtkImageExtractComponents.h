@@ -55,7 +55,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageExtractComponents : public vtkImageToImageFilter
 {
 public:
-  vtkImageExtractComponents();
   static vtkImageExtractComponents *New()
     {return new vtkImageExtractComponents;};
   const char *GetClassName() {return "vtkImageExtractComponents";};
@@ -73,6 +72,9 @@ public:
   vtkGetMacro(NumberOfComponents,int);
 
 protected:
+  vtkImageExtractComponents();
+  ~vtkImageExtractComponents() {};
+
   int NumberOfComponents;
   int Components[3];
 

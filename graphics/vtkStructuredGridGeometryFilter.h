@@ -67,7 +67,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkStructuredGridGeometryFilter : public vtkStructuredGridToPolyDataFilter
 {
 public:
-  vtkStructuredGridGeometryFilter();
   static vtkStructuredGridGeometryFilter *New() {
     return new vtkStructuredGridGeometryFilter;};
   const char *GetClassName() {return "vtkStructuredGridGeometryFilter";};
@@ -87,6 +86,8 @@ public:
   void SetExtent(int *extent);
 
 protected:
+  vtkStructuredGridGeometryFilter();
+  ~vtkStructuredGridGeometryFilter() {};
   void Execute();
   int Extent[6];
 };

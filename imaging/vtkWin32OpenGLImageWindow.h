@@ -54,8 +54,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkWin32OpenGLImageWindow : public vtkImageWindow
 {
 public:
-  vtkWin32OpenGLImageWindow();
-  ~vtkWin32OpenGLImageWindow();
   static vtkWin32OpenGLImageWindow *New() {
     return new vtkWin32OpenGLImageWindow;};
   const char *GetClassName() {return "vtkWin32OpenGLImageWindow";};
@@ -171,7 +169,10 @@ public:
   // Clean up device contexts, rendering contexts, etc.
   void Clean();
 
- protected:
+protected:
+  vtkWin32OpenGLImageWindow();
+  ~vtkWin32OpenGLImageWindow();
+
   HINSTANCE ApplicationInstance;
   HPALETTE  Palette;
   HPALETTE  OldPalette;

@@ -74,6 +74,11 @@ public:
   // Description:
   // Get the next plane in the list.
   vtkPlane *GetNextItem();
+  
+protected:
+  vtkPlaneCollection() {};
+  ~vtkPlaneCollection() {};
+  
 };
 
 inline void vtkPlaneCollection::AddItem(vtkPlane *f) 

@@ -85,8 +85,6 @@ class vtkDelaunay3D;
 class VTK_EXPORT vtkClipVolume : public vtkStructuredPointsToUnstructuredGridFilter
 {
 public:
-  vtkClipVolume(vtkImplicitFunction *cf=NULL);
-  ~vtkClipVolume();
   const char *GetClassName() {return "vtkClipVolume";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -167,6 +165,9 @@ public:
   void SetLocator(vtkPointLocator& locator) {this->SetLocator(&locator);};
 
 protected:
+  vtkClipVolume(vtkImplicitFunction *cf=NULL);
+  ~vtkClipVolume();
+
   void Execute();
   void ClipVoxel(float value, vtkScalars *cellScalars, int flip,
                  float origin[3], float spacing[3], vtkIdList *cellIds,

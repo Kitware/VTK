@@ -66,6 +66,10 @@ public:
   // Specify the input data to map.
   void SetInput(vtkPolyData *in);
   vtkPolyData *GetInput();
+  
+protected:  
+  vtkPolyDataMapper() {};
+  ~vtkPolyDataMapper() {};
 
 };
 

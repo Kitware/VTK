@@ -61,8 +61,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkFollower : public vtkActor
 {
  public:
-  vtkFollower();
-  ~vtkFollower();
   const char *GetClassName() {return "vtkFollower";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -93,6 +91,9 @@ class VTK_EXPORT vtkFollower : public vtkActor
   void GetMatrix(vtkMatrix4x4 &m) {this->GetMatrix(&m);}
   
 protected:
+  vtkFollower();
+  ~vtkFollower();
+
   vtkCamera *Camera; 
   vtkActor  *Device;
 };

@@ -62,6 +62,8 @@ public:
   void UpdateInformation();
 
 protected:
+  vtkStructuredGridOutlineFilter() {};
+  ~vtkStructuredGridOutlineFilter() {};
   int GetNumberOfStreamDivisions();
   int ComputeDivisionExtents(vtkDataObject *output, int idx, int NumDivisions);
   void StreamExecuteStart();

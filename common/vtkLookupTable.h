@@ -71,9 +71,11 @@ public:
   // Description:
   // Construct with range=(0,1); and hsv ranges set up for rainbow color table 
   // (from red to blue).
-  vtkLookupTable(int sze=256, int ext=256);
-  ~vtkLookupTable();
+  static vtkLookupTable *New() {return new vtkLookupTable;};
   
+  const char *GetClassName() {return "vtkLookupTable";};
+  void PrintSelf(ostream& os, vtkIndent indent);
+
   // Description:
   // Allocate a color table of specified size.
   int Allocate(int sz=256, int ext=256);
@@ -82,10 +84,6 @@ public:
   // Generate lookup table from hue, saturation, value, alpha min/max values. 
   // Table is built from linear ramp of each value.
   virtual void Build();
-
-  static vtkLookupTable *New() {return new vtkLookupTable;};
-  const char *GetClassName() {return "vtkLookupTable";};
-  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Set the number of colors in the lookup table. Use this method before
@@ -182,6 +180,9 @@ public:
   virtual void SetRange(float min, float max) {this->SetTableRange(min,max);};
 
 protected:
+  vtkLookupTable(int sze=256, int ext=256);
+  ~vtkLookupTable();
+
   int NumberOfColors;
   vtkUnsignedCharArray *Table;
   float TableRange[2];

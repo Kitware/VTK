@@ -51,7 +51,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkMaskPolyData : public vtkPolyDataToPolyDataFilter
 {
 public:
-  vtkMaskPolyData();
   static vtkMaskPolyData *New() {return new vtkMaskPolyData;};
   const char *GetClassName() {return "vtkMaskPolyData";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -67,6 +66,9 @@ public:
   vtkGetMacro(Offset,int);
 
 protected:
+  vtkMaskPolyData();
+  ~vtkMaskPolyData() {};
+
   void Execute();
   int OnRatio; // every OnRatio entity is on; all others are off.
   int Offset;  // offset (or starting point id)

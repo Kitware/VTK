@@ -66,7 +66,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkStripper : public vtkPolyDataToPolyDataFilter
 {
 public:
-  vtkStripper();
   const char *GetClassName() {return "vtkStripper";};
   void PrintSelf(ostream& os, vtkIndent indent);
   
@@ -81,6 +80,9 @@ public:
   vtkGetMacro(MaximumLength,int);
 
 protected:
+  vtkStripper();
+  ~vtkStripper() {};
+
   // Usual data generation method
   void Execute();
 

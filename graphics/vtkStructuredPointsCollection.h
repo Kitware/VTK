@@ -80,6 +80,11 @@ public:
   vtkStructuredPoints *GetNextItem() {
     return (vtkStructuredPoints *)(this->GetNextItemAsObject());};
   
+protected:
+  vtkStructuredPointsCollection() {};
+  ~vtkStructuredPointsCollection() {};
+  
+  
 };
 
 

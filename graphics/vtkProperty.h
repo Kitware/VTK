@@ -64,7 +64,6 @@ class vtkActor;
 class VTK_EXPORT vtkProperty : public vtkObject
 {
 public:
-  vtkProperty();
   const char *GetClassName() {return "vtkProperty";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -208,6 +207,9 @@ public:
   vtkBooleanMacro(FrontfaceCulling,int);
 
 protected:
+  vtkProperty();
+  ~vtkProperty() {};
+
   float Color[3];
   float AmbientColor[3];
   float DiffuseColor[3];

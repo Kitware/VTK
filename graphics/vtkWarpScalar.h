@@ -67,7 +67,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkWarpScalar : public vtkPointSetToPointSetFilter
 {
 public:
-  vtkWarpScalar();
   static vtkWarpScalar *New() {return new vtkWarpScalar;};
   const char *GetClassName() {return "vtkWarpScalar";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -99,6 +98,8 @@ public:
   vtkBooleanMacro(XYPlane,int);
 
 protected:
+  vtkWarpScalar();
+  ~vtkWarpScalar() {};
   void Execute();
 
   float ScaleFactor;

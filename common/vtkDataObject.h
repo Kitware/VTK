@@ -67,9 +67,8 @@ class vtkExtent;
 class VTK_EXPORT vtkDataObject : public vtkObject
 {
 public:
-  vtkDataObject();
-  ~vtkDataObject();
   static vtkDataObject *New() {return new vtkDataObject;};
+
   const char *GetClassName() {return "vtkDataObject";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -244,6 +243,9 @@ public:
   unsigned long GetUpdateTime();
   
 protected:
+  vtkDataObject();
+  ~vtkDataObject();
+
   vtkSource *Source;
   vtkFieldData *FieldData; //General field data associated with data object  
 

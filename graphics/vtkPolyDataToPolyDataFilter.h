@@ -71,6 +71,10 @@ public:
   // Since input0 and output are both polydata, we can have default behavior
   // that copies information for in[0] to out.
   void ExecuteInformation();
+  
+protected:  
+  vtkPolyDataToPolyDataFilter() {};
+  ~vtkPolyDataToPolyDataFilter() {};
 
 };
 

@@ -71,8 +71,6 @@ class vtkMatrix4x4;
 class VTK_EXPORT vtkImageReslice : public vtkImageToImageFilter
 {
 public:
-  vtkImageReslice();
-  ~vtkImageReslice();
   static vtkImageReslice *New() {return new vtkImageReslice;};
   const char *GetClassName() {return "vtkImageReslice";};
 
@@ -173,6 +171,9 @@ public:
   int FindExtent(int& r1, int& r2, double *point, double *xAxis,
 		      int *inMin, int *inMax, int *outExt);
 protected:
+  vtkImageReslice();
+  ~vtkImageReslice();
+
   vtkMatrix4x4 *ResliceAxes;
   vtkTransform *ResliceTransform;
   int Wrap;

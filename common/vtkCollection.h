@@ -69,18 +69,12 @@ class vtkCollectionElement //;prevents pick-up by man page generator
 class VTK_EXPORT vtkCollection : public vtkObject
 {
 public:
-  void PrintSelf(ostream& os, vtkIndent indent);
-  static vtkCollection *New() {return new vtkCollection;};
   const char *GetClassName() {return "vtkCollection";};
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Construct with empty list.
-  vtkCollection();
-
-  // Description:
-  // Desctructor for the vtkCollection class. This removes all 
-  // objects from the collection.
-  virtual ~vtkCollection();
+  static vtkCollection *New() {return new vtkCollection;};
 
   // Description:
   // Add an object to the list. Does not prevent duplicate entries.
@@ -133,6 +127,9 @@ public:
   vtkObject *GetItemAsObject(int i);
 
 protected:
+  vtkCollection();
+  virtual ~vtkCollection();
+
   virtual void DeleteElement(vtkCollectionElement *); 
   int NumberOfItems;
   vtkCollectionElement *Top;

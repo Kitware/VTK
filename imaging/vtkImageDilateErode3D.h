@@ -58,13 +58,9 @@ class vtkImageEllipsoidSource;
 class VTK_EXPORT vtkImageDilateErode3D : public vtkImageSpatialFilter
 {
 public:
-
   // Description:
   // Construct an instance of vtkImageDilateErode3D fitler.
   // By default zero values are dilated.
-  vtkImageDilateErode3D();
-
-  ~vtkImageDilateErode3D();
   static vtkImageDilateErode3D *New() 
     {return new vtkImageDilateErode3D;};
   const char *GetClassName() {return "vtkImageDilateErode3D";};
@@ -84,6 +80,9 @@ public:
   vtkGetMacro(ErodeValue, float);
 
 protected:
+  vtkImageDilateErode3D();
+  ~vtkImageDilateErode3D();
+
   vtkImageEllipsoidSource *Ellipse;
   float DilateValue;
   float ErodeValue;

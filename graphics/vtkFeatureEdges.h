@@ -66,8 +66,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkFeatureEdges : public vtkPolyDataToPolyDataFilter
 {
 public:
-  vtkFeatureEdges();
-  ~vtkFeatureEdges();
   const char *GetClassName() {return "vtkFeatureEdges";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -126,6 +124,9 @@ public:
   unsigned long GetMTime();
 
 protected:
+  vtkFeatureEdges();
+  ~vtkFeatureEdges();
+
   // Usual data generation method
   void Execute();
 

@@ -83,10 +83,8 @@ class vtkUnstructuredExtent;
 class VTK_EXPORT vtkPolyData : public vtkPointSet 
 {
 public:
-  vtkPolyData();
-  vtkPolyData(const vtkPolyData& pd);
-  ~vtkPolyData();
   static vtkPolyData *New() {return new vtkPolyData;};
+
   const char *GetClassName() {return "vtkPolyData";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -362,6 +360,10 @@ public:
   unsigned long GetEstimatedUpdateMemorySize();
 
 protected:
+  vtkPolyData();
+  vtkPolyData(const vtkPolyData& pd);
+  ~vtkPolyData();
+
   // constant cell objects returned by GetCell called.
   vtkVertex *Vertex;
   vtkPolyVertex *PolyVertex;

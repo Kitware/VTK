@@ -65,6 +65,10 @@ class VTK_EXPORT vtkImagerCollection : public vtkCollection
   int IsItemPresent(vtkImager *a);
   vtkImager *GetNextItem();
   vtkImager *GetLastItem();
+  
+protected:  
+  vtkImagerCollection() {};
+  ~vtkImagerCollection() {};
 };
 
 inline void vtkImagerCollection::AddItem(vtkImager *a) 

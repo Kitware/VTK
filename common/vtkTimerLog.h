@@ -91,19 +91,22 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkObject.h"
 #define VTK_LOG_EVENT_LENGTH 40
 
+//BTX
 typedef struct
 {
   float WallTime;
   int CpuTicks;
   char Event[VTK_LOG_EVENT_LENGTH];
 } vtkTimerLogEntry;
+//ETX
 
 class VTK_EXPORT vtkTimerLog : public vtkObject 
 {
 public:
-  void PrintSelf(ostream& os, vtkIndent indent);
   static vtkTimerLog *New() {return new vtkTimerLog;};
+
   const char *GetClassName() {return "vtkTimerLog";};
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Set/Get the maximum number of entries allowed in the timer log
@@ -164,6 +167,9 @@ public:
   static void Sleep(int ms);
 
 protected:
+  vtkTimerLog() {}; //insure constructur/destructor protected
+  ~vtkTimerLog() {};
+
   static int               MaxEntries;
   static int               NextEntry;
   static int               WrapFlag;

@@ -76,7 +76,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkDataSetToDataObjectFilter : public vtkDataObjectSource
 {
 public:
-  vtkDataSetToDataObjectFilter();
   const char *GetClassName() {return "vtkDataSetToDataObjectFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -121,6 +120,9 @@ public:
   vtkDataSet *GetInput();
   
 protected:
+  vtkDataSetToDataObjectFilter();
+  ~vtkDataSetToDataObjectFilter() {};
+
   void Execute(); //generate output data
   int ComputeInputUpdateExtents(vtkDataObject *output);
   

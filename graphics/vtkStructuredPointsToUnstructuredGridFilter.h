@@ -70,6 +70,9 @@ public:
     this->SetInput(tmp->GetOutput()); tmp->Delete();}
   vtkStructuredPoints *GetInput();
 
+protected:
+  vtkStructuredPointsToUnstructuredGridFilter() {};
+  ~vtkStructuredPointsToUnstructuredGridFilter() {};
 };
 
 #endif

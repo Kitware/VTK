@@ -50,7 +50,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageCursor3D : public vtkImageInPlaceFilter
 {
 public:
-  vtkImageCursor3D();
   static vtkImageCursor3D *New() {return new vtkImageCursor3D;};
   const char *GetClassName() {return "vtkImageCursor3D";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -74,6 +73,9 @@ public:
   
   
 protected:
+  vtkImageCursor3D();
+  ~vtkImageCursor3D() {};
+
   float CursorPosition[3];
   float CursorValue;
   int CursorRadius;

@@ -59,8 +59,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkExtractVectorComponents : public vtkSource
 {
 public:
-  vtkExtractVectorComponents();
-  ~vtkExtractVectorComponents();
   static vtkExtractVectorComponents *New() {
     return new vtkExtractVectorComponents;};
   const char *GetClassName() {return "vtkExtractVectorComponents";};
@@ -105,6 +103,9 @@ public:
   void SetInput(vtkDataSet &input) {this->SetInput(&input);};
 
 protected:
+  vtkExtractVectorComponents();
+  ~vtkExtractVectorComponents();
+
   void Execute();
   int ComputeInputUpdateExtents(vtkDataObject *output);
 };

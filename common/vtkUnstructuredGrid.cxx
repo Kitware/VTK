@@ -106,7 +106,8 @@ void vtkUnstructuredGrid::Allocate (int numCells, int extSize)
     {
     this->Cells->UnRegister(this);
     }
-  this->Cells = new vtkCellTypes(numCells,extSize);
+  this->Cells = vtkCellTypes::New();
+  this->Cells->Allocate(numCells,extSize);
   this->Cells->Register(this);
   this->Cells->Delete();
 }
@@ -397,7 +398,8 @@ void vtkUnstructuredGrid::SetCells(int *types, vtkCellArray *cells)
     {
     this->Cells->UnRegister(this);
     }
-  this->Cells = new vtkCellTypes(cells->GetNumberOfCells(),1000);
+  this->Cells = vtkCellTypes::New();
+  this->Cells->Allocate(cells->GetNumberOfCells(),1000);
   this->Cells->Register(this);
   this->Cells->Delete();
 
@@ -410,7 +412,8 @@ void vtkUnstructuredGrid::SetCells(int *types, vtkCellArray *cells)
 
 void vtkUnstructuredGrid::BuildLinks()
 {
-  this->Links = new vtkCellLinks(this->GetNumberOfPoints());
+  this->Links = vtkCellLinks::New();
+  this->Links->Allocate(this->GetNumberOfPoints());
   this->Links->Register(this);
   this->Links->BuildLinks(this);
   this->Links->Delete();

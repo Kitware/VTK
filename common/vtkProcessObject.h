@@ -79,10 +79,8 @@ class VTK_EXPORT vtkProcessObject : public vtkObject
 public:
   // Description:
   // Instantiate object with no start, end, or progress methods.
-  vtkProcessObject();
-
-  ~vtkProcessObject();
   static vtkProcessObject *New() {return new vtkProcessObject;};
+
   const char *GetClassName() {return "vtkProcessObject";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -139,6 +137,8 @@ public:
   vtkGetMacro(NumberOfInputs,int);
 
 protected:
+  vtkProcessObject();
+  ~vtkProcessObject();
   
   void (*StartMethod)(void *);
   void (*StartMethodArgDelete)(void *);

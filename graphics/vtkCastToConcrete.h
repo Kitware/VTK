@@ -74,6 +74,8 @@ public:
   const char *GetClassName() {return "vtkCastToConcrete";};
 
 protected:
+  vtkCastToConcrete() {};
+  ~vtkCastToConcrete() {};
   void Execute(); //insures compatibility; satisfies abstract api in vtkFilter
 };
 

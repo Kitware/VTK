@@ -82,7 +82,9 @@ class VTK_EXPORT vtkRenderWindowCollection : public vtkCollection
   vtkRenderWindow *GetNextItem() {
     return (vtkRenderWindow *)(this->GetNextItemAsObject());};
   
-
+protected:
+  vtkRenderWindowCollection() {};
+  ~vtkRenderWindowCollection() {};
 };
 
 

@@ -116,8 +116,6 @@ class vtkSphereArray;
 class VTK_EXPORT vtkDelaunay3D : public vtkUnstructuredGridSource
 {
 public:
-  vtkDelaunay3D();
-  ~vtkDelaunay3D();
   const char *GetClassName() {return "vtkDelaunay3D";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -233,6 +231,9 @@ public:
     this->InsertPoint(Mesh, points, id, x, &holeTetras);}; 
     
 protected:
+  vtkDelaunay3D();
+  ~vtkDelaunay3D();
+
   void Execute();
 
   float Alpha;

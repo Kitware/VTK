@@ -57,9 +57,8 @@ class vtkWindow;
 class VTK_EXPORT vtkWindowToImageFilter : public vtkImageSource
 {
 public:
-  vtkWindowToImageFilter();
-  ~vtkWindowToImageFilter();
   static vtkWindowToImageFilter *New() {return new vtkWindowToImageFilter;};
+
   const char *GetClassName() {return "vtkWindowToImageFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);   
 
@@ -76,6 +75,9 @@ public:
   void UpdateInformation();
   
 protected:
+  vtkWindowToImageFilter();
+  ~vtkWindowToImageFilter();
+
   // vtkWindow is not a vtkDataObject, so we need our own ivar.
   vtkWindow *Input;
   void Execute(vtkImageData *data);

@@ -57,7 +57,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageCorrelation : public vtkImageTwoInputFilter
 {
 public:
-  vtkImageCorrelation();
   static vtkImageCorrelation *New() {return new vtkImageCorrelation;};
   const char *GetClassName() {return "vtkImageCorrelation";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -68,6 +67,9 @@ public:
   vtkGetMacro(Dimensionality,int);
   
 protected:
+  vtkImageCorrelation();
+  ~vtkImageCorrelation() {};
+
   int Dimensionality;
   void ExecuteInformation(vtkImageData **inDatas, vtkImageData *outData);
   virtual void ComputeRequiredInputUpdateExtent(int inExt[6], int outExt[6],

@@ -52,7 +52,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageEuclideanToPolar : public vtkImageToImageFilter
 {
 public:
-  vtkImageEuclideanToPolar();
   static vtkImageEuclideanToPolar *New() 
     {return new vtkImageEuclideanToPolar;};
   const char *GetClassName() {return "vtkImageEuclideanToPolar";};
@@ -66,6 +65,9 @@ public:
   vtkGetMacro(ThetaMaximum,float);
   
 protected:
+  vtkImageEuclideanToPolar();
+  ~vtkImageEuclideanToPolar() {};
+
   float ThetaMaximum;
   
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,

@@ -77,8 +77,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkTensorGlyph : public vtkDataSetToPolyDataFilter
 {
 public:
-  vtkTensorGlyph();
-  ~vtkTensorGlyph();
   const char *GetClassName() {return "vtkTensorGlyph";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -141,6 +139,8 @@ public:
   vtkGetMacro(MaxScaleFactor,float);
 
 protected:
+  vtkTensorGlyph();
+  ~vtkTensorGlyph();
   void Execute();
 
   int Scaling; // Determine whether scaling of geometry is performed

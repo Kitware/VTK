@@ -61,7 +61,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkShrinkFilter : public vtkDataSetToUnstructuredGridFilter
 {
 public:
-  vtkShrinkFilter(float sf=0.5);
   static vtkShrinkFilter *New() {return new vtkShrinkFilter;};
   const char *GetClassName() {return "vtkShrinkFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -75,6 +74,8 @@ public:
   vtkGetMacro(ShrinkFactor,float);
 
 protected:
+  vtkShrinkFilter(float sf=0.5);
+  ~vtkShrinkFilter() {};
   void Execute();
   float ShrinkFactor;
 };

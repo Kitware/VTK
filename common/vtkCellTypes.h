@@ -70,9 +70,6 @@ struct _vtkCell_s {
 class VTK_EXPORT vtkCellTypes : public vtkObject 
 {
 public:
-  vtkCellTypes() : Array(NULL),Size(0),MaxId(-1),Extend(1000) {};
-  vtkCellTypes(int sz, int ext);
-  ~vtkCellTypes();
   static vtkCellTypes *New() {return new vtkCellTypes;};
   const char *GetClassName() {return "vtkCellTypes";};
 
@@ -125,10 +122,13 @@ public:
   void Reset();
 
 private:
+  vtkCellTypes() : Array(NULL),Size(0),MaxId(-1),Extend(1000) {};
+  ~vtkCellTypes();
+
   _vtkCell_s *Array;   // pointer to data
-  int Size;       // allocated size of data
-  int MaxId;     // maximum index inserted thus far
-  int Extend;     // grow array by this point
+  int Size;            // allocated size of data
+  int MaxId;           // maximum index inserted thus far
+  int Extend;          // grow array by this point
   _vtkCell_s *Resize(int sz);  // function to resize data
 };
 

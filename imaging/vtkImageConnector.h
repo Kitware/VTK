@@ -76,11 +76,9 @@ public:
 class VTK_EXPORT vtkImageConnector : public vtkObject
 {
 public:
-  vtkImageConnector();
-  ~vtkImageConnector();
   static vtkImageConnector *New() {return new vtkImageConnector;};
+
   const char *GetClassName() {return "vtkImageConnector";};
-  
   void PrintSelf(ostream& os, vtkIndent indent);
 
   //BTX
@@ -106,6 +104,9 @@ public:
 
 
 private:
+  vtkImageConnector();
+  ~vtkImageConnector();
+
   unsigned char ConnectedValue;
   unsigned char UnconnectedValue;
 

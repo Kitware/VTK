@@ -132,6 +132,7 @@ typedef int vtkThreadProcessIDType;
 // The UserData is the (void *)arg passed into the SetSingleMethod,
 // SetMultipleMethod, or SpawnThread method.
 
+//BTX
 struct ThreadInfoStruct
 {
   int                 ThreadID;
@@ -140,13 +141,13 @@ struct ThreadInfoStruct
   vtkMutexLock        *ActiveFlagLock;
   void                *UserData;
 };
+//ETX
 
 class VTK_EXPORT vtkMultiThreader : public vtkObject 
 {
 public:
-  vtkMultiThreader();
-  ~vtkMultiThreader();
   static vtkMultiThreader *New() {return new vtkMultiThreader;};
+
   const char *GetClassName() {return "vtkMultiThreader";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -205,6 +206,9 @@ public:
 
 
 protected:
+  vtkMultiThreader();
+  ~vtkMultiThreader();
+
   // The number of threads to use
   int                        NumberOfThreads;
 

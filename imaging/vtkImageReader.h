@@ -59,8 +59,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageReader : public vtkImageSource
 {
 public:
-  vtkImageReader();
-  ~vtkImageReader();
   static vtkImageReader *New() {return new vtkImageReader;};
   const char *GetClassName() {return "vtkImageReader";};
   void PrintSelf(ostream& os, vtkIndent indent);   
@@ -215,6 +213,9 @@ public:
   
   
 protected:
+  vtkImageReader();
+  ~vtkImageReader();
+
   char *InternalFileName;
   char *FileName;
   char *FilePrefix;

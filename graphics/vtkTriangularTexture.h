@@ -59,7 +59,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkTriangularTexture : public vtkStructuredPointsSource
 {
 public:
-  vtkTriangularTexture();
   const char *GetClassName() {return "vtkTriangularTexture";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -92,6 +91,8 @@ public:
   vtkGetMacro(TexturePattern,int);
 
 protected:
+  vtkTriangularTexture();
+  ~vtkTriangularTexture() {};
   void Execute();
 
   int XSize;

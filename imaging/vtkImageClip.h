@@ -58,7 +58,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageClip : public vtkImageToImageFilter
 {
 public:
-  vtkImageClip();
   static vtkImageClip *New() {return new vtkImageClip;};
   const char *GetClassName() {return "vtkImageClip";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -83,6 +82,9 @@ public:
   vtkBooleanMacro(ClipData, int);
 
 protected:
+  vtkImageClip();
+  ~vtkImageClip() {};
+
   // Time when OutputImageExtent was computed.
   vtkTimeStamp CTime;
   int Initialized; // Set the OutputImageExtent for the first time.

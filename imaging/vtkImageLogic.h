@@ -65,7 +65,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageLogic : public vtkImageTwoInputFilter
 {
 public:
-  vtkImageLogic();
   static vtkImageLogic *New() {return new vtkImageLogic;};
   const char *GetClassName() {return "vtkImageLogic";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -87,6 +86,9 @@ public:
   vtkGetMacro(OutputTrueValue, float);
   
 protected:
+  vtkImageLogic();
+  ~vtkImageLogic() {};
+
   int Operation;
   float OutputTrueValue;
   

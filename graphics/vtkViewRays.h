@@ -84,9 +84,7 @@ class vtkRenderer;
 
 class VTK_EXPORT vtkViewRays :public vtkObject
   {
-  public:
-  vtkViewRays(void);
-  ~vtkViewRays(void);
+public:
   static vtkViewRays *New() {return new vtkViewRays;};
   const char *GetClassName() {return "vtkViewRays";};
   void PrintSelf(ostream& os,vtkIndent indent);
@@ -120,6 +118,9 @@ class VTK_EXPORT vtkViewRays :public vtkObject
   float *GetParallelIncrements(void);
 
 protected:
+  vtkViewRays(void);
+  ~vtkViewRays(void);
+
   vtkRenderer     *Renderer;		// Renderer contains a camera
   int             Size[2];		// Number of view rays
   unsigned long   ViewRaysCamMtime;	// Camera modified time

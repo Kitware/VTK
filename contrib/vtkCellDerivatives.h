@@ -77,7 +77,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkCellDerivatives : public vtkDataSetToDataSetFilter 
 {
 public:
-  vtkCellDerivatives();
   const char *GetClassName() {return "vtkCellDerivatives";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -118,6 +117,8 @@ public:
   char *GetTensorModeAsString();
 
 protected:
+  vtkCellDerivatives();
+  ~vtkCellDerivatives() {};
   void Execute();
 
   int VectorMode;

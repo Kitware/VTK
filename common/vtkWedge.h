@@ -57,8 +57,6 @@ class vtkUnstructuredGrid;
 class VTK_EXPORT vtkWedge : public vtkCell
 {
 public:
-  vtkWedge();
-  ~vtkWedge();
   static vtkWedge *New() {return new vtkWedge;};
   const char *GetClassName() {return "vtkWedge";};
 
@@ -104,6 +102,9 @@ public:
   int JacobianInverse(float pcoords[3], double **inverse, float derivs[18]);
 
 protected:
+  vtkWedge();
+  ~vtkWedge();
+
   vtkLine *Line;
   vtkTriangle *Triangle;
   vtkQuad *Quad;

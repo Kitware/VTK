@@ -55,8 +55,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkWarpVector : public vtkPointSetToPointSetFilter
 {
 public:
-  vtkWarpVector();
-  ~vtkWarpVector();
   static vtkWarpVector *New() {return new vtkWarpVector;};
   const char *GetClassName() {return "vtkWarpVector";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -76,6 +74,8 @@ public:
   void ThreadedExecute(int threadId, int numThreads);
 
 protected:
+  vtkWarpVector();
+  ~vtkWarpVector();
   void Execute();
   int SplitPointRange(int threadId, int threadCount, int &min, int &max);
   float ScaleFactor;

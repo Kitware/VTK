@@ -56,9 +56,7 @@ class vtkPolyData;
 
 class VTK_EXPORT vtkUpStreamPort : public vtkProcessObject
 {
- public:
-  vtkUpStreamPort();
-  ~vtkUpStreamPort();  
+public:
   static vtkUpStreamPort *New() {return new vtkUpStreamPort;};
   const char *GetClassName() {return "vtkUpStreamPort";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -92,6 +90,8 @@ class VTK_EXPORT vtkUpStreamPort : public vtkProcessObject
   void Trigger(int remoteProcessId);
   
 protected:
+  vtkUpStreamPort();
+  ~vtkUpStreamPort();  
   
   int Tag;
   

@@ -74,7 +74,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkPlaneSource : public vtkPolyDataSource 
 {
 public:
-  vtkPlaneSource();
   void PrintSelf(ostream& os, vtkIndent indent);
   const char *GetClassName() {return "vtkPlaneSource";};
 
@@ -139,6 +138,8 @@ public:
   void Push(float distance);
 
 protected:
+  vtkPlaneSource();
+  ~vtkPlaneSource() {};
   void Execute();
 
   int XResolution;

@@ -66,7 +66,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkRectilinearGridGeometryFilter : public vtkRectilinearGridToPolyDataFilter
 {
 public:
-  vtkRectilinearGridGeometryFilter();
   const char *GetClassName() {return "vtkRectilinearGridGeometryFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -89,6 +88,8 @@ public:
   void SetExtent(int *extent);
 
 protected:
+  vtkRectilinearGridGeometryFilter();
+  ~vtkRectilinearGridGeometryFilter() {};
   void Execute();
   int Extent[6];
 };

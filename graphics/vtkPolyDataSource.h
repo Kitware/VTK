@@ -58,7 +58,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkPolyDataSource : public vtkSource
 {
 public:
-  vtkPolyDataSource();
   static vtkPolyDataSource *New() {return new vtkPolyDataSource;};
   const char *GetClassName() {return "vtkPolyDataSource";};
 
@@ -68,6 +67,8 @@ public:
   void SetOutput(vtkPolyData *output);
 
 protected:
+  vtkPolyDataSource();
+  ~vtkPolyDataSource() {};
   
   // Update extent of PolyData is specified in pieces.  
   // Since all DataObjects should be able to set UpdateExent as pieces,

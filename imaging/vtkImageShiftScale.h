@@ -55,7 +55,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageShiftScale : public vtkImageToImageFilter
 {
 public:
-  vtkImageShiftScale();
   static vtkImageShiftScale *New() {return new vtkImageShiftScale;};
   const char *GetClassName() {return "vtkImageShiftScale";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -92,6 +91,9 @@ public:
   vtkBooleanMacro(ClampOverflow, int);
   
 protected:
+  vtkImageShiftScale();
+  ~vtkImageShiftScale() {};
+
   float Shift;
   float Scale;
   int OutputScalarType;

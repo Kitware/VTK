@@ -59,7 +59,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageNonMaximumSuppression : public vtkImageTwoInputFilter
 {
 public:
-  vtkImageNonMaximumSuppression();
   static vtkImageNonMaximumSuppression *New() {return new vtkImageNonMaximumSuppression;};
   const char *GetClassName() {return "vtkImageNonMaximumSuppression";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -82,6 +81,9 @@ public:
   vtkGetMacro(Dimensionality,int);
   
 protected:
+  vtkImageNonMaximumSuppression();
+  ~vtkImageNonMaximumSuppression() {};
+
   int HandleBoundaries;
   int Dimensionality;
   

@@ -60,9 +60,6 @@ public:
   // Description:
   // Construct an instance of vtkImageContinuousDilate3D fitler.
   // By default zero values are dilated.
-  vtkImageContinuousDilate3D();
-
-  ~vtkImageContinuousDilate3D();
   static vtkImageContinuousDilate3D *New() 
     {return new vtkImageContinuousDilate3D;};
   const char *GetClassName() {return "vtkImageContinuousDilate3D";};
@@ -75,6 +72,9 @@ public:
 
   
 protected:
+  vtkImageContinuousDilate3D();
+  ~vtkImageContinuousDilate3D();
+
   vtkImageEllipsoidSource *Ellipse;
     
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData, 

@@ -52,25 +52,20 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkImageToImageFilter.h"
 
-
-
+//BTX
 typedef struct{
   void *inPtr;
   void *outPtr;
   int idx0;
   int idx1;
   } vtkImage2DIslandPixel;
-
-
+//ETX
 
 class VTK_EXPORT vtkImageIslandRemoval2D : public vtkImageToImageFilter
 {
 public:
-
   // Description:
   // Constructor: Sets default filter to be identity.
-  vtkImageIslandRemoval2D();
-
   static vtkImageIslandRemoval2D *New() {return new vtkImageIslandRemoval2D;};
   const char *GetClassName() {return "vtkImageIslandRemoval2D";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -97,6 +92,9 @@ public:
   vtkGetMacro(ReplaceValue, float);
   
 protected:
+  vtkImageIslandRemoval2D();
+  ~vtkImageIslandRemoval2D() {};
+
   int AreaThreshold;
   int SquareNeighborhood;
   float IslandValue;

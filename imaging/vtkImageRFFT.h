@@ -72,6 +72,9 @@ public:
 		  int num, int total);
 
 protected:
+  vtkImageRFFT() {};
+  ~vtkImageRFFT() {};
+
   void ExecuteInformation(vtkImageData *inData, vtkImageData *outData);
   void ComputeRequiredInputUpdateExtent(int inExt[6], int outExt[6]);
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,

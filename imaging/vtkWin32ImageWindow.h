@@ -61,15 +61,13 @@ public:
   HWND      WindowId;
   HWND      ParentId;
 
-  // Description:
-  // Swap the front and back buffers. Normally not called by the user.
-  void SwapBuffers();
-
-  vtkWin32ImageWindow();
-  ~vtkWin32ImageWindow();
   static vtkWin32ImageWindow *New() {return new vtkWin32ImageWindow;};
   const char *GetClassName() {return "vtkWin32ImageWindow";};
   void PrintSelf(ostream& os, vtkIndent indent);
+
+  // Description:
+  // Swap the front and back buffers. Normally not called by the user.
+  void SwapBuffers();
 
   // output to the viewer.
   vtkWin32ImageWindow *GetOutput(){return this;};
@@ -130,6 +128,9 @@ public:
   unsigned char *GetMemoryData(){return this->MemoryData;};
 
 protected:
+  vtkWin32ImageWindow();
+  ~vtkWin32ImageWindow();
+
   // the following is used to support rendering into memory
   BITMAPINFO MemoryDataHeader;
   HBITMAP MemoryBuffer;

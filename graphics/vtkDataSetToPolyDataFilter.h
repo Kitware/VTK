@@ -67,6 +67,11 @@ public:
   // Set / get the input data or filter.
   virtual void SetInput(vtkDataSet *input);
   vtkDataSet *GetInput();
+  
+protected:
+  vtkDataSetToPolyDataFilter() {};
+  ~vtkDataSetToPolyDataFilter() {};
+  
 };
 
 #endif

@@ -59,14 +59,12 @@ class vtkWindow;
 class VTK_EXPORT vtkProp : public vtkObject
 {
 public:
-  static vtkProp* New() {return new vtkProp;};
-  void PrintSelf(ostream& os, vtkIndent indent);
-  const char *GetClassName() {return "vtkProp";};
-
   // Description:
   // Creates a Prop with visibility on.
-  vtkProp();
+  static vtkProp* New() {return new vtkProp;};
 
+  const char *GetClassName() {return "vtkProp";};
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description: 
   // For some exporters and other other operations we must be
@@ -212,6 +210,9 @@ public:
 //ETX
 
 protected:
+  vtkProp();
+  ~vtkProp() {};
+
   int Visibility;
   float AllocatedRenderTime;
   float EstimatedRenderTime;

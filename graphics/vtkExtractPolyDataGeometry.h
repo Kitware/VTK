@@ -62,8 +62,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkExtractPolyDataGeometry : public vtkPolyDataToPolyDataFilter
 {
 public:
-  vtkExtractPolyDataGeometry(vtkImplicitFunction *f=NULL);
-  ~vtkExtractPolyDataGeometry();
   const char *GetClassName() {return "vtkExtractPolyDataGeometry";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -90,6 +88,9 @@ public:
   vtkBooleanMacro(ExtractInside,int);
 
 protected:
+  vtkExtractPolyDataGeometry(vtkImplicitFunction *f=NULL);
+  ~vtkExtractPolyDataGeometry();
+
   // Usual data generation method
   void Execute();
 

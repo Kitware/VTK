@@ -74,7 +74,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageMathematics : public vtkImageTwoInputFilter
 {
 public:
-  vtkImageMathematics();
   static vtkImageMathematics *New() {return new vtkImageMathematics;};
   const char *GetClassName() {return "vtkImageMathematics";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -108,6 +107,9 @@ public:
   vtkGetMacro(ConstantC,double);
 
 protected:
+  vtkImageMathematics();
+  ~vtkImageMathematics() {};
+
   int Operation;
   double ConstantK;
   double ConstantC;

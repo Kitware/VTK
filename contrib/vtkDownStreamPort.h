@@ -60,9 +60,7 @@ class vtkPolyData;
 
 class VTK_EXPORT vtkDownStreamPort : public vtkSource
 {
- public:
-  vtkDownStreamPort();
-  ~vtkDownStreamPort();  
+public:
   static vtkDownStreamPort *New() {return new vtkDownStreamPort;};
   const char *GetClassName() {return "vtkDownStreamPort";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -93,6 +91,8 @@ class VTK_EXPORT vtkDownStreamPort : public vtkSource
   vtkMPIController *GetController() {return this->Controller;}
 
 protected:
+  vtkDownStreamPort();
+  ~vtkDownStreamPort();  
   
   vtkMPIController *Controller;
   int UpStreamProcessId;

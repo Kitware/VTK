@@ -54,8 +54,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkOBJReader : public vtkPolyDataSource 
 {
 public:
-  vtkOBJReader();
-  virtual ~vtkOBJReader();
   static vtkOBJReader *New() {return new vtkOBJReader;};
   const char *GetClassName() {return "vtkOBJReader";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -66,9 +64,11 @@ public:
   vtkGetStringMacro(FileName);
 
 protected:
-  char *FileName;
-  
+  vtkOBJReader();
+  ~vtkOBJReader();
   void Execute();
+
+  char *FileName;
 };
 
 #endif

@@ -64,7 +64,7 @@ vtkDividingCubes::vtkDividingCubes()
   this->Distance = 0.1;
   this->Increment = 1;
   this->Count = 0;
-  this->SubVoxelPts = new vtkIdList(8); this->SubVoxelPts->SetNumberOfIds(8);
+  this->SubVoxelPts = vtkIdList::New(); this->SubVoxelPts->SetNumberOfIds(8);
   this->SubVoxel = vtkVoxel::New();
   this->SubVoxelScalars = vtkScalars::New(); this->SubVoxelScalars->SetNumberOfScalars(8);
   this->SubVoxelNormals = vtkNormals::New(); this->SubVoxelNormals->SetNumberOfNormals(8);
@@ -144,7 +144,7 @@ void vtkDividingCubes::Execute()
 
   SubScalars = vtkScalars::New();
   SubScalars->SetNumberOfScalars(SubSliceSize*n[2]);
-  voxelPts = new vtkIdList(8); voxelPts->SetNumberOfIds(8);
+  voxelPts = vtkIdList::New(); voxelPts->SetNumberOfIds(8);
   voxelScalars = vtkScalars::New(); voxelScalars->SetNumberOfScalars(8);
   
 

@@ -72,8 +72,6 @@ class vtkUnstructuredGrid;
 class VTK_EXPORT vtkPointSetToPointSetFilter : public vtkPointSetSource
 {
 public:
-  vtkPointSetToPointSetFilter();
-  ~vtkPointSetToPointSetFilter();
   static vtkPointSetToPointSetFilter *New() {
     return new vtkPointSetToPointSetFilter;};
   const char *GetClassName() {return "vtkPointSetToPointSetFilter";};
@@ -111,6 +109,8 @@ public:
   void InternalUpdate(vtkDataObject *output);
   
 protected:
+  vtkPointSetToPointSetFilter();
+  ~vtkPointSetToPointSetFilter();
 
   // Since we know Inputs[0] is the same type as Outputs[0] we can
   // use CopyUpdateExtent of the data object to propaget extents.

@@ -55,7 +55,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkStructuredGridSource : public vtkSource
 {
 public:
-  vtkStructuredGridSource();
   static vtkStructuredGridSource *New() {return new vtkStructuredGridSource;}
   const char *GetClassName() {return "vtkStructuredGridSource";}
 
@@ -65,6 +64,8 @@ public:
   void SetOutput(vtkStructuredGrid *output);  
 
 protected:
+  vtkStructuredGridSource();
+  ~vtkStructuredGridSource() {};
   // Used by streaming: The extent of the output being processed
   // by the execute method. Set in the ComputeInputUpdateExtents method
   // (in filter subclasses).

@@ -58,8 +58,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageMandelbrotSource : public vtkImageSource
 {
 public:
-  vtkImageMandelbrotSource();
-  ~vtkImageMandelbrotSource();
   static vtkImageMandelbrotSource *New() {return new vtkImageMandelbrotSource;};
   const char *GetClassName() {return "vtkImageMandelbrotSource";};
   void PrintSelf(ostream& os, vtkIndent indent);   
@@ -108,6 +106,9 @@ public:
 
 
 protected:
+  vtkImageMandelbrotSource();
+  ~vtkImageMandelbrotSource();
+
   int ProjectionAxes[3];
 
   // WholeExtent in 3 space (after projection).

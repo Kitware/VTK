@@ -74,8 +74,6 @@ class vtkCuller;
 class VTK_EXPORT vtkRenderer : public vtkViewport
 {
 public:
-  vtkRenderer();
-  ~vtkRenderer();
   const char *GetClassName() {return "vtkRenderer";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -283,6 +281,8 @@ public:
   vtkGetMacro( NumberOfPropsRenderedAsGeometry, int );
 
 protected:
+  vtkRenderer();
+  ~vtkRenderer();
   vtkRayCaster *RayCaster;
 
   vtkCamera *ActiveCamera;

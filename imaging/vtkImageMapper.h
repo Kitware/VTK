@@ -60,8 +60,6 @@ class vtkActor2D;
 class VTK_EXPORT vtkImageMapper : public vtkMapper2D
 {
 public:
-  vtkImageMapper();
-  ~vtkImageMapper();
   const char *GetClassName() {return "vtkImageMapper";};
   static vtkImageMapper *New();
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -108,6 +106,9 @@ public:
   float GetColorScale();
 
 protected:
+  vtkImageMapper();
+  ~vtkImageMapper();
+
   vtkImageData* Input;
   float ColorWindow;
   float ColorLevel;

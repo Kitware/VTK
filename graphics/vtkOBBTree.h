@@ -104,8 +104,6 @@ public:
 class VTK_EXPORT vtkOBBTree : public vtkCellLocator
 {
 public:
-  vtkOBBTree();
-  ~vtkOBBTree();
   const char *GetClassName() {return "vtkOBBTree";};
 
   // Description:
@@ -182,6 +180,9 @@ public:
 
   //BTX
 protected:
+  vtkOBBTree();
+  ~vtkOBBTree();
+
   // Compute an OBB from the list of cells given.  This used to be
   // public but should not have been.  A public call has been added
   // so that the funtionality can be accessed.

@@ -74,8 +74,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkSelectVisiblePoints : public vtkDataSetToPolyDataFilter
 {
 public:
-  vtkSelectVisiblePoints();
-  ~vtkSelectVisiblePoints();
   const char *GetClassName() {return "vtkSelectVisiblePoints";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -122,6 +120,8 @@ public:
   unsigned long GetMTime();
 
 protected:
+  vtkSelectVisiblePoints();
+  ~vtkSelectVisiblePoints();
   void Execute();
 
   vtkRenderer *Renderer;

@@ -52,7 +52,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkHedgeHog : public vtkDataSetToPolyDataFilter
 {
 public:
-  vtkHedgeHog() { this->ScaleFactor = 1.0;};
   static vtkHedgeHog *New() {return new vtkHedgeHog;};
   const char *GetClassName() {return "vtkHedgeHog";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -63,6 +62,9 @@ public:
   vtkGetMacro(ScaleFactor,float);
 
 protected:
+  vtkHedgeHog() { this->ScaleFactor = 1.0;};
+  ~vtkHedgeHog() {};
+
   void Execute();
   float ScaleFactor;
 

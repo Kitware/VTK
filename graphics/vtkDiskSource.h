@@ -55,7 +55,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkDiskSource : public vtkPolyDataSource 
 {
 public:
-  vtkDiskSource();
   static vtkDiskSource *New() {return new vtkDiskSource;};
   const char *GetClassName() {return "vtkDiskSource";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -81,6 +80,9 @@ public:
   vtkGetMacro(CircumferentialResolution,int);
 
 protected:
+  vtkDiskSource();
+  ~vtkDiskSource() {};
+
   void Execute();
   float InnerRadius;
   float OuterRadius;

@@ -63,6 +63,8 @@ public:
   void RenderOverlay(vtkViewport* viewport, vtkActor2D* actor);
 
 protected:
+  vtkXPolyDataMapper2D() {};
+  ~vtkXPolyDataMapper2D() {};
   
 };
 

@@ -67,8 +67,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkFiniteDifferenceGradientEstimator : public vtkEncodedGradientEstimator
 {
 public:
-  vtkFiniteDifferenceGradientEstimator();
-  ~vtkFiniteDifferenceGradientEstimator();
   const char *GetClassName() {return "vtkFiniteDifferenceGradientEstimator";};
   void PrintSelf( ostream& os, vtkIndent index );
 
@@ -88,6 +86,9 @@ public:
   int SampleSpacingInVoxels;
 
 protected:
+  vtkFiniteDifferenceGradientEstimator();
+  ~vtkFiniteDifferenceGradientEstimator();
+
 
   // Description:
   // Recompute the encoded normals and gradient magnitudes.

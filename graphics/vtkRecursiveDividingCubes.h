@@ -65,8 +65,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkRecursiveDividingCubes : public vtkStructuredPointsToPolyDataFilter
 {
 public:
-  vtkRecursiveDividingCubes();
-  ~vtkRecursiveDividingCubes();
   static vtkRecursiveDividingCubes *New() {
     return new vtkRecursiveDividingCubes;}
   const char *GetClassName() {return "vtkRecursiveDividingCubes";}
@@ -90,6 +88,8 @@ public:
   vtkGetMacro(Increment,int);
 
 protected:
+  vtkRecursiveDividingCubes();
+  ~vtkRecursiveDividingCubes();
   void Execute();
   void SubDivide(float origin[3], float h[3], float values[8]);
 

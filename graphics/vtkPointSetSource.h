@@ -51,7 +51,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkPointSetSource : public vtkSource
 {
 public:
-  vtkPointSetSource();
   static vtkPointSetSource *New() {return new vtkPointSetSource;};
   const char *GetClassName() {return "vtkPointSetSource";};
 
@@ -59,6 +58,10 @@ public:
   // Get the output of this source.
   vtkPointSet *GetOutput();
   void SetOutput(vtkPointSet *output);
+  
+protected:
+  vtkPointSetSource();
+  ~vtkPointSetSource() {};
 
 };
 

@@ -135,8 +135,6 @@ public:
 class VTK_EXPORT vtkHyperStreamline : public vtkDataSetToPolyDataFilter
 {
 public:
-  vtkHyperStreamline();
-  ~vtkHyperStreamline();
   const char *GetClassName() {return "vtkHyperStreamline";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -255,6 +253,9 @@ public:
   vtkBooleanMacro(LogScaling,int);
 
 protected:
+  vtkHyperStreamline();
+  ~vtkHyperStreamline();
+
   // Integrate data
   void Execute();
   void BuildTube();

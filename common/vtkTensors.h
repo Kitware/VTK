@@ -55,10 +55,9 @@ class vtkTensors;
 class VTK_EXPORT vtkTensors : public vtkAttributeData
 {
 public:
-  vtkTensors(int dataType=VTK_FLOAT);
-  ~vtkTensors();
   static vtkTensors *New(int dataType=VTK_FLOAT) {
     return new vtkTensors(dataType);};
+
   const char *GetClassName() {return "vtkTensors";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -116,6 +115,9 @@ public:
   void GetTensor(int id, vtkTensor& t) {this->GetTensor(id, &t);}
 
 protected:
+  vtkTensors(int dataType=VTK_FLOAT);
+  ~vtkTensors();
+
   vtkTensor *T;
 
 };

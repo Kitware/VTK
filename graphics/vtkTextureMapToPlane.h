@@ -68,7 +68,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkTextureMapToPlane : public vtkDataSetToDataSetFilter 
 {
 public:
-  vtkTextureMapToPlane();
   const char *GetClassName() {return "vtkTextureMapToPlane";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -116,6 +115,8 @@ public:
   vtkBooleanMacro(AutomaticPlaneGeneration,int);
 
 protected:
+  vtkTextureMapToPlane();
+  ~vtkTextureMapToPlane() {};
   void Execute();
   void ComputeNormal();
 

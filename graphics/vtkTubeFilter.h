@@ -72,7 +72,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkTubeFilter : public vtkPolyDataToPolyDataFilter
 {
 public:
-  vtkTubeFilter();
   const char *GetClassName() {return "vtkTubeFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -123,6 +122,8 @@ public:
   vtkBooleanMacro(UseDefaultNormal,int);
 
 protected:
+  vtkTubeFilter();
+  ~vtkTubeFilter() {};
   // Usual data generation method
   void Execute();
 

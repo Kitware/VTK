@@ -60,8 +60,6 @@ class vtkMapper2D;
 class VTK_EXPORT vtkActor2D : public vtkProp
 {
 public:
-  vtkActor2D();
-  ~vtkActor2D();
   void PrintSelf(ostream& os, vtkIndent indent);
   const char *GetClassName() {return "vtkActor2D";};
 
@@ -122,6 +120,9 @@ public:
   virtual void GetActors2D(vtkPropCollection *pc);
 
 protected:
+  vtkActor2D();
+  ~vtkActor2D();
+
   vtkMapper2D *Mapper;
   int LayerNumber;
   vtkProperty2D *Property;

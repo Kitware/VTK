@@ -69,6 +69,9 @@ public:
   vtkDataSet *GetInput();
   
 protected:
+  vtkDataSetToStructuredPointsFilter() {};
+  ~vtkDataSetToStructuredPointsFilter() {};
+
   // All the DataSetToStructuredPointsFilters require all their input.
   int ComputeInputUpdateExtents(vtkDataObject *output);
 };

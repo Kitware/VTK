@@ -85,7 +85,6 @@ class vtkDataObject;
 class VTK_EXPORT vtkDataObjectSource : public vtkSource
 {
 public:
-  vtkDataObjectSource();
   static vtkDataObjectSource *New() {return new vtkDataObjectSource;};
   const char *GetClassName() {return "vtkDataObjectSource";};
 
@@ -93,6 +92,11 @@ public:
   // Get the output field of this source.
   vtkDataObject *GetOutput();
   void SetOutput(vtkDataObject *);
+  
+protected:
+  vtkDataObjectSource();
+  ~vtkDataObjectSource() {};
+
 };
 
 #endif

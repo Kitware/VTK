@@ -71,8 +71,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkVoxelContoursToSurfaceFilter : public vtkPolyDataToPolyDataFilter
 {
 public:
-  vtkVoxelContoursToSurfaceFilter();
-  ~vtkVoxelContoursToSurfaceFilter();
   static vtkVoxelContoursToSurfaceFilter *New() {return new vtkVoxelContoursToSurfaceFilter;};
   const char *GetClassName() {return "vtkVoxelContoursToSurfaceFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -86,6 +84,8 @@ public:
   vtkGetMacro( MemoryLimitInBytes, int );
    
 protected:
+  vtkVoxelContoursToSurfaceFilter();
+  ~vtkVoxelContoursToSurfaceFilter();
   void    Execute();
 
   int     MemoryLimitInBytes;

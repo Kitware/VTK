@@ -60,8 +60,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageMultipleInputFilter : public vtkImageSource
 {
 public:
-  vtkImageMultipleInputFilter();
-  ~vtkImageMultipleInputFilter();
   static vtkImageMultipleInputFilter *New() 
     {return new vtkImageMultipleInputFilter;};
   const char *GetClassName() {return "vtkImageMultipleInputFilter";};
@@ -106,6 +104,9 @@ public:
 			  int num, int total);
 
 protected:
+  vtkImageMultipleInputFilter();
+  ~vtkImageMultipleInputFilter();
+
   vtkMultiThreader *Threader;
   int Bypass;
   int NumberOfThreads;

@@ -50,7 +50,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkVertex : public vtkCell
 {
 public:
-  vtkVertex();
   static vtkVertex *New() {return new vtkVertex;};
   const char *GetClassName() {return "vtkVertex";};
   
@@ -119,6 +118,10 @@ public:
     {return this->CellBoundary(subId, pcoords, &pts);}
   int Triangulate(int index, vtkIdList &ptIds, vtkPoints &pts)
     {return this->Triangulate(index, &ptIds, &pts);}
+  
+protected:
+  vtkVertex();
+  ~vtkVertex() {};
   
 };
 

@@ -66,8 +66,6 @@ class vtkWindow;
 class VTK_EXPORT vtkOpenGLProjectedPolyDataRayBounder : public vtkProjectedPolyDataRayBounder
 {
 public:
-  vtkOpenGLProjectedPolyDataRayBounder();
-  ~vtkOpenGLProjectedPolyDataRayBounder();
   const char *GetClassName() {
     return "vtkOpenGLProjectedPolyDataRayBounder";};  
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -86,6 +84,9 @@ public:
 
 
 protected:
+  vtkOpenGLProjectedPolyDataRayBounder();
+  ~vtkOpenGLProjectedPolyDataRayBounder();
+
   GLuint    DisplayList;
   float     *DepthRangeBuffer;
 

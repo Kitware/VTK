@@ -53,8 +53,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkAxes : public vtkPolyDataSource 
 {
 public:
-  vtkAxes();
   static vtkAxes *New() {return new vtkAxes;};
+
   const char *GetClassName() {return "vtkAxes";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -75,6 +75,9 @@ public:
   vtkBooleanMacro(Symmetric,int);
 
 protected:
+  vtkAxes();
+  ~vtkAxes() {};
+
   void Execute();
   // This source does not know how to generate pieces yet.
   int ComputeDivisionExtents(vtkDataObject *output, 

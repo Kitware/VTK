@@ -69,6 +69,8 @@ public:
   vtkStructuredPoints *GetInput();
                                
 protected:
+  vtkStructuredPointsWriter() {};
+  ~vtkStructuredPointsWriter() {};
   void WriteData();
 
 };

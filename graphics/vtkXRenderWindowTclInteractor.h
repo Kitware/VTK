@@ -63,8 +63,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkXRenderWindowTclInteractor : public vtkRenderWindowInteractor
 {
 public:
-  vtkXRenderWindowTclInteractor();
-  ~vtkXRenderWindowTclInteractor();
   static vtkXRenderWindowTclInteractor *New() {
     return new vtkXRenderWindowTclInteractor;};
   const char *GetClassName() {return "vtkXRenderWindowTclInteractor";};
@@ -166,6 +164,9 @@ public:
   friend void vtkXRenderWindowTclInteractorTimer(XtPointer,XtIntervalId *);
 
 protected:
+  vtkXRenderWindowTclInteractor();
+  ~vtkXRenderWindowTclInteractor();
+
   Widget TopLevelShell;
 
   Display *DisplayId;

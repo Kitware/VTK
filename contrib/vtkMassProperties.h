@@ -60,12 +60,10 @@ class VTK_EXPORT vtkMassProperties : public vtkProcessObject
 {
 public:
   // Description:
-  // Constructs with initial 0 values.
-  vtkMassProperties();
-
-  ~vtkMassProperties();
-  const char *GetClassName() {return "vtkMassProperties";};
+  // Constructs with initial values of zero.
   static vtkMassProperties *New() {return new  vtkMassProperties;};
+
+  const char *GetClassName() {return "vtkMassProperties";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -102,6 +100,9 @@ public:
   vtkPolyData *GetInput();
 
 protected:
+  vtkMassProperties();
+  ~vtkMassProperties();
+
   double  SurfaceArea;
   double  Volume ;
   double  VolumeX;

@@ -58,8 +58,6 @@ class vtkOpenGLRenderer;
 class VTK_EXPORT vtkOpenGLPolyDataMapper : public vtkPolyDataMapper
 {
  public:
-  vtkOpenGLPolyDataMapper();
-  ~vtkOpenGLPolyDataMapper();
   static vtkOpenGLPolyDataMapper *New() {return new vtkOpenGLPolyDataMapper;};
   const char *GetClassName() {return "vtkOpenGLPolyDataMapper";};
 
@@ -88,6 +86,9 @@ class VTK_EXPORT vtkOpenGLPolyDataMapper : public vtkPolyDataMapper
   //ETX
 
  private:
+  vtkOpenGLPolyDataMapper();
+  ~vtkOpenGLPolyDataMapper();
+
   int ListId;
   vtkRenderWindow *RenderWindow;   // RenderWindow used for the previous render
 };

@@ -55,8 +55,8 @@ class vtkNormals;
 class VTK_EXPORT vtkNormals : public vtkAttributeData
 {
 public:
-  vtkNormals(int dataType=VTK_FLOAT);
   static vtkNormals *New(int dataType=VTK_FLOAT) {return new vtkNormals(dataType);};
+
   const char *GetClassName() {return "vtkNormals";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -114,6 +114,10 @@ public:
   // Description:
   // For legacy compatibility. 
   void GetNormals(vtkIdList& ptId, vtkNormals& fn) {this->GetNormals(&ptId, &fn);}
+  
+protected:
+  vtkNormals(int dataType=VTK_FLOAT);
+  ~vtkNormals() {};
   
 };
 

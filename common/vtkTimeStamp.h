@@ -54,10 +54,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkTimeStamp 
 {
 public:
-  void Delete() {delete this;};
   vtkTimeStamp() {this->ModifiedTime = 0;};
-  virtual const char *GetClassName() {return "vtkTimeStamp";};
   static vtkTimeStamp *New() {return new vtkTimeStamp;};
+  void Delete() {delete this;};
+  virtual const char *GetClassName() {return "vtkTimeStamp";};
 
   // Description:
   // Set this objects time to the current time. The current time is

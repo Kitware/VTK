@@ -80,6 +80,9 @@ public:
   void GetSize(vtkViewport* viewport, int size[2]);
 
 protected:
+  vtkXTextMapper() {};
+  ~vtkXTextMapper() {};
+
   Font CurrentFont;
 };
 

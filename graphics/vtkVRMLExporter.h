@@ -57,8 +57,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkVRMLExporter : public vtkExporter
 {
 public:
-  vtkVRMLExporter();
-  ~vtkVRMLExporter();
   static vtkVRMLExporter *New() {return new vtkVRMLExporter;};
   const char *GetClassName() {return "vtkVRMLExporter";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -80,6 +78,8 @@ public:
   FILE *GetFilePointer();
   
 protected:
+  vtkVRMLExporter();
+  ~vtkVRMLExporter();
   void WriteData();
   void WriteALight(vtkLight *aLight, FILE *fp);
   void WriteAnActor(vtkActor *anActor, FILE *fp);

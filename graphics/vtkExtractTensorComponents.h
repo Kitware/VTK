@@ -75,7 +75,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkExtractTensorComponents : public vtkDataSetToDataSetFilter 
 {
 public:
-  vtkExtractTensorComponents();
   const char *GetClassName() {return "vtkExtractTensorComponents";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -165,6 +164,9 @@ public:
   vtkGetVectorMacro(TCoordComponents,int,6);
 
 protected:
+  vtkExtractTensorComponents();
+  ~vtkExtractTensorComponents() {};
+
   void Execute();
 
   int PassTensorsToOutput;

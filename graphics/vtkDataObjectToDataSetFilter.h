@@ -102,8 +102,6 @@ class vtkCellArray;
 class VTK_EXPORT vtkDataObjectToDataSetFilter : public vtkSource
 {
 public:
-  vtkDataObjectToDataSetFilter();
-  ~vtkDataObjectToDataSetFilter();
   static vtkDataObjectToDataSetFilter *New() {return new vtkDataObjectToDataSetFilter;};
   const char *GetClassName() {return "vtkDataObjectToDataSetFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -266,6 +264,9 @@ public:
     {this->SetOriginComponent(arrayName, arrayComp, -1, -1);};  
 
 protected:
+  vtkDataObjectToDataSetFilter();
+  ~vtkDataObjectToDataSetFilter();
+
   void Execute(); //generate output data
   int ComputeInputUpdateExtents(vtkDataObject *output);
 

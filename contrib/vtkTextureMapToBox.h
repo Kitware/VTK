@@ -60,7 +60,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkTextureMapToBox : public vtkDataSetToDataSetFilter 
 {
 public:
-  vtkTextureMapToBox();
   const char *GetClassName() {return "vtkTextureMapToBox";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -97,6 +96,9 @@ public:
   vtkBooleanMacro(AutomaticBoxGeneration,int);
 
 protected:
+  vtkTextureMapToBox();
+  ~vtkTextureMapToBox() {};
+
   void Execute();
   float Box[6];
   float RRange[2];

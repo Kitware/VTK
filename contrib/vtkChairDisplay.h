@@ -51,8 +51,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkChairDisplay : public vtkPolyDataSource
 {
 public:
-  vtkChairDisplay();
-  ~vtkChairDisplay();
   static vtkChairDisplay *New() {return new vtkChairDisplay;};
   const char *GetClassName() {return "vtkChairDisplay";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -79,6 +77,9 @@ public:
                        int xstart, int ystart,int xsize, int ysize, int p2x);
   
 protected:
+  vtkChairDisplay();
+  ~vtkChairDisplay();
+
   vtkScalars *Scalars;
   vtkStructuredPoints *TextureOutput;
   

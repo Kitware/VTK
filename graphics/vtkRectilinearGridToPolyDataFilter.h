@@ -64,6 +64,9 @@ public:
   void SetInput(vtkRectilinearGrid *input);
   vtkRectilinearGrid *GetInput();
 
+protected:
+  vtkRectilinearGridToPolyDataFilter() {};
+  ~vtkRectilinearGridToPolyDataFilter() {};
 };
 
 #endif

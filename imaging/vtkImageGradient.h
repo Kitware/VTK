@@ -57,7 +57,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageGradient : public vtkImageToImageFilter
 {
 public:
-  vtkImageGradient();
   static vtkImageGradient *New() {return new vtkImageGradient;};
   const char *GetClassName() {return "vtkImageGradient";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -75,6 +74,9 @@ public:
   vtkBooleanMacro(HandleBoundaries, int);
 
 protected:
+  vtkImageGradient();
+  ~vtkImageGradient() {};
+
   int HandleBoundaries;
   int Dimensionality;
   

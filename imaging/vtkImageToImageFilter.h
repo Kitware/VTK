@@ -57,8 +57,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageToImageFilter : public vtkImageSource
 {
 public:
-  vtkImageToImageFilter();
-  ~vtkImageToImageFilter();
   static vtkImageToImageFilter *New() {return new vtkImageToImageFilter;};
   const char *GetClassName() {return "vtkImageToImageFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -124,6 +122,9 @@ public:
   
   
 protected:
+  vtkImageToImageFilter();
+  ~vtkImageToImageFilter();
+
   vtkMultiThreader *Threader;
   int Bypass;
   int NumberOfThreads;

@@ -52,7 +52,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkFloatVectors : public vtkVectors
 {
 public:
-  vtkFloatVectors():vtkVectors(VTK_FLOAT) {};
   static vtkFloatVectors *New() {return new vtkFloatVectors;};
   
   // Description:
@@ -74,6 +73,10 @@ public:
   // write.
   float *WritePointer(const int id, const int number);
 
+protected:
+  vtkFloatVectors():vtkVectors(VTK_FLOAT) {};
+  ~vtkFloatVectors() {};
+  
 };
 
 inline float *vtkFloatVectors::GetPointer(const int id)

@@ -63,6 +63,8 @@ public:
   void RenderOpaqueGeometry(vtkViewport* viewport, vtkActor2D* actor);
 
 protected:
+  vtkOpenGLPolyDataMapper2D() {};
+  ~vtkOpenGLPolyDataMapper2D() {};
   
 };
 

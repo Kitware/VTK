@@ -75,7 +75,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkLinkEdgels : public vtkStructuredPointsToPolyDataFilter
 {
 public:
-  vtkLinkEdgels();
   const char *GetClassName() {return "vtkLinkEdgels";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -100,6 +99,9 @@ public:
   vtkGetMacro(GradientThreshold,float);
 
 protected:
+  vtkLinkEdgels();
+  ~vtkLinkEdgels() {};
+
   void Execute();
   void LinkEdgels(int xdim, int ydim,float *image, vtkVectors *inVectors,
 		  vtkCellArray *newLines, vtkPoints *newPts,

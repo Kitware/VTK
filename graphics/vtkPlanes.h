@@ -65,8 +65,6 @@ class vtkCamera;
 class VTK_EXPORT vtkPlanes : public vtkImplicitFunction
 {
 public:
-  vtkPlanes();
-  ~vtkPlanes();
   static vtkPlanes *New() {return new vtkPlanes;};
   const char *GetClassName() {return "vtkPlanes";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -95,6 +93,8 @@ public:
   void SetFrustumPlanes(vtkCamera *camera);
 
 protected:
+  vtkPlanes();
+  ~vtkPlanes();
   vtkPoints *Points;
   vtkNormals *Normals;
   vtkPlane *Plane;

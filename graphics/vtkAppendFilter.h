@@ -59,9 +59,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkAppendFilter : public vtkDataSetToUnstructuredGridFilter
 {
 public:
-  vtkAppendFilter();
-  ~vtkAppendFilter();
   static vtkAppendFilter *New() {return new vtkAppendFilter;}
+
   const char *GetClassName() {return "vtkAppendFilter";}
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -88,6 +87,9 @@ public:
   void RemoveInput(vtkDataSet& in) {this->RemoveInput(&in);}
   
 protected:
+  vtkAppendFilter();
+  ~vtkAppendFilter();
+
   // Usual data generation method
   void Execute();
   // list of data sets to append together.

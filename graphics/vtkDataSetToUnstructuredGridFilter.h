@@ -68,6 +68,11 @@ public:
     {vtkImageToStructuredPoints *tmp = cache->MakeImageToStructuredPoints();
     this->SetInput(tmp->GetOutput()); tmp->Delete();}
   vtkDataSet *GetInput();
+  
+protected:
+  vtkDataSetToUnstructuredGridFilter() {};
+  ~vtkDataSetToUnstructuredGridFilter() {};
+  
 
 };
 

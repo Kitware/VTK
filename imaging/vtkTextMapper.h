@@ -80,8 +80,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkTextMapper : public vtkMapper2D
 {
 public:
-  vtkTextMapper();
-  ~vtkTextMapper();
   const char *GetClassName() {return "vtkTextMapper";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -178,6 +176,9 @@ public:
   vtkGetMacro(LineSpacing, float);
 
 protected:
+  vtkTextMapper();
+  ~vtkTextMapper();
+
   int   Italic;
   int   Bold;
   int   Shadow;

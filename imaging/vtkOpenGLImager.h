@@ -63,6 +63,8 @@ public:
   int RenderOpaqueGeometry();
 
 protected:
+  vtkOpenGLImager() {};
+  ~vtkOpenGLImager() {};
 };
 
 

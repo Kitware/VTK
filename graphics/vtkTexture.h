@@ -79,8 +79,6 @@ class vtkWindow;
 class VTK_EXPORT vtkTexture : public vtkObject
 {
 public:
-  vtkTexture();
-  ~vtkTexture();
   static vtkTexture *New();
   const char *GetClassName() {return "vtkTexture";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -149,6 +147,8 @@ public:
   unsigned char *MapScalarsToColors (vtkScalars *scalars);
 
 protected:
+  vtkTexture();
+  ~vtkTexture();
   int   Repeat;
   int   Interpolate;
   int   MapColorScalarsThroughLookupTable;

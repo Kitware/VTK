@@ -44,20 +44,16 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 vtkPriorityQueue::vtkPriorityQueue()
 {
   this->ItemLocation = vtkIntArray::New();
-  this->Size = this->Extend = 1000;
-  this->Array = new vtkPriorityItem[this->Size];
+  this->Size = 0;
+  this->Extend = 1000;
+  this->Array = NULL;
   this->MaxId = -1;
-
-  this->ItemLocation->Allocate(this->Size,this->Extend);
-  for (int i=0; i < this->Size; i++)
-    {
-    this->ItemLocation->SetValue(i,-1);
-    }
+  this->ItemLocation = NULL;
 }
 
-// Instantiate priority queue with specified size and amount to extend
+// Allocate priority queue with specified size and amount to extend
 // queue (if reallocation required).
-vtkPriorityQueue::vtkPriorityQueue(const int sz, const int ext)
+void vtkPriorityQueue::Allocate(const int sz, const int ext)
 {
   this->ItemLocation = vtkIntArray::New();
   this->ItemLocation->Allocate(sz,ext);
@@ -67,6 +63,10 @@ vtkPriorityQueue::vtkPriorityQueue(const int sz, const int ext)
     }
 
   this->Size = ( sz > 0 ? sz : 1);
+  if ( this->Array != NULL )
+    {
+    delete [] this->Array;
+    }
   this->Array = new vtkPriorityItem[sz];
   this->Extend = ( ext > 0 ? ext : 1);
   this->MaxId = -1;

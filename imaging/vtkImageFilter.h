@@ -57,7 +57,9 @@ public:
   static vtkImageFilter *New() {return new vtkImageFilter;};
   const char *GetClassName() {return "vtkImageFilter";};
 
-  
+protected:  
+  vtkImageFilter() {};
+  ~vtkImageFilter() {};
 };
 
 #endif

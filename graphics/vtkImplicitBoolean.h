@@ -69,8 +69,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImplicitBoolean : public vtkImplicitFunction
 {
 public:
-  vtkImplicitBoolean();
-  ~vtkImplicitBoolean();
   const char *GetClassName() {return "vtkImplicitBoolean";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -122,6 +120,9 @@ public:
   void RemoveFunction(vtkImplicitFunction &in) {this->RemoveFunction(&in);}
 
 protected:
+  vtkImplicitBoolean();
+  ~vtkImplicitBoolean();
+
   vtkImplicitFunctionCollection *FunctionList;
 
   int OperationType;

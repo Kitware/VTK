@@ -181,7 +181,7 @@ void vtkSampleFunction::Execute()
   if ( this->ComputeNormals )
     {
     float n[3];
-    newNormals = new vtkNormals(); 
+    newNormals = vtkNormals::New(); 
     newNormals->SetNumberOfNormals(numPts);
     for (ptId=0; ptId < numPts; ptId++ )
       {

@@ -66,7 +66,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkPolyDataNormals : public vtkPolyDataToPolyDataFilter
 {
 public:
-  vtkPolyDataNormals();
   const char *GetClassName() {return "vtkPolyDataNormals";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -118,6 +117,9 @@ public:
   vtkBooleanMacro(NonManifoldTraversal,int);
 
 protected:
+  vtkPolyDataNormals();
+  ~vtkPolyDataNormals() {};
+
   // Usual data generation method
   void Execute();
 

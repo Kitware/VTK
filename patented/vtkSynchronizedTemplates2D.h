@@ -72,10 +72,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkSynchronizedTemplates2D : public vtkStructuredPointsToPolyDataFilter
 {
 public:
-  vtkSynchronizedTemplates2D();
   static vtkSynchronizedTemplates2D *New() {
     return new vtkSynchronizedTemplates2D;};
-  ~vtkSynchronizedTemplates2D();
   const char *GetClassName() {return "vtkSynchronizedTemplates2D";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -129,6 +127,8 @@ public:
     {this->ContourValues->GenerateValues(numContours, rangeStart, rangeEnd);}
 
 protected:
+  vtkSynchronizedTemplates2D();
+  ~vtkSynchronizedTemplates2D();
   void Execute();
   vtkContourValues *ContourValues;
 };

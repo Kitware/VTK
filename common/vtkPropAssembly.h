@@ -72,8 +72,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkPropAssembly : public vtkProp
 {
 public:
-  vtkPropAssembly();
-  ~vtkPropAssembly();
   const char *GetClassName() {return "vtkPropAssembly";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -121,6 +119,9 @@ public:
   unsigned long int GetMTime();
 
 protected:
+  vtkPropAssembly();
+  ~vtkPropAssembly();
+
   vtkPropCollection *Parts;
   float Bounds[6];
   

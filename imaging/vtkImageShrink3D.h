@@ -52,7 +52,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageShrink3D : public vtkImageToImageFilter
 {
 public:
-  vtkImageShrink3D();
   static vtkImageShrink3D *New() {return new vtkImageShrink3D;};
   const char *GetClassName() {return "vtkImageShrink3D";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -95,6 +94,9 @@ public:
   
   
 protected:
+  vtkImageShrink3D();
+  ~vtkImageShrink3D() {};
+
   int ShrinkFactors[3];
   int Shift[3];
   int Mean;

@@ -56,13 +56,9 @@ class vtkImageEllipsoidSource;
 class VTK_EXPORT vtkImageContinuousErode3D : public vtkImageSpatialFilter
 {
 public:
-
   // Description:
   // Construct an instance of vtkImageContinuousErode3D fitler.
   // By default zero values are eroded.
-  vtkImageContinuousErode3D();
-
-  ~vtkImageContinuousErode3D();
   static vtkImageContinuousErode3D *New() 
     {return new vtkImageContinuousErode3D;};
   const char *GetClassName() {return "vtkImageContinuousErode3D";};
@@ -75,6 +71,9 @@ public:
 
   
 protected:
+  vtkImageContinuousErode3D();
+  ~vtkImageContinuousErode3D();
+
   vtkImageEllipsoidSource *Ellipse;
     
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData, 

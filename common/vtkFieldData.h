@@ -71,9 +71,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkFieldData : public vtkObject
 {
 public:
-  vtkFieldData();
-  ~vtkFieldData();
   static vtkFieldData *New() {return new vtkFieldData;};
+
   const char *GetClassName() {return "vtkFieldData";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -211,6 +210,9 @@ public:
   
   
 protected:
+  vtkFieldData();
+  ~vtkFieldData();
+
   int NumberOfArrays;
   vtkDataArray **Data;
   char **ArrayNames;

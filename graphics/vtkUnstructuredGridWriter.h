@@ -54,7 +54,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkUnstructuredGridWriter : public vtkDataWriter
 {
 public:
-  vtkUnstructuredGridWriter() {};
   static vtkUnstructuredGridWriter *New() {
     return new vtkUnstructuredGridWriter;};
   const char *GetClassName() {return "vtkUnstructuredGridWriter";};
@@ -66,6 +65,8 @@ public:
   vtkUnstructuredGrid *GetInput();
 
 protected:
+  vtkUnstructuredGridWriter() {};
+  ~vtkUnstructuredGridWriter() {};
   void WriteData();
 
 };

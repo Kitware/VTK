@@ -115,9 +115,8 @@ public:
   // Instantiate object with InsideOut turned off, and 
   // GenerateSelectionScalars turned off. The unselected output
   // is not generated, and the inside mode is the smallest region.
-  vtkSelectPolyData();
-  ~vtkSelectPolyData();
   static vtkSelectPolyData *New() {return new vtkSelectPolyData;};
+
   const char *GetClassName() {return "vtkSelectPolyData";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -185,6 +184,8 @@ public:
   virtual int InRegisterLoop(vtkObject *);
 
 protected:
+  vtkSelectPolyData();
+  ~vtkSelectPolyData();
   void Execute();
 
   int GenerateSelectionScalars;

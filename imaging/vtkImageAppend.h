@@ -61,8 +61,6 @@ class VTK_EXPORT vtkImageAppend : public vtkImageMultipleInputFilter
 public:
   static vtkImageAppend *New(){return new vtkImageAppend;};
   const char *GetClassName() {return "vtkImageAppend";};
-  vtkImageAppend();
-  ~vtkImageAppend();
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:
@@ -71,6 +69,9 @@ public:
   vtkGetMacro(AppendAxis, int);
   
 protected:
+  vtkImageAppend();
+  ~vtkImageAppend();
+
   int AppendAxis;
   // Array holds the AppendAxisExtent shift for each input.
   int *Shifts;

@@ -68,8 +68,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkProgrammableFilter : public vtkDataSetToDataSetFilter
 {
 public:
-  vtkProgrammableFilter();
-  ~vtkProgrammableFilter();
   static vtkProgrammableFilter *New() {return new vtkProgrammableFilter;};
   const char *GetClassName() {return "vtkProgrammableFilter";};
 
@@ -106,6 +104,8 @@ public:
   vtkRectilinearGrid *GetRectilinearGridInput();
 
 protected:
+  vtkProgrammableFilter();
+  ~vtkProgrammableFilter();
   void Execute();
 
   void (*ExecuteMethod)(void *); //function to invoke

@@ -52,9 +52,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkLongArray : public vtkDataArray
 {
 public:
-  vtkLongArray(int numComp=1);
-  ~vtkLongArray();
   static vtkLongArray *New() {return new vtkLongArray;};
+
   const char *GetClassName() {return "vtkLongArray";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -159,6 +158,9 @@ public:
   void DeepCopy(vtkDataArray &da) {this->DeepCopy(&da);}
 
 private:
+  vtkLongArray(int numComp=1);
+  ~vtkLongArray();
+
   long *Array;   // pointer to data
   long *Resize(const int sz);  // function to resize data
 

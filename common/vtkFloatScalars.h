@@ -53,7 +53,6 @@ class VTK_EXPORT vtkFloatScalars : public vtkScalars
 {
 public:
   static vtkFloatScalars *New() {return new vtkFloatScalars;};
-  vtkFloatScalars():vtkScalars(VTK_FLOAT) {};
   
   // Description:
   // Set the data type for this object.
@@ -74,6 +73,10 @@ public:
   // write.
   float *WritePointer(const int id, const int number);
 
+protected:
+  vtkFloatScalars():vtkScalars(VTK_FLOAT) {};
+  ~vtkFloatScalars() {};
+  
 };
 
 inline float *vtkFloatScalars::GetPointer(const int id)

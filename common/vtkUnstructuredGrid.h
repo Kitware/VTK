@@ -70,10 +70,8 @@ class vtkPyramid;
 
 class VTK_EXPORT vtkUnstructuredGrid : public vtkPointSet {
 public:
-  vtkUnstructuredGrid();
-  vtkUnstructuredGrid(const vtkUnstructuredGrid& up);
-  ~vtkUnstructuredGrid();
   static vtkUnstructuredGrid *New() {return new vtkUnstructuredGrid;};
+
   const char *GetClassName() {return "vtkUnstructuredGrid";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -127,6 +125,10 @@ public:
   unsigned long GetEstimatedUpdateMemorySize();
 
 protected:
+  vtkUnstructuredGrid();
+  vtkUnstructuredGrid(const vtkUnstructuredGrid& up);
+  ~vtkUnstructuredGrid();
+
   // used by GetCell method
   vtkVertex *Vertex;
   vtkPolyVertex *PolyVertex;

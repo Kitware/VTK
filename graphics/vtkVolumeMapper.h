@@ -74,8 +74,6 @@ class vtkWindow;
 class VTK_EXPORT vtkVolumeMapper : public vtkAbstractMapper
 {
 public:
-  vtkVolumeMapper();
-  ~vtkVolumeMapper();
   const char *GetClassName() {return "vtkVolumeMapper";};
   void PrintSelf( ostream& os, vtkIndent index );
 
@@ -164,6 +162,8 @@ public:
 
 
 protected:
+  vtkVolumeMapper();
+  ~vtkVolumeMapper();
   int                  Clipping;
   float                ClippingPlanes[6];
   int                  ClippingRegionFlags;

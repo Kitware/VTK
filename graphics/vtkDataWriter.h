@@ -68,8 +68,6 @@ class vtkDataArray;
 class VTK_EXPORT vtkDataWriter : public vtkWriter
 {
 public:
-  vtkDataWriter();
-  ~vtkDataWriter();
   const char *GetClassName() {return "vtkDataWriter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -191,6 +189,9 @@ public:
 
 
 protected:
+  vtkDataWriter();
+  ~vtkDataWriter();
+
   int WriteToOutputString;
   char *OutputString;
   int OutputStringLength;

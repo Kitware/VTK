@@ -66,7 +66,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkThresholdTextureCoords : public vtkDataSetToDataSetFilter
 {
 public:
-  vtkThresholdTextureCoords();
   static vtkThresholdTextureCoords *New() {
     return new vtkThresholdTextureCoords;};
   const char *GetClassName() {return "vtkThresholdTextureCoords";};
@@ -106,6 +105,8 @@ public:
   vtkGetVectorMacro(OutTextureCoord,float,3);
 
 protected:
+  vtkThresholdTextureCoords();
+  ~vtkThresholdTextureCoords() {};
   // Usual data generation method
   void Execute();
 

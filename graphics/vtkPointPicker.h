@@ -56,7 +56,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkPointPicker : public vtkPicker
 {
 public:
-  vtkPointPicker();
   static vtkPointPicker *New() {return new vtkPointPicker;};
   const char *GetClassName() {return "vtkPointPicker";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -66,6 +65,8 @@ public:
   vtkGetMacro(PointId,int);
 
 protected:
+  vtkPointPicker();
+  ~vtkPointPicker() {};
   int PointId; //picked point
 
   float IntersectWithLine(float p1[3], float p2[3], float tol, 

@@ -58,8 +58,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkCursor3D : public vtkPolyDataSource 
 {
 public:
-  vtkCursor3D();
-  ~vtkCursor3D();
   const char *GetClassName() {return "vtkCursor3D";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -128,6 +126,9 @@ public:
   void AllOff();
 
 protected:
+  vtkCursor3D();
+  ~vtkCursor3D();
+
   void Execute();
 
   vtkPolyData *Focus;

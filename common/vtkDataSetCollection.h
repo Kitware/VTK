@@ -80,6 +80,10 @@ public:
   // Get the ith dataset in the list.
   vtkDataSet *GetItem(int i) { 
     return (vtkDataSet *)(this->GetItemAsObject(i));};
+  
+protected:
+  vtkDataSetCollection() {};
+  ~vtkDataSetCollection() {};
 
 };
 

@@ -63,8 +63,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkRayCaster : public vtkObject
 {
 public:
-  vtkRayCaster();
-  ~vtkRayCaster();
   static vtkRayCaster *New() {return new vtkRayCaster;};
   const char *GetClassName() {return "vtkRayCaster";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -213,6 +211,8 @@ public:
 //ETX
 
 protected:
+  vtkRayCaster();
+  ~vtkRayCaster();
 
   // Description:
   // Zoom the small image up the full size using nearest neighbor 

@@ -57,9 +57,9 @@ class vtkTCoords;
 class VTK_EXPORT vtkTCoords : public vtkAttributeData
 {
 public:
-  vtkTCoords(int dataType=VTK_FLOAT, int dim=2);
   static vtkTCoords *New(int dataType=VTK_FLOAT, int dim=2) 
     {return new vtkTCoords(dataType,dim);};
+
   const char *GetClassName() {return "vtkTCoords";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -123,6 +123,11 @@ public:
   // Description:
   // For legacy compatibility. Do not use.
   void GetTCoords(vtkIdList& ptId, vtkTCoords& fv) {this->GetTCoords(&ptId, &fv);}
+
+protected:
+  vtkTCoords(int dataType=VTK_FLOAT, int dim=2);
+  ~vtkTCoords() {};
+  
 };
 
 inline vtkAttributeData *vtkTCoords::MakeObject()

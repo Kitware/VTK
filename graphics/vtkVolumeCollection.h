@@ -89,6 +89,9 @@ class VTK_EXPORT vtkVolumeCollection : public vtkPropCollection
   // where possible.
   vtkVolume *GetNextItem() { return this->GetNextVolume(); };
 
+protected:
+  vtkVolumeCollection() {};
+  ~vtkVolumeCollection() {};
 };
 
 

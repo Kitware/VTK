@@ -61,7 +61,6 @@ class vtkRenderer;
 class VTK_EXPORT vtkLight : public vtkObject
 {
 public:
-  vtkLight();
   const char *GetClassName() {return "vtkLight";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -134,6 +133,9 @@ public:
   void WriteSelf(ostream& os);
   
 protected:
+  vtkLight();
+  ~vtkLight() {};
+
   float FocalPoint[3];
   float Position[3];
   float Intensity;

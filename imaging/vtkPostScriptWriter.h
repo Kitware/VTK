@@ -58,6 +58,9 @@ public:
   const char *GetClassName() {return "vtkPostScriptWriter";};
 
 protected:
+  vtkPostScriptWriter() {};
+  ~vtkPostScriptWriter() {};
+
   virtual void WriteFile(ofstream *file, vtkImageData *data, int extent[6]);
   virtual void WriteFileHeader(ofstream *, vtkImageData *);
   virtual void WriteFileTrailer(ofstream *, vtkImageData *);

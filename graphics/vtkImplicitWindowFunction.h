@@ -62,8 +62,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImplicitWindowFunction : public vtkImplicitFunction
 {
 public:
-  vtkImplicitWindowFunction();
-  ~vtkImplicitWindowFunction();
   const char *GetClassName() {return "vtkImplicitWindowFunction";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -103,6 +101,9 @@ public:
   unsigned long GetMTime();
 
 protected:
+  vtkImplicitWindowFunction();
+  ~vtkImplicitWindowFunction();
+
   vtkImplicitFunction *ImplicitFunction;
   float WindowRange[2];
   float WindowValues[2];

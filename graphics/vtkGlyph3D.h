@@ -112,8 +112,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkGlyph3D : public vtkDataSetToPolyDataFilter
 {
 public:
-  vtkGlyph3D();
-  ~vtkGlyph3D();
   const char *GetClassName() {return "vtkGlyph3D";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -217,6 +215,9 @@ public:
   char *GetIndexModeAsString();
 
 protected:
+  vtkGlyph3D();
+  ~vtkGlyph3D();
+
   void Execute();
   void ExecuteInformation();
   

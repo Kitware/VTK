@@ -95,12 +95,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 class VTK_EXPORT vtkOpenGLVolumeProVG500Mapper : public vtkVolumeProVG500Mapper
 {
- public:
+public:
   const char *GetClassName() {return "vtkOpenGLVolumeProVG500Mapper";};
   static vtkOpenGLVolumeProVG500Mapper *New() 
     {return new vtkOpenGLVolumeProVG500Mapper;};
 
- protected:
+protected:
+  vtkOpenGLVolumeProVG500Mapper() {};
+  ~vtkOpenGLVolumeProVG500Mapper() {};
 
   // Render the hexagon returned by the hardware to the screen.
   void RenderHexagon( vtkRenderer  *ren, 

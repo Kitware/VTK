@@ -54,7 +54,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkElevationFilter : public vtkDataSetToDataSetFilter 
 {
 public:
-  vtkElevationFilter();
   const char *GetClassName() {return "vtkElevationFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -79,6 +78,9 @@ public:
   vtkGetVectorMacro(ScalarRange,float,2);
 
 protected:
+  vtkElevationFilter();
+  ~vtkElevationFilter() {};
+
   void Execute();
   float LowPoint[3];
   float HighPoint[3];

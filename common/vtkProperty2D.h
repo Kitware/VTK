@@ -56,10 +56,8 @@ class vtkViewport;
 class VTK_EXPORT vtkProperty2D : public vtkObject
 {
 public:
-  vtkProperty2D();
-  ~vtkProperty2D();
-  void PrintSelf(ostream& os, vtkIndent indent);
   const char *GetClassName() {return "vtkProperty2D";};
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Creates a vtkProperty2D with the following default values:
@@ -81,6 +79,9 @@ public:
   void Render (vtkViewport* vtkNotUsed(viewport))  {}
   
 protected:
+  vtkProperty2D();
+  ~vtkProperty2D();
+
   float Color[3];
   float   Opacity;
 };

@@ -60,8 +60,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkVolumeRayCastCompositeFunction : public vtkVolumeRayCastFunction
 {
 public:
-  vtkVolumeRayCastCompositeFunction();
-  ~vtkVolumeRayCastCompositeFunction();
   static vtkVolumeRayCastCompositeFunction *New() {
     return new vtkVolumeRayCastCompositeFunction;};
   const char *GetClassName() {return "vtkVolumeRayCastCompositeFunction";};
@@ -88,6 +86,9 @@ public:
 		VTKRayCastVolumeInfo *volumeInfo);
 //ETX
 protected:
+  vtkVolumeRayCastCompositeFunction();
+  ~vtkVolumeRayCastCompositeFunction();
+
 //BTX
   void SpecificFunctionInitialize( vtkRenderer *ren,
 				   vtkVolume   *vol,

@@ -59,7 +59,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkCylinder : public vtkImplicitFunction
 {
 public:
-  vtkCylinder();
   const char *GetClassName() {return "vtkCylinder";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -85,6 +84,9 @@ public:
   vtkSetVector3Macro(Center,float);
   vtkGetVectorMacro(Center,float,3);
 protected:
+  vtkCylinder();
+  ~vtkCylinder() {};
+
   float Radius;
   float Center[3];
 

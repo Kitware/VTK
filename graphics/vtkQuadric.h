@@ -52,7 +52,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkQuadric : public vtkImplicitFunction
 {
 public:
-  vtkQuadric();
   const char *GetClassName() {return "vtkQuadric";};
   void PrintSelf(ostream& os, vtkIndent indent);
   
@@ -76,6 +75,9 @@ public:
   vtkGetVectorMacro(Coefficients,float,10);
 
 protected:
+  vtkQuadric();
+  ~vtkQuadric() {};
+
   float Coefficients[10];
 
 };

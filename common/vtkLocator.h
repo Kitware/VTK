@@ -82,8 +82,6 @@ class vtkPolyData;
 class VTK_EXPORT vtkLocator : public vtkObject
 {
 public:
-  vtkLocator();
-  ~vtkLocator();
   const char *GetClassName() {return "vtkLocator";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -155,6 +153,9 @@ public:
   vtkGetMacro(BuildTime, unsigned long);
 
 protected:
+  vtkLocator();
+  ~vtkLocator();
+
   vtkDataSet *DataSet;
   int Automatic; // boolean controls automatic subdivision (or uses user spec.)
   float Tolerance; // for performing merging

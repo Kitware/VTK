@@ -62,10 +62,8 @@ class vtkStructuredExtent;
 class VTK_EXPORT vtkImageData : public vtkDataSet
 {
 public:
-  vtkImageData();
-  vtkImageData(const vtkImageData& v);
-  ~vtkImageData();
   static vtkImageData *New() {return new vtkImageData;};
+
   const char *GetClassName() {return "vtkImageData";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -330,6 +328,10 @@ public:
   
   
 protected:
+  vtkImageData();
+  vtkImageData(const vtkImageData& v);
+  ~vtkImageData();
+
   vtkImageToStructuredPoints *ImageToStructuredPoints;
 
   // for the GetCell method

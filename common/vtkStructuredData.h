@@ -109,7 +109,10 @@ public:
   void GetPointCells(int ptId, vtkIdList &cellIds, int dim[3])
     {this->GetPointCells(ptId, &cellIds, dim);}
 
-
+protected:
+  vtkStructuredData() {};
+  ~vtkStructuredData() {};
+  
 };
 
 

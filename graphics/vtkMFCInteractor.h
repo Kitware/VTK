@@ -72,8 +72,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkMFCInteractor : public vtkRenderWindowInteractor
 {
 public:
-  vtkMFCInteractor();
-  ~vtkMFCInteractor();
   static vtkMFCInteractor *New() {return new vtkMFCInteractor;};
   const char *GetClassName() {return "vtkMFCInteractor";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -125,6 +123,9 @@ public:
 
 
 protected:
+  vtkMFCInteractor();
+  ~vtkMFCInteractor();
+
   HANDLE Mutex;
   HWND  WindowId;
   UINT  TimerId;

@@ -52,9 +52,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkIntArray : public vtkDataArray
 {
 public:
-  vtkIntArray(int numComp=1);
-  ~vtkIntArray();
   static vtkIntArray *New() {return new vtkIntArray;};
+
   const char *GetClassName() {return "vtkIntArray";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -160,6 +159,9 @@ public:
   
 
 private:
+  vtkIntArray(int numComp=1);
+  ~vtkIntArray();
+
   int *Array;   // pointer to data
   int *Resize(const int sz);  // function to resize data
 

@@ -76,6 +76,9 @@ public:
   const char *GetClassName() {return "vtkTIFFReader";};
   
 protected:
+  vtkTIFFReader() {};
+  ~vtkTIFFReader() {};
+
   virtual void UpdateInformation();
   void Swap4(int *stmp);
   void Swap4(long *stmp);

@@ -55,7 +55,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkRectilinearGridWriter : public vtkDataWriter
 {
 public:
-  vtkRectilinearGridWriter() {};
   static vtkRectilinearGridWriter *New() {
     return new vtkRectilinearGridWriter;};
   const char *GetClassName() {return "vtkRectilinearGridWriter";};
@@ -67,6 +66,8 @@ public:
   vtkRectilinearGrid *GetInput();
                                
 protected:
+  vtkRectilinearGridWriter() {};
+  ~vtkRectilinearGridWriter() {};
   void WriteData();
 
 };

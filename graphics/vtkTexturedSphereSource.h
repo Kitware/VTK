@@ -56,7 +56,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkTexturedSphereSource : public vtkPolyDataSource 
 {
 public:
-  vtkTexturedSphereSource(int res=8);
   const char *GetClassName() {return "vtkTexturedSphereSource";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -91,6 +90,8 @@ public:
   vtkGetMacro(Phi,float);
 
 protected:
+  vtkTexturedSphereSource(int res=8);
+  ~vtkTexturedSphereSource() {};
   void Execute();
   float Radius;
   float Theta;

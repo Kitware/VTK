@@ -58,9 +58,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkPointSet : public vtkDataSet
 {
 public:
-  vtkPointSet();
-  ~vtkPointSet();
-  vtkPointSet(const vtkPointSet& ps);
   const char *GetClassName() {return "vtkPointSet";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -113,6 +110,10 @@ public:
   virtual int GetNetReferenceCount();
 
 protected:
+  vtkPointSet();
+  vtkPointSet(const vtkPointSet& ps);
+  ~vtkPointSet();
+
   vtkPoints *Points;
   vtkPointLocator *Locator;
 

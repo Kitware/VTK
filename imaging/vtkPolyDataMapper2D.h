@@ -67,8 +67,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkPolyDataMapper2D : public vtkMapper2D
 {
 public:
-  vtkPolyDataMapper2D();
-  ~vtkPolyDataMapper2D();
   const char *GetClassName() {return "vtkPolyDataMapper2D";};
   static vtkPolyDataMapper2D *New();
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -139,6 +137,9 @@ public:
   vtkGetObjectMacro(TransformCoordinate, vtkCoordinate);
 
 protected:
+  vtkPolyDataMapper2D();
+  ~vtkPolyDataMapper2D();
+
   vtkPolyData* Input;
   vtkScalars *Colors;
   vtkScalarsToColors *LookupTable;

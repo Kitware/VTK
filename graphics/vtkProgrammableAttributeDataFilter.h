@@ -103,8 +103,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkProgrammableAttributeDataFilter : public vtkDataSetToDataSetFilter 
 {
 public:
-  vtkProgrammableAttributeDataFilter();
-  ~vtkProgrammableAttributeDataFilter();
   static vtkProgrammableAttributeDataFilter *New() {
     return new vtkProgrammableAttributeDataFilter;};
   const char *GetClassName() {return "vtkProgrammableAttributeDataFilter";};
@@ -141,6 +139,8 @@ public:
   void RemoveInput(vtkDataSet& in) {this->RemoveInput(&in);};
 
 protected:
+  vtkProgrammableAttributeDataFilter();
+  ~vtkProgrammableAttributeDataFilter();
   void Execute();
   vtkDataSetCollection *InputList; //list of datasets to process
   void (*ExecuteMethod)(void *); //function to invoke

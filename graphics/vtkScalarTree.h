@@ -71,8 +71,6 @@ typedef struct _vtkScalarRange
 class VTK_EXPORT vtkScalarTree : public vtkObject
 {
 public:
-  vtkScalarTree();
-  ~vtkScalarTree();
   const char *GetClassName() {return "vtkScalarTree";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -136,6 +134,8 @@ public:
     
 
 protected:
+  vtkScalarTree();
+  ~vtkScalarTree();
   vtkDataSet *DataSet;
   vtkScalars *Scalars;
   int MaxLevel;

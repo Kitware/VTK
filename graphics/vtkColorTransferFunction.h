@@ -56,8 +56,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkColorTransferFunction : public vtkScalarsToColors 
 {
 public:
-  vtkColorTransferFunction();
-  ~vtkColorTransferFunction();
   static vtkColorTransferFunction *New() {
     return new vtkColorTransferFunction;};
   const char *GetClassName() {return "vtkColorTransferFunction";};
@@ -148,6 +146,9 @@ public:
                                        int inputIncrement);
   
 protected:
+  vtkColorTransferFunction();
+  ~vtkColorTransferFunction();
+
   // Determines the function value outside of defined points
   // in each of the R,G,B transfer functions.
   // Zero = always return 0.0 outside of defined points

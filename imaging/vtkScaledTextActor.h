@@ -55,8 +55,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkScaledTextActor : public vtkActor2D
 {
 public:
-  vtkScaledTextActor();
-  ~vtkScaledTextActor();
   const char *GetClassName() {return "vtkScaledTextActor";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -94,6 +92,9 @@ public:
   float GetHeight();
   
 protected:
+  vtkScaledTextActor();
+  ~vtkScaledTextActor();
+
   vtkActor2D *TextActor;
   vtkCoordinate *Position2Coordinate;
   vtkTimeStamp  BuildTime;

@@ -66,6 +66,8 @@ public:
   virtual void SetInput2(vtkImageData *input){this->SetInput(1, input);}
 
 protected:
+  vtkImageAppendComponents() {};
+  ~vtkImageAppendComponents() {};
   
   void ExecuteInformation(vtkImageData **inputs, vtkImageData *output);
   void ThreadedExecute(vtkImageData **inDatas, vtkImageData *outData,

@@ -57,7 +57,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkConeSource : public vtkPolyDataSource 
 {
 public:
-  vtkConeSource(int res=6);
   const char *GetClassName() {return "vtkConeSource";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -93,6 +92,9 @@ public:
   vtkBooleanMacro(Capping,int);
 
 protected:
+  vtkConeSource(int res=6);
+  ~vtkConeSource() {};
+
   void Execute();
   void ExecuteInformation();
   float Height;

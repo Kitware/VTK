@@ -59,8 +59,6 @@ class vtkRIBRenderer;
 class VTK_EXPORT vtkRIBProperty : public vtkProperty
 {
 public:
-  vtkRIBProperty();
-  ~vtkRIBProperty();
   static vtkRIBProperty *New() {return new vtkRIBProperty;};
   const char *GetClassName() {return "vtkRIBProperty";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -94,6 +92,9 @@ public:
   char *GetParameters ();
   
 protected:
+  vtkRIBProperty();
+  ~vtkRIBProperty();
+
   void Render(vtkActor *a, vtkRenderer *ren);
   vtkProperty *Property;
   char *SurfaceShader;

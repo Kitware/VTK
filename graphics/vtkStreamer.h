@@ -138,8 +138,6 @@ public:
 class VTK_EXPORT vtkStreamer : public vtkDataSetToPolyDataFilter
 {
 public:
-  vtkStreamer();
-  ~vtkStreamer();
   const char *GetClassName() {return "vtkStreamer";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -244,6 +242,9 @@ public:
 //ETX
 
 protected:
+  vtkStreamer();
+  ~vtkStreamer();
+
   // Integrate data
   void Integrate();
 

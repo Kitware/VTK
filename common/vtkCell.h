@@ -79,11 +79,13 @@ class vtkCellData;
 class VTK_EXPORT vtkCell : public vtkObject
 {
 public:
-  vtkCell();
-  ~vtkCell();
-  void Initialize(int npts, int *pts, vtkPoints *p);
   const char *GetClassName() {return "vtkCell";};
   void PrintSelf(ostream& os, vtkIndent indent);
+
+  // Description:
+  // Initialize cell from outside with point ids and point
+  // coordinates specified.
+  void Initialize(int npts, int *pts, vtkPoints *p);
 
   // Description:
   // Create concrete copy of this cell. Initially, the copy is made by
@@ -292,6 +294,9 @@ public:
   void ShallowCopy(vtkCell &c) {this->ShallowCopy(&c);}
 
 protected:
+  vtkCell();
+  ~vtkCell();
+
   float Bounds[6];
 
 };

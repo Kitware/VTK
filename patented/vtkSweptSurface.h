@@ -81,9 +81,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkSweptSurface : public vtkStructuredPointsToStructuredPointsFilter
 {
 public:
-  vtkSweptSurface();
   static vtkSweptSurface *New() {return new vtkSweptSurface;};
-  ~vtkSweptSurface();
   const char *GetClassName() {return "vtkSweptSurface";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -167,7 +165,10 @@ public:
   unsigned long int GetMTime();
 
 protected:
+  vtkSweptSurface();
+  ~vtkSweptSurface();
   void Execute();
+
   void ComputeBounds(float origin[3], float ar[3], float bbox[24]);
   int ComputeNumberOfSteps(vtkTransform *t1, vtkTransform *t2, float bbox[24]);
   void SampleInput(vtkMatrix4x4 *m, int inDim[3], float inOrigin[3],

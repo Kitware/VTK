@@ -52,9 +52,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkUnsignedShortArray : public vtkDataArray 
 {
 public:
-  vtkUnsignedShortArray(int numComp=1);
-  ~vtkUnsignedShortArray();
   static vtkUnsignedShortArray *New() {return new vtkUnsignedShortArray;};
+
   const char *GetClassName() {return "vtkUnsignedShortArray";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -179,6 +178,9 @@ public:
   
 
 private:
+  vtkUnsignedShortArray(int numComp=1);
+  ~vtkUnsignedShortArray();
+
   unsigned short *Array;   // pointer to data
   unsigned short *Resize(const int sz);  // function to resize data
 

@@ -68,8 +68,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkWriter : public vtkProcessObject
 {
 public:
-  vtkWriter();
-  ~vtkWriter();
   const char *GetClassName() {return "vtkWriter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -86,6 +84,9 @@ public:
   vtkDataObject *GetInput();
 //ETX
 protected:
+  vtkWriter();
+  ~vtkWriter();
+
   virtual void WriteData() = 0; //internal method subclasses must respond to
 };
 

@@ -88,8 +88,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkClipPolyData : public vtkPolyDataToPolyDataFilter
 {
 public:
-  vtkClipPolyData(vtkImplicitFunction *cf=NULL);
-  ~vtkClipPolyData();
   const char *GetClassName() {return "vtkClipPolyData";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -163,6 +161,9 @@ public:
   void SetLocator(vtkPointLocator& locator) {this->SetLocator(&locator);};
 
 protected:
+  vtkClipPolyData(vtkImplicitFunction *cf=NULL);
+  ~vtkClipPolyData();
+
   void Execute();
   vtkImplicitFunction *ClipFunction;
   

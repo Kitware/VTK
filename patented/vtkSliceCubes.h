@@ -90,8 +90,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkSliceCubes : public vtkObject
 {
 public:
-  vtkSliceCubes();
-  ~vtkSliceCubes();
   static vtkSliceCubes *New() {return new vtkSliceCubes;};
   const char *GetClassName() {return "vtkSliceCubes";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -122,6 +120,8 @@ public:
   vtkGetStringMacro(LimitsFileName);
 
 protected:
+  vtkSliceCubes();
+  ~vtkSliceCubes();
   void Execute();
 
   vtkVolumeReader *Reader;

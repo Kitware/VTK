@@ -96,11 +96,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 class VTK_EXPORT vtkVolumeProVG500Mapper : public vtkVolumeProMapper
 {
- public:
+public:
   const char *GetClassName() {return "vtkVolumeProVG500Mapper";};
   static vtkVolumeProVG500Mapper *New();
 
- protected:
+protected:
+  vtkVolumeProVG500Mapper() {};
+  ~vtkVolumeProVG500Mapper() {};
 };
 
 

@@ -53,8 +53,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkTriangle : public vtkCell
 {
 public:
-  vtkTriangle();
-  ~vtkTriangle();
   static vtkTriangle *New() {return new vtkTriangle;};
   const char *GetClassName() {return "vtkTriangle";};
 
@@ -190,6 +188,9 @@ public:
   
 
 protected:
+  vtkTriangle();
+  ~vtkTriangle();
+
   vtkLine *Line;
 
 };

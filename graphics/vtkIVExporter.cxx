@@ -273,7 +273,7 @@ void vtkIVExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
   VTK_INDENT_MORE;
 
   // first stuff out the transform
-  trans = new vtkTransform;
+  trans = vtkTransform::New();
   trans->SetMatrix(*(anActor->vtkProp3D::GetMatrixPointer()));
   
   fprintf(fp,"%sTransform {\n", indent);

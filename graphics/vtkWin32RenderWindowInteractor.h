@@ -56,13 +56,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 class VTK_EXPORT vtkWin32RenderWindowInteractor : public vtkRenderWindowInteractor {
 public:
-
   // Description:
   // Construct object so that light follows camera motion.
-  vtkWin32RenderWindowInteractor();
-  ~vtkWin32RenderWindowInteractor();
   static vtkWin32RenderWindowInteractor *New() {
     return new vtkWin32RenderWindowInteractor;};
+
   const char *GetClassName() {return "vtkWin32RenderWindowInteractor";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -139,6 +137,9 @@ public:
   virtual void ExitCallback();
 
 protected:
+  vtkWin32RenderWindowInteractor();
+  ~vtkWin32RenderWindowInteractor();
+
   HWND    WindowId;
   UINT    TimerId;
   WNDPROC OldProc;

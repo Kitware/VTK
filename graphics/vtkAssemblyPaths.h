@@ -56,7 +56,7 @@ class vtkActor;
 
 class VTK_EXPORT vtkAssemblyPaths : public vtkCollection
 {
- public:
+public:
   static vtkAssemblyPaths *New() {return new vtkAssemblyPaths;};
   const char *GetClassName() {return "vtkAssemblyPaths";};
 
@@ -76,6 +76,11 @@ class VTK_EXPORT vtkAssemblyPaths : public vtkCollection
   // Description:
   // Get the next path in the list.
   vtkActorCollection *GetNextItem();
+
+protected:
+  vtkAssemblyPaths() {};
+  ~vtkAssemblyPaths() {};
+  
 };
 
 inline void vtkAssemblyPaths::AddItem(vtkActorCollection *a) 

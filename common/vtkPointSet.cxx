@@ -175,8 +175,10 @@ int vtkPointSet::FindCell(float x[3], vtkCell *cell, vtkGenericCell *gencell,
     return -1;
     }
 
-  cellIds = new vtkIdList(8,100);
-  ptIds = new vtkIdList(8,100);
+  cellIds = vtkIdList::New();
+  cellIds->Allocate(8,100);
+  ptIds = vtkIdList::New();
+  ptIds->Allocate(8,100);
 
   if ( !this->Locator )
     {

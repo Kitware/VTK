@@ -113,6 +113,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #define VTK_NUMBER_STATISTICS 12
 
+//BTX - begin tcl exclude
 // Special structures for building loops
 typedef struct _vtkLocalVertex 
   {
@@ -133,8 +134,6 @@ typedef struct _vtkLocalTri
 
 //
 // Special classes for manipulating data
-//
-//BTX - begin tcl exclude
 //
 class vtkVertexArray { //;prevent man page generation
 public:
@@ -172,8 +171,6 @@ public:
 class VTK_EXPORT vtkDecimate : public vtkPolyDataToPolyDataFilter
 {
 public:
-  vtkDecimate();
-  ~vtkDecimate();
   static vtkDecimate *New() {return new vtkDecimate;};
   const char *GetClassName() {return "vtkDecimate";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -268,6 +265,8 @@ public:
   vtkGetMacro(MaximumNumberOfSquawks,int);
   
 protected:
+  vtkDecimate();
+  ~vtkDecimate();
   void Execute();
 
   float InitialFeatureAngle; // dihedral angle constraint

@@ -55,8 +55,6 @@ class vtkUnstructuredGrid;
 class VTK_EXPORT vtkTetra : public vtkCell
 {
 public:
-  vtkTetra();
-  ~vtkTetra();
   static vtkTetra *New() {return new vtkTetra;};
   const char *GetClassName() {return "vtkTetra";};
 
@@ -150,6 +148,9 @@ public:
   
 
 protected:
+  vtkTetra();
+  ~vtkTetra();
+
   vtkLine *Line;
   vtkTriangle *Triangle;
 

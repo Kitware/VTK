@@ -57,8 +57,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkTriangleStrip : public vtkCell
 {
 public:
-  vtkTriangleStrip();
-  ~vtkTriangleStrip();
   static vtkTriangleStrip *New() {return new vtkTriangleStrip;};
   const char *GetClassName() {return "vtkTriangleStrip";};
 
@@ -110,6 +108,9 @@ public:
   
 
 protected:
+  vtkTriangleStrip();
+  ~vtkTriangleStrip();
+
   vtkLine *Line;
   vtkTriangle *Triangle;
   

@@ -53,12 +53,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkIdList : public vtkObject
 {
  public:
-  vtkIdList(const int sz=512, const int ext=1000);
-  ~vtkIdList();
+  static vtkIdList *New() {return new vtkIdList(8);};
+
   int Allocate(const int sz=512, const int ext=1000) {return this->Ia->Allocate(sz,ext);};
   const char *GetClassName() {return "vtkIdList";};
   void PrintSelf(ostream& os, vtkIndent indent);
-  static vtkIdList *New() {return new vtkIdList(8);};
 
   // Description:
   // Return the number of id's in the list.
@@ -141,6 +140,9 @@ class VTK_EXPORT vtkIdList : public vtkObject
   
   
 protected:
+  vtkIdList(const int sz=512, const int ext=1000);
+  ~vtkIdList();
+
   vtkIntArray *Ia;
 };
 

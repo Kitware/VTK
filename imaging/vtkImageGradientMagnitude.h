@@ -58,7 +58,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageGradientMagnitude : public vtkImageToImageFilter
 {
 public:
-  vtkImageGradientMagnitude();
   static vtkImageGradientMagnitude *New() 
     {return new vtkImageGradientMagnitude;};
   const char *GetClassName() {return "vtkImageGradientMagnitude";};
@@ -77,6 +76,9 @@ public:
   vtkGetMacro(Dimensionality,int);
   
 protected:
+  vtkImageGradientMagnitude();
+  ~vtkImageGradientMagnitude() {};
+
   int HandleBoundaries;
   int Dimensionality;
   

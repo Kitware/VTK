@@ -58,11 +58,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageHybridMedian2D : public vtkImageSpatialFilter
 {
 public:
-  vtkImageHybridMedian2D();
   static vtkImageHybridMedian2D *New() {return new vtkImageHybridMedian2D;};
   const char *GetClassName() {return "vtkImageHybridMedian2D";};
 
 protected:
+  vtkImageHybridMedian2D();
+  ~vtkImageHybridMedian2D() {};
 
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
 		       int outExt[6], int id);

@@ -68,8 +68,6 @@ class vtkNeighborCells;
 class VTK_EXPORT vtkCellLocator : public vtkLocator
 {
 public:
-  vtkCellLocator();
-  ~vtkCellLocator();
   const char *GetClassName() {return "vtkCellLocator";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -175,6 +173,9 @@ public:
   void GenerateRepresentation(int level, vtkPolyData *pd);
   
 protected:
+  vtkCellLocator();
+  ~vtkCellLocator();
+
   void GetBucketNeighbors(int ijk[3], int ndivs, int level);
   void GetOverlappingBuckets(float x[3], int ijk[3], float dist, 
                              int prevMinLevel[3], int prevMaxLevel[3]);

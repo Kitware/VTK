@@ -68,7 +68,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageAnisotropicDiffusion2D : public vtkImageSpatialFilter
 {
 public:
-  vtkImageAnisotropicDiffusion2D();
   static vtkImageAnisotropicDiffusion2D *New() {return new vtkImageAnisotropicDiffusion2D;};
   const char *GetClassName() {return "vtkImageAnisotropicDiffusion2D";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -111,6 +110,9 @@ public:
   vtkBooleanMacro(GradientMagnitudeThreshold,int);
   
 protected:
+  vtkImageAnisotropicDiffusion2D();
+  ~vtkImageAnisotropicDiffusion2D() {};
+
   int NumberOfIterations;
   float DiffusionThreshold;
   float DiffusionFactor;  

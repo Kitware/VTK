@@ -64,8 +64,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkTextSource : public vtkPolyDataSource 
 {
 public:
-  vtkTextSource();
-  ~vtkTextSource();
   const char *GetClassName() {return "vtkTextSource";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -95,6 +93,8 @@ public:
   vtkGetVectorMacro(BackgroundColor,float,3);
 
 protected:
+  vtkTextSource();
+  ~vtkTextSource();
   void Execute();
   char *Text;
   int  Backing;

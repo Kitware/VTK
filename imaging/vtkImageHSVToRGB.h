@@ -56,7 +56,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageHSVToRGB : public vtkImageToImageFilter
 {
 public:
-  vtkImageHSVToRGB();
   static vtkImageHSVToRGB *New() 
     {return new vtkImageHSVToRGB;};
   const char *GetClassName() {return "vtkImageHSVToRGB";};
@@ -72,6 +71,9 @@ public:
   vtkGetMacro(Maximum,float);
   
 protected:
+  vtkImageHSVToRGB();
+  ~vtkImageHSVToRGB() {};
+
   float Maximum;
   
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,

@@ -63,7 +63,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkDashedStreamLine : public vtkStreamLine
 {
 public:
-  vtkDashedStreamLine();
   static vtkDashedStreamLine *New() {return new vtkDashedStreamLine;};
   const char *GetClassName() {return "vtkDashedStreamLine";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -76,6 +75,9 @@ public:
   vtkGetMacro(DashFactor,float);
 
 protected:
+  vtkDashedStreamLine();
+  ~vtkDashedStreamLine() {};
+
   // Convert streamer array into vtkPolyData
   void Execute();
 

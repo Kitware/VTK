@@ -51,18 +51,19 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkProcessStatistics : public vtkObject
 {
 public:
-
-// Description:
-// Construct the ProcessStatistics with eight points.
-  vtkProcessStatistics();
-
+  // Description:
+  // Construct the ProcessStatistics with eight points.
   static vtkProcessStatistics *New() {return new vtkProcessStatistics;};
+
   const char *GetClassName() {return "vtkProcessStatistics";};
 
   int   GetProcessSizeInBytes();
   float GetProcessCPUTimeInMilliseconds();
 
 protected:
+  vtkProcessStatistics();
+  ~vtkProcessStatistics() {};
+
   
 };
 

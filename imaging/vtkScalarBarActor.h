@@ -83,8 +83,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkScalarBarActor : public vtkActor2D
 {
 public:
-  vtkScalarBarActor();
-  ~vtkScalarBarActor();
   const char *GetClassName() {return "vtkScalarBarActor";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -193,6 +191,9 @@ public:
   vtkGetStringMacro(Title);
 
 protected:
+  vtkScalarBarActor();
+  ~vtkScalarBarActor();
+
   vtkScalarsToColors *LookupTable;
   int   MaximumNumberOfColors;
   int   NumberOfLabels;

@@ -52,7 +52,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageGaussianSource : public vtkImageSource
 {
 public:
-  vtkImageGaussianSource();
   static vtkImageGaussianSource *New() {return new vtkImageGaussianSource;};
   const char *GetClassName() {return "vtkImageGaussianSource";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -79,7 +78,10 @@ public:
 
   void UpdateInformation();
 
-private:
+protected:
+  vtkImageGaussianSource();
+  ~vtkImageGaussianSource() {};
+
   float StandardDeviation;
   int WholeExtent[6];
   float Center[3];

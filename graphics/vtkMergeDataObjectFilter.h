@@ -68,8 +68,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkMergeDataObjectFilter : public vtkDataSetToDataSetFilter
 {
 public:
-  vtkMergeDataObjectFilter();
-  ~vtkMergeDataObjectFilter();
   static vtkMergeDataObjectFilter *New() {return new vtkMergeDataObjectFilter;}
   const char *GetClassName() {return "vtkMergeDataObjectFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -94,6 +92,9 @@ public:
     {this->SetOutputField(VTK_CELL_DATA_FIELD);};
   
 protected:
+  vtkMergeDataObjectFilter();
+  ~vtkMergeDataObjectFilter();
+
   // Usual data generation method
   void Execute();
 

@@ -54,11 +54,17 @@ class VTK_EXPORT vtkPointData : public vtkDataSetAttributes
 {
 public:
   static vtkPointData *New() {return new vtkPointData;};
+
   const char *GetClassName() {return "vtkPointData";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Set point data to null values
   void NullPoint(int ptId);
+
+protected:
+  vtkPointData() {};
+  ~vtkPointData() {};
+  
 };
 
 #endif

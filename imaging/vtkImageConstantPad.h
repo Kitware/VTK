@@ -56,8 +56,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageConstantPad : public vtkImagePadFilter
 {
 public:
-  vtkImageConstantPad();
-
   static vtkImageConstantPad *New() {return new vtkImageConstantPad;};
   const char *GetClassName() {return "vtkImageConstantPad";};
 
@@ -70,6 +68,8 @@ public:
   
   
 protected:
+  vtkImageConstantPad();
+  ~vtkImageConstantPad() {};
   float Constant;
   
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData, 

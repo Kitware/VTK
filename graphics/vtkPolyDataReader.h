@@ -55,8 +55,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkPolyDataReader : public vtkPolyDataSource
 {
 public:
-  vtkPolyDataReader();
-  ~vtkPolyDataReader();
   static vtkPolyDataReader *New() {return new vtkPolyDataReader;};
   const char *GetClassName() {return "vtkPolyDataReader";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -134,6 +132,9 @@ public:
   char *GetFieldDataName();
 
 protected:
+  vtkPolyDataReader();
+  ~vtkPolyDataReader();
+
   void Execute();
   vtkDataReader *Reader;
 };

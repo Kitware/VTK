@@ -58,7 +58,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkPointLoad :  public vtkStructuredPointsSource
 {
 public:
-  vtkPointLoad();
   const char *GetClassName() {return "vtkPointLoad";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -101,6 +100,8 @@ public:
   vtkBooleanMacro(ComputeEffectiveStress,int);
 
 protected:
+  vtkPointLoad();
+  ~vtkPointLoad() {};
   void Execute();
 
   float LoadValue;

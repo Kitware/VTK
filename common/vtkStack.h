@@ -62,11 +62,10 @@ class vtkStackElement //;prevents pick-up by man page generator
 class VTK_EXPORT vtkStack : public vtkObject
 {
 public:
-  vtkStack();
-  ~vtkStack();
-  void PrintSelf(ostream& os, vtkIndent indent);
   static vtkStack *New() {return new vtkStack;};
+
   const char *GetClassName() {return "vtkStack";};
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Add an object to the top of the stack. Does not prevent duplicate entries.
@@ -85,6 +84,9 @@ public:
   int  GetNumberOfItems();
 
 protected:
+  vtkStack();
+  ~vtkStack();
+
   int NumberOfItems;
   vtkStackElement *Top;
   vtkStackElement *Bottom;

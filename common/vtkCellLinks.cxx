@@ -41,11 +41,15 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkCellLinks.h"
 #include "vtkDataSet.h"
 
-vtkCellLinks::vtkCellLinks(int sz, int ext)
+void vtkCellLinks::Allocate(int sz, int ext)
 {
   static _vtkLink_s linkInit = {0,NULL};
 
   this->Size = sz;
+  if ( this->Array != NULL )
+    {
+    delete [] this->Array;
+    }
   this->Array = new _vtkLink_s[sz];
   this->Extend = ext;
   this->MaxId = -1;

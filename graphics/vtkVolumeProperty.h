@@ -80,8 +80,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkVolumeProperty : public vtkObject
 {
 public:
-  vtkVolumeProperty();
-  ~vtkVolumeProperty();
   static vtkVolumeProperty *New() {return new vtkVolumeProperty;};
   const char *GetClassName() {return "vtkVolumeProperty";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -209,6 +207,8 @@ public:
   void UpdateMTimes(); 
 
 protected:
+  vtkVolumeProperty();
+  ~vtkVolumeProperty();
 
   int				InterpolationType;
 

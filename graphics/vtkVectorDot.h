@@ -54,7 +54,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkVectorDot : public vtkDataSetToDataSetFilter 
 {
 public:
-  vtkVectorDot();
   const char *GetClassName() {return "vtkVectorDot";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -71,6 +70,8 @@ public:
   vtkGetVectorMacro(ScalarRange,float,2);
 
 protected:
+  vtkVectorDot();
+  ~vtkVectorDot() {};
   void Execute();
   float ScalarRange[2];
 };

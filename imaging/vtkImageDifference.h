@@ -53,8 +53,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageDifference : public vtkImageTwoInputFilter
 {
 public:
-
-  vtkImageDifference();
   static vtkImageDifference *New() {return new vtkImageDifference;};
   const char *GetClassName() {return "vtkImageDifference";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -106,6 +104,9 @@ public:
   vtkBooleanMacro(Averaging,int);
 
 protected:
+  vtkImageDifference();
+  ~vtkImageDifference() {};
+
   float ErrorPerThread[VTK_MAX_THREADS];
   float ThresholdedErrorPerThread[VTK_MAX_THREADS];
   int AllowShift;

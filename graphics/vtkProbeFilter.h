@@ -55,8 +55,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkProbeFilter : public vtkDataSetToDataSetFilter
 {
 public:
-  vtkProbeFilter();
-  ~vtkProbeFilter();
   static vtkProbeFilter *New() {return new vtkProbeFilter;};
   const char *GetClassName() {return "vtkProbeFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -71,6 +69,8 @@ public:
     this->SetSource(tmp->GetOutput()); tmp->Delete();}
 
 protected:
+  vtkProbeFilter();
+  ~vtkProbeFilter();
   void Execute();
   // This filter takes more than one input, so it needs this method.
   int ComputeInputUpdateExtents(vtkDataObject *output);

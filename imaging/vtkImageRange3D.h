@@ -56,8 +56,6 @@ class vtkImageEllipsoidSource;
 class VTK_EXPORT vtkImageRange3D : public vtkImageSpatialFilter
 {
 public:
-  vtkImageRange3D();
-  ~vtkImageRange3D();
   static vtkImageRange3D *New() 
     {return new vtkImageRange3D;};
   const char *GetClassName() {return "vtkImageRange3D";};
@@ -69,6 +67,9 @@ public:
   void SetKernelSize(int size0, int size1, int size2);
   
 protected:
+  vtkImageRange3D();
+  ~vtkImageRange3D();
+
   vtkImageEllipsoidSource *Ellipse;
     
   void ExecuteInformation(vtkImageData *inData, vtkImageData *outData);

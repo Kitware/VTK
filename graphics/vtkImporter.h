@@ -78,8 +78,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImporter : public vtkObject
 {
 public:
-  vtkImporter();
-  ~vtkImporter();
   static vtkImporter *New() {return new vtkImporter;};
   const char *GetClassName() {return "vtkImporter";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -121,6 +119,9 @@ public:
   FILE *GetFileFD() {return this->FileFD;};
 
 protected:
+  vtkImporter();
+  ~vtkImporter();
+
   int OpenImportFile();
   void CloseImportFile();
   virtual int ImportBegin () {return 1;};

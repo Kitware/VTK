@@ -79,6 +79,11 @@ class VTK_EXPORT vtkPropCollection : public vtkCollection
   // Description:
   // Get the last Prop in the list.
   vtkProp *GetLastProp();
+  
+protected:
+  vtkPropCollection() {};
+  ~vtkPropCollection() {};
+  
 };
 
 inline void vtkPropCollection::AddItem(vtkProp *a) 

@@ -68,6 +68,10 @@ public:
     {vtkImageToStructuredPoints *tmp = cache->MakeImageToStructuredPoints();
     this->SetInput(tmp->GetOutput()); tmp->Delete();}
   vtkStructuredPoints *GetInput();
+  
+protected:  
+  vtkStructuredPointsToPolyDataFilter() {};
+  ~vtkStructuredPointsToPolyDataFilter() {};
 
 };
 

@@ -64,28 +64,27 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkObject.h"
 #include "vtkIntArray.h"
 
+//BTX
 typedef struct _vtkPriorityItem
   {
   float priority;
   int id;
   } vtkPriorityItem;
+//ETX
 
 class VTK_EXPORT vtkPriorityQueue : public vtkObject
 {
 public:
   // Description:
   // Instantiate priority queue with default size and extension size of 1000.
-  vtkPriorityQueue();
-
-  // Description:
-  // Instantiate priority queue with specified size and amount to extend
-  // queue (if reallocation required).
-  vtkPriorityQueue(const int sz, const int ext=1000);
-
-  ~vtkPriorityQueue();
   static vtkPriorityQueue *New() {return new vtkPriorityQueue;};
+
   const char *GetClassName() {return "vtkPriorityQueue";};
   void PrintSelf(ostream& os, vtkIndent indent);
+
+  // Description:
+  // Allocate initial space for priority queue.
+  void Allocate(const int sz, const int ext=1000);
 
   // Description:
   // Removes item at specified location from tree; then reorders and
@@ -120,6 +119,8 @@ public:
 
 
 protected:
+  vtkPriorityQueue();
+  ~vtkPriorityQueue();
   vtkPriorityItem *Resize(const int sz);
 
   vtkIntArray *ItemLocation;

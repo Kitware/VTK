@@ -61,8 +61,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkCutter : public vtkDataSetToPolyDataFilter
 {
 public:
-  vtkCutter(vtkImplicitFunction *cf=NULL);
-  ~vtkCutter();
   const char *GetClassName() {return "vtkCutter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -166,6 +164,9 @@ public:
   void SetLocator(vtkPointLocator& locator) {this->SetLocator(&locator);};
 
 protected:
+  vtkCutter(vtkImplicitFunction *cf=NULL);
+  ~vtkCutter();
+
   void Execute();
   vtkImplicitFunction *CutFunction;
   

@@ -58,7 +58,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkStructuredPoints : public vtkImageData
 {
 public:
-  vtkStructuredPoints();
   static vtkStructuredPoints *New() {return new vtkStructuredPoints;}
   const char *GetClassName() {return "vtkStructuredPoints";}
   
@@ -78,6 +77,7 @@ public:
   
   
 protected:
+  vtkStructuredPoints();
 };
 
 #endif

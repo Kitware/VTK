@@ -63,7 +63,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkExtractUnstructuredGrid : public vtkUnstructuredGridToUnstructuredGridFilter
 {
 public:
-  vtkExtractUnstructuredGrid();
   const char *GetClassName() {return "vtkExtractUnstructuredGrid";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -121,6 +120,9 @@ public:
   float *GetExtent() { return this->Extent;};
 
 protected:
+  vtkExtractUnstructuredGrid();
+  ~vtkExtractUnstructuredGrid() {};
+
   void Execute();
 
   int PointMinimum;

@@ -65,8 +65,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkSubPixelPositionEdgels : public vtkPolyDataToPolyDataFilter
 {
 public:
-  vtkSubPixelPositionEdgels();
-  ~vtkSubPixelPositionEdgels();
   static vtkSubPixelPositionEdgels *New() {
     return new vtkSubPixelPositionEdgels;};
   const char *GetClassName() {return "vtkSubPixelPositionEdgels";};
@@ -92,6 +90,9 @@ public:
   vtkGetMacro(TargetValue, float);
   
 protected:
+  vtkSubPixelPositionEdgels();
+  ~vtkSubPixelPositionEdgels();
+
   // Usual data generation method
   void Execute();
   void Move(int xdim, int ydim, int zdim, int x, int y,

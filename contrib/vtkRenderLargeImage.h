@@ -53,8 +53,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkRenderLargeImage : public vtkImageSource
 {
 public:
-  vtkRenderLargeImage();
-  ~vtkRenderLargeImage();
   static vtkRenderLargeImage *New() {return new vtkRenderLargeImage;};
   const char *GetClassName() {return "vtkRenderLargeImage";};
   void PrintSelf(ostream& os, vtkIndent indent);   
@@ -75,6 +73,9 @@ public:
   void UpdateInformation();
   
 protected:
+  vtkRenderLargeImage();
+  ~vtkRenderLargeImage();
+
   int Magnification;
   vtkRenderer *Input;
   void Execute(vtkImageData *data);
