@@ -36,7 +36,7 @@
 #include "vtkTimerLog.h"
 #include "vtkVolume.h"
 
-vtkCxxRevisionMacro(vtkRenderer, "1.193");
+vtkCxxRevisionMacro(vtkRenderer, "1.194");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -1082,6 +1082,9 @@ void vtkRenderer::WorldToView(float &x, float &y, float &z)
 void vtkRenderer::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+
+  os << indent << "Near Clipping Plane Tolerance: " 
+     << this->NearClippingPlaneTolerance << "\n";
 
   os << indent << "Ambient: (" << this->Ambient[0] << ", " 
      << this->Ambient[1] << ", " << this->Ambient[2] << ")\n";
