@@ -88,13 +88,16 @@ namespace eval ::vtk {
 
     # Called when a key event is triggered.
     # Helper binding: propagate the event as a VTK event.
-    #    key1: keycode field
-    #    key2: keysym field
+    #    keycode: keycode field
+    #    keysym: keysym field
 
-    proc cb_vtkw_key_binding {vtkw renwin x y ctrl shift event key1 key2} {
+    proc cb_vtkw_key_binding {vtkw renwin x y ctrl shift event keycode keysym} {
         set iren [$renwin GetInteractor]
-        $iren SetEventInformationFlipY $x $y $ctrl $shift $key1 0 $key2
+        # Not a bug, two times keysym, since 5th param expect a char, and
+        # $keycode is %k, which is a number
+        $iren SetEventInformationFlipY $x $y $ctrl $shift $keysym 0 $keysym
         $iren Key${event}Event
+        $iren SetEventInformationFlipY $x $y $ctrl $shift $keysym 0 $keysym
         $iren CharEvent
     }
 
