@@ -31,7 +31,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkContourFilter, "1.103");
+vtkCxxRevisionMacro(vtkContourFilter, "1.104");
 vtkStandardNewMacro(vtkContourFilter);
 vtkCxxSetObjectMacro(vtkContourFilter,ScalarTree,vtkScalarTree);
 
@@ -110,7 +110,7 @@ void vtkContourFilter::Execute()
   vtkDataArray *cellScalars;
 
   vtkDebugMacro(<< "Executing contour filter");
-
+  input->Crop();
   if (input->GetDataObjectType() == VTK_UNSTRUCTURED_GRID)
     {
     vtkDebugMacro(<< "Processing unstructured grid");
