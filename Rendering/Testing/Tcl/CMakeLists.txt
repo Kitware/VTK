@@ -20,6 +20,10 @@ IF (VTK_USE_RENDERING)
       TestFlyTo
       TestOnePoint
       TestParallelCoordinates
+      TestStyleJoystickActor
+      TestStyleJoystickCamera
+      TestStyleTrackballActor
+      TestStyleTrackballCamera
       TestTiling
       volRCClipPlanes
       volRCCropRegions
