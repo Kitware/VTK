@@ -48,18 +48,18 @@ void CPcmakerDlg::DoDataExchange(CDataExchange* pDX)
 	//{{AFX_DATA_MAP(CPcmakerDlg)
 	DDX_Control(pDX, IDC_PROGRESS1, m_Progress);
 	DDX_Text(pDX, IDC_WHEREVTK, m_WhereVTK);
-	DDV_MaxChars(pDX, m_WhereVTK, 512);
+	DDV_MaxChars(pDX, m_WhereVTK, 80);
 	DDX_Text(pDX, IDC_WHEREBUILD, m_WhereBuild);
-	DDV_MaxChars(pDX, m_WhereBuild, 512);
+	DDV_MaxChars(pDX, m_WhereBuild, 80);
 	DDX_Text(pDX, IDC_WHEREJDK, m_WhereJDK);
-	DDV_MaxChars(pDX, m_WhereJDK, 512);
+	DDV_MaxChars(pDX, m_WhereJDK, 40);
 	DDX_Check(pDX, IDC_BORLANDCOMP, m_BorlandComp);
 	DDX_Check(pDX, IDC_MSCOMP, m_MSComp);
 	DDX_Check(pDX, IDC_Contrib, m_Contrib);
 	DDX_Check(pDX, IDC_Graphics, m_Graphics);
 	DDX_Check(pDX, IDC_Imaging, m_Imaging);
 	DDX_Text(pDX, IDC_WHERECOMPILER, m_WhereCompiler);
-	DDV_MaxChars(pDX, m_WhereCompiler, 512);
+	DDV_MaxChars(pDX, m_WhereCompiler, 40);
 	DDX_Check(pDX, IDC_Debug, m_Debug);
 	DDX_Check(pDX, IDC_GEMSIP, m_GEMSIP);
 	DDX_Check(pDX, IDC_GEMSVOLUME, m_GEMSVOLUME);
