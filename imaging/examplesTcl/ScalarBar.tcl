@@ -56,6 +56,9 @@ vtkScalarBarActor scalarBar
     scalarBar SetWidth 0.8
     scalarBar SetHeight 0.17
 
+# Test the Get/Set Position 
+eval scalarBar SetPosition  [scalarBar GetPosition]
+
 # Create graphics stuff
 # Create the RenderWindow, Renderer and both Actors
 #
