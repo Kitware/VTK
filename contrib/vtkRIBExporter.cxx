@@ -56,6 +56,7 @@ vtkRIBExporter::vtkRIBExporter()
   this->FilePtr = NULL;
   this->TexturePrefix = NULL;
   this->Size[0] = this->Size[1] = -1;
+  this->Background = 0;
 }
 
 vtkRIBExporter::~vtkRIBExporter()
@@ -198,23 +199,21 @@ void vtkRIBExporter::WriteHeader (vtkRenderer *aRen)
   char *imageFilename = new char [strlen (this->FilePrefix) + strlen (".tif") + 1];
   sprintf (imageFilename, "%s%s", this->FilePrefix, ".tif");
 
-//  RiFrameBegin (1);
   fprintf (this->FilePtr, "FrameBegin %d\n", 1);
-//    RiDisplay(imageFilename, RI_FILE, RI_RGBA, RI_NULL);
   fprintf (this->FilePtr, "Display \"%s\" \"file\" \"rgba\"\n", imageFilename);
-//    RiDeclare ("bgcolor", "uniform color");
   fprintf (this->FilePtr, "Declare \"bgcolor\" \"uniform color\"\n");
-//    RiImager ("background", "bgcolor", aRen->GetBackground (), RI_NULL);
-  float *color = aRen->GetBackground ();
-  fprintf (this->FilePtr, "Imager \"background\" \"bgcolor\" [%f %f %f]\n",
-	color[0], color[1], color[2]);
+  if (this->Background)
+  {
+    float *color = aRen->GetBackground ();
+    fprintf (this->FilePtr, "Imager \"background\" \"bgcolor\" [%f %f %f]\n",
+  	color[0], color[1], color[2]);
+  }
   delete imageFilename;
 
 }
 
 void vtkRIBExporter::WriteTrailer ()
 {
-//  RiFrameEnd ();
   fprintf (this->FilePtr, "FrameEnd\n");
 }
 
@@ -232,13 +231,11 @@ void vtkRIBExporter::WriteProperty (vtkProperty *aProperty, vtkTexture *aTexture
   opacity[0] = Opacity;
   opacity[1] = Opacity;
   opacity[2] = Opacity;
-//  RiOpacity (opacity);
   fprintf (this->FilePtr, "Opacity [%f %f %f]\n",
 	opacity[0], opacity[1], opacity[2]);
 
   // set the color of the surface
   DiffuseColor = aProperty->GetDiffuseColor();
-//  RiColor (DiffuseColor);
   fprintf (this->FilePtr, "Color [%f %f %f]\n",
 	DiffuseColor[0], DiffuseColor[1], DiffuseColor[2]);
 
@@ -304,12 +301,12 @@ void vtkRIBExporter::WriteProperty (vtkProperty *aProperty, vtkTexture *aTexture
        {
        fprintf (this->FilePtr, " \"mapname\" [\"%s\"]", mapName);
        }
-      }      
-    if (aRIBProperty->GetParameters ())
-      {
-      fprintf (this->FilePtr, "%s", aRIBProperty->GetParameters ());
-      }      
+      if (aRIBProperty->GetParameters ())
+        {
+        fprintf (this->FilePtr, "%s", aRIBProperty->GetParameters ());
+        }      
       fprintf (this->FilePtr, "\n");
+      }      
     }
 // Normal Property
   else
@@ -354,12 +351,6 @@ void vtkRIBExporter::WriteLight (vtkLight *aLight, int count)
   // define the light source
   if (!aLight->GetPositional())
     {
-//    RiLightSource ("distantlight",
-//		   "intensity", &Intensity,
-//		   "lightcolor", color,
-//		   "from", Position,
-//		   "to", FocalPoint,
-//		   RI_NULL);
     fprintf (this->FilePtr, "LightSource \"distantlight\" %d ", count);
     fprintf (this->FilePtr, "\"intensity\" [%f] ", Intensity);
     fprintf (this->FilePtr, "\"lightcolor\" [%f %f %f] ",
@@ -389,16 +380,13 @@ void vtkRIBExporter::WriteViewport (vtkRenderer *ren, int size[2])
   bottom = (int)(vport[1]*(size[1] -1));
   top = (int)(vport[3]*(size[1] - 1));
   
-//  RiFormat (size[0], size[1], 1.0); // Image Resolution
   fprintf (this->FilePtr, "Format %d %d 1\n", size[0], size[1]);
 
-//  RiCropWindow(vport[0], vport[2], vport[1], vport[3]);
   fprintf (this->FilePtr, "CropWindow %f %f %f %f\n",
 	vport[0], vport[2], vport[1], vport[3]);	
     
   aspect[0] = (float)(right-left+1)/(float)(top-bottom+1);
   aspect[1] = 1.0;
-//  RiScreenWindow (-aspect[0], aspect[0], -1.0, 1.0); 
   fprintf (this->FilePtr, "ScreenWindow %f %f %f %f\n",
 	-aspect[0], aspect[0], -1.0, 1.0);
 
@@ -424,11 +412,9 @@ void vtkRIBExporter::WriteCamera (vtkCamera *aCamera)
   
 
   RtFloat angle = aCamera->GetViewAngle ();
-//  RiProjection ("perspective", RI_FOV, (RtPointer) &angle, RI_NULL);
   fprintf (this->FilePtr, "Projection \"perspective\" \"fov\" [%f]\n", angle);
   PlaceCamera (this->FilePtr, position, direction, aCamera->GetRoll ());
 
-//  RiOrientation (RI_RH); // vtk is right-handed, renederman is left-handed
   fprintf (this->FilePtr, "Orientation \"rh\"\n");
 }
 
@@ -449,19 +435,15 @@ static float matrix[4][4] = {
 
 void PlaceCamera(FILE *filePtr, RtPoint position, RtPoint direction, float roll)
 {
-//    RiIdentity();                 /* Initialize the camera transformation */
   fprintf (filePtr, "Identity\n");    
-//    RiTransform ((RtMatrix) &matrix[0]);
   fprintf (filePtr, "Transform [%f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f ]\n",
 	matrix[0][0], matrix[0][1], matrix[0][2], matrix[0][3],
 	matrix[1][0], matrix[1][1], matrix[1][2], matrix[1][3],
 	matrix[2][0], matrix[2][1], matrix[2][2], matrix[2][3],
 	matrix[3][0], matrix[3][1], matrix[3][2], matrix[3][3]);
 
-//    RiRotate(-roll, 0.0, 0.0, 1.0);
   fprintf (filePtr, "Rotate %f %f %f %f\n", -roll, 0.0, 0.0, 1.0);
     AimZ(filePtr, direction);
-//    RiTranslate(-position[0], -position[1], -position[2]);
   fprintf (filePtr, "Translate %f %f %f\n",
 	-position[0], -position[1], -position[2]);	
 }
@@ -502,23 +484,19 @@ AimZ(FILE *filePtr, RtPoint direction)
 
     if (direction[1] > 0)
       {
-//        RiRotate(xrot, 1.0, 0.0, 0.0);
       fprintf (filePtr, "Rotate %f %f %f %f\n", xrot, 1.0, 0.0, 0.0);
       }
     else
       {
-//        RiRotate(-xrot, 1.0, 0.0, 0.0);
       fprintf (filePtr, "Rotate %f %f %f %f\n", -xrot, 1.0, 0.0, 0.0);
       }
     /* The last rotation declared gets performed first */
     if (direction[0] > 0)
       {
-//        RiRotate(-yrot, 0.0, 1.0, 0.0);
       fprintf (filePtr, "Rotate %f %f %f %f\n", -yrot, 0.0, 1.0, 0.0);
       }
     else
       {
-//        RiRotate(yrot, 0.0, 1.0, 0.0);
       fprintf (filePtr, "Rotate %f %f %f %f\n", yrot, 0.0, 1.0, 0.0);
       }
 }
@@ -530,10 +508,8 @@ void vtkRIBExporter::WriteActor(vtkActor *anActor)
   vtkGeometryFilter *geometryFilter = NULL;
   static vtkMatrix4x4 matrix;
   
-//  RiAttributeBegin ();
   fprintf (this->FilePtr, "AttributeBegin\n");
 
-//  RiTransformBegin ();
   fprintf (this->FilePtr, "TransformBegin\n");
 
   // write out the property
@@ -545,7 +521,6 @@ void vtkRIBExporter::WriteActor(vtkActor *anActor)
   matrix.Transpose();
 
   // insert model transformation 
-//  RiConcatTransform ((RtMatrix) matrix[0]);
   fprintf (this->FilePtr, "ConcatTransform [%f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f ]\n",
 	matrix[0][0], matrix[0][1], matrix[0][2], matrix[0][3],
 	matrix[1][0], matrix[1][1], matrix[1][2], matrix[1][3],
@@ -567,9 +542,7 @@ void vtkRIBExporter::WriteActor(vtkActor *anActor)
 
   if (polyData->GetNumberOfPolys ()) this->WritePolygons (polyData, anActor->GetMapper()->GetColors (), anActor->GetProperty ());
   if (polyData->GetNumberOfStrips ()) this->WriteStrips (polyData, anActor->GetMapper()->GetColors (), anActor->GetProperty ());
-//  RiTransformEnd();
   fprintf (this->FilePtr, "TransformEnd\n");
-//  RiAttributeEnd ();
   fprintf (this->FilePtr, "AttributeEnd\n");
   if (geometryFilter) geometryFilter->Delete();
 }
@@ -670,7 +643,6 @@ void vtkRIBExporter::WritePolygons (vtkPolyData *polyData, vtkColorScalars *c, v
       vertexPoints[k][1] = points[1]; 
       vertexPoints[k][2] = points[2];
       }
-//    RiPolygon (npts, RI_P, (RtPointer) vertexPoints, RI_N, (RtPointer) vertexNormals, Has[0], HasPtr[0], Has[1], HasPtr[1]);
       fprintf (this->FilePtr, "Polygon ");
       fprintf (this->FilePtr, "\"P\" [");
       for (kk = 0; kk < npts; kk++)
@@ -883,6 +855,7 @@ void vtkRIBExporter::PrintSelf(ostream& os, vtkIndent indent)
  
   os << indent << "FilePrefix: " << this->FilePrefix << "\n";
   os << indent << "TexturePrefix: " << this->TexturePrefix << "\n";
+  os << indent << "Background: " << (this->Background ? "On\n" : "Off\n");
 }
 
 void vtkRIBExporter::WriteTexture (vtkTexture *aTexture)

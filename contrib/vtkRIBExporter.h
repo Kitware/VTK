@@ -88,8 +88,8 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description
-  // Sepcify the size of the image for RenderMan. If none is specified, the size of
-  // the render window will be used.
+  // Specify the size of the image for RenderMan. If none is specified, the
+  // size of the render window will be used.
   vtkSetVector2Macro(Size,int);
   vtkGetVectorMacro(Size,int,2);
 
@@ -104,7 +104,28 @@ public:
   vtkSetStringMacro(TexturePrefix);
   vtkGetStringMacro(TexturePrefix);
 
+  // Description:
+  // Set/Get the background flag. Default is 0 (off).
+  // If set, the rib file will contain an
+  // image shader that will use the renderer window's background
+  // color. Normally, RenderMan does generate backgrounds. Backgrounds are
+  // composited into the scene with the tiffcomp program that comes with
+  // Pixar's RenderMan Toolkit.  In fact, Pixar's Renderman will accept an
+  // image shader but only sets the alpha of the background. Images created
+  // this way will still have a black background but contain an alpha of 1
+  // at all pixels and CANNOT be subsequently composited with other images
+  // using tiffcomp.  However, other RenderMan compliant renderers like
+  // Blue Moon Ray Tracing (BMRT) do allow image shaders and properly set
+  // the background color. If this sounds too confusing, use the following
+  // rules: If you are using Pixar's Renderman, leave the Background
+  // off. Otherwise, try setting BackGroundOn and see if you get the
+  // desired results.
+  vtkSetMacro(Background,int);
+  vtkGetMacro(Background,int);
+  vtkBooleanMacro(Background,int);
+
 protected:
+  int Background;
   int Size[2];
   // Description:
   // Write the RIB header.
