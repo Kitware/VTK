@@ -41,7 +41,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <stdlib.h>
 #include <math.h>
 #include "vtkCellLocator.h"
-#include "vtkVoxel.h"
 #include "vtkPolyData.h"
 
 #define OUTSIDE 0
@@ -102,7 +101,6 @@ int vtkCellLocator::IntersectWithLine(float a0[3], float a1[3], float tol,
 				      float& t, float x[3], float pcoords[3],
 				      int &subId)
 {
-  static vtkVoxel voxel; // use to take advantage of Hitbbox() method
   float origin[3];
   float direction2[3];
   float direction3[3];
@@ -141,7 +139,7 @@ int vtkCellLocator::IntersectWithLine(float a0[3], float a1[3], float tol,
     direction3[i] = direction2[i]/tMax;
     }
   
-  if (voxel.HitBBox(bounds2, origin, direction2, hitPosition, result))
+  if (vtkCell::HitBBox(bounds2, origin, direction2, hitPosition, result))
     {
     // start walking through the octants
     prod = this->NumberOfDivisions*this->NumberOfDivisions;

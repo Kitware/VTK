@@ -216,8 +216,8 @@ public:
   float GetLength2();
 
   // Quick intersection of cell bounding box.  Returns != 0 for hit.
-  char HitBBox(float bounds[6], float origin[3], float dir[3], 
-               float coord[3], float& t);
+  static char HitBBox(float bounds[6], float origin[3], float dir[3], 
+                      float coord[3], float& t);
 
   // left public for quick computational access
   vtkFloatPoints Points;

@@ -88,13 +88,15 @@ public:
   // Polygon specific
   static void ComputeNormal(vtkPoints *p, int numPts, int *pts, float n[3]);
   static void ComputeNormal(vtkFloatPoints *p, float n[3]);
+  static void ComputeNormal(int numPts, float *pts, float n[3]);
 
   void ComputeWeights(float x[3], float *weights);
 
   int ParameterizePolygon(float p0[3], float p10[3], float &l10, 
                           float p20[3], float &l20, float n[3]);
 
-  int PointInPolygon(float bounds[6], float x[3], float n[3]);  
+  static int PointInPolygon(float x[3], int numPts, float *pts, float bounds[6],
+                            float n[3]);  
 
   int Triangulate(vtkIdList &outTris);
   int FastTriangulate(int numVerts, int *verts, vtkIdList& Tris);
@@ -104,6 +106,10 @@ public:
                    int& n2, int *l2, float& ar);
   void SplitLoop (int fedges[2], int numVerts, int *verts, int& n1, int *l1, 
                   int& n2, int* l2);
+
+  static int IntersectPolygonWithPolygon(int npts, float *pts, float bounds[6],
+                                         int npts2, float *pts2, 
+                                         float bounds2[3], float tol);
 
 };
 

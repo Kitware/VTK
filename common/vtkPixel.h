@@ -86,8 +86,8 @@ public:
                    int dim, float *derivs);
 
   // pixel specific
-  void InterpolationFunctions(float pcoords[3], float weights[4]);
-  void InterpolationDerivs(float pcoords[3], float derivs[8]);
+  static void InterpolationFunctions(float pcoords[3], float weights[4]);
+  static void InterpolationDerivs(float pcoords[3], float derivs[8]);
 };
 
 #endif

@@ -71,7 +71,8 @@ vtkPolygon::vtkPolygon(const vtkPolygon& p)
 
 // Description:
 // Compute the polygon normal from a points list, and a list of point ids
-// that index into the points list.
+// that index into the points list. This version will handle non-convex
+// polygons.
 void vtkPolygon::ComputeNormal(vtkPoints *p, int numPts, int *pts, float *n)
 {
   int i;
@@ -115,7 +116,8 @@ void vtkPolygon::ComputeNormal(vtkPoints *p, int numPts, int *pts, float *n)
 }
 
 // Description:
-// Compute the polygon normal from a list of floating points.
+// Compute the polygon normal from a list of floating points. This version
+// will handle non-convex polygons.
 void vtkPolygon::ComputeNormal(vtkFloatPoints *p, float *n)
 {
   int i, numPts;
@@ -143,10 +145,55 @@ void vtkPolygon::ComputeNormal(vtkFloatPoints *p, float *n)
     n[0] += (ay * bz - az * by);
     n[1] += (az * bx - ax * bz);
     n[2] += (ax * by - ay * bx);
-    }
+    }//over all points
 
   vtkMath::Normalize(n);
 }
+
+// Description:
+// Compute the polygon normal from an array of points. This version assumes that
+// the polygon is convex, and looks for the first valid normal.
+void vtkPolygon::ComputeNormal (int numPts, float *pts, float n[3])
+{
+  int i;
+  float *v1, *v2, *v3;
+  float length;
+  float ax, ay, az;
+  float bx, by, bz;
+//
+//  Because some polygon vertices are colinear, need to make sure
+//  first non-zero normal is found.
+//
+  v1 = pts;
+  v2 = pts + 3;
+  v3 = pts + 6;
+
+  for (i=0; i<numPts; i++) 
+    {
+    ax = v2[0] - v1[0]; ay = v2[1] - v1[1]; az = v2[2] - v1[2];
+    bx = v3[0] - v1[0]; by = v3[1] - v1[1]; bz = v3[2] - v1[2];
+
+    n[0] = (ay * bz - az * by);
+    n[1] = (az * bx - ax * bz);
+    n[2] = (ax * by - ay * bx);
+
+    length = sqrt (n[0] * n[0] + n[1] * n[1] + n[2] * n[2]);
+    if (length != 0.0) 
+      {
+      n[0] /= length;
+      n[1] /= length;
+      n[2] /= length;
+      return;
+      } 
+    else
+      {
+      v1 = v2;
+      v2 = v3;
+      v3 = pts + 9 + 3*i;
+      }
+    } //over all points
+}
+
 
 int vtkPolygon::EvaluatePosition(float x[3], float closestPoint[3],
 				 int& vtkNotUsed(subId), float pcoords[3], 
@@ -166,7 +213,8 @@ int vtkPolygon::EvaluatePosition(float x[3], float closestPoint[3],
 
   if ( pcoords[0] >= 0.0 && pcoords[0] <= 1.0 &&
   pcoords[1] >= 0.0 && pcoords[1] <= 1.0 &&
-  this->PointInPolygon(this->GetBounds(),closestPoint,n) == INSIDE )
+  (this->PointInPolygon(closestPoint, this->Points.GetNumberOfPoints(), 
+  this->Points.GetPtr(0), this->GetBounds(),n) == INSIDE) )
     {
     minDist2 = vtkMath::Distance2BetweenPoints(x,closestPoint);
     return 1;
@@ -300,7 +348,8 @@ int vtkPolygon::ParameterizePolygon(float *p0, float *p10, float& l10,
 // Determine whether point is inside polygon.
 // Function uses ray-casting to determine if point is inside polygon.
 // Works for arbitrary polygon shape (e.g., non-convex).
-int vtkPolygon::PointInPolygon (float bounds[6], float *x, float *n)
+int vtkPolygon::PointInPolygon (float x[3], int numPts, float *pts, 
+                                float bounds[6], float *n)
 {
   float *x1, *x2, xray[3], u, v;
   float rayMag, mag=1, ray[3];
@@ -308,7 +357,6 @@ int vtkPolygon::PointInPolygon (float bounds[6], float *x, float *n)
   int iterNumber;
   int maxComp, comps[2];
   int deltaVotes;
-  int numPts=this->Points.GetNumberOfPoints();
 //
 //  Define a ray to fire.  The ray is a random ray normal to the
 //  normal of the face.  The length of the ray is a function of the
@@ -396,8 +444,8 @@ int vtkPolygon::PointInPolygon (float bounds[6], float *x, float *n)
 //
       for (numInts=0, testResult=CERTAIN, i=0; i<numPts; i++) 
         {
-        x1 = this->Points.GetPoint(i);
-        x2 = this->Points.GetPoint((i+1)%numPts);
+        x1 = pts + 3*i;
+        x2 = pts + 3*((i+1)%numPts);
 //
 //   Fire the ray and compute the number of intersections.  Be careful of 
 //   degenerate cases (e.g., ray intersects at vertex).
@@ -421,7 +469,7 @@ int vtkPolygon::PointInPolygon (float bounds[6], float *x, float *n)
         else
           ++deltaVotes;
         }
-    } /* try another ray */
+    } //try another ray
 //
 //   If the number of intersections is odd, the point is in the polygon.
 //
@@ -817,7 +865,8 @@ int vtkPolygon::CellBoundary(int vtkNotUsed(subId), float pcoords[3],
   // determine whether point is inside of polygon
   if ( pcoords[0] >= 0.0 && pcoords[0] <= 1.0 &&
   pcoords[1] >= 0.0 && pcoords[1] <= 1.0 &&
-  this->PointInPolygon(this->GetBounds(),closest,n) == INSIDE )
+  (this->PointInPolygon(closest, this->Points.GetNumberOfPoints(), 
+  this->Points.GetPtr(0), this->GetBounds(),n) == INSIDE) )
     {
     return 1;
     }
@@ -1141,3 +1190,75 @@ void vtkPolygon::Clip(float value, vtkFloatScalars *cellScalars,
     }
   delete [] polyVerts;
 }
+
+// Description:
+// Method intersects two polygons. You must supply the number of points and
+// point coordinates (npts, *pts) and the bounding box (bounds) of the two
+// polygons. Also supply a tolerance squared for controlling error.
+int vtkPolygon::IntersectPolygonWithPolygon(int npts, float *pts,float bounds[6],
+                                            int npts2, float *pts2, 
+                                            float bounds2[6], float tol2)
+{
+  float n[3], x[3], coords[3];
+  int i, j, retStat;
+  float *p1, *p2, ray[3];
+  float t;
+//
+//  Intersect each edge of first polygon against second
+//
+  vtkPolygon::ComputeNormal(npts2, pts2, n);
+
+  for (i=0; i<npts; i++) 
+    {
+    p1 = pts + 3*i;
+    p2 = pts + 3*((i+1)%npts);
+
+    for (j=0; j<3; j++) ray[j] = p2[j] - p1[j];
+    if ( ! vtkCell::HitBBox(bounds2, p1, ray, coords, t) )
+      continue;
+
+    if ( (retStat=vtkPlane::IntersectWithLine(p1,p2,n,pts2,t,x)) == 1 ) 
+      {
+      if ( (npts2==3 && vtkTriangle::PointInTriangle(x,pts2,pts2+3,pts2+6,tol2))
+      || (npts2>3 && vtkPolygon::PointInPolygon(x,npts2,pts2,bounds2,n)==INSIDE))
+        {
+        return 1;
+        }
+      } 
+    else //if ( retStat == ON_PLANE ) 
+      {
+      return 0;
+      }
+    }
+//
+//  Intersect each edge of second polygon against first
+//
+  vtkPolygon::ComputeNormal(npts, pts, n);
+
+  for (i=0; i<npts2; i++) 
+    {
+    p1 = pts2 + 3*i;
+    p2 = pts2 + 3*((i+1)%npts2);
+
+    for (j=0; j<3; j++) ray[j] = p2[j] - p1[j];
+
+    if ( ! vtkCell::HitBBox(bounds, p1, ray, coords, t) )
+      continue;
+
+    if ( (retStat=vtkPlane::IntersectWithLine(p1,p2,n,pts,t,x)) == 1 ) 
+      {
+      if ( (npts==3 && vtkTriangle::PointInTriangle(x,pts,pts+3,pts+6,tol2))
+      || (npts>3 && vtkPolygon::PointInPolygon(x,npts,pts,bounds,n)==INSIDE))
+        {
+        return 1;
+        }
+      } 
+    else //if ( retStat == ON_PLANE ) 
+      {
+      return 0;
+      }
+    }
+
+  return 0;
+}
+

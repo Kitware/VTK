@@ -100,12 +100,11 @@ void vtkLine::EvaluateLocation(int& vtkNotUsed(subId), float pcoords[3],
   weights[1] = 1.0 - pcoords[0];
 }
 
-//
-//  Intersect two 3D lines
-//
-// returns if the projectstion of thw two lines onto the plane defined by the
-// vector orthogonal to both lines. The method may report skewed lines as 
-// intersecting and (u,v) represent the parametric coords of closest approach 
+// Description:
+// Performs intersection of two finite 3D lines. An intersection is found if
+// the projection of the two lines onto the plane perpendicular to the cross
+// product of the two lines intersect. The parameters (u,v) are the
+// parametric coordinates of the lines at the position of closest approach.
 int vtkLine::Intersection (float a1[3], float a2[3], float b1[3], float b2[3],
                            float& u, float& v)
 {
