@@ -57,7 +57,7 @@ vtkPiecewiseFunction::vtkPiecewiseFunction()
 vtkPiecewiseFunction::~vtkPiecewiseFunction()
 {
   if( this->Function )
-    delete this->Function;
+    delete [] this->Function;
 }
 
 // Description:

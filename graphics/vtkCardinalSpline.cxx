@@ -102,7 +102,7 @@ void vtkCardinalSpline::Compute ()
   size = this->PiecewiseFunction->GetSize ();
 
   // copy the independent variables
-  if (this->Intervals) delete this->Intervals;
+  if (this->Intervals) delete [] this->Intervals;
   this->Intervals = new float[size];
   ts = this->PiecewiseFunction->GetDataPointer ();  
   for (i = 0; i < size; i++)
@@ -114,7 +114,7 @@ void vtkCardinalSpline::Compute ()
   work = new float[size];
 
   // allocate memory for coefficients
-  if (this->Coefficients) delete this->Coefficients;
+  if (this->Coefficients) delete [] this->Coefficients;
   this->Coefficients = new float [4 * size];
 
   // allocate memory for dependent variables
@@ -136,8 +136,8 @@ void vtkCardinalSpline::Compute ()
 		 this->RightConstraint, this->RightValue);
 
  // free the work array and dependent variable storage
-  delete work;
-  delete dependent;
+  delete [] work;
+  delete [] dependent;
 }
 
 

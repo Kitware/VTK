@@ -57,6 +57,13 @@ vtkSpline::vtkSpline ()
   this->RightValue = 0.0;
 }
 
+vtkSpline::~vtkSpline ()
+{
+  if (this->PiecewiseFunction) this->PiecewiseFunction->Delete();
+  if (this->Coefficients) delete [] this->Coefficients;
+  if (this->Intervals) delete [] this->Intervals;
+}
+
 // Description
 // Add a point to the Piecewise Functions containing the data
 void vtkSpline::AddPoint (float t, float x)
