@@ -17,11 +17,13 @@
 #include "vtkCell.h"
 #include "vtkCellData.h"
 #include "vtkIdList.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkShrinkFilter, "1.62");
+vtkCxxRevisionMacro(vtkShrinkFilter, "1.63");
 vtkStandardNewMacro(vtkShrinkFilter);
 
 vtkShrinkFilter::vtkShrinkFilter(double sf)
@@ -30,8 +32,21 @@ vtkShrinkFilter::vtkShrinkFilter(double sf)
   this->ShrinkFactor = sf;
 }
 
-void vtkShrinkFilter::Execute()
+int vtkShrinkFilter::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkDataSet *input = vtkDataSet::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkUnstructuredGrid *output = vtkUnstructuredGrid::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   vtkPoints *newPts;
   int i, j, numIds, abort=0;
   vtkIdType cellId, numCells, numPts;
@@ -39,8 +54,6 @@ void vtkShrinkFilter::Execute()
   double center[3], p[3], pt[3];
   vtkPointData *pd, *outPD;;
   vtkIdList *ptIds, *newPtIds;
-  vtkDataSet *input= this->GetInput();
-  vtkUnstructuredGrid *output = this->GetOutput();
   vtkIdType tenth;
   double decimal;
 
@@ -51,7 +64,7 @@ void vtkShrinkFilter::Execute()
   if (numCells < 1 || numPts < 1)
     {
     vtkErrorMacro(<<"No data to shrink!");
-    return;
+    return 1;
     }
 
   ptIds = vtkIdList::New();
@@ -129,6 +142,14 @@ void vtkShrinkFilter::Execute()
   ptIds->Delete();
   newPtIds->Delete();
   newPts->Delete();
+
+  return 1;
+}
+
+int vtkShrinkFilter::FillInputPortInformation(int, vtkInformation *info)
+{
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
+  return 1;
 }
 
 void vtkShrinkFilter::PrintSelf(ostream& os, vtkIndent indent)

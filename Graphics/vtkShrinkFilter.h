@@ -30,13 +30,13 @@
 #ifndef __vtkShrinkFilter_h
 #define __vtkShrinkFilter_h
 
-#include "vtkDataSetToUnstructuredGridFilter.h"
+#include "vtkUnstructuredGridAlgorithm.h"
 
-class VTK_GRAPHICS_EXPORT vtkShrinkFilter : public vtkDataSetToUnstructuredGridFilter
+class VTK_GRAPHICS_EXPORT vtkShrinkFilter : public vtkUnstructuredGridAlgorithm
 {
 public:
   static vtkShrinkFilter *New();
-  vtkTypeRevisionMacro(vtkShrinkFilter,vtkDataSetToUnstructuredGridFilter);
+  vtkTypeRevisionMacro(vtkShrinkFilter,vtkUnstructuredGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -51,7 +51,9 @@ protected:
   vtkShrinkFilter(double sf=0.5);
   ~vtkShrinkFilter() {};
 
-  void Execute();
+  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int FillInputPortInformation(int port, vtkInformation *info);
+
   double ShrinkFactor;
 private:
   vtkShrinkFilter(const vtkShrinkFilter&);  // Not implemented.
