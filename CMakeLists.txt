@@ -37,7 +37,7 @@ SET(VTK_SIZEOF_SHORT  ${CMAKE_SIZEOF_SHORT})
 IF("VTK_COMPILER_HAS_BOOL" MATCHES "^VTK_COMPILER_HAS_BOOL$")
   MESSAGE(STATUS "Checking support for C++ type bool")
   TRY_COMPILE(VTK_COMPILER_HAS_BOOL
-              ${VTK_BINARY_DIR}
+              ${VTK_BINARY_DIR}/CMakeTmp/Bool
               ${VTK_SOURCE_DIR}/CMake/vtkTestBoolType.cxx
               OUTPUT_VARIABLE OUTPUT)
   IF(VTK_COMPILER_HAS_BOOL)
