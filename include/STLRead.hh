@@ -19,13 +19,15 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #ifndef __vlSTLReader_h
 #define __vlSTLReader_h
 
-#include "PolySrc.hh"
 #include <stdio.h>
+#include "PolySrc.hh"
+#include "FPoints.hh"
+#include "CellArr.hh"
 
 class vlSTLReader : public vlPolySource 
 {
 public:
-  vlSTLReader(char *fname=0);
+  vlSTLReader():Filename(0) {};
   char *GetClassName() {return "vlSTLReader";};
   void PrintSelf(ostream& os, vlIndent indent);
 
@@ -35,8 +37,8 @@ public:
 protected:
   char *Filename;
   void Execute();
-  void ReadBinarySTL(FILE *fp);
-  void ReadASCIISTL(FILE *fp);
+  void ReadBinarySTL(FILE *fp, vlFloatPoints*, vlCellArray*);
+  void ReadASCIISTL(FILE *fp, vlFloatPoints*, vlCellArray*);
   int GetSTLFileType(FILE *fp);
 };
 
