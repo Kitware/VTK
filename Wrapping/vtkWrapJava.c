@@ -535,7 +535,7 @@ void HandleDataArray(FILE *fp, FileInfo *data)
     jtype = "long";
     jfromtype = "Long";
     }
-  else if (!strcmp("vtkUnsignedShortrray",data->ClassName) )
+  else if (!strcmp("vtkUnsignedShortArray",data->ClassName) )
     {
     type = "unsigned short";
     fromtype = "UnsignedShort";
@@ -544,6 +544,7 @@ void HandleDataArray(FILE *fp, FileInfo *data)
     }
   else
     {
+    printf("%s is not a data array\n", data->ClassName);
     return;
     }
 
@@ -577,8 +578,6 @@ void HandleDataArray(FILE *fp, FileInfo *data)
   fprintf(fp,"  memcpy(op->GetVoidPointer(0), tempArray0, length*sizeof(%s));\n", type);
   fprintf(fp,"  env->Release%sArrayElements(id0,(j%s *)tempArray0,0);\n", jfromtype, jtype);
   fprintf(fp,"}\n");
-
-
 }
 
 

@@ -242,7 +242,7 @@ void HandleDataArray(FILE *fp, FileInfo *data)
     {
     type = "long";
     }
-  else if (!strcmp("vtkUnsignedShortrray",data->ClassName) )
+  else if (!strcmp("vtkUnsignedShortArray",data->ClassName) )
     {
     type = "short";
     }

@@ -45,7 +45,7 @@ public class Regression
       }
     System.out.println("]");
 
-    vtkShortArray narray = new vtkShortArray();
+    vtkUnsignedShortArray narray = new vtkUnsignedShortArray();
     narray.SetJavaArray(carray);
     System.out.print("[");
     for ( cc = 0; cc <= narray.GetMaxId(); cc ++ )

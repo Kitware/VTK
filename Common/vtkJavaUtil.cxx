@@ -623,6 +623,32 @@ JNIEXPORT jarray vtkJavaMakeJArrayOfUnsignedLongFromUnsignedLong(JNIEnv *env,uns
   return ret;
 }
 
+JNIEXPORT jarray vtkJavaMakeJArrayOfUnsignedShortFromUnsignedShort(JNIEnv *env,unsigned short *ptr,int size)
+{
+  cout.flush();
+  jshortArray ret;
+  int i;
+  jshort *array;
+
+  ret = env->NewShortArray(size);
+  if (ret == 0)
+    {
+    // should throw an exception here
+    return 0;
+    }
+
+  array = env->GetShortArrayElements(ret,NULL);
+
+  // copy the data
+  for (i = 0; i < size; i++)
+    {
+    array[i] = ptr[i];
+    }
+  
+  env->ReleaseShortArrayElements(ret,array,0);
+  return ret;
+}
+
 JNIEXPORT jarray vtkJavaMakeJArrayOfUnsignedCharFromUnsignedChar(JNIEnv *env,unsigned char *ptr,int size)
 {
   cout.flush();

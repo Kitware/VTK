@@ -50,6 +50,7 @@ extern JNIEXPORT jarray vtkJavaMakeJArrayOfByteFromChar(JNIEnv *env, char *arr, 
 extern JNIEXPORT jarray vtkJavaMakeJArrayOfCharFromChar(JNIEnv *env, char *arr, int size);
 extern JNIEXPORT jarray vtkJavaMakeJArrayOfUnsignedCharFromUnsignedChar(JNIEnv *env, unsigned char *arr, int size);
 extern JNIEXPORT jarray vtkJavaMakeJArrayOfUnsignedIntFromUnsignedInt(JNIEnv *env, unsigned int *arr, int size);
+extern JNIEXPORT jarray vtkJavaMakeJArrayOfUnsignedShortFromUnsignedShort(JNIEnv *env,unsigned short *ptr,int size);
 extern JNIEXPORT jarray vtkJavaMakeJArrayOfUnsignedLongFromUnsignedLong(JNIEnv *env, unsigned long *arr, int size);
 
 extern JNIEXPORT jobject vtkJavaCreateNewJavaStubForObject(JNIEnv *env, vtkObject* obj);
