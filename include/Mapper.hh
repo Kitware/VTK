@@ -13,7 +13,7 @@ class vlRenderer;
 class vlMapper : public vlObject 
 {
 public:
-  vlMapper() : StartRender(0), EndRender(0), Lut(0), ScalarsVisible(1) {};
+  vlMapper();
   ~vlMapper();
   virtual void Render(vlRenderer *) = 0;
   void SetStartRender(void (*f)());
@@ -26,12 +26,16 @@ public:
   vlGetMacro(ScalarsVisible,int);
   vlBooleanMacro(ScalarsVisible,int);
 
+  vlSetVector2Macro(ScalarRange,float)
+  vlGetVectorMacro(ScalarRange,float)
+
 protected:
   void (*StartRender)();
   void (*EndRender)();
   vlLookupTable *Lut;
   int ScalarsVisible;
   vlTimeStamp BuildTime;
+  float ScalarRange[2];
 
 };
 
