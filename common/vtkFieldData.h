@@ -129,7 +129,9 @@ public:
   int GetNumberOfComponents();
 
   // Description:
-  // Get the number of tuples in the field.
+  // Get the number of tuples in the field. Note: some fields have arrays with
+  // different numbers of tuples; this method returns the number of tuples in
+  // the first array. Mixed-length arrays may have to be treated specially.
   int GetNumberOfTuples();
 
   // Description:
