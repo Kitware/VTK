@@ -160,9 +160,9 @@ int TestEmpty(ostream &strm)
   strm<<"NewPointIterator() end"<<endl;
 
   double bounds[6];
-  double *b=0;
+  double *b;
   double center[3];
-  double *c=0;
+  double *c;
   const double epsilon=0.000001; // 10^{-6}
   
   strm<<"GetBounds() start"<<endl;
@@ -184,7 +184,7 @@ int TestEmpty(ostream &strm)
   
   strm<<"GetBounds() end"<<endl;
   
-  vtkGenericAttributeCollection *attributes=0;
+  vtkGenericAttributeCollection *attributes;
   attributes=ds->GetAttributes();
   MacroTest(strm,indent,"attributes exist",attributes!=0);
   MacroTest(strm,indent,"empty attributes",attributes->IsEmpty());
@@ -271,7 +271,7 @@ int TestEmpty(ostream &strm)
 int TestWithPoints(ostream &strm)
 {
   vtkIndent indent;
-  vtkPoints *pts=0;
+  vtkPoints *pts;
   
   // actual test
   strm << "Test vtkBridgeDataSet Start" << endl;
@@ -359,9 +359,9 @@ int TestWithPoints(ostream &strm)
   strm<<"NewPointIterator() end"<<endl;
 
   double bounds[6];
-  double *b=0;
+  double *b;
   double center[3];
-  double *c=0;
+  double *c;
   const double epsilon=0.000001; // 10^{-6}
   
   strm<<"GetBounds() start"<<endl;
@@ -384,7 +384,7 @@ int TestWithPoints(ostream &strm)
   MacroTest(strm,indent,"diagonal length",fabs(ds->GetLength()-sqrt(155.0))<epsilon);
   strm<<"GetBounds() end"<<endl;
    
-  vtkGenericAttributeCollection *attributes=0;
+  vtkGenericAttributeCollection *attributes;
   attributes=ds->GetAttributes();
   MacroTest(strm,indent,"attributes exist",attributes!=0);
   MacroTest(strm,indent,"empty attributes",attributes->IsEmpty());
@@ -472,7 +472,7 @@ int TestWithPoints(ostream &strm)
 int TestWithPointsAndCells(ostream &strm)
 {
   vtkIndent indent;
-  vtkPoints *pts=0;
+  vtkPoints *pts;
   
   // actual test
   strm << "----------------------------------------------------------" << endl;
@@ -604,7 +604,7 @@ int TestWithPointsAndCells(ostream &strm)
   int i;
   int count;
   vtkstd::string s;
-  vtkOStrStreamWrapper *ost=0;
+  vtkOStrStreamWrapper *ost;
   vtkGenericAdaptorCell *cab=0;
   
   while(itNum<itCount)
@@ -625,6 +625,7 @@ int TestWithPointsAndCells(ostream &strm)
       delete ost;
       ++i;
       cab=it->GetCell();
+      MacroTest(strm,indent,"cell at iterator position is set",cab!=0);
       it->Next();
       }
     ost=new vtkOStrStreamWrapper;
@@ -661,9 +662,9 @@ int TestWithPointsAndCells(ostream &strm)
   strm<<"NewPointIterator() end"<<endl;
 
   double bounds[6];
-  double *b=0;
+  double *b;
   double center[3];
-  double *c=0;
+  double *c;
   const double epsilon=0.000001; // 10^{-6}
   
   strm<<"GetBounds() start"<<endl;
@@ -737,6 +738,7 @@ int TestWithPointsAndCells(ostream &strm)
       while(!boundaries->IsAtEnd())
         {
         cab2=boundaries->GetCell();
+        MacroTest(strm,indent,"the cell at iterator position is set",cab2!=0);
         boundaries->Next();
         }
       --currentDim;
@@ -831,7 +833,7 @@ int TestWithPointsAndCells(ostream &strm)
 int TestWithPointsAndCellsAndPointData(ostream &strm)
 {
   vtkIndent indent;
-  vtkPoints *pts=0;
+  vtkPoints *pts;
   
   // actual test
   strm << "----------------------------------------------------------" << endl;
@@ -979,8 +981,8 @@ int TestWithPointsAndCellsAndPointData(ostream &strm)
   int i;
   int count;
   vtkstd::string s;
-  vtkOStrStreamWrapper *ost=0;
-  vtkGenericAdaptorCell *cab=0;
+  vtkOStrStreamWrapper *ost;
+  vtkGenericAdaptorCell *cab;
   
   while(itNum<itCount)
     {
@@ -1000,6 +1002,7 @@ int TestWithPointsAndCellsAndPointData(ostream &strm)
       delete ost;
       ++i;
       cab=it->GetCell();
+      MacroTest(strm,indent,"cell at current position is set",cab!=0);
       it->Next();
       }
     ost=new vtkOStrStreamWrapper;
@@ -1036,7 +1039,7 @@ int TestWithPointsAndCellsAndPointData(ostream &strm)
   strm<<"NewPointIterator() end"<<endl;
 
   double bounds[6];
-  double *b=0;
+  double *b;
   double center[3];
   double *c=0;
   const double epsilon=0.000001; // 10^{-6}
@@ -1134,7 +1137,7 @@ int TestWithPointsAndCellsAndPointData(ostream &strm)
   i=0;
   count=ds->GetNumberOfCells(-1);
   
-  vtkGenericAdaptorCell *cab2=0;
+  vtkGenericAdaptorCell *cab2;
   
   while(i<count)
     {
@@ -1151,6 +1154,7 @@ int TestWithPointsAndCellsAndPointData(ostream &strm)
       while(!boundaries->IsAtEnd())
         {
         cab2=boundaries->GetCell();
+        MacroTest(strm,indent,"the cell at iterator position is set",cab2!=0);
         boundaries->Next();
         }
       --currentDim;
