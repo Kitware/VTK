@@ -74,7 +74,7 @@ public:
 
   // Description:
   // Get the vtkTextMapper that defines the text to be drawn.
-  vtkTextMapper *GetMapper(void);
+  vtkMapper2D *GetMapper(void);
 
   // Description:
   // Set/Get the minimum size in pixels for this actor.
