@@ -213,9 +213,15 @@ void vtkObject::SetReferenceCount(int ref)
 void vtkObject::Register(vtkObject* o)
 {
   this->ReferenceCount++;
-  vtkDebugMacro(<< "Registered by " << o->GetClassName() << " (" << o 
-    << "), ReferenceCount = " << this->ReferenceCount);
-
+	if ( o )
+	{
+		vtkDebugMacro(<< "Registered by " << o->GetClassName() << " (" << o 
+			<< "), ReferenceCount = " << this->ReferenceCount);
+	}
+	else
+	{
+		vtkDebugMacro(<< "Registered by NULL, ReferenceCount = " << this->ReferenceCount);
+	}		
   if (this->ReferenceCount <= 0)
     {
     delete this;
