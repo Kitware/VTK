@@ -498,9 +498,9 @@ void vtkVoxelContoursToSurfaceFilter::Execute()
   int                  gridSize[3];
   float                gridOrigin[3];
   float                contourBounds[6];
-  int                  chunkSize, firstChunk = 1;
+  int                  chunkSize;
   int                  currentSlice, lastSlice, currentIndex;
-  int                  i, j, k;
+  int                  i, j;
   int                  numberOfInputCells;
   int                  currentInputCellIndex;
   int                  npts, *pts;

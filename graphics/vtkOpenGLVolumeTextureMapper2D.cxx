@@ -56,8 +56,6 @@ vtkOpenGLVolumeTextureMapper2D::~vtkOpenGLVolumeTextureMapper2D()
 void vtkOpenGLVolumeTextureMapper2D::Render(vtkRenderer *ren, vtkVolume *vol)
 {
   vtkMatrix4x4       *matrix = vtkMatrix4x4::New();
-  float              *bounds;
-  float              v[3];
   vtkTimerLog        *timer;
   vtkPlaneCollection *clipPlanes;
   vtkPlane           *plane;
