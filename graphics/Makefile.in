@@ -334,13 +334,13 @@ KIT_TCL_OBJ = vtkXRenderTclWindowInteractor.o ${TCL_OBJ} ${SRC_OBJ}
 KIT_NEWS = ${TCL_NEWS} 
 
 KIT_FLAGS = 
-PYTHON_LIBS = -L ../common -lVTKCommonPython ${XLIBS} ${GRAPHICS_API_LIBS} 
+PYTHON_LIBS = -L../common -lVTKCommonPython ${XLIBS} ${GRAPHICS_API_LIBS} 
 
 # add depend for contour filter on Makefile because when patented
 # setting changes this needs to be recompiled
 vtkContourFilter.o : Makefile
 
- 
+
 #------------------------------------------------------------------------------
 # Include the generic stuff here
 
