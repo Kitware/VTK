@@ -23,7 +23,7 @@
 
 #ifndef __vtkDynamicLoader_h
 #define __vtkDynamicLoader_h
-#include "vtkConfigure.h"
+#include "vtkObject.h"
 
 //BTX
 // Ugly stuff for library handles
@@ -32,14 +32,12 @@
 # include <dl.h>
   typedef shl_t vtkLibHandle;
 #elif defined(_WIN32)
-# include "vtkWin32Header.h"
   typedef HMODULE vtkLibHandle;
 #else
   typedef void* vtkLibHandle;
 #endif
 //ETX
 
-#include "vtkObject.h"
 
 
 class VTK_COMMON_EXPORT vtkDynamicLoader : public vtkObject
