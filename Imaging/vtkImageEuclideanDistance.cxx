@@ -70,7 +70,8 @@ vtkImageEuclideanDistance::vtkImageEuclideanDistance()
 
 //----------------------------------------------------------------------------
 // This extent of the components changes to real and imaginary values.
-void vtkImageEuclideanDistance::ExecuteInformation(vtkImageData *input, vtkImageData *output)
+void vtkImageEuclideanDistance::ExecuteInformation(vtkImageData *vtkNotUsed(input), 
+                                                   vtkImageData *output)
 {
   output->SetNumberOfScalarComponents(1);
   output->SetScalarType(VTK_FLOAT);
@@ -80,18 +81,14 @@ void vtkImageEuclideanDistance::ExecuteInformation(vtkImageData *input, vtkImage
 // This method tells the superclass that the whole input array is needed
 // to compute any output region.
 void vtkImageEuclideanDistance::ComputeInputUpdateExtent(int inExt[6], 
-                                                   int outExt[6])
+                                                         int outExt[6])
 {
-  int *extent;
-  
   memcpy(inExt, outExt, 6 * sizeof(int));
 
   // Assumes that the input update extent has been initialized to output ...
   if ( this->GetInput() != NULL ) 
     {
-    extent = this->GetInput()->GetWholeExtent();
-    inExt[this->Iteration*2] = extent[this->Iteration*2];
-    inExt[this->Iteration*2 + 1] = extent[this->Iteration*2 + 1];
+    this->GetInput()->GetWholeExtent(inExt);
     } 
   else 
     {
@@ -99,15 +96,13 @@ void vtkImageEuclideanDistance::ComputeInputUpdateExtent(int inExt[6],
     }
 }
 
-
 //----------------------------------------------------------------------------
 // This templated execute method handles any type input, but the output
 // is always floats.
 template <class TT>
 static void vtkImageEuclideanDistanceCopyData(vtkImageEuclideanDistance *self,
                          vtkImageData *inData, int inExt[6], TT *inPtr,
-                         vtkImageData *outData, int outExt[6], float *outPtr,
-                         int id)
+                         vtkImageData *outData, int outExt[6], float *outPtr )
 {
   int inInc0, inInc1, inInc2;
   TT *inPtr0, *inPtr1, *inPtr2;
@@ -155,8 +150,7 @@ template <class T>
 static
 void vtkImageEuclideanDistanceInitialize(vtkImageEuclideanDistance *self,
                          vtkImageData *inData, int inExt[6], T *inPtr,
-                         vtkImageData *outData, int outExt[6], float *outPtr,
-                         int id)
+                         vtkImageData *outData, int outExt[6], float *outPtr )
 {
   int inInc0, inInc1, inInc2;
   T *inPtr0, *inPtr1, *inPtr2;
@@ -212,8 +206,7 @@ void vtkImageEuclideanDistanceInitialize(vtkImageEuclideanDistance *self,
     {
     vtkImageEuclideanDistanceCopyData( self, 
                                        inData, inExt, (T *)(inPtr), 
-                                       outData, outExt, (float *)(outPtr), 
-                                       id);
+                                       outData, outExt, (float *)(outPtr) );
     }
 }
 
@@ -599,21 +592,29 @@ void vtkImageEuclideanDistanceExecuteSaitoCached(vtkImageEuclideanDistance *self
   free(temp);
   free(sq);
 }
-
+//----------------------------------------------------------------------------
+void vtkImageEuclideanDistance::AllocateOutputScalars(vtkImageData *outData)
+{
+  outData->SetExtent(outData->GetWholeExtent());
+  outData->AllocateScalars();
+}
 //----------------------------------------------------------------------------
 // This method is passed input and output Datas, and executes the EuclideanDistance
 // algorithm to fill the output from the input.
-void vtkImageEuclideanDistance::ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
-                                  int outExt[6], int threadId)
+void vtkImageEuclideanDistance::IterativeExecuteData(vtkImageData *inData,
+                                                     vtkImageData *outData)
 {
-  void *inPtr, *outPtr;
-  int inExt[6];
+  void *inPtr;
+  void *outPtr;
 
-  this->ComputeInputUpdateExtent(inExt, outExt);  
-  inPtr = inData->GetScalarPointerForExtent(inExt);
-  outPtr = outData->GetScalarPointerForExtent(outExt);
-
-  if(threadId==0) this->UpdateProgress((this->GetIteration()+1.0)/3.0);
+  vtkDebugMacro(<<"Executing image euclidean distance");
+  
+  int inExt[6], outExt[6];
+  outData->GetWholeExtent( outExt );
+  inData->GetWholeExtent(  inExt );
+  
+  inPtr = inData->GetScalarPointerForExtent(inData->GetUpdateExtent());
+  outPtr = outData->GetScalarPointer();
   
   // this filter expects that the output be floats.
   if (outData->GetScalarType() != VTK_FLOAT)
@@ -622,23 +623,22 @@ void vtkImageEuclideanDistance::ThreadedExecute(vtkImageData *inData, vtkImageDa
     return;
     }
   
-  // this filter expects input to have 1 or two components
+  // this filter expects input to have 1 components
   if (outData->GetNumberOfScalarComponents() != 1 )
     {
     vtkErrorMacro(<< "Execute: Cannot handle more than 1 components");
     return;
     }
   
-  // On first iteration, initialise data. 
+
   if ( this->GetIteration() == 0 )
     {
     switch (inData->GetScalarType())
       {
-      vtkTemplateMacro8(vtkImageEuclideanDistanceInitialize,
+      vtkTemplateMacro7(vtkImageEuclideanDistanceInitialize,
                         this, 
                         inData, inExt, (VTK_TT *)(inPtr), 
-                        outData, outExt, (float *)(outPtr), 
-                        threadId);
+                        outData, outExt, (float *)(outPtr) );
       default:
         vtkErrorMacro(<< "Execute: Unknown ScalarType");
         return;
@@ -649,11 +649,10 @@ void vtkImageEuclideanDistance::ThreadedExecute(vtkImageData *inData, vtkImageDa
     if( inData != outData )
       switch (inData->GetScalarType())
         {    
-        vtkTemplateMacro8(vtkImageEuclideanDistanceCopyData,
+        vtkTemplateMacro7(vtkImageEuclideanDistanceCopyData,
                           this, 
                           inData, inExt, (VTK_TT *)(inPtr), 
-                          outData, outExt, (float *)(outPtr), 
-                          threadId);
+                          outData, outExt, (float *)(outPtr) );
         }
     }
   
@@ -669,8 +668,9 @@ void vtkImageEuclideanDistance::ThreadedExecute(vtkImageData *inData, vtkImageDa
     default:
       vtkErrorMacro(<< "Execute: Unknown Algorithm");
     }
+  
+  this->UpdateProgress((this->GetIteration()+1.0)/3.0);
 }
-
 
 
 //----------------------------------------------------------------------------
