@@ -83,7 +83,7 @@ public:
   //virtual vtkAbstractIterator<KeyType,DataType> *NewIterator() = 0;
 
   typedef vtkContainer Superclass; 
-  virtual const char *GetClassName() 
+  virtual const char *GetClassName() const
     {return "vtkAbstractMap";} 
   static int IsTypeOf(const char *type) 
   { 

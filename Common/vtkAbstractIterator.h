@@ -74,6 +74,10 @@ public:
   void SetContainer(vtkContainer*);
 
   // Description:
+  // Get the associated container.
+  vtkContainer *GetContainer() { return this->Container; }
+
+  // Description:
   // Initialize the traversal of the container. 
   // Set the iterator to the "beginning" of the container.
   //virtual void InitTraversal()=0;
