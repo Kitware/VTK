@@ -33,7 +33,7 @@
 #include "vtkStructuredPointsReader.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkPDataSetReader, "1.18");
+vtkCxxRevisionMacro(vtkPDataSetReader, "1.19");
 vtkStandardNewMacro(vtkPDataSetReader);
 
 //----------------------------------------------------------------------------
@@ -120,6 +120,17 @@ void vtkPDataSetReader::SetNumberOfPieces(int num)
 void vtkPDataSetReader::SetOutput(vtkDataSet *output)
 {
   this->vtkSource::SetNthOutput(0, output);
+}
+
+//----------------------------------------------------------------------------
+vtkDataSet *vtkPDataSetReader::GetOutput(int idx)
+{
+  if (idx != 0)
+    {
+    vtkErrorMacro("This reader only has one output.");
+    return NULL;
+    }
+  return this->GetOutput();
 }
 
 //----------------------------------------------------------------------------
@@ -946,6 +957,7 @@ void vtkPDataSetReader::Execute()
     reader->SetFileName(this->FileName);
     reader->Update();
     vtkDataSet *data = reader->GetOutput();
+    data->Update();
     // Structured points giving me a pain.
     //this->DataType = data->GetDataObjectType();
      

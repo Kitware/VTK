@@ -34,6 +34,10 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
   vtkTypeRevisionMacro(vtkPDataSetReader,vtkSource);
   static vtkPDataSetReader *New();
+
+  // Description:
+  // Let everyone know we have one output before the output is set.
+  virtual int GetNumberOfOutputs() { return 1;}
   
   // Description:
   // This file to open and read.
@@ -44,7 +48,8 @@ public:
   // The output of this reader depends on the file choosen.
   // You cannot get the output until the filename is set.
   void SetOutput(vtkDataSet *output);
-  virtual vtkDataSet *GetOutput();
+  virtual vtkDataSet* GetOutput();
+  virtual vtkDataSet* GetOutput(int idx);
 
   // Description:
   // We need to define this so that the output gets created.
