@@ -1,21 +1,29 @@
 
-#ifndef DICOMParser_h_
-#define DICOMParser_h_
+#ifndef __DICOMPARSER_h_
+#define __DICOMPARSER_h_
 
-#ifdef WIN32
-#pragma warning(disable:4786)
-#endif
+#ifdef _MSC_VER 
+#pragma warning (push, 1) 
+#pragma warning (disable:4503)
+#pragma warning (disable:4514) 
+#pragma warning (disable:4702)
+#pragma warning (disable:4710) 
+#pragma warning (disable:4786)
+#endif 
 
 #include <map>
 #include <utility> 
 #include <fstream>
 #include <vector>
 
+#ifdef _MSC_VER 
+#pragma warning(pop) 
+#endif 
+
 #include "DICOMHeaderValues.h"
 #include "DICOMFile.h"
 #include "DICOMTypes.h"
 #include "DICOMParserMap.h"
-// #include "DICOMCallback.h"
 
 class DICOMCallback;
 template <class T> class DICOMMemberCallback;

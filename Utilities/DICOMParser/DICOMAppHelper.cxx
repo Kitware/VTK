@@ -1,19 +1,31 @@
 
+
 #ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4503)
-#endif
+#pragma warning (push, 1) 
+#pragma warning (disable:4503)
+#pragma warning (disable:4514) 
+#pragma warning (disable:4702)
+#pragma warning (disable:4710) 
+#pragma warning (disable:4786)
+#endif 
+
+
+#include <iomanip>
+#include <iostream>
+#include <string>
+#include <algorithm>
+
+
+#ifdef WIN32 
+#pragma warning(pop) 
+#endif 
 
 
 #include "DICOMAppHelper.h"
 #include "DICOMCallback.h"
 
-#include <iomanip>
-#include <iostream>
 #include <stdlib.h>
-#include <string>
 #include <math.h>
-#include <algorithm>
 
 //#define DEBUG_DICOM_APP_HELPER
 
@@ -300,8 +312,8 @@ void DICOMAppHelper::ArrayCallback(doublebyte group,
   int t2 = int((0x0000FF00 & datatype) >> 8);
   int t1 = int((0x000000FF & datatype));
 
-  char ct2(t2);
-  char ct1(t1);
+  char ct2 = static_cast<char>(t2);
+  char ct1 = static_cast<char>(t1);
 
     
   HeaderFile << "(0x";

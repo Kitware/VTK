@@ -1,13 +1,26 @@
 
+
 #ifdef WIN32
-#pragma warning(disable:4786)
-#endif
+#pragma warning (push, 1) 
+#pragma warning (disable:4503)
+#pragma warning (disable:4514) 
+#pragma warning (disable:4702)
+#pragma warning (disable:4710) 
+#pragma warning (disable:4786)
+#endif 
+
 
 #include <iostream>
 #include <fstream>
 #include <iomanip>
 #include <strstream>
 #include <string>
+
+
+#ifdef WIN32 
+#pragma warning(pop) 
+#endif 
+
 
 #include "DICOMFile.h"
 

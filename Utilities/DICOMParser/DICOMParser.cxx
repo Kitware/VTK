@@ -1,7 +1,23 @@
 
-#ifdef WIN32
-#pragma warning(disable:4786)
-#endif
+#ifdef WIN32 
+#pragma warning (push, 1) 
+#pragma warning (disable:4503)
+#pragma warning (disable:4514) 
+#pragma warning (disable:4702)
+#pragma warning (disable:4710) 
+#pragma warning (disable:4786)
+#endif 
+
+#include <string>
+#include <fstream>
+#include <map>
+#include <iomanip>
+
+
+#ifdef WIN32 
+#pragma warning(pop) 
+#endif 
+
 
 #include <stdlib.h>
 #if !defined(__MWERKS__)
@@ -12,12 +28,6 @@
 #if !defined(__MWERKS__)
 #include <sys/types.h>
 #endif
-
-#include <string>
-#include <fstream>
-#include <map>
-#include <iomanip>
-
 
 #include "DICOMParser.h"
 #include "DICOMCallback.h"
@@ -458,14 +468,14 @@ void DICOMParser::InitTypeMap()
     group = dicom_tags[i].group;
     element = dicom_tags[i].element;
     datatype = (VRTypes) dicom_tags[i].datatype;
-    TypeMap.insert(std::pair<DICOMMapKey, DICOMTypeValue>(DICOMMapKey(group, element), datatype));
+    TypeMap.insert(std::pair<DICOMMapKey, DICOMTypeValue>(DICOMMapKey(group, element), (unsigned short) datatype));
     }
 
 }
 
 void DICOMParser::SetDICOMTagCallbacks(doublebyte group, doublebyte element, VRTypes datatype, std::vector<DICOMCallback*>* cbVector)
 {
-  Map.insert(std::pair<DICOMMapKey, DICOMMapValue>(DICOMMapKey(group, element), DICOMMapValue((int)datatype, cbVector)));
+  Map.insert(std::pair<DICOMMapKey, DICOMMapValue>(DICOMMapKey(group, element), DICOMMapValue((unsigned short)datatype, cbVector)));
 }
 
 
@@ -491,8 +501,8 @@ void DICOMParser::DumpTag(std::ostream& out, doublebyte group, doublebyte elemen
     t2 = '?';
     }
 
-  char ct2(t2);
-  char ct1(t1);
+  char ct2 = static_cast<char> (t2);
+  char ct1 = static_cast<char> (t1);
     
   out << "(0x";
 

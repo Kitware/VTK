@@ -2,15 +2,28 @@
 #ifndef __DICOM_APP_HELPER_H_
 #define __DICOM_APP_HELPER_H_
 
-#include <fstream>
-#include "DICOMTypes.h"
-#include "DICOMParser.h"
-#include "DICOMCallback.h"
+#ifdef _MSC_VER 
+#pragma warning (push, 1) 
+#pragma warning (disable:4503)
+#pragma warning (disable:4514) 
+#pragma warning (disable:4702)
+#pragma warning (disable:4710) 
+#pragma warning (disable:4786)
+#endif 
 
+#include <fstream>
 #include <vector>
 #include <string>
 #include <iomanip>
 #include <iostream>
+
+#ifdef _MSC_VER 
+#pragma warning(pop) 
+#endif 
+
+#include "DICOMTypes.h"
+#include "DICOMParser.h"
+#include "DICOMCallback.h"
 
 struct ltstr
 {

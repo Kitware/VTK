@@ -1,14 +1,24 @@
 
-#ifdef WIN32
-#pragma warning(disable:4786)
-#endif
+#ifndef __DICOMFILE_H_
+#define __DICOMFILE_H_
 
-//#include <stdio.h>
-#include <stdlib.h>
+#ifdef WIN32 
+#pragma warning (push, 1) 
+#pragma warning (disable:4503)
+#pragma warning (disable:4514) 
+#pragma warning (disable:4702)
+#pragma warning (disable:4710) 
+#pragma warning (disable:4786)
+#endif 
+
 #include <iostream>
 #include <fstream>
 #include <strstream>
 #include <string>
+
+#ifdef WIN32
+#pragma warning(pop) 
+#endif 
 
 #include "DICOMTypes.h"
 
@@ -193,8 +203,8 @@ class DICOMFile
   //
   static ushort swapShort(ushort v)
   {
-    return (v << 8)
-      | (v >> 8);
+    return ushort((v << 8)
+      | (v >> 8));
   }
   
   // 
@@ -233,3 +243,8 @@ class DICOMFile
   //
   char* PlatformEndian;
 };
+
+
+#endif // __DICOM_FILE_H_
+
+
