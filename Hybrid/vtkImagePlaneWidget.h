@@ -6,49 +6,53 @@
   Date:      $Date$
   Version:   $Revision$
 
-  Copyright (c) 1993-2002 Ken Martin, Will Schroeder, Bill Lorensen 
+  Copyright (c) 1993-2002 Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
   See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImagePlaneWidget4 - 3D widget for reslicing image data
+// .NAME vtkImagePlaneWidget - 3D widget for reslicing image data
 // .SECTION Description
 // This 3D widget defines a plane that can be interactively placed in an
 // image volume. A nice feature of the object is that the
-// vtkImagePlaneWidget4, like any 3D widget, will work with the current
-// interactor style. That is, if vtkImagePlaneWidget4 does not handle an
+// vtkImagePlaneWidget, like any 3D widget, will work with the current
+// interactor style. That is, if vtkImagePlaneWidget does not handle an
 // event, then all other registered observers (including the interactor
 // style) have an opportunity to process the event. Otherwise, the
-// vtkImagePlaneWidget4 will terminate the processing of the event that it
+// vtkImagePlaneWidget will terminate the processing of the event that it
 // handles.
+//
+// The core functionality of the widget is provided by a vtkImageReslice
+// object which passes its output onto a texture mapping pipeline for fast
+// slicing through volumetric data. See the key methods: GenerateTexturePlane(),
+// UpdateOrigin() and UpdateNormal() for implementation details.
 //
 // To use this object, just invoke SetInteractor() with the argument of the
 // method a vtkRenderWindowInteractor.  You may also wish to invoke
 // "PlaceWidget()" to initially position the widget. If the "i" key (for
-// "interactor") is pressed, the vtkImagePlaneWidget4 will appear. (See
+// "interactor") is pressed, the vtkImagePlaneWidget will appear. (See
 // superclass documentation for information about changing this behavior.)
-// Selecting any part of the widget with the left mouse button enables
-// translation of the plane along its normal. (Once selected using left
+// Selecting any part of the widget with the middle mouse button enables
+// translation of the plane along its normal. (Once selected using middle
 // mouse, moving "up" in the middle moves the plane in the direction of the
 // normal; moving "down" moves it in the opposite direction.)
 // Window-level is achieved by using the right mouse button.
-// The middle mouse button can be used to query the underlying image data
-// with a cross-hair cursor.  Text display of window-level and image
+// The left mouse button can be used to query the underlying image data
+// with a cross-hair cursor. Text display of window-level and image
 // coordinates/data values are provided by a text actor/mapper pair.
 // Events that occur outside of the widget (i.e., no part of the widget is
 // picked) are propagated to any other registered obsevers (such as the
-// interaction style).
-// Turn off the widget by pressing the "i" key again (or invoke the
-// Off() method).
+// interaction style). Turn off the widget by pressing the "i" key again
+// (or invoke the Off() method).
 //
-// The vtkImagePlaneWidget4 has several methods that can be used in
+// The vtkImagePlaneWidget has several methods that can be used in
 // conjunction with other VTK objects. The GetPolyData() method can be used
-// to get the polygonal representation and can be used for things like
-// seeding stream lines. Typical usage of the widget is to make use of the
+// to get the polygonal representation of the plane and can be used as input
+// for other VTK objects. Typical usage of the widget is to make use of the
 // StartInteractionEvent, InteractionEvent, and EndInteractionEvent
 // events. The InteractionEvent is called on mouse motion; the other two
 // events are called on button down and button up (either left or right
@@ -56,10 +60,11 @@
 //
 // Some additional features of this class include the ability to control the
 // properties of the widget. You can set the properties of: the selected and
-// unselected representations of the plane's outline; the text properties of
-// the text actor via a text mapper; the cross-hair cursor. In addition there
-// are methods to constrain the plane so that it is aligned along the x-y-z
-// axes.
+// unselected representations of the plane's outline; the text actor via its
+// vtkTextProperty; the cross-hair cursor. In addition there are methods to
+// constrain the plane so that it is aligned along the x-y-z axes.  Finally,
+// one can specify the degree of interpolation (vtkImageReslice): nearest
+// neighbour, linear, and cubic.  Turning off texture interpolation
 
 // .SECTION Thanks
 // Thanks to Dean Inglis for developing and contributing this class.
@@ -196,8 +201,10 @@ public:
   vtkBooleanMacro(RestrictPlaneToVolume,int);
 
   // Description:
-  // Specify whether to interpolate the texture or not.
-  // Set before setting the vtkImageData imput. Default is On.
+  // Specify whether to interpolate the texture or not. When off, the
+  // reslice interpolation is nearest neighbour regardless of how the
+  // interpolation is set through the API. Set before setting the
+  // vtkImageData imput. Default is On.
   vtkSetMacro(TextureInterpolate,int);
   vtkGetMacro(TextureInterpolate,int);
   vtkBooleanMacro(TextureInterpolate,int);
