@@ -26,7 +26,7 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.1.2.14");
+vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.1.2.15");
 vtkStandardNewMacro(vtkStreamingDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, CONTINUE_EXECUTING, Integer);
@@ -353,9 +353,9 @@ vtkStreamingDemandDrivenPipeline
 int vtkStreamingDemandDrivenPipeline::PropagateUpdateExtent(int outputPort)
 {
   // Avoid infinite recursion.
-  if(this->InProcessUpstreamRequest)
+  if(this->InProcessRequest)
     {
-    vtkErrorMacro("PropagateUpdateExtent invoked during an upstream request.  "
+    vtkErrorMacro("PropagateUpdateExtent invoked during another request.  "
                   "Returning failure to algorithm "
                   << this->Algorithm->GetClassName() << "("
                   << this->Algorithm << ").");
@@ -401,11 +401,11 @@ int vtkStreamingDemandDrivenPipeline::PropagateUpdateExtent(int outputPort)
     // Request information from the algorithm.
     this->PrepareUpstreamRequest(REQUEST_UPDATE_EXTENT());
     this->GetRequestInformation()->Set(FROM_OUTPUT_PORT(), outputPort);
-    this->InProcessUpstreamRequest = 1;
-    result = this->Algorithm->ProcessUpstreamRequest(
+    this->InProcessRequest = 1;
+    result = this->Algorithm->ProcessRequest(
       this->GetRequestInformation(), this->GetInputInformation(),
       this->GetOutputInformation());
-    this->InProcessUpstreamRequest = 0;
+    this->InProcessRequest = 0;
 
     if(!result)
       {

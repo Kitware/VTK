@@ -29,7 +29,7 @@
 #include <vtkstd/set>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkAlgorithm, "1.1.2.4");
+vtkCxxRevisionMacro(vtkAlgorithm, "1.1.2.5");
 vtkStandardNewMacro(vtkAlgorithm);
 
 vtkCxxSetObjectMacro(vtkAlgorithm,Information,vtkInformation);
@@ -282,36 +282,18 @@ void vtkAlgorithm::SetExecutive(vtkExecutive* executive)
 }
 
 //----------------------------------------------------------------------------
-int vtkAlgorithm::ProcessUpstreamRequest(vtkInformation*,
-                                         vtkInformationVector* inVector,
-                                         vtkInformationVector* outVector)
+int vtkAlgorithm::ProcessRequest(vtkInformation*,
+                                 vtkInformationVector* inVector,
+                                 vtkInformationVector* outVector)
 {
   if(!inVector)
     {
-    vtkErrorMacro("ProcessUpstreamRequest called with NULL input vector.");
+    vtkErrorMacro("ProcessRequest called with NULL input vector.");
     return 0;
     }
   if(!outVector)
     {
-    vtkErrorMacro("ProcessUpstreamRequest called with NULL output vector.");
-    return 0;
-    }
-  return 1;
-}
-
-//----------------------------------------------------------------------------
-int vtkAlgorithm::ProcessDownstreamRequest(vtkInformation*,
-                                           vtkInformationVector* inVector,
-                                           vtkInformationVector* outVector)
-{
-  if(!inVector)
-    {
-    vtkErrorMacro("ProcessDownstreamRequest called with NULL input vector.");
-    return 0;
-    }
-  if(!outVector)
-    {
-    vtkErrorMacro("ProcessDownstreamRequest called with NULL output vector.");
+    vtkErrorMacro("ProcessRequest called with NULL output vector.");
     return 0;
     }
   return 1;

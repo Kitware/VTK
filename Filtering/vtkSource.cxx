@@ -26,7 +26,7 @@
 
 #include "vtkImageData.h"
 
-vtkCxxRevisionMacro(vtkSource, "1.4.2.7");
+vtkCxxRevisionMacro(vtkSource, "1.4.2.8");
 
 #ifndef NULL
 #define NULL 0
@@ -542,75 +542,9 @@ void vtkSource::SetNumberOfOutputPorts(int n)
 }
 
 //----------------------------------------------------------------------------
-int vtkSource::ProcessUpstreamRequest(vtkInformation* request,
-                                      vtkInformationVector*,
-                                      vtkInformationVector*)
-{
-  if(request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
-    {
-    int i;
-    for(i=0; i < this->NumberOfOutputs; ++i)
-      {
-      vtkInformation* info =
-        this->GetExecutive()->GetOutputInformation(this, i);
-      this->SetNthOutput(i, info->Get(vtkDataObject::DATA_OBJECT()));
-      }
-
-    // If the user defines a ComputeInputUpdateExtent method, we want
-    // RequestExactUpdateExtent to be off by default (User does
-    // nothing else).  Otherwise, the ComputeInputUpdateExtent in this
-    // superclass sets RequestExactExtent to on.  The reason for this
-    // initialization here is if this sources shares an input with
-    // another, we do not want the input's RequestExactExtent "state"
-    // to interfere with each other.
-    for(i=0; i < this->NumberOfInputs; ++i)
-      {
-      if(this->Inputs[i])
-        {
-        this->Inputs[i]->RequestExactExtentOff();
-        }
-      }
-
-    // Check inputs.
-    if(this->NumberOfRequiredInputs > 0 &&
-       this->GetNumberOfInputPorts() < 1)
-      {
-      vtkErrorMacro("This filter requires " << this->NumberOfRequiredInputs
-                    << " input(s) but has no input ports.  A call to "
-                    << "SetNumberOfInputPorts and an implementation of "
-                    << "FillInputPortInformation may need to be added to "
-                    << "this class.");
-      return 0;
-      }
-
-    int outputPort =
-      request->Get(vtkDemandDrivenPipeline::FROM_OUTPUT_PORT());
-    vtkDataObject* fromOutput = 0;
-    if(outputPort >= 0)
-      {
-      fromOutput = this->Outputs[outputPort];
-      }
-
-    // Give the subclass a chance to request a larger extent on the
-    // inputs. This is necessary when, for example, a filter requires
-    // more data at the "internal" boundaries to produce the boundary
-    // values - such as an image filter that derives a new pixel value
-    // by applying some operation to a neighborhood of surrounding
-    // original values.
-    vtkDebugMacro("ProcessUpstreamRequest(REQUEST_UPDATE_EXTENT) "
-                  "calling ComputeInputUpdateExtents using output port "
-                  << outputPort);
-    this->ComputeInputUpdateExtents(fromOutput);
-
-    return 1;
-    }
-  return 0;
-}
-
-//----------------------------------------------------------------------------
-int vtkSource::ProcessDownstreamRequest(vtkInformation* request,
-                                        vtkInformationVector*,
-                                        vtkInformationVector* outputVector)
+int vtkSource::ProcessRequest(vtkInformation* request,
+                              vtkInformationVector*,
+                              vtkInformationVector* outputVector)
 {
   if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA_OBJECT()))
     {
@@ -618,7 +552,7 @@ int vtkSource::ProcessDownstreamRequest(vtkInformation* request,
     // because they are needed for connections.
     return 1;
     }
-  if(request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
+  else if(request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
     {
     // Make sure the outputs are synchronized between the old and new
     // style pipelines.
@@ -630,7 +564,7 @@ int vtkSource::ProcessDownstreamRequest(vtkInformation* request,
       this->SetNthOutput(i, info->Get(vtkDataObject::DATA_OBJECT()));
       }
 
-    vtkDebugMacro("ProcessDownstreamRequest(REQUEST_INFORMATION) "
+    vtkDebugMacro("ProcessRequest(REQUEST_INFORMATION) "
                   "calling ExecuteInformation.");
 
     // for image data copy the wbb into origin and spacing
@@ -684,6 +618,64 @@ int vtkSource::ProcessDownstreamRequest(vtkInformation* request,
       }
     return 1;
     }
+  else if(request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
+    {
+    int i;
+    for(i=0; i < this->NumberOfOutputs; ++i)
+      {
+      vtkInformation* info =
+        this->GetExecutive()->GetOutputInformation(this, i);
+      this->SetNthOutput(i, info->Get(vtkDataObject::DATA_OBJECT()));
+      }
+
+    // If the user defines a ComputeInputUpdateExtent method, we want
+    // RequestExactUpdateExtent to be off by default (User does
+    // nothing else).  Otherwise, the ComputeInputUpdateExtent in this
+    // superclass sets RequestExactExtent to on.  The reason for this
+    // initialization here is if this sources shares an input with
+    // another, we do not want the input's RequestExactExtent "state"
+    // to interfere with each other.
+    for(i=0; i < this->NumberOfInputs; ++i)
+      {
+      if(this->Inputs[i])
+        {
+        this->Inputs[i]->RequestExactExtentOff();
+        }
+      }
+
+    // Check inputs.
+    if(this->NumberOfRequiredInputs > 0 &&
+       this->GetNumberOfInputPorts() < 1)
+      {
+      vtkErrorMacro("This filter requires " << this->NumberOfRequiredInputs
+                    << " input(s) but has no input ports.  A call to "
+                    << "SetNumberOfInputPorts and an implementation of "
+                    << "FillInputPortInformation may need to be added to "
+                    << "this class.");
+      return 0;
+      }
+
+    int outputPort =
+      request->Get(vtkDemandDrivenPipeline::FROM_OUTPUT_PORT());
+    vtkDataObject* fromOutput = 0;
+    if(outputPort >= 0)
+      {
+      fromOutput = this->Outputs[outputPort];
+      }
+
+    // Give the subclass a chance to request a larger extent on the
+    // inputs. This is necessary when, for example, a filter requires
+    // more data at the "internal" boundaries to produce the boundary
+    // values - such as an image filter that derives a new pixel value
+    // by applying some operation to a neighborhood of surrounding
+    // original values.
+    vtkDebugMacro("ProcessRequest(REQUEST_UPDATE_EXTENT) "
+                  "calling ComputeInputUpdateExtents using output port "
+                  << outputPort);
+    this->ComputeInputUpdateExtents(fromOutput);
+
+    return 1;
+    }
   else if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
     {
     // Make sure the outputs are synchronized between the old and new
@@ -709,7 +701,7 @@ int vtkSource::ProcessDownstreamRequest(vtkInformation* request,
       return 0;
       }
 
-    vtkDebugMacro("ProcessDownstreamRequest(REQUEST_DATA) "
+    vtkDebugMacro("ProcessRequest(REQUEST_DATA) "
                   "calling ExecuteData for output port " << outputPort);
 
     // Prepare to execute the filter.

@@ -153,8 +153,7 @@ protected:
   vtkTimeStamp InformationTime;
   vtkTimeStamp DataTime;
 
-  int InProcessDownstreamRequest;
-  int InProcessUpstreamRequest;
+  int InProcessRequest;
 
 private:
   vtkDemandDrivenPipelineInternals* DemandDrivenInternal;

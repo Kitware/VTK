@@ -37,8 +37,9 @@ public:
   vtkGetMacro(MemoryLimit, unsigned long);  
   
   // See the vtkAlgorithm for a desciption of what these do
-  int ProcessUpstreamRequest(vtkInformation *, vtkInformationVector *, 
-                              vtkInformationVector *);
+  int ProcessRequest(vtkInformation*,
+                     vtkInformationVector*,
+                     vtkInformationVector*);
 
 protected:
   vtkMemoryLimitImageDataStreamer();

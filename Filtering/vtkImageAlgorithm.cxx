@@ -24,7 +24,7 @@
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageAlgorithm, "1.1.2.8");
+vtkCxxRevisionMacro(vtkImageAlgorithm, "1.1.2.9");
 
 //----------------------------------------------------------------------------
 vtkImageAlgorithm::vtkImageAlgorithm()
@@ -75,11 +75,10 @@ void vtkImageAlgorithm::ExecuteData(
   this->ExecuteData( outInfo->Get(vtkDataObject::DATA_OBJECT()) );
 }
 
-
-int vtkImageAlgorithm::ProcessDownstreamRequest(
-  vtkInformation *request, 
-  vtkInformationVector *inputVector, 
-  vtkInformationVector *outputVector)
+//----------------------------------------------------------------------------
+int vtkImageAlgorithm::ProcessRequest(vtkInformation* request,
+                                      vtkInformationVector* inputVector,
+                                      vtkInformationVector* outputVector)
 {
   // generate the data
   if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
@@ -137,8 +136,14 @@ int vtkImageAlgorithm::ProcessDownstreamRequest(
     return 1;
     }
 
-  return this->Superclass::ProcessDownstreamRequest(request, inputVector,
-                                                    outputVector);
+  // propagate update extent
+  if(request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
+    {
+    this->ComputeInputUpdateExtent(request, inputVector, outputVector);
+    return 1;
+    }
+
+  return this->Superclass::ProcessRequest(request, inputVector, outputVector);
 }
 
 //----------------------------------------------------------------------------
@@ -170,23 +175,6 @@ void vtkImageAlgorithm::ComputeInputUpdateExtent(
 {
   // do nothing let subclasses handle it
 }
-
-int vtkImageAlgorithm::ProcessUpstreamRequest(
-  vtkInformation *request, 
-  vtkInformationVector *inputVector, 
-  vtkInformationVector *outputVector)
-{
-  // execute information
-  if(request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
-    {
-    this->ComputeInputUpdateExtent(request, inputVector, outputVector);
-    return 1;
-    }
-
-  return this->Superclass::ProcessUpstreamRequest(request, inputVector,
-                                                  outputVector);
-}
-
 
 //----------------------------------------------------------------------------
 void vtkImageAlgorithm::AllocateOutputData(vtkImageData *output, 

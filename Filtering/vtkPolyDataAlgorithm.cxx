@@ -22,7 +22,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTrivialProducer.h"
 
-vtkCxxRevisionMacro(vtkPolyDataAlgorithm, "1.1.2.4");
+vtkCxxRevisionMacro(vtkPolyDataAlgorithm, "1.1.2.5");
 vtkStandardNewMacro(vtkPolyDataAlgorithm);
 
 //----------------------------------------------------------------------------
@@ -126,10 +126,10 @@ void vtkPolyDataAlgorithm::AddInput(int index, vtkDataObject* input)
     }
 }
 
-int vtkPolyDataAlgorithm::ProcessDownstreamRequest(
-  vtkInformation *request, 
-  vtkInformationVector *inputVector, 
-  vtkInformationVector *outputVector)
+//----------------------------------------------------------------------------
+int vtkPolyDataAlgorithm::ProcessRequest(vtkInformation* request,
+                                         vtkInformationVector* inputVector,
+                                         vtkInformationVector* outputVector)
 {
   // generate the data
   if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
@@ -167,8 +167,7 @@ int vtkPolyDataAlgorithm::ProcessDownstreamRequest(
     return 1;
     }
 
-  return this->Superclass::ProcessDownstreamRequest(request, inputVector,
-                                                    outputVector);
+  return this->Superclass::ProcessRequest(request, inputVector, outputVector);
 }
 
 int vtkPolyDataAlgorithm::FillOutputPortInformation(

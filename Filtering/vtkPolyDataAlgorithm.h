@@ -62,9 +62,9 @@ public:
 
   // Description:
   // see vtkAlgorithm for details
-  virtual int ProcessDownstreamRequest(vtkInformation *, 
-                                       vtkInformationVector *, 
-                                       vtkInformationVector *);
+  virtual int ProcessRequest(vtkInformation*,
+                             vtkInformationVector*,
+                             vtkInformationVector*);
 
   // this method is not recommended for use, but lots of old style filters
   // use it

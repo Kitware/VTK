@@ -38,12 +38,9 @@ public:
   // Process upstream/downstream requests trivially.  The associated
   // output data object is never modified, but it is queried to
   // fulfill requests.
-  virtual int ProcessUpstreamRequest(vtkInformation*,
-                                     vtkInformationVector*,
-                                     vtkInformationVector*);
-  virtual int ProcessDownstreamRequest(vtkInformation*,
-                                       vtkInformationVector*,
-                                       vtkInformationVector*);
+  virtual int ProcessRequest(vtkInformation*,
+                             vtkInformationVector*,
+                             vtkInformationVector*);
 
   // Description:
   // Set the data object that is "produced" by this producer.  It is

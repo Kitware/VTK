@@ -49,10 +49,9 @@ public:
   vtkGetObjectMacro(ExtentTranslator,vtkExtentTranslator);
   
   // See the vtkAlgorithm for a desciption of what these do
-  int ProcessUpstreamRequest(vtkInformation *, vtkInformationVector *, 
-                              vtkInformationVector *);
-  int ProcessDownstreamRequest(vtkInformation *, vtkInformationVector *, 
-                                vtkInformationVector *);
+  int ProcessRequest(vtkInformation*,
+                     vtkInformationVector*,
+                     vtkInformationVector*);
 
 protected:
   vtkImageDataStreamer();

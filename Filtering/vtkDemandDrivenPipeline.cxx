@@ -38,7 +38,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.1.2.11");
+vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.1.2.12");
 vtkStandardNewMacro(vtkDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkDemandDrivenPipeline, DOWNSTREAM_KEYS_TO_COPY, KeyVector);
@@ -67,8 +67,7 @@ public:
 vtkDemandDrivenPipeline::vtkDemandDrivenPipeline()
 {
   this->DemandDrivenInternal = new vtkDemandDrivenPipelineInternals;
-  this->InProcessDownstreamRequest = 0;
-  this->InProcessUpstreamRequest = 0;
+  this->InProcessRequest = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -259,9 +258,9 @@ int vtkDemandDrivenPipeline::UpdateDataObject()
 {
   // Avoid infinite recursion.
 #if 0
-  if(this->InProcessDownstreamRequest)
+  if(this->InProcessRequest)
     {
-    vtkErrorMacro("UpdateDataObject invoked during a downstream request.  "
+    vtkErrorMacro("UpdateDataObject invoked during another request.  "
                   "Returning failure to algorithm "
                   << this->Algorithm->GetClassName() << "("
                   << this->Algorithm << ").");
@@ -331,9 +330,9 @@ int vtkDemandDrivenPipeline::UpdateDataObject()
 int vtkDemandDrivenPipeline::UpdateInformation()
 {
   // Avoid infinite recursion.
-  if(this->InProcessDownstreamRequest)
+  if(this->InProcessRequest)
     {
-    vtkErrorMacro("UpdateInformation invoked during a downstream request.  "
+    vtkErrorMacro("UpdateInformation invoked during another request.  "
                   "Returning failure to algorithm "
                   << this->Algorithm->GetClassName() << "("
                   << this->Algorithm << ").");
@@ -402,9 +401,9 @@ int vtkDemandDrivenPipeline::UpdateInformation()
 int vtkDemandDrivenPipeline::UpdateData(int outputPort)
 {
   // Avoid infinite recursion.
-  if(this->InProcessDownstreamRequest)
+  if(this->InProcessRequest)
     {
-    vtkErrorMacro("UpdateData invoked during a downstream request.  "
+    vtkErrorMacro("UpdateData invoked during another request.  "
                   "Returning failure to algorithm "
                   << this->Algorithm->GetClassName() << "("
                   << this->Algorithm << ").");
@@ -521,11 +520,11 @@ int vtkDemandDrivenPipeline::ExecuteDataObject()
 {
   this->PrepareDownstreamRequest(REQUEST_DATA_OBJECT());
 
-  this->InProcessDownstreamRequest = 1;
-  int result = this->Algorithm->ProcessDownstreamRequest(
+  this->InProcessRequest = 1;
+  int result = this->Algorithm->ProcessRequest(
     this->GetRequestInformation(), this->GetInputInformation(),
     this->GetOutputInformation());
-  this->InProcessDownstreamRequest = 0;
+  this->InProcessRequest = 0;
 
   // Make sure a valid data object exists for all output ports.
   for(int i=0; i < this->Algorithm->GetNumberOfOutputPorts(); ++i)
@@ -547,12 +546,12 @@ int vtkDemandDrivenPipeline::ExecuteInformation()
   // Setup default information for the outputs.
   this->CopyDefaultDownstreamInformation();
 
-  this->InProcessDownstreamRequest = 1;
-  int result = this->Algorithm->ProcessDownstreamRequest(
+  this->InProcessRequest = 1;
+  int result = this->Algorithm->ProcessRequest(
     this->GetRequestInformation(), this->GetInputInformation(),
     this->GetOutputInformation());
 
-  this->InProcessDownstreamRequest = 0;
+  this->InProcessRequest = 0;
   return result;
 }
 
@@ -561,11 +560,11 @@ int vtkDemandDrivenPipeline::ExecuteData(int outputPort)
 {
   this->PrepareDownstreamRequest(REQUEST_DATA());
   this->GetRequestInformation()->Set(FROM_OUTPUT_PORT(), outputPort);
-  this->InProcessDownstreamRequest = 1;
-  int result = this->Algorithm->ProcessDownstreamRequest(
+  this->InProcessRequest = 1;
+  int result = this->Algorithm->ProcessRequest(
     this->GetRequestInformation(), this->GetInputInformation(),
     this->GetOutputInformation());
-  this->InProcessDownstreamRequest = 0;
+  this->InProcessRequest = 0;
   return result;
 }
 

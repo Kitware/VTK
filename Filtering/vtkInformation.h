@@ -18,8 +18,7 @@
 // one output of a vtkAlgorithm.  It maps from keys to values of
 // several data types.  Instances of this class are collected in
 // vtkInformationVector instances and passed to
-// vtkAlgorithm::ProcessUpstreamRequest and
-// vtkAlgorithm::ProcessDownstreamRequest calls.  The information and
+// vtkAlgorithm::ProcessRequest calls.  The information and
 // data referenced by the instance on a particular input or output
 // define the request made to the vtkAlgorithm instance.
 

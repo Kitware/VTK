@@ -22,7 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageDataStreamer, "1.31.2.2");
+vtkCxxRevisionMacro(vtkImageDataStreamer, "1.31.2.3");
 vtkStandardNewMacro(vtkImageDataStreamer);
 vtkCxxSetObjectMacro(vtkImageDataStreamer,ExtentTranslator,vtkExtentTranslator);
 
@@ -93,12 +93,38 @@ int vtkImageDataStreamer::FillInputPortInformation(
   return retVal;
 }
 
-int vtkImageDataStreamer::ProcessUpstreamRequest(
-  vtkInformation *request, 
-  vtkInformationVector *inputVector, 
-  vtkInformationVector *outputVector)
+//----------------------------------------------------------------------------
+int vtkImageDataStreamer::ProcessRequest(vtkInformation* request,
+                                         vtkInformationVector* inputVector,
+                                         vtkInformationVector* outputVector)
 {
-  if(request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
+  // this is basically execute information
+  if(request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
+    {
+    vtkDebugMacro("ProcessRequest(REQUEST_INFORMATION) "
+                  "calling ExecuteInformation.");
+
+    // Ask the subclass to fill in the information for the outputs.
+    this->InvokeEvent(vtkCommand::ExecuteInformationEvent, NULL);
+
+    // information, we just need to change any that should be different from
+    // the input
+    vtkInformation* outInfo = outputVector->GetInformationObject(0);
+
+    // make sure the output is there
+    vtkDataObject *output = 
+      vtkImageData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
+    
+    if (!output)
+      {
+      output = vtkImageData::New();
+      outInfo->Set(vtkDataObject::DATA_OBJECT(), output);
+      output->Delete();
+      }
+    return 1;
+    }
+
+  else if(request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
     {
     // we must set the extent on the input
     vtkInformation* outInfo = outputVector->GetInformationObject(0);
@@ -126,41 +152,6 @@ int vtkImageDataStreamer::ProcessUpstreamRequest(
     
     return 1;
     }
-  return this->Superclass::ProcessUpstreamRequest(request, inputVector,
-                                                  outputVector);
-}
-
-int vtkImageDataStreamer::ProcessDownstreamRequest(
-  vtkInformation *request, 
-  vtkInformationVector *inputVector, 
-  vtkInformationVector *outputVector)
-{
-  // this is basically execute information
-  if(request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
-    {
-    vtkDebugMacro("ProcessDownstreamRequest(REQUEST_INFORMATION) "
-                  "calling ExecuteInformation.");
-
-    // Ask the subclass to fill in the information for the outputs.
-    this->InvokeEvent(vtkCommand::ExecuteInformationEvent, NULL);
-
-    // information, we just need to change any that should be different from
-    // the input
-    vtkInformation* outInfo = outputVector->GetInformationObject(0);
-
-    // make sure the output is there
-    vtkDataObject *output = 
-      vtkImageData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
-    
-    if (!output)
-      {
-      output = vtkImageData::New();
-      outInfo->Set(vtkDataObject::DATA_OBJECT(), output);
-      output->Delete();
-      }
-    return 1;
-    }
-
   
   // generate the data
   else if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
@@ -221,8 +212,5 @@ int vtkImageDataStreamer::ProcessDownstreamRequest(
     
     return 1;
     }
-  return this->Superclass::ProcessDownstreamRequest(request, inputVector,
-                                                    outputVector);
+  return this->Superclass::ProcessRequest(request, inputVector, outputVector);
 }
-
-

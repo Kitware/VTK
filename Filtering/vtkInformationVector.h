@@ -18,8 +18,7 @@
 // vtkInformationVector stores a vector of zero or more vtkInformation
 // objects corresponding to the input or output information for a
 // vtkAlgorithm.  An instance of this class is passed to
-// vtkAlgorithm::ProcessUpstreamRequest and
-// vtkAlgorithm::ProcessDownstreamRequest calls.
+// vtkAlgorithm::ProcessRequest calls.
 
 #ifndef __vtkInformationVector_h
 #define __vtkInformationVector_h

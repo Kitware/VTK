@@ -66,31 +66,24 @@ public:
   // Upstream/Downstream requests form the generalized interface
   // through which executives invoke a algorithm's functionality.
   // Upstream requests correspond to information flow from the
-  // algorithm's outputs to its inputs.
+  // algorithm's outputs to its inputs.  Downstream requests
+  // correspond to information flow from the algorithm's inputs to its
+  // outputs.
+  //
+  // A downstream request is defined by the contents of the request
+  // information object.  The input to the request is stored in the
+  // input information vector passed to ProcessRequest.  The results
+  // of an downstream request are stored in the output information
+  // vector passed to ProcessRequest.
   //
   // An upstream request is defined by the contents of the request
   // information object.  The input to the request is stored in the
-  // output information vector passed to ProcessUpstreamRequest.  The
-  // results of an upstream request are stored in the input
-  // information vector passed to ProcessUpstreamRequest.
-  virtual int ProcessUpstreamRequest(vtkInformation* request,
-                                     vtkInformationVector* inInfo,
-                                     vtkInformationVector* outInfo);
-
-  // Description:
-  // Upstream/Downstream requests form the generalized interface
-  // through which executives invoke a algorithm's functionality.
-  // Downstream requests correspond to information flow from the
-  // algorithm's inputs to its outputs.
-  //
-  // An downstream request is defined by the contents of the request
-  // information object.  The input to the request is stored in the
-  // input information vector passed to ProcessDownstreamRequest.  The
-  // results of an downstream request are stored in the output
-  // information vector passed to ProcessDownstreamRequest.
-  virtual int ProcessDownstreamRequest(vtkInformation* request,
-                                       vtkInformationVector* inInfo,
-                                       vtkInformationVector* outInfo);
+  // output information vector passed to ProcessRequest.  The results
+  // of an upstream request are stored in the input information vector
+  // passed to ProcessRequest.
+  virtual int ProcessRequest(vtkInformation* request,
+                             vtkInformationVector* inInfo,
+                             vtkInformationVector* outInfo);
 
   // Description:
   // Get the information object associated with an input port.  There

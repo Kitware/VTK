@@ -52,12 +52,9 @@ public:
 
   // Description:
   // see vtkAlgorithm for details
-  virtual int ProcessDownstreamRequest(vtkInformation *, 
-                                       vtkInformationVector *, 
-                                       vtkInformationVector *);
-  virtual int ProcessUpstreamRequest(vtkInformation *, 
-                                     vtkInformationVector *, 
-                                     vtkInformationVector *);
+  virtual int ProcessRequest(vtkInformation*,
+                             vtkInformationVector*,
+                             vtkInformationVector*);
 
   // Description:
   // Turn release data flag on or off for all output ports.
