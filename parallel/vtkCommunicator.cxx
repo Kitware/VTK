@@ -181,31 +181,31 @@ int vtkCommunicator::Send(vtkDataArray* data, int remoteHandle, int tag)
     {
 
     case VTK_CHAR:
-      return SendDataArray(static_cast<char*>(data->GetVoidPointer(type)), 
+      return SendDataArray(static_cast<char*>(data->GetVoidPointer(0)), 
 			  size, remoteHandle, tag, this);
 
     case VTK_UNSIGNED_CHAR:
-      return SendDataArray(static_cast<unsigned char*>(data->GetVoidPointer(type)), 
+      return SendDataArray(static_cast<unsigned char*>(data->GetVoidPointer(0)), 
 			  size, remoteHandle, tag, this);
 
     case VTK_INT:
-      return SendDataArray(static_cast<int*>(data->GetVoidPointer(type)), 
+      return SendDataArray(static_cast<int*>(data->GetVoidPointer(0)), 
 			  size, remoteHandle, tag, this);
 
     case VTK_UNSIGNED_LONG:
-      return SendDataArray(static_cast<unsigned long*>(data->GetVoidPointer(type)), 
+      return SendDataArray(static_cast<unsigned long*>(data->GetVoidPointer(0)), 
 			  size, remoteHandle, tag, this);
 
     case VTK_FLOAT:
-      return SendDataArray(static_cast<float*>(data->GetVoidPointer(type)), 
+      return SendDataArray(static_cast<float*>(data->GetVoidPointer(0)), 
 			  size, remoteHandle, tag, this);
 
     case VTK_DOUBLE:
-      return SendDataArray(static_cast<double*>(data->GetVoidPointer(type)), 
+      return SendDataArray(static_cast<double*>(data->GetVoidPointer(0)), 
 			  size, remoteHandle, tag, this);
 
     case VTK_ID_TYPE:
-      return SendDataArray(static_cast<vtkIdType*>(data->GetVoidPointer(type)), 
+      return SendDataArray(static_cast<vtkIdType*>(data->GetVoidPointer(0)), 
 			  size, remoteHandle, tag, this);
 
     default:
@@ -295,7 +295,7 @@ int vtkCommunicator::Receive(vtkDataArray* data, int remoteHandle,
   // Next receive the length of the name.
   this->Receive( &nameLength, 1, remoteHandle, tag);
 
-  char *str = new char[nameLength]; // maybe a little extra?
+  char *str = new char[nameLength]; 
   this->DeleteAndSetMarshalString(str, nameLength);
   
   // Receive the name
@@ -320,43 +320,44 @@ int vtkCommunicator::Receive(vtkDataArray* data, int remoteHandle,
     case VTK_CHAR:
       c = new char[size];
       this->Receive(c, size, remoteHandle, tag);
-      static_cast<vtkCharArray*>(data)->SetArray(c, size, 1);
+      static_cast<vtkCharArray*>(data)->SetArray(c, size, 0);
       break;
 
     case VTK_UNSIGNED_CHAR:
       uc = new unsigned char[size];
       this->Receive(uc, size, remoteHandle, tag);
-      static_cast<vtkUnsignedCharArray*>(data)->SetArray(uc, size, 1);
+      static_cast<vtkUnsignedCharArray*>(data)->SetArray(uc, size, 0);
       break;
 
     case VTK_INT:
       i = new int[size];
       this->Receive(i, size, remoteHandle, tag);
-      static_cast<vtkIntArray*>(data)->SetArray(i, size, 1);
+      static_cast<vtkIntArray*>(data)->SetArray(i, size, 0);
       break;
 
     case VTK_UNSIGNED_LONG:
       ul = new unsigned long[size];
       this->Receive(ul, size, remoteHandle, tag);
-      static_cast<vtkUnsignedLongArray*>(data)->SetArray(ul, size, 1);
+      static_cast<vtkUnsignedLongArray*>(data)->SetArray(ul, size, 0);
       break;
 
     case VTK_FLOAT:
       f = new float[size];
       this->Receive(f, size, remoteHandle, tag);
-      static_cast<vtkFloatArray*>(data)->SetArray(f, size, 1);
+      static_cast<vtkFloatArray*>(data)->SetArray(f, size, 0);
       break;
 
     case VTK_DOUBLE:
+
       d = new double[size];
       this->Receive(d, size, remoteHandle, tag);
-      static_cast<vtkDoubleArray*>(data)->SetArray(d, size, 1);
+      static_cast<vtkDoubleArray*>(data)->SetArray(d, size, 0);
       break;
 
     case VTK_ID_TYPE:
       idt = new vtkIdType[size];
       this->Receive(idt, size, remoteHandle, tag);
-      static_cast<vtkIdTypeArray*>(data)->SetArray(idt, size, 1);
+      static_cast<vtkIdTypeArray*>(data)->SetArray(idt, size, 0);
       break;
 
     default:
