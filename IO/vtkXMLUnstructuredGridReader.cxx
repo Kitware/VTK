@@ -24,7 +24,7 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkXMLDataElement.h"
 
-vtkCxxRevisionMacro(vtkXMLUnstructuredGridReader, "1.2");
+vtkCxxRevisionMacro(vtkXMLUnstructuredGridReader, "1.3");
 vtkStandardNewMacro(vtkXMLUnstructuredGridReader);
 
 //----------------------------------------------------------------------------
@@ -222,20 +222,49 @@ int vtkXMLUnstructuredGridReader::ReadPieceData()
     }
   
   // Read the cooresponding cell types.
-  vtkUnsignedCharArray* outTypes = output->GetCellTypesArray();
-  vtkIdType components = outTypes->GetNumberOfComponents();
   vtkIdType numberOfCells = this->NumberOfCells[this->Piece];
   vtkXMLDataElement* eCells = this->CellElements[this->Piece];
   vtkXMLDataElement* eTypes = this->FindDataArrayWithName(eCells, "types");
-  if(!eTypes ||
-     !this->ReadData(eTypes,
-                     outTypes->GetVoidPointer(this->StartCell*components),
-                     outTypes->GetDataType(), 0, numberOfCells))
+  if(!eTypes)
     {
     vtkErrorMacro("Cannot read cell types from " << eCells->GetName()
-                  << " in piece " << this->Piece);
+                  << " in piece " << this->Piece
+                  << " because the \"types\" array could not be found.");
     return 0;
     }
+  vtkDataArray* c2 = this->CreateDataArray(eTypes);
+  if(!c2 || (c2->GetNumberOfComponents() != 1))
+    {
+    vtkErrorMacro("Cannot read cell types from " << eCells->GetName()
+                  << " in piece " << this->Piece
+                  << " because the \"types\" array could not be created"
+                  << " with one component.");
+    return 0;
+    }
+  c2->SetNumberOfTuples(numberOfCells);
+  if(!this->ReadData(eTypes, c2->GetVoidPointer(0),
+                     c2->GetDataType(), 0, numberOfCells))
+    {
+    vtkErrorMacro("Cannot read cell types from " << eCells->GetName()
+                  << " in piece " << this->Piece
+                  << " because the \"types\" array is not long enough.");
+    return 0;
+    }
+  vtkUnsignedCharArray* cellTypes = this->ConvertToUnsignedCharArray(c2);
+  if(!cellTypes)
+    {
+    vtkErrorMacro("Cannot read cell types from " << eCells->GetName()
+                  << " in piece " << this->Piece
+                  << " because the \"types\" array could not be converted"
+                  << " to a vtkUnsignedCharArray.");
+    return 0;
+    }
+  
+  // Copy the cell type data.
+  memcpy(output->GetCellTypesArray()->GetPointer(this->StartCell),
+         cellTypes->GetPointer(0), numberOfCells);
+  
+  cellTypes->Delete();
     
   return 1;
 }

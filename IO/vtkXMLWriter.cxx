@@ -27,7 +27,7 @@
 #include "vtkPoints.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkXMLWriter, "1.9");
+vtkCxxRevisionMacro(vtkXMLWriter, "1.10");
 vtkCxxSetObjectMacro(vtkXMLWriter, Compressor, vtkDataCompressor);
 
 //----------------------------------------------------------------------------
@@ -135,7 +135,7 @@ void vtkXMLWriter::SetIdType(int t)
 #if !defined(VTK_USE_64BIT_IDS)
   if(t == vtkXMLWriter::Int64)
     {
-    vtkErrorMacro("Int64 support not compiled in VTK.");
+    vtkErrorMacro("Support for Int64 vtkIdType not compiled in VTK.");
     return;
     }
 #endif
@@ -276,16 +276,6 @@ void vtkXMLWriter::WriteFileAttributes()
     os << " byte_order=\"LittleEndian\"";
     }
   
-  // Write the vtkIdType size for the file.
-  if(this->IdType == vtkXMLWriter::Int32)
-    {
-    os << " id_type=\"Int32\"";
-    }
-  else
-    {
-    os << " id_type=\"Int64\"";
-    }
-  
   // Write the compressor that will be used for the file.
   if(this->Compressor)
     {
@@ -388,20 +378,29 @@ int vtkXMLWriter::WriteBinaryData(void* in_data, int numWords, int wordType)
 #ifdef VTK_USE_64BIT_IDS
   // If the type is vtkIdType, it may need to be converted to the type
   // requested for output.
-  int* intBuffer = 0;
+# if VTK_SIZEOF_SHORT == 4
+  typedef short vtkXMLWriterInt32IdType;
+# elif VTK_SIZEOF_INT == 4
+  typedef int vtkXMLWriterInt32IdType;
+# elif VTK_SIZEOF_LONG == 4
+  typedef long vtkXMLWriterInt32IdType;
+# else
+#  error "No native data type can represent a signed 32-bit integer."
+# endif
+  vtkXMLWriterInt32IdType* tmpBuffer = 0;
   if((wordType == VTK_ID_TYPE) && (this->IdType == vtkXMLWriter::Int32))
     {
     vtkIdType* idBuffer = static_cast<vtkIdType*>(in_data);
-    intBuffer = new int[numWords];
+    tmpBuffer = new vtkXMLWriterInt32IdType[numWords];
     
     int i;
     for(i=0;i < numWords; ++i)
       {
-      intBuffer[i] = static_cast<int>(idBuffer[i]);
+      tmpBuffer[i] = static_cast<vtkXMLWriterInt32IdType>(idBuffer[i]);
       }
     
-    wordSize = this->GetWordTypeSize(VTK_INT);
-    data = intBuffer;
+    wordSize = 4;
+    data = tmpBuffer;
     }
 #endif
   
@@ -431,9 +430,9 @@ int vtkXMLWriter::WriteBinaryData(void* in_data, int numWords, int wordType)
     }
   
 #ifdef VTK_USE_64BIT_IDS
-  if(intBuffer)
+  if(tmpBuffer)
     {
-    delete [] intBuffer;
+    delete [] tmpBuffer;
     }
 #endif
   
@@ -654,24 +653,48 @@ unsigned long vtkXMLWriter::GetWordTypeSize(int dataType)
 //----------------------------------------------------------------------------
 const char* vtkXMLWriter::GetWordTypeName(int dataType)
 {
+  bool isSigned = false;
+  int size = 0;
+  
   // These string values must match vtkXMLDataElement::GetWordTypeAttribute().
   switch (dataType)
     {
-    case VTK_ID_TYPE:        return "vtkIdType";
-    case VTK_FLOAT:          return "float";
-    case VTK_DOUBLE:         return "double";
-    case VTK_INT:            return "int";
-    case VTK_UNSIGNED_INT:   return "unsigned int";
-    case VTK_LONG:           return "long";
-    case VTK_UNSIGNED_LONG:  return "unsigned long";
-    case VTK_SHORT:          return "short";
-    case VTK_UNSIGNED_SHORT: return "unsigned short";
-    case VTK_UNSIGNED_CHAR:  return "unsigned char";
-    case VTK_CHAR:           return "char";
+    case VTK_FLOAT:          return "Float32";
+    case VTK_DOUBLE:         return "Float64";
+    case VTK_ID_TYPE:
+      {
+      switch (this->IdType)
+        {
+        case vtkXMLWriter::Int32: return "Int32";
+        case vtkXMLWriter::Int64: return "Int64";
+        default: return 0;
+        }
+      } break;
+    case VTK_CHAR:           isSigned = true; size = sizeof(char); break;
+    case VTK_INT:            isSigned = true; size = sizeof(int); break;
+    case VTK_LONG:           isSigned = true; size = sizeof(long); break;
+    case VTK_SHORT:          isSigned = true; size = sizeof(short); break;
+    case VTK_UNSIGNED_CHAR:  isSigned = false; size = sizeof(unsigned char); break;
+    case VTK_UNSIGNED_INT:   isSigned = false; size = sizeof(unsigned int); break;
+    case VTK_UNSIGNED_LONG:  isSigned = false; size = sizeof(unsigned long); break;
+    case VTK_UNSIGNED_SHORT: isSigned = false; size = sizeof(unsigned short); break;
     default:
       { vtkWarningMacro("Unsupported data type: " << dataType); } break;
     }
-  return 0;
+  const char* type = 0;
+  switch (size)
+    {
+    case 1: type = isSigned? "Int8"  : "UInt8";  break;
+    case 2: type = isSigned? "Int16" : "UInt16"; break;
+    case 4: type = isSigned? "Int32" : "UInt32"; break;
+    case 8: type = isSigned? "Int64" : "UInt64"; break;
+    default:
+      {
+      vtkErrorMacro("Data type size " << size
+                    << " not supported by VTK XML format.");
+      }
+    }
+  return type;
 }
 
 //----------------------------------------------------------------------------

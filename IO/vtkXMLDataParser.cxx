@@ -23,7 +23,7 @@
 #include "vtkBase64InputStream.h"
 #include "vtkDataCompressor.h"
 
-vtkCxxRevisionMacro(vtkXMLDataParser, "1.5");
+vtkCxxRevisionMacro(vtkXMLDataParser, "1.6");
 vtkStandardNewMacro(vtkXMLDataParser);
 vtkCxxSetObjectMacro(vtkXMLDataParser, Compressor, vtkDataCompressor);
 
@@ -53,13 +53,6 @@ vtkXMLDataParser::vtkXMLDataParser()
   this->ByteOrder = vtkXMLDataParser::BigEndian;
 #else
   this->ByteOrder = vtkXMLDataParser::LittleEndian;
-#endif  
-
-  // Input id type defaults to that compiled in.
-#ifdef VTK_USE_64BIT_IDS
-  this->IdType = vtkXMLDataParser::Int64;
-#else
-  this->IdType = vtkXMLDataParser::Int32;
 #endif
 }
 
@@ -216,28 +209,6 @@ int vtkXMLDataParser::CheckPrimaryAttributes()
       vtkErrorMacro("Unsupported byte_order=\"" << byte_order << "\"");
       return 0;
       }
-    }
-  const char* id_type = this->RootElement->GetAttribute("id_type");
-  if(id_type)
-    {
-    if(strcmp(id_type, "Int32") == 0)
-      {
-      this->IdType = vtkXMLDataParser::Int32;
-      }
-    else if(strcmp(id_type, "Int64") == 0)
-      {
-#ifdef VTK_USE_64BIT_IDS
-      this->IdType = vtkXMLDataParser::Int64;
-#else
-      vtkErrorMacro("Int64 support not compiled in VTK.");
-      return 0;
-#endif
-      }
-    else
-      {
-      vtkErrorMacro("Unsupported id_type=\"" << id_type << "\"");
-      return 0;
-      }    
     }
   return 1;
 }
@@ -646,18 +617,6 @@ unsigned long vtkXMLDataParser::ReadBinaryData(void* in_buffer, int startWord,
   this->DataStream->SetStream(this->Stream);
   this->ClearStreamEOF();
   
-#ifdef VTK_USE_64BIT_IDS
-  // If the type is vtkIdType, it may need to be converted from the type
-  // in the file to the real vtkIdType.
-  int* intBuffer = 0;
-  if((wordType == VTK_ID_TYPE) && (this->IdType == vtkXMLDataParser::Int32))
-    {
-    intBuffer = new int[numWords];
-    wordSize = this->GetWordTypeSize(VTK_INT);
-    buffer = intBuffer;
-    }
-#endif
-  
   // Read the data.
   unsigned char* d = reinterpret_cast<unsigned char*>(buffer);
   unsigned long startByte = startWord*wordSize;
@@ -679,23 +638,7 @@ unsigned long vtkXMLDataParser::ReadBinaryData(void* in_buffer, int startWord,
   
   // Byte swap.
   unsigned long actualWords = actualBytes / wordSize;
-  this->PerformByteSwap(d, actualWords, wordSize);
-  
-#ifdef VTK_USE_64BIT_IDS
-  if(intBuffer)
-    {
-    // The data were read as integers.  Convert to vtkIdType.
-    vtkIdType* idBuffer = static_cast<vtkIdType*>(in_buffer);
-    
-    int i;
-    for(i=0;i < numWords; ++i)
-      {
-      idBuffer[i] = static_cast<vtkIdType>(intBuffer[i]);
-      }
-    
-    delete [] intBuffer;
-    }
-#endif  
+  this->PerformByteSwap(d, actualWords, wordSize);  
   
   // Return the actual amount read.
   return actualWords;

@@ -48,14 +48,6 @@ public:
   enum { BigEndian, LittleEndian };
   //ETX
   
-  //BTX
-  // Description:
-  // Enumerate the supported vtkIdType bit lengths.
-  //   Int32 = File stores 32-bit values for vtkIdType.
-  //   Int64 = File stores 64-bit values for vtkIdType.
-  enum { Int32=32, Int64=64 };
-  //ETX
-  
   // Description:
   // Get the root element from the XML document.
   vtkXMLDataElement* GetRootElement();
@@ -161,9 +153,6 @@ protected:
   
   // The byte order of the binary input.
   int ByteOrder;
-  
-  // The input vtkIdType.
-  int IdType;
   
   // The input stream used to read data.  Set by ReadAppendedData and
   // ReadInlineData methods.

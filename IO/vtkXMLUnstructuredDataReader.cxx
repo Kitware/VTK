@@ -24,7 +24,7 @@
 #include "vtkCellArray.h"
 #include "vtkPointSet.h"
 
-vtkCxxRevisionMacro(vtkXMLUnstructuredDataReader, "1.4");
+vtkCxxRevisionMacro(vtkXMLUnstructuredDataReader, "1.5");
 
 //----------------------------------------------------------------------------
 vtkXMLUnstructuredDataReader::vtkXMLUnstructuredDataReader()
@@ -80,16 +80,80 @@ vtkXMLUnstructuredDataReader
 }
 
 //----------------------------------------------------------------------------
-vtkDataArray*
-vtkXMLUnstructuredDataReader
-::CreateDataArrayWithName(vtkXMLDataElement* eParent, const char* name)
+template <class TIn, class TOut>
+void vtkXMLUnstructuredDataReaderCopyArray(TIn* in, TOut* out,
+                                           vtkIdType length)
 {
-  vtkXMLDataElement* eArray = this->FindDataArrayWithName(eParent, name);
-  if(eArray)
+  for(vtkIdType i = 0; i < length; ++i)
     {
-    return this->CreateDataArray(eArray);
+    out[i] = static_cast<TOut>(in[i]);
     }
-  return 0;
+}
+
+//----------------------------------------------------------------------------
+vtkIdTypeArray*
+vtkXMLUnstructuredDataReader
+::ConvertToIdTypeArray(vtkDataArray* a)
+{
+  // If it is already a vtkIdTypeArray, just return it.
+  vtkIdTypeArray* ida = vtkIdTypeArray::SafeDownCast(a);
+  if(ida)
+    {
+    return ida;
+    }
+  
+  // Need to convert the data.
+  ida = vtkIdTypeArray::New();
+  ida->SetNumberOfComponents(a->GetNumberOfComponents());
+  ida->SetNumberOfTuples(a->GetNumberOfTuples());
+  vtkIdType length = a->GetNumberOfComponents() * a->GetNumberOfTuples();
+  vtkIdType* idBuffer = ida->GetPointer(0);
+  switch (a->GetDataType())
+    {
+    vtkTemplateMacro3(vtkXMLUnstructuredDataReaderCopyArray,
+                      static_cast<VTK_TT*>(a->GetVoidPointer(0)),
+                      idBuffer, length);
+    default:
+      vtkErrorMacro("Cannot convert vtkDataArray of type " << a->GetDataType()
+                    << " to vtkIdTypeArray.");
+      ida->Delete();
+      ida = 0;
+    }
+  a->Delete();
+  return ida;
+}
+
+//----------------------------------------------------------------------------
+vtkUnsignedCharArray*
+vtkXMLUnstructuredDataReader
+::ConvertToUnsignedCharArray(vtkDataArray* a)
+{
+  // If it is already a vtkUnsignedCharArray, just return it.
+  vtkUnsignedCharArray* uca = vtkUnsignedCharArray::SafeDownCast(a);
+  if(uca)
+    {
+    return uca;
+    }
+  
+  // Need to convert the data.
+  uca = vtkUnsignedCharArray::New();
+  uca->SetNumberOfComponents(a->GetNumberOfComponents());
+  uca->SetNumberOfTuples(a->GetNumberOfTuples());
+  vtkIdType length = a->GetNumberOfComponents() * a->GetNumberOfTuples();
+  unsigned char* ucBuffer = uca->GetPointer(0);
+  switch (a->GetDataType())
+    {
+    vtkTemplateMacro3(vtkXMLUnstructuredDataReaderCopyArray,
+                      static_cast<VTK_TT*>(a->GetVoidPointer(0)),
+                      ucBuffer, length);
+    default:
+      vtkErrorMacro("Cannot convert vtkDataArray of type " << a->GetDataType()
+                    << " to vtkUnsignedCharArray.");
+      uca->Delete();
+      uca = 0;
+    }
+  a->Delete();
+  return uca;
 }
 
 //----------------------------------------------------------------------------
@@ -182,7 +246,11 @@ void vtkXMLUnstructuredDataReader::ReadXMLData()
   int i;
   for(i=this->StartPiece; i < this->EndPiece; ++i)
     {
-    this->Superclass::ReadPieceData(i);
+    if(!this->Superclass::ReadPieceData(i))
+      {
+      // An error occurred while reading the piece.
+      this->DataError = 1;
+      }
     this->SetupNextPiece();
     }
 }
@@ -243,8 +311,15 @@ void vtkXMLUnstructuredDataReader::SetupOutputInformation()
     {
     // Non-zero volume.
     vtkDataArray* a = this->CreateDataArray(ePoints->GetNestedElement(0));
-    points->SetData(a);
-    a->Delete();
+    if(a)
+      {
+      points->SetData(a);
+      a->Delete();
+      }
+    else
+      {
+      this->InformationError = 1;
+      }
     }
   
   output->SetPoints(points);
@@ -337,41 +412,79 @@ int vtkXMLUnstructuredDataReader::ReadCellArray(vtkIdType numberOfCells,
     }
   
   // Read the cell offsets.
-  vtkDataArray* c1 = this->CreateDataArrayWithName(eCells, "offsets");
-  if(!c1)
+  vtkXMLDataElement* eOffsets = this->FindDataArrayWithName(eCells, "offsets");
+  if(!eOffsets)
     {
     vtkErrorMacro("Cannot read cell offsets from " << eCells->GetName()
-                  << " in piece " << this->Piece);
+                  << " in piece " << this->Piece
+                  << " because the \"offsets\" array could not be found.");
+    return 0;
+    }
+  vtkDataArray* c1 = this->CreateDataArray(eOffsets);
+  if(!c1 || (c1->GetNumberOfComponents() != 1))
+    {
+    vtkErrorMacro("Cannot read cell offsets from " << eCells->GetName()
+                  << " in piece " << this->Piece
+                  << " because the \"offsets\" array could not be created"
+                  << " with one component.");
     return 0;
     }
   c1->SetNumberOfTuples(numberOfCells);
-  if(!this->ReadData(eCells->GetNestedElement(1), c1->GetVoidPointer(0),
-                     c1->GetDataType(), 0, numberOfCells))
+  if(!this->ReadData(eOffsets, c1->GetVoidPointer(0), c1->GetDataType(),
+                     0, numberOfCells))
     {
     vtkErrorMacro("Cannot read cell offsets from " << eCells->GetName()
-                  << " in piece " << this->Piece);
+                  << " in piece " << this->Piece
+                  << " because the \"offsets\" array is not long enough.");
+    return 0;
+    }  
+  vtkIdTypeArray* cellOffsets = this->ConvertToIdTypeArray(c1);
+  if(!cellOffsets)
+    {
+    vtkErrorMacro("Cannot read cell offsets from " << eCells->GetName()
+                  << " in piece " << this->Piece
+                  << " because the \"offsets\" array could not be"
+                  << " converted to a vtkIdTypeArray.");
     return 0;
     }
-  vtkIdTypeArray* cellOffsets = vtkIdTypeArray::SafeDownCast(c1);  
   
   // Read the cell points.
   vtkIdType cpLength = cellOffsets->GetValue(numberOfCells-1);
-  vtkDataArray* c0 = this->CreateDataArrayWithName(eCells, "connectivity");
-  if(!c0)
+  vtkXMLDataElement* eConn = this->FindDataArrayWithName(eCells, "connectivity");
+  if(!eCells)
     {
     vtkErrorMacro("Cannot read cell connectivity from " << eCells->GetName()
-                  << " in piece " << this->Piece);
+                  << " in piece " << this->Piece
+                  << " because the \"connectivity\" array could not be found.");
+    return 0;
+    }
+  vtkDataArray* c0 = this->CreateDataArray(eConn);
+  if(!c0 || (c0->GetNumberOfComponents() != 1))
+    {
+    vtkErrorMacro("Cannot read cell connectivity from " << eCells->GetName()
+                  << " in piece " << this->Piece
+                  << " because the \"connectivity\" array could not be created"
+                  << " with one component.");
     return 0;
     }
   c0->SetNumberOfTuples(cpLength);
-  if(!this->ReadData(eCells->GetNestedElement(0), c0->GetVoidPointer(0),
-                     c0->GetDataType(), 0, cpLength))
+  if(!this->ReadData(eConn, c0->GetVoidPointer(0), c0->GetDataType(),
+                     0, cpLength))
     {
     vtkErrorMacro("Cannot read cell connectivity from " << eCells->GetName()
-                  << " in piece " << this->Piece);
+                  << " in piece " << this->Piece
+                  << " because the \"connectivity\" array is not long enough.");
     return 0;
     }
-  vtkIdTypeArray* cellPoints = vtkIdTypeArray::SafeDownCast(c0);
+  vtkIdTypeArray* cellPoints = this->ConvertToIdTypeArray(c0);
+  if(!cellPoints)
+    {
+    vtkErrorMacro("Cannot read cell connectivity from " << eCells->GetName()
+                  << " in piece " << this->Piece
+                  << " because the \"connectivity\" array could not be"
+                  << " converted to a vtkIdTypeArray.");
+    return 0;
+    }
   
   // Allocate memory in the output connectivity array.
   vtkIdType curSize = 0;

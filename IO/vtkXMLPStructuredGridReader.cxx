@@ -23,7 +23,7 @@
 #include "vtkXMLDataElement.h"
 #include "vtkXMLStructuredGridReader.h"
 
-vtkCxxRevisionMacro(vtkXMLPStructuredGridReader, "1.4");
+vtkCxxRevisionMacro(vtkXMLPStructuredGridReader, "1.5");
 vtkStandardNewMacro(vtkXMLPStructuredGridReader);
 
 //----------------------------------------------------------------------------
@@ -138,8 +138,15 @@ void vtkXMLPStructuredGridReader::SetupOutputInformation()
     {
     // Non-zero volume.
     vtkDataArray* a = this->CreateDataArray(ePoints->GetNestedElement(0));
-    points->SetData(a);
-    a->Delete();
+    if(a)
+      {
+      points->SetData(a);
+      a->Delete();
+      }
+    else
+      {
+      this->InformationError = 1;
+      }
     }
   output->SetPoints(points);
   points->Delete();

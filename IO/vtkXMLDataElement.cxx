@@ -21,7 +21,7 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkXMLDataElement, "1.4");
+vtkCxxRevisionMacro(vtkXMLDataElement, "1.5");
 vtkStandardNewMacro(vtkXMLDataElement);
 
 //----------------------------------------------------------------------------
@@ -358,64 +358,152 @@ int vtkXMLDataElement::GetWordTypeAttribute(const char* name, int& value)
   const char* v = this->GetAttribute(name);
   if(!v)
     {
+    vtkErrorMacro("Missing word type attribute \"" << name << "\".");
     return 0;
     }
-  else if(strcmp(v, "vtkIdType") == 0)
+  else if(strcmp(v, "Float32") == 0)
     {
-    value = VTK_ID_TYPE;
-    return 1;
-    }
-  else if(strcmp(v, "float") == 0)
-    {
+#if VTK_SIZEOF_FLOAT == 4
     value = VTK_FLOAT;
     return 1;
-    }
-  else if(strcmp(v, "double") == 0)
-    {
+#elif VTK_SIZEOF_DOUBLE == 4
     value = VTK_DOUBLE;
     return 1;
+#else
+    vtkErrorMacro("Float32 support not compiled in VTK.");
+    return 0;
+#endif
     }
-  else if(strcmp(v, "int") == 0)
+  else if(strcmp(v, "Float64") == 0)
     {
-    value = VTK_INT;
+#if VTK_SIZEOF_FLOAT == 8
+    value = VTK_FLOAT;
     return 1;
-    }
-  else if(strcmp(v, "unsigned int") == 0)
-    {
-    value = VTK_UNSIGNED_INT;
+#elif VTK_SIZEOF_DOUBLE == 8
+    value = VTK_DOUBLE;
     return 1;
+#else
+    vtkErrorMacro("Float64 support not compiled in VTK.");
+    return 0;
+#endif
     }
-  else if(strcmp(v, "long") == 0)
-    {
-    value = VTK_LONG;
-    return 1;
-    }
-  else if(strcmp(v, "unsigned long") == 0)
-    {
-    value = VTK_UNSIGNED_LONG;
-    return 1;
-    }
-  else if(strcmp(v, "short") == 0)
-    {
-    value = VTK_SHORT;
-    return 1;
-    }
-  else if(strcmp(v, "unsigned short") == 0)
-    {
-    value = VTK_UNSIGNED_SHORT;
-    return 1;
-    }
-  else if(strcmp(v, "unsigned char") == 0)
-    {
-    value = VTK_UNSIGNED_CHAR;
-    return 1;
-    }
-  else if(strcmp(v, "char") == 0)
+  else if(strcmp(v, "Int8") == 0)
     {
     value = VTK_CHAR;
     return 1;
     }
-  return 0;
+  else if(strcmp(v, "UInt8") == 0)
+    {
+    value = VTK_UNSIGNED_CHAR;
+    return 1;
+    }
+  else if(strcmp(v, "Int16") == 0)
+    {
+#if VTK_SIZEOF_SHORT == 2
+    value = VTK_SHORT;
+    return 1;
+#elif VTK_SIZEOF_INT == 2
+    value = VTK_INT;
+    return 1;
+#elif VTK_SIZEOF_LONG == 2
+    value = VTK_LONG;
+    return 1;
+#else
+    vtkErrorMacro("Int16 support not compiled in VTK.");
+    return 0;
+#endif    
+    }
+  else if(strcmp(v, "UInt16") == 0)
+    {
+#if VTK_SIZEOF_SHORT == 2
+    value = VTK_UNSIGNED_SHORT;
+    return 1;
+#elif VTK_SIZEOF_INT == 2
+    value = VTK_UNSIGNED_INT;
+    return 1;
+#elif VTK_SIZEOF_LONG == 2
+    value = VTK_UNSIGNED_LONG;
+    return 1;
+#else
+    vtkErrorMacro("UInt16 support not compiled in VTK.");
+    return 0;
+#endif    
+    }
+  else if(strcmp(v, "Int32") == 0)
+    {
+#if VTK_SIZEOF_SHORT == 4
+    value = VTK_SHORT;
+    return 1;
+#elif VTK_SIZEOF_INT == 4
+    value = VTK_INT;
+    return 1;
+#elif VTK_SIZEOF_LONG == 4
+    value = VTK_LONG;
+    return 1;
+#else
+    vtkErrorMacro("Int32 support not compiled in VTK.");
+    return 0;
+#endif    
+    }
+  else if(strcmp(v, "UInt32") == 0)
+    {
+#if VTK_SIZEOF_SHORT == 4
+    value = VTK_UNSIGNED_SHORT;
+    return 1;
+#elif VTK_SIZEOF_INT == 4
+    value = VTK_UNSIGNED_INT;
+    return 1;
+#elif VTK_SIZEOF_LONG == 4
+    value = VTK_UNSIGNED_LONG;
+    return 1;
+#else
+    vtkErrorMacro("UInt32 support not compiled in VTK.");
+    return 0;
+#endif    
+    }
+  else if(strcmp(v, "Int64") == 0)
+    {
+#if VTK_SIZEOF_SHORT == 8
+    value = VTK_SHORT;
+    return 1;
+#elif VTK_SIZEOF_INT == 8
+    value = VTK_INT;
+    return 1;
+#elif VTK_SIZEOF_LONG == 8
+    value = VTK_LONG;
+    return 1;
+#elif VTK_SIZEOF_ID_TYPE == 8
+    value = VTK_ID_TYPE;
+    return 1;
+#else
+    vtkErrorMacro("Int64 support not compiled in VTK.");
+    return 0;
+#endif    
+    }
+  else if(strcmp(v, "UInt64") == 0)
+    {
+#if VTK_SIZEOF_SHORT == 8
+    value = VTK_UNSIGNED_SHORT;
+    return 1;
+#elif VTK_SIZEOF_INT == 8
+    value = VTK_UNSIGNED_INT;
+    return 1;
+#elif VTK_SIZEOF_LONG == 8
+    value = VTK_UNSIGNED_LONG;
+    return 1;
+#else
+    vtkErrorMacro("UInt64 support not compiled in VTK.");
+    return 0;
+#endif
+    }
+  else
+    {
+    vtkErrorMacro("Unknown data type \"" << v << "\".  Supported types are:\n"
+                  "Int8,  Int16,  Int32,  Int64,\n"
+                  "UInt8, UInt16, UInt32, UInt64,\n"
+                  "Float32, Float64\n");
+    return 0;
+    }
 }
 
 //----------------------------------------------------------------------------

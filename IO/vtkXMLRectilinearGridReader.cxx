@@ -23,7 +23,7 @@
 #include "vtkXMLDataElement.h"
 #include "vtkXMLDataParser.h"
 
-vtkCxxRevisionMacro(vtkXMLRectilinearGridReader, "1.5");
+vtkCxxRevisionMacro(vtkXMLRectilinearGridReader, "1.6");
 vtkStandardNewMacro(vtkXMLRectilinearGridReader);
 
 //----------------------------------------------------------------------------
@@ -150,12 +150,22 @@ void vtkXMLRectilinearGridReader::SetupOutputInformation()
   vtkDataArray* x = this->CreateDataArray(xc);
   vtkDataArray* y = this->CreateDataArray(yc);
   vtkDataArray* z = this->CreateDataArray(zc);
-  output->SetXCoordinates(x);
-  output->SetYCoordinates(y);
-  output->SetZCoordinates(z);
-  x->Delete();
-  y->Delete();
-  z->Delete();
+  if(x && y && z)
+    {
+    output->SetXCoordinates(x);
+    output->SetYCoordinates(y);
+    output->SetZCoordinates(z);
+    x->Delete();
+    y->Delete();
+    z->Delete();
+    }
+  else
+    {
+    if(x) { x->Delete(); }
+    if(y) { y->Delete(); }
+    if(z) { z->Delete(); }
+    this->InformationError = 1;
+    }
 }
 
 //----------------------------------------------------------------------------

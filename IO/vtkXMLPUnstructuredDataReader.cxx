@@ -21,7 +21,7 @@
 #include "vtkPointSet.h"
 #include "vtkCellArray.h"
 
-vtkCxxRevisionMacro(vtkXMLPUnstructuredDataReader, "1.4");
+vtkCxxRevisionMacro(vtkXMLPUnstructuredDataReader, "1.5");
 
 //----------------------------------------------------------------------------
 vtkXMLPUnstructuredDataReader::vtkXMLPUnstructuredDataReader()
@@ -120,8 +120,15 @@ void vtkXMLPUnstructuredDataReader::SetupOutputInformation()
   if(ePoints)
     {
     vtkDataArray* a = this->CreateDataArray(ePoints->GetNestedElement(0));
-    points->SetData(a);
-    a->Delete();
+    if(a)
+      {
+      points->SetData(a);
+      a->Delete();
+      }
+    else
+      {
+      this->InformationError = 1;
+      }
     }
   output->SetPoints(points);
   points->Delete();

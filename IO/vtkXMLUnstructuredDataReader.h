@@ -29,8 +29,9 @@
 #include "vtkXMLDataReader.h"
 
 class vtkCellArray;
-class vtkUnsignedCharArray;
+class vtkIdTypeArray;
 class vtkPointSet;
+class vtkUnsignedCharArray;
 
 class VTK_IO_EXPORT vtkXMLUnstructuredDataReader : public vtkXMLDataReader
 {
@@ -60,8 +61,8 @@ protected:
   vtkPointSet* GetOutputAsPointSet();
   vtkXMLDataElement* FindDataArrayWithName(vtkXMLDataElement* eParent,
                                            const char* name);
-  vtkDataArray* CreateDataArrayWithName(vtkXMLDataElement* eParent,
-                                        const char* name);
+  vtkIdTypeArray* ConvertToIdTypeArray(vtkDataArray* a);
+  vtkUnsignedCharArray* ConvertToUnsignedCharArray(vtkDataArray* a);
   
   // Pipeline execute data driver.  Called by vtkXMLReader.
   void ReadXMLData();
