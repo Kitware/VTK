@@ -14,12 +14,14 @@ vtkVolume16Reader v16
     v16 SetDataSpacing 0.8 0.8 1.5
     v16 SetImageRange 30 50
     v16 SetDataMask 0x7fff
+    [v16 GetOutput] ReleaseDataFlagOn
 
 # extract thresholded cells
 vtkThreshold threshold
   threshold SetInput [v16 GetOutput]
   threshold ThresholdBetween 400 700
   threshold AllScalarsOff
+  [threshold GetOutput] ReleaseDataFlagOn
 
 vtkContourFilter contour
   contour SetInput [threshold GetOutput]
