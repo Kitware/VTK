@@ -28,13 +28,13 @@ vtkScalars faceColors
   faceColors InsertNextScalar 1
   faceColors InsertNextScalar 2
 
-vtkStructuredGrid grid
-  grid SetDimensions 3 3 1
-  grid SetPoints points
-  [grid GetCellData] SetScalars faceColors
+vtkStructuredGrid sgrid
+  sgrid SetDimensions 3 3 1
+  sgrid SetPoints points
+  [sgrid GetCellData] SetScalars faceColors
 
 vtkCellDataToPointData Cell2Point
-  Cell2Point SetInput grid
+  Cell2Point SetInput sgrid
   Cell2Point PassCellDataOn
 
 vtkDataSetMapper mapper

@@ -415,29 +415,29 @@ vtkTransformFilter transformPolyVertex
   transformPolyVertex SetTransform aPolyVertexTransform
 
 # Okay, append the data
-vtkAppendFilter append
-  append AddInput [transformVoxel GetOutput]
-  append AddInput [transformHexahedron GetOutput]
-  append AddInput [transformTetra GetOutput]
-  append AddInput [transformWedge GetOutput]
-  append AddInput [transformPyramid GetOutput]
-  append AddInput [transformPixel GetOutput]
-  append AddInput [transformQuad GetOutput]
-  append AddInput [transformTriangle GetOutput]
-  append AddInput [transformPolygon GetOutput]
-  append AddInput [transformTriangleStrip GetOutput]
-  append AddInput [transformLine GetOutput]
-  append AddInput [transformPolyLine GetOutput]
-  append AddInput [transformVertex GetOutput]
-  append AddInput [transformPolyVertex GetOutput]
+vtkAppendFilter appendF
+  appendF AddInput [transformVoxel GetOutput]
+  appendF AddInput [transformHexahedron GetOutput]
+  appendF AddInput [transformTetra GetOutput]
+  appendF AddInput [transformWedge GetOutput]
+  appendF AddInput [transformPyramid GetOutput]
+  appendF AddInput [transformPixel GetOutput]
+  appendF AddInput [transformQuad GetOutput]
+  appendF AddInput [transformTriangle GetOutput]
+  appendF AddInput [transformPolygon GetOutput]
+  appendF AddInput [transformTriangleStrip GetOutput]
+  appendF AddInput [transformLine GetOutput]
+  appendF AddInput [transformPolyLine GetOutput]
+  appendF AddInput [transformVertex GetOutput]
+  appendF AddInput [transformPolyVertex GetOutput]
 
 # Write it out and display it
 vtkUnstructuredGridWriter writer
-  writer SetInput [append GetOutput]
+  writer SetInput [appendF GetOutput]
   writer SetFileName "appendCells.vtk"
   writer Write
 vtkDataSetMapper mapper
-  mapper SetInput [append GetOutput]
+  mapper SetInput [appendF GetOutput]
 vtkActor allCellsActor
   allCellsActor SetMapper mapper
 

@@ -28,10 +28,10 @@ vtkScalars faceColors
   faceColors InsertNextScalar 1
   faceColors InsertNextScalar 2
 
-vtkStructuredGrid grid
-  grid SetDimensions 3 3 1
-  grid SetPoints points
-  [grid GetCellData] SetScalars faceColors
+vtkStructuredGrid sgrid
+  sgrid SetDimensions 3 3 1
+  sgrid SetPoints points
+  [sgrid GetCellData] SetScalars faceColors
 
 # create a 1*2 cell grid
 vtkPoints points2
@@ -46,14 +46,14 @@ vtkScalars faceColors2
   faceColors2 InsertNextScalar 2
   faceColors2 InsertNextScalar 0
 
-vtkStructuredGrid grid2
-  grid2 SetDimensions 2 3 1
-  grid2 SetPoints points2
-  [grid2 GetCellData] SetScalars faceColors2
+vtkStructuredGrid sgrid2
+  sgrid2 SetDimensions 2 3 1
+  sgrid2 SetPoints points2
+  [sgrid2 GetCellData] SetScalars faceColors2
 
 vtkAppendFilter Append
-  Append AddInput grid
-  Append AddInput grid2
+  Append AddInput sgrid
+  Append AddInput sgrid2
 
 vtkDataSetMapper mapper
   mapper SetInput [Append GetOutput]
