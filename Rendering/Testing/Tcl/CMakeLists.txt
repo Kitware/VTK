@@ -24,7 +24,6 @@ IF (VTK_USE_RENDERING)
       volRCClipPlanes
       volRCCropRegions
       volRCRotateClip
-      volTM2DClipPlanes
       volTM2DCropRegions
       volTM2DRotateClip
     )
