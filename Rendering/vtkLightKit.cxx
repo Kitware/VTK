@@ -19,7 +19,7 @@
 #include "vtkPiecewiseFunction.h"
 #include "vtkRenderer.h"
 
-vtkCxxRevisionMacro(vtkLightKit, "1.19");
+vtkCxxRevisionMacro(vtkLightKit, "1.20");
 vtkStandardNewMacro(vtkLightKit);
 
 static const char *vtkLightKitTypeStrings[] = {
@@ -38,6 +38,19 @@ static const char *vtkLightKitSubTypeStrings[] = {
   "K:F Ratio",
   "K:B Ratio",
   "K:H Ratio",
+  NULL
+};
+
+// These are the same as vtkLightKitSubTypeStrings but shorter
+// usefull for a GUI with minimum space
+static const char *vtkLightKitSubTypeShortStrings[] = {
+  "Warm.",
+  "Int. ",
+  "Elev.",
+  "Azim.",
+  "K:F",
+  "K:B",
+  "K:H",
   NULL
 };
 
@@ -428,6 +441,20 @@ const char *vtkLightKit::GetStringFromSubType(int subtype)
   if( subtype < n )
     {
     return vtkLightKitSubTypeStrings[subtype];
+    }
+  else
+    {
+    return NULL;
+    }
+}
+
+//----------------------------------------------------------------------------
+const char *vtkLightKit::GetShortStringFromSubType(int subtype)
+{
+  static const int n = sizeof(vtkLightKitSubTypeShortStrings)/sizeof(char*);
+  if( subtype < n )
+    {
+    return vtkLightKitSubTypeShortStrings[subtype];
     }
   else
     {

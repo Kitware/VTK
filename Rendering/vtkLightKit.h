@@ -280,8 +280,14 @@ public:
   static const char *GetStringFromType(int type);
 
   // Description:
-  // Helper method to go from a enum type to a string type
+  // Helper method to go from a enum subtype to a string subtype
   static const char *GetStringFromSubType(int type);
+
+  // Description:
+  // Helper method to go from a enum subtype to a string subtype
+  // The difference from GetStringFromSubType is that it returns
+  // a shorter strings (usefull for GUI with minimun space)
+  static const char *GetShortStringFromSubType(int subtype);
 
 protected:
   vtkLightKit();
