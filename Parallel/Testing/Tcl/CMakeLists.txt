@@ -41,6 +41,12 @@ IF (VTK_DATA_ROOT)
            -D ${VTK_DATA_ROOT}
            -V Baseline/Parallel/TestBranchExtentTranslator.tcl.png
            -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
+  ADD_TEST(PDataSetReaderGrid-image ${VTK_EXECUTABLE}
+           ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl
+           ${VTK_SOURCE_DIR}/Parallel/Testing/Tcl/TestPDataSetReaderGrid.tcl
+           -D ${VTK_DATA_ROOT}
+           -V Baseline/Parallel/TestPDataSetReaderGrid.tcl.png
+           -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
 ELSE (VTK_DATA_ROOT)
   ADD_TEST(PolyDataPieces ${VTK_EXECUTABLE}
            ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
