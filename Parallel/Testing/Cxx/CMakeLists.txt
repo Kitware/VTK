@@ -70,14 +70,14 @@ IF (VTK_DATA_ROOT)
       ENDIF(VTK_MPIRUN_EXE)
      ENDIF (UNIX)
     ELSE (VTK_USE_MPI)
-      IF (VTK_HAS_THREADS)
+      IF (VTK_HAS_THREADS AND VTK_USE_DISPLAY)
         ADD_TEST(ParallelIso-image ${CXX_TEST_PATH}/ParallelIsoTest
                  -D ${VTK_DATA_ROOT}
                  -V Baseline/Parallel/ParallelIso.cxx.png)
         ADD_TEST(TestCommunicator-image ${CXX_TEST_PATH}/GenericCommunicator
                  -D ${VTK_DATA_ROOT}
                  -V Baseline/Parallel/GenericCommunicator.cxx.png)
-      ENDIF (VTK_HAS_THREADS)
+      ENDIF (VTK_HAS_THREADS AND VTK_USE_DISPLAY)
     ENDIF (VTK_USE_MPI)
   ENDIF (VTK_USE_HYBRID)
 #
@@ -85,9 +85,9 @@ IF (VTK_DATA_ROOT)
 #
 ELSE (VTK_DATA_ROOT)
   IF (VTK_USE_HYBRID)
-    IF (VTK_HAS_THREADS)
+    IF (VTK_HAS_THREADS AND VTK_USE_DISPLAY)
       ADD_TEST(ThreadedCommunicator ${CXX_TEST_PATH}/ThreadedCommunicator)
-    ENDIF (VTK_HAS_THREADS)
+    ENDIF (VTK_HAS_THREADS AND VTK_USE_DISPLAY)
     IF (VTK_USE_MPI)
      IF(UNIX)
       IF (VTK_MPIRUN_EXE)
