@@ -50,6 +50,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 vtkGLRenderer::vtkGLRenderer()
 {
+  this->NumberOfLightsBound = 0;
 }
 
 // Description:

@@ -201,6 +201,7 @@ vtkRayCaster::vtkRayCaster()
   this->ImageRenderTime[1]           = 0.0;
   this->StableImageScaleCounter      = 10;
   this->PreviousAllocatedTime        = 0.0;
+  this->TotalRenderTime              = 0.0;
   scale = 1.0;
   for ( i = 0; i < VTK_MAX_VIEW_RAYS_LEVEL; i++ )
     {
