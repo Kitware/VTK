@@ -33,7 +33,7 @@
 #include "vtkTimerLog.h"
 #include "vtkVolume.h"
 
-vtkCxxRevisionMacro(vtkRenderer, "1.214");
+vtkCxxRevisionMacro(vtkRenderer, "1.215");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -780,7 +780,6 @@ void vtkRenderer::ResetCamera(double bounds[6])
 {
   double center[3];
   double distance;
-  double width;
   double vn[3], *vup;
   
   this->GetActiveCamera();
@@ -798,18 +797,35 @@ void vtkRenderer::ResetCamera(double bounds[6])
   center[1] = (bounds[2] + bounds[3])/2.0;
   center[2] = (bounds[4] + bounds[5])/2.0;
 
-  width = bounds[3] - bounds[2];
-  if (width < (bounds[1] - bounds[0]))
-    {
-    width = bounds[1] - bounds[0];
-    }
+  double w1 = bounds[1] - bounds[0];
+  double w2 = bounds[3] - bounds[2];
+  double w3 = bounds[5] - bounds[4];
+  w1 *= w1;
+  w2 *= w2;
+  w3 *= w3;
+  double radius = w1 + w2 + w3;
+
+  // If we have just a single point, pick a radius of 1.0
+  radius = (radius==0)?(1.0):(radius);
+
+  // compute the radius of the enclosing sphere
+  radius = sqrt(radius)*0.5;
+
+  // default so that the bounding sphere fits within the view fustrum
   
-  // If we have just a single point, pick a width of 1.0
-  width = (width==0)?(1.0):(width);
-  
+  // compute the distance from the intersection of the view frustum with the
+  // bounding sphere. Basically in 2D draw a circle representing the bounding
+  // sphere in 2D then draw a horizontal line going out from the center of
+  // the circle. That is the camera view. Then draw a line from the camera
+  // position to the point where it intersects the circle. (it will be tangent
+  // to the circle at this point, this is important, only go to the tangent
+  // point, do not draw all the way to the view plane). Then draw the radius
+  // from the tangent point to the center of the circle. You will note that
+  // this forms a right triangle with one side being the radius, another being
+  // the target distance for the camera, then just find the target dist using
+  // a sin.
   distance = 
-    0.8*width/tan(this->ActiveCamera->GetViewAngle()*vtkMath::Pi()/360.0);
-  distance = distance + (bounds[5] - bounds[4])/2.0;
+    radius/sin(this->ActiveCamera->GetViewAngle()*vtkMath::Pi()/360.0);
 
   // check view-up vector against view plane normal
   vup = this->ActiveCamera->GetViewUp();
@@ -828,7 +844,7 @@ void vtkRenderer::ResetCamera(double bounds[6])
   this->ResetCameraClippingRange( bounds );
 
   // setup default parallel scale
-  this->ActiveCamera->SetParallelScale(width);
+  this->ActiveCamera->SetParallelScale(radius);
 }
   
 // Alternative version of ResetCamera(bounds[6]);
