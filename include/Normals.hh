@@ -74,4 +74,9 @@ public:
   void GetNormals(vlIdList& ptId, vlFloatNormals& fp);
 };
 
+// These include files are placed here so that if Normals.hh is included 
+// all other classes necessary for compilation are also included. 
+#include "IdList.hh"
+#include "FNormals.hh"
+
 #endif

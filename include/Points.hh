@@ -80,4 +80,9 @@ protected:
 
 };
 
+// These include files are placed here so that if Points.hh is included 
+// all other classes necessary for compilation are also included. 
+#include "IdList.hh"
+#include "FPoints.hh"
+
 #endif

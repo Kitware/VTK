@@ -74,4 +74,9 @@ protected:
   vlTimeStamp ComputeTime; // Time at which range computed
 };
 
+// These include files are placed here so that if Scalars.hh is included 
+// all other classes necessary for compilation are also included. 
+#include "IdList.hh"
+#include "FScalars.hh"
+
 #endif

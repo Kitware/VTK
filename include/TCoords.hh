@@ -83,4 +83,9 @@ protected:
 
 };
 
+// These include files are placed here so that if TCoords.hh is included 
+// all other classes necessary for compilation are also included. 
+#include "IdList.hh"
+#include "FTCoords.hh"
+
 #endif

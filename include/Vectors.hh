@@ -13,7 +13,7 @@ written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-// .NAME vlPoints - abstract interface to 3D vectors
+// .NAME vlVectors - abstract interface to 3D vectors
 // .SECTION Description
 // vlVectors provides an abstract interface to 3D vectors. The data model
 // for vlVectors is an array of vx-vy-vz triplets accessible by point id.
@@ -78,5 +78,10 @@ protected:
   float MaxNorm;
   vlTimeStamp ComputeTime; // Time at which MaxNorm computed
 };
+
+// These include files are placed here so that if Vectors.hh is included 
+// all other classes necessary for compilation are also included. 
+#include "IdList.hh"
+#include "FVectors.hh"
 
 #endif
