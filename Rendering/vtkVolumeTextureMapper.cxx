@@ -172,6 +172,8 @@ void vtkVolumeTextureMapper::InitializeRender( vtkRenderer *ren,
     for ( i=0, j=0; i < size; i++ )
       {
       this->RGBAArray[j++] = (unsigned char) (0.5 + (GArray[i]*255.0));
+      this->RGBAArray[j++] = (unsigned char) (0.5 + (GArray[i]*255.0));
+      this->RGBAArray[j++] = (unsigned char) (0.5 + (GArray[i]*255.0));
       this->RGBAArray[j++] = (unsigned char) (0.5 + AArray[i]*255.0*gradientOpacityConstant);
       }
     }
