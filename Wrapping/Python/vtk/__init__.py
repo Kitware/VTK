@@ -42,3 +42,6 @@ except ImportError, exc:
 
 # removing things the user shouldn't have to see.
 del __helper
+
+# import useful VTK related constants.
+from util.vtkConstants import *
