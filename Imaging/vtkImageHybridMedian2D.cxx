@@ -11,7 +11,7 @@
   See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
      This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
@@ -19,8 +19,11 @@
 
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
+#include <vtkstd/vector>
+#include <vtkstd/algorithm>
+#include <vtkstd/numeric>
 
-vtkCxxRevisionMacro(vtkImageHybridMedian2D, "1.15");
+vtkCxxRevisionMacro(vtkImageHybridMedian2D, "1.16");
 vtkStandardNewMacro(vtkImageHybridMedian2D);
 
 //----------------------------------------------------------------------------
@@ -36,9 +39,11 @@ vtkImageHybridMedian2D::vtkImageHybridMedian2D()
 }
 
 
-void vtkImageHybridMedian2D::ThreadedExecute(vtkImageData *inData, 
-                                             vtkImageData *outData,
-                                             int outExt[6], int id)
+template <class T>
+void vtkImageHybridMedian2D(vtkImageHybridMedian2D *self,
+                             vtkImageData *inData, T *inPtr2,
+                             vtkImageData *outData, T *outPtr2,
+                             int outExt[6], int id)
 {
   int inExt[6];
   int idx0, idx1, idx2, idxC;
@@ -46,35 +51,25 @@ void vtkImageHybridMedian2D::ThreadedExecute(vtkImageData *inData,
   int outInc0, outInc1, outInc2;
   int min0, max0, min1, max1, min2, max2, numComps;
   int wholeMin0, wholeMax0, wholeMin1, wholeMax1, wholeMin2, wholeMax2;
-  float *inPtr0, *inPtr1, *inPtr2, *inPtrC;
-  float *outPtr0, *outPtr1, *outPtr2, *outPtrC, *ptr;
-  float median1, median2, temp;
-  float array[9];
-  int icount;
+  T *inPtr0, *inPtr1, *inPtrC;
+  T *outPtr0, *outPtr1, *outPtrC, *ptr;
+  T median1, median2, temp;
+  vtkstd::vector<T> array;
   unsigned long count = 0;
   unsigned long target;
 
   id = id;
-  
-  if (inData->GetScalarType() != VTK_FLOAT || 
-      outData->GetScalarType() != VTK_FLOAT)
-    {
-    vtkErrorMacro("Execute: Both input and output have to be float for now.");
-    return;
-    }
 
-  this->ComputeInputUpdateExtent(inExt, outExt); 
+
   inData->GetIncrements(inInc0, inInc1, inInc2);
-  this->GetInput()->GetWholeExtent(wholeMin0, wholeMax0, wholeMin1, wholeMax1,
+  self->GetInput()->GetWholeExtent(wholeMin0, wholeMax0, wholeMin1, wholeMax1,
                               wholeMin2, wholeMax2);
   numComps = inData->GetNumberOfScalarComponents();
   outData->GetIncrements(outInc0, outInc1, outInc2);
   min0 = outExt[0];   max0 = outExt[1];
   min1 = outExt[2];   max1 = outExt[3];
   min2 = outExt[4];   max2 = outExt[5];
-  outPtr2 = (float *)(outData->GetScalarPointer(min0, min1, min2));
-  inPtr2 = (float *)(inData->GetScalarPointer(min0, min1, min2));
-  
+
   target = (unsigned long)((max2-min2+1)*(max1-min1+1)/50.0);
   target++;
 
@@ -83,13 +78,13 @@ void vtkImageHybridMedian2D::ThreadedExecute(vtkImageData *inData,
     inPtr1 = inPtr2;
     outPtr1 = outPtr2;
 
-    for (idx1 = min1; !this->AbortExecute && idx1 <= max1; ++idx1)
+    for (idx1 = min1; !self->AbortExecute && idx1 <= max1; ++idx1)
       {
-      if (!id) 
+      if (!id)
         {
         if (!(count%target))
           {
-          this->UpdateProgress(count/(50.0*target));
+          self->UpdateProgress(count/(50.0*target));
           }
         count++;
         }
@@ -102,114 +97,118 @@ void vtkImageHybridMedian2D::ThreadedExecute(vtkImageData *inData,
         for (idxC = 0; idxC < numComps; ++idxC)
           {
           // compute median of + neighborhood
-          icount = 0;
+          array.clear();
           // Center
           ptr = inPtrC;
-          array[icount++] = *ptr;
+          array.push_back( *ptr );
           // left
           ptr = inPtrC;
           if (idx0 > wholeMin0)
             {
             ptr -= inInc0;
-            array[icount++] = *ptr;
+            array.push_back( *ptr );
             }
           if (idx0 - 1 > wholeMin0)
             {
             ptr -= inInc0;
-            array[icount++] = *ptr;
+            array.push_back( *ptr );
             }
           // right
           ptr = inPtrC;
           if (idx0 < wholeMax0)
             {
             ptr += inInc0;
-            array[icount++] = *ptr;
+            array.push_back( *ptr );
             }
           if (idx0 + 1 < wholeMax0)
             {
             ptr += inInc0;
-            array[icount++] = *ptr;
+            array.push_back( *ptr );
             }
           // up
           ptr = inPtrC;
           if (idx1 > wholeMin1)
             {
             ptr -= inInc1;
-            array[icount++] = *ptr;
+            array.push_back( *ptr );
             }
           if (idx1 - 1 > wholeMin1)
             {
             ptr -= inInc1;
-            array[icount++] = *ptr;
+            array.push_back( *ptr );
             }
           // right
           ptr = inPtrC;
           if (idx1 < wholeMax1)
             {
             ptr += inInc1;
-            array[icount++] = *ptr;
+            array.push_back( *ptr );
             }
           if (idx1 + 1 < wholeMax1)
             {
             ptr += inInc1;
-            array[icount++] = *ptr;
+            array.push_back( *ptr );
             }
-          median1 = this->ComputeMedian(array, icount);
-          
+
+          vtkstd::sort(array.begin(),array.end());
+          median1 = array[array.size()/2];
+
           // Cross median
-          icount = 0;
+          array.clear();
           // Center
-          array[icount++] = *ptr;
+          array.push_back( *ptr );
           // Lower Left
           ptr = inPtrC;
           if (idx0 > wholeMin0 && idx1 > wholeMin1)
             {
             ptr -= inInc0 + inInc1;
-            array[icount++] = *ptr;
+            array.push_back( *ptr );
             }
           if (idx0-1 > wholeMin0 && idx1-1 > wholeMin1)
             {
             ptr -= inInc0 + inInc1;
-            array[icount++] = *ptr;
+            array.push_back( *ptr );
             }
-          // Upper Right       
+          // Upper Right
           ptr = inPtrC;
           if (idx0 < wholeMax0 && idx1 < wholeMax1)
             {
             ptr += inInc0 + inInc1;
-            array[icount++] = *ptr;
+            array.push_back( *ptr );
             }
           if (idx0+1 > wholeMax0 && idx1+1 > wholeMax1)
             {
             ptr -= inInc0 + inInc1;
-            array[icount++] = *ptr;
+            array.push_back( *ptr );
             }
           // Upper Left
           ptr = inPtrC;
           if (idx0 > wholeMin0 && idx1 < wholeMax1)
             {
             ptr += -inInc0 + inInc1;
-            array[icount++] = *ptr;
+            array.push_back( *ptr );
             }
           if (idx0-1 > wholeMin0 && idx1+1 < wholeMax1)
             {
             ptr += -inInc0 + inInc1;
-            array[icount++] = *ptr;
+            array.push_back( *ptr );
             }
           // Lower Right
           ptr = inPtrC;
           if (idx0 < wholeMax0 && idx1 > wholeMin1)
             {
             ptr += inInc0 - inInc1;
-            array[icount++] = *ptr;
+            array.push_back( *ptr );
             }
           if (idx0+1 < wholeMax0 && idx1-1 > wholeMin1)
             {
             ptr += inInc0 - inInc1;
-            array[icount++] = *ptr;
+            array.push_back( *ptr );
             }
-          median2 = this->ComputeMedian(array, icount);
-          
+
+          vtkstd::sort(array.begin(),array.end());
+          median2 = array[array.size()/2];
+
           // Compute the median of the three. (med1, med2 and center)
           if (median1 > median2)
             {
@@ -243,33 +242,37 @@ void vtkImageHybridMedian2D::ThreadedExecute(vtkImageData *inData,
     }
 }
 
-  
-        
-
-// stupid little bubble sort
-float vtkImageHybridMedian2D::ComputeMedian(float *array, int size)
+// This method contains the first switch statement that calls the correct
+// templated function for the input and output Data types.
+// It hanldes image boundaries, so the image does not shrink.
+void vtkImageHybridMedian2D::ThreadedExecute(vtkImageData *inData,
+                                       vtkImageData *outData,
+                                       int outExt[6], int id)
 {
-  int idx, flag;
-  float temp;
-  
-  flag = 1;
-  while (flag)
+  int inExt[6];
+  this->ComputeInputUpdateExtent(inExt,outExt);
+  void *inPtr = inData->GetScalarPointerForExtent(inExt);
+  void *outPtr = outData->GetScalarPointerForExtent(outExt);
+
+  // this filter expects the output type to be same as input
+  if (outData->GetScalarType() != inData->GetScalarType())
     {
-    flag = 0;
-    for (idx = 1; idx < size; ++idx)
-      {
-      if (array[idx-1] > array[idx])
-        {
-        flag = 1;
-        temp = array[idx-1];
-        array[idx-1] = array[idx];
-        array[idx] = temp;
-        }
-      }
+    vtkErrorMacro(<< "Execute: output ScalarType, "
+      << vtkImageScalarTypeNameMacro(outData->GetScalarType())
+      << " must match input scalar type");
+    return;
     }
-  
-  // now return the median
-  return array[size / 2];
+
+  switch (inData->GetScalarType())
+    {
+    vtkTemplateMacro7(vtkImageHybridMedian2D, this, inData,
+                      (VTK_TT *)(inPtr), outData, (VTK_TT *)(outPtr),
+                      outExt, id);
+
+    default:
+      vtkErrorMacro(<< "Execute: Unknown ScalarType");
+      return;
+    }
 }
 
 
