@@ -100,8 +100,8 @@ protected:
   vtkIdType ReferenceCount;
 
 private:
-  vtkAbstractIterator(const vtkAbstractIterator&); // Not implemented
-  void operator=(const vtkAbstractIterator&); // Not implemented
+  vtkAbstractIterator(const vtkAbstractIterator&){}
+  void operator=(const vtkAbstractIterator&){}
 };
 
 #ifdef VTK_NO_EXPLICIT_TEMPLATE_INSTANTIATION

@@ -143,6 +143,10 @@ public:
 
 protected:
   vtkAbstractList();
+
+private:
+  vtkAbstractList(const vtkAbstractList<DType>&){}
+  void operator=(const vtkAbstractList<DType>&){}
 };
 
 #ifdef VTK_NO_EXPLICIT_TEMPLATE_INSTANTIATION
