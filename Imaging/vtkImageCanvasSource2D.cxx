@@ -20,7 +20,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageCanvasSource2D, "1.30");
+vtkCxxRevisionMacro(vtkImageCanvasSource2D, "1.31");
 vtkStandardNewMacro(vtkImageCanvasSource2D);
 
 //----------------------------------------------------------------------------
@@ -150,17 +150,17 @@ void vtkImageCanvasSource2D::FillBox(int min0, int max0, int min1, int max1)
   // Pre-multiply coords if needed
   if (this->Ratio[0] != 1.0) 
     {
-    min0 *= this->Ratio[0];
-    max0 *= this->Ratio[0];
+    min0 = int(float(min0) * this->Ratio[0]);
+    max0 = int(float(max0) * this->Ratio[0]);
     }
   if (this->Ratio[1] != 1.0) 
     {
-    min1 *= this->Ratio[1];
-    max1 *= this->Ratio[1];
+    min1 = int(float(min1) * this->Ratio[1]);
+    max1 = int(float(max1) * this->Ratio[1]);
     }
   if (this->Ratio[2] != 1.0) 
     {
-    z *= this->Ratio[2];
+    z = int(float(z) * this->Ratio[2]);
     }
 
   // Clip the data to keep in in bounds
@@ -274,18 +274,18 @@ void vtkImageCanvasSource2D::FillTube(int a0, int a1, int b0, int b1, float radi
   // Pre-multiply coords if needed
   if (this->Ratio[0] != 1.0) 
     {
-    a0 *= this->Ratio[0];
-    b0 *= this->Ratio[0];
-    radius *= this->Ratio[0];
+    a0 = int(float(a0) * this->Ratio[0]);
+    b0 = int(float(b0) * this->Ratio[0]);
+    radius = int(float(radius) * this->Ratio[0]);
     }
   if (this->Ratio[1] != 1.0) 
     {
-    a1 *= this->Ratio[1];
-    b1 *= this->Ratio[1];
+    a1 = int(float(a1) * this->Ratio[1]);
+    b1 = int(float(b1) * this->Ratio[1]);
     }
   if (this->Ratio[2] != 1.0) 
     {
-    z *= this->Ratio[2];
+    z = int(float(z) * this->Ratio[2]);
     }
 
   z = (z < extent[4]) ? extent[4] : z;
@@ -427,19 +427,19 @@ void vtkImageCanvasSource2D::FillTriangle(int a0,int a1, int b0,int b1, int c0,i
   // Pre-multiply coords if needed
   if (this->Ratio[0] != 1.0) 
     {
-    a0 *= this->Ratio[0];
-    b0 *= this->Ratio[0];
-    c0 *= this->Ratio[0];
+    a0 = int(float(a0) * this->Ratio[0]);
+    b0 = int(float(b0) * this->Ratio[0]);
+    c0 = int(float(c0) * this->Ratio[0]);
     }
   if (this->Ratio[1] != 1.0) 
     {
-    a1 *= this->Ratio[1];
-    b1 *= this->Ratio[1];
-    c1 *= this->Ratio[1];
+    a1 = int(float(a1) * this->Ratio[1]);
+    b1 = int(float(b1) * this->Ratio[1]);
+    c1 = int(float(c1) * this->Ratio[1]);
     }
   if (this->Ratio[2] != 1.0) 
     {
-    z *= this->Ratio[2];
+    z = int(float(z) * this->Ratio[2]);
     }
 
   ptr = this->ImageData->GetScalarPointer();
@@ -502,15 +502,15 @@ void vtkImageCanvasSource2D::DrawPoint(int p0, int p1)
   // Pre-multiply coords if needed
   if (this->Ratio[0] != 1.0) 
     {
-    p0 *= this->Ratio[0];
+    p0 = int(float(p0) * this->Ratio[0]);
     }
   if (this->Ratio[1] != 1.0) 
     {
-    p1 *= this->Ratio[1];
+    p1 = int(float(p1) * this->Ratio[1]);
     }
   if (this->Ratio[2] != 1.0) 
     {
-    z *= this->Ratio[2];
+    z = int(float(z) * this->Ratio[2]);
     }
 
   switch (this->ImageData->GetScalarType())
@@ -592,16 +592,16 @@ void vtkImageCanvasSource2D::DrawCircle(int c0, int c1, float radius)
   // Pre-multiply coords if needed
   if (this->Ratio[0] != 1.0) 
     {
-    c0 *= this->Ratio[0];
-    radius *= this->Ratio[0];
+    c0 = int(float(c0) * this->Ratio[0]);
+    radius = int(float(radius) * this->Ratio[0]);
     }
   if (this->Ratio[1] != 1.0) 
     {
-    c1 *= this->Ratio[1];
+    c1 = int(float(c1) * this->Ratio[1]);
     }
   if (this->Ratio[2] != 1.0) 
     {
-    z *= this->Ratio[2];
+    z = int(float(z) * this->Ratio[2]);
     }
 
   switch (this->ImageData->GetScalarType())
@@ -719,17 +719,17 @@ void vtkImageCanvasSource2D::DrawSegment(int a0, int a1, int b0, int b1)
   // Pre-multiply coords if needed
   if (this->Ratio[0] != 1.0) 
     {
-    a0 *= this->Ratio[0];
-    b0 *= this->Ratio[0];
+    a0 = int(float(a0) * this->Ratio[0]);
+    b0 = int(float(b0) * this->Ratio[0]);
     }
   if (this->Ratio[1] != 1.0) 
     {
-    a1 *= this->Ratio[1];
-    b1 *= this->Ratio[1];
+    a1 = int(float(a1) * this->Ratio[1]);
+    b1 = int(float(b1) * this->Ratio[1]);
     }
   if (this->Ratio[2] != 1.0) 
     {
-    z *= this->Ratio[2];
+    z = int(float(z) * this->Ratio[2]);
     }
 
   // check to make sure line segment is in bounds.
@@ -976,18 +976,18 @@ void vtkImageCanvasSource2D::DrawSegment3D(float *a, float *b)
   // Pre-multiply coords if needed
   if (this->Ratio[0] != 1.0) 
     {
-    a[0] *= this->Ratio[0];
-    b[0] *= this->Ratio[0];
+    a[0] = int(float(a[0]) * this->Ratio[0]);
+    b[0] = int(float(b[0]) * this->Ratio[0]);
     }
   if (this->Ratio[1] != 1.0) 
     {
-    a[1] *= this->Ratio[1];
-    b[1] *= this->Ratio[1];
+    a[1] = int(float(a[1]) * this->Ratio[1]);
+    b[1] = int(float(b[1]) * this->Ratio[1]);
     }
   if (this->Ratio[2] != 1.0) 
     {
-    a[2] *= this->Ratio[2];
-    b[2] *= this->Ratio[2];
+    a[2] = int(float(a[2]) * this->Ratio[2]);
+    b[2] = int(float(b[2]) * this->Ratio[2]);
     }
 
   ptr = this->ImageData->GetScalarPointer((int)(b[0] + 0.5), 
@@ -1283,15 +1283,15 @@ void vtkImageCanvasSource2D::FillPixel(int x, int y)
   // Pre-multiply coords if needed
   if (this->Ratio[0] != 1.0) 
     {
-    x *= this->Ratio[0];
+    x = int(float(x) * this->Ratio[0]);
     }
   if (this->Ratio[1] != 1.0) 
     {
-    y *= this->Ratio[1];
+    y = int(float(y) * this->Ratio[1]);
     }
   if (this->Ratio[2] != 1.0) 
     {
-    z *= this->Ratio[2];
+    z = int(float(z) * this->Ratio[2]);
     }
 
   z = (z < ext[4]) ? ext[4] : z;
