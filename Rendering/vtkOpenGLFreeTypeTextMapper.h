@@ -60,6 +60,7 @@ protected:
 
   vtkTimeStamp  SizeBuildTime;
   int LastSize[2];
+  int LastLargestDescender;
 
 private:
   vtkOpenGLFreeTypeTextMapper(const vtkOpenGLFreeTypeTextMapper&);  // Not implemented.

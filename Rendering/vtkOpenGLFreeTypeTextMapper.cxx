@@ -47,10 +47,6 @@
 
 #define VTK_FTTM_CACHE_BY_RGBA 1
 
-// Cache by size
-
-#define VTK_FTTM_CACHE_BY_SIZE 1
-
 // Reorder most recently used
 
 #define VTK_FTTM_REORDER 1
@@ -170,9 +166,7 @@ public:
     int Bold;
     int Italic;
     int AntiAliasing;
-#if VTK_FTTM_CACHE_BY_SIZE
     int FontSize;
-#endif
 #if VTK_FTTM_CACHE_BY_RGBA
     unsigned char Red;
     unsigned char Green;
@@ -312,9 +306,7 @@ void vtkFontCache::PrintEntry(int i, char *msg)
 
     printf("%s: [%2d] =", msg, i);
 
-#if VTK_FTTM_CACHE_BY_SIZE
     printf(" [S: %2d]", this->Entries[i]->FontSize);
-#endif
 
 #if VTK_FTTM_CACHE_BY_RGBA
     printf(" [RGBA: %2X/%2X/%2X (%2X)]", 
@@ -470,12 +462,7 @@ vtkFontCache::Entry* vtkFontCache::GetFont(vtkTextProperty *tprop,
            this->Entries[i]->Blue    == blue &&
            this->Entries[i]->Alpha   == alpha))
 #endif
-
-#if VTK_FTTM_CACHE_BY_SIZE
-      && this->Entries[i]->FontSize  == tprop->GetFontSize()
-#endif
-
-      )
+      && this->Entries[i]->FontSize  == tprop->GetFontSize())
       {
 #if VTK_FTTM_REORDER
       // Make this the most recently used
@@ -588,10 +575,7 @@ vtkFontCache::Entry* vtkFontCache::GetFont(vtkTextProperty *tprop,
     }
 
   this->Entries[this->NumberOfEntries]->AntiAliasing  = antialiasing_requested;
-
-#if VTK_FTTM_CACHE_BY_SIZE
   this->Entries[this->NumberOfEntries]->FontSize      = tprop->GetFontSize();
-#endif
 
 #if VTK_FTTM_CACHE_BY_RGBA
   if (antialiasing_requested)
@@ -629,7 +613,7 @@ vtkFontCache::Entry* vtkFontCache::GetFont(vtkTextProperty *tprop,
 }
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkOpenGLFreeTypeTextMapper, "1.17");
+vtkCxxRevisionMacro(vtkOpenGLFreeTypeTextMapper, "1.18");
 vtkStandardNewMacro(vtkOpenGLFreeTypeTextMapper);
 
 //----------------------------------------------------------------------------
@@ -717,19 +701,9 @@ void vtkOpenGLFreeTypeTextMapper::GetSize(vtkViewport* viewport, int *size)
     return;
     }
   
-  // Set the size (costly)
-  
-  if (font->GetSize().GetSizeInPoints() != tprop->GetFontSize())
-    {
-#if VTK_FTTM_DEBUG
-    printf("vtkOpenGLFreeTypeTextMapper::GetSize: FaceSize: %d => %d\n", 
-           font->GetSize().GetSizeInPoints(), tprop->GetFontSize());
-#endif
-    font->FaceSize(tprop->GetFontSize());
-    }
-  
   // The font global ascender and descender might just be too high
-  // for given a face. Let's get a compromise from the usual ascii chars.
+  // for given a face. Let's get a compromise by computing these values
+  // from some usual ascii chars.
   
   if (entry->LargestAscender < 0 || entry->LargestDescender < 0)
     {
@@ -740,8 +714,9 @@ void vtkOpenGLFreeTypeTextMapper::GetSize(vtkViewport* viewport, int *size)
     }
   
   this->LastSize[0] = size[0] = (int)font->Advance(this->Input);
-  this->LastSize[1] = size[1] =  
+  this->LastSize[1] = size[1] =
     (int)(entry->LargestAscender - entry->LargestDescender);
+  this->LastLargestDescender = (int)entry->LargestDescender;
 
   this->SizeBuildTime.Modified();
 }
@@ -785,51 +760,6 @@ void vtkOpenGLFreeTypeTextMapper::RenderOverlay(vtkViewport* viewport,
     }
   this->LastWindow = window;
 
-  // Get the font color from the text actor
-
-  unsigned char red, green, blue, alpha;
-  
-  // TOFIX: the default text prop color is set to a special (-1, -1, -1) value
-  // to maintain backward compatibility for a while. Text mapper classes will
-  // use the Actor2D color instead of the text prop color if this value is 
-  // found (i.e. if the text prop color has not been set).
-
-  float* tpropColor = tprop->GetColor();
-  if (tpropColor[0] < 0.0 && tpropColor[1] < 0.0 && tpropColor[2] < 0.0)
-    {
-    tpropColor = actor->GetProperty()->GetColor();
-    }
-
-  // TOFIX: same goes for opacity
-
-  float opacity = tprop->GetOpacity();
-  if (opacity < 0.0)
-    {
-    opacity = actor->GetProperty()->GetOpacity();
-    }
-
-  red   = (unsigned char) (tpropColor[0] * 255.0);
-  green = (unsigned char) (tpropColor[1] * 255.0);
-  blue  = (unsigned char) (tpropColor[2] * 255.0);
-  alpha = (unsigned char) (opacity       * 255.0);
-
-  // Check for font and set the size
-  // (incoming ::GetSize() might not do it since it caches the result)
-  
-  vtkFontCache::Entry *entry = 
-    vtkFontCache::GetInstance()->GetFont(tprop, 1, red,green,blue);
-  FTFont *font = entry->Font;
-  if (!font) 
-    {
-    vtkErrorMacro(<< "Render - No font");
-    return;
-    }
-
-  if (font->GetSize().GetSizeInPoints() != tprop->GetFontSize())
-    {
-    font->FaceSize(tprop->GetFontSize());
-    }
-
   // Get size of text
 
   int size[2];
@@ -862,10 +792,10 @@ void vtkOpenGLFreeTypeTextMapper::RenderOverlay(vtkViewport* viewport,
   switch (tprop->GetVerticalJustification())
     {
     case VTK_TEXT_TOP: 
-      pos[1] = pos[1] - size[1] - entry->LargestDescender;
+      pos[1] = pos[1] - size[1] - this->LastLargestDescender;
       break;
     case VTK_TEXT_CENTERED:
-      pos[1] = pos[1] - size[1] / 2 - entry->LargestDescender / 2;
+      pos[1] = pos[1] - size[1] / 2 - this->LastLargestDescender / 2;
       break;
     case VTK_TEXT_BOTTOM: 
       break;
@@ -936,6 +866,44 @@ void vtkOpenGLFreeTypeTextMapper::RenderOverlay(vtkViewport* viewport,
     return;
     }
 
+  // Get the font color from the text actor
+
+  unsigned char red, green, blue, alpha;
+  
+  // TOFIX: the default text prop color is set to a special (-1, -1, -1) value
+  // to maintain backward compatibility for a while. Text mapper classes will
+  // use the Actor2D color instead of the text prop color if this value is 
+  // found (i.e. if the text prop color has not been set).
+
+  float* tpropColor = tprop->GetColor();
+  if (tpropColor[0] < 0.0 && tpropColor[1] < 0.0 && tpropColor[2] < 0.0)
+    {
+    tpropColor = actor->GetProperty()->GetColor();
+    }
+
+  // TOFIX: same goes for opacity
+
+  float opacity = tprop->GetOpacity();
+  if (opacity < 0.0)
+    {
+    opacity = actor->GetProperty()->GetOpacity();
+    }
+
+  red   = (unsigned char) (tpropColor[0] * 255.0);
+  green = (unsigned char) (tpropColor[1] * 255.0);
+  blue  = (unsigned char) (tpropColor[2] * 255.0);
+  alpha = (unsigned char) (opacity       * 255.0);
+
+  // Get the font
+  
+  FTFont *font = 
+    vtkFontCache::GetInstance()->GetFont(tprop, 1, red,green,blue)->Font;
+  if (!font) 
+    {
+    vtkErrorMacro(<< "Render - No font");
+    return;
+    }
+
   // Set up the shadow color
 
   if (tprop->GetShadow())
@@ -943,27 +911,18 @@ void vtkOpenGLFreeTypeTextMapper::RenderOverlay(vtkViewport* viewport,
     unsigned char rgb = (red + green + blue) / 3.0 > 128.0 ? 0 : 255;
     unsigned char shadow_red = rgb, shadow_green = rgb, shadow_blue = rgb; 
 
-    // Check for shadow font and set the size
+    // Get the shadow font
   
 #if VTK_FTTM_CACHE_BY_RGBA
     FTFont *shadow_font;
-    int shadow_font_is_ok = 1;
     if (IsAntiAliasingRequestedByThisProperty(tprop))
       {
       shadow_font = vtkFontCache::GetInstance()->GetFont(
         tprop, 1, shadow_red, shadow_green, shadow_blue)->Font;
-
       if (!shadow_font) 
         {
         vtkErrorMacro(<< "Render - No shadow font");
-        shadow_font_is_ok = 0;
-        }
-      else
-        {
-        if (shadow_font->GetSize().GetSizeInPoints() != tprop->GetFontSize())
-          {
-          shadow_font->FaceSize(tprop->GetFontSize());
-          }
+        return;
         }
       } 
     else 
@@ -985,12 +944,11 @@ void vtkOpenGLFreeTypeTextMapper::RenderOverlay(vtkViewport* viewport,
     // Draw the shadow text
     
 #if VTK_FTTM_CACHE_BY_RGBA
-    if (shadow_font_is_ok)
-      {
-      shadow_font->render(this->Input);  
-      }
-    // get the font again, Duh, since it may have been freed from the 
+    shadow_font->render(this->Input);  
+
+    // Get the font again, Duh, since it may have been freed from the 
     // cache by the shadow font
+
     if (IsAntiAliasingRequestedByThisProperty(tprop))
       {
       font = 
