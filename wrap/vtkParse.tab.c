@@ -1189,7 +1189,7 @@ case 61:
 break;
 case 62:
 #line 288 "vtkParse.y"
-{ yyval.integer = 10 + yyvsp[-1].integer;}
+{ yyval.integer = 10 + yyvsp[0].integer;}
 break;
 case 63:
 #line 289 "vtkParse.y"
@@ -1293,7 +1293,7 @@ case 87:
    sprintf(temps,"Set%s",yyvsp[-4].str); 
    currentFunction->Name = strdup(temps);
    currentFunction->NumberOfArguments = 1;
-   currentFunction->ArgTypes[0] = yyvsp[-2].integer;
+   currentFunction->ArgTypes[0] = yyvsp[-1].integer;
    currentFunction->ArgCounts[0] = 0;
    currentFunction->ReturnType = 2;
    output_function();
@@ -1310,10 +1310,10 @@ break;
 case 90:
 #line 352 "vtkParse.y"
 { 
-   sprintf(temps,"Get%s",yyvsp[-5].str); 
+   sprintf(temps,"Get%s",yyvsp[-4].str); 
    currentFunction->Name = strdup(temps);
    currentFunction->NumberOfArguments = 0;
-   currentFunction->ReturnType = yyvsp[-3].integer;
+   currentFunction->ReturnType = yyvsp[-1].integer;
    output_function();
    }
 break;
@@ -1325,7 +1325,7 @@ case 92:
 #line 360 "vtkParse.y"
 {
    postSig(" (char *);"); 
-   sprintf(temps,"Set%s",yyvsp[-2].str); 
+   sprintf(temps,"Set%s",yyvsp[-1].str); 
    currentFunction->Name = strdup(temps);
    currentFunction->NumberOfArguments = 1;
    currentFunction->ArgTypes[0] = 303;
@@ -1342,7 +1342,7 @@ case 94:
 #line 371 "vtkParse.y"
 { 
    postSig(" ();");
-   sprintf(temps,"Get%s",yyvsp[-2].str); 
+   sprintf(temps,"Get%s",yyvsp[-1].str); 
    currentFunction->Name = strdup(temps);
    currentFunction->NumberOfArguments = 0;
    currentFunction->ReturnType = 303;
@@ -1363,7 +1363,7 @@ case 97:
    sprintf(temps,"Set%s",yyvsp[-7].str); 
    currentFunction->Name = strdup(temps);
    currentFunction->NumberOfArguments = 1;
-   currentFunction->ArgTypes[0] = yyvsp[-5].integer;
+   currentFunction->ArgTypes[0] = yyvsp[-4].integer;
    currentFunction->ArgCounts[0] = 0;
    currentFunction->ReturnType = 2;
    output_function();
@@ -1414,7 +1414,7 @@ break;
 case 104:
 #line 417 "vtkParse.y"
 { 
-   sprintf(temps,"Get%s",yyvsp[-5].str); 
+   sprintf(temps,"Get%s",yyvsp[-4].str); 
    currentFunction->Name = strdup(temps);
    currentFunction->NumberOfArguments = 0;
    currentFunction->ReturnType = 309;
@@ -1457,9 +1457,9 @@ case 108:
    sprintf(temps,"Set%s",yyvsp[-4].str); 
    currentFunction->Name = strdup(temps);
    currentFunction->NumberOfArguments = 2;
-   currentFunction->ArgTypes[0] = yyvsp[-2].integer;
+   currentFunction->ArgTypes[0] = yyvsp[-1].integer;
    currentFunction->ArgCounts[0] = 0;
-   currentFunction->ArgTypes[1] = yyvsp[-2].integer;
+   currentFunction->ArgTypes[1] = yyvsp[-1].integer;
    currentFunction->ArgCounts[1] = 0;
    currentFunction->ReturnType = 2;
    output_function();
@@ -1469,7 +1469,7 @@ case 108:
      local);
    currentFunction->Name = strdup(temps);
    currentFunction->NumberOfArguments = 1;
-   currentFunction->ArgTypes[0] = 300 + yyvsp[-2].integer;
+   currentFunction->ArgTypes[0] = 300 + yyvsp[-1].integer;
    currentFunction->ArgCounts[0] = 2;
    output_function();
    }
@@ -1489,7 +1489,7 @@ case 110:
    sprintf(temps,"Get%s",yyvsp[-4].str); 
    currentFunction->Name = strdup(temps);
    currentFunction->NumberOfArguments = 0;
-   currentFunction->ReturnType = 300 + yyvsp[-2].integer;
+   currentFunction->ReturnType = 300 + yyvsp[-1].integer;
    currentFunction->HaveHint = 1;
    currentFunction->HintSize = 2;
    output_function();
@@ -1511,11 +1511,11 @@ case 112:
    sprintf(temps,"Set%s",yyvsp[-4].str); 
    currentFunction->Name = strdup(temps);
    currentFunction->NumberOfArguments = 3;
-   currentFunction->ArgTypes[0] = yyvsp[-2].integer;
+   currentFunction->ArgTypes[0] = yyvsp[-1].integer;
    currentFunction->ArgCounts[0] = 0;
-   currentFunction->ArgTypes[1] = yyvsp[-2].integer;
+   currentFunction->ArgTypes[1] = yyvsp[-1].integer;
    currentFunction->ArgCounts[1] = 0;
-   currentFunction->ArgTypes[2] = yyvsp[-2].integer;
+   currentFunction->ArgTypes[2] = yyvsp[-1].integer;
    currentFunction->ArgCounts[2] = 0;
    currentFunction->ReturnType = 2;
    output_function();
@@ -1525,7 +1525,7 @@ case 112:
      local);
    currentFunction->Name = strdup(temps);
    currentFunction->NumberOfArguments = 1;
-   currentFunction->ArgTypes[0] = 300 + yyvsp[-2].integer;
+   currentFunction->ArgTypes[0] = 300 + yyvsp[-1].integer;
    currentFunction->ArgCounts[0] = 3;
    output_function();
    }
@@ -1545,7 +1545,7 @@ case 114:
    sprintf(temps,"Get%s",yyvsp[-4].str); 
    currentFunction->Name = strdup(temps);
    currentFunction->NumberOfArguments = 0;
-   currentFunction->ReturnType = 300 + yyvsp[-2].integer;
+   currentFunction->ReturnType = 300 + yyvsp[-1].integer;
    currentFunction->HaveHint = 1;
    currentFunction->HintSize = 3;
    output_function();
@@ -1567,13 +1567,13 @@ case 116:
    sprintf(temps,"Set%s",yyvsp[-4].str); 
    currentFunction->Name = strdup(temps);
    currentFunction->NumberOfArguments = 4;
-   currentFunction->ArgTypes[0] = yyvsp[-2].integer;
+   currentFunction->ArgTypes[0] = yyvsp[-1].integer;
    currentFunction->ArgCounts[0] = 0;
-   currentFunction->ArgTypes[1] = yyvsp[-2].integer;
+   currentFunction->ArgTypes[1] = yyvsp[-1].integer;
    currentFunction->ArgCounts[1] = 0;
-   currentFunction->ArgTypes[2] = yyvsp[-2].integer;
+   currentFunction->ArgTypes[2] = yyvsp[-1].integer;
    currentFunction->ArgCounts[2] = 0;
-   currentFunction->ArgTypes[3] = yyvsp[-2].integer;
+   currentFunction->ArgTypes[3] = yyvsp[-1].integer;
    currentFunction->ArgCounts[3] = 0;
    currentFunction->ReturnType = 2;
    output_function();
@@ -1583,7 +1583,7 @@ case 116:
      local);
    currentFunction->Name = strdup(temps);
    currentFunction->NumberOfArguments = 1;
-   currentFunction->ArgTypes[0] = 300 + yyvsp[-2].integer;
+   currentFunction->ArgTypes[0] = 300 + yyvsp[-1].integer;
    currentFunction->ArgCounts[0] = 4;
    output_function();
    }
@@ -1603,7 +1603,7 @@ case 118:
    sprintf(temps,"Get%s",yyvsp[-4].str); 
    currentFunction->Name = strdup(temps);
    currentFunction->NumberOfArguments = 0;
-   currentFunction->ReturnType = 300 + yyvsp[-2].integer;
+   currentFunction->ReturnType = 300 + yyvsp[-1].integer;
    currentFunction->HaveHint = 1;
    currentFunction->HintSize = 4;
    output_function();
@@ -1625,17 +1625,17 @@ case 120:
    sprintf(temps,"Set%s",yyvsp[-4].str); 
    currentFunction->Name = strdup(temps);
    currentFunction->NumberOfArguments = 6;
-   currentFunction->ArgTypes[0] = yyvsp[-2].integer;
+   currentFunction->ArgTypes[0] = yyvsp[-1].integer;
    currentFunction->ArgCounts[0] = 0;
-   currentFunction->ArgTypes[1] = yyvsp[-2].integer;
+   currentFunction->ArgTypes[1] = yyvsp[-1].integer;
    currentFunction->ArgCounts[1] = 0;
-   currentFunction->ArgTypes[2] = yyvsp[-2].integer;
+   currentFunction->ArgTypes[2] = yyvsp[-1].integer;
    currentFunction->ArgCounts[2] = 0;
-   currentFunction->ArgTypes[3] = yyvsp[-2].integer;
+   currentFunction->ArgTypes[3] = yyvsp[-1].integer;
    currentFunction->ArgCounts[3] = 0;
-   currentFunction->ArgTypes[4] = yyvsp[-2].integer;
+   currentFunction->ArgTypes[4] = yyvsp[-1].integer;
    currentFunction->ArgCounts[4] = 0;
-   currentFunction->ArgTypes[5] = yyvsp[-2].integer;
+   currentFunction->ArgTypes[5] = yyvsp[-1].integer;
    currentFunction->ArgCounts[5] = 0;
    currentFunction->ReturnType = 2;
    output_function();
@@ -1645,7 +1645,7 @@ case 120:
      local);
    currentFunction->Name = strdup(temps);
    currentFunction->NumberOfArguments = 1;
-   currentFunction->ArgTypes[0] = 300 + yyvsp[-2].integer;
+   currentFunction->ArgTypes[0] = 300 + yyvsp[-1].integer;
    currentFunction->ArgCounts[0] = 6;
    output_function();
    }
@@ -1665,7 +1665,7 @@ case 122:
    sprintf(temps,"Get%s",yyvsp[-4].str); 
    currentFunction->Name = strdup(temps);
    currentFunction->NumberOfArguments = 0;
-   currentFunction->ReturnType = 300 + yyvsp[-2].integer;
+   currentFunction->ReturnType = 300 + yyvsp[-1].integer;
    currentFunction->HaveHint = 1;
    currentFunction->HintSize = 6;
    output_function();
@@ -1683,13 +1683,13 @@ case 124:
 {
    char *local = strdup(currentFunction->Signature);
    sprintf(currentFunction->Signature,"void Set%s (%s [%i]);",yyvsp[-6].str,
-      local, yyvsp[-2].integer);
+      local, yyvsp[-1].integer);
      sprintf(temps,"Set%s",yyvsp[-6].str); 
      currentFunction->Name = strdup(temps);
      currentFunction->ReturnType = 2;
      currentFunction->NumberOfArguments = 1;
-     currentFunction->ArgTypes[0] = 300 + yyvsp[-4].integer;
-     currentFunction->ArgCounts[0] = yyvsp[-2].integer;
+     currentFunction->ArgTypes[0] = 300 + yyvsp[-3].integer;
+     currentFunction->ArgCounts[0] = yyvsp[-1].integer;
      output_function();
    }
 break;
@@ -1708,9 +1708,9 @@ case 126:
    sprintf(temps,"Get%s",yyvsp[-6].str); 
    currentFunction->Name = strdup(temps);
    currentFunction->NumberOfArguments = 0;
-   currentFunction->ReturnType = 300 + yyvsp[-4].integer;
+   currentFunction->ReturnType = 300 + yyvsp[-3].integer;
    currentFunction->HaveHint = 1;
-   currentFunction->HintSize = yyvsp[-2].integer;
+   currentFunction->HintSize = yyvsp[-1].integer;
    output_function();
    }
 break;

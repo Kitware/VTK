@@ -285,7 +285,7 @@ type_indirection: '&' { postSig("&"); $<integer>$ = 100;}
                 | '*' type_indirection { $<integer>$ = 400 + $<integer>2;};
 
 type_red2: UNSIGNED {postSig("unsigned ");} 
-             type_primitive { $<integer>$ = 10 + $<integer>2;} 
+             type_primitive { $<integer>$ = 10 + $<integer>3;} 
                   | type_primitive { $<integer>$ = $<integer>1;};
 
 type_primitive: 
@@ -342,7 +342,7 @@ macro:
    sprintf(temps,"Set%s",$<str>3); 
    currentFunction->Name = strdup(temps);
    currentFunction->NumberOfArguments = 1;
-   currentFunction->ArgTypes[0] = $<integer>5;
+   currentFunction->ArgTypes[0] = $<integer>6;
    currentFunction->ArgCounts[0] = 0;
    currentFunction->ReturnType = 2;
    output_function();
@@ -350,16 +350,16 @@ macro:
 | GetMacro '('{postSig("Get");} any_id ',' {postSig(" ();"); invertSig = 1;} 
     type_red2 ')'
    { 
-   sprintf(temps,"Get%s",$<str>3); 
+   sprintf(temps,"Get%s",$<str>4); 
    currentFunction->Name = strdup(temps);
    currentFunction->NumberOfArguments = 0;
-   currentFunction->ReturnType = $<integer>5;
+   currentFunction->ReturnType = $<integer>7;
    output_function();
    }
 | SetStringMacro '(' {preSig("void Set");} any_id ')'
    {
    postSig(" (char *);"); 
-   sprintf(temps,"Set%s",$<str>3); 
+   sprintf(temps,"Set%s",$<str>4); 
    currentFunction->Name = strdup(temps);
    currentFunction->NumberOfArguments = 1;
    currentFunction->ArgTypes[0] = 303;
@@ -370,7 +370,7 @@ macro:
 | GetStringMacro '(' {preSig("char *Get");} any_id ')'
    { 
    postSig(" ();");
-   sprintf(temps,"Get%s",$<str>3); 
+   sprintf(temps,"Get%s",$<str>4); 
    currentFunction->Name = strdup(temps);
    currentFunction->NumberOfArguments = 0;
    currentFunction->ReturnType = 303;
@@ -383,7 +383,7 @@ macro:
    sprintf(temps,"Set%s",$<str>3); 
    currentFunction->Name = strdup(temps);
    currentFunction->NumberOfArguments = 1;
-   currentFunction->ArgTypes[0] = $<integer>5;
+   currentFunction->ArgTypes[0] = $<integer>6;
    currentFunction->ArgCounts[0] = 0;
    currentFunction->ReturnType = 2;
    output_function();
@@ -415,7 +415,7 @@ macro:
 | GetObjectMacro '(' {postSig("Get");} any_id ',' 
    {postSig(" ();"); invertSig = 1;} type_red2 ')'
    { 
-   sprintf(temps,"Get%s",$<str>3); 
+   sprintf(temps,"Get%s",$<str>4); 
    currentFunction->Name = strdup(temps);
    currentFunction->NumberOfArguments = 0;
    currentFunction->ReturnType = 309;
@@ -450,9 +450,9 @@ macro:
    sprintf(temps,"Set%s",$<str>3); 
    currentFunction->Name = strdup(temps);
    currentFunction->NumberOfArguments = 2;
-   currentFunction->ArgTypes[0] = $<integer>5;
+   currentFunction->ArgTypes[0] = $<integer>6;
    currentFunction->ArgCounts[0] = 0;
-   currentFunction->ArgTypes[1] = $<integer>5;
+   currentFunction->ArgTypes[1] = $<integer>6;
    currentFunction->ArgCounts[1] = 0;
    currentFunction->ReturnType = 2;
    output_function();
@@ -462,7 +462,7 @@ macro:
      local);
    currentFunction->Name = strdup(temps);
    currentFunction->NumberOfArguments = 1;
-   currentFunction->ArgTypes[0] = 300 + $<integer>5;
+   currentFunction->ArgTypes[0] = 300 + $<integer>6;
    currentFunction->ArgCounts[0] = 2;
    output_function();
    }
@@ -478,7 +478,7 @@ macro:
    sprintf(temps,"Get%s",$<str>3); 
    currentFunction->Name = strdup(temps);
    currentFunction->NumberOfArguments = 0;
-   currentFunction->ReturnType = 300 + $<integer>5;
+   currentFunction->ReturnType = 300 + $<integer>6;
    currentFunction->HaveHint = 1;
    currentFunction->HintSize = 2;
    output_function();
@@ -496,11 +496,11 @@ macro:
    sprintf(temps,"Set%s",$<str>3); 
    currentFunction->Name = strdup(temps);
    currentFunction->NumberOfArguments = 3;
-   currentFunction->ArgTypes[0] = $<integer>5;
+   currentFunction->ArgTypes[0] = $<integer>6;
    currentFunction->ArgCounts[0] = 0;
-   currentFunction->ArgTypes[1] = $<integer>5;
+   currentFunction->ArgTypes[1] = $<integer>6;
    currentFunction->ArgCounts[1] = 0;
-   currentFunction->ArgTypes[2] = $<integer>5;
+   currentFunction->ArgTypes[2] = $<integer>6;
    currentFunction->ArgCounts[2] = 0;
    currentFunction->ReturnType = 2;
    output_function();
@@ -510,7 +510,7 @@ macro:
      local);
    currentFunction->Name = strdup(temps);
    currentFunction->NumberOfArguments = 1;
-   currentFunction->ArgTypes[0] = 300 + $<integer>5;
+   currentFunction->ArgTypes[0] = 300 + $<integer>6;
    currentFunction->ArgCounts[0] = 3;
    output_function();
    }
@@ -526,7 +526,7 @@ macro:
    sprintf(temps,"Get%s",$<str>3); 
    currentFunction->Name = strdup(temps);
    currentFunction->NumberOfArguments = 0;
-   currentFunction->ReturnType = 300 + $<integer>5;
+   currentFunction->ReturnType = 300 + $<integer>6;
    currentFunction->HaveHint = 1;
    currentFunction->HintSize = 3;
    output_function();
@@ -544,13 +544,13 @@ macro:
    sprintf(temps,"Set%s",$<str>3); 
    currentFunction->Name = strdup(temps);
    currentFunction->NumberOfArguments = 4;
-   currentFunction->ArgTypes[0] = $<integer>5;
+   currentFunction->ArgTypes[0] = $<integer>6;
    currentFunction->ArgCounts[0] = 0;
-   currentFunction->ArgTypes[1] = $<integer>5;
+   currentFunction->ArgTypes[1] = $<integer>6;
    currentFunction->ArgCounts[1] = 0;
-   currentFunction->ArgTypes[2] = $<integer>5;
+   currentFunction->ArgTypes[2] = $<integer>6;
    currentFunction->ArgCounts[2] = 0;
-   currentFunction->ArgTypes[3] = $<integer>5;
+   currentFunction->ArgTypes[3] = $<integer>6;
    currentFunction->ArgCounts[3] = 0;
    currentFunction->ReturnType = 2;
    output_function();
@@ -560,7 +560,7 @@ macro:
      local);
    currentFunction->Name = strdup(temps);
    currentFunction->NumberOfArguments = 1;
-   currentFunction->ArgTypes[0] = 300 + $<integer>5;
+   currentFunction->ArgTypes[0] = 300 + $<integer>6;
    currentFunction->ArgCounts[0] = 4;
    output_function();
    }
@@ -576,7 +576,7 @@ macro:
    sprintf(temps,"Get%s",$<str>3); 
    currentFunction->Name = strdup(temps);
    currentFunction->NumberOfArguments = 0;
-   currentFunction->ReturnType = 300 + $<integer>5;
+   currentFunction->ReturnType = 300 + $<integer>6;
    currentFunction->HaveHint = 1;
    currentFunction->HintSize = 4;
    output_function();
@@ -594,17 +594,17 @@ macro:
    sprintf(temps,"Set%s",$<str>3); 
    currentFunction->Name = strdup(temps);
    currentFunction->NumberOfArguments = 6;
-   currentFunction->ArgTypes[0] = $<integer>5;
+   currentFunction->ArgTypes[0] = $<integer>6;
    currentFunction->ArgCounts[0] = 0;
-   currentFunction->ArgTypes[1] = $<integer>5;
+   currentFunction->ArgTypes[1] = $<integer>6;
    currentFunction->ArgCounts[1] = 0;
-   currentFunction->ArgTypes[2] = $<integer>5;
+   currentFunction->ArgTypes[2] = $<integer>6;
    currentFunction->ArgCounts[2] = 0;
-   currentFunction->ArgTypes[3] = $<integer>5;
+   currentFunction->ArgTypes[3] = $<integer>6;
    currentFunction->ArgCounts[3] = 0;
-   currentFunction->ArgTypes[4] = $<integer>5;
+   currentFunction->ArgTypes[4] = $<integer>6;
    currentFunction->ArgCounts[4] = 0;
-   currentFunction->ArgTypes[5] = $<integer>5;
+   currentFunction->ArgTypes[5] = $<integer>6;
    currentFunction->ArgCounts[5] = 0;
    currentFunction->ReturnType = 2;
    output_function();
@@ -614,7 +614,7 @@ macro:
      local);
    currentFunction->Name = strdup(temps);
    currentFunction->NumberOfArguments = 1;
-   currentFunction->ArgTypes[0] = 300 + $<integer>5;
+   currentFunction->ArgTypes[0] = 300 + $<integer>6;
    currentFunction->ArgCounts[0] = 6;
    output_function();
    }
@@ -630,7 +630,7 @@ macro:
    sprintf(temps,"Get%s",$<str>3); 
    currentFunction->Name = strdup(temps);
    currentFunction->NumberOfArguments = 0;
-   currentFunction->ReturnType = 300 + $<integer>5;
+   currentFunction->ReturnType = 300 + $<integer>6;
    currentFunction->HaveHint = 1;
    currentFunction->HintSize = 6;
    output_function();
@@ -644,13 +644,13 @@ macro:
    {
    char *local = strdup(currentFunction->Signature);
    sprintf(currentFunction->Signature,"void Set%s (%s [%i]);",$<str>3,
-      local, $<integer>7);
+      local, $<integer>8);
      sprintf(temps,"Set%s",$<str>3); 
      currentFunction->Name = strdup(temps);
      currentFunction->ReturnType = 2;
      currentFunction->NumberOfArguments = 1;
-     currentFunction->ArgTypes[0] = 300 + $<integer>5;
-     currentFunction->ArgCounts[0] = $<integer>7;
+     currentFunction->ArgTypes[0] = 300 + $<integer>6;
+     currentFunction->ArgCounts[0] = $<integer>8;
      output_function();
    }
 | GetVectorMacro  '(' any_id ',' 
@@ -665,9 +665,9 @@ macro:
    sprintf(temps,"Get%s",$<str>3); 
    currentFunction->Name = strdup(temps);
    currentFunction->NumberOfArguments = 0;
-   currentFunction->ReturnType = 300 + $<integer>5;
+   currentFunction->ReturnType = 300 + $<integer>6;
    currentFunction->HaveHint = 1;
-   currentFunction->HintSize = $<integer>7;
+   currentFunction->HintSize = $<integer>8;
    output_function();
    }
 | ViewportCoordinateMacro '(' any_id ')'
