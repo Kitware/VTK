@@ -299,7 +299,7 @@ int vtkVolume::RenderTranslucentGeometry( vtkViewport *vp )
 
   if ( !this->VolumeMapper )
     {
-    return;
+    return 0;
     }
 
   // Force the creation of a property
