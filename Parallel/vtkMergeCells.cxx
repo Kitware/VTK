@@ -40,7 +40,7 @@
 #include <vtkstd/map>
 #include <vtkstd/algorithm>
 
-vtkCxxRevisionMacro(vtkMergeCells, "1.3");
+vtkCxxRevisionMacro(vtkMergeCells, "1.4");
 vtkStandardNewMacro(vtkMergeCells);
 
 vtkCxxSetObjectMacro(vtkMergeCells, UnstructuredGrid, vtkUnstructuredGrid);
@@ -73,8 +73,8 @@ vtkMergeCells::vtkMergeCells()
 
   this->UnstructuredGrid = NULL;
 
-  this->GlobalIdMap = NULL;
-  this->GlobalCellIdMap = NULL;
+  this->GlobalIdMap = new vtkMergeCellsSTLCloak;
+  this->GlobalCellIdMap = new vtkMergeCellsSTLCloak;
 
   this->nextGrid = 0;
 }
@@ -102,13 +102,11 @@ void vtkMergeCells::FreeLists()
   if (this->GlobalIdMap)
     {
     delete this->GlobalIdMap;
-    this->GlobalIdMap = NULL;
     }
 
   if (this->GlobalCellIdMap)
     {
     delete this->GlobalCellIdMap;
-    this->GlobalCellIdMap = NULL;
     }
 
   if (this->ptList)
@@ -261,11 +259,6 @@ vtkIdType vtkMergeCells::AddNewCellsDataSet(vtkDataSet *set, vtkIdType *idMap)
 
   int duplicateCellTest = 0;
 
-  if (this->GlobalCellIdMap == NULL)
-    {
-    this->GlobalCellIdMap = new vtkMergeCellsSTLCloak;
-    }
-
   if (this->GlobalCellIdArrayName)
     {
     int success = this->GlobalCellIdAccessStart(set);
@@ -354,11 +347,6 @@ vtkIdType vtkMergeCells::AddNewCellsUnstructuredGrid(vtkDataSet *set,
   vtkIdList *duplicateCellIds = NULL;
   int numDuplicateCells = 0;
   int numDuplicateConnections = 0;
-
-  if (this->GlobalCellIdMap == NULL)
-    {
-    this->GlobalCellIdMap = new vtkMergeCellsSTLCloak;
-    }
 
   if (this->GlobalCellIdArrayName)
     {
@@ -619,11 +607,6 @@ vtkIdType *vtkMergeCells::MapPointsToIdsUsingGlobalIds(vtkDataSet *set)
   vtkIdType npoints = set->GetNumberOfPoints();
 
   vtkIdType *idMap = new vtkIdType [npoints];
-
-  if (this->GlobalIdMap == NULL)
-    {
-    this->GlobalIdMap = new vtkMergeCellsSTLCloak;
-    }
 
   vtkIdType nextNewLocalId = this->GlobalIdMap->IdTypeMap.size();
 
@@ -1009,10 +992,7 @@ void vtkMergeCells::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "GlobalCellIdArrayName: " << this->GlobalCellIdArrayName << endl;
     }
 
-  if (this->GlobalIdMap)
-    {
-    os << indent << "GlobalIdMap: " << this->GlobalIdMap->IdTypeMap.size() << endl;
-    }
+  os << indent << "GlobalIdMap: " << this->GlobalIdMap->IdTypeMap.size() << endl;
 
   os << indent << "PointMergeTolerance: " << this->PointMergeTolerance << endl;
   os << indent << "MergeDuplicatePoints: " << this->MergeDuplicatePoints << endl;
