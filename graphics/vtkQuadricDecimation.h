@@ -81,6 +81,10 @@ public:
   // Set/Get the maximum number of edges to collapse.
   vtkSetMacro(MaximumCollapsedEdges, int);
   vtkGetMacro(MaximumCollapsedEdges, int);
+
+  // Description:
+  // For debuggin: the last edge / triangles that were collapsed.
+  vtkPolyData *GetTestOutput() {return this->GetOutput(1);}
   
 protected:
   vtkQuadricDecimation();

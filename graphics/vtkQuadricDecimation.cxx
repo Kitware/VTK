@@ -69,6 +69,10 @@ vtkQuadricDecimation::vtkQuadricDecimation()
   this->NumberOfCollapsedEdges = 0;
   this->NumberOfComponents = 0;
   this->Mesh = vtkPolyData::New();
+
+  vtkPolyData *testOutput = vtkPolyData::New();
+  this->SetNthOutput(1, testOutput);
+  testOutput->Delete();
 }
 
 //----------------------------------------------------------------------------
@@ -86,11 +90,15 @@ void vtkQuadricDecimation::Execute()
 {
   vtkPolyData *input = this->GetInput();
   vtkPolyData *output = this->GetOutput();
+  vtkPolyData *testOutput = this->GetTestOutput();
+  vtkPoints *testPoints = vtkPoints::New();
+  vtkCellArray *testEdges = vtkCellArray::New();
+  int testId0, testId1;
   vtkCellArray *triangles = input->GetPolys();
   int numTris = triangles->GetNumberOfCells();
   int numPts = input->GetNumberOfPoints();
   int i, j, edgeId;
-  int numCellPts, *cellPts;
+  int numCellPts, *cellPts, newCellPts[3];
   float cost, x[3];
   vtkPoints *targetPoints = vtkPoints::New();
   vtkPointData *targetPointData = vtkPointData::New();
@@ -105,7 +113,7 @@ void vtkQuadricDecimation::Execute()
   vtkCellArray *outputPolys = vtkCellArray::New();
   vtkGenericCell *cell = vtkGenericCell::New();
   int cellId;
-  
+
   if (input->GetPolys() == NULL)
     {
     vtkErrorMacro("no triangles to decimate");
@@ -164,6 +172,7 @@ void vtkQuadricDecimation::Execute()
     targetPoints->InsertPoint(i, x);
     }
   
+  this->NumberOfCollapsedEdges = 0;
   // Get id of edge with minimum cost to collapse.
   edgeId = this->EdgeCosts->Pop(cost);
   while (cost < this->MaximumCost &&
@@ -192,10 +201,20 @@ void vtkQuadricDecimation::Execute()
     // collapsed edge.
     // Add these new edges to the edge table.
     // Remove the the changed edges from the priority queue.
+
+    testPoints->Reset();
+    testEdges->Reset();
     for (i = 0; i < changedEdges->GetNumberOfIds(); i++)
       {
       edge[0] = this->EndPoint1List->GetId(changedEdges->GetId(i));
       edge[1] = this->EndPoint2List->GetId(changedEdges->GetId(i));
+
+      testId0 = testPoints->InsertNextPoint(this->Mesh->GetPoints()->GetPoint(edge[0]));
+      testId1 = testPoints->InsertNextPoint(this->Mesh->GetPoints()->GetPoint(edge[1]));
+      testEdges->InsertNextCell(2);
+      testEdges->InsertCellPoint(testId0);
+      testEdges->InsertCellPoint(testId1);
+
       if (edge[0] == endPtIds[1])
         {
         if (this->Edges->IsEdge(edge[1], endPtIds[0]) == -1)
@@ -249,14 +268,14 @@ void vtkQuadricDecimation::Execute()
       {
       cellId = changedCells->GetId(i);
       this->Mesh->GetCell(cellId, cell);
-      cellPts[0] = cell->GetPointId(0);
-      cellPts[1] = cell->GetPointId(1);
-      cellPts[2] = cell->GetPointId(2);
+      newCellPts[0] = cell->GetPointId(0);
+      newCellPts[1] = cell->GetPointId(1);
+      newCellPts[2] = cell->GetPointId(2);
       // making sure we don't already have the triangle we're about to
       // change this one to
-      if (cellPts[0] == endPtIds[1])
+      if (newCellPts[0] == endPtIds[1])
         {
-        if (this->Mesh->IsTriangle(endPtIds[0], cellPts[1], cellPts[2]))
+        if (this->Mesh->IsTriangle(endPtIds[0], newCellPts[1], newCellPts[2]))
           {
           this->Mesh->RemoveCellReference(cellId);
           outputCellList->DeleteId(cellId);
@@ -269,9 +288,9 @@ void vtkQuadricDecimation::Execute()
           this->Mesh->ReplaceCellPoint(cellId, endPtIds[1], endPtIds[0]);
           }
         }
-      else if (cellPts[1] == endPtIds[1])
+      else if (newCellPts[1] == endPtIds[1])
         {
-        if (this->Mesh->IsTriangle(cellPts[0], endPtIds[0], cellPts[2]))
+        if (this->Mesh->IsTriangle(newCellPts[0], endPtIds[0], newCellPts[2]))
           {
           this->Mesh->RemoveCellReference(cellId);
           outputCellList->DeleteId(cellId);
@@ -286,7 +305,7 @@ void vtkQuadricDecimation::Execute()
         }
       else
         {
-        if (this->Mesh->IsTriangle(cellPts[0], cellPts[1], endPtIds[0]))
+        if (this->Mesh->IsTriangle(newCellPts[0], newCellPts[1], endPtIds[0]))
           {
           this->Mesh->RemoveCellReference(cellId);
           outputCellList->DeleteId(cellId);
@@ -326,6 +345,11 @@ void vtkQuadricDecimation::Execute()
     delete [] this->ErrorQuadrics[i].Quadric;
     }
   delete [] this->ErrorQuadrics;
+
+  testOutput->SetPoints(testPoints);
+  testOutput->SetLines(testEdges);
+  testPoints->Delete();
+  testEdges->Delete();
 }
 
 //----------------------------------------------------------------------------
