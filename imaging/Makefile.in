@@ -121,13 +121,8 @@ vtkTIFFWriter \
 vtkXImageMapper \
 vtkXImageWindow \
 vtkXPolyDataMapper2D \
-<<<<<<< Makefile.in
 vtkXTextMapper \
-vtkXYPlotActor
-=======
-vtkXTextMapper  ${GRAPHICS_API_OBJ}
->>>>>>> 1.142
-
+vtkXYPlotActor $(GRAPHICS_API_OB)
 
 
 #------------------------------------------------------------------------------
