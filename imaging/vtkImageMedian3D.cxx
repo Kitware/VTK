@@ -189,7 +189,7 @@ template <class T>
 static void vtkImageMedian3DExecute(vtkImageMedian3D *self,
 				    vtkImageData *inData, T *inPtr, 
 				    vtkImageData *outData, T *outPtr,
-				    int outExt[6])
+				    int outExt[6], int id)
 {
   int *kernelMiddle, *kernelSize;
   // For looping though output (and input) pixels.
@@ -210,6 +210,8 @@ static void vtkImageMedian3DExecute(vtkImageMedian3D *self,
   double *Median;
   double *Sort = new double[(self->NumberOfElements + 8)];
   int *inExt;
+  unsigned long count = 0;
+  unsigned long target;
   
   // Get information to march through data
   inData->GetIncrements(inInc0, inInc1, inInc2); 
@@ -247,6 +249,10 @@ static void vtkImageMedian3DExecute(vtkImageMedian3D *self,
   middleMin2 = inExt[4] + kernelMiddle[2];
   middleMax2 = inExt[5] - (kernelSize[2] - 1) + kernelMiddle[2];
   
+  target = (unsigned long)((outExt[5] - outExt[4] + 1)*
+    (outExt[3] - outExt[2] + 1)/50.0);
+  target++;
+  
   // loop through pixel of output
   inPtr2 = inPtr;
   for (outIdx2 = outExt[4]; outIdx2 <= outExt[5]; ++outIdx2)
@@ -256,6 +262,11 @@ static void vtkImageMedian3DExecute(vtkImageMedian3D *self,
     hoodMax1 = hoodStartMax1;
     for (outIdx1 = outExt[2]; outIdx1 <= outExt[3]; ++outIdx1)
       {
+      if (!id) 
+	{
+	if (!(count%target)) self->UpdateProgress(count/(50.0*target));
+	count++;
+	}
       inPtr0 = inPtr1;
       hoodMin0 = hoodStartMin0;
       hoodMax0 = hoodStartMax0;
@@ -343,7 +354,7 @@ static void vtkImageMedian3DExecute(vtkImageMedian3D *self,
 // templated function for the input and output region types.
 void vtkImageMedian3D::ThreadedExecute(vtkImageData *inData, 
 				       vtkImageData *outData,
-				       int outExt[6])
+				       int outExt[6], int id)
 {
   void *inPtr = inData->GetScalarPointerForExtent(outExt);
   void *outPtr = outData->GetScalarPointerForExtent(outExt);
@@ -363,23 +374,23 @@ void vtkImageMedian3D::ThreadedExecute(vtkImageData *inData,
     {
     case VTK_FLOAT:
       vtkImageMedian3DExecute(this, inData, (float *)(inPtr), 
-			      outData, (float *)(outPtr),outExt);
+			      outData, (float *)(outPtr),outExt, id);
       break;
     case VTK_INT:
       vtkImageMedian3DExecute(this, inData, (int *)(inPtr), 
-			      outData, (int *)(outPtr),outExt);
+			      outData, (int *)(outPtr),outExt, id);
       break;
     case VTK_SHORT:
       vtkImageMedian3DExecute(this, inData, (short *)(inPtr), 
-			      outData, (short *)(outPtr),outExt);
+			      outData, (short *)(outPtr),outExt, id);
       break;
     case VTK_UNSIGNED_SHORT:
       vtkImageMedian3DExecute(this, inData, (unsigned short *)(inPtr), 
-			      outData, (unsigned short *)(outPtr),outExt);
+			      outData, (unsigned short *)(outPtr),outExt, id);
       break;
     case VTK_UNSIGNED_CHAR:
       vtkImageMedian3DExecute(this, inData, (unsigned char *)(inPtr), 
-			      outData, (unsigned char *)(outPtr),outExt);
+			      outData, (unsigned char *)(outPtr),outExt, id);
       break;
     default:
       vtkErrorMacro(<< "Execute: Unknown input ScalarType");

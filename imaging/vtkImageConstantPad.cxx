@@ -59,17 +59,18 @@ template <class T>
 static void vtkImageConstantPadExecute(vtkImageConstantPad *self,
 				       vtkImageData *inData, T *inPtr,
 				       vtkImageData *outData, T *outPtr,
-				       int outExt[6])
+				       int outExt[6], int inExt[6], int id)
 {
   int idxC, idxX, idxY, idxZ;
   int maxC, maxX, maxY, maxZ;
   int inIncX, inIncY, inIncZ;
   int outIncX, outIncY, outIncZ;
   T constant;
-  int *inExt = inData->GetExtent();
   int inMinX, inMaxX, inMaxC;
   constant = (T)(self->GetConstant());
   int state0, state1, state2, state3;
+  unsigned long count = 0;
+  unsigned long target;
   
   // find the region to loop over
   maxC = outData->GetNumberOfScalarComponents();
@@ -77,28 +78,35 @@ static void vtkImageConstantPadExecute(vtkImageConstantPad *self,
   maxY = outExt[3] - outExt[2]; 
   maxZ = outExt[5] - outExt[4];
   inMaxC = inData->GetNumberOfScalarComponents();
-  inMinX = inExt[0];
-  inMaxX = inExt[1];
+  inMinX = inExt[0] - outExt[0];
+  inMaxX = inExt[1] - outExt[0];
+  target = (unsigned long)((maxZ+1)*(maxY+1)/50.0);
+  target++;
   
   // Get increments to march through data 
-  inData->GetContinuousIncrements(outExt, inIncX, inIncY, inIncZ);
+  inData->GetContinuousIncrements(inExt, inIncX, inIncY, inIncZ);
   outData->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
 
   // Loop through ouput pixels
-  for (idxZ = 0; idxZ <= maxZ; idxZ++)
+  for (idxZ = outExt[4]; idxZ <= outExt[5]; idxZ++)
     {
     state3 = (idxZ < inExt[4] || idxZ > inExt[5]);
-    for (idxY = 0; idxY <= maxY; idxY++)
+    for (idxY = outExt[2]; idxY <= outExt[3]; idxY++)
       {
+      if (!id) 
+	{
+	if (!(count%target)) self->UpdateProgress(count/(50.0*target));
+	count++;
+	}
       state2 = (state3 || idxY < inExt[2] || idxY > inExt[3]);
-      for (idxX = 0; idxX < maxX; idxX++)
+      for (idxX = 0; idxX <= maxX; idxX++)
 	{
 	state1 = (state2 || idxX < inMinX || idxX > inMaxX);
 	for (idxC = 0; idxC < maxC; idxC++)
 	  {
 	  // Pixel operation
 	  // Copy Pixel
-	  state0 = (state1 || idxC > inMaxC);
+	  state0 = (state1 || idxC >= inMaxC);
 	  if (state0)
 	    {
 	    *outPtr = constant;
@@ -110,14 +118,12 @@ static void vtkImageConstantPadExecute(vtkImageConstantPad *self,
 	    }
 	  outPtr++;
 	  }
-	outPtr += outIncX;
-	if (state1) inPtr += inIncX;
 	}
       outPtr += outIncY;
-      if (state2) inPtr += inIncY;
+      if (!state2) inPtr += inIncY;
       }
     outPtr += outIncZ;
-    if (state3) inPtr += inIncZ;
+    if (!state3) inPtr += inIncZ;
     }
 }
 
@@ -130,9 +136,8 @@ static void vtkImageConstantPadExecute(vtkImageConstantPad *self,
 // the datas data types.
 void vtkImageConstantPad::ThreadedExecute(vtkImageData *inData, 
 					vtkImageData *outData,
-					int outExt[6])
+					int outExt[6], int id)
 {
-  void *inPtr = inData->GetScalarPointerForExtent(outExt);
   void *outPtr = outData->GetScalarPointerForExtent(outExt);
   
   vtkDebugMacro(<< "Execute: inData = " << inData 
@@ -146,27 +151,40 @@ void vtkImageConstantPad::ThreadedExecute(vtkImageData *inData,
     return;
     }
   
+  // need to get the correct pointer for the input data
+  int inExt[6];
+  int i;
+  inData->GetExtent(inExt);
+  for (i = 0; i < 3; i++)
+    {
+    if (inExt[i*2] < outExt[i*2]) inExt[i*2] = outExt[i*2];
+    if (inExt[i*2+1] > outExt[i*2+1]) inExt[i*2+1] = outExt[i*2+1];
+    }
+  void *inPtr = inData->GetScalarPointerForExtent(inExt);
+
   switch (inData->GetScalarType())
     {
     case VTK_FLOAT:
       vtkImageConstantPadExecute(this, inData, (float *)(inPtr), 
-			       outData, (float *)(outPtr), outExt);
+			       outData, (float *)(outPtr), outExt, inExt, id);
       break;
     case VTK_INT:
       vtkImageConstantPadExecute(this, inData, (int *)(inPtr), 
-			       outData, (int *)(outPtr), outExt);
+			       outData, (int *)(outPtr), outExt, inExt, id);
       break;
     case VTK_SHORT:
       vtkImageConstantPadExecute(this, inData, (short *)(inPtr), 
-			       outData, (short *)(outPtr), outExt);
+			       outData, (short *)(outPtr), outExt, inExt, id);
       break;
     case VTK_UNSIGNED_SHORT:
       vtkImageConstantPadExecute(this, inData, (unsigned short *)(inPtr), 
-			       outData, (unsigned short *)(outPtr), outExt);
+				 outData, (unsigned short *)(outPtr), outExt,
+				 inExt, id);
       break;
     case VTK_UNSIGNED_CHAR:
       vtkImageConstantPadExecute(this, inData, (unsigned char *)(inPtr), 
-			       outData, (unsigned char *)(outPtr), outExt);
+				 outData, (unsigned char *)(outPtr), outExt,
+				 inExt, id);
       break;
     default:
       vtkErrorMacro(<< "Execute: Unknown input ScalarType");

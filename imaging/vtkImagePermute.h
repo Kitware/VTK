@@ -66,7 +66,8 @@ protected:
   int  FilteredAxes[3];
   void ExecuteImageInformation();
   void ComputeRequiredInputUpdateExtent();
-  void ThreadedExecute(vtkImageData *inData, vtkImageData *outData, int ext[6]);
+  void ThreadedExecute(vtkImageData *inData, vtkImageData *outData, 
+		       int ext[6], int id);
 };
 
 #endif

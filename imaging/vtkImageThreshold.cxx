@@ -130,7 +130,7 @@ template <class IT, class OT>
 static void vtkImageThresholdExecute(vtkImageThreshold *self,
 				     vtkImageData *inData, IT *inPtr,
 				     vtkImageData *outData, OT *outPtr, 
-				     int outExt[6])
+				     int outExt[6], int id)
 {
   int idxR, idxY, idxZ;
   int maxY, maxZ;
@@ -144,11 +144,15 @@ static void vtkImageThresholdExecute(vtkImageThreshold *self,
   int replaceOut = self->GetReplaceOut();
   OT  outValue = (OT)(self->GetOutValue());
   float temp;
+  unsigned long count = 0;
+  unsigned long target;
   
   // find the region to loop over
   rowLength = (outExt[1] - outExt[0]+1)*inData->GetNumberOfScalarComponents();
   maxY = outExt[3] - outExt[2]; 
   maxZ = outExt[5] - outExt[4];
+  target = (unsigned long)((maxZ+1)*(maxY+1)/50.0);
+  target++;
   
   // Get increments to march through data 
   inData->GetContinuousIncrements(outExt, inIncX, inIncY, inIncZ);
@@ -159,6 +163,11 @@ static void vtkImageThresholdExecute(vtkImageThreshold *self,
     {
     for (idxY = 0; idxY <= maxY; idxY++)
       {
+      if (!id) 
+	{
+	if (!(count%target)) self->UpdateProgress(count/(50.0*target));
+	count++;
+	}
       for (idxR = 0; idxR < rowLength; idxR++)
 	{
 	// Pixel operation
@@ -207,7 +216,7 @@ static void vtkImageThresholdExecute(vtkImageThreshold *self,
 // the datas data types.
 void vtkImageThreshold::ThreadedExecute(vtkImageData *inData, 
 					vtkImageData *outData,
-					int outExt[6])
+					int outExt[6], int id)
 {
   void *inPtr = inData->GetScalarPointerForExtent(outExt);
   void *outPtr = outData->GetScalarPointerForExtent(outExt);
@@ -227,23 +236,23 @@ void vtkImageThreshold::ThreadedExecute(vtkImageData *inData,
     {
     case VTK_FLOAT:
       vtkImageThresholdExecute(this, inData, (float *)(inPtr), 
-			       outData, (float *)(outPtr),outExt);
+			       outData, (float *)(outPtr),outExt, id);
       break;
     case VTK_INT:
       vtkImageThresholdExecute(this, inData, (int *)(inPtr), 
-			       outData, (int *)(outPtr),outExt);
+			       outData, (int *)(outPtr),outExt, id);
       break;
     case VTK_SHORT:
       vtkImageThresholdExecute(this, inData, (short *)(inPtr), 
-			       outData, (short *)(outPtr),outExt);
+			       outData, (short *)(outPtr),outExt, id);
       break;
     case VTK_UNSIGNED_SHORT:
       vtkImageThresholdExecute(this, inData, (unsigned short *)(inPtr), 
-			       outData, (unsigned short *)(outPtr),outExt);
+			       outData, (unsigned short *)(outPtr),outExt, id);
       break;
     case VTK_UNSIGNED_CHAR:
       vtkImageThresholdExecute(this, inData, (unsigned char *)(inPtr), 
-			       outData, (unsigned char *)(outPtr),outExt);
+			       outData, (unsigned char *)(outPtr),outExt, id);
       break;
     default:
       vtkErrorMacro(<< "Execute: Unknown input ScalarType");

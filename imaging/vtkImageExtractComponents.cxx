@@ -135,7 +135,7 @@ template <class T>
 static void vtkImageExtractComponentsExecute(vtkImageExtractComponents *self,
 					     vtkImageData *inData, T *inPtr,
 					     vtkImageData *outData, T *outPtr,
-					     int outExt[6])
+					     int outExt[6], int id)
 {
   int idxR, idxY, idxZ;
   int maxX, maxY, maxZ;
@@ -143,11 +143,15 @@ static void vtkImageExtractComponentsExecute(vtkImageExtractComponents *self,
   int outIncX, outIncY, outIncZ;
   int cnt, inCnt;
   int offset1, offset2, offset3;
+  unsigned long count = 0;
+  unsigned long target;
   
   // find the region to loop over
   maxX = outExt[1] - outExt[0];
   maxY = outExt[3] - outExt[2]; 
   maxZ = outExt[5] - outExt[4];
+  target = (unsigned long)((maxZ+1)*(maxY+1)/50.0);
+  target++;
   
   // Get increments to march through data 
   inData->GetContinuousIncrements(outExt, inIncX, inIncY, inIncZ);
@@ -164,6 +168,11 @@ static void vtkImageExtractComponentsExecute(vtkImageExtractComponents *self,
     {
     for (idxY = 0; idxY <= maxY; idxY++)
       {
+      if (!id) 
+	{
+	if (!(count%target)) self->UpdateProgress(count/(50.0*target));
+	count++;
+	}
       // handle inner loop based on number of components extracted
       switch (cnt)
 	{
@@ -216,7 +225,7 @@ static void vtkImageExtractComponentsExecute(vtkImageExtractComponents *self,
 // ExtractComponents function on each line.  
 void vtkImageExtractComponents::ThreadedExecute(vtkImageData *inData, 
 						vtkImageData *outData,
-						int outExt[6])
+						int outExt[6], int id)
 {
   int max, idx;
   void *inPtr = inData->GetScalarPointerForExtent(outExt);
@@ -251,27 +260,27 @@ void vtkImageExtractComponents::ThreadedExecute(vtkImageData *inData,
     case VTK_FLOAT:
       vtkImageExtractComponentsExecute(this, inData, (float *)(inPtr),
 				       outData, (float *)(outPtr),
-				       outExt);
+				       outExt, id);
       break;
     case VTK_INT:
       vtkImageExtractComponentsExecute(this, inData, (int *)(inPtr),
 				       outData, (int *)(outPtr),
-				       outExt);
+				       outExt, id);
       break;
     case VTK_SHORT:
       vtkImageExtractComponentsExecute(this, inData, (short *)(inPtr),
 				       outData, (short *)(outPtr),
-				       outExt);
+				       outExt, id);
       break;
     case VTK_UNSIGNED_SHORT:
       vtkImageExtractComponentsExecute(this,inData,(unsigned short *)(inPtr),
 				       outData, (unsigned short *)(outPtr),
-				       outExt);
+				       outExt, id);
       break;
     case VTK_UNSIGNED_CHAR:
       vtkImageExtractComponentsExecute(this, inData, (unsigned char *)(inPtr),
 				       outData, (unsigned char *)(outPtr),
-				       outExt);
+				       outExt, id);
       break;
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");

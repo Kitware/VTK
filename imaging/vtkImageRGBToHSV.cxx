@@ -39,7 +39,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include <math.h>
-#include "vtkImageRegion.h"
 #include "vtkImageRGBToHSV.h"
 
 
@@ -48,124 +47,161 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 vtkImageRGBToHSV::vtkImageRGBToHSV()
 {
   this->Maximum = 255.0;
-  // One pixel at a time. (sssssslowwww)
-  this->SetExecutionAxes(VTK_IMAGE_COMPONENT_AXIS);
 }
 
 //----------------------------------------------------------------------------
+// Description:
+// This templated function executes the filter for any type of data.
 template <class T>
 static void vtkImageRGBToHSVExecute(vtkImageRGBToHSV *self,
-				    vtkImageRegion *inRegion, T *inPtr,
-				    vtkImageRegion *outRegion, T *outPtr)
+				    vtkImageData *inData, T *inPtr,
+				    vtkImageData *outData, T *outPtr,
+				    int outExt[6], int id)
 {
+  int idxX, idxY, idxZ;
+  int maxX, maxY, maxZ;
+  int inIncX, inIncY, inIncZ;
+  int outIncX, outIncY, outIncZ;
+  unsigned long count = 0;
+  unsigned long target;
   float R, G, B, H, S, V;
-  float temp;
   float max = self->GetMaximum();
-  int inInc;
-  int outInc;
+  float temp;
   
-  inRegion->GetAxisIncrements(VTK_IMAGE_COMPONENT_AXIS, inInc);
-  outRegion->GetAxisIncrements(VTK_IMAGE_COMPONENT_AXIS, outInc);
+  // find the region to loop over
+  maxX = outExt[1] - outExt[0]; 
+  maxY = outExt[3] - outExt[2]; 
+  maxZ = outExt[5] - outExt[4];
+  target = (unsigned long)((maxZ+1)*(maxY+1)/50.0);
+  target++;
   
-  R = (float)(*inPtr);
-  inPtr += inInc;
-  G = (float)(*inPtr);
-  inPtr += inInc;
-  B = (float)(*inPtr);
+  // Get increments to march through data 
+  inData->GetContinuousIncrements(outExt, inIncX, inIncY, inIncZ);
+  outData->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
 
-  temp = (float)(R + G + B);
-  // Value is easy
-  V = temp / 3.0;
-
-  // Hue
-  temp = acos((0.5 * ((R-G) + (R-B))) / sqrt((R-G)*(R-G) + (R-B)*(G-B)));
-  if (G >= B)
+  // Loop through ouput pixels
+  for (idxZ = 0; idxZ <= maxZ; idxZ++)
     {
-    H = max * (temp / 6.2831853);
+    for (idxY = 0; idxY <= maxY; idxY++)
+      {
+      if (!id) 
+	{
+	if (!(count%target)) self->UpdateProgress(count/(50.0*target));
+	count++;
+	}
+      for (idxX = 0; idxX <= maxX; idxX++)
+	{
+	// Pixel operation
+	R = (float)(*inPtr); inPtr++;
+	G = (float)(*inPtr); inPtr++;
+	B = (float)(*inPtr); inPtr++;
+	temp = (float)(R + G + B);
+	// Value is easy
+	V = temp / 3.0;
+	
+	// Hue
+	temp = acos((0.5 * ((R-G) + (R-B))) / sqrt((R-G)*(R-G) + (R-B)*(G-B)));
+	if (G >= B)
+	  {
+	  H = max * (temp / 6.2831853);
+	  }
+	else
+	  {
+	  H = max * (1.0 - (temp / 6.2831853));
+	  }
+	
+	// Saturation
+	temp = R;
+	if (G < temp)
+	  {
+	  temp = G;
+	  }
+	if (B < temp)
+	  {
+	  temp = B;
+	  }
+	S = max * (1.0 - (3.0 * temp / (R+G+B)));
+	
+	// assign output.
+	*outPtr = (T)(H); outPtr++;
+	*outPtr = (T)(S); outPtr++;
+	*outPtr = (T)(V); outPtr++;
+	}
+      outPtr += outIncY;
+      inPtr += inIncY;
+      }
+    outPtr += outIncZ;
+    inPtr += inIncZ;
     }
-  else
-    {
-    H = max * (1.0 - (temp / 6.2831853));
-    }
-  
-  // Saturation
-  temp = R;
-  if (G < temp)
-    {
-    temp = G;
-    }
-  if (B < temp)
-    {
-    temp = B;
-    }
-  S = max * (1.0 - (3.0 * temp / (R+G+B)));
-  
-  // assign output.
-  *outPtr = (T)(H);
-  outPtr += outInc;
-  *outPtr = (T)(S);
-  outPtr += outInc;
-  *outPtr = (T)(V);
 }
 
-
 //----------------------------------------------------------------------------
-void vtkImageRGBToHSV::Execute(vtkImageRegion *inRegion, 
-			       vtkImageRegion *outRegion)
+void vtkImageRGBToHSV::ThreadedExecute(vtkImageData *inData, 
+					 vtkImageData *outData,
+					 int outExt[6], int id)
 {
-  int min, max;
-  void *inPtr = inRegion->GetScalarPointer();
-  void *outPtr = outRegion->GetScalarPointer();
+  void *inPtr = inData->GetScalarPointerForExtent(outExt);
+  void *outPtr = outData->GetScalarPointerForExtent(outExt);
   
-  if (inRegion->GetScalarType() != outRegion->GetScalarType())
+  vtkDebugMacro(<< "Execute: inData = " << inData 
+		<< ", outData = " << outData);
+  
+  // this filter expects that input is the same type as output.
+  if (inData->GetScalarType() != outData->GetScalarType())
     {
-    vtkErrorMacro("Scalar type of input, " 
-      << vtkImageScalarTypeNameMacro(inRegion->GetScalarType())
-      << ", must match scalar type of output, "
-      << vtkImageScalarTypeNameMacro(outRegion->GetScalarType()));
+    vtkErrorMacro(<< "Execute: input ScalarType, " << inData->GetScalarType()
+                  << ", must match out ScalarType " << outData->GetScalarType());
     return;
     }
-  inRegion->GetAxisExtent(VTK_IMAGE_COMPONENT_AXIS, min, max);
-  if (max - min + 1 < 3)
+  
+  // need three components for input and output
+  if (inData->GetNumberOfScalarComponents() < 3)
     {
     vtkErrorMacro("Input has too few components");
     return;
     }
-  outRegion->GetAxisExtent(VTK_IMAGE_COMPONENT_AXIS, min, max);
-  if (max - min + 1 < 3)
+  if (outData->GetNumberOfScalarComponents() < 3)
     {
     vtkErrorMacro("Output has too few components");
     return;
     }
-  
-  switch (inRegion->GetScalarType())
+
+  switch (inData->GetScalarType())
     {
     case VTK_FLOAT:
-      vtkImageRGBToHSVExecute(this, inRegion, (float *)inPtr, 
-			      outRegion, (float *)outPtr);
-      break;
-    case VTK_SHORT:
-      vtkImageRGBToHSVExecute(this, inRegion, (short *)inPtr, 
-			      outRegion, (short *)outPtr);
+      vtkImageRGBToHSVExecute(this, 
+			      inData, (float *)(inPtr), 
+			      outData, (float *)(outPtr), outExt, id);
       break;
     case VTK_INT:
-      vtkImageRGBToHSVExecute(this, inRegion, (int *)inPtr, 
-			      outRegion, (int *)outPtr);
+      vtkImageRGBToHSVExecute(this, 
+			      inData, (int *)(inPtr), 
+			      outData, (int *)(outPtr), outExt, id);
+      break;
+    case VTK_SHORT:
+      vtkImageRGBToHSVExecute(this, 
+			      inData, (short *)(inPtr), 
+			      outData, (short *)(outPtr), outExt, id);
       break;
     case VTK_UNSIGNED_SHORT:
-      vtkImageRGBToHSVExecute(this, inRegion, (unsigned short *)inPtr, 
-			      outRegion, (unsigned short *)outPtr);
+      vtkImageRGBToHSVExecute(this, 
+			      inData, (unsigned short *)(inPtr), 
+			      outData, (unsigned short *)(outPtr), 
+			      outExt, id);
       break;
     case VTK_UNSIGNED_CHAR:
-      vtkImageRGBToHSVExecute(this, inRegion, (unsigned char*)inPtr, 
-			      outRegion, (unsigned char *)outPtr);
+      vtkImageRGBToHSVExecute(this, 
+			      inData, (unsigned char *)(inPtr), 
+			      outData, (unsigned char *)(outPtr), 
+			      outExt, id);
       break;
     default:
-      vtkErrorMacro("Unknown data type" << inRegion->GetScalarType());
+      vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;
     }
 }
 
+  
 
 
 

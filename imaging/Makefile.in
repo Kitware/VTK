@@ -37,15 +37,19 @@ vtkImageMedian3D \
 vtkImageMirrorPad \
 vtkImagePermute \
 vtkImageReader \
-vtkImageSeedConnectivity \
-vtkImageShiftScale \
-vtkImageThreshold \
+vtkImageShrink3D \
 vtkImageViewer \
 vtkImageWriter \
 vtkImageXViewer \
 vtkPNMReader \
 vtkPNMWriter \
+vtkImageRGBToHSV \
+vtkImageSeedConnectivity \
+vtkImageShiftScale \
+vtkImageThreshold \
 vtkTIFFWriter
+
+
 
 #vtkImageAccumulate \
 #vtkImageAnisotropicDiffusion2D \
@@ -99,12 +103,10 @@ vtkTIFFWriter
 #vtkImageOpenClose3D \
 #vtkImageRFFT \
 #vtkImageRFFT1D \
-#vtkImageRGBToHSV \
 #vtkImageRange3D \
 #vtkImageResample \
 #vtkImageResample1D \
 #vtkImageShortWriter \
-#vtkImageShrink3D \
 #vtkImageSinusoidSource \
 #vtkImageSkeleton2D \
 #vtkImageSobel2D \

@@ -59,7 +59,7 @@ public:
 protected:
   void ComputeRequiredInputUpdateExtent();
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outRegion, 
-		       int ext[6]);
+		       int ext[6], int id);
 };
 
 #endif

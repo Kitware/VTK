@@ -17,6 +17,8 @@ vtkImageShrink3D shrink
 shrink SetInput [reader GetOutput]
 shrink SetShrinkFactors 2 2 2
 shrink ReleaseDataFlagOff
+shrink SetProgressMethod {set pro [shrink GetProgress]; puts "Completed $pro"; flush stdout}
+shrink Update
 
 vtkImageViewer viewer
 #viewer DebugOn

@@ -88,7 +88,8 @@ protected:
 
   void ExecuteImageInformation();
   void ComputeRequiredInputUpdateExtent();
-  void Execute(vtkImageRegion *inRegion, vtkImageRegion *outRegion);  
+  void ThreadedExecute(vtkImageData *inData, vtkImageData *outData, 
+		       int ext[6], int id);  
 };
 
 #endif

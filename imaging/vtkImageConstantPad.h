@@ -67,7 +67,7 @@ protected:
   float Constant;
   
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData, 
-		       int outExt[6]);
+		       int outExt[6], int id);
 };
 
 #endif

@@ -76,7 +76,8 @@ protected:
   int OutputScalarType;
   void ExecuteImageInformation();
   void InternalUpdate(vtkImageData *data);
-  void ThreadedExecute(vtkImageData *inData, vtkImageData *outData, int ext[6]);
+  void ThreadedExecute(vtkImageData *inData, vtkImageData *outData, 
+		       int ext[6], int id);
 };
 
 #endif

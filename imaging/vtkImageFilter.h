@@ -101,7 +101,7 @@ public:
   // subclasses should define this function
   virtual void ThreadedExecute(vtkImageData *inData, 
 			       vtkImageData *outData,
-			       int extent[6]);
+			       int extent[6], int threadId);
   
 protected:
   vtkImageCache *Input;     

@@ -39,7 +39,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include <math.h>
-#include "vtkImageRegion.h"
 #include "vtkImageCache.h"
 #include "vtkImageShrink3D.h"
 
@@ -49,12 +48,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Constructor: Sets default filter to be identity.
 vtkImageShrink3D::vtkImageShrink3D()
 {
-  this->FilteredAxes[0] = VTK_IMAGE_X_AXIS;
-  this->FilteredAxes[1] = VTK_IMAGE_Y_AXIS;
-  this->FilteredAxes[2] = VTK_IMAGE_Z_AXIS;
-  this->NumberOfFilteredAxes = 3;
-  this->SetExecutionAxes(3, this->FilteredAxes);
-  
   this->ShrinkFactors[0] = this->ShrinkFactors[1] = this->ShrinkFactors[2] = 1;
   this->Shift[0] = this->Shift[1] = this->Shift[2] = 0;
   this->Averaging = 1;
@@ -76,7 +69,7 @@ void vtkImageShrink3D::PrintSelf(ostream& os, vtkIndent indent)
 // This method computes the Region of input necessary to generate outRegion.
 void vtkImageShrink3D::ComputeRequiredInputUpdateExtent()
 {
-  int extent[8];
+  int extent[6];
   int idx;
   
   this->Output->GetUpdateExtent(extent);
@@ -107,9 +100,9 @@ void vtkImageShrink3D::ComputeRequiredInputUpdateExtent()
 void vtkImageShrink3D::ExecuteImageInformation()
 {
   int idx;
-  int wholeExtent[8];
-  float spacing[4];
-
+  int wholeExtent[6];
+  float spacing[3];
+  
   this->Input->GetWholeExtent(wholeExtent);
   this->Input->GetSpacing(spacing);
 
@@ -118,7 +111,7 @@ void vtkImageShrink3D::ExecuteImageInformation()
     // Scale the output extent
     wholeExtent[2*idx] = 
       (int)(ceil((float)(wholeExtent[2*idx] - this->Shift[idx]) 
-      / (float)(this->ShrinkFactors[idx])));
+		 / (float)(this->ShrinkFactors[idx])));
     wholeExtent[2*idx+1] = (int)(floor(
      (float)(wholeExtent[2*idx+1]-this->Shift[idx]-this->ShrinkFactors[idx]+1)
          / (float)(this->ShrinkFactors[idx])));
@@ -136,54 +129,57 @@ void vtkImageShrink3D::ExecuteImageInformation()
 // The templated execute function handles all the data types.
 template <class T>
 static void vtkImageShrink3DExecute(vtkImageShrink3D *self,
-				   vtkImageRegion *inRegion, T *inPtr,
-				   vtkImageRegion *outRegion, T *outPtr)
+				    vtkImageData *inData, T *inPtr,
+				    vtkImageData *outData, T *outPtr,
+				    int outExt[6], int id)
 {
   int outIdx0, outIdx1, outIdx2, inIdx0, inIdx1, inIdx2;
   int inInc0, inInc1, inInc2;
   T *inPtr0, *inPtr1, *inPtr2;
   int outInc0, outInc1, outInc2;
-  T *outPtr0, *outPtr1, *outPtr2;
   int tmpInc0, tmpInc1, tmpInc2;
   T *tmpPtr0, *tmpPtr1, *tmpPtr2;
-  int min0, max0, min1, max1, min2, max2;
+  int rowLength;
   int factor0, factor1, factor2;
   int averaging;
   float sum, norm;
+  unsigned long count = 0;
+  unsigned long target;
 
   averaging = self->GetAveraging();
   self->GetShrinkFactors(factor0, factor1, factor2);
   
   // Get information to march through data 
-  inRegion->GetIncrements(inInc0, inInc1, inInc2);
+  inData->GetIncrements(inInc0, inInc1, inInc2);
   tmpInc0 = inInc0 * factor0;
   tmpInc1 = inInc1 * factor1;
   tmpInc2 = inInc2 * factor2;
-  outRegion->GetIncrements(outInc0, outInc1, outInc2);
-  outRegion->GetExtent(min0, max0, min1, max1, min2, max2);
+  outData->GetContinuousIncrements(outExt,outInc0, outInc1, outInc2);
   norm = 1.0 / (float)(factor0 * factor1 * factor2);
+  rowLength = (outExt[1] - outExt[0]+1)*outData->GetNumberOfScalarComponents();
+  target = (unsigned long)((outExt[5] - outExt[4] + 1)*
+    (outExt[3] - outExt[2] + 1)/50.0);
+  target++;
 
   // Loop through ouput pixels
   tmpPtr2 = inPtr;
-  outPtr2 = outPtr;
-  for (outIdx2 = min2; outIdx2 <= max2; ++outIdx2)
-  {
-    self->UpdateProgress( (float) (outIdx2 - min2 + 1)
-			  / (float)(max2 - min2 + 1));
-    
+  for (outIdx2 = outExt[4]; outIdx2 <= outExt[5]; ++outIdx2)
+    {
     tmpPtr1 = tmpPtr2;
-    outPtr1 = outPtr2;
-    for (outIdx1 = min1; outIdx1 <= max1; ++outIdx1)
+    for (outIdx1 = outExt[2]; outIdx1 <= outExt[3]; ++outIdx1)
       {
-      tmpPtr0 = tmpPtr1;
-      outPtr0 = outPtr1;
-      for (outIdx0 = min0; outIdx0 <= max0; ++outIdx0)
+      if (!id) 
 	{
-      
+	if (!(count%target)) self->UpdateProgress(count/(50.0*target));
+	count++;
+	}
+      tmpPtr0 = tmpPtr1;
+      for (outIdx0 = 0; outIdx0 < rowLength; ++outIdx0)
+	{
 	// Copy pixel from this location
 	if ( ! averaging)
 	  {
-	  *outPtr0 = *tmpPtr0;
+	  *outPtr = *tmpPtr0;
 	  }
 	else
 	  {
@@ -205,77 +201,93 @@ static void vtkImageShrink3DExecute(vtkImageShrink3D *self,
 	      }
 	    inPtr2 += inInc2;
 	    }
-	  *outPtr0 = (T)(sum * norm);
+	  *outPtr = (T)(sum * norm);
 	  }
-	
 	tmpPtr0 += tmpInc0;
-	outPtr0 += outInc0;
+	outPtr++;
 	}
       tmpPtr1 += tmpInc1;
-      outPtr1 += outInc1;
+      outPtr += outInc1;
       }
     tmpPtr2 += tmpInc2;
-    outPtr2 += outInc2;
+    outPtr += outInc2;
     }
 }
 
     
 //----------------------------------------------------------------------------
 // Description:
-// This method uses the input region to fill the output region.
-// It can handle any type data, but the two regions must have the same 
+// This method uses the input data to fill the output data.
+// It can handle any type data, but the two datas must have the same 
 // data type.
-void vtkImageShrink3D::Execute(vtkImageRegion *inRegion, 
-			       vtkImageRegion *outRegion)
+void vtkImageShrink3D::ThreadedExecute(vtkImageData *inData, 
+				       vtkImageData *outData,
+				       int outExt[6], int id)
 {
-  void *inPtr = inRegion->GetScalarPointer();
-  void *outPtr = outRegion->GetScalarPointer();
+  int idx;
+  int inExt[6];
+  void *outPtr = outData->GetScalarPointerForExtent(outExt);
   
-  vtkDebugMacro(<< "Execute: inRegion = " << inRegion 
-  << ", outRegion = " << outRegion);
-  
-  // this filter expects that input is the same type as output.
-  if (inRegion->GetScalarType() != outRegion->GetScalarType())
+  vtkDebugMacro(<< "Execute: inData = " << inData 
+  << ", outData = " << outData);
+
+  // find the pointer for the input data
+  for (idx = 0; idx < 3; ++idx)
     {
-    vtkErrorMacro(<< "Execute: input ScalarType, " << inRegion->GetScalarType()
-                  << ", must match out ScalarType " << outRegion->GetScalarType());
+    // For Min.
+    inExt[idx*2] = outExt[idx*2] * this->ShrinkFactors[idx] 
+      + this->Shift[idx];
+    // For Max.
+    inExt[idx*2+1] = outExt[idx*2+1] * this->ShrinkFactors[idx]
+      + this->Shift[idx];
+    // If we are averaging, we need a little more
+    if (this->Averaging)
+      {
+      inExt[idx*2+1] += this->ShrinkFactors[idx] - 1;
+      }
+    }
+  void *inPtr = inData->GetScalarPointerForExtent(inExt);
+
+  // this filter expects that input is the same type as output.
+  if (inData->GetScalarType() != outData->GetScalarType())
+    {
+    vtkErrorMacro(<< "Execute: input ScalarType, " << inData->GetScalarType()
+    << ", must match out ScalarType " << outData->GetScalarType());
     return;
     }
   
-  switch (inRegion->GetScalarType())
+  switch (inData->GetScalarType())
     {
     case VTK_FLOAT:
       vtkImageShrink3DExecute(this, 
-			  inRegion, (float *)(inPtr), 
-			  outRegion, (float *)(outPtr));
+			      inData, (float *)(inPtr), 
+			      outData, (float *)(outPtr), outExt, id);
       break;
     case VTK_INT:
       vtkImageShrink3DExecute(this, 
-			  inRegion, (int *)(inPtr), 
-			  outRegion, (int *)(outPtr));
+			      inData, (int *)(inPtr), 
+			      outData, (int *)(outPtr), outExt, id);
       break;
     case VTK_SHORT:
       vtkImageShrink3DExecute(this, 
-			  inRegion, (short *)(inPtr), 
-			  outRegion, (short *)(outPtr));
+			      inData, (short *)(inPtr), 
+			      outData, (short *)(outPtr), outExt, id);
       break;
     case VTK_UNSIGNED_SHORT:
       vtkImageShrink3DExecute(this, 
-			  inRegion, (unsigned short *)(inPtr), 
-			  outRegion, (unsigned short *)(outPtr));
+			      inData, (unsigned short *)(inPtr), 
+			      outData, (unsigned short *)(outPtr), outExt, id);
       break;
     case VTK_UNSIGNED_CHAR:
       vtkImageShrink3DExecute(this, 
-			  inRegion, (unsigned char *)(inPtr), 
-			  outRegion, (unsigned char *)(outPtr));
+			      inData, (unsigned char *)(inPtr), 
+			      outData, (unsigned char *)(outPtr), outExt, id);
       break;
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;
     }
 }
-
-
 
 
 

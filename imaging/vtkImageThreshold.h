@@ -98,7 +98,7 @@ protected:
   float OutValue;
 
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData, 
-		       int extent[6]);
+		       int extent[6], int id);
 };
 
 #endif

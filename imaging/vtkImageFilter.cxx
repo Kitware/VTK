@@ -339,7 +339,7 @@ VTK_THREAD_RETURN_TYPE vtkImageThreadedExecute( void *arg )
   if (axis == 0)
     {
     if (threadId == 0)
-      str->Filter->ThreadedExecute(str->Input, str->Output, ext);
+      str->Filter->ThreadedExecute(str->Input, str->Output, ext, threadId);
     }
   else
     {
@@ -353,7 +353,7 @@ VTK_THREAD_RETURN_TYPE vtkImageThreadedExecute( void *arg )
 	{
 	ext[axis*2] = ext[axis*2] + threadId;
 	ext[axis*2+1] = ext[axis*2];
-	str->Filter->ThreadedExecute(str->Input, str->Output, ext);
+	str->Filter->ThreadedExecute(str->Input, str->Output, ext, threadId);
 	}
       }
     else
@@ -365,7 +365,7 @@ VTK_THREAD_RETURN_TYPE vtkImageThreadedExecute( void *arg )
       if (tmp == ext[axis*2] + 1) tmp = ext[axis*2];
       ext[axis*2] = tmp;
       ext[axis*2+1] = (int)(max + 0.5);
-      str->Filter->ThreadedExecute(str->Input, str->Output, ext);
+      str->Filter->ThreadedExecute(str->Input, str->Output, ext, threadId);
       }
     }
   
@@ -395,7 +395,7 @@ void vtkImageFilter::Execute(vtkImageData *inData,
 // The execute method created by the subclass.
 void vtkImageFilter::ThreadedExecute(vtkImageData *vtkNotUsed(inData), 
 				     vtkImageData *vtkNotUsed(outData),
-				     int extent[6])
+				     int extent[6], int threadId)
 {
   vtkErrorMacro("subclase should override this method!!!");
 }

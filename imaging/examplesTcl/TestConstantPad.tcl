@@ -13,8 +13,9 @@ reader SetDataMask 0x7fff
 
 vtkImageConstantPad pad
 pad SetInput [reader GetOutput]
-pad SetOutputWholeExtent -300 355 -300 370 0 92 0 0
+pad SetOutputWholeExtent -300 355 -300 370 0 92
 pad SetConstant 800
+pad SetNumberOfThreads 1
 pad ReleaseDataFlagOff
 
 vtkImageViewer viewer
