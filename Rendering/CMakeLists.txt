@@ -25,7 +25,6 @@ vtkActorCollection.cxx
 vtkAssembly.cxx
 vtkAxisActor2D.cxx
 vtkCamera.cxx
-vtkCellCenterDepthSort.cxx
 vtkCellPicker.cxx
 vtkCuller.cxx
 vtkCullerCollection.cxx
@@ -76,7 +75,6 @@ vtkPicker.cxx
 vtkPointPicker.cxx
 vtkPolyDataMapper.cxx
 vtkPolyDataMapper2D.cxx
-vtkProjectedTetrahedraMapper.cxx
 vtkProp3D.cxx
 vtkProp3DCollection.cxx
 vtkPropPicker.cxx
@@ -110,7 +108,6 @@ vtkUnstructuredGridVolumeRayCastIterator.cxx
 vtkUnstructuredGridVolumeRayIntegrator.cxx
 vtkUnstructuredGridVolumeRayCastMapper.cxx
 vtkVRMLExporter.cxx
-vtkVisibilitySort.cxx
 vtkVolume.cxx
 vtkVolumeCollection.cxx
 vtkVolumeMapper.cxx
@@ -176,7 +173,6 @@ vtkUnstructuredGridVolumeMapper
 vtkUnstructuredGridVolumeRayCastFunction
 vtkUnstructuredGridVolumeRayCastIterator
 vtkUnstructuredGridVolumeRayIntegrator
-vtkVisibilitySort
 vtkVolumeMapper
 vtkVolumeRayCastFunction
 vtkVolumeTextureMapper

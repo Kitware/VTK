@@ -108,7 +108,6 @@ vtkRungeKutta45.cxx
 vtkScalarsToColors.cxx
 vtkShortArray.cxx
 vtkSmartPointerBase.cxx
-vtkSort.cxx
 vtkSphericalTransform.cxx
 vtkStdString.cxx
 vtkStructuredData.cxx

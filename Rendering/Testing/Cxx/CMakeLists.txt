@@ -11,7 +11,6 @@ IF(VTK_USE_DISPLAY)
   SET(RenderingTestsWithArguments
     ${RenderingTestsWithArguments}
     TestOrderedTriangulator.cxx
-    TestProjectedTetrahedra.cxx
     )
 ENDIF(VTK_USE_DISPLAY)
 
