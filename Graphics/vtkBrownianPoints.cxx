@@ -22,7 +22,7 @@
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkBrownianPoints, "1.35");
+vtkCxxRevisionMacro(vtkBrownianPoints, "1.36");
 vtkStandardNewMacro(vtkBrownianPoints);
 
 vtkBrownianPoints::vtkBrownianPoints()
@@ -104,6 +104,8 @@ void vtkBrownianPoints::Execute()
   //
   output->GetPointData()->CopyVectorsOff();
   output->GetPointData()->PassData(input->GetPointData());
+  output->GetCellData()->PassData(input->GetCellData());
+  output->GetFieldData()->PassData(input->GetFieldData());
 
   output->GetPointData()->SetVectors(newVectors);
   newVectors->Delete();
