@@ -26,7 +26,7 @@ extern "C" {
 
 //-------------------------------------------------------------------------
 vtkStandardNewMacro(vtkTIFFReader);
-vtkCxxRevisionMacro(vtkTIFFReader, "1.48");
+vtkCxxRevisionMacro(vtkTIFFReader, "1.49");
 
 class vtkTIFFReaderInternal
 {
@@ -550,8 +550,8 @@ void ReadScanlineImage(vtkTIFFReader *self, void *out,
 
 //-------------------------------------------------------------------------
 void vtkTIFFReader::ReadImageInternal( void* vtkNotUsed(in), void* outPtr,
-                                        int* outExt,
-                                        unsigned int size )
+                                       int* outExt,
+                                       unsigned int size )
 {
   if ( this->GetInternalImage()->Compression == COMPRESSION_OJPEG ) 
     {

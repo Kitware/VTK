@@ -27,7 +27,7 @@
 
 #include <sys/stat.h>
 
-vtkCxxRevisionMacro(vtkDICOMImageReader, "1.30");
+vtkCxxRevisionMacro(vtkDICOMImageReader, "1.31");
 vtkStandardNewMacro(vtkDICOMImageReader);
 
 class vtkDICOMImageReaderVector : public vtkstd::vector<vtkstd::string>
@@ -104,18 +104,19 @@ void vtkDICOMImageReader::PrintSelf(ostream& os, vtkIndent indent)
 int vtkDICOMImageReader::CanReadFile(const char* fname)
 {
   bool canOpen = this->Parser->OpenFile((char*) fname);
-  if (canOpen == false)
+  if (!canOpen)
     {
     vtkErrorMacro("DICOMParser couldn't open : " << fname);
     return 0;
     }
   bool canRead = this->Parser->IsDICOMFile();
-  if (canRead == true)
+  if (canRead)
     {
     return 1;
     }
   else
     {
+    vtkErrorMacro("DICOMParser couldn't parse : " << fname);
     return 0;
     }
 }

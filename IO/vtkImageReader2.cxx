@@ -24,7 +24,7 @@
 
 #include <sys/stat.h>
 
-vtkCxxRevisionMacro(vtkImageReader2, "1.32");
+vtkCxxRevisionMacro(vtkImageReader2, "1.33");
 vtkStandardNewMacro(vtkImageReader2);
 
 #ifdef read
@@ -260,6 +260,7 @@ void vtkImageReader2::SetFilePattern(const char *pattern)
   this->Modified();
 }
 
+//----------------------------------------------------------------------------
 void vtkImageReader2::SetDataByteOrderToBigEndian()
 {
 #ifndef VTK_WORDS_BIGENDIAN
@@ -269,6 +270,7 @@ void vtkImageReader2::SetDataByteOrderToBigEndian()
 #endif
 }
 
+//----------------------------------------------------------------------------
 void vtkImageReader2::SetDataByteOrderToLittleEndian()
 {
 #ifdef VTK_WORDS_BIGENDIAN
@@ -278,6 +280,7 @@ void vtkImageReader2::SetDataByteOrderToLittleEndian()
 #endif
 }
 
+//----------------------------------------------------------------------------
 void vtkImageReader2::SetDataByteOrder(int byteOrder)
 {
   if ( byteOrder == VTK_FILE_BYTE_ORDER_BIG_ENDIAN )
@@ -290,6 +293,7 @@ void vtkImageReader2::SetDataByteOrder(int byteOrder)
     }
 }
 
+//----------------------------------------------------------------------------
 int vtkImageReader2::GetDataByteOrder()
 {
 #ifdef VTK_WORDS_BIGENDIAN
@@ -313,6 +317,7 @@ int vtkImageReader2::GetDataByteOrder()
 #endif
 }
 
+//----------------------------------------------------------------------------
 const char *vtkImageReader2::GetDataByteOrderAsString()
 {
 #ifdef VTK_WORDS_BIGENDIAN
@@ -409,6 +414,7 @@ void vtkImageReader2::PrintSelf(ostream& os, vtkIndent indent)
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkImageReader2::ExecuteInformation()
 {
   // this is empty, the idea is that converted filters should implement
@@ -513,6 +519,7 @@ void vtkImageReader2::ComputeDataIncrements()
 }
 
 
+//----------------------------------------------------------------------------
 int vtkImageReader2::OpenFile()
 {
   if (!this->FileName && !this->FilePattern)
@@ -542,8 +549,7 @@ int vtkImageReader2::OpenFile()
     }
   if (! this->File || this->File->fail())
     {
-    vtkErrorMacro(<< "Initialize: Could not open file " << 
-    this->InternalFileName);
+    vtkErrorMacro(<< "Initialize: Could not open file " << this->InternalFileName);
     return 0;
     }
   return 1;
