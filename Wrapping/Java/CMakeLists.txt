@@ -76,39 +76,72 @@ IF(JAVA_COMPILE)
       ADD_DEPENDENCIES(VTKJavaJar VTKJava${kit})
     ENDFOREACH(kit)
 
+    SET(VTK_JAVA_DEPENDENCIES vtkTesting vtkSettings)
+    IF(VTK_USE_RENDERING)
+      SET(VTK_JAVA_DEPENDENCIES ${VTK_JAVA_DEPENDENCIES} vtkPanel)
+    ENDIF(VTK_USE_RENDERING)
+    IF(VTK_USE_HYBRID)
+      SET(VTK_JAVA_DEPENDENCIES ${VTK_JAVA_DEPENDENCIES} vtkCanvas)
+    ENDIF(VTK_USE_HYBRID)
+    FOREACH(jfile ${VTK_JAVA_DEPENDENCIES})
+      SET(src ${VTK_SOURCE_DIR}/Wrapping/Java/vtk/${jfile}.java)
+      SET(dst ${VTK_JAVA_HOME}/${jfile}.java)
+      SET(class ${VTK_JAVA_HOME}/${jfile}.class)
+      IF(${jfile} MATCHES vtkSettings)
+        CONFIGURE_FILE(${VTK_SOURCE_DIR}/Wrapping/Java/vtk/vtkSettings.java.in
+          ${VTK_JAVA_HOME}/vtkSettings.java)
+      ELSE(${jfile} MATCHES vtkSettings)
+        ADD_CUSTOM_COMMAND(
+          TARGET VTKJavaJar
+          SOURCE ${src}
+          OUTPUTS ${dst}
+          COMMAND ${CMAKE_COMMAND}
+          ARGS -E copy ${src} ${dst}
+          )
+      ENDIF(${jfile} MATCHES vtkSettings)
+      ADD_CUSTOM_COMMAND(
+        TARGET VTKJavaJar
+        SOURCE ${dst}
+        OUTPUTS ${class}
+        DEPENDS ${VTK_JAVA_HOME}/vtkPanel.java
+        COMMAND ${JAVA_COMPILE}
+        ARGS -classpath ${VTK_JAVA_HOME}/.. -d ${VTK_JAVA_HOME}/.. ${dst}
+        )
+      SET(CLASS_FILES ${CLASS_FILES} ${class})
+    ENDFOREACH(jfile)
     ADD_DEPENDENCIES(VTKJava VTKJavaJar)
 
     ADD_CUSTOM_COMMAND(SOURCE ${VTK_JAVA_HOME}/vtkObject.class
-                       COMMAND ${JAVA_ARCHIVE}
-                       ARGS -cvf  "${LIBRARY_OUTPUT_PATH}/vtk.jar"
-                            -C ${VTK_BINARY_DIR}/java
-                            vtk
-                       TARGET VTKJavaJar
-                       DEPENDS ${CLASS_FILES} ${JAVA_LIBRARIES}
-                       OUTPUTS ${LIBRARY_OUTPUT_PATH}/vtk.jar
-                       COMMENT "Java Archive")
+      COMMAND ${JAVA_ARCHIVE}
+      ARGS -cvf  "${LIBRARY_OUTPUT_PATH}/vtk.jar"
+      -C ${VTK_BINARY_DIR}/java
+      vtk
+      TARGET VTKJavaJar
+      DEPENDS ${CLASS_FILES} ${JAVA_LIBRARIES}
+      OUTPUTS ${LIBRARY_OUTPUT_PATH}/vtk.jar
+      COMMENT "Java Archive")
     ADD_CUSTOM_COMMAND(SOURCE VTKJavaJar
-                       TARGET VTKJavaJar
-                       DEPENDS ${LIBRARY_OUTPUT_PATH}/vtk.jar)
+      TARGET VTKJavaJar
+      DEPENDS ${LIBRARY_OUTPUT_PATH}/vtk.jar)
     IF(BUILD_TESTING)
       FOREACH(jfile
-              SimpleVTK
-              Regression
-              TestVTKCanvas
-              TestInternalFrames
-              ImagePlaneWidget
-              AxesActor)
+          SimpleVTK
+          Regression
+          TestVTKCanvas
+          TestInternalFrames
+          ImagePlaneWidget
+          AxesActor)
         ADD_CUSTOM_COMMAND(
-             SOURCE ${VTK_SOURCE_DIR}/Wrapping/Java/${jfile}.java
-             COMMAND ${JAVA_COMPILE}
-             ARGS -classpath ${LIBRARY_OUTPUT_PATH}/vtk.jar
-                  -sourcepath ${VTK_SOURCE_DIR}/Wrapping/Java
-                  -d ${VTK_BINARY_DIR}/Wrapping/Java
-                     ${VTK_SOURCE_DIR}/Wrapping/Java/${jfile}.java
-             TARGET VTKJava
-             DEPENDS ${LIBRARY_OUTPUT_PATH}/vtk.jar
-             OUTPUTS ${VTK_BINARY_DIR}/Wrapping/Java/${jfile}.class
-             COMMENT "Java Test")
+          SOURCE ${VTK_SOURCE_DIR}/Wrapping/Java/${jfile}.java
+          COMMAND ${JAVA_COMPILE}
+          ARGS -classpath ${LIBRARY_OUTPUT_PATH}/vtk.jar
+          -sourcepath ${VTK_SOURCE_DIR}/Wrapping/Java
+          -d ${VTK_BINARY_DIR}/Wrapping/Java
+          ${VTK_SOURCE_DIR}/Wrapping/Java/${jfile}.java
+          TARGET VTKJava
+          DEPENDS ${LIBRARY_OUTPUT_PATH}/vtk.jar
+          OUTPUTS ${VTK_BINARY_DIR}/Wrapping/Java/${jfile}.class
+          COMMENT "Java Test")
         SET(JAVA_TESTS ${JAVA_TESTS} ${VTK_BINARY_DIR}/Wrapping/Java/${jfile}.class)
       ENDFOREACH(jfile)
       IF(WIN32)
@@ -118,54 +151,54 @@ IF(JAVA_COMPILE)
       ENDIF(WIN32)
 
       ADD_TEST(JavaRegression ${JAVA_RUNTIME} 
-               -classpath ${LIBRARY_OUTPUT_PATH}/vtk.jar${SEPARATOR}${VTK_BINARY_DIR}/Wrapping/Java
-               Regression -D ${VTK_DATA_ROOT}
-                          -V Baseline/Graphics/Cone.png)
+        -classpath ${LIBRARY_OUTPUT_PATH}/vtk.jar${SEPARATOR}${VTK_BINARY_DIR}/Wrapping/Java
+        Regression -D ${VTK_DATA_ROOT}
+        -V Baseline/Graphics/Cone.png)
     ENDIF(BUILD_TESTING)
 
     ADD_CUSTOM_COMMAND( 
       SOURCE    VTKJava
       TARGET    VTKJava
       DEPENDS   ${LIBRARY_OUTPUT_PATH}/vtk.jar ${JAVA_TESTS}
-    )   
+      )   
 
   ELSE(VTK_JAVA_NEW_STYLE)
 
     ADD_CUSTOM_TARGET(VTKJava ALL)
     ADD_CUSTOM_COMMAND(SOURCE ${VTK_JAVA_HOME}/VTKJavaWrapped
-                       COMMAND ${JAVA_COMPILE} 
-                     ARGS ${VTK_JAVA_HOME}/vtk*.java
-                       TARGET VTKJava
-                     OUTPUTS ${VTK_JAVA_HOME}/vtkObject.class)
+      COMMAND ${JAVA_COMPILE} 
+      ARGS ${VTK_JAVA_HOME}/vtk*.java
+      TARGET VTKJava
+      OUTPUTS ${VTK_JAVA_HOME}/vtkObject.class)
     IF(JAVA_ARCHIVE)
       ADD_CUSTOM_COMMAND(SOURCE ${VTK_JAVA_HOME}/vtkObject.class
-                       COMMAND ${CMAKE_COMMAND}
-                         ARGS -E chdir 
-                              ${VTK_BINARY_DIR}/java ${JAVA_ARCHIVE}
-                              -cvf "\"${LIBRARY_OUTPUT_PATH}/vtk.jar\""
-                              vtk
-                       TARGET VTKJava
-                         DEPENDS ${VTK_JAVA_HOME}/vtkObject.class
-                       OUTPUTS ${LIBRARY_OUTPUT_PATH}/vtk.jar)
+        COMMAND ${CMAKE_COMMAND}
+        ARGS -E chdir 
+        ${VTK_BINARY_DIR}/java ${JAVA_ARCHIVE}
+        -cvf "\"${LIBRARY_OUTPUT_PATH}/vtk.jar\""
+        vtk
+        TARGET VTKJava
+        DEPENDS ${VTK_JAVA_HOME}/vtkObject.class
+        OUTPUTS ${LIBRARY_OUTPUT_PATH}/vtk.jar)
 
       IF(BUILD_TESTING)
         FOREACH(jfile
-                SimpleVTK
-                Regression
-                TestVTKCanvas
-                TestInternalFrames
-                ImagePlaneWidget
-                AxesActor)
+            SimpleVTK
+            Regression
+            TestVTKCanvas
+            TestInternalFrames
+            ImagePlaneWidget
+            AxesActor)
           ADD_CUSTOM_COMMAND(
-               SOURCE ${VTK_SOURCE_DIR}/Wrapping/Java/${jfile}.java
-               COMMAND ${JAVA_COMPILE}
-               ARGS -classpath ${LIBRARY_OUTPUT_PATH}/vtk.jar
-                    -sourcepath ${VTK_SOURCE_DIR}/Wrapping/Java
-                    -d ${VTK_BINARY_DIR}/Wrapping/Java
-                       ${VTK_SOURCE_DIR}/Wrapping/Java/${jfile}.java
-               TARGET VTKJava
-               DEPENDS ${LIBRARY_OUTPUT_PATH}/vtk.jar
-               OUTPUTS ${VTK_BINARY_DIR}/Wrapping/Java/${jfile}.class)
+            SOURCE ${VTK_SOURCE_DIR}/Wrapping/Java/${jfile}.java
+            COMMAND ${JAVA_COMPILE}
+            ARGS -classpath ${LIBRARY_OUTPUT_PATH}/vtk.jar
+            -sourcepath ${VTK_SOURCE_DIR}/Wrapping/Java
+            -d ${VTK_BINARY_DIR}/Wrapping/Java
+            ${VTK_SOURCE_DIR}/Wrapping/Java/${jfile}.java
+            TARGET VTKJava
+            DEPENDS ${LIBRARY_OUTPUT_PATH}/vtk.jar
+            OUTPUTS ${VTK_BINARY_DIR}/Wrapping/Java/${jfile}.class)
           SET(JAVA_TESTS ${JAVA_TESTS} ${VTK_BINARY_DIR}/Wrapping/Java/${jfile}.class)
         ENDFOREACH(jfile)
         IF(WIN32)
@@ -175,9 +208,9 @@ IF(JAVA_COMPILE)
         ENDIF(WIN32)
 
         ADD_TEST(JavaRegression ${JAVA_RUNTIME} 
-                 -classpath ${LIBRARY_OUTPUT_PATH}/vtk.jar${SEPARATOR}${VTK_BINARY_DIR}/Wrapping/Java
-                 Regression -D ${VTK_DATA_ROOT}
-                            -V Baseline/Graphics/Cone.png)
+          -classpath ${LIBRARY_OUTPUT_PATH}/vtk.jar${SEPARATOR}${VTK_BINARY_DIR}/Wrapping/Java
+          Regression -D ${VTK_DATA_ROOT}
+          -V Baseline/Graphics/Cone.png)
       ENDIF(BUILD_TESTING)
 
       ADD_CUSTOM_COMMAND( 
@@ -186,7 +219,7 @@ IF(JAVA_COMPILE)
         ARGS "Checking dependencies for VTK Java"
         TARGET    VTKJava
         DEPENDS   ${LIBRARY_OUTPUT_PATH}/vtk.jar ${JAVA_TESTS}
-      )   
+        )   
 
       INSTALL_FILES(/lib/vtk/java FILES ${LIBRARY_OUTPUT_PATH}/vtk.jar)
     ENDIF(JAVA_ARCHIVE)

@@ -1,4 +1,5 @@
 package vtk;
+import vtk.*;
 import javax.swing.Timer;
 import java.awt.*;
 import java.awt.event.*;

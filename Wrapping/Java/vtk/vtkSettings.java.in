@@ -1,0 +1,36 @@
+package vtk;
+
+import java.util.Properties;
+
+public class vtkSettings
+{
+  private static String GetVTKBuildLibDir() { return "@LIBRARY_OUTPUT_PATH@"; }
+  private static String GetVTKInstallLibDir() { return "@CMAKE_INSTALL_PREFIX@/lib/vtk"; }
+
+  public static String GetVTKLibraryDir()
+    {
+    String lpath = null;
+    Properties p = System.getProperties();
+    String path_separator = p.getProperty("path.separator");
+    String s = p.getProperty("java.class.path");
+    String[] paths = s.split("[;\\:]");
+    int cc;
+    for ( cc = 0; cc < paths.length; cc ++ )
+      {
+      if ( paths[cc].endsWith("vtk.jar") )
+        {
+        lpath = paths[cc].substring(0, paths[cc].length()-"vtk.jar".length()-1);
+        }
+      }
+    if ( lpath == null )
+      {
+      lpath = vtkSettings.GetVTKInstallLibDir();
+      }
+    return lpath;
+    }
+
+  public static String[] GetKits()
+    {
+    return "@KITS@".split(";");
+    }
+}
