@@ -74,6 +74,7 @@ vtkHexagonalPrism.cxx
 vtkHexahedron.cxx
 vtkHierarchicalBoxDataSet.cxx
 #vtkHierarchicalDataInformation.cxx
+vtkHierarchicalDataInformation.cxx
 vtkHierarchicalDataIterator.cxx
 vtkHierarchicalDataSet.cxx
 vtkImageAlgorithm.cxx
