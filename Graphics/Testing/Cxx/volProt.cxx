@@ -32,7 +32,7 @@ int main( int argc, char *argv[] )
   renWin->AddRenderer(ren);
   
   // Read the data from a vtk file
-  char* fname = vtkExpandDataFileName(argc, argv, "Data/ironProt.vtk");
+  char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/ironProt.vtk");
   vtkStructuredPointsReader *reader = vtkStructuredPointsReader::New();
   reader->SetFileName(fname);
   reader->Update();
@@ -247,10 +247,14 @@ int main( int argc, char *argv[] )
 
   int retVal = vtkRegressionTestImageThreshold( renWin, 70 );
 
-
   // Interact with the data at 3 frames per second
   iren->SetDesiredUpdateRate(3.0);
   iren->SetStillUpdateRate(0.001);
+
+  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
+    {
+    iren->Start();
+    }
   
   // Clean up
   reader->Delete();

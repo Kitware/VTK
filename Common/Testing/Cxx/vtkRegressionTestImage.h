@@ -11,15 +11,44 @@
 #include "vtkPNGReader.h"
 #include "vtkPNGWriter.h"
 #include "vtkImageDifference.h"
-#include "vtkGetDataRoot.h"
+#include "vtkTestUtilities.h"
 
-static char* IncrementFileName(const char* fname, int count);
-static int LookForFile(const char* newFileName);
+class vtkRegressionTester
+{
+public:
+  static int Test(int argc, char *argv[], vtkWindow *rw, float thresh );
 
-int vtkRegressionTestImage2(int argc, char *argv[], vtkWindow *rw, 
-                            float thresh ) 
+  enum ReturnValue {
+    FAILED = 0,
+    PASSED = 1,
+    NOT_RUN = 2,
+    DO_INTERACTOR = 3
+  };
+  
+private:
+  static char* IncrementFileName(const char* fname, int count);
+  static int LookForFile(const char* newFileName);
+};
+
+#define vtkRegressionTestImage(rw) \
+vtkRegressionTester::Test(argc, argv, rw, 10)
+
+#define vtkRegressionTestImageThreshold(rw, t) \
+vtkRegressionTester::Test(argc, argv, rw, t)
+
+
+int vtkRegressionTester::Test(int argc, char *argv[], vtkWindow *rw, 
+			      float thresh ) 
 {
   int imageIndex=-1;
+
+  for (int i=0; i<argc; i++)
+    {
+    if ( strcmp("-I", argv[i]) == 0 )
+      {
+      return DO_INTERACTOR;
+      }
+    }
 
   for (int i=0; i<argc; i++)
     {
@@ -35,7 +64,7 @@ int vtkRegressionTestImage2(int argc, char *argv[], vtkWindow *rw,
   if( imageIndex != -1 ) 
     { 
     // Prepend the data root to the filename
-    char* fname=vtkExpandDataFileName(argc, argv, argv[imageIndex]);
+    char* fname=vtkTestUtilities::ExpandDataFileName(argc, argv, argv[imageIndex]);
 
     vtkWindowToImageFilter *rt_w2if = vtkWindowToImageFilter::New(); 
     rt_w2if->SetInput(rw);
@@ -61,7 +90,7 @@ int vtkRegressionTestImage2(int argc, char *argv[], vtkWindow *rw,
 	cerr << "Unable to open file for writing: " << fname << endl;
 	rt_w2if->Delete(); 
 	delete[] fname;
-        return 0;
+        return FAILED;
         }
       }
     vtkPNGReader *rt_png = vtkPNGReader::New(); 
@@ -78,7 +107,7 @@ int vtkRegressionTestImage2(int argc, char *argv[], vtkWindow *rw,
       { 
       rt_id->Delete(); 
       delete[] fname;
-      return 1; 
+      return PASSED; 
       }
     // If the test failed with the first image (foo.png)
     // check if there are images of the form foo_N.png
@@ -103,7 +132,7 @@ int vtkRegressionTestImage2(int argc, char *argv[], vtkWindow *rw,
 	rt_id->Delete(); 
 	delete[] fname;
 	delete[] newFileName;
-	return 1; 
+	return PASSED; 
 	}
       else
 	{
@@ -147,12 +176,13 @@ int vtkRegressionTestImage2(int argc, char *argv[], vtkWindow *rw,
     delete [] rt_diffName;
     rt_id->Delete(); 
     delete[] fname;
-    return 0;
+    return FAILED;
     }
-  return 2;
+  return NOT_RUN;
 }
 
-static char* IncrementFileName(const char* fname, int count)
+char* vtkRegressionTester::IncrementFileName(const char* fname, 
+						    int count)
 {
   char counts[256];
   sprintf(counts, "%d", count);
@@ -181,7 +211,7 @@ static char* IncrementFileName(const char* fname, int count)
   return newFileName;
 }
 
-static int LookForFile(const char* newFileName)
+int vtkRegressionTester::LookForFile(const char* newFileName)
 {
   if (!newFileName)
     {
@@ -198,10 +228,5 @@ static int LookForFile(const char* newFileName)
     }
 }
 
-#define vtkRegressionTestImage(rw) \
-vtkRegressionTestImage2(argc, argv, rw, 10)
-
-#define vtkRegressionTestImageThreshold(rw, t) \
-vtkRegressionTestImage2(argc, argv, rw, t)
 
 #endif // __vtkRegressionTestImage_h

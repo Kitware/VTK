@@ -184,7 +184,8 @@ int main(int argc, char** argv)
 
   // Test sending vtkDataObject
   vtkUnstructuredGridReader* ugrid = vtkUnstructuredGridReader::New();
-  char* fname = vtkExpandDataFileName(argc, argv, "Data/blow.vtk");
+  char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, 
+						     "Data/blow.vtk");
   ugrid->SetFileName(fname);
   delete[] fname;
 
@@ -223,7 +224,7 @@ int main(int argc, char** argv)
   op->SetTag(45);
 
   vtkBYUReader* pd = vtkBYUReader::New();
-  fname = vtkExpandDataFileName(argc, argv, "Data/teapot.g");
+  fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/teapot.g");
   pd->SetGeometryFileName(fname);
   delete[] fname;
 
@@ -234,7 +235,8 @@ int main(int argc, char** argv)
   pd->Delete();
 
   vtkRectilinearGridReader* rgrid = vtkRectilinearGridReader::New();
-  fname = vtkExpandDataFileName(argc, argv, "Data/RectGrid2.vtk");
+  fname = vtkTestUtilities::ExpandDataFileName(argc, argv, 
+					       "Data/RectGrid2.vtk");
   rgrid->SetFileName(fname);
   delete[] fname;
 
@@ -245,7 +247,8 @@ int main(int argc, char** argv)
   rgrid->Delete();
 
   vtkStructuredPointsReader* spgrid = vtkStructuredPointsReader::New();
-  fname = vtkExpandDataFileName(argc, argv, "Data/ironProt.vtk");
+  fname = vtkTestUtilities::ExpandDataFileName(argc, argv, 
+					       "Data/ironProt.vtk");
   spgrid->SetFileName(fname);
   delete[] fname;
 
@@ -256,10 +259,10 @@ int main(int argc, char** argv)
   spgrid->Delete();
 
   vtkPLOT3DReader* pl3d = vtkPLOT3DReader::New();
-  fname = vtkExpandDataFileName(argc, argv, "Data/combxyz.bin");
+  fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/combxyz.bin");
   pl3d->SetXYZFileName(fname);
   delete[] fname;
-  fname = vtkExpandDataFileName(argc, argv, "Data/combq.bin");
+  fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/combq.bin");
   pl3d->SetQFileName(fname);
   delete[] fname;
   pl3d->SetScalarFunctionNumber(100);
@@ -272,7 +275,7 @@ int main(int argc, char** argv)
   pl3d->Delete();
 
   vtkPNMReader* imageData = vtkPNMReader::New();
-  fname = vtkExpandDataFileName(argc, argv, "Data/earth.ppm");
+  fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/earth.ppm");
   imageData->SetFileName(fname);
   delete[] fname;
 

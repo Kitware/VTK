@@ -74,8 +74,8 @@ void MyMain( vtkMultiProcessController *controller, void *arg )
     
   // Create the reader, the data file name might have
   // to be changed depending on where the data files are.
-  char* fname = vtkExpandDataFileName(args->argc, args->argv, 
-				      "Data/headsq/quarter");
+  char* fname = vtkTestUtilities::ExpandDataFileName(args->argc, args->argv, 
+						     "Data/headsq/quarter");
   reader = vtkImageReader::New();
   reader->SetDataByteOrderToLittleEndian();
   reader->SetDataExtent(0, 63, 0, 63, 1, 93);
@@ -218,8 +218,12 @@ void MyMain( vtkMultiProcessController *controller, void *arg )
 
 
     *(args->retVal) = 
-      vtkRegressionTestImage2(args->argc, args->argv, renWindow, 10);
+      vtkRegressionTester::Test(args->argc, args->argv, renWindow, 10);
 
+    if ( *(args->retVal) == vtkRegressionTester::DO_INTERACTOR)
+      {
+      iren->Start();
+      }
     // Tell the other processors to stop processing RMIs.
     for (i = 1; i < numProcs; ++i)
       {

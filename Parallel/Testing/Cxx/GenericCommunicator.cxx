@@ -313,9 +313,9 @@ void Process2(vtkMultiProcessController *contr, void *arg)
   renWin->Render();
 
   *(args->retVal) = 
-    vtkRegressionTestImage2(args->argc, args->argv, renWin, 10);
+    vtkRegressionTester::Test(args->argc, args->argv, renWin, 10);
 
-  if ( *(args->retVal) == 3 )
+  if ( *(args->retVal) == vtkRegressionTester::DO_INTERACTOR)
     {
     iren->Start();
     }

@@ -14,6 +14,7 @@
 #include "vtkInputPort.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkParallelFactory.h"
+#include "vtkRenderWindowInteractor.h"
 
 #include "vtkDebugLeaks.h"
 #include "vtkRegressionTestImage.h"
@@ -285,10 +286,16 @@ void Process2(vtkMultiProcessController *contr, void *arg)
   renWin->AddRenderer(ren);
   ren->UnRegister(0);
 
+  vtkRenderWindowInteractor* iren = vtkRenderWindowInteractor::New();
+  iren->SetRenderWindow(renWin);
   renWin->Render();
 
   *(args->retVal) = 
-    vtkRegressionTestImage2(args->argc, args->argv, renWin, 10);
+    vtkRegressionTester::Test(args->argc, args->argv, renWin, 10);
+  if ( *(args->retVal) == vtkRegressionTester::DO_INTERACTOR)
+    {
+    iren->Start();
+    }
 
   contr->TriggerRMI(0, vtkMultiProcessController::BREAK_RMI_TAG);
 
