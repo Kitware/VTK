@@ -65,7 +65,7 @@ void vtkLoopSubdivisionFilter::GenerateSubdivisionPoints (vtkPolyData *inputDS, 
   vtkIdType *pts;
   int numPts;
   int cellId, edgeId, newId;
-  int npts;
+  vtkIdType npts;
   int p1, p2;
   vtkCellArray *inputPolys=inputDS->GetPolys();
   vtkEdgeTable *edgeTable;
@@ -90,7 +90,8 @@ void vtkLoopSubdivisionFilter::GenerateSubdivisionPoints (vtkPolyData *inputDS, 
     }
 
   // Generate odd points. These will be inserted into the new dataset
-  for (cellId=0, inputPolys->InitTraversal(); inputPolys->GetNextCell(npts, pts); cellId++)
+  for (cellId=0, inputPolys->InitTraversal();
+       inputPolys->GetNextCell(npts, pts); cellId++)
     {
     if ( inputDS->GetCellType(cellId) != VTK_TRIANGLE )
       {

@@ -69,14 +69,14 @@ void vtkStripper::Execute()
   int longestStrip, longestLine, cellId, i, j, numCells, numPts;
   int numLines, numStrips, nei;
   vtkCellArray *newStrips=NULL, *inStrips, *newLines=NULL, *inLines, *inPolys;
-  int numTriPts, numLinePts;
+  vtkIdType numLinePts;
   vtkIdList *cellIds;
   int neighbor=0, foundOne;
   vtkIdType *pts;
   vtkPolyData *Mesh;
   char *visited;
-  int numStripPts;
-  vtkIdType *stripPts, *linePts, *triPts;
+  vtkIdType numStripPts;
+  vtkIdType *stripPts, *linePts, *triPts, numTriPts;
   vtkPolyData *input= this->GetInput();
   vtkPolyData *output= this->GetOutput();
   vtkPointData *pd=input->GetPointData();

@@ -523,7 +523,7 @@ void vtkVoxelContoursToSurfaceFilter::Execute()
   int                  i, j;
   int                  numberOfInputCells;
   int                  currentInputCellIndex;
-  int                  npts;
+  vtkIdType            npts;
   vtkIdType            *pts;
   float                point1[3], point2[3];
   float                currentZ;

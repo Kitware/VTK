@@ -128,10 +128,12 @@ void vtkPolyDataReader::Execute()
 {
   int numPts=0;
   char line[256];
-  int npts, size, ncells;
+  int npts, size, ncells, i;
   int done=0;
   vtkPolyData *output = this->GetOutput();
-
+  int *tempArray;
+  vtkIdType *idArray;
+  
   vtkDebugMacro(<<"Reading vtk polygonal data...");
 
   if ( !(this->OpenVTKFile()) || !this->ReadHeader())
@@ -204,9 +206,17 @@ void vtkPolyDataReader::Execute()
           return;
           }
 
-        this->ReadCells(size, verts->WritePointer(ncells,size));
+        tempArray = new int[size];
+        idArray = verts->WritePointer(ncells, size);
+        this->ReadCells(size, tempArray);
+//        this->ReadCells(size, verts->WritePointer(ncells,size));
+        for (i = 0; i < size; i++)
+          {
+          idArray[i] = tempArray[i];
+          }
         output->SetVerts(verts);
         verts->Delete();
+        delete [] tempArray;
         vtkDebugMacro(<<"Read " << ncells << " vertices");
         }
 
@@ -219,10 +229,18 @@ void vtkPolyDataReader::Execute()
           this->CloseVTKFile ();
           return;
           }
+        tempArray = new int[size];
+        idArray = lines->WritePointer(ncells, size);
+        this->ReadCells(size, tempArray);
+//        this->ReadCells(size, lines->WritePointer(ncells,size));
+        for (i = 0; i < size; i++)
+          {
+          idArray[i] = tempArray[i];
+          }
 
-        this->ReadCells(size, lines->WritePointer(ncells,size));
         output->SetLines(lines);
         lines->Delete();
+        delete [] tempArray;
         vtkDebugMacro(<<"Read " << ncells << " lines");
         }
 
@@ -236,9 +254,17 @@ void vtkPolyDataReader::Execute()
           return;
           }
 
-        this->ReadCells(size, polys->WritePointer(ncells,size));
+        tempArray = new int[size];
+        idArray = polys->WritePointer(ncells, size);
+        this->ReadCells(size, tempArray);
+//        this->ReadCells(size, polys->WritePointer(ncells,size));
+        for (i = 0; i < size; i++)
+          {
+          idArray[i] = tempArray[i];
+          }
         output->SetPolys(polys);
         polys->Delete();
+        delete [] tempArray;
         vtkDebugMacro(<<"Read " << ncells << " polygons");
         }
 
@@ -252,9 +278,17 @@ void vtkPolyDataReader::Execute()
           return;
           }
 
-        this->ReadCells(size, tris->WritePointer(ncells,size));
+        tempArray = new int[size];
+        idArray = tris->WritePointer(ncells, size);
+        this->ReadCells(size, tempArray);
+//        this->ReadCells(size, tris->WritePointer(ncells,size));
+        for (i = 0; i < size; i++)
+          {
+          idArray[i] = tempArray[i];
+          }
         output->SetStrips(tris);
         tris->Delete();
+        delete [] tempArray;
         vtkDebugMacro(<<"Read " << ncells << " triangle strips");
         }
 

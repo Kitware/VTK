@@ -127,6 +127,8 @@ void vtkUnstructuredGridReader::Execute()
   int *types=NULL;
   int done=0;
   vtkUnstructuredGrid *output = this->GetOutput();
+  int *tempArray;
+  vtkIdType *idArray;
 
   // All of the data in the first piece.
   if (output->GetUpdatePiece() > 0)
@@ -217,12 +219,25 @@ void vtkUnstructuredGridReader::Execute()
         skip3 = ncells - skip1 - read2;
 
         cells = vtkCellArray::New();
-        if (!this->ReadCells(size, cells->WritePointer(read2,size),
-                                     skip1, read2, skip3) )
+        
+        tempArray = new int[size];
+        idArray = cells->WritePointer(ncells, size);
+        
+//        if (!this->ReadCells(size, cells->WritePointer(read2,size),
+//                                     skip1, read2, skip3) )
+        if (!this->ReadCells(size, tempArray, skip1, read2, skip3) )
           {
           this->CloseVTKFile ();
+          delete [] tempArray;
           return;
           }
+        
+        for (i = 0; i < size; i++)
+          {
+          idArray[i] = tempArray[i];
+          }
+        delete [] tempArray;
+        
         if (cells && types)
           {
           output->SetCells(types, cells);

@@ -194,7 +194,7 @@ void vtkSmoothPolyDataFilter::Execute()
 {
   int numPts, numCells;
   int i, j, k, numPolys, numStrips;
-  int npts;
+  vtkIdType npts;
   vtkIdType *pts;
   int p1, p2;
   float *x, *y, deltaX[3], xNew[3], conv, maxDist, dist, factor;
@@ -326,7 +326,7 @@ void vtkSmoothPolyDataFilter::Execute()
     { //build cell structure
     vtkCellArray *polys;
     int numNei, cellId, nei, edge;
-    int numNeiPts;
+    vtkIdType numNeiPts;
     vtkIdType *neiPts;
     float normal[3], neiNormal[3];
     vtkIdList *neighbors;

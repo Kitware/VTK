@@ -160,8 +160,8 @@ void vtkAbstractTransform::TransformPoints(vtkPoints *in, vtkPoints *out)
   this->Update();
 
   double point[3];
-  int i;
-  int n = in->GetNumberOfPoints();
+  vtkIdType i;
+  vtkIdType n = in->GetNumberOfPoints();
 
   for (i = 0; i < n; i++)
     {
@@ -191,8 +191,8 @@ void vtkAbstractTransform::TransformPointsNormalsVectors(vtkPoints *inPts,
   double matrix[3][3];
   double coord[3];
 
-  int i;
-  int n = inPts->GetNumberOfPoints();
+  vtkIdType i;
+  vtkIdType n = inPts->GetNumberOfPoints();
 
   for (i = 0; i < n; i++)
     {

@@ -169,8 +169,8 @@ void vtkSTLReader::Execute()
 //  if (0)
   if ( this->Merging )  
   {
-    int npts, i;
-    vtkIdType *pts, nodes[3];
+    int i;
+    vtkIdType *pts, nodes[3], npts;
     float *x;
     int nextCell=0;
 

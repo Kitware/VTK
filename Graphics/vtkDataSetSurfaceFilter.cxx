@@ -714,12 +714,13 @@ void vtkDataSetSurfaceFilter::UnstructuredGridExecute()
 {
   vtkCellArray *newPolys;
   vtkPoints *newPts;
-  int *ids;
+  vtkIdType *ids;
   int progressCount;
   int cellId, i, j, newCellId;
-  int *cellPointer;
+  vtkIdType *cellPointer;
   int cellType;
-  vtkUnstructuredGrid *input = vtkUnstructuredGrid::SafeDownCast(this->GetInput());
+  vtkUnstructuredGrid *input =
+    vtkUnstructuredGrid::SafeDownCast(this->GetInput());
   int numPts=input->GetNumberOfPoints();
   int numCells=input->GetNumberOfCells();
   vtkGenericCell *cell;

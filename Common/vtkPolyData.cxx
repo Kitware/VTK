@@ -224,8 +224,8 @@ int vtkPolyData::GetCellType(vtkIdType cellId)
 //----------------------------------------------------------------------------
 vtkCell *vtkPolyData::GetCell(vtkIdType cellId)
 {
-  int i, loc, numPts;
-  vtkIdType *pts;
+  int i, loc;
+  vtkIdType *pts, numPts;
   vtkCell *cell = NULL;
   unsigned char type;
 
@@ -341,8 +341,8 @@ vtkCell *vtkPolyData::GetCell(vtkIdType cellId)
 //----------------------------------------------------------------------------
 void vtkPolyData::GetCell(vtkIdType cellId, vtkGenericCell *cell)
 {
-  int             i, loc, numPts;
-  vtkIdType       *pts;
+  int             i, loc;
+  vtkIdType       *pts, numPts;
   unsigned char   type;
   float           x[3];
 
@@ -495,8 +495,8 @@ void vtkPolyData::CopyCells(vtkPolyData *pd, vtkIdList *idList,
 // constructing a cell.
 void vtkPolyData::GetCellBounds(vtkIdType cellId, float bounds[6])
 {
-  int i, loc, numPts;
-  vtkIdType *pts;
+  int i, loc;
+  vtkIdType *pts, numPts;
   unsigned char type;
   float x[3];
 
@@ -584,8 +584,8 @@ void vtkPolyData::ComputeBounds()
       return;
       } 
 
-    int t, i, npts;
-    vtkIdType *pts;
+    int t, i;
+    vtkIdType *pts, npts;
     float x[3];
 
     this->Bounds[0] = this->Bounds[2] = this->Bounds[4] =  VTK_LARGE_FLOAT;
@@ -934,7 +934,7 @@ void vtkPolyData::BuildCells()
   vtkCellArray *inLines=this->GetLines();
   vtkCellArray *inPolys=this->GetPolys();
   vtkCellArray *inStrips=this->GetStrips();
-  int npts;
+  vtkIdType npts;
   vtkIdType *pts;
   vtkCellTypes *cells;
 
@@ -1043,8 +1043,7 @@ void vtkPolyData::BuildLinks()
 void vtkPolyData::GetCellPoints(vtkIdType cellId, vtkIdList *ptIds)
 {
   vtkIdType i;
-  int npts;
-  vtkIdType *pts;
+  vtkIdType *pts, npts;
   
   ptIds->Reset();
   if ( this->Cells == NULL )
@@ -1063,7 +1062,8 @@ void vtkPolyData::GetCellPoints(vtkIdType cellId, vtkIdList *ptIds)
 //----------------------------------------------------------------------------
 // Return a pointer to a list of point ids defining cell. (More efficient.)
 // Assumes that cells have been built (with BuildCells()).
-void vtkPolyData::GetCellPoints(vtkIdType cellId, int& npts, vtkIdType* &pts)
+void vtkPolyData::GetCellPoints(vtkIdType cellId, vtkIdType& npts,
+                                vtkIdType* &pts)
 {
   int loc;
   unsigned char type;
@@ -1501,8 +1501,7 @@ void vtkPolyData::GetCellEdgeNeighbors(vtkIdType cellId, int p1, int p2,
   vtkIdType *cells;
   vtkIdType numCells;
   vtkIdType i,j;
-  int npts;
-  vtkIdType *pts;
+  vtkIdType *pts, npts;
   
   cellIds->Reset();
 

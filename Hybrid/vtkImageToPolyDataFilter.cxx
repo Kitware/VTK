@@ -792,8 +792,8 @@ void vtkImageToPolyDataFilter::GeneratePolygons(vtkPolyData *edges,
                                vtkUnsignedCharArray *pointDescr)
 {
   vtkCellArray *newPolys, *inPolys;
-  int i, npts, numPts;
-  vtkIdType *pts;
+  int i, numPts;
+  vtkIdType *pts, npts;
   
   // Copy the points via reference counting
   //
@@ -1168,8 +1168,8 @@ void vtkImageToPolyDataFilter::BuildPolygons(vtkUnsignedCharArray *vtkNotUsed(po
   vtkPoints *points = edges->GetPoints();
   int numPts = points->GetNumberOfPoints();
   int i, j, k, ptId, cellId, *polyId, *polyId2, edgeId;
-  vtkIdType *cells, *pts, *cells2;
-  int numPolyPts, npts, p1, p2;
+  vtkIdType *cells, *pts, *cells2, npts;
+  int numPolyPts, p1, p2;
   unsigned short ncells, ncells2;
   unsigned char *polyVisited, *ptr;
   vtkCellArray *newPolys;
@@ -1266,10 +1266,10 @@ void vtkImageToPolyDataFilter::SmoothEdges(vtkUnsignedCharArray *pointDescr,
   vtkPoints *points=edges->GetPoints();
   int numPts=points->GetNumberOfPoints();
   int i, ptId, iterNum;
-  int npts, connId;
+  int connId;
   float x[3], *xconn, xave[3], factor;
   unsigned short int ncells;
-  vtkIdType *cells, *pts;
+  vtkIdType *cells, *pts, npts;
 
   // For each smoothing operation, loop over points. Points that can be 
   // smoothed are moved in the direction of the average of their neighbor
@@ -1323,7 +1323,7 @@ void vtkImageToPolyDataFilter::DecimateEdges(vtkPolyData *edges,
   vtkPoints *points=edges->GetPoints();
   int numPts=points->GetNumberOfPoints();
   int ptId, prevId, nextId;
-  int npts;
+  vtkIdType npts;
   float *x, *xPrev, *xNext;
   unsigned short int ncells;
   vtkIdType *cells, *pts;

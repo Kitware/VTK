@@ -108,7 +108,8 @@ void vtkShortArray::SetArray(short* array, vtkIdType size, int save)
 }
 
 // Allocate memory for this array. Delete old storage only if necessary.
-int vtkShortArray::Allocate(const vtkIdType sz, const int vtkNotUsed(ext))
+int vtkShortArray::Allocate(const vtkIdType sz,
+                            const vtkIdType vtkNotUsed(ext))
 {
   if ( sz > this->Size )
     {
@@ -367,7 +368,7 @@ void vtkShortArray::InsertTuple(const vtkIdType i, const double * tuple)
 }
 
 // Insert (memory allocation performed) the tuple onto the end of the array.
-int vtkShortArray::InsertNextTuple(const float * tuple)
+vtkIdType vtkShortArray::InsertNextTuple(const float * tuple)
 {
   vtkIdType i = this->MaxId + 1;
   short *t = this->WritePointer(i,this->NumberOfComponents);
@@ -380,7 +381,7 @@ int vtkShortArray::InsertNextTuple(const float * tuple)
   return this->MaxId / this->NumberOfComponents;
 }
 
-int vtkShortArray::InsertNextTuple(const double * tuple)
+vtkIdType vtkShortArray::InsertNextTuple(const double * tuple)
 {
   vtkIdType i = this->MaxId + 1;
   short *t = this->WritePointer(i,this->NumberOfComponents);

@@ -97,7 +97,7 @@ void vtkFeatureEdges::Execute()
   float scalar, n[3], x1[3], x2[3];
   float cosAngle = 0;
   vtkIdType lineIds[2];
-  int npts;
+  vtkIdType npts;
   vtkIdType *pts;
   vtkCellArray *inPolys, *inStrips, *newPolys;
   vtkFloatArray *polyNormals = NULL;

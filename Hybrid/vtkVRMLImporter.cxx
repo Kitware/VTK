@@ -6118,8 +6118,8 @@ vtkVRMLImporter::exitField()
   else if (strcmp(fr->fieldName, "colorIndex") == 0) 
     {
     vtkCellArray *cells;
-    int npts, index, j;
-    vtkIdType *pts;
+    int index, j;
+    vtkIdType *pts, npts;
     vtkPolyData *pd = (vtkPolyData *)this->CurrentMapper->GetInput();
     if (pd->GetNumberOfPolys() > 0)
       cells = pd->GetPolys();

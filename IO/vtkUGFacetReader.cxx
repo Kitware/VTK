@@ -231,8 +231,8 @@ void vtkUGFacetReader::Execute()
   //
   if ( this->Merging )
     {
-    int npts, i;
-    vtkIdType *pts, nodes[3];
+    int i;
+    vtkIdType *pts, nodes[3], npts;
     float *x;
 
     mergedPts = vtkPoints::New();

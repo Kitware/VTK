@@ -84,8 +84,7 @@ void vtkRuledSurfaceFilter::Execute()
   vtkCellArray *inLines, *newPolys, *newStrips;
   vtkPolyData *input = this->GetInput();
   vtkPolyData *output = this->GetOutput();
-  int npts, npts2;
-  vtkIdType *pts, *pts2;
+  vtkIdType *pts, *pts2, npts, npts2;
   vtkPointData *inPD=input->GetPointData(), *outPD=output->GetPointData();
 
   // Check input, pass data if requested

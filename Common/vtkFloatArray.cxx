@@ -107,7 +107,8 @@ void vtkFloatArray::SetArray(float* array, vtkIdType size, int save)
 
 
 // Allocate memory for this array. Delete old storage only if necessary.
-int vtkFloatArray::Allocate(const vtkIdType sz, const int vtkNotUsed(ext))
+int vtkFloatArray::Allocate(const vtkIdType sz,
+                            const vtkIdType vtkNotUsed(ext))
 {
   if ( sz > this->Size)
     {
@@ -348,7 +349,7 @@ void vtkFloatArray::InsertTuple(const vtkIdType i, const double * tuple)
 }
 
 // Insert (memory allocation performed) the tuple onto the end of the array.
-int vtkFloatArray::InsertNextTuple(const float * tuple)
+vtkIdType vtkFloatArray::InsertNextTuple(const float * tuple)
 {
   vtkIdType i = this->MaxId + 1;
   float *t = this->WritePointer(i,this->NumberOfComponents);
@@ -362,7 +363,7 @@ int vtkFloatArray::InsertNextTuple(const float * tuple)
 
 }
 
-int vtkFloatArray::InsertNextTuple(const double * tuple)
+vtkIdType vtkFloatArray::InsertNextTuple(const double * tuple)
 {
   vtkIdType i = this->MaxId + 1;
   float *t = this->WritePointer(i,this->NumberOfComponents);

@@ -117,8 +117,8 @@ void vtkLinearExtrusionFilter::Execute()
   vtkPolyData *mesh;
   vtkPoints *inPts;
   vtkCellArray *inVerts, *inLines, *inPolys, *inStrips;
-  int npts, numEdges, cellId, dim;
-  vtkIdType *pts;
+  int numEdges, cellId, dim;
+  vtkIdType *pts, npts;
   int ptId, ncells, i, j, p1, p2;
   float *x;
   vtkPoints *newPts;

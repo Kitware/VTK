@@ -247,7 +247,7 @@ public:
   // Description:
   // Return a pointer to a list of point ids defining cell. (More efficient.)
   // Assumes that cells have been built (with BuildCells()).
-  void GetCellPoints(vtkIdType cellId, int& npts, vtkIdType* &pts);
+  void GetCellPoints(vtkIdType cellId, vtkIdType& npts, vtkIdType* &pts);
 
   // Description:
   // Given three vertices, determine whether it's a triangle. Make sure 
@@ -441,8 +441,8 @@ inline void vtkPolyData::GetPointCells(vtkIdType ptId, unsigned short& ncells,
 inline int vtkPolyData::IsTriangle(int v1, int v2, int v3)
 {
   unsigned short int n1;
-  int i, j, n2, tVerts[3];
-  vtkIdType *cells, *tVerts2;
+  int i, j, tVerts[3];
+  vtkIdType *cells, *tVerts2, n2;
   
   tVerts[0] = v1;
   tVerts[1] = v2;
@@ -470,8 +470,7 @@ inline int vtkPolyData::IsTriangle(int v1, int v2, int v3)
 
 inline int vtkPolyData::IsPointUsedByCell(vtkIdType ptId, vtkIdType cellId)
 {
-  int npts;
-  vtkIdType *pts;
+  vtkIdType *pts, npts;
   
   this->GetCellPoints(cellId, npts, pts);
   for (vtkIdType i=0; i < npts; i++)
@@ -515,8 +514,7 @@ inline void vtkPolyData::DeleteCell(vtkIdType cellId)
 
 inline void vtkPolyData::RemoveCellReference(vtkIdType cellId)
 {
-  int npts;
-  vtkIdType *pts;
+  vtkIdType *pts, npts;
   
   this->GetCellPoints(cellId, npts, pts);
   for (vtkIdType i=0; i<npts; i++)
@@ -527,8 +525,7 @@ inline void vtkPolyData::RemoveCellReference(vtkIdType cellId)
 
 inline void vtkPolyData::AddCellReference(vtkIdType cellId)
 {
-  int npts;
-  vtkIdType *pts;
+  vtkIdType *pts, npts;
   
   this->GetCellPoints(cellId, npts, pts);
   for (vtkIdType i=0; i<npts; i++)
@@ -545,8 +542,8 @@ inline void vtkPolyData::ResizeCellList(vtkIdType ptId, int size)
 inline void vtkPolyData::ReplaceCellPoint(vtkIdType cellId, vtkIdType oldPtId,
                                           vtkIdType newPtId)
 {
-  int nverts, i;
-  vtkIdType *verts;
+  int i;
+  vtkIdType *verts, nverts;
   
   this->GetCellPoints(cellId,nverts,verts);
   for ( i=0; i < nverts; i++ )

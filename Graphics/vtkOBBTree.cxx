@@ -304,8 +304,8 @@ void vtkOBBTree::ComputeOBB(vtkDataSet *input, float corner[3], float max[3],
 void vtkOBBTree::ComputeOBB(vtkIdList *cells, float corner[3], float max[3],
                             float mid[3], float min[3], float size[3])
   {
-  int numCells, i, j, k, cellId, numPts, type, ptId, pId, qId, rId;
-  vtkIdType *ptIds;
+  int numCells, i, j, k, cellId, type, ptId, pId, qId, rId;
+  vtkIdType *ptIds, numPts;
   float *p, *q, *r, mean[3], xp[3], *v[3], v0[3], v1[3], v2[3];
   float *a[3], a0[3], a1[3], a2[3];
   float tMin[3], tMax[3], closest[3], t;

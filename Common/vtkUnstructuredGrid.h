@@ -103,7 +103,8 @@ public:
   int GetMaxCellSize();
   void BuildLinks();
   vtkCellLinks *GetCellLinks() {return this->Links;};
-  virtual void GetCellPoints(vtkIdType cellId, int& npts, vtkIdType* &pts);
+  virtual void GetCellPoints(vtkIdType cellId, vtkIdType& npts,
+                             vtkIdType* &pts);
   void ReplaceCell(vtkIdType cellId, int npts, vtkIdType *pts);
   int InsertNextLinkedCell(int type, int npts, vtkIdType *pts);
   void RemoveReferenceToCell(vtkIdType ptId, vtkIdType cellId);

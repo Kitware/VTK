@@ -490,8 +490,8 @@ static void WriteDataArray(ostream *fp, T *data, int fileType, const char *forma
 }
 
 // Write out data to file specified.
-int vtkDataWriter::WriteArray(ostream *fp, int dataType, vtkDataArray *data, const char *format, 
-			      int num, int numComp)
+int vtkDataWriter::WriteArray(ostream *fp, int dataType, vtkDataArray *data,
+                              const char *format, int num, int numComp)
 {
   int i, j, idx;
   char str[1024];
@@ -609,6 +609,23 @@ int vtkDataWriter::WriteArray(ostream *fp, int dataType, vtkDataArray *data, con
       sprintf (str, format, "double"); *fp << str; 
       double *s=((vtkDoubleArray *)data)->GetPointer(0);
       WriteDataArray(fp, s, this->FileType, "%g ", num, numComp);
+      }
+    break;
+
+    case VTK_ID_TYPE:
+      {
+      // currently writing vtkIdType as int.
+      int size = data->GetSize();
+      int i;
+      int *intArray = new int[size];
+      sprintf (str, format, "int"); *fp << str; 
+      vtkIdType *s=((vtkIdTypeArray *)data)->GetPointer(0);
+      for (i = 0; i < size; i++)
+        {
+        intArray[i] = s[i];
+        }
+      WriteDataArray(fp, intArray, this->FileType, "%d ", num, numComp);
+      delete [] intArray;
       }
     break;
 
@@ -873,14 +890,16 @@ int vtkDataWriter::WriteCells(ostream *fp, vtkCellArray *cells, const char *labe
 
   if ( this->FileType == VTK_ASCII )
     {
-    int npts, j;
-    vtkIdType *pts;
+    int j;
+    vtkIdType *pts, npts;
     for (cells->InitTraversal(); cells->GetNextCell(npts,pts); )
       {
-      *fp << npts << " ";
+      // currently writing vtkIdType as int
+      *fp << (int)npts << " ";
       for (j=0; j<npts; j++)
         {
-        *fp << pts[j] << " ";
+        // currently writing vtkIdType as int
+        *fp << (int)pts[j] << " ";
         }
       *fp << "\n";
       }
@@ -888,7 +907,19 @@ int vtkDataWriter::WriteCells(ostream *fp, vtkCellArray *cells, const char *labe
   else
     {
     // swap the bytes if necc
-    vtkByteSwap::SwapWrite4BERange(cells->GetPointer(),size,fp);
+    // currently writing vtkIdType as int
+    vtkIdType *tempArray = cells->GetPointer();
+    int arraySize = cells->GetSize();
+    int *intArray = new int[arraySize];
+    int i;
+    
+    for (i = 0; i < arraySize; i++)
+      {
+      intArray[i] = tempArray[i];
+      }
+    
+    vtkByteSwap::SwapWrite4BERange(intArray,size,fp);
+    delete [] intArray;
     }
 
   *fp << "\n";

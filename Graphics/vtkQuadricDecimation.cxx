@@ -98,8 +98,8 @@ void vtkQuadricDecimation::Execute()
   int numTris = triangles->GetNumberOfCells();
   int numPts = input->GetNumberOfPoints();
   int i, j, edgeId;
-  int numCellPts, newCellPts[3];
-  vtkIdType *cellPts;
+  int newCellPts[3];
+  vtkIdType *cellPts, numCellPts;
   float cost, x[3];
   vtkPoints *targetPoints = vtkPoints::New();
   vtkPointData *targetPointData = vtkPointData::New();

@@ -87,7 +87,7 @@ void vtkRibbonFilter::Execute()
   vtkPoints *newPts;
   vtkNormals *newNormals;
   vtkCellArray *newStrips;
-  int npts;
+  vtkIdType npts;
   vtkIdType *pts;
   float p[3], pNext[3];
   float *n;

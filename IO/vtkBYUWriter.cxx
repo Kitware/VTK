@@ -130,7 +130,7 @@ void vtkBYUWriter::WriteGeometryFile(FILE *geomFile, int numPts)
   int numPolys, numEdges;
   int i;
   float *x;
-  int npts;
+  vtkIdType npts;
   vtkIdType *pts;
   vtkPoints *inPts;
   vtkCellArray *inPolys;

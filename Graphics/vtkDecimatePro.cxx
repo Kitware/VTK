@@ -152,8 +152,8 @@ void vtkDecimatePro::Execute()
   vtkPolyData *input = this->GetInput();
   vtkPolyData *output = this->GetOutput();
   int type, totalEliminated, numPops;
-  int numRecycles, npts;
-  vtkIdType *pts;
+  int numRecycles;
+  vtkIdType *pts, npts;
   unsigned short int ncells;
   int pt1, pt2, cellId, fedges[2];
   vtkIdType *cells;
@@ -494,7 +494,8 @@ void vtkDecimatePro::SplitMesh()
 int vtkDecimatePro::EvaluateVertex(int ptId, unsigned short int numTris,
                                    vtkIdType *tris, int fedges[2])
 {
-  int numVerts, numNei, numFEdges;
+  int numNei, numFEdges;
+  vtkIdType numVerts;
   vtkProLocalTri t;
   vtkProLocalVertex sn;
   int startVertex, nextVertex;
@@ -851,8 +852,8 @@ void vtkDecimatePro::SplitVertex(int ptId, int type,
                                  int insert)
 {
   int i, j, id, fedge1, fedge2;
-  int nverts, tri, numSplitTris, veryFirst;
-  vtkIdType *verts;
+  int tri, numSplitTris, veryFirst;
+  vtkIdType *verts, nverts;
   float error;
   int startTri, p[2], maxGroupSize;
   vtkPointData* meshPD = this->Mesh->GetPointData();
