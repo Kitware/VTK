@@ -62,6 +62,7 @@ public:
   ~vtkAppendPolyData();
   static vtkAppendPolyData *New() {return new vtkAppendPolyData;}
   const char *GetClassName() {return "vtkAppendPolyData";}
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Add a dataset to the list of data to append.
@@ -75,9 +76,27 @@ public:
   // Get any input of this filter.
   vtkPolyData *GetInput(int idx);
   
+  // Description:
+  // ParallelStreaming is for a particular application.
+  // It causes this filter to ask for a different piece
+  // from each of its inputs.  If all the inputs are the same,
+  // then the output of this append filter is the whole dataset
+  // pieced back together.  Duplicate points are create 
+  // along the seams.  The purpose of this feature is to get 
+  // data parallism at a course scale.  Each of the inputs
+  // can be generated in a different process at the same time.
+  vtkSetMacro(ParallelStreaming, int); 
+  vtkGetMacro(ParallelStreaming, int); 
+  vtkBooleanMacro(ParallelStreaming, int); 
+
 protected:
+  // Flag for selecting parallel streaming bejhavior
+  int ParallelStreaming;
+
   // Usual data generation method
   void Execute();
+  // Support for streaming (parallel)
+  int ComputeInputUpdateExtents(vtkDataObject *output);
 };
 
 #endif

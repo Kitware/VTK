@@ -43,6 +43,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 //----------------------------------------------------------------------------
 vtkAppendPolyData::vtkAppendPolyData()
 {
+  this->ParallelStreaming = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -360,6 +361,49 @@ void vtkAppendPolyData::Execute()
 }
 
 //----------------------------------------------------------------------------
+int vtkAppendPolyData::ComputeInputUpdateExtents(vtkDataObject *data)
+{
+  int piece, numPieces;
+  vtkPolyData *output = (vtkPolyData *)data;
+  int idx;
+
+  output->GetUpdateExtent(piece, numPieces);
+  
+  // make sure piece is valid
+  if (piece < 0 || piece >= numPieces)
+    {
+    return 0;
+    }
+  
+  if (this->ParallelStreaming)
+    {
+    piece = piece * this->NumberOfInputs;
+    numPieces = numPieces * this->NumberOfInputs;
+    }
+  // just copy the Update extent as default behavior.
+  for (idx = 0; idx < this->NumberOfInputs; ++idx)
+    {
+    if (this->Inputs[idx])
+      {
+      if (this->ParallelStreaming)
+        {
+        this->Inputs[idx]->SetUpdateExtent(piece+idx, numPieces);
+        }
+      else
+        {
+        this->Inputs[idx]->SetUpdateExtent(piece, this->NumberOfInputs);
+        }
+      }
+    }
+  
+  // Save the piece so execute can use this information.
+  this->ExecutePiece = piece;
+  this->ExecuteNumberOfPieces = numPieces;
+    
+  return 1;  
+}
+
+//----------------------------------------------------------------------------
 vtkPolyData *vtkAppendPolyData::GetInput(int idx)
 {
   if (idx >= this->NumberOfInputs || idx < 0)
@@ -370,3 +414,17 @@ vtkPolyData *vtkAppendPolyData::GetInput(int idx)
   return (vtkPolyData *)(this->Inputs[idx]);
 }
 
+//----------------------------------------------------------------------------
+void vtkAppendPolyData::PrintSelf(ostream& os, vtkIndent indent)
+{
+  vtkPolyDataToPolyDataFilter::PrintSelf(os,indent);
+
+  if ( this->ParallelStreaming )
+    {
+    os << indent << "ParallelStreamingOn\n";
+    }
+  else
+    {
+    os << indent << "ParallelStreamingOff\n";
+    }
+}
