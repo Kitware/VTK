@@ -1,10 +1,10 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    %M%
+  Module:    vtkMCubesWriter.cxx
   Language:  C++
-  Date:      %D%
-  Version:   %V%
+  Date:      $Date$
+  Version:   $Revision$
 
 Copyright (c) 1993-2000 Ken Martin, Will Schroeder, Bill Lorensen 
 All rights reserved.
@@ -43,9 +43,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkNormals.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------
 vtkMCubesWriter* vtkMCubesWriter::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -57,9 +55,6 @@ vtkMCubesWriter* vtkMCubesWriter::New()
   // If the factory was unable to create the object, then create it here.
   return new vtkMCubesWriter;
 }
-
-
-
 
 // Create object.
 vtkMCubesWriter::vtkMCubesWriter()
@@ -116,15 +111,16 @@ void vtkMCubesWriter::WriteData()
   WriteMCubes (fp, pts, normals, polys);
   fclose (fp);
 
-  if (this->LimitsFileName) {
-      vtkDebugMacro("Writing MCubes limits file");
-      if ((fp = fopen(this->LimitsFileName, "w")) == NULL)
-        {
-        vtkErrorMacro(<< "Couldn't open file: " << this->LimitsFileName);
-        return;
-        }
-        WriteLimits (fp, input->GetBounds ());
-      fclose (fp);
+  if (this->LimitsFileName) 
+    {
+    vtkDebugMacro("Writing MCubes limits file");
+    if ((fp = fopen(this->LimitsFileName, "w")) == NULL)
+      {
+      vtkErrorMacro(<< "Couldn't open file: " << this->LimitsFileName);
+      return;
+      }
+    WriteLimits (fp, input->GetBounds ());
+    fclose (fp);
   }
 }
 
@@ -135,17 +131,17 @@ void WriteMCubes(FILE *fp, vtkPoints *pts, vtkNormals *normals, vtkCellArray *po
   int i;
   int npts, *indx;
 
-//
-//  Write out triangle polygons.  In not a triangle polygon, create triangles.
-//
+
+  //  Write out triangle polygons.  In not a triangle polygon, create triangles.
+  //
   for (polys->InitTraversal(); polys->GetNextCell(npts,indx); )
     {
     for (i=0; i < 3; i++)
-	{
-	pts->GetPoint(indx[i],&point.x[0]);
-	normals->GetNormal(indx[i],&point.n[0]);
-	vtkByteSwap::SwapWrite4BERange((float *) (&point),6,fp);
-	}
+      {
+      pts->GetPoint(indx[i],&point.x[0]);
+      normals->GetNormal(indx[i],&point.n[0]);
+      vtkByteSwap::SwapWrite4BERange((float *) (&point),6,fp);
+      }
     }
 }
 void WriteLimits(FILE *fp, float *bounds)
