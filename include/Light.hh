@@ -23,27 +23,34 @@ class vlRenderer;
 
 class vlLight : public vlObject
 {
- public:
+protected:
   float FocalPoint[3];
   float Position[3];
   float Intensity;
   float Color[3];
-  int   OnStatus;
+  int   Switch;
 
- public:
+public:
   vlLight();
+  virtual char *GetClassName() {return "vlLight";};
   virtual void Render(vlRenderer *ren,int light_index) = 0;
 
-  void SetPosition(float, float, float);
-  void SetPosition(float a[3]);
-  float *GetPosition();
+  vlSetVector3Macro(Color,float);
+  vlGetVectorMacro(Color,float);
 
-  void SetFocalPoint(float , float, float);
-  void SetFocalPoint(float a[3]);
-  float *GetFocalPoint();
+  vlSetVector3Macro(Position,float);
+  vlGetVectorMacro(Position,float);
 
-  int GetStatus();
+  vlSetVector3Macro(FocalPoint,float);
+  vlGetVectorMacro(FocalPoint,float);
+
+  vlSetMacro(Intensity,float);
+  vlGetMacro(Intensity,float);
+
+  vlSetMacro(Switch,int);
+  vlGetMacro(Switch,int);
+  vlBooleanMacro(Switch,int);
+
 };
 
 #endif
-
