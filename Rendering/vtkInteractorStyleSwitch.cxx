@@ -24,7 +24,7 @@
 #include "vtkInteractorStyleTrackballActor.h"
 #include "vtkInteractorStyleTrackballCamera.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleSwitch, "1.12");
+vtkCxxRevisionMacro(vtkInteractorStyleSwitch, "1.13");
 vtkStandardNewMacro(vtkInteractorStyleSwitch);
 
 //----------------------------------------------------------------------------
@@ -79,9 +79,10 @@ void vtkInteractorStyleSwitch::SetAutoAdjustCameraClippingRange( int value )
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleSwitch::OnChar(int ctrl, int shift, 
+void vtkInteractorStyleSwitch::OnChar(int vtkNotUsed(ctrl), 
+                                      int vtkNotUsed(shift), 
                                       char keycode,
-                                      int repeatcount) 
+                                      int vtkNotUsed(repeatcount)) 
 {
   switch (keycode)
     {
