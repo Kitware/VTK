@@ -39,7 +39,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkImageMIPFilter.h"
-
+#include <math.h>
+#include <stdlib.h>
 
 
 //----------------------------------------------------------------------------
@@ -68,8 +69,9 @@ void vtkImageMIPFilterExecute(vtkImageMIPFilter *self,
   int inInc0, inInc1, inInc2;
   int outInc0, outInc1;
   T *inPtr0, *inPtr1, *inPtr2;
-  T *outPtr0, *outPtr1;
+  T *outPtr0, *outPtr1,startvalue;
   int prorange[2], minmaxip;
+  int defmin;
   
   // Get information to march through data 
   inRegion->GetIncrements(inInc0, inInc1, inInc2);
@@ -89,7 +91,7 @@ void vtkImageMIPFilterExecute(vtkImageMIPFilter *self,
     	    for (idx0 = min0; idx0 <= max0; ++idx0){
 		*outPtr0 = 0;
 		inPtr2  = inPtr0;
-		for (idx2 = prorange[0];idx2 < prorange[1];idx2++){
+		for (idx2 = prorange[0];idx2 <= prorange[1];idx2++){
 		    if (*inPtr2 > *outPtr0) *outPtr0 = *inPtr2;
       	               inPtr2 += inInc2;
 		}
@@ -101,14 +103,16 @@ void vtkImageMIPFilterExecute(vtkImageMIPFilter *self,
 	}
    }
    else if ( minmaxip == 0) {
+        defmin = sizeof(startvalue);
+        startvalue = (T)pow(2.0,double(8*defmin -1)) - 1;
 	for (idx1 = min1; idx1 <= max1; ++idx1){
     	    outPtr0 = outPtr1;
     	    inPtr0  = inPtr1;
     	    for (idx0 = min0; idx0 <= max0; ++idx0){
 		// need to find optimum minimum !!! interesting
-		*outPtr0 = 32767;
+		*outPtr0 = startvalue;
 		inPtr2  = inPtr0;
-		for (idx2 = prorange[0];idx2 < prorange[1];idx2++){
+		for (idx2 = prorange[0];idx2 <= prorange[1];idx2++){
 		    if (*inPtr2 < *outPtr0) *outPtr0 = *inPtr2;
       	               inPtr2 += inInc2;
 		}
