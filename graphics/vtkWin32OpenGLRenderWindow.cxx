@@ -81,9 +81,24 @@ vtkWin32OpenGLRenderWindow::~vtkWin32OpenGLRenderWindow()
 
 void vtkWin32OpenGLRenderWindow::Clean()
 {
+  vtkRenderer *ren;
+  
   /* finish OpenGL rendering */
   if (this->ContextId) 
     {
+    this->MakeCurrent();
+
+    // tell each of the renderers that this render window/graphics context
+    // is being removed (the RendererCollection is removed by vtkRenderWindow's
+    // destructor)
+    this->Renderers->InitTraversal();
+    for ( ren = (vtkOpenGLRenderer *) this->Renderers->GetNextItemAsObject();
+	  ren != NULL;
+	  ren = (vtkOpenGLRenderer *) this->Renderers->GetNextItemAsObject() )
+      {
+      ren->SetRenderWindow(NULL);
+      }
+    
     wglMakeCurrent(NULL, NULL);
     wglDeleteContext(this->ContextId);
     this->ContextId = NULL;
