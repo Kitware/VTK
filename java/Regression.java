@@ -31,11 +31,11 @@ public class Regression {
 
     if (imgDiff.GetThresholdedError() <= 10) 
 	{
-        System.out.println("Java regression test passed.<br>"); 
+        System.out.println("Java smoke test passed.<br>"); 
 	} 
       else 
         {
-        System.out.println("<FONT COLOR=#DC143C>Java regression test error!</font><br>"); 
+        System.out.println("<FONT COLOR=#DC143C>Java smoke test error!</font><br>"); 
 	}	
     } 
 }
