@@ -21,8 +21,10 @@
 #include "vtkAssemblyNode.h"
 #include "vtkCallbackCommand.h"
 #include "vtkCamera.h"
+#include "vtkCellLocator.h"
 #include "vtkCellPicker.h"
 #include "vtkDataSetMapper.h"
+#include "vtkGenericCell.h"
 #include "vtkImageData.h"
 #include "vtkImageMapToColors.h"
 #include "vtkImageReslice.h"
@@ -40,9 +42,9 @@
 #include "vtkTextProperty.h"
 #include "vtkTexture.h"
 #include "vtkTextureMapToPlane.h"
-#include "vtkTransform.h"
+#include "vtkTransform.h"  
 
-vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.52");
+vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.53");
 vtkStandardNewMacro(vtkImagePlaneWidget);
 
 vtkCxxSetObjectMacro(vtkImagePlaneWidget, PlaneProperty, vtkProperty);
@@ -104,14 +106,18 @@ vtkImagePlaneWidget::vtkImagePlaneWidget() : vtkPolyDataSourceWidget()
   this->CursorPolyData = vtkPolyData::New();
   this->CursorMapper   = vtkPolyDataMapper::New();
   this->CursorActor    = vtkActor::New();
-  this->CursorPoints   = vtkPoints::New(VTK_DOUBLE);
+
+  // Manage the image data interrogation by cross hair cursor
+  //
+  this->VoxelLocator = vtkCellLocator::New();
+  this->Voxel = vtkGenericCell::New();
+  this->Voxel->SetCellTypeToVoxel();
 
   // Represent the oblique positioning margins
   //
   this->MarginPolyData = vtkPolyData::New();
   this->MarginMapper   = vtkPolyDataMapper::New();
   this->MarginActor    = vtkActor::New();
-  this->MarginPoints   = vtkPoints::New(VTK_DOUBLE);
 
   // Represent the text: annotation for cursor position and W/L
   //
@@ -222,12 +228,12 @@ vtkImagePlaneWidget::~vtkImagePlaneWidget()
 
   this->CursorActor->Delete();
   this->CursorMapper->Delete();
-  this->CursorPoints->Delete();
   this->CursorPolyData->Delete();
+  this->VoxelLocator->Delete();
+  this->Voxel->Delete();
 
   this->MarginActor->Delete();
   this->MarginMapper->Delete();
-  this->MarginPoints->Delete();
   this->MarginPolyData->Delete();
 
   this->TextActor->Delete();
@@ -1167,6 +1173,11 @@ void vtkImagePlaneWidget::SetInput(vtkDataSet* input)
   this->Texture->SetInterpolate(this->TextureInterpolate);
 
   this->SetPlaneOrientation(this->PlaneOrientation);
+
+  this->VoxelLocator->SetDataSet(this->ImageData);
+  this->VoxelLocator->AutomaticOn();
+  this->VoxelLocator->CacheCellBoundsOn();
+  this->VoxelLocator->BuildLocator();
 }
 
 void vtkImagePlaneWidget::UpdateOrigin()
@@ -1740,70 +1751,41 @@ void vtkImagePlaneWidget::UpdateCursor(int X, int Y )
   float q[3];
   this->PlanePicker->GetPickPosition(q);
 
+  float closestPt[3];
+  vtkIdType cellId;
+  int subId;
+  float dist2;
+  this->VoxelLocator->FindClosestPoint(q,closestPt,this->Voxel,cellId,subId,dist2);
+
+  if ( cellId == -1 )
+    {
+    this->CursorActor->VisibilityOff();
+    return;
+    }
+
   float o[3];
   this->PlaneSource->GetOrigin(o);
 
-  float spacingXYZ[3];
-  this->Reslice->GetOutputSpacing(spacingXYZ);
-  float originXYZ[3];
-  this->Reslice->GetOutputOrigin(originXYZ);
-
-  // q relative to the plane origin
-  //
-  float qro[4];
-  qro[0]= q[0] - o[0];
-  qro[1]= q[1] - o[1];
-  qro[2]= q[2] - o[2];
-  qro[3]= 1.0;
-
-  vtkMatrix4x4* matrix = vtkMatrix4x4::New();
-  matrix->DeepCopy(this->Reslice->GetResliceAxes());
-  matrix->SetElement(0,3,0);
-  matrix->SetElement(1,3,0);
-  matrix->SetElement(2,3,0);
-  matrix->SetElement(3,3,1);
-
-  matrix->Transpose();
-
-  float qr[4];
-  matrix->MultiplyPoint(qro,qr);
-
-  // qr is now in reslice basis space:
-  // convert it to nearest resliced pixel center
-  //
-  int qopi[3];
-  for (i=0; i<3; i++)
-    {
-    qopi[i] = vtkMath::Round((qr[i] - originXYZ[i])/spacingXYZ[i]);
-    }
-
-  // Convert it back and snap
-  //
-  for (i=0; i<3; i++)
-    {
-    qr[i] = (qopi[i] + 0.5)*spacingXYZ[i] + originXYZ[i];
-    }
-
-  matrix->Transpose();
-  matrix->MultiplyPoint(qr,qro);
-  matrix->Delete();
-
-  q[0] = qro[0] + o[0];
-  q[1] = qro[1] + o[1];
-  q[2] = qro[2] + o[2];
+  float origin[3];
+  this->ImageData->GetOrigin(origin);
+  float spacing[3];
+  this->ImageData->GetSpacing(spacing);
+  int extent[6];
+  this->ImageData->GetExtent(extent);
 
   // Now query the original unsliced data
   //
   float qi[3];
-  this->ComputeWorldToImageCoords(q,qi);
-  int iq[3];
+  // Compute world to image coords
+  for (int i = 0; i < 3; i++)
+    {
+    qi[i] = (closestPt[i]-origin[i])/spacing[i];
+    }
 
+  int iq[3];
   iq[0] = vtkMath::Round(qi[0]);
   iq[1] = vtkMath::Round(qi[1]);
   iq[2] = vtkMath::Round(qi[2]);
-
-  int extent[6];
-  this->ImageData->GetExtent(extent);
 
   if( iq[0] < extent[0] || iq[1] < extent[2] || iq[2] < extent[4] || \
       iq[0] > extent[1] || iq[1] > extent[3] || iq[2] > extent[5])
@@ -1816,6 +1798,19 @@ void vtkImagePlaneWidget::UpdateCursor(int X, int Y )
     memcpy(this->CurrentCursorPosition,iq,3*sizeof(int));
     this->CurrentImageValue = 0.0;
     }
+
+  // Compute image to world coords
+  for (i = 0; i < 3; i++)
+    {
+    q[i] = iq[i]*spacing[i] + origin[i];
+    }
+
+  // q relative to the plane origin
+  //
+  float qro[3];
+  qro[0]= q[0] - o[0];
+  qro[1]= q[1] - o[1];
+  qro[2]= q[2] - o[2];
 
   float p1o[3];
   float p2o[3];
@@ -1844,53 +1839,14 @@ void vtkImagePlaneWidget::UpdateCursor(int X, int Y )
     d[i] = p2[i] + Lp1*p1o[i];   // top
     }
 
-  this->CursorPoints->SetPoint(0,a);
-  this->CursorPoints->SetPoint(1,b);
-  this->CursorPoints->SetPoint(2,c);
-  this->CursorPoints->SetPoint(3,d);
+  vtkPoints* cursorPts = this->CursorPolyData->GetPoints();
+
+  cursorPts->SetPoint(0,a);
+  cursorPts->SetPoint(1,b);
+  cursorPts->SetPoint(2,c);
+  cursorPts->SetPoint(3,d);
 
   this->CursorMapper->Modified();
-}
-
-void vtkImagePlaneWidget::ComputeWorldToImageCoords(float* in, float* out)
-{
-  this->ImageData = this->Reslice->GetInput();
-  if( !this->ImageData )
-    {
-    return;
-    }
-
-  float origin[3];
-  this->ImageData->GetOrigin(origin);
-  float spacing[3];
-  this->ImageData->GetSpacing(spacing);
-  int extent[6];
-  this->ImageData->GetExtent(extent);
-
-  for (int i = 0; i < 3; i++)
-    {
-    out[i] = (in[i]-origin[i])/spacing[i];
-    }
-}
-
-void vtkImagePlaneWidget::ComputeImageToWorldCoords(float* in, float* out)
-{
-  this->ImageData = this->Reslice->GetInput();
-  if( !this->ImageData )
-    {
-    return;
-    }
-
-  float origin[3];
-  this->ImageData->GetOrigin(origin);
-  float spacing[3];
-  this->ImageData->GetSpacing(spacing);
-  int extent[6];
-  this->ImageData->GetExtent(extent);
-
-  out[0] = in[0]*spacing[0] + origin[0];
-  out[1] = in[1]*spacing[1] + origin[1];
-  out[2] = in[2]*spacing[2] + origin[2];
 }
 
 void vtkImagePlaneWidget::SetOrigin(float x, float y, float z)
@@ -2332,11 +2288,12 @@ void vtkImagePlaneWidget::GenerateTexturePlane()
 void vtkImagePlaneWidget::GenerateMargins()
 {
   // Construct initial points
-  this->MarginPoints->SetNumberOfPoints(8);
+  vtkPoints* points = vtkPoints::New(VTK_DOUBLE); 
+  points->SetNumberOfPoints(8);
   int i;
   for (i = 0; i < 8; i++)
     {
-    this->MarginPoints->SetPoint(i,0.0,0.0,0.0);
+    points->SetPoint(i,0.0,0.0,0.0);
     }
 
   vtkCellArray *cells = vtkCellArray::New();
@@ -2351,7 +2308,8 @@ void vtkImagePlaneWidget::GenerateMargins()
   pts[0] = 6; pts[1] = 7;       // right margin
   cells->InsertNextCell(2,pts);
 
-  this->MarginPolyData->SetPoints(this->MarginPoints);
+  this->MarginPolyData->SetPoints(points);
+  points->Delete();
   this->MarginPolyData->SetLines(cells);
   cells->Delete();
 
@@ -2366,11 +2324,12 @@ void vtkImagePlaneWidget::GenerateCursor()
 {
   // Construct initial points
   //
-  this->CursorPoints->SetNumberOfPoints(4);
+  vtkPoints* points = vtkPoints::New(VTK_DOUBLE);
+  points->SetNumberOfPoints(4);
   int i;
   for (i = 0; i < 4; i++)
     {
-    this->CursorPoints->SetPoint(i,0.0,0.0,0.0);
+    points->SetPoint(i,0.0,0.0,0.0);
     }
 
   vtkCellArray *cells = vtkCellArray::New();
@@ -2381,7 +2340,8 @@ void vtkImagePlaneWidget::GenerateCursor()
   pts[0] = 2; pts[1] = 3;       // vertical segment
   cells->InsertNextCell(2,pts);
 
-  this->CursorPolyData->SetPoints(this->CursorPoints);
+  this->CursorPolyData->SetPoints(points);
+  points->Delete();
   this->CursorPolyData->SetLines(cells);
   cells->Delete();
 
@@ -2445,10 +2405,12 @@ void vtkImagePlaneWidget::UpdateMargins()
     d[i] = p1[i] + v2[i]*t;
     }
 
-  this->MarginPoints->SetPoint(0,a);
-  this->MarginPoints->SetPoint(1,b);
-  this->MarginPoints->SetPoint(2,c);
-  this->MarginPoints->SetPoint(3,d);
+  vtkPoints* marginPts = this->MarginPolyData->GetPoints();
+
+  marginPts->SetPoint(0,a);
+  marginPts->SetPoint(1,b);
+  marginPts->SetPoint(2,c);
+  marginPts->SetPoint(3,d);
 
   for ( i = 0; i < 3; i++)
     {
@@ -2458,10 +2420,10 @@ void vtkImagePlaneWidget::UpdateMargins()
     d[i] = p2[i] + v1[i]*(1-s);
     }
 
-  this->MarginPoints->SetPoint(4,a);
-  this->MarginPoints->SetPoint(5,b);
-  this->MarginPoints->SetPoint(6,c);
-  this->MarginPoints->SetPoint(7,d);
+  marginPts->SetPoint(4,a);
+  marginPts->SetPoint(5,b);
+  marginPts->SetPoint(6,c);
+  marginPts->SetPoint(7,d);
 
   this->MarginMapper->Modified();
 }

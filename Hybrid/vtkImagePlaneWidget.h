@@ -99,8 +99,10 @@
 #include "vtkPolyDataSourceWidget.h"
 
 class vtkActor;
+class vtkCellLocator;
 class vtkCellPicker;
 class vtkDataSetMapper;
+class vtkGenericCell;
 class vtkImageData;
 class vtkImageMapToColors;
 class vtkImageReslice;
@@ -341,10 +343,7 @@ public:
   // Enable/disable mouse interaction so the widget remains on display.
   void SetInteraction(int interact);
   vtkGetMacro(Interaction,int);
-  void InteractionOn()
-    { this->SetInteraction(1); }
-  void InteractionOff()
-    { this->SetInteraction(0); }
+  vtkBooleanMacro(Interaction,int);
 
 protected:
   vtkImagePlaneWidget();
@@ -447,17 +446,16 @@ protected:
   void GenerateTexturePlane();
 
   // The cross-hair cursor
-  vtkPoints         *CursorPoints;
   vtkPolyData       *CursorPolyData;
   vtkPolyDataMapper *CursorMapper;
   vtkActor          *CursorActor;
+  vtkCellLocator    *VoxelLocator;
+  vtkGenericCell    *Voxel;
   int                CurrentCursorPosition[3];
   float              CurrentImageValue; // Set to VTK_FLOAT_MAX when invalid
   void               GenerateCursor();
   void               UpdateCursor(int,int);
   void               ActivateCursor(int);
-  void               ComputeImageToWorldCoords(float* in, float* out);
-  void               ComputeWorldToImageCoords(float* in, float* out);
 
   // The text to display W/L, image data
   vtkTextActor *TextActor;
@@ -472,7 +470,6 @@ protected:
   void  AdjustState();
 
   // Visible margins to assist user interaction
-  vtkPoints         *MarginPoints;
   vtkPolyData       *MarginPolyData;
   vtkPolyDataMapper *MarginMapper;
   vtkActor          *MarginActor;
