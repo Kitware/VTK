@@ -953,7 +953,7 @@ void vtkDataSetAttributes::InterpolateTuple(vtkDataArray *fromData,
   int numComp=fromData->GetNumberOfComponents();
   int i, j, numIds=ptIds->GetNumberOfIds();
   int *ids=ptIds->GetPointer(0), idx=toId*numComp;
-  float c;
+  double c;
   
   switch (fromData->GetDataType())
     {
@@ -1252,7 +1252,7 @@ void vtkDataSetAttributes::InterpolateTuple(vtkDataArray *fromData,
       float *to=((vtkFloatArray *)toData)->WritePointer(idx,numComp);
       for (i=0; i<numComp; i++)
         {
-        c = from[idx1+i] + t * (from[idx2+i] - from[idx1+i]);
+        c = (1.0 - t) * from[idx1+i] + t * from[idx2+i];
         *to++ = c;
         }
       }
@@ -1264,7 +1264,7 @@ void vtkDataSetAttributes::InterpolateTuple(vtkDataArray *fromData,
       double *to=((vtkDoubleArray *)toData)->WritePointer(idx,numComp);
       for (i=0; i<numComp; i++)
         {
-        c = from[idx1+i] + t * (from[idx2+i] - from[idx1+i]);
+        c = (1.0 - t) * from[idx1+i] + t * from[idx2+i];
         *to++ = (double) c;
         }
       }
@@ -1420,7 +1420,7 @@ void vtkDataSetAttributes::InterpolateTuple(vtkDataArray *fromData1,
       for (i=0; i<numComp; i++)
         {
         ii = idx + i;
-        c = from1[ii] + t * (from2[ii] - from1[ii]);
+        c = (1.0 - t) * from1[ii] + t * from2[ii];
         *to++ = c;
         }
       }
@@ -1434,7 +1434,7 @@ void vtkDataSetAttributes::InterpolateTuple(vtkDataArray *fromData1,
       for (i=0; i<numComp; i++)
         {
         ii = idx + i;
-        c = from1[ii] + t * (from2[ii] - from1[ii]);
+        c = (1.0 - t) * from1[ii] + t * from2[ii];
         *to++ = (double) c;
         }
       }
