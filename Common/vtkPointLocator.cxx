@@ -496,7 +496,11 @@ struct idsort
   float dist;
 };
 
+#ifdef _WIN32_WCE
+static int __cdecl idsortcompare(const void *arg1, const void *arg2)
+#else
 static int idsortcompare(const void *arg1, const void *arg2)
+#endif
 {
   idsort *v1 = (idsort *)arg1;
   idsort *v2 = (idsort *)arg2;
