@@ -69,8 +69,8 @@ public:
   // Render the volume
   virtual void Render(vtkRenderer *ren, vtkVolume *vol);
 
-  void RenderRectangle( float v[12], float t[8],
-			unsigned char *texture, int size[2]);
+  void RenderQuads( int count, float *v, float *t,
+                    unsigned char *texture, int size[2]);
 
 //ETX
 
