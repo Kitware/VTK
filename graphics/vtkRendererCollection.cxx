@@ -46,7 +46,7 @@ void vtkRendererCollection::Render()
 {
   vtkRenderer *ren;
 
-  for (this->InitTraversal(); (ren = GetNextItem()); )
+  for (this->InitTraversal(); (ren = this->GetNextItem()); )
     {
     ren->Render();
     }
@@ -56,7 +56,7 @@ void vtkRendererCollection::Render2D()
 {
   vtkRenderer *ren;
 
-  for (this->InitTraversal(); (ren = GetNextItem()); )
+  for (this->InitTraversal(); (ren = this->GetNextItem()); )
     {
     ren->Render2D();
     }

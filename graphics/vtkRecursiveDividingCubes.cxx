@@ -152,9 +152,13 @@ void vtkRecursiveDividingCubes::Execute()
         for ( above=below=0, vertNum=0; vertNum < 8; vertNum++ )
           {
           if ( voxelScalars->GetScalar(vertNum) >= this->Value )
+	    {
             above = 1;
+	    }
           else if ( voxelScalars->GetScalar(vertNum) < this->Value )
+	    {
             below = 1;
+	    }
 
           if ( above && below ) // recursively generate points
             { //compute voxel normals and subdivide
@@ -203,7 +207,7 @@ static int ScalarInterp[8][8] = {{0,8,12,24,16,22,20,26},
                                  {20,26,18,23,14,25,6,11},
                                  {26,21,23,19,25,15,11,7}};
 
-#define POINTS_PER_POLY_VERTEX 10000
+#define VTK_POINTS_PER_POLY_VERTEX 10000
 
 void vtkRecursiveDividingCubes::SubDivide(float origin[3], float h[3], 
                                           float values[8])
@@ -211,7 +215,10 @@ void vtkRecursiveDividingCubes::SubDivide(float origin[3], float h[3],
   int i;
   float hNew[3];
 
-  for (i=0; i<3; i++) hNew[i] = h[i] / 2.0;
+  for (i=0; i<3; i++)
+    {
+    hNew[i] = h[i] / 2.0;
+    }
 
   // if subdivided far enough, create point and end termination
   if ( h[0] < this->Distance && h[1] < this->Distance && h[2] < this->Distance )
@@ -220,13 +227,19 @@ void vtkRecursiveDividingCubes::SubDivide(float origin[3], float h[3],
     float x[3], n[3];
     float p[3], w[8];
 
-    for (i=0; i <3; i++) x[i] = origin[i] + hNew[i];
+    for (i=0; i <3; i++)
+      {
+      x[i] = origin[i] + hNew[i];
+      }
 
     if ( ! (this->Count++ % this->Increment) ) //add a point
       {
       id = NewPts->InsertNextPoint(x);
       NewVerts->InsertCellPoint(id);
-      for (i=0; i<3; i++) p[i] = (x[i] - X[i]) / Spacing[i];
+      for (i=0; i<3; i++)
+	{
+	p[i] = (x[i] - X[i]) / Spacing[i];
+	}
       this->Voxel->InterpolationFunctions(p,w);
       for (n[0]=n[1]=n[2]=0.0, i=0; i<8; i++)
 	{
@@ -237,7 +250,7 @@ void vtkRecursiveDividingCubes::SubDivide(float origin[3], float h[3],
       vtkMath::Normalize(n);
       NewNormals->InsertNormal(id,n);
 
-      if ( !(NewPts->GetNumberOfPoints() % POINTS_PER_POLY_VERTEX) )
+      if ( !(NewPts->GetNumberOfPoints() % VTK_POINTS_PER_POLY_VERTEX) )
         {
         vtkDebugMacro(<<"point# "<<NewPts->GetNumberOfPoints());
         }
@@ -254,7 +267,10 @@ void vtkRecursiveDividingCubes::SubDivide(float origin[3], float h[3],
     float newValues[8];
     float s[27], scalar;
 
-    for (i=0; i<8; i++) s[i] = values[i];
+    for (i=0; i<8; i++)
+      {
+      s[i] = values[i];
+      }
 
     s[8] = (s[0] + s[1]) / 2.0; // edge verts
     s[9] = (s[2] + s[3]) / 2.0;
@@ -295,14 +311,22 @@ void vtkRecursiveDividingCubes::SubDivide(float origin[3], float h[3],
             {
             scalar = s[ScalarInterp[idx][ii]];
 
-            if ( scalar >= this->Value ) above = 1;
-            else if ( scalar < this->Value ) below = 1;
+            if ( scalar >= this->Value )
+	      {
+	      above = 1;
+	      }
+            else if ( scalar < this->Value )
+	      {
+	      below = 1;
+	      }
 
             newValues[ii] = scalar;
             }
 
           if ( above && below )
+	    {
             this->SubDivide(x, hNew, newValues);
+	    }
           }
         }
       }

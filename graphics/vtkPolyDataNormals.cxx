@@ -113,7 +113,10 @@ void vtkPolyDataNormals::Execute()
   if ( numStrips > 0 ) //have to decompose strips into triangles
     {
     vtkTriangleStrip *strip = vtkTriangleStrip::New();
-    if ( numPolys > 0 ) polys = new vtkCellArray(*(inPolys));
+    if ( numPolys > 0 )
+      {
+      polys = new vtkCellArray(*(inPolys));
+      }
     else 
       {
       polys = vtkCellArray::New();
@@ -154,7 +157,10 @@ void vtkPolyDataNormals::Execute()
   if ( this->Consistency || this->Splitting ) 
     {
     Visited = new int[numPolys];
-    for ( i=0; i < numPolys; i++) Visited[i] = 0;
+    for ( i=0; i < numPolys; i++)
+      {
+      Visited[i] = 0;
+      }
     Mark = 1;
     }
   else
@@ -211,7 +217,10 @@ void vtkPolyDataNormals::Execute()
   for (cellId=0, newPolys->InitTraversal(); newPolys->GetNextCell(npts,pts); 
   cellId++ )
     {
-    if ((cellId % 1000) == 0) this->UpdateProgress ((float) cellId / (float) numPolys);
+    if ((cellId % 1000) == 0)
+      {
+      this->UpdateProgress ((float) cellId / (float) numPolys);
+      }
     poly->ComputeNormal(inPts, npts, pts, n);
     PolyNormals->SetNormal(cellId,n);
     }
@@ -228,7 +237,10 @@ void vtkPolyDataNormals::Execute()
     //
     Map = vtkIdList::New();
     Map->SetNumberOfIds(numPts);
-    for (i=0; i < numPts; i++) Map->SetId(i,i);
+    for (i=0; i < numPts; i++)
+      {
+      Map->SetId(i,i);
+      }
 
     for (ptId=0; ptId < OldMesh->GetNumberOfPoints(); ptId++)
       {
@@ -238,7 +250,9 @@ void vtkPolyDataNormals::Execute()
       for (j=0; j < cellIds->GetNumberOfIds(); j++)
         {
         if ( Visited[cellIds->GetId(j)] != Mark )
+	  {
           this->MarkAndReplace (cellIds->GetId(j), ptId, replacementPoint);
+	  }
 
         replacementPoint = Map->GetNumberOfIds();
         }
@@ -275,14 +289,23 @@ void vtkPolyDataNormals::Execute()
   //  Finally, traverse all elements, computing polygon normals and
   //  accumalating them at the vertices.
   //
-  if ( Visited ) delete [] Visited;
+  if ( Visited )
+    {
+    delete [] Visited;
+    }
 
-  if ( this->FlipNormals && ! this->Consistency ) flipDirection = -1.0;
+  if ( this->FlipNormals && ! this->Consistency )
+    {
+    flipDirection = -1.0;
+    }
 
   newNormals = vtkNormals::New();
   newNormals->SetNumberOfNormals(numNewPts);
   n[0] = n[1] = n[2] = 0.0;
-  for (i=0; i < numNewPts; i++) newNormals->SetNormal(i,n);
+  for (i=0; i < numNewPts; i++)
+    {
+    newNormals->SetNormal(i,n);
+    }
 
   for (cellId=0, newPolys->InitTraversal(); newPolys->GetNextCell(npts,pts); 
   cellId++ )
@@ -303,7 +326,10 @@ void vtkPolyDataNormals::Execute()
     length = vtkMath::Norm(vertNormal);
     if (length != 0.0) 
       {
-      for (j=0; j < 3; j++) n[j] = vertNormal[j] / length * flipDirection;
+      for (j=0; j < 3; j++)
+	{
+	n[j] = vertNormal[j] / length * flipDirection;
+	}
       }
     newNormals->SetNormal(i,n);
     }
@@ -382,8 +408,12 @@ void vtkPolyDataNormals::TraverseAndOrder (int cellId)
           neighbor = cellIds->GetId(k);
           NewMesh->GetCellPoints(neighbor,numNeiPts,neiPts);
           for (l=0; l < numNeiPts; l++)
+	    {
             if (neiPts[l] == p2)
+	      {
                break;
+	      }
+	    }
 	  //
 	  //  Have to reverse ordering if neighbor not consistent
 	  //
@@ -442,8 +472,12 @@ void vtkPolyDataNormals::MarkAndReplace (int cellId, int n,
 //  routine. 
 //
   for (spot=0; spot < numOldPts; spot++)
+    {
     if ( oldPts[spot] == n )
+      {
       break;
+      }
+    }
 
   if ( spot == 0 ) 
     {
@@ -473,7 +507,9 @@ void vtkPolyDataNormals::MarkAndReplace (int cellId, int n,
       neiNormal =  PolyNormals->GetNormal(cellIds->GetId(0));
 
       if ( vtkMath::Dot(thisNormal,neiNormal) > CosAngle )
+	{
         this->MarkAndReplace (cellIds->GetId(0), n, replacementPoint);
+	}
       }
     }
 

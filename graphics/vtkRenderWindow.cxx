@@ -143,10 +143,22 @@ char *vtkRenderWindow::GetRenderLibrary()
   // Backward compatibility
   if ( temp )
     {
-    if (!strcmp("sbr",temp)) temp = "Starbase";
-    else if (!strcmp("oglr",temp)) temp = "OpenGL";
-    else if (!strcmp("woglr",temp)) temp = "Win32OpenGL";
-    else if (!strcmp("xglr",temp)) temp = "XGL";
+    if (!strcmp("sbr",temp))
+      {
+      temp = "Starbase";
+      }
+    else if (!strcmp("oglr",temp))
+      {
+      temp = "OpenGL";
+      }
+    else if (!strcmp("woglr",temp))
+      {
+      temp = "Win32OpenGL";
+      }
+    else if (!strcmp("xglr",temp))
+      {
+      temp = "XGL";
+      }
     else if ( strcmp("Starbase",temp) && strcmp("OpenGL",temp) 
 	      && strcmp("Win32OpenGL",temp) && strcmp("XGL",temp) )
       {
@@ -193,16 +205,28 @@ vtkRenderWindow *vtkRenderWindow::New()
   char *temp = vtkRenderWindow::GetRenderLibrary();
   
 #ifdef VTK_USE_SBR
-  if (!strcmp("Starbase",temp)) return vtkStarbaseRenderWindow::New();
+  if (!strcmp("Starbase",temp))
+    {
+    return vtkStarbaseRenderWindow::New();
+    }
 #endif
 #ifdef VTK_USE_OGLR
-  if (!strcmp("OpenGL",temp)) return vtkOpenGLRenderWindow::New();
+  if (!strcmp("OpenGL",temp))
+    {
+    return vtkOpenGLRenderWindow::New();
+    }
 #endif
 #ifdef _WIN32
-  if (!strcmp("Win32OpenGL",temp)) return vtkWin32OpenGLRenderWindow::New();
+  if (!strcmp("Win32OpenGL",temp))
+    {
+    return vtkWin32OpenGLRenderWindow::New();
+    }
 #endif
 #ifdef VTK_USE_XGLR
-  if (!strcmp("XGL",temp)) return vtkXGLRenderWindow::New();
+  if (!strcmp("XGL",temp))
+    {
+    return vtkXGLRenderWindow::New();
+    }
 #endif
   
   return NULL;
@@ -265,12 +289,17 @@ void vtkRenderWindow::Render()
   vtkDebugMacro(<< "Starting Render Method.\n");
 
   // if we are in the middle of an abort check the return now
-  if (this->InAbortCheck) return;
+  if (this->InAbortCheck)
+    {
+    return;
+    }
   // reset the Abort flag
   this->AbortRender = 0;
   
   if ( this->Interactor && ! this->Interactor->GetInitialized() )
+    {
     this->Interactor->Initialize();
+    }
 
   if ((!this->AccumulationBuffer)&&
       (this->SubFrames || this->AAFrames || this->FDFrames))
@@ -326,8 +355,14 @@ void vtkRenderWindow::Render()
       unsigned char *p2 = new unsigned char [3*size[0]*size[1]];
       
       num = this->SubFrames;
-      if (this->AAFrames) num *= this->AAFrames;
-      if (this->FDFrames) num *= this->FDFrames;
+      if (this->AAFrames)
+	{
+	num *= this->AAFrames;
+	}
+      if (this->FDFrames)
+	{
+	num *= this->FDFrames;
+	}
 
       this->ResultFrame = p2;
       p1 = this->AccumulationBuffer;
@@ -372,7 +407,10 @@ void vtkRenderWindow::Render()
 	{
 	num = 1;
 	}
-      if (this->FDFrames) num *= this->FDFrames;
+      if (this->FDFrames)
+	{
+	num *= this->FDFrames;
+	}
 
       this->ResultFrame = p2;
       p1 = this->AccumulationBuffer;
@@ -426,7 +464,7 @@ void vtkRenderWindow::DoAARender()
 
     origfocus[3] = 1.0;
 
-    for (i = 0; i < AAFrames; i++)
+    for (i = 0; i < this->AAFrames; i++)
       {
       // jitter the cameras
       offsets[0] = vtkMath::Random() - 0.5;
@@ -562,7 +600,7 @@ void vtkRenderWindow::DoFDRender()
 
     orig = new float [3*this->Renderers->GetNumberOfItems()];
 
-    for (i = 0; i < FDFrames; i++)
+    for (i = 0; i < this->FDFrames; i++)
       {
       int j = 0;
 

@@ -187,8 +187,14 @@ void vtkSubPixelPositionEdgels::Move(int xdim, int ydim, int zdim,
       // assign the root to c because MSVC5.0 optimizer has problems with this
       // function
       c = -0.5*b/a;
-      if (c > 1.0) c = 1.0;
-      if (c < -1.0) c = -1.0;
+      if (c > 1.0)
+	{
+	c = 1.0;
+	}
+      if (c < -1.0)
+	{
+	c = -1.0;
+	}
       result[0] += vec[0]*c;
       result[1] += vec[1]*c;
       
@@ -381,7 +387,10 @@ void vtkSubPixelPositionEdgels::Update()
     }
 
   // prevent chasing our tail
-  if (this->Updating) return;
+  if (this->Updating)
+    {
+    return;
+    }
 
   this->Updating = 1;
   this->Input->Update();
@@ -392,20 +401,35 @@ void vtkSubPixelPositionEdgels::Update()
   this->GradMaps->GetMTime() > this->ExecuteTime || 
   this->GetMTime() > this->ExecuteTime || this->GetDataReleased() )
     {
-    if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);
+    if ( this->StartMethod )
+      {
+      (*this->StartMethod)(this->StartMethodArg);
+      }
     this->Output->Initialize();
     // reset AbortExecute flag and Progress
     this->AbortExecute = 0;
     this->Progress = 0.0;
     this->Execute();
     this->ExecuteTime.Modified();
-    if ( !this->AbortExecute ) this->UpdateProgress(1.0);
+    if ( !this->AbortExecute )
+      {
+      this->UpdateProgress(1.0);
+      }
     this->SetDataReleased(0);
-    if ( this->EndMethod ) (*this->EndMethod)(this->EndMethodArg);
+    if ( this->EndMethod )
+      {
+      (*this->EndMethod)(this->EndMethodArg);
+      }
     }
 
-  if ( this->Input->ShouldIReleaseData() ) this->Input->ReleaseData();
-  if ( this->GradMaps->ShouldIReleaseData() ) this->GradMaps->ReleaseData();
+  if ( this->Input->ShouldIReleaseData() )
+    {
+    this->Input->ReleaseData();
+    }
+  if ( this->GradMaps->ShouldIReleaseData() )
+    {
+    this->GradMaps->ReleaseData();
+    }
 }
 
 // Print the state of the class.

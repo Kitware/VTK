@@ -112,7 +112,10 @@ vtkProp& vtkProp::operator=(const vtkProp& prop)
   this->Pickable   = prop.Pickable;
   this->Dragable   = prop.Dragable;
   
-  for (i=0; i < 6; i++) this->Bounds[i] = prop.Bounds[i];
+  for (i=0; i < 6; i++)
+    {
+    this->Bounds[i] = prop.Bounds[i];
+    }
 
   return *this;
 }
@@ -268,7 +271,10 @@ vtkMatrix4x4 *vtkProp::GetMatrixPointer()
 void vtkProp::GetBounds(float bounds[6])
 {
   this->GetBounds();
-  for (int i=0; i<6; i++) bounds[i] = this->Bounds[i];
+  for (int i=0; i<6; i++)
+    {
+    bounds[i] = this->Bounds[i];
+    }
 }
 
 // Get the center of the bounding box in world coordinates.
@@ -351,11 +357,16 @@ void vtkProp::PrintSelf(ostream& os, vtkIndent indent)
   vtkObject::PrintSelf(os,indent);
 
   os << indent << "Dragable: " << (this->Dragable ? "On\n" : "Off\n");
-
   os << indent << "Pickable: " << (this->Pickable ? "On\n" : "Off\n");
 
-  if ( this->PickMethod ) os << indent << "Pick Method defined\n";
-  else os << indent <<"No Pick Method\n";
+  if ( this->PickMethod )
+    {
+    os << indent << "Pick Method defined\n";
+    }
+  else
+    {
+    os << indent <<"No Pick Method\n";
+    }
 
   if ( this->UserMatrix )
     {

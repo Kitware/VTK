@@ -85,12 +85,17 @@ void vtkStreamLine::Execute()
   //
   for (ptId=0; ptId < this->NumberOfStreamers; ptId++)
     {
-    if ( this->Streamers[ptId].GetNumberOfPoints() < 2 ) continue;
+    if ( this->Streamers[ptId].GetNumberOfPoints() < 2 )
+      {
+      continue;
+      }
     sPrev = this->Streamers[ptId].GetStreamPoint(0);
     sPtr = this->Streamers[ptId].GetStreamPoint(1);
 
     if ( this->Streamers[ptId].GetNumberOfPoints() == 2 && sPtr->cellId >= 0 )
+      {
       continue;
+      }
 
     tOffset = sPrev->t;
 

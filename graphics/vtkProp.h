@@ -231,8 +231,13 @@ class VTK_EXPORT vtkProp : public vtkObject
 
   // Description:
   // Method invokes PickMethod() if one defined
-  virtual void Pick() {
-    if (this->PickMethod) (*this->PickMethod)(this->PickMethodArg);};
+  virtual void Pick()
+    {
+    if (this->PickMethod)
+      {
+      (*this->PickMethod)(this->PickMethodArg);
+      }
+    };
 
   // Description:
   // For legacy compatibility. Do not use.

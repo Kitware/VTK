@@ -50,7 +50,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkVolumeRayCastMapper.h"
 
 // Swap two values
-#define SWAP_VALUES( A, B, T ) T=A; A=B; B=T
+#define VTK_SWAP_VALUES( A, B, T ) T=A; A=B; B=T
 
 // Constructor for vtkRayCaster
 vtkRayCaster::vtkRayCaster()
@@ -273,7 +273,9 @@ void vtkRayCaster::SetImageScale( int level, float scale )
     }
   // Everything is ok - actually set it
   else
+    {
     this->ImageScale[level] = scale;
+    }
 }
 
 // Get the scale factor for a given level. This is used during multi-
@@ -289,7 +291,9 @@ float vtkRayCaster::GetImageScale( int level )
     }
   // Level is ok - return the ImageScale
   else
+    {
     return this->ImageScale[level]; 
+    }
 }
 
 // Turn the automatic scale adjustment on
@@ -322,7 +326,9 @@ void vtkRayCaster::SetViewRaysStepSize( int level, float scale )
                    " must be between 0.01 and 100.0" );
     }
   else
+    {
     this->ViewRaysStepSize[level] = scale;
+    }
 }
 
 float vtkRayCaster::GetViewRaysStepSize( int level )
@@ -335,7 +341,9 @@ float vtkRayCaster::GetViewRaysStepSize( int level )
     return -1.0;
     }
   else
+    {
     return this->ViewRaysStepSize[level]; 
+    }
 }
 
 // Get the size in pixels of the view rays for the selected scale indexl
@@ -477,18 +485,24 @@ float vtkRayCaster::GetViewportScaleFactor( vtkRenderer *ren )
   // If we aren't automatically adjusting, then just use the selected
   // level that was supplied in the SelectedImageScaleIndex variable
   if ( !this->AutomaticScaleAdjustment )
+    {
     return this->ImageScale[ this->SelectedImageScaleIndex ];
+    }
 
   // Otherwise, adjust the level to get the desired frame rate
   // First, figure out how must time we have to render ( a time of
   // 0.0 means take as long as you like )
   time_to_render = ren->GetAllocatedRenderTime();
   if ( time_to_render == 0.0 ) 
+    {
     time_to_render = 10000.0;
+    }
 
   if ( ( time_to_render - this->PreviousAllocatedTime ) >  0.05 ||
        ( time_to_render - this->PreviousAllocatedTime ) < -0.05 )
+    {
     this->StableImageScaleCounter = 10;
+    }
 
   this->PreviousAllocatedTime = time_to_render;
 
@@ -512,23 +526,37 @@ float vtkRayCaster::GetViewportScaleFactor( vtkRenderer *ren )
 	if ( this->ImageRenderTime[1] == 0.0 )
 	  {
 	  if ( this->ImageRenderTime[0] != 0.0 )
+	    {
 	    estimated_scale = 
 	      sqrt( (double)( time_to_render / this->ImageRenderTime[0] ) );
+	    }
 	  else
+	    {
 	    estimated_scale = 0.1;
+	    }
 	  }
 	// There is a time for this scale - figure out how far off we
 	// are from hitting our desired time
 	else
+	  {
 	  estimated_scale = this->ImageScale[selected_level] *
 	    sqrt( (double)( time_to_render / this->ImageRenderTime[1] ) );
+	  }
 	// Put some bounds on the scale
 	if ( estimated_scale < this->AutomaticScaleLowerLimit ) 
+	  {
 	  estimated_scale = this->AutomaticScaleLowerLimit;
-	if ( estimated_scale > 1.0 ) estimated_scale = 1.0;
+	  }
+	if ( estimated_scale > 1.0 )
+	  {
+	  estimated_scale = 1.0;
+	  }
 	// How different is this from what we previously used?
 	scale_diff = estimated_scale - this->ImageScale[selected_level];
-	if ( scale_diff < 0 ) scale_diff = -scale_diff;
+	if ( scale_diff < 0 )
+	  {
+	  scale_diff = -scale_diff;
+	  }
 	// Make sure the difference is significant to avoid trashing
 	if ( scale_diff > 0.02 )
 	  {
@@ -539,17 +567,23 @@ float vtkRayCaster::GetViewportScaleFactor( vtkRenderer *ren )
 	  }
 	else 
 	  // Increment the counter since we didn't adjust the scale
+	  {
 	  this->StableImageScaleCounter++;
+	  }
       }
     else 
       // Increment the counter since we didn't adjust the scale
+      {
       this->StableImageScaleCounter++;
+      }
     }
   else
     // We used the full res image so set the counter to a high number
     // so that next time we use the adjustable scale we can recompute
     // a new scale value immediately instead of having to wait 3 frames
+    {
     this->StableImageScaleCounter = 10;
+    }
 
   this->SelectedImageScaleIndex = selected_level;
 
@@ -560,9 +594,13 @@ float vtkRayCaster::GetViewportStepSize()
 {
   if ( this->SelectedImageScaleIndex >= 0 &&
        this->SelectedImageScaleIndex < VTK_MAX_VIEW_RAYS_LEVEL )
+    {
     return this->ViewRaysStepSize[this->SelectedImageScaleIndex];
+    }
   else
+    {
     return 1.0;
+    }
 }
 
 // Initialize the buffers that we will need for rendering. If we have
@@ -595,11 +633,13 @@ void vtkRayCaster::InitializeRenderBuffers(vtkRenderer *ren)
   // they have been rendered and are in the frame buffer.
   for (ren->GetActors()->InitTraversal();
        (anActor = ren->GetActors()->GetNextItem()); )
+    {
     if (anActor->GetVisibility())
       {
       something_in_framebuffer = 1;
       break;
       }
+    }
 
   // If we haven't found any actors in the frame buffer, check for
   // volumes that might be there
@@ -607,6 +647,7 @@ void vtkRayCaster::InitializeRenderBuffers(vtkRenderer *ren)
     {
     for (ren->GetVolumes()->InitTraversal();
 	 (aVolume = ren->GetVolumes()->GetNextItem()); )
+      {
       if (aVolume->GetVisibility() && 
 	  aVolume->GetVolumeMapper()->GetMapperType() == 
 	  VTK_FRAMEBUFFER_VOLUME_MAPPER )
@@ -614,6 +655,7 @@ void vtkRayCaster::InitializeRenderBuffers(vtkRenderer *ren)
 	something_in_framebuffer = 1;
 	break;
 	}
+      }
     }
 
   // If we have something in the frame buffer, capture the color and z values
@@ -700,11 +742,13 @@ void vtkRayCaster::InitializeRayCasting(vtkRenderer *ren)
 	    ren->GetActiveCamera()->GetViewTransform() );
   this->ViewToWorldTransform->Inverse();
   for ( j = 0; j < 4; j++ )
+    {
     for ( i = 0; i < 4; i++ )
       {
       this->ViewToWorldMatrix[j][i] = 
 	this->ViewToWorldTransform->GetMatrixPointer()->Element[j][i];
       }
+    }
 
   // Get the clipping range of the active camera. This will be used
   // for clipping the rays
@@ -901,9 +945,13 @@ VTK_THREAD_RETURN_TYPE RayCast_RenderImage( void *arg )
 	else
 	  {
 	  if ( raycaster->ParallelProjection )
+	    {
 	    farplane = -(((*zptr)*2.0 -1.0)*zm22 + zm23);
+	    }
 	  else
+	    {
 	    farplane = -zm23 / (((*zptr)*2.0 -1.0)*zm32 + zm33 );
+	    }
 
 	  red[k]   = *iptr;
 	  green[k] = *(iptr+1);
@@ -961,20 +1009,24 @@ VTK_THREAD_RETURN_TYPE RayCast_RenderImage( void *arg )
 	  blue[k]  = rayInfo.RayColor[2];
 	  alpha[k] = rayInfo.RayColor[3];
 	  if ( raycaster->ParallelProjection )
+	    {
 	    depth[k] = rayInfo.RayDepth + nearclip;
+	    }
 	  else
+	    {
 	    depth[k] = rayInfo.RayDepth + nearclip / -ray_ptr[2];
+	    }
 	  
 	  // Bubble it up - we want to have the samples ordered from
 	  // closest to farthest
 	  q = k;
 	  while ( q > 0 && depth[q] < depth[q-1] )
 	    {
-	    SWAP_VALUES(   red[q],   red[q-1], tmp );
-	    SWAP_VALUES( green[q], green[q-1], tmp );
-	    SWAP_VALUES(  blue[q],  blue[q-1], tmp );
-	    SWAP_VALUES( alpha[q], alpha[q-1], tmp );
-	    SWAP_VALUES( depth[q], depth[q-1], tmp );
+	    VTK_SWAP_VALUES(   red[q],   red[q-1], tmp );
+	    VTK_SWAP_VALUES( green[q], green[q-1], tmp );
+	    VTK_SWAP_VALUES(  blue[q],  blue[q-1], tmp );
+	    VTK_SWAP_VALUES( alpha[q], alpha[q-1], tmp );
+	    VTK_SWAP_VALUES( depth[q], depth[q-1], tmp );
 	    q--;
 	    }
 	  }
@@ -1007,10 +1059,22 @@ VTK_THREAD_RETURN_TYPE RayCast_RenderImage( void *arg )
 	a = 1.0 - remaining_a;
 
 	// Check the upper bounds
-	if ( r > 1.0 ) r = 1.0;
-	if ( g > 1.0 ) g = 1.0;
-	if ( b > 1.0 ) b = 1.0;
-	if ( a > 1.0 ) a = 1.0;
+	if ( r > 1.0 )
+	  {
+	  r = 1.0;
+	  }
+	if ( g > 1.0 )
+	  {
+	  g = 1.0;
+	  }
+	if ( b > 1.0 )
+	  {
+	  b = 1.0;
+	  }
+	if ( a > 1.0 )
+	  {
+	  a = 1.0;
+	  }
 
 	// Set the pixel value
 	*(iptr++) = r;
@@ -1134,7 +1198,9 @@ void vtkRayCaster::Render(vtkRenderer *ren, int raycastCount,
 	if( aVolume->GetVisibility() &&
 	    aVolume->GetVolumeMapper()->GetMapperType() == 
 	    VTK_SOFTWAREBUFFER_VOLUME_MAPPER )
+	  {
 	  break;
+	  }
 	}
       
       // Render it and get the resulting image
@@ -1255,9 +1321,13 @@ void vtkRayCaster::Render(vtkRenderer *ren, int raycastCount,
   if ( this->AutomaticScaleAdjustment )
     {
     if ( this->SelectedImageScaleIndex == 0 )
+      {
       this->ImageRenderTime[0] = this->TotalRenderTime;
+      }
     else
+      {
       this->ImageRenderTime[1] = this->TotalRenderTime;
+      }
     }
   timer->Delete();
 
@@ -1286,9 +1356,13 @@ void vtkRayCaster::RescaleImage( )
   outputFloat = new float[window_size[0]*window_size[1]*4];
 
   if( this->BilinearImageZoom )
-    BilinearZoom( this->RGBAImage, outputFloat, this->ImageSize, window_size );
+    {
+    this->BilinearZoom( this->RGBAImage, outputFloat, this->ImageSize, window_size );
+    }
   else
-    NearestNeighborZoom( this->RGBAImage, outputFloat, this->ImageSize, window_size );
+    {
+    this->NearestNeighborZoom( this->RGBAImage, outputFloat, this->ImageSize, window_size );
+    }
 
   ren->GetRenderWindow()->SetRGBAPixelData(0,0,
     window_size[0]-1,window_size[1]-1,outputFloat,0);

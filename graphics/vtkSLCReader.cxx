@@ -67,18 +67,24 @@ unsigned char* vtkSLCReader::Decode8BitData( unsigned char *in_ptr,
     current_value = *(curr_ptr++);
 
     if( !(remaining = (current_value & 0x7f)) )
+      {
       break;
+      }
 
     if( current_value & 0x80 )
     {
       while( remaining-- )
+	{
         *(decode_ptr++) = *(curr_ptr++);
+	}
     }
     else
     {
       current_value = *(curr_ptr++);
       while ( remaining-- )
-          *(decode_ptr++) = current_value;
+	{
+        *(decode_ptr++) = current_value;
+	}
     }
 
   }
@@ -176,7 +182,9 @@ void vtkSLCReader::Execute()
       case 0:
 
         if( !scan_ptr )
+	  {
           scan_ptr = new unsigned char[plane_size];
+	  }
 
         if( fread( scan_ptr, 1, plane_size, fp ) != (unsigned int)plane_size )
 	{
@@ -191,7 +199,9 @@ void vtkSLCReader::Execute()
       case 1:
 
         if( scan_ptr )
+	  {
           delete scan_ptr;
+	  }
 
         fscanf( fp, "%d X", &compressed_size );
 
@@ -206,7 +216,7 @@ void vtkSLCReader::Execute()
 	  return;
 	}
 
-	scan_ptr = Decode8BitData( compressed_ptr, plane_size );
+	scan_ptr = this->Decode8BitData( compressed_ptr, plane_size );
 
 	delete compressed_ptr;
 

@@ -91,11 +91,14 @@ void vtkSampleFunction::SetSampleDimensions(int dim[3])
 {
   vtkDebugMacro(<< " setting SampleDimensions to (" << dim[0] << "," << dim[1] << "," << dim[2] << ")");
 
-  if ( dim[0] != this->SampleDimensions[0] || dim[1] != SampleDimensions[1] ||
-  dim[2] != SampleDimensions[2] )
+  if ( dim[0] != this->SampleDimensions[0] ||
+       dim[1] != this->SampleDimensions[1] ||
+       dim[2] != this->SampleDimensions[2] )
     {
     for ( int i=0; i<3; i++) 
+      {
       this->SampleDimensions[i] = (dim[i] > 0 ? dim[i] : 1);
+      }
     this->Modified();
     }
 }
@@ -219,38 +222,61 @@ void vtkSampleFunction::Cap(vtkScalars *s)
 // i-j planes
   k = 0;
   for (j=0; j<this->SampleDimensions[1]; j++)
+    {
     for (i=0; i<this->SampleDimensions[0]; i++)
+      {
       s->SetScalar(i+j*this->SampleDimensions[1], this->CapValue);
+      }
+    }
 
   k = this->SampleDimensions[2] - 1;
   idx = k*d01;
   for (j=0; j<this->SampleDimensions[1]; j++)
+    {
     for (i=0; i<this->SampleDimensions[0]; i++)
+      {
       s->SetScalar(idx+i+j*this->SampleDimensions[1], this->CapValue);
+      }
+    }
 
 // j-k planes
   i = 0;
   for (k=0; k<this->SampleDimensions[2]; k++)
+    {
     for (j=0; j<this->SampleDimensions[1]; j++)
+      {
       s->SetScalar(j*this->SampleDimensions[0]+k*d01, this->CapValue);
+      }
+    }
 
   i = this->SampleDimensions[0] - 1;
   for (k=0; k<this->SampleDimensions[2]; k++)
+    {
     for (j=0; j<this->SampleDimensions[1]; j++)
+      {
       s->SetScalar(i+j*this->SampleDimensions[0]+k*d01, this->CapValue);
+      }
+    }
 
 // i-k planes
   j = 0;
   for (k=0; k<this->SampleDimensions[2]; k++)
+    {
     for (i=0; i<this->SampleDimensions[0]; i++)
+      {
       s->SetScalar(i+k*d01, this->CapValue);
+      }
+    }
 
   j = this->SampleDimensions[1] - 1;
   idx = j*this->SampleDimensions[0];
   for (k=0; k<this->SampleDimensions[2]; k++)
+    {
     for (i=0; i<this->SampleDimensions[0]; i++)
+      {
       s->SetScalar(idx+i+k*d01, this->CapValue);
-
+      }
+    }
 }
 
 
@@ -276,9 +302,13 @@ void vtkSampleFunction::PrintSelf(ostream& os, vtkIndent indent)
     }
 
   if ( this->ImplicitFunction )
+    {
     os << indent << "Implicit Function: " << this->ImplicitFunction << "\n";
+    }
   else
+    {
     os << indent << "No Implicit function defined\n";
+    }
 
   os << indent << "Capping: " << (this->Capping ? "On\n" : "Off\n");
   os << indent << "Cap Value: " << this->CapValue << "\n";

@@ -55,7 +55,13 @@ class VTK_EXPORT vtkSLCReader : public vtkStructuredPointsSource
 {
 public:
   vtkSLCReader();
-  ~vtkSLCReader() {if (this->FileName) delete [] this->FileName;};
+  ~vtkSLCReader()
+    {
+    if (this->FileName)
+      {
+      delete [] this->FileName;
+      }
+  };
   static vtkSLCReader *New() {return new vtkSLCReader;};
   const char *GetClassName() {return "vtkSLCReader";};
   void PrintSelf(ostream& os, vtkIndent indent);

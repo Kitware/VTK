@@ -55,13 +55,19 @@ vtkScalarTree::vtkScalarTree()
 vtkScalarTree::~vtkScalarTree()
 {
   this->SetDataSet(NULL);
-  if ( this->Tree ) delete [] this->Tree;
+  if ( this->Tree )
+    {
+    delete [] this->Tree;
+    }
 }
 
 // Initialize locator. Frees memory and resets object as appropriate.
 void vtkScalarTree::Initialize()
 {
-  if ( this->Tree ) delete [] this->Tree;
+  if ( this->Tree )
+    {
+    delete [] this->Tree;
+    }
   this->Tree = NULL;
 }
 
@@ -87,7 +93,10 @@ void vtkScalarTree::BuildTree()
     }
 
   if ( this->Tree != NULL && this->BuildTime > this->MTime 
-  && this->BuildTime > this->DataSet->GetMTime() ) return;
+    && this->BuildTime > this->DataSet->GetMTime() )
+    {
+    return;
+    }
 
   vtkDebugMacro( << "Building scalar tree..." );
 
@@ -136,8 +145,14 @@ void vtkScalarTree::BuildTree()
 
       for ( j=0; j < numScalars; j++ )
         {
-        if ( s[j] < tree->min ) tree->min = s[j];
-        if ( s[j] > tree->max ) tree->max = s[j];
+        if ( s[j] < tree->min )
+	  {
+	  tree->min = s[j];
+	  }
+        if ( s[j] > tree->max )
+	  {
+	  tree->max = s[j];
+	  }
         }
       }
     }
@@ -156,8 +171,14 @@ void vtkScalarTree::BuildTree()
       for ( i=0; i < this->BranchingFactor && leaf < numLeafs; i++, leaf++ )
         {
         tree = this->Tree + offset + leaf;
-        if ( tree->min < parent->min ) parent->min = tree->min; 
-        if ( tree->max > parent->max ) parent->max = tree->max;
+        if ( tree->min < parent->min )
+	  {
+	  parent->min = tree->min; 
+	  }
+        if ( tree->max > parent->max )
+	  {
+	  parent->max = tree->max;
+	  }
         }
       }
 
@@ -186,7 +207,7 @@ void vtkScalarTree::InitTraversal(float scalarValue)
 
   else //find leaf that does overlap with scalar value
     {
-    FindStartLeaf(0,0); //recursive function call
+    this->FindStartLeaf(0,0); //recursive function call
     }
 }
 
@@ -249,7 +270,7 @@ int vtkScalarTree::FindNextLeaf(int childIndex, int childLevel)
       this->TreeIndex = this->TreeSize;
       return 0;
       }
-    else if ( FindStartLeaf(index, childLevel) )
+    else if ( this->FindStartLeaf(index, childLevel) )
       {
       return 1;
       }
@@ -263,7 +284,7 @@ int vtkScalarTree::FindNextLeaf(int childIndex, int childLevel)
     }
   else
     {
-    return FindNextLeaf(myIndex,myLevel);
+    return this->FindNextLeaf(myIndex,myLevel);
     }
 }
 
@@ -291,8 +312,14 @@ vtkCell *vtkScalarTree::GetNextCell(int& cellId, vtkIdList* &cellPts,
       numScalars = cellScalars->GetNumberOfScalars();
       for (i=0; i < numScalars; i++)
         {
-        if ( s[i] < min ) min = s[i];
-        if ( s[i] > max ) max = s[i];
+        if ( s[i] < min )
+	  {
+	  min = s[i];
+	  }
+        if ( s[i] > max )
+	  {
+	  max = s[i];
+	  }
         }
       if ( this->ScalarValue >= min && this->ScalarValue <= max )
         {
@@ -304,7 +331,7 @@ vtkCell *vtkScalarTree::GetNextCell(int& cellId, vtkIdList* &cellPts,
       } //for each cell in this leaf
 
     // If here, must have not found anything in this leaf
-    FindNextLeaf(this->TreeIndex, this->Level);
+    this->FindNextLeaf(this->TreeIndex, this->Level);
     } //while not all leafs visited
 
   return NULL;

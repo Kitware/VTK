@@ -412,7 +412,7 @@ void vtkRenderWindowInteractor::HighlightActor(vtkActor *actor)
   else 
     {
     this->PickedRenderer = this->CurrentRenderer;
-    this->CurrentRenderer->AddActor(OutlineActor);
+    this->CurrentRenderer->AddActor(this->OutlineActor);
     this->Outline->SetBounds(actor->GetBounds());
     this->CurrentActor = actor;
     }

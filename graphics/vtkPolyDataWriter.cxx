@@ -61,17 +61,31 @@ void vtkPolyDataWriter::WriteData()
   vtkDebugMacro(<<"Writing vtk polygonal data...");
 
   if ( !(fp=this->OpenVTKFile()) || !this->WriteHeader(fp) )
-      return;
+    {
+    return;
+    }
 //
 // Write polygonal data specific stuff
 //
   fprintf(fp,"DATASET POLYDATA\n");
   this->WritePoints(fp, input->GetPoints());
 
-  if (input->GetVerts()) this->WriteCells(fp, input->GetVerts(),"VERTICES");
-  if (input->GetLines()) this->WriteCells(fp, input->GetLines(),"LINES");
-  if (input->GetPolys()) this->WriteCells(fp, input->GetPolys(),"POLYGONS");
-  if (input->GetStrips()) this->WriteCells(fp, input->GetStrips(),"TRIANGLE_STRIPS");
+  if (input->GetVerts())
+    {
+    this->WriteCells(fp, input->GetVerts(),"VERTICES");
+    }
+  if (input->GetLines())
+    {
+    this->WriteCells(fp, input->GetLines(),"LINES");
+    }
+  if (input->GetPolys())
+    {
+    this->WriteCells(fp, input->GetPolys(),"POLYGONS");
+    }
+  if (input->GetStrips())
+    {
+    this->WriteCells(fp, input->GetStrips(),"TRIANGLE_STRIPS");
+    }
 
   this->WriteCellData(fp, input);
   this->WritePointData(fp, input);

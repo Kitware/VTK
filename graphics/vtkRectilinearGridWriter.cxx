@@ -62,7 +62,9 @@ void vtkRectilinearGridWriter::WriteData()
   vtkDebugMacro(<<"Writing vtk rectilinear grid...");
 
   if ( !(fp=this->OpenVTKFile()) || !this->WriteHeader(fp) )
-      return;
+    {
+    return;
+    }
   //
   // Write rectilinear grid specific stuff
   //

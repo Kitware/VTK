@@ -63,7 +63,7 @@ void vtkWarpLens::Execute()
   vtkDebugMacro(<<"Warping data to a point");
 
   r = this->Center[0]*this->Center[0];
-  offset = this->Center[0]*(1.0 + Kappa*r);
+  offset = this->Center[0]*(1.0 + this->Kappa*r);
 
   inPts = input->GetPoints();  
   numPts = inPts->GetNumberOfPoints();
@@ -87,8 +87,8 @@ void vtkWarpLens::Execute()
     newX[0] = x[0] - this->Center[0];
     newX[1] = x[1] - this->Center[1];
     r = newX[0]*newX[0] + newX[1]*newX[1];
-    newX[0] = offset + newX[0]*(1.0 + Kappa*r);
-    newX[1] = offset + newX[1]*(1.0 + Kappa*r);
+    newX[0] = offset + newX[0]*(1.0 + this->Kappa*r);
+    newX[1] = offset + newX[1]*(1.0 + this->Kappa*r);
     newX[2] = x[2];
     newPts->SetPoint(ptId, newX);
     }

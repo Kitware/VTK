@@ -87,15 +87,24 @@ void vtkVectorTopology::Execute()
     {
     cell = input->GetCell(cellId);
     npts = cell->GetNumberOfPoints();
-    for (i=0; i<3; i++) negative[i] = positive[i] = 0;
+    for (i=0; i<3; i++)
+      {
+      negative[i] = positive[i] = 0;
+      }
     for (i=0; i < npts; i++)
       {
       ptId = cell->GetPointId(i);
       v = inVectors->GetVector(ptId);
       for (j=0; j<3; j++)
         {
-        if ( v[j] < 0.0 ) negative[j] = 1;
-        else if ( v[j] >= 0.0 ) positive[j] = 1;
+        if ( v[j] < 0.0 )
+	  {
+	  negative[j] = 1;
+	  }
+        else if ( v[j] >= 0.0 )
+	  {
+	  positive[j] = 1;
+	  }
         }
       }
     if ( negative[0] && positive[0] && negative[1] && positive[1] &&

@@ -63,13 +63,20 @@ void vtkQuadric::SetCoefficients(float a[10])
   float *c=this->Coefficients;
 
   for (i=0; i < 10; i++ )
+    {
     if ( a[i] != c[i] )
+      {
       break;
+      }
+    }
 
   if ( i < 10 )
     {
     this->Modified();
-    for (i=0; i < 10; i++ ) c[i] = a[i];
+    for (i=0; i < 10; i++ )
+      {
+      c[i] = a[i];
+      }
     }
 }
 

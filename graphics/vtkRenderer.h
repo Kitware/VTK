@@ -223,7 +223,7 @@ public:
   // when the renderer is created by MakeRenderer.  The user probably
   // shouldn't ever need to call this method.
   void SetRenderWindow(vtkRenderWindow *);
-  vtkRenderWindow *GetRenderWindow() {return RenderWindow;};
+  vtkRenderWindow *GetRenderWindow() {return this->RenderWindow;};
   virtual vtkWindow *GetVTKWindow();
   
   // Description:

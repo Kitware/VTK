@@ -104,12 +104,21 @@ typedef struct _vtkStreamPoint {
 class vtkStreamArray { //;prevent man page generation
 public:
   vtkStreamArray();
-  ~vtkStreamArray() {if (this->Array) delete [] this->Array;};
+  ~vtkStreamArray()
+    {
+    if (this->Array)
+      {
+      delete [] this->Array;
+      }
+    };
   int GetNumberOfPoints() {return this->MaxId + 1;};
   vtkStreamPoint *GetStreamPoint(int i) {return this->Array + i;};
   vtkStreamPoint *InsertNextStreamPoint() 
     {
-    if ( ++this->MaxId >= this->Size ) this->Resize(this->MaxId);
+    if ( ++this->MaxId >= this->Size )
+      {
+      this->Resize(this->MaxId);
+      }
     return this->Array + this->MaxId;
     }
   vtkStreamPoint *Resize(int sz); //reallocates data

@@ -159,11 +159,19 @@ void vtkRectilinearGridReader::Execute()
   vtkRectilinearGrid *output=(vtkRectilinearGrid *)this->Output;
   
   vtkDebugMacro(<<"Reading vtk rectilinear grid file...");
-  if ( this->Debug ) this->Reader->DebugOn();
-  else this->Reader->DebugOff();
+  if ( this->Debug )
+    {
+    this->Reader->DebugOn();
+    }
+  else
+    {
+    this->Reader->DebugOff();
+    }
 
   if (!this->Reader->OpenVTKFile() || !this->Reader->ReadHeader())
+    {
       return;
+    }
   //
   // Read rectilinear grid specific stuff
   //
@@ -197,7 +205,10 @@ void vtkRectilinearGridReader::Execute()
     //
     while (1)
       {
-      if (!this->Reader->ReadString(line)) break;
+      if (!this->Reader->ReadString(line))
+	{
+	break;
+	}
 
       if ( ! strncmp(this->Reader->LowerCase(line),"dimensions",10) )
         {

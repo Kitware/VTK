@@ -99,7 +99,10 @@ vtkRenderer::~vtkRenderer()
     {
     this->RayCaster->Delete();
     }
-  if (this->BackingImage) delete [] this->BackingImage;
+  if (this->BackingImage)
+    {
+    delete [] this->BackingImage;
+    }
   
   this->Lights->Delete();
   this->Lights = NULL;
@@ -128,16 +131,28 @@ vtkRenderer *vtkRenderer::New()
   char *temp = vtkRenderWindow::GetRenderLibrary();
   
 #ifdef VTK_USE_SBR
-  if (!strcmp("Starbase",temp)) return vtkStarbaseRenderer::New();
+  if (!strcmp("Starbase",temp))
+    {
+    return vtkStarbaseRenderer::New();
+    }
 #endif
 #ifdef VTK_USE_OGLR
-  if (!strcmp("OpenGL",temp)) return vtkOpenGLRenderer::New();
+  if (!strcmp("OpenGL",temp))
+    {
+    return vtkOpenGLRenderer::New();
+    }
 #endif
 #ifdef _WIN32
-  if (!strcmp("Win32OpenGL",temp)) return vtkOpenGLRenderer::New();
+  if (!strcmp("Win32OpenGL",temp))
+    {
+    return vtkOpenGLRenderer::New();
+    }
 #endif
 #ifdef VTK_USE_XGLR
-  if (!strcmp("XGL",temp)) return vtkXGLRenderer::New();
+  if (!strcmp("XGL",temp))
+    {
+    return vtkXGLRenderer::New();
+    }
 #endif
   
   return new vtkRenderer;
@@ -170,7 +185,10 @@ void vtkRenderer::Render(void)
 	(light = this->Lights->GetNextItem()); )
       {
       if (light->GetSwitch() && 
-	  light->GetMTime() > this->RenderTime) mods = 1;
+	  light->GetMTime() > this->RenderTime)
+	{
+	mods = 1;
+	}
       }
     for (this->Actors->InitTraversal(); 
 	 (anActor = this->Actors->GetNextItem()); )
@@ -178,11 +196,23 @@ void vtkRenderer::Render(void)
       // if it's invisible, we can skip the rest 
       if (anActor->GetVisibility())
 	{
-	if (anActor->GetMTime() > this->RenderTime) mods = 1;
-	if (anActor->GetProperty()->GetMTime() > this->RenderTime) mods = 1;
+	if (anActor->GetMTime() > this->RenderTime)
+	  {
+	  mods = 1;
+	  }
+	if (anActor->GetProperty()->GetMTime() > this->RenderTime)
+	  {
+	  mods = 1;
+	  }
 	if (anActor->GetTexture() && 
-	    anActor->GetTexture()->GetMTime() > this->RenderTime) mods = 1;
-	if (anActor->GetMapper()->GetMTime() > this->RenderTime) mods = 1;
+	    anActor->GetTexture()->GetMTime() > this->RenderTime)
+	  {
+	  mods = 1;
+	  }
+	if (anActor->GetMapper()->GetMTime() > this->RenderTime)
+	  {
+	  mods = 1;
+	  }
 	anActor->GetMapper()->GetInput()->Update();
 	if (anActor->GetMapper()->GetInput()->GetMTime() > this->RenderTime) 
 	  {
@@ -193,15 +223,15 @@ void vtkRenderer::Render(void)
     
     if (!mods)
       {
-      int x1, y1, x2, y2;
+      int rx1, ry1, rx2, ry2;
       
       // backing store should be OK, lets use it
       // calc the pixel range for the renderer
-      x1 = (int)(this->Viewport[0]*(this->RenderWindow->GetSize()[0] - 1));
-      y1 = (int)(this->Viewport[1]*(this->RenderWindow->GetSize()[1] - 1));
-      x2 = (int)(this->Viewport[2]*(this->RenderWindow->GetSize()[0] - 1));
-      y2 = (int)(this->Viewport[3]*(this->RenderWindow->GetSize()[1] - 1));
-      this->RenderWindow->SetPixelData(x1,y1,x2,y2,this->BackingImage,0);
+      rx1 = (int)(this->Viewport[0]*(this->RenderWindow->GetSize()[0] - 1));
+      ry1 = (int)(this->Viewport[1]*(this->RenderWindow->GetSize()[1] - 1));
+      rx2 = (int)(this->Viewport[2]*(this->RenderWindow->GetSize()[0] - 1));
+      ry2 = (int)(this->Viewport[3]*(this->RenderWindow->GetSize()[1] - 1));
+      this->RenderWindow->SetPixelData(rx1,ry1,rx2,ry2,this->BackingImage,0);
       return;
       }
     }
@@ -211,17 +241,20 @@ void vtkRenderer::Render(void)
 
   if (this->BackingStore)
     {
-    if (this->BackingImage) delete [] this->BackingImage;
+    if (this->BackingImage)
+      {
+      delete [] this->BackingImage;
+      }
     
-    int x1, y1, x2, y2;
+    int rx1, ry1, rx2, ry2;
     
     // backing store should be OK, lets use it
     // calc the pixel range for the renderer
-    x1 = (int)(this->Viewport[0]*(this->RenderWindow->GetSize()[0] - 1));
-    y1 = (int)(this->Viewport[1]*(this->RenderWindow->GetSize()[1] - 1));
-    x2 = (int)(this->Viewport[2]*(this->RenderWindow->GetSize()[0] - 1));
-    y2 = (int)(this->Viewport[3]*(this->RenderWindow->GetSize()[1] - 1));
-    this->BackingImage = this->RenderWindow->GetPixelData(x1,y1,x2,y2,0);
+    rx1 = (int)(this->Viewport[0]*(this->RenderWindow->GetSize()[0] - 1));
+    ry1 = (int)(this->Viewport[1]*(this->RenderWindow->GetSize()[1] - 1));
+    rx2 = (int)(this->Viewport[2]*(this->RenderWindow->GetSize()[0] - 1));
+    ry2 = (int)(this->Viewport[3]*(this->RenderWindow->GetSize()[1] - 1));
+    this->BackingImage = this->RenderWindow->GetPixelData(rx1,ry1,rx2,ry2,0);
     }
     
   if (this->EndRenderMethod) 
@@ -253,6 +286,7 @@ int vtkRenderer::UpdateVolumes()
   // Also, render the frame buffer volumes at this time
   for (this->Volumes->InitTraversal(); 
        (aVolume = this->Volumes->GetNextItem()); )
+    {
     if (aVolume->GetVisibility())
       {
       switch ( aVolume->GetVolumeMapper()->GetMapperType() )
@@ -269,6 +303,7 @@ int vtkRenderer::UpdateVolumes()
 	  break;
 	}
       }
+    }
 
   // If there are any ray cast volumes, or softwarebuffer
   // volumes, let the ray caster handle it.
@@ -357,7 +392,9 @@ int vtkRenderer::UpdateActors()
     for ( i = 0,	this->Actors->InitTraversal(); 
 	  (anActor = this->Actors->GetNextItem());
 	  i++ )
+      {
       actorList[i] = anActor;
+      }
 
     // Give each of the cullers a chance to modify allocated rendering time
     // for the entire set of actors. Each culler returns the total time given
@@ -368,9 +405,11 @@ int vtkRenderer::UpdateActors()
     // Some cullers may do additional sorting of the list (by distance,
     // importance, etc).
     for (this->Cullers->InitTraversal(); (aCuller=this->Cullers->GetNextItem());)
+      {
       total_time = aCuller->OuterCullMethod( (vtkRenderer *)this, 
 					     actorList, num_actors,
 					     allocated_time_initialized );
+      }
 
     // We need to keep track of how much time we gain from the inner culling
     // method
@@ -386,7 +425,9 @@ int vtkRenderer::UpdateActors()
 	// If we don't have an outer cull method in any of the cullers,
 	// then the allocated render time has not yet been initialized
 	if ( !allocated_time_initialized )
+	  {
 	  anActor->SetAllocatedRenderTime( 1.0 );
+	  }
 
 	// What is the initial render time allocated to this actor
 	// before we do the inner culling
@@ -400,11 +441,12 @@ int vtkRenderer::UpdateActors()
 	// an actor.
 	for (this->Cullers->InitTraversal(); 
 	     (aCuller=this->Cullers->GetNextItem());)
+	  {
 	  if ( !(aCuller->InnerCullMethod((vtkRenderer *)this, anActor ) ) ) 
 	    {
 	    break;
 	    }
-
+	  }
 	// What is the new render time allocated to this actor
 	// after we do the inner culling.
 	new_render_time = anActor->GetAllocatedRenderTime();
@@ -574,12 +616,30 @@ void vtkRenderer::ResetCamera()
 	{
         nothingVisible = 0;
 
-	if (bounds[0] < allBounds[0]) allBounds[0] = bounds[0]; 
-	if (bounds[1] > allBounds[1]) allBounds[1] = bounds[1]; 
-	if (bounds[2] < allBounds[2]) allBounds[2] = bounds[2]; 
-	if (bounds[3] > allBounds[3]) allBounds[3] = bounds[3]; 
-	if (bounds[4] < allBounds[4]) allBounds[4] = bounds[4]; 
-	if (bounds[5] > allBounds[5]) allBounds[5] = bounds[5]; 
+	if (bounds[0] < allBounds[0])
+	  {
+	  allBounds[0] = bounds[0]; 
+	  }
+	if (bounds[1] > allBounds[1])
+	  {
+	  allBounds[1] = bounds[1]; 
+	  }
+	if (bounds[2] < allBounds[2])
+	  {
+	  allBounds[2] = bounds[2]; 
+	  }
+	if (bounds[3] > allBounds[3])
+	  {
+	  allBounds[3] = bounds[3]; 
+	  }
+	if (bounds[4] < allBounds[4])
+	  {
+	  allBounds[4] = bounds[4]; 
+	  }
+	if (bounds[5] > allBounds[5])
+	  {
+	  allBounds[5] = bounds[5]; 
+	  }
 	}
       }
     }
@@ -594,12 +654,30 @@ void vtkRenderer::ResetCamera()
       nothingVisible = 0;
       bounds = aVolume->GetBounds();
 
-      if (bounds[0] < allBounds[0]) allBounds[0] = bounds[0]; 
-      if (bounds[1] > allBounds[1]) allBounds[1] = bounds[1]; 
-      if (bounds[2] < allBounds[2]) allBounds[2] = bounds[2]; 
-      if (bounds[3] > allBounds[3]) allBounds[3] = bounds[3]; 
-      if (bounds[4] < allBounds[4]) allBounds[4] = bounds[4]; 
-      if (bounds[5] > allBounds[5]) allBounds[5] = bounds[5]; 
+      if (bounds[0] < allBounds[0])
+	{
+	allBounds[0] = bounds[0]; 
+	}
+      if (bounds[1] > allBounds[1])
+	{
+	allBounds[1] = bounds[1]; 
+	}
+      if (bounds[2] < allBounds[2])
+	{
+	allBounds[2] = bounds[2]; 
+	}
+      if (bounds[3] > allBounds[3])
+	{
+	allBounds[3] = bounds[3]; 
+	}
+      if (bounds[4] < allBounds[4])
+	{
+	allBounds[4] = bounds[4]; 
+	}
+      if (bounds[5] > allBounds[5])
+	{
+	allBounds[5] = bounds[5]; 
+	}
       }
     }
 
@@ -885,9 +963,12 @@ int vtkRenderer::VisibleActorCount()
 
   // loop through actors
   for (this->Actors->InitTraversal();(anActor = this->Actors->GetNextItem()); )
+    {
     if (anActor->GetVisibility())
+      {
       count++;
-
+      }
+    }
   return count;
 }
 
@@ -898,9 +979,12 @@ int vtkRenderer::VisibleVolumeCount()
 
   // loop through volumes
   for (this->Volumes->InitTraversal(); (aVolume = this->Volumes->GetNextItem()); )
+    {
     if (aVolume->GetVisibility())
+      {
       count++;
-
+      }
+    }
   return count;
 
 }

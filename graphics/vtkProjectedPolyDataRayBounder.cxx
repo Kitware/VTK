@@ -81,11 +81,15 @@ vtkProjectedPolyDataRayBounder *vtkProjectedPolyDataRayBounder::New()
   
 #ifdef VTK_USE_OGLR
   if (!strcmp("OpenGL",temp)) 
+    {
     return vtkOpenGLProjectedPolyDataRayBounder::New();
+    }
 #endif
 #ifdef _WIN32
   if (!strcmp("Win32OpenGL",temp)) 
+    {
     return vtkOpenGLProjectedPolyDataRayBounder::New();
+    }
 #endif
 
   vtkGenericWarningMacro( << 

@@ -43,8 +43,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkByteSwap.h"
 #include "vtkMergePoints.h"
 
-#define ASCII 0
-#define BINARY 1
+#define VTK_ASCII 0
+#define VTK_BINARY 1
 
 // Construct object with merging set to true.
 vtkSTLReader::vtkSTLReader()
@@ -56,7 +56,10 @@ vtkSTLReader::vtkSTLReader()
 
 vtkSTLReader::~vtkSTLReader()
 {
-  if (this->FileName) delete [] this->FileName;
+  if (this->FileName)
+    {
+    delete [] this->FileName;
+    }
   if ( this->Locator )
     {
     this->Locator->UnRegister(this);
@@ -104,15 +107,21 @@ void vtkSTLReader::Execute()
 //
 // Depending upon file type, read differently
 //
-  if ( this->GetSTLFileType(fp) == ASCII )
+  if ( this->GetSTLFileType(fp) == VTK_ASCII )
     {
-    if ( this->ReadASCIISTL(fp,newPts,newPolys) ) return;
+    if ( this->ReadASCIISTL(fp,newPts,newPolys) )
+      {
+      return;
+      }
     }
   else
     {
     fclose(fp);
     fp = fopen(this->FileName, "rb");
-    if ( this->ReadBinarySTL(fp,newPts,newPolys) ) return;
+    if ( this->ReadBinarySTL(fp,newPts,newPolys) )
+      {
+      return;
+      }
     }
 
   vtkDebugMacro(<< "Read: " 
@@ -133,7 +142,10 @@ void vtkSTLReader::Execute()
     mergedPolys = vtkCellArray::New();
     mergedPolys->Allocate(newPolys->GetSize());
 
-    if ( this->Locator == NULL ) this->CreateDefaultLocator();
+    if ( this->Locator == NULL )
+      {
+      this->CreateDefaultLocator();
+      }
     this->Locator->InitPointInsertion (mergedPts, newPts->GetBounds());
 
     for (newPolys->InitTraversal(); newPolys->GetNextCell(npts,pts); )
@@ -147,9 +159,12 @@ void vtkSTLReader::Execute()
           }
         }
 
-      if ( nodes[0] != nodes[1] && nodes[0] != nodes[2] && 
-      nodes[1] != nodes[2] )
+      if ( nodes[0] != nodes[1] &&
+	   nodes[0] != nodes[2] && 
+	   nodes[1] != nodes[2] )
+	{
         mergedPolys->InsertNextCell(3,nodes);
+	}
       }
 
       newPts->Delete();
@@ -173,7 +188,10 @@ void vtkSTLReader::Execute()
   output->SetPolys(mergedPolys);
   mergedPolys->Delete();
 
-  if (this->Locator) this->Locator->Initialize(); //free storage
+  if (this->Locator)
+    {
+    this->Locator->Initialize(); //free storage
+    }
 
   output->Squeeze();
 }
@@ -287,11 +305,11 @@ int vtkSTLReader::GetSTLFileType(FILE *fp)
 //
 	/* skip 255 characters so we are past any first line comment */
   numChars = fread ((unsigned char *)header, 1, 255, fp);
-  for (i = 0, type=ASCII; i< numChars && type == ASCII; i++) // don't test \0
+  for (i = 0, type=VTK_ASCII; i< numChars && type == VTK_ASCII; i++) // don't test \0
     {
 		if (header[i] > 127)
 		  {
-		  type = BINARY;
+		  type = VTK_BINARY;
 		  }
     }
 

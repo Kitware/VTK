@@ -171,7 +171,17 @@ public:
   vtkSetMacro( NumberOfThreads, int );
   vtkGetMacro( NumberOfThreads, int );
 
-  float *GetCurrentZBuffer() {if ( this->FirstBlend ) return NULL; else return this->ZImage;};
+  float *GetCurrentZBuffer()
+  {
+    if ( this->FirstBlend )
+      {
+      return NULL;
+      }
+    else
+      {
+      return this->ZImage;
+      }
+  };
 
 protected:
 

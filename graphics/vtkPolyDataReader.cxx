@@ -161,11 +161,19 @@ void vtkPolyDataReader::Execute()
 
   vtkDebugMacro(<<"Reading vtk polygonal data...");
 
-  if ( this->Debug ) this->Reader->DebugOn();
-  else this->Reader->DebugOff();
+  if ( this->Debug )
+    {
+    this->Reader->DebugOn();
+    }
+  else
+    {
+    this->Reader->DebugOff();
+    }
 
   if ( !(this->Reader->OpenVTKFile()) || !this->Reader->ReadHeader())
-      return;
+    {
+    return;
+    }
 //
 // Read polygonal data specific stuff
 //
@@ -199,7 +207,10 @@ void vtkPolyDataReader::Execute()
 //
     while (1)
       {
-      if (!this->Reader->ReadString(line)) break;
+      if (!this->Reader->ReadString(line))
+	{
+	break;
+	}
 
       if ( ! strncmp(this->Reader->LowerCase(line),"points",6) )
         {

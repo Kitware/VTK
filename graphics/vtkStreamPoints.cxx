@@ -59,7 +59,10 @@ void vtkStreamPoints::Execute()
   vtkPolyData *output=(vtkPolyData *)this->Output;
 
   this->vtkStreamer::Integrate();
-  if ( this->NumberOfStreamers <= 0 ) return;
+  if ( this->NumberOfStreamers <= 0 )
+    {
+    return;
+    }
 
   newPts  = vtkPoints::New();
   newPts ->Allocate(1000);

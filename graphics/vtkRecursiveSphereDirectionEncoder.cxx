@@ -101,14 +101,23 @@ int vtkRecursiveSphereDirectionEncoder::GetEncodedDirection( float n[3] )
     xindex = (int)((x+1.0)*(float)(inner_size) + 0.5); 
     yindex = (int)((y+1.0)*(float)(inner_size) + 0.5);
 
-    if ( xindex > 2*inner_size ) xindex = 2*inner_size;
-    if ( yindex > 2*inner_size ) yindex = 2*inner_size;
+    if ( xindex > 2*inner_size )
+      {
+      xindex = 2*inner_size;
+      }
+    if ( yindex > 2*inner_size )
+      {
+      yindex = 2*inner_size;
+      }
 
     value = this->IndexTable[xindex*(outer_size+inner_size) + yindex];
     
     // If the z component is less than 0.0, add norm_size to the
     // index 
-    if ( n[2] < 0.0 ) value += norm_size;
+    if ( n[2] < 0.0 )
+      {
+      value += norm_size;
+      }
     }
   else
     {
@@ -242,13 +251,21 @@ void vtkRecursiveSphereDirectionEncoder::InitializeIndexTable( void )
       
       // compute the z based on the x and y values
       if ( x >= 0 && y >= 0 )
+	{
 	z = 1.0 - x - y;
+	}
       else if ( x >= 0 && y < 0 )
+	{
 	z = 1.0 - x + y;
+	}
       else if ( x < 0 && y < 0 )
+	{
 	z = 1.0 + x + y;
+	}
       else 
+	{
 	z = 1.0 + x - y;
+	}
       
       // Normalize this direction and set the DecodedNormal table for
       // this index to this normal.  Also set the corresponding 
@@ -265,8 +282,14 @@ void vtkRecursiveSphereDirectionEncoder::InitializeIndexTable( void )
       // boundary conditions.
       xindex = (int)((x+1.0)*(float)(inner_size) + 0.5); 
       yindex = (int)((y+1.0)*(float)(inner_size) + 0.5);
-      if ( xindex > 2*inner_size ) xindex = 2*inner_size;
-      if ( yindex > 2*inner_size ) yindex = 2*inner_size;
+      if ( xindex > 2*inner_size )
+	{
+	xindex = 2*inner_size;
+	}
+      if ( yindex > 2*inner_size )
+	{
+	yindex = 2*inner_size;
+	}
       this->IndexTable[xindex*(outer_size+inner_size) + yindex] = index;
 
       // Do the grid location to the left - unless we are at the left
@@ -283,8 +306,14 @@ void vtkRecursiveSphereDirectionEncoder::InitializeIndexTable( void )
 	y = 0.5 * (tmp_x - (1.0/(float)inner_size)) + 0.5 * tmp_y;
 	xindex = (int)((x+1.0)*(float)(inner_size) + 0.5); 
 	yindex = (int)((y+1.0)*(float)(inner_size) + 0.5);
-	if ( xindex > 2*inner_size ) xindex = 2*inner_size;
-	if ( yindex > 2*inner_size ) yindex = 2*inner_size;
+	if ( xindex > 2*inner_size )
+	  {
+	  xindex = 2*inner_size;
+	  }
+	if ( yindex > 2*inner_size )
+	  {
+	  yindex = 2*inner_size;
+	  }
 	this->IndexTable[xindex*(outer_size+inner_size) + yindex] = index;
 	}
 
@@ -296,8 +325,14 @@ void vtkRecursiveSphereDirectionEncoder::InitializeIndexTable( void )
 	y = 0.5 * (tmp_x + (1.0/(float)inner_size)) + 0.5 * tmp_y;
 	xindex = (int)((x+1.0)*(float)(inner_size) + 0.5); 
 	yindex = (int)((y+1.0)*(float)(inner_size) + 0.5);
-	if ( xindex > 2*inner_size ) xindex = 2*inner_size;
-	if ( yindex > 2*inner_size ) yindex = 2*inner_size;
+	if ( xindex > 2*inner_size )
+	  {
+	  xindex = 2*inner_size;
+	  }
+	if ( yindex > 2*inner_size )
+	  {
+	  yindex = 2*inner_size;
+	  }
 	this->IndexTable[xindex*(outer_size+inner_size) + yindex] = index;
 	}
       

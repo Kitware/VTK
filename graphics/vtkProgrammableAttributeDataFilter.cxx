@@ -119,20 +119,29 @@ void vtkProgrammableAttributeDataFilter::Update()
     }
 
   // prevent chasing our tail
-  if (this->Updating) return;
+  if (this->Updating)
+    {
+    return;
+    }
 
   // Update the inputs
   this->Updating = 1;
 
   mtime = this->GetMTime();
   this->Input->Update();
-  if (this->Input->GetMTime() > mtime ) mtime = this->Input->GetMTime();
+  if (this->Input->GetMTime() > mtime )
+    {
+    mtime = this->Input->GetMTime();
+    }
   
   for (this->InputList->InitTraversal(); (ds = this->InputList->GetNextItem()); )
     {
     ds->Update();
     dsMtime = ds->GetMTime();
-    if ( dsMtime > mtime ) mtime = dsMtime;
+    if ( dsMtime > mtime )
+      {
+      mtime = dsMtime;
+      }
     }
   this->Updating = 0;
 
@@ -146,19 +155,31 @@ void vtkProgrammableAttributeDataFilter::Update()
 
     for ( this->InputList->InitTraversal(); (ds=this->InputList->GetNextItem()); )
       {
-      if ( ds->GetDataReleased() ) ds->ForceUpdate();
+      if ( ds->GetDataReleased() )
+	{
+	ds->ForceUpdate();
+	}
       }
 
-    if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);
+    if ( this->StartMethod )
+      {
+      (*this->StartMethod)(this->StartMethodArg);
+      }
     ((vtkDataSet *)this->Output)->CopyStructure((vtkDataSet *)this->Input);
     // reset AbortExecute flag and Progress
     this->AbortExecute = 0;
     this->Progress = 0.0;
     this->Execute();
     this->ExecuteTime.Modified();
-    if ( !this->AbortExecute ) this->UpdateProgress(1.0);
+    if ( !this->AbortExecute )
+      {
+      this->UpdateProgress(1.0);
+      }
     this->SetDataReleased(0);
-    if ( this->EndMethod ) (*this->EndMethod)(this->EndMethodArg);
+    if ( this->EndMethod )
+      {
+      (*this->EndMethod)(this->EndMethodArg);
+      }
     }
 
   if ( this->Input->ShouldIReleaseData() ) 
@@ -167,7 +188,12 @@ void vtkProgrammableAttributeDataFilter::Update()
     }
   
   for (this->InputList->InitTraversal(); (ds = this->InputList->GetNextItem()); )
-    if ( ds->ShouldIReleaseData() ) ds->ReleaseData();
+    {
+    if ( ds->ShouldIReleaseData() )
+      {
+      ds->ReleaseData();
+      }
+    }
 }
 
 void vtkProgrammableAttributeDataFilter::Execute()

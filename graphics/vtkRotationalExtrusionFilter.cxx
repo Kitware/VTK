@@ -101,7 +101,10 @@ void vtkRotationalExtrusionFilter::Execute()
   mesh->SetLines(inLines);
   mesh->SetPolys(inPolys);
   mesh->SetStrips(inStrips);
-  if ( inPolys || inStrips ) mesh->BuildLinks();
+  if ( inPolys || inStrips )
+    {
+    mesh->BuildLinks();
+    }
 //
 // Allocate memory for output. We don't copy normals because surface geometry
 // is modified.
@@ -143,16 +146,34 @@ void vtkRotationalExtrusionFilter::Execute()
       if (radius > 0.0)
         {
         tempd = (double)x[0]/radius;
-        if (tempd < -1.0) tempd = -1.0;
-        if (tempd > 1.0) tempd = 1.0;
+        if (tempd < -1.0)
+	  {
+	  tempd = -1.0;
+	  }
+        if (tempd > 1.0)
+	  {
+	  tempd = 1.0;
+	  }
         theta = acos(tempd);
         tempd = (double)x[1]/radius;
-        if (tempd < -1.0) tempd = -1.0;
-        if (tempd > 1.0) tempd = 1.0;
+        if (tempd < -1.0)
+	  {
+	  tempd = -1.0;
+	  }
+        if (tempd > 1.0)
+	  {
+	  tempd = 1.0;
+	  }
         if ( (psi=asin(tempd)) < 0.0 ) 
           {
-          if ( theta < (vtkMath::Pi()/2.0) ) theta = 2.0*vtkMath::Pi() + psi;
-          else theta = vtkMath::Pi() - psi;
+          if ( theta < (vtkMath::Pi()/2.0) )
+	    {
+	    theta = 2.0*vtkMath::Pi() + psi;
+	    }
+          else
+	    {
+	    theta = vtkMath::Pi() - psi;
+	    }
           }
 
         //increment angle
@@ -187,7 +208,9 @@ void vtkRotationalExtrusionFilter::Execute()
         newPolys->InsertNextCell(npts);
 	// note that we need to reverse the vertex order on the far cap
         for (i=0; i < npts; i++)
+	  {
           newPolys->InsertCellPoint(pts[i] + this->Resolution*numPts);
+	  }
         }
       }
     
@@ -198,7 +221,9 @@ void vtkRotationalExtrusionFilter::Execute()
         newStrips->InsertNextCell(npts,pts);
         newStrips->InsertNextCell(npts);
         for (i=0; i < npts; i++)
+	  {
           newStrips->InsertCellPoint(pts[i] + this->Resolution*numPts);
+	  }
         }
       }
     }
@@ -222,7 +247,9 @@ void vtkRotationalExtrusionFilter::Execute()
         newLines->InsertNextCell(this->Resolution+1);
 
         for ( j=0; j<=this->Resolution; j++ )
+	  {
           newLines->InsertCellPoint(ptId + j*numPts);
+	  }
         }
       }
 
