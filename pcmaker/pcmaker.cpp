@@ -61,6 +61,7 @@ char *GetNextArg(char *in)
       pos++;
       pos2++;
       }
+    pos++;
     }
   else
     {
