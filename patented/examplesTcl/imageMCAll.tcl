@@ -65,7 +65,7 @@ ren1 SetBackground 0.9 .9 .9
 [ren1 GetActiveCamera] SetViewUp 0 0 -1
 [ren1 GetActiveCamera] SetViewAngle 30
 [ren1 GetActiveCamera] ComputeViewPlaneNormal
-
+ren1 ResetCameraClippingRange
 
 renWin SetSize 450 450
 iren Initialize
