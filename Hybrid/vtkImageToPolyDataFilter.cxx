@@ -19,6 +19,8 @@
 #include "vtkCellData.h"
 #include "vtkEdgeTable.h"
 #include "vtkImageData.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkLine.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
@@ -26,7 +28,7 @@
 #include "vtkScalarsToColors.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkImageToPolyDataFilter, "1.28");
+vtkCxxRevisionMacro(vtkImageToPolyDataFilter, "1.29");
 vtkStandardNewMacro(vtkImageToPolyDataFilter);
 
 vtkCxxSetObjectMacro(vtkImageToPolyDataFilter,LookupTable,vtkScalarsToColors);
@@ -44,7 +46,6 @@ vtkImageToPolyDataFilter::vtkImageToPolyDataFilter()
 
   this->Table = vtkUnsignedCharArray::New();
   this->LookupTable = NULL;
-
 }
 
 vtkImageToPolyDataFilter::~vtkImageToPolyDataFilter()
@@ -59,10 +60,21 @@ vtkImageToPolyDataFilter::~vtkImageToPolyDataFilter()
 // declare helper functions
 //
 
-void vtkImageToPolyDataFilter::Execute()
+int vtkImageToPolyDataFilter::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
-  vtkImageData *input=this->GetInput();
-  vtkPolyData *output=this->GetOutput();
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkImageData *input = vtkImageData::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   vtkPolyData *tmpOutput;
   vtkPolyData *tmpInput;
   vtkAppendPolyData *append;
@@ -77,14 +89,13 @@ void vtkImageToPolyDataFilter::Execute()
   int i, j, newDims[3], totalPieces, pieceNum, abortExecute=0;
   double newOrigin[3];
 
-
   // Check input and initialize
   vtkDebugMacro(<<"Vectorizing image...");
   
   if ( inScalars == NULL || numPixels < 1 )
     {
     vtkDebugMacro(<<"Not enough input to create output");
-    return;
+    return 1;
     }
 
   append = vtkAppendPolyData::New();
@@ -189,6 +200,8 @@ void vtkImageToPolyDataFilter::Execute()
   append->Delete();
   tmpInput->Delete();
   tmpOutput->Delete();
+
+  return 1;
 }
 
 void vtkImageToPolyDataFilter::PixelizeImage(vtkUnsignedCharArray *pixels, 
@@ -1355,4 +1368,9 @@ void vtkImageToPolyDataFilter::DecimateEdges(vtkPolyData *edges,
     } //for all points
 }
 
-
+int vtkImageToPolyDataFilter::FillInputPortInformation(int,
+                                                       vtkInformation *info)
+{
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkImageData");
+  return 1;
+}
