@@ -209,7 +209,7 @@ void vtkImageClip::ResetOutputWholeExtent()
 
 //----------------------------------------------------------------------------
 // This method simply copies by reference the input data to the output.
-void vtkImageClip::Execute()
+void vtkImageClip::ExecuteData(vtkDataObject *)
 {
   int *inExt;
   vtkImageData *outData = this->GetOutput();

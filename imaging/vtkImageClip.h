@@ -104,12 +104,7 @@ protected:
 
   int SplitExtentTmp(int piece, int numPieces, int *ext);
 
-  void Execute();
-  // To avoid warnings.
-  void Execute(vtkImageData *in, vtkImageData *out)
-   { this->vtkImageToImageFilter::Execute(in, out); };
-  void Execute(vtkImageData *output)
-    { this->vtkImageToImageFilter::Execute(output); };
+  virtual void ExecuteData(vtkDataObject *out);
 };
 
 
