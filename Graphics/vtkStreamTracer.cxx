@@ -35,7 +35,7 @@
 #include "vtkRungeKutta4.h"
 #include "vtkRungeKutta45.h"
 
-vtkCxxRevisionMacro(vtkStreamTracer, "1.19");
+vtkCxxRevisionMacro(vtkStreamTracer, "1.20");
 vtkStandardNewMacro(vtkStreamTracer);
 vtkCxxSetObjectMacro(vtkStreamTracer,Integrator,vtkInitialValueProblemSolver);
 
@@ -1035,12 +1035,12 @@ void vtkStreamTracer::GenerateNormals(vtkPolyData* output, float* firstNormal)
       int i, j;
       float normal[3], local1[3], local2[3], theta, costheta, sintheta, length;
       float velocity[3];
+      normals->SetName("Normals");
+      vtkDataArray* newVectors = 
+        outputPD->GetVectors(this->InputVectorsSelection);
       for(i=0; i<numPts; i++)
         {
         normals->GetTuple(i, normal);
-        normals->SetName("Normals");
-        vtkDataArray* newVectors = 
-          outputPD->GetVectors(this->InputVectorsSelection);
         if (newVectors == NULL)
           { // This should never happen.
           vtkErrorMacro("Could not find output array.");
