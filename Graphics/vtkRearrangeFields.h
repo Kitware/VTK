@@ -203,40 +203,8 @@ protected:
   static char FieldLocationNames[3][12];
   static char AttributeNames[vtkDataSetAttributes::NUM_ATTRIBUTES][10];
 
-  void PrintAllOperations(ostream& os, vtkIndent indent)
-    {
-      Operation* cur = this->GetFirst();
-      if (!cur) { return; }
-      Operation* before;
-      do
-        {
-        before = cur;
-        cur = cur->Next;
-        os << endl;
-        this->PrintOperation(before, os, indent);
-        } 
-      while (cur);
-    }
-
-  void PrintOperation(Operation* op, ostream& os, vtkIndent indent)
-    {
-      os << indent << "Id: " << op->Id << endl;
-      os << indent << "Type: " << op->OperationType << endl;
-      os << indent << "Field type: " << op->FieldType << endl;
-      if ( op->FieldName)
-        {
-        os << indent << "Field name: " << op->FieldName << endl;
-        }
-      else
-        {
-        os << indent << "Field name: (none)" << endl;
-        }
-      os << indent << "Attribute type: " << op->AttributeType << endl;
-      os << indent << "Source field location: " << op->FromFieldLoc << endl;
-      os << indent << "Target field location: " << op->ToFieldLoc << endl;
-      os << indent << "Next operation: " << op->Next << endl;
-      os << endl;
-    }
+  void PrintAllOperations(ostream& os, vtkIndent indent);
+  void PrintOperation(Operation* op, ostream& os, vtkIndent indent);
 private:
   vtkRearrangeFields(const vtkRearrangeFields&);  // Not implemented.
   void operator=(const vtkRearrangeFields&);  // Not implemented.
