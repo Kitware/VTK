@@ -9,6 +9,7 @@ IF (VTK_USE_RENDERING)
         IdealHighPass
         LaplacianEdgeEnhance
 	reconstructSurface
+	resampledTexture
         ResliceColorWrap
         ResliceInterpolationModes
         ResliceInterpolationOblique
