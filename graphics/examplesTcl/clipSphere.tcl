@@ -10,20 +10,15 @@ vtkSphereSource sphere;
     sphere SetRadius 1;
     sphere SetPhiResolution 25;
     sphere SetThetaResolution 25;
-#vtkPlaneSource sphere;
-#    sphere SetXResolution 10;
-#    sphere SetYResolution 25;
-#vtkConeSource sphere;
-#    sphere SetResolution 10;
-
 vtkPlane plane;
     plane SetOrigin 0.25 0 0;
     plane SetNormal -1 -1 0;
 vtkClipPolyData clipper;
     clipper SetInput [sphere GetOutput];
     clipper SetClipFunction plane;
+    clipper GenerateClipScalarsOn
     clipper SetValue 0.0;
-vtkDataSetMapper clipMapper;
+vtkPolyMapper clipMapper;
     clipMapper SetInput [clipper GetOutput];
     clipMapper ScalarsVisibleOff;
 vtkActor clipActor;
