@@ -85,7 +85,7 @@ void vtkArcPlotter::Execute()
   vtkPointData *inPD=input->GetPointData();
   vtkPoints *inPts;
   vtkCellArray *inLines;
-  int numPts, i, j;
+  int numPts, numLines, i, j;
   float x[3], normal[3], point[3], aveNormal[3];
   int npts, *pts, id;
   float *x1, *x2, x21[3], n[3];
@@ -101,8 +101,8 @@ void vtkArcPlotter::Execute()
   vtkDebugMacro(<<"Plotting along arc");
 
   if ( !(inPts=input->GetPoints()) || 
-  (numPts = inPts->GetNumberOfPoints()) < 1 ||
-  !(inLines = input->GetLines()) || inLines->GetNumberOfCells() < 1 )
+  (numPts=inPts->GetNumberOfPoints()) < 1 ||
+  !(inLines=input->GetLines()) || inLines->GetNumberOfCells() < 1 )
     {
     vtkErrorMacro(<< "No input data!");
     return;
@@ -212,6 +212,7 @@ void vtkArcPlotter::Execute()
       vtkMath::Normalize(n);
       lineNormals->SetNormal(i, n);
       }
+    this->UpdateProgress(0.50);
 
     // For each component, create an offset plot.
     for (plotNum=0, compNum=this->StartComp; compNum <= this->EndComp; 
@@ -233,6 +234,7 @@ void vtkArcPlotter::Execute()
         }
       } //for all components
     } //for all polylines
+  this->UpdateProgress(0.90);
   
   lineNormals->Delete();
   if ( projPts != inPts )
