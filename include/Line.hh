@@ -29,8 +29,11 @@ public:
   vlLine() {};
   char *GetClassName() {return "vlLine";};
 
-  float DistanceToPoint(float *x);
+  float EvaluatePosition(float x[3], int& subId, float pcoords[3]);
+  void EvaluateLocation(int& subId, float pcoords[3], float x[3]);
 
+  Intersection(float x[3], float xray[3], float x1[3], float x2[3],
+               float& u, float& v);
 };
 
 #endif

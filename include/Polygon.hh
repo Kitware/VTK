@@ -32,10 +32,17 @@ public:
   vlPolygon() {};
   char *GetClassName() {return "vlPolygon";};
 
-  void ComputeNormal(vlPoints *p, int numPts, int *pts, float *n);
-  void ComputeNormal(float *v1, float *v2, float *v3, float *n);
+  void ComputeNormal(vlPoints *p, int numPts, int *pts, float n[3]);
+  void ComputeNormal(float v1[3], float v2[3], float v3[3], float n[3]);
+  void ComputeNormal(vlFloatPoints *p, float n[3]);
 
-  float DistanceToPoint(float *x);
+  float EvaluatePosition(float x[3], int& subId, float pcoords[3]);
+  void EvaluateLocation(int& subId, float pcoords[3], float x[3]);
+
+  int ParameterizePolygon(float p0[3], float p10[3], float &l10, 
+                          float p20[3], float &l20, float n[3]);
+
+  int PointInPolygon(float bounds[6], float x[3], float n[3]);  
 };
 
 #endif

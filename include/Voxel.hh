@@ -29,7 +29,10 @@ public:
   vlBrick() {};
   char *GetClassName() {return "vlBrick";};
 
-  float DistanceToPoint(float *x);
+  float EvaluatePosition(float x[3], int& subId, float pcoords[3]);
+  void EvaluateLocation(int& subId, float pcoords[3], float x[3]);
+  void ShapeFunctions(float pcoords[3], float sf[8]);
+  void ShapeDerivs(float pcoords[3], float derivs[24]);
 
 };
 

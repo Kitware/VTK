@@ -29,7 +29,8 @@ public:
   vlTriangle() {};
   char *GetClassName() {return "vlTriangle";};
 
-  float DistanceToPoint(float *x);
+  float EvaluatePosition(float x[3], int& subId, float pcoords[3]);
+  void EvaluateLocation(int& subId, float pcoords[3], float x[3]);
 
 };
 

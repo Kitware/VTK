@@ -15,10 +15,201 @@ without the express written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
+#include <math.h>
 #include "Quad.hh"
+#include "Polygon.hh"
+#include "Plane.hh"
+#include "vlMath.hh"
 
-float vlQuad::DistanceToPoint(float *x)
+#define MAX_ITERATION 10
+#define CONVERGED 1.e-03
+
+float vlQuad::EvaluatePosition(float x[3], int& subId, float pcoords[3])
 {
+  int i, j;
+  vlPolygon poly;
+  float *pt1, *pt2, *pt3, *pt, n[3], xProj[3];
+  float closestPoint[3], det;
+  vlPlane plane;
+  vlMath math;
+  float maxComponent;
+  int idx, indices[2];
+  int iteration, converged;
+  float  params[2];
+  float  fcol[2], rcol[3], scol[3];
+  float sf[4], derivs[8];
 
-  return 1.0;
+  subId = 0;
+  pcoords[0] = pcoords[1] = pcoords[2] = 0.0;
+//
+// Get normal for quadrilateral
+//
+  pt1 = this->Points->GetPoint(0);
+  pt2 = this->Points->GetPoint(1);
+  pt3 = this->Points->GetPoint(2);
+
+  poly.ComputeNormal (pt1, pt2, pt3, n);
+//
+// Project point to plane
+//
+  plane.ProjectPoint(x,pt1,n,xProj);
+//
+// Construct matrices.  Since we have over determined system, need to find
+// which 2 out of 3 equations to use to develop equations. (Any 2 should 
+// work since we've projected point to plane.)
+//
+  for (maxComponent=0.0, i=0; i<3; i++)
+    {
+    if (n[i] > maxComponent)
+      {
+      maxComponent = n[i];
+      idx = i;
+      }
+    }
+  for (j=0, i=0; i<3; i++)  
+    {
+    if ( i != idx ) indices[j++] = i;
+    }
+//
+// Use Newton's method to solve for parametric coordinates
+//  
+  for (iteration=converged=0; !converged && (iteration < MAX_ITERATION);
+  iteration++) 
+    {
+//
+//  calculate element shape functions and derivatives
+//
+    this->ShapeFunctions(pcoords, sf);
+    this->ShapeDerivs(pcoords, derivs);
+//
+//  calculate newton functions
+//
+    for (i=0; i<2; i++) 
+      {
+      fcol[i] = rcol[i] = scol[i] = 0.0;
+      }
+    for (i=0; i<4; i++)
+      {
+      pt = this->Points->GetPoint(i);
+      for (j=0; j<2; j++)
+        {
+        fcol[j] += pt[indices[j]] * sf[i];
+        rcol[j] += pt[indices[j]] * derivs[i];
+        scol[j] += pt[indices[j]] * derivs[i+4];
+        }
+      }
+
+    for (i=0; i<3; i++) fcol[i] -= x[i];
+//
+//  compute determinates and generate improvements
+//
+    if ( (det=math.Determinate2x2(rcol,scol)) == 0.0 )
+      {
+      return LARGE_FLOAT;
+      }
+
+    pcoords[0] = params[0] - math.Determinate2x2 (fcol,scol) / det;
+    pcoords[1] = params[1] - math.Determinate2x2 (rcol,fcol) / det;
+//
+//  check for convergence
+//
+    if ( ((fabs(pcoords[0]-params[0])) < CONVERGED) &&
+    ((fabs(pcoords[1]-params[1])) < CONVERGED) )
+      {
+      converged = 1;
+      }
+//
+//  if not converged, repeat
+//
+    else 
+      {
+      params[0] = pcoords[0];
+      params[1] = pcoords[1];
+      }
+    }
+//
+//  if not converged, set the parametric coordinates to arbitrary values
+//  outside of element
+//
+  if ( !converged )
+    {
+    pcoords[0] = pcoords[1] =  pcoords[2] = 10.0;
+    return LARGE_FLOAT;
+    }
+  else
+    {
+    if ( pcoords[0] >= -1.0 && pcoords[1] <= 1.0 &&
+    pcoords[1] >= -1.0 && pcoords[1] <= 1.0 )
+      {
+      for(i=0; i<3; i++) pcoords[i] = 0.5*(pcoords[i]+1.0); // shift to (0,1)
+      return math.Distance2BetweenPoints(xProj,x); //projection distance
+      }
+    else
+      {
+      for (i=0; i<2; i++)
+        {
+        if (pcoords[i] < -1.0) pcoords[i] = -1.0;
+        if (pcoords[i] > 1.0) pcoords[i] = 1.0;
+        }
+      this->EvaluateLocation(subId, pcoords, closestPoint);
+      for(i=0; i<2; i++) pcoords[i] = 0.5*(pcoords[i]+1.0); // shift to (0,1)
+      return math.Distance2BetweenPoints(closestPoint,x);
+      }
+    }
+}
+
+void vlQuad::EvaluateLocation(int& subId, float pcoords[3], float x[3])
+{
+  int i, j;
+  float sf[4], *pt, pc[3];
+
+  for (i=0; i<2; i++) pc[i] = 2.0*pcoords[i] - 1.0; //shift to -1<=r,s,t<=1
+  this->ShapeFunctions(pc, sf);
+
+  x[0] = x[1] = x[2] = 0.0;
+  for (i=0; i<4; i++)
+    {
+    pt = this->Points->GetPoint(i);
+    for (j=0; j<3; j++)
+      {
+      x[j] += pt[j] * sf[i];
+      }
+    }
+}
+
+//
+// Compute iso-parametrix shape functions
+//
+void vlQuad::ShapeFunctions(float pcoords[3], float sf[4])
+{
+  double rm, rp, sm, sp;
+
+  rm = 1. - pcoords[0];
+  rp = 1. + pcoords[0];
+  sm = 1. - pcoords[1];
+  sp = 1. + pcoords[1];
+
+  sf[0] = 0.25 * rm * sm;
+  sf[1] = 0.25 * rp * sm;
+  sf[2] = 0.25 * rp * sp;
+  sf[3] = 0.25 * rm * sp;
+}
+
+void vlQuad::ShapeDerivs(float pcoords[3], float derivs[8])
+{
+  double rm, rp, sm, sp;
+
+  rm = 1. - pcoords[0];
+  rp = 1. + pcoords[0];
+  sm = 1. - pcoords[1];
+  sp = 1. + pcoords[1];
+
+  derivs[0] = -0.25*sm;
+  derivs[1] = 0.25*sm;
+  derivs[2] = 0.25*sp;
+  derivs[3] = -0.25*sp;
+  derivs[4] = -0.25*rm;
+  derivs[5] = -0.25*rp;
+  derivs[6] = 0.25*rp;
+  derivs[7] = 0.25*rm;
 }

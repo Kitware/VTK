@@ -29,7 +29,10 @@ public:
   vlQuad() {};
   char *GetClassName() {return "vlQuad";};
 
-  float DistanceToPoint(float *x);
+  float EvaluatePosition(float x[3], int& subId, float pcoords[3]);
+  void EvaluateLocation(int& subId, float pcoords[3], float x[3]);
+  void ShapeFunctions(float pcoords[3], float sf[4]);
+  void ShapeDerivs(float pcoords[3], float derivs[12]);
 
 };
 

@@ -16,9 +16,43 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
 #include "PolyPts.hh"
+#include "vlMath.hh"
 
-float vlPolyPoints::DistanceToPoint(float *x)
+float vlPolyPoints::EvaluatePosition(float x[3], int& subId, float pcoords[3])
 {
+  int numPts;
+  float *X;
+  float dist2, minDist2;
+  int i;
+  vlMath math;
 
-  return 1.0;
+  for (minDist2=LARGE_FLOAT, i=0; i<numPts; i++)
+    {
+    X = this->Points->GetPoint(i);
+    dist2 = math.Distance2BetweenPoints(X,x);
+    if (dist2 < minDist2)
+      {
+      minDist2 = dist2;
+      subId = i;
+      }
+    }
+
+  if (minDist2 == 0.0)
+    {
+    pcoords[0] = 0.0;
+    }
+  else
+    {
+    pcoords[0] = -10.0;
+    }
+
+  return minDist2;
+}
+
+void vlPolyPoints::EvaluateLocation(int& subId, float pcoords[3], float x[3])
+{
+  float *X = this->Points->GetPoint(subId);
+  x[0] = X[0];
+  x[1] = X[1];
+  x[2] = X[2];
 }

@@ -17,6 +17,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 =========================================================================*/
 #include "PolyLine.hh"
 #include "vlMath.hh"
+#include "Line.hh"
 
 int vlPolyLine::GenerateNormals(vlPoints *pts, vlCellArray *lines, vlFloatNormals *normals)
 {
@@ -84,8 +85,40 @@ int vlPolyLine::GenerateNormals(vlPoints *pts, vlCellArray *lines, vlFloatNormal
   return 1;
 }
 
-float vlPolyLine::DistanceToPoint(float *x)
+float vlPolyLine::EvaluatePosition(float x[3], int& subId, float pcoords[3])
 {
+  vlLine line;
+  vlFloatPoints pts(2);
+  float pc[3], dist2, minDist2;
+  int ignoreId, i;
 
-  return 1.0;
+  pcoords[1] = pcoords[2] = 0.0;
+
+  line.SetPoints(&pts);
+  for (minDist2=LARGE_FLOAT,i=0; i<this->Points->NumberOfPoints()-1; i++)
+    {
+    pts.SetPoint(0,this->Points->GetPoint(i));
+    pts.SetPoint(1,this->Points->GetPoint(i+1));
+    dist2 = line.EvaluatePosition(x, ignoreId, pc);
+    if ( dist2 < minDist2 )
+      {
+      subId = i;
+      pcoords[0] = pc[0];
+      minDist2 = dist2;
+      }
+    }
+
+  return minDist2;
+}
+
+void vlPolyLine::EvaluateLocation(int& subId, float pcoords[3], float x[3])
+{
+  int i;
+  float *a1 = this->Points->GetPoint(subId);
+  float *a2 = this->Points->GetPoint(subId+1);
+
+  for (i=0; i<3; i++) 
+    {
+    x[i] = a1[i] + pcoords[0]*(a2[i] - a1[i]);
+    }
 }
