@@ -283,6 +283,7 @@ static VTK_THREAD_RETURN_TYPE vtkStreamer_ThreadedIntegrate( void *arg )
   float                    closestPoint[3];
   vtkVectors               *cellVectors;
   vtkScalars               *cellScalars;
+  vtkGenericCell           *gencell = NULL;
 
   thread_id = ((ThreadInfoStruct *)(arg))->ThreadID;
   thread_count = ((ThreadInfoStruct *)(arg))->NumberOfThreads;
@@ -378,7 +379,12 @@ static VTK_THREAD_RETURN_TYPE vtkStreamer_ThreadedIntegrate( void *arg )
 	  }
 	else
 	  { //integration has passed out of cell
-	  sNext->cellId = input->FindCell(xNext, cell, sPtr->cellId, tol2, 
+	  if ( gencell == NULL )
+	    {
+	    gencell = vtkGenericCell::New();
+	    }
+	  sNext->cellId = input->FindCell(xNext, cell, gencell,
+					  sPtr->cellId, tol2, 
 					  sNext->subId, sNext->p, w);
 	  if ( sNext->cellId >= 0 ) //make sure not out of dataset
 	    {
@@ -434,6 +440,11 @@ static VTK_THREAD_RETURN_TYPE vtkStreamer_ThreadedIntegrate( void *arg )
   cellScalars->Delete();
 
   delete [] w;
+
+  if ( gencell )
+    {
+    gencell->Delete();
+    }
 
   return VTK_THREAD_RETURN_VALUE;
 }
