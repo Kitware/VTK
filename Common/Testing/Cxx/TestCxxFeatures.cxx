@@ -69,11 +69,48 @@ int TestFullySpecializedFunction()
 
 //----------------------------------------------------------------------------
 
+/* Test use of standard "bool" type and values.  */
+
+bool GetFalse()
+{
+  return false;
+}
+
+bool GetTrue()
+{
+  return true;
+}
+
+int TestBool()
+{
+  int result = 1;
+  bool should_be_false = GetFalse();
+  bool should_be_true = GetTrue();
+  if(should_be_false)
+    {
+    cerr << "GetFalse() returned " << should_be_false << ", not false.\n";
+    result = 0;
+    }
+  if(!should_be_true)
+    {
+    cerr << "GetTrue() returned " << should_be_true << ", not true.\n";
+    result = 0;
+    }
+  return result;
+}
+
+//----------------------------------------------------------------------------
+
 int main()
 {
+  int result = 0;
   if(!TestFullySpecializedFunction())
     {
-    return 1;
+    result = 1;
     }
-  return 0;
+  if(!TestBool())
+    {
+    result = 1;
+    }
+  return result;
 }
