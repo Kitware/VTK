@@ -77,6 +77,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class vtkRenderer;
 class vtkWindow;
 
+#define VTK_TEXTURE_QUALITY_DEFAULT 0
+#define VTK_TEXTURE_QUALITY_16BIT   16
+#define VTK_TEXTURE_QUALITY_32BIT   32
+
 class VTK_EXPORT vtkTexture : public vtkObject
 {
 public:
@@ -114,6 +118,15 @@ public:
   vtkGetMacro(Interpolate,int);
   vtkSetMacro(Interpolate,int);
   vtkBooleanMacro(Interpolate,int);
+
+  // Description:
+  // Force texture quality to 16-bit or 32-bit.
+  // This might not be supported on all machines.
+  vtkSetMacro(Quality,int);
+  vtkGetMacro(Quality,int);
+  void SetQualityToDefault() {this->SetQuality(VTK_TEXTURE_QUALITY_DEFAULT);};
+  void SetQualityTo16Bit() {this->SetQuality(VTK_TEXTURE_QUALITY_16BIT);};
+  void SetQualityTo32Bit() {this->SetQuality(VTK_TEXTURE_QUALITY_32BIT);};
 
   // Description:
   // Turn on/off the mapping of color scalars through the lookup table.
@@ -155,6 +168,7 @@ protected:
 
   int   Repeat;
   int   Interpolate;
+  int   Quality;
   int   MapColorScalarsThroughLookupTable;
   vtkStructuredPoints *Input;
   vtkLookupTable *LookupTable;

@@ -50,6 +50,7 @@ vtkTexture::vtkTexture()
 {
   this->Repeat = 1;
   this->Interpolate = 0;
+  this->Quality = VTK_TEXTURE_QUALITY_DEFAULT;
 
   this->Input = NULL;
   this->LookupTable = NULL;
@@ -102,6 +103,19 @@ void vtkTexture::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Interpolate: " << (this->Interpolate ? "On\n" : "Off\n");
   os << indent << "Repeat:      " << (this->Repeat ? "On\n" : "Off\n");
+  os << indent << "Quality:     ";
+  switch (this->Quality)
+    {
+    case VTK_TEXTURE_QUALITY_DEFAULT:
+      os << "Default\n";
+      break;
+    case VTK_TEXTURE_QUALITY_16BIT:
+      os << "16Bit\n";
+      break;
+    case VTK_TEXTURE_QUALITY_32BIT:
+      os << "32Bit\n";
+      break;
+    }
   os << indent << "MapColorScalarsThroughLookupTable: " << (this->MapColorScalarsThroughLookupTable  ? "On\n" : "Off\n");
 
   if ( this->Input )

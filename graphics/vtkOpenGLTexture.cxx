@@ -282,6 +282,7 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
       glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,     GL_CLAMP );
       glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,     GL_CLAMP );
       }
+    int internalFormat = bytesPerPixel;
     switch (bytesPerPixel)
       {
       case 1: format = GL_LUMINANCE; break;
@@ -289,7 +290,30 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
       case 3: format = GL_RGB; break;
       case 4: format = GL_RGBA; break;
       }
-    glTexImage2D( GL_TEXTURE_2D, 0 , bytesPerPixel,
+    // if we are using OpenGL 1.1, you can force 32 or16 bit textures
+#ifdef GL_VERSION_1_1
+    if (this->Quality == VTK_TEXTURE_QUALITY_32BIT)
+      {
+      switch (bytesPerPixel)
+	{
+	case 1: internalFormat = GL_LUMINANCE8; break;
+	case 2: internalFormat = GL_LUMINANCE8_ALPHA8; break;
+	case 3: internalFormat = GL_RGB8; break;
+	case 4: internalFormat = GL_RGBA8; break;
+	}
+      }
+    else if (this->Quality == VTK_TEXTURE_QUALITY_16BIT)
+      {
+      switch (bytesPerPixel)
+	{
+	case 1: internalFormat = GL_LUMINANCE4; break;
+	case 2: internalFormat = GL_LUMINANCE4_ALPHA4; break;
+	case 3: internalFormat = GL_RGB4; break;
+	case 4: internalFormat = GL_RGBA4; break;
+	}
+      }
+#endif
+    glTexImage2D( GL_TEXTURE_2D, 0 , internalFormat,
                   xsize, ysize, 0, format, 
                   GL_UNSIGNED_BYTE, (const GLvoid *)resultData );
 #ifndef GL_VERSION_1_1
