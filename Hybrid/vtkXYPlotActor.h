@@ -72,7 +72,7 @@
 // to convert the data into scalar data and/or points.
 
 // .SECTION See Also
-// vtkActor2D vtkTextMapper vtkScalarBarActor vtkAxisActor2D vtkCubeAxesActor
+// vtkActor2D vtkTextMapper vtkScalarBarActor vtkAxisActor2D vtkCubeAxesActor2D
 // vtkAttributeDataToFieldDataFilter vtkFieldDataToAttributeDataFilter 
 // vtkTextProperty
 
