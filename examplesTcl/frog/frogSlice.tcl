@@ -2,7 +2,7 @@ catch {load vtktcl}
 #
 source ../../examplesTcl/vtkInt.tcl
 source ../../examplesTcl/colors.tcl
-source permutes.tcl
+source SliceOrder.tcl
 
 # Now create the RenderWindow, Renderer and Interactor
 #
@@ -34,7 +34,7 @@ set endY [expr ( $ROWS - 1 ) ]
 set endZ [expr ( $END_SLICE - 1 ) ]
 set originX [expr ( $COLUMNS / 2.0 ) * $PIXEL_SIZE * -1.0]
 set originY [expr ( $ROWS / 2.0 ) * $PIXEL_SIZE * -1.0]
-set SLICE_ORDER is
+set SLICE_ORDER hfsi
 
 vtkPNMReader greyReader
   eval greyReader SetFilePrefix $GREYSTUDY
