@@ -73,9 +73,6 @@ vtkLight::vtkLight()
   this->Exponent = 1;
 }
 
-#ifdef VTK_USE_GLR
-#include "vtkGLLight.h"
-#endif
 #ifdef VTK_USE_OGLR
 #include "vtkOpenGLLight.h"
 #endif
@@ -95,9 +92,6 @@ vtkLight *vtkLight::New()
   
 #ifdef VTK_USE_SBR
   if (!strcmp("Starbase",temp)) return vtkStarbaseLight::New();
-#endif
-#ifdef VTK_USE_GLR
-  if (!strcmp("GL",temp)) return vtkGLLight::New();
 #endif
 #ifdef VTK_USE_OGLR
   if (!strcmp("OpenGL",temp)) return vtkOpenGLLight::New();

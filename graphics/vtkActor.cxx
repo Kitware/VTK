@@ -119,9 +119,6 @@ vtkActor& vtkActor::operator=(const vtkActor& actor)
 }
 
 
-#ifdef VTK_USE_GLR
-#include "vtkGLActor.h"
-#endif
 #ifdef VTK_USE_OGLR
 #include "vtkOpenGLActor.h"
 #endif
@@ -141,9 +138,6 @@ vtkActor *vtkActor::New()
   
 #ifdef VTK_USE_SBR
   if (!strcmp("Starbase",temp)) return vtkStarbaseActor::New();
-#endif
-#ifdef VTK_USE_GLR
-  if (!strcmp("GL",temp)) return vtkGLActor::New();
 #endif
 #ifdef VTK_USE_OGLR
   if (!strcmp("OpenGL",temp)) return vtkOpenGLActor::New();

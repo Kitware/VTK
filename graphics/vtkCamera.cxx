@@ -92,9 +92,6 @@ vtkCamera::vtkCamera()
   this->VPN_dot_DOP = 0.0;
 }
 
-#ifdef VTK_USE_GLR
-#include "vtkGLCamera.h"
-#endif
 #ifdef VTK_USE_OGLR
 #include "vtkOpenGLCamera.h"
 #endif
@@ -114,9 +111,6 @@ vtkCamera *vtkCamera::New()
   
 #ifdef VTK_USE_SBR
   if (!strcmp("Starbase",temp)) return vtkStarbaseCamera::New();
-#endif
-#ifdef VTK_USE_GLR
-  if (!strcmp("GL",temp)) return vtkGLCamera::New();
 #endif
 #ifdef VTK_USE_OGLR
   if (!strcmp("OpenGL",temp)) return vtkOpenGLCamera::New();

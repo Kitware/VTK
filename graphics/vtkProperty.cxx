@@ -116,9 +116,6 @@ vtkProperty& vtkProperty::operator=(const vtkProperty& p)
 }
 
 
-#ifdef VTK_USE_GLR
-#include "vtkGLProperty.h"
-#endif
 #ifdef VTK_USE_OGLR
 #include "vtkOpenGLProperty.h"
 #endif
@@ -138,9 +135,6 @@ vtkProperty *vtkProperty::New()
   
 #ifdef VTK_USE_SBR
   if (!strcmp("Starbase",temp)) return vtkStarbaseProperty::New();
-#endif
-#ifdef VTK_USE_GLR
-  if (!strcmp("GL",temp)) return vtkGLProperty::New();
 #endif
 #ifdef VTK_USE_OGLR
   if (!strcmp("OpenGL",temp)) return vtkOpenGLProperty::New();

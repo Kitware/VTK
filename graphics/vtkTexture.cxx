@@ -70,9 +70,6 @@ vtkTexture::~vtkTexture()
     }
 }
 
-#ifdef VTK_USE_GLR
-#include "vtkGLTexture.h"
-#endif
 #ifdef VTK_USE_OGLR
 #include "vtkOpenGLTexture.h"
 #endif
@@ -92,9 +89,6 @@ vtkTexture *vtkTexture::New()
   
 #ifdef VTK_USE_SBR
   if (!strcmp("Starbase",temp)) return vtkStarbaseTexture::New();
-#endif
-#ifdef VTK_USE_GLR
-  if (!strcmp("GL",temp)) return vtkGLTexture::New();
 #endif
 #ifdef VTK_USE_OGLR
   if (!strcmp("OpenGL",temp)) return vtkOpenGLTexture::New();

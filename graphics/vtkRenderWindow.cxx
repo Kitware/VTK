@@ -141,12 +141,11 @@ char *vtkRenderWindow::GetRenderLibrary()
   if ( temp )
     {
     if (!strcmp("sbr",temp)) temp = "Starbase";
-    else if (!strcmp("glr",temp)) temp = "GL";
     else if (!strcmp("oglr",temp)) temp = "OpenGL";
     else if (!strcmp("woglr",temp)) temp = "Win32OpenGL";
     else if (!strcmp("xglr",temp)) temp = "XGL";
-    else if ( strcmp("Starbase",temp) && strcmp("GL",temp) && 
-      strcmp("OpenGL",temp) && strcmp("Win32OpenGL",temp) && strcmp("XGL",temp) )
+    else if ( strcmp("Starbase",temp) && strcmp("OpenGL",temp) 
+	      && strcmp("Win32OpenGL",temp) && strcmp("XGL",temp) )
       {
       vtkGenericWarningMacro(<<"VTK_RENDERER set to unsupported type:" << temp);
       temp = NULL;
@@ -156,9 +155,6 @@ char *vtkRenderWindow::GetRenderLibrary()
   // if nothing is set then work down the list of possible renderers
   if ( !temp )
     {
-#ifdef VTK_USE_GLR
-    temp = "GL";
-#endif
 #ifdef VTK_USE_OGLR
     temp = "OpenGL";
 #endif
@@ -176,9 +172,6 @@ char *vtkRenderWindow::GetRenderLibrary()
   return temp;
 }
 
-#ifdef VTK_USE_GLR
-#include "vtkGLRenderWindow.h"
-#endif
 #ifdef VTK_USE_OGLR
 #include "vtkOpenGLRenderWindow.h"
 #endif
@@ -198,9 +191,6 @@ vtkRenderWindow *vtkRenderWindow::New()
   
 #ifdef VTK_USE_SBR
   if (!strcmp("Starbase",temp)) return vtkStarbaseRenderWindow::New();
-#endif
-#ifdef VTK_USE_GLR
-  if (!strcmp("GL",temp)) return vtkGLRenderWindow::New();
 #endif
 #ifdef VTK_USE_OGLR
   if (!strcmp("OpenGL",temp)) return vtkOpenGLRenderWindow::New();

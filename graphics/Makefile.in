@@ -20,16 +20,6 @@ vtkStarbaseRenderWindow \
 vtkStarbaseRenderer \
 vtkStarbaseTexture 
 
-GLR_OBJ = \
-vtkGLActor \
-vtkGLCamera \
-vtkGLLight \
-vtkGLPolyDataMapper \
-vtkGLProperty \
-vtkGLRenderWindow \
-vtkGLRenderer \
-vtkGLTexture 
-
 OGLR_OBJ = \
 vtkOpenGLActor \
 vtkOpenGLCamera \

@@ -78,29 +78,6 @@ fi
 
 ##########################
 ##			##
-##	SGI GL		##
-##			##
-##########################
-use_glr=no
-AC_CHECK_HEADERS(gl/gl.h, [use_glr=yes])
-AC_ARG_WITH(gl,
-         [  --without-gl          do not use the gl graphics classes],
-         [use_glr=$withval])
-
-# only allow gl on SGIs some Linux boxes were getting confused
-#
-if test "$use_glr" = "yes"; then
-  case $system in
-    IRIX*)
-	GRAPHICS_API_LIBS="${GRAPHICS_API_LIBS} -lgl"
-	GRAPHICS_API_OBJ="${GRAPHICS_API_OBJ} \${GLR_OBJ}"
-	GRAPHICS_API_FLAGS="${GRAPHICS_API_FLAGS} -DVTK_USE_GLR"
-	;;
-  esac
-fi
-
-##########################
-##			##
 ##	OpenGL		##
 ##			##
 ##########################
