@@ -40,7 +40,7 @@ public:
   // dataset interface
   vlDataSet *MakeObject() {return new vlStructuredGrid(*this);};
   void Initialize();
-  int GetNumberOfPoints() {vlPointSet::GetNumberOfPoints();};
+  int GetNumberOfPoints() {return vlPointSet::GetNumberOfPoints();};
   vlCell *GetCell(int cellId);
   int GetCellType(int cellId);
 
