@@ -111,7 +111,6 @@ vtkLight \
 vtkLineSource \
 vtkLinearExtrusionFilter \
 vtkLinkEdgels \
-vtkLinkSurfels \
 vtkMCubesReader \
 vtkMCubesWriter \
 vtkMarchingCubes \
