@@ -22,10 +22,11 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkTriangleStrip.h"
+#include "vtkDoubleArray.h"
 
 #include <float.h>
 
-vtkCxxRevisionMacro(vtkBandedPolyDataContourFilter, "1.41");
+vtkCxxRevisionMacro(vtkBandedPolyDataContourFilter, "1.42");
 vtkStandardNewMacro(vtkBandedPolyDataContourFilter);
 
 // Construct object.
@@ -81,11 +82,12 @@ int vtkBandedPolyDataContourFilter::IsContourValue(double val)
 // edge is not from v1->v2, where v1 < v2.
 int vtkBandedPolyDataContourFilter::ClipEdge(int v1, int v2,
                                              vtkPoints *newPts, 
-                                             vtkDataArray *scalars,
+                                             vtkDataArray *inScalars,
+                                             vtkDoubleArray *outScalars,
                                              vtkPointData *inPD,
                                              vtkPointData *outPD)
 {
-  double x[3], t;
+  double x[3], t, sNew;
   double x1[3], x2[3];
   int ptId;
   int reverse = (v1 < v2 ? 0 : 1);
@@ -93,8 +95,8 @@ int vtkBandedPolyDataContourFilter::ClipEdge(int v1, int v2,
   newPts->GetPoint(v1, x1);
   newPts->GetPoint(v2, x2);
 
-  double s1 = scalars->GetTuple1(v1);
-  double s2 = scalars->GetTuple1(v2);
+  double s1 = inScalars->GetTuple1(v1);
+  double s2 = inScalars->GetTuple1(v2);
   
   if ( s1 <= s2 )
     {
@@ -109,6 +111,8 @@ int vtkBandedPolyDataContourFilter::ClipEdge(int v1, int v2,
       x[2] = x1[2] + t*(x2[2]-x1[2]);
       ptId = newPts->InsertNextPoint(x);
       outPD->InterpolateEdge(inPD,ptId,v1,v2,t);
+      sNew = s1 + t*(s2-s1);
+      outScalars->InsertTuple1(ptId,sNew);
       }
     return reverse;
     }
@@ -125,6 +129,8 @@ int vtkBandedPolyDataContourFilter::ClipEdge(int v1, int v2,
       x[2] = x1[2] + t*(x2[2]-x1[2]);
       ptId = newPts->InsertNextPoint(x);
       outPD->InterpolateEdge(inPD,ptId,v1,v2,t);
+      sNew = s1 + t*(s2-s1);
+      outScalars->InsertTuple1(ptId,sNew);
       }
     return ((reverse+1) % 2);
     }
@@ -275,17 +281,26 @@ void vtkBandedPolyDataContourFilter::Execute()
   // intersection points due to clipping will be created.
   newPts = vtkPoints::New();
 
-  // here is a problem.  If I don't allocate a massive chunk, 
-  // I get a segfault when using a large number of bands
+  // Note: since we use the output scalars in the execution of the algorithm,
+  // the output point scalars MUST BE double or bad things happen due to
+  // numerical precision issues.
   newPts->Allocate(estimatedSize,estimatedSize);
-
+  outPD->CopyScalarsOff();
   outPD->InterpolateAllocate(pd,3*numPts,numPts);
-  vtkDataArray *outScalars = outPD->GetScalars(this->InputScalarsSelection);
-
+  vtkDoubleArray *outScalars = vtkDoubleArray::New();
+  outScalars->Allocate(3*numPts,numPts);
+  if ( this->InputScalarsSelection != NULL && 
+       this->InputScalarsSelection[0] != '\0' )
+    {
+    outScalars->SetName(this->InputScalarsSelection);
+    }
+  outPD->SetScalars(outScalars);
+  
   for (i=0; i<numPts; i++)
     {
     newPts->InsertPoint(i,inPts->GetPoint(i));
     outPD->CopyData(pd, i, i);
+    outScalars->InsertTuple1(i, inScalars->GetTuple1(i));
     }
 
   // These are the new cell scalars
@@ -341,7 +356,8 @@ void vtkBandedPolyDataContourFilter::Execute()
       for (i=0; i<(npts-1); i++)
         {
         numNewPts = newPts->GetNumberOfPoints();
-        reverse = this->ClipEdge(pts[i],pts[i+1],newPts,inScalars,pd,outPD);
+        reverse = this->ClipEdge(pts[i],pts[i+1],newPts,inScalars,outScalars,
+                                 pd,outPD);
         numEdgePts = newPts->GetNumberOfPoints() - numNewPts;
         if ( numEdgePts > 0 ) //there is an intersection
           {
@@ -487,7 +503,7 @@ void vtkBandedPolyDataContourFilter::Execute()
         if ( edgeTable->IsEdge(v,vR) == -1 )
           {
           numNewPts = newPts->GetNumberOfPoints();
-          reverse = this->ClipEdge(v,vR,newPts,inScalars,pd,outPD);
+          reverse = this->ClipEdge(v,vR,newPts,inScalars,outScalars,pd,outPD);
           numEdgePts = newPts->GetNumberOfPoints() - numNewPts;
           if ( numEdgePts > 0 )
             {
@@ -567,7 +583,6 @@ void vtkBandedPolyDataContourFilter::Execute()
           if ( isContourValue[i] && isContourValue[(i+1)%numFullPts] &&
                s[i] == s[(i+1)%numFullPts] )
             {
-
             contourEdges->InsertNextCell(2);
             contourEdges->InsertCellPoint(fullPoly[i]);
             contourEdges->InsertCellPoint(fullPoly[(i+1)%numFullPts]);
@@ -703,6 +718,7 @@ void vtkBandedPolyDataContourFilter::Execute()
     delete [] isContourValue;
     delete [] isOriginalVertex;
     delete [] fullPoly;
+    outScalars->Delete();
 
     output->SetPolys(newPolys);
     newPolys->Delete();

@@ -46,6 +46,7 @@ class vtkCellArray;
 class vtkPointData;
 class vtkDataArray;
 class vtkFloatArray;
+class vtkDoubleArray;
 
 #define VTK_SCALAR_MODE_INDEX 0
 #define VTK_SCALAR_MODE_VALUE 1
@@ -129,7 +130,8 @@ protected:
 
   int ComputeScalarIndex(double);
   int IsContourValue(double val);
-  int ClipEdge(int v1, int v2, vtkPoints *pts, vtkDataArray *scalars,
+  int ClipEdge(int v1, int v2, vtkPoints *pts, vtkDataArray *inScalars,
+               vtkDoubleArray *outScalars,
                vtkPointData *inPD, vtkPointData *outPD);
   int InsertCell(vtkCellArray *cells, int npts, vtkIdType *pts,
                  int cellId, double s, vtkFloatArray *newS);
