@@ -147,6 +147,12 @@ void vtkUpStreamPort::Trigger(int remoteProcessId)
     this->UpdateTime.Modified();
     }
   
+  if ( this->StartMethod )
+    {
+    (*this->StartMethod)(this->StartMethodArg);
+    }  
+  
+  
   // The data transfer is received in the down stream ports Update method.
   // First transfer the new data.
   this->Controller->Send( input, remoteProcessId,
@@ -155,6 +161,11 @@ void vtkUpStreamPort::Trigger(int remoteProcessId)
   downDataTime = this->UpdateTime.GetMTime();
   this->Controller->Send( &downDataTime, 1, remoteProcessId,
 			  VTK_PORT_NEW_DATA_TIME_TAG);
+  
+  if ( this->EndMethod )
+    {
+    (*this->EndMethod)(this->EndMethodArg);
+    }
 }
 
 

@@ -184,13 +184,23 @@ void vtkDownStreamPort::InternalUpdate(vtkDataObject *output)
     return;
     }
   
+  if ( this->StartMethod )
+    {
+    (*this->StartMethod)(this->StartMethodArg);
+    }  
+  
   // receive the data
   this->Controller->Receive(output, this->UpStreamProcessId,
 			    VTK_PORT_DATA_TRANSFER_TAG);
   // receive the data time
   this->Controller->Send( &(this->DataTime), 1, this->UpStreamProcessId,
 			  VTK_PORT_NEW_DATA_TIME_TAG);
-
+     
+  if ( this->EndMethod )
+    {
+    (*this->EndMethod)(this->EndMethodArg);
+    }
+      
   this->TransferNeeded = 0;
 }
 
