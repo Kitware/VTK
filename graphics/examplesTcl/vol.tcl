@@ -2,7 +2,9 @@ catch {load vtktcl}
 
 source volTkInteractor.tcl
 
-proc change_active_controls { } {
+proc change_active_controls { v1 v2 v3 } {
+    # ignore the arguments... but don't remove them (needed for trace callback)
+    
     global control_menu_value
 
     if [ winfo ismapped .top.f1.f1.f1.mip ] {
@@ -242,14 +244,15 @@ set control_menu [tk_optionMenu .top.f1.f1.f1.menu control_menu_value \
 .top.f1.f1.f1.menu configure -fg #999999 -bg #440066 \
 	-activeforeground #440066 -activebackground #999999 \
 	-highlightthickness 0 -bd 4 \
-	-font {Helvetica -12 bold}
+	-font {Helvetica -12 bold} 
+
 
 $control_menu configure -bg #999999 -fg #440066 \
 	-activeforeground #220033 -activebackground #bbbbbb \
-	-font {Helvetica -12 bold}
+	-font {Helvetica -12 bold} 
 
-bind $control_menu <Unmap> { after 100 { update ; change_active_controls } }
-
+# trace the variable that is set by the option menu
+trace variable control_menu_value w change_active_controls
 
 pack .top.f1.f1.f1 -side top -expand 1 -fill both 
 pack .top.f1.f1.f1.label  -side top -expand 0 -fill both -padx 50 -pady 5
