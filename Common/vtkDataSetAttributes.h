@@ -409,7 +409,12 @@ public:
 
     //Determine whether data is available
     int IsAttributePresent(int attrType); //true/false attributes specified
-
+    
+    // Accessor methods.
+    int GetNumberOfFields() { return this->NumberOfFields; }
+    int GetFieldIndex(int i) { return this->FieldIndices[i]; }
+    int GetDSAIndex(int index, int i) { return this->DSAIndices[index][i]; }
+    
     friend class vtkDataSetAttributes;
 
   protected:
