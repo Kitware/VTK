@@ -15,7 +15,7 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkMath, "1.90");
+vtkCxxRevisionMacro(vtkMath, "1.91");
 vtkStandardNewMacro(vtkMath);
 
 long vtkMath::Seed = 1177; // One authors home address
@@ -476,7 +476,7 @@ void vtkMath::LUSolveLinearSystem(double **A, int *index,
 // eigenvalues/vectors are sorted in decreasing order; eigenvectors are
 // normalized.
 template<class T>
-static inline int vtkJacobiN(T **a, int n, T *w, T **v)
+int vtkJacobiN(T **a, int n, T *w, T **v)
 {
   int i, j, k, iq, ip, numPos;
   T tresh, theta, tau, t, sm, s, h, g, c, tmp;

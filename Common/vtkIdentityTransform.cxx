@@ -19,7 +19,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkIdentityTransform, "1.18");
+vtkCxxRevisionMacro(vtkIdentityTransform, "1.19");
 vtkStandardNewMacro(vtkIdentityTransform);
 
 //----------------------------------------------------------------------------
@@ -52,7 +52,7 @@ vtkAbstractTransform *vtkIdentityTransform::MakeTransform()
 
 //------------------------------------------------------------------------
 template<class T2, class T3>
-static inline void vtkIdentityTransformPoint(T2 in[3], T3 out[3])
+void vtkIdentityTransformPoint(T2 in[3], T3 out[3])
 {
   out[0] = in[0];
   out[1] = in[1];
@@ -61,8 +61,8 @@ static inline void vtkIdentityTransformPoint(T2 in[3], T3 out[3])
 
 //------------------------------------------------------------------------
 template<class T2, class T3, class T4>
-static inline void vtkIdentityTransformDerivative(T2 in[3], T3 out[3], 
-                                                  T4 derivative[3][3])
+void vtkIdentityTransformDerivative(T2 in[3], T3 out[3], 
+                                    T4 derivative[3][3])
 {
   out[0] = in[0];
   out[1] = in[1];

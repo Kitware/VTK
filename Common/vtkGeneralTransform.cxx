@@ -16,7 +16,7 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkGeneralTransform, "1.37");
+vtkCxxRevisionMacro(vtkGeneralTransform, "1.38");
 vtkStandardNewMacro(vtkGeneralTransform);
 
 //----------------------------------------------------------------------------
@@ -69,9 +69,9 @@ void vtkGeneralTransform::PrintSelf(ostream& os, vtkIndent indent)
 //------------------------------------------------------------------------
 // Pass the point through each transform in turn
 template<class T2, class T3>
-static inline void vtkConcatenationTransformPoint(vtkAbstractTransform *input,
-                                           vtkTransformConcatenation *concat,
-                                           T2 point[3], T3 output[3])
+void vtkConcatenationTransformPoint(vtkAbstractTransform *input,
+                                    vtkTransformConcatenation *concat,
+                                    T2 point[3], T3 output[3])
 {
   output[0] = point[0];
   output[1] = point[1];
@@ -108,11 +108,11 @@ static inline void vtkConcatenationTransformPoint(vtkAbstractTransform *input,
 // Pass the point through each transform in turn,
 // concatenate the derivatives.
 template<class T2, class T3, class T4>
-static inline void vtkConcatenationTransformDerivative(
-                                            vtkAbstractTransform *input,
-                                            vtkTransformConcatenation *concat,
-                                            T2 point[3], T3 output[3],
-                                            T4 derivative[3][3])
+void vtkConcatenationTransformDerivative(
+  vtkAbstractTransform *input,
+  vtkTransformConcatenation *concat,
+  T2 point[3], T3 output[3],
+  T4 derivative[3][3])
 {
   T4 matrix[3][3];
 

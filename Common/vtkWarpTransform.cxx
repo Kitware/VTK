@@ -15,7 +15,7 @@
 #include "vtkWarpTransform.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkWarpTransform, "1.10");
+vtkCxxRevisionMacro(vtkWarpTransform, "1.11");
 
 //----------------------------------------------------------------------------
 void vtkWarpTransform::PrintSelf(ostream& os, vtkIndent indent)
@@ -44,8 +44,8 @@ vtkWarpTransform::~vtkWarpTransform()
 // Check the InverseFlag, and perform a forward or reverse transform
 // as appropriate.
 template<class T>
-static inline void vtkWarpTransformPoint(vtkWarpTransform *self, int inverse,
-                                         const T input[3], T output[3])
+void vtkWarpTransformPoint(vtkWarpTransform *self, int inverse,
+                           const T input[3], T output[3])
 {
   if (inverse)
     {
@@ -73,10 +73,10 @@ void vtkWarpTransform::InternalTransformPoint(const double input[3],
 // Check the InverseFlag, and set the output point and derivative as
 // appropriate.
 template<class T>
-inline static void vtkWarpTransformDerivative(vtkWarpTransform *self,
-                                              int inverse,
-                                              const T input[3], T output[3],
-                                              T derivative[3][3])
+void vtkWarpTransformDerivative(vtkWarpTransform *self,
+                                       int inverse,
+                                       const T input[3], T output[3],
+                                       T derivative[3][3])
 {
   if (inverse)
     {
@@ -108,10 +108,10 @@ void vtkWarpTransform::InternalTransformDerivative(const double input[3],
 // This is actally quite robust as long as the Jacobian matrix is never
 // singular.
 template<class T>
-static inline void vtkWarpInverseTransformPoint(vtkWarpTransform *self,
-                                                const T point[3], 
-                                                T output[3],
-                                                T derivative[3][3])
+void vtkWarpInverseTransformPoint(vtkWarpTransform *self,
+                                  const T point[3], 
+                                  T output[3],
+                                  T derivative[3][3])
 {
   T inverse[3], lastInverse[3];
   T deltaP[3], deltaI[3];
