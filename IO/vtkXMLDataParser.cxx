@@ -22,7 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkXMLDataElement.h"
 
-vtkCxxRevisionMacro(vtkXMLDataParser, "1.22");
+vtkCxxRevisionMacro(vtkXMLDataParser, "1.23");
 vtkStandardNewMacro(vtkXMLDataParser);
 vtkCxxSetObjectMacro(vtkXMLDataParser, Compressor, vtkDataCompressor);
 
@@ -665,7 +665,7 @@ unsigned long vtkXMLDataParser::ReadCompressedData(unsigned char* data,
 
     // Byte swap the first block.  Note that n will always be an
     // integer multiple of the word size.
-    this->PerformByteSwap(data, n / wordSize, wordSize);
+    this->PerformByteSwap(outputPointer, n / wordSize, wordSize);
 
     // Advance the pointer to the beginning of the second block.
     outputPointer += blockSize-beginBlockOffset;
@@ -681,7 +681,7 @@ unsigned long vtkXMLDataParser::ReadCompressedData(unsigned char* data,
 
       // Byte swap this block.  Note that blockSize will always be an
       // integer multiple of the word size.
-      this->PerformByteSwap(data, blockSize / wordSize, wordSize);
+      this->PerformByteSwap(outputPointer, blockSize / wordSize, wordSize);
 
       // Advance the pointer to the beginning of the next block.
       outputPointer += this->FindBlockSize(currentBlock);
@@ -700,7 +700,7 @@ unsigned long vtkXMLDataParser::ReadCompressedData(unsigned char* data,
 
       // Byte swap the partial block.  Note that endBlockOffset will
       // always be an integer multiple of the word size.
-      this->PerformByteSwap(data, endBlockOffset / wordSize, wordSize);
+      this->PerformByteSwap(outputPointer, endBlockOffset / wordSize, wordSize);
       }
     }
   this->UpdateProgress(1);
