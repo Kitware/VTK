@@ -20,6 +20,7 @@ CONCRETE = \
 vtkEarthSource \
 vtkIVWriter \
 vtkOBJReader \
+vtkRenderInterlacedStereo \
 vtkRenderLargeImage \
 vtkRIBExporter \
 vtkRIBLight \
