@@ -92,7 +92,7 @@ int main( int argc, char *argv[] )
   // Configure the box widget including callbacks
   vtkTransform *t = vtkTransform::New();
   boxWidget->SetProp3D(maceActor);
-  boxWidget->PlaceWidget(maceActor->GetBounds());
+  boxWidget->PlaceWidget();
 
   vtkMyCallback *myCallback = vtkMyCallback::New();
   myCallback->Transform = t;
@@ -119,6 +119,7 @@ int main( int argc, char *argv[] )
   sphere->Delete();
   cone->Delete();
   glyph->Delete();
+  append->Delete();
   maceMapper->Delete();
   maceActor->Delete();
   boxWidget->Delete();
