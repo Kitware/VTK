@@ -41,6 +41,7 @@
    exists.  */
 #cmakedefine VTK_SIZEOF_LONG_LONG @VTK_SIZEOF_LONG_LONG@
 #cmakedefine VTK_SIZEOF___INT64   @VTK_SIZEOF___INT64@
+#cmakedefine VTK_TYPE_SAME_LONG_AND___INT64
 
 /* Whether type "char" is signed (it may be signed or unsigned).  */
 #define VTK_TYPE_CHAR_IS_SIGNED @VTK_TYPE_CHAR_IS_SIGNED@
