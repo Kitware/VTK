@@ -228,7 +228,6 @@ void vlTransform::RotateWXYZ ( float angle, float x, float y, float z)
   vlMatrix4x4 ctm;
   float   radians;
   float   w;
-  float   sum;
   float   quat[4];
   float   sinAngle;
   float   cosAngle;
@@ -247,14 +246,9 @@ void vlTransform::RotateWXYZ ( float angle, float x, float y, float z)
   sinAngle = sin (radians);
 
   // normalize x, y, z
-  if (sum = quat[1] * quat[1] + quat[2] * quat[2] + quat[3] * quat[3]) 
+  if ( math.Normalize(quat+1) == 0.0 )
     {
-    quat[1] *= sinAngle / sqrt(sum);
-    quat[2] *= sinAngle / sqrt(sum);
-    quat[3] *= sinAngle / sqrt(sum);
-    }
-  else 
-    {
+    vlErrorMacro(<<"Trying to rotate around zero-length axis");
     return;
     }
 
@@ -262,8 +256,6 @@ void vlTransform::RotateWXYZ ( float angle, float x, float y, float z)
   x = quat[1];
   y = quat[2];
   z = quat[3];
-
-  ctm = 0.0;
 
   // matrix calculation is taken from Ken Shoemake's
   // "Animation Rotation with Quaternion Curves",
@@ -278,7 +270,6 @@ void vlTransform::RotateWXYZ ( float angle, float x, float y, float z)
   ctm.Element[2][1] =  2 * y * z + 2 * w * x;
   ctm.Element[0][2] =  2 * x * z + 2 * w * y;
   ctm.Element[1][2] =  2 * y * z - 2 * w * x;
-  ctm.Element[3][3] = 1.0;
 
   // concatenate with current transformation matrix
   this->Concatenate (ctm);
