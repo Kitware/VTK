@@ -364,7 +364,7 @@ void vtkProp3D::GetMatrix(double result[16])
 // Return a reference to the Prop3D's 4x4 composite matrix.
 vtkMatrix4x4 *vtkProp3D::GetMatrixPointer()
 {
-  VTK_LEGACY_METHOD(GetMatrix,"3.2");
+  VTK_LEGACY_METHOD(GetMatrixPointer,"3.2");
   this->GetMatrix(this->Matrix);
   return this->Matrix;
 } 

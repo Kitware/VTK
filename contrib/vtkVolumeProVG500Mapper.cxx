@@ -732,7 +732,7 @@ void vtkVolumeProVG500Mapper::UpdateVolume( vtkRenderer * vtkNotUsed(ren), vtkVo
 
   // Store the matrix of the volume in a temporary transformation matrix
   volumeTransform = vtkTransform::New();
-  volumeTransform->SetMatrix(*( vol->vtkProp3D::GetMatrixPointer()) );
+  volumeTransform->SetMatrix( vol->vtkProp3D::GetMatrix() );
 
   // Get the origin of the data.  This translation is not accounted for in
   // the volume's matrix, so we must add it in.
@@ -751,14 +751,14 @@ void vtkVolumeProVG500Mapper::UpdateVolume( vtkRenderer * vtkNotUsed(ren), vtkVo
 
   // Now concatenate the volume's matrix with this scalar data matrix
   volumeTransform->PostMultiply();
-  volumeTransform->Concatenate( scalarTransform->GetMatrixPointer() );
+  volumeTransform->Concatenate( scalarTransform->GetMatrix() );
 
   // Now copy the matrix out (inverted) into an array of doubles
   for ( j = 0; j < 4; j++ )
     for ( i = 0; i < 4; i++ )
       {
       matrixValues[j*4 + i] = 
-	volumeTransform->GetMatrixPointer()->GetElement( i, j );
+	volumeTransform->GetMatrix()->GetElement( i, j );
       }
 
   // Create the VLIMatrix and set the matrix values, then set this as

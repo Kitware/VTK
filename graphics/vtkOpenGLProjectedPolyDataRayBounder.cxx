@@ -275,8 +275,8 @@ float *vtkOpenGLProjectedPolyDataRayBounder::Draw( vtkRenderer *ren,
     
     // Create the perspective matrix for the camera.  This will be used
     // to decode z values, so we will need to inverted
-    transform->SetMatrix(*ren->GetActiveCamera()->GetPerspectiveTransformMatrix(
-      aspect, -1, 1 ) );
+    transform->SetMatrix( ren->GetActiveCamera() \
+                          ->GetPerspectiveTransformMatrix( aspect, -1, 1 ) );
     transform->Inverse();
     
     // To speed things up, we pull the matrix out of the transform. 
@@ -330,8 +330,8 @@ float *vtkOpenGLProjectedPolyDataRayBounder::Draw( vtkRenderer *ren,
     
     // Create the perspective matrix for the camera.  This will be used
     // to decode z values, so we will need to invert it
-    transform->SetMatrix(
-      *ren->GetActiveCamera()->GetPerspectiveTransformMatrix( aspect, -1, 1 ) );
+    transform->SetMatrix( ren->GetActiveCamera()\
+                   ->GetPerspectiveTransformMatrix( aspect, -1, 1 ) );
     transform->Inverse();
     
     // To speed things up, we pull the matrix out of the transform. 

@@ -283,7 +283,7 @@ void vtkVRMLExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
 
   // first stuff out the transform
   trans = vtkTransform::New();
-  trans->SetMatrix(*(anActor->vtkProp3D::GetMatrix()));
+  trans->SetMatrix(anActor->vtkProp3D::GetMatrix());
   
   fprintf(fp,"    Transform {\n");
   tempf = trans->GetPosition();

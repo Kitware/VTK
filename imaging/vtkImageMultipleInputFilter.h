@@ -137,7 +137,7 @@ protected:
 #ifndef VTK_REMOVE_LEGACY_CODE
   // legacy  !!!!! ------------------------
   virtual void ExecuteImageInformation() 
-    {VTK_LEGACY_METHOD(LegacyHack,"3.2"); this->LegacyHack = 0;}
+    { this->LegacyHack = 0;}
   int LegacyHack;
 #endif
   

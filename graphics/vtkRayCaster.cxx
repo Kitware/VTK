@@ -871,7 +871,7 @@ void vtkRayCaster::InitializeRayCasting(vtkRenderer *ren)
   // to decode z values, so we will need to invert it
   transform       = vtkTransform::New();
   transform->SetMatrix(
-     *ren->GetActiveCamera()->GetPerspectiveTransformMatrix( aspect, -1, 1 ) );
+     ren->GetActiveCamera()->GetPerspectiveTransformMatrix( aspect, -1, 1 ) );
   transform->Inverse();
 
   // To speed things up, we pull the matrix out of the transform. 

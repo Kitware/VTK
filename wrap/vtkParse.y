@@ -62,6 +62,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   int openSig;
   int invertSig;
   int sigAllocatedLength;
+  int isEmpty;
   
 #define YYMAXDEPTH 1000
 
@@ -124,6 +125,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
       currentFunction->Signature = NULL;
       }
     }
+  void emptyFile(void)
+    {
+    isEmpty = 1;
+    }
 %}
 
 %union{
@@ -185,7 +190,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /*
  * Here is the start of the grammer
  */
-strt: maybe_other class_def maybe_other;
+strt: maybe_other class_def maybe_other | maybe_other { emptyFile(); };
 
 class_def : CLASS VTK_ID 
       {
@@ -999,6 +1004,7 @@ int main(int argc,char *argv[])
   currentFunction = data.Functions;
   InitFunction(currentFunction);
   
+  isEmpty = 0;
   yyin = fin;
   yyout = stdout;
   ret = yyparse();
@@ -1008,6 +1014,12 @@ int main(int argc,char *argv[])
             "*** SYNTAX ERROR found in parsing the header file %s ***\n", 
             argv[1]);
     return ret;
+    }
+  if (isEmpty)
+    {
+    fprintf(stderr,"No class found in file\n");
+    fprintf(stdout,"/* EMTPY FILE -- NO CLASS FOUND */\n");
+    return 0;
     }
   vtkParseOutput(stdout,&data);
   return 0;

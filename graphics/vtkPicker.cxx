@@ -332,7 +332,7 @@ int vtkPicker::Pick(float selectionX, float selectionY, float selectionZ,
           vtkErrorMacro (<< "Pick: Null matrix.");
           return 0;
           }
-        this->Transform->SetMatrix(*LastMatrix);
+        this->Transform->SetMatrix(LastMatrix);
         this->Transform->Push();
         this->Transform->Inverse();
 

@@ -25,6 +25,22 @@
          } 
      };
 
+^[\t ]*"#ifndef VTK_REMOVE_LEGACY_CODE".*$ 
+     { int c1 = 0, c2 = 0, c3 = 0, c4 = 0, c5 = 0, c6 = input();
+       for (;;)
+	 {
+         if (c6 == EOF) break;
+         if (c1 == '#' && c2 == 'e' && c3 == 'n' && c4 == 'd' && c5 == 'i' && c6 == 'f') break;
+         c1 = c2; c2 = c3; c3 = c4; c4 = c5; c5 = c6, c6 = input();
+         }
+       for (;;)
+         {
+         if (c6 == EOF) break;
+         if (c6 == '\n') break;
+         c6 = input();
+         } 
+     };
+
 ^[\t ]*"// .NAME".* 
                  { int pos = 1;
 	           while (yytext[pos-1] != 'M' || yytext[pos] != 'E') pos++; 

@@ -289,7 +289,6 @@ class VTK_EXPORT vtkTransform : public vtkLinearTransform
     {VTK_LEGACY_METHOD(TransformVectors,"3.2"); this->TransformVectors(inVectors,outVectors);}
   void MultiplyNormals(vtkNormals *inNormals, vtkNormals *outNormals) 
     {VTK_LEGACY_METHOD(TransformNormals,"3.2"); this->TransformNormals(inNormals,outNormals);}
-#endif
   
   // Description:
   // This method is deprecated because 1) it can turn a linear transformation
@@ -356,6 +355,7 @@ class VTK_EXPORT vtkTransform : public vtkLinearTransform
   void GetScale(float& x, float& y, float& z)
     {VTK_LEGACY_METHOD(GetScale,"3.2"); this->GetScale(&x, &y, &z);}
 //ETX
+#endif
 
 protected:
   vtkTransform ();

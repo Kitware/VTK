@@ -114,7 +114,7 @@ public:
   // which should call vtkImageToImageFilter::ExecuteInformation to set up defaults,
   // and the change what needs to be changed.
   virtual void ExecuteImageInformation() 
-    {VTK_LEGACY_METHOD(LegacyHack,"3.2"); this->LegacyHack = 0;}
+    { this->LegacyHack = 0; }
   int LegacyHack;
 #endif
   

@@ -275,7 +275,7 @@ void vtkEncodedGradientShader::UpdateShadingTable( vtkRenderer *ren,
   m = vtkMatrix4x4::New();
 
   vol->GetMatrix(m);
-  transform->SetMatrix(*m);
+  transform->SetMatrix(m);
   transform->Inverse();
   
   property = vol->GetProperty();

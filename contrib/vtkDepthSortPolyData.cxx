@@ -265,7 +265,7 @@ void vtkDepthSortPolyData::ComputeProjectionVector(double vector[3],
     float focalPt[4], pos[4];
     int i;
 
-    this->Transform->SetMatrix(*(this->Prop3D->GetMatrix()));
+    this->Transform->SetMatrix(this->Prop3D->GetMatrix());
     this->Transform->Push();
     this->Transform->Inverse();
 

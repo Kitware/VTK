@@ -84,7 +84,11 @@ void stuffit()
 
 int main(int argc,char *argv[])
 {
-  int i;
+  int i,j;
+#ifdef VTK_REMOVE_LEGACY_CODE
+  char tmp[128];
+  FILE *file;
+#endif
 
   if (argc < 3)
     {
@@ -104,13 +108,28 @@ int main(int argc,char *argv[])
     }
   
   /* fill in the correct arrays */
-  for (i = 2; i < argc; i++)
+  for (i = 2, j = 0; i < argc; i++)
     {
+#ifdef VTK_REMOVE_LEGACY_CODE
+    strcpy(tmp,"./tcl/");
+    strcpy(tmp+strlen(tmp)-2,argv[i]);
+    strcpy(tmp+strlen(tmp),"Tcl.cxx");
+    file = fopen(tmp,"r");
+    if (file) 
+      {
+      fgets(tmp,19,file);
+      fclose(file);
+      }
+    if (strcmp(tmp,"// tcl wrapper for") != 0)
+      {
+      continue;
+      }
+#endif
     /* remove the .h and store */
     argv[i][strlen(argv[i])-2] = '\0';
-    names[i-2] = strdup(argv[i]);
+    names[j++] = strdup(argv[i]);    
     }
-  anindex = argc - 2;
+  anindex = j;
   
   fprintf(stdout,"#include \"vtkTclUtil.h\"\n");
 

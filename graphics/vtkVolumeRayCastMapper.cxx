@@ -839,14 +839,14 @@ void vtkVolumeRayCastMapper::GeneralImageInitialization( vtkRenderer *ren,
   // in camera coordinates) into volume coordinates.
   // First, get the active camera transformation matrix
   viewToVolumeTransform->SetMatrix(
-	     *ren->GetActiveCamera()->GetViewTransformMatrix() );
+	     ren->GetActiveCamera()->GetViewTransformMatrix() );
 
   // Now invert it so that we go from camera to world instead of
   // world to camera coordinates
   viewToVolumeTransform->Inverse();
 
   // Store the matrix of the volume in a temporary transformation matrix
-  worldToVolumeTransform->SetMatrix(*( vol->vtkProp3D::GetMatrix()) );
+  worldToVolumeTransform->SetMatrix( vol->vtkProp3D::GetMatrix() );
 
   // Get the origin of the data.  This translation is not accounted for in
   // the volume's matrix, so we must add it in.

@@ -65,17 +65,21 @@ vtkAssembly* vtkAssembly::New()
 vtkAssembly::vtkAssembly()
 {
   this->Parts = vtkProp3DCollection::New();
+#ifndef VTK_REMOVE_LEGACY_CODE
   this->CompatibilityActor = NULL;
+#endif
 }
 
 vtkAssembly::~vtkAssembly()
 {
   this->Parts->Delete();
   this->Parts = NULL;
+#ifndef VTK_REMOVE_LEGACY_CODE
   if ( this->CompatibilityActor )
     {
     this->CompatibilityActor->Delete();
     }
+#endif
 }
 
 // Add a part to the list of Parts.
