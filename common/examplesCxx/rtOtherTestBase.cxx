@@ -6,9 +6,6 @@
   Date:      $Date$
   Version:   $Revision$
 
-  Copyright (c) 1999 by General Electric Company,
-                        Schenectady, NY 12301
-
   ==========================================================================*/
 
 // .NAME 
@@ -25,11 +22,10 @@ void rtOtherTestBase::OutputObj(vtkObject *obj, char *name, ostream& os) {
 }
 
 void rtOtherTestBase::RunTest(int argc, char* argv[], void (*filter)(ostream&),
-             void (*comparator)(ostream&), void (*type)(ostream&),
-             void (*test)(ostream&)) 
+             void (*comparator)(ostream&), void (*test)(ostream&)) 
 {
   // first process the arguments.  this is where the test result path is 
-  // specified to the test, and where the test type, selector and comparator
+  // specified to the test, and where the selector and comparator
   // are specified to the testing script.  
   ostream *out = NULL;
   int fileout = 0;
@@ -65,18 +61,12 @@ void rtOtherTestBase::RunTest(int argc, char* argv[], void (*filter)(ostream&),
       (*comparator)(cout);
       return;
       }
-    else if (strcmp(argv[1], "-e") == 0)
-      {
-      (*type)(cout);
-      return;
-      }
     else
       {
       cout << "optional parameters are" << endl;
       cout << "       -S file    path and filename" << endl;
       cout << "       -f         print filter command string" << endl;
       cout << "       -c         print comparator command string" << endl;
-      cout << "       -e         type and extension of result file" << endl;
       return;
       }
     }

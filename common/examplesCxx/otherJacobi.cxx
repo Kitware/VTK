@@ -3,9 +3,6 @@
  *
  * File: Jacobi.cxx
  *
- * Copyright (c) 1999 by General Electric Company,
- *                       Schenectady, NY 12301
- *
  * Created:       Mon Feb  1 17:10:45 1999 by Tony Chi-shao Pan
  * Last Modified: Wed Dec 22 14:15:49 1999 by Tony Chi-shao Pan
  *
@@ -16,21 +13,20 @@
 
 #include "vtkMath.h"
 
-// all tests need: the following 3 includes, code to parse the args
-// call to Test, and clean up code at the end
-#include <iostream.h>
+// All tests need:
+//   the following include
+//   a Selector proc
+//   a Comparator proc
+//   a Test proc
+//   and a main
 #include "rtOtherTestBase.h"
 
-void FilterCommand(ostream& strm) {
+void SelectorCommand(ostream& strm) {
   strm << "cat";
 }
 
 void ComparatorCommand(ostream& strm) {
   strm << "diff";
-}
-
-void TypeCommand(ostream& strm) {
-  strm << "rtr";
 }
 
 void Test(ostream& strm) {
@@ -150,8 +146,7 @@ void Test(ostream& strm) {
 
 int main(int argc, char* argv[])
 {
-  rtOtherTestBase::RunTest(argc, argv, FilterCommand, ComparatorCommand,
-                           TypeCommand, Test);
+  rtOtherTestBase::RunTest(argc, argv, SelectorCommand, ComparatorCommand, Test);
 
   return 0;
 } 

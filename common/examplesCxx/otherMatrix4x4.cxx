@@ -6,9 +6,6 @@
   Date:      $Date$
   Version:   $Revision$
 
-  Copyright (c) 1999 by General Electric Company,
-                        Schenectady, NY 12301
-
   ==========================================================================*/
 
 // .NAME 
@@ -17,22 +14,20 @@
 
 #include "vtkMatrix4x4.h"
 
-// all tests need: the following 3 includes, code to parse the args
-// create the file stream, and clean up code at the end
-#include <iostream.h>
+// All tests need:
+//   the following include
+//   a Selector proc
+//   a Comparator proc
+//   a Test proc
+//   and a main
 #include "rtOtherTestBase.h"
 
-
-void FilterCommand(ostream& strm) {
+void SelectorCommand(ostream& strm) {
   strm << "grep -v vtkMatrix4x4 | grep -v Modified";
 }
 
 void ComparatorCommand(ostream& strm) {
   strm << "diff";
-}
-
-void TypeCommand(ostream& strm) {
-  strm << "rtr";
 }
 
 void Test(ostream& strm)
@@ -43,11 +38,13 @@ void Test(ostream& strm)
 
   strm << "initialize mat1" << endl;
   vtkMatrix4x4 *mat1 = vtkMatrix4x4::New();
-  rtOtherTestBase::OutputObj(mat1, "mat1", strm);
-
+  strm << "mat1 " << endl;
+  strm << *mat1;
+  
   strm << "initialize mat2" << endl;
   vtkMatrix4x4 *mat2 = vtkMatrix4x4::New();
-  rtOtherTestBase::OutputObj(mat2, "mat2", strm);
+  strm << "mat2 " << endl;
+  strm << *mat2;
   
   strm << "setting mat1" << endl;
   for (i = 0; i < 4; i++) 
@@ -57,31 +54,39 @@ void Test(ostream& strm)
       mat1->SetElement(i, j, (double)(i * j + 1));
       }
     }
-  rtOtherTestBase::OutputObj(mat1, "mat1", strm);
+  strm << "mat1 " << endl;
+  strm << *mat1;
 
   strm << "transposing mat1" << endl;
   mat1->Transpose();
-  rtOtherTestBase::OutputObj(mat1, "mat1", strm);
+  strm << "mat1 " << endl;
+  strm << *mat1;
   
   strm << "deep copy mat1 into mat2" << endl;
   mat2->DeepCopy(mat1);
-  rtOtherTestBase::OutputObj(mat2, "mat2", strm);
+  strm << "mat2 " << endl;
+  strm << *mat2;
   
   strm << "zero mat2" << endl;
   mat2->Zero();
-  rtOtherTestBase::OutputObj(mat2, "mat2", strm);
+  strm << "mat2 " << endl;
+  strm << *mat2;
   
   strm << "determinant of mat1" << endl;
   strm << "  " << mat1->Determinant(mat1);
 
   strm << "adjoint of mat1, put in mat2" << endl;
   mat1->Adjoint(mat1, mat2);
-  rtOtherTestBase::OutputObj(mat2, "mat2", strm);
+  strm << "mat1 " << endl;
+  strm << *mat1;
+  
+  strm << "mat2 " << endl;
+  strm << *mat2;
   
   strm << "inverse of mat1" << endl;
   mat1->Invert();
-  rtOtherTestBase::OutputObj(mat1, "mat1", strm);
-
+  strm << "mat1 " << endl;
+  strm << *mat1;
 
   double in[4];
   double out[4];
@@ -114,8 +119,7 @@ void Test(ostream& strm)
 
 int main(int argc, char* argv[])
 {
-  rtOtherTestBase::RunTest(argc, argv, FilterCommand, ComparatorCommand,
-                           TypeCommand, Test);
+  rtOtherTestBase::RunTest(argc, argv, SelectorCommand, ComparatorCommand, Test);
   return 0;  
 }
 
