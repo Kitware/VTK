@@ -50,13 +50,15 @@ foreach family {
         0 1 0
         1 1 0
     } {
+        set mapper [vtkTextMapper mapper_${family}_${bold}_${italic}_${shadow}]
+        $mapper SetInput "$family: $default_text"
+        eval $mapper SetFontFamilyTo$family
+        $mapper SetBold $bold
+        $mapper SetItalic $italic
+        $mapper SetShadow $shadow
+
         set actor [vtkTextActor actor_${family}_${bold}_${italic}_${shadow}]
-        $actor SetInput "$family: $default_text"
-        eval $actor SetFontFamilyTo$family
-        $actor SetBold $bold
-        $actor SetItalic $italic
-        $actor SetShadow $shadow
-        $actor ScaledTextOff
+        $actor SetMapper $mapper
         eval [$actor GetProperty] SetColor $text_color
         lappend text_actors $actor 
         ren1 AddActor $actor
@@ -112,7 +114,7 @@ proc set_font_size {size} {
     set i 0
     foreach actor $text_actors {
         incr i
-        $actor SetFontSize $size
+        [$actor GetMapper] SetFontSize $size
         $actor SetDisplayPosition 10 [expr $i * ($size + 5)]
     }
 
