@@ -26,7 +26,7 @@
 #ifndef __vtkInformationKey_h
 #define __vtkInformationKey_h
 
-#include "vtkObject.h"
+#include "vtkObjectBase.h"
 
 class VTK_EXPORT vtkInformationKey : public vtkObjectBase
 {
