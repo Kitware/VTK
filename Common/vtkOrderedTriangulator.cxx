@@ -29,7 +29,7 @@
 #include <vtkstd/stack>
 #include <vtkstd/map>
 
-vtkCxxRevisionMacro(vtkOrderedTriangulator, "1.69");
+vtkCxxRevisionMacro(vtkOrderedTriangulator, "1.70");
 vtkStandardNewMacro(vtkOrderedTriangulator);
 
 #ifdef _WIN32_WCE
@@ -1230,6 +1230,7 @@ vtkIdType vtkOrderedTriangulator::GetTetras(int classification,
     points->SetPoint(p->InsertionId,p->X);
     }
   ugrid->SetPoints(points);
+  points->Delete();
   
   ugrid->Allocate(1000);
   TetraListIterator t;
