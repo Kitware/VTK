@@ -374,13 +374,13 @@ int vtkImageToImageFilter::SplitExtent(int splitExt[6], int startExt[6],
   // start with same extent
   memcpy(splitExt, startExt, 6 * sizeof(int));
 
-  splitAxis = 0;
-  min = startExt[0];
-  max = startExt[1];
+  splitAxis = 2;
+  min = startExt[4];
+  max = startExt[5];
   while (min == max)
     {
-    ++splitAxis;
-    if (splitAxis > 2)
+    --splitAxis;
+    if (splitAxis < 0)
       { // cannot split
       vtkDebugMacro("  Cannot Split");
       return 1;
