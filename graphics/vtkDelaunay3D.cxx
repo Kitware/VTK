@@ -512,11 +512,11 @@ void vtkDelaunay3D::Execute()
   tetraUse = new char[numTetras];
   for (i=0; i < numTetras; i++)
     {
-    tetraUse[i] = 1;
+    tetraUse[i] = 2; //mark as non-deleted
     }
   for (i=0; i < holeTetras->GetNumberOfIds(); i++)
     {
-    tetraUse[holeTetras->GetId(i)] = 0;
+    tetraUse[holeTetras->GetId(i)] = 0; //mark as deleted
     }
 
   //if boundary triangulation not desired, delete tetras connected to 
@@ -558,12 +558,12 @@ void vtkDelaunay3D::Execute()
     for (i=0; i < numTetras; i++)
       {
       //check tetras
-      if ( tetraUse[i] )
+      if ( tetraUse[i] == 2 ) //if not deleted
         {
         tetra = this->TetraArray->GetTetra(i);
         if ( tetra->r2 > alpha2 )
           {
-          tetraUse[i] = 0;
+          tetraUse[i] = 1; //mark as visited and discarded
           }
         else
           {
@@ -589,7 +589,7 @@ void vtkDelaunay3D::Execute()
     //used tetras have already been output, so we look at those that haven't
     for (i=0; i < numTetras; i++)
       {
-      if ( ! tetraUse[i] )
+      if ( tetraUse[i] == 1 ) //if visited and discarded
         {
         Mesh->GetCellPoints(i, npts, tetraPts);
         for (j=0; j < 4; j++)
@@ -604,7 +604,7 @@ void vtkDelaunay3D::Execute()
             {
             hasNei = GetTetraFaceNeighbor(Mesh, i, p1,p2,p3, nei);
 
-            if ( !hasNei || ( nei > i && !tetraUse[nei] ) )
+            if ( !hasNei || ( nei > i && tetraUse[nei]!=2 ) )
               {
               double dx1[3], dx2[3], dx3[3], dv1[3], dv2[3], dv3[3], dcenter[3];
               points->GetPoint(p1,x1); dx1[0]=x1[0]; dx1[1]=x1[1]; dx1[2]=x1[2];
@@ -643,7 +643,7 @@ void vtkDelaunay3D::Execute()
     //traverse tetras again, this time examining edges
     for (i=0; i < numTetras; i++)
       {
-      if ( ! tetraUse[i] )
+      if ( tetraUse[i] == 1 ) //one means visited and discarded
         {
         Mesh->GetCellPoints(i, npts, tetraPts);
 
@@ -700,7 +700,7 @@ void vtkDelaunay3D::Execute()
 
   for (i=0; i<numTetras; i++)
     {
-    if ( tetraUse[i] )
+    if ( tetraUse[i] == 2 )
       {
       Mesh->GetCellPoints(i,npts,tetraPts);
       output->InsertNextCell(VTK_TETRA,4,tetraPts);
