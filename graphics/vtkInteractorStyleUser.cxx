@@ -156,6 +156,42 @@ void vtkInteractorStyleUser::SetMouseMoveMethodArgDelete(void (*f)(void *))
 }
 
 //----------------------------------------------------------------------------
+void vtkInteractorStyleUser::SetButtonPressMethod(void (*f)(void *), 
+						  void *arg)
+{
+  this->SetLeftButtonPressMethod(f,arg);
+  this->SetMiddleButtonPressMethod(f,arg);
+  this->SetRightButtonPressMethod(f,arg);
+}
+
+//----------------------------------------------------------------------------
+// Called when a void* argument is being discarded.  Lets the user free it.
+void vtkInteractorStyleUser::SetButtonPressMethodArgDelete(void (*f)(void *))
+{
+  this->SetLeftButtonPressMethodArgDelete(f);
+  this->SetMiddleButtonPressMethodArgDelete(f);
+  this->SetRightButtonPressMethodArgDelete(f);
+}
+
+//----------------------------------------------------------------------------
+void vtkInteractorStyleUser::SetButtonReleaseMethod(void (*f)(void *), 
+						    void *arg)
+{
+  this->SetLeftButtonReleaseMethod(f,arg);
+  this->SetMiddleButtonReleaseMethod(f,arg);
+  this->SetRightButtonReleaseMethod(f,arg);
+}
+
+//----------------------------------------------------------------------------
+// Called when a void* argument is being discarded.  Lets the user free it.
+void vtkInteractorStyleUser::SetButtonReleaseMethodArgDelete(void (*f)(void *))
+{
+  this->SetLeftButtonReleaseMethodArgDelete(f);
+  this->SetMiddleButtonReleaseMethodArgDelete(f);
+  this->SetRightButtonReleaseMethodArgDelete(f);
+}
+
+//----------------------------------------------------------------------------
 void vtkInteractorStyleUser::SetKeyPressMethod(void (*f)(void *), void *arg)
 {
   if ( f != this->KeyPressMethod || 

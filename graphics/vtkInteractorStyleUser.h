@@ -47,10 +47,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // of vtkInteractorStyle: vtkInteractorStyleUser allows you to customize
 // the interaction to without subclassing vtkInteractorStyle.  This is
 // particularly useful for setting up custom interaction modes in
-// scripting languages such as Tcl and Python.  To customize the
-// interaction for a particular button, you must call the
-// SetXXButtonPressMethod()/SetXXButtonReleaseMethod() (See the documentation
-// for vtkInteractorStyle) as well as SetMouseMoveMethod().
+// scripting languages such as Tcl and Python.  This class allows you
+// to hook into the MouseMove, ButtonPress/Release, KeyPress/Release,
+// etc. events.  If you want to hook into just a single mouse button,
+// but leave the interaction modes for the others unchanged, you
+// must use e.g. SetMiddleButtonPressMethod() instead of the more
+// general SetButtonPressMethod().
 
 #ifndef __vtkInteractorStyleUser_h
 #define __vtkInteractorStyleUser_h
@@ -73,10 +75,28 @@ public:
   // the cursor in display coordinates, and GetOldPos() to determine
   // the previous position.  Use GetButton() to query which mouse
   // button is being held down.  This should be used in conjunction
-  // with SetXXButtonPressMethod()/SetXXButtonReleaseMethod() in
-  // vtkInteractorStyle.
+  // with SetButtonPressMethod()/SetButtonReleaseMethod() or with the
+  // individual SetXXButtonPressMethods in vtkInteractorStyle.
   void SetMouseMoveMethod(void (*f)(void *), void *arg);
   void SetMouseMoveMethodArgDelete(void (*f)(void *));
+
+  // Description:
+  // Set a method that will be called whenever a mouse button is
+  // pressed.  Use GetButton() to query which button was pressed.
+  // This simply calls SetLeftButtonPressMethod(method), 
+  // SetMiddleButtonPressMethod(method), 
+  // SetRightButtonPressMethod(method).
+  void SetButtonPressMethod(void (*f)(void *), void *arg);
+  void SetButtonPressMethodArgDelete(void (*f)(void *));
+
+  // Description:
+  // Set a method that will be called whenever a mouse button is
+  // released.  Use GetButton() to query which button was released.
+  // This simply calls SetLeftButtonReleaseMethod(method), 
+  // SetMiddleButtonReleaseMethod(method), 
+  // SetRightButtonReleaseMethod(method).
+  void SetButtonReleaseMethod(void (*f)(void *), void *arg);
+  void SetButtonReleaseMethodArgDelete(void (*f)(void *));
 
   // Description:
   // Set a method that will be called every time a key is pressed.
