@@ -38,7 +38,7 @@
 
 #include "vtkParametricFunction.h"
 
-class VTK_FILTERING_EXPORT vtkParametricSuperToroid : public vtkParametricFunction
+class VTK_COMMON_EXPORT vtkParametricSuperToroid : public vtkParametricFunction
 {
 public:
   vtkTypeRevisionMacro(vtkParametricSuperToroid,vtkParametricFunction);

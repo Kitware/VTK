@@ -25,7 +25,7 @@
 
 #include "vtkParametricFunction.h"
 
-class VTK_FILTERING_EXPORT vtkParametricMobius : public vtkParametricFunction
+class VTK_COMMON_EXPORT vtkParametricMobius : public vtkParametricFunction
 {
 public:
   vtkTypeRevisionMacro(vtkParametricMobius,vtkParametricFunction);

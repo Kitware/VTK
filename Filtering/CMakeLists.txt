@@ -118,14 +118,7 @@ vtkMapper2D.cxx
 vtkMergePoints.cxx
 vtkNonLinearCell.cxx
 vtkOrderedTriangulator.cxx
-vtkParametricConicSpiral.cxx
-vtkParametricFigure8Klein.cxx
-vtkParametricKlein.cxx
-vtkParametricMobius.cxx
 vtkParametricSpline.cxx
-vtkParametricSuperEllipsoid.cxx
-vtkParametricSuperToroid.cxx
-vtkParametricTorus.cxx
 vtkPentagonalPrism.cxx
 vtkPerlinNoise.cxx
 vtkPiecewiseFunction.cxx

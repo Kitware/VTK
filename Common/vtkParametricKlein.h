@@ -33,7 +33,7 @@
 
 #include "vtkParametricFunction.h"
 
-class VTK_FILTERING_EXPORT vtkParametricKlein : public vtkParametricFunction
+class VTK_COMMON_EXPORT vtkParametricKlein : public vtkParametricFunction
 {
 public:
   vtkTypeRevisionMacro(vtkParametricKlein,vtkParametricFunction);

@@ -34,7 +34,7 @@
 
 #include "vtkParametricFunction.h"
 
-class VTK_FILTERING_EXPORT vtkParametricFigure8Klein : public vtkParametricFunction
+class VTK_COMMON_EXPORT vtkParametricFigure8Klein : public vtkParametricFunction
 {
 public:
   vtkTypeRevisionMacro(vtkParametricFigure8Klein,vtkParametricFunction);

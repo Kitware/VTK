@@ -26,7 +26,7 @@
 
 #include "vtkParametricFunction.h"
 
-class VTK_FILTERING_EXPORT vtkParametricTorus : public vtkParametricFunction
+class VTK_COMMON_EXPORT vtkParametricTorus : public vtkParametricFunction
 {
 
 public:

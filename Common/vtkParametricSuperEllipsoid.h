@@ -34,7 +34,7 @@
 
 #include "vtkParametricFunction.h"
 
-class VTK_FILTERING_EXPORT vtkParametricSuperEllipsoid : public vtkParametricFunction
+class VTK_COMMON_EXPORT vtkParametricSuperEllipsoid : public vtkParametricFunction
 {
 public:
   vtkTypeRevisionMacro(vtkParametricSuperEllipsoid,vtkParametricFunction);

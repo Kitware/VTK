@@ -25,7 +25,7 @@
 
 #include "vtkParametricFunction.h"
 
-class VTK_FILTERING_EXPORT vtkParametricConicSpiral : public vtkParametricFunction
+class VTK_COMMON_EXPORT vtkParametricConicSpiral : public vtkParametricFunction
 {
 public:
   vtkTypeRevisionMacro(vtkParametricConicSpiral,vtkParametricFunction);

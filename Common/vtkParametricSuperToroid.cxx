@@ -17,7 +17,7 @@
 #include "vtkMath.h"
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkParametricSuperToroid, "1.2");
+vtkCxxRevisionMacro(vtkParametricSuperToroid, "1.1");
 vtkStandardNewMacro(vtkParametricSuperToroid);
 
 vtkParametricSuperToroid::vtkParametricSuperToroid() :

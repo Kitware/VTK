@@ -94,7 +94,14 @@ vtkOldStyleCallbackCommand.cxx
 vtkOutputWindow.cxx
 vtkOverrideInformation.cxx
 vtkOverrideInformationCollection.cxx
+vtkParametricConicSpiral.cxx
+vtkParametricFigure8Klein.cxx
 vtkParametricFunction.cxx
+vtkParametricKlein.cxx
+vtkParametricMobius.cxx
+vtkParametricSuperEllipsoid.cxx
+vtkParametricSuperToroid.cxx
+vtkParametricTorus.cxx
 vtkPerspectiveTransform.cxx
 vtkPlane.cxx
 vtkPlaneCollection.cxx
