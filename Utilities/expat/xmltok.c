@@ -8,6 +8,11 @@ See the file COPYING for copying permission.
 #include "xmltok.h"
 #include "nametab.h"
 
+#if defined(__BORLANDC__)
+#pragma warn -8008 // Disable "condition is always true" warning.
+#pragma warn -8066 // Disable "unreachable code" warning.
+#endif
+
 #ifdef XML_DTD
 #define IGNORE_SECTION_TOK_VTABLE , PREFIX(ignoreSectionTok)
 #else
