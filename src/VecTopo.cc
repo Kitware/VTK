@@ -21,6 +21,11 @@ vtkVectorTopology::vtkVectorTopology()
   this->Distance = 0.1;
 }
 
+vtkVectorTopology::~vtkVectorTopology()
+{
+  this->Distance = 0.1;
+}
+
 void vtkVectorTopology::Execute()
 {
   vtkDataSet *input=this->Input;
