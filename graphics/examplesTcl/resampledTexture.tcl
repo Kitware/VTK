@@ -25,8 +25,8 @@ vtkTexture atext
 
 # gnerate plane to map texture on to
 vtkPlaneSource plane
-    plane SetXResolution 2
-    plane SetYResolution 2
+    plane SetXResolution 1
+    plane SetYResolution 1
 vtkPolyDataMapper textureMapper
     textureMapper SetInput [plane GetOutput]
 vtkActor textureActor
