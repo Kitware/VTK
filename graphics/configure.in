@@ -30,15 +30,12 @@ AC_CHECK_HEADERS(starbase.c.h, [use_sbr=yes])
 
 if test "$use_sbr" = "yes"; then
 	SBR_OBJ="\${SBR_OBJ}"
-	SBR_LIBS="-ldld -lXwindow -lsb -lXhp11"
 	SBR_FLAGS="-DUSE_SBR ${SBR_INCLUDE}"
 else
 	SBR_OBJ=""
-	SBR_LIBS=""
 	SBR_FLAGS=""
 fi
 AC_SUBST(SBR_OBJ)
-AC_SUBST(SBR_LIBS)
 AC_SUBST(SBR_FLAGS)
 
 ##########################
@@ -51,15 +48,12 @@ AC_CHECK_HEADERS(gl/gl.h, [use_glr=yes])
 
 if test "$use_glr" = "yes"; then
 	GLR_OBJ="\${GLR_OBJ}"
-	GLR_LIBS="-lgl"
 	GLR_FLAGS="-DUSE_GLR ${GLR_INCLUDE}"
 else
 	GLR_OBJ=""
-	GLR_LIBS=""
 	GLR_FLAGS=""
 fi
 AC_SUBST(GLR_OBJ)
-AC_SUBST(GLR_LIBS)
 AC_SUBST(GLR_FLAGS)
 
 ##########################
@@ -85,21 +79,17 @@ if test "$use_oglr" = "yes"; then
 	OGLR_OBJ="\${OGLR_OBJ}"
 
 	if test "$use_mesa_oglr" = "yes"; then
-		OGLR_LIBS="\${MESA_LIB}"
 		OGLR_FLAGS="-I\${MESA_INCLUDE} -DUSE_OGLR"
 	else
-		OGLR_LIBS="-lGL"
 		OGLR_FLAGS="-DUSE_OGLR ${OGLR_INCLUDE}"
 	fi
 else
 	OGLR_OBJ=""
-	OGLR_LIBS=""
 	OGLR_FLAGS=""
 fi
 AC_SUBST(OGLR_OBJ)
 AC_SUBST(OGLR_INCLUDE)
 AC_SUBST(OGLR_FLAGS)
-AC_SUBST(OGLR_LIBS)
 
 ##########################
 ##			##
@@ -118,15 +108,12 @@ AC_CHECK_HEADERS($XGL_HOME/include/xgl/xgl.h, [use_xglr=yes])
 AC_CHECK_HEADERS(/usr/openwin/include/xgl/xgl.h, [use_xglr=yes])
 if test "$use_xglr" = "yes"; then
 	XGLR_OBJ="\${XGLR_OBJ}"
-	XGLR_LIBS="-lgl"
 	XGLR_FLAGS="-DUSE_XGLR ${XGLR_INCLUDE}"
 else
 	XGLR_OBJ=""
-	XGLR_LIBS=""
 	XGLR_FLAGS=""
 fi
 AC_SUBST(XGLR_OBJ)
-AC_SUBST(XGLR_LIBS)
 AC_SUBST(XGLR_FLAGS)
 AC_SUBST(XGL_HOME)
 

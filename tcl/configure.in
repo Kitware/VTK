@@ -122,7 +122,7 @@ fi
 AC_CHECK_HEADERS($XGL_HOME/include/xgl/xgl.h, [use_xglr=yes])
 AC_CHECK_HEADERS(/usr/openwin/include/xgl/xgl.h, [use_xglr=yes])
 if test "$use_xglr" = "yes"; then
-	XGLR_LIBS="-lgl"
+	XGLR_LIBS="-lxgl"
 	XGLR_FLAGS="-DUSE_XGLR ${XGLR_INCLUDE}"
 else
 	XGLR_LIBS=""
