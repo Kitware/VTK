@@ -4,9 +4,6 @@ catch {load vtktcl}
 # get helper scripts
 source ../../examplesTcl/vtkInt.tcl
 source ../../examplesTcl/colors.tcl
-source tree.tcl
-source vtkShow.tcl
-source vtkPipeline.tcl
 
 # read data
 #
@@ -96,6 +93,7 @@ vtkStreamLine streamers
     streamers SpeedScalarsOn
     streamers SetIntegrationStepLength .2
     streamers SetStepLength .25
+    streamers SetNumberOfThreads 1
 vtkTubeFilter tubes
     tubes SetInput [streamers GetOutput]
     tubes SetNumberOfSides 8
@@ -158,9 +156,8 @@ renWin Render
 #renWin SaveImageAsPPM
 
 # prevent the tk window from showing up then start the event loop
-#wm withdraw .
+wm withdraw .
 
-vtkPipeline renWin
 
 
 

@@ -1,45 +1,35 @@
-from VTK import *
+#!/usr/local/bin/python
 
-# Make a root window
-root = Tk() 
+from libVTKCommonPython import *
+from libVTKGraphicsPython import *
 
-# Add a vtkTkRenderWidget
-rw = vtkTkRenderWidget(root,width=200,height=200)
-rw.pack(expand='true',fill='both')
+#catch  load vtktcl 
+# user interface command widget
+#source ../../examplesTcl/vtkInt.tcl
 
-# Make a quit button
-def quit():
-    root.destroy()
-    
-button = Button(text="Quit",command=quit)
-button.pack(expand='true',fill='x')
-
-
-# Get the render window 
-renWin = rw.GetRenderWindow()
-
-# Next, do the VTK stuff
+# create a rendering window and renderer
 ren = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren)
+renWin.SetSize(300,300)
+iren = vtkRenderWindowInteractor()
+iren.SetRenderWindow(renWin)
+
+# create an actor and give it cone geometry
 cone = vtkConeSource()
-cone.SetResolution(16)
+cone.SetResolution(8)
 coneMapper = vtkPolyDataMapper()
 coneMapper.SetInput(cone.GetOutput())
 coneActor = vtkActor()
 coneActor.SetMapper(coneMapper)
+
+# assign our actor to the renderer
 ren.AddActor(coneActor)
-coneMapper.GetLookupTable().Build()
 
-# Create a scalar bar
-scalarBar = vtkScalarBarActor()
-scalarBar.SetLookupTable(coneMapper.GetLookupTable())
-scalarBar.SetTitle("Temperature")
-scalarBar.GetPositionCoordinate().SetCoordinateSystemToNormalizedViewport()
-scalarBar.GetPositionCoordinate().SetValue(0.1, 0.01)
-scalarBar.SetOrientationToHorizontal()
-scalarBar.SetWidth(0.8)
-scalarBar.SetHeight(0.17)
-ren.AddActor2D(scalarBar)
+# enable user interface interactor
+iren.Initialize()
 
-# Finally, start up the event loop
-root.mainloop()
+# prevent the tk window from showing up then start the event loop
+#wm withdraw .
+
+iren.Start()

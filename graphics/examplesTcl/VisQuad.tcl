@@ -15,20 +15,12 @@ vtkRenderWindowInteractor iren
     sample SetSampleDimensions 30 30 30
     sample SetImplicitFunction quadric
     sample Update
+    sample Print
     
 # Create five surfaces F(x,y,z) = constant between range specified
-vtkTimerLog t
-vtkContourFilter contours
-#vtkMarchingCubes contours
-#vtkSynchronizedTemplates3D contours
-
   vtkContourFilter contours
     contours SetInput [sample GetOutput]
     contours GenerateValues 5 0.0 1.2
-
-t StartTimer
-contours Update
-t StopTimer
 
   vtkPolyDataMapper contMapper
     contMapper SetInput [contours GetOutput]
@@ -49,7 +41,7 @@ t StopTimer
     eval [outlineActor GetProperty] SetColor 0 0 0
 
   ren1 SetBackground 1 1 1
-#  ren1 AddActor contActor
+  ren1 AddActor contActor
   ren1 AddActor outlineActor
 
 iren SetUserMethod {wm deiconify .vtkInteract}
