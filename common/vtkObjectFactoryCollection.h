@@ -53,9 +53,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkCollection.h"
 #include "vtkObjectFactory.h"
-#ifdef VTK_DEBUG_LEAKS
 #include "vtkDebugLeaks.h"
-#endif
 
 class VTK_EXPORT vtkObjectFactoryCollection : public vtkCollection
 {

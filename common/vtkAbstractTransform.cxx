@@ -43,9 +43,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkAbstractTransform.h"
 #include "vtkHomogeneousTransform.h"
 #include "vtkMath.h"
-#ifdef VTK_DEBUG_LEAKS
 #include "vtkDebugLeaks.h"
-#endif
 
 //----------------------------------------------------------------------------
 vtkAbstractTransform::vtkAbstractTransform()
