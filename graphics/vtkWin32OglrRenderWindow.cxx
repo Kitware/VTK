@@ -58,9 +58,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 vtkWin32OglrRenderWindow::vtkWin32OglrRenderWindow()
 {
+  this->ApplicationInstance = NULL;
+  this->Palette = NULL;
   this->ContextId = 0;
   this->MultiSamples = 8;
   this->WindowId = 0;
+  this->ParentId = 0;
   this->NextWindowId = 0;
   this->DeviceContext = (HDC)0;		// hsr
   this->MFChandledWindow = FALSE;	// hsr
@@ -161,26 +164,7 @@ void vtkWin32OglrRenderWindow::Start(void)
 
 void vtkWin32OglrRenderWindow::MakeCurrent()
 {
-  static HDC vtkCurrentDC = NULL;
-  static HWND vtkCurrentWindow = NULL;
-
-  // free the old context if any
-  if (vtkCurrentDC)
-    {
-    ReleaseDC(vtkCurrentWindow, vtkCurrentDC);
-    vtkCurrentDC = NULL;
-    }
-
-  if (!this->MFChandledWindow)
-    {
-    vtkCurrentWindow = this->WindowId;
-    vtkCurrentDC = GetDC(this->WindowId);
-		wglMakeCurrent(vtkCurrentDC, this->ContextId);
-    }
-  else 
-    {
-    wglMakeCurrent(this->DeviceContext, this->ContextId);
-    }
+  wglMakeCurrent(this->DeviceContext, this->ContextId);
 }
 
 void vtkWin32OglrRenderWindow::SetSize(int x, int y)
@@ -199,8 +183,8 @@ void vtkWin32OglrRenderWindow::SetSize(int x, int y)
         resizing = 1;
 
         SetWindowPos(this->WindowId,HWND_TOP,0,0,
-          x+2*GetSystemMetrics(SM_CXBORDER),
-          y+2*GetSystemMetrics(SM_CYBORDER) +GetSystemMetrics(SM_CYMENUSIZE),
+          x+2*GetSystemMetrics(SM_CXFRAME),
+          y+2*GetSystemMetrics(SM_CYFRAME) +GetSystemMetrics(SM_CYCAPTION),
           SWP_NOMOVE | SWP_NOZORDER);
         resizing = 0;
         }
@@ -240,6 +224,201 @@ void vtkWin32OglrRenderWindow::WindowConfigure()
   // this is all handles by the desiredVisualInfo method
 }
 
+void vtkWin32OglrSetupPixelFormat(HDC hDC)
+{
+    PIXELFORMATDESCRIPTOR pfd = {
+        sizeof(PIXELFORMATDESCRIPTOR),  /* size */
+        1,                              /* version */
+        PFD_SUPPORT_OPENGL |
+        PFD_DRAW_TO_WINDOW |
+        PFD_DOUBLEBUFFER,               /* support double-buffering */
+        PFD_TYPE_RGBA,                  /* color type */
+        16,                             /* prefered color depth */
+        0, 0, 0, 0, 0, 0,               /* color bits (ignored) */
+        0,                              /* no alpha buffer */
+        0,                              /* alpha bits (ignored) */
+        0,                              /* no accumulation buffer */
+        0, 0, 0, 0,                     /* accum bits (ignored) */
+        16,                             /* depth buffer */
+        0,                              /* no stencil buffer */
+        0,                              /* no auxiliary buffers */
+        PFD_MAIN_PLANE,                 /* main layer */
+        0,                              /* reserved */
+        0, 0, 0,                        /* no layer, visible, damage masks */
+    };
+    int pixelFormat;
+
+    pixelFormat = ChoosePixelFormat(hDC, &pfd);
+    if (pixelFormat == 0) {
+        MessageBox(WindowFromDC(hDC), "ChoosePixelFormat failed.", "Error",
+                MB_ICONERROR | MB_OK);
+        exit(1);
+    }
+
+    if (SetPixelFormat(hDC, pixelFormat, &pfd) != TRUE) {
+        MessageBox(WindowFromDC(hDC), "SetPixelFormat failed.", "Error",
+                MB_ICONERROR | MB_OK);
+        exit(1);
+    }
+}
+
+struct vtkWin32OglrCreateInfo
+  {
+  HDC DeviceContext;
+  HPALETTE Palette;
+  HGLRC ContextId;
+  };
+
+void vtkWin32OglrSetupPalette(HDC hDC, vtkWin32OglrCreateInfo *me)
+{
+    int pixelFormat = GetPixelFormat(hDC);
+    PIXELFORMATDESCRIPTOR pfd;
+    LOGPALETTE* pPal;
+    int paletteSize;
+
+    DescribePixelFormat(hDC, pixelFormat, sizeof(PIXELFORMATDESCRIPTOR), &pfd);
+
+    if (pfd.dwFlags & PFD_NEED_PALETTE) {
+        paletteSize = 1 << pfd.cColorBits;
+    } else {
+        return;
+    }
+
+    pPal = (LOGPALETTE*)
+        malloc(sizeof(LOGPALETTE) + paletteSize * sizeof(PALETTEENTRY));
+    pPal->palVersion = 0x300;
+    pPal->palNumEntries = paletteSize;
+
+    /* build a simple RGB color palette */
+    {
+        int redMask = (1 << pfd.cRedBits) - 1;
+        int greenMask = (1 << pfd.cGreenBits) - 1;
+        int blueMask = (1 << pfd.cBlueBits) - 1;
+        int i;
+
+        for (i=0; i<paletteSize; ++i) {
+            pPal->palPalEntry[i].peRed =
+                    (((i >> pfd.cRedShift) & redMask) * 255) / redMask;
+            pPal->palPalEntry[i].peGreen =
+                    (((i >> pfd.cGreenShift) & greenMask) * 255) / greenMask;
+            pPal->palPalEntry[i].peBlue =
+                    (((i >> pfd.cBlueShift) & blueMask) * 255) / blueMask;
+            pPal->palPalEntry[i].peFlags = 0;
+        }
+    }
+
+    me->Palette = CreatePalette(pPal);
+    free(pPal);
+
+    if (me->Palette) {
+        SelectPalette(hDC, me->Palette, FALSE);
+        RealizePalette(hDC);
+    }
+}
+
+void vtkWin32OglrInit()
+{
+  glMatrixMode( GL_MODELVIEW );
+  glDepthFunc( GL_LEQUAL );
+  glEnable( GL_DEPTH_TEST );
+  glTexEnvf( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE );
+
+  // initialize blending for transparency
+  glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+
+  glEnable( GL_NORMALIZE );
+  glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE);
+}
+
+LRESULT APIENTRY vtkWin32OglrWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+{
+  vtkWin32OglrRenderWindow *me = 
+    (vtkWin32OglrRenderWindow *)GetWindowLong(hWnd,GWL_USERDATA);
+
+  switch (message) 
+    {
+    case WM_CREATE:
+      {
+        // this code is going to create some stuff that we want to
+        // associate with the this pointer. But since there isn't an
+        // easy way to tget the this pointer during the create call
+        // we'll pass the created info back out
+        
+        /* initialize OpenGL rendering */
+        vtkWin32OglrCreateInfo *info = new vtkWin32OglrCreateInfo;
+        SetWindowLong(hWnd,GWL_USERDATA,(LONG)info);
+        info->DeviceContext = GetDC(hWnd);
+        vtkWin32OglrSetupPixelFormat(info->DeviceContext);
+        vtkWin32OglrSetupPalette(info->DeviceContext,info);
+		    info->ContextId = wglCreateContext(info->DeviceContext);
+        wglMakeCurrent(info->DeviceContext, info->ContextId);
+        vtkWin32OglrInit();
+        return 0;
+      }
+    case WM_DESTROY:
+        /* finish OpenGL rendering */
+        if (me->ContextId) 
+          {
+          wglMakeCurrent(NULL, NULL);
+          wglDeleteContext(me->ContextId);
+          me->ContextId = NULL;
+          }
+        if (me->Palette)
+          {
+          DeleteObject(me->Palette);
+          me->Palette = NULL;
+          }
+        ReleaseDC(me->WindowId, me->DeviceContext);
+        return 0;
+    case WM_SIZE:
+        /* track window size changes */
+        if (me->ContextId) 
+          {
+          me->SetSize((int) LOWORD(lParam),(int) HIWORD(lParam));
+          return 0;
+          }
+    case WM_PALETTECHANGED:
+        /* realize palette if this is *not* the current window */
+        if (me->ContextId && me->Palette && (HWND) wParam != hWnd) 
+          {
+          UnrealizeObject(me->Palette);
+          SelectPalette(me->DeviceContext, me->Palette, FALSE);
+          RealizePalette(me->DeviceContext);
+          me->Render();
+          break;
+          }
+        break;
+    case WM_QUERYNEWPALETTE:
+        /* realize palette if this is the current window */
+        if (me->ContextId && me->Palette) 
+          {
+          UnrealizeObject(me->Palette);
+          SelectPalette(me->DeviceContext, me->Palette, FALSE);
+          RealizePalette(me->DeviceContext);
+          me->Render();
+          return TRUE;
+          }
+        break;
+    case WM_PAINT:
+        {
+        PAINTSTRUCT ps;
+        BeginPaint(hWnd, &ps);
+        if (me->ContextId) 
+          {
+          me->Render();
+          }
+        EndPaint(hWnd, &ps);
+        return 0;
+        }
+        break;
+    default:
+        break;
+    }
+    return DefWindowProc(hWnd, message, wParam, lParam);
+}
+
+
+
 // Description:
 // Initialize the window for rendering.
 void vtkWin32OglrRenderWindow::WindowInitialize (void)
@@ -255,52 +434,95 @@ void vtkWin32OglrRenderWindow::WindowInitialize (void)
 
   // create our own window if not already set
   this->OwnWindow = 0;
-  if (!this->MFChandledWindow) {  // hsr 
+  if (!this->MFChandledWindow)
+    { 
+    // get the applicaiton instance if we don't have one already
+    if (!this->ApplicationInstance)
+      {
+      // if we have a parent window get the app instance from it
+      if (this->ParentId)
+        {
+        this->ApplicationInstance = (HINSTANCE)GetWindowLong(this->ParentId,GWL_HINSTANCE);
+        }
+      else
+        {
+        this->ApplicationInstance = AfxGetInstanceHandle();
+        }
+      }
 	  if (!this->WindowId)
-		{
-                if( this->WindowName )
-                  delete [] this->WindowName;
-                int len = strlen( "Visualization Toolkit - Win32OpenGL #") 
+		  {
+      WNDCLASS wndClass;
+      vtkWin32OglrCreateInfo *info;
+
+      if(this->WindowName) delete [] this->WindowName;
+      int len = strlen( "Visualization Toolkit - Win32OpenGL #") 
                           + (int)ceil( (double) log10( (double)(count+1) ) )
                           + 1; 
-                this->WindowName = new char [ len ];
-		sprintf(this->WindowName,"Visualization Toolkit - Win32OpenGL #%i",count++);
+      this->WindowName = new char [ len ];
+		  sprintf(this->WindowName,"Visualization Toolkit - Win32OpenGL #%i",count++);
 
-		auxInitPosition(x, y, width, height);
-		type = AUX_DEPTH16 | AUX_RGB | AUX_DOUBLE;
-		auxInitDisplayMode(type);
-
-	    if (auxInitWindow(this->WindowName) == GL_FALSE) 
+      // has the class been registered ?
+      if (!GetClassInfo(this->ApplicationInstance,"vtkOglr",&wndClass))
         {
-		  auxQuit();
-		}
+        wndClass.style = CS_HREDRAW | CS_VREDRAW;
+        wndClass.lpfnWndProc = vtkWin32OglrWndProc;
+        wndClass.cbClsExtra = 0;
+        wndClass.cbWndExtra = 0;
+        wndClass.hInstance = this->ApplicationInstance;
+        wndClass.hIcon = LoadIcon(NULL, IDI_APPLICATION);
+        wndClass.hCursor = LoadCursor(NULL, IDC_ARROW);
+        wndClass.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
+        wndClass.lpszMenuName = NULL;
+        wndClass.lpszClassName = "vtkOglr";
+        RegisterClass(&wndClass);
+        }
+      
+      /* create window */
+      if (this->ParentId)
+        {
+        this->WindowId = CreateWindow(
+          "vtkOglr", this->WindowName,
+          WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
+          x, y, width, height,
+          this->ParentId, NULL, this->ApplicationInstance, NULL);
+        }
+      else
+        {
+        this->WindowId = CreateWindow(
+            "vtkOglr", this->WindowName,
+            WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
+            x, y, width, height,
+            NULL, NULL, this->ApplicationInstance, NULL);
+        }
+      if (!this->WindowId)
+        {
+        vtkErrorMacro("Could not create window, error:  " << GetLastError());
+        return;
+        }
+      // extract the create info
+      info = (vtkWin32OglrCreateInfo *)GetWindowLong(this->WindowId,GWL_USERDATA);
+      this->DeviceContext = info->DeviceContext;
+      this->Palette = info->Palette;
+      this->ContextId = info->ContextId;
+      delete info;
+      SetWindowLong(this->WindowId,GWL_USERDATA,(LONG)this);
 
-		this->WindowId = auxGetHWND();
-		this->ContextId = auxGetHGLRC();
-		this->OwnWindow = 1;
-		}
+      /* display window */
+      ShowWindow(this->WindowId, SW_SHOW);
+      //UpdateWindow(this->WindowId);
+     
+		  this->OwnWindow = 1;
+		  }
+    this->Mapped = 1;
 
-	  wglMakeCurrent(GetDC(this->WindowId), this->ContextId);
-  }	else wglMakeCurrent(this->DeviceContext, this->ContextId); // hsr
+	  // wglMakeCurrent(GetDC(this->WindowId), this->ContextId);
+    }	
+  else 
+    {
+    vtkWin32OglrInit();
+    wglMakeCurrent(this->DeviceContext, this->ContextId); // hsr
+    }
 
-  vtkDebugMacro(<< " glMatrixMode ModelView\n");
-  glMatrixMode( GL_MODELVIEW );
-
-  vtkDebugMacro(<< " zbuffer enabled\n");
-  glDepthFunc( GL_LEQUAL );
-  glEnable( GL_DEPTH_TEST );
-
-  vtkDebugMacro(" texture stuff\n");
-  glTexEnvf( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE );
-
-  // initialize blending for transparency
-  vtkDebugMacro(<< " blend func stuff\n");
-  glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
-
-  glEnable( GL_NORMALIZE );
-  glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE);
-
-	if(!this->MFChandledWindow) this->Mapped = 1;
 }
 
 // Description:
@@ -634,6 +856,15 @@ void vtkWin32OglrRenderWindow::SetWindowId(HWND arg)
   vtkDebugMacro(<< "Setting WindowId to " << arg << "\n"); 
 
   this->WindowId = arg;
+}
+
+// Description:
+// Set the window id to a pre-existing window.
+void vtkWin32OglrRenderWindow::SetParentId(HWND arg)
+{
+  vtkDebugMacro(<< "Setting ParentId to " << arg << "\n"); 
+
+  this->ParentId = arg;
 }
 
 // Description:
