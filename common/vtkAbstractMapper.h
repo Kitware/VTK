@@ -41,10 +41,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 // .NAME vtkAbstractMapper - abstract class specifies interface to map data
 // .SECTION Description
-// vtkAbstractMapper is an abstract class to specify interface between data and 
-// graphics primitives or software rendering techniques. Subclasses of 
-// vtkAbstractMapper can be used for rendering 2D data, geometry, or volumetric
-// data.
+// vtkAbstractMapper is an abstract class to specify interface between data
+// and graphics primitives or software rendering techniques. Subclasses of
+// vtkAbstractMapper can be used for rendering 2D data, geometry, or
+// volumetric data.
 //
 // .SECTION See Also
 // vtkAbstractMapper3D vtkMapper vtkPolyDataMapper vtkVolumeMapper
@@ -53,6 +53,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define __vtkAbstractMapper_h
 
 #include "vtkProcessObject.h"
+#include "vtkTimerLog.h"
+
 class vtkWindow;
 
 class VTK_EXPORT vtkAbstractMapper : public vtkProcessObject
@@ -73,10 +75,11 @@ public:
 
 protected:
   vtkAbstractMapper();
-  ~vtkAbstractMapper() {};
+  ~vtkAbstractMapper();
   vtkAbstractMapper(const vtkAbstractMapper&) {};
   void operator=(const vtkAbstractMapper&) {};
 
+  vtkTimerLog *Timer;
   float TimeToDraw;
   vtkWindow *LastWindow;   // Window used for the previous render
 };

@@ -42,7 +42,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkOpenGLVolumeTextureMapper2D.h"
 #include "vtkMatrix4x4.h"
 #include "vtkVolume.h"
-#include "vtkTimerLog.h"
 #ifndef VTK_IMPLEMENT_MESA_CXX
 #include <GL/gl.h>
 #endif
@@ -77,15 +76,12 @@ vtkOpenGLVolumeTextureMapper2D::~vtkOpenGLVolumeTextureMapper2D()
 void vtkOpenGLVolumeTextureMapper2D::Render(vtkRenderer *ren, vtkVolume *vol)
 {
   vtkMatrix4x4       *matrix = vtkMatrix4x4::New();
-  vtkTimerLog        *timer;
   vtkPlaneCollection *clipPlanes;
   vtkPlane           *plane;
   int                i, numClipPlanes;
   double             planeEquation[4];
 
-  timer = vtkTimerLog::New();
-  timer->StartTimer();
-
+  this->Timer->StartTimer();
 
   // Let the superclass take care of some initialization
   this->vtkVolumeTextureMapper2D::InitializeRender( ren, vol );
@@ -173,9 +169,9 @@ void vtkOpenGLVolumeTextureMapper2D::Render(vtkRenderer *ren, vtkVolume *vol)
       }
     }
 
-  timer->StopTimer();      
+  this->Timer->StopTimer();      
 
-  this->TimeToDraw = (float)timer->GetElapsedTime();
+  this->TimeToDraw = (float)this->Timer->GetElapsedTime();
 
   // If the timer is not accurate enough, set it to a small
   // time so that it is not zero
@@ -183,7 +179,6 @@ void vtkOpenGLVolumeTextureMapper2D::Render(vtkRenderer *ren, vtkVolume *vol)
     {
     this->TimeToDraw = 0.0001;
     }	
-  timer->Delete();
 }
 
 void vtkOpenGLVolumeTextureMapper2D::RenderQuads( int numQuads,

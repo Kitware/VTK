@@ -48,6 +48,13 @@ vtkAbstractMapper::vtkAbstractMapper()
 {
   this->TimeToDraw = 0.0;
   this->LastWindow = NULL;
+  this->Timer = vtkTimerLog::New();
+}
+
+// Construct object.
+vtkAbstractMapper::~vtkAbstractMapper()
+{
+  this->Timer->Delete();
 }
 
 void vtkAbstractMapper::PrintSelf(ostream& os, vtkIndent indent)
@@ -55,7 +62,6 @@ void vtkAbstractMapper::PrintSelf(ostream& os, vtkIndent indent)
   this->vtkProcessObject::PrintSelf(os,indent);
 
   os << indent << "TimeToDraw: " << this->TimeToDraw << "\n";
-
 }
 
 

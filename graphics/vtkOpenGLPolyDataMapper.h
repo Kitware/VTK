@@ -57,7 +57,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class vtkProperty;
 class vtkRenderWindow;
 class vtkOpenGLRenderer;
-class vtkTimerLog;
 
 class VTK_EXPORT vtkOpenGLPolyDataMapper : public vtkPolyDataMapper
 {
@@ -96,7 +95,6 @@ protected:
   void operator=(const vtkOpenGLPolyDataMapper&) {};
 
   int ListId;
-  vtkTimerLog *Timer;
 };
 
 #endif
