@@ -524,7 +524,7 @@ void outputFunction(FILE *fp, FileInfo *data)
 		{
 	      fprintf(fp,"temp%i",i);
 		}
-	  } //for
+	  } /* for */
       fprintf(fp,");\n");
       if (currentFunction->NumberOfArguments == 1 && currentFunction->ArgTypes[0] == 5000)
 	  {
@@ -537,8 +537,8 @@ void outputFunction(FILE *fp, FileInfo *data)
       
       wrappedFunctions[numberOfWrappedFunctions] = currentFunction;
       numberOfWrappedFunctions++;
-    } //isDone()
-  } //isAbstract
+    } /* isDone() */
+  } /* isAbstract */
 }
 
 /* print the parsed structures */
