@@ -27,7 +27,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkLODProp3D, "1.34");
+vtkCxxRevisionMacro(vtkLODProp3D, "1.35");
 vtkStandardNewMacro(vtkLODProp3D);
 
 #define VTK_INDEX_NOT_IN_USE    -1
@@ -975,6 +975,7 @@ void vtkLODProp3D::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "SelectedPickLODID: " << this->SelectedPickLODID << endl;
   
+  os << indent << "CurrentIndex: " << this->CurrentIndex << endl;
 }
 
 void vtkLODProp3D::GetActors(vtkPropCollection *ac)
