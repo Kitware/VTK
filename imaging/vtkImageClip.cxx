@@ -154,6 +154,8 @@ void vtkImageClip::ExecuteInformation()
     }
   
   this->GetOutput()->SetWholeExtent(extent);
+  
+  this->GetOutput()->SetSpacing(this->GetInput()->GetSpacing());
 }
 
 

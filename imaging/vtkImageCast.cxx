@@ -56,6 +56,7 @@ vtkImageCast::vtkImageCast()
 void vtkImageCast::ExecuteInformation()
 {
   this->GetOutput()->SetScalarType(this->OutputScalarType);
+  this->GetOutput()->SetSpacing(this->GetInput()->GetSpacing());
 }
 
 //----------------------------------------------------------------------------
