@@ -37,7 +37,7 @@ public:
   void PrintSelf(ostream& os, vlIndent indent);
 
   // access/insertion methods
-  void *GetValue(const int id);
+  void* GetValue(const int id);
   void** GetPtr(const int id);
   vlVoidArray &InsertValue(const int id, void* p);
   int InsertNextValue(void* v);
@@ -56,7 +56,7 @@ public:
   void Reset();
 
 private:
-  void* *Array;   // pointer to data
+  void** Array;   // pointer to data
   int Size;       // allocated size of data
   int MaxId;     // maximum index inserted thus far
   int Extend;     // grow array by this point
