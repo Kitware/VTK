@@ -41,7 +41,7 @@ mutex_t vtkGlobalMutex;
 
 int vtkJavaIdCount = 1;
 
-#define VTKJAVADEBUG
+//#define VTKJAVADEBUG
 
 class vtkHashNode 
 {
