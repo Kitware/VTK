@@ -17,7 +17,7 @@ CXX_FLAGS = ${CPPFLAGS} ${VTK_SHLIB_CFLAGS} ${XCFLAGS} ${CXXFLAGS} \
 	 -I${srcdir}/../common ${TK_INCLUDE} ${TCL_INCLUDE} \
 	-D_HP_NO_FAST_MACROS ${HAVE_SETMON} ${WORDS_BIGENDIAN}
 
-all: ${VTK_LIB_FILE} ${BUILD_TCL} ${BUILD_JAVA}
+all: depend-check ${VTK_LIB_FILE} ${BUILD_TCL} ${BUILD_JAVA}
 
 .c.o:
 	${CC} ${CC_FLAGS} -c $< -o $@
@@ -74,6 +74,13 @@ libVTK$(ME)Java$(SHLIB_SUFFIX)$(SHLIB_VERSION): ${KIT_OBJ} ${JAVA_O_ADD} ${JAVA_
 depend: 
 	-$(MAKE_DEPEND_COMMAND)
 
+depend-check:
+	@-if [ ! -s depend.make -a "*.o" != "" ] ; then \
+	    echo "**********************************************************" ; \
+	    echo "  Warning! No dependencies for $(ME) .o files exist." ; \
+	    echo '    "make depend" or "rm *.o" is *highly* recommended.' ; \
+	    echo "**********************************************************" ; \
+	fi
 #------------------------------------------------------------------------------
 clean: ${CLEAN_TCL} $(CLEAN_JAVA)
 	-rm -f *.o *.a *.so *.sl *~ *.make Makefile
