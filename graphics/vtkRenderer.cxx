@@ -92,7 +92,7 @@ vtkRenderer::vtkRenderer()
   this->RayCastPropArray         = NULL;
   this->RenderIntoImagePropArray = NULL;   
 
-  this->TransparentRenderer      = 0;
+  this->Layer                    = 0;
   this->Interactive              = 1;
   this->Cullers = vtkCullerCollection::New();  
   vtkFrustumCoverageCuller *cull = vtkFrustumCoverageCuller::New();
@@ -1027,6 +1027,10 @@ void vtkRenderer::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Two-sided Lighting: " 
      << (this->TwoSidedLighting ? "On\n" : "Off\n");
 
+  os << indent << "Layer = " << this->Layer << "\n";
+  os << indent << "Interactive = " << (this->Interactive ? "On" : "Off") 
+     << "\n";
+
   if ( this->RayCaster )
     {
     os << indent << "Ray Caster: " << this->RayCaster << "\n";
@@ -1324,3 +1328,20 @@ void vtkRenderer::PickGeometry()
                     this->NumberOfPropsRenderedAsGeometry << " actors" );
 
 }
+
+
+void  vtkRenderer::GetLayer(float &min, float &max)
+{
+  this->RenderWindow->GetLayer(this->Layer, min, max);
+}
+
+
+int  vtkRenderer::Transparent()
+{
+  int  numLayers = this->RenderWindow->GetNumLayers();
+
+  // If our layer is the last layer, then we are not transparent, else we are.
+  return (this->Layer == numLayers-1 ? 0 : 1);
+}
+
+
