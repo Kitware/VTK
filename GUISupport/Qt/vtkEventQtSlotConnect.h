@@ -34,8 +34,18 @@ class QObject;
 
 class vtkQtConnections;
 
+#if defined(WIN32) && defined(VTK_BUILD_SHARED_LIBS)
+#if defined(QVTK_EXPORTS) || defined(QVTKWidgetPlugin_EXPORTS)
+#define QVTK_EXPORT __declspec( dllexport )
+#else
+#define QVTK_EXPORT __declspec( dllimport ) 
+#endif
+#else
+#define QVTK_EXPORT
+#endif
+
 //! manage connections between VTK object events and Qt slots
-class vtkEventQtSlotConnect : public vtkObject
+class QVTK_EXPORT vtkEventQtSlotConnect : public vtkObject
 {
   public:
     //! standard new
