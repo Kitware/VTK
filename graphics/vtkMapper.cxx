@@ -281,6 +281,10 @@ vtkScalars *vtkMapper::GetColors()
           }
         }
       }
+    else
+      {
+      vtkWarningMacro(<<"Data array (used for coloring) not found");
+      }
     }
   else if ( this->ScalarMode == VTK_SCALAR_MODE_USE_CELL_FIELD_DATA )
     {
@@ -317,6 +321,10 @@ vtkScalars *vtkMapper::GetColors()
             InsertScalar(i, dataArray->GetComponent(i, this->ArrayComponent));
           }
         }
+      }
+    else
+      {
+      vtkWarningMacro(<<"Data array (used for coloring) not found");
       }
     }
   
