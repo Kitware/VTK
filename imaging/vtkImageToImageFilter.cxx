@@ -115,8 +115,8 @@ void vtkImageToImageFilter::ExecuteInformation()
     this->ExecuteImageInformation();
     if (this->LegacyHack)
       {
-      vtkWarningMacro("ExecuteImageInformation will not be supported in the future.
-You should write an ExecuteInformation(vtkImageData*, vtkImageData*)");
+      vtkWarningMacro("ExecuteImageInformation will not be supported in the future.\n"
+        << "You should write an ExecuteInformation(vtkImageData*, vtkImageData*)");
       return;
       }
     
