@@ -50,7 +50,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkLegendBoxActor.h"
 #include "vtkPlanes.h"
 #include "vtkPlane.h"
+#include "vtkIntArray.h"
 #include "vtkObjectFactory.h"
+
+#define VTK_MAX_PLOTS 50
 
 //--------------------------------------------------------------------------
 vtkXYPlotActor* vtkXYPlotActor::New()
@@ -132,10 +135,16 @@ vtkXYPlotActor::vtkXYPlotActor()
   this->PlotCoordinate[0] = 0.0;
   this->PlotCoordinate[1] = 0.0;
 
-  this->PointComponent = 0;
   this->DataObjectPlotMode = VTK_XYPLOT_COLUMN;
-  this->DataObjectXComponent = 0;
-  this->DataObjectYComponent = 1;
+  this->XComponent = vtkIntArray::New();
+  this->XComponent->SetNumberOfValues(VTK_MAX_PLOTS);
+  this->YComponent = vtkIntArray::New();
+  this->YComponent->SetNumberOfValues(VTK_MAX_PLOTS);
+  for (int i=0; i<VTK_MAX_PLOTS; i++)
+    {
+    this->XComponent->SetValue(i,0);
+    this->YComponent->SetValue(i,0);
+    }
 
   this->Legend = 0;
   this->LegendPosition[0] = 0.85;
@@ -147,7 +156,7 @@ vtkXYPlotActor::vtkXYPlotActor()
   this->LegendActor->GetPosition2Coordinate()->SetCoordinateSystemToViewport();
   this->LegendActor->GetPosition2Coordinate()->SetReferenceCoordinate(NULL);
   this->LegendActor->BorderOff();
-  this->LegendActor->SetNumberOfEntries(50); //initial allocation
+  this->LegendActor->SetNumberOfEntries(VTK_MAX_PLOTS); //initial allocation
   this->GlyphSource = vtkGlyphSource2D::New();
   this->GlyphSource->SetGlyphTypeToNone();
   this->GlyphSource->DashOn();
@@ -217,7 +226,8 @@ vtkXYPlotActor::~vtkXYPlotActor()
   this->GlyphSource->Delete();
   this->ClipPlanes->Delete();
   
-  this->InitializeEntries();
+  this->XComponent->Delete();
+  this->YComponent->Delete();
 }
 
 void vtkXYPlotActor::InitializeEntries()
@@ -600,11 +610,9 @@ void vtkXYPlotActor::PrintSelf(ostream& os, vtkIndent indent)
   this->InputList->PrintSelf(os,indent.GetNextIndent());
 
   os << indent << "Input DataObjects:\n";
-  this->InputList->PrintSelf(os,indent.GetNextIndent());
+  this->DataObjectInputList->PrintSelf(os,indent.GetNextIndent());
   
   os << indent << "Data Object Plot Mode: " << this->GetDataObjectPlotModeAsString() << endl;
-  os << indent << "Data Object X Component: " << this->DataObjectXComponent << endl;
-  os << indent << "Data Object Y Component: " << this->DataObjectYComponent << endl;
 
   os << indent << "Title: " << (this->Title ? this->Title : "(none)") << "\n";
   os << indent << "X Title: " 
@@ -613,7 +621,6 @@ void vtkXYPlotActor::PrintSelf(ostream& os, vtkIndent indent)
      << (this->YTitle ? this->YTitle : "(none)") << "\n";
  
   os << indent << "X Values: " << this->GetXValuesAsString() << endl;
-  os << indent << "Point Component: " << this->PointComponent << endl;
 
   os << indent << "Plot points: " << (this->PlotPoints ? "On\n" : "Off\n");
   os << indent << "Plot lines: " << (this->PlotLines ? "On\n" : "Off\n");
@@ -701,13 +708,13 @@ void vtkXYPlotActor::ComputeXRange(float range[2], float *lengths)
         ds->GetPoint(ptId, x);
         if ( this->XValues == VTK_XYPLOT_VALUE )
           {
-          if ( x[this->PointComponent] < range[0] )
+          if ( x[this->XComponent->GetValue(dsNum)] < range[0] )
             {
-            range[0] = x[this->PointComponent];
+            range[0] = x[this->XComponent->GetValue(dsNum)];
             }
-          if ( x[this->PointComponent] > range[1] )
+          if ( x[this->XComponent->GetValue(dsNum)] > range[1] )
             {
-            range[1] = x[this->PointComponent];
+            range[1] = x[this->XComponent->GetValue(dsNum)];
             }
           }
         else
@@ -824,13 +831,11 @@ void vtkXYPlotActor::ComputeDORange(float xrange[2], float yrange[2],
         {
         if ( this->DataObjectPlotMode == VTK_XYPLOT_ROW )
           {
-          x = field->GetComponent(this->DataObjectXComponent, ptId);
-          y = field->GetComponent(this->DataObjectYComponent, ptId);
+          x = field->GetComponent(this->XComponent->GetValue(doNum), ptId);
           }
         else //if ( this->DataObjectPlotMode == VTK_XYPLOT_COLUMN )
           {
-          x = field->GetComponent(ptId, this->DataObjectXComponent);
-          y = field->GetComponent(ptId, this->DataObjectYComponent);
+          x = field->GetComponent(ptId, this->XComponent->GetValue(doNum));
           }
         if ( ptId == 0 )
           {
@@ -873,11 +878,11 @@ void vtkXYPlotActor::ComputeDORange(float xrange[2], float yrange[2],
       {
       if ( this->DataObjectPlotMode == VTK_XYPLOT_ROW )
         {
-        y = field->GetComponent(this->DataObjectYComponent, ptId);
+        y = field->GetComponent(this->YComponent->GetValue(doNum), ptId);
         }
       else //if ( this->DataObjectPlotMode == VTK_XYPLOT_COLUMN )
         {
-        y = field->GetComponent(ptId, this->DataObjectYComponent);
+        y = field->GetComponent(ptId, this->YComponent->GetValue(doNum));
         }
       if ( y < yrange[0] )
         {
@@ -887,7 +892,7 @@ void vtkXYPlotActor::ComputeDORange(float xrange[2], float yrange[2],
         {
         yrange[1] = y;
         }
-      }
+      }//over all y values
     }//over all dataobjects
 
   // determine the range
@@ -993,8 +998,8 @@ void vtkXYPlotActor::CreatePlotData(int *pos, int *pos2, float xRange[2],
   //
   if ( numDS > 0 )
     {
-    for ( i=dsNum=0, this->InputList->InitTraversal(); 
-         (ds = this->InputList->GetNextItem()); dsNum++, i++ )
+    for ( dsNum=0, this->InputList->InitTraversal(); 
+         (ds = this->InputList->GetNextItem()); dsNum++ )
       {
       clippingRequired = 0;
       numPts = ds->GetNumberOfPoints();
@@ -1004,8 +1009,8 @@ void vtkXYPlotActor::CreatePlotData(int *pos, int *pos2, float xRange[2],
         continue;
         }
 
-      pts = this->PlotData[i]->GetPoints();
-      lines = this->PlotData[i]->GetLines();
+      pts = this->PlotData[dsNum]->GetPoints();
+      lines = this->PlotData[dsNum]->GetLines();
       lines->InsertNextCell(0); //update the count later
 
       ds->GetPoint(0, xPrev);
@@ -1034,7 +1039,7 @@ void vtkXYPlotActor::CreatePlotData(int *pos, int *pos2, float xRange[2],
 
         else //if ( this->XValues == VTK_XYPLOT_VALUE )
           {
-          xyz[0] = x[this->PointComponent];
+          xyz[0] = x[this->XComponent->GetValue(dsNum)];
           }
         
         // normalize and position
@@ -1056,7 +1061,7 @@ void vtkXYPlotActor::CreatePlotData(int *pos, int *pos2, float xRange[2],
       lines->UpdateCellCount(numLinePts);
       if ( clippingRequired )
         {
-        this->ClipPlotData(pos,pos2,this->PlotData[i]);
+        this->ClipPlotData(pos,pos2,this->PlotData[dsNum]);
         }
       }//loop over all input data sets
     }//if plotting datasets
@@ -1067,8 +1072,8 @@ void vtkXYPlotActor::CreatePlotData(int *pos, int *pos2, float xRange[2],
     int numColumns, numRows, numTuples;
     vtkDataArray *array;
     vtkFieldData *field;
-    for ( i=doNum=0, this->DataObjectInputList->InitTraversal(); 
-         (dobj = this->DataObjectInputList->GetNextItem()); doNum++, i++ )
+    for ( doNum=0, this->DataObjectInputList->InitTraversal(); 
+         (dobj = this->DataObjectInputList->GetNextItem()); doNum++ )
       {
       // determine the shape of the field
       field = dobj->GetFieldData();
@@ -1083,7 +1088,10 @@ void vtkXYPlotActor::CreatePlotData(int *pos, int *pos2, float xRange[2],
           }
         }
 
+      pts = this->PlotData[doNum]->GetPoints();
+      lines = this->PlotData[doNum]->GetLines();
       lines->InsertNextCell(0); //update the count later
+
       numPts = (this->DataObjectPlotMode == VTK_XYPLOT_ROW ? 
                 numColumns : numRows);
 
@@ -1092,13 +1100,13 @@ void vtkXYPlotActor::CreatePlotData(int *pos, int *pos2, float xRange[2],
         {
         if ( this->DataObjectPlotMode == VTK_XYPLOT_ROW )
           {
-          x[0] = field->GetComponent(this->DataObjectXComponent, ptId);
-          xyz[1] = field->GetComponent(this->DataObjectYComponent, ptId);
+          x[0] = field->GetComponent(this->XComponent->GetValue(doNum),ptId);
+          xyz[1] = field->GetComponent(this->YComponent->GetValue(doNum),ptId);
           }
         else //if ( this->DataObjectPlotMode == VTK_XYPLOT_COLUMN )
           {
-          x[0] = field->GetComponent(ptId, this->DataObjectXComponent);
-          xyz[1] = field->GetComponent(ptId, this->DataObjectYComponent);
+          x[0] = field->GetComponent(ptId, this->XComponent->GetValue(doNum));
+          xyz[1] = field->GetComponent(ptId, this->YComponent->GetValue(doNum));
           }
         
         if ( this->XValues == VTK_XYPLOT_NORMALIZED_ARC_LENGTH )
@@ -1126,20 +1134,26 @@ void vtkXYPlotActor::CreatePlotData(int *pos, int *pos2, float xRange[2],
           }
         
         // normalize and position
-        if ( xyz[0] >= xRange[0] && xyz[0] <= xRange[1] &&
-             xyz[1] >= yRange[0] && xyz[1] <= yRange[1] )
+        if ( xyz[0] < xRange[0] || xyz[0] > xRange[1] &&
+             xyz[1] < yRange[0] || xyz[1] > yRange[1] )
           {
-          numLinePts++;
-          xyz[0] = pos[0] + 
-            (xyz[0]-xRange[0])/(xRange[1]-xRange[0])*(pos2[0]-pos[0]);
-          xyz[1] = pos[1] + 
-            (xyz[1]-yRange[0])/(yRange[1]-yRange[0])*(pos2[1]-pos[1]);
-          id = pts->InsertNextPoint(xyz);
-          lines->InsertCellPoint(id);
+          clippingRequired = 1;
           }
+        
+        numLinePts++;
+        xyz[0] = pos[0] + 
+          (xyz[0]-xRange[0])/(xRange[1]-xRange[0])*(pos2[0]-pos[0]);
+        xyz[1] = pos[1] + 
+          (xyz[1]-yRange[0])/(yRange[1]-yRange[0])*(pos2[1]-pos[1]);
+        id = pts->InsertNextPoint(xyz);
+        lines->InsertCellPoint(id);
         }//for all input points
 
       lines->UpdateCellCount(numLinePts);
+      if ( clippingRequired )
+        {
+        this->ClipPlotData(pos,pos2,this->PlotData[doNum]);
+        }
       }//loop over all input data sets
     }
   
@@ -1458,5 +1472,56 @@ void vtkXYPlotActor::ClipPlotData(int *pos, int *pos2, vtkPolyData *pd)
   newVerts->Delete();
   newLines->Delete();
   
+}
+
+void vtkXYPlotActor::SetDataObjectXComponent(int i, int comp)
+{
+  i = ( i < 0 ? 0 : (i >=VTK_MAX_PLOTS ? VTK_MAX_PLOTS-1 : i));
+  int val=this->XComponent->GetValue(i);
+  if ( val != comp )
+    {
+    this->Modified();
+    this->XComponent->SetValue(i,comp);
+    }
+}
+
+int vtkXYPlotActor::GetDataObjectXComponent(int i)
+{
+  i = ( i < 0 ? 0 : (i >=VTK_MAX_PLOTS ? VTK_MAX_PLOTS-1 : i));
+  return this->XComponent->GetValue(i);
+}
+
+void vtkXYPlotActor::SetDataObjectYComponent(int i, int comp)
+{
+  i = ( i < 0 ? 0 : (i >=VTK_MAX_PLOTS ? VTK_MAX_PLOTS-1 : i));
+  int val=this->YComponent->GetValue(i);
+  if ( val != comp )
+    {
+    this->Modified();
+    this->YComponent->SetValue(i,comp);
+    }
+}
+
+int vtkXYPlotActor::GetDataObjectYComponent(int i)
+{
+  i = ( i < 0 ? 0 : (i >=VTK_MAX_PLOTS ? VTK_MAX_PLOTS-1 : i));
+  return this->YComponent->GetValue(i);
+}
+
+void vtkXYPlotActor::SetPointComponent(int i, int comp)
+{
+  i = ( i < 0 ? 0 : (i >=VTK_MAX_PLOTS ? VTK_MAX_PLOTS-1 : i));
+  int val=this->XComponent->GetValue(i);
+  if ( val != comp )
+    {
+    this->Modified();
+    this->XComponent->SetValue(i,comp);
+    }
+}
+
+int vtkXYPlotActor::GetPointComponent(int i)
+{
+  i = ( i < 0 ? 0 : (i >=VTK_MAX_PLOTS ? VTK_MAX_PLOTS-1 : i));
+  return this->XComponent->GetValue(i);
 }
 

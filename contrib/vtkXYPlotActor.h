@@ -106,6 +106,7 @@ class vtkGlyph2D;
 class vtkLegendBoxActor;
 class vtkAppendPolyData;
 class vtkPlanes;
+class vtkIntArray;
 
 class VTK_EXPORT vtkXYPlotActor : public vtkActor2D
 {
@@ -154,10 +155,10 @@ public:
   vtkDataSetCollection *GetInputList() {return this->InputList;}
 
   // Description:
-  // If plotting points by value, which component to use to determine
-  // the value.
-  vtkSetClampMacro(PointComponent,int,0,2);
-  vtkGetMacro(PointComponent,int);
+  // If plotting points by value, which component to use to determine the
+  // value. This sets a value per each input dataset (i.e., the ith dataset).
+  void SetPointComponent(int i, int comp);
+  int GetPointComponent(int i);
   //---end Data Set Input-----------------------------------------------------
 
   // Description:
@@ -209,21 +210,24 @@ public:
   char *GetDataObjectPlotModeAsString();
 
   // Description:
-  // Specify which component to use as the independent variable. (This
-  // ivar is ignored if plotting the index.) Note that the value is
-  // interpreted differently depending on DataObjectPlotMode. If the
-  // mode is Rows, then the value of DataObjectXComponent is the
-  // row number; otherwise it's the column number.
-  vtkSetClampMacro(DataObjectXComponent,int,0,VTK_LARGE_INTEGER);
-  vtkGetMacro(DataObjectXComponent,int);
-  
+  // Specify which component of the input data object to use as the
+  // independent variable for the ith input data object. (This ivar is
+  // ignored if plotting the index.) Note that the value is interpreted
+  // differently depending on DataObjectPlotMode. If the mode is Rows, then
+  // the value of DataObjectXComponent is the row number; otherwise it's the
+  // column number.
+  void SetDataObjectXComponent(int i, int comp);
+  int GetDataObjectXComponent(int i);
+
   // Description:
-  // Specify which component to use as the dependent variable.  Note that the
-  // value is interpreted differently depending on DataObjectPlotMode. If the
-  // mode is Rows, then the value of DataObjectYComponent is the row number;
-  // otherwise it's the column number.
-  vtkSetClampMacro(DataObjectYComponent,int,0,VTK_LARGE_INTEGER);
-  vtkGetMacro(DataObjectYComponent,int);
+  // Specify which component of the input data object to use as the
+  // dependent variable for the ith input data object. (This ivar is
+  // ignored if plotting the index.) Note that the value is interpreted
+  // differently depending on DataObjectPlotMode. If the mode is Rows, then
+  // the value of DataObjectYComponent is the row number; otherwise it's the
+  // column number.
+  void SetDataObjectYComponent(int i, int comp);
+  int GetDataObjectYComponent(int i);
   //---end Data Object Input--------------------------------------------------
 
   //---Per Curve Properties---------------------------------------------------
@@ -459,10 +463,9 @@ protected:
   float PlotCoordinate[2];
   
   //Handle data objects and datasets
-  int PointComponent;
   int DataObjectPlotMode;
-  int DataObjectXComponent;
-  int DataObjectYComponent;
+  vtkIntArray *XComponent;
+  vtkIntArray *YComponent;
 
   //The data drawn within the axes. Each curve is one polydata.
   //color is controlled by scalar data. The curves are appended

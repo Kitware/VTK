@@ -124,11 +124,27 @@ vtkXYPlotActor xyplot2
 #Okay exercise data object stuff
 vtkDataSetToDataObjectFilter ds2do
     ds2do SetInput [probe GetOutput]
+vtkDataSetToDataObjectFilter ds2do2
+    ds2do2 SetInput [probe2 GetOutput]
+vtkDataSetToDataObjectFilter ds2do3
+    ds2do3 SetInput [probe3 GetOutput]
 vtkXYPlotActor xyplot3
     xyplot3 AddDataObjectInput [ds2do GetOutput]
+    xyplot3 SetDataObjectXComponent 0 2
+    xyplot3 SetDataObjectYComponent 0 4
+    xyplot3 SetPlotColor 0 1 0 0
+    xyplot3 AddDataObjectInput [ds2do2 GetOutput]
+    xyplot3 SetDataObjectXComponent 1 2
+    xyplot3 SetDataObjectYComponent 1 5
+    xyplot3 SetPlotColor 1 0 1 0
+    xyplot3 AddDataObjectInput [ds2do3 GetOutput]
+    xyplot3 SetDataObjectXComponent 2 2
+    xyplot3 SetDataObjectYComponent 2 6
+    xyplot3 SetPlotColor 2 0 0 1
     [xyplot3 GetPositionCoordinate] SetValue 0.0 0.0 0
     [xyplot3 GetPosition2Coordinate] SetValue 1.0 0.33 0;#relative to Position
-    xyplot3 SetXValuesToValue
+    xyplot3 SetXValuesToIndex
+    xyplot3 SetXRange -1 32
     xyplot3 SetNumberOfXLabels 6
     xyplot3 SetTitle "Pressure vs. Point Id"
     xyplot3 SetXTitle "Probe Length"
@@ -136,8 +152,6 @@ vtkXYPlotActor xyplot3
     xyplot3 PlotPointsOn
     [xyplot3 GetProperty] SetColor 0 0 1
     [xyplot3 GetProperty] SetPointSize 3
-    xyplot3 SetDataObjectXComponent 2
-    xyplot3 SetDataObjectYComponent 4
 
 # draw an outline
 vtkStructuredGridOutlineFilter outline
@@ -178,20 +192,9 @@ set cam1 [ren1 GetActiveCamera]
 iren Initialize
 renWin Render
 
-
 # render the image
 #
 iren SetUserMethod {wm deiconify .vtkInteract}
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .
-
-#vtkOutputWindow w 
-#    w PromptUserOn
-
-#vtkCommand DeleteAllObjects
-
-#vtkDebugLeaks leaks
-#    leaks PrintCurrentLeaks
-
-#exit
