@@ -397,7 +397,10 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
 
   if (!data->NumberOfSuperClasses)
     {
-    fprintf(fp,"\n  public %s() { this.VTKInit();};\n",data->ClassName);
+    if (data->IsConcrete)
+      {
+      fprintf(fp,"\n  public %s() { this.VTKInit();};\n",data->ClassName);
+      }
     fprintf(fp,"\n  protected %s(int dmy) { super(); };\n",data->ClassName);
     fprintf(fp,"  protected int vtkId = 0;\n");
 
