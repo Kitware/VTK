@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageWrapPad, "1.30");
+vtkCxxRevisionMacro(vtkImageWrapPad, "1.31");
 vtkStandardNewMacro(vtkImageWrapPad);
 
 //----------------------------------------------------------------------------
@@ -208,6 +208,14 @@ void vtkImageWrapPad::ThreadedRequestData (
   vtkImageData **outData,
   int outExt[6], int id)
 {
+  // return if nothing to do
+  if (outExt[1] < outExt[0] ||
+      outExt[3] < outExt[2] ||
+      outExt[5] < outExt[4])
+    {
+    return;
+    }
+
   int inExt[6];
 
   // get the whole extent
@@ -241,15 +249,3 @@ void vtkImageWrapPad::ThreadedRequestData (
       return;
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
