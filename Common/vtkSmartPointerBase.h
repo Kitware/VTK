@@ -68,15 +68,29 @@ protected:
   vtkObjectBase* Object;
 };
 
+// Need to switch on bool type because std::less requires bool return
+// type from operators.  This example should not be used to justify
+// using bool elsewhere in VTK.
+#ifdef VTK_COMPILER_HAS_BOOL
+# define VTK_SMART_POINTER_BASE_DECLARE_OPERATOR(op) \
+   VTK_COMMON_EXPORT bool operator op (const vtkSmartPointerBase& l, \
+                                       const vtkSmartPointerBase& r); \
+   VTK_COMMON_EXPORT bool operator op (vtkObjectBase* l, \
+                                       const vtkSmartPointerBase& r); \
+   VTK_COMMON_EXPORT bool operator op (const vtkSmartPointerBase& l, \
+                                       vtkObjectBase* r)
+#else
+# define VTK_SMART_POINTER_BASE_DECLARE_OPERATOR(op) \
+   VTK_COMMON_EXPORT int operator op (const vtkSmartPointerBase& l, \
+                                      const vtkSmartPointerBase& r); \
+   VTK_COMMON_EXPORT int operator op (vtkObjectBase* l, \
+                                      const vtkSmartPointerBase& r); \
+   VTK_COMMON_EXPORT int operator op (const vtkSmartPointerBase& l, \
+                                      vtkObjectBase* r)
+#endif
+
 // Description:
 // Compare smart pointer values.
-#define VTK_SMART_POINTER_BASE_DECLARE_OPERATOR(op) \
-  VTK_COMMON_EXPORT int operator op (const vtkSmartPointerBase& l, \
-                                     const vtkSmartPointerBase& r); \
-  VTK_COMMON_EXPORT int operator op (vtkObjectBase* l, \
-                                     const vtkSmartPointerBase& r); \
-  VTK_COMMON_EXPORT int operator op (const vtkSmartPointerBase& l, \
-                                     vtkObjectBase* r)
 VTK_SMART_POINTER_BASE_DECLARE_OPERATOR(==);  
 VTK_SMART_POINTER_BASE_DECLARE_OPERATOR(!=);
 VTK_SMART_POINTER_BASE_DECLARE_OPERATOR(<);

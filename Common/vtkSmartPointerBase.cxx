@@ -93,18 +93,23 @@ void vtkSmartPointerBase::UnRegister()
 }
 
 //----------------------------------------------------------------------------
+#ifdef VTK_COMPILER_HAS_BOOL
+# define VTK_BOOL bool
+#else
+# define VTK_BOOL int
+#endif
 #define VTK_SMART_POINTER_BASE_DEFINE_OPERATOR(op) \
-  int operator op (const vtkSmartPointerBase& l, \
-                   const vtkSmartPointerBase& r) \
+   VTK_BOOL operator op (const vtkSmartPointerBase& l, \
+                         const vtkSmartPointerBase& r) \
     { \
     return (static_cast<void*>(l.GetPointer()) op \
             static_cast<void*>(r.GetPointer())); \
     } \
-  int operator op (vtkObjectBase* l, const vtkSmartPointerBase& r) \
+  VTK_BOOL operator op (vtkObjectBase* l, const vtkSmartPointerBase& r) \
     { \
     return (static_cast<void*>(l) op static_cast<void*>(r.GetPointer())); \
     } \
-  int operator op (const vtkSmartPointerBase& l, vtkObjectBase* r) \
+  VTK_BOOL operator op (const vtkSmartPointerBase& l, vtkObjectBase* r) \
     { \
     return (static_cast<void*>(l.GetPointer()) op static_cast<void*>(r)); \
     }
