@@ -21,7 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkMergeFields, "1.16");
+vtkCxxRevisionMacro(vtkMergeFields, "1.17");
 vtkStandardNewMacro(vtkMergeFields);
 
 char vtkMergeFields::FieldLocationNames[3][12] 
@@ -174,7 +174,7 @@ void vtkMergeFields::Execute()
   // Check if the data types of the input fields are the same
   // Otherwise warn the user.
   // Check if the number of tuples are the same for all arrays.
-  vtkDataArray* inputArray = 0;
+  vtkDataArray* inputArray;
   int dataType=-1;
   int sameDataType=1;
   int numTuples=-1;
@@ -260,7 +260,6 @@ void vtkMergeFields::Execute()
                             before->SourceIndex, before->Index))
         {
         outputArray->Delete();
-        outputArray = 0;
         return;
         }
       }

@@ -23,7 +23,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCubeSource, "1.50");
+vtkCxxRevisionMacro(vtkCubeSource, "1.51");
 vtkStandardNewMacro(vtkCubeSource);
 
 vtkCubeSource::vtkCubeSource(double xL, double yL, double zL)
@@ -69,7 +69,6 @@ void vtkCubeSource::Execute()
 //
 // Generate points and normals
 //
-  numPts = 0;
 
   for (x[0]=this->Center[0]-this->XLength/2.0, n[0]=(-1.0), n[1]=n[2]=0.0, i=0; 
   i<2; i++, x[0]+=this->XLength, n[0]+=2.0)

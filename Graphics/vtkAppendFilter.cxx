@@ -22,7 +22,7 @@
 #include "vtkPointData.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkAppendFilter, "1.68");
+vtkCxxRevisionMacro(vtkAppendFilter, "1.69");
 vtkStandardNewMacro(vtkAppendFilter);
 
 //----------------------------------------------------------------------------
@@ -92,12 +92,12 @@ vtkDataSetCollection *vtkAppendFilter::GetInputList()
 // Append data sets into single unstructured grid
 void vtkAppendFilter::Execute()
 {
-  vtkIdType numPts, numCells, ptOffset, cellOffset;
+  vtkIdType numPts, numCells, ptOffset;
   int   tenth, count, abort=0;
   float decimal;
   vtkPoints *newPts;
-  vtkPointData *pd = NULL;
-  vtkCellData *cd = NULL;
+  vtkPointData *pd;
+  vtkCellData *cd;
   vtkIdList *ptIds, *newPtIds;
   int i, idx;
   vtkDataSet *ds;
@@ -179,7 +179,6 @@ void vtkAppendFilter::Execute()
   //
   tenth = (numPts + numCells)/10 + 1;
   ptOffset=0;
-  cellOffset=0;
   int inputCount = 0; // Since empty inputs are not in the list.
   for (idx = 0; idx < this->NumberOfInputs && !abort; ++idx)
     {
@@ -231,7 +230,6 @@ void vtkAppendFilter::Execute()
             }
           }
         ptOffset+=numPts;
-        cellOffset+=numCells;
         }
       ++inputCount;
       }

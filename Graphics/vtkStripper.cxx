@@ -21,7 +21,7 @@
 #include "vtkCellData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkStripper, "1.65");
+vtkCxxRevisionMacro(vtkStripper, "1.66");
 vtkStandardNewMacro(vtkStripper);
 
 // Construct object with MaximumLength set to 1000.
@@ -41,7 +41,7 @@ void vtkStripper::Execute()
   vtkIdList *cellIds;
   int foundOne;
   vtkIdType *pts, neighbor=0;
-  vtkPolyData *Mesh;
+  vtkPolyData *mesh;
   char *visited;
   vtkIdType numStripPts = 0;
   vtkIdType *stripPts = 0;
@@ -59,20 +59,20 @@ void vtkStripper::Execute()
   inLines = input->GetLines();
   inPolys = input->GetPolys();
 
-  Mesh = vtkPolyData::New();
-  Mesh->SetPoints(input->GetPoints());
-  Mesh->SetLines(inLines);
-  Mesh->SetPolys(inPolys);
-  Mesh->BuildLinks();
+  mesh = vtkPolyData::New();
+  mesh->SetPoints(input->GetPoints());
+  mesh->SetLines(inLines);
+  mesh->SetPolys(inPolys);
+  mesh->BuildLinks();
 
   // check input
-  if ( (numCells=Mesh->GetNumberOfCells()) < 1  && inStrips->GetNumberOfCells() < 1)
+  if ( (numCells=mesh->GetNumberOfCells()) < 1  && inStrips->GetNumberOfCells() < 1)
     {
     // pass through verts
     output->CopyStructure(input);
     output->GetPointData()->PassData(input->GetPointData());
     output->GetCellData()->PassData(input->GetCellData());
-    Mesh->Delete();
+    mesh->Delete();
     vtkDebugMacro(<<"No data to strip!");
     return;
     }
@@ -138,7 +138,7 @@ void vtkStripper::Execute()
     if ( ! visited[cellId] )
       {
       visited[cellId] = 1;
-      if ( (cellType=Mesh->GetCellType(cellId)) == VTK_TRIANGLE )
+      if ( (cellType=mesh->GetCellType(cellId)) == VTK_TRIANGLE )
         {
         //  Got a starting point for the strip.  Initialize.  Find a neighbor
         //  to extend strip.
@@ -146,17 +146,17 @@ void vtkStripper::Execute()
         numStrips++;
         numPts = 3;
 
-        Mesh->GetCellPoints(cellId,numTriPts,triPts);
+        mesh->GetCellPoints(cellId,numTriPts,triPts);
 
         for (i=0; i<3; i++) 
           {
           pts[1] = triPts[i];
           pts[2] = triPts[(i+1)%3];
 
-          Mesh->GetCellEdgeNeighbors(cellId, pts[1], pts[2], cellIds);
+          mesh->GetCellEdgeNeighbors(cellId, pts[1], pts[2], cellIds);
           if ( cellIds->GetNumberOfIds() > 0 && 
           !visited[neighbor=cellIds->GetId(0)] &&
-          Mesh->GetCellType(neighbor) == VTK_TRIANGLE )
+          mesh->GetCellType(neighbor) == VTK_TRIANGLE )
             {
             pts[0] = triPts[(i+2)%3];
             break;
@@ -178,7 +178,7 @@ void vtkStripper::Execute()
           while ( neighbor >= 0 )
             {
             visited[neighbor] = 1;
-            Mesh->GetCellPoints(neighbor,numTriPts, triPts);
+            mesh->GetCellPoints(neighbor,numTriPts, triPts);
 
             for (i=0; i<3; i++)
               {
@@ -193,7 +193,7 @@ void vtkStripper::Execute()
             if (i < 3)
               {
               pts[numPts] = triPts[i];
-              Mesh->GetCellEdgeNeighbors(neighbor, pts[numPts], 
+              mesh->GetCellEdgeNeighbors(neighbor, pts[numPts], 
                                          pts[numPts-1], cellIds);
               numPts++;
               }
@@ -209,7 +209,7 @@ void vtkStripper::Execute()
             // now be visited
             if ( cellIds->GetNumberOfIds() <= 0 || 
                  visited[neighbor=cellIds->GetId(0)] ||
-                 Mesh->GetCellType(neighbor) != VTK_TRIANGLE ||
+                 mesh->GetCellType(neighbor) != VTK_TRIANGLE ||
                  numPts >= (this->MaximumLength+2) )
               {
               newStrips->InsertNextCell(numPts,pts);
@@ -228,18 +228,18 @@ void vtkStripper::Execute()
         numLines++;
         numPts = 2;
 
-        Mesh->GetCellPoints(cellId,numLinePts,linePts);
+        mesh->GetCellPoints(cellId,numLinePts,linePts);
 
         for ( foundOne=i=0; !foundOne && i<2; i++) 
           {
           pts[0] = linePts[i];
           pts[1] = linePts[(i+1)%2];
-          Mesh->GetPointCells(pts[1], cellIds);
+          mesh->GetPointCells(pts[1], cellIds);
           for (j=0; j < cellIds->GetNumberOfIds(); j++ )
             {
             neighbor = cellIds->GetId(j);
             if ( neighbor != cellId && !visited[neighbor] &&
-            Mesh->GetCellType(neighbor) == VTK_LINE )
+            mesh->GetCellType(neighbor) == VTK_LINE )
               {
               foundOne = 1;
               break;
@@ -259,7 +259,7 @@ void vtkStripper::Execute()
           while ( neighbor >= 0 )
             {
             visited[neighbor] = 1;
-            Mesh->GetCellPoints(neighbor, numLinePts, linePts);
+            mesh->GetCellPoints(neighbor, numLinePts, linePts);
 
             for (i=0; i<2; i++)
               {
@@ -269,7 +269,7 @@ void vtkStripper::Execute()
                 }
               }
             pts[numPts] = linePts[i];
-            Mesh->GetPointCells(pts[numPts], cellIds);
+            mesh->GetPointCells(pts[numPts], cellIds);
             if ( ++numPts > longestLine )
               {
               longestLine = numPts;
@@ -280,7 +280,7 @@ void vtkStripper::Execute()
               {
               nei = cellIds->GetId(j);
               if ( nei != neighbor && !visited[nei] &&
-              Mesh->GetCellType(nei) == VTK_LINE )
+              mesh->GetCellType(nei) == VTK_LINE )
                 {
                 neighbor = nei;
                 break;
@@ -300,7 +300,7 @@ void vtkStripper::Execute()
       //not line, triangle, or strip must be quad or tpolygon which we pass through
       else if ( cellType == VTK_POLYGON || cellType == VTK_QUAD )
         {
-        Mesh->GetCellPoints(cellId,numTriPts,triPts);
+        mesh->GetCellPoints(cellId,numTriPts,triPts);
         newPolys->InsertNextCell(numTriPts,triPts);
         }
 
@@ -311,8 +311,7 @@ void vtkStripper::Execute()
   //
   delete [] pts;
   delete [] visited;
-  Mesh->Delete();
-  Mesh = NULL;
+  mesh->Delete();
 
   output->SetPoints(input->GetPoints());
   output->GetPointData()->PassData(pd);

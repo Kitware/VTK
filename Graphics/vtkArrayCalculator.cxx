@@ -22,7 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkArrayCalculator, "1.26");
+vtkCxxRevisionMacro(vtkArrayCalculator, "1.27");
 vtkStandardNewMacro(vtkArrayCalculator);
 
 vtkArrayCalculator::vtkArrayCalculator()
@@ -660,11 +660,8 @@ void vtkArrayCalculator::AddVectorVariable(const char* variableName,
     tempComponents[i] = NULL;
     }
   delete [] arrayNames;
-  arrayNames = NULL;
   delete [] varNames;
-  varNames = NULL;
   delete [] tempComponents;
-  tempComponents = NULL;
 
   this->VectorArrayNames[i] = new char[strlen(arrayName) + 1];
   strcpy(this->VectorArrayNames[i], arrayName);

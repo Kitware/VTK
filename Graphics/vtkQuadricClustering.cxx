@@ -24,7 +24,7 @@
 #include "vtkTimerLog.h"
 #include "vtkTriangle.h"
 
-vtkCxxRevisionMacro(vtkQuadricClustering, "1.72");
+vtkCxxRevisionMacro(vtkQuadricClustering, "1.73");
 vtkStandardNewMacro(vtkQuadricClustering);
 
 //----------------------------------------------------------------------------
@@ -1280,7 +1280,6 @@ void vtkQuadricClustering::EndAppendVertexGeometry(vtkPolyData *input)
   if (tmp)
     {
     delete [] tmp;
-    tmp = NULL;
     }
 
   if (outVerts->GetNumberOfCells() > 0)
@@ -1288,7 +1287,6 @@ void vtkQuadricClustering::EndAppendVertexGeometry(vtkPolyData *input)
     this->GetOutput()->SetVerts(outVerts);
     }
   outVerts->Delete();
-  outVerts = NULL;
 }
 
 
@@ -1418,14 +1416,11 @@ void vtkQuadricClustering::FindFeaturePoints(vtkCellArray *edges,
     }
 
   pointIdList->Delete();
-  pointIdList = NULL;
   for (i = 0; i < numPts; i++)
     {
     delete [] pointTable[i];
-    pointTable[i] = NULL;
     }
   delete [] pointTable;
-  pointTable = NULL;
 }
 
 //----------------------------------------------------------------------------

@@ -22,7 +22,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkRotationalExtrusionFilter, "1.50");
+vtkCxxRevisionMacro(vtkRotationalExtrusionFilter, "1.51");
 vtkStandardNewMacro(vtkRotationalExtrusionFilter);
 
 // Create object with capping on, angle of 360 degrees, resolution = 12, and
@@ -52,7 +52,7 @@ void vtkRotationalExtrusionFilter::Execute()
   double x[3], newX[3], radius, angleIncr, radIncr, transIncr;
   double psi, theta;
   vtkPoints *newPts;
-  vtkCellArray *newLines=NULL, *newPolys=NULL, *newStrips=NULL;
+  vtkCellArray *newLines=NULL, *newPolys=NULL, *newStrips;
   vtkCell *edge;
   vtkIdList *cellIds, *cellPts;
   int i, j, k;

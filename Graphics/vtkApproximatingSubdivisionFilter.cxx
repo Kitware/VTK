@@ -23,7 +23,7 @@
 #include "vtkPolyData.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkApproximatingSubdivisionFilter, "1.27");
+vtkCxxRevisionMacro(vtkApproximatingSubdivisionFilter, "1.28");
 
 // Construct object with number of subdivisions set to 1.
 vtkApproximatingSubdivisionFilter::vtkApproximatingSubdivisionFilter()
@@ -37,7 +37,7 @@ void vtkApproximatingSubdivisionFilter::Execute()
   int level;
   vtkPoints *outputPts;
 
-  vtkCellArray *outputPolys = NULL;
+  vtkCellArray *outputPolys;
   vtkPolyData *input = this->GetInput();
   vtkPolyData *output = this->GetOutput();
   vtkPointData *outputPD;

@@ -27,7 +27,7 @@
 #include "vtkTensor.h"
 #include "vtkTriangle.h"
 
-vtkCxxRevisionMacro(vtkCurvatures, "1.11");
+vtkCxxRevisionMacro(vtkCurvatures, "1.12");
 vtkStandardNewMacro(vtkCurvatures);
 
 //------------------------------------------------------------------------------
@@ -104,7 +104,6 @@ void vtkCurvatures::GetMeanCurvature()
     //data init
     f = 0;
     F = mesh->GetNumberOfCells();
-    Hf = 0.0;
     // init, preallocate the mean curvature
     int* num_neighb = new int[numPts];
     for (v = 0; v < numPts; v++)

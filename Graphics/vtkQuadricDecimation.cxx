@@ -53,7 +53,7 @@
 #include "vtkPriorityQueue.h"
 #include "vtkTriangle.h"
 
-vtkCxxRevisionMacro(vtkQuadricDecimation, "1.35");
+vtkCxxRevisionMacro(vtkQuadricDecimation, "1.36");
 vtkStandardNewMacro(vtkQuadricDecimation);
 
 
@@ -398,7 +398,7 @@ void vtkQuadricDecimation::InitializeQuadrics(vtkIdType numPts)
   double *QEM;
   vtkIdType ptId;
   int i, j;
-  vtkCellArray *polys=NULL;
+  vtkCellArray *polys;
   vtkIdType npts, *pts=NULL;
   double point0[3], point1[3], point2[3];
   double n[3];
@@ -1324,7 +1324,6 @@ void vtkQuadricDecimation::ComputeNumberOfComponents(void)
       this->NumberOfComponents += 9;
       pd->CopyTensorsOn();
       this->AttributeScale[4] = this->TensorsWeight/maxRange;
-      maxRange = 0.0;
       }
     vtkDebugMacro("tensors "<< this->NumberOfComponents << " " 
                   << this->AttributeScale[4]);
