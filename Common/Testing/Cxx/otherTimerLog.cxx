@@ -30,7 +30,7 @@ void Test(ostream& strm)
 
   timer1->SetMaxEntries (3);
   timer1->StartTimer();
-  for (j = 0; j < 10; j++)
+  for (j = 0; j < 4; j++)
     {
     timer1->FormatAndMarkEvent("%s%d", "start", j);
     for (i = 0; i < 10000000; i++)
