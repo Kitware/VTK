@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkInformationDataSetKey.cxx
+  Module:    vtkInformationDataObjectVectorKey.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,22 +12,22 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkInformationDataSetKey.h"
+#include "vtkInformationDataObjectVectorKey.h"
 
-vtkCxxRevisionMacro(vtkInformationDataSetKey, "1.1");
+vtkCxxRevisionMacro(vtkInformationDataObjectVectorKey, "1.1");
 
 //----------------------------------------------------------------------------
-vtkInformationDataSetKey::vtkInformationDataSetKey()
+vtkInformationDataObjectVectorKey::vtkInformationDataObjectVectorKey()
 {
 }
 
 //----------------------------------------------------------------------------
-vtkInformationDataSetKey::~vtkInformationDataSetKey()
+vtkInformationDataObjectVectorKey::~vtkInformationDataObjectVectorKey()
 {
 }
 
 //----------------------------------------------------------------------------
-void vtkInformationDataSetKey::PrintSelf(ostream& os, vtkIndent indent)
+void vtkInformationDataObjectVectorKey::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }

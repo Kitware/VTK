@@ -96,7 +96,8 @@ vtkImplicitFunction.cxx
 vtkImplicitFunctionCollection.cxx
 vtkIndent.cxx
 vtkInformation.cxx
-vtkInformationDataSetKey.cxx
+vtkInformationDataObjectVectorKey.cxx
+vtkInformationDataObjectKey.cxx
 vtkInformationInformationKey.cxx
 vtkInformationInformationVectorKey.cxx
 vtkInformationIntegerKey.cxx
@@ -238,7 +239,8 @@ vtkGarbageCollector
 vtkHierarchicalDataSet
 vtkHomogeneousTransform
 vtkImplicitFunction
-vtkInformationDataSetKey
+vtkInformationDataObjectKey
+vtkInformationDataObjectVectorKey
 vtkInformationInformationKey
 vtkInformationInformationVectorKey
 vtkInformationIntegerKey

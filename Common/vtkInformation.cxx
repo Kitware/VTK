@@ -14,9 +14,10 @@
 =========================================================================*/
 #include "vtkInformation.h"
 
-#include "vtkDataSet.h"
+#include "vtkDataObject.h"
 #include "vtkDebugLeaks.h"
-#include "vtkInformationDataSetKey.h"
+#include "vtkInformationDataObjectKey.h"
+#include "vtkInformationDataObjectVectorKey.h"
 #include "vtkInformationInformationKey.h"
 #include "vtkInformationInformationVectorKey.h"
 #include "vtkInformationIntegerKey.h"
@@ -31,7 +32,7 @@
 #include <vtkstd/string>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkInformation, "1.5");
+vtkCxxRevisionMacro(vtkInformation, "1.6");
 vtkStandardNewMacro(vtkInformation);
 
 #ifdef VTK_DEBUG_LEAKS
@@ -174,7 +175,7 @@ const char* vtkInformation::Get(vtkInformationStringKey* key)
     return vtk##type::SafeDownCast(this->GetAsObjectBase(key));             \
     }
 
-VTK_INFORMATION_DEFINE_OBJECT_PROPERTY(DataSet);
+VTK_INFORMATION_DEFINE_OBJECT_PROPERTY(DataObject);
 VTK_INFORMATION_DEFINE_OBJECT_PROPERTY(Information);
 VTK_INFORMATION_DEFINE_OBJECT_PROPERTY(InformationVector);
 
@@ -229,7 +230,8 @@ VTK_INFORMATION_DEFINE_KEY_METHOD(INPUT_IS_REPEATABLE, Integer);
 VTK_INFORMATION_DEFINE_KEY_METHOD(INPUT_REQUIRED_FIELDS, InformationVector);
 VTK_INFORMATION_DEFINE_KEY_METHOD(DATA_TYPE, Integer);
 VTK_INFORMATION_DEFINE_KEY_METHOD(OUTPUT_PROVIDED_FIELDS, InformationVector);
-VTK_INFORMATION_DEFINE_KEY_METHOD(DATA_OBJECT, DataSet);
+VTK_INFORMATION_DEFINE_KEY_METHOD(DATA_OBJECT, DataObject);
+VTK_INFORMATION_DEFINE_KEY_METHOD(DATA_OBJECTS, DataObjectVector);
 VTK_INFORMATION_DEFINE_KEY_METHOD(FIELD_NAME, String);
 VTK_INFORMATION_DEFINE_KEY_METHOD(FIELD_ASSOCIATION, Integer);
 VTK_INFORMATION_DEFINE_KEY_METHOD(FIELD_ATTRIBUTE_TYPE, Integer);
@@ -289,13 +291,75 @@ VTK_INFORMATION_DEFINE_VECTOR_PROPERTY(Integer, int);
 VTK_INFORMATION_DEFINE_VECTOR_PROPERTY(Key, vtkInformationKey*);
 
 //----------------------------------------------------------------------------
+#define VTK_INFORMATION_DEFINE_OBJECT_VECTOR_PROPERTY(name, type)           \
+  class vtkInformation##name##VectorValue: public vtkObjectBase             \
+  {                                                                         \
+  public:                                                                   \
+    vtkTypeMacro(vtkInformation##name##VectorValue, vtkObjectBase);         \
+    vtkstd::vector< vtkSmartPointer<vtk##type> > References;                \
+    vtkstd::vector< vtk##type* > Value;                                     \
+  };                                                                        \
+  void vtkInformation::Set(vtkInformation##name##VectorKey* key,            \
+                           vtk##type** value, int length)                   \
+    {                                                                       \
+    vtkInformation##name##VectorValue* v =                                  \
+      new vtkInformation##name##VectorValue;                                \
+    vtkInformationConstructClass("vtkInformation" #name "VectorValue");     \
+    v->Value.insert(v->Value.begin(), value, value+length);                 \
+    for(vtkstd::vector<vtk##type*>::size_type i = 0;                        \
+        i < v->Value.size(); ++i)                                           \
+      {                                                                     \
+      v->References.push_back(v->Value[i]);                                 \
+      }                                                                     \
+    this->SetAsObjectBase(key, v);                                          \
+    v->Delete();                                                            \
+    }                                                                       \
+  vtk##type** vtkInformation::Get(vtkInformation##name##VectorKey* key)     \
+    {                                                                       \
+    vtkInformation##name##VectorValue* v =                                  \
+      vtkInformation##name##VectorValue::SafeDownCast(                      \
+        this->GetAsObjectBase(key));                                        \
+    return v?(&v->Value[0]):0;                                              \
+    }                                                                       \
+  void vtkInformation::Get(vtkInformation##name##VectorKey* key,            \
+                           vtk##type** value)                               \
+    {                                                                       \
+    vtkInformation##name##VectorValue* v =                                  \
+      vtkInformation##name##VectorValue::SafeDownCast(                      \
+        this->GetAsObjectBase(key));                                        \
+    if(v)                                                                   \
+      {                                                                     \
+      for(vtkstd::vector<vtk##type*>::size_type i = 0;                      \
+          i < v->Value.size(); ++i)                                         \
+        {                                                                   \
+        value[i] = v->Value[i];                                             \
+        }                                                                   \
+      }                                                                     \
+    }                                                                       \
+  int vtkInformation::Length(vtkInformation##name##VectorKey* key)          \
+    {                                                                       \
+    vtkInformation##name##VectorValue* v =                                  \
+      vtkInformation##name##VectorValue::SafeDownCast(                      \
+        this->GetAsObjectBase(key));                                        \
+    return v?static_cast<int>(v->Value.size()):0;                           \
+    }
+
+VTK_INFORMATION_DEFINE_OBJECT_VECTOR_PROPERTY(DataObject, DataObject);
+
+//----------------------------------------------------------------------------
 vtkInformationKey* vtkInformation::GetKey(vtkInformationKey* key)
 {
   return key;
 }
 
 //----------------------------------------------------------------------------
-vtkInformationKey* vtkInformation::GetKey(vtkInformationDataSetKey* key)
+vtkInformationKey* vtkInformation::GetKey(vtkInformationDataObjectKey* key)
+{
+  return key;
+}
+
+//----------------------------------------------------------------------------
+vtkInformationKey* vtkInformation::GetKey(vtkInformationDataObjectVectorKey* key)
 {
   return key;
 }

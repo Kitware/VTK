@@ -28,8 +28,9 @@
 
 #include "vtkObject.h"
 
-class vtkDataSet;
-class vtkInformationDataSetKey;
+class vtkDataObject;
+class vtkInformationDataObjectKey;
+class vtkInformationDataObjectVectorKey;
 class vtkInformationInformationKey;
 class vtkInformationInformationVectorKey;
 class vtkInformationIntegerKey;
@@ -78,6 +79,13 @@ public:
   int Length(vtkInformationKeyVectorKey* key);
 
   // Description:
+  // Get/Set a DataObject-vector-valued entry.
+  void Set(vtkInformationDataObjectVectorKey* key, vtkDataObject** value, int length);
+  vtkDataObject** Get(vtkInformationDataObjectVectorKey* key);
+  void Get(vtkInformationDataObjectVectorKey* key, vtkDataObject** value);
+  int Length(vtkInformationDataObjectVectorKey* key);
+
+  // Description:
   // Get/Set a string-valued entry.
   void Set(vtkInformationStringKey* key, const char*);
   const char* Get(vtkInformationStringKey* key);
@@ -93,9 +101,9 @@ public:
   vtkInformationVector* Get(vtkInformationInformationVectorKey* key);
 
   // Description:
-  // Get/Set an entry storing a vtkDataSet instance.
-  void Set(vtkInformationDataSetKey* key, vtkDataSet*);
-  vtkDataSet* Get(vtkInformationDataSetKey* key);
+  // Get/Set an entry storing a vtkDataObject instance.
+  void Set(vtkInformationDataObjectKey* key, vtkDataObject*);
+  vtkDataObject* Get(vtkInformationDataObjectKey* key);
 
   //BTX
   // Description:
@@ -129,7 +137,8 @@ public:
   static vtkInformationStringKey* INPUT_REQUIRED_DATA_TYPE();
   static vtkInformationIntegerKey* DATA_TYPE();
   static vtkInformationInformationVectorKey* OUTPUT_PROVIDED_FIELDS();
-  static vtkInformationDataSetKey* DATA_OBJECT();
+  static vtkInformationDataObjectKey* DATA_OBJECT();
+  static vtkInformationDataObjectVectorKey* DATA_OBJECTS();
   static vtkInformationStringKey* FIELD_NAME();
   static vtkInformationIntegerKey* FIELD_ASSOCIATION();
   static vtkInformationIntegerKey* FIELD_ATTRIBUTE_TYPE();
@@ -140,7 +149,8 @@ public:
 
   // Description:
   // Upcast the given key instance.
-  vtkInformationKey* GetKey(vtkInformationDataSetKey* key);
+  vtkInformationKey* GetKey(vtkInformationDataObjectKey* key);
+  vtkInformationKey* GetKey(vtkInformationDataObjectVectorKey* key);
   vtkInformationKey* GetKey(vtkInformationInformationKey* key);
   vtkInformationKey* GetKey(vtkInformationInformationVectorKey* key);
   vtkInformationKey* GetKey(vtkInformationIntegerKey* key);
