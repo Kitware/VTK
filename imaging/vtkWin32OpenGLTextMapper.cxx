@@ -158,6 +158,12 @@ void vtkWin32OpenGLTextMapper::ReleaseGraphicsResources(vtkWindow *win)
       }
     }
 
+  if ( this->Font )
+    {
+    DeleteObject( this->Font );
+    this->Font = 0;
+    }
+
   // very important
   // the release of graphics resources indicates that significant changes have
   // occurred. Old fonts, cached sizes etc are all no longer valid, so we send
@@ -282,7 +288,7 @@ void vtkWin32OpenGLTextMapper::RenderOpaqueGeometry(vtkViewport* viewport,
   glDisable( GL_LIGHTING);
 
   glListBase(vtkWin32OpenGLTextMapper::GetListBaseForFont(this,viewport));
-  
+
   // Set the colors for the shadow
   if (this->Shadow)
     {
@@ -303,6 +309,9 @@ void vtkWin32OpenGLTextMapper::RenderOpaqueGeometry(vtkViewport* viewport,
   // display a string: // indicate start of glyph display lists 
   glCallLists (strlen(this->Input), GL_UNSIGNED_BYTE, this->Input);  
 
+  glFlush();
+  GdiFlush();
+  
   glMatrixMode( GL_PROJECTION);
   glPopMatrix();
   glMatrixMode( GL_MODELVIEW);
