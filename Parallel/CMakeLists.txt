@@ -64,9 +64,8 @@ IF (VTK_WRAP_TCL)
   INSTALL_TARGETS(/lib vtkParallelTCL)
 
   IF (VTK_USE_MPI)
+
     ADD_EXECUTABLE(pvtk tkAppInit)
-
-
     TARGET_LINK_LIBRARIES (pvtk
 			 vtkParallelTCL
                          vtkRenderingTCL

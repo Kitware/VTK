@@ -88,6 +88,14 @@ vtkVolumeTextureMapper2D
 vtkWorldPointPicker
 )
 
+IF (VTK_USE_VOLUMEPRO)
+  SOURCE_FILES ( Rendering_SRCS
+    vtkVolumeProVG500Mapper
+    vtkOpenGLVolumeProVG500Mapper
+    )
+ENDIF (VTK_USE_VOLUMEPRO)
+
+
 SOURCE_FILES ( RenderingOpenGL_SRCS
                vtkOpenGLActor
                vtkOpenGLCamera
@@ -267,6 +275,7 @@ IF (VTK_WRAP_TCL)
   IF (TK_LIBRARY)
     TARGET_LINK_LIBRARIES (vtkRenderingTCL ${TK_LIBRARY})
   ENDIF (TK_LIBRARY)
+
   INSTALL_TARGETS(/lib vtkRenderingTCL)
 ENDIF (VTK_WRAP_TCL)
 
@@ -308,6 +317,7 @@ IF (VTK_WRAP_PYTHON)
                             ${TK_LIBRARY})
      INSTALL_TARGETS(/lib vtkRenderingPythonTkWidgets)
   ENDIF (TK_LIBRARY)
+
 ENDIF (VTK_WRAP_PYTHON)
 
 # if we are wrapping into Java then add the library and extra 
@@ -326,6 +336,7 @@ IF (VTK_WRAP_JAVA)
   IF (JAVA_AWT_LIBRARY)
     TARGET_LINK_LIBRARIES (vtkRenderingJava ${JAVA_AWT_LIBRARY})
   ENDIF (JAVA_AWT_LIBRARY)
+
   INSTALL_TARGETS(/lib vtkRenderingJava)
 ENDIF (VTK_WRAP_JAVA)
 
@@ -342,8 +353,6 @@ LINK_LIBRARIES(-lXt)
 LINK_LIBRARIES(${CMAKE_X_LIBS})
 ADD_DEFINITIONS(${CMAKE_X_CFLAGS})
 ENDIF(CMAKE_HAS_X)
-
-
 
 INSTALL_TARGETS(/lib vtkRendering)
 INSTALL_FILES(/include/vtk .h Rendering_SRCS)

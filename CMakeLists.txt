@@ -100,6 +100,21 @@ ENDIF (EXECUTABLE_OUTPUT_PATH)
 INCLUDE (${VTK_SOURCE_DIR}/vtkCMakeOptions.cmake)
 
 IF (VTK_USE_RENDERING)
+  OPTION(VTK_USE_VOLUMEPRO "Build VTK with volume pro support" OFF)
+  IF (VTK_USE_VOLUMEPRO)
+    FIND_LIBRARY(VLI_LIBRARY
+      NAMES vli
+      PATHS  
+        /usr/lib 
+        /usr/local/lib
+        "C:/Program Files/VolumePro/lib" 
+      )
+    FIND_PATH(VLI_INCLUDE_PATH vli.h 
+        /usr/include 
+        /usr/local/include
+        "C:/Program Files/VolumePro/inc" 
+        )
+  ENDIF (VTK_USE_VOLUMEPRO)
   INCLUDE (${CMAKE_ROOT}/Modules/FindOpenGL.cmake)
   SUBDIRS(Rendering)
   SUBDIR_DEPENDS(Rendering Imaging Graphics IO)
