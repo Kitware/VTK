@@ -56,7 +56,7 @@
 
 //-----------------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkUnstructuredGridLinearRayIntegrator, "1.1");
+vtkCxxRevisionMacro(vtkUnstructuredGridLinearRayIntegrator, "1.2");
 vtkStandardNewMacro(vtkUnstructuredGridLinearRayIntegrator);
 
 vtkUnstructuredGridLinearRayIntegrator::vtkUnstructuredGridLinearRayIntegrator()
@@ -409,7 +409,7 @@ static inline float dawson(float x)
   if (x > 0.2)
     {
 /*  x = abs(x);       In this application, x should always be >= 0. */
-    int n0 = 2*floor((0.5/H)*x + 0.5);
+    int n0 = (int)(2*floor((0.5/H)*x + 0.5));
     float xp = x - (float)n0*H;
     float e1 = exp((2*H)*xp);
     float e2 = e1*e1;
@@ -448,7 +448,7 @@ float vtkUnstructuredGridLinearRayIntegrator::Psi(float length,
                                                   float attenuation_front,
                                                   float attenuation_back)
 {
-  float difftauD = (float)(length*abs(attenuation_back - attenuation_front));
+  float difftauD = (float)(length*fabs(attenuation_back - attenuation_front));
 
   if (difftauD < 1.0e-8f)
     {
