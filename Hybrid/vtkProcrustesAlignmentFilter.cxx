@@ -22,7 +22,7 @@
 #include "vtkTransformPolyDataFilter.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkProcrustesAlignmentFilter, "1.1");
+vtkCxxRevisionMacro(vtkProcrustesAlignmentFilter, "1.2");
 vtkStandardNewMacro(vtkProcrustesAlignmentFilter);
 
 //----------------------------------------------------------------------------
@@ -90,7 +90,7 @@ void vtkProcrustesAlignmentFilter::Execute()
   this->LandmarkTransform->SetTargetLandmarks(mean_points);
 
   // compute mean and align all the shapes to it, until convergence
-  BOOL converged=false;
+  int converged=0; // bool converged=false
   int iterations=0;
   const int MAX_ITERATIONS=5;
   float difference; 
@@ -138,7 +138,7 @@ void vtkProcrustesAlignmentFilter::Execute()
       // test for convergence
       iterations++;
       if(fabs(difference)<1e-4 || iterations>=MAX_ITERATIONS) {
-        converged=true;
+        converged=1; // true
         }
 
       // The convergence test is a simple sum of differences of changing mean.
