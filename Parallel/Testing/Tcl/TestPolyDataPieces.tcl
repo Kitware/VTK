@@ -1,5 +1,8 @@
 package require vtktcl_interactor
 
+vtkMath math
+math RandomSeed 22
+
 vtkParallelFactory pf
 pf RegisterFactory pf
 
@@ -63,10 +66,32 @@ vtkActor actor3
 actor3 SetMapper mapper3
 actor3 SetPosition 0 -1.5 0
 
+vtkSphereSource sphere4
+sphere4 SetPhiResolution 32
+sphere4 SetThetaResolution 32
+
+vtkExtractPolyDataPiece extract4
+extract4 SetInput [sphere4 GetOutput]
+
+vtkPieceScalars ps4
+ps4 RandomModeOn
+ps4 SetScalarModeToCellData 
+ps4 SetInput [extract4 GetOutput]
+
+vtkPolyDataMapper mapper4
+mapper4 SetInput [ps4 GetOutput]
+mapper4 SetNumberOfSubPieces 8
+mapper4 SetScalarRange 0 8
+
+vtkActor actor4
+actor4 SetMapper mapper4
+actor4 SetPosition 1.5 -1.5 0
+
 vtkRenderer ren
 ren AddActor actor
 ren AddActor actor2
 ren AddActor actor3
+ren AddActor actor4
 
 vtkRenderWindow renWin
 renWin AddRenderer ren
