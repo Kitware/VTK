@@ -1,4 +1,17 @@
 SET(KIT Common)
+SET(UKIT COMMON)
+SET(KIT_TCL_LIBS ${TCL_LIBRARY})
+SET(KIT_PYTHON_LIBS)
+SET(KIT_JAVA_LIBS)
+SET(KIT_LIBS)
+
+IF (APPLE)
+  SET(KIT_LIBS ${KIT_LIBS} "-framework AppKit")
+ENDIF (APPLE)
+IF (UNIX)
+  SET(KIT_LIBS ${KIT_LIBS} ${CMAKE_THREAD_LIBS} ${CMAKE_DL_LIBS} -lm)
+ENDIF (UNIX)
+
 SET( Kit_SRCS
 vtkAbstractMapper.cxx
 vtkAbstractTransform.cxx
@@ -163,9 +176,12 @@ vtkWindowLevelLookupTable.cxx
 vtkXMLFileOutputWindow.cxx
 )
 
+IF (WIN32)
+  SET(Kit_SRCS ${Kit_SRCS} vtkWin32OutputWindow.cxx)
+ENDIF (WIN32)
 
-# vtkObjectBase is marked ABSTRACT so that instantiators are happy.
 SET_SOURCE_FILES_PROPERTIES(
+# vtkObjectBase is marked ABSTRACT so that instantiators are happy.
 vtkAbstractMapper
 vtkAbstractTransform
 vtkCallbackCommand
@@ -200,10 +216,6 @@ vtkWindow
 ABSTRACT
 )
 
-IF (WIN32)
-  SET(Kit_SRCS ${Kit_SRCS} vtkWin32OutputWindow.cxx)
-ENDIF (WIN32)
-
 SET_SOURCE_FILES_PROPERTIES(
   vtkCallbackCommand
   vtkCommand
@@ -220,24 +232,25 @@ SET_SOURCE_FILES_PROPERTIES(
   WRAP_EXCLUDE
 )
 
+SET(Kit_EXTRA_SRCS)
+SET(Kit_EXTRA_CMDS)
+SET(Kit_TCL_EXTRA_SRCS vtkTclUtil.cxx)
+SET(Kit_PYTHON_EXTRA_SRCS vtkPythonUtil.cxx)
+SET(Kit_JAVA_EXTRA_SRCS vtkJavaUtil.cxx)
+
+# -----------------------------------------------------------------
+
 # Setup vtkInstantiator registration for this library's classes.
 VTK_MAKE_INSTANTIATOR2(vtk${KIT}Instantiator KitInstantiator_SRCS
                        ${Kit_SRCS}
-                       EXPORT_MACRO VTK_COMMON_EXPORT
+                       EXPORT_MACRO VTK_${UKIT}_EXPORT
                        HEADER_LOCATION ${VTK_BINARY_DIR})
 
-ADD_LIBRARY(vtk${KIT} ${Kit_SRCS} ${KitInstantiator_SRCS})
+ADD_LIBRARY(vtk${KIT} ${Kit_SRCS} ${Kit_EXTRA_SRCS} ${KitInstantiator_SRCS})
 
 IF(VTK_APPLE_SHARED_FLAGS_NEEDED)
-  SET_TARGET_PROPERTIES(vtk${KIT} PROPERTIES LINK_FLAGS "-init _oft_initCom")
+  SET_TARGET_PROPERTIES(vtk${KIT} PROPERTIES LINK_FLAGS "-init _oft_init${KIT}")
 ENDIF(VTK_APPLE_SHARED_FLAGS_NEEDED)
-IF (APPLE)
-  TARGET_LINK_LIBRARIES(vtk${KIT} "-framework AppKit")
-ENDIF (APPLE)
-
-IF (UNIX)
-  TARGET_LINK_LIBRARIES(vtk${KIT} ${CMAKE_THREAD_LIBS} ${CMAKE_DL_LIBS} -lm)
-ENDIF (UNIX)
 
 # Allow the user to customize their build with some local options
 #
@@ -248,13 +261,12 @@ INCLUDE (${VTK_SOURCE_DIR}/${KIT}/LocalUserOptions.cmake OPTIONAL)
 # source files
 #
 IF (VTK_WRAP_TCL)
-  VTK_WRAP_TCL2(vtk${KIT}TCL KitTCL_SRCS ${Kit_SRCS})
-  ADD_LIBRARY(vtk${KIT}TCL ${KitTCL_SRCS} vtkTclUtil.cxx)
-  TARGET_LINK_LIBRARIES (vtk${KIT}TCL ${TCL_LIBRARY} vtk${KIT})
+  VTK_WRAP_TCL2(vtk${KIT}TCL SOURCES KitTCL_SRCS 
+                ${Kit_SRCS}
+                COMMANDS ${Kit_TCL_EXTRA_CMDS})
+  ADD_LIBRARY(vtk${KIT}TCL ${KitTCL_SRCS} ${Kit_TCL_EXTRA_SRCS})
+  TARGET_LINK_LIBRARIES (vtk${KIT}TCL vtk${KIT} ${KIT_TCL_LIBS})
   INSTALL_TARGETS(/lib/vtk vtk${KIT}TCL)
-  INSTALL_FILES(/include/vtk .h
-    vtkTclUtil
-  )
 ENDIF (VTK_WRAP_TCL)
 
 # if we are wrapping into Python then add the library and extra
@@ -262,7 +274,10 @@ ENDIF (VTK_WRAP_TCL)
 #
 IF (VTK_WRAP_PYTHON)
   VTK_WRAP_PYTHON2(vtk${KIT}Python KitPython_SRCS ${Kit_SRCS})
-  ADD_LIBRARY(vtk${KIT}Python MODULE ${KitPython_SRCS} vtkPythonUtil.cxx)
+  ADD_LIBRARY(vtk${KIT}Python MODULE ${KitPython_SRCS} ${Kit_PYTHON_EXTRA_SRCS})
+  IF(NOT APPLE)
+    TARGET_LINK_LIBRARIES (vtk${KIT}Python ${KIT_PYTHON_LIBS})
+  ENDIF(NOT APPLE)
   IF(WIN32)
     TARGET_LINK_LIBRARIES (vtk${KIT}Python
                            debug ${PYTHON_DEBUG_LIBRARY}
@@ -273,9 +288,6 @@ IF (VTK_WRAP_PYTHON)
   TARGET_LINK_LIBRARIES(vtk${KIT}Python vtk${KIT})
 
   INSTALL_TARGETS(/lib/vtk vtk${KIT}Python)
-  INSTALL_FILES(/include/vtk .h
-    vtkPythonUtil
-  )
 ENDIF (VTK_WRAP_PYTHON)
 
 # if we are wrapping into Java then add the library and extra
@@ -283,16 +295,17 @@ ENDIF (VTK_WRAP_PYTHON)
 #
 IF (VTK_WRAP_JAVA)
   VTK_WRAP_JAVA2(vtk${KIT}Java KitJava_SRCS ${Kit_SRCS})
-  ADD_LIBRARY(vtk${KIT}Java SHARED ${KitJava_SRCS} vtkJavaUtil.cxx)
-  TARGET_LINK_LIBRARIES(vtk${KIT}Java vtk${KIT})
+  ADD_LIBRARY(vtk${KIT}Java SHARED ${KitJava_SRCS} ${Kit_JAVA_EXTRA_SRCS})
+  TARGET_LINK_LIBRARIES(vtk${KIT}Java vtk${KIT} ${KIT_JAVA_LIBS})
   INSTALL_TARGETS(/lib/vtk vtk${KIT}Java)
-  INSTALL_FILES(/include/vtk .h
-    vtkJavaUtil
-  )
 ENDIF (VTK_WRAP_JAVA)
 
+TARGET_LINK_LIBRARIES(vtk${KIT} ${KIT_LIBS})
+
 INSTALL_TARGETS(/lib/vtk vtk${KIT})
-INSTALL_FILES(/include/vtk .h ${Kit_SRCS}
+INSTALL_FILES(/include/vtk .h ${Kit_SRCS})
+
+INSTALL_FILES(/include/vtk .h
   vtkCellType
   vtkSetGet
   vtkSystemIncludes
@@ -300,7 +313,23 @@ INSTALL_FILES(/include/vtk .h ${Kit_SRCS}
   vtkSmartPointer
   vtkIOStream
   vtkIOStreamFwd
+)
+
+IF(VTK_WRAP_TCL)
+  INSTALL_FILES(/include/vtk .h
+    vtkTclUtil
   )
+ENDIF(VTK_WRAP_TCL)
+IF(VTK_WRAP_PYTHON)
+  INSTALL_FILES(/include/vtk .h
+    vtkPythonUtil
+  )
+ENDIF(VTK_WRAP_PYTHON)
+IF(VTK_WRAP_JAVA)
+  INSTALL_FILES(/include/vtk .h
+    vtkJavaUtil
+  )
+ENDIF(VTK_WRAP_JAVA)
 
 INSTALL_FILES(/include/vtk .txx
   vtkImageIterator
