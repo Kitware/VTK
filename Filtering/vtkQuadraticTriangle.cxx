@@ -22,7 +22,7 @@
 #include "vtkDoubleArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkQuadraticTriangle, "1.3");
+vtkCxxRevisionMacro(vtkQuadraticTriangle, "1.4");
 vtkStandardNewMacro(vtkQuadraticTriangle);
 
 //----------------------------------------------------------------------------
@@ -72,7 +72,7 @@ vtkCell *vtkQuadraticTriangle::GetEdge(int edgeId)
 
 //----------------------------------------------------------------------------
 // order picked carefully for parametric coordinate conversion
-static int linearTris[4][3] = { {0,3,5}, {3, 1,4}, {5,4,2}, {4,5,3} };
+static int LinearTris[4][3] = { {0,3,5}, {3, 1,4}, {5,4,2}, {4,5,3} };
 
 int vtkQuadraticTriangle::EvaluatePosition(double* x, double* closestPoint, 
                                            int& subId, double pcoords[3],
@@ -87,11 +87,11 @@ int vtkQuadraticTriangle::EvaluatePosition(double* x, double* closestPoint,
   for (minDist2=VTK_DOUBLE_MAX, i=0; i < 4; i++)
     {
     this->Face->Points->SetPoint(
-      0,this->Points->GetPoint(linearTris[i][0]));
+      0,this->Points->GetPoint(LinearTris[i][0]));
     this->Face->Points->SetPoint(
-      1,this->Points->GetPoint(linearTris[i][1]));
+      1,this->Points->GetPoint(LinearTris[i][1]));
     this->Face->Points->SetPoint(
-      2,this->Points->GetPoint(linearTris[i][2]));
+      2,this->Points->GetPoint(LinearTris[i][2]));
 
     status = this->Face->EvaluatePosition(x,closest,ignoreId,pc,dist2,
                                           tempWeights);
@@ -189,20 +189,20 @@ void vtkQuadraticTriangle::Contour(double value,
 {
   for ( int i=0; i < 4; i++)
     {
-    this->Face->Points->SetPoint(0,this->Points->GetPoint(linearTris[i][0]));
-    this->Face->Points->SetPoint(1,this->Points->GetPoint(linearTris[i][1]));
-    this->Face->Points->SetPoint(2,this->Points->GetPoint(linearTris[i][2]));
+    this->Face->Points->SetPoint(0,this->Points->GetPoint(LinearTris[i][0]));
+    this->Face->Points->SetPoint(1,this->Points->GetPoint(LinearTris[i][1]));
+    this->Face->Points->SetPoint(2,this->Points->GetPoint(LinearTris[i][2]));
 
     if ( outPd )
       {
-      this->Face->PointIds->SetId(0,linearTris[i][0]);
-      this->Face->PointIds->SetId(1,linearTris[i][1]);
-      this->Face->PointIds->SetId(2,linearTris[i][2]);
+      this->Face->PointIds->SetId(0,this->PointIds->GetId(LinearTris[i][0]));
+      this->Face->PointIds->SetId(1,this->PointIds->GetId(LinearTris[i][1]));
+      this->Face->PointIds->SetId(2,this->PointIds->GetId(LinearTris[i][2]));
       }
 
-    this->Scalars->SetTuple(0,cellScalars->GetTuple(linearTris[i][0]));
-    this->Scalars->SetTuple(1,cellScalars->GetTuple(linearTris[i][1]));
-    this->Scalars->SetTuple(2,cellScalars->GetTuple(linearTris[i][2]));
+    this->Scalars->SetTuple(0,cellScalars->GetTuple(LinearTris[i][0]));
+    this->Scalars->SetTuple(1,cellScalars->GetTuple(LinearTris[i][1]));
+    this->Scalars->SetTuple(2,cellScalars->GetTuple(LinearTris[i][2]));
 
     this->Face->Contour(value, this->Scalars, locator, verts,
                         lines, polys, inPd, outPd, inCd, cellId, outCd);
@@ -225,9 +225,9 @@ int vtkQuadraticTriangle::IntersectWithLine(double* p1,
 
   for (i=0; i < 4; i++)
     {
-    this->Face->Points->SetPoint(0,this->Points->GetPoint(linearTris[i][0]));
-    this->Face->Points->SetPoint(1,this->Points->GetPoint(linearTris[i][1]));
-    this->Face->Points->SetPoint(2,this->Points->GetPoint(linearTris[i][2]));
+    this->Face->Points->SetPoint(0,this->Points->GetPoint(LinearTris[i][0]));
+    this->Face->Points->SetPoint(1,this->Points->GetPoint(LinearTris[i][1]));
+    this->Face->Points->SetPoint(2,this->Points->GetPoint(LinearTris[i][2]));
 
     if (this->Face->IntersectWithLine(p1, p2, tol, t, x, pcoords, subTest) )
       {
@@ -248,12 +248,12 @@ int vtkQuadraticTriangle::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
   // Create four linear triangles
   for ( int i=0; i < 4; i++)
     {
-    ptIds->InsertId(3*i,this->PointIds->GetId(linearTris[i][0]));
-    pts->InsertPoint(3*i,this->Points->GetPoint(linearTris[i][0]));
-    ptIds->InsertId(3*i+1,this->PointIds->GetId(linearTris[i][1]));
-    pts->InsertPoint(3*i+1,this->Points->GetPoint(linearTris[i][1]));
-    ptIds->InsertId(3*i+2,this->PointIds->GetId(linearTris[i][2]));
-    pts->InsertPoint(3*i+2,this->Points->GetPoint(linearTris[i][2]));
+    ptIds->InsertId(3*i,this->PointIds->GetId(LinearTris[i][0]));
+    pts->InsertPoint(3*i,this->Points->GetPoint(LinearTris[i][0]));
+    ptIds->InsertId(3*i+1,this->PointIds->GetId(LinearTris[i][1]));
+    pts->InsertPoint(3*i+1,this->Points->GetPoint(LinearTris[i][1]));
+    ptIds->InsertId(3*i+2,this->PointIds->GetId(LinearTris[i][2]));
+    pts->InsertPoint(3*i+2,this->Points->GetPoint(LinearTris[i][2]));
     }
 
   return 1;
@@ -287,17 +287,17 @@ void vtkQuadraticTriangle::Clip(double value,
 {
   for ( int i=0; i < 4; i++)
     {
-    this->Face->Points->SetPoint(0,this->Points->GetPoint(linearTris[i][0]));
-    this->Face->Points->SetPoint(1,this->Points->GetPoint(linearTris[i][1]));
-    this->Face->Points->SetPoint(2,this->Points->GetPoint(linearTris[i][2]));
+    this->Face->Points->SetPoint(0,this->Points->GetPoint(LinearTris[i][0]));
+    this->Face->Points->SetPoint(1,this->Points->GetPoint(LinearTris[i][1]));
+    this->Face->Points->SetPoint(2,this->Points->GetPoint(LinearTris[i][2]));
 
-    this->Face->PointIds->SetId(0,linearTris[i][0]);
-    this->Face->PointIds->SetId(1,linearTris[i][1]);
-    this->Face->PointIds->SetId(2,linearTris[i][2]);
+    this->Face->PointIds->SetId(0,this->PointIds->GetId(LinearTris[i][0]));
+    this->Face->PointIds->SetId(1,this->PointIds->GetId(LinearTris[i][1]));
+    this->Face->PointIds->SetId(2,this->PointIds->GetId(LinearTris[i][2]));
 
-    this->Scalars->SetTuple(0,cellScalars->GetTuple(linearTris[i][0]));
-    this->Scalars->SetTuple(1,cellScalars->GetTuple(linearTris[i][1]));
-    this->Scalars->SetTuple(2,cellScalars->GetTuple(linearTris[i][2]));
+    this->Scalars->SetTuple(0,cellScalars->GetTuple(LinearTris[i][0]));
+    this->Scalars->SetTuple(1,cellScalars->GetTuple(LinearTris[i][1]));
+    this->Scalars->SetTuple(2,cellScalars->GetTuple(LinearTris[i][2]));
 
     this->Face->Clip(value, this->Scalars, locator, polys, inPd, outPd, 
                      inCd, cellId, outCd, insideOut);

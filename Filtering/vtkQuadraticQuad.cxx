@@ -24,7 +24,7 @@
 #include "vtkQuad.h"
 #include "vtkQuadraticEdge.h"
 
-vtkCxxRevisionMacro(vtkQuadraticQuad, "1.3");
+vtkCxxRevisionMacro(vtkQuadraticQuad, "1.4");
 vtkStandardNewMacro(vtkQuadraticQuad);
 
 //----------------------------------------------------------------------------
@@ -35,6 +35,8 @@ vtkQuadraticQuad::vtkQuadraticQuad()
   this->Quad = vtkQuad::New();
   this->PointData = vtkPointData::New();
   this->CellData = vtkCellData::New();
+  this->CellScalars = vtkDoubleArray::New();
+  this->CellScalars->SetNumberOfTuples(9);
   this->Scalars = vtkDoubleArray::New();
   this->Scalars->SetNumberOfTuples(4);
 
@@ -59,6 +61,7 @@ vtkQuadraticQuad::~vtkQuadraticQuad()
 
   this->PointData->Delete();
   this->CellData->Delete();
+  this->CellScalars->Delete();
   this->Scalars->Delete();
 }
 
@@ -92,15 +95,13 @@ void vtkQuadraticQuad::Subdivide(double *weights)
 
   pc[0] = pc[1] = 0.5;
   this->InterpolationFunctions(pc, weights);
-  
-  double *p;
-  x[0] = 0.0;
-  x[1] = 0.0;
-  x[2] = 0.0;
-  for (i=0; i<8; i++) 
+
+  double p[3];
+  x[0] = x[1] = x[2] = 0.0;
+  for (i=0; i<8; i++)
     {
-    p = this->Points->GetPoint(i);
-    for (j=0; j<3; j++) 
+    this->Points->GetPoint(i, p);
+    for (j=0; j<3; j++)
       {
       x[j] += p[j] * weights[i];
       }
@@ -212,12 +213,17 @@ int vtkQuadraticQuad::CellBoundary(int subId, double pcoords[3], vtkIdList *pts)
   return this->Quad->CellBoundary(subId, pcoords, pts);
 }
 
+static double MidPoints[1][3] = { {0.5,0.5,0.0} };
+
 //----------------------------------------------------------------------------
-void vtkQuadraticQuad::InterpolateAttributes(vtkPointData *inPd, 
-                                             vtkCellData *inCd, 
-                                             vtkIdType cellId,
-                                             double *weights)
+void vtkQuadraticQuad::InterpolateAttributes(vtkPointData *inPd, vtkCellData *inCd, 
+                                             vtkIdType cellId, vtkDataArray *cellScalars)
 {
+  int numMidPts, i, j;
+  double weights[20];
+  double x[3];
+  double s;
+
   //Copy point and cell attribute data, first make sure it's empty:
   this->PointData->Initialize();
   this->CellData->Initialize();
@@ -228,22 +234,38 @@ void vtkQuadraticQuad::InterpolateAttributes(vtkPointData *inPd,
   for (int i=0; i<8; i++)
     {
     this->PointData->CopyData(inPd,this->PointIds->GetId(i),i);
+    this->CellScalars->SetValue( i, cellScalars->GetTuple1(i));
     }
-
-  // now interpolate the center point
-  this->PointIds->SetNumberOfIds(8);
-  this->PointData->InterpolatePoint(inPd, 8, this->PointIds, weights);
-  this->PointIds->SetNumberOfIds(9);
-  this->PointIds->SetId(8,8);
-  
   // copy the cell data over to the linear cell
   this->CellData->CopyData(inCd,cellId,0);
-  
+ 
+  //Interpolate new values
+  double p[3];
+  for ( numMidPts=0; numMidPts < 1; numMidPts++ )
+    {
+    this->InterpolationFunctions(MidPoints[numMidPts], weights);
+
+    x[0] = x[1] = x[2] = 0.0;
+    s = 0.0;
+    for (i=0; i<8; i++) 
+      {
+      this->Points->GetPoint(i, p);
+      for (j=0; j<3; j++) 
+        {
+        x[j] += p[j] * weights[i];
+        }
+      s += cellScalars->GetTuple1(i) * weights[i];
+      }
+    this->Points->SetPoint(8+numMidPts,x);
+    this->CellScalars->SetValue(8+numMidPts,s);
+    this->PointData->InterpolatePoint(inPd, 8+numMidPts, 
+                                      this->PointIds, weights);
+    }
 }
 
 //----------------------------------------------------------------------------
 void vtkQuadraticQuad::Contour(double value, 
-                               vtkDataArray* vtkNotUsed(cellScalars), 
+                               vtkDataArray* cellScalars, 
                                vtkPointLocator* locator, 
                                vtkCellArray *verts, 
                                vtkCellArray* lines, 
@@ -254,27 +276,21 @@ void vtkQuadraticQuad::Contour(double value,
                                vtkIdType cellId, 
                                vtkCellData* outCd)
 {
-  double weights[8];
-
-  //first define the midquad point
-  this->Subdivide(weights);
-  
   //interpolate point and cell data
-  this->InterpolateAttributes(inPd,inCd,cellId,weights);
+  this->InterpolateAttributes(inPd,inCd,cellId,cellScalars);
   
   //contour each linear quad separately
-  vtkDataArray *localScalars = this->PointData->GetScalars();
   for (int i=0; i<4; i++)
     {
     for (int j=0; j<4; j++)
       {
       this->Quad->Points->SetPoint(j,this->Points->GetPoint(LinearQuads[i][j]));
       this->Quad->PointIds->SetId(j,LinearQuads[i][j]);
-      this->Scalars->SetValue(j,localScalars->GetTuple1(LinearQuads[i][j]));
+      this->Scalars->SetValue(j,this->CellScalars->GetValue(LinearQuads[i][j]));
       }
     
     this->Quad->Contour(value,this->Scalars,locator,verts,lines,polys,
-                        this->PointData,outPd,this->CellData,0,outCd);
+                        this->PointData,outPd,this->CellData,cellId,outCd);
     }
 }
 
@@ -438,33 +454,27 @@ void vtkQuadraticQuad::Derivatives(int vtkNotUsed(subId),
 //----------------------------------------------------------------------------
 // Clip this quadratic quad using scalar value provided. Like contouring, 
 // except that it cuts the quad to produce other quads and triangles.
-void vtkQuadraticQuad::Clip(double value, vtkDataArray* vtkNotUsed(cellScalars), 
+void vtkQuadraticQuad::Clip(double value, vtkDataArray* cellScalars,
                             vtkPointLocator* locator, vtkCellArray* polys,
                             vtkPointData* inPd, vtkPointData* outPd,
                             vtkCellData* inCd, vtkIdType cellId, 
                             vtkCellData* outCd, int insideOut)
 {
-  double weights[8];
-
-  //first define the midquad point
-  this->Subdivide(weights);
-  
   //interpolate point and cell data
-  this->InterpolateAttributes(inPd,inCd,cellId,weights);
+  this->InterpolateAttributes(inPd,inCd,cellId,cellScalars);
   
   //contour each linear quad separately
-  vtkDataArray *localScalars = this->PointData->GetScalars();
   for (int i=0; i<4; i++)
     {
     for ( int j=0; j<4; j++) //for each of the four vertices of the linear quad
       {
       this->Quad->Points->SetPoint(j,this->Points->GetPoint(LinearQuads[i][j]));
       this->Quad->PointIds->SetId(j,LinearQuads[i][j]);
-      this->Scalars->SetTuple(j,localScalars->GetTuple(LinearQuads[i][j]));
+      this->Scalars->SetValue(j,this->CellScalars->GetValue(LinearQuads[i][j]));
       }
 
     this->Quad->Clip(value,this->Scalars,locator,polys,this->PointData,
-                     outPd,this->CellData,0,outCd,insideOut);
+                     outPd,this->CellData,cellId,outCd,insideOut);
     }
 }
 

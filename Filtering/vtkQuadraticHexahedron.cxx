@@ -25,7 +25,7 @@
 #include "vtkQuadraticEdge.h"
 #include "vtkQuadraticQuad.h"
 
-vtkCxxRevisionMacro(vtkQuadraticHexahedron, "1.1");
+vtkCxxRevisionMacro(vtkQuadraticHexahedron, "1.2");
 vtkStandardNewMacro(vtkQuadraticHexahedron);
 
 //----------------------------------------------------------------------------
@@ -51,6 +51,8 @@ vtkQuadraticHexahedron::vtkQuadraticHexahedron()
 
   this->PointData = vtkPointData::New();
   this->CellData = vtkCellData::New();
+  this->CellScalars = vtkDoubleArray::New();
+  this->CellScalars->SetNumberOfTuples(27);
   this->Scalars = vtkDoubleArray::New();
   this->Scalars->SetNumberOfTuples(8);
 }
@@ -65,6 +67,7 @@ vtkQuadraticHexahedron::~vtkQuadraticHexahedron()
   this->PointData->Delete();
   this->CellData->Delete();
   this->Scalars->Delete();
+  this->CellScalars->Delete();
 }
 
 
@@ -124,11 +127,12 @@ vtkCell *vtkQuadraticHexahedron::GetFace(int faceId)
 
 //----------------------------------------------------------------------------
 void vtkQuadraticHexahedron::Subdivide(vtkPointData *inPd, vtkCellData *inCd, 
-                                       vtkIdType cellId)
+                                       vtkIdType cellId, vtkDataArray *cellScalars)
 {
   int numMidPts, i, j;
   double weights[20];
   double x[3];
+  double s;
 
   //Copy point and cell attribute data, first make sure it's empty:
   this->PointData->Initialize();
@@ -138,32 +142,32 @@ void vtkQuadraticHexahedron::Subdivide(vtkPointData *inPd, vtkCellData *inCd,
   for (i=0; i<20; i++)
     {
     this->PointData->CopyData(inPd,this->PointIds->GetId(i),i);
+    this->CellScalars->SetValue( i, cellScalars->GetTuple1(i));
     }
   this->CellData->CopyData(inCd,cellId,0);
   
   //Interpolate new values
-  this->PointIds->SetNumberOfIds(20);
-  double *p;
+  double p[3];
   for ( numMidPts=0; numMidPts < 7; numMidPts++ )
     {
     this->InterpolationFunctions(MidPoints[numMidPts], weights);
 
-    x[0] = 0.0;
-    x[1] = 0.0;
-    x[2] = 0.0;
+    x[0] = x[1] = x[2] = 0.0;
+    s = 0.0;
     for (i=0; i<20; i++) 
       {
-      p = this->Points->GetPoint(i);
+      this->Points->GetPoint(i, p);
       for (j=0; j<3; j++) 
         {
         x[j] += p[j] * weights[i];
         }
+      s += cellScalars->GetTuple1(i) * weights[i];
       }
     this->Points->SetPoint(20+numMidPts,x);
+    this->CellScalars->SetValue(20+numMidPts,s);
     this->PointData->InterpolatePoint(inPd, 20+numMidPts, 
                                       this->PointIds, weights);
     }
-  this->PointIds->SetNumberOfIds(27);
 }
 
 //----------------------------------------------------------------------------
@@ -330,7 +334,7 @@ int vtkQuadraticHexahedron::CellBoundary(int subId, double pcoords[3],
 
 //----------------------------------------------------------------------------
 void vtkQuadraticHexahedron::Contour(double value, 
-                                     vtkDataArray* vtkNotUsed(cellScalars), 
+                                     vtkDataArray* cellScalars, 
                                      vtkPointLocator* locator, 
                                      vtkCellArray *verts, 
                                      vtkCellArray* lines, 
@@ -341,21 +345,20 @@ void vtkQuadraticHexahedron::Contour(double value,
                                      vtkIdType cellId, 
                                      vtkCellData* outCd)
 {
-  //subdivide into 8 linear hexes
-  this->Subdivide(inPd,inCd,cellId);
+  //subdivide into 8 linear hexs
+  this->Subdivide(inPd,inCd,cellId, cellScalars);
   
   //contour each linear quad separately
-  vtkDataArray *localScalars = this->PointData->GetScalars();
-  for (int i=0; i<8; i++)
+  for (int i=0; i<8; i++) // For each subdivided hexahedron
     {
-    for (int j=0; j<8; j++)
+    for (int j=0; j<8; j++) // For each of the eight vertices of the hexhedron
       {
       this->Hex->Points->SetPoint(j,this->Points->GetPoint(LinearHexs[i][j]));
       this->Hex->PointIds->SetId(j,LinearHexs[i][j]);
-      this->Scalars->SetValue(j,localScalars->GetTuple1(LinearHexs[i][j]));
+      this->Scalars->SetValue(j,this->CellScalars->GetValue(LinearHexs[i][j]));
       }
     this->Hex->Contour(value,this->Scalars,locator,verts,lines,polys,
-                       this->PointData,outPd,this->CellData,0,outCd);
+                       this->PointData,outPd,this->CellData,cellId,outCd);
     }
 }
 
@@ -513,27 +516,26 @@ void vtkQuadraticHexahedron::Derivatives(int vtkNotUsed(subId),
 // Clip this quadratic hex using scalar value provided. Like contouring, 
 // except that it cuts the hex to produce tetrahedra.
 void vtkQuadraticHexahedron::Clip(double value, 
-                                  vtkDataArray* vtkNotUsed(cellScalars), 
+                                  vtkDataArray* cellScalars, 
                                   vtkPointLocator* locator, vtkCellArray* tets,
                                   vtkPointData* inPd, vtkPointData* outPd,
                                   vtkCellData* inCd, vtkIdType cellId, 
                                   vtkCellData* outCd, int insideOut)
 {
   //create eight linear hexes
-  this->Subdivide(inPd,inCd,cellId);
+  this->Subdivide(inPd,inCd,cellId,cellScalars);
   
   //contour each linear hex separately
-  vtkDataArray *localScalars = this->PointData->GetScalars();
-  for (int i=0; i<8; i++)
+  for (int i=0; i<8; i++) // For each subdivided hexahedron
     {
-    for (int j=0; j<8; j++)
+    for (int j=0; j<8; j++) // For each of the eight vertices of the hexhedron
       {
       this->Hex->Points->SetPoint(j,this->Points->GetPoint(LinearHexs[i][j]));
       this->Hex->PointIds->SetId(j,LinearHexs[i][j]);
-      this->Scalars->SetValue(j,localScalars->GetTuple1(LinearHexs[i][j]));
+      this->Scalars->SetValue(j,this->CellScalars->GetValue(LinearHexs[i][j]));
       }
     this->Hex->Clip(value,this->Scalars,locator,tets,this->PointData,outPd,
-                    this->CellData,0,outCd,insideOut);
+                    this->CellData,cellId,outCd,insideOut);
     }
 }
 
