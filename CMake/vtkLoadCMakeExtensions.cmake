@@ -2,14 +2,11 @@
 # Macro to load VTK's CMake extension commands.  The argument should
 # be the directory containing the command modules.
 MACRO(VTK_LOAD_SINGLE_CMAKE_EXTENSION name dir)
-  MESSAGE(STATUS "Loading VTK command ${name}")
   IF(COMMAND ${name})
-    MESSAGE("Command ${name} already exists")
   ELSE(COMMAND ${name})
     LOAD_COMMAND(${name} ${dir} ${dir}/Debug)
   ENDIF(COMMAND ${name})
   IF(COMMAND ${name})
-    MESSAGE(STATUS "Loading VTK command ${name} - done")
   ELSE(COMMAND ${name})
     MESSAGE(FATAL_ERROR "Loading VTK command ${name} - failed")
   ENDIF(COMMAND ${name})
