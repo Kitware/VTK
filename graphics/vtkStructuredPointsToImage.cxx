@@ -246,7 +246,7 @@ void vtkStructuredPointsToImage::Execute(vtkImageRegion *region)
     pointData = new vtkPointData;
     pointData->SetScalars(newScalars);
     newScalars->Delete();  // registered by point data.
-    data->SetPointData(pointData);
+    /*data->SetPointData(pointData); help */
     }
   else if ((strcmp(type,"float") == 0) || (strcmp(type,"short") == 0) || 
 	   (strcmp(type,"int") == 0) || (strcmp(type,"unsigned short") == 0) ||
@@ -257,7 +257,7 @@ void vtkStructuredPointsToImage::Execute(vtkImageRegion *region)
     data->SetExtent(0, size[0]-1, 0, size[1]-1, 0, size[2]-1, 0, 0, 0, 0);
     pointData = new vtkPointData;
     pointData->SetScalars(scalars);
-    data->SetPointData(pointData);
+    /* help data->SetPointData(pointData); */
     }
   else
     {
