@@ -44,7 +44,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 vtkProbeFilter* vtkProbeFilter::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -63,6 +63,7 @@ vtkProbeFilter* vtkProbeFilter::New()
 //----------------------------------------------------------------------------
 vtkProbeFilter::vtkProbeFilter()
 {
+  this->SpatialMatch = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -169,6 +170,47 @@ void vtkProbeFilter::Execute()
     }
 }
 
+//----------------------------------------------------------------------------
+void vtkProbeFilter::ExecuteInformation()
+{
+  if (this->GetInput() == NULL || this->GetSource() == NULL)
+    {
+    vtkErrorMacro("Missing input or source");
+    return;
+    }
+  this->GetOutput()->SetMaximumNumberOfPieces(
+                        this->GetInput()->GetMaximumNumberOfPieces());
+}
+
+
+//----------------------------------------------------------------------------
+void vtkProbeFilter::ComputeInputUpdateExtents( vtkDataObject *output )
+{
+  vtkDataObject *input = this->GetInput();
+  vtkDataObject *source = this->GetSource();
+
+  // What ever happend to CopyUpdateExtent in vtkDataObject?
+  // Copying both piece and extent could be bad.  Setting the piece
+  // of a structured data set will affect the extent.
+
+  if ( ! this->SpatialMatch)
+    {
+    source->SetUpdateExtent(0, 1, 0);
+    }
+  else
+    {
+    source->SetUpdateExtent(output->GetUpdatePiece(), 
+                            output->GetUpdateNumberOfPieces(),
+                            output->GetUpdateGhostLevel());
+    source->SetUpdateExtent(output->GetUpdateExtent()); 
+    }
+  
+  input->SetUpdateExtent(output->GetUpdatePiece(), 
+                         output->GetUpdateNumberOfPieces(),
+                         output->GetUpdateGhostLevel());
+  input->SetUpdateExtent(output->GetUpdateExtent()); 
+
+}
 
 //----------------------------------------------------------------------------
 void vtkProbeFilter::PrintSelf(ostream& os, vtkIndent indent)
@@ -177,4 +219,12 @@ void vtkProbeFilter::PrintSelf(ostream& os, vtkIndent indent)
 
   vtkDataSetToDataSetFilter::PrintSelf(os,indent);
   os << indent << "Source: " << source << "\n";
+  if (this->SpatialMatch)
+    {
+    os << indent << "SpatialMatchOn\n";
+    }
+  else
+    {
+    os << indent << "SpatialMatchOff\n";
+    }
 }

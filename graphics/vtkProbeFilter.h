@@ -72,13 +72,31 @@ public:
   virtual void SetSource(vtkStructuredPoints *sp)
     { this->SetSource((vtkDataSet *)sp); }
 
+  // Description:
+  // This flag is used only when a piece is requested to update.  By default
+  // the flag is off.  Because no spatial correspondence between input pieces
+  // and source pieces is known, all of the source has to be requested no
+  // matter what piece of the output is requested.  When there is a spatial 
+  // correspondence, the user/application can set this flag.  This hint allows
+  // the breakup of the probe operation to be much more efficient.  When piece
+  // m of n is requested for update by the user, then only n of m needs to
+  // be requested of the source. 
+  vtkSetMacro(SpatialMatch, int);
+  vtkGetMacro(SpatialMatch, int);
+  vtkBooleanMacro(SpatialMatch, int);
+
 protected:
   vtkProbeFilter();
   ~vtkProbeFilter();
   vtkProbeFilter(const vtkProbeFilter&) {};
   void operator=(const vtkProbeFilter&) {};
 
+  int SpatialMatch;
+
   void Execute();
+  void ExecuteInformation();
+  void ComputeInputUpdateExtents(vtkDataObject *output);
+
 };
 
 #endif
