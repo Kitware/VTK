@@ -45,10 +45,10 @@ public:
   char *GetClassName() {return "vlCellArray";};
 
   int GetNumberOfCells();
-  void InsertNextCell(int npts, int* pts);
-  void InsertNextCell(int npts);
+  int InsertNextCell(int npts, int* pts);
+  int InsertNextCell(int npts);
   void InsertCellPoint(int id);
-  void InsertNextCell(vlCell *cell);
+  int InsertNextCell(vlCell *cell);
 
   int EstimateSize(int numCells, int maxPtsPerCell);
   void Squeeze();
@@ -76,7 +76,7 @@ inline int vlCellArray::GetNumberOfCells() {return this->NumberOfCells;};
 
 // Description:
 // Create a cell by specifying the number of pts and an array of point id's
-inline void vlCellArray::InsertNextCell(int npts, int* pts)
+inline int vlCellArray::InsertNextCell(int npts, int* pts)
 {
   int id = this->Ia.GetMaxId() + npts + 1;
   this->Ia.InsertValue(id,pts[npts-1]);
@@ -84,16 +84,20 @@ inline void vlCellArray::InsertNextCell(int npts, int* pts)
   for (int i=0; i<npts-1; i++) this->Ia[id-npts+i+1] = pts[i];
   this->NumberOfCells++;
   this->Location += npts + 1;
+
+  return this->NumberOfCells;
 }
 
 // Description:
 // Create cells by specifying count, and then adding points one at a time using
 // method InsertCellPoint(). WARNING: it is the user's responsibility not to
 // exceed the maximum allowable points per cell (MAX_CELL_SIZE).
-inline void vlCellArray::InsertNextCell(int npts)
+inline int vlCellArray::InsertNextCell(int npts)
 {
   this->Location = this->Ia.InsertNextValue(npts) + 1;
   this->NumberOfCells++;
+
+  return this->NumberOfCells;
 }
 
 // Description:
@@ -106,7 +110,7 @@ inline void vlCellArray::InsertCellPoint(int id)
 
 // Description:
 // Insert a cell object.
-inline void vlCellArray::InsertNextCell(vlCell *cell)
+inline int vlCellArray::InsertNextCell(vlCell *cell)
 {
   int npts = cell->GetNumberOfPoints();
   int id = this->Ia.GetMaxId() + npts + 1;
@@ -115,6 +119,8 @@ inline void vlCellArray::InsertNextCell(vlCell *cell)
   for (int i=0; i<npts-1; i++) this->Ia[id-npts+i+1] = cell->PointIds.GetId(i);
   this->NumberOfCells++;
   this->Location += npts + 1;
+
+  return this->NumberOfCells;
 }
 
 // Description:

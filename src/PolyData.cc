@@ -461,29 +461,32 @@ void vlPolyData::Allocate(int numCells, int extSize)
 // the PolyData::Allocate() function has been called first or that vertex,
 // line, polygon, and triangle strip arrays have been supplied.
 
-void vlPolyData::InsertNextCell(int type, int npts, int pts[MAX_CELL_SIZE])
+int vlPolyData::InsertNextCell(int type, int npts, int pts[MAX_CELL_SIZE])
 {
+  int id = 0;
+
   switch (type)
     {
     case vlPOINT: case vlPOLY_POINTS:
-      this->Verts->InsertNextCell(npts,pts);
+      id = this->Verts->InsertNextCell(npts,pts);
       break;
 
     case vlLINE: case vlPOLY_LINE:
-      this->Lines->InsertNextCell(npts,pts);
+      id = this->Lines->InsertNextCell(npts,pts);
       break;
 
     case vlTRIANGLE: case vlQUAD: case vlPOLYGON:
-      this->Polys->InsertNextCell(npts,pts);
+      id = this->Polys->InsertNextCell(npts,pts);
       break;
 
     case vlTRIANGLE_STRIP:
-      this->Strips->InsertNextCell(npts,pts);
+      id = this->Strips->InsertNextCell(npts,pts);
       break;
 
     default:
       vlErrorMacro(<<"Bad cell type! Can't insert!");
     }
+  return id;
 }
 
 // Description:
