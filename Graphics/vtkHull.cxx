@@ -202,12 +202,12 @@ void vtkHull::SetPlane( int i, float A, float B, float C )
     }
 
   double *plane = this->Planes + i*4;
-  if ( A == plane[0] && B == plane[1] && C != plane[2] )
+  if ( A == plane[0] && B == plane[1] && C == plane[2] )
     {
     return; //no modified
     }
 
-  // Add the plane at the end of the array. Normalize the direction,
+  // Set plane that has index i. Normalize the direction,
   // and make sure the vector has a length.
   norm = sqrt( (double) A*A + B*B + C*C );
   if ( norm == 0.0 )
@@ -231,7 +231,7 @@ void vtkHull::SetPlane( int i, float plane[3] )
 
 int vtkHull::AddPlane( float A, float B, float C, float D )
 {
-  int i;
+  int i, j;
 
   if ( (i=this->AddPlane(A,B,C)) >= 0 )
     {
@@ -239,16 +239,16 @@ int vtkHull::AddPlane( float A, float B, float C, float D )
     }
   else if ( i >= -this->NumberOfPlanes )
     {//pick the D that minimizes the convex set
-    i = -i - 1;
-    this->Planes[4*i + 3] = (D > this->Planes[4*i + 3] ? 
-                             D : this->Planes[4*i + 3]);
+    j = -i - 1;
+    this->Planes[4*j + 3] = (D > this->Planes[4*j + 3] ? 
+                             D : this->Planes[4*j + 3]);
     }
   return i;
 }
 
 int vtkHull::AddPlane( float plane[3], float D )
 {
-  int i;
+  int i, j;
 
   if ( (i=this->AddPlane(plane[0],plane[1],plane[2])) >= 0 )
     {
@@ -256,9 +256,9 @@ int vtkHull::AddPlane( float plane[3], float D )
     }
   else if ( i >= -this->NumberOfPlanes )
     {//pick the D that minimizes the convex set
-    i = -i - 1;
-    this->Planes[4*i + 3] = (D > this->Planes[4*i + 3] ? 
-                             D : this->Planes[4*i + 3]);
+    j = -i - 1;
+    this->Planes[4*j + 3] = (D > this->Planes[4*j + 3] ? 
+                             D : this->Planes[4*j + 3]);
     }
   return i;
 }
@@ -271,7 +271,7 @@ void vtkHull::SetPlane( int i, float A, float B, float C, float D )
     if ( plane[0] != A || plane[1] != B || plane[2] != C ||
          plane[3] != D )
       {
-      this->SetPlane(i, plane[0],plane[1],plane[2]);
+      this->SetPlane(i, A,B,C);
       plane[3] = D;
       this->Modified();
       }
