@@ -19,6 +19,9 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // lithography files (.stl files). The filename must be specified to
 // vlSTLReader. The object automatically senses whether the file is
 // ASCII or binary.
+// .SECTION Caveats
+// Binary files written on one system may not be readable on other systems.
+// vlSTLWriter uses VAX or PC byte ordering and swaps bytes on other systems.
 
 #ifndef __vlSTLReader_h
 #define __vlSTLReader_h
