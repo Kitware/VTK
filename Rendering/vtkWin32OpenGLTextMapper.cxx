@@ -411,8 +411,9 @@ vtkDebugMacro (<< "RenderOpaqueGeometry");
   glCallLists (strlen(this->Input), GL_UNSIGNED_BYTE, this->Input);  
 
   glFlush();
+#ifndef _WIN32_WCE
   GdiFlush();
-  
+#endif  
   glMatrixMode( GL_PROJECTION);
   glPopMatrix();
   glMatrixMode( GL_MODELVIEW);
