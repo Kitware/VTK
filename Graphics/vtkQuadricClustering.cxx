@@ -27,7 +27,7 @@
 #include "vtkTimerLog.h"
 #include "vtkTriangle.h"
 
-vtkCxxRevisionMacro(vtkQuadricClustering, "1.51");
+vtkCxxRevisionMacro(vtkQuadricClustering, "1.52");
 vtkStandardNewMacro(vtkQuadricClustering);
 
 //----------------------------------------------------------------------------
@@ -101,7 +101,7 @@ vtkQuadricClustering::~vtkQuadricClustering()
 void vtkQuadricClustering::Execute()
 {
   vtkPolyData *input = this->GetInput();
-  vtkTimerLog *tlog = NULL;
+  vtkTimerLog *tlog;
 
   if (input == NULL)
     {
@@ -166,7 +166,6 @@ void vtkQuadricClustering::Execute()
     tlog->StopTimer();
     vtkDebugMacro(<<"Execution took: "<<tlog->GetElapsedTime()<<" seconds.");
     tlog->Delete();
-    tlog = NULL;
     }  
 }
 
@@ -231,7 +230,7 @@ void vtkQuadricClustering::StartAppend(float *bounds)
 
   this->XBinSize = (this->Bounds[1]-this->Bounds[0])/this->NumberOfDivisions[0];
   this->YBinSize = (this->Bounds[3]-this->Bounds[2])/this->NumberOfDivisions[1];
-  this->ZBinSize = (this->Bounds[5]-this->Bounds[4])/this->NumberOfDivisions[2];   
+  this->ZBinSize = (this->Bounds[5]-this->Bounds[4])/this->NumberOfDivisions[2];
 
   this->NumberOfBinsUsed = 0;
   if (this->QuadricArray)
@@ -268,7 +267,7 @@ void vtkQuadricClustering::StartAppend(float *bounds)
 //----------------------------------------------------------------------------
 void vtkQuadricClustering::Append(vtkPolyData *pd)
 {
-  vtkCellArray *inputTris, *inputLines, *inputVerts;
+  vtkCellArray *inputTris, *inputStrips, *inputLines, *inputVerts;
   vtkPoints *inputPoints = pd->GetPoints();
   
   // Check for mis-use of the Append methods.
@@ -293,33 +292,55 @@ void vtkQuadricClustering::Append(vtkPolyData *pd)
   inputTris = pd->GetPolys();
   if (inputTris)
     {
-    this->AddPolygons(inputTris, inputPoints, 1);
+    this->AddTriangles(inputTris, inputPoints, 1);
     }
 
-  inputTris = pd->GetStrips();
-  if (inputTris)
+  inputStrips = pd->GetStrips();
+  if (inputStrips)
     {
-    this->AddTriangles(inputTris, inputPoints, 1);
+    this->AddStrips(inputStrips, inputPoints, 1);
     }
 }
 
 //----------------------------------------------------------------------------
 void vtkQuadricClustering::AddTriangles(vtkCellArray *tris, vtkPoints *points,
-                                        int geometryFlag)
+                                       int geometryFlag)
 {
   int j;
-  vtkIdType numCells, i;
+  vtkIdType *ptIds = 0;
+  vtkIdType numPts = 0;
+  float *pts0, *pts1, *pts2;
+  vtkIdType binIds[3];
+
+  for ( tris->InitTraversal(); tris->GetNextCell(numPts, ptIds); )
+    {
+    pts0 = points->GetPoint(ptIds[0]);
+    binIds[0] = this->HashPoint(pts0);
+    for (j = 0; j < numPts-2; j++)
+      {
+      pts1 = points->GetPoint(ptIds[j+1]);
+      binIds[1] = this->HashPoint(pts1);
+      pts2 = points->GetPoint(ptIds[j+2]);
+      binIds[2] = this->HashPoint(pts2);
+      this->AddTriangle(binIds, pts0, pts1, pts2, geometryFlag);
+      }
+    ++this->InCellCount;
+    }//for all polygons
+}
+
+//----------------------------------------------------------------------------
+void vtkQuadricClustering::AddStrips(vtkCellArray *strips, vtkPoints *points,
+                                     int geometryFlag)
+{
+  int j;
   vtkIdType *ptIds = 0;
   vtkIdType numPts = 0;
   float *pts[3];
   vtkIdType binIds[3];
   int odd;  // Used to flip order of every other triangle in a strip.
 
-  numCells = tris->GetNumberOfCells();
-  tris->InitTraversal();
-  for (i = 0; i < numCells; ++i)
+  for ( strips->InitTraversal(); strips->GetNextCell(numPts, ptIds); )
     {
-    tris->GetNextCell(numPts, ptIds);
     pts[0] = points->GetPoint(ptIds[0]);
     binIds[0] = this->HashPoint(pts[0]);
     pts[1] = points->GetPoint(ptIds[1]);
@@ -341,46 +362,13 @@ void vtkQuadricClustering::AddTriangles(vtkCellArray *tris, vtkPoints *points,
 }
 
 //----------------------------------------------------------------------------
-void vtkQuadricClustering::AddPolygons(vtkCellArray *polys, vtkPoints *points,
-                                       int geometryFlag)
-{
-  vtkIdType numCells, i;
-  int j;
-  vtkIdType *ptIds = 0;
-  vtkIdType numPts = 0;
-  float **pts;
-  vtkIdType binIds[3];
-
-  numCells = polys->GetNumberOfCells();
-  polys->InitTraversal();
-  for (i = 0; i < numCells; ++i)
-    {
-    polys->GetNextCell(numPts, ptIds);
-    pts = new float *[numPts];
-    pts[0] = points->GetPoint(ptIds[0]);
-    binIds[0] = this->HashPoint(pts[0]);
-    for (j = 0; j < numPts-2; j++)
-      {
-      pts[j+1] = points->GetPoint(ptIds[j+1]);
-      binIds[1] = this->HashPoint(pts[j+1]);
-      pts[j+2] = points->GetPoint(ptIds[j+2]);
-      binIds[2] = this->HashPoint(pts[j+2]);
-      this->AddTriangle(binIds, pts[0], pts[j+1], pts[j+2], geometryFlag);
-      }
-    ++this->InCellCount;
-    delete [] pts;
-    }
-}
-
-//----------------------------------------------------------------------------
 // The error function is the volume (squared) of the tetrahedron formed by the 
 // triangle and the point.  We ignore constant factors across all coefficents, 
 // and the constant coefficient.
 // If geomertyFlag is 1 then the triangle is added to the output.  Otherwise,
 // only the quadric is affected.
-void vtkQuadricClustering::AddTriangle(vtkIdType *binIds, float *pt0,
-                                       float *pt1, float *pt2,
-                                       int geometryFlag)
+void vtkQuadricClustering::AddTriangle(vtkIdType *binIds, float *pt0, float *pt1, 
+                                       float *pt2, int geometryFlag)
 {
   int i;
   vtkIdType triPtIds[3];
@@ -1141,20 +1129,16 @@ void vtkQuadricClustering::EndAppendVertexGeometry(vtkPolyData *input)
   int        tmpIdx;
   float *pt;
   int j;
-  vtkIdType numCells, i;
   vtkIdType *ptIds = 0;
   vtkIdType numPts = 0;
   vtkIdType outPtId;
-  vtkIdType binId, outCellId;
+  vtkIdType binId, cellId, outCellId;
 
   inVerts = input->GetVerts();
   outVerts = vtkCellArray::New();
 
-  numCells = inVerts->GetNumberOfCells();
-  inVerts->InitTraversal();
-  for (i = 0; i < numCells; ++i)
+  for (cellId=0, inVerts->InitTraversal(); inVerts->GetNextCell(numPts, ptIds); cellId++)
     {
-    inVerts->GetNextCell(numPts, ptIds);
     if (tmpLength < numPts)
       {
       if (tmp)
@@ -1184,7 +1168,7 @@ void vtkQuadricClustering::EndAppendVertexGeometry(vtkPolyData *input)
       // add poly vertex to output.
       outCellId = outVerts->InsertNextCell(tmpIdx, tmp);
       this->GetOutput()->GetCellData()->CopyData(input->GetCellData(),
-                                      i, outCellId);
+                                      cellId, outCellId);
       }
     }
 

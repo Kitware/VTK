@@ -45,6 +45,9 @@
 //
 // To use this filter, specify the divisions defining the spatial subdivision
 // in the x, y, and z directions. You must also specify an input vtkPolyData.
+// Then choose to either 1) use the original points that minimize the quadric
+// error to produce the output triangles or 2) compute an optimal position in
+// each bin to produce the output triangles (recommended and default behavior).
 //
 // This filter can take multiple inputs.  To do this, the user must explicity
 // call StartAppend, Append (once for each input), and EndAppend.  StartAppend
@@ -57,9 +60,15 @@
 // .SECTION Caveats
 // This filter can drastically affect topology, i.e., topology is not 
 // preserved.
+//
+// The filter handles input triangle strips and arbitrary polygons. Arbitrary
+// polygons are assumed convex: during insertion they are triangulated using
+// a fan of triangles from the first point in the polygons. If the polygon is
+// concave, this can produce bad results. In this case, use vtkTriangleFilter
+// to triangulate the polygons first.
 
 // .SECTION See Also
-// vtkDecimatePro vtkDecimate
+// vtkQuadricDecimation vtkDecimatePro vtkDecimate
 
 #ifndef __vtkQuadricClustering_h
 #define __vtkQuadricClustering_h
@@ -78,36 +87,10 @@ public:
   static vtkQuadricClustering *New();
 
   // Description:
-  // By default, this flag is off.  When "UseFeatureEdges" is on, then quadrics
-  // are computed for boundary edges/feature edges.  They influence the quadrics
-  // (position of points), but not the mesh.  Which features to use can be controlled 
-  // by the filter "FeatureEdges".  
-  vtkSetMacro(UseFeatureEdges, int);
-  vtkGetMacro(UseFeatureEdges, int);
-  vtkBooleanMacro(UseFeatureEdges, int);
-  vtkFeatureEdges *GetFeatureEdges() {return this->FeatureEdges;}
-
-  // Description:
-  // By default, this flag is off.  It only has an effect when
-  // "UseFeatureEdges" is also on.  When "UseFeaturePoints" is on, then
-  // quadrics are computed for boundary / feature points used in the boundary /
-  // feature edges.  They influence the quadrics (position of points), but not
-  // the mesh.
-  vtkSetMacro(UseFeaturePoints, int);
-  vtkGetMacro(UseFeaturePoints, int);
-  vtkBooleanMacro(UseFeaturePoints, int);
-
-  // Description:
-  // Set/Get the angle to use in determining whether a point on a boundary /
-  // feature edge is a feature point.
-  vtkSetClampMacro(FeaturePointsAngle, float, 0.0, 180.0);
-  vtkGetMacro(FeaturePointsAngle, float);
-  
-  // Description:
   // Set/Get the number of divisions along each axis for the spatial bins.
   // The number of spatial bins is NumberOfXDivisions*NumberOfYDivisions*
-  // NumberOfZDivisions.  The filter may choose to ignore large numbers of 
-  // divisions if input has few points.
+  // NumberOfZDivisions.  The filter may choose to ignore large numbers of
+  // divisions if the input has few points.
   void SetNumberOfXDivisions(int num);
   void SetNumberOfYDivisions(int num);
   void SetNumberOfZDivisions(int num);
@@ -123,12 +106,40 @@ public:
   // boundaries between pieces, then you should use these methods rather than
   // SetNumberOfDivisions.
   void SetDivisionOrigin(float x, float y, float z);
-  void SetDivisionOrigin(float o[3]) {this->SetDivisionOrigin(o[0],o[1],o[2]);}
+  void SetDivisionOrigin(float o[3]) 
+    {this->SetDivisionOrigin(o[0],o[1],o[2]);}
   vtkGetVector3Macro(DivisionOrigin, float);
   void SetDivisionSpacing(float x, float y, float z);
-  void SetDivisionSpacing(float s[3]) {this->SetDivisionSpacing(s[0],s[1],s[2]);}
+  void SetDivisionSpacing(float s[3]) 
+    {this->SetDivisionSpacing(s[0],s[1],s[2]);}
   vtkGetVector3Macro(DivisionSpacing, float);
 
+  // Description:
+  // By default, this flag is off.  When "UseFeatureEdges" is on, then
+  // quadrics are computed for boundary edges/feature edges.  They influence
+  // the quadrics (position of points), but not the mesh.  Which features to
+  // use can be controlled by the filter "FeatureEdges".
+  vtkSetMacro(UseFeatureEdges, int);
+  vtkGetMacro(UseFeatureEdges, int);
+  vtkBooleanMacro(UseFeatureEdges, int);
+  vtkFeatureEdges *GetFeatureEdges() {return this->FeatureEdges;}
+
+  // Description:
+  // By default, this flag is off.  It only has an effect when
+  // "UseFeatureEdges" is also on.  When "UseFeaturePoints" is on, then
+  // quadrics are computed for boundary / feature points used in the boundary
+  // / feature edges.  They influence the quadrics (position of points), but
+  // not the mesh.
+  vtkSetMacro(UseFeaturePoints, int);
+  vtkGetMacro(UseFeaturePoints, int);
+  vtkBooleanMacro(UseFeaturePoints, int);
+
+  // Description:
+  // Set/Get the angle to use in determining whether a point on a boundary /
+  // feature edge is a feature point.
+  vtkSetClampMacro(FeaturePointsAngle, float, 0.0, 180.0);
+  vtkGetMacro(FeaturePointsAngle, float);
+  
   // Description:
   // When this flag is on (and it is on by default), then triangles that are 
   // completely contained in a bin are added to the bin quadrics.  When the
@@ -169,9 +180,6 @@ public:
   vtkGetMacro(CopyCellData, int); 
   vtkBooleanMacro(CopyCellData, int); 
 
-  // Description:
-  // Use PolyVerticies will cause all of the points
-
 protected:
   vtkQuadricClustering();
   ~vtkQuadricClustering();
@@ -190,10 +198,8 @@ protected:
   // Description:
   // Add triangles to the quadric array.  If geometry flag is on then
   // triangles are added to the output.
-  void AddTriangles(vtkCellArray *tris, vtkPoints *points,
-                    int geometryFlag);
-  void AddPolygons(vtkCellArray *polys, vtkPoints *points,
-                   int geometryFlag);
+  void AddStrips(vtkCellArray *strips, vtkPoints *points, int geometryFlag);
+  void AddTriangles(vtkCellArray *tris, vtkPoints *points, int geometryFlag);
   void AddTriangle(vtkIdType *binIds, float *pt0, float *pt1, float *pt2,
                    int geometeryFlag);
 
