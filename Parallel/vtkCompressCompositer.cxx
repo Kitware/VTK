@@ -53,7 +53,7 @@
 
 #include "vtkTimerLog.h"
 
-vtkCxxRevisionMacro(vtkCompressCompositer, "1.11");
+vtkCxxRevisionMacro(vtkCompressCompositer, "1.12");
 vtkStandardNewMacro(vtkCompressCompositer);
 
 
@@ -234,7 +234,8 @@ void vtkCompressCompositer::Compress(vtkFloatArray *zIn, vtkDataArray *pIn,
 // Assume that the array has enough allocated space for the uncompressed.
 // In place/reverse order.
 template <class P>
-void vtkCompressCompositerUncompress(float *zIn, P *pIn, P *pOut, int lengthIn)
+void vtkCompressCompositerUncompress(float *zIn, P *pIn, float *zOut, P *pOut,
+                                     int lengthIn)
 {
   float* endZ;
   int count;
@@ -252,14 +253,13 @@ void vtkCompressCompositerUncompress(float *zIn, P *pIn, P *pOut, int lengthIn)
       while (count-- > 0)
         {
         *pOut++ = background;
-        //*zOut++ = 1.0;
+        *zOut++ = 1.0;
         }
       }
     else
       {
       *pOut++ = *pIn++;
-      //*zOut++ = *zIn++;
-      ++zIn;
+      *zOut++ = *zIn++;
       }
     }
 }
@@ -270,10 +270,11 @@ void vtkCompressCompositerUncompress(float *zIn, P *pIn, P *pOut, int lengthIn)
 // We could easily compress inplace, but it works out better for buffer 
 // managment if we do not.  zIn == zOut is allowed....
 void vtkCompressCompositer::Uncompress(vtkFloatArray *zIn, vtkDataArray *pIn,
-                                       vtkDataArray *pOut, int lengthOut)
+                                       vtkFloatArray *zOut, vtkDataArray *pOut,
+                                       int lengthOut)
 {
   float* pzf1 = zIn->GetPointer(0);
-  //float* pzf2 = zOut->GetPointer(0);
+  float* pzf2 = zOut->GetPointer(0);
   void*  ppv1 = pIn->GetVoidPointer(0);
   void*  ppv2 = pOut->GetVoidPointer(0);
   int lengthIn = zIn->GetNumberOfTuples();
@@ -288,6 +289,7 @@ void vtkCompressCompositer::Uncompress(vtkFloatArray *zIn, vtkDataArray *pIn,
       {
       vtkCompressCompositerUncompress(pzf1, 
                                       reinterpret_cast<vtkCharRGBType*>(ppv1),
+                                      pzf2,
                                       reinterpret_cast<vtkCharRGBType*>(ppv2),
                                       lengthIn);
       }
@@ -295,6 +297,7 @@ void vtkCompressCompositer::Uncompress(vtkFloatArray *zIn, vtkDataArray *pIn,
       {
       vtkCompressCompositerUncompress(pzf1, 
                                       reinterpret_cast<vtkCharRGBAType*>(ppv1),
+                                      pzf2,
                                       reinterpret_cast<vtkCharRGBAType*>(ppv2),
                                       lengthIn);
       }
@@ -309,6 +312,7 @@ void vtkCompressCompositer::Uncompress(vtkFloatArray *zIn, vtkDataArray *pIn,
     {
     vtkCompressCompositerUncompress(pzf1, 
                                     reinterpret_cast<vtkFloatRGBAType*>(ppv1),
+                                    pzf2,
                                     reinterpret_cast<vtkFloatRGBAType*>(ppv2),
                                     lengthIn);
     }
@@ -685,8 +689,7 @@ void vtkCompressCompositer::CompositeBuffer(vtkDataArray *pBuf,
   if (myId == 0)
     {
     // Now we want to decompress into the original buffers.
-    // Ignore z because it is not used by composite manager.
-    this->Uncompress(z1, p1, pBuf, uncompressedLength);
+    this->Uncompress(z1, p1, zBuf, pBuf, uncompressedLength);
     }
 
   //this->Timer->StopTimer();
