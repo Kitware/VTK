@@ -19,7 +19,7 @@
 #include "vtkPiecewiseFunction.h"
 #include "vtkRenderer.h"
 
-vtkCxxRevisionMacro(vtkLightKit, "1.21");
+vtkCxxRevisionMacro(vtkLightKit, "1.22");
 vtkStandardNewMacro(vtkLightKit);
 
 static const char *vtkLightKitTypeStrings[] = {
@@ -461,4 +461,31 @@ const char *vtkLightKit::GetShortStringFromSubType(int subtype)
     return NULL;
     }
 }
+//----------------------------------------------------------------------------
+vtkLightKit::LightKitSubType vtkLightKit::GetSubType(vtkLightKit::LightKitType type, int i)
+{
+  //return subtype
+  const LightKitSubType KeyLightSubType[4]  = { Warmth, Intensity, Elevation, Azimuth };
+  const LightKitSubType FillLightSubType[4] = { Warmth, KFRatio, Elevation, Azimuth };
+  const LightKitSubType BackLightSubType[4] = { Warmth, KBRatio, Elevation, Azimuth };
+  const LightKitSubType HeadLightSubType[2] = { Warmth, KHRatio };
 
+  LightKitSubType subtype;
+  switch(type)
+    {
+    case TKeyLight:
+      subtype = KeyLightSubType[i];
+      break;
+    case TFillLight:
+      subtype = FillLightSubType[i];
+      break;
+    case TBackLight:
+      subtype = BackLightSubType[i];
+      break;
+    case THeadLight:
+      subtype = HeadLightSubType[i];
+      break;
+    }
+
+  return subtype;
+}

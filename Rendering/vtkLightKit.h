@@ -107,7 +107,7 @@ public:
     TKeyLight,
     TFillLight,
     TBackLight,
-    THeadLight 
+    THeadLight
   };
 
   enum  LightKitSubType {
@@ -119,6 +119,7 @@ public:
     KBRatio,
     KHRatio
   };
+
   //ETX
 
   // Description:
@@ -288,6 +289,11 @@ public:
   // The difference from GetStringFromSubType is that it returns
   // a shorter strings (usefull for GUI with minimun space)
   static const char *GetShortStringFromSubType(int subtype);
+  
+  // Description:
+  // Return the possible subtype from a given type. You have to pass
+  // in a number i [0,3] no check is done. 
+  static LightKitSubType GetSubType(LightKitType type, int i);
 
 protected:
   vtkLightKit();
