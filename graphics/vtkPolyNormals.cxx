@@ -252,11 +252,13 @@ void vtkPolyNormals::Execute()
   else //no splitting
     {
     numNewPts = numPts;
+    outPD->CopyNormalsOff();
+    outPD->PassData(pd);
     }
-//
-//  Finally, traverse all elements, computing polygon normals and
-//  accumalating them at the vertices.
-//
+  //
+  //  Finally, traverse all elements, computing polygon normals and
+  //  accumalating them at the vertices.
+  //
   if ( Visited ) delete [] Visited;
 
   if ( this->FlipNormals && ! this->Consistency ) flipDirection = -1.0;
