@@ -6,10 +6,10 @@
 #ifndef __vlFloatScalars_h
 #define __vlFloatScalars_h
 
-#include "Object.h"
-#include "FArray.h"
-#include "FTriple.h"
-#include "IdList.h"
+#include "Object.hh"
+#include "FArray.hh"
+#include "FTriple.hh"
+#include "IdList.hh"
 
 class vlFloatScalars : public vlObject 
 {

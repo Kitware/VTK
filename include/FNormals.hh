@@ -6,10 +6,10 @@
 #ifndef __vlFloatNormals_h
 #define __vlFloatNormals_h
 
-#include "Object.h"
-#include "FArray.h"
-#include "FTriple.h"
-#include "IdList.h"
+#include "Object.hh"
+#include "FArray.hh"
+#include "FTriple.hh"
+#include "IdList.hh"
 
 class vlFloatNormals : public vlObject 
 {

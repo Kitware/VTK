@@ -1,7 +1,7 @@
 //
 //  3D normals, floating representation
 //
-#include "FNormals.h"
+#include "FNormals.hh"
 
 vlFloatNormals::vlFloatNormals ()
 {

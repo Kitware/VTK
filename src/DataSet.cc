@@ -1,7 +1,7 @@
 //
 // DataSet methods
 //
-#include "DataSet.h"
+#include "DataSet.hh"
 
 vlDataSet::vlDataSet ()
 {

@@ -1,7 +1,7 @@
 //
 //  3D TCoords, floating representation
 //
-#include "FTCoords.h"
+#include "FTCoords.hh"
 
 vlFloatTCoords::vlFloatTCoords ():Dim(2)
 {

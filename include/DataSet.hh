@@ -4,10 +4,10 @@
 #ifndef __vlDataSet_h
 #define __vlDataSet_h
 
-#include "Object.h"
-#include "IdList.h"
-#include "FPoints.h"
-#include "PtData.h"
+#include "Object.hh"
+#include "IdList.hh"
+#include "FPoints.hh"
+#include "PtData.hh"
 
 #define MAX_CELL_SIZE 128
 

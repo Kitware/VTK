@@ -4,7 +4,7 @@
 //  Assumptions:
 //
 //
-#include "FScalars.h"
+#include "FScalars.hh"
 
 vlFloatScalars::vlFloatScalars ()
 {

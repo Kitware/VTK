@@ -4,8 +4,8 @@
 #ifndef __vlDataSetFilter_h
 #define __vlDataSetFilter_h
 
-#include "Filter.h"
-#include "DataSetF.h"
+#include "Filter.hh"
+#include "DataSetF.hh"
 
 class vlDataSetFilter : public vlFilter 
 {
