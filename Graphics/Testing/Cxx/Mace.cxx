@@ -15,18 +15,18 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderer.h"
-#include "vtkSphereSource.h"
-#include "vtkPolyDataMapper.h"
 #include "vtkActor.h"
 #include "vtkConeSource.h"
-#include "vtkGlyph3D.h"
-#include "vtkRenderWindowInteractor.h"
-
-#include "vtkRegressionTestImage.h"
 #include "vtkDebugLeaks.h"
+#include "vtkGlyph3D.h"
+#include "vtkPolyData.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkRegressionTestImage.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkRenderer.h"
+#include "vtkSphereSource.h"
 
 int Mace( int argc, char *argv[] )
 {
