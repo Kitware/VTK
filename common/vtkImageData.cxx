@@ -165,7 +165,7 @@ void vtkImageData::CopyTypeSpecificInformation( vtkDataObject *data )
 
 unsigned long vtkImageData::GetEstimatedMemorySize()
 {
-  vtkLargeInteger size; 
+  unsigned long   size; 
   int             idx;
   int             *uExt; 
   unsigned long   lsize;
@@ -229,7 +229,7 @@ unsigned long vtkImageData::GetEstimatedMemorySize()
 
   // Convert from double bytes to unsigned long kilobytes
   size = size >> 10;
-  lsize = size.CastToUnsignedLong();
+  lsize = size;
   return lsize;
 }
 
