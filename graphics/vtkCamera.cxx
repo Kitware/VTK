@@ -132,7 +132,8 @@ void vtkCamera::SetPosition(double x, double y, double z)
   this->Position[1] = y;
   this->Position[2] = z;
 
-  vtkDebugMacro(<< " Position set to ( " <<  this->Position[0] << ", " << this->Position[1] << ", " << this->Position[2] << ")");
+  vtkDebugMacro(<< " Position set to ( " <<  this->Position[0] << ", " 
+                << this->Position[1] << ", " << this->Position[2] << ")");
 
   // recompute the focal distance
   this->ComputeDistance();
@@ -525,28 +526,28 @@ void vtkCamera::Zoom(double amount)
 }
 
 //----------------------------------------------------------------------------
-void vtkCamera::SetClippingRange(double near, double far)
+void vtkCamera::SetClippingRange(double nearz, double farz)
 {
   double thickness;
   
   // check the order
-  if(near > far) 
+  if ( nearz > farz )
     {
     vtkDebugMacro(<< " Front and back clipping range reversed");
-    double temp = near;
-    near = far;
-    far = temp;
+    double temp = nearz;
+    nearz = farz;
+    farz = temp;
     }
   
   // front should be greater than 0.0001
-  if (near < 0.0001) 
+  if (nearz < 0.0001) 
     {
-    far += 0.0001 - near;
-    near = 0.0001;
+    farz += 0.0001 - nearz;
+    nearz = 0.0001;
     vtkDebugMacro(<< " Front clipping range is set to minimum.");
     }
   
-  thickness = far - near;
+  thickness = farz - nearz;
   
   // thickness should be greater than 0.0001
   if (thickness < 0.0001) 
@@ -555,18 +556,18 @@ void vtkCamera::SetClippingRange(double near, double far)
     vtkDebugMacro(<< " ClippingRange thickness is set to minimum.");
     
     // set back plane
-    far = near + thickness;
+    farz = nearz + thickness;
     }
   
-  if (near == this->ClippingRange[0] && 
-      far == this->ClippingRange[1] && 
+  if (nearz == this->ClippingRange[0] && 
+      farz == this->ClippingRange[1] && 
       this->Thickness == thickness)
     {
     return;
     }
 
-  this->ClippingRange[0] = near; 
-  this->ClippingRange[1] = far; 
+  this->ClippingRange[0] = nearz; 
+  this->ClippingRange[1] = farz; 
   this->Thickness = thickness;
   
   vtkDebugMacro(<< " ClippingRange set to ( " <<  this->ClippingRange[0] << ", "  << this->ClippingRange[1] << ")");
