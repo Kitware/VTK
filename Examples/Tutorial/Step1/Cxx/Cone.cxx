@@ -7,6 +7,7 @@
 
 // first include the required header files for the vtk classes we are using
 #include "vtkConeSource.h"
+#include "vtkPolyDataMapper.h"
 #include "vtkRenderWindow.h"
 
 int main( int argc, char *argv[] )
