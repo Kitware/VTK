@@ -308,7 +308,13 @@ void vtkLookupTable::MapScalarsThroughTable2(void *input,
 // that the allocated memory is not initialized according to HSVA ramps.
 void vtkLookupTable::SetNumberOfTableValues(int number)
 {
-  number = (number < 0 ? 1 : (number > 65536 ? 65536 : number));
+  if ( number < 0 || number > 65536 )
+    {
+    vtkErrorMacro( << "The Number of Table Values must be  between 0 and 65536" );
+    return;
+    }
+
+  this->NumberOfColors = number;
   this->Table->SetNumberOfTuples(number);
 }
 
@@ -319,13 +325,26 @@ void vtkLookupTable::SetTableValue (int indx, float rgba[4])
 {
   unsigned char *_rgba;
 
+  // Check the index to make sure it is valid
+  if ( indx < 0 )
+    {
+    vtkErrorMacro(<< "Can't set the table value for negative index " << indx);
+    return;
+    }
+  if ( indx >= this->NumberOfColors )
+    {
+    vtkErrorMacro( << "Index " << indx << 
+                      " is greater than the number of colors " << 
+                      this->NumberOfColors );
+    return;
+    }
+
   _rgba = this->Table->WritePointer(4*indx,4);
   for (int i=0; i<4; i++)
     {
     _rgba[i] = (unsigned char) ((float)255.0 * rgba[i]);
     }
 
-  indx = (indx < 0 ? 0 : (indx >= this->NumberOfColors ? this->NumberOfColors-1 : indx));
   this->InsertTime.Modified();
   this->Modified();
 }
