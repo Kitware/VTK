@@ -19,7 +19,8 @@ vtkPLOT3DReader pl3d
 vtkPlaneWidget planeWidget
     planeWidget SetInput [pl3d GetOutput]
     planeWidget NormalToXAxisOn
-    planeWidget SetResolution 8
+    planeWidget SetResolution 20
+    planeWidget SetRepresentationToOutline
     planeWidget PlaceWidget
 vtkPolyData plane
     planeWidget GetPolyData plane
@@ -27,11 +28,9 @@ vtkPolyData plane
 vtkProbeFilter probe
     probe SetInput plane
     probe SetSource [pl3d GetOutput]
-vtkContourFilter contours
-    contours SetInput [probe GetOutput]
-    eval contours GenerateValues 50 [[pl3d GetOutput] GetScalarRange]
+
 vtkPolyDataMapper contourMapper
-    contourMapper SetInput [contours GetOutput]
+    contourMapper SetInput [probe GetOutput]
     eval contourMapper SetScalarRange [[pl3d GetOutput] GetScalarRange]
 vtkActor contourActor
     contourActor SetMapper contourMapper
@@ -54,9 +53,11 @@ vtkRenderWindowInteractor iren
     iren SetRenderWindow renWin
 
 # Associate the line widget with the interactor
+
 planeWidget SetInteractor iren
+planeWidget AddObserver EnableEvent BeginInteraction
 planeWidget AddObserver StartInteractionEvent BeginInteraction
-planeWidget AddObserver InteractionEvent GenerateContours
+planeWidget AddObserver InteractionEvent ProbeData
 
 # Add the actors to the renderer, set the background and size
 #
@@ -83,10 +84,11 @@ wm withdraw .
 
 # Actually generate contour lines.
 proc BeginInteraction {} {
+    planeWidget GetPolyData plane
     contourActor VisibilityOn
 }
 
-proc GenerateContours {} {
+proc ProbeData {} {
     planeWidget GetPolyData plane
 }
 
