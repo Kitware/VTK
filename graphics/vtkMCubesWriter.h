@@ -37,7 +37,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkMCubesReader - write binary marching cubes file
+// .NAME vtkMCubesWriter - write binary marching cubes file
 // .SECTION Description
 // vtkMCubesWriter is a writer object that writes binary marching cubes
 // files. (Marching cubes is an isosurfacing technique that generates 
