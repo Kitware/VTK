@@ -104,10 +104,10 @@ void vlConeSource::Execute()
       x[0] = xbot;
       x[1] = this->Radius * cos ((double)i*angle);
       x[2] = this->Radius * sin ((double)i*angle);
-      pts[i%2 + 1] = newPoints->InsertNextPoint(x);
+      pts[1] = newPoints->InsertNextPoint(x);
+      pts[2] = (pts[1] % this->Resolution) + 1;
       newPolys->InsertNextCell(3,pts);
       }
-    pts[this->Resolution] = 1; // correct last point around cone
 //
 // If capping, create last polygon
 //
