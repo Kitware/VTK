@@ -25,14 +25,14 @@ vtkUnstructuredGridReader r
 #
 #	input cell attributes
 #
-vtkFieldDataReader c
+vtkDataObjectReader c
     c SetFileName "../../../vtkdata/dualcell.vtk"
     c Update
 
 #
 #	input selected step data
 #
-vtkFieldDataReader s
+vtkDataObjectReader s
     s SetFileName "../../../vtkdata/dualpoint.vtk"
     s Update
 
