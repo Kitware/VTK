@@ -91,10 +91,11 @@ XVisualInfo *vtkOglrRenderWindow::GetDesiredVisualInfo()
   // attributes[index++] = GLX_STEREO;
   
   // not all OpenGL implementations support MultiSamples
-#ifdef GLX_SAMPLE_BUFFER_SGIS
+
+#ifdef GLX_SAMPLE_BUFFERS_SGIS
   if (this->MultiSamples > 1 )
     {
-    attributes[index++] = GLX_SAMPLE_BUFFER_SGIS;
+    attributes[index++] = GLX_SAMPLE_BUFFERS_SGIS;
     attributes[index++] = 1;
     attributes[index++] = GLX_SAMPLES_SGIS;
     attributes[index++] = ms;
@@ -115,8 +116,8 @@ XVisualInfo *vtkOglrRenderWindow::GetDesiredVisualInfo()
 	{
 	attributes[index++] = GLX_DOUBLEBUFFER;
 	}
-#ifdef GLX_SAMPLE_BUFFER_SGIS
-      attributes[index++] = GLX_SAMPLE_BUFFER_SGIS;
+#ifdef GLX_SAMPLE_BUFFERS_SGIS
+      attributes[index++] = GLX_SAMPLE_BUFFERS_SGIS;
       attributes[index++] = 1;
       attributes[index++] = GLX_SAMPLES_SGIS;
       attributes[index++] = ms;
