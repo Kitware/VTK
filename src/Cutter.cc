@@ -31,7 +31,7 @@ vlCutter::~vlCutter()
 // then we are modified as well.
 unsigned long vlCutter::GetMTime()
 {
-  unsigned long mTime=this->MTime.GetMTime();
+  unsigned long mTime=this->GetMTime();
   unsigned long cutFuncMTime;
 
   if ( this->CutFunction != NULL )
