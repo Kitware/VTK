@@ -100,7 +100,9 @@ public:
   // compute geometric bounds, center, longest side
   virtual void ComputeBounds();
   float *GetBounds();
+  void GetBounds(float bounds[6]);
   float *GetCenter();
+  void GetCenter(float center[3]);
   float GetLength();
 
   // return pointer to this dataset's point data
