@@ -25,7 +25,7 @@
 #include <vtkstd/set>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkAlgorithm, "1.3");
+vtkCxxRevisionMacro(vtkAlgorithm, "1.4");
 vtkStandardNewMacro(vtkAlgorithm);
 
 //----------------------------------------------------------------------------
@@ -236,7 +236,8 @@ void vtkAlgorithm::SetExecutive(vtkExecutive* executive)
 }
 
 //----------------------------------------------------------------------------
-int vtkAlgorithm::ProcessUpstreamRequest(vtkInformationVector* inVector,
+int vtkAlgorithm::ProcessUpstreamRequest(vtkInformation*,
+                                         vtkInformationVector* inVector,
                                          vtkInformationVector* outVector)
 {
   if(!inVector)
@@ -254,7 +255,8 @@ int vtkAlgorithm::ProcessUpstreamRequest(vtkInformationVector* inVector,
 }
 
 //----------------------------------------------------------------------------
-int vtkAlgorithm::ProcessDownstreamRequest(vtkInformationVector* inVector,
+int vtkAlgorithm::ProcessDownstreamRequest(vtkInformation*,
+                                           vtkInformationVector* inVector,
                                            vtkInformationVector* outVector)
 {
   if(!inVector)
