@@ -42,7 +42,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define VTK_IMPLEMENT_MESA_CXX
 
 #include <math.h>
-#include "vtkMesaMesaVolumeTextureMapper2D.h"
+#include "vtkMesaVolumeTextureMapper2D.h"
 #include "vtkRenderWindow.h"
 #include "vtkMesaProperty.h"
 #include "vtkMesaCamera.h"
@@ -59,12 +59,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "GL/gl.h"
 #endif
 // make sure this file is included before the #define takes place
-// so we don't get two vtkMesaMesaVolumeTextureMapper2D classes defined.
+// so we don't get two vtkMesaVolumeTextureMapper2D classes defined.
 #include "vtkOpenGLMesaVolumeTextureMapper2D.h"
-#include "vtkMesaMesaVolumeTextureMapper2D.h"
+#include "vtkMesaVolumeTextureMapper2D.h"
 
-// Make sure vtkMesaMesaVolumeTextureMapper2D is a copy of vtkOpenGLMesaVolumeTextureMapper2D
-// with vtkOpenGLMesaVolumeTextureMapper2D replaced with vtkMesaMesaVolumeTextureMapper2D
-#define vtkOpenGLMesaVolumeTextureMapper2D vtkMesaMesaVolumeTextureMapper2D
+// Make sure vtkMesaVolumeTextureMapper2D is a copy of vtkOpenGLMesaVolumeTextureMapper2D
+// with vtkOpenGLMesaVolumeTextureMapper2D replaced with vtkMesaVolumeTextureMapper2D
+#define vtkOpenGLMesaVolumeTextureMapper2D vtkMesaVolumeTextureMapper2D
 #include "vtkOpenGLMesaVolumeTextureMapper2D.cxx"
 #undef vtkOpenGLMesaVolumeTextureMapper2D

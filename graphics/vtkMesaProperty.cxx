@@ -42,7 +42,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define VTK_IMPLEMENT_MESA_CXX
 
 #include <math.h>
-#include "vtkMesaMesaProperty.h"
+#include "vtkMesaProperty.h"
 #include "vtkRenderWindow.h"
 #include "vtkMesaProperty.h"
 #include "vtkMesaCamera.h"
