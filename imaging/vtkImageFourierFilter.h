@@ -116,18 +116,20 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // public for templated functions of this object
+  //BTX
   void ExecuteFft(vtkImageComplex *in, vtkImageComplex *out, int N);
   void ExecuteRfft(vtkImageComplex *in, vtkImageComplex *out, int N);
-
+  //ETX
   
 protected:
-
+  //BTX
   void ExecuteFftStep2(vtkImageComplex *p_in, vtkImageComplex *p_out, 
 		       int N, int bsize, int fb);
   void ExecuteFftStepN(vtkImageComplex *p_in, vtkImageComplex *p_out,
 		       int N, int bsize, int n, int fb);
   void ExecuteFftForwardBackward(vtkImageComplex *in, vtkImageComplex *out, 
 				 int N, int fb);
+  //ETX
 };
 
 
