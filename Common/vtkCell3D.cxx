@@ -26,7 +26,7 @@
 #include "vtkCellArray.h"
 #include "vtkFloatArray.h"
 
-vtkCxxRevisionMacro(vtkCell3D, "1.36");
+vtkCxxRevisionMacro(vtkCell3D, "1.37");
 
 vtkCell3D::vtkCell3D()
 {
@@ -113,7 +113,7 @@ void vtkCell3D::Clip(float value, vtkDataArray *cellScalars,
 
   // Cells with fixed topology are triangulated with templates.
   float *p, *pPtr = this->GetParametricCoords();
-  if ( this->HasFixedTopology() )
+  if ( this->IsPrimaryCell() )
     {
     // Some cell types support templates for interior clipping. Templates
     // are a heck of a lot faster.

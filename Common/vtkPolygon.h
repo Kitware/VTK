@@ -68,6 +68,7 @@ public:
   int Triangulate(int index, vtkIdList *ptIds, vtkPoints *pts);
   void Derivatives(int subId, float pcoords[3], float *values, 
                    int dim, float *derivs);
+  int IsPrimaryCell() {return 0;}
 
   // Description:
   // Polygon specific methods.

@@ -132,6 +132,11 @@ public:
   // Return the center of the cell in parametric coordinates. 
   virtual int GetParametricCenter(float pcoords[3]);
 
+  // Description:
+  // A convex point set is triangulated prior to any operations on it so
+  // it is not a primary cell, it is a composite cell.
+  int IsPrimaryCell() {return 0;}
+
 protected:
   vtkConvexPointSet();
   ~vtkConvexPointSet();

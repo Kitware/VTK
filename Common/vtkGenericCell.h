@@ -76,6 +76,7 @@ public:
   void Derivatives(int subId, float pcoords[3], float *values, 
                    int dim, float *derivs);
   int GetParametricCenter(float pcoords[3]);
+  int IsPrimaryCell();
 
   // Description:
   // This method is used to support the vtkDataSet::GetCell(vtkGenericCell *)

@@ -276,6 +276,15 @@ public:
 
 
   // Description:
+  // Return whether this cell type has a fixed topology or whether the
+  // topology varies depending on the data (e.g., vtkConvexPointSet).
+  // This compares to composite cells that are typically composed of
+  // primary cells (e.g., a triangle strip composite cell is made up of
+  // triangle primary cells).
+  virtual int IsPrimaryCell() {return 1;}
+
+
+  // Description:
   // Bounding box intersection modified from Graphics Gems Vol I. The method
   // returns a non-zero value if the bounding box is hit. Origin[3] starts
   // the ray, dir[3] is the vector components of the ray in the x-y-z
@@ -295,6 +304,7 @@ protected:
   ~vtkCell();
 
   float Bounds[6];
+
 private:
   vtkCell(const vtkCell&);  // Not implemented.
   void operator=(const vtkCell&);  // Not implemented.
