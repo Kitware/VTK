@@ -88,7 +88,7 @@ DICOMAppHelper::DICOMAppHelper()
   this->GantryAngle = 0.0;
   this->Width = 0;
   this->Height = 0;
-  this->PixelRepresentation = NULL;
+  this->PixelRepresentation = 0;
 
   this->SeriesUIDCB = new DICOMMemberCallback<DICOMAppHelper>;
   this->SliceNumberCB = new DICOMMemberCallback<DICOMAppHelper>;
