@@ -46,12 +46,6 @@ set classExceptions {
     vtkImageDataToTkPhoto
     vtkJPEGReader
     vtkWin32VideoSource
-# These three class currently crash with  a floating exception
-# I have removed them, with the promise that once the tests
-# are fixed, this will be removed.
-vtkImageFourierCenter
-vtkImageMedian3D
-vtkImageSkeleton2D
 
 }
 
