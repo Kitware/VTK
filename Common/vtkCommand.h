@@ -151,7 +151,7 @@ public:
     PlaceWidgetEvent,
     CursorChangedEvent,
     ExecuteInformationEvent,
-    RenderWindowMessage,
+    RenderWindowMessageEvent,
     UserEvent = 1000
   };
 //ETX

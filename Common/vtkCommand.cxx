@@ -71,7 +71,7 @@ static const char *vtkCommandEventStrings[] = {
   "PlaceWidgetEvent",
   "CursorChangedEvent",
   "ExecuteInformationEvent",
-  "RenderWindowMessage",
+  "RenderWindowMessageEvent",
   NULL
 };
 
