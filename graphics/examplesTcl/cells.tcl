@@ -391,8 +391,12 @@ ren1 AddActor aPolyVertexActor; [aPolyVertexActor GetProperty] SetDiffuseColor 1
 if { [info command vtkRIBLight] != "" } {
   vtkRIBLight aLight
    aLight ShadowsOn
+   aLight PositionalOn
+   aLight SetConeAngle 5
+
 } else {
   vtkLight aLight
+    aLight PositionalOn
 }
 ren1 AddLight aLight
 
