@@ -44,7 +44,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // structured point (i.e., voxel) representation. It is very similar to 
 // the ImplicitModeller except that it doesn't record distance it records
 // occupancy. As such it stores its results in the more compact form of
-// 
+
+// .SECTION see also
+// vtkBitScalars vtkImplicitModeller
 
 #ifndef __vtkVoxelModeller_hh
 #define __vtkVoxelModeller_hh
