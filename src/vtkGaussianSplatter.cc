@@ -273,18 +273,20 @@ void vtkGaussianSplatter::SetSampleDimensions(int i, int j, int k)
 
 void vtkGaussianSplatter::SetSampleDimensions(int dim[3])
 {
+  int dataDim, i;
+
   vtkDebugMacro(<< " setting SampleDimensions to (" << dim[0] << "," << dim[1] << "," << dim[2] << ")");
 
-  if ( dim[0] != this->SampleDimensions[0] || dim[1] != SampleDimensions[1] ||
-  dim[2] != SampleDimensions[2] )
+  if (dim[0] != this->SampleDimensions[0] || dim[1] != SampleDimensions[1] ||
+      dim[2] != SampleDimensions[2] )
     {
     if ( dim[0]<1 || dim[1]<1 || dim[2]<1 )
       {
       vtkErrorMacro (<< "Bad Sample Dimensions, retaining previous values");
       return;
       }
-
-    for (int dataDim=0, i=0; i<3 ; i++) if (dim[i] > 1) dataDim++;
+    
+    for (dataDim=0, i=0; i<3 ; i++) if (dim[i] > 1) dataDim++;
 
     if ( dataDim  < 3 )
       {
@@ -293,7 +295,7 @@ void vtkGaussianSplatter::SetSampleDimensions(int dim[3])
       }
 
     for ( i=0; i<3; i++) this->SampleDimensions[i] = dim[i];
-
+    
     this->Modified();
     }
 }
