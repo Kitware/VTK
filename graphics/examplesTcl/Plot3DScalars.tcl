@@ -74,7 +74,17 @@ camera SetPosition 1 0 0
 camera ComputeViewPlaneNormal
 ren100 ResetCamera
 camera Dolly 1.25
-ren1 ResetCameraClippingRange
+ren100 ResetCameraClippingRange
+ren110 ResetCameraClippingRange
+ren120 ResetCameraClippingRange
+ren130 ResetCameraClippingRange
+ren140 ResetCameraClippingRange
+ren144 ResetCameraClippingRange
+ren153 ResetCameraClippingRange
+ren163 ResetCameraClippingRange
+ren170 ResetCameraClippingRange
+ren184 ResetCameraClippingRange
+
 eval light SetPosition [camera GetPosition]
 eval light SetFocalPoint [camera GetFocalPoint]
 
