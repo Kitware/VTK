@@ -1298,6 +1298,154 @@ void vtkWin32OpenGLRenderWindow::SetRGBAPixelData(int x1, int y1,
 
 }
 
+unsigned char *vtkWin32OpenGLRenderWindow::GetRGBACharPixelData(int x1, 
+								int y1, 
+								int x2, 
+								int y2, 
+								int front)
+{
+  int     y_low, y_hi;
+  int     x_low, x_hi;
+  int     width, height;
+  unsigned char *data = NULL;
+
+
+  // set the current window
+  this->MakeCurrent();
+
+
+  if (y1 < y2)
+    {
+    y_low = y1;
+    y_hi  = y2;
+    }
+  else
+    {
+    y_low = y2;
+    y_hi  = y1;
+    }
+
+
+  if (x1 < x2)
+    {
+    x_low = x1;
+    x_hi  = x2;
+    }
+  else
+    {
+    x_low = x2;
+    x_hi  = x1;
+    }
+
+
+  if (front)
+    {
+    glReadBuffer(GL_FRONT);
+    }
+  else
+    {
+    glReadBuffer(GL_BACK);
+    }
+
+
+  width  = abs(x_hi - x_low) + 1;
+  height = abs(y_hi - y_low) + 1;
+
+
+  data = new unsigned char[ (width*height)*4 ];
+
+
+  glReadPixels( x_low, y_low, width, height, GL_RGBA, GL_UNSIGNED_BYTE,
+		data);
+
+
+  return data;
+}
+
+
+void vtkWin32OpenGLRenderWindow::SetRGBACharPixelData(int x1, int y1, int x2, 
+						      int y2, 
+						      unsigned char *data, 
+						      int front, int blend)
+{
+  int     y_low, y_hi;
+  int     x_low, x_hi;
+  int     width, height;
+
+
+  // set the current window
+  this->MakeCurrent();
+
+
+  if (front)
+    {
+    glDrawBuffer(GL_FRONT);
+    }
+  else
+    {
+    glDrawBuffer(GL_BACK);
+    }
+
+
+  if (y1 < y2)
+    {
+    y_low = y1;
+    y_hi  = y2;
+    }
+  else
+    {
+    y_low = y2;
+    y_hi  = y1;
+    }
+
+
+  if (x1 < x2)
+    {
+    x_low = x1;
+    x_hi  = x2;
+    }
+  else
+    {
+    x_low = x2;
+    x_hi  = x1;
+    }
+
+
+  width  = abs(x_hi-x_low) + 1;
+  height = abs(y_hi-y_low) + 1;
+
+
+  /* write out a row of pixels */
+  glMatrixMode( GL_MODELVIEW );
+  glPushMatrix();
+  glLoadIdentity();
+  glMatrixMode( GL_PROJECTION );
+  glPushMatrix();
+  glLoadIdentity();
+  glRasterPos3f( (2.0 * (GLfloat)(x_low) / this->Size[0] - 1),
+                 (2.0 * (GLfloat)(y_low) / this->Size[1] - 1),
+                 -1.0 );
+  glMatrixMode( GL_PROJECTION );
+  glPopMatrix();
+  glMatrixMode( GL_MODELVIEW );
+  glPopMatrix();
+
+
+  if (!blend)
+    {
+    glDisable(GL_BLEND);
+    glDrawPixels( width, height, GL_RGBA, GL_UNSIGNED_BYTE, 
+		  data);
+    glEnable(GL_BLEND);
+    }
+  else
+    {
+    glDrawPixels( width, height, GL_RGBA, GL_UNSIGNED_BYTE, 
+		  data);
+    }
+}
+
+
 float *vtkWin32OpenGLRenderWindow::GetZbufferData( int x1, int y1, 
 						 int x2, int y2  )
 {

@@ -145,6 +145,10 @@ public:
   virtual float *GetRGBAPixelData(int x,int y,int x2,int y2,int front);
   virtual void SetRGBAPixelData(int x,int y,int x2,int y2,float *,int front,
                                 int blend=0);
+  virtual unsigned char *GetRGBACharPixelData(int x,int y,int x2,int y2,
+					      int front);
+  virtual void SetRGBACharPixelData(int x,int y,int x2,int y2,unsigned char *,
+				    int front, int blend=0);  
 
   // Description:
   // Set/Get the zbuffer data from an image

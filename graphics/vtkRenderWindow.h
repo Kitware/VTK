@@ -253,6 +253,10 @@ public:
     return (float *)NULL;};
   virtual void SetRGBAPixelData(int ,int ,int ,int ,float *,int,
                                 int blend=0) { blend = blend;}
+  virtual unsigned char *GetRGBACharPixelData(int ,int ,int ,int ,int ) {
+    return (unsigned char*)NULL;}
+  virtual void SetRGBACharPixelData(int ,int ,int ,int ,unsigned char *, int,
+				    int blend=0) { blend = blend;}
   
 
   // Description:
