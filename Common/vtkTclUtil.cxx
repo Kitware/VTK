@@ -201,6 +201,39 @@ int vtkCommand(ClientData vtkNotUsed(cd), Tcl_Interp *interp, int argc, char *ar
 }
 
 VTKTCL_EXPORT void
+vtkTclUpdateCommand(Tcl_Interp *interp, char *name,  vtkObject *temp)
+{
+  Tcl_CmdProc *command;
+
+  // check to see if we can find the command function based on class name
+  Tcl_CmdInfo cinf;
+  char *tstr = strdup(temp->GetClassName());
+  if (Tcl_GetCommandInfo(interp,tstr,&cinf))
+    {
+    if (cinf.clientData)
+      {
+      vtkTclCommandStruct *cs = (vtkTclCommandStruct *)cinf.clientData;
+      command = cs->CommandFunction;
+      }
+    }
+  if (tstr)
+    {
+    free(tstr);
+    }
+
+  // is the current command the same
+  Tcl_CmdInfo cinfo;
+  Tcl_GetCommandInfo(interp, name, &cinfo);
+  cinfo.proc = command;
+  Tcl_SetCommandInfo(interp, name, &cinfo);
+
+  vtkTclInterpStruct *is = vtkGetInterpStruct(interp);
+  Tcl_HashEntry *entry = Tcl_FindHashEntry(&is->CommandLookup,name);
+  Tcl_SetHashValue(entry,(ClientData)command);
+}
+
+
+VTKTCL_EXPORT void
 vtkTclGetObjectFromPointer(Tcl_Interp *interp, void *temp1,
                            int (*command)(ClientData, Tcl_Interp *,int, char *[]))
 {

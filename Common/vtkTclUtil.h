@@ -29,6 +29,10 @@
 #define VTKTCL_EXPORT
 #endif
 
+extern VTKTCL_EXPORT void vtkTclUpdateCommand(Tcl_Interp *interp, 
+                                              char *name,  
+                                              vtkObject *obj);
+
 extern VTKTCL_EXPORT void vtkTclDeleteObjectFromHash(vtkObject *,
                                                      unsigned long eventId,
                                                      void *, void *);
