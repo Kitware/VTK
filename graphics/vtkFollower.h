@@ -74,8 +74,8 @@ class VTK_EXPORT vtkFollower : public vtkActor
   // This causes the actor to be rendered. It in turn will render the actor's
   // property, texture map and then mapper. If a property hasn't been
   // assigned, then the actor will create one automatically. 
-  virtual void RenderOpaqueGeometry(vtkViewport *viewport);
-  virtual void RenderTranslucentGeometry(vtkViewport *viewport);
+  virtual int RenderOpaqueGeometry(vtkViewport *viewport);
+  virtual int RenderTranslucentGeometry(vtkViewport *viewport);
   virtual void Render(vtkRenderer *ren);
   
   // Description:

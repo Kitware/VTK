@@ -286,11 +286,11 @@ void vtkFollower::PrintSelf(ostream& os, vtkIndent indent)
     }
 }
 
-void vtkFollower::RenderOpaqueGeometry(vtkViewport *vp)
+int vtkFollower::RenderOpaqueGeometry(vtkViewport *vp)
 {
   if ( ! this->Mapper )
     {
-    return;
+    return 0;
     }
 
   if (!this->Property)
@@ -303,14 +303,16 @@ void vtkFollower::RenderOpaqueGeometry(vtkViewport *vp)
     {
     vtkRenderer *ren = (vtkRenderer *)vp;
     this->Render(ren);
+    return 1;
     }
+  return 0;
 }
 
-void vtkFollower::RenderTranslucentGeometry(vtkViewport *vp)
+int vtkFollower::RenderTranslucentGeometry(vtkViewport *vp)
 {
   if ( ! this->Mapper )
     {
-    return;
+    return 0;
     }
 
   if (!this->Property)
@@ -323,7 +325,9 @@ void vtkFollower::RenderTranslucentGeometry(vtkViewport *vp)
     {
     vtkRenderer *ren = (vtkRenderer *)vp;
     this->Render(ren);
+    return 1;
     }
+  return 0;
 }
 
 // This causes the actor to be rendered. It, in turn, will render the actor's
