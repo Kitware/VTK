@@ -378,20 +378,25 @@ void vtkByteSwap::SwapWrite8BERange(char *mem_ptr1,int num, FILE *fp)
  
   while (num)
     {
-    memcpy(cpy, mem_ptr1, chunkSize * 8);
-    pos = cpy;
-    for (i = 0; i < chunkSize; i++)
-      {
-      Swap8Bytes(pos);
-      pos += 8;
-      }
-    fwrite(cpy,8,chunkSize,fp);
-    mem_ptr1 += chunkSize*8;
-    num -= chunkSize;
-    if (num < chunkSize)
-      {
-      chunkSize = num;
-      }
+
+      memcpy(cpy, mem_ptr1, chunkSize * 8);
+  
+      pos = cpy;    
+      for (i = 0; i < chunkSize; i++)
+        {
+
+          Swap8Bytes(pos);
+          pos += 8;
+
+        }
+      fwrite(cpy,8,chunkSize,fp);
+      mem_ptr1 += chunkSize*8;
+      num -= chunkSize;
+      if (num < chunkSize)
+        {
+          chunkSize = num;
+        }
+
     }
   delete [] cpy;
 #else

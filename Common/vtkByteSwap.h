@@ -8,6 +8,7 @@
 
 
 Copyright (c) 1993-2001 Ken Martin, Will Schroeder, Bill Lorensen 
+
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -176,7 +177,7 @@ public:
   // copy in memory.  Implemented for doubles for now.
   static void SwapWrite8BERange(char *c,int num,FILE *fp);
   static void SwapWrite8BERange(double *d,int num, FILE *fp) 
-  { vtkByteSwap::SwapWrite4BERange((char *)d,num,fp);};
+  { vtkByteSwap::SwapWrite8BERange((char *)d,num,fp);};
 
   // Description:
   // Swap bunch of bytes to BE. Num is the number of two byte words to swap.
@@ -207,7 +208,7 @@ public:
   // copy in memory.
   static void SwapWrite8BERange(char *c,int num, ostream *fp);
   static void SwapWrite8BERange(double *d,int num, ostream *fp) 
-  { vtkByteSwap::SwapWrite4BERange((char *)d,num,fp);};
+  { vtkByteSwap::SwapWrite8BERange((char *)d,num,fp);};
 
   // Description:
   // Swaps the bytes of a buffer.  Uses an arbitrary word size, but
