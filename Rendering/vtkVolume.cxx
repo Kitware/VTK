@@ -30,7 +30,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkVolume, "1.82");
+vtkCxxRevisionMacro(vtkVolume, "1.83");
 vtkStandardNewMacro(vtkVolume);
 
 // Creates a Volume with the following defaults: origin(0,0,0) 
@@ -573,27 +573,27 @@ void vtkVolume::UpdateTransferFunctions( vtkRenderer *vtkNotUsed(ren) )
       if ( this->ScalarOpacityArray[c] )
         {
         delete [] this->ScalarOpacityArray[c];
+        this->ScalarOpacityArray[c] = NULL;
         }
       if ( this->CorrectedScalarOpacityArray[c] )
         {
         delete [] this->CorrectedScalarOpacityArray[c];
+        this->CorrectedScalarOpacityArray[c] = NULL;
         }
       if ( this->GrayArray[c] )
         {
         delete [] this->GrayArray[c];
+        this->GrayArray[c] = NULL;
         }
       if ( this->RGBArray[c] )
         {
         delete [] this->RGBArray[c];
+        this->RGBArray[c] = NULL;
         }
       
       // Allocate these two because we know we need them
       this->ScalarOpacityArray[c] = new float[arraySize];
       this->CorrectedScalarOpacityArray[c] = new float[arraySize];
-      
-      // Set these two to null - we will create one of them later
-      this->GrayArray[c] = NULL;
-      this->RGBArray[c] = NULL;
     }
   
     // How many color channels for this component?
@@ -601,24 +601,32 @@ void vtkVolume::UpdateTransferFunctions( vtkRenderer *vtkNotUsed(ren) )
     
     // If we have 1 color channel and no gray array, create it.
     // Free the rgb array if there is one.
-    if ( colorChannels == 1 && !this->GrayArray[c] )
+    if ( colorChannels == 1 )
       {
       if ( this->RGBArray[c] )
         {
         delete [] this->RGBArray[c];
+        this->RGBArray[c] = NULL;
         }              
-      this->GrayArray[c] = new float[arraySize];
+      if ( !this->GrayArray[c] )
+        {
+        this->GrayArray[c] = new float[arraySize];
+        }
       }
     
     // If we have 3 color channels and no rgb array, create it.
     // Free the gray array if there is one.
-    if ( colorChannels == 3 && !this->RGBArray[c] )
+    if ( colorChannels == 3 )
       {
       if ( this->GrayArray[c] )
         {
         delete [] this->GrayArray[c];
+        this->GrayArray[c] = NULL;
         }
-      this->RGBArray[c] = new float[3*arraySize];
+      if ( !this->RGBArray[c] )
+        {
+        this->RGBArray[c] = new float[3*arraySize];
+        }
       }
     
     // Get the various functions for this index. There is no chance of
