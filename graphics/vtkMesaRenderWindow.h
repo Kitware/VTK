@@ -93,7 +93,7 @@ protected:
   GLXContext ContextId;
 
 public:
-  static vtkMesaRenderWindow *New() {return new vtkMesaRenderWindow;};
+  static vtkMesaRenderWindow *New();
   vtkTypeMacro(vtkMesaRenderWindow,vtkXRenderWindow);
   void PrintSelf(ostream& os, vtkIndent indent);
 

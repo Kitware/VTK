@@ -40,7 +40,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
 // Make sure this is first, so any includes of gl.h can be stoped if needed
-#define VTK_IMPLEMENT_MESA_RENDERER
+#define VTK_IMPLEMENT_MESA_CXX
 
 #include <math.h>
 #include "vtkMesaRenderer.h"
@@ -69,3 +69,16 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define vtkOpenGLRenderer vtkMesaRenderer
 #include "vtkOpenGLRenderer.cxx"
 #undef vtkOpenGLRenderer
+
+//---------------------------------------------------------------------------
+vtkMesaRenderer* vtkMesaRenderer::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkMesaRenderer");
+  if(ret)
+    {
+    return (vtkMesaRenderer*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkMesaRenderer;
+}

@@ -40,7 +40,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
 // Make sure this is first, so any includes of gl.h can be stoped if needed
-#define VTK_IMPLEMENT_MESA_RENDERER
+#define VTK_IMPLEMENT_MESA_CXX
 
 #include <math.h>
 #include "vtkMesaPolyDataMapper2D.h"
@@ -69,3 +69,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define vtkOpenGLPolyDataMapper2D vtkMesaPolyDataMapper2D
 #include "vtkOpenGLPolyDataMapper2D.cxx"
 #undef vtkOpenGLPolyDataMapper2D
+vtkMesaPolyDataMapper2D* vtkMesaPolyDataMapper2D::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkMesaPolyDataMapper2D");
+  if(ret)
+    {
+    return (vtkMesaPolyDataMapper2D*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkMesaPolyDataMapper2D;
+}

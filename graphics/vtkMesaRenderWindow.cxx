@@ -48,6 +48,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkMesaActor.h"
 #include "vtkMesaPolyDataMapper.h"
 #include "vtkIdList.h"
+#include "vtkObjectFactory.h"
 
 #define VTK_MAX_LIGHTS 8
 
@@ -60,6 +61,19 @@ void vtkOSMesaDestroyWindow(void *Window)
 void *vtkOSMesaCreateWindow(int width, int height) 
 {
   return malloc(width*height*4);
+}
+
+
+vtkMesaRenderWindow *vtkMesaRenderWindow::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkMesaRenderWindow");
+  if(ret)
+    {
+    return (vtkMesaRenderWindow*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkMesaRenderWindow;
 }
 
 

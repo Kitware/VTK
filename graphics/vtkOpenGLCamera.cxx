@@ -51,6 +51,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkOutputWindow.h"
 #include "vtkgluPickMatrix.h"
 
+#ifndef VTK_IMPLEMENT_MESA_CXX
 //------------------------------------------------------------------------------
 vtkOpenGLCamera* vtkOpenGLCamera::New()
 {
@@ -63,6 +64,7 @@ vtkOpenGLCamera* vtkOpenGLCamera::New()
   // If the factory was unable to create the object, then create it here.
   return new vtkOpenGLCamera;
 }
+#endif
 
 // Implement base class method.
 void vtkOpenGLCamera::Render(vtkRenderer *ren)

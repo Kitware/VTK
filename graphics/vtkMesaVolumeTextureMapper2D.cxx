@@ -69,3 +69,15 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define vtkOpenGLVolumeTextureMapper2D vtkMesaVolumeTextureMapper2D
 #include "vtkOpenGLVolumeTextureMapper2D.cxx"
 #undef vtkOpenGLVolumeTextureMapper2D
+//------------------------------------------------------------------------------
+vtkMesaVolumeTextureMapper2D* vtkMesaVolumeTextureMapper2D::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkMesaVolumeTextureMapper2D");
+  if(ret)
+    {
+    return (vtkMesaVolumeTextureMapper2D*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkMesaVolumeTextureMapper2D;
+}

@@ -64,7 +64,7 @@ public:
   GLuint PickedId;
 };
 
-
+#ifndef VTK_IMPLEMENT_MESA_CXX
 //---------------------------------------------------------------------------
 vtkOpenGLRenderer* vtkOpenGLRenderer::New()
 {
@@ -77,6 +77,7 @@ vtkOpenGLRenderer* vtkOpenGLRenderer::New()
   // If the factory was unable to create the object, then create it here.
   return new vtkOpenGLRenderer;
 }
+#endif
 
 #define VTK_MAX_LIGHTS 8
 

@@ -42,11 +42,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdlib.h>
 #include <math.h>
 #include "vtkOpenGLPolyDataMapper2D.h"
+#ifndef VTK_IMPLEMENT_MESA_CXX
 #include <GL/gl.h>
+#endif
 #include "vtkObjectFactory.h"
 #include "vtkgluPickMatrix.h"
 
-
+#ifndef VTK_IMPLEMENT_MESA_CXX
 //------------------------------------------------------------------------------
 vtkOpenGLPolyDataMapper2D* vtkOpenGLPolyDataMapper2D::New()
 {
@@ -59,7 +61,7 @@ vtkOpenGLPolyDataMapper2D* vtkOpenGLPolyDataMapper2D::New()
   // If the factory was unable to create the object, then create it here.
   return new vtkOpenGLPolyDataMapper2D;
 }
-
+#endif
 
 
 

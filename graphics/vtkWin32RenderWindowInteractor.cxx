@@ -53,7 +53,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 
 
-
+#ifndef VTK_IMPLEMENT_MESA_CXX
 //----------------------------------------------------------------------------
 vtkWin32RenderWindowInteractor* vtkWin32RenderWindowInteractor::New()
 {
@@ -66,7 +66,7 @@ vtkWin32RenderWindowInteractor* vtkWin32RenderWindowInteractor::New()
   // If the factory was unable to create the object, then create it here.
   return new vtkWin32RenderWindowInteractor;
 }
-
+#endif
 
 
 

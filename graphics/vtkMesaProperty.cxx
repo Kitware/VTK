@@ -69,3 +69,15 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define vtkOpenGLProperty vtkMesaProperty
 #include "vtkOpenGLProperty.cxx"
 #undef vtkOpenGLProperty
+//------------------------------------------------------------------------------
+vtkMesaProperty* vtkMesaProperty::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkMesaProperty");
+  if(ret)
+    {
+    return (vtkMesaProperty*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkMesaProperty;
+}

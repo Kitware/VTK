@@ -69,3 +69,17 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define vtkOpenGLActor vtkMesaActor
 #include "vtkOpenGLActor.cxx"
 #undef vtkOpenGLActor
+
+
+//-------------------------------------------------------------------------
+vtkMesaActor* vtkMesaActor::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkMesaActor");
+  if(ret)
+    {
+    return (vtkMesaActor*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkMesaActor;
+}

@@ -69,3 +69,16 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define vtkOpenGLCamera vtkMesaCamera
 #include "vtkOpenGLCamera.cxx"
 #undef vtkOpenGLCamera
+
+//------------------------------------------------------------------------------
+vtkMesaCamera* vtkMesaCamera::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkMesaCamera");
+  if(ret)
+    {
+    return (vtkMesaCamera*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkMesaCamera;
+}
