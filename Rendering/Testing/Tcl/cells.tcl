@@ -3,8 +3,8 @@ package require vtkinteraction
 
 # Demonstrates all cell types
 #
-# NOTE: the use of MakeObject is included to increase regression coverage.
-# It is not required in most applications.
+# NOTE: the use of NewInstance/DeepCopy is included to increase
+# regression coverage.  It is not required in most applications.
 
 vtkRenderer ren1
 # turn off all cullers
@@ -39,7 +39,8 @@ vtkVoxel aVoxel
   [aVoxel GetPointIds] SetId 6 6
   [aVoxel GetPointIds] SetId 7 7
 
-set bVoxel [aVoxel MakeObject]
+set bVoxel [aVoxel NewInstance]
+bVoxel DeepCopy aVoxel
 
 vtkUnstructuredGrid aVoxelGrid
   aVoxelGrid Allocate 1 1
@@ -74,7 +75,8 @@ vtkHexahedron aHexahedron
   [aHexahedron GetPointIds] SetId 6 6
   [aHexahedron GetPointIds] SetId 7 7
   
-set bHexahedron [aHexahedron MakeObject]
+set bHexahedron [aHexahedron NewInstance]
+bHexahedron DeepCopy aHexahedron
   
 vtkUnstructuredGrid aHexahedronGrid
   aHexahedronGrid Allocate 1 1
@@ -103,7 +105,8 @@ vtkTetra aTetra
   [aTetra GetPointIds] SetId 2 2
   [aTetra GetPointIds] SetId 3 3
 
-set bTetra [aTetra MakeObject]
+set bTetra [aTetra NewInstance]
+bTetra DeepCopy aTetra
 
 vtkUnstructuredGrid aTetraGrid
   aTetraGrid Allocate 1 1
@@ -139,7 +142,8 @@ vtkWedge aWedge
   [aWedge GetPointIds] SetId 4 4
   [aWedge GetPointIds] SetId 5 5
 
-set bWedge [aWedge MakeObject]
+set bWedge [aWedge NewInstance]
+bWedge DeepCopy aWedge
 
 vtkUnstructuredGrid aWedgeGrid
   aWedgeGrid Allocate 1 1
@@ -173,7 +177,8 @@ vtkPyramid aPyramid
   [aPyramid GetPointIds] SetId 3 3
   [aPyramid GetPointIds] SetId 4 4
 
-set bPyramid [aPyramid MakeObject]
+set bPyramid [aPyramid NewInstance]
+bPyramid DeepCopy aPyramid
 
 vtkUnstructuredGrid aPyramidGrid
   aPyramidGrid Allocate 1 1
@@ -202,7 +207,8 @@ vtkPixel aPixel
   [aPixel GetPointIds] SetId 2 2
   [aPixel GetPointIds] SetId 3 3
 
-set bPixel [aPixel MakeObject]
+set bPixel [aPixel NewInstance]
+bPixel DeepCopy aPixel
 
 vtkUnstructuredGrid aPixelGrid
   aPixelGrid Allocate 1 1
@@ -231,7 +237,8 @@ vtkQuad aQuad
   [aQuad GetPointIds] SetId 2 2
   [aQuad GetPointIds] SetId 3 3
 
-set bQuad [aQuad MakeObject]
+set bQuad [aQuad NewInstance]
+bQuad DeepCopy aQuad
 
 vtkUnstructuredGrid aQuadGrid
   aQuadGrid Allocate 1 1
@@ -265,7 +272,8 @@ vtkTriangle aTriangle
   [aTriangle GetPointIds] SetId 1 1
   [aTriangle GetPointIds] SetId 2 2
 
-set bTriangle [aTriangle MakeObject]
+set bTriangle [aTriangle NewInstance]
+bTriangle DeepCopy aTriangle
 
 vtkUnstructuredGrid aTriangleGrid
   aTriangleGrid Allocate 1 1
@@ -296,7 +304,8 @@ vtkPolygon aPolygon
   [aPolygon GetPointIds] SetId 2 2
   [aPolygon GetPointIds] SetId 3 3
 
-set bPolygon [aPolygon MakeObject]
+set bPolygon [aPolygon NewInstance]
+bPolygon DeepCopy aPolygon
 
 vtkUnstructuredGrid aPolygonGrid
   aPolygonGrid Allocate 1 1
@@ -337,7 +346,8 @@ vtkTriangleStrip aTriangleStrip
   [aTriangleStrip GetPointIds] SetId 3 3
   [aTriangleStrip GetPointIds] SetId 4 4
 
-set bTriangleStrip [aTriangleStrip MakeObject]
+set bTriangleStrip [aTriangleStrip NewInstance]
+bTriangleStrip DeepCopy aTriangleStrip
 
 vtkUnstructuredGrid aTriangleStripGrid
   aTriangleStripGrid Allocate 1 1
@@ -363,7 +373,8 @@ vtkLine aLine
   [aLine GetPointIds] SetId 0 0
   [aLine GetPointIds] SetId 1 1
 
-set bLine [aLine MakeObject]
+set bLine [aLine NewInstance]
+bLine DeepCopy aLine
 
 vtkUnstructuredGrid aLineGrid
   aLineGrid Allocate 1 1
@@ -391,7 +402,8 @@ vtkPolyLine aPolyLine
   [aPolyLine GetPointIds] SetId 1 1
   [aPolyLine GetPointIds] SetId 2 2
 
-set bPolyLine [aPolyLine MakeObject]
+set bPolyLine [aPolyLine NewInstance]
+bPolyLine DeepCopy aPolyLine
 
 vtkUnstructuredGrid aPolyLineGrid
   aPolyLineGrid Allocate 1 1
@@ -414,7 +426,8 @@ vtkPoints vertexPoints
 vtkVertex aVertex
   [aVertex GetPointIds] SetId 0 0
 
-set bVertex [aVertex MakeObject]
+set bVertex [aVertex NewInstance]
+bVertex DeepCopy aVertex
 
 vtkUnstructuredGrid aVertexGrid
   aVertexGrid Allocate 1 1
@@ -442,7 +455,8 @@ vtkPolyVertex aPolyVertex
   [aPolyVertex GetPointIds] SetId 1 1
   [aPolyVertex GetPointIds] SetId 2 2
 
-set bPolyVertex [aPolyVertex MakeObject]
+set bPolyVertex [aPolyVertex NewInstance]
+bPolyVertex DeepCopy aPolyVertex
 
 vtkUnstructuredGrid aPolyVertexGrid
   aPolyVertexGrid Allocate 1 1
@@ -580,7 +594,7 @@ wm withdraw .
 
 
 # the UnRegister calls are because make object is the same as New,
-# and causes memory leaks. (Tcl does not treat MakeObject the same as New).
+# and causes memory leaks. (Tcl does not treat NewInstance the same as New).
 proc DeleteCopies {} {
   global bVoxel bHexahedron bTetra bPixel bQuad bTriangle bPolygon
   global bTriangleStrip bLine bPolyLine bVertex bPolyVertex
