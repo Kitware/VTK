@@ -99,7 +99,7 @@ pack $patternvalue $pattern $presetsl -side top -anchor nw
 
 foreach value {0 65535 21845 4369 13107} {
     set but [button $linef.preset_$value \
-            -text [format "%X" $value] \
+            -text [format "0x%X" $value] \
         -command "setPatternBitsFromValue $value ; setPatternFromPatternBits"]
     pack $but -side left -anchor nw -padx 2 -pady 2
 }
@@ -208,7 +208,7 @@ proc setPatternFromPatternBits {} {
         set power [expr $power * 2]
     }
     $patternvalue configure \
-            -text [format "Line Stipple Pattern %u <=> %X :" $res $res]
+            -text [format "Line Stipple Pattern %u <=> 0x%X :" $res $res]
     eval [actorw GetProperty] SetLineStipplePattern $res
     global renWin1
     $renWin1 Render
