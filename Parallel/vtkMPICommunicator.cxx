@@ -26,7 +26,7 @@
 
 #include "vtkMPI.h"
 
-vtkCxxRevisionMacro(vtkMPICommunicator, "1.19");
+vtkCxxRevisionMacro(vtkMPICommunicator, "1.20");
 vtkStandardNewMacro(vtkMPICommunicator);
 
 vtkCxxSetObjectMacro(vtkMPICommunicator,Group,vtkMPIGroup);
@@ -48,13 +48,13 @@ vtkMPICommunicatorOpaqueComm::vtkMPICommunicatorOpaqueComm()
 // overloaded functions for vtkIdType
 #ifdef VTK_HAS_ID_TYPE
 # ifdef VTK_USE_64BIT_IDS
-MPI_Datatype vtkMPICommunicatorGetMPIType();
+MPI_Datatype vtkMPICommunicatorGetMPIType()
 {
   return MPI_LONG_LONG;
 }
 # endif
 #else
-MPI_Datatype vtkMPICommunicatorGetMPIType();
+MPI_Datatype vtkMPICommunicatorGetMPIType()
 {
   return MPI_INT;
 }
