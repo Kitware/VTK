@@ -76,6 +76,7 @@ public:
 
   // miscellaneous
   short *GetPtr(const int id);
+  void *GetVoidPtr(const int id);
   short *WritePtr(const int id, const int number);
   void WrotePtr();
   vtkShortScalars &operator=(const vtkShortScalars& ss);
@@ -91,6 +92,13 @@ protected:
 inline short *vtkShortScalars::GetPtr(const int id)
 {
   return this->S.GetPtr(id);
+}
+
+// Description:
+// Get a void pointer to array of data starting at data position "id".
+inline void *vtkShortScalars::GetVoidPtr(const int id)
+{
+  return (void *)(this->S.GetPtr(id));
 }
 
 // Description:

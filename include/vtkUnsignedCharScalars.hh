@@ -76,6 +76,7 @@ public:
 
   // miscellaneous
   unsigned char *GetPtr(const int id);
+  void *GetVoidPtr(const int id);
   unsigned char *WritePtr(const int id, const int number);
   void WrotePtr();
   vtkUnsignedCharScalars &operator=(const vtkUnsignedCharScalars& cs);
@@ -91,6 +92,13 @@ protected:
 inline unsigned char *vtkUnsignedCharScalars::GetPtr(const int id)
 {
   return this->S.GetPtr(id);
+}
+
+// Description:
+// Get a void pointer to array of data starting at data position "id".
+inline void *vtkUnsignedCharScalars::GetVoidPtr(const int id)
+{
+  return (void *)(this->S.GetPtr(id));
 }
 
 // Description:

@@ -78,6 +78,10 @@ public:
   char *GetClassName() {return "vtkScalars";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
+  // For ImageData
+  virtual int Allocate(const int sz, const int ext=1000) = 0;
+  virtual void *GetVoidPtr(int id) {id = id; return NULL;};
+  
   // Description:
   // Create a copy of this object.
   virtual vtkScalars *MakeObject(int sze, int ext=1000) = 0;

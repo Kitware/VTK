@@ -73,6 +73,7 @@ public:
 
   // miscellaneous
   float *GetPtr(const int id);
+  void *GetVoidPtr(const int id);
   float *WritePtr(const int id, const int number);
   void WrotePtr();
   vtkFloatScalars &operator=(const vtkFloatScalars& fs);
@@ -88,6 +89,14 @@ protected:
 inline float *vtkFloatScalars::GetPtr(const int id)
 {
   return this->S.GetPtr(id);
+}
+
+// Description:
+// Get pointer to array of data starting at data position "id" and return as
+// a void pointer.
+inline void *vtkFloatScalars::GetVoidPtr(const int id)
+{
+  return (void *)(this->S.GetPtr(id));
 }
 
 // Description:
