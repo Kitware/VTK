@@ -45,7 +45,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 vtkGhostLevelToScalarFilter* vtkGhostLevelToScalarFilter::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -58,6 +58,7 @@ vtkGhostLevelToScalarFilter* vtkGhostLevelToScalarFilter::New()
   return new vtkGhostLevelToScalarFilter;
 }
 
+//----------------------------------------------------------------------------
 void vtkGhostLevelToScalarFilter::CopyLevelsToScalars(vtkGhostLevels *levels,
 						      vtkScalars *scalars)
 {
@@ -72,21 +73,12 @@ void vtkGhostLevelToScalarFilter::CopyLevelsToScalars(vtkGhostLevels *levels,
     }
 }
 
-
-
-//
-// Convert position along ray into scalar value.  Example use includes 
-// coloring terrain by elevation.
-//
+//----------------------------------------------------------------------------
 void vtkGhostLevelToScalarFilter::Execute()
 {
-  int i, j, numPts;
   vtkScalars *newScalars;
   vtkGhostLevels *ghostLevels;
-  float l, *x, s, v[3];
-  float diffVector[3], diffScalar;
   vtkDataSet *input = this->GetInput();
-
   
   // First, copy the input to the output as a starting point
   this->GetOutput()->CopyStructure( input );
