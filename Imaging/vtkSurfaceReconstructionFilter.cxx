@@ -23,7 +23,7 @@
 #include "vtkPointLocator.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkSurfaceReconstructionFilter, "1.28");
+vtkCxxRevisionMacro(vtkSurfaceReconstructionFilter, "1.29");
 vtkStandardNewMacro(vtkSurfaceReconstructionFilter);
 
 vtkSurfaceReconstructionFilter::vtkSurfaceReconstructionFilter()
@@ -117,23 +117,24 @@ void vtkSurfaceReconstructionFilter::ExecuteInformation()
 }
 
 //-----------------------------------------------------------------------------
+struct SurfacePoint 
+{
+  double loc[3];
+  double o[3],n[3]; // plane centre and normal
+  vtkIdList *neighbors; // id's of points within LocalRadius of this point
+  double *costs; // should have same length as neighbors, cost for corresponding points
+  char isVisited;
+
+  // simple constructor to initialise the members
+  SurfacePoint() : neighbors(vtkIdList::New()), isVisited(0) {}
+  ~SurfacePoint() { delete []costs; neighbors->Delete(); }
+};
+
+//-----------------------------------------------------------------------------
 void vtkSurfaceReconstructionFilter::ExecuteData(vtkDataObject *outp)
 {
   // Initialise the variables we need within this function
   vtkDataSet *input = this->GetInput();
-
-  struct SurfacePoint 
-  {
-    double loc[3];
-    double o[3],n[3]; // plane centre and normal
-    vtkIdList *neighbors; // id's of points within LocalRadius of this point
-    double *costs; // should have same length as neighbors, cost for corresponding points
-    char isVisited;
-
-    // simple constructor to initialise the members
-    SurfacePoint() : neighbors(vtkIdList::New()), isVisited(0) {}
-    ~SurfacePoint() { delete []costs; neighbors->Delete(); }
-  };
 
   const vtkIdType COUNT = input->GetNumberOfPoints();
   SurfacePoint *surfacePoints;
