@@ -24,7 +24,7 @@
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageAlgorithm, "1.20");
+vtkCxxRevisionMacro(vtkImageAlgorithm, "1.21");
 
 //----------------------------------------------------------------------------
 vtkImageAlgorithm::vtkImageAlgorithm()
@@ -236,6 +236,11 @@ void vtkImageAlgorithm::CopyAttributeData(vtkImageData *input,
         if ( ! output->GetPointData()->GetCopyScalars() )
           {
           tmp = output->GetPointData()->GetScalars();
+          // set the name of the output to match the input name
+          if (inArray)
+            {
+            tmp->SetName(inArray->GetName());
+            }
           }
         output->GetPointData()->CopyAllocate(input->GetPointData(), 
                                              output->GetNumberOfPoints());
@@ -276,12 +281,6 @@ void vtkImageAlgorithm::CopyAttributeData(vtkImageData *input,
                                                     inExt, outExt);
           }
         }
-      }
-    // set the name of the output to match the input name
-    outArray = output->GetPointData()->GetScalars();
-    if (inArray)
-      {
-      outArray->SetName(inArray->GetName());
       }
     }
 }
