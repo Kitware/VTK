@@ -358,7 +358,7 @@ void vtkTriangleStrip::Clip(float value, vtkScalars *cellScalars,
 }
 
 // Return the center of the point cloud in parametric coordinates.
-inline int vtkTriangleStrip::GetParametricCenter(float pcoords[3])
+int vtkTriangleStrip::GetParametricCenter(float pcoords[3])
 {
   pcoords[0] = pcoords[1] = 0.333333; pcoords[2] = 0.0;
   return ((this->Points->GetNumberOfPoints()-2) / 2);

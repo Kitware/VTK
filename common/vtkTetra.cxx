@@ -593,7 +593,7 @@ void vtkTetra::InterpolationFunctions(float pcoords[3], float sf[4])
   sf[3] = pcoords[2];
 }
 
-inline void vtkTetra::InterpolationDerivs(float derivs[12])
+void vtkTetra::InterpolationDerivs(float derivs[12])
 {
   // r-derivatives
   derivs[0] = -1.0;

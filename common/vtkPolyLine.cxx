@@ -454,7 +454,7 @@ void vtkPolyLine::Clip(float value, vtkScalars *cellScalars,
 }
 
 // Return the center of the point cloud in parametric coordinates.
-inline int vtkPolyLine::GetParametricCenter(float pcoords[3])
+int vtkPolyLine::GetParametricCenter(float pcoords[3])
 {
   pcoords[0] = 0.5; pcoords[1] = pcoords[2] = 0.0;
   return ((this->Points->GetNumberOfPoints() - 1) / 2);
