@@ -124,13 +124,13 @@ static PyObject *PyVTKObject_PyGetAttr(PyObject *self, char *name)
       return PyString_FromString(
 	       vtkPythonManglePointer(((PyVTKObject *)self)->vtk_ptr,buf));
       }
-
+    
     if (strcmp(name,"__members__") == 0)
       {
       PyObject *lst = PyList_New(3);
-      PyList_SET_ITEM(lst,0,PyString_FromString("__class__"));
-      PyList_SET_ITEM(lst,1,PyString_FromString("__members__"));
-      PyList_SET_ITEM(lst,2,PyString_FromString("__this__"));
+      PyList_SetItem(lst,0,PyString_FromString("__class__"));
+      PyList_SetItem(lst,1,PyString_FromString("__members__"));
+      PyList_SetItem(lst,2,PyString_FromString("__this__"));
       return lst;
       }
     }
@@ -145,7 +145,7 @@ static PyObject *PyVTKObject_PyGetAttr(PyObject *self, char *name)
     pyclass = NULL;
     if (PyTuple_Size(bases))
       {
-      pyclass = (PyVTKClass *)PyTuple_GET_ITEM(bases,0);
+      pyclass = (PyVTKClass *)PyTuple_GetItem(bases,0);
       }
     }
 
@@ -289,12 +289,12 @@ static PyObject *PyVTKClass_PyGetAttr(PyObject *self, char *name)
     if (strcmp(name,"__members__") == 0)
       {
       PyObject *lst = PyList_New(6);
-      PyList_SET_ITEM(lst,0,PyString_FromString("__bases__"));
-      PyList_SET_ITEM(lst,1,PyString_FromString("__doc__"));
-      PyList_SET_ITEM(lst,2,PyString_FromString("__members__"));
-      PyList_SET_ITEM(lst,3,PyString_FromString("__methods__"));
-      PyList_SET_ITEM(lst,4,PyString_FromString("__module__"));
-      PyList_SET_ITEM(lst,5,PyString_FromString("__name__"));
+      PyList_SetItem(lst,0,PyString_FromString("__bases__"));
+      PyList_SetItem(lst,1,PyString_FromString("__doc__"));
+      PyList_SetItem(lst,2,PyString_FromString("__members__"));
+      PyList_SetItem(lst,3,PyString_FromString("__methods__"));
+      PyList_SetItem(lst,4,PyString_FromString("__module__"));
+      PyList_SetItem(lst,5,PyString_FromString("__name__"));
       return lst;
       }
     }
@@ -309,7 +309,7 @@ static PyObject *PyVTKClass_PyGetAttr(PyObject *self, char *name)
     pyclass = NULL;
     if (PyTuple_Size(bases))
       {
-      pyclass = (PyVTKClass *)PyTuple_GET_ITEM(bases,0);
+      pyclass = (PyVTKClass *)PyTuple_GetItem(bases,0);
       }
     }
 
@@ -406,7 +406,7 @@ vtkObject *PyArg_VTKParseTuple(PyObject *self, PyObject *args,
     int n = PyTuple_Size(args);
     PyVTKClass *vtkclass = (PyVTKClass *)self;
 
-    if (n == 0 || (self = PyTuple_GET_ITEM(args,0)) == NULL ||
+    if (n == 0 || (self = PyTuple_GetItem(args,0)) == NULL ||
 	self->ob_type != &PyVTKObjectType ||
 	!((PyVTKObject *)self)->vtk_ptr->IsA(vtkclass->vtk_name))
       {
