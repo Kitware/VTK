@@ -39,8 +39,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkIdList.h"
-#include "vtkCell.h"
-
 
 vtkIdList::vtkIdList(const int sz, const int ext)
 {
