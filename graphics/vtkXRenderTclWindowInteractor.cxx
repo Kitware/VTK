@@ -320,22 +320,46 @@ void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
 
     case ButtonPress : 
       {
+      me->SetEventPosition(((XButtonEvent*)event)->x,
+			   ((XButtonEvent*)event)->y);
+      
       switch (((XButtonEvent *)event)->button)
 	{
 	case Button1 : 
-          me->FindPokedCamera(((XButtonEvent*)event)->x,
-			      me->Size[1] - ((XButtonEvent*)event)->y);
-	  me->StartRotate(); 
+	  if (me->LeftButtonPressMethod) 
+	    {
+	    (*me->LeftButtonPressMethod)(me->LeftButtonPressMethodArg);
+	    }
+	  else
+	    {
+	    me->FindPokedCamera(((XButtonEvent*)event)->x,
+				me->Size[1] - ((XButtonEvent*)event)->y);
+	    me->StartRotate(); 
+	    }
 	  break;
 	case Button2 : 
-          me->FindPokedCamera(((XButtonEvent*)event)->x,
-			      me->Size[1] - ((XButtonEvent*)event)->y);
-	  me->StartPan(); 
+	  if (me->MiddleButtonPressMethod) 
+	    {
+	    (*me->MiddleButtonPressMethod)(me->MiddleButtonPressMethodArg);
+	    }
+	  else
+	    {
+	    me->FindPokedCamera(((XButtonEvent*)event)->x,
+				me->Size[1] - ((XButtonEvent*)event)->y);
+	    me->StartPan(); 
+	    }
 	  break;
 	case Button3 : 
-          me->FindPokedCamera(((XButtonEvent*)event)->x,
-			      me->Size[1] - ((XButtonEvent*)event)->y);
-	  me->StartZoom(); 
+	  if (me->RightButtonPressMethod) 
+	    {
+	    (*me->RightButtonPressMethod)(me->RightButtonPressMethodArg);
+	    }
+	  else
+	    {
+	    me->FindPokedCamera(((XButtonEvent*)event)->x,
+				me->Size[1] - ((XButtonEvent*)event)->y);
+	    me->StartZoom(); 
+	    }
 	  break;
 	}
       }
@@ -343,11 +367,31 @@ void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
 
     case ButtonRelease : 
       {
+      me->SetEventPosition(((XButtonEvent*)event)->x,
+			   ((XButtonEvent*)event)->y);
       switch (((XButtonEvent *)event)->button)
 	{
-	case Button1 : me->EndRotate(); break;
-	case Button2 : me->EndPan(); break;
-	case Button3 : me->EndZoom(); break;
+	case Button1 :
+	  if (me->LeftButtonReleaseMethod) 
+	    {
+	    (*me->LeftButtonReleaseMethod)(me->LeftButtonReleaseMethodArg);
+	    }
+	  else me->EndRotate(); 
+	  break;
+	case Button2 :
+	  if (me->MiddleButtonReleaseMethod) 
+	    {
+	    (*me->MiddleButtonReleaseMethod)(me->MiddleButtonReleaseMethodArg);
+	    }
+	  else me->EndPan(); 
+	  break;
+	case Button3 : 
+	  if (me->RightButtonReleaseMethod) 
+	    {
+	    (*me->RightButtonReleaseMethod)(me->RightButtonReleaseMethodArg);
+	    }
+	  else me->EndZoom(); 
+	  break;
 	}
       }
       break;
@@ -478,6 +522,14 @@ void vtkXRenderWindowInteractorTimer(XtPointer client_data,
   unsigned int keys;
 
   me = (vtkXRenderWindowInteractor *)client_data;
+
+  if (me->TimerMethod) 
+    {
+    XQueryPointer(me->DisplayId,me->WindowId,
+		  &root,&child,&root_x,&root_y,&x,&y,&keys);
+    me->SetEventPosition(x,y);
+    (*me->TimerMethod)(me->TimerMethodArg);
+    }
 
   switch (me->State)
     {

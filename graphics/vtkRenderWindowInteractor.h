@@ -140,6 +140,41 @@ public:
   void SetExitMethod(void (*f)(void *), void *arg);
   void SetExitMethodArgDelete(void (*f)(void *));
 
+  void SetTimerMethod(void (*f)(void *), void *arg);
+  void SetTimerMethodArgDelete(void (*f)(void *));
+
+  void SetLeftButtonPressMethod(void (*f)(void *), void *arg);
+  void SetLeftButtonPressMethodArgDelete(void (*f)(void *));
+  void SetLeftButtonReleaseMethod(void (*f)(void *), void *arg);
+  void SetLeftButtonReleaseMethodArgDelete(void (*f)(void *));
+
+  void SetMiddleButtonPressMethod(void (*f)(void *), void *arg);
+  void SetMiddleButtonPressMethodArgDelete(void (*f)(void *));
+  void SetMiddleButtonReleaseMethod(void (*f)(void *), void *arg);
+  void SetMiddleButtonReleaseMethodArgDelete(void (*f)(void *));
+
+  void SetRightButtonPressMethod(void (*f)(void *), void *arg);
+  void SetRightButtonPressMethodArgDelete(void (*f)(void *));
+  void SetRightButtonReleaseMethod(void (*f)(void *), void *arg);
+  void SetRightButtonReleaseMethodArgDelete(void (*f)(void *));
+
+  // Description:
+  // This method can be used by user callbacks to get the 
+  // x, y, coordinates of the current event.
+  vtkSetVector2Macro(EventPosition,int);
+  vtkGetVectorMacro(EventPosition,int,2);
+
+  
+  // Description:
+  // Primarily internal methods used to start and stop 
+  // animation of the camera.
+  virtual void StartRotate() {};
+  virtual void EndRotate() {};
+  virtual void StartZoom() {};
+  virtual void EndZoom() {};
+  virtual void StartPan() {};
+  virtual void EndPan() {};
+
 protected:
   vtkRenderWindow *RenderWindow;
   vtkCamera   *CurrentCamera;
@@ -155,6 +190,7 @@ protected:
   int   Initialized;
   float DesiredUpdateRate;
   float StillUpdateRate;
+  int   EventPosition[2];
 
   // for picking actors
   vtkPicker *Picker;
@@ -165,7 +201,7 @@ protected:
   vtkRenderer *PickedRenderer;
   vtkActor *CurrentActor;
 
-  // methods called prior to and after picking
+  // user methods that can be used to override default behaviour
   void (*StartPickMethod)(void *);
   void (*StartPickMethodArgDelete)(void *);
   void *StartPickMethodArg;
@@ -179,6 +215,30 @@ protected:
   void (*ExitMethodArgDelete)(void *);
   void *ExitMethodArg;
 
+  void (*TimerMethod)(void *);
+  void (*TimerMethodArgDelete)(void *);
+  void *TimerMethodArg;
+
+  void (*LeftButtonPressMethod)(void *);
+  void (*LeftButtonPressMethodArgDelete)(void *);
+  void *LeftButtonPressMethodArg;
+  void (*LeftButtonReleaseMethod)(void *);
+  void (*LeftButtonReleaseMethodArgDelete)(void *);
+  void *LeftButtonReleaseMethodArg;
+
+  void (*MiddleButtonPressMethod)(void *);
+  void (*MiddleButtonPressMethodArgDelete)(void *);
+  void *MiddleButtonPressMethodArg;
+  void (*MiddleButtonReleaseMethod)(void *);
+  void (*MiddleButtonReleaseMethodArgDelete)(void *);
+  void *MiddleButtonReleaseMethodArg;
+
+  void (*RightButtonPressMethod)(void *);
+  void (*RightButtonPressMethodArgDelete)(void *);
+  void *RightButtonPressMethodArg;
+  void (*RightButtonReleaseMethod)(void *);
+  void (*RightButtonReleaseMethodArgDelete)(void *);
+  void *RightButtonReleaseMethodArg;
 };
 
 #endif

@@ -81,6 +81,34 @@ vtkRenderWindowInteractor::vtkRenderWindowInteractor()
   this->ExitMethod = NULL;
   this->ExitMethodArgDelete = NULL;
   this->ExitMethodArg = NULL;
+
+  this->TimerMethod = NULL;
+  this->TimerMethodArgDelete = NULL;
+  this->TimerMethodArg = NULL;
+
+  this->LeftButtonPressMethod = NULL;
+  this->LeftButtonPressMethodArgDelete = NULL;
+  this->LeftButtonPressMethodArg = NULL;
+  this->LeftButtonReleaseMethod = NULL;
+  this->LeftButtonReleaseMethodArgDelete = NULL;
+  this->LeftButtonReleaseMethodArg = NULL;
+
+  this->MiddleButtonPressMethod = NULL;
+  this->MiddleButtonPressMethodArgDelete = NULL;
+  this->MiddleButtonPressMethodArg = NULL;
+  this->MiddleButtonReleaseMethod = NULL;
+  this->MiddleButtonReleaseMethodArgDelete = NULL;
+  this->MiddleButtonReleaseMethodArg = NULL;
+
+  this->RightButtonPressMethod = NULL;
+  this->RightButtonPressMethodArgDelete = NULL;
+  this->RightButtonPressMethodArg = NULL;
+  this->RightButtonReleaseMethod = NULL;
+  this->RightButtonReleaseMethodArgDelete = NULL;
+  this->RightButtonReleaseMethodArg = NULL;
+
+  this->EventPosition[0] = 0;
+  this->EventPosition[1] = 0;
 }
 
 vtkRenderWindowInteractor::~vtkRenderWindowInteractor()
@@ -286,6 +314,202 @@ void vtkRenderWindowInteractor::SetExitMethodArgDelete(void (*f)(void *))
   if ( f != this->ExitMethodArgDelete)
     {
     this->ExitMethodArgDelete = f;
+    this->Modified();
+    }
+}
+
+// Description:
+// Set the exit method. This method is invoked during rotate/zoom/pan
+void vtkRenderWindowInteractor::SetTimerMethod(void (*f)(void *), void *arg)
+{
+  if ( f != this->TimerMethod || arg != this->TimerMethodArg )
+    {
+    // delete the current arg if there is one and a delete meth
+    if ((this->TimerMethodArg)&&(this->TimerMethodArgDelete))
+      {
+      (*this->TimerMethodArgDelete)(this->TimerMethodArg);
+      }
+    this->TimerMethod = f;
+    this->TimerMethodArg = arg;
+    this->Modified();
+    }
+}
+
+// Description:
+// Called when a void* argument is being discarded.  Lets the user free it.
+void vtkRenderWindowInteractor::SetTimerMethodArgDelete(void (*f)(void *))
+{
+  if ( f != this->TimerMethodArgDelete)
+    {
+    this->TimerMethodArgDelete = f;
+    this->Modified();
+    }
+}
+
+// Description:
+// Set the exit method. This method is invoked on a <e> keypress.
+void vtkRenderWindowInteractor::SetLeftButtonPressMethod(void (*f)(void *), void *arg)
+{
+  if ( f != this->LeftButtonPressMethod || arg != this->LeftButtonPressMethodArg )
+    {
+    // delete the current arg if there is one and a delete meth
+    if ((this->LeftButtonPressMethodArg)&&(this->LeftButtonPressMethodArgDelete))
+      {
+      (*this->LeftButtonPressMethodArgDelete)(this->LeftButtonPressMethodArg);
+      }
+    this->LeftButtonPressMethod = f;
+    this->LeftButtonPressMethodArg = arg;
+    this->Modified();
+    }
+}
+
+// Description:
+// Called when a void* argument is being discarded.  Lets the user free it.
+void vtkRenderWindowInteractor::SetLeftButtonPressMethodArgDelete(void (*f)(void *))
+{
+  if ( f != this->LeftButtonPressMethodArgDelete)
+    {
+    this->LeftButtonPressMethodArgDelete = f;
+    this->Modified();
+    }
+}
+
+// Description:
+// Set the exit method. This method is invoked on a <e> keyrelease.
+void vtkRenderWindowInteractor::SetLeftButtonReleaseMethod(void (*f)(void *), void *arg)
+{
+  if ( f != this->LeftButtonReleaseMethod || arg != this->LeftButtonReleaseMethodArg )
+    {
+    // delete the current arg if there is one and a delete meth
+    if ((this->LeftButtonReleaseMethodArg)&&(this->LeftButtonReleaseMethodArgDelete))
+      {
+      (*this->LeftButtonReleaseMethodArgDelete)(this->LeftButtonReleaseMethodArg);
+      }
+    this->LeftButtonReleaseMethod = f;
+    this->LeftButtonReleaseMethodArg = arg;
+    this->Modified();
+    }
+}
+
+// Description:
+// Called when a void* argument is being discarded.  Lets the user free it.
+void vtkRenderWindowInteractor::SetLeftButtonReleaseMethodArgDelete(void (*f)(void *))
+{
+  if ( f != this->LeftButtonReleaseMethodArgDelete)
+    {
+    this->LeftButtonReleaseMethodArgDelete = f;
+    this->Modified();
+    }
+}
+
+// Description:
+// Set the exit method. This method is invoked on a <e> keypress.
+void vtkRenderWindowInteractor::SetMiddleButtonPressMethod(void (*f)(void *), void *arg)
+{
+  if ( f != this->MiddleButtonPressMethod || arg != this->MiddleButtonPressMethodArg )
+    {
+    // delete the current arg if there is one and a delete meth
+    if ((this->MiddleButtonPressMethodArg)&&(this->MiddleButtonPressMethodArgDelete))
+      {
+      (*this->MiddleButtonPressMethodArgDelete)(this->MiddleButtonPressMethodArg);
+      }
+    this->MiddleButtonPressMethod = f;
+    this->MiddleButtonPressMethodArg = arg;
+    this->Modified();
+    }
+}
+
+// Description:
+// Called when a void* argument is being discarded.  Lets the user free it.
+void vtkRenderWindowInteractor::SetMiddleButtonPressMethodArgDelete(void (*f)(void *))
+{
+  if ( f != this->MiddleButtonPressMethodArgDelete)
+    {
+    this->MiddleButtonPressMethodArgDelete = f;
+    this->Modified();
+    }
+}
+
+// Description:
+// Set the exit method. This method is invoked on a <e> keyrelease.
+void vtkRenderWindowInteractor::SetMiddleButtonReleaseMethod(void (*f)(void *), void *arg)
+{
+  if ( f != this->MiddleButtonReleaseMethod || arg != this->MiddleButtonReleaseMethodArg )
+    {
+    // delete the current arg if there is one and a delete meth
+    if ((this->MiddleButtonReleaseMethodArg)&&(this->MiddleButtonReleaseMethodArgDelete))
+      {
+      (*this->MiddleButtonReleaseMethodArgDelete)(this->MiddleButtonReleaseMethodArg);
+      }
+    this->MiddleButtonReleaseMethod = f;
+    this->MiddleButtonReleaseMethodArg = arg;
+    this->Modified();
+    }
+}
+
+// Description:
+// Called when a void* argument is being discarded.  Lets the user free it.
+void vtkRenderWindowInteractor::SetMiddleButtonReleaseMethodArgDelete(void (*f)(void *))
+{
+  if ( f != this->MiddleButtonReleaseMethodArgDelete)
+    {
+    this->MiddleButtonReleaseMethodArgDelete = f;
+    this->Modified();
+    }
+}
+
+// Description:
+// Set the exit method. This method is invoked on a <e> keypress.
+void vtkRenderWindowInteractor::SetRightButtonPressMethod(void (*f)(void *), void *arg)
+{
+  if ( f != this->RightButtonPressMethod || arg != this->RightButtonPressMethodArg )
+    {
+    // delete the current arg if there is one and a delete meth
+    if ((this->RightButtonPressMethodArg)&&(this->RightButtonPressMethodArgDelete))
+      {
+      (*this->RightButtonPressMethodArgDelete)(this->RightButtonPressMethodArg);
+      }
+    this->RightButtonPressMethod = f;
+    this->RightButtonPressMethodArg = arg;
+    this->Modified();
+    }
+}
+
+// Description:
+// Called when a void* argument is being discarded.  Lets the user free it.
+void vtkRenderWindowInteractor::SetRightButtonPressMethodArgDelete(void (*f)(void *))
+{
+  if ( f != this->RightButtonPressMethodArgDelete)
+    {
+    this->RightButtonPressMethodArgDelete = f;
+    this->Modified();
+    }
+}
+
+// Description:
+// Set the exit method. This method is invoked on a <e> keyrelease.
+void vtkRenderWindowInteractor::SetRightButtonReleaseMethod(void (*f)(void *), void *arg)
+{
+  if ( f != this->RightButtonReleaseMethod || arg != this->RightButtonReleaseMethodArg )
+    {
+    // delete the current arg if there is one and a delete meth
+    if ((this->RightButtonReleaseMethodArg)&&(this->RightButtonReleaseMethodArgDelete))
+      {
+      (*this->RightButtonReleaseMethodArgDelete)(this->RightButtonReleaseMethodArg);
+      }
+    this->RightButtonReleaseMethod = f;
+    this->RightButtonReleaseMethodArg = arg;
+    this->Modified();
+    }
+}
+
+// Description:
+// Called when a void* argument is being discarded.  Lets the user free it.
+void vtkRenderWindowInteractor::SetRightButtonReleaseMethodArgDelete(void (*f)(void *))
+{
+  if ( f != this->RightButtonReleaseMethodArgDelete)
+    {
+    this->RightButtonReleaseMethodArgDelete = f;
     this->Modified();
     }
 }
