@@ -81,7 +81,7 @@ class vtkPolyData;
 class vtkSphereSource;
 class vtkCellPicker;
 
-class VTK_EXPORT vtkLineWidget : public vtk3DWidget
+class VTK_HYBRID_EXPORT vtkLineWidget : public vtk3DWidget
 {
 public:
   // Description:

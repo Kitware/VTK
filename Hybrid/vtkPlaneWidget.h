@@ -91,7 +91,7 @@ class vtkCellPicker;
 #define VTK_PLANE_WIREFRAME 2
 #define VTK_PLANE_SURFACE 3
 
-class VTK_EXPORT vtkPlaneWidget : public vtk3DWidget
+class VTK_HYBRID_EXPORT vtkPlaneWidget : public vtk3DWidget
 {
 public:
   // Description:

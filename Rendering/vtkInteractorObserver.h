@@ -49,7 +49,7 @@
 
 class vtkCallbackCommand;
 
-class VTK_EXPORT vtkInteractorObserver : public vtkObject
+class VTK_HYBRID_EXPORT vtkInteractorObserver : public vtkObject
 {
 public:
   vtkTypeRevisionMacro(vtkInteractorObserver,vtkObject);

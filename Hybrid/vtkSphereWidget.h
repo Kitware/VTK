@@ -73,7 +73,7 @@ class vtkCellPicker;
 #define VTK_SPHERE_WIREFRAME 1
 #define VTK_SPHERE_SURFACE 2
 
-class VTK_EXPORT vtkSphereWidget : public vtk3DWidget
+class VTK_HYBRID_EXPORT vtkSphereWidget : public vtk3DWidget
 {
 public:
   // Description:

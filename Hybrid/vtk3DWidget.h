@@ -53,7 +53,7 @@
 
 #include "vtkInteractorObserver.h"
 
-class VTK_EXPORT vtk3DWidget : public vtkInteractorObserver
+class VTK_HYBRID_EXPORT vtk3DWidget : public vtkInteractorObserver
 {
 public:
   vtkTypeRevisionMacro(vtk3DWidget,vtkInteractorObserver);

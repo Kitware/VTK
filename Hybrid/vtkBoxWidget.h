@@ -83,7 +83,7 @@ class vtkSphereSource;
 class vtkCellPicker;
 class vtkPlanes;
 
-class VTK_EXPORT vtkBoxWidget : public vtk3DWidget
+class VTK_HYBRID_EXPORT vtkBoxWidget : public vtk3DWidget
 {
 public:
   // Description:
