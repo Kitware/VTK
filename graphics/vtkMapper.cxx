@@ -133,6 +133,10 @@ vtkColorScalars *vtkMapper::GetColors()
 	this->Colors->SetColor(i,this->LookupTable->
 			       MapValue(scalars->GetScalar(i)));
 	}
+      // make sure that MaxID is set correctly
+      this->Colors->InsertColor(numPts-1,this->LookupTable->
+			        MapValue(scalars->GetScalar(numPts-1)));
+      
       colors = this->Colors;
       }
     else //color scalar
