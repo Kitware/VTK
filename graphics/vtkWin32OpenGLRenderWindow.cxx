@@ -111,6 +111,8 @@ vtkWin32OpenGLRenderWindow::~vtkWin32OpenGLRenderWindow()
     // can't set WindowId=NULL, needed for DestroyWindow
     this->DeviceContext = NULL;
     
+    // clear the extra data before calling destroy
+    SetWindowLong(this->WindowId,4,(LONG)0);
     DestroyWindow(this->WindowId);
     }
   this->TextureResourceIds->Delete();
