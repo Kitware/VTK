@@ -130,7 +130,7 @@ protected:
   static vtkSimpleCriticalSection BarrierInProgress;
 #endif
   
-  ThreadIdType* ThreadIds;
+  ThreadIdType ThreadId;
 
   int LastNumberOfProcesses;
 
