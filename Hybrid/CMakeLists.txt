@@ -39,6 +39,7 @@ vtkVectorText.cxx
 vtkVideoSource.cxx
 vtkWeightedTransformFilter.cxx
 vtkXYPlotActor.cxx
+vtkXYPlotWidget.cxx
 )
 
 SET_SOURCE_FILES_PROPERTIES(
