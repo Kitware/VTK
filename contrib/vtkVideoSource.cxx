@@ -44,6 +44,45 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkVideoSource.h"
 #include "vtkObjectFactory.h"
 
+//---------------------------------------------------------------
+// Important FrameBufferMutex rules:
+// 
+// The frame grabs are generally done asynchronously, and it is necessary
+// to ensure that when the frame buffer is valid when it is being written 
+// to or read from
+//
+// The following information can only be changed within a mutex lock,
+// and the lock must not be released until the frame buffer agrees with the
+// information.
+//
+// FrameBuffer
+// FrameBufferTimeStamps
+// FrameBufferSize
+// FrameBufferIndex
+// FrameBufferExtent
+// FrameBufferBitsPerPixel
+// FrameBufferRowAlignment
+// GrabOnUpdate
+//
+// After one of the above has been changed, and before the mutex is released,
+// the following must be called to update the frame buffer:
+//
+// UpdateFrameBuffer()
+//
+// Likewise, the following function must only be called from within a
+// mutex lock because it modifies FrameBufferIndex:
+//
+// AdvanceFrameBuffer()
+//
+// Any methods which might be called asynchronously must lock the 
+// mutex before reading the above information, and you must be very 
+// careful when accessing any information except for the above.
+// These methods include the following:
+//
+// InternalGrab()
+//
+// Finally, when Execute() is reading from the FrameBuffer it must do
+// so from within a mutex lock.  Otherwise tearing artifacts might result.
 
 //----------------------------------------------------------------------------
 vtkVideoSource* vtkVideoSource::New()
@@ -103,11 +142,6 @@ vtkVideoSource::vtkVideoSource()
     }
   this->LastNumberOfScalarComponents = 0;
 
-  this->VideoChannel = 0;
-  this->VideoInput = VTK_VIDEO_MONO;
-  this->VideoInputForColor = VTK_VIDEO_YC;
-  this->VideoFormat = VTK_VIDEO_RS170;
-
   this->FlipFrames = 0;
 
   this->PlayerThreader = vtkMultiThreader::New();
@@ -128,10 +162,10 @@ vtkVideoSource::vtkVideoSource()
 //----------------------------------------------------------------------------
 vtkVideoSource::~vtkVideoSource()
 { 
-  if (this->Playing)
-    {
-    this->Stop();
-    }
+  // we certainly don't want to access a virtual 
+  // function after the subclass has destructed!!
+  this->vtkVideoSource::ReleaseSystemResources();
+
   this->SetFrameBufferSize(0);
   this->FrameBufferMutex->Delete();
   this->PlayerThreader->Delete();
@@ -194,88 +228,10 @@ void vtkVideoSource::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "GrabOnUpdate: " << (this->GrabOnUpdate ? "On\n" : "Off\n");
   
-  os << indent << "VideoChannel: " << this->VideoChannel << "\n";
-
-  os << indent << "VideoInput: ";
-  switch (this->VideoInput)
-    {
-    case VTK_VIDEO_MONO:
-      os << "Mono\n";
-      break;
-    case VTK_VIDEO_COMPOSITE:
-      os << "Mono\n";
-      break;
-    case VTK_VIDEO_YC:
-      os << "Mono\n";
-      break;
-    case VTK_VIDEO_RGB:
-      os << "Mono\n";
-      break;
-    case VTK_VIDEO_DIGITAL:
-      os << "Mono\n";
-      break;
-    default:
-      os << "Unrecognized\n";
-      break;
-    }
-
-  os << indent << "VideoFormat: ";
-  switch (this->VideoFormat)
-    {
-    case VTK_VIDEO_RS170:
-      os << "RS170\n";
-      break;
-    case VTK_VIDEO_NTSC:
-      os << "NTSC\n";
-      break;
-    case VTK_VIDEO_CCIR:
-      os << "CCIR\n";
-      break;
-    case VTK_VIDEO_PAL:
-      os << "PAL\n";
-      break;
-    case VTK_VIDEO_SECAM:
-      os << "SECAM\n";
-      break;
-    default:
-      os << "Unrecognized\n";
-      break;
-    }
-
   os << indent << "Opacity: " << this->Opacity << "\n";
 
   os << indent << "Preview: " << (this->Preview ? "On\n" : "Off\n");
 }
-
-//---------------------------------------------------------------
-// Important FrameBufferMutex rules:
-// 
-// The frame grabs are generally done asynchronously, and it is necessary
-// to ensure that when the frame buffer is valid when it is being written 
-// to.
-//
-// The following information can only be changed within a mutex lock,
-// and the lock must not be released until the frame buffer agrees with the
-// information.
-//
-// FrameBuffer
-// FrameBufferTimeStamps
-// FrameBufferSize
-// FrameBufferIndex
-// FrameBufferExtent
-// FrameBufferBitsPerPixel
-// FrameBufferRowAlignment
-//
-// After one of the above has been changed, and before the mutex is released,
-// the following must be called to update the frame buffer:
-//
-// UpdateFrameBuffer()
-//
-// Any methods which might be called asynchronously must lock the mutex
-// to read the above information, and should not access any information 
-// except for the above.  These methods include the following:
-//
-// InternalGrab()
 
 //----------------------------------------------------------------------------
 // Update the FrameBuffers according to any changes in the FrameBuffer*
@@ -342,45 +298,53 @@ void vtkVideoSource::Initialize()
     {
     return;
     }
+  this->Initialized = 1;
 
   this->UpdateFrameBuffer();
 }
 
 //----------------------------------------------------------------------------
+// ReleaseSystemResources() should be overridden to release the hardware
+void vtkVideoSource::ReleaseSystemResources()
+{
+  if (this->Playing)
+    {
+    this->Stop();
+    }
+
+  this->Initialized = 0;
+}
+
+//----------------------------------------------------------------------------
 void vtkVideoSource::SetFrameSize(int x, int y, int z)
 {
+  if (x == this->FrameSize[0] && 
+      y == this->FrameSize[1] && 
+      z == this->FrameSize[2])
+    {
+    return;
+    }
+
   if (x < 1 || y < 1 || z < 1) 
     {
     vtkErrorMacro(<< "SetFrameSize: Illegal frame size");
+    return;
+    }
+
+  this->FrameSize[0] = x;
+  this->FrameSize[1] = y;
+  this->FrameSize[2] = z;
+
+  if (this->Initialized) 
+    {
+    this->FrameBufferMutex->Lock();
+    this->UpdateFrameBuffer();
+    this->FrameBufferMutex->Unlock();
     }
 
   this->Modified();
-
-  if (this->FrameSize[0] != x ||
-      this->FrameSize[1] != y ||
-      this->FrameSize[2] != z)
-    {
-    this->FrameSize[0] = x;
-    this->FrameSize[1] = y;
-    this->FrameSize[2] = z;
-
-    if (this->Initialized) 
-      {
-      this->FrameBufferMutex->Lock();
-      this->UpdateFrameBuffer();
-      this->FrameBufferMutex->Unlock();
-      }
-    }
 }
     
-//----------------------------------------------------------------------------
-void vtkVideoSource::SetFrameRate(float rate)
-{
-  this->Modified();
-
-  this->FrameRate = rate;
-}
-
 //----------------------------------------------------------------------------
 void vtkVideoSource::SetClipRegion(int x0, int x1, int y0, int y1, 
 				   int z0, int z1)
@@ -469,22 +433,21 @@ void vtkVideoSource::InternalGrab()
     randNum = 1664525*randNum + 1013904223;
     *lptr++ = randNum;
     }
-  ptr += 4;
+  unsigned char *ptr1 = ptr + 4;
   i = (totalSize-4)/16;
   while (--i >= 0)
     {
     randNum = 1664525*randNum + 1013904223;
-    *ptr = randNum;
-    ptr += 16;
+    *ptr1 = randNum;
+    ptr1 += 16;
     }
+  randsave = randNum;
 
   this->FrameBufferTimeStamps[index] = vtkTimerLog::GetCurrentTime();
 
-  this->FrameBufferMutex->Unlock();
-
   this->Modified();
 
-  randsave = randNum;
+  this->FrameBufferMutex->Unlock();
 }
 
 //----------------------------------------------------------------------------
@@ -539,7 +502,14 @@ static void *vtkVideoSourceGrabThread(struct ThreadInfoStruct *data)
 	}
 
       // sleep according to OS preference
+#ifdef _WIN32
+      // was having trouble with wish.exe stack overflows,
+      // using Sleep() instead of vtkTimerLog::Sleep() seemed
+      // to fix.
+      Sleep((int)(1000*remaining));
+#else
       vtkTimerLog::Sleep((int)(1000*remaining));
+#endif
       }
     }
 }
@@ -549,9 +519,10 @@ static void *vtkVideoSourceGrabThread(struct ThreadInfoStruct *data)
 // You should override this as appropriate for your device.  
 void vtkVideoSource::Play()
 {
-  this->Initialize();
   if (!this->Playing)
     {
+    this->Initialize();
+
     this->Playing = 1;
     this->Modified();
     this->PlayerThreadId = 
@@ -573,6 +544,21 @@ void vtkVideoSource::Stop()
     this->Modified();
     }
 } 
+
+//----------------------------------------------------------------------------
+void vtkVideoSource::SetGrabOnUpdate(int yesno)
+{
+  if (this->GrabOnUpdate == yesno)
+    {
+    return;
+    }
+
+  this->FrameBufferMutex->Lock();
+  this->GrabOnUpdate = yesno;
+  this->FrameBufferMutex->Unlock();
+
+  this->Modified();
+}
 
 //----------------------------------------------------------------------------
 // Override this and provide checks to ensure an appropriate number
@@ -605,7 +591,7 @@ void vtkVideoSource::SetOutputFormat(int format)
       numComponents = 1;
       break;
     default:
-      vtkErrorMacro(<< "SetColorFormat: Unrecognized color format.");
+      vtkErrorMacro(<< "SetOutputFormat: Unrecognized color format.");
       break;
     }
   this->NumberOfScalarComponents = numComponents;
@@ -619,39 +605,6 @@ void vtkVideoSource::SetOutputFormat(int format)
       this->UpdateFrameBuffer();
       }
     this->FrameBufferMutex->Unlock();
-    }
-
-  // set video format to match the output format
-  if (this->OutputFormat == VTK_RGB || this->OutputFormat == VTK_RGBA)
-    {
-    if (this->VideoFormat == VTK_VIDEO_RS170)
-      {
-      this->SetVideoFormat(VTK_VIDEO_NTSC);
-      }
-    if (this->VideoFormat == VTK_VIDEO_CCIR)
-      {
-      this->SetVideoFormat(VTK_VIDEO_PAL);
-      }
-    if (this->VideoInput == VTK_VIDEO_MONO)
-      {
-      this->SetVideoInput(this->VideoInputForColor);
-      }
-    }
-  if (this->OutputFormat == VTK_LUMINANCE)
-    {
-    if (this->VideoFormat == VTK_VIDEO_NTSC)
-      {
-      this->SetVideoFormat(VTK_VIDEO_RS170);
-      }
-    if (this->VideoFormat == VTK_VIDEO_PAL)
-      {
-      this->SetVideoFormat(VTK_VIDEO_CCIR);
-      }
-    if (this->VideoInput == VTK_VIDEO_YC || this->VideoInput == VTK_VIDEO_COMPOSITE)
-      {
-      this->VideoInputForColor = this->VideoInput;
-      this->SetVideoInput(VTK_VIDEO_MONO);
-      }
     }
 
   this->Modified();
@@ -725,7 +678,15 @@ void vtkVideoSource::SetFrameBufferSize(int bufsize)
     delete [] this->FrameBufferTimeStamps;
     this->FrameBufferTimeStamps = timestamps;
 
-    this->FrameBufferIndex = this->FrameBufferIndex % bufsize;
+    if (bufsize > 0)
+      {
+      this->FrameBufferIndex = this->FrameBufferIndex % bufsize;
+      }
+    else
+      {
+      this->FrameBufferIndex = 0;
+      }
+
     this->FrameBufferSize = bufsize;
     this->Modified();
     }
@@ -740,6 +701,16 @@ void vtkVideoSource::SetFrameBufferSize(int bufsize)
 
 //----------------------------------------------------------------------------
 // Rotate the buffers
+void vtkVideoSource::Advance(int n)
+{ 
+  this->FrameBufferMutex->Lock();
+  this->AdvanceFrameBuffer(n); 
+  this->FrameBufferMutex->Unlock();
+  this->Modified(); 
+}
+
+//----------------------------------------------------------------------------
+// This function MUST be called only from within a FrameBufferMutex->Lock()
 void vtkVideoSource::AdvanceFrameBuffer(int n)
 {
   int i = (this->FrameBufferIndex - n) % this->FrameBufferSize;
@@ -751,13 +722,32 @@ void vtkVideoSource::AdvanceFrameBuffer(int n)
 }
 
 //----------------------------------------------------------------------------
+double vtkVideoSource::GetFrameTimeStamp(int frame)
+{ 
+  double timeStamp;
+
+  this->FrameBufferMutex->Lock();
+
+  if (this->FrameBufferSize <= 0)
+    {
+    return 0.0;
+    }
+
+  timeStamp = this->FrameBufferTimeStamps[(this->FrameBufferIndex + frame) \
+					 % this->FrameBufferSize];
+  this->FrameBufferMutex->Unlock();
+
+  return timeStamp;
+}
+
+//----------------------------------------------------------------------------
 // This is a hack to force a grab on each update
+// when this->GrabOnUpdate is set
 void vtkVideoSource::UpdateInformation()
 {
-  // if FrameRate is zero, then we do one grab per update
   if (this->GrabOnUpdate && !this->FrameGrabbed)
     {
-    this->Grab(1);
+    this->Grab();
     this->FrameGrabbed = 1;
     }
 
@@ -1043,17 +1033,3 @@ void vtkVideoSource::Execute(vtkImageData *data)
 
   this->FrameBufferMutex->Unlock();
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-

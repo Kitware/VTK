@@ -53,6 +53,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkVideoSource.h"
 
+// digitizer hardware
 #define VTK_MIL_DEFAULT       0
 #define VTK_MIL_METEOR        1
 #define VTK_MIL_METEOR_II     2
@@ -60,6 +61,21 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define VTK_MIL_CORONA        4
 #define VTK_MIL_PULSAR        5
 #define VTK_MIL_GENESIS       6
+
+// video inputs: 
+#define VTK_MIL_MONO          0
+#define VTK_MIL_COMPOSITE     1
+#define VTK_MIL_YC            2
+#define VTK_MIL_RGB           3
+#define VTK_MIL_DIGITAL       4
+
+// video formats:
+#define VTK_MIL_RS170         0
+#define VTK_MIL_NTSC          1
+#define VTK_MIL_CCIR          2 
+#define VTK_MIL_PAL           3 
+#define VTK_MIL_SECAM         4
+#define VTK_MIL_NONSTANDARD   5       
 
 class VTK_EXPORT vtkMILVideoSource : public vtkVideoSource
 {
@@ -71,16 +87,53 @@ public:
   // Description:
   // See vtkVideoSource
   void Initialize();
+  void ReleaseSystemResources();
 
   void Grab(int n);
   void Grab() { this->Grab(1); };
   void Play();
   void Stop();
 
+  void SetFrameSize(int x, int y, int z);
   void SetOutputFormat(int format);
-  void SetVideoChannel(int channel);
-  void SetVideoFormat(int format);
-  void SetVideoInput(int input);
+
+  // Description:
+  // Set/Get the video channel
+  virtual void SetVideoChannel(int channel);
+  vtkGetMacro(VideoChannel, int);
+
+  // Description:
+  // Set/Get the video format
+  virtual void SetVideoFormat(int format);
+  void SetVideoFormatToNTSC() { this->SetVideoFormat(VTK_MIL_NTSC); };
+  void SetVideoFormatToPAL() { this->SetVideoFormat(VTK_MIL_PAL); };
+  void SetVideoFormatToSECAM() { this->SetVideoFormat(VTK_MIL_SECAM); };
+  void SetVideoFormatToRS170() { this->SetVideoFormat(VTK_MIL_RS170); };
+  void SetVideoFormatToCCIR() { this->SetVideoFormat(VTK_MIL_CCIR); };
+  void SetVideoFormatToNonStandard() { 
+    this->SetVideoFormat(VTK_MIL_NONSTANDARD); };
+  vtkGetMacro(VideoFormat,int);
+  
+  // Description:
+  // Set/Get the video input
+  virtual void SetVideoInput(int input);
+  void SetVideoInputToMono() { this->SetVideoInput(VTK_MIL_MONO); };
+  void SetVideoInputToComposite() {this->SetVideoInput(VTK_MIL_COMPOSITE);};
+  void SetVideoInputToYC() { this->SetVideoInput(VTK_MIL_YC); };
+  void SetVideoInputToRGB() { this->SetVideoInput(VTK_MIL_RGB); };
+  void SetVideoInputToDigital() { this->SetVideoInput(VTK_MIL_DIGITAL); };
+  vtkGetMacro(VideoInput,int);
+
+  // Description:
+  // Set/Get the video levels: the valid range is [0.0,2.0]
+  virtual void SetContrastLevel(float contrast);
+  vtkGetMacro(ContrastLevel,float);
+  virtual void SetBrightnessLevel(float brightness);
+  vtkGetMacro(BrightnessLevel,float);
+  virtual void SetHueLevel(float hue);
+  vtkGetMacro(HueLevel,float);
+  virtual void SetSaturationLevel(float saturation);
+  vtkGetMacro(SaturationLevel,float);
 
   // Description:
   // Set the system which you want use.  If you don't specify a system,
@@ -110,7 +163,7 @@ public:
   vtkGetMacro(MILDigitizerNumber,int);
 
   // Description:
-  // Set whether to display MIL error messages (default off)
+  // Set whether to display MIL error messages (default on)
   virtual void SetMILErrorMessages(int yesno);
   vtkBooleanMacro(MILErrorMessages,int);
   vtkGetMacro(MILErrorMessages,int);
@@ -141,6 +194,21 @@ protected:
   virtual void AllocateMILDigitizer();
   virtual void AllocateMILBuffer();
 
+  virtual void *MILInterpreterForSystem(int system);
+  char *MILInterpreterDLL;
+
+  int VideoChannel;
+  int VideoInput;
+  int VideoInputForColor;
+  int VideoFormat;
+
+  float ContrastLevel;
+  float BrightnessLevel;
+  float HueLevel;
+  float SaturationLevel;
+
+  int FrameMaxSize[2];
+
   long MILAppID;
   long MILSysID;
   long MILDigID;
@@ -158,6 +226,8 @@ protected:
 
   int MILAppInternallyAllocated;
   int MILSysInternallyAllocated;
+
+  int FatalMILError;
 };
 
 #endif

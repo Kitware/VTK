@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkMILVideoSource.cxx
+  vtkMILVideoSource.cxx
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -62,6 +62,21 @@ vtkMILVideoSource::vtkMILVideoSource()
 {
   this->Initialized = 0;
 
+  this->FatalMILError = 0;
+
+  this->ContrastLevel = 1.0;
+  this->BrightnessLevel = 1.0;
+  this->HueLevel = 1.0;
+  this->SaturationLevel = 1.0;
+
+  this->VideoChannel = 0;
+  this->VideoInput = VTK_MIL_MONO;
+  this->VideoInputForColor = VTK_MIL_YC;
+  this->VideoFormat = VTK_MIL_RS170;
+
+  this->FrameMaxSize[0] = 640;
+  this->FrameMaxSize[1] = 480;
+
   this->OldHookFunction = 0;
   this->OldUserDataPtr = 0;
 
@@ -81,56 +96,22 @@ vtkMILVideoSource::vtkMILVideoSource()
   this->MILDigitizerNumber = M_DEFAULT;
   this->MILDigitizerDCF = NULL;
 
-  this->MILErrorMessages = 0;
+  this->MILErrorMessages = 1;
 
   this->FlipFrames = 1; //apply vertical flip to each frame
 }
 
 //----------------------------------------------------------------------------
 vtkMILVideoSource::~vtkMILVideoSource()
-{ 
-  if (this->MILDigID)
-    {
-    if (this->Playing)
-      {
-      MdigHalt(this->MILDigID);
-      }
-    MdigGrabWait(this->MILDigID,M_GRAB_END);
-    }
-
-  /*
-  if (this->MILDispID != 0)
-    {
-    MdispDeselect(this->MILDispID,this->MILDispBufID);
-    MdispFree(this->MILDispID);
-    }
-  if (this->MILDispBufID != 0)
-    {
-    MbufFree(this->MILDispBufID);
-    }
-  */
-  if (this->MILBufID != 0)
-    {
-    MbufFree(this->MILBufID);
-    }
-  if (this->MILDigID != 0)
-    {
-    MdigFree(this->MILDigID);
-    }
-  if (this->MILSysInternallyAllocated && this->MILSysID != 0)
-    {
-    MsysFree(this->MILSysID);
-    }
-  if (this->MILAppInternallyAllocated && this->MILAppID != 0)
-    {
-    MappFree(this->MILAppID);
-    }
+{
+  this->vtkMILVideoSource::ReleaseSystemResources();
 
   if (this->MILDigitizerDCF != NULL)
     {
     delete [] this->MILDigitizerDCF;
-    }
-}
+    this->MILDigitizerDCF = NULL;
+    }  
+}  
 
 //----------------------------------------------------------------------------
 void vtkMILVideoSource::PrintSelf(ostream& os, vtkIndent indent)
@@ -139,6 +120,60 @@ void vtkMILVideoSource::PrintSelf(ostream& os, vtkIndent indent)
   
   vtkMILVideoSource::PrintSelf(os,indent);
   
+  os << indent << "ContrastLevel: " << this->ContrastLevel << "\n";
+
+  os << indent << "BrightnessLevel: " << this->BrightnessLevel << "\n";
+
+  os << indent << "HueLevel: " << this->HueLevel << "\n";
+
+  os << indent << "SaturationLevel: " << this->SaturationLevel << "\n";
+
+  os << indent << "VideoInput: ";
+  switch (this->VideoInput)
+    {
+    case VTK_MIL_MONO:
+      os << "Mono\n";
+      break;
+    case VTK_MIL_COMPOSITE:
+      os << "Mono\n";
+      break;
+    case VTK_MIL_YC:
+      os << "Mono\n";
+      break;
+    case VTK_MIL_RGB:
+      os << "Mono\n";
+      break;
+    case VTK_MIL_DIGITAL:
+      os << "Mono\n";
+      break;
+    default:
+      os << "Unrecognized\n";
+      break;
+    }
+
+  os << indent << "VideoFormat: ";
+  switch (this->VideoFormat)
+    {
+    case VTK_MIL_RS170:
+      os << "RS170\n";
+      break;
+    case VTK_MIL_NTSC:
+      os << "NTSC\n";
+      break;
+    case VTK_MIL_CCIR:
+      os << "CCIR\n";
+      break;
+    case VTK_MIL_PAL:
+      os << "PAL\n";
+      break;
+    case VTK_MIL_SECAM:
+      os << "SECAM\n";
+      break;
+    default:
+      os << "Unrecognized\n";
+      break;
+    }
+
   os << indent << "MILSystemType: ";
   switch (this->MILSystemType)
     {
@@ -186,7 +221,7 @@ void vtkMILVideoSource::PrintSelf(ostream& os, vtkIndent indent)
 
 //----------------------------------------------------------------------------
 // load the DLL for the specified Matrox digitizer
-static void *vtkMILVideoSourceSystemType(int system)
+void *vtkMILVideoSource::MILInterpreterForSystem(int system)
 {
   char *dll_name;
   char *func_name;
@@ -222,50 +257,175 @@ static void *vtkMILVideoSourceSystemType(int system)
       func_name = "unknown";
     }
       
-  return (void *)GetProcAddress(LoadLibrary(dll_name),func_name);
+  this->MILInterpreterDLL = dll_name;
+  HINSTANCE mil_lib = LoadLibrary(dll_name);
+
+  if (mil_lib == 0)
+    {
+    return NULL;
+    }
+
+  return (void *)GetProcAddress(mil_lib,func_name);
+}
+
+//----------------------------------------------------------------------------
+static void vtkMILVideoSourceSetChannel(long digID, int channel)
+{ 
+  if (digID == 0)
+    {
+    return;
+    }
+
+  int mil_channel = M_DEFAULT;
+
+  switch(channel)
+    {
+    case 0:
+      mil_channel = M_CH0;
+      break;
+    case 1:
+      mil_channel = M_CH1;
+      break;
+    case 2:
+      mil_channel = M_CH2;
+      break;
+    case 3:
+      mil_channel = M_CH3;
+      break;
+    }
+
+  MdigChannel(digID,mil_channel);
+}
+
+//----------------------------------------------------------------------------
+static void vtkMILVideoSourceSetLevel(long digID, int ref, float level)
+{ 
+  if (digID == 0)
+    {
+    return;
+    }
+
+  int int_level = M_MIN_LEVEL + level*(M_MAX_LEVEL-M_MIN_LEVEL);
+  if (int_level < M_MIN_LEVEL)
+    {
+    int_level = M_MIN_LEVEL;
+    }
+
+  if (int_level > M_MAX_LEVEL)
+    {
+    int_level = M_MAX_LEVEL;
+    }
+
+  MdigReference(digID,ref,int_level);
+}
+
+//----------------------------------------------------------------------------
+static void vtkMILVideoSourceSetSize(long digID, int size[3], int maxSize[2])
+{
+  if (digID == 0)
+    {
+    return;
+    }
+
+  int shrink_x = maxSize[0]/size[0];
+  int shrink_y = maxSize[1]/size[1];
+  if (shrink_x < 1)
+    {
+    shrink_x = 1;
+    }
+  if (shrink_y < 1)
+    {
+    shrink_y = 1;
+    }
+  
+  // convert shrink_x, shrink_y to power of 2
+  int i;
+  for (i = 0; shrink_x; i++)
+    {
+    shrink_x = shrink_x >> 1;
+    }
+  shrink_x = 1 << (i-1);
+  for (i = 0; shrink_y; i++)
+    {
+    shrink_y = shrink_y >> 1;
+    }
+  shrink_y = 1 << (i-1);
+  
+  MdigControl(digID,M_GRAB_SCALE_X,1.0/shrink_x);
+  MdigControl(digID,M_GRAB_SCALE_Y,1.0/shrink_y);
 }
 
 //----------------------------------------------------------------------------
 void vtkMILVideoSource::Initialize()
 {
-  static int system_types[] = { VTK_MIL_METEOR, VTK_MIL_METEOR_II, VTK_MIL_CORONA,
-				VTK_MIL_PULSAR, VTK_MIL_METEOR_II_DIG, VTK_MIL_GENESIS, 0 };
+  static int system_types[] = { VTK_MIL_METEOR, VTK_MIL_METEOR_II, 
+				VTK_MIL_CORONA, VTK_MIL_PULSAR, 
+				VTK_MIL_METEOR_II_DIG, VTK_MIL_GENESIS, 0 };
 
-  if (this->Initialized)
+  if (this->Initialized || this->FatalMILError)
     {
     return;
     }
 
   this->Initialized = 1;
 
+  // update the frame buffer now just in case there is an error
+  this->UpdateFrameBuffer();
+
   if (this->MILAppID == 0)
     {
-    MappAlloc(M_DEFAULT,&this->MILAppID);
+    this->MILAppID = MappAlloc(M_DEFAULT,M_NULL);
+    if (this->MILAppID == 0)
+      {
+      this->ReleaseSystemResources();
+      this->FatalMILError = 1;
+      vtkErrorMacro(<< "Initialize: couldn't open MIL application\n");
+      return;
+      }
     this->MILAppInternallyAllocated = 1;    
     }
 
   if (this->MILSysID == 0)
     {
+    void *systemType;
     if (this->MILSystemType != VTK_MIL_DEFAULT)
-      { // try for requested system
-      MsysAlloc(vtkMILVideoSourceSystemType(this->MILSystemType),this->MILSystemNumber,
-	      M_DEFAULT,&this->MILSysID);
+      { // asked for a particular system by name
+      systemType = this->MILInterpreterForSystem(this->MILSystemType);
+      if (systemType)
+	{
+	this->MILSysID = MsysAlloc(systemType, this->MILSystemNumber,
+				   M_DEFAULT,M_NULL);
+	}
+      else
+	{
+	this->ReleaseSystemResources();
+	this->FatalMILError = 1;
+	vtkErrorMacro(<< "Initialize: couldn't find " << this->MILInterpreterDLL << ".dll\n");
+	return;
+	}
       }
     else
-      {
+      { // try for any known MIL system
       MappControl(M_ERROR,M_PRINT_DISABLE);
       int i;
       for (i = 0; this->MILSysID == 0 && system_types[i] != 0; i++)
 	{
-	this->MILSysID = MsysAlloc(vtkMILVideoSourceSystemType(system_types[i]),
-				   this->MILSystemNumber,M_DEFAULT,M_NULL);
+	systemType = this->MILInterpreterForSystem(system_types[i]);
+	if (systemType)
+	  {
+	  this->MILSysID = MsysAlloc(systemType,this->MILSystemNumber,
+				     M_DEFAULT,M_NULL);
+	  }
 	}
-      if (this->MILSysID == 0)
+      if (system_types[i] == 0)
 	{
-        vtkErrorMacro(<< "Initialize: Couldn't find a Matrox frame grabber on the system");
+	this->ReleaseSystemResources();
+	this->FatalMILError = 1;
+	vtkErrorMacro(<< "Initialize: Couldn't find a Matrox frame grabber on the system\n");
+	return;
 	}
+      MappControl(M_ERROR,M_PRINT_ENABLE);
       }
-      
     this->MILSysInternallyAllocated = 1;
     }
 
@@ -273,10 +433,61 @@ void vtkMILVideoSource::Initialize()
 
   this->AllocateMILDigitizer();
 
-  MappControl(M_ERROR,( this->MILErrorMessages ? M_PRINT_ENABLE : M_PRINT_DISABLE ));
+  MappControl(M_ERROR,
+	      ( this->MILErrorMessages ? M_PRINT_ENABLE : M_PRINT_DISABLE ));
 
+  // update frame buffer again to reflect any changes
   this->UpdateFrameBuffer();
 }  
+
+//----------------------------------------------------------------------------
+void vtkMILVideoSource::ReleaseSystemResources()
+{
+  if (this->MILDigID)
+    {
+    if (this->Playing)
+      {
+      MdigHalt(this->MILDigID);
+      }
+    MdigGrabWait(this->MILDigID,M_GRAB_END);
+    this->Playing = 0;
+    }
+  /*
+  if (this->MILDispID != 0)
+    {
+    MdispDeselect(this->MILDispID,this->MILDispBufID);
+    MdispFree(this->MILDispID);
+    this->MILDispID = 0;
+    }
+  if (this->MILDispBufID != 0)
+    {
+    MbufFree(this->MILDispBufID);
+    this->MILDispBufID = 0;
+    }
+  */
+  if (this->MILBufID != 0)
+    {
+    MbufFree(this->MILBufID);
+    this->MILBufID = 0;
+    }
+  if (this->MILDigID != 0)
+    {
+    MdigFree(this->MILDigID);
+    this->MILDigID = 0;
+    }
+  if (this->MILSysInternallyAllocated && this->MILSysID != 0)
+    {
+    MsysFree(this->MILSysID);
+    this->MILSysID = 0;
+    }
+  if (this->MILAppInternallyAllocated && this->MILAppID != 0)
+    {
+    MappFree(this->MILAppID);
+    this->MILAppID = 0;
+    }
+  this->Initialized = 0;
+  this->FatalMILError = 0;
+}
 
 //----------------------------------------------------------------------------
 long MFTYPE vtkMILVideoSourceHook(long HookType, MIL_ID EventID, void *UserPtr)
@@ -292,14 +503,15 @@ long MFTYPE vtkMILVideoSourceHook(long HookType, MIL_ID EventID, void *UserPtr)
     if (rate > 0)
       {
       frame_stride = (int)(30/rate);
-      if (format == VTK_VIDEO_CCIR || 
-	  format == VTK_VIDEO_PAL ||
-	  format == VTK_VIDEO_SECAM)
+      if (format == VTK_MIL_CCIR || 
+	  format == VTK_MIL_PAL ||
+	  format == VTK_MIL_SECAM)
 	{
 	frame_stride = (int)(25/rate);
 	}
       }
-    if ((rate > 0 && ++(self->FrameCounter) >= frame_stride) || self->ForceGrab)
+    if ((rate > 0 && ++(self->FrameCounter) >= frame_stride) || 
+	self->ForceGrab)
       {
       self->InternalGrab();
       self->FrameCounter = 0;
@@ -358,9 +570,9 @@ void vtkMILVideoSource::InternalGrab()
       }
     }
 
-  this->FrameBufferMutex->Unlock();
-
   this->Modified();
+
+  this->FrameBufferMutex->Unlock();
 }
   
 
@@ -378,6 +590,10 @@ void vtkMILVideoSource::Grab(int numFrames)
 
   // ensure that the hardware is initialized.
   this->Initialize();
+  if (!this->Initialized)
+    {
+    return;
+    }
 
   int f;
   for (f = 0; f < numFrames; f++) 
@@ -399,6 +615,10 @@ void vtkMILVideoSource::Grab(int numFrames)
 void vtkMILVideoSource::Play()
 {
   this->Initialize();
+  if (!this->Initialized)
+    {
+    return;
+    }
 
   if (this->Playing)
     {
@@ -419,6 +639,8 @@ void vtkMILVideoSource::Play()
 
   // this will call the hook function on every frame
   MdigGrabContinuous(this->MILDigID,this->MILBufID);
+
+  this->Modified();
 }
     
 //----------------------------------------------------------------------------
@@ -437,6 +659,8 @@ void vtkMILVideoSource::Stop()
 		   OldUserDataPtr);
   this->OldHookFunction == 0;
   MdigGrabWait(this->MILDigID,M_GRAB_END);
+
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------
@@ -455,23 +679,115 @@ void vtkMILVideoSource::SetMILErrorMessages(int yesno)
     }
 }
 
-
 //----------------------------------------------------------------------------
-void vtkMILVideoSource::SetOutputFormat(int format)
+void vtkMILVideoSource::SetFrameSize(int x, int y, int z)
 {
-  if (this->OutputFormat == format)
+  if (x == this->FrameSize[0] && 
+      y == this->FrameSize[1] && 
+      z == this->FrameSize[2])
     {
     return;
     }
 
-  // do upper class stuff
-  this->vtkVideoSource::SetOutputFormat(format);
-
-  // don't do anything if the digitizer isn't initialized
-  if (this->Initialized)
+  if (x < 1 || y < 1 || z != 1) 
     {
-    this->AllocateMILBuffer();
+    vtkErrorMacro(<< "SetFrameSize: Illegal frame size");
+    return;
     }
+
+  this->FrameSize[0] = x;
+  this->FrameSize[1] = y;
+  this->FrameSize[2] = z;
+
+  if (this->Initialized) 
+    {
+    this->FrameBufferMutex->Lock();
+    this->UpdateFrameBuffer();
+    vtkMILVideoSourceSetSize(this->MILDigID,
+			     this->FrameSize,this->FrameMaxSize);
+    this->AllocateMILBuffer();
+    this->FrameBufferMutex->Unlock();
+    }
+
+  this->Modified();
+}
+
+//----------------------------------------------------------------------------
+void vtkMILVideoSource::SetOutputFormat(int format)
+{
+  if (format == this->OutputFormat)
+    {
+    return;
+    }
+
+  this->OutputFormat = format;
+
+  // convert color format to number of scalar components
+  int numComponents;
+
+  switch (this->OutputFormat)
+    {
+    case VTK_RGBA:
+      numComponents = 4;
+      break;
+    case VTK_RGB:
+      numComponents = 3;
+      break;
+    case VTK_LUMINANCE:
+      numComponents = 1;
+      break;
+    default:
+      vtkErrorMacro(<< "SetOutputFormat: Unrecognized color format.");
+      break;
+    }
+  this->NumberOfScalarComponents = numComponents;
+
+  if (this->FrameBufferBitsPerPixel != numComponents*8)
+    {
+    this->FrameBufferMutex->Lock();
+    this->FrameBufferBitsPerPixel = numComponents*8;
+    if (this->Initialized)
+      {
+      this->UpdateFrameBuffer();
+      this->AllocateMILBuffer();
+      }
+    this->FrameBufferMutex->Unlock();
+    }
+
+  // set video format to match the output format
+  if (this->OutputFormat == VTK_RGB || this->OutputFormat == VTK_RGBA)
+    {
+    if (this->VideoFormat == VTK_MIL_RS170)
+      {
+      this->SetVideoFormat(VTK_MIL_NTSC);
+      }
+    if (this->VideoFormat == VTK_MIL_CCIR)
+      {
+      this->SetVideoFormat(VTK_MIL_PAL);
+      }
+    if (this->VideoInput == VTK_MIL_MONO)
+      {
+      this->SetVideoInput(this->VideoInputForColor);
+      }
+    }
+  if (this->OutputFormat == VTK_LUMINANCE)
+    {
+    if (this->VideoFormat == VTK_MIL_NTSC)
+      {
+      this->SetVideoFormat(VTK_MIL_RS170);
+      }
+    if (this->VideoFormat == VTK_MIL_PAL)
+      {
+      this->SetVideoFormat(VTK_MIL_CCIR);
+      }
+    if (this->VideoInput == VTK_MIL_YC || this->VideoInput == VTK_MIL_COMPOSITE)
+      {
+      this->VideoInputForColor = this->VideoInput;
+      this->SetVideoInput(VTK_MIL_MONO);
+      }
+    }
+
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------
@@ -517,47 +833,79 @@ void vtkMILVideoSource::SetVideoChannel(int channel)
     }
 
   this->VideoChannel = channel;
+  this->Modified();
 
-  if (this->MILDigID == 0)
+  vtkMILVideoSourceSetChannel(this->MILDigID,channel);
+}
+
+//----------------------------------------------------------------------------
+void vtkMILVideoSource::SetBrightnessLevel(float brightness)
+{
+  if (this->BrightnessLevel == brightness)
     {
     return;
     }
 
-  int mil_channel = M_DEFAULT;
+  this->BrightnessLevel = brightness;
+  this->Modified();
 
-  switch(channel)
+  vtkMILVideoSourceSetLevel(this->MILDigID,M_BRIGHTNESS_REF,0.5*brightness);
+}
+
+//----------------------------------------------------------------------------
+void vtkMILVideoSource::SetContrastLevel(float contrast)
+{
+  if (this->ContrastLevel == contrast)
     {
-    case 0:
-      mil_channel = M_CH0;
-      break;
-    case 1:
-      mil_channel = M_CH1;
-      break;
-    case 2:
-      mil_channel = M_CH2;
-      break;
-    case 3:
-      mil_channel = M_CH3;
-      break;
+    return;
     }
 
-  MdigChannel(this->MILDigID,mil_channel);
+  this->ContrastLevel = contrast;
+  this->Modified();
+
+  vtkMILVideoSourceSetLevel(this->MILDigID,M_CONTRAST_REF,0.5*contrast);
+}
+
+//----------------------------------------------------------------------------
+void vtkMILVideoSource::SetHueLevel(float hue)
+{
+  if (this->HueLevel == hue)
+    {
+    return;
+    }
+
+  this->HueLevel = hue;
+  this->Modified();
+
+  vtkMILVideoSourceSetLevel(this->MILDigID,M_HUE_REF,0.5*hue);
+}
+
+//----------------------------------------------------------------------------
+void vtkMILVideoSource::SetSaturationLevel(float saturation)
+{
+  if (this->SaturationLevel == saturation)
+    {
+    return;
+    }
+
+  this->SaturationLevel = saturation;
+  this->Modified();
+
+  vtkMILVideoSourceSetLevel(this->MILDigID,M_SATURATION_REF,0.5*saturation);
 }
 
 //----------------------------------------------------------------------------
 void vtkMILVideoSource::AllocateMILDigitizer()
 {
-  int maxwidth = 640;
-  int maxheight = 480;
   char *format = "M_NTSC";
+  int playing = this->Playing;
 
   if (this->MILDigID)
     {
-    if (this->Playing)
+    if (playing)
       {
-      MdigHalt(this->MILDigID);
+      this->Stop();
       }
-    MdigGrabWait(this->MILDigID,M_GRAB_END);
     }
 
   if (this->MILDigID != 0)
@@ -567,50 +915,50 @@ void vtkMILVideoSource::AllocateMILDigitizer()
 
   switch (this->VideoFormat)
     {
-    case VTK_VIDEO_RS170:
+    case VTK_MIL_RS170:
       format = "M_RS170";
-      if (this->VideoInput == VTK_VIDEO_RGB)
+      if (this->VideoInput == VTK_MIL_RGB)
 	{
 	format = "M_RS170_VIA_RGB";
 	}
       break;
-    case VTK_VIDEO_NTSC:
+    case VTK_MIL_NTSC:
       format = "M_NTSC";
-      if (this->VideoInput == VTK_VIDEO_YC)
+      if (this->VideoInput == VTK_MIL_YC)
 	{
 	format = "M_NTSC_YC";
 	}
-      if (this->VideoInput == VTK_VIDEO_RGB)
+      if (this->VideoInput == VTK_MIL_RGB)
 	{
 	format = "M_NTSC_RGB";
 	}
       break;
-    case VTK_VIDEO_CCIR:
+    case VTK_MIL_CCIR:
       format = "M_CCIR";
-      if (this->VideoInput == VTK_VIDEO_RGB)
+      if (this->VideoInput == VTK_MIL_RGB)
 	{
 	format = "M_CCIR_VIA_RGB";
 	}
-      maxwidth = 768;
-      maxheight = 576;
+      this->FrameMaxSize[0] = 768;
+      this->FrameMaxSize[1] = 576;
       break;
-    case VTK_VIDEO_PAL:
-    case VTK_VIDEO_SECAM:
+    case VTK_MIL_PAL:
+    case VTK_MIL_SECAM:
       format = "M_PAL";
-      if (this->VideoInput == VTK_VIDEO_YC)
+      if (this->VideoInput == VTK_MIL_YC)
 	{
 	format = "M_PAL_YC";
 	}
-      if (this->VideoInput == VTK_VIDEO_RGB)
+      if (this->VideoInput == VTK_MIL_RGB)
 	{
 	format = "M_PAL_RGB";
 	}
-      maxwidth = 768;
-      maxheight = 576;
+      this->FrameMaxSize[0] = 768;
+      this->FrameMaxSize[1] = 576;
       break;
-    case VTK_VIDEO_NONSTANDARD:
-      maxwidth = 0;
-      maxheight = 0;
+    case VTK_MIL_NONSTANDARD:
+      this->FrameMaxSize[0] = 0;
+      this->FrameMaxSize[1] = 0;
       break;
     default:
       vtkWarningMacro(<< "AllocateMILDigitizer: Unknown video format");
@@ -621,43 +969,33 @@ void vtkMILVideoSource::AllocateMILDigitizer()
     format = this->MILDigitizerDCF;
     }
 
-  int shrink_x = maxwidth/this->FrameSize[0];
-  int shrink_y = maxheight/this->FrameSize[1];
-  if (shrink_x < 1)
-    {
-    shrink_x = 1;
-    }
-  if (shrink_y < 1)
-    {
-    shrink_y = 1;
-    }
-  
-  // convert shrink_x, shrink_y to power of 2
-  int i;
-  for (i = 0; shrink_x; i++)
-    {
-    shrink_x = shrink_x >> 1;
-    }
-  shrink_x = 1 << (i-1);
-  for (i = 0; shrink_y; i++)
-    {
-    shrink_y = shrink_y >> 1;
-    }
-  shrink_y = 1 << (i-1);
-  
-  MdigAlloc(this->MILSysID,this->MILDigitizerNumber,format,M_DEFAULT,&this->MILDigID);
-  MdigControl(this->MILDigID,M_GRAB_SCALE_X,1.0/shrink_x);
-  MdigControl(this->MILDigID,M_GRAB_SCALE_Y,1.0/shrink_y);
+  this->MILDigID = MdigAlloc(this->MILSysID,this->MILDigitizerNumber,format,
+			     M_DEFAULT,M_NULL);
 
-  int channel = this->VideoChannel;
-  this->VideoChannel = -1;
-  this->SetVideoChannel(channel);
+  if (this->MILDigID == 0)
+    {
+    vtkErrorMacro(<< "AllocateMILDigitizer:  Couldn't allocate MIL Digitizer\n");
+    return;
+    }
+
+  vtkMILVideoSourceSetSize(this->MILDigID,this->FrameSize,this->FrameMaxSize);
+
+  vtkMILVideoSourceSetChannel(this->MILDigID,this->VideoChannel);
+
+  vtkMILVideoSourceSetLevel(this->MILDigID,M_BRIGHTNESS_REF,
+			    0.5*this->BrightnessLevel);
+  vtkMILVideoSourceSetLevel(this->MILDigID,M_CONTRAST_REF,
+			    0.5*this->ContrastLevel);
+  vtkMILVideoSourceSetLevel(this->MILDigID,M_HUE_REF,
+			    0.5*this->HueLevel);
+  vtkMILVideoSourceSetLevel(this->MILDigID,M_SATURATION_REF,
+			    0.5*this->SaturationLevel);
 
   if (this->MILDigID && this->MILBufID)
     {
-    if (this->Playing)
+    if (playing)
       {
-      MdigGrabContinuous(this->MILDigID,this->MILBufID);
+      this->Play();
       }
     }
 }
@@ -665,13 +1003,14 @@ void vtkMILVideoSource::AllocateMILDigitizer()
 //----------------------------------------------------------------------------
 void vtkMILVideoSource::AllocateMILBuffer()
 {
-  if (this->MILDigID)
+  int playing = this->Playing;
+
+  if (this->MILDigID != 0)
     {
-    if (this->Playing)
+    if (playing)
       {
-      MdigHalt(this->MILDigID);
+      this->Stop();
       }
-    MdigGrabWait(this->MILDigID,M_GRAB_END);
     }
 
   if (this->MILBufID != 0)
@@ -689,27 +1028,38 @@ void vtkMILVideoSource::AllocateMILBuffer()
 
   if (this->OutputFormat == VTK_LUMINANCE)
     {
-    MbufAlloc2d(this->MILSysID,this->FrameSize[0],this->FrameSize[1],
-		8+M_UNSIGNED,M_IMAGE+M_GRAB,&this->MILBufID);
+     this->MILBufID = MbufAlloc2d(this->MILSysID,this->FrameSize[0],
+				  this->FrameSize[1],
+				  8+M_UNSIGNED,M_IMAGE+M_GRAB,M_NULL);
     }
   else if (this->OutputFormat == VTK_RGB)
     {
-    MbufAllocColor(this->MILSysID,3,this->FrameSize[0],this->FrameSize[1],
-		   8+M_UNSIGNED,M_IMAGE+M_GRAB+M_RGB24+M_PACKED,
-		   &this->MILBufID);
+    this->MILBufID = MbufAllocColor(this->MILSysID,3,this->FrameSize[0],
+				    this->FrameSize[1],
+				    8+M_UNSIGNED,M_IMAGE+M_GRAB+ \
+				    M_RGB24+M_PACKED,
+				    M_NULL);
     }
   else if (this->OutputFormat == VTK_RGBA)
     {
-    MbufAllocColor(this->MILSysID,3,this->FrameSize[0],this->FrameSize[1],
-		   8+M_UNSIGNED,M_IMAGE+M_GRAB+M_RGB32+M_PACKED,
-		   &this->MILBufID);
+    this->MILBufID = MbufAllocColor(this->MILSysID,3,this->FrameSize[0],
+				    this->FrameSize[1],
+				    8+M_UNSIGNED,M_IMAGE+M_GRAB+M_RGB32+ \
+				    M_PACKED,
+				    M_NULL);
     }
 
-  if (this->MILDigID && this->MILBufID)
+  if (this->MILBufID == 0)
     {
-    if (this->Playing)
+    vtkErrorMacro(<< "AllocateMILBuffer:  Couldn't allocate MIL Buffer\n");
+    return;
+    }
+
+  if (this->MILDigID != 0 && this->MILBufID != 0)
+    {
+    if (playing)
       {
-      MdigGrabContinuous(this->MILDigID,this->MILBufID);
+      this->Play();
       }
     }
 }

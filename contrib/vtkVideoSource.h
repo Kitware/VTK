@@ -57,15 +57,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkImageSource.h"
 #include "vtkScalarsToColors.h"
 
-// video inputs: which are available depends on the driver
-enum { VTK_VIDEO_MONO, VTK_VIDEO_COMPOSITE, VTK_VIDEO_YC, VTK_VIDEO_RGB,
-       VTK_VIDEO_DIGITAL };
-
-// video formats: which are available depends on the driver
-enum { VTK_VIDEO_RS170, VTK_VIDEO_NTSC, 
-       VTK_VIDEO_CCIR, VTK_VIDEO_PAL, VTK_VIDEO_SECAM,
-       VTK_VIDEO_NONSTANDARD };       
-
 class VTK_EXPORT vtkVideoSource : public vtkImageSource
 {
 public:
@@ -74,9 +65,14 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);   
 
   // Description:
-  // Initialize the hardware (this will be called automatically
+  // Initialize the hardware.  This is called automatically
   // on the first Update or Grab)
   virtual void Initialize();
+
+  // Description:
+  // Release the video driver.  This is called automatically
+  // when the vtkVideoSource is destroyed.
+  virtual void ReleaseSystemResources();
 
   // Description:
   // Grab a single frame or multiple frames
@@ -93,22 +89,12 @@ public:
 
   // Description:
   // Are we in continuous grab mode?
-  void SetPlaying(int playing) { 
-    if (playing)
-      {
-      this->Play();
-      }
-    else
-      {
-      this->Stop();
-      }
-  };
   vtkGetMacro(Playing,int);
 
   // Description:
   // Set the frame rate for 'Play' mode.  The default is zero, which forces
   // one synchronous grab per Update 
-  virtual void SetFrameRate(float rate);
+  vtkSetMacro(FrameRate,float);
   vtkGetMacro(FrameRate,float);
 
   // Description:
@@ -153,16 +139,15 @@ public:
 
   // Description:
   // Advance the buffer by one frame
-  void Advance(int n) { 
-    if (!this->Playing) { this->AdvanceFrameBuffer(n); this->Modified(); } };
-  void Advance() { this->Advance(-1); };
+  virtual void Advance(int n); 
+  virtual void Advance() { this->Advance(-1); };
 
   // Description:
   // Circulate the buffer to bring the previous image to the top.
   // If n is negative, then this circulates the buffer in the opposite 
   // direction.
-  void Rewind(int n) { this->Advance(-n); };
-  void Rewind() { this->Advance(-1); };
+  virtual void Rewind(int n) { this->Advance(-n); };
+  virtual void Rewind() { this->Advance(-1); };
 
   // Description:
   // Set the clip rectangle for the frames.  The video will be clipped 
@@ -197,33 +182,6 @@ public:
   vtkGetVector3Macro(DataOrigin,float);
 
   // Description:
-  // Set/Get the video channel (only supported on some hardware)
-  vtkSetMacro(VideoChannel, int);
-  vtkGetMacro(VideoChannel,int);
-
-  // Description:
-  // Set/Get the video format (only supported on some hardware)
-  vtkSetMacro(VideoFormat, int);
-  void SetVideoFormatToNTSC() { this->SetVideoFormat(VTK_VIDEO_NTSC); };
-  void SetVideoFormatToPAL() { this->SetVideoFormat(VTK_VIDEO_PAL); };
-  void SetVideoFormatToSECAM() { this->SetVideoFormat(VTK_VIDEO_SECAM); };
-  void SetVideoFormatToRS170() { this->SetVideoFormat(VTK_VIDEO_RS170); };
-  void SetVideoFormatToCCIR() { this->SetVideoFormat(VTK_VIDEO_CCIR); };
-  void SetVideoFormatToNonStandard() { 
-    this->SetVideoFormat(VTK_VIDEO_NONSTANDARD); };
-  vtkGetMacro(VideoFormat,int);
-  
-  // Description:
-  // Set/Get the video input (only supported on some hardware)
-  vtkSetMacro(VideoInput,int);
-  void SetVideoInputToMono() { this->SetVideoInput(VTK_VIDEO_MONO); };
-  void SetVideoInputToComposite() {this->SetVideoInput(VTK_VIDEO_COMPOSITE);};
-  void SetVideoInputToYC() { this->SetVideoInput(VTK_VIDEO_YC); };
-  void SetVideoInputToRGB() { this->SetVideoInput(VTK_VIDEO_RGB); };
-  void SetVideoInputToDigital() { this->SetVideoInput(VTK_VIDEO_DIGITAL); };
-  vtkGetMacro(VideoInput,int);
-
-  // Description:
   // For RGBA output only (4 scalar components), set the opacity.  You will
   // not see the effect until the next Grab.
   vtkSetMacro(Opacity,float);
@@ -238,15 +196,12 @@ public:
   // Description:
   // Get a time stamp in seconds (resolution of milliseconds) for
   // a video frame.  Time began on Jan 1, 1970.
-  double GetFrameTimeStamp() { 
-    return this->FrameBufferTimeStamps[this->FrameBufferIndex]; };
-  double GetFrameTimeStamp(int frame) { 
-    return this->FrameBufferTimeStamps[(this->FrameBufferIndex + frame) \
-				      % this->FrameBufferSize]; };
+  virtual double GetFrameTimeStamp(int frame);
+  virtual double GetFrameTimeStamp() { return this->GetFrameTimeStamp(0); };
 
   // Description:
   // Set this flag to automatically do a grab on each Update
-  vtkSetMacro(GrabOnUpdate,int);
+  virtual void SetGrabOnUpdate(int yesno);
   vtkBooleanMacro(GrabOnUpdate,int);
   vtkGetMacro(GrabOnUpdate,int);
 
@@ -290,11 +245,6 @@ protected:
 
   int AutoAdvance;
   int NumberOfOutputFrames;
-
-  int VideoChannel;
-  int VideoInput;
-  int VideoInputForColor;
-  int VideoFormat;
 
   float Opacity;
   int Preview;
