@@ -1,4 +1,5 @@
-SET( Common_SRCS
+SET(KIT Common)
+SET( Kit_SRCS
 vtkAbstractMapper.cxx
 vtkAbstractTransform.cxx
 vtkActor2D.cxx
@@ -200,7 +201,7 @@ ABSTRACT
 )
 
 IF (WIN32)
-  SET(Common_SRCS ${Common_SRCS} vtkWin32OutputWindow.cxx)
+  SET(Kit_SRCS ${Kit_SRCS} vtkWin32OutputWindow.cxx)
 ENDIF (WIN32)
 
 SET_SOURCE_FILES_PROPERTIES(
@@ -220,37 +221,37 @@ SET_SOURCE_FILES_PROPERTIES(
 )
 
 # Setup vtkInstantiator registration for this library's classes.
-VTK_MAKE_INSTANTIATOR2(vtkCommonInstantiator CommonInstantiator_SRCS
-                       ${Common_SRCS}
+VTK_MAKE_INSTANTIATOR2(vtk${KIT}Instantiator KitInstantiator_SRCS
+                       ${Kit_SRCS}
                        EXPORT_MACRO VTK_COMMON_EXPORT
                        HEADER_LOCATION ${VTK_BINARY_DIR})
 
-ADD_LIBRARY(vtkCommon ${Common_SRCS} ${CommonInstantiator_SRCS})
+ADD_LIBRARY(vtk${KIT} ${Kit_SRCS} ${KitInstantiator_SRCS})
 
 IF(VTK_APPLE_SHARED_FLAGS_NEEDED)
-  SET_TARGET_PROPERTIES(vtkCommon PROPERTIES LINK_FLAGS "-init _oft_initCom")
+  SET_TARGET_PROPERTIES(vtk${KIT} PROPERTIES LINK_FLAGS "-init _oft_initCom")
 ENDIF(VTK_APPLE_SHARED_FLAGS_NEEDED)
 IF (APPLE)
-  TARGET_LINK_LIBRARIES(vtkCommon "-framework AppKit")
+  TARGET_LINK_LIBRARIES(vtk${KIT} "-framework AppKit")
 ENDIF (APPLE)
 
 IF (UNIX)
-  TARGET_LINK_LIBRARIES(vtkCommon ${CMAKE_THREAD_LIBS} ${CMAKE_DL_LIBS} -lm)
+  TARGET_LINK_LIBRARIES(vtk${KIT} ${CMAKE_THREAD_LIBS} ${CMAKE_DL_LIBS} -lm)
 ENDIF (UNIX)
 
 # Allow the user to customize their build with some local options
 #
-INCLUDE (${VTK_BINARY_DIR}/Common/LocalUserOptions.cmake OPTIONAL)
-INCLUDE (${VTK_SOURCE_DIR}/Common/LocalUserOptions.cmake OPTIONAL)
+INCLUDE (${VTK_BINARY_DIR}/${KIT}/LocalUserOptions.cmake OPTIONAL)
+INCLUDE (${VTK_SOURCE_DIR}/${KIT}/LocalUserOptions.cmake OPTIONAL)
 
 # if we are wrapping into Tcl then add the library and extra
 # source files
 #
 IF (VTK_WRAP_TCL)
-  VTK_WRAP_TCL2(vtkCommonTCL CommonTCL_SRCS ${Common_SRCS})
-  ADD_LIBRARY(vtkCommonTCL ${CommonTCL_SRCS} vtkTclUtil.cxx)
-  TARGET_LINK_LIBRARIES (vtkCommonTCL ${TCL_LIBRARY} vtkCommon)
-  INSTALL_TARGETS(/lib/vtk vtkCommonTCL)
+  VTK_WRAP_TCL2(vtk${KIT}TCL KitTCL_SRCS ${Kit_SRCS})
+  ADD_LIBRARY(vtk${KIT}TCL ${KitTCL_SRCS} vtkTclUtil.cxx)
+  TARGET_LINK_LIBRARIES (vtk${KIT}TCL ${TCL_LIBRARY} vtk${KIT})
+  INSTALL_TARGETS(/lib/vtk vtk${KIT}TCL)
   INSTALL_FILES(/include/vtk .h
     vtkTclUtil
   )
@@ -260,18 +261,18 @@ ENDIF (VTK_WRAP_TCL)
 # source files
 #
 IF (VTK_WRAP_PYTHON)
-  VTK_WRAP_PYTHON2(vtkCommonPython CommonPython_SRCS ${Common_SRCS})
-  ADD_LIBRARY(vtkCommonPython MODULE ${CommonPython_SRCS} vtkPythonUtil.cxx)
+  VTK_WRAP_PYTHON2(vtk${KIT}Python KitPython_SRCS ${Kit_SRCS})
+  ADD_LIBRARY(vtk${KIT}Python MODULE ${KitPython_SRCS} vtkPythonUtil.cxx)
   IF(WIN32)
-    TARGET_LINK_LIBRARIES (vtkCommonPython
+    TARGET_LINK_LIBRARIES (vtk${KIT}Python
                            debug ${PYTHON_DEBUG_LIBRARY}
                            optimized ${PYTHON_LIBRARY})
   ELSE(WIN32)
-    TARGET_LINK_LIBRARIES (vtkCommonPython ${PYTHON_LIBRARY})
+    TARGET_LINK_LIBRARIES (vtk${KIT}Python ${PYTHON_LIBRARY})
   ENDIF(WIN32)
-  TARGET_LINK_LIBRARIES(vtkCommonPython vtkCommon)
+  TARGET_LINK_LIBRARIES(vtk${KIT}Python vtk${KIT})
 
-  INSTALL_TARGETS(/lib/vtk vtkCommonPython)
+  INSTALL_TARGETS(/lib/vtk vtk${KIT}Python)
   INSTALL_FILES(/include/vtk .h
     vtkPythonUtil
   )
@@ -281,17 +282,17 @@ ENDIF (VTK_WRAP_PYTHON)
 # source files
 #
 IF (VTK_WRAP_JAVA)
-  VTK_WRAP_JAVA2(vtkCommonJava CommonJava_SRCS ${Common_SRCS})
-  ADD_LIBRARY(vtkCommonJava SHARED ${CommonJava_SRCS} vtkJavaUtil.cxx)
-  TARGET_LINK_LIBRARIES(vtkCommonJava vtkCommon)
-  INSTALL_TARGETS(/lib/vtk vtkCommonJava)
+  VTK_WRAP_JAVA2(vtk${KIT}Java KitJava_SRCS ${Kit_SRCS})
+  ADD_LIBRARY(vtk${KIT}Java SHARED ${KitJava_SRCS} vtkJavaUtil.cxx)
+  TARGET_LINK_LIBRARIES(vtk${KIT}Java vtk${KIT})
+  INSTALL_TARGETS(/lib/vtk vtk${KIT}Java)
   INSTALL_FILES(/include/vtk .h
     vtkJavaUtil
   )
 ENDIF (VTK_WRAP_JAVA)
 
-INSTALL_TARGETS(/lib/vtk vtkCommon)
-INSTALL_FILES(/include/vtk .h ${Common_SRCS}
+INSTALL_TARGETS(/lib/vtk vtk${KIT})
+INSTALL_FILES(/include/vtk .h ${Kit_SRCS}
   vtkCellType
   vtkSetGet
   vtkSystemIncludes
@@ -307,13 +308,13 @@ INSTALL_FILES(/include/vtk .txx
 )
 
 INSTALL_FILES(/lib/vtk/testing FILES
-              ${VTK_SOURCE_DIR}/Common/Testing/HeaderTesting.py
-              ${VTK_SOURCE_DIR}/Common/Testing/Tcl/FindString.tcl
-              ${VTK_SOURCE_DIR}/Common/Testing/Tcl/PrintSelfCheck.tcl
-              ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl)
+              ${VTK_SOURCE_DIR}/${KIT}/Testing/HeaderTesting.py
+              ${VTK_SOURCE_DIR}/${KIT}/Testing/Tcl/FindString.tcl
+              ${VTK_SOURCE_DIR}/${KIT}/Testing/Tcl/PrintSelfCheck.tcl
+              ${VTK_SOURCE_DIR}/${KIT}/Testing/Tcl/rtImageTest.tcl)
 INSTALL_FILES(/include/vtk FILES
-              ${VTK_SOURCE_DIR}/Common/Testing/Cxx/vtkRegressionTestImage.h)
+              ${VTK_SOURCE_DIR}/${KIT}/Testing/Cxx/vtkRegressionTestImage.h)
 IF(VTK_USE_PARALLEL)
   INSTALL_FILES(/lib/vtk/testing FILES
-                ${VTK_SOURCE_DIR}/Common/Testing/Tcl/prtImageTest.tcl)
+                ${VTK_SOURCE_DIR}/${KIT}/Testing/Tcl/prtImageTest.tcl)
 ENDIF(VTK_USE_PARALLEL)

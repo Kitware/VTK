@@ -1,4 +1,5 @@
-SET( Imaging_SRCS
+SET(KIT Imaging)
+SET( Kit_SRCS
 vtkBooleanTexture.cxx
 vtkExtractVOI.cxx
 vtkGaussianSplatter.cxx
@@ -115,70 +116,70 @@ ABSTRACT
 )
 
 # Setup vtkInstantiator registration for this library's classes.
-VTK_MAKE_INSTANTIATOR2(vtkImagingInstantiator ImagingInstantiator_SRCS
-                       ${Imaging_SRCS}
+VTK_MAKE_INSTANTIATOR2(vtk${KIT}Instantiator KitInstantiator_SRCS
+                       ${Kit_SRCS}
                        EXPORT_MACRO VTK_IMAGING_EXPORT
                        HEADER_LOCATION ${VTK_BINARY_DIR})
 
-ADD_LIBRARY(vtkImaging ${Imaging_SRCS} ${ImagingInstantiator_SRCS})
+ADD_LIBRARY(vtk${KIT} ${Kit_SRCS} ${KitInstantiator_SRCS})
 
 IF(VTK_APPLE_SHARED_FLAGS_NEEDED)
-  SET_TARGET_PROPERTIES(vtkImaging PROPERTIES LINK_FLAGS "-init _oft_initIma")
+  SET_TARGET_PROPERTIES(vtk${KIT} PROPERTIES LINK_FLAGS "-init _oft_initIma")
 ENDIF(VTK_APPLE_SHARED_FLAGS_NEEDED)
 
 # Allow the user to customize their build with some local options
 #
-INCLUDE (${VTK_BINARY_DIR}/Imaging/LocalUserOptions.cmake OPTIONAL)
-INCLUDE (${VTK_SOURCE_DIR}/Imaging/LocalUserOptions.cmake OPTIONAL)
+INCLUDE (${VTK_BINARY_DIR}/${KIT}/LocalUserOptions.cmake OPTIONAL)
+INCLUDE (${VTK_SOURCE_DIR}/${KIT}/LocalUserOptions.cmake OPTIONAL)
 
-TARGET_LINK_LIBRARIES (vtkImaging vtkFiltering)
+TARGET_LINK_LIBRARIES (vtk${KIT} vtkFiltering)
 
 # if we are wrapping into Tcl then add the library and extra
 # source files
 #
 IF (VTK_WRAP_TCL)
-  VTK_WRAP_TCL2(vtkImagingTCL ImagingTCL_SRCS ${Imaging_SRCS})
-  ADD_LIBRARY(vtkImagingTCL ${ImagingTCL_SRCS})
-  TARGET_LINK_LIBRARIES (vtkImagingTCL
+  VTK_WRAP_TCL2(vtk${KIT}TCL KitTCL_SRCS ${Kit_SRCS})
+  ADD_LIBRARY(vtk${KIT}TCL ${KitTCL_SRCS})
+  TARGET_LINK_LIBRARIES (vtk${KIT}TCL
                          vtkFilteringTCL
-                         vtkImaging
+                         vtk${KIT}
                          ${TCL_LIBRARY})
-  INSTALL_TARGETS(/lib/vtk vtkImagingTCL)
+  INSTALL_TARGETS(/lib/vtk vtk${KIT}TCL)
 ENDIF (VTK_WRAP_TCL)
 
 # if we are wrapping into Python then add the library and extra
 # source files
 #
 IF (VTK_WRAP_PYTHON)
-  VTK_WRAP_PYTHON2(vtkImagingPython ImagingPython_SRCS ${Imaging_SRCS})
-  ADD_LIBRARY(vtkImagingPython MODULE ${ImagingPython_SRCS})
+  VTK_WRAP_PYTHON2(vtk${KIT}Python KitPython_SRCS ${Kit_SRCS})
+  ADD_LIBRARY(vtk${KIT}Python MODULE ${KitPython_SRCS})
   IF(NOT APPLE)
-    TARGET_LINK_LIBRARIES (vtkImagingPython
+    TARGET_LINK_LIBRARIES (vtk${KIT}Python
                            vtkFilteringPython
                            vtkCommonPython)
   ENDIF(NOT APPLE)
   IF(WIN32)
-    TARGET_LINK_LIBRARIES (vtkImagingPython
+    TARGET_LINK_LIBRARIES (vtk${KIT}Python
                            debug ${PYTHON_DEBUG_LIBRARY}
                            optimized ${PYTHON_LIBRARY})
   ENDIF(WIN32)
-  TARGET_LINK_LIBRARIES(vtkImagingPython vtkImaging)
+  TARGET_LINK_LIBRARIES(vtk${KIT}Python vtk${KIT})
 
-  INSTALL_TARGETS(/lib/vtk vtkImagingPython)
+  INSTALL_TARGETS(/lib/vtk vtk${KIT}Python)
 ENDIF (VTK_WRAP_PYTHON)
 
 # if we are wrapping into Java then add the library and extra
 # source files
 #
 IF (VTK_WRAP_JAVA)
-  VTK_WRAP_JAVA2(vtkImagingJava ImagingJava_SRCS ${Imaging_SRCS})
-  ADD_LIBRARY(vtkImagingJava SHARED ${ImagingJava_SRCS})
-  TARGET_LINK_LIBRARIES (vtkImagingJava
+  VTK_WRAP_JAVA2(vtk${KIT}Java KitJava_SRCS ${Kit_SRCS})
+  ADD_LIBRARY(vtk${KIT}Java SHARED ${KitJava_SRCS})
+  TARGET_LINK_LIBRARIES (vtk${KIT}Java
                          vtkCommonJava
                          vtkFilteringJava
-			 vtkImaging)
-  INSTALL_TARGETS(/lib/vtk vtkImagingJava)
+			 vtk${KIT})
+  INSTALL_TARGETS(/lib/vtk vtk${KIT}Java)
 ENDIF (VTK_WRAP_JAVA)
 
-INSTALL_TARGETS(/lib/vtk vtkImaging)
-INSTALL_FILES(/include/vtk .h ${Imaging_SRCS})
+INSTALL_TARGETS(/lib/vtk vtk${KIT})
+INSTALL_FILES(/include/vtk .h ${Kit_SRCS})

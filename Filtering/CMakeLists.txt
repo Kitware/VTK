@@ -1,4 +1,5 @@
-SET( Filtering_SRCS
+SET(KIT Filtering)
+SET( Kit_SRCS
 vtkCardinalSpline.cxx
 vtkCastToConcrete.cxx
 vtkCellLocator.cxx
@@ -99,63 +100,63 @@ ABSTRACT
 )
 
 # Setup vtkInstantiator registration for this library's classes.
-VTK_MAKE_INSTANTIATOR2(vtkFilteringInstantiator FilteringInstantiator_SRCS
-                       ${Filtering_SRCS}
+VTK_MAKE_INSTANTIATOR2(vtk${KIT}Instantiator KitInstantiator_SRCS
+                       ${Kit_SRCS}
                        EXPORT_MACRO VTK_FILTERING_EXPORT
                        HEADER_LOCATION ${VTK_BINARY_DIR})
 
-ADD_LIBRARY(vtkFiltering ${Filtering_SRCS} ${FilteringInstantiator_SRCS})
+ADD_LIBRARY(vtk${KIT} ${Kit_SRCS} ${KitInstantiator_SRCS})
 
 IF(VTK_APPLE_SHARED_FLAGS_NEEDED)
-  SET_TARGET_PROPERTIES(vtkFiltering PROPERTIES LINK_FLAGS "-init _oft_initFil")
+  SET_TARGET_PROPERTIES(vtk${KIT} PROPERTIES LINK_FLAGS "-init _oft_initFil")
 ENDIF(VTK_APPLE_SHARED_FLAGS_NEEDED)
 
-TARGET_LINK_LIBRARIES (vtkFiltering vtkCommon)
+TARGET_LINK_LIBRARIES (vtk${KIT} vtkCommon)
 
 # Allow the user to customize their build with some local options
 #
-INCLUDE (${VTK_BINARY_DIR}/Filtering/LocalUserOptions.cmake OPTIONAL)
-INCLUDE (${VTK_SOURCE_DIR}/Filtering/LocalUserOptions.cmake OPTIONAL)
+INCLUDE (${VTK_BINARY_DIR}/${KIT}/LocalUserOptions.cmake OPTIONAL)
+INCLUDE (${VTK_SOURCE_DIR}/${KIT}/LocalUserOptions.cmake OPTIONAL)
 
 # if we are wrapping into Tcl then add the library and extra
 # source files
 #
 IF (VTK_WRAP_TCL)
-  VTK_WRAP_TCL2(vtkFilteringTCL FilteringTCL_SRCS ${Filtering_SRCS})
-  ADD_LIBRARY(vtkFilteringTCL ${FilteringTCL_SRCS})
-  TARGET_LINK_LIBRARIES (vtkFilteringTCL vtkCommonTCL vtkFiltering ${TCL_LIBRARY})
-  INSTALL_TARGETS(/lib/vtk vtkFilteringTCL)
+  VTK_WRAP_TCL2(vtk${KIT}TCL KitTCL_SRCS ${Kit_SRCS})
+  ADD_LIBRARY(vtk${KIT}TCL ${KitTCL_SRCS})
+  TARGET_LINK_LIBRARIES (vtk${KIT}TCL vtkCommonTCL vtk${KIT} ${TCL_LIBRARY})
+  INSTALL_TARGETS(/lib/vtk vtk${KIT}TCL)
 ENDIF (VTK_WRAP_TCL)
 
 # if we are wrapping into Python then add the library and extra
 # source files
 #
 IF (VTK_WRAP_PYTHON)
-  VTK_WRAP_PYTHON2(vtkFilteringPython FilteringPython_SRCS ${Filtering_SRCS})
-  ADD_LIBRARY(vtkFilteringPython MODULE ${FilteringPython_SRCS})
+  VTK_WRAP_PYTHON2(vtk${KIT}Python KitPython_SRCS ${Kit_SRCS})
+  ADD_LIBRARY(vtk${KIT}Python MODULE ${KitPython_SRCS})
   IF(NOT APPLE)
-    TARGET_LINK_LIBRARIES (vtkFilteringPython vtkCommonPython)
+    TARGET_LINK_LIBRARIES (vtk${KIT}Python vtkCommonPython)
   ENDIF(NOT APPLE)
   IF(WIN32)
-    TARGET_LINK_LIBRARIES (vtkFilteringPython
+    TARGET_LINK_LIBRARIES (vtk${KIT}Python
                            debug ${PYTHON_DEBUG_LIBRARY}
                            optimized ${PYTHON_LIBRARY})
   ENDIF(WIN32)
-  TARGET_LINK_LIBRARIES(vtkFilteringPython vtkFiltering)
+  TARGET_LINK_LIBRARIES(vtk${KIT}Python vtk${KIT})
 
-  INSTALL_TARGETS(/lib/vtk vtkFilteringPython)
+  INSTALL_TARGETS(/lib/vtk vtk${KIT}Python)
 ENDIF (VTK_WRAP_PYTHON)
 
 # if we are wrapping into Java then add the library and extra
 # source files
 #
 IF (VTK_WRAP_JAVA)
-  VTK_WRAP_JAVA2(vtkFilteringJava FilteringJava_SRCS ${Filtering_SRCS})
-  ADD_LIBRARY(vtkFilteringJava SHARED ${FilteringJava_SRCS})
-  TARGET_LINK_LIBRARIES (vtkFilteringJava vtkCommonJava vtkFiltering)
-  INSTALL_TARGETS(/lib/vtk vtkFilteringJava)
+  VTK_WRAP_JAVA2(vtk${KIT}Java KitJava_SRCS ${Kit_SRCS})
+  ADD_LIBRARY(vtk${KIT}Java SHARED ${KitJava_SRCS})
+  TARGET_LINK_LIBRARIES (vtk${KIT}Java vtkCommonJava vtk${KIT})
+  INSTALL_TARGETS(/lib/vtk vtk${KIT}Java)
 ENDIF (VTK_WRAP_JAVA)
 
 
-INSTALL_TARGETS(/lib/vtk vtkFiltering)
-INSTALL_FILES(/include/vtk .h ${Filtering_SRCS})
+INSTALL_TARGETS(/lib/vtk vtk${KIT})
+INSTALL_FILES(/include/vtk .h ${Kit_SRCS})

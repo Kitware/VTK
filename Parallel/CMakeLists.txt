@@ -1,4 +1,5 @@
-SET ( Parallel_SRCS
+SET(KIT Parallel)
+SET ( Kit_SRCS
 vtkDuplicatePolyData.cxx
 vtkBranchExtentTranslator.cxx
 vtkCollectPolyData.cxx
@@ -53,8 +54,8 @@ IF (CMAKE_USE_WIN32_THREADS)
 ENDIF (CMAKE_USE_WIN32_THREADS)
 
 IF (VTK_HAS_THREADS)
- SET ( Parallel_SRCS
-      ${Parallel_SRCS}
+ SET ( Kit_SRCS
+      ${Kit_SRCS}
       vtkSharedMemoryCommunicator.cxx
       vtkThreadedController.cxx)
 ENDIF (VTK_HAS_THREADS)
@@ -64,86 +65,86 @@ SET_SOURCE_FILES_PROPERTIES(vtkCommunicator ABSTRACT)
 
 IF (VTK_USE_MPI)
   INCLUDE (${CMAKE_ROOT}/Modules/FindMPI.cmake)
-  SET ( Parallel_SRCS
-    ${Parallel_SRCS}
+  SET ( Kit_SRCS
+    ${Kit_SRCS}
     vtkMPICommunicator.cxx
     vtkMPIController.cxx 
     vtkMPIGroup.cxx)
 ENDIF (VTK_USE_MPI)
 
 # Setup vtkInstantiator registration for this library's classes.
-VTK_MAKE_INSTANTIATOR2(vtkParallelInstantiator ParallelInstantiator_SRCS
-                       ${Parallel_SRCS}
+VTK_MAKE_INSTANTIATOR2(vtk${KIT}Instantiator KitInstantiator_SRCS
+                       ${Kit_SRCS}
                        EXPORT_MACRO VTK_PARALLEL_EXPORT
                        HEADER_LOCATION ${VTK_BINARY_DIR})
 
-ADD_LIBRARY(vtkParallel ${Parallel_SRCS} ${ParallelInstantiator_SRCS})
+ADD_LIBRARY(vtk${KIT} ${Kit_SRCS} ${KitInstantiator_SRCS})
 
 IF(VTK_APPLE_SHARED_FLAGS_NEEDED)
-  SET_TARGET_PROPERTIES(vtkParallel PROPERTIES LINK_FLAGS "-init _oft_initPar")
+  SET_TARGET_PROPERTIES(vtk${KIT} PROPERTIES LINK_FLAGS "-init _oft_initPar")
 ENDIF(VTK_APPLE_SHARED_FLAGS_NEEDED)
 
 IF (VTK_USE_MPI) 
   IF (MPI_LIBRARY) 
-    TARGET_LINK_LIBRARIES (vtkParallel ${MPI_LIBRARY})   
+    TARGET_LINK_LIBRARIES (vtk${KIT} ${MPI_LIBRARY})   
   ELSE (MPI_LIBRARY)   
     MESSAGE("Could not find the required MPI libraries")
   ENDIF (MPI_LIBRARY)   
   IF (MPI_EXTRA_LIBRARY)   
-    TARGET_LINK_LIBRARIES (vtkParallel ${MPI_EXTRA_LIBRARY})   
+    TARGET_LINK_LIBRARIES (vtk${KIT} ${MPI_EXTRA_LIBRARY})   
   ENDIF (MPI_EXTRA_LIBRARY) 
 ENDIF (VTK_USE_MPI)
 
 # Allow the user to customize their build with some local options
 #
-INCLUDE (${VTK_BINARY_DIR}/Parallel/LocalUserOptions.cmake OPTIONAL)
-INCLUDE (${VTK_SOURCE_DIR}/Parallel/LocalUserOptions.cmake OPTIONAL)
+INCLUDE (${VTK_BINARY_DIR}/${KIT}/LocalUserOptions.cmake OPTIONAL)
+INCLUDE (${VTK_SOURCE_DIR}/${KIT}/LocalUserOptions.cmake OPTIONAL)
 
 IF (WIN32)
   IF (NOT BORLAND)
-    TARGET_LINK_LIBRARIES(vtkParallel wsock32)
+    TARGET_LINK_LIBRARIES(vtk${KIT} wsock32)
   ENDIF (NOT BORLAND)
 ENDIF (WIN32)
 
 IF (VTK_WRAP_TCL)
-  VTK_WRAP_TCL2(vtkParallelTCL ParallelTCL_SRCS ${Parallel_SRCS})
-  ADD_LIBRARY(vtkParallelTCL ${ParallelTCL_SRCS})
-  TARGET_LINK_LIBRARIES (vtkParallelTCL vtkParallel vtkIOTCL vtkRenderingTCL)
-  INSTALL_TARGETS(/lib/vtk vtkParallelTCL)
+  VTK_WRAP_TCL2(vtk${KIT}TCL KitTCL_SRCS ${Kit_SRCS})
+  ADD_LIBRARY(vtk${KIT}TCL ${KitTCL_SRCS})
+  TARGET_LINK_LIBRARIES (vtk${KIT}TCL vtk${KIT} vtkIOTCL vtkRenderingTCL)
+  INSTALL_TARGETS(/lib/vtk vtk${KIT}TCL)
 ENDIF (VTK_WRAP_TCL)
 
 # if we are wrapping into Python then add the library and extra
 # source files
 #
 IF (VTK_WRAP_PYTHON)
-  VTK_WRAP_PYTHON2(vtkParallelPython ParallelPython_SRCS ${Parallel_SRCS})
-  ADD_LIBRARY(vtkParallelPython MODULE ${ParallelPython_SRCS})
+  VTK_WRAP_PYTHON2(vtk${KIT}Python KitPython_SRCS ${Kit_SRCS})
+  ADD_LIBRARY(vtk${KIT}Python MODULE ${KitPython_SRCS})
   IF(NOT APPLE)
-    TARGET_LINK_LIBRARIES (vtkParallelPython vtkIOPython vtkRenderingPython)
+    TARGET_LINK_LIBRARIES (vtk${KIT}Python vtkIOPython vtkRenderingPython)
   ENDIF(NOT APPLE)
-  TARGET_LINK_LIBRARIES (vtkParallelPython ${OPENGL_LIBRARY})
+  TARGET_LINK_LIBRARIES (vtk${KIT}Python ${OPENGL_LIBRARY})
 
   IF(WIN32)
-    TARGET_LINK_LIBRARIES (vtkParallelPython
+    TARGET_LINK_LIBRARIES (vtk${KIT}Python
                            debug ${PYTHON_DEBUG_LIBRARY}
                            optimized ${PYTHON_LIBRARY})
   ENDIF(WIN32)
-  TARGET_LINK_LIBRARIES(vtkParallelPython vtkParallel)
+  TARGET_LINK_LIBRARIES(vtk${KIT}Python vtk${KIT})
 
-  INSTALL_TARGETS(/lib/vtk vtkParallelPython)
+  INSTALL_TARGETS(/lib/vtk vtk${KIT}Python)
 ENDIF (VTK_WRAP_PYTHON)
 
 IF (VTK_WRAP_JAVA)
-  VTK_WRAP_JAVA2(vtkParallelJava ParallelJava_SRCS ${Parallel_SRCS})
-  ADD_LIBRARY(vtkParallelJava SHARED ${ParallelJava_SRCS})
-  TARGET_LINK_LIBRARIES (vtkParallelJava vtkParallel vtkRenderingJava vtkIOJava)
-  INSTALL_TARGETS(/lib/vtk vtkParallelJava)
+  VTK_WRAP_JAVA2(vtk${KIT}Java KitJava_SRCS ${Kit_SRCS})
+  ADD_LIBRARY(vtk${KIT}Java SHARED ${KitJava_SRCS})
+  TARGET_LINK_LIBRARIES (vtk${KIT}Java vtk${KIT} vtkRenderingJava vtkIOJava)
+  INSTALL_TARGETS(/lib/vtk vtk${KIT}Java)
 ENDIF (VTK_WRAP_JAVA)
 
-TARGET_LINK_LIBRARIES (vtkParallel vtkRendering vtkIO)
+TARGET_LINK_LIBRARIES (vtk${KIT} vtkRendering vtkIO)
 
-INSTALL_TARGETS(/lib/vtk vtkParallel)
-INSTALL_FILES(/include/vtk .h ${Parallel_SRCS})
+INSTALL_TARGETS(/lib/vtk vtk${KIT})
+INSTALL_FILES(/include/vtk .h ${Kit_SRCS})
 IF (VTK_USE_MPI)
   INSTALL_FILES(/include/vtk "vtkMPI\\.h")
 ENDIF (VTK_USE_MPI)
