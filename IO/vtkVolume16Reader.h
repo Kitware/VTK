@@ -118,14 +118,14 @@ public:
 
   // Description:
   // Other objects make use of these methods
-  vtkStructuredPoints *GetImage(int ImageNumber);
+  vtkImageData *GetImage(int ImageNumber);
 
 protected:
   vtkVolume16Reader();
   ~vtkVolume16Reader();
 
-  void Execute();
-  void ExecuteInformation();
+  virtual void ExecuteData(vtkDataObject *);
+  virtual void ExecuteInformation();
   int   DataDimensions[2];
   unsigned short DataMask;
   int   SwapBytes;
@@ -138,8 +138,8 @@ protected:
   void ComputeTransformedSpacing(float Spacing[3]);
   void ComputeTransformedOrigin(float origin[3]);
   void AdjustSpacingAndOrigin(int dimensions[3], float Spacing[3], float origin[3]);
-  vtkUnsignedShortArray *ReadImage(int ImageNumber);
-  vtkUnsignedShortArray *ReadVolume(int FirstImage, int LastImage);
+  void ReadImage(int ImageNumber, vtkUnsignedShortArray *);
+  void ReadVolume(int FirstImage, int LastImage, vtkUnsignedShortArray *);
   int Read16BitImage(FILE *fp, unsigned short *pixels, int xsize, int ysize, 
                      int skip, int swapBytes);
 

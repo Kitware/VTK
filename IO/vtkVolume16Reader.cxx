@@ -21,7 +21,7 @@
 #include "vtkTransform.h"
 #include "vtkUnsignedShortArray.h"
 
-vtkCxxRevisionMacro(vtkVolume16Reader, "1.45");
+vtkCxxRevisionMacro(vtkVolume16Reader, "1.46");
 vtkStandardNewMacro(vtkVolume16Reader);
 
 vtkCxxSetObjectMacro(vtkVolume16Reader,Transform,vtkTransform);
@@ -123,7 +123,7 @@ const char *vtkVolume16Reader::GetDataByteOrderAsString()
 void vtkVolume16Reader::ExecuteInformation()
 {
   int dim[3];
-  vtkStructuredPoints *output = this->GetOutput();
+  vtkImageData *output = this->GetOutput();
   
   this->ComputeTransformedDimensions(dim);
   output->SetWholeExtent(0, dim[0]-1, 0, dim[1]-1, 0, dim[2]-1);
@@ -137,16 +137,17 @@ void vtkVolume16Reader::ExecuteInformation()
 }
     
     
-void vtkVolume16Reader::Execute()
+void vtkVolume16Reader::ExecuteData(vtkDataObject *outp)
 {
-  vtkDataArray *newScalars;
   int first, last;
   int *dim;
   int dimensions[3];
   float Spacing[3];
   float origin[3];
 
-  vtkStructuredPoints *output = this->GetOutput();
+  vtkImageData *output = this->AllocateOutputData(outp);
+  vtkUnsignedShortArray *newScalars = 
+    vtkUnsignedShortArray::SafeDownCast(output->GetPointData()->GetScalars());
 
   // Validate instance variables
   if (this->FilePrefix == NULL) 
@@ -172,13 +173,13 @@ void vtkVolume16Reader::Execute()
 
   if ( (this->ImageRange[1]-this->ImageRange[0]) <= 0 )
     {
-    newScalars = this->ReadImage(this->ImageRange[0]);
+    this->ReadImage(this->ImageRange[0], newScalars);
     }
   else
     {
     first = this->ImageRange[0];
     last = this->ImageRange[1];
-    newScalars = this->ReadVolume(first, last);
+    this->ReadVolume(first, last, newScalars);
     }
 
   // calculate dimensions of output from data dimensions and transform
@@ -196,19 +197,14 @@ void vtkVolume16Reader::Execute()
 
   output->SetSpacing(Spacing);
   output->SetOrigin(origin);
-  if ( newScalars ) 
-    {
-    output->GetPointData()->SetScalars(newScalars);
-    newScalars->Delete();
-    }
 }
 
-vtkStructuredPoints *vtkVolume16Reader::GetImage(int ImageNumber)
+vtkImageData *vtkVolume16Reader::GetImage(int ImageNumber)
 {
-  vtkDataArray *newScalars;
+  vtkUnsignedShortArray *newScalars;
   int *dim;
   int dimensions[3];
-  vtkStructuredPoints *result;
+  vtkImageData *result;
 
   // Validate instance variables
   if (this->FilePrefix == NULL) 
@@ -232,8 +228,9 @@ vtkStructuredPoints *vtkVolume16Reader::GetImage(int ImageNumber)
     return NULL;
     } 
   
-  result = vtkStructuredPoints::New();
-  newScalars = this->ReadImage(ImageNumber);
+  result = vtkImageData::New();
+  newScalars = vtkUnsignedShortArray::New();
+  this->ReadImage(ImageNumber, newScalars);
   dimensions[0] = dim[0]; dimensions[1] = dim[1];
   dimensions[2] = 1;
   result->SetDimensions(dimensions);
@@ -248,9 +245,9 @@ vtkStructuredPoints *vtkVolume16Reader::GetImage(int ImageNumber)
 }
 
 // Read a slice of volume data.
-vtkUnsignedShortArray *vtkVolume16Reader::ReadImage(int sliceNumber)
+void vtkVolume16Reader::ReadImage(int sliceNumber, 
+                                  vtkUnsignedShortArray *scalars)
 {
-  vtkUnsignedShortArray *scalars = NULL;
   unsigned short *pixels;
   FILE *fp;
   int numPts;
@@ -269,14 +266,10 @@ vtkUnsignedShortArray *vtkVolume16Reader::ReadImage(int sliceNumber)
   if ( !(fp = fopen(filename,"rb")) )
     {
     vtkErrorMacro(<<"Can't open file: " << filename);
-    return NULL;
+    return;
     }
 
   numPts = this->DataDimensions[0] * this->DataDimensions[1];
-
-  // create the short scalars
-  scalars = vtkUnsignedShortArray::New();
-  scalars->Allocate(numPts);
 
   // get a pointer to the data
   pixels = scalars->WritePointer(0, numPts);
@@ -288,23 +281,12 @@ vtkUnsignedShortArray *vtkVolume16Reader::ReadImage(int sliceNumber)
 
   // close the file
   fclose (fp);
-
-  // check the status of the read
-  if (status == 0) 
-    {
-    scalars->Delete();
-    return NULL;
-    }
-  else 
-    {
-    return scalars;
-    }
 }
 
 // Read a volume of data.
-vtkUnsignedShortArray *vtkVolume16Reader::ReadVolume(int first, int last)
+void vtkVolume16Reader::ReadVolume(int first, int last,
+                                   vtkUnsignedShortArray *scalars)
 {
-  vtkUnsignedShortArray *scalars = NULL;
   unsigned short *pixels;
   unsigned short *slice;
   FILE *fp;
@@ -328,10 +310,6 @@ vtkUnsignedShortArray *vtkVolume16Reader::ReadVolume(int first, int last)
   // get memory for slice
   slice = new unsigned short[numPts];
 
-  // create the short scalars for all of the images
-  scalars = vtkUnsignedShortArray::New();
-  scalars->Allocate(numPts * numberSlices);
-
   // get a pointer to the scalar data
   pixels = scalars->WritePointer(0, numPts*numberSlices);
 
@@ -353,7 +331,7 @@ vtkUnsignedShortArray *vtkVolume16Reader::ReadVolume(int first, int last)
     if ( !(fp = fopen(filename,"rb")) )
       {
       vtkErrorMacro(<<"Can't find file: " << filename);
-      return NULL;
+      return;
       }
 
     vtkDebugMacro ( << "Reading " << filename );
@@ -374,15 +352,6 @@ vtkUnsignedShortArray *vtkVolume16Reader::ReadVolume(int first, int last)
     }
 
   delete []slice;
-  if (status == 0) 
-    {
-    scalars->Delete();
-    return NULL;
-    }
-  else
-    {
-    return scalars;
-    }
 }
 
 int vtkVolume16Reader:: Read16BitImage (FILE *fp, unsigned short *pixels, int xsize, 

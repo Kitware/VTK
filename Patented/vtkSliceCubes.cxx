@@ -48,7 +48,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkVolumeReader.h"
 
-vtkCxxRevisionMacro(vtkSliceCubes, "1.56");
+vtkCxxRevisionMacro(vtkSliceCubes, "1.57");
 vtkStandardNewMacro(vtkSliceCubes);
 
 vtkCxxSetObjectMacro(vtkSliceCubes,Reader,vtkVolumeReader);
@@ -164,7 +164,7 @@ int vtkSliceCubesContour(T *slice, S *scalars, int imageRange[2], int dims[3],
   S *slice0scalars=NULL, *slice1scalars;
   S *slice2scalars, *slice3scalars;
   T *slice0, *slice1, *slice2, *slice3;
-  vtkStructuredPoints *sp;
+  vtkImageData *sp;
   vtkFloatArray *floatScalars=NULL;
   int numTriangles=0, numComp = 0;
   float s[8];
@@ -415,7 +415,7 @@ int vtkSliceCubesContour(T *slice, S *scalars, int imageRange[2], int dims[3],
 void vtkSliceCubes::Execute() 
 {
   FILE *outFP;
-  vtkStructuredPoints *tempStructPts;
+  vtkImageData *tempStructPts;
   vtkDataArray *inScalars;
   int dims[3], imageRange[2];
   float xmin[3], xmax[3];
