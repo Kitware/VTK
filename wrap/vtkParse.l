@@ -147,6 +147,7 @@
 "vtkGetVectorMacro"    return(GetVectorMacro);
 "vtkViewportCoordinateMacro"     return(ViewportCoordinateMacro);
 "vtkWorldCoordinateMacro" return(WorldCoordinateMacro);
+"vtkTypeMacro"         return(TypeMacro);
 
 [0-9]+		{ sscanf(yytext,"%d",&yylval.integer); return(NUM);}
 
