@@ -70,6 +70,10 @@ public:
   char *GetFileName();
 
   // Description:
+  // Get the header from the vtk data file.
+  char *GetHeader() {return this->Reader->GetHeader();};
+
+  // Description:
   // Set / get the InputString for use when reading from a character array.
   void SetInputString(char *in) {this->Reader->SetInputString(in);}
   void SetInputString(char *in,int len) {this->Reader->SetInputString(in,len);}

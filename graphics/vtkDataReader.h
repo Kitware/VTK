@@ -83,6 +83,10 @@ public:
   void SetInputString(char *in, int len);
   
   // Description:
+  // Get the header from the vtk data file.
+  vtkGetStringMacro(Header);
+
+  // Description:
   // Enable reading from an InputString instead of the default, a file.
   vtkSetMacro(ReadFromInputString,int);
   vtkGetMacro(ReadFromInputString,int);
@@ -251,6 +255,8 @@ protected:
   int ReadCoScalarData(vtkDataSetAttributes *a, int num);
   int ReadLutData(vtkDataSetAttributes *a);
   int ReadTCoordsData(vtkDataSetAttributes *a, int num);
+
+  char *Header;
 
 };
 

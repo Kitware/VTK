@@ -74,6 +74,7 @@ vtkDataReader::vtkDataReader()
   this->ReadFromInputString = 0;
   this->IS = NULL;
   this->Source = NULL;
+  this->Header = NULL;
 }  
 
 vtkDataReader::~vtkDataReader()
@@ -89,6 +90,7 @@ vtkDataReader::~vtkDataReader()
   if (this->FieldDataName) delete [] this->FieldDataName;
   if (this->ScalarLut) delete [] this->ScalarLut;
   if (this->InputString) delete [] this->InputString;
+  if (this->Header) delete [] this->Header;
 }
 
 // no reference counting
@@ -304,6 +306,12 @@ int vtkDataReader::ReadHeader()
                   << this->FileName);
     return 0;
     }
+  if (this->Header)
+    {
+    delete [] this->Header;
+    }
+  this->Header = strdup(line);
+  
   vtkDebugMacro(<< "Reading vtk file entitled: " << line);
   //
   // read type
@@ -1414,6 +1422,11 @@ void vtkDataReader::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "File Type: ASCII\n";
     }
+
+  if ( this->Header )
+    os << indent << "Header: " << this->Header << "\n";
+  else
+    os << indent << "Header: (None)\n";
 
   if ( this->Source )
     {
