@@ -46,17 +46,17 @@
 #ifndef __vtkMarchingCubes_h
 #define __vtkMarchingCubes_h
 
-#include "vtkStructuredPointsToPolyDataFilter.h"
+#include "vtkPolyDataAlgorithm.h"
 
 #include "vtkContourValues.h" // Needed for direct access to ContourValues
 
 class vtkPointLocator;
 
-class VTK_PATENTED_EXPORT vtkMarchingCubes : public vtkStructuredPointsToPolyDataFilter
+class VTK_PATENTED_EXPORT vtkMarchingCubes : public vtkPolyDataAlgorithm
 {
 public:
   static vtkMarchingCubes *New();
-  vtkTypeRevisionMacro(vtkMarchingCubes,vtkStructuredPointsToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkMarchingCubes,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Methods to set contour values
@@ -113,7 +113,8 @@ protected:
   vtkMarchingCubes();
   ~vtkMarchingCubes();
 
-  void Execute();
+  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int FillInputPortInformation(int, vtkInformation *);
 
   vtkContourValues *ContourValues;
   int ComputeNormals;
@@ -175,5 +176,3 @@ inline void vtkMarchingCubes::GenerateValues(int numContours, double
 {this->ContourValues->GenerateValues(numContours, rangeStart, rangeEnd);}
 
 #endif
-
-

@@ -35,6 +35,8 @@
 #include "vtkCharArray.h"
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkIntArray.h"
 #include "vtkLongArray.h"
 #include "vtkMarchingCubesCases.h"
@@ -55,7 +57,7 @@
 #define vtkFloatingPointType float
 #endif
 
-vtkCxxRevisionMacro(vtkDiscreteMarchingCubes, "1.2");
+vtkCxxRevisionMacro(vtkDiscreteMarchingCubes, "1.3");
 vtkStandardNewMacro(vtkDiscreteMarchingCubes);
 
 // Description:
@@ -255,19 +257,27 @@ void vtkDiscreteMarchingCubesComputeGradient(
 //
 // Contouring filter specialized for volumes and "short int" data values.  
 //
-void vtkDiscreteMarchingCubes::Execute()
+int vtkDiscreteMarchingCubes::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
   vtkPoints *newPts;
   vtkCellArray *newPolys;
   vtkFloatArray *newCellScalars;
-  vtkImageData *input = this->GetInput();
+  vtkImageData *input = vtkImageData::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkPointData *pd;
   vtkDataArray *inScalars;
   int dims[3];
   int estimatedSize;
   vtkFloatingPointType Spacing[3], origin[3];
   vtkFloatingPointType bounds[6];
-  vtkPolyData *output = this->GetOutput();
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
   int numContours=this->ContourValues->GetNumberOfContours();
   vtkFloatingPointType *values=this->ContourValues->GetValues();
   
@@ -276,28 +286,23 @@ void vtkDiscreteMarchingCubes::Execute()
 //
 // Initialize and check input
 //
-  if (input == NULL)
-    {
-    vtkErrorMacro(<<"Input is NULL");
-    return;
-    }
   pd=input->GetPointData();
   if (pd ==NULL)
     {
     vtkErrorMacro(<<"PointData is NULL");
-    return;
+    return 1;
     }
   inScalars=pd->GetScalars();
   if ( inScalars == NULL )
     {
     vtkErrorMacro(<<"Scalars must be defined for contouring");
-    return;
+    return 1;
     }
 
   if ( input->GetDataDimension() != 3 )
     {
     vtkErrorMacro(<<"Cannot contour data of dimension != 3");
-    return;
+    return 1;
     }
   input->GetDimensions(dims);
   input->GetOrigin(origin);
@@ -326,7 +331,6 @@ void vtkDiscreteMarchingCubes::Execute()
 
   newPolys = vtkCellArray::New();
   newPolys->Allocate(newPolys->EstimateSize(estimatedSize,3));
-
 
   if (this->ComputeScalars)
     {
@@ -542,4 +546,6 @@ void vtkDiscreteMarchingCubes::Execute()
     {
     this->Locator->Initialize(); //free storage
     }
+
+  return 1;
 }

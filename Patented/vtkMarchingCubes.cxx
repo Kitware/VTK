@@ -34,6 +34,8 @@
 #include "vtkCharArray.h"
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkIntArray.h"
 #include "vtkLongArray.h"
 #include "vtkMarchingCubesCases.h"
@@ -49,7 +51,7 @@
 #include "vtkUnsignedLongArray.h"
 #include "vtkUnsignedShortArray.h"
 
-vtkCxxRevisionMacro(vtkMarchingCubes, "1.88");
+vtkCxxRevisionMacro(vtkMarchingCubes, "1.89");
 vtkStandardNewMacro(vtkMarchingCubes);
 
 // Description:
@@ -79,7 +81,7 @@ vtkMarchingCubes::~vtkMarchingCubes()
 // then this object is modified as well.
 unsigned long vtkMarchingCubes::GetMTime()
 {
-  unsigned long mTime=this->vtkStructuredPointsToPolyDataFilter::GetMTime();
+  unsigned long mTime=this->Superclass::GetMTime();
   unsigned long mTime2=this->ContourValues->GetMTime();
 
   mTime = ( mTime2 > mTime ? mTime2 : mTime );
@@ -372,21 +374,32 @@ void vtkMarchingCubesComputeGradient(vtkMarchingCubes *self,T *scalars, int dims
 //
 // Contouring filter specialized for volumes and "short int" data values.  
 //
-void vtkMarchingCubes::Execute()
+int vtkMarchingCubes::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkImageData *input = vtkImageData::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   vtkPoints *newPts;
   vtkCellArray *newPolys;
   vtkFloatArray *newScalars;
   vtkFloatArray *newNormals;
   vtkFloatArray *newGradients;
-  vtkImageData *input = this->GetInput();
   vtkPointData *pd;
   vtkDataArray *inScalars;
   int dims[3];
   int estimatedSize;
   double Spacing[3], origin[3];
   double bounds[6];
-  vtkPolyData *output = this->GetOutput();
   int numContours=this->ContourValues->GetNumberOfContours();
   double *values=this->ContourValues->GetValues();
   
@@ -395,28 +408,23 @@ void vtkMarchingCubes::Execute()
 //
 // Initialize and check input
 //
-  if (input == NULL)
-    {
-    vtkErrorMacro(<<"Input is NULL");
-    return;
-    }
   pd=input->GetPointData();
   if (pd ==NULL)
     {
     vtkErrorMacro(<<"PointData is NULL");
-    return;
+    return 1;
     }
   inScalars=pd->GetScalars();
   if ( inScalars == NULL )
     {
     vtkErrorMacro(<<"Scalars must be defined for contouring");
-    return;
+    return 1;
     }
 
   if ( input->GetDataDimension() != 3 )
     {
     vtkErrorMacro(<<"Cannot contour data of dimension != 3");
-    return;
+    return 1;
     }
   input->GetDimensions(dims);
   input->GetOrigin(origin);
@@ -620,6 +628,8 @@ void vtkMarchingCubes::Execute()
     {
     this->Locator->Initialize(); //free storage
     }
+
+  return 1;
 }
 
 // Description:
@@ -653,6 +663,12 @@ void vtkMarchingCubes::CreateDefaultLocator()
     {
     this->Locator = vtkMergePoints::New();
     }
+}
+
+int vtkMarchingCubes::FillInputPortInformation(int, vtkInformation *info)
+{
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkImageData");
+  return 1;
 }
 
 void vtkMarchingCubes::PrintSelf(ostream& os, vtkIndent indent)

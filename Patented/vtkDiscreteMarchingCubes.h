@@ -81,7 +81,7 @@ protected:
   vtkDiscreteMarchingCubes();
   ~vtkDiscreteMarchingCubes();
 
-  void Execute();
+  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
 private:
   vtkDiscreteMarchingCubes(const vtkDiscreteMarchingCubes&);  // Not implemented.
