@@ -18,7 +18,7 @@
 #include "vtkAmoebaMinimizer.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkAmoebaMinimizer, "1.3");
+vtkCxxRevisionMacro(vtkAmoebaMinimizer, "1.4");
 vtkStandardNewMacro(vtkAmoebaMinimizer);
 
 //----------------------------------------------------------------------------
@@ -269,6 +269,7 @@ void vtkAmoebaMinimizer::Initialize()
         delete [] this->ParameterNames[i];
         }
       }
+    delete [] this->ParameterNames;
     this->ParameterNames = 0;
     }
   if (this->Parameters)
