@@ -22,7 +22,7 @@
 #include "vtkObjectFactory.h"
 #include <float.h>
 
-vtkCxxRevisionMacro(vtkBandedPolyDataContourFilter, "1.21");
+vtkCxxRevisionMacro(vtkBandedPolyDataContourFilter, "1.22");
 vtkStandardNewMacro(vtkBandedPolyDataContourFilter);
 
 // Construct object.
@@ -34,6 +34,8 @@ vtkBandedPolyDataContourFilter::vtkBandedPolyDataContourFilter()
   this->SetNthOutput(1,vtkPolyData::New());
   this->Outputs[1]->Delete();
   this->ClipTolerance = FLT_EPSILON;
+  this->GenerateContourEdges = 0;
+  
 }
 
 vtkBandedPolyDataContourFilter::~vtkBandedPolyDataContourFilter()
