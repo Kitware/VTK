@@ -427,7 +427,7 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
                                       this->TitleMapper->GetInput());
       if (numLines != 0)
         {
-        titleHeight = stringHeight + (stringHeight / numLines) * 1.2; 
+        titleHeight = (int)(stringHeight + (stringHeight / numLines) * 1.2); 
         }
       else
         {
@@ -452,7 +452,7 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
                                       this->TitleMapper->GetInput());
       if (numLines != 0)
         {
-        titleHeight = stringHeight + (stringHeight / numLines) * 1.6; 
+        titleHeight = (int)(stringHeight + (stringHeight / numLines) * 1.6); 
         }
       else
         {
