@@ -21,7 +21,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkLookupTable, "1.82");
+vtkCxxRevisionMacro(vtkLookupTable, "1.83");
 vtkStandardNewMacro(vtkLookupTable);
 
 // Construct with range=(0,1); and hsv ranges set up for rainbow color table 
@@ -356,7 +356,7 @@ static inline unsigned char *vtkLinearLookup(float v,
 }
 
 // Given a scalar value v, return an index into the lookup table
-int vtkLookupTable::GetIndex(float v)
+vtkIdType vtkLookupTable::GetIndex(float v)
 {
   float maxIndex = this->NumberOfColors - 1;
   float shift, scale;
@@ -858,7 +858,7 @@ void vtkLookupTable::SetTableValue(vtkIdType indx, float rgba[4])
 
 // Directly load color into lookup table. Use [0,1] float values for color 
 // component specification.
-void vtkLookupTable::SetTableValue(int indx, float r, float g, float b, 
+void vtkLookupTable::SetTableValue(vtkIdType indx, float r, float g, float b, 
                                    float a)
 {
   float rgba[4];
@@ -885,7 +885,7 @@ void vtkLookupTable::GetTableValue(vtkIdType indx, float rgba[4])
 
 // Return a rgba color value for the given index into the lookup table. Color
 // components are expressed as [0,1] float values.
-float *vtkLookupTable::GetTableValue(int indx)
+float *vtkLookupTable::GetTableValue(vtkIdType indx)
 {
   this->GetTableValue(indx, this->RGBA);
   return this->RGBA;

@@ -173,13 +173,13 @@ protected:
   
   void SetRendererSize(int x, int y);
   void MagnifyBuffer(vtkDataArray *localPdata, vtkDataArray* magPdata,
-		     int windowSize[2]);
+                     int windowSize[2]);
 
   static void DeleteArray(vtkDataArray* da);
   static void ResizeFloatArray(vtkFloatArray* fa, int numComp,
-			       int size);
+                               vtkIdType size);
   static void ResizeUnsignedCharArray(vtkUnsignedCharArray* uca, 
-				      int numComp, int size);
+                                      int numComp, vtkIdType size);
   void ReallocPDataArrays();
   
   vtkRenderWindow* RenderWindow;

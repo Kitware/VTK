@@ -220,7 +220,7 @@ private:
   void operator=(const vtkLookupTable&);  // Not implemented.
 };
 
-inline unsigned char *vtkLookupTable::WritePointer(const int id, 
+inline unsigned char *vtkLookupTable::WritePointer(const vtkIdType id, 
                                                    const int number)
 {
  return this->Table->WritePointer(4*id,4*number);
