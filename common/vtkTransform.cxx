@@ -887,20 +887,20 @@ void vtkTransform::Multiply4x4(vtkMatrix4x4 *a, vtkMatrix4x4 *b,
     for (k = 0; k < 4; k++) 
     {
       Accum[i][k] = 0.0;
-      for (j = 0; j < 4; j++) 
-      {
-        Accum[i][k] += a->Element[i][j] * b->Element[j][k];
-      }
+      Accum[i][k] += a->Element[i][0] * b->Element[0][k];
+      Accum[i][k] += a->Element[i][1] * b->Element[1][k];
+      Accum[i][k] += a->Element[i][2] * b->Element[2][k];
+      Accum[i][k] += a->Element[i][3] * b->Element[3][k];
     }
   }
 
   // Copy to final dest
   for (i = 0; i < 4; i++)
   {
-    for (j = 0; j < 4; j++)
-    {
-      c->Element[i][j] = Accum[i][j];
-    }
+    c->Element[i][0] = Accum[i][0];
+    c->Element[i][1] = Accum[i][1];
+    c->Element[i][2] = Accum[i][2];
+    c->Element[i][3] = Accum[i][3];
   }
   c->Modified();
 }
