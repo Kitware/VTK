@@ -105,9 +105,13 @@ public:
   int Send(int *data, int length, int remoteProcessId, int tag);
   int Send(unsigned long *data, int length, int remoteProcessId, int tag);
   int Send(char *data, int length, int remoteProcessId, int tag);
+  int Send(unsigned char *data, int length, int remoteProcessId, int tag);
   int Send(float *data, int length, int remoteProcessId, int tag);
   int Send(double *data, int length, int remoteProcessId, int tag);
+  int Send(vtkIdType *data, int length, int remoteProcessId, int tag);
   int Send(vtkDataObject *data, int remoteId, int tag)
+    {return this->vtkCommunicator::Send(data,remoteId,tag);}
+  int Send(vtkDataArray *data, int remoteId, int tag)
     {return this->vtkCommunicator::Send(data,remoteId,tag);}
 
   // Description:
@@ -117,9 +121,13 @@ public:
   int Receive(int *data, int length, int remoteProcessId, int tag);
   int Receive(unsigned long *data, int length, int remoteProcessId, int tag);
   int Receive(char *data, int length, int remoteProcessId, int tag);
+  int Receive(unsigned char *data, int length, int remoteProcessId, int tag);
   int Receive(float *data, int length, int remoteProcessId, int tag);
   int Receive(double *data, int length, int remoteProcessId, int tag);
+  int Receive(vtkIdType *data, int length, int remoteProcessId, int tag);
   int Receive(vtkDataObject *data, int remoteId, int tag)
+    {return this->vtkCommunicator::Receive(data, remoteId, tag);}
+  int Receive(vtkDataArray *data, int remoteId, int tag)
     {return this->vtkCommunicator::Receive(data, remoteId, tag);}
 
 protected:
