@@ -136,7 +136,7 @@ public:
   // Description:
   // Helper functions not meant to be used outside this class
   void ComputeIndexMatrix(vtkMatrix4x4 *matrix);
-  int FindExtent(int& r1, int& r2, double *point, float *xAxis,
+  int FindExtent(int& r1, int& r2, double *point, double *xAxis,
 		      int *inMin, int *inMax, int *outExt);
 protected:
   vtkTransform *ResliceTransform;

@@ -1007,7 +1007,7 @@ static void ComputeRequiredInputUpdateExtentOptimized(vtkImageReslice *self,
   int i,j,k;
   int idX,idY,idZ;
   vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
-  float *xAxis, *yAxis, *zAxis, *origin;
+  double *xAxis, *yAxis, *zAxis, *origin;
   double point[4],w;
 
   // convert matrix from world coordinates to pixel indices
@@ -1070,7 +1070,7 @@ static void ComputeRequiredInputUpdateExtentOptimized(vtkImageReslice *self,
 // find approximate intersection of line with the plane x = x_min,
 // y = y_min, or z = z_min (lower limit of data extent) 
 
-static int intersectionLow(double *point, float *axis, int *sign,
+static int intersectionLow(double *point, double *axis, int *sign,
 			   int *limit, int ai, int *outExt)
 {
   // approximate value of r
@@ -1099,7 +1099,7 @@ static int intersectionLow(double *point, float *axis, int *sign,
 }
 
 // same as above, but for x = x_max
-static int intersectionHigh(double *point, float *axis, int *sign, 
+static int intersectionHigh(double *point, double *axis, int *sign, 
 			    int *limit, int ai, int *outExt)
 {
   int r;
@@ -1125,7 +1125,7 @@ static int intersectionHigh(double *point, float *axis, int *sign,
   return r;
 }
 
-static int isBounded(double *point, float *xAxis, int *inMin, 
+static int isBounded(double *point, double *xAxis, int *inMin, 
 		     int *inMax, int ai, int r)
 {
   int bi = ai+1; 
@@ -1142,7 +1142,8 @@ static int isBounded(double *point, float *xAxis, int *inMin,
 
 // this huge mess finds out where the current output raster
 // line intersects the input volume 
-int vtkImageReslice::FindExtent(int& r1, int& r2, double *point, float *xAxis, 
+int vtkImageReslice::FindExtent(int& r1, int& r2, double *point, 
+                                double *xAxis, 
 		      int *inMin, int *inMax, int *outExt)
 {
   int i, ix, iy, iz;
@@ -1398,7 +1399,7 @@ static void vtkOptimizedExecute(vtkImageReslice *self,
   double inPoint0[4];
   double inPoint1[4];
   float inPoint[4];
-  float *xAxis, *yAxis, *zAxis, *origin;
+  double *xAxis, *yAxis, *zAxis, *origin;
   T *background, *inPtr1;
   vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
   double w;
