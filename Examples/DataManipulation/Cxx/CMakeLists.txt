@@ -5,15 +5,12 @@ IF (USE_VTK_FILE)
   INCLUDE(${USE_VTK_FILE})
 ENDIF (USE_VTK_FILE)
 
-LINK_LIBRARIES( 
-  vtkRendering
-  vtkGraphics
-  vtkImaging
-  vtkFiltering
-  vtkCommon
-)
-
 ADD_EXECUTABLE(Arrays Arrays.cxx)
 ADD_EXECUTABLE(Cube Cube.cxx)
 ADD_EXECUTABLE(SGrid SGrid.cxx)
 ADD_EXECUTABLE(RGrid RGrid.cxx)
+
+TARGET_LINK_LIBRARIES(Arrays vtkRendering)
+TARGET_LINK_LIBRARIES(Cube vtkRendering)
+TARGET_LINK_LIBRARIES(SGrid vtkRendering)
+TARGET_LINK_LIBRARIES(RGrid vtkRendering)

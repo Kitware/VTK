@@ -1,41 +1,8 @@
 INCLUDE_REGULAR_EXPRESSION("^(lex|vtk|png|j|Task|Pipe).*$")
 
-# Build a list of libraries to link.
-SET(LIBS vtkParallel)
-
-IF (VTK_MANGLE_MESA)
-  SET(LIBS ${LIBS} ${MESA_LIBRARY})
-  IF ( MESA_OS_LIBRARY )
-    SET(LIBS ${LIBS} ${MESA_OS_LIBRARY})
-  ENDIF ( MESA_OS_LIBRARY )
-ELSE (VTK_MANGLE_MESA)
-  IF (MESA_OS_LIBRARY AND VTK_OPENGL_HAS_OSMESA)
-    SET(LIBS ${LIBS} ${MESA_OS_LIBRARY})
-  ENDIF (MESA_OS_LIBRARY AND VTK_OPENGL_HAS_OSMESA)
-ENDIF (VTK_MANGLE_MESA)
-
-SET(LIBS ${LIBS} ${OPENGL_LIBRARY})
-
-IF (VTK_USE_X)
-  SET(LIBS ${LIBS} -lXt)
-  SET(LIBS ${LIBS} ${CMAKE_X_LIBS})
-ENDIF (VTK_USE_X)
-
-IF (VTK_USE_MPI)
-  IF (MPI_LIBRARY)
-    SET(LIBS ${LIBS} ${MPI_LIBRARY})
-  ENDIF (MPI_LIBRARY)
-  IF (MPI_EXTRA_LIBRARY)
-    SET(LIBS ${LIBS} ${MPI_EXTRA_LIBRARY})
-  ENDIF (MPI_EXTRA_LIBRARY)
-  IF (MPI_INCLUDE_PATH) 
-    INCLUDE_DIRECTORIES(${MPI_INCLUDE_PATH})
-  ENDIF(MPI_INCLUDE_PATH)
-ENDIF (VTK_USE_MPI)
-
 IF (VTK_USE_HYBRID)
   ADD_EXECUTABLE(ParallelIso ParallelIso.cxx)
-  TARGET_LINK_LIBRARIES(ParallelIso vtkHybrid ${LIBS})
+  TARGET_LINK_LIBRARIES(ParallelIso vtkParallel vtkHybrid)
 ENDIF (VTK_USE_HYBRID)
 
 SET(TaskPara_SRCS TaskParallelism.cxx task1.cxx task2.cxx)
@@ -46,6 +13,6 @@ ADD_EXECUTABLE(TaskParallelism          ${TaskPara_SRCS})
 ADD_EXECUTABLE(TaskParallelismWithPorts ${TaskParaPorts_SRCS})
 ADD_EXECUTABLE(PipelineParallelism      ${PipePara_SRCS})
 
-TARGET_LINK_LIBRARIES (TaskParallelism          ${LIBS})
-TARGET_LINK_LIBRARIES (TaskParallelismWithPorts ${LIBS})
-TARGET_LINK_LIBRARIES (PipelineParallelism      ${LIBS})
+TARGET_LINK_LIBRARIES (TaskParallelism          vtkParallel)
+TARGET_LINK_LIBRARIES (TaskParallelismWithPorts vtkParallel)
+TARGET_LINK_LIBRARIES (PipelineParallelism      vtkParallel)

@@ -1,29 +1,16 @@
-LINK_LIBRARIES (vtkIO vtkRendering)
-
-LINK_LIBRARIES ( ${OPENGL_LIBRARY} )
-IF (VTK_MANGLE_MESA)
-  LINK_LIBRARIES( ${MESA_LIBRARY})
-  IF ( MESA_OS_LIBRARY )
-    LINK_LIBRARIES(${MESA_OS_LIBRARY})
-  ENDIF ( MESA_OS_LIBRARY )
-ELSE (VTK_MANGLE_MESA)
-  IF (MESA_OS_LIBRARY AND VTK_OPENGL_HAS_OSMESA)
-    LINK_LIBRARIES(${MESA_OS_LIBRARY})
-  ENDIF (MESA_OS_LIBRARY AND VTK_OPENGL_HAS_OSMESA)
-ENDIF (VTK_MANGLE_MESA)
-
-IF (VTK_USE_X)
-    LINK_LIBRARIES(-lXt)
-    LINK_LIBRARIES(${CMAKE_X_LIBS})
-ENDIF (VTK_USE_X)
-
 #
 # Add all the executables that require rendering
 #
-ADD_EXECUTABLE(TimeRenderer TimeRenderer.cxx)
-ADD_EXECUTABLE(TimeRenderer2 TimeRenderer2.cxx)
-ADD_EXECUTABLE(otherCoordinate otherCoordinate.cxx)
-ADD_EXECUTABLE(TestRenderWindow TestRenderWindow.cxx)
+FOREACH (exe
+  TimeRenderer
+  TimeRenderer2
+  otherCoordinate
+  TestRenderWindow
+  )
+
+  ADD_EXECUTABLE(${exe} ${exe}.cxx)
+  TARGET_LINK_LIBRARIES(${exe} vtkRendering vtkIO)
+ENDFOREACH (exe)
 
 ADD_TEST(otherCoordinate ${CXX_TEST_PATH}/otherCoordinate)
 

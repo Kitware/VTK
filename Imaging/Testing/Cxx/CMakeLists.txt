@@ -1,37 +1,10 @@
-LINK_LIBRARIES (
-vtkIO
-vtkImaging
-vtkGraphics
-)
-
-LINK_LIBRARIES( vtkpng vtkzlib vtkjpeg vtktiff )
-
 IF (VTK_USE_RENDERING)
-  LINK_LIBRARIES (vtkRendering)
-  LINK_LIBRARIES ( ${OPENGL_LIBRARY} )
-  IF (VTK_MANGLE_MESA)
-    LINK_LIBRARIES( ${MESA_LIBRARY} )
-    IF (MESA_OS_LIBRARY)
-      LINK_LIBRARIES(${MESA_OS_LIBRARY})
-    ENDIF (MESA_OS_LIBRARY)
-  ELSE (VTK_MANGLE_MESA)
-    IF (MESA_OS_LIBRARY AND VTK_OPENGL_HAS_OSMESA)
-      LINK_LIBRARIES(${MESA_OS_LIBRARY})
-    ENDIF (MESA_OS_LIBRARY AND VTK_OPENGL_HAS_OSMESA)
-  ENDIF (VTK_MANGLE_MESA)
-  IF (VTK_USE_X)
-    LINK_LIBRARIES(-lXt)
-    LINK_LIBRARIES(${CMAKE_X_LIBS})
-  ENDIF (VTK_USE_X)
-
-  IF (VTK_USE_FREETYPE)
-    LINK_LIBRARIES(vtkftgl vtkfreetype)
-  ENDIF (VTK_USE_FREETYPE)
-
   #
   # Add all the executables that require rendering
   #
   ADD_EXECUTABLE(ImportExport ImportExport.cxx)
+
+  TARGET_LINK_LIBRARIES(ImportExport vtkRendering vtkIO)
 
   #
   # Add tests, with the data

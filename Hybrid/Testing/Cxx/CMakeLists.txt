@@ -1,25 +1,4 @@
 IF (VTK_USE_RENDERING)
-  # Build a list of libraries to link.
-  SET(LIBS vtkHybrid ${OPENGL_LIBRARY})
-  IF (VTK_MANGLE_MESA)
-    IF(NOT MESA_LIBRARY)
-      MESSAGE("VTK_MANGLE_MESA option requires the path to MESA_LIBRARY to be specified, please edit the cache.")
-    ELSE(NOT MESA_LIBRARY)
-      SET(LIBS ${LIBS} ${MESA_LIBRARY})
-    ENDIF(NOT MESA_LIBRARY)
-  ELSE (VTK_MANGLE_MESA)
-    IF (MESA_OS_LIBRARY AND VTK_OPENGL_HAS_OSMESA)
-      SET(LIBS ${LIBS} ${MESA_LIBRARY} ${MESA_OS_LIBRARY})
-    ENDIF (MESA_OS_LIBRARY AND VTK_OPENGL_HAS_OSMESA)
-  ENDIF (VTK_MANGLE_MESA)
-  IF (VTK_USE_X)
-    SET(LIBS ${LIBS} -lXt ${CMAKE_X_LIBS})
-  ENDIF (VTK_USE_X)
-
-  IF (VTK_USE_FREETYPE)
-    SET(LIBS ${LIBS} vtkftgl vtkfreetype)
-  ENDIF (VTK_USE_FREETYPE)
-
   #
   # Add all the executables that require rendering
   #
@@ -27,9 +6,9 @@ IF (VTK_USE_RENDERING)
   ADD_EXECUTABLE(ImagePlaneWidget ImagePlaneWidget.cxx)
   ADD_EXECUTABLE(AmoebaMinimizer AmoebaMinimizer.cxx)
 
-  TARGET_LINK_LIBRARIES(BoxWidget ${LIBS})
-  TARGET_LINK_LIBRARIES(ImagePlaneWidget ${LIBS})
-  TARGET_LINK_LIBRARIES(AmoebaMinimizer ${LIBS})
+  TARGET_LINK_LIBRARIES(BoxWidget vtkHybrid)
+  TARGET_LINK_LIBRARIES(ImagePlaneWidget vtkHybrid)
+  TARGET_LINK_LIBRARIES(AmoebaMinimizer vtkHybrid)
 
   #
   # Add tests, with the data

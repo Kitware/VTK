@@ -178,12 +178,14 @@ vtkVolumeTextureMapper
 ABSTRACT
 )
 
-
 IF(VTK_USE_X)
   SET( Rendering_SRCS ${Rendering_SRCS}
     vtkXRenderWindowInteractor.cxx
     vtkXTextMapper.cxx)
 ENDIF(VTK_USE_X)
+
+# Build a list of libraries to link to vtkRendering.
+SET(Rendering_LIBS vtkGraphics vtkImaging)
 
 IF (WIN32)
   SET(HAVE_OPENGL_SRCS ON)
@@ -192,7 +194,7 @@ IF (WIN32)
                vtkWin32RenderWindowInteractor.cxx
                vtkWin32OpenGLTextMapper.cxx
                vtkWin32TextMapper.cxx)
-  LINK_LIBRARIES ( ${OPENGL_LIBRARY} )
+  SET (Rendering_LIBS ${Rendering_LIBS} ${OPENGL_LIBRARY} )
 ELSE (WIN32)
   IF (APPLE)
     IF(VTK_USE_COCOA)
@@ -204,7 +206,7 @@ ELSE (WIN32)
                    vtkCocoaWindow.mm
                    vtkCocoaGLView.mm)
       SET_SOURCE_FILES_PROPERTIES(vtkCocoaGLView vtkCocoaWindow WRAP_EXCLUDE)
-      LINK_LIBRARIES (${OPENGL_LIBRARY} )
+      SET (Rendering_LIBS ${Rendering_LIBS} ${OPENGL_LIBRARY} )
     ENDIF(VTK_USE_COCOA)
     IF(VTK_USE_CARBON)
       SET(HAVE_OPENGL_SRCS ON)
@@ -212,7 +214,7 @@ ELSE (WIN32)
                    vtkCarbonTextMapper.cxx
                    vtkCarbonRenderWindowInteractor.cxx
                    vtkCarbonRenderWindow.cxx)
-      LINK_LIBRARIES (${OPENGL_LIBRARY} )
+      SET (Rendering_LIBS ${Rendering_LIBS} ${OPENGL_LIBRARY} )
     ENDIF(VTK_USE_CARBON)
     IF(VTK_USE_X)
       IF (OPENGL_LIBRARY)
@@ -221,7 +223,7 @@ ELSE (WIN32)
                      vtkXOpenGLRenderWindow.cxx
                      vtkXOpenGLTextMapper.cxx)
         SET_SOURCE_FILES_PROPERTIES(vtkXTextMapper ABSTRACT)
-        LINK_LIBRARIES (${OPENGL_LIBRARY} )
+        SET (Rendering_LIBS ${Rendering_LIBS} ${OPENGL_LIBRARY} )
       ENDIF (OPENGL_LIBRARY)
     ENDIF(VTK_USE_X)
   ELSE (APPLE)
@@ -231,7 +233,7 @@ ELSE (WIN32)
                    vtkXOpenGLRenderWindow.cxx
                    vtkXOpenGLTextMapper.cxx)
       SET_SOURCE_FILES_PROPERTIES( vtkXTextMapper ABSTRACT )
-      LINK_LIBRARIES (${OPENGL_LIBRARY} )
+      SET (Rendering_LIBS ${Rendering_LIBS} ${OPENGL_LIBRARY} )
     ENDIF (OPENGL_LIBRARY)
   ENDIF (APPLE)
 ENDIF (WIN32)
@@ -257,9 +259,9 @@ IF (VTK_MANGLE_MESA)
                  vtkXMesaTextMapper.cxx
                 )
     SET_SOURCE_FILES_PROPERTIES(vtkMesaRenderWindow ABSTRACT)
-    LINK_LIBRARIES (${MESA_LIBRARY})
+    SET (Rendering_LIBS ${Rendering_LIBS} ${MESA_LIBRARY})
     IF(MESA_OS_LIBRARY)
-      LINK_LIBRARIES( ${MESA_OS_LIBRARY} )
+      SET( Rendering_LIBS ${Rendering_LIBS} ${MESA_OS_LIBRARY} )
     ENDIF(MESA_OS_LIBRARY)
     IF (MESA_INCLUDE_PATH)
       INCLUDE_DIRECTORIES(${MESA_INCLUDE_PATH})
@@ -267,7 +269,7 @@ IF (VTK_MANGLE_MESA)
   ENDIF (MESA_LIBRARY)
 ELSE (VTK_MANGLE_MESA)
   IF (MESA_OS_LIBRARY AND VTK_OPENGL_HAS_OSMESA)
-    LINK_LIBRARIES(${MESA_OS_LIBRARY})
+    SET(Rendering_LIBS ${Rendering_LIBS} ${MESA_OS_LIBRARY})
   ENDIF (MESA_OS_LIBRARY AND VTK_OPENGL_HAS_OSMESA)
 ENDIF(VTK_MANGLE_MESA)
 
@@ -289,12 +291,13 @@ ELSE(HAVE_OPENGL_SRCS)
 ENDIF(HAVE_OPENGL_SRCS)
 INSTALL_FILES(/include/vtk .h ${VTK_BINARY_DIR}/vtkRenderingInstantiator)
 
+TARGET_LINK_LIBRARIES(vtkRendering ${Rendering_LIBS})
+
 # Allow the user to customize their build with some local options
 #
 INCLUDE (${VTK_BINARY_DIR}/Rendering/LocalUserOptions.cmake OPTIONAL)
 INCLUDE (${VTK_SOURCE_DIR}/Rendering/LocalUserOptions.cmake OPTIONAL)
 
-TARGET_LINK_LIBRARIES (vtkRendering vtkIO vtkGraphics vtkImaging)
 IF (VTK_USE_FREETYPE)
   TARGET_LINK_LIBRARIES(vtkRendering
     vtkftgl
@@ -425,9 +428,7 @@ IF (VTK_WRAP_PYTHON)
     ADD_LIBRARY(vtkRenderingPython SHARED RenderingPython_SRCS)
     TARGET_LINK_LIBRARIES (vtkRenderingPython
                            vtkGraphicsPython
-                           vtkImagingPython
-                           vtkFilteringPython
-                           vtkCommonPython)
+                           vtkImagingPython)
   ENDIF (APPLE)
 
   IF(WIN32)
@@ -440,13 +441,13 @@ IF (VTK_WRAP_PYTHON)
 
   INSTALL_TARGETS(/lib/vtk vtkRenderingPython)
   IF (TK_LIBRARY)
-     SOURCE_FILES(RenderingPythonTkWidgets_SRCS
+     SET(RenderingPythonTkWidgets_SRCS
         vtkTkWidgetsInit.cxx
         vtkTkRenderWidgetPython.cxx
         vtkTkImageViewerWidgetPython.cxx
         )
      ADD_LIBRARY(vtkRenderingPythonTkWidgets SHARED
-                 RenderingPythonTkWidgets_SRCS)
+                 ${RenderingPythonTkWidgets_SRCS})
      TARGET_LINK_LIBRARIES (vtkRenderingPythonTkWidgets
                             ${TCL_LIBRARY}
                             ${TK_LIBRARY})
@@ -494,8 +495,6 @@ IF (VTK_WRAP_JAVA)
                 Rendering_SRCS)
   ADD_LIBRARY(vtkRenderingJava SHARED RenderingJava_SRCS)
   TARGET_LINK_LIBRARIES (vtkRenderingJava
-                         vtkCommonJava
-                         vtkFilteringJava
                          vtkImagingJava
                          vtkGraphicsJava)
   IF (JAVA_AWT_LIBRARY)
@@ -507,8 +506,7 @@ ENDIF (VTK_WRAP_JAVA)
 
 
 IF(VTK_USE_X)
-LINK_LIBRARIES(-lXt)
-LINK_LIBRARIES(${CMAKE_X_LIBS})
+TARGET_LINK_LIBRARIES(vtkRendering -lXt ${CMAKE_X_LIBS})
 ADD_DEFINITIONS(${CMAKE_X_CFLAGS})
 ENDIF(VTK_USE_X)
 

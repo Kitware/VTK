@@ -1,5 +1,3 @@
-LINK_LIBRARIES (vtkCommon)
-
 #
 # Add all the executables 
 #
@@ -29,5 +27,6 @@ FOREACH (test
   )
 
   ADD_EXECUTABLE(${test} ${test}.cxx)
+  TARGET_LINK_LIBRARIES(${test} vtkCommon)
   ADD_TEST(${test} ${CXX_TEST_PATH}/${test})
 ENDFOREACH (test) 
