@@ -70,13 +70,7 @@ IF (NOT VTKFTGL_DO_NOT_USE_VECTORISER)
     src/FTGLPolygonFont.cpp
     src/FTOutlineGlyph.cpp
     src/FTPolyGlyph.cpp
-    src/FTVectoriser.cpp
   )
-  INCLUDE (${CMAKE_ROOT}/Modules/FindGLU.cmake)
-  IF (GLU_INCLUDE_PATH)
-    INCLUDE_DIRECTORIES (${GLU_INCLUDE_PATH})
-  ENDIF (GLU_INCLUDE_PATH)
-  SET (VTKFTGL_LIBS "${VTKFTGL_LIBS};${GLU_LIBRARY}")
 ENDIF (NOT VTKFTGL_DO_NOT_USE_VECTORISER)
 
 #
