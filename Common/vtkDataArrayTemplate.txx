@@ -158,18 +158,14 @@ template <class T>
 void vtkDataArrayTemplate<T>::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-
+  vtkOStreamWrapper osw(os);
   if(this->Array)
     {
-    os << indent;
-    os << "Array: ";
-    os << this->Array;
-    os << "\n";
+    osw << indent << "Array: " << this->Array << "\n";
     }
   else
     {
-    os << indent;
-    os << "Array: (null)\n";
+    osw << indent << "Array: (null)\n";
     }
 }
 
