@@ -46,6 +46,10 @@
 // Set the text property/attributes of the title and the labels through the 
 // vtkTextProperty objects associated to this actor.
 //
+// .SECTION Caveats
+// If a vtkLogLookupTable is specified as the lookup table to use, then the
+// labels are created using a logarithmic scale.
+//
 // .SECTION See Also
 // vtkActor2D vtkTextProperty vtkTextMapper vtkPolyDataMapper2D
 
