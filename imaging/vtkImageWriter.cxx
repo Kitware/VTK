@@ -228,10 +228,11 @@ void vtkImageWriter::RecursiveWrite(int axis, vtkImageCache *cache,
     file = new ofstream(this->InternalFileName, ios::out);
 #endif
     fileOpenedHere = 1;
-    if (! file)
+    if (file->fail())
       {
       vtkErrorMacro("RecursiveWrite: Could not open file " << 
 		    this->InternalFileName);
+      delete file;
       return;
       }
 
@@ -246,6 +247,12 @@ void vtkImageWriter::RecursiveWrite(int axis, vtkImageCache *cache,
     {
     data = cache->UpdateAndReturnData();
     this->RecursiveWrite(axis,cache,data,file);
+    if (file && fileOpenedHere)
+      {
+      file->close();
+      delete file;
+      file = NULL;
+      }
     return;
     }
 
@@ -261,6 +268,12 @@ void vtkImageWriter::RecursiveWrite(int axis, vtkImageCache *cache,
     else
       {
       vtkWarningMacro("Cache to small to hold one row of pixels!!");
+      }
+    if (file && fileOpenedHere)
+      {
+      file->close();
+      delete file;
+      file = NULL;
       }
     return;
     }
@@ -338,10 +351,11 @@ void vtkImageWriter::RecursiveWrite(int axis, vtkImageCache *cache,
 #else
     file = new ofstream(this->InternalFileName, ios::out);
 #endif
-    if (! file)
+    if (file->fail())
       {
       vtkErrorMacro("RecursiveWrite: Could not open file " << 
 		    this->InternalFileName);
+      delete file;
       return;
       }
 
