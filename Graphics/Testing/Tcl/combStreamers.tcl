@@ -80,4 +80,5 @@ renWin Render
 # prevent the tk window from showing up then start the event loop
 wm withdraw .
 
-
+# for testing
+set threshold 11
