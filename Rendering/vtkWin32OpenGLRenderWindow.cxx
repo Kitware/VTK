@@ -38,7 +38,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <GL/gl.h>
 #endif
 
-vtkCxxRevisionMacro(vtkWin32OpenGLRenderWindow, "1.104");
+vtkCxxRevisionMacro(vtkWin32OpenGLRenderWindow, "1.105");
 vtkStandardNewMacro(vtkWin32OpenGLRenderWindow);
 
 #define VTK_MAX_LIGHTS 8
@@ -369,17 +369,6 @@ const char* vtkWin32OpenGLRenderWindow::ReportCapabilities()
 
   DescribePixelFormat(this->DeviceContext, pixelFormat, sizeof(PIXELFORMATDESCRIPTOR), &pfd);
 
-  printf("Visual ID: %2d  depth=%d  class=%s\n", i, pfd.cDepthBits, 
-         pfd.cColorBits <= 8 ? "PseudoColor" : "TrueColor");
-  printf("    bufferSize=%d level=%d renderType=%s doubleBuffer=%d stereo=%d\n", pfd.cColorBits, pfd.bReserved, pfd.iPixelType == PFD_TYPE_RGBA ? "rgba" : "ci", pfd.dwFlags & PFD_DOUBLEBUFFER, pfd.dwFlags & PFD_STEREO);
-  printf("    generic=%d generic accelerated=%d\n", (pfd.dwFlags & PFD_GENERIC_FORMAT) == PFD_GENERIC_FORMAT, (pfd.dwFlags & PFD_GENERIC_ACCELERATED) == PFD_GENERIC_ACCELERATED);
-  printf("    rgba: redSize=%d greenSize=%d blueSize=%d alphaSize=%d\n", pfd.cRedBits, pfd.cGreenBits, pfd.cBlueBits, pfd.cAlphaBits);
-  printf("    auxBuffers=%d depthSize=%d stencilSize=%d\n", pfd.cAuxBuffers, pfd.cDepthBits, pfd.cStencilBits);
-  printf("    accum: redSize=%d greenSize=%d blueSize=%d alphaSize=%d\n", pfd.cAccumRedBits, pfd.cAccumGreenBits, pfd.cAccumBlueBits, pfd.cAccumAlphaBits);
-  printf("    multiSample=%d multisampleBuffers=%d\n", 0, 0);
-  printf("    Opaque.\n");
-  
-
   ostrstream strm;
   strm << "depth:  " << pfd.cDepthBits << endl;
   if (pfd.cColorBits <= 8)
@@ -400,9 +389,21 @@ const char* vtkWin32OpenGLRenderWindow::ReportCapabilities()
     {
     strm <<"renderType:  ci" << endl;
     }
-  strm << "double buffer:  " << pfd.dwFlags & PFD_DOUBLEBUFFER << endl;
-  strm << "stereo:  " << pfd.dwFlags & PFD_DOUBLEBUFFER << endl;
-  strm << "generic:  " << pfd.dwFlags & PFD_GENERIC_FORMAT << endl;
+  if (pfd.dwFlags & PFD_DOUBLEBUFFER) {
+    strm << "double buffer:  True" << endl;
+  } else {
+    strm << "double buffer:  False" << endl;
+  }
+  if (pfd.dwFlags & PFD_STEREO) {
+    strm << "stereo:  True" << endl;  
+  } else {
+    strm << "stereo:  False" << endl;
+  }
+  if (pfd.dwFlags & PFD_GENERIC_FORMAT) {
+    strm << "hardware acceleration:  False" << endl; 
+  } else {
+    strm << "hardware acceleration:  True" << endl; 
+  }
   strm << "rgba:  redSize=" << pfd.cRedBits << " greenSize=" << pfd.cGreenBits << "blueSize=" << pfd.cBlueBits << "alphaSize=" << pfd.cAlphaBits << endl;
   strm << "aux buffers:  " << pfd.cAuxBuffers << endl;
   strm << "depth size:  " << pfd.cDepthBits << endl;
