@@ -115,12 +115,12 @@ void vtkAppendPolyData::SetNumberOfInputs(int num)
 
 //----------------------------------------------------------------------------
 // Set Nth input, should only be used when UserManagedInputs is true.
-void vtkAppendPolyData::SetNthInput(int num, vtkPolyData *input)
+void vtkAppendPolyData::SetInputByNumber(int num, vtkPolyData *input)
 {
   if (!UserManagedInputs)
     {
     vtkErrorMacro(<<
-      "SetNthInput is not supported if UserManagedInputs is false");
+      "SetInputByNumber is not supported if UserManagedInputs is false");
     return;
     }
   this->vtkProcessObject::SetNthInput(num, input);
