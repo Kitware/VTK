@@ -80,13 +80,17 @@ class VTK_EXPORT vtkFollower : public vtkActor
   // Description:
   // Copy the follower's composite 4x4 matrix into the matrix provided.
   virtual void GetMatrix(vtkMatrix4x4 *m);
-  void GetMatrix(vtkMatrix4x4 &m) {this->GetMatrix(&m);}
 
   // Description:
   // Set/Get the camera to follow. If this is not set, then the follower
   // won't know who to follow.
   vtkSetReferenceCountedObjectMacro(Camera,vtkCamera);
   vtkGetObjectMacro(Camera,vtkCamera);
+
+  // Description:
+  // For legacy compatability. Do not use.
+  void GetMatrix(vtkMatrix4x4 &m) {this->GetMatrix(&m);}
+
 
 protected:
   vtkCamera *Camera; 

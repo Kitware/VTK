@@ -93,11 +93,7 @@ public:
   static vtkAssembly *New() {return new vtkAssembly;};
   const char *GetClassName() {return "vtkAssembly";};
   void PrintSelf(ostream& os, vtkIndent indent);
-
-  // Description:
-  // Copy another assembly.
-  vtkAssembly &operator=(const vtkAssembly& assembly);
-
+  
   // Description:
   // Add a part to the list of parts.
   void AddPart(vtkActor *);
@@ -141,6 +137,11 @@ public:
   float *GetBounds();
 
   unsigned long int GetMTime();
+
+  // Description:
+  // For legacy compatability. Do not use.
+  vtkAssembly &operator=(const vtkAssembly& assembly);
+
 
 protected:
   vtkActorCollection *Parts;

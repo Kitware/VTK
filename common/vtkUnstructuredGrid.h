@@ -53,6 +53,18 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkCellArray.h"
 #include "vtkCellTypes.h"
 #include "vtkCellLinks.h"
+class vtkVertex;
+class vtkPolyVertex;
+class vtkLine;
+class vtkPolyLine;
+class vtkTriangle;
+class vtkTriangleStrip;
+class vtkPixel;
+class vtkQuad;
+class vtkPolygon;
+class vtkTetra;
+class vtkVoxel;
+class vtkHexahedron;
 
 class VTK_EXPORT vtkUnstructuredGrid : public vtkPointSet {
 public:
@@ -76,8 +88,8 @@ public:
   void CopyStructure(vtkDataSet *ds);
   int GetNumberOfCells();
   vtkCell *GetCell(int cellId);
-  void GetCellPoints(int cellId, vtkIdList& ptIds);
-  void GetPointCells(int ptId, vtkIdList& cellIds);
+  void GetCellPoints(int cellId, vtkIdList *ptIds);
+  void GetPointCells(int ptId, vtkIdList *cellIds);
   int GetCellType(int cellId);
   void Squeeze();
   void Initialize();
@@ -90,8 +102,28 @@ public:
   void AddReferenceToCell(int ptId, int cellId);
   void ResizeCellList(int ptId, int size);
 
-protected:
+  // Description:
+  // For legacy compatability. Do not use.
+  void GetCellPoints(int cellId, vtkIdList &ptIds)
+    {this->GetCellPoints(cellId, &ptIds);}
+  void GetPointCells(int ptId, vtkIdList &cellIds)
+    {this->GetPointCells(ptId, &cellIds);}
 
+protected:
+  // used by GetCell method
+  vtkVertex *Vertex;
+  vtkPolyVertex *PolyVertex;
+  vtkLine *Line;
+  vtkPolyLine *PolyLine;
+  vtkTriangle *Triangle;
+  vtkTriangleStrip *TriangleStrip;
+  vtkPixel *Pixel;
+  vtkQuad *Quad;
+  vtkPolygon *Polygon;
+  vtkTetra *Tetra;
+  vtkVoxel *Voxel;
+  vtkHexahedron *Hexahedron;
+  
   // points inherited
   // point data (i.e., scalars, vectors, normals, tcoords) inherited
   vtkCellTypes *Cells;

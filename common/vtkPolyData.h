@@ -66,6 +66,18 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkCellTypes.h"
 #include "vtkCellLinks.h"
 
+class vtkVertex;
+class vtkPolyVertex;
+class vtkLine;
+class vtkPolyLine;
+class vtkTriangle;
+class vtkQuad;
+class vtkPolygon;
+class vtkTriangleStrip;
+class vtkEmptyCell;
+
+
+
 class VTK_EXPORT vtkPolyData : public vtkPointSet 
 {
 public:
@@ -96,12 +108,12 @@ public:
 
   // Description:
   // Copy a cells point ids into list provided. (Less efficient.)
-  void GetCellPoints(int cellId, vtkIdList& ptIds);
+  void GetCellPoints(int cellId, vtkIdList *ptIds);
 
   // Description:
   // Efficient method to obtain cells using a particular point. Make sure that
   // routine BuildLinks() has been called.
-  void GetPointCells(int ptId, vtkIdList& cellIds);
+  void GetPointCells(int ptId, vtkIdList *cellIds);
 
   // Description:
   // Recover extra allocated memory when creating data whose initial size
@@ -304,7 +316,25 @@ public:
   // Restore object to initial state. Release memory back to system.
   virtual void Initialize();
 
+  // Description:
+  // For legacy compatability. Do not use.
+  void GetCellPoints(int cellId, vtkIdList &ptIds)
+    {this->GetCellPoints(cellId, &ptIds);}
+  void GetPointCells(int ptId, vtkIdList &cellIds)
+    {this->GetPointCells(ptId, &cellIds);}
+
 protected:
+  // constant cell objects returned by GetCell called.
+  vtkVertex *Vertex;
+  vtkPolyVertex *PolyVertex;
+  vtkLine *Line;
+  vtkPolyLine *PolyLine;
+  vtkTriangle *Triangle;
+  vtkQuad *Quad;
+  vtkPolygon *Polygon;
+  vtkTriangleStrip *TriangleStrip;
+  vtkEmptyCell *EmptyCell;
+  
   // points inherited
   // point data (i.e., scalars, vectors, normals, tcoords) inherited
   vtkCellArray *Verts;

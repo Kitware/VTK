@@ -240,7 +240,7 @@ float *vtkOpenGLProjectedPolyDataRayBounder::Draw( vtkRenderer *ren,
     // To speed things up, we pull the matrix out of the transform. 
     // This way, we can decode z values faster since we know which elements
     // of the matrix are important, and which are zero.
-    transform->GetMatrix( *matrix );
+    transform->GetMatrix(matrix);
     
     // Just checking that our assumptions are correct.
     if( this->Debug )
@@ -293,7 +293,7 @@ float *vtkOpenGLProjectedPolyDataRayBounder::Draw( vtkRenderer *ren,
     // To speed things up, we pull the matrix out of the transform. 
     // This way, we can decode z values faster since we know which elements
     // of the matrix are important, and which are zero.
-    transform->GetMatrix( *matrix );
+    transform->GetMatrix(matrix);
     
     // Just checking that our assumptions are correct.  This code should
     // be removed after the debugging phase is complete

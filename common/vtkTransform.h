@@ -149,7 +149,6 @@ class VTK_EXPORT vtkTransform : public vtkObject
   // Description:
   // Obtain the transpose of the current transformation matrix.
   void GetTranspose (vtkMatrix4x4 *transpose);
-  void GetTranspose (vtkMatrix4x4 &transpose){this->GetTranspose(&transpose);}
 
   // Description:
   // Invert the current transformation matrix.
@@ -158,7 +157,6 @@ class VTK_EXPORT vtkTransform : public vtkObject
   // Description:
   // Return the inverse of the current transformation matrix.
   void GetInverse(vtkMatrix4x4 *inverse);
-  void GetInverse(vtkMatrix4x4& inverse){this->GetInverse(&inverse);}
 
   // Description:
   // Get the x, y, z orientation angles from the transformation matrix as an
@@ -200,18 +198,16 @@ class VTK_EXPORT vtkTransform : public vtkObject
     {this->GetScale(&sx, &sy, &sz);}
 
   // Description:
-  // Set the current matrix directly.
-  void SetMatrix(vtkMatrix4x4 *m);
-  void SetMatrix(vtkMatrix4x4& m){this->SetMatrix(&m);}
+  // Set the current matrix directly (copies m).
+  void SetMatrix(vtkMatrix4x4& m);
 
   // Description:
   // Returns the current transformation matrix.
-  vtkMatrix4x4& GetMatrix();
+  vtkMatrix4x4 *GetMatrixPointer();
   
   // Description:
   // Returns the current transformation matrix.
   void GetMatrix (vtkMatrix4x4 *m);
-  void GetMatrix (vtkMatrix4x4 &m){this->GetMatrix(&m);}
 
   // Description:
   // Concatenates the input matrix with the current transformation matrix.
@@ -219,13 +215,10 @@ class VTK_EXPORT vtkTransform : public vtkObject
   // The setting of the PreMultiply flag determines whether the matrix
   // is PreConcatenated or PostConcatenated.
   void Concatenate(vtkMatrix4x4 *matrix);
-  void Concatenate(vtkMatrix4x4 &matrix){this->Concatenate(&matrix);}
 
   // Description:
   // Multiplies matrices a and b and stores the result in c.
   void Multiply4x4(vtkMatrix4x4 *a, vtkMatrix4x4 *b, vtkMatrix4x4 *c);
-  void Multiply4x4(vtkMatrix4x4 &a, vtkMatrix4x4 &b, vtkMatrix4x4 &c)
-    {this->Multiply4x4(&a,&b,&c);}
 
   // Description:
   // Multiply a xyzw point by the transform and store the result in out.
@@ -261,8 +254,18 @@ class VTK_EXPORT vtkTransform : public vtkObject
   // Description:
   // Set the point to use in the GetPoint calculations.
   vtkSetVector4Macro(Point,float);
+
+  // Description:
+  // For legacy compatability. Do not use.
+  void Multiply4x4(vtkMatrix4x4 &a, vtkMatrix4x4 &b, vtkMatrix4x4 &c)
+    {this->Multiply4x4(&a,&b,&c);}
+  void Concatenate(vtkMatrix4x4 &matrix){this->Concatenate(&matrix);}
+  void GetMatrix (vtkMatrix4x4 &m){this->GetMatrix(&m);}
+  void GetTranspose (vtkMatrix4x4 &transpose){this->GetTranspose(&transpose);}
+  void GetInverse(vtkMatrix4x4& inverse){this->GetInverse(&inverse);}
+  vtkMatrix4x4& GetMatrix() {return *(this->GetMatrixPointer());}
   
- private:
+private:
   int PreMultiplyFlag;
   int StackSize;
   vtkMatrix4x4 **Stack;

@@ -122,8 +122,7 @@ void vtkClipVolume::Execute()
   int cellId, i, j, k, flip, iflip, jflip, kflip, newCellId;
   vtkPoints *cellPts;
   vtkScalars *clipScalars;
-  vtkScalars cellScalars; 
-  cellScalars.Allocate(8); cellScalars.ReferenceCountingOff();
+  vtkScalars *cellScalars; 
   vtkCell *cell;
   vtkPoints *newPoints;
   vtkIdList *cellIds;
@@ -136,7 +135,7 @@ void vtkClipVolume::Execute()
   int dims[3], dimension, numICells, numJCells, numKCells, sliceSize;
   int above, below;
   vtkIdList *tetraIds;
-  vtkPoints tetraPts; tetraPts.Allocate(20); tetraPts.ReferenceCountingOff();
+  vtkPoints *tetraPts; 
   int ii, jj, pts[4], id, ntetra;
     
   vtkDebugMacro(<< "Clipping volume");
@@ -243,7 +242,9 @@ void vtkClipVolume::Execute()
   sliceSize = numICells * numJCells;
   
   tetraIds = vtkIdList::New(); tetraIds->Allocate(20);
-
+  cellScalars = vtkScalars::New(); cellScalars->Allocate(8);
+  tetraPts = vtkPoints::New(); tetraPts->Allocate(20); 
+  
   // Loop over i-j-k directions so that we can control the direction of
   // face diagonals on voxels (i.e., the flip variable). The flip variable
   // also controls the ordered Delaunay triangulation used in ClipVoxel().
@@ -283,7 +284,7 @@ void vtkClipVolume::Execute()
         for ( above=below=0, ii=0; ii < 8; ii++ )
           {
           s = clipScalars->GetScalar(cellIds->GetId(ii));
-          cellScalars.SetScalar(ii, s);
+          cellScalars->SetScalar(ii, s);
           if ( s >= value )
 	    {
 	    above = 1;
@@ -305,8 +306,8 @@ void vtkClipVolume::Execute()
         if ( (above && !below) || 
 	     (this->GenerateClippedOutput && (below && !above)) )
           {
-          ((vtkVoxel *)cell)->Triangulate(flip, *tetraIds, tetraPts);
-          ntetra = tetraPts.GetNumberOfPoints() / 4;
+          ((vtkVoxel *)cell)->Triangulate(flip, *tetraIds, *tetraPts);
+          ntetra = tetraPts->GetNumberOfPoints() / 4;
 
           if (above && !below)
 	    {
@@ -322,7 +323,7 @@ void vtkClipVolume::Execute()
             id = ii*4;
             for (jj=0; jj<4; jj++)
               {
-              x = tetraPts.GetPoint(id+jj);
+              x = tetraPts->GetPoint(id+jj);
               if ( (pts[jj] = this->Locator->IsInsertedPoint(x)) < 0 )
                 {
                 pts[jj] = this->Locator->InsertNextPoint(x);
@@ -337,7 +338,7 @@ void vtkClipVolume::Execute()
         else if (above == below ) // clipped voxel, have to triangulate 
           {
           this->ClipVoxel(value, cellScalars, flip, origin, spacing, 
-                          *cellIds, *cellPts, inPD, outPD, inCD, cellId, 
+                          cellIds, cellPts, inPD, outPD, inCD, cellId, 
 			  outCD, clippedCD);
           }
           
@@ -374,7 +375,9 @@ void vtkClipVolume::Execute()
   output->SetPoints(newPoints);
   newPoints->Delete();
   tetraIds->Delete();
-
+  tetraPts->Delete();
+  cellScalars->Delete();
+  
   this->Locator->Initialize();//release any extra memory
   output->Squeeze();
 }
@@ -386,9 +389,9 @@ void vtkClipVolume::Execute()
 // intersection points are injected into triangulation. Because of convex,
 // regular spacing of voxel points, we don't have to worry about constrained
 // Delaunay problems.
-void vtkClipVolume::ClipVoxel(float value, vtkScalars& cellScalars, 
+void vtkClipVolume::ClipVoxel(float value, vtkScalars *cellScalars, 
                               int flip, float origin[3], float spacing[3], 
-                              vtkIdList& cellIds, vtkPoints& cellPts,
+                              vtkIdList *cellIds, vtkPoints *cellPts,
                               vtkPointData *inPD, vtkPointData *outPD,
                               vtkCellData *inCD, int cellId, 
 			      vtkCellData *outCD, vtkCellData *clippedCD)
@@ -397,7 +400,7 @@ void vtkClipVolume::ClipVoxel(float value, vtkScalars& cellScalars,
   float length, center[3], p1[3], p2[3];
   int i, j, k, edgeNum, numPts, numTetras, npts, *pts, tPts[4];
   int numOutTetras, numMergedPts, ptId, newCellId;
-  vtkIdList holeTetras(10), cells(64), mergedPts(12);
+  vtkIdList *holeTetras, *cells, *mergedPts;
   vtkPoints *points;
   vtkUnstructuredGrid *output=this->GetOutput();
   vtkUnstructuredGrid *clippedOutput=this->GetClippedOutput();
@@ -409,12 +412,12 @@ void vtkClipVolume::ClipVoxel(float value, vtkScalars& cellScalars,
                              {1,2,4,7,0,3,5,6}};//injection order based on flip
 
   // quick fix until constructors are changed
-  holeTetras.ReferenceCountingOff();
-  cells.ReferenceCountingOff();
-  mergedPts.ReferenceCountingOff();
+  holeTetras = new vtkIdList(10);
+  cells = new vtkIdList(64);
+  mergedPts = new vtkIdList(12);
   
   // compute bounds for voxel and initialize
-  cellPts.GetPoint(0,voxelOrigin);
+  cellPts->GetPoint(0,voxelOrigin);
   for (length=0.0, i=0; i<3; i++)
     {
     center[i] = voxelOrigin[i] + 0.5*spacing[i];
@@ -430,18 +433,18 @@ void vtkClipVolume::ClipVoxel(float value, vtkScalars& cellScalars,
   for (numPts=0; numPts<8; numPts++)
     {
     ptId = order[flip][numPts];
-    xPtr = cellPts.GetPoint(ptId);
-    this->Triangulator->InsertPoint(this->Mesh, points, ptId, xPtr, holeTetras);
+    xPtr = cellPts->GetPoint(ptId);
+    this->Triangulator->InsertPoint(this->Mesh, points, ptId, xPtr, *holeTetras);
       
     // Incorporate points into output if appropriate
-    s1 = cellScalars.GetScalar(ptId);
+    s1 = cellScalars->GetScalar(ptId);
     if ( (s1 >= value && !this->InsideOut) ||
     (s1 < value && this->InsideOut) || this->GenerateClippedOutput )
       {
       if ( this->Locator->IsInsertedPoint(xPtr) < 0 )
         {
         tPts[0] = this->Locator->InsertNextPoint(xPtr);
-        outPD->CopyData(inPD,cellIds.GetId(ptId),tPts[0]);
+        outPD->CopyData(inPD,cellIds->GetId(ptId),tPts[0]);
         }
       }
     }//for eight voxel corner points
@@ -451,26 +454,26 @@ void vtkClipVolume::ClipVoxel(float value, vtkScalars& cellScalars,
   // near exisiting points (causes bad Delaunay behavior).
   for (edgeNum=0; edgeNum < 12; edgeNum++)
     {
-    s1 = cellScalars.GetScalar(edges[edgeNum][0]);
-    s2 = cellScalars.GetScalar(edges[edgeNum][1]);
+    s1 = cellScalars->GetScalar(edges[edgeNum][0]);
+    s2 = cellScalars->GetScalar(edges[edgeNum][1]);
     if ( (s1 < value && s2 >= value) || (s1 >= value && s2 < value) )
       {
       t = (value - s1) / (s2 - s1);
       //check to see whether near voxel corner point - have to merge
       if ( t < this->MergeTolerance )
         {
-        mergedPts.InsertNextId(edges[edgeNum][0]);
+        mergedPts->InsertNextId(edges[edgeNum][0]);
         continue;
         }
       else if ( t > (1.0 - this->MergeTolerance) )
         {
-        mergedPts.InsertNextId(edges[edgeNum][1]);
+        mergedPts->InsertNextId(edges[edgeNum][1]);
         continue;
         }
 
       // generate edge intersection point
-      cellPts.GetPoint(edges[edgeNum][0],p1);
-      cellPts.GetPoint(edges[edgeNum][1],p2);
+      cellPts->GetPoint(edges[edgeNum][0],p1);
+      cellPts->GetPoint(edges[edgeNum][1],p2);
       for (i=0; i<3; i++)
         {
         x[i] = p1[i] + t * (p2[i] - p1[i]);
@@ -478,14 +481,14 @@ void vtkClipVolume::ClipVoxel(float value, vtkScalars& cellScalars,
       
       //Insert into Delaunay triangulation
       this->Triangulator->InsertPoint(this->Mesh, points, numPts++, 
-                                      x, holeTetras);
+                                      x, *holeTetras);
       
       // Incorporate point into output and interpolate edge data as necessary
       if ( this->Locator->IsInsertedPoint(x) < 0 )
         {
         ptId = this->Locator->InsertNextPoint(x);
-        outPD->InterpolateEdge(inPD, ptId, cellIds.GetId(edges[edgeNum][0]),
-                               cellIds.GetId(edges[edgeNum][1]), t);
+        outPD->InterpolateEdge(inPD, ptId, cellIds->GetId(edges[edgeNum][0]),
+                               cellIds->GetId(edges[edgeNum][1]), t);
         }
 
       }//if edge intersects value
@@ -498,34 +501,34 @@ void vtkClipVolume::ClipVoxel(float value, vtkScalars& cellScalars,
     {
     tetraUse[i] = 1;
     }
-  for (i=0; i<holeTetras.GetNumberOfIds(); i++ )
+  for (i=0; i<holeTetras->GetNumberOfIds(); i++ )
     {
-    tetraUse[holeTetras.GetId(i)] = 0;
+    tetraUse[holeTetras->GetId(i)] = 0;
     }
 
   // Delete tetras connected to Delaunay boundary points
   for (i=20; i < 26; i++)
     {
     this->Mesh->GetPointCells(i, cells);
-    numOutTetras = cells.GetNumberOfIds();
+    numOutTetras = cells->GetNumberOfIds();
     for (j=0; j < numOutTetras; j++)
       {
-      tetraUse[cells.GetId(j)] = 0; //mark as deleted
+      tetraUse[cells->GetId(j)] = 0; //mark as deleted
       }
     }
 
   // Adjust the merged points so that the following code (which determines
   // in/out of tetra) will work correctly.
-  numMergedPts = mergedPts.GetNumberOfIds();
+  numMergedPts = mergedPts->GetNumberOfIds();
   for (i=0; i<numMergedPts; i++)
     {
-    ptId = mergedPts.GetId(i);
-    cellScalars.SetScalar(ptId, value);
-    xPtr = cellPts.GetPoint(ptId);
+    ptId = mergedPts->GetId(i);
+    cellScalars->SetScalar(ptId, value);
+    xPtr = cellPts->GetPoint(ptId);
     if ( this->Locator->IsInsertedPoint(xPtr) < 0 )
       {
       tPts[0] = this->Locator->InsertNextPoint(xPtr);
-      outPD->CopyData(inPD,cellIds.GetId(ptId),tPts[0]);
+      outPD->CopyData(inPD,cellIds->GetId(ptId),tPts[0]);
       }
     }
   
@@ -541,7 +544,7 @@ void vtkClipVolume::ClipVoxel(float value, vtkScalars& cellScalars,
         if ( pts[j] < 8 ) //one of voxel corners
           {
           //when outside of contour value break out of loop
-          if ( cellScalars.GetScalar(pts[j]) < value )
+          if ( cellScalars->GetScalar(pts[j]) < value )
 	    {
 	    break;
 	    }
@@ -586,6 +589,10 @@ void vtkClipVolume::ClipVoxel(float value, vtkScalars& cellScalars,
   
   // Clean up after ourselves
   delete [] tetraUse;
+  
+  holeTetras->Delete();
+  cells->Delete();
+  mergedPts->Delete();
   
   this->Mesh->Delete();
   this->Mesh = NULL;

@@ -128,14 +128,14 @@ int vtkStructuredData::SetDimensions(int inDim[3], int dim[3])
 }
 
 // Get the points defining a cell. (See vtkDataSet for more info.)
-void vtkStructuredData::GetCellPoints(int cellId, vtkIdList& ptIds,
+void vtkStructuredData::GetCellPoints(int cellId, vtkIdList *ptIds,
                                       int dataDescription, int dim[3])
 {
   int idx, loc[3], npts;
   int iMin, iMax, jMin, jMax, kMin, kMax;
   int d01 = dim[0]*dim[1];
  
-  ptIds.Reset();
+  ptIds->Reset();
   iMin = iMax = jMin = jMax = kMin = kMax = 0;
 
   switch (dataDescription)
@@ -197,14 +197,14 @@ void vtkStructuredData::GetCellPoints(int cellId, vtkIdList& ptIds,
       for (loc[0]=iMin; loc[0]<=iMax; loc[0]++)
         {
         idx = loc[0] + loc[1]*dim[0] + loc[2]*d01;
-        ptIds.InsertId(npts++,idx);
+        ptIds->InsertId(npts++,idx);
         }
       }
     }
 }
 
 // Get the cells using a point. (See vtkDataSet for more info.)
-void vtkStructuredData::GetPointCells(int ptId, vtkIdList& cellIds, int dim[3])
+void vtkStructuredData::GetPointCells(int ptId, vtkIdList *cellIds, int dim[3])
 {
   int ptDim[3], cellDim[3];
   int ptLoc[3], cellLoc[3];
@@ -217,17 +217,17 @@ void vtkStructuredData::GetPointCells(int ptId, vtkIdList& cellIds, int dim[3])
     ptDim[i] = dim[i];
     cellDim[i] = ptDim[i] - 1;
     }
-//
-//  Get the location of the point
-//
+  //
+  //  Get the location of the point
+  //
   ptLoc[0] = ptId % ptDim[0];
   ptLoc[1] = (ptId / ptDim[0]) % ptDim[1];
   ptLoc[2] = ptId / (ptDim[0]*ptDim[1]);
-//
-//  From the point location, compute the cell locations.  There are at
-//  most eight possible.
-//
-  cellIds.Reset();
+  //
+  //  From the point location, compute the cell locations.  There are at
+  //  most eight possible.
+  //
+  cellIds->Reset();
 
   for (j=0; j<8; j++) 
     {
@@ -243,7 +243,7 @@ void vtkStructuredData::GetPointCells(int ptId, vtkIdList& cellIds, int dim[3])
       {
       cellId = cellLoc[0] + cellLoc[1]*cellDim[0] + 
                             cellLoc[2]*cellDim[0]*cellDim[1];
-      cellIds.InsertNextId(cellId);
+      cellIds->InsertNextId(cellId);
       }
     }
 

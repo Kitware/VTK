@@ -52,6 +52,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkPointSet.h"
 #include "vtkStructuredData.h"
+class vtkVertex;
+class vtkLine;
+class vtkQuad;
+class vtkHexahedron;
 
 class VTK_EXPORT vtkStructuredGrid : public vtkPointSet {
 public:
@@ -82,8 +86,11 @@ public:
   vtkCell *GetCell(int cellId);
   int GetCellType(int cellId);
   int GetNumberOfCells();
-  void GetCellPoints(int cellId, vtkIdList& ptIds);
-  void GetPointCells(int ptId, vtkIdList& cellIds);
+  void GetCellPoints(int cellId, vtkIdList *ptIds)
+    {vtkStructuredData::GetCellPoints(cellId,ptIds,this->DataDescription,
+				      this->Dimensions);}
+  void GetPointCells(int ptId, vtkIdList *cellIds)
+    {vtkStructuredData::GetPointCells(ptId,cellIds,this->Dimensions);}
   void Initialize();
   int GetMaxCellSize() {return 8;}; //hexahedron is the largest
 
@@ -112,7 +119,20 @@ public:
   // Return non-zero value if specified point is visible.
   int IsPointVisible(int ptId);
 
+  // Description:
+  // For legacy compatability. Do not use.
+  void GetCellPoints(int cellId, vtkIdList &ptIds)
+    {this->GetCellPoints(cellId, &ptIds);}
+  void GetPointCells(int ptId, vtkIdList &cellIds)
+    {this->GetPointCells(ptId, &cellIds);}
+
 protected:
+  // for the GetCell method
+  vtkVertex *Vertex;
+  vtkLine *Line;
+  vtkQuad *Quad;  
+  vtkHexahedron *Hexahedron;
+  
   int Dimensions[3];
   int DataDescription;
   int Blanking;
@@ -142,16 +162,6 @@ inline int vtkStructuredGrid::GetDataDimension()
   return vtkStructuredData::GetDataDimension(this->DataDescription);
 }
 
-inline void vtkStructuredGrid::GetCellPoints(int cellId, vtkIdList& ptIds) 
-{
-  vtkStructuredData::GetCellPoints(cellId,ptIds,this->DataDescription,
-                                     this->Dimensions);
-}
-
-inline void vtkStructuredGrid::GetPointCells(int ptId, vtkIdList& cellIds) 
-{
-  vtkStructuredData::GetPointCells(ptId,cellIds,this->Dimensions);
-}
 
 inline int vtkStructuredGrid::IsPointVisible(int ptId) 
 {

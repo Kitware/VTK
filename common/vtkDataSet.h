@@ -128,11 +128,11 @@ public:
 
   // Description:
   // Topological inquiry to get points defining cell.
-  virtual void GetCellPoints(int cellId, vtkIdList& ptIds) = 0;
+  virtual void GetCellPoints(int cellId, vtkIdList *ptIds) = 0;
 
   // Description:
   // Topological inquiry to get cells using point.
-  virtual void GetPointCells(int ptId, vtkIdList& cellIds) = 0;
+  virtual void GetPointCells(int ptId, vtkIdList *cellIds) = 0;
 
   // Description:
   // Topological inquiry to get all cells using list of points exclusive of
@@ -222,6 +222,13 @@ public:
   // used to allocate memory for supporting data structures.
   virtual int GetMaxCellSize() = 0;
 
+  // Description:
+  // For legacy compatability. Do not use.
+  void GetCellPoints(int cellId, vtkIdList &ptIds)
+    {this->GetCellPoints(cellId, &ptIds);}
+  void GetPointCells(int ptId, vtkIdList &cellIds)
+    {this->GetPointCells(ptId, &cellIds);}
+  
 protected:
   vtkCellData *CellData;   // Scalars, vectors, etc. associated w/ each cell
   vtkPointData *PointData;   // Scalars, vectors, etc. associated w/ each point

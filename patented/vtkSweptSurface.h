@@ -170,7 +170,7 @@ protected:
   void Execute();
   void ComputeBounds(float origin[3], float ar[3], float bbox[24]);
   int ComputeNumberOfSteps(vtkTransform *t1, vtkTransform *t2, float bbox[24]);
-  void SampleInput(vtkMatrix4x4& m, int inDim[3], float inOrigin[3],
+  void SampleInput(vtkMatrix4x4 *m, int inDim[3], float inOrigin[3],
                    float inAr[3], vtkScalars *in, vtkScalars *out);
   void Cap(vtkScalars *s);
 

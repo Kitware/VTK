@@ -74,10 +74,6 @@ class VTK_EXPORT vtkProp : public vtkObject
   virtual void Render(vtkRenderer *ren) = 0;
 
   // Description:
-  // Shallow copy of an prop.
-  vtkProp &operator=(const vtkProp& Prop);
-
-  // Description:
   // Set/Get/Add the position of the Prop in world coordinates.
   vtkSetVector3Macro(Position,float);
   vtkGetVectorMacro(Position,float,3);
@@ -134,9 +130,8 @@ class VTK_EXPORT vtkProp : public vtkObject
 
   // Description:
   // Return a reference to the prop's 4x4 composite matrix.
-  vtkMatrix4x4& GetMatrix();
+  vtkMatrix4x4 *GetMatrixPointer();
   virtual void GetMatrix(vtkMatrix4x4 *m) = 0;
-  void GetMatrix(vtkMatrix4x4 &m) {this->GetMatrix(&m);}
 
   // Get the (xmin,xmax, ymin,ymax, zmin,zmax) bounding box, center, and range
   // along coordinate axes. Bounds are transfomed into world space.
@@ -241,6 +236,12 @@ class VTK_EXPORT vtkProp : public vtkObject
   // Method invokes PickMethod() if one defined
   virtual void Pick() 
     {if (this->PickMethod) (*this->PickMethod)(this->PickMethodArg);}
+
+  // Description:
+  // For legacy compatability. Do not use.
+  vtkProp &operator=(const vtkProp& Prop);
+  vtkMatrix4x4& GetMatrix() {return *(this->GetMatrixPointer());}
+  void GetMatrix(vtkMatrix4x4 &m) {this->GetMatrix(&m);}
 
 protected:
   vtkMatrix4x4  *UserMatrix;

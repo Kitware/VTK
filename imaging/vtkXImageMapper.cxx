@@ -273,7 +273,7 @@ static void vtkXImageMapperRenderGray(vtkXImageMapper *mapper,
   int colorsMax;
   int visualDepth, visualClass;
   T lower, upper;
-  unsigned char lowerPixel, upperPixel, temp;
+  unsigned char lowerPixel, upperPixel;
   int colorIdx;
   unsigned char lower_val, upper_val;
   

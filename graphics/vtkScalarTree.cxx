@@ -75,8 +75,7 @@ void vtkScalarTree::BuildTree()
   vtkIdList *cellPts;
   vtkScalarRange *tree, *parent;
   float *s;
-  vtkScalars cellScalars; cellScalars.ReferenceCountingOff();
-  cellScalars.Allocate(100);
+  vtkScalars *cellScalars;
 
   // Check input...see whether we have to rebuild
   //
@@ -99,7 +98,9 @@ void vtkScalarTree::BuildTree()
     }
 
   this->Initialize();
-
+  cellScalars = vtkScalars::New();
+  cellScalars->Allocate(100);
+  
   // Compute the number of levels in the tree
   //
   numLeafs = (int) ceil((double)numCells/this->BranchingFactor);
@@ -128,9 +129,9 @@ void vtkScalarTree::BuildTree()
       {
       cell = this->DataSet->GetCell(cellId);
       cellPts = cell->GetPointIds();
-      this->Scalars->GetScalars(*cellPts,cellScalars);
-      s = ((vtkFloatArray *)cellScalars.GetData())->GetPointer(0);
-      numScalars = cellScalars.GetNumberOfScalars();
+      this->Scalars->GetScalars(*cellPts,*cellScalars);
+      s = ((vtkFloatArray *)cellScalars->GetData())->GetPointer(0);
+      numScalars = cellScalars->GetNumberOfScalars();
 
       for ( j=0; j < numScalars; j++ )
         {

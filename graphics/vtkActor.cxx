@@ -246,10 +246,9 @@ vtkProperty *vtkActor::GetBackfaceProperty()
   return this->BackfaceProperty;
 }
 
-// Copy the actor's composite 4x4 matrix into the matrix provided.
 void vtkActor::GetMatrix(vtkMatrix4x4 *result)
 {
-  // check whether or not need to rebuild the matri
+  // check whether or not need to rebuild the matrix
   if ( this->GetMTime() > this->MatrixMTime )
     {
     this->GetOrientation();
@@ -448,7 +447,7 @@ void vtkActor::BuildPaths(vtkAssemblyPaths *vtkNotUsed(paths),
   previous = path->GetLastItem();
 
   vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
-  *matrix = previous->vtkProp::GetMatrix();
+  *matrix = *previous->vtkProp::GetMatrixPointer();
   copy->SetUserMatrix(matrix);
   matrix->Delete();
 

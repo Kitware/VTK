@@ -150,7 +150,7 @@ public:
   // is defined by a list of points (pts) that specify a face (3D cell), edge 
   // (2D cell), or vertex (1D cell). If the return value of the method is != 0, 
   // then the point is inside the cell.
-  virtual int CellBoundary(int subId, float pcoords[3], vtkIdList& pts) = 0;
+  virtual int CellBoundary(int subId, float pcoords[3], vtkIdList *pts) = 0;
 
   // Description:
   // Given a point x[3] return inside(=1) or outside(=0) cell; evaluate 

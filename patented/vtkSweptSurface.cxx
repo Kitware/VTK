@@ -194,7 +194,7 @@ void vtkSweptSurface::Execute()
   //
   this->Transforms->InitTraversal();
   transform2 = this->Transforms->GetNextItem();
-  transform2->GetInverse(t->GetMatrix());
+  transform2->GetInverse(t->GetMatrixPointer());
 
   this->GetRelativePosition(*t,actorOrigin,position2);
   t->GetOrientation(orient2[0], orient2[1], orient2[2]);
@@ -203,7 +203,7 @@ void vtkSweptSurface::Execute()
     {
     transform1 = transform2;
     transform2 = this->Transforms->GetNextItem();
-    transform2->GetInverse(t->GetMatrix());
+    transform2->GetInverse(t->GetMatrixPointer());
 
     //
     // Loop over all points (i.e., voxels), 
@@ -250,15 +250,15 @@ void vtkSweptSurface::Execute()
 
       a->SetPosition(position);
       a->SetOrientation(orient);
-      this->SampleInput(a->vtkProp::GetMatrix(), inDim, inOrigin, inSpacing,
-                        inScalars, newScalars);
+      this->SampleInput(a->vtkProp::GetMatrixPointer(), inDim, inOrigin, 
+			inSpacing, inScalars, newScalars);
       }
     }
 
   //finish off last step
   a->SetPosition(position2);
   a->SetOrientation(orient2);
-  this->SampleInput(a->vtkProp::GetMatrix(), inDim, inOrigin, inSpacing,
+  this->SampleInput(a->vtkProp::GetMatrixPointer(), inDim, inOrigin, inSpacing,
                     inScalars, newScalars);
 
   // Cap if requested
@@ -274,7 +274,7 @@ void vtkSweptSurface::Execute()
   a->Delete();
 }
 
-void vtkSweptSurface::SampleInput(vtkMatrix4x4& m, int inDim[3], 
+void vtkSweptSurface::SampleInput(vtkMatrix4x4 *m, int inDim[3], 
                                  float inOrigin[3], float inSpacing[3], 
                                  vtkScalars *inScalars, vtkScalars *outScalars)
 {
@@ -289,7 +289,7 @@ void vtkSweptSurface::SampleInput(vtkMatrix4x4& m, int inDim[3],
   origin = ((vtkStructuredPoints *)this->Output)->GetOrigin();
   spacing = ((vtkStructuredPoints *)this->Output)->GetSpacing();
 
-  this->T->SetMatrix(m);
+  this->T->SetMatrix(*m);
   x[3] = 1.0; //homogeneous coordinates
 
   for (k=0; k<this->SampleDimensions[2]; k++)
@@ -436,7 +436,7 @@ void vtkSweptSurface::ComputeBounds(float origin[3], float spacing[3], float bbo
         
     this->Transforms->InitTraversal();
     transform2 = this->Transforms->GetNextItem();
-    transform2->GetMatrix(t->GetMatrix());
+    transform2->GetMatrix(t->GetMatrixPointer());
     t->GetPosition(position2[0], position2[1], position2[2]);
     t->GetOrientation(orient2[0], orient2[1], orient2[2]);
 
@@ -470,7 +470,7 @@ void vtkSweptSurface::ComputeBounds(float origin[3], float spacing[3], float bbo
       {
       transform1 = transform2;
       transform2 = this->Transforms->GetNextItem();
-      transform2->GetMatrix(t->GetMatrix());
+      transform2->GetMatrix(t->GetMatrixPointer());
       for (i=0; i<3; i++)
         {
         position1[i] = position2[i];
@@ -492,7 +492,7 @@ void vtkSweptSurface::ComputeBounds(float origin[3], float spacing[3], float bbo
 
         a->SetPosition(position);
         a->SetOrientation(orient);
-        a->GetMatrix(&(t2->GetMatrix()));
+        a->GetMatrix(t2->GetMatrixPointer());
 
         for (i=0; i<8; i++) //loop over eight corners of bounding box
           {

@@ -227,6 +227,8 @@ void vtkImageMarchingCubes::Execute()
   // Loop through the chunks running marching cubes on each one
   zMin = extent[4];
   zMax = extent[5];
+  // to avoid warnings
+  chunkMax = zMin + this->NumberOfSlicesPerChunk;
   for(chunkMin = zMin; chunkMin < zMax; chunkMin = chunkMax)
     {
     // Get the chunk from the input

@@ -279,7 +279,7 @@ void vtkHexahedron::EvaluateLocation(int& vtkNotUsed(subId), float pcoords[3],
 }
 
 int vtkHexahedron::CellBoundary(int vtkNotUsed(subId), float pcoords[3], 
-				vtkIdList& pts)
+				vtkIdList *pts)
 {
   float t1=pcoords[0]-pcoords[1];
   float t2=1.0-pcoords[0]-pcoords[1];
@@ -288,56 +288,56 @@ int vtkHexahedron::CellBoundary(int vtkNotUsed(subId), float pcoords[3],
   float t5=pcoords[2]-pcoords[0];
   float t6=1.0-pcoords[2]-pcoords[0];
 
-  pts.SetNumberOfIds(4);
+  pts->SetNumberOfIds(4);
 
   // compare against six planes in parametric space that divide element
   // into six pieces.
   if ( t3 >= 0.0 && t4 >= 0.0 && t5 < 0.0 && t6 >= 0.0 )
     {
-    pts.SetId(0,this->PointIds->GetId(0));
-    pts.SetId(1,this->PointIds->GetId(1));
-    pts.SetId(2,this->PointIds->GetId(2));
-    pts.SetId(3,this->PointIds->GetId(3));
+    pts->SetId(0,this->PointIds->GetId(0));
+    pts->SetId(1,this->PointIds->GetId(1));
+    pts->SetId(2,this->PointIds->GetId(2));
+    pts->SetId(3,this->PointIds->GetId(3));
     }
 
   else if ( t1 >= 0.0 && t2 < 0.0 && t5 < 0.0 && t6 < 0.0 )
     {
-    pts.SetId(0,this->PointIds->GetId(1));
-    pts.SetId(1,this->PointIds->GetId(2));
-    pts.SetId(2,this->PointIds->GetId(6));
-    pts.SetId(3,this->PointIds->GetId(5));
+    pts->SetId(0,this->PointIds->GetId(1));
+    pts->SetId(1,this->PointIds->GetId(2));
+    pts->SetId(2,this->PointIds->GetId(6));
+    pts->SetId(3,this->PointIds->GetId(5));
     }
 
   else if ( t1 >= 0.0 && t2 >= 0.0 && t3 < 0.0 && t4 >= 0.0 )
     {
-    pts.SetId(0,this->PointIds->GetId(0));
-    pts.SetId(1,this->PointIds->GetId(1));
-    pts.SetId(2,this->PointIds->GetId(5));
-    pts.SetId(3,this->PointIds->GetId(4));
+    pts->SetId(0,this->PointIds->GetId(0));
+    pts->SetId(1,this->PointIds->GetId(1));
+    pts->SetId(2,this->PointIds->GetId(5));
+    pts->SetId(3,this->PointIds->GetId(4));
     }
 
   else if ( t3 < 0.0 && t4 < 0.0 && t5 >= 0.0 && t6 < 0.0 )
     {
-    pts.SetId(0,this->PointIds->GetId(4));
-    pts.SetId(1,this->PointIds->GetId(5));
-    pts.SetId(2,this->PointIds->GetId(6));
-    pts.SetId(3,this->PointIds->GetId(7));
+    pts->SetId(0,this->PointIds->GetId(4));
+    pts->SetId(1,this->PointIds->GetId(5));
+    pts->SetId(2,this->PointIds->GetId(6));
+    pts->SetId(3,this->PointIds->GetId(7));
     }
 
   else if ( t1 < 0.0 && t2 >= 0.0 && t5 >= 0.0 && t6 >= 0.0 )
     {
-    pts.SetId(0,this->PointIds->GetId(0));
-    pts.SetId(1,this->PointIds->GetId(4));
-    pts.SetId(2,this->PointIds->GetId(7));
-    pts.SetId(3,this->PointIds->GetId(3));
+    pts->SetId(0,this->PointIds->GetId(0));
+    pts->SetId(1,this->PointIds->GetId(4));
+    pts->SetId(2,this->PointIds->GetId(7));
+    pts->SetId(3,this->PointIds->GetId(3));
     }
 
   else // if ( t1 < 0.0 && t2 < 0.0 && t3 >= 0.0 && t6 < 0.0 )
     {
-    pts.SetId(0,this->PointIds->GetId(2));
-    pts.SetId(1,this->PointIds->GetId(3));
-    pts.SetId(2,this->PointIds->GetId(7));
-    pts.SetId(3,this->PointIds->GetId(6));
+    pts->SetId(0,this->PointIds->GetId(2));
+    pts->SetId(1,this->PointIds->GetId(3));
+    pts->SetId(2,this->PointIds->GetId(7));
+    pts->SetId(3,this->PointIds->GetId(6));
     }
 
 

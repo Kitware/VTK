@@ -383,7 +383,8 @@ void vtkImageFilter::Execute(vtkImageData *inData,
 // The execute method created by the subclass.
 void vtkImageFilter::ThreadedExecute(vtkImageData *vtkNotUsed(inData), 
 				     vtkImageData *vtkNotUsed(outData),
-				     int extent[6], int threadId)
+				     int extent[6], int vtkNotUsed(threadId))
 {
-  vtkErrorMacro("subclase should override this method!!!");
+  extent = extent;
+  vtkErrorMacro("subclass should override this method!!!");
 }

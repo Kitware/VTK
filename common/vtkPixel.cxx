@@ -163,37 +163,37 @@ void vtkPixel::EvaluateLocation(int& subId, float pcoords[3], float x[3],
   this->InterpolationFunctions(pcoords, weights);
 }
 
-int vtkPixel::CellBoundary(int vtkNotUsed(subId), float pcoords[3], vtkIdList& pts)
+int vtkPixel::CellBoundary(int vtkNotUsed(subId), float pcoords[3], vtkIdList *pts)
 {
   float t1=pcoords[0]-pcoords[1];
   float t2=1.0-pcoords[0]-pcoords[1];
 
-  pts.SetNumberOfIds(2);
+  pts->SetNumberOfIds(2);
 
   // compare against two lines in parametric space that divide element
   // into four pieces.
   if ( t1 >= 0.0 && t2 >= 0.0 )
     {
-    pts.SetId(0,this->PointIds->GetId(0));
-    pts.SetId(1,this->PointIds->GetId(1));
+    pts->SetId(0,this->PointIds->GetId(0));
+    pts->SetId(1,this->PointIds->GetId(1));
     }
 
   else if ( t1 >= 0.0 && t2 < 0.0 )
     {
-    pts.SetId(0,this->PointIds->GetId(1));
-    pts.SetId(1,this->PointIds->GetId(3));
+    pts->SetId(0,this->PointIds->GetId(1));
+    pts->SetId(1,this->PointIds->GetId(3));
     }
 
   else if ( t1 < 0.0 && t2 < 0.0 )
     {
-    pts.SetId(0,this->PointIds->GetId(3));
-    pts.SetId(1,this->PointIds->GetId(2));
+    pts->SetId(0,this->PointIds->GetId(3));
+    pts->SetId(1,this->PointIds->GetId(2));
     }
 
   else //( t1 < 0.0 && t2 >= 0.0 )
     {
-    pts.SetId(0,this->PointIds->GetId(2));
-    pts.SetId(1,this->PointIds->GetId(0));
+    pts->SetId(0,this->PointIds->GetId(2));
+    pts->SetId(1,this->PointIds->GetId(0));
     }
 
   if ( pcoords[0] < 0.0 || pcoords[0] > 1.0 ||

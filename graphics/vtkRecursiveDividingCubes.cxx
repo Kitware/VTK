@@ -67,9 +67,8 @@ void vtkRecursiveDividingCubes::Execute()
   int above, below, vertNum;
   vtkStructuredPoints *input=(vtkStructuredPoints *)this->Input;
   vtkPolyData *output=(vtkPolyData *)this->Output;
-  vtkScalars voxelScalars(VTK_FLOAT);
-  voxelScalars.Allocate(8); voxelScalars.ReferenceCountingOff();
-  
+  vtkScalars *voxelScalars;
+
   vtkDebugMacro(<< "Executing recursive dividing cubes...");
   //
   // Initialize self; check input; create output objects
@@ -105,6 +104,10 @@ void vtkRecursiveDividingCubes::Execute()
   voxelPts = vtkIdList::New();
   voxelPts->Allocate(8); 
   voxelPts->SetNumberOfIds(8);
+
+  voxelScalars = vtkScalars::New();
+  voxelScalars->Allocate(8);
+  
   //
   // Loop over all cells checking to see which straddle the specified value. 
   // Since we know that we are working with a volume, can create 
@@ -137,14 +140,14 @@ void vtkRecursiveDividingCubes::Execute()
         voxelPts->SetId(7, idx + sliceSize + dim[0] + 1);
 
         // get scalars of this voxel
-        inScalars->GetScalars(*voxelPts,voxelScalars);
+        inScalars->GetScalars(*voxelPts,*voxelScalars);
 
         // loop over 8 points of voxel to check if cell straddles value
         for ( above=below=0, vertNum=0; vertNum < 8; vertNum++ )
           {
-          if ( voxelScalars.GetScalar(vertNum) >= this->Value )
+          if ( voxelScalars->GetScalar(vertNum) >= this->Value )
             above = 1;
-          else if ( voxelScalars.GetScalar(vertNum) < this->Value )
+          else if ( voxelScalars->GetScalar(vertNum) < this->Value )
             below = 1;
 
           if ( above && below ) // recursively generate points
@@ -159,7 +162,7 @@ void vtkRecursiveDividingCubes::Execute()
             input->GetPointGradient(i+1,j+1,k+1, inScalars, Normals[7]);
 
             this->SubDivide(X, Spacing, 
-		    ((vtkFloatArray *)voxelScalars.GetData())->GetPointer(0));
+		    ((vtkFloatArray *)voxelScalars->GetData())->GetPointer(0));
             }
           }
         }
@@ -167,6 +170,7 @@ void vtkRecursiveDividingCubes::Execute()
     }
 
   voxelPts->Delete();
+  voxelScalars->Delete();
   NewVerts->UpdateCellCount(NewPts->GetNumberOfPoints());
   vtkDebugMacro(<< "Created " << NewPts->GetNumberOfPoints() << " points");
   //

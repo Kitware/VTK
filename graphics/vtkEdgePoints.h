@@ -59,11 +59,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkEdgePoints : public vtkDataSetToPolyDataFilter
 {
 public:
-
-// Description:
-// Construct object with contour value of 0.0.
+  
+  // Description:
+  // Construct object with contour value of 0.0.
   vtkEdgePoints();
 
+  ~vtkEdgePoints();
   static vtkEdgePoints *New() {return new vtkEdgePoints;};
   const char *GetClassName() {return "vtkEdgePoints";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -77,7 +78,7 @@ protected:
   void Execute();
 
   float Value;
-  vtkMergePoints Locator;
+  vtkMergePoints *Locator;
 };
 
 #endif

@@ -362,7 +362,7 @@ void vtkVolumeRayCastMapper::GeneralImageInitialization( vtkRenderer *ren,
   this->ViewRaysTransform->Inverse();
 
   // Store the matrix of the volume in a temporary transformation matrix
-  transform->SetMatrix( vol->vtkProp::GetMatrix() );
+  transform->SetMatrix(*( vol->vtkProp::GetMatrixPointer()) );
 
   // Get the origin of the data.  This translation is not accounted for in
   // the volume's matrix, so we must add it in.
@@ -380,7 +380,7 @@ void vtkVolumeRayCastMapper::GeneralImageInitialization( vtkRenderer *ren,
 
   // Now concatenate the volume's matrix with this scalar data matrix
   transform->PostMultiply();
-  transform->Concatenate( scalar_transform->GetMatrix() );
+  transform->Concatenate( scalar_transform->GetMatrixPointer() );
 
   // Invert this matrix so that we have world to volume instead of
   // volume to world coordinates
@@ -389,7 +389,7 @@ void vtkVolumeRayCastMapper::GeneralImageInitialization( vtkRenderer *ren,
   // Now concatenate the camera to world matrix with the world to volume
   // matrix to get the camera to volume matrix
   this->ViewRaysTransform->PostMultiply();
-  this->ViewRaysTransform->Concatenate( transform->GetMatrix() );
+  this->ViewRaysTransform->Concatenate( transform->GetMatrixPointer() );
 
   // Get the clipping range of the active camera. This will be used
   // for clipping the rays

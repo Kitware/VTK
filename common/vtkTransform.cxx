@@ -639,15 +639,15 @@ float *vtkTransform::GetScale()
 }
 
 // Returns the current transformation matrix.
-vtkMatrix4x4 & vtkTransform::GetMatrix ()
+vtkMatrix4x4 *vtkTransform::GetMatrixPointer()
 {
-  return **this->Stack;;
+  return *this->Stack;
 }
 
 // Set the current matrix directly.
-void vtkTransform::SetMatrix(vtkMatrix4x4 *m)
+void vtkTransform::SetMatrix(vtkMatrix4x4 &m)
 {
-  **this->Stack = *m;
+  **this->Stack = m;
 }
 
 // Creates an identity matrix and makes it the current transformation matrix.

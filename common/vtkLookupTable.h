@@ -72,6 +72,8 @@ public:
   // (from red to blue).
   vtkLookupTable(int sze=256, int ext=256);
 
+  ~vtkLookupTable();
+  
   // Description:
   // Allocate a color table of specified size.
   int Allocate(int sz=256, int ext=256);
@@ -160,7 +162,7 @@ public:
   // Description:
   // Get pointer to color table data. Format is array of unsigned char
   // r-g-b-a-r-g-b-a...
-  unsigned char *GetPointer(const int id){return this->Table.GetPointer(4*id);};
+  unsigned char *GetPointer(const int id){return this->Table->GetPointer(4*id);};
 
   // Description:
   // Get pointer to data. Useful for direct writes into object. MaxId is bumped
@@ -170,7 +172,7 @@ public:
 
 protected:
   int NumberOfColors;
-  vtkUnsignedCharArray Table;
+  vtkUnsignedCharArray *Table;
   float TableRange[2];
   float HueRange[2];
   float SaturationRange[2];
@@ -184,7 +186,7 @@ protected:
 inline unsigned char *vtkLookupTable::WritePointer(const int id, 
 						   const int number)
 {
- return this->Table.WritePointer(4*id,4*number);
+ return this->Table->WritePointer(4*id,4*number);
 }
 
 #endif

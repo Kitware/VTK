@@ -46,8 +46,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 vtkLookupTable::vtkLookupTable(int sze, int ext)
 {
   this->NumberOfColors = sze;
-  this->Table.SetNumberOfComponents(4);
-  this->Table.Allocate(4*sze,4*ext);
+  this->Table = vtkUnsignedCharArray::New();
+  this->Table->SetNumberOfComponents(4);
+  this->Table->Allocate(4*sze,4*ext);
 
   this->TableRange[0] = 0.0;
   this->TableRange[1] = 1.0;
@@ -63,16 +64,21 @@ vtkLookupTable::vtkLookupTable(int sze, int ext)
 
   this->AlphaRange[0] = 1.0;
   this->AlphaRange[1] = 1.0;
+}
 
-  this->Table.ReferenceCountingOff();
-};
+vtkLookupTable::~vtkLookupTable()
+{
+  this->Table->Delete();
+  this->Table = NULL;
+}
+
 
 // Allocate a color table of specified size.
 int vtkLookupTable::Allocate(int sz, int ext) 
 {
   this->Modified();
   this->NumberOfColors = sz;
-  return this->Table.Allocate(4*this->NumberOfColors,4*ext);
+  return this->Table->Allocate(4*this->NumberOfColors,4*ext);
 }
 
 // Set the minimum/maximum scalar values for scalar mapping. Scalar values
@@ -109,7 +115,7 @@ void vtkLookupTable::Build()
   float rgba[4], alpha;
   unsigned char *c_rgba;
 
-  if ( this->Table.GetNumberOfTuples() < 1 ||
+  if ( this->Table->GetNumberOfTuples() < 1 ||
   (this->GetMTime() > this->BuildTime && this->InsertTime < this->BuildTime) )
     {
     hinc = (this->HueRange[1] - this->HueRange[0])/(this->NumberOfColors-1);
@@ -172,7 +178,7 @@ void vtkLookupTable::Build()
         break;
       }
 
-      c_rgba = this->Table.WritePointer(4*i,4);
+      c_rgba = this->Table->WritePointer(4*i,4);
 
       c_rgba[0] = (unsigned char) 
         ((float)127.5*(1.0+(float)cos((1.0-(double)rgba[0])*3.141593)));
@@ -194,7 +200,7 @@ unsigned char *vtkLookupTable::MapValue(float v)
   indx = (int)((v-this->TableRange[0])/(this->TableRange[1]-this->TableRange[0]) * this->NumberOfColors);
   indx = (indx < 0 ? 0 : (indx >= this->NumberOfColors ? this->NumberOfColors-1 : indx));
 
-  return this->Table.GetPointer(indx*4);
+  return this->Table->GetPointer(indx*4);
 }
 
 // Specify the number of values (i.e., colors) in the lookup
@@ -204,7 +210,7 @@ unsigned char *vtkLookupTable::MapValue(float v)
 void vtkLookupTable::SetNumberOfTableValues(int number)
 {
   number = (number < 0 ? 1 : (number > 65536 ? 65536 : number));
-  this->Table.SetNumberOfTuples(number);
+  this->Table->SetNumberOfTuples(number);
 }
 
 // Directly load color into lookup table. Use [0,1] float values for color
@@ -214,7 +220,7 @@ void vtkLookupTable::SetTableValue (int indx, float rgba[4])
 {
   unsigned char *_rgba;
 
-  _rgba = this->Table.WritePointer(4*indx,4);
+  _rgba = this->Table->WritePointer(4*indx,4);
   for (int i=0; i<4; i++)
     {
     _rgba[i] = (unsigned char) ((float)255.0 * rgba[i]);
@@ -234,14 +240,14 @@ void vtkLookupTable::SetTableValue(int indx, float r, float g, float b, float a)
   this->SetTableValue(indx,rgba);
 }
 
-// Return a rgba color value for the given index into the lookup table. Color
+// Return a rgba color value for the given index into the lookup Table. Color
 // components are expressed as [0,1] float values.
 float *vtkLookupTable::GetTableValue (int indx)
 {
   unsigned char *_rgba;
 
   indx = (indx < 0 ? 0 : (indx >= this->NumberOfColors ? this->NumberOfColors-1 : indx));
-  _rgba = this->Table.GetPointer(indx*4);
+  _rgba = this->Table->GetPointer(indx*4);
 
   // For some strange reason the Sun compiler crashes on the following 
   // line with a -O5 optimization level 

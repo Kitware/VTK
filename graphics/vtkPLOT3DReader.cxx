@@ -487,6 +487,7 @@ int vtkPLOT3DReader::ReadBinaryFunctionFile(FILE *fp,vtkStructuredGrid *output)
 {
   int numGrids;
 
+  output = output;
   if ( this->FileFormat == VTK_WHOLE_MULTI_GRID_NO_IBLANKING )
     {
     if ( fread (&numGrids, sizeof(int), 1, fp) < 1 ) return 1;
@@ -510,6 +511,7 @@ int vtkPLOT3DReader::ReadBinaryVectorFunctionFile(FILE *fp,vtkStructuredGrid *ou
 {
   int numGrids;
 
+  output = output;
   if ( this->FileFormat == VTK_WHOLE_MULTI_GRID_NO_IBLANKING )
     {
     if ( fread (&numGrids, sizeof(int), 1, fp) < 1 ) return 1;

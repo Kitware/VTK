@@ -200,6 +200,7 @@ int vtkOBBTree::IntersectWithLine(float a0[3], float a1[3], float& t,
                                   float x[3], float pcoords[3],
                                   int &subId)
 {
+  a0 = a0; a1 = a1; t = t; x = x; pcoords = pcoords; subId = subId;
   return -1;
 }
 
@@ -275,7 +276,7 @@ void vtkOBBTree::BuildTree(vtkIdList *cells, vtkOBBNode *OBBptr, int level)
   for ( i=0; i < numCells; i++ )
     {
     cellId = cells->GetId(i);
-    this->DataSet->GetCellPoints(cellId, *cellPts);
+    this->DataSet->GetCellPoints(cellId, cellPts);
     for ( j=0; j < cellPts->GetNumberOfIds(); j++ )
       {
       if ( this->InsertedPoints[(ptId = cellPts->GetId(j))] != this->OBBCount )
@@ -327,7 +328,7 @@ void vtkOBBTree::BuildTree(vtkIdList *cells, vtkOBBNode *OBBptr, int level)
       for ( i=0; i < numCells; i++ )
         {
         cellId = cells->GetId(i);
-        this->DataSet->GetCellPoints(cellId, *cellPts);
+        this->DataSet->GetCellPoints(cellId, cellPts);
         for ( negative=positive=j=0; j < cellPts->GetNumberOfIds(); j++ )
           {
           ptId = cellPts->GetId(j);

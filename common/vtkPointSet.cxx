@@ -165,18 +165,16 @@ int vtkPointSet::FindCell(float x[3], vtkCell *cell, int cellId, float tol2,
   int ptId, walk;
   float closestPoint[3];
   float dist2;
-  static vtkIdList cellIds(8,100), ptIds(8,100);
-
-  // Ken will deal with the statics options: 
-  //  1: Instance variable, 2: allocate every call, 3: Static pointers.
-  cellIds.ReferenceCountingOff();
-  ptIds.ReferenceCountingOff();
+  vtkIdList *cellIds, *ptIds;
 
   // make sure everything is up to snuff
   if ( !this->Points )
     {
     return -1;
     }
+
+  cellIds = new vtkIdList(8,100);
+  ptIds = new vtkIdList(8,100);
 
   if ( !this->Locator )
     {
@@ -197,19 +195,23 @@ int vtkPointSet::FindCell(float x[3], vtkCell *cell, int cellId, float tol2,
     ptId = this->Locator->FindClosestPoint(x);
     if ( ptId < 0 )
       {
+      cellIds->Delete();
+      ptIds->Delete();
       return (-1); //if point completely outside of data
       }
 
     this->GetPointCells(ptId, cellIds);
-    if ( cellIds.GetNumberOfIds() > 0 )
+    if ( cellIds->GetNumberOfIds() > 0 )
       {
-      cellId = cellIds.GetId(0); //arbitrarily use first cell in list
+      cellId = cellIds->GetId(0); //arbitrarily use first cell in list
       cell = this->GetCell(cellId);
   
       // See whether this randomly choosen cell contains the point      
       if ( cell->EvaluatePosition(x,closestPoint,subId,pcoords,dist2,weights) == 1
       && dist2 <= tol2 )
         {
+	cellIds->Delete();
+	ptIds->Delete();  
         return cellId;
         }
       }
@@ -225,9 +227,9 @@ int vtkPointSet::FindCell(float x[3], vtkCell *cell, int cellId, float tol2,
       {
       cell->CellBoundary(subId, pcoords, ptIds);
       this->GetCellNeighbors(cellId, ptIds, cellIds);
-      if ( cellIds.GetNumberOfIds() > 0 )
+      if ( cellIds->GetNumberOfIds() > 0 )
         {
-        cellId = cellIds.GetId(0);
+        cellId = cellIds->GetId(0);
         cell = this->GetCell(cellId);
         }
       else
@@ -238,12 +240,17 @@ int vtkPointSet::FindCell(float x[3], vtkCell *cell, int cellId, float tol2,
       if ( cell->EvaluatePosition(x,closestPoint,subId,pcoords,dist2,weights) == 1
       && dist2 <= tol2 )
         {
+	cellIds->Delete();
+	ptIds->Delete();  
         return cellId;
         }
 
       }//for a walk
     }
 
+  cellIds->Delete();
+  ptIds->Delete();
+  
   return -1;
 }
 #undef VTK_MAX_WALK

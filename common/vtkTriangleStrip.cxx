@@ -124,7 +124,7 @@ void vtkTriangleStrip::EvaluateLocation(int& subId, float pcoords[3],
   weights[2] = pcoords[1];
 }
 
-int vtkTriangleStrip::CellBoundary(int subId, float pcoords[3], vtkIdList& pts)
+int vtkTriangleStrip::CellBoundary(int subId, float pcoords[3], vtkIdList *pts)
 {
   int numPts=this->Points->GetNumberOfPoints();
   int retStatus;
@@ -136,31 +136,31 @@ int vtkTriangleStrip::CellBoundary(int subId, float pcoords[3], vtkIdList& pts)
 
   if ( subId > 0 && subId < (numPts-3) ) //in the middle of the strip
     {
-    pts.InsertId(0,this->PointIds->GetId(subId));
-    pts.InsertId(1,this->PointIds->GetId(subId+2));
+    pts->InsertId(0,this->PointIds->GetId(subId));
+    pts->InsertId(1,this->PointIds->GetId(subId+2));
     }
   else if ( subId <= 0 ) //first triangle
     {
-    pts.InsertId(0,this->PointIds->GetId(0));
+    pts->InsertId(0,this->PointIds->GetId(0));
     if ( pcoords[1] > pcoords[0] )
       {
-      pts.InsertId(1,this->PointIds->GetId(1));
+      pts->InsertId(1,this->PointIds->GetId(1));
       }
     else
       {
-      pts.InsertId(1,this->PointIds->GetId(2));
+      pts->InsertId(1,this->PointIds->GetId(2));
       }
     }
   else //last triangle
     {
-    pts.InsertId(0,this->PointIds->GetId(numPts-1));
+    pts->InsertId(0,this->PointIds->GetId(numPts-1));
     if ( pcoords[0] < (1.0 - pcoords[0] - pcoords[1]) )
       {
-      pts.InsertId(1,this->PointIds->GetId(numPts-3));
+      pts->InsertId(1,this->PointIds->GetId(numPts-3));
       }
     else
       {
-      pts.InsertId(1,this->PointIds->GetId(numPts-2));
+      pts->InsertId(1,this->PointIds->GetId(numPts-2));
       }
     }
   return retStatus;

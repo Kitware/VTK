@@ -613,13 +613,13 @@ int vtkPolygon::RecursiveTriangulate (int numVerts, int *verts)
       //  all possible combinations, keeping track of the one that gives the
       //  shortest distance between points.
       //
-      vtkPriorityQueue EdgeLengths(VTK_CELL_SIZE);
+      vtkPriorityQueue *EdgeLengths;
       int *l1 = new int[numVerts], *l2 = new int[numVerts];
       int id;
       float dist2, *p1, *p2;
 
       // quick fix until constructors are changed
-      EdgeLengths.ReferenceCountingOff();
+      EdgeLengths = new vtkPriorityQueue(VTK_CELL_SIZE);
       
       // find the minimum distance between points as candidates for the split line
       for (i=0; i<(numVerts-2); i++) 
@@ -633,13 +633,13 @@ int vtkPolygon::RecursiveTriangulate (int numVerts, int *verts)
             p1 = this->Points->GetPoint(verts[i]); 
             p2 = this->Points->GetPoint(verts[j]);
             dist2 = vtkMath::Distance2BetweenPoints(p1,p2);
-            EdgeLengths.Insert(dist2, id);
+            EdgeLengths->Insert(dist2, id);
             }
           }
         }
 
       // now see whether we can split loop using priority-ordered split candidates
-      while ( (id = EdgeLengths.Pop(dist2)) >= 0 )
+      while ( (id = EdgeLengths->Pop(dist2)) >= 0 )
         {
         fedges[0] = verts[id % numVerts];
         fedges[1] = verts[id / numVerts];
@@ -651,12 +651,14 @@ int vtkPolygon::RecursiveTriangulate (int numVerts, int *verts)
 
           delete [] l1;
           delete [] l2;
+	  EdgeLengths->Delete();
           return 1;
           }
         }
       
       this->SuccessfulTriangulation = 0;
 
+      EdgeLengths->Delete();
       delete [] l1;
       delete [] l2;
       return 0;
@@ -827,7 +829,7 @@ void vtkPolygon::SplitLoop (int fedges[2], int numVerts, int *verts,
 }
 
 int vtkPolygon::CellBoundary(int vtkNotUsed(subId), float pcoords[3], 
-                             vtkIdList& pts)
+                             vtkIdList *pts)
 {
   int i, numPts=this->PointIds->GetNumberOfIds();
   float x[3], *weights, closest[3];
@@ -835,7 +837,7 @@ int vtkPolygon::CellBoundary(int vtkNotUsed(subId), float pcoords[3],
   float largestWeight=0.0;
   float p0[3], p10[3], l10, p20[3], l20, n[3];
 
-  pts.Reset();
+  pts->Reset();
   weights = new float[numPts];
 
   // determine global coordinates given parametric coordinates
@@ -857,7 +859,7 @@ int vtkPolygon::CellBoundary(int vtkNotUsed(subId), float pcoords[3],
       }
     }
 
-  pts.InsertId(0,this->PointIds->GetId(closestPoint));
+  pts->InsertId(0,this->PointIds->GetId(closestPoint));
 
   previousPoint = closestPoint - 1;
   nextPoint = closestPoint + 1;
@@ -872,11 +874,11 @@ int vtkPolygon::CellBoundary(int vtkNotUsed(subId), float pcoords[3],
 
   if ( weights[previousPoint] > weights[nextPoint] )
     {
-    pts.InsertId(1,this->PointIds->GetId(previousPoint));
+    pts->InsertId(1,this->PointIds->GetId(previousPoint));
     }
   else
     {
-    pts.InsertId(1,this->PointIds->GetId(nextPoint));
+    pts->InsertId(1,this->PointIds->GetId(nextPoint));
     }
   delete [] weights;
 

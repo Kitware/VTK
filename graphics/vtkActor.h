@@ -99,12 +99,9 @@ class VTK_EXPORT vtkActor : public vtkProp
   // with it.  If one isn't specified, then one will be generated
   // automatically. Multiple actors can share one property object.
   void SetProperty(vtkProperty *lut);
-  void SetProperty(vtkProperty& lut) {this->SetProperty(&lut);};
   vtkProperty *GetProperty();
 
   void SetBackfaceProperty(vtkProperty *lut);
-  void SetBackfaceProperty(vtkProperty& lut) 
-    {this->SetBackfaceProperty(&lut);};
   vtkProperty *GetBackfaceProperty();
 
   // Description: 
@@ -137,7 +134,6 @@ class VTK_EXPORT vtkActor : public vtkProp
   // This matrix is cached, so multiple GetMatrix() calls will be
   // efficient.
   void GetMatrix(vtkMatrix4x4 *m);
-  void GetMatrix(vtkMatrix4x4 &m) {this->GetMatrix(&m);}
 
   // Description:
   // Get the bounds for this Actor as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax). (The
@@ -185,6 +181,14 @@ class VTK_EXPORT vtkActor : public vtkProp
   // render.
   void SetAllocatedRenderTime(float t) {this->AllocatedRenderTime = t;};
   vtkGetMacro(AllocatedRenderTime, float);
+  
+  // Description:
+  // For legacy compatability. Do not use.
+  void SetProperty(vtkProperty& lut) {this->SetProperty(&lut);};
+  void SetBackfaceProperty(vtkProperty& lut) 
+    {this->SetBackfaceProperty(&lut);};
+  void GetMatrix(vtkMatrix4x4 &m) {this->GetMatrix(&m);}
+
   
 protected:
   vtkProperty *Property; 

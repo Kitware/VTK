@@ -100,8 +100,7 @@ void vtkClipPolyData::Execute()
   int cellId, i;
   vtkPoints *cellPts;
   vtkScalars *clipScalars;
-  vtkScalars cellScalars; 
-  cellScalars.Allocate(VTK_CELL_SIZE); cellScalars.ReferenceCountingOff();
+  vtkScalars *cellScalars; 
   vtkCell *cell;
   vtkCellArray *newVerts, *newLines, *newPolys, *connList=NULL;
   vtkCellArray *clippedVerts=NULL, *clippedLines=NULL;
@@ -210,6 +209,9 @@ void vtkClipPolyData::Execute()
     clippedPolys->Allocate(estimatedSize,estimatedSize/2);
     }
 
+  cellScalars = vtkScalars::New();
+  cellScalars->Allocate(VTK_CELL_SIZE);
+  
   // perform clipping on cells
   value = this->Value;
   for (cellId=0; cellId < numCells; cellId++)
@@ -223,7 +225,7 @@ void vtkClipPolyData::Execute()
     for ( i=0; i < numberOfPoints; i++ )
       {
       s = clipScalars->GetScalar(cellIds->GetId(i));
-      cellScalars.InsertScalar(i, s);
+      cellScalars->InsertScalar(i, s);
       }
 
     switch ( cell->GetCellDimension() )
@@ -246,12 +248,12 @@ void vtkClipPolyData::Execute()
 
       } //switch
 
-    cell->Clip(this->Value, &cellScalars, this->Locator, connList,
+    cell->Clip(this->Value, cellScalars, this->Locator, connList,
                inPD, outPD, inCD, cellId, outCD, this->InsideOut);
 
     if ( this->GenerateClippedOutput )
       {
-      cell->Clip(this->Value, &cellScalars, this->Locator, clippedList,
+      cell->Clip(this->Value, cellScalars, this->Locator, clippedList,
                  inPD, outPD, inCD, cellId, outCD, !this->InsideOut);
       }
 
@@ -327,7 +329,8 @@ void vtkClipPolyData::Execute()
 
   output->SetPoints(newPoints);
   newPoints->Delete();
-
+  cellScalars->Delete();
+  
   this->Locator->Initialize();//release any extra memory
   output->Squeeze();
 }

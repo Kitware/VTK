@@ -117,10 +117,10 @@ void vtkPolyVertex::EvaluateLocation(int& subId,
   weights[subId] = 1.0;
 }
 
-int vtkPolyVertex::CellBoundary(int subId, float pcoords[3], vtkIdList& pts)
+int vtkPolyVertex::CellBoundary(int subId, float pcoords[3], vtkIdList *pts)
 {
-  pts.SetNumberOfIds(1);
-  pts.SetId(0,this->PointIds->GetId(subId));
+  pts->SetNumberOfIds(1);
+  pts->SetId(0,this->PointIds->GetId(subId));
 
   if ( pcoords[0] != 0.0 )
     {

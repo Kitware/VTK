@@ -76,7 +76,7 @@ vtkImageMapper::~vtkImageMapper()
   if (this->Input)
     {
     this->Input->UnRegister(this);
-    this->Input == NULL;
+    this->Input = NULL;
     }
 }
 

@@ -46,6 +46,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 vtkStructuredGrid::vtkStructuredGrid()
 {
+  this->Vertex = vtkVertex::New();
+  this->Line = vtkLine::New();
+  this->Quad = vtkQuad::New();
+  this->Hexahedron = vtkHexahedron::New();
+  
   this->Dimensions[0] = 1;
   this->Dimensions[1] = 1;
   this->Dimensions[2] = 1;
@@ -84,6 +89,11 @@ vtkStructuredGrid::~vtkStructuredGrid()
     this->PointVisibility->UnRegister((vtkObject *)this);
     }
   this->PointVisibility = NULL;
+
+  this->Vertex->Delete();
+  this->Line->Delete();
+  this->Quad->Delete();
+  this->Hexahedron->Delete();
 }
 
 // Copy the geometric and topological structure of an input structured grid.
@@ -146,7 +156,7 @@ int vtkStructuredGrid::GetCellType(int vtkNotUsed(cellId))
 
 vtkCell *vtkStructuredGrid::GetCell(int cellId)
 {
-  vtkCell *cell;
+  vtkCell *cell = NULL;
   int idx;
   int i, j, k;
   int d01, offset1, offset2;
@@ -158,41 +168,33 @@ vtkCell *vtkStructuredGrid::GetCell(int cellId)
     return NULL;
     }
  
-  // Get rid of the reference from the previous call
-  if (this->Cell != NULL)
-    {
-    this->Cell->UnRegister(this);
-    this->Cell = NULL;
-    }
-  cell = NULL;
-
   switch (this->DataDescription)
     {
     case VTK_SINGLE_POINT: // cellId can only be = 0
-      cell = vtkVertex::New();
+      cell = this->Vertex;
       cell->PointIds->InsertId(0,0);
       break;
 
     case VTK_X_LINE:
-      cell = vtkLine::New();
+      cell = this->Line;
       cell->PointIds->InsertId(0,cellId);
       cell->PointIds->InsertId(1,cellId+1);
       break;
 
     case VTK_Y_LINE:
-      cell = vtkLine::New();
+      cell = this->Line;
       cell->PointIds->InsertId(0,cellId);
       cell->PointIds->InsertId(1,cellId+1);
       break;
 
     case VTK_Z_LINE:
-      cell = vtkLine::New();
+      cell = this->Line;
       cell->PointIds->InsertId(0,cellId);
       cell->PointIds->InsertId(1,cellId+1);
       break;
 
     case VTK_XY_PLANE:
-      cell = vtkQuad::New();
+      cell = this->Quad;
       i = cellId % (this->Dimensions[0]-1);
       j = cellId / (this->Dimensions[0]-1);
       idx = i + j*this->Dimensions[0];
@@ -206,7 +208,7 @@ vtkCell *vtkStructuredGrid::GetCell(int cellId)
       break;
 
     case VTK_YZ_PLANE:
-      cell = vtkQuad::New();
+      cell = this->Quad;
       j = cellId % (this->Dimensions[1]-1);
       k = cellId / (this->Dimensions[1]-1);
       idx = j + k*this->Dimensions[1];
@@ -220,7 +222,7 @@ vtkCell *vtkStructuredGrid::GetCell(int cellId)
       break;
 
     case VTK_XZ_PLANE:
-      cell = vtkQuad::New();
+      cell = this->Quad;
       i = cellId % (this->Dimensions[0]-1);
       k = cellId / (this->Dimensions[0]-1);
       idx = i + k*this->Dimensions[0];
@@ -234,7 +236,7 @@ vtkCell *vtkStructuredGrid::GetCell(int cellId)
       break;
 
     case VTK_XYZ_GRID:
-      cell = vtkHexahedron::New();
+      cell = this->Hexahedron;
       d01 = this->Dimensions[0]*this->Dimensions[1];
       i = cellId % (this->Dimensions[0] - 1);
       j = (cellId / (this->Dimensions[0] - 1)) % (this->Dimensions[1] - 1);
@@ -254,11 +256,6 @@ vtkCell *vtkStructuredGrid::GetCell(int cellId)
       cell->PointIds->InsertId(7,idx+offset2);
       break;
     }
-  // sanity check ?
-  if (cell == NULL)
-    {
-    return NULL;
-    }
 
   // Extract point coordinates and point ids. NOTE: the ordering of the vtkQuad
   // and vtkHexahedron cells are tricky.
@@ -269,11 +266,7 @@ vtkCell *vtkStructuredGrid::GetCell(int cellId)
     cell->Points->InsertPoint(i,this->Points->GetPoint(idx));
     }
 
-  this->Cell = cell;
-  this->Cell->Register(this);
-  cell->Delete();
-
-  return this->Cell;
+  return cell;
 }
 
 // Turn on data blanking. Data blanking is the ability to turn off

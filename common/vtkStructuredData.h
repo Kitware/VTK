@@ -82,12 +82,12 @@ public:
 
   // Description:
   // Get the points defining a cell. (See vtkDataSet for more info.)
-  static void GetCellPoints(int cellId, vtkIdList& ptIds, 
+  static void GetCellPoints(int cellId, vtkIdList *ptIds, 
                      int dataDescription, int dim[3]);
 
   // Description:
   // Get the cells using a point. (See vtkDataSet for more info.)
-  static void GetPointCells(int ptId, vtkIdList& cellIds, int dim[3]);
+  static void GetPointCells(int ptId, vtkIdList *cellIds, int dim[3]);
 
   // Description:
   // Given a location in structured coordinates (i-j-k), and the dimensions
@@ -100,6 +100,15 @@ public:
   // of the structured dataset, return the cell id.
   static int ComputeCellId(int dim[3], int ijk[3]) {
     return ijk[2]*(dim[0]-1)*(dim[1]-1) + ijk[1]*(dim[0]-1) + ijk[0];};
+
+  // Description:
+  // For legacy compatability. Do not use.
+  void GetCellPoints(int cellId, vtkIdList &ptIds, int dataDescription, int dim[3])
+    {this->GetCellPoints(cellId, &ptIds, dataDescription, dim);}
+  void GetPointCells(int ptId, vtkIdList &cellIds, int dim[3])
+    {this->GetPointCells(ptId, &cellIds, dim);}
+
+
 };
 
 

@@ -256,7 +256,7 @@ void vtkAppendFilter::Execute()
     // copy cells
     for (cellId=0; cellId < numCells; cellId++)
       {
-      ds->GetCellPoints(cellId,*ptIds);
+      ds->GetCellPoints(cellId, ptIds);
       newPtIds->Reset ();
       for (i=0; i < ptIds->GetNumberOfIds(); i++)
 	{

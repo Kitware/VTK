@@ -313,13 +313,13 @@ void vtkPolyLine::EvaluateLocation(int& subId, float pcoords[3], float x[3],
   weights[subId+1] = 1.0 - pcoords[0];
 }
 
-int vtkPolyLine::CellBoundary(int subId, float pcoords[3], vtkIdList& pts)
+int vtkPolyLine::CellBoundary(int subId, float pcoords[3], vtkIdList *pts)
 {
-  pts.SetNumberOfIds(1);
+  pts->SetNumberOfIds(1);
 
   if ( pcoords[0] >= 0.5 )
     {
-    pts.SetId(0,this->PointIds->GetId(subId+1));
+    pts->SetId(0,this->PointIds->GetId(subId+1));
     if ( pcoords[0] > 1.0 )
       {
       return 0;
@@ -331,7 +331,7 @@ int vtkPolyLine::CellBoundary(int subId, float pcoords[3], vtkIdList& pts)
     }
   else
     {
-    pts.SetId(0,this->PointIds->GetId(subId));
+    pts->SetId(0,this->PointIds->GetId(subId));
     if ( pcoords[0] < 0.0 )
       {
       return 0;

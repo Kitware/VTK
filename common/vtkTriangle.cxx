@@ -265,32 +265,32 @@ void vtkTriangle::EvaluateLocation(int& vtkNotUsed(subId), float pcoords[3],
 }
 
 int vtkTriangle::CellBoundary(int vtkNotUsed(subId), float pcoords[3],
-			      vtkIdList& pts)
+			      vtkIdList *pts)
 {
   float t1=pcoords[0]-pcoords[1];
   float t2=0.5*(1.0-pcoords[0])-pcoords[1];
   float t3=2.0*pcoords[0]+pcoords[1]-1.0;
 
-  pts.SetNumberOfIds(2);
+  pts->SetNumberOfIds(2);
 
   // compare against three lines in parametric space that divide element
   // into three pieces
   if ( t1 >= 0.0 && t2 >= 0.0 )
     {
-    pts.SetId(0,this->PointIds->GetId(0));
-    pts.SetId(1,this->PointIds->GetId(1));
+    pts->SetId(0,this->PointIds->GetId(0));
+    pts->SetId(1,this->PointIds->GetId(1));
     }
 
   else if ( t2 < 0.0 && t3 >= 0.0 )
     {
-    pts.SetId(0,this->PointIds->GetId(1));
-    pts.SetId(1,this->PointIds->GetId(2));
+    pts->SetId(0,this->PointIds->GetId(1));
+    pts->SetId(1,this->PointIds->GetId(2));
     }
 
   else //( t1 < 0.0 && t3 < 0.0 )
     {
-    pts.SetId(0,this->PointIds->GetId(2));
-    pts.SetId(1,this->PointIds->GetId(0));
+    pts->SetId(0,this->PointIds->GetId(2));
+    pts->SetId(1,this->PointIds->GetId(0));
     }
 
   if ( pcoords[0] < 0.0 || pcoords[1] < 0.0 ||

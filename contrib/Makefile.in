@@ -14,27 +14,34 @@ ABSTRACT_H =
 
 CONCRETE_H = 
 
-ABSTRACT =
+ABSTRACT = 
 
 CONCRETE = \
+vtkImplicitManifoldModeller \
+vtkSampleSize \
+vtkBuildTree \
+vtkTree \
+vtkStringTree \
+vtkCollisionSphereTree \
+vtkStupidTreeFilter \
+vtkConstrain \
+vtkSphereTreeCollide \
+vtkVoxelCollide \
+vtkZSource \
 vtkEarthSource \
 vtkImageReslice \
 vtkIVWriter \
-vtkMassProperties \
 vtkOBJReader \
 vtkProjectedTexture \
 vtkRenderLargeImage \
 vtkRIBExporter \
 vtkRIBLight \
 vtkRIBProperty \
-vtkStringTree \
 vtkSuperquadric \
 vtkSuperquadricSource \
 vtkSubdivideTetra \
-vtkTree
+vtkMassProperties 
 
-#vtkHershey \
-#vtkVectorTextSource
 
 #------------------------------------------------------------------------------
 # Autoconfig defines that can be overridden in user.make

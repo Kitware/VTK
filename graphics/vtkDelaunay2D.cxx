@@ -427,7 +427,7 @@ void vtkDelaunay2D::Execute()
     {
     for (ptId=numPoints; ptId < (numPoints+8); ptId++)
       {
-      Mesh->GetPointCells(ptId, *cells);
+      Mesh->GetPointCells(ptId, cells);
       for (i=0; i < cells->GetNumberOfIds(); i++)
         {
         triUse[cells->GetId(i)] = 0; //mark as deleted

@@ -809,6 +809,7 @@ void vtkXImageWindow::SetWindowId(void *arg)
 
 void vtkXImageWindow::SetWindowId(Window arg)
 {
+  arg = arg;
   // Here to allow me to compile
 }
 

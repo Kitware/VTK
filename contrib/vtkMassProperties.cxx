@@ -63,7 +63,7 @@ vtkMassProperties::~vtkMassProperties()
   if (this->Input)
     {
     this->Input->UnRegister(this);
-    this->Input == NULL;
+    this->Input = NULL;
     }
 }
 

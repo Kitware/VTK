@@ -206,7 +206,7 @@ void vtkVoxel::InterpolationDerivs(float pcoords[3], float derivs[24])
 }
 
 int vtkVoxel::CellBoundary(int vtkNotUsed(subId), float pcoords[3],
-			   vtkIdList& pts)
+			   vtkIdList *pts)
 {
   float t1=pcoords[0]-pcoords[1];
   float t2=1.0-pcoords[0]-pcoords[1];
@@ -215,56 +215,56 @@ int vtkVoxel::CellBoundary(int vtkNotUsed(subId), float pcoords[3],
   float t5=pcoords[2]-pcoords[0];
   float t6=1.0-pcoords[2]-pcoords[0];
 
-  pts.SetNumberOfIds(4);
+  pts->SetNumberOfIds(4);
 
   // compare against six planes in parametric space that divide element
   // into six pieces.
   if ( t3 >= 0.0 && t4 >= 0.0 && t5 < 0.0 && t6 >= 0.0 )
     {
-    pts.SetId(0,this->PointIds->GetId(0));
-    pts.SetId(1,this->PointIds->GetId(1));
-    pts.SetId(2,this->PointIds->GetId(3));
-    pts.SetId(3,this->PointIds->GetId(2));
+    pts->SetId(0,this->PointIds->GetId(0));
+    pts->SetId(1,this->PointIds->GetId(1));
+    pts->SetId(2,this->PointIds->GetId(3));
+    pts->SetId(3,this->PointIds->GetId(2));
     }
 
   else if ( t1 >= 0.0 && t2 < 0.0 && t5 < 0.0 && t6 < 0.0 )
     {
-    pts.SetId(0,this->PointIds->GetId(1));
-    pts.SetId(1,this->PointIds->GetId(3));
-    pts.SetId(2,this->PointIds->GetId(7));
-    pts.SetId(3,this->PointIds->GetId(5));
+    pts->SetId(0,this->PointIds->GetId(1));
+    pts->SetId(1,this->PointIds->GetId(3));
+    pts->SetId(2,this->PointIds->GetId(7));
+    pts->SetId(3,this->PointIds->GetId(5));
     }
 
   else if ( t1 >= 0.0 && t2 >= 0.0 && t3 < 0.0 && t4 >= 0.0 )
     {
-    pts.SetId(0,this->PointIds->GetId(0));
-    pts.SetId(1,this->PointIds->GetId(1));
-    pts.SetId(2,this->PointIds->GetId(5));
-    pts.SetId(3,this->PointIds->GetId(4));
+    pts->SetId(0,this->PointIds->GetId(0));
+    pts->SetId(1,this->PointIds->GetId(1));
+    pts->SetId(2,this->PointIds->GetId(5));
+    pts->SetId(3,this->PointIds->GetId(4));
     }
 
   else if ( t3 < 0.0 && t4 < 0.0 && t5 >= 0.0 && t6 < 0.0 )
     {
-    pts.SetId(0,this->PointIds->GetId(4));
-    pts.SetId(1,this->PointIds->GetId(5));
-    pts.SetId(2,this->PointIds->GetId(7));
-    pts.SetId(3,this->PointIds->GetId(6));
+    pts->SetId(0,this->PointIds->GetId(4));
+    pts->SetId(1,this->PointIds->GetId(5));
+    pts->SetId(2,this->PointIds->GetId(7));
+    pts->SetId(3,this->PointIds->GetId(6));
     }
 
   else if ( t1 < 0.0 && t2 >= 0.0 && t5 >= 0.0 && t6 >= 0.0 )
     {
-    pts.SetId(0,this->PointIds->GetId(0));
-    pts.SetId(1,this->PointIds->GetId(4));
-    pts.SetId(2,this->PointIds->GetId(6));
-    pts.SetId(3,this->PointIds->GetId(2));
+    pts->SetId(0,this->PointIds->GetId(0));
+    pts->SetId(1,this->PointIds->GetId(4));
+    pts->SetId(2,this->PointIds->GetId(6));
+    pts->SetId(3,this->PointIds->GetId(2));
     }
 
   else // if ( t1 < 0.0 && t2 < 0.0 && t3 >= 0.0 && t6 < 0.0 )
     {
-    pts.SetId(0,this->PointIds->GetId(3));
-    pts.SetId(1,this->PointIds->GetId(2));
-    pts.SetId(2,this->PointIds->GetId(6));
-    pts.SetId(3,this->PointIds->GetId(7));
+    pts->SetId(0,this->PointIds->GetId(3));
+    pts->SetId(1,this->PointIds->GetId(2));
+    pts->SetId(2,this->PointIds->GetId(6));
+    pts->SetId(3,this->PointIds->GetId(7));
     }
 
   if ( pcoords[0] < 0.0 || pcoords[0] > 1.0 ||
@@ -431,10 +431,10 @@ int vtkVoxel::Triangulate(int index, vtkIdList &ptIds, vtkPoints &pts)
 
   ptIds.Reset();
   pts.Reset();
-//
-// Create five tetrahedron. Triangulation varies depending upon index. This
-// is necessary to insure compatible voxel triangulations.
-//
+  //
+  // Create five tetrahedron. Triangulation varies depending upon index. This
+  // is necessary to insure compatible voxel triangulations.
+  //
   if ( (index % 2) )
     {
     p[0] = 0; p[1] = 1; p[2] = 4; p[3] = 2;

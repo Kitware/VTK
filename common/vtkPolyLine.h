@@ -76,7 +76,7 @@ public:
   int GetNumberOfFaces() {return 0;};
   vtkCell *GetEdge(int vtkNotUsed(edgeId)) {return 0;};
   vtkCell *GetFace(int vtkNotUsed(faceId)) {return 0;};
-  int CellBoundary(int subId, float pcoords[3], vtkIdList& pts);
+  int CellBoundary(int subId, float pcoords[3], vtkIdList *pts);
   void Contour(float value, vtkScalars *cellScalars, 
                vtkPointLocator *locator, vtkCellArray *verts, 
                vtkCellArray *lines, vtkCellArray *polys, 
@@ -100,6 +100,11 @@ public:
   // Description:
   // Return the center of the point cloud in parametric coordinates.
   int GetParametricCenter(float pcoords[3]);
+
+  // Description:
+  // For legacy compatability. Do not use.
+  int CellBoundary(int subId, float pcoords[3], vtkIdList &pts)
+    {return this->CellBoundary(subId, pcoords, &pts);}
 
 protected:
   vtkLine *Line;

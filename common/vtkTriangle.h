@@ -75,7 +75,7 @@ public:
   int GetNumberOfEdges() {return 3;};
   int GetNumberOfFaces() {return 0;};
   vtkCell *GetFace(int) {return 0;};
-  int CellBoundary(int subId, float pcoords[3], vtkIdList& pts);
+  int CellBoundary(int subId, float pcoords[3], vtkIdList *pts);
   void Contour(float value, vtkScalars *cellScalars, 
                vtkPointLocator *locator, vtkCellArray *verts,
                vtkCellArray *lines, vtkCellArray *polys, 
@@ -164,6 +164,11 @@ public:
   // neighborhood of the three vertices of the triangle.
   static int PointInTriangle(float x[3], float x1[3], float x2[3], float x3[3], 
                              float tol2);
+
+  // Description:
+  // For legacy compatability. Do not use.
+  int CellBoundary(int subId, float pcoords[3], vtkIdList &pts)
+    {return this->CellBoundary(subId, pcoords, &pts);}
 
 protected:
   vtkLine *Line;

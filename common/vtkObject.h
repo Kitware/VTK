@@ -54,12 +54,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // objects that are passed between objects are reference counted.
 
 // .SECTION Caveats
-// Note: in vtk objects are generally created with combinations of 
-// new/Delete() methods. This works great until you want to allocate
-// objects off the stack (i.e., automatic objects). Automatic objects,
+// Note: in vtk objects should always be created with combinations of 
+// new/Delete() methods. This does not work when objects are allocated
+// off the stack (i.e., automatic objects). Automatic objects,
 // when automatically deleted (by exiting scope), will cause warnings to
-// occur. You can avoid this by turing reference counting off (i.e., use
-// the method ReferenceCountingOff()).
+// occur. You should not create vtkObjects in this manner.
 
 
 #ifndef __vtkObject_h
@@ -167,20 +166,20 @@ public:
   virtual void UnRegister(vtkObject* o);
 
   int  GetReferenceCount() {return this->ReferenceCount;};
-  void ReferenceCountingOff();
 
   // Description:
   // Sets the reference count (use with care)
   void SetReferenceCount(int);
 
-
-
+  // Description:
+  // For legacy compatability. Do not use. 
+  // Works now by making reference count negative.
+  void ReferenceCountingOff();
 
 protected:
   unsigned char Debug;         // Enable debug messages
   vtkTimeStamp MTime; // Keep track of modification time
   int ReferenceCount;      // Number of uses of this object by other objects
-  int ReferenceCounting; // Turn on/off reference counting mechanism
 
 private:
   //BTX
@@ -201,7 +200,7 @@ inline void vtkObject::Modified()
 // to create and delete vtk objects.)
 inline void vtkObject::ReferenceCountingOff()
 {
-  this->ReferenceCounting = 0;
+  this->ReferenceCount = -1;
 }
 
 

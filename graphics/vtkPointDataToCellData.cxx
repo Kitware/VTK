@@ -75,7 +75,7 @@ void vtkPointDataToCellData::Execute()
 
   for (cellId=0; cellId < numCells; cellId++)
     {
-    input->GetCellPoints(cellId, *cellPts);
+    input->GetCellPoints(cellId, cellPts);
     numPts = cellPts->GetNumberOfIds();
     if ( numPts > 0 )
       {

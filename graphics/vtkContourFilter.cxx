@@ -122,8 +122,7 @@ void vtkContourFilter::Execute()
   vtkCellData *inCd=input->GetCellData(), *outCd=output->GetCellData();
   int numContours=this->ContourValues->GetNumberOfContours();
   float *values=this->ContourValues->GetValues();
-  vtkScalars cellScalars;
-  cellScalars.ReferenceCountingOff(); cellScalars.Allocate(VTK_CELL_SIZE);
+  vtkScalars *cellScalars;
   
   vtkDebugMacro(<< "Executing contour filter");
 
@@ -169,7 +168,10 @@ void vtkContourFilter::Execute()
   newLines->Allocate(estimatedSize,estimatedSize);
   newPolys = vtkCellArray::New();
   newPolys->Allocate(estimatedSize,estimatedSize);
-
+  cellScalars = vtkScalars::New();
+  cellScalars->Allocate(VTK_CELL_SIZE);
+  
+  
   // locator used to merge potentially duplicate points
   if ( this->Locator == NULL )
     {
@@ -189,11 +191,11 @@ void vtkContourFilter::Execute()
       {
       cell = input->GetCell(cellId);
       cellPts = cell->GetPointIds();
-      inScalars->GetScalars(*cellPts,cellScalars);
+      inScalars->GetScalars(*cellPts,*cellScalars);
 
       for (i=0; i < numContours; i++)
         {
-        cell->Contour(values[i], &cellScalars, this->Locator, 
+        cell->Contour(values[i], cellScalars, this->Locator, 
                       newVerts, newLines, newPolys, inPd, outPd,
 		      inCd, cellId, outCd);
 
@@ -214,9 +216,9 @@ void vtkContourFilter::Execute()
     for (i=0; i < numContours; i++)
       {
       for ( this->ScalarTree->InitTraversal(values[i]); 
-      (cell=this->ScalarTree->GetNextCell(cellId,cellPts,cellScalars)) != NULL; )
+      (cell=this->ScalarTree->GetNextCell(cellId,cellPts,*cellScalars)) != NULL; )
         {
-        cell->Contour(values[i], &cellScalars, this->Locator, 
+        cell->Contour(values[i], cellScalars, this->Locator, 
                       newVerts, newLines, newPolys, inPd, outPd,
 		      inCd, cellId, outCd);
 
@@ -229,13 +231,14 @@ void vtkContourFilter::Execute()
                << newVerts->GetNumberOfCells() << " verts, " 
                << newLines->GetNumberOfCells() << " lines, " 
                << newPolys->GetNumberOfCells() << " triangles");
-//
-// Update ourselves.  Because we don't know up front how many verts, lines,
-// polys we've created, take care to reclaim memory. 
-//
+  //
+  // Update ourselves.  Because we don't know up front how many verts, lines,
+  // polys we've created, take care to reclaim memory. 
+  //
   output->SetPoints(newPts);
   newPts->Delete();
-
+  cellScalars->Delete();
+  
   if (newVerts->GetNumberOfCells())
     {
     output->SetVerts(newVerts);
@@ -273,46 +276,50 @@ void vtkContourFilter::StructuredPointsContour(int dim)
 
   if ( dim == 2 ) //marching squares
     {
-    static vtkMarchingSquares msquares;
+    vtkMarchingSquares *msquares;
     int i;
     
-    msquares.ReferenceCountingOff();
-    msquares.SetInput((vtkStructuredPoints *)this->Input);
-    msquares.SetDebug(this->Debug);
-    msquares.SetNumberOfContours(numContours);
+    msquares = vtkMarchingSquares::New();
+    msquares->SetInput((vtkStructuredPoints *)this->Input);
+    msquares->SetDebug(this->Debug);
+    msquares->SetNumberOfContours(numContours);
     for (i=0; i < numContours; i++)
       {
-      msquares.SetValue(i,values[i]);
+      msquares->SetValue(i,values[i]);
       }
          
-    msquares.Update();
-    output = msquares.GetOutput();
+    msquares->Update();
+    output = msquares->GetOutput();
+    output->Register(this);
+    msquares->Delete();
     }
 
   else //marching cubes
     {
-    static vtkMarchingCubes mcubes;
+    vtkMarchingCubes *mcubes;
     int i;
     
-    mcubes.ReferenceCountingOff();
-    mcubes.SetInput((vtkStructuredPoints *)this->Input);
-    mcubes.SetComputeNormals (this->ComputeNormals);
-    mcubes.SetComputeGradients (this->ComputeGradients);
-    mcubes.SetComputeScalars (this->ComputeScalars);
-    mcubes.SetDebug(this->Debug);
-    mcubes.SetNumberOfContours(numContours);
+    mcubes = vtkMarchingCubes::New();
+    mcubes->SetInput((vtkStructuredPoints *)this->Input);
+    mcubes->SetComputeNormals (this->ComputeNormals);
+    mcubes->SetComputeGradients (this->ComputeGradients);
+    mcubes->SetComputeScalars (this->ComputeScalars);
+    mcubes->SetDebug(this->Debug);
+    mcubes->SetNumberOfContours(numContours);
     for (i=0; i < numContours; i++)
       {
-      mcubes.SetValue(i,values[i]);
+      mcubes->SetValue(i,values[i]);
       }
 
-    mcubes.Update();
-    output = mcubes.GetOutput();
+    mcubes->Update();
+    output = mcubes->GetOutput();
+    output->Register(this);
+    mcubes->Delete();
     }
   
   thisOutput->CopyStructure(output);
   thisOutput->GetPointData()->ShallowCopy(*output->GetPointData());
-  output->Initialize();
+  output->UnRegister(this);
 }
 #endif
 

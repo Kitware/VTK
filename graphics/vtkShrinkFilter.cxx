@@ -83,7 +83,7 @@ void vtkShrinkFilter::Execute()
   //
   for (cellId=0; cellId < numCells; cellId++)
     {
-    input->GetCellPoints(cellId,*ptIds);
+    input->GetCellPoints(cellId, ptIds);
     numIds = ptIds->GetNumberOfIds();
 
     // get the center of the cell

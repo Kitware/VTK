@@ -67,7 +67,7 @@ void vtkEmptyCell::EvaluateLocation(int&  vtkNotUsed(subId),
 
 int vtkEmptyCell::CellBoundary(int vtkNotUsed(subId), 
                             float vtkNotUsed(pcoords)[3], 
-			    vtkIdList& vtkNotUsed(pts))
+			    vtkIdList *vtkNotUsed(pts))
 {
   return 0;
 }

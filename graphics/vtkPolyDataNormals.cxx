@@ -231,7 +231,7 @@ void vtkPolyDataNormals::Execute()
       {
       Mark++;
       replacementPoint = ptId;
-      OldMesh->GetPointCells(ptId,*cellIds);
+      OldMesh->GetPointCells(ptId,cellIds);
       for (j=0; j < cellIds->GetNumberOfIds(); j++)
         {
         if ( Visited[cellIds->GetId(j)] != Mark )

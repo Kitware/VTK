@@ -69,7 +69,7 @@ public:
   int GetNumberOfFaces() {return 0;};
   vtkCell *GetEdge(int edgeId);
   vtkCell *GetFace(int) {return 0;};
-  int CellBoundary(int subId, float pcoords[3], vtkIdList& pts);
+  int CellBoundary(int subId, float pcoords[3], vtkIdList *pts);
   void Contour(float value, vtkScalars *cellScalars, 
                vtkPointLocator *locator,vtkCellArray *verts, 
                vtkCellArray *lines, vtkCellArray *polys,
@@ -162,6 +162,10 @@ public:
                                          float bounds2[3], float tol,
                                          float x[3]);
 
+  // Description:
+  // For legacy compatability. Do not use.
+  int CellBoundary(int subId, float pcoords[3], vtkIdList &pts)
+    {return this->CellBoundary(subId, pcoords, &pts);}
 
 protected:
   // variables used by instances of this class

@@ -165,9 +165,9 @@ public:
 
 protected:
   void Execute();
-  void ClipVoxel(float value, vtkScalars& cellScalars, int flip,
-                 float origin[3], float spacing[3], vtkIdList& cellIds,
-		 vtkPoints& cellPts, vtkPointData *inPD, vtkPointData *outPD,
+  void ClipVoxel(float value, vtkScalars *cellScalars, int flip,
+                 float origin[3], float spacing[3], vtkIdList *cellIds,
+		 vtkPoints *cellPts, vtkPointData *inPD, vtkPointData *outPD,
 		 vtkCellData *inCD, int cellId, vtkCellData *outCD, 
 		 vtkCellData *clippedCD);
   vtkImplicitFunction *ClipFunction;

@@ -121,7 +121,7 @@ void vtkVolume::GetMatrix(vtkMatrix4x4 *result)
 			      -this->Origin[1],
 			      -this->Origin[2]);
 
-    *(this->Matrix) = this->Transform->GetMatrix();
+    *(this->Matrix) = *(this->Transform->GetMatrixPointer());
     this->MatrixMTime.Modified();
     this->Transform->Pop();  
     }

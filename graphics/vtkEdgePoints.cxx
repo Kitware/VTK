@@ -44,7 +44,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 vtkEdgePoints::vtkEdgePoints()
 {
   this->Value = 0.0;
-  this->Locator.ReferenceCountingOff ();
+  this->Locator = vtkMergePoints::New();
+}
+
+vtkEdgePoints::~vtkEdgePoints()
+{
+  this->Locator->Delete();
+  this->Locator = NULL;
 }
 
 //
@@ -65,8 +71,7 @@ void vtkEdgePoints::Execute()
   int estimatedSize;
   vtkDataSet *input = (vtkDataSet *)this->Input;
   vtkPolyData *output = this->GetOutput();
-  vtkScalars cellScalars;
-  cellScalars.Allocate(VTK_CELL_SIZE); cellScalars.ReferenceCountingOff();
+  vtkScalars *cellScalars;
   vtkPointData *inPd=input->GetPointData(), *outPd=output->GetPointData();
   vtkCellData *inCd=input->GetCellData(), *outCd=output->GetCellData();
 
@@ -96,29 +101,31 @@ void vtkEdgePoints::Execute()
   newPts->Allocate(estimatedSize, estimatedSize/2);
   newVerts = vtkCellArray::New();
   newVerts->Allocate(estimatedSize, estimatedSize/2);
-
-  this->Locator.InitPointInsertion (newPts, input->GetBounds());
+  cellScalars = vtkScalars::New();
+  cellScalars->Allocate(VTK_CELL_SIZE);
+  
+  this->Locator->InitPointInsertion (newPts, input->GetBounds());
 
   // interpolate data along edge; copy cell data
   outPd->InterpolateAllocate(inPd,5000,10000);
   outCd->CopyAllocate(inCd,5000,10000);
-//
-// Traverse all edges. Since edges are not explicitly represented, use a
-// trick: traverse all cells and obtain cell edges and then cell edge
-// neighbors. If cell id < all edge neigbors ids, then this edge has not
-// yet been visited and is processed.
-//
+  //
+  // Traverse all edges. Since edges are not explicitly represented, use a
+  // trick: traverse all cells and obtain cell edges and then cell edge
+  // neighbors. If cell id < all edge neigbors ids, then this edge has not
+  // yet been visited and is processed.
+  //
   for (cellId=0; cellId < input->GetNumberOfCells(); cellId++)
     {
     cell = input->GetCell(cellId);
-    inScalars->GetScalars(cell->PointIds, &cellScalars);
+    inScalars->GetScalars(cell->PointIds, cellScalars);
 
     // loop over cell points to check if cell straddles isosurface value
     for ( above=below=0, ptId=0; ptId < cell->GetNumberOfPoints(); ptId++ )
       {
-      if ( cellScalars.GetScalar(ptId) >= this->Value )
+      if ( cellScalars->GetScalar(ptId) >= this->Value )
         above = 1;
-      else if ( cellScalars.GetScalar(ptId) < this->Value )
+      else if ( cellScalars->GetScalar(ptId) < this->Value )
         below = 1;
       }
 
@@ -126,7 +133,7 @@ void vtkEdgePoints::Execute()
       {
       if ( cell->GetCellDimension() < 2 ) //only points can be generated
         {
-        cell->Contour(this->Value, &cellScalars, &this->Locator, newVerts, 
+        cell->Contour(this->Value, cellScalars, this->Locator, newVerts, 
                       NULL, NULL, inPd, outPd, inCd, cellId, outCd);
         }
 
@@ -136,14 +143,15 @@ void vtkEdgePoints::Execute()
         for (edgeId=0; edgeId < numEdges; edgeId++)
           {
           edge = cell->GetEdge(edgeId);
-          inScalars->GetScalars(edge->PointIds,&cellScalars);
+          inScalars->GetScalars(edge->PointIds, cellScalars);
 
-          s0 = cellScalars.GetScalar(0);
-          s1 = cellScalars.GetScalar(1);
+          s0 = cellScalars->GetScalar(0);
+          s1 = cellScalars->GetScalar(1);
           if ( (s0 < this->Value && s1 >= this->Value) ||
           (s0 >= this->Value && s1 < this->Value) )
             {
-	    deltaScalar = s1 - s0; //ordering intersection direction avoids numerical problems
+	    //ordering intersection direction avoids numerical problems
+	    deltaScalar = s1 - s0; 
 	    if (deltaScalar > 0)
 	      {
 	      e0 = 0; e1 = 1;
@@ -162,9 +170,9 @@ void vtkEdgePoints::Execute()
             edge->Points->GetPoint(e1,x1);
 
             for (i=0; i<3; i++) x[i] = x0[i] + t * (x1[i] - x0[i]);
-            if ( (pts[0] = this->Locator.IsInsertedPoint(x)) < 0 )
+            if ( (pts[0] = this->Locator->IsInsertedPoint(x)) < 0 )
               {
-              pts[0] = this->Locator.InsertNextPoint(x);
+              pts[0] = this->Locator->InsertNextPoint(x);
               newCellId = newVerts->InsertNextCell(1,pts);
 	      outCd->CopyData(inCd,cellId,newCellId);
               p1 = edge->PointIds->GetId(e0);
@@ -178,18 +186,20 @@ void vtkEdgePoints::Execute()
     } //for all cells
 
   vtkDebugMacro(<<"Created: " << newPts->GetNumberOfPoints() << " points");
-//
-// Update ourselves.  Because we don't know up front how many verts we've 
-// created, take care to reclaim memory. 
-//
+  //
+  // Update ourselves.  Because we don't know up front how many verts we've 
+  // created, take care to reclaim memory. 
+  //
   output->SetPoints(newPts);
   newPts->Delete();
 
   output->SetVerts(newVerts);
   newVerts->Delete();
 
-  this->Locator.Initialize();//free up any extra memory
+  this->Locator->Initialize();//free up any extra memory
   output->Squeeze();
+  
+  cellScalars->Delete();
 }
 
 void vtkEdgePoints::PrintSelf(ostream& os, vtkIndent indent)

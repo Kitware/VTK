@@ -257,10 +257,10 @@ void vtkProp::RotateWXYZ (float degree, float x, float y, float z)
 }
 
 // Return a reference to the prop's 4x4 composite matrix.
-vtkMatrix4x4& vtkProp::GetMatrix()
+vtkMatrix4x4 *vtkProp::GetMatrixPointer()
 {
   this->GetMatrix(this->Matrix);
-  return *(this->Matrix);
+  return this->Matrix;
 } 
 
 
