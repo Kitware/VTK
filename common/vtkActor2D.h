@@ -43,7 +43,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkActor2D is similar to vtkActor, but it is made to be used with
 // two dimensional images and annotation.  vtkActor2D has a position, 
 // orientation, and scale, but does not use a transformation matrix 
-// like vtkActor.  vtkActor also has a layer property which allows two
+// like vtkActor.  vtkActor2D also has a layer property which allows two
 // dimensional actors to be rendered on top of each other in a certain
 // order.  vtkActor2D has a reference to a vtkMapper2D object which does
 // the rendering.
