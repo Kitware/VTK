@@ -272,6 +272,7 @@ void vtkImageWriter::RecursiveWrite(int axis, vtkImageCache *cache,
     this->RecursiveWrite(axis,cache,data,file);
     if (file && fileOpenedHere)
       {
+      this->WriteFileTrailer(file,cache);
       file->close();
       delete file;
       file = NULL;
@@ -294,6 +295,7 @@ void vtkImageWriter::RecursiveWrite(int axis, vtkImageCache *cache,
       }
     if (file && fileOpenedHere)
       {
+      this->WriteFileTrailer(file,cache);
       file->close();
       delete file;
       file = NULL;
@@ -334,6 +336,7 @@ void vtkImageWriter::RecursiveWrite(int axis, vtkImageCache *cache,
   // if we opened the file here, then we need to close it up
   if (file && fileOpenedHere)
     {
+    this->WriteFileTrailer(file,cache);
     file->close();
     delete file;
     file = NULL;
@@ -386,6 +389,7 @@ void vtkImageWriter::RecursiveWrite(int axis, vtkImageCache *cache,
     this->WriteFileHeader(file, cache);
     this->WriteFile(file,data,cache->GetUpdateExtent());
     ++this->FileNumber;
+    this->WriteFileTrailer(file,cache);
     file->close();
     delete file;
     return;

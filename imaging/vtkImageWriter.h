@@ -112,13 +112,14 @@ protected:
   int FileNumber;
   int FileLowerLeft;
   char *InternalFileName;
+
   
   void RecursiveWrite(int dim, vtkImageCache *region, ofstream *file);
   void RecursiveWrite(int dim, vtkImageCache *cache, 
 		      vtkImageData *data, ofstream *file);
   virtual void WriteFile(ofstream *file, vtkImageData *data, int extent[6]);
   virtual void WriteFileHeader(ofstream *, vtkImageCache *) {};
-  
+  virtual void WriteFileTrailer(ofstream *, vtkImageCache *) {};
 };
 
 #endif
