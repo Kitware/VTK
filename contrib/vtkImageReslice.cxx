@@ -70,23 +70,23 @@ vtkImageReslice::vtkImageReslice()
   this->OutputDimensionality = 3;
 
   // flag to use default Spacing
-  this->OutputSpacing[0] = FLT_MAX;
-  this->OutputSpacing[1] = FLT_MAX;
-  this->OutputSpacing[2] = FLT_MAX;
+  this->OutputSpacing[0] = VTK_FLOAT_MAX;
+  this->OutputSpacing[1] = VTK_FLOAT_MAX;
+  this->OutputSpacing[2] = VTK_FLOAT_MAX;
 
   // ditto
-  this->OutputOrigin[0] = FLT_MAX;
-  this->OutputOrigin[1] = FLT_MAX;
-  this->OutputOrigin[2] = FLT_MAX;
+  this->OutputOrigin[0] = VTK_FLOAT_MAX;
+  this->OutputOrigin[1] = VTK_FLOAT_MAX;
+  this->OutputOrigin[2] = VTK_FLOAT_MAX;
 
   // ditto
-  this->OutputExtent[0] = INT_MIN;
-  this->OutputExtent[2] = INT_MIN;
-  this->OutputExtent[4] = INT_MIN;
+  this->OutputExtent[0] = VTK_INT_MIN;
+  this->OutputExtent[2] = VTK_INT_MIN;
+  this->OutputExtent[4] = VTK_INT_MIN;
 
-  this->OutputExtent[1] = INT_MAX;
-  this->OutputExtent[3] = INT_MAX;
-  this->OutputExtent[5] = INT_MAX;
+  this->OutputExtent[1] = VTK_INT_MAX;
+  this->OutputExtent[3] = VTK_INT_MAX;
+  this->OutputExtent[5] = VTK_INT_MAX;
 
   this->Wrap = 0; // don't wrap
   this->Mirror = 0; // don't mirror
@@ -366,8 +366,8 @@ void vtkImageReslice::ComputeInputUpdateExtent(int inExt[6],
 
   for (i = 0; i < 3; i++)
     {
-    inExt[2*i] = INT_MAX;
-    inExt[2*i+1] = INT_MIN;
+    inExt[2*i] = VTK_INT_MAX;
+    inExt[2*i+1] = VTK_INT_MIN;
     }
 
   // check the coordinates of the 8 corners of the output extent
@@ -500,8 +500,8 @@ void vtkImageReslice::GetAutoCroppedOutputBounds(vtkImageData *input,
   
   for (i = 0; i < 3; i++)
     {
-    bounds[2*i] = FLT_MAX;
-    bounds[2*i+1] = -FLT_MAX;
+    bounds[2*i] = VTK_FLOAT_MAX;
+    bounds[2*i+1] = -VTK_FLOAT_MAX;
     }
     
   for (i = 0; i < 8; i++)
@@ -627,7 +627,7 @@ void vtkImageReslice::ExecuteInformation(vtkImageData *input,
       e = inWholeExt[2*i];
       }
 
-    if (this->OutputSpacing[i] == FLT_MAX)
+    if (this->OutputSpacing[i] == VTK_FLOAT_MAX)
       {
       outSpacing[i] = s;
       }
@@ -641,8 +641,8 @@ void vtkImageReslice::ExecuteInformation(vtkImageData *input,
       outWholeExt[2*i] = 0;
       outWholeExt[2*i+1] = 0;
       }
-    else if (this->OutputExtent[2*i] == INT_MIN ||
-	     this->OutputExtent[2*i+1] == INT_MAX)
+    else if (this->OutputExtent[2*i] == VTK_INT_MIN ||
+	     this->OutputExtent[2*i+1] == VTK_INT_MAX)
       {
       if (this->AutoCropOutput)
 	{
@@ -662,7 +662,7 @@ void vtkImageReslice::ExecuteInformation(vtkImageData *input,
       {
       outOrigin[i] = 0;
       }
-    else if (this->OutputOrigin[i] == FLT_MAX)
+    else if (this->OutputOrigin[i] == VTK_FLOAT_MAX)
       {
       if (this->AutoCropOutput)
 	{ // set origin so edge of extent is edge of bounds
@@ -1651,8 +1651,8 @@ void vtkImageReslice::OptimizedComputeInputUpdateExtent(int inExt[6],
 
   for (i = 0; i < 3; i++)
     {
-    inExt[2*i] = INT_MAX;
-    inExt[2*i+1] = INT_MIN;
+    inExt[2*i] = VTK_INT_MAX;
+    inExt[2*i+1] = VTK_INT_MIN;
     }
   
   for (i = 0; i < 8; i++)
