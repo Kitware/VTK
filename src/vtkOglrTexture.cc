@@ -232,6 +232,10 @@ void vtkOglrTexture::Load(vtkTexture *txt, vtkOglrRenderer *vtkNotUsed(ren))
   // if we're doing texture, assume blending must be on.
   glEnable(GL_BLEND);
 
+  // don't accept fragments if they have zero opacity. this will stop the
+  // zbuffer from be blocked by totally trasnapernt texture fragments.
+  glAlphaFunc (GL_GREATER, (GLclampf) 0);
+
   // now bind it 
   glEnable(GL_TEXTURE_2D);
 }
