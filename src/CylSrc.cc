@@ -1,5 +1,5 @@
 //
-// Methods for plane generator
+// Methods for cylinder generator
 //
 #include <math.h>
 #include "CylSrc.hh"
