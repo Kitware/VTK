@@ -82,12 +82,20 @@ static void vtkImageXViewerRenderGrey(vtkImageXViewer *self, vtkImageRegion *reg
   int visualDepth, visualClass;
   
   
-  colorsMax = self->GetNumberOfColors() - 1;
+  visualClass = self->GetVisualClass();
+  if (visualClass == TrueColor)
+    {
+    colorsMax = 255;
+    }
+  else
+    {
+    colorsMax = self->GetNumberOfColors() - 1;
+    }
+  
   colors = self->GetColors();
   shift = self->GetColorShift();
   scale = self->GetColorScale();
   visualDepth = self->GetVisualDepth();
-  visualClass = self->GetVisualClass();
   region->GetExtent(inMin0, inMax0, inMin1, inMax1);
   region->GetIncrements(inInc0, inInc1);
   
