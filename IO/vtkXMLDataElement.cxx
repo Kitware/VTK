@@ -21,7 +21,7 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkXMLDataElement, "1.5.2.3");
+vtkCxxRevisionMacro(vtkXMLDataElement, "1.5.2.4");
 vtkStandardNewMacro(vtkXMLDataElement);
 
 //----------------------------------------------------------------------------
@@ -288,6 +288,31 @@ vtkXMLDataElement* vtkXMLDataElement::FindNestedElementWithNameAndId(
     if(nname && nid && (strcmp(nname, name) == 0) && (strcmp(nid, id) == 0))
       {
       return this->NestedElements[i];
+      }
+    }
+  return 0;
+}
+
+//----------------------------------------------------------------------------
+vtkXMLDataElement* vtkXMLDataElement::FindNestedElementWithNameAndAttribute(
+  const char* name, const char* att_name, const char* att_value)
+{
+  if (!name || !att_name || !att_value)
+    {
+    return 0;
+    }
+
+  int i;
+  for(i=0;i < this->NumberOfNestedElements;++i)
+    {
+    const char* nname = this->NestedElements[i]->GetName();
+    if(nname && (strcmp(nname, name) == 0))
+      {
+      const char *val = this->NestedElements[i]->GetAttribute(att_name);
+      if (val && !strcmp(val, att_value))
+        {
+        return this->NestedElements[i];
+        }
       }
     }
   return 0;
