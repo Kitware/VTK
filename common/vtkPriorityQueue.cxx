@@ -188,7 +188,7 @@ vtkPriorityItem *vtkPriorityQueue::Resize(const int sz)
 void vtkPriorityQueue::Reset()
 {
   this->MaxId = -1;
-  for (int i=0; i < this->ItemLocation.GetSize(); i++)
+  for (int i=0; i <= this->ItemLocation.GetMaxId(); i++)
     this->ItemLocation.SetValue(i,-1);
   this->ItemLocation.Reset();
 }
