@@ -80,7 +80,7 @@ public:
   // Description:
   // Interpolate user defined data. Method must be supplied by user. Return
   // value must be non-static void* pointer to data.
-  virtual void* Interpolate(float *weights) {return NULL;};
+  virtual void* Interpolate(float *weights) { if (weights) return NULL; return NULL;};
 
 protected:
   vtkVoidArray UD;
