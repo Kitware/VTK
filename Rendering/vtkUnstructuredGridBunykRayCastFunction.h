@@ -93,31 +93,10 @@ public:
   virtual void Finalize();
 
   // Description:
-  // Initialize the traversal of a ray.
-  virtual void InitializeRay(int x, int y, double nearClipZ);
+  // Called by the ray cast mapper once per ray.
+  virtual void CastRay( int x, int y, vtkUnstructuredGridVolumeRayCastIterator *iterator, float color[4] );
 
-  // Description:
-  // Get the intersections of the next \c maxNumIntersections cells.  The
-  // cell ids are stored in \c intersectedCells and the length of each ray
-  // segment within the cell is stored in \c intersectionLengths.  The
-  // point scalars \c scalars are interpolated and stored in \c
-  // nearIntersections and \c farIntersections.  \c intersectedCells, \c
-  // intersectionLengths, or \c scalars may be \c NULL to supress passing
-  // the associated information.  The ray will terminate when \c farClipZ
-  // is reached.  The number of intersections actually encountered is
-  // returned.  0 is returned if and only if no more intersections are
-  // to be found.
-  virtual vtkIdType GetNextIntersections(vtkIdType maxNumIntersections,
-                                         vtkIdList *intersectedCells,
-                                         vtkDoubleArray *intersectionLengths,
-                                         vtkDataArray *scalars,
-                                         vtkDataArray *nearIntersections,
-                                         vtkDataArray *farIntersections,
-                                         double farClipZ);
-  
-  // Description:
-  // Called by the ray cast mapper once per ray
-  virtual void CastRay( int x, int y, double bounds[2], float color[4] );
+  virtual vtkUnstructuredGridVolumeRayCastIterator *NewIterator();
 
   // Used to store each triangle - made public because of the 
   // templated function
@@ -268,18 +247,6 @@ protected:
   Triangle **TetraTriangles;
   Triangle  *TriangleList;
 
-  // This is state that is stored between calls to GetNextIntersections.
-  int RayX;
-  int RayY;
-  Intersection *IntersectionPtr;
-  Triangle *CurrentTriangle;
-  vtkIdType CurrentTetra;
-
-  // Used by CastRay method.
-  vtkDoubleArray *IntersectionLengths;
-  vtkDataArray *NearIntersections;
-  vtkDataArray *FarIntersections;
-  
   // Compute whether a boundary triangle is front facing by
   // looking at the fourth point in the tetra to see if it is
   // in front (triangle is backfacing) or behind (triangle is

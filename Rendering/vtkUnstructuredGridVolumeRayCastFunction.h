@@ -28,6 +28,7 @@
 
 class vtkRenderer;
 class vtkVolume;
+class vtkUnstructuredGridVolumeRayCastIterator;
 
 class VTK_RENDERING_EXPORT vtkUnstructuredGridVolumeRayCastFunction : public vtkObject
 {
@@ -40,7 +41,13 @@ public:
   
   virtual void Finalize( )=0;
 
-  virtual void CastRay( int x, int y, double bounds[2], float color[4] )=0;
+  virtual void CastRay( int x, int y, vtkUnstructuredGridVolumeRayCastIterator *iterator, float color[4] )=0;
+
+  // Description:
+  // Returns a new object that will iterate over all the intersections of a
+  // ray with the cells of the input.  The calling code is responsible for
+  // deleting the returned object.
+  virtual vtkUnstructuredGridVolumeRayCastIterator *NewIterator() = 0;
 //ETX
 
 

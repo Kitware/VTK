@@ -30,14 +30,16 @@
 #include "vtkTransform.h"
 #include "vtkVolumeProperty.h"
 #include "vtkUnstructuredGridBunykRayCastFunction.h"
+#include "vtkUnstructuredGridVolumeRayCastIterator.h"
 #include "vtkRayCastImageDisplayHelper.h"
+#include "vtkDoubleArray.h"
 
 #include <math.h>
 
 VTK_THREAD_RETURN_TYPE UnstructuredGridVolumeRayCastMapper_CastRays( void *arg );
 
 
-vtkCxxRevisionMacro(vtkUnstructuredGridVolumeRayCastMapper, "1.14");
+vtkCxxRevisionMacro(vtkUnstructuredGridVolumeRayCastMapper, "1.15");
 vtkStandardNewMacro(vtkUnstructuredGridVolumeRayCastMapper);
 
 vtkCxxSetObjectMacro(vtkUnstructuredGridVolumeRayCastMapper, RayCastFunction,
@@ -184,6 +186,8 @@ void vtkUnstructuredGridVolumeRayCastMapper::ReleaseGraphicsResources(vtkWindow 
 
 void vtkUnstructuredGridVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume *vol )
 {
+  int i;
+
   // make sure that we have scalar input and update the scalar input
   if ( this->GetInput() == NULL ) 
     {
@@ -288,7 +292,7 @@ void vtkUnstructuredGridVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume
     
     unsigned char *ucptr = this->Image;
     
-    for ( int i = 0; i < this->ImageMemorySize[0]*this->ImageMemorySize[1]; i++ )
+    for ( i = 0; i < this->ImageMemorySize[0]*this->ImageMemorySize[1]; i++ )
       {
       *(ucptr++) = 0;
       *(ucptr++) = 0;
@@ -339,6 +343,14 @@ void vtkUnstructuredGridVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume
   // Save the volume and mapper temporarily so that they can be accessed later
   this->CurrentVolume   = vol;
   this->CurrentRenderer = ren;
+
+  // Create iterators here to prevent race conditions.
+  this->RayCastIterators
+    = new vtkUnstructuredGridVolumeRayCastIterator*[this->NumberOfThreads];
+  for (i = 0; i < this->NumberOfThreads; i++)
+    {
+    this->RayCastIterators[i] = this->RayCastFunction->NewIterator();
+    }
   
   // Set the number of threads to use for ray casting,
   // then set the execution method and do it.
@@ -346,10 +358,16 @@ void vtkUnstructuredGridVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume
   this->Threader->SetSingleMethod( UnstructuredGridVolumeRayCastMapper_CastRays, 
                                    (void *)this);
   this->Threader->SingleMethodExecute();
+  this->RayCastFunction->DebugOff();
   
   // We don't need these anymore
   this->CurrentVolume   = NULL;
   this->CurrentRenderer = NULL;
+  for (i = 0; i < this->NumberOfThreads; i++)
+    {
+    this->RayCastIterators[i]->Delete();
+    }
+  delete[] this->RayCastIterators;
   
   if ( !ren->GetRenderWindow()->GetAbortRender() )
     {
@@ -414,6 +432,8 @@ void vtkUnstructuredGridVolumeRayCastMapper::CastRays( int threadID, int threadC
   unsigned char *ucptr;
 
   vtkRenderWindow *renWin = this->CurrentRenderer->GetRenderWindow();
+  vtkUnstructuredGridVolumeRayCastIterator *iterator
+    = this->RayCastIterators[threadID];
 
   for ( j = 0; j < this->ImageInUseSize[1]; j++ )
     {
@@ -448,8 +468,9 @@ void vtkUnstructuredGridVolumeRayCastMapper::CastRays( int threadID, int threadC
         {
         bounds[1] = this->GetZBufferValue( x, y );
         }
-      
-      this->RayCastFunction->CastRay( x, y, bounds, color );
+
+      iterator->SetBounds(bounds);
+      this->RayCastFunction->CastRay( x, y, iterator, color );
       
       if ( color[3] > 0.0 )
         {

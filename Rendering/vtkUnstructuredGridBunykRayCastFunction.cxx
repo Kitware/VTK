@@ -31,13 +31,198 @@
 #include "vtkPiecewiseFunction.h"
 #include "vtkColorTransferFunction.h"
 #include "vtkVolumeProperty.h"
+#include "vtkUnstructuredGridVolumeRayCastIterator.h"
 
-vtkCxxRevisionMacro(vtkUnstructuredGridBunykRayCastFunction, "1.27");
+vtkCxxRevisionMacro(vtkUnstructuredGridBunykRayCastFunction, "1.28");
 vtkStandardNewMacro(vtkUnstructuredGridBunykRayCastFunction);
 
 #define VTK_BUNYKRCF_NUMLISTS 100000
 
 #define VTK_BUNYKRCF_MAX_COMPONENTS 4
+
+template <class T>
+static vtkIdType TemplateCastRay(
+        const T *scalars, 
+        vtkUnstructuredGridBunykRayCastFunction *self,
+        int numComponents,
+        int x, int y, 
+        double farClipZ,
+        vtkUnstructuredGridBunykRayCastFunction::Intersection *&intersectionPtr,
+        vtkUnstructuredGridBunykRayCastFunction::Triangle *&currentTriangle,
+        vtkIdType &currentTetra,
+        vtkIdType *intersectedCells,
+        double *intersectionLengths,
+        T *nearIntersections,
+        T *farIntersections,
+        int maxNumIntersections);
+template<class T>
+static void TemplateIntegrateColor(
+                        vtkIdType numIntersections,
+                        int numComponents,
+                        const double *intersectionLengths,
+                        const T *nearIntersections,
+                        const T *farIntersections,
+                        vtkUnstructuredGridBunykRayCastFunction *self,
+                        float color[4]);
+
+//-----------------------------------------------------------------------------
+
+// This is an internal hidden class.
+
+class vtkUnstructuredGridBunykRayCastIterator
+  : public vtkUnstructuredGridVolumeRayCastIterator
+{
+public:
+  vtkTypeRevisionMacro(vtkUnstructuredGridBunykRayCastIterator,
+                       vtkUnstructuredGridVolumeRayCastIterator);
+  static vtkUnstructuredGridBunykRayCastIterator *New();
+  virtual void PrintSelf(ostream &os, vtkIndent indent);
+
+  void Initialize(int x, int y);
+
+  vtkIdType GetNextIntersections(vtkIdList *intersectedCells,
+                                 vtkDoubleArray *intersectionLengths,
+                                 vtkDataArray *scalars,
+                                 vtkDataArray *nearIntersections,
+                                 vtkDataArray *farIntersections);
+
+  vtkSetObjectMacro(RayCastFunction, vtkUnstructuredGridBunykRayCastFunction);
+  vtkGetObjectMacro(RayCastFunction, vtkUnstructuredGridBunykRayCastFunction);
+
+protected:
+  vtkUnstructuredGridBunykRayCastIterator();
+  ~vtkUnstructuredGridBunykRayCastIterator();
+
+  int RayPosition[2];
+
+  vtkUnstructuredGridBunykRayCastFunction *RayCastFunction;
+
+  vtkUnstructuredGridBunykRayCastFunction::Intersection *IntersectionPtr;
+  vtkUnstructuredGridBunykRayCastFunction::Triangle     *CurrentTriangle;
+  vtkIdType                                              CurrentTetra;
+};
+
+vtkCxxRevisionMacro(vtkUnstructuredGridBunykRayCastIterator, "1.28");
+vtkStandardNewMacro(vtkUnstructuredGridBunykRayCastIterator);
+
+vtkUnstructuredGridBunykRayCastIterator::vtkUnstructuredGridBunykRayCastIterator()
+{
+  this->RayCastFunction = NULL;
+}
+
+vtkUnstructuredGridBunykRayCastIterator::~vtkUnstructuredGridBunykRayCastIterator()
+{
+  this->SetRayCastFunction(NULL);
+}
+
+void vtkUnstructuredGridBunykRayCastIterator::PrintSelf(ostream &os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+
+  os << indent << "RayPosition: (" << this->RayPosition[0]
+     << ", " << this->RayPosition[1] << ")" << endl;
+  os << indent << "RayCastFunction: " << this->RayCastFunction << endl;
+}
+
+void vtkUnstructuredGridBunykRayCastIterator::Initialize(int x, int y)
+{
+  this->RayPosition[0] = x;  this->RayPosition[1] = y;
+
+  this->IntersectionPtr
+    = this->RayCastFunction->GetIntersectionList(this->RayPosition[0],
+                                                 this->RayPosition[1]);
+  this->CurrentTriangle = NULL;
+  this->CurrentTetra = -1;
+
+  // Intersect cells until we get to Bounds[0] (the near clip plane).
+  while(TemplateCastRay((const float *)NULL,
+                        this->RayCastFunction, 0,
+                        this->RayPosition[0], this->RayPosition[1],
+                        this->Bounds[0],
+                        this->IntersectionPtr,
+                        this->CurrentTriangle,
+                        this->CurrentTetra,
+                        (vtkIdType *)NULL,
+                        (double *)NULL,
+                        (float *)NULL,
+                        (float *)NULL,
+                        this->MaxNumberOfIntersections) > 0);
+}
+
+vtkIdType vtkUnstructuredGridBunykRayCastIterator::GetNextIntersections(
+                                         vtkIdList *intersectedCells,
+                                         vtkDoubleArray *intersectionLengths,
+                                         vtkDataArray *scalars,
+                                         vtkDataArray *nearIntersections,
+                                         vtkDataArray *farIntersections)
+{
+  if (intersectedCells)
+    {
+    intersectedCells->SetNumberOfIds(this->MaxNumberOfIntersections);
+    }
+  if (intersectionLengths)
+    {
+    intersectionLengths->SetNumberOfComponents(1);
+    intersectionLengths->SetNumberOfTuples(this->MaxNumberOfIntersections);
+    }
+
+  vtkIdType numIntersections = 0;
+
+  if (!scalars)
+    {
+    numIntersections = TemplateCastRay
+      ((const float *)NULL, this->RayCastFunction, 0,
+       this->RayPosition[0], this->RayPosition[0], this->Bounds[1],
+       this->IntersectionPtr, this->CurrentTriangle, this->CurrentTetra,
+       (intersectedCells ? intersectedCells->GetPointer(0) : NULL),
+       (intersectionLengths ? intersectionLengths->GetPointer(0) : NULL),
+       (float *)NULL, (float *)NULL, this->MaxNumberOfIntersections);
+    }
+  else
+    {
+    if (   (scalars->GetDataType() != nearIntersections->GetDataType())
+        || (scalars->GetDataType() != farIntersections->GetDataType()) )
+      {
+      vtkErrorMacro(<< "Data types for scalars do not match up.");
+      }
+
+    nearIntersections->SetNumberOfComponents(scalars->GetNumberOfComponents());
+    nearIntersections->SetNumberOfTuples(this->MaxNumberOfIntersections);
+    farIntersections->SetNumberOfComponents(scalars->GetNumberOfComponents());
+    farIntersections->SetNumberOfTuples(this->MaxNumberOfIntersections);
+
+    switch (scalars->GetDataType())
+      {
+      vtkTemplateMacro
+        (numIntersections = TemplateCastRay
+         ((const VTK_TT *)scalars->GetVoidPointer(0),
+          this->RayCastFunction, scalars->GetNumberOfComponents(),
+          this->RayPosition[0], this->RayPosition[1], this->Bounds[1],
+          this->IntersectionPtr, this->CurrentTriangle, this->CurrentTetra,
+          (intersectedCells ? intersectedCells->GetPointer(0) : NULL),
+          (intersectionLengths ? intersectionLengths->GetPointer(0) : NULL),
+          (VTK_TT *)nearIntersections->GetVoidPointer(0),
+          (VTK_TT *)farIntersections->GetVoidPointer(0),
+          this->MaxNumberOfIntersections));
+      }
+
+    nearIntersections->SetNumberOfTuples(numIntersections);
+    farIntersections->SetNumberOfTuples(numIntersections);
+    }
+
+  if (intersectedCells)
+    {
+    intersectedCells->SetNumberOfIds(numIntersections);
+    }
+  if (intersectionLengths)
+    {
+    intersectionLengths->SetNumberOfTuples(numIntersections);
+    }
+
+  return numIntersections;
+}
+
+//-----------------------------------------------------------------------------
 
 // Constructor - initially everything to null, and create a matrix for use later
 vtkUnstructuredGridBunykRayCastFunction::vtkUnstructuredGridBunykRayCastFunction()
@@ -80,10 +265,6 @@ vtkUnstructuredGridBunykRayCastFunction::vtkUnstructuredGridBunykRayCastFunction
   
   // Need to vary this based on cell size - for now assume 1
   this->SampleDistance = 1.0;
-
-  this->IntersectionLengths = NULL;
-  this->NearIntersections   = NULL;
-  this->FarIntersections    = NULL;
 }
 
 // Destructor - release all memory
@@ -114,10 +295,6 @@ vtkUnstructuredGridBunykRayCastFunction::~vtkUnstructuredGridBunykRayCastFunctio
   this->ViewToWorldMatrix->Delete();
   
   this->SetNumberOfComponents( 0 );
-
-  if (this->IntersectionLengths) this->IntersectionLengths->Delete();
-  if (this->NearIntersections)   this->NearIntersections->Delete();
-  if (this->FarIntersections)    this->FarIntersections->Delete();
 }
 
 void vtkUnstructuredGridBunykRayCastFunction::SetNumberOfComponents( int num )
@@ -1067,19 +1244,20 @@ int  vtkUnstructuredGridBunykRayCastFunction::IsTriangleFrontFacing( Triangle *t
 }
 
 template <class T>
-vtkIdType TemplateCastRay(const T *scalars, 
-                          vtkUnstructuredGridBunykRayCastFunction *self,
-                          int numComponents,
-                          int x, int y, 
-                          double farClipZ,
-                          vtkUnstructuredGridBunykRayCastFunction::Intersection *&intersectionPtr,
-                          vtkUnstructuredGridBunykRayCastFunction::Triangle *&currentTriangle,
-                          vtkIdType &currentTetra,
-                          vtkIdType *intersectedCells,
-                          double *intersectionLengths,
-                          T *nearIntersections,
-                          T *farIntersections,
-                          int maxNumIntersections )
+static vtkIdType TemplateCastRay(
+        const T *scalars, 
+        vtkUnstructuredGridBunykRayCastFunction *self,
+        int numComponents,
+        int x, int y, 
+        double farClipZ,
+        vtkUnstructuredGridBunykRayCastFunction::Intersection *&intersectionPtr,
+        vtkUnstructuredGridBunykRayCastFunction::Triangle *&currentTriangle,
+        vtkIdType &currentTetra,
+        vtkIdType *intersectedCells,
+        double *intersectionLengths,
+        T *nearIntersections,
+        T *farIntersections,
+        int maxNumIntersections)
 {
   int imageViewportSize[2];
   self->GetImageViewportSize( imageViewportSize );
@@ -1307,115 +1485,27 @@ vtkIdType TemplateCastRay(const T *scalars,
   return numIntersections;
 }
 
-void vtkUnstructuredGridBunykRayCastFunction::InitializeRay(int x, int y,
-                                                             double nearClipZ)
+vtkUnstructuredGridVolumeRayCastIterator
+    *vtkUnstructuredGridBunykRayCastFunction::NewIterator()
 {
-  if (!this->Valid) return;
+  if (!this->Valid) return NULL;
 
-  this->RayX = x;
-  this->RayY = y;
+  vtkUnstructuredGridBunykRayCastIterator *iterator
+    = vtkUnstructuredGridBunykRayCastIterator::New();
+  iterator->SetRayCastFunction(this);
 
-  this->IntersectionPtr = this->GetIntersectionList(x, y);
-  this->CurrentTriangle = NULL;
-  this->CurrentTetra = -1;
-
-  // Intersect cells until we get to the nearClipZ.
-  TemplateCastRay((const float *)NULL,
-                  this, 0,
-                  this->RayX, this->RayY,
-                  nearClipZ,
-                  this->IntersectionPtr,
-                  this->CurrentTriangle,
-                  this->CurrentTetra,
-                  (vtkIdType *)NULL,
-                  (double *)NULL,
-                  (float *)NULL,
-                  (float *)NULL,
-                  this->Mapper->GetInput()->GetNumberOfCells());
-}
-
-vtkIdType vtkUnstructuredGridBunykRayCastFunction::GetNextIntersections(vtkIdType maxNumIntersections,
-                                                                   vtkIdList *intersectedCells,
-                                                                   vtkDoubleArray *intersectionLengths,
-                                                                   vtkDataArray *scalars,
-                                                                   vtkDataArray *nearIntersections,
-                                                                   vtkDataArray*farIntersections,
-                                                                   double farClipZ)
-{
-  if (!this->Valid) return 0;
-
-  if (intersectedCells)
-    {
-    intersectedCells->SetNumberOfIds(maxNumIntersections);
-    }
-  if (intersectionLengths)
-    {
-    intersectionLengths->SetNumberOfComponents(1);
-    intersectionLengths->SetNumberOfTuples(maxNumIntersections);
-    }
-
-  vtkIdType numIntersections = 0;
-
-  if (!scalars)
-    {
-    numIntersections = TemplateCastRay
-      ((const float *)NULL, this, 0, this->RayX, this->RayY, farClipZ,
-       this->IntersectionPtr, this->CurrentTriangle, this->CurrentTetra,
-       (intersectedCells ? intersectedCells->GetPointer(0) : NULL),
-       (intersectionLengths ? intersectionLengths->GetPointer(0) : NULL),
-       (float *)NULL, (float *)NULL, maxNumIntersections);
-    }
-  else
-    {
-    if (   (scalars->GetDataType() != nearIntersections->GetDataType())
-        || (scalars->GetDataType() != farIntersections->GetDataType()) )
-      {
-      vtkErrorMacro(<< "Data types for scalars do not match up.");
-      }
-
-    nearIntersections->SetNumberOfComponents(scalars->GetNumberOfComponents());
-    nearIntersections->SetNumberOfTuples(maxNumIntersections);
-    farIntersections->SetNumberOfComponents(scalars->GetNumberOfComponents());
-    farIntersections->SetNumberOfTuples(maxNumIntersections);
-
-    switch (scalars->GetDataType())
-      {
-      vtkTemplateMacro
-        (numIntersections = TemplateCastRay
-         ((const VTK_TT *)scalars->GetVoidPointer(0),
-          this, scalars->GetNumberOfComponents(),
-          this->RayX, this->RayY, farClipZ,
-          this->IntersectionPtr, this->CurrentTriangle, this->CurrentTetra,
-          (intersectedCells ? intersectedCells->GetPointer(0) : NULL),
-          (intersectionLengths ? intersectionLengths->GetPointer(0) : NULL),
-          (VTK_TT *)nearIntersections->GetVoidPointer(0),
-          (VTK_TT *)farIntersections->GetVoidPointer(0), maxNumIntersections));
-      }
-
-    nearIntersections->SetNumberOfTuples(numIntersections);
-    farIntersections->SetNumberOfTuples(numIntersections);
-    }
-
-  if (intersectedCells)
-    {
-    intersectedCells->SetNumberOfIds(numIntersections);
-    }
-  if (intersectionLengths)
-    {
-    intersectionLengths->SetNumberOfTuples(numIntersections);
-    }
-
-  return numIntersections;
+  return iterator;
 }
 
 template<class T>
-void TemplateIntegrateColor(vtkIdType numIntersections,
-                            int numComponents,
-                            const double *intersectionLengths,
-                            const T *nearIntersections,
-                            const T *farIntersections,
-                            vtkUnstructuredGridBunykRayCastFunction *self,
-                            float color[4])
+static void TemplateIntegrateColor(
+                        vtkIdType numIntersections,
+                        int numComponents,
+                        const double *intersectionLengths,
+                        const T *nearIntersections,
+                        const T *farIntersections,
+                        vtkUnstructuredGridBunykRayCastFunction *self,
+                        float color[4])
 {
   double **colorTable      = self->GetColorTable();
   double  *colorTableShift = self->GetColorTableShift();
@@ -1474,7 +1564,7 @@ void TemplateIntegrateColor(vtkIdType numIntersections,
     }
 }
 
-void vtkUnstructuredGridBunykRayCastFunction::CastRay( int x, int y, double bounds[2], float color[4] )
+void vtkUnstructuredGridBunykRayCastFunction::CastRay( int x, int y, vtkUnstructuredGridVolumeRayCastIterator *iterator, float color[4] )
 {
   color[0] = 0.0;
   color[1] = 0.0;
@@ -1486,46 +1576,38 @@ void vtkUnstructuredGridBunykRayCastFunction::CastRay( int x, int y, double boun
     return;
     }
 
-  if (!this->IntersectionLengths)
-    {
-    this->IntersectionLengths = vtkDoubleArray::New();
-    }
-  if (!this->NearIntersections || (   this->NearIntersections->GetDataType()
-                                   != this->Scalars->GetDataType() ) )
-    {
-    this->NearIntersections
-      = vtkDataArray::CreateDataArray(this->Scalars->GetDataType());
-    }
-  if (!this->FarIntersections || (   this->FarIntersections->GetDataType()
-                                  != this->Scalars->GetDataType() ) )
-    {
-    this->FarIntersections
-      = vtkDataArray::CreateDataArray(this->Scalars->GetDataType());
-    }
+  vtkDoubleArray *intersectionLengths = vtkDoubleArray::New();
+  vtkDataArray *nearIntersections
+    = vtkDataArray::CreateDataArray(this->Scalars->GetDataType());
+  vtkDataArray *farIntersections
+    = vtkDataArray::CreateDataArray(this->Scalars->GetDataType());
 
-  this->InitializeRay(x, y, bounds[0]);
+  iterator->Initialize(x, y);
 
   vtkIdType numIntersections;
   do
     {
-    numIntersections = this->GetNextIntersections(32, NULL,
-                                                  this->IntersectionLengths,
-                                                  this->Scalars,
-                                                  this->NearIntersections,
-                                                  this->FarIntersections,
-                                                  bounds[1]);
+    numIntersections = iterator->GetNextIntersections(NULL,
+                                                      intersectionLengths,
+                                                      this->Scalars,
+                                                      nearIntersections,
+                                                      farIntersections);
 
     switch (this->Scalars->GetDataType())
       {
       vtkTemplateMacro(TemplateIntegrateColor
                        (numIntersections,
                         this->Scalars->GetNumberOfComponents(),
-                        this->IntersectionLengths->GetPointer(0),
-                        (const VTK_TT *)this->NearIntersections->GetVoidPointer(0),
-                        (const VTK_TT *)this->FarIntersections->GetVoidPointer(0),
+                        intersectionLengths->GetPointer(0),
+                        (const VTK_TT *)nearIntersections->GetVoidPointer(0),
+                        (const VTK_TT *)farIntersections->GetVoidPointer(0),
                         this, color));
       }
     } while ((numIntersections > 0) && (color[3] < 0.99));
+
+  intersectionLengths->Delete();
+  nearIntersections->Delete();
+  farIntersections->Delete();
 }
 
 void vtkUnstructuredGridBunykRayCastFunction::Finalize( )

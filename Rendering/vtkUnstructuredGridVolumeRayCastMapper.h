@@ -30,6 +30,7 @@ class vtkRenderer;
 class vtkTimerLog;
 class vtkVolume;
 class vtkUnstructuredGridVolumeRayCastFunction;
+class vtkUnstructuredGridVolumeRayCastIterator;
 class vtkRayCastImageDisplayHelper;
 
 class VTK_RENDERING_EXPORT vtkUnstructuredGridVolumeRayCastMapper : public vtkUnstructuredGridVolumeMapper
@@ -166,6 +167,7 @@ protected:
                                        vtkVolume   *vol );
   
   vtkUnstructuredGridVolumeRayCastFunction *RayCastFunction;
+  vtkUnstructuredGridVolumeRayCastIterator **RayCastIterators;
 
   vtkVolume     *CurrentVolume;
   vtkRenderer   *CurrentRenderer;

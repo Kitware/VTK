@@ -98,6 +98,7 @@ vtkTexture.cxx
 vtkUnstructuredGridBunykRayCastFunction.cxx
 vtkUnstructuredGridVolumeMapper.cxx
 vtkUnstructuredGridVolumeRayCastFunction.cxx
+vtkUnstructuredGridVolumeRayCastIterator.cxx
 vtkUnstructuredGridVolumeRayCastMapper.cxx
 vtkVRMLExporter.cxx
 vtkVolume.cxx
@@ -163,6 +164,7 @@ vtkProp3D
 vtkRayCastImageDisplayHelper
 vtkUnstructuredGridVolumeMapper
 vtkUnstructuredGridVolumeRayCastFunction
+vtkUnstructuredGridVolumeRayCastIterator
 vtkVolumeMapper
 vtkVolumeRayCastFunction
 vtkVolumeTextureMapper
