@@ -477,6 +477,7 @@ void vtkSweptSurface::ComputeBounds(float origin[3], float spacing[3], float bbo
       h = this->AdjustDistance * spacing[i];
       xmin[i] -= h;
       xmax[i] += h;
+      spacing[i] = xmax[i] - xmin[i];
       }
     }
 
