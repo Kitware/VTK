@@ -1,9 +1,12 @@
 #!/usr/bin/env perl
-# Time-stamp: <2001-09-28 11:27:02 barre>
+# Time-stamp: <2001-10-01 09:54:39 barre>
 #
 # Extract VTK version and add it to documentation
 #
 # barre : Sebastien Barre <sebastien@barre.nom.fr>
+#
+# 0.22 (barre) :
+#   - add more (useful) links to various VTK documentation ressources
 #
 # 0.21 (barre) :
 #   - no more --logo defaults
@@ -42,7 +45,7 @@ use Fcntl;
 use Getopt::Long;
 use strict;
 
-my ($VERSION, $PROGNAME, $AUTHOR) = (0.21, $0, "Sebastien Barre");
+my ($VERSION, $PROGNAME, $AUTHOR) = (0.22, $0, "Sebastien Barre");
 $PROGNAME =~ s/^.*[\\\/]//;
 print "$PROGNAME $VERSION, by $AUTHOR\n";
 
@@ -135,8 +138,17 @@ print DEST_FILE
 print DEST_FILE 
   "  $revision\n",
   "  $date\n",
-  "  \@sa VTK home page (Kitware): http://public.kitware.com\n",
-  "  \@sa DOC project (Sebastien Barre): http://www.barre.nom.fr/vtk/doc/README\n",
+  "  \@par Useful links:\n",
+  "  \@li VTK Home: http://public.kitware.com\n",
+  "  \@li VTK Mailing List: http://public.kitware.com/mailman/listinfo/vtkusers\n",
+  "  \@li VTK FAQ: http://public.kitware.com/cgi-bin/vtkfaq\n",
+  "  \@li VTK Search: http://www.kitware.com/search.html\n",
+  "  \@li VTK Dashboard: http://public.kitware.com/vtkhtml/Testing/HTML/TestingResults/Dashboard/MostRecentResults-Nightly/Dashboard.html",
+  "  \@li VTK-Doxygen scripts (Sebastien Barre): http://www.barre.nom.fr/vtk/doc/README\n",
+  "  \@li Kitware Home: http://www.kitware.com\n",
+  "  \@li Sebastien's VTK Links: http://www.barre.nom.fr/vtk/links.html\n",
+  "  \@li Other Links: http://public.kitware.com/vtkhtml/otherLinks.html\n",
+  " ",
   "*/\n\n";
 
 close(DEST_FILE);
