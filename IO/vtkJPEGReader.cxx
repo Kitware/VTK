@@ -24,7 +24,7 @@ extern "C" {
 }
 
 
-vtkCxxRevisionMacro(vtkJPEGReader, "1.17");
+vtkCxxRevisionMacro(vtkJPEGReader, "1.18");
 vtkStandardNewMacro(vtkJPEGReader);
 
 
@@ -133,7 +133,7 @@ void vtkJPEGReader::ExecuteInformation()
 }
 
 template <class OT>
-void vtkJPEGReaderUpdate2(vtkJPEGReader *self, OT *outPtr,
+int vtkJPEGReaderUpdate2(vtkJPEGReader *self, OT *outPtr,
                           int *outExt, int *outInc, long)
 {
   unsigned int ui;
@@ -141,7 +141,7 @@ void vtkJPEGReaderUpdate2(vtkJPEGReader *self, OT *outPtr,
   FILE *fp = fopen(self->GetInternalFileName(), "rb");
   if (!fp)
     {
-    return;
+    return 1;
     }
 
   // create jpeg decompression object and error handler
@@ -160,10 +160,9 @@ void vtkJPEGReaderUpdate2(vtkJPEGReader *self, OT *outPtr,
     jpeg_destroy_decompress(&cinfo);
     // close the file
     fclose(fp);
-    vtkErrorWithObjectMacro(self, "libjpeg could not read file: "
-                            << self->GetInternalFileName());
+
     // this is not a valid jpeg file
-    return;
+    return 2;
     }
   jpeg_create_decompress(&cinfo);
 
@@ -217,6 +216,7 @@ void vtkJPEGReaderUpdate2(vtkJPEGReader *self, OT *outPtr,
 
   // close the file
   fclose(fp);
+  return 0;
 }
 
 //----------------------------------------------------------------------------
@@ -240,7 +240,12 @@ void vtkJPEGReaderUpdate(vtkJPEGReader *self, vtkImageData *data, OT *outPtr)
     {
     self->ComputeInternalFileName(idx2);
     // read in a JPEG file
-    vtkJPEGReaderUpdate2(self, outPtr2, outExtent, outIncr, pixSize);
+    if ( vtkJPEGReaderUpdate2(self, outPtr2, outExtent, outIncr, pixSize) == 2 )
+      {
+      const char* fn = self->GetInternalFileName();
+      vtkErrorWithObjectMacro(self, "libjpeg could not read file: " << fn);
+      }
+    
     self->UpdateProgress((idx2 - outExtent[4])/
                          (outExtent[5] - outExtent[4] + 1.0));
     outPtr2 += outIncr[2];
