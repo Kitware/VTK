@@ -57,7 +57,6 @@ class vtkWindow;
 class vtkViewport;
 class vtkActor2D;
 #include "vtkImageData.h"
-#include "vtkLookupTable.h"
 
 class VTK_EXPORT vtkImageMapper : public vtkMapper2D
 {
@@ -139,17 +138,6 @@ public:
   vtkSetVectorMacro(CustomDisplayExtents,int,4);
   vtkGetVectorMacro(CustomDisplayExtents,int,4);
 
-  // Description:
-  // The ImageMappers convert ImageData into a greyscale image when a single
-  // scalar component is present.
-  // If a lookuptable is supplied, values are mapped through the lookuptable
-  // to generate a colour image. If the number of scalar components is greater
-  // then one, the lookuptable is ignored. If the lookuptable is NULL, a default
-  // greyscale image is generated. Users should ensure that the range of the
-  // lookuptable is {0,255} for full colour effects
-  vtkSetObjectMacro(LookupTable, vtkLookupTable);
-  vtkGetObjectMacro(LookupTable, vtkLookupTable);
-
 protected:
   vtkImageMapper();
   ~vtkImageMapper();
@@ -159,8 +147,6 @@ protected:
   vtkImageData* Input;
   float ColorWindow;
   float ColorLevel;
-
-  vtkLookupTable *LookupTable;
 
   int PositionAdjustment[2];
   int ZSlice;

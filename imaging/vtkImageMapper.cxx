@@ -70,7 +70,6 @@ vtkImageMapper::vtkImageMapper()
   this->CustomDisplayExtents[0] = this->CustomDisplayExtents[1] = 0;
   this->CustomDisplayExtents[2] = this->CustomDisplayExtents[3] = 0;
 
-  this->LookupTable = NULL;
 }
 
 vtkImageMapper::~vtkImageMapper()
@@ -80,23 +79,11 @@ vtkImageMapper::~vtkImageMapper()
     this->GetInput()->UnRegister(this);
     this->Input = NULL;
     }
-  if (this->LookupTable)
-    {
-    this->LookupTable->Delete();
-    }
 }
 
 unsigned long int vtkImageMapper::GetMTime()
 {
   unsigned long mTime=this->vtkMapper2D::GetMTime();
-  unsigned long time;
-
-  if ( this->LookupTable != NULL )
-    {
-    time = this->LookupTable->GetMTime();
-    mTime = ( time > mTime ? time : mTime );
-    }
-
   return mTime;
 }
 
@@ -116,15 +103,6 @@ void vtkImageMapper::PrintSelf(ostream& os, vtkIndent indent)
     this->CustomDisplayExtents[2] << " " <<
     this->CustomDisplayExtents[3] << "\n";
   //
-  if ( this->LookupTable )
-    {
-    os << indent << "Lookup Table:\n";
-    this->LookupTable->PrintSelf(os,indent.GetNextIndent());
-    }
-  else
-    {
-    os << indent << "Lookup Table: (none)\n";
-    }
 }
 
 vtkImageMapper* vtkImageMapper::New()

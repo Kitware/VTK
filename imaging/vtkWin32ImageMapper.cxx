@@ -25,6 +25,7 @@ vtkWin32ImageMapper::vtkWin32ImageMapper()
 {
   this->HBitmap = (HBITMAP)0;
   this->DataOut = NULL;
+  this->LookupTable = NULL;
 }
 
 vtkWin32ImageMapper::~vtkWin32ImageMapper()
@@ -34,6 +35,39 @@ vtkWin32ImageMapper::~vtkWin32ImageMapper()
     DeleteObject(this->HBitmap);
     this->HBitmap = (HBITMAP)0;
     }
+  if (this->LookupTable)
+    {
+    this->LookupTable->Delete();
+    }
+}
+
+void vtkWin32ImageMapper::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->vtkImageMapper::PrintSelf(os, indent);
+
+  if ( this->LookupTable )
+    {
+    os << indent << "Lookup Table:\n";
+    this->LookupTable->PrintSelf(os,indent.GetNextIndent());
+    }
+  else
+    {
+    os << indent << "Lookup Table: (none)\n";
+    }
+}
+
+unsigned long int vtkWin32ImageMapper::GetMTime()
+{
+  unsigned long mTime=this->vtkImageMapper::GetMTime();
+  unsigned long time;
+
+  if ( this->LookupTable != NULL )
+    {
+    time = this->LookupTable->GetMTime();
+    mTime = ( time > mTime ? time : mTime );
+    }
+
+  return mTime;
 }
 
 /*

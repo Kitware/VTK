@@ -52,6 +52,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 #include "vtkImageMapper.h"
+#include "vtkLookupTable.h"
 
 class vtkImageActor2D;
 
@@ -61,7 +62,7 @@ class VTK_EXPORT vtkWin32ImageMapper : public vtkImageMapper
 public:
   static vtkWin32ImageMapper *New();
   vtkTypeMacro(vtkWin32ImageMapper,vtkImageMapper);
-  
+
   // Description:
   // Handle the render method.
   void RenderOverlay(vtkViewport* viewport, vtkActor2D* actor) {
@@ -72,6 +73,25 @@ public:
   // the image to the screen.
   void RenderData(vtkViewport* viewport, vtkImageData* data,
 		  vtkActor2D* actor);
+
+  // Description:
+  // Compute modified time including lookuptable
+  unsigned long int GetMTime();
+
+  // Description:
+  // standard Printself routine
+  void PrintSelf(ostream& os, vtkIndent indent);
+
+  // Description:
+  // The ImageMappers convert ImageData into a greyscale image when a single
+  // scalar component is present.
+  // If a lookuptable is supplied, values are mapped through the lookuptable
+  // to generate a colour image. If the number of scalar components is greater
+  // then one, the lookuptable is ignored. If the lookuptable is NULL, a default
+  // greyscale image is generated. Users should ensure that the range of the
+  // lookuptable is {0,255} for full colour effects
+  vtkSetObjectMacro(LookupTable, vtkLookupTable);
+  vtkGetObjectMacro(LookupTable, vtkLookupTable);
 
   // Description:
   // CreateBitmapObject and GenerateBitmapData are utility functions which
@@ -92,6 +112,8 @@ public:
   HBITMAP HBitmap;			// our handle to the DIBSection
 
 protected:
+  vtkLookupTable *LookupTable;
+
   vtkWin32ImageMapper();
   ~vtkWin32ImageMapper();
   vtkWin32ImageMapper(const vtkWin32ImageMapper&) {};
