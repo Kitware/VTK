@@ -302,7 +302,10 @@ void vtkOBBTree::ComputeOBB(vtkIdList *cells, float corner[3], float max[3],
   tot_mass = 0.0;
   a[0] = a0; a[1] = a1; a[2] = a2;
   for ( i=0; i<3; i++ )
+    {
     a0[i] = a1[i] = a2[i] = 0.0;
+    }
+  
   for ( i=0; i < numCells; i++ )
     {
     cellId = cells->GetId( i );
@@ -312,7 +315,9 @@ void vtkOBBTree::ComputeOBB(vtkIdList *cells, float corner[3], float max[3],
       {
       vtkCELLTRIANGLES( ptIds, type, j, pId, qId, rId );
       if ( pId < 0 )
+        {
         continue;
+        }
       p = this->DataSet->GetPoint( pId );
       q = this->DataSet->GetPoint( qId );
       r = this->DataSet->GetPoint( rId );
@@ -329,7 +334,10 @@ void vtkOBBTree::ComputeOBB(vtkIdList *cells, float corner[3], float max[3],
       vtkMath::Cross( dp0, dp1, xp );
       tri_mass = 0.5*vtkMath::Norm( xp );
       tot_mass += tri_mass;
-      for ( k=0; k<3; k++ ) mean[k] += tri_mass*c[k];
+      for ( k=0; k<3; k++ ) 
+        {
+        mean[k] += tri_mass*c[k];
+        }
       
       // on-diagonal terms
       a0[0] += tri_mass*(9*c[0]*c[0] + p[0]*p[0] + q[0]*q[0] + r[0]*r[0])/12;
@@ -341,11 +349,10 @@ void vtkOBBTree::ComputeOBB(vtkIdList *cells, float corner[3], float max[3],
       a0[2] += tri_mass*(9*c[0]*c[2] + p[0]*p[2] + q[0]*q[2] + r[0]*r[2])/12;
       a1[2] += tri_mass*(9*c[1]*c[2] + p[1]*p[2] + q[1]*q[2] + r[1]*r[2])/12;
       } // end foreach triangle
-    //
+
     // While computing cell moments, gather all the cell's
     // point coordinates into a single list.
     //
-    
     for ( j=0; j < numPts; j++ )
       {
       if ( this->InsertedPoints[ptIds[j]] != this->OBBCount )
@@ -370,8 +377,12 @@ void vtkOBBTree::ComputeOBB(vtkIdList *cells, float corner[3], float max[3],
   
   // get covariance from moments
   for ( i=0; i<3; i++ )
+    {
     for ( j=0; j<3; j++ )
+      {
       a[i][j] = a[i][j]/tot_mass - mean[i]*mean[j];
+      }
+    }
     
     //
     // Extract axes (i.e., eigenvectors) from covariance matrix. 
@@ -402,8 +413,14 @@ void vtkOBBTree::ComputeOBB(vtkIdList *cells, float corner[3], float max[3],
       for (i=0; i < 3; i++)
         {
         vtkLine::DistanceToLine(p, mean, a[i], t, closest);
-        if ( t < tMin[i] ) tMin[i] = t;
-        if ( t > tMax[i] ) tMax[i] = t;
+        if ( t < tMin[i] ) 
+          {
+          tMin[i] = t;
+          }
+        if ( t > tMax[i] ) 
+          {
+          tMax[i] = t;
+          }
         }
       }//for all points
     
@@ -500,7 +517,9 @@ int vtkOBBTree::IntersectWithLine(float a0[3], float a1[3], float tol,
     }
 
   if ( cellIdBest < 0 )
+    {
     return 0;
+    }
   else
     {
     cellId = cellIdBest;
@@ -515,24 +534,38 @@ void vtkOBBNode::DebugPrintTree( int level, double *leaf_vol,
   int nCells, i;
 
   if ( this->Cells != NULL )
+    {
     nCells = this->Cells->GetNumberOfIds();
+    }
   else
+    {
     nCells = 0;
+    }
+  
   vtkMath::Cross( this->Axes[0], this->Axes[1], xp );
   volume = fabs( vtkMath::Dot( xp, this->Axes[2] ) );
   for ( i=0; i<3; i++ )
+    {
     c[i] = this->Corner[i] + 0.5*this->Axes[0][i] + 0.5*this->Axes[1][i]
-                           + 0.5*this->Axes[2][i];
+      + 0.5*this->Axes[2][i];
+    }
+  
   for ( i=0; i<level; i++ )
+    {
     cout<<"  ";
+    }
   cout <<level<<" # Cells: "<<nCells<<", Volume: "<<volume<<"\n";
   for ( i=0; i<level; i++ )
+    {
     cout<<"  ";
+    }
   cout << "    " << vtkMath::Norm( this->Axes[0] ) << " X " <<
                     vtkMath::Norm( this->Axes[1] ) << " X " <<
                     vtkMath::Norm( this->Axes[2] ) << "\n";
   for ( i=0; i<level; i++ )
+    {
     cout<<"  ";
+    }
   cout << "    Center: " << c[0] << " " << c[1] << " " << c[2] << "\n";
   if ( nCells != 0 )
     {
@@ -686,8 +719,14 @@ void vtkOBBTree::BuildTree(vtkIdList *cells, vtkOBBNode *OBBptr, int level)
           c[0] += x[0];
           c[1] += x[1];
           c[2] += x[2];
-          if ( val < 0.0 ) negative = 1;
-          else positive = 1;
+          if ( val < 0.0 ) 
+            {
+            negative = 1;
+            }
+          else 
+            {
+            positive = 1;
+            }
           }
 
         if ( negative && positive )
@@ -696,16 +735,25 @@ void vtkOBBTree::BuildTree(vtkIdList *cells, vtkOBBNode *OBBptr, int level)
           c[1] /= numPts;
           c[2] /= numPts;
           if ( n[0]*(c[0]-p[0])+n[1]*(c[1]-p[1])+n[2]*(c[2]-p[2]) < 0.0 )
+            {
             LHlist->InsertNextId(cellId);
+            }
           else
+            {
             RHlist->InsertNextId(cellId);
+            }
           }
         else
+          {
           if ( negative )
+            {
             LHlist->InsertNextId(cellId);
+            }
           else
+            {
             RHlist->InsertNextId(cellId);
-
+            }
+          }
         }//for all cells
 
       //evaluate this split
@@ -952,19 +1000,29 @@ int vtkOBBTree::DisjointOBBNodes( vtkOBBNode *nodeA,
     // compute A range
     dotA = vtkMath::Dot( pA->Axes[ii], AtoB );
     if ( dotA > 0 )
+      {
       rangeAmax += dotA;
+      }
     else
+      {
       rangeAmin += dotA;
-
+      }
+    
     // compute B range
     dotB = vtkMath::Dot( pB->Axes[ii], AtoB );
     if ( dotB > 0 )
+      {
       rangeBmax += dotB;
+      }
     else
+      {
       rangeBmin += dotB;
+      }
     }
   if ( (rangeAmax+eps < rangeBmin) || (rangeBmax+eps < rangeAmin) )
+    {
     return( 1 ); // A and B are Disjoint by the 1st test.
+    }
 
   // now check for a separation plane parallel to the faces of B
   for ( ii=0; ii<3; ii++ )
@@ -980,12 +1038,18 @@ int vtkOBBTree::DisjointOBBNodes( vtkOBBNode *nodeA,
       // (note: we are saving all 9 dotproducts for future use)
       dotA = dotAB[ii][jj] = vtkMath::Dot( pB->Axes[ii], pA->Axes[jj] );
       if ( dotA > 0 )
+        {
         rangeAmax += dotA;
+        }
       else
+        {
         rangeAmin += dotA;
+        }
       }
     if ( (rangeAmax+eps < rangeBmin) || (rangeBmax+eps < rangeAmin) )
+      {
       return( 2 ); // A and B are Disjoint by the 3rd test.
+      }
     }
 
   // now check for a separation plane parallel to the faces of A
@@ -1002,12 +1066,18 @@ int vtkOBBTree::DisjointOBBNodes( vtkOBBNode *nodeA,
       // (note: we are using the 9 dotproducts computed earlier)
       dotB = dotAB[jj][ii];
       if ( dotB > 0 )
+        {
         rangeBmax += dotB;
+        }
       else
+        {
         rangeBmin += dotB;
+        }
       }
     if ( (rangeAmax+eps < rangeBmin) || (rangeBmax+eps < rangeAmin) )
+      {
       return( 3 ); // A and B are Disjoint by the 2nd test.
+      }
     }
 
   // Bad luck: now we must look for a separation plane parallel
@@ -1024,19 +1094,29 @@ int vtkOBBTree::DisjointOBBNodes( vtkOBBNode *nodeA,
         // compute A range
         dotA = vtkMath::Dot( pA->Axes[kk], AtoB );
         if ( dotA > 0 )
+          {
           rangeAmax += dotA;
+          }
         else
+          {
           rangeAmin += dotA;
+          }
     
         // compute B range
         dotB = vtkMath::Dot( pB->Axes[kk], AtoB );
         if ( dotB > 0 )
+          {
           rangeBmax += dotB;
+          }
         else
+          {
           rangeBmin += dotB;
+          }
         }
       if ( (rangeAmax+eps < rangeBmin) || (rangeBmax+eps < rangeAmin) )
+        {
         return( 4 ); // A and B are Disjoint by the 4th test.
+        }
       }
   // if we fall through to here, the OBB's overlap
   return( 0 );
@@ -1093,13 +1173,19 @@ int vtkOBBTree::TriangleIntersectsNode( vtkOBBNode *nodeA,
     {
     dotA = vtkMath::Dot( xprod, pA->Axes[jj] );
     if ( dotA > 0 )
+      {
       rangeAmax += dotA;
+      }
     else
+      {
       rangeAmin += dotA;
+      }
     }
   if ( (rangeAmax+eps < rangeBmin) || (rangeBmax+eps < rangeAmin) )
+    {
     return( 0 ); // A and B are Disjoint by the 1st test.
-
+    }
+  
   // now check for a separation plane parallel to the faces of A
   for ( ii=0; ii<3; ii++ )
     { // plane is normal to pA->Axes[ii]
@@ -1111,22 +1197,34 @@ int vtkOBBTree::TriangleIntersectsNode( vtkOBBNode *nodeA,
     rangeBmin = rangeBmax = vtkMath::Dot( pB[0], pA->Axes[ii] );
     dotB = vtkMath::Dot( pB[1], pA->Axes[ii] );
     if ( dotB > rangeBmax )
+      {
       rangeBmax = dotB;
+      }
     else
+      {
       rangeBmin = dotB;
-
+      }
+    
     dotB = vtkMath::Dot( pB[2], pA->Axes[ii] );
     if ( dotB > rangeBmax )
+      {
       rangeBmax = dotB;
+      }
     else if ( dotB < rangeBmin )
+      {
       rangeBmin = dotB;
+      }
+
     if ( (rangeAmax+eps < rangeBmin) || (rangeBmax+eps < rangeAmin) )
+      {
       return( 0 ); // A and B are Disjoint by the 2nd test.
+      }
     }
 
   // Bad luck: now we must look for a separation plane parallel
   // to one edge from A and one edge from B.
   for ( ii=0; ii<3; ii++ )
+    {
     for ( jj=0; jj<3; jj++ )
       {
       // the plane is normal to pA->Axes[ii] X (pB[jj+1]-pB[jj])
@@ -1141,20 +1239,32 @@ int vtkOBBTree::TriangleIntersectsNode( vtkOBBNode *nodeA,
         // compute A range
         dotA = vtkMath::Dot( pA->Axes[kk], AtoB );
         if ( dotA > 0 )
+          {
           rangeAmax += dotA;
+          }
         else
+          {
           rangeAmin += dotA;
+          }
         }
       // compute B range
       dotB = vtkMath::Dot( pB[(jj+2)%3], AtoB );
       if ( dotB > rangeBmax )
+        {
         rangeBmax = dotB;
+        }
       else
+        {
         rangeBmin = dotB;
+        }
 
       if ( (rangeAmax+eps < rangeBmin) || (rangeBmax+eps < rangeAmin) )
+        {
         return( 0 ); // A and B are Disjoint by the 3rd test.
+        }
       }
+    }
+  
   // if we fall through to here, the OBB overlaps the triangle.
   return( 1 );
   }
@@ -1177,11 +1287,18 @@ int vtkOBBTree::LineIntersectsNode( vtkOBBNode *pA,
     rangeBmin = rangeBmax = vtkMath::Dot( B0, pA->Axes[ii] );
     dotB = vtkMath::Dot( B1, pA->Axes[ii] );
     if ( dotB < rangeBmin )
+      {
       rangeBmin = dotB;
+      }
     else
+      {
       rangeBmax = dotB;
+      }
+    
     if ( (rangeAmax < rangeBmin) || (rangeBmax < rangeAmin) )
+      {
       return( 0 ); // A and B are Disjoint by the 1st test.
+      }
     }
 
   // now check for a separation plane normal to the line segment B
@@ -1199,12 +1316,18 @@ int vtkOBBTree::LineIntersectsNode( vtkOBBNode *pA,
     {
     dotA = vtkMath::Dot( pA->Axes[ii], Bvec );
     if ( dotA > 0 )
+      {
       rangeAmax += dotA;
+      }
     else
+      {
       rangeAmin += dotA;
+      }
     }
   if ( (rangeAmax < rangeBmin) || (rangeBmax < rangeAmin) )
+    {
     return( 0 ); // A and B are Disjoint by the 2nd test.
+    }
 
   // Bad luck: now we must look for a separation plane parallel
   // to one edge from A and line B.
@@ -1219,21 +1342,31 @@ int vtkOBBTree::LineIntersectsNode( vtkOBBNode *pA,
       // compute A range
       dotA = vtkMath::Dot( pA->Axes[jj], AtoB );
       if ( dotA > 0 )
+        {
         rangeAmax += dotA;
+        }
       else
+        {
         rangeAmin += dotA;
+        }
       }
 
     // compute B range
     dotB = vtkMath::Dot( Bvec, AtoB );
     if ( dotB > 0 )
+      {
       rangeBmax += dotB;
+      }
     else
+      {
       rangeBmin += dotB;
+      }
     }
     if ( (rangeAmax < rangeBmin) || (rangeBmax < rangeAmin) )
-        return( 0 ); // A and B are Disjoint by the 3rd test.
-
+      {
+      return( 0 ); // A and B are Disjoint by the 3rd test.
+      }
+    
   return( 1 ); // if we fall through to here, the line must intersect the OBB
   }
 
@@ -1275,13 +1408,18 @@ int vtkOBBTree::IntersectWithOBBTree( vtkOBBTree *OBBTreeB,
     if ( !this->DisjointOBBNodes( nodeA, nodeB, XformBtoA ) )
       {
       if ( nodeA->Kids == NULL )
+        {
         if ( nodeB->Kids == NULL )
           { // then this is a pair of intersecting leaf nodes to process
           returnValue = (*function)( nodeA, nodeB, XformBtoA, data_arg );
           if ( returnValue >= 0 )
+            {
             count += returnValue;
+            }
           else
+            {
             count = returnValue;
+            }
           }
         else
           { // A is a leaf, but B goes deeper.
@@ -1291,7 +1429,9 @@ int vtkOBBTree::IntersectWithOBBTree( vtkOBBTree *OBBTreeB,
           OBBstackB[depth+1] = nodeB->Kids[1];
           depth += 2;
           }
+        }
       else
+        {
         if ( nodeB->Kids == NULL )
           { // B is a leaf, but A goes deeper.
           OBBstackB[depth] = nodeB;
@@ -1312,6 +1452,7 @@ int vtkOBBTree::IntersectWithOBBTree( vtkOBBTree *OBBTreeB,
           OBBstackB[depth+3] = nodeB->Kids[1];
           depth += 4;
           }
+        }
       }
     }
   // cleanup
