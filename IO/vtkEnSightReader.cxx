@@ -26,7 +26,7 @@
 #include "vtkStructuredPoints.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkEnSightReader, "1.41");
+vtkCxxRevisionMacro(vtkEnSightReader, "1.42");
 
 //----------------------------------------------------------------------------
 vtkEnSightReader::vtkEnSightReader()
@@ -573,23 +573,23 @@ int vtkEnSightReader::ReadCaseFile()
     // found the VARIABLE section
     vtkDebugMacro(<< "*** VARIABLE section");
 
+    this->NumberOfScalarsPerNode = 0;
+    this->NumberOfVectorsPerNode = 0;
+    this->NumberOfTensorsSymmPerNode = 0;
+    this->NumberOfScalarsPerElement = 0;
+    this->NumberOfVectorsPerElement = 0;
+    this->NumberOfTensorsSymmPerElement = 0;
+    this->NumberOfScalarsPerMeasuredNode = 0;
+    this->NumberOfVectorsPerMeasuredNode = 0;
+    this->NumberOfComplexScalarsPerNode = 0;
+    this->NumberOfComplexVectorsPerNode = 0;
+    this->NumberOfComplexScalarsPerElement = 0;
+    this->NumberOfComplexVectorsPerElement = 0;
+      
     while(this->ReadNextDataLine(line) != 0 &&
           strncmp(line, "TIME", 4) != 0 &&
           strncmp(line, "FILE", 4) != 0)
       {
-      this->NumberOfScalarsPerNode = 0;
-      this->NumberOfVectorsPerNode = 0;
-      this->NumberOfTensorsSymmPerNode = 0;
-      this->NumberOfScalarsPerElement = 0;
-      this->NumberOfVectorsPerElement = 0;
-      this->NumberOfTensorsSymmPerElement = 0;
-      this->NumberOfScalarsPerMeasuredNode = 0;
-      this->NumberOfVectorsPerMeasuredNode = 0;
-      this->NumberOfComplexScalarsPerNode = 0;
-      this->NumberOfComplexVectorsPerNode = 0;
-      this->NumberOfComplexScalarsPerElement = 0;
-      this->NumberOfComplexVectorsPerElement = 0;
-      
       if (strncmp(line, "constant", 8) == 0)
         {
         vtkDebugMacro(<< line);
@@ -601,7 +601,6 @@ int vtkEnSightReader::ReadCaseFile()
           {
           vtkDebugMacro("scalar per node");
           this->VariableMode = vtkEnSightReader::SCALAR_PER_NODE;
-          this->AddVariableType();
           if (sscanf(line, " %*s %*s %*s %d %d %s", &timeSet, &fileSet,
                      subLine) == 3)
             {
@@ -622,13 +621,13 @@ int vtkEnSightReader::ReadCaseFile()
             this->AddVariableDescription(subLine);
             sscanf(line, " %*s %*s %*s %*s %s", subLine);
             }
+          this->AddVariableType();
           this->NumberOfScalarsPerNode++;
           }
         else if (strcmp(subLine, "element:") == 0)
           {
           vtkDebugMacro("scalar per element");
           this->VariableMode = vtkEnSightReader::SCALAR_PER_ELEMENT;
-          this->AddVariableType();
           if (sscanf(line, " %*s %*s %*s %d %d %s", &timeSet, &fileSet,
                      subLine) == 3)
             {
@@ -649,13 +648,13 @@ int vtkEnSightReader::ReadCaseFile()
             this->AddVariableDescription(subLine);
             sscanf(line, " %*s %*s %*s %*s %s", subLine);
             }
+          this->AddVariableType();
           this->NumberOfScalarsPerElement++;
           }
         else if (strcmp(subLine, "measured") == 0)
           {
           vtkDebugMacro("scalar per measured node");
           this->VariableMode = vtkEnSightReader::SCALAR_PER_MEASURED_NODE;
-          this->AddVariableType();
           if (sscanf(line, " %*s %*s %*s %*s %d %d %s", &timeSet, &fileSet,
                      subLine) == 3)
             {
@@ -677,6 +676,7 @@ int vtkEnSightReader::ReadCaseFile()
             this->AddVariableDescription(subLine);
             sscanf(line, " %*s %*s %*s %*s %*s %s", subLine);
             }
+          this->AddVariableType();
           this->NumberOfScalarsPerMeasuredNode++;
           }
         this->AddVariableFileName(subLine);
@@ -689,7 +689,6 @@ int vtkEnSightReader::ReadCaseFile()
           {
           vtkDebugMacro("vector per node");
           this->VariableMode = vtkEnSightReader::VECTOR_PER_NODE;
-          this->AddVariableType();
           if (sscanf(line, " %*s %*s %*s %d %d %s", &timeSet, &fileSet,
                      subLine) == 3)
             {
@@ -710,13 +709,13 @@ int vtkEnSightReader::ReadCaseFile()
             this->AddVariableDescription(subLine);
             sscanf(line, " %*s %*s %*s %*s %s", subLine);
             }
+          this->AddVariableType();
           this->NumberOfVectorsPerNode++;
           }
         else if (strcmp(subLine, "element:") == 0)
           {
           vtkDebugMacro("vector per element");
           this->VariableMode = vtkEnSightReader::VECTOR_PER_ELEMENT;
-          this->AddVariableType();
           if (sscanf(line, " %*s %*s %*s %d %d %s", &timeSet, &fileSet,
                      subLine) == 3)
             {
@@ -737,13 +736,13 @@ int vtkEnSightReader::ReadCaseFile()
             this->AddVariableDescription(subLine);
             sscanf(line, " %*s %*s %*s %*s %s", subLine);
             }
+          this->AddVariableType();
           this->NumberOfVectorsPerElement++;
           }
         else if (strcmp(subLine, "measured") == 0)
           {
           vtkDebugMacro("vector per measured node");
           this->VariableMode = vtkEnSightReader::VECTOR_PER_MEASURED_NODE;
-          this->AddVariableType();
           if (sscanf(line, " %*s %*s %*s %*s %d %d %s", &timeSet, &fileSet,
                      subLine) == 3)
             {
@@ -765,6 +764,7 @@ int vtkEnSightReader::ReadCaseFile()
             this->AddVariableDescription(subLine);
             sscanf(line, " %*s %*s %*s %*s %*s %s", subLine);
             }
+          this->AddVariableType();
           this->NumberOfVectorsPerMeasuredNode++;
           }
         this->AddVariableFileName(subLine);
@@ -777,7 +777,6 @@ int vtkEnSightReader::ReadCaseFile()
           {
           vtkDebugMacro("tensor symm per node");
           this->VariableMode = vtkEnSightReader::TENSOR_SYMM_PER_NODE;
-          this->AddVariableType();
           if (sscanf(line, " %*s %*s %*s %*s %d %d %s", &timeSet, &fileSet,
                      subLine) == 3)
             {
@@ -799,13 +798,13 @@ int vtkEnSightReader::ReadCaseFile()
             this->AddVariableDescription(subLine);
             sscanf(line, " %*s %*s %*s %*s %*s %s", subLine);
             }
+          this->AddVariableType();
           this->NumberOfTensorsSymmPerNode++;
           }
         else if (strcmp(subLine, "element:") == 0)
           {
           vtkDebugMacro("tensor symm per element");
           this->VariableMode = vtkEnSightReader::TENSOR_SYMM_PER_ELEMENT;
-          this->AddVariableType();
           if (sscanf(line, " %*s %*s %*s %*s %d %d %s", &timeSet, &fileSet,
                      subLine) == 3)
             {
@@ -827,6 +826,7 @@ int vtkEnSightReader::ReadCaseFile()
             this->AddVariableDescription(subLine);
             sscanf(line, " %*s %*s %*s %*s %*s %s", subLine);
             }
+          this->AddVariableType();
           this->NumberOfTensorsSymmPerElement++;
           }
         this->AddVariableFileName(subLine);
@@ -842,7 +842,6 @@ int vtkEnSightReader::ReadCaseFile()
             {
             vtkDebugMacro("complex scalar per node");
             this->VariableMode = vtkEnSightReader::COMPLEX_SCALAR_PER_NODE;
-            this->AddVariableType();
             if (sscanf(line, " %*s %*s %*s %*s %d %d %s", &timeSet, &fileSet,
                        subLine) == 3)
               {
@@ -866,13 +865,13 @@ int vtkEnSightReader::ReadCaseFile()
               this->AddVariableDescription(subLine);
               sscanf(line, " %*s %*s %*s %*s %*s %s %s", subLine, subLine2);
               }
+            this->AddVariableType();
             this->NumberOfComplexScalarsPerNode++;
             }
           else if (strcmp(subLine, "element:") == 0)
             {
             vtkDebugMacro("complex scalar per element");
             this->VariableMode = vtkEnSightReader::COMPLEX_SCALAR_PER_ELEMENT;
-            this->AddVariableType();
             if (sscanf(line, " %*s %*s %*s %*s %d %d %s", &timeSet, &fileSet,
                        subLine) == 3)
               {
@@ -896,6 +895,7 @@ int vtkEnSightReader::ReadCaseFile()
               this->AddVariableDescription(subLine);
               sscanf(line, " %*s %*s %*s %*s %*s %s %s", subLine, subLine2);
               }
+            this->AddVariableType();
             this->NumberOfComplexScalarsPerElement++;
             }
           }
@@ -906,7 +906,6 @@ int vtkEnSightReader::ReadCaseFile()
             {
             vtkDebugMacro("complex vector per node");
             this->VariableMode = vtkEnSightReader::COMPLEX_VECTOR_PER_NODE;
-            this->AddVariableType();
             if (sscanf(line, " %*s %*s %*s %*s %d %d %s", &timeSet, &fileSet,
                        subLine) == 3)
               {
@@ -930,13 +929,13 @@ int vtkEnSightReader::ReadCaseFile()
               this->AddVariableDescription(subLine);
               sscanf(line, " %*s %*s %*s %*s %*s %s %s", subLine, subLine2);
               }
+            this->AddVariableType();
             this->NumberOfComplexVectorsPerNode++;
             }
           else if (strcmp(subLine, "element:") == 0)
             {
             vtkDebugMacro("complex vector per element");
             this->VariableMode = vtkEnSightReader::COMPLEX_VECTOR_PER_ELEMENT;
-            this->AddVariableType();
             if (sscanf(line, " %*s %*s %*s %*s %d %d %s", &timeSet, &fileSet,
                        subLine) == 3)
               {
@@ -960,6 +959,7 @@ int vtkEnSightReader::ReadCaseFile()
               this->AddVariableDescription(subLine);
               sscanf(line, " %*s %*s %*s %*s %*s %s %s", subLine, subLine2);
               }
+            this->AddVariableType();
             this->NumberOfComplexVectorsPerElement++;
             }
           }
@@ -1123,9 +1123,31 @@ int vtkEnSightReader::ReadVariableFiles()
   vtkIdList *numStepsList, *filenameNumbers;
   int validTime, fileNum, filenameNum;
   char* fileName, *fileName2;
+  int attributeType = 0;
   
   for (i = 0; i < this->NumberOfVariables; i++)
     {
+    switch (this->VariableTypes[i])
+      {
+      case SCALAR_PER_NODE:
+      case VECTOR_PER_NODE:
+      case TENSOR_SYMM_PER_NODE:
+      case SCALAR_PER_MEASURED_NODE:
+      case VECTOR_PER_MEASURED_NODE:
+        attributeType = 0;
+        break;
+      case SCALAR_PER_ELEMENT:
+      case VECTOR_PER_ELEMENT:
+      case TENSOR_SYMM_PER_ELEMENT:
+        attributeType = 1;
+        break;
+      }
+    
+    if ( ! this->IsRequestedVariable(this->VariableDescriptions[i],
+                                     attributeType))
+      {
+      continue;
+      }
     timeStep = 0;
     timeStepInFile = 1;
     fileNum = 1;
@@ -1251,6 +1273,22 @@ int vtkEnSightReader::ReadVariableFiles()
     }
   for (i = 0; i < this->NumberOfComplexVariables; i++)
     {
+    switch(this->ComplexVariableTypes[i])
+      {
+      case COMPLEX_SCALAR_PER_NODE:
+      case COMPLEX_VECTOR_PER_NODE:
+        attributeType = 0;
+        break;
+      case COMPLEX_SCALAR_PER_ELEMENT:
+      case COMPLEX_VECTOR_PER_ELEMENT:
+        attributeType = 1;
+        break;
+      }
+    if ( ! this->IsRequestedVariable(this->ComplexVariableDescriptions[i],
+                                     attributeType))
+      {
+      continue;
+      }
     timeStep = 0;
     timeStepInFile = 1;
     fileNum = 1;

@@ -114,6 +114,40 @@ public:
   // 1 if it is EnSightGold, and -1 otherwise (meaning an error occurred).
   int DetermineEnSightVersion();
 
+  // Description:
+  // Set/get the flag for whether to read all the variables
+  vtkBooleanMacro(ReadAllVariables, int);
+  vtkSetMacro(ReadAllVariables, int);
+  vtkGetMacro(ReadAllVariables, int);
+  
+  // Description:
+  // Specify which variables to read.
+  // attributeType specifies whether this variable is point (=0)
+  // or cell (=1) data.
+  void AddVariableName(char* variableName, int attributeType);
+  void AddPointVariableName(char* variableName);
+  void AddCellVariableName(char* variableName);
+  
+  // Description:
+  // Remove all the requested variable names.
+  void RemoveAllVariableNames();
+  
+  // Description:
+  // Remove all requested point/cell variable names.
+  void RemoveAllPointVariableNames();
+  void RemoveAllCellVariableNames();
+
+  // Description:
+  // Will this variable be loaded?
+  // attributeType specifies whether this variable is point (=0)
+  // or cell (=1) data.
+  int IsRequestedVariable(char *variableName, int attributeType);
+  
+  // Description:
+  // Get the number of point/cell arrays in this data set.
+  int GetNumberOfPointArrays();
+  int GetNumberOfCellArrays();
+  
   //BTX
   enum FileTypes
   {
@@ -206,6 +240,12 @@ protected:
   
   vtkDataArrayCollection *TimeSets;
   virtual void SetTimeSets(vtkDataArrayCollection*);
+
+  int ReadAllVariables;
+  int NumberOfRequestedPointVariables;
+  int NumberOfRequestedCellVariables;
+  char** RequestedPointVariables;
+  char** RequestedCellVariables;
   
 private:
   vtkGenericEnSightReader(const vtkGenericEnSightReader&);  // Not implemented.

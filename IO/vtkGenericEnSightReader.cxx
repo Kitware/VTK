@@ -25,7 +25,7 @@
 #include "vtkEnSightGoldReader.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.32");
+vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.33");
 vtkStandardNewMacro(vtkGenericEnSightReader);
 
 vtkCxxSetObjectMacro(vtkGenericEnSightReader,TimeSets, 
@@ -69,6 +69,12 @@ vtkGenericEnSightReader::vtkGenericEnSightReader()
   this->MaximumTimeValue = 0;
   
   this->TimeSets = NULL;
+  
+  this->ReadAllVariables = 1;
+  this->NumberOfRequestedPointVariables = 0;
+  this->NumberOfRequestedCellVariables = 0;
+  this->RequestedPointVariables = NULL;
+  this->RequestedCellVariables = NULL;
 }
 
 //----------------------------------------------------------------------------
@@ -123,6 +129,26 @@ vtkGenericEnSightReader::~vtkGenericEnSightReader()
     this->ComplexVariableDescriptions = NULL;
     this->ComplexVariableTypes = NULL;
     }
+  
+  if (this->NumberOfRequestedPointVariables > 0)
+    {
+    for (i = 0; i < this->NumberOfRequestedPointVariables; i++)
+      {
+      delete [] this->RequestedPointVariables[i];
+      }
+    delete [] this->RequestedPointVariables;
+    this->RequestedPointVariables = NULL;
+    }
+
+  if (this->NumberOfRequestedCellVariables > 0)
+    {
+    for (i = 0; i < this->NumberOfRequestedCellVariables; i++)
+      {
+      delete [] this->RequestedCellVariables[i];
+      }
+    delete [] this->RequestedCellVariables;
+    this->RequestedCellVariables = NULL;
+    }
 
   this->SetTimeSets(0);
 }
@@ -137,6 +163,19 @@ void vtkGenericEnSightReader::Execute()
     return;
     }
 
+  if ( ! this->ReadAllVariables)
+    {
+    this->Reader->ReadAllVariablesOff();
+    this->Reader->RemoveAllVariableNames();
+    for (i = 0; i < this->NumberOfRequestedPointVariables; i++)
+      {
+      this->Reader->AddPointVariableName(this->RequestedPointVariables[i]);
+      }
+    for (i = 0; i < this->NumberOfRequestedCellVariables; i++)
+      {
+      this->Reader->AddCellVariableName(this->RequestedCellVariables[i]);
+      }
+    }
   this->Reader->SetTimeValue(this->GetTimeValue());
   this->Reader->Update();
 
@@ -643,7 +682,10 @@ void vtkGenericEnSightReader::AddVariableDescription(char* description)
     strcpy(newDescriptionList[i], this->VariableDescriptions[i]);
     delete [] this->VariableDescriptions[i];
     }
-  delete [] this->VariableDescriptions;
+  if (this->VariableDescriptions)
+    {
+    delete [] this->VariableDescriptions;
+    }
   
   // make room for new description
   this->VariableDescriptions = new char *[size+1];
@@ -1029,6 +1071,228 @@ void vtkGenericEnSightReader::ReplaceWildcardsHelper(char* fileName, int num)
     }
 }
 
+void vtkGenericEnSightReader::AddVariableName(char* variableName,
+                                              int attributeType)
+{
+  if (attributeType == 0)
+    {
+    this->AddPointVariableName(variableName);
+    }
+  else if (attributeType == 1)
+    {
+    this->AddCellVariableName(variableName);
+    }
+}
+
+void vtkGenericEnSightReader::AddPointVariableName(char* variableName)
+{
+  int size = this->NumberOfRequestedPointVariables;
+  int i;
+  
+  char **newNameList = new char *[size]; // temporary array
+  
+  // copy variable names and attribute types to temporary arrays
+  for (i = 0; i < size; i++)
+    {
+    newNameList[i] = new char[strlen(this->RequestedPointVariables[i]) + 1];
+    strcpy(newNameList[i], this->RequestedPointVariables[i]);
+    delete [] this->RequestedPointVariables[i];
+    }
+  if (this->RequestedPointVariables)
+    {
+    delete [] this->RequestedPointVariables;
+    }
+  
+  // make room for new variable names
+  this->RequestedPointVariables = new char *[size+1];
+  
+  // copy existing variables names back to the RequestedPointVariables array
+  for (i = 0; i < size; i++)
+    {
+    this->RequestedPointVariables[i] = new char[strlen(newNameList[i]) + 1];
+    strcpy(this->RequestedPointVariables[i], newNameList[i]);
+    delete [] newNameList[i];
+    }
+  delete [] newNameList;
+  
+  // add new variable name at end of RequestedPointVariables array
+  this->RequestedPointVariables[size] = new char[strlen(variableName) + 1];
+  strcpy(this->RequestedPointVariables[size], variableName);
+  
+  this->NumberOfRequestedPointVariables++;
+  this->Modified();
+}
+
+void vtkGenericEnSightReader::AddCellVariableName(char* variableName)
+{
+  int size = this->NumberOfRequestedCellVariables;
+  int i;
+  
+  char **newNameList = new char *[size]; // temporary array
+  
+  // copy variable names and attribute types to temporary arrays
+  for (i = 0; i < size; i++)
+    {
+    newNameList[i] = new char[strlen(this->RequestedCellVariables[i]) + 1];
+    strcpy(newNameList[i], this->RequestedCellVariables[i]);
+    delete [] this->RequestedCellVariables[i];
+    }
+  if (this->RequestedCellVariables)
+    {
+    delete [] this->RequestedCellVariables;
+    }
+  
+  // make room for new variable names
+  this->RequestedCellVariables = new char *[size+1];
+  
+  // copy existing variables names back to the RequestedCellVariables array
+  for (i = 0; i < size; i++)
+    {
+    this->RequestedCellVariables[i] = new char[strlen(newNameList[i]) + 1];
+    strcpy(this->RequestedCellVariables[i], newNameList[i]);
+    delete [] newNameList[i];
+    }
+  delete [] newNameList;
+  
+  // add new variable name at end of RequestedCellVariables array
+  this->RequestedCellVariables[size] = new char[strlen(variableName) + 1];
+  strcpy(this->RequestedCellVariables[size], variableName);
+  
+  this->NumberOfRequestedCellVariables++;
+  this->Modified();
+}
+
+void vtkGenericEnSightReader::RemoveAllVariableNames()
+{
+  this->RemoveAllPointVariableNames();
+  this->RemoveAllCellVariableNames();
+}
+
+void vtkGenericEnSightReader::RemoveAllPointVariableNames()
+{
+  int i;
+  for (i = 0; i < this->NumberOfRequestedPointVariables; i++)
+    {
+    delete [] this->RequestedPointVariables[i];
+    this->RequestedPointVariables[i] = NULL;
+    }
+  delete [] this->RequestedPointVariables;
+  this->RequestedPointVariables = NULL;
+  this->NumberOfRequestedPointVariables = 0;
+  this->Modified();
+}
+
+void vtkGenericEnSightReader::RemoveAllCellVariableNames()
+{
+  int i;
+  for (i = 0; i < this->NumberOfRequestedCellVariables; i++)
+    {
+    delete [] this->RequestedCellVariables[i];
+    this->RequestedCellVariables[i] = NULL;
+    }
+  delete [] this->RequestedCellVariables;
+  this->RequestedCellVariables = NULL;
+  this->NumberOfRequestedCellVariables = 0;
+  this->Modified();
+}
+
+int vtkGenericEnSightReader::IsRequestedVariable(char* variableName,
+                                                 int attributeType)
+{
+  int i;
+  
+  if (this->ReadAllVariables)
+    {
+    for (i = 0; i < this->NumberOfVariables; i++)
+      {
+      if (strcmp(variableName, this->VariableDescriptions[i]) == 0)
+        {
+        switch (attributeType)
+          {
+          case 0:
+            if (this->VariableTypes[i] <= 2 ||
+                this->VariableTypes[i] == 6 ||
+                this->VariableTypes[i] == 7)
+              {
+              return 1;
+              }
+            return 0;
+          case 1:
+            if (this->VariableTypes[i] > 2 &&
+                this->VariableTypes[i] < 6)
+              {
+              return 1;
+              }
+            return 0;
+          }
+        }
+      }
+    for (i = 0; i < this->NumberOfComplexVariables; i++)
+      {
+      if (strcmp(variableName, this->ComplexVariableDescriptions[i]) == 0)
+        {
+        switch (attributeType)
+          {
+          case 0:
+            if (this->ComplexVariableTypes[i] == 8 ||
+                this->ComplexVariableTypes[i] == 9)
+              {
+              return 1;
+              }
+            return 0;
+          case 1:
+            if (this->ComplexVariableTypes[i] == 10 ||
+                this->ComplexVariableTypes[i] == 11)
+              {
+              return 1;
+              }
+            return 0;
+          }
+        }
+      }
+    }
+  else
+    {
+    if (attributeType == 0)
+      {
+      for (i = 0; i < this->NumberOfRequestedPointVariables; i++)
+        {
+        if (strcmp(variableName, this->RequestedPointVariables[i]) == 0)
+          {
+          return 1;
+          }
+        }
+      }
+    else if (attributeType == 1)
+      {
+      for (i = 0; i < this->NumberOfRequestedCellVariables; i++)
+        {
+        if (strcmp(variableName, this->RequestedCellVariables[i]) == 0)
+          {
+          return 1;
+          }
+        }
+      }
+    }
+  return 0;
+}
+
+int vtkGenericEnSightReader::GetNumberOfPointArrays()
+{
+  return this->NumberOfScalarsPerNode + this->NumberOfVectorsPerNode +
+    this->NumberOfTensorsSymmPerNode + this->NumberOfScalarsPerMeasuredNode +
+    this->NumberOfVectorsPerMeasuredNode +
+    this->NumberOfComplexScalarsPerNode + this->NumberOfComplexVectorsPerNode;
+}
+
+int vtkGenericEnSightReader::GetNumberOfCellArrays()
+{
+  return this->NumberOfScalarsPerElement + this->NumberOfVectorsPerElement +
+    this->NumberOfTensorsSymmPerElement +
+    this->NumberOfComplexScalarsPerElement +
+    this->NumberOfComplexVectorsPerElement;
+}
+
 void vtkGenericEnSightReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
@@ -1064,6 +1328,6 @@ void vtkGenericEnSightReader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "TimeValue: " << this->TimeValue << endl;
   os << indent << "MinimumTimeValue: " << this->MinimumTimeValue << endl;
   os << indent << "MaximumTimeValue: " << this->MaximumTimeValue << endl;
-  os << indent << "TimeSets" << this->TimeSets << endl;
+  os << indent << "TimeSets: " << this->TimeSets << endl;
+  os << indent << "ReadAllVariables: " << this->ReadAllVariables << endl;
 }
-
