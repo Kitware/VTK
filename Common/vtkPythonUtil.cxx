@@ -46,6 +46,9 @@
 #elif (PY_MAJOR_VERSION == 2) && (PY_MINOR_VERSION == 1)
 #define VTK_PYTHON_UTIL_SUPRESS_UNINITIALIZED \
   0,0,0,0,
+#elif (PY_MAJOR_VERSION == 1) && (PY_MINOR_VERSION == 5)
+#define VTK_PYTHON_UTIL_SUPRESS_UNINITIALIZED \
+  0,0,0,0,
 #else
 #define VTK_PYTHON_UTIL_SUPRESS_UNINITIALIZED
 #endif
@@ -1765,7 +1768,9 @@ void vtkPythonCommand::Execute(vtkObject *ptr, unsigned long eventtype,
   // * At the moment, only string0 is supported as that is what ErrorEvent
   //   generates.
   //                                    
-  PyObject *CallDataTypeObj = PyObject_GetAttrString(this->obj, "CallDataType");
+  char CallDataTypeLiteral[] = "CallDataType"; // Need char*, not const char*.
+  PyObject *CallDataTypeObj = PyObject_GetAttrString(this->obj,
+                                                     CallDataTypeLiteral);
   char *CallDataTypeString = NULL;
   if (CallDataTypeObj)
     {
