@@ -1,4 +1,4 @@
-INCLUDE_REGULAR_EXPRESSION("^(lex|vtk|png|j|Task).*$")
+INCLUDE_REGULAR_EXPRESSION("^(lex|vtk|png|j|Task|Pipe).*$")
 
 LINK_LIBRARIES (
 vtkParallel
@@ -55,5 +55,12 @@ task1
 task2)
 
 ADD_EXECUTABLE(TaskParallelism TaskPara_SRCS)
+
+SOURCE_FILES( PipePara_SRCS
+PipelineParallelism
+pipe1
+pipe2)
+
+ADD_EXECUTABLE(PipelineParallelism PipePara_SRCS)
 
 

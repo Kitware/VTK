@@ -1,10 +1,11 @@
-// This example demonstrates now to write a task parallel application
+// This example demonstrates how to write a task parallel application
 // with VTK. It creates two different pipelines and assigns each to
 // one processor. These pipelines are:
 // 1. rtSource -> contour            -> probe
 //             \                     /
 //              -> gradient magnitude
 // 2. rtSource -> gradient -> shrink -> glyph3D
+// See task1.cxx and task2.cxx for the pipelines.
 
 #include "TaskParallelism.h"
 #include "vtkRenderWindow.h"
