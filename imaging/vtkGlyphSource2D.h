@@ -100,7 +100,7 @@ public:
   vtkGetMacro(Scale2,float);
 
   // Description:
-  // Set the center of the glyph. By default the center is (0,0).
+  // Set the color of the glyph. The default color is white.
   vtkSetVector3Macro(Color,float);
   vtkGetVectorMacro(Color,float,3);
 
