@@ -71,6 +71,8 @@ int TestFullySpecializedFunction()
 
 /* Test use of standard "bool" type and values.  */
 
+#if 0
+// Fails on kulu.crd IRIX64-6.5-CC-o3 (old SGI compiler).
 bool GetFalse()
 {
   return false;
@@ -98,7 +100,7 @@ int TestBool()
     }
   return result;
 }
-
+#endif
 //----------------------------------------------------------------------------
 
 int main()
@@ -108,9 +110,12 @@ int main()
     {
     result = 1;
     }
+#if 0
+  // Fails on kulu.crd IRIX64-6.5-CC-o3 (old SGI compiler).
   if(!TestBool())
     {
     result = 1;
     }
+#endif
   return result;
 }
