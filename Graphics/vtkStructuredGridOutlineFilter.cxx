@@ -19,7 +19,7 @@
 #include "vtkPolyData.h"
 #include "vtkStructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkStructuredGridOutlineFilter, "1.44");
+vtkCxxRevisionMacro(vtkStructuredGridOutlineFilter, "1.44.4.1");
 vtkStandardNewMacro(vtkStructuredGridOutlineFilter);
 
 //----------------------------------------------------------------------------
@@ -42,9 +42,14 @@ void vtkStructuredGridOutlineFilter::Execute()
   int edgeFlag;
   int i;
 
+  inPts = input->GetPoints();
+  if (!inPts)
+    {
+    return;
+    }
+  
   newLines = vtkCellArray::New();
   newPts = vtkPoints::New();
-  inPts = input->GetPoints();
 
   ext = input->GetExtent();
   wExt = input->GetWholeExtent();
