@@ -122,9 +122,19 @@ void vtkMPIController::PrintSelf(ostream& os, vtkIndent indent)
   vtkMultiProcessController::PrintSelf(os,indent);
 }
 
-void vtkMPIController::InitializeNumberOfProcesses()
+int vtkMPIController::InitializeNumberOfProcesses()
 {
-  MPI_Comm_size(MPI_COMM_WORLD, &(this->MaximumNumberOfProcesses));
+  int err;
+  if ( (err = MPI_Comm_size(MPI_COMM_WORLD, 
+			    &(this->MaximumNumberOfProcesses))) 
+       != MPI_SUCCESS  )
+    {
+    char *msg = vtkMPIController::ErrorString(err);
+    vtkErrorMacro("MPI error occured: " << msg);
+    delete[] msg;
+    return 0;
+    }
+
   if (this->MaximumNumberOfProcesses > VTK_MP_CONTROLLER_MAX_PROCESSES)
     {
     vtkWarningMacro("Maximum of " << VTK_MP_CONTROLLER_MAX_PROCESSES);
@@ -133,15 +143,22 @@ void vtkMPIController::InitializeNumberOfProcesses()
   
   this->NumberOfProcesses = this->MaximumNumberOfProcesses;
   
-  MPI_Comm_rank(MPI_COMM_WORLD, &(this->LocalProcessId));  
-
+  if ( (err = MPI_Comm_rank(MPI_COMM_WORLD, 
+			    &(this->LocalProcessId))) != MPI_SUCCESS)
+    {
+    char *msg = vtkMPIController::ErrorString(err);
+    vtkErrorMacro("MPI error occured: " << msg);
+    delete[] msg;
+    return 0;
+    }
+  return 1;
 }
 //----------------------------------------------------------------------------
 void vtkMPIController::Initialize(int* argc, char*** argv)
 {
   if (vtkMPIController::Initialized)
     {
-    vtkErrorMacro("Already initialized.");
+    vtkWarningMacro("Already initialized.");
     return;
     }
   
@@ -170,7 +187,7 @@ void vtkMPIController::SingleMethodExecute()
 {
   if(!vtkMPIController::Initialized)
     {
-    vtkErrorMacro("MPI has to be initialized first.");
+    vtkWarningMacro("MPI has to be initialized first.");
     return;
     }
 
@@ -183,7 +200,7 @@ void vtkMPIController::SingleMethodExecute()
       }
     else
       {
-      vtkErrorMacro("SingleMethod not set.");
+      vtkWarningMacro("SingleMethod not set.");
       }
     }
 }
@@ -195,7 +212,7 @@ void vtkMPIController::MultipleMethodExecute()
 {
   if(!vtkMPIController::Initialized)
     {
-    vtkErrorMacro("MPI has to be initialized first.");
+    vtkWarningMacro("MPI has to be initialized first.");
     return;
     }
 
@@ -210,7 +227,7 @@ void vtkMPIController::MultipleMethodExecute()
       }
     else
       {
-      vtkErrorMacro("MultipleMethod " << i << " not set.");
+      vtkWarningMacro("MultipleMethod " << i << " not set.");
       }
     }
 }
@@ -228,7 +245,9 @@ int vtkMPIController::Send(int *data, int length, int remoteProcessId,
     }
   else
     {
-    vtkErrorMacro("MPI error: " << err);
+    char *msg = vtkMPIController::ErrorString(err);
+    vtkErrorMacro("MPI error occured: " << msg);
+    delete[] msg;
     return 0;
     }
 
@@ -246,7 +265,9 @@ int vtkMPIController::Send(unsigned long *data, int length,
     }
   else
     {
-    vtkErrorMacro("MPI error: " << err);
+    char *msg = vtkMPIController::ErrorString(err);
+    vtkErrorMacro("MPI error occured: " << msg);
+    delete[] msg;
     return 0;
     }
 }
@@ -262,7 +283,9 @@ int vtkMPIController::Send(char *data, int length,
     }
   else
     {
-    vtkErrorMacro("MPI error: " << err);
+    char *msg = vtkMPIController::ErrorString(err);
+    vtkErrorMacro("MPI error occured: " << msg);
+    delete[] msg;
     return 0;
     }
 }
@@ -278,7 +301,9 @@ int vtkMPIController::Send(float *data, int length,
     }
   else
     {
-    vtkErrorMacro("MPI error: " << err);
+    char *msg = vtkMPIController::ErrorString(err);
+    vtkErrorMacro("MPI error occured: " << msg);
+    delete[] msg;
     return 0;
     }
 }
@@ -304,7 +329,9 @@ int vtkMPIController::Receive(int *data, int length, int remoteProcessId,
     }
   else
     {
-    vtkErrorMacro("MPI error: " << err);
+    char *msg = vtkMPIController::ErrorString(err);
+    vtkErrorMacro("MPI error occured: " << msg);
+    delete[] msg;
     return 0;
     }
 
@@ -328,7 +355,9 @@ int vtkMPIController::Receive(unsigned long *data, int length,
     }
   else
     {
-    vtkErrorMacro("MPI error: " << err);
+    char *msg = vtkMPIController::ErrorString(err);
+    vtkErrorMacro("MPI error occured: " << msg);
+    delete[] msg;
     return 0;
     }
 }
@@ -351,7 +380,9 @@ int vtkMPIController::Receive(char *data, int length,
     }
   else
     {
-    vtkErrorMacro("MPI error: " << err);
+    char *msg = vtkMPIController::ErrorString(err);
+    vtkErrorMacro("MPI error occured: " << msg);
+    delete[] msg;
     return 0;
     }
 }
@@ -374,18 +405,18 @@ int vtkMPIController::Receive(float *data, int length,
     }
   else
     {
-    vtkErrorMacro("MPI error: " << err);
+    char *msg = vtkMPIController::ErrorString(err);
+    vtkErrorMacro("MPI error occured: " << msg);
+    delete[] msg;
     return 0;
     }
 }
 
-
-
-
-
-
-
-
-
-
+char* vtkMPIController::ErrorString(int err)
+{
+  char* buffer = new char[MPI_MAX_ERROR_STRING];
+  int resLen;
+  MPI_Error_string(err, buffer, &resLen);
+  return buffer;
+}
 

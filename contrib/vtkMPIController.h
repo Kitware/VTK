@@ -66,6 +66,7 @@ class vtkMPIOutputWindow;
 
 class VTK_EXPORT vtkMPIController : public vtkMultiProcessController
 {
+
 public:
   static vtkMPIController *New();
   vtkTypeMacro(vtkMPIController,vtkMultiProcessController);
@@ -107,6 +108,11 @@ public:
   // by the process id.
   void CreateOutputWindow();
 
+  // Description:
+  // Given an MPI error code, return a string which contains
+  // an error message. This string has to be freed by the user.
+  static char* ErrorString(int err);
+
   //------------------ Communication --------------------
   
   // Description:
@@ -137,7 +143,7 @@ protected:
   vtkMPIController(const vtkMPIController&) {};
   void operator=(const vtkMPIController&) {};
 
-  void InitializeNumberOfProcesses();
+  int InitializeNumberOfProcesses();
 
   // Initialize only once.
   static int Initialized;
