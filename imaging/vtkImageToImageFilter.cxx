@@ -314,15 +314,16 @@ int vtkImageToImageFilter::SplitExtent(int splitExt[6], int startExt[6],
 void vtkImageToImageFilter::ExecuteData(vtkDataObject *out)
 {
   vtkImageData *outData = this->AllocateOutputData(out);
-  this->MultiThread(outData);
+  this->MultiThread(this->GetInput(),outData);
 }
 
-void vtkImageToImageFilter::MultiThread(vtkImageData *outData)
+void vtkImageToImageFilter::MultiThread(vtkImageData *inData,
+                                        vtkImageData *outData)
 {
   vtkImageThreadStruct str;
   
   str.Filter = this;
-  str.Input = this->GetInput();
+  str.Input = inData;
   str.Output = outData;
   
   this->Threader->SetNumberOfThreads(this->NumberOfThreads);

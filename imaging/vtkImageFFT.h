@@ -73,7 +73,9 @@ public:
   int SplitExtent(int splitExt[6], int startExt[6], 
 		  int num, int total);
 
-  virtual void IterativeExecuteData(vtkImageData *in, vtkImageData *out);
+  virtual void IterativeExecuteData(vtkImageData *in, vtkImageData *out) 
+    { this->MultiThread(in,out); };
+  
 
 protected:
   vtkImageFFT() {};

@@ -60,14 +60,6 @@ vtkImageFFT* vtkImageFFT::New()
 }
 
 
-void vtkImageFFT::IterativeExecuteData(vtkImageData *in, vtkImageData *out)
-{
-  this->MultiThread(out);
-}
-
-
-
-
 //----------------------------------------------------------------------------
 // This extent of the components changes to real and imaginary values.
 void vtkImageFFT::ExecuteInformation(vtkImageData *vtkNotUsed(inData), 

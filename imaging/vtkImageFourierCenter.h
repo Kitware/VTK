@@ -59,8 +59,8 @@ public:
   static vtkImageFourierCenter *New();
   vtkTypeMacro(vtkImageFourierCenter,vtkImageDecomposeFilter);
 
-  virtual void IterativeExecuteData(vtkImageData *, vtkImageData *out) {
-    this->MultiThread(out); };
+  virtual void IterativeExecuteData(vtkImageData *in, vtkImageData *out) {
+    this->MultiThread(in, out); };
   
   
 protected:

@@ -139,7 +139,7 @@ protected:
   void ExecuteData(vtkDataObject *output);
   
   // The method that starts the multithreading
-  void MultiThread(vtkImageData *output);
+  void MultiThread(vtkImageData *input, vtkImageData *output);
 
   void ComputeInputUpdateExtents( vtkDataObject *output );
   virtual void ComputeInputUpdateExtent(int inExt[6], int outExt[6]);

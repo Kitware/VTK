@@ -75,8 +75,8 @@ public:
   // Sets the number of cycles in the erosion.
   void SetNumberOfIterations(int num);
   
-  virtual void IterativeExecuteData(vtkImageData *, vtkImageData *out) 
-    { this->MultiThread(out);};
+  virtual void IterativeExecuteData(vtkImageData *in, vtkImageData *out) 
+    { this->MultiThread(in,out);};
 
 protected:
   vtkImageSkeleton2D();
