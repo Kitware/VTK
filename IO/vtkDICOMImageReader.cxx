@@ -29,7 +29,7 @@
 #include <vtkstd/vector>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkDICOMImageReader, "1.6");
+vtkCxxRevisionMacro(vtkDICOMImageReader, "1.7");
 vtkStandardNewMacro(vtkDICOMImageReader);
 
 class myvector : public vtkstd::vector<vtkstd::string>
@@ -191,7 +191,7 @@ void vtkDICOMImageReader::ExecuteInformation()
     std::vector<std::pair<int, std::string> > sortedFiles;
     this->AppHelper->GetSliceNumberFilenamePairs(sortedFiles);
 
-    this->SetupOutputInformation(sortedFiles.size());
+    this->SetupOutputInformation(static_cast<int>(sortedFiles.size()));
 
     //this->AppHelper->OutputSeries();
 
@@ -246,7 +246,7 @@ void vtkDICOMImageReader::ExecuteData(vtkDataObject *output)
     }
   else if (this->DICOMFileNames->size() > 0)
     {
-    vtkDebugMacro( << "Multiple files (" << this->DICOMFileNames->size() << ")");
+    vtkDebugMacro( << "Multiple files (" << static_cast<int>(this->DICOMFileNames->size()) << ")");
     this->Parser->ClearAllDICOMTagCallbacks();
     this->AppHelper->ClearSeriesUIDMap();
     this->AppHelper->ClearSliceNumberMap();
@@ -258,7 +258,7 @@ void vtkDICOMImageReader::ExecuteData(vtkDataObject *output)
     std::vector<std::string>::iterator fiter; 
 
     int count = 0;
-    int numFiles = this->DICOMFileNames->size();
+    int numFiles = static_cast<int>(this->DICOMFileNames->size());
 
     for (fiter = this->DICOMFileNames->begin();
          fiter != this->DICOMFileNames->end();
@@ -281,7 +281,7 @@ void vtkDICOMImageReader::ExecuteData(vtkDataObject *output)
         buffer = ((char*) buffer) + imageDataLengthInBytes;
 
         this->UpdateProgress(float(count)/float(numFiles));
-        int len = strlen((char*) (*fiter).c_str());
+        int len = static_cast<int> (strlen((char*) (*fiter).c_str()));
         char* filename = new char[len+1];
         strcpy(filename, (char*) (*fiter).c_str());
         this->SetProgressText(filename);
@@ -342,7 +342,7 @@ void vtkDICOMImageReader::SetDirectoryName(const char* dn)
     {
     return;
     }
-  int len = strlen(dn);
+  int len = static_cast<int>(strlen(dn));
   if (this->DirectoryName != NULL)
     {
     delete [] this->DirectoryName;
