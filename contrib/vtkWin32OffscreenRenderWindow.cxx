@@ -1,8 +1,46 @@
+/*=========================================================================
+
+  Program:   Visualization Toolkit
+  Module:    vtkWin32OffscreenRenderWindow.cxx
+  Language:  C++
+  Date:      $Date$
+  Version:   $Revision$
+  Thanks:    to Horst Schreiber for developing this MFC code
+
+Copyright (c) 1993-1998 Ken Martin, Will Schroeder, Bill Lorensen.
+
+This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
+The following terms apply to all files associated with the software unless
+explicitly disclaimed in individual files. This copyright specifically does
+not apply to the related textbook "The Visualization Toolkit" ISBN
+013199837-4 published by Prentice Hall which is covered by its own copyright.
+
+The authors hereby grant permission to use, copy, and distribute this
+software and its documentation for any purpose, provided that existing
+copyright notices are retained in all copies and that this notice is included
+verbatim in any distributions. Additionally, the authors grant permission to
+modify this software and its documentation for any purpose, provided that
+such modifications are not distributed without the explicit consent of the
+authors and that existing copyright notices are retained in all copies. Some
+of the algorithms implemented by this software are patented, observe all
+applicable patent law.
+
+IN NO EVENT SHALL THE AUTHORS OR DISTRIBUTORS BE LIABLE TO ANY PARTY FOR
+DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING OUT
+OF THE USE OF THIS SOFTWARE, ITS DOCUMENTATION, OR ANY DERIVATIVES THEREOF,
+EVEN IF THE AUTHORS HAVE BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+THE AUTHORS AND DISTRIBUTORS SPECIFICALLY DISCLAIM ANY WARRANTIES, INCLUDING,
+BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+PARTICULAR PURPOSE, AND NON-INFRINGEMENT.  THIS SOFTWARE IS PROVIDED ON AN
+"AS IS" BASIS, AND THE AUTHORS AND DISTRIBUTORS HAVE NO OBLIGATION TO PROVIDE
+MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
+
+
+=========================================================================*/
 #include "vtkWin32OffscreenRenderWindow.h"
 #include <gl/gl.h>
 #include "vtkObjectFactory.h"
-
-
 
 //------------------------------------------------------------------------------
 vtkWin32OffscreenRenderWindow* vtkWin32OffscreenRenderWindow::New()
@@ -16,9 +54,6 @@ vtkWin32OffscreenRenderWindow* vtkWin32OffscreenRenderWindow::New()
   // If the factory was unable to create the object, then create it here.
   return new vtkWin32OffscreenRenderWindow;
 }
-
-
-
 
 vtkWin32OffscreenRenderWindow::vtkWin32OffscreenRenderWindow()
 {
@@ -80,6 +115,7 @@ void vtkWin32OffscreenRenderWindow::Frame(void)
 void vtkWin32OffscreenRenderWindow::WindowInitialize()
 {
   void *pBits;
+  vtkRenderer *ren;
 
   BITMAPINFOHEADER bmi;
 
@@ -104,8 +140,8 @@ void vtkWin32OffscreenRenderWindow::WindowInitialize()
 
   // make a bitmap to draw to
   this->MhBitmap = CreateDIBSection(this->DeviceContext,
-				    (BITMAPINFO *) &bmi, DIB_RGB_COLORS,
-				    &pBits, NULL, 0);
+                                    (BITMAPINFO *) &bmi, DIB_RGB_COLORS,
+                                    &pBits, NULL, 0);
 
   if(this->MhBitmap == NULL)
     {
@@ -116,10 +152,10 @@ void vtkWin32OffscreenRenderWindow::WindowInitialize()
     }
 
   this->MhOldBitmap = (HBITMAP) SelectObject(this->DeviceContext,
-					     this->MhBitmap);
+                                             this->MhBitmap);
   this->SetupPixelFormat(this->DeviceContext,
-			 PFD_SUPPORT_OPENGL|PFD_DRAW_TO_BITMAP,
-			 this->GetDebug(), this->MBpp, this->MZBpp);
+                         PFD_SUPPORT_OPENGL|PFD_DRAW_TO_BITMAP,
+                         this->GetDebug(), this->MBpp, this->MZBpp);
 
   if(this->MBpp < 16)
     {
@@ -141,6 +177,14 @@ void vtkWin32OffscreenRenderWindow::WindowInitialize()
   this->OpenGLInit();
   this->DoubleBufferOff();
   this->SwapBuffersOff();
+
+  // The clean disassociates the renderers from the render window. 
+  // Re-associate the renderer with the render window.
+  for (this->Renderers->InitTraversal(); 
+       (ren = this->Renderers->GetNextItem()); )
+    {
+    ren->SetRenderWindow(this);
+    }
 }
 
 void vtkWin32OffscreenRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
