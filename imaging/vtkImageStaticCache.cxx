@@ -140,3 +140,115 @@ unsigned long vtkImageStaticCache::GetPipelineMTime()
   if (!this->CachedData) return 0;
   return this->CachedData->GetMTime();
 }
+
+
+//----------------------------------------------------------------------------
+// duplicated code from SimpleCache
+template <class T>
+static void vtkImageStaticCacheComputeRange(vtkImageData *data, int *ext,
+					    float *range, T *ptr)
+{
+  int idxR, idxY, idxZ;
+  int maxY, maxZ;
+  int incX, incY, incZ;
+  int rowLength;
+  T r0, r1;
+
+  r0 = r1 = *ptr;
+  
+  // find the region to loop over
+  rowLength = (ext[1] - ext[0]+1)*data->GetNumberOfScalarComponents();
+  maxY = ext[3] - ext[2]; 
+  maxZ = ext[5] - ext[4];
+  
+  // Get increments to march through data 
+  data->GetContinuousIncrements(ext, incX, incY, incZ);
+
+  // Loop through ouput pixels
+  for (idxZ = 0; idxZ <= maxZ; idxZ++)
+    {
+    for (idxY = 0; idxY <= maxY; idxY++)
+      {
+      for (idxR = 0; idxR < rowLength; idxR++)
+	{
+	// Pixel operation
+	if (*ptr < r0)
+	  {
+	  r0 = *ptr;
+	  }
+	if (*ptr > r1)
+	  {
+	  r1 = *ptr;
+	  }
+	ptr++;
+	}
+      ptr += incY;
+      }
+    ptr += incZ;
+    }
+  
+  range[0] = (float)r0;
+  range[1] = (float)r1;  
+}
+
+//----------------------------------------------------------------------------
+void vtkImageStaticCache::GetScalarRange(float range[2])
+{
+  int ext[6], *dataExt, idx;
+  void *ptr;
+
+  // make sure we have data cached
+  range[0] = 0.0;
+  range[1] = 1.0;
+  if (this->CachedData == NULL)
+    {
+    vtkWarningMacro("GetScalarRange: Extent is not in cache");
+    }
+  
+  // make sure we have all the data (clip if not).
+  this->ClipUpdateExtentWithWholeExtent();
+  this->GetUpdateExtent(ext);
+  dataExt = this->CachedData->GetExtent();
+  for (idx = 0; idx < 3; ++idx)
+    {
+    if (ext[idx*2] < dataExt[idx*2])
+      {
+      vtkWarningMacro("GetScalarRange: All of the extent is not in cache");
+      ext[idx*2] = dataExt[idx*2];
+      }
+    if (ext[idx*2+1] > dataExt[idx*2+1])
+      {
+      vtkWarningMacro("GetScalarRange: All of the extent is not in cache");
+      ext[idx*2+1] = dataExt[idx*2+1];
+      }
+    }
+  
+  // templated compue range function for each type
+  ptr = this->CachedData->GetScalarPointerForExtent(ext);
+  switch (this->CachedData->GetScalarType())
+    {
+    case VTK_FLOAT:
+      vtkImageStaticCacheComputeRange(this->CachedData, ext, range,
+				      (float *) ptr);
+      break;
+    case VTK_INT:
+      vtkImageStaticCacheComputeRange(this->CachedData, ext, range,
+				      (int *) ptr);
+      break;
+    case VTK_SHORT:
+      vtkImageStaticCacheComputeRange(this->CachedData, ext, range,
+				      (short *) ptr);
+      break;
+    case VTK_UNSIGNED_SHORT:
+      vtkImageStaticCacheComputeRange(this->CachedData, ext, range,
+				      (unsigned short *) ptr);
+      break;
+    case VTK_UNSIGNED_CHAR:
+      vtkImageStaticCacheComputeRange(this->CachedData, ext, range,
+				      (unsigned char *) ptr);
+      break;
+    default:
+      vtkErrorMacro("GetScalarRange: Could not handle scalar type.");
+    }
+} 
+  

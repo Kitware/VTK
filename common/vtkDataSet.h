@@ -190,6 +190,7 @@ public:
   // Convenience method to get the range of the scalar data (if there is any 
   // scalar data). Returns the (min/max) range of combined point and cell data.
   // If there are no point or cell scalars the method will return (0,1).
+  // Note: Update needs to be called to create the scalars.
   void GetScalarRange(float range[2]);
   float *GetScalarRange();
   

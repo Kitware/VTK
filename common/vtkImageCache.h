@@ -186,6 +186,14 @@ public:
   int  GetGlobalReleaseDataFlag();
 
   // Description:
+  // Convenience method to get the range of the scalar data in the
+  // current "UpdateExtent". Returns the (min/max) range.  The components
+  // are lumped into one range.  If there are no scalars the method will 
+  // return (0,1). Note: Update needs to be called first to create the scalars.
+  virtual void GetScalarRange(float range[2]) = 0;
+  float *GetScalarRange();
+  
+  // Description:
   // Needed because not all objects are reference counted.
   void UnRegister(vtkObject* o);
   

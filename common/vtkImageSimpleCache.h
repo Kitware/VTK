@@ -68,7 +68,14 @@ public:
 
   // Law: for vtkImageIterateFilter
   vtkImageData *GetData(); 
- 
+
+  // Description:
+  // Convenience method to get the range of the scalar data in the
+  // current "UpdateExtent". Returns the (min/max) range.  The components
+  // are lumped into one range.  If there are no scalars the method will 
+  // return (0,1). Note: Update needs to be called first to create the scalars.
+  void GetScalarRange(float range[2]);  
+  
 protected:
   vtkImageData *CachedData;
   vtkTimeStamp GenerateTime;
