@@ -173,6 +173,11 @@ void vtkXRenderWindowInteractor::Start()
     {
     this->Initialize();
     }
+  if (! this->Initialized )
+    {
+    return;
+    }
+
   this->SetExitMethod(BreakXtLoop, this);
   this->BreakLoopFlag = 0;
   do 
