@@ -197,7 +197,14 @@ ostream *vtkDataWriter::OpenVTKFile()
     } 
   else 
     {
-    fptr = new ofstream(this->FileName, ios::out);
+    if ( this->FileType == VTK_ASCII )
+      {
+      fptr = new ofstream(this->FileName, ios::out);
+      }
+    else
+      { 
+      fptr = new ofstream(this->FileName, ios::out | ios::bin);
+      }
     }
 
   if (fptr->fail())
