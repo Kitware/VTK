@@ -109,7 +109,7 @@ public:
   // a quick overall color setting method.
   void SetColor(float r,float g,float b);
   void SetColor(float a[3]) { this->SetColor(a[0], a[1], a[2]); };
-  vtkGetVectorMacro(Color,float,3);
+  float *GetColor();
 
   // Description:
   // Set/Get the ambient lighting coefficient.

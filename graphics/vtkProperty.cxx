@@ -51,10 +51,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // and surface representation. Backface and frontface culling are off.
 vtkProperty::vtkProperty()
 {
-  this->Color[0] = 1;
-  this->Color[1] = 1;
-  this->Color[2] = 1;
-
   this->AmbientColor[0] = 1;
   this->AmbientColor[1] = 1;
   this->AmbientColor[2] = 1;
@@ -162,20 +158,34 @@ vtkProperty *vtkProperty::New()
 void vtkProperty::SetColor(float R,float G,float B)
 {
   /* store the coordinates */
-  this->Color[0] = R;
   this->AmbientColor[0] = R;
   this->DiffuseColor[0] = R;
   this->SpecularColor[0] = R;
 
-  this->Color[1] = G;
   this->AmbientColor[1] = G;
   this->DiffuseColor[1] = G;
   this->SpecularColor[1] = G;
 
-  this->Color[2] = B;
   this->AmbientColor[2] = B;
   this->DiffuseColor[2] = B;
   this->SpecularColor[2] = B;
+}
+
+float *vtkProperty::GetColor()
+{
+  float norm;
+  int i;
+  
+  norm = 1.0 / (this->Ambient + this->Diffuse + this->Specular);
+  
+  for (i = 0; i < 3; i ++)
+    {
+    this->Color[i] = this->AmbientColor[i]*this->Ambient*norm;
+    this->Color[i] = this->Color[i] + this->DiffuseColor[i]*this->Diffuse*norm;
+    this->Color[i] = this->Color[i] + this->SpecularColor[i]*this->Specular*norm;
+    }
+  
+  return this->Color;  
 }
 
  
@@ -186,8 +196,6 @@ void vtkProperty::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Ambient: " << this->Ambient << "\n";
   os << indent << "Ambient Color: (" << this->AmbientColor[0] << ", " 
     << this->AmbientColor[1] << ", " << this->AmbientColor[2] << ")\n";
-  os << indent << "Color: (" << this->Color[0] << ", " 
-    << this->Color[1] << ", " << this->Color[2] << ")\n";
   os << indent << "Diffuse: " << this->Diffuse << "\n";
   os << indent << "Diffuse Color: (" << this->DiffuseColor[0] << ", " 
     << this->DiffuseColor[1] << ", " << this->DiffuseColor[2] << ")\n";
