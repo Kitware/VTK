@@ -34,17 +34,17 @@ STRING (REGEX REPLACE
 
 STRING (REGEX REPLACE 
   "vtkStructuredPointsToPolyDataFilter" 
-  "vtkPolyDataAlgorithm" 
+  "vtkStructuredPointsToPolyDataAlgorithm" 
   H_CONTENTS "${H_CONTENTS}")
 
 STRING (REGEX REPLACE 
   "vtkRectilinearGridToPolyDataFilter" 
-  "vtkPolyDataAlgorithm" 
+  "vtkRectilinearGridToPolyDataAlgorithm" 
   H_CONTENTS "${H_CONTENTS}")
 
 STRING (REGEX REPLACE 
   "vtkStructuredGridToPolyDataFilter" 
-  "vtkPolyDataAlgorithm" 
+  "vtkStructuredGridToPolyDataAlgorithm" 
   H_CONTENTS "${H_CONTENTS}")
 
 STRING (REGEX REPLACE
