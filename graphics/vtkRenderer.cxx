@@ -348,6 +348,12 @@ int vtkRenderer::UpdateActors()
 
   num_actors = this->Props->GetNumberOfItems();
 
+  if ( num_actors == 0 ) 
+    {
+    this->NumberOfPropsRenderedAsGeometry = renderedPropsCount;
+    return renderedPropsCount;
+    }
+
   // We don't have any cullers so don't try to do any culling
   if ( this->Cullers->GetNumberOfItems() == 0 )
     {
