@@ -633,11 +633,16 @@ if test "$use_pthreads" = "yes"; then
 fi
 
 # on an HP with pthread we need to use -lcma
+# on dec alphas we have had problems as well
 if test "$use_pthreads" = "yes"; then
 case $system in
     HP-UX-*.10.*)
 	THREAD_LIBS="-lcma"
 	;;
+    OSF1-V*)
+        THREAD_FLAGS=""
+        THREAD_LIBS=""
+        ;;
 esac
 fi
 
