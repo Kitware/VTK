@@ -104,6 +104,15 @@ static void vtkImageMathematicsExecute1(vtkImageMathematics *self,
 	case VTK_LOG:
 	  *outPtr0 = log(*in1Ptr0);
 	  break;
+	case VTK_ABS:
+	  *outPtr0 = fabs(*in1Ptr0);
+	  break;
+	case VTK_SQR:
+	  *outPtr0 = *in1Ptr0 * *in1Ptr0;
+	  break;
+	case VTK_SQRT:
+	  *outPtr0 = sqrt(*in1Ptr0);
+	  break;
 	}
       
       outPtr0 += outInc0;

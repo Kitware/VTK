@@ -47,22 +47,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Construct an instance of vtkImageMedian3D fitler.
 vtkImageMedian3D::vtkImageMedian3D()
 {
-  this->Sort = NULL;
   this->SetKernelSize(1,1,1);
   this->HandleBoundaries = 1;
 
   this->SetFilteredAxes(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS, VTK_IMAGE_Z_AXIS);
 }
 
-
-//----------------------------------------------------------------------------
-// Description:
-// Destructor
-vtkImageMedian3D::~vtkImageMedian3D()
-{
-  if (this->Sort)
-    delete [] this->Sort;
-}
 
 //----------------------------------------------------------------------------
 void vtkImageMedian3D::SetFilteredAxes(int axis0, int axis1, int axis2)
@@ -104,18 +94,7 @@ void vtkImageMedian3D::SetKernelSize(int size0, int size1, int size2)
   this->KernelSize[3] = 1;
   this->KernelMiddle[3] = 0;
 
-  this->NumNeighborhood = volume;
-  
-  // free old sort memeory
-  if (this->Sort)
-    delete [] this->Sort;
-  this->Sort = NULL;
-
-  // allocate new sort memory
-  if (this->NumNeighborhood > 0)
-    {
-    this->Sort = new double[(this->NumNeighborhood + 2)];
-    }
+  this->SetNumberOfElements(volume);
 }
 
 
@@ -317,134 +296,6 @@ void vtkImageMedian3D::Execute(vtkImageRegion *inRegion,
       return;
     }
 }
-
-
-
-//----------------------------------------------------------------------------
-// Description:
-// Get the current median of all accumilated values.
-double vtkImageMedian3D::GetMedian()
-{
-  if ( ! this->Median)
-    {
-    vtkErrorMacro(<< "GetMedian: No median memory!");
-    return 0.0;
-    }
-  
-  return *(this->Median);
-}
-  
-
-
-//----------------------------------------------------------------------------
-// Description:
-// Clear the memory to compute a new median
-void vtkImageMedian3D::ClearMedian()
-{
-  this->DownNum = this->UpNum = 0;
-  this->Median = this->Sort + (this->NumNeighborhood / 2);
-}
-
-
-//----------------------------------------------------------------------------
-// Description:
-// Add a sample to the median computation
-void vtkImageMedian3D::AccumulateMedian(double val)
-{
-  int idx, max;
-  double temp, *ptr;
-
-  // special case: no samples yet 
-  if (this->UpNum == 0)
-    {
-    *(this->Median) = val;
-    // length of up and down arrays inclusive of current 
-    this->UpNum = this->DownNum = 1; 
-    // median is gaurenteed to be in this range (length of array) 
-    this->DownMax = this->UpMax = (this->NumNeighborhood + 1) / 2;
-    return;
-    }
-
-  // Case: value is above median 
-  if (val >= *(this->Median))
-    {
-    // move the median if necessary
-    if (this->UpNum > this->DownNum)
-      {
-      // Move the median Up one 
-      ++this->Median;
-      --this->UpNum;
-      ++this->DownNum;
-      --this->UpMax;
-      ++this->DownMax;
-      }
-    // find the position for val in the sorted array
-    max = (this->UpNum < this->UpMax) ? this->UpNum : this->UpMax;
-    ptr = this->Median;
-    idx = 0;
-    while (val >= *ptr && idx < max)
-      {
-      ++ptr;
-      ++idx;
-      }
-    // place val and move all others up
-    while (idx <= max)
-      {
-      temp = *ptr;
-      *ptr = val;
-      val = temp;
-      ++ptr;
-      ++idx;
-      }
-    // Update counts
-    ++this->UpNum;
-    --this->DownMax;
-    return;
-    }
-
-
-  // Case: value is below median 
-  if (val <= *(this->Median))
-    {
-    // move the median if necessary
-    if (this->DownNum > this->UpNum)
-      {
-      // Move the median Down one 
-      --this->Median;
-      --this->DownNum;
-      ++this->UpNum;
-      --this->DownMax;
-      ++this->UpMax;
-      }
-    // find the position for val in the sorted array
-    max = (this->DownNum < this->DownMax) ? this->DownNum : this->DownMax;
-    ptr = this->Median;
-    idx = 0;
-    while (val <= *ptr && idx < max)
-      {
-      --ptr;
-      ++idx;
-      }
-    // place val and move all others up
-    while (idx <= max)
-      {
-      temp = *ptr;
-      *ptr = val;
-      val = temp;
-      --ptr;
-      ++idx;
-      }
-    // Update counts
-    ++this->DownNum;
-    --this->UpMax;
-    return;
-    }
-}
-
-
-
-  
-
 
 
 

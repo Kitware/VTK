@@ -57,20 +57,18 @@ public:
   static vtkImageHistogramEqualization *New() {return new vtkImageHistogramEqualization;};
   const char *GetClassName() {return "vtkImageHistogramEqualization";};
   void PrintSelf(ostream& os, vtkIndent indent);
-  void InterceptCacheUpdate(vtkImageRegion *region);
+  void InterceptCacheUpdate(vtkImageCache *cache);
 
   // Description:
   // Set/Get  AveragingRadius for Histogram Equalization.
-     vtkSetMacro(AveragingRadius,int);
-     vtkGetMacro(AveragingRadius,int);
-
+  vtkSetMacro(AveragingRadius,int);
+  vtkGetMacro(AveragingRadius,int);
+  
 protected:
   int AveragingRadius;
 
-  void ComputeOutputImageInformation(vtkImageRegion *inRegion,
-				     vtkImageRegion *outRegion);
- void ComputeRequiredInputRegionExtent(vtkImageRegion *outRegion,
-				       vtkImageRegion *inRegion);
+  void ExecuteImageInformation(vtkImageCache *in, vtkImageCache *out);
+  void ComputeRequiredInputUpdateExtent(vtkImageCache *out, vtkImageCache *in);
   void Execute(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
 };
 

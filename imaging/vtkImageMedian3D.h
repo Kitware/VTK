@@ -51,13 +51,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkImageMedian3D_h
 
 
-#include "vtkImageSpatialFilter.h"
+#include "vtkImageMedianFilter.h"
 
-class VTK_EXPORT vtkImageMedian3D : public vtkImageSpatialFilter
+class VTK_EXPORT vtkImageMedian3D : public vtkImageMedianFilter
 {
 public:
   vtkImageMedian3D();
-  ~vtkImageMedian3D();
   static vtkImageMedian3D *New() {return new vtkImageMedian3D;};
   const char *GetClassName() {return "vtkImageMedian3D";};
 
@@ -66,19 +65,7 @@ public:
   // Set/Get the size of the neighood.
   void SetKernelSize(int size0, int size1, int size2);
   
-  void ClearMedian();
-  void AccumulateMedian(double val);
-  double GetMedian();
-  
 protected:
-  // stuff for sorting the pixels
-  int NumNeighborhood;
-  double *Sort;
-  double *Median;
-  int UpMax;
-  int DownMax;
-  int UpNum;
-  int DownNum;
 
   void Execute(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
 

@@ -39,6 +39,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkImageRegion.h"
+#include "vtkImageCache.h"
 #include "vtkImageHistogramEqualization.h"
 #include <math.h>
 #include <stdlib.h>
@@ -50,9 +51,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 vtkImageHistogramEqualization::vtkImageHistogramEqualization()
 {
   this->AveragingRadius = 1;
-  this->SetAxes(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS);
-  
-  this->NumberOfExecutionAxes = 2;
+  this->SetExecutionAxes(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS);
 }
 
 //----------------------------------------------------------------------------
@@ -243,17 +242,13 @@ void vtkImageHistogramEqualization::Execute(vtkImageRegion *inRegion,
 // This method is passed a region that holds the boundary of this filters
 // input, and changes the region to hold the boundary of this filters
 // output.
-void 
-vtkImageHistogramEqualization::ComputeOutputImageInformation(vtkImageRegion *inRegion,
-						 vtkImageRegion *outRegion)
+void vtkImageHistogramEqualization::ExecuteImageInformation(vtkImageCache *in,
+							    vtkImageCache *out)
 {
-  int extent[4];
-  inRegion->GetImageExtent(2, extent);
-  outRegion->SetImageExtent(2, extent);
+  int extent[8];
+  in->GetWholeExtent(extent);
+  out->SetWholeExtent(extent);
 }
-
-
-
 
 
 //----------------------------------------------------------------------------
@@ -262,26 +257,26 @@ vtkImageHistogramEqualization::ComputeOutputImageInformation(vtkImageRegion *inR
 // an output region.  Before this method is called "region" should have the 
 // extent of the output region.  After this method finishes, "region" should 
 // have the extent of the required input region.
-void vtkImageHistogramEqualization::ComputeRequiredInputRegionExtent(
-						    vtkImageRegion *outRegion,
-			                            vtkImageRegion *inRegion)
+void vtkImageHistogramEqualization::ComputeRequiredInputUpdateExtent(
+						    vtkImageCache *out,
+			                            vtkImageCache *in)
 {
-  int imageExtent[4];
+  int wholeExtent[8];
   
-  outRegion->GetImageExtent(2, imageExtent);
-  inRegion->SetExtent(2, imageExtent);
+  out->GetWholeExtent(wholeExtent);
+  in->SetWholeExtent(wholeExtent);
 }
 
 //----------------------------------------------------------------------------
 // Description:
 // Intercepts the caches Update to make the region larger than requested.
 // We might as well create both real and imaginary components.
-void vtkImageHistogramEqualization::InterceptCacheUpdate(vtkImageRegion *region)
+void vtkImageHistogramEqualization::InterceptCacheUpdate(vtkImageCache *cache)
 {
-  int imageExtent[4];
+  int wholeExtent[8];
   
-  region->GetImageExtent(2, imageExtent);
-  region->SetExtent(2, imageExtent);
+  cache->GetWholeExtent(wholeExtent);
+  cache->SetUpdateExtent(wholeExtent);
 }
 
 

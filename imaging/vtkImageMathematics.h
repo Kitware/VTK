@@ -60,6 +60,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define VTK_COS          6
 #define VTK_EXP          7
 #define VTK_LOG          8
+#define VTK_ABS          9
+#define VTK_SQR          10
+#define VTK_SQRT         11
 
 
 #include "vtkImageTwoInputFilter.h"
@@ -84,6 +87,9 @@ public:
   void SetOperationToCos() {this->SetOperation(VTK_COS);};
   void SetOperationToExp() {this->SetOperation(VTK_EXP);};
   void SetOperationToLog() {this->SetOperation(VTK_LOG);};
+  void SetOperationToAbsoluteValue() {this->SetOperation(VTK_ABS);};
+  void SetOperationToSquare() {this->SetOperation(VTK_SQR);};
+  void SetOperationToSquareRoot() {this->SetOperation(VTK_SQRT);};
 
   
 protected:

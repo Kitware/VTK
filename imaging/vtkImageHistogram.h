@@ -57,25 +57,25 @@ public:
   static vtkImageHistogram *New() {return new vtkImageHistogram;};
   const char *GetClassName() {return "vtkImageHistogram";};
   void PrintSelf(ostream& os, vtkIndent indent);
-  void InterceptCacheUpdate(vtkImageRegion *region);
+  void InterceptCacheUpdate(vtkImageCache *cache);
 
 
   // Description:
   // Set/Get - scale data to number of bins or levels.
-     vtkSetMacro(NumberOfBins,int);
-     vtkGetMacro(NumberOfBins,int);
-
+  vtkSetMacro(NumberOfBins,int);
+  vtkGetMacro(NumberOfBins,int);
+  
 
   // Description:
   // Set/Get OffsetLevel
-     vtkSetMacro(OffsetLevel,int);
-     vtkGetMacro(OffsetLevel,int);
-
+  vtkSetMacro(OffsetLevel,int);
+  vtkGetMacro(OffsetLevel,int);
+  
   // Description:
   // Boolean & Set/Get - Offset on/off.
-     vtkSetMacro(Offset,int);
-     vtkGetMacro(Offset,int);
-     vtkBooleanMacro(Offset, int);
+  vtkSetMacro(Offset,int);
+  vtkGetMacro(Offset,int);
+  vtkBooleanMacro(Offset, int);
 
 
 protected:
@@ -83,10 +83,8 @@ protected:
   int OffsetLevel;
   int Offset;
 
-  void ComputeOutputImageInformation(vtkImageRegion *inRegion,
-				     vtkImageRegion *outRegion);
- void ComputeRequiredInputRegionExtent(vtkImageRegion *outRegion,
-				       vtkImageRegion *inRegion);
+  void ExecuteImageInformation(vtkImageCache *in, vtkImageCache *out);
+  void ComputeRequiredInputUpdateExtent(vtkImageCache *out, vtkImageCache *in);
   void Execute(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
 };
 
