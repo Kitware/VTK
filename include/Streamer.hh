@@ -100,9 +100,11 @@ public:
   void PrintSelf(ostream& os, vlIndent indent);
 
   void SetStartLocation(int cellId, int subId, float pcoords[3]);
+  void SetStartLocation(int cellId, int subId, float r, float s, float t);
   int GetStartLocation(int& subId, float pcoords[3]);
 
   void SetStartPosition(float x[3]);
+  void SetStartPosition(float x, float y, float z);
   float *GetStartPosition();
 
   void Update();
