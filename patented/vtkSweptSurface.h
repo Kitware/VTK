@@ -83,6 +83,7 @@ class VTK_EXPORT vtkSweptSurface : public vtkStructuredPointsToStructuredPointsF
 public:
   vtkSweptSurface();
   static vtkSweptSurface *New() {return new vtkSweptSurface;};
+  ~vtkSweptSurface();
   const char *GetClassName() {return "vtkSweptSurface";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -146,6 +147,22 @@ public:
   void SetModelBounds(float xmin, float xmax, float ymin, float ymax, 
                       float zmin, float zmax);
 
+  // Description:
+  // Control how the model bounds are computed. If the ivar AdjustBounds
+  // is set, then the bounds specified (or computed automatically) is modified
+  // by the fraction given by AdjustDistance. This means that the model
+  // bounds is expanded in each of the x-y-z directions.
+  vtkSetMacro(AdjustBounds,int);
+  vtkGetMacro(AdjustBounds,int);
+  vtkBooleanMacro(AdjustBounds,int);
+  
+  // Description:
+  // Specify the amount to grow the model bounds (if the ivar AdjustBounds
+  // is set). The value is a fraction of the maximum length of the sides
+  // of the box specified by the model bounds.
+  vtkSetClampMacro(AdjustDistance,float,-1.0,1.0);
+  vtkGetMacro(AdjustDistance,float);
+
   //overload to check transformation matrices
   unsigned long int GetMTime();
 
@@ -155,7 +172,7 @@ protected:
   int ComputeNumberOfSteps(vtkTransform *t1, vtkTransform *t2, float bbox[24]);
   void SampleInput(vtkMatrix4x4& m, int inDim[3], float inOrigin[3],
                    float inAr[3], vtkScalars *in, vtkScalars *out);
-  void Cap(vtkFloatScalars *s);
+  void Cap(vtkScalars *s);
 
   int SampleDimensions[3];
   float FillValue;
@@ -163,8 +180,17 @@ protected:
   int NumberOfInterpolationSteps;
   int MaximumNumberOfInterpolationSteps;
   int Capping;
+  int AdjustBounds;
+  float AdjustDistance;
 
   vtkTransformCollection *Transforms;
+
+private:
+  //used to perform computations
+  vtkIdList *IdList;
+  vtkFloatScalars *VoxelScalars;
+  vtkTransform *T;
+
 };
 
 #endif

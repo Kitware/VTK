@@ -77,6 +77,21 @@ vtkSweptSurface::vtkSweptSurface()
   this->FillValue = VTK_LARGE_FLOAT;
   this->Transforms = NULL;
   this->Capping = 1;
+
+  this->AdjustBounds = 1;
+  this->AdjustDistance = 0.040;
+
+  this->IdList = vtkIdList::New(); this->IdList->SetNumberOfIds(8);
+  this->VoxelScalars = vtkFloatScalars::New(); this->VoxelScalars->SetNumberOfScalars(8);
+  this->T = vtkTransform::New();
+
+}
+
+vtkSweptSurface::~vtkSweptSurface()
+{
+  this->IdList->Delete();
+  this->VoxelScalars->Delete();
+  this->T->Delete();
 }
 
 void vtkSweptSurface::SetModelBounds(float xmin, float xmax, float ymin, 
@@ -139,12 +154,16 @@ void vtkSweptSurface::Execute()
     return;
     }
 
+  /*
+   *
+   */
   output->SetDimensions(this->SampleDimensions);
   this->ComputeBounds(origin, spacing, bbox);
 
   input->GetDimensions(inDim);
   input->GetSpacing(inSpacing);
   input->GetOrigin(inOrigin);
+
 //
 // Allocate data.  Scalar "type" is same as input.
 //
@@ -216,6 +235,12 @@ void vtkSweptSurface::Execute()
   this->SampleInput(a.vtkProp::GetMatrix(), inDim, inOrigin, inSpacing,
                     inScalars, newScalars);
 
+  // Cap if requested
+  if ( this->Capping )
+    {
+    this->Cap(newScalars);
+    }
+
   // Update ourselves and release memory
   outPD->SetScalars(newScalars);
   newScalars->Delete();
@@ -229,18 +254,14 @@ void vtkSweptSurface::SampleInput(vtkMatrix4x4& m, int inDim[3],
   int inSliceSize=inDim[0]*inDim[1];
   int sliceSize=this->SampleDimensions[0]*this->SampleDimensions[1];
   float x[4], loc[3], newScalar, scalar;
-  static vtkVoxel voxel;
-  static vtkIdList idList(8); idList.SetNumberOfIds(8);
-  static vtkFloatScalars voxelScalars(8); voxelScalars.SetNumberOfScalars(8);
   int kOffset, jOffset, ijk[3], idx;
   float xTrans[4], weights[8];
-  static vtkTransform t;
   float *origin, *spacing;
 
   origin = ((vtkStructuredPoints *)this->Output)->GetOrigin();
   spacing = ((vtkStructuredPoints *)this->Output)->GetSpacing();
 
-  t.SetMatrix(m);
+  this->T->SetMatrix(m);
   x[3] = 1.0; //homogeneous coordinates
 
   for (k=0; k<this->SampleDimensions[2]; k++)
@@ -256,7 +277,7 @@ void vtkSweptSurface::SampleInput(vtkMatrix4x4& m, int inDim[3],
         x[0] = origin[0] + i * spacing[0];
 
         // transform into local space
-        t.MultiplyPoint(x,xTrans);
+        this->T->MultiplyPoint(x,xTrans);
         if ( xTrans[3] != 0.0 ) for (ii=0; ii<3; ii++) xTrans[ii] /= xTrans[3];
 
         // determine which voxel point falls in.
@@ -274,23 +295,23 @@ void vtkSweptSurface::SampleInput(vtkMatrix4x4& m, int inDim[3],
           {
           //get scalar values
           idx = ijk[0] + ijk[1]*inDim[0] + ijk[2]*inSliceSize;
-          idList.SetId(0,idx);
-          idList.SetId(1,idx+1);
-          idList.SetId(2,idx + inDim[0]);
-          idList.SetId(3,idx+1 + inDim[0]);
-          idList.SetId(4,idx + inSliceSize);
-          idList.SetId(5,idx+1 + inSliceSize);
-          idList.SetId(6,idx + inDim[0] + inSliceSize);
-          idList.SetId(7,idx+1 + inDim[0] + inSliceSize);
+          this->IdList->SetId(0,idx);
+          this->IdList->SetId(1,idx+1);
+          this->IdList->SetId(2,idx + inDim[0]);
+          this->IdList->SetId(3,idx+1 + inDim[0]);
+          this->IdList->SetId(4,idx + inSliceSize);
+          this->IdList->SetId(5,idx+1 + inSliceSize);
+          this->IdList->SetId(6,idx + inDim[0] + inSliceSize);
+          this->IdList->SetId(7,idx+1 + inDim[0] + inSliceSize);
 
-          inScalars->GetScalars(idList,voxelScalars);
+          inScalars->GetScalars(*this->IdList,*this->VoxelScalars);
 
           for (ii=0; ii<3; ii++) loc[ii] = loc[ii] - ijk[ii];
 
-          voxel.InterpolationFunctions(loc,weights);
+          vtkVoxel::InterpolationFunctions(loc,weights);
 
           for (newScalar=0.0, ii=0; ii<8; ii++) 
-            newScalar += voxelScalars.GetScalar(ii) * weights[ii];
+            newScalar += this->VoxelScalars->GetScalar(ii) * weights[ii];
 
           scalar = outScalars->GetScalar((idx=i+jOffset+kOffset));
           if ( newScalar < scalar )  //union operation
@@ -323,6 +344,7 @@ void vtkSweptSurface::ComputeBounds(float origin[3], float spacing[3], float bbo
 {
   int i, j, k, ii, idx, dim;
   float *bounds;
+  float xmin[3], xmax[3], x[4], xTrans[4], h;
 
   // Compute eight points of bounding box (used later)
   bounds = this->Input->GetBounds();
@@ -346,7 +368,6 @@ void vtkSweptSurface::ComputeBounds(float origin[3], float spacing[3], float bbo
   this->ModelBounds[4] >= this->ModelBounds[5])
     {
     int numTransforms, transNum;
-    float xmin[3], xmax[3], x[4], xTrans[4], h;
     float position[3], orient[3], position1[3], orient1[3];
     float position2[3], orient2[3];
     vtkActor a;
@@ -419,20 +440,7 @@ void vtkSweptSurface::ComputeBounds(float origin[3], float spacing[3], float bbo
           }
         }
       }
-    // adjust bounds larger (2.5%) to make sure data lies within volume
-    for (i=0; i<3; i++)
-      {
-      spacing[i] = (xmax[i]-xmin[i]);
-      h = 0.0125 * spacing[i];
-      xmin[i] -= h;
-      xmax[i] += h;
-      origin[i] = xmin[i];
-      if ( (dim=this->SampleDimensions[i]) <= 1 ) dim=2;
-      if ( (spacing[i]=spacing[i]/(dim-1)) == 0.0 ) spacing[i] = 1.0;
-      }
-    vtkDebugMacro(<<"Computed model bounds as (" << xmin[0] << "," << xmax[0]
-                  << ", " << xmin[1] << "," << xmax[1]
-                  << ", " << xmin[2] << "," << xmax[2] << ")");
+
     } //if compute model bounds
 
   else // else use model bounds specified
@@ -447,7 +455,31 @@ void vtkSweptSurface::ComputeBounds(float origin[3], float spacing[3], float bbo
       }
     }
 
+  if ( this->AdjustBounds )
+    {
+    // adjust bounds larger to make sure data lies within volume
+    for (i=0; i<3; i++)
+      {
+      spacing[i] = (xmax[i]-xmin[i]);
+      h = this->AdjustDistance * spacing[i];
+      xmin[i] -= h;
+      xmax[i] += h;
+      }
+    }
+
+  vtkDebugMacro(<<"Computed model bounds as (" << xmin[0] << "," << xmax[0]
+                << ", " << xmin[1] << "," << xmax[1]
+                << ", " << xmin[2] << "," << xmax[2] << ")");
+
+
   // set output
+  for (i=0; i<3; i++)
+    {
+    origin[i] = xmin[i];
+    if ( (dim=this->SampleDimensions[i]) <= 1 ) dim=2;
+    if ( (spacing[i]=spacing[i]/(dim-1)) == 0.0 ) spacing[i] = 1.0;
+    }
+
   ((vtkStructuredPoints *)(this->Output))->SetOrigin(origin);
   ((vtkStructuredPoints *)(this->Output))->SetSpacing(spacing);
 }
@@ -470,14 +502,14 @@ int vtkSweptSurface::ComputeNumberOfSteps(vtkTransform *t1, vtkTransform *t2,
     t1->MultiplyPoint(x,xTrans1);
     if ( xTrans1[3] != 0.0 ) for (j=0; j<3; j++) xTrans1[j] /= xTrans1[3];
 
-    t2->MultiplyPoint(xTrans1,xTrans2);
+    t2->MultiplyPoint(x,xTrans2);
     if ( xTrans2[3] != 0.0 ) for (j=0; j<3; j++) xTrans2[j] /= xTrans2[3];
 
     dist2 = vtkMath::Distance2BetweenPoints((float *)xTrans1,(float *)xTrans2);
     if ( dist2 > maxDist2 ) maxDist2 = dist2;
     }
 
-  // use magic factor to convert to nuumber of steps. Takes into account
+  // use magic factor to convert to number of steps. Takes into account
   // rotation (assuming maximum 90 degrees), data spacing of output, and 
   // effective size of voxel.
   spacing = ((vtkStructuredPoints *)this->Output)->GetSpacing();
@@ -489,7 +521,7 @@ int vtkSweptSurface::ComputeNumberOfSteps(vtkTransform *t1, vtkTransform *t2,
   else return numSteps;
 }
 
-void vtkSweptSurface::Cap(vtkFloatScalars *s)
+void vtkSweptSurface::Cap(vtkScalars *s)
 {
   int i,j,k;
   int idx;
