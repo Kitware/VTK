@@ -41,7 +41,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // This will be the default.
 #include "vtkMultiProcessController.h"
 #include "vtkMultiThreader.h"
-//#include "vtkThreadedController.h"
+#include "vtkThreadedController.h"
 
 #ifdef VTK_USE_MPI
 #include "vtkMPIController.h"
@@ -153,12 +153,11 @@ vtkMultiProcessController *vtkMultiProcessController::New()
 #endif
   if ( temp == NULL || !strcmp("Threaded",temp))
     {
-      vtkGenericWarningMacro("Threaded Controller is not ready yet");
-      //return vtkThreadedController::New();
+    return vtkThreadedController::New();
     }
 
   vtkGenericWarningMacro("environment variable VTK_CONTROLLER set to unknown value "
-		       << temp << ". Tryy MPI or Threaded");
+		       << temp << ". Try MPI or Threaded");
   return NULL;
 }
 

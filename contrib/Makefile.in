@@ -29,6 +29,7 @@ vtkImageReslice \
 vtkIVWriter \
 vtkLandmarkTransform \
 vtkMassProperties \
+vtkMultiProcessController \
 vtkOBJReader \
 vtkProjectedTexture \
 vtkRenderLargeImage \
@@ -38,6 +39,7 @@ vtkRIBProperty \
 vtkSuperquadric \
 vtkSuperquadricSource \
 vtkSubdivideTetra \
+vtkThreadedController \
 vtkCellDerivatives \
 vtkCubeAxesActor2D \
 vtkSurfaceReconstructionFilter \
@@ -49,7 +51,6 @@ ${CONTROLLER_API_OBJ}
 #vtkOutputPort \
 #vtkInputPort \
 #vtkPolyDataCollector \
-#vtkThreadedController \
 
 WIN32_OBJ = \
 vtkWin32OffscreenRenderWindow
