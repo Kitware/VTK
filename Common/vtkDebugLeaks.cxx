@@ -36,7 +36,7 @@ int vtkDebugLeaksIgnoreClassesCheck(const char* s)
   return 0;
 }
 
-vtkCxxRevisionMacro(vtkDebugLeaks, "1.29");
+vtkCxxRevisionMacro(vtkDebugLeaks, "1.30");
 vtkStandardNewMacro(vtkDebugLeaks);
 
 //----------------------------------------------------------------------------
@@ -300,12 +300,12 @@ void vtkDebugLeaks::DestructClass(const char*)
 #endif
 
 //----------------------------------------------------------------------------
-void vtkDebugLeaks::PrintCurrentLeaks()
+int vtkDebugLeaks::PrintCurrentLeaks()
 {
 #ifdef VTK_DEBUG_LEAKS
   if(vtkDebugLeaks::MemoryTable->IsEmpty())
     {
-    return;
+    return 0;
     }
   // print the table
   strstream leaks;
@@ -324,7 +324,7 @@ void vtkDebugLeaks::PrintCurrentLeaks()
       msg << line << "\n";
       }
     msg << ends;
-    if(getenv("DART_TEST_FROM_DART"))
+    if(getenv("DASHBOARD_TEST_FROM_CTEST") || getenv("DART_TEST_FROM_DART"))
       {
       cout << msg.str() << "\n";
       }
@@ -339,6 +339,7 @@ void vtkDebugLeaks::PrintCurrentLeaks()
   cout << leaks.rdbuf() << "\n";
 #endif
 #endif
+  return 1;
 }
 
 //----------------------------------------------------------------------------
@@ -383,7 +384,11 @@ void vtkDebugLeaks::ClassInitialize()
 void vtkDebugLeaks::ClassFinalize()
 {
 #ifdef VTK_DEBUG_LEAKS
-  vtkDebugLeaks::PrintCurrentLeaks();
+  if(vtkDebugLeaks::PrintCurrentLeaks() && getenv("VTK_DEBUG_LEAKS_ABORT"))
+    {
+    // Make tests fail when leaks occur.
+    abort();
+    }
   
   // Destroy the hash table.
   delete vtkDebugLeaks::MemoryTable;

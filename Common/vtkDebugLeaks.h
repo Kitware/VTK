@@ -49,8 +49,9 @@ public:
   static void DestructClass(const char* classname);
 
   // Description:
-  // Print all the values in the table.
-  static void PrintCurrentLeaks();
+  // Print all the values in the table.  Returns non-zero if there
+  // were leaks.
+  static int PrintCurrentLeaks();
 
   // Description:
   // Turn prompt at exit on/off (this setting is deprecated and will
