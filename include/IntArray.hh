@@ -1,3 +1,18 @@
+/*=========================================================================
+
+  Program:   Visualization Library
+  Module:    IntArray.hh
+  Language:  C++
+  Date:      $Date$
+  Version:   $Revision$
+
+This file is part of the Visualization Library. No part of this file or its 
+contents may be copied, reproduced or altered in any way without the express
+written consent of the authors.
+
+Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
+
+=========================================================================*/
 //
 //  Dynamic, self adjusting integer array
 //
@@ -33,11 +48,10 @@ public:
   void Squeeze() {this->Resize (this->MaxId+1);};
   int GetSize() {return this->Size;};
   int GetMaxId() {return this->MaxId;};
-  void SetMaxId(int id) {this->MaxId = (id < this->Size ? id : this->Size-1);};
   int *GetArray() {return this->Array;};
   void Reset() {this->MaxId = -1;};
   virtual char *GetClassName() {return "vlIntArray";};
-  void PrintSelf(ostream& os);
+  void PrintSelf(ostream& os, vlIndent indent);
 
 private:
   int *Array;   // pointer to data

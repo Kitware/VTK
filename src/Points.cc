@@ -1,3 +1,18 @@
+/*=========================================================================
+
+  Program:   Visualization Library
+  Module:    Points.cc
+  Language:  C++
+  Date:      $Date$
+  Version:   $Revision$
+
+This file is part of the Visualization Library. No part of this file or its 
+contents may be copied, reproduced or altered in any way without the express
+written consent of the authors.
+
+Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
+
+=========================================================================*/
 //
 //  3D Points, abstract representation
 //
@@ -47,16 +62,16 @@ float *vlPoints::GetBounds()
   return this->Bounds;
 }
 
-void vlPoints::PrintSelf(ostream& os)
+void vlPoints::PrintSelf(ostream& os, vlIndent indent)
 {
-  float * bounds;
+  float *bounds;
 
-  os << "    Number Points: " << this->NumPoints() << "\n";
+  vlObject::PrintSelf(os,indent);
+
+  os << indent << "Number Points: " << this->NumPoints() << "\n";
   bounds = this->GetBounds();
-  os << "    Bounds: \n";
-  os << "      Xmin,Xmax: (" << bounds[0] << ", " << bounds[1] << ")\n";
-  os << "      Ymin,Ymax: (" << bounds[2] << ", " << bounds[3] << ")\n";
-  os << "      Zmin,Zmax: (" << bounds[4] << ", " << bounds[5] << ")\n";
-
-  vlObject::PrintSelf(os);
+  os << indent << "Bounds: \n";
+  os << indent << "  Xmin,Xmax: (" << bounds[0] << ", " << bounds[1] << ")\n";
+  os << indent << "  Ymin,Ymax: (" << bounds[2] << ", " << bounds[3] << ")\n";
+  os << indent << "  Zmin,Zmax: (" << bounds[4] << ", " << bounds[5] << ")\n";
 }

@@ -1,3 +1,18 @@
+/*=========================================================================
+
+  Program:   Visualization Library
+  Module:    FTCoords.hh
+  Language:  C++
+  Date:      $Date$
+  Version:   $Revision$
+
+This file is part of the Visualization Library. No part of this file or its 
+contents may be copied, reproduced or altered in any way without the express
+written consent of the authors.
+
+Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
+
+=========================================================================*/
 //
 // Floating point representation of 1,2,3D texture coordinates
 //
@@ -18,7 +33,8 @@ public:
     {return this->TC.Initialize(dim*sz,dim*ext);};
   vlFloatTCoords(const vlFloatTCoords& ftc) 
     {this->TC = ftc.TC;this->Dimension = ftc.Dimension;};
-  vlFloatTCoords(const int sz, const int d=2, const int ext=1000):Dimension(d), TC(d*sz,d*ext) {};
+  vlFloatTCoords(int sz, int d=2, int ext=1000):TC(d*sz,d*ext) 
+    {this->Dimension=d;};
   ~vlFloatTCoords() {};
   vlFloatTCoords &operator=(const vlFloatTCoords& ftc);
   char *GetClassName() {return "vlFloatTCoords";};
@@ -40,12 +56,8 @@ public:
     return id/this->Dimension;
   }
 
-  vlSetClampMacro(Dimension,int,1,3);
-  vlGetMacro(Dimension,int);
-
 private:
   vlFloatArray TC;
-  int Dimension;
 };
 
 #endif

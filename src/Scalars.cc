@@ -1,3 +1,18 @@
+/*=========================================================================
+
+  Program:   Visualization Library
+  Module:    Scalars.cc
+  Language:  C++
+  Date:      $Date$
+  Version:   $Revision$
+
+This file is part of the Visualization Library. No part of this file or its 
+contents may be copied, reproduced or altered in any way without the express
+written consent of the authors.
+
+Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
+
+=========================================================================*/
 //
 //  Scalars, abstract representation
 //
@@ -43,13 +58,14 @@ float *vlScalars::GetRange()
   this->ComputeRange();
   return this->Range;
 }
-void vlScalars::PrintSelf(ostream& os)
+
+void vlScalars::PrintSelf(ostream& os, vlIndent indent)
 {
   float *range;
 
-  os << "    Number Scalars: " << this->NumScalars() << "\n";
-  range = this->GetRange();
-  os << "    Range: (" << range[0] << ", " << range[1] << ")\n";
+  vlObject::PrintSelf(os,indent);
 
-  vlObject::PrintSelf(os);
+  os << indent << "Number Scalars: " << this->NumScalars() << "\n";
+  range = this->GetRange();
+  os << indent << "Range: (" << range[0] << ", " << range[1] << ")\n";
 }

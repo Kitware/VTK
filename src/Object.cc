@@ -1,20 +1,19 @@
 /*=========================================================================
 
-
   Program:   Visualization Library
   Module:    Object.cc
   Language:  C++
-
-Date:      $Date$
+  Date:      $Date$
   Version:   $Revision$
 
-  This file is part of the Visualization
-Library. No part of this file or its
-contents may be copied, reproduced or
-altered in any way without the express
+This file is part of the Visualization Library. No part of this file or its 
+contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
-Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
+
+Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
+
 =========================================================================*/
+
 #include "Object.hh"
 
 vlObject::vlObject()
@@ -58,22 +57,30 @@ void vlObject::UnRegister(void *p)
   if (--this->RefCount <= 0) delete this;
 }
 
-
-void vlObject::PrintHeader(ostream& os)
+void vlObject::Print(ostream& os)
 {
-  os << this->GetClassName() << " (" << this << ")\n";
-  os << "    Debug state: " << this->Debug << "\n";
-  os << "    Modified Time: " << this->GetMtime() << "\n";
-  os << "    Reference Count: " << this->RefCount << "\n";}
+  vlIndent indent;
 
-void vlObject::PrintSelf(ostream& os)
-{
-  ;
+  this->PrintHeader(os,0); 
+  this->PrintSelf(os, indent.GetNextIndent());
+  this->PrintTrailer(os,0);
 }
 
-void vlObject::PrintTrailer(ostream& os)
+void vlObject::PrintHeader(ostream& os, vlIndent indent)
 {
-  os << "\n";
+  os << indent << this->GetClassName() << " (" << this << ")\n";
+}
+
+void vlObject::PrintSelf(ostream& os, vlIndent indent)
+{
+  os << indent << "Debug state: " << this->Debug << "\n";
+  os << indent << "Modified Time: " << this->GetMtime() << "\n";
+  os << indent << "Reference Count: " << this->RefCount << "\n";
+}
+
+void vlObject::PrintTrailer(ostream& os, vlIndent indent)
+{
+  os << indent << "\n";
 }
 
 void vlObject::DebugOn()

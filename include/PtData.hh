@@ -1,3 +1,18 @@
+/*=========================================================================
+
+  Program:   Visualization Library
+  Module:    PtData.hh
+  Language:  C++
+  Date:      $Date$
+  Version:   $Revision$
+
+This file is part of the Visualization Library. No part of this file or its 
+contents may be copied, reproduced or altered in any way without the express
+written consent of the authors.
+
+Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
+
+=========================================================================*/
 //
 // Class for manipulating data associated with points
 //
@@ -18,6 +33,7 @@ public:
   void CopyInitialize(vlPointData* pd, int sze=0, int ext=1000);
   ~vlPointData();
   char *GetClassName() {return "vlPointData";};
+  void PrintSelf(ostream& os, vlIndent indent);
   vlPointData (const vlPointData& pd);
   vlPointData &operator=(vlPointData& pd);
   virtual void Update() {};

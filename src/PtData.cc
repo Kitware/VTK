@@ -1,3 +1,18 @@
+/*=========================================================================
+
+  Program:   Visualization Library
+  Module:    PtData.cc
+  Language:  C++
+  Date:      $Date$
+  Version:   $Revision$
+
+This file is part of the Visualization Library. No part of this file or its 
+contents may be copied, reproduced or altered in any way without the express
+written consent of the authors.
+
+Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
+
+=========================================================================*/
 //
 // PointData methods
 //
@@ -160,3 +175,48 @@ void vlPointData::CopyInitialize(vlPointData* pd, int sze, int ext)
     this->SetTCoords(newTCoords);
     }
 };
+
+void vlPointData::PrintSelf(ostream& os, vlIndent indent)
+{
+  vlObject::PrintSelf(os,indent);
+
+  if ( this->Scalars )
+    {
+    os << indent << "Scalars data:\n";
+    this->Scalars->PrintSelf(os,indent.GetNextIndent());
+    }
+  else
+    {
+    os << indent << "Scalar data: (none)\n";
+    }
+
+  if ( this->Vectors )
+    {
+    os << indent << "Vectors data:\n";
+    this->Vectors->PrintSelf(os,indent.GetNextIndent());
+    }
+  else
+    {
+    os << indent << "Vector data: (none)\n";
+    }
+
+  if ( this->Normals )
+    {
+    os << indent << "Normals data:\n";
+    this->Normals->PrintSelf(os,indent.GetNextIndent());
+    }
+  else
+    {
+    os << indent << "Normal data: (none)\n";
+    }
+
+  if ( this->TCoords )
+    {
+    os << indent << "Texture data:\n";
+    this->TCoords->PrintSelf(os,indent.GetNextIndent());
+    }
+  else
+    {
+    os << indent << "Texture data: (none)\n";
+    }
+}

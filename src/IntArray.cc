@@ -1,3 +1,18 @@
+/*=========================================================================
+
+  Program:   Visualization Library
+  Module:    IntArray.cc
+  Language:  C++
+  Date:      $Date$
+  Version:   $Revision$
+
+This file is part of the Visualization Library. No part of this file or its 
+contents may be copied, reproduced or altered in any way without the express
+written consent of the authors.
+
+Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
+
+=========================================================================*/
 //
 //  Dynamic, self adjusting integer array
 //
@@ -83,14 +98,14 @@ void vlIntArray::operator+=(vlIntArray& ia)
 
 }
 
-void vlIntArray::PrintSelf(ostream& os)
+void vlIntArray::PrintSelf(ostream& os, vlIndent indent)
 {
-  os << "    Array: " << this->Array << "\n";
-  os << "    Size: " << this->Size << "\n";
-  os << "    MaxId: " << this->MaxId << "\n";
-  os << "    Extend size: " << this->Extend << "\n";
+  vlObject::PrintSelf(os,indent);
 
-  vlObject::PrintSelf(os);
+  os << indent << "Array: " << this->Array << "\n";
+  os << indent << "Size: " << this->Size << "\n";
+  os << indent << "MaxId: " << this->MaxId << "\n";
+  os << indent << "Extend size: " << this->Extend << "\n";
 }
 //
 // Private function does "reallocate"

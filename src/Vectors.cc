@@ -1,3 +1,18 @@
+/*=========================================================================
+
+  Program:   Visualization Library
+  Module:    Vectors.cc
+  Language:  C++
+  Date:      $Date$
+  Version:   $Revision$
+
+This file is part of the Visualization Library. No part of this file or its 
+contents may be copied, reproduced or altered in any way without the express
+written consent of the authors.
+
+Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
+
+=========================================================================*/
 //
 //  3D vectors, abstract representation
 //
@@ -43,10 +58,10 @@ float vlVectors::GetMaxNorm()
   this->ComputeMaxNorm();
   return this->MaxNorm;
 }
-void vlVectors::PrintSelf(ostream& os)
+void vlVectors::PrintSelf(ostream& os, vlIndent indent)
 {
-  os << "    Number Vectors: " << this->NumVectors() << "\n";
-  os << "    Maximum Euclidean Norm: " << this->GetMaxNorm() << "\n";
+  vlObject::PrintSelf(os,indent);
 
-  vlObject::PrintSelf(os);
+  os << indent << "Number Vectors: " << this->NumVectors() << "\n";
+  os << indent << "Maximum Euclidean Norm: " << this->GetMaxNorm() << "\n";
 }
