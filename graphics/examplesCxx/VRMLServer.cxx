@@ -69,10 +69,10 @@ int main( int argc, char *argv[] )
   cin >> arg1;
   
   isoval = atof(getCGIValue("isoval=",arg1));
-  isoType = getCGIValue("iso=",arg1);
-  probeLoc = atof(getCGIValue("probeloc=",arg1));
-  probeCont = getCGIValue("probecont=",arg1);
-  probeOn = getCGIValue("probe=",arg1);
+  isoType = getCGIValue((char *) "iso=",arg1);
+  probeLoc = atof(getCGIValue((char *) "probeloc=",arg1));
+  probeCont = getCGIValue((char *) "probecont=",arg1);
+  probeOn = getCGIValue((char *) "probe=",arg1);
   
   vtkRenderer *ren1 = vtkRenderer::New();
   vtkRenderWindow *renWin = vtkRenderWindow::New();

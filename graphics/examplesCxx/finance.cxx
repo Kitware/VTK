@@ -12,12 +12,12 @@
 #include "vtkPoints.h"
 #include "vtkScalars.h"
 
-static vtkDataSet *ReadFinancialData(char *x, char *y, char *z, char *s);
-static int ParseFile(FILE *file, char *tag, float *data);
+static vtkDataSet *ReadFinancialData(const char *x, const char *y, const char *z, const char *s);
+static int ParseFile(FILE *file, const char *tag, float *data);
 
 #include "SaveImage.h"
 
-void main( int argc, char *argv[] )
+int main( int argc, char *argv[] )
 {
   float bounds[6];
   vtkDataSet *dataSet;
@@ -117,7 +117,7 @@ void main( int argc, char *argv[] )
   dataSet->Delete();
 }
 
-static vtkDataSet *ReadFinancialData(char *x, char *y, char *z, char *s)
+static vtkDataSet *ReadFinancialData(const char *x, const char *y, const char *z, const char *s)
 {
   float xyz[3];
   FILE *file;
@@ -169,7 +169,7 @@ static vtkDataSet *ReadFinancialData(char *x, char *y, char *z, char *s)
   return dataSet;
 }
 
-static int ParseFile(FILE *file, char *label, float *data)
+static int ParseFile(FILE *file, const char *label, float *data)
 {
   char tag[80];
   int i, npts, readData=0;
