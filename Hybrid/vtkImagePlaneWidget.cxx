@@ -40,7 +40,7 @@
 #include "vtkTextureMapToPlane.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.79");
+vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.80");
 vtkStandardNewMacro(vtkImagePlaneWidget);
 
 vtkCxxSetObjectMacro(vtkImagePlaneWidget, PlaneProperty, vtkProperty);
@@ -69,7 +69,7 @@ vtkImagePlaneWidget::vtkImagePlaneWidget() : vtkPolyDataSourceWidget()
   this->CurrentCursorPosition[0] = 0;
   this->CurrentCursorPosition[1] = 0;
   this->CurrentCursorPosition[2] = 0;
-  this->CurrentImageValue        = VTK_FLOAT_MAX;
+  this->CurrentImageValue        = VTK_DOUBLE_MAX;
   this->MarginSelectMode         = 8;
 
   // Represent the plane's outline
@@ -1084,7 +1084,7 @@ void vtkImagePlaneWidget::GetWindowLevel(double wl[2])
 int vtkImagePlaneWidget::GetCursorData(double xyzv[4])
 {
   if ( this->State != vtkImagePlaneWidget::Cursoring  || \
-    this->CurrentImageValue == VTK_FLOAT_MAX )
+    this->CurrentImageValue == VTK_DOUBLE_MAX )
     {
     return 0;
     }
@@ -1113,7 +1113,7 @@ void vtkImagePlaneWidget::ManageTextDisplay()
     }
   else if ( this->State == vtkImagePlaneWidget::Cursoring )
     {
-    if( this->CurrentImageValue == VTK_FLOAT_MAX )
+    if( this->CurrentImageValue == VTK_DOUBLE_MAX )
       {
       sprintf(this->TextBuff,"Off Image");
       }

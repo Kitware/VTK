@@ -536,7 +536,7 @@ protected:
   vtkPolyDataMapper *CursorMapper;
   vtkActor          *CursorActor;
   int                CurrentCursorPosition[3];
-  double             CurrentImageValue; // Set to VTK_FLOAT_MAX when invalid
+  double             CurrentImageValue; // Set to VTK_DOUBLE_MAX when invalid
   void               GenerateCursor();
   void               UpdateCursor(int,int);
   void               ActivateCursor(int);
