@@ -68,7 +68,7 @@
 // .SECTION Caveats
 // If you are interested in plotting something other than scalar data, you
 // can use the vtk data shuffling filters (e.g., 
-// vtkAttributeDataToFieldDataFilter snd vtkFieldDataToAttributeDataFilter) 
+// vtkAttributeDataToFieldDataFilter and vtkFieldDataToAttributeDataFilter) 
 // to convert the data into scalar data and/or points.
 
 // .SECTION See Also
@@ -192,7 +192,7 @@ public:
   // Indicate whether to plot rows or columns. If plotting rows, then
   // the dependent variables is taken from a specified row,
   // versus rows (y). 
-  vtkSetClampMacro(DataObjectPlotMode,int,VTK_XYPLOT_COLUMN,VTK_XYPLOT_ROW);
+  vtkSetClampMacro(DataObjectPlotMode,int,VTK_XYPLOT_ROW,VTK_XYPLOT_COLUMN);
   vtkGetMacro(DataObjectPlotMode,int);
   void SetDataObjectPlotModeToRows()
     {this->SetDataObjectPlotMode(VTK_XYPLOT_ROW);}
@@ -281,10 +281,10 @@ public:
   // if you would like to change the default behavior of the legend box
   // or glyph source. For example, the default glyph can be changed from
   // a line to a vertex plus line, etc.)
-  vtkLegendBoxActor *GetLegendBoxActor()
-    {return this->LegendActor;}
-  vtkGlyphSource2D *GetGlyphSource()
-    {return this->GlyphSource;}
+  vtkLegendBoxActor* GetLegendActor() { return this->LegendActor; }
+  vtkGlyphSource2D* GetGlyphSource() { return this->GlyphSource; }
+  //vtkGetObjectMacro(LegendActor,vtkLegendBoxActor);
+  //vtkGetObjectMacro(GlyphSource,vtkGlyphSource2D);
 
   // Description:
   // Set/Get the title of the x-y plot, and the title along the 
@@ -442,6 +442,10 @@ public:
   // Take into account the modified time of internal helper classes.
   unsigned long GetMTime();
   
+  // Description:
+  // Write the XY Ploat Actor as a CSV (comma separated value) representation.
+  void PrintAsCSV(ostream &os);
+
 //BTX  
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE

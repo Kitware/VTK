@@ -39,7 +39,7 @@
 
 #define VTK_MAX_PLOTS 50
 
-vtkCxxRevisionMacro(vtkXYPlotActor, "1.55.4.2");
+vtkCxxRevisionMacro(vtkXYPlotActor, "1.55.4.3");
 vtkStandardNewMacro(vtkXYPlotActor);
 
 vtkCxxSetObjectMacro(vtkXYPlotActor,TitleTextProperty,vtkTextProperty);
@@ -211,29 +211,10 @@ vtkXYPlotActor::~vtkXYPlotActor()
   this->TitleActor->Delete();
   this->TitleActor = NULL;
 
-  if (this->Title)
-    {
-    delete [] this->Title;
-    this->Title = NULL;
-    }
-  
-  if (this->XTitle)
-    {
-    delete [] this->XTitle;
-    this->XTitle = NULL;
-    }
-  
-  if (this->YTitle)
-    {
-    delete [] this->YTitle;
-    this->YTitle = NULL;
-    }
-  
-  if (this->LabelFormat) 
-    {
-    delete [] this->LabelFormat;
-    this->LabelFormat = NULL;
-    }
+  this->SetTitle(0);
+  this->SetXTitle(0);
+  this->SetYTitle(0);
+  this->SetLabelFormat(0);
 
   this->XAxis->Delete();
   this->YAxis->Delete();
@@ -327,11 +308,16 @@ void vtkXYPlotActor::AddInput(vtkDataSet *ds, const char *arrayName, int compone
   delete [] this->SelectedInputScalars;
   this->SelectedInputScalars = newNames;
 
-  // Save the component it the int array.
+  // Save the component in the int array.
   this->SelectedInputScalarsComponent->InsertValue(num, component);
 
   // Add the data set to the collection
   this->InputList->AddItem(ds);
+
+  // In case of multiple use of a XYPlotActor the NumberOfEntries could be set
+  // to n. Then when a call to SetEntryString(n+1, bla) was done the string was lost
+  // Need to update the number of entries for the legend actor
+  this->LegendActor->SetNumberOfEntries(this->LegendActor->GetNumberOfEntries()+1);
 
   this->Modified();
 }
@@ -442,7 +428,7 @@ void vtkXYPlotActor::RemoveDataObjectInput(vtkDataObject *in)
 // Plot scalar data for each input dataset.
 int vtkXYPlotActor::RenderOverlay(vtkViewport *viewport)
 {
-  int renderedSomething=0;
+  int renderedSomething = 0;
 
   // Make sure input is up to date.
   if ( this->InputList->GetNumberOfItems() < 1 && 
@@ -454,7 +440,7 @@ int vtkXYPlotActor::RenderOverlay(vtkViewport *viewport)
 
   renderedSomething += this->XAxis->RenderOverlay(viewport);
   renderedSomething += this->YAxis->RenderOverlay(viewport);
-  if ( this->Title != NULL )
+  if ( this->Title )
     {
     renderedSomething += this->TitleActor->RenderOverlay(viewport);
     }
@@ -760,7 +746,7 @@ int vtkXYPlotActor::RenderOpaqueGeometry(vtkViewport *viewport)
     vtkDebugMacro(<<"Rendering plotactors");
     renderedSomething += this->PlotActor[i]->RenderOpaqueGeometry(viewport);
     }
-  if ( this->Title != NULL )
+  if ( this->Title )
     {
     vtkDebugMacro(<<"Rendering titleactors");
     renderedSomething += this->TitleActor->RenderOpaqueGeometry(viewport);
@@ -793,7 +779,7 @@ const char *vtkXYPlotActor::GetXValuesAsString()
 //----------------------------------------------------------------------------
 const char *vtkXYPlotActor::GetDataObjectPlotModeAsString()
 {
-  if ( this->XValues == VTK_XYPLOT_ROW ) 
+  if ( this->DataObjectPlotMode == VTK_XYPLOT_ROW )
     {
     return "Plot Rows";
     }
@@ -962,6 +948,11 @@ void vtkXYPlotActor::PrintSelf(ostream& os, vtkIndent indent)
      << this->LegendPosition2[1] << ")\n";
 
   os << indent << "Glyph Size: " << this->GlyphSize << endl;
+
+  os << indent << "Legend Actor:";
+  this->LegendActor->PrintSelf( os << endl, i2);
+  os << indent << "Glyph Source:";
+  this->GlyphSource->PrintSelf( os << endl, i2);
 }
 
 //----------------------------------------------------------------------------
@@ -972,8 +963,8 @@ void vtkXYPlotActor::ComputeXRange(double range[2], double *lengths)
   double maxLength=0.0, xPrev[3], x[3];
   vtkDataSet *ds;
 
-  range[0] = VTK_DOUBLE_MAX;
-  range[1] = -VTK_DOUBLE_MAX;
+  range[0] = VTK_DOUBLE_MAX, range[1] = VTK_DOUBLE_MIN;
+
   vtkCollectionSimpleIterator dsit;
   for ( dsNum=0, maxNum=0, this->InputList->InitTraversal(dsit); 
         (ds = this->InputList->GetNextDataSet(dsit)); dsNum++)
@@ -1080,7 +1071,7 @@ void vtkXYPlotActor::ComputeYRange(double range[2])
   int count;
   int component;
 
-  range[0]=VTK_DOUBLE_MAX, range[1]=(-VTK_DOUBLE_MAX);
+  range[0]=VTK_DOUBLE_MAX, range[1]=VTK_DOUBLE_MIN;
 
   vtkCollectionSimpleIterator dsit;
   for ( this->InputList->InitTraversal(dsit), count = 0; 
@@ -1503,8 +1494,6 @@ void vtkXYPlotActor::CreatePlotData(int *pos, int *pos2, double xRange[2],
           default:
             vtkErrorMacro(<< "Unknown X-Value option");
           }
-        
-
 
         if ( this->GetLogx() == 1 )
           {
@@ -1535,9 +1524,9 @@ void vtkXYPlotActor::CreatePlotData(int *pos, int *pos2, double xRange[2],
             clippingRequired = 1;
             }    
           numLinePts++;
-          xyz[0] = pos[0] + 
+          xyz[0] = pos[0] +
             (xyz[0]-xRange[0])/(xRange[1]-xRange[0])*(pos2[0]-pos[0]);
-          xyz[1] = pos[1] + 
+          xyz[1] = pos[1] +
             (xyz[1]-yRange[0])/(yRange[1]-yRange[0])*(pos2[1]-pos[1]);
           id = pts->InsertNextPoint(xyz);
           lines->InsertCellPoint(id);
@@ -1582,9 +1571,9 @@ void vtkXYPlotActor::CreatePlotData(int *pos, int *pos2, double xRange[2],
     else
       {
       if ( this->GetPlotPoints(i) == 0 || 
-           (this->LegendActor->GetEntrySymbol(i) &&
-            this->LegendActor->GetEntrySymbol(i) != 
-            this->GlyphSource->GetOutput()))
+          (this->LegendActor->GetEntrySymbol(i) &&
+           this->LegendActor->GetEntrySymbol(i) != 
+           this->GlyphSource->GetOutput()))
         {
         this->PlotData[i]->SetVerts(NULL);
         }
@@ -2041,10 +2030,11 @@ int vtkXYPlotActor::GetDataObjectYComponent(int i)
   return this->YComponent->GetValue(i);
 }
 
+//----------------------------------------------------------------------------
 void vtkXYPlotActor::SetPointComponent(int i, int comp)
 {
   i = ( i < 0 ? 0 : (i >=VTK_MAX_PLOTS ? VTK_MAX_PLOTS-1 : i));
-  int val=this->XComponent->GetValue(i);
+  int val = this->XComponent->GetValue(i);
   if ( val != comp )
     {
     this->Modified();
@@ -2060,7 +2050,8 @@ int vtkXYPlotActor::GetPointComponent(int i)
 }
 
 //----------------------------------------------------------------------------
-double *vtkXYPlotActor::TransformPoint(int pos[2], int pos2[2], double x[3], double xNew[3])
+double *vtkXYPlotActor::TransformPoint(int pos[2], int pos2[2],
+                                       double x[3], double xNew[3])
 {
   // First worry about exchanging axes
   if ( this->ExchangeAxes )
@@ -2124,3 +2115,34 @@ void vtkXYPlotActor::SetLabelFormat(const char* _arg)
 
   this->Modified();
 }
+
+//----------------------------------------------------------------------------
+void vtkXYPlotActor::PrintAsCSV(ostream &os)
+{
+  vtkDataArray *scalars;
+  vtkDataSet *ds;
+  vtkCollectionSimpleIterator dsit;
+  double s;
+  int dsNum,component;
+  for ( dsNum=0, this->InputList->InitTraversal(dsit); 
+    (ds = this->InputList->GetNextDataSet(dsit)); dsNum++ )
+    {
+    vtkIdType numPts = ds->GetNumberOfPoints();
+    scalars = ds->GetPointData()->GetScalars(this->SelectedInputScalars[dsNum]);
+    component = this->SelectedInputScalarsComponent->GetValue(dsNum);
+    for ( vtkIdType ptId=0; ptId < numPts; ptId++ )
+      {
+      s = scalars->GetComponent(ptId, component);
+      if( ptId == 0 )
+        {
+        os << s;
+        }
+      else
+        {
+        os << "," << s;
+        }
+      }
+    os << endl;
+    }
+}
+
