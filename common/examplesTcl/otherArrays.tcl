@@ -46,6 +46,8 @@ proc rtOtherTest { fileid } {
 		incr k
 	    }
 	}
+	b${array}Array InsertComponent 2001 1 1
+	puts $fileid "Actual memory size is: [b${array}Array GetActualMemorySize]"
 	a${array}Array Squeeze
 	a${array}Array Initialize
     }
