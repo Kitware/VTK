@@ -5,7 +5,6 @@
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
-  Thanks:    to Horst Schreiber for developing this MFC code
 
 Copyright (c) 1993-1998 Ken Martin, Will Schroeder, Bill Lorensen.
 
@@ -58,6 +57,10 @@ vtkWin32OpenGLImageWindow::vtkWin32OpenGLImageWindow()
   this->NextWindowId = 0;
   this->DeviceContext = (HDC)0;		// hsr
   this->SetWindowName("Visualization Toolkit - Win32OpenGL");
+  // we default to double buffered in contrast to other classes
+  // mostly because in OpenGL double buffering should be free
+  this->DoubleBuffer = 1;
+  this->Erase = 1;
 }
 
 vtkWin32OpenGLImageWindow::~vtkWin32OpenGLImageWindow()
@@ -65,7 +68,16 @@ vtkWin32OpenGLImageWindow::~vtkWin32OpenGLImageWindow()
   if (this->WindowId && this->OwnWindow) DestroyWindow(this->WindowId);
 }
 
-void vtkWin32OpenGLImageWindow::Clean()
+void vtkWin32OpenGLImageWindow::Render()
+{
+  if (this->WindowCreated)
+    {
+    this->MakeCurrent();
+    }
+  this->vtkImageWindow::Render();
+}
+
+  void vtkWin32OpenGLImageWindow::Clean()
 {
   /* finish OpenGL rendering */
   if (this->ContextId) 
@@ -203,7 +215,7 @@ void vtkWin32OpenGLImageWindow::SetupPixelFormat(HDC hDC, DWORD dwFlags,
         0,                              /* alpha bits (ignored) */
         0,                              /* no accumulation buffer */
         0, 0, 0, 0,                     /* accum bits (ignored) */
-        zbpp,                           /* depth buffer */
+        0,                              /* depth buffer */
         0,                              /* no stencil buffer */
         0,                              /* no auxiliary buffers */
         PFD_MAIN_PLANE,                 /* main layer */
@@ -278,17 +290,8 @@ void vtkWin32OpenGLImageWindow::SetupPalette(HDC hDC)
 void vtkWin32OpenGLImageWindow::OpenGLInit()
 {
   glMatrixMode( GL_MODELVIEW );
-  glDepthFunc( GL_LEQUAL );
-  glEnable( GL_DEPTH_TEST );
-  glTexEnvf( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE );
-
-  // initialize blending for transparency
-  glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
-  glEnable(GL_BLEND);
-
-  glEnable( GL_NORMALIZE );
-  glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE);
   glClearColor(0,0,0,1);
+  glDisable(GL_DEPTH_TEST);
 }
 
 
@@ -894,103 +897,6 @@ void vtkWin32OpenGLImageWindow::SetRGBAPixelData(int x1, int y1,
 
 }
 
-float *vtkWin32OpenGLImageWindow::GetZbufferData( int x1, int y1, 
-						 int x2, int y2  )
-{
-  int             y_low, y_hi;
-  int             x_low, x_hi;
-  int             width, height;
-  float           *z_data = NULL;
-
-  // set the current window 
-  this->MakeCurrent();
-
-  if (y1 < y2)
-    {
-    y_low = y1; 
-    y_hi  = y2;
-    }
-  else
-    {
-    y_low = y2; 
-    y_hi  = y1;
-    }
-
-  if (x1 < x2)
-    {
-    x_low = x1; 
-    x_hi  = x2;
-    }
-  else
-    {
-    x_low = x2; 
-    x_hi  = x1;
-    }
-
-  width =  abs(x2 - x1)+1;
-  height = abs(y2 - y1)+1;
-
-  z_data = new float[width*height];
-
-  glReadPixels( x_low, y_low, 
-		width, height,
-		GL_DEPTH_COMPONENT, GL_FLOAT,
-		z_data );
-
-  return z_data;
-}
-
-void vtkWin32OpenGLImageWindow::SetZbufferData( int x1, int y1, int x2, int y2,
-					       float *buffer )
-{
-  int             y_low, y_hi;
-  int             x_low, x_hi;
-  int             width, height;
-
-  // set the current window 
-  this->MakeCurrent();
-
-  if (y1 < y2)
-    {
-    y_low = y1; 
-    y_hi  = y2;
-    }
-  else
-    {
-    y_low = y2; 
-    y_hi  = y1;
-    }
-
-  if (x1 < x2)
-    {
-    x_low = x1; 
-    x_hi  = x2;
-    }
-  else
-    {
-    x_low = x2; 
-    x_hi  = x1;
-    }
-
-  width =  abs(x2 - x1)+1;
-  height = abs(y2 - y1)+1;
-
-  glMatrixMode( GL_MODELVIEW );
-  glPushMatrix();
-  glLoadIdentity();
-  glMatrixMode( GL_PROJECTION );
-  glPushMatrix();
-  glLoadIdentity();
-  glRasterPos2f( 2.0 * (GLfloat)(x_low) / this->Size[0] - 1, 
-                 2.0 * (GLfloat)(y_low) / this->Size[1] - 1);
-  glMatrixMode( GL_PROJECTION );
-  glPopMatrix();
-  glMatrixMode( GL_MODELVIEW );
-  glPopMatrix();
-
-  glDrawPixels( width, height, GL_DEPTH_COMPONENT, GL_FLOAT, buffer);
-
-}
 
 void vtkWin32OpenGLImageWindow::SetBackgroundColor(float r, float g, float b)
 {
@@ -1005,9 +911,8 @@ void vtkWin32OpenGLImageWindow::SetBackgroundColor(float r, float g, float b)
 
 void vtkWin32OpenGLImageWindow::EraseWindow()
 {
-  glClearDepth( (GLclampd)( 1.0 ) );
   vtkDebugMacro(<< "glClear\n");
-  glClear((GLbitfield)(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+  glClear((GLbitfield)GL_COLOR_BUFFER_BIT);
 }
 
 

@@ -73,6 +73,10 @@ public:
   void SwapBuffers();
   
   // Description:
+  // Draw the contents of the window
+  void Render();
+
+  // Description:
   // Set the desired background color for the window.
   void SetBackgroundColor(float r, float g, float b);
 
@@ -142,11 +146,6 @@ public:
   virtual void SetRGBAPixelData(int x,int y,int x2,int y2,float *,int front,
                                 int blend=0);
   virtual void ReleaseRGBAPixelData(float *data);
-
-  // Description:
-  // Set/Get the zbuffer data from an image
-  virtual float *GetZbufferData( int x1, int y1, int x2, int y2 );
-  virtual void SetZbufferData( int x1, int y1, int x2, int y2, float *buffer );
 
   // Description:
   // Make this windows OpenGL context the current context.
