@@ -70,7 +70,7 @@ const int vtkParallelRenderManager::REN_INFO_DOUBLE_SIZE =
 const int vtkParallelRenderManager::LIGHT_INFO_DOUBLE_SIZE =
   sizeof(vtkParallelRenderManager::LightInfoDouble)/sizeof(double);
 
-vtkCxxRevisionMacro(vtkParallelRenderManager, "1.42");
+vtkCxxRevisionMacro(vtkParallelRenderManager, "1.43");
 
 //----------------------------------------------------------------------------
 vtkParallelRenderManager::vtkParallelRenderManager()
@@ -600,7 +600,7 @@ void vtkParallelRenderManager::StartRender()
                            id, 
                            vtkParallelRenderManager::WIN_INFO_DOUBLE_TAG);
     }
-  // This used to be inside the loop which caused too many sends.
+
   this->SendWindowInformation();
 
   if (this->ImageReductionFactor > 1)
@@ -678,10 +678,9 @@ void vtkParallelRenderManager::StartRender()
                                vtkParallelRenderManager::LIGHT_INFO_DOUBLE_TAG);
         }
       }
-
-    this->SendRendererInformation(ren);
     }
-//    }
+
+  this->SendRendererInformation(ren);
 
   this->PreRenderProcessing();
 }
