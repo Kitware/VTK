@@ -229,6 +229,12 @@ vtkCell *vtkUnstructuredGrid::GetCell(int cellId)
   return cell;
 }
 
+int vtkUnstructuredGrid::GetMaxCellSize()
+{
+  if (this->Connectivity) return this->Connectivity->GetMaxCellSize();
+  else return 0;
+}
+
 int vtkUnstructuredGrid::GetNumberOfCells() 
 {
   return (this->Connectivity ? this->Connectivity->GetNumberOfCells() : 0);
@@ -244,23 +250,20 @@ void vtkUnstructuredGrid::PrintSelf(ostream& os, vtkIndent indent)
 // cell topology.
 int vtkUnstructuredGrid::InsertNextCell(int type, vtkIdList& ptIds)
 {
-  int i;
   int npts=ptIds.GetNumberOfIds();
 
   // insert connectivity
-  this->Connectivity->InsertNextCell(npts);
-  for (i=0; i < npts; i++) this->Connectivity->InsertCellPoint(ptIds.GetId(i));
+  this->Connectivity->InsertNextCell(ptIds);
 
   // insert type and storage information   
-  return
+  return 
     this->Cells->InsertNextCell(type,this->Connectivity->GetLocation(npts));
 }
 
 // Description:
 // Insert/create cell in object by type and list of point ids defining
 // cell topology.
-int vtkUnstructuredGrid::InsertNextCell(int type, int npts, 
-				       int pts[VTK_MAX_CELL_SIZE])
+int vtkUnstructuredGrid::InsertNextCell(int type, int npts, int *pts)
 {
   this->Connectivity->InsertNextCell(npts,pts);
 
@@ -327,6 +330,13 @@ void vtkUnstructuredGrid::GetPointCells(int ptId, vtkIdList& cellIds)
     }
 }
 
+void vtkUnstructuredGrid::Reset()
+{
+  if ( this->Connectivity ) this->Connectivity->Reset();
+  if ( this->Cells ) this->Cells->Reset();
+  if ( this->Links ) this->Links->Reset();
+}
+
 void vtkUnstructuredGrid::Squeeze()
 {
   if ( this->Connectivity ) this->Connectivity->Squeeze();
@@ -335,3 +345,4 @@ void vtkUnstructuredGrid::Squeeze()
 
   vtkPointSet::Squeeze();
 }
+

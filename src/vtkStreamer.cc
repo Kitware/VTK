@@ -220,12 +220,12 @@ void vtkStreamer::Integrate()
   vtkStreamPoint *sNext, *sPtr;
   int i, j, ptId, offset, subId;
   vtkCell *cell;
-  vtkFloatVectors cellVectors(VTK_MAX_CELL_SIZE);
-  vtkFloatScalars cellScalars(VTK_MAX_CELL_SIZE);
+  vtkFloatVectors cellVectors(VTK_CELL_SIZE);
+  vtkFloatScalars cellScalars(VTK_CELL_SIZE);
   float *v, xNext[3];
   vtkMath math;
   float d, step, dir, vNext[3], tol2, p[3];
-  float w[VTK_MAX_CELL_SIZE], dist2;
+  float *w=new float[input->GetMaxCellSize()], dist2;
   float closestPoint[3];
   cellVectors.ReferenceCountingOff();
   cellScalars.ReferenceCountingOff();
@@ -427,6 +427,7 @@ void vtkStreamer::Integrate()
         }
       }
     }
+  delete [] w;
 }
 
 void vtkStreamer::ComputeVorticity()

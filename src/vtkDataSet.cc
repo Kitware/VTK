@@ -235,7 +235,7 @@ void vtkDataSet::GetCellNeighbors(int cellId, vtkIdList &ptIds,
                                  vtkIdList &cellIds)
 {
   int i;
-  vtkIdList otherCells(VTK_MAX_CELL_SIZE);
+  vtkIdList otherCells(VTK_CELL_SIZE);
 
   // load list with candidate cells, remove current cell
   this->GetPointCells(ptIds.GetId(0),cellIds);

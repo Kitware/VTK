@@ -177,12 +177,12 @@ void vtkHyperStreamline::Execute()
   vtkHyperPoint *sNext, *sPtr;
   int i, j, ptId, offset, subId;
   vtkCell *cell;
-  vtkFloatVectors cellVectors(VTK_MAX_CELL_SIZE);
-  vtkFloatScalars cellScalars(VTK_MAX_CELL_SIZE);
+  vtkFloatVectors cellVectors(VTK_CELL_SIZE);
+  vtkFloatScalars cellScalars(VTK_CELL_SIZE);
   float *v, xNext[3];
   vtkMath math;
   float d, step, dir, vNext[3], tol2, p[3];
-  float w[VTK_MAX_CELL_SIZE], dist2;
+  float *w=new float[input->GetMaxCellSize()], dist2;
   float closestPoint[3];
   vtkPolyData *output = this->GetOutput();
 
@@ -343,6 +343,8 @@ void vtkHyperStreamline::Execute()
     } //for each streamer
 
   this->BuildTube();
+
+  delete [] w;
 }
 
 void vtkHyperStreamline::BuildTube()

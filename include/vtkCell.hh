@@ -47,19 +47,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkPolyData, vtkUnstructuredGrid), and in some cases, the datasets are 
 // implicitly composed of cells (e.g., vtkStructuredPoints).
 // .SECTION Caveats
-// The #define VTK_MAX_CELL_SIZE specifies the maximum number of defining 
-// points for a cell. This parameter is not a hard boundary: in many cases 
-// you can create cells with more points. However there are certain filters
-// (usually recursive) that allocate temporary storage. If these filters treat
-// a cell with more points than VTK_MAX_CELL_SIZE they may truncate data. 
-// Concerns about maximum cell size arise with cells with variable length
-// connectivity lists like polylines, triangle strips, or polygons). We will
-// most likely eliminate this parameter in future releases of vtk.
+// The #define VTK_CELL_SIZE is a parameter used to construct cells and provide
+// a general guideline for controlling object execution. This parameter is 
+// not a hard boundary: you can create cells with more points.
 
 #ifndef __vtkCell_h
 #define __vtkCell_h
 
-#define VTK_MAX_CELL_SIZE 512
+#define VTK_CELL_SIZE 512
 #define VTK_TOL 1.e-05 // Tolerance for geometric calculation
 
 #include "vtkObject.hh"
@@ -135,21 +130,25 @@ public:
   // parametric coordinates, sub-cell id (!=0 only if cell is composite),
   // distance squared of point x[3] to cell (in particular, the sub-cell 
   // indicated), closest point on cell to x[3], and interpolation weights 
-  // in cell. Note: on rare occasions a -1 is returned from the method. This 
-  // means that numerical error has occurred and all data returned from this method
-  // should be ignored. Also, inside/outside is determine parametrically. That
-  // is, a point is inside if it satisfies parametric limits. This can cause
-  // problems for cells of topological dimension 2 or less, since a point in
-  // 3D can project onto the cell within parametric limits but be "far" from
-  // the cell. Thus the value dist2 may be checked to determine true in/out.
+  // in cell. (The number of weights is equal to the number of points
+  // defining the cell). Note: on rare occasions a -1 is returned from the 
+  // method. This means that numerical error has occurred and all data 
+  // returned from this method should be ignored. Also, inside/outside 
+  // is determine parametrically. That is, a point is inside if it 
+  // satisfies parametric limits. This can cause problems for cells of 
+  // topological dimension 2 or less, since a point in 3D can project 
+  // onto the cell within parametric limits but be "far" from the cell. 
+  // Thus the value dist2 may be checked to determine true in/out.
   virtual int EvaluatePosition(float x[3], float closestPoint[3], 
                                int& subId, float pcoords[3], 
-                               float& dist2, float weights[VTK_MAX_CELL_SIZE]) = 0;
+                               float& dist2, float *weights) = 0;
 
   // Description:
-  // Determine global coordinate from subId and parametric coordinates
+  // Determine global coordinate (x[3]) from subId and parametric coordinates.
+  // Also returns interpolation weights. (The number of weights is equal to
+  // the number of points in the cell).
   virtual void EvaluateLocation(int& subId, float pcoords[3], 
-                                float x[3], float weights[VTK_MAX_CELL_SIZE]) = 0;
+                                float x[3], float *weights) = 0;
 
   // Description:
   // Generate contouring primitives.

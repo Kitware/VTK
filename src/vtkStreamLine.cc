@@ -52,7 +52,8 @@ void vtkStreamLine::Execute()
   vtkFloatVectors *newVectors;
   vtkFloatScalars *newScalars=NULL;
   vtkCellArray *newLines;
-  int i, ptId, j, npts, pts[VTK_MAX_CELL_SIZE];
+  int i, ptId, j, id;
+  vtkIdList pts(2500);
   float tOffset, x[3], v[3], s, r;
   vtkPolyData *output=(vtkPolyData *)this->Output;
 
@@ -66,13 +67,12 @@ void vtkStreamLine::Execute()
   if ( this->Input->GetPointData()->GetScalars() || this->SpeedScalars )
     newScalars = new vtkFloatScalars(1000);
   newLines = new vtkCellArray();
-  newLines->Allocate(newLines->EstimateSize(2*this->NumberOfStreamers,VTK_MAX_CELL_SIZE));
+  newLines->Allocate(newLines->EstimateSize(2*this->NumberOfStreamers,VTK_CELL_SIZE));
 //
 // Loop over all streamers generating points
 //
   for (ptId=0; ptId < this->NumberOfStreamers; ptId++)
     {
-    npts = 0;
     if ( this->Streamers[ptId].GetNumberOfPoints() < 2 ) continue;
 
     sPrev = this->Streamers[ptId].GetStreamPoint(0);
@@ -105,28 +105,27 @@ void vtkStreamLine::Execute()
             }
 
           // add point to line
-          pts[npts] = newPts->InsertNextPoint(x);
-          newVectors->InsertVector(pts[npts],v);
+          id = newPts->InsertNextPoint(x);
+          pts.InsertNextId(id);
+          newVectors->InsertVector(id,v);
 
           if ( newScalars ) 
             {
             s = sPrev->s + r * (sPtr->s - sPrev->s);
-            newScalars->InsertScalar(pts[npts],s);
+            newScalars->InsertScalar(id,s);
             }
   
-          if ( ++npts == VTK_MAX_CELL_SIZE )
-            {
-            newLines->InsertNextCell(npts,pts);
-            pts[0] = pts[npts-1];
-            npts = 1; //prepare for next line
-            }
-
           tOffset += this->StepLength;
           } // while
 
         } //if points should be created
       } //for this streamer
-      if ( npts > 1 ) newLines->InsertNextCell(npts,pts);
+
+    if ( pts.GetNumberOfIds() > 1 )
+      {
+      newLines->InsertNextCell(pts);
+      pts.Reset();
+      }
     } //for all streamers
 //
 // Update ourselves

@@ -101,7 +101,7 @@ void vtkLinearExtrusionFilter::Execute()
   vtkFloatPoints *newPts;
   vtkCellArray *newLines=NULL, *newPolys=NULL, *newStrips=NULL;
   vtkCell *cell, *edge;
-  vtkIdList cellIds(VTK_MAX_CELL_SIZE), *cellPts;
+  vtkIdList cellIds(VTK_CELL_SIZE), *cellPts;
   vtkPolyData *output = this->GetOutput();
   vtkPointData *outputPD = output->GetPointData();
   

@@ -52,7 +52,7 @@ void vtkTriangleFilter::Execute()
   int p1, p2, p3;
   vtkPolygon poly;
   int i, j;
-  vtkIdList outVerts(3*VTK_MAX_CELL_SIZE);
+  vtkIdList outVerts(3*VTK_CELL_SIZE);
   vtkPoints *inPoints=input->GetPoints();
   vtkPointData *pd;
   vtkPolyData *output=(vtkPolyData *)this->Output;

@@ -59,7 +59,7 @@ vtkTriangle::vtkTriangle(const vtkTriangle& t)
 
 int vtkTriangle::EvaluatePosition(float x[3], float closestPoint[3],
                                  int& subId, float pcoords[3], 
-                                 float& dist2, float weights[VTK_MAX_CELL_SIZE])
+                                 float& dist2, float *weights)
 {
   int i, j;
   float *pt1, *pt2, *pt3, n[3];
@@ -163,7 +163,7 @@ int vtkTriangle::EvaluatePosition(float x[3], float closestPoint[3],
 }
 
 void vtkTriangle::EvaluateLocation(int& subId, float pcoords[3], float x[3],
-                                  float weights[VTK_MAX_CELL_SIZE])
+                                  float *weights)
 {
   float u3;
   float *pt0, *pt1, *pt2;
@@ -306,7 +306,7 @@ int vtkTriangle::IntersectWithLine(float p1[3], float p2[3], float tol,
   float *pt1, *pt2, *pt3, n[3];
   float tol2 = tol*tol;
   float closestPoint[3];
-  float dist2, weights[VTK_MAX_CELL_SIZE];
+  float dist2, weights[3];
 
   subId = 0;
   pcoords[0] = pcoords[1] = pcoords[2] = 0.0;

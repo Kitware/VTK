@@ -54,7 +54,7 @@ vtkVertex::vtkVertex(const vtkVertex& p)
 
 int vtkVertex::EvaluatePosition(float x[3], float closestPoint[3],
                               int& subId, float pcoords[3], 
-                              float& dist2, float weights[VTK_MAX_CELL_SIZE])
+                              float& dist2, float *weights)
 {
   float *X;
 
@@ -80,7 +80,7 @@ int vtkVertex::EvaluatePosition(float x[3], float closestPoint[3],
 }
 
 void vtkVertex::EvaluateLocation(int& subId, float pcoords[3], float x[3],
-                               float weights[VTK_MAX_CELL_SIZE])
+                                 float *weights)
 {
   float *X = this->Points.GetPoint(0);
   x[0] = X[0];

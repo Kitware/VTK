@@ -43,7 +43,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Description:
 // Construct cell.
 vtkCell::vtkCell():
-Points(VTK_MAX_CELL_SIZE), PointIds(VTK_MAX_CELL_SIZE)
+Points(VTK_CELL_SIZE), PointIds(VTK_CELL_SIZE)
 {
   this->Points.ReferenceCountingOff();
 }  

@@ -72,12 +72,13 @@ public:
   void GetPoint(int id, float x[3]);
   vtkCell *GetCell(int cellId);
   int FindCell(float x[3], vtkCell *cell, float tol2, int& subId, 
-               float pcoords[3], float weights[VTK_MAX_CELL_SIZE]);
+               float pcoords[3], float *weights);
   int GetCellType(int cellId);
   void GetCellPoints(int cellId, vtkIdList& ptIds);
   void GetPointCells(int ptId, vtkIdList& cellIds);
   void ComputeBounds();
   void Initialize();
+  int GetMaxCellSize() {return 8;}; //voxel is the largest
 
   void GetVoxelGradient(int i, int j, int k, vtkScalars *s, vtkFloatVectors& g);
   void GetPointGradient(int i, int j, int k, vtkScalars *s, float g[3]);

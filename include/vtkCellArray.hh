@@ -70,19 +70,23 @@ public:
   char *GetClassName() {return "vtkCellArray";};
 
   int GetNumberOfCells();
-  int InsertNextCell(int npts, int* pts);
-  int InsertNextCell(int npts);
-  void InsertCellPoint(int id);
-  int InsertNextCell(vtkCell *cell);
 
+  // estimator for storage allocation
   int EstimateSize(int numCells, int maxPtsPerCell);
-  void Squeeze();
 
   void InitTraversal();
   int GetNextCell(int& npts, int* &pts);
 
   int GetSize();
   void GetCell(int loc, int &npts, int* &pts);
+
+  // methods to insert cells. Can be used in combination.
+  int InsertNextCell(vtkCell *cell);
+  int InsertNextCell(int npts, int* pts);
+  int InsertNextCell(vtkIdList &pts);
+  int InsertNextCell(int npts); //this and next two methods work together
+  void InsertCellPoint(int id);
+  void UpdateCellCount(int npts);
 
   int GetLocation(int npts);
   
@@ -95,6 +99,10 @@ public:
   int *GetPtr();
   int *WritePtr(const int ncells, const int size);
   void WrotePtr();
+
+  // reuse memory
+  void Reset();
+  void Squeeze();
 
 protected:
   int NumberOfCells;
@@ -121,9 +129,24 @@ inline int vtkCellArray::InsertNextCell(int npts, int* pts)
 }
 
 // Description:
+// Create a cell by specifying a list of point ids.
+inline int vtkCellArray::InsertNextCell(vtkIdList &pts)
+{
+  int npts = pts.GetNumberOfIds();
+  int id = this->Ia.GetMaxId() + npts + 1;
+  this->Ia.InsertValue(id,pts.GetId(npts-1));
+  this->Ia[id-npts] = npts;
+  for (int i=0; i<npts-1; i++) this->Ia[id-npts+i+1] = pts.GetId(i);
+  this->NumberOfCells++;
+  this->Location += npts + 1;
+
+  return this->NumberOfCells;
+}
+
+// Description:
 // Create cells by specifying count, and then adding points one at a time using
-// method InsertCellPoint(). WARNING: it is the user's responsibility not to
-// exceed the maximum allowable points per cell (VTK_MAX_CELL_SIZE).
+// method InsertCellPoint(). If you don't know the count initially, use the
+// method UpdateCellCount() to complete the cell.
 inline int vtkCellArray::InsertNextCell(int npts)
 {
   this->Location = this->Ia.InsertNextValue(npts) + 1;
@@ -138,6 +161,14 @@ inline int vtkCellArray::InsertNextCell(int npts)
 inline void vtkCellArray::InsertCellPoint(int id) 
 {
   this->Ia.InsertValue(this->Location++,id);
+}
+
+// Description:
+// Used in conjunction with InsertNextCell(int npts) and InsertCellPoint() to
+// update the number of points defining the cell.
+inline void vtkCellArray::UpdateCellCount(int npts) 
+{
+  this->Ia[this->Location-npts-1] = npts;
 }
 
 // Description:
@@ -165,6 +196,15 @@ inline int vtkCellArray::InsertNextCell(vtkCell *cell)
 inline int vtkCellArray::EstimateSize(int numCells, int maxPtsPerCell) 
 {
   return numCells*(1+maxPtsPerCell);
+}
+
+// Description:
+// Reuse list. Reset to initial condition.
+inline void vtkCellArray::Reset() 
+{
+  this->NumberOfCells = 0;
+  this->Location = 0;
+  this->Ia.Reset();
 }
 
 // Description:

@@ -181,7 +181,7 @@ void vtkPolygon::ComputeNormal(vtkFloatPoints *p, float *n)
 
 int vtkPolygon::EvaluatePosition(float x[3], float closestPoint[3],
                                 int& subId, float pcoords[3], 
-                                float& minDist2, float weights[VTK_MAX_CELL_SIZE])
+                                float& minDist2, float *weights)
 {
   int i;
   float p0[3], p10[3], l10, p20[3], l20, n[3];
@@ -230,7 +230,7 @@ int vtkPolygon::EvaluatePosition(float x[3], float closestPoint[3],
 }
 
 void vtkPolygon::EvaluateLocation(int& subId, float pcoords[3], float x[3],
-                                 float weights[VTK_MAX_CELL_SIZE])
+                                  float *weights)
 {
   int i;
   float p0[3], p10[3], l10, p20[3], l20, n[3];
@@ -474,9 +474,16 @@ int vtkPolygon::Triangulate(vtkIdList &outTris)
 {
   int i, success;
   float *bounds, d;
-  int verts[VTK_MAX_CELL_SIZE];
   int numVerts=this->PointIds.GetNumberOfIds();
-  static vtkIdList Tris((VTK_MAX_CELL_SIZE-2)*3);
+  static int maxNumVerts=VTK_CELL_SIZE;
+  static int *verts=new int[maxNumVerts];
+  static vtkIdList Tris((VTK_CELL_SIZE-2)*3);
+  if ( numVerts > maxNumVerts )
+    {
+    delete [] verts;
+    maxNumVerts = numVerts;
+    verts = new int[maxNumVerts];
+    }
 
   bounds = this->GetBounds();
   
@@ -515,10 +522,17 @@ int vtkPolygon::FastTriangulate (int numVerts, int *verts, vtkIdList& Tris)
 {
   int i,j;
   int n1, n2;
-  int l1[VTK_MAX_CELL_SIZE], l2[VTK_MAX_CELL_SIZE];
   int fedges[2];
   float max, ar;
   int maxI, maxJ;
+  static int maxNumVerts=VTK_CELL_SIZE;
+  static int *l1=new int[maxNumVerts], *l2=new int[maxNumVerts];
+  if ( numVerts > maxNumVerts )
+    {
+    delete [] l1; delete [] l2;
+    maxNumVerts = numVerts;
+    l1 = new int[maxNumVerts]; l2 = new int[maxNumVerts];
+    }
 
   if ( !SuccessfulTriangulation )
     return 0;
@@ -702,10 +716,17 @@ void vtkPolygon::Contour(float value, vtkFloatScalars *cellScalars,
   int i, success;
   int numVerts=this->Points.GetNumberOfPoints();
   float *bounds, d;
-  int polyVerts[VTK_MAX_CELL_SIZE];
   static vtkTriangle tri;
-  static vtkIdList Tris((VTK_MAX_CELL_SIZE-2)*3);
+  static vtkIdList Tris((VTK_CELL_SIZE-2)*3);
   static vtkFloatScalars triScalars(3);
+  static int maxNumVerts=VTK_CELL_SIZE;
+  static int *polyVerts=new int[maxNumVerts];
+  if ( numVerts > maxNumVerts )
+    {
+    delete [] polyVerts;
+    maxNumVerts = numVerts;
+    polyVerts = new int[maxNumVerts];
+    }
 
   bounds = this->GetBounds();
   
@@ -763,7 +784,7 @@ vtkCell *vtkPolygon::GetEdge(int edgeId)
 // Description:
 // Compute interpolation weights using 1/r**2 normalized sum.
 //
-void vtkPolygon::ComputeWeights(float x[3], float weights[VTK_MAX_CELL_SIZE])
+void vtkPolygon::ComputeWeights(float x[3], float *weights)
 {
   int i;
   int numPts=this->Points.GetNumberOfPoints();
@@ -798,7 +819,15 @@ int vtkPolygon::IntersectWithLine(float p1[3], float p2[3], float tol,float& t,
   float *pt1, *pt2, *pt3, n[3];
   float tol2 = tol*tol;
   float closestPoint[3];
-  float dist2, weights[VTK_MAX_CELL_SIZE];
+  float dist2;
+  static int npts=VTK_CELL_SIZE;
+  static float *weights=new float[npts];
+  if ( this->GetNumberOfPoints() > npts )
+    {
+    npts = this->GetNumberOfPoints();
+    delete [] weights;
+    weights = new float[npts];
+    }
 
   subId = 0;
   pcoords[0] = pcoords[1] = pcoords[2] = 0.0;
@@ -828,9 +857,16 @@ int vtkPolygon::Triangulate(int index, vtkFloatPoints &pts)
 {
   int i, success;
   float *bounds, d;
-  int verts[VTK_MAX_CELL_SIZE];
   int numVerts=this->PointIds.GetNumberOfIds();
-  static vtkIdList Tris((VTK_MAX_CELL_SIZE-2)*3);
+  static int maxNumVerts=VTK_CELL_SIZE;
+  static int *verts=new int[maxNumVerts];
+  static vtkIdList Tris((VTK_CELL_SIZE-2)*3);
+  if ( numVerts > maxNumVerts )
+    {
+    delete [] verts;
+    maxNumVerts = numVerts;
+    verts = new int[maxNumVerts];
+    }
 
   pts.Reset();
 

@@ -69,7 +69,7 @@ vtkGaussianSplatter::vtkGaussianSplatter()
   this->ScaleFactor = 1.0;
 
   this->Capping = 1;
-  this->CapValue = VTK_LARGE_FLOAT;
+  this->CapValue = 0.0;
 }
 
 void vtkGaussianSplatter::SetModelBounds(float xmin, float xmax, float ymin, 
@@ -140,9 +140,9 @@ void vtkGaussianSplatter::Execute()
 //
   pd = this->Input->GetPointData();
   if ( this->NormalWarping && (inNormals=pd->GetNormals()) != NULL )
-    Sample = &vtkGaussianSplatter::Gaussian;
-  else
     Sample = &vtkGaussianSplatter::EccentricGaussian;
+  else
+    Sample = &vtkGaussianSplatter::Gaussian;
 
   if ( this->ScalarWarping && (inScalars=pd->GetScalars()) != NULL )
     SampleFactor = &vtkGaussianSplatter::ScalarSampling;
@@ -231,6 +231,7 @@ void vtkGaussianSplatter::ComputeModelBounds()
       maxDist = bounds[2*i+1] - bounds[2*i];
 
   maxDist *= this->Radius;
+  Radius2 = maxDist * maxDist;
 
   // adjust bounds so model fits strictly inside (only if not set previously)
   if ( adjustBounds )

@@ -55,7 +55,7 @@ vtkGraymap& vtkGraymap::operator=(const vtkGraymap& fs)
 
 // Description:
 // Return a rgba color for a particular point id.
-// (Note: gray value converted into full rgba. )
+// (Note: gray value converted into full rgba).
 unsigned char *vtkGraymap::GetColor(int id)
 {
   static unsigned char rgba[4];
@@ -78,8 +78,8 @@ void vtkGraymap::GetColor(int id, unsigned char rgba[4])
 // (Note: rgba color value converted to grayscale).
 void vtkGraymap::SetColor(int id, unsigned char rgba[4])
 {
-  this->S[id] = (rgba[0] > rgba[1] ? (rgba[0] > rgba[2] ? rgba[0] : rgba[2]) :
-                                     (rgba[1] > rgba[2] ? rgba[1] : rgba[2]));
+  float g = 0.30*rgba[0] + 0.59*rgba[1] + 0.11*rgba[2];
+  this->S[id] = (unsigned char)((g < 1.0 ? g : 1.0)*255);
 }
 
 // Description:
@@ -87,9 +87,8 @@ void vtkGraymap::SetColor(int id, unsigned char rgba[4])
 // allocated as necessary. (Note: rgba converted to gray value).
 void vtkGraymap::InsertColor(int id, unsigned char rgba[4])
 {
-  unsigned char g=(rgba[0] > rgba[1] ? (rgba[0] > rgba[2] ? rgba[0] : rgba[2]) :
-                                       (rgba[1] > rgba[2] ? rgba[1] : rgba[2]));
-  this->S.InsertValue(id,g);
+  float g = 0.30*rgba[0] + 0.59*rgba[1] + 0.11*rgba[2];
+  this->S.InsertValue(id,(unsigned char)(g*255));
 }
 
 // Description:
@@ -97,8 +96,37 @@ void vtkGraymap::InsertColor(int id, unsigned char rgba[4])
 // (Note: rgba converted to gray value).
 int vtkGraymap::InsertNextColor(unsigned char rgba[4])
 {
-  unsigned char g=(rgba[0] > rgba[1] ? (rgba[0] > rgba[2] ? rgba[0] : rgba[2]) :
-                                       (rgba[1] > rgba[2] ? rgba[1] : rgba[2]));
+  float g = 0.30*rgba[0] + 0.59*rgba[1] + 0.11*rgba[2];
+  int id = this->S.InsertNextValue((unsigned char)(g*255));
+  return id;
+}
+
+// Description:
+// Return a gray value for a particular point id.
+unsigned char vtkGraymap::GetGrayValue(int id)
+{
+  return this->S[id];
+}
+
+// Description:
+// Insert gray value into object. No range checking performed (fast!).
+void vtkGraymap::SetGrayValue(int id, unsigned char g)
+{
+  this->S[id] = g;
+}
+
+// Description:
+// Insert gray value into object. Range checking performed and memory
+// allocated as necessary.
+void vtkGraymap::InsertGrayValue(int id, unsigned char g)
+{
+  this->S.InsertValue(id,g);
+}
+
+// Description:
+// Insert gray value into next available slot. Returns point id of slot.
+int vtkGraymap::InsertNextGrayValue(unsigned char g)
+{
   int id = this->S.InsertNextValue(g);
   return id;
 }

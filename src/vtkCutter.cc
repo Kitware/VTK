@@ -71,7 +71,7 @@ void vtkCutter::Execute()
 {
   int cellId, i;
   vtkFloatPoints *cellPts;
-  vtkFloatScalars cellScalars(VTK_MAX_CELL_SIZE);
+  vtkFloatScalars cellScalars(VTK_CELL_SIZE);
   vtkCell *cell;
   vtkFloatScalars *newScalars;
   vtkCellArray *newVerts, *newLines, *newPolys;

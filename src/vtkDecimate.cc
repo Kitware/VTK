@@ -42,7 +42,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #define VTK_TOLERANCE 1.0e-05
 
-#define VTK_MAX_TRIS_PER_VERTEX VTK_MAX_CELL_SIZE
+#define VTK_MAX_TRIS_PER_VERTEX VTK_CELL_SIZE
 #define VTK_MAX_SQUAWKS 10
 
 #define VTK_COMPLEX_VERTEX 0
@@ -359,7 +359,7 @@ void vtkDecimate::CreateOutput(int numPts, int numTris, int numEliminated,
 {
   int *map, numNewPts;
   int i;
-  int newCellPts[VTK_MAX_CELL_SIZE];
+  int newCellPts[VTK_CELL_SIZE];
   unsigned short int ncells;
   int *cells;
   int ptId, cellId, npts, *pts;

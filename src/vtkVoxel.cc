@@ -57,7 +57,7 @@ vtkVoxel::vtkVoxel(const vtkVoxel& b)
 
 int vtkVoxel::EvaluatePosition(float x[3], float closestPoint[3],
                               int& subId, float pcoords[3], 
-                              float& dist2, float weights[VTK_MAX_CELL_SIZE])
+                              float& dist2, float *weights)
 {
   float *pt1, *pt2, *pt3, *pt4;
   int i;
@@ -102,7 +102,7 @@ int vtkVoxel::EvaluatePosition(float x[3], float closestPoint[3],
 }
 
 void vtkVoxel::EvaluateLocation(int& subId, float pcoords[3], float x[3],
-                               float weights[VTK_MAX_CELL_SIZE])
+                                float *weights)
 {
   float *pt1, *pt2, *pt3, *pt4;
   int i;

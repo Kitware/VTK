@@ -76,7 +76,7 @@ void vtkTensorGlyph::Execute()
   vtkTransform trans;
   vtkCell *cell;
   vtkIdList *cellPts;
-  int npts, pts[VTK_MAX_CELL_SIZE];
+  int npts, *pts=new int[this->Source->GetMaxCellSize()];
   int ptIncr, cellId;
   vtkMath math;
   vtkMatrix4x4 matrix;
@@ -269,8 +269,10 @@ void vtkTensorGlyph::Execute()
     }
   vtkDebugMacro(<<"Generated " << numPts <<" tensor glyphs");
 //
-// Update output
+// Update output and release memory
 //
+  delete [] pts;
+
   output->SetPoints(newPts);
   newPts->Delete();
 

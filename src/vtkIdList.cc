@@ -43,7 +43,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 void vtkIdList::DeleteId(int cellId)
 {
-  static vtkIdList tempList(VTK_MAX_CELL_SIZE);
+  static vtkIdList tempList(VTK_CELL_SIZE);
   int i, id;
 
   tempList.Reset();

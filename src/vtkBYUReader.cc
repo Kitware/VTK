@@ -94,8 +94,8 @@ void vtkBYUReader::ReadGeometryFile(FILE *geomFile, int &numPts)
   vtkFloatPoints *newPts;
   vtkCellArray *newPolys;
   float x[3];
-  int npts, pts[VTK_MAX_CELL_SIZE];
-  int id, polyId;
+  vtkIdList pts(VTK_CELL_SIZE);
+  int id, polyId, pt;
   vtkPolyData *output = this->GetOutput();
   
   //
@@ -148,27 +148,16 @@ void vtkBYUReader::ReadGeometryFile(FILE *geomFile, int &numPts)
   for ( polyId=1; polyId <= numPolys; polyId++ )
     {
     // read this polygon
-    for (npts=0; npts < VTK_MAX_CELL_SIZE; npts++)
+    for ( pts.Reset(); fscanf(geomFile, "%d", &pt) && pt > 0; )
       {
-      fscanf (geomFile, "%d", pts+npts);
-      if ( pts[npts] <= 0 ) break;
+      pts.InsertNextId(pt-1);//convert to vtk 0-offset
       }
-
-    if ( pts[npts] <= 0 ) //terminated based on negative value
-      {
-      pts[npts] = -pts[npts];
-      }
-    else //terminated based on exceeding number of points
-      {
-      for ( id=1; id >= 0; ) fscanf (geomFile, "%d", &id);
-      }
-    npts++;
+    pts.InsertNextId(-(pt+1));
 
     // Insert polygon (if in selected part)
     if ( partStart <= polyId && polyId <= partEnd )
       {
-      for ( i=0; i < npts; i++ ) pts[i] -= 1; //fix one-offset
-      newPolys->InsertNextCell(npts,pts);
+      newPolys->InsertNextCell(pts);
       }
     }
 

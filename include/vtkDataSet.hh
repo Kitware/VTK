@@ -126,9 +126,11 @@ public:
   // cell is non-NULL, then search starts from this cell and looks at 
   // immediate neighbors. Returns cellId >= 0 if inside, < 0 otherwise.
   // The parametric coordinates are provided in pcoords[3]. The interpolation
-  // weights are returned in weights[]. Tolerance is used to control how close
-  // the point is to be considered "in" the cell.
-  virtual int FindCell(float x[3], vtkCell *cell, float tol2, int& subId, float pcoords[3], float weights[VTK_MAX_CELL_SIZE]) = 0;
+  // weights are returned in weights[]. (The number of weights is equal to the 
+  // number of points in the found cell). Tolerance is used to control how
+  // close the point is to be considered "in" the cell.
+  virtual int FindCell(float x[3], vtkCell *cell, float tol2, int& subId, 
+                       float pcoords[3], float *weights) = 0;
 
   // Datasets are composite objects and need to check each part for MTime
   unsigned long int GetMTime();
@@ -189,6 +191,11 @@ public:
   // otherwise it will return 0 to 1.
   float *GetScalarRange();
   
+  // Description:
+  // Convenience method returns largest cell size in dataset. This is generally
+  // used to allocate memory for supporting data structures.
+  virtual int GetMaxCellSize() = 0;
+
 protected:
   vtkSource *Source; // if I am the output of a Source this is a pntr to it
   vtkPointData PointData;   // Scalars, vectors, etc. associated w/ each point

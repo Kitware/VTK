@@ -91,9 +91,9 @@ void vtkThreshold::Execute()
 {
   int cellId;
   vtkIdList *cellPts, *pointMap;
-  vtkIdList newCellPts(VTK_MAX_CELL_SIZE);
+  vtkIdList newCellPts(VTK_CELL_SIZE);
   vtkScalars *inScalars;
-  vtkFloatScalars cellScalars(VTK_MAX_CELL_SIZE);
+  vtkFloatScalars cellScalars(VTK_CELL_SIZE);
   vtkCell *cell;
   vtkFloatPoints *newPoints;
   vtkPointData *pd, *outPD;
@@ -146,7 +146,7 @@ void vtkThreshold::Execute()
           pointMap->SetId(ptId,newId);
           outPD->CopyData(pd,ptId,newId);
           }
-        newCellPts.SetId(i,newId);
+        newCellPts.InsertId(i,newId);
         }
       output->InsertNextCell(cell->GetCellType(),newCellPts);
       } // satisfied thresholding

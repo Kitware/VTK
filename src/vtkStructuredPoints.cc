@@ -260,7 +260,7 @@ void vtkStructuredPoints::Initialize()
 
 int vtkStructuredPoints::FindCell(float x[3], vtkCell *cell, float tol2, 
                                  int& subId, float pcoords[3],
-                                 float weights[VTK_MAX_CELL_SIZE])
+                                 float *weights)
 {
   int i, loc[3];
   float d, floatLoc[3];

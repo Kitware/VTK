@@ -76,6 +76,8 @@ public:
   int GetCellType(int cellId);
   void GetCellPoints(int cellId, vtkIdList& ptIds);
   void GetPointCells(int ptId, vtkIdList& cellIds);
+  void Squeeze();
+  int GetMaxCellSize();
 
   // Can't use macros to set/get following cell arrays.  This is due to tricks
   // required to support traversal methods.
@@ -98,10 +100,12 @@ public:
 
   // Allocate storage for cells when using the following InsertNextCell method
   void Allocate(int numCells=1000, int extSize=1000);
-  // create verts, lines, polys, tmeshes from cell object
-  int InsertNextCell(int type, int npts, int pts[VTK_MAX_CELL_SIZE]);
-  // Use this method to reclaim memory when using InsertNextCell()
-  void Squeeze();
+  // create verts, lines, polys, tmeshes from integer connectivity list
+  int InsertNextCell(int type, int npts, int *pts);
+  // create verts, lines, polys, tmeshes from id connectivity list
+  int InsertNextCell(int type, vtkIdList &pts);
+  // Use this method to start inserting from the beginning
+  void Reset();
 
   // construct adjacency structure
   void BuildCells();
@@ -122,7 +126,8 @@ public:
   void RemoveCellReference(int cellId);
   void ResizeCellList(int ptId, int size);
 
-  // Restore data object to initial state,
+  // Restore data object to initial state. Warning: releases memory; may
+  // have to use Allocate() to reallocate memory.
   virtual void Initialize();
 
 protected:

@@ -221,7 +221,7 @@ public:
   // If the number of triangles connected to a vertex exceeds "Degree", then 
   // the vertex is considered complex and is never deleted. (NOTE: the
   // complexity of the triangulation algorithm is proportional to Degree^2.)
-  vtkSetClampMacro(Degree,int,25,VTK_MAX_CELL_SIZE);
+  vtkSetClampMacro(Degree,int,25,VTK_CELL_SIZE);
   vtkGetMacro(Degree,int);
   
 protected:

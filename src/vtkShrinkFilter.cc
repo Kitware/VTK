@@ -52,7 +52,7 @@ void vtkShrinkFilter::Execute()
   int oldId, newId;
   float center[3], *p, pt[3];
   vtkPointData *pd, *outPD;;
-  vtkIdList ptIds(VTK_MAX_CELL_SIZE), newPtIds(VTK_MAX_CELL_SIZE);
+  vtkIdList ptIds(VTK_CELL_SIZE), newPtIds(VTK_CELL_SIZE);
   vtkUnstructuredGrid *output=(vtkUnstructuredGrid *)this->Output;
 
   vtkDebugMacro(<<"Shrinking cells");
@@ -95,7 +95,7 @@ void vtkShrinkFilter::Execute()
 
       oldId = ptIds.GetId(i);
       newId = newPts->InsertNextPoint(pt);
-      newPtIds.SetId(i,newId);
+      newPtIds.InsertId(i,newId);
 
       outPD->CopyData(pd, oldId, newId);
       }

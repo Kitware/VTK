@@ -107,7 +107,7 @@ void vtkContourFilter::Execute()
   int cellId, i;
   vtkIdList *cellPts;
   vtkScalars *inScalars;
-  vtkFloatScalars cellScalars(VTK_MAX_CELL_SIZE);
+  vtkFloatScalars cellScalars(VTK_CELL_SIZE);
   vtkCell *cell;
   float *range, value;
   vtkFloatScalars *newScalars;

@@ -70,7 +70,7 @@ void vtkFeatureVertices::Execute()
   int vertId[1];
   int npts, *pts;
   vtkCellArray *inLines;
-  vtkIdList cells(VTK_MAX_CELL_SIZE);
+  vtkIdList cells(VTK_CELL_SIZE);
   vtkPolyData *output = this->GetOutput();
   
   vtkDebugMacro(<<"Executing feature vertices");

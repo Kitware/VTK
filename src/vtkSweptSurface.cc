@@ -214,7 +214,7 @@ void vtkSweptSurface::SampleInput(vtkMatrix4x4& m, int inDim[3],
   static vtkVoxel voxel;
   static vtkIdList idList(8);
   static vtkFloatScalars voxelScalars(8);
-  int kOffset, jOffset, dim[3], idx;
+  int kOffset, jOffset, ijk[3], idx;
   float xTrans[4], weights[8];
   static vtkTransform t;
   float *origin, *ar;
@@ -246,27 +246,27 @@ void vtkSweptSurface::SampleInput(vtkMatrix4x4& m, int inDim[3],
         for (ii=0; ii<3; ii++)
           {
           loc[ii] = (xTrans[ii]-inOrigin[ii]) / inAr[ii];
-          dim[ii] = (int)loc[ii];
+          ijk[ii] = (int)loc[ii];
           }
 
         //check and make sure point is inside
         if ( loc[0] >= 0.0 && loc[1] >= 0.0 && loc[2] >= 0.0 &&
-        dim[0] < inDim[0] && dim[1] < inDim[1] && dim[2] < inDim[2] )
+        ijk[0] < inDim[0] && ijk[1] < inDim[1] && ijk[2] < inDim[2] )
           {
           //get scalar values
-          idx = dim[0] + dim[1]*inDim[0] + dim[2]*inSliceSize;
+          idx = ijk[0] + ijk[1]*inDim[0] + ijk[2]*inSliceSize;
           idList.SetId(0,idx);
           idList.SetId(1,idx+1);
-          idList.SetId(2,idx+1 + inDim[0]);
-          idList.SetId(3,idx + inDim[0]);
+          idList.SetId(2,idx + inDim[0]);
+          idList.SetId(3,idx+1 + inDim[0]);
           idList.SetId(4,idx + inSliceSize);
           idList.SetId(5,idx+1 + inSliceSize);
-          idList.SetId(6,idx+1 + inDim[0] + inSliceSize);
-          idList.SetId(7,idx + inDim[0] + inSliceSize);
+          idList.SetId(6,idx + inDim[0] + inSliceSize);
+          idList.SetId(7,idx+1 + inDim[0] + inSliceSize);
 
           inScalars->GetScalars(idList,voxelScalars);
 
-          for (ii=0; ii<3; ii++) loc[ii] = loc[ii] - dim[ii];
+          for (ii=0; ii<3; ii++) loc[ii] = loc[ii] - ijk[ii];
 
           voxel.InterpolationFunctions(loc,weights);
 
@@ -343,13 +343,13 @@ void vtkSweptSurface::Cap(vtkFloatScalars *s)
   k = 0;
   for (j=0; j<this->SampleDimensions[1]; j++)
     for (i=0; i<this->SampleDimensions[0]; i++)
-      s->SetScalar(i+j*this->SampleDimensions[1], this->FillValue);
+      s->SetScalar(i+j*this->SampleDimensions[0], this->FillValue);
 
   k = this->SampleDimensions[2] - 1;
   idx = k*d01;
   for (j=0; j<this->SampleDimensions[1]; j++)
     for (i=0; i<this->SampleDimensions[0]; i++)
-      s->SetScalar(idx+i+j*this->SampleDimensions[1], this->FillValue);
+      s->SetScalar(idx+i+j*this->SampleDimensions[0], this->FillValue);
 
 // j-k planes
   i = 0;

@@ -336,6 +336,37 @@ void vtkPolyData::Initialize()
 
 };
 
+int vtkPolyData::GetMaxCellSize() 
+{
+  int maxCellSize=0, cellSize;
+
+  if ( this->Verts ) 
+    {
+    cellSize = this->Verts->GetMaxCellSize();
+    if ( cellSize > maxCellSize ) maxCellSize = cellSize;
+    }
+
+  if ( this->Lines ) 
+    {
+    cellSize = this->Lines->GetMaxCellSize();
+    if ( cellSize > maxCellSize ) maxCellSize = cellSize;
+    }
+
+  if ( this->Polys ) 
+    {
+    cellSize = this->Polys->GetMaxCellSize();
+    if ( cellSize > maxCellSize ) maxCellSize = cellSize;
+    }
+
+  if ( this->Strips ) 
+    {
+    cellSize = this->Strips->GetMaxCellSize();
+    if ( cellSize > maxCellSize ) maxCellSize = cellSize;
+    }
+
+  return maxCellSize;
+}
+
 int vtkPolyData::GetNumberOfCells() 
 {
   return GetNumberOfVerts() + GetNumberOfLines() + 
@@ -532,7 +563,7 @@ void vtkPolyData::Allocate(int numCells, int extSize)
 // the PolyData::Allocate() function has been called first or that vertex,
 // line, polygon, and triangle strip arrays have been supplied.
 // Note: will also insert vtkPIXEL, but converts it to vtkQUAD.
-int vtkPolyData::InsertNextCell(int type, int npts, int pts[VTK_MAX_CELL_SIZE])
+int vtkPolyData::InsertNextCell(int type, int npts, int *pts)
 {
   int id = 0;
 
@@ -572,11 +603,55 @@ int vtkPolyData::InsertNextCell(int type, int npts, int pts[VTK_MAX_CELL_SIZE])
 }
 
 // Description:
+// Insert a cell of type vtkVERTEX, vtkPOLY_VERTEX, vtkLINE, vtkPOLY_LINE,
+// vtkTRIANGLE, vtkQUAD, vtkPOLYGON, or vtkTRIANGLE_STRIP.  Make sure that
+// the PolyData::Allocate() function has been called first or that vertex,
+// line, polygon, and triangle strip arrays have been supplied.
+// Note: will also insert vtkPIXEL, but converts it to vtkQUAD.
+int vtkPolyData::InsertNextCell(int type, vtkIdList &pts)
+{
+  int id = 0;
+
+  switch (type)
+    {
+    case VTK_VERTEX: case VTK_POLY_VERTEX:
+      id = this->Verts->InsertNextCell(pts);
+      break;
+
+    case VTK_LINE: case VTK_POLY_LINE:
+      id = this->Lines->InsertNextCell(pts);
+      break;
+
+    case VTK_TRIANGLE: case VTK_QUAD: case VTK_POLYGON:
+      id = this->Polys->InsertNextCell(pts);
+      break;
+
+    case VTK_PIXEL: //need to rearrange vertices
+      {
+      static int pixPts[4];
+      pixPts[0] = pts.GetId(0);
+      pixPts[1] = pts.GetId(1);
+      pixPts[2] = pts.GetId(3);
+      pixPts[3] = pts.GetId(2);
+      id = this->Polys->InsertNextCell(4,pixPts);
+      break;
+      }
+
+    case VTK_TRIANGLE_STRIP:
+      id = this->Strips->InsertNextCell(pts);
+      break;
+
+    default:
+      vtkErrorMacro(<<"Bad cell type! Can't insert!");
+    }
+  return id;
+}
+
+// Description:
 // Recover extra allocated memory when creating data whose initial size
 // is unknown. Examples include using the InsertNextCell() method, or
 // when using the CellArray::EstimateSize() method to create vertices,
 // lines, polygons, or triangle strips.
-
 void vtkPolyData::Squeeze()
 {
   if ( this->Verts != NULL ) this->Verts->Squeeze();
@@ -585,6 +660,17 @@ void vtkPolyData::Squeeze()
   if ( this->Strips != NULL ) this->Strips->Squeeze();
 
   vtkPointSet::Squeeze();
+}
+
+// Description:
+// Begin inserting data all over again. Memory is not freed but otherwise
+// objects are returned to their initial state.
+void vtkPolyData::Reset()
+{
+  if ( this->Verts != NULL ) this->Verts->Reset();
+  if ( this->Lines != NULL ) this->Lines->Reset();
+  if ( this->Polys != NULL ) this->Polys->Reset();
+  if ( this->Strips != NULL ) this->Strips->Reset();
 }
 
 // Description:

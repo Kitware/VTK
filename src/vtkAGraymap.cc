@@ -45,6 +45,11 @@ vtkScalars *vtkAGraymap::MakeObject(int sze, int ext)
   return new vtkAGraymap(sze,ext);
 }
 
+float vtkAGraymap::GetScalar(int i)
+{
+  return (float)(this->S[2*i]);
+}
+
 // Description:
 // Return a unsigned char rgba color value for a particular point id.
 unsigned char *vtkAGraymap::GetColor(int id)
@@ -71,4 +76,56 @@ vtkAGraymap& vtkAGraymap::operator=(const vtkAGraymap& fs)
 {
   this->S = fs.S;
   return *this;
+}
+
+// Description:
+// Return a unsigned char gray-alpha value for a particular point id.
+unsigned char *vtkAGraymap::GetAGrayValue(int id)
+{
+  static unsigned char ga[2];
+  ga[0] = this->S[2*id];
+  ga[1] = this->S[2*id+1];
+  
+  return ga;
+}
+
+// Description:
+// Copy gray-alpha components into user provided array for specified
+// point id.
+void vtkAGraymap::GetAGrayValue(int id, unsigned char ga[2])
+{
+  ga[0] = this->S[2*id];
+  ga[1] = this->S[2*id+1];
+}
+
+// Description:
+// Set a gray-alpha value at a particular array location. Does not do 
+// range checking.
+void vtkAGraymap::SetAGrayValue(int i, unsigned char ga[2]) 
+{
+  i *= 2; 
+  this->S[i] = ga[0];
+  this->S[i+1] = ga[1]; 
+}
+
+// Description:
+// Insert a gray-alpha value at a particular array location. Does range 
+// checking and will allocate additional memory if necessary.
+void vtkAGraymap::InsertAGrayValue(int i, unsigned char ga[2]) 
+{
+  this->S.InsertValue(2*i+1, ga[0]);
+  this->S[2*i] = ga[1];
+}
+
+// Description:
+// Insert a gray-alpha value at the next available slot in the array. Will
+// allocate memory if necessary.
+int vtkAGraymap::InsertNextAGrayValue(unsigned char ga[2]) 
+{
+  int id;
+
+  id = this->S.InsertNextValue(ga[1]);
+  this->S.InsertNextValue(ga[0]);
+
+  return id/2;
 }

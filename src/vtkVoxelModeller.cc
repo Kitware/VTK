@@ -100,7 +100,7 @@ void vtkVoxelModeller::Execute()
   int min[3], max[3];
   float x[3], distance2;
   int jkFactor;
-  float weights[VTK_MAX_CELL_SIZE];
+  float *weights=new float[this->Input->GetMaxCellSize()];
   float closestPoint[3];
   float voxelHalfWidth[3], origin[3], ar[3];
   vtkStructuredPoints *output=(vtkStructuredPoints *)this->Output;

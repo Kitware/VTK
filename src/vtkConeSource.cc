@@ -62,7 +62,7 @@ void vtkConeSource::Execute()
   int numLines, numPolys, numPts;
   float x[3], xbot;
   int i;
-  int pts[VTK_MAX_CELL_SIZE];
+  int pts[VTK_CELL_SIZE];
   vtkFloatPoints *newPoints; 
   vtkCellArray *newLines=0;
   vtkCellArray *newPolys=0;

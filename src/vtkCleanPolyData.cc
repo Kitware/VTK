@@ -67,7 +67,7 @@ void vtkCleanPolyData::Execute()
   vtkPoints *inPts;
   int *Index;
   int i, j, count;
-  int npts, *pts, updatedPts[VTK_MAX_CELL_SIZE];
+  int npts, *pts, *updatedPts= new int[input->GetMaxCellSize()];
   vtkCellArray *inVerts=input->GetVerts(), *newVerts=NULL;
   vtkCellArray *inLines=input->GetLines(), *newLines=NULL;
   vtkCellArray *inPolys=input->GetPolys(), *newPolys=NULL;
@@ -243,6 +243,7 @@ void vtkCleanPolyData::Execute()
 // Update ourselves and release memory
 //
   delete [] Index;
+  delete [] updatedPts;
 
   output->SetPoints(newPts);
   newPts->Delete();

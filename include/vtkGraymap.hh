@@ -80,6 +80,12 @@ public:
   void InsertColor(int id, unsigned char rgba[4]);
   int InsertNextColor(unsigned char rgba[4]);
 
+  // Specific to this class
+  unsigned char GetGrayValue(int id);
+  void SetGrayValue(int id, unsigned char g);
+  void InsertGrayValue(int id, unsigned char g);
+  int InsertNextGrayValue(unsigned char g);
+
 protected:
   vtkUnsignedCharArray S;
 };

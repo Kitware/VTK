@@ -60,7 +60,7 @@ public:
 
   // Description:
   // Specify the maximum number of triangles in a triangle strip.
-  vtkSetClampMacro(MaximumStripLength,int,4,VTK_MAX_CELL_SIZE-2);
+  vtkSetClampMacro(MaximumStripLength,int,4,VTK_CELL_SIZE-2);
   vtkGetMacro(MaximumStripLength,int);
 
   // Description:

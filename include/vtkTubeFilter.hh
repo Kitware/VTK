@@ -44,10 +44,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // The tubes are made up of triangle strips and rotate around the tube with
 // the rotation of the line normals. (If no normals are present, they are
 // computed automatically). The radius of the tube can be set to vary with 
-// scalar value. If the scalar value is speed (i.e., magnitude of velocity),
-// the variation of the tube radius is such that it preserves mass flux in
-// incompressible flow. The number of sides for the tube can also be 
-// specified.
+// scalar or vector value. If the radius varies with scalar value the radius
+// is linearly adjusted. If the radius varies with vector value, a mass
+// flux preserving variation is used. The number of sides for the tube can 
+// also be  specified.
 // .SECTION Caveats
 // The number of tube sides must be greater than 3. If you wish to use fewer
 // sides (i.e., a ribbon), use vtkRibbonFilter.
@@ -60,6 +60,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkTubeFilter_h
 
 #include "vtkPolyToPolyFilter.hh"
+
+#define VTK_VARY_RADIUS_OFF 0
+#define VTK_VARY_RADIUS_BY_SCALAR 1
+#define VTK_VARY_RADIUS_BY_VECTOR 2
 
 class vtkTubeFilter : public vtkPolyToPolyFilter
 {
@@ -75,9 +79,9 @@ public:
 
   // Description:
   // Turn on/off the variation of tube radius with scalar value.
-  vtkSetMacro(VaryRadius,int);
+  vtkSetClampMacro(VaryRadius,int,
+                   VTK_VARY_RADIUS_OFF,VTK_VARY_RADIUS_BY_VECTOR);
   vtkGetMacro(VaryRadius,int);
-  vtkBooleanMacro(VaryRadius,int);
 
   // Description:
   // Set the number of sides for the tube. At a minimum, number of sides is 3.
@@ -94,7 +98,7 @@ protected:
   void Execute();
 
   float Radius; //minimum radius of tube
-  int VaryRadius; //controls whether radius varies with scalar data
+  int VaryRadius; //controls radius variation
   int NumberOfSides; //number of sides to create tube
   float RadiusFactor; //maxium allowablew radius
 };

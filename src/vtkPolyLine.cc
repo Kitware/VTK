@@ -247,7 +247,7 @@ int vtkPolyLine::GenerateSlidingNormals(vtkPoints *pts, vtkCellArray *lines, vtk
   int npts, *linePts;
   float sPrev[3], sNext[3], q[3], w[3], normal[3], theta;
   float p[3], pPrev[3], pNext[3];
-  int i, j, largeRotation;
+  int i, j, k, largeRotation;
 //
 //  Loop over all lines
 // 
@@ -265,7 +265,7 @@ int vtkPolyLine::GenerateSlidingNormals(vtkPoints *pts, vtkCellArray *lines, vtk
       normals->InsertNormal(linePts[0],normal);
       }
 
-    else
+    else //more than one point
       {
 //
 //  Compute first normal. All "new" normals try to point in the same 
@@ -285,7 +285,11 @@ int vtkPolyLine::GenerateSlidingNormals(vtkPoints *pts, vtkCellArray *lines, vtk
             sNext[i] = sPrev[i];
             }
 
-          if ( math.Normalize(sNext) == 0.0 ) return 0;
+          if ( math.Normalize(sNext) == 0.0 )
+            {
+            vtkErrorMacro(<<"Coincident points in polyline...can't compute normals");
+            return 0;
+            }
 
           for (i=0; i<3; i++) 
             {
@@ -306,7 +310,7 @@ int vtkPolyLine::GenerateSlidingNormals(vtkPoints *pts, vtkCellArray *lines, vtk
           normals->InsertNormal(linePts[j],normal);
           }
 
-        else
+        else //inbetween points
           {
 //
 //  Generate normals for new point by projecting previous normal
@@ -324,7 +328,11 @@ int vtkPolyLine::GenerateSlidingNormals(vtkPoints *pts, vtkCellArray *lines, vtk
             sNext[i] = pNext[i] - p[i];
             }
 
-          if ( math.Normalize(sNext) == 0.0 ) return 0;
+          if ( math.Normalize(sNext) == 0.0 )
+            {
+            vtkErrorMacro(<<"Coincident points in polyline...can't compute normals");
+            return 0;
+            }
 
           //compute rotation vector
           math.Cross(sPrev,normal,w);
@@ -366,7 +374,7 @@ int vtkPolyLine::GenerateSlidingNormals(vtkPoints *pts, vtkCellArray *lines, vtk
 
 int vtkPolyLine::EvaluatePosition(float x[3], float closestPoint[3],
                                  int& subId, float pcoords[3], 
-                                 float& minDist2, float weights[VTK_MAX_CELL_SIZE])
+                                 float& minDist2, float *weights)
 {
   float closest[3];
   float pc[3], dist2;
@@ -382,8 +390,7 @@ int vtkPolyLine::EvaluatePosition(float x[3], float closestPoint[3],
     {
     line.Points.SetPoint(0,this->Points.GetPoint(i));
     line.Points.SetPoint(1,this->Points.GetPoint(i+1));
-    status = line.EvaluatePosition(x,closest,ignoreId,pc,dist2,
-				   (float *)lineWeights);
+    status = line.EvaluatePosition(x,closest,ignoreId,pc,dist2,lineWeights);
     if ( status != -1 && dist2 < minDist2 )
       {
       return_status = status;
@@ -404,7 +411,7 @@ int vtkPolyLine::EvaluatePosition(float x[3], float closestPoint[3],
 }
 
 void vtkPolyLine::EvaluateLocation(int& subId, float pcoords[3], float x[3],
-                                  float weights[VTK_MAX_CELL_SIZE])
+                                   float *weights)
 {
   int i;
   float *a1 = this->Points.GetPoint(subId);

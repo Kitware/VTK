@@ -117,16 +117,16 @@ unsigned long int vtkPointSet::GetMTime()
 }
 
 int vtkPointSet::FindCell(float x[3], vtkCell *cell, float tol2, int& subId,
-                         float pcoords[3], float weights[VTK_MAX_CELL_SIZE])
+                          float pcoords[3], float *weights)
 {
   int i, j;
   int closestCell = -1;
   int ptId, cellId;
   float dist2, minDist2=VTK_LARGE_FLOAT;
-  static vtkIdList cellIds(VTK_MAX_CELL_SIZE);
-  int sId;
-  float pc[3], w[VTK_MAX_CELL_SIZE];
-  float closestPoint[3];
+  int sId, npts;
+  float pc[3], closestPoint[3];
+  static vtkIdList cellIds(VTK_CELL_SIZE);
+  static float *w=new float[this->GetMaxCellSize()];
 
   if ( !this->Points ) return -1;
 

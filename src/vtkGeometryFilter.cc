@@ -107,15 +107,17 @@ void vtkGeometryFilter::Execute()
   vtkCell *cell, *face, *cellCopy;
   float *x;
   vtkIdList *ptIds;
-  static vtkIdList cellIds(VTK_MAX_CELL_SIZE);
+  static vtkIdList cellIds(VTK_CELL_SIZE);
+  static vtkIdList pts(VTK_CELL_SIZE);
   vtkFloatPoints *newPts;
   int ptId;
-  int npts, pts[VTK_MAX_CELL_SIZE];
+  int npts, pt;
   vtkPointData *pd = this->Input->GetPointData();
   int allVisible;
   vtkPolyData *output = this->GetOutput();
   vtkPointData *outputPD = output->GetPointData();
   
+  vtkDebugMacro(<<"Executing geometry filter");
 
   if ( (!this->CellClipping) && (!this->PointClipping) && 
   (!this->ExtentClipping) )
@@ -184,14 +186,16 @@ void vtkGeometryFilter::Execute()
         case 0: case 1: case 2:
           
           npts = cell->GetNumberOfPoints();
+          pts.Reset();
           for ( i=0; i < npts; i++)
             {
             ptId = cell->GetPointId(i);
             x = this->Input->GetPoint(ptId);
-            pts[i] = newPts->InsertNextPoint(x);
-            outputPD->CopyData(pd,ptId,pts[i]);
+            pt = newPts->InsertNextPoint(x);
+            outputPD->CopyData(pd,ptId,pt);
+            pts.InsertId(i,pt);
             }
-          output->InsertNextCell(cell->GetCellType(), npts, pts);
+          output->InsertNextCell(cell->GetCellType(), pts);
           break;
 
         case 3:
@@ -204,14 +208,16 @@ void vtkGeometryFilter::Execute()
             (!allVisible && !cellVis[cellIds.GetId(0)]) )
               {
               npts = face->GetNumberOfPoints();
+              pts.Reset();
               for ( i=0; i < npts; i++)
                 {
                 ptId = face->GetPointId(i);
                 x = this->Input->GetPoint(ptId);
-                pts[i] = newPts->InsertNextPoint(x);
-                outputPD->CopyData(pd,ptId,pts[i]);
+                pt = newPts->InsertNextPoint(x);
+                outputPD->CopyData(pd,ptId,pt);
+                pts.InsertId(i,pt);
                 }
-              output->InsertNextCell(face->GetCellType(), npts, pts);
+              output->InsertNextCell(face->GetCellType(), pts);
               }
             }
             cellCopy->Delete();
@@ -220,6 +226,9 @@ void vtkGeometryFilter::Execute()
         } //switch
       } //if visible
     } //for all cells
+
+  vtkDebugMacro(<<"Extracted " << newPts->GetNumberOfPoints() << " points,"
+                << output->GetNumberOfCells() << " cells.");
 //
 // Update ourselves and release memory
 //

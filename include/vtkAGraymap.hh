@@ -66,6 +66,7 @@ public:
   int GetNumberOfScalars() {return (this->S.GetMaxId()+1)/2;};
   void Squeeze() {this->S.Squeeze();};
   int GetNumberOfValuesPerScalar() {return 2;};
+  float GetScalar(int i);
 
   // miscellaneous
   vtkAGraymap &operator=(const vtkAGraymap& fs);
@@ -75,13 +76,19 @@ public:
   unsigned char *WritePtr(const int id, const int number);
   void WrotePtr();
 
-
   // vtkColorScalar interface.
   unsigned char *GetColor(int id);
   void GetColor(int id, unsigned char rgba[4]);
   void SetColor(int id, unsigned char rgba[4]);
   void InsertColor(int id, unsigned char rgba[4]);
   int InsertNextColor(unsigned char rgba[4]);
+
+  // methods specific to this class
+  unsigned char *GetAGrayValue(int id);
+  void GetAGrayValue(int id, unsigned char ga[2]);
+  void SetAGrayValue(int id, unsigned char ga[2]);
+  void InsertAGrayValue(int id, unsigned char ga[2]);
+  int InsertNextAGrayValue(unsigned char ga[2]);
 
 protected:
   vtkUnsignedCharArray S;
@@ -92,9 +99,9 @@ protected:
 // range checking.
 inline void vtkAGraymap::SetColor(int i, unsigned char rgba[4]) 
 {
+  float g = 0.30*rgba[0] + 0.59*rgba[1] + 0.11*rgba[2];
   i *= 2; 
-  this->S[i] = (rgba[0] > rgba[1] ? (rgba[0] > rgba[2] ? rgba[0] : rgba[2]) :
-                                    (rgba[1] > rgba[2] ? rgba[1] : rgba[2]));
+  this->S[i] = (unsigned char)((g < 1.0 ? g : 1.0)*255);
   this->S[i+1] = rgba[3]; 
 }
 
@@ -103,9 +110,9 @@ inline void vtkAGraymap::SetColor(int i, unsigned char rgba[4])
 // checking and will allocate additional memory if necessary.
 inline void vtkAGraymap::InsertColor(int i, unsigned char rgba[4]) 
 {
+  float g = 0.30*rgba[0] + 0.59*rgba[1] + 0.11*rgba[2];
   this->S.InsertValue(2*i+1, rgba[3]);
-  this->S[2*i] = (rgba[0] > rgba[1] ? (rgba[0] > rgba[2] ? rgba[0] : rgba[2]) :
-                                      (rgba[1] > rgba[2] ? rgba[1] : rgba[2]));
+  this->S[2*i] = (unsigned char)((g < 1.0 ? g : 1.0)*255);
 }
 
 // Description:
@@ -114,12 +121,10 @@ inline void vtkAGraymap::InsertColor(int i, unsigned char rgba[4])
 inline int vtkAGraymap::InsertNextColor(unsigned char rgba[4]) 
 {
   int id;
-  unsigned char intensity;
+  float g = 0.30*rgba[0] + 0.59*rgba[1] + 0.11*rgba[2];
 
-  intensity = (rgba[0] > rgba[1] ? (rgba[0] > rgba[2] ? rgba[0] : rgba[2]) :
-                                       (rgba[1] > rgba[2] ? rgba[1] : rgba[2]));
   id = this->S.InsertNextValue(rgba[3]);
-  this->S.InsertNextValue(intensity);
+  this->S.InsertNextValue((unsigned char)(g*255));
 
   return id/2;
 }

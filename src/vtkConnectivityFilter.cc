@@ -62,7 +62,7 @@ void vtkConnectivityFilter::Execute()
   int cellId, i, j, pt;
   int numPts, numCells;
   vtkFloatPoints *newPts;
-  vtkIdList cellIds(VTK_MAX_CELL_SIZE), ptIds(VTK_MAX_CELL_SIZE);
+  vtkIdList cellIds(VTK_CELL_SIZE), ptIds(VTK_CELL_SIZE);
   vtkPointData *pd;
   int id;
   int maxCellsInRegion, largestRegionId;
@@ -166,7 +166,7 @@ void vtkConnectivityFilter::Execute()
     this->RegionSizes.InsertValue(RegionNumber,NumCellsInRegion);
     }
 
-  vtkDebugMacro (<<"Extracted " << RegionNumber << " region(s)\n");
+  vtkDebugMacro (<<"Extracted " << RegionNumber << " region(s)");
   vtkDebugMacro (<<"Exceeded recursion depth " << NumExceededMaxDepth 
                 << " times\n");
 
@@ -209,7 +209,7 @@ void vtkConnectivityFilter::Execute()
         for (i=0; i < ptIds.GetNumberOfIds(); i++)
           {
           id = PointMap[ptIds.GetId(i)];
-          ptIds.SetId(i,id);
+          ptIds.InsertId(i,id);
           }
         output->InsertNextCell(this->Input->GetCellType(cellId),ptIds);
         }
@@ -236,7 +236,7 @@ void vtkConnectivityFilter::Execute()
           for (i=0; i < ptIds.GetNumberOfIds(); i++)
             {
             id = PointMap[ptIds.GetId(i)];
-            ptIds.SetId(i,id);
+            ptIds.InsertId(i,id);
             }
           output->InsertNextCell(this->Input->GetCellType(cellId),ptIds);
           }
@@ -253,7 +253,7 @@ void vtkConnectivityFilter::Execute()
         for (i=0; i < ptIds.GetNumberOfIds(); i++)
           {
           id = PointMap[ptIds.GetId(i)];
-          ptIds.SetId(i,id);
+          ptIds.InsertId(i,id);
           }
         output->InsertNextCell(this->Input->GetCellType(cellId),ptIds);
         }
@@ -262,6 +262,8 @@ void vtkConnectivityFilter::Execute()
 
   delete [] Visited;
   delete [] PointMap;
+
+  vtkDebugMacro (<<"Extracted " << output->GetNumberOfCells() << " cells");
 
   return;
 }

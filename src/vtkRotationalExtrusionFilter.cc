@@ -69,7 +69,7 @@ void vtkRotationalExtrusionFilter::Execute()
   vtkFloatPoints *newPts;
   vtkCellArray *newLines=NULL, *newPolys=NULL, *newStrips=NULL;
   vtkCell *cell, *edge;
-  vtkIdList cellIds(VTK_MAX_CELL_SIZE), *cellPts;
+  vtkIdList cellIds(VTK_CELL_SIZE), *cellPts;
   vtkMath math;
   int i, j, k, p1, p2;
   vtkPolyData *output=(vtkPolyData *)this->Output;

@@ -42,10 +42,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkPolyLine.hh"
 #include "vtkMath.hh"
 
+// Description:
+// Construct object with radius 0.5, radius variation turned off, the number 
+// of sides set to 3, and radius factor of 10.
 vtkTubeFilter::vtkTubeFilter()
 {
   this->Radius = 0.5;
-  this->VaryRadius = 1;
+  this->VaryRadius = VTK_VARY_RADIUS_OFF;
   this->NumberOfSides = 3;
   this->RadiusFactor = 10;
 }
@@ -54,29 +57,30 @@ void vtkTubeFilter::Execute()
 {
   int i, j, k;
   vtkPoints *inPts;
-  vtkNormals *inNormals;
   vtkCellArray *inLines;
+  vtkNormals *inNormals;
+  vtkScalars *inScalars=NULL;
+  vtkVectors *inVectors=NULL;
   int numPts, numNewPts;
   vtkFloatPoints *newPts;
   vtkFloatNormals *newNormals;
   vtkCellArray *newStrips;
   vtkMath math;
   int npts, *pts, i1, i2, ptOffset=0;
-  float p[3], pNext[3];
+  float p[3], pNext[3], maxSpeed;
   float *n, normal[3], nP[3];
   float s[3], sNext[3], sPrev[3], w[3];
   double BevelAngle;
   float theta=2.0*math.Pi()/this->NumberOfSides;
   int deleteNormals=0, ptId;
-  vtkScalars *inScalars=NULL;
   float sFactor=1.0, range[2];
   vtkPointData *pd, *outPD;
   vtkPolyData *input=(vtkPolyData *)this->Input;
   vtkPolyData *output=(vtkPolyData *)this->Output;
-  //
-  // Initialize
-  //
-  vtkDebugMacro(<<"Creating ribbon");
+//
+// Initialize
+//
+  vtkDebugMacro(<<"Creating tube");
 
   if ( !(inPts=input->GetPoints()) || 
   (numPts = inPts->GetNumberOfPoints()) < 1 ||
@@ -108,9 +112,15 @@ void vtkTubeFilter::Execute()
 //
 // If varying width, get appropriate info.
 //
-  if ( this->VaryRadius && (inScalars=pd->GetScalars()) )
+  if ( this->VaryRadius == VTK_VARY_RADIUS_BY_SCALAR && 
+  (inScalars=pd->GetScalars()) )
     {
     inScalars->GetRange(range);
+    }
+  else if ( this->VaryRadius == VTK_VARY_RADIUS_BY_VECTOR && 
+  (inVectors=pd->GetVectors()) )
+    {
+    maxSpeed = inVectors->GetMaxNorm();
     }
 
   newPts = new vtkFloatPoints(numNewPts);
@@ -177,7 +187,7 @@ void vtkTubeFilter::Execute()
       BevelAngle = acos((double)BevelAngle) / 2.0; //(0->90 degrees)
       if ( (BevelAngle = cos(BevelAngle)) == 0.0 ) BevelAngle = 1.0;
 
-      BevelAngle = this->Radius / BevelAngle; //keep ribbon constant width
+      BevelAngle = this->Radius / BevelAngle; //keep tube constant radius
 
       math.Cross(s,n,w);
       if ( math.Normalize(w) == 0.0)
@@ -189,18 +199,15 @@ void vtkTubeFilter::Execute()
       math.Cross(w,s,nP); //create orthogonal coordinate system
       math.Normalize(nP);
 
-      if ( inScalars )
+      if ( inScalars ) // varying by scalar values
         {
-        if ( range[0] <= 0.0 ) // have to use straight linear
-          {
-          sFactor = 1.0 + ((this->RadiusFactor - 1.0) * 
+        sFactor = 1.0 + ((this->RadiusFactor - 1.0) * 
                   (inScalars->GetScalar(j) - range[0]) / (range[1]-range[0]));
-          }
-        else // use flux preserving relationship
-          {
-          sFactor = sqrt((double)inScalars->GetScalar(j)/range[0]);
-          if ( sFactor > this->RadiusFactor ) sFactor = this->RadiusFactor;
-          }
+        }
+      else if ( inVectors ) // use flux preserving relationship
+        {
+        sFactor = sqrt((double)maxSpeed/math.Norm(inVectors->GetVector(j)));
+        if ( sFactor > this->RadiusFactor ) sFactor = this->RadiusFactor;
         }
 
       //create points around line
