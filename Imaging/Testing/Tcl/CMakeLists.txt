@@ -7,6 +7,7 @@ IF (HAVE_PNG)
   IF (VTK_DATA_ROOT)
     FOREACH ( tfile 
         ContinuousClose2D
+        Spectrum
         TestAnisotropicDiffusion2D
         TestAnisotropicDiffusion3D
         TestAccumulate
@@ -20,6 +21,10 @@ IF (HAVE_PNG)
         TestButterworthHighPass
         TestCityBlockDistance
         TestCorrelation
+        TestDilateErode3D
+        TestDivergence
+        TestDotProduct
+        TestInPlaceFilter
         TestFFT
         TestGradient
         TestGradientMagnitude
