@@ -14,6 +14,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
 #include <math.h>
+#include "GlrRenW.hh"
 #include "GlrRen.hh"
 #include "GlrCam.hh"
 
@@ -41,7 +42,7 @@ void vlGlrCamera::Render(vlGlrRenderer *ren)
   getsize(&width,&height);
   
   // find out if we should stereo render
-  stereo = ren->GetStereoRender();
+  stereo = ((vlGlrRenderWindow*)(ren->GetRenderWindow()))->GetStereoRender();
 
   // must use width -1 and height -1 because width*1.0 = width,  
   // but the maximum pixel value allowed is width -1            
