@@ -87,6 +87,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // codes for scalar variables come before those for vectors
 #define VTK_PARSER_BEGIN_VARIABLES 30
 
+// the value that is retuned as a result if there is an error
+#define VTK_PARSER_ERROR_RESULT VTK_LARGE_FLOAT
+
 class VTK_EXPORT vtkFunctionParser : public vtkObject
 {
 public:
@@ -94,27 +97,63 @@ public:
   vtkTypeMacro(vtkFunctionParser, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
   
-  // Description:
-  // Convert the input string to an internal format.  (The function string
-  // and variable names must be set before Parse() is called.)
-  int Parse();
-
-  // Description:
-  // Evaluate the input function with the specified values.  (These values
-  // must be set before Evaluate() is called.)
-  void Evaluate();
-
-  // Description:
-  // Get the results of evaluating the input function.
-  double GetScalarResult() { return this->Stack[0]; } 
-  double* GetVectorResult() { return this->Stack; }
-  double GetVectorResultComponent(int i) { return this->Stack[i]; }
-  
   // Decription:
-  // Set/Get input string to parse.
-  vtkSetStringMacro(Function);
+  // Set/Get input string to evaluate. 
+  void SetFunction(const char *function);
   vtkGetStringMacro(Function);
+
+  // Description:
+  // Get a scalar result from evaluating the input function.
+  double GetScalarResult();
+
+  // Description:
+  // Get a vector result from evaluating the input function.
+  double* GetVectorResult();
+  void GetVectorResult(double result[3]) {
+    double *r = this->GetVectorResult();
+    result[0] = r[0]; result[1] = r[1]; result[2] = r[2]; };
+
+  // Description:
+  // Set the value of a scalar variable.  If a variable with this name
+  // exists, then its value will be set to the new value.  If there is not
+  // already a variable with this name, variableName will be added to the
+  // list of variables, and its value will be set to the new value.
+  void SetScalarVariableValue(const char* variableName, double value);
+  void SetScalarVariableValue(int i, double value);
+
+  // Description:
+  // Get the value of a scalar variable.
+  double GetScalarVariableValue(const char* variableName);
+  double GetScalarVariableValue(int i);
+
+  // Description:
+  // Set the value of a vector variable.  If a variable with this name
+  // exists, then its value will be set to the new value.  If there is not
+  // already a variable with this name, variableName will be added to the
+  // list of variables, and its value will be set to the new value.
+  void SetVectorVariableValue(const char* variableName, double xValue,
+                              double yValue, double zValue);
+  void SetVectorVariableValue(const char* variableName, 
+			      const double values[3]) {
+    this->SetVectorVariableValue(variableName,values[0],values[1],values[2]);};
+  void SetVectorVariableValue(int i, double xValue, double yValue,
+			      double zValue);
+  void SetVectorVariableValue(int i, const double values[3]) {
+    this->SetVectorVariableValue(i,values[0],values[1],values[2]);};
   
+  // Description:
+  // Get the value of a vector variable.
+  double* GetVectorVariableValue(const char* variableName);
+  double* GetVectorVariableValue(int i);
+  
+  // Description:
+  // Get the number of scalar variables.
+  vtkGetMacro(NumberOfScalarVariables,int);
+
+  // Description:
+  // Get the number of vector variables.
+  vtkGetMacro(NumberOfVectorVariables,int);
+
   // Description:
   // Get the ith scalar variable name.
   char* GetScalarVariableName(int i);
@@ -122,38 +161,18 @@ public:
   // Description:
   // Get the ith vector variable name.
   char* GetVectorVariableName(int i);
-  
-  // Description:
-  // Set the value of a particular variable.  If a variable with this name
-  // exists, then its value will be set to the new value.  If there is not
-  // already a variable with this name, variableName will be added to the
-  // list of variables, and its value will be set to the new value.
-  void SetScalarVariableValue(const char* variableName, double value);
-  void SetVectorVariableValue(const char* variableName, double xValue,
-                              double yValue, double zValue);
-  void SetVectorVariableValue(const char* variableName, double values[3]);
-  
-  // Description:
-  // Set the value of the ith variable.  If i > the number of variables,
-  // nothing will be set.
-  void SetScalarVariableValue(int i, double value);
-  void SetVectorVariableValue(int i, double xValue, double yValue,
-			      double zValue);
-  void SetVectorVariableValue(int i, double values[3]);
-  
-  // Description:
-  // Get the value of a particular variable.
-  double GetScalarVariableValue(const char* variableName);
-  double* GetVectorVariableValue(const char* variableName);
-  
+
 protected:
   vtkFunctionParser();
   ~vtkFunctionParser();
   vtkFunctionParser(const vtkFunctionParser&) {};
   void operator=(const vtkFunctionParser&) {};
   
-  void RemoveSpaces();
+  int Parse();
+  void Evaluate();
+
   int CheckSyntax();
+  void RemoveSpaces();
   
   int BuildInternalFunctionStructure();
   void BuildInternalSubstringStructure(int beginIndex, int endIndex);
@@ -188,6 +207,11 @@ protected:
   double *Stack;
   int StackSize;
   int StackPointer;
+
+  vtkTimeStamp FunctionMTime;
+  vtkTimeStamp ParseMTime;
+  vtkTimeStamp VariableMTime;
+  vtkTimeStamp EvaluateMTime;
 };
 
 #endif
