@@ -188,8 +188,7 @@ int vtkMath::SolveLinearSystem(double **A, double *x, int size)
 // if inverse not computed.
 int vtkMath::InvertMatrix(double **A, double **AI, int size)
 {
-  static int *index = NULL;
-  static int maxSize=0;
+  static int *index = NULL, maxSize=0;
   static double *column = NULL;
   int i, j;
   //
@@ -231,9 +230,6 @@ int vtkMath::InvertMatrix(double **A, double **AI, int size)
       AI[i][j] = column[j];
       }
     }
-
-  delete [] index;
-  delete [] column;
 
   return 1;
 }
