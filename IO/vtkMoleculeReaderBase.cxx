@@ -52,7 +52,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkMoleculeReaderBase, "1.9");
+vtkCxxRevisionMacro(vtkMoleculeReaderBase, "1.10");
 
 static float vtkMoleculeReaderBaseCovRadius[103] = {
 0.32 , 1.6 , 0.68 , 0.352 , 0.832 , 0.72 ,
@@ -205,7 +205,6 @@ int vtkMoleculeReaderBase::ReadMolecule(FILE *fp)
   vtkCellArray *newBonds;
 
   vtkDebugMacro(<< "Scanning the Molecule file");
-  this->NumberOfAtoms = 0;
   vtkPolyData *output = this->GetOutput();
 
   if ( !this->AtomType )
@@ -240,7 +239,7 @@ int vtkMoleculeReaderBase::ReadMolecule(FILE *fp)
   newBonds->Delete();
 
   vtkDebugMacro(<< "read " << this->NumberOfAtoms << " atoms and found " 
-    << newBonds->GetNumberOfCells() << " bonds" << endl);
+                << newBonds->GetNumberOfCells() << " bonds" << endl);
 
   if ( this->RGB )
     {
@@ -251,13 +250,14 @@ int vtkMoleculeReaderBase::ReadMolecule(FILE *fp)
     this->RGB = vtkUnsignedCharArray::New();
     }
   this->RGB->SetNumberOfComponents(3);
-  this->RGB->SetNumberOfTuples(this->NumberOfAtoms);
+//  this->RGB->SetNumberOfTuples(this->NumberOfAtoms);
   this->RGB->Allocate(3*this->NumberOfAtoms);
   this->RGB->SetName("rgb_colors");
 
   for(i=0; i < this->NumberOfAtoms; i++)
     {
-                     this->RGB->InsertNextTuple(&vtkMoleculeReaderBaseAtomColors[AtomType->GetValue(i)][0]);
+    this->RGB->InsertNextTuple(
+      &vtkMoleculeReaderBaseAtomColors[AtomType->GetValue(i)][0]);
     }
 
   output->GetPointData()->SetScalars(this->RGB);
@@ -271,16 +271,17 @@ int vtkMoleculeReaderBase::ReadMolecule(FILE *fp)
     this->Radii = vtkFloatArray::New();
     }
   this->Radii->SetNumberOfComponents(3);
-  this->Radii->SetNumberOfTuples(this->NumberOfAtoms);
+//  this->Radii->SetNumberOfTuples(this->NumberOfAtoms);
   this->Radii->Allocate(3 * this->NumberOfAtoms);
   this->Radii->SetName("radius");
 
-  // we're obliged here to insert the scalars "radius" 3 times to make it a vector
-  // in order to use Glyph3D to color AND scale at the same time.
+  // We're obliged here to insert the scalars "radius" 3 times to make it a
+  // vector in order to use Glyph3D to color AND scale at the same time.
 
   for(i=0; i < this->NumberOfAtoms; i++)
     {
-    this->Radii->InsertNextTuple3(vtkMoleculeReaderBaseRadius[AtomType->GetValue(i)],
+    this->Radii->InsertNextTuple3(
+      vtkMoleculeReaderBaseRadius[AtomType->GetValue(i)],
       vtkMoleculeReaderBaseRadius[AtomType->GetValue(i)],
       vtkMoleculeReaderBaseRadius[AtomType->GetValue(i)]);
     }
@@ -291,8 +292,8 @@ int vtkMoleculeReaderBase::ReadMolecule(FILE *fp)
 }
 
 int vtkMoleculeReaderBase::MakeBonds(vtkPoints *newPts,
-  vtkIdTypeArray *atype,
-  vtkCellArray *newBonds)
+                                     vtkIdTypeArray *atype,
+                                     vtkCellArray *newBonds)
 {
   register int i, j;
   register int nbonds;
@@ -329,15 +330,22 @@ int vtkMoleculeReaderBase::MakeBonds(vtkPoints *newPts,
       max = dist*dist;
 
       if(atype->GetValue(i) == 0 || atype->GetValue(j) == 0)
+        {
         max *= HBScale;
+        }
       else
+        {
         max *= BScale;
+        }
 
       Y = newPts->GetPoint(j);
       dx = X[0] - Y[0];
       dist = dx * dx;
 
-      if(dist > max ) continue;
+      if(dist > max ) 
+        {
+        continue;
+        }
 
       dy = X[1] - Y[1];
       dist += dy * dy;

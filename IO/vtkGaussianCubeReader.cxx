@@ -51,7 +51,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkGaussianCubeReader, "1.5");
+vtkCxxRevisionMacro(vtkGaussianCubeReader, "1.6");
 vtkStandardNewMacro(vtkGaussianCubeReader);
 
 // Construct object with merging set to true.
@@ -105,17 +105,23 @@ void vtkGaussianCubeReader::Execute()
 
   fgets(Title, 256, fp);
   if(strtok(Title, ":") != NULL)
-    if(strtok(NULL, ":") != NULL){
+    {
+    if(strtok(NULL, ":") != NULL)
+      {
       strcpy(data_name, strtok(NULL, ":"));
       fprintf(stderr,"label = %s\n", data_name);
-  }
+      }
+    }
   fgets(Title, 256, fp);
 
-/* Read in number of atoms, x-origin, y-origin z-origin */
-
-  fscanf(fp, "%d %lf %lf %lf", &(this->NumberOfAtoms), &elements[3], &elements[7], &elements[11]);
+  // Read in number of atoms, x-origin, y-origin z-origin
+  //
+  fscanf(fp, "%d %lf %lf %lf", &(this->NumberOfAtoms), &elements[3], 
+         &elements[7], &elements[11]);
   if(this->NumberOfAtoms < 0 )
+    {
     this->NumberOfAtoms = -this->NumberOfAtoms;
+    }
 
   fscanf(fp, "%d %lf %lf %lf", &n1, &elements[0], &elements[4], &elements[8]);
   fscanf(fp, "%d %lf %lf %lf", &n2, &elements[1], &elements[5], &elements[9]);
@@ -148,16 +154,19 @@ void vtkGaussianCubeReader::Execute()
   Cube_data = (float *)grid->GetPointData()->GetScalars()->GetVoidPointer(0);
   N1N2 = n1*n2;
 
-  for(i = 0; i < n1; i++) {
+  for(i = 0; i < n1; i++) 
+    {
     JN1 = 0;
-    for(j = 0; j < n2; j++) {
-      for(k = 0; k < n3; k++) {
-         fscanf(fp,"%f", &tmp);
-         Cube_data[k*N1N2 + JN1 + i] = tmp;
-      }
+    for(j = 0; j < n2; j++) 
+      {
+      for(k = 0; k < n3; k++) 
+        {
+        fscanf(fp,"%f", &tmp);
+        Cube_data[k*N1N2 + JN1 + i] = tmp;
+        }
       JN1 += n1;
+      }
     }
-  }
   fclose(fp);
 }
 

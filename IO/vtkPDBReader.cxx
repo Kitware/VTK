@@ -46,7 +46,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkPoints.h"
 #include "vtkIdTypeArray.h"
 
-vtkCxxRevisionMacro(vtkPDBReader, "1.2");
+vtkCxxRevisionMacro(vtkPDBReader, "1.3");
 vtkStandardNewMacro(vtkPDBReader);
 
 vtkPDBReader::vtkPDBReader()
@@ -65,6 +65,7 @@ void vtkPDBReader::ReadSpecificMolecule(FILE* fp)
   int i, j;
   float x[3];
 
+  this->NumberOfAtoms = 0;
   this->Points->Allocate(500);
   this->AtomType->Allocate(500);
 
