@@ -1,5 +1,11 @@
 SET(KIT Patented)
-SET ( Kit_SRCS
+SET(UKIT PATENTED)
+SET(KIT_TCL_LIBS vtkIOTCL vtkGraphicsTCL vtkImagingTCL)
+SET(KIT_PYTHON_LIBS vtkGraphicsPython vtkImagingPython)
+SET(KIT_JAVA_LIBS vtkGraphicsJava vtkImagingJava)
+SET(KIT_LIBS vtkGraphics vtkImaging vtkIO)
+
+SET( Kit_SRCS
 vtkDecimate.cxx
 vtkDividingCubes.cxx
 vtkGridSynchronizedTemplates3D.cxx
@@ -14,20 +20,29 @@ vtkSynchronizedTemplates2D.cxx
 vtkSynchronizedTemplates3D.cxx
 )
 
+
 IF(CMAKE_BUILD_TOOL MATCHES devenv)
   SET_SOURCE_FILES_PROPERTIES(vtkSweptSurface COMPILE_FLAGS /Op)
 ENDIF(CMAKE_BUILD_TOOL MATCHES devenv)
 
+SET(Kit_EXTRA_SRCS)
+SET(Kit_EXTRA_CMDS)
+SET(Kit_TCL_EXTRA_SRCS)
+SET(Kit_PYTHON_EXTRA_SRCS)
+SET(Kit_JAVA_EXTRA_SRCS)
+
+# -----------------------------------------------------------------
+
 # Setup vtkInstantiator registration for this library's classes.
 VTK_MAKE_INSTANTIATOR2(vtk${KIT}Instantiator KitInstantiator_SRCS
                        ${Kit_SRCS}
-                       EXPORT_MACRO VTK_PATENTED_EXPORT
+                       EXPORT_MACRO VTK_${UKIT}_EXPORT
                        HEADER_LOCATION ${VTK_BINARY_DIR})
 
-ADD_LIBRARY(vtk${KIT} ${Kit_SRCS} ${KitInstantiator_SRCS})
+ADD_LIBRARY(vtk${KIT} ${Kit_SRCS} ${Kit_EXTRA_SRCS} ${KitInstantiator_SRCS})
 
 IF(VTK_APPLE_SHARED_FLAGS_NEEDED)
-  SET_TARGET_PROPERTIES(vtk${KIT} PROPERTIES LINK_FLAGS "-init _oft_initPat")
+  SET_TARGET_PROPERTIES(vtk${KIT} PROPERTIES LINK_FLAGS "-init _oft_init${KIT}")
 ENDIF(VTK_APPLE_SHARED_FLAGS_NEEDED)
 
 # Allow the user to customize their build with some local options
@@ -35,11 +50,15 @@ ENDIF(VTK_APPLE_SHARED_FLAGS_NEEDED)
 INCLUDE (${VTK_BINARY_DIR}/${KIT}/LocalUserOptions.cmake OPTIONAL)
 INCLUDE (${VTK_SOURCE_DIR}/${KIT}/LocalUserOptions.cmake OPTIONAL)
 
+# if we are wrapping into Tcl then add the library and extra
+# source files
+#
 IF (VTK_WRAP_TCL)
-  VTK_WRAP_TCL2(vtk${KIT}TCL KitTCL_SRCS ${Kit_SRCS})
-  ADD_LIBRARY(vtk${KIT}TCL ${KitTCL_SRCS})
-  TARGET_LINK_LIBRARIES (vtk${KIT}TCL vtk${KIT} vtkIOTCL vtkGraphicsTCL
-                         vtkImagingTCL)
+  VTK_WRAP_TCL2(vtk${KIT}TCL SOURCES KitTCL_SRCS 
+                ${Kit_SRCS} ${Kit_TCL_EXTRA_SRCS}
+                COMMANDS ${Kit_TCL_EXTRA_SRCS})
+  ADD_LIBRARY(vtk${KIT}TCL ${KitTCL_SRCS} ${Kit_TCL_EXTRA_SRCS})
+  TARGET_LINK_LIBRARIES (vtk${KIT}TCL vtk${KIT} ${KIT_TCL_LIBS})
   INSTALL_TARGETS(/lib/vtk vtk${KIT}TCL)
 ENDIF (VTK_WRAP_TCL)
 
@@ -48,16 +67,16 @@ ENDIF (VTK_WRAP_TCL)
 #
 IF (VTK_WRAP_PYTHON)
   VTK_WRAP_PYTHON2(vtk${KIT}Python KitPython_SRCS ${Kit_SRCS})
-  ADD_LIBRARY(vtk${KIT}Python MODULE ${KitPython_SRCS})
+  ADD_LIBRARY(vtk${KIT}Python MODULE ${KitPython_SRCS} ${Kit_PYTHON_EXTRA_SRCS})
   IF(NOT APPLE)
-    TARGET_LINK_LIBRARIES (vtk${KIT}Python
-                           vtkGraphicsPython
-                           vtkImagingPython)
+    TARGET_LINK_LIBRARIES (vtk${KIT}Python ${KIT_PYTHON_LIBS})
   ENDIF(NOT APPLE)
   IF(WIN32)
     TARGET_LINK_LIBRARIES (vtk${KIT}Python
                            debug ${PYTHON_DEBUG_LIBRARY}
                            optimized ${PYTHON_LIBRARY})
+  ELSE(WIN32)
+    TARGET_LINK_LIBRARIES (vtk${KIT}Python ${PYTHON_LIBRARY})
   ENDIF(WIN32)
   TARGET_LINK_LIBRARIES(vtk${KIT}Python vtk${KIT})
 
@@ -69,17 +88,12 @@ ENDIF (VTK_WRAP_PYTHON)
 #
 IF (VTK_WRAP_JAVA)
   VTK_WRAP_JAVA2(vtk${KIT}Java KitJava_SRCS ${Kit_SRCS})
-  ADD_LIBRARY(vtk${KIT}Java SHARED ${KitJava_SRCS})
-  TARGET_LINK_LIBRARIES (vtk${KIT}Java vtk${KIT} vtkImagingJava
-                         vtkGraphicsJava)
+  ADD_LIBRARY(vtk${KIT}Java SHARED ${KitJava_SRCS} ${Kit_JAVA_EXTRA_SRCS})
+  TARGET_LINK_LIBRARIES(vtk${KIT}Java vtk${KIT} ${KIT_JAVA_LIBS})
   INSTALL_TARGETS(/lib/vtk vtk${KIT}Java)
 ENDIF (VTK_WRAP_JAVA)
 
-TARGET_LINK_LIBRARIES ( vtk${KIT}
-vtkImaging
-vtkGraphics
-vtkIO
-)
+TARGET_LINK_LIBRARIES(vtk${KIT} ${KIT_LIBS})
 
 INSTALL_TARGETS(/lib/vtk vtk${KIT})
 INSTALL_FILES(/include/vtk .h ${Kit_SRCS})
