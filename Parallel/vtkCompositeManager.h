@@ -27,7 +27,7 @@
 // An have no easy way of knowing when the renderers change.  We could 
 // create AddRenderer and RemoveRenderer events ...
 // .SECTION see also
-// vtkMultiProcessController vtkRenderWindow vtkTreeComposite.
+// vtkMultiProcessController vtkRenderWindow.
 
 #ifndef __vtkCompositeManager_h
 #define __vtkCompositeManager_h
@@ -170,7 +170,7 @@ public:
 
   // Description:
   // This methods allows the user to select different compositing algorithms.
-  // A vtkTreeCompositer is created as a default value.
+  // A vtkCompressCompositer is created as a default value.
   virtual void SetCompositer(vtkCompositer*);
   vtkGetObjectMacro(Compositer, vtkCompositer);
 
