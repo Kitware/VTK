@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# Time-stamp: <2002-01-14 17:55:56 barre>
+# Time-stamp: <2002-01-14 18:34:33 barre>
 #
 # Build cross-references between classes and examples
 #
@@ -524,7 +524,7 @@ my $footer;
 
 if (exists $args{"datamatch"}) {
     push @legend,
-    "- <img src='" . $args{"dataicon"} . "' align='top'> : the corresponding file most probably uses data files.";
+    "- <img src='" . $args{"dataicon"} . "' align='top'> : the corresponding file uses data files.";
     # hack so that the image is automatically copied to the doc dir
     $footer .= " \@image html " . $args{"dataicon"} . "\n";
 }
