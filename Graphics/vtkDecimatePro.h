@@ -76,17 +76,17 @@
 #ifndef __vtkDecimatePro_h
 #define __vtkDecimatePro_h
 
-#include "vtkPolyDataToPolyDataFilter.h"
+#include "vtkPolyDataAlgorithm.h"
 
 #include "vtkCell.h" // Needed for VTK_CELL_SIZE
 
 class vtkDoubleArray;
 class vtkPriorityQueue;
 
-class VTK_GRAPHICS_EXPORT vtkDecimatePro : public vtkPolyDataToPolyDataFilter
+class VTK_GRAPHICS_EXPORT vtkDecimatePro : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkDecimatePro,vtkPolyDataToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkDecimatePro,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -232,7 +232,7 @@ protected:
   vtkDecimatePro();
   ~vtkDecimatePro();
 
-  void Execute();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   double TargetReduction;
   double FeatureAngle;

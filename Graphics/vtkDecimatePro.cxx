@@ -17,6 +17,8 @@
 #include "vtkDoubleArray.h"
 #include "vtkLine.h"
 #include "vtkMath.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPlane.h"
 #include "vtkPolyData.h"
@@ -26,7 +28,7 @@
 #include "vtkPointData.h"
 #include "vtkCellData.h"
 
-vtkCxxRevisionMacro(vtkDecimatePro, "1.77");
+vtkCxxRevisionMacro(vtkDecimatePro, "1.78");
 vtkStandardNewMacro(vtkDecimatePro);
 
 #define VTK_TOLERANCE 1.0e-05
@@ -109,16 +111,27 @@ vtkDecimatePro::~vtkDecimatePro()
 //
 //  Reduce triangles in mesh by specified reduction factor.
 //
-void vtkDecimatePro::Execute()
+int vtkDecimatePro::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkPolyData *input = vtkPolyData::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   vtkIdType i, ptId, numPts, numTris, collapseId;
   vtkPoints *inPts;
   vtkPoints *newPts;
   vtkCellArray *inPolys;
   vtkCellArray *newPolys;
   double error, previousError=0.0, reduction;
-  vtkPolyData *input = this->GetInput();
-  vtkPolyData *output = this->GetOutput();
   int type;
   vtkIdType *pts, npts, totalEliminated, numRecycles, numPops;
   unsigned short int ncells;
@@ -129,7 +142,7 @@ void vtkDecimatePro::Execute()
   if (!input)
     {
     vtkErrorMacro(<<"No input!");
-    return;
+    return 0;
     }
   vtkPointData *outputPD=output->GetPointData();
   vtkPointData *inPD=input->GetPointData();
@@ -146,7 +159,7 @@ void vtkDecimatePro::Execute()
        (this->TargetReduction > 0.0) )
     {
     vtkErrorMacro(<<"No data to decimate!");
-    return;
+    return 0;
     }
   
   // Initialize
@@ -185,7 +198,7 @@ void vtkDecimatePro::Execute()
       output->CopyStructure(input);
       output->GetPointData()->PassData(input->GetPointData());
       output->GetCellData()->PassData(input->GetCellData());
-      return;
+      return 0;
       }
     pPolys += 4;
     }
@@ -223,7 +236,7 @@ void vtkDecimatePro::Execute()
     output->GetPointData()->PassData(input->GetPointData());
     output->GetCellData()->PassData(input->GetCellData());
     //vtkWarningMacro(<<"Reduction == 0: passing data through unchanged");
-    return;
+    return 1;
     }
   
   // Initialize data structures: priority queue and errors.
@@ -405,6 +418,8 @@ void vtkDecimatePro::Execute()
   output->SetPolys(newPolys);
   if (this->Mesh != NULL) {this->Mesh->Delete(); this->Mesh = NULL;}
   newPolys->Delete();
+
+  return 1;
 }
 
 //
