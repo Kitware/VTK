@@ -101,6 +101,7 @@ void vtkProbeFilter::Execute()
   vtkDataSet *input = this->GetInput();
   vtkDataSet *output= this->GetOutput();
   float pcoords[3], *weights;
+  float fastweights[256];
 
   vtkDebugMacro(<<"Probing data");
 
@@ -117,7 +118,16 @@ void vtkProbeFilter::Execute()
     return;
     }
 
-  weights=new float[source->GetMaxCellSize()];
+  // lets use a stack allocated array if possible for performance reasons
+  int mcs = source->GetMaxCellSize();
+  if (mcs<=256)
+    {
+    weights = fastweights;
+    }
+  else
+    {
+    weights = new float[mcs];
+    }
 
   // First, copy the input to the output as a starting point
   output->CopyStructure( input );
@@ -153,7 +163,10 @@ void vtkProbeFilter::Execute()
       outPD->NullPoint(ptId);
       }
     }
-  delete [] weights;
+  if (mcs>256)
+    {
+    delete [] weights;
+    }
 }
 
 
