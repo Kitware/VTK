@@ -80,6 +80,14 @@ vtkSliceCubes::vtkSliceCubes()
 
 vtkSliceCubes::~vtkSliceCubes()
 {
+  if (this->FileName)
+    {
+    delete [] this->FileName;
+    }
+  if (this->LimitsFileName)
+    {
+    delete [] this->LimitsFileName;
+    }
   this->SetReader(NULL);
 }
 
@@ -170,6 +178,7 @@ static int vtkSliceCubesContour(T *slice, S *scalars, int imageRange[2], int dim
   S *slice0scalars=NULL, *slice1scalars;
   S *slice2scalars, *slice3scalars;
   T *slice0, *slice1, *slice2, *slice3;
+  vtkStructuredPoints *sp;
   vtkFloatArray *floatScalars=NULL;
   int numTriangles=0, numComp;
   float s[8];
@@ -194,6 +203,8 @@ static int vtkSliceCubesContour(T *slice, S *scalars, int imageRange[2], int dim
 
   slice1scalars = NULL;
   slice2scalars = scalars;
+  slice2scalars->Register(NULL);
+
   if (debug)  vtkGenericWarningMacro(<< "  Slice# " << imageRange[0]);
 
   if ( slice2scalars == NULL )
@@ -211,9 +222,11 @@ static int vtkSliceCubesContour(T *slice, S *scalars, int imageRange[2], int dim
     slice1 = slice2 = (T *) floatScalars->GetPointer(0);
     }
     
-  slice3scalars = (S *) reader->GetImage(imageRange[0]+1)->
-    GetPointData()->GetScalars()->GetData();
-  
+  sp = reader->GetImage(imageRange[0]+1);
+  slice3scalars = (S *) sp->GetPointData()->GetScalars()->GetData();
+  slice3scalars->Register(NULL);
+  sp->Delete();
+
   if (debug)  vtkGenericWarningMacro(<< "  Slice# " << imageRange[0]+1 );
 
   if ( slice != NULL )
@@ -250,14 +263,15 @@ static int vtkSliceCubesContour(T *slice, S *scalars, int imageRange[2], int dim
     if ( k < (dims[2]-2) )
       {
       if (debug)  vtkGenericWarningMacro(<< "  Slice# " << imageRange[0]+k+2);
-      slice3scalars = (S *) reader->GetImage(imageRange[0]+k+2)->
-	GetPointData()->GetScalars()->GetData();
-
+      sp = reader->GetImage(imageRange[0]+k+2);
+      slice3scalars = (S *) sp->GetPointData()->GetScalars()->GetData();
       if ( slice3scalars == NULL )
         {
         vtkGenericWarningMacro(<< "Can't read all the requested slices");
         goto PREMATURE_TERMINATION;
         }
+      slice3scalars->Register(NULL);
+      sp->Delete();
       if ( slice != NULL )
         {
         slice3 = slice3scalars->GetPointer(0);
@@ -462,8 +476,11 @@ void vtkSliceCubes::Execute()
   if ( inScalars == NULL )
     {
     vtkErrorMacro(<<"Must have scalars to generate isosurface");
+    tempStructPts->Delete();
     return;
     }
+  inScalars->Register(this);
+  tempStructPts->Delete();
 
   if (inScalars->GetNumberOfComponents() == 1 )
     {
@@ -571,6 +588,7 @@ void vtkSliceCubes::Execute()
 			   xmin,xmax,outFP,this->Reader,this->Debug);
     }
 
+  inScalars->UnRegister(this);
   vtkDebugMacro(<<"Created: " << 3*numTriangles << " points, " 
                 << numTriangles << " triangles");
 
