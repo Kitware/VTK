@@ -46,9 +46,8 @@ proc rtOtherTest { fileid } {
 vtkDebugLeaks lk
 lk PromptUserOff
 
-if {![info exists rtOutId]} {
-    rtOtherTest stdout
-    exit
-}
+rtOtherTest stdout
 
-wm withdraw .
+lk Delete
+exit
+
