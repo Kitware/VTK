@@ -38,6 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
+#include <sys/types.h>
 #include <sys/stat.h>
 #include "vtkMCubesReader.h"
 #include "vtkMergePoints.h"
