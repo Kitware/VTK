@@ -51,7 +51,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkCell.h"
 #include "vtkPoints.h"
 #include "vtkLine.h"
-#include "vtkPolyLine.h"
 #include "vtkTriangle.h"
 #include "vtkQuad.h"
 
@@ -165,33 +164,6 @@ public:
                                          float bounds2[3], float tol,
                                          float x[3]);
 
-  // Description:
-  // Determine the best fit ellipse in the form
-  // a[0]x^2 + a[1]xy + a[2]y^2 + a[3]x + a[4]*y + a[5]
-  // The xindex and yindex parameters allow fitting in the y and z planes, i.e.
-  // if xindex = 0 and yindex = 1, use x,y
-  // if xindex = 1 and yindex = 2, use y,z
-  // if xindex = 0 and yindex = 2, use x,z
-  float* FitEllipse ( vtkPoints* points, int xindex, int yindex )
-  {
-    return vtkPolyLine::FitEllipseStatic ( points, xindex, yindex );
-  }
-
-  // Description:
-  // Convert an ellipse in parametric form to implicit form
-  // returns MajorAxis, MinorAxis and Orientation of the major axes with respect to the x axis
-  // as result[0], result[1], result[2] respectively
-  float* ConvertEllipseToImplicit ( float Parameters[6] )
-  {
-    return vtkPolyLine::ConvertEllipseToImplicitStatic ( Parameters );
-  }
-  float* ConvertEllipseToImplicit ( float a0, float a1, float a2, float a3, float a4, float a5 )
-  {
-    float P[6];
-    P[0] = a0; P[1] = a1; P[2] = a2; P[3] = a3; P[4] = a4; P[5] = a5;
-    return ConvertEllipseToImplicit ( P );
-  }
-  
 protected:
   vtkPolygon();
   ~vtkPolygon();
