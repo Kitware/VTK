@@ -7,7 +7,7 @@
 #include "vtkLookupTable.h"
 #include "vtkScalarBarActor.h"
 
-main ()
+int main ()
 {
  vtkRenderWindow *renWin;
  vtkRenderer *ren1;
