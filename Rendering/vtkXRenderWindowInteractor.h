@@ -168,6 +168,7 @@ protected:
 
   Display *DisplayId;
   Window WindowId;
+  Atom KillAtom;
   Widget Top;
   int OwnTop;
   int OwnApp;

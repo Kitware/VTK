@@ -28,7 +28,7 @@
 #include <string.h>
 #include <vtkTk.h>
 
-vtkCxxRevisionMacro(vtkXRenderWindowTclInteractor, "1.47");
+vtkCxxRevisionMacro(vtkXRenderWindowTclInteractor, "1.48");
 vtkStandardNewMacro(vtkXRenderWindowTclInteractor);
 
 // steal the first three elements of the TkMainInfo stuct
@@ -225,11 +225,15 @@ void vtkXRenderWindowTclInteractor::Enable()
   // Select the events that we want to respond to
   // (Multiple calls to XSelectInput overrides the previous settings)
   XSelectInput(this->DisplayId, this->WindowId,
-               KeyPressMask | KeyReleaseMask | 
+               KeyPressMask | KeyReleaseMask |
                ButtonPressMask | ButtonReleaseMask |
-               ExposureMask | StructureNotifyMask | 
-               EnterWindowMask | LeaveWindowMask | 
+               ExposureMask | StructureNotifyMask |
+               EnterWindowMask | LeaveWindowMask |
                PointerMotionMask | PointerMotionMask);
+
+  // Setup for capturing the window deletion
+  this->KillAtom = XInternAtom(this->DisplayId,"WM_DELETE_WINDOW",False);
+  XSetWMProtocols(this->DisplayId,this->WindowId,&this->KillAtom,1);
 
   this->Enabled = 1;
 
@@ -320,9 +324,19 @@ void vtkXRenderWindowTclInteractorCallback(Widget vtkNotUsed(w),
       yp = me->Size[1] - xp - 1;
       me->SetEventPosition(xp, yp);
       // only render if we are currently accepting events
-      if (me->GetEnabled())
+      if (me->Enabled)
         {
         me->InvokeEvent(vtkCommand::ExposeEvent,NULL);
+        me->GetRenderWindow()->Render();
+        }
+      }
+      break;
+ 
+    case MapNotify:
+      {
+      // only render if we are currently accepting events
+      if (me->Enabled && me->GetRenderWindow()->GetNeverRendered())
+        {
         me->GetRenderWindow()->Render();
         }
       }
@@ -348,7 +362,7 @@ void vtkXRenderWindowTclInteractorCallback(Widget vtkNotUsed(w),
         yp = (reinterpret_cast<XButtonEvent*>(event))->y;
         me->SetEventPosition(xp, me->Size[1] - yp - 1);
         // only render if we are currently accepting events
-        if (me->GetEnabled())
+        if (me->Enabled)
           {
           me->InvokeEvent(vtkCommand::ConfigureEvent,NULL);
           me->GetRenderWindow()->Render();
@@ -486,6 +500,33 @@ void vtkXRenderWindowTclInteractorCallback(Widget vtkNotUsed(w),
       }
       break;      
       
+    case KeyRelease:
+      {
+      if (!me->Enabled) 
+        {
+        return;
+        }
+      int ctrl = 
+        (reinterpret_cast<XButtonEvent *>(event))->state & ControlMask ? 1 : 0;
+      int shift =
+        (reinterpret_cast<XButtonEvent *>(event))->state & ShiftMask ? 1 : 0;
+      KeySym ks;
+      static char buffer[20];
+      buffer[0] = '\0';
+      XLookupString(reinterpret_cast<XKeyEvent *>(event),buffer, 20, &ks,NULL);
+      xp = (reinterpret_cast<XKeyEvent *>(event))->x;
+      yp = (reinterpret_cast<XKeyEvent *>(event))->y;
+      me->SetEventInformationFlipY(xp, 
+                                   yp,
+                                   ctrl, 
+                                   shift, 
+                                   buffer[0], 
+                                   1, 
+                                   XKeysymToString(ks));
+      me->InvokeEvent(vtkCommand::KeyReleaseEvent, NULL);
+      }
+      break;      
+
     case MotionNotify: 
       {
       if (!me->Enabled) 
@@ -503,6 +544,15 @@ void vtkXRenderWindowTclInteractorCallback(Widget vtkNotUsed(w),
                                    ctrl, 
                                    shift);
       me->InvokeEvent(vtkCommand::MouseMoveEvent, NULL);
+      }
+      break;
+
+    case ClientMessage:
+      {
+      if( static_cast<Atom>(event->xclient.data.l[0]) == me->KillAtom )
+        {
+        me->InvokeEvent(vtkCommand::ExitEvent, NULL);
+        }
       }
       break;
     }

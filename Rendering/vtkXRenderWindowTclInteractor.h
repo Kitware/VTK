@@ -160,6 +160,7 @@ protected:
 
   Display *DisplayId;
   Window WindowId;
+  Atom KillAtom;
   Widget top;
   Widget oldTop;
   XtAppContext App;

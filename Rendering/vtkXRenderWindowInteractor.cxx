@@ -27,7 +27,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkCommand.h"
 
-vtkCxxRevisionMacro(vtkXRenderWindowInteractor, "1.117");
+vtkCxxRevisionMacro(vtkXRenderWindowInteractor, "1.118");
 vtkStandardNewMacro(vtkXRenderWindowInteractor);
 
 // Initialize static members:
@@ -327,8 +327,13 @@ void vtkXRenderWindowInteractor::Enable()
                     ExposureMask | StructureNotifyMask | 
                     EnterWindowMask | LeaveWindowMask | 
                     PointerMotionHintMask | PointerMotionMask,
-                    False,
+                    True,  // True means we also observe ClientMessage
                     vtkXRenderWindowInteractorCallback,(XtPointer)this);
+
+   // Setup for capturing the window deletion
+  this->KillAtom = XInternAtom(this->DisplayId,"WM_DELETE_WINDOW",False);
+  XSetWMProtocols(this->DisplayId,this->WindowId,&this->KillAtom,1);
+
   this->Enabled = 1;
 
   this->Modified();
@@ -357,7 +362,7 @@ void vtkXRenderWindowInteractor::Disable()
                     ExposureMask | ButtonReleaseMask |
                     EnterWindowMask | LeaveWindowMask | 
                     PointerMotionHintMask | PointerMotionMask,
-                    False,vtkXRenderWindowInteractorCallback,(XtPointer)this);
+                    True,vtkXRenderWindowInteractorCallback,(XtPointer)this);
 
   this->Enabled = 0;
   this->Modified();
@@ -431,6 +436,10 @@ void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
     {
     case Expose:
       {
+      if (!me->Enabled) 
+       {
+       return;
+       }
       XEvent result;
       while (XCheckTypedWindowEvent(me->DisplayId, 
                                     me->WindowId,
@@ -448,7 +457,7 @@ void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
       yp = me->Size[1] - xp - 1;
       me->SetEventPosition(xp, yp);
       // only render if we are currently accepting events
-      if (me->GetEnabled())
+      if (me->Enabled)
         {
         me->InvokeEvent(vtkCommand::ExposeEvent,NULL);
         me->GetRenderWindow()->Render();
@@ -459,7 +468,7 @@ void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
     case MapNotify:
       {
       // only render if we are currently accepting events
-      if (me->GetEnabled() && me->GetRenderWindow()->GetNeverRendered())
+      if (me->Enabled && me->GetRenderWindow()->GetNeverRendered())
         {
         me->GetRenderWindow()->Render();
         }
@@ -484,7 +493,7 @@ void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
         yp = (reinterpret_cast<XButtonEvent*>(event))->y;
         me->SetEventPosition(xp, me->Size[1] - yp - 1);
         // only render if we are currently accepting events
-        if (me->GetEnabled())
+        if (me->Enabled)
           {
           me->InvokeEvent(vtkCommand::ConfigureEvent,NULL);
           me->GetRenderWindow()->Render();
@@ -651,17 +660,14 @@ void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
       
     case MotionNotify: 
       {
-      if (!me->Enabled) return;
-      int ctrl = 0;
-      if ((reinterpret_cast<XMotionEvent *>(event))->state & ControlMask)
+      if (!me->Enabled) 
         {
-        ctrl = 1;
+        return;
         }
-      int shift = 0;
-      if ((reinterpret_cast<XMotionEvent *>(event))->state & ShiftMask)
-        {
-        shift = 1;
-        }
+      int ctrl =
+        (reinterpret_cast<XButtonEvent *>(event))->state & ControlMask ? 1 : 0;
+      int shift =
+        (reinterpret_cast<XButtonEvent *>(event))->state & ShiftMask ? 1 : 0;
 
       // Note that even though the (x,y) location of the pointer is event structure,
       // we must call XQueryPointer for the hints (motion event compression) to
@@ -669,6 +675,15 @@ void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
       me->GetMousePosition(&xp, &yp);
       me->SetEventInformation(xp, yp, ctrl, shift);
       me->InvokeEvent(vtkCommand::MouseMoveEvent, NULL);
+      }
+      break;
+
+    case ClientMessage: 
+      {
+      if( static_cast<Atom>(event->xclient.data.l[0]) == me->KillAtom )
+        {
+        me->InvokeEvent(vtkCommand::ExitEvent, NULL);
+        }
       }
       break;
     }
