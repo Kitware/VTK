@@ -24,7 +24,7 @@
 #include "vtkPolyData.h"
 #include "vtkPolyLine.h"
 
-vtkCxxRevisionMacro(vtkRibbonFilter, "1.74");
+vtkCxxRevisionMacro(vtkRibbonFilter, "1.74.2.1");
 vtkStandardNewMacro(vtkRibbonFilter);
 
 // Construct ribbon so that width is 0.1, the width does 
@@ -92,7 +92,6 @@ void vtkRibbonFilter::Execute()
       !(inLines = input->GetLines()) || 
        (numLines = inLines->GetNumberOfCells()) < 1 )
     {
-    vtkWarningMacro(<< " No input data!");
     return;
     }
 
