@@ -77,7 +77,7 @@ public:
   
   // Description:
   // Specify the type of boolean operation.
-  vtkSetClampMacro(OperationType,int,UNION_OPERATOR,DIFFERENCE_OPERATOR);
+  vtkSetClampMacro(OperationType,int,VTK_UNION_OPERATOR,VTK_DIFFERENCE_OPERATOR);
   vtkGetMacro(OperationType,int);
 
   void SetSampleDimensions(int i, int j, int k);
