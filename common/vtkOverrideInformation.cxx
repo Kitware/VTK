@@ -83,7 +83,15 @@ void vtkOverrideInformation::PrintSelf(ostream& os,
      << "Override: " << this->ClassOverrideName 
      << "\nWith: " << this->ClassOverrideWithName 
      << "\nDescription: " << this->Description;
-  this->ObjectFactory->PrintSelf(os, indent);
+  os << indent << "From Factory:\n";
+  if(this->ObjectFactory)
+    {
+    this->ObjectFactory->PrintSelf(os, indent.GetNextIndent());
+    }
+  else
+    {
+    os << indent.GetNextIndent() << "(NULL)\n";
+    }
 }
 
 
