@@ -26,6 +26,15 @@ IF (VTK_USE_RENDERING AND VTK_USE_VOLUMERENDERING)
         -V Baseline/VolumeRendering/${tfile}.png
         -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
     ENDFOREACH( tfile )
+    IF(NOT VTK_USE_COCOA)
+      ADD_TEST(imageCursor3D-image ${VTK_EXECUTABLE}
+        ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
+        ${VTK_SOURCE_DIR}/VolumeRendering/Testing/Tcl/cursor3D.tcl
+        -D ${VTK_DATA_ROOT}
+        -T ${VTK_BINARY_DIR}/Testing/Temporary
+        -V Baseline/VolumeRendering/cursor3D.png
+        -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
+    ENDIF(NOT VTK_USE_COCOA)
 
   #
   # If we do not have the data, still run the tests that we can
