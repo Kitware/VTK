@@ -51,6 +51,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkToolkits.h"
 #include "vtkDebugLeaks.h"
 
+#include <stdio.h>
+
 vtkVolumeProVP1000Mapper::vtkVolumeProVP1000Mapper()
 {
   VLIStatus         status;
@@ -374,6 +376,9 @@ void vtkVolumeProVP1000Mapper::UpdateProperties( vtkRenderer *vtkNotUsed(ren),
     case VTK_VOLUME_8BIT:
       scale = 1.0 / 16.0;
       break;
+    case VTK_VOLUME_12BIT_LOWER:
+      scale = 1.0;
+      break;
     case VTK_VOLUME_16BIT:
       scale = 16.0;
       break;
@@ -488,11 +493,6 @@ void vtkVolumeProVP1000Mapper::UpdateProperties( vtkRenderer *vtkNotUsed(ren),
     }
 
   this->Context->GetClassifier().SetLookupTable(kVLITable0, this->LookupTable);
-
-  // Now the volume matrix. We have to get the composite matrix
-  // out of the volume (both the scale, position, and orientation, and
-  // the user matrix) then we need to scale by the spacing of the
-  // data.
 }
 
 void vtkVolumeProVP1000Mapper::UpdateCropping( vtkRenderer * vtkNotUsed(ren), vtkVolume * vtkNotUsed(vol) )
@@ -621,6 +621,7 @@ void vtkVolumeProVP1000Mapper::UpdateVolume( vtkRenderer * vtkNotUsed(ren), vtkV
   float                     dataOrigin[3];
   float                     dataSpacing[3];
   VLIStatus                 status;
+  float                     range[2];
   
   // We need the size to create the volume and check the subvolume
   input->GetDimensions( dataSize );
@@ -724,10 +725,21 @@ void vtkVolumeProVP1000Mapper::UpdateVolume( vtkRenderer * vtkNotUsed(ren), vtkV
         us_data_ptr = (unsigned short *) data_ptr;
         this->Volume = VLIVolume::Create( 16, dataSize[0], dataSize[1],
                                           dataSize[2], 0, 0, us_data_ptr );
-        this->Volume->SetFieldDescriptor(kVLIField0,
-                                         VLIFieldDescriptor(0, 16, kVLIUnsignedFraction));
         
-        this->VolumeDataType = VTK_VOLUME_16BIT;
+        input->GetPointData()->GetScalars()->GetRange( range );
+        if ( range[0] > 4095 )
+          {
+          this->Volume->SetFieldDescriptor(kVLIField0,
+                                           VLIFieldDescriptor(0, 16, kVLIUnsignedFraction));
+          
+          this->VolumeDataType = VTK_VOLUME_16BIT;
+          }
+        else
+          {
+          this->Volume->SetFieldDescriptor(kVLIField0,
+                                           VLIFieldDescriptor(0, 12, kVLIUnsignedFraction));
+          this->VolumeDataType = VTK_VOLUME_12BIT_LOWER;
+          }
         
         break;
         
@@ -1046,7 +1058,9 @@ void vtkVolumeProVP1000Mapper::Render( vtkRenderer *ren, vtkVolume *vol )
     }
 
   // Render the image buffer we've been returned.
-  this->RenderImageBuffer(ren, vol, size, outData); 
+  this->RenderImageBuffer(ren, vol, size, outData);
+  
+  delete [] outData;
 }
 
 
