@@ -78,7 +78,7 @@ void vtkPointSource::Execute()
 {
   int i;
   float theta, rho, cosphi, sinphi, radius;
-  float x[3], lambda;
+  float x[3];
   vtkPoints *newPoints;
   vtkCellArray *newVerts;
   vtkPolyData *output = this->GetOutput();
