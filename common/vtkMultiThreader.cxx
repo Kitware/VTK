@@ -532,7 +532,6 @@ int vtkMultiThreader::SpawnThread( vtkThreadFunctionType f, void *UserData )
     if ( this->SpawnedThreadActiveFlagLock[id] == NULL )
       {
       this->SpawnedThreadActiveFlagLock[id] = vtkMutexLock::New();
-      break;
       }
     this->SpawnedThreadActiveFlagLock[id]->Lock();
     if (this->SpawnedThreadActiveFlag[id] == 0)
