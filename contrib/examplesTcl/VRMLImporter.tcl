@@ -12,7 +12,6 @@ vtkRenderWindow renWin
 
 vtkVRMLImporter importer
   importer SetRenderWindow renWin
-  importer ComputeNormalsOn
   importer SetFileName "$VTK_DATA/bot2.wrl"
   importer Read
 
