@@ -42,15 +42,19 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 vtkFieldDataSource::vtkFieldDataSource()
 {
+  this->Output = vtkDataObject::New();
+  this->Output->SetSource(this);
 }
 
 vtkFieldDataSource::~vtkFieldDataSource()
 {
+  this->Output->Delete();
 }
 
 void vtkFieldDataSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkSource::PrintSelf(os,indent);
+
 }
 
 
