@@ -43,7 +43,7 @@
  #include <mpi.h>
 #endif
 
-vtkCxxRevisionMacro(vtkCompositeManager, "1.46");
+vtkCxxRevisionMacro(vtkCompositeManager, "1.47");
 vtkStandardNewMacro(vtkCompositeManager);
 
 
@@ -129,6 +129,8 @@ vtkCompositeManager::vtkCompositeManager()
   this->Timer = vtkTimerLog::New();
 
   this->FirstRender = 0;
+
+  this->DoMagnifyBuffer = 1;
 }
 
   
@@ -1421,7 +1423,7 @@ void vtkCompositeManager::Composite()
 
     vtkDataArray* magPdata = 0;
     
-    if (this->ReductionFactor > 1)
+    if (this->ReductionFactor > 1 && this->DoMagnifyBuffer)
       {
       // localPdata gets freed (new memory is allocated and returned.
       // windowSize get modified.
