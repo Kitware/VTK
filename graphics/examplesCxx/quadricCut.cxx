@@ -21,7 +21,7 @@ vtkBooleanTexture *makeBooleanTexture (int, int, int);
 
 #include "SaveImage.h"
 
-void main( int argc, char *argv[] )
+int main( int argc, char *argv[] )
 {
   int i;
   vtkBooleanTexture *aBoolean[16];

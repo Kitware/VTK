@@ -4,9 +4,9 @@
 #include "vtkPolyDataMapper.h"
 #include "vtkActor.h"
 
-#include "SaveImage.h"
+#include "SaveImage2.h"
 
-void main( int argc, char *argv[] )
+int main( int argc, char *argv[] )
 {
   char a;
   

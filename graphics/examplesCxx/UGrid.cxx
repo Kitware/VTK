@@ -8,7 +8,7 @@
 
 #include "SaveImage.h"
 
-void main( int argc, char *argv[] )
+int main( int argc, char *argv[] )
 {
   int i;
   static float x[27][3]={{0,0,0}, {1,0,0}, {2,0,0}, {0,1,0}, {1,1,0}, {2,1,0},

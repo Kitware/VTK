@@ -11,7 +11,7 @@
 
 #include "SaveImage.h"
 
-void main( int argc, char *argv[] )
+int main( int argc, char *argv[] )
 {
   vtkRenderer *renderer = vtkRenderer::New();
   vtkRenderWindow *renWin = vtkRenderWindow::New();

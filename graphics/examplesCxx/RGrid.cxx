@@ -9,7 +9,7 @@
 
 #include "SaveImage.h"
 
-void main( int argc, char *argv[] )
+int main( int argc, char *argv[] )
 {
   int i;
   static float x[47]={-1.22396, -1.17188, -1.11979, -1.06771, -1.01562, -0.963542, 

@@ -12,7 +12,7 @@
 
 #include "SaveImage.h"
 
-void main( int argc, char *argv[] )
+int main( int argc, char *argv[] )
 {
   vtkCamera *camera;
   float range[2];

@@ -7,7 +7,7 @@
 #include "vtkPNMReader.h"
 #include "vtkImageDifference.h"
 
-void main( int vtkNotUsed(argc), char *vtkNotUsed(argv[]) )
+int main( int vtkNotUsed(argc), char *vtkNotUsed(argv[]) )
 {
   // create a rendering window and renderer
   vtkRenderer *ren = vtkRenderer::New();

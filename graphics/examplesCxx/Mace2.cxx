@@ -10,7 +10,7 @@
 
 #include "SaveImage.h"
 
-void main( int argc, char *argv[] )
+int main( int argc, char *argv[] )
 {
   vtkRenderer *ren1 = vtkRenderer::New();
   vtkRenderer *ren2 = vtkRenderer::New();

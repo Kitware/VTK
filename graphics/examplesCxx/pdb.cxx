@@ -83,7 +83,7 @@ int getLine(FILE *fp, char *s, int lim)
   return(i);
 }
 
-void main(int argc, char **argv)
+int main(int argc, char **argv)
 {
   FILE *fp;
   char lbuf[128],keywd[16],atomId[16],atomSym[8],tok[16],*charPtr;

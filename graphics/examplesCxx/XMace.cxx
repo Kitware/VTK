@@ -12,7 +12,7 @@ void quit_cb(Widget,XtPointer,XtPointer);
 
 #include "SaveImage.h"
 
-void main( int argc, char *argv[] )
+int main( int argc, char *argv[] )
 {
   // X window stuff
   XtAppContext app;

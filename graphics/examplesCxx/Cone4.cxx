@@ -8,7 +8,7 @@
 
 #include "SaveImage.h"
 
-void main( int argc, char *argv[] )
+int main( int argc, char *argv[] )
 {
   // create a rendering window and renderer
   vtkRenderer *ren = vtkRenderer::New();

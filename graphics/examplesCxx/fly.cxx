@@ -38,7 +38,7 @@ void UserMethod(void *vtkNotUsed(arg))
    }
 }
 
-void main( int argc, char *argv[] )
+int main( int argc, char *argv[] )
 {
    // Create the vtk renderer stuff
    vtkRenderer *ren = vtkRenderer::New();

@@ -9,7 +9,7 @@
 
 #include "SaveImage.h"
 
-void main( int argc, char *argv[] )
+int main( int argc, char *argv[] )
 {
   int i, j, k, kOffset, jOffset, offset;
   float x, y, z, s, sp;
