@@ -25,9 +25,7 @@ vtkXMesaTextMapper \
 vtkMesaPolyDataMapper2D 
 
 UNIX_CONCRETE = \
-vtkXImageMapper \
 vtkXImageWindow \
-vtkXPolyDataMapper2D \
 vtkXTextMapper 
 
 ABSTRACT_H = 
@@ -155,15 +153,12 @@ ${VTK_PLATFORM_CONCRETE} \
 ${GRAPHICS_API_OBJ} 
 
 WIN32_OBJ = \
-vtkWin32ImageMapper \
 vtkWin32OpenGLTextMapper \
 vtkOpenGLImageMapper \
 vtkOpenGLPolyDataMapper2D \
 vtkOpenGLImager \
 vtkWin32OpenGLImageWindow \
-vtkWin32ImageWindow \
-vtkWin32TextMapper \
-vtkWin32PolyDataMapper2D 
+vtkWin32TextMapper 
 
 
 #------------------------------------------------------------------------------
