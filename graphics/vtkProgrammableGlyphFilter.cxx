@@ -137,6 +137,12 @@ void vtkProgrammableGlyphFilter::Execute()
     vtkErrorMacro(<<"No input points to glyph");
     }
 
+  if (this->GetSource() == NULL)
+    {
+    vtkErrorMacro (<< "Source is NULL.");
+    return;
+    }
+
   sourcePD = this->GetSource()->GetPointData();
   sourceCD = this->GetSource()->GetCellData();
   numSourcePts = this->GetSource()->GetNumberOfPoints();

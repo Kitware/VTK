@@ -99,14 +99,28 @@ void vtkProbeFilter::Execute()
   vtkDataSet *source = this->GetSource();
   vtkDataSet *input = this->GetInput();
   vtkDataSet *output= this->GetOutput();
-  float pcoords[3], *weights=new float[source->GetMaxCellSize()];
+  float pcoords[3], *weights;
 
   vtkDebugMacro(<<"Probing data");
+
+  if (source == NULL)
+    {
+    vtkErrorMacro (<< "Source is NULL.");
+    return;
+    }
+  
+  weights=new float[source->GetMaxCellSize()];
+
+  pd = source->GetPointData();
+  if (pd == NULL)
+    {
+    vtkErrorMacro(<< "PointData is NULL.");
+    return;
+    }
 
   // First, copy the input to the output as a starting point
   output->CopyStructure( input );
 
-  pd = source->GetPointData();
   numPts = input->GetNumberOfPoints();
   //
   // Allocate storage for output PointData

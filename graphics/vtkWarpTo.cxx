@@ -84,7 +84,6 @@ void vtkWarpTo::Execute()
   output->CopyStructure( input );
 
   inPts = input->GetPoints();
-  numPts = inPts->GetNumberOfPoints();
 
   if (!inPts )
     {
@@ -92,6 +91,7 @@ void vtkWarpTo::Execute()
     return;
     }
 
+  numPts = inPts->GetNumberOfPoints();
   newPts = vtkPoints::New(); newPts->SetNumberOfPoints(numPts);
 
   if (this->Absolute)

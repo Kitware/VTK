@@ -87,14 +87,13 @@ void vtkWarpLens::Execute()
   offset = this->Center[0]*(1.0 + this->Kappa*r);
 
   inPts = input->GetPoints();  
-  numPts = inPts->GetNumberOfPoints();
-
   if (!inPts )
     {
     vtkErrorMacro(<<"No input data");
     return;
     }
 
+  numPts = inPts->GetNumberOfPoints();
   newPts = vtkPoints::New(); 
   newPts->SetNumberOfPoints(numPts);
 

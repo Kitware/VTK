@@ -168,6 +168,12 @@ void vtkSpatialRepresentationFilter::Execute()
 {
   vtkDebugMacro(<<"Building OBB representation");
 
+  if (this->SpatialRepresentation == NULL)
+    {
+    vtkErrorMacro(<< "SpatialRepresentation is NULL.");
+    return;
+    }
+
   this->SpatialRepresentation->SetDataSet(this->GetInput());
   this->SpatialRepresentation->Update();
   this->Level = this->SpatialRepresentation->GetLevel();
