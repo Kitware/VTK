@@ -127,9 +127,11 @@ public:
   int IsEdge(int v1, int v2);
   int IsPointUsedByCell(int ptId, int cellId);
   void ReplaceCell(int cellId, int npts, int *pts);
+  void ReplaceCellPoint(int cellId, int oldPtId, int newPtId);
   void ReverseCell(int cellId);
   void DeletePoint(int ptId);
   void DeleteCell(int cellId);
+  int InsertNextLinkedPoint(float x[3], int numLinks); 
   int InsertNextLinkedCell(int type, int npts, int *pts); 
   void ReplaceLinkedCell(int cellId, int npts, int *pts);
   void RemoveCellReference(int cellId);
@@ -270,6 +272,23 @@ inline void vtkPolyData::AddCellReference(int cellId)
 inline void vtkPolyData::ResizeCellList(int ptId, int size)
 {
   this->Links->ResizeCellList(ptId,size);
+}
+
+// Description:
+// Replace a point in the cell connectivity list with a different point.
+inline void vtkPolyData::ReplaceCellPoint(int cellId, int oldPtId, int newPtId)
+{
+  int nverts, *verts, i;
+
+  this->GetCellPoints(cellId,nverts,verts);
+  for ( i=0; i < nverts; i++ )
+    {
+    if ( verts[i] == oldPtId ) 
+      {
+      verts[i] = newPtId; // this is very nasty! direct write!
+      return;
+      }
+    }
 }
 
 #endif

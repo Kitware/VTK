@@ -489,8 +489,8 @@ void vtkPolyData::GetCellPoints(int cellId, int& npts, int* &pts)
   switch (type)
     {
     case VTK_VERTEX: case VTK_POLY_VERTEX:
-     this->Verts->GetCell(loc,npts,pts);
-     break;
+      this->Verts->GetCell(loc,npts,pts);
+      break;
 
     case VTK_LINE: case VTK_POLY_LINE:
       this->Lines->GetCell(loc,npts,pts);
@@ -503,6 +503,10 @@ void vtkPolyData::GetCellPoints(int cellId, int& npts, int* &pts)
     case VTK_TRIANGLE_STRIP:
       this->Strips->GetCell(loc,npts,pts);
       break;
+
+    default:
+      npts = 0;
+      pts = NULL;
     }
 }
 
@@ -721,6 +725,17 @@ void vtkPolyData::ReverseCell(int cellId)
 }
 
 // Description:
+// Add a point to the cell data structure (after cell pointers have been
+// built). This method adds the point and then allocates memory for the
+// links to the cells.  (To use this method, make sure points are available
+// and BuildLinks() has been invoked.)
+int vtkPolyData::InsertNextLinkedPoint(float x[3], int numLinks)
+{
+  this->Links->InsertNextPoint(numLinks);
+  return this->Points->InsertNextPoint(x);
+}
+
+// Description:
 // Add a new cell to the cell data structure (after cell pointers have been
 // built). This method adds the cell and then updates the links from the points
 // to the cells. (Memory is allocated as necessary.)
@@ -797,7 +812,7 @@ void vtkPolyData::ReplaceCell(int cellId, int npts, int *pts)
 // connectivity list and the point's link list. It does not delete references
 // to the old cell in the point's link list. Use the operator 
 // RemoveCellReference() to delete all references from points to (old) cell.
-// You may also ant to consider using the operator ResizeCellList() if the 
+// You may also want to consider using the operator ResizeCellList() if the 
 // link list is changing size.
 void vtkPolyData::ReplaceLinkedCell(int cellId, int npts, int *pts)
 {

@@ -71,6 +71,7 @@ public:
   unsigned short GetNcells(int ptId);
   void BuildLinks(vtkDataSet *data);
   int *GetCells(int ptId);
+  int InsertNextPoint(int numLinks);
   void InsertNextCellReference(int ptId, int cellId);
 
   void DeletePoint(int ptId);

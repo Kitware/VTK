@@ -96,6 +96,7 @@ _vtkLink_s *vtkLinkList::Resize(int sz)
   int i;
   _vtkLink_s *newArray;
   int newSize;
+  _vtkLink_s linkInit = {0,NULL};
 
   if ( sz >= this->Size ) newSize = this->Size + 
     this->Extend*(((sz-this->Size)/this->Extend)+1);
@@ -103,8 +104,9 @@ _vtkLink_s *vtkLinkList::Resize(int sz)
 
   newArray = new _vtkLink_s[newSize];
 
-  for (i=0; i<sz && i<this->Size; i++)
-    newArray[i] = this->Array[i];
+  for (i=0; i<newSize && i<this->Size; i++) newArray[i] = this->Array[i];
+
+  for (i=this->Size; i < newSize ; i++) newArray[i] = linkInit;
 
   this->Size = newSize;
   delete [] this->Array;
@@ -154,3 +156,12 @@ void vtkLinkList::BuildLinks(vtkDataSet *data)
   delete [] linkLoc;
 }
 
+// Description:
+// Insert a new point into the linked-list data structure. The size parameter
+// is the initial size of the linked-list requested.
+int vtkLinkList::InsertNextPoint(int numLinks)
+{
+  if ( ++this->MaxId >= this->Size ) this->Resize(this->MaxId);
+  this->Array[this->MaxId].cells = new int[numLinks];
+  return this->MaxId;
+}
