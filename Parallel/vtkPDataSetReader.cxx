@@ -31,7 +31,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkSource.h"
 
-vtkCxxRevisionMacro(vtkPDataSetReader, "1.13");
+vtkCxxRevisionMacro(vtkPDataSetReader, "1.14");
 vtkStandardNewMacro(vtkPDataSetReader);
 
 //----------------------------------------------------------------------------
@@ -410,6 +410,52 @@ int vtkPDataSetReader::ReadXML(ifstream *file,
   return 2;
 }
 
+
+
+//----------------------------------------------------------------------------
+int vtkPDataSetReader::CanReadFile(const char* filename)
+{
+  ifstream *file;
+  char* block;
+  char* param;
+  char* value;
+  int type;
+  int flag = 0;
+  
+  // Start reading the meta-data pvtk file.
+  file = this->OpenFile(filename);
+  if (file == NULL)
+    {
+    return 0;
+    }
+
+  type = this->ReadXML(file, &block, &param, &value);
+  if (type == 1 && strcmp(block, "File") == 0)
+    {
+    flag = 1;
+    }
+
+  if (type == 4 && strncmp(value, "# vtk DataFile Version", 22) == 0)
+    {
+    // This is a vtk file.
+    vtkDataSetReader* tmp = vtkDataSetReader::New();
+    tmp->SetFileName(filename);
+    type = tmp->ReadOutputType();
+    if (type != -1)
+      {
+      flag = 1;
+      }
+    tmp->Delete();
+    }
+
+
+  file->close();
+  delete file;
+  return flag;
+}
+
+
+
 //----------------------------------------------------------------------------
 void vtkPDataSetReader::ExecuteInformation()
 {
@@ -420,7 +466,7 @@ void vtkPDataSetReader::ExecuteInformation()
   int type;
   
   // Start reading the meta-data pvtk file.
-  file = this->OpenFile();
+  file = this->OpenFile(this->FileName);
   if (file == NULL)
     {
     return;
@@ -775,18 +821,18 @@ void vtkPDataSetReader::ReadVTKFileInformation(ifstream *file)
 }
 
 //----------------------------------------------------------------------------
-ifstream *vtkPDataSetReader::OpenFile()
+ifstream *vtkPDataSetReader::OpenFile(const char* filename)
 {
   ifstream *file;
 
-  if (!this->FileName)
+  if (!filename)
     {
-    vtkErrorMacro(<<"A FileName must be specified.");
+    //vtkErrorMacro(<<"A FileName must be specified.");
     return NULL;
     }
   
   // Open the new file
-  file = new ifstream(this->FileName, ios::in);
+  file = new ifstream(filename, ios::in);
 
   if (! file || file->fail())
     {
@@ -794,7 +840,7 @@ ifstream *vtkPDataSetReader::OpenFile()
       {
       delete file;
       }
-    vtkErrorMacro(<< "Initialize: Could not open file " << this->FileName);
+    //vtkErrorMacro(<< "Initialize: Could not open file " << filename);
     return NULL;
     }
 

@@ -60,6 +60,10 @@ public:
   // needing to read the whole file.
   virtual int ReadOutputType();
 
+  // Description:
+  // Called to determine if the file can be read by the reader.
+  int CanReadFile(const char* filename);
+
 protected:
   vtkPDataSetReader();
   ~vtkPDataSetReader();
@@ -82,7 +86,7 @@ protected:
   void SetNumberOfPieces(int num);
 
 //BTX
-  ifstream *OpenFile();
+  ifstream *OpenFile(const char *);
 //ETX
   int ReadXML(ifstream *file, char **block, char **param, char **value);
 
