@@ -48,14 +48,6 @@ int (*tclDummyMathPtr)() = (int (*)()) matherr;
 #endif
 
 #else
-/*
- * The following variable is a special hack that is needed in order for
- * Sun shared libraries to be used for Tcl.
- */
-extern "C" int matherr();
-int *tclDummyMathPtr = (int *) matherr;
-
-
 int
 main(int argc, char **argv)
 {
