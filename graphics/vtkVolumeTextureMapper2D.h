@@ -70,6 +70,15 @@ public:
   vtkSetVector2Macro( TargetTextureSize, int );
   vtkGetVector2Macro( TargetTextureSize, int );
   
+  // Description:
+  // This is the maximum number of planes that will be created for texture mapping
+  // the volume. If the volume has more voxels than this along the viewing direction,
+  // then planes of the volume will be skipped to ensure that this maximum is not
+  // violated. A skip factor is used, and is incremented until the maximum condition
+  // is satisfied.
+  vtkSetMacro( MaximumNumberOfPlanes, int );
+  vtkGetMacro( MaximumNumberOfPlanes, int );
+  
 //BTX
 
   // Description:
@@ -82,6 +91,12 @@ public:
                             float *vtkNotUsed(v), float *vtkNotUsed(t),
                             unsigned char *vtkNotUsed(texture),
                             int vtkNotUsed(size)[2]) {};
+
+  // Description:
+  // Made public only for access from the templated method. Not a vtkGetMacro
+  // to avoid the PrintSelf defect.
+  int GetInternalSkipFactor() {return this->InternalSkipFactor;};
+  
 //ETX
 
 
@@ -97,7 +112,9 @@ protected:
 
   int  MajorDirection;
   int  TargetTextureSize[2];
-  
+
+  int  MaximumNumberOfPlanes;
+  int  InternalSkipFactor;
 };
 
 

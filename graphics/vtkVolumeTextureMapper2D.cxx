@@ -193,17 +193,31 @@ VolumeTextureMapper2D_XMajorDirection( T *data_ptr,
   me->GetDataSpacing( spacing );
   me->GetDataOrigin( origin );
 
+  // What is the first plane, the increment to move to the next plane, and the plane 
+  // that is just past the end?
   if ( directionFlag )
     {
     istart  = 0;
-    iend    = size[0];
-    iinc    = 1;
+    iend    = ((int)( (size[0]-1) / 
+                      me->GetInternalSkipFactor())+1)*me->GetInternalSkipFactor();
+    
+    // Offset the slices so that if we take just one it is in the middle
+    istart += (size[0]-1-iend+me->GetInternalSkipFactor())/2;
+    iend   += (size[0]-1-iend+me->GetInternalSkipFactor())/2;
+    
+    iinc    = me->GetInternalSkipFactor();
     }
   else 
     {
-    istart  = size[0] - 1;
-    iend    = -1;
-    iinc    = -1;
+    istart  = (int)((size[0]-1) / 
+                    me->GetInternalSkipFactor()) * me->GetInternalSkipFactor();
+    iend    = -me->GetInternalSkipFactor();
+
+    // Offset the slices so that if we take just one it is in the middle
+    iend   += (size[0]-1-istart)/2;
+    istart += (size[0]-1-istart)/2;
+
+    iinc    = -me->GetInternalSkipFactor();
     }
 
   // Fill in the texture coordinates and most of the vertex information in advance
@@ -590,17 +604,31 @@ VolumeTextureMapper2D_YMajorDirection( T *data_ptr,
   me->GetDataSpacing( spacing );
   me->GetDataOrigin( origin );
 
+  // What is the first plane, the increment to move to the next plane, and the plane 
+  // that is just past the end?
   if ( directionFlag )
     {
     jstart  = 0;
-    jend    = size[1];
-    jinc    = 1;
+    jend    = ((int)( (size[1]-1) / 
+                      me->GetInternalSkipFactor())+1)*me->GetInternalSkipFactor();
+    
+    // Offset the slices so that if we take just one it is in the middle
+    jstart += (size[1]-1-jend+me->GetInternalSkipFactor())/2;
+    jend   += (size[1]-1-jend+me->GetInternalSkipFactor())/2;
+
+    jinc    = me->GetInternalSkipFactor();
     }
   else 
     {
-    jstart  = size[1] - 1;
-    jend    = -1;
-    jinc    = -1;
+    jstart  = (int)((size[1]-1) /
+                    me->GetInternalSkipFactor()) * me->GetInternalSkipFactor();
+    jend    = -me->GetInternalSkipFactor();
+
+    // Offset the slices so that if we take just one it is in the middle
+    jend   += (size[1]-1-jstart)/2;
+    jstart += (size[1]-1-jstart)/2;
+
+    jinc    = -me->GetInternalSkipFactor();
     }
 
   // Fill in the texture coordinates and most of the vertex information in advance
@@ -986,17 +1014,31 @@ VolumeTextureMapper2D_ZMajorDirection( T *data_ptr,
   me->GetDataSpacing( spacing );
   me->GetDataOrigin( origin );
 
+  // What is the first plane, the increment to move to the next plane, and the plane 
+  // that is just past the end?
   if ( directionFlag )
     {
     kstart  = 0;
-    kend    = size[2];
-    kinc    = 1;
+    kend    = ((int)( (size[2]-1) / 
+                      me->GetInternalSkipFactor())+1)*me->GetInternalSkipFactor();
+    
+    // Offset the slices so that if we take just one it is in the middle
+    kstart += (size[2]-1-kend+me->GetInternalSkipFactor())/2;
+    kend   += (size[2]-1-kend+me->GetInternalSkipFactor())/2;
+    
+    kinc    = me->GetInternalSkipFactor();
     }
   else 
     {
-    kstart  = size[2] - 1;
-    kend    = -1;
-    kinc    = -1;
+    kstart  = (int)((size[2]-1) /
+                    me->GetInternalSkipFactor()) * me->GetInternalSkipFactor();
+    kend    = -me->GetInternalSkipFactor();
+    
+    // Offset the slices so that if we take just one it is in the middle
+    kend   += (size[2]-1-kstart)/2;
+    kstart += (size[2]-1-kstart)/2;
+    
+    kinc    = -me->GetInternalSkipFactor();
     }
 
   // Fill in the texture coordinates and most of the vertex information in advance
@@ -1242,8 +1284,9 @@ VolumeTextureMapper2D_ZMajorDirection( T *data_ptr,
 
 vtkVolumeTextureMapper2D::vtkVolumeTextureMapper2D()
 {
-  this->TargetTextureSize[0] = 512;
-  this->TargetTextureSize[1] = 512;
+  this->TargetTextureSize[0]  = 512;
+  this->TargetTextureSize[1]  = 512;
+  this->MaximumNumberOfPlanes =   0;
 }
 
 vtkVolumeTextureMapper2D::~vtkVolumeTextureMapper2D()
@@ -1374,24 +1417,28 @@ void vtkVolumeTextureMapper2D::InitializeRender( vtkRenderer *ren,
       (vpn[2]<0.0)?(VTK_MINUS_Z_MAJOR_DIRECTION):(VTK_PLUS_Z_MAJOR_DIRECTION);
     }
 
-  // Fudge this calculation for now - fix later to be accurate
-  this->GetInput()->GetSpacing( this->DataSpacing );
-  switch ( this->MajorDirection )
+  // Determine the internal skip factor - if there is a limit on the number of planes
+  // we can have (the MaximumNumberOfPlanes value is greater than 0) then increase
+  // this skip factor until we ensure the maximum condition.
+  this->InternalSkipFactor = 1;
+  if ( this->MaximumNumberOfPlanes > 0 )
     {
-    case VTK_PLUS_X_MAJOR_DIRECTION:
-    case VTK_MINUS_X_MAJOR_DIRECTION:
-      this->SampleDistance = this->DataSpacing[0];
-      break;
-    case VTK_PLUS_Y_MAJOR_DIRECTION:
-    case VTK_MINUS_Y_MAJOR_DIRECTION:
-      this->SampleDistance = this->DataSpacing[1];
-      break;
-    case VTK_PLUS_Z_MAJOR_DIRECTION:
-    case VTK_MINUS_Z_MAJOR_DIRECTION:
-      this->SampleDistance = this->DataSpacing[2];
-      break;
+    int size[3];
+    this->GetInput()->GetDimensions( size );
+    while ( (float)size[this->MajorDirection/2] / (float)this->InternalSkipFactor > 
+            (float)this->MaximumNumberOfPlanes )
+      {
+      this->InternalSkipFactor++;
+      }
     }
-
+  
+  // Assume that the spacing between samples is 1/2 of the maximum - this could be
+  // computed accurately for parallel (but isn't right now). For perspective, this
+  // spacing changes across the image so no one number will be accurate. 1/2 the
+  // maximum is 1 / 2*sqrt(2) = .353553
+  this->GetInput()->GetSpacing( this->DataSpacing );
+  this->SampleDistance = 
+    this->DataSpacing[this->MajorDirection/2]*this->InternalSkipFactor*.353553;
   this->vtkVolumeTextureMapper::InitializeRender( ren, vol );
 }
 
@@ -1402,6 +1449,17 @@ void vtkVolumeTextureMapper2D::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "TargetTextureSize: "
      << this->TargetTextureSize[0] << ", "
      << this->TargetTextureSize[1] << endl;
+  
+  os << indent << "MaximumNumberOfPlanes: ";
+  
+  if ( this->MaximumNumberOfPlanes > 0 )
+    {
+    os << this->MaximumNumberOfPlanes << endl;
+    }
+  else
+    {
+    os << "<unlimited>" << endl;
+    }
   
   this->vtkVolumeTextureMapper::PrintSelf(os,indent);
 }
