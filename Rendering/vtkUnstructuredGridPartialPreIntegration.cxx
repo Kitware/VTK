@@ -271,10 +271,11 @@ inline void vtkPartialPreIntegrationTransferFunction::GetColor(double x,
 
 //-----------------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkUnstructuredGridPartialPreIntegration, "1.8");
+vtkCxxRevisionMacro(vtkUnstructuredGridPartialPreIntegration, "1.9");
 vtkStandardNewMacro(vtkUnstructuredGridPartialPreIntegration);
 
 float vtkUnstructuredGridPartialPreIntegration::PsiTable[PSI_TABLE_SIZE*PSI_TABLE_SIZE];
+int vtkUnstructuredGridPartialPreIntegration::PsiTableBuilt = 0;
 
 //-----------------------------------------------------------------------------
 
@@ -283,8 +284,6 @@ vtkUnstructuredGridPartialPreIntegration::vtkUnstructuredGridPartialPreIntegrati
   this->Property = NULL;
   this->TransferFunctions = NULL;
   this->NumIndependentComponents = 0;
-
-  this->BuildPsiTable();
 }
 
 //-----------------------------------------------------------------------------
@@ -314,6 +313,8 @@ void vtkUnstructuredGridPartialPreIntegration::Initialize(
     // Nothing has changed from the last time Initialize was run.
     return;
     }
+
+  this->BuildPsiTable();
 
   int numcomponents = scalars->GetNumberOfComponents();
 
@@ -514,6 +515,11 @@ void vtkUnstructuredGridPartialPreIntegration::Integrate(
 
 void vtkUnstructuredGridPartialPreIntegration::BuildPsiTable()
 {
+  if (vtkUnstructuredGridPartialPreIntegration::PsiTableBuilt)
+    {
+    return;
+    }
+
   for (int gammafi = 0; gammafi < PSI_TABLE_SIZE; gammafi++)
     {
     float gammaf = ((float)gammafi+0.0f)/PSI_TABLE_SIZE;
@@ -527,4 +533,6 @@ void vtkUnstructuredGridPartialPreIntegration::BuildPsiTable()
         = vtkUnstructuredGridLinearRayIntegrator::Psi(1, taufD, taubD);
       }
     }
+
+  vtkUnstructuredGridPartialPreIntegration::PsiTableBuilt = 1;
 }

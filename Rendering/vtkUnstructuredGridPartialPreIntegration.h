@@ -97,6 +97,7 @@ protected:
   enum {PSI_TABLE_SIZE = 512};
 //ETX
   static float PsiTable[PSI_TABLE_SIZE*PSI_TABLE_SIZE];
+  static int PsiTableBuilt;
 
 private:
   vtkUnstructuredGridPartialPreIntegration(const vtkUnstructuredGridPartialPreIntegration&);  // Not implemented.
