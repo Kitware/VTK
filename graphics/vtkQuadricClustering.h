@@ -92,6 +92,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkPolyDataToPolyDataFilter.h"
 #include "vtkDataSetCollection.h"
 
+class vtkFeatureEdges;
+
 typedef struct {
   int VertexId;
   // Dimension is suposed to be a flag representing the dimension of the cells
@@ -108,13 +110,15 @@ public:
   static vtkQuadricClustering *New();
 
   // Description:
-  // By default, this flag is off.  When MatchBoundaries is on, then quadrics
-  // are computed for boundary edges.  Points along boundary edges in different
-  // pieces are gaurenteed to match.
-  vtkSetMacro(MatchBoundaries, int);
-  vtkGetMacro(MatchBoundaries, int);
-  vtkBooleanMacro(MatchBoundaries, int);
- 
+  // By default, this flag is off.  When "UseFeatureEdges" is on, then quadrics
+  // are computed for boundary edges/feature edges.  The influence the quadrics
+  // (position of points), but not the mesh.  Which features to use can be controlled 
+  // buy the filter "FeatureEdges".  
+  vtkSetMacro(UseFeatureEdges, int);
+  vtkGetMacro(UseFeatureEdges, int);
+  vtkBooleanMacro(UseFeatureEdges, int);
+  vtkFeatureEdges *GetFeatureEdges() {return this->FeatureEdges;}
+
   // Description:
   // Set/Get the number of divisions along each axis for the spatial bins.
   // The number of spatial bins is NumberOfXDivisions*NumberOfYDivisions*
@@ -130,8 +134,8 @@ public:
   void GetNumberOfDivisions(int div[3]);
 
   // Description:
-  // This is an alternative way to set up the bins.  If you are using the
-  // MatchBoundary option, then you should use these methods rather than
+  // This is an alternative way to set up the bins.  If you are trying to match
+  // boundaries between pieces, then you should use these methods rather than
   // SetNumberOfDivisions.
   void SetDivisionOrigin(float x, float y, float z);
   void SetDivisionOrigin(float o[3]) {this->SetDivisionOrigin(o[0],o[1],o[2]);}
@@ -216,8 +220,8 @@ protected:
   int UseInputPoints;
 
   // Unfinished option to handle boundary edges differently.
-  void AppendBoundaryQuadrics(vtkPolyData *pd);
-  int MatchBoundaries;
+  void AppendFeatureQuadrics(vtkPolyData *pd);
+  int UseFeatureEdges;
 
   int NumberOfXDivisions;
   int NumberOfYDivisions;
@@ -243,6 +247,8 @@ protected:
   vtkCellArray *OutputTriangleArray;
   vtkCellArray *OutputLines;
   vtkCellArray *OutputVerts;
+
+  vtkFeatureEdges *FeatureEdges;
 };
 
 #endif

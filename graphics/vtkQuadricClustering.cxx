@@ -79,7 +79,7 @@ vtkQuadricClustering::vtkQuadricClustering()
   this->DivisionSpacing[1] = 1.0;
   this->DivisionSpacing[2] = 1.0;
 
-  this->MatchBoundaries = 0;
+  this->UseFeatureEdges = 0;
 
   this->UseInputPoints = 0;
 
@@ -89,11 +89,18 @@ vtkQuadricClustering::vtkQuadricClustering()
 
   // Overide superclass so that append can be called directly.
   this->NumberOfRequiredInputs = 0;
+
+  // Used for matching boundaries.
+  this->FeatureEdges = vtkFeatureEdges::New();
+  this->FeatureEdges->FeatureEdgesOff();
+  this->FeatureEdges->BoundaryEdgesOn();
 }
 
 //----------------------------------------------------------------------------
 vtkQuadricClustering::~vtkQuadricClustering()
 {
+  this->FeatureEdges->Delete();
+  this->FeatureEdges = NULL;
 }
 
 //----------------------------------------------------------------------------
@@ -117,9 +124,9 @@ void vtkQuadricClustering::Execute()
   this->StartAppend(input->GetBounds());
 
   this->Append(input);
-  if (this->MatchBoundaries)
+  if (this->UseFeatureEdges)
     { // Adjust bin points that contain boundary edges.
-    this->AppendBoundaryQuadrics(this->GetInput());
+    this->AppendFeatureQuadrics(this->GetInput());
     }
 
   if (this->UseInputPoints)
@@ -255,6 +262,12 @@ void vtkQuadricClustering::Append(vtkPolyData *pd)
     }
 
   inputTris = pd->GetPolys();
+  if (inputTris)
+    {
+    this->AddTriangles(inputTris, inputPoints, 1);
+    }
+
+  inputTris = pd->GetStrips();
   if (inputTris)
     {
     this->AddTriangles(inputTris, inputPoints, 1);
@@ -1013,26 +1026,28 @@ void vtkQuadricClustering::EndAppendUsingPoints(vtkPolyData *input)
 //----------------------------------------------------------------------------
 // This method is called after the execution, but before the vertex array
 // is deleted. It changes some points to be based on the boundary edges.
-void vtkQuadricClustering::AppendBoundaryQuadrics(vtkPolyData *pd)
+void vtkQuadricClustering::AppendFeatureQuadrics(vtkPolyData *pd)
 {
-  vtkFeatureEdges *edgeFilter = vtkFeatureEdges::New();
   vtkPolyData *input = vtkPolyData::New();
   vtkPoints *edgePts;
   vtkCellArray *edges;
 
   // Find the boundary edges.
   input->ShallowCopy(pd);
-  edgeFilter->SetInput(input);
-  edgeFilter->FeatureEdgesOff();
-  edgeFilter->BoundaryEdgesOn();
-  edgeFilter->Update();
-  edgePts = edgeFilter->GetOutput()->GetPoints();
-  edges = edgeFilter->GetOutput()->GetLines();
+  this->FeatureEdges->SetInput(input);
+  this->FeatureEdges->Update();
+  edgePts = this->FeatureEdges->GetOutput()->GetPoints();
+  edges = this->FeatureEdges->GetOutput()->GetLines();
 
   if (edges)
     {
     this->AddEdges(edges, edgePts, 0);
     }
+
+  // Release data.
+  this->FeatureEdges->SetInput(NULL);
+  this->FeatureEdges->GetOutput()->ReleaseData();
+  input->Delete();
 }
 
 //----------------------------------------------------------------------------
@@ -1065,5 +1080,6 @@ void vtkQuadricClustering::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Number of Z Divisions: " << this->NumberOfZDivisions
      << "\n";
 
-  os << indent << "MatchBoundaries: " << this->MatchBoundaries << endl;
+  os << indent << "UseFeatureEdges: " << this->UseFeatureEdges << endl;
+  os << indent << "FeatureEdges: (" << this->FeatureEdges << ")\n";
 }
