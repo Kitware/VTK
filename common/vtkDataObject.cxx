@@ -149,12 +149,14 @@ void vtkDataObject::InternalUpdate()
   vtkDebugMacro("InternalUpdate: VT: " << this->UpdateTime << ", PMT: "  
 		<< this->PipelineMTime);
   
+  // Clip has to be before the Update check because:  If the update extent
+  // after clipping is larger than current extent, then data is released ...
+  this->ClipUpdateExtentWithWholeExtent();
   if (this->UpdateTime >= this->PipelineMTime && ! this->DataReleased)
     {
     return;
     }
   
-  this->ClipUpdateExtentWithWholeExtent();
   if (this->Source)
     {
     this->Source->InternalUpdate(this);
