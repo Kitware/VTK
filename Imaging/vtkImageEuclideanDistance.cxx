@@ -745,6 +745,9 @@ void vtkImageEuclideanDistance::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkImageDecomposeFilter::PrintSelf(os,indent);
 
+  os << indent << "Initialize: " 
+     << (this->Initialize ? "On\n" : "Off\n");
+  
   os << indent << "Consider Anisotropy: " 
      << (this->ConsiderAnisotropy ? "On\n" : "Off\n");
   
