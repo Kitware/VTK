@@ -24,7 +24,7 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkSource, "1.116");
+vtkCxxRevisionMacro(vtkSource, "1.117");
 
 #ifndef NULL
 #define NULL 0
@@ -151,7 +151,23 @@ void vtkSource::Update()
   if(vtkDemandDrivenPipeline* ddp =
      vtkDemandDrivenPipeline::SafeDownCast(this->GetExecutive()))
     {
-    ddp->Update(this);
+    if(vtkStreamingDemandDrivenPipeline* sddp =
+       vtkStreamingDemandDrivenPipeline::SafeDownCast(this->GetExecutive()))
+      {
+      // The update extent may have been set on the output.
+      if(vtkSourceToDataObjectFriendship
+         ::UpdateExtentInitialized(this->Outputs[0]))
+        {
+        int extent[6];
+        this->Outputs[0]->GetUpdateExtent(extent);
+        sddp->GetOutputInformation(0)
+          ->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), extent, 6);
+        sddp->GetOutputInformation(0)
+          ->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT_INITIALIZED(),
+                1);
+        }
+      }
+    ddp->Update(this, 0);
     }
   else
     {
@@ -1231,7 +1247,7 @@ int vtkSource::ProcessDownstreamRequest(vtkInformation* request,
       }
     this->InvokeEvent(vtkCommand::EndEvent,NULL);
 
-    // Now we have to mark the data as up to data.
+    // Mark the data as up-to-date.
     for(i=0; i < this->NumberOfOutputs; ++i)
       {
       if(this->Outputs[i])
@@ -1240,7 +1256,7 @@ int vtkSource::ProcessDownstreamRequest(vtkInformation* request,
         }
       }
 
-    // Release any inputs if marked for release
+    // Release any inputs if marked for release.
     for(i=0; i < this->NumberOfInputs; ++i)
       {
       if(this->Inputs[i] && this->Inputs[i]->ShouldIReleaseData())
