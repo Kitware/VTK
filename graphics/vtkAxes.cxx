@@ -162,4 +162,5 @@ void vtkAxes::PrintSelf(ostream& os, vtkIndent indent)
                << this->Origin[1] << ", "
                << this->Origin[2] << ")\n";
   os << indent << "Scale Factor: " << this->ScaleFactor << "\n";
+  os << indent << "Symmetric: " << this->Symmetric << "\n";
 }
