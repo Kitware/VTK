@@ -124,6 +124,26 @@ void vtkStructuredInformation::Copy(vtkDataInformation *in)
     }
 }
 
+//----------------------------------------------------------------------------
+void vtkStructuredInformation::WriteSelf(ostream& os)
+{
+  this->vtkDataInformation::WriteSelf(os);
+
+  os << this->WholeExtent[0] << " " << this->WholeExtent[1] << " "
+     << this->WholeExtent[2] << " " << this->WholeExtent[3] << " "
+     << this->WholeExtent[4] << " " << this->WholeExtent[5] << " " ;
+}
+
+//----------------------------------------------------------------------------
+void vtkStructuredInformation::ReadSelf(istream& is)
+{
+  this->vtkDataInformation::ReadSelf(is);
+
+  is >> this->WholeExtent[0] >> this->WholeExtent[1]
+     >> this->WholeExtent[2] >> this->WholeExtent[3]
+     >> this->WholeExtent[4] >> this->WholeExtent[5] ;
+}
+
 
 
 

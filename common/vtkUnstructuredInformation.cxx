@@ -89,6 +89,21 @@ void vtkUnstructuredInformation::Copy(vtkDataInformation *in)
 }
 
 
+//----------------------------------------------------------------------------
+void vtkUnstructuredInformation::WriteSelf(ostream& os)
+{
+  this->vtkDataInformation::WriteSelf(os);
+
+  os << this->MaximumNumberOfPieces << " ";
+}
+
+//----------------------------------------------------------------------------
+void vtkUnstructuredInformation::ReadSelf(istream& is)
+{
+  this->vtkDataInformation::ReadSelf(is);
+
+  is >> this->MaximumNumberOfPieces ;
+}
 
 
   

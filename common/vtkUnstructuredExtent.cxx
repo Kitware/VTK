@@ -77,6 +77,21 @@ void vtkUnstructuredExtent::Copy(vtkExtent *in)
     } 
 }
 
+//----------------------------------------------------------------------------
+void vtkUnstructuredExtent::WriteSelf(ostream& os)
+{
+  this->vtkExtent::WriteSelf(os);
+
+  os << this->Extent[0] << " " << this->Extent[1] << " " ;
+}
+
+//----------------------------------------------------------------------------
+void vtkUnstructuredExtent::ReadSelf(istream& is)
+{
+  this->vtkExtent::ReadSelf(is);
+
+  is >> this->Extent[0] >> this->Extent[1] ;
+}
 
 
 

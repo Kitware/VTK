@@ -100,6 +100,11 @@ public:
   // This method is passed a ClassName and returns 1 if the object is
   // a subclass of the class arg.  It is an attempt at making a smarter copy.
   virtual int GetClassCheck(char *className);
+
+  // Description:
+  // Serialization provided for the multi-process ports.
+  virtual void ReadSelf(istream& is);
+  virtual void WriteSelf(ostream& os);
   
 protected:
   

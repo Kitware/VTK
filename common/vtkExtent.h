@@ -67,11 +67,17 @@ public:
   // if the types are different.
   virtual void Copy(vtkExtent *in);
 
+
   // Description:
   // We can use streaming to processes series of data sets one at a time.
   vtkSetMacro(SeriesIndex, int);
   vtkGetMacro(SeriesIndex, int);
   
+  // Description:
+  // Serialization provided for the multi-process ports.
+  virtual void ReadSelf(istream& is);
+  virtual void WriteSelf(ostream& os);
+
 protected:
 
   vtkExtent();

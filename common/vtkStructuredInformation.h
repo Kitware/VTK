@@ -76,6 +76,11 @@ public:
   // a subclass of the class arg.  It is an attempt at making a smarter copy.
   int GetClassCheck(char *className);
   
+  // Description:
+  // Serialization provided for the multi-process ports.
+  void ReadSelf(istream& is);
+  void WriteSelf(ostream& os);
+
 protected:
   
   vtkStructuredInformation();

@@ -88,4 +88,23 @@ void vtkStructuredExtent::Copy(vtkExtent *in)
     } 
 }
 
+//----------------------------------------------------------------------------
+void vtkStructuredExtent::WriteSelf(ostream& os)
+{
+  this->vtkExtent::WriteSelf(os);
+
+  os << this->Extent[0] << " " << this->Extent[1] << " " 
+     << this->Extent[2] << " " << this->Extent[3] << " " 
+     << this->Extent[4] << " " << this->Extent[5] << " " ;
+}
+
+//----------------------------------------------------------------------------
+void vtkStructuredExtent::ReadSelf(istream& is)
+{
+  this->vtkExtent::ReadSelf(is);
+
+  is >> this->Extent[0] >> this->Extent[1] 
+     >> this->Extent[2] >> this->Extent[3] 
+     >> this->Extent[4] >> this->Extent[5] ;
+}
 

@@ -67,6 +67,11 @@ public:
   vtkSetVector6Macro(Extent, int);
   vtkGetVector6Macro(Extent, int);
   
+  // Description:
+  // Serialization provided for the multi-process ports.
+  void ReadSelf(istream& is);
+  void WriteSelf(ostream& os);
+
 protected:
 
   vtkStructuredExtent();

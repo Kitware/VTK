@@ -65,13 +65,17 @@ void vtkExtent::Copy(vtkExtent* in)
   this->SetSeriesIndex(in->GetSeriesIndex());
 }
 
+//----------------------------------------------------------------------------
+void vtkExtent::WriteSelf(ostream& os)
+{
+  os << this->SeriesIndex << " ";
+}
 
-
-
-
-
-
-
+//----------------------------------------------------------------------------
+void vtkExtent::ReadSelf(istream& is)
+{
+  is >> this->SeriesIndex ;
+}
 
 
 

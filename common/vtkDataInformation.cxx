@@ -96,7 +96,23 @@ void vtkDataInformation::Copy(vtkDataInformation *info)
 }
 
 
+//----------------------------------------------------------------------------
+void vtkDataInformation::WriteSelf(ostream& os)
+{
+  os << this->EstimatedWholeMemorySize << " ";
+  os << this->PipelineMTime << " ";
+  os << this->Locality << " ";
+  os << this->SeriesLength << " ";
+}
 
+//----------------------------------------------------------------------------
+void vtkDataInformation::ReadSelf(istream& is)
+{
+  is >> this->EstimatedWholeMemorySize ;
+  is >> this->PipelineMTime ;
+  is >> this->Locality ;
+  is >> this->SeriesLength ;
+}
 
 
 

@@ -107,6 +107,29 @@ void vtkImageInformation::Copy(vtkDataInformation *in)
     }
 }
 
+//----------------------------------------------------------------------------
+void vtkImageInformation::WriteSelf(ostream& os)
+{
+  this->vtkStructuredInformation::WriteSelf(os);
+
+  os << this->Spacing[0] << " " << this->Spacing[1] << " " 
+     << this->Spacing[2] << " ";
+  os << this->Origin[0] << " " << this->Origin[1] << " " 
+     << this->Origin[2] << " ";
+  os << this->ScalarType << " " ;
+  os << this->NumberOfScalarComponents << " " ;
+}
+
+//----------------------------------------------------------------------------
+void vtkImageInformation::ReadSelf(istream& is)
+{
+  this->vtkStructuredInformation::ReadSelf(is);
+
+  is >> this->Spacing[0] >> this->Spacing[1] >> this->Spacing[2] ;
+  is >> this->Origin[0] >> this->Origin[1] >> this->Origin[2] ;
+  is >> this->ScalarType ;
+  is >> this->NumberOfScalarComponents ;
+}
 
 
 
