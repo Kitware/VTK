@@ -736,35 +736,35 @@ macro:
 
      currentFunction->Signature = (char *)malloc(2048);
      sigAllocatedLength = 2048;
-     sprintf(currentFunction->Signature,"void Set%s (float, float);",
+     sprintf(currentFunction->Signature,"void Set%s (double, double);",
        $<str>3);
      sprintf(temps,"Set%s",$<str>3); 
      currentFunction->Name = vtkstrdup(temps);
      currentFunction->NumberOfArguments = 2;
-     currentFunction->ArgTypes[0] = 1;
+     currentFunction->ArgTypes[0] = 7;
      currentFunction->ArgCounts[0] = 0;
-     currentFunction->ArgTypes[1] = 1;
+     currentFunction->ArgTypes[1] = 7;
      currentFunction->ArgCounts[1] = 0;
      currentFunction->ReturnType = 2;
      output_function();
 
      currentFunction->Signature = (char *)malloc(2048);
      sigAllocatedLength = 2048;
-     sprintf(currentFunction->Signature,"void Set%s (float a[2]);",
+     sprintf(currentFunction->Signature,"void Set%s (double a[2]);",
        $<str>3);
      currentFunction->Name = vtkstrdup(temps);
      currentFunction->NumberOfArguments = 1;
-     currentFunction->ArgTypes[0] = 301;
+     currentFunction->ArgTypes[0] = 307;
      currentFunction->ArgCounts[0] = 2;
      output_function();
      
      currentFunction->Signature = (char *)malloc(2048);
      sigAllocatedLength = 2048;
-     sprintf(currentFunction->Signature,"float *Get%s ();", $<str>3);
+     sprintf(currentFunction->Signature,"double *Get%s ();", $<str>3);
      sprintf(temps,"Get%s",$<str>3); 
      currentFunction->Name = vtkstrdup(temps);
      currentFunction->NumberOfArguments = 0;
-     currentFunction->ReturnType = 301;
+     currentFunction->ReturnType = 307;
      currentFunction->HaveHint = 1;
      currentFunction->HintSize = 2;
      output_function();
@@ -783,37 +783,37 @@ macro:
 
      currentFunction->Signature = (char *)malloc(2048);
      sigAllocatedLength = 2048;
-     sprintf(currentFunction->Signature,"void Set%s (float, float, float);",
+     sprintf(currentFunction->Signature,"void Set%s (double, double, double);",
        $<str>3);
      sprintf(temps,"Set%s",$<str>3); 
      currentFunction->Name = vtkstrdup(temps);
      currentFunction->NumberOfArguments = 3;
-     currentFunction->ArgTypes[0] = 1;
+     currentFunction->ArgTypes[0] = 7;
      currentFunction->ArgCounts[0] = 0;
-     currentFunction->ArgTypes[1] = 1;
+     currentFunction->ArgTypes[1] = 7;
      currentFunction->ArgCounts[1] = 0;
-     currentFunction->ArgTypes[2] = 1;
+     currentFunction->ArgTypes[2] = 7;
      currentFunction->ArgCounts[2] = 0;
      currentFunction->ReturnType = 2;
      output_function();
 
      currentFunction->Signature = (char *)malloc(2048);
      sigAllocatedLength = 2048;
-     sprintf(currentFunction->Signature,"void Set%s (float a[3]);",
+     sprintf(currentFunction->Signature,"void Set%s (double a[3]);",
        $<str>3);
      currentFunction->Name = vtkstrdup(temps);
      currentFunction->NumberOfArguments = 1;
-     currentFunction->ArgTypes[0] = 301;
+     currentFunction->ArgTypes[0] = 307;
      currentFunction->ArgCounts[0] = 3;
      output_function();
      
      currentFunction->Signature = (char *)malloc(2048);
      sigAllocatedLength = 2048;
-     sprintf(currentFunction->Signature,"float *Get%s ();", $<str>3);
+     sprintf(currentFunction->Signature,"double *Get%s ();", $<str>3);
      sprintf(temps,"Get%s",$<str>3); 
      currentFunction->Name = vtkstrdup(temps);
      currentFunction->NumberOfArguments = 0;
-     currentFunction->ReturnType = 301;
+     currentFunction->ReturnType = 307;
      currentFunction->HaveHint = 1;
      currentFunction->HintSize = 3;
      output_function();
