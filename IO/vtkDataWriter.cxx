@@ -36,7 +36,7 @@
 #include "vtkUnsignedLongArray.h"
 #include "vtkUnsignedShortArray.h"
 
-vtkCxxRevisionMacro(vtkDataWriter, "1.103");
+vtkCxxRevisionMacro(vtkDataWriter, "1.103.6.1");
 vtkStandardNewMacro(vtkDataWriter);
 
 // this undef is required on the hp. vtkMutexLock ends up including
@@ -674,7 +674,7 @@ int vtkDataWriter::WriteScalarData(ostream *fp, vtkDataArray *scalars, int num)
   // weird symbols.
   if (!this->ScalarsName)
     {
-    if (scalars->GetName())
+    if (scalars->GetName() && strlen(scalars->GetName()))
       {
       scalarsName = new char[ strlen(scalars->GetName()) * 4 + 1];
       this->EncodeArrayName(scalarsName, scalars->GetName());
@@ -786,7 +786,7 @@ int vtkDataWriter::WriteVectorData(ostream *fp, vtkDataArray *vectors, int num)
   // weird symbols.
   if (!this->VectorsName)
     {
-    if (vectors->GetName())
+    if (vectors->GetName() && strlen(vectors->GetName()))
       {
       vectorsName = new char[ strlen(vectors->GetName()) * 4 + 1];
       this->EncodeArrayName(vectorsName, vectors->GetName());
@@ -819,7 +819,7 @@ int vtkDataWriter::WriteNormalData(ostream *fp, vtkDataArray *normals, int num)
   // weird symbols.
   if (!this->NormalsName)
     {
-    if (normals->GetName())
+    if (normals->GetName() && strlen(normals->GetName()) )
       {
       normalsName = new char[ strlen(normals->GetName()) * 4 + 1];
       this->EncodeArrayName(normalsName, normals->GetName());
@@ -854,7 +854,7 @@ int vtkDataWriter::WriteTCoordData(ostream *fp, vtkDataArray *tcoords, int num)
   // weird symbols.
   if (!this->TCoordsName)
     {
-    if (tcoords->GetName())
+    if (tcoords->GetName() && strlen(tcoords->GetName()))
       {
       tcoordsName = new char[ strlen(tcoords->GetName()) * 4 + 1];
       this->EncodeArrayName(tcoordsName, tcoords->GetName());
@@ -890,7 +890,7 @@ int vtkDataWriter::WriteTensorData(ostream *fp, vtkDataArray *tensors, int num)
   // weird symbols.
   if (!this->TensorsName)
     {
-    if (tensors->GetName())
+    if (tensors->GetName() && strlen(tensors->GetName()))
       {
       tensorsName = new char[ strlen(tensors->GetName()) * 4 + 1];
       this->EncodeArrayName(tensorsName, tensors->GetName());
@@ -973,8 +973,16 @@ int vtkDataWriter::WriteFieldData(ostream *fp, vtkFieldData *f)
         // Buffer size is size of array name times four because 
         // in theory there could be array name consisting of only
         // weird symbols.
-        char *buffer = new char[ strlen(array->GetName()) * 4 + 1];
+        char* buffer;
+        if(strlen(array->GetName()) == 0)
+          {
+          buffer = strcpy(new char[strlen("unknown")+1], "unknown");
+          }
+        else
+          {
+          buffer = new char[ strlen(array->GetName()) * 4 + 1];
         this->EncodeArrayName(buffer, array->GetName());
+          }
         sprintf(format, "%s %d %d %s\n", buffer, numComp, numTuples, 
                 "%s");
         this->WriteArray(fp, array->GetDataType(), array, format, numTuples, 
