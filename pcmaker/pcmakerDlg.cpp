@@ -41,6 +41,7 @@ CPcmakerDlg::CPcmakerDlg(CWnd* pParent /*=NULL*/)
 	m_WherePy = _T("");
 	m_Local = FALSE;
 	m_AnsiCpp = FALSE;
+	m_Parallel = FALSE;
 	//}}AFX_DATA_INIT
 	// Note that LoadIcon does not require a subsequent DestroyIcon in Win32
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
@@ -73,6 +74,7 @@ void CPcmakerDlg::DoDataExchange(CDataExchange* pDX)
 	DDV_MaxChars(pDX, m_WherePy, 512);
 	DDX_Check(pDX, IDC_LOCAL, m_Local);
 	DDX_Check(pDX, IDC_ANSICPP, m_AnsiCpp);
+	DDX_Check(pDX, IDC_PARALLEL, m_Parallel);
 	//}}AFX_DATA_MAP
 }
 

@@ -55,6 +55,7 @@
 #define IDC_PYTHON_WHERE                1041
 #define IDC_WHERE_LIBTK                 1041
 #define IDC_BROWSEMPIINCLUDE            1042
+#define IDC_PARALLEL                    1042
 #define IDC_BROWSEMPILIB                1043
 #define IDC_ANSICPP                     1044
 
@@ -64,7 +65,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        131
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1040
+#define _APS_NEXT_CONTROL_VALUE         1043
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

@@ -76,7 +76,7 @@ IDD_PCMAKER_DIALOG DIALOGEX 0, 0, 335, 221
 STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
 EXSTYLE WS_EX_APPWINDOW
 CAPTION "pcmaker"
-FONT 8, "MS Sans Serif", 0, 0, 0x1
+FONT 8, "MS Sans Serif"
 BEGIN
     DEFPUSHBUTTON   "OK",IDOK,52,199,50,14
     PUSHBUTTON      "Cancel",IDCANCEL,113,199,50,14
@@ -90,13 +90,13 @@ BEGIN
                     WS_TABSTOP,16,106,43,10
     CONTROL         "Borland",IDC_BORLANDCOMP,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,66,106,40,10
-    GROUPBOX        "Additional Toolkits",IDC_STATIC,7,127,208,33
+    GROUPBOX        "Additional Toolkits",IDC_STATIC,7,127,235,33
     CONTROL         "Graphics",IDC_Graphics,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,15,140,48,10
     CONTROL         "Imaging",IDC_Imaging,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,72,140,41,10
+                    WS_TABSTOP,65,140,41,10
     CONTROL         "Contrib",IDC_Contrib,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,126,140,38,10
+                    WS_TABSTOP,114,140,38,10
     LTEXT           "Where is your compiler",IDC_STATIC,7,64,148,10
     EDITTEXT        IDC_WHERECOMPILER,7,75,117,14,ES_AUTOHSCROLL
     CONTROL         "Include Patented Algorithms",IDC_PATENTED,"Button",
@@ -111,7 +111,7 @@ BEGIN
     PUSHBUTTON      "Help",IDC_HELP1,174,199,50,14
     PUSHBUTTON      "Advanced",IDC_ADVANCED,235,199,50,14
     CONTROL         "Build Tcl",IDC_BUILDTCL,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,228,127,76,15
+                    WS_TABSTOP,249,129,76,15
     CONTROL         "Build Java",IDC_BUILDJAVA,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,176,39,133,15
     CONTROL         "Build Python",IDC_BUILDPYTHON,"Button",BS_AUTOCHECKBOX | 
@@ -120,14 +120,16 @@ BEGIN
                     141,9
     EDITTEXT        IDC_WHEREPYTHON,184,108,110,15,ES_AUTOHSCROLL
     CONTROL         "Local",IDC_LOCAL,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,
-                    169,138,42,14
+                    158,140,36,10
     PUSHBUTTON      "Browse...",IDC_VTK_INSTALL_BROWSE,130,17,31,12
     PUSHBUTTON      "Browse...",IDC_VTK_LIB_BROWSE,130,46,31,12
     PUSHBUTTON      "Browse...",IDC_COMPILER_PATH_BROWSE,130,76,31,12
     PUSHBUTTON      "Browse...",IDC_JDK_WHERE,297,66,31,12
     PUSHBUTTON      "Browse...",IDC_PYTHON_WHERE,297,110,31,12
     CONTROL         "ANSI C++",IDC_ANSICPP,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,228,141,76,15
+                    WS_TABSTOP,249,143,76,15
+    CONTROL         "Parallel",IDC_PARALLEL,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,202,140,34,10
 END
 
 IDD_HELPDIALOG DIALOG DISCARDABLE  0, 0, 263, 274
