@@ -13,27 +13,35 @@ vtkRenderWindowInteractor iren
 
 # create some points with scalars
 
-vtkUnsignedCharArray chars
-  chars SetNumberOfComponents 3
-  chars SetNumberOfTuples 3
-  chars InsertComponent 0 0 255
-  chars InsertComponent 0 1 99
-  chars InsertComponent 0 2 71
+vtkUnsignedCharArray colors
+  colors SetName "Colors"
+  colors SetNumberOfComponents 3
+  colors SetNumberOfTuples 3
+  colors InsertComponent 0 0 255
+  colors InsertComponent 0 1 99
+  colors InsertComponent 0 2 71
 
-  chars InsertComponent 1 0 125
-  chars InsertComponent 1 1 255
-  chars InsertComponent 1 2 0
+  colors InsertComponent 1 0 125
+  colors InsertComponent 1 1 255
+  colors InsertComponent 1 2 0
 
-  chars InsertComponent 2 0 226
-  chars InsertComponent 2 1 207
-  chars InsertComponent 2 2 87
+  colors InsertComponent 2 0 226
+  colors InsertComponent 2 1 207
+  colors InsertComponent 2 2 87
 
+vtkUnsignedCharArray sizes
+  sizes SetName "Sizes"
+  sizes SetNumberOfComponents 1
+  sizes SetNumberOfTuples 3
+  sizes SetValue 0 1
+  sizes SetValue 1 2
+  sizes SetValue 2 3
 
 vtkPoints polyVertexPoints
   polyVertexPoints SetNumberOfPoints 3
-  polyVertexPoints InsertPoint 0 0 0 0
-  polyVertexPoints InsertPoint 1 1 0 0
-  polyVertexPoints InsertPoint 2 1 1 0
+  polyVertexPoints InsertPoint 0 0.0 0.0 0.0
+  polyVertexPoints InsertPoint 1 2.5 0.0 0.0
+  polyVertexPoints InsertPoint 2 5.0 0.0 0.0
 
 vtkPolyVertex aPolyVertex
   [aPolyVertex GetPointIds] SetNumberOfIds 3
@@ -45,17 +53,23 @@ vtkUnstructuredGrid aPolyVertexGrid
   aPolyVertexGrid Allocate 1 1
   aPolyVertexGrid InsertNextCell [aPolyVertex GetCellType] [aPolyVertex GetPointIds]
   aPolyVertexGrid SetPoints polyVertexPoints
-  [aPolyVertexGrid GetPointData] SetScalars chars
+  [aPolyVertexGrid GetPointData] SetScalars sizes
+  [aPolyVertexGrid GetPointData] AddArray   colors
 
 vtkSphereSource sphere
-  sphere SetRadius .1
+  sphere SetRadius 1.0
 
 vtkGlyph3D glyphs
-  glyphs ScalingOff
+  glyphs ScalingOn
   glyphs SetColorModeToColorByScalar
-  glyphs SetScaleModeToDataScalingOff
+  glyphs SetScaleModeToScaleByScalar
+  glyphs SetScaleFactor 1
   glyphs SetInput aPolyVertexGrid
   glyphs SetSource [sphere GetOutput]
+  glyphs SelectInputScalars "Sizes"
+  glyphs SelectInputColorScalars "Colors"
+
+puts [ glyphs GetScaleModeAsString]
 
 vtkDataSetMapper glyphsMapper
   glyphsMapper SetInputConnection [glyphs GetOutputPort]

@@ -93,7 +93,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description
-  // Construct object with scaling on, scaling mode is by scalar value, 
+  // Construct object with scaling on, scaling mode is by scalar value,
   // scale factor = 1.0, the range is (0,1), orient geometry is on, and
   // orientation is by vector. Clamping and indexing are turned off. No
   // initial sources are defined.
@@ -121,9 +121,9 @@ public:
   // Either scale by scalar or by vector/normal magnitude.
   vtkSetMacro(ScaleMode,int);
   vtkGetMacro(ScaleMode,int);
-  void SetScaleModeToScaleByScalar() 
+  void SetScaleModeToScaleByScalar()
     {this->SetScaleMode(VTK_SCALE_BY_SCALAR);};
-  void SetScaleModeToScaleByVector() 
+  void SetScaleModeToScaleByVector()
     {this->SetScaleMode(VTK_SCALE_BY_VECTOR);};
   void SetScaleModeToScaleByVectorComponents()
     {this->SetScaleMode(VTK_SCALE_BY_VECTORCOMPONENTS);};
@@ -135,11 +135,11 @@ public:
   // Either color by scale, scalar or by vector/normal magnitude.
   vtkSetMacro(ColorMode,int);
   vtkGetMacro(ColorMode,int);
-  void SetColorModeToColorByScale() 
+  void SetColorModeToColorByScale()
     {this->SetColorMode(VTK_COLOR_BY_SCALE);};
-  void SetColorModeToColorByScalar() 
+  void SetColorModeToColorByScalar()
     {this->SetColorMode(VTK_COLOR_BY_SCALAR);};
-  void SetColorModeToColorByVector() 
+  void SetColorModeToColorByVector()
     {this->SetColorMode(VTK_COLOR_BY_VECTOR);};
   const char *GetColorModeAsString();
 
@@ -160,7 +160,7 @@ public:
   vtkGetMacro(Orient,int);
 
   // Description:
-  // Turn on/off clamping of "scalar" values to range. (Scalar value may be 
+  // Turn on/off clamping of "scalar" values to range. (Scalar value may be
   //  vector magnitude if ScaleByVector() is enabled.)
   vtkSetMacro(Clamping,int);
   vtkBooleanMacro(Clamping,int);
@@ -172,14 +172,16 @@ public:
   vtkGetMacro(VectorMode,int);
   void SetVectorModeToUseVector() {this->SetVectorMode(VTK_USE_VECTOR);};
   void SetVectorModeToUseNormal() {this->SetVectorMode(VTK_USE_NORMAL);};
-  void SetVectorModeToVectorRotationOff() 
+  void SetVectorModeToVectorRotationOff()
     {this->SetVectorMode(VTK_VECTOR_ROTATION_OFF);};
   const char *GetVectorModeAsString();
 
   // Description:
   // Index into table of sources by scalar, by vector/normal magnitude, or
   // no indexing. If indexing is turned off, then the first source glyph in
-  // the table of glyphs is used.
+  // the table of glyphs is used. Note that indexing mode will only use the
+  // InputScalarsSelection array and not the InputColorScalarsSelection
+  // as the scalar source if an array is specified.
   vtkSetMacro(IndexMode,int);
   vtkGetMacro(IndexMode,int);
   void SetIndexModeToScalar() {this->SetIndexMode(VTK_INDEXING_BY_SCALAR);};
@@ -206,8 +208,20 @@ public:
   // If you want to use an arbitrary scalars array, then set its name here.
   // By default this in NULL and the filter will use the active scalar array.
   vtkGetStringMacro(InputScalarsSelection);
-  void SelectInputScalars(const char *fieldName) 
+  void SelectInputScalars(const char *fieldName)
     {this->SetInputScalarsSelection(fieldName);}
+
+  // Description:
+  // If you want to use an arbitrary scalar array for coloring of the output
+  // glyphs, then set its name here. When InputScalarsSelection and
+  // InputColorScalarsSelection are both set, and different scalar arrays are
+  // specified, then glyphs can be scaled using the ScalarSelection
+  // and Colored using the InputColorScalarsSelection
+  // By default this in NULL and the filter will use the active scalar array
+  // or the InputScalarsSelection if set.
+  vtkGetStringMacro(InputColorScalarsSelection);
+  void SelectInputColorScalars(const char *fieldName)
+    {this->SetInputColorScalarsSelection(fieldName);}
 
   // Description:
   // If you want to use an arbitrary vectors array, then set its name here.
@@ -249,9 +263,11 @@ protected:
   char *InputScalarsSelection;
   char *InputVectorsSelection;
   char *InputNormalsSelection;
+  char *InputColorScalarsSelection;
   vtkSetStringMacro(InputScalarsSelection);
   vtkSetStringMacro(InputVectorsSelection);
   vtkSetStringMacro(InputNormalsSelection);
+  vtkSetStringMacro(InputColorScalarsSelection);
 
 private:
   vtkGlyph3D(const vtkGlyph3D&);  // Not implemented.

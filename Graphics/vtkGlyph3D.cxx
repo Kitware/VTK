@@ -29,7 +29,7 @@
 #include "vtkTransform.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkGlyph3D, "1.117");
+vtkCxxRevisionMacro(vtkGlyph3D, "1.118");
 vtkStandardNewMacro(vtkGlyph3D);
 
 // Construct object with scaling on, scaling mode is by scalar value,
@@ -54,6 +54,7 @@ vtkGlyph3D::vtkGlyph3D()
   this->InputScalarsSelection = NULL;
   this->InputVectorsSelection = NULL;
   this->InputNormalsSelection = NULL;
+  this->InputColorScalarsSelection = NULL;
   this->SetNumberOfInputPorts(2);
 }
 
@@ -66,6 +67,7 @@ vtkGlyph3D::~vtkGlyph3D()
   this->SetInputScalarsSelection(NULL);
   this->SetInputVectorsSelection(NULL);
   this->SetInputNormalsSelection(NULL);
+  this->SetInputColorScalarsSelection(NULL);
 }
 
 int vtkGlyph3D::RequestData(
@@ -84,7 +86,8 @@ int vtkGlyph3D::RequestData(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   vtkPointData *pd;
-  vtkDataArray *inScalars;
+  vtkDataArray *inSScalars; // Scalars for Scaling
+  vtkDataArray *inCScalars; // Scalars for Coloring
   vtkDataArray *inVectors;
   int requestedGhostLevel;
   unsigned char* inGhostLevels=0;
@@ -119,9 +122,14 @@ int vtkGlyph3D::RequestData(
   pts->Allocate(VTK_CELL_SIZE);
 
   pd = input->GetPointData();
-  inScalars = pd->GetScalars(this->InputScalarsSelection);
-  inVectors = pd->GetVectors(this->InputVectorsSelection);
-  inNormals = pd->GetNormals(this->InputNormalsSelection);
+  inSScalars = pd->GetScalars(this->InputScalarsSelection);
+  inVectors  = pd->GetVectors(this->InputVectorsSelection);
+  inNormals  = pd->GetNormals(this->InputNormalsSelection);
+  inCScalars = pd->GetScalars(this->InputColorScalarsSelection);
+  if (inCScalars == NULL)
+    {
+    inCScalars = inSScalars;
+    }
 
   vtkDataArray* temp = 0;
   if (pd)
@@ -167,7 +175,7 @@ int vtkGlyph3D::RequestData(
     haveVectors = 0;
     }
 
-  if ( (this->IndexMode == VTK_INDEXING_BY_SCALAR && !inScalars) ||
+  if ( (this->IndexMode == VTK_INDEXING_BY_SCALAR && !inSScalars) ||
        (this->IndexMode == VTK_INDEXING_BY_VECTOR &&
        ((!inVectors && this->VectorMode == VTK_USE_VECTOR) ||
         (!inNormals && this->VectorMode == VTK_USE_NORMAL))) )
@@ -278,21 +286,21 @@ int vtkGlyph3D::RequestData(
     pointIds->Allocate(numPts*numSourcePts);
     outputPD->AddArray(pointIds);
     }
-  if ( this->ColorMode == VTK_COLOR_BY_SCALAR && inScalars )
+  if ( this->ColorMode == VTK_COLOR_BY_SCALAR && inCScalars )
     {
-    newScalars = inScalars->NewInstance();
-    newScalars->SetNumberOfComponents(inScalars->GetNumberOfComponents());
-    newScalars->Allocate(inScalars->GetNumberOfComponents()*numPts*numSourcePts);
-    newScalars->SetName(inScalars->GetName());
+    newScalars = inCScalars->NewInstance();
+    newScalars->SetNumberOfComponents(inCScalars->GetNumberOfComponents());
+    newScalars->Allocate(inCScalars->GetNumberOfComponents()*numPts*numSourcePts);
+    newScalars->SetName(inCScalars->GetName());
     }
-  else if ( (this->ColorMode == VTK_COLOR_BY_SCALE) && inScalars)
+  else if ( (this->ColorMode == VTK_COLOR_BY_SCALE) && inSScalars)
     {
     newScalars = vtkFloatArray::New();
     newScalars->Allocate(numPts*numSourcePts);
     newScalars->SetName("GlyphScale");
     if (this->ScaleMode == VTK_SCALE_BY_SCALAR)
       {
-      newScalars->SetName(inScalars->GetName());
+      newScalars->SetName(inSScalars->GetName());
       }
     }
   else if ( (this->ColorMode == VTK_COLOR_BY_VECTOR) && haveVectors)
@@ -352,9 +360,9 @@ int vtkGlyph3D::RequestData(
       }
 
     // Get the scalar and vector data
-    if ( inScalars )
+    if ( inSScalars )
       {
-      s = inScalars->GetComponent(inPtId, 0);
+      s = inSScalars->GetComponent(inPtId, 0);
       if ( this->ScaleMode == VTK_SCALE_BY_SCALAR ||
            this->ScaleMode == VTK_DATA_SCALING_OFF )
         {
@@ -505,22 +513,19 @@ int vtkGlyph3D::RequestData(
       }
     
     // determine scale factor from scalars if appropriate
-    if ( inScalars )
+    // Copy scalar value
+    if (inSScalars && (this->ColorMode == VTK_COLOR_BY_SCALE))
       {
-      // Copy scalar value
-      if (this->ColorMode == VTK_COLOR_BY_SCALE)
+      for (i=0; i < numSourcePts; i++)
         {
-        for (i=0; i < numSourcePts; i++) 
-          {
-          newScalars->InsertTuple(i+ptIncr, &scalex); // = scaley = scalez
-          }
+        newScalars->InsertTuple(i+ptIncr, &scalex); // = scaley = scalez
         }
-      else if (this->ColorMode == VTK_COLOR_BY_SCALAR)
+      }
+    else if (inCScalars && (this->ColorMode == VTK_COLOR_BY_SCALAR))
+      {
+      for (i=0; i < numSourcePts; i++)
         {
-        for (i=0; i < numSourcePts; i++)
-          {
-          outputPD->CopyTuple(inScalars, newScalars, inPtId, ptIncr+i);
-          }
+        outputPD->CopyTuple(inCScalars, newScalars, inPtId, ptIncr+i);
         }
       }
     if (haveVectors && this->ColorMode == VTK_COLOR_BY_VECTOR)
