@@ -59,19 +59,6 @@ vtkRenderer::vtkRenderer()
   this->Ambient[1] = 1;
   this->Ambient[2] = 1;
 
-  this->WorldPoint[0] = 0;
-  this->WorldPoint[1] = 0;
-  this->WorldPoint[2] = 0;
-  this->WorldPoint[3] = 0;
-
-  this->DisplayPoint[0] = 0;
-  this->DisplayPoint[1] = 0;
-  this->DisplayPoint[2] = 0;
-
-  this->ViewPoint[0] = 0;
-  this->ViewPoint[1] = 0;
-  this->ViewPoint[2] = 0;
-
   this->RayCaster = vtkRayCaster::New();
   this->RayCaster->SetRenderer( this );
 
@@ -459,50 +446,6 @@ float vtkRenderer::GetZ (int x, int y)
   return z;
 }
 
-// Description:
-// Convert display coordinates to view coordinates.
-void vtkRenderer::DisplayToView()
-{
-  float vx,vy,vz;
-  int sizex,sizey;
-  int *size;
-  
-  /* get physical window dimensions */
-  size = this->RenderWindow->GetSize();
-  sizex = size[0];
-  sizey = size[1];
-
-  vx = 2.0 * (this->DisplayPoint[0] - sizex*this->Viewport[0])/ 
-    (sizex*(this->Viewport[2]-this->Viewport[0])) - 1.0;
-  vy = 2.0 * (this->DisplayPoint[1] - sizey*this->Viewport[1])/ 
-    (sizey*(this->Viewport[3]-this->Viewport[1])) - 1.0;
-  vz = this->DisplayPoint[2];
-
-  this->SetViewPoint(vx*this->Aspect[0],vy*this->Aspect[1],vz);
-}
-
-// Description:
-// Convert view coordinates to display coordinates.
-void vtkRenderer::ViewToDisplay()
-{
-  float dx,dy;
-  int sizex,sizey;
-  int *size;
-  
-  /* get physical window dimensions */
-  size = this->RenderWindow->GetSize();
-  sizex = size[0];
-  sizey = size[1];
-
-  dx = (this->ViewPoint[0]/this->Aspect[0] + 1.0) * 
-    (sizex*(this->Viewport[2]-this->Viewport[0])) / 2.0 +
-      sizex*this->Viewport[0];
-  dy = (this->ViewPoint[1]/this->Aspect[1] + 1.0) * 
-    (sizey*(this->Viewport[3]-this->Viewport[1])) / 2.0 +
-      sizey*this->Viewport[1];
-
-  this->SetDisplayPoint(dx,dy,this->ViewPoint[2]);
-}
 
 // Description:
 // Convert view point coordinates to world coordinates.

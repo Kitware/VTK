@@ -151,25 +151,6 @@ public:
   vtkRenderWindow *GetRenderWindow() {return RenderWindow;};
   virtual vtkWindow *GetVTKWindow();
   
-  // Description:
-  // Set/get a point location in display (or screen) coordinates.
-  // The lower left corner of the window is the origin and y increases
-  // as you go up the screen.
-  vtkSetVector3Macro(DisplayPoint,float);
-  vtkGetVectorMacro(DisplayPoint,float,3);
-
-  // Description:
-  // Specify a point location in view coordinates. The origin is in the 
-  // middle of the viewport and it extends from -1 to 1 in all three
-  // dimensions.
-  vtkSetVector3Macro(ViewPoint,float);
-  vtkGetVectorMacro(ViewPoint,float,3);
-
-  // Description:
-  // Specify a point location in world coordinates. This method takes 
-  // homogeneous coordinates. 
-  vtkSetVector4Macro(WorldPoint,float);
-  vtkGetVectorMacro(WorldPoint,float,4);
 
   // Description:
   // Turn on/off two-sided lighting of surfaces. If two-sided lighting is
@@ -189,12 +170,8 @@ public:
   vtkGetMacro(BackingStore,int);
   vtkBooleanMacro(BackingStore,int);
 
-  virtual void DisplayToView(); // these get modified in subclasses
-  virtual void ViewToDisplay(); // to handle stereo rendering
   void WorldToView();
   void ViewToWorld();
-  void DisplayToWorld();
-  void WorldToDisplay();
 
   vtkGetObjectMacro(RayCaster,vtkRayCaster);
   float GetZ (int x, int y);
@@ -211,9 +188,6 @@ protected:
 
   float Ambient[3];  
   vtkRenderWindow *RenderWindow;
-  float DisplayPoint[3];
-  float ViewPoint[3];
-  float WorldPoint[4];
   int   SelfCreatedCamera;
   int   SelfCreatedLight;
   float AllocatedRenderTime;
@@ -235,12 +209,5 @@ inline vtkActorCollection *vtkRenderer::GetActors() {return &(this->Actors);};
 // Get the list of volumes for this renderer.
 inline vtkVolumeCollection *vtkRenderer::GetVolumes() {return &(this->Volumes);};
 
-// Description:
-// Convert display (or screen) coordinates to world coordinates.
-inline void vtkRenderer::DisplayToWorld() {DisplayToView(); ViewToWorld();};
-
-// Description:
-// Convert world point coordinates to display (or screen) coordinates.
-inline void vtkRenderer::WorldToDisplay() {WorldToView(); ViewToDisplay();};
 
 #endif
