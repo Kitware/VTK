@@ -130,9 +130,8 @@ void vtkApproximatingSubdivisionFilter::Execute()
     inputDS->SetPolys(outputPolys); outputPolys->Delete();
     inputDS->GetPointData()->PassData(outputPD); outputPD->Delete();
     inputDS->GetCellData()->PassData(outputCD); outputCD->Delete();
+    inputDS->Squeeze();
     } // each level
-
-  inputDS->Squeeze();
 
   output->SetPoints(inputDS->GetPoints());
   output->SetPolys(inputDS->GetPolys());
