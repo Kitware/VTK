@@ -51,8 +51,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // component against another. (The user must specify which component to use
 // as the x-axis and which for the y-axis.)
 //
-// To use this class to plot (a) dataset(s), you must specify one or more
-// input data set containing scalar and point data.  You'll probably also
+// To use this class to plot dataset(s), you must specify one or more
+// input datasets containing scalar and point data.  You'll probably also
 // want to invoke a method to control how the point coordinates are converted
 // into x values (by default point ids are used).
 //
@@ -76,6 +76,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // automatically). The Border instance variable is used to create space 
 // between the boundary of the plot window (specified by PositionCoordinate
 // and Position2Coordinate) and the plot itself.
+//
+// There are several advanced features as well. You can assign per curve 
+// properties (such as color and a plot symbol). (Note that each input 
+// dataset and/or data object creates a single curve.) Another option is to
+// add a plot legend that graphically indicates the correspondance between
+// the curve, curve symbols, and the data source. You can also exchange the
+// x and y axes if you prefer you plot orientation that way.
 
 // .SECTION Caveats
 // If you are interested in plotting something other than scalar data, you
@@ -227,6 +234,13 @@ public:
   void SetPlotLabel(int i, const char *label);
   const char *GetPlotLabel(int i);
   //---end Per Curve Properties-----------------------------------------------
+
+  // Description:
+  // Enable/Disable exchange of the x-y axes (i.e., what was x becomes y, and
+  // vice-versa). Exchanging axes affects the labeling as well.
+  vtkSetMacro(ExchangeAxes, int);
+  vtkGetMacro(ExchangeAxes, int);
+  vtkBooleanMacro(ExchangeAxes, int);
 
   // Description:
   // Retrieve handles to the legend box and glyph source. This is useful
@@ -390,7 +404,6 @@ public:
   
   // Description:
   // Take into account the modified time of internal helper classes.
-  // region used by the plot plus the labels)?
   unsigned long GetMTime();
   
 //BTX  
@@ -435,6 +448,7 @@ protected:
   int Border;
   int PlotLines;
   int PlotPoints;
+  int ExchangeAxes;
   
   vtkTextMapper *TitleMapper;
   vtkActor2D    *TitleActor;
@@ -486,6 +500,7 @@ protected:
   void GenerateClipPlanes(int *pos, int *pos2);
   float ComputeGlyphScale(int i, int *pos, int *pos2);
   void ClipPlotData(int *pos, int *pos2, vtkPolyData *pd);
+  float *TransformPoint(int pos[2], int pos2[2], float x[3], float xNew[3]);
   
 };
 
