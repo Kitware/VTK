@@ -69,9 +69,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
-
-
-//----------------------------------------------------------------------------
+//--------------------------------------------------------------------------
 vtkGridSynchronizedTemplates3D* vtkGridSynchronizedTemplates3D::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -83,11 +81,6 @@ vtkGridSynchronizedTemplates3D* vtkGridSynchronizedTemplates3D::New()
   // If the factory was unable to create the object, then create it here.
   return new vtkGridSynchronizedTemplates3D;
 }
-
-
-
-
-
 
 //----------------------------------------------------------------------------
 // Description:
@@ -329,10 +322,11 @@ if (ComputeScalars) \
 // Contouring filter specialized for images
 template <class T>
 static void ContourGrid(vtkGridSynchronizedTemplates3D *self,
-			int vtkNotUsed(threadId),
-			int *exExt, T *scalars, vtkPolyData *output)
+                        int vtkNotUsed(threadId),
+                        int *exExt, T *scalars, vtkPolyData *output)
 {
-  int *inExt = self->GetInput()->GetExtent();
+  vtkStructuredGrid *input = (vtkStructuredGrid *)self->GetInput();
+  int *inExt = input->GetExtent();
   int xdim = exExt[1] - exExt[0] + 1;
   int ydim = exExt[3] - exExt[2] + 1;
   float n0[3], n1[3];  // used in gradient macro
@@ -344,7 +338,7 @@ static void ContourGrid(vtkGridSynchronizedTemplates3D *self,
   T *s0, *s1, *s2, *s3;
   int XMin, XMax, YMin, YMax, ZMin, ZMax;
   int incY, incZ;
-  vtkPoints *inPts = self->GetInput()->GetPoints();
+  vtkPoints *inPts = input->GetPoints();
   float t;
   int *isect1Ptr, *isect2Ptr;
   vtkIdType ptIds[3];
@@ -362,8 +356,8 @@ static void ContourGrid(vtkGridSynchronizedTemplates3D *self,
   int jj, g0;
   // We need to know the edgePointId's for interpolating attributes.
   int edgePtId, inCellId, outCellId;
-  vtkPointData *inPD = self->GetInput()->GetPointData();
-  vtkCellData *inCD = self->GetInput()->GetCellData();
+  vtkPointData *inPD = input->GetPointData();
+  vtkCellData *inCD = input->GetCellData();
   vtkPointData *outPD = output->GetPointData();  
   vtkCellData *outCD = output->GetCellData();  
   // Temporary point data.
@@ -428,7 +422,7 @@ static void ContourGrid(vtkGridSynchronizedTemplates3D *self,
   
   
   //fprintf(stderr, "%d: -------- Extent %d, %d, %d, %d, %d, %d\n", threadId,
-  //	  exExt[0], exExt[1], exExt[2], exExt[3], exExt[4], exExt[5]);
+  //      exExt[0], exExt[1], exExt[2], exExt[3], exExt[4], exExt[5]);
 
   // for each contour
   for (vidx = 0; vidx < numContours; vidx++)
@@ -451,7 +445,7 @@ static void ContourGrid(vtkGridSynchronizedTemplates3D *self,
       // swap the buffers
       if (k%2)
         {
-	offsets[8] = (zstep - xdim)*3;
+        offsets[8] = (zstep - xdim)*3;
         offsets[9] = (zstep - xdim)*3 + 1;
         offsets[10] = (zstep - xdim)*3 + 4;
         offsets[11] = zstep*3;
@@ -472,39 +466,40 @@ static void ContourGrid(vtkGridSynchronizedTemplates3D *self,
       inPtrY = inPtrZ;
       for (j = YMin; j <= YMax; j++)
         {
-	// Should not impact perfomance here/
-	edgePtId = (j-inExt[2])*incY + (k-inExt[4])*incZ;
-	// Increments are different for cells.
-	// Since the cells are not contoured until the second row of templates,
-	// subtract 1 from i,j,and k.  Note: first cube is formed when i=0, j=1, and k=1.
-	inCellId = (XMin-inExt[0]) + (inExt[1]-inExt[0])*( (j-inExt[2]-1) + (k-inExt[4]-1)*(inExt[3]-inExt[2]) );
+        // Should not impact perfomance here/
+        edgePtId = (j-inExt[2])*incY + (k-inExt[4])*incZ;
+        // Increments are different for cells.
+        // Since the cells are not contoured until the second row of templates,
+        // subtract 1 from i,j,and k.  Note: first cube is formed when i=0, j=1, and k=1.
+        inCellId = (XMin-inExt[0]) + (inExt[1]-inExt[0])*( (j-inExt[2]-1) + (k-inExt[4]-1)*(inExt[3]-inExt[2]) );
         
-	p1 = inPtPtrY;
+        p1 = inPtPtrY;
         s1 = inPtrY;
         v1 = (*s1 < value ? 0 : 1);
         inPtPtrX = inPtPtrY;
         inPtrX = inPtrY;
-        for (i = XMin; i <= XMax; i++)
-	  {
+        // inCellId is ised to keep track of ids for copying cell attributes.
+        for (i = XMin; i <= XMax; i++, inCellId++)
+          {
           p0 = p1;
-	  s0 = s1;
-	  v0 = v1;
+          s0 = s1;
+          v0 = v1;
           // this flag keeps up from computing gradient for grid point 0 twice.
-	  g0 = 0;
+          g0 = 0;
           if (i < XMax)
-	    {
-	    p1 = (inPtPtrX + 3);
-	    s1 = (inPtrX + 1);
-	    v1 = (*s1 < value ? 0 : 1);
-	    if (v0 ^ v1)
-	      {
-	      t = (value - (float)(*s0)) / ((float)(*s1) - (float)(*s0));
+            {
+            p1 = (inPtPtrX + 3);
+            s1 = (inPtrX + 1);
+            v1 = (*s1 < value ? 0 : 1);
+            if (v0 ^ v1)
+              {
+              t = (value - (float)(*s0)) / ((float)(*s1) - (float)(*s0));
               x[0] = p0[0] + t*(p1[0] - p0[0]);
               x[1] = p0[1] + t*(p1[1] - p0[1]);
               x[2] = p0[2] + t*(p1[2] - p0[2]);
-	      *isect2Ptr = newPts->InsertNextPoint(x);
-	      VTK_CSP3PA(i+1,j,k,s1,p1,grad,norm);
-	      outPD->InterpolateEdge(inPD, *isect2Ptr, edgePtId, edgePtId+1, t);
+              *isect2Ptr = newPts->InsertNextPoint(x);
+              VTK_CSP3PA(i+1,j,k,s1,p1,grad,norm);
+              outPD->InterpolateEdge(inPD, *isect2Ptr, edgePtId, edgePtId+1, t);
               }
             else
               {
@@ -512,93 +507,99 @@ static void ContourGrid(vtkGridSynchronizedTemplates3D *self,
               }
             }
           if (j < YMax)
-	    {
-	    p2 = (inPtPtrX + incY*3);
-	    s2 = (inPtrX + incY);
-	    v2 = (*s2 < value ? 0 : 1);
-	    if (v0 ^ v2)
-	      {
-	      t = (value - (float)(*s0)) / ((float)(*s2) - (float)(*s0));
-	      x[0] = p0[0] + t*(p2[0] - p0[0]);
-	      x[1] = p0[1] + t*(p2[1] - p0[1]);
-	      x[2] = p0[2] + t*(p2[2] - p0[2]);
-	      *(isect2Ptr + 1) = newPts->InsertNextPoint(x);
-	      VTK_CSP3PA(i,j+1,k,s2,p2,grad,norm);
-	      outPD->InterpolateEdge(inPD, *(isect2Ptr+1), edgePtId, edgePtId+incY, t);	    
-	      }
-	    else
-	      {
-	      *(isect2Ptr + 1) = -1;
-	      }
-	    }
-	  if (k < ZMax)
-	    {
-	    p3 = (inPtPtrX + incZ*3);
-	    s3 = (inPtrX + incZ);
-	    v3 = (*s3 < value ? 0 : 1);
-	    if (v0 ^ v3)
-	      {
-	      t = (value - (float)(*s0)) / ((float)(*s3) - (float)(*s0));
+            {
+            p2 = (inPtPtrX + incY*3);
+            s2 = (inPtrX + incY);
+            v2 = (*s2 < value ? 0 : 1);
+            if (v0 ^ v2)
+              {
+              t = (value - (float)(*s0)) / ((float)(*s2) - (float)(*s0));
+              x[0] = p0[0] + t*(p2[0] - p0[0]);
+              x[1] = p0[1] + t*(p2[1] - p0[1]);
+              x[2] = p0[2] + t*(p2[2] - p0[2]);
+              *(isect2Ptr + 1) = newPts->InsertNextPoint(x);
+              VTK_CSP3PA(i,j+1,k,s2,p2,grad,norm);
+              outPD->InterpolateEdge(inPD, *(isect2Ptr+1), edgePtId, edgePtId+incY, t);     
+              }
+            else
+              {
+              *(isect2Ptr + 1) = -1;
+              }
+            }
+          if (k < ZMax)
+            {
+            p3 = (inPtPtrX + incZ*3);
+            s3 = (inPtrX + incZ);
+            v3 = (*s3 < value ? 0 : 1);
+            if (v0 ^ v3)
+              {
+              t = (value - (float)(*s0)) / ((float)(*s3) - (float)(*s0));
               x[0] = p0[0] + t*(p3[0] - p0[0]);
               x[1] = p0[1] + t*(p3[1] - p0[1]);
               x[2] = p0[2] + t*(p3[2] - p0[2]);
-	      *(isect2Ptr + 2) = newPts->InsertNextPoint(x);
-	      VTK_CSP3PA(i,j,k+1,s3,p3,grad,norm);
-	      outPD->InterpolateEdge(inPD, *(isect2Ptr+2), edgePtId, edgePtId+incZ, t);	    
-	      }
-	    else
-	      {
-	      *(isect2Ptr + 2) = -1;
-	      }
-	    }
-	  
-	  // To keep track of ids for interpolating attributes.
-	  ++edgePtId;
-	  
-	  // now add any polys that need to be added
-	  // basically look at the isect values, 
-	  // form an index and lookup the polys
-	  if (j > YMin && i < XMax && k > ZMin)
-	    {
-	    idx = (v0 ? 4096 : 0);
-	    idx = idx + (*(isect1Ptr - yisectstep) > -1 ? 2048 : 0);
-	    idx = idx + (*(isect1Ptr -yisectstep +1) > -1 ? 1024 : 0);
-	    idx = idx + (*(isect1Ptr -yisectstep +2) > -1 ? 512 : 0);
-	    idx = idx + (*(isect1Ptr -yisectstep +4) > -1 ? 256 : 0);
-	    idx = idx + (*(isect1Ptr -yisectstep +5) > -1 ? 128 : 0);
-	    idx = idx + (*(isect1Ptr) > -1 ? 64 : 0);
-	    idx = idx + (*(isect1Ptr + 2) > -1 ? 32 : 0);
-	    idx = idx + (*(isect1Ptr + 5) > -1 ? 16 : 0);
-	    idx = idx + (*(isect2Ptr -yisectstep) > -1 ? 8 : 0);
-	    idx = idx + (*(isect2Ptr -yisectstep +1) > -1 ? 4 : 0);
-	    idx = idx + (*(isect2Ptr -yisectstep +4) > -1 ? 2 : 0);
-	    idx = idx + (*(isect2Ptr) > -1 ? 1 : 0);
-	    
-	    tablePtr = VTK_SYNCHONIZED_TEMPLATES_3D_TABLE_2 
-	      + VTK_SYNCHONIZED_TEMPLATES_3D_TABLE_1[idx];
+              *(isect2Ptr + 2) = newPts->InsertNextPoint(x);
+              VTK_CSP3PA(i,j,k+1,s3,p3,grad,norm);
+              outPD->InterpolateEdge(inPD, *(isect2Ptr+2), edgePtId, edgePtId+incZ, t);     
+              }
+            else
+              {
+              *(isect2Ptr + 2) = -1;
+              }
+            }
+          
+          // To keep track of ids for interpolating attributes.
+          ++edgePtId;
+          
+          // now add any polys that need to be added
+          // basically look at the isect values, 
+          // form an index and lookup the polys
+          if (j > YMin && i < XMax && k > ZMin)
+            {
+            idx = (v0 ? 4096 : 0);
+            idx = idx + (*(isect1Ptr - yisectstep) > -1 ? 2048 : 0);
+            idx = idx + (*(isect1Ptr -yisectstep +1) > -1 ? 1024 : 0);
+            idx = idx + (*(isect1Ptr -yisectstep +2) > -1 ? 512 : 0);
+            idx = idx + (*(isect1Ptr -yisectstep +4) > -1 ? 256 : 0);
+            idx = idx + (*(isect1Ptr -yisectstep +5) > -1 ? 128 : 0);
+            idx = idx + (*(isect1Ptr) > -1 ? 64 : 0);
+            idx = idx + (*(isect1Ptr + 2) > -1 ? 32 : 0);
+            idx = idx + (*(isect1Ptr + 5) > -1 ? 16 : 0);
+            idx = idx + (*(isect2Ptr -yisectstep) > -1 ? 8 : 0);
+            idx = idx + (*(isect2Ptr -yisectstep +1) > -1 ? 4 : 0);
+            idx = idx + (*(isect2Ptr -yisectstep +4) > -1 ? 2 : 0);
+            idx = idx + (*(isect2Ptr) > -1 ? 1 : 0);
+            
+            tablePtr = VTK_SYNCHONIZED_TEMPLATES_3D_TABLE_2 
+              + VTK_SYNCHONIZED_TEMPLATES_3D_TABLE_1[idx];
             // to protect data against multiple threads
-	    while (*tablePtr != -1)
-	      {
-	      ptIds[0] = *(isect1Ptr + offsets[*tablePtr]);
-	      tablePtr++;
-	      ptIds[1] = *(isect1Ptr + offsets[*tablePtr]);
-	      tablePtr++;
-	      ptIds[2] = *(isect1Ptr + offsets[*tablePtr]);
-	      tablePtr++;
-	      outCellId = newPolys->InsertNextCell(3,ptIds);
-	      outCD->CopyData(inCD, inCellId, outCellId);
-	      }
-	    }
-	  inPtPtrX += 3;
-	  ++inPtrX;
-	  isect2Ptr += 3;
-	  isect1Ptr += 3;
-	  // To keep track of ids for copying cell attributes..
-	  ++inCellId;
-	  }
+            if (  input->IsCellVisible(inCellId) )
+              {
+              while (*tablePtr != -1)
+                {
+                ptIds[0] = *(isect1Ptr + offsets[*tablePtr]);
+                tablePtr++;
+                ptIds[1] = *(isect1Ptr + offsets[*tablePtr]);
+                tablePtr++;
+                ptIds[2] = *(isect1Ptr + offsets[*tablePtr]);
+                tablePtr++;
+                outCellId = newPolys->InsertNextCell(3,ptIds);
+                outCD->CopyData(inCD, inCellId, outCellId);
+                }
+              }
+            else
+              {
+              int kkk;
+              kkk=0;
+              }
+            }
+          inPtPtrX += 3;
+          ++inPtrX;
+          isect2Ptr += 3;
+          isect1Ptr += 3;
+          }
         inPtPtrY += 3*incY;
         inPtrY += incY;
-	}
+        }
       inPtPtrZ += 3*incZ;
       inPtrZ += incZ;
       }
@@ -659,9 +660,9 @@ void vtkGridSynchronizedTemplates3D::InitializeOutput(int *ext,vtkPolyData *o)
     newScalars->GetData()->SetName("Scalars");
     }
   o->GetPointData()->InterpolateAllocate(this->GetInput()->GetPointData(),
-  					 estimatedSize,estimatedSize/2);  
+                                         estimatedSize,estimatedSize/2);  
   o->GetCellData()->CopyAllocate(this->GetInput()->GetCellData(),
-				 estimatedSize,estimatedSize/2);
+                                 estimatedSize,estimatedSize/2);
 
   if (newScalars)
     {
@@ -796,7 +797,7 @@ void vtkGridSynchronizedTemplates3D::ExecuteInformation()
   //    numPts = 1;
   //    }
   //  this->GetOutput()->SetEstimatedWholeMemorySize(
-  //			numTris*sizeTri + numPts*sizePt);
+  //                    numTris*sizeTri + numPts*sizePt);
 
 }
 
@@ -992,10 +993,10 @@ void vtkGridSynchronizedTemplates3D::Execute()
       {
       threadOut = this->Threads[idx];
       if (threadOut != NULL)
-	{
-	totalPoints += threadOut->GetNumberOfPoints();
-	totalCells += threadOut->GetNumberOfCells();
-	}
+        {
+        totalPoints += threadOut->GetNumberOfPoints();
+        totalCells += threadOut->GetNumberOfCells();
+        }
       }
     // Allocate the necessary points and polys
     newPts = vtkPoints::New();
@@ -1015,7 +1016,7 @@ void vtkGridSynchronizedTemplates3D::Execute()
       threadPD = this->Threads[idx]->GetPointData();
       
       if ( !this->Threads[idx] || 
-	   this->Threads[idx]->GetNumberOfPoints() <= 0 )
+           this->Threads[idx]->GetNumberOfPoints() <= 0 )
         {
         continue; //no input, just skip
         }
@@ -1039,7 +1040,7 @@ void vtkGridSynchronizedTemplates3D::Execute()
       threadCD = this->Threads[idx]->GetCellData();
       
       if ( !this->Threads[idx] || 
-	   this->Threads[idx]->GetNumberOfPoints() <= 0 )
+           this->Threads[idx]->GetNumberOfPoints() <= 0 )
         {
         continue; //no input, just skip
         }
@@ -1067,37 +1068,37 @@ void vtkGridSynchronizedTemplates3D::Execute()
       threadOut = this->Threads[idx];
       // Sanity check? We should never have a null thread output.
       if (threadOut != NULL)
-	{
-	offset = output->GetNumberOfPoints();
-	threadPD = threadOut->GetPointData();
-	threadCD = threadOut->GetCellData();
-	num = threadOut->GetNumberOfPoints();
-	for (ptIdx = 0; ptIdx < num; ++ptIdx)
-	  {
-	  newIdx = ptIdx + offset;
-	  newPts->InsertPoint(newIdx, threadOut->GetPoint(ptIdx));
-	  outPD->CopyData(ptList,threadPD,idx,ptIdx,newIdx);
-	  }
-	// copy the triangles.
-	threadTris = threadOut->GetPolys();
-	threadTris->InitTraversal();
-	inId = 0;
-	while (threadTris->GetNextCell(numCellPts, cellPts))
-	  {
-	  // copy and translate
-	  if (numCellPts == 3)
-	    {
-	    newCellPts[0] = cellPts[0] + offset;
-	    newCellPts[1] = cellPts[1] + offset;
-	    newCellPts[2] = cellPts[2] + offset;
-	    outId = newPolys->InsertNextCell(3, newCellPts); 
-	    outCD->CopyData(clList,threadCD, idx, inId, outId);
-	    }
-	  ++inId;
-	  }
-	threadOut->Delete();
-	threadOut = this->Threads[idx] = NULL;         
-	}
+        {
+        offset = output->GetNumberOfPoints();
+        threadPD = threadOut->GetPointData();
+        threadCD = threadOut->GetCellData();
+        num = threadOut->GetNumberOfPoints();
+        for (ptIdx = 0; ptIdx < num; ++ptIdx)
+          {
+          newIdx = ptIdx + offset;
+          newPts->InsertPoint(newIdx, threadOut->GetPoint(ptIdx));
+          outPD->CopyData(ptList,threadPD,idx,ptIdx,newIdx);
+          }
+        // copy the triangles.
+        threadTris = threadOut->GetPolys();
+        threadTris->InitTraversal();
+        inId = 0;
+        while (threadTris->GetNextCell(numCellPts, cellPts))
+          {
+          // copy and translate
+          if (numCellPts == 3)
+            {
+            newCellPts[0] = cellPts[0] + offset;
+            newCellPts[1] = cellPts[1] + offset;
+            newCellPts[2] = cellPts[2] + offset;
+            outId = newPolys->InsertNextCell(3, newCellPts); 
+            outCD->CopyData(clList,threadCD, idx, inId, outId);
+            }
+          ++inId;
+          }
+        threadOut->Delete();
+        threadOut = this->Threads[idx] = NULL;         
+        }
       }
     newPolys->Delete();
     newPts->Delete();
