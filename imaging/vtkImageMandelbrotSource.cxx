@@ -192,7 +192,6 @@ void vtkImageMandelbrotSource::ExecuteInformation()
   float origin[3];
   float spacing[3];
   vtkImageData *output = this->GetOutput();
-  unsigned long mem;
   
   output->SetWholeExtent(this->WholeExtent);
   for (idx = 0; idx < 3; ++idx)

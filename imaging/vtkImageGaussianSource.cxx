@@ -124,7 +124,6 @@ void vtkImageGaussianSource::SetWholeExtent(int xMin, int xMax,
 void vtkImageGaussianSource::ExecuteInformation()
 {
   vtkImageData *output = this->GetOutput();
-  unsigned long mem;
   
   output->SetWholeExtent(this->WholeExtent);
   output->SetScalarType(VTK_FLOAT);
