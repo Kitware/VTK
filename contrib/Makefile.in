@@ -14,7 +14,8 @@ CONCRETE_H =
 ABSTRACT =
 
 CONCRETE = \
-vtkRIBExporter
+vtkRIBExporter \
+vtkRIBProperty
 
 #------------------------------------------------------------------------------
 # Include the generated targets
