@@ -25,7 +25,7 @@
 #include "vtkStructuredGrid.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkPLOT3DReader, "1.70");
+vtkCxxRevisionMacro(vtkPLOT3DReader, "1.71");
 vtkStandardNewMacro(vtkPLOT3DReader);
 
 #define VTK_RHOINF 1.0
@@ -600,6 +600,7 @@ void vtkPLOT3DReader::Execute()
                 {
                 parray->SetTuple(ipts, nullpt);
                 }
+              fclose(xyzFp);
               return;
               }
             index = nz*dims[0]*dims[1]+ny*dims[0]+nx;
@@ -630,6 +631,7 @@ void vtkPLOT3DReader::Execute()
         vtkErrorMacro("Encountered premature end-of-file while reading "
                       "the q file (or the file is corrupt).");
         this->SetErrorCode(vtkErrorCode::PrematureEndOfFileError);
+        fclose(xyzFp);
         return;
         }
       vtkIdType ipts, npts=iblank->GetNumberOfTuples();
@@ -704,6 +706,7 @@ void vtkPLOT3DReader::Execute()
         vtkErrorMacro("Encountered premature end-of-file while reading "
                       "the q file (or the file is corrupt).");
         this->SetErrorCode(vtkErrorCode::PrematureEndOfFileError);
+        fclose(qFp);
         return;
         }
       nthOutput->GetPointData()->AddArray(density);
@@ -727,6 +730,7 @@ void vtkPLOT3DReader::Execute()
                 {
                 vtkErrorMacro("Encountered premature end-of-file while "
                               "reading the q file (or the file is corrupt).");
+                fclose(qFp);
                 return;
                 }
               index = nz*dims[0]*dims[1]+ny*dims[0]+nx;
@@ -756,6 +760,7 @@ void vtkPLOT3DReader::Execute()
         {
         vtkErrorMacro("Encountered premature end-of-file while reading "
                       "the q file (or the file is corrupt).");
+        fclose(qFp);
         return;
         }
       nthOutput->GetPointData()->AddArray(se);
@@ -778,6 +783,7 @@ void vtkPLOT3DReader::Execute()
       this->AssignAttribute(this->VectorFunctionNumber, nthOutput,
                             vtkDataSetAttributes::VECTORS);
       }
+    fclose(qFp);
     }
 
 }
