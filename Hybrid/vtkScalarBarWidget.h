@@ -19,7 +19,9 @@
 // .SECTION Description
 // This class provides support for interactively manipulating the position,
 // size, and orientation of a scalar bar. It listens to Left mouse events and
-// mouse movement. It will change the cursor shape based on its location. If
+// mouse movement. It also listens to Right mouse events and notifies any 
+// observers of Right mouse events on this object when they occur.
+// It will change the cursor shape based on its location. If
 // the cursor is over an edge of the scalar bar it will change the cursor
 // shape to a resize edge shape. If the position of a scalar bar is moved to
 // be close to the center of one of the four edges of the viewport, then the
@@ -69,6 +71,8 @@ protected:
   // ProcessEvents() dispatches to these methods.
   void OnLeftButtonDown();
   void OnLeftButtonUp();
+  void OnRightButtonDown();
+  void OnRightButtonUp();
   void OnMouseMove();
 
   // used to compute relative movements
@@ -76,6 +80,10 @@ protected:
   
 //BTX - manage the state of the widget
   int State;
+  // use this to track whether left/right button was pressed to gate
+  // action on button up event.
+  int LeftButtonDown;
+  int RightButtonDown;
   enum WidgetState
   {
     Moving=0,

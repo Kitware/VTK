@@ -24,7 +24,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkCoordinate.h"
 
-vtkCxxRevisionMacro(vtkScalarBarWidget, "1.5");
+vtkCxxRevisionMacro(vtkScalarBarWidget, "1.6");
 vtkStandardNewMacro(vtkScalarBarWidget);
 vtkCxxSetObjectMacro(vtkScalarBarWidget, ScalarBarActor, vtkScalarBarActor);
 
@@ -33,6 +33,8 @@ vtkScalarBarWidget::vtkScalarBarWidget()
   this->ScalarBarActor = vtkScalarBarActor::New();
   this->EventCallbackCommand->SetCallback(vtkScalarBarWidget::ProcessEvents);
   this->State = vtkScalarBarWidget::Outside;
+  this->LeftButtonDown = 0;
+  this->RightButtonDown = 0;
   this->Priority = 0.55;
 }
 
@@ -79,6 +81,10 @@ void vtkScalarBarWidget::SetEnabled(int enabling)
                    this->EventCallbackCommand, this->Priority);
     i->AddObserver(vtkCommand::LeftButtonReleaseEvent, 
                    this->EventCallbackCommand, this->Priority);
+    i->AddObserver(vtkCommand::RightButtonPressEvent, 
+                   this->EventCallbackCommand, this->Priority);
+    i->AddObserver(vtkCommand::RightButtonReleaseEvent, 
+                   this->EventCallbackCommand, this->Priority);
 
     // Add the scalar bar
     this->CurrentRenderer->AddProp(this->ScalarBarActor);
@@ -118,6 +124,12 @@ void vtkScalarBarWidget::ProcessEvents(vtkObject* vtkNotUsed(object),
       break;
     case vtkCommand::LeftButtonReleaseEvent:
       self->OnLeftButtonUp();
+      break;
+    case vtkCommand::RightButtonPressEvent:
+      self->OnRightButtonDown();
+      break;
+    case vtkCommand::RightButtonReleaseEvent:
+      self->OnRightButtonUp();
       break;
     case vtkCommand::MouseMoveEvent:
       self->OnMouseMove();
@@ -260,6 +272,7 @@ void vtkScalarBarWidget::OnLeftButtonDown()
   this->EventCallbackCommand->SetAbortFlag(1);
   this->StartInteraction();
   this->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
+  this->LeftButtonDown = 1;
 }
 
 void vtkScalarBarWidget::OnMouseMove()
@@ -423,7 +436,7 @@ void vtkScalarBarWidget::OnMouseMove()
 
 void vtkScalarBarWidget::OnLeftButtonUp()
 {
-  if (this->State == vtkScalarBarWidget::Outside)
+  if (this->State == vtkScalarBarWidget::Outside || this->LeftButtonDown == 0)
     {
     return;
     }
@@ -434,9 +447,39 @@ void vtkScalarBarWidget::OnLeftButtonUp()
   this->Interactor->GetRenderWindow()->SetCurrentCursor(VTK_CURSOR_DEFAULT);
   this->EndInteraction();
   this->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
+  this->LeftButtonDown = 0;
 }
 
+void vtkScalarBarWidget::OnRightButtonDown()
+{
 
+  // are we not over the scalar bar, ignore
+  if (this->State == vtkScalarBarWidget::Outside)
+    {
+    return;
+    }
+
+  if (this->HasObserver(vtkCommand::RightButtonPressEvent) ) 
+    {
+    this->EventCallbackCommand->SetAbortFlag(1);
+    this->InvokeEvent(vtkCommand::RightButtonPressEvent,NULL);
+    }
+  RightButtonDown = 1;
+}
+
+void vtkScalarBarWidget::OnRightButtonUp()
+{
+  if (RightButtonDown == 0) {
+    return;
+  }
+
+  if (this->HasObserver(vtkCommand::RightButtonReleaseEvent)) 
+    {
+    this->EventCallbackCommand->SetAbortFlag(1);
+    this->InvokeEvent(vtkCommand::RightButtonReleaseEvent,NULL);
+    }
+  this->RightButtonDown = 0;
+}
 
 void vtkScalarBarWidget::PrintSelf(ostream& os, vtkIndent indent)
 {
