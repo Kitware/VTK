@@ -100,14 +100,18 @@ if test "X$XGL_HOME" = "X" ; then
 	XGL_HOME=/opt/SUNWits/Graphics-sw/xgl
 fi
 
-AC_CHECK_HEADERS($XGL_HOME/include/xgl/xgl.h, 
-  [use_xglr=yes]
-  XGLR_INCLUDE=$XGL_HOME/include)
 AC_CHECK_HEADERS(/usr/openwin/include/xgl/xgl.h, 
   [use_xglr=yes]
   XGLR_INCLUDE=/usr/openwin/include)
+AC_CHECK_HEADERS($XGL_HOME/include/xgl/xgl.h, 
+  [use_xglr=yes]
+  XGLR_INCLUDE=$XGL_HOME/include)
 if test "$use_xglr" = "yes"; then
-	GRAPHICS_API_LIBS="${GRAPHICS_API_LIBS} -lxgl"
+        XGLR_LIBS="-R${XGL_HOME}/lib -L${XGL_HOME}/lib -lxgl"
+        if test "$CC" = "gcc" -o `$CC -v 2>&1 | grep -c gcc` != "0" ; then
+          XGLR_LIBS="-Wl,-R${XGL_HOME}/lib -L${XGL_HOME}/lib -lxgl"
+        fi
+	GRAPHICS_API_LIBS="${GRAPHICS_API_LIBS} ${XGLR_LIBS}"
 	GRAPHICS_API_OBJ="${GRAPHICS_API_OBJ} \${XGLR_OBJ}"
 	GRAPHICS_API_FLAGS="${GRAPHICS_API_FLAGS} -DVTK_USE_XGLR -I${XGLR_INCLUDE}"
 fi
