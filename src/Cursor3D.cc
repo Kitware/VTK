@@ -54,10 +54,6 @@ void vlCursor3D::Execute()
 //
 // Check bounding box and origin
 //
-  for (i=0; i<3; i++)
-    if ( ModelBounds[2*i] > ModelBounds[2*i+1] )
-       ModelBounds[2*i] = ModelBounds[2*i+1];
-
   if ( this->Wrap ) 
     {
     for (i=0; i<3; i++)
@@ -299,6 +295,33 @@ void vlCursor3D::Execute()
 //
   this->SetPoints(newPts);
   this->SetLines(newLines);
+}
+
+// Description:
+// Set the boundary of the 3D cursor.
+void vlCursor3D::SetModelBounds(float xmin, float xmax, float ymin, float ymax,
+                                float zmin, float zmax)
+{
+  if ( xmin != this->ModelBounds[0] || xmax != this->ModelBounds[1] ||
+  ymin != this->ModelBounds[2] || ymax != this->ModelBounds[3] ||
+  zmin != this->ModelBounds[4] || zmax != this->ModelBounds[5] )
+    {
+    this->Modified();
+
+    this->ModelBounds[0] = xmin; this->ModelBounds[1] = xmax; 
+    this->ModelBounds[2] = xmin; this->ModelBounds[3] = xmax; 
+    this->ModelBounds[4] = xmin; this->ModelBounds[5] = xmax; 
+
+    for (int i=0; i<3; i++)
+      if ( this->ModelBounds[2*i] > this->ModelBounds[2*i+1] )
+         this->ModelBounds[2*i] = this->ModelBounds[2*i+1];
+    }
+}
+
+void vlCursor3D::SetModelBounds(float *bounds)
+{
+  this->SetModelBounds(bounds[0], bounds[1], bounds[2], bounds[3], bounds[4],
+                       bounds[5]);
 }
 
 void vlCursor3D::PrintSelf(ostream& os, vlIndent indent)

@@ -36,8 +36,6 @@ public:
   char *GetClassName() {return "vlTextureMapToBox";};
   void PrintSelf(ostream& os, vlIndent indent);
 
-  // Description:
-  // Specify bounding box.
   void SetBox(float *box);
   void SetBox(float xmin, float xmax, float ymin, float ymax, float zmin, float zmax);
   vlGetVectorMacro(Box,float,6);
