@@ -169,10 +169,13 @@ public:
   // Description:
   // Test to see if this object is in a reference counting loop.
   virtual int InRegisterLoop(vtkObject *);
+  
+  // Description:
+  // Update the filter and produce its output.
+  void Update();
 
 protected:
   void Execute();
-  void Update();
   vtkImplicitFunction *ClipFunction;
   
   vtkPointLocator *Locator;
