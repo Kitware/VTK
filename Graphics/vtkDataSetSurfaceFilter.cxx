@@ -30,7 +30,7 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkStructuredGridGeometryFilter.h"
 
-vtkCxxRevisionMacro(vtkDataSetSurfaceFilter, "1.20");
+vtkCxxRevisionMacro(vtkDataSetSurfaceFilter, "1.21");
 vtkStandardNewMacro(vtkDataSetSurfaceFilter);
 
 //----------------------------------------------------------------------------
@@ -844,7 +844,8 @@ void vtkDataSetSurfaceFilter::UnstructuredGridExecute()
         {
         if (cell->GetCellDimension() == 3)
           {
-          for (j=0; j < cell->GetNumberOfFaces(); j++)
+          int numFaces = cell->GetNumberOfFaces();
+          for (j=0; j < numFaces; j++)
             {
             face = cell->GetFace(j);
             numFacePts = face->GetNumberOfPoints();
@@ -910,13 +911,13 @@ void vtkDataSetSurfaceFilter::UnstructuredGridExecute()
         else //3D nonlinear cell
           {
           vtkIdList *cellIds = vtkIdList::New();
-          for (j=0; j < cell->GetNumberOfFaces(); j++)
+          int numFaces = cell->GetNumberOfFaces();
+          for (j=0; j < numFaces; j++)
             {
             face = cell->GetFace(j);
             input->GetCellNeighbors(cellId, face->PointIds, cellIds);
             if ( cellIds->GetNumberOfIds() <= 0)
               {
-              ;
               face->Triangulate(0,pts,coords);
               for (i=0; i < pts->GetNumberOfIds(); i+=3)
                 {

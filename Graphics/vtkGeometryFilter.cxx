@@ -27,7 +27,7 @@
 #include "vtkPyramid.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkGeometryFilter, "1.88");
+vtkCxxRevisionMacro(vtkGeometryFilter, "1.89");
 vtkStandardNewMacro(vtkGeometryFilter);
 
 // Construct with all types of clipping turned off.
@@ -288,7 +288,8 @@ void vtkGeometryFilter::Execute()
           break;
 
         case 3:
-          for (j=0; j < cell->GetNumberOfFaces(); j++)
+          int numFaces = cell->GetNumberOfFaces();
+          for (j=0; j < numFaces; j++)
             {
             face = cell->GetFace(j);
             input->GetCellNeighbors(cellId, face->PointIds, cellIds);
