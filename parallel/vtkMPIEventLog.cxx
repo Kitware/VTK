@@ -98,14 +98,16 @@ int vtkMPIEventLog::SetDescription(const char* name, const char* desc)
     }
 
   this->Active = 1;
-  this->Id = LastEventId;
   if (processId == 0)
     {
-    MPE_Describe_state(this->Id, this->Id+1, const_cast<char*>(name), 
+    this->BeginId = MPE_Log_get_event_number();
+    this->EndId = MPE_Log_get_event_number();
+    MPE_Describe_state(this->BeginId, this->EndId, const_cast<char*>(name), 
 		       const_cast<char*>(desc));
     }
+  MPI_Bcast(&this->BeginId, 1, MPI_INT, 0, MPI_COMM_WORLD);
+  MPI_Bcast(&this->EndId, 1, MPI_INT, 0, MPI_COMM_WORLD);
 
-  LastEventId += 2;
   return 1;
 } 
 
@@ -117,7 +119,7 @@ void vtkMPIEventLog::StartLogging()
     return;
     }
 
-  MPE_Log_event(this->Id, 0, "begin");
+  MPE_Log_event(this->BeginId, 0, "begin");
 }
 
 void vtkMPIEventLog::StopLogging()
@@ -127,7 +129,7 @@ void vtkMPIEventLog::StopLogging()
     vtkWarningMacro("This vtkMPIEventLog has not been initialized. Can not log event.");
     return;
     }
-  MPE_Log_event(this->Id+1, 0, "end");
+  MPE_Log_event(this->EndId, 0, "end");
 }
 
 vtkMPIEventLog::~vtkMPIEventLog()

@@ -98,7 +98,8 @@ protected:
 
   static int LastEventId;
   int Active;
-  int Id;
+  int BeginId;
+  int EndId;
 };
 
 #endif
