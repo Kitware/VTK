@@ -110,7 +110,7 @@ IF (VTK_WRAP_TCL)
     # create the vtk executable
     CONFIGURE_FILE(
       ${VTK_SOURCE_DIR}/Wrapping/Tcl/tkAppInit.cxx.in 
-      ${VTK_BINARY_DIR}/Parallel/paraTkAppInit.cxx)
+      ${VTK_BINARY_DIR}/Parallel/paraTkAppInit.cxx IMMEDIATE)
 
     SET_SOURCE_FILES_PROPERTIES(${VTK_BINARY_DIR}/Parallel/paraTkAppInit.cxx 
                                 COMPILE_FLAGS "-DVTK_COMPILED_USING_MPI")
