@@ -17,7 +17,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 =========================================================================*/
 #include "ByteSwap.hh"
 
-vlByteSwap::Swap4(char *mem_ptr1)
+void vlByteSwap::Swap4(char *mem_ptr1)
 {
   char one_byte;
 
