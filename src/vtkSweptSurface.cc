@@ -227,8 +227,7 @@ void vtkSweptSurface::SampleInput(vtkMatrix4x4& m, int inDim[3],
   origin = ((vtkStructuredPoints *)this->Output)->GetOrigin();
   ar = ((vtkStructuredPoints *)this->Output)->GetAspectRatio();
 
-  t.SetMatrix(m); //we need to do this to pre-multiply
-  t.Transpose();
+  t.SetMatrix(m);
   x[3] = 1.0; //homogeneous coordinates
 
   for (k=0; k<this->SampleDimensions[2]; k++)
@@ -244,7 +243,7 @@ void vtkSweptSurface::SampleInput(vtkMatrix4x4& m, int inDim[3],
         x[0] = origin[0] + i * ar[0];
 
         // transform into local space
-        t.PointMultiply(x,xTrans);
+        t.MultiplyPoint(x,xTrans);
         if ( xTrans[3] != 0.0 ) for (ii=0; ii<3; ii++) xTrans[ii] /= xTrans[3];
 
         // determine which voxel point falls in.
