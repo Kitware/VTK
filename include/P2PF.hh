@@ -22,7 +22,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "PolyF.hh"
 #include "PolyData.hh"
 
-class vlPolyToPolyFilter : public vlPolyFilter, public vlPolyData 
+class vlPolyToPolyFilter : public vlPolyData, public vlPolyFilter
 {
 public:
   void Update();
