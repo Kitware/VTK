@@ -31,7 +31,7 @@
 
 #include "vtkObject.h"
 
-#include "vtkUnsignedCharArray.h"
+#include "vtkUnsignedCharArray.h" // Needed for inline methods.
 
 class VTK_COMMON_EXPORT vtkStructuredVisibilityConstraint : public vtkObject 
 {
@@ -98,10 +98,8 @@ protected:
   unsigned char Initialized;
 
 private:
-  vtkStructuredVisibilityConstraint(
-    const vtkStructuredVisibilityConstraint&);  // Not implemented.
-  void operator=(
-    const vtkStructuredVisibilityConstraint&);  // Not implemented.
+  vtkStructuredVisibilityConstraint(const vtkStructuredVisibilityConstraint&);  // Not implemented.
+  void operator=(const vtkStructuredVisibilityConstraint&);  // Not implemented.
 };
 
 //----------------------------------------------------------------------------
