@@ -58,7 +58,25 @@
 #include "vtkXOpenGLRenderWindow.h"
 #endif
 
-vtkCxxRevisionMacro(vtkGraphicsFactory, "1.27");
+#if defined(VTK_MANGLE_MESA)
+#include "vtkMesaActor.h"
+#include "vtkMesaCamera.h"
+#include "vtkMesaImageActor.h"
+#include "vtkMesaLight.h"
+#include "vtkMesaProperty.h"
+#include "vtkMesaPolyDataMapper.h"
+#include "vtkMesaRenderer.h"
+#include "vtkMesaTexture.h"
+#include "vtkMesaVolumeTextureMapper2D.h"
+#include "vtkMesaVolumeRayCastMapper.h"
+#include "vtkXMesaRenderWindow.h"
+#endif
+
+#include "vtkCriticalSection.h"
+static vtkSimpleCriticalSection vtkUseMesaClassesCriticalSection;
+int vtkGraphicsFactory::UseMesaClasses = 0;
+
+vtkCxxRevisionMacro(vtkGraphicsFactory, "1.28");
 
 const char *vtkGraphicsFactory::GetRenderLibrary()
 {
@@ -127,6 +145,12 @@ vtkObject* vtkGraphicsFactory::CreateInstance(const char* vtkclassname )
     {
     if(strcmp(vtkclassname, "vtkRenderWindow") == 0)
       {
+#if defined(VTK_MANGLE_MESA)
+      if ( vtkGraphicsFactory::UseMesaClasses )
+	{
+	return vtkXMesaRenderWindow::New();
+	}
+#endif
       return vtkXOpenGLRenderWindow::New();
       }
     }
@@ -176,42 +200,102 @@ vtkObject* vtkGraphicsFactory::CreateInstance(const char* vtkclassname )
     {
     if(strcmp(vtkclassname, "vtkActor") == 0)
       {
+#if defined(VTK_MANGLE_MESA)
+      if ( vtkGraphicsFactory::UseMesaClasses )
+	{
+	return vtkMesaActor::New();
+	}
+#endif
       return vtkOpenGLActor::New();
       }
     if(strcmp(vtkclassname, "vtkCamera") == 0)
       {
+#if defined(VTK_MANGLE_MESA)
+      if ( vtkGraphicsFactory::UseMesaClasses )
+	{
+	return vtkMesaCamera::New();
+	}
+#endif
       return vtkOpenGLCamera::New();
       }
     if(strcmp(vtkclassname, "vtkImageActor") == 0)
       {
+#if defined(VTK_MANGLE_MESA)
+      if ( vtkGraphicsFactory::UseMesaClasses )
+	{
+	return vtkMesaImageActor::New();
+	}
+#endif
       return vtkOpenGLImageActor::New();
       }
     if(strcmp(vtkclassname, "vtkLight") == 0)
       {
+#if defined(VTK_MANGLE_MESA)
+      if ( vtkGraphicsFactory::UseMesaClasses )
+	{
+	return vtkMesaLight::New();
+	}
+#endif
       return vtkOpenGLLight::New();
       }
     if(strcmp(vtkclassname, "vtkProperty") == 0)
       {
+#if defined(VTK_MANGLE_MESA)
+      if ( vtkGraphicsFactory::UseMesaClasses )
+	{
+	return vtkMesaProperty::New();
+	}
+#endif
       return vtkOpenGLProperty::New();
       }
     if(strcmp(vtkclassname, "vtkPolyDataMapper") == 0)
       {
+#if defined(VTK_MANGLE_MESA)
+      if ( vtkGraphicsFactory::UseMesaClasses )
+	{
+	return vtkMesaPolyDataMapper::New();
+	}
+#endif
       return vtkOpenGLPolyDataMapper::New();
       }
     if(strcmp(vtkclassname, "vtkRenderer") == 0)
       {
+#if defined(VTK_MANGLE_MESA)
+      if ( vtkGraphicsFactory::UseMesaClasses )
+	{
+	return vtkMesaRenderer::New();
+	}
+#endif
       return vtkOpenGLRenderer::New();
       }
     if(strcmp(vtkclassname, "vtkTexture") == 0)
       {
+#if defined(VTK_MANGLE_MESA)
+      if ( vtkGraphicsFactory::UseMesaClasses )
+	{
+	return vtkMesaTexture::New();
+	}
+#endif
       return vtkOpenGLTexture::New();
       }
     if(strcmp(vtkclassname, "vtkVolumeTextureMapper2D") == 0)
       {
+#if defined(VTK_MANGLE_MESA)
+      if ( vtkGraphicsFactory::UseMesaClasses )
+	{
+	return vtkMesaVolumeTextureMapper2D::New();
+	}
+#endif
       return vtkOpenGLVolumeTextureMapper2D::New();
       }
     if(strcmp(vtkclassname, "vtkVolumeRayCastMapper") == 0)
       {
+#if defined(VTK_MANGLE_MESA)
+      if ( vtkGraphicsFactory::UseMesaClasses )
+	{
+	return vtkMesaVolumeRayCastMapper::New();
+	}
+#endif
       return vtkOpenGLVolumeRayCastMapper::New();
       }
     }
@@ -220,4 +304,15 @@ vtkObject* vtkGraphicsFactory::CreateInstance(const char* vtkclassname )
   return 0;
 }
 
+void vtkGraphicsFactory::SetUseMesaClasses(int use)
+{
+  vtkUseMesaClassesCriticalSection.Lock();
+  vtkGraphicsFactory::UseMesaClasses = use;
+  vtkUseMesaClassesCriticalSection.Unlock();
+}
+
+int vtkGraphicsFactory::GetUseMesaClasses()
+{
+  return vtkGraphicsFactory::UseMesaClasses;
+}
 

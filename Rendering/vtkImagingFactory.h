@@ -35,8 +35,17 @@ public:
   // dynamic loading. 
   static vtkObject* CreateInstance(const char* vtkclassname);
 
+  // Description:
+  // This option enables the creation of Mesa classes
+  // instead of the OpenGL classes when using mangled Mesa.
+  static void SetUseMesaClasses(int use);
+  static int  GetUseMesaClasses();
+
 protected:
   vtkImagingFactory() {};
+
+  static int UseMesaClasses;
+
 private:
   vtkImagingFactory(const vtkImagingFactory&);  // Not implemented.
   void operator=(const vtkImagingFactory&);  // Not implemented.

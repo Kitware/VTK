@@ -27,7 +27,7 @@
 #include "vtkOpenGLPolyDataMapper2D.h"
 #endif
 
-#ifdef VTK_USE_MESA
+#if defined(VTK_MANGLE_MESA)
 #include "vtkMesaImageMapper.h"
 #include "vtkXMesaTextMapper.h"
 #include "vtkMesaPolyDataMapper2D.h"
@@ -50,8 +50,11 @@
 #include "vtkOpenGLPolyDataMapper2D.h"
 #endif
 
+#include "vtkCriticalSection.h"
+static vtkSimpleCriticalSection vtkUseMesaClassesCriticalSection;
+int vtkImagingFactory::UseMesaClasses = 0;
 
-vtkCxxRevisionMacro(vtkImagingFactory, "1.22");
+vtkCxxRevisionMacro(vtkImagingFactory, "1.23");
 
 
 const char *vtkImagingFactoryGetRenderLibrary()
@@ -80,26 +83,9 @@ const char *vtkImagingFactoryGetRenderLibrary()
       }
     }
   
-  // if the environment variable is set to openGL and the user
-  //  does not have opengl but they do have mesa, then use it
-#ifndef VTK_USE_OGLR
-#ifdef VTK_USE_MESA
-  if ( temp != NULL )
-    {
-    if (!strcmp("OpenGL",temp))
-      {
-      temp = "Mesa";
-      }
-    }
-#endif
-#endif
-  
   // if nothing is set then work down the list of possible renderers
   if ( !temp )
     {
-#ifdef VTK_USE_MESA
-    temp = "Mesa";
-#endif
 #ifdef VTK_USE_OGLR
     temp = "OpenGL";
 #endif
@@ -139,14 +125,32 @@ vtkObject* vtkImagingFactory::CreateInstance(const char* vtkclassname )
     {
     if(strcmp(vtkclassname, "vtkTextMapper") == 0)
       {
+#if defined(VTK_MANGLE_MESA)
+      if ( vtkImagingFactory::UseMesaClasses )
+	{
+	return vtkXMesaTextMapper::New();
+	}
+#endif
       return vtkXOpenGLTextMapper::New();
       }
     if(strcmp(vtkclassname, "vtkImageMapper") == 0)
       {
+#if defined(VTK_MANGLE_MESA)
+      if ( vtkImagingFactory::UseMesaClasses )
+	{
+	return vtkMesaImageMapper::New();
+	}
+#endif
       return vtkOpenGLImageMapper::New();
       }
     if(strcmp(vtkclassname, "vtkPolyDataMapper2D") == 0)
       {
+#if defined(VTK_MANGLE_MESA)
+      if ( vtkImagingFactory::UseMesaClasses )
+	{
+	return vtkMesaPolyDataMapper2D::New();
+	}
+#endif
       return vtkOpenGLPolyDataMapper2D::New();
       }
     }
@@ -205,27 +209,17 @@ vtkObject* vtkImagingFactory::CreateInstance(const char* vtkclassname )
     }
 #endif
 
-
-#ifdef VTK_USE_MESA
-  if (!strcmp("Mesa",rl))
-    {
-    if(strcmp(vtkclassname, "vtkTextMapper") == 0)
-      {
-      return vtkXMesaTextMapper::New();
-      }
-    if(strcmp(vtkclassname, "vtkImageMapper") == 0)
-      {
-      return vtkMesaImageMapper::New();
-      }
-    if(strcmp(vtkclassname, "vtkPolyDataMapper2D") == 0)
-      {
-      return vtkMesaPolyDataMapper2D::New();
-      }
-    }
-#endif 
-
   return 0;
 }
 
+void vtkImagingFactory::SetUseMesaClasses(int use)
+{
+  vtkUseMesaClassesCriticalSection.Lock();
+  vtkImagingFactory::UseMesaClasses = use;
+  vtkUseMesaClassesCriticalSection.Unlock();
+}
 
-
+int vtkImagingFactory::GetUseMesaClasses()
+{
+  return vtkImagingFactory::UseMesaClasses;
+}

@@ -38,9 +38,18 @@ public:
   // Description:
   // What rendering library has the user requested
   static const char *GetRenderLibrary();
+
+  // Description:
+  // This option enables the creation of Mesa classes
+  // instead of the OpenGL classes when using mangled Mesa.
+  static void SetUseMesaClasses(int use);
+  static int  GetUseMesaClasses();
   
 protected:
   vtkGraphicsFactory() {};
+
+  static int UseMesaClasses;
+
 private:
   vtkGraphicsFactory(const vtkGraphicsFactory&);  // Not implemented.
   void operator=(const vtkGraphicsFactory&);  // Not implemented.

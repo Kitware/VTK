@@ -127,7 +127,6 @@ vtkCuller
 vtkDirectionEncoder
 vtkEncodedGradientEstimator
 vtkExporter
-vtkGraphicsFactory
 vtkInteractorObserver
 vtkImporter
 vtkMapper
@@ -270,6 +269,11 @@ IF (VTK_WRAP_TCL)
      vtkTkRenderWidget.cxx
      vtkTkImageViewerWidget.cxx)
 
+  IF (VTK_USE_X)
+    SET(VTK_DISABLE_TK_INIT 0 CACHE BOOL "Allows the user to disable the automatic initialization of Tk widgets when loading the rendering library.")
+    MARK_AS_ADVANCED(VTK_DISABLE_TK_INIT)
+  ENDIF (VTK_USE_X)
+
   # add in the Tk values if found
   IF (TK_INCLUDE_PATH)
     INCLUDE_DIRECTORIES(${TK_INCLUDE_PATH})
@@ -306,25 +310,43 @@ IF (VTK_WRAP_TCL)
   ENDIF (WIN32) 
 
   IF (HAVE_OPENGL_SRCS)
-    VTK_WRAP_TCL(vtkRenderingTCL
-               SOURCES
-               RenderingTCL_SRCS
-               Rendering_SRCS
-               RenderingOpenGL_SRCS
-               COMMANDS
-               vtkTkRenderWidget
-               vtkTkImageViewerWidget
-               )
+    IF (NOT VTK_DISABLE_TK_INIT)
+      VTK_WRAP_TCL(vtkRenderingTCL
+                 SOURCES
+                 RenderingTCL_SRCS
+                 Rendering_SRCS
+                 RenderingOpenGL_SRCS
+                 COMMANDS
+                 vtkTkRenderWidget
+                 vtkTkImageViewerWidget
+                 )
+    ELSE (NOT VTK_DISABLE_TK_INIT)
+      VTK_WRAP_TCL(vtkRenderingTCL
+                 SOURCES
+                 RenderingTCL_SRCS
+                 Rendering_SRCS
+                 RenderingOpenGL_SRCS
+                 )
+    ENDIF (NOT VTK_DISABLE_TK_INIT)
   ELSE (HAVE_OPENGL_SRCS)
-    VTK_WRAP_TCL(vtkRenderingTCL
-               SOURCES
-               RenderingTCL_SRCS
-               Rendering_SRCS
-               COMMANDS
-               vtkTkRenderWidget
-               vtkTkImageViewerWidget
-               )
+    IF (NOT VTK_DISABLE_TK_INIT)
+      VTK_WRAP_TCL(vtkRenderingTCL
+                 SOURCES
+                 RenderingTCL_SRCS
+                 Rendering_SRCS
+                 COMMANDS
+                 vtkTkRenderWidget
+                 vtkTkImageViewerWidget
+                 )
+    ELSE (NOT VTK_DISABLE_TK_INIT)
+      VTK_WRAP_TCL(vtkRenderingTCL
+                 SOURCES
+                 RenderingTCL_SRCS
+                 Rendering_SRCS
+                 )
+    ENDIF (NOT VTK_DISABLE_TK_INIT)
   ENDIF (HAVE_OPENGL_SRCS)
+
   IF (APPLE)
     ADD_LIBRARY(vtkRenderingTCL SHARED RenderingTCL_SRCS)
   ELSE (APPLE)
