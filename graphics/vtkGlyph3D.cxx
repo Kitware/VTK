@@ -246,7 +246,9 @@ void vtkGlyph3D::Execute()
       {
       s = inScalars->GetScalar(inPtId);
       if ( this->ScaleMode == VTK_SCALE_BY_SCALAR || this->ScaleMode == VTK_DATA_SCALING_OFF )
+	{
         scale = s;
+	}
       }
 
     if ( haveVectors )
@@ -516,7 +518,9 @@ void vtkGlyph3D::Update()
     for (i=0; i<this->NumberOfSources; i++)
       {
       if ( this->Source[i] != NULL && this->Source[i]->GetDataReleased() ) 
+	{
         this->Source[i]->ForceUpdate();
+	}
       }
 
     if ( this->StartMethod )

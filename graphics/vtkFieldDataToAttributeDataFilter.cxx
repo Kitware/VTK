@@ -101,31 +101,41 @@ vtkFieldDataToAttributeDataFilter::~vtkFieldDataToAttributeDataFilter()
   for (i=0; i<4; i++)
     {
     if ( this->ScalarArrays[i] != NULL )
+      {
       delete [] this->ScalarArrays[i];
+      }
     }
   
   for (i=0; i<3; i++)
     {
     if ( this->VectorArrays[i] != NULL )
+      {
       delete [] this->VectorArrays[i];
+      }
     }
   
   for (i=0; i<3; i++)
     {
     if ( this->NormalArrays[i] != NULL )
+      {
       delete [] this->NormalArrays[i];
+      }
     }
   
   for (i=0; i<3; i++)
     {
     if ( this->TCoordArrays[i] != NULL )
+      {
       delete [] this->TCoordArrays[i];
+      }
     }
   
   for (i=0; i<9; i++)
     {
     if ( this->TensorArrays[i] != NULL )
+      {
       delete [] this->TensorArrays[i];
+      }
     }
   
 }
@@ -314,8 +324,14 @@ void vtkFieldDataToAttributeDataFilter::ConstructScalars(int num, vtkFieldData *
   int i, normalizeAny;
   vtkDataArray *fieldArray[4];
   
-  if ( numComp < 1 ) return;
-  for (i=0; i<numComp; i++) if ( arrays[i] == NULL ) return;
+  if ( numComp < 1 )
+    {
+    return;
+    }
+  for (i=0; i<numComp; i++)
+    {
+    if ( arrays[i] == NULL ) return;
+    }
   
   for ( i=0; i < numComp; i++ )
     {
@@ -342,7 +358,10 @@ void vtkFieldDataToAttributeDataFilter::ConstructScalars(int num, vtkFieldData *
   vtkScalars *newScalars = vtkScalars::New();
   for (i=1; i < numComp; i++) //see whether all the data is from the same array
     {
-    if ( fieldArray[i] != fieldArray[i-1] ) break;
+    if ( fieldArray[i] != fieldArray[i-1] )
+      {
+      break;
+      }
     }
   
   // see whether we can reuse the data array from the field
@@ -446,7 +465,13 @@ void vtkFieldDataToAttributeDataFilter::ConstructVectors(int num, vtkFieldData *
   int i;
   vtkDataArray *fieldArray[3];
 
-  for (i=0; i<3; i++) if ( arrays[i] == NULL ) return;
+  for (i=0; i<3; i++)
+    {
+    if ( arrays[i] == NULL )
+      {
+      return;
+      }
+    }
 
   for ( i=0; i < 3; i++ )
     {
@@ -573,7 +598,13 @@ void vtkFieldDataToAttributeDataFilter::ConstructNormals(int num, vtkFieldData *
   int i;
   vtkDataArray *fieldArray[3];
 
-  for (i=0; i<3; i++) if ( arrays[i] == NULL ) return;
+  for (i=0; i<3; i++)
+    {
+    if ( arrays[i] == NULL )
+      {
+      return;
+      }
+    }
   
   for ( i=0; i < 3; i++ )
     {
@@ -704,8 +735,17 @@ void vtkFieldDataToAttributeDataFilter::ConstructTCoords(int num, vtkFieldData *
   int i, normalizeAny;
   vtkDataArray *fieldArray[3];
   
-  if ( numComp < 1 ) return;
-  for (i=0; i<numComp; i++) if ( arrays[i] == NULL ) return;
+  if ( numComp < 1 )
+    {
+    return;
+    }
+  for (i=0; i<numComp; i++)
+    {
+    if ( arrays[i] == NULL )
+      {
+      return;
+      }
+    }
   
   for ( normalizeAny=i=0; i < numComp; i++ )
     {
@@ -732,7 +772,10 @@ void vtkFieldDataToAttributeDataFilter::ConstructTCoords(int num, vtkFieldData *
   vtkTCoords *newTCoords = vtkTCoords::New();
   for (i=1; i < numComp; i++) //see whether all the data is from the same array
     {
-    if ( fieldArray[i] != fieldArray[i-1] ) break;
+    if ( fieldArray[i] != fieldArray[i-1] )
+      {
+      break;
+      }
     }
   
   // see whether we can reuse the data array from the field
@@ -836,7 +879,13 @@ void vtkFieldDataToAttributeDataFilter::ConstructTensors(int num, vtkFieldData *
   int i, normalizeAny;
   vtkDataArray *fieldArray[9];
 
-  for (i=0; i<9; i++) if ( arrays[i] == NULL ) return;
+  for (i=0; i<9; i++)
+    {
+    if ( arrays[i] == NULL )
+      {
+      return;
+      }
+    }
   
   for ( i=0; i < 9; i++ )
     {
@@ -863,7 +912,10 @@ void vtkFieldDataToAttributeDataFilter::ConstructTensors(int num, vtkFieldData *
   vtkTensors *newTensors = vtkTensors::New();
   for (i=1; i < 9; i++) //see whether all the data is from the same array
     {
-    if ( fieldArray[i] != fieldArray[i-1] ) break;
+    if ( fieldArray[i] != fieldArray[i-1] )
+      {
+      break;
+      }
     }
   
   // see whether we can reuse the data array from the field
@@ -919,8 +971,14 @@ int vtkFieldDataToAttributeDataFilter::ConstructArray(vtkDataArray *da, int comp
   for (i=0; i < n; i++)
     {
     compValue = fieldArray->GetComponent(min+i, fieldComp);
-    if ( compValue < minValue ) minValue = compValue;
-    if ( compValue > maxValue ) maxValue = compValue;
+    if ( compValue < minValue )
+      {
+      minValue = compValue;
+      }
+    if ( compValue > maxValue )
+      {
+      maxValue = compValue;
+      }
     da->SetComponent(i, comp, compValue);
     }
   
@@ -965,7 +1023,10 @@ vtkDataArray *vtkFieldDataToAttributeDataFilter::GetFieldArray(vtkFieldData *fd,
 
   if ( name != NULL )
     {
-    if ( (da = fd->GetArray(name)) == NULL ) return NULL;
+    if ( (da = fd->GetArray(name)) == NULL )
+      {
+      return NULL;
+      }
     numComp = da->GetNumberOfComponents();
     if ( comp < 0 || comp >= numComp )
       {
@@ -982,8 +1043,14 @@ vtkDataArray *vtkFieldDataToAttributeDataFilter::GetFieldArray(vtkFieldData *fd,
 
 void vtkFieldDataToAttributeDataFilter::SetArrayName(vtkObject *self, char* &name, char *newName)
 {
-  if ( name && newName && (!strcmp(name,newName))) return;
-  if (name) delete [] name;
+  if ( name && newName && (!strcmp(name,newName)))
+    {
+    return;
+    }
+  if (name)
+    {
+    delete [] name;
+    } 
   if (newName)
     {
     name = new char[strlen(newName)+1];
