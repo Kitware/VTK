@@ -57,6 +57,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
   B[3] = A[0]*M[12] + A[1]*M[13] + A[2]*M[14] + M[15]; \
   if ( B[3] != 1.0 ) { B[0] /= B[3]; B[1] /= B[3]; B[2] /= B[3]; }
 
+#define vtkRayCastMatrixMultiplyNormalMacro( A, B, M ) \
+  B[0] = A[0]*M[0]  + A[1]*M[4]  + A[2]*M[8]; \
+  B[1] = A[0]*M[1]  + A[1]*M[5]  + A[2]*M[9]; \
+  B[2] = A[0]*M[2]  + A[1]*M[6]  + A[2]*M[10]
+
 // Construct a new vtkVolumeRayCastMapper with default values
 vtkVolumeRayCastMapper::vtkVolumeRayCastMapper()
 {
@@ -542,6 +547,7 @@ int vtkVolumeRayCastMapper::ClipRayAgainstClippingPlanes(
   float    rayDir[3];
   float    t, point[3], dp;
   float    *worldToVolumeMatrix;
+  float    *volumeToWorldMatrix;
   float    worldZero[3], volumeZero[4];
   float    *rayStart, *rayEnd;
 
@@ -549,12 +555,7 @@ int vtkVolumeRayCastMapper::ClipRayAgainstClippingPlanes(
   rayEnd = rayInfo->TransformedEnd;
 
   worldToVolumeMatrix = volumeInfo->WorldToVolumeMatrix;
-
-  worldZero[0] = 0.0;
-  worldZero[1] = 0.0;
-  worldZero[2] = 0.0;
-  vtkRayCastMatrixMultiplyPointMacro( worldZero, volumeZero,
-				      worldToVolumeMatrix );
+  volumeToWorldMatrix = volumeInfo->VolumeToWorldMatrix;
 
   rayDir[0] = rayEnd[0] - rayStart[0];
   rayDir[1] = rayEnd[1] - rayStart[1];
@@ -566,13 +567,10 @@ int vtkVolumeRayCastMapper::ClipRayAgainstClippingPlanes(
     onePlane = (vtkPlane *)planes->GetItemAsObject(i);
     onePlane->GetNormal(worldNormal);
     onePlane->GetOrigin(worldOrigin);
-    vtkRayCastMatrixMultiplyPointMacro( worldNormal, volumeNormal,
-					worldToVolumeMatrix );
+    vtkRayCastMatrixMultiplyNormalMacro( worldNormal, volumeNormal,
+					 volumeToWorldMatrix );
     vtkRayCastMatrixMultiplyPointMacro( worldOrigin, volumeOrigin,
 					worldToVolumeMatrix );
-    volumeNormal[0] -= volumeZero[0];
-    volumeNormal[1] -= volumeZero[1];
-    volumeNormal[2] -= volumeZero[2];
 
     t = sqrt( volumeNormal[0]*volumeNormal[0] +
 	      volumeNormal[1]*volumeNormal[1] +
