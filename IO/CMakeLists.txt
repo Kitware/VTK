@@ -53,7 +53,13 @@ vtkVolumeReader
 vtkWriter
 )
 
-
+# 
+# if we found the PNG libraries then add those classes
+#
+IF (HAVE_PNG)
+  SOURCE_FILES( IO_SRCS vtkPNGReader vtkPNGWriter )
+ENDIF (HAVE_PNG)
+  
 ADD_LIBRARY(vtkIO IO_SRCS)
 
 # Allow the user to customize their build with some local options

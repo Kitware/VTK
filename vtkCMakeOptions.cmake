@@ -112,3 +112,40 @@ SET (LIBRARY_OUTPUT_PATH ${VTK_BINARY_DIR}/lib/ CACHE PATH "Single output direct
 SET (EXECUTABLE_OUTPUT_PATH ${VTK_BINARY_DIR}/bin/ CACHE PATH "Single output directory for building all executables.")
 
 OPTION(VTK_USE_ANSI_STDLIB "Use the ANSI standard iostream library", OFF)
+
+#
+# Look for the PNG and zlib libraries and header files
+#
+# on windows we have it checked in
+IF (WIN32)
+  FIND_LIBRARY(PNG_LIBRARY libpng "${VTK_SOURCE_DIR}/IO/PNG")
+  FIND_PATH(PNG_INCLUDE_PATH png.h "${VTK_SOURCE_DIR}/IO/PNG")
+  FIND_PATH(ZLIB_INCLUDE_PATH zlib.h  "${VTK_SOURCE_DIR}/IO/PNG")
+ELSE (WIN32)
+  FIND_LIBRARY(PNG_LIBRARY
+    NAMES png libpng
+    PATHS  
+    /usr/lib 
+    /usr/local/lib
+    "${VTK_SOURCE_DIR}/IO/png"
+  )
+  FIND_PATH(PNG_INCLUDE_PATH png.h 
+    /usr/include 
+    /usr/local/include
+    "${VTK_SOURCE_DIR}/IO/png"
+  )
+  FIND_PATH(ZLIB_INCLUDE_PATH zlib.h 
+    /usr/include 
+    /usr/local/include
+    "${VTK_SOURCE_DIR}/IO/png"
+  )
+ENDIF (WIN32)
+
+IF (PNG_LIBRARY)
+  IF (PNG_INCLUDE_PATH)
+    IF (ZLIB_INCLUDE_PATH)
+      SET (HAVE_PNG 1)
+      INCLUDE_DIRECTORIES(${PNG_INCLUDE_PATH})
+    ENDIF (ZLIB_INCLUDE_PATH)
+  ENDIF (PNG_INCLUDE_PATH)
+ENDIF (PNG_LIBRARY)

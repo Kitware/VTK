@@ -61,6 +61,10 @@ IF (VTK_WRAP_TCL)
   IF (VTK_USE_MPI)
     ADD_EXECUTABLE(pvtk tkAppInit)
 
+    IF (HAVE_PNG)
+      TARGET_LINK_LIBRARIES(pvtk ${PNG_LIBRARY})
+    ENDIF (HAVE_PNG)
+
     TARGET_LINK_LIBRARIES (pvtk
 			 vtkParallelTCL
                          vtkRenderingTCL

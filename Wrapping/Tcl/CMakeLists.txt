@@ -68,4 +68,11 @@ IF (VTK_USE_PARALLEL)
   ENDIF (VTK_USE_MPI)
 ENDIF (VTK_USE_PARALLEL)
 
+#
+# link in the PNG library if it was found
+#
+IF (HAVE_PNG)
+  TARGET_LINK_LIBRARIES(vtk ${PNG_LIBRARY})
+ENDIF (HAVE_PNG)
+
 INSTALL_TARGETS(/bin vtk)
