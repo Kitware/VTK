@@ -649,26 +649,24 @@ void vtkTreeComposite::EndRender()
   vtkMultiProcessController *controller = this->Controller;
   int numProcs;
   
-  if (controller == NULL || ! this->UseCompositing)
-    {
-    // Stop the timer that has been timing the render.
-    this->Timer->StopTimer();
-    this->MaxRenderTime = this->Timer->GetElapsedTime();
-    return;
-    }
-
   // EndRender only happens on root.
   if (this->CheckForAbortComposite())
     {
     this->Lock = 0;
     return;
-    }
-  
-  numProcs = controller->GetNumberOfProcesses();
+    }  
 
+  numProcs = controller->GetNumberOfProcesses();
   if (numProcs > 1)
     {
     this->Composite();
+    }
+  else
+    {
+    // Stop the timer that has been timing the render.
+    // Normally done in composite.
+    this->Timer->StopTimer();
+    this->MaxRenderTime = this->Timer->GetElapsedTime();
     }
   
   // Force swap buffers here.
