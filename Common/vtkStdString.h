@@ -26,8 +26,9 @@
 class vtkStdString;
 VTK_COMMON_EXPORT ostream& operator<<(ostream&, const vtkStdString&);
 
-struct vtkStdString : public vtkstd::string
+class vtkStdString : public vtkstd::string
 {
+public:
   typedef vtkstd::string StdString;
   typedef StdString::value_type             value_type;
   typedef StdString::pointer                pointer;
