@@ -1,10 +1,13 @@
 catch {load vtktcl}
+if { [catch {set VTK_TCL $env(VTK_TCL)}] != 0} { set VTK_TCL "../../examplesTcl" }
+if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdata" }
 
 # Demonstrate how to use picking (with vtkPropPicker) on a variety 
 # of different subclasses (vtkActor, vtkLODActor, vtkActor2D,
 # vtkScalarBarActor).
+
 # get the interactor ui
-source ../../examplesTcl/vtkInt.tcl
+source $VTK_TCL/vtkInt.tcl
 
 # Create a bunch of different type of vtkProp and pick them
 #
