@@ -202,7 +202,24 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
       {
       ys = ys >> 1;
       }
+
+    // -- decide whether the texture needs to be resampled --
+    bool resampleNeeded = false;
+    // if not a power of two then resampling is required
     if ((xs > 1)||(ys > 1))
+      {
+      resampleNeeded = true;
+      }
+    int maxDimGL;
+    glGetIntegerv(GL_MAX_TEXTURE_SIZE,&maxDimGL);
+    // if larger than permitted by the graphics library then must resample
+    if ( xsize > maxDimGL || ysize > maxDimGL )
+      {
+      vtkDebugMacro( "Texture too big for gl, maximum is " << maxDimGL);
+      resampleNeeded = true;
+      }
+
+    if ( resampleNeeded )
       {
       vtkDebugMacro(<< "Resampling texture to power of two for OpenGL");
       resultData = this->ResampleToPowerOfTwo(xsize, ysize, dataPtr, 
@@ -369,7 +386,18 @@ static int FindPowerOfTwo(int i)
     {
     i /= 2;
     }
-  
+
+  // [these lines added by Tim Hutton (implementing Joris Vanden Wyngaerd's suggestions)]
+  // limit the size of the texture to the maximum allowed by OpenGL
+  // (slightly more graceful than texture failing but not ideal)
+  int maxDimGL;
+  glGetIntegerv(GL_MAX_TEXTURE_SIZE,&maxDimGL);
+  if ( size > maxDimGL )
+    {
+        size = maxDimGL ;
+    }
+  // end of Tim's additions
+ 
   return size;
 }
 
