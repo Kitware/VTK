@@ -20,7 +20,7 @@
 #include "vtkMath.h"
 #include "vtkCommand.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleTrackballActor, "1.21");
+vtkCxxRevisionMacro(vtkInteractorStyleTrackballActor, "1.22");
 vtkStandardNewMacro(vtkInteractorStyleTrackballActor);
 
 //----------------------------------------------------------------------------
@@ -234,10 +234,10 @@ void vtkInteractorStyleTrackballActor::Rotate()
   vtkCamera *cam = this->CurrentRenderer->GetActiveCamera();
 
   // first get the origin of the assembly
-  float *center = this->InteractionProp->GetCenter();
-  this->ObjCenter[0] = center[0];
-  this->ObjCenter[1] = center[1];
-  this->ObjCenter[2] = center[2];
+  float *obj_center = this->InteractionProp->GetCenter();
+  this->ObjCenter[0] = obj_center[0];
+  this->ObjCenter[1] = obj_center[1];
+  this->ObjCenter[2] = obj_center[2];
   
   // GetLength gets the length of the diagonal of the bounding box
   double boundRadius = this->InteractionProp->GetLength() * 0.5;
@@ -332,10 +332,10 @@ void vtkInteractorStyleTrackballActor::Spin()
   vtkCamera *cam = this->CurrentRenderer->GetActiveCamera();
   
   // get the position plus origin of the object
-  float *center = this->InteractionProp->GetCenter();
-  this->ObjCenter[0] = center[0];
-  this->ObjCenter[1] = center[1];
-  this->ObjCenter[2] = center[2];
+  float *obj_center = this->InteractionProp->GetCenter();
+  this->ObjCenter[0] = obj_center[0];
+  this->ObjCenter[1] = obj_center[1];
+  this->ObjCenter[2] = obj_center[2];
   
   // get the axis to rotate around = vector from eye to origin
   if (cam->GetParallelProjection())
@@ -401,10 +401,10 @@ void vtkInteractorStyleTrackballActor::Pan()
   int y = rwi->GetEventPosition()[1];
  
   // use initial center as the origin from which to pan
-  float *center = this->InteractionProp->GetCenter();
-  this->ObjCenter[0] = center[0];
-  this->ObjCenter[1] = center[1];
-  this->ObjCenter[2] = center[2];
+  float *obj_center = this->InteractionProp->GetCenter();
+  this->ObjCenter[0] = obj_center[0];
+  this->ObjCenter[1] = obj_center[1];
+  this->ObjCenter[2] = obj_center[2];
   this->ComputeWorldToDisplay(this->ObjCenter[0], this->ObjCenter[1],
                               this->ObjCenter[2], this->DispObjCenter);
   this->HighlightProp3D(NULL);
@@ -459,8 +459,9 @@ void vtkInteractorStyleTrackballActor::Dolly()
   
   this->HighlightProp3D(NULL);
   
-  double yf = (double)(dy) / (double)(this->Center[1]) *
-    this->MotionFactor;
+  float *center = this->CurrentRenderer->GetCenter();
+
+  double yf = (double)(dy) / (double)(center[1]) * this->MotionFactor;
   double dollyFactor = pow((double)1.1, yf);
   
   dollyFactor -= 1.0;
@@ -501,15 +502,16 @@ void vtkInteractorStyleTrackballActor::UniformScale()
 
   int dy = rwi->GetEventPosition()[1] - rwi->GetLastEventPosition()[1];
  
-  float *center = this->InteractionProp->GetCenter();
-  this->ObjCenter[0] = center[0];
-  this->ObjCenter[1] = center[1];
-  this->ObjCenter[2] = center[2];
+  float *obj_center = this->InteractionProp->GetCenter();
+  this->ObjCenter[0] = obj_center[0];
+  this->ObjCenter[1] = obj_center[1];
+  this->ObjCenter[2] = obj_center[2];
   
   this->HighlightProp3D(NULL);
       
-  double yf = (double)(dy) / (double)(this->Center[1]) *
-    this->MotionFactor;
+  float *center = this->CurrentRenderer->GetCenter();
+
+  double yf = (double)(dy) / (double)(center[1]) * this->MotionFactor;
   double scaleFactor = pow((double)1.1, yf);
   
   double **rotate = NULL;

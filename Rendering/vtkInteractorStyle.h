@@ -278,16 +278,13 @@ protected:
   
   // Keep track of current state
 
-  float Center[2];
-  float DeltaAzimuth;
-  float DeltaElevation;
-
   int   State;  
   int   AnimState;  
 
-  int   HandleObservers; // bool: should observers be handled here
+  // Should observers be handled here, should we fire timers
 
-  int   UseTimers;       // bool: should we fire timers
+  int   HandleObservers; 
+  int   UseTimers;       
 
   vtkLight           *CurrentLight;
 

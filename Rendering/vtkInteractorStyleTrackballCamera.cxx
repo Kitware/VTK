@@ -20,7 +20,7 @@
 #include "vtkMath.h"
 #include "vtkCommand.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleTrackballCamera, "1.21");
+vtkCxxRevisionMacro(vtkInteractorStyleTrackballCamera, "1.22");
 vtkStandardNewMacro(vtkInteractorStyleTrackballCamera);
 
 //----------------------------------------------------------------------------
@@ -205,11 +205,11 @@ void vtkInteractorStyleTrackballCamera::Rotate()
   
   int *size = this->CurrentRenderer->GetRenderWindow()->GetSize();
 
-  this->DeltaElevation = -20.0 / size[1];
-  this->DeltaAzimuth = -20.0 / size[0];
+  float delta_elevation = -20.0 / size[1];
+  float delta_azimuth = -20.0 / size[0];
   
-  double rxf = (double)dx * this->DeltaAzimuth *  this->MotionFactor;
-  double ryf = (double)dy * this->DeltaElevation * this->MotionFactor;
+  double rxf = (double)dx * delta_azimuth *  this->MotionFactor;
+  double ryf = (double)dy * delta_elevation * this->MotionFactor;
   
   vtkCamera *cam = this->CurrentRenderer->GetActiveCamera();
   cam->Azimuth(rxf);
@@ -237,15 +237,15 @@ void vtkInteractorStyleTrackballCamera::Spin()
 
   vtkRenderWindowInteractor *rwi = this->Interactor;
 
-  int x = rwi->GetEventPosition()[0];
-  int y = rwi->GetEventPosition()[1];
+  float *center = this->CurrentRenderer->GetCenter();
 
-  double newAngle = atan2((double)(y) - this->Center[1],
-                          (double)(x) - this->Center[0]);
-  double oldAngle = atan2((double)(rwi->GetLastEventPosition()[1]) - 
-                          this->Center[1],
-                          (double)(rwi->GetLastEventPosition()[0]) - 
-                          this->Center[0]);
+  double newAngle = 
+    atan2((double)rwi->GetEventPosition()[1] - (double)center[1],
+          (double)rwi->GetEventPosition()[0] - (double)center[0]);
+
+  double oldAngle = 
+    atan2((double)rwi->GetLastEventPosition()[1] - (double)center[1],
+          (double)rwi->GetLastEventPosition()[0] - (double)center[0]);
   
   newAngle *= this->RadianToDegree;
   oldAngle *= this->RadianToDegree;
@@ -323,8 +323,10 @@ void vtkInteractorStyleTrackballCamera::Dolly()
   
   vtkRenderWindowInteractor *rwi = this->Interactor;
 
+  float *center = this->CurrentRenderer->GetCenter();
+
   int dy = rwi->GetEventPosition()[1] - rwi->GetLastEventPosition()[1];
-  double dyf = this->MotionFactor * (double)(dy) / (double)(this->Center[1]);
+  double dyf = this->MotionFactor * (double)(dy) / (double)(center[1]);
   double zoomFactor = pow((double)1.1, dyf);
   
   vtkCamera *cam = this->CurrentRenderer->GetActiveCamera();

@@ -19,7 +19,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkCommand.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleJoystickCamera, "1.19");
+vtkCxxRevisionMacro(vtkInteractorStyleJoystickCamera, "1.20");
 vtkStandardNewMacro(vtkInteractorStyleJoystickCamera);
 
 //----------------------------------------------------------------------------
@@ -190,10 +190,18 @@ void vtkInteractorStyleJoystickCamera::Rotate()
   
   vtkRenderWindowInteractor *rwi = this->Interactor;
 
-  double rxf = ((double)(rwi->GetLastEventPosition()[0]) - 
-                (double)(this->Center[0])) * this->DeltaAzimuth;
-  double ryf = ((double)(rwi->GetLastEventPosition()[1]) - 
-                (double)(this->Center[1])) * this->DeltaElevation;
+  float *vp = this->CurrentRenderer->GetViewport();
+  float *center = this->CurrentRenderer->GetCenter();
+
+  int *size = rwi->GetSize();
+
+  float delta_elevation = -20.0/((vp[3] - vp[1])*size[1]);
+  float delta_azimuth = -20.0/((vp[2] - vp[0])*size[0]);
+  
+  double rxf = ((double)rwi->GetLastEventPosition()[0] - (double)center[0]) 
+    * delta_azimuth;
+  double ryf =  ((double)rwi->GetLastEventPosition()[1] - (double)center[1]) 
+    * delta_elevation;
 
   this->CurrentCamera->Azimuth(rxf);
   this->CurrentCamera->Elevation(ryf);
@@ -220,10 +228,12 @@ void vtkInteractorStyleJoystickCamera::Spin()
   
   vtkRenderWindowInteractor *rwi = this->Interactor;
 
+  float *center = this->CurrentRenderer->GetCenter();
+
   // spin is based on y value
-  double yf = ((double)(rwi->GetLastEventPosition()[1]) - 
-               (double)(this->Center[1])) / 
-                       (double)(this->Center[1]);
+  double yf = ((double)rwi->GetLastEventPosition()[1] - (double)center[1]) 
+    / (double)(center[1]);
+
   if (yf > 1)
     {
     yf = 1;
@@ -304,9 +314,12 @@ void vtkInteractorStyleJoystickCamera::Dolly()
   
   vtkRenderWindowInteractor *rwi = this->Interactor;
 
-  double dyf = 0.5 * ((double)(rwi->GetLastEventPosition()[1]) - 
-                      (double)(this->Center[1])) /
-    (double)(this->Center[1]);
+  float *center = this->CurrentRenderer->GetCenter();
+
+  double dyf = 0.5 * 
+    ((double)rwi->GetLastEventPosition()[1] - (double)center[1]) 
+    / (double)(center[1]);
+
   double zoomFactor = pow((double)1.1, dyf);
   if (zoomFactor < 0.5 || zoomFactor > 1.5)
     {

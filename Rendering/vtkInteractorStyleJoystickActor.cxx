@@ -20,7 +20,7 @@
 #include "vtkMath.h"
 #include "vtkCommand.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleJoystickActor, "1.19");
+vtkCxxRevisionMacro(vtkInteractorStyleJoystickActor, "1.20");
 vtkStandardNewMacro(vtkInteractorStyleJoystickActor);
 
 //----------------------------------------------------------------------------
@@ -327,10 +327,10 @@ void vtkInteractorStyleJoystickActor::Spin()
   vtkCamera *cam = this->CurrentRenderer->GetActiveCamera();
   
   // get the axis to rotate around = vector from eye to origin
-  float *center = this->InteractionProp->GetCenter();
-  this->ObjCenter[0] = center[0];
-  this->ObjCenter[1] = center[1];
-  this->ObjCenter[2] = center[2];
+  float *obj_center = this->InteractionProp->GetCenter();
+  this->ObjCenter[0] = obj_center[0];
+  this->ObjCenter[1] = obj_center[1];
+  this->ObjCenter[2] = obj_center[2];
   
   if (cam->GetParallelProjection())
     {
@@ -352,8 +352,10 @@ void vtkInteractorStyleJoystickActor::Spin()
                               this->ObjCenter[2], this->DispObjCenter);
   
   this->HighlightProp3D(NULL);
+
+  float *center = this->CurrentRenderer->GetCenter();
   
-  double yf = ((double)(y) - this->DispObjCenter[1]) / (double)(this->Center[1]);
+  double yf = ((double)(y) - this->DispObjCenter[1]) / (double)(center[1]);
   if (yf > 1.0)
     {
     yf = 1.0;
@@ -399,10 +401,10 @@ void vtkInteractorStyleJoystickActor::Pan()
   int y = rwi->GetEventPosition()[1];
  
   // use initial center as the origin from which to pan
-  float *center = this->InteractionProp->GetCenter();
-  this->ObjCenter[0] = center[0];
-  this->ObjCenter[1] = center[1];
-  this->ObjCenter[2] = center[2];
+  float *obj_center = this->InteractionProp->GetCenter();
+  this->ObjCenter[0] = obj_center[0];
+  this->ObjCenter[1] = obj_center[1];
+  this->ObjCenter[2] = obj_center[2];
   
   this->ComputeWorldToDisplay(this->ObjCenter[0], this->ObjCenter[1],
                               this->ObjCenter[2], this->DispObjCenter);
@@ -463,17 +465,18 @@ void vtkInteractorStyleJoystickActor::Dolly()
   cam->GetFocalPoint(this->ViewFocus);
   
   // use initial center as the origin from which to pan
-  float *center = this->InteractionProp->GetCenter();
-  this->ObjCenter[0] = center[0];
-  this->ObjCenter[1] = center[1];
-  this->ObjCenter[2] = center[2];
+  float *obj_center = this->InteractionProp->GetCenter();
+  this->ObjCenter[0] = obj_center[0];
+  this->ObjCenter[1] = obj_center[1];
+  this->ObjCenter[2] = obj_center[2];
   this->ComputeWorldToDisplay(this->ObjCenter[0], this->ObjCenter[1],
                               this->ObjCenter[2], this->DispObjCenter);
   
   this->HighlightProp3D(NULL);
   
-  double yf = ((double)(y) - this->DispObjCenter[1]) /
-    (double)(this->Center[1]);
+  float *center = this->CurrentRenderer->GetCenter();
+  
+  double yf = ((double)(y) - this->DispObjCenter[1]) / (double)(center[1]);
   double dollyFactor = pow((double)1.1, yf);
 
   dollyFactor -= 1.0;
@@ -518,18 +521,19 @@ void vtkInteractorStyleJoystickActor::UniformScale()
   // and the upper half is positive, lower half is negative
 
   // use bounding box center as the origin from which to pan
-  float *center = this->InteractionProp->GetCenter();
-  this->ObjCenter[0] = center[0];
-  this->ObjCenter[1] = center[1];
-  this->ObjCenter[2] = center[2];
+  float *obj_center = this->InteractionProp->GetCenter();
+  this->ObjCenter[0] = obj_center[0];
+  this->ObjCenter[1] = obj_center[1];
+  this->ObjCenter[2] = obj_center[2];
   
   this->ComputeWorldToDisplay(this->ObjCenter[0], this->ObjCenter[1],
                               this->ObjCenter[2], this->DispObjCenter);
   
   this->HighlightProp3D(NULL);
-  
-  double yf = ((double)(y) - this->DispObjCenter[1]) /
-    (double)(this->Center[1]);
+
+  float *center = this->CurrentRenderer->GetCenter();
+    
+  double yf = ((double)(y) - this->DispObjCenter[1]) / (double)(center[1]);
   double scaleFactor = pow((double)1.1, yf);
   
   double **rotate = NULL;

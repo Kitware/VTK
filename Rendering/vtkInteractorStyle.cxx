@@ -24,7 +24,7 @@
 #include "vtkOldStyleCallbackCommand.h"
 #include "vtkCallbackCommand.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyle, "1.64");
+vtkCxxRevisionMacro(vtkInteractorStyle, "1.65");
 
 //----------------------------------------------------------------------------
 vtkInteractorStyle *vtkInteractorStyle::New() 
@@ -56,9 +56,6 @@ vtkInteractorStyle::vtkInteractorStyle()
   this->PickedRenderer      = NULL;
   this->CurrentProp         = NULL;
   this->PropPicked          = 0;
-
-  this->Center[0]           = 
-  this->Center[1]           = 0.0;
 
   this->PickColor[0]        = 1.0; 
   this->PickColor[1]        = 0.0; 
@@ -462,10 +459,6 @@ void vtkInteractorStyle::FindPokedCamera(int x,int y)
   // side effect stuff
   float *vp = this->CurrentRenderer->GetViewport();
   int *Size = this->Interactor->GetSize();
-  this->Center[0] = this->CurrentRenderer->GetCenter()[0];
-  this->Center[1] = this->CurrentRenderer->GetCenter()[1];
-  this->DeltaElevation = -20.0/((vp[3] - vp[1])*Size[1]);
-  this->DeltaAzimuth = -20.0/((vp[2] - vp[0])*Size[0]);
   
   // as a side effect also set the light
   // in case they are using light follow camera
@@ -1238,8 +1231,6 @@ void vtkInteractorStyle::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "CurrentCamera:   " << this->CurrentCamera << "\n";
   os << indent << "CurrentLight:    " << this->CurrentLight << "\n";
   os << indent << "CurrentRenderer: " << this->CurrentRenderer << "\n";
-  os << indent << "Viewport Center: " << "( " << this->Center[0] <<
-    ", " << this->Center[1] << " )\n";
   if ( this->PickedRenderer )
     {
     os << indent << "Picked Renderer: " << this->PickedRenderer << "\n";
