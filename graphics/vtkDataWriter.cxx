@@ -485,7 +485,10 @@ int vtkDataWriter::WriteScalarData(FILE *fp, vtkScalars *scalars, int num)
     char format[1024];
     fprintf (fp, "SCALARS ");
     sprintf(format,"%s %s %s\n",this->ScalarsName, "%s\nLOOKUP_TABLE", name);
-    return this->WriteArray(fp, scalars->GetDataType(), scalars->GetData(), format, num, 1);
+    if (this->WriteArray(fp, scalars->GetDataType(), scalars->GetData(), format, num, 1) == 0)
+      {
+      return 0;
+      }
     }
 
   else //color scalars
