@@ -74,6 +74,11 @@ protected:
   char* CreatePieceFileName(const char* fileName);
   void SplitFileName();
   
+  // Callback registered with the PieceProgressObserver.
+  static void PieceProgressCallbackFunction(vtkObject*, unsigned long, void*,
+                                           void*);
+  virtual void PieceProgressCallback();
+  
   // Pieces from the input summary file.
   int NumberOfPieces;
   
@@ -93,7 +98,11 @@ protected:
   
   // The PPointData and PCellData element representations.
   vtkXMLDataElement* PPointDataElement;
-  vtkXMLDataElement* PCellDataElement;
+  vtkXMLDataElement* PCellDataElement;  
+  
+  // The observer to report progress from reading serial data in each
+  // piece.
+  vtkCallbackCommand* PieceProgressObserver;  
   
 private:
   vtkXMLPDataReader(const vtkXMLPDataReader&);  // Not implemented.

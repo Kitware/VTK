@@ -23,7 +23,7 @@
 #include "vtkXMLDataElement.h"
 #include "vtkXMLStructuredDataReader.h"
 
-vtkCxxRevisionMacro(vtkXMLPStructuredDataReader, "1.3");
+vtkCxxRevisionMacro(vtkXMLPStructuredDataReader, "1.4");
 
 //----------------------------------------------------------------------------
 vtkXMLPStructuredDataReader::vtkXMLPStructuredDataReader()
@@ -88,12 +88,45 @@ void vtkXMLPStructuredDataReader::ReadXMLData()
   // Let superclasses read data.  This also allocates output data.
   this->Superclass::ReadXMLData();
   
-  // Read the contribution from each piece.
+  // Split current progress range based on fraction contributed by
+  // each piece.
+  float progressRange[2] = {0,0};
+  this->GetProgressRange(progressRange);
+  
+  // Calculate the cumulative fraction of data contributed by each
+  // piece (for progress).
+  float* fractions = new float[this->NumberOfPieces+1];
   int i;
+  fractions[0] = 0;
   for(i=0;i < this->NumberOfPieces;++i)
     {
-    int* pieceExtent = this->PieceExtents+i*6;
+    int* pieceExtent = this->PieceExtents + i*6;
+    int pieceDims[3] = {0,0,0};
     // Intersect the extents to get the part we need to read.
+    if(this->IntersectExtents(pieceExtent, this->UpdateExtent,
+                              this->SubExtent))
+      {      
+      this->ComputeDimensions(this->SubExtent, pieceDims, 1);
+      fractions[i+1] = fractions[i] + pieceDims[0]*pieceDims[1]*pieceDims[2];
+      }
+    }
+  if(fractions[this->NumberOfPieces] == 0)
+    {
+    fractions[this->NumberOfPieces] = 1;
+    }
+  for(i=1;i <= this->NumberOfPieces;++i)
+    {
+    fractions[i] = fractions[i] / fractions[this->NumberOfPieces];
+    }
+  
+  // Read the data needed from each piece.
+  for(i=0;i < this->NumberOfPieces;++i)
+    {
+    // Set the range of progress for this piece.
+    this->SetProgressRange(progressRange, i, fractions);
+    
+    // Intersect the extents to get the part we need to read.
+    int* pieceExtent = this->PieceExtents + i*6;
     if(this->IntersectExtents(pieceExtent, this->UpdateExtent,
                               this->SubExtent))
       {
@@ -106,10 +139,12 @@ void vtkXMLPStructuredDataReader::ReadXMLData()
       this->ComputeDimensions(this->SubExtent, this->SubPointDimensions, 1);
       this->ComputeDimensions(this->SubExtent, this->SubCellDimensions, 0);
       
-      // Read data from the piece.
+      // Read the data from this piece.
       this->Superclass::ReadPieceData(i);
       }
     }
+  
+  delete [] fractions;
   
   // We filled the exact update extent in the output.
   this->SetOutputExtent(this->UpdateExtent);  

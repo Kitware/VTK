@@ -17,6 +17,7 @@
 =========================================================================*/
 #include "vtkXMLPDataReader.h"
 
+#include "vtkCallbackCommand.h"
 #include "vtkCellData.h"
 #include "vtkDataArray.h"
 #include "vtkDataArraySelection.h"
@@ -25,7 +26,7 @@
 #include "vtkXMLDataElement.h"
 #include "vtkXMLDataReader.h"
 
-vtkCxxRevisionMacro(vtkXMLPDataReader, "1.5");
+vtkCxxRevisionMacro(vtkXMLPDataReader, "1.6");
 
 //----------------------------------------------------------------------------
 vtkXMLPDataReader::vtkXMLPDataReader()
@@ -38,7 +39,13 @@ vtkXMLPDataReader::vtkXMLPDataReader()
   this->PieceReaders = 0;
   this->CanReadPieceFlag = 0;
   
-  this->PathName = 0;  
+  this->PathName = 0;
+  
+  // Setup a callback for the internal serial readers to report
+  // progress.
+  this->PieceProgressObserver = vtkCallbackCommand::New();
+  this->PieceProgressObserver->SetCallback(&vtkXMLPDataReader::PieceProgressCallbackFunction);
+  this->PieceProgressObserver->SetClientData(this);
 }
 
 //----------------------------------------------------------------------------
@@ -46,6 +53,7 @@ vtkXMLPDataReader::~vtkXMLPDataReader()
 {
   if(this->NumberOfPieces) { this->DestroyPieces(); }  
   if(this->PathName) { delete [] this->PathName; }
+  this->PieceProgressObserver->Delete();
 }
 
 //----------------------------------------------------------------------------
@@ -244,7 +252,11 @@ void vtkXMLPDataReader::DestroyPieces()
   int i;
   for(i=0;i < this->NumberOfPieces;++i)
     {
-    if(this->PieceReaders[i]) { this->PieceReaders[i]->Delete(); }
+    if(this->PieceReaders[i])
+      {
+      this->PieceReaders[i]->RemoveObserver(this->PieceProgressObserver);
+      this->PieceReaders[i]->Delete();
+      }
     }
   delete [] this->PieceElements;
   delete [] this->CanReadPieceFlag;
@@ -279,6 +291,8 @@ int vtkXMLPDataReader::ReadPiece(vtkXMLDataElement* ePiece)
   
   vtkXMLDataReader* reader = this->CreatePieceReader();
   this->PieceReaders[this->Piece] = reader;
+  this->PieceReaders[this->Piece]->AddObserver(vtkCommand::ProgressEvent,
+                                               this->PieceProgressObserver);
   reader->SetFileName(pieceFileName);
   
   delete [] pieceFileName;
@@ -313,14 +327,11 @@ int vtkXMLPDataReader::ReadPieceData()
 {
   vtkDataSet* input = this->GetPieceInputAsDataSet(this->Piece);
   vtkDataSet* output = this->GetOutputAsDataSet();
-  //vtkXMLDataElement* ePointData = this->PPointDataElement;
-  //vtkXMLDataElement* eCellData = this->PCellDataElement;
   
   // Copy point data and cell data for this piece.
   int i;
   for(i=0;i < output->GetPointData()->GetNumberOfArrays();++i)
     {
-    
     this->CopyArrayForPoints(input->GetPointData()->GetArray(i),
                              output->GetPointData()->GetArray(i));
     }
@@ -399,4 +410,20 @@ void vtkXMLPDataReader::SplitFileName()
   
   // Cleanup temporary name.
   delete [] fileName;
+}
+
+//----------------------------------------------------------------------------
+void vtkXMLPDataReader::PieceProgressCallbackFunction(vtkObject*, unsigned long,
+                                                      void* clientdata, void*)
+{
+  reinterpret_cast<vtkXMLPDataReader*>(clientdata)->PieceProgressCallback();
+}
+
+//----------------------------------------------------------------------------
+void vtkXMLPDataReader::PieceProgressCallback()
+{
+  float width = this->ProgressRange[1]-this->ProgressRange[0];
+  float pieceProgress = this->PieceReaders[this->Piece]->GetProgress();
+  float progress = this->ProgressRange[0] + pieceProgress*width;
+  this->UpdateProgressDiscrete(progress);
 }

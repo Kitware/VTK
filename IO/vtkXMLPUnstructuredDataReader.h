@@ -65,6 +65,11 @@ protected:
   void CopyCellArray(vtkIdType totalNumberOfCells, vtkCellArray* inCells,
                      vtkCellArray* outCells);
   
+  // Get the number of points/cells in the given piece.  Valid after
+  // UpdateInformation.
+  virtual vtkIdType GetNumberOfPointsInPiece(int piece);
+  virtual vtkIdType GetNumberOfCellsInPiece(int piece);
+  
   // The update request.
   int UpdatePiece;
   int UpdateNumberOfPieces;

@@ -21,7 +21,7 @@
 #include "vtkPointSet.h"
 #include "vtkCellArray.h"
 
-vtkCxxRevisionMacro(vtkXMLPUnstructuredDataReader, "1.5");
+vtkCxxRevisionMacro(vtkXMLPUnstructuredDataReader, "1.6");
 
 //----------------------------------------------------------------------------
 vtkXMLPUnstructuredDataReader::vtkXMLPUnstructuredDataReader()
@@ -94,6 +94,18 @@ vtkIdType vtkXMLPUnstructuredDataReader::GetNumberOfPoints()
 vtkIdType vtkXMLPUnstructuredDataReader::GetNumberOfCells()
 {
   return this->TotalNumberOfCells;
+}
+
+//----------------------------------------------------------------------------
+vtkIdType vtkXMLPUnstructuredDataReader::GetNumberOfPointsInPiece(int piece)
+{
+  return this->PieceReaders[piece]->GetNumberOfPoints();
+}
+
+//----------------------------------------------------------------------------
+vtkIdType vtkXMLPUnstructuredDataReader::GetNumberOfCellsInPiece(int piece)
+{
+  return this->PieceReaders[piece]->GetNumberOfCells();
 }
 
 //----------------------------------------------------------------------------
@@ -245,10 +257,35 @@ void vtkXMLPUnstructuredDataReader::ReadXMLData()
   // Let superclasses read data.  This also allocates output data.
   this->Superclass::ReadXMLData();
   
-  // Read the data needed from each piece.
+  // Split current progress range based on fraction contributed by
+  // each piece.
+  float progressRange[2] = {0,0};
+  this->GetProgressRange(progressRange);
+  
+  // Calculate the cumulative fraction of data contributed by each
+  // piece (for progress).
+  float* fractions = new float[this->EndPiece-this->StartPiece+1];
   int i;
+  fractions[0] = 0;
   for(i=this->StartPiece; i < this->EndPiece; ++i)
     {
+    int index = i-this->StartPiece;
+    fractions[index+1] = (fractions[index] +
+                          this->GetNumberOfPointsInPiece(i) + 
+                          this->GetNumberOfCellsInPiece(i));
+    }
+  for(i=this->StartPiece; i < this->EndPiece; ++i)
+    {
+    int index = i-this->StartPiece;
+    fractions[index+1] = fractions[index+1] / fractions[this->EndPiece-this->StartPiece];
+    }
+  
+  // Read the data needed from each piece.
+  for(i=this->StartPiece; i < this->EndPiece; ++i)
+    {
+    // Set the range of progress for this piece.
+    this->SetProgressRange(progressRange, i-this->StartPiece, fractions);
+    
     if(!this->Superclass::ReadPieceData(i))
       {
       // An error occurred while reading the piece.
@@ -256,6 +293,8 @@ void vtkXMLPUnstructuredDataReader::ReadXMLData()
       }
     this->SetupNextPiece();
     }
+  
+  delete [] fractions;
 }
 
 //----------------------------------------------------------------------------
