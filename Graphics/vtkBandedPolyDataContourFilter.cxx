@@ -21,7 +21,7 @@
 #include "vtkTriangleStrip.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkBandedPolyDataContourFilter, "1.17");
+vtkCxxRevisionMacro(vtkBandedPolyDataContourFilter, "1.18");
 vtkStandardNewMacro(vtkBandedPolyDataContourFilter);
 
 // Construct object.
@@ -154,7 +154,7 @@ inline int vtkBandedPolyDataContourFilter::InsertCell(vtkCellArray *cells,
                                                       int cellId, float s,
                                                       vtkFloatArray *newS)
 {
-  int idx = this->ComputeLowerScalarIndex(s);
+  int idx = this->ComputeLowerScalarIndex(s+this->ClipTolerance);
 
   if ( !this->Clipping || 
        idx >= this->ClipIndex[0] && idx <= this->ClipIndex[1] )
@@ -212,8 +212,9 @@ void vtkBandedPolyDataContourFilter::Execute()
   // list of clip values including the extreme min/max values.
   this->NumberOfClipValues = this->ContourValues->GetNumberOfContours() + 2;
   this->ClipValues = new float[this->NumberOfClipValues];
-  float range[2], tol;
-  inScalars->GetRange(range); tol = (range[1]-range[0])/100.0;
+  float range[2];
+  inScalars->GetRange(range); 
+  this->ClipTolerance = (range[1]-range[0])/100.0;
   this->ClipValues[0] = range[0];
   this->ClipValues[1] = range[1];
   for ( i=2; i<this->NumberOfClipValues; i++)
@@ -226,7 +227,7 @@ void vtkBandedPolyDataContourFilter::Execute()
 
   for ( i=0; i<(this->NumberOfClipValues-1); i++)
     {
-    if ( (this->ClipValues[i]+tol) >= this->ClipValues[i+1] )
+    if ( (this->ClipValues[i]+this->ClipTolerance) >= this->ClipValues[i+1] )
       {
       for (j=i+1; j<(this->NumberOfClipValues-2); j++)
         {
@@ -235,6 +236,7 @@ void vtkBandedPolyDataContourFilter::Execute()
       this->NumberOfClipValues--;
       }
     }
+  this->ClipTolerance /= 100.0; //used later in assigning contour values
 
   //Set up the clipping indices
   this->ClipIndex[0] = 

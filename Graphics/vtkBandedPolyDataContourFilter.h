@@ -137,6 +137,7 @@ protected:
   float *ClipValues;
   int   NumberOfClipValues;
   int ClipIndex[2]; //indices outside of this range (inclusive) are clipped
+  float ClipTolerance; //used to clean up numerical problems
   
   //the second output
   int GenerateContourEdges;
