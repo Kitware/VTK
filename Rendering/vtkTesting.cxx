@@ -29,7 +29,7 @@
 #include <sys/stat.h>
 
 vtkStandardNewMacro(vtkTesting);
-vtkCxxRevisionMacro(vtkTesting, "1.10");
+vtkCxxRevisionMacro(vtkTesting, "1.11");
 vtkCxxSetObjectMacro(vtkTesting, RenderWindow, vtkRenderWindow);
 
 // Function returning either a command line argument, an environment variable
@@ -228,6 +228,7 @@ const char *vtkTesting::GetValidImageFileName()
   this->SetValidImageFileName(0);
   if (!this->IsValidImageSpecified())
     {
+    cout << "Valid image not specified" << endl;
     return this->ValidImageFileName;
     }
   
@@ -252,8 +253,21 @@ const char *vtkTesting::GetValidImageFileName()
     {
     if ( this->Args[i] == "-V")
       {
-      viname += "/";
-      viname += this->Args[i+1];
+      const char *ch = this->Args[i+1].c_str();
+      if ( ch[0] == '/' 
+#ifdef _WIN32
+        || (ch[0] >= 'a' && ch[0] <= 'z' && ch[1] == ':' )
+        || (ch[0] >= 'A' && ch[0] <= 'Z' && ch[1] == ':' )
+#endif
+        )
+        {
+        viname = this->Args[i+1];
+        }
+      else
+        {
+        viname += "/";
+        viname += this->Args[i+1];
+        }
       break;
       }
     }
@@ -447,6 +461,8 @@ int vtkTesting::RegressionTest(vtkImageData* image, double thresh, ostream& os)
     rt_pngw->Write();
     rt_pngw->Delete();
     delete [] vImage;
+    os << "<DartMeasurement name=\"ImageNotFound\" type=\"text/string\">" 
+      << this->ValidImageFileName << "</DartMeasurement>" << endl;
     return FAILED;
     }
 
