@@ -27,7 +27,7 @@
 #include "vtkTextProperty.h"
 #include "vtkViewport.h"
 
-vtkCxxRevisionMacro(vtkWin32OpenGLTextMapper, "1.45");
+vtkCxxRevisionMacro(vtkWin32OpenGLTextMapper, "1.46");
 vtkStandardNewMacro(vtkWin32OpenGLTextMapper);
 
 struct vtkFontStruct
@@ -91,10 +91,16 @@ int vtkWin32OpenGLTextMapper::GetListBaseForFont(vtkTextMapper *tm,
   // so we need to make room for a new font
   if (numCached == 30)
     {
-    wglMakeCurrent((HDC)cache[29]->Window->GetGenericContext(), 
-                   (HGLRC)cache[29]->Window->GetGenericDisplayId());
+    if (!wglMakeCurrent((HDC)cache[29]->Window->GetGenericContext(), 
+                        (HGLRC)cache[29]->Window->GetGenericDisplayId()))
+      {
+      vtkErrorWithObjectMacro(tm,<< "wglMakeCurrent failed");
+      }
     glDeleteLists(cache[29]->ListBase,255);
-    wglMakeCurrent(hdc, (HGLRC)win->GetGenericDisplayId());
+    if (!wglMakeCurrent(hdc, (HGLRC)win->GetGenericDisplayId()))
+      {
+      vtkErrorWithObjectMacro(tm,<< "wglMakeCurrent failed");
+      }
     numCached = 29;
     }
 
@@ -125,7 +131,10 @@ int vtkWin32OpenGLTextMapper::GetListBaseForFont(vtkTextMapper *tm,
   cache[numCached]->Bold = tprop->GetBold();
   cache[numCached]->FontSize = tprop->GetFontSize();
   cache[numCached]->FontFamily = tprop->GetFontFamily();
-  wglUseFontBitmaps(hdc, 0, 255, cache[numCached]->ListBase); 
+  if (!wglUseFontBitmaps(hdc, 0, 255, cache[numCached]->ListBase))
+    {
+    vtkErrorWithObjectMacro(tm,<< "wglUseFontBitmaps failed");
+    }
   
   // now resort the list
   vtkFontStruct *tmp = cache[numCached];
