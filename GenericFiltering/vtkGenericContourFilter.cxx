@@ -30,7 +30,7 @@
 #include "vtkPolyData.h"
 #include "vtkGenericDataSet.h"
 
-vtkCxxRevisionMacro(vtkGenericContourFilter, "1.1");
+vtkCxxRevisionMacro(vtkGenericContourFilter, "1.2");
 vtkStandardNewMacro(vtkGenericContourFilter);
 
 // Construct object with initial range (0,1) and single contour value
@@ -252,7 +252,7 @@ void vtkGenericContourFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Compute Scalars: " 
      << (this->ComputeScalars ? "On\n" : "Off\n");
 
-  this->ContourValues->PrintSelf(os,indent);
+  this->ContourValues->PrintSelf(os,indent.GetNextIndent());
 
   if ( this->Locator )
     {

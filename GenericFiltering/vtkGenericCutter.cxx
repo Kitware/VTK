@@ -34,7 +34,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkGenericCutter, "1.2");
+vtkCxxRevisionMacro(vtkGenericCutter, "1.3");
 vtkStandardNewMacro(vtkGenericCutter);
 vtkCxxSetObjectMacro(vtkGenericCutter,CutFunction,vtkImplicitFunction);
 
@@ -457,7 +457,7 @@ void vtkGenericCutter::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Locator: (none)\n";
     }
 
-  this->ContourValues->PrintSelf(os,indent);
+  this->ContourValues->PrintSelf(os,indent.GetNextIndent());
 
   os << indent << "Generate Cut Scalars: " 
      << (this->GenerateCutScalars ? "On\n" : "Off\n");

@@ -25,7 +25,7 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkGaussianCubeReader, "1.10");
+vtkCxxRevisionMacro(vtkGaussianCubeReader, "1.11");
 vtkStandardNewMacro(vtkGaussianCubeReader);
 
 // Construct object with merging set to true.
@@ -167,9 +167,18 @@ void vtkGaussianCubeReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  os << "Filename: " << (this->FileName?this->FileName:"<null>") << "\n";
-  os << indent << "Xform: ";
-  //os << indent << this->Transform->PrintSelf(os, indent);
+  os << "Filename: " << (this->FileName?this->FileName:"(none)") << "\n";
+  
+  os << "Tranform: ";
+  if( this->Transform )
+    {
+    os << endl;
+    os << indent << this->Transform->PrintSelf(os, indent.GetNextIndent());
+    }
+  else
+    {
+    os << "(none)\n";
+    }
 }
 
 // Default implementation - copy information from first input to all outputs

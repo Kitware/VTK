@@ -46,7 +46,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkSynchronizedTemplates2D, "1.38");
+vtkCxxRevisionMacro(vtkSynchronizedTemplates2D, "1.39");
 vtkStandardNewMacro(vtkSynchronizedTemplates2D);
 
 //----------------------------------------------------------------------------
@@ -509,7 +509,7 @@ void vtkSynchronizedTemplates2D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  this->ContourValues->PrintSelf(os,indent);
+  this->ContourValues->PrintSelf(os,indent.GetNextIndent());
   if (this->ComputeScalars)
     {
     os << indent << "ComputeScalarsOn\n";

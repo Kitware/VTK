@@ -28,7 +28,7 @@
 #include "vtkRenderWindow.h"
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLVolumeShearWarpMapper, "1.3");
+vtkCxxRevisionMacro(vtkOpenGLVolumeShearWarpMapper, "1.4");
 vtkStandardNewMacro(vtkOpenGLVolumeShearWarpMapper);
 #endif
 
@@ -433,6 +433,6 @@ void vtkOpenGLVolumeShearWarpMapper::RenderTexture(vtkRenderer *ren, vtkVolume *
 // Print the vtkOpenGLVolumeShearWarpMapper
 void vtkOpenGLVolumeShearWarpMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->vtkVolumeShearWarpMapper::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 }
 

@@ -25,7 +25,7 @@
 
 #include <float.h>
 
-vtkCxxRevisionMacro(vtkBandedPolyDataContourFilter, "1.39");
+vtkCxxRevisionMacro(vtkBandedPolyDataContourFilter, "1.40");
 vtkStandardNewMacro(vtkBandedPolyDataContourFilter);
 
 // Construct object.
@@ -759,7 +759,7 @@ void vtkBandedPolyDataContourFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Generate Contour Edges: " 
      << (this->GenerateContourEdges ? "On\n" : "Off\n");
 
-  this->ContourValues->PrintSelf(os,indent);
+  this->ContourValues->PrintSelf(os,indent.GetNextIndent());
   os << indent << "Clipping: " << (this->Clipping ? "On\n" : "Off\n");
   
   os << indent << "Scalar Mode: ";

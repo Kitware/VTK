@@ -52,7 +52,7 @@
 
 #include "vtkTimerLog.h"
 
-vtkCxxRevisionMacro(vtkCompressCompositer, "1.13");
+vtkCxxRevisionMacro(vtkCompressCompositer, "1.14");
 vtkStandardNewMacro(vtkCompressCompositer);
 
 
@@ -703,7 +703,7 @@ void vtkCompressCompositer::CompositeBuffer(vtkDataArray *pBuf,
 //----------------------------------------------------------------------------
 void vtkCompressCompositer::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->vtkCompositer::PrintSelf(os, indent);
+  this->Superclass::PrintSelf(os, indent);
 }
 
 

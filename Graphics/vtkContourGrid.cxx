@@ -28,7 +28,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkContourGrid, "1.25");
+vtkCxxRevisionMacro(vtkContourGrid, "1.26");
 vtkStandardNewMacro(vtkContourGrid);
 
 // Construct object with initial range (0,1) and single contour value
@@ -356,7 +356,7 @@ void vtkContourGrid::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Use Scalar Tree: " 
      << (this->UseScalarTree ? "On\n" : "Off\n");
 
-  this->ContourValues->PrintSelf(os,indent);
+  this->ContourValues->PrintSelf(os,indent.GetNextIndent());
 
   if ( this->Locator )
     {

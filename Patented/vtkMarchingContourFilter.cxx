@@ -45,7 +45,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkMarchingContourFilter, "1.25");
+vtkCxxRevisionMacro(vtkMarchingContourFilter, "1.26");
 vtkStandardNewMacro(vtkMarchingContourFilter);
 
 // Construct object with initial range (0,1) and single contour value
@@ -326,7 +326,7 @@ void vtkMarchingContourFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Compute Scalars: " << (this->ComputeScalars ? "On\n" : "Off\n");
   os << indent << "Use Scalar Tree: " << (this->UseScalarTree ? "On\n" : "Off\n");
 
-  this->ContourValues->PrintSelf(os,indent);
+  this->ContourValues->PrintSelf(os,indent.GetNextIndent());
 
   if ( this->Locator )
     {

@@ -51,7 +51,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkMarchingSquares, "1.60");
+vtkCxxRevisionMacro(vtkMarchingSquares, "1.61");
 vtkStandardNewMacro(vtkMarchingSquares);
 
 // Description:
@@ -597,7 +597,7 @@ void vtkMarchingSquares::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  this->ContourValues->PrintSelf(os,indent);
+  this->ContourValues->PrintSelf(os,indent.GetNextIndent());
 
   os << indent << "Image Range: ( " 
      << this->ImageRange[0] << ", "
