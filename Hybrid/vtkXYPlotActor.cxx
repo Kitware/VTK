@@ -105,6 +105,8 @@ vtkXYPlotActor::vtkXYPlotActor()
   this->PlotLines = 1;
   this->PlotPoints = 0;
   this->ExchangeAxes = 0;
+  this->ReverseXAxis = 0;
+  this->ReverseYAxis = 0;
 
   this->TitleMapper = vtkTextMapper::New();
   this->TitleActor = vtkActor2D::New();
@@ -462,13 +464,27 @@ int vtkXYPlotActor::RenderOpaqueGeometry(vtkViewport *viewport)
       {
       this->XComputedRange[0] = xRange[0];
       this->XComputedRange[1] = xRange[1];
-      this->XAxis->SetRange(range[0],range[1]);
+      if ( this->ReverseXAxis )
+        {
+        this->XAxis->SetRange(range[1],range[0]);
+        }
+      else
+        {
+        this->XAxis->SetRange(range[0],range[1]);
+        }
       }
     else
       {
       this->XComputedRange[1] = xRange[0];
       this->XComputedRange[0] = xRange[1];
-      this->XAxis->SetRange(range[1], range[0]);
+      if ( this->ReverseYAxis )
+        {
+        this->XAxis->SetRange(range[0],range[1]);
+        }
+      else
+        {
+        this->XAxis->SetRange(range[1],range[0]);
+        }
       }
 
     // setup y-axis
@@ -500,13 +516,27 @@ int vtkXYPlotActor::RenderOpaqueGeometry(vtkViewport *viewport)
       {
       this->YComputedRange[0] = yRange[0];
       this->YComputedRange[1] = yRange[1];
-      this->YAxis->SetRange(yrange[1], yrange[0]); //get ticks on "correct" side
+      if ( this->ReverseYAxis )
+        {
+        this->YAxis->SetRange(yrange[0],yrange[1]);
+        }
+      else
+        {
+        this->YAxis->SetRange(yrange[1],range[0]);
+        }
       }
     else
       {
       this->YComputedRange[1] = yRange[0];
       this->YComputedRange[0] = yRange[1];
-      this->YAxis->SetRange(yrange[0], yrange[1]); //get ticks on "correct" side
+      if ( this->ReverseXAxis )
+        {
+        this->YAxis->SetRange(yrange[1],yrange[0]);
+        }
+      else
+        {
+        this->YAxis->SetRange(yrange[0],yrange[1]);
+        }
       }
 
     // Okay, now create the plot data and set up the pipeline
@@ -616,6 +646,8 @@ void vtkXYPlotActor::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Plot points: " << (this->PlotPoints ? "On\n" : "Off\n");
   os << indent << "Plot lines: " << (this->PlotLines ? "On\n" : "Off\n");
   os << indent << "Exchange Axes: " << (this->ExchangeAxes ? "On\n" : "Off\n");
+  os << indent << "Reverse X Axis: " << (this->ReverseXAxis ? "On\n" : "Off\n");
+  os << indent << "Reverse Y Axis: " << (this->ReverseYAxis ? "On\n" : "Off\n");
 
   os << indent << "Number Of X Labels: " << this->NumberOfXLabels << "\n";
   os << indent << "Number Of Y Labels: " << this->NumberOfYLabels << "\n";
@@ -1539,6 +1571,7 @@ int vtkXYPlotActor::GetPointComponent(int i)
 
 float *vtkXYPlotActor::TransformPoint(int pos[2], int pos2[2], float x[3], float xNew[3])
 {
+  // First worry about exchanging axes
   if ( this->ExchangeAxes )
     {
     float sx = (x[0]-pos[0]) / (pos2[0]-pos[0]);
@@ -1546,11 +1579,24 @@ float *vtkXYPlotActor::TransformPoint(int pos[2], int pos2[2], float x[3], float
     xNew[0] = sy*(pos2[0]-pos[0]) + pos[0];
     xNew[1] = sx*(pos2[1]-pos[1]) + pos[1];
     xNew[2] = x[2];
-    return xNew;
     }
   else
     {
-    return x;
+    xNew[0] = x[0];
+    xNew[1] = x[1];
+    xNew[2] = x[2];
     }
+
+  // Okay, now swap the axes around if reverse is on
+  if ( this->ReverseXAxis )
+    {
+    xNew[0] = pos[0] + (pos2[0]-xNew[0]);
+    }
+  if ( this->ReverseYAxis )
+    {
+    xNew[1] = pos[1] + (pos2[1]-xNew[1]);
+    }
+
+  return xNew;
 }
 
