@@ -52,8 +52,7 @@ int vlLookupTable::Allocate(int sz, int ext)
 // range value.
 void  vlLookupTable::SetTableRange(float r[2])
 {
-  this->TableRange[0] = r[0];
-  this->TableRange[1] = r[1];
+  this->SetTableRange(r[0],r[1]);
 }
 
 // Description:
@@ -63,12 +62,18 @@ void  vlLookupTable::SetTableRange(float r[2])
 // range value.
 void  vlLookupTable::SetTableRange(float min, float max)
 {
+  if ( min >= max )
+    {
+    vlErrorMacro (<<"Bad table range");
+    return;
+    }
+
   this->TableRange[0] = min;
   this->TableRange[1] = max;
 }
 
 // Description:
-// Generate lookup table from object parameters.
+// Generate lookup table from hue, saturation, and value min/max values.
 void vlLookupTable::Build()
 {
   int i, hueCase;
