@@ -92,6 +92,7 @@ vtkBooleanTexture \
 vtkBrownianPoints \
 vtkCamera \
 vtkCardinalSpline \
+vtkCastToConcrete \
 vtkCellLocator \
 vtkCellPicker \
 vtkCleanPolyData \
