@@ -33,7 +33,7 @@
 #include "vtkVolumeProperty.h"
 #include "vtkUnstructuredGridVolumeRayCastIterator.h"
 
-vtkCxxRevisionMacro(vtkUnstructuredGridBunykRayCastFunction, "1.33");
+vtkCxxRevisionMacro(vtkUnstructuredGridBunykRayCastFunction, "1.34");
 vtkStandardNewMacro(vtkUnstructuredGridBunykRayCastFunction);
 
 #define VTK_BUNYKRCF_NUMLISTS 100000
@@ -96,7 +96,7 @@ private:
   void operator=(const vtkUnstructuredGridBunykRayCastIterator&);  // Not implemented
 };
 
-vtkCxxRevisionMacro(vtkUnstructuredGridBunykRayCastIterator, "1.33");
+vtkCxxRevisionMacro(vtkUnstructuredGridBunykRayCastIterator, "1.34");
 vtkStandardNewMacro(vtkUnstructuredGridBunykRayCastIterator);
 
 vtkUnstructuredGridBunykRayCastIterator::vtkUnstructuredGridBunykRayCastIterator()
@@ -157,7 +157,7 @@ vtkIdType vtkUnstructuredGridBunykRayCastIterator::GetNextIntersections(
     {
     numIntersections = TemplateCastRay
       ((const float *)NULL, this->RayCastFunction, 0,
-       this->RayPosition[0], this->RayPosition[0], this->Bounds[1],
+       this->RayPosition[0], this->RayPosition[1], this->Bounds[1],
        this->IntersectionPtr, this->CurrentTriangle, this->CurrentTetra,
        (intersectedCells ? intersectedCells->GetPointer(0) : NULL),
        (intersectionLengths ? intersectionLengths->GetPointer(0) : NULL),
@@ -343,8 +343,6 @@ void vtkUnstructuredGridBunykRayCastFunction::Initialize( vtkRenderer *ren,
   this->Mapper     = vtkUnstructuredGridVolumeRayCastMapper::SafeDownCast( vol->GetMapper() );
   this->Renderer   = ren;
   this->Volume     = vol;
-  this->Scalars    = this->Mapper->GetInput()->GetPointData()->GetScalars();
-  this->NumberOfComponents = this->Mapper->GetInput()->GetPointData()->GetScalars()->GetNumberOfComponents();
   
   
   vtkUnstructuredGrid *input = this->Mapper->GetInput();
@@ -430,13 +428,6 @@ int vtkUnstructuredGridBunykRayCastFunction::CheckValidity( vtkRenderer *ren,
   if ( !input )
     {
     vtkErrorMacro("No input to mapper");
-    return 0;
-    }
-
-  // The input must have scalars
-  if ( !mapper->GetInput()->GetPointData()->GetScalars() )
-    {
-    vtkErrorMacro("No scalars to render");
     return 0;
     }
 

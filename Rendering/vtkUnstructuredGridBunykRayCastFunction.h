@@ -158,8 +158,6 @@ protected:
   vtkRenderer                             *Renderer;
   vtkVolume                               *Volume;
   vtkUnstructuredGridVolumeRayCastMapper  *Mapper;
-  vtkDataArray                            *Scalars;
-  int                                      NumberOfComponents;
   
   // Computed during the initialize method - if something is
   // wrong (no mapper, no volume, no input, etc.) then no rendering
