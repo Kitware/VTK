@@ -70,7 +70,7 @@ const int vtkParallelRenderManager::REN_INFO_DOUBLE_SIZE =
 const int vtkParallelRenderManager::LIGHT_INFO_DOUBLE_SIZE =
   sizeof(vtkParallelRenderManager::LightInfoDouble)/sizeof(double);
 
-vtkCxxRevisionMacro(vtkParallelRenderManager, "1.19");
+vtkCxxRevisionMacro(vtkParallelRenderManager, "1.20");
 
 vtkParallelRenderManager::vtkParallelRenderManager()
 {
@@ -1489,38 +1489,41 @@ void vtkParallelRenderManager::GetReducedPixelData(int x1, int y1,
 
 // Static function prototypes --------------------------------------------
 
-static void AbortRenderCheck(vtkObject *caller, unsigned long vtkNotUsed(event),
-                 void *clientData, void *)
+static void AbortRenderCheck(vtkObject *vtkNotUsed(caller), 
+                             unsigned long vtkNotUsed(event),
+                             void *clientData, void *)
 {
   vtkParallelRenderManager *self = (vtkParallelRenderManager *)clientData;
   self->CheckForAbortRender();
 }
 
-static void StartRender(vtkObject *caller, unsigned long vtkNotUsed(event),
-            void *clientData, void *)
+static void StartRender(vtkObject *vtkNotUsed(caller), 
+                        unsigned long vtkNotUsed(event),
+                        void *clientData, void *)
 {
   vtkParallelRenderManager *self = (vtkParallelRenderManager *)clientData;
   self->StartRender();
 }
 
-static void EndRender(vtkObject *caller, unsigned long vtkNotUsed(event),
-            void *clientData, void *)
+static void EndRender(vtkObject *vtkNotUsed(caller), 
+                      unsigned long vtkNotUsed(event),
+                      void *clientData, void *)
 {
   vtkParallelRenderManager *self = (vtkParallelRenderManager *)clientData;
   self->EndRender();
 }
 
-static void SatelliteStartRender(vtkObject *caller,
-                unsigned long vtkNotUsed(event),
-                void *clientData, void *)
+static void SatelliteStartRender(vtkObject *vtkNotUsed(caller),
+                                 unsigned long vtkNotUsed(event),
+                                 void *clientData, void *)
 {
   vtkParallelRenderManager *self = (vtkParallelRenderManager *)clientData;
   self->SatelliteStartRender();
 }
 
-static void SatelliteEndRender(vtkObject *caller,
-                  unsigned long vtkNotUsed(event),
-                  void *clientData, void *)
+static void SatelliteEndRender(vtkObject *vtkNotUsed(caller),
+                               unsigned long vtkNotUsed(event),
+                               void *clientData, void *)
 {
   vtkParallelRenderManager *self = (vtkParallelRenderManager *)clientData;
   self->SatelliteEndRender();
