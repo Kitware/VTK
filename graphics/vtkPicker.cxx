@@ -270,8 +270,8 @@ int vtkPicker::Pick(float selectionX, float selectionY, float selectionZ,
     tB = clipRange[1] - rayLength;
     for (i=0; i<3; i++) 
       {
-      p1World[i] = PickPosition[i] + tF*cameraDOP[i];
-      p2World[i] = PickPosition[i] + tB*cameraDOP[i];
+      p1World[i] = this->PickPosition[i] + tF*cameraDOP[i];
+      p2World[i] = this->PickPosition[i] + tB*cameraDOP[i];
       }
     }
   else
