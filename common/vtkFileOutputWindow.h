@@ -58,6 +58,8 @@ public:
 
   static vtkFileOutputWindow* New();
 
+  virtual void PrintSelf(ostream& os, vtkIndent indent);
+
   // Description:  Put the text into the log file
   // New lines are converted to carriage return new lines.
   virtual void DisplayText(const char*);
@@ -80,12 +82,11 @@ public:
   vtkGetMacro(Append, int);
   vtkBooleanMacro(Append, int);
 
-private: 
+ protected:
   vtkFileOutputWindow(); 
   virtual ~vtkFileOutputWindow(); 
   vtkFileOutputWindow(const vtkFileOutputWindow&) {};
   void operator=(const vtkFileOutputWindow&) {};
-  
   void Initialize();
   char* FileName;
   ofstream* OStream;
