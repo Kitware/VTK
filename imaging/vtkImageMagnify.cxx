@@ -110,13 +110,13 @@ void vtkImageMagnify::ComputeRequiredInputUpdateExtent(int inExt[6],
 // Note: Slight misalignment (pixel replication is not nearest neighbor).
 template <class T>
 static void vtkImageMagnifyExecute(vtkImageMagnify *self,
-				   vtkImageData *inData, T *inPtr,
-				   vtkImageData *outData, T *outPtr,
-				   int outExt[6], int id)
+				  vtkImageData *inData, T *inPtr, int inExt[6],
+				  vtkImageData *outData, T *outPtr,
+				  int outExt[6], int id)
 {
   int idxC, idxX, idxY, idxZ;
   int inIdxX, inIdxY, inIdxZ;
-  int inMinX, inMinY, inMinZ, inMaxX, inMaxY, inMaxZ;
+  int inMaxX, inMaxY, inMaxZ;
   int maxC, maxX, maxY, maxZ;
   int inIncX, inIncY, inIncZ;
   int outIncX, outIncY, outIncZ;
@@ -153,19 +153,21 @@ static void vtkImageMagnifyExecute(vtkImageMagnify *self,
   // Now I am putting in my own boundary check because of ABRs and FMRs
   // And I do not understand (nor do I care to figure out) what
   // Ken is doing with his checks. (Charles)
-  inData->GetExtent(inMinX, inMaxX, inMinY, inMaxY, inMinZ, inMaxZ);
+  inMaxX = inExt[1];
+  inMaxY = inExt[3];
+  inMaxZ = inExt[5];
   
   // Loop through ouput pixels
   for (idxC = 0; idxC < maxC; idxC++)
     {
     inPtrZ = inPtr + idxC;
-    inIdxZ = inMinZ;
+    inIdxZ = inExt[4];
     outPtrC = outPtr + idxC;
     magZIdx = magZ - outExt[4]%magZ - 1;
     for (idxZ = 0; idxZ <= maxZ; idxZ++, magZIdx--)
       {
       inPtrY = inPtrZ;
-      inIdxY = inMinY;
+      inIdxY = inExt[2];
       magYIdx = magY - outExt[2]%magY - 1;
       for (idxY = 0; !self->AbortExecute && idxY <= maxY; idxY++, magYIdx--)
 	{
@@ -189,7 +191,7 @@ static void vtkImageMagnifyExecute(vtkImageMagnify *self,
 	
 	magXIdx = magX - outExt[0]%magX - 1;
 	inPtrX = inPtrY;
-	inIdxX = inMinX;
+	inIdxX = inExt[0];
 	interpSetup = 0;
 	for (idxX = 0; idxX <= maxX; idxX++, magXIdx--)
 	  {
@@ -307,27 +309,27 @@ void vtkImageMagnify::ThreadedExecute(vtkImageData *inData,
     {
     case VTK_FLOAT:
       vtkImageMagnifyExecute(this, 
-			     inData, (float *)(inPtr),
+			     inData, (float *)(inPtr), inExt,
 			     outData, (float *)(outPtr), outExt, id);
       break;
     case VTK_INT:
       vtkImageMagnifyExecute(this, 
-			     inData, (int *)(inPtr),
+			     inData, (int *)(inPtr), inExt,
 			     outData, (int *)(outPtr), outExt, id);
       break;
     case VTK_SHORT:
       vtkImageMagnifyExecute(this, 
-			     inData, (short *)(inPtr),
+			     inData, (short *)(inPtr), inExt,
 			     outData, (short *)(outPtr), outExt, id);
       break;
     case VTK_UNSIGNED_SHORT:
       vtkImageMagnifyExecute(this, 
-			     inData, (unsigned short *)(inPtr),
+			     inData, (unsigned short *)(inPtr), inExt,
 			     outData, (unsigned short *)(outPtr), outExt, id);
       break;
     case VTK_UNSIGNED_CHAR:
       vtkImageMagnifyExecute(this, 
-			     inData, (unsigned char *)(inPtr),
+			     inData, (unsigned char *)(inPtr), inExt,
 			     outData, (unsigned char *)(outPtr), outExt, id);
       break;
     default:
