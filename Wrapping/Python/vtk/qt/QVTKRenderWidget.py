@@ -29,6 +29,7 @@ similar to the vtkTkRenderWidget.
 # 1. The widget is not cleaned up properly and crashes the
 #    application.
 
+import vtk
 import math, os, sys
 from qt import *
 
@@ -50,9 +51,9 @@ class QVTKRenderWidget(QWidget):
         self._ViewportCenterX = 0
         self._ViewportCenterY = 0
         
-        self._Picker = vtkCellPicker()
+        self._Picker = vtk.vtkCellPicker()
         self._PickedActor = None
-        self._PickedProperty = vtkProperty()
+        self._PickedProperty = vtk.vtkProperty()
         self._PickedProperty.SetColor(1,0,0)
         self._PrePickedProperty = None
         
@@ -97,7 +98,7 @@ class QVTKRenderWidget(QWidget):
         if rw: # user-supplied render window
             self._RenderWindow = rw
         else:
-            self._RenderWindow = vtkRenderWindow()
+            self._RenderWindow = vtk.vtkRenderWindow()
 
         if stereo: # stereo mode
             self._RenderWindow.StereoCapableWindowOn()
@@ -436,16 +437,16 @@ def QVTKRenderWidgetConeExample():
     # create the widget
     widget = QVTKRenderWidget()
 
-    ren = vtkRenderer()
+    ren = vtk.vtkRenderer()
     widget.GetRenderWindow().AddRenderer(ren)
 
-    cone = vtkConeSource()
+    cone = vtk.vtkConeSource()
     cone.SetResolution(8)
     
-    coneMapper = vtkPolyDataMapper()
+    coneMapper = vtk.vtkPolyDataMapper()
     coneMapper.SetInput(cone.GetOutput())
     
-    coneActor = vtkActor()
+    coneActor = vtk.vtkActor()
     coneActor.SetMapper(coneMapper)
 
     ren.AddActor(coneActor)
@@ -458,6 +459,5 @@ def QVTKRenderWidgetConeExample():
     app.exec_loop()
     
 if __name__ == "__main__":
-    from vtkpython import *
     QVTKRenderWidgetConeExample()
 
