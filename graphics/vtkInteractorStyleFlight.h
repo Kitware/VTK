@@ -135,13 +135,21 @@ protected:
   //
   //
   unsigned char KeysDown;
-  int           Flying, Reversing;
+  int           Flying;
+  int           Reversing;
   int           TimerRunning;
-  double        OldX, OldY, x2, y2;
+  double        OldX;
+  double        OldY;
+  double        x2;
+  double        y2;
   double        DiagonalLength;
-  double        MotionStepSize, MotionUserScale, MotionAccelerationFactor;
-  double        AngleStepSize,  AngleAccelerationFactor;
-  double        YawAngle, PitchAngle;
+  double        MotionStepSize;
+  double        MotionUserScale;
+  double        MotionAccelerationFactor;
+  double        AngleStepSize;
+  double        AngleAccelerationFactor;
+  double        YawAngle;
+  double        PitchAngle;
 };
 
 #endif
