@@ -124,7 +124,9 @@ int vtkActor::GetIsOpaque()
       {
       this->Texture->GetInput()->UpdateInformation();
       this->Texture->GetInput()->SetUpdateExtent(this->Texture->GetInput()->GetWholeExtent());
-      this->Texture->GetInput()->Update();
+      this->Texture->GetInput()->PropagateUpdateExtent();
+      this->Texture->GetInput()->TriggerAsynchronousUpdate();
+      this->Texture->GetInput()->UpdateData();
       if (this->Texture->GetInput()->GetPointData()->GetScalars() == NULL)
         { // Handle gracefully. What should it return? 
         return 1;
