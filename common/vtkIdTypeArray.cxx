@@ -120,6 +120,7 @@ int vtkIdTypeArray::Allocate(const vtkIdType sz,
     this->Size = ( sz > 0 ? sz : 1);
     if ( (this->Array = new vtkIdType[this->Size]) == NULL )
       {
+      vtkErrorMacro("Could not allocate array.");
       return 0;
       }
     this->SaveUserArray = 0;
