@@ -74,7 +74,7 @@ protected:
   void operator=(const vtkDataSetToStructuredPointsFilter&) {};
 
   // All the DataSetToStructuredPointsFilters require all their input.
-  int ComputeInputUpdateExtents(vtkDataObject *output);
+  void ComputeInputUpdateExtents(vtkDataObject *output);
 };
 
 #endif

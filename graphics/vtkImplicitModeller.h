@@ -209,6 +209,9 @@ public:
   // Method completes the append process.
   void EndAppend();
 
+  // Description:
+  virtual void UpdateData(vtkDataObject *output);
+
 protected:
   vtkImplicitModeller();
   ~vtkImplicitModeller();
@@ -217,12 +220,6 @@ protected:
 
   void Execute();
   void ExecuteInformation();
-  
-  // This handles to case where the output is already upto date
-  // because Appends were called explicitly by the user, and
-  // we have no input.  The other option was to expose UpdateTime
-  // in DataObject to allow EndAppend to indicate data is up to data.
-  void StreamExecuteStart();
   
   void Cap(vtkScalars *s);
 

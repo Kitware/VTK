@@ -71,7 +71,6 @@ public:
   int *GetOutputWholeExtent() {return this->OutputWholeExtent;}
 
   void ResetOutputWholeExtent();
-  void InternalUpdate(vtkDataObject *outData);
 
   // Description:
   // By default, ClipData is off, and only the WholeExtent is modified.
@@ -101,6 +100,8 @@ protected:
   void ExecuteInformation(vtkImageData *inData, vtkImageData *outData);
   void ExecuteInformation(){this->vtkImageToImageFilter::ExecuteInformation();};
   void CopyData(vtkImageData *inData, vtkImageData *outData, int *ext);
+
+  void Execute(vtkImageData *inData, vtkImageData *outData);
   int SplitExtentTmp(int piece, int numPieces, int *ext);
 };
 

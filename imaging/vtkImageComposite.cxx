@@ -139,10 +139,12 @@ void vtkImageComposite::Execute()
   if (alphaFlag)
     {
     outPScalars->SetDataType(VTK_FLOAT);
+    output->SetScalarType(VTK_FLOAT);
     }
   else
     {
     outPScalars->SetDataType(VTK_UNSIGNED_CHAR);
+    output->SetScalarType(VTK_UNSIGNED_CHAR);
     }
   
   outPScalars->SetNumberOfComponents(3+alphaFlag);  
@@ -257,26 +259,6 @@ void vtkImageComposite::Execute()
   outZField->Delete();
   outZArray->Delete();
 
-}
-
-
-
-//----------------------------------------------------------------------------
-int vtkImageComposite::ComputeInputUpdateExtents(vtkDataObject *data)
-{
-  vtkStructuredPoints *output = (vtkStructuredPoints*)data;
-  vtkImageData *input;
-  int i;
-
-  for ( i = 0; i < this->NumberOfInputs; ++i)
-    {
-    input = this->GetInput(i);
-    if (input)
-      {  
-      input->CopyUpdateExtent(output);
-      }
-    }
-  return 1;
 }
 
 

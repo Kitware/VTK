@@ -182,6 +182,70 @@ vtkRectilinearGrid *vtkProgrammableSource::GetRectilinearGridOutput()
   return (vtkRectilinearGrid *)(this->Outputs[4]);
 }
 
+// Override in order to execute. Otherwise, we won't know what the
+// whole update extent is.
+void vtkProgrammableSource::UpdateInformation()
+{
+  int idx;
+
+  if ( this->GetMTime() > this->ExecuteTime.GetMTime() )
+    {
+  // Initialize all the outputs
+  for (idx = 0; idx < this->NumberOfOutputs; idx++)
+    {
+    if (this->Outputs[idx])
+      {
+      this->Outputs[idx]->Initialize(); 
+      }
+    }
+  // If there is a start method, call it
+  if ( this->StartMethod )
+    {
+    (*this->StartMethod)(this->StartMethodArg);
+    }
+
+  // Execute this object - we have not aborted yet, and our progress
+  // before we start to execute is 0.0.
+  this->AbortExecute = 0;
+  this->Progress = 0.0;
+  this->Execute();
+
+  // If we ended due to aborting, push the progress up to 1.0 (since
+  // it probably didn't end there)
+  if ( !this->AbortExecute )
+    {
+    this->UpdateProgress(1.0);
+    }
+
+  // Call the end method, if there is one
+  if ( this->EndMethod )
+    {
+    (*this->EndMethod)(this->EndMethodArg);
+    }
+    
+  // Now we have to mark the data as up to data.
+  for (idx = 0; idx < this->NumberOfOutputs; ++idx)
+    {
+    if (this->Outputs[idx])
+      {
+      this->Outputs[idx]->DataHasBeenGenerated();
+      }
+    }    
+
+  // Information gets invalidated as soon as Update is called,
+  // so validate it again here.
+  this->InformationTime.Modified();
+
+  this->ExecuteTime.Modified();
+    }
+
+  this->vtkSource::UpdateInformation();
+
+}
+
+void vtkProgrammableSource::UpdateData(vtkDataObject *output)
+{
+}
 
 void vtkProgrammableSource::Execute()
 {

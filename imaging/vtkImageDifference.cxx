@@ -129,7 +129,7 @@ vtkImageDifference::vtkImageDifference()
 
 //----------------------------------------------------------------------------
 // This method computes the input extent necessary to generate the output.
-void vtkImageDifference::ComputeRequiredInputUpdateExtent(int inExt[6],
+void vtkImageDifference::ComputeInputUpdateExtent(int inExt[6],
 							  int outExt[6],
 							  int whichInput)
 {

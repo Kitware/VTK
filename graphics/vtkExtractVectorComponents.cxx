@@ -241,14 +241,3 @@ vtkDataSet *vtkExtractVectorComponents::GetInput()
 }
 
 
-
-//----------------------------------------------------------------------------
-// copy Update extent from output passed in to input.
-int 
-vtkExtractVectorComponents::ComputeInputUpdateExtents(vtkDataObject *output)
-{
-  this->GetInput()->CopyUpdateExtent(output);
-  return 1;  
-}
-
-

@@ -80,7 +80,7 @@ void vtkImageCast::ExecuteInformation(vtkImageData *vtkNotUsed(inData),
 
 //----------------------------------------------------------------------------
 // The update method first checks to see is a cast is necessary.
-void vtkImageCast::InternalUpdate(vtkImageData *data)
+void vtkImageCast::UpdateData(vtkImageData *data)
 {
   
   if (! this->GetInput() || ! this->GetOutput())
@@ -89,20 +89,8 @@ void vtkImageCast::InternalUpdate(vtkImageData *data)
     return;
     }
   
-  // Do the scalar types already match
-  if (this->GetInput()->GetScalarType() == this->GetOutput()->GetScalarType())
-    {
-    int bypassSave = this->Bypass;
-    // just copy by reference. (use Bypass)
-    vtkDebugMacro("Update: Cast is not necessary.");
-    this->Bypass = 1;
-    this->vtkImageToImageFilter::InternalUpdate(data);
-    this->Bypass = bypassSave;
-    return;
-    }
-  
   // call the superclass update which will cause an execute.
-  this->vtkImageToImageFilter::InternalUpdate(data);
+  this->vtkImageToImageFilter::UpdateData(data);
 }
 
 //----------------------------------------------------------------------------

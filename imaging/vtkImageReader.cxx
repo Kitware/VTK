@@ -470,7 +470,7 @@ void vtkImageReader::ExecuteInformation()
     mem = 1;
     }
   
-  output->SetEstimatedWholeMemorySize(mem);
+  //  output->SetEstimatedWholeMemorySize(mem);
 }
 
 

@@ -82,6 +82,9 @@ void vtkTextureMapToSphere::Execute()
 
   vtkDebugMacro(<<"Generating Spherical Texture Coordinates");
 
+  // First, copy the input to the output as a starting point
+  output->CopyStructure( input );
+
   if ( numPts < 1 )
     {
     vtkErrorMacro(<<"Can't generate texture coordinates without points");

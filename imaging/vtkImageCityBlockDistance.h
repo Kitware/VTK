@@ -70,7 +70,7 @@ protected:
   vtkImageCityBlockDistance(const vtkImageCityBlockDistance&) {};
   void operator=(const vtkImageCityBlockDistance&) {};
 
-  void ComputeRequiredInputUpdateExtent(int inExt[6], int outExt[6]);
+  void ComputeInputUpdateExtent(int inExt[6], int outExt[6]);
   void Execute(vtkImageData *inData, vtkImageData *outData);
   void Execute() {this->vtkImageIterateFilter::Execute(); };
   void Execute(vtkImageData *outData)
@@ -79,7 +79,7 @@ protected:
   // Description:
   // Generate more than requested.  Called by the superclass before
   // an execute, and before output memory is allocated.
-  void ModifyOutputUpdateExtent();
+  void EnlargeOutputUpdateExtents( vtkDataObject *data );
 };
 
 #endif

@@ -63,21 +63,11 @@ public:
   void SetInput(vtkStructuredGrid *input);
   vtkStructuredGrid *GetInput();
 
-  // Since input0 and output are the same, we can have default behavior
-  // that copies information for in[0] to out.
-  void ExecuteInformation();
-  
 protected:
   vtkStructuredGridToStructuredGridFilter() {};
   ~vtkStructuredGridToStructuredGridFilter() {};
   vtkStructuredGridToStructuredGridFilter(const vtkStructuredGridToStructuredGridFilter&) {};
   void operator=(const vtkStructuredGridToStructuredGridFilter&) {};
-  
-  // Since we know Inputs[0] is the same type as Outputs[0] we can
-  // use CopyUpdateExtent of the data object to propagate extents.
-  // It the filter has more than one input, all bets are off.
-  // It is then up to the subclass to implement this method.
-  int ComputeInputUpdateExtents(vtkDataObject *output);
 };
 
 #endif

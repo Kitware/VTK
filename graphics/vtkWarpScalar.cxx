@@ -101,6 +101,9 @@ void vtkWarpScalar::Execute()
   
   vtkDebugMacro(<<"Warping data with scalars");
 
+  // First, copy the input to the output as a starting point
+  output->CopyStructure( input );
+
   inPts = input->GetPoints();
   pd = input->GetPointData();
   inNormals = pd->GetNormals();

@@ -139,7 +139,7 @@ void vtkImageGaussianSource::ExecuteInformation()
     mem = 1;
     }
   
-  output->SetEstimatedWholeMemorySize(mem);
+  //  output->SetEstimatedWholeMemorySize(mem);
 }
 
 void vtkImageGaussianSource::Execute(vtkImageData *data)

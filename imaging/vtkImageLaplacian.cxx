@@ -80,8 +80,8 @@ void vtkImageLaplacian::PrintSelf(ostream& os, vtkIndent indent)
 
 //----------------------------------------------------------------------------
 // Just clip the request.  The subclass may need to overwrite this method.
-void vtkImageLaplacian::ComputeRequiredInputUpdateExtent(int inExt[6], 
-							 int outExt[6])
+void vtkImageLaplacian::ComputeInputUpdateExtent(int inExt[6], 
+						 int outExt[6])
 {
   int idx;
   int *wholeExtent;

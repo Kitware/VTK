@@ -81,6 +81,9 @@ void vtkAttributeDataToFieldDataFilter::Execute()
   
   vtkDebugMacro(<<"Generating field data from attribute data");
 
+  // Start by copying input to output
+  output->CopyStructure( input );
+
   if ( inPD->GetScalars() || inPD->GetVectors() || inPD->GetTensors() ||
        inPD->GetNormals() || inPD->GetTCoords() || inPD->GetFieldData() )
     {

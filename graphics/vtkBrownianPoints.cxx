@@ -75,6 +75,9 @@ void vtkBrownianPoints::Execute()
   vtkDataSet *input= this->GetInput();
   vtkDataSet *output =  this->GetOutput();
 
+  // First, copy the input to the output as a starting point
+  output->CopyStructure( input );
+
   vtkDebugMacro(<< "Executing Brownian filter");
 
   if ( ((numPts=input->GetNumberOfPoints()) < 1) )

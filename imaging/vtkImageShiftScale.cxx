@@ -74,9 +74,11 @@ vtkImageShiftScale::vtkImageShiftScale()
 
 
 //----------------------------------------------------------------------------
-void vtkImageShiftScale::ExecuteInformation(vtkImageData *vtkNotUsed(inData), 
+void vtkImageShiftScale::ExecuteInformation(vtkImageData *inData, 
 					    vtkImageData *outData)
 {
+  this->vtkImageToImageFilter::ExecuteInformation( inData, outData );
+
   if (this->OutputScalarType != -1)
     {
     outData->SetScalarType(this->OutputScalarType);

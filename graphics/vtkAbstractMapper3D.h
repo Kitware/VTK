@@ -56,7 +56,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkAbstractMapper3D_h
 
 #include "vtkAbstractMapper.h"
-#include "vtkImageToStructuredPoints.h"
 #include "vtkPlaneCollection.h"
 #include "vtkPlane.h"
 

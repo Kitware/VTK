@@ -167,6 +167,8 @@ void vtkPLOT3DReader::Execute()
   vtkStructuredGrid *output = this->GetOutput();
   vtkPointData *outputPD = output->GetPointData();
   
+  int *extent = output->GetExtent();
+
   //
   // Initialize output and read geometry
   //

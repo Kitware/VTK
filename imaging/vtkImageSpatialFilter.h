@@ -86,7 +86,7 @@ protected:
   virtual void ExecuteInformation(vtkImageData *inData, vtkImageData *outData);
 
   void ComputeOutputWholeExtent(int extent[6], int handleBoundaries);
-  void ComputeRequiredInputUpdateExtent(int extent[6], int wholeExtent[6]);
+  void ComputeInputUpdateExtent(int extent[6], int wholeExtent[6]);
 
 };
 

@@ -57,7 +57,7 @@ public:
   const char *GetClassName() {return "vtkImageCacheFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  void InternalUpdate(vtkDataObject *outData);
+  void UpdateData(vtkDataObject *outData);
 
   void SetCacheSize(int size);
   vtkGetMacro(CacheSize, int);

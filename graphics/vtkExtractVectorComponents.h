@@ -108,7 +108,6 @@ protected:
   void operator=(const vtkExtractVectorComponents&) {};
 
   void Execute();
-  int ComputeInputUpdateExtents(vtkDataObject *output);
 };
 
 #endif

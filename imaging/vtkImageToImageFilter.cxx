@@ -63,7 +63,6 @@ vtkImageToImageFilter* vtkImageToImageFilter::New()
 vtkImageToImageFilter::vtkImageToImageFilter()
 {
   this->Bypass = 0;
-  this->BypassWasOn = 0;
   this->Threader = vtkMultiThreader::New();
   this->NumberOfThreads = this->Threader->GetNumberOfThreads();
 }
@@ -77,7 +76,6 @@ vtkImageToImageFilter::~vtkImageToImageFilter()
 //----------------------------------------------------------------------------
 void vtkImageToImageFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  os << indent << "Bypass: " << this->Bypass << "\n";
   os << indent << "NumberOfThreads: " << this->NumberOfThreads << "\n";
 
   vtkImageSource::PrintSelf(os,indent);
@@ -118,84 +116,57 @@ void vtkImageToImageFilter::ExecuteInformation()
     return;
     }
 
-  // Set the dafaults.
-  // Setting defaults will modify the data if the sublcass overrides the 
-  // defaults.  But this should be OK because ExecuteTime (and UpdateTime)
-  // should be out of date anyway if this method is being called.
-  
-  // Done in superclass now.
-  //output->CopyInformation(input);
+  // Start with some defaults.
+  output->CopyTypeSpecificInformation( input );
 
-  if (this->Bypass == 0)
+  // take this opportunity to modify the defaults
+
+  // for legacy
+  this->LegacyHack = 1;
+  this->ExecuteImageInformation();
+  if (this->LegacyHack)
     {
-    // for legacy
-    this->LegacyHack = 1;
-    this->ExecuteImageInformation();
-    if (this->LegacyHack)
-      {
-      vtkWarningMacro("ExecuteImageInformation will not be supported in the future.\n"
-        << "You should write an ExecuteInformation(vtkImageData*, vtkImageData*)");
-      return;
-      }
-    
-    this->ExecuteInformation(input, output);
-    }
-  else
-    {
-    output->CopyInformation( input );
-    }
+    vtkWarningMacro("ExecuteImageInformation will not be supported in the future.\n"
+		    << "You should write an ExecuteInformation(vtkImageData*, vtkImageData*)");
+    return;
+    }    
+  this->ExecuteInformation(input, output);
 }
+
 //----------------------------------------------------------------------------
 void vtkImageToImageFilter::ExecuteInformation(
            vtkImageData *vtkNotUsed(inData), vtkImageData *vtkNotUsed(outData))
 {
 }
 
-
 //----------------------------------------------------------------------------
-int
-vtkImageToImageFilter::ComputeDivisionExtents(
-					    vtkDataObject *vtkNotUsed(output),
-					    int idx, int numDivisions)
+
+// Call the alternate version of this method, and use the returned input
+// update extent for all inputs
+void vtkImageToImageFilter::ComputeInputUpdateExtents( vtkDataObject *output )
 {
-  vtkImageData *input = this->GetInput();
-  int actualSplits;
-  int *outExt, inExt[6];
-  
-  if (input == NULL)
+  int outExt[6], inExt[6];
+
+  output->GetUpdateExtent( outExt );
+
+  this->ComputeInputUpdateExtent( inExt, outExt );
+
+  for (int idx = 0; idx < this->NumberOfInputs; ++idx)
     {
-    vtkErrorMacro("No input");
-    return 0;
-    }
-  
-  outExt = this->GetOutput()->GetUpdateExtent();
-  actualSplits = this->SplitExtent(this->ExecuteExtent, outExt, 
-				   idx, numDivisions);
-  
-  if (idx < actualSplits)
-    { // yes this is a valid piece.
-    this->ComputeRequiredInputUpdateExtent(inExt, this->ExecuteExtent);
-    input->SetUpdateExtent(inExt);
-    return 1;
-    }
-  else
-    {
-    // We could not split to this piece.
-    return 0;
-    }
+    if (this->Inputs[idx] != NULL)
+      {
+      this->Inputs[idx]->SetUpdateExtent( inExt );
+      }
+    }  
 }
 
-//----------------------------------------------------------------------------
-// This method can be overriden in a subclass to compute the input
-// UpdateExtent needed to generate the output UpdateExtent.
-// By default the input is set to the same as the output before this
-// method is called.
-void vtkImageToImageFilter::ComputeRequiredInputUpdateExtent(int inExt[6], 
-						     int outExt[6])
+// By default, simply set the input update extent to match the given output
+// extent
+void vtkImageToImageFilter::ComputeInputUpdateExtent( int inExt[6], 
+						      int outExt[6] )
 {
   memcpy(inExt,outExt,sizeof(int)*6);
 }
-
 
 
 
@@ -218,12 +189,14 @@ VTK_THREAD_RETURN_TYPE vtkImageThreadedExecute( void *arg )
   vtkImageThreadStruct *str;
   int ext[6], splitExt[6], total;
   int threadId, threadCount;
-  
+  vtkImageData *output;
+
   threadId = ((ThreadInfoStruct *)(arg))->ThreadID;
   threadCount = ((ThreadInfoStruct *)(arg))->NumberOfThreads;
 
   str = (vtkImageThreadStruct *)(((ThreadInfoStruct *)(arg))->UserData);
-  memcpy(ext,str->Filter->GetExecuteExtent(), sizeof(int)*6);
+  output = str->Filter->GetOutput();
+  output->GetUpdateExtent( ext );
 
   // execute the actual method with appropriate extent
   // first find out how many pieces extent can be split into.
@@ -242,117 +215,6 @@ VTK_THREAD_RETURN_TYPE vtkImageThreadedExecute( void *arg )
   //   }
   
   return VTK_THREAD_RETURN_VALUE;
-}
-
-
-void vtkImageToImageFilter::StreamExecuteStart()
-{
-  vtkImageData *output = this->GetOutput();
-
-  // We need to be careful if Bypass has been toggled.
-  if (this->Bypass == 0)
-    {
-    if (this->BypassWasOn)
-      {
-      // We were bypassing this filter (causing pointers to be copied from
-      // input to output), now we are not bypassing the filter.  Need to reset
-      // the output so we do not use the "copied" references.
-      output->ReleaseData();
-      this->BypassWasOn = 0;
-      }
-    //
-    // Call vtkImageSource's StreamExecuteStart
-    //
-    this->vtkImageSource::StreamExecuteStart();
-    }
-  else
-    {
-    this->BypassWasOn = 1;
-    }
-
-}
-
-//----------------------------------------------------------------------------
-// This is the superclasses style of Execute method.  Convert it into
-// an imaging style Execute method.
-void vtkImageToImageFilter::Execute()
-{
-  if (this->Bypass == 0)
-    {
-    this->Execute(this->GetInput(), this->GetOutput());
-    }
-  else
-    {
-    vtkImageData *inData = this->GetInput();
-
-    if ( inData == NULL)
-      {
-      vtkErrorMacro("No Input.");
-      return;
-      }
-    this->GetOutput()->GetPointData()->PassData(inData->GetPointData());
-    this->GetOutput()->SetExtent( this->GetInput()->GetExtent() );
-    }
-}
-
-//----------------------------------------------------------------------------
-// This assumes that there is no overlap of pieces.
-// Not a good assumption! OH Well....
-int vtkImageToImageFilter::GetNumberOfStreamDivisions()
-{
-  vtkImageData *input = this->GetInput();
-  float fraction;
-  int *ext;
-  int num;
-  
-  if (input == NULL)
-    {
-    return 1;
-    }
-  
-  // What fraction of whole extent is the OUTPUT UpdateExtent.
-  ext = this->GetOutput()->GetWholeExtent();
-  fraction = (ext[1]-ext[0]+1) * (ext[3]-ext[2]+1) * (ext[5]-ext[4]+1);
-  ext = this->GetOutput()->GetUpdateExtent();
-  fraction = (ext[1]-ext[0]+1)*(ext[3]-ext[2]+1)*(ext[5]-ext[4]+1) / fraction;
-  
-  // Estimated memory size is of the WholeExtent
-  num =(int)(fraction *
-	     input->GetEstimatedWholeMemorySize() / input->GetMemoryLimit());
-  
-  if (num < 1)
-    {
-    return 1;
-    }
-  return num;
-}
-
-//----------------------------------------------------------------------------
-void vtkImageToImageFilter::Execute(vtkImageData *inData, 
-				    vtkImageData *outData)
-{
-  vtkImageThreadStruct str;
-  
-  str.Filter = this;
-  str.Input = inData;
-  str.Output = outData;
-  
-  this->Threader->SetNumberOfThreads(this->NumberOfThreads);
-  
-  // setup threading and the invoke threadedExecute
-  this->Threader->SetSingleMethod(vtkImageThreadedExecute, &str);
-  this->Threader->SingleMethodExecute();
-}
-
-
-//----------------------------------------------------------------------------
-// The execute method created by the subclass.
-void vtkImageToImageFilter::ThreadedExecute(vtkImageData *vtkNotUsed(inData), 
-				     vtkImageData *vtkNotUsed(outData),
-				     int extent[6], int vtkNotUsed(threadId))
-{
-  extent = extent;
-  vtkErrorMacro("subclass should override this method!!!");
 }
 
 //----------------------------------------------------------------------------
@@ -414,31 +276,43 @@ int vtkImageToImageFilter::SplitExtent(int splitExt[6], int startExt[6],
 
 
 
-
-
 //----------------------------------------------------------------------------
-void vtkImageToImageFilter::SetInputMemoryLimit(int limit)
+// This is the superclasses style of Execute method.  Convert it into
+// an imaging style Execute method.
+void vtkImageToImageFilter::Execute()
 {
-  vtkImageData *input = this->GetInput();
-  
-  if ( input == NULL)
-    {
-    vtkErrorMacro("Input must be set before InputMemoryLimit.");
-    }
-  
-  input->SetMemoryLimit(limit);
+  vtkImageData *output = this->GetOutput();
+
+  output->SetExtent(output->GetUpdateExtent());
+  output->AllocateScalars();
+  this->Execute(this->GetInput(), output);
 }
 
 //----------------------------------------------------------------------------
-long vtkImageToImageFilter::GetInputMemoryLimit()
+void vtkImageToImageFilter::Execute(vtkImageData *inData, 
+				    vtkImageData *outData)
 {
-  vtkImageData *input = this->GetInput();
+  vtkImageThreadStruct str;
   
-  if ( input == NULL)
-    {
-    vtkErrorMacro("Input must be set before you can get InputMemoryLimit.");
-    return 1000000;
-    }
+  str.Filter = this;
+  str.Input = inData;
+  str.Output = outData;
   
-  return input->GetMemoryLimit();
+  this->Threader->SetNumberOfThreads(this->NumberOfThreads);
+  
+  // setup threading and the invoke threadedExecute
+  this->Threader->SetSingleMethod(vtkImageThreadedExecute, &str);
+  this->Threader->SingleMethodExecute();
 }
+
+
+//----------------------------------------------------------------------------
+// The execute method created by the subclass.
+void vtkImageToImageFilter::ThreadedExecute(vtkImageData *vtkNotUsed(inData), 
+				     vtkImageData *vtkNotUsed(outData),
+				     int extent[6], int vtkNotUsed(threadId))
+{
+  extent = extent;
+  vtkErrorMacro("subclass should override this method!!!");
+}
+

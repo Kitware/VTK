@@ -96,18 +96,11 @@ void vtkImageIslandRemoval2D::PrintSelf(ostream& os, vtkIndent indent)
 
 
 //----------------------------------------------------------------------------
-void vtkImageIslandRemoval2D::ModifyOutputUpdateExtent()
+void vtkImageIslandRemoval2D::EnlargeOutputUpdateExtents( vtkDataObject *data )
 {
   int wholeExtent[6];
   int extent[6];
   
-  // Filter superclass has no control of intercept cache update.
-  // a work around
-  if (this->Bypass)
-    {
-    return;
-    }
-
   memcpy(wholeExtent,this->GetOutput()->GetWholeExtent(),6*sizeof(int));
   memcpy(extent,this->GetOutput()->GetUpdateExtent(),6*sizeof(int));
   extent[0] = wholeExtent[0];

@@ -163,7 +163,7 @@ void vtkImageEllipsoidSource::ExecuteInformation()
     mem = 1;
     }
   
-  data->SetEstimatedWholeMemorySize(mem);
+  //  data->SetEstimatedWholeMemorySize(mem);
 }
 
 

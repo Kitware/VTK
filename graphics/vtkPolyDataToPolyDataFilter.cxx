@@ -78,11 +78,5 @@ vtkPolyData *vtkPolyDataToPolyDataFilter::GetInput()
   return (vtkPolyData *)(this->Inputs[0]);
 }
 
-//----------------------------------------------------------------------------
-
-void vtkPolyDataToPolyDataFilter::ExecuteInformation()
-{
-  // Polydata does not have any additional information to pass.
-}
 
 

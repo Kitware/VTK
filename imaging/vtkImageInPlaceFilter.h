@@ -61,13 +61,6 @@ public:
   static vtkImageInPlaceFilter *New();
   const char *GetClassName() {return "vtkImageInPlaceFilter";};
 
-  // Description:
-  // This method is called by the cache.  It eventually calls the
-  // Execute(vtkImageData *, vtkImageData *) method.  Information has
-  // already been updated by this point, and outRegion is in local
-  // coordinates.  This method will stream to get the input. Only the
-  // UpdateExtent from output will get updated.
-  virtual void InternalUpdate(vtkDataObject *data);
 
 protected:
   vtkImageInPlaceFilter() {};
@@ -75,7 +68,12 @@ protected:
   vtkImageInPlaceFilter(const vtkImageInPlaceFilter&) {};
   void operator=(const vtkImageInPlaceFilter&) {};
 
-  virtual void RecursiveStreamUpdate(vtkImageData *outData,int splitAxis);
+  void Execute();
+  void Execute(vtkImageData *outData) 
+    { this->vtkImageToImageFilter::Execute(outData); };
+  virtual void Execute(vtkImageData *inData, vtkImageData *outData)
+    { this->vtkImageToImageFilter::Execute(inData, outData); };
+
   void CopyData(vtkImageData *in, vtkImageData *out);
 
 };

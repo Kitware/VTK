@@ -123,6 +123,7 @@ void vtkInterpolateDataSetAttributes::Execute()
   vtkCellData *inputCD, *input2CD;
   float t;
   
+
   if ( inputList->GetNumberOfItems() < 2 )
     {
     vtkErrorMacro(<< "Need at least two inputs to interpolate!");
@@ -255,27 +256,6 @@ void vtkInterpolateDataSetAttributes::Execute()
 
     outputCD->InterpolateTime(inputCD, input2CD, i, t);
     }
-}
-
-//----------------------------------------------------------------------------
-int 
-vtkInterpolateDataSetAttributes::ComputeInputUpdateExtents(vtkDataObject *data)
-{
-  vtkDataSet *output = (vtkDataSet*)data;
-  vtkDataSet *input;
-  int idx;
-  
-  // I do not like the InputList implementation, so ...
-  for (idx = 0; idx < this->NumberOfInputs; ++idx)
-    {
-    input = (vtkDataSet*)(this->Inputs[idx]);
-    if (input != NULL)
-      {
-      input->CopyUpdateExtent(output);
-      }
-    }
-  
-  return 1;
 }
 
 

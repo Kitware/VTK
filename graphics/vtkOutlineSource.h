@@ -67,7 +67,6 @@ protected:
   void operator=(const vtkOutlineSource&) {};
 
   void Execute();
-  void ExecuteInformation();
   float Bounds[6];
 };
 

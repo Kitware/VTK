@@ -47,13 +47,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkImageDataStreamer_h
 #define __vtkImageDataStreamer_h
 
-#include "vtkImageSource.h"
+#include "vtkImageToImageFilter.h"
 
 
 #define VTK_IMAGE_DATA_STREAMER_BLOCK_MODE 0
 #define VTK_IMAGE_DATA_STREAMER_SLAB_MODE 1
 
-class VTK_EXPORT vtkImageDataStreamer : public vtkImageSource
+class VTK_EXPORT vtkImageDataStreamer : public vtkImageToImageFilter
 {
 public:
   static vtkImageDataStreamer *New();
@@ -61,20 +61,9 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Set the Input of a filter. 
-  void SetInput(vtkImageData *input);
-  vtkImageData *GetInput();
-  
-  // Description:
-  // Pipeline calls made by vtkImageData.
-  void PreUpdate(vtkDataObject *data);
-  void InternalUpdate(vtkDataObject *data);
-
-  // Description:
-  // Until Lisa finishes, we will use a very brute force method
-  // of streaming (determining how many pieces to use).
-  vtkSetMacro(NumberOfDivisions, int);
-  vtkGetMacro(NumberOfDivisions, int);
+  // Set the memory limit in kilobytes.
+  vtkSetMacro(MemoryLimit, unsigned long);
+  vtkGetMacro(MemoryLimit, unsigned long);
   
   // Description:
   // How should the streamer break up extents. Block mode
@@ -86,7 +75,15 @@ public:
     {this->SplitMode = VTK_IMAGE_DATA_STREAMER_BLOCK_MODE;}
   void SetSplitModeToSlab()
     {this->SplitMode = VTK_IMAGE_DATA_STREAMER_SLAB_MODE;}
-      
+
+  // Description:
+  // Need to override since this is where streaming will be done
+  void UpdateData( vtkDataObject *out );
+
+  // Description:
+  // Need to override and do nothing since it should be triggered during
+  // the update data pass due to streaming
+  void TriggerAsynchronousUpdate();
   
 protected:
   vtkImageDataStreamer();
@@ -94,11 +91,10 @@ protected:
   vtkImageDataStreamer(const vtkImageDataStreamer&) {};
   void operator=(const vtkImageDataStreamer&) {};
 
-  int NumberOfDivisions;
+  unsigned long MemoryLimit;
   
   int SplitMode;
 
-  int SplitExtent(int *ext, int piece, int numPieces);
 };
 
 

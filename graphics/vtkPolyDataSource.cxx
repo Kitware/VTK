@@ -89,7 +89,7 @@ void vtkPolyDataSource::SetOutput(vtkPolyData *output)
 
 
 //----------------------------------------------------------------------------
-int vtkPolyDataSource::ComputeInputUpdateExtents(vtkDataObject *data)
+void vtkPolyDataSource::ComputeInputUpdateExtents(vtkDataObject *data)
 {
   int piece, numPieces;
   vtkPolyData *output = (vtkPolyData *)data;
@@ -100,7 +100,7 @@ int vtkPolyDataSource::ComputeInputUpdateExtents(vtkDataObject *data)
   // make sure piece is valid
   if (piece < 0 || piece >= numPieces)
     {
-    return 0;
+    return;
     }
   
   // just copy the Update extent as default behavior.
@@ -115,8 +115,6 @@ int vtkPolyDataSource::ComputeInputUpdateExtents(vtkDataObject *data)
   // Save the piece so execute can use this information.
   this->ExecutePiece = piece;
   this->ExecuteNumberOfPieces = numPieces;
-    
-  return 1;
 }
 
   

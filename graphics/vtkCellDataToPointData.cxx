@@ -80,6 +80,9 @@ void vtkCellDataToPointData::Execute()
 
   vtkDebugMacro(<<"Mapping cell data to point data");
 
+  // First, copy the input to the output as a starting point
+  output->CopyStructure( input );
+
   cellIds = vtkIdList::New();
   cellIds->Allocate(VTK_MAX_CELLS_PER_POINT);
 

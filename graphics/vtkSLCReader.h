@@ -79,7 +79,7 @@ protected:
   // imaging filter.
   // Sets WholeExtent, Origin, Spacing, ScalarType 
   // and NumberOfComponents of output.
-  void ExecuteInformation2();
+  void ExecuteInformation();
   
   // Decodes an array of eight bit run-length encoded data.
   unsigned char *Decode8BitData( unsigned char *in_ptr, int size );

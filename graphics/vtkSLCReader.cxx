@@ -122,7 +122,7 @@ unsigned char* vtkSLCReader::Decode8BitData( unsigned char *in_ptr,
 
 
 // This will be needed when we make this an imaging filter.
-void vtkSLCReader::ExecuteInformation2()
+void vtkSLCReader::ExecuteInformation()
 {
   FILE *fp;
   int   temp;

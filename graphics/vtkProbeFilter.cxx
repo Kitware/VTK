@@ -87,18 +87,6 @@ vtkDataSet *vtkProbeFilter::GetSource()
   return (vtkDataSet *)(this->Inputs[1]);
 }
 
-//----------------------------------------------------------------------------
-int vtkProbeFilter::ComputeInputUpdateExtents(vtkDataObject *output)
-{
-  // this input has to be the same type as output.
-  this->GetInput()->CopyUpdateExtent(output);
-  
-  // we always need the whole source.
-  this->GetSource()->SetUpdateExtent(0, 1);
-  
-  return 1;
-}
-
 
 //----------------------------------------------------------------------------
 void vtkProbeFilter::Execute()
@@ -114,6 +102,9 @@ void vtkProbeFilter::Execute()
   float pcoords[3], *weights=new float[source->GetMaxCellSize()];
 
   vtkDebugMacro(<<"Probing data");
+
+  // First, copy the input to the output as a starting point
+  output->CopyStructure( input );
 
   pd = source->GetPointData();
   numPts = input->GetNumberOfPoints();

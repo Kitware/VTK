@@ -101,25 +101,12 @@ public:
   // Description:
   // Get the output as vtkUnstructuredGrid. Performs run-time checking.
   vtkUnstructuredGrid *GetUnstructuredGridOutput();
-
-  // Description:
-  // This method is called by the data object. It assumes UpdateInformation
-  // has been called.  vtkDataSetToDataSetFilter has a special version of
-  // this method because it needs to "CopyStructure" from input to output.
-  // Also, this version will not let subclasses initiate stremaing.
-  void InternalUpdate(vtkDataObject *output);
   
 protected:
   vtkPointSetToPointSetFilter();
   ~vtkPointSetToPointSetFilter();
   vtkPointSetToPointSetFilter(const vtkPointSetToPointSetFilter&) {};
   void operator=(const vtkPointSetToPointSetFilter&) {};
-
-  // Since we know Inputs[0] is the same type as Outputs[0] we can
-  // use CopyUpdateExtent of the data object to propaget extents.
-  // It the filter has more than one input, all bets are off.
-  // It is up to the subclass to implement this method.
-  int ComputeInputUpdateExtents(vtkDataObject *output);
 
 };
 

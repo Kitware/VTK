@@ -91,6 +91,9 @@ void vtkTextureMapToCylinder::Execute()
 
   vtkDebugMacro(<<"Generating Cylindrical Texture Coordinates");
 
+  // First, copy the input to the output as a starting point
+  output->CopyStructure( input );
+
   if ( numPts < 1 )
     {
     vtkErrorMacro(<<"Can't generate texture coordinates without points");

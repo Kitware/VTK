@@ -75,8 +75,6 @@ protected:
   void operator=(const vtkProbeFilter&) {};
 
   void Execute();
-  // This filter takes more than one input, so it needs this method.
-  int ComputeInputUpdateExtents(vtkDataObject *output);
 };
 
 #endif

@@ -107,6 +107,9 @@ public:
   // Get the output as a concrete type.
   vtkRectilinearGrid *GetRectilinearGridOutput();
 
+  void UpdateInformation();
+  void UpdateData(vtkDataObject *output);
+
 protected:
   vtkProgrammableSource();
   ~vtkProgrammableSource();
@@ -118,6 +121,8 @@ protected:
   void (*ExecuteMethod)(void *); //function to invoke
   void (*ExecuteMethodArgDelete)(void *);
   void *ExecuteMethodArg;  
+
+  vtkTimeStamp ExecuteTime;
 };
 
 #endif

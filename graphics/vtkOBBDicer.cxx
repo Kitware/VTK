@@ -158,6 +158,9 @@ void vtkOBBDicer::Execute()
 
   vtkDebugMacro(<<"Dicing object");
 
+  // First, copy the input to the output as a starting point
+  output->CopyStructure( input );
+
   if ( (numPts = input->GetNumberOfPoints()) < 1 )
     {
     vtkErrorMacro(<<"No data to dice!");

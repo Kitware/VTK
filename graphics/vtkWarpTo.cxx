@@ -80,6 +80,9 @@ void vtkWarpTo::Execute()
   
   vtkDebugMacro(<<"Warping data to a point");
 
+  // First, copy the input to the output as a starting point
+  output->CopyStructure( input );
+
   inPts = input->GetPoints();
   numPts = inPts->GetNumberOfPoints();
 

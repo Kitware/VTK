@@ -114,6 +114,9 @@ void vtkExtractTensorComponents::Execute()
   //
   vtkDebugMacro(<<"Extracting vector components!");
 
+  // First, copy the input to the output as a starting point
+  this->GetOutput()->CopyStructure( input );
+
   inTensors = pd->GetTensors();
   numPts = input->GetNumberOfPoints();
 

@@ -74,9 +74,9 @@ protected:
 
   int Dimensionality;
   void ExecuteInformation(vtkImageData **inDatas, vtkImageData *outData);
+  virtual void ComputeInputUpdateExtent(int inExt[6], int outExt[6],
+					int whichInput);
   void ExecuteInformation(){this->vtkImageTwoInputFilter::ExecuteInformation();};
-  virtual void ComputeRequiredInputUpdateExtent(int inExt[6], int outExt[6],
-						int whichInput);
   void ThreadedExecute(vtkImageData **inDatas, vtkImageData *outData,
 		       int extent[6], int id);
 };

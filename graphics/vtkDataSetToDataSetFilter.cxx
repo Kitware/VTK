@@ -99,95 +99,6 @@ void vtkDataSetToDataSetFilter::SetInput(vtkDataSet *input)
   this->vtkProcessObject::SetNthInput(0, input);
 }
 
-//----------------------------------------------------------------------------
-// Update input to this filter and the filter itself.
-void vtkDataSetToDataSetFilter::InternalUpdate(vtkDataObject *output)
-{
-  int idx;
-  vtkDataSet *ds, *input = this->GetInput();
-  
-  // prevent chasing our tail
-  if (this->Updating)
-    {
-    return;
-    }
-
-  if (this->ComputeInputUpdateExtents(output))
-    {
-    // Update the inputs
-    this->Updating = 1;
-    for (idx = 0; idx < this->NumberOfInputs; ++idx)
-      {
-      if (this->Inputs[idx] != NULL)
-	{
-	this->Inputs[idx]->InternalUpdate();
-	// Special case for pipeline parallelism:
-	// If any inputs did not generate data, do not execute.
-	// In the futured we may want to include a check to see if the input
-	// has actually changed (mtime comparison).
-	if (this->Inputs[idx]->GetDataReleased())
-	  {
-	  vtkDebugMacro("Filter not executing because input (" 
-			<< this->Inputs[idx] << ") is released");
-	  this->Updating = 0;
-	  return;
-	  }
-	}
-      }
-    this->Updating = 0;
-    
-    // Execute
-    if ( this->StartMethod )
-      {
-      (*this->StartMethod)(this->StartMethodArg);
-      }
-    // special copy structure calls.
-    for (idx = 0; idx < this->NumberOfOutputs; ++idx)
-      {
-      ds = (vtkDataSet*)(this->Outputs[idx]);
-      if (ds)
-	{
-	// clear points and point data output 
-	ds->CopyStructure(input);
-	}  
-      }
-    // reset Abort flag
-    this->AbortExecute = 0;
-    this->Progress = 0.0;
-    this->Execute();
-    if ( !this->AbortExecute )
-      {
-      this->UpdateProgress(1.0);
-      }
-    if ( this->EndMethod )
-      {
-      (*this->EndMethod)(this->EndMethodArg);
-      }
-  
-    // Tell the outputs they have valid data.
-    for (idx = 0; idx < this->NumberOfOutputs; ++idx)
-      {
-      ds = (vtkDataSet*)(this->Outputs[idx]);
-      if (ds)
-	{
-	ds->DataHasBeenGenerated();
-	}  
-      }
-    }
-
-  // clean up (release data)
-  for (idx = 0; idx < this->NumberOfInputs; ++idx)
-    {
-    if (this->Inputs[idx] != NULL)
-      {
-      if ( this->Inputs[idx]->ShouldIReleaseData() )
-	{
-	this->Inputs[idx]->ReleaseData();
-	}
-      }  
-    }
-}
-
 // Get the output of this filter. If output is NULL then input hasn't been set
 // which is necessary for abstract objects.
 vtkDataSet *vtkDataSetToDataSetFilter::GetOutput()
@@ -297,18 +208,22 @@ vtkDataSet *vtkDataSetToDataSetFilter::GetInput()
   return (vtkDataSet *)(this->Inputs[0]);
 }
 
+//----------------------------------------------------------------------------
+// We know input and output match in type - call the type specific version of
+// copy information
+void vtkDataSetToDataSetFilter::ExecuteInformation()
+{
+  this->GetOutput()->CopyTypeSpecificInformation( this->GetInput() );
+}
 
 //----------------------------------------------------------------------------
-int vtkDataSetToDataSetFilter::ComputeInputUpdateExtents(vtkDataObject *data)
+
+// Copy the update information across
+void vtkDataSetToDataSetFilter::ComputeInputUpdateExtents(vtkDataObject *output)
 {
-  vtkDataSet *output = (vtkDataSet*)data;
-  
-  if (this->NumberOfInputs > 1)
-    {
-    vtkErrorMacro("Subclass did not implement ComputeInputUpdateExtents");
-    return 0;
-    }
-  
-  this->GetInput()->CopyUpdateExtent(output);
-  return 1;
+  vtkDataObject *input = this->GetInput();
+
+  input->SetUpdatePiece( output->GetUpdatePiece() );
+  input->SetUpdateNumberOfPieces( output->GetUpdateNumberOfPieces() );
+  input->SetUpdateExtent( output->GetUpdateExtent() );
 }

@@ -405,15 +405,14 @@ vtkRectilinearGrid *vtkDataObjectToDataSetFilter::GetRectilinearGridOutput()
 }
 
 //----------------------------------------------------------------------------
-int 
-vtkDataObjectToDataSetFilter::ComputeInputUpdateExtents(vtkDataObject *vtkNotUsed(output))
+void vtkDataObjectToDataSetFilter::ComputeInputUpdateExtents( 
+				       vtkDataObject *vtkNotUsed(output))
 {
   // what should we do here?
   if (this->GetInput()->GetDataObjectType() != VTK_DATA_OBJECT)
     {
     this->GetInput()->SetUpdateExtent(0, 1);
     }
-  return 1;  
 }
 
 //----------------------------------------------------------------------------

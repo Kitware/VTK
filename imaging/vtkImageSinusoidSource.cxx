@@ -177,7 +177,7 @@ void vtkImageSinusoidSource::ExecuteInformation()
     mem = 1;
     }
   
-  output->SetEstimatedWholeMemorySize(mem);
+  //  output->SetEstimatedWholeMemorySize(mem);
 }
 
 void vtkImageSinusoidSource::Execute(vtkImageData *data)

@@ -96,6 +96,10 @@ void vtkTextureMapToPlane::Execute()
   vtkDataSet *output = this->GetOutput();
 
   vtkDebugMacro(<<"Generating texture coordinates!");
+
+  // First, copy the input to the output as a starting point
+  output->CopyStructure( input );
+
   if ( (numPts=input->GetNumberOfPoints()) < 3 && 
   this->AutomaticPlaneGeneration )
     {

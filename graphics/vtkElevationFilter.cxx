@@ -92,6 +92,9 @@ void vtkElevationFilter::Execute()
   //
   vtkDebugMacro(<<"Generating elevation scalars!");
 
+  // First, copy the input to the output as a starting point
+  this->GetOutput()->CopyStructure( input );
+
   if ( ((numPts=input->GetNumberOfPoints()) < 1) )
     {
     //vtkErrorMacro(<< "No input!");

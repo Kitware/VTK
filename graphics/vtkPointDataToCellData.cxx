@@ -79,6 +79,9 @@ void vtkPointDataToCellData::Execute()
 
   vtkDebugMacro(<<"Mapping point data to cell data");
 
+  // First, copy the input to the output as a starting point
+  output->CopyStructure( input );
+
   if ( (numCells=input->GetNumberOfCells()) < 1 )
     {
     vtkErrorMacro(<<"No input cells!");

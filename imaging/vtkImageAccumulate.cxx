@@ -307,8 +307,8 @@ void vtkImageAccumulate::ExecuteInformation(vtkImageData *vtkNotUsed(input),
 
 //----------------------------------------------------------------------------
 // Get ALL of the input.
-void vtkImageAccumulate::ComputeRequiredInputUpdateExtent(int inExt[6], 
-							  int outExt[6])
+void vtkImageAccumulate::ComputeInputUpdateExtent(int inExt[6], 
+						  int outExt[6])
 {
   int *wholeExtent;
 
@@ -318,16 +318,9 @@ void vtkImageAccumulate::ComputeRequiredInputUpdateExtent(int inExt[6],
 }
 
 //----------------------------------------------------------------------------
-void vtkImageAccumulate:: ModifyOutputUpdateExtent()
+void vtkImageAccumulate::EnlargeOutputUpdateExtents( vtkDataObject *data )
 {
   int wholeExtent[8];
-  
-  // Filter superclass has no control of intercept cache update.
-  // a work around
-  if (this->Bypass)
-    {
-    return;
-    }
   
   this->GetOutput()->GetWholeExtent(wholeExtent);
   this->GetOutput()->SetUpdateExtent(wholeExtent);

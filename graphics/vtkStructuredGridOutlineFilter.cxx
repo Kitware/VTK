@@ -73,131 +73,140 @@ void vtkStructuredGridOutlineFilter::Execute()
   int numPts, idx, offset, ids[2];
   // for marching through the points along an edge.
   int start, num, inc, id;
-  
-  if (this->ExecutePiece >= 12)
-    {
-    // thing should not have gotten this far.
-    return;
-    }
-  
 
-  // If all StructuredPointsSources were forced to give you exactly
-  // the update extent, this execute method would be trivial.
-  // However, Imaging does not have this requirement, and I have not
-  // made the readers "StreamingReady" ...
-  
-  // Find the start of this edge, the length of this edge, and increment.
-  ext = input->GetExtent();
-  xInc = 1;
-  yInc = ext[1]-ext[0]+1;
-  zInc = yInc * (ext[3]-ext[2]+1);
-  switch (this->ExecutePiece)
+  for ( int i = 0; i < 12; i++ )
     {
-    case 0:
-      // start (0, 0, 0) increment z axis.
-      num = ext[5]-ext[4]+1;
-      start = (0-ext[0])*xInc + (0-ext[2])*yInc + (0-ext[4])*zInc;
-      inc = zInc;
-      break;
-    case 1:
-      // start (xMax, 0, 0) increment z axis.
-      num = ext[5]-ext[4]+1;
-      start = (ext[1]-ext[0])*xInc + (0-ext[2])*yInc + (0-ext[4])*zInc;
-      inc = zInc;
-      break;
-    case 2:
-      // start (0, yMax, 0) increment z axis.
-      num = ext[5]-ext[4]+1;
-      start = (0-ext[0])*xInc + (ext[3]-ext[2])*yInc + (0-ext[4])*zInc;
-      inc = zInc;
-      break;
-    case 3:
-      // start (xMax, yMax, 0) increment z axis.
-      num = ext[5]-ext[4]+1;
-      start = (ext[1]-ext[0])*xInc + (ext[3]-ext[2])*yInc + (0-ext[4])*zInc;
-      inc = zInc;
-      break;
-    case 4:
-      // start (0, 0, 0) increment y axis.
-      num = ext[3]-ext[2]+1;
-      start = (0-ext[0])*xInc + (0-ext[2])*yInc + (0-ext[4])*zInc;
-      inc = yInc;
-      break;
-    case 5:
-      // start (xMax, 0, 0) increment y axis.
-      num = ext[3]-ext[2]+1;
-      start = (ext[1]-ext[0])*xInc + (0-ext[2])*yInc + (0-ext[4])*zInc;
-      inc = yInc;
-      break;
-    case 6:
-      // start (0, 0, zMax) increment y axis.
-      num = ext[3]-ext[2]+1;
-      start = (0-ext[0])*xInc + (0-ext[2])*yInc + (ext[5]-ext[4])*zInc;
-      inc = yInc;
-      break;
-    case 7:
-      // start (xMax, 0, zMax) increment y axis.
-      num = ext[3]-ext[2]+1;
-      start = (ext[1]-ext[0])*xInc + (0-ext[2])*yInc + (ext[5]-ext[4])*zInc;
-      inc = yInc;
-      break;
-    case 8:
-      // start (0, 0, 0) increment x axis.
-      num = ext[1]-ext[0]+1;
-      start = (0-ext[0])*xInc + (0-ext[2])*yInc + (0-ext[4])*zInc;
-      inc = xInc;
-      break;
-    case 9:
-      // start (0, yMax, 0) increment x axis.
-      num = ext[1]-ext[0]+1;
-      start = (0-ext[0])*xInc + (ext[3]-ext[2])*yInc + (0-ext[4])*zInc;
-      inc = xInc;
-      break;
-    case 10:
-      // start (0, 0, zMax) increment x axis.
-      num = ext[1]-ext[0]+1;
-      start = (0-ext[0])*xInc + (0-ext[2])*yInc + (ext[5]-ext[4])*zInc;
-      inc = xInc;
-      break;
-    case 11:
-      // start (0, yMax, zMax) increment x axis.
-      num = ext[1]-ext[0]+1;
-      start = (0-ext[0])*xInc + (ext[3]-ext[2])*yInc + (ext[5]-ext[4])*zInc;
-      inc = xInc;
-      break;
-    }
-  
-  if (num < 2)
-    {
-    return;
-    }
+    this->ComputeDivisionExtents( output, i, 12 );
 
-  // these already created in StreamExecuteStart
-  newPts = output->GetPoints();
-  newLines = output->GetLines();
-  offset = newPts->GetNumberOfPoints();
-  inPts = input->GetPoints();
-  numPts = inPts->GetNumberOfPoints();
-
-  // add points
-  for (idx = 0; idx < num; ++idx)
-    {
-    id = start + idx * inc;
-    // sanity check
-    if (id < 0 || id >= numPts)
+    if ( i == 0 )
       {
-      vtkErrorMacro("Error stepping through points.");
+      this->StreamExecuteStart();
+      }
+
+    if (this->ExecutePiece >= 12)
+      {
+      // thing should not have gotten this far.
       return;
       }
-    newPts->InsertNextPoint(inPts->GetPoint(id));
-    }
 
-  // add lines
-  for (idx = 1; idx < num; ++idx)
-    {
-    ids[0] = idx+offset-1;
-    ids[1] = idx+offset;
-    newLines->InsertNextCell(2, ids);
+    // If all StructuredPointsSources were forced to give you exactly
+    // the update extent, this execute method would be trivial.
+    // However, Imaging does not have this requirement, and I have not
+    // made the readers "StreamingReady" ...
+  
+    // Find the start of this edge, the length of this edge, and increment.
+    ext = input->GetExtent();
+    xInc = 1;
+    yInc = ext[1]-ext[0]+1;
+    zInc = yInc * (ext[3]-ext[2]+1);
+    switch (this->ExecutePiece)
+      {
+      case 0:
+	// start (0, 0, 0) increment z axis.
+	num = ext[5]-ext[4]+1;
+	start = (0-ext[0])*xInc + (0-ext[2])*yInc + (0-ext[4])*zInc;
+	inc = zInc;
+	break;
+      case 1:
+	// start (xMax, 0, 0) increment z axis.
+	num = ext[5]-ext[4]+1;
+	start = (ext[1]-ext[0])*xInc + (0-ext[2])*yInc + (0-ext[4])*zInc;
+	inc = zInc;
+	break;
+      case 2:
+	// start (0, yMax, 0) increment z axis.
+	num = ext[5]-ext[4]+1;
+	start = (0-ext[0])*xInc + (ext[3]-ext[2])*yInc + (0-ext[4])*zInc;
+	inc = zInc;
+	break;
+      case 3:
+	// start (xMax, yMax, 0) increment z axis.
+	num = ext[5]-ext[4]+1;
+	start = (ext[1]-ext[0])*xInc + (ext[3]-ext[2])*yInc + (0-ext[4])*zInc;
+	inc = zInc;
+	break;
+      case 4:
+	// start (0, 0, 0) increment y axis.
+	num = ext[3]-ext[2]+1;
+	start = (0-ext[0])*xInc + (0-ext[2])*yInc + (0-ext[4])*zInc;
+	inc = yInc;
+	break;
+      case 5:
+	// start (xMax, 0, 0) increment y axis.
+	num = ext[3]-ext[2]+1;
+	start = (ext[1]-ext[0])*xInc + (0-ext[2])*yInc + (0-ext[4])*zInc;
+	inc = yInc;
+	break;
+      case 6:
+	// start (0, 0, zMax) increment y axis.
+	num = ext[3]-ext[2]+1;
+	start = (0-ext[0])*xInc + (0-ext[2])*yInc + (ext[5]-ext[4])*zInc;
+	inc = yInc;
+	break;
+      case 7:
+	// start (xMax, 0, zMax) increment y axis.
+	num = ext[3]-ext[2]+1;
+	start = (ext[1]-ext[0])*xInc + (0-ext[2])*yInc + (ext[5]-ext[4])*zInc;
+	inc = yInc;
+	break;
+      case 8:
+	// start (0, 0, 0) increment x axis.
+	num = ext[1]-ext[0]+1;
+	start = (0-ext[0])*xInc + (0-ext[2])*yInc + (0-ext[4])*zInc;
+	inc = xInc;
+	break;
+      case 9:
+	// start (0, yMax, 0) increment x axis.
+	num = ext[1]-ext[0]+1;
+	start = (0-ext[0])*xInc + (ext[3]-ext[2])*yInc + (0-ext[4])*zInc;
+	inc = xInc;
+	break;
+      case 10:
+	// start (0, 0, zMax) increment x axis.
+	num = ext[1]-ext[0]+1;
+	start = (0-ext[0])*xInc + (0-ext[2])*yInc + (ext[5]-ext[4])*zInc;
+	inc = xInc;
+	break;
+      case 11:
+	// start (0, yMax, zMax) increment x axis.
+	num = ext[1]-ext[0]+1;
+	start = (0-ext[0])*xInc + (ext[3]-ext[2])*yInc + (ext[5]-ext[4])*zInc;
+	inc = xInc;
+	break;
+      }
+    
+    if (num < 2)
+      {
+      return;
+      }
+
+    // these already created in StreamExecuteStart
+    newPts = output->GetPoints();
+    newLines = output->GetLines();
+    offset = newPts->GetNumberOfPoints();
+    inPts = input->GetPoints();
+    numPts = inPts->GetNumberOfPoints();
+
+    // add points
+    for (idx = 0; idx < num; ++idx)
+      {
+      id = start + idx * inc;
+      // sanity check
+      if (id < 0 || id >= numPts)
+	{
+	vtkErrorMacro("Error stepping through points.");
+	return;
+	}
+      newPts->InsertNextPoint(inPts->GetPoint(id));
+      }
+
+    // add lines
+    for (idx = 1; idx < num; ++idx)
+      {
+      ids[0] = idx+offset-1;
+      ids[1] = idx+offset;
+      newLines->InsertNextCell(2, ids);
+      }
     }
 }
 
@@ -331,43 +340,6 @@ void vtkStructuredGridOutlineFilter::StreamExecuteStart()
 
 
 
-//----------------------------------------------------------------------------
-// For estimated size, we are ignoring alot of information....
-void vtkStructuredGridOutlineFilter::UpdateInformation()
-{
-  vtkStructuredGrid *input = this->GetInput();
-  vtkPolyData *output = this->GetOutput();
-  int *ext;
-  unsigned long t1, t2;
-  long numPts, numLines;
-  long sizePt, sizeLine;
-  long size;
-
-  input->UpdateInformation();
-  
-  // this portion could be done in superclass.
-  t1 = input->GetPipelineMTime();
-  t2 = this->GetMTime();
-  if (t2 > t1)
-    {
-    t1 = t2;
-    }
-  output->SetPipelineMTime(t1);
-
-  // Estimate the size of the output.
-  ext = input->GetWholeExtent();
-  numPts = 4 * ((ext[1]-ext[0]+1) + (ext[3]-ext[2]+1) + (ext[5]-ext[4]+1));
-  numLines = numPts - 12;
-  sizePt = 3*sizeof(float);
-  sizeLine = 3*sizeof(int);
-  // size in kb.
-  size = (numPts*sizePt + numLines*sizeLine) / 1000;
-  if (size < 1)
-    {
-    size = 1;
-    }
-  output->SetEstimatedWholeMemorySize(size);
-}
 
 
 

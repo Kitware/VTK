@@ -86,7 +86,6 @@ protected:
   void operator=(const vtkInterpolateDataSetAttributes&) {};
 
   void Execute();
-  int ComputeInputUpdateExtents(vtkDataObject *output);
   
   vtkDataSetCollection *InputList; // list of data sets to interpolate 
   float T; // interpolation parameter

@@ -87,7 +87,6 @@ protected:
   void operator=(const vtkMaskPoints&) {};
 
   void Execute();
-  void ExecuteInformation();
 
   int OnRatio;     // every OnRatio point is on; all others are off.
   int Offset;      // offset (or starting point id)

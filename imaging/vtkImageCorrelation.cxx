@@ -80,9 +80,9 @@ void vtkImageCorrelation::ExecuteInformation(
 
 //----------------------------------------------------------------------------
 // Grow
-void vtkImageCorrelation::ComputeRequiredInputUpdateExtent(int inExt[6], 
-							   int outExt[6],
-							   int whichInput)
+void vtkImageCorrelation::ComputeInputUpdateExtent(int inExt[6], 
+						   int outExt[6],
+						   int whichInput)
 {
   if (whichInput == 1)
     {

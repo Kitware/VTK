@@ -104,6 +104,9 @@ void vtkMergeDataObjectFilter::Execute()
   
   vtkDebugMacro(<<"Merging dataset and data object");
 
+  // First, copy the input to the output as a starting point
+  output->CopyStructure( input );
+
   if ( this->OutputField == VTK_CELL_DATA_FIELD )
     {
     int ncells=fd->GetNumberOfTuples();
@@ -128,17 +131,6 @@ void vtkMergeDataObjectFilter::Execute()
     {
     output->SetFieldData(fd);
     }
-}
-
-//----------------------------------------------------------------------------
-// This is tricky.  If input and output are both structured, how
-// do we specify the update extent of the data object?
-int vtkMergeDataObjectFilter::ComputeInputUpdateExtents(vtkDataObject *data)
-{
-  vtkDataSet *output = (vtkDataSet*)data;
-  
-  this->GetInput()->CopyUpdateExtent(output);
-  return 1;
 }
 
 

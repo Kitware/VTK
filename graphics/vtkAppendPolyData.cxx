@@ -600,7 +600,7 @@ void vtkAppendPolyData::Execute()
 }
 
 //----------------------------------------------------------------------------
-int vtkAppendPolyData::ComputeInputUpdateExtents(vtkDataObject *data)
+void vtkAppendPolyData::ComputeInputUpdateExtents(vtkDataObject *data)
 {
   int piece, numPieces;
   vtkPolyData *output = (vtkPolyData *)data;
@@ -611,14 +611,15 @@ int vtkAppendPolyData::ComputeInputUpdateExtents(vtkDataObject *data)
   // make sure piece is valid
   if (piece < 0 || piece >= numPieces)
     {
-    return 0;
+    return;
     }
-  
+
   if (this->ParallelStreaming)
     {
     piece = piece * this->NumberOfInputs;
     numPieces = numPieces * this->NumberOfInputs;
     }
+ 
   // just copy the Update extent as default behavior.
   for (idx = 0; idx < this->NumberOfInputs; ++idx)
     {
@@ -638,8 +639,6 @@ int vtkAppendPolyData::ComputeInputUpdateExtents(vtkDataObject *data)
   // Save the piece so execute can use this information.
   this->ExecutePiece = piece;
   this->ExecuteNumberOfPieces = numPieces;
-    
-  return 1;  
 }
 
 //----------------------------------------------------------------------------
@@ -657,15 +656,6 @@ vtkPolyData *vtkAppendPolyData::GetInput(int idx)
 void vtkAppendPolyData::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkPolyDataToPolyDataFilter::PrintSelf(os,indent);
-
-  if ( this->ParallelStreaming )
-    {
-    os << indent << "ParallelStreamingOn\n";
-    }
-  else
-    {
-    os << indent << "ParallelStreamingOff\n";
-    }
 }
 
 void vtkAppendPolyData::AppendData(vtkDataArray *dest, vtkDataArray *src,

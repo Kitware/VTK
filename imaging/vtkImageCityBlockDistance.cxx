@@ -66,16 +66,10 @@ vtkImageCityBlockDistance::vtkImageCityBlockDistance()
 
 
 //----------------------------------------------------------------------------
-void vtkImageCityBlockDistance::ModifyOutputUpdateExtent()
+void vtkImageCityBlockDistance::EnlargeOutputUpdateExtents( vtkDataObject 
+							    *data)
 {
   int *wholeExtent, updateExtent[6], idx;
-  
-  // Filter superclass has no control of intercept cache update.
-  // a work around
-  if (this->Bypass)
-    {
-    return;
-    }
   
   if ( ! this->GetInput())
     {
@@ -97,8 +91,8 @@ void vtkImageCityBlockDistance::ModifyOutputUpdateExtent()
 //----------------------------------------------------------------------------
 // This method tells the superclass that the whole input array is needed
 // to compute any output region.
-void vtkImageCityBlockDistance::ComputeRequiredInputUpdateExtent(int inExt[6],
-								 int outExt[6])
+void vtkImageCityBlockDistance::ComputeInputUpdateExtent(int inExt[6],
+							 int outExt[6])
 {
   int *wholeExtent;
 

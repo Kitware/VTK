@@ -78,35 +78,3 @@ vtkStructuredGrid *vtkStructuredGridToStructuredGridFilter::GetInput()
   return (vtkStructuredGrid *)(this->Inputs[0]);
 }
 
-
-//----------------------------------------------------------------------------
-// just copy WholeExtent fropm the first input.
-void vtkStructuredGridToStructuredGridFilter::ExecuteInformation()
-{
-  vtkStructuredGrid *input = this->GetInput();
-  vtkStructuredGrid *output = this->GetOutput();
-  
-  if (output == NULL || input == NULL)
-    {
-    return;
-    }
-  
-  output->SetWholeExtent(input->GetWholeExtent());
-}
-
-//----------------------------------------------------------------------------
-int vtkStructuredGridToStructuredGridFilter::ComputeInputUpdateExtents(
-                                                           vtkDataObject *data)
-{
-  vtkStructuredGrid *output = (vtkStructuredGrid *)data;
-  
-  if (this->NumberOfInputs > 1)
-    {
-    vtkErrorMacro("Subclass did not implement ComputeInputUpdateExtent");
-    return 0;
-    }
-  
-  this->GetInput()->CopyUpdateExtent(output);
-  return 1;
-}
-

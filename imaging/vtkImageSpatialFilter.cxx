@@ -112,23 +112,15 @@ void vtkImageSpatialFilter::ExecuteInformation()
   vtkImageData *input = this->GetInput();
   vtkImageData *output = this->GetOutput();
   
-  output->SetSpacing(input->GetSpacing());
-  output->SetOrigin(input->GetOrigin());
-  output->SetScalarType(input->GetScalarType());
-  output->SetNumberOfScalarComponents(input->GetNumberOfScalarComponents());
+  // Copy the defaults
+  output->CopyTypeSpecificInformation( input );
 
-  if ( ! this->Bypass)
-    {
-    int extent[6];
-    input->GetWholeExtent(extent);
-    this->ComputeOutputWholeExtent(extent, this->HandleBoundaries);
-    output->SetWholeExtent(extent);
-    this->ExecuteInformation(input, output);
-    }
-  else
-    {
-    output->CopyInformation( input );
-    }
+  // Take this opportunity to override the defaults. 
+  int extent[6];
+  input->GetWholeExtent(extent);
+  this->ComputeOutputWholeExtent(extent, this->HandleBoundaries);
+  output->SetWholeExtent(extent);
+  this->ExecuteInformation(input, output);
 }
 //----------------------------------------------------------------------------
 void vtkImageSpatialFilter::ExecuteInformation(
@@ -162,8 +154,8 @@ void vtkImageSpatialFilter::ComputeOutputWholeExtent(int extent[6],
 // an output region.  Before this method is called "region" should have the 
 // extent of the output region.  After this method finishes, "region" should 
 // have the extent of the required input region.
-void vtkImageSpatialFilter::ComputeRequiredInputUpdateExtent(int extent[6], 
-							     int inExtent[6])
+void vtkImageSpatialFilter::ComputeInputUpdateExtent(int extent[6], 
+						     int inExtent[6])
 {
   int idx;
   int *wholeExtent;

@@ -107,8 +107,8 @@ void vtkImageMagnify::ExecuteInformation(vtkImageData *inData,
 //----------------------------------------------------------------------------
 // This method computes the Region of input necessary to generate outRegion.
 // It assumes offset and size are multiples of Magnify Factors.
-void vtkImageMagnify::ComputeRequiredInputUpdateExtent(int inExt[6],
-						       int outExt[6])
+void vtkImageMagnify::ComputeInputUpdateExtent(int inExt[6],
+					       int outExt[6])
 {
   int idx;
   
@@ -312,7 +312,7 @@ void vtkImageMagnify::ThreadedExecute(vtkImageData *inData,
 				      int outExt[6], int id)
 {
   int inExt[6];
-  this->ComputeRequiredInputUpdateExtent(inExt,outExt);
+  this->ComputeInputUpdateExtent(inExt,outExt);
   void *inPtr = inData->GetScalarPointerForExtent(inExt);
   void *outPtr = outData->GetScalarPointerForExtent(outExt);
   

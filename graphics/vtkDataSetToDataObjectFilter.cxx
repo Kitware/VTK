@@ -394,12 +394,11 @@ vtkDataSet *vtkDataSetToDataObjectFilter::GetInput()
 }
 
 //----------------------------------------------------------------------------
-int 
-vtkDataSetToDataObjectFilter::ComputeInputUpdateExtents(vtkDataObject *vtkNotUsed(output))
+void vtkDataSetToDataObjectFilter::ComputeInputUpdateExtents(
+					    vtkDataObject *vtkNotUsed(output))
 {
   // what should we do here?
   this->GetInput()->SetUpdateExtent(0, 1);
-  return 1;  
 }
 
 

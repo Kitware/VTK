@@ -159,7 +159,7 @@ void vtkImageImport::ExecuteInformation()
     mem = 1;
     }
   
-  output->SetEstimatedWholeMemorySize(mem);
+  //  output->SetEstimatedWholeMemorySize(mem);
 
 }
 
@@ -212,7 +212,7 @@ void vtkImageImport::SetImportVoidPointer(void *ptr, int save)
 
 
 //----------------------------------------------------------------------------
-void vtkImageImport::ModifyOutputUpdateExtent()
+void vtkImageImport::EnlargeOutputUpdateExtents( vtkDataObject *data )
 {
   int *wholeExtent, updateExtent[6], idx;
   

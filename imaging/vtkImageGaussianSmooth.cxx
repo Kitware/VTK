@@ -130,8 +130,8 @@ void vtkImageGaussianSmooth::ComputeKernel(double *kernel, int min, int max,
   
 
 //----------------------------------------------------------------------------
-void vtkImageGaussianSmooth::ComputeRequiredInputUpdateExtent(int inExt[6], 
-							      int outExt[6])
+void vtkImageGaussianSmooth::ComputeInputUpdateExtent(int inExt[6], 
+						      int outExt[6])
 {
   int *wholeExtent;
   int idx, radius;
@@ -480,7 +480,7 @@ void vtkImageGaussianSmooth::ThreadedExecute(vtkImageData *inData,
     }
 
   // Decompose
-  this->ComputeRequiredInputUpdateExtent(inExt, outExt);
+  this->ComputeInputUpdateExtent(inExt, outExt);
   switch (this->Dimensionality)
     {
     case 1:

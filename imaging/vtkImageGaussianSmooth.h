@@ -105,7 +105,7 @@ protected:
   float RadiusFactors[3];
   
   void ComputeKernel(double *kernel, int min, int max, double std);
-  void ComputeRequiredInputUpdateExtent(int inExt[6], int outExt[6]);
+  void ComputeInputUpdateExtent(int inExt[6], int outExt[6]);
   void ExecuteAxis(int axis, vtkImageData *inData, int inExt[6],
 		   vtkImageData *outData, int outExt[6],
 		   int *pcycle, int target, int *pcount, int total);

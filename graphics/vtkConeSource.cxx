@@ -43,7 +43,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 //
 #include <math.h>
 #include "vtkConeSource.h"
-#include "vtkUnstructuredInformation.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
@@ -98,7 +97,7 @@ void vtkConeSource::Execute()
   
   piece = output->GetUpdatePiece();
   numPieces = output->GetUpdateNumberOfPieces();
-  maxPieces = output->GetUnstructuredInformation()->GetMaximumNumberOfPieces();
+  maxPieces = output->GetMaximumNumberOfPieces();
   start = maxPieces * piece / numPieces;
   end = (maxPieces * (piece+1) / numPieces) - 1;
   createBottom = (this->Capping && (start == 0));
@@ -264,7 +263,6 @@ void vtkConeSource::Execute()
 //----------------------------------------------------------------------------
 void vtkConeSource::ExecuteInformation()
 {
-  vtkUnstructuredInformation *info;
   int numTris, numPts;
   unsigned long size;
   
@@ -282,15 +280,13 @@ void vtkConeSource::ExecuteInformation()
   size = (size / 1000) + 1;
   
   
-  info = this->GetOutput()->GetUnstructuredInformation();
-  info->SetEstimatedWholeMemorySize(size);
   if (this->Resolution < 3)
     {
-    info->SetMaximumNumberOfPieces(1);
+    this->GetOutput()->SetMaximumNumberOfPieces(1);
     }
   else
     {
-    info->SetMaximumNumberOfPieces(this->Resolution);
+    this->GetOutput()->SetMaximumNumberOfPieces(this->Resolution);
     }  
 }
 

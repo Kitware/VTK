@@ -125,7 +125,7 @@ protected:
   void operator=(const vtkDataSetToDataObjectFilter&) {};
 
   void Execute(); //generate output data
-  int ComputeInputUpdateExtents(vtkDataObject *output);
+  void ComputeInputUpdateExtents(vtkDataObject *output);
   
   int Geometry;
   int Topology;

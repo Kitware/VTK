@@ -470,22 +470,11 @@ void vtkGlyph3D::Execute()
 // should average the size of the sources instead of using 0).
 void vtkGlyph3D::ExecuteInformation()
 {
-  unsigned long numPts, size;
-  
   if (this->GetInput() == NULL || this->GetSource(0) == NULL)
     {
     vtkErrorMacro("Missing input or source");
     return;
     }
-  
-  // How many points in the input?
-  // Assume 24 bytes per point
-  numPts = this->GetInput()->GetEstimatedWholeMemorySize() * 1000 / 24;
-
-  // size already in kilobytes
-  size = numPts * this->GetSource(0)->GetEstimatedWholeMemorySize();
-  
-  this->GetOutput()->SetEstimatedWholeMemorySize(size);
 }
 
 

@@ -145,13 +145,6 @@ void vtkOutlineSource::Execute()
 
 
 //----------------------------------------------------------------------------
-void vtkOutlineSource::ExecuteInformation()
-{
-  // an outline is always less than 1k
-  this->GetOutput()->SetEstimatedWholeMemorySize(1);
-}
-
-//----------------------------------------------------------------------------
 void vtkOutlineSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkPolyDataSource::PrintSelf(os,indent);

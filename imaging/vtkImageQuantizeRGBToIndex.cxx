@@ -674,8 +674,7 @@ void vtkImageQuantizeRGBToIndex::ExecuteInformation(
 }
 
 // Get ALL of the input.
-void
-vtkImageQuantizeRGBToIndex::ComputeRequiredInputUpdateExtent(int inExt[6],
+void vtkImageQuantizeRGBToIndex::ComputeInputUpdateExtent(int inExt[6],
 						    int vtkNotUsed(outExt)[6])
 {
   int *wholeExtent;
@@ -684,16 +683,10 @@ vtkImageQuantizeRGBToIndex::ComputeRequiredInputUpdateExtent(int inExt[6],
   memcpy(inExt, wholeExtent, 6*sizeof(int));
 }
 
-void vtkImageQuantizeRGBToIndex::ModifyOutputUpdateExtent()
+void vtkImageQuantizeRGBToIndex::EnlargeOutputUpdateExtents( vtkDataObject 
+							     *data )
 {
   int wholeExtent[8];
-  
-  // Filter superclass has no control of intercept cache update.
-  // a work around
-  if (this->Bypass)
-    {
-    return;
-    }
   
   this->GetOutput()->GetWholeExtent(wholeExtent);
   this->GetOutput()->SetUpdateExtent(wholeExtent);

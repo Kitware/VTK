@@ -87,6 +87,10 @@ void vtkIdFilter::Execute()
   // Initialize
   //
   vtkDebugMacro(<<"Generating ids!");
+
+  // First, copy the input to the output as a starting point
+  output->CopyStructure( input );
+
   numPts = input->GetNumberOfPoints();
   numCells = input->GetNumberOfCells();
 

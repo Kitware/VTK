@@ -65,7 +65,6 @@ vtkImageBlend::vtkImageBlend()
     {
     this->Opacity[i] = 1.0;
     }
-  this->WasSingleInput = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -146,9 +145,9 @@ double vtkImageBlend::GetOpacity(int idx)
 // have the extent of the required input region.  The default method assumes
 // the required input extent are the same as the output extent.
 // Note: The splitting methods call this method with outRegion = inRegion.
-void vtkImageBlend::ComputeRequiredInputUpdateExtent(int inExt[6],
-						     int outExt[6],
-						     int whichInput)
+void vtkImageBlend::ComputeInputUpdateExtent(int inExt[6],
+					     int outExt[6],
+					     int whichInput)
 {
   memcpy(inExt,outExt,sizeof(int)*6);
 
@@ -171,7 +170,7 @@ void vtkImageBlend::ComputeRequiredInputUpdateExtent(int inExt[6],
 
 //----------------------------------------------------------------------------
 // This method checks to see if we can simply reference the input data
-void vtkImageBlend::InternalUpdate(vtkDataObject *outObject)
+void vtkImageBlend::UpdateData(vtkDataObject *outObject)
 {
   int idx,singleInput;
 
@@ -203,17 +202,10 @@ void vtkImageBlend::InternalUpdate(vtkDataObject *outObject)
     outData->SetExtent(inData->GetExtent());
     outData->GetPointData()->PassData(inData->GetPointData());
     outData->DataHasBeenGenerated();
-    this->WasSingleInput = 1;
     }
   else // multiple inputs
     {
-    // call the superclass update which will cause an execute.
-    if (this->WasSingleInput)
-      { // was previously passed through: need to generate new output scalars
-      outObject->ReleaseData();
-      this->WasSingleInput = 0;
-      }
-    this->vtkImageMultipleInputFilter::InternalUpdate(outObject);
+    this->vtkImageMultipleInputFilter::UpdateData(outObject);
     }
 }
 
@@ -548,7 +540,7 @@ void vtkImageBlend::ThreadedExecute(vtkImageData **inData,
     {
     if (inData[idx1] != NULL)
       {
-      this->ComputeRequiredInputUpdateExtent(inExt, outExt, idx1);
+      this->ComputeInputUpdateExtent(inExt, outExt, idx1);
       if ((inData[idx1]->GetNumberOfScalarComponents()+1)/2 == 2 &&
 	  (inData[0]->GetNumberOfScalarComponents()+1)/2 == 1)
 	{

@@ -95,7 +95,6 @@ protected:
 
   // Usual data generation method
   void Execute();
-  int ComputeInputUpdateExtents(vtkDataObject *data);  
 
 private:
   // hide the superclass' AddInput() from the user and the compiler

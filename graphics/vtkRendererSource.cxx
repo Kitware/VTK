@@ -42,7 +42,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkRenderWindow.h"
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
-#include "vtkStructuredInformation.h"
 
 
 //----------------------------------------------------------------------------
@@ -242,7 +241,6 @@ void vtkRendererSource::UpdateInformation()
   output->SetScalarType(VTK_UNSIGNED_CHAR);
   output->SetNumberOfScalarComponents(3);
   size = 1 + (unsigned long)((x2-x1+1) * (y2-y1+1) / 1000);
-  output->SetEstimatedWholeMemorySize(size);
   
   // Update information on the input and
   // compute information that is general to vtkDataObject.
@@ -288,7 +286,5 @@ void vtkRendererSource::UpdateInformation()
     }
 
   output->SetPipelineMTime(t1);
-  output->GetDataInformation()->SetLocality(0);
-  //output->SetEstimatedWholeMemorySize(size);
   this->InformationTime.Modified();
 }

@@ -113,14 +113,6 @@ void vtkPointSource::Execute()
 //----------------------------------------------------------------------------
 void vtkPointSource::ExecuteInformation()
 {
-  unsigned long size;
-  
-  // points and verts.
-  size = this->NumberOfPoints * 3 * sizeof(float) + sizeof(int);
-  // convert to KBytes
-  size = 1 + size / 1000;
-  
-  this->GetOutput()->SetEstimatedWholeMemorySize(size);
 }
 
 

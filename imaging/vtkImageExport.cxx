@@ -213,10 +213,11 @@ void *vtkImageExport::GetPointerToData()
       }
     }
 
-  if (this->GetDataMemorySize() > input->GetMemoryLimit())
-    {
-    input->SetMemoryLimit(this->GetDataMemorySize());
-    }
+  //  if (this->GetDataMemorySize() > input->GetMemoryLimit())
+  //    {
+  //    input->SetMemoryLimit(this->GetDataMemorySize());
+  //    }
+
   input->SetUpdateExtent(input->GetWholeExtent());
   input->ReleaseDataFlagOff();
 

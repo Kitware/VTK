@@ -59,187 +59,39 @@ vtkImageInPlaceFilter* vtkImageInPlaceFilter::New()
 
 
 
-
-  
-  
 //----------------------------------------------------------------------------
-// This Update method looks out of date with the latest pipeline architecture
-// (see vtkSource::Update), but it works!
-void vtkImageInPlaceFilter::InternalUpdate(vtkDataObject *data)
+
+void vtkImageInPlaceFilter::Execute()
 {
-  vtkImageData *outData = (vtkImageData *)data;
+  vtkImageData *output = this->GetOutput();
   int *inExt, *outExt;
 
-  // Make sure the Input has been set.
-  if ( ! this->GetInput())
-    {
-    vtkErrorMacro(<< "Input is not set.");
-    return;
-    }
+  output->SetExtent(output->GetUpdateExtent());
+  output->AllocateScalars();
 
-  // prevent infinite update loops.
-  if (this->Updating)
-    {
-    return;
-    }
-  this->Updating = 1;
-  this->AbortExecute = 0;
-
-  // since cache no longer exists we must allocate the scalars here
-  // This may be a bad place to allocate data (before input->update)
-  this->ModifyOutputUpdateExtent();
-  outData->SetExtent(outData->GetUpdateExtent());
-  outData->AllocateScalars();  
-  
-  // Handle bypass condition.
-  if (this->Bypass)
-    {
-    vtkImageData *inData;
-
-    this->GetInput()->SetUpdateExtent(this->GetOutput()->GetUpdateExtent());
-    this->GetInput()->Update();
-    inData = this->GetInput();
-    if (!inData)
-      {
-      vtkWarningMacro("No input data provided!");
-      }
-    else
-      {
-      outData->GetPointData()->PassData(inData->GetPointData());
-      outData->DataHasBeenGenerated();
-      }
-
-    // release input data
-    if (this->GetInput()->ShouldIReleaseData())
-      {
-      this->GetInput()->ReleaseData();
-      }
-    this->Updating = 0;
-    return;
-    }
-  
-  // since this is an in place filter the input and output extents 
-  // better be the same. And the Release Flag better be set to
-  // release ELSE we do the normal out of place filtering
   inExt = this->GetInput()->GetUpdateExtent();
   outExt = this->GetOutput()->GetUpdateExtent();
+
+  vtkImageData *input;
+  input = this->GetInput();
+
   if ((inExt[0] == outExt[0])&&(inExt[1] == outExt[1])&&
       (inExt[2] == outExt[2])&&(inExt[3] == outExt[3])&&
       (inExt[4] == outExt[4])&&(inExt[5] == outExt[5])&&
       this->GetInput()->ShouldIReleaseData())
     {
-    vtkImageData *inData;
-    this->GetInput()->Update();
-    inData = this->GetInput();
-
     // pass the data
-    outData->GetPointData()->PassData(inData->GetPointData());
-    
-    // The StartMethod call is placed here to be after updating the input.
-    if ( this->StartMethod )
-      {
-      (*this->StartMethod)(this->StartMethodArg);
-      }
-    // fill the output region 
-    this->Execute(inData, outData);
-    if ( this->EndMethod )
-      {
-      (*this->EndMethod)(this->EndMethodArg);
-      }
-    
-    outData->DataHasBeenGenerated();
-      
-      // Like the graphics pipeline this source releases inputs data.
-    this->GetInput()->ReleaseData();
+    output->GetPointData()->PassData(input->GetPointData());
     }
   else
     {
-    this->RecursiveStreamUpdate(outData,2);
-    outData->DataHasBeenGenerated();
+    this->CopyData(input,output);
     }
-  
-  this->Updating = 0;
+    
+  this->Execute(input, output);
 }
-
-//----------------------------------------------------------------------------
-// This method can be called recursively for streaming.
-// The extent of the outRegion changes, dim remains the same.
-// Same as the one in Filter except that it copies the data
-// before executing
-void vtkImageInPlaceFilter::RecursiveStreamUpdate(vtkImageData *outData,
-						  int splitAxis)
-{
-  int memory;
-  vtkImageData *inData;
   
-  // Compute the required input region extent.
-  // Copy to fill in extent of extra dimensions.
-  this->ComputeRequiredInputUpdateExtent(this->GetInput()->GetUpdateExtent(),
-					 this->GetOutput()->GetUpdateExtent());
   
-  // determine the amount of memory that will be used by the input region.
-  memory = this->GetInput()->GetEstimatedUpdateMemorySize();
-  
-  // Split the inRegion if we are streaming.
-  if ((memory > this->GetInput()->GetMemoryLimit()))
-    {
-    int min, max, mid;
-    this->GetOutput()->GetAxisUpdateExtent(splitAxis,min,max);
-    while ( (min == max) && splitAxis > 0)
-      {
-      splitAxis--;
-      this->GetOutput()->GetAxisUpdateExtent(splitAxis,min,max);
-      }
-    // Make sure we can actually split the axis
-    if (min < max)
-      {
-      // Set the first half to update
-      mid = (min + max) / 2;
-      vtkDebugMacro(<< "RecursiveStreamUpdate: Splitting " 
-      << splitAxis << " : memory = " << memory <<
-      ", extent = " << min << "->" << mid << " | " << mid+1 << "->" << max);
-      this->GetOutput()->SetAxisUpdateExtent(splitAxis, min, mid);
-      this->RecursiveStreamUpdate(outData, splitAxis);
-      // Set the second half to update
-      this->GetOutput()->SetAxisUpdateExtent(splitAxis, mid+1, max);
-      this->RecursiveStreamUpdate(outData, splitAxis);
-      // Restore the original extent
-      this->GetOutput()->SetAxisUpdateExtent(splitAxis, min, max);
-      return;
-      }
-    else
-      {
-      // Cannot split any more.  Ignore memory limit and continue.
-      vtkWarningMacro(<< "RecursiveStreamUpdate: Cannot split. memory = "
-        << memory << ", " << splitAxis << " : " << min << "->" << max);
-      }
-    }
-
-  // No Streaming required.
-  // Get the input region (Update extent was set at start of this method).
-  this->GetInput()->Update();
-  inData = this->GetInput();
-
-  // The StartMethod call is placed here to be after updating the input.
-  if ( this->StartMethod )
-    {
-    (*this->StartMethod)(this->StartMethodArg);
-    }
-  // fill the output region 
-  // copy the data first
-  this->CopyData(inData,outData);
-  this->Execute(inData, outData);
-  if ( this->EndMethod )
-    {
-    (*this->EndMethod)(this->EndMethodArg);
-    }
-  
-  // Like the graphics pipeline this source releases inputs data.
-  if (this->GetInput()->ShouldIReleaseData())
-    {
-    this->GetInput()->ReleaseData();
-    }
-}
 
 void vtkImageInPlaceFilter::CopyData(vtkImageData *inData,
 				     vtkImageData *outData)

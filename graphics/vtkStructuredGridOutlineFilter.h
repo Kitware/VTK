@@ -55,10 +55,6 @@ public:
   static vtkStructuredGridOutlineFilter *New();
   const char *GetClassName() {return "vtkStructuredGridOutlineFilter";};
 
-  //========================== Streaming stuff ===========================
-  
-  // Sets the inputs UpdatePiece.
-  void UpdateInformation();
 
 protected:
   vtkStructuredGridOutlineFilter() {};

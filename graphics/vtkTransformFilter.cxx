@@ -88,6 +88,9 @@ void vtkTransformFilter::Execute()
 
   vtkDebugMacro(<<"Executing transform filter");
 
+  // First, copy the input to the output as a starting point
+  output->CopyStructure( input );
+
   // Check input
   //
   if ( this->Transform == NULL )

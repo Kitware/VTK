@@ -100,9 +100,6 @@ protected:
   // Usual data generation method
   void Execute();
 
-  // What do we need from the input and data object?
-  int ComputeInputUpdateExtents(vtkDataObject *output);
-  
   int OutputField; // which output field
 
 };

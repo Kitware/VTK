@@ -106,8 +106,8 @@ void vtkImageGradient::ExecuteInformation(vtkImageData *inData,
 
 //----------------------------------------------------------------------------
 // This method computes the input extent necessary to generate the output.
-void vtkImageGradient::ComputeRequiredInputUpdateExtent(int inExt[6],
-							int outExt[6])
+void vtkImageGradient::ComputeInputUpdateExtent(int inExt[6],
+						int outExt[6])
 {
   int *wholeExtent;
   int idx;

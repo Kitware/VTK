@@ -118,9 +118,9 @@ protected:
   int Averaging;
   
   void ExecuteInformation(vtkImageData **inputs, vtkImageData *output); 
+  void ComputeInputUpdateExtent(int inExt[6], int outExt[6],
+				int whichInput);
   void ExecuteInformation(){this->vtkImageTwoInputFilter::ExecuteInformation();};
-  void ComputeRequiredInputUpdateExtent(int inExt[6], int outExt[6],
-					int whichInput);
   void ThreadedExecute(vtkImageData **inDatas, vtkImageData *outData,
 		       int extent[6], int id);  
   

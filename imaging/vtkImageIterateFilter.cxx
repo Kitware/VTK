@@ -112,6 +112,25 @@ vtkImageData *vtkImageIterateFilter::GetIterationOutput()
   return this->IterationData[this->Iteration+1];
 }
 
+//----------------------------------------------------------------------------
+
+void vtkImageIterateFilter::ComputeInputUpdateExtents( vtkDataObject *output )
+{
+  vtkImageData *in, *out = (vtkImageData*)output;
+  int inExt[6], idx;
+
+  for (idx = this->NumberOfIterations - 1; idx >= 0; --idx)
+    {
+    this->Iteration = idx;
+    in = this->GetIterationInput();
+    
+    /* default value */
+    out->GetUpdateExtent(inExt);
+    this->ComputeInputUpdateExtent(inExt, out->GetUpdateExtent());
+    in->SetUpdateExtent(inExt);
+    out = in;
+    }
+}
   
 //----------------------------------------------------------------------------
 // Some filters (decomposes, anisotropic difusion ...) have execute 
@@ -130,15 +149,10 @@ void vtkImageIterateFilter::Execute()
     inData = this->IterationData[idx];
     outData = this->IterationData[idx + 1];
     
-    // We have to allocate the IterationData somewhere.
-    // Last (real) output already allocated. (Streaming ...)
-    if (idx + 1 < this->NumberOfIterations)
-      {
-      outData->SetExtent(outData->GetUpdateExtent());
-      outData->AllocateScalars();      
-      }
+    outData->SetExtent(outData->GetUpdateExtent());
+    outData->AllocateScalars();      
+
     // execute for this iteration
-    outData->GetUpdateExtent(this->ExecuteExtent);
     this->Execute(inData, outData);
     
     // Part of me thinks we should always release the 
@@ -194,11 +208,8 @@ void vtkImageIterateFilter::ExecuteInformation()
     out->SetScalarType(in->GetScalarType());
     out->SetNumberOfScalarComponents(in->GetNumberOfScalarComponents());
 
-    if ( ! this->Bypass)
-      {
-      // Let the subclass modify the default.
-      this->ExecuteInformation(in, out);
-      }
+    // Let the subclass modify the default.
+    this->ExecuteInformation(in, out);
     }
 }
 
@@ -211,45 +222,6 @@ void vtkImageIterateFilter::ExecuteInformation(vtkImageData *vtkNotUsed(inData),
 }
 
 
-//----------------------------------------------------------------------------
-int vtkImageIterateFilter::ComputeDivisionExtents(vtkDataObject *output,
-						  int division,
-						  int vtkNotUsed(numDivisions))
-{
-  vtkImageData *in, *out = (vtkImageData*)output;
-  int inExt[6], idx;
-  
-  // For now, lets disable streaming on iteration filters.  To be truly 
-  // streaming (FFT) each iteration needs to break up it processing.  
-  // Since this superclass no longer has an Update method 
-  // (streming initiated in Execute) this is not possible.
-  if (division != 0)
-    {
-    return 0;
-    }
-  
-  // Since we are not interleaved with Execute calls,
-  // we need to set ExecuteExtent somewhere else.
-  // ...
-  
-  // well even though we only support one output, 
-  // use the output passed in anyway.
-  for (idx = this->NumberOfIterations - 1; idx >= 0; --idx)
-    {
-    this->Iteration = idx;
-    in = this->GetIterationInput();
-    
-    /* default value */
-    out->GetUpdateExtent(inExt);
-    this->ComputeRequiredInputUpdateExtent(inExt, out->GetUpdateExtent());
-    in->SetUpdateExtent(inExt);
-    out = in;
-    }
-  return 1;
-}
-
-
-//----------------------------------------------------------------------------
 // Filters that execute multiple times per update use this internal method.
 void vtkImageIterateFilter::SetNumberOfIterations(int num)
 {

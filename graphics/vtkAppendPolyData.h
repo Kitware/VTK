@@ -89,19 +89,20 @@ public:
   vtkGetMacro(ParallelStreaming, int); 
   vtkBooleanMacro(ParallelStreaming, int); 
 
+
 protected:
   vtkAppendPolyData();
   ~vtkAppendPolyData();
   vtkAppendPolyData(const vtkAppendPolyData&) {};
   void operator=(const vtkAppendPolyData&) {};
 
-  // Flag for selecting parallel streaming bejhavior
+  // Flag for selecting parallel streaming behavior
   int ParallelStreaming;
 
   // Usual data generation method
   void Execute();
-  // Support for streaming (parallel)
-  int ComputeInputUpdateExtents(vtkDataObject *output);
+
+  void ComputeInputUpdateExtents(vtkDataObject *output);
 
   // An efficient way to append data/cells.
   void AppendData(vtkDataArray *dest, vtkDataArray *src, int offset);

@@ -81,10 +81,12 @@ void vtkImageMathematics::ExecuteInformation(vtkImageData **inDatas,
   int ext[6], *ext2, idx;
 
   inDatas[0]->GetWholeExtent(ext);
+
   // two input take intersection
   if (this->Operation == VTK_ADD || this->Operation == VTK_SUBTRACT || 
       this->Operation == VTK_MULTIPLY || this->Operation == VTK_DIVIDE ||
-      this->Operation == VTK_MIN || this->Operation == VTK_MAX || this->Operation == VTK_ATAN2) 
+      this->Operation == VTK_MIN || this->Operation == VTK_MAX || 
+      this->Operation == VTK_ATAN2) 
     {
     ext2 = this->GetInput(1)->GetWholeExtent();
     for (idx = 0; idx < 3; ++idx)
@@ -101,7 +103,6 @@ void vtkImageMathematics::ExecuteInformation(vtkImageData **inDatas,
     }
   
   outData->SetWholeExtent(ext);
-
 }
 
 

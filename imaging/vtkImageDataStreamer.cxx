@@ -60,8 +60,8 @@ vtkImageDataStreamer* vtkImageDataStreamer::New()
 //----------------------------------------------------------------------------
 vtkImageDataStreamer::vtkImageDataStreamer()
 {
-  this->NumberOfDivisions = 1;
-  this->SplitMode = VTK_IMAGE_DATA_STREAMER_SLAB_MODE;
+  this->MemoryLimit = 1000; 
+  this->SplitMode   = VTK_IMAGE_DATA_STREAMER_SLAB_MODE;
 }
 
 
@@ -69,7 +69,7 @@ vtkImageDataStreamer::vtkImageDataStreamer()
 void vtkImageDataStreamer::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkImageSource::PrintSelf(os,indent);
-  os << indent << "NumberOfDivisions: " << this->NumberOfDivisions << endl;
+  os << indent << "MemoryLimit (in kb): " << this->MemoryLimit << endl;
   os << indent << "SplitMode: ";
   if (this->SplitMode == VTK_IMAGE_DATA_STREAMER_BLOCK_MODE)
     {
@@ -84,40 +84,35 @@ void vtkImageDataStreamer::PrintSelf(ostream& os, vtkIndent indent)
     os << "Unknown\n";
     }
 }
-  
-//----------------------------------------------------------------------------
-void vtkImageDataStreamer::SetInput(vtkImageData *input)
-{
-  this->vtkProcessObject::SetNthInput(0, input);
-}
 
 //----------------------------------------------------------------------------
-vtkImageData *vtkImageDataStreamer::GetInput()
+
+// We don't want to propagate this trigger request since we won't actually
+// know our input update extents until UpdateData()
+void vtkImageDataStreamer::TriggerAsynchronousUpdate()
 {
-  if (this->NumberOfInputs < 1)
+}  
+
+//----------------------------------------------------------------------------
+void vtkImageDataStreamer::UpdateData(vtkDataObject *out)
+{
+  int            idx;
+  unsigned long  inputMemorySize, newSize;
+  vtkImageData   *input = this->GetInput();
+  vtkImageData   *output = (vtkImageData*)out;
+  int            outExt[6], firstExt[6], currentExt[6];
+  int            blockSize[3], numBlocks[3], splitAxis;
+  int            i, j, k, tmp;
+
+  // prevent chasing our tail
+  if (this->Updating)
     {
-    return NULL;
+    return;
     }
-  
-  return (vtkImageData *)(this->Inputs[0]);
-}
 
-//----------------------------------------------------------------------------
-void vtkImageDataStreamer::PreUpdate(vtkDataObject *vtkNotUsed(out))
-{
-  // Do nothing here (for now).
-}
+  // Initialize the output
+  output->Initialize();
 
-//----------------------------------------------------------------------------
-void vtkImageDataStreamer::InternalUpdate(vtkDataObject *out)
-{
-  vtkImageData *input = this->GetInput();
-  vtkImageData *output = (vtkImageData*)out;
-  int ext[6];
-  int idx;
-  
-  output->ReleaseData();
-  
   // Try to behave gracefully with no input.
   if (input == NULL)
     {
@@ -127,131 +122,170 @@ void vtkImageDataStreamer::InternalUpdate(vtkDataObject *out)
     return;
     }
   
-  // Fast path for when there is no streaming.
-  if (this->NumberOfDivisions <= 1)
+  // If we don't stream, how much memory would we use?
+  inputMemorySize = input->GetEstimatedPipelineMemorySize();
+
+  // Fast path for when streaming is not necessary
+  if ( inputMemorySize <= this->MemoryLimit )
     {
     input->SetUpdateExtent(output->GetUpdateExtent());
-    input->Update();
+    this->Updating = 1;
+    input->TriggerAsynchronousUpdate();
+    input->UpdateData();
+    this->Updating = 0;
     output->SetExtent(input->GetExtent());
     output->GetPointData()->PassData(input->GetPointData());
-    output->DataHasBeenGenerated();
-    return;
     }
-  
-  // If we actually need to break up the input request.
-  output->GetUpdateExtent(ext);
-  output->SetExtent(ext);
-  output->AllocateScalars();
-  for (idx = 0; idx < this->NumberOfDivisions; ++idx)
+  // We do need to break it up - use one of two methods (slab or block)
+  // For now, just assume all slabs / blocks will require the same max
+  // pipeline memory. So we determine only one slab / block size
+  else 
     {
-    vtkDebugMacro("Streaming piece " << idx << " of " 
-		  << this->NumberOfDivisions << endl);
-    output->GetUpdateExtent(ext);
-    this->SplitExtent(ext, idx, this->NumberOfDivisions);
-    input->SetUpdateExtent(ext);
-    input->Update();
-    output->CopyAndCastFrom(input, ext);
+    output->GetUpdateExtent(outExt);
+    output->SetExtent(outExt);
+    output->AllocateScalars();
+
+    // This is the extent we will keep splitting
+    memcpy( firstExt, outExt, 6*sizeof(int) );
+
+    blockSize[0] = firstExt[1] - firstExt[0] + 1;
+    blockSize[1] = firstExt[3] - firstExt[2] + 1;
+    blockSize[2] = firstExt[5] - firstExt[4] + 1;
+
+    // Keep splitting until we meet the memory limit or can't split any
+    // further (slab size is 1 or all block sides are 1). Each split is in 
+    // half. If a split results in less than a 10% decrease in memory size,
+    // then consider it not worth it and stop splitting even though we
+    // have not reached the limit yet. 
+
+    while ( inputMemorySize > this->MemoryLimit &&
+	    ( this->SplitMode == VTK_IMAGE_DATA_STREAMER_BLOCK_MODE &&
+	      ( blockSize[0] > 1 || 
+		blockSize[1] > 1 || 
+		blockSize[2] > 1 ) ) ||
+	    ( this->SplitMode == VTK_IMAGE_DATA_STREAMER_SLAB_MODE &&
+	      blockSize[2] > 1 ) )
+      {
+      if ( this->SplitMode == VTK_IMAGE_DATA_STREAMER_SLAB_MODE )
+	{
+	splitAxis = 2;
+	}
+      else if ( blockSize[0] >= blockSize[1] && 
+		blockSize[0] >= blockSize[2] )
+	{
+	splitAxis = 0;
+	}
+      else if ( blockSize[1] >= blockSize[0] && 
+		blockSize[1] >= blockSize[2] )
+	{
+	splitAxis = 1;
+	}
+      else
+	{
+	splitAxis = 2;
+	}
+
+      tmp = firstExt[splitAxis*2 + 1];
+      firstExt[splitAxis*2 + 1] = firstExt[splitAxis*2] + 
+	(firstExt[splitAxis*2 + 1] - firstExt[splitAxis*2]) / 2;
+      
+      input->SetUpdateExtent( firstExt );
+      input->PropagateUpdateExtent();
+      newSize = input->GetEstimatedPipelineMemorySize();
+      if ( ((float)inputMemorySize * 0.9) < newSize )
+	{
+	firstExt[splitAxis*2 + 1] = tmp;
+	break;
+	}
+      inputMemorySize = newSize;
+      blockSize[splitAxis] = 
+	firstExt[splitAxis*2 + 1] - firstExt[splitAxis*2] + 1;
+      }
+
+    memcpy( currentExt, outExt, 6*sizeof(int) );
+
+    // Now we know the size of a block, just do all the blocks
+    // numBlocks is the number of whole blocks we need to do along
+    // each axis
+    numBlocks[0] = (outExt[1] - outExt[0] + 1) / blockSize[0];
+    numBlocks[1] = (outExt[3] - outExt[2] + 1) / blockSize[1];
+    numBlocks[2] = (outExt[5] - outExt[4] + 1) / blockSize[2];
+    
+    // increment by one if there is a partial block left in a direction
+    numBlocks[0] += ( (outExt[1] - outExt[0] + 1) % blockSize[0] != 0 );
+    numBlocks[1] += ( (outExt[3] - outExt[2] + 1) % blockSize[1] != 0 );
+    numBlocks[2] += ( (outExt[5] - outExt[4] + 1) % blockSize[2] != 0 );
+
+    vtkDebugMacro( << "Our output extent is " << outExt[0] << " " <<
+      outExt[1] << " " << outExt[2] << " " << outExt[3] << " " <<
+      outExt[4] << " " << outExt[5] );
+
+    vtkDebugMacro( << "Our block size is " << blockSize[0] << " " <<
+      blockSize[1] << " " << blockSize[2] );
+
+    vtkDebugMacro( << "We will update data " << numBlocks[0] << " by " <<
+      numBlocks[1] << " by " << numBlocks[2] << " times" );
+
+    for ( k = 0; k < numBlocks[2]; k++ )
+      {
+      currentExt[4] = outExt[4] + k * blockSize[2];
+      currentExt[5] = currentExt[4] + blockSize[2] - 1;
+      // fix if this is a last partial slab
+      if ( currentExt[5] > outExt[5] )
+	{
+	currentExt[5] = outExt[5];
+	}
+      
+      for ( j = 0; j < numBlocks[1]; j++ )
+	{
+	currentExt[2] = outExt[2] + j * blockSize[1];
+	currentExt[3] = currentExt[2] + blockSize[1] - 1;
+	// fix if this is a last partial slab
+	if ( currentExt[3] > outExt[3] )
+	  {
+	  currentExt[3] = outExt[3];
+	  }
+
+	for ( i = 0; i < numBlocks[0]; i++ )
+	  {
+	  currentExt[0] = outExt[0] + i * blockSize[0];
+	  currentExt[1] = currentExt[0] + blockSize[0] - 1;
+	  // fix if this is a last partial slab
+	  if ( currentExt[1] > outExt[1] )
+	    {
+	    currentExt[1] = outExt[1];
+	    }	  
+	  
+	  input->SetUpdateExtent( currentExt );
+	  input->PropagateUpdateExtent();
+	  input->TriggerAsynchronousUpdate();
+	  input->UpdateData();
+	  output->CopyAndCastFrom(input, currentExt);
+	  }
+	}
+      }
     }
+
   output->DataHasBeenGenerated();
-}
 
-//----------------------------------------------------------------------------
-// Assumes UpdateInformation was called first.
-int vtkImageDataStreamer::SplitExtent(int *ext, int piece, int numPieces)
-{
-  int numPiecesInFirstHalf;
-  int size[3], mid, splitAxis;
-
-  // keep splitting until we have only one piece.
-  // piece and numPieces will always be relative to the current ext. 
-  while (numPieces > 1)
+  // If there is a start method, call it
+  if ( this->StartMethod )
     {
-    // Get the dimensions for each axis.
-    size[0] = ext[1]-ext[0];
-    size[1] = ext[3]-ext[2];
-    size[2] = ext[5]-ext[4];
-    if (this->SplitMode == VTK_IMAGE_DATA_STREAMER_BLOCK_MODE)
-      {
-      // BLOCK MODE: choose the biggest axis
-      if (size[2] >= size[1] && size[2] >= size[0] && 
-	  size[2]/2 >= 2)
-	{
-	splitAxis = 2;
-	}
-      else if (size[1] >= size[0] && size[1]/2 >= 2)
-	{
-	splitAxis = 1;
-	}
-      else if (size[0]/2 >= 2)
-	{
-	splitAxis = 0;
-	}
-      else
-	{
-	// signal no more splits possible
-	splitAxis = -1;
-	}
-      }
-    else
-      {
-      // SLAB MODE: split z down to one slice ...
-      if (size[2] > 1)
-	{
-	splitAxis = 2;
-	}
-      else if (size[1] > 1)
-	{
-	splitAxis = 1;
-	}
-      else if (size[0] > 1)
-	{
-	splitAxis = 0;
-	}
-      else
-	{
-	splitAxis = -1;
-	}
-      }
+    (*this->StartMethod)(this->StartMethodArg);
+    }
 
-    if (splitAxis == -1)
-      {
-      // can not split any more.
-      if (piece == 0)
-        {
-        // just return the remaining piece
-        numPieces = 1;
-        }
-      else
-        {
-        // the rest must be empty
-        return 0;
-        }
-      }
-    else
-      {
-      // split the chosen axis into two pieces.
-      numPiecesInFirstHalf = (numPieces / 2);
-      mid = (size[splitAxis] * numPiecesInFirstHalf / numPieces) 
-	+ ext[splitAxis*2];
-      if (piece < numPiecesInFirstHalf)
-        {
-        // piece is in the first half
-        // set extent to the first half of the previous value.
-        ext[splitAxis*2+1] = mid;
-        // piece must adjust.
-        numPieces = numPiecesInFirstHalf;
-        }
-      else
-        {
-        // piece is in the second half.
-        // set the extent to be the second half. (two halves share points)
-        ext[splitAxis*2] = mid;
-        // piece must adjust
-        numPieces = numPieces - numPiecesInFirstHalf;
-        piece -= numPiecesInFirstHalf;
-        }
-      }
-    } // end of while
+  // Call the end method, if there is one
+  if ( this->EndMethod )
+    {
+    (*this->EndMethod)(this->EndMethodArg);
+    }
 
-  return 1;
+  // Information gets invalidated as soon as Update is called,
+  // so validate it again here.
+  this->InformationTime.Modified();  
 }
+
+
+
+
+

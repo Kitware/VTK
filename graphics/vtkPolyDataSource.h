@@ -77,7 +77,7 @@ protected:
   // Update extent of PolyData is specified in pieces.  
   // Since all DataObjects should be able to set UpdateExent as pieces,
   // just copy output->UpdateExtent  all Inputs.
-  int ComputeInputUpdateExtents(vtkDataObject *output);
+  void ComputeInputUpdateExtents(vtkDataObject *output);
   
   // Used by streaming: The extent of the output being processed
   // by the execute method. Set in the ComputeInputUpdateExtents method.

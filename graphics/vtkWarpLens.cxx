@@ -80,6 +80,9 @@ void vtkWarpLens::Execute()
   
   vtkDebugMacro(<<"Warping data to a point");
 
+  // First, copy the input to the output as a starting point
+  output->CopyStructure( input );
+
   r = this->Center[0]*this->Center[0];
   offset = this->Center[0]*(1.0 + this->Kappa*r);
 

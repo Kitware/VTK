@@ -104,7 +104,7 @@ protected:
 
   // Usual data generation method
   void Execute();
-  int ComputeInputUpdateExtents(vtkDataObject *data);
+  void ComputeInputUpdateExtents(vtkDataObject *data);
   };
 
 #endif

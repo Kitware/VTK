@@ -40,7 +40,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 
 #include "vtkImageCacheFilter.h"
-#include "vtkExtent.h"
 #include "vtkObjectFactory.h"
 
 
@@ -149,7 +148,7 @@ void vtkImageCacheFilter::SetCacheSize(int size)
 
 //----------------------------------------------------------------------------
 // This method simply copies by reference the input data to the output.
-void vtkImageCacheFilter::InternalUpdate(vtkDataObject *outObject)
+void vtkImageCacheFilter::UpdateData(vtkDataObject *outObject)
 {
   unsigned long pmt;
   int *uExt, *ext;
@@ -181,8 +180,7 @@ void vtkImageCacheFilter::InternalUpdate(vtkDataObject *outObject)
 	  uExt[2] >= ext[2] && uExt[3] <= ext[3] &&
 	  uExt[4] >= ext[4] && uExt[5] <= ext[5])
 	{
-	vtkDebugMacro("Found Cached Data to meet request" 
-		      << *(outData->GetGenericUpdateExtent()));
+	vtkDebugMacro("Found Cached Data to meet request" );
 	
 	// Pass this data to output.
 	outData->SetExtent(ext);
@@ -201,16 +199,15 @@ void vtkImageCacheFilter::InternalUpdate(vtkDataObject *outObject)
 
     // we need to update.
     inData->SetUpdateExtent(uExt);
-    inData->PreUpdate();
-    inData->InternalUpdate();
+    inData->PropagateUpdateExtent();
+    inData->UpdateData();
     
     if (inData->GetDataReleased())
       { // special case  
       return;
       }
 
-    vtkDebugMacro("Generating Data to meet request" 
-		  << *(outData->GetGenericUpdateExtent()));
+    vtkDebugMacro("Generating Data to meet request" );
     
     outData->SetExtent(inData->GetExtent());
     outData->GetPointData()->PassData(inData->GetPointData());

@@ -64,7 +64,8 @@ protected:
   vtkImageWrapPad(const vtkImageWrapPad&) {};
   void operator=(const vtkImageWrapPad&) {};
 
-  void ComputeRequiredInputUpdateExtent(int inExt[6], int outExt[6]);
+  void ComputeInputUpdateExtent(int inExt[6], int outExt[6]);
+
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outRegion, 
 		       int ext[6], int id);
 };

@@ -169,6 +169,9 @@ void vtkFieldDataToAttributeDataFilter::Execute()
 
   vtkDebugMacro(<<"Generating attribute data from field data");
 
+  // First, copy the input to the output as a starting point
+  output->CopyStructure( input );
+
   if ( this->OutputAttributeData == VTK_CELL_DATA )
     {
     attr = output->GetCellData();

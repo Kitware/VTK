@@ -88,8 +88,8 @@ void vtkImageFlip::ExecuteInformation(vtkImageData *inData,
 
 //----------------------------------------------------------------------------
 // What input should be requested.
-void vtkImageFlip::ComputeRequiredInputUpdateExtent(int inExt[6], 
-						    int outExt[6])
+void vtkImageFlip::ComputeInputUpdateExtent(int inExt[6], 
+					    int outExt[6])
 {
   int axis, sum;
   int *wholeExtent;
@@ -214,7 +214,7 @@ void vtkImageFlip::ThreadedExecute(vtkImageData *inData,
   void *outPtr;
   
   outPtr = outData->GetScalarPointerForExtent(outExt);
-  this->ComputeRequiredInputUpdateExtent(inExt, outExt);
+  this->ComputeInputUpdateExtent(inExt, outExt);
 
   if (inData->GetScalarType() != outData->GetScalarType())
     {

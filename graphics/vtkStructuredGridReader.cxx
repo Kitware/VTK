@@ -38,7 +38,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkStructuredInformation.h"
 #include "vtkStructuredGridReader.h"
 #include "vtkObjectFactory.h"
 
@@ -237,7 +236,7 @@ void vtkStructuredGridReader::ExecuteInformation()
 	--ext[1];
 	--ext[3];
 	--ext[5];
-        output->GetStructuredInformation()->SetWholeExtent(ext);
+        output->SetWholeExtent(ext);
 	// That is all we wanted !!!!!!!!!!!!!!!
 	this->Reader->CloseVTKFile();
 	return;

@@ -105,6 +105,9 @@ void vtkTransformTextureCoords::Execute()
 
   vtkDebugMacro(<<"Transforming texture coordinates...");
 
+  // First, copy the input to the output as a starting point
+  output->CopyStructure( input );
+
   if ( inTCoords == NULL || numPts < 1 )
     {
     vtkErrorMacro(<<"No texture coordinates to transform");

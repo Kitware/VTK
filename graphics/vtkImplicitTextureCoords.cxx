@@ -92,6 +92,9 @@ void vtkImplicitTextureCoords::Execute()
   //
   vtkDebugMacro(<<"Generating texture coordinates from implicit functions...");
 
+  // First, copy the input to the output as a starting point
+  output->CopyStructure( input );
+
   if ( ((numPts=input->GetNumberOfPoints()) < 1) )
     {
     vtkErrorMacro(<< "No input points!");

@@ -65,23 +65,23 @@ public:
   // multiplied by the opacity.  The opacity of image idx=0 is ignored.
   void SetOpacity(int idx, double opacity);
   double GetOpacity(int idx);
-  
-  void InternalUpdate(vtkDataObject *data);
 
+  virtual void UpdateData(vtkDataObject *output);
+  
 protected:
   vtkImageBlend();
   ~vtkImageBlend();
   vtkImageBlend(const vtkImageBlend&) {};
   void operator=(const vtkImageBlend&) {};
 
-  void ComputeRequiredInputUpdateExtent(int inExt[6], int outExt[6],
-					int whichInput);
+  void ComputeInputUpdateExtent(int inExt[6], int outExt[6],
+				int whichInput);
   void ThreadedExecute(vtkImageData **inDatas, vtkImageData *outData,
 		       int extent[6], int id);
 
+
   double *Opacity;
   int OpacityArrayLength;
-  int WasSingleInput;
 };
 
 #endif

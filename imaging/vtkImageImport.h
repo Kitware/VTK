@@ -115,19 +115,19 @@ public:
   vtkSetVector3Macro(DataOrigin,float);
   vtkGetVector3Macro(DataOrigin,float);
 
-  // Description:
-  // This method returns the largest data that can be generated.
-  void ExecuteInformation();
-  
 protected:
   vtkImageImport();
   ~vtkImageImport();
   vtkImageImport(const vtkImageImport&) {};
   void operator=(const vtkImageImport&) {};
 
+  // Description:
+  // This method returns the largest data that can be generated.
+  void ExecuteInformation();
+  
   // Generate more than requested.  Called by the superclass before
   // an execute, and before output memory is allocated.
-  void ModifyOutputUpdateExtent();
+  void EnlargeOutputUpdateExtents( vtkDataObject *data );
 
   void *ImportVoidPointer;
   int SaveUserArray;

@@ -74,8 +74,8 @@ void vtkImageRFFT::ExecuteInformation(vtkImageData *vtkNotUsed(inData),
 //----------------------------------------------------------------------------
 // This method tells the superclass that the whole input array is needed
 // to compute any output region.
-void vtkImageRFFT::ComputeRequiredInputUpdateExtent(int inExt[6], 
-						   int outExt[6])
+void vtkImageRFFT::ComputeInputUpdateExtent(int inExt[6], 
+					    int outExt[6])
 {
   int *extent;
   
@@ -207,7 +207,7 @@ void vtkImageRFFT::ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
   void *inPtr, *outPtr;
   int inExt[6];
 
-  this->ComputeRequiredInputUpdateExtent(inExt, outExt);  
+  this->ComputeInputUpdateExtent(inExt, outExt);  
   inPtr = inData->GetScalarPointerForExtent(inExt);
   outPtr = outData->GetScalarPointerForExtent(outExt);
   

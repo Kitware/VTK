@@ -196,6 +196,9 @@ void vtkProgrammableAttributeDataFilter::Execute()
 
   vtkDebugMacro(<<"Executing programmable point data filter");
 
+  // First, copy the input to the output as a starting point
+  output->CopyStructure( input );
+
   // Output data is the same as input data by default.
   output->GetCellData()->PassData(input->GetCellData());
   output->GetPointData()->PassData(input->GetPointData());

@@ -85,6 +85,9 @@ void vtkVectorDot::Execute()
 //
   vtkDebugMacro(<<"Generating vector/normal dot product!");
 
+  // First, copy the input to the output as a starting point
+  output->CopyStructure( input );
+
   if ( (numPts=input->GetNumberOfPoints()) < 1 )
     {
     vtkErrorMacro(<< "No points!");

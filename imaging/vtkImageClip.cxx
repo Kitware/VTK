@@ -155,28 +155,26 @@ void vtkImageClip::ExecuteInformation(vtkImageData *inData,
     {
     this->SetOutputWholeExtent(extent);
     }
-  if ( ! this->Bypass)
+
+  // Clip the OutputWholeExtent with the input WholeExtent
+  for (idx = 0; idx < 3; ++idx)
     {
-    // Clip the OutputWholeExtent with the input WholeExtent
-    for (idx = 0; idx < 3; ++idx)
+    if (this->OutputWholeExtent[idx*2] >= extent[idx*2] && 
+	this->OutputWholeExtent[idx*2] <= extent[idx*2+1])
       {
-      if (this->OutputWholeExtent[idx*2] >= extent[idx*2] && 
-	  this->OutputWholeExtent[idx*2] <= extent[idx*2+1])
-	{
-	extent[idx*2] = this->OutputWholeExtent[idx*2];
-	}
-      if (this->OutputWholeExtent[idx*2+1] >= extent[idx*2] && 
-	  this->OutputWholeExtent[idx*2+1] <= extent[idx*2+1])
-	{
-	extent[idx*2+1] = this->OutputWholeExtent[idx*2+1];
-	}
-      // make usre the order is correct
-      if (extent[idx*2] > extent[idx*2+1])
-	{
-	extent[idx*2] = extent[idx*2+1];
-	}
+      extent[idx*2] = this->OutputWholeExtent[idx*2];
       }
-    }
+    if (this->OutputWholeExtent[idx*2+1] >= extent[idx*2] && 
+	this->OutputWholeExtent[idx*2+1] <= extent[idx*2+1])
+      {
+      extent[idx*2+1] = this->OutputWholeExtent[idx*2+1];
+      }
+    // make usre the order is correct
+    if (extent[idx*2] > extent[idx*2+1])
+      {
+      extent[idx*2] = extent[idx*2+1];
+      }
+      }
   
   outData->SetWholeExtent(extent);
 }
@@ -200,29 +198,13 @@ void vtkImageClip::ResetOutputWholeExtent()
 
 //----------------------------------------------------------------------------
 // This method simply copies by reference the input data to the output.
-void vtkImageClip::InternalUpdate(vtkDataObject *outObject)
+void vtkImageClip::Execute(vtkImageData *inData, 
+			   vtkImageData *outData)
 {
   int *inExt, *outExt;
-  vtkImageData *outData = (vtkImageData *)(outObject);
-  vtkImageData *inData = this->GetInput();
   
-  // Make sure the Input has been set.
-  if ( ! inData)
-    {
-    vtkErrorMacro(<< "Input is not set.");
-    return;
-    }
-
-  outExt = outData->GetUpdateExtent();
-  inData->SetUpdateExtent(outExt);
-  inData->Update();
-  
-  if (inData->GetDataReleased())
-    { // special case for pipeline parallelism
-    return;
-    }
-  
-  inExt = inData->GetExtent(); 
+  outExt = outData->GetUpdateExtent();  
+  inExt  = inData->GetExtent(); 
 
   if (this->ClipData && 
       (inExt[0]<outExt[0] || inExt[1]>outExt[1] || 

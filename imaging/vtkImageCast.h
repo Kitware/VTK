@@ -99,15 +99,11 @@ protected:
   int ClampOverflow;
   int OutputScalarType;
   void ExecuteInformation(vtkImageData *inData, vtkImageData *outData);
+  void UpdateData(vtkImageData *data);
   void ExecuteInformation(){this->vtkImageToImageFilter::ExecuteInformation();};
-  void InternalUpdate(vtkImageData *data);
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData, 
 		       int ext[6], int id);
 
- private:
-  // Hide the superclass' InternalUpdate() from the user and the compiler
-  void InternalUpdate(vtkDataObject *data)
-    { this->vtkImageToImageFilter::InternalUpdate(data); };
 };
 
 #endif

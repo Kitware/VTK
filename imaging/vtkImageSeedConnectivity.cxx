@@ -137,15 +137,9 @@ void vtkImageSeedConnectivity::AddSeed(int i0, int i1)
 
 
 //----------------------------------------------------------------------------
-void vtkImageSeedConnectivity::ModifyOutputUpdateExtent()
+void vtkImageSeedConnectivity::EnlargeOutputUpdateExtents( vtkDataObject 
+							   *data )
 {
-  // Filter superclass has no control of intercept cache update.
-  // a work around
-  if (this->Bypass)
-    {
-    return;
-    }
-  
   this->GetOutput()->SetUpdateExtent(this->GetOutput()->GetWholeExtent());
 }
 

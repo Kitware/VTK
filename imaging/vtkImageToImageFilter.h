@@ -67,13 +67,11 @@ public:
   vtkImageData *GetInput();
   
   // Description:
-  // Turning bypass on will cause the filter to turn off and
-  // simply pass the data through.  This main purpose for this functionality
-  // is support for vtkImageDecomposedFilter.  InputMemoryLimit is ignored
-  // when Bypass in on.
-  vtkSetMacro(Bypass,int);
+  // Obsolete feature - do not use.
+  void SetBypass( int v ) {};
+  void BypassOn() {};
+  void BypassOff() {};
   vtkGetMacro(Bypass,int);
-  vtkBooleanMacro(Bypass,int);
 
   // Description:
   // If the subclass does not define an Execute method, then the task
@@ -89,20 +87,17 @@ public:
   vtkSetClampMacro( NumberOfThreads, int, 1, VTK_MAX_THREADS );
   vtkGetMacro( NumberOfThreads, int );
 
-  // ----- Streaming -----
-
-  // Description:
-  // The InputMemoryLimit will cause this filter to initiate streaming.
-  // The problem is divided up until the memory used by the input data
-  // is less than this limit. (units kiloBytes)
-  void SetInputMemoryLimit(int limit);
-  long GetInputMemoryLimit();
+  void SetInputMemoryLimit(int limit) 
+    {vtkErrorMacro( << "Obsolete: Use a streamer!" );};
+  long GetInputMemoryLimit()
+    {vtkErrorMacro( << "Obsolete: Use a streamer!" ); return 0;};
 
   // Description:
   // Putting this here until I merge graphics and imaging streaming.
   virtual int SplitExtent(int splitExt[6], int startExt[6], 
 			  int num, int total);
   
+
   // Legacy !!!!!!!!!!!!!!! ---------------------------------
   
   // Description:
@@ -139,22 +134,19 @@ protected:
 
   // This is called by the superclass.
   void Execute();
+
   // This one is not currently used
   void Execute(vtkImageData *outData) { this->vtkImageSource::Execute(outData); };
+
   // This is the method you should override.
   virtual void Execute(vtkImageData *inData, vtkImageData *outData);
-  // scalars are allocated here.   
-  void StreamExecuteStart(); 
 
-  // Overide this if your filter is not a pixel for pixel operation.
-  // Given outExt, tell me what you need for inExt.
-  virtual void ComputeRequiredInputUpdateExtent(int inExt[6],int outExt[6]);
-  // These replace ComputeRequiredInputUpdateExtent if your filter
-  // will initiate streaming.
-  int GetNumberOfStreamDivisions();  
-  int ComputeDivisionExtents(vtkDataObject *output, 
-			     int division, int numDivisions);
+  virtual void ComputeRequiredInputUpdateExtent(int inExt[6],int outExt[6])
+    {vtkErrorMacro( << "Obsolete: Use ComputeInputUpdateExtents instead" ); };
 
+
+  void ComputeInputUpdateExtents( vtkDataObject *output );
+  virtual void ComputeInputUpdateExtent(int inExt[6], int outExt[6]);
 };
 
 #endif

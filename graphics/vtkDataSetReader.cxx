@@ -413,11 +413,6 @@ void vtkDataSetReader::Update()
     {
     this->GetOutput()->Update();
     }
-  else
-    {
-    // execute creates an output
-    this->InternalUpdate(NULL);
-    }
 }
 
 static int recursing = 0;

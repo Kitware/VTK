@@ -154,26 +154,6 @@ void vtkMaskPoints::Execute()
   vtkDebugMacro(<<"Masked " << numPts << " original points to " << id+1 << " points");
 }
 
-//----------------------------------------------------------------------------
-void vtkMaskPoints::ExecuteInformation()
-{
-  unsigned long numPts, size;
-  
-  // estimate the number of points in the input.
-  numPts = this->GetInput()->GetEstimatedWholeMemorySize() * 1000 / 24;
-  // adjust
-  numPts = (numPts - this->Offset) * this->OnRatio;
-  if (numPts > this->MaximumNumberOfPoints)
-    {
-    numPts = this->MaximumNumberOfPoints;
-    }
-  
-  // Guess at size per point (convert to KBytes)
-  size = 1 + numPts * 24 / 1000;
-  
-  this->GetOutput()->SetEstimatedWholeMemorySize(size);
-}
-
 
 //----------------------------------------------------------------------------
 void vtkMaskPoints::PrintSelf(ostream& os, vtkIndent indent)

@@ -63,7 +63,7 @@ public:
 
   // Description:
   // This method simply copies by reference the input data to the output.
-  void InternalUpdate(vtkDataObject *data);
+  void UpdateData(vtkDataObject *data);
 
 protected:
   vtkImageTranslateExtent();
@@ -73,7 +73,7 @@ protected:
 
   int Translation[3];
   
-  void ComputeRequiredInputUpdateExtent(int extent[6], int wholeExtent[6]);
+  void ComputeInputUpdateExtent(int extent[6], int wholeExtent[6]);
   void ExecuteInformation(vtkImageData *inData, vtkImageData *outData);
   void ExecuteInformation(){this->vtkImageToImageFilter::ExecuteInformation();};
 };

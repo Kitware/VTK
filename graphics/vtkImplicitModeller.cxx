@@ -121,6 +121,20 @@ vtkImplicitModeller::~vtkImplicitModeller()
 }
 
 //----------------------------------------------------------------------------
+
+void vtkImplicitModeller::UpdateData(vtkDataObject *output)
+{
+  if (this->GetInput() == NULL)
+    {
+    // we do not want to release the data because user might
+    // have called Append ...
+    return;
+    }
+
+  this->vtkDataSetToStructuredPointsFilter::UpdateData( output );
+}
+
+//----------------------------------------------------------------------------
 // Initialize the filter for appending data. You must invoke the
 // StartAppend() method before doing successive Appends(). It's also a
 // good idea to manually specify the model bounds; otherwise the input
@@ -726,6 +740,13 @@ void vtkImplicitModeller::Execute()
 {
   vtkDebugMacro(<< "Executing implicit model");
 
+  if (this->GetInput() == NULL)
+    {
+    // we do not want to release the data because user might
+    // have called Append ...
+    return;
+    }
+
   this->StartAppend();
   this->Append(this->GetInput());
   this->EndAppend();
@@ -925,29 +946,6 @@ void vtkImplicitModeller::Cap(vtkScalars *s)
       s->SetScalar(idx+i+k*d01, this->CapValue);
       }
     }
-}
-
-//----------------------------------------------------------------------------
-void vtkImplicitModeller::StreamExecuteStart()
-{
-  int idx;
-  
-  if (this->GetInput() == NULL)
-    {
-    // we do not want to release the data because user might
-    // have called Append ...
-    return;
-    }
-  
-  // clear output (why isn't this ReleaseData.  Does it allocate data too?)
-  // Should it be done if StreamExecuteStart?
-  for (idx = 0; idx < this->NumberOfOutputs; idx++)
-    {
-    if (this->Outputs[idx])
-      {
-      this->Outputs[idx]->Initialize(); 
-      }
-    }  
 }
 
 //----------------------------------------------------------------------------

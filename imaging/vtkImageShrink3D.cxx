@@ -161,8 +161,8 @@ void vtkImageShrink3D::PrintSelf(ostream& os, vtkIndent indent)
 
 //----------------------------------------------------------------------------
 // This method computes the Region of input necessary to generate outRegion.
-void vtkImageShrink3D::ComputeRequiredInputUpdateExtent(int inExt[6], 
-							int outExt[6])
+void vtkImageShrink3D::ComputeInputUpdateExtent(int inExt[6], 
+						int outExt[6])
 {
   int idx;
   
@@ -561,7 +561,7 @@ void vtkImageShrink3D::ThreadedExecute(vtkImageData *inData,
   vtkDebugMacro(<< "Execute: inData = " << inData 
   << ", outData = " << outData);
 
-  this->ComputeRequiredInputUpdateExtent(inExt,outExt);
+  this->ComputeInputUpdateExtent(inExt,outExt);
   void *inPtr = inData->GetScalarPointerForExtent(inExt);
 
   // this filter expects that input is the same type as output.

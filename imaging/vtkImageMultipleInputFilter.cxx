@@ -80,7 +80,6 @@ vtkImageMultipleInputFilter::~vtkImageMultipleInputFilter()
 void vtkImageMultipleInputFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   os << indent << "NumberOfThreads: " << this->NumberOfThreads << "\n";
-  os << indent << "Bypass: " << this->Bypass << "\n";
   
   vtkImageSource::PrintSelf(os,indent);
 }
@@ -134,72 +133,46 @@ void vtkImageMultipleInputFilter::ExecuteInformation()
     }
   
   // Set the defaults from input1
-  output->CopyInformation(input);
+  output->CopyTypeSpecificInformation(input);
 
-  if ( ! this->Bypass)
+  this->LegacyHack = 1;
+  this->ExecuteImageInformation();
+  if (this->LegacyHack)
     {
-    this->LegacyHack = 1;
-    this->ExecuteImageInformation();
-    if (this->LegacyHack)
-      {
-      vtkWarningMacro("ExecuteImageInformation should be changed to ExecuteInformation(vtkImageData*, vtkImageData*)");
-      return;
-      }
+    vtkWarningMacro("ExecuteImageInformation should be changed to ExecuteInformation(vtkImageData*, vtkImageData*)");
+    return;
+    }
     
-    // Let the subclass modify the default.
-    this->ExecuteInformation((vtkImageData**)(this->Inputs), output);
-    }
+  // Let the subclass modify the default.
+  this->ExecuteInformation((vtkImageData**)(this->Inputs), output);
 }
 
-
-//----------------------------------------------------------------------------
-int
-vtkImageMultipleInputFilter::ComputeDivisionExtents(
-					      vtkDataObject *vtkNotUsed(out),
-					      int division, int numDivisions)
+// Call the alternate version of this method, and use the returned input
+// update extent for all inputs
+void vtkImageMultipleInputFilter::ComputeInputUpdateExtents( vtkDataObject 
+							     *output )
 {
-  vtkImageData *input;
-  int idx, actualSplits;
-  int *outExt, inExt[6];
-  
-  outExt = this->GetOutput()->GetUpdateExtent();
-  actualSplits = this->SplitExtent(this->ExecuteExtent, outExt, 
-				   division, numDivisions);
-  
-  if (division < actualSplits)
-    { // yes this is a vaid piece.
-    for (idx = 0; idx < this->NumberOfInputs; ++idx)
-      {
-      input = this->GetInput(idx);
-      if (input != NULL)
-	{
-	this->ComputeRequiredInputUpdateExtent(inExt, this->ExecuteExtent, idx);
-	input->SetUpdateExtent(inExt);
-	}
-      }
-    return 1;
-    }
-  else
+  int outExt[6], inExt[6];
+
+  output->GetUpdateExtent( outExt );
+
+  for (int idx = 0; idx < this->NumberOfInputs; idx++)
     {
-    // We could not split to this piece.
-    return 0;
-    }
+    if (this->Inputs[idx] != NULL)
+      {
+      this->ComputeInputUpdateExtent( inExt, outExt, idx );
+      this->Inputs[idx]->SetUpdateExtent( inExt );
+      }
+    }  
 }
 
-
-
-//----------------------------------------------------------------------------
-// This method computes the extent of the input region necessary to generate
-// an output region.  Before this method is called "region" should have the 
-// extent of the output region.  After this method finishes, "region" should 
-// have the extent of the required input region.  The default method assumes
-// the required input extent are the same as the output extent.
-// Note: The splitting methods call this method with outRegion = inRegion.
-void vtkImageMultipleInputFilter::ComputeRequiredInputUpdateExtent(int inExt[6],
-							   int outExt[6],
-							   int whichInput)
+// By default, simply set the input update extent to match the given output
+// extent
+void vtkImageMultipleInputFilter::ComputeInputUpdateExtent( 
+					    int inExt[6],
+					    int outExt[6],
+					    int vtkNotUsed(whichInput) )
 {
-  whichInput = whichInput;
   memcpy(inExt,outExt,sizeof(int)*6);
 }
 
@@ -253,6 +226,9 @@ VTK_THREAD_RETURN_TYPE vtkImageMultiThreadedExecute( void *arg )
 void vtkImageMultipleInputFilter::Execute()
 {
   vtkImageData *output = this->GetOutput();
+
+  output->SetExtent(output->GetUpdateExtent());
+  output->AllocateScalars();
   this->Execute((vtkImageData**)(this->Inputs), output);
 }
 

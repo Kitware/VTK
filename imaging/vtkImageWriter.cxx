@@ -304,7 +304,8 @@ void vtkImageWriter::RecursiveWrite(int axis, vtkImageData *cache,
   
   // will the current request fit into memory
   // if so the just get the data and write it out
-  if (cache->GetEstimatedUpdateMemorySize() < cache->GetMemoryLimit())
+  //  if (cache->GetEstimatedUpdateMemorySize() < cache->GetMemoryLimit())
+  if ( 1 )
     {
     ext = cache->GetUpdateExtent();
     vtkDebugMacro("Getting input extent: " << ext[0] << ", " << 

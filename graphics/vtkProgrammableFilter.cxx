@@ -146,6 +146,9 @@ void vtkProgrammableFilter::Execute()
 {
   vtkDebugMacro(<<"Executing programmable filter");
 
+  // First, copy the input to the output as a starting point
+  this->GetOutput()->CopyStructure( this->GetInput() );
+
   // Now invoke the procedure, if specified.
   if ( this->ExecuteMethod != NULL )
     {

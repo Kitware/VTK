@@ -63,8 +63,8 @@ vtkImageWrapPad* vtkImageWrapPad::New()
 
 //----------------------------------------------------------------------------
 // Just clip the request.
-void vtkImageWrapPad::ComputeRequiredInputUpdateExtent(int inExt[6],
-						       int outExt[6])
+void vtkImageWrapPad::ComputeInputUpdateExtent(int inExt[6],
+					       int outExt[6])
 {
   int idx;
   int min, max, width, imageMin, imageMax, imageWidth;
@@ -241,7 +241,7 @@ void vtkImageWrapPad::ThreadedExecute(vtkImageData *inData,
 {
   int inExt[6];
   
-  this->ComputeRequiredInputUpdateExtent(inExt,outExt);
+  this->ComputeInputUpdateExtent(inExt,outExt);
 
   void *inPtr = inData->GetScalarPointerForExtent(inExt);
   void *outPtr = outData->GetScalarPointerForExtent(outExt);
