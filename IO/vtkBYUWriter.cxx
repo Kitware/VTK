@@ -27,7 +27,9 @@
 # include <unistd.h> /* unlink */
 #endif
 
-vtkCxxRevisionMacro(vtkBYUWriter, "1.52");
+#include <vtkstd/string>
+
+vtkCxxRevisionMacro(vtkBYUWriter, "1.53");
 vtkStandardNewMacro(vtkBYUWriter);
 
 // Create object so that it writes displacement, scalar, and texture files
@@ -117,44 +119,47 @@ void vtkBYUWriter::WriteData()
   this->WriteScalarFile(numPts);
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
     {
-    ostrstream errorMessage;
+    vtkstd::string errorMessage;
     fclose(geomFp);
     unlink(this->GeometryFileName);
-    errorMessage << "Ran out of disk space; deleting files: "
-                 << this->GeometryFileName << " ";
+    errorMessage = "Ran out of disk space; deleting files: ";
+    errorMessage += this->GeometryFileName;
+    errorMessage += " ";
     if (this->DisplacementFileName)
       {
       unlink(this->DisplacementFileName);
-      errorMessage << this->DisplacementFileName << " ";
+      errorMessage += this->DisplacementFileName;
+      errorMessage += " ";
       }
     unlink(this->ScalarFileName);
-    errorMessage << this->ScalarFileName << ends;
-    vtkErrorMacro( << errorMessage.str());
-    errorMessage.rdbuf()->freeze(0);
+    errorMessage += this->ScalarFileName;
+    vtkErrorMacro( << errorMessage.c_str());
     return;
     }
   this->WriteTextureFile(numPts);
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
     {
     fclose(geomFp);
-    ostrstream errorMessage;
+    vtkstd::string errorMessage;
     unlink(this->GeometryFileName);
-    errorMessage << "Ran out of disk space; deleting files: "
-                 << this->GeometryFileName << " ";
+    errorMessage = "Ran out of disk space; deleting files: ";
+    errorMessage += this->GeometryFileName;
+    errorMessage += " ";
     if (this->DisplacementFileName)
       {
       unlink(this->DisplacementFileName);
-      errorMessage << this->DisplacementFileName << " ";
+      errorMessage += this->DisplacementFileName;
+      errorMessage += " ";
       }
     if (this->ScalarFileName)
       {
       unlink(this->ScalarFileName);
-      errorMessage << this->ScalarFileName << " ";
+      errorMessage += this->ScalarFileName;
+      errorMessage += " ";
       }
     unlink(this->TextureFileName);
-    errorMessage << this->TextureFileName << ends;
-    vtkErrorMacro( << errorMessage.str());
-    errorMessage.rdbuf()->freeze(0);
+    errorMessage += this->TextureFileName;
+    vtkErrorMacro( << errorMessage.c_str());
     return;
     }
 
