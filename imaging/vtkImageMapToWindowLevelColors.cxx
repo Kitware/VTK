@@ -159,6 +159,105 @@ void vtkImageMapToWindowLevelColors::ExecuteInformation(vtkImageData *inData,
     }
 }
 
+/* 
+ * This templated routine calculates effective lower and upper limits 
+ * for a window of values of type T, lower and upper. 
+ */
+template <class T>
+static void vtkImageMapToWindowLevelClamps ( vtkImageData *data, float w, 
+                                             float l, T& lower, T& upper, 
+                                             unsigned char &lower_val, 
+                                             unsigned char &upper_val)
+{
+  double f_lower, f_upper, f_lower_val, f_upper_val;
+  double adjustedLower, adjustedUpper;
+  double range[2];
+
+  data->GetPointData()->GetScalars()->GetDataTypeRange( range );
+
+  f_lower = l - fabs(w) / 2.0;
+  f_upper = f_lower + fabs(w);
+
+  // Set the correct lower value
+  if ( f_lower <= range[1])
+    {
+    if (f_lower >= range[0])
+      {
+      lower = (T) f_lower;
+      adjustedLower = f_lower;
+      }
+    else
+      {
+      lower = (T) range[0];
+      adjustedLower = range[0];
+      }
+    }
+  else
+    {
+    lower = (T) range[1];
+    adjustedLower = range[1];
+    }
+  
+  
+  // Set the correct upper value
+  if ( f_upper >= range[0])
+    {
+    if (f_upper <= range[1])
+      {
+      upper = (T) f_upper;
+      adjustedUpper = f_upper;
+      }
+    else
+      {
+      upper = (T) range[1];
+      adjustedUpper = range[1];
+      }
+    }
+  else
+    {
+    upper = (T) range [0];
+    adjustedUpper = range [0];
+    }
+  
+  // now compute the lower and upper values
+  if (w >= 0)
+    {
+    f_lower_val = 255.0*(adjustedLower - f_lower)/w;
+    f_upper_val = 255.0*(adjustedUpper - f_lower)/w;
+    }
+  else
+    {
+    f_lower_val = 255.0 + 255.0*(adjustedLower - f_lower)/w;
+    f_upper_val = 255.0 + 255.0*(adjustedUpper - f_lower)/w;
+    }
+  
+  if (f_upper_val > 255) 
+    {
+    upper_val = 255;
+    }
+  else if (f_upper_val < 0)
+    {
+    upper_val = 0;
+    }
+  else
+    {
+    upper_val = (unsigned char)(f_upper_val);
+    }
+  
+  if (f_lower_val > 255) 
+    {
+    lower_val = 255;
+    }
+  else if (f_lower_val < 0)
+    {
+    lower_val = 0;
+    }
+  else
+    {
+    lower_val = (unsigned char)(f_lower_val);
+    }  
+}
+
 //----------------------------------------------------------------------------
 // This non-templated function executes the filter for any type of data.
 template <class T>
@@ -183,10 +282,15 @@ static void vtkImageMapToWindowLevelColorsExecute(vtkImageMapToWindowLevelColors
   T *inPtr1;
   unsigned char *optr;
   T    *iptr;
-  float min = self->GetLevel() - self->GetWindow() / 2.0;
-  float width = self->GetWindow();
-  float value;
-  
+  float shift =  self->GetWindow() / 2.0 - self->GetLevel();
+  float scale = 255.0 / self->GetWindow();
+
+  T   lower, upper;
+  unsigned char lower_val, upper_val, result_val;
+  unsigned short ushort_val;
+  vtkImageMapToWindowLevelClamps( inData, self->GetWindow(), 
+                                  self->GetLevel(), 
+                                  lower, upper, lower_val, upper_val );
   
   // find the region to loop over
   extX = outExt[1] - outExt[0] + 1;
@@ -233,29 +337,32 @@ static void vtkImageMapToWindowLevelColorsExecute(vtkImageMapToWindowLevelColors
       
         for (idxX = 0; idxX < extX; idxX++)
           {
-          value = ((float)(*iptr) - min) / width;
-          value = (value < 0.0)?(0.0):(value);
-          value = (value > 1.0)?(1.0):(value);
-          
+          if (*iptr <= lower) 
+            {
+            ushort_val = lower_val;
+            }
+          else if (*iptr >= upper)
+            {
+            ushort_val = upper_val;
+            }
+          else
+            {
+            ushort_val = (unsigned char) ((*iptr + shift)*scale);
+            }
+          *optr = (unsigned char)((*optr * ushort_val) >> 8);
           switch (outputFormat)
             {
             case VTK_RGBA:
-              *(optr  ) = (unsigned char)((float)*(optr  ) * value);
-              *(optr+1) = (unsigned char)((float)*(optr+1) * value);
-              *(optr+2) = (unsigned char)((float)*(optr+2) * value);
+              *(optr+1) = (unsigned char)((*(optr+1) * ushort_val) >> 8);
+              *(optr+2) = (unsigned char)((*(optr+2) * ushort_val) >> 8);
               *(optr+3) = 255;
               break;
             case VTK_RGB:
-              *(optr  ) = (unsigned char)((float)*(optr  ) * value);
-              *(optr+1) = (unsigned char)((float)*(optr+1) * value);
-              *(optr+2) = (unsigned char)((float)*(optr+2) * value);
+              *(optr+1) = (unsigned char)((*(optr+1) * ushort_val) >> 8);
+              *(optr+2) = (unsigned char)((*(optr+2) * ushort_val) >> 8);
               break;
             case VTK_LUMINANCE_ALPHA:
-              *optr     = (unsigned char)((float)*optr * value);
               *(optr+1) = 255;
-              break;
-            case VTK_LUMINANCE:
-              *optr     = (unsigned char)((float)*optr * value);
               break;
             }
           iptr++;
@@ -266,37 +373,38 @@ static void vtkImageMapToWindowLevelColorsExecute(vtkImageMapToWindowLevelColors
         {
         for (idxX = 0; idxX < extX; idxX++)
           {
-          value = ((float)(*iptr) - min) / width;
-          value = (value < 0.0)?(0.0):(value);
-          value = (value > 1.0)?(1.0):(value);
-          
+          if (*iptr <= lower) 
+            {
+            result_val = lower_val;
+            }
+          else if (*iptr >= upper)
+            {
+            result_val = upper_val;
+            }
+          else
+            {
+            result_val = (unsigned char) ((*iptr + shift)*scale);
+            }
+          *optr = result_val;
           switch (outputFormat)
             {
             case VTK_RGBA:
-              *(optr  ) = (unsigned char)(255.0 * value);
-              *(optr+1) = (unsigned char)(255.0 * value);
-              *(optr+2) = (unsigned char)(255.0 * value);            
+              *(optr+1) = result_val;
+              *(optr+2) = result_val;            
               *(optr+3) = 255;
               break;
             case VTK_RGB:
-              *(optr  ) = (unsigned char)(255.0 * value);
-              *(optr+1) = (unsigned char)(255.0 * value);
-              *(optr+2) = (unsigned char)(255.0 * value);            
+              *(optr+1) = result_val;
+              *(optr+2) = result_val;            
               break;
             case VTK_LUMINANCE_ALPHA:
-              *optr     = (unsigned char)(255.0 * value);
               *(optr+1) = 255;
               break;
-            case VTK_LUMINANCE:
-              *optr     = (unsigned char)(255.0 * value);
-              break;
             }
-          
           iptr++;
           optr += numberOfOutputComponents;
           }
-        }
-      
+        }      
       outPtr1 += outIncY + extX*numberOfOutputComponents;
       inPtr1 += inIncY + rowLength;
       }
