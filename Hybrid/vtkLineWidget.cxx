@@ -33,7 +33,7 @@
 #include "vtkSphereSource.h"
 #include "vtkRenderWindow.h"
 
-vtkCxxRevisionMacro(vtkLineWidget, "1.16");
+vtkCxxRevisionMacro(vtkLineWidget, "1.17");
 vtkStandardNewMacro(vtkLineWidget);
 
 vtkLineWidget::vtkLineWidget()
@@ -108,6 +108,7 @@ vtkLineWidget::vtkLineWidget()
 
 vtkLineWidget::~vtkLineWidget()
 {
+  this->SetEnabled(0);
   this->LineActor->Delete();
   this->LineMapper->Delete();
   this->LineSource->Delete();
