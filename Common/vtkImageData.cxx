@@ -35,7 +35,7 @@
 #include "vtkDoubleArray.h"
 #include "vtkBitArray.h"
 
-vtkCxxRevisionMacro(vtkImageData, "1.136");
+vtkCxxRevisionMacro(vtkImageData, "1.137");
 vtkStandardNewMacro(vtkImageData);
 
 //----------------------------------------------------------------------------
@@ -1572,7 +1572,6 @@ void vtkImageData::AllocateScalars()
       return;
     }
   
-  scalars->SetName("ImageValues");
   scalars->SetNumberOfComponents(this->GetNumberOfScalarComponents());
 
   // allocate enough memory
@@ -2127,7 +2126,21 @@ void *vtkImageData::GetArrayPointer(vtkDataArray* array, int coordinate[3])
 }
 
 
-
-
-
+void vtkImageData::ComputeInternalExtent(int *intExt, int *tgtExt, int *bnds)
+{
+  int i;
+  for (i = 0; i < 3; ++i)
+    {
+    intExt[i*2] = tgtExt[i*2];
+    if (intExt[i*2] - bnds[i*2] < this->Extent[i*2])
+      {
+      intExt[i*2] = this->Extent[i*2] + bnds[i*2];
+      }
+    intExt[i*2+1] = tgtExt[i*2+1];
+    if (intExt[i*2+1] + bnds[i*2+1] > this->Extent[i*2+1])
+      {
+      intExt[i*2+1] = this->Extent[i*2+1] - bnds[i*2+1];
+      }
+    }
+}
 
