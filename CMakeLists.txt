@@ -62,24 +62,8 @@ IF("VTK_COMPILER_HAS_BOOL" MATCHES "^VTK_COMPILER_HAS_BOOL$")
   ENDIF(VTK_COMPILER_HAS_BOOL)
 ENDIF("VTK_COMPILER_HAS_BOOL" MATCHES "^VTK_COMPILER_HAS_BOOL$")
 
-IF("VTK_EXPLICIT_TEMPLATES" MATCHES "^VTK_EXPLICIT_TEMPLATES")
-  MESSAGE(STATUS "Checking support for C++ explicit template instantiation")
-  TRY_COMPILE(VTK_EXPLICIT_TEMPLATES
-              ${VTK_BINARY_DIR}
-              ${VTK_SOURCE_DIR}/CMake/vtkTestExplicitInstantiation.cxx
-              OUTPUT_VARIABLE OUTPUT)
-  IF(VTK_EXPLICIT_TEMPLATES)
-    MESSAGE(STATUS "Checking support for C++ explicit template instantiation -- yes")
-    SET(VTK_EXPLICIT_TEMPLATES 1 CACHE INTERNAL "Support for C++ explict templates")
-  ELSE(VTK_EXPLICIT_TEMPLATES)
-    MESSAGE(STATUS "Checking support for C++ explict templates instantiation -- no")
-    SET(VTK_EXPLICIT_TEMPLATES_BOOL 0 CACHE INTERNAL "Support for C++ explict templates")
-    WRITE_FILE(${CMAKE_BINARY_DIR}/CMakeError.log 
-      "Determining if the C++ compiler supports explict template instantiation "
-      "failed with the following output:\n"
-      "${OUTPUT}\n" APPEND)
-  ENDIF(VTK_EXPLICIT_TEMPLATES)
-ENDIF("VTK_EXPLICIT_TEMPLATES" MATCHES "^VTK_EXPLICIT_TEMPLATES")
+# Check for explicit template instantiation support by compiler.
+INCLUDE(${VTK_SOURCE_DIR}/CMake/vtkTestExplicitInstantiation.cmake)
 
 # Setup clean configuration of vtkConfigure.h and vtkToolkits.h.
 MACRO(VTK_PREPARE_CMAKEDEFINE not invar outvar)
