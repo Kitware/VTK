@@ -18,7 +18,7 @@
 #include "vtkAlgorithm.h"
 #include "vtkGarbageCollector.h"
 
-vtkCxxRevisionMacro(vtkDistributedExecutive, "1.4");
+vtkCxxRevisionMacro(vtkDistributedExecutive, "1.5");
 vtkStandardNewMacro(vtkDistributedExecutive);
 vtkCxxSetObjectMacro(vtkDistributedExecutive, Algorithm, vtkAlgorithm);
 
@@ -87,7 +87,7 @@ vtkAlgorithm* vtkDistributedExecutive::GetAlgorithm()
 void vtkDistributedExecutive::ReportReferences(vtkGarbageCollector* collector)
 {
   // Report reference to our algorithm.
-  collector->ReportReference(this->GetAlgorithm());
+  collector->ReportReference(this->GetAlgorithm(), "Algorithm");
 }
 
 //----------------------------------------------------------------------------

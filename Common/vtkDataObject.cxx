@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkSource.h"
 
-vtkCxxRevisionMacro(vtkDataObject, "1.96");
+vtkCxxRevisionMacro(vtkDataObject, "1.97");
 vtkStandardNewMacro(vtkDataObject);
 
 vtkCxxSetObjectMacro(vtkDataObject,FieldData,vtkFieldData);
@@ -724,7 +724,7 @@ void vtkDataObject::Crop()
 void vtkDataObject::ReportReferences(vtkGarbageCollector* collector)
 {
   this->Superclass::ReportReferences(collector);
-  collector->ReportReference(this->GetSource());
+  collector->ReportReference(this->GetSource(), "Source");
 }
 
 //----------------------------------------------------------------------------

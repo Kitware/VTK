@@ -20,7 +20,7 @@
 #include "vtkPointLocator.h"
 #include "vtkSource.h"
 
-vtkCxxRevisionMacro(vtkPointSet, "1.80");
+vtkCxxRevisionMacro(vtkPointSet, "1.81");
 
 vtkCxxSetObjectMacro(vtkPointSet,Points,vtkPoints);
 
@@ -313,7 +313,7 @@ void vtkPointSet::Squeeze()
 void vtkPointSet::ReportReferences(vtkGarbageCollector* collector)
 {
   this->Superclass::ReportReferences(collector);
-  collector->ReportReference(this->Locator);
+  collector->ReportReference(this->Locator, "Locator");
 }
 
 //----------------------------------------------------------------------------

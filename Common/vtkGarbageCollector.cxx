@@ -17,7 +17,7 @@
 #include <vtkstd/set>
 #include <vtkstd/queue>
 
-vtkCxxRevisionMacro(vtkGarbageCollector, "1.2");
+vtkCxxRevisionMacro(vtkGarbageCollector, "1.3");
 
 //----------------------------------------------------------------------------
 class vtkGarbageCollectorQueue: public vtkstd::queue<vtkObjectBase*> {};
@@ -30,6 +30,7 @@ vtkGarbageCollector::vtkGarbageCollector(vtkGarbageCollectorQueue* q,
   this->Queue = q;
   this->Queued = qd;
   this->NetCount = 0;
+  this->Current = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -79,18 +80,25 @@ void vtkGarbageCollector::CheckReferenceLoops(vtkObjectBase* root)
   // Fake an internal reference to the root to initialize the queue.
   this->Queued->clear();
   this->NetCount = 1;
-  this->ReportReference(root);
+  this->ReportReference(root, "");
+
+  vtkDebugMacro("Starting reference graph walk with root "
+                << root->GetClassName() << "(" << root << ")");
 
   // Loop until the queue is empty.
   while(!this->Queue->empty())
     {
     // Get the next object from the queue.
-    vtkObjectBase* obj = this->Queue->front();
+    this->Current = this->Queue->front();
     this->Queue->pop();
 
     // Tell the object to report its references to us.
-    obj->ReportReferences(this);
+    this->Current->ReportReferences(this);
     }
+  this->Current = 0;
+
+  vtkDebugMacro("Finished reference graph walk with net reference count "
+                << this->NetCount);
 
   // If the net reference count is 0, delete the entire connected
   // component of the reference graph.
@@ -142,10 +150,28 @@ void vtkGarbageCollector::CheckReferenceLoops(vtkObjectBase* root)
 }
 
 //----------------------------------------------------------------------------
-void vtkGarbageCollector::ReportReference(vtkObjectBase* obj)
+#ifndef VTK_LEAN_AND_MEAN
+void vtkGarbageCollector::ReportReference(vtkObjectBase* obj, const char* desc)
+#else
+void vtkGarbageCollector::ReportReference(vtkObjectBase* obj, const char*)
+#endif
 {
   if(obj)
     {
+#ifndef VTK_LEAN_AND_MEAN
+    if(this->Current && this->Debug && vtkObject::GetGlobalWarningDisplay())
+      {
+      ostrstream msg;
+      msg << "ReportReference: "
+          << this->Current->GetClassName() << "(" << this->Current << ") "
+          << (desc?desc:"")
+          << " -> " << obj->GetClassName() << "(" << obj << ")";
+      msg << ends;
+      vtkDebugMacro(<< msg.str());
+      msg.rdbuf()->freeze(0);
+      }
+#endif
+
     // Add the object to the queue if it has not already been added.
     if(this->Queued->find(obj) == this->Queued->end())
       {

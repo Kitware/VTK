@@ -95,8 +95,11 @@ public:
 
   // Description:
   // Called by the ReportReferences method of objects in a reference
-  // graph to report an outgoing connection.
-  void ReportReference(vtkObjectBase*);
+  // graph to report an outgoing connection.  The first argument
+  // should point to the reported reference is made.  The second
+  // argument should be a brief description of how the reference is
+  // made for use in debugging reference loops.
+  void ReportReference(vtkObjectBase*, const char*);
 
 protected:
   vtkGarbageCollector(vtkGarbageCollectorQueue*,
@@ -104,7 +107,7 @@ protected:
   ~vtkGarbageCollector();
 
   void CheckReferenceLoops(vtkObjectBase* root);
-  
+
   // Description:
   // Prevent normal vtkObject reference counting behavior.
   virtual void Register(vtkObjectBase*);
@@ -122,6 +125,8 @@ protected:
   // The net reference count of the objects explored by the BFS.
   int NetCount;
 
+  // The object currently being explored.
+  vtkObjectBase* Current;
 private:
   vtkGarbageCollector(const vtkGarbageCollector&);  // Not implemented.
   void operator=(const vtkGarbageCollector&);  // Not implemented.

@@ -17,7 +17,7 @@
 #include "vtkDataSet.h"
 #include "vtkGarbageCollector.h"
 
-vtkCxxRevisionMacro(vtkLocator, "1.45");
+vtkCxxRevisionMacro(vtkLocator, "1.46");
 
 vtkCxxSetObjectMacro(vtkLocator,DataSet,vtkDataSet);
 
@@ -97,7 +97,7 @@ void vtkLocator::UnRegister(vtkObjectBase* o)
 void vtkLocator::ReportReferences(vtkGarbageCollector* collector)
 {
   this->Superclass::ReportReferences(collector);
-  collector->ReportReference(this->GetDataSet());
+  collector->ReportReference(this->GetDataSet(), "DataSet");
 }
 
 //----------------------------------------------------------------------------
