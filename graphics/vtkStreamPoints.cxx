@@ -90,7 +90,8 @@ void vtkStreamPoints::Execute()
   newPts ->Allocate(1000);
   newVectors  = vtkVectors::New();
   newVectors ->Allocate(1000);
-  if ( input->GetPointData()->GetScalars() || this->SpeedScalars )
+  if ( input->GetPointData()->GetScalars() || this->SpeedScalars 
+    || this->OrientationScalars)
     {
     newScalars = vtkScalars::New();
     newScalars->Allocate(1000);
