@@ -57,9 +57,13 @@ vtkRIBLight::~vtkRIBLight()
 
 void vtkRIBLight::Render(vtkRenderer *ren, int index)
 {
+  int ref;
+  
   // Copy this light's ivars into the light to be rendered
+  ref = this->Light->GetReferenceCount();
   *this->Light = *((vtkLight *) this);
-
+  this->Light->SetReferenceCount(ref);
+  
   // Render the light
   this->Light->Render (ren, index);
 }
