@@ -113,8 +113,12 @@ void vtkPLOT3DReader::Execute()
   if ( this->GetFileType(xyzFp) == ASCII )
     error = this->ReadASCIIGrid(xyzFp);
   else
+    {
+    fclose(xyzFp);
+    xyzFp = fopen(this->XYZFilename, "rb");
     error = this->ReadBinaryGrid(xyzFp,output);
-
+    }
+  
   if ( error )
     {
     vtkErrorMacro(<<"Error reading XYZ file");
@@ -135,8 +139,12 @@ void vtkPLOT3DReader::Execute()
     if ( this->GetFileType(QFp) == ASCII )
       error = this->ReadASCIISolution(QFp);
     else
+      {
+      fclose(QFp);
+      QFp = fopen(this->QFilename, "rb");
       error = this->ReadBinarySolution(QFp,output);
-
+      }
+    
     if ( error )
       {
       vtkErrorMacro(<<"Error reading solution file");
@@ -159,8 +167,12 @@ void vtkPLOT3DReader::Execute()
     if ( this->GetFileType(funcFp) == ASCII )
       error = this->ReadASCIIFunctionFile(funcFp);
     else
+      {
+      fclose(funcFp);
+      funcFp = fopen(this->FunctionFilename, "rb");
       error = this->ReadBinaryFunctionFile(funcFp);
-
+      }
+    
     if ( error )
       {
       vtkErrorMacro(<<"Error reading function file");
@@ -218,10 +230,12 @@ int vtkPLOT3DReader::ReadBinaryGrid(FILE *fp,vtkStructuredGrid *output)
   int dim[3];
   int i, gridFound, offset, gridSize, maxGridSize;
   float x[3];
-
+  vtkByteSwap swapper;
+  
   if ( this->FileFormat == VTK_WHOLE_MULTI_GRID_NO_IBLANKING )
     {
-    if ( fread (&(this->NumGrids), sizeof(int), 1, fp) < 1 ) return 1;
+    if (fread(&(this->NumGrids), sizeof(int), 1, fp) < 1 ) return 1;
+    swapper.Swap4BE(&(this->NumGrids));
     }
   else
     {
@@ -234,6 +248,8 @@ int vtkPLOT3DReader::ReadBinaryGrid(FILE *fp,vtkStructuredGrid *output)
     {
     //read dimensions
     if ( fread (dim, sizeof(int), 3, fp) < 3 ) return 1;
+    swapper.Swap4BERange(dim,3);
+    
     gridSize = dim[0] * dim[1] * dim[2];
 
     if ( i < this->GridNumber ) 
@@ -267,6 +283,7 @@ int vtkPLOT3DReader::ReadBinaryGrid(FILE *fp,vtkStructuredGrid *output)
     }
   else //successful read, load coordinates in points object
     {
+    swapper.Swap4BERange(this->TempStorage,3*this->NumPts);
     for (i=0; i < this->NumPts; i++)
       {
       x[0] = this->TempStorage[i];
@@ -295,10 +312,12 @@ int vtkPLOT3DReader::ReadBinarySolution(FILE *fp,vtkStructuredGrid *output)
   int i, gridFound, offset, gridSize, maxGridSize;
   float m[3], params[4];
   int numGrids, numPts;
+  vtkByteSwap swapper;
 
   if ( this->FileFormat == VTK_WHOLE_MULTI_GRID_NO_IBLANKING )
     {
     if ( fread (&numGrids, sizeof(int), 1, fp) < 1 ) return 1;
+    swapper.Swap4BE(&numGrids);
     }
   else
     {
@@ -317,6 +336,7 @@ int vtkPLOT3DReader::ReadBinarySolution(FILE *fp,vtkStructuredGrid *output)
     {
     //read dimensions
     if ( fread (dim, sizeof(int), 3, fp) < 3 ) return 1;
+    swapper.Swap4BERange(dim,3);
     gridSize = dim[0] * dim[1] * dim[2];
 
     if ( i < this->GridNumber ) 
@@ -347,6 +367,7 @@ int vtkPLOT3DReader::ReadBinarySolution(FILE *fp,vtkStructuredGrid *output)
 
   //read solution parameters
   if ( fread (params, sizeof(float), 4, fp) < 4 ) return 1;
+  swapper.Swap4BERange(params,4);
   this->Fsmach = params[0];
   this->Alpha = params[1];
   this->Re = params[2];
@@ -367,6 +388,7 @@ int vtkPLOT3DReader::ReadBinarySolution(FILE *fp,vtkStructuredGrid *output)
     }
   else //successful read
     {
+    swapper.Swap4BERange(this->TempStorage,numPts);
     for (i=0; i < this->NumPts; i++) 
       newDensity->SetScalar(i,this->TempStorage[i]);
     }
@@ -381,6 +403,7 @@ int vtkPLOT3DReader::ReadBinarySolution(FILE *fp,vtkStructuredGrid *output)
     }
   else //successful read, load coordinates into vector object
     {
+    swapper.Swap4BERange(this->TempStorage,3*this->NumPts);
     for (i=0; i < this->NumPts; i++)
       {
       m[0] = this->TempStorage[i];
@@ -400,6 +423,7 @@ int vtkPLOT3DReader::ReadBinarySolution(FILE *fp,vtkStructuredGrid *output)
     }
   else //successful read
     {
+    swapper.Swap4BERange(this->TempStorage,numPts);
     for (i=0; i < this->NumPts; i++) 
       newEnergy->SetScalar(i,this->TempStorage[i]);
     }
@@ -1290,9 +1314,12 @@ void vtkPLOT3DReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkStructuredGridSource::PrintSelf(os,indent);
 
-  os << indent << "XYZ Filename: " << this->XYZFilename << "\n";
-  os << indent << "Q Filename: " << this->QFilename << "\n";
-  os << indent << "Function Filename: " << this->FunctionFilename << "\n";
+  os << indent << "XYZ Filename: " << 
+    (this->XYZFilename ? this->XYZFilename : "(none)") << "\n";
+  os << indent << "Q Filename: " <<
+    (this->QFilename ? this->QFilename : "(none)") << "\n";
+  os << indent << "Function Filename: " << 
+    (this->FunctionFilename ? this->FunctionFilename : "(none)") << "\n";
 
   os << indent << "Grid Number: " << this->GridNumber << "\n";
   os << indent << "Scalar Function Number: " << this->ScalarFunctionNumber << "\n";
