@@ -59,6 +59,7 @@ EXAMPLES = VisQuad \
 	quadricCut \
 	singleSplat \
 	tcutSph \
+	vtkLogo \
 	vol
   
 CXX_FLAGS = ${CPPFLAGS} ${CXXFLAGS} -I${srcdir}/../../common \
@@ -177,6 +178,9 @@ singleSplat: singleSplat.o ${VTKLIB}
 	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
 tcutSph: tcutSph.o ${VTKLIB}
 	${CXX} -o tcutSph ${CXX_FLAGS} tcutSph.o ${XLDFLAGS} ${LDLIBS} \
+	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
+vtkLogo: vtkLogo.o ${VTKLIB}
+	${CXX} -o vtkLogo ${CXX_FLAGS} vtkLogo.o ${XLDFLAGS} ${LDLIBS} \
 	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
 vol: vol.o ${VTKLIB}
 	${CXX} -o vol ${CXX_FLAGS} vol.o ${XLDFLAGS} ${LDLIBS} \
