@@ -23,7 +23,7 @@
 #include <sys/stat.h>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMetaImageWriter, "1.2");
+vtkCxxRevisionMacro(vtkMetaImageWriter, "1.3");
 vtkStandardNewMacro(vtkMetaImageWriter);
 
 //----------------------------------------------------------------------------
@@ -98,7 +98,7 @@ void vtkMetaImageWriter::Write()
     delete [] rfname;
     }
 
-  ofstream ofs(this->MHDFileName);
+  ofstream ofs(this->MHDFileName, ios::out);
   if ( !ofs )
     {
     vtkErrorMacro("Cannot open file: " << this->MHDFileName << " for writing");
