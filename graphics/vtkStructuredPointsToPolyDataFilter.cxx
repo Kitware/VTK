@@ -66,6 +66,10 @@ void vtkStructuredPointsToPolyDataFilter::ComputeInputUpdateExtents(
 {
   this->vtkPolyDataSource::ComputeInputUpdateExtents(output);
 
+  if (!this->GetInput())
+    {
+    return;
+    }
   // assume that we cannot handle more than the requested extent.
   this->GetInput()->RequestExactExtentOn();
 }
