@@ -20,7 +20,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCursor3D, "1.37");
+vtkCxxRevisionMacro(vtkCursor3D, "1.38");
 vtkStandardNewMacro(vtkCursor3D);
 
 // Construct with model bounds = (-1,1,-1,1,-1,1), focal point = (0,0,0),
@@ -53,6 +53,7 @@ vtkCursor3D::vtkCursor3D()
   this->YShadows = 1;
   this->ZShadows = 1;
   this->Wrap = 0;
+  this->TranslationMode = 0;
 }
 
 vtkCursor3D::~vtkCursor3D()
@@ -388,8 +389,9 @@ void vtkCursor3D::Execute()
 }
 
 // Set the boundary of the 3D cursor.
-void vtkCursor3D::SetModelBounds(float xmin, float xmax, float ymin, float ymax,
-                                float zmin, float zmax)
+void vtkCursor3D::SetModelBounds(float xmin, float xmax, 
+                                 float ymin, float ymax,
+                                 float zmin, float zmax)
 {
   if ( xmin != this->ModelBounds[0] || xmax != this->ModelBounds[1] ||
   ymin != this->ModelBounds[2] || ymax != this->ModelBounds[3] ||
@@ -406,6 +408,47 @@ void vtkCursor3D::SetModelBounds(float xmin, float xmax, float ymin, float ymax,
       if ( this->ModelBounds[2*i] > this->ModelBounds[2*i+1] )
         {
         this->ModelBounds[2*i] = this->ModelBounds[2*i+1];
+        }
+      }
+    }
+}
+
+void vtkCursor3D::SetFocalPoint(float x[3])
+{
+  if ( x[0] == this->FocalPoint[0] && x[1] == this->FocalPoint[1] && 
+       x[2] == this->FocalPoint[2] )
+    {
+    return;
+    }
+  
+  this->Modified();
+
+  float v[3];
+  for (int i=0; i<3; i++)
+    {
+    v[i] = x[i] - this->FocalPoint[i];
+    this->FocalPoint[i] = x[i];
+  
+    if ( this->TranslationMode )
+      {
+      this->ModelBounds[2*i] += v[i];
+      this->ModelBounds[2*i+1] += v[i];
+      }
+    else if ( this->Wrap ) //wrap
+      {
+      this->FocalPoint[i] = this->ModelBounds[2*i] + 
+             fmod((double)(this->FocalPoint[i]-this->ModelBounds[2*i]), 
+                  (double)(this->ModelBounds[2*i+1]-this->ModelBounds[2*i]));
+      }
+    else //clamp
+      {
+      if ( x[i] < this->ModelBounds[2*i] ) 
+        { 
+        this->FocalPoint[i] = this->ModelBounds[2*i];
+        }
+      if ( x[i] > this->ModelBounds[2*i+1] ) 
+        { 
+        this->FocalPoint[i] = this->ModelBounds[2*i+1];
         }
       }
     }
@@ -456,4 +499,6 @@ void vtkCursor3D::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "YShadows: " << (this->YShadows ? "On\n" : "Off\n");
   os << indent << "ZShadows: " << (this->ZShadows ? "On\n" : "Off\n");
   os << indent << "Wrap: " << (this->Wrap ? "On\n" : "Off\n");
+  os << indent << "Translation Mode: " 
+     << (this->TranslationMode ? "On\n" : "Off\n");
 }

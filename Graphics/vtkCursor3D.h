@@ -51,8 +51,17 @@ public:
   vtkGetVectorMacro(ModelBounds,float,6);
 
   // Description:
-  // Specify the position of cursor focus.
-  vtkSetVector3Macro(FocalPoint,float);
+  // Specify the position of cursor focus. If translation mode is on,
+  // then the entire cursor (including bounding box, cursor, and shadows)
+  // is translated. Otherwise, the focal point will either be clamped to the
+  // bounding box, or wrapped, if Wrap is on.
+  void SetFocalPoint(float x[3]);
+  void SetFocalPoint(float x, float y, float z)
+    {
+      float xyz[3];
+      xyz[0] = x; xyz[1] = y; xyz[2] = z;
+      this->SetFocalPoint(xyz);
+    }
   vtkGetVectorMacro(FocalPoint,float,3);
 
   // Description:
@@ -86,6 +95,14 @@ public:
   vtkBooleanMacro(ZShadows,int);
 
   // Description:
+  // Enable/disable the translation mode. If on, changes in cursor position
+  // cause the entire widget to translate along with the cursor.
+  // By default, translation mode is off.
+  vtkSetMacro(TranslationMode,int);
+  vtkGetMacro(TranslationMode,int);
+  vtkBooleanMacro(TranslationMode,int);
+
+  // Description:
   // Turn on/off cursor wrapping. If the cursor focus moves outside the
   // specified bounds, the cursor will either be restrained against the
   // nearest "wall" (Wrap=off), or it will wrap around (Wrap=on).
@@ -116,7 +133,9 @@ protected:
   int XShadows;
   int YShadows;
   int ZShadows;
+  int TranslationMode;
   int Wrap;
+  
 private:
   vtkCursor3D(const vtkCursor3D&);  // Not implemented.
   void operator=(const vtkCursor3D&);  // Not implemented.
