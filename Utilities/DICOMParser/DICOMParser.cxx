@@ -393,11 +393,11 @@ void DICOMParser::ReadNextRecord(doublebyte& group, doublebyte& element, DICOMPa
       }
 
     std::vector<DICOMCallback*> * cbVector = mv.second;
-    for (std::vector<DICOMCallback*>::iterator iter = cbVector->begin();
-         iter != cbVector->end();
-         iter++)
+    for (std::vector<DICOMCallback*>::iterator cbiter = cbVector->begin();
+         cbiter != cbVector->end();
+         cbiter++)
       {
-      (*iter)->Execute(ge.first,  // group
+      (*cbiter)->Execute(ge.first,  // group
                        ge.second,  // element
                        callbackType,  // type
                        tempdata, // data
