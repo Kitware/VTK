@@ -42,7 +42,7 @@ public:
   // MinimumV = 0, MaximumV = Pi, 
   // JoinU = 1, JoinV = 0, 
   // TwistU = 0, TwistV = 0, 
-  // ClockwiseOrdering = 0,
+  // ClockwiseOrdering = 1,
   // DerivativesAvailable = 1, 
   // XRadius = 1, YRadius = 1,
   // ZRadius = 1, a sphere in this case.
