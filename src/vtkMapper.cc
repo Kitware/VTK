@@ -69,7 +69,7 @@ vtkMapper::~vtkMapper()
 
 // Description:
 // Overload standard modified time function. If lookup table is modified,
-// then we are modified as well.
+// then this object is modified as well.
 unsigned long vtkMapper::GetMTime()
 {
   unsigned long mTime=this->MTime.GetMTime();
@@ -114,7 +114,8 @@ void vtkMapper::SetStartRender(void (*f)(void *), void *arg)
 }
 
 // Description:
-// Set the arg delete method. This is used to free user memory.
+// Specify a method to delete the user specified argument to the 
+// StartRenderMethod. This is an optional capability.
 void vtkMapper::SetStartRenderArgDelete(void (*f)(void *))
 {
   if ( f != this->StartRenderArgDelete)
@@ -125,7 +126,8 @@ void vtkMapper::SetStartRenderArgDelete(void (*f)(void *))
 }
 
 // Description:
-// Set the arg delete method. This is used to free user memory.
+// Specify a method to delete the user specified argument to the 
+// EndRenderMethod. This is an optional capability.
 void vtkMapper::SetEndRenderArgDelete(void (*f)(void *))
 {
   if ( f != this->EndRenderArgDelete)

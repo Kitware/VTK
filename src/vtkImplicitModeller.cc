@@ -43,9 +43,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkFloatScalars.hh"
 
 // Description:
-// Construct with sample dimensions=(50,50,50) and so that model bounds are
-// automatically computer from input. Capping is turned on with CapValue equal
-// to a large positive number.
+// Construct with sample dimensions=(50,50,50), and so that model bounds are
+// automatically computed from the input. Capping is turned on with CapValue
+// equal to a large positive number.
 vtkImplicitModeller::vtkImplicitModeller()
 {
   this->MaximumDistance = 0.1;

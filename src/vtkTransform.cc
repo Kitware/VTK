@@ -185,12 +185,10 @@ void vtkTransform::RotateX ( float angle)
 }
 
 // Description:
-// Creates a y rotation matrix and concatenates it with 
+// Creates a y rotation matrix and concatenates it with
 // the current transformation matrix. The angle is specified
 // in degrees.
 void vtkTransform::RotateY ( float angle)
-  //  Creates a y rotation matrix and concatenates it with 
-  //  the current transformation matrix.
 {
   vtkMatrix4x4 ctm;
   vtkMath math;
@@ -215,12 +213,10 @@ void vtkTransform::RotateY ( float angle)
 }
 
 // Description:
-// Creates a z rotation matrix and concatenates it with 
+// Creates a z rotation matrix and concatenates it with
 // the current transformation matrix. The angle is specified
 // in degrees.
 void vtkTransform::RotateZ (float angle)
-  //  Creates a z rotation matrix and concatenates it with 
-  //  the current transformation matrix.
 {
   vtkMatrix4x4 ctm;
   vtkMath math;
@@ -403,8 +399,8 @@ void vtkTransform::GetOrientation(float& rx, float& ry, float &rz)
 }
 
 // Description:
-// Get the x, y, z orientation angles from transformation matrix as an array
-// of three floating point values.
+// Get the x, y, z orientation angles from the transformation matrix as an
+// array of three floating point values.
 float *vtkTransform::GetOrientation ()
 {
 #define AXIS_EPSILON .01
@@ -729,7 +725,7 @@ void vtkTransform::MultiplyPoints(vtkPoints *inPts, vtkPoints *outPts)
 // Description:
 // Multiplies a list of vectors (inVectors) by the current transformation 
 // matrix. The transformed vectors are appended to the output list 
-// (outVectors). This is a special multiplication since these are vectors. 
+// (outVectors). This is a special multiplication, since these are vectors. 
 // It multiplies vectors by the transposed inverse of the matrix, ignoring 
 // the translational components.
 void vtkTransform::MultiplyVectors(vtkVectors *inVectors, vtkVectors *outVectors)
@@ -764,7 +760,7 @@ void vtkTransform::MultiplyVectors(vtkVectors *inVectors, vtkVectors *outVectors
 
 // Multiplies a list of normals (inNormals) by the current
 // transformation matrix.  The transformed normals are then appended
-// to the output list (outNormals).  This is a special multiplication
+// to the output list (outNormals).  This is a special multiplication,
 // since these are normals. It multiplies the normals by the
 // transposed inverse of the matrix, ignoring the translational
 // components.

@@ -124,7 +124,7 @@ void vtkCollection::RemoveItem(vtkObject *a)
 }
 
 // Description:
-// Remove all object from the list.
+// Remove all objects from the list.
 void vtkCollection::RemoveAllItems()
 {
   vtkCollectionElement *p, *next;

@@ -245,7 +245,7 @@ void vtkPolygon::EvaluateLocation(int& subId, float pcoords[3], float x[3],
 }
 
 // Description:
-//  Create a local s-t coordinate system for a polygon
+//  Create a local s-t coordinate system for a polygon.
 int vtkPolygon::ParameterizePolygon(float *p0, float *p10, float& l10, 
                                    float *p20,float &l20, float *n)
 {
@@ -601,7 +601,7 @@ int vtkPolygon::FastTriangulate (int numVerts, int *verts, vtkIdList& Tris)
 }
 
 // Description:
-//  Determine whether the loop can be split / build loops
+//  Determine whether the loop can be split / build loops.
 int vtkPolygon::CanSplitLoop (int fedges[2], int numVerts, int *verts, 
                              int& n1, int *l1, int& n2, int *l2, float& ar)
 {
@@ -670,7 +670,7 @@ int vtkPolygon::CanSplitLoop (int fedges[2], int numVerts, int *verts,
 }
 
 // Description:
-// Creates two loops from splitting plane provided
+// Creates two loops from splitting plane provided.
 void vtkPolygon::SplitLoop (int fedges[2], int numVerts, int *verts, 
                            int& n1, int *l1, int& n2, int* l2)
 {

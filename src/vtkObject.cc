@@ -42,8 +42,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Description:
 // This operator allows all subclasses of vtkObject to be printed via <<.
-// It in turn invokes the Print method which in turn will invoke the
-// PrintSelf method that all objects should define if they have anything
+// It in turn invokes the Print method, which in turn will invoke the
+// PrintSelf method that all objects should define, if they have anything
 // interesting to print out.
 ostream& operator<<(ostream& os, vtkObject& o)
 {
@@ -96,7 +96,7 @@ void vtkObject::PrintHeader(ostream& os, vtkIndent indent)
 }
 
 // Description:
-// Chaining method to print an objects instance variables as well as
+// Chaining method to print an object's instance variables, as well as
 // its superclasses.
 void vtkObject::PrintSelf(ostream& os, vtkIndent indent)
 {

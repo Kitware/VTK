@@ -69,8 +69,8 @@ vtkRenderMaster::vtkRenderMaster()
 
 // Description:
 // Create a vtkRenderWindow to match the type given. Current
-// values for type include sbr for starbase, glr for SGI's gl,
-// oglr for OpenGL and Mesa, xglr for Sun's XGL.
+// values for type include sbr for starbasel; glr for SGI's gl;
+// oglr for OpenGL and Mesa; and xglr for Sun's XGL.
 vtkRenderWindow *vtkRenderMaster::MakeRenderWindow(char *type)
 {
 #ifdef USE_SBR

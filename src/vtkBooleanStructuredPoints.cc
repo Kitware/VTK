@@ -89,10 +89,11 @@ void vtkBooleanStructuredPoints::Update()
   unsigned long int mtime, dsMtime;
   vtkDataSet *ds;
 
-  // make sure input is available
-  if ( this->InputList.GetNumberOfItems() < 1 )
+  // make sure input is available or output has been created
+  if ( this->InputList.GetNumberOfItems() < 1 && 
+  this->Output->GetPointData()->GetScalars() == NULL )
     {
-    vtkErrorMacro(<< "No input...can't execute!");
+    vtkErrorMacro(<< "No input...or appended data...can't execute!");
     return;
     }
 
@@ -203,7 +204,7 @@ void vtkBooleanStructuredPoints::InitializeBoolean()
   newScalars->Delete();
 }
 
-// Perform Boolean operations on input volumes
+// Perform boolean operations on input volumes.
 void vtkBooleanStructuredPoints::Execute()
 {
   vtkStructuredPoints *sp;
@@ -217,7 +218,7 @@ void vtkBooleanStructuredPoints::Execute()
 }
 
 // Description:
-// Perform Boolean operations by appending to current output data.
+// Perform boolean operations by appending to current output data.
 void vtkBooleanStructuredPoints::Append(vtkStructuredPoints *sp)
 {
   vtkScalars *currentScalars, *inScalars;

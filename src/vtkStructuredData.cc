@@ -70,7 +70,7 @@ vtkStructuredData::~vtkStructuredData()
 }
 
 // Description:
-// Return the topological dimension of the data (e.g.,0, 1, 2, or 3D).
+// Return the topological dimension of the data (e.g., 0, 1, 2, or 3D).
 int vtkStructuredData::GetDataDimension()
 {
   switch (this->DataDescription)

@@ -66,12 +66,11 @@ void vtkCell::Initialize(int npts, int *pts, vtkPoints *p)
 
 // Description:
 // Bounding box intersection modified from Graphics Gems Vol I.
-// Note: the intersection ray is assumed normalized such that
+// Note: the intersection ray is assumed normalized, such that
 // valid intersections can only occur between [0,1]. Method returns non-zero
 // value if bounding box is hit. Origin[3] starts the ray, dir[3] is the 
 // components of the ray in the x-y-z directions, coord[3] is the location 
 // of hit, and t is the parametric coordinate along line.
-
 char vtkCell::HitBBox (float bounds[6], float origin[3], float dir[3], 
                       float coord[3], float& t)
 {
@@ -194,7 +193,7 @@ void vtkCell::GetBounds(float bounds[6])
 }
 
 // Description:
-// Compute Length squared of cell (i.e., bounding box diagonal squared)
+// Compute Length squared of cell (i.e., bounding box diagonal squared).
 float vtkCell::GetLength2 ()
 {
   float diff, l=0.0;

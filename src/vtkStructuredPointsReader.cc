@@ -52,7 +52,7 @@ unsigned long int vtkStructuredPointsReader::GetMTime()
 }
 
 // Description:
-// Specify file name of vtk polygonal data file to read.
+// Specify file name of vtk structured points data file to read.
 void vtkStructuredPointsReader::SetFilename(char *name) 
 {
   this->Reader.SetFilename(name);
@@ -63,7 +63,7 @@ char *vtkStructuredPointsReader::GetFilename()
 }
 
 // Description:
-// Get the type of file (ASCII or BINARY)
+// Get the type of file (VTK_ASCII or VTK_BINARY).
 int vtkStructuredPointsReader::GetFileType() 
 {
   return this->Reader.GetFileType();

@@ -61,7 +61,7 @@ char *vtkDataSetReader::GetFilename()
 }
 
 // Description:
-// Get the type of file (ASCII or BINARY)
+// Get the type of file (VTK_ASCII or VTK_BINARY).
 int vtkDataSetReader::GetFileType() 
 {
   return this->Reader.GetFileType();

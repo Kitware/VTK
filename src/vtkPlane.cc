@@ -92,7 +92,7 @@ void vtkPlane::EvaluateGradient(float x[3], float n[3])
 // Given a line defined by the two points p1,p2; and a plane defined by the
 // normal n and point p0, compute an intersection. The parametric
 // coordinate along the line is returned in t, and the coordinates of 
-// intersection are returned in x. A 0 is returned is the plane and line
+// intersection are returned in x. A zero is returned if the plane and line
 // are parallel.
 int vtkPlane::IntersectWithLine(float p1[3], float p2[3], float n[3], 
                                float p0[3], float& t, float x[3])

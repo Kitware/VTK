@@ -157,7 +157,7 @@ void vtkVolumeRenderer::Render(vtkRenderer *ren)
 }
 
 // Description:
-// Calculates six vectors from the camera, renderer and volume information.
+// Calculates six vectors from the camera, renderer, and volume information.
 // These six vectors can be combined to determine the start and end
 // world coordinate points for the rays to be cast.
 void vtkVolumeRenderer::CalcRayValues(vtkRenderer *ren, float Vecs[6][3],
@@ -534,7 +534,7 @@ void vtkVolumeRenderer::AddVolume(vtkVolume *actor)
 }
 
 // Description:
-// Remove an volume from the list of volumes.
+// Remove a volume from the list of volumes.
 void vtkVolumeRenderer::RemoveVolume(vtkVolume *actor)
 {
   this->Volumes.RemoveItem(actor);

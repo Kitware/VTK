@@ -42,7 +42,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkLogLookupTable.hh"
 
 // Description:
-// Construct with effective range 1->10 (based on logarithmic values.
+// Construct with (minimum,maximum) range 1 to 10 (based on 
+// logarithmic values).
 vtkLogLookupTable::vtkLogLookupTable(int sze, int ext):
 vtkLookupTable(sze,ext)
 {
@@ -56,7 +57,7 @@ vtkLookupTable(sze,ext)
 // less than minimum range value are clamped to minimum range value.
 // Scalar values greater than maximum range value are clamped to maximum
 // range value. (The log base 10 of these values is taken and mapping is
-// performed in logarithmic space).
+// performed in logarithmic space.)
 void  vtkLogLookupTable::SetTableRange(float min, float max)
 {
   if ( min >= max )

@@ -115,8 +115,8 @@ void vtkPointSetToPointSetFilter::Update()
 
   
 // Description:
-// Get the output of this filter. If output is NULL then input hasn't been set
-// which is necessary for abstract objects.
+// Get the output of this filter. If output is NULL, then input hasn't been
+// set, which is necessary for abstract filter objects.
 
 vtkPointSet *vtkPointSetToPointSetFilter::GetOutput()
 {

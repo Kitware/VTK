@@ -50,7 +50,7 @@ vtkExtractGeometry::vtkExtractGeometry(vtkImplicitFunction *f)
 
 // Description:
 // Overload standard modified time function. If implicit function is modified,
-// then we are modified as well.
+// then this object is modified as well.
 unsigned long vtkExtractGeometry::GetMTime()
 {
   unsigned long mTime=this->MTime.GetMTime();

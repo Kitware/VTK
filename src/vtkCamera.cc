@@ -245,7 +245,7 @@ void vtkCamera::SetClippingRange(float a[2])
 
 // Description:
 // Set the distance between clipping planes. A side effect of this method is
-// adjust the back clipping plane to be equal to the front clipping plane 
+// to adjust the back clipping plane to be equal to the front clipping plane 
 // plus the thickness.
 void vtkCamera::SetThickness(float X)
 {
@@ -377,7 +377,7 @@ float vtkCamera::GetRoll()
 }
 
 // Description:
-// Compute the camera distance which is the distance between the 
+// Compute the camera distance, which is the distance between the 
 // focal point and position.
 void vtkCamera::CalcDistance ()
 {
@@ -421,8 +421,8 @@ void vtkCamera::CalcDistance ()
 
 // Description:
 // Returns the orientation of the camera. This is a vector of X,Y and Z 
-// rotations that when performed in the order RotateZ, RotateX and finally
-// RotateY will yield the same 3x3 rotation matrix for the camera.
+// rotations that when performed in the order RotateZ, RotateX, and finally
+// RotateY, will yield the same 3x3 rotation matrix for the camera.
 float *vtkCamera::GetOrientation ()
 {
   // calculate a new orientation
@@ -761,7 +761,7 @@ void vtkCamera::Azimuth (float angle)
 
 // Description:
 // Rotate the camera about the cross product of the view plane normal and 
-// the view_up vector centered on the focal_point.
+// the view up vector centered on the focal point.
 void vtkCamera::Elevation (float angle)
 {
   double	axis[3];
@@ -812,7 +812,7 @@ void vtkCamera::Elevation (float angle)
 }
 
 // Description:
-// Rotate the focal point about the view_up vector centered at the cameras 
+// Rotate the focal point about the view up vector centered at the camera's 
 // position. 
 void vtkCamera::Yaw (float angle)
 {
@@ -855,7 +855,7 @@ void vtkCamera::Yaw (float angle)
 
 // Description:
 // Rotate the focal point about the cross product of the view up vector 
-// and the view plane normal, centered at the cameras position.
+// and the view plane normal, centered at the camera's position.
 void vtkCamera::Pitch (float angle)
 {
   float	axis[3];

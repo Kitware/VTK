@@ -522,7 +522,7 @@ int vtkLocator::InitPointInsertion(vtkPoints *newPts, float bounds[6])
 // pre-inserted point, pre-inserted point id is returned. Otherwise, new 
 // point id is returned. Before using this method you must make sure that
 // newPts have been supplied, the bounds has been set properly, and that 
-// divs are properly set. (See InitPointInsertion()).
+// divs are properly set. (See InitPointInsertion().)
 int vtkLocator::InsertPoint(float x[3])
 {
   int i, j, ijk[3];

@@ -64,7 +64,7 @@ vtkLODActor::vtkLODActor()
 }
 
 // Description:
-// This causes the actor to be rendered. It in turn will render the actor's
+// This causes the actor to be rendered. It, in turn, will render the actor's
 // property and then mapper.  
 void vtkLODActor::Render(vtkRenderer *ren)
 {

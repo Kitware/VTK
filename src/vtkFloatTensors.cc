@@ -55,7 +55,7 @@ vtkTensors *vtkFloatTensors::MakeObject(int sze, int d, int ext)
 }
 
 // Description:
-// Deep copy of texture coordinates.
+// Deep copy of tensors.
 vtkFloatTensors& vtkFloatTensors::operator=(const vtkFloatTensors& ft)
 {
   this->T = ft.T;

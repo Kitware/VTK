@@ -55,7 +55,7 @@ vtkGraymap& vtkGraymap::operator=(const vtkGraymap& fs)
 
 // Description:
 // Return a rgba color for a particular point id.
-// (Note: gray value converted into full rgba).
+// (Note: gray value converted into full rgba.)
 unsigned char *vtkGraymap::GetColor(int id)
 {
   static unsigned char rgba[4];
@@ -75,7 +75,7 @@ void vtkGraymap::GetColor(int id, unsigned char rgba[4])
 
 // Description:
 // Insert gray value into object. No range checking performed (fast!).
-// (Note: rgba color value converted to grayscale).
+// (Note: rgba color value converted to grayscale.)
 void vtkGraymap::SetColor(int id, unsigned char rgba[4])
 {
   float g = 0.30*rgba[0] + 0.59*rgba[1] + 0.11*rgba[2];
@@ -86,7 +86,8 @@ void vtkGraymap::SetColor(int id, unsigned char rgba[4])
 
 // Description:
 // Insert rgba color value into object. Range checking performed and memory
-// allocated as necessary. (Note: rgba converted to gray value).
+// allocated as necessary. (Note: rgba converted to gray value using luminance
+// equation - see text.)
 void vtkGraymap::InsertColor(int id, unsigned char rgba[4])
 {
   float g = 0.30*rgba[0] + 0.59*rgba[1] + 0.11*rgba[2];
@@ -97,7 +98,7 @@ void vtkGraymap::InsertColor(int id, unsigned char rgba[4])
 
 // Description:
 // Insert rgba color value into next available slot. Returns point id of slot.
-// (Note: rgba converted to gray value).
+// (Note: rgba converted to gray value.)
 int vtkGraymap::InsertNextColor(unsigned char rgba[4])
 {
   float g = 0.30*rgba[0] + 0.59*rgba[1] + 0.11*rgba[2];

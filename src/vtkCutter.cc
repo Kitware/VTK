@@ -49,7 +49,7 @@ vtkCutter::vtkCutter(vtkImplicitFunction *cf)
 
 // Description:
 // Overload standard modified time function. If cut functions is modified,
-// then we are modified as well.
+// then this object is modified as well.
 unsigned long vtkCutter::GetMTime()
 {
   unsigned long mTime=this->vtkDataSetFilter::GetMTime();

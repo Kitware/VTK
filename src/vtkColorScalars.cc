@@ -42,17 +42,21 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkLookupTable.hh"
 
 // Description:
-// Convert internal color representation into scalar value.
+// Convert internal color representation into scalar value. Uses luminance 
+// equation (see text).
 float vtkColorScalars::GetScalar(int i)
 {
   unsigned char *rgba;
+  float s;
 
   rgba  = this->GetColor(i);
-  return (float) ((rgba[0] > rgba[1] ? (rgba[0] > rgba[2] ? rgba[0] : rgba[2]) : (rgba[1] > rgba[2] ? rgba[1] : rgba[2])) / 255.0);
+  s = (rgba[3]/255.0) * (0.30*rgba[0] + 0.59*rgba[1] + 0.11*rgba[2]);
+  if ( s > 1.0 ) s = 1.0;
+  return s;
 }
 
 // Description:
-// Map through lookup table to set the color
+// Map through lookup table to set the color.
 void vtkColorScalars::SetScalar(int i, float s)
 {
   if ( this->LookupTable == NULL ) this->CreateDefaultLookupTable();
@@ -61,7 +65,7 @@ void vtkColorScalars::SetScalar(int i, float s)
 }
 
 // Description:
-// Map through lookup table  to set the color
+// Map through lookup table  to set the color.
 void vtkColorScalars::InsertScalar(int i, float s)
 {
   if ( this->LookupTable == NULL ) this->CreateDefaultLookupTable();
@@ -70,7 +74,7 @@ void vtkColorScalars::InsertScalar(int i, float s)
 }
 
 // Description:
-// Map through lookup table to set the color
+// Map through lookup table to set the color.
 int vtkColorScalars::InsertNextScalar(float s)
 {
   if ( this->LookupTable == NULL ) this->CreateDefaultLookupTable();

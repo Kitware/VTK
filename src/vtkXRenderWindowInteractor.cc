@@ -95,18 +95,18 @@ vtkXRenderWindowInteractor::~vtkXRenderWindowInteractor()
 // Description:
 // Specify the Xt widget to use for interaction. This method is
 // one of a couple steps that are required for setting up a
-// RenderWindowInteractor as a widget inside of another user 
-// interface. You do not need to use this method if the RenderWindow
-// will be a stand alone window. This is only used when you want the
-// RenderWindow to be a subwindow within a larger user interface.
-// In that case, you must tell the RenderWindow what X display id
-// to use and then ask the RenderWindow what depth, visual and 
-// colormap it wants. The you must create an Xt TopLevelShell with
+// vtkRenderWindowInteractor as a widget inside of another user 
+// interface. You do not need to use this method if the render window
+// will be a stand-alone window. This is only used when you want the
+// render window to be a subwindow within a larger user interface.
+// In that case, you must tell the render window what X display id
+// to use, and then ask the render window what depth, visual and 
+// colormap it wants. Then, you must create an Xt TopLevelShell with
 // those settings. Then you can create the rest of your user interface
-// as a child of the TopLevelShell you created. Eventually you will 
+// as a child of the TopLevelShell you created. Eventually, you will 
 // create a drawing area or some other widget to serve as the rendering
 // window. You must use the SetWidget method to tell this Interactor
-// about that widget. It's X and it's not terribly easy but it looks cool.
+// about that widget. It's X and it's not terribly easy, but it looks cool.
 void  vtkXRenderWindowInteractor::SetWidget(Widget foo)
 {
   this->top = foo;
@@ -133,7 +133,7 @@ void vtkXRenderWindowInteractor::Initialize(XtAppContext app)
 
 // Description:
 // Initializes the event handlers without an XtAppContext.  This is
-// good for when you don't have a user interface but you still
+// good for when you don't have a user interface, but you still
 // want to have mouse interaction.
 void vtkXRenderWindowInteractor::Initialize()
 {

@@ -49,7 +49,7 @@ vtkExtractVectorComponents::vtkExtractVectorComponents()
 
 // Description:
 // Get the output dataset representing velocity x-component. If output is NULL
-// then input hasn't been set which is necessary for abstract objects.
+// then input hasn't been set, which is necessary for abstract objects.
 vtkDataSet *vtkExtractVectorComponents::GetVxComponent()
 {
   if ( this->VxComponent == NULL )
@@ -61,7 +61,7 @@ vtkDataSet *vtkExtractVectorComponents::GetVxComponent()
 
 // Description:
 // Get the output dataset representing velocity y-component. If output is NULL
-// then input hasn't been set which is necessary for abstract objects.
+// then input hasn't been set, which is necessary for abstract objects.
 vtkDataSet *vtkExtractVectorComponents::GetVyComponent()
 {
   if ( this->VyComponent == NULL )
@@ -73,7 +73,7 @@ vtkDataSet *vtkExtractVectorComponents::GetVyComponent()
 
 // Description:
 // Get the output dataset representing velocity z-component. If output is NULL
-// then input hasn't been set which is necessary for abstract objects.
+// then input hasn't been set, which is necessary for abstract objects.
 vtkDataSet *vtkExtractVectorComponents::GetVzComponent()
 {
   if ( this->VzComponent == NULL )

@@ -51,7 +51,7 @@ float vtkAGraymap::GetScalar(int i)
 }
 
 // Description:
-// Return a unsigned char rgba color value for a particular point id.
+// Return an unsigned char rgba color value for a particular point id.
 unsigned char *vtkAGraymap::GetColor(int id)
 {
   static unsigned char rgba[4];

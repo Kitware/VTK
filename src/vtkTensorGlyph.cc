@@ -292,8 +292,8 @@ void vtkTensorGlyph::Execute()
 }
 
 // Description:
-// Override update method because execution can branch two ways (Input 
-// and Source)
+// Override update method because execution can branch two ways (via Input 
+// and Source objects).
 void vtkTensorGlyph::Update()
 {
   // make sure input is available

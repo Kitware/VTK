@@ -45,9 +45,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Description:
 // Construct an instance of vtkVoxelModeller with its sample dimensions
-// set to (50,50,50) and so that the model bounds are
+// set to (50,50,50), and so that the model bounds are
 // automatically computed from its input. The maximum distance is set to 
-// examine the whole grid. This could be made much faster and probably
+// examine the whole grid. This could be made much faster, and probably
 // will be in the future.
 vtkVoxelModeller::vtkVoxelModeller()
 {

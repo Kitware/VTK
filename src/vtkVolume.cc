@@ -82,7 +82,8 @@ vtkVolume::~vtkVolume()
 }
 
 // Description:
-// Specify a lookup table for the Volume to use.
+// Specify a lookup table (or transfer function) for the volume to use during
+// the rendering process.
 void vtkVolume::SetLookupTable(vtkLookupTable *lut)
 {
   if ( this->LookupTable != lut ) 
@@ -109,8 +110,8 @@ void vtkVolume::CreateDefaultLookupTable()
 }
 
 // Description:
-// This causes the volume to be rendered. It in turn will build
-// the volume's lookuptable.
+// This causes the volume to be rendered. It, in turn, will build
+// the volume's lookuptable (if none is defined).
 void vtkVolume::Render()
 {
   //
@@ -145,7 +146,7 @@ void vtkVolume::AddPosition (float deltaPosition[3])
 }
 
 // Description:
-// Sets the orientation of the Volume.  Orientation is specified as
+// Sets the orientation of the volume.  Orientation is specified as
 // X,Y and Z rotations in that order, but they are performed as
 // RotateZ, RotateX and finally RotateY.
 void vtkVolume::SetOrientation (float x,float y,float z)
@@ -209,7 +210,7 @@ void vtkVolume::AddOrientation(float a[3])
 }
 
 // Description:
-// Rotate the Volume in degrees about the X axis using the right hand rule.
+// Rotate the volume in degrees about the X axis using the right hand rule.
 void vtkVolume::RotateX (float angle)
 {
   this->Transform.RotateX(angle);
@@ -217,7 +218,7 @@ void vtkVolume::RotateX (float angle)
 } 
 
 // Description:
-// Rotate the Volume in degrees about the Y axis using the right hand rule.
+// Rotate the volume in degrees about the Y axis using the right hand rule.
 void vtkVolume::RotateY (float angle)
 {
   this->Transform.RotateY(angle);
@@ -225,7 +226,7 @@ void vtkVolume::RotateY (float angle)
 } 
 
 // Description:
-// Rotate the Volume in degrees about the Z axis using the right hand rule.
+// Rotate the volume in degrees about the Z axis using the right hand rule.
 void vtkVolume::RotateZ (float angle)
 {
   this->Transform.RotateZ(angle);
@@ -233,7 +234,7 @@ void vtkVolume::RotateZ (float angle)
 } 
 
 // Description:
-// Rotate the Volume in degrees about an arbitrary axis specified by the 
+// Rotate the volume in degrees about an arbitrary axis specified by the 
 // last three arguments. 
 void vtkVolume::RotateWXYZ (float degree, float x, float y, float z)
 {
@@ -244,7 +245,7 @@ void vtkVolume::RotateWXYZ (float degree, float x, float y, float z)
 }
 
 // Description:
-// Copy the Volume's composite 4x4 matrix into the matrix provided.
+// Copy the volume's composite 4x4 matrix into the matrix provided.
 void vtkVolume::GetMatrix(vtkMatrix4x4& result)
 {
   this->GetOrientation();
@@ -283,7 +284,7 @@ void vtkVolume::GetMatrix(vtkMatrix4x4& result)
 } 
 
 // Description:
-// Return a reference to the Volume's 4x4 composite matrix.
+// Return a reference to the volume's 4x4 composite matrix.
 vtkMatrix4x4& vtkVolume::GetMatrix()
 {
   static vtkMatrix4x4 result;
@@ -351,7 +352,7 @@ float *vtkVolume::GetBounds()
 }
 
 // Description:
-// Get the Volume's x range in world coordinates.
+// Get the volume's x range in world coordinates.
 float *vtkVolume::GetXRange()
 {
   this->GetBounds();
@@ -359,7 +360,7 @@ float *vtkVolume::GetXRange()
 }
 
 // Description:
-// Get the Volume's y range in world coordinates.
+// Get the volume's y range in world coordinates.
 float *vtkVolume::GetYRange()
 {
   this->GetBounds();
@@ -367,7 +368,7 @@ float *vtkVolume::GetYRange()
 }
 
 // Description:
-// Get the Volume's z range in world coordinates.
+// Get the volume's z range in world coordinates.
 float *vtkVolume::GetZRange()
 {
   this->GetBounds();

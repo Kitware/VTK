@@ -61,7 +61,7 @@ vtkUnstructuredGrid::vtkUnstructuredGrid ()
 
 // Description:
 // Allocate memory space for data insertion. Execute this method before
-// inserting and cells into object.
+// inserting any cells into object.
 void vtkUnstructuredGrid::Allocate (int numCells, int extSize)
 {
   if ( numCells < 1 ) numCells = 1000;

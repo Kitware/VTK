@@ -157,7 +157,7 @@ static char vtkfont_bits[] = {
  };
 
 // Description:
-// Construct Text object with no string set and Backing enabled.
+// Construct object with no string set and backing enabled.
 vtkTextSource::vtkTextSource()
 {
   this->Text = NULL;

@@ -63,7 +63,7 @@ char *vtkStructuredGridReader::GetFilename()
 }
 
 // Description:
-// Get the type of file (ASCII or BINARY)
+// Get the type of file (VTK_ASCII or VTK_BINARY)
 int vtkStructuredGridReader::GetFileType() 
 {
   return this->Reader.GetFileType();

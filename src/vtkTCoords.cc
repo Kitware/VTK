@@ -65,7 +65,8 @@ void vtkTCoords::InsertTCoord(int id, float tc1, float tc2, float tc3)
 // Description:
 // Insert texture coordinate into position indicated. Although up to three
 // texture components may be specified (i.e., tc1, tc2, tc3), if the texture
-// coordinates are less than 3 dimensions the extra components will be ignored.
+// coordinates are less than 3 dimensions, the extra components will be 
+// ignored.
 int vtkTCoords::InsertNextTCoord(float tc1, float tc2, float tc3)
 {
   float tc[3];

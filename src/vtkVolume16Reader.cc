@@ -39,7 +39,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkVolume16Reader.hh"
-//#include <sys/param.h>
 
 // Description:
 // Construct object with NULL file prefix; file pattern "%s.%d"; image range 

@@ -54,7 +54,7 @@ vtkCellList::~vtkCellList()
 }
 
 // Description:
-// Add a cell to structure
+// Add a cell at specified id.
 void vtkCellList::InsertCell(const int cellId, const unsigned char type, const int loc)
 {
   _vtkCell_s *cell;

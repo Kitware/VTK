@@ -113,9 +113,9 @@ void vtkMatrix4x4::MultiplyPoint(float in[4],float result[4])
 }
 
 // Description:
-// Multiply a point (in homogeneous coordinates) by this matrix. 
+// Multiply a point (in homogeneous coordinates) by this matrix,
 // and return the result in result. The in[4] and result[4] 
-// arrays must both be allocated but they can be the same array.
+// arrays must both be allocated, but they can be the same array.
 void vtkMatrix4x4::PointMultiply(float in[4],float result[4])
 {
   int i;
@@ -136,7 +136,7 @@ void vtkMatrix4x4::PointMultiply(float in[4],float result[4])
 }
 
 // Description:
-// Matrix Inversion (by Richard Carling from "Graphics Gems", 
+// Matrix Inversion (adapted from Richard Carling in "Graphics Gems," 
 // Academic Press, 1990).
 void vtkMatrix4x4::Invert (vtkMatrix4x4 in,vtkMatrix4x4 & out)
 {

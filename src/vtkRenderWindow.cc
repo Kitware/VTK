@@ -250,7 +250,7 @@ void vtkRenderWindow::Render()
 }
 
 // Description:
-// Handle rendering any anti-aliased frames.
+// Handle rendering any antialiased frames.
 void vtkRenderWindow::DoAARender()
 {
   int i;
@@ -610,8 +610,8 @@ void vtkRenderWindow::SaveImageAsPPM()
 
 
 // Description:
-// Update the system if needed due to stereo rendering. For some stereo 
-// methods subclasses might need to switch some hardware settings here.
+// Update the system, if needed, due to stereo rendering. For some stereo 
+// methods, subclasses might need to switch some hardware settings here.
 void vtkRenderWindow::StereoUpdate(void)
 {
   // if stereo is on and it wasn't before
@@ -638,7 +638,8 @@ void vtkRenderWindow::StereoUpdate(void)
 }
 
 // Description:
-// Handles work required between the left and right eye renders.
+// Intermediate method performs operations required between the rendering
+// of the left and right eye.
 void vtkRenderWindow::StereoMidpoint(void)
 {
   switch (this->StereoType) 

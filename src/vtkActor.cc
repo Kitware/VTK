@@ -86,7 +86,7 @@ vtkActor::~vtkActor()
 // Description:
 // This causes the actor to be rendered. It in turn will render the actor's
 // property, texture map and then mapper. If a property hasn't been 
-// assigned yet then the actor will create one by itself.
+// assigned, then the actor will create one automatically.
 void vtkActor::Render(vtkRenderer *ren)
 {
   // render the property
@@ -147,7 +147,7 @@ void vtkActor::AddPosition (float deltaPosition[3])
 // Description:
 // Sets the orientation of the actor.  Orientation is specified as
 // X,Y and Z rotations in that order, but they are performed as
-// RotateZ, RotateX and finally RotateY.
+// RotateZ, RotateX, and finally RotateY.
 void vtkActor::SetOrientation (float x,float y,float z)
 {
   // store the coordinates
@@ -173,7 +173,7 @@ void vtkActor::SetOrientation(float a[3])
 // Description:
 // Returns the orientation of the actor as s vector of X,Y and Z rotation.
 // The ordering in which these rotations must be done to generate the 
-// same matrix is RotateZ, RotateX and finally RotateY. See also 
+// same matrix is RotateZ, RotateX, and finally RotateY. See also 
 // SetOrientation.
 float *vtkActor::GetOrientation ()
 {
@@ -193,8 +193,8 @@ float *vtkActor::GetOrientation ()
 
 // Description:
 // Add to the current orientation. See SetOrientation and GetOrientation for 
-// more details. This basically does a GetOrientation adds the passed in
-// arguments and then calls SetOrientation.
+// more details. This basically does a GetOrientation, adds the passed in
+// arguments, and then calls SetOrientation.
 void vtkActor::AddOrientation (float a1,float a2,float a3)
 {
   float *orient;
@@ -363,7 +363,7 @@ float *vtkActor::GetBounds()
 }
 
 // Description:
-// Get the center of the bounding box in world coordinates
+// Get the center of the bounding box in world coordinates.
 float *vtkActor::GetCenter()
 {
   this->GetBounds();
@@ -375,7 +375,7 @@ float *vtkActor::GetCenter()
 }
 
 // Description:
-// Get the actors x range in world coordinates.
+// Get the actor's x range in world coordinates.
 float *vtkActor::GetXRange()
 {
   this->GetBounds();
@@ -383,7 +383,7 @@ float *vtkActor::GetXRange()
 }
 
 // Description:
-// Get the actors y range in world coordinates.
+// Get the actor's y range in world coordinates.
 float *vtkActor::GetYRange()
 {
   this->GetBounds();
@@ -391,7 +391,7 @@ float *vtkActor::GetYRange()
 }
 
 // Description:
-// Get the actors z range in world coordinates.
+// Get the actor's z range in world coordinates.
 float *vtkActor::GetZRange()
 {
   this->GetBounds();

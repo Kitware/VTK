@@ -54,19 +54,16 @@ long vtkMath::Seed = 1177; // One authors home address
 #define K_R 2836			/* K_M mod K_A */
 
 // Description:
-// Generate random numbers between 0.0 and 1.0
+// Generate random numbers between 0.0 and 1.0.
 // This is used to provide portability across different systems.
-//
-// Based on code in "Random Number Generators: Good Ones are Hard to Find",
-// by Stephen K. Park and Keith W. Miller in Communications of the ACM,
-// 31, 10 (Oct. 1988) pp. 1192-1201.
-//
-// Borrowed from: Fuat C. Baran, Columbia University, 1988
-
 float vtkMath::Random()
 {
   long hi, lo;
     
+  // Based on code in "Random Number Generators: Good Ones are Hard to Find,"
+  // by Stephen K. Park and Keith W. Miller in Communications of the ACM,
+  // 31, 10 (Oct. 1988) pp. 1192-1201.
+  // Borrowed from: Fuat C. Baran, Columbia University, 1988.
   hi = this->Seed / K_Q;
   lo = this->Seed % K_Q;
   if ((this->Seed = K_A * lo - K_R * hi) <= 0) Seed += K_M;
@@ -76,7 +73,7 @@ float vtkMath::Random()
 // Description:
 // Initialize seed value. NOTE: Random() has the bad property that 
 // the first random number returned after RandomSeed() is called 
-// is proportional to the seed value! To help solve this, I call 
+// is proportional to the seed value! To help solve this, call 
 // RandomSeed() a few times inside seed. This doesn't ruin the 
 // repeatability of Random().
 //

@@ -389,7 +389,7 @@ void vtkPolyNormals::MarkAndReplace (int cellId, int n, int replacementPoint)
     }
 //
 //  Look at neighbors who share central point and see whether a
-//  feature edge separates us.  If not, can recusrsively call this
+//  feature edge separates us.  If not, can recursively call this
 //  routine. 
 //
   for (spot=0; spot < numOldPts; spot++)
