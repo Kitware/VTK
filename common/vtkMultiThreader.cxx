@@ -100,6 +100,8 @@ vtkMultiThreader::vtkMultiThreader()
   // processors if we are using pthreads()
 #ifdef _SC_NPROCESSORS_ONLN
   this->NumberOfThreads             = sysconf( _SC_NPROCESSORS_ONLN );
+#elif defined(_SC_NPROC_ONLN)
+  this->NumberOfThreads             = sysconf( _SC_NPROC_ONLN );
 #else
   this->NumberOfThreads             = 1;
 #endif
@@ -161,6 +163,7 @@ void vtkMultiThreader::SetMultipleMethod( int index,
 void vtkMultiThreader::SingleMethodExecute()
 {
   int                thread_loop;
+  int                threadError;
 
 #ifdef _WIN32
   DWORD              threadId;
@@ -284,7 +287,7 @@ void vtkMultiThreader::SingleMethodExecute()
   pthread_attr_create( &attr );
 #else  
   pthread_attr_init(&attr);
-  pthread_attr_setscope(&attr, PTHREAD_SCOPE_SYSTEM);
+  pthread_attr_setscope(&attr, PTHREAD_SCOPE_PROCESS);
 #endif
   
   for ( thread_loop = 1; thread_loop < this->NumberOfThreads; thread_loop++ )
@@ -297,9 +300,14 @@ void vtkMultiThreader::SingleMethodExecute()
 		    attr, this->SingleMethod,  
 		    ( (void *)(&this->ThreadInfoArray[thread_loop]) ) );
 #else
-    pthread_create( &(process_id[thread_loop]),
-		    &attr, this->SingleMethod,  
-		    ( (void *)(&this->ThreadInfoArray[thread_loop]) ) );
+    threadError =
+      pthread_create( &(process_id[thread_loop]), &attr, this->SingleMethod,  
+		      ( (void *)(&this->ThreadInfoArray[thread_loop]) ) );
+    if (threadError != 0)
+      {
+      vtkErrorMacro(<< "Unable to create a thread.  pthread_create() returned "
+                    << threadError);
+      }
 #endif
     }
   
