@@ -3,25 +3,25 @@ from libVTKGraphicsPython import *
 
 # Create the RenderWindow, Renderer and both Actors
 #
-ren1 = vtkRenderer.New()
-renWin = vtkRenderWindow.New()
+ren1 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer( ren1 )
-iren = vtkRenderWindowInteractor.New()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow( renWin )
 
 # create a sphere source and actor
 #
-sphere = vtkSphereSource.New()
-sphereMapper = vtkPolyDataMapper.New()
+sphere = vtkSphereSource()
+sphereMapper = vtkPolyDataMapper()
 sphereMapper.SetInput( sphere.GetOutput() )
-sphereActor = vtkActor.New()
+sphereActor = vtkActor()
 sphereActor.SetMapper( sphereMapper )
 
 # create the spikes using a cone source and the sphere source
 #
-cone = vtkConeSource.New()
+cone = vtkConeSource()
 
-glyph = vtkGlyph3D.New()
+glyph = vtkGlyph3D()
 glyph.SetInput( sphere.GetOutput() )
 glyph.SetSource(cone.GetOutput())
 glyph.SetVectorModeToUseNormal()
@@ -29,9 +29,9 @@ glyph.SetScaleModeToScaleByVector()
 glyph.SetScaleFactor( 0.25 )
 glyph.ReleaseDataFlagOn()
 
-spikeMapper = vtkPolyDataMapper.New()
+spikeMapper = vtkPolyDataMapper()
 spikeMapper.SetInput( glyph.GetOutput() )
-spikeActor = vtkActor.New()
+spikeActor = vtkActor()
 spikeActor.SetMapper( spikeMapper )
 
 # Add the actors to the renderer,.Set the background and size
