@@ -18,6 +18,8 @@
 
 /* Minimal main program -- everything is loaded from the library */
 
+#include "Python.h"
+
 #ifdef VTK_COMPILED_USING_MPI
 # include <mpi.h>
 # include "vtkMPIController.h"
@@ -32,7 +34,6 @@
 # define VTK_PYTHON_LIBRARY_DIR VTK_PYTHON_LIBRARY_DIR_BUILD
 #endif
 
-#include "Python.h"
 #include <sys/stat.h>
 
 /*
