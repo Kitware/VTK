@@ -54,6 +54,7 @@ class vtkViewport;
 class vtkActorCollection;
 class vtkActor2DCollection;
 class vtkVolumeCollection;
+class vtkWindow;
 
 class VTK_EXPORT vtkProp : public vtkObject
 {
@@ -118,6 +119,12 @@ public:
   // in world coordinates. NULL means that the bounds are not defined.
   virtual float *GetBounds() {return NULL;};
   
+  // Description:
+  // Release any graphics resources that are being consumed by this actor.
+  // The parameter RenderWindow could be used to determine which graphic
+  // resources to release.
+  virtual void ReleaseGraphicsResources(vtkWindow *) {};
+
 protected:
   int Visibility;
   float AllocatedRenderTime;
