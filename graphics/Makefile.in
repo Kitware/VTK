@@ -92,6 +92,7 @@ vtkBrownianPoints \
 vtkCamera \
 vtkCardinalSpline \
 vtkCastToConcrete \
+vtkCellDataToPointData \
 vtkCellLocator \
 vtkCellPicker \
 vtkCleanPolyData \
@@ -178,6 +179,7 @@ vtkPicker \
 vtkPiecewiseFunction \
 vtkPlaneSource \
 vtkPlanes \
+vtkPointDataToCellData \
 vtkPointLoad \
 vtkPointPicker \
 vtkPointSetFilter \
