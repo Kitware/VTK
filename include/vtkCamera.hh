@@ -116,6 +116,15 @@ class vtkCamera : public vtkObject
   vtkGetMacro(EyeAngle,float);
 
   // Description:
+  // Is this camera rendering in stereo ?
+  vtkGetMacro(Stereo,int);
+
+  // Description:
+  // Set/Get the center of the window.
+  vtkSetVector2Macro(WindowCenter,float);
+  vtkGetVectorMacro(WindowCenter,float,2);
+
+  // Description:
   // Set the size of the cameras lens in world coordinates. This is only 
   // used when the renderer is doing focal depth rendering. When that is 
   // being done the size of the focal disk will effect how significant the
@@ -144,8 +153,13 @@ class vtkCamera : public vtkObject
   void SetViewPlaneNormal(float x, float y, float z);
   void CalcViewPlaneNormal();
   void CalcDistance();
-  void CalcPerspectiveTransform();
-  vtkMatrix4x4 &GetPerspectiveTransform();
+  void CalcViewTransform();
+  void CalcPerspectiveTransform(float aspect, float nearz, float farz);
+  vtkMatrix4x4 &GetViewTransform();
+  vtkMatrix4x4 &GetPerspectiveTransform(float aspect,
+					float nearz, float farz);
+  vtkMatrix4x4 &GetCompositePerspectiveTransform(float aspect, 
+						 float nearz, float farz);
   vtkGetVectorMacro(ViewPlaneNormal,float,3);
 
   void SetRoll(float);
@@ -163,6 +177,7 @@ class vtkCamera : public vtkObject
   float *GetOrientation();
 
  protected:
+  float WindowCenter[2];
   float FocalPoint[3];
   float Position[3];
   float ViewUp[3];
@@ -171,6 +186,7 @@ class vtkCamera : public vtkObject
   float EyeAngle;
   int   LeftEye;
   int   Switch;
+  int   Stereo;  
   float Thickness;
   float Distance;
   float ViewPlaneNormal[3];

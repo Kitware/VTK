@@ -72,6 +72,7 @@ class vtkMatrix4x4 : public vtkObject
   void Transpose (vtkMatrix4x4 in,vtkMatrix4x4 & out);
   void Transpose (void) { Transpose(*this,*this);};
 
+  void MultiplyPoint(float in[4], float out[4]);
   void PointMultiply(float in[4], float out[4]);
   void Adjoint (vtkMatrix4x4 & in,vtkMatrix4x4 & out);
   float Determinant (vtkMatrix4x4 & in);
