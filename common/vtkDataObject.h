@@ -272,7 +272,7 @@ public:
   // consumer cannot handle this (i.e. DataSetToDataSetFitler)
   // the image will crop itself.  This functionality used to be in 
   // ImageToStructuredPoints.
-  vtkSetMacro(RequestExactExtent, int);
+  void SetRequestExactExtent(int v);
   vtkGetMacro(RequestExactExtent, int);
   vtkBooleanMacro(RequestExactExtent, int);
   

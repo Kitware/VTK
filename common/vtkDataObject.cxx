@@ -374,6 +374,12 @@ void vtkDataObject::SetUpdateGhostLevel(int level)
 }
 
 //----------------------------------------------------------------------------
+void vtkDataObject::SetRequestExactExtent( int flag )
+{
+  this->RequestExactExtent = flag;
+}
+
+//----------------------------------------------------------------------------
 void vtkDataObject::SetSource(vtkSource *arg)
 {
   vtkDebugMacro( << this->GetClassName() << " (" 
