@@ -157,6 +157,12 @@ void vtkWin32OpenGLTextMapper::ReleaseGraphicsResources(vtkWindow *win)
       cache[numCached] = NULL;
       }
     }
+
+  // very important
+  // the release of graphics resources indicates that significant changes have
+  // occurred. Old fonts, cached sizes etc are all no longer valid, so we send
+  // ourselves a general modified message.
+  this->Modified();
 }
 
 vtkWin32OpenGLTextMapper::vtkWin32OpenGLTextMapper()
