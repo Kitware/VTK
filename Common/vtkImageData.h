@@ -217,11 +217,15 @@ public:
   
   // Description:
   // Different ways to get the increments for moving around the data.
-  // They are store (Component, X, Y, Z). This method returns
-  // increments that are suited for continuous incrementing of the
-  // pointer in a Z, Y, X, C nested for loop.
-  void GetContinuousIncrements(int extent[6], int &incX, int &incY,
-                               int &incZ);
+  // incX is always returned with 0.  incY is returned with the
+  // increment needed to move from the end of one X scanline of data
+  // to the start of the next line.  incZ is filled in with the
+  // increment needed to move from the end of one image to the start
+  // of the next.  The proper way to use these values is to for a loop
+  // over Z, Y, X, C, incrementing the pointer by 1 after each
+  // component.  When the end of the component is reached, the pointer
+  // is set to the beginning of the next pixel, thus incX is properly set to 0.
+  void GetContinuousIncrements(int extent[6], int &incX, int &incY, int &incZ);
   
   // Description:
   // Access the native pointer for the scalar data
