@@ -45,6 +45,7 @@
 #include "vtkProcessObject.h"
 
 class vtkDataObject;
+class vtkDistributedExecutive;
 
 class VTK_COMMON_EXPORT vtkSource : public vtkProcessObject
 {
@@ -106,7 +107,25 @@ public:
   // Return what index output the passed in output is, return -1 if it
   // does not match any of the outputs
   int GetOutputIndex(vtkDataObject *out);
-  
+
+  // Description:
+  // Set this algorithm's executive.  This algorithm is removed from
+  // any executive to which it has previously been assigned and then
+  // assigned to the given executive.
+  virtual void SetExecutive(vtkExecutive* executive);
+
+  // Description:
+  // Transform pipeline requests from executives into old-style
+  // pipeline calls.  This works with the
+  // vtkStreamingDemandDrivenPipeline executive to maintain backward
+  // compatibility for filters written as subclasses of vtkSource.
+  virtual int ProcessUpstreamRequest(vtkInformation*,
+                                     vtkInformationVector*,
+                                     vtkInformationVector*);
+  virtual int ProcessDownstreamRequest(vtkInformation*,
+                                       vtkInformationVector*,
+                                       vtkInformationVector*);
+
 protected:
   vtkSource();
   ~vtkSource();
@@ -153,6 +172,14 @@ protected:
 
   // Output port information must match the current outputs.
   int FillOutputPortInformation(int, vtkInformation*);
+
+  // Reimplemented from vtkAlgorithm to maintain backward
+  // compatibility for vtkProcessObject.
+  virtual void SetNumberOfOutputPorts(int n);
+
+  //BTX
+  friend class vtkDistributedExecutive;
+  //ETX
 
 private:
   vtkSource(const vtkSource&);  // Not implemented.

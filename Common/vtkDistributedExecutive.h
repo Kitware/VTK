@@ -42,6 +42,7 @@ public:
   // Bring the given algorithm's outputs up-to-date.  The algorithm
   // must already be managed by this executive.  Returns 1 for success
   // and 0 for failure.
+  virtual int Update();
   virtual int Update(vtkAlgorithm* algorithm);
 
   // Description:
@@ -71,6 +72,12 @@ protected:
   // A distributed executive manages at most one algorithm.
   virtual void SetAlgorithm(vtkAlgorithm* algorithm);
   vtkAlgorithm* Algorithm;
+
+  // Get/Set the output data for an output port on an algorithm.
+  virtual void SetOutputDataInternal(vtkAlgorithm* algorithm, int port,
+                                     vtkDataObject* output);
+  virtual vtkDataObject* GetOutputDataInternal(vtkAlgorithm* algorithm,
+                                               int port);
 private:
   vtkDistributedExecutive(const vtkDistributedExecutive&);  // Not implemented.
   void operator=(const vtkDistributedExecutive&);  // Not implemented.

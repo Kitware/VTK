@@ -21,7 +21,7 @@
 #include "vtkGarbageCollector.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkSource, "1.111");
+vtkCxxRevisionMacro(vtkSource, "1.112");
 
 #ifndef NULL
 #define NULL 0
@@ -775,4 +775,30 @@ void vtkSource::RemoveReferences()
       }
     }
   this->Superclass::RemoveReferences();
+}
+
+//----------------------------------------------------------------------------
+void vtkSource::SetExecutive(vtkExecutive*)
+{
+}
+
+//----------------------------------------------------------------------------
+void vtkSource::SetNumberOfOutputPorts(int)
+{
+}
+
+//----------------------------------------------------------------------------
+int vtkSource::ProcessUpstreamRequest(vtkInformation* request,
+                                      vtkInformationVector* inVector,
+                                      vtkInformationVector* outVector)
+{
+  return this->Superclass::ProcessUpstreamRequest(request, inVector, outVector);
+}
+
+//----------------------------------------------------------------------------
+int vtkSource::ProcessDownstreamRequest(vtkInformation* request,
+                                        vtkInformationVector* inVector,
+                                        vtkInformationVector* outVector)
+{
+  return this->Superclass::ProcessDownstreamRequest(request, inVector, outVector);
 }

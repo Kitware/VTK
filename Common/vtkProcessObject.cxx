@@ -20,7 +20,7 @@
 #include "vtkCommand.h"
 #include "vtkInformation.h"
 
-vtkCxxRevisionMacro(vtkProcessObject, "1.38");
+vtkCxxRevisionMacro(vtkProcessObject, "1.39");
 
 // Instantiate object with no start, end, or progress methods.
 vtkProcessObject::vtkProcessObject()
@@ -416,6 +416,39 @@ void vtkProcessObject::ReportReferences(vtkGarbageCollector* collector)
 void vtkProcessObject::RemoveReferences()
 {
   this->Superclass::RemoveReferences();
+}
+
+//----------------------------------------------------------------------------
+void vtkProcessObject::SetInputConnection(int port, vtkAlgorithmOutput* input)
+{
+  this->Superclass::SetInputConnection(port, input);
+}
+
+//----------------------------------------------------------------------------
+void vtkProcessObject::AddInputConnection(int port, vtkAlgorithmOutput* input)
+{
+  this->Superclass::AddInputConnection(port, input);
+}
+
+//----------------------------------------------------------------------------
+void vtkProcessObject::RemoveInputConnection(int port, vtkAlgorithmOutput* input)
+{
+  this->Superclass::RemoveInputConnection(port, input);
+}
+
+//----------------------------------------------------------------------------
+void vtkProcessObject::AddInputInternal(vtkDataObject*)
+{
+}
+
+//----------------------------------------------------------------------------
+void vtkProcessObject::RemoveInputInternal(vtkDataObject*)
+{
+}
+
+//----------------------------------------------------------------------------
+void vtkProcessObject::SetupInputs()
+{
 }
 
 void vtkProcessObject::PrintSelf(ostream& os, vtkIndent indent)

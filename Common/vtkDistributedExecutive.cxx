@@ -17,8 +17,9 @@
 #include "vtkAlgorithm.h"
 #include "vtkGarbageCollector.h"
 #include "vtkObjectFactory.h"
+#include "vtkSource.h"
 
-vtkCxxRevisionMacro(vtkDistributedExecutive, "1.6");
+vtkCxxRevisionMacro(vtkDistributedExecutive, "1.7");
 vtkStandardNewMacro(vtkDistributedExecutive);
 vtkCxxSetObjectMacro(vtkDistributedExecutive, Algorithm, vtkAlgorithm);
 
@@ -105,6 +106,12 @@ int vtkDistributedExecutive::Update(vtkAlgorithm* algorithm)
                   "executive: " << algorithm);
     return 0;
     }
+  return this->Update();
+}
+
+//----------------------------------------------------------------------------
+int vtkDistributedExecutive::Update()
+{
   return 0;
 }
 
@@ -183,4 +190,43 @@ int vtkDistributedExecutive::OutputPortIndexInRange(int port,
     return 0;
     }
   return 1;
+}
+
+//----------------------------------------------------------------------------
+void vtkDistributedExecutive::SetOutputDataInternal(vtkAlgorithm* algorithm,
+                                                    int port,
+                                                    vtkDataObject* output)
+{
+  if(vtkSource* source = vtkSource::SafeDownCast(algorithm))
+    {
+    source->SetNthOutput(port, output);
+    }
+  else
+    {
+    this->Superclass::SetOutputDataInternal(algorithm, port, output);
+    }
+}
+
+//----------------------------------------------------------------------------
+vtkDataObject*
+vtkDistributedExecutive::GetOutputDataInternal(vtkAlgorithm* algorithm,
+                                               int port)
+{
+  if(vtkDataObject* output =
+     this->Superclass::GetOutputDataInternal(algorithm, port))
+    {
+    return output;
+    }
+  else if(vtkSource* source = vtkSource::SafeDownCast(algorithm))
+    {
+    if(source->NumberOfOutputs >= port)
+      {
+      if(vtkDataObject* output = source->Outputs[port])
+        {
+        this->Superclass::SetOutputDataInternal(algorithm, port, output);
+        return output;
+        }
+      }
+    }
+  return 0;
 }
