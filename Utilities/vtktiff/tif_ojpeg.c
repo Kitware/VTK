@@ -31,7 +31,7 @@
 #endif
 #define JPEG_INTERNALS /* Include "jpegint.h" for "DSTATE_*" symbols */
 #undef INLINE
-#include "jpeglib.h"
+#include "vtk_jpeg.h"
 #undef JPEG_INTERNALS
 
 /* Hack for Microsoft's Wang Imaging for Windows output files */
