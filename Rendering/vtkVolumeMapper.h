@@ -66,6 +66,7 @@ class vtkVolume;
 #define VTK_CROP_INVERTED_CROSS         0x7be8bef
 
 class vtkWindow;
+class vtkImageClip;
 
 class VTK_RENDERING_EXPORT vtkVolumeMapper : public vtkAbstractMapper3D
 {
@@ -168,6 +169,8 @@ protected:
   float                VoxelCroppingRegionPlanes[6];
   int                  CroppingRegionFlags;
   vtkTimeStamp         BuildTime;
+
+  vtkImageClip        *ImageClipper;
   
   void ConvertCroppingRegionPlanesToVoxels();
   

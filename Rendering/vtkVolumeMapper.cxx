@@ -40,8 +40,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
 #include "vtkVolumeMapper.h"
+#include "vtkImageClip.h"
 
-vtkCxxRevisionMacro(vtkVolumeMapper, "1.35");
+vtkCxxRevisionMacro(vtkVolumeMapper, "1.36");
 
 // Construct a vtkVolumeMapper with empty scalar input and clipping off.
 vtkVolumeMapper::vtkVolumeMapper()
@@ -60,10 +61,15 @@ vtkVolumeMapper::vtkVolumeMapper()
   this->Bounds[1] = this->Bounds[3] = this->Bounds[5] = 1.0;
   this->Center[0] = this->Center[1] = this->Center[2] = 0.0;
   this->CroppingRegionFlags = 0x02000;
+  
+  this->ImageClipper = vtkImageClip::New();
+  this->ImageClipper->ClipDataOn();
 }
 
 vtkVolumeMapper::~vtkVolumeMapper()
 {
+  
+  this->ImageClipper->Delete();
 }
 
 void vtkVolumeMapper::Update()
@@ -72,7 +78,6 @@ void vtkVolumeMapper::Update()
     {
     this->GetInput()->UpdateInformation();
     this->GetInput()->SetUpdateExtentToWholeExtent();
-    this->GetInput()->RequestExactExtentOn();
     this->GetInput()->Update();
     }
 
@@ -128,7 +133,8 @@ float *vtkVolumeMapper::GetBounds()
 
 void vtkVolumeMapper::SetInput( vtkImageData *input )
 {
-  this->vtkProcessObject::SetNthInput(0, input);
+  this->ImageClipper->SetInput( input );
+  this->vtkProcessObject::SetNthInput(0, this->ImageClipper->GetOutput() );
 }
 
 vtkImageData *vtkVolumeMapper::GetInput()
