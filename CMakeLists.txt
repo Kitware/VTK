@@ -89,7 +89,7 @@ IF (VTK_WRAP_JAVA)
   UTILITY_SOURCE(VTK_PARSE_JAVA_EXE vtkParseJava Wrapping vtkParseJava.c)
   # where to write the resulting .java files
   IF (NOT VTK_JAVA_HOME)
-    SET (VTK_JAVA_HOME . CACHE PATH "Path to Java install")
+    SET (VTK_JAVA_HOME ${VTK_BINARY_DIR}/java/vtk CACHE PATH "Path to Java install")
   ENDIF (NOT VTK_JAVA_HOME)
 ENDIF (VTK_WRAP_JAVA)
 
