@@ -67,6 +67,7 @@ ALL : "java_wrap - Win32 Release" "java_parse - Win32 Release"\
 
 CLEAN : 
 	-@erase "$(INTDIR)\getclasses.obj"
+	-@erase "$(INTDIR)\help.obj"
 	-@erase "$(INTDIR)\makedepend.obj"
 	-@erase "$(INTDIR)\pcmaker.obj"
 	-@erase "$(INTDIR)\pcmaker.pch"
@@ -126,6 +127,7 @@ LINK32_FLAGS=/nologo /subsystem:windows /incremental:no\
  /pdb:"$(OUTDIR)/pcmaker.pdb" /machine:I386 /out:"$(OUTDIR)/pcmaker.exe" 
 LINK32_OBJS= \
 	"$(INTDIR)\getclasses.obj" \
+	"$(INTDIR)\help.obj" \
 	"$(INTDIR)\makedepend.obj" \
 	"$(INTDIR)\pcmaker.obj" \
 	"$(INTDIR)\pcmaker.res" \
@@ -157,6 +159,7 @@ ALL : "java_wrap - Win32 Debug" "java_parse - Win32 Debug"\
 
 CLEAN : 
 	-@erase "$(INTDIR)\getclasses.obj"
+	-@erase "$(INTDIR)\help.obj"
 	-@erase "$(INTDIR)\makedepend.obj"
 	-@erase "$(INTDIR)\pcmaker.obj"
 	-@erase "$(INTDIR)\pcmaker.pch"
@@ -220,6 +223,7 @@ LINK32_FLAGS=/nologo /subsystem:windows /incremental:yes\
  /pdb:"$(OUTDIR)/pcmaker.pdb" /debug /machine:I386 /out:"$(OUTDIR)/pcmaker.exe" 
 LINK32_OBJS= \
 	"$(INTDIR)\getclasses.obj" \
+	"$(INTDIR)\help.obj" \
 	"$(INTDIR)\makedepend.obj" \
 	"$(INTDIR)\pcmaker.obj" \
 	"$(INTDIR)\pcmaker.res" \
@@ -731,6 +735,7 @@ DEP_CPP_PCMAK=\
 
 SOURCE=.\pcmakerDlg.cpp
 DEP_CPP_PCMAKE=\
+	".\help.h"\
 	".\pcmaker.h"\
 	".\pcmakerDlg.h"\
 	".\StdAfx.h"\
@@ -872,6 +877,20 @@ DEP_CPP_GETCL=\
 SOURCE=.\makedepend.cxx
 
 "$(INTDIR)\makedepend.obj" : $(SOURCE) "$(INTDIR)"
+
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\help.cpp
+DEP_CPP_HELP_=\
+	".\help.h"\
+	".\pcmaker.h"\
+	".\StdAfx.h"\
+	
+
+"$(INTDIR)\help.obj" : $(SOURCE) $(DEP_CPP_HELP_) "$(INTDIR)"
 
 
 # End Source File

@@ -72,49 +72,62 @@ IDR_MAINFRAME           ICON    DISCARDABLE     "res\\pcmaker.ico"
 // Dialog
 //
 
-IDD_PCMAKER_DIALOG DIALOGEX 0, 0, 185, 290
+IDD_PCMAKER_DIALOG DIALOGEX 0, 0, 335, 229
 STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
 EXSTYLE WS_EX_APPWINDOW
 CAPTION "pcmaker"
 FONT 8, "MS Sans Serif"
 BEGIN
-    DEFPUSHBUTTON   "OK",IDOK,31,269,50,14
-    PUSHBUTTON      "Cancel",IDCANCEL,97,269,50,14
-    GROUPBOX        "What Compiler",IDC_COMPILER,7,125,171,25,WS_TABSTOP
+    DEFPUSHBUTTON   "OK",IDOK,79,208,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,143,208,50,14
+    GROUPBOX        "What Compiler",IDC_COMPILER,181,7,147,25,WS_TABSTOP
     EDITTEXT        IDC_WHEREVTK,16,15,155,14,ES_AUTOHSCROLL
     LTEXT           "Where is vtk installed",IDC_STATIC,7,7,65,8
     LTEXT           "Where do you want to build the vtk libraries",
                     IDC_STATIC,7,33,139,8
     EDITTEXT        IDC_WHEREBUILD,16,45,154,14,ES_AUTOHSCROLL
     CONTROL         "Microsoft",IDC_MSCOMP,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,16,136,43,10
+                    WS_TABSTOP,190,18,43,10
     CONTROL         "Borland",IDC_BORLANDCOMP,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,66,136,40,10
-    GROUPBOX        "Additional Toolkits",IDC_STATIC,7,189,171,46
+                    WS_TABSTOP,240,18,40,10
+    GROUPBOX        "Additional Toolkits",IDC_STATIC,7,127,321,46
     CONTROL         "Graphics",IDC_Graphics,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,15,202,48,10
+                    WS_TABSTOP,15,140,48,10
     CONTROL         "Imaging",IDC_Imaging,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,68,202,41,10
+                    WS_TABSTOP,68,140,41,10
     CONTROL         "Contrib",IDC_Contrib,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,117,202,38,10
+                    WS_TABSTOP,117,140,38,10
     LTEXT           "Where is your compiler",IDC_STATIC,7,63,148,13
     EDITTEXT        IDC_WHERECOMPILER,16,75,153,14,ES_AUTOHSCROLL
     CONTROL         "Build a Debug Version",IDC_Debug,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,50,158,85,10
+                    BS_AUTOCHECKBOX | WS_TABSTOP,189,39,85,10
     CONTROL         "GemsIO",IDC_GEMSIO,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,15,219,41,10
+                    WS_TABSTOP,15,157,41,10
     CONTROL         "GemsIP",IDC_GEMSIP,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,68,219,41,10
+                    WS_TABSTOP,68,157,41,10
     CONTROL         "GemsVolume",IDC_GEMSVOLUME,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,117,219,57,10
+                    WS_TABSTOP,117,157,57,10
     CONTROL         "Include Patented Algorithms",IDC_PATENTED,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,43,174,109,10
+                    BS_AUTOCHECKBOX | WS_TABSTOP,189,57,109,10
     LTEXT           "Where is your Java JDK (this is optional)",IDC_STATIC,
                     10,93,141,13
     EDITTEXT        IDC_WHEREJDK,16,105,153,15,ES_AUTOHSCROLL
     CONTROL         "Progress1",IDC_PROGRESS1,"msctls_progress32",WS_BORDER,
-                    7,251,171,14
-    LTEXT           "Progress",IDC_STATIC,7,240,77,10
+                    7,188,321,14
+    LTEXT           "Progress",IDC_STATIC,7,177,77,10
+    CONTROL         "Build VTK Lean and Mean",IDC_LEAN,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,189,71,124,19
+    PUSHBUTTON      "Help",IDC_HELP1,207,208,50,14
+END
+
+IDD_HELPDIALOG DIALOG DISCARDABLE  0, 0, 263, 274
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Help for pcmaker.exe"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,106,253,50,14
+    EDITTEXT        IDC_EDIT1,7,7,249,238,ES_MULTILINE | ES_READONLY | 
+                    WS_VSCROLL
 END
 
 
@@ -172,9 +185,17 @@ BEGIN
     IDD_PCMAKER_DIALOG, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 178
+        RIGHTMARGIN, 328
         TOPMARGIN, 7
-        BOTTOMMARGIN, 283
+        BOTTOMMARGIN, 222
+    END
+
+    IDD_HELPDIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 256
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 267
     END
 END
 #endif    // APSTUDIO_INVOKED

@@ -4,6 +4,7 @@
 #include "stdafx.h"
 #include "pcmaker.h"
 #include "pcmakerDlg.h"
+#include "help.h"
 #include <direct.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -35,6 +36,7 @@ CPcmakerDlg::CPcmakerDlg(CWnd* pParent /*=NULL*/)
 	m_GEMSIP = FALSE;
 	m_GEMSVOLUME = FALSE;
 	m_Patented = FALSE;
+	m_Lean = FALSE;
 	//}}AFX_DATA_INIT
 	// Note that LoadIcon does not require a subsequent DestroyIcon in Win32
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
@@ -63,6 +65,7 @@ void CPcmakerDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Check(pDX, IDC_GEMSIP, m_GEMSIP);
 	DDX_Check(pDX, IDC_GEMSVOLUME, m_GEMSVOLUME);
 	DDX_Check(pDX, IDC_PATENTED, m_Patented);
+	DDX_Check(pDX, IDC_LEAN, m_Lean);
 	//}}AFX_DATA_MAP
 }
 
@@ -70,6 +73,7 @@ BEGIN_MESSAGE_MAP(CPcmakerDlg, CDialog)
 	//{{AFX_MSG_MAP(CPcmakerDlg)
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
+	ON_BN_CLICKED(IDC_HELP, OnHelp)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -239,4 +243,11 @@ void CPcmakerDlg::DoOKStuff()
 
   makeMakefile(this);
   CDialog::OnOK();
+}
+
+void CPcmakerDlg::OnHelp() 
+{
+	// TODO: Add your control notification handler code here
+  help dlg;
+  dlg.DoModal();
 }

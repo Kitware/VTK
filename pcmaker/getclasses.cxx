@@ -533,7 +533,14 @@ void doMSCHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue)
     {
     fprintf(fp," \"_WINDOWS\" /D \"_WINDLL\" /D \"_USRDLL\" /D \"_MBCS\" /D \"VTKDLL\"\\\n");
     }
-  fprintf(fp," /Fo\"$(OUTDIR)/\" /c \n");
+  if (vals->m_Lean)
+    {
+    fprintf(fp," /D \"VTK_LEAN_AND_MEAN\" /Fo\"$(OUTDIR)/\" /c \n");
+    }
+  else
+    {
+    fprintf(fp," /Fo\"$(OUTDIR)/\" /c \n");
+    }
   fprintf(fp,"LINK32=link.exe\n");
   if (vals->m_Debug)
     {
@@ -837,7 +844,14 @@ void doMSCTclHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue)
     }
   if (doAddedValue) fprintf(fp," /I \"%s\\gemsio\" /I \"%s\\gemsip\" /I \"%s\\gemsvolume\" /I \"%s\\volume\" \\\n",
     vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
-  fprintf(fp," /Fo\"$(OUTDIR)/\" /c \n");
+  if (vals->m_Lean)
+    {
+    fprintf(fp," /D \"VTK_LEAN_AND_MEAN\" /Fo\"$(OUTDIR)/\" /c \n");
+    }
+  else
+    {
+    fprintf(fp," /Fo\"$(OUTDIR)/\" /c \n");
+    }
   fprintf(fp,"LINK32=link.exe\n");
   if (vals->m_Debug)
     {

@@ -102,6 +102,11 @@ BOOL CPcmakerApp::InitInstance()
       AfxMessageBox("Incorrect command line arguments!");
 
     if (sscanf(strtok(NULL," "),"%i",&tempi) == 1)
+      dlg.m_Lean = tempi;
+    else
+      AfxMessageBox("Incorrect command line arguments!");
+
+    if (sscanf(strtok(NULL," "),"%i",&tempi) == 1)
       dlg.m_Graphics = tempi;
     else
       AfxMessageBox("Incorrect command line arguments!");

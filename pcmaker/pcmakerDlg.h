@@ -29,6 +29,7 @@ public:
 	BOOL	m_GEMSIP;
 	BOOL	m_GEMSVOLUME;
 	BOOL	m_Patented;
+	BOOL	m_Lean;
 	//}}AFX_DATA
 
 	// ClassWizard generated virtual function overrides
@@ -47,6 +48,7 @@ protected:
 	afx_msg void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();
 	virtual void OnOK();
+	afx_msg void OnHelp();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };
