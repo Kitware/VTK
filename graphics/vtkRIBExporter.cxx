@@ -156,12 +156,23 @@ void vtkRIBExporter::WriteData()
   //
   this->WriteCamera (ren->GetActiveCamera ());
 
-//  RiWorldBegin ();
-    fprintf (this->FilePtr, "WorldBegin\n");
+  fprintf (this->FilePtr, "WorldBegin\n");
+
   //
   // Write all lights
   //
   lc = ren->GetLights();
+
+  //
+  // If there is no light defined, create one
+  //
+  lc->InitTraversal();
+  if (lc->GetNextItem() == NULL)
+    {
+    vtkWarningMacro(<< "No light defined, creating one at camera position");
+    ren->CreateLight();
+    }
+
   // Create an ambient light
   this->WriteAmbientLight (1);
   int lightCount = 2;
