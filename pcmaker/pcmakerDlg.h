@@ -15,6 +15,7 @@ public:
 	enum { IDD = IDD_PCMAKER_DIALOG };
 	CString	m_WhereVTK;
 	CString	m_WhereBuild;
+	CString	m_WhereJDK;
 	BOOL	m_BorlandComp;
 	BOOL	m_MSComp;
 	BOOL	m_Contrib;

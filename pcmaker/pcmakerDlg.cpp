@@ -23,6 +23,7 @@ CPcmakerDlg::CPcmakerDlg(CWnd* pParent /*=NULL*/)
 	//{{AFX_DATA_INIT(CPcmakerDlg)
 	m_WhereVTK = _T("");
 	m_WhereBuild = _T("");
+	m_WhereJDK = _T("");
 	m_BorlandComp = FALSE;
 	m_MSComp = FALSE;
 	m_Contrib = TRUE;
@@ -47,13 +48,15 @@ void CPcmakerDlg::DoDataExchange(CDataExchange* pDX)
 	DDV_MaxChars(pDX, m_WhereVTK, 80);
 	DDX_Text(pDX, IDC_WHEREBUILD, m_WhereBuild);
 	DDV_MaxChars(pDX, m_WhereBuild, 80);
-	DDX_Check(pDX, IDC_BORLANDCOMP, m_BorlandComp);
+	DDX_Text(pDX, IDC_WHERECOMPILER, m_WhereCompiler);
+	DDV_MaxChars(pDX, m_WhereCompiler, 40);
+	DDX_Text(pDX, IDC_WHEREJDK, m_WhereJDK);
+	DDV_MaxChars(pDX, m_WhereJDK, 40);
 	DDX_Check(pDX, IDC_MSCOMP, m_MSComp);
+	DDX_Check(pDX, IDC_BORLANDCOMP, m_BorlandComp);
 	DDX_Check(pDX, IDC_Contrib, m_Contrib);
 	DDX_Check(pDX, IDC_Graphics, m_Graphics);
 	DDX_Check(pDX, IDC_Imaging, m_Imaging);
-	DDX_Text(pDX, IDC_WHERECOMPILER, m_WhereCompiler);
-	DDV_MaxChars(pDX, m_WhereCompiler, 40);
 	DDX_Check(pDX, IDC_Debug, m_Debug);
 	DDX_Check(pDX, IDC_GEMSIO, m_GEMSIO);
 	DDX_Check(pDX, IDC_GEMSIP, m_GEMSIP);
@@ -77,6 +80,7 @@ BOOL CPcmakerDlg::OnInitDialog()
 	this->m_WhereBuild = "C:\\vtkbin";
 	this->m_WhereVTK = "C:\\vtk";
   this->m_WhereCompiler = "C:\\msdev";
+  this->m_WhereJDK = "C:\\JDK1.1";
 	CDialog::OnInitDialog();
 
 	// Set the icon for this dialog.  The framework does this automatically
@@ -132,13 +136,13 @@ void CPcmakerDlg::OnOK()
   FILE *fp;
   char fname[128];
   char msg[256];
-  struct _stat statBuff;
+  struct stat statBuff;
 
   // TODO: Add extra validation here
   CWnd::UpdateData();
-  
+
   // make sure we can find vtk
-  sprintf(fname,"%s\\pcmaker\\getclasses.cxx",this->m_WhereVTK);
+  sprintf(fname,"%s\\targets.c",this->m_WhereVTK);
   fp = fopen(fname,"r");
   if (!fp)
     {
@@ -147,7 +151,9 @@ void CPcmakerDlg::OnOK()
     return;
     }
   fclose(fp);
-  
+
+
+
   // make sure we can find the include files
   sprintf(fname,"%s\\include\\stdio.h",this->m_WhereCompiler);
   fp = fopen(fname,"r");
@@ -160,6 +166,8 @@ void CPcmakerDlg::OnOK()
     }
   fclose(fp);
 
+  if (!this->m_BorlandComp)
+  {
   // make sure we can find opengl.lib files
   sprintf(fname,"%s\\lib\\opengl32.lib",this->m_WhereCompiler);
   fp = fopen(fname,"r");
@@ -170,7 +178,18 @@ void CPcmakerDlg::OnOK()
     return;
     }
   fclose(fp);
+   }
 
+  // make sure we can find JDK
+  sprintf(fname,"%s\\include\\jni.h",this->m_WhereJDK);
+  fp = fopen(fname,"r");
+  if (!fp)
+    {
+    sprintf(msg, "Unable to find JDK1.1 at: %s",this->m_WhereJDK);
+    AfxMessageBox(msg);
+    return;
+    }
+  fclose(fp);
   // make sure only one compile is specified
   if ((this->m_MSComp + this->m_BorlandComp) > 1)
     {
@@ -185,28 +204,34 @@ void CPcmakerDlg::OnOK()
   
   // make sure we can get to build directory
   //does it already exists?
-  if (_stat(this->m_WhereBuild,&statBuff) == -1)
+  if (stat(this->m_WhereBuild,&statBuff) == -1)
     {
     // it didn't exist should we create it
     sprintf(msg,"The build directory %s does not exist.\nWould you like me to create it ?",
             this->m_WhereBuild);
     if (AfxMessageBox(msg,MB_YESNO) == IDNO) return;
-    if (_mkdir(this->m_WhereBuild) == -1)
+    if (mkdir(this->m_WhereBuild) == -1)
       {
       sprintf(msg,"There was an error trying to create the directory %s.",this->m_WhereBuild);
       AfxMessageBox(msg);
       return;
       }
     }
-  
+
   // make the subdirectories if they don't exist
   sprintf(fname,"%s\\vtkdll",this->m_WhereBuild);
-  if (_stat(fname,&statBuff) == -1) _mkdir(fname);
+  if (stat(fname,&statBuff) == -1) mkdir(fname);
   sprintf(fname,"%s\\vtktcl",this->m_WhereBuild);
-  if (_stat(fname,&statBuff) == -1) _mkdir(fname);
+  if (stat(fname,&statBuff) == -1) mkdir(fname);
   sprintf(fname,"%s\\vtktcl\\src",this->m_WhereBuild);
-  if (_stat(fname,&statBuff) == -1) _mkdir(fname);
-  
+  if (stat(fname,&statBuff) == -1) mkdir(fname);
+  sprintf(fname,"%s\\vtkjava",this->m_WhereBuild);
+  if (stat(fname,&statBuff) == -1) mkdir(fname);
+  sprintf(fname,"%s\\vtkjava\\src",this->m_WhereBuild);
+  if (stat(fname,&statBuff) == -1) mkdir(fname);
+  sprintf(fname,"%s\\vtkjava\\vtk",this->m_WhereBuild);
+  if (stat(fname,&statBuff) == -1) mkdir(fname);
+
   makeMakefile(this);
   CDialog::OnOK();
 }
