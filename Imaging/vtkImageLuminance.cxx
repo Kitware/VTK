@@ -20,7 +20,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageLuminance, "1.22");
+vtkCxxRevisionMacro(vtkImageLuminance, "1.22.10.1");
 vtkStandardNewMacro(vtkImageLuminance);
 
 //----------------------------------------------------------------------------
@@ -28,7 +28,7 @@ vtkStandardNewMacro(vtkImageLuminance);
 void vtkImageLuminance::ExecuteInformation(vtkImageData *vtkNotUsed(inData), 
                                            vtkImageData *outData)
 {
-  outData->SetNumberOfScalarComponents(1);
+  outData[0]->SetNumberOfScalarComponents(1);
 }
 
 //----------------------------------------------------------------------------
@@ -69,31 +69,31 @@ void vtkImageLuminanceExecute(vtkImageLuminance *self, vtkImageData *inData,
 // This method contains a switch statement that calls the correct
 // templated function for the input data type.  The output data
 // must match input type.  This method does handle boundary conditions.
-void vtkImageLuminance::ThreadedExecute(vtkImageData *inData, 
-                                        vtkImageData *outData,
+void vtkImageLuminance::ThreadedExecute (vtkImageData ***inData, 
+                                        vtkImageData **outData,
                                         int outExt[6], int id)
 {
   vtkDebugMacro(<< "Execute: inData = " << inData 
   << ", outData = " << outData);
   
   // this filter expects that input is the same type as output.
-  if (inData->GetNumberOfScalarComponents() != 3)
+  if (inData[0][0]->GetNumberOfScalarComponents() != 3)
     {
-    vtkErrorMacro(<< "Execute: input must have 3 components, but has " << inData->GetNumberOfScalarComponents());
+    vtkErrorMacro(<< "Execute: input must have 3 components, but has " << inData[0][0]->GetNumberOfScalarComponents());
     return;
     }
   
   // this filter expects that input is the same type as output.
-  if (inData->GetScalarType() != outData->GetScalarType())
+  if (inData[0][0]->GetScalarType() != outData[0]->GetScalarType())
     {
-    vtkErrorMacro(<< "Execute: input ScalarType, " << inData->GetScalarType()
-    << ", must match out ScalarType " << outData->GetScalarType());
+    vtkErrorMacro(<< "Execute: input ScalarType, " << inData[0][0]->GetScalarType()
+    << ", must match out ScalarType " << outData[0]->GetScalarType());
     return;
     }
   
-  switch (inData->GetScalarType())
+  switch (inData[0][0]->GetScalarType())
     {
-    vtkTemplateMacro6(vtkImageLuminanceExecute, this, inData, outData, 
+    vtkTemplateMacro6(vtkImageLuminanceExecute, this, inData[0][0], outData[0], 
                       outExt, id, static_cast<VTK_TT *>(0));
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");

@@ -21,7 +21,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageMagnitude, "1.36");
+vtkCxxRevisionMacro(vtkImageMagnitude, "1.36.10.1");
 vtkStandardNewMacro(vtkImageMagnitude);
 
 //----------------------------------------------------------------------------
@@ -29,7 +29,7 @@ vtkStandardNewMacro(vtkImageMagnitude);
 void vtkImageMagnitude::ExecuteInformation(vtkImageData *vtkNotUsed(inData), 
                                            vtkImageData *outData)
 {
-  outData->SetNumberOfScalarComponents(1);
+  outData[0]->SetNumberOfScalarComponents(1);
 }
 
 //----------------------------------------------------------------------------
@@ -47,7 +47,7 @@ void vtkImageMagnitudeExecute(vtkImageMagnitude *self,
   float sum;
 
   // find the region to loop over
-  int maxC = inData->GetNumberOfScalarComponents();
+  int maxC = inData[0][0]->GetNumberOfScalarComponents();
   int idxC;
 
   // Loop through ouput pixels
@@ -78,30 +78,30 @@ void vtkImageMagnitudeExecute(vtkImageMagnitude *self,
 // This method contains a switch statement that calls the correct
 // templated function for the input data type.  The output data
 // must match input type.  This method does handle boundary conditions.
-void vtkImageMagnitude::ThreadedExecute(vtkImageData *inData, 
-                                        vtkImageData *outData,
+void vtkImageMagnitude::ThreadedExecute (vtkImageData ***inData, 
+                                        vtkImageData **outData,
                                         int outExt[6], int id)
 {
   // This is really meta data and should be set in ExecuteInformation,
   // but there are some issues to solve first.
-  if (id == 0 && outData->GetPointData()->GetScalars())
+  if (id == 0 && outData[0]->GetPointData()->GetScalars())
     {
-    outData->GetPointData()->GetScalars()->SetName("Magnitude");
+    outData[0]->GetPointData()->GetScalars()->SetName("Magnitude");
     }
   vtkDebugMacro(<< "Execute: inData = " << inData 
   << ", outData = " << outData);
   
   // this filter expects that input is the same type as output.
-  if (inData->GetScalarType() != outData->GetScalarType())
+  if (inData[0][0]->GetScalarType() != outData[0]->GetScalarType())
     {
-    vtkErrorMacro(<< "Execute: input ScalarType, " << inData->GetScalarType()
-    << ", must match out ScalarType " << outData->GetScalarType());
+    vtkErrorMacro(<< "Execute: input ScalarType, " << inData[0][0]->GetScalarType()
+    << ", must match out ScalarType " << outData[0]->GetScalarType());
     return;
     }
   
-  switch (inData->GetScalarType())
+  switch (inData[0][0]->GetScalarType())
     {
-    vtkTemplateMacro6(vtkImageMagnitudeExecute, this, inData, outData, 
+    vtkTemplateMacro6(vtkImageMagnitudeExecute, this, inData[0][0], outData[0], 
                       outExt, id, static_cast<VTK_TT *>(0));
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
