@@ -1,24 +1,18 @@
 SET(KIT Rendering)
 SET(UKIT RENDERING)
-SET(KIT_TCL_LIBS vtkGraphicsTCL vtkImagingTCL)
-SET(KIT_PYTHON_LIBS vtkGraphicsPython vtkImagingPython)
-SET(KIT_JAVA_LIBS vtkGraphicsJava vtkImagingJava)
-SET(KIT_LIBS vtkGraphics vtkImaging)
-IF (JAVA_AWT_LIBRARY)
-  SET(KIT_JAVA_LIBS ${KIT_JAVA_LIBS} ${JAVA_AWT_LIBRARY})
-ENDIF (JAVA_AWT_LIBRARY)
+SET(KIT_TCL_LIBS vtkGraphicsTCL vtkImagingTCL ${TCL_LIBRARY})
 IF (TK_LIBRARY)
   SET(KIT_TCL_LIBS ${KIT_TCL_LIBS} ${TK_LIBRARY})
 ENDIF (TK_LIBRARY)
-
-# Freetype stuff
-
-SET(KIT_LIBS ${KIT_LIBS}
+SET(KIT_PYTHON_LIBS vtkGraphicsPython vtkImagingPython)
+SET(KIT_JAVA_LIBS vtkGraphicsJava vtkImagingJava)
+IF (JAVA_AWT_LIBRARY)
+  SET(KIT_JAVA_LIBS ${KIT_JAVA_LIBS} ${JAVA_AWT_LIBRARY})
+ENDIF (JAVA_AWT_LIBRARY)
+SET(KIT_LIBS vtkGraphics vtkImaging
   vtkftgl
   vtkfreetype
 )
-
-
 
 SET( Kit_SRCS
 vtkAbstractMapper3D.cxx
@@ -161,6 +155,8 @@ vtkVolumeTextureMapper
 ABSTRACT
 )
 
+# Freetype stuff
+
 SET(Kit_SRCS ${Kit_SRCS}
   vtkFreeTypeFontCache.cxx
 )
@@ -190,6 +186,8 @@ IF(VTK_USE_X)
   SET( Kit_SRCS ${Kit_SRCS}
     vtkXRenderWindowInteractor.cxx)
 ENDIF(VTK_USE_X)
+
+# Build a list of libraries to link to vtkRendering.
 
 IF(VTK_USE_VOLUMEPRO)
   IF(VTK_HAVE_VG500)
@@ -281,7 +279,13 @@ ELSE (VTK_USE_MANGLED_MESA)
     ENDIF (OSMESA_LIBRARY)
   ENDIF(VTK_OPENGL_HAS_OSMESA)
 ENDIF(VTK_USE_MANGLED_MESA)
-
+SET(Kit_SRCS ${Kit_SRCS} ${KitOpenGL_SRCS})
+SET(Kit_EXTRA_SRCS ${Kit_FT_SRCS})
+SET(Kit_EXTRA_CMDS)
+SET(Kit_TCL_EXTRA_SRCS)
+SET(Kit_PYTHON_EXTRA_SRCS)
+SET(Kit_JAVA_EXTRA_SRCS)
+SET(Kit_TCL_EXTRA_CMDS)
 
 IF (VTK_WRAP_TCL)
   IF(NOT VTK_USE_COCOA)
@@ -297,32 +301,16 @@ IF (VTK_WRAP_TCL)
         vtkXRenderWindowTclInteractor.cxx)
     ENDIF (NOT APPLE)
   ENDIF (NOT WIN32) 
-
+  
   IF (NOT VTK_DISABLE_TK_INIT)
-    SET(Kit_TCL_EXTRA_CMDS ${Kit_TCL_EXTRA_CMDS} 
-        vtkTkRenderWidget
-        vtkTkImageViewerWidget)
+   SET(Kit_TCL_EXTRA_CMDS 
+     vtkTkRenderWidget 
+     vtkTkImageViewerWidget)
   ENDIF (NOT VTK_DISABLE_TK_INIT)
+  IF (APPLE AND VTK_BUILD_SHARED_LIBS)
+    SET(Kit_TCL_EXTRA_CMDS ${Kit_TCL_EXTRA_CMDS} vtkOSXRenderingTclInit.c)
+  ENDIF (APPLE AND VTK_BUILD_SHARED_LIBS)
 ENDIF (VTK_WRAP_TCL)
-
-
-SET(Kit_SRCS ${Kit_SRCS} ${KitOpenGL_SRCS})
-SET(Kit_EXTRA_SRCS ${Kit_FT_SRCS})
-SET(Kit_TCL_EXTRA_SRCS)
-SET(Kit_PYTHON_EXTRA_SRCS)
-SET(Kit_JAVA_EXTRA_SRCS)
-
-IF(VTK_WRAP_TCL)
-  IF (APPLE AND VTK_BUILD_SHARED_LIBS)
-    SET(Kit_TCL_EXTRA_SRCS ${Kit_TCL_EXTRA_SRCS} vtkOSXRenderingTclInit.c)
-  ENDIF (APPLE AND VTK_BUILD_SHARED_LIBS)
-
-  IF (APPLE AND VTK_BUILD_SHARED_LIBS)
-    IF(VTK_APPLE_SHARED_FLAGS_NEEDED)
-      SET_TARGET_PROPERTIES(vtk${KIT}TCL PROPERTIES LINK_FLAGS "-init _oft_initRenOSXInit")
-    ENDIF(VTK_APPLE_SHARED_FLAGS_NEEDED)
-  ENDIF (APPLE AND VTK_BUILD_SHARED_LIBS)
-ENDIF(VTK_WRAP_TCL)
 
 # -----------------------------------------------------------------
 
@@ -391,24 +379,33 @@ TARGET_LINK_LIBRARIES(vtk${KIT} ${KIT_LIBS})
 INSTALL_TARGETS(/lib/vtk vtk${KIT})
 INSTALL_FILES(/include/vtk .h ${Kit_SRCS})
 
+IF (VTK_WRAP_TCL)
+  IF (APPLE AND VTK_BUILD_SHARED_LIBS)
+    IF(VTK_APPLE_SHARED_FLAGS_NEEDED)
+      SET_TARGET_PROPERTIES(vtk${KIT}TCL PROPERTIES LINK_FLAGS "-init _oft_initRenOSXInit")
+    ENDIF(VTK_APPLE_SHARED_FLAGS_NEEDED)
+  ENDIF (APPLE AND VTK_BUILD_SHARED_LIBS)
+ENDIF (VTK_WRAP_TCL)
+
 IF (VTK_WRAP_PYTHON)
   IF (TK_LIBRARY)
      IF(NOT VTK_USE_COCOA)
-       SET(KitPythonTkWidgets_SRCS
+       SET(RenderingPythonTkWidgets_SRCS
           vtkTkWidgetsInit.cxx
           vtkTkRenderWidgetPython.cxx
           vtkTkImageViewerWidgetPython.cxx
           )
-         ADD_LIBRARY(vtk${KIT}PythonTkWidgets SHARED
-                     ${KitPythonTkWidgets_SRCS})
-       TARGET_LINK_LIBRARIES (vtk${KIT}PythonTkWidgets
+         ADD_LIBRARY(vtkRenderingPythonTkWidgets SHARED
+                     ${RenderingPythonTkWidgets_SRCS})
+       TARGET_LINK_LIBRARIES (vtkRenderingPythonTkWidgets
                               vtk${KIT}
                               ${TCL_LIBRARY}
                               ${TK_LIBRARY})
-       INSTALL_TARGETS(/lib/vtk vtk${KIT}PythonTkWidgets)
+       INSTALL_TARGETS(/lib/vtk vtkRenderingPythonTkWidgets)
      ENDIF(NOT VTK_USE_COCOA)
   ENDIF (TK_LIBRARY)
 ENDIF (VTK_WRAP_PYTHON)
+
 IF(VTK_USE_X)
   TARGET_LINK_LIBRARIES(vtk${KIT} -lXt ${CMAKE_X_LIBS})
   ADD_DEFINITIONS(${CMAKE_X_CFLAGS})
