@@ -56,7 +56,7 @@ VTK_RENDERING_EXPORT LRESULT CALLBACK vtkHandleMessage2(HWND,UINT,WPARAM,LPARAM,
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkWin32RenderWindowInteractor, "1.86");
+vtkCxxRevisionMacro(vtkWin32RenderWindowInteractor, "1.87");
 vtkStandardNewMacro(vtkWin32RenderWindowInteractor);
 #endif
 
@@ -360,7 +360,7 @@ void vtkWin32RenderWindowInteractor::OnNCMouseMove(HWND, UINT nFlags,
     }
 }
 
-void vtkWin32RenderWindowInteractor::OnMouseWheelForward(HWND wnd,UINT nFlags, 
+void vtkWin32RenderWindowInteractor::OnMouseWheelForward(HWND,UINT nFlags, 
                                                    int X, int Y) 
 {
   if (!this->Enabled) 
@@ -374,7 +374,7 @@ void vtkWin32RenderWindowInteractor::OnMouseWheelForward(HWND wnd,UINT nFlags,
   this->InvokeEvent(vtkCommand::MouseWheelForwardEvent,NULL);
 }
 
-void vtkWin32RenderWindowInteractor::OnMouseWheelBackward(HWND wnd,UINT nFlags, 
+void vtkWin32RenderWindowInteractor::OnMouseWheelBackward(HWND,UINT nFlags, 
                                                    int X, int Y) 
 {
   if (!this->Enabled) 
