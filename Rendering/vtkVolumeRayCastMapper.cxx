@@ -31,7 +31,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkVolumeRayCastMapper, "1.87");
+vtkCxxRevisionMacro(vtkVolumeRayCastMapper, "1.88");
 
 vtkCxxSetObjectMacro(vtkVolumeRayCastMapper,VolumeRayCastFunction,
                      vtkVolumeRayCastFunction );
@@ -134,6 +134,8 @@ vtkVolumeRayCastMapper::~vtkVolumeRayCastMapper()
   
   this->VoxelsTransform->Delete();
   this->VoxelsToViewTransform->Delete();
+  this->PerspectiveTransform->Delete();
+  
   
   this->Threader->Delete();
   
