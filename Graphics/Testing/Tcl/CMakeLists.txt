@@ -40,6 +40,7 @@ IF (VTK_USE_RENDERING)
       shepards
       socbal
       spToPd
+      subDivideTetra
       teapotHulls
       TenEllip
       testDataSetTriangleFilter
