@@ -74,12 +74,29 @@ extern VTKTCL_EXPORT void vtkTclListInstances(Tcl_Interp *interp,
 					      ClientData arg);
 extern VTKTCL_EXPORT int  vtkTclInDelete();
 
+extern VTKTCL_EXPORT int vtkTclNewInstanceCommand(ClientData cd, 
+						  Tcl_Interp *interp,
+						  int argc, char *argv[]);
+extern VTKTCL_EXPORT void vtkTclDeleteCommandStruct(ClientData cd);
+extern VTKTCL_EXPORT 
+void vtkTclCreateNew(Tcl_Interp *interp, char *cname,
+		     ClientData (*NewCommand)(),
+		     int (*CommandFunction)(ClientData cd,
+					    Tcl_Interp *interp,
+					    int argc, char *argv[]));
+
 typedef  struct _vtkTclVoidFuncArg 
 {
   Tcl_Interp *interp;
   char *command;
 } vtkTclVoidFuncArg;
 
+struct vtkTclCommandStruct
+{
+  ClientData (*NewCommand)();
+  int (*CommandFunction)(ClientData cd, Tcl_Interp *interp,
+                         int argc, char *argv[]);
+};
 
 #endif
 

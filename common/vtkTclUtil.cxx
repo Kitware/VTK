@@ -247,49 +247,11 @@ VTKTCL_EXPORT void vtkTclGetObjectFromPointer(Tcl_Interp *interp,
   sprintf(temps,"%p",temp);
   if ((entry = Tcl_FindHashEntry(&vtkPointerLookup,temps))) 
     {
-    /* if it already exists then are the command functions the same ? */
-    int (*command2)(ClientData, Tcl_Interp *,int, char *[]);
-    char *args[3];
-    Tcl_HashEntry *entry2;
-  
-    entry2 = Tcl_FindHashEntry(&vtkCommandLookup,
-                               (char *)(Tcl_GetHashValue(entry)));
-    command2 = 
-      (int (*)(ClientData,Tcl_Interp *,int,char *[]))Tcl_GetHashValue(entry2);
-    
     if (vtkTclDebugOn)
       {
 	vtkGenericWarningMacro("Found name: " 
 			       << (char *)(Tcl_GetHashValue(entry)) 
 			       << " for vtk pointer: " << temp);
-      }
-
-    /* if the commands are not the same try to pick the best one */
-    /* the best one is the one that is lowest in the tree */
-    if (command2 != command)
-      {
-      /* to find the best one we call GetClassName and see if one of the */
-      /* commands can typeconvert to that class while the other can't    */
-      /* if that is the case then we use the one that can. Otherwise we  */
-      /* just let the original command function stay */
-      /* set up the args for the GetClassName call */
-      args[0] = "Dummy";
-      args[1] = "GetClassName";
-      args[2] = NULL;
-      command2((ClientData)temp,interp,2,args);
-      args[0] = "DoTypecasting";
-      args[1] = interp->result;
-      args[2] = NULL;
-      if (command2((ClientData)temp,(Tcl_Interp *)NULL,3,args) != TCL_OK)
-	{
-	  /* the original function couldn't handle the type conversion so */
-	  /* try the new one */
-	  if (command((ClientData)temp,(Tcl_Interp *)NULL,3,args) == TCL_OK)
-	  {
-	  /* the new one can handle the conversion so lets use it instead */
-	  Tcl_SetHashValue(entry2,(ClientData)command);
-	  }
-	}
       }
     
     /* while we are at it store the name since it is required anyhow */
@@ -305,6 +267,22 @@ VTKTCL_EXPORT void vtkTclGetObjectFromPointer(Tcl_Interp *interp,
     {
       vtkGenericWarningMacro("Created name: " << name
 			     << " for vtk pointer: " << temp);
+    }
+
+  // check to see if we can find the command function based on class name
+  Tcl_CmdInfo cinf;
+  char *tstr = strdup(temp->GetClassName());
+  if (Tcl_GetCommandInfo(interp,tstr,&cinf))
+    {
+    if (cinf.clientData)
+      {
+      vtkTclCommandStruct *cs = (vtkTclCommandStruct *)cinf.clientData;
+      command = cs->CommandFunction;
+      }
+    }
+  if (tstr)
+    {
+    delete [] tstr;
     }
 
   entry = Tcl_CreateHashEntry(&vtkInstanceLookup,name,&is_new);
@@ -471,3 +449,72 @@ VTKTCL_EXPORT void vtkTclListInstances(Tcl_Interp *interp, ClientData arg)
 }
 
   
+int vtkTclNewInstanceCommand(ClientData cd, Tcl_Interp *interp,
+			     int argc, char *argv[])
+{
+  Tcl_HashEntry *entry;
+  int is_new;
+  char temps[80];
+  vtkTclCommandStruct *cs = (vtkTclCommandStruct *)cd;
+
+  if (argc != 2)
+    {
+    interp->result = "vtk object creation requires one argument, a name.";
+    return TCL_ERROR;
+    }
+
+  if ((argv[1][0] >= '0')&&(argv[1][0] <= '9'))
+    {
+    interp->result = "vtk object names must start with a letter.";
+    return TCL_ERROR;
+    }
+
+  if (Tcl_FindHashEntry(&vtkInstanceLookup,argv[1]))
+    {
+    interp->result = "a vtk object with that name already exists.";
+    return TCL_ERROR;
+    }
+
+  ClientData temp;
+  if (!strcmp("ListInstances",argv[1]))
+    {
+    vtkTclListInstances(interp,cs->CommandFunction);
+    return TCL_OK;
+    }
+  temp = cs->NewCommand();
+
+  entry = Tcl_CreateHashEntry(&vtkInstanceLookup,argv[1],&is_new);
+  Tcl_SetHashValue(entry,temp);
+  sprintf(temps,"%p",(void *)temp);
+  entry = Tcl_CreateHashEntry(&vtkPointerLookup,temps,&is_new);
+    Tcl_SetHashValue(entry,(ClientData)(strdup(argv[1])));
+  Tcl_CreateCommand(interp,argv[1],cs->CommandFunction,
+                    temp,(Tcl_CmdDeleteProc *)vtkTclGenericDeleteObject);
+  entry = Tcl_CreateHashEntry(&vtkCommandLookup,argv[1],&is_new);
+    Tcl_SetHashValue(entry,(ClientData)(cs->CommandFunction));
+  ((vtkObject *)temp)->SetDeleteMethod(vtkTclDeleteObjectFromHash);
+
+
+  sprintf(interp->result,"%s",argv[1]);
+  return TCL_OK;
+}
+
+void vtkTclDeleteCommandStruct(ClientData cd)
+{
+  vtkTclCommandStruct *cs = (vtkTclCommandStruct *)cd;
+  delete cs;
+}
+
+void vtkTclCreateNew(Tcl_Interp *interp, char *cname,
+                     ClientData (*NewCommand)(),
+                     int (*CommandFunction)(ClientData cd,
+					    Tcl_Interp *interp,
+					    int argc, char *argv[]))
+{
+  vtkTclCommandStruct *cs = new vtkTclCommandStruct;
+  cs->NewCommand = NewCommand;
+  cs->CommandFunction = CommandFunction;
+  Tcl_CreateCommand(interp,cname,vtkTclNewInstanceCommand,
+                   (ClientData *)cs,
+                   (Tcl_CmdDeleteProc *)vtkTclDeleteCommandStruct);
+}

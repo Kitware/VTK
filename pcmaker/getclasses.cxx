@@ -313,7 +313,6 @@ void stuffitTcl(FILE *fp, CPcmakerDlg *vals)
     fprintf(fp,"ClientData %sNewCommand();\n",names[i]);
     }
 
-
   if (!strcmp(kitName,"Vtktcl"))
     {
     fprintf(fp,"int vtkCommand(ClientData cd, Tcl_Interp *interp,\n             int argc, char *argv[]);\n");
@@ -336,108 +335,12 @@ void stuffitTcl(FILE *fp, CPcmakerDlg *vals)
   fprintf(fp,"\n\nextern \"C\" {__declspec(dllexport) int %s_Init(Tcl_Interp *interp);}\n\n",
 	  kitName);
 
-
   /* create an extern ref to the generic delete function */
   fprintf(fp,"\n\nextern void vtkTclGenericDeleteObject(ClientData cd);\n\n");
   
-  // prototype helper function
-  if (anindex > 200) fprintf(fp,"int vtk%sNewInstanceHelper(ClientData cd, Tcl_Interp *interp,\n                      	   int argc, char *argv[]);\n\n",kitName);
-  /* define the vtkNewInstanceCommand */
-  fprintf(fp,"int vtk%sNewInstanceCommand(ClientData cd, Tcl_Interp *interp,\n                         int argc, char *argv[])\n{\n",kitName);
-  fprintf(fp,"  Tcl_HashEntry *entry;\n  int is_new;\n  char temps[80];\n");
-  fprintf(fp,"  cd = 0; /* just prevents compiler warnings */\n");
-
-
-  fprintf(fp,"\n  if (argc != 2)\n    {\n    interp->result = \"vtk object creation requires one argument, a name.\";\n    return TCL_ERROR;\n    }\n\n");
-  fprintf(fp,"  if ((argv[1][0] >= '0')&&(argv[1][0] <= '9'))\n    {\n    interp->result = \"vtk object names must start with a letter.\";\n    return TCL_ERROR;\n    }\n\n");
-  fprintf(fp,"  if (Tcl_FindHashEntry(&vtkInstanceLookup,argv[1]))\n    {\n    interp->result = \"a vtk object with that name already exists.\";\n    return TCL_ERROR;\n    }\n\n");
-
-
-  // we have to break this function into two because it is too large for some compilers
-  if (anindex > 200)
-    {
-    for (i = 0; i < 200; i++)
-      {
-      fprintf(fp,"  if (!strcmp(\"%s\",argv[0]))\n    {\n",names[i]);
-      fprintf(fp,"    ClientData temp;\n");
-      fprintf(fp,"    if (!strcmp(\"ListInstances\",argv[1]))\n      {\n");
-      fprintf(fp,"      vtkTclListInstances(interp,%sCommand);\n",names[i]);
-      fprintf(fp,"      return TCL_OK;\n      }\n");
-
-
-      fprintf(fp,"    temp = %sNewCommand();\n",names[i]);
-      fprintf(fp,"\n    entry = Tcl_CreateHashEntry(&vtkInstanceLookup,argv[1],&is_new);\n    Tcl_SetHashValue(entry,temp);\n");
-      fprintf(fp,"    sprintf(temps,\"%%p\",(void *)temp);\n");
-      fprintf(fp,"    entry = Tcl_CreateHashEntry(&vtkPointerLookup,temps,&is_new);\n    Tcl_SetHashValue(entry,(ClientData)(strdup(argv[1])));\n");
-      fprintf(fp,"    Tcl_CreateCommand(interp,argv[1],%sCommand,\n",
-	      names[i]);
-      fprintf(fp,"                      temp,(Tcl_CmdDeleteProc *)vtkTclGenericDeleteObject);\n");
-      fprintf(fp,"    entry = Tcl_CreateHashEntry(&vtkCommandLookup,argv[1],&is_new);\n    Tcl_SetHashValue(entry,(ClientData)(%sCommand));\n",names[i]);
-      fprintf(fp,"    ((vtkObject *)temp)->SetDeleteMethod(vtkTclDeleteObjectFromHash);\n");
-      fprintf(fp,"    }\n\n");
-      }
-    // call the helper function
-    fprintf(fp,"  if (vtk%sNewInstanceHelper(cd,interp,argc,argv) == TCL_OK) return TCL_OK;\n",kitName);
-    fprintf(fp,"  sprintf(interp->result,\"%%s\",argv[1]);\n  return TCL_OK;\n}\n");
-    fprintf(fp,"int vtk%sNewInstanceHelper(ClientData cd, Tcl_Interp *interp,\n                         int argc, char *argv[])\n{\n",kitName);
-    fprintf(fp,"  Tcl_HashEntry *entry;\n  int is_new;\n  char temps[80];\n");
-    fprintf(fp,"  cd = 0; /* just prevents compiler warnings */\n");
-
-
-    for ( ; i < anindex; i++)
-      {
-      fprintf(fp,"  if (!strcmp(\"%s\",argv[0]))\n    {\n",names[i]);
-      fprintf(fp,"    ClientData temp;\n");
-      fprintf(fp,"    if (!strcmp(\"ListInstances\",argv[1]))\n      {\n");
-      fprintf(fp,"      vtkTclListInstances(interp,%sCommand);\n",names[i]);
-      fprintf(fp,"      return TCL_OK;\n      }\n");
-
-
-      fprintf(fp,"    temp = %sNewCommand();\n",names[i]);
-      fprintf(fp,"\n    entry = Tcl_CreateHashEntry(&vtkInstanceLookup,argv[1],&is_new);\n    Tcl_SetHashValue(entry,temp);\n");
-      fprintf(fp,"    sprintf(temps,\"%%p\",(void *)temp);\n");
-      fprintf(fp,"    entry = Tcl_CreateHashEntry(&vtkPointerLookup,temps,&is_new);\n    Tcl_SetHashValue(entry,(ClientData)(strdup(argv[1])));\n");
-      fprintf(fp,"    Tcl_CreateCommand(interp,argv[1],%sCommand,\n",
-	      names[i]);
-      fprintf(fp,"                      temp,(Tcl_CmdDeleteProc *)vtkTclGenericDeleteObject);\n");
-      fprintf(fp,"    entry = Tcl_CreateHashEntry(&vtkCommandLookup,argv[1],&is_new);\n    Tcl_SetHashValue(entry,(ClientData)(%sCommand));\n",names[i]);
-	  fprintf(fp,"    ((vtkObject *)temp)->SetDeleteMethod(vtkTclDeleteObjectFromHash);\n");
-      fprintf(fp,"    }\n\n");
-      }
-    fprintf(fp,"  return TCL_ERROR;\n}\n");
-    } 
-  else
-    {
-    for (i = 0; i < anindex; i++)
-      {
-      fprintf(fp,"  if (!strcmp(\"%s\",argv[0]))\n    {\n",names[i]);
-      fprintf(fp,"    ClientData temp;\n");
-      fprintf(fp,"    if (!strcmp(\"ListInstances\",argv[1]))\n      {\n");
-      fprintf(fp,"      vtkTclListInstances(interp,%sCommand);\n",names[i]);
-      fprintf(fp,"      return TCL_OK;\n      }\n");
-
-
-      fprintf(fp,"    temp = %sNewCommand();\n",names[i]);
-      fprintf(fp,"\n    entry = Tcl_CreateHashEntry(&vtkInstanceLookup,argv[1],&is_new);\n    Tcl_SetHashValue(entry,temp);\n");
-      fprintf(fp,"    sprintf(temps,\"%%p\",(void *)temp);\n");
-      fprintf(fp,"    entry = Tcl_CreateHashEntry(&vtkPointerLookup,temps,&is_new);\n    Tcl_SetHashValue(entry,(ClientData)(strdup(argv[1])));\n");
-      fprintf(fp,"    Tcl_CreateCommand(interp,argv[1],%sCommand,\n",
-	      names[i]);
-      fprintf(fp,"                      temp,(Tcl_CmdDeleteProc *)vtkTclGenericDeleteObject);\n");
-      fprintf(fp,"    entry = Tcl_CreateHashEntry(&vtkCommandLookup,argv[1],&is_new);\n    Tcl_SetHashValue(entry,(ClientData)(%sCommand));\n",names[i]);
-	  fprintf(fp,"    ((vtkObject *)temp)->SetDeleteMethod(vtkTclDeleteObjectFromHash);\n");
-      fprintf(fp,"    }\n\n");
-      }
-    fprintf(fp,"  sprintf(interp->result,\"%%s\",argv[1]);\n  return TCL_OK;\n}\n");
-    }
-
-
   /* the main declaration */
   fprintf(fp,"\n\nint %s_SafeInit(Tcl_Interp *interp)\n{\n",kitName);
   fprintf(fp,"  return %s_Init(interp);\n}\n",kitName);
-
-
-
 
   /* prototype for tkRenderWidget */
   if (vals->m_Graphics) fprintf(fp,"extern \"C\" {int Vtktkrenderwidget_Init(Tcl_Interp *interp);}\n\n");
@@ -446,9 +349,6 @@ void stuffitTcl(FILE *fp, CPcmakerDlg *vals)
     fprintf(fp,"extern \"C\" {int Vtktkimageviewerwidget_Init(Tcl_Interp *interp);}\n\n");
     fprintf(fp,"extern \"C\" {int Vtktkimagewindowwidget_Init(Tcl_Interp *interp);}\n\n");
     }
-
-
-
 
   fprintf(fp,"\n\nint %s_Init(Tcl_Interp *interp)\n{\n",kitName);
   if (!strcmp(kitName,"Vtktcl"))
@@ -488,10 +388,10 @@ void stuffitTcl(FILE *fp, CPcmakerDlg *vals)
   
   for (i = 0; i < anindex; i++)
     {
-    fprintf(fp,"  Tcl_CreateCommand(interp,\"%s\",vtk%sNewInstanceCommand,\n		    (ClientData *)NULL,\n		    (Tcl_CmdDeleteProc *)NULL);\n\n",
-	    names[i],kitName);
+    fprintf(fp,"  vtkTclCreateNew(interp,\"%s\", %sNewCommand,\n",
+	    names[i], names[i]);
+    fprintf(fp,"                  %sCommand);\n",names[i]);
     }
-
 
   fprintf(fp,"  return TCL_OK;\n}\n");
 }
@@ -530,9 +430,7 @@ void MakeTclInit(char *fname, char *argv1, CPcmakerDlg *vals)
   fp = fopen(fname,"w");
   if (fp)
     {
-    fprintf(fp,"#include <string.h>\n");
-    fprintf(fp,"#include <tcl.h>\n");
-    fprintf(fp,"#include \"vtkObject.h\"\n");
+    fprintf(fp,"#include \"vtkTclUtil.h\"\n");
     fprintf(fp,"#include \"vtkWin32RenderWindowInteractor.h\"\n\n");
     stuffitTcl(fp,vals);
     fclose(fp);
