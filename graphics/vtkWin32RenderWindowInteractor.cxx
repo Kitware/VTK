@@ -365,6 +365,11 @@ LRESULT CALLBACK vtkHandleMessage(HWND hWnd,UINT uMsg, WPARAM wParam, LPARAM lPa
   ren = (vtkWin32OpenGLRenderWindow *)GetWindowLong(hWnd,GWL_USERDATA);
   me = (vtkWin32RenderWindowInteractor *)ren->GetInteractor();
 
+  if (me == NULL)
+    {
+    return 0;
+    }
+  
   if ((uMsg == WM_USER+13)&&(wParam == 26))
     {
     // someone is telling us to set our OldProc
