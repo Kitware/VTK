@@ -99,7 +99,9 @@ INCLUDE (${VTK_BINARY_DIR}/Parallel/LocalUserOptions.cmake OPTIONAL)
 INCLUDE (${VTK_SOURCE_DIR}/Parallel/LocalUserOptions.cmake OPTIONAL)
 
 IF (WIN32)
-  TARGET_LINK_LIBRARIES(vtkParallel wsock32)
+  IF (NOT BORLAND)
+    TARGET_LINK_LIBRARIES(vtkParallel wsock32)
+  ENDIF (NOT BORLAND)
 ENDIF (WIN32)
 
 IF (VTK_WRAP_TCL)
