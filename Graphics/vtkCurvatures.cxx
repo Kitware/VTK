@@ -19,6 +19,8 @@
 #include "vtkFieldData.h"
 #include "vtkFloatArray.h"
 #include "vtkMath.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
@@ -27,7 +29,7 @@
 #include "vtkTensor.h"
 #include "vtkTriangle.h"
 
-vtkCxxRevisionMacro(vtkCurvatures, "1.12");
+vtkCxxRevisionMacro(vtkCurvatures, "1.13");
 vtkStandardNewMacro(vtkCurvatures);
 
 //------------------------------------------------------------------------------
@@ -51,10 +53,9 @@ vtkCurvatures::vtkCurvatures()
   this->InvertMeanCurvature = 0;
 }
 //-------------------------------------------------------//
-void vtkCurvatures::GetMeanCurvature()
+void vtkCurvatures::GetMeanCurvature(vtkPolyData *mesh)
 {
     vtkDebugMacro("Start vtkCurvatures::GetMeanCurvature");
-    vtkPolyData* mesh = this->GetOutput();
 
     // Empty array check
     if (mesh->GetNumberOfPolys()==0 || mesh->GetNumberOfPoints()==0)
@@ -218,11 +219,10 @@ void vtkCurvatures::GetMeanCurvature()
 };
 //--------------------------------------------
 #define CLAMP_MACRO(v)    ((v)<(-1) ? (-1) : (v) > (1) ? (1) : v)
-void vtkCurvatures::GetGaussCurvature()
+void vtkCurvatures::GetGaussCurvature(vtkPolyData *output)
 {
     vtkDebugMacro("Start vtkCurvatures::GetGaussCurvature()");
     // vtk data
-    vtkPolyData* output = this->GetOutput();
     vtkCellArray* facets = output->GetPolys();
 
     // Empty array check
@@ -322,13 +322,11 @@ void vtkCurvatures::GetGaussCurvature()
     /*******************************************************/
 };
 
-void vtkCurvatures::GetMaximumCurvature()
+void vtkCurvatures::GetMaximumCurvature(vtkPolyData *input,vtkPolyData *output)
 {
-  this->GetGaussCurvature();
-  this->GetMeanCurvature();
+  this->GetGaussCurvature(output);
+  this->GetMeanCurvature(output);
   
-  vtkPolyData *output = this->GetOutput();
-  vtkPolyData *input = this->GetInput();
   vtkIdType numPts = input->GetNumberOfPoints();
   
   vtkDoubleArray *maximumCurvature = vtkDoubleArray::New();
@@ -360,17 +358,14 @@ void vtkCurvatures::GetMaximumCurvature()
       k_max = 0;
       }
     maximumCurvature->SetComponent(i, 0, k_max);
-    }
-    
+    }    
 }
 
-void vtkCurvatures::GetMinimumCurvature()
+void vtkCurvatures::GetMinimumCurvature(vtkPolyData *input,vtkPolyData *output)
 {
-  this->GetGaussCurvature();
-  this->GetMeanCurvature();
+  this->GetGaussCurvature(output);
+  this->GetMeanCurvature(output);
   
-  vtkPolyData *output = this->GetOutput();
-  vtkPolyData *input = this->GetInput();
   vtkIdType numPts = input->GetNumberOfPoints();
   
   vtkDoubleArray *minimumCurvature = vtkDoubleArray::New();
@@ -402,19 +397,29 @@ void vtkCurvatures::GetMinimumCurvature()
       k_min = 0;
       }
     minimumCurvature->SetComponent(i, 0, k_min);
-    }
-  
+    }  
 }
 
 //-------------------------------------------------------
-void vtkCurvatures::Execute()
+int vtkCurvatures::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
-  vtkPolyData *input  = this->GetInput();
-  vtkPolyData *output = this->GetOutput();
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkPolyData *input = vtkPolyData::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   // Null input check
   if (!input)
     {
-    return;
+    return 0;
     }
 
   output->CopyStructure(input);
@@ -426,31 +431,33 @@ void vtkCurvatures::Execute()
   //-------------------------------------------------------//
 
   if ( this->CurvatureType == VTK_CURVATURE_GAUSS )
-      {
-      this->GetGaussCurvature();
-      }
+    {
+    this->GetGaussCurvature(output);
+    }
   else if ( this->CurvatureType == VTK_CURVATURE_MEAN )
-      {
-      this->GetMeanCurvature();
-      }
+    {
+    this->GetMeanCurvature(output);
+    }
   else if ( this->CurvatureType ==  VTK_CURVATURE_MAXIMUM )
-      {
-      this->GetMaximumCurvature();
-      }
+    {
+    this->GetMaximumCurvature(input, output);
+    }
   else if ( this->CurvatureType ==  VTK_CURVATURE_MINIMUM )
-      {
-      this->GetMinimumCurvature();
-      }
+    {
+    this->GetMinimumCurvature(input, output);
+    }
   else 
-      {
-      vtkErrorMacro("Only Gauss, Mean, Max, and Min Curvature type available");
-      }
+    {
+    vtkErrorMacro("Only Gauss, Mean, Max, and Min Curvature type available");
+    return 0;
+    }
+
+  return 1;
 }
 /*-------------------------------------------------------*/
 void vtkCurvatures::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkPolyDataToPolyDataFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
   os << indent << "CurvatureType: " << this->CurvatureType << "\n";
   os << indent << "InvertMeanCurvature: " << this->InvertMeanCurvature << "\n";
 }
-

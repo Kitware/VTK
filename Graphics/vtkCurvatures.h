@@ -61,17 +61,17 @@
 #ifndef __vtkCurvatures_h
 #define __vtkCurvatures_h
 
-#include "vtkPolyDataToPolyDataFilter.h"
+#include "vtkPolyDataAlgorithm.h"
 
 #define VTK_CURVATURE_GAUSS 0
 #define VTK_CURVATURE_MEAN  1
 #define VTK_CURVATURE_MAXIMUM 2
 #define VTK_CURVATURE_MINIMUM 3
 
-class VTK_GRAPHICS_EXPORT vtkCurvatures : public vtkPolyDataToPolyDataFilter
+class VTK_GRAPHICS_EXPORT vtkCurvatures : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkCurvatures,vtkPolyDataToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkCurvatures,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -105,24 +105,24 @@ protected:
   vtkCurvatures();
 
   // Usual data generation method
-  void Execute();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   // Description:
   // discrete Gauss curvature (K) computation,
   // cf http://www-ipg.umds.ac.uk/p.batchelor/curvatures/curvatures.html
-  void GetGaussCurvature();
+  void GetGaussCurvature(vtkPolyData *output);
 
   // discrete Mean curvature (H) computation,
   // cf http://www-ipg.umds.ac.uk/p.batchelor/curvatures/curvatures.html
-  void GetMeanCurvature();
+  void GetMeanCurvature(vtkPolyData *output);
   
   //Description:
   // Maximum principal curvature k_max = H + sqrt(H^2 -K)
-  void GetMaximumCurvature();
+  void GetMaximumCurvature(vtkPolyData *input, vtkPolyData *output);
   
   //Description:
   // Minimum principal curvature k_min = H - sqrt(H^2 -K)
-  void GetMinimumCurvature();
+  void GetMinimumCurvature(vtkPolyData *input, vtkPolyData *output);
   
 
   // Vars
