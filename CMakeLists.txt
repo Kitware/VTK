@@ -13,8 +13,10 @@ SET(VTK_VERSION
 #-----------------------------------------------------------------------------
 # Load the VTK CMake extension module.
 IF(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 1.4)
-  INCLUDE (${CMAKE_ROOT}/Modules/TestBigEndian.cmake)
-  TEST_BIG_ENDIAN(CMAKE_WORDS_BIGENDIAN)
+  # test for some required system info
+  INCLUDE (${CMAKE_ROOT}/Modules/CMakeBackwardCompatibilityC.cmake)
+  INCLUDE (${CMAKE_ROOT}/Modules/CMakeBackwardCompatibilityCXX.cmake)
+
   # Import the VTK_LOAD_CMAKE_EXTENSIONS macro.
   INCLUDE(${VTK_SOURCE_DIR}/CMake/vtkLoadCMakeExtensions.cmake)
 
@@ -29,6 +31,16 @@ IF(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 1.4)
                 ${VTK_SOURCE_DIR}/CMake/cmVTKWrapPython2Command.c
                 ${VTK_SOURCE_DIR}/CMake/cmVTKWrapJava2Command.c
                 ${VTK_SOURCE_DIR}/CMake/cmVTKMakeInstantiator2Command.c)
+
+ELSE(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 1.4)
+
+  SET(VTK_SIZEOF_CHAR   ${CMAKE_SIZEOF_CHAR})
+  SET(VTK_SIZEOF_DOUBLE ${CMAKE_SIZEOF_DOUBLE})
+  SET(VTK_SIZEOF_FLOAT  ${CMAKE_SIZEOF_FLOAT})
+  SET(VTK_SIZEOF_INT    ${CMAKE_SIZEOF_INT})
+  SET(VTK_SIZEOF_LONG   ${CMAKE_SIZEOF_LONG})
+  SET(VTK_SIZEOF_SHORT  ${CMAKE_SIZEOF_SHORT})
+
 ENDIF(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 1.4)
 
 #-----------------------------------------------------------------------------
@@ -134,26 +146,6 @@ ENDIF(VTK_WRAP_PYTHON)
 IF(VTK_WRAP_JAVA)
   SET(VTK_JAVA_JAR ${LIBRARY_OUTPUT_PATH}/vtk.jar)
 ENDIF(VTK_WRAP_JAVA)
-
-#-----------------------------------------------------------------------------
-# Data type sizes for vtkConfigure.h.
-
-IF(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 1.4)
-  INCLUDE(${CMAKE_ROOT}/Modules/CheckTypeSize.cmake)
-  CHECK_TYPE_SIZE(char   VTK_SIZEOF_CHAR)
-  CHECK_TYPE_SIZE(short  VTK_SIZEOF_SHORT)
-  CHECK_TYPE_SIZE(int    VTK_SIZEOF_INT)
-  CHECK_TYPE_SIZE(long   VTK_SIZEOF_LONG)
-  CHECK_TYPE_SIZE(float  VTK_SIZEOF_FLOAT)
-  CHECK_TYPE_SIZE(double VTK_SIZEOF_DOUBLE)
-ELSE(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 1.4)
-  SET(VTK_SIZEOF_CHAR   ${CMAKE_SIZEOF_CHAR})
-  SET(VTK_SIZEOF_DOUBLE ${CMAKE_SIZEOF_DOUBLE})
-  SET(VTK_SIZEOF_FLOAT  ${CMAKE_SIZEOF_FLOAT})
-  SET(VTK_SIZEOF_INT    ${CMAKE_SIZEOF_INT})
-  SET(VTK_SIZEOF_LONG   ${CMAKE_SIZEOF_LONG})
-  SET(VTK_SIZEOF_SHORT  ${CMAKE_SIZEOF_SHORT})
-ENDIF(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 1.4)
 
 #-----------------------------------------------------------------------------
 OPTION(BUILD_SHARED_LIBS "Build VTK with shared libraries." OFF)
