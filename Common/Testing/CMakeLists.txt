@@ -51,6 +51,8 @@ IF(PYTHON_EXECUTABLE)
            vtkVectorIterator.h
            vtkWin32Header.h
            vtkWinCE.h
+           vtkTcl.h
+           vtkTk.h
            )
 ENDIF(PYTHON_EXECUTABLE)
 

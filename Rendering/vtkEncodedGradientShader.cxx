@@ -31,7 +31,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkEncodedGradientShader, "1.29");
+vtkCxxRevisionMacro(vtkEncodedGradientShader, "1.30");
 vtkStandardNewMacro(vtkEncodedGradientShader);
 
 vtkEncodedGradientShader::vtkEncodedGradientShader()
@@ -577,5 +577,6 @@ void vtkEncodedGradientShader::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Zero Normal Specular Intensity: " <<
     this->ZeroNormalSpecularIntensity << endl;
+  os << indent << "ActiveComponent: " << this->ActiveComponent << endl;
 }
 
