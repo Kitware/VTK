@@ -25,7 +25,7 @@
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkParticleReader, "1.13");
+vtkCxxRevisionMacro(vtkParticleReader, "1.14");
 vtkStandardNewMacro(vtkParticleReader);
 
 // These are copied right from vtkImageReader.
@@ -139,7 +139,6 @@ void vtkParticleReader::Execute()
     return;
     }
 
-  
   fileLength = (unsigned long)this->File->tellg();
   this->NumberOfPoints = fileLength / (4 * sizeof(float));
 
@@ -162,7 +161,6 @@ void vtkParticleReader::Execute()
 
   data = new float[length * 4];
 
-
   // Seek to the first point in the file.
   this->File->seekg(start*4*sizeof(float), ios::beg);
   if (this->File->fail())
@@ -173,14 +171,20 @@ void vtkParticleReader::Execute()
     }
 
   // Read the data.
-  if ( ! this->File->read((char *)data, length*4*sizeof(float)))
+  this->File->read((char *)data, length*4*sizeof(float));
+  if ( this->File->gcount() != (length*4*sizeof(float))
+     // On apple read to eof returns fail
+#ifndef __APPLE_CC__     
+     || this->File->Fail()
+#endif // __APPLE_CC__     
+     )
     {
     vtkErrorMacro("Could not read points: " << start 
            << " to " << next-1);
     delete [] data;
     return;
     }
-
+  
   // Swap bytes if necessary.
   if (this->GetSwapBytes())
     {
