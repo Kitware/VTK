@@ -2575,6 +2575,10 @@ void vtkVolumeRayCastCompositeFunction::SpecificFunctionInitialize(
 void vtkVolumeRayCastCompositeFunction::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkObject::PrintSelf(os,indent);
+
+  os << indent << "Composite Method: " << this->GetCompositeMethodAsString()
+     << "\n";
+
 }
 
 
