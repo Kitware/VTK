@@ -10,6 +10,7 @@ IF(VTK_USE_DISPLAY)
   # For tests that actually render something
   SET(RenderingTestsWithArguments
     ${RenderingTestsWithArguments}
+    LoadOpenGLExtension.cxx
     TestOrderedTriangulator.cxx
     )
 ENDIF(VTK_USE_DISPLAY)

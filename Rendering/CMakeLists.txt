@@ -133,6 +133,7 @@ ENDIF(VTK_USE_GL2PS)
 SET( KitOpenGL_SRCS
   vtkOpenGLActor.cxx
   vtkOpenGLCamera.cxx
+  vtkOpenGLExtensionManager.cxx
   vtkOpenGLImageActor.cxx
   vtkOpenGLImageMapper.cxx
   vtkOpenGLLight.cxx
@@ -203,6 +204,61 @@ IF(VTK_USE_X)
   SET( Kit_SRCS ${Kit_SRCS}
     vtkXRenderWindowInteractor.cxx)
 ENDIF(VTK_USE_X)
+
+# OpenGL extensions stuff.
+
+# Parse the extensions into vtkgl.h/vtkgl.cxx.
+ADD_CUSTOM_COMMAND(
+  OUTPUT ${VTK_BINARY_DIR}/Rendering/vtkgl.h ${VTK_BINARY_DIR}/Rendering/vtkgl.cxx
+  COMMAND ${VTK_PARSEOGLEXT_EXE}
+  ARGS ${VTK_GLEXT_FILE} ${VTK_GLXEXT_FILE} ${VTK_WGLEXT_FILE}
+  DEPENDS ${VTK_GLEXT_FILE} ${VTK_GLXEXT_FILE} ${VTK_WGLEXT_FILE} ${VTK_PARSEOGLEXT_EXE}
+  )
+
+SET(KitOpenGL_SRCS ${KitOpenGL_SRCS}
+  ${VTK_BINARY_DIR}/Rendering/vtkgl.cxx
+)
+
+SET_SOURCE_FILES_PROPERTIES(
+  # OK, so it's not abstract, but this stops the instantiator
+  # from trying to call vtkRenderingInstantiatorvtkglNew():
+  ${VTK_BINARY_DIR}/Rendering/vtkgl.cxx
+  ABSTRACT
+  )
+
+SET_SOURCE_FILES_PROPERTIES(
+  ${VTK_BINARY_DIR}/Rendering/vtkgl.cxx
+  GENERATED
+  )
+
+SET_SOURCE_FILES_PROPERTIES(
+  ${VTK_BINARY_DIR}/Rendering/vtkgl.cxx
+  WRAP_EXCLUDE
+  )
+
+# Configuration for vtkOpenGLExtensionManager
+IF (WIN32)
+  SET(VTK_USE_WGL_GET_PROC_ADDRESS 1)
+ELSE (WIN32)
+  IF (APPLE)
+    SET(VTK_USE_APPLE_LOADER 1)
+  ELSE (APPLE)
+    INCLUDE(CheckFunctionExists)
+    SET(VTK_SAVE_CMAKE_REQUIRED_LIBRARIES "${CMAKE_REQUIRED_LIBRARIES}")
+    SET(CMAKE_REQUIRED_LIBRARIES "${OPENGL_LIBRARIES};${CMAKE_REQUIRED_LIBRARIES}")
+    CHECK_FUNCTION_EXISTS(glXGetProcAddressARB VTK_USE_GLX_GET_PROC_ADDRESS_ARB)
+    IF (NOT VTK_USE_GLX_GET_PROC_ADDRESS_ARB)
+      CHECK_FUNCTION_EXISTS(glXGetProcAddress VTK_USE_GLX_GET_PROC_ADDRESS)
+      IF (NOT VTK_USE_GLX_GET_PROC_ADDRESS)
+        SET(VTK_USE_VTK_DYNAMIC_LOADER 1)
+      ENDIF (NOT VTK_USE_GLX_GET_PROC_ADDRESS)
+    ENDIF (NOT VTK_USE_GLX_GET_PROC_ADDRESS_ARB)
+    SET(CMAKE_REQUIRED_LIBRARIES "${VTK_SAVE_CMAKE_REQUIRED_LIBRARIES}")
+  ENDIF (APPLE)
+ENDIF (WIN32)
+CONFIGURE_FILE(
+  ${VTK_SOURCE_DIR}/Rendering/vtkOpenGLExtensionManagerConfigure.h.in
+  ${VTK_BINARY_DIR}/Rendering/vtkOpenGLExtensionManagerConfigure.h)
 
 # Build a list of libraries to link to vtkRendering.
 

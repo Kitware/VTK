@@ -111,7 +111,11 @@ SET(VTK_INCLUDE_DIRS_SOURCE_TREE ${VTK_INCLUDE_DIRS_SOURCE_TREE}
 
 #-----------------------------------------------------------------------------
 # Include directories from the build tree.
-SET(VTK_INCLUDE_DIRS_BUILD_TREE ${VTK_BINARY_DIR} ${VTK_BINARY_DIR}/Utilities)
+SET(VTK_INCLUDE_DIRS_BUILD_TREE
+  ${VTK_BINARY_DIR}
+  ${VTK_BINARY_DIR}/Utilities
+  ${VTK_BINARY_DIR}/Rendering
+  )
 
 #-----------------------------------------------------------------------------
 # Include directories needed for .cxx files in VTK.  These include

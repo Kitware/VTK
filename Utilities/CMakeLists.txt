@@ -13,7 +13,7 @@ IF(VTK_INCLUDE_NEED_TCL)
 ENDIF(VTK_INCLUDE_NEED_TCL)
 
 IF(VTK_USE_RENDERING)
-  SUBDIRS(freetype ftgl)
+  SUBDIRS(freetype ftgl ParseOGLExt)
 ENDIF(VTK_USE_RENDERING)
 
 # This is the installed VTKConfig.cmake file configured at the top
