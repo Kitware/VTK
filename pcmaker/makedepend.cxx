@@ -208,7 +208,9 @@ void GetIncludes(DEPENDS_STRUCT *dependsEntry, const char *vtkHome )
               // Get the full name
               if (!GetFullPath(name, vtkHome, fullPath))
                 {
-                AfxMessageBox("ERROR:  Dependency not found!!!");
+		char foo[4096];
+		sprintf(foo,"ERROR: Dependency not found: %s",name);
+                AfxMessageBox(foo);
                 exit(1);
                 }
 
