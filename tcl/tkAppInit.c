@@ -125,6 +125,34 @@ int Tcl_AppInit(Tcl_Interp *interp)
     }
 #endif
 
+#ifdef USE_CONTRIB
+  if (Vtkcontribtcl_Init(interp) == TCL_ERROR) 
+    {
+    return TCL_ERROR;
+    }
+#endif
+
+#ifdef USE_GEAE
+  if (Vtkgeaetcl_Init(interp) == TCL_ERROR) 
+    {
+    return TCL_ERROR;
+    }
+#endif
+
+#ifdef USE_GEMSIP
+  if (Vtkgemsiptcl_Init(interp) == TCL_ERROR) 
+    {
+    return TCL_ERROR;
+    }
+#endif
+
+#ifdef USE_GEMSIO
+  if (Vtkgemsiotcl_Init(interp) == TCL_ERROR) 
+    {
+    return TCL_ERROR;
+    }
+#endif
+
   /*
    * Specify a user-specific startup file to invoke if the application
    * is run interactively.  Typically the startup file is "~/.apprc"

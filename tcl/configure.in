@@ -449,10 +449,42 @@ AC_ARG_WITH(borescope,
          USE_BORESCOPE_FLAG="-I$(srcdir)/../borescope -DUSE_BORESCOPE",
          [vtk_use_borescope=no]) 
 
+AC_ARG_WITH(contrib,
+         [  --with-contrib        include the contrib classes],
+         [vtk_use_contrib=yes] 
+         USE_CONTRIB_LIBS="-L../contrib -lVTKContribTcl"
+         USE_CONTRIB_FLAG="-I$(srcdir)/../contrib -DUSE_CONTRIB",
+         [vtk_use_contrib=no]) 
+
+AC_ARG_WITH(geae,
+         [  --with-geae        include the geae classes],
+         [vtk_use_geae=yes] 
+         USE_GEAE_LIBS="-L../geae -lVTKGeaeTcl"
+         USE_GEAE_FLAG="-I$(srcdir)/../geae -DUSE_GEAE",
+         [vtk_use_geae=no]) 
+
+AC_ARG_WITH(gemsip,
+         [  --with-gemsip        include the gemsip classes],
+         [vtk_use_gemsip=yes] 
+         USE_GEMSIP_LIBS="-L../gemsip -lVTKGemsipTcl"
+         USE_GEMSIP_FLAG="-I$(srcdir)/../gemsip -DUSE_GEMSIP",
+         [vtk_use_gemsip=no]) 
+
+AC_ARG_WITH(gemsio,
+         [  --with-gemsio        include the gemsio classes],
+         [vtk_use_gemsio=yes] 
+         USE_GEMSIO_LIBS="-L../gemsio -lVTKGemsioTcl"
+         USE_GEMSIO_FLAG="-I$(srcdir)/../gemsio -DUSE_GEMSIO",
+         [vtk_use_gemsio=no]) 
+
 USE_GRAPHICS_DEPENDS=""
 USE_IMAGING_DEPENDS=""
 USE_VOLUME_DEPENDS=""
 USE_BORESCOPE_DEPENDS=""
+USE_CONTRIB_DEPENDS=""
+USE_GEAE_DEPENDS=""
+USE_GEMSIP_DEPENDS=""
+USE_GEMSIO_DEPENDS=""
 COMMON_DEPENDS=""
 
 if test "$vtk_shared_ok" = "yes"; then
@@ -476,6 +508,18 @@ else
     if test "$vtk_use_borescope" = "yes"; then
        USE_BORESCOPE_DEPENDS="../borescope/libVTKBorescopeTcl.a"
     fi
+    if test "$vtk_use_contrib" = "yes"; then
+       USE_CONTRIB_DEPENDS="../contrib/libVTKContribTcl.a"
+    fi
+    if test "$vtk_use_geae" = "yes"; then
+       USE_GEAE_DEPENDS="../geae/libVTKGeaeTcl.a"
+    fi
+    if test "$vtk_use_gemsip" = "yes"; then
+       USE_GEMSIP_DEPENDS="../gemsip/libVTKGemsipTcl.a"
+    fi
+    if test "$vtk_use_gemsio" = "yes"; then
+       USE_GEMSIO_DEPENDS="../gemsio/libVTKGemsioTcl.a"
+    fi
 fi
 
 AC_SUBST(USE_GRAPHICS_FLAG)
@@ -493,6 +537,22 @@ AC_SUBST(USE_VOLUME_DEPENDS)
 AC_SUBST(USE_BORESCOPE_FLAG)
 AC_SUBST(USE_BORESCOPE_LIBS)
 AC_SUBST(USE_BORESCOPE_DEPENDS)
+
+AC_SUBST(USE_CONTRIB_FLAG)
+AC_SUBST(USE_CONTRIB_LIBS)
+AC_SUBST(USE_CONTRIB_DEPENDS)
+
+AC_SUBST(USE_GEAE_FLAG)
+AC_SUBST(USE_GEAE_LIBS)
+AC_SUBST(USE_GEAE_DEPENDS)
+
+AC_SUBST(USE_GEMSIP_FLAG)
+AC_SUBST(USE_GEMSIP_LIBS)
+AC_SUBST(USE_GEMSIP_DEPENDS)
+
+AC_SUBST(USE_GEMSIO_FLAG)
+AC_SUBST(USE_GEMSIO_LIBS)
+AC_SUBST(USE_GEMSIO_DEPENDS)
 
 AC_SUBST(VTK_SHLIB_CFLAGS)
 AC_SUBST(COMMON_DEPENDS)
