@@ -224,16 +224,16 @@ IF (VTK_WRAP_JAVA)
   INSTALL_TARGETS(/lib/vtk vtk${KIT}Java)
 ENDIF (VTK_WRAP_JAVA)
 
-IF(VTK_USE_ANSI_STDLIB)
+#IF(VTK_USE_ANSI_STDLIB)
 # DICOM support is disabled until the following are fixed by the authors:
 #  - Make it build with and without VTK_USE_ANSI_STDLIB.
 #  - Remove all build warnings from dashboard.
 #  - Add a test to bring up coverage of vtkDICOMImageReader.cxx
 #    and actually read a DICOM file.
 #	TARGET_LINK_LIBRARIES(vtk${KIT} ${KIT_LIBS} vtkDICOMParser)
-ELSE(VTK_USE_ANSI_STDLIB)
+#ELSE(VTK_USE_ANSI_STDLIB)
 	TARGET_LINK_LIBRARIES(vtk${KIT} ${KIT_LIBS})
-ENDIF(VTK_USE_ANSI_STDLIB)
+#ENDIF(VTK_USE_ANSI_STDLIB)
 
 
 INSTALL_TARGETS(/lib/vtk vtk${KIT})
