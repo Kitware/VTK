@@ -43,7 +43,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkByteSwap is used by other classes to perform machine dependent byte
 // swapping. Byte swapping is often used when reading or writing binary 
 // files.
-// .EXAMPLE STLRead.cc
 
 #ifndef __vtkByteSwap_h
 #define __vtkByteSwap_h
