@@ -42,6 +42,8 @@ IF (VTK_USE_RENDERING)
       scalarConn
       schwarz
       shepards
+      smoothCyl
+      smoothCyl2
       socbal
       spToPd
       subDivideTetra
