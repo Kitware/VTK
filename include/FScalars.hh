@@ -20,6 +20,7 @@ public:
   vlFloatScalars(const int sz, const int ext);
   vlFloatScalars(vlFloatArray& fa);
   ~vlFloatScalars();
+  virtual char *GetClassName() {return "vlFloatScalars";};
   int NumScalars();
   void Reset();
   vlFloatScalars &operator=(const vlFloatScalars& fs);

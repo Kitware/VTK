@@ -20,6 +20,7 @@ public:
   vlFloatNormals(const int sz, const int ext=1000);
   vlFloatNormals(vlFloatArray& fa);
   ~vlFloatNormals();
+  virtual char *GetClassName() {return "vlFloatNormals";};
   int NumNormals();
   void Reset();
   vlFloatNormals &operator=(const vlFloatNormals& fn);

@@ -13,6 +13,7 @@ public:
   vlShrinkFilter(const float sf=0.5) {this->ShrinkFactor = sf;};
   ~vlShrinkFilter() {};
   void Execute();
+  virtual char *GetClassName() {return "vlShrinkFilter";};
 private:
   float ShrinkFactor;
 };

@@ -20,6 +20,7 @@ public:
   vlFloatVectors(const int sz, const int ext);
   vlFloatVectors(vlFloatArray& fa);
   ~vlFloatVectors();
+  virtual char *GetClassName() {return "vlFloatVectors";};
   int NumVectors();
   void Reset();
   vlFloatVectors &operator=(const vlFloatVectors& fp);
