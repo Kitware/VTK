@@ -27,7 +27,7 @@
 #include "vtkObjectFactory.h"
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLRenderWindow, "1.56");
+vtkCxxRevisionMacro(vtkOpenGLRenderWindow, "1.57");
 #endif
 
 #define MAX_LIGHTS 8
@@ -210,6 +210,9 @@ unsigned char *vtkOpenGLRenderWindow::GetPixelData(int x1, int y1,
 
   data = new unsigned char[(x_hi - x_low + 1)*(y_hi - y_low + 1)*3];
 
+  glDisable( GL_SCISSOR_TEST );
+  glViewport(0,0, this->Size[0], this->Size[1]);
+
 #ifdef sparc
   // We need to read the image data one row at a time and convert it
   // from RGBA to RGB to get around a bug in Sun OpenGL 1.1
@@ -291,6 +294,7 @@ void vtkOpenGLRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
     x_hi  = x1;
     }
 
+  glDisable( GL_SCISSOR_TEST );
 #ifdef sparc
   // We need to read the image data one row at a time and convert it
   // from RGBA to RGB to get around a bug in Sun OpenGL 1.1
@@ -353,6 +357,7 @@ void vtkOpenGLRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
   glMatrixMode( GL_MODELVIEW );
   glPopMatrix();
 
+  glViewport(0,0, this->Size[0], this->Size[1]);
   glPixelStorei( GL_UNPACK_ALIGNMENT, 1);
   glDisable(GL_BLEND);
   glDrawPixels((x_hi-x_low+1), (y_hi - y_low + 1),
@@ -467,6 +472,7 @@ void vtkOpenGLRenderWindow::SetRGBAPixelData(int x1, int y1, int x2, int y2,
   height = abs(y_hi-y_low) + 1;
 
   /* write out a row of pixels */
+  glDisable( GL_SCISSOR_TEST );
   glMatrixMode( GL_MODELVIEW );
   glPushMatrix();
   glLoadIdentity();
@@ -550,6 +556,7 @@ unsigned char *vtkOpenGLRenderWindow::GetRGBACharPixelData(int x1, int y1,
   data = new unsigned char[ (width*height)*4 ];
 
 
+  glDisable( GL_SCISSOR_TEST );
   glReadPixels( x_low, y_low, width, height, GL_RGBA, GL_UNSIGNED_BYTE,
                 data);
 
@@ -625,6 +632,7 @@ void vtkOpenGLRenderWindow::SetRGBACharPixelData(int x1, int y1, int x2,
   glPopMatrix();
 
 
+  glDisable( GL_SCISSOR_TEST );
   if (!blend)
     {
     glDisable(GL_BLEND);
@@ -677,6 +685,7 @@ float *vtkOpenGLRenderWindow::GetZbufferData( int x1, int y1, int x2, int y2  )
   // Turn of texturing in case it is on - some drivers have a problem
   // getting / setting pixels with texturing enabled.
   glDisable( GL_TEXTURE_2D );
+  glDisable( GL_SCISSOR_TEST );
   glPixelStorei( GL_PACK_ALIGNMENT, 1 );
 
   glReadPixels( x_low, y_low, 
@@ -733,6 +742,7 @@ void vtkOpenGLRenderWindow::SetZbufferData( int x1, int y1, int x2, int y2,
 
   // Turn of texturing in case it is on - some drivers have a problem
   // getting / setting pixels with texturing enabled.
+  glDisable( GL_SCISSOR_TEST );
   glDisable( GL_TEXTURE_2D );
   glPixelStorei( GL_PACK_ALIGNMENT, 1 );
 
