@@ -171,7 +171,7 @@ void vtkImageInPlaceFilter::SetInput(vtkImageCache *input)
 //----------------------------------------------------------------------------
 // Description:
 // This method is called by the cache.
-void vtkImageInPlaceFilter::InteralUpdate()
+void vtkImageInPlaceFilter::InternalUpdate()
 {
   vtkImageRegion *inRegion, *outRegion;
 
