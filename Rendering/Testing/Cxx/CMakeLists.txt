@@ -1,0 +1,32 @@
+LINK_LIBRARIES (
+vtkCommon 
+vtkFiltering 
+vtkImaging
+vtkGraphics
+vtkIO
+vtkRendering
+)
+
+LINK_LIBRARIES( png zlib )
+
+LINK_LIBRARIES ( ${OPENGL_LIBRARY} )
+IF (VTK_MANGLE_MESA)
+    LINK_LIBRARIES( ${MESA_LIBRARY})
+    IF ( MESA_OS_LIBRARY )
+      LINK_LIBRARIES(${MESA_OS_LIBRARY})
+    ENDIF ( MESA_OS_LIBRARY )
+ENDIF (VTK_MANGLE_MESA)
+IF (CMAKE_HAS_X)
+    LINK_LIBRARIES(-lXt)
+    LINK_LIBRARIES(${CMAKE_X_LIBS})
+ENDIF (CMAKE_HAS_X)
+
+#
+# Add all the executables that require rendering
+#
+ADD_EXECUTABLE(TimeRenderer TimeRenderer)
+
+
+
+
+
