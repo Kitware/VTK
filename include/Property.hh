@@ -20,8 +20,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // set are colors (object, ambient, diffuse, specular, and edge color),
 // specular power, transparency of the object, the representation of the
 // object (points, wireframe, or surface), and the shading method to be 
-// used (flat, Gouraud, and Phong). 2D or 3D texture maps can also be 
-// specified (for those graphics libraries that support them).
+// used (flat, Gouraud, and Phong).
 // .SECTION See Also
 // See vlRenderer for definition of #define's.
 
@@ -100,13 +99,6 @@ public:
   vlBooleanMacro(EdgeVisibility,int);
 
   // Description:
-  // Turn on/off screen subdivision. Screen subdivision is used to perform
-  // aliasing on the image.
-  vlGetMacro(Subdivide,int);
-  vlSetMacro(Subdivide,int);
-  vlBooleanMacro(Subdivide,int);
-
-  // Description:
   // Set the ambient light color.
   vlSetVector3Macro(AmbientColor,float);
   vlGetVectorMacro(AmbientColor,float,3);
@@ -126,11 +118,6 @@ public:
   vlSetVector3Macro(EdgeColor,float);
   vlGetVectorMacro(EdgeColor,float,3);
 
-  // Description:
-  // Specify 2D or 3D texture map.
-  vlSetObjectMacro(Texture,vlStructuredPoints);
-  vlGetObjectMacro(Texture,vlStructuredPoints);
-
 protected:
   float Color[3];
   float AmbientColor[3];
@@ -146,8 +133,6 @@ protected:
   int   Representation;
   int   EdgeVisibility;
   int   Backface;
-  int   Subdivide;
-  vlStructuredPoints *Texture;
 };
 
 #endif
