@@ -367,8 +367,15 @@ LRESULT APIENTRY vtkTkRenderWidgetProc(HWND hWnd, UINT message,
     }
   else
     {
+//
+// TkWinTopLevelProc has been deprecated in Tcl/Tk8.0.
+//
+#if(TK_MAJOR_VERSION < 8)
     SetWindowLong(hWnd,GWL_WNDPROC,(LONG)TkWinTopLevelProc);
     rval = TkWinTopLevelProc(hWnd,message,wParam,lParam);
+#else
+    rval = 0;
+#endif
     }
 
     if (message != WM_PAINT)
