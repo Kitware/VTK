@@ -455,30 +455,30 @@ void doTclHeader(FILE *fp, const char *vtkHome,
   fprintf(fp,"CPP_PROJ=/nologo /MD /GX /O2 /I \"%s\\common\" /I \"%s\\graphics\" /I \"%s\\imaging\" /I \"%s\\contrib\" /I \"%s\\pcmaker\\xlib\" /D \"NDEBUG\" /D \"WIN32\" /D\\\n",
     vtkHome, vtkHome, vtkHome, vtkHome, vtkHome);
   fprintf(fp," \"_WINDOWS\" /D \"_WINDLL\" /D \"_AFXDLL\" /D \"_MBCS\" /D \"_USRDLL\"\\\n");
-  fprintf(fp," /Fp\"$(INTDIR)/vtkdll.pch\" /YX /Fo\"$(INTDIR)/\" /c \n");
+  fprintf(fp," /Fp\"$(OUTDIR)/vtkdll.pch\" /YX /Fo\"$(OUTDIR)/\" /c \n");
   fprintf(fp,"LINK32=link.exe\n");
   fprintf(fp,"LINK32_FLAGS= ..\\vtkdll\\obj\\vtkdll.lib %s\\pcmaker\\tk42.lib %s\\pcmaker\\tcl76.lib /nologo /version:1.3 /subsystem:windows\\\n",
 	  vtkHome, vtkHome);
   fprintf(fp," /dll /incremental:no /pdb:\"$(OUTDIR)/vtktcl.pdb\" /machine:I386\\\n");
   fprintf(fp," /out:\"$(OUTDIR)/vtktcl.dll\" /implib:\"$(OUTDIR)/vtktcl.lib\" \n");
   fprintf(fp,"LINK32_OBJS= \\\n");
-  fprintf(fp,"    \"$(INTDIR)\\vtkTclUtil.obj\" \\\n");
-  fprintf(fp,"    \"$(INTDIR)\\vtktcl.obj\" \\\n");
+  fprintf(fp,"    \"$(OUTDIR)\\vtkTclUtil.obj\" \\\n");
+  fprintf(fp,"    \"$(OUTDIR)\\vtktcl.obj\" \\\n");
   for (i = 0; i < num_abstract; i++)
   {
-    fprintf(fp,"    \"$(INTDIR)\\%sTcl.obj\" \\\n",abstract[i]);
+    fprintf(fp,"    \"$(OUTDIR)\\%sTcl.obj\" \\\n",abstract[i]);
   }
   for (i = 0; i < num_concrete; i++)
   {
-    fprintf(fp,"    \"$(INTDIR)\\%sTcl.obj\" \\\n",concrete[i]);
+    fprintf(fp,"    \"$(OUTDIR)\\%sTcl.obj\" \\\n",concrete[i]);
   }
   for (i = 0; i < num_abstract_h; i++)
   {
-    fprintf(fp,"    \"$(INTDIR)\\%sTcl.obj\" \\\n",abstract_h[i]);
+    fprintf(fp,"    \"$(OUTDIR)\\%sTcl.obj\" \\\n",abstract_h[i]);
   }
   for (i = 0; i < num_concrete_h; i++)
   {
-    fprintf(fp,"    \"$(INTDIR)\\%sTcl.obj\" \\\n",concrete_h[i]);
+    fprintf(fp,"    \"$(OUTDIR)\\%sTcl.obj\" \\\n",concrete_h[i]);
   }
   fprintf(fp,"\n");
   fprintf(fp,"\"$(OUTDIR)\\vtktcl.dll\" : \"$(OUTDIR)\" $(DEF_FILE) $(LINK32_OBJS)\n");
@@ -506,10 +506,10 @@ void doTclHeader(FILE *fp, const char *vtkHome,
   fprintf(fp,"\n");
   fprintf(fp,"################################################################################\n");
   fprintf(fp,"\n");
-  fprintf(fp,"\"$(INTDIR)\\vtkTclUtil.obj\" : %s\\common\\vtkTclUtil.cxx \"$(INTDIR)\"\n",
+  fprintf(fp,"\"$(OUTDIR)\\vtkTclUtil.obj\" : %s\\common\\vtkTclUtil.cxx \"$(OUTDIR)\"\n",
 	  vtkHome);
   fprintf(fp,"  $(CPP) $(CPP_PROJ) %s\\common\\vtkTclUtil.cxx\n\n",vtkHome);
-  fprintf(fp,"\"$(INTDIR)\\vtktcl.obj\" : src\\vtktcl.cxx \"$(INTDIR)\"\n");
+  fprintf(fp,"\"$(OUTDIR)\\vtktcl.obj\" : src\\vtktcl.cxx \"$(OUTDIR)\"\n");
   fprintf(fp,"  $(CPP) $(CPP_PROJ) src\\vtktcl.cxx\n\n");
 
   for (i = 0; i < num_abstract; i++)
@@ -520,7 +520,7 @@ void doTclHeader(FILE *fp, const char *vtkHome,
 		vtkHome, vtkHome, abstract_lib[i], abstract[i]);
     fprintf(fp,"  %s\\tcl\\hints 0 > src\\%sTcl.cxx\n\n",
 		vtkHome, abstract[i]);
-    fprintf(fp,"\"$(INTDIR)\\%sTcl.obj\" : src\\%sTcl.cxx \"$(INTDIR)\"\n",
+    fprintf(fp,"\"$(OUTDIR)\\%sTcl.obj\" : src\\%sTcl.cxx \"$(OUTDIR)\"\n",
 		abstract[i],abstract[i]);
     fprintf(fp,"  $(CPP) $(CPP_PROJ) src\\%sTcl.cxx\n\n",abstract[i]);
   }
@@ -531,9 +531,9 @@ void doTclHeader(FILE *fp, const char *vtkHome,
 		concrete[i],vtkHome,concrete_lib[i],concrete[i]);
     fprintf(fp,"   %s\\pcmaker\\cpp_parse\\Debug\\cpp_parse %s\\%s\\%s.h\\\n",
 		vtkHome, vtkHome, concrete_lib[i], concrete[i]);
-    fprintf(fp,"  %s\\tcl\\hints 0 > src\\%sTcl.cxx\n\n",
+    fprintf(fp,"  %s\\tcl\\hints 1 > src\\%sTcl.cxx\n\n",
 		vtkHome, concrete[i]);
-    fprintf(fp,"\"$(INTDIR)\\%sTcl.obj\" : src\\%sTcl.cxx \"$(INTDIR)\"\n",
+    fprintf(fp,"\"$(OUTDIR)\\%sTcl.obj\" : src\\%sTcl.cxx \"$(OUTDIR)\"\n",
 		concrete[i],concrete[i]);
     fprintf(fp,"  $(CPP) $(CPP_PROJ) src\\%sTcl.cxx\n\n",concrete[i]);
   }
@@ -546,7 +546,7 @@ void doTclHeader(FILE *fp, const char *vtkHome,
 		vtkHome, vtkHome, abstract_h_lib[i], abstract_h[i]);
     fprintf(fp,"  %s\\tcl\\hints 0 > src\\%sTcl.cxx\n\n",
 		vtkHome, abstract_h[i]);
-    fprintf(fp,"\"$(INTDIR)\\%sTcl.obj\" : src\\%sTcl.cxx \"$(INTDIR)\"\n",
+    fprintf(fp,"\"$(OUTDIR)\\%sTcl.obj\" : src\\%sTcl.cxx \"$(OUTDIR)\"\n",
 		abstract_h[i],abstract_h[i]);
     fprintf(fp,"  $(CPP) $(CPP_PROJ) src\\%sTcl.cxx\n\n",abstract_h[i]);
   }
@@ -557,9 +557,9 @@ void doTclHeader(FILE *fp, const char *vtkHome,
 		concrete_h[i],vtkHome,concrete_h_lib[i],concrete_h[i]);
     fprintf(fp,"   %s\\pcmaker\\cpp_parse\\Debug\\cpp_parse %s\\%s\\%s.h\\\n",
 		vtkHome, vtkHome, concrete_h_lib[i], concrete_h[i]);
-    fprintf(fp,"  %s\\tcl\\hints 0 > src\\%sTcl.cxx\n\n",
+    fprintf(fp,"  %s\\tcl\\hints 1 > src\\%sTcl.cxx\n\n",
 		vtkHome, concrete_h[i]);
-    fprintf(fp,"\"$(INTDIR)\\%sTcl.obj\" : src\\%sTcl.cxx \"$(INTDIR)\"\n",
+    fprintf(fp,"\"$(OUTDIR)\\%sTcl.obj\" : src\\%sTcl.cxx \"$(OUTDIR)\"\n",
 		concrete_h[i],concrete_h[i]);
     fprintf(fp,"  $(CPP) $(CPP_PROJ) src\\%sTcl.cxx\n\n",concrete_h[i]);
   }
