@@ -121,6 +121,9 @@ vtkColorScalars *vtkMapper::GetColors()
   int i, numPts;
   vtkColorScalars *colors;
   
+  // make sure we have an input
+  if (!this->Input) return NULL;
+    
   // get point data and scalars
   pd=this->Input->GetPointData();
   scalars=pd->GetScalars();
