@@ -26,6 +26,7 @@ vtkImageViewer
 vtkImageViewer2
 vtkImagingFactory
 vtkImporter
+vtkInteractorObserver
 vtkInteractorStyle
 vtkInteractorStyleFlight
 vtkInteractorStyleImage
@@ -126,6 +127,7 @@ vtkDirectionEncoder
 vtkEncodedGradientEstimator 
 vtkExporter
 vtkGraphicsFactory
+vtkInteractorObserver
 vtkImporter
 vtkMapper
 vtkOpenGLRenderWindow
