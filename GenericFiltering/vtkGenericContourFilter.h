@@ -12,15 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkGenericContourFilter - generate isosurfaces/isolines from scalar values
+// .NAME vtkGenericContourFilter - generate isocontours from input dataset
 // .SECTION Description
-// vtkGenericContourFilter is a filter that takes as input any dataset and 
-// generates on output isosurfaces and/or isolines. The exact form 
-// of the output depends upon the dimensionality of the input data. 
-// Data consisting of 3D cells will generate isosurfaces, data 
-// consisting of 2D cells will generate isolines, and data with 1D 
-// or 0D cells will generate isopoints. Combinations of output type 
-// are possible if the input dimension is mixed.
+// vtkGenericContourFilter is a filter that takes as input any (generic)
+// dataset and generates on output isosurfaces and/or isolines. The exact
+// form of the output depends upon the dimensionality of the input data.
+// Data consisting of 3D cells will generate isosurfaces, data consisting of
+// 2D cells will generate isolines, and data with 1D or 0D cells will
+// generate isopoints. Combinations of output type are possible if the input
+// dimension is mixed.
 //
 // To use this filter you must specify one or more contour values.
 // You can either use the method SetValue() to specify each contour
@@ -32,9 +32,11 @@
 // contours are being extracted. If you want to use a scalar tree,
 // invoke the method UseScalarTreeOn().
 //
-// If the input data is structured, consider using a filter that is
-// optimized for structured data. These can be found in the patented
-// classes of vtk.
+// This filter has been implemented to operate on generic datasets, rather
+// than the typical vtkDataSet (and subclasses). vtkGenericDataSet is a more
+// complex cousin of vtkDataSet, typically consisting of nonlinear,
+// higher-order cells. To process this type of data, generic cells are
+// automatically tessellated into linear cells prior to isocontouring.
 
 // .SECTION Caveats
 // For unstructured data or structured grids, normals and gradients
@@ -42,9 +44,7 @@
 // normals.
 
 // .SECTION See Also
-// vtkMarchingContourFilter vtkKitwareContourFilter
-// vtkMarchingCubes vtkSliceCubes vtkDividingCubes vtkMarchingSquares
-// vtkImageMarchingCubes
+// vtkContourFilter vtkGenericDataSet
 
 #ifndef __vtkGenericContourFilter_h
 #define __vtkGenericContourFilter_h
@@ -52,7 +52,6 @@
 #include "vtkGenericDataSetToPolyDataFilter.h"
 
 class vtkContourValues;
-
 class vtkPointLocator;
 
 class VTK_GENERIC_FILTERING_EXPORT vtkGenericContourFilter : public vtkGenericDataSetToPolyDataFilter
