@@ -47,8 +47,8 @@ public:
   virtual void Initialize(int* argc, char*** argv, int)
     { this->Initialize(argc, argv); }
   virtual void Initialize(int* argc, char*** argv);
-  virtual void Finalize() {}
-  virtual void Finalize(int) {}
+  virtual void Finalize();
+  virtual void Finalize(int) {this->Finalize();}
 
   // Description:
   // This method returns an integer from 0 to (NumberOfProcesses-1)
@@ -126,8 +126,8 @@ protected:
   static HANDLE BarrierEndedEvent;
   static HANDLE NextThread;
 #else
-  static vtkSimpleCriticalSection BarrierLock;
-  static vtkSimpleCriticalSection BarrierInProgress;
+  static vtkSimpleCriticalSection* BarrierLock;
+  static vtkSimpleCriticalSection* BarrierInProgress;
 #endif
   
   ThreadIdType ThreadId;

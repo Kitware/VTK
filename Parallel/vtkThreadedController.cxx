@@ -70,9 +70,9 @@ private:
   void operator=(const vtkThreadedControllerOutputWindow&);
 };
 
-vtkCxxRevisionMacro(vtkThreadedControllerOutputWindow, "1.18");
+vtkCxxRevisionMacro(vtkThreadedControllerOutputWindow, "1.19");
 
-vtkCxxRevisionMacro(vtkThreadedController, "1.18");
+vtkCxxRevisionMacro(vtkThreadedController, "1.19");
 vtkStandardNewMacro(vtkThreadedController);
 
 void vtkThreadedController::CreateOutputWindow()
@@ -145,6 +145,26 @@ void vtkThreadedController::PrintSelf(ostream& os, vtkIndent indent)
 void vtkThreadedController::Initialize(int* vtkNotUsed(argc), 
                                        char*** vtkNotUsed(argv))
 {
+  if ( !vtkThreadedController::BarrierLock )
+    {
+    vtkThreadedController::BarrierLock = new vtkSimpleCriticalSection(1);
+    }
+  if ( !vtkThreadedController::BarrierInProgress)
+    {
+    vtkThreadedController::BarrierInProgress = new vtkSimpleCriticalSection;
+    }
+}
+
+void vtkThreadedController::Finalize()
+{
+  if (vtkThreadedController::BarrierLock)
+    {
+    vtkThreadedController::BarrierLock->Unlock();
+    }
+  delete vtkThreadedController::BarrierLock;
+  vtkThreadedController::BarrierLock = 0;
+  delete vtkThreadedController::BarrierInProgress;
+  vtkThreadedController::BarrierInProgress = 0;
 }
   
 void vtkThreadedController::ResetControllers()
@@ -218,8 +238,10 @@ int vtkThreadedController::Counter;
 HANDLE vtkThreadedController::BarrierEndedEvent = 0;
 HANDLE vtkThreadedController::NextThread = 0;
 #else
-vtkSimpleCriticalSection vtkThreadedController::BarrierLock(1);
-vtkSimpleCriticalSection vtkThreadedController::BarrierInProgress;
+//vtkSimpleCriticalSection vtkThreadedController::BarrierLock(1);
+//vtkSimpleCriticalSection vtkThreadedController::BarrierInProgress;
+vtkSimpleCriticalSection* vtkThreadedController::BarrierLock = 0;
+vtkSimpleCriticalSection* vtkThreadedController::BarrierInProgress = 0;
 #endif
 int vtkThreadedController::IsBarrierInProgress=0;
 
@@ -230,6 +252,16 @@ void vtkThreadedController::Barrier()
     {
     return;
     }
+
+#ifndef VTK_USE_WIN32_THREADS
+  if (!vtkThreadedController::BarrierLock || 
+      !vtkThreadedController::BarrierInProgress)
+    {
+    vtkErrorMacro("Barrier was called without initializing threads. "
+                  "Please call Initialize first. Skipping barrier.");
+    return;
+    }
+#endif
 
   vtkThreadedController::InitializeBarrier();
 
@@ -431,7 +463,8 @@ vtkMultiProcessController *vtkThreadedController::GetLocalController()
   
 #else
 
-  vtkErrorMacro("ThreadedController only works with windows api, pthreads or sproc");
+  vtkErrorMacro(
+    "ThreadedController only works with windows api, pthreads or sproc");
   return this;
   
 #endif  
@@ -452,8 +485,8 @@ void vtkThreadedController::WaitForPreviousBarrierToEnd()
 #ifdef VTK_USE_WIN32_THREADS
   WaitForSingleObject(vtkThreadedController::BarrierEndedEvent, INFINITE);
 #else
-  vtkThreadedController::BarrierInProgress.Lock();
-  vtkThreadedController::BarrierInProgress.Unlock();
+  vtkThreadedController::BarrierInProgress->Lock();
+  vtkThreadedController::BarrierInProgress->Unlock();
 #endif
 }
 
@@ -463,7 +496,7 @@ void vtkThreadedController::BarrierStarted()
 #ifdef VTK_USE_WIN32_THREADS
 
 #else
-  vtkThreadedController::BarrierInProgress.Lock();
+  vtkThreadedController::BarrierInProgress->Lock();
 #endif
 }
 
@@ -474,7 +507,7 @@ void vtkThreadedController::BarrierEnded()
 #ifdef VTK_USE_WIN32_THREADS
   SetEvent(vtkThreadedController::BarrierEndedEvent);
 #else
-  vtkThreadedController::BarrierInProgress.Unlock();
+  vtkThreadedController::BarrierInProgress->Unlock();
 #endif
 }
 
@@ -484,7 +517,7 @@ void vtkThreadedController::SignalNextThread()
 #ifdef VTK_USE_WIN32_THREADS
   SetEvent(vtkThreadedController::NextThread);
 #else
-  vtkThreadedController::BarrierLock.Unlock();
+  vtkThreadedController::BarrierLock->Unlock();
 #endif
 }
 
@@ -506,6 +539,6 @@ void vtkThreadedController::WaitForNextThread()
 #ifdef VTK_USE_WIN32_THREADS
   WaitForSingleObject(vtkThreadedController::NextThread,INFINITE);
 #else
-  vtkThreadedController::BarrierLock.Lock();
+  vtkThreadedController::BarrierLock->Lock();
 #endif
 }
