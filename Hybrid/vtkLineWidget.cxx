@@ -33,7 +33,7 @@
 #include "vtkSphereSource.h"
 #include "vtkRenderWindow.h"
 
-vtkCxxRevisionMacro(vtkLineWidget, "1.20");
+vtkCxxRevisionMacro(vtkLineWidget, "1.21");
 vtkStandardNewMacro(vtkLineWidget);
 
 vtkLineWidget::vtkLineWidget()
@@ -788,6 +788,5 @@ void vtkLineWidget::PlaceWidget(float bds[6])
     {
     this->HandleGeometry[i]->SetRadius(0.025*this->InitialLength);
     }
-  this->InvokeEvent(vtkCommand::InteractionEvent,NULL);  
 }
 
