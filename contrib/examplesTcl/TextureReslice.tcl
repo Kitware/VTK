@@ -12,20 +12,20 @@ if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdat
 
 
 # read data file
-# set the origin so that (0.0,0.0,0.0) is the center of the image
+# set the originA so that (0.0,0.0,0.0) is the center of the image
 
 # some Tcl-induced shenanigans...
-array set spacing {0 1.0 1 1.0 2 2.0}
-array set extent  {0 0 1 255 2 0 3 255 4 1 5 93}
-array set origin  {0 -127.5 1 -127.5 2 -94.0}
+array set spacingA {0 1.0 1 1.0 2 2.0}
+array set extentA  {0 0 1 255 2 0 3 255 4 1 5 93}
+array set originA  {0 -127.5 1 -127.5 2 -94.0}
 
 vtkImageReader reader
   reader ReleaseDataFlagOff
   reader SetDataByteOrderToLittleEndian
-  reader SetDataSpacing $spacing(0) $spacing(1) $spacing(2)
-  reader SetDataExtent $extent(0) $extent(1) \
-          $extent(2) $extent(3) $extent(4) $extent(5)
-  reader SetDataOrigin $origin(0) $origin(1) $origin(2)
+  reader SetDataSpacing $spacingA(0) $spacingA(1) $spacingA(2)
+  reader SetDataExtent $extentA(0) $extentA(1) \
+          $extentA(2) $extentA(3) $extentA(4) $extentA(5)
+  reader SetDataOrigin $originA(0) $originA(1) $originA(2)
   reader SetFilePrefix "$VTK_DATA/fullHead/headsq"
   reader SetDataMask 0x7fff
   reader UpdateWholeExtent
@@ -41,9 +41,9 @@ vtkImageReslice reslice
   reslice SetResliceTransform transform
   reslice InterpolateOn
   reslice SetBackgroundLevel 1023
-  reslice SetOutputSpacing $spacing(0) $spacing(1) $spacing(2)
-  reslice SetOutputOrigin $origin(0) $origin(1) 0.0
-  reslice SetOutputExtent $extent(0) $extent(1) $extent(2) $extent(3) 0 0
+  reslice SetOutputSpacing $spacingA(0) $spacingA(1) $spacingA(2)
+  reslice SetOutputOrigin $originA(0) $originA(1) 0.0
+  reslice SetOutputExtent $extentA(0) $extentA(1) $extentA(2) $extentA(3) 0 0
 
 # lookup table for texture map
 vtkLookupTable table
@@ -63,14 +63,14 @@ vtkTexture atext
 vtkPlaneSource plane
   plane SetXResolution 1
   plane SetYResolution 1
-  plane SetOrigin [expr $origin(0) + $spacing(0) * $extent(0) - 0.5] \
-          [expr $origin(1) + $spacing(1) *$extent(2) - 0.5] \
+  plane SetOrigin [expr $originA(0) + $spacingA(0) * $extentA(0) - 0.5] \
+          [expr $originA(1) + $spacingA(1) *$extentA(2) - 0.5] \
           0.0
-  plane SetPoint1 [expr $origin(0) + $spacing(0) * $extent(1) + 0.5] \
-          [expr $origin(1) + $spacing(1) * $extent(2) - 0.5] \
+  plane SetPoint1 [expr $originA(0) + $spacingA(0) * $extentA(1) + 0.5] \
+          [expr $originA(1) + $spacingA(1) * $extentA(2) - 0.5] \
           0.0
-  plane SetPoint2 [expr $origin(0) + $spacing(0) * $extent(0) - 0.5] \
-          [expr $origin(1) + $spacing(1) * $extent(3) + 0.5] \
+  plane SetPoint2 [expr $originA(0) + $spacingA(0) * $extentA(0) - 0.5] \
+          [expr $originA(1) + $spacingA(1) * $extentA(3) + 0.5] \
           0.0
 
 # generate texture coordinates
