@@ -63,7 +63,7 @@ private:
   vlCellList Cells;
   vlLinkList Links;
   // dummy static member below used as a trick to simplify traversal
-  static vlCellArray Dummy;
+  static vlCellArray *Dummy;
 
   void BuildCells();
   void BuildLinks();

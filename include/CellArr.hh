@@ -16,7 +16,7 @@ public:
   ~vlCellArray() {};
   int GetNextCell(int& npts, int* &pts)
   {
-    if ( this->Loc <= this->Ia.GetMaxId() ) 
+    if ( this->Ia.GetMaxId() >= 0 && this->Loc <= this->Ia.GetMaxId() ) 
       {
       npts = this->Ia.GetValue(this->Loc++);
       pts = this->Ia.GetPtr(this->Loc);

@@ -8,7 +8,7 @@
 // of verts, lines, polygons, and triangle strips.  It basically "marks" empty lists
 // so that the traveral method "GetNextCell" works properly.
 //
-vlCellArray vlPolyData::Dummy;
+vlCellArray *vlPolyData::Dummy = 0;
 
 vlPolyData::vlPolyData ()
 {
@@ -18,6 +18,8 @@ vlPolyData::vlPolyData ()
   this->Lines = 0;
   this->Polys = 0;
   this->Strips = 0;
+
+  if (!this->Dummy) this->Dummy = new vlCellArray;
 }
 
 vlPolyData::vlPolyData(const vlPolyData& pd)
@@ -65,65 +67,65 @@ void vlPolyData::GetPoints (vlIdList& ptId, vlFloatPoints& fp)
 
 void vlPolyData::SetVerts (vlCellArray* v) 
 {
-  if ( this->Verts != v && this->Verts != &this->Dummy )
-  {
-    if ( this->Verts != 0 ) this->Verts->UnRegister((void *)this);
+  if ( v != this->Verts && v != this->Dummy )
+    {
+    if (this->Verts) this->Verts->UnRegister((void *)this);
     this->Verts = v;
-    this->Verts->Register((void *)this);
+    if (this->Verts) this->Verts->Register((void *)this);
     this->Modified();
-  }
+    }
 }
 vlCellArray* vlPolyData::GetVerts()
 {
-  if ( !this->Verts ) return &this->Dummy;
+  if ( !this->Verts ) return this->Dummy;
   else return this->Verts;
 }
 
 void vlPolyData::SetLines (vlCellArray* l) 
 {
-  if ( this->Lines != l && this->Lines != &this->Dummy )
-  {
-    if ( this->Lines != 0 ) this->Lines->UnRegister((void *)this);
+  if ( l != this->Lines && l != this->Dummy )
+    {
+    if (this->Lines) this->Lines->UnRegister((void *)this);
     this->Lines = l;
-    this->Lines->Register((void *)this);
+    if (this->Lines) this->Lines->Register((void *)this);
     this->Modified();
-  }
+    }
 }
 vlCellArray* vlPolyData::GetLines()
 {
-  if ( !this->Lines ) return &this->Dummy;
+  if ( !this->Lines ) return this->Dummy;
   else return this->Lines;
 }
 
 void vlPolyData::SetPolys (vlCellArray* p) 
 {
-  if ( this->Polys != p && this->Polys != &this->Dummy )
-  {
-    if ( this->Polys != 0 ) this->Polys->UnRegister((void *)this);
+  if ( p != this->Polys && p != this->Dummy )
+    {
+    if (this->Polys) this->Polys->UnRegister((void *)this);
     this->Polys = p;
-    this->Polys->Register((void *)this);
+    if (this->Polys) this->Polys->Register((void *)this);
     this->Modified();
-  }
+    }
 }
 vlCellArray* vlPolyData::GetPolys()
 {
-  if ( !this->Polys ) return &this->Dummy;
+  if ( !this->Polys ) return this->Dummy;
   else return this->Polys;
 }
 
 void vlPolyData::SetStrips (vlCellArray* s) 
 {
-  if ( this->Strips != s && this->Strips != &this->Dummy )
-  {
-    if ( this->Strips != 0 ) this->Strips->UnRegister((void *)this);
+  if ( s != this->Strips && s != this->Dummy )
+    {
+    if (this->Strips) this->Strips->UnRegister((void *)this);
     this->Strips = s;
-    this->Strips->Register((void *)this);
+    if (this->Strips) this->Strips->Register((void *)this);
     this->Modified();
-  }
+    }
 }
 vlCellArray* vlPolyData::GetStrips()
 {
-  if ( !this->Strips ) return &this->Dummy;
+  if ( !this->Strips ) return this->Dummy;
   else return this->Strips;
 }
 

@@ -31,7 +31,8 @@ public:
   void SetTCoord(int i, float *x) 
     {i*=this->Dimension; for(int j=0;j<this->Dimension;j++) this->TC[i+j]=x[j];};
   void InsertTCoord(int i, float *x) {
-    for(int j=0; j<this->Dimension; j++) this->TC.InsertValue(3*i+j, x[j]);
+    i*=this->Dimension; 
+    for(int j=0; j<this->Dimension; j++) this->TC.InsertValue(i+j, x[j]);
   }
   int InsertNextTCoord(float *x) {
     int id = this->TC.InsertNextValue(x[0]);
