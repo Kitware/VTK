@@ -23,7 +23,7 @@
 #include "vtkPolyDataMapper.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleTerrain, "1.3");
+vtkCxxRevisionMacro(vtkInteractorStyleTerrain, "1.4");
 vtkStandardNewMacro(vtkInteractorStyleTerrain);
 
 vtkInteractorStyleTerrain::vtkInteractorStyleTerrain()
@@ -315,7 +315,7 @@ void vtkInteractorStyleTerrain::OnMouseMove (int vtkNotUsed(ctrl), int shift,
   
     if ( shift )
       {
-      if ( fabs(OldX-X) >= fabs(OldY-Y) )
+      if ( fabs((float)(OldX-X)) >= fabs((float)(OldY-Y)) )
         {
         e = 0.0;
         }
