@@ -731,8 +731,8 @@ void vtkRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "NeverRendered: " << this->NeverRendered << "\n";
   os << indent << "Interactor: " << this->Interactor << "\n";
   os << indent << "Motion Blur Frames: " << this->SubFrames << "\n";
-  os << indent << "SwapBuffers: " << (this->SwapBuffers ? "On\n":"Off\n");
-  os << indent << "StereoType: " << this->GetStereoTypeAsString() << "\n";
+  os << indent << "Swap Buffers: " << (this->SwapBuffers ? "On\n":"Off\n");
+  os << indent << "Stereo Type: " << this->GetStereoTypeAsString() << "\n";
   os << indent << "Number of Layers: " << this->NumLayers << "\n";
 
   os << indent << "File Name: " 
