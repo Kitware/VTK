@@ -26,7 +26,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTrivialProducer.h"
 
-vtkCxxRevisionMacro(vtkThreadedImageAlgorithm, "1.4");
+vtkCxxRevisionMacro(vtkThreadedImageAlgorithm, "1.5");
 
 //----------------------------------------------------------------------------
 vtkThreadedImageAlgorithm::vtkThreadedImageAlgorithm()
@@ -85,8 +85,13 @@ int vtkThreadedImageAlgorithm::SplitExtent(int splitExt[6],
   splitAxis = 2;
   min = startExt[4];
   max = startExt[5];
-  while (min == max)
+  while (min >= max)
     {
+    // empty extent so cannot split
+    if (min > max)
+      {
+      return 1;
+      }
     --splitAxis;
     if (splitAxis < 0)
       { // cannot split
