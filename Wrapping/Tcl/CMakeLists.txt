@@ -1,3 +1,23 @@
+# Defined local options to add to VTK Tcl interpreter
+# 
+# Example of such options are:
+#   VTK_EXTRA_TCL_WRAPPING_CODE which should define extra code that will be
+#   added to vtkTkAppInitConfigure.h. This code may include something like
+#
+#   
+#   extern "C" int Vtkmyspecialtcl_Init(Tcl_Interp *interp);
+#   #define VTK_EXTRA_TCL_INIT \
+#     if (Vtkmyspecialtcl_Init(interp) == TCL_ERROR) \
+#       {
+#       return TCL_ERROR;
+#       }
+#
+#   and 
+#
+#   SET(VTK_EXTRA_TCL_LIBRARIES ${VTK_EXTRA_TCL_LIBRARIES} vtkMySpecialTCL)
+INCLUDE (${VTK_BINARY_DIR}/Wrapping/Tcl/LocalUserOptions.cmake OPTIONAL)
+INCLUDE (${VTK_SOURCE_DIR}/Wrapping/Tcl/LocalUserOptions.cmake OPTIONAL)
+
 CONFIGURE_FILE(
   ${VTK_SOURCE_DIR}/Wrapping/Tcl/vtkTkAppInitConfigure.h.in
   ${VTK_BINARY_DIR}/Wrapping/Tcl/vtkTkAppInitConfigure.h
@@ -44,6 +64,11 @@ ENDIF (VTK_USE_HYBRID)
 IF (VTK_USE_PARALLEL)
   TARGET_LINK_LIBRARIES(vtk vtkParallelTCL)
 ENDIF (VTK_USE_PARALLEL)
+
+# Link to extra TCL libraries
+FOREACH(lib ${VTK_EXTRA_TCL_LIBRARIES})
+  TARGET_LINK_LIBRARIES(vtk ${lib})
+ENDFOREACH(lib)
 
 INSTALL_TARGETS(/bin vtk)
 

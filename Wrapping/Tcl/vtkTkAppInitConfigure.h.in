@@ -4,4 +4,6 @@
 #define VTK_TCL_PACKAGE_DIR_BUILD "@VTK_BINARY_DIR@/Wrapping/Tcl"
 #define VTK_TCL_INSTALL_DIR "@CMAKE_INSTALL_PREFIX@/lib/vtk/tcl"
 
+@VTK_EXTRA_TCL_WRAPPING_CODE@
+
 #endif

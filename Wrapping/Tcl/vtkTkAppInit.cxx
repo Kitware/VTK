@@ -468,6 +468,10 @@ int Tcl_AppInit(Tcl_Interp *interp)
     return TCL_ERROR;
     }
 #endif
+ 
+#ifdef VTK_EXTRA_TCL_INIT
+  VTK_EXTRA_TCL_INIT;
+#endif
 
   /*
    * Append path to VTK packages to auto_path
