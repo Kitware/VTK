@@ -78,6 +78,7 @@ public:
 
   // Description:
   // Get/Set an integer-vector-valued entry.
+  void Append(vtkInformationIntegerVectorKey* key, int value);
   void Set(vtkInformationIntegerVectorKey* key, int* value, int length);
   int* Get(vtkInformationIntegerVectorKey* key);
   void Get(vtkInformationIntegerVectorKey* key, int* value);
@@ -87,6 +88,7 @@ public:
 
   // Description:
   // Get/Set an InformationKey-vector-valued entry.
+  void Append(vtkInformationKeyVectorKey* key, vtkInformationKey* value);
   void Set(vtkInformationKeyVectorKey* key, vtkInformationKey** value, int length);
   vtkInformationKey** Get(vtkInformationKeyVectorKey* key);
   void Get(vtkInformationKeyVectorKey* key, vtkInformationKey** value);
@@ -96,6 +98,7 @@ public:
 
   // Description:
   // Get/Set a DataObject-vector-valued entry.
+  void Append(vtkInformationDataObjectVectorKey* key, vtkDataObject* value);
   void Set(vtkInformationDataObjectVectorKey* key, vtkDataObject** value, int length);
   vtkDataObject** Get(vtkInformationDataObjectVectorKey* key);
   void Get(vtkInformationDataObjectVectorKey* key, vtkDataObject** value);

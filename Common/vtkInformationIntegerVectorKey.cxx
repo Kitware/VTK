@@ -16,7 +16,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkInformationIntegerVectorKey, "1.4");
+vtkCxxRevisionMacro(vtkInformationIntegerVectorKey, "1.5");
 
 //----------------------------------------------------------------------------
 vtkInformationIntegerVectorKey::vtkInformationIntegerVectorKey(const char* name, const char* location):
@@ -42,6 +42,22 @@ public:
   vtkTypeMacro(vtkInformationIntegerVectorValue, vtkObjectBase);
   vtkstd::vector<int> Value;
 };
+
+//----------------------------------------------------------------------------
+void vtkInformationIntegerVectorKey::Append(vtkInformation* info, int value)
+{
+  vtkInformationIntegerVectorValue* v =
+    vtkInformationIntegerVectorValue::SafeDownCast(
+      this->GetAsObjectBase(info));
+  if(v)
+    {
+    v->Value.push_back(value);
+    }
+  else
+    {
+    this->Set(info, &value, 1);
+    }
+}
 
 //----------------------------------------------------------------------------
 void vtkInformationIntegerVectorKey::Set(vtkInformation* info, int* value,

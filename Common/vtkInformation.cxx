@@ -27,7 +27,7 @@
 
 #include <vtkstd/map>
 
-vtkCxxRevisionMacro(vtkInformation, "1.20");
+vtkCxxRevisionMacro(vtkInformation, "1.21");
 vtkStandardNewMacro(vtkInformation);
 
 //----------------------------------------------------------------------------
@@ -169,6 +169,11 @@ VTK_INFORMATION_DEFINE_SCALAR_PROPERTY(InformationVector, vtkInformationVector*)
 
 //----------------------------------------------------------------------------
 #define VTK_INFORMATION_DEFINE_VECTOR_PROPERTY(name, type)                  \
+  void vtkInformation::Append(vtkInformation##name##VectorKey* key,         \
+                              type value)                                   \
+    {                                                                       \
+    key->Append(this, value);                                               \
+    }                                                                       \
   void vtkInformation::Set(vtkInformation##name##VectorKey* key,            \
                            type* value, int length)                         \
     {                                                                       \

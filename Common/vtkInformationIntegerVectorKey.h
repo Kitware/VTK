@@ -34,6 +34,7 @@ public:
   // Description:
   // Get/Set the value associated with this key in the given
   // information object.
+  void Append(vtkInformation* info, int value);
   void Set(vtkInformation* info, int* value, int length);
   int* Get(vtkInformation* info);
   void Get(vtkInformation* info, int* value);

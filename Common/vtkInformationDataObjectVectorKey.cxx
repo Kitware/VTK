@@ -19,7 +19,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkInformationDataObjectVectorKey, "1.4");
+vtkCxxRevisionMacro(vtkInformationDataObjectVectorKey, "1.5");
 
 //----------------------------------------------------------------------------
 vtkInformationDataObjectVectorKey::vtkInformationDataObjectVectorKey(const char* name, const char* location):
@@ -46,6 +46,24 @@ public:
   vtkstd::vector< vtkSmartPointer<vtkDataObject> > References;
   vtkstd::vector< vtkDataObject* > Value;
 };
+
+//----------------------------------------------------------------------------
+void vtkInformationDataObjectVectorKey::Append(vtkInformation* info,
+                                               vtkDataObject* value)
+{
+  vtkInformationDataObjectVectorValue* v =
+    vtkInformationDataObjectVectorValue::SafeDownCast(
+      this->GetAsObjectBase(info));
+  if(v)
+    {
+    v->References.push_back(value);
+    v->Value.push_back(value);
+    }
+  else
+    {
+    this->Set(info, &value, 1);
+    }
+}
 
 //----------------------------------------------------------------------------
 void vtkInformationDataObjectVectorKey::Set(vtkInformation* info,
