@@ -123,6 +123,16 @@ SOURCE_FILES ( RenderingOpenGL_SRCS
                vtkOpenGLVolumeTextureMapper2D
               )
 
+IF(UNIX)
+  IF(NOT WIN32)
+    SOURCE_FILES ( Rendering_SRCS
+                 vtkXImageWindow
+                 vtkXRenderWindowInteractor
+                 vtkXRenderWindow
+                 vtkXTextMapper)
+  ENDIF(NOT WIN32)
+ENDIF(UNIX)
+
 IF (WIN32)
   SET(HAVE_OPENGL_SRCS ON)
   SOURCE_FILES(RenderingOpenGL_SRCS 
@@ -149,16 +159,6 @@ ELSE (WIN32)
     INCLUDE_DIRECTORIES(${OPENGL_INCLUDE_PATH})
   ENDIF(OPENGL_INCLUDE_PATH)     
 ENDIF (WIN32)
-
-IF(UNIX)
-  IF(NOT WIN32)
-    SOURCE_FILES ( Rendering_SRCS
-                 vtkXImageWindow
-                 vtkXRenderWindowInteractor
-                 vtkXRenderWindow
-                 vtkXTextMapper)
-  ENDIF(NOT WIN32)
-ENDIF(UNIX)
 
 IF (VTK_MANGLE_MESA)
   IF (MESA_LIBRARY)
