@@ -441,6 +441,8 @@ void vtkStreamer::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Integration Step Length: " << this->IntegrationStepLength << "\n";
 
   os << indent << "Vorticity: " << (this->Vorticity ? "On\n" : "Off\n");
+
+  os << indent << "Terminal Speed: " << this->TerminalSpeed << "\n";
 }
 
 
