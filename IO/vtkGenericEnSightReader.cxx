@@ -30,7 +30,7 @@
 
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.45.2.4");
+vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.45.2.5");
 vtkStandardNewMacro(vtkGenericEnSightReader);
 
 vtkCxxSetObjectMacro(vtkGenericEnSightReader,TimeSets, 
@@ -400,11 +400,25 @@ int vtkGenericEnSightReader::DetermineEnSightVersion()
             delete [] fileName;
             return vtkGenericEnSightReader::ENSIGHT_GOLD;
             } // if we found the geometry section in the case file
+          else
+            {
+            vtkErrorMacro("Could not find geometry section: " << line);
+            }
           } // if ensight gold file
+        else
+          {
+          vtkErrorMacro("Expecting the token 'gold': " << line);
+          vtkErrorMacro("token found: " << subLine2);
+          }
         } // if regular ensight file (not master_server)
       else if (strcmp(subLine1, "master_server") == 0)
         {
         return vtkGenericEnSightReader::ENSIGHT_MASTER_SERVER;
+        }
+      else 
+        {
+        vtkErrorMacro("Could not find file type in: " << line);
+        vtkErrorMacro("scan only found: " << subLine1);
         }
       } // if the type line is like "type: xxxx xxxx"
     else
@@ -493,8 +507,17 @@ int vtkGenericEnSightReader::DetermineEnSightVersion()
         delete [] fileName;
         return vtkGenericEnSightReader::ENSIGHT_6;
         } // if we found the geometry section in the case file
+      else
+        {
+        vtkErrorMacro("Could not find geometry section in case file: "<< line);
+        }
       } // not ensight gold
     } // if we found the format section in the case file
+  else
+    {
+    vtkErrorMacro("Could not find format line in case file: " << line);
+    }
+  
   
   if (fileName)
     {
