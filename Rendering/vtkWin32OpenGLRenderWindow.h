@@ -170,12 +170,12 @@ public:
   virtual  int GetEventPending();
 
   // Description:
-  // These methods can be used by MFC applications 
+  // These methods can be used by MFC applications
   // to support print preview and printing, or more
-  // general rendering into memory. 
+  // general rendering into memory.
   void SetupMemoryRendering(int x, int y, HDC prn);
   void SetupMemoryRendering(HBITMAP hbmp);
-  void ResumeScreenRendering();
+  void ResumeScreenRendering(void);
   HDC GetMemoryDC();
   unsigned char *GetMemoryData(){return this->MemoryData;};  
 
@@ -243,7 +243,7 @@ protected:
   void ResizeWhileOffscreen(int xsize, int ysize);
   void CreateAWindow(int x, int y, int width, int height);
   void InitializeApplication();
-  void CleanUpOffScreenRendering();
+  void CleanUpOffScreenRendering(void);
   void CreateOffScreenDC(int xsize, int ysize, HDC aHdc);
   void CreateOffScreenDC(HBITMAP hbmp, HDC aHdc);
 };
