@@ -130,8 +130,8 @@ void vtkSelectVisiblePoints::Execute()
   // and handle the transformation ourselves.
   vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
   float view[4];
-  matrix->DeepCopy(this->Renderer->GetActiveCamera()
-                   ->GetCompositePerspectiveTransformMatrix(1,0,1));
+  matrix->DeepCopy(this->Renderer->GetActiveCamera()->
+                   GetCompositePerspectiveTransformMatrix(1,0,1));
 
   // If we have more than a few query points, we grab the z-buffer for the
   // selection region all at once and probe the resulting array.  When we
@@ -140,15 +140,14 @@ void vtkSelectVisiblePoints::Execute()
   float *zPtr = NULL;
   if (numPts > SimpleQueryLimit)
     {
-    zPtr = this->Renderer->GetRenderWindow()
-      ->GetZbufferData(selection[0], selection[2], selection[1], selection[3]);
+    zPtr = this->Renderer->GetRenderWindow()->
+      GetZbufferData(selection[0], selection[2], selection[1], selection[3]);
     }
   
-  tenth   = numPts / 10;
-  decimal = 0.0;
-
+  int abort=0;
+  int progressInterval=numPts/20+1;
   x[3] = 1.0;
-  for (id=(-1), ptId=0; ptId < numPts; ptId++)
+  for (id=(-1), ptId=0; ptId < numPts && !abort; ptId++)
     {
     // perform conversion
     input->GetPoint(ptId,x);
@@ -163,14 +162,10 @@ void vtkSelectVisiblePoints::Execute()
     this->Renderer->GetDisplayPoint(dx);
     visible = 0;
 
-    if (ptId % tenth == 0) 
+    if ( ! (ptId % progressInterval) ) 
       {
-	decimal += 0.1;
-	this->UpdateProgress(decimal);
-	if (this->GetAbortExecute())
-	  {
-	    break; 
-	  }
+      this->UpdateProgress((float)ptId/numPts);
+      abort = this->GetAbortExecute();
       }
 
     // check whether visible and in selection window 
@@ -192,9 +187,9 @@ void vtkSelectVisiblePoints::Execute()
         }
       diff = fabs(z-dx[2]);
       if ( diff <= this->Tolerance )
-	{
+        {
         visible = 1;
-	}
+        }
       }
 
     if ( (visible && !this->SelectInvisible) ||
