@@ -585,7 +585,6 @@ void vtkImageShortReader::UpdatePointData(vtkImageRegion *region)
     vtkErrorMacro(<< "UpdateRegion: Cache not created yet");
     return;
     }
-  this->Output->AllocateRegion(region);
 
   // open the correct file for this slice
   sprintf(this->FileName, this->FilePattern, this->FilePrefix, fileNumber);
@@ -598,7 +597,7 @@ void vtkImageShortReader::UpdatePointData(vtkImageRegion *region)
     }
 
   // read in the slice
-  ptr = region->GetScalarPointer();
+  ptr = region->GetScalarWritePointer();
   switch (region->GetScalarType())
     {
     case VTK_FLOAT:

@@ -66,8 +66,10 @@ public:
   // Get the Spatial kernel size and middle.
   void GetKernelSize(int num, int *size);
   vtkImageGetMacro(KernelSize,int);
+  int *GetKernelSize() {return this->KernelSize;};  
   void GetKernelMiddle(int num, int *middle);
   vtkImageGetMacro(KernelMiddle,int);
+  int *GetKernelMiddle() {return this->KernelMiddle;};  
   // Description:
   // Set/Get whether use boundary execute method or not (shrink image).
   vtkSetMacro(HandleBoundaries,int);

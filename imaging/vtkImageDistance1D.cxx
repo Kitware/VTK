@@ -117,7 +117,7 @@ void vtkImageDistance1D::Execute(vtkImageRegion *inRegion,
   // Forward pass
   dist = 255;
   inPtr = (unsigned char *)(inRegion->GetScalarPointer());
-  outPtr = (unsigned char *)(outRegion->GetScalarPointer());
+  outPtr = (unsigned char *)(outRegion->GetScalarWritePointer());
   for (idx = min; idx <= max; ++idx)
     {
     if (dist > *inPtr)

@@ -246,11 +246,8 @@ void vtkImageMatte4D::UpdateRegion(vtkImageRegion *region)
     return;
     }
   
-  // Get rid of all references to the data.
-  region->MakeWritable();
-  
   // Add the border
-  ptr = region->GetScalarPointer();
+  ptr = region->GetScalarWritePointer();
   switch (region->GetScalarType())
     {
     case VTK_FLOAT:

@@ -75,10 +75,12 @@ public:
   vtkImageSetMacro(LowPass, float);
   void GetLowPass(int num, float *lowPass);
   vtkImageGetMacro(LowPass, float);
+  float *GetLowPass() {return this->LowPass;};  
   void SetHighPass(int num, float *highPass);
   vtkImageSetMacro(HighPass, float);
   void GetHighPass(int num, float *highPass);
   vtkImageGetMacro(HighPass, float);
+  float *GetHighPass() {return this->HighPass;};  
   
 protected:
   float LowPass[VTK_IMAGE_DIMENSIONS];

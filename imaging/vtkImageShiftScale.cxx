@@ -109,7 +109,7 @@ void vtkImageShiftScale::Execute(vtkImageRegion *inRegion,
 					     vtkImageRegion *outRegion)
 {
   void *inPtr = inRegion->GetScalarPointer();
-  void *outPtr = outRegion->GetScalarPointer();
+  void *outPtr = outRegion->GetScalarWritePointer();
   
   vtkDebugMacro(<< "Execute: inRegion = " << inRegion 
 		<< ", outRegion = " << outRegion);

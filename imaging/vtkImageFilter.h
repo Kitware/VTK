@@ -89,8 +89,8 @@ public:
 protected:
   vtkImageSource *Input;     
   int UseExecuteMethod;      
-  int ReferenceScalars;
-  int ReferenceVectors;
+  int CopyScalars;
+  int CopyVectors;
   
   long InputMemoryLimit;
 
@@ -102,15 +102,15 @@ protected:
    
   // Description:
   // Specify if superclass should copy scalars by reference
-  vtkSetMacro(ReferenceScalars,int);
-  vtkGetMacro(ReferenceScalars,int);
-  vtkBooleanMacro(ReferenceScalars,int);
+  vtkSetMacro(CopyScalars,int);
+  vtkGetMacro(CopyScalars,int);
+  vtkBooleanMacro(CopyScalars,int);
   
   // Description:
   // Specify if superclass should copy vectors by reference
-  vtkSetMacro(ReferenceVectors,int);
-  vtkGetMacro(ReferenceVectors,int);
-  vtkBooleanMacro(ReferenceVectors,int);
+  vtkSetMacro(CopyVectors,int);
+  vtkGetMacro(CopyVectors,int);
+  vtkBooleanMacro(CopyVectors,int);
   
   // Description:
   // These are conveniance functions for writing filters that have their

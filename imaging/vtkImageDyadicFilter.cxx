@@ -263,12 +263,12 @@ vtkImageDyadicFilter::UpdatePointData(int dim, vtkImageRegion *outRegion)
     return;
     }
   
-  // Get the output region from the cache (guaranteed to succeed).
-  this->Output->AllocateRegion(outRegion);
-
   // fill the output region 
   this->Execute(dim, inRegion1, inRegion2, outRegion);
 
+  // Save the new region in cache.
+  this->Output->CacheRegion(outRegion);  
+  
   // free the input regions
   inRegion1->Delete();
   inRegion2->Delete();

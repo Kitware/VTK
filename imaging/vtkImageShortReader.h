@@ -72,6 +72,7 @@ public:
   // Get the image dimensions.
   void GetDimensions(int num, int *size);
   vtkImageGetMacro(Dimensions,int);
+  int *GetDimensions() {return this->Dimensions;};  
   
   // Description:
   // Set/Get the aspect ratio of the data.
@@ -79,6 +80,7 @@ public:
   vtkImageSetMacro(AspectRatio,float);
   void GetAspectRatio(int num, float *ratio);
   vtkImageGetMacro(AspectRatio,float);
+  float *GetAspectRatio() {return this->AspectRatio;};  
   
   // Description:
   // Set/Get the origin of the data (location of point (0,0,0,...)).
@@ -86,6 +88,7 @@ public:
   vtkImageSetMacro(Origin,float);
   void GetOrigin(int num, float *ratio);
   vtkImageGetMacro(Origin,float);
+  float *GetOrigin() {return this->Origin;};  
   
   void SetFilePrefix(char *filePrefix);
   void SetFilePattern(char *filePattern);

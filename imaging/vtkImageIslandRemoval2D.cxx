@@ -484,7 +484,7 @@ void vtkImageIslandRemoval2D::Execute(vtkImageRegion *inRegion,
     }
 
   inPtr = inRegion->GetScalarPointer();
-  outPtr = outRegion->GetScalarPointer();
+  outPtr = outRegion->GetScalarWritePointer();
 
   switch (inRegion->GetScalarType())
     {

@@ -65,6 +65,7 @@ public:
   vtkImageSetMacro(MagnificationFactors,int);
   void GetMagnificationFactors(int num, int *factors);
   vtkImageGetMacro(MagnificationFactors,int);
+  int *GetMagnificationFactors() {return this->MagnificationFactors;};  
   
   // Description:
   // Turn interpolation on and off (pixel replication)

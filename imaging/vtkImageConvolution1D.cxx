@@ -352,7 +352,7 @@ void vtkImageConvolution1D::Execute(vtkImageRegion *inRegion,
   // perform convolution for each pixel of output.
   // Note that input pixel is offset from output pixel.
   inPtr = inRegion->GetScalarPointer();
-  outPtr = outRegion->GetScalarPointer();
+  outPtr = outRegion->GetScalarWritePointer();
 
   vtkDebugMacro(<< "Execute: inRegion = " << inRegion 
 		<< ", outRegion = " << outRegion);

@@ -176,7 +176,7 @@ void vtkImageHarrWavelet2D::Execute(vtkImageRegion *inRegion,
     qSize1 /= 2;
     
     inPtr = inRegion->GetScalarPointer();
-    outPtr = outRegion->GetScalarPointer();
+    outPtr = outRegion->GetScalarWritePointer();
 
     switch (inRegion->GetScalarType())
       {

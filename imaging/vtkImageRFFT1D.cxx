@@ -186,7 +186,7 @@ void vtkImageRFFT1D::Execute(vtkImageRegion *inRegion,
   void *inPtr, *outPtr;
 
   inPtr = inRegion->GetScalarPointer();
-  outPtr = outRegion->GetScalarPointer();
+  outPtr = outRegion->GetScalarWritePointer();
 
   vtkDebugMacro(<< "Execute: inRegion = " << inRegion 
 		<< ", outRegion = " << outRegion);

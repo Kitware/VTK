@@ -123,7 +123,7 @@ void vtkImageNonMaximalSuppression2D::ExecuteCenter(vtkImageRegion *inRegion,
   
   // We want the input pixel to correspond to output
   inPtr1 = (float *)(inRegion->GetScalarPointer(outMin0, outMin1, 0));
-  outPtr1 = (float *)(outRegion->GetScalarPointer());
+  outPtr1 = (float *)(outRegion->GetScalarWritePointer());
 
   // loop through pixels of output
   for (outIdx1 = outMin1; outIdx1 <= outMax1; ++outIdx1)
@@ -230,7 +230,7 @@ void vtkImageNonMaximalSuppression2D::Execute(vtkImageRegion *inRegion,
   
   // We want the input pixel to correspond to output
   inPtr1 = (float *)(inRegion->GetScalarPointer(outMin0, outMin1, 0));
-  outPtr1 = (float *)(outRegion->GetScalarPointer());
+  outPtr1 = (float *)(outRegion->GetScalarWritePointer());
   
   // loop through pixels of output
   for (outIdx1 = outMin1; outIdx1 <= outMax1; ++outIdx1)

@@ -253,7 +253,7 @@ void vtkImageAnisotropicDiffusion2D::Iterate(vtkImageRegion *inRegion,
   // way to deal with the boundary conditions.  Besides it is fast.
   // (Are you sure every one is correct?!!!)
   inPtr1 = (float *)(inRegion->GetScalarPointer(min0, min1));
-  outPtr1 = (float *)(outRegion->GetScalarPointer(min0, min1));
+  outPtr1 = (float *)(outRegion->GetScalarWritePointer(min0, min1));
   for (idx1 = min1; idx1 <= max1; ++idx1, inPtr1+=inInc1, outPtr1+=outInc1)
     {
     inPtr0 = inPtr1;

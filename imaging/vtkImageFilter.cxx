@@ -48,6 +48,9 @@ vtkImageFilter::vtkImageFilter()
   this->Input = NULL;
   this->UseExecuteMethod = 1;
   this->InputMemoryLimit = 100000; // 100 MBytes
+  // Most filters will generate there own scalars.
+  this->CopyScalarsOff();
+  this->CopyVectorsOn();  
 }
 
 //----------------------------------------------------------------------------
@@ -208,11 +211,11 @@ void vtkImageFilter::UpdatePointData(int dim, vtkImageRegion *outRegion)
     return;
     }
   
-  // Get the output region from the cache (guaranteed to succeed).
-  this->Output->AllocateRegion(outRegion);
-
   // fill the output region 
   this->Execute(dim, inRegion, outRegion);
+
+  // Save the new region in cache.
+  this->Output->CacheRegion(outRegion);
 
   // free the input region
   inRegion->Delete();
