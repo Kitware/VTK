@@ -22,7 +22,7 @@
 #include "vtkRendererCollection.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkRenderWindow, "1.141");
+vtkCxxRevisionMacro(vtkRenderWindow, "1.142");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -838,7 +838,6 @@ void vtkRenderWindow::StereoRenderComplete(void)
       unsigned char* result;
       int *size;
       int x,y;
-      int res;
       int m0, m1, ave0, ave1;
       int avecolor[256][3], satcolor[256];
       float a;
