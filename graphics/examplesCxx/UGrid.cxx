@@ -59,6 +59,7 @@ void main( int argc, char *argv[] )
 
   vtkDataSetMapper *ugridMapper = vtkDataSetMapper::New();
       ugridMapper->SetInput(ugrid);
+      ugridMapper->ImmediateModeRenderingOn();
   vtkActor *ugridActor = vtkActor::New();
       ugridActor->SetMapper(ugridMapper);
       ugridActor->GetProperty()->SetColor(.8,.8,.8);
