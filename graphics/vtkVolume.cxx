@@ -722,10 +722,8 @@ void vtkVolume::UpdateScalarOpacityforSampleSize( vtkRenderer *ren, float sample
   int needsRecomputing;
   float originalAlpha,correctedAlpha;
   float ray_scale;
-  float volumeScale;
 
-  volumeScale = this->Scale[0];
-  ray_scale = sample_distance * volumeScale;
+  ray_scale = sample_distance;
 
 
   // step size changed
