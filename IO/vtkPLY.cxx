@@ -2515,7 +2515,7 @@ Entry:
   fname - file name from which memory was requested
 ******************************************************************************/
 
-char *vtkPLY::my_alloc(int size, int lnum, char *fname)
+char *vtkPLY::my_alloc(int size, int lnum, const char *fname)
 {
   char *ptr;
 
