@@ -1922,7 +1922,7 @@ public:
 //-----------------------------------------------------------------------------
 // Implementation of the public class.
 
-vtkCxxRevisionMacro(vtkUnstructuredGridVolumeZsweepMapper, "1.4");
+vtkCxxRevisionMacro(vtkUnstructuredGridVolumeZsweepMapper, "1.5");
 vtkStandardNewMacro(vtkUnstructuredGridVolumeZsweepMapper);
 
 vtkCxxSetObjectMacro(vtkUnstructuredGridVolumeZsweepMapper, RayIntegrator,
@@ -2582,7 +2582,7 @@ void vtkUnstructuredGridVolumeZsweepMapper::AllocateVertices(vtkIdType size)
 {
   if(this->Vertices!=0)
     {
-    if(size>this->Vertices->Vector.size())
+    if(size>static_cast<vtkIdType>(this->Vertices->Vector.size()))
       {
       delete this->Vertices;
       this->Vertices=new vtkVertices(size);
