@@ -3,9 +3,11 @@ catch {load vtktcl}
 source vtkInt.tcl
 
 # create a rendering window and renderer
+vtkRenderer ren1
 vtkRenderWindow renWin
-set ren1 [renWin MakeRenderer]
-set iren [renWin MakeRenderWindowInteractor]
+    renWin AddRenderer ren1
+vtkRenderWindowInteractor iren
+    iren SetRenderWindow renWin
 
 # create an actor and give it cone geometry
 vtkConeSource cone
@@ -16,14 +18,11 @@ vtkActor coneActor
   coneActor SetMapper coneMapper
 
 # assign our actor to the renderer
-$ren1 AddActor coneActor
+ren1 AddActor coneActor
 
 # enable user interface interactor
-$iren SetUserMethod {wm deiconify .vtkInteract}
-$iren Initialize
-
-#$renWin SetFileName Cone.tcl.ppm
-#$renWin SaveImageAsPPM
+iren SetUserMethod {wm deiconify .vtkInteract}
+iren Initialize
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .
