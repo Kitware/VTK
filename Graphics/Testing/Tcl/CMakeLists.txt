@@ -139,7 +139,7 @@ IF (VTK_USE_RENDERING)
       MatrixToTransform
       OBBCylinder
       progGlyphs
-      progGlypsBySource
+      progGlyphsBySource
       quadricCut
       scalarConn
       schwarz
@@ -148,7 +148,6 @@ IF (VTK_USE_RENDERING)
       smoothCyl2
       subdividePointData
       subDivideTetra
-      TenAxes
       TestGraphLayoutFilter
       testQuadricDecimation
       triangularTCoords
