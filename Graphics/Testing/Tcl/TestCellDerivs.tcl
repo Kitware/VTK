@@ -575,6 +575,13 @@ aTriangleStrip aLine aPolyLine aVertex aPolyVertex aPenta aHexa" {
  
    }
 
+# write to the temp directory if possible, otherwise use .
+set dir "."
+if {[info commands rtTester] == "rtTester"}  {
+   set dir [rtTester GetTempDirectory]
+}
+
+
 foreach cell "aVoxel aHexahedron aWedge aPyramid aTetra  aQuad aTriangle aTriangleStrip aLine
 aPolyLine aVertex aPolyVertex aPixel aPolygon aPenta aHexa"  {
 
@@ -582,15 +589,23 @@ aPolyLine aVertex aPolyVertex aPixel aPolygon aPenta aHexa"  {
      ${cell}derivs SetInput ${cell}Grid 
      ${cell}derivs SetVectorModeToComputeGradient
 
-# set FileName "/tmp/"
-# append FileName ${cell}
-# append FileName ".vtk"
+ set FileName $dir
+ append FileName ${cell}
+ append FileName ".vtk"
 
-# vtkUnstructuredGridWriter ${cell}Writer
-#     ${cell}Writer SetInput [${cell}derivs GetOutput]
-#     ${cell}Writer SetFileName $FileName
-#     ${cell}Writer Write   
-   
+ # make sure the directory is writeable first
+ if {[catch {set channel [open $dir/test.tmp w]}] == 0 } {
+   close $channel
+   file delete -force $dir/test.tmp
+
+   vtkUnstructuredGridWriter ${cell}Writer
+     ${cell}Writer SetInput [${cell}derivs GetOutput]
+     ${cell}Writer SetFileName $FileName
+     ${cell}Writer Write   
+   # delete the file
+   file delete -force $FileName
+   }
+
   vtkCellCenters ${cell}Centers
     ${cell}Centers SetInput [${cell}derivs GetOutput]
     ${cell}Centers VertexCellsOn
