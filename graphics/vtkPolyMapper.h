@@ -57,7 +57,7 @@ public:
   static vtkPolyMapper *New();
   char *GetClassName() {return "vtkPolyMapper";};
 
-  void Render(vtkRenderer *ren, vtkActor *a);
+  virtual void Render(vtkRenderer *ren, vtkActor *a);
   float *GetBounds();
 
   // Description:
@@ -74,9 +74,6 @@ public:
   void SetInput(vtkPolyData *in);
   void SetInput(vtkPolyData& in) {this->SetInput(&in);};
 
- protected:
-  vtkPolyData *Data;
-  vtkColorScalars *Colors;
 };
 
 #endif

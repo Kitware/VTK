@@ -60,6 +60,7 @@ vtkMapper::vtkMapper()
   this->ScalarRange[0] = 0.0; this->ScalarRange[1] = 1.0;
 
   this->SelfCreatedLookupTable = 0;
+  this->ImmediateModeRendering = 0;
 }
 
 vtkMapper::~vtkMapper()
@@ -97,6 +98,8 @@ void vtkMapper::operator=(const vtkMapper& m)
   this->SetEndRender(m.EndRender,m.EndRenderArg);
 }
 
+// a side effect of this is that this->Colors is also set
+// to the return value
 vtkColorScalars *vtkMapper::GetColors()
 {
   vtkPointData *pd;
@@ -299,6 +302,8 @@ void vtkMapper::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "Lookup Table: (none)\n";
     }
+  os << indent << "Immediate Mode Rendering: " 
+    << (this->ImmediateModeRendering ? "On\n" : "Off\n");
   os << indent << "Scalar Visibility: " 
     << (this->ScalarVisibility ? "On\n" : "Off\n");
 

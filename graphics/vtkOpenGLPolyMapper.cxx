@@ -57,8 +57,19 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Construct empty object.
 vtkOpenGLPolyMapper::vtkOpenGLPolyMapper()
 {
-  this->Data = NULL; 
-  this->Colors = NULL; 
+  this->ListId = 0;
+}
+
+// Description:
+// Construct empty object.
+vtkOpenGLPolyMapper::~vtkOpenGLPolyMapper()
+{
+      // free any old display lists
+      if (this->ListId)
+        {
+        glDeleteLists(this->ListId,1);
+        this->ListId = 0;
+        }
 }
 
 // Description:
@@ -78,13 +89,85 @@ GLenum vtkOpenGLPolyMapper::GetLmcolorMode(vtkProperty *prop)
     }
 }
 
-// Description:
-// Build the data structure for the gl polygon PolyMapper.
-void vtkOpenGLPolyMapper::Build(vtkPolyData *data, vtkColorScalars *c)
+//
+// Receives from Actor -> maps data to primitives
+//
+void vtkOpenGLPolyMapper::Render(vtkRenderer *ren, vtkActor *act)
 {
-  this->Data = data;
-  this->Colors = c;
-  return;
+  int numPts;
+  vtkPolyData *input= (vtkPolyData *)this->Input;
+//
+// make sure that we've been properly initialized
+//
+  if ( input == NULL ) 
+    {
+    vtkErrorMacro(<< "No input!");
+    return;
+    }
+  else
+    {
+    input->Update();
+    numPts = input->GetNumberOfPoints();
+    } 
+
+  if (numPts == 0)
+    {
+    vtkDebugMacro(<< "No points!");
+    return;
+    }
+  
+  if ( this->LookupTable == NULL ) this->CreateDefaultLookupTable();
+
+// make sure our window is current
+#ifdef _WIN32
+  ((vtkWin32OpenGLRenderWindow *)(ren->GetRenderWindow()))->MakeCurrent();
+#else
+  ((vtkOpenGLRenderWindow *)(ren->GetRenderWindow()))->MakeCurrent();
+#endif
+
+  //
+  // if something has changed regenrate colors and display lists
+  // if required
+  //
+  if ( this->GetMTime() > this->BuildTime || 
+       input->GetMTime() > this->BuildTime || 
+       this->LookupTable->GetMTime() > this->BuildTime ||
+       act->GetProperty()->GetMTime() > this->BuildTime)
+    {
+    // sets this->Colors as side effect
+    this->GetColors();
+
+    if (!this->ImmediateModeRendering)
+      {
+      // free any old display lists
+      if (this->ListId)
+        {
+        glDeleteLists(this->ListId,1);
+        this->ListId = 0;
+        }
+      // get a unique display list id
+      this->ListId = glGenLists(1);
+      glNewList(this->ListId,GL_COMPILE_AND_EXECUTE);
+      this->Draw(ren,act);
+      glEndList();
+      }
+    this->BuildTime.Modified();
+    }
+  // if nothing changed but we are using display lists, draw it
+  else
+    {
+    if (!this->ImmediateModeRendering)
+      {
+      glCallList(this->ListId);
+      }
+    }
+   
+  // if we are in immediate mode rendering we always
+  // want to draw the primitives here
+  if (this->ImmediateModeRendering)
+    {
+    this->Draw(ren,act);
+    }
 }
 
 // Description:
@@ -106,19 +189,8 @@ void vtkOpenGLPolyMapper::Draw(vtkRenderer *aren, vtkActor *act)
   int tDim, primType;
   int count = 0;
   int noAbort = 1;
+  vtkPolyData *input = (vtkPolyData *)this->Input;
   
-  if ( ! this->Data || (npts=this->Data->GetNumberOfPoints()) < 1)
-    {
-    return;
-    }
-  
-// make sure our window is current
-#ifdef _WIN32
-  ((vtkWin32OpenGLRenderWindow *)(ren->GetRenderWindow()))->MakeCurrent();
-#else
-  ((vtkOpenGLRenderWindow *)(ren->GetRenderWindow()))->MakeCurrent();
-#endif
-
   // get the property 
   prop = act->GetProperty();
 
@@ -165,14 +237,14 @@ void vtkOpenGLPolyMapper::Draw(vtkRenderer *aren, vtkActor *act)
   interpolation = prop->GetInterpolation();
 
   // and draw the display list
-  p = this->Data->GetPoints();
+  p = input->GetPoints();
   c = this->Colors;
-  prims[0] = this->Data->GetVerts();
-  prims[1] = this->Data->GetLines();
-  prims[2] = this->Data->GetStrips();
-  prims[3] = this->Data->GetPolys();
+  prims[0] = input->GetVerts();
+  prims[1] = input->GetLines();
+  prims[2] = input->GetStrips();
+  prims[3] = input->GetPolys();
 
-  t = this->Data->GetPointData()->GetTCoords();
+  t = input->GetPointData()->GetTCoords();
   if ( t ) 
     {
     tDim = t->GetDimension();
@@ -183,7 +255,7 @@ void vtkOpenGLPolyMapper::Draw(vtkRenderer *aren, vtkActor *act)
       }
     }
 
-  n = this->Data->GetPointData()->GetNormals();
+  n = input->GetPointData()->GetNormals();
   if (interpolation == VTK_FLAT) n = 0;
 
   // if we are doing vertex colors then set lmcolor to adjust 

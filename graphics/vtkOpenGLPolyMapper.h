@@ -63,15 +63,20 @@ class VTK_EXPORT vtkOpenGLPolyMapper : public vtkPolyMapper
 {
  public:
   vtkOpenGLPolyMapper();
+  ~vtkOpenGLPolyMapper();
   static vtkOpenGLPolyMapper *New() {return new vtkOpenGLPolyMapper;};
   char *GetClassName() {return "vtkOpenGLPolyMapper";};
 
-  void Build(vtkPolyData *, vtkColorScalars *);
+  void Render(vtkRenderer *ren, vtkActor *a);
+
   void Draw(vtkRenderer *ren, vtkActor *a);
   
   //BTX  begine tcl exclude
   GLenum GetLmcolorMode(vtkProperty *prop);
   //ETX
+
+ private:
+   int ListId;
 };
 
 #endif
