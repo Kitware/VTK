@@ -22,14 +22,17 @@ public:
   void CopyData(const vlPointData *const from_pd, const int from_id, 
                 const vlPointData* to_pd, const int to_id);
 
-  void SetScalars (vlFloatScalars* s);
-  vlFloatScalars *GetScalars() {return this->Scalars;};
-  void SetVectors (vlFloatVectors* v);
-  vlFloatVectors *GetVectors() {return this->Vectors;};
-  void SetNormals (vlFloatNormals* n);
-  vlFloatNormals *GetNormals() {return this->Normals;};
-  void SetTCoords (vlFloatTCoords* t);
-  vlFloatTCoords *GetTCoords() {return this->TCoords;};
+  vlSetObjectMacro (Scalars, vlFloatScalars);
+  vlGetObjectMacro (Scalars, vlFloatScalars);
+
+  vlSetObjectMacro (Vectors, vlFloatVectors);
+  vlGetObjectMacro (Vectors, vlFloatVectors);
+
+  vlSetObjectMacro (Normals, vlFloatNormals);
+  vlGetObjectMacro (Normals, vlFloatNormals);
+
+  vlSetObjectMacro (TCoords, vlFloatTCoords);
+  vlGetObjectMacro (TCoords, vlFloatTCoords);
 
 protected:
   vlFloatScalars *Scalars;

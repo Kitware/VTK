@@ -23,50 +23,6 @@ vlPointData::~vlPointData()
   vlPointData::Initialize();
 }
 
-void vlPointData::SetScalars (vlFloatScalars* s) 
-{
-  if ( this->Scalars != s )
-    {
-    if ( this->Scalars != 0 ) this->Scalars->UnRegister((void *)this);
-    this->Scalars = s;
-    this->Scalars->Register((void *)this);
-    this->Modified();
-    }
-}
-
-void vlPointData::SetVectors (vlFloatVectors* v)
-{
-  if ( this->Vectors != v )
-    {
-    if ( this->Vectors != 0 ) this->Vectors->UnRegister((void *)this);
-    this->Vectors = v;
-    this->Vectors->Register((void *)this);
-    this->Modified();
-    }
-}
-
-void vlPointData::SetNormals (vlFloatNormals* n)
-{
-  if ( this->Normals != n )
-    {
-    if ( this->Normals != 0 ) this->Normals->UnRegister((void *)this);
-    this->Normals = n;
-    this->Normals->Register((void *)this);
-    this->Modified();
-    }
-}
-
-void vlPointData::SetTCoords (vlFloatTCoords* t)
-{
-  if ( this->TCoords != t )
-    {
-    if ( this->TCoords != 0 ) this->TCoords->UnRegister((void *)this);
-    this->TCoords = t;
-    this->TCoords->Register((void *)this);
-    this->Modified();
-    }
-}
-
 //
 // Copy the point data from one point to another
 //

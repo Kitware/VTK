@@ -4,62 +4,6 @@
 #include <math.h>
 #include "ConeSrc.hh"
 
-void vlConeSource::SetResolution(int res)
-{
-  if ( res != this->Resolution )
-    {
-    this->Resolution = res;
-    this->Resolution = (this->Resolution < 3 ? 3 :
-        (this->Resolution > MAX_RESOLUTION ? MAX_RESOLUTION : this->Resolution));
-    this->Modified();
-    }
-}
-int vlConeSource::GetResolution()
-{
-  return this->Resolution;
-}
-
-void vlConeSource::SetHeight(float h)
-{
-  if ( h != this->Height )
-    {
-    this->Height = h;
-    this->Height = (this->Height > 0.0 ? this->Height : 1.0);
-    this->Modified();
-    }
-}
-float vlConeSource::GetHeight()
-{
-  return this->Height;
-}
-
-void vlConeSource::SetRadius(float h)
-{
-  if ( h != this->Radius )
-    {
-    this->Radius = h;
-    this->Radius = (this->Radius > 0.0 ? this->Radius : 0.5);
-    this->Modified();
-    }
-}
-float vlConeSource::GetRadius()
-{
-  return this->Radius;
-}
-
-void vlConeSource::SetCapping(int flag)
-{
-  if ( flag != this->Capping )
-    {
-    this->Capping = flag;
-    this->Modified();
-    }
-}
-int vlConeSource::GetCapping()
-{
-  return this->Capping;
-}
-
 void vlConeSource::Execute()
 {
   float angle= 2.0*3.141592654/this->Resolution;

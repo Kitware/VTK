@@ -4,13 +4,6 @@
 #include <math.h>
 #include "CubeSrc.hh"
 
-vlCubeSource::vlCubeSource()
-{
-  this->XLength = 1.0;
-  this->YLength = 1.0;
-  this->ZLength = 1.0;
-}
-
 vlCubeSource::vlCubeSource(float xL, float yL, float zL)
 {
   this->XLength = fabs(xL);

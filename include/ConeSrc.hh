@@ -17,14 +17,19 @@ public:
   vlConeSource(int res) {this->Resolution=res;};
   char *GetClassName() {return "vlConeSource";};
   void Execute();
-  void SetHeight(float h);
-  float GetHeight();
-  void SetRadius(float r);
-  float GetRadius();
-  void SetResolution(int res);
-  int GetResolution();
-  void SetCapping(int flag);
-  int GetCapping();
+
+  vlSetClampMacro(Height,float,0.0,LARGE_FLOAT)
+  vlGetMacro(Height,float);
+
+  vlSetClampMacro(Radius,float,0.0,LARGE_FLOAT)
+  vlGetMacro(Radius,float);
+
+  vlSetClampMacro(Resolution,int,0,MAX_RESOLUTION)
+  vlGetMacro(Resolution,int);
+
+  vlSetMacro(Capping,int);
+  vlGetMacro(Capping,int);
+  vlBooleanMacro(Capping,int);
 
 protected:
   float Height;

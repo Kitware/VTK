@@ -10,6 +10,10 @@ vlPolyMapper::vlPolyMapper()
   this->Lines = 0;
   this->Polys = 0;
   this->Strips = 0;
+  this->VertsVisibility = 1;
+  this->LinesVisibility = 1;
+  this->PolysVisibility = 1;
+  this->StripsVisibility = 1;
 }
 
 vlPolyMapper::~vlPolyMapper()
@@ -98,10 +102,10 @@ void vlPolyMapper::Render(vlRenderer *ren)
       this->BuildTime.Modified();
     }
 
-//  this->Verts->Draw(ren);
-//  this->Lines->Draw(ren);
-  this->Polys->Draw(ren);
-//  this->Strips->Draw(ren);
+//  if ( this->VertsVisibility ) this->Verts->Draw(ren);
+//  if ( this->LinesVisibility ) this->Lines->Draw(ren);
+  if ( this->PolysVisibility ) this->Polys->Draw(ren);
+//  if ( this->StripsVisibility ) this->Strips->Draw(ren);
 
 }
 
