@@ -276,10 +276,12 @@ void main( int argc, char *argv[] )
   aren->SetBackground(0.1, 0.2, 0.4);
 
   vtkCamera *aCamera = vtkCamera::New();
-    aCamera->SetViewUp(0,1,0);
   aren->SetActiveCamera(aCamera);
   aren->ResetCamera();
-  aCamera->Elevation(90.0);
+
+  aCamera->SetFocalPoint(3.505, 2.505, 1.255);
+  aCamera->SetPosition(3.505, 24.6196, 1.255);
+  aCamera->SetViewUp(0,0,1);
 
   renWin->SetSize(300,300);
   renWin->Render();
