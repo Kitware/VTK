@@ -4,6 +4,7 @@ catch {load vtktcl}
 # get the interactor ui
 source ../../examplesTcl/vtkInt.tcl
 
+
 vtkRenderer ren1
 vtkRenderWindow renWin1
   renWin1 AddRenderer ren1
@@ -19,6 +20,9 @@ vtkRenderWindowInteractor iren
 
 [importer GetRenderer] SetBackground 0.1 0.2 0.4
 [importer GetRenderWindow] SetSize 125 125
+
+vtkImageViewer viewer
+  viewer Render
 
 #
 # the importer created the renderer
@@ -44,21 +48,23 @@ $ren ResetCamera
 #
 iren SetUserMethod {wm deiconify .vtkInteract}
 iren Initialize
-wm withdraw .
 
 vtkRenderLargeImage renderLarge
   renderLarge SetInput ren1
   renderLarge SetMagnification 4
   renderLarge Update
 
-vtkImageViewer viewer
-  viewer SetInput [renderLarge GetOutput]
-  viewer SetColorWindow 255
-  viewer SetColorLevel 127.5
-  viewer Render
+viewer SetInput [renderLarge GetOutput]
+viewer SetColorWindow 255
+viewer SetColorLevel 127.5
+viewer SetSize 500 500
+viewer SetPosition 150 150
+viewer Render
 
 vtkPNMWriter writer
   writer SetFileName largeImage.tcl.ppm
   writer SetInput [renderLarge GetOutput]
 #  writer Write
 
+
+wm withdraw .
