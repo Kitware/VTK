@@ -23,7 +23,7 @@
 #include <stdlib.h>
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkActor, "1.113");
+vtkCxxRevisionMacro(vtkActor, "1.114");
 
 // Creates an actor with the following defaults: origin(0,0,0) 
 // position=(0,0,0) scale=(1,1,1) visibility=1 pickable=1 dragable=1
@@ -464,7 +464,7 @@ void vtkActor::PrintSelf(ostream& os, vtkIndent indent)
 
   if ( this->Texture )
     {
-    os << indent << "Texture: this->Texture\n";
+    os << indent << "Texture: " << this->Texture << "\n";
     }
   else
     {
