@@ -126,7 +126,7 @@ public:
       a[0] = this->DisplayPoint[0];
       a[1] = this->DisplayPoint[1];
       a[2] = this->DisplayPoint[2];
-      a[3] = this->DisplayPoint[3];
+      a[3] = 1.0;
     };
 
   // Description:
