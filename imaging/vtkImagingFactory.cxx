@@ -75,9 +75,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkXPolyDataMapper2D.h"
 #endif
 
-char *vtkImagingFactoryGetRenderLibrary()
+const char *vtkImagingFactoryGetRenderLibrary()
 {
-  char *temp;
+  const char *temp;
   
   // first check the environment variable
   temp = getenv("VTK_RENDERER");
@@ -127,7 +127,7 @@ vtkObject* vtkImagingFactory::CreateInstance(const char* vtkclassname )
     return ret;
     }
 
-  char *rl = vtkImagingFactoryGetRenderLibrary();
+  const char *rl = vtkImagingFactoryGetRenderLibrary();
 
 #ifdef VTK_USE_OGLR
 #ifndef VTK_USE_NATIVE_IMAGING

@@ -84,9 +84,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkWin32RenderWindowInteractor.h"
 #endif
 
-char *vtkGraphicsFactoryGetRenderLibrary()
+const char *vtkGraphicsFactoryGetRenderLibrary()
 {
-  char *temp;
+  const char *temp;
   
   // first check the environment variable
   temp = getenv("VTK_RENDERER");
@@ -136,7 +136,7 @@ vtkObject* vtkGraphicsFactory::CreateInstance(const char* vtkclassname )
     return ret;
     }
 
-  char *rl = vtkGraphicsFactoryGetRenderLibrary();
+  const char *rl = vtkGraphicsFactoryGetRenderLibrary();
   
 #ifdef VTK_USE_OGLR
   if (!strcmp("OpenGL",rl))
