@@ -57,9 +57,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkPlanes_h
 #define __vtkPlanes_h
 
-#include <math.h>
 #include "vtkImplicitFunction.h"
+
 class vtkPlane;
+class vtkCamera;
 
 class VTK_EXPORT vtkPlanes : public vtkImplicitFunction
 {
@@ -88,6 +89,10 @@ public:
   // correspondence between plane points and plane normals.
   vtkSetObjectMacro(Normals,vtkNormals);
   vtkGetObjectMacro(Normals,vtkNormals);
+
+  // Description:
+  // Specify the planes via a camera frustrum definition.
+  void SetFrustumPlanes(vtkCamera *camera);
 
 protected:
   vtkPoints *Points;

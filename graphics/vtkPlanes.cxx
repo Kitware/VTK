@@ -41,6 +41,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <math.h>
 #include "vtkPlanes.h"
 #include "vtkPlane.h"
+#include "vtkCamera.h"
 
 vtkPlanes::vtkPlanes()
 {
@@ -123,6 +124,47 @@ void vtkPlanes::EvaluateGradient(float x[3], float n[3])
       n[2] = nTemp[2];
       }
     }
+}
+
+void vtkPlanes::SetFrustumPlanes(vtkCamera *camera)
+{
+  int i;
+  float planes[24], *plane, n[3], x[3];
+  vtkPoints *pts = vtkPoints::New();
+  vtkNormals *normals = vtkNormals::New();
+
+  pts->SetNumberOfPoints(6);
+  normals->SetNumberOfNormals(6);
+  this->SetPoints(pts);
+  this->SetNormals(normals);
+  
+  // Get the planes and load them into the implicit function
+  camera->GetFrustumPlanes(planes);
+  for (i=0; i<6; i++)
+    {
+    plane = planes + 4*i;
+    n[0] = -plane[0];
+    n[1] = -plane[1];
+    n[2] = -plane[2];
+    x[0] = x[1] = x[2] = 0.0;
+    if ( n[0] != 0.0 )
+      {
+      x[0] = plane[3] / n[0];
+      }
+    else if ( n[1] != 0.0 )
+      {
+      x[1] = plane[3] / n[1];
+      }
+    else
+      {
+      x[2] = plane[3] / n[2];
+      }
+    pts->SetPoint(i,x);
+    normals->SetNormal(i,n);
+    }
+  
+  pts->Delete(); //ok reference counting
+  normals->Delete();
 }
 
 void vtkPlanes::PrintSelf(ostream& os, vtkIndent indent)
