@@ -57,12 +57,12 @@ vtkXRenderWindow::vtkXRenderWindow()
 
 vtkXRenderWindow::~vtkXRenderWindow()
 {
-  if (this->Interactor) this->Interactor->Delete();
 }
 
 int vtkXRenderWindowFoundMatch;
 
-Bool vtkXRenderWindowPredProc(Display *disp, XEvent *event, char *arg)
+Bool vtkXRenderWindowPredProc(Display *vtkNotUsed(disp), XEvent *event, 
+			      char *arg)
 {
   Window win = (Window)arg;
   
