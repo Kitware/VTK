@@ -194,6 +194,7 @@ private:
   int PreSorted;
   int UseTwoSortIds;
   vtkMemoryPool* Pool;
+  double Quanta;
   
 private:
   vtkOrderedTriangulator(const vtkOrderedTriangulator&);  // Not implemented.

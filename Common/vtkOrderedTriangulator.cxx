@@ -21,7 +21,7 @@
 #include "vtkEdgeTable.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkOrderedTriangulator, "1.40");
+vtkCxxRevisionMacro(vtkOrderedTriangulator, "1.41");
 vtkStandardNewMacro(vtkOrderedTriangulator);
 
 #ifdef _WIN32_WCE
@@ -353,6 +353,29 @@ struct vtkOTFace //used during tetra construction
     }
   vtkOTPoint *Points[3]; //the three points of the face
   vtkOTTetra *Neighbor;
+  double     Normal[3];
+  double     N2;
+  void ComputePsuedoNormal()
+    {
+      double v20[3], v10[3];
+      v20[0] = this->Points[2]->X[0] - this->Points[0]->X[0];
+      v20[1] = this->Points[2]->X[1] - this->Points[0]->X[1];
+      v20[2] = this->Points[2]->X[2] - this->Points[0]->X[2];
+      v10[0] = this->Points[1]->X[0] - this->Points[0]->X[0];
+      v10[1] = this->Points[1]->X[1] - this->Points[0]->X[1];
+      v10[2] = this->Points[1]->X[2] - this->Points[0]->X[2];
+      vtkMath::Cross(v10,v20,this->Normal);
+      this->N2 = vtkMath::Dot(this->Normal,this->Normal);
+    }
+  int IsValidCavityFace(double X[3],double tol2)
+    {
+      double vp[3], d;
+      vp[0] = X[0] - this->Points[0]->X[0];
+      vp[1] = X[1] - this->Points[0]->X[1];
+      vp[2] = X[2] - this->Points[0]->X[2];
+      d = vtkMath::Dot(vp,this->Normal);
+      return ( (d > 0.0L && (d*d) > (tol2*this->N2)) ? 1 : 0 );
+    }
 };
 
 //---Class represents a tetrahedron-----------------------------------------
@@ -369,7 +392,7 @@ struct vtkOTTetra
   double Center[3];
   // Note: there is a direct correlation between the points and the faces
   // i.e., the ordering of the points and face neighbors.
-  vtkOTTetra *Neighbors[4]; //the four face neighbors
+  vtkOTTetra *Neighbors[4]; //the four face neighborsgetface
   vtkOTPoint *Points[4]; //the four points
   // These are used during point insertion
   int CurrentPointId;
@@ -399,7 +422,9 @@ public:
   vtkOTLinkedList<vtkOTTetra*> Tetras;
   vtkOTVector<vtkOTFace> CavityFaces;
   vtkOTVector<vtkOTTetra*> TetraQueue;
+  vtkOTVector<vtkOTTetra*> DegenerateQueue;
   vtkEdgeTable *EdgeTable;
+  double Tolerance2;
   
   void Reset()
     {
@@ -407,8 +432,13 @@ public:
       this->Tetras.Reset();
       this->CavityFaces.Reset();
       this->TetraQueue.Reset();
+      this->DegenerateQueue.Reset();
       this->EdgeTable->Reset();
     }
+
+  vtkOTTetra* WalkToTetra(vtkOTTetra *tetra,double x[3],int depth,double bc[4]);
+  int CreateInsertionCavity(vtkOTPoint* p, vtkOTTetra *tetra, double bc[4]);
+  void DumpInsertionCavity(double x[3]);
 };
 
 //------------------------------------------------------------------------
@@ -450,10 +480,11 @@ void vtkOrderedTriangulator::InitTriangulation(float bounds[6], int numPts)
   center[0] = (double) (bounds[0]+bounds[1])/2.0;
   center[1] = (double) (bounds[2]+bounds[3])/2.0;
   center[2] = (double) (bounds[4]+bounds[5])/2.0;
-  length = 3.0 * sqrt( (radius2 = (bounds[1]-bounds[0])*(bounds[1]-bounds[0]) +
+  length = 2.0 * sqrt( (radius2 = (bounds[1]-bounds[0])*(bounds[1]-bounds[0]) +
                  (bounds[3]-bounds[2])*(bounds[3]-bounds[2]) +
                  (bounds[5]-bounds[4])*(bounds[5]-bounds[4])) );
   radius2 /= 2.0;
+  this->Mesh->Tolerance2 = length*length*1.0e-10;
   
   //Define the points (-x,+x,-y,+y,-z,+z)
   this->Mesh->Points[numPts].X[0] = center[0] - length;
@@ -629,7 +660,7 @@ void vtkOTTetra::GetFacePoints(int i, vtkOTFace *face)
 {
   // the order is carefully choosen to produce a tetrahedron
   // that is not inside out; i.e., the ordering produces a positive 
-  // jacobian (normal computed from first three points points to fourth).
+  // jacobian (computed from first three points points to fourth).
   switch (i)
     {
     case 0:
@@ -653,6 +684,7 @@ void vtkOTTetra::GetFacePoints(int i, vtkOTFace *face)
       face->Points[2] = this->Points[2];
       break;
     }
+  face->ComputePsuedoNormal();
 }
 
 //------------------------------------------------------------------------
@@ -721,7 +753,7 @@ int vtkOTTetra::InCircumSphere(double x[3])
           (x[1] - this->Center[1]) * (x[1] - this->Center[1]) +
           (x[2] - this->Center[2]) * (x[2] - this->Center[2]);
 
-  return (dist2 < (0.9999999999L * this->Radius2) ? 1 : 0);
+  return (dist2 < (0.9999L * this->Radius2) ? 1 : 0);
 }
 
 //------------------------------------------------------------------------
@@ -847,83 +879,239 @@ static vtkOTTetra *CreateTetra(vtkOTPoint& p, vtkOTFace& face,
 // Faces that lie between a tetrahedron that is in the cavity and one
 // that is not form the cavity boundary, these are kept track of in
 // a list.
-void CreateInsertionCavity(vtkOTPoint* p, 
-                           vtkOTLinkedList<vtkOTTetra*>::Iterator& tptr,
-                           vtkOTMesh *Mesh)
+int vtkOTMesh::CreateInsertionCavity(vtkOTPoint* p, vtkOTTetra *initialTet, 
+                                     double bc[4])
 {
   // Prepare to insert deleted tetras and cavity faces
   //
-  Mesh->CavityFaces.Reset(); //cavity face boundary
-  Mesh->TetraQueue.Reset(); //queue of tetras being processed
-  Mesh->TetraQueue.InsertNextValue(*tptr);
-  (*tptr)->Type = vtkOTTetra::InCavity; //the seed of the cavity
-  (*tptr)->CurrentPointId = p->InternalId; //mark visited
+  this->CavityFaces.Reset(); //cavity face boundary
+  this->TetraQueue.Reset(); //queue of tetras being processed
+  this->DegenerateQueue.Reset(); //queue of tetras that have degenerate faces
+  this->TetraQueue.InsertNextValue(initialTet);
+  initialTet->Type = vtkOTTetra::InCavity; //the seed of the cavity
+  initialTet->CurrentPointId = p->InternalId; //mark visited
   
   // Process queue of tetras until exhausted
   //
-  int i;
+  int i, valid;
+  int somethingNotValid=0;
   vtkOTFace *face;
-  vtkOTTetra *tetra, *nei;
+  vtkOTTetra *nei, *tetra;
+  vtkOTLinkedList<vtkOTTetra*>::Iterator t;
   vtkOTVector<vtkOTTetra*>::Iterator titer;
-  while ( (titer=Mesh->TetraQueue.Pop()) != Mesh->TetraQueue.End() )
+  while ( (titer=this->TetraQueue.Pop()) != this->TetraQueue.End() )
     {
     tetra = *titer;
     
     //for each face, see whether the neighbors are in the cavity
-    for (i=0; i<4; ++i)
+    for (valid=1, i=0; i<4 && valid; ++i)
       {
       // If a boundary, the face is added to the list of faces
       if ( (nei=tetra->Neighbors[i]) == 0 )
         {
-        face = Mesh->CavityFaces.InsertNextValue();
+        face = this->CavityFaces.InsertNextValue();
         tetra->GetFacePoints(i,face);
         face->Neighbor = 0;
+        valid = face->IsValidCavityFace(p->X,this->Tolerance2);
         }
       // Not yet visited, check the face as possible boundary
       else if ( nei->CurrentPointId != p->InternalId )
         {
+        nei->CurrentPointId = p->InternalId; //mark visited
         if ( nei->InCircumSphere(p->X) )
           {
           nei->Type = vtkOTTetra::InCavity;
-          Mesh->TetraQueue.InsertNextValue(nei);
+          this->TetraQueue.InsertNextValue(nei);
           }
         else //a cavity boundary
           {
           nei->Type = vtkOTTetra::OutsideCavity;
-          face = Mesh->CavityFaces.InsertNextValue();
+          face = this->CavityFaces.InsertNextValue();
           tetra->GetFacePoints(i,face);
           face->Neighbor = nei;
+          valid = face->IsValidCavityFace(p->X,this->Tolerance2);
           }
-        nei->CurrentPointId = p->InternalId; //mark visited
         }//if a not-visited face neighbor
       // Visited before, check face for cavity boundary
       else if ( nei->Type == vtkOTTetra::OutsideCavity )
         {
-        face = Mesh->CavityFaces.InsertNextValue();
+        face = this->CavityFaces.InsertNextValue();
         tetra->GetFacePoints(i,face);
         face->Neighbor = nei;
+        valid = face->IsValidCavityFace(p->X,this->Tolerance2);
         }
       }//for each of the four faces
+
+    //check for validity
+    if ( !valid ) //broke out due to invalid face
+      {
+      somethingNotValid++;
+      //add this tetra to queue
+      this->DegenerateQueue.InsertNextValue(tetra);
+      
+      //mark all current tetras unvisited
+      for (t = this->Tetras.Begin(); t != this->Tetras.End(); ++t)
+        {
+        (*t)->CurrentPointId = -1;
+        }
+
+      //mark degenerate tetras visited and outside cavity
+      for ( titer=this->DegenerateQueue.Begin(); 
+            titer != this->DegenerateQueue.End(); ++titer)
+        {
+        (*titer)->CurrentPointId = p->InternalId;
+        (*titer)->Type = vtkOTTetra::OutsideCavity;
+        }
+
+      //reinitialize queue
+      this->CavityFaces.Reset(); //cavity face boundary
+      this->TetraQueue.Reset(); //reprocess
+      this->TetraQueue.InsertNextValue(initialTet);
+      initialTet->CurrentPointId = p->InternalId;
+      }
+    
     }//while queue not empty
   
   // Make final pass and delete tetras in the cavity
   // //TO DO: add pointers from tetra into linked list to avoid
   // //making a complete pass over all tetras.
-  vtkOTLinkedList<vtkOTTetra*>::Iterator t;
-  for (t = Mesh->Tetras.Begin(); t != Mesh->Tetras.End(); )
+  for (t = this->Tetras.Begin(); t != this->Tetras.End(); )
     {
     if ( (*t)->Type == vtkOTTetra::InCavity )
       {
-      t = Mesh->Tetras.Delete(t);
+      if ( (*t)->CurrentPointId != p->InternalId )
+        {
+        int bad=1;
+        }
+      t = this->Tetras.Delete(t);
       }
     else
       {
       ++t;
       }
     }
+
+#if 0
+  if ( somethingNotValid )
+    {
+    //please leave this for debugging
+    this->DumpInsertionCavity(p->X);
+//    exit(1);
+    }
+#endif
+
+  return 1;
 }
 
+void vtkOTMesh::DumpInsertionCavity(double x[3])
+{
+  vtkOTVector<vtkOTFace>::Iterator fptr;
 
+  cout << "# vtk DataFile Version 3.0\n";
+  cout << "ordered triangulator output\n";
+  cout << "ASCII\n";
+  cout << "DATASET POLYDATA\n";
+
+  //write out points
+  int numFaces = this->CavityFaces.GetNumberOfValues();
+  cout << "POINTS " << 3*numFaces+1 << " float\n";
+  
+  for (fptr=this->CavityFaces.Begin(); 
+       fptr != this->CavityFaces.End(); ++fptr)
+    {
+    cout << fptr->Points[0]->X[0] << " "
+         << fptr->Points[0]->X[1] << " "
+         << fptr->Points[0]->X[2] << " "
+         << fptr->Points[1]->X[0] << " "
+         << fptr->Points[1]->X[1] << " "
+         << fptr->Points[1]->X[2] << " "
+         << fptr->Points[2]->X[0] << " "
+         << fptr->Points[2]->X[1] << " "
+         << fptr->Points[2]->X[2] << "\n";
+    }
+
+  //write out point insertion vertex
+  cout << x[0] << " " << x[1] << " " << x[2] << "\n\n";
+  cout << "VERTICES 1 2 \n";
+  cout << "1 " << 3*numFaces << "\n\n";
+  
+  //write out triangles
+  cout << "POLYGONS " << numFaces << " " <<4*numFaces << "\n";
+  
+  int idx=0;
+  for (fptr=this->CavityFaces.Begin(); 
+       fptr != this->CavityFaces.End(); ++fptr, idx+=3)
+    {
+    cout << 3 << " " << idx << " " << idx+1 << " " << idx+2 << "\n";
+    }
+}
+
+// Walk to the tetra tha contains this point. Walking is done by moving
+// in the direction of the most negative barycentric coordinate (i.e.,
+// into the face neighbor).
+vtkOTTetra*
+vtkOTMesh::WalkToTetra(vtkOTTetra* tetra, double x[3], int depth, double bc[4])
+{
+  int neg = 0;
+  int j, numNeg;
+  double negValue;
+  
+  // prevent aimless wandering and death by recursion
+  if ( depth > 200 )
+    {
+    return 0;
+    }
+
+  vtkTetra::BarycentricCoords(x, tetra->Points[0]->X, tetra->Points[1]->X, 
+                              tetra->Points[2]->X, tetra->Points[3]->X, bc);
+
+  // find the most negative face
+  for ( negValue=VTK_LARGE_FLOAT, numNeg=j=0; j<4; j++ )
+    {
+    if ( bc[j] < -0.000001 ) //if close enough that's okay
+      {
+      numNeg++;
+      if ( bc[j] < negValue )
+        {
+        negValue = bc[j];
+        neg = j;
+        }
+      }
+    }
+
+  // if no negatives, then inside this tetra
+  if ( numNeg <= 0 )
+    {
+    return tetra;
+    }
+  
+  // okay, march towards the most negative direction
+  switch (neg) 
+    {
+    case 0:
+      tetra = tetra->Neighbors[1];
+      break;
+    case 1:
+      tetra = tetra->Neighbors[2];
+      break;
+    case 2:
+      tetra = tetra->Neighbors[0];
+      break;
+    case 3:
+      tetra = tetra->Neighbors[3];
+      break;
+    }
+
+  if ( tetra )
+    {
+    return this->WalkToTetra(tetra, x, ++depth, bc);
+    }
+  else
+    {
+    return 0;
+    }
+}
+  
 //------------------------------------------------------------------------
 // Use an ordered insertion process in combination with a consistent
 // degenerate resolution process to generate a unique Delaunay triangulation.
@@ -962,27 +1150,17 @@ void vtkOrderedTriangulator::Triangulate()
       
     p->InternalId = ptId;
 
-    // Find a tetrahedron containing the point
-    for (tptr = this->Mesh->Tetras.Begin(); 
-         tptr != this->Mesh->Tetras.End(); ++tptr)
-      {
-      if ( (*tptr)->InCircumSphere(p->X) )
-        {
-        break;
-        }
-      }//for all tetras
-    
-    if ( tptr == this->Mesh->Tetras.End() )
+    // Walk to a tetrahedron (start with first one on list)
+    double bc[4];
+    vtkOTTetra *tetra = 
+      this->Mesh->WalkToTetra(*(this->Mesh->Tetras.Begin()),p->X,0,bc);
+
+    if ( tetra == 0 || !this->Mesh->CreateInsertionCavity(p, tetra, bc) )
       {
       vtkDebugMacro(<<"Point not in tetrahedron");
       continue;
       }
 
-    // Delete this tetrahedron and all neighboring tetrahedron that
-    // contain the point. This creates a star-convex cavity that is
-    // connected to the insertion point to create new tetrahedron.
-    CreateInsertionCavity(p, tptr, this->Mesh);
-    
     // For each face on the boundary of the cavity, create a new 
     // tetrahedron with the face and point. We've also got to set
     // up tetrahedron face neighbors, so we'll use an edge table
@@ -993,7 +1171,6 @@ void vtkOrderedTriangulator::Triangulate()
 
     this->Mesh->EdgeTable->InitEdgeInsertion(this->MaximumNumberOfPoints+6,1);
     this->Mesh->TetraQueue.Reset();
-    vtkOTTetra *tetra;
     vtkOTVector<vtkOTFace>::Iterator fptr;
     
     for (fptr=this->Mesh->CavityFaces.Begin(); 

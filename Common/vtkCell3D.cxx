@@ -22,7 +22,7 @@
 #include "vtkMarchingCubesCases.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkCell3D, "1.27");
+vtkCxxRevisionMacro(vtkCell3D, "1.28");
 
 vtkCell3D::~vtkCell3D()
 {
@@ -86,7 +86,7 @@ void vtkCell3D::Clip(float value, vtkDataArray *cellScalars,
       {
       outPD->CopyData(inPD,ptId, id);
       }
-    internalId[i] = this->Triangulator->InsertPoint(id, xPtr, type);
+    internalId[i] = this->Triangulator->InsertPoint(id, ptId, xPtr, type);
     }//for all points
   
   // For each edge intersection point, insert into triangulation. Edge
