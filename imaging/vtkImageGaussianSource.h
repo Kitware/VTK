@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageSphereSource.h
+  Module:    vtkImageGaussianSource.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -38,68 +38,50 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageSphereSource - Create a binary image of a sphere.
-// SphereSource creates a binary image of a sphere.  It was created
-// as an example of a simple source, and to test the mask filter.
+// .NAME vtkImageGaussianSource - Create an image with Gaussian pixel values.
+// vtkImageGaussianSource just produces images with pixel values determined 
+// by a Gaussian.
 
 
-
-#ifndef __vtkImageSphereSource_h
-#define __vtkImageSphereSource_h
+#ifndef __vtkImageGaussianSource_h
+#define __vtkImageGaussianSource_h
 
 #include "vtkImageSource.h"
 
-class VTK_EXPORT vtkImageSphereSource : public vtkImageSource
+class VTK_EXPORT vtkImageGaussianSource : public vtkImageSource
 {
 public:
-  vtkImageSphereSource();
-  ~vtkImageSphereSource();
-  static vtkImageSphereSource *New() {return new vtkImageSphereSource;};
-  const char *GetClassName() {return "vtkImageSphereSource";};
-  void PrintSelf(ostream& os, vtkIndent indent);   
+  vtkImageGaussianSource();
+  static vtkImageGaussianSource *New() {return new vtkImageGaussianSource;};
+  const char *GetClassName() {return "vtkImageGaussianSource";};
+  // void PrintSelf(ostream& os, vtkIndent indent);   
   
   // Description:
   // Set/Get the extent of the whole output image.
   void SetWholeExtent(int dim, int *extent);
   vtkImageSetExtentMacro(WholeExtent);
-  void GetWholeExtent(int dim, int *extent);
-  vtkImageGetExtentMacro(WholeExtent);
   
   // Description:
-  // Set/Get the center of the sphere.
-  void SetCenter(int dim, float *center);
-  vtkImageSetMacro(Center, float);
-  void GetCenter(int dim, float *canter);
-  vtkImageGetMacro(Center, float);
-  
-  // Description:
-  // Set/Get the radius of the sphere.
-  vtkSetMacro(Radius,float);
-  vtkGetMacro(Radius,float);
+  // Set/Get the center of the Gaussian.
+  vtkSetVector4Macro(Center, float);
+  vtkGetVector4Macro(Center, float);
 
-  // Description:
-  // Set/Get the inside pixel values.
-  vtkSetMacro(InValue,float);
-  vtkGetMacro(InValue,float);
+  vtkSetMacro(Maximum, float);
+  vtkGetMacro(Maximum, float);
 
-  // Description:
-  // Set/Get the outside pixel values.
-  vtkSetMacro(OutValue,float);
-  vtkGetMacro(OutValue,float);
-  
+  vtkSetMacro(StandardDeviation, float);
+  vtkGetMacro(StandardDeviation, float);
+
   void UpdateImageInformation();
 
-protected:
+private:
+  float StandardDeviation;
   int WholeExtent[8];
   float Center[4];
-  float Radius;
-  float InValue;
-  float OutValue;
+  float Maximum;
 
   void Execute(vtkImageRegion *outRegion);
 };
 
 
 #endif
-
-
