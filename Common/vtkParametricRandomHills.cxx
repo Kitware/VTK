@@ -19,7 +19,7 @@
 
 #include <time.h>
 
-vtkCxxRevisionMacro(vtkParametricRandomHills, "1.4");
+vtkCxxRevisionMacro(vtkParametricRandomHills, "1.5");
 vtkStandardNewMacro(vtkParametricRandomHills);
 
 vtkParametricRandomHills::vtkParametricRandomHills() :
@@ -74,6 +74,7 @@ double vtkParametricRandomHills::Rand ( void )
 void vtkParametricRandomHills::Evaluate(double uvw[3], double Pt[3], double Duvw[9])
 {
   int i;
+
   double u = uvw[0];
   double v = uvw[1];
   double *Du = Duvw;
@@ -118,7 +119,8 @@ void vtkParametricRandomHills::GenerateTheHills( void )
 
   // Generate the centers of the Hills, standard deviations and amplitudes.
   InitSeed(this->RandomSeed);
-  for ( int i = 0; i < this->NumberOfHills; ++ i )
+  int i;
+  for ( i = 0; i < this->NumberOfHills; ++ i )
     {
     hillTuple[0] = min_x + Rand() * (MaximumU - MinimumU);
     hillTuple[1] = min_y + Rand() * (MaximumV - MinimumV);
