@@ -134,7 +134,7 @@ void vtkTclGenericDeleteObject(ClientData cd)
   // lookup the objects name
   sprintf(temps,"%p",(void *)cd);
   entry = Tcl_FindHashEntry(&vtkPointerLookup,temps); 
-  temp = (char *)(Tcl_GetHashValue(entry));
+  temp = strdup((char *)(Tcl_GetHashValue(entry)));
   args[0] = temp;
   
   // get the command function and invoke the delete operation
@@ -150,13 +150,15 @@ void vtkTclGenericDeleteObject(ClientData cd)
     vtkInDelete = 0;
     Tcl_DeleteInterp(i);
     }
+  if (temp) free(temp);
 }
 
 int vtkCommand(ClientData cd, Tcl_Interp *interp, int argc, char *argv[])
 {
   Tcl_HashEntry *entry;
   Tcl_HashSearch search;
-  
+  char * tmp;
+
   cd = 0; // shut up the compiler
 
   if (argc < 2) return TCL_OK;
@@ -165,9 +167,11 @@ int vtkCommand(ClientData cd, Tcl_Interp *interp, int argc, char *argv[])
     {
     for (entry = Tcl_FirstHashEntry(&vtkPointerLookup,&search); 
 	 entry != NULL;
-	 entry = Tcl_NextHashEntry(&search))
+	 entry = Tcl_FirstHashEntry(&vtkPointerLookup,&search))
       {
-      Tcl_DeleteCommand(interp,(char *)Tcl_GetHashValue(entry));
+      tmp = strdup((char *)Tcl_GetHashValue(entry));
+      if (tmp) Tcl_DeleteCommand(interp,tmp);
+	  if (tmp) free(tmp);
       }
     return TCL_OK;
     }
