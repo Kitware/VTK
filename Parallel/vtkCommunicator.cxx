@@ -154,11 +154,27 @@ int vtkCommunicator::Send(vtkDataArray* data, int remoteHandle, int tag)
     return 1;
     }
 
+  // send array type
   int type = data->GetDataType();
   this->Send( &type, 1, remoteHandle, tag);
 
+  // send array size
   vtkIdType size = data->GetSize();
   this->Send( &size, 1, remoteHandle, tag);
+
+  // send number of components in array
+  int numComponents = data->GetNumberOfComponents();
+  this->Send( &numComponents, 1, remoteHandle, tag);
+
+  
+  const char* name = data->GetName();
+  int len = strlen(name) + 1;
+
+  // send length of name
+  this->Send( &len, 1, remoteHandle, tag);
+
+  // send name
+  this->Send( const_cast<char*>(name), len, remoteHandle, tag);
 
   // now send the raw array
   switch (type)
@@ -245,8 +261,11 @@ int vtkCommunicator::Receive(vtkDataObject* data, int remoteHandle,
 int vtkCommunicator::Receive(vtkDataArray* data, int remoteHandle, 
 			     int tag)
 {
-  int size;
+  vtkIdType size;
   int type;
+  int numComponents;
+  int nameLength;
+
   char *c = 0;
   unsigned char *uc = 0;
   int *i = 0;
@@ -269,7 +288,20 @@ int vtkCommunicator::Receive(vtkDataArray* data, int remoteHandle,
     vtkErrorMacro("Could not receive data!");
     return 0;
     }
+
+  // Next receive the number of components.
+  this->Receive( &numComponents, 1, remoteHandle, tag);
+
+  // Next receive the length of the name.
+  this->Receive( &nameLength, 1, remoteHandle, tag);
+
+  char *str = new char[nameLength]; // maybe a little extra?
+  this->DeleteAndSetMarshalString(str, nameLength);
   
+  // Receive the name
+  this->Receive(this->MarshalString, nameLength, remoteHandle, tag);
+  this->MarshalDataLength = nameLength;
+
   if (size < 0)
     {
     vtkErrorMacro("Bad data length");
@@ -332,6 +364,9 @@ int vtkCommunicator::Receive(vtkDataArray* data, int remoteHandle,
       return 0; // could not marshal data
 
     }
+
+  data->SetName(this->MarshalString);
+  data->SetNumberOfComponents(numComponents);
 
   return 1;
 

@@ -314,7 +314,7 @@ int vtkSocketCommunicator::Receive(char *data, int length,
     return 0;
     }
 
-  return ReceiveMessage( (char *)data, sizeof(char), length, tag);
+  return ReceiveMessage( data, sizeof(char), length, tag);
 }
 
 //----------------------------------------------------------------------------
