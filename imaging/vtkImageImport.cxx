@@ -59,11 +59,16 @@ vtkImageImport::vtkImageImport()
     this->DataSpacing[idx] = 1.0;
     this->DataOrigin[idx] = 0.0;
     }
+  this->SaveUserArray = 0;
 }
 
 //----------------------------------------------------------------------------
 vtkImageImport::~vtkImageImport()
 { 
+  if ((this->ImportVoidPointer) && (!this->SaveUserArray))
+    {
+    delete [] this->ImportVoidPointer;
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -138,14 +143,36 @@ void vtkImageImport::Execute(vtkImageData *data)
 }
 
 
+void vtkImageImport::CopyImportVoidPointer(void *ptr, int size)
+{
+  unsigned char *mem = new unsigned char [size];
+  memcpy(mem,ptr,size);
+  this->SetImportVoidPointer(mem,0);
+}
+
 void vtkImageImport::SetImportVoidPointer(void *ptr)
+{
+  this->SetImportVoidPointer(ptr,1);
+}
+
+void vtkImageImport::SetImportVoidPointer(void *ptr, int save)
 {
   if (ptr != this->ImportVoidPointer)
     {
+    if ((this->ImportVoidPointer) && (!this->SaveUserArray))
+      {
+      vtkDebugMacro (<< "Deleting the array...");
+      delete [] this->ImportVoidPointer;
+      }
+    else 
+      {
+      vtkDebugMacro (<<"Warning, array not deleted, but will point to new array.");
+      }
     this->Modified();
     }
   this->ImportVoidPointer = ptr;
 }
+
 
 //----------------------------------------------------------------------------
 void vtkImageImport::ModifyOutputUpdateExtent()

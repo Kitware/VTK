@@ -63,10 +63,23 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);   
 
   // Description:
+  // Import data and make an internal copy of it. You should use 
+  // this OR SetImportVoidPointer. The last one called will
+  // control how the current memory is handled. The size is
+  // the size of the data in BYTES.
+  void CopyImportVoidPointer(void *ptr, int size);
+  
+  // Description:
   // Set the pointer from which the image data is imported.
   void SetImportVoidPointer(void *ptr);
   void *GetImportVoidPointer() {return this->ImportVoidPointer;};
-  
+
+  // Description:
+  // Set the pointer from which the image data is imported.  Set save to 1 to
+  // keep the vtk from deleting the array when it cleans up or reallocates
+  // memory.  The class uses the actual array provided; it does not copy the
+  // data from the suppled array.
+  void SetImportVoidPointer(void *ptr, int save);
   
   // Description:
   // Set/Get the data type of pixels in the imported data.
@@ -115,7 +128,9 @@ protected:
   void ModifyOutputUpdateExtent();
 
   void *ImportVoidPointer;
+  int SaveUserArray;
 
+  
   int NumberOfScalarComponents;
   int DataScalarType;
 
