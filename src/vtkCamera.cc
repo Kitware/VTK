@@ -457,6 +457,7 @@ void vtkCamera::CalcViewTransform()
   // Rz just equals the VPN
   Rz = this->ViewPlaneNormal;
   math.Cross(this->ViewUp,Rz,Rx);
+  math.Normalize(Rx);
   math.Cross(Rz,Rx,Ry);
   
   matrix[0][0] = Rx[0];
@@ -527,6 +528,7 @@ void vtkCamera::CalcPerspectiveTransform(float aspect,
   // Rz just equals the VPN
   Rz = this->ViewPlaneNormal;
   math.Cross(this->ViewUp,Rz,Rx);
+  math.Normalize(Rx);
   math.Cross(Rz,Rx,Ry);
   
   matrix[0][0] = Rx[0];
