@@ -72,6 +72,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // .SECTION See Also
 // vtkMarchingCubes vtkSliceCubes vtkDividingCubes vtkMarchingSquares
+// vtkImageMarchingCubes
 
 #ifndef __vtkContourFilter_h
 #define __vtkContourFilter_h
@@ -166,8 +167,11 @@ protected:
   vtkPointLocator *Locator;
   int UseScalarTree;
   vtkScalarTree *ScalarTree;
-
-  void StructuredPointsContour(int dim); //special contouring for structured points
+  
+  //special contouring for structured points
+  void StructuredPointsContour(int dim); 
+  //special contouring for image data
+  void ImageContour(int dim);
 };
 
 // Description:

@@ -136,8 +136,7 @@ void vtkContourFilter::Execute()
 
   // If structured points, use more efficient algorithms
 #ifdef VTK_USE_PATENTED
-  if ( (input->GetDataObjectType() == VTK_STRUCTURED_POINTS) ||
-       (input->GetDataObjectType() == VTK_IMAGE_DATA)) 
+  if ( (input->GetDataObjectType() == VTK_STRUCTURED_POINTS))
     {
     if (inScalars->GetDataType() != VTK_BIT)
       {
@@ -146,6 +145,20 @@ void vtkContourFilter::Execute()
       if ( input->GetCell(0)->GetCellDimension() >= 2 ) 
 	{
 	this->StructuredPointsContour(dim);
+	return;
+	}
+      }
+    }
+  
+  if ( (input->GetDataObjectType() == VTK_IMAGE_DATA)) 
+    {
+    if (inScalars->GetDataType() != VTK_BIT)
+      {
+      int dim = input->GetCell(0)->GetCellDimension();
+      
+      if ( input->GetCell(0)->GetCellDimension() >= 2 ) 
+	{
+	this->ImageContour(dim);
 	return;
 	}
       }
@@ -276,6 +289,7 @@ void vtkContourFilter::Execute()
 //
 #ifndef VTK_USE_PATENTED  
 void vtkContourFilter::StructuredPointsContour(int vtkNotUsed(dim)) { }
+void vtkContourFilter::ImageContour(int vtkNotUsed(dim)) { }
 #else
 void vtkContourFilter::StructuredPointsContour(int dim)
 {
@@ -311,6 +325,60 @@ void vtkContourFilter::StructuredPointsContour(int dim)
     
     mcubes = vtkMarchingCubes::New();
     mcubes->SetInput((vtkStructuredPoints *)this->GetInput());
+    mcubes->SetComputeNormals (this->ComputeNormals);
+    mcubes->SetComputeGradients (this->ComputeGradients);
+    mcubes->SetComputeScalars (this->ComputeScalars);
+    mcubes->SetDebug(this->Debug);
+    mcubes->SetNumberOfContours(numContours);
+    for (i=0; i < numContours; i++)
+      {
+      mcubes->SetValue(i,values[i]);
+      }
+
+    mcubes->Update();
+    output = mcubes->GetOutput();
+    output->Register(this);
+    mcubes->Delete();
+    }
+  
+  thisOutput->CopyStructure(output);
+  thisOutput->GetPointData()->ShallowCopy(output->GetPointData());
+  output->UnRegister(this);
+}
+void vtkContourFilter::ImageContour(int dim)
+{
+  vtkPolyData *output;
+  vtkPolyData *thisOutput = this->GetOutput();
+  int numContours=this->ContourValues->GetNumberOfContours();
+  float *values=this->ContourValues->GetValues();
+
+  if ( dim == 2 ) //marching squares
+    {
+    vtkMarchingSquares *msquares;
+    int i;
+    
+    msquares = vtkMarchingSquares::New();
+    msquares->SetInput((vtkImageData *)this->GetInput());
+    msquares->SetDebug(this->Debug);
+    msquares->SetNumberOfContours(numContours);
+    for (i=0; i < numContours; i++)
+      {
+      msquares->SetValue(i,values[i]);
+      }
+         
+    msquares->Update();
+    output = msquares->GetOutput();
+    output->Register(this);
+    msquares->Delete();
+    }
+
+  else //image marching cubes
+    {
+    vtkImageMarchingCubes *mcubes;
+    int i;
+    
+    mcubes = vtkImageMarchingCubes::New();
+    mcubes->SetInput((vtkImageData *)this->GetInput());
     mcubes->SetComputeNormals (this->ComputeNormals);
     mcubes->SetComputeGradients (this->ComputeGradients);
     mcubes->SetComputeScalars (this->ComputeScalars);
