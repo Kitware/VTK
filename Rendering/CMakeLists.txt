@@ -457,3 +457,5 @@ INSTALL_FILES(/include/vtk .h ${Rendering_SRCS} ${RenderingOpenGL_SRCS})
 CONFIGURE_FILE(
 ${VTK_SOURCE_DIR}/Rendering/tkInternals/.NoDartCoverage
 ${VTK_BINARY_DIR}/Rendering/tkInternals/.NoDartCoverage)
+
+SUBDIRS(tkInternals tkOSXInternals)
