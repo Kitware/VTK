@@ -19,7 +19,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkImageData.h"
 
-vtkCxxRevisionMacro(vtkProbeFilter, "1.72");
+vtkCxxRevisionMacro(vtkProbeFilter, "1.73");
 vtkStandardNewMacro(vtkProbeFilter);
 
 //----------------------------------------------------------------------------
@@ -153,13 +153,45 @@ void vtkProbeFilter::Execute()
 //----------------------------------------------------------------------------
 void vtkProbeFilter::ExecuteInformation()
 {
-  // Copy whole extent ...
-  this->vtkSource::ExecuteInformation();
-
   if (this->GetInput() == NULL || this->GetSource() == NULL)
     {
     vtkErrorMacro("Missing input or source");
     return;
+    }
+
+  // Copy whole extent ...
+  this->vtkSource::ExecuteInformation();
+
+  // Special case for ParaView.
+  if (this->SpatialMatch == 2)
+    {
+    this->GetOutput()->SetMaximumNumberOfPieces(this->GetSource()->GetMaximumNumberOfPieces());
+    }
+
+  if (this->SpatialMatch == 1)
+    {
+    int m1 = this->GetInput()->GetMaximumNumberOfPieces();
+    int m2 = this->GetSource()->GetMaximumNumberOfPieces();
+    if (m1 < 0 && m2 < 0)
+      {
+      this->GetOutput()->SetMaximumNumberOfPieces(-1);
+      }
+    else
+      {
+      if (m1 < -1)
+        {
+        m1 = VTK_LARGE_INTEGER;
+        }
+      if (m2 < -1)
+        {
+        m2 = VTK_LARGE_INTEGER;
+        }
+      if (m2 < m1)
+        {
+        m1 = m2;
+        }
+      this->GetOutput()->SetMaximumNumberOfPieces(m1);
+      }
     }
 }
 
