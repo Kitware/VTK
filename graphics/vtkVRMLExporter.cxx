@@ -146,6 +146,15 @@ void vtkVRMLExporter::WriteData()
   fprintf(fp,"#VRML V2.0 utf8\n");
   fprintf(fp,"# VRML file written by the visualization toolkit\n\n");
 
+  // Start write the Background
+  float background[3];
+  ren->GetBackground(background);
+  fprintf(fp,"    Background {\n ");
+  fprintf(fp,"   skyColor [%f %f %f, ]\n", background[0], 
+          background[1], background[2]);
+  fprintf(fp,"    }\n ");
+  // End of Background
+  
   // do the camera
   cam = ren->GetActiveCamera();
   fprintf(fp,"    Viewpoint\n      {\n      fieldOfView %f\n",
