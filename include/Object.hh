@@ -35,8 +35,8 @@ public:
   virtual char *GetClassName() {return "vlObject";};
 
   // debugging
-  void DebugOn();
-  void DebugOff();
+  virtual void DebugOn();
+  virtual void DebugOff();
   int GetDebug();
 
   // modified time
