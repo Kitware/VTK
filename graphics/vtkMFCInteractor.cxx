@@ -750,7 +750,6 @@ HDIB vtkMFCInteractor::GetDIB(int width,int height,int bitsperpixel)
   if(GetBitmap()!=NULL) 
     {
     FindPokedRenderer(this->LastPosition.x,Size[1]-this->LastPosition.y);
-    ac = CurrentRenderer->GetActors();
     this->Update();
     
     lpbi = &bi;
@@ -818,7 +817,6 @@ BOOL vtkMFCInteractor::SaveBMP(LPCTSTR lpszPathName,int width,int height,int bit
   if(GetBitmap()!=NULL) 
     {
     FindPokedRenderer(this->LastPosition.x,Size[1]-this->LastPosition.y);
-    ac = CurrentRenderer->GetActors();
     this->Update();
     
     BITMAPINFO *pbm;
@@ -1001,7 +999,7 @@ void vtkMFCInteractor::CreateBMPFile(HWND hwnd, LPTSTR pszFile,
   
   GlobalFree((HGLOBAL)lpBits);
 }
-
+#ifdef TIMER
 void vtkMFCInteractor::StartTiming(int count)
 {
   if(bAuto==FALSE) 
@@ -1026,3 +1024,4 @@ void vtkMFCInteractor::OnEnterIdle()
   if (State != VTKXI_START) return;
   if ( bAuto) this->RenderWindow->Render();
 }
+#endif
