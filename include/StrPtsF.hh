@@ -37,7 +37,7 @@ public:
 
   // Description:
   // Specify the input object.
-b*c   vlSetObjectMacro(Input,vlStructuredPoints);
+  vlSetObjectMacro(Input,vlStructuredPoints);
   vlGetObjectMacro(Input,vlStructuredPoints);
 
 protected:
