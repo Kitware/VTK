@@ -41,12 +41,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 #include "vtkInteractorStyleTrackballCamera.h"
 #include "vtkObjectFactory.h"
+#include "vtkMath.h"
 
 //----------------------------------------------------------------------------
 vtkInteractorStyleTrackballCamera *vtkInteractorStyleTrackballCamera::New() 
 {
   // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkInteractorStyleTrackball");
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkInteractorStyleTrackballCamera");
   if(ret)
     {
     return (vtkInteractorStyleTrackballCamera*)ret;
@@ -61,6 +62,7 @@ vtkInteractorStyleTrackballCamera::vtkInteractorStyleTrackballCamera()
 {
   this->MotionFactor = 10.0;
   this->State = VTK_INTERACTOR_STYLE_CAMERA_NONE;
+  this->RadianToDegree = 180.0 / vtkMath::Pi();
 }
 
 //----------------------------------------------------------------------------
@@ -87,6 +89,11 @@ void vtkInteractorStyleTrackballCamera::OnMouseMove(int vtkNotUsed(ctrl),
     {
     this->FindPokedCamera(x, y);
     this->DollyXY(x - this->LastPos[0], y - this->LastPos[1]);
+    }
+  else if (this->State == VTK_INTERACTOR_STYLE_CAMERA_SPIN)
+    {
+    this->FindPokedCamera(x, y);
+    this->SpinXY(x, y, this->LastPos[0], this->LastPos[1]);
     }
 
   this->LastPos[0] = x;
@@ -215,6 +222,27 @@ void vtkInteractorStyleTrackballCamera::DollyXY(int dx, int dy)
 }
 
 //----------------------------------------------------------------------------
+void vtkInteractorStyleTrackballCamera::SpinXY(int x, int y, int oldX, int oldY)
+{
+  vtkRenderWindowInteractor *rwi = this->Interactor;
+  vtkCamera *cam;
+
+  double newAngle = atan2((double)(y - this->Center[1]),
+                         (double)(x - this->Center[0]));
+  double oldAngle = atan2((double)(oldY -this->Center[1]),
+                         (double)(oldX - this->Center[0]));
+  
+  newAngle *= this->RadianToDegree;
+  oldAngle *= this->RadianToDegree;
+
+  cam = this->CurrentRenderer->GetActiveCamera();
+  cam->Roll(newAngle - oldAngle);
+  cam->OrthogonalizeViewUp();
+      
+  rwi->Render();
+}
+
+//----------------------------------------------------------------------------
 void vtkInteractorStyleTrackballCamera::OnLeftButtonDown(int ctrl, int shift, 
 						int x, int y) 
 {
@@ -225,7 +253,15 @@ void vtkInteractorStyleTrackballCamera::OnLeftButtonDown(int ctrl, int shift,
     return;
     }
 
-  this->State = VTK_INTERACTOR_STYLE_CAMERA_ROTATE;
+  this->UpdateInternalState(ctrl, shift, x, y);
+  if (this->CtrlKey)
+    {
+    this->State = VTK_INTERACTOR_STYLE_CAMERA_SPIN;
+    }
+  else
+    {
+    this->State = VTK_INTERACTOR_STYLE_CAMERA_ROTATE;
+    }
 }
 
 //----------------------------------------------------------------------------

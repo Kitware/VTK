@@ -60,6 +60,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define VTK_INTERACTOR_STYLE_CAMERA_ROTATE  1
 #define VTK_INTERACTOR_STYLE_CAMERA_PAN     2
 #define VTK_INTERACTOR_STYLE_CAMERA_ZOOM    3
+#define VTK_INTERACTOR_STYLE_CAMERA_SPIN    4
 
 class VTK_EXPORT vtkInteractorStyleTrackballCamera : public vtkInteractorStyle
 {
@@ -89,11 +90,13 @@ protected:
   void operator=(const vtkInteractorStyleTrackballCamera&) {};
 
   void RotateXY(int dx, int dy);
-  void PanXY(int x, int y, int oldx, int oldy);
+  void PanXY(int x, int y, int oldX, int oldY);
   void DollyXY(int dx, int dy);
+  void SpinXY(int dx, int dy, int oldX, int oldY);
   
   int State;
   float MotionFactor;
+  float RadianToDegree;                 // constant: for conv from deg to rad
 };
 
 #endif
