@@ -119,6 +119,60 @@ public:
   // Return the internal edge table.
   vtkGenericEdgeTable *GetEdgeTable();
   
+  // Description:
+  // Return the number of fixed subdivisions. It is used to prevent from
+  // infinite loop in degenerated cases. For order 3 or higher, if the
+  // inflection point is exactly on the mid-point, error metric will not
+  // detect that a subdivision is required. 0 means no fixed subdivision:
+  // there will be only adaptive subdivisions.
+  //
+  // The algorithm first performs `GetFixedSubdivisions' non adaptive
+  // subdivisions followed by at most `GetMaxAdaptiveSubdivisions' adaptive
+  // subdivisions. Hence, there are at most `GetMaxSubdivisionLevel'
+  // subdivisions.
+  // \post positive_result: result>=0 && result<=GetMaxSubdivisionLevel()
+  int GetFixedSubdivisions();
+  
+  // Description:
+  // Return the maximum level of subdivision. It is used to prevent from
+  // infinite loop in degenerated cases. For order 3 or higher, if the
+  // inflection point is exactly on the mid-point, error metric will not
+  // detect that a subdivision is required. 0 means no subdivision,
+  // neither fixed nor adaptive.
+  // \post positive_result: result>=GetFixedSubdivisions()
+  int GetMaxSubdivisionLevel();
+  
+  // Description:
+  // Return the maximum number of adaptive subdivisions.
+  // \post valid_result: result==GetMaxSubdivisionLevel()-GetFixedSubdivisions()
+  int GetMaxAdaptiveSubdivisions();
+  
+  // Description:
+  // Set the number of fixed subdivisions. See GetFixedSubdivisions() for
+  // more explanations.
+  // \pre positive_level: level>=0 && level<=GetMaxSubdivisionLevel()
+  // \post is_set: GetFixedSubdivisions()==level
+  void SetFixedSubdivisions(int level);
+  
+  // Description:
+  // Set the maximum level of subdivision. See GetMaxSubdivisionLevel() for
+  // more explanations.
+  // \pre positive_level: level>=GetFixedSubdivisions()
+  // \post is_set: level==GetMaxSubdivisionLevel()
+  void SetMaxSubdivisionLevel(int level);
+  
+  // Description:
+  // Set both the number of fixed subdivisions and the maximum level of
+  // subdivisions. See GetFixedSubdivisions(), GetMaxSubdivisionLevel() and
+  // GetMaxAdaptiveSubdivisions() for more explanations.
+  // \pre positive_fixed: fixed>=0
+  // \pre valid_range: fixed<=maxLevel
+  // \post fixed_is_set: fixed==GetFixedSubdivisions()
+  // \post maxLevel_is_set: maxLevel==GetMaxSubdivisionLevel()
+  void SetSubdivisionLevels(int fixed,
+                            int maxLevel);
+  
+  
 protected:
   vtkSimpleCellTessellator();
   ~vtkSimpleCellTessellator();
@@ -239,6 +293,10 @@ protected:
   vtkIdType GetOutputPointId(int inputPointId);
   void TranslateIds(vtkIdType *ids,
                     int count);
+  
+  int FixedSubdivisions;
+  int MaxSubdivisionLevel;
+  int CurrentSubdivisionLevel;
   
 private:
   vtkSimpleCellTessellator(const vtkSimpleCellTessellator&);  // Not implemented.

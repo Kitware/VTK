@@ -35,6 +35,11 @@
 
 #include "vtkMath.h"
 
+// format of the arrays LeftPoint, MidPoint, RightPoint is global, parametric,
+// attributes: xyz rst [abc de...]
+const int PARAMETRIC_OFFSET=3;
+const int ATTRIBUTES_OFFSET=6;
+
 // Pre computed table for the point to edge equivalence:
 // [edge][point]
 static int TRIANGLE_EDGES_TABLE[3][2] = {{0, 1}, {1, 2}, {2, 0}};
@@ -359,7 +364,7 @@ static signed char vtkTessellatorTetraCasesLeft[65][8][4] = {
 };
 
 
-vtkCxxRevisionMacro(vtkSimpleCellTessellator, "1.3");
+vtkCxxRevisionMacro(vtkSimpleCellTessellator, "1.4");
 vtkStandardNewMacro(vtkSimpleCellTessellator);
 //-----------------------------------------------------------------------------
 //
@@ -380,9 +385,65 @@ public:
       this->Vertex[i][1] = -100;
       this->Vertex[i][2] = -100;
       }
+    this->SubdivisionLevel=0;
+    assert("inv: " && this->ClassInvariant());
     }
   ~vtkTriangleTile() {}
-
+  
+   int DifferentFromOriginals(double local[3])
+    {
+      int result=1;
+      int k=0;
+      while(k<4 && result)
+        {
+        result=!((local[0] ==this->Vertex[k][0]) &&
+                 (local[1] == this->Vertex[k][1])
+                 && (local[2] == this->Vertex[k][2]));
+        ++k;
+        }
+      return result;
+    }
+  
+  int ClassInvariant()
+    {
+      // Mid point are different from all original points.
+      int isValid=1;
+      int j=4;
+      int k;
+      while(j<10 && isValid)
+        {
+        // Don't even look at original points if the mid-point is not
+        // initialized
+        isValid=(this->Vertex[j][0] ==-100) && (this->Vertex[j][1] ==-100)
+          && (this->Vertex[j][2] ==-100);
+        if(!isValid)
+          {
+          k=0;
+          isValid=true;
+          while(k<4 && isValid)
+            {
+            isValid=!((this->Vertex[j][0] ==this->Vertex[k][0]) &&
+              (this->Vertex[j][1] == this->Vertex[k][1])
+                      && (this->Vertex[j][2] == this->Vertex[k][2]));
+            ++k;
+            }
+          }
+        ++j;
+        }
+      return isValid;
+    }
+  
+  void SetSubdivisionLevel(int level)
+    {
+      assert("pre: positive_level" && level>=0);
+      this->SubdivisionLevel=level;
+    }
+  
+  int GetSubdivisionLevel()
+    {
+      return this->SubdivisionLevel;
+    }
+  
   void SetVertex( int i , double v[3] ) 
   {
     this->Vertex[i][0] = v[0];
@@ -431,6 +492,7 @@ private:
   // Keep track of local coordinate in order to evaluate shape function
   double Vertex[3+3][3];  //3 points + 3 mid edge points
   vtkIdType PointId[3+3];
+  int SubdivisionLevel;
 };
 //-----------------------------------------------------------------------------
 //
@@ -451,14 +513,71 @@ public:
       this->Vertex[i][1] = -100;
       this->Vertex[i][2] = -100;
       }
+    this->SubdivisionLevel=0;
+    assert("inv: " && this->ClassInvariant());
     }
   ~vtkTetraTile() {}
     
+  int DifferentFromOriginals(double local[3])
+    {
+      int result=1;
+      int k=0;
+      while(k<4 && result)
+        {
+        result=!((local[0] ==this->Vertex[k][0]) &&
+                 (local[1] == this->Vertex[k][1])
+                 && (local[2] == this->Vertex[k][2]));
+        ++k;
+        }
+      return result;
+    }
+  
+  int ClassInvariant()
+    {
+      // Mid point are different from all original points.
+      int isValid=1;
+      int j=4;
+      int k;
+      while(j<10 && isValid)
+        {
+        // Don't even look at original points if the mid-point is not
+        // initialized
+        isValid=(this->Vertex[j][0] ==-100) && (this->Vertex[j][1] ==-100)
+          && (this->Vertex[j][2] ==-100);
+        if(!isValid)
+          {
+          k=0;
+          isValid=true;
+          while(k<4 && isValid)
+            {
+            isValid=!((this->Vertex[j][0] ==this->Vertex[k][0]) &&
+              (this->Vertex[j][1] == this->Vertex[k][1])
+                      && (this->Vertex[j][2] == this->Vertex[k][2]));
+            ++k;
+            }
+          }
+        ++j;
+        }
+      return isValid;
+    }
+  
+  void SetSubdivisionLevel(int level)
+    {
+      assert("pre: positive_level" && level>=0);
+      this->SubdivisionLevel=level;
+    }
+  
+  int GetSubdivisionLevel()
+    {
+      return this->SubdivisionLevel;
+    }
+  
   void SetVertex( int i , double v[3] ) 
   {
     Vertex[i][0] = v[0];
     Vertex[i][1] = v[1];
     Vertex[i][2] = v[2];
+    assert("inv: " && this->ClassInvariant());
   }
 
   void SetPointId(int i, vtkIdType id) {this->PointId[i] = id;}
@@ -500,14 +619,59 @@ public:
   // There can't be more than 8 tetras as it corresponds to the splitting
   // of all edges 
   // vtkTetraTile res[8]
-  int Refine( vtkSimpleCellTessellator* tess, vtkTetraTile *res );
+  int Refine( vtkSimpleCellTessellator* tess, vtkTetraTile *res);
 
+  // Description:
+  // Return if the four first points of the tetra are all differents
+  int PointsDifferents()
+    {
+      int result=1;
+      int i;
+      int j;
+      int k;
+      
+      i=0;
+      while(i<3 && result)
+        {
+        j=i+1;
+        while(j<4 && result)
+          {
+          result=this->PointId[i]!=this->PointId[j];
+          ++j;
+          }
+        ++i;
+        }
+      if(result) // point id are ok, now test the coordinates
+        {
+        i=0;
+        while(i<3 && result)
+          {
+          j=i+1;
+          while(j<4 && result)
+            {
+            k=0;
+            result=0;
+            while(k<3)
+              {
+              result=result || (this->Vertex[i][k]!=this->Vertex[j][k]);
+              ++k;
+              }
+            ++j;
+            }
+          ++i;
+          }
+        }
+      
+      return result;
+    }
+  
 private:
   // Need to keep track of local coordinate to evaluate shape functions
   // So all work is done in parametric coordinate
 
   double Vertex[4+6][3];  // 4 tetra points + 6 mid edge points
   vtkIdType PointId[4+6];
+  int SubdivisionLevel;
 };
 
 //-----------------------------------------------------------------------------
@@ -525,104 +689,115 @@ int vtkTriangleTile::Refine(vtkSimpleCellTessellator* tess,
   double d1;
   double d2;
   
-  for(i=0, index=0;i<3;i++)
+  numTriangleCreated=0;
+  
+  if(this->SubdivisionLevel<tess->GetMaxSubdivisionLevel())
     {
-    // we have to calculate mid point between edge TRIANGLE_EDGES_TABLE[i][0]
-    // and TRIANGLE_EDGES_TABLE[i][1]
-    l = TRIANGLE_EDGES_TABLE[i][0];
-    r = TRIANGLE_EDGES_TABLE[i][1];
-
-    edgeSplitList[i] = tess->EdgeTable->CheckEdge(this->PointId[l],
-      this->PointId[r], ptId);
-
-    // On previous step we made sure to prepare the hash table
-    assert("check: edge table prepared" && edgeSplitList[i] != -1);
-
-    // Build the case table
-    if (edgeSplitList[i])
+    // loop over edges
+    for(i=0, index=0;i<3;i++)
       {
-      ++numEdges;
-      index |= 1 << i;
-      }
-    }
+      // we have to calculate mid point between edge TRIANGLE_EDGES_TABLE[i][0]
+      // and TRIANGLE_EDGES_TABLE[i][1]
+      l = TRIANGLE_EDGES_TABLE[i][0];
+      r = TRIANGLE_EDGES_TABLE[i][1];
 
-  if( index )
-    {
-    // That mean at least one edge was split and thus index != 0
-    signed char *cases;
-    
-    if(numEdges==2) // asymmetric cases
-      {
-      int index2=0;
-      int v0=0;
-      int v1=0;
-      int v2=0;
-      int v3=0;
-      switch(index)
+      edgeSplitList[i] = tess->EdgeTable->CheckEdge(this->PointId[l],
+                                                    this->PointId[r], ptId);
+
+      // On previous step we made sure to prepare the hash table
+      assert("check: edge table prepared" && edgeSplitList[i] != -1);
+
+      // Build the case table
+      if (edgeSplitList[i])
         {
-        case 3:
-          index2=0;
-          v0=3;
-          v1=2;
-          v2=4;
-          v3=0;
-          break;
-        case 5:
-          index2=1;
-          v0=5;
-          v1=1;
-          v2=3;
-          v3=2;
-          break;
-        case 6:
-          index2=2;
-          v0=4;
-          v1=0;
-          v2=5;
-          v3=1;
-          break;
-        default:
-          assert("check: impossible case" && 0);
-          break;
+        ++numEdges;
+        index |= 1 << i;
         }
-      d1=vtkMath::Dot(this->Vertex[v0],this->Vertex[v1]);
-      d2=vtkMath::Dot(this->Vertex[v2],this->Vertex[v3]);
+      }
 
-      // We try to generate triangles with edges as small as possible
-      if(d1<d2)
+    if( index )
+      {
+      // That mean at least one edge was split and thus index != 0
+      signed char *cases;
+    
+      if(numEdges==2) // asymmetric cases
         {
-        cases = **(vtkTessellatorTriangleCases2 + index2);
+        int index2=0;
+        int v0=0;
+        int v1=0;
+        int v2=0;
+        int v3=0;
+        switch(index)
+          {
+          case 3:
+            index2=0;
+            v0=3;
+            v1=2;
+            v2=4;
+            v3=0;
+            break;
+          case 5:
+            index2=1;
+            v0=5;
+            v1=1;
+            v2=3;
+            v3=2;
+            break;
+          case 6:
+            index2=2;
+            v0=4;
+            v1=0;
+            v2=5;
+            v3=1;
+            break;
+          default:
+            assert("check: impossible case" && 0);
+            break;
+          }
+        d1=vtkMath::Dot(this->Vertex[v0],this->Vertex[v1]);
+        d2=vtkMath::Dot(this->Vertex[v2],this->Vertex[v3]);
+        
+        // We try to generate triangles with edges as small as possible
+        if(d1<d2)
+          {
+          cases = **(vtkTessellatorTriangleCases2 + index2);
+          }
+        else
+          {
+          cases = **(vtkTessellatorTriangleCases + index);
+          }
         }
       else
         {
+        // symmetric cases
         cases = **(vtkTessellatorTriangleCases + index);
         }
-      }
-    else
-      {
-      // symmetric cases
-      cases = **(vtkTessellatorTriangleCases + index);
-      }
-    
-    for(numTriangleCreated = 0; cases[0]> -1; cases+=3)
-      {
-      for(int j=0;j<3;j++)
+      
+      for(; cases[0]> -1; cases+=3)
         {
-        res[numTriangleCreated].SetPointId( j, this->PointId[cases[j]] );
-        res[numTriangleCreated].SetVertex( j, this->Vertex[cases[j]] );
+        for(int j=0;j<3;j++)
+          {
+          res[numTriangleCreated].SetPointId( j, this->PointId[cases[j]] );
+          res[numTriangleCreated].SetVertex( j, this->Vertex[cases[j]] );
+          }
+        //update number of triangles
+        numTriangleCreated++;
         }
       //Insert edges from new triangle into hash table:
-      tess->InsertEdgesIntoEdgeTable( res[numTriangleCreated] );
-
-      //update number of triangles
-      numTriangleCreated++;
+      int k=0;
+      while(k<numTriangleCreated)
+        {
+        res[k].SubdivisionLevel=this->SubdivisionLevel+1;
+        tess->InsertEdgesIntoEdgeTable( res[k] );
+        ++k;
+        }
       }
     }
-  else
+  
+  if(numTriangleCreated==0)
     {
     // no edge were split so recursion is done
     // add the cell array to the list
-    numTriangleCreated = 0;
     tess->TessellateCellArray->InsertNextCell(3, this->PointId);
     
     for(int j=0;j<3;j++)
@@ -773,9 +948,10 @@ static void Reorder(vtkIdType in[4], vtkIdType order[4])
     }    
 }
 
+
 //-----------------------------------------------------------------------------
 int vtkTetraTile::Refine( vtkSimpleCellTessellator* tess,
-                          vtkTetraTile *res ) // res[8]
+                          vtkTetraTile *res) // res[8]
 {
   int i, index;
   int numTetraCreated;
@@ -790,77 +966,86 @@ int vtkTetraTile::Refine( vtkSimpleCellTessellator* tess,
   vtkIdType ptId = 0;
   int l, r;
 
-  // loop over edges:
-  for(i=0, index = 0;i<6;i++)
+  numTetraCreated = 0;
+  
+  if(this->SubdivisionLevel<tess->GetMaxSubdivisionLevel())
     {
-    // we have to calculate mid point between edge TETRA_EDGES_TABLE[i][0] and
-    // TETRA_EDGES_TABLE[i][1]
-    l = TETRA_EDGES_TABLE[i][0];
-    r = TETRA_EDGES_TABLE[i][1];
-
-    edgeSplitList[i] = tess->EdgeTable->CheckEdge(this->PointId[l],
-      this->PointId[r], ptId);
-
-    // On previous step we made sure to prepare the hash table
-    assert("check: edge table prepared" && edgeSplitList[i] != -1);
-
-    // Build the case table
-    if (edgeSplitList[i])
+    // loop over edges:
+    for(i=0, index = 0;i<6;i++)
       {
-      index |= 1 << i;
-      }
-    }
-
-  if( index )
-    {
-    // That mean at least one edge was split and thus index != 0
-    vtkIdType tetra[4], order[4];
-    signed char *cases;
-
-    // we compare right away PointId[2] to PointId[3] because we assume 
-    // input tetra is already ordered properly (cf. Reorder previous step)
-    if(this->PointId[2] < this->PointId[3])
-      {
-      cases = **(vtkTessellatorTetraCasesRight + index);
-      }
-    else
-      {
-      cases = **(vtkTessellatorTetraCasesLeft + index);
-      }
-
-    // For each sub-tetra, increment number of tetra created
-    // And check each of its edges if its in the hash table
-    for(numTetraCreated = 0; cases[0]> -1; cases+=4)
-      {
-      for(int k=0;k<4;k++)
-        {
-        tetra[k] = this->PointId[cases[k]];
-        }
-
-      // The whole purpose of Reorder is really to classify the tetra, the 
-      // reordering is only useful for quick testing. The tet will either 
-      // classify as Right ordered or Left ordered
-      Reorder(tetra, order);
+      // we have to calculate mid point between edge TETRA_EDGES_TABLE[i][0] and
+      // TETRA_EDGES_TABLE[i][1]
+      l = TETRA_EDGES_TABLE[i][0];
+      r = TETRA_EDGES_TABLE[i][1];
       
-      // Set the tetras point for the next recursion     
-      for(int j=0;j<4;j++)
+      edgeSplitList[i] = tess->EdgeTable->CheckEdge(this->PointId[l],
+                                                    this->PointId[r], ptId);
+      
+      // On previous step we made sure to prepare the hash table
+      assert("check: edge table prepared" && edgeSplitList[i] != -1);
+      
+      // Build the case table
+      if (edgeSplitList[i])
         {
-        res[numTetraCreated].SetPointId( j, this->PointId[cases[order[j]]] );
-        res[numTetraCreated].SetVertex( j, this->Vertex[cases[order[j]]] );
+        index |= 1 << i;
         }
-
-      //Insert edges from new tetra into hash table:
-      tess->InsertEdgesIntoEdgeTable( res[numTetraCreated] );
-
-      //update number of tetras
-      numTetraCreated++;
+      }
+    
+    if( index )
+      {
+      // That mean at least one edge was split and thus index != 0
+      vtkIdType tetra[4], order[4];
+      signed char *cases;
+      
+      // we compare right away PointId[2] to PointId[3] because we assume 
+      // input tetra is already ordered properly (cf. Reorder previous step)
+      if(this->PointId[2] < this->PointId[3])
+        {
+        cases = **(vtkTessellatorTetraCasesRight + index);
+        }
+      else
+        {
+        cases = **(vtkTessellatorTetraCasesLeft + index);
+        }
+      
+      // For each sub-tetra, increment number of tetra created
+      // And check each of its edges if its in the hash table
+      int k;
+      
+      for(; cases[0]> -1; cases+=4)
+        {
+        for(k=0;k<4;k++)
+          {
+          tetra[k] = this->PointId[cases[k]];
+          }
+        
+        // The whole purpose of Reorder is really to classify the tetra, the 
+        // reordering is only useful for quick testing. The tet will either 
+        // classify as Right ordered or Left ordered
+        Reorder(tetra, order);
+        
+        // Set the tetras point for the next recursion     
+        for(int j=0;j<4;j++)
+          {
+          res[numTetraCreated].SetPointId( j, this->PointId[cases[order[j]]] );
+          res[numTetraCreated].SetVertex( j, this->Vertex[cases[order[j]]] );
+          }
+          numTetraCreated++;
+        }
+      k=0;
+      while(k<numTetraCreated)
+        {
+        res[k].SubdivisionLevel=this->SubdivisionLevel+1;
+        tess->InsertEdgesIntoEdgeTable( res[k] );
+        ++k;
+        }
       }
     }
-  else
+  
+  if(numTetraCreated==0)
     {
     // no edge were split so recursion is done
     // add the cell array to the list
-    numTetraCreated = 0;
     tess->TessellateCellArray->InsertNextCell(4, this->PointId);
     
     for(int j=0;j<4;j++)
@@ -868,7 +1053,7 @@ int vtkTetraTile::Refine( vtkSimpleCellTessellator* tess,
       tess->CopyPoint(this->PointId[j]);
       }
     }
-
+  
   return numTetraCreated;
 }
 
@@ -898,6 +1083,10 @@ vtkSimpleCellTessellator::vtkSimpleCellTessellator()
   this->TranslationTable=0;
   
   this->DataSet=0;
+  
+  this->FixedSubdivisions=0; // 0 means no fixed subdivision
+  this->MaxSubdivisionLevel=0; // 0 means no subdivision at all
+  this->CurrentSubdivisionLevel=0;
 }
 
 //-----------------------------------------------------------------------------
@@ -976,25 +1165,24 @@ void vtkSimpleCellTessellator::InsertPointsIntoEdgeTable(vtkTetraTile &tetra )
     }
 }
 
-// format of the arrays LeftPoint, MidPoint, RightPoint is global, parametric,
-// attributes: xyz rst [abc de...]
-const int PARAMETRIC_OFFSET=3;
-const int ATTRIBUTES_OFFSET=6;
-
 //-----------------------------------------------------------------------------
 // 
 void vtkSimpleCellTessellator::InsertEdgesIntoEdgeTable(vtkTriangleTile &tri )
 {
   double *local;
+  vtkIdType tmp;
   vtkIdType l, r;
   vtkIdType cellId = this->GenericCell->GetId();
-
+  
+  const double alpha=0.5;
+  assert("check: normalized alpha" && alpha>0 && alpha<1);
+  
   //First setup the point reference count:
   for(int i = 0; i<3; i++)
     {
     this->EdgeTable->IncrementPointReferenceCount( tri.GetPointId(i));
     }
-
+  
   double *leftPoint=this->Scalars;
   double *midPoint=this->Scalars+this->PointOffset;
   double *rightPoint=midPoint+this->PointOffset;
@@ -1008,27 +1196,45 @@ void vtkSimpleCellTessellator::InsertEdgesIntoEdgeTable(vtkTriangleTile &tri )
     {
     l = TRIANGLE_EDGES_TABLE[j][0];
     r = TRIANGLE_EDGES_TABLE[j][1];
-        
+    
+    vtkIdType leftId = tri.GetPointId(l);
+    vtkIdType rightId = tri.GetPointId(r);
+    
+    if(leftId>rightId)
+      {
+      // ensure that the left point has the smallest id
+      // hence, evaluation occurs in the same direction in any case
+      // the computations of error and interpolation will not suffer from
+      // numerical precision.
+      tmp=leftId;
+      leftId=rightId;
+      rightId=tmp;
+      
+      tmp=l;
+      l=r;
+      r=tmp;
+      }
+    
     double *left = tri.GetVertex(l);
     double *right = tri.GetVertex(r);
     
     memcpy(leftPoint+PARAMETRIC_OFFSET,left,sizeof(double)*3);
     memcpy(rightPoint+PARAMETRIC_OFFSET,right,sizeof(double)*3);
     
-    vtkIdType leftId = tri.GetPointId(l);
-    vtkIdType rightId = tri.GetPointId(r);
-
     //Check first in the hash table
     vtkIdType ptId = -1;
     int refCount = 1;
-
+    
     //vtkDebugMacro( << "InsertEdgesIntoEdgeTable:" << leftId << "," << rightId );
-
+    
     // To calculate the edge ref count, we either:
     // - find it in the hash table
     // - calculate from higher order cell:
-
-    if( this->EdgeTable->CheckEdge(leftId, rightId, ptId) == -1)
+    
+    int toSplit=this->EdgeTable->CheckEdge(leftId, rightId, ptId);
+    int doSubdivision;
+    
+    if( toSplit == -1)
       {
       // The edge was not found in the hash table, that mean we have to 
       // determine it's reference counting from the higher order cell:
@@ -1055,44 +1261,58 @@ void vtkSimpleCellTessellator::InsertEdgesIntoEdgeTable(vtkTriangleTile &tri )
         // Inside:
         refCount = 1;
         }
-
-      // global position and attributes at the left vertex
-      this->EdgeTable->CheckPoint(leftId,leftPoint,
-                                  leftPoint+ATTRIBUTES_OFFSET);
-      // global position and attributes at the right vertex
-      this->EdgeTable->CheckPoint(rightId,rightPoint,
-                                  rightPoint+ATTRIBUTES_OFFSET);
-      
-      // parametric center of the edge
-      local=midPoint+PARAMETRIC_OFFSET;
-      int i=0;
-      while(i<3)
+      doSubdivision=tri.GetSubdivisionLevel()<this->GetMaxSubdivisionLevel();
+      if(doSubdivision)
         {
-        local[i] = (left[i] + right[i]) *0.5;
-        ++i;
-        }
-      // global position of the center
-      this->GenericCell->EvaluateLocation(0,local,midPoint);
+        // global position and attributes at the left vertex
+        this->EdgeTable->CheckPoint(leftId,leftPoint,
+                                    leftPoint+ATTRIBUTES_OFFSET);
+        // global position and attributes at the right vertex
+        this->EdgeTable->CheckPoint(rightId,rightPoint,
+                                    rightPoint+ATTRIBUTES_OFFSET);
+        
+        // parametric center of the edge
+        local=midPoint+PARAMETRIC_OFFSET;
+        int i=0;
+        while(i<3)
+          {
+          local[i] = left[i]+alpha*(right[i]-left[i]);
+          ++i;
+          }
+        // is the mid point different from both the left and right point?
+        // if not, we do not subdivide, it is a degenerated case.
+        doSubdivision=tri.DifferentFromOriginals(local);
+        
+        if(doSubdivision)
+          {
+          // global position of the center
+          this->GenericCell->EvaluateLocation(0,local,midPoint);
+          
+          // attributes at the center
+          this->GenericCell->InterpolateTuple(this->AttributeCollection, local,
+                                              midPoint+ATTRIBUTES_OFFSET);
+          
+          doSubdivision=tri.GetSubdivisionLevel()<this->GetFixedSubdivisions();
+          if(!doSubdivision) // fixed subdivision is done, need adaptive one?
+            {
+            doSubdivision=this->NeedEdgeSubdivision(leftPoint,midPoint,rightPoint,
+                                                    alpha);
+            }
+          }
+        } // first doSubdivision
       
-      // attributes at the center
-      this->GenericCell->InterpolateTuple(this->AttributeCollection, local,
-                                          midPoint+ATTRIBUTES_OFFSET);
-      
-      
-      // Now, separate case were the edge is split or not:
-
-      if( this->NeedEdgeSubdivision(leftPoint,midPoint,rightPoint))
+      if(doSubdivision)
         {
         this->EdgeTable->InsertEdge(leftId, rightId, cellId, refCount, ptId);
         assert("check: id exists" && ptId != -1 );
-
+        
         // And also the value we'll have to put to avoid recomputing them later:
         
         //Save mid point:
         tri.SetVertex(j+3, local);
         tri.SetPointId(j+3, ptId);
-
-      
+        
+        
         //Put everything in ths point hash table
         this->EdgeTable->InsertPointAndScalar(ptId, midPoint,
                                               midPoint+ATTRIBUTES_OFFSET);
@@ -1110,19 +1330,18 @@ void vtkSimpleCellTessellator::InsertEdgesIntoEdgeTable(vtkTriangleTile &tri )
       // cell, we should not increment edge ref count when first time in a cell
       // Precondition third package have unique cellId.
       this->EdgeTable->IncrementEdgeReferenceCount(leftId, rightId, cellId);
-
+      
       //vtkDebugMacro( << "IncrementEdgeReferenceCount:" << ptId );
       
-      if(ptId != -1)
+      if(toSplit==1) // we cannot just right if(toSplit) because it can be -1
         {
         tri.SetPointId(j+3, ptId);
         
         double pcoords[3];
+        pcoords[0] = tri.GetVertex(l)[0]+ alpha*(tri.GetVertex(r)[0] - tri.GetVertex(l)[0]);
+        pcoords[1] = tri.GetVertex(l)[1]+ alpha*(tri.GetVertex(r)[1] - tri.GetVertex(l)[1]);
+        pcoords[2] = tri.GetVertex(l)[2]+ alpha*(tri.GetVertex(r)[2] - tri.GetVertex(l)[2]);
         
-        pcoords[0] = (tri.GetVertex(l)[0] + tri.GetVertex(r)[0])*0.5;
-        pcoords[1] = (tri.GetVertex(l)[1] + tri.GetVertex(r)[1])*0.5;
-        pcoords[2] = (tri.GetVertex(l)[2] + tri.GetVertex(r)[2])*0.5;
-
         tri.SetVertex(j+3, pcoords);
         }
       }
@@ -1134,16 +1353,22 @@ void vtkSimpleCellTessellator::InsertEdgesIntoEdgeTable(vtkTriangleTile &tri )
 void vtkSimpleCellTessellator::InsertEdgesIntoEdgeTable( vtkTetraTile &tetra )
 {
   double *local;
- 
+  
+  vtkIdType tmp;
   vtkIdType l, r;
   const vtkIdType cellId = this->GenericCell->GetId();
-
+  
+//  double alpha=0.5+0.02*(rand()/(RAND_MAX+1.0)-0.5);
+  const double alpha=0.5;
+  assert("check: normalized alpha" && alpha>0 && alpha<1);
+  
   //First setup the point reference count:
   for(int i=0; i<4; i++)
     {
     this->EdgeTable->IncrementPointReferenceCount(tetra.GetPointId(i));
     }
-
+  
+  
   double *leftPoint=this->Scalars;
   double *midPoint=this->Scalars+this->PointOffset;
   double *rightPoint=midPoint+this->PointOffset;
@@ -1156,28 +1381,45 @@ void vtkSimpleCellTessellator::InsertEdgesIntoEdgeTable( vtkTetraTile &tetra )
     {
     l = TETRA_EDGES_TABLE[j][0];
     r = TETRA_EDGES_TABLE[j][1];
-        
-    double *left = tetra.GetVertex(l);
-    double *right = tetra.GetVertex(r);
-
-    memcpy(leftPoint+PARAMETRIC_OFFSET,left,sizeof(double)*3);
-    memcpy(rightPoint+PARAMETRIC_OFFSET,right,sizeof(double)*3);
     
     vtkIdType leftId = tetra.GetPointId(l);
     vtkIdType rightId = tetra.GetPointId(r);
-
+    
+    if(leftId>rightId)
+      {
+      // ensure that the left point has the smallest id
+      // hence, evaluation occurs in the same direction in any case
+      // the computations of error and interpolation will not suffer from
+      // numerical precision.
+      tmp=leftId;
+      leftId=rightId;
+      rightId=tmp;
+      
+      tmp=l;
+      l=r;
+      r=tmp;
+      }
+    
+    double *left = tetra.GetVertex(l);
+    double *right = tetra.GetVertex(r);
+    
+    memcpy(leftPoint+PARAMETRIC_OFFSET,left,sizeof(double)*3);
+    memcpy(rightPoint+PARAMETRIC_OFFSET,right,sizeof(double)*3);
+    
     //Check first in the hash table
     vtkIdType ptId = -1;
     int refCount = 1;
-
+    
     //vtkDebugMacro( << "InsertEdgesIntoEdgeTable:" << leftId << "," << rightId );
-
     
     // To calculate the edge ref count, we either:
     // - find it in the hash table
     // - calculate from higher order cell:
-
-    if( this->EdgeTable->CheckEdge(leftId, rightId, ptId) == -1)
+    
+    int toSplit=this->EdgeTable->CheckEdge(leftId, rightId, ptId);
+    int doSubdivision;
+    
+    if( toSplit == -1)
       {
       // The edge was not found in the hash table, that mean we have to 
       // determine it's reference counting from the higher order cell:
@@ -1199,38 +1441,65 @@ void vtkSimpleCellTessellator::InsertEdgesIntoEdgeTable( vtkTetraTile &tetra )
         // Inside:
         refCount = 1;
         }
-
-      // global position and attributes at the left vertex
-      this->EdgeTable->CheckPoint(leftId,leftPoint,
-                                  leftPoint+ATTRIBUTES_OFFSET);
-      // global position and attributes at the right vertex
-      this->EdgeTable->CheckPoint(rightId,rightPoint,
-                                  rightPoint+ATTRIBUTES_OFFSET);
-      
-      // parametric center of the edge
-      local=midPoint+PARAMETRIC_OFFSET;
-      int i=0;
-      while(i<3)
+//      doSubdivision=true;
+      doSubdivision=tetra.GetSubdivisionLevel()<this->GetMaxSubdivisionLevel();
+      if(doSubdivision)
         {
-        local[i] = (left[i] + right[i]) *0.5;
-        ++i;
-        }
-      // global position of the center
-      this->GenericCell->EvaluateLocation(0,local,midPoint);
-      
-      // attributes at the center
-      this->GenericCell->InterpolateTuple(this->AttributeCollection, local,
-                                          midPoint+ATTRIBUTES_OFFSET);
-      
+        // global position and attributes at the left vertex
+        this->EdgeTable->CheckPoint(leftId,leftPoint,
+                                    leftPoint+ATTRIBUTES_OFFSET);
+        // global position and attributes at the right vertex
+        this->EdgeTable->CheckPoint(rightId,rightPoint,
+                                    rightPoint+ATTRIBUTES_OFFSET);
         
-      // Now, separate case were the edge is split or not:
-      if( this->NeedEdgeSubdivision(leftPoint,midPoint,rightPoint) )
+        // parametric center of the edge
+        local=midPoint+PARAMETRIC_OFFSET;
+        int i=0;
+        
+        while(i<3)
+          {
+          local[i] = left[i]+alpha*(right[i]-left[i]);
+          ++i;
+          }
+        // is the mid point different from both the left and right point?
+        // if not, we do not subdivide, it is a degenerated case.
+#if 0
+        const double epsilon=1.0e-1;
+        doSubdivision=!(((fabs(left[0]-local[0])<=epsilon)
+                         &&(fabs(left[1]-local[1])<=epsilon)
+                         &&(fabs(left[2]-local[2])<=epsilon))
+                        ||((fabs(right[0]-local[0])<=epsilon)
+                           &&(fabs(right[1]-local[1])<=epsilon)
+                           &&(fabs(right[2]-local[2])<=epsilon)));
+#else
+        doSubdivision=tetra.DifferentFromOriginals(local);
+#endif
+        
+        if(doSubdivision)
+          {
+          // global position of the center
+          this->GenericCell->EvaluateLocation(0,local,midPoint);
+          
+          // attributes at the center
+          this->GenericCell->InterpolateTuple(this->AttributeCollection, local,
+                                              midPoint+ATTRIBUTES_OFFSET);
+          
+          doSubdivision=tetra.GetSubdivisionLevel()<this->GetFixedSubdivisions();
+          if(!doSubdivision) // fixed subdivision is done, need adaptive one?
+            {
+            doSubdivision=this->NeedEdgeSubdivision(leftPoint,midPoint,rightPoint,
+                                                    alpha);
+            }
+          }
+        
+        } // first doSubdivision
+      
+      if(doSubdivision)
         {
         this->EdgeTable->InsertEdge(leftId, rightId, cellId, refCount, ptId);
         assert("check: id exists" && ptId != -1 );
-
+        
         // And also the value we'll have to put to avoid recomputing them later:
-
         //Save mid point:
         tetra.SetVertex(j+4, local);
         tetra.SetPointId(j+4, ptId);
@@ -1252,19 +1521,24 @@ void vtkSimpleCellTessellator::InsertEdgesIntoEdgeTable( vtkTetraTile &tetra )
       // cell, we should not increment edge ref count when first time in a cell
       // Precondition third package have unique cellId.
       this->EdgeTable->IncrementEdgeReferenceCount(leftId, rightId, cellId);
-
+      
       //vtkDebugMacro( << "IncrementEdgeReferenceCount:" << ptId );
       
-      if(ptId != -1)
+      if(toSplit==1) // we cannot just right if(toSplit) because it can be -1
         {
         tetra.SetPointId(j+4, ptId);
         
         double pcoords[3];
+        pcoords[0] = tetra.GetVertex(l)[0]+ alpha*(tetra.GetVertex(r)[0] - tetra.GetVertex(l)[0]);
+        pcoords[1] = tetra.GetVertex(l)[1]+ alpha*(tetra.GetVertex(r)[1] - tetra.GetVertex(l)[1]);
+        pcoords[2] = tetra.GetVertex(l)[2]+ alpha*(tetra.GetVertex(r)[2] - tetra.GetVertex(l)[2]);
+        assert("not degenerated" &&  !(((left[0]==pcoords[0])
+                                        &&(left[1]==pcoords[1])
+                                        &&(left[2]==pcoords[2]))
+                                       ||((right[0]==pcoords[0])
+                                          &&(right[1]==pcoords[1])
+                                          &&(right[2]==pcoords[2]))));
         
-        pcoords[0] = (tetra.GetVertex(l)[0] + tetra.GetVertex(r)[0])*0.5;
-        pcoords[1] = (tetra.GetVertex(l)[1] + tetra.GetVertex(r)[1])*0.5;
-        pcoords[2] = (tetra.GetVertex(l)[2] + tetra.GetVertex(r)[2])*0.5;
-
         tetra.SetVertex(j+4, pcoords);
         }
       }
@@ -1310,7 +1584,10 @@ void vtkSimpleCellTessellator::RemoveEdgesFromEdgeTable( vtkTetraTile &tetra )
     l = TETRA_EDGES_TABLE[i][0];
     r = TETRA_EDGES_TABLE[i][1];
 
-    this->EdgeTable->RemoveEdge(tetra.GetPointId(l), tetra.GetPointId(r));
+    vtkIdType ll=tetra.GetPointId(l);
+    vtkIdType rr=tetra.GetPointId(r);
+    
+    this->EdgeTable->RemoveEdge(ll,rr);
     }
 }
 //-----------------------------------------------------------------------------
@@ -1416,7 +1693,7 @@ vtkIdType vtkSimpleCellTessellator::GetOutputPointId(int inputPointId)
     this->GetEdgeTable()->IncrementLastPointId();
     this->TranslationTable[inputPointId]=result;
     }
-//#define DEBUG_TABLE
+//define DEBUG_TABLE
 #ifdef DEBUG_TABLE
   int i=0;
   int c=this->TranslationTableCapacity;
@@ -1518,16 +1795,15 @@ void vtkSimpleCellTessellator::Tessellate(vtkGenericAdaptorCell *cell,
   //Start of the algorithm use a queue for now:
   vtkstd::queue<vtkTetraTile> work;
   work.push( root );
-
-  //vtkDebugMacro( << "New tet being tessellated" );
-
+  
+  vtkIdType count=0;
   while( !work.empty() ) 
     {
     vtkTetraTile piece[8];
     vtkTetraTile curr = work.front();
     work.pop();
 
-    int n = curr.Refine( this, piece );
+    int n = curr.Refine( this, piece);
     
     for(i = 0; i<n; i++) 
       {
@@ -1536,6 +1812,7 @@ void vtkSimpleCellTessellator::Tessellate(vtkGenericAdaptorCell *cell,
 
     // We are done we should clean ourself from the hash table:
     this->RemoveEdgesFromEdgeTable( curr );
+    count++;
     }
 
   // remove top level points
@@ -1544,8 +1821,8 @@ void vtkSimpleCellTessellator::Tessellate(vtkGenericAdaptorCell *cell,
     this->EdgeTable->RemovePoint( root.GetPointId(i) );
     }
   
-  //this->EdgeTable->LoadFactor();
-  //this->EdgeTable->DumpTable();
+//  this->EdgeTable->LoadFactor();
+//  this->EdgeTable->DumpTable();
 
   // Okay we are done with this cell, dump the hash-table to check it is clean:
   // by clean I mean it only contains points on face/edge:
@@ -1890,8 +2167,8 @@ int vtkSimpleCellTessellator::FindEdgeParent2D(double p1[3], double p2[3],
 int vtkSimpleCellTessellator::FindEdgeParent(double p1[3], double p2[3],
                                               int &localId)
 {
-   assert("pre: points_differ" && (p1!=p2) && ((p1[0]!=p2[0]) || (p1[1]!=p2[1]) || (p1[2]!=p2[2])));
-  
+  assert("pre: points_differ1" && (p1!=p2));
+  assert("pre: points_differ2" && ((p1[0]!=p2[0]) || (p1[1]!=p2[1]) || (p1[2]!=p2[2])));
   assert("pre: p1_in_bounding_box" && p1[0]>=0 && p1[0]<=1 && p1[1]>=0 && p1[1]<=1 && p1[2]>=0 && p1[2]<=1 );
   assert("pre: p2_in_bounding_box" && p2[0]>=0 && p2[0]<=1 && p2[1]>=0 && p2[1]<=1 && p2[2]>=0 && p2[2]<=1 );
   
@@ -2079,4 +2356,89 @@ void vtkSimpleCellTessellator::AllocateScalars(int size)
       this->ScalarsCapacity=size;
       }
     }
+}
+
+
+//-----------------------------------------------------------------------------
+// Description:
+// Return the number of fixed subdivisions. It is used to prevent from
+// infinite loop in degenerated cases. For order 3 or higher, if the
+// inflection point is exactly on the mid-point, error metric will not
+// detect that a subdivision is required. 0 means no fixed subdivision:
+// there will be only adaptive subdivisions.
+//
+// The algorithm first performs `GetFixedSubdivisions' non adaptive
+// subdivisions followed by at most `GetMaxAdaptiveSubdivisions' adaptive
+// subdivisions. Hence, there are at most `GetMaxSubdivisionLevel'
+// subdivisions.
+// \post positive_result: result>=0 && result<=GetMaxSubdivisionLevel()
+int vtkSimpleCellTessellator::GetFixedSubdivisions()
+{
+  assert("post: positive_result" && this->FixedSubdivisions>=0 && this->FixedSubdivisions<=this->MaxSubdivisionLevel);
+  return this->FixedSubdivisions;
+}
+
+//-----------------------------------------------------------------------------
+// Description:
+// Return the maximum level of subdivision. It is used to prevent from
+// infinite loop in degenerated cases. For order 3 or higher, if the
+// inflection point is exactly on the mid-point, error metric will not
+// detect that a subdivision is required. 0 means no subdivision,
+// neither fixed nor adaptive.
+// \post positive_result: result>=GetFixedSubdivisions()
+int vtkSimpleCellTessellator::GetMaxSubdivisionLevel()
+{
+  assert("post: positive_result" && this->MaxSubdivisionLevel>=this->FixedSubdivisions);
+  return this->MaxSubdivisionLevel;
+}
+  
+//-----------------------------------------------------------------------------
+// Description:
+// Return the maximum number of adaptive subdivisions.
+// \post valid_result: result==GetMaxSubdivisionLevel()-GetFixedSubdivisions()
+int vtkSimpleCellTessellator::GetMaxAdaptiveSubdivisions()
+{
+  return this->MaxSubdivisionLevel-this->FixedSubdivisions;
+}
+  
+//-----------------------------------------------------------------------------
+// Description:
+// Set the number of fixed subdivisions. See GetFixedSubdivisions() for
+// more explanations.
+// \pre positive_level: level>=0 && level<=GetMaxSubdivisionLevel()
+// \post is_set: GetFixedSubdivisions()==level
+void vtkSimpleCellTessellator::SetFixedSubdivisions(int level)
+{
+  assert("pre: positive_level" && level>=0 && level<=this->GetMaxSubdivisionLevel());
+  this->FixedSubdivisions=level;
+}
+  
+//-----------------------------------------------------------------------------
+// Description:
+// Set the maximum level of subdivision. See GetMaxSubdivisionLevel() for
+// more explanations.
+// \pre positive_level: level>=GetFixedSubdivisions()
+// \post is_set: level==GetMaxSubdivisionLevel()
+void vtkSimpleCellTessellator::SetMaxSubdivisionLevel(int level)
+{
+  assert("pre: positive_level" && level>=this->GetFixedSubdivisions());
+  this->MaxSubdivisionLevel=level;
+}
+  
+//-----------------------------------------------------------------------------
+// Description:
+// Set both the number of fixed subdivisions and the maximum level of
+// subdivisions. See GetFixedSubdivisions(), GetMaxSubdivisionLevel() and
+// GetMaxAdaptiveSubdivisions() for more explanations.
+// \pre positive_fixed: fixed>=0
+// \pre valid_range: fixed<=maxLevel
+// \post fixed_is_set: fixed==GetFixedSubdivisions()
+// \post maxLevel_is_set: maxLevel==GetMaxSubdivisionLevel()
+void vtkSimpleCellTessellator::SetSubdivisionLevels(int fixed,
+                                                    int maxLevel)
+{
+  assert("pre: positive_fixed" && fixed>=0);
+  assert("pre: valid_range" && fixed<=maxLevel);
+  this->FixedSubdivisions=fixed;
+  this->MaxSubdivisionLevel=maxLevel;
 }
