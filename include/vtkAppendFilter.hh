@@ -66,7 +66,7 @@ public:
   void AddInput(vtkDataSet& in) {this->AddInput(&in);};
   void RemoveInput(vtkDataSet *in);
   void RemoveInput(vtkDataSet& in) {this->RemoveInput(&in);};
-  vtkDataSetCollection *GetInput() {return &(this->InputList);};
+  vtkDataSetCollection *GetInputList() {return &(this->InputList);};
 
   // filter interface
   void Update();
