@@ -36,9 +36,10 @@
 
 #include "vtkMapper2D.h"
 
-class vtkPolyData;
 class vtkCoordinate;
+class vtkPolyData;
 class vtkScalarsToColors;
+class vtkUnsignedCharArray;
 
 class VTK_RENDERING_EXPORT vtkPolyDataMapper2D : public vtkMapper2D
 {
