@@ -153,6 +153,11 @@ AC_CHECK_HEADERS(/usr/openwin/include/xgl/xgl.h,
 AC_CHECK_HEADERS($XGL_HOME/include/xgl/xgl.h, 
   [use_xglr=yes]
   XGLR_INCLUDE=$XGL_HOME/include)
+AC_ARG_WITH(xgl,
+	[  --without-xgl             force not to include XGL support],
+	if test "$withval" = no; then
+	use_xglr=no
+	fi)
 if test "$use_xglr" = "yes"; then
         XGLR_LIBS="-R${XGL_HOME}/lib -L${XGL_HOME}/lib -lxgl"
         if test "$CC" = "gcc" -o `$CC -v 2>&1 | grep -c gcc` != "0" ; then
@@ -396,7 +401,7 @@ case $system in
 	DL_LIBS=""
 	VTK_SHLIB_BUILD_FLAGS="-shared -rdata_shared"
 	;;
-    IRIX64-6* | IRIX-64-6*)
+    IRIX-6* | IRIX64-6* | IRIX-64-6*)
 	SHLIB_CFLAGS=""
 	SHLIB_LD_LIBS=""
 	SHLIB_SUFFIX=".so"
@@ -611,6 +616,9 @@ use_sproc=no
 AC_CHECK_HEADERS(sys/prctl.h, [use_sproc=yes])
 if test "$use_sproc" = "yes"; then
 case $system in
+    IRIX64-6.5 | IRIX-6.5)
+	use_sproc=no
+	;;
     IRIX*)
 	THREAD_FLAGS="-DVTK_USE_SPROC"
 	;;
