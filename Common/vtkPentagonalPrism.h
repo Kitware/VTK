@@ -88,8 +88,8 @@ public:
 
   // Description:
   // Pentagonal prism specific
-  static void InterpolationFunctions(double pcoords[3], double weights[8]);
-  static void InterpolationDerivs(double pcoords[3], double derivs[24]);
+  static void InterpolationFunctions(double pcoords[3], double weights[10]);
+  static void InterpolationDerivs(double pcoords[3], double derivs[30]);
   static int *GetEdgeArray(int edgeId);
   static int *GetFaceArray(int faceId);
 
@@ -97,7 +97,7 @@ public:
   // Given parametric coordinates compute inverse Jacobian transformation
   // matrix. Returns 9 elements of 3x3 inverse Jacobian plus interpolation
   // function derivatives.
-  void JacobianInverse(double pcoords[3], double **inverse, double derivs[24]);
+  void JacobianInverse(double pcoords[3], double **inverse, double derivs[30]);
 
 protected:
   vtkPentagonalPrism();

@@ -35,7 +35,7 @@
 #include "vtkPoints.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkPentagonalPrism, "1.4");
+vtkCxxRevisionMacro(vtkPentagonalPrism, "1.5");
 vtkStandardNewMacro(vtkPentagonalPrism);
 
 static const double VTK_DIVERGED = 1.e6;
@@ -224,22 +224,26 @@ int vtkPentagonalPrism::EvaluatePosition(double x[3], double closestPoint[3],
 //
 // Compute iso-parametrix interpolation functions
 //
-void vtkPentagonalPrism::InterpolationFunctions(double pcoords[3], double sf[8])
+void vtkPentagonalPrism::InterpolationFunctions(double pcoords[3], double sf[10])
 {
-  double rm, sm, tm;
+  double r, s, t;
+  r = pcoords[0];
+  s = pcoords[1];
+  t = pcoords[2];
 
-  rm = 1. - pcoords[0];
-  sm = 1. - pcoords[1];
-  tm = 1. - pcoords[2];
+  //First hexagon
+  sf[0] = -64./3*r*(r - 0.75)*(r - 1.0)*(s - 0.5)*(s - 1.0)*(t - 1.0);
+  sf[1] =  64./3*r*(r - 0.25)*(r - 1.0)*(s - 0.5)*(s - 1.0)*(t - 1.0);
+  sf[2] = 4.*r                         *(s - 0.0)*(s - 1.0)*(t - 1.0);
+  sf[3] = -2.                          *(s - 0.5)*(s - 0.0)*(t - 1.0);
+  sf[4] = -4.*(r - 1.)                 *(s - 0.0)*(s - 1.0)*(t - 1.0);
 
-  sf[0] = rm*sm*tm;
-  sf[1] = pcoords[0]*sm*tm;
-  sf[2] = pcoords[0]*pcoords[1]*tm;
-  sf[3] = rm*pcoords[1]*tm;
-  sf[4] = rm*sm*pcoords[2];
-  sf[5] = pcoords[0]*sm*pcoords[2];
-  sf[6] = pcoords[0]*pcoords[1]*pcoords[2];
-  sf[7] = rm*pcoords[1]*pcoords[2];
+  //Second hexagon
+  sf[5] =  64./3*r*(r - 0.75)*(r - 1.0)*(s - 0.5)*(s - 1.0)*(t - 0.0);
+  sf[6] = -64./3*r*(r - 0.25)*(r - 1.0)*(s - 0.5)*(s - 1.0)*(t - 0.0);
+  sf[7] = -4*r                         *(s - 0.0)*(s - 1.0)*(t - 0.0);
+  sf[8] =  2.                          *(s - 0.5)*(s - 0.0)*(t - 0.0);
+  sf[9] =  4*(r - 1.0)                 *(s - 0.0)*(s - 1.0)*(t - 0.0);
 }
 //----------------------------------------------------------------------------
 void vtkPentagonalPrism::InterpolationDerivs(double pcoords[3], double derivs[24])
@@ -851,9 +855,10 @@ void vtkPentagonalPrism::GetFacePoints (int faceId, int *&pts)
 
 static double vtkPentagonalPrismCellPCoords[30] = {0.25,0.0,0.0, 0.75,0.0,0.0,
                                                    1.0 ,0.5,0.0, 0.5 ,1.0,0.0,
-                                                   0.0 ,0.5,0.0, 0.25,0.0,1.0,
-                                                   0.5 ,1.0,1.0, 0.75,1.0,1.0,
-                                                   0.25,1.0,1.0, 0.0 ,0.5,1.0 };
+                                                   0.0 ,0.5,0.0, 
+                                                   0.25,0.0,1.0, 0.75,0.0,1.0, 
+                                                   1.0 ,0.5,1.0, 0.5 ,1.0,1.0,
+                                                   0.0 ,0.5,1.0 };
 
 //----------------------------------------------------------------------------
 double *vtkPentagonalPrism::GetParametricCoords()
