@@ -25,7 +25,7 @@
 #include "vtkTimerLog.h"
 #include "vtkTriangle.h"
 
-vtkCxxRevisionMacro(vtkQuadricClustering, "1.47");
+vtkCxxRevisionMacro(vtkQuadricClustering, "1.48");
 vtkStandardNewMacro(vtkQuadricClustering);
 
 //----------------------------------------------------------------------------
@@ -124,7 +124,7 @@ void vtkQuadricClustering::Execute()
   int target = this->GetInput()->GetNumberOfPoints();
   int numDiv = (this->NumberOfXDivisions * this->NumberOfYDivisions
                   * this->NumberOfZDivisions) / 2;
-  if (numDiv > target) 
+  if (target > 0 && numDiv > target) 
     {
     double factor = pow(((double)numDiv/(double)target),0.33333);
     this->NumberOfDivisions[0] = 
