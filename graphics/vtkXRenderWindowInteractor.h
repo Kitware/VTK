@@ -87,6 +87,8 @@ public:
   // the interactor loop to terminate and return to the
   // calling function.
   vtkSetMacro(BreakLoopFlag, int);
+  vtkGetMacro(BreakLoopFlag, int);
+  vtkBooleanMacro(BreakLoopFlag, int);
 
   // Description:
   // X timer methods

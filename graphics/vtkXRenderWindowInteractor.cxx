@@ -379,6 +379,8 @@ void vtkXRenderWindowInteractor::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "App: (none)\n";
     }
+  os << indent << "BreakLoopFlag: " 
+     << (this->BreakLoopFlag ? "On\n" : "Off\n");
 }
 
 //void vtkXRenderWindowInteractor::UpdateSize(int x,int y)
