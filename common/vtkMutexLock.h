@@ -80,7 +80,7 @@ class VTK_EXPORT vtkSimpleMutexLock
 {
 public:
   vtkSimpleMutexLock();
-  ~vtkSimpleMutexLock();
+  virtual ~vtkSimpleMutexLock();
 
   static vtkSimpleMutexLock *New();
 
