@@ -24,7 +24,7 @@
 #include "vtkTimerLog.h"
 #include "vtkTriangle.h"
 
-vtkCxxRevisionMacro(vtkQuadricClustering, "1.62");
+vtkCxxRevisionMacro(vtkQuadricClustering, "1.63");
 vtkStandardNewMacro(vtkQuadricClustering);
 
 //----------------------------------------------------------------------------
@@ -159,7 +159,13 @@ void vtkQuadricClustering::Execute()
     this->EndAppend();
     }
 
-  
+  // Free up some memory.
+  if (this->QuadricArray)
+    {
+    delete [] this->QuadricArray;
+    this->QuadricArray = NULL;
+    } 
+
   if ( this->Debug )
     {
     tlog->StopTimer();
