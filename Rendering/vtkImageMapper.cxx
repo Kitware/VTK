@@ -16,13 +16,15 @@
 #include "vtkImageMapper.h"
 
 #include "vtkActor2D.h"
-#include "vtkViewport.h"
-#include "vtkWindow.h"
+#include "vtkExecutive.h"
 #include "vtkImageData.h"
 #include "vtkImagingFactory.h"
 #include "vtkInformation.h"
+#include "vtkViewport.h"
+#include "vtkWindow.h"
 
-vtkCxxRevisionMacro(vtkImageMapper, "1.50");
+
+vtkCxxRevisionMacro(vtkImageMapper, "1.51");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -35,9 +37,6 @@ vtkInstantiatorNewMacro(vtkImageMapper);
 vtkImageMapper::vtkImageMapper()
 {
   vtkDebugMacro(<< "vtkImageMapper::vtkImageMapper" );
-
-  this->NumberOfRequiredInputs = 1;
-  this->SetNumberOfInputPorts(1);
 
   this->ColorWindow = 2000;
   this->ColorLevel  = 1000;
@@ -61,18 +60,26 @@ vtkImageMapper::~vtkImageMapper()
 //----------------------------------------------------------------------------
 void vtkImageMapper::SetInput(vtkImageData *input)
 {
-  this->vtkProcessObject::SetNthInput(0, input);
+  if(input)
+    {
+    this->SetInputConnection(0, input->GetProducerPort());
+    }
+  else
+    {
+    // Setting a NULL input removes the connection.
+    this->SetInputConnection(0, 0);
+    }
 }
 
 //----------------------------------------------------------------------------
 vtkImageData *vtkImageMapper::GetInput()
 {
-  if (this->NumberOfInputs < 1)
+  if (this->GetNumberOfInputConnections(0) < 1)
     {
-    return NULL;
+    return 0;
     }
-  
-  return (vtkImageData *)(this->Inputs[0]);
+  return vtkImageData::SafeDownCast(
+    this->GetExecutive()->GetInputData(0, 0));
 }
 
 unsigned long int vtkImageMapper::GetMTime()
@@ -134,7 +141,7 @@ void vtkImageMapper::RenderStart(vtkViewport* viewport, vtkActor2D* actor)
     }
 
 
-  if (this->NumberOfInputs < 1)
+  if (!this->GetInput())
     {
     vtkDebugMacro(<< "vtkImageMapper::Render - Please Set the input.");
     return;
@@ -269,10 +276,6 @@ int vtkImageMapper::GetWholeZMax()
 //----------------------------------------------------------------------------
 int vtkImageMapper::FillInputPortInformation(int port, vtkInformation* info)
 {
-  if(!this->Superclass::FillInputPortInformation(port, info))
-    {
-    return 0;
-    }
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkImageData");
   return 1;
 }

@@ -14,12 +14,13 @@
 =========================================================================*/
 #include "vtkVolumeMapper.h"
 
-#include "vtkGarbageCollector.h"
-#include "vtkImageClip.h"
-#include "vtkImageData.h"
 #include "vtkDataSet.h"
+#include "vtkExecutive.h"
+#include "vtkGarbageCollector.h"
+#include "vtkImageData.h"
+#include "vtkInformation.h"
 
-vtkCxxRevisionMacro(vtkVolumeMapper, "1.54");
+vtkCxxRevisionMacro(vtkVolumeMapper, "1.55");
 
 // Construct a vtkVolumeMapper with empty scalar input and clipping off.
 vtkVolumeMapper::vtkVolumeMapper()
@@ -35,19 +36,10 @@ vtkVolumeMapper::vtkVolumeMapper()
     this->VoxelCroppingRegionPlanes[2*i + 1] = 1;    
     }
   this->CroppingRegionFlags = VTK_CROP_SUBVOLUME;
-
-  this->UseImageClipper = 1;
-  this->ImageClipper = vtkImageClip::New();
-  this->ImageClipper->ClipDataOn();
 }
 
 vtkVolumeMapper::~vtkVolumeMapper()
 {  
-  if (this->ImageClipper)
-    {
-    this->ImageClipper->Delete();
-    this->ImageClipper = 0;
-    }
 }
 
 void vtkVolumeMapper::ConvertCroppingRegionPlanesToVoxels()
@@ -75,31 +67,6 @@ void vtkVolumeMapper::ConvertCroppingRegionPlanesToVoxels()
     }
 }
 
-void vtkVolumeMapper::SetUseImageClipper(int arg)
-{
-  if (this->UseImageClipper == arg)
-    {
-    return;
-    }
-
-  this->UseImageClipper = arg;
-  this->Modified();
-
-  // Force a change of the input to reconnect the pipeline correctly
-
-  vtkImageData *input = this->GetInput();
-  if (input)
-    {
-    input->Register(this);
-    }
-  this->SetInput((vtkImageData *)NULL);
-  if (input)
-    {
-    this->SetInput(input);
-    input->UnRegister(this);
-    }
-}
-
 void vtkVolumeMapper::SetInput( vtkDataSet *genericInput )
 {
   vtkImageData *input = 
@@ -117,24 +84,25 @@ void vtkVolumeMapper::SetInput( vtkDataSet *genericInput )
 
 void vtkVolumeMapper::SetInput( vtkImageData *input )
 {
-  if (this->UseImageClipper)
+  if(input)
     {
-    this->ImageClipper->SetInput(input);
-    this->vtkProcessObject::SetNthInput(0, this->ImageClipper->GetOutput());
+    this->SetInputConnection(0, input->GetProducerPort());
     }
   else
     {
-    this->vtkProcessObject::SetNthInput(0, input);
+    // Setting a NULL input removes the connection.
+    this->SetInputConnection(0, 0);
     }
 }
 
 vtkImageData *vtkVolumeMapper::GetInput()
 {
-  if (this->NumberOfInputs < 1)
+  if (this->GetNumberOfInputConnections(0) < 1)
     {
-    return NULL;
+    return 0;
     }
-  return (vtkImageData *)this->Inputs[0];
+  return vtkImageData::SafeDownCast(
+    this->GetExecutive()->GetInputData(0, 0));
 }
 
 
@@ -157,17 +125,15 @@ void vtkVolumeMapper::PrintSelf(ostream& os, vtkIndent indent)
      << this->CroppingRegionFlags << endl;
 
   // Don't print this->VoxelCroppingRegionPlanes
-  
-  os << indent << "UseImageClipper: " 
-     << (this->UseImageClipper ? "On\n" : "Off\n");
 }
 
 //----------------------------------------------------------------------------
-void vtkVolumeMapper::ReportReferences(vtkGarbageCollector* collector)
+int vtkVolumeMapper::FillInputPortInformation(int port, vtkInformation* info)
 {
-  this->Superclass::ReportReferences(collector);
-  // These filters share our input and are therefore involved in a
-  // reference loop.
-  vtkGarbageCollectorReport(collector, this->ImageClipper,
-                            "ImageClipper");
+  if(!this->Superclass::FillInputPortInformation(port, info))
+    {
+    return 0;
+    }
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkImageData");
+  return 1;
 }

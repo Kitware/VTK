@@ -25,7 +25,7 @@
 #ifndef __vtkAbstractMapper_h
 #define __vtkAbstractMapper_h
 
-#include "vtkProcessObject.h"
+#include "vtkAlgorithm.h"
 
 #define VTK_SCALAR_MODE_DEFAULT 0
 #define VTK_SCALAR_MODE_USE_POINT_DATA 1
@@ -44,10 +44,10 @@ class vtkPlanes;
 class vtkTimerLog;
 class vtkWindow;
 
-class VTK_FILTERING_EXPORT vtkAbstractMapper : public vtkProcessObject
+class VTK_FILTERING_EXPORT vtkAbstractMapper : public vtkAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkAbstractMapper,vtkProcessObject);
+  vtkTypeRevisionMacro(vtkAbstractMapper,vtkAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -96,16 +96,6 @@ public:
   static vtkDataArray *GetScalars(vtkDataSet *input, int scalarMode,
                                   int arrayAccessMode, int arrayId, 
                                   const char *arrayName, int& cellFlag);
-  // Description:
-  // Get the number of consumers
-  vtkGetMacro(NumberOfConsumers,int);
-  
-  // Description:
-  // Add or remove or get or check a consumer, 
-  void AddConsumer(vtkObject *c);
-  void RemoveConsumer(vtkObject *c);
-  vtkObject *GetConsumer(int i);
-  int IsConsumer(vtkObject *c);
 
 protected:
   vtkAbstractMapper();
@@ -115,10 +105,6 @@ protected:
   double TimeToDraw;
   vtkWindow *LastWindow;   // Window used for the previous render
   vtkPlaneCollection *ClippingPlanes;
-
-  // how many consumers does this object have
-  int NumberOfConsumers;
-  vtkObject **Consumers;
 
 private:
   vtkAbstractMapper(const vtkAbstractMapper&);  // Not implemented.

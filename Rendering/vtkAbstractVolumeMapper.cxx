@@ -15,9 +15,11 @@
 #include "vtkAbstractVolumeMapper.h"
 
 #include "vtkDataSet.h"
+#include "vtkExecutive.h"
+#include "vtkInformation.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkAbstractVolumeMapper, "1.5");
+vtkCxxRevisionMacro(vtkAbstractVolumeMapper, "1.6");
 
 // Construct a vtkAbstractVolumeMapper 
 vtkAbstractVolumeMapper::vtkAbstractVolumeMapper()
@@ -28,16 +30,6 @@ vtkAbstractVolumeMapper::vtkAbstractVolumeMapper()
 
 vtkAbstractVolumeMapper::~vtkAbstractVolumeMapper()
 {
-}
-
-void vtkAbstractVolumeMapper::Update()
-{
-  if ( this->GetDataSetInput() )
-    {
-    this->GetDataSetInput()->UpdateInformation();
-    this->GetDataSetInput()->SetUpdateExtentToWholeExtent();
-    this->GetDataSetInput()->Update();
-    }
 }
 
 // Get the bounds for the input of this mapper as 
@@ -58,21 +50,28 @@ double *vtkAbstractVolumeMapper::GetBounds()
     }
 }
 
+vtkDataSet *vtkAbstractVolumeMapper::GetDataSetInput()
+{
+  if (this->GetNumberOfInputConnections(0) < 1)
+    {
+    return 0;
+    }
+  return vtkDataSet::SafeDownCast(this->GetExecutive()->GetInputData(0, 0));
+}
+
 void vtkAbstractVolumeMapper::SetInput( vtkDataSet *vtkNotUsed(input) )
 {
   vtkErrorMacro("Cannot set the input on the abstract volume mapper"
                 " - must be set on a subclass" );
 }
 
-vtkDataSet *vtkAbstractVolumeMapper::GetDataSetInput()
+//----------------------------------------------------------------------------
+int vtkAbstractVolumeMapper::FillInputPortInformation(
+  int vtkNotUsed(port), vtkInformation* info)
 {
-  if (this->NumberOfInputs < 1)
-    {
-    return NULL;
-    }
-  return (vtkDataSet *)this->Inputs[0];
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
+  return 1;
 }
-
 
 // Print the vtkAbstractVolumeMapper
 void vtkAbstractVolumeMapper::PrintSelf(ostream& os, vtkIndent indent)

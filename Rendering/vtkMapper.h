@@ -310,10 +310,6 @@ public:
   vtkUnsignedCharArray *MapScalars(double alpha);
   
   // Description:
-  // Update the input to the Mapper.
-  virtual void Update();
-
-  // Description:
   // Set/Get the light-model color mode. 
   vtkSetMacro(ScalarMaterialMode,int);
   vtkGetMacro(ScalarMaterialMode,int);

@@ -38,10 +38,6 @@ public:
   void PrintSelf( ostream& os, vtkIndent indent );
 
   // Description:
-  // Update the volume rendering pipeline by updating the scalar input
-  virtual void Update();
-
-  // Description:
   // Set/Get the input data
   virtual void SetInput( vtkDataSet * );
   vtkDataSet *GetDataSetInput();
@@ -81,6 +77,9 @@ protected:
   vtkAbstractVolumeMapper();
   ~vtkAbstractVolumeMapper();
   
+  // see algorithm for more info
+  virtual int FillInputPortInformation(int port, vtkInformation* info);
+
 private:
   vtkAbstractVolumeMapper(const vtkAbstractVolumeMapper&);  // Not implemented.
   void operator=(const vtkAbstractVolumeMapper&);  // Not implemented.

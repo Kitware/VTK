@@ -22,7 +22,7 @@
 #include "vtkPointData.h"
 #include "vtkTimerLog.h"
 
-vtkCxxRevisionMacro(vtkAbstractMapper, "1.2");
+vtkCxxRevisionMacro(vtkAbstractMapper, "1.3");
 
 vtkCxxSetObjectMacro(vtkAbstractMapper,ClippingPlanes,vtkPlaneCollection);
 
@@ -34,8 +34,8 @@ vtkAbstractMapper::vtkAbstractMapper()
   this->LastWindow = NULL;
   this->ClippingPlanes = NULL;
   this->Timer = vtkTimerLog::New();
-  this->NumberOfConsumers = 0;
-  this->Consumers = 0;
+  this->SetNumberOfOutputPorts(0);
+  this->SetNumberOfInputPorts(1);
 }
 
 vtkAbstractMapper::~vtkAbstractMapper()
@@ -45,17 +45,13 @@ vtkAbstractMapper::~vtkAbstractMapper()
     {
     this->ClippingPlanes->UnRegister(this);
     }
-  if (this->Consumers)
-    {
-    delete [] this->Consumers;
-    }
 }
 
 // Description:
 // Override Modifiedtime as we have added Clipping planes
 unsigned long vtkAbstractMapper::GetMTime()
 {
-  unsigned long mTime = vtkProcessObject::GetMTime();
+  unsigned long mTime = this->Superclass::GetMTime();
   unsigned long clipMTime;
 
   if ( this->ClippingPlanes != NULL )
@@ -195,7 +191,6 @@ void vtkAbstractMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  os << indent << "NumberOfConsumers: " << this->NumberOfConsumers << endl;
   os << indent << "TimeToDraw: " << this->TimeToDraw << "\n";
 
   if ( this->ClippingPlanes )
@@ -210,69 +205,3 @@ void vtkAbstractMapper::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 
-void vtkAbstractMapper::AddConsumer(vtkObject *c)
-{
-  // make sure it isn't already there
-  if (this->IsConsumer(c))
-    {
-    return;
-    }
-  // add it to the list, reallocate memory
-  vtkObject **tmp = this->Consumers;
-  this->NumberOfConsumers++;
-  this->Consumers = new vtkObject* [this->NumberOfConsumers];
-  for (int i = 0; i < (this->NumberOfConsumers-1); i++)
-    {
-    this->Consumers[i] = tmp[i];
-    }
-  this->Consumers[this->NumberOfConsumers-1] = c;
-  // free old memory
-  delete [] tmp;
-}
-
-void vtkAbstractMapper::RemoveConsumer(vtkObject *c)
-{
-  // make sure it is already there
-  if (!this->IsConsumer(c))
-    {
-    return;
-    }
-  // remove it from the list, reallocate memory
-  vtkObject **tmp = this->Consumers;
-  this->NumberOfConsumers--;
-  this->Consumers = new vtkObject* [this->NumberOfConsumers];
-  int cnt = 0;
-  int i;
-  for (i = 0; i <= this->NumberOfConsumers; i++)
-    {
-    if (tmp[i] != c)
-      {
-      this->Consumers[cnt] = tmp[i];
-      cnt++;
-      }
-    }
-  // free old memory
-  delete [] tmp;
-}
-
-int vtkAbstractMapper::IsConsumer(vtkObject *c)
-{
-  int i;
-  for (i = 0; i < this->NumberOfConsumers; i++)
-    {
-    if (this->Consumers[i] == c)
-      {
-      return 1;
-      }
-    }
-  return 0;
-}
-
-vtkObject *vtkAbstractMapper::GetConsumer(int i)
-{
-  if (i >= this->NumberOfConsumers)
-    {
-    return 0;
-    }
-  return this->Consumers[i];
-}

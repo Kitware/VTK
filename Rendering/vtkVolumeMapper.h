@@ -38,7 +38,6 @@ class vtkImageData;
 #define VTK_CROP_INVERTED_CROSS         0x7be8bef
 
 class vtkWindow;
-class vtkImageClip;
 
 class VTK_RENDERING_EXPORT vtkVolumeMapper : public vtkAbstractVolumeMapper
 {
@@ -111,18 +110,9 @@ public:
   
 //ETX
 
-  // Description:
-  // The default behaviour is to use a vtkImageClip on input to ensure it is 
-  // the right size. Allow the user to turn that behaviour off.
-  virtual void SetUseImageClipper(int);
-  vtkGetMacro(UseImageClipper, int );
-  vtkBooleanMacro(UseImageClipper, int );
-  
 protected:
   vtkVolumeMapper();
   ~vtkVolumeMapper();
-
-  virtual void ReportReferences(vtkGarbageCollector*);
 
   // Cropping variables, and a method for converting the world
   // coordinate cropping region planes to voxel coordinates
@@ -132,10 +122,7 @@ protected:
   int                  CroppingRegionFlags;
   void ConvertCroppingRegionPlanesToVoxels();
   
-  // Clipper used on input to ensure it is the right size
-  int UseImageClipper;
-  vtkImageClip        *ImageClipper;
-  
+  virtual int FillInputPortInformation(int, vtkInformation*);
   
 private:
   vtkVolumeMapper(const vtkVolumeMapper&);  // Not implemented.

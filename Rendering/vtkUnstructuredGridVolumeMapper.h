@@ -81,7 +81,9 @@ protected:
   ~vtkUnstructuredGridVolumeMapper();
 
   int   BlendMode;
-  
+
+  virtual int FillInputPortInformation(int, vtkInformation*);
+
 private:
   vtkUnstructuredGridVolumeMapper(const vtkUnstructuredGridVolumeMapper&);  // Not implemented.
   void operator=(const vtkUnstructuredGridVolumeMapper&);  // Not implemented.

@@ -72,10 +72,6 @@ public:
   // mapper produces an image by rendering into a software image buffer.
   virtual int IsARenderIntoImageMapper() {return 0;};
 
-  // Description:
-  // Update the network connected to this mapper.
-  virtual void Update()=0;
-
 protected:
    vtkAbstractMapper3D();
   ~vtkAbstractMapper3D() {};

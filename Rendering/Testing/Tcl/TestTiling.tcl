@@ -82,12 +82,13 @@ vtkWindowToImageFilter w2i
 w2i SetInput renWin
 w2i SetMagnification 2
 w2i Update
-w2i SetInput {}
 
+# copy the output
+set outputData [[w2i GetOutput] NewInstance]
+$outputData DeepCopy [w2i GetOutput]
 
 vtkImageMapper ia
-ia SetInput [w2i GetOutput]
-[w2i GetOutput] SetSource {}
+ia SetInput $outputData
 scalarBar ReleaseGraphicsResources renWin
 sphereActor ReleaseGraphicsResources renWin
 ia SetColorWindow 255
@@ -109,3 +110,4 @@ iren AddObserver UserEvent {wm deiconify .vtkInteract}
 # prevent the tk window from showing up then start the event loop
 wm withdraw .
 
+$outputData UnRegister {}

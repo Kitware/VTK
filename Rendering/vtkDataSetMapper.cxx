@@ -16,12 +16,14 @@
 
 #include "vtkDataSet.h"
 #include "vtkDataSetSurfaceFilter.h"
+#include "vtkExecutive.h"
 #include "vtkGarbageCollector.h"
+#include "vtkInformation.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 
-vtkCxxRevisionMacro(vtkDataSetMapper, "1.68");
+vtkCxxRevisionMacro(vtkDataSetMapper, "1.69");
 vtkStandardNewMacro(vtkDataSetMapper);
 
 vtkDataSetMapper::vtkDataSetMapper()
@@ -45,17 +47,20 @@ vtkDataSetMapper::~vtkDataSetMapper()
 
 void vtkDataSetMapper::SetInput(vtkDataSet *input)
 {
-  this->vtkProcessObject::SetNthInput(0, input);
+  if(input)
+    {
+    this->SetInputConnection(0, input->GetProducerPort());
+    }
+  else
+    {
+    // Setting a NULL input removes the connection.
+    this->SetInputConnection(0, 0);
+    }
 }
 
 vtkDataSet *vtkDataSetMapper::GetInput()
 {
-  if (this->NumberOfInputs < 1)
-    {
-    return NULL;
-    }
-  
-  return (vtkDataSet *)(this->Inputs[0]);
+  return this->Superclass::GetInputAsDataSet();
 }
 
 void vtkDataSetMapper::ReleaseGraphicsResources( vtkWindow *renWin )
@@ -183,6 +188,14 @@ unsigned long vtkDataSetMapper::GetMTime()
     }
 
   return mTime;
+}
+
+//----------------------------------------------------------------------------
+int vtkDataSetMapper::FillInputPortInformation(
+  int vtkNotUsed(port), vtkInformation* info)
+{
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
+  return 1;
 }
 
 //----------------------------------------------------------------------------

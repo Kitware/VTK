@@ -88,6 +88,9 @@ protected:
   int NumberOfPieces;
   int NumberOfSubPieces;
   int GhostLevel;
+
+  virtual int FillInputPortInformation(int, vtkInformation*);
+
 private:
   vtkPolyDataMapper(const vtkPolyDataMapper&);  // Not implemented.
   void operator=(const vtkPolyDataMapper&);  // Not implemented.

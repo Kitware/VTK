@@ -64,6 +64,10 @@ protected:
   vtkPolyDataMapper *PolyDataMapper;
 
   virtual void ReportReferences(vtkGarbageCollector*);
+
+  // see algorithm for more info
+  virtual int FillInputPortInformation(int port, vtkInformation* info);
+
 private:
   vtkDataSetMapper(const vtkDataSetMapper&);  // Not implemented.
   void operator=(const vtkDataSetMapper&);  // Not implemented.

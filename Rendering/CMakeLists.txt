@@ -111,7 +111,6 @@ vtkVRMLExporter.cxx
 vtkVolume.cxx
 vtkVolumeCollection.cxx
 vtkVolumeMapper.cxx
-vtkVolumeProMapper.cxx
 vtkVolumeProperty.cxx
 vtkVolumeRayCastCompositeFunction.cxx
 vtkVolumeRayCastFunction.cxx
@@ -123,13 +122,6 @@ vtkVolumeTextureMapper2D.cxx
 vtkWindowToImageFilter.cxx
 vtkWorldPointPicker.cxx
 )
-
-IF (VTK_HAVE_VP1000)
-  SET( Kit_SRCS ${Kit_SRCS}
-    vtkVolumeProVP1000Mapper.cxx
-    vtkOpenGLVolumeProVP1000Mapper.cxx
-    )
-ENDIF (VTK_HAVE_VP1000)
 
 IF(VTK_USE_GL2PS)
   SET(Kit_SRCS ${Kit_SRCS} vtkGL2PSExporter.cxx)

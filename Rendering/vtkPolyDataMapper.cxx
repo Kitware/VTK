@@ -14,12 +14,14 @@
 =========================================================================*/
 #include "vtkPolyDataMapper.h"
 
-#include "vtkRenderWindow.h"
+#include "vtkExecutive.h"
 #include "vtkGraphicsFactory.h"
+#include "vtkInformation.h"
 #include "vtkMath.h"
 #include "vtkPolyData.h"
+#include "vtkRenderWindow.h"
 
-vtkCxxRevisionMacro(vtkPolyDataMapper, "1.34");
+vtkCxxRevisionMacro(vtkPolyDataMapper, "1.35");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -69,19 +71,27 @@ void vtkPolyDataMapper::Render(vtkRenderer *ren, vtkActor *act)
 //----------------------------------------------------------------------------
 void vtkPolyDataMapper::SetInput(vtkPolyData *input)
 {
-  this->vtkProcessObject::SetNthInput(0, input);
+  if(input)
+    {
+    this->SetInputConnection(0, input->GetProducerPort());
+    }
+  else
+    {
+    // Setting a NULL input removes the connection.
+    this->SetInputConnection(0, 0);
+    }
 }
 
 //----------------------------------------------------------------------------
 // Specify the input data or filter.
 vtkPolyData *vtkPolyDataMapper::GetInput()
 {
-  if (this->NumberOfInputs < 1)
+  if (this->GetNumberOfInputConnections(0) < 1)
     {
-    return NULL;
+    return 0;
     }
-  
-  return (vtkPolyData *)(this->Inputs[0]);
+  return vtkPolyData::SafeDownCast(
+    this->GetExecutive()->GetInputData(0, 0));
 }
 
 // Update the network connected to this mapper.
@@ -151,4 +161,11 @@ void vtkPolyDataMapper::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "GhostLevel: " << this->GhostLevel << endl;
   os << indent << "Number of sub pieces: " << this->NumberOfSubPieces
      << endl;
+}
+
+//----------------------------------------------------------------------------
+int vtkPolyDataMapper::FillInputPortInformation(int port, vtkInformation* info)
+{
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPolyData");
+  return 1;
 }
