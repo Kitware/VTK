@@ -287,7 +287,7 @@ int vlDataReader::ReadPoints(FILE *fp, vlPointSet *ps, int numPts)
     return 0;
     }
 
-  vlDebugMacro(<<"Read " << ps->GetNumberOfPoints() << "\n");
+  vlDebugMacro(<<"Read " << ps->GetNumberOfPoints() << " points");
   return 1;
 }
 
@@ -1023,7 +1023,7 @@ char *vlDataReader::LowerCase(char *str)
 // Close a vl file.
 void vlDataReader::CloseVLFile(FILE *fp)
 {
-  vlDebugMacro(<<"Closing vl file\n");
+  vlDebugMacro(<<"Closing vl file");
   if ( fp != NULL ) fclose(fp);
 }
 
