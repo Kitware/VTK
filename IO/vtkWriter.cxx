@@ -19,8 +19,9 @@
 
 #include "vtkCommand.h"
 #include "vtkDataObject.h"
+#include "vtkErrorCode.h"
 
-vtkCxxRevisionMacro(vtkWriter, "1.38");
+vtkCxxRevisionMacro(vtkWriter, "1.39");
 
 // Construct with no start and end write methods or arguments.
 vtkWriter::vtkWriter()
@@ -45,6 +46,8 @@ vtkDataObject *vtkWriter::GetInput()
 // well as StartMethod() and EndMethod() methods.
 void vtkWriter::Write()
 {
+  this->SetErrorCode(vtkErrorCode::NoError);
+  
   vtkDataObject *input = this->GetInput();
   int idx;
 

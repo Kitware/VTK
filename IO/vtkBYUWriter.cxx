@@ -27,7 +27,7 @@
 # include <unistd.h> /* unlink */
 #endif
 
-vtkCxxRevisionMacro(vtkBYUWriter, "1.51");
+vtkCxxRevisionMacro(vtkBYUWriter, "1.52");
 vtkStandardNewMacro(vtkBYUWriter);
 
 // Create object so that it writes displacement, scalar, and texture files
@@ -80,12 +80,14 @@ void vtkBYUWriter::WriteData()
   if ( !this->GeometryFileName )
     {
     vtkErrorMacro(<< "Geometry file name was not specified");
+    this->SetErrorCode(vtkErrorCode::NoFileNameError);
     return;
     }
 
   if ((geomFp = fopen(this->GeometryFileName, "w")) == NULL)
     {
     vtkErrorMacro(<< "Couldn't open geometry file: " << this->GeometryFileName);
+    this->SetErrorCode(vtkErrorCode::CannotOpenFileError);
     return;
     }
   else
@@ -266,6 +268,7 @@ void vtkBYUWriter::WriteDisplacementFile(int numPts)
     if ( !(dispFp = fopen(this->DisplacementFileName, "w")) )
       {
       vtkErrorMacro (<<"Couldn't open displacement file");
+      this->SetErrorCode(vtkErrorCode::CannotOpenFileError);
       return;
       }
     }
@@ -314,6 +317,7 @@ void vtkBYUWriter::WriteScalarFile(int numPts)
     if ( !(scalarFp = fopen(this->ScalarFileName, "w")) )
       {
       vtkErrorMacro (<<"Couldn't open scalar file");
+      this->SetErrorCode(vtkErrorCode::CannotOpenFileError);
       return;
       }
     }
@@ -362,6 +366,7 @@ void vtkBYUWriter::WriteTextureFile(int numPts)
     if ( !(textureFp = fopen(this->TextureFileName, "w")) )
       {
       vtkErrorMacro (<<"Couldn't open texture file");
+      this->SetErrorCode(vtkErrorCode::CannotOpenFileError);
       return;
       }
     }

@@ -33,7 +33,7 @@
 # include <unistd.h> /* unlink */
 #endif
 
-vtkCxxRevisionMacro(vtkXMLWriter, "1.25");
+vtkCxxRevisionMacro(vtkXMLWriter, "1.26");
 vtkCxxSetObjectMacro(vtkXMLWriter, Compressor, vtkDataCompressor);
 
 //----------------------------------------------------------------------------
@@ -231,6 +231,8 @@ void vtkXMLWriter::SetBlockSize(unsigned int blockSize)
 //----------------------------------------------------------------------------
 int vtkXMLWriter::Write()
 {
+  this->SetErrorCode(vtkErrorCode::NoError);
+  
   // Make sure we have input.
   if(!this->Inputs || !this->Inputs[0])
     {
@@ -242,6 +244,7 @@ int vtkXMLWriter::Write()
   if(!this->Stream && !this->FileName)
     {
     vtkErrorMacro("Write() called with no FileName set.");
+    this->SetErrorCode(vtkErrorCode::NoFileNameError);
     return 0;
     }
   
@@ -291,6 +294,7 @@ int vtkXMLWriter::WriteInternal()
     if(!outFile || !*outFile)
       {
       vtkErrorMacro("Error opening output file \"" << this->FileName << "\"");
+      this->SetErrorCode(vtkErrorCode::CannotOpenFileError);
       return 0;
       }
     this->Stream = outFile;

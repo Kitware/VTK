@@ -24,7 +24,7 @@
 
 #include <png.h>
 
-vtkCxxRevisionMacro(vtkPNGWriter, "1.16");
+vtkCxxRevisionMacro(vtkPNGWriter, "1.17");
 vtkStandardNewMacro(vtkPNGWriter);
 
 vtkCxxSetObjectMacro(vtkPNGWriter,Result,vtkUnsignedCharArray);
@@ -50,6 +50,8 @@ vtkPNGWriter::~vtkPNGWriter()
 // Writes all the data from the input.
 void vtkPNGWriter::Write()
 {
+  this->SetErrorCode(vtkErrorCode::NoError);
+  
   // Error checking
   if ( this->GetInput() == NULL )
     {
@@ -59,6 +61,7 @@ void vtkPNGWriter::Write()
   if (!this->WriteToMemory && !this->FileName && !this->FilePattern)
     {
     vtkErrorMacro(<<"Write:Please specify either a FileName or a file prefix and pattern");
+    this->SetErrorCode(vtkErrorCode::NoFileNameError);
     return;
     }
   

@@ -28,7 +28,7 @@
 # include <unistd.h> /* unlink */
 #endif
 
-vtkCxxRevisionMacro(vtkSTLWriter, "1.51");
+vtkCxxRevisionMacro(vtkSTLWriter, "1.52");
 vtkStandardNewMacro(vtkSTLWriter);
 
 vtkSTLWriter::vtkSTLWriter()
@@ -53,6 +53,7 @@ void vtkSTLWriter::WriteData()
   if ( this->FileName == NULL)
     {
     vtkErrorMacro(<< "Please specify FileName to write");
+    this->SetErrorCode(vtkErrorCode::NoFileNameError);
     return;
     }
 
@@ -90,6 +91,7 @@ void vtkSTLWriter::WriteAsciiSTL(vtkPoints *pts, vtkCellArray *polys)
   if ((fp = fopen(this->FileName, "w")) == NULL)
     {
     vtkErrorMacro(<< "Couldn't open file: " << this->FileName);
+    this->SetErrorCode(vtkErrorCode::CannotOpenFileError);
     return;
     }
 //
@@ -167,6 +169,7 @@ void vtkSTLWriter::WriteBinarySTL(vtkPoints *pts, vtkCellArray *polys)
   if ((fp = fopen(this->FileName, "wb")) == NULL)
     {
     vtkErrorMacro(<< "Couldn't open file: " << this->FileName);
+    this->SetErrorCode(vtkErrorCode::CannotOpenFileError);
     return;
     }
   

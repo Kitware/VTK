@@ -26,7 +26,7 @@
 # include <unistd.h> /* unlink */
 #endif
 
-vtkCxxRevisionMacro(vtkImageWriter, "1.49");
+vtkCxxRevisionMacro(vtkImageWriter, "1.50");
 vtkStandardNewMacro(vtkImageWriter);
 
 #ifdef write
@@ -202,6 +202,8 @@ void vtkImageWriter::SetFilePattern(const char *pattern)
 // Writes all the data from the input.
 void vtkImageWriter::Write()
 {
+  this->SetErrorCode(vtkErrorCode::NoError);
+  
   // Error checking
   if ( this->GetInput() == NULL )
     {
@@ -211,6 +213,7 @@ void vtkImageWriter::Write()
   if ( ! this->FileName && !this->FilePattern)
     {
     vtkErrorMacro(<<"Write:Please specify either a FileName or a file prefix and pattern");
+    this->SetErrorCode(vtkErrorCode::NoFileNameError);
     return;
     }
   
@@ -284,6 +287,7 @@ void vtkImageWriter::RecursiveWrite(int axis, vtkImageData *cache,
       {
       vtkErrorMacro("RecursiveWrite: Could not open file " << 
                     this->InternalFileName);
+      this->SetErrorCode(vtkErrorCode::CannotOpenFileError);
       delete file;
       return;
       }
@@ -392,6 +396,7 @@ void vtkImageWriter::RecursiveWrite(int axis, vtkImageData *cache,
       {
       vtkErrorMacro("RecursiveWrite: Could not open file " << 
                     this->InternalFileName);
+      this->SetErrorCode(vtkErrorCode::CannotOpenFileError);
       delete file;
       return;
       }

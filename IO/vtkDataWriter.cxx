@@ -39,7 +39,7 @@
 #include "vtkUnsignedLongArray.h"
 #include "vtkUnsignedShortArray.h"
 
-vtkCxxRevisionMacro(vtkDataWriter, "1.100");
+vtkCxxRevisionMacro(vtkDataWriter, "1.101");
 vtkStandardNewMacro(vtkDataWriter);
 
 // this undef is required on the hp. vtkMutexLock ends up including
@@ -135,6 +135,7 @@ ostream *vtkDataWriter::OpenVTKFile()
   if ((!this->WriteToOutputString) && ( !this->FileName ))
     {
     vtkErrorMacro(<< "No FileName specified! Can't write!");
+    this->SetErrorCode(vtkErrorCode::NoFileNameError);
     return NULL;
     }
   
@@ -183,6 +184,7 @@ ostream *vtkDataWriter::OpenVTKFile()
   if (fptr->fail())
     {
     vtkErrorMacro(<< "Unable to open file: "<< this->FileName);
+    this->SetErrorCode(vtkErrorCode::CannotOpenFileError);
     delete fptr;
     return NULL;
     }
