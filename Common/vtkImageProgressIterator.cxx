@@ -16,6 +16,12 @@
 
 =========================================================================*/
 
+#include "vtkConfigure.h"
+
+#if defined(_MSC_VER) && !defined(VTK_DISPLAY_WIN32_WARNINGS)
+#pragma warning ( disable : 4275 )
+#endif
+
 #include "vtkImageProgressIterator.txx"
 
 #ifndef VTK_NO_EXPLICIT_TEMPLATE_INSTANTIATION
@@ -32,6 +38,4 @@ template class VTK_COMMON_EXPORT vtkImageProgressIterator<unsigned char>;
 template class VTK_COMMON_EXPORT vtkImageProgressIterator<unsigned int>;
 
 #endif
-
-
 
