@@ -90,13 +90,13 @@
 
 // .SECTION See Also
 // vtk3DWidget vtkBoxWidget vtkLineWidget  vtkPlaneWidget vtkPointWidget
-// vtkPolyDataSourceWidget vtkSphereWidget
+// vtkPolyDataSourceWidget vtkSphereWidget vtkImplicitPlaneWidget
 
 
 #ifndef __vtkImagePlaneWidget_h
 #define __vtkImagePlaneWidget_h
 
-#include "vtk3DWidget.h"
+#include "vtkPolyDataSourceWidget.h"
 
 class vtkActor;
 class vtkCellPicker;
@@ -121,14 +121,14 @@ class vtkTransform;
 #define VTK_LINEAR_RESLICE  1
 #define VTK_CUBIC_RESLICE   2
 
-class VTK_EXPORT vtkImagePlaneWidget : public vtk3DWidget
+class VTK_EXPORT vtkImagePlaneWidget : public vtkPolyDataSourceWidget
 {
 public:
   // Description:
   // Instantiate the object.
   static vtkImagePlaneWidget *New();
 
-  vtkTypeRevisionMacro(vtkImagePlaneWidget,vtk3DWidget);
+  vtkTypeRevisionMacro(vtkImagePlaneWidget,vtkPolyDataSourceWidget);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -239,6 +239,18 @@ public:
   // EndInteraction events are invoked. The user provides the vtkPolyData and
   // the points and polyplane are added to it.
   void GetPolyData(vtkPolyData *pd);
+
+  // Description:
+  // Satisfies superclass API.  This returns a pointer to the underlying
+  // PolyData.  Make changes to this before calling the initial PlaceWidget()
+  // to have the initial placement follow suit.  Or, make changes after the
+  // widget has been initialised and call UpdatePlacement() to realise.
+  vtkPolyDataSource* GetPolyDataSource();
+   
+  // Description:
+  // Satisfies superclass API.  This will change the state of the widget to
+  // match changes that have been made to the underlying PolyDataSource
+  void UpdatePlacement(void);
 
   // Description:
   // Convenience method to get the texture used by this widget.  This can be

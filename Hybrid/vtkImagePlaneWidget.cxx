@@ -42,7 +42,7 @@
 #include "vtkTextureMapToPlane.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.43");
+vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.44");
 vtkStandardNewMacro(vtkImagePlaneWidget);
 
 vtkCxxSetObjectMacro(vtkImagePlaneWidget, PlaneProperty, vtkProperty);
@@ -50,7 +50,7 @@ vtkCxxSetObjectMacro(vtkImagePlaneWidget, SelectedPlaneProperty, vtkProperty);
 vtkCxxSetObjectMacro(vtkImagePlaneWidget, CursorProperty, vtkProperty);
 vtkCxxSetObjectMacro(vtkImagePlaneWidget, MarginProperty, vtkProperty);
 
-vtkImagePlaneWidget::vtkImagePlaneWidget()
+vtkImagePlaneWidget::vtkImagePlaneWidget() : vtkPolyDataSourceWidget()
 {
   this->State = vtkImagePlaneWidget::Start;
   this->EventCallbackCommand->SetCallback(vtkImagePlaneWidget::ProcessEvents);
@@ -1002,7 +1002,7 @@ void vtkImagePlaneWidget::SetPlaneOrientation(int i)
                      origin[1] + spacing[1] * (extent[3] + 0.5)};
   float zbounds[] = {origin[2] + spacing[2] * (extent[4] - 0.5),
                      origin[2] + spacing[2] * (extent[5] + 0.5)};
- 
+
   if ( spacing[0] < 0.0f )
     {
     float t = xbounds[0];
@@ -1943,6 +1943,7 @@ void vtkImagePlaneWidget::GetPoint1(float xyz[3])
 {
   this->PlaneSource->GetPoint1(xyz);
 }
+
 void vtkImagePlaneWidget::SetPoint2(float x, float y, float z)
 {
   this->PlaneSource->SetPoint2(x,y,z);
@@ -1957,6 +1958,7 @@ float* vtkImagePlaneWidget::GetPoint2()
 {
   return this->PlaneSource->GetPoint2();
 }
+
 void vtkImagePlaneWidget::GetPoint2(float xyz[3])
 {
   this->PlaneSource->GetPoint2(xyz);
@@ -1985,6 +1987,20 @@ void vtkImagePlaneWidget::GetNormal(float xyz[3])
 void vtkImagePlaneWidget::GetPolyData(vtkPolyData *pd)
 {
   pd->ShallowCopy(this->PlaneSource->GetOutput());
+}
+
+vtkPolyDataSource *vtkImagePlaneWidget::GetPolyDataSource()
+{
+  return this->PlaneSource;
+}
+
+void vtkImagePlaneWidget::UpdatePlacement(void)
+{
+  this->PlaneSource->Update();
+  this->PositionHandles();
+  this->UpdateNormal();
+  this->UpdateOrigin();
+  this->UpdateMargins();
 }
 
 void vtkImagePlaneWidget::SetTextProperty(vtkTextProperty* tprop)
@@ -2459,8 +2475,7 @@ void vtkImagePlaneWidget::Translate(double *p1, double *p2)
     this->PlaneSource->SetOrigin(origin);
     }
 
-  this->PlaneSource->Update();
-
+  this->PlaneSource->Update(); 
   this->PositionHandles();
 }
 
@@ -2509,6 +2524,7 @@ void vtkImagePlaneWidget::Scale(double *p1, double *p2, int vtkNotUsed(X), int Y
   this->PlaneSource->SetPoint1(point1);
   this->PlaneSource->SetPoint2(point2);
   this->PlaneSource->Update();
-
   this->PositionHandles();
 }
+
+
