@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkFloatArray.h"
 
-vtkCxxRevisionMacro(vtkConnectivityFilter, "1.65");
+vtkCxxRevisionMacro(vtkConnectivityFilter, "1.66");
 vtkStandardNewMacro(vtkConnectivityFilter);
 
 // Construct with default extraction mode to extract largest regions.
@@ -332,7 +332,7 @@ void vtkConnectivityFilter::Execute()
   this->CellIds->Delete();
   output->Squeeze();
   vtkDataArray* outScalars = 0; 
-  if (this->ColorRegions && (outScalar=output->GetPointData()->GetScalars()))
+  if (this->ColorRegions && (outScalars=output->GetPointData()->GetScalars()))
     {
     outScalars->Resize(output->GetNumberOfPoints());
     }
