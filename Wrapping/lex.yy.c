@@ -239,7 +239,6 @@ YY_BUFFER_STATE yy_scan_string YY_PROTO(( yyconst char *yy_str ));
 YY_BUFFER_STATE yy_scan_bytes YY_PROTO(( yyconst char *bytes, int len ));
 
 static void *yy_flex_alloc YY_PROTO(( yy_size_t ));
-static void *yy_flex_realloc YY_PROTO(( void *, yy_size_t ));
 static void yy_flex_free YY_PROTO(( void * ));
 
 #define yy_new_buffer yy_create_buffer
@@ -2489,24 +2488,6 @@ yy_size_t size;
 #endif
    {
    return (void *) malloc( size );
-   }
-
-#ifdef YY_USE_PROTOS
-static void *yy_flex_realloc( void *ptr, yy_size_t size )
-#else
-static void *yy_flex_realloc( ptr, size )
-void *ptr;
-yy_size_t size;
-#endif
-   {
-   /* The cast to (char *) in the following accommodates both
-    * implementations that use char* generic pointers, and those
-    * that use void* generic pointers.  It works with the latter
-    * because both ANSI C and C++ allow castless assignment from
-    * any pointer type to void*, and deal with argument conversions
-    * as though doing an assignment.
-    */
-   return (void *) realloc( (char *) ptr, size );
    }
 
 #ifdef YY_USE_PROTOS
