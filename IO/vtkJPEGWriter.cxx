@@ -27,7 +27,7 @@ extern "C" {
 #include <setjmp.h>
 }
 
-vtkCxxRevisionMacro(vtkJPEGWriter, "1.19");
+vtkCxxRevisionMacro(vtkJPEGWriter, "1.20");
 vtkStandardNewMacro(vtkJPEGWriter);
 
 vtkCxxSetObjectMacro(vtkJPEGWriter,Result,vtkUnsignedCharArray);
@@ -194,8 +194,8 @@ struct VTK_JPEG_ERROR_MANAGER
 typedef struct VTK_JPEG_ERROR_MANAGER* VTK_JPEG_ERROR_PTR;
 
 extern "C" 
-{  
-METHODDEF(void)
+{
+  void
   VTK_JPEG_ERROR_EXIT (j_common_ptr cinfo)
 {
   VTK_JPEG_ERROR_PTR jpegErr = (VTK_JPEG_ERROR_PTR) cinfo->err;
