@@ -935,7 +935,7 @@ int vtkPolygon::CellBoundary(int vtkNotUsed(subId), float pcoords[3],
                              vtkIdList *pts)
 {
   int i, numPts=this->PointIds->GetNumberOfIds();
-  float x[3], *weights, closest[3];
+  float x[3], *weights;
   int closestPoint=0, previousPoint, nextPoint;
   float largestWeight=0.0;
   float p0[3], p10[3], l10, p20[3], l20, n[3];
