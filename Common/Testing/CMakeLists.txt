@@ -70,6 +70,7 @@ IF(PYTHON_EXECUTABLE)
            vtkVectorIterator.h
            vtkWin32Header.h
            vtkWinCE.h
+           vtkWindows.h
            vtkTcl.h
            vtkTk.h
            vtkVersion.h

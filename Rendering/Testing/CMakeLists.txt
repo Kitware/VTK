@@ -19,6 +19,7 @@ IF(PYTHON_EXECUTABLE)
            vtkCocoaWindow.h
            vtkFreeTypeUtilities.h
            vtkgluPickMatrix.h
+           vtkOpenGL.h
            vtkOpenGLStateCache.h
            vtkVolumeRayCastStructures.h
            vtkVolumeShearWarpDataStructure.h
