@@ -47,6 +47,7 @@ vtkCharArray \
 vtkCollection \
 vtkContourValues \
 vtkCoordinate \
+vtkCriticalSection \
 vtkDataObject \
 vtkDataSetAttributes \
 vtkDataSetCollection \
