@@ -22,7 +22,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkWindowToImageFilter, "1.8");
+vtkCxxRevisionMacro(vtkWindowToImageFilter, "1.9");
 vtkStandardNewMacro(vtkWindowToImageFilter);
 
 //----------------------------------------------------------------------------
@@ -145,6 +145,7 @@ void vtkWindowToImageFilter::ExecuteData(vtkDataObject *vtkNotUsed(data))
   int numRenderers = rc->GetNumberOfItems();
 
   // for each renderer
+  vtkCamera **cams = new vtkCamera *[numRenderers];
   viewAngles = new float [numRenderers];
   windowCenters = new double [numRenderers*2];
   double *parallelScale = new double [numRenderers];
@@ -152,21 +153,18 @@ void vtkWindowToImageFilter::ExecuteData(vtkDataObject *vtkNotUsed(data))
   for (i = 0; i < numRenderers; ++i)
     {
     aren = rc->GetNextItem();
-    cam = aren->GetActiveCamera();
-    cam->GetWindowCenter(windowCenters+i*2);
-    viewAngles[i] = cam->GetViewAngle();
-    parallelScale[i] = cam->GetParallelScale();
-    }
-  // these two loops are on purpose
-  rc->InitTraversal();
-  for (i = 0; i < numRenderers; ++i)
-    {
-    aren = rc->GetNextItem();
-    cam = aren->GetActiveCamera();
-    cam->SetViewAngle(asin(sin(viewAngles[i]*3.1415926/360.0)/
-                           this->Magnification) 
-                      * 360.0 / 3.1415926);
-    cam->SetParallelScale(parallelScale[i]/this->Magnification);
+    cams[i] = aren->GetActiveCamera();
+    cams[i]->Register(this);
+    cams[i]->GetWindowCenter(windowCenters+i*2);
+    viewAngles[i] = cams[i]->GetViewAngle();
+    parallelScale[i] = cams[i]->GetParallelScale();
+    cam = vtkCamera::New();
+    cam->SetPosition(cams[i]->GetPosition());
+    cam->SetFocalPoint(cams[i]->GetFocalPoint());    
+    cam->SetViewUp(cams[i]->GetViewUp());
+    cam->SetClippingRange(cams[i]->GetClippingRange());
+    cam->SetParallelProjection(cams[i]->GetParallelProjection());
+    aren->SetActiveCamera(cam);
     }
   
   // render each of the tiles required to fill this request
@@ -240,8 +238,6 @@ void vtkWindowToImageFilter::ExecuteData(vtkDataObject *vtkNotUsed(data))
       }
     }
   
-  
-  
   // restore settings
   // for each renderer
   rc->InitTraversal();
@@ -250,13 +246,14 @@ void vtkWindowToImageFilter::ExecuteData(vtkDataObject *vtkNotUsed(data))
     aren = rc->GetNextItem();
     // store the old view angle & set the new
     cam = aren->GetActiveCamera();
-    cam->SetWindowCenter(windowCenters[i*2],windowCenters[i*2+1]);
-    cam->SetViewAngle(viewAngles[i]);
-    cam->SetParallelScale(parallelScale[i]);
+    aren->SetActiveCamera(cams[i]);
+    cams[i]->UnRegister(this);
+    cam->Delete();
     }
   delete [] viewAngles;
   delete [] windowCenters;
   delete [] parallelScale;
+  delete [] cams;
   
   // render each of the tiles required to fill this request
   this->Input->SetTileScale(1);
