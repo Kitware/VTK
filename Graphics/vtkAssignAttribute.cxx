@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkAssignAttribute, "1.9");
+vtkCxxRevisionMacro(vtkAssignAttribute, "1.10");
 vtkStandardNewMacro(vtkAssignAttribute);
 
 char vtkAssignAttribute::AttributeLocationNames[2][12] 
@@ -178,9 +178,11 @@ void vtkAssignAttribute::Execute()
 
   // This has to be here because it initialized all field datas.
   output->CopyStructure( input );
-  
-  // Pass all. (data object's field data is passed by the
-  // superclass after this method)
+
+  if ( output->GetFieldData() && input->GetFieldData() )
+    {
+    output->GetFieldData()->PassData( input->GetFieldData() );
+    }
   output->GetPointData()->PassData( input->GetPointData() );
   output->GetCellData()->PassData( input->GetCellData() );
 
