@@ -7,7 +7,7 @@
 #include <ctype.h>
 
 
-vtkObjectFactoryCollection* vtkObjectFactory::RegisterdFactories = 0;
+vtkObjectFactoryCollection* vtkObjectFactory::RegisteredFactories = 0;
 
 
 // Create an instance of a named vtk object using the loaded
@@ -15,15 +15,15 @@ vtkObjectFactoryCollection* vtkObjectFactory::RegisterdFactories = 0;
 
 vtkObject* vtkObjectFactory::CreateInstance(const char* vtkclassname)
 {
-  if(!vtkObjectFactory::RegisterdFactories)
+  if(!vtkObjectFactory::RegisteredFactories)
     {
     vtkObjectFactory::Init();
     }
   
   vtkObjectFactory* factory = 0;
   
-  for(vtkObjectFactory::RegisterdFactories->InitTraversal();
-      (factory = vtkObjectFactory::RegisterdFactories->GetNextItem());)
+  for(vtkObjectFactory::RegisteredFactories->InitTraversal();
+      (factory = vtkObjectFactory::RegisteredFactories->GetNextItem());)
     {
     vtkObject* newobject = factory->CreateObject(vtkclassname);
     if(newobject)
@@ -41,12 +41,12 @@ vtkObject* vtkObjectFactory::CreateInstance(const char* vtkclassname)
 void vtkObjectFactory::Init()
 {
   // Don't do anything if we are already initialized
-  if(vtkObjectFactory::RegisterdFactories)
+  if(vtkObjectFactory::RegisteredFactories)
     {
     return;
     }
   
-  vtkObjectFactory::RegisterdFactories = vtkObjectFactoryCollection::New();
+  vtkObjectFactory::RegisteredFactories = vtkObjectFactoryCollection::New();
   vtkObjectFactory::RegisterDefaults();
   vtkObjectFactory::LoadDynamicFactories();
 }
@@ -167,6 +167,7 @@ void vtkObjectFactory::LoadLibrariesInPath(const char* path)
     // for a shared library in it.
     if(vtkNameIsSharedLibrary(file))
       {
+      vtkGenericWarningMacro("Attempt to load dll: " << file);
       char* fullpath = CreateFullPath(path, file);
       vtkLibHandle lib = vtkDynamicLoader::OpenLibrary(fullpath);
       if(lib)
@@ -202,8 +203,17 @@ void vtkObjectFactory::ReHash()
 
 // initialize class members
 vtkObjectFactory::vtkObjectFactory()
-:LibraryHandle(0), LibraryPath(0), LibraryDate(0)
 {
+  vtkGenericWarningMacro("construct vtkObjectFactory "
+			 << this->GetClassName());
+  
+  this->LibraryHandle = 0;
+  this->LibraryDate = 0;
+  this->LibraryPath = 0;
+  this->OverrideArray = 0;
+  this->OverrideClassNames = 0;
+  this->SizeOverrideArray = 0;
+  this->OverrideArrayLength = 0;
 }
 
 
@@ -211,15 +221,27 @@ vtkObjectFactory::vtkObjectFactory()
 vtkObjectFactory::~vtkObjectFactory()
 {
   delete [] this->LibraryPath;
+  this->LibraryPath = 0;
   vtkDynamicLoader::CloseLibrary((vtkLibHandle)this->LibraryHandle);
+  
+  for(int i =0; i < this->OverrideArrayLength; i++)
+    {
+    delete [] this->OverrideClassNames[i];
+    delete [] this->OverrideArray[i].Description;
+    delete [] this->OverrideArray[i].OverrideWithName;
+    }
+  delete [] this->OverrideArray;
+  delete [] this->OverrideClassNames;
+  this->OverrideArray = NULL;
+  this->OverrideClassNames = NULL;
 }
 
-// Add a factory to the registerd list
+// Add a factory to the registered list
 void vtkObjectFactory::RegisterFactory(vtkObjectFactory* factory)
 {
   if(factory->LibraryHandle == 0)
     {
-    const char* nonDynamicName = "Non-Dynamic loaded vtkObjectFactory";
+    const char* nonDynamicName = "Non-Dynamicly loaded factory";
     factory->LibraryPath = strcpy(new char[strlen(nonDynamicName)+1], 
 				  nonDynamicName);
     }
@@ -229,10 +251,10 @@ void vtkObjectFactory::RegisterFactory(vtkObjectFactory* factory)
     vtkGenericWarningMacro(<< "Possible incompatible factory load:" 
     << "\nRunning vtk version :\n" << vtkVersion::GetVTKSourceVersion() 
     << "\nLoaded Factory version:\n" << factory->GetVTKSourceVersion()
-    << "\nLoading factory: " << factory->LibraryPath << "\n");
+    << "\nLoading factory:\n" << factory->LibraryPath << "\n");
     }
   vtkObjectFactory::Init();
-  vtkObjectFactory::RegisterdFactories->AddItem(factory);
+  vtkObjectFactory::RegisteredFactories->AddItem(factory);
 }
 
 
@@ -240,28 +262,168 @@ void vtkObjectFactory::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkObject::PrintSelf(os, indent);
   os << indent 
-     << "vtk Object Factory loaded from " << this->LibraryPath << "\n";
+     << "Factory DLL path: " << this->LibraryPath << "\n";
+  os << indent << "Factory description: " << this->GetDescription() << endl;
+  int num = this->GetNumberOfOverrides();
+  os << indent << "Factory overides " << num << " classes:" << endl;
+  indent = indent.GetNextIndent();
+  for(int i =0; i < num; i++)
+  {
+    os << indent << "Class : " <<  this->GetClassOverrideName(i) << endl;
+    os << indent << "Overriden with: " <<  this->GetClassOverrideWithName(i) 
+       << endl;
+    os << indent << "Enable flag: " <<  this->GetEnableFlag(i) << endl;
+    os << endl;
+  }
 }
 
 void vtkObjectFactory::UnRegisterFactory(vtkObjectFactory* factory)
 { 
-  vtkObjectFactory::RegisterdFactories->RemoveItem(factory);
-  factory->Delete();
+  vtkObjectFactory::RegisteredFactories->RemoveItem(factory);
 }
 
-// unregister all factories and delete the RegisterdFactories list
+// unregister all factories and delete the RegisteredFactories list
 void vtkObjectFactory::UnRegisterAllFactories()
 {
   vtkObjectFactory* factory = 0;
   
-  for(vtkObjectFactory::RegisterdFactories->InitTraversal();
-      (factory = vtkObjectFactory::RegisterdFactories->GetNextItem());)
-    {
-    factory->Delete();
-    }
-  vtkObjectFactory::RegisterdFactories->RemoveAllItems();
-  vtkObjectFactory::RegisterdFactories->Delete();
-  vtkObjectFactory::RegisterdFactories = 0;
+  vtkObjectFactory::RegisteredFactories->RemoveAllItems();
+  vtkObjectFactory::RegisteredFactories->Delete();
+  vtkObjectFactory::RegisteredFactories = 0;
 }
 
+
+
+void vtkObjectFactory::RegisterOverride(const char* classOverride,
+					const char* subclass,
+					const char* description,
+					int enableFlag,
+					CreateFunction createFunction)
+{
+  this->GrowOverrideArray();
+  int nextIndex = this->OverrideArrayLength;
+  this->OverrideArrayLength++;
+  char* override = strcpy(new char[strlen(classOverride)+1], classOverride);
+  char* desc = strcpy(new char[strlen(description)+1], description);
+  char* ocn =  strcpy(new char[strlen(subclass)+1], 
+		      subclass);
+  this->OverrideClassNames[nextIndex] = override;
+  this->OverrideArray[nextIndex].Description = desc;
+  this->OverrideArray[nextIndex].OverrideWithName = ocn;
+  this->OverrideArray[nextIndex].EnabledFlag = enableFlag;
+  this->OverrideArray[nextIndex].CreateCallback = createFunction;
+}
+
+
+vtkObject* vtkObjectFactory::CreateObject(const char* vtkclassname)
+{
+  for(int i=0; i < this->OverrideArrayLength; i++)
+  {
+    if(this->OverrideArray[i].EnabledFlag &&
+       strcmp(this->OverrideClassNames[i], vtkclassname) == 0)
+    {
+      return (*this->OverrideArray[i].CreateCallback)();
+    }
+  }
+  return 0;
+}
   
+// grow the array if the length is greater than the size.
+void vtkObjectFactory::GrowOverrideArray()
+{
+  if(this->OverrideArrayLength+1 > this->SizeOverrideArray)
+  {
+    int newLength = this->OverrideArrayLength + 50;
+    OverrideInformation* newArray = new OverrideInformation[newLength];
+    char** newNameArray = new char*[newLength];
+    for(int i =0; i < this->OverrideArrayLength; i++)
+    {
+      newNameArray[i] = this->OverrideClassNames[i];
+      newArray[i] = this->OverrideArray[i];
+    }
+    delete [] this->OverrideClassNames;
+    this->OverrideClassNames = newNameArray;
+    delete [] this->OverrideArray;
+    this->OverrideArray = newArray;
+  }
+}
+
+int vtkObjectFactory::GetNumberOfOverrides()
+{
+  return this->OverrideArrayLength;
+}
+
+const char* vtkObjectFactory::GetClassOverrideName(int index)
+{
+  return this->OverrideClassNames[index];
+}
+
+const char* vtkObjectFactory::GetClassOverrideWithName(int index)
+{
+  return this->OverrideArray[index].OverrideWithName;
+}
+  
+int vtkObjectFactory::GetEnableFlag(int index)
+{
+  return this->OverrideArray[index].EnabledFlag;
+}
+
+
+const char* vtkObjectFactory::GetDescription(int index)
+{
+  return this->OverrideArray[index].Description;
+}
+
+
+
+void vtkObjectFactory::SetEnableFlag(int flag,
+				     const char* className,
+				     const char* subclassName)
+{
+  for(int i =0; i < this->OverrideArrayLength; i++)
+  {
+    if(strcmp(this->OverrideClassNames[i], className) == 0)
+    {
+      if(strcmp(this->OverrideArray[i].OverrideWithName, subclassName) == 0)
+      {
+	this->OverrideArray[i].EnabledFlag = flag;
+	return;
+      }
+    }
+  }
+}
+
+int vtkObjectFactory::GetEnableFlag(const char* className,
+				    const char* subclassName)
+{
+  for(int i =0; i < this->OverrideArrayLength; i++)
+  {
+    if(strcmp(this->OverrideClassNames[i], className) == 0)
+    {
+      if(strcmp(this->OverrideArray[i].OverrideWithName, subclassName) == 0)
+      {
+	return this->OverrideArray[i].EnabledFlag;
+      }
+    }
+  }
+  return 0;
+}
+
+
+
+void vtkObjectFactory::Disable(const char* className)
+{
+  for(int i =0; i < this->OverrideArrayLength; i++)
+  {
+    if(strcmp(this->OverrideClassNames[i], className) == 0)
+    {
+      this->OverrideArray[i].EnabledFlag = 0;
+    }
+  }
+}
+
+
+vtkObjectFactoryCollection* vtkObjectFactory::GetRegisteredFactories()
+{
+  return vtkObjectFactory::RegisteredFactories;
+}

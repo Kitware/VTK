@@ -98,25 +98,104 @@ public:
   static void UnRegisterAllFactories();
   
   // Description:
+  // Return the list of all registered factories.  This is NOT a copy,
+  // do not remove items from this list!
+  static vtkObjectFactoryCollection* GetRegisteredFactories();
+
+  // Description:
   // All sub-classes of vtkObjectFactory should must return the version of 
   // VTK they were built with.  This should be implemented with the macro
   // VTK_SOURCE_VERSION and NOT a call to vtkVersion::GetVTKSourceVersion.
   // As the version needs to be compiled into the file as a string constant.
   // This is critical to determine possible incompatible dynamic factory loads.
   virtual const char* GetVTKSourceVersion() = 0;
+
+  // Description:
+  // Return a descriptive string describing the factory.
+  virtual const char* GetDescription() = 0;
+
+  // Description:
+  // Return number of overrides this factory can create.
+  virtual int GetNumberOfOverrides();
+
+  // Description:
+  // Return the name of a class override at the given index.
+  virtual const char* GetClassOverrideName(int index);
+
+  // Description:
+  // Return the name of the class that will override the class
+  // at the given index
+  virtual const char* GetClassOverrideWithName(int index);
+  
+  // Description:
+  // Return the enable flag for the class at the given index.
+  virtual int GetEnableFlag(int index);
+
+  // Description:
+  // Return the description for a the class override at the given 
+  // index.
+  virtual const char* GetDescription(int index);
+
+  // Description:
+  // Set and Get the Enable flag for the specific override of className
+  virtual void SetEnableFlag(int flag,
+			     const char* className,
+			     const char* subclassName);
+  virtual int GetEnableFlag(const char* className,
+			    const char* subclassName);
+
+  // Description:
+  // Set all enable flags for the given class to 0.  This will
+  // mean that the factory will stop producing class with the given
+  // name.
+  virtual void Disable(const char* className);
+  
+  // Description:
+  // This returns the path to a dynamically loaded factory.
+  vtkGetStringMacro(LibraryPath);
+  
 protected:
+  //BTX
+  typedef vtkObject* (*CreateFunction)();
+
+  // Description:
+  // Register object creation information with the factory.
+  void RegisterOverride(const char* classOverride,
+			const char* overrideClassName,
+			const char* description,
+			int enableFlag,
+			CreateFunction createFunction);
+		
+  //ETX
+
+	
   // Description:
   // This method is provioded by sub-classes of vtkObjectFactory.
   // It should create the named vtk object or return 0 if that object
   // is not supported by the factory implementation.
-  virtual vtkObject* CreateObject(const char* vtkclassname ) = 0;
-  
+  virtual vtkObject* CreateObject(const char* vtkclassname );
   
   vtkObjectFactory();
   ~vtkObjectFactory();
   vtkObjectFactory(const vtkObjectFactory&) {};
   void operator=(const vtkObjectFactory&) {};
+  //BTX
+  struct OverrideInformation
+  {
+    char* Description;
+    char* OverrideWithName;
+    int EnabledFlag;
+    CreateFunction CreateCallback;
+  };
+  //ETX
+  OverrideInformation* OverrideArray;
+  char** OverrideClassNames;
+  int SizeOverrideArray;
+  int OverrideArrayLength;
+
 private:
+  void GrowOverrideArray();
+
   // Description:
   // Initialize the static members of vtkObjectFactory.   RegisterDefaults
   // is called here.
@@ -132,7 +211,7 @@ private:
   static void LoadLibrariesInPath( const char*);
   
   // list of registered factories
-  static vtkObjectFactoryCollection* RegisterdFactories; 
+  static vtkObjectFactoryCollection* RegisteredFactories; 
   
   // member variables for a factory set by the base class
   // at load or register time
@@ -140,5 +219,12 @@ private:
   unsigned long LibraryDate;
   char* LibraryPath;
 };
+
+// Macro to create an object creation function.
+// The name of the function will by vtkObjectFactoryCreateclassname
+// where classname is the name of the class being created
+#define VTK_CREATE_CREATE_FUNCTION(classname) \
+static vtkObject* vtkObjectFactoryCreate##classname() \
+{ return classname::New(); }
 
 #endif
