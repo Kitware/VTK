@@ -90,8 +90,8 @@ public:
 
   // Description:
   // Set/Get the pixel data of an image, transmitted as RGBARGBA... 
-  virtual unsigned char *GetRGBAPixelData(int x,int y,int x2,int y2,int front);
-  virtual void SetRGBAPixelData(int x,int y,int x2,int y2,unsigned char *, int front);
+  virtual float *GetRGBAPixelData(int x,int y,int x2,int y2,int front);
+  virtual void SetRGBAPixelData(int x,int y,int x2,int y2, float *, int front);
 
   // Description:
   // Set/Get the zbuffer data from an image

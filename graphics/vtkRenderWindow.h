@@ -243,9 +243,10 @@ public:
 
   // Description:
   // Same as Get/SetPixelData except that the image also contains an alpha
-  // component. The image is now transmitted as RGBARGBARGBA...
-  virtual unsigned char *GetRGBAPixelData(int x,int y,int x2,int y2,int front) = 0;
-  virtual void SetRGBAPixelData(int x,int y,int x2,int y2,unsigned char *,int front) = 0;
+  // component. The image is transmitted as RGBARGBARGBA... each of which is a
+  // float value.
+  virtual float *GetRGBAPixelData(int x,int y,int x2,int y2,int front) = 0;
+  virtual void SetRGBAPixelData(int x,int y,int x2,int y2,float *,int front) =0;
 
   // Description:
   // Set/Get the zbuffer data from the frame buffer.

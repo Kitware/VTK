@@ -1041,18 +1041,22 @@ void vtkXglrRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
 }
 
 // Important Note: XGL does not support get operations on alpha values.
-// Therefore, this operation will assign 255 to the alpha value of all
+// Therefore, this operation will assign 1.0 to the alpha value of all
 // pixels read. Until XGL supports alpha read/writes, use GetPixelData()
-unsigned char *vtkXglrRenderWindow::GetRGBAPixelData(int x1, int y1, 
-						 int x2, int y2,
-						 int front)
+float *vtkXglrRenderWindow::GetRGBAPixelData(int x1, int y1, 
+					     int x2, int y2,
+					     int front)
 {
   int     current;
   long    xloop,yloop;
   int     y_low, y_hi;
   int     x_low, x_hi;
-  unsigned char   *data = NULL;
-  unsigned char   *p_data = NULL;
+
+  float   scale = 1.0/255.0;
+
+  float   *data;
+  float   *p_data;
+
   Xgl_usgn32 *input;
   Xgl_usgn32 *loc;
   int     width, height;
@@ -1083,7 +1087,7 @@ unsigned char *vtkXglrRenderWindow::GetRGBAPixelData(int x1, int y1,
 		    0);
     }
   
-  data = new unsigned char[width*height*4];
+  data = new float[width*height*4];
 
   if (y1 < y2)
     {
@@ -1144,10 +1148,10 @@ unsigned char *vtkXglrRenderWindow::GetRGBAPixelData(int x1, int y1,
     loc = input + (this->Size[1] - yloop - 1)*this->Size[0];
     for (xloop = 0; xloop < width; xloop++)
       {
-      *p_data = *loc & 0x000000ff; p_data++;
-      *p_data = (*loc & 0x0000ff00) >> 8; p_data++;
-      *p_data = (*loc & 0x00ff0000) >> 16; p_data++;
-      *p_data = 255; p_data++;
+      *p_data = (float) (*loc & 0x000000ff)        * scale; p_data++;
+      *p_data = (float)((*loc & 0x0000ff00) >>  8) * scale; p_data++;
+      *p_data = (float)((*loc & 0x00ff0000) >> 16) * scale; p_data++;
+      *p_data = 1.0; p_data++;
       loc++;
       }
     }
@@ -1156,10 +1160,10 @@ unsigned char *vtkXglrRenderWindow::GetRGBAPixelData(int x1, int y1,
 }
 
 // Important Note: XGL does not support set operations on alpha values.
-// Therefore, this operation will assign 255 to the alpha value of all
+// Therefore, this operation will assign 1.0 to the alpha value of all
 // pixels written. Until XGL supports alpha read/writes, use SetPixelData()
 void vtkXglrRenderWindow::SetRGBAPixelData(int x1, int y1, int x2, int y2,
-				     unsigned char *data, int front)
+				     float *data, int front)
 {
   int     current;
   int     width, height;
@@ -1233,9 +1237,9 @@ void vtkXglrRenderWindow::SetRGBAPixelData(int x1, int y1, int x2, int y2,
     
     for (xloop = 0; xloop < width; xloop++)
       {
-      *(bptr)  = *(data++);
-      *(bptr) += ((Xgl_usgn32)(*(data++)))<<8;
-      *(bptr) += ((Xgl_usgn32)(*(data++)))<<16;
+      *(bptr)  =  (Xgl_usgn32)(*(data++) * 255.0);
+      *(bptr) += ((Xgl_usgn32)(*(data++) * 255.0))<<8;
+      *(bptr) += ((Xgl_usgn32)(*(data++) * 255.0))<<16;
       *(bptr) += ((Xgl_usgn32)(0xff000000)); data++;	// Alpha = 255
       bptr++;
       }

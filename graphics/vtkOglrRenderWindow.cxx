@@ -837,21 +837,20 @@ void vtkOglrRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
   delete [] buffer;
 }
 
-unsigned char *vtkOglrRenderWindow::GetRGBAPixelData(int x1, int y1, int x2, int y2, 
-						 int front)
+float *vtkOglrRenderWindow::GetRGBAPixelData(int x1, int y1, int x2, int y2, int front)
 {
-  long     xloop,yloop;
+  long    xloop,yloop;
   int     y_low, y_hi;
   int     x_low, x_hi;
+  int     width, height;
+
+  float   *data = NULL;
+
+  float   *p_data = NULL;
   unsigned long   *buffer;
-  unsigned char   *data = NULL;
-  unsigned char   *p_data = NULL;
 
   // set the current window 
   glXMakeCurrent(this->DisplayId,this->WindowId,this->ContextId);
-
-  buffer = new unsigned long[abs(x2 - x1)+1];
-  data = new unsigned char[(abs(x2 - x1) + 1)*(abs(y2 - y1) + 1)*4];
 
   if (y1 < y2)
     {
@@ -883,34 +882,26 @@ unsigned char *vtkOglrRenderWindow::GetRGBAPixelData(int x1, int y1, int x2, int
     {
     glReadBuffer(GL_BACK);
     }
-  p_data = data;
-  for (yloop = y_low; yloop <= y_hi; yloop++)
-    {
-    // read in a row of pixels 
-    glReadPixels(x_low,yloop,(x_hi-x_low+1),1, 
-		 GL_RGBA, GL_UNSIGNED_BYTE, buffer);
-    for (xloop = 0; xloop <= (abs(x2-x1)); xloop++)
-      {
-      *p_data = (buffer[xloop] & (0xff000000)) >> 24; p_data++;
-      *p_data = (buffer[xloop] & (0x00ff0000)) >> 16; p_data++;
-      *p_data = (buffer[xloop] & (0x0000ff00)) >>  8; p_data++;
-      *p_data = (buffer[xloop] & (0x000000ff))      ; p_data++;
-      }
-    }
-  
-  delete [] buffer;
+
+  width  = abs(x_hi - x_low) + 1;
+  height = abs(y_hi - y_low) + 1;
+
+  data = new float[ (width*height*4) ];
+
+  glReadPixels( x_low, y_low, width, height, GL_RGBA, GL_FLOAT, data);
 
   return data;
 }
 
 void vtkOglrRenderWindow::SetRGBAPixelData(int x1, int y1, int x2, int y2,
-				       unsigned char *data, int front)
+				       float *data, int front)
 {
   int     y_low, y_hi;
   int     x_low, x_hi;
+  int     width, height;
   int     xloop,yloop;
-  unsigned long   *buffer;
-  unsigned char   *p_data = NULL;
+  float   *buffer;
+  float   *p_data = NULL;
 
   // set the current window 
   glXMakeCurrent(this->DisplayId,this->WindowId,this->ContextId);
@@ -923,8 +914,6 @@ void vtkOglrRenderWindow::SetRGBAPixelData(int x1, int y1, int x2, int y2,
     {
     glDrawBuffer(GL_BACK);
     }
-
-  buffer = new unsigned long[4*(abs(x2 - x1)+1)];
 
   if (y1 < y2)
     {
@@ -948,35 +937,25 @@ void vtkOglrRenderWindow::SetRGBAPixelData(int x1, int y1, int x2, int y2,
     x_hi  = x1;
     }
   
-  // now write the binary info one row at a time 
-  p_data = data;
-  for (yloop = y_low; yloop <= y_hi; yloop++)
-    {
-    for (xloop = 0; xloop <= (abs(x2-x1)); xloop++)
-      {
-      buffer[xloop]  = (*p_data) << 24; p_data++; 
-      buffer[xloop] += (*p_data) << 16; p_data++;
-      buffer[xloop] += (*p_data) <<  8; p_data++;
-      buffer[xloop] += (*p_data)      ; p_data++;
-      }
-    /* write out a row of pixels */
-    glMatrixMode( GL_MODELVIEW );
-    glPushMatrix();
-    glLoadIdentity();
-    glMatrixMode( GL_PROJECTION );
-    glPushMatrix();
-    glLoadIdentity();
-    glRasterPos2f( 2.0 * (GLfloat)(x_low) / this->Size[0] - 1, 
-                   2.0 * (GLfloat)(yloop) / this->Size[1] - 1);
-    glMatrixMode( GL_MODELVIEW );
-    glPopMatrix();
-    glMatrixMode( GL_PROJECTION );
-    glPopMatrix();
+  width  = abs(x_hi-x_low) + 1;
+  height = abs(y_hi-y_low) + 1;
 
-    glDrawPixels((x_hi-x_low+1),1, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
-    }
-  
-  delete [] buffer;
+  /* write out a row of pixels */
+  glMatrixMode( GL_MODELVIEW );
+  glPushMatrix();
+  glLoadIdentity();
+  glMatrixMode( GL_PROJECTION );
+  glPushMatrix();
+  glLoadIdentity();
+  glRasterPos2f( 2.0 * (GLfloat)(x_low) / this->Size[0] - 1, 
+                 2.0 * (GLfloat)(y_low) / this->Size[1] - 1);
+  glMatrixMode( GL_MODELVIEW );
+  glPopMatrix();
+  glMatrixMode( GL_PROJECTION );
+  glPopMatrix();
+
+  glDrawPixels( width, height, GL_RGBA, GL_FLOAT, data);
+
 }
 
 float *vtkOglrRenderWindow::GetZbufferData( int x1, int y1, int x2, int y2  )
