@@ -628,6 +628,9 @@ void vtkImageData::SetScalars(vtkScalars *scalars)
                     << " pixels) does not match "
                     << num << " scalars.");
     }
+
+  this->PointData.SetScalars(scalars);
+  this->Modified();
 }
 
 
@@ -645,10 +648,8 @@ void *vtkImageData::GetScalarPointer(int coordinates[VTK_IMAGE_DIMENSIONS])
   scalars = this->PointData.GetScalars();
   if (scalars == NULL)
     {
-    vtkErrorMacro(<< "GetScalarPointer: Scalars not allocated.  "
-    << "Either you are referencing uninitialized data, or "
-    << "your should be using 'GetScalarWritePointer'");
-    return NULL;
+    this->AllocateScalars();
+    scalars = this->PointData.GetScalars();    
     }
   
   // error checking: since most acceses will be from pointer arithmetic.
@@ -700,10 +701,8 @@ float *vtkImageData::GetVectorPointer(int coordinates[VTK_IMAGE_DIMENSIONS])
   vectors = this->PointData.GetVectors();
   if (vectors == NULL)
     {
-    vtkErrorMacro(<< "GetScalarPointer: Vectors not allocated.  "
-    << "Either you are referencing uninitialized data, or "
-    << "your should be using 'GetVectorWritePointer'");
-    return NULL;
+    this->AllocateVectors();
+    vectors = this->PointData.GetVectors();
     }
   
   // error checking: since most acceses will be from pointer arithmetic.

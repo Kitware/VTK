@@ -111,6 +111,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   void SetScalars(vtkScalars *scalars);
+  vtkScalars *GetScalars(){return this->PointData.GetScalars();};
   
   // return pointer to this dataset's point data
   vtkPointData *GetPointData() {return &this->PointData;};

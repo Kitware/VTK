@@ -497,10 +497,11 @@ void *vtkImageRegion::GetScalarPointer(int dim, int *coordinates)
 {
   int idx, temp[VTK_IMAGE_DIMENSIONS];
   
-  if ( ! this->Data){
-    vtkErrorMacro(<<"Data must be set or allocated.");
-    return NULL;
-  }
+  if ( ! this->Data)
+    {
+    // Create the data object
+    this->MakeDataWritable();
+    }
 
   // Copy coordinates.
   for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
@@ -528,10 +529,11 @@ float *vtkImageRegion::GetVectorPointer(int dim, int *coordinates)
 {
   int idx, temp[VTK_IMAGE_DIMENSIONS];
   
-  if ( ! this->Data){
-    vtkErrorMacro(<<"Data must be set or allocated.");
-    return NULL;
-  }
+  if ( ! this->Data)
+    {
+    // Create the data object
+    this->MakeDataWritable();
+    }
 
   // Copy coordinates.
   for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
