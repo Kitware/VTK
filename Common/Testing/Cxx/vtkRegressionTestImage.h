@@ -1,3 +1,5 @@
+#ifndef __vtkRegressionTestImage_h
+#define __vtkRegressionTestImage_h
 
 // Includes and a macro necessary for saving the image produced by a cxx 
 // example program. This capability is critical for regression testing.
@@ -7,10 +9,11 @@
 #include "vtkPNGReader.h"
 #include "vtkPNGWriter.h"
 #include "vtkImageDifference.h"
+#include "vtkGetDataRoot.h"
 
 int vtkRegressionTestImage2(int argc, char *argv[], vtkWindow *rw ) 
 {
-  int dataIndex=-1, imageIndex=-1;
+  int imageIndex=-1;
 
   for (int i=0; i<argc; i++)
     {
@@ -21,42 +24,11 @@ int vtkRegressionTestImage2(int argc, char *argv[], vtkWindow *rw )
 	imageIndex = i+1;
 	}
       }
-    else if ( strcmp("-D", argv[i]) == 0 )
-      {
-      if ( i < argc-1 )
-	{
-	dataIndex = i+1;
-	}
-      }
     }
 
   if( imageIndex != -1 ) 
     { 
-    char* dataRoot=0;
-    if ( dataIndex != -1 ) 
-      {
-      dataRoot = argv[dataIndex];
-      }
-    else 
-      {
-      dataRoot = getenv("VTK_DATA_ROOT");
-      }
-
-    char* fname;
-    if (dataRoot)
-      {
-      fname = new char[strlen(dataRoot)+strlen(argv[imageIndex])+2];
-      fname[0] = 0;
-      strcat(fname, dataRoot);
-      int len = strlen(fname);
-      fname[len] = '/';
-      fname[len+1] = 0;
-      strcat(fname, argv[imageIndex]);
-      }
-    else
-      {
-      fname = argv[imageIndex];
-      }
+    char* fname=vtkExpandDataFileName(argc, argv, argv[imageIndex]);
 
     vtkWindowToImageFilter *rt_w2if = vtkWindowToImageFilter::New(); 
     rt_w2if->SetInput(rw);
@@ -81,6 +53,7 @@ int vtkRegressionTestImage2(int argc, char *argv[], vtkWindow *rw )
         {
 	cerr << "Unable to open file for writing: " << fname << endl;
 	rt_w2if->Delete(); 
+	delete[] fname;
         return 0;
         }
       }
@@ -95,10 +68,12 @@ int vtkRegressionTestImage2(int argc, char *argv[], vtkWindow *rw )
     if (rt_id->GetThresholdedError() <= 10) 
       { 
       rt_id->Delete(); 
+      delete[] fname;
       return 1; 
       } 
     cerr << "Failed Image Test : " << rt_id->GetThresholdedError() << endl;
     rt_id->Delete(); 
+    delete[] fname;
     return 0;
     }
   return 2;
@@ -106,3 +81,5 @@ int vtkRegressionTestImage2(int argc, char *argv[], vtkWindow *rw )
 
 #define vtkRegressionTestImage(rw) \
 vtkRegressionTestImage2(argc, argv, rw)
+
+#endif // __vtkRegressionTestImage_h
