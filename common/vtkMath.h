@@ -195,7 +195,8 @@ public:
 			  double y[3]);
   
   // Description:
-  // Mutliply one 3x3 matrix by another: B = AB.
+  // Mutltiply one 3x3 matrix by another according to C = BA (if the order
+  // seems odd, it is simply consistent with vtkMatrix4x4::Multiply4x4()).
   static void Multiply3x3(const float A[3][3], const float B[3][3], 
 			  float C[3][3]);
   static void Multiply3x3(const double A[3][3], const double B[3][3], 
@@ -220,6 +221,47 @@ public:
   // Return the determinant of a 3x3 matrix.
   static double Determinant3x3(float A[3][3]);
   static double Determinant3x3(double A[3][3]);
+
+  // Description:
+  // Convert a quaternion to a 3x3 rotation matrix.  The quaternion
+  // does not have to be normalized beforehand.
+  static void QuaternionToMatrix3x3(const float quat[4], float A[3][3]); 
+  static void QuaternionToMatrix3x3(const double quat[4], double A[3][3]); 
+
+  // Description:
+  // Convert a 3x3 matrix into a quaternion.  This will provide the
+  // best possible answer even if the matrix is not a pure rotation matrix.
+  // The method used is that of B.K.P. Horn.
+  static void Matrix3x3ToQuaternion(const float A[3][3], float quat[4]);
+  static void Matrix3x3ToQuaternion(const double A[3][3], double quat[4]);
+  
+  // Description:
+  // Orthogonalize a 3x3 matrix and put the result in B.  The result is 
+  // a 3x3 rotation matrix with a positive determinant.  Adapted from a
+  // method by B.K.P. Horn that uses diagonalization of an appropriately
+  // constructed 4x4 matrix.
+  static void Orthogonalize3x3(const float A[3][3], float B[3][3]);
+  static void Orthogonalize3x3(const double A[3][3], double B[3][3]);
+
+  // Description:
+  // Diagonalize a symmetric 3x3 matrix and return the eigenvalues in
+  // w and the eigenvectors in the columns of V.  The matrix V will have
+  // a positive determinant, and the three eigenvectors will be aligned
+  // as closely as possible with the x, y, and z axes.
+  static void Diagonalize3x3(const float A[3][3], float w[3], float V[3][3]);
+  static void Diagonalize3x3(const double A[3][3],double w[3],double V[3][3]);
+
+  // Description:
+  // Perform singular value decomposition on a 3x3 matrix.  This is not
+  // done using a conventional SVD algorithm, instead it is done using
+  // Orthogonalize3x3 and Diagonalize3x3.  The determinants of both
+  // matrices are guaranteed to be positive.
+  static void SingularValueDecomposition3x3(const float A[3][3],
+					    float U[3][3], float w[3],
+					    float VT[3][3]);
+  static void SingularValueDecomposition3x3(const double A[3][3],
+					    double U[3][3], double w[3],
+					    double VT[3][3]);
 
   // Description:
   // Compute determinant of 3x3 matrix. Three columns of matrix are input.
@@ -315,6 +357,7 @@ public:
   // and output eigenvectors in v. Resulting eigenvalues/vectors are sorted
   // in decreasing order; eigenvectors are normalized.
   static int Jacobi(float **a, float *w, float **v);
+  static int Jacobi(double **a, double *w, double **v);
 
   // Description:
   // JacobiN iteration for the solution of eigenvectors/eigenvalues of a nxn
@@ -323,6 +366,7 @@ public:
   // eigenvalues/vectors are sorted in decreasing order; eigenvectors are
   // normalized.  w and v need to be allocated previously
   static int JacobiN(float **a, int n, float *w, float **v);
+  static int JacobiN(double **a, int n, double *w, double **v);
 
   // Description:
   // Solves a cubic equation c0*t^3 + c1*t^2 + c2*t + c3 = 0 when c0, c1, c2,
