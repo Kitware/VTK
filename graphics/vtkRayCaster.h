@@ -290,6 +290,7 @@ protected:
   float         CameraInverse23;
   float         CameraInverse32;
   float         CameraInverse33;
+  float         CameraPosition[3];
   float         *ParallelStartPosition;
   float         *ParallelIncrements;
   int           ParallelProjection;
