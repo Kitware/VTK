@@ -343,7 +343,7 @@ IF(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 1.4)
                 ${VTK_SOURCE_DIR}/Common/Testing/Tcl/FindString.tcl
                 ${VTK_SOURCE_DIR}/Common/Testing/Tcl/PrintSelfCheck.tcl
                 ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl)
-  INSTALL_FILES(/lib/vtk/testing FILES
+  INSTALL_FILES(/include/vtk FILES
                 ${VTK_SOURCE_DIR}/Common/Testing/Cxx/vtkRegressionTestImage.h)
   IF(VTK_USE_PARALLEL)
     INSTALL_FILES(/lib/vtk/testing FILES

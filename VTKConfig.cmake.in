@@ -40,7 +40,6 @@
 # VTK_PRINT_SELF_CHECK_TCL - Location of PrintSelfCheck.tcl.
 # VTK_RT_IMAGE_TEST_TCL    - Location of rtImageTest.tcl.
 # VTK_PRT_IMAGE_TEST_TCL   - Location of prtImageTest.tcl.
-# VTK_REGRESSION_TEST_IMAGE_DIR - Directory for vtkRegressionTestImage.h.
 #
 # There are many configuration settings controlling how VTK is built.
 # These settings are available through the following settings:
@@ -255,7 +254,6 @@ SET(VTK_FIND_STRING_TCL "@VTK_FIND_STRING_TCL_CONFIG@")
 SET(VTK_PRINT_SELF_CHECK_TCL "@VTK_PRINT_SELF_CHECK_TCL_CONFIG@")
 SET(VTK_RT_IMAGE_TEST_TCL "@VTK_RT_IMAGE_TEST_TCL_CONFIG@")
 SET(VTK_PRT_IMAGE_TEST_TCL "@VTK_PRT_IMAGE_TEST_TCL_CONFIG@")
-SET(VTK_REGRESSION_TEST_IMAGE_DIR "@VTK_REGRESSION_TEST_IMAGE_DIR@")
 
 # The list of library dependencies used by CMake for automatic
 # chainging of dependent libraries.
@@ -442,7 +440,6 @@ SET(VTK_SETTINGS
   VTK_PRINT_SELF_CHECK_TCL
   VTK_PRT_IMAGE_TEST_TCL
   VTK_PYTHON_EXE
-  VTK_REGRESSION_TEST_IMAGE_DIR
   VTK_RT_IMAGE_TEST_TCL
   VTK_TCL_EXE
   VTK_TCL_HOME
