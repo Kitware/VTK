@@ -82,6 +82,7 @@ public:
   void PrefFullScreen(void);
   void SetSize(int,int);
   int *GetSize();
+  void SetPosition(int,int);
   int *GetScreenSize();
   int *GetPosition();
   //BTX

@@ -106,11 +106,44 @@ void vtkWin32OglrRenderWindow::SetSize(int x, int y)
       if (!resizing)
         {
         resizing = 1;
+   
+        if (this->ParentId)
+          {
+          SetWindowExtEx(this->DeviceContext,x,y,NULL);
+          SetViewportExtEx(this->DeviceContext,x,y,NULL);
+          SetWindowPos(this->WindowId,HWND_TOP,0,0,
+            x, y, SWP_NOMOVE | SWP_NOZORDER);
+          }
+        else
+          {
+          SetWindowPos(this->WindowId,HWND_TOP,0,0,
+            x+2*GetSystemMetrics(SM_CXFRAME),
+            y+2*GetSystemMetrics(SM_CYFRAME) +GetSystemMetrics(SM_CYCAPTION),
+            SWP_NOMOVE | SWP_NOZORDER);
+          }
+        resizing = 0;
+        }
+      }
+    }
+}
 
-        SetWindowPos(this->WindowId,HWND_TOP,0,0,
-          x+2*GetSystemMetrics(SM_CXFRAME),
-          y+2*GetSystemMetrics(SM_CYFRAME) +GetSystemMetrics(SM_CYCAPTION),
-          SWP_NOMOVE | SWP_NOZORDER);
+void vtkWin32OglrRenderWindow::SetPosition(int x, int y)
+{
+  static int resizing = 0;
+
+  if ((this->Position[0] != x) || (this->Position[1] != y))
+    {
+    this->Modified();
+    this->Position[0] = x;
+    this->Position[1] = y;
+    if (this->Mapped)
+      {
+      if (!resizing)
+        {
+        resizing = 1;
+   
+        SetWindowPos(this->WindowId,HWND_TOP,x,y,
+            0, 0, SWP_NOSIZE | SWP_NOZORDER);
         resizing = 0;
         }
       }
@@ -407,7 +440,7 @@ void vtkWin32OglrRenderWindow::WindowInitialize (void)
         {
         this->WindowId = CreateWindow(
           "vtkOglr", this->WindowName,
-          WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
+          WS_CHILD | WS_CLIPCHILDREN /*| WS_CLIPSIBLINGS*/,
           x, y, width, height,
           this->ParentId, NULL, this->ApplicationInstance, NULL);
         }
@@ -415,7 +448,7 @@ void vtkWin32OglrRenderWindow::WindowInitialize (void)
         {
         this->WindowId = CreateWindow(
             "vtkOglr", this->WindowName,
-            WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
+            WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN /*| WS_CLIPSIBLINGS*/,
             x, y, width, height,
             NULL, NULL, this->ApplicationInstance, NULL);
         }
