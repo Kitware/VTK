@@ -47,7 +47,6 @@
 #ifndef __vtkFastNumericConversion_h
 #define __vtkFastNumericConversion_h
 
-#include <float.h> // not sure what is being used from float.h, is this required?
 #include "vtkObject.h"
 
 // Use the bit-representation trick only on X86, and only when producing
