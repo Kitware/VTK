@@ -61,7 +61,12 @@ struct TkMainInfo
   struct TkWindow *winPtr;
 };
 
+#if ((TK_MAJOR_VERSION <= 4)||
+     ((TK_MAJOR_VERSION == 8)&&(TK_MINOR_VERSION == 0)))
 extern TkMainInfo *tkMainWindowList;
+#else
+extern "C" {TkMainInfo *TkGetMainInfoList();}
+#endif
 
 // returns 1 if done
 static int vtkTclEventProc(XtPointer clientData,XEvent *event)
@@ -178,7 +183,12 @@ void vtkXRenderWindowTclInteractor::Initialize()
   ren = (vtkXRenderWindow *)(this->RenderWindow);
 
   // use the same display as tcl/tk
+#if ((TK_MAJOR_VERSION <= 4)||
+     ((TK_MAJOR_VERSION == 8)&&(TK_MINOR_VERSION == 0)))
   ren->SetDisplayId(Tk_Display(tkMainWindowList->winPtr));
+#else
+  ren->SetDisplayId(Tk_Display(TkGetMainInfoList()->winPtr));
+#endif
   this->DisplayId = ren->GetDisplayId();
   
   // get the info we need from the RenderingWindow
