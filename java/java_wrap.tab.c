@@ -1,5 +1,5 @@
 
-# line 16 "../../vtk/java/java_wrap.y"
+# line 16 "java_wrap.y"
 #include <stdio.h>
 #include <stdlib.h>
 #define yyerror(a) fprintf(stderr,"%s\n",a)
@@ -29,7 +29,7 @@ int   funcArgTypes[1000][11];
 int  numFuncs = 0;
 #define YYMAXDEPTH 1000
 
-# line 46 "../../vtk/java/java_wrap.y"
+# line 46 "java_wrap.y"
 typedef union
 #ifdef __cplusplus
 	YYSTYPE
@@ -126,7 +126,7 @@ YYSTYPE *yyv;
 static int yymaxdepth = YYMAXDEPTH;
 # define YYERRCODE 256
 
-# line 696 "../../vtk/java/java_wrap.y"
+# line 702 "java_wrap.y"
 
 #include <string.h>
 #include "lex.yy.c"
@@ -141,21 +141,21 @@ output_proto_vars(int i)
   
   if (arg_types[i] == 303)
     {
-    fprintf(yyout,"struct Hjava_lang_String * ");
+    fprintf(yyout,"jstring ");
     fprintf(yyout,"id%i",i);
     return;
     }
 
   if ((arg_types[i] == 301)||(arg_types[i] == 307))
     {
-    fprintf(yyout,"HArrayOfDouble * ");
+    fprintf(yyout,"jarray ");
     fprintf(yyout,"id%i",i);
     return;
     }
 
   if ((arg_types[i] == 304)||(arg_types[i] == 306))
     {
-    fprintf(yyout,"HArrayOfInt * ");
+    fprintf(yyout,"jarray ");
     fprintf(yyout,"id%i",i);
     return;
     }
@@ -163,27 +163,17 @@ output_proto_vars(int i)
 
   switch (arg_types[i]%10)
     {
-    case 1:   fprintf(yyout,"double "); break;
-    case 7:   fprintf(yyout,"double "); break;
-    case 4:   fprintf(yyout,"long "); break;
-    case 5:   fprintf(yyout,"long "); break;
-    case 6:   fprintf(yyout,"long "); break;
+    case 1:   fprintf(yyout,"jdouble "); break;
+    case 7:   fprintf(yyout,"jdouble "); break;
+    case 4:   fprintf(yyout,"jint "); break;
+    case 5:   fprintf(yyout,"jint "); break;
+    case 6:   fprintf(yyout,"jint "); break;
     case 2:     fprintf(yyout,"void "); break;
-    case 3:     fprintf(yyout,"char "); break;
-    case 9:     fprintf(yyout,"struct Hvtk_%s ",arg_ids[i]); break;
+    case 3:     fprintf(yyout,"jchar "); break;
+    case 9:     fprintf(yyout,"jref ",arg_ids[i]); break;
     case 8: return;
     }
-  
-  switch ((arg_types[i]%1000)/100)
-    {
-    case 1: fprintf(yyout, " *"); break; /* act " &" */
-    case 2: fprintf(yyout, "&&"); break;
-    case 3: fprintf(yyout, " *"); break;
-    case 4: fprintf(yyout, "&*"); break;
-    case 5: fprintf(yyout, "*&"); break;
-    case 7: fprintf(yyout, "**"); break;
-    default: fprintf(yyout,"  "); break;
-    }
+
   fprintf(yyout,"id%i",i);
 }
 
@@ -201,13 +191,13 @@ use_hints()
     switch (arg_types[10])
       {
       case 301:
-	fprintf(yyout,"    return vtkJavaMakeHArrayOfDoubleFromFloat(temp10,%i);\n",hint_size);
+	fprintf(yyout,"    return vtkJavaMakeJArrayOfDoubleFromFloat(env,temp10,%i);\n",hint_size);
 	break;
       case 307:  
-	fprintf(yyout,"    return vtkJavaMakeHArrayOfDoubleFromDouble(temp10,%i);\n",hint_size);
+	fprintf(yyout,"    return vtkJavaMakeJArrayOfDoubleFromDouble(env,temp10,%i);\n",hint_size);
 	break;
       case 304: 
-	fprintf(yyout,"    return vtkJavaMakeHArrayOfIntFromInt(temp10,%i);\n",hint_size);
+	fprintf(yyout,"    return vtkJavaMakeJArrayOfIntFromInt(env,temp10,%i);\n",hint_size);
 	break;
 
       case 305: case 306: case 313: case 314: case 315: case 316:
@@ -229,13 +219,13 @@ use_hints()
       switch (h_type)
 	{
 	case 301:
-	  fprintf(yyout,"    return vtkJavaMakeHArrayOfDoubleFromFloat(temp10,%i);\n",hint_size);
+	  fprintf(yyout,"    return vtkJavaMakeJArrayOfDoubleFromFloat(env,temp10,%i);\n",hint_size);
 	  break;
 	case 307:  
-	  fprintf(yyout,"    return vtkJavaMakeHArrayOfDoubleFromDouble(temp10,%i);\n",hint_size);
+	  fprintf(yyout,"    return vtkJavaMakeJArrayOfDoubleFromDouble(env,temp10,%i);\n",hint_size);
 	  break;
 	case 304: 
-	  fprintf(yyout,"    return vtkJavaMakeHArrayOfIntFromInt(temp10,%i);\n",hint_size);
+	  fprintf(yyout,"    return vtkJavaMakeJArrayOfIntFromInt(env,temp10,%i);\n",hint_size);
 	  break;
 	  
 	case 305: case 306: case 313: case 314: case 315: case 316:
@@ -249,23 +239,22 @@ return_result()
 {
   switch (arg_types[10]%1000)
     {
-    case 1: fprintf(yyout,"double "); break;
+    case 1: fprintf(yyout,"jdouble "); break;
     case 2: fprintf(yyout,"void "); break;
-    case 3: fprintf(yyout,"char "); break;
-    case 7: fprintf(yyout,"double "); break;
+    case 3: fprintf(yyout,"jchar "); break;
+    case 7: fprintf(yyout,"jdouble "); break;
     case 4: case 5: case 6: case 13: case 14: case 15: case 16:
-      fprintf(yyout,"long "); 
+      fprintf(yyout,"jint "); 
       break;
-    case 303: fprintf(yyout,"Hjava_lang_String *"); break;
+    case 303: fprintf(yyout,"jstring "); break;
     case 109:
     case 309:  
-      fprintf(yyout,"Hvtk_%s *",arg_ids[10]);
+      fprintf(yyout,"jobject ",arg_ids[10]);
       break;
 
     case 301: case 307:
-      fprintf(yyout,"HArrayOfDouble *"); break;
     case 304: case 305: case 306:
-      fprintf(yyout,"HArrayOfInt *"); break;
+      fprintf(yyout,"jarray "); break;
     }
 }
 
@@ -334,12 +323,13 @@ output_temp(int i)
       (arg_types[i] != 303))
     {
     fprintf(yyout,"[%i]",arg_counts[i]);
+    fprintf(yyout,";\n  void *tempArray");
     }
 
   fprintf(yyout,";\n");
   if ((i == 10) && ((arg_types[i] == 309)||(arg_types[i] == 109)))
     {
-    fprintf(yyout,"  void *tempH;\n");
+    fprintf(yyout,"  jobject tempH;\n");
     }
 }
 
@@ -367,25 +357,29 @@ get_args(int i)
       fprintf(yyout,"  temp%i = *(argv[%i]);\n",i,i+2);
       break;
     case 303:
-      fprintf(yyout,"  temp%i = makeCString(id%i);\n",i,i);
+      fprintf(yyout,"  temp%i = vtkJavaUTFToChar(env,id%i);\n",i,i);
       break;
     case 109:
     case 309:
-      fprintf(yyout,"  temp%i = (%s *)(vtkJavaGetPointerFromObject(id%i,\"%s\"));\n",i,arg_ids[i],i,arg_ids[i]);
+      fprintf(yyout,"  temp%i = (%s *)(vtkJavaGetPointerFromObject(env,id%i,\"%s\"));\n",i,arg_ids[i],i,arg_ids[i]);
       break;
     case 301:
     case 307:
-     for (j = 0; j < arg_counts[i]; j++)
-       {
-       fprintf(yyout,"  temp%i[%i] = ((double *)(unhand(id0)->body))[%i];\n",i,j,j);
-       }
+      fprintf(yyout,"  tempArray = (void *)(env->GetDoubleArrayElements(id%i,NULL));\n",i);
+      for (j = 0; j < arg_counts[i]; j++)
+	{
+	fprintf(yyout,"  temp%i[%i] = ((jdouble *)tempArray)[%i];\n",i,j,j);
+	}
+      fprintf(yyout,"  env->ReleaseDoubleArrayElements(id%i,(jdouble *)tempArray,0);\n",i);      
       break;
     case 304:
     case 306:
+      fprintf(yyout,"  tempArray = (void *)(env->GetLongArrayElements(id%i,NULL));\n",i);
       for (j = 0; j < arg_counts[i]; j++)
 	{
-	fprintf(yyout,"  temp%i[%i] = ((long *)(unhand(id0)->body))[%i];\n",i,j,j);
+	fprintf(yyout,"  temp%i[%i] = ((jlong *)tempArray)[%i];\n",i,j,j);
 	}
+      fprintf(yyout,"  env->ReleaseLongArrayElements(id%i,(jlong *)tempArray,0);\n",i);      
       break;
     case 2:    
     case 9: break;
@@ -405,18 +399,17 @@ do_return()
   switch (arg_types[10]%1000)
     {
     case 303: fprintf(yyout,
-		      "  return makeJavaString(temp10,strlen(temp10));\n"); 
+		      "  return vtkJavaMakeJavaString(env,temp10);\n"); 
     break;
     case 109:
     case 309:  
       {
-      fprintf(yyout,"  tempH =vtkJavaGetObjectFromPointer((void *)temp10);\n");
+      fprintf(yyout,"  tempH = vtkJavaGetObjectFromPointer((void *)temp10);\n");
       fprintf(yyout,"  if (!tempH)\n    {\n");
       fprintf(yyout,"    vtk_%s_NoCPP();\n",arg_ids[10]);
-      fprintf(yyout,"    FindClass(EE(),\"vtk/%s\",TRUE);\n",arg_ids[10]);
-      fprintf(yyout,"    tempH = (void *)execute_java_constructor(EE(),\"vtk/%s\",0,\"()\");\n",arg_ids[10]);
-      fprintf(yyout,"    vtkJavaAddObjectToHash(tempH,(void *)temp10,(void *)%s_Typecast,0);\n    }\n",arg_ids[10]);
-      fprintf(yyout,"  return (Hvtk_%s *)tempH;\n",arg_ids[10]);
+      fprintf(yyout,"    tempH = env->NewObject(env->FindClass(\"vtk/%s\"),env->GetMethodID(env->FindClass(\"vtk/%s\"),\"<init>\",\"void(V)\"));\n",arg_ids[10],arg_ids[10]);
+      fprintf(yyout,"    vtkJavaAddObjectToHash(env, tempH,(void *)temp10,(void *)%s_Typecast,0);\n    }\n",arg_ids[10]);
+      fprintf(yyout,"  return tempH;\n",arg_ids[10]);
       break;
       }
       
@@ -582,9 +575,10 @@ output_function()
 	  {
 	  handle_vtkobj_return();
 	  }
+	fprintf(yyout,"extern \"C\" ");
 	return_result();
-	fprintf(yyout,"vtk_%s_%s_%i(struct Hvtk_%s *me",class_name,func_name,
-		numFuncs, class_name);
+	fprintf(yyout,"Java_vtk_%s_%s_1%i(JNIEnv *env, jobject obj",
+		class_name,func_name, numFuncs);
 	
 	for (i = 0; i < num_args; i++)
 	  {
@@ -608,7 +602,7 @@ output_function()
 	  get_args(i);
 	  }
 	
-	fprintf(yyout,"\n  op = (%s *)vtkJavaGetPointerFromObject(me,\"%s\");\n",
+	fprintf(yyout,"\n  op = (%s *)vtkJavaGetPointerFromObject(env,obj,\"%s\");\n",
 		class_name,class_name);
 	
 	
@@ -1612,21 +1606,16 @@ int yyparse()
 	{
 		
 case 2:
-# line 102 "../../vtk/java/java_wrap.y"
+# line 102 "java_wrap.y"
 {
       class_name = strdup(yypvt[-0].str);
       fprintf(stderr,"Working on %s\n",class_name);
       fprintf(yyout,"// java wrapper for %s object\n//\n",class_name);
       } break;
 case 3:
-# line 108 "../../vtk/java/java_wrap.y"
+# line 108 "java_wrap.y"
 {
       int i;
-      fprintf(yyout,"extern \"C\" {\n");
-      fprintf(yyout,"#include <StubPreamble.h>\n");
-      fprintf(yyout,"#include <javaString.h>\n");
-      fprintf(yyout,"#include \"vtk_%s.h\"\n",class_name);
-      fprintf(yyout,"}\n");
       fprintf(yyout,"#include \"%s.h\"\n",class_name);
       fprintf(yyout,"#include \"vtkJavaUtil.h\"\n\n",class_name);
 
@@ -1653,16 +1642,16 @@ case 3:
       fprintf(yyout,"    }\n  return NULL;\n}\n\n");
       } break;
 case 4:
-# line 141 "../../vtk/java/java_wrap.y"
+# line 136 "java_wrap.y"
 {
 	if ((!num_superclasses)&&(have_delete))
 	  {
-	  fprintf(yyout,"\nvoid vtk_%s_VTKDelete(struct Hvtk_%s *me)\n",
-		  class_name,class_name);
+	  fprintf(yyout,"\nextern \"C\" void Java_vtk_%s_VTKDelete(JNIEnv *env,jobject obj)\n",
+		  class_name);
 	  fprintf(yyout,"{\n  %s *op;\n",class_name);
-	  fprintf(yyout,"  op = (%s *)vtkJavaGetPointerFromObject(me,\"%s\");\n",
+	  fprintf(yyout,"  op = (%s *)vtkJavaGetPointerFromObject(env,obj,\"%s\");\n",
 		  class_name,class_name);
-	  fprintf(yyout,"  if (vtkJavaShouldIDeleteObject((void *)me))\n");
+	  fprintf(yyout,"  if (vtkJavaShouldIDeleteObject(env,obj))\n");
 	  fprintf(yyout,"    {\n    op->Delete();\n    }\n");
 	  
 	  fprintf(yyout,"}\n");
@@ -1678,12 +1667,12 @@ case 4:
 	  fprintf(yyout,"static int vtk_%s_NoCreate = 0;\n",class_name);
 	  fprintf(yyout,"void vtk_%s_NoCPP()\n",class_name);
 	  fprintf(yyout,"{\n  vtk_%s_NoCreate = 1;\n}\n\n",class_name);
-	  fprintf(yyout,"\nvoid vtk_%s_VTKInit(struct Hvtk_%s *me)\n",
-		  class_name,class_name);
+	  fprintf(yyout,"\nextern \"C\" void Java_vtk_%s_VTKInit(JNIEnv *env, jobject obj)\n",
+		  class_name);
 	  fprintf(yyout,"{\n  if (!vtk_%s_NoCreate)\n",class_name);
 	  fprintf(yyout,"    {\n    %s *aNewOne = new %s;\n",class_name,
 		  class_name);
-	  fprintf(yyout,"    vtkJavaAddObjectToHash((void *)me,(void *)aNewOne,(void *)%s_Typecast,1);\n",class_name);
+	  fprintf(yyout,"    vtkJavaAddObjectToHash(env,obj,(void *)aNewOne,(void *)%s_Typecast,1);\n",class_name);
 	  fprintf(yyout,"    }\n  vtk_%s_NoCreate = 0;\n}\n",class_name);
 	  }
 	else
@@ -1697,133 +1686,133 @@ case 4:
 	  }
       } break;
 case 9:
-# line 188 "../../vtk/java/java_wrap.y"
+# line 183 "java_wrap.y"
 { arg_failure = 0; num_args = 0; arg_types[10] = 2; arg_ids[10] = NULL;} break;
 case 10:
-# line 190 "../../vtk/java/java_wrap.y"
+# line 185 "java_wrap.y"
 { arg_failure = 0; num_args = 0; arg_types[10] = 2; arg_ids[10] = NULL;} break;
 case 11:
-# line 192 "../../vtk/java/java_wrap.y"
+# line 187 "java_wrap.y"
 { arg_failure = 0; num_args = 0; arg_types[10] = 2; arg_ids[10] = NULL;} break;
 case 12:
-# line 194 "../../vtk/java/java_wrap.y"
+# line 189 "java_wrap.y"
 { arg_failure = 0; num_args = 0; arg_types[10] = 2; arg_ids[10] = NULL;} break;
 case 15:
-# line 198 "../../vtk/java/java_wrap.y"
+# line 193 "java_wrap.y"
 {
          output_function();
 	 } break;
 case 16:
-# line 202 "../../vtk/java/java_wrap.y"
+# line 197 "java_wrap.y"
 {
          arg_types[10] = yypvt[-1].integer;
          output_function();
 	 } break;
 case 17:
-# line 207 "../../vtk/java/java_wrap.y"
+# line 202 "java_wrap.y"
 {
          arg_types[10] = yypvt[-1].integer;
          output_function();
 	 } break;
 case 18:
-# line 212 "../../vtk/java/java_wrap.y"
+# line 207 "java_wrap.y"
 {
          output_function();
 	 } break;
 case 19:
-# line 217 "../../vtk/java/java_wrap.y"
+# line 212 "java_wrap.y"
 { is_virtual = 0; func_name = yypvt[-4].str; 
        fprintf(stderr,"   Converted func %s\n",yypvt[-4].str); } break;
 case 20:
-# line 220 "../../vtk/java/java_wrap.y"
+# line 215 "java_wrap.y"
 { is_virtual = 1; fprintf(stderr,"   Converted operator\n"); } break;
 case 21:
-# line 222 "../../vtk/java/java_wrap.y"
+# line 217 "java_wrap.y"
 { is_virtual = 0; func_name = yypvt[-6].str;
        fprintf(stderr,"   Converted func %s\n",yypvt[-6].str); is_abstract = 1;} break;
 case 30:
-# line 234 "../../vtk/java/java_wrap.y"
+# line 229 "java_wrap.y"
 { num_args++;} break;
 case 31:
-# line 234 "../../vtk/java/java_wrap.y"
+# line 229 "java_wrap.y"
 {num_args++;} break;
 case 33:
-# line 236 "../../vtk/java/java_wrap.y"
+# line 231 "java_wrap.y"
 {arg_counts[num_args] = 0; arg_types[num_args] = yypvt[-0].integer;} break;
 case 34:
-# line 237 "../../vtk/java/java_wrap.y"
+# line 232 "java_wrap.y"
 {arg_types[num_args] = yypvt[-1].integer; } break;
 case 36:
-# line 238 "../../vtk/java/java_wrap.y"
+# line 233 "java_wrap.y"
 {arg_types[num_args] = 5000;} break;
 case 43:
-# line 247 "../../vtk/java/java_wrap.y"
+# line 242 "java_wrap.y"
 { arg_failure = 1; } break;
 case 44:
-# line 248 "../../vtk/java/java_wrap.y"
+# line 243 "java_wrap.y"
 { arg_failure = 1; } break;
 case 45:
-# line 251 "../../vtk/java/java_wrap.y"
+# line 246 "java_wrap.y"
 {yyval.integer = 1000 + yypvt[-0].integer;} break;
 case 46:
-# line 252 "../../vtk/java/java_wrap.y"
+# line 247 "java_wrap.y"
 {yyval.integer = yypvt[-0].integer;} break;
 case 47:
-# line 253 "../../vtk/java/java_wrap.y"
+# line 248 "java_wrap.y"
 {yyval.integer = 2000 + yypvt[-0].integer;} break;
 case 48:
-# line 254 "../../vtk/java/java_wrap.y"
+# line 249 "java_wrap.y"
 {yyval.integer = 3000 + yypvt[-0].integer;} break;
 case 49:
-# line 256 "../../vtk/java/java_wrap.y"
+# line 251 "java_wrap.y"
 {yyval.integer = yypvt[-0].integer;} break;
 case 50:
-# line 258 "../../vtk/java/java_wrap.y"
+# line 253 "java_wrap.y"
 {yyval.integer = yypvt[-1].integer + yypvt[-0].integer;} break;
 case 51:
-# line 267 "../../vtk/java/java_wrap.y"
+# line 262 "java_wrap.y"
 { yyval.integer = 100;} break;
 case 52:
-# line 268 "../../vtk/java/java_wrap.y"
+# line 263 "java_wrap.y"
 { yyval.integer = 300;} break;
 case 53:
-# line 269 "../../vtk/java/java_wrap.y"
+# line 264 "java_wrap.y"
 { yyval.integer = 100 + yypvt[-0].integer;} break;
 case 54:
-# line 270 "../../vtk/java/java_wrap.y"
+# line 265 "java_wrap.y"
 { yyval.integer = 400 + yypvt[-0].integer;} break;
 case 55:
-# line 272 "../../vtk/java/java_wrap.y"
+# line 267 "java_wrap.y"
 { yyval.integer = 10 + yypvt[-0].integer;} break;
 case 56:
-# line 273 "../../vtk/java/java_wrap.y"
+# line 268 "java_wrap.y"
 { yyval.integer = yypvt[-0].integer;} break;
 case 57:
-# line 276 "../../vtk/java/java_wrap.y"
+# line 271 "java_wrap.y"
 { yyval.integer = 1;} break;
 case 58:
-# line 277 "../../vtk/java/java_wrap.y"
+# line 272 "java_wrap.y"
 { yyval.integer = 2;} break;
 case 59:
-# line 278 "../../vtk/java/java_wrap.y"
+# line 273 "java_wrap.y"
 { yyval.integer = 3;} break;
 case 60:
-# line 279 "../../vtk/java/java_wrap.y"
+# line 274 "java_wrap.y"
 { yyval.integer = 4;} break;
 case 61:
-# line 280 "../../vtk/java/java_wrap.y"
+# line 275 "java_wrap.y"
 { yyval.integer = 5;} break;
 case 62:
-# line 281 "../../vtk/java/java_wrap.y"
+# line 276 "java_wrap.y"
 { yyval.integer = 6;} break;
 case 63:
-# line 282 "../../vtk/java/java_wrap.y"
+# line 277 "java_wrap.y"
 { yyval.integer = 7;} break;
 case 64:
-# line 283 "../../vtk/java/java_wrap.y"
+# line 278 "java_wrap.y"
 { yyval.integer = 8;} break;
 case 65:
-# line 284 "../../vtk/java/java_wrap.y"
+# line 279 "java_wrap.y"
 { yyval.integer = 9; 
            arg_ids[num_args] = strdup(yypvt[-0].str); 
            if ((!arg_ids[10])&&(!num_args))
@@ -1832,31 +1821,31 @@ case 65:
              }
          } break;
 case 68:
-# line 295 "../../vtk/java/java_wrap.y"
+# line 290 "java_wrap.y"
 { superclasses[num_superclasses] = strdup(yypvt[-0].str); num_superclasses++; } break;
 case 69:
-# line 297 "../../vtk/java/java_wrap.y"
+# line 292 "java_wrap.y"
 { superclasses[num_superclasses] = strdup(yypvt[-0].str); num_superclasses++; } break;
 case 71:
-# line 300 "../../vtk/java/java_wrap.y"
+# line 295 "java_wrap.y"
 {in_public = 1;} break;
 case 72:
-# line 300 "../../vtk/java/java_wrap.y"
+# line 295 "java_wrap.y"
 {in_public = 0;} break;
 case 73:
-# line 301 "../../vtk/java/java_wrap.y"
+# line 296 "java_wrap.y"
 {in_public = 0;} break;
 case 74:
-# line 303 "../../vtk/java/java_wrap.y"
+# line 298 "java_wrap.y"
 {yyval.integer = yypvt[-0].integer;} break;
 case 75:
-# line 304 "../../vtk/java/java_wrap.y"
+# line 299 "java_wrap.y"
 {yyval.integer = -1;} break;
 case 76:
-# line 304 "../../vtk/java/java_wrap.y"
+# line 299 "java_wrap.y"
 {yyval.integer = -1;} break;
 case 77:
-# line 308 "../../vtk/java/java_wrap.y"
+# line 303 "java_wrap.y"
 { 
    sprintf(temps,"Set%s",yypvt[-3].str); 
    func_name = strdup(temps);
@@ -1867,7 +1856,7 @@ case 77:
    output_function();
    } break;
 case 78:
-# line 318 "../../vtk/java/java_wrap.y"
+# line 313 "java_wrap.y"
 { 
    sprintf(temps,"Get%s",yypvt[-3].str); 
    func_name = strdup(temps);
@@ -1876,7 +1865,7 @@ case 78:
    output_function();
    } break;
 case 79:
-# line 326 "../../vtk/java/java_wrap.y"
+# line 321 "java_wrap.y"
 { 
    sprintf(temps,"Set%s",yypvt[-1].str); 
    func_name = strdup(temps);
@@ -1887,7 +1876,7 @@ case 79:
    output_function();
    } break;
 case 80:
-# line 336 "../../vtk/java/java_wrap.y"
+# line 331 "java_wrap.y"
 { 
    sprintf(temps,"Get%s",yypvt[-1].str); 
    func_name = strdup(temps);
@@ -1896,7 +1885,7 @@ case 80:
    output_function();
    } break;
 case 81:
-# line 344 "../../vtk/java/java_wrap.y"
+# line 339 "java_wrap.y"
 { 
    sprintf(temps,"Set%s",yypvt[-5].str); 
    func_name = strdup(temps);
@@ -1907,7 +1896,7 @@ case 81:
    output_function();
    } break;
 case 82:
-# line 354 "../../vtk/java/java_wrap.y"
+# line 349 "java_wrap.y"
 { 
    sprintf(temps,"Set%s",yypvt[-3].str); 
    func_name = strdup(temps);
@@ -1918,7 +1907,7 @@ case 82:
    output_function();
    } break;
 case 83:
-# line 364 "../../vtk/java/java_wrap.y"
+# line 359 "java_wrap.y"
 { 
    sprintf(temps,"Set%s",yypvt[-3].str); 
    func_name = strdup(temps);
@@ -1929,7 +1918,7 @@ case 83:
    output_function();
    } break;
 case 84:
-# line 374 "../../vtk/java/java_wrap.y"
+# line 369 "java_wrap.y"
 { 
    sprintf(temps,"Get%s",yypvt[-3].str); 
    func_name = strdup(temps);
@@ -1938,7 +1927,7 @@ case 84:
    output_function();
    } break;
 case 85:
-# line 382 "../../vtk/java/java_wrap.y"
+# line 377 "java_wrap.y"
 { 
    sprintf(temps,"%sOn",yypvt[-3].str); 
    func_name = strdup(temps);
@@ -1952,7 +1941,7 @@ case 85:
    output_function();
    } break;
 case 86:
-# line 395 "../../vtk/java/java_wrap.y"
+# line 390 "java_wrap.y"
 { 
    sprintf(temps,"Set%s",yypvt[-3].str); 
    func_name = strdup(temps);
@@ -1970,7 +1959,7 @@ case 86:
    output_function();
    } break;
 case 87:
-# line 412 "../../vtk/java/java_wrap.y"
+# line 407 "java_wrap.y"
 { 
    sprintf(temps,"Set%s",yypvt[-3].str); 
    func_name = strdup(temps);
@@ -1990,7 +1979,7 @@ case 87:
    output_function();
    } break;
 case 88:
-# line 431 "../../vtk/java/java_wrap.y"
+# line 426 "java_wrap.y"
 { 
    sprintf(temps,"Set%s",yypvt[-3].str); 
    func_name = strdup(temps);
@@ -2012,7 +2001,7 @@ case 88:
    output_function();
    } break;
 case 89:
-# line 452 "../../vtk/java/java_wrap.y"
+# line 447 "java_wrap.y"
 { 
    sprintf(temps,"Set%s",yypvt[-3].str); 
    func_name = strdup(temps);
@@ -2056,7 +2045,7 @@ case 89:
    free(func_name);
    } break;
 case 90:
-# line 495 "../../vtk/java/java_wrap.y"
+# line 490 "java_wrap.y"
 { 
    sprintf(temps,"Set%s",yypvt[-1].str); 
    func_name = strdup(temps);
@@ -2115,7 +2104,7 @@ case 90:
    free(func_name);
    } break;
 case 91:
-# line 553 "../../vtk/java/java_wrap.y"
+# line 548 "java_wrap.y"
 {
    int i;
 
@@ -2132,8 +2121,8 @@ case 91:
    
    if (!done_one())
      {
-     fprintf(yyout,"void vtk_%s_%s_%i(struct Hvtk_%s *me",class_name,func_name,
-	     numFuncs, class_name);
+     fprintf(yyout,"extern \"C\" void Java_vtk_%s_%s_1%i(JNIEnv *env,jobject obj",
+	     class_name,func_name,numFuncs);
      
      for (i = 0; i < num_args; i++)
        {
@@ -2162,7 +2151,7 @@ case 91:
        fprintf(yyout,"  temp[%i] = id%i;\n",i,i);
        }
 
-     fprintf(yyout,"\n  op = (%s *)vtkJavaGetPointerFromObject(me,\"%s\");\n",
+     fprintf(yyout,"\n  op = (%s *)vtkJavaGetPointerFromObject(env,obj,\"%s\");\n",
 	     class_name,class_name);
      fprintf(yyout,"  op->%s(temp);\n",func_name);
      fprintf(yyout,"}\n");
@@ -2183,8 +2172,8 @@ case 91:
    
    if (!done_one())
      {
-     fprintf(yyout,"void vtk_%s_%s_%i(struct Hvtk_%s *me",class_name,func_name,
-	     numFuncs, class_name);
+     fprintf(yyout,"extern \"C\" void Java_vtk_%s_%s_1%i(JNIEnv *env,jobject obj",
+	     class_name,func_name,numFuncs);
      fprintf(yyout,",");
      output_proto_vars(0);
      fprintf(yyout,")\n{\n");
@@ -2204,19 +2193,30 @@ case 91:
        }
      
      fprintf(yyout," temp[%i];\n",arg_counts[0]);
-     for (i = 0; i < arg_counts[0]; i++)
+     fprintf(yyout,"  void *tempArray;\n");
+     switch (arg_types[0]%1000)
        {
-       if ((arg_types[0]%10 == 1)||(arg_types[0]%10 == 7))
-	 {
-	 fprintf(yyout,"  temp[%i] = ((double *)(unhand(id0)->body))[%i];\n",i,i);
-	 }
-       if ((arg_types[0]%10 == 4)||(arg_types[0]%10 == 6))
-	 {
-	 fprintf(yyout,"  temp[%i] = ((long *)(unhand(id0)->body))[%i];\n",i,i);
-	 }
+       case 301:
+       case 307:
+	 fprintf(yyout,"  tempArray = (void *)(env->GetDoubleArrayElements(id0,NULL));\n");
+	 for (i = 0; i < arg_counts[0]; i++)
+	   {
+	   fprintf(yyout,"  temp[%i] = ((jdouble *)tempArray)[%i];\n",i,i);
+	   }
+	 fprintf(yyout,"  env->ReleaseDoubleArrayElements(id0,(jdouble *)tempArray,0);\n");      
+	 break;
+       case 304:
+       case 306:
+	 fprintf(yyout,"  tempArray = (void *)(env->GetLongArrayElements(id0,NULL));\n");
+	 for (i = 0; i < arg_counts[0]; i++)
+	   {
+	   fprintf(yyout,"  temp[%i] = ((jlong *)tempArray)[%i];\n",i,i);
+	   }
+	 fprintf(yyout,"  env->ReleaseLongArrayElements(id0,(jlong *)tempArray,0);\n");      
+	 break;
        }
 
-     fprintf(yyout,"\n  op = (%s *)vtkJavaGetPointerFromObject(me,\"%s\");\n",
+     fprintf(yyout,"\n  op = (%s *)vtkJavaGetPointerFromObject(env,obj,\"%s\");\n",
 	     class_name,class_name);
      fprintf(yyout,"  op->%s(temp);\n",func_name);
      fprintf(yyout,"}\n");
@@ -2232,7 +2232,7 @@ case 91:
      }
    } break;
 case 92:
-# line 669 "../../vtk/java/java_wrap.y"
+# line 675 "java_wrap.y"
 { 
    sprintf(temps,"Get%s",yypvt[-5].str); 
    func_name = strdup(temps);

@@ -124,6 +124,7 @@ class_def : CLASS VTK_ID
 	if (!num_superclasses)
 	  {
 	  fprintf(yyout,"\n  public %s() { this.VTKInit();};\n",class_name);
+          fprintf(yyout,"  protected int vtkId = 0;\n");
 	  
 	  /* if we are a base class and have a delete method */
 	  if (have_delete)
@@ -267,12 +268,15 @@ scope_list: scope_type VTK_ID
 scope_type: PUBLIC {in_public = 1;} | PRIVATE {in_public = 0;} 
           | PROTECTED {in_public = 0;};
 
-float_num: NUM {$<integer>$ = $1;} 
+float_num: '-' float_prim | float_prim;
+
+float_prim: NUM {$<integer>$ = $1;} 
          | NUM '.' NUM {$<integer>$ = -1;} | any_id {$<integer>$ = -1;};
 
 macro:
   SetMacro '(' any_id ',' type_red2 ')'
    { 
+   is_virtual = 0;
    sprintf(temps,"Set%s",$<str>3); 
    func_name = strdup(temps);
    num_args = 1;
@@ -283,6 +287,7 @@ macro:
    }
 | GetMacro '(' any_id ',' type_red2 ')'
    { 
+   is_virtual = 0;
    sprintf(temps,"Get%s",$<str>3); 
    func_name = strdup(temps);
    num_args = 0;
@@ -291,6 +296,7 @@ macro:
    }
 | SetStringMacro '(' any_id ')'
    { 
+   is_virtual = 0;
    sprintf(temps,"Set%s",$<str>3); 
    func_name = strdup(temps);
    num_args = 1;
@@ -301,6 +307,7 @@ macro:
    }
 | GetStringMacro '(' any_id ')'
    { 
+   is_virtual = 0;
    sprintf(temps,"Get%s",$<str>3); 
    func_name = strdup(temps);
    num_args = 0;
@@ -309,6 +316,7 @@ macro:
    }
 | SetClampMacro  '(' any_id ',' type_red2 ',' maybe_other_no_semi ')'
    { 
+   is_virtual = 0;
    sprintf(temps,"Set%s",$<str>3); 
    func_name = strdup(temps);
    num_args = 1;
@@ -319,6 +327,7 @@ macro:
    }
 | SetObjectMacro '(' any_id ',' type_red2 ')'
    { 
+   is_virtual = 0;
    sprintf(temps,"Set%s",$<str>3); 
    func_name = strdup(temps);
    num_args = 1;
@@ -329,6 +338,7 @@ macro:
    }
 | SetRefCountedObjectMacro '(' any_id ',' type_red2 ')'
    { 
+   is_virtual = 0;
    sprintf(temps,"Set%s",$<str>3); 
    func_name = strdup(temps);
    num_args = 1;
@@ -339,6 +349,7 @@ macro:
    }
 | GetObjectMacro '(' any_id ',' type_red2 ')'
    { 
+   is_virtual = 0;
    sprintf(temps,"Get%s",$<str>3); 
    func_name = strdup(temps);
    num_args = 0;
@@ -347,6 +358,7 @@ macro:
    }
 | BooleanMacro   '(' any_id ',' type_red2 ')'
    { 
+   is_virtual = 0;
    sprintf(temps,"%sOn",$<str>3); 
    func_name = strdup(temps);
    num_args = 0;
@@ -360,6 +372,7 @@ macro:
    }
 | SetVector2Macro '(' any_id ',' type_red2 ')'
    { 
+   is_virtual = 0;
    sprintf(temps,"Set%s",$<str>3); 
    func_name = strdup(temps);
    num_args = 2;
@@ -377,6 +390,7 @@ macro:
    }
 | SetVector3Macro '(' any_id ',' type_red2 ')'
    { 
+   is_virtual = 0;
    sprintf(temps,"Set%s",$<str>3); 
    func_name = strdup(temps);
    num_args = 3;
@@ -396,6 +410,7 @@ macro:
    }
 | SetVector4Macro '(' any_id ',' type_red2 ')'
    { 
+   is_virtual = 0;
    sprintf(temps,"Set%s",$<str>3); 
    func_name = strdup(temps);
    num_args = 4;
@@ -419,6 +434,7 @@ macro:
    { 
    int i;
 
+   is_virtual = 0;
    sprintf(temps,"Set%s",$<str>3); 
    func_name = strdup(temps);
    
@@ -439,6 +455,7 @@ macro:
    }
 | GetVectorMacro  '(' any_id ',' type_red2 ',' float_num ')'
    { 
+   is_virtual = 0;
    sprintf(temps,"Get%s",$<str>3); 
    func_name = strdup(temps);
    num_args = 0;
@@ -448,6 +465,7 @@ macro:
    }
 | ImageSetMacro '(' any_id ',' type_red2 ')'
    { 
+   is_virtual = 0;
    sprintf(temps,"Set%s",$<str>3); 
    func_name = strdup(temps);
    num_args = 5;
@@ -491,6 +509,7 @@ macro:
    }
 | ImageSetExtentMacro '(' any_id ')'
    { 
+   is_virtual = 0;
    sprintf(temps,"Set%s",$<str>3); 
    func_name = strdup(temps);
    num_args = 10;
@@ -559,7 +578,7 @@ other_stuff : ';' | other_stuff_no_semi;
 
 other_stuff_no_semi : OTHER | braces | parens | '*' | '=' | ':' | ',' | '.'
    | STRING | type_red2 | NUM | CLASS_REF | '&' | brackets | CONST | OPERATOR
-   | '~' | STATIC | ARRAY_NUM;
+   | '-' | '~' | STATIC | ARRAY_NUM;
 
 braces: '{' maybe_other '}';
 parens: '(' maybe_other ')';
@@ -638,7 +657,7 @@ use_hints()
 	(h_type == arg_types[10]))
       {
       /* use the hint */
-      switch (h_type)
+      switch (h_type%1000)
 	{
 	case 301: case 307:  
 	  fprintf(yyout,"double[] "); break;

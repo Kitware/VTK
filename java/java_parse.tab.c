@@ -1,5 +1,5 @@
 
-# line 16 "../../vtk/java/java_parse.y"
+# line 16 "java_parse.y"
 #include <stdio.h>
 #include <stdlib.h>
 #define yyerror(a) fprintf(stderr,"%s\n",a)
@@ -28,7 +28,7 @@ int   funcArgTypes[1000][11];
 int  numFuncs = 0;
 #define YYMAXDEPTH 1000
 
-# line 45 "../../vtk/java/java_parse.y"
+# line 45 "java_parse.y"
 typedef union
 #ifdef __cplusplus
 	YYSTYPE
@@ -125,7 +125,7 @@ YYSTYPE *yyv;
 static int yymaxdepth = YYMAXDEPTH;
 # define YYERRCODE 256
 
-# line 568 "../../vtk/java/java_parse.y"
+# line 569 "java_parse.y"
 
 #include <string.h>
 #include "lex.yy.c"
@@ -1375,7 +1375,7 @@ int yyparse()
 	{
 		
 case 2:
-# line 101 "../../vtk/java/java_parse.y"
+# line 101 "java_parse.y"
 {
       class_name = strdup(yypvt[-0].str);
       fprintf(stderr,"Working on %s\n",class_name);
@@ -1383,7 +1383,7 @@ case 2:
       fprintf(yyout,"\npackage vtk;\n");
       } break;
 case 3:
-# line 108 "../../vtk/java/java_parse.y"
+# line 108 "java_parse.y"
 {
       int i;
 
@@ -1399,11 +1399,12 @@ case 3:
       fprintf(yyout,"\n{\n");
       } break;
 case 4:
-# line 123 "../../vtk/java/java_parse.y"
+# line 123 "java_parse.y"
 {
 	if (!num_superclasses)
 	  {
 	  fprintf(yyout,"\n  public %s() { this.VTKInit();};\n",class_name);
+          fprintf(yyout,"  protected int vtkId = 0;\n");
 	  
 	  /* if we are a base class and have a delete method */
 	  if (have_delete)
@@ -1428,133 +1429,133 @@ case 4:
 	fprintf(yyout,"}\n");
       } break;
 case 9:
-# line 155 "../../vtk/java/java_parse.y"
+# line 156 "java_parse.y"
 { arg_failure = 0; num_args = 0; arg_types[10] = 2; arg_ids[10] = NULL;} break;
 case 10:
-# line 157 "../../vtk/java/java_parse.y"
+# line 158 "java_parse.y"
 { arg_failure = 0; num_args = 0; arg_types[10] = 2; arg_ids[10] = NULL;} break;
 case 11:
-# line 159 "../../vtk/java/java_parse.y"
+# line 160 "java_parse.y"
 { arg_failure = 0; num_args = 0; arg_types[10] = 2; arg_ids[10] = NULL;} break;
 case 12:
-# line 161 "../../vtk/java/java_parse.y"
+# line 162 "java_parse.y"
 { arg_failure = 0; num_args = 0; arg_types[10] = 2; arg_ids[10] = NULL;} break;
 case 15:
-# line 165 "../../vtk/java/java_parse.y"
+# line 166 "java_parse.y"
 {
          output_function();
 	 } break;
 case 16:
-# line 169 "../../vtk/java/java_parse.y"
+# line 170 "java_parse.y"
 {
          arg_types[10] = yypvt[-1].integer;
          output_function();
 	 } break;
 case 17:
-# line 174 "../../vtk/java/java_parse.y"
+# line 175 "java_parse.y"
 {
          arg_types[10] = yypvt[-1].integer;
          output_function();
 	 } break;
 case 18:
-# line 179 "../../vtk/java/java_parse.y"
+# line 180 "java_parse.y"
 {
          output_function();
 	 } break;
 case 19:
-# line 184 "../../vtk/java/java_parse.y"
+# line 185 "java_parse.y"
 { is_virtual = 0; func_name = yypvt[-4].str; 
        fprintf(stderr,"   Converted func %s\n",yypvt[-4].str); } break;
 case 20:
-# line 187 "../../vtk/java/java_parse.y"
+# line 188 "java_parse.y"
 { is_virtual = 1; fprintf(stderr,"   Converted operator\n"); } break;
 case 21:
-# line 189 "../../vtk/java/java_parse.y"
+# line 190 "java_parse.y"
 { is_virtual = 0; func_name = yypvt[-6].str;
        fprintf(stderr,"   Converted func %s\n",yypvt[-6].str); is_abstract = 1;} break;
 case 30:
-# line 201 "../../vtk/java/java_parse.y"
+# line 202 "java_parse.y"
 { num_args++;} break;
 case 31:
-# line 201 "../../vtk/java/java_parse.y"
+# line 202 "java_parse.y"
 {num_args++;} break;
 case 33:
-# line 203 "../../vtk/java/java_parse.y"
+# line 204 "java_parse.y"
 {arg_counts[num_args] = 0; arg_types[num_args] = yypvt[-0].integer;} break;
 case 34:
-# line 204 "../../vtk/java/java_parse.y"
+# line 205 "java_parse.y"
 {arg_types[num_args] = yypvt[-1].integer; } break;
 case 36:
-# line 205 "../../vtk/java/java_parse.y"
+# line 206 "java_parse.y"
 {arg_types[num_args] = 5000;} break;
 case 43:
-# line 214 "../../vtk/java/java_parse.y"
+# line 215 "java_parse.y"
 { arg_failure = 1; } break;
 case 44:
-# line 215 "../../vtk/java/java_parse.y"
+# line 216 "java_parse.y"
 { arg_failure = 1; } break;
 case 45:
-# line 218 "../../vtk/java/java_parse.y"
+# line 219 "java_parse.y"
 {yyval.integer = 1000 + yypvt[-0].integer;} break;
 case 46:
-# line 219 "../../vtk/java/java_parse.y"
+# line 220 "java_parse.y"
 {yyval.integer = yypvt[-0].integer;} break;
 case 47:
-# line 220 "../../vtk/java/java_parse.y"
+# line 221 "java_parse.y"
 {yyval.integer = 2000 + yypvt[-0].integer;} break;
 case 48:
-# line 221 "../../vtk/java/java_parse.y"
+# line 222 "java_parse.y"
 {yyval.integer = 3000 + yypvt[-0].integer;} break;
 case 49:
-# line 223 "../../vtk/java/java_parse.y"
+# line 224 "java_parse.y"
 {yyval.integer = yypvt[-0].integer;} break;
 case 50:
-# line 225 "../../vtk/java/java_parse.y"
+# line 226 "java_parse.y"
 {yyval.integer = yypvt[-1].integer + yypvt[-0].integer;} break;
 case 51:
-# line 234 "../../vtk/java/java_parse.y"
+# line 235 "java_parse.y"
 { yyval.integer = 100;} break;
 case 52:
-# line 235 "../../vtk/java/java_parse.y"
+# line 236 "java_parse.y"
 { yyval.integer = 300;} break;
 case 53:
-# line 236 "../../vtk/java/java_parse.y"
+# line 237 "java_parse.y"
 { yyval.integer = 100 + yypvt[-0].integer;} break;
 case 54:
-# line 237 "../../vtk/java/java_parse.y"
+# line 238 "java_parse.y"
 { yyval.integer = 400 + yypvt[-0].integer;} break;
 case 55:
-# line 239 "../../vtk/java/java_parse.y"
+# line 240 "java_parse.y"
 { yyval.integer = 10 + yypvt[-0].integer;} break;
 case 56:
-# line 240 "../../vtk/java/java_parse.y"
+# line 241 "java_parse.y"
 { yyval.integer = yypvt[-0].integer;} break;
 case 57:
-# line 243 "../../vtk/java/java_parse.y"
+# line 244 "java_parse.y"
 { yyval.integer = 1;} break;
 case 58:
-# line 244 "../../vtk/java/java_parse.y"
+# line 245 "java_parse.y"
 { yyval.integer = 2;} break;
 case 59:
-# line 245 "../../vtk/java/java_parse.y"
+# line 246 "java_parse.y"
 { yyval.integer = 3;} break;
 case 60:
-# line 246 "../../vtk/java/java_parse.y"
+# line 247 "java_parse.y"
 { yyval.integer = 4;} break;
 case 61:
-# line 247 "../../vtk/java/java_parse.y"
+# line 248 "java_parse.y"
 { yyval.integer = 5;} break;
 case 62:
-# line 248 "../../vtk/java/java_parse.y"
+# line 249 "java_parse.y"
 { yyval.integer = 6;} break;
 case 63:
-# line 249 "../../vtk/java/java_parse.y"
+# line 250 "java_parse.y"
 { yyval.integer = 7;} break;
 case 64:
-# line 250 "../../vtk/java/java_parse.y"
+# line 251 "java_parse.y"
 { yyval.integer = 8;} break;
 case 65:
-# line 251 "../../vtk/java/java_parse.y"
+# line 252 "java_parse.y"
 { yyval.integer = 9; 
            arg_ids[num_args] = strdup(yypvt[-0].str); 
            if ((!arg_ids[10])&&(!num_args))
@@ -1563,31 +1564,31 @@ case 65:
              }
          } break;
 case 68:
-# line 262 "../../vtk/java/java_parse.y"
+# line 263 "java_parse.y"
 { superclasses[num_superclasses] = strdup(yypvt[-0].str); num_superclasses++; } break;
 case 69:
-# line 264 "../../vtk/java/java_parse.y"
+# line 265 "java_parse.y"
 { superclasses[num_superclasses] = strdup(yypvt[-0].str); num_superclasses++; } break;
 case 71:
-# line 267 "../../vtk/java/java_parse.y"
+# line 268 "java_parse.y"
 {in_public = 1;} break;
 case 72:
-# line 267 "../../vtk/java/java_parse.y"
+# line 268 "java_parse.y"
 {in_public = 0;} break;
 case 73:
-# line 268 "../../vtk/java/java_parse.y"
+# line 269 "java_parse.y"
 {in_public = 0;} break;
 case 74:
-# line 270 "../../vtk/java/java_parse.y"
+# line 271 "java_parse.y"
 {yyval.integer = yypvt[-0].integer;} break;
 case 75:
-# line 271 "../../vtk/java/java_parse.y"
+# line 272 "java_parse.y"
 {yyval.integer = -1;} break;
 case 76:
-# line 271 "../../vtk/java/java_parse.y"
+# line 272 "java_parse.y"
 {yyval.integer = -1;} break;
 case 77:
-# line 275 "../../vtk/java/java_parse.y"
+# line 276 "java_parse.y"
 { 
    sprintf(temps,"Set%s",yypvt[-3].str); 
    func_name = strdup(temps);
@@ -1598,7 +1599,7 @@ case 77:
    output_function();
    } break;
 case 78:
-# line 285 "../../vtk/java/java_parse.y"
+# line 286 "java_parse.y"
 { 
    sprintf(temps,"Get%s",yypvt[-3].str); 
    func_name = strdup(temps);
@@ -1607,7 +1608,7 @@ case 78:
    output_function();
    } break;
 case 79:
-# line 293 "../../vtk/java/java_parse.y"
+# line 294 "java_parse.y"
 { 
    sprintf(temps,"Set%s",yypvt[-1].str); 
    func_name = strdup(temps);
@@ -1618,7 +1619,7 @@ case 79:
    output_function();
    } break;
 case 80:
-# line 303 "../../vtk/java/java_parse.y"
+# line 304 "java_parse.y"
 { 
    sprintf(temps,"Get%s",yypvt[-1].str); 
    func_name = strdup(temps);
@@ -1627,7 +1628,7 @@ case 80:
    output_function();
    } break;
 case 81:
-# line 311 "../../vtk/java/java_parse.y"
+# line 312 "java_parse.y"
 { 
    sprintf(temps,"Set%s",yypvt[-5].str); 
    func_name = strdup(temps);
@@ -1638,7 +1639,7 @@ case 81:
    output_function();
    } break;
 case 82:
-# line 321 "../../vtk/java/java_parse.y"
+# line 322 "java_parse.y"
 { 
    sprintf(temps,"Set%s",yypvt[-3].str); 
    func_name = strdup(temps);
@@ -1649,7 +1650,7 @@ case 82:
    output_function();
    } break;
 case 83:
-# line 331 "../../vtk/java/java_parse.y"
+# line 332 "java_parse.y"
 { 
    sprintf(temps,"Set%s",yypvt[-3].str); 
    func_name = strdup(temps);
@@ -1660,7 +1661,7 @@ case 83:
    output_function();
    } break;
 case 84:
-# line 341 "../../vtk/java/java_parse.y"
+# line 342 "java_parse.y"
 { 
    sprintf(temps,"Get%s",yypvt[-3].str); 
    func_name = strdup(temps);
@@ -1669,7 +1670,7 @@ case 84:
    output_function();
    } break;
 case 85:
-# line 349 "../../vtk/java/java_parse.y"
+# line 350 "java_parse.y"
 { 
    sprintf(temps,"%sOn",yypvt[-3].str); 
    func_name = strdup(temps);
@@ -1683,7 +1684,7 @@ case 85:
    output_function();
    } break;
 case 86:
-# line 362 "../../vtk/java/java_parse.y"
+# line 363 "java_parse.y"
 { 
    sprintf(temps,"Set%s",yypvt[-3].str); 
    func_name = strdup(temps);
@@ -1701,7 +1702,7 @@ case 86:
    output_function();
    } break;
 case 87:
-# line 379 "../../vtk/java/java_parse.y"
+# line 380 "java_parse.y"
 { 
    sprintf(temps,"Set%s",yypvt[-3].str); 
    func_name = strdup(temps);
@@ -1721,7 +1722,7 @@ case 87:
    output_function();
    } break;
 case 88:
-# line 398 "../../vtk/java/java_parse.y"
+# line 399 "java_parse.y"
 { 
    sprintf(temps,"Set%s",yypvt[-3].str); 
    func_name = strdup(temps);
@@ -1743,7 +1744,7 @@ case 88:
    output_function();
    } break;
 case 89:
-# line 419 "../../vtk/java/java_parse.y"
+# line 420 "java_parse.y"
 { 
    int i;
 
@@ -1766,7 +1767,7 @@ case 89:
    output_function();
    } break;
 case 90:
-# line 441 "../../vtk/java/java_parse.y"
+# line 442 "java_parse.y"
 { 
    sprintf(temps,"Get%s",yypvt[-5].str); 
    func_name = strdup(temps);
@@ -1776,7 +1777,7 @@ case 90:
    output_function();
    } break;
 case 91:
-# line 450 "../../vtk/java/java_parse.y"
+# line 451 "java_parse.y"
 { 
    sprintf(temps,"Set%s",yypvt[-3].str); 
    func_name = strdup(temps);
@@ -1820,7 +1821,7 @@ case 91:
    free(func_name);
    } break;
 case 92:
-# line 493 "../../vtk/java/java_parse.y"
+# line 494 "java_parse.y"
 { 
    sprintf(temps,"Set%s",yypvt[-1].str); 
    func_name = strdup(temps);
