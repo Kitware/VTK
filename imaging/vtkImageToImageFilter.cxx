@@ -171,8 +171,23 @@ void vtkImageToImageFilter::ComputeInputUpdateExtents( vtkDataObject *output )
     {
     if (this->Inputs[idx] != NULL)
       {
-      this->Inputs[idx]->RequestExactExtentOff();
-      this->Inputs[idx]->SetUpdateExtent( inExt );
+      if (this->Inputs[idx]->GetRequestExactExtent())
+	{
+	int *currentExt = this->Inputs[idx]->GetUpdateExtent();
+	for (int i = 0; i < 6; i += 2)
+	  {
+	  if (inExt[i] < currentExt[i] ||
+	      inExt[i+1] > currentExt[i+1])
+	    {
+	    this->Inputs[idx]->SetUpdateExtent( inExt );
+	    break;
+	    }
+	  }
+	}
+      else
+	{
+	this->Inputs[idx]->SetUpdateExtent( inExt );
+	}
       }
     }  
 }
