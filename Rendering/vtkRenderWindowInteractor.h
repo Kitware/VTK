@@ -247,9 +247,17 @@ public:
       this->Modified();
       }
   };
-  void SetEventPosition(int pos[2])
+  virtual void SetEventPosition(int pos[2])
   {
     this->SetEventPosition(pos[0], pos[1]);
+  } 
+  virtual void SetEventPositionFlipY(int x, int y)
+  {
+    this->SetEventPosition(x, this->Size[1] - y - 1);
+  }
+  virtual void SetEventPositionFlipY(int pos[2])
+  {
+    this->SetEventPositionFlipY(pos[0], pos[1]);
   } 
   vtkSetMacro(ControlKey, int);
   vtkGetMacro(ControlKey, int);
