@@ -15,19 +15,20 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkDataSet.h"
-#include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkGaussianSplatter.h"
-#include "vtkContourFilter.h"
-#include "vtkPolyDataMapper.h"
 #include "vtkActor.h"
 #include "vtkAxes.h"
+#include "vtkContourFilter.h"
+#include "vtkDataSet.h"
+#include "vtkFloatArray.h"
+#include "vtkGaussianSplatter.h"
+#include "vtkPoints.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkProperty.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkTubeFilter.h"
 #include "vtkUnstructuredGrid.h"
-#include "vtkPoints.h"
-#include "vtkFloatArray.h"
 
 static vtkDataSet *ReadFinancialData(const char *x, const char *y, const char *z, const char *s);
 static int ParseFile(FILE *file, const char *tag, float *data);

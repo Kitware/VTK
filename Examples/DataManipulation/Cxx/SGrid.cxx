@@ -23,16 +23,18 @@
 // can be added to the dataset.
 //
 // 
+#include "vtkActor.h"
+#include "vtkCamera.h"
+#include "vtkFloatArray.h"
+#include "vtkHedgeHog.h"
 #include "vtkMath.h"
-#include "vtkRenderer.h"
+#include "vtkPoints.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkProperty.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkStructuredGrid.h"
-#include "vtkFloatArray.h"
-#include "vtkPoints.h"
-#include "vtkHedgeHog.h"
-#include "vtkPolyDataMapper.h"
-#include "vtkActor.h"
 
 int main( int argc, char *argv[] )
 {

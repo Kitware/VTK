@@ -26,6 +26,8 @@
 #include "vtkRectilinearGridGeometryFilter.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkActor.h"
+#include "vtkProperty.h"
+#include "vtkCamera.h"
 
 int main( int argc, char *argv[] )
 {
