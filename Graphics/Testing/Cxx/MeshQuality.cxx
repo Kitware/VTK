@@ -98,7 +98,7 @@ int MeshQuality( int argc, char* argv[] )
   vtkUnstructuredGridReader* mr = vtkUnstructuredGridReader::New();
   vtkUnstructuredGrid* ug;
   vtkMeshQuality* iq = vtkMeshQuality::New();
-  int tst;
+  unsigned int tst;
   int status=0;
   char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/qualityEx.vtk");
 
