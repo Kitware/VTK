@@ -24,13 +24,13 @@
 #ifndef __vtkImageDivergence_h
 #define __vtkImageDivergence_h
 
-#include "vtkImageAlgorithm.h"
+#include "vtkThreadedImageAlgorithm.h"
 
-class VTK_IMAGING_EXPORT vtkImageDivergence : public vtkImageAlgorithm
+class VTK_IMAGING_EXPORT vtkImageDivergence : public vtkThreadedImageAlgorithm
 {
 public:
   static vtkImageDivergence *New();
-  vtkTypeRevisionMacro(vtkImageDivergence,vtkImageAlgorithm);
+  vtkTypeRevisionMacro(vtkImageDivergence,vtkThreadedImageAlgorithm);
 
 protected:
   vtkImageDivergence();

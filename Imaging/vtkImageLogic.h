@@ -34,13 +34,13 @@
 
 
 
-#include "vtkImageAlgorithm.h"
+#include "vtkThreadedImageAlgorithm.h"
 
-class VTK_IMAGING_EXPORT vtkImageLogic : public vtkImageAlgorithm
+class VTK_IMAGING_EXPORT vtkImageLogic : public vtkThreadedImageAlgorithm
 {
 public:
   static vtkImageLogic *New();
-  vtkTypeRevisionMacro(vtkImageLogic,vtkImageAlgorithm);
+  vtkTypeRevisionMacro(vtkImageLogic,vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

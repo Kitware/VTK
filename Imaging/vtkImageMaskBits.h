@@ -23,14 +23,13 @@
 #define __vtkImageMaskBits_h
 
 
-#include "vtkImageAlgorithm.h"
-#include "vtkImageLogic.h"     // included for the boolean operators
+#include "vtkImageLogic.h"    
 
-class VTK_IMAGING_EXPORT vtkImageMaskBits : public vtkImageAlgorithm
+class VTK_IMAGING_EXPORT vtkImageMaskBits : public vtkThreadedImageAlgorithm
 {
 public:
   static vtkImageMaskBits *New();
-  vtkTypeRevisionMacro(vtkImageMaskBits,vtkImageAlgorithm);
+  vtkTypeRevisionMacro(vtkImageMaskBits,vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

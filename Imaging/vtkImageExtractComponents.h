@@ -24,13 +24,13 @@
 #define __vtkImageExtractComponents_h
 
 
-#include "vtkImageAlgorithm.h"
+#include "vtkThreadedImageAlgorithm.h"
 
-class VTK_IMAGING_EXPORT vtkImageExtractComponents : public vtkImageAlgorithm
+class VTK_IMAGING_EXPORT vtkImageExtractComponents : public vtkThreadedImageAlgorithm
 {
 public:
   static vtkImageExtractComponents *New();
-  vtkTypeRevisionMacro(vtkImageExtractComponents,vtkImageAlgorithm);
+  vtkTypeRevisionMacro(vtkImageExtractComponents,vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

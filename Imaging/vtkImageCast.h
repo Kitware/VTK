@@ -26,13 +26,13 @@
 #define __vtkImageCast_h
 
 
-#include "vtkImageAlgorithm.h"
+#include "vtkThreadedImageAlgorithm.h"
 
-class VTK_IMAGING_EXPORT vtkImageCast : public vtkImageAlgorithm
+class VTK_IMAGING_EXPORT vtkImageCast : public vtkThreadedImageAlgorithm
 {
 public:
   static vtkImageCast *New();
-  vtkTypeRevisionMacro(vtkImageCast,vtkImageAlgorithm);
+  vtkTypeRevisionMacro(vtkImageCast,vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

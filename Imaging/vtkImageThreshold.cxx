@@ -18,7 +18,7 @@
 #include "vtkImageProgressIterator.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageThreshold, "1.43");
+vtkCxxRevisionMacro(vtkImageThreshold, "1.43.10.1");
 vtkStandardNewMacro(vtkImageThreshold);
 
 //----------------------------------------------------------------------------
@@ -108,7 +108,7 @@ void vtkImageThreshold::ExecuteInformation(vtkImageData *inData,
     }
   else
     {
-    outData->SetScalarType(inData->GetScalarType());
+    outData->SetScalarType(inData->GetPipelineScalarType());
     }
 }
 

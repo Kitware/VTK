@@ -26,13 +26,13 @@
 #define __vtkImageGradientMagnitude_h
 
 
-#include "vtkImageAlgorithm.h"
+#include "vtkThreadedImageAlgorithm.h"
 
-class VTK_IMAGING_EXPORT vtkImageGradientMagnitude : public vtkImageAlgorithm
+class VTK_IMAGING_EXPORT vtkImageGradientMagnitude : public vtkThreadedImageAlgorithm
 {
 public:
   static vtkImageGradientMagnitude *New();
-  vtkTypeRevisionMacro(vtkImageGradientMagnitude,vtkImageAlgorithm);
+  vtkTypeRevisionMacro(vtkImageGradientMagnitude,vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

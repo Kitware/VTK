@@ -21,13 +21,14 @@
 #define __vtkImageEuclideanToPolar_h
 
 
-#include "vtkImageAlgorithm.h"
+#include "vtkThreadedImageAlgorithm.h"
 
-class VTK_IMAGING_EXPORT vtkImageEuclideanToPolar : public vtkImageAlgorithm
+class VTK_IMAGING_EXPORT vtkImageEuclideanToPolar : public vtkThreadedImageAlgorithm
 {
 public:
   static vtkImageEuclideanToPolar *New();
-  vtkTypeRevisionMacro(vtkImageEuclideanToPolar,vtkImageAlgorithm);
+  vtkTypeRevisionMacro(vtkImageEuclideanToPolar,
+                       vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

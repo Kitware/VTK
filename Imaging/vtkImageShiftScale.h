@@ -24,13 +24,13 @@
 #define __vtkImageShiftScale_h
 
 
-#include "vtkImageAlgorithm.h"
+#include "vtkThreadedImageAlgorithm.h"
 
-class VTK_IMAGING_EXPORT vtkImageShiftScale : public vtkImageAlgorithm
+class VTK_IMAGING_EXPORT vtkImageShiftScale : public vtkThreadedImageAlgorithm
 {
 public:
   static vtkImageShiftScale *New();
-  vtkTypeRevisionMacro(vtkImageShiftScale,vtkImageAlgorithm);
+  vtkTypeRevisionMacro(vtkImageShiftScale,vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

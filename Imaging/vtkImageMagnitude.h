@@ -21,13 +21,13 @@
 #define __vtkImageMagnitude_h
 
 
-#include "vtkImageAlgorithm.h"
+#include "vtkThreadedImageAlgorithm.h"
 
-class VTK_IMAGING_EXPORT vtkImageMagnitude : public vtkImageAlgorithm
+class VTK_IMAGING_EXPORT vtkImageMagnitude : public vtkThreadedImageAlgorithm
 {
 public:
   static vtkImageMagnitude *New();
-  vtkTypeRevisionMacro(vtkImageMagnitude,vtkImageAlgorithm);
+  vtkTypeRevisionMacro(vtkImageMagnitude,vtkThreadedImageAlgorithm);
 
 protected:
   vtkImageMagnitude();

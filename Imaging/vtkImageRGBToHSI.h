@@ -21,13 +21,13 @@
 #ifndef __vtkImageRGBToHSI_h
 #define __vtkImageRGBToHSI_h
 
-#include "vtkImageAlgorithm.h"
+#include "vtkThreadedImageAlgorithm.h"
 
-class VTK_IMAGING_EXPORT vtkImageRGBToHSI : public vtkImageAlgorithm
+class VTK_IMAGING_EXPORT vtkImageRGBToHSI : public vtkThreadedImageAlgorithm
 {
 public:
   static vtkImageRGBToHSI *New();
-  vtkTypeRevisionMacro(vtkImageRGBToHSI,vtkImageAlgorithm);
+  vtkTypeRevisionMacro(vtkImageRGBToHSI,vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

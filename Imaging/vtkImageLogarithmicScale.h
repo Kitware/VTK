@@ -24,13 +24,13 @@
 #define __vtkImageLogarithmicScale_h
 
 
-#include "vtkImageAlgorithm.h"
+#include "vtkThreadedImageAlgorithm.h"
 
-class VTK_IMAGING_EXPORT vtkImageLogarithmicScale : public vtkImageAlgorithm
+class VTK_IMAGING_EXPORT vtkImageLogarithmicScale : public vtkThreadedImageAlgorithm
 {
 public:
   static vtkImageLogarithmicScale *New();
-  vtkTypeRevisionMacro(vtkImageLogarithmicScale,vtkImageAlgorithm);
+  vtkTypeRevisionMacro(vtkImageLogarithmicScale,vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -23,13 +23,13 @@
 #define __vtkImageRGBToHSV_h
 
 
-#include "vtkImageAlgorithm.h"
+#include "vtkThreadedImageAlgorithm.h"
 
-class VTK_IMAGING_EXPORT vtkImageRGBToHSV : public vtkImageAlgorithm
+class VTK_IMAGING_EXPORT vtkImageRGBToHSV : public vtkThreadedImageAlgorithm
 {
 public:
   static vtkImageRGBToHSV *New();
-  vtkTypeRevisionMacro(vtkImageRGBToHSV,vtkImageAlgorithm);
+  vtkTypeRevisionMacro(vtkImageRGBToHSV,vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -23,13 +23,13 @@
 #define __vtkImageNormalize_h
 
 
-#include "vtkImageAlgorithm.h"
+#include "vtkThreadedImageAlgorithm.h"
 
-class VTK_IMAGING_EXPORT vtkImageNormalize : public vtkImageAlgorithm
+class VTK_IMAGING_EXPORT vtkImageNormalize : public vtkThreadedImageAlgorithm
 {
 public:
   static vtkImageNormalize *New();
-  vtkTypeRevisionMacro(vtkImageNormalize,vtkImageAlgorithm);
+  vtkTypeRevisionMacro(vtkImageNormalize,vtkThreadedImageAlgorithm);
 
 protected:
   vtkImageNormalize();

@@ -20,13 +20,13 @@
 #define __vtkImageLuminance_h
 
 
-#include "vtkImageAlgorithm.h"
+#include "vtkThreadedImageAlgorithm.h"
 
-class VTK_IMAGING_EXPORT vtkImageLuminance : public vtkImageAlgorithm
+class VTK_IMAGING_EXPORT vtkImageLuminance : public vtkThreadedImageAlgorithm
 {
 public:
   static vtkImageLuminance *New();
-  vtkTypeRevisionMacro(vtkImageLuminance,vtkImageAlgorithm);
+  vtkTypeRevisionMacro(vtkImageLuminance,vtkThreadedImageAlgorithm);
 
 protected:
   vtkImageLuminance();

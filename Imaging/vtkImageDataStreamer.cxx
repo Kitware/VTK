@@ -22,7 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageDataStreamer, "1.31");
+vtkCxxRevisionMacro(vtkImageDataStreamer, "1.31.2.1");
 vtkStandardNewMacro(vtkImageDataStreamer);
 vtkCxxSetObjectMacro(vtkImageDataStreamer,ExtentTranslator,vtkExtentTranslator);
 
@@ -195,7 +195,6 @@ int vtkImageDataStreamer::ProcessUpstreamRequest(
   vtkInformationVector *inputVector, 
   vtkInformationVector *outputVector)
 {
-#ifdef VTK_USE_EXECUTIVES
   if(request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
     {
     // we must set the extent on the input
@@ -224,10 +223,8 @@ int vtkImageDataStreamer::ProcessUpstreamRequest(
     
     return 1;
     }
-#else
   return this->Superclass::ProcessUpstreamRequest(request, inputVector,
                                                   outputVector);
-#endif
 }
 
 int vtkImageDataStreamer::ProcessDownstreamRequest(

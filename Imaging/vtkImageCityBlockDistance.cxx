@@ -17,7 +17,7 @@
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageCityBlockDistance, "1.23");
+vtkCxxRevisionMacro(vtkImageCityBlockDistance, "1.23.10.1");
 vtkStandardNewMacro(vtkImageCityBlockDistance);
 
 //----------------------------------------------------------------------------
@@ -45,7 +45,7 @@ void vtkImageCityBlockDistance::AllocateOutputScalars(vtkImageData *outData)
     updateExtent[idx*2+1] = wholeExtent[idx*2+1];
     }
   outData->SetExtent(updateExtent);
-  this->GetOutput()->AllocateScalars();
+  outData->AllocateScalars();
 }
 
 

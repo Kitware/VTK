@@ -17,7 +17,7 @@
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImagePadFilter, "1.28.10.2");
+vtkCxxRevisionMacro(vtkImagePadFilter, "1.28.10.3");
 vtkStandardNewMacro(vtkImagePadFilter);
 
 //----------------------------------------------------------------------------
@@ -97,7 +97,7 @@ void vtkImagePadFilter::ExecuteInformation(vtkImageData *inData,
     {
     // invalid setting, it has not been set, so default to input.
     this->OutputNumberOfScalarComponents 
-      = inData->GetNumberOfScalarComponents();
+      = inData->GetPipelineNumberOfScalarComponents();
     }
   outData->SetNumberOfScalarComponents(this->OutputNumberOfScalarComponents);
 }

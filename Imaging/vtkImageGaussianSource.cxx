@@ -15,16 +15,20 @@
 #include "vtkImageGaussianSource.h"
 
 #include "vtkImageData.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageGaussianSource, "1.26");
+vtkCxxRevisionMacro(vtkImageGaussianSource, "1.26.10.1");
 vtkStandardNewMacro(vtkImageGaussianSource);
 
 //----------------------------------------------------------------------------
 vtkImageGaussianSource::vtkImageGaussianSource()
 {
+  this->SetNumberOfInputPorts(0);
   this->Maximum = 1.0;
   this->Center[0] = 0.0;
   this->Center[1] = 0.0;
@@ -81,13 +85,18 @@ void vtkImageGaussianSource::SetWholeExtent(int xMin, int xMax,
 }
 
 //----------------------------------------------------------------------------
-void vtkImageGaussianSource::ExecuteInformation()
+void vtkImageGaussianSource::ExecuteInformation (
+  vtkInformation * vtkNotUsed(request),
+  vtkInformationVector * vtkNotUsed( inputVector ),
+  vtkInformationVector *outputVector)
 {
-  vtkImageData *output = this->GetOutput();
-  
-  output->SetWholeExtent(this->WholeExtent);
-  output->SetScalarType(VTK_DOUBLE);
-  output->SetNumberOfScalarComponents(1);
+  // get the info objects
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
+               this->WholeExtent,6);
+  outInfo->Set(vtkDataObject::SCALAR_TYPE(),VTK_DOUBLE);
+  outInfo->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(),1);
 }
 
 void vtkImageGaussianSource::ExecuteData(vtkDataObject *output)

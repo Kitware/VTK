@@ -24,13 +24,13 @@
 #ifndef __vtkImageHSIToRGB_h
 #define __vtkImageHSIToRGB_h
 
-#include "vtkImageAlgorithm.h"
+#include "vtkThreadedImageAlgorithm.h"
 
-class VTK_IMAGING_EXPORT vtkImageHSIToRGB : public vtkImageAlgorithm
+class VTK_IMAGING_EXPORT vtkImageHSIToRGB : public vtkThreadedImageAlgorithm
 {
 public:
   static vtkImageHSIToRGB *New();
-  vtkTypeRevisionMacro(vtkImageHSIToRGB,vtkImageAlgorithm);
+  vtkTypeRevisionMacro(vtkImageHSIToRGB,vtkThreadedImageAlgorithm);
 
   void PrintSelf(ostream& os, vtkIndent indent);
 
