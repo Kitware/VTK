@@ -606,7 +606,14 @@ void vtkPDataSetReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkSource::PrintSelf(os,indent);
 
-  os << indent << "FileName: " << this->FileName << endl;
+  if (this->FileName)
+    {
+    os << indent << "FileName: " << this->FileName << endl;
+    }
+  else
+    {
+    os << indent << "FileName: NULL\n";
+    }
   os << indent << "DataType: " << this->DataType << endl;
 }
 
