@@ -308,5 +308,31 @@ INSTALL_FILES(/include/vtk .h ${Common_SRCS}
   vtkSetGet
   vtkSystemIncludes
   vtkWin32Header
+  vtkAbstractIterator
+  vtkAbstractList
+  vtkAbstractMap
+  vtkArrayMap
+  vtkArrayMapIterator
+  vtkHashMap
+  vtkHashMapIterator
+  vtkLinkedList
+  vtkLinkedListIterator
+  vtkVector
+  vtkVectorIterator
   )
 
+INSTALL_FILES(/include/vtk .txx
+  vtkAbstractIterator
+  vtkAbstractList
+  vtkAbstractMap
+  vtkArrayMap
+  vtkArrayMapIterator
+  vtkHashMap
+  vtkHashMapIterator
+  vtkImageIterator
+  vtkImageProgressIterator
+  vtkLinkedList
+  vtkLinkedListIterator
+  vtkVector
+  vtkVectorIterator
+)
