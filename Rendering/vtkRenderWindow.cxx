@@ -25,7 +25,7 @@
 #include "vtkRendererCollection.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkRenderWindow, "1.130");
+vtkCxxRevisionMacro(vtkRenderWindow, "1.131");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -37,6 +37,7 @@ vtkInstantiatorNewMacro(vtkRenderWindow);
 // buffering turned on, stereo capable off.
 vtkRenderWindow::vtkRenderWindow()
 {
+  this->IsPicking = 0;
   this->Borders = 1;
   this->FullScreen = 0;
   this->OldScreen[0] = this->OldScreen[1] = 0;

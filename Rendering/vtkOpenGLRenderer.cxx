@@ -43,7 +43,7 @@ public:
 };
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLRenderer, "1.44");
+vtkCxxRevisionMacro(vtkOpenGLRenderer, "1.45");
 vtkStandardNewMacro(vtkOpenGLRenderer);
 #endif
 
@@ -223,7 +223,7 @@ void vtkOpenGLRenderer::StartPick(unsigned int pickFromSize)
   // other windows might get rendered since the last time
   // a MakeCurrent was called.
   this->RenderWindow->MakeCurrent();
-
+  this->RenderWindow->IsPickingOn();
   this->PickInfo->PickBuffer = new GLuint[bufferSize];
   glSelectBuffer(bufferSize, this->PickInfo->PickBuffer);
   // change to selection mode
@@ -315,6 +315,7 @@ void vtkOpenGLRenderer::DonePick()
     }
   delete [] this->PickInfo->PickBuffer;
   this->PickInfo->PickBuffer = 0;
+  this->RenderWindow->IsPickingOff();
 }
 
 float vtkOpenGLRenderer::GetPickedZ()

@@ -308,6 +308,10 @@ public:
   vtkSetMacro(InAbortCheck,int);
   virtual int CheckAbortStatus();
 
+  vtkGetMacro(IsPicking,int);
+  vtkSetMacro(IsPicking,int);
+  vtkBooleanMacro(IsPicking,int);
+  
   // Description:
   // Check to see if a mouse button has been pressed.  All other events
   // are ignored by this method.  Ideally, you want to abort the render
@@ -437,6 +441,7 @@ protected:
   void (*AbortCheckMethodArgDelete)(void *);
   void *AbortCheckMethodArg;
   int CurrentCursor;
+  int IsPicking;
 
 private:
   vtkRenderWindow(const vtkRenderWindow&);  // Not implemented.
