@@ -72,7 +72,6 @@ void vtkSTLReader::Execute()
 //
 // Initialize
 //
-
   if ((fp = fopen(this->Filename, "r")) == NULL)
     {
     vtkErrorMacro(<< "File " << this->Filename << " not found");
@@ -106,6 +105,7 @@ void vtkSTLReader::Execute()
   if ( this->Merging )
     {
     int npts, *pts, i, nodes[3];
+    float *x;
 
     mergedPts = new vtkFloatPoints(newPts->GetNumberOfPoints()/2);
     mergedPolys = new vtkCellArray(newPolys->GetSize());
@@ -116,7 +116,13 @@ void vtkSTLReader::Execute()
     for (newPolys->InitTraversal(); newPolys->GetNextCell(npts,pts); )
       {
       for (i=0; i < 3; i++) 
-        nodes[i] = this->Locator->InsertPoint(newPts->GetPoint(pts[i]));
+        {
+        x = newPts->GetPoint(pts[i]);
+        if ( (nodes[i] = this->Locator->IsInsertedPoint(x)) < 0 )
+          {
+          nodes[i] = this->Locator->InsertNextPoint(x);
+          }
+        }
 
       if ( nodes[0] != nodes[1] && nodes[0] != nodes[2] && 
       nodes[1] != nodes[2] )

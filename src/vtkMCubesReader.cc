@@ -155,7 +155,11 @@ void vtkMCubesReader::Execute()
     for (j=0; j<3; j++) 
       {
       fread (&point, sizeof(pointType), 1, fp);
-      nodes[j] = this->Locator->InsertPoint(point.x);
+      if ( (nodes[j] = this->Locator->IsInsertedPoint(point.x)) < 0 )
+        {
+        nodes[j] = this->Locator->InsertNextPoint(point.x);
+        }
+
       if ( this->Normals )
         {
         for (k=0; k<3; k++) n[k] = point.n[k] * direction;

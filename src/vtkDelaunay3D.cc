@@ -43,6 +43,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkTetra.hh"
 #include "vtkTriangle.hh"
 #include "vtkEdgeTable.hh"
+#include "vtkPolyData.hh"
 
 // Description:
 // Construct object with Alpha = 0.0; Tolerance = 0.001; Offset = 1.25;
@@ -166,9 +167,10 @@ static int FindTetra(float x[3], int ptIds[4], float p[4][3],
 // are returned in the faces list.
 static int FindEnclosingFaces(float x[3], int tetra, vtkUnstructuredGrid *Mesh,
                               vtkFloatPoints *points, float tol,
-                              vtkIdList &tetras, vtkIdList &faces)
+                              vtkIdList &tetras, vtkIdList &faces,
+                              vtkPointLocator &Locator)
 {
-  static vtkTetra tetraCell;
+  vtkTetra *tetraCell;
   int ptIds[4];
   float bcoords[4], *x1, *x2, *x3, *x4;
   float p[4][3];
@@ -176,60 +178,91 @@ static int FindEnclosingFaces(float x[3], int tetra, vtkUnstructuredGrid *Mesh,
   static vtkIdList boundaryPts(3), checkedTetras(25), neiTetras(2);
   int p1, p2, p3, insertFace;
   int npts, *tetraPts, nei, numNeiPts, *neiPts;
+  int closestPoint;
+  float closest[3], pcoords[3], dist2, weights[4];
+  int subId;
 
   tetras.Reset();
   faces.Reset();
   boundaryPts.Reset();
   onCount = verts[0] = verts[1] = verts[2] = verts[3] = 0;
 
-  if ( (tetraId = FindTetra(x,ptIds,p,tetra,Mesh,points,tol)) >= 0 )
+  // start off by finding closest point and tetras that use the point
+  if ( Locator.IsInsertedPoint(x) >= 0 ) 
     {
-    if ( tetraCell.BarycentricCoords(x, p[0], p[1], p[2], p[3], bcoords) )
+    return 0;
+    }
+
+  closestPoint = Locator.FindClosestInsertedPoint(x);
+  Mesh->GetPointCells(closestPoint, checkedTetras);
+
+  //check these cells to see if any contain the point
+  for ( i=0; i < checkedTetras.GetNumberOfIds(); i++ )
+    {
+    tetraId = checkedTetras.GetId(i);
+    tetraCell = (vtkTetra *) Mesh->GetCell(tetraId);
+    if ( tetraCell->EvaluatePosition(x,closest,subId,pcoords,dist2,weights) == 1 )
       {
-      //check edges / faces for point being "on" them. Coincident points
-      //should have been caught already.
-      for (i=0; i < 4; i++ )
+      for ( i=0; i < 4; i++ ) 
         {
-        if ( bcoords[i] <= tol )
-          {
-          verts[i] = 1;
-          onCount++;
-          }
+        tetraCell->Points.GetPoint(i,p[i]);
+        ptIds[i] = tetraCell->PointIds.GetId(i);
         }
+      break;
+      }
+    }
+  if ( i >= checkedTetras.GetNumberOfIds() ) //keep looking for enclosing tetra
+    {
+    tetraId = FindTetra(x,ptIds,p,tetra,Mesh,points,tol);
+    if ( tetraId < 0 ) return 0; 
+    tetraCell = (vtkTetra *) Mesh->GetCell(tetraId);
+    }
 
-      if ( onCount == 0 ) //inside tetra
+  if ( tetraCell->BarycentricCoords(x, p[0], p[1], p[2], p[3], bcoords) )
+    {
+    //check edges / faces for point being "on" them. Coincident points
+    //should have been caught already.
+    for (i=0; i < 4; i++ )
+      {
+      if ( bcoords[i] <= tol )
         {
-        tetras.InsertNextId(tetraId);
+        verts[i] = 1;
+        onCount++;
         }
+      }
 
-      else if ( onCount == 1 ) //on face
-        {
-        for (i=0; i < 4; i++)
-          if ( !verts[i] ) 
-            boundaryPts.InsertNextId(ptIds[i]);
+    if ( onCount == 0 ) //inside tetra
+      {
+      tetras.InsertNextId(tetraId);
+      }
 
-        Mesh->GetCellNeighbors(tetraId, boundaryPts, tetras);
-        tetras.InsertNextId(tetraId);
-        }
+    else if ( onCount == 1 ) //on face
+      {
+      for (i=0; i < 4; i++)
+        if ( !verts[i] ) 
+          boundaryPts.InsertNextId(ptIds[i]);
 
-      else if ( onCount == 2 ) //on edge
-        {
-        for (i=0; i < 4; i++)
-          if ( !verts[i] ) 
-            boundaryPts.InsertNextId(ptIds[i]);
+      Mesh->GetCellNeighbors(tetraId, boundaryPts, tetras);
+      tetras.InsertNextId(tetraId);
+      }
 
-        Mesh->GetCellNeighbors(tetraId, boundaryPts, tetras);
-        tetras.InsertNextId(tetraId);
-        }
+    else if ( onCount == 2 ) //on edge
+      {
+      for (i=0; i < 4; i++)
+        if ( !verts[i] ) 
+          boundaryPts.InsertNextId(ptIds[i]);
 
-      else //on vertex - shouldn't happen, but hey, you never know!
-        {
-        NumberOfDuplicatePoints++;
-        return 0;
-        }
+      Mesh->GetCellNeighbors(tetraId, boundaryPts, tetras);
+      tetras.InsertNextId(tetraId);
+      }
 
-      }//if non-degenerate tetra
-    }//inside tetra
+    else //on vertex - shouldn't happen, but hey, you never know!
+      {
+      NumberOfDuplicatePoints++;
+      return 0;
+      }
+
+    }//if non-degenerate tetra
 
   // Okay, check face neighbors for Delaunay criterion. Purpose is to find 
   // list of enclosing faces and deleted tetras.
@@ -334,7 +367,8 @@ void vtkDelaunay3D::Execute()
   float center[3], length, tol;
   vtkMath math;
   char *tetraUse;
-
+  float bounds[6];
+  
   vtkDebugMacro(<<"Generating 3D Delaunay triangulation");
 //
 // Initialize; check input
@@ -352,46 +386,47 @@ void vtkDelaunay3D::Execute()
 // Initialize mesh structure.
 //
   points = new vtkFloatPoints(numPoints+6);
-  for (ptId=0; ptId < numPoints; ptId++)
-    {
-    points->SetPoint(ptId,inPoints->GetPoint(ptId));
-    }
 
   input->GetCenter(center);
   tol = input->GetLength();
   if ( (length = this->Offset * tol) <= 0.0 ) length = 1.0;
   tol *= this->Tolerance;
 
+  bounds[0] = center[0] - length; bounds[1] = center[0] + length; 
+  bounds[2] = center[1] - length; bounds[3] = center[1] + length; 
+  bounds[4] = center[2] - length; bounds[5] = center[2] + length; 
+  this->Locator.InitPointInsertion(points,bounds);
+
   //create bounding octahedron
   x[0] = center[0] - length;
   x[1] = center[1];
   x[2] = center[2];
-  points->SetPoint(numPoints,x);
+  this->Locator.InsertPoint(numPoints,x);
 
   x[0] = center[0] + length;
   x[1] = center[1];
   x[2] = center[2];
-  points->SetPoint(numPoints+1,x);
+  this->Locator.InsertPoint(numPoints+1,x);
 
   x[0] = center[0];              
   x[1] = center[1] - length;
   x[2] = center[2];
-  points->SetPoint(numPoints+2,x);
+  this->Locator.InsertPoint(numPoints+2,x);
 
   x[0] = center[0];              
   x[1] = center[1] + length;
   x[2] = center[2];
-  points->SetPoint(numPoints+3,x);
+  this->Locator.InsertPoint(numPoints+3,x);
 
   x[0] = center[0];              
   x[1] = center[1];
   x[2] = center[2] - length;
-  points->SetPoint(numPoints+4,x);
+  this->Locator.InsertPoint(numPoints+4,x);
 
   x[0] = center[0];              
   x[1] = center[1];
   x[2] = center[2] + length;
-  points->SetPoint(numPoints+5,x);
+  this->Locator.InsertPoint(numPoints+5,x);
 
   Mesh->Allocate(5*numPoints);
 
@@ -419,13 +454,17 @@ void vtkDelaunay3D::Execute()
 // one or more tetrahedra "containing" point. Tetrahedron contain point when 
 // they do not satisfy Delaunay criterion. (More than one tetra may contain
 // a point if the point is on or near an edge or face.) For each face, create 
-// a tetrahedron.
+// a tetrahedron. (The locator helps speed search of points in tetras.)
+  
   for (ptId=0; ptId < numPoints; ptId++)
     {
-    points->GetPoint(ptId,x);
+    inPoints->GetPoint(ptId,x);
+
     if ( (numFaces=FindEnclosingFaces(x,tetraId,Mesh,
-    points,this->Tolerance,tetras,faces)) > 0 )
+    points,this->Tolerance,tetras,faces,this->Locator)) > 0 )
       {
+      this->Locator.InsertPoint(ptId,x); //point is part of mesh now
+
       for (tetraNum=0; tetraNum < numFaces; tetraNum++)
         {
         //create tetrahedron
@@ -550,9 +589,9 @@ void vtkDelaunay3D::Execute()
             if ( neiTetras.GetNumberOfIds() < 1  ||
             ( (nei = neiTetras.GetId(0)) > i && !tetraUse[nei] ) )
               {
-              points->GetPoint(p1,x1);
-              points->GetPoint(p2,x2);
-              points->GetPoint(p3,x3);
+              points->GetPoint(p1,x1); tri.Points.SetPoint(0,x1);
+              points->GetPoint(p2,x2); tri.Points.SetPoint(1,x2);
+              points->GetPoint(p3,x3); tri.Points.SetPoint(2,x3);
               tri.ProjectTo2D(x1,x2,x3,v1,v2,v3);
               if ( tri.Circumcircle(v1,v2,v3,center) <= alpha2 )
                 {

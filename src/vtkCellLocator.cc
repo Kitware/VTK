@@ -277,12 +277,12 @@ vtkIdList* vtkCellLocator::GetCells(int octantId)
 // Description:
 // Intersect against another vtkCellLocator returning cells that lie in 
 // intersecting octants. Not implimented yet.
-void vtkCellLocator::InitializeIntersection(vtkCellLocator& locator)
+void vtkCellLocator::InitializeIntersection(vtkCellLocator& )
 {
   // not yet implemented
 }
 
-int vtkCellLocator::GetNextIntersection(int& bucket1, int& bucket2)
+int vtkCellLocator::GetNextIntersection(int& , int& )
 {
   // not yet implemented
   return 0;

@@ -453,7 +453,8 @@ float vtkTetra::Circumsphere(float  x1[3], float x2[3], float x3[3],
     sum += diff*diff;
     }
 
-  return (float)(sum / 4.0);
+  if ( (sum /= 4.0) > VTK_LARGE_FLOAT ) return VTK_LARGE_FLOAT;
+  else return sum;
 }
 #undef VTK_DOT
 

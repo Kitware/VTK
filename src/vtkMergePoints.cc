@@ -110,13 +110,10 @@ int *vtkMergePoints::MergePoints()
 }
 
 // Description:
-// Incrementally insert a point into search structure, merging the point
-// with pre-inserted point (if precisely coincident). If point is merged 
-// with pre-inserted point, pre-inserted point id is returned. Otherwise, 
-// new point id is returned. Before using this method you must make sure 
-// that a point list has been supplied, the bounds has been set properly,
-// and that divs are properly set (see InitPointInsertion() from superclass.)
-int vtkMergePoints::InsertPoint(float x[3])
+// Determine whether point given by x[3] has been inserted into points list.
+// Return id of previously inserted point if this is true, otherwise return
+// -1.
+int vtkMergePoints::IsInsertedPoint(float x[3])
 {
   int i, ijk[3];
   int idx;
@@ -136,8 +133,7 @@ int vtkMergePoints::InsertPoint(float x[3])
 
   if ( ! bucket )
     {
-    bucket = new vtkIdList(this->NumberOfPointsPerBucket/2);
-    this->HashTable[idx] = bucket;
+    return -1;
     }
   else // see whether we've got duplicate point
     {
@@ -155,9 +151,6 @@ int vtkMergePoints::InsertPoint(float x[3])
       }
     }
 
-  bucket->InsertNextId(this->InsertionPointId);
-  this->Points->InsertPoint(this->InsertionPointId,x);
-
-  return this->InsertionPointId++;
+  return -1;
 }
 

@@ -513,13 +513,78 @@ int vtkPointLocator::InitPointInsertion(vtkPoints *newPts, float bounds[6])
 
 
 // Description:
-// Incrementally insert a point into search structure, merging the point
-// with pre-inserted point (if within tolerance). If point is merged with
-// pre-inserted point, pre-inserted point id is returned. Otherwise, new 
-// point id is returned. Before using this method you must make sure that
+// Incrementally insert a point into search structure. The method returns
+// the insertion location (i.e., point id). You should use the method 
+// IsInsertedPoint() to see whether this point has already been
+// inserted (that is, if you desire to prevent dulicate points).
+// Before using this method you must make sure that newPts have been
+// supplied, the bounds has been set properly, and that divs are 
+// properly set. (See InitPointInsertion().)
+int vtkPointLocator::InsertNextPoint(float x[3])
+{
+  int i, ijk[3];
+  int idx;
+  vtkIdList *bucket;
+//
+//  Locate bucket that point is in.
+//
+  for (i=0; i<3; i++)
+    {
+    ijk[i] = (int) ((float) ((x[i] - this->Bounds[2*i])*0.999 / 
+             (this->Bounds[2*i+1] - this->Bounds[2*i])) * this->Divisions[i]);
+    }
+  idx = ijk[0] + ijk[1]*this->Divisions[0] + 
+        ijk[2]*this->Divisions[0]*this->Divisions[1];
+
+  if ( ! (bucket = this->HashTable[idx]) )
+    {
+    bucket = new vtkIdList(this->NumberOfPointsPerBucket/2);
+    this->HashTable[idx] = bucket;
+    }
+
+  bucket->InsertNextId(this->InsertionPointId);
+  this->Points->InsertPoint(this->InsertionPointId,x);
+  return this->InsertionPointId++;
+}
+
+// Description:
+// Incrementally insert a point into search structure with a particular
+// index value. You should use the method IsInsertedPoint() to see whether 
+// this point has already been inserted (that is, if you desire to prevent
+// dulicate points). Before using this method you must make sure that 
 // newPts have been supplied, the bounds has been set properly, and that 
 // divs are properly set. (See InitPointInsertion().)
-int vtkPointLocator::InsertPoint(float x[3])
+void vtkPointLocator::InsertPoint(int ptId, float x[3])
+{
+  int i, ijk[3];
+  int idx;
+  vtkIdList *bucket;
+//
+//  Locate bucket that point is in.
+//
+  for (i=0; i<3; i++)
+    {
+    ijk[i] = (int) ((float) ((x[i] - this->Bounds[2*i])*0.999 / 
+             (this->Bounds[2*i+1] - this->Bounds[2*i])) * this->Divisions[i]);
+    }
+  idx = ijk[0] + ijk[1]*this->Divisions[0] + 
+        ijk[2]*this->Divisions[0]*this->Divisions[1];
+
+  if ( ! (bucket = this->HashTable[idx]) )
+    {
+    bucket = new vtkIdList(this->NumberOfPointsPerBucket/2);
+    this->HashTable[idx] = bucket;
+    }
+
+  bucket->InsertNextId(ptId);
+  this->Points->InsertPoint(ptId,x);
+}
+
+// Description:
+// Determine whether point given by x[3] has been inserted into points list.
+// Return id of previously inserted point if this is true, otherwise return
+// -1.
+int vtkPointLocator::IsInsertedPoint(float x[3])
 {
   int i, j, ijk[3];
   int idx;
@@ -538,8 +603,7 @@ int vtkPointLocator::InsertPoint(float x[3])
   bucket = this->HashTable[idx];
   if ( ! bucket )
     {
-    bucket = new vtkIdList(this->NumberOfPointsPerBucket/2);
-    this->HashTable[idx] = bucket;
+    return -1;
     }
   else // see whether we've got duplicate point
     {
@@ -569,7 +633,7 @@ int vtkPointLocator::InsertPoint(float x[3])
           for (j=0; j < ptIds->GetNumberOfIds(); j++) 
             {
             ptId = ptIds->GetId(j);
-            pt = this->DataSet->GetPoint(ptId);
+            pt = this->Points->GetPoint(ptId);
 
             if ( math.Distance2BetweenPoints(x,pt) <= this->InsertionTol2 )
               {
@@ -581,14 +645,120 @@ int vtkPointLocator::InsertPoint(float x[3])
       } //for neighbors at this level
     } // else check duplicate point
 
-  bucket->InsertNextId(this->InsertionPointId);
-  this->Points->InsertPoint(this->InsertionPointId,x);
-  return this->InsertionPointId++;
+  return -1;
+}
+
+// Description:
+// Given a position x, return the id of the point closest to it. This method
+// is used when performing incremental point insertion.
+int vtkPointLocator::FindClosestInsertedPoint(float x[3])
+{
+  int i, j;
+  float minDist2, dist2;
+  float *pt;
+  int closest, level;
+  int ptId, cno;
+  vtkIdList *ptIds;
+  int ijk[3], *nei;
+  int MULTIPLES;
+  float diff;
+  vtkMath math;
+//
+//  Make sure candidate point is in bounds.  If not, it is outside.
+//
+  for (i=0; i<3; i++)
+    if ( x[i] < this->Bounds[2*i] || x[i] > this->Bounds[2*i+1] )
+      return -1;
+//
+//  Find bucket point is in.  
+//
+  for (j=0; j<3; j++) 
+    {
+    ijk[j] = (int)(((x[j] - this->Bounds[2*j])*0.999 / 
+        (this->Bounds[2*j+1] - this->Bounds[2*j])) * this->Divisions[j]);
+    }
+//
+//  Need to search this bucket for closest point.  If there are no
+//  points in this bucket, search 1st level neighbors, and so on,
+//  until closest point found.
+//
+  for (closest=0,minDist2=VTK_LARGE_FLOAT,level=0; (closest == 0) && 
+  (level < this->Divisions[0] || level < this->Divisions[1] || 
+  level < this->Divisions[2]); level++) 
+    {
+    this->GetBucketNeighbors (ijk, this->Divisions, level);
+
+    for (i=0; i<Buckets->GetNumberOfNeighbors(); i++) 
+      {
+      nei = Buckets->GetPoint(i);
+      cno = nei[0] + nei[1]*this->Divisions[0] + 
+            nei[2]*this->Divisions[0]*this->Divisions[1];
+
+      if ( (ptIds = this->HashTable[cno]) != NULL )
+        {
+        for (j=0; j < ptIds->GetNumberOfIds(); j++) 
+          {
+          ptId = ptIds->GetId(j);
+          pt = this->Points->GetPoint(ptId);
+          if ( (dist2 = math.Distance2BetweenPoints(x,pt)) < minDist2 ) 
+            {
+            closest = ptId;
+            minDist2 = dist2;
+            }
+          }
+        }
+      }
+    }
+//
+//  Because of the relative location of the points in the spatial_hash, this
+//  may not be the closest point.  Have to search those bucket
+//  neighbors (one level further out) that might also contain point.
+//
+  this->GetBucketNeighbors (ijk, this->Divisions, level);
+//
+//  Don't want to search all the neighbors, only those that could
+//  possibly have points closer than the current closest.
+//
+  for (i=0; i<Buckets->GetNumberOfNeighbors(); i++) 
+    {
+    nei = Buckets->GetPoint(i);
+
+    for (dist2=0,j=0; j<3; j++) 
+      {
+      if ( ijk[j] != nei[j] ) 
+        {
+        MULTIPLES = (ijk[j]>nei[j] ? (nei[j]+1) : nei[j]);
+        diff = (this->Bounds[2*j] + MULTIPLES * this->H[j]) - x[j];
+        dist2 += diff*diff;
+        }
+      }
+
+      if ( dist2 < minDist2 ) 
+        {
+        cno = nei[0] + nei[1]*this->Divisions[0] + nei[2]*this->Divisions[0]*this->Divisions[1];
+
+        if ( (ptIds = this->HashTable[cno]) )
+          {
+          for (j=0; j < ptIds->GetNumberOfIds(); j++) 
+            {
+            ptId = ptIds->GetId(j);
+            pt = this->Points->GetPoint(ptId);
+            if ( (dist2 = math.Distance2BetweenPoints(x,pt)) < minDist2 ) 
+              {
+              closest = ptId;
+              minDist2 = dist2;
+              }
+            }
+          }
+        }
+      }
+
+    return closest;
 }
 
 // Build polygonal representation of locator. Create faces that separate
 // inside/outside buckets, or separate inside/boundary of locator.
-void vtkPointLocator::GenerateRepresentation(int level, vtkPolyData *pd)
+void vtkPointLocator::GenerateRepresentation(int vtkNotUsed(level), vtkPolyData *pd)
 {
   vtkFloatPoints *pts;
   vtkCellArray *polys;

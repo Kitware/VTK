@@ -421,7 +421,8 @@ float vtkTriangle::Circumcircle(float  x1[2], float x2[2], float x3[2],
     sum += diff*diff;
     }
 
-  return (float) (sum / 3.0);
+  if ( (sum /= 3.0) > VTK_LARGE_FLOAT ) return VTK_LARGE_FLOAT;
+  else return sum;
 }
 #undef VTK_DOT
 
