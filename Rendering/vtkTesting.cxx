@@ -24,11 +24,12 @@
 #include "vtkPNGReader.h"
 #include "vtkRenderWindow.h"
 #include "vtkImageData.h"
+#include "vtkTimerLog.h"
 
 #include <sys/stat.h>
 
 vtkStandardNewMacro(vtkTesting);
-vtkCxxRevisionMacro(vtkTesting, "1.4");
+vtkCxxRevisionMacro(vtkTesting, "1.5");
 vtkCxxSetObjectMacro(vtkTesting, RenderWindow, vtkRenderWindow);
 
 
@@ -138,14 +139,111 @@ vtkTesting::vtkTesting()
 {
   this->FrontBuffer = 0;
   this->RenderWindow = 0;
-  this->DataFileName = 0;
+  this->ValidImageFileName = 0;
   this->ImageDifference = 0;
+  this->LastResultText = 0;
+  this->DataRoot = 0;
+
+  // on construction we start the timer
+  this->StartCPUTime = vtkTimerLog::GetCPUTime();
+  this->StartWallTime = vtkTimerLog::GetCurrentTime();
 }  
 
 vtkTesting::~vtkTesting()
 {
   this->SetRenderWindow(0);
-  this->SetDataFileName(0);
+  this->SetValidImageFileName(0);
+  this->SetLastResultText(0);
+  this->SetDataRoot(0);
+}
+
+void vtkTesting::AddArgument(const char *arg)
+{
+  this->Args.push_back(arg);
+}
+
+const char *vtkTesting::GetDataRoot()
+{
+  unsigned int i;
+  char **argv = 0;
+  if (this->Args.size())
+    {
+    argv = new char * [this->Args.size()];
+    for (i = 0; i < this->Args.size(); ++i)
+      {
+      argv[i] = strdup(this->Args[i].c_str());
+      }
+    }
+  this->SetDataRoot(
+    vtkTestUtilities::GetDataRoot(this->Args.size(),argv));
+  if (argv)
+    {
+    for (i = 0; i < this->Args.size(); ++i)
+      {
+      free(argv[i]);
+      }
+    delete [] argv;
+    }
+  return this->DataRoot;
+}
+
+const char *vtkTesting::GetValidImageFileName()
+{
+  this->SetValidImageFileName(0);
+  if (!this->IsValidImageSpecified())
+    {
+    return this->ValidImageFileName;
+    }
+  
+  char **argv = 0;
+  unsigned int i;
+  if (this->Args.size())
+    {
+    argv = new char * [this->Args.size()];
+    for (i = 0; i < this->Args.size(); ++i)
+      {
+      argv[i] = strdup(this->Args[i].c_str());
+      }
+    }
+  
+  vtkstd::string viname = vtkTestUtilities::GetArgOrEnvOrDefault(
+    "-B", this->Args.size(), argv, 
+    "VTK_BASELINE_ROOT", 
+    this->GetDataRoot());
+  
+  for (i = 0; i < (this->Args.size() - 1); ++i)
+    {
+    if ( this->Args[i] == "-V")
+      {
+      viname += "/";
+      viname += this->Args[i+1];
+      break;
+      }
+    }
+
+  this->SetValidImageFileName(viname.c_str());
+  if (argv)
+    {
+    for (i = 0; i < this->Args.size(); ++i)
+      {
+      free(argv[i]);
+      }
+    delete [] argv;
+    }
+  return this->ValidImageFileName;
+}
+
+int vtkTesting::IsValidImageSpecified()
+{
+  unsigned int i;
+  for (i = 1; i < this->Args.size(); ++i)
+    {
+    if ( this->Args[i-1] == "-V")
+      {
+      return 1;
+      }
+    }
+  return 0;
 }
 
 char* vtkTesting::IncrementFileName(const char* fname, int count)
@@ -196,6 +294,48 @@ int vtkTesting::LookForFile(const char* newFileName)
 
 int vtkTesting::RegressionTest(double thresh)
 {
+#if 0
+  // clear the last result
+  this->SetLastResultText(0);
+  ostrstream buf_with_warning_C4701;
+  int result = this->RegressionTest(thresh, buf_with_warning_C4701);
+
+  buf_with_warning_C4701 <<  
+    "<DartMeasurement name=\"WallTime\" type=\"numeric/double\">";
+  buf_with_warning_C4701 << 
+    vtkTimerLog::GetCurrentTime() - this->StartWallTime;
+  buf_with_warning_C4701 << "</DartMeasurement>\n";
+  buf_with_warning_C4701 <<  
+    "<DartMeasurement name=\"CPUTime\" type=\"numeric/double\">";
+  buf_with_warning_C4701 << vtkTimerLog::GetCPUTime() - this->StartCPUTime;
+  buf_with_warning_C4701 << "</DartMeasurement>\n";
+  
+  buf_with_warning_C4701.put('\0');
+  this->SetLastResultText(buf_with_warning_C4701.str());
+  buf_with_warning_C4701.rdbuf()->freeze(0);
+  if (this->LastResultText)
+    {
+    cout << this->LastResultText << "\n";
+    }
+#endif
+  
+  int result = this->RegressionTest(thresh, cout);
+
+  cout << "<DartMeasurement name=\"WallTime\" type=\"numeric/double\">";
+  cout << vtkTimerLog::GetCurrentTime() - this->StartWallTime;
+  cout << "</DartMeasurement>\n";
+  cout << "<DartMeasurement name=\"CPUTime\" type=\"numeric/double\">";
+  cout << vtkTimerLog::GetCPUTime() - this->StartCPUTime;
+  cout << "</DartMeasurement>\n";
+
+  return result;
+}
+
+int vtkTesting::RegressionTest(double thresh, ostream &os)
+{
+  // do a get to compute the real value
+  this->GetValidImageFileName();
+
   vtkWindowToImageFilter *rt_w2if = vtkWindowToImageFilter::New(); 
   rt_w2if->SetInput(this->RenderWindow);
   // perform and extra render to make sure it is displayed
@@ -211,33 +351,34 @@ int vtkTesting::RegressionTest(double thresh)
     rt_w2if->ReadFrontBufferOn();
     }
 
-  FILE *rt_fin = fopen(this->DataFileName,"r"); 
+  FILE *rt_fin = fopen(this->ValidImageFileName,"r"); 
   if (rt_fin) 
     { 
     fclose(rt_fin);
     }
   else
     {
-    FILE *rt_fout = fopen(this->DataFileName,"wb"); 
+    FILE *rt_fout = fopen(this->ValidImageFileName,"wb"); 
     if (rt_fout) 
       { 
       fclose(rt_fout);
       vtkPNGWriter *rt_pngw = vtkPNGWriter::New();
-      rt_pngw->SetFileName(this->DataFileName);
+      rt_pngw->SetFileName(this->ValidImageFileName);
       rt_pngw->SetInput(rt_w2if->GetOutput());
       rt_pngw->Write();
       rt_pngw->Delete();
       }
     else
       {
-      cerr << "Unable to open file for writing: " << this->DataFileName << endl;
+      os << "Unable to open file for writing: " << 
+        this->ValidImageFileName << endl;
       rt_w2if->Delete(); 
       return FAILED;
       }
     }
 
   vtkPNGReader *rt_png = vtkPNGReader::New(); 
-  rt_png->SetFileName(this->DataFileName); 
+  rt_png->SetFileName(this->ValidImageFileName); 
   vtkImageDifference *rt_id = vtkImageDifference::New(); 
   rt_id->SetInput(rt_w2if->GetOutput()); 
   rt_id->SetImage(rt_png->GetOutput()); 
@@ -247,10 +388,10 @@ int vtkTesting::RegressionTest(double thresh)
 
   double minError = rt_id->GetThresholdedError();
   this->ImageDifference = minError;
+  int passed = 0;
   if (minError <= thresh) 
     { 
-    rt_id->Delete(); 
-    return PASSED; 
+    passed = 1;
     }
 
   // If the test failed with the first image (foo.png)
@@ -259,9 +400,9 @@ int vtkTesting::RegressionTest(double thresh)
   double error=0;
   int count=1, errIndex=-1;
   char* newFileName;
-  while (1)
+  while (!passed)
     {
-    newFileName = IncrementFileName(this->DataFileName, count);
+    newFileName = IncrementFileName(this->ValidImageFileName, count);
     if (!LookForFile(newFileName))
       {
       delete[] newFileName;
@@ -273,13 +414,12 @@ int vtkTesting::RegressionTest(double thresh)
     error = rt_id->GetThresholdedError();
     if (error <= thresh) 
       { 
-      rt_id->Delete(); 
-      delete[] newFileName;
-      return PASSED; 
+      minError = error;
+      passed = 1;
       }
     else
       {
-      if (error > minError)
+      if (error < minError)
         {
         errIndex = count;
         minError = error;
@@ -289,19 +429,40 @@ int vtkTesting::RegressionTest(double thresh)
     delete[] newFileName;
     }
 
-  cerr << "Failed Image Test : " << minError << endl;
-  char *rt_diffName = new char [strlen(this->DataFileName) + 12];
-  sprintf(rt_diffName,"%s.diff.png",this->DataFileName);
+  // output some information
+  os << "<DartMeasurement name=\"ImageError\" type=\"numeric/double\">";
+  os << minError;
+  os << "</DartMeasurement>";
+  if ( errIndex <= 0)
+    {
+    os << "<DartMeasurement name=\"BaselineImage\" type=\"text/string\">Standard</DartMeasurement>";
+    } 
+  else 
+    {
+    os <<  "<DartMeasurement name=\"BaselineImage\" type=\"numeric/integer\">";
+    os << errIndex;
+    os << "</DartMeasurement>";
+    }
+
+  if (passed)
+    {
+    rt_id->Delete(); 
+    return PASSED; 
+    }
+  
+  os << "Failed Image Test : " << minError << endl;
+  char *rt_diffName = new char [strlen(this->ValidImageFileName) + 12];
+  sprintf(rt_diffName,"%s.diff.png",this->ValidImageFileName);
   FILE *rt_dout = fopen(rt_diffName,"wb"); 
   if (errIndex >= 0)
     {
-    newFileName = IncrementFileName(this->DataFileName, errIndex);
+    newFileName = IncrementFileName(this->ValidImageFileName, errIndex);
     rt_png->SetFileName(newFileName);
     delete[] newFileName;
     }
   else
     {
-    rt_png->SetFileName(this->DataFileName);
+    rt_png->SetFileName(this->ValidImageFileName);
     }
 
   rt_png->Update();
@@ -335,8 +496,8 @@ int vtkTesting::RegressionTest(double thresh)
     rt_gamma->SetScale(10);
 
     vtkJPEGWriter* rt_jpegw_dashboard = vtkJPEGWriter::New();
-    char* diff_small = new char[strlen(this->DataFileName) + 30];
-    sprintf(diff_small, "%s.diff.small.jpg", this->DataFileName);
+    char* diff_small = new char[strlen(this->ValidImageFileName) + 30];
+    sprintf(diff_small, "%s.diff.small.jpg", this->ValidImageFileName);
     rt_jpegw_dashboard->SetFileName( diff_small );
     rt_jpegw_dashboard->SetInput(rt_gamma->GetOutput());
     rt_jpegw_dashboard->SetQuality(85);
@@ -345,45 +506,31 @@ int vtkTesting::RegressionTest(double thresh)
     // write out the image that was generated
     rt_shrink->SetInput(rt_id->GetInput());
     rt_jpegw_dashboard->SetInput(rt_shrink-> GetOutput());
-    char* valid_test_small = new char[strlen(this->DataFileName) + 30];
-    sprintf(valid_test_small, "%s.test.small.jpg", this->DataFileName);
+    char* valid_test_small = new char[strlen(this->ValidImageFileName) + 30];
+    sprintf(valid_test_small, "%s.test.small.jpg", this->ValidImageFileName);
     rt_jpegw_dashboard->SetFileName(valid_test_small);
     rt_jpegw_dashboard->Write();
 
     // write out the valid image that matched
     rt_shrink->SetInput(rt_id->GetImage());
     rt_jpegw_dashboard-> SetInput (rt_shrink->GetOutput());
-    char* valid = new char[strlen(this->DataFileName) + 30];
-    sprintf(valid, "%s.small.jpg", this->DataFileName);
+    char* valid = new char[strlen(this->ValidImageFileName) + 30];
+    sprintf(valid, "%s.small.jpg", this->ValidImageFileName);
     rt_jpegw_dashboard-> SetFileName( valid);
     rt_jpegw_dashboard->Write();
     rt_jpegw_dashboard->Delete();
 
 
-    cout << "<DartMeasurement name=\"ImageError\" type=\"numeric/double\">";
-    cout << error;
-    cout << "</DartMeasurement>";
-    if ( errIndex <= 0)
-      {
-      cout << "<DartMeasurement name=\"BaselineImage\" type=\"text/string\">Standard</DartMeasurement>";
-      } 
-    else 
-      {
-      cout <<  "<DartMeasurement name=\"BaselineImage\" type=\"numeric/integer\">";
-      cout << errIndex;
-      cout << "</DartMeasurement>";
-      }
-
-    cout <<  "<DartMeasurementFile name=\"TestImage\" type=\"image/jpeg\">";
-    cout << valid_test_small;
+    os <<  "<DartMeasurementFile name=\"TestImage\" type=\"image/jpeg\">";
+    os << valid_test_small;
     delete [] valid_test_small;
-    cout << "</DartMeasurementFile>";
-    cout << "<DartMeasurementFile name=\"DifferenceImage\" type=\"image/jpeg\">";
-    cout << diff_small;
-    cout << "</DartMeasurementFile>";
-    cout << "<DartMeasurementFile name=\"ValidImage\" type=\"image/jpeg\">";
-    cout << valid;
-    cout <<  "</DartMeasurementFile>";
+    os << "</DartMeasurementFile>";
+    os << "<DartMeasurementFile name=\"DifferenceImage\" type=\"image/jpeg\">";
+    os << diff_small;
+    os << "</DartMeasurementFile>";
+    os << "<DartMeasurementFile name=\"ValidImage\" type=\"image/jpeg\">";
+    os << valid;
+    os <<  "</DartMeasurementFile>";
 
     delete [] valid;
     delete [] diff_small;
@@ -401,9 +548,12 @@ int vtkTesting::Test(int argc, char *argv[], vtkRenderWindow *rw,
                      double thresh ) 
 {
   vtkTesting * testing = vtkTesting::New();
-  int imageIndex=-1;
   int i;
-
+  for (i = 0; i < argc; ++i)
+    {
+    testing->AddArgument(argv[i]);
+    }
+  
   for (i=0; i<argc; i++)
     {
     if ( strcmp("-I", argv[i]) == 0 )
@@ -413,16 +563,6 @@ int vtkTesting::Test(int argc, char *argv[], vtkRenderWindow *rw,
       }
     }
 
-  for (i=0; i<argc; i++)
-    {
-    if ( strcmp("-V", argv[i]) == 0 )
-      {
-      if ( i < argc-1 )
-        {
-        imageIndex = i+1;
-        }
-      }
-    }
 
   testing->FrontBufferOff();
   for (i=0; i<argc; i++)
@@ -433,14 +573,10 @@ int vtkTesting::Test(int argc, char *argv[], vtkRenderWindow *rw,
       }
     }
 
-  if( imageIndex != -1 ) 
+  if (testing->IsValidImageSpecified())
     { 
-    // Prepend the data root to the filename
-    char* fname=vtkTestUtilities::ExpandDataFileName(argc, argv, argv[imageIndex]);
-    testing->SetDataFileName(fname);
     testing->SetRenderWindow(rw);
     int res = testing->RegressionTest(thresh);
-    delete[] fname;
     testing->Delete();
     return res;
     }
@@ -453,7 +589,9 @@ void vtkTesting::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
   os << indent << "RenderWindow: " << this->RenderWindow << endl;
-  os << indent << "DataFileName: " << (this->DataFileName?this->DataFileName:"(none)") << endl;
+  os << indent << "ValidImageFileName: " << (this->ValidImageFileName?this->ValidImageFileName:"(none)") << endl;
   os << indent << "FrontBuffer: " << (this->FrontBuffer?"On":"Off") << endl;
   os << indent << "ImageDifference: " << this->ImageDifference << endl;
+  // dont print the this->LastResultText, it could be a bit long
+  os << indent << "DataRoot: " << this->GetDataRoot() << endl;
 }

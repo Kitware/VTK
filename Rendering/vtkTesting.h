@@ -20,6 +20,8 @@
 #define __vtkTesting_h
 
 #include "vtkObject.h"
+#include <vtkstd/vector> // used for argv
+#include <vtkstd/string> // used for argv
 
 class vtkLine;
 class vtkTriangle;
@@ -94,7 +96,8 @@ public:
   vtkGetMacro(FrontBuffer, int);
 
   // Description:
-  // Perform the test and return result.
+  // Perform the test and return result. At the same time the output will be
+  // written cout and also placed into LastResultText
   virtual int RegressionTest(double thresh);
 
   // Description:
@@ -103,26 +106,56 @@ public:
   vtkGetObjectMacro(RenderWindow, vtkRenderWindow);
 
   // Description:
-  //
-  vtkSetStringMacro(DataFileName);
-  vtkGetStringMacro(DataFileName);
+  // Set/Get the name of the valid image file
+  vtkSetStringMacro(ValidImageFileName);
+  const char *GetValidImageFileName();
 
   // Description:
   // Get the image difference.
   vtkGetMacro(ImageDifference, double);
 
+  // Description:
+  // Get the text output for the last RegressionTest invocation. This is
+  // useful for scripting languages
+  vtkGetStringMacro(LastResultText);
+  vtkSetStringMacro(LastResultText);
+
+  // Description:
+  // Pass the command line arguments into this class to be processed. Many of
+  // the Get methods such as GetValidImage and GetBaselineRoot rely on the
+  // arguments to be passed in prior to retrieving these values. Just call
+  // AddArgument for each argument that was passed into the command line
+  void AddArgument(const char *argv);
+  
+  // Description:
+  // Get some paramters from the command line arguments, env, or defaults
+  const char *GetDataRoot();
+  vtkSetStringMacro(DataRoot);
+
+  // Description:
+  // Is a valid image specified on the command line areguments?
+  int IsValidImageSpecified();
+  
 protected:
   vtkTesting();
   ~vtkTesting();
 
   static char* IncrementFileName(const char* fname, int count);
   static int LookForFile(const char* newFileName);
+  virtual int RegressionTest(double thresh,ostream &os);
 
   int FrontBuffer;
   vtkRenderWindow* RenderWindow;
-  char* DataFileName;
+  char* ValidImageFileName;
   double ImageDifference;
-
+  char *LastResultText;
+//BTX
+  vtkstd::vector<vtkstd::string> Args;
+//ETX
+  char *DataRoot;
+  double StartWallTime;
+  double StartCPUTime;
+  
 private:
   vtkTesting(const vtkTesting&);  // Not implemented.
   void operator=(const vtkTesting&);  // Not implemented.
