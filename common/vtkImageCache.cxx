@@ -191,6 +191,9 @@ void vtkImageCache::UpdateRegion(vtkImageRegion *region)
   // First Update the Image information 
   this->UpdateImageInformation(region);
 
+  // Releasing data changes this.
+  saveScalarType = region->GetScalarType();
+
   // We do not support writting into regions that already have data.
   // All that would be needed is a check that the data contains the extent.
   region->ReleaseData();
@@ -210,7 +213,6 @@ void vtkImageCache::UpdateRegion(vtkImageRegion *region)
   // Save stuff from the region to restore later.
   region->GetExtent(VTK_IMAGE_DIMENSIONS, saveExtent);
   region->GetAxes(VTK_IMAGE_DIMENSIONS, saveAxes);
-  saveScalarType = region->GetScalarType();
   
   // Check too make sure the requested region is in the image.
   imageExtent = region->GetImageExtent();
