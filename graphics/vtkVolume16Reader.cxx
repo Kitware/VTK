@@ -146,7 +146,7 @@ void vtkVolume16Reader::ExecuteInformation()
   output->SetScalarType(VTK_UNSIGNED_SHORT);
   output->SetNumberOfScalarComponents(1);
   
-  // I think I will remove spacing and origin from image information!
+  // spacing and origin ?
 }
     
     

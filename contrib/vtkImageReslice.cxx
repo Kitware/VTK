@@ -408,6 +408,9 @@ invertible");
   this->GetOutput()->SetWholeExtent(this->OutputExtent);
   this->GetOutput()->SetSpacing(this->OutputSpacing);
   this->GetOutput()->SetOrigin(this->OutputOrigin);
+  this->GetOutput()->SetScalarType(this->GetInput()->GetScalarType());
+  this->GetOutput()->SetNumberOfScalarComponents(
+                            this->GetInput()->GetNumberOfScalarComponents());
 
   transform->Delete();
 }
