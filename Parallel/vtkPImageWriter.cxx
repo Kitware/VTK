@@ -47,6 +47,15 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 #include "vtkPipelineSize.h"
 
+#define vtkPIWCloseFile \
+    if (file && fileOpenedHere) \
+      { \
+      this->WriteFileTrailer(file,cache); \
+      file->close(); \
+      delete file; \
+      file = NULL; \
+      } \
+
 //------------------------------------------------------------------------------
 vtkPImageWriter* vtkPImageWriter::New()
 {
@@ -161,19 +170,11 @@ void vtkPImageWriter::RecursiveWrite(int axis, vtkImageData *cache,
   if ( inputMemorySize < this->MemoryLimit )
     {
     ext = cache->GetUpdateExtent();
-    vtkDebugMacro("Getting input extent: " << ext[0] << ", " << 
-		  ext[1] << ", " << ext[2] << ", " << ext[3] << ", " << 
-		  ext[4] << ", " << ext[5] << endl);
+    vtkDebugMacro("Getting input extent: " << ext[0] << ", " << ext[1] << ", " << ext[2] << ", " << ext[3] << ", " << ext[4] << ", " << ext[5] << endl);
     cache->Update();
     data = cache;
     this->RecursiveWrite(axis,cache,data,file);
-    if (file && fileOpenedHere)
-      {
-      this->WriteFileTrailer(file,cache);
-      file->close();
-      delete file;
-      file = NULL;
-      }
+    vtkPIWCloseFile;
     return;
     }
 
@@ -195,13 +196,7 @@ void vtkPImageWriter::RecursiveWrite(int axis, vtkImageData *cache,
       {
       vtkWarningMacro("MemoryLimit too small for one pixel of information!!");
       }
-    if (file && fileOpenedHere)
-      {
-      this->WriteFileTrailer(file,cache);
-      file->close();
-      delete file;
-      file = NULL;
-      }
+    vtkPIWCloseFile;
     return;
     }
   
@@ -233,13 +228,7 @@ void vtkPImageWriter::RecursiveWrite(int axis, vtkImageData *cache,
   cache->SetAxisUpdateExtent(axis, min, max);
 
   // if we opened the file here, then we need to close it up
-  if (file && fileOpenedHere)
-    {
-    this->WriteFileTrailer(file,cache);
-    file->close();
-    delete file;
-    file = NULL;
-    }
+  vtkPIWCloseFile;
 }
 
 
