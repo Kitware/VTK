@@ -51,9 +51,11 @@
 #define __vtkScalarBarActor_h
 
 #include "vtkActor2D.h"
-#include "vtkScalarsToColors.h"
-#include "vtkPolyDataMapper2D.h"
-#include "vtkTextMapper.h"
+
+class vtkPolyData;
+class vtkPolyDataMapper2D;
+class vtkScalarsToColors;
+class vtkTextMapper;
 
 #define VTK_ORIENT_HORIZONTAL 0
 #define VTK_ORIENT_VERTICAL 1
@@ -88,7 +90,7 @@ public:
   // Set/Get the vtkLookupTable to use. The lookup table specifies the number
   // of colors to use in the table (if not overridden), as well as the scalar
   // range.
-  vtkSetObjectMacro(LookupTable,vtkScalarsToColors);
+  virtual void SetLookupTable(vtkScalarsToColors*);
   vtkGetObjectMacro(LookupTable,vtkScalarsToColors);
 
   // Description:

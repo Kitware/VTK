@@ -19,9 +19,16 @@
 
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
+#include "vtkPolyDataMapper2D.h"
+#include "vtkScalarsToColors.h"
+#include "vtkTextMapper.h"
+#include "vtkViewport.h"
+#include "vtkWindow.h"
 
-vtkCxxRevisionMacro(vtkScalarBarActor, "1.40");
+vtkCxxRevisionMacro(vtkScalarBarActor, "1.41");
 vtkStandardNewMacro(vtkScalarBarActor);
+
+vtkCxxSetObjectMacro(vtkScalarBarActor,LookupTable,vtkScalarsToColors);
 
 // Instantiate object with 64 maximum colors; 5 labels; font size 12
 // of font Arial (bolding, italic, shadows on); %%-#6.3g label
