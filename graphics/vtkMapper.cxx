@@ -142,6 +142,9 @@ void vtkMapper::ShallowCopy(vtkMapper *m)
 
   this->SetScalarVisibility(m->GetScalarVisibility());
   this->SetScalarRange(m->GetScalarRange());
+  this->SetColorMode(m->GetColorMode());
+  this->SetScalarMode(m->GetScalarMode());
+  this->SetImmediateModeRendering(m->GetImmediateModeRendering());
 }
 
 // a side effect of this is that this->Colors is also set
