@@ -253,14 +253,14 @@ struct vtkOTFace //used during tetra construction
 //---Class represents a tetrahedron-----------------------------------------
 struct vtkOTTetra
 {
-  vtkOTTetra() : Radius2(0.0)
+  vtkOTTetra() : Radius2(0.0), CurrentPointId(-1), Type(OutsideCavity)
     {
       Center[0]=Center[1]=Center[2]=0.0L;
       Neighbors[0]=Neighbors[1]=Neighbors[2]=Neighbors[3]=0;
       Points[0]=Points[1]=Points[2]=Points[3]=0;
     }
 
-  double Radius2;
+  double Radius2; //center and radius squared of circumsphere of this tetra
   double Center[3];
   // Note: there is a direct correlation between the points and the faces
   // i.e., the ordering of the points and face neighbors.
@@ -273,7 +273,7 @@ struct vtkOTTetra
   TetraClassification Type;
 
   void GetFacePoints(int i, vtkOTFace& face);
-  int InSphere(double x[3]);
+  int InCircumSphere(double x[3]);
   TetraClassification GetType(); //inside, outside
 };
 
@@ -348,7 +348,7 @@ void vtkOrderedTriangulator::InitTriangulation(float bounds[6], int numPts)
   this->Mesh->Reset();
   this->Mesh->Points.SetNumberOfValues(numPts+6);
   
-  // Create the initial bounding triangulation which is a
+  // Create the initial Delaunay triangulation which is a
   // bounding octahedron: 6 points & 4 tetra.
   center[0] = (double) (bounds[0]+bounds[1])/2.0;
   center[1] = (double) (bounds[2]+bounds[3])/2.0;
@@ -529,11 +529,11 @@ static int SortOnPointIds(const void *val1, const void *val2)
 }
 //------------------------------------------------------------------------
 // See whether point is in sphere of tetrahedron
-int vtkOTTetra::InSphere(double x[3])
+int vtkOTTetra::InCircumSphere(double x[3])
 {
   double dist2;
   
-  // check if inside/outside circumcircle
+  // check if inside/outside circumsphere
   dist2 = (x[0] - this->Center[0]) * (x[0] - this->Center[0]) + 
           (x[1] - this->Center[1]) * (x[1] - this->Center[1]) +
           (x[2] - this->Center[2]) * (x[2] - this->Center[2]);
@@ -701,7 +701,7 @@ void CreateInsertionCavity(vtkOTPoint* p,
       // Not yet visited, check the face as possible boundary
       else if ( nei->CurrentPointId != p->InternalId )
         {
-        if ( nei->InSphere(p->X) )
+        if ( nei->InCircumSphere(p->X) )
           {
           nei->Type = vtkOTTetra::InCavity;
           Mesh->TetraQueue.InsertNextValue(nei);
@@ -771,7 +771,7 @@ void vtkOrderedTriangulator::Triangulate()
     for (tptr = this->Mesh->Tetras.Begin(); 
          tptr != this->Mesh->Tetras.End(); ++tptr)
       {
-      if ( (*tptr)->InSphere(p->X) )
+      if ( (*tptr)->InCircumSphere(p->X) )
         {
         break;
         }
