@@ -49,7 +49,7 @@ void vtkTriangularTCoords::Execute()
   vtkPoints *inPts;
   vtkPointData *pd;
   vtkCellArray *inPolys,*inStrips;
-  int numNewPts, numNewPolys, poly_alloc_size;
+  int numNewPts, numNewPolys, polyAllocSize;
   vtkFloatTCoords *newTCoords;
   int npts, *pts, newId, newIds[3];
   int errorLogging = 1;
@@ -63,7 +63,7 @@ void vtkTriangularTCoords::Execute()
 //
 // Initialize
 //
-  vtkDebugMacro(<<"Generating Triangular TCoords");
+  vtkDebugMacro(<<"Generating triangular texture coordinates");
 
   inPts = input->GetPoints();
   pd = input->GetPointData();
@@ -77,18 +77,18 @@ void vtkTriangularTCoords::Execute()
   numNewPts = input->GetNumberOfVerts();
 
   numNewPolys = 0;
-  poly_alloc_size = 0;
+  polyAllocSize = 0;
 
   for (inPolys->InitTraversal(); inPolys->GetNextCell(npts,pts); )
     {
     numNewPts += npts;
     numNewPolys++;
-    poly_alloc_size += npts + 1;
+    polyAllocSize += npts + 1;
     }
   for (inStrips->InitTraversal(); inStrips->GetNextCell(npts,pts); )
     {
     numNewPts += (npts-2) * 3;
-    poly_alloc_size += (npts - 2) * 4;
+    polyAllocSize += (npts - 2) * 4;
     }
 
 //
@@ -102,7 +102,7 @@ void vtkTriangularTCoords::Execute()
   newPoints = new vtkFloatPoints(numNewPts);
 
   newPolys = new vtkCellArray;
-  newPolys->Allocate(poly_alloc_size);
+  newPolys->Allocate(polyAllocSize);
 
   pointData->CopyTCoordsOff();
   pointData->CopyAllocate(pd);

@@ -95,7 +95,7 @@ static int FindTetra(float x[3], int ptIds[4], float p[4][3],
   vtkIdList neighbors(2);
   float v12[3], vp[3], vx[3], v32[3], n[3], valx, valp, maxValx;
   
-  // prevent aimless wandering and depth by recursion
+  // prevent aimless wandering and death by recursion
   if ( depth++ > 100 )
     {
     NumberOfDegeneracies++;

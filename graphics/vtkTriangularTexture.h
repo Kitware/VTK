@@ -44,12 +44,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // the paper "Opacity-modulating Triangular Textures for Irregular Surfaces,"
 // by Penny Rheingans, IEEE Visualization '96, pp. 219-225.
 // The textures assume texture coordinates of (0,0), (1.0) and
-// (.5, sqrt(23)/2). The sequence of texture values is the same along each
+// (.5, sqrt(3)/2). The sequence of texture values is the same along each
 // edge of the triangular texture map. So, the assignment order of texture
 // coordinates is arbitrary.
 
 // .SECTION See Also
-// vtkTriangularTextureCoords
+// vtkTriangularTCoords
 
 #ifndef __vtkTriangularTexture_h
 #define __vtkTriangularTexture_h

@@ -53,7 +53,7 @@ void vtkShrinkPolyData::Execute()
   vtkPoints *inPts;
   vtkPointData *pd;
   vtkCellArray *inVerts,*inLines,*inPolys,*inStrips;
-  int numNewPts, numNewLines, numNewPolys, poly_alloc_size;
+  int numNewPts, numNewLines, numNewPolys, polyAllocSize;
   int npts, *pts, newId, newIds[3];
   vtkFloatPoints *newPoints;
   vtkCellArray *newVerts, *newLines, *newPolys;
@@ -80,7 +80,7 @@ void vtkShrinkPolyData::Execute()
   numNewPts = input->GetNumberOfVerts();
   numNewLines = 0;
   numNewPolys = 0;
-  poly_alloc_size = 0;
+  polyAllocSize = 0;
 
   for (inLines->InitTraversal(); inLines->GetNextCell(npts,pts); )
     {
@@ -91,12 +91,12 @@ void vtkShrinkPolyData::Execute()
     {
     numNewPts += npts;
     numNewPolys++;
-    poly_alloc_size += npts + 1;
+    polyAllocSize += npts + 1;
     }
   for (inStrips->InitTraversal(); inStrips->GetNextCell(npts,pts); )
     {
     numNewPts += (npts-2) * 3;
-    poly_alloc_size += (npts - 2) * 4;
+    polyAllocSize += (npts - 2) * 4;
     }
 //
 // Allocate
@@ -109,7 +109,7 @@ void vtkShrinkPolyData::Execute()
   newLines->Allocate(numNewLines*3);
  
   newPolys = new vtkCellArray;
-  newPolys->Allocate(poly_alloc_size);
+  newPolys->Allocate(polyAllocSize);
 
   pointData->CopyAllocate(pd);
 //
