@@ -423,18 +423,18 @@ fi
 # Clean-up.
 
 if test "x$RM_PROG" != "xNOTFOUND" ; then
-    $RM_PROG -fr $INTERMEDIATE_DOX_DIR
+    $RM_PROG -fr "$INTERMEDIATE_DOX_DIR"
 
     if test "x$DOWNLOAD_VTK_TAGFILE" == "xON" ; then
         if test "x$VTK_TAGFILE" != "x" ; then
-            $RM_PROG -f $VTK_TAGFILE_DEST_DIR/$VTK_TAGFILE
+            $RM_PROG -f "$VTK_TAGFILE_DEST_DIR/$VTK_TAGFILE"
         fi
     fi
 
     if test "x$COMPILE_HTML_HELP" == "xON" ; then
         if test "x$RESULTING_HTML_HELP_FILE" != "x" ; then
             if test "x$ALLOW_ERASE_OUTPUT_DIRECTORY" == "xON" ; then
-                $RM_PROG -fr $OUTPUT_DIRECTORY
+                $RM_PROG -fr "$OUTPUT_DIRECTORY"
             fi
         fi
     fi
