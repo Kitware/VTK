@@ -3,11 +3,11 @@
 #
 
 # get the interactor ui
-source ../../examplesTcl/vtkInt.tcl
+source ../../../examplesTcl/vtkInt.tcl
 
 #
 # get some nice colors
-source ../../examplesTcl/colors.tcl
+source ../../../examplesTcl/colors.tcl
 
 # define some renderman shaders
 source marble.tcl
@@ -67,13 +67,14 @@ vtkPolyDataMapper logoMapper
 # now an actor
 vtkActor logo
   logo SetMapper logoMapper
-eval logo SetProperty [eval marble { 2 $ivory $black }]
+eval logo SetProperty [eval marble { 50 $ivory $black }]
 
 # now create an implicit model of the same letter
 vtkImplicitModeller blobbyLogoImp
 blobbyLogoImp SetInput [appendAll GetOutput ]
-  blobbyLogoImp SetMaximumDistance .1
+  blobbyLogoImp SetMaximumDistance .2
   blobbyLogoImp SetSampleDimensions 64 64 64
+  blobbyLogoImp SetModelBounds -1 2 -1 2 -1 2
 
 # extract an iso surface
 vtkContourFilter blobbyLogoIso
@@ -139,4 +140,5 @@ wm withdraw .
 
 source prman.tcl
 
+set RIBPrefix vtklogo
 puts "Hitting the p key in the render window will create a RIB file"
