@@ -394,7 +394,7 @@ void vtkPointLocator::BuildLocator()
     bucket = this->HashTable[idx];
     if ( ! bucket )
       {
-      bucket = new vtkIdList(numPtsPerBucket/2);
+      bucket = new vtkIdList(numPtsPerBucket/2,numPtsPerBucket/3);
       this->HashTable[idx] = bucket;
       }
     bucket->InsertNextId(i);
@@ -538,7 +538,8 @@ int vtkPointLocator::InsertNextPoint(float x[3])
 
   if ( ! (bucket = this->HashTable[idx]) )
     {
-    bucket = new vtkIdList(this->NumberOfPointsPerBucket/2);
+    bucket = new vtkIdList(this->NumberOfPointsPerBucket/2,
+			   this->NumberOfPointsPerBucket/3);
     this->HashTable[idx] = bucket;
     }
 
@@ -572,7 +573,8 @@ void vtkPointLocator::InsertPoint(int ptId, float x[3])
 
   if ( ! (bucket = this->HashTable[idx]) )
     {
-    bucket = new vtkIdList(this->NumberOfPointsPerBucket/2);
+    bucket = new vtkIdList(this->NumberOfPointsPerBucket/2,
+			   this->NumberOfPointsPerBucket/3);
     this->HashTable[idx] = bucket;
     }
 
