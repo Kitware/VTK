@@ -15,7 +15,7 @@
 
 /* Minimal main program -- everything is loaded from the library */
 
-#include "Python.h"
+#include "vtkPython.h"
 
 #ifdef VTK_COMPILED_USING_MPI
 # include <mpi.h>

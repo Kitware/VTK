@@ -1028,7 +1028,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     fprintf(fp,"#define VTK_STREAMS_FWD_ONLY\n");
     }
   #if !defined(__APPLE__)
-  fprintf(fp,"#include <Python.h>\n");
+  fprintf(fp,"#include \"vtkPython.h\"\n");
   fprintf(fp,"#undef _XOPEN_SOURCE /* Conflicts with standards.h.  */\n");
   fprintf(fp,"#undef _THREAD_SAFE /* Conflicts with pthread.h.  */\n");
   fprintf(fp,"#include \"vtkPythonUtil.h\"\n");

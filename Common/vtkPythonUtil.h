@@ -14,8 +14,8 @@
 =========================================================================*/
 #ifndef __vtkPythonUtil_h
 #define __vtkPythonUtil_h
-#undef _POSIX_THREADS
-#include "Python.h"
+
+#include "vtkPython.h"
 #include "vtkCommand.h"
 
 #if defined(WIN32)

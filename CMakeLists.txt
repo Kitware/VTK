@@ -659,18 +659,7 @@ IF(VTK_WRAP_PYTHON)
   IF(VTK_USE_PARALLEL AND VTK_USE_MPI)
     SET(PVTK_PYTHON_EXE ${EXECUTABLE_OUTPUT_PATH}/pvtkpython)
   ENDIF(VTK_USE_PARALLEL AND VTK_USE_MPI)
-
-  # Safety check.
-  IF(NOT PYTHON_DEBUG_LIBRARY)
-    SET(PYTHON_DEBUG_LIBRARY ${PYTHON_LIBRARY})
-    IF(WIN32)
-      MESSAGE("Cannot find Python debug library.  The regular Python library "
-              "will be used.  This means that when using debug build of VTK, "
-              "python examples might not run.  If you use release build or "
-              "you do not care about python working, set PYTHON_DEBUG_LIBRARY "
-              "to the same file as PYTHON_LIBRARY.")
-    ENDIF(WIN32)
-  ENDIF(NOT PYTHON_DEBUG_LIBRARY)
+  SET(PYTHON_DEBUG_LIBRARY ${PYTHON_LIBRARY})
 ENDIF(VTK_WRAP_PYTHON)
 
 #-----------------------------------------------------------------------------

@@ -333,9 +333,7 @@ IF (VTK_WRAP_PYTHON)
     TARGET_LINK_LIBRARIES (vtk${KIT}Python vtk${KIT} ${KIT_PYTHON_LIBS})
   ENDIF(APPLE)
   IF(WIN32)
-    TARGET_LINK_LIBRARIES (vtk${KIT}Python
-                           debug ${PYTHON_DEBUG_LIBRARY}
-                           optimized ${PYTHON_LIBRARY})
+    TARGET_LINK_LIBRARIES (vtk${KIT}Python ${PYTHON_LIBRARY})
   ENDIF(WIN32)
   INSTALL_TARGETS(/lib/vtk vtk${KIT}Python)
 ENDIF (VTK_WRAP_PYTHON)
