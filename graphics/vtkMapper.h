@@ -181,6 +181,8 @@ public:
   vtkSetVector2Macro(ScalarRange,float);
   vtkGetVectorMacro(ScalarRange,float,2);
 
+  // Description:
+  // Update the input to the Mapper.
   virtual void Update();
 
   // Description:
@@ -222,12 +224,10 @@ public:
   void SetRenderTime(float time) {this->RenderTime = time;}
   vtkGetMacro(RenderTime, float);
 
-//BTX
   // Description:
-  // Allow access the the input as a vtkDataSet - a few objects need
-  // this such as vtkActor, and some exporters
+  // Get the input as a vtkDataSet.  This method is overridden in
+  // the specialized mapper classes to return more specific data types.
   vtkDataSet *GetInput();
-//ETX
 
 protected:
   vtkMapper();
