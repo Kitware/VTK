@@ -206,7 +206,7 @@ void MyMain( vtkMultiProcessController *controller, void *arg )
       timer->StopTimer();
       numTris = iso->GetOutput()->GetNumberOfCells();
       val = iso->GetValue(0);
-      cerr << "Update " << val << " took " << timer->GetElapsedTime() 
+      cout << "Update " << val << " took " << timer->GetElapsedTime() 
 	   << " seconds to produce " << numTris << " triangles\n";
       
       // now render the results
