@@ -46,6 +46,11 @@ IF (VTK_WRAP_TCL)
            ${CXX_TEST_PATH} "TclTk/lib")
         ENDIF(TCL_SUPPORT_LIBRARY_PATH AND TK_SUPPORT_LIBRARY_PATH)
       ENDIF (CXX_TEST_PATH)
+
+      # Install targets should be added here, so that the support files 
+      # are installed somewhere. vtkTkAppInit.cxx will have to be updated
+      # accordingly, in the same way vtkKWApplication was (KW_INSTALL_DIR).
+
     ENDIF (TCL_TK_COPY_SUPPORT_LIBRARY)
 
 ENDIF (VTK_WRAP_TCL)
