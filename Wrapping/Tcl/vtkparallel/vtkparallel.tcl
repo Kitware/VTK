@@ -6,7 +6,7 @@ if {[info commands ::vtk::init::require_package] != ""} {
     package provide vtkparallel 4.1
   }
 } else {
-  if {[info commands vtkThreadedController] != "" ||
+  if {[info commands vtkParallelFactory] != "" ||
     [::vtk::load_component vtkParallelTCL] == ""} {
     package provide vtkparallel 4.1
   }

@@ -40,7 +40,7 @@ package ifneeded vtkinit {@VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@} {
       set classTable(vtkImagingTCL) vtkImageFFT
       set classTable(vtkRenderingTCL) vtkAxisActor2D
       set classTable(vtkHybridTCL) vtkEarthSource
-      set classTable(vtkParallelTCL) vtkThreadedController
+      set classTable(vtkParallelTCL) vtkParallelFactory
       set classTable(vtkPatentedTCL) vtkKitwareContourFilter
     }
   }
