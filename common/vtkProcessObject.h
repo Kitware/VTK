@@ -126,7 +126,19 @@ public:
   // executes it.  Then set the Progress ivar to amount. The parameter amount
   // should range between (0,1).
   void UpdateProgress(float amount);
-  
+
+  // Description:
+  // Set the current text message associated with the progress state.
+  // This may be used by a calling process/GUI to
+  // Caution: The memory/text in the provided char * is not copied, so
+  // users should not pass temporarily allocated strings which have a lifetime
+  // less than that of the function accessing the text.
+  void SetProgressText(char *text);
+
+  // Description:
+  // Fetch the current Progress text.
+  char *GetProgressText(void);
+
   // left public for performance since it is used in inner loops
   int AbortExecute;
 
@@ -147,7 +159,8 @@ protected:
   ~vtkProcessObject();
   vtkProcessObject(const vtkProcessObject&) {};
   void operator=(const vtkProcessObject&) {};
-  
+
+  // Progress/Update handling
   void (*StartMethod)(void *);
   void (*StartMethodArgDelete)(void *);
   void *StartMethodArg;
@@ -158,6 +171,9 @@ protected:
   void (*EndMethodArgDelete)(void *);
   void *EndMethodArg;
   float Progress;
+  char  *ProgressText;
+  //
+
   int NumberOfInputs;
   int NumberOfRequiredInputs;
   vtkDataObject **Inputs;     // An Array of the inputs to the filter

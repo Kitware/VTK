@@ -74,6 +74,7 @@ vtkProcessObject::vtkProcessObject()
   this->EndMethodArg = NULL;
   this->AbortExecute = 0;
   this->Progress = 0.0;
+  this->ProgressText = NULL;
   this->NumberOfInputs = 0;
   this->NumberOfRequiredInputs = 0;
   this->Inputs = NULL;
@@ -294,7 +295,7 @@ void vtkProcessObject::SetNthInput(int idx, vtkDataObject *input)
 }
 
 // Update the progress of the process object. If a ProgressMethod exists, 
-// executes it. Then set the Progress ivar to amount. The parameter amount 
+// executes it. Then set the Progress ivar to amount. The parameter amount
 // should range between (0,1).
 void vtkProcessObject::UpdateProgress(float amount)
 {
@@ -303,6 +304,16 @@ void vtkProcessObject::UpdateProgress(float amount)
     {
     (*this->ProgressMethod)(this->ProgressMethodArg);
     }
+}
+
+void vtkProcessObject::SetProgressText(char *text)
+{
+  this->ProgressText = text;
+}
+
+char *vtkProcessObject::GetProgressText(void)
+{
+  return this->ProgressText;
 }
 
 // Specify function to be called before object executes.
