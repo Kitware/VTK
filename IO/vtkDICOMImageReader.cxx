@@ -29,7 +29,7 @@
 #include <vtkstd/vector>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkDICOMImageReader, "1.9");
+vtkCxxRevisionMacro(vtkDICOMImageReader, "1.10");
 vtkStandardNewMacro(vtkDICOMImageReader);
 
 class vtkDICOMImageReaderVector : public vtkstd::vector<vtkstd::string>
@@ -105,13 +105,14 @@ void vtkDICOMImageReader::ExecuteInformation()
     {
     this->DICOMFileNames->clear();
 
-    this->AppHelper->ClearSeriesUIDMap();
-    this->AppHelper->ClearSliceNumberMap();
+    //this->AppHelper->ClearSeriesUIDMap();
+    //this->AppHelper->ClearSliceNumberMap();
+    this->AppHelper->Clear();
 
     this->Parser->ClearAllDICOMTagCallbacks();
  
     this->Parser->OpenFile(this->FileName);
-    this->AppHelper->SetFileName(this->FileName);
+    // this->AppHelper->SetFileName(this->FileName);
     this->AppHelper->RegisterCallbacks(this->Parser);
 
     this->Parser->ReadHeader();
@@ -132,8 +133,9 @@ void vtkDICOMImageReader::ExecuteInformation()
     vtkDebugMacro( << "There are " << numFiles << " files in the directory.");
 
     this->DICOMFileNames->clear();
-    this->AppHelper->ClearSeriesUIDMap();
-    this->AppHelper->ClearSliceNumberMap();
+    //this->AppHelper->ClearSeriesUIDMap();
+    //this->AppHelper->ClearSliceNumberMap();
+    this->AppHelper->Clear();
 
     for (int i = 0; i < numFiles; i++)
       {
@@ -181,21 +183,23 @@ void vtkDICOMImageReader::ExecuteInformation()
       this->Parser->ClearAllDICOMTagCallbacks();
       this->AppHelper->RegisterCallbacks(this->Parser);
 
-      this->AppHelper->SetFileName(fn);
+      // this->AppHelper->SetFileName(fn);
       this->Parser->ReadHeader();
 
       vtkDebugMacro( << "File name : " << fn );
       vtkDebugMacro( << "Slice number : " << this->AppHelper->GetSliceNumber());
       }
     
-    vtkstd::vector<vtkstd::pair<int, vtkstd::string> > sortedFiles;
+    vtkstd::vector<vtkstd::pair<float, vtkstd::string> > sortedFiles;
     
-    this->AppHelper->SortFilenamesBySlice();
-    unsigned int num_files = this->AppHelper->GetNumberOfSortedFilenames();
-    for (unsigned int k = 0; k < num_files; k++)
-      {
-      sortedFiles.push_back(std::pair<int,std::string>(k, this->AppHelper->GetFilenameForSlice(k)));
-      }
+    this->AppHelper->GetImagePositionPatientFilenamePairs(sortedFiles);
+
+    // this->AppHelper->SortFilenamesBySlice();
+    // unsigned int num_files = this->AppHelper->GetNumberOfSortedFilenames();
+    // for (unsigned int k = 0; k < num_files; k++)
+    //  {
+    //  sortedFiles.push_back(std::pair<int,std::string>(k, this->AppHelper->GetFilenameForSlice(k)));
+    //  }
 
     //this->AppHelper->GetSliceNumberFilenamePairs(sortedFiles);
 
@@ -206,7 +210,7 @@ void vtkDICOMImageReader::ExecuteInformation()
     if (sortedFiles.size() > 0)
       {
       this->DICOMFileNames->clear();
-      vtkstd::vector<vtkstd::pair<int, vtkstd::string> >::iterator siter;
+      vtkstd::vector<vtkstd::pair<float, vtkstd::string> >::iterator siter;
       for (siter = sortedFiles.begin();
            siter != sortedFiles.end();
            siter++)
@@ -235,11 +239,12 @@ void vtkDICOMImageReader::ExecuteData(vtkDataObject *output)
     vtkDebugMacro( << "Single file : " << this->FileName);
     this->Parser->ClearAllDICOMTagCallbacks();
     this->Parser->OpenFile(this->FileName);
-    this->AppHelper->ClearSeriesUIDMap();
-    this->AppHelper->ClearSliceNumberMap();
-    this->AppHelper->SetFileName(this->FileName);
+    // this->AppHelper->ClearSeriesUIDMap();
+    // this->AppHelper->ClearSliceNumberMap();
+    this->AppHelper->Clear();
+    //this->AppHelper->SetFileName(this->FileName);
     this->AppHelper->RegisterCallbacks(this->Parser);
-    this->AppHelper->RegisterPixelDataCallback();
+    this->AppHelper->RegisterPixelDataCallback(this->Parser);
 
     this->Parser->ReadHeader();
 
@@ -256,10 +261,11 @@ void vtkDICOMImageReader::ExecuteData(vtkDataObject *output)
     {
     vtkDebugMacro( << "Multiple files (" << static_cast<int>(this->DICOMFileNames->size()) << ")");
     this->Parser->ClearAllDICOMTagCallbacks();
-    this->AppHelper->ClearSeriesUIDMap();
-    this->AppHelper->ClearSliceNumberMap();
+    // this->AppHelper->ClearSeriesUIDMap();
+    // this->AppHelper->ClearSliceNumberMap();
+    this->AppHelper->Clear();
     this->AppHelper->RegisterCallbacks(this->Parser);
-    this->AppHelper->RegisterPixelDataCallback();
+    this->AppHelper->RegisterPixelDataCallback(this->Parser);
 
     void* buffer = data->GetScalarPointer();
     
@@ -275,7 +281,7 @@ void vtkDICOMImageReader::ExecuteData(vtkDataObject *output)
       count++;
       vtkDebugMacro( << "File : " << (*fiter).c_str());
       this->Parser->OpenFile((char*)(*fiter).c_str());
-      this->AppHelper->SetFileName((char*)(*fiter).c_str());
+      // this->AppHelper->SetFileName((char*)(*fiter).c_str());
 
       this->Parser->ReadHeader();
 
