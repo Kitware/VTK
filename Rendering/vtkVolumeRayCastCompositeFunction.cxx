@@ -23,7 +23,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkVolumeRayCastCompositeFunction, "1.33");
+vtkCxxRevisionMacro(vtkVolumeRayCastCompositeFunction, "1.34");
 vtkStandardNewMacro(vtkVolumeRayCastCompositeFunction);
 
 #define VTK_REMAINING_OPACITY           0.02
@@ -611,9 +611,9 @@ void vtkCastRay_TrilinSample_Unshaded( T *data_ptr, VTKVRCDynamicInfo *dynamicIn
   ray_position[0] = ray_start[0];
   ray_position[1] = ray_start[1];
   ray_position[2] = ray_start[2];
-  voxel[0] = (int)( ray_position[0] );
-  voxel[1] = (int)( ray_position[1] );
-  voxel[2] = (int)( ray_position[2] );
+  voxel[0] = vtkFloorFuncMacro( ray_position[0] );
+  voxel[1] = vtkFloorFuncMacro( ray_position[1] );
+  voxel[2] = vtkFloorFuncMacro( ray_position[2] );
 
   // So far we have not accumulated anything
   accum_red_intensity     = 0.0;
@@ -683,7 +683,7 @@ void vtkCastRay_TrilinSample_Unshaded( T *data_ptr, VTKVRCDynamicInfo *dynamicIn
         scalar_value = staticInfo->Volume->GetArraySize() - 1;
         }
       
-      opacity = SOTF[(int)scalar_value];
+      opacity = SOTF[(int)(scalar_value)];
       
       if ( opacity )
         {
@@ -719,13 +719,13 @@ void vtkCastRay_TrilinSample_Unshaded( T *data_ptr, VTKVRCDynamicInfo *dynamicIn
             gradient_value = 255.0;
             }
 
-          opacity *= GOTF[(int)gradient_value];
+          opacity *= GOTF[(int)(gradient_value)];
           }
         else
           {
           opacity *= gradient_opacity_constant;
           }
-        red_value   = opacity * GTF[((int)scalar_value)];
+        red_value   = opacity * GTF[(int)(scalar_value)];
         
         // Accumulate intensity and opacity for this sample location
         accum_red_intensity   += remaining_opacity * red_value;
@@ -736,9 +736,9 @@ void vtkCastRay_TrilinSample_Unshaded( T *data_ptr, VTKVRCDynamicInfo *dynamicIn
       ray_position[0] += ray_increment[0];
       ray_position[1] += ray_increment[1];
       ray_position[2] += ray_increment[2];      
-      voxel[0] = (int)( ray_position[0] );
-      voxel[1] = (int)( ray_position[1] );
-      voxel[2] = (int)( ray_position[2] );
+      voxel[0] = vtkFloorFuncMacro( ray_position[0] );
+      voxel[1] = vtkFloorFuncMacro( ray_position[1] );
+      voxel[2] = vtkFloorFuncMacro( ray_position[2] );
       }
     accum_green_intensity = accum_red_intensity;
     accum_blue_intensity = accum_red_intensity;
@@ -794,7 +794,7 @@ void vtkCastRay_TrilinSample_Unshaded( T *data_ptr, VTKVRCDynamicInfo *dynamicIn
         scalar_value = staticInfo->Volume->GetArraySize() - 1;
         }
       
-      opacity = SOTF[(int)scalar_value];
+      opacity = SOTF[(int)(scalar_value)];
       
       if ( opacity )
         {
@@ -830,16 +830,16 @@ void vtkCastRay_TrilinSample_Unshaded( T *data_ptr, VTKVRCDynamicInfo *dynamicIn
             gradient_value = 255.0;
             }
 
-          opacity *= GOTF[(int)gradient_value];
+          opacity *= GOTF[(int)(gradient_value)];
           }
         else
           {
           opacity *= gradient_opacity_constant;
           }
 
-        red_value   = opacity * CTF[((int)scalar_value) * 3    ];
-        green_value = opacity * CTF[((int)scalar_value) * 3 + 1];
-        blue_value  = opacity * CTF[((int)scalar_value) * 3 + 2];
+        red_value   = opacity * CTF[(int)(scalar_value) * 3    ];
+        green_value = opacity * CTF[(int)(scalar_value) * 3 + 1];
+        blue_value  = opacity * CTF[(int)(scalar_value) * 3 + 2];
         
         // Accumulate intensity and opacity for this sample location
         accum_red_intensity   += remaining_opacity * red_value;
@@ -852,9 +852,9 @@ void vtkCastRay_TrilinSample_Unshaded( T *data_ptr, VTKVRCDynamicInfo *dynamicIn
       ray_position[0] += ray_increment[0];
       ray_position[1] += ray_increment[1];
       ray_position[2] += ray_increment[2];      
-      voxel[0] = (int)( ray_position[0] );
-      voxel[1] = (int)( ray_position[1] );
-      voxel[2] = (int)( ray_position[2] );
+      voxel[0] = vtkFloorFuncMacro( ray_position[0] );
+      voxel[1] = vtkFloorFuncMacro( ray_position[1] );
+      voxel[2] = vtkFloorFuncMacro( ray_position[2] );
       }
     }
 
@@ -985,9 +985,9 @@ void vtkCastRay_TrilinSample_Shaded( T *data_ptr, VTKVRCDynamicInfo *dynamicInfo
   ray_position[0] = ray_start[0];
   ray_position[1] = ray_start[1];
   ray_position[2] = ray_start[2];
-  voxel[0] = (int)( ray_position[0] );
-  voxel[1] = (int)( ray_position[1] );
-  voxel[2] = (int)( ray_position[2] );
+  voxel[0] = vtkFloorFuncMacro( ray_position[0] );
+  voxel[1] = vtkFloorFuncMacro( ray_position[1] );
+  voxel[2] = vtkFloorFuncMacro( ray_position[2] );
 
   // So far we haven't accumulated anything
   accum_red_intensity   = 0.0;
@@ -1140,9 +1140,9 @@ void vtkCastRay_TrilinSample_Shaded( T *data_ptr, VTKVRCDynamicInfo *dynamicInfo
       ray_position[0] += ray_increment[0];
       ray_position[1] += ray_increment[1];
       ray_position[2] += ray_increment[2];      
-      voxel[0] = (int)( ray_position[0] );
-      voxel[1] = (int)( ray_position[1] );
-      voxel[2] = (int)( ray_position[2] );
+      voxel[0] = vtkFloorFuncMacro( ray_position[0] );
+      voxel[1] = vtkFloorFuncMacro( ray_position[1] );
+      voxel[2] = vtkFloorFuncMacro( ray_position[2] );
       }
     accum_green_intensity = accum_red_intensity;
     accum_blue_intensity = accum_red_intensity;
@@ -1308,9 +1308,9 @@ void vtkCastRay_TrilinSample_Shaded( T *data_ptr, VTKVRCDynamicInfo *dynamicInfo
       ray_position[0] += ray_increment[0];
       ray_position[1] += ray_increment[1];
       ray_position[2] += ray_increment[2];      
-      voxel[0] = (int)( ray_position[0] );
-      voxel[1] = (int)( ray_position[1] );
-      voxel[2] = (int)( ray_position[2] );
+      voxel[0] = vtkFloorFuncMacro( ray_position[0] );
+      voxel[1] = vtkFloorFuncMacro( ray_position[1] );
+      voxel[2] = vtkFloorFuncMacro( ray_position[2] );
       }
     }
 
@@ -1420,9 +1420,9 @@ void vtkCastRay_TrilinVertices_Unshaded( T *data_ptr, VTKVRCDynamicInfo *dynamic
   ray_position[0] = ray_start[0];
   ray_position[1] = ray_start[1];
   ray_position[2] = ray_start[2];
-  voxel[0] = (int)( ray_position[0] );
-  voxel[1] = (int)( ray_position[1] );
-  voxel[2] = (int)( ray_position[2] );
+  voxel[0] = vtkFloorFuncMacro( ray_position[0] );
+  voxel[1] = vtkFloorFuncMacro( ray_position[1] );
+  voxel[2] = vtkFloorFuncMacro( ray_position[2] );
 
   // So far we have not accumulated anything
   accum_red_intensity     = 0.0;
@@ -1606,9 +1606,9 @@ void vtkCastRay_TrilinVertices_Unshaded( T *data_ptr, VTKVRCDynamicInfo *dynamic
       ray_position[0] += ray_increment[0];
       ray_position[1] += ray_increment[1];
       ray_position[2] += ray_increment[2];      
-      voxel[0] = (int)( ray_position[0] );
-      voxel[1] = (int)( ray_position[1] );
-      voxel[2] = (int)( ray_position[2] );
+      voxel[0] = vtkFloorFuncMacro( ray_position[0] );
+      voxel[1] = vtkFloorFuncMacro( ray_position[1] );
+      voxel[2] = vtkFloorFuncMacro( ray_position[2] );
       }
     accum_green_intensity = accum_red_intensity;
     accum_blue_intensity = accum_red_intensity;
@@ -1763,9 +1763,9 @@ void vtkCastRay_TrilinVertices_Unshaded( T *data_ptr, VTKVRCDynamicInfo *dynamic
       ray_position[0] += ray_increment[0];
       ray_position[1] += ray_increment[1];
       ray_position[2] += ray_increment[2];      
-      voxel[0] = (int)( ray_position[0] );
-      voxel[1] = (int)( ray_position[1] );
-      voxel[2] = (int)( ray_position[2] );
+      voxel[0] = vtkFloorFuncMacro( ray_position[0] );
+      voxel[1] = vtkFloorFuncMacro( ray_position[1] );
+      voxel[2] = vtkFloorFuncMacro( ray_position[2] );
       }
     }
 
@@ -1894,9 +1894,9 @@ void vtkCastRay_TrilinVertices_Shaded( T *data_ptr, VTKVRCDynamicInfo *dynamicIn
   ray_position[0] = ray_start[0];
   ray_position[1] = ray_start[1];
   ray_position[2] = ray_start[2];
-  voxel[0] = (int)( ray_position[0] );
-  voxel[1] = (int)( ray_position[1] );
-  voxel[2] = (int)( ray_position[2] );
+  voxel[0] = vtkFloorFuncMacro( ray_position[0] );
+  voxel[1] = vtkFloorFuncMacro( ray_position[1] );
+  voxel[2] = vtkFloorFuncMacro( ray_position[2] );
 
   // So far we haven't accumulated anything
   accum_red_intensity     = 0.0;
@@ -2101,9 +2101,9 @@ void vtkCastRay_TrilinVertices_Shaded( T *data_ptr, VTKVRCDynamicInfo *dynamicIn
       ray_position[0] += ray_increment[0];
       ray_position[1] += ray_increment[1];
       ray_position[2] += ray_increment[2];      
-      voxel[0] = (int)( ray_position[0] );
-      voxel[1] = (int)( ray_position[1] );
-      voxel[2] = (int)( ray_position[2] );
+      voxel[0] = vtkFloorFuncMacro( ray_position[0] );
+      voxel[1] = vtkFloorFuncMacro( ray_position[1] );
+      voxel[2] = vtkFloorFuncMacro( ray_position[2] );
       }
     accum_green_intensity = accum_red_intensity;
     accum_blue_intensity = accum_red_intensity;
@@ -2309,9 +2309,9 @@ void vtkCastRay_TrilinVertices_Shaded( T *data_ptr, VTKVRCDynamicInfo *dynamicIn
       ray_position[0] += ray_increment[0];
       ray_position[1] += ray_increment[1];
       ray_position[2] += ray_increment[2];      
-      voxel[0] = (int)( ray_position[0] );
-      voxel[1] = (int)( ray_position[1] );
-      voxel[2] = (int)( ray_position[2] );
+      voxel[0] = vtkFloorFuncMacro( ray_position[0] );
+      voxel[1] = vtkFloorFuncMacro( ray_position[1] );
+      voxel[2] = vtkFloorFuncMacro( ray_position[2] );
       }
     }
 

@@ -43,11 +43,25 @@ class vtkVolumeRayCastFunction;
 class vtkVolumeTransform;
 class vtkTransform;
 
+//BTX
 // Macro for floor of x
-#define vtkFloorFuncMacro(x)   (((x) < 0.0)?((int)((x)-1.0)):((int)(x)))
+inline int vtkFloorFuncMacro(double x)
+{
+#if defined i386 || defined _M_IX86
+  unsigned int hilo[2];
+  *((double *)hilo) = x + 103079215104.0;  // (2**(52-16))*1.5
+  return (int)((hilo[1]<<16)|(hilo[0]>>16));
+#else
+  return (int)((unsigned int)(x + 2147483648.0) - 2147483648U);
+#endif
+}
 
 // Macro for rounding x
-#define vtkRoundFuncMacro(x)   (int)((x)+0.5)
+inline int vtkRoundFuncMacro(double x)
+{
+  return vtkFloorFuncMacro(x + 0.5);
+}
+//ETX
 
 // Macro for tri-linear interpolation - do four linear interpolations on
 // edges, two linear interpolations between pairs of edges, then a final
