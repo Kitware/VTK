@@ -727,22 +727,25 @@ IF(VTK_INCLUDE_NEED_TK)
 ENDIF(VTK_INCLUDE_NEED_TK)
 
 IF (VTK_RENDERING_NEED_TK_INTERNAL AND TK_LIBRARY)
-  VTK_GET_TCL_TK_VERSION ("TCL_TK_MAJOR_VERSION" "TCL_TK_MINOR_VERSION")
-  IF (TCL_TK_MAJOR_VERSION AND TCL_TK_MINOR_VERSION)
+  SET (try_file "")
+  IF (CYGWIN OR WIN32)
+    SET (try_file "tkWinPort.h")
+  ENDIF (CYGWIN OR WIN32)
+  IF (UNIX)
+    SET (try_file "tkUnixPort.h")
+  ENDIF (UNIX)
+  IF (APPLE)
+    SET (try_file "tkMacOSXPort.h")
+  ENDIF (APPLE)
+  IF (try_file)
+    VTK_GET_TCL_TK_VERSION ("TCL_TK_MAJOR_VERSION" "TCL_TK_MINOR_VERSION")
     SET (TCL_TK_VERSION "${TCL_TK_MAJOR_VERSION}.${TCL_TK_MINOR_VERSION}")
-    IF (CYGWIN)
-      FIND_PATH(TK_INTERNAL_PATH 
-                tkWinInt.h 
-                "The path to the Tk internal headers.")
-    ELSE (CYGWIN)
-      SET (TK_INTERNAL_PATH_TRY 
-           "${VTK_SOURCE_DIR}/Utilities/TclTk/internals/tk${TCL_TK_VERSION}")
-      IF (EXISTS ${TK_INTERNAL_PATH_TRY})
-        SET(TK_INTERNAL_PATH ${TK_INTERNAL_PATH_TRY} CACHE INTERNAL 
-            "The path to the Tk internal headers.")
-      ENDIF (EXISTS ${TK_INTERNAL_PATH_TRY})
-    ENDIF (CYGWIN)
-  ENDIF (TCL_TK_MAJOR_VERSION AND TCL_TK_MINOR_VERSION)
+    FIND_PATH(TK_INTERNAL_PATH 
+              ${try_file}
+              "${VTK_SOURCE_DIR}/Utilities/TclTk/internals/tk${TCL_TK_VERSION}"
+              DOC "The path to the Tk internal headers (${try_file}).")
+    MARK_AS_ADVANCED(TK_INTERNAL_PATH)
+  ENDIF (try_file)
 ENDIF(VTK_RENDERING_NEED_TK_INTERNAL AND TK_LIBRARY)
 
 #-----------------------------------------------------------------------------
