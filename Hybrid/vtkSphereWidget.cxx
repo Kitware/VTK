@@ -26,7 +26,7 @@
 #include "vtkCallbackCommand.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkSphereWidget, "1.5");
+vtkCxxRevisionMacro(vtkSphereWidget, "1.6");
 vtkStandardNewMacro(vtkSphereWidget);
 
 vtkSphereWidget::vtkSphereWidget()
@@ -283,6 +283,11 @@ void vtkSphereWidget::PrintSelf(ostream& os, vtkIndent indent)
 
 void vtkSphereWidget::SelectRepresentation()
 {
+  if ( ! this->HandleVisibility )
+    {
+    this->CurrentRenderer->RemoveActor(this->HandleActor);
+    }
+
   if ( this->Representation == VTK_SPHERE_OFF )
     {
     this->CurrentRenderer->RemoveActor(this->SphereActor);
@@ -553,7 +558,8 @@ void vtkSphereWidget::ScaleSphere(double *p1, double *p2,
   this->SelectRepresentation();
 }
 
-void vtkSphereWidget::MoveHandle(double *p1, double *p2, int X, int Y)
+void vtkSphereWidget::MoveHandle(double *p1, double *p2, 
+                                 int vtkNotUsed(X), int vtkNotUsed(Y))
 {
   //Get the motion vector
   double v[3];
