@@ -94,8 +94,12 @@ void  vtkLookupTable
     return;
     }
 
-  this->TableRange[0] = min;
-  this->TableRange[1] = max;
+  if (this->TableRange[0] != min || this->TableRange[1] != max)
+    {
+    this->TableRange[0] = min;
+    this->TableRange[1] = max;
+    this->Modified();
+    }
 }
 
 // Allocate a color table of specified size.
