@@ -159,11 +159,11 @@ public:
       {return this->Container->Data;}
     Iterator& operator++() 
       {this->Container = this->Container->Next; return *this;}
-    bool operator!=(const Iterator& it) const
+    int operator!=(const Iterator& it) const
       {return this->Container != it.Container;}
-    bool operator==(const Iterator& i) const
+    int operator==(const Iterator& i) const
       {return this->Container == i.Container;}
-    bool operator==(const ListContainer* c) const
+    int operator==(const ListContainer* c) const
       {return this->Container == c;}
       
     ListContainer *Container;
@@ -274,7 +274,7 @@ struct vtkOTTetra
   TetraClassification Type;
 
   void GetFacePoints(int i, vtkOTFace& face);
-  bool InSphere(double x[3]);
+  int InSphere(double x[3]);
   TetraClassification GetType(); //inside, outside
 };
 
@@ -528,7 +528,7 @@ static int SortOnPointIds(const void *val1, const void *val2)
 
 //------------------------------------------------------------------------
 // See whether point is in sphere of tetrahedron
-bool vtkOTTetra::InSphere(double x[3])
+int vtkOTTetra::InSphere(double x[3])
 {
   double dist2;
   

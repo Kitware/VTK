@@ -75,7 +75,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // 3D objects in such a way to guarantee compatible face triangulations.
 // This is a very useful fact for parallel processing, or performing
 // operations like clipping that require compatible triangulations across
-// 3D cell faces.
+// 3D cell faces. (See vtkClipVolume for an example.)
 
 // .SECTION Caveats
 // Duplicate vertices will be ignored, i.e., if two points have the same
