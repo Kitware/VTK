@@ -146,22 +146,18 @@ proc CheckTime { theTest {currentTime -1}} {
 	set retCode "Warning: Recently Added Test"
     } elseif { $low == 0 && $high == 0 } {
 	set retCode "Warning: New Test"
-    } elseif { $currentTime < $low } {
+    } else {
 	set tmplist [lrange $timelist 1 end]
 	set limits [ComputeLimits $tmplist]
-	set low  [lindex $limits 0]
-	if { [lindex $timelist 0] < $low } {
+	set newlow  [lindex $limits 0]
+	set newhigh [lindex $limits 1]
+	if { $currentTime < $newlow && [lindex $timelist 0] < $newlow } {
 	    set retCode "Warning: Consistently Faster CPU Time"
-	} else {
-	    set retCode "Warning: Faster CPU Time"
-	}
-    } elseif { $currentTime > $high } {
-	set tmplist [lrange $timelist 1 end]
-	set limits [ComputeLimits $tmplist]
-	set high [lindex $limits 1]
-	if { [lindex $timelist 0] > $high } {
+	} elseif { $currentTime > $newhigh && [lindex $timelist 0] > $newhigh } {
 	    set retCode "Warning: Consistently Slower CPU Time"
-	} else {
+	} elseif { $currentTime < $low } {
+	    set retCode "Warning: Faster CPU Time"
+	} elseif { $currentTime > $high } {
 	    set retCode "Warning: Slower CPU Time"
 	}
     } 
