@@ -230,7 +230,7 @@ int vtkRenderer::UpdateActors()
   int        count = 0, num_actors;
   float      total_time, actor_time, gained_time, additional_time;
   int        allocated_time_initialized = 0, i;
-  float      *bounds, render_time, new_render_time;
+  float      render_time, new_render_time;
 
   num_actors = this->Actors.GetNumberOfItems();
 

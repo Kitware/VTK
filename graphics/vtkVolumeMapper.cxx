@@ -48,16 +48,6 @@ vtkVolumeMapper::vtkVolumeMapper()
   this->Clipping = 0;
 }
 
-// Description:
-// Destroy the object.
-vtkVolumeMapper::~vtkVolumeMapper()
-{
-}
-
-void vtkVolumeMapper::operator=(const vtkVolumeMapper& m)
-{
-}
-
 void vtkVolumeMapper::Update()
 {
   if ( this->ScalarInput )

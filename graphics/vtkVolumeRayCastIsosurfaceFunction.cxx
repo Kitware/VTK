@@ -1117,8 +1117,7 @@ void vtkVolumeRayCastIsosurfaceFunction::CastARay( int ray_type,
     }
 }
 
-// Description:
-float vtkVolumeRayCastIsosurfaceFunction::GetZeroOpacityThreshold( vtkVolume *vol )
+float vtkVolumeRayCastIsosurfaceFunction::GetZeroOpacityThreshold(vtkVolume *)
 {
   return( this->IsoValue );
 }

@@ -80,7 +80,7 @@ public:
 
   // Description:
   // Every actor passes the inner cull method (the actor is not culled)
-  int   InnerCullMethod( vtkRenderer *ren, vtkActor *act ) { return 1; };
+  int   InnerCullMethod( vtkRenderer *, vtkActor *) { return 1; };
 
   
   // Description:

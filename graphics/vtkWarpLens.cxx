@@ -53,7 +53,7 @@ void vtkWarpLens::Execute()
   vtkPoints *inPts;
   vtkPoints *newPts;
   vtkPointData *pd;
-  int i, ptId, numPts;
+  int ptId, numPts;
   float *x, newX[3];
   vtkPointSet *input=(vtkPointSet *)this->Input;
   vtkPointSet *output=(vtkPointSet *)this->Output;
