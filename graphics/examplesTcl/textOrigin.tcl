@@ -16,7 +16,7 @@ vtkPolyMapper textMapper
     textMapper SetInput [atext GetOutput]
 vtkFollower textActor
     textActor SetMapper textMapper
-    textActor SetScale 0.0025 0.0025 0.0025
+    textActor SetScale 0.2 0.2 0.2
     textActor AddPosition 0 -0.1 0
 
 # create graphics stuff
