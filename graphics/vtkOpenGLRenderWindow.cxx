@@ -399,7 +399,8 @@ void vtkOpenGLRenderWindow::WindowInitialize (void)
   // initialize blending for transparency
   vtkDebugMacro(<< " blend func stuff\n");
   glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
-
+  glEnable(GL_BLEND);
+  
   glEnable( GL_NORMALIZE );
   glAlphaFunc(GL_GREATER,0);
   

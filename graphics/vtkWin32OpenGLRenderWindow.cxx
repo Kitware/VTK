@@ -293,6 +293,7 @@ void vtkWin32OpenGLInit()
 
   // initialize blending for transparency
   glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+  glEnable(GL_BLEND);
 
   glEnable( GL_NORMALIZE );
   glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE);

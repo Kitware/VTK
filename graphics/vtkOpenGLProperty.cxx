@@ -81,16 +81,6 @@ void vtkOpenGLProperty::Render(vtkActor *vtkNotUsed(anActor),
 
   Info[3] = this->Opacity;
 
-  // deal with blending if necc
-  if (Info[3] < 1.0)
-    {
-    glEnable(GL_BLEND);
-    }
-  else
-    {
-    glDisable( GL_BLEND);
-    }
-  
   for (i=0; i < 3; i++) 
     {
     Info[i] = this->Ambient*this->AmbientColor[i];
@@ -141,16 +131,6 @@ void vtkOpenGLProperty::BackfaceRender(vtkActor *vtkNotUsed(anActor),
 
   Info[3] = this->Opacity;
 
-  // deal with blending if necc
-  if (Info[3] < 1.0)
-    {
-    glEnable(GL_BLEND);
-    }
-  else
-    {
-    glDisable( GL_BLEND);
-    }
-  
   for (i=0; i < 3; i++) 
     {
     Info[i] = this->Ambient*this->AmbientColor[i];
