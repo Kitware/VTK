@@ -376,7 +376,6 @@ private:
   vtkProVertexArray *V;
   vtkProTriArray *T;
 
-  vtkPointData *TempPD; // temp holder of point data for splitting
   // Use to be static variables used by object
   vtkPolyData *Mesh; //operate on this data structure
   float Pt[3];      //least squares plane point

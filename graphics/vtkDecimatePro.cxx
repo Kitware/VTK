@@ -104,7 +104,6 @@ vtkDecimatePro::vtkDecimatePro()
   this->EdgeLengths = vtkPriorityQueue::New();
   this->EdgeLengths->Allocate(VTK_MAX_TRIS_PER_VERTEX);
   
-  this->TempPD = vtkPointData::New();
   this->InflectionPoints = vtkFloatArray::New();
   this->TargetReduction = 0.90;
   this->FeatureAngle = 15.0;
@@ -137,7 +136,6 @@ vtkDecimatePro::~vtkDecimatePro()
     {
     this->VertexError->Delete();
     }
-  this->TempPD->Delete();
   this->Neighbors->Delete();
   this->EdgeLengths->Delete();
   delete this->V;
@@ -170,6 +168,7 @@ void vtkDecimatePro::Execute()
     }
   vtkPointData *outputPD=output->GetPointData();
   vtkPointData *inPD=input->GetPointData();
+  vtkPointData *meshPD=0;
   int *map, numNewPts, totalPts, newCellPts[3];
   int abortExecute=0;
 
@@ -228,10 +227,9 @@ void vtkDecimatePro::Execute()
     this->Mesh->SetPolys(newPolys);
     newPolys->Delete(); //registered by Mesh and preserved
 
-    this->Mesh->GetPointData()->CopyAllocate(inPD, numPts);
-    this->Mesh->GetPointData()->DeepCopy(inPD);
-
-    this->TempPD->CopyAllocate(this->Mesh->GetPointData(), 1);
+    meshPD = this->Mesh->GetPointData();
+    meshPD->CopyAllocate(inPD, numPts);
+    meshPD->DeepCopy(inPD);
 
     this->Mesh->BuildLinks();
     }
@@ -393,7 +391,7 @@ void vtkDecimatePro::Execute()
       }
     }
 
-  outputPD->CopyAllocate(this->Mesh->GetPointData(),numNewPts);
+  outputPD->CopyAllocate(meshPD,numNewPts);
 
   // Copy points in place
   for (ptId=0; ptId < totalPts; ptId++)
@@ -401,7 +399,7 @@ void vtkDecimatePro::Execute()
     if ( map[ptId] > -1 )
       {
       newPts->SetPoint(map[ptId],newPts->GetPoint(ptId));
-      outputPD->CopyData(this->Mesh->GetPointData(),ptId,map[ptId]);
+      outputPD->CopyData(meshPD,ptId,map[ptId]);
       }
     }
 
@@ -853,6 +851,7 @@ void vtkDecimatePro::SplitVertex(int ptId, int type, unsigned short int numTris,
   int nverts, *verts, tri, numSplitTris, veryFirst;
   float error;
   int startTri, p[2], maxGroupSize;
+  vtkPointData* meshPD = this->Mesh->GetPointData();
 
   //
   // On an interior edge split along the edge
@@ -878,8 +877,7 @@ void vtkDecimatePro::SplitVertex(int ptId, int type, unsigned short int numTris,
 
     // Now split region
     id = this->Mesh->InsertNextLinkedPoint(this->X,numSplitTris);
-    this->TempPD->CopyData(this->Mesh->GetPointData(), ptId, 0);
-    this->Mesh->GetPointData()->CopyData(this->TempPD, 0, id);
+    meshPD->CopyData(meshPD, ptId, id);
     for ( i=fedge1; i < fedge2; i++ )
       { //disconnect from existing vertex
       tri = this->T->Array[i].id;
@@ -931,8 +929,7 @@ void vtkDecimatePro::SplitVertex(int ptId, int type, unsigned short int numTris,
 
       // Now split region
       id = this->Mesh->InsertNextLinkedPoint(this->X,numSplitTris);
-      this->TempPD->CopyData(this->Mesh->GetPointData(), ptId, 0);
-      this->Mesh->GetPointData()->CopyData(this->TempPD, 0, id);
+      meshPD->CopyData(meshPD, ptId, id);
 
       for ( j=fedge1; j < fedge2; j++ )
         { //disconnect from existing vertex
@@ -1052,8 +1049,7 @@ void vtkDecimatePro::SplitVertex(int ptId, int type, unsigned short int numTris,
       if ( i != 0 ) 
         {
         id = this->Mesh->InsertNextLinkedPoint(this->X,group->GetNumberOfIds());
-	this->TempPD->CopyData(this->Mesh->GetPointData(), ptId, 0);
-	this->Mesh->GetPointData()->CopyData(this->TempPD, 0, id);
+	meshPD->CopyData(meshPD, ptId, id);
 
         for ( j=0; j < group->GetNumberOfIds(); j++ )
           {
