@@ -22,7 +22,7 @@
 #include "vtkMath.h"
 #include "vtkOldStyleCallbackCommand.h"
 
-vtkCxxRevisionMacro(vtkRenderWindowInteractor, "1.92");
+vtkCxxRevisionMacro(vtkRenderWindowInteractor, "1.93");
 
 // Construct object so that light follows camera motion.
 vtkRenderWindowInteractor::vtkRenderWindowInteractor()
@@ -166,8 +166,8 @@ void vtkRenderWindowInteractor::UpdateSize(int x,int y)
   // if the size changed send this on to the RenderWindow
   if ((x != this->Size[0])||(y != this->Size[1]))
     {
-    this->Size[0] = x;
-    this->Size[1] = y;
+    this->Size[0] = this->EventSize[0] = x;
+    this->Size[1] = this->EventSize[1] = y;
     this->RenderWindow->SetSize(x,y);
     }
 }

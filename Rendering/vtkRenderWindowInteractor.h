@@ -232,8 +232,6 @@ public:
   // event position is in LastEventPosition, updated automatically each
   // time EventPosition is set through SetEventAndLastEventPositions() or
   // any SetEventInformation*(). 
-  // The current width/height (if any) is in 
-  // EventSize (Expose event, for example).
   // The other information is about key board input.
   vtkSetVector2Macro(EventPosition,int);
   vtkGetVector2Macro(EventPosition,int);
@@ -248,8 +246,6 @@ public:
   {
     this->SetEventAndLastEventPositions(pos[0], pos[1]);
   } 
-  vtkSetVector2Macro(EventSize,int);
-  vtkGetVector2Macro(EventSize,int);
   vtkSetMacro(ControlKey, int);
   vtkGetMacro(ControlKey, int);
   vtkSetMacro(ShiftKey, int);
@@ -262,8 +258,7 @@ public:
   vtkGetStringMacro(KeySym);
 
   // Description:
-  // Set all the event information in one call.  This should be called for each
-  // event to assure that the information from the last event has been cleared.
+  // Set all the event information in one call.
   void SetEventInformation(int x, 
                            int y, 
                            int ctrl=0, 
@@ -298,9 +293,33 @@ public:
                                 int repeatcount=0,
                                 const char* keysym=0)
     {
-      this->SetEventInformation(x, this->Size[1] - y - 1, ctrl, shift, keycode, repeatcount, keysym);
+      this->SetEventInformation(x, 
+                                this->Size[1] - y - 1, 
+                                ctrl, 
+                                shift, 
+                                keycode, 
+                                repeatcount, 
+                                keysym);
     }
-  
+
+  // Description:
+  // Set all the keyboard-related event information in one call.
+  void SetKeyEventInformation(int ctrl=0, 
+                              int shift=0, 
+                              char keycode=0, 
+                              int repeatcount=0,
+                              const char* keysym=0)
+    {
+      this->ControlKey = ctrl;
+      this->ShiftKey = shift;
+      this->KeyCode = keycode;
+      this->RepeatCount = repeatcount;
+      if(keysym)
+        {
+        this->SetKeySym(keysym);
+        }
+      this->Modified();
+    }
 
   // Description:
   // This methods sets the Size ivar of the interactor without
@@ -309,8 +328,12 @@ public:
   // This is useful for letting someone else change the size of
   // the rendering window and just letting the interactor
   // know about the change.
+  // The current event width/height (if any) is in EventSize 
+  // (Expose event, for example).
   vtkSetVector2Macro(Size,int);
   vtkGetVector2Macro(Size,int);
+  vtkSetVector2Macro(EventSize,int);
+  vtkGetVector2Macro(EventSize,int);
 
   // Description:
   // When an event occurs, we must determine which Renderer the event

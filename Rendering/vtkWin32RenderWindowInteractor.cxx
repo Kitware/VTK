@@ -49,7 +49,7 @@ VTK_RENDERING_EXPORT LRESULT CALLBACK vtkHandleMessage2(HWND,UINT,WPARAM,LPARAM,
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkWin32RenderWindowInteractor, "1.82");
+vtkCxxRevisionMacro(vtkWin32RenderWindowInteractor, "1.83");
 vtkStandardNewMacro(vtkWin32RenderWindowInteractor);
 #endif
 
@@ -312,7 +312,10 @@ void vtkWin32RenderWindowInteractor::OnMouseMove(HWND, UINT nFlags,
     return;
     }
 
-  this->SetEventInformation(X, this->Size[1] - Y - 1, nFlags & MK_CONTROL, nFlags & MK_SHIFT);
+  this->SetEventInformationFlipY(X, 
+                                 Y, 
+                                 nFlags & MK_CONTROL, 
+                                 nFlags & MK_SHIFT);
   if (!this->MouseInWindow && 
       (X >= 0 && X < this->Size[0] && Y >= 0 && Y < this->Size[1]))
     {
@@ -341,8 +344,10 @@ void vtkWin32RenderWindowInteractor::OnNCMouseMove(HWND, UINT nFlags,
   int *pos = this->RenderWindow->GetPosition();
   if (this->MouseInWindow)
     {
-    this->SetEventInformation(X-pos[0], this->Size[1] - (Y-pos[1]) - 1
-                              , nFlags & MK_CONTROL, nFlags & MK_SHIFT);
+    this->SetEventInformationFlipY(X - pos[0], 
+                                   Y - pos[1],
+                                   nFlags & MK_CONTROL, 
+                                   nFlags & MK_SHIFT);
     this->InvokeEvent(vtkCommand::LeaveEvent, NULL);
     this->MouseInWindow = 0;
     }
@@ -356,7 +361,10 @@ void vtkWin32RenderWindowInteractor::OnLButtonDown(HWND wnd,UINT nFlags,
     return;
     }
   SetCapture(wnd);
-  this->SetEventInformation(X, this->Size[1] - Y - 1, nFlags & MK_CONTROL, nFlags & MK_SHIFT);
+  this->SetEventInformationFlipY(X, 
+                                 Y, 
+                                 nFlags & MK_CONTROL, 
+                                 nFlags & MK_SHIFT);
   this->InvokeEvent(vtkCommand::LeftButtonPressEvent,NULL);
 }
 
@@ -367,7 +375,10 @@ void vtkWin32RenderWindowInteractor::OnLButtonUp(HWND,UINT nFlags,
     {
     return;
     }
-  this->SetEventInformation(X, this->Size[1] - Y - 1, nFlags & MK_CONTROL, nFlags & MK_SHIFT);
+  this->SetEventInformationFlipY(X, 
+                                 Y, 
+                                 nFlags & MK_CONTROL, 
+                                 nFlags & MK_SHIFT);
   this->InvokeEvent(vtkCommand::LeftButtonReleaseEvent,NULL);
   ReleaseCapture( );
 }
@@ -380,7 +391,10 @@ void vtkWin32RenderWindowInteractor::OnMButtonDown(HWND wnd,UINT nFlags,
     return;
     }
   SetCapture(wnd);
-  this->SetEventInformation(X, this->Size[1] - Y - 1, nFlags & MK_CONTROL, nFlags & MK_SHIFT);
+  this->SetEventInformationFlipY(X, 
+                                 Y, 
+                                 nFlags & MK_CONTROL, 
+                                 nFlags & MK_SHIFT);
   this->InvokeEvent(vtkCommand::MiddleButtonPressEvent,NULL);
 }
 
@@ -391,7 +405,10 @@ void vtkWin32RenderWindowInteractor::OnMButtonUp(HWND,UINT nFlags,
     {
     return;
     }
-  this->SetEventInformation(X, this->Size[1] - Y - 1, nFlags & MK_CONTROL, nFlags & MK_SHIFT);
+  this->SetEventInformationFlipY(X, 
+                                 Y, 
+                                 nFlags & MK_CONTROL, 
+                                 nFlags & MK_SHIFT);
   this->InvokeEvent(vtkCommand::MiddleButtonReleaseEvent,NULL);
   ReleaseCapture( );
 }
@@ -404,7 +421,10 @@ void vtkWin32RenderWindowInteractor::OnRButtonDown(HWND wnd,UINT nFlags,
     return;
     }
   SetCapture(wnd );
-  this->SetEventInformation(X, this->Size[1] - Y - 1, nFlags & MK_CONTROL, nFlags & MK_SHIFT);
+  this->SetEventInformationFlipY(X, 
+                                 Y, 
+                                 nFlags & MK_CONTROL, 
+                                 nFlags & MK_SHIFT);
   this->InvokeEvent(vtkCommand::RightButtonPressEvent,NULL);
 }
 
@@ -415,7 +435,10 @@ void vtkWin32RenderWindowInteractor::OnRButtonUp(HWND,UINT nFlags,
     {
     return;
     }
-  this->SetEventInformation(X, this->Size[1] - Y - 1, nFlags & MK_CONTROL, nFlags & MK_SHIFT);
+  this->SetEventInformationFlipY(X, 
+                                 Y, 
+                                 nFlags & MK_CONTROL, 
+                                 nFlags & MK_SHIFT);
   this->InvokeEvent(vtkCommand::RightButtonReleaseEvent,NULL);
   ReleaseCapture( );
 }
@@ -424,7 +447,6 @@ void vtkWin32RenderWindowInteractor::OnSize(HWND,UINT, int X, int Y) {
   this->UpdateSize(X,Y);
   if (this->Enabled)
     {
-    this->SetSize(X, Y);
     this->InvokeEvent(vtkCommand::ConfigureEvent,NULL);
     }
 }
@@ -466,8 +488,11 @@ void vtkWin32RenderWindowInteractor::OnKeyDown(HWND, UINT vCode, UINT nRepCnt, U
     {
     keysym = "None";
     }
-  this->SetEventInformation(this->EventPosition[0], this->EventPosition[1],
-                            ctrl, shift, nChar, nRepCnt, keysym);
+  this->SetKeyEventInformation(ctrl, 
+                               shift, 
+                               nChar, 
+                               nRepCnt, 
+                               keysym);
   this->InvokeEvent(vtkCommand::KeyPressEvent, NULL);
 }
 
@@ -499,8 +524,11 @@ void vtkWin32RenderWindowInteractor::OnKeyUp(HWND, UINT vCode, UINT nRepCnt, UIN
     {
     keysym = "None";
     }
-  this->SetEventInformation(this->EventPosition[0], this->EventPosition[1],
-                            ctrl, shift, nChar, nRepCnt, keysym);
+  this->SetKeyEventInformation(ctrl, 
+                               shift, 
+                               nChar, 
+                               nRepCnt, 
+                               keysym);
   this->InvokeEvent(vtkCommand::KeyReleaseEvent, NULL);
 }
 
@@ -513,8 +541,10 @@ void vtkWin32RenderWindowInteractor::OnChar(HWND,UINT nChar,
     }
   int ctrl  = GetKeyState(VK_CONTROL) & (~1);
   int shift = GetKeyState(VK_SHIFT) & (~1); 
-  this->SetEventInformation(this->EventPosition[0], this->EventPosition[1],
-                            ctrl, shift, nChar, nRepCnt);
+  this->SetKeyEventInformation(ctrl, 
+                               shift, 
+                               nChar, 
+                               nRepCnt);
   this->InvokeEvent(vtkCommand::CharEvent, NULL);
 }
 

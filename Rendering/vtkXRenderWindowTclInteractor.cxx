@@ -31,7 +31,7 @@
 #include "vtkOldStyleCallbackCommand.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkXRenderWindowTclInteractor, "1.36");
+vtkCxxRevisionMacro(vtkXRenderWindowTclInteractor, "1.37");
 vtkStandardNewMacro(vtkXRenderWindowTclInteractor);
 
 // steal the first three elements of the TkMainInfo stuct
@@ -229,10 +229,12 @@ void vtkXRenderWindowTclInteractor::Enable()
 
   // Select the events that we want to respond to
   // (Multiple calls to XSelectInput overrides the previous settings)
-  XSelectInput(this->DisplayId,this->WindowId,
-               KeyPressMask | ButtonPressMask | ExposureMask |
-               StructureNotifyMask | ButtonReleaseMask | EnterWindowMask |
-               PointerMotionMask);
+  XSelectInput(this->DisplayId, this->WindowId,
+               KeyPressMask | KeyReleaseMask | 
+               ButtonPressMask | ButtonReleaseMask |
+               ExposureMask | StructureNotifyMask | 
+               EnterWindowMask | LeaveWindowMask | 
+               PointerMotionMask | PointerMotionMask);
 
   this->Enabled = 1;
 
@@ -296,22 +298,36 @@ void vtkXRenderWindowTclInteractorCallback(Widget vtkNotUsed(w),
   vtkXRenderWindowTclInteractor *me;
   
   me = (vtkXRenderWindowTclInteractor *)client_data;
-  int xp,yp;
+  int xp, yp;
   
   switch (event->type) 
     {
     case Expose:
       {
+      if (!me->Enabled) 
+        {
+        return;
+        }
       XEvent result;
-      while (XCheckTypedWindowEvent(me->DisplayId, me->WindowId,
-                                    Expose, &result))
+      while (XCheckTypedWindowEvent(me->DisplayId, 
+                                    me->WindowId,
+                                    Expose, 
+                                    &result))
         {
         // just getting the expose configure event
         event = &result;
         }
+      int width = (reinterpret_cast<XConfigureEvent *>(event))->width;
+      int height = (reinterpret_cast<XConfigureEvent *>(event))->height;
+      me->SetEventSize(width, height);
+      xp = (reinterpret_cast<XButtonEvent*>(event))->x;
+      yp = (reinterpret_cast<XButtonEvent*>(event))->y;
+      yp = me->Size[1] - xp - 1;
+      SetEventAndLastEventPositions(xp, yp);
       // only render if we are currently accepting events
       if (me->GetEnabled())
         {
+        me->InvokeEvent(vtkCommand::ExposeEvent,NULL);
         me->GetRenderWindow()->Render();
         }
       }
@@ -320,21 +336,26 @@ void vtkXRenderWindowTclInteractorCallback(Widget vtkNotUsed(w),
     case ConfigureNotify: 
       {
       XEvent result;
-      while (XCheckTypedWindowEvent(me->DisplayId, me->WindowId,
-                                    ConfigureNotify, &result))
+      while (XCheckTypedWindowEvent(me->DisplayId, 
+                                    me->WindowId,
+                                    ConfigureNotify, 
+                                    &result))
         {
         // just getting the last configure event
         event = &result;
         }
-      if (((reinterpret_cast<XConfigureEvent *>(event))->width != me->Size[0]) ||
-          ((reinterpret_cast<XConfigureEvent *>(event))->height != me->Size[1]))
+      int width = (reinterpret_cast<XConfigureEvent *>(event))->width;
+      int height = (reinterpret_cast<XConfigureEvent *>(event))->height;
+      if (width != me->Size[0] || height != me->Size[1])
         {
-        me->UpdateSize((reinterpret_cast<XConfigureEvent *>(event))->width,
-                       (reinterpret_cast<XConfigureEvent *>(event))->height); 
-        
+        me->UpdateSize(width, height);
+        xp = (reinterpret_cast<XButtonEvent*>(event))->x;
+        yp = (reinterpret_cast<XButtonEvent*>(event))->y;
+        SetEventAndLastEventPositions(xp, me->Size[1] - yp - 1);
         // only render if we are currently accepting events
         if (me->GetEnabled())
           {
+          me->InvokeEvent(vtkCommand::ConfigureEvent,NULL);
           me->GetRenderWindow()->Render();
           }
         }
@@ -343,21 +364,20 @@ void vtkXRenderWindowTclInteractorCallback(Widget vtkNotUsed(w),
       
     case ButtonPress: 
       {
-      if (!me->Enabled) return;
-      int ctrl = 0;
-      if ((reinterpret_cast<XButtonEvent *>(event))->state & ControlMask)
+      if (!me->Enabled) 
         {
-        ctrl = 1;
+        return;
         }
-      int shift = 0;
-      if ((reinterpret_cast<XButtonEvent *>(event))->state & ShiftMask)
-        {
-        shift = 1;
-        }
+      int ctrl = 
+        (reinterpret_cast<XButtonEvent *>(event))->state & ControlMask ? 1 : 0;
+      int shift =
+        (reinterpret_cast<XButtonEvent *>(event))->state & ShiftMask ? 1 : 0;
       xp = (reinterpret_cast<XButtonEvent*>(event))->x;
-      yp = me->Size[1] - (reinterpret_cast<XButtonEvent*>(event))->y - 1;
-      me->SetEventInformation(xp, yp,
-                              ctrl, shift);
+      yp = (reinterpret_cast<XButtonEvent*>(event))->y;
+      me->SetEventInformationFlipY(xp, 
+                                   yp,
+                                   ctrl, 
+                                   shift);
       switch ((reinterpret_cast<XButtonEvent *>(event))->button)
         {
         case Button1: 
@@ -375,21 +395,20 @@ void vtkXRenderWindowTclInteractorCallback(Widget vtkNotUsed(w),
       
     case ButtonRelease: 
       {
-      if (!me->Enabled) return;
-      int ctrl = 0;
-      if ((reinterpret_cast<XButtonEvent *>(event))->state & ControlMask)
+      if (!me->Enabled) 
         {
-        ctrl = 1;
+        return;
         }
-      int shift = 0;
-      if ((reinterpret_cast<XButtonEvent *>(event))->state & ShiftMask)
-        {
-        shift = 1;
-        }
+      int ctrl = 
+        (reinterpret_cast<XButtonEvent *>(event))->state & ControlMask ? 1 : 0;
+      int shift =
+        (reinterpret_cast<XButtonEvent *>(event))->state & ShiftMask ? 1 : 0;
       xp = (reinterpret_cast<XButtonEvent*>(event))->x;
-      yp = me->Size[1] - (reinterpret_cast<XButtonEvent*>(event))->y - 1; 
-      me->SetEventInformation(xp, yp,
-                              ctrl, shift);
+      yp = (reinterpret_cast<XButtonEvent*>(event))->y; 
+      me->SetEventInformationFlipY(xp, 
+                                   yp,
+                                   ctrl, 
+                                   shift);
       switch ((reinterpret_cast<XButtonEvent *>(event))->button)
         {
         case Button1: 
@@ -412,53 +431,76 @@ void vtkXRenderWindowTclInteractorCallback(Widget vtkNotUsed(w),
         {
         XtSetKeyboardFocus(me->TopLevelShell, me->top);
         } 
-      me->InvokeEvent(vtkCommand::EnterEvent, NULL);
+      if (me->Enabled) 
+        {
+        XEnterWindowEvent *e = reinterpret_cast<XEnterWindowEvent *>(event);
+        me->SetEventInformationFlipY(e->x, 
+                                     e->y,
+                                     (e->state & ControlMask) != 0, 
+                                     (e->state & ShiftMask) != 0);
+        me->InvokeEvent(vtkCommand::EnterEvent, NULL);
+        }
+      }
+      break;
+
+    case LeaveNotify:
+      {
+      if (me->Enabled)
+        {
+        XLeaveWindowEvent *e = reinterpret_cast<XLeaveWindowEvent *>(event);
+        me->SetEventInformationFlipY(e->x, 
+                                     e->y,
+                                     (e->state & ControlMask) != 0, 
+                                     (e->state & ShiftMask) != 0); 
+        me->InvokeEvent(vtkCommand::LeaveEvent, NULL);
+        }
       }
       break;
 
     case KeyPress:
       {
-      int ctrl = 0;
-      if ((reinterpret_cast<XButtonEvent *>(event))->state & ControlMask)
+      if (!me->Enabled) 
         {
-        ctrl = 1;
+        return;
         }
-      int shift = 0;
-      if ((reinterpret_cast<XButtonEvent *>(event))->state & ShiftMask)
-        {
-        shift = 1;
-        }
+      int ctrl = 
+        (reinterpret_cast<XButtonEvent *>(event))->state & ControlMask ? 1 : 0;
+      int shift =
+        (reinterpret_cast<XButtonEvent *>(event))->state & ShiftMask ? 1 : 0;
       KeySym ks;
       static char buffer[20];
       buffer[0] = '\0';
-      XLookupString(reinterpret_cast<XKeyEvent *>(event),buffer,20,&ks,NULL);
+      XLookupString(reinterpret_cast<XKeyEvent *>(event),buffer, 20, &ks,NULL);
       xp = (reinterpret_cast<XKeyEvent*>(event))->x;
-      yp = me->Size[1] - (reinterpret_cast<XKeyEvent*>(event))->y - 1;
-      if (!me->Enabled) return;
-      me->SetEventInformation(xp, yp,
-                              ctrl, shift, buffer[0], 1, buffer);
-      me->InvokeEvent(vtkCommand::MouseMoveEvent, NULL);
+      yp = (reinterpret_cast<XKeyEvent*>(event))->y;
+      me->SetEventInformationFlipY(xp, 
+                                   yp,
+                                   ctrl, 
+                                   shift, 
+                                   buffer[0], 
+                                   1, 
+                                   buffer);
+      me->InvokeEvent(vtkCommand::KeyPressEvent, NULL);
       me->InvokeEvent(vtkCommand::CharEvent, NULL);
       }
       break;      
       
     case MotionNotify: 
       {
-      if (!me->Enabled) return;
-      int ctrl = 0;
-      if ((reinterpret_cast<XMotionEvent *>(event))->state & ControlMask)
+      if (!me->Enabled) 
         {
-        ctrl = 1;
+        return;
         }
-      int shift = 0;
-      if ((reinterpret_cast<XMotionEvent *>(event))->state & ShiftMask)
-        {
-        shift = 1;
-        }
+      int ctrl = 
+        (reinterpret_cast<XButtonEvent *>(event))->state & ControlMask ? 1 : 0;
+      int shift =
+        (reinterpret_cast<XButtonEvent *>(event))->state & ShiftMask ? 1 : 0;
       xp = (reinterpret_cast<XMotionEvent*>(event))->x;
-      yp = me->Size[1] - (reinterpret_cast<XMotionEvent*>(event))->y - 1;
-      me->SetEventInformation(xp, yp,
-                              ctrl, shift);
+      yp = (reinterpret_cast<XMotionEvent*>(event))->y;
+      me->SetEventInformationFlipY(xp, 
+                                   yp,
+                                   ctrl, 
+                                   shift);
       me->InvokeEvent(vtkCommand::MouseMoveEvent, NULL);
       }
       break;
@@ -466,7 +508,7 @@ void vtkXRenderWindowTclInteractorCallback(Widget vtkNotUsed(w),
 }
 
 void vtkXRenderWindowTclInteractorTimer(XtPointer client_data,
-                                     XtIntervalId *vtkNotUsed(id))
+                                        XtIntervalId *vtkNotUsed(id))
 {
   vtkXRenderWindowTclInteractor *me;
   me = (vtkXRenderWindowTclInteractor *)client_data;
@@ -476,12 +518,23 @@ void vtkXRenderWindowTclInteractorTimer(XtPointer client_data,
   unsigned int keys;
 
   // get the pointer position
-  XQueryPointer(me->DisplayId,me->WindowId,
-                &root,&child,&root_x,&root_y,&x,&y,&keys);
-  if (!me->Enabled) return;
-  me->SetEventInformation(x, me->Size[1] - y,
-                            0, 0);
-  me->InvokeEvent(vtkCommand::MouseMoveEvent, NULL);
+  XQueryPointer(me->DisplayId,
+                me->WindowId,
+                &root,
+                &child,
+                &root_x,
+                &root_y,
+                &x,
+                &y,
+                &keys);
+  if (!me->Enabled) 
+    {
+    return;
+    }
+  me->SetEventInformationFlipY(x, 
+                               y,
+                               0, 
+                               0);
   me->InvokeEvent(vtkCommand::TimerEvent, NULL);
 }
 
