@@ -45,7 +45,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkGridSynchronizedTemplates3D.h"
 #include "vtkImageMarchingCubes.h"
 #include "vtkKitwareContourFilter.h"
-#include "vtkKitwareObjectFactory.h"
 #include "vtkMarchingContourFilter.h"
 #include "vtkMarchingCubes.h"
 #include "vtkMarchingSquares.h"
