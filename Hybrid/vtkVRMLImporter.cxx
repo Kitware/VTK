@@ -1,17 +1,3 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkVRMLImporter.cxx
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
 
 #if defined (__digital__) && defined (__unix__)
 #define HAVE_ALLOCA_H 1
@@ -36,6 +22,20 @@ char *alloca ();
 #endif /* not HAVE_ALLOCA_H */
 #endif /* not __GNUC__ */
 
+/*=========================================================================
+
+  Program:   Visualization Toolkit
+  Module:    vtkVRMLImporter.cxx
+
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
 /* ======================================================================
  
    Importer based on BNF Yacc and Lex parser definition from:
@@ -4257,7 +4257,7 @@ YY_MALLOC_DECL
 #define YY_BREAK break;
 #endif
 
-vtkCxxRevisionMacro(vtkVRMLImporter, "1.68");
+vtkCxxRevisionMacro(vtkVRMLImporter, "1.69");
 vtkStandardNewMacro(vtkVRMLImporter);
 
 vtkPoints* vtkVRMLImporter::PointsNew()
