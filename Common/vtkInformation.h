@@ -59,6 +59,17 @@ public:
   void Copy(vtkInformation* from);
 
   // Description:
+  // Copy the key/value pair associated with the given key in the
+  // given information object.
+  void CopyEntry(vtkInformation* from, vtkInformationKey* key);
+
+  // Description:
+  // Use the given key to lookup a list of other keys in the given
+  // information object.  The key/value pairs associated with these
+  // other keys will be copied.
+  void CopyEntries(vtkInformation* from, vtkInformationKeyVectorKey* key);
+
+  // Description:
   // Get/Set an integer-valued entry.
   void Set(vtkInformationIntegerKey* key, int value);
   int Get(vtkInformationIntegerKey* key);

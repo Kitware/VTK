@@ -27,7 +27,7 @@
 
 #include <vtkstd/map>
 
-vtkCxxRevisionMacro(vtkInformation, "1.19");
+vtkCxxRevisionMacro(vtkInformation, "1.20");
 vtkStandardNewMacro(vtkInformation);
 
 //----------------------------------------------------------------------------
@@ -119,6 +119,25 @@ void vtkInformation::Copy(vtkInformation* from)
   else
     {
     this->Internal->Map.clear();
+    }
+}
+
+
+//----------------------------------------------------------------------------
+void vtkInformation::CopyEntry(vtkInformation* from, vtkInformationKey* key)
+{
+  key->Copy(from, this);
+}
+
+//----------------------------------------------------------------------------
+void vtkInformation::CopyEntries(vtkInformation* from,
+                                 vtkInformationKeyVectorKey* key)
+{
+  int numberOfKeys = from->Length(key);
+  vtkInformationKey** keys = from->Get(key);
+  for(int i=0; i < numberOfKeys; ++i)
+    {
+    this->CopyEntry(from, keys[i]);
     }
 }
 
