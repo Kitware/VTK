@@ -25,8 +25,8 @@ vtkConeSource cone
 vtkGlyph3D glyph
     glyph SetInput [sphere GetOutput]
     glyph SetSource [cone GetOutput]
-    glyph UseNormal
-    glyph ScaleByVector
+    glyph SetVectorModeToUseNormal
+    glyph SetScaleModeToScaleByVector
     glyph SetScaleFactor 0.25
 vtkPolyMapper spikeMapper
     spikeMapper SetInput [glyph GetOutput]

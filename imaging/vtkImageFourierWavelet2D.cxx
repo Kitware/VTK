@@ -85,7 +85,7 @@ void vtkImageFourierWavelet2D::ComputeOutputImageInformation(
 {
   int imageExtent[6];
   int waveletExtent[6];
-  float aspectRatio[3];
+  float Spacing[3];
   int imageMin, imageMax, imageSize;
   int waveletMin, waveletMax, waveletSize;
   int idx;
@@ -113,15 +113,15 @@ void vtkImageFourierWavelet2D::ComputeOutputImageInformation(
     }
   outRegion->SetImageExtent(3, imageExtent);
 
-  // Compute aspect ratio (Components?)
-  inRegion->GetAspectRatio(3, aspectRatio);
-  aspectRatio[0] = 0.0;
+  // Compute data spacing
+  inRegion->GetSpacing(3, Spacing);
+  Spacing[0] = 0.0;
   for (idx = 1; idx < 3; ++idx)
     {
-    aspectRatio[idx] *= this->Spacing;
+    Spacing[idx] *= this->Spacing;
     }
   
-  outRegion->SetAspectRatio(3, aspectRatio);
+  outRegion->SetSpacing(3, Spacing);
 }
 
 

@@ -132,8 +132,10 @@ void vtkBYUReader::ReadGeometryFile(FILE *geomFile, int &numPts)
 //
 // Allocate data objects
 //
-  newPts = new vtkFloatPoints(numPts);
-  newPolys = new vtkCellArray(numPolys+numEdges);
+  newPts = vtkFloatPoints::New();
+  newPts->Allocate(numPts);
+  newPolys = vtkCellArray::New();
+  newPolys->Allocate(numPolys+numEdges);
 //
 // Read data
 //
@@ -191,7 +193,8 @@ void vtkBYUReader::ReadDisplacementFile(int numPts)
 //
 // Allocate and read data
 //
-  newVectors = new vtkFloatVectors(numPts); newVectors->SetNumberOfVectors(numPts);
+  newVectors = vtkFloatVectors::New();
+  newVectors->SetNumberOfVectors(numPts);
 
   for (i=0; i<numPts; i++)
     {
@@ -225,7 +228,8 @@ void vtkBYUReader::ReadScalarFile(int numPts)
 //
 // Allocate and read data
 //
-  newScalars = new vtkFloatScalars(numPts); newScalars->SetNumberOfScalars(numPts);
+  newScalars = vtkFloatScalars::New();
+  newScalars->SetNumberOfScalars(numPts);
 
   for (i=0; i<numPts; i++)
     {
@@ -259,7 +263,7 @@ void vtkBYUReader::ReadTextureFile(int numPts)
 //
 // Allocate and read data
 //
-  newTCoords = new vtkFloatTCoords(numPts,2);
+  newTCoords = vtkFloatTCoords::New();
   newTCoords->SetNumberOfTCoords(numPts);
 
   for (i=0; i<numPts; i++)

@@ -20,7 +20,7 @@ vtkContourFilter iso
     iso SetValue 0 128
 vtkPolyMapper isoMapper
     isoMapper SetInput [iso GetOutput]
-    isoMapper ScalarsVisibleOff
+    isoMapper ScalarVisibilityOff
 vtkActor isoActor
     isoActor SetMapper isoMapper
 set isoProp [isoActor GetProperty]

@@ -7,7 +7,7 @@ vtkVolume16Reader v16
   v16 SetFileTypeLittleEndian
   v16 SetFilePrefix "../../../data/headsq/quarter"
   v16 SetImageRange 1 93
-  v16 SetDataAspectRatio 3.2 3.2 1.5
+  v16 SetDataSpacing 3.2 3.2 1.5
   v16 Update
 
 vtkContourFilter iso

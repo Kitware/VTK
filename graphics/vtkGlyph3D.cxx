@@ -159,13 +159,23 @@ void vtkGlyph3D::Execute()
     else haveNormals = 0;
     }
 
-  newPts = new vtkFloatPoints(numPts*numSourcePts);
+  newPts = vtkFloatPoints::New();
+  newPts->Allocate(numPts*numSourcePts);
   if ( inScalars )
-    newScalars = new vtkFloatScalars(numPts*numSourcePts);
+    {
+    newScalars = vtkFloatScalars::New();
+    newScalars->Allocate(numPts*numSourcePts);
+    }
   if ( haveVectors )
-    newVectors = new vtkFloatVectors(numPts*numSourcePts);
-  if ( haveNormals ) 
-    newNormals = new vtkFloatNormals(numPts*numSourcePts);
+    {
+    newVectors = vtkFloatVectors::New();
+    newVectors->Allocate(numPts*numSourcePts);
+    }
+  if ( haveNormals )
+    {
+    newNormals = vtkFloatNormals::New();
+    newNormals->Allocate(numPts*numSourcePts);
+    }
 
   // Setting up for calls to PolyData::InsertNextCell()
   output->Allocate(numPts*numSourceCells,numPts);

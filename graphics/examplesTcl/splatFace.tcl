@@ -35,17 +35,17 @@ vtkContourFilter contour
     contour SetValue 0 0.25
 vtkPolyMapper splatMapper
     splatMapper SetInput [contour GetOutput]
-    splatMapper ScalarsVisibleOff
+    splatMapper ScalarVisibilityOff
 vtkActor splatActor
     splatActor SetMapper splatMapper
     eval [splatActor GetProperty] SetColor 1.0 0.49 0.25
 
 vtkPolyMapper cyberMapper
     cyberMapper SetInput [cyber GetOutput]
-    cyberMapper ScalarsVisibleOff
+    cyberMapper ScalarVisibilityOff
 vtkActor cyberActor
     cyberActor SetMapper cyberMapper
-    [cyberActor GetProperty] SetWireframe
+    [cyberActor GetProperty] SetRepresentationToWireframe
     eval [cyberActor GetProperty] SetColor 0.2510 0.8784 0.8157
 
 # Add the actors to the renderer, set the background and size
@@ -59,7 +59,7 @@ vtkCamera camera
     camera SetClippingRange 0.0332682 1.66341
     camera SetFocalPoint 0.0511519 -0.127555 -0.0554379
     camera SetPosition 0.516567 -0.124763 -0.349538
-    camera CalcViewPlaneNormal
+    camera ComputeViewPlaneNormal
     camera SetViewAngle 18.1279
     camera SetViewUp -0.013125 0.99985 -0.0112779
 $ren1 SetActiveCamera camera

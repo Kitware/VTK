@@ -165,7 +165,7 @@ void vtkAppendFilter::Execute()
   if ( !userDefinedPresent ) outputPD->CopyUserDefinedOff();
   outputPD->CopyAllocate(pd,numPts);
 
-  newPts = new vtkFloatPoints(numPts);
+  newPts = vtkFloatPoints::New();
   newPts->SetNumberOfPoints(numPts);
 
   for (ptOffset=0, this->InputList.InitTraversal(); 

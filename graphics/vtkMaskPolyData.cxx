@@ -93,7 +93,10 @@ void vtkMaskPolyData::Execute()
 // Allocate space
 //
   if ( numNewVerts )
-    newVerts = new vtkCellArray(numNewVerts);
+    {
+    newVerts = vtkCellArray::New();
+    newVerts->Allocate(numNewVerts);
+    }
 
   if ( numNewLines )
     {

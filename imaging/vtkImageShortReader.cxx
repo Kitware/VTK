@@ -68,7 +68,7 @@ vtkImageShortReader::vtkImageShortReader()
     {
     this->Dimensions[idx] = 1;
     this->Increments[idx] = 1;
-    this->AspectRatio[idx] = 1.0;
+    this->Spacing[idx] = 1.0;
     this->Origin[idx] = 0.0;
     }
 
@@ -121,10 +121,10 @@ void vtkImageShortReader::PrintSelf(ostream& os, vtkIndent indent)
     }
   os << ")\n";
 
-  os << indent << "AspectRatio: (" << this->AspectRatio[0];
+  os << indent << "Spacing: (" << this->Spacing[0];
   for (idx = 1; idx < VTK_IMAGE_DIMENSIONS; ++idx)
     {
-    os << ", " << this->AspectRatio[idx];
+    os << ", " << this->Spacing[idx];
     }
   os << ")\n";
   
@@ -172,24 +172,24 @@ void vtkImageShortReader::GetDimensions(int num, int *size)
 }
 
 //----------------------------------------------------------------------------
-void vtkImageShortReader::SetAspectRatio(int num, float *ratio)
+void vtkImageShortReader::SetSpacing(int num, float *ratio)
 {
   int idx;
   
   for (idx = 0; idx < num; ++idx)
     {
-    this->AspectRatio[idx] = ratio[idx];
+    this->Spacing[idx] = ratio[idx];
     }
   this->Modified();
 }
 //----------------------------------------------------------------------------
-void vtkImageShortReader::GetAspectRatio(int num, float *ratio)
+void vtkImageShortReader::GetSpacing(int num, float *ratio)
 {
   int idx;
   
   for (idx = 0; idx < num; ++idx)
     {
-    ratio[idx] = this->AspectRatio[idx];
+    ratio[idx] = this->Spacing[idx];
     }
 }
 
@@ -225,7 +225,7 @@ void vtkImageShortReader::UpdateImageInformation(vtkImageRegion *region)
 			 0, this->Dimensions[1]-1, 
 			 0, this->Dimensions[2]-1,
 			 0, this->Dimensions[3]-1);
-  region->SetAspectRatio(4, this->AspectRatio);
+  region->SetSpacing(4, this->Spacing);
   region->SetOrigin(4, this->Origin);
 }
 

@@ -99,7 +99,7 @@ void vtkOglrTexture::Load(vtkRenderer *vtkNotUsed(ren))
       }
     else
       {
-      dataPtr = ((vtkColorScalars *)scalars)->GetPtr(0);    
+      dataPtr = ((vtkColorScalars *)scalars)->GetPointer(0);    
       }
     // we only support 2d texture maps right now
     // so one of the three sizes must be 1, but it 

@@ -66,7 +66,8 @@ void vtkShrinkFilter::Execute()
     }
 
   output->Allocate(numCells);
-  newPts = new vtkFloatPoints(numPts*8,numPts);
+  newPts = vtkFloatPoints::New();
+  newPts->Allocate(numPts*8,numPts);
   pd = this->Input->GetPointData();
   outPD = output->GetPointData();
   outPD->CopyAllocate(pd,numPts*8,numPts);

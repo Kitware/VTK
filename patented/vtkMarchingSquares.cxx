@@ -270,7 +270,7 @@ void vtkMarchingSquares::Execute()
 //
   input->GetDimensions(dims);
   input->GetOrigin(origin);
-  input->GetAspectRatio(ar);
+  input->GetSpacing(ar);
   dataSize = dims[0] * dims[1] * dims[2];
 
   if ( input->GetDataDimension() != 2 )
@@ -338,8 +338,9 @@ void vtkMarchingSquares::Execute()
   estimatedSize = estimatedSize / 1024 * 1024; //multiple of 1024
   if (estimatedSize < 1024) estimatedSize = 1024;
 
-  newPts = new vtkFloatPoints(estimatedSize,estimatedSize);
-  newLines = new vtkCellArray();
+  newPts = vtkFloatPoints::New();
+  newPts->Allocate(estimatedSize,estimatedSize);
+  newLines = vtkCellArray::New();
   newLines->Allocate(newLines->EstimateSize(estimatedSize,2));
 
   // locator used to merge potentially duplicate points
@@ -352,50 +353,57 @@ void vtkMarchingSquares::Execute()
   if ( !strcmp(type,"unsigned char") && 
   inScalars->GetNumberOfValuesPerScalar() == 1 )
     {
-    unsigned char *scalars = ((vtkUnsignedCharScalars *)inScalars)->GetPtr(0);
-    newScalars = new vtkUnsignedCharScalars(5000,25000);
+    unsigned char *scalars = ((vtkUnsignedCharScalars *)inScalars)->GetPointer(0);
+    newScalars = vtkUnsignedCharScalars::New();
+    newScalars->Allocate(5000,25000);
     ContourImage(scalars,newScalars,roi,dir,start,end,offset,ar,origin,
                  this->Values,this->NumberOfContours,this->Locator,newLines);
     }
 
   else if ( !strcmp(type,"unsigned short") )
     {
-    unsigned short *scalars = ((vtkUnsignedShortScalars *)inScalars)->GetPtr(0);
-    newScalars = new vtkUnsignedShortScalars(5000,25000);
+    unsigned short *scalars = ((vtkUnsignedShortScalars *)inScalars)->GetPointer(0);
+    newScalars = vtkUnsignedShortScalars::New();
+    newScalars->Allocate(5000,25000);
     ContourImage(scalars,newScalars,roi,dir,start,end,offset,ar,origin,
                  this->Values,this->NumberOfContours,this->Locator,newLines);
     }
   
   else if ( !strcmp(type,"short") )
     {
-    short *scalars = ((vtkShortScalars *)inScalars)->GetPtr(0);
-    newScalars = new vtkShortScalars(5000,25000);
+    short *scalars = ((vtkShortScalars *)inScalars)->GetPointer(0);
+    newScalars = vtkShortScalars::New();
+    newScalars->Allocate(5000,25000);
     ContourImage(scalars,newScalars,roi,dir,start,end,offset,ar,origin,
                  this->Values,this->NumberOfContours,this->Locator,newLines);
     }
   
   else if ( !strcmp(type,"float") )
     {
-    float *scalars = ((vtkFloatScalars *)inScalars)->GetPtr(0);
-    newScalars = new vtkFloatScalars(5000,25000);
+    float *scalars = ((vtkFloatScalars *)inScalars)->GetPointer(0);
+    newScalars = vtkFloatScalars::New();
+    newScalars->Allocate(5000,25000);
     ContourImage(scalars,newScalars,roi,dir,start,end,offset,ar,origin,
                  this->Values,this->NumberOfContours,this->Locator,newLines);
     }
 
   else if ( !strcmp(type,"int") )
     {
-    int *scalars = ((vtkIntScalars *)inScalars)->GetPtr(0);
-    newScalars = new vtkFloatScalars(5000,25000);
+    int *scalars = ((vtkIntScalars *)inScalars)->GetPointer(0);
+    newScalars = vtkFloatScalars::New();
+    newScalars->Allocate(5000,25000);
     ContourImage(scalars,newScalars,roi,dir,start,end,offset,ar,origin,
                  this->Values,this->NumberOfContours,this->Locator,newLines);
     }
 
   else //use general method - temporarily copies image
     {
-    vtkFloatScalars *image = new vtkFloatScalars(dataSize);
+    vtkFloatScalars *image = vtkFloatScalars::New();
+    image->Allocate(dataSize);
     inScalars->GetScalars(0,dataSize,*image);
-    newScalars = new vtkFloatScalars(5000,25000);
-    float *scalars = image->GetPtr(0);
+    newScalars = vtkFloatScalars::New();
+    newScalars->Allocate(5000,25000);
+    float *scalars = image->GetPointer(0);
     ContourImage(scalars,newScalars,roi,dir,start,end,offset,ar,origin,
                  this->Values,this->NumberOfContours,this->Locator,newLines);
     image->Delete();

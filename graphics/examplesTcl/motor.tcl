@@ -130,7 +130,7 @@ $renWin SetSize 500 500
 vtkCamera camera
     camera SetFocalPoint 0.0286334 0.0362996 0.0379685
     camera SetPosition 1.37067 1.08629 -1.30349
-    camera CalcViewPlaneNormal
+    camera ComputeViewPlaneNormal
     camera SetViewAngle 17.673
     camera SetViewUp  -0.376306 -0.5085 -0.774482
 

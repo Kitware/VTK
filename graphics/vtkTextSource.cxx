@@ -185,7 +185,7 @@ void vtkTextSource::Execute()
   // Set things up; allocate memory
   x[2] = 0;
 
-  newPoints = new vtkFloatPoints();
+  newPoints = vtkFloatPoints::New();
   newPolys = vtkCellArray::New();
   newScalars = vtkGraymap::New();
 

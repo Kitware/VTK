@@ -74,15 +74,16 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 //
 // The object uses "vector" data to scale glyphs, orient glyphs, and/or index
 // into a table of glyphs. You can choose to use either the vector or normal
-// data at each input point. Use the method UseVector() to use the vector
-// input data, and UseNormal() to use the normal input data.
+// data at each input point. Use the method SetVectorModeToUseVector() to use 
+// the vector input data, and SetVectorModeToUseNormal() to use the
+// normal input data. 
 //
 // If you do use a table of glyphs, make sure to set the Range ivar to make
 // sure the index into the glyph table is computed correctly.
 //
 // You can turn off scaling of the glyphs completely by using the Scaling
 // ivar. You can also turn off scaling due to data (either vector or scalar)
-// by using the DataScalingOff() method.
+// by using the SetScaleModeToDataScalingOff() method.
 
 // .SECTION See Also
 // vtkTensorGlyph
@@ -135,9 +136,13 @@ public:
   // Either scale by scalar or by vector/normal magnitude.
   vtkSetMacro(ScaleMode,int);
   vtkGetMacro(ScaleMode,int);
-  void ScaleByScalar() {this->SetScaleMode(VTK_SCALE_BY_SCALAR);};
-  void ScaleByVector() {this->SetScaleMode(VTK_SCALE_BY_VECTOR);};
-  void DataScalingOff() {this->SetScaleMode(VTK_DATA_SCALING_OFF);};
+  void SetScaleModeToScaleByScalar() 
+    {this->SetScaleMode(VTK_SCALE_BY_SCALAR);};
+  void SetScaleModeToScaleByVector() 
+    {this->SetScaleMode(VTK_SCALE_BY_VECTOR);};
+  void SetScaleModeToDataScalingOff() 
+    {this->SetScaleMode(VTK_DATA_SCALING_OFF);};
+  char *GetScaleModeAsString();
 
   // Description:
   // Specify scale factor to scale object by.
@@ -166,8 +171,9 @@ public:
   // Specify whether to use vector or normal to perform vector operations.
   vtkSetMacro(VectorMode,int);
   vtkGetMacro(VectorMode,int);
-  void UseVector() {this->SetVectorMode(VTK_USE_VECTOR);};
-  void UseNormal() {this->SetVectorMode(VTK_USE_NORMAL);};
+  void SetVectorModeToUseVector() {this->SetVectorMode(VTK_USE_VECTOR);};
+  void SetVectorModeToUseNormal() {this->SetVectorMode(VTK_USE_NORMAL);};
+  char *GetVectorModeAsString();
 
   // Description:
   // Index into table of sources by scalar, by vector/normal magnitude, or
@@ -175,9 +181,10 @@ public:
   // the table of glyphs is used.
   vtkSetMacro(IndexMode,int);
   vtkGetMacro(IndexMode,int);
-  void IndexingByScalar() {this->SetIndexMode(VTK_INDEXING_BY_SCALAR);};
-  void IndexingByVector() {this->SetIndexMode(VTK_INDEXING_BY_VECTOR);};
-  void IndexingOff() {this->SetIndexMode(VTK_INDEXING_OFF);};
+  void SetIndexModeToScalar() {this->SetIndexMode(VTK_INDEXING_BY_SCALAR);};
+  void SetIndexModeToVector() {this->SetIndexMode(VTK_INDEXING_BY_VECTOR);};
+  void SetIndexModeToOff() {this->SetIndexMode(VTK_INDEXING_OFF);};
+  char *GetIndexModeAsString();
 
 protected:
   void Execute();
@@ -193,5 +200,55 @@ protected:
   int Clamping; // whether to clamp scale factor
   int IndexMode; // what to use to index into glyph table
 };
+
+// Description:
+// Return the method of scaling as a descriptive character string.
+inline char *vtkGlyph3D::GetScaleModeAsString(void)
+{
+  if ( this->ScaleMode == VTK_SCALE_BY_SCALAR )
+    {
+    return "ScaleByScalar";
+    }
+  else if ( this->ScaleMode == VTK_SCALE_BY_VECTOR ) 
+    {
+    return "ScaleByVector";
+    }
+  else 
+    {
+    return "DataScalingOff";
+    }
+}
+
+// Description:
+// Return the vector mode as a character string.
+inline char *vtkGlyph3D::GetVectorModeAsString(void)
+{
+  if ( this->VectorMode == VTK_USE_VECTOR) 
+    {
+    return "UseVector";
+    }
+  else 
+    {
+    return "UseNormal";
+    }
+}
+
+// Description:
+// Return the index mode as a character string.
+inline char *vtkGlyph3D::GetIndexModeAsString(void)
+{
+  if ( this->IndexMode == VTK_INDEXING_OFF) 
+    {
+    return "IndexingOff";
+    }
+  else if ( this->IndexMode == VTK_INDEXING_BY_SCALAR) 
+    {
+    return "IndexingByScalar";
+    }
+  else 
+    {
+    return "IndexingByVector";
+    }
+}
 
 #endif

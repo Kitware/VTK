@@ -26,7 +26,7 @@ vtkGlyph3D lines
     lines SetInput [threshold GetOutput]
     lines SetSource [line GetOutput]
     lines SetScaleFactor 0.005
-    lines ScaleByScalar
+    lines SetScaleModeToScaleByScalar
     lines Update;#make range current
 vtkPolyMapper vectorMapper
     vectorMapper SetInput [lines GetOutput]

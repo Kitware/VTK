@@ -82,7 +82,8 @@ void vtkMaskPoints::Execute()
     {
     numNewPts = this->MaximumNumberOfPoints;
     }
-  newPts = new vtkFloatPoints(numNewPts);
+  newPts = vtkFloatPoints::New();
+  newPts->Allocate(numNewPts);
   outputPD->CopyAllocate(pd);
   //
   // Traverse points and copy

@@ -89,7 +89,7 @@ void vtkTextureMapToSphere::Execute()
 
   //loop over all points computing spherical coordinates. Only tricky part
   //is keeping track of singularities/numerical problems.
-  newTCoords = new vtkFloatTCoords(numPts,2);
+  newTCoords = vtkFloatTCoords::New();
   newTCoords->SetNumberOfTCoords(numPts);
   for ( ptId=0; ptId < numPts; ptId++ )
     {

@@ -100,7 +100,7 @@ vtkPNMReader::vtkPNMReader()
   this->ImageRange[0] = this->ImageRange[1] = -1;
 
   this->DataOrigin[0] = this->DataOrigin[1] = this->DataOrigin[2] = 0.0;
-  this->DataAspectRatio[0] = this->DataAspectRatio[1] = this->DataAspectRatio[2] = 1.0;
+  this->DataSpacing[0] = this->DataSpacing[1] = this->DataSpacing[2] = 1.0;
 }
 
 void vtkPNMReader::Execute()
@@ -134,7 +134,7 @@ void vtkPNMReader::Execute()
   if ( ! newScalars ) return;
 
   output->SetDimensions(dim);
-  output->SetAspectRatio(this->DataAspectRatio);
+  output->SetSpacing(this->DataSpacing);
   output->SetOrigin(this->DataOrigin);
   output->GetPointData()->SetScalars(newScalars);
   newScalars->Delete();
@@ -143,7 +143,7 @@ void vtkPNMReader::Execute()
 vtkStructuredPoints *vtkPNMReader::GetImage(int ImageNum)
 {
   vtkColorScalars *newScalars;
-  vtkStructuredPoints *result = new vtkStructuredPoints();
+  vtkStructuredPoints *result = vtkStructuredPoints::New();
   int dim[3];
 
   if (this->FilePrefix)
@@ -162,7 +162,7 @@ vtkStructuredPoints *vtkPNMReader::GetImage(int ImageNum)
 
   dim[2] = 1;
   result->SetDimensions(dim);
-  result->SetAspectRatio(this->DataAspectRatio);
+  result->SetSpacing(this->DataSpacing);
   result->SetOrigin(this->DataOrigin);
   result->GetPointData()->SetScalars(newScalars);
   newScalars->Delete();
@@ -309,7 +309,11 @@ vtkColorScalars *vtkPNMReader::ReadBinaryPNM(FILE *fp, vtkColorScalars *s,
   //finally, read file with appropriate color scalar type
   if ( type == VTK_PBM_TYPE )
     {
-    if ( !s ) bitmap = new vtkBitmap(numPts);
+    if ( !s )
+      {
+      bitmap = vtkBitmap::New();
+      bitmap->Allocate(numPts);
+      }
     else bitmap = (vtkBitmap *)s;
 
     if ( this->ReadBinaryPBM(fp,bitmap,offset,xsize,ysize) )
@@ -325,7 +329,11 @@ vtkColorScalars *vtkPNMReader::ReadBinaryPNM(FILE *fp, vtkColorScalars *s,
 
   else if ( type == VTK_PGM_TYPE )
     {
-    if ( !s ) graymap = new vtkGraymap(numPts);
+    if ( !s ) 
+      {
+      graymap = vtkGraymap::New();
+      graymap->Allocate(numPts);
+      }
     else graymap = (vtkGraymap *)s;
 
     if ( this->ReadBinaryPGM(fp,graymap,offset,xsize,ysize) )
@@ -341,7 +349,11 @@ vtkColorScalars *vtkPNMReader::ReadBinaryPNM(FILE *fp, vtkColorScalars *s,
 
   else 
     {
-    if ( !s ) pixmap = new vtkPixmap(numPts);
+    if ( !s ) 
+      {
+      pixmap = vtkPixmap::New();
+      pixmap->Allocate(numPts);
+      }
     else pixmap = (vtkPixmap *)s;
 
     if ( this->ReadBinaryPPM(fp,pixmap,offset,xsize,ysize) )
@@ -366,7 +378,7 @@ int vtkPNMReader::ReadBinaryPBM(FILE *fp, vtkBitmap* bitmap, int offset,
   unsigned char *cptr;
 
   max = vtkPNMReaderGetInt(fp);
-  cptr = bitmap->WritePtr(offset,ysize*packedXSize);
+  cptr = bitmap->WritePointer(offset,ysize*packedXSize);
   cptr = cptr + packedXSize*(ysize - 1);
 
 //
@@ -392,7 +404,7 @@ int vtkPNMReader::ReadBinaryPGM(FILE *fp, vtkGraymap* graymap, int offset,
   unsigned char *cptr;
 
   max = vtkPNMReaderGetInt(fp);
-  cptr = graymap->WritePtr(offset,ysize*xsize);
+  cptr = graymap->WritePointer(offset,ysize*xsize);
   cptr = cptr + xsize*(ysize - 1);
 //
 // Since pnm coordinate system is at upper left of image, need to convert
@@ -417,7 +429,7 @@ int vtkPNMReader::ReadBinaryPPM(FILE *fp, vtkPixmap* pixmap, int offset,
   unsigned char *cptr;
 
   max = vtkPNMReaderGetInt(fp);
-  cptr = pixmap->WritePtr(offset,ysize*xsize);
+  cptr = pixmap->WritePointer(offset,ysize*xsize);
   cptr = cptr + 3*xsize*(ysize - 1);
   
   //

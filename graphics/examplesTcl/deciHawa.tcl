@@ -30,7 +30,7 @@ vtkPolyMapper hawaiiMapper
 vtkActor hawaiiActor
     hawaiiActor SetMapper hawaiiMapper
     eval [hawaiiActor GetProperty] SetColor $turquoise_blue
-    eval [hawaiiActor GetProperty] SetWireframe
+    eval [hawaiiActor GetProperty] SetRepresentationToWireframe
 
 # Add the actors to the renderer, set the background and size
 #

@@ -94,12 +94,14 @@ void vtkTriangularTCoords::Execute()
 //
 //  Allocate texture data
 //
-  newTCoords = new vtkFloatTCoords(numNewPts,2);
+  newTCoords = vtkFloatTCoords::New();
+  newTCoords->Allocate(numNewPts,2);
 
 //
 // Allocate
 //
-  newPoints = new vtkFloatPoints(numNewPts);
+  newPoints = vtkFloatPoints::New();
+  newPoints->Allocate(numNewPts);
 
   newPolys = vtkCellArray::New();
   newPolys->Allocate(polyAllocSize);

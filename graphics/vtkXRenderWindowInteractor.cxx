@@ -429,7 +429,7 @@ void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
 	    {
             for (anActor->InitPartTraversal();(aPart=anActor->GetNextPart()); )
               {
-              aPart->GetProperty()->SetWireframe();
+              aPart->GetProperty()->SetRepresentationToWireframe();
               }
 	    }
 	  
@@ -450,7 +450,7 @@ void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
             for (anActor->InitPartTraversal(); 
 		 (aPart=anActor->GetNextPart()); )
               {
-              aPart->GetProperty()->SetSurface();
+              aPart->GetProperty()->SetRepresentationToSurface();
               }
 	    }
 	  

@@ -47,7 +47,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // output of this filter is an image of unsigned bytes whose values
 // are 0 or 255. InRegion specifies the region to use from the input
 // that will create the plot.  OutRegion Specifies the dimensions of the
-// scatter plot.  AspectRatio specifies how the components are converted
+// scatter plot.  Spacing specifies how the components are converted
 // into the OutRegion.  This filter will only work on 4d data 
 // (3d + components).
 
@@ -77,12 +77,12 @@ public:
   void SetAxes(int dim, int *axes);
   
   // Description:
-  // Set/Get The aspect ratio (same for all axes)
-  vtkSetMacro(AspectRatio,float);
-  vtkGetMacro(AspectRatio,float);
+  // Set/Get the data spacing (same for all axes).
+  vtkSetMacro(Spacing,float);
+  vtkGetMacro(Spacing,float);
   
 protected:
-  float AspectRatio;
+  float Spacing;
   vtkImageRegion InRegion;   // filter is performed over this region.
   vtkImageRegion ImageRegion;  // Just a way to provide ImageExtent.
   

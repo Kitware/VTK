@@ -115,25 +115,25 @@ void vtkExtractTensorComponents::Execute()
   if ( this->ExtractScalars )
     {
     outPD->CopyScalarsOff();
-    newScalars = new vtkFloatScalars(numPts);
+    newScalars = vtkFloatScalars::New();
     newScalars->SetNumberOfScalars(numPts);
     }
   if ( this->ExtractVectors ) 
     {
     outPD->CopyVectorsOff();
-    newVectors = new vtkFloatVectors(numPts);
+    newVectors = vtkFloatVectors::New();
     newVectors->SetNumberOfVectors(numPts);
     }
   if ( this->ExtractNormals ) 
     {
     outPD->CopyNormalsOff();
-    newNormals = new vtkFloatNormals(numPts);
+    newNormals = vtkFloatNormals::New();
     newNormals->SetNumberOfNormals(numPts);
     }
   if ( this->ExtractTCoords ) 
     {
     outPD->CopyTCoordsOff();
-    newTCoords = new vtkFloatTCoords(numPts,this->NumberOfTCoords);
+    newTCoords = vtkFloatTCoords::New();
     newTCoords->SetNumberOfTCoords(numPts);
     }
   outPD->PassData(pd);

@@ -50,7 +50,7 @@ vtkImageScatterPlot::vtkImageScatterPlot()
   this->SetOutputScalarType(VTK_UNSIGNED_SHORT);
   // set up for a 2d (256x256) image representing 0->256 in the components.
   this->ImageRegion.SetExtent(0, 255, 0, 255);
-  this->AspectRatio = 1.0;
+  this->Spacing = 1.0;
   // We want to request our input all by ourself.
   this->UseExecuteMethodOff();
   this->InRegion.SetExtent(1, 0, 255, 0, 255, 47, 47, 0);
@@ -124,7 +124,7 @@ static void vtkImageScatterPlotUpdate(vtkImageScatterPlot *self,
   int inInc0, inInc1, inInc2, inInc3;
   int idx0, idx1;
   T *inPtr0, *inPtr1;
-  float aspectRatio = self->GetAspectRatio();
+  float Spacing = self->GetSpacing();
   int coordinates[2];
   
   inRegion->GetExtent(inMin0, inMax0, inMin1, inMax1);
@@ -139,8 +139,8 @@ static void vtkImageScatterPlotUpdate(vtkImageScatterPlot *self,
     for (idx0 = inMin0; idx0 <= inMax0; ++idx0)
       {
       // get and convert components into indicies
-      coordinates[0] = (int)((float)(*inPtr0) / aspectRatio);
-      coordinates[1] = (int)((float)(*(inPtr0+inInc3)) / aspectRatio);
+      coordinates[0] = (int)((float)(*inPtr0) / Spacing);
+      coordinates[1] = (int)((float)(*(inPtr0+inInc3)) / Spacing);
       // Add to scatter plot
       if (outMin0 <= coordinates[0] && coordinates[0] <= outMax0 &&
 	  outMin1 <= coordinates[1] && coordinates[1] <= outMax1)

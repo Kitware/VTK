@@ -164,10 +164,10 @@ class VTK_EXPORT vtkCamera : public vtkObject
 
   void SetViewPlaneNormal(float a[3]);
   void SetViewPlaneNormal(float x, float y, float z);
-  void CalcViewPlaneNormal();
-  void CalcDistance();
-  void CalcViewTransform();
-  void CalcPerspectiveTransform(float aspect, float nearz, float farz);
+  void ComputeViewPlaneNormal();
+  void ComputeDistance();
+  void ComputeViewTransform();
+  void ComputePerspectiveTransform(float aspect, float nearz, float farz);
   vtkMatrix4x4 &GetViewTransform();
   vtkMatrix4x4 &GetPerspectiveTransform(float aspect,
 					float nearz, float farz);

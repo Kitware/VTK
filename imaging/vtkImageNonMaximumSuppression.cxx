@@ -209,8 +209,8 @@ void vtkImageNonMaximumSuppression::Execute(vtkImageRegion *inRegion1,
     return;
     }
 
-  // Gradient is computed with aspect ratio (world coordinates)
-  ratio = inRegion2->GetAspectRatio();
+  // Gradient is computed with data spacing (world coordinates)
+  ratio = inRegion2->GetSpacing();
   
   // Get information to march through data
   inRegion1->GetIncrements(in1Inc0, in1Inc1, in1Inc2, in1Inc3); 

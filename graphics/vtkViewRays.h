@@ -92,12 +92,12 @@ protected:
   unsigned long   ViewRaysMTime;	// View rays modified time
 
   // Parallel camera information
-  void            CalculateParallelInfo( int size[2] );
+  void            ComputeParallelInfo( int size[2] );
   float           StartPosition[3];	// Position of lower left ray
   float           Increments[2];	// Distance to move 1 ray over in X,Y
 
   // Perspective camera information
-  void            CalculatePerspectiveInfo(float *vr_ptr,int size[2]);
+  void            ComputePerspectiveInfo(float *vr_ptr,int size[2]);
   float           *ViewRays;
   };
 #endif

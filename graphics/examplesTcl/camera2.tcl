@@ -94,7 +94,7 @@ arrowTF SetTransform arrowT
 
 vtkDataSetMapper arrowMapper
 arrowMapper SetInput [arrowTF GetOutput]
-arrowMapper ScalarsVisibleOff
+arrowMapper ScalarVisibilityOff
 
 # draw the azimuth arrows
 vtkLODActor a1Actor
@@ -214,7 +214,7 @@ arrowTF3 SetTransform arrowT3
 
 vtkDataSetMapper arrowMapper2
 arrowMapper2 SetInput [arrowTF3 GetOutput]
-arrowMapper2 ScalarsVisibleOff
+arrowMapper2 ScalarVisibilityOff
 
 # draw the roll arrows
 vtkLODActor a6Actor

@@ -100,20 +100,24 @@ public:
   vtkGetObjectMacro(Locator,vtkPointLocator);
 
   // Description:
-  // Set the sorting order for the generated polydata.
-  //  Two possibilities:
+  // Set the sorting order for the generated polydata. There are two
+  // possibilities:
   //   Sort by value = 0 - This is the most efficient sort. For each cell,
   //      all contour values are processed. This is the default.
   //   Sort by cell = 1 - For each contour value, all cells are processed.
   //      This order should be used if the extracted polygons must be rendered
-  //      in a back-to-front or front-to-back order. This is very problem dependent.
-  //      For most applications, the default order is fine (and faster).
-  vtkSetClampMacro(SortBy,int,0,1);
+  //      in a back-to-front or front-to-back order. This is very problem 
+  //      dependent.
+  // For most applications, the default order is fine (and faster).
+  vtkSetClampMacro(SortBy,int,VTK_SORT_BY_VALUE,VTK_SORT_BY_CELL);
   vtkGetMacro(SortBy,int);
+  void SetSortByToSortByValue() {this->SetSortBy(VTK_SORT_BY_VALUE);};
+  void SetSortByToSortByCell() {this->SetSortBy(VTK_SORT_BY_CELL);};
+  char *GetSortByAsString();
 
   // Description:
-  // Create default locator. Used to create one when none is specified. The locator
-  // is used to merge coincident points.
+  // Create default locator. Used to create one when none is specified. The 
+  // locator is used to merge coincident points.
   void CreateDefaultLocator();
 
 protected:
@@ -128,6 +132,20 @@ protected:
   float Range[2];
   int GenerateCutScalars;
 };
+
+// Description:
+// Return the sorting procedure as a descriptive character string.
+inline char *vtkCutter::GetSortByAsString(void)
+{
+  if ( this->SortBy == VTK_SORT_BY_VALUE ) 
+    {
+    return "SortByValue";
+    }
+  else 
+    {
+    return "SortByCell";
+    }
+}
 
 #endif
 

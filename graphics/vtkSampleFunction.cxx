@@ -118,7 +118,7 @@ void vtkSampleFunction::Execute()
   vtkFloatScalars *newScalars;
   vtkFloatNormals *newNormals=NULL;
   int numPts;
-  float *p, s, ar[3], origin[3];
+  float *p, s, spacing[3], origin[3];
   vtkStructuredPoints *output=(vtkStructuredPoints *)this->Output;
 
   vtkDebugMacro(<< "Sampling implicit function");
@@ -134,25 +134,25 @@ void vtkSampleFunction::Execute()
 
   numPts = this->SampleDimensions[0] * this->SampleDimensions[1] 
            * this->SampleDimensions[2];
-  newScalars = new vtkFloatScalars(numPts); newScalars->SetNumberOfScalars(numPts);
+  newScalars = vtkFloatScalars::New(); newScalars->SetNumberOfScalars(numPts);
 
-  // Compute origin and aspect ratio
+  // Compute origin and data spacing
   output->SetDimensions(this->GetSampleDimensions());
   for (i=0; i < 3; i++)
     {
     origin[i] = this->ModelBounds[2*i];
     if ( this->SampleDimensions[i] <= 1 )
       {
-      ar[i] = 1;
+      spacing[i] = 1;
       }
     else
       {
-      ar[i] = (this->ModelBounds[2*i+1] - this->ModelBounds[2*i])
+      spacing[i] = (this->ModelBounds[2*i+1] - this->ModelBounds[2*i])
               / (this->SampleDimensions[i] - 1);
       }
     }
   output->SetOrigin(origin);
-  output->SetAspectRatio(ar);
+  output->SetSpacing(spacing);
 //
 // Traverse all points evaluating implicit function at each point
 //
@@ -168,7 +168,7 @@ void vtkSampleFunction::Execute()
   if ( this->ComputeNormals )
     {
     float n[3];
-    newNormals = new vtkFloatNormals(numPts); 
+    newNormals = vtkFloatNormals::New();
     newNormals->SetNumberOfNormals(numPts);
     for (ptId=0; ptId < numPts; ptId++ )
       {

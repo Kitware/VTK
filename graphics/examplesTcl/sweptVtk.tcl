@@ -41,7 +41,7 @@ vtkContourFilter iso
 
 vtkPolyMapper sweptSurfaceMapper
   sweptSurfaceMapper SetInput [iso GetOutput]
-  sweptSurfaceMapper ScalarsVisibleOff
+  sweptSurfaceMapper ScalarVisibilityOff
 
 vtkActor sweptSurface
   sweptSurface SetMapper sweptSurfaceMapper

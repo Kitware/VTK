@@ -83,8 +83,10 @@ void vtkEdgePoints::Execute()
     return;
     }
 
-  newPts = new vtkFloatPoints(5000,10000);
-  newVerts = new vtkCellArray(5000,10000);
+  newPts = vtkFloatPoints::New();
+  newPts->Allocate(5000,10000);
+  newVerts = vtkCellArray::New();
+  newVerts->Allocate(5000,10000);
 
   this->Locator.InitPointInsertion (newPts, this->Input->GetBounds());
 

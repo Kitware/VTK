@@ -147,11 +147,16 @@ void vtkMCubesReader::Execute()
 // Now re-read and merge
 //
   rewind (fp);
-  newPts = new vtkFloatPoints(numPts/3,numPts/3);
+  newPts = vtkFloatPoints::New();
+  newPts->Allocate(numPts/3,numPts/3);
   newPolys = vtkCellArray::New();
   newPolys->Allocate(newPolys->EstimateSize(numTris,3));
 
-  if ( this->Normals ) newNormals = new vtkFloatNormals(numPts/3,numPts/3);
+  if ( this->Normals ) 
+    {
+    newNormals = vtkFloatNormals::New();
+    newNormals->Allocate(numPts/3,numPts/3);
+    }
   
   if ( this->Locator == NULL ) this->CreateDefaultLocator();
   this->Locator->InitPointInsertion (newPts, bounds);

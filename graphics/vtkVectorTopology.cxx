@@ -76,7 +76,8 @@ void vtkVectorTopology::Execute()
     return;
     }
 
-  newPts = new vtkFloatPoints(100);
+  newPts = vtkFloatPoints::New();
+  newPts->Allocate(100);
   newVerts = vtkCellArray::New();
   newVerts->Allocate(newVerts->EstimateSize(1,100));
   outputPD->CopyAllocate(pd);

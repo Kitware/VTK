@@ -101,9 +101,11 @@ void vtkShrinkPolyData::Execute()
 //
 // Allocate
 //
-  newPoints = new vtkFloatPoints(numNewPts);
+  newPoints = vtkFloatPoints::New();
+  newPoints->Allocate(numNewPts);
 
-  newVerts = new vtkCellArray(input->GetNumberOfVerts());
+  newVerts = vtkCellArray::New();
+  newVerts->Allocate(input->GetNumberOfVerts());
 
   newLines = vtkCellArray::New();
   newLines->Allocate(numNewLines*3);

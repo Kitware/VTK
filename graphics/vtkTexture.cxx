@@ -155,7 +155,7 @@ unsigned char *vtkTexture::MapScalarsToColors (vtkScalars *scalars)
     mappedScalars->SetColor(i, this->LookupTable->MapValue(scalars->GetScalar(i)));
     }
   
-  return this->MappedScalars->GetPtr(0);
+  return this->MappedScalars->GetPointer(0);
 }
 
 void vtkTexture::Render(vtkRenderer *ren)

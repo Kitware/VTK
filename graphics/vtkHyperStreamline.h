@@ -76,9 +76,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define VTK_INTEGRATE_BACKWARD 1
 #define VTK_INTEGRATE_BOTH_DIRECTIONS 2
 
-#define VTK_START_FROM_POSITION 0
-#define VTK_START_FROM_LOCATION 1
-
 //
 // Special classes for manipulating data
 //
@@ -170,6 +167,12 @@ public:
   vtkSetClampMacro(IntegrationDirection,int,
                   VTK_INTEGRATE_FORWARD,VTK_INTEGRATE_BOTH_DIRECTIONS);
   vtkGetMacro(IntegrationDirection,int);
+  void SetIntegrationDirectionToForward()
+    {this->SetIntegrationDirection(VTK_INTEGRATE_FORWARD);};
+  void SetIntegrationDirectionToBackward()
+    {this->SetIntegrationDirection(VTK_INTEGRATE_BACKWARD);};
+  void SetIntegrationDirectionToIntegrateBothDirections()
+    {this->SetIntegrationDirection(VTK_INTEGRATE_BOTH_DIRECTIONS);};
 
   // Description:
   // Set/get terminal eigenvalue.  If major eigenvalue falls below this

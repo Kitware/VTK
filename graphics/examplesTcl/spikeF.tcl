@@ -40,8 +40,8 @@ vtkTransformPolyFilter transformF
 vtkGlyph3D glyph
     glyph SetInput [ptMask GetOutput]
     glyph SetSource [transformF GetOutput]
-    glyph UseNormal
-    glyph ScaleByVector
+    glyph SetVectorModeToUseNormal
+    glyph SetScaleModeToScaleByVector
     glyph SetScaleFactor 0.004
 vtkPolyMapper spikeMapper
     spikeMapper SetInput [glyph GetOutput]

@@ -90,7 +90,7 @@ void vtkLODActor::Render(vtkRenderer *ren)
     this->PointSource.SetNumberOfPoints(1);
     this->MediumMapper->SetInput(this->Glyph3D.GetOutput());
     this->MediumMapper->SetScalarRange(this->Mapper->GetScalarRange());
-    this->MediumMapper->SetScalarsVisible(this->Mapper->GetScalarsVisible());
+    this->MediumMapper->SetScalarVisibility(this->Mapper->GetScalarVisibility());
     this->MaskPoints.SetInput(this->Mapper->GetInput());
     this->MaskPoints.SetMaximumNumberOfPoints(this->NumberOfCloudPoints);
     this->MaskPoints.SetRandomMode(1);

@@ -79,7 +79,7 @@ void vtkShepardMethod::SetModelBounds(float xmin, float xmax, float ymin, float 
 
 // Description:
 // Compute ModelBounds from input geometry.
-float vtkShepardMethod::ComputeModelBounds(float origin[3], float ar[3])
+float vtkShepardMethod::ComputeModelBounds(float origin[3], float spacing[3])
 {
   float *bounds, maxDist;
   int i, adjustBounds=0;
@@ -113,16 +113,16 @@ float vtkShepardMethod::ComputeModelBounds(float origin[3], float ar[3])
       }
     }
 
-  // Set volume origin and aspect ratio
+  // Set volume origin and data spacing
   for (i=0; i<3; i++)
     {
     origin[i] = this->ModelBounds[2*i];
-    ar[i] = (this->ModelBounds[2*i+1] - this->ModelBounds[2*i])
+    spacing[i] = (this->ModelBounds[2*i+1] - this->ModelBounds[2*i])
             / (this->SampleDimensions[i] - 1);
     }
 
   ((vtkStructuredPoints *)this->Output)->SetOrigin(origin);
-  ((vtkStructuredPoints *)this->Output)->SetAspectRatio(ar);
+  ((vtkStructuredPoints *)this->Output)->SetSpacing(spacing);
 
   return maxDist;  
 }
@@ -130,7 +130,7 @@ float vtkShepardMethod::ComputeModelBounds(float origin[3], float ar[3])
 void vtkShepardMethod::Execute()
 {
   int ptId, i, j, k;
-  float *px, x[3], s, *sum, ar[3], origin[3];
+  float *px, x[3], s, *sum, spacing[3], origin[3];
   
   float maxDistance, distance2, inScalar;
   vtkScalars *inScalars;
@@ -161,7 +161,7 @@ void vtkShepardMethod::Execute()
   numNewPts = this->SampleDimensions[0] * this->SampleDimensions[1] 
               * this->SampleDimensions[2];
 
-  newScalars = new vtkFloatScalars(numNewPts); 
+  newScalars = vtkFloatScalars::New();
   newScalars->SetNumberOfScalars(numNewPts);
 
   sum = new float[numNewPts];
@@ -172,7 +172,7 @@ void vtkShepardMethod::Execute()
     }
 
   output->SetDimensions(this->GetSampleDimensions());
-  maxDistance = this->ComputeModelBounds(origin,ar);
+  maxDistance = this->ComputeModelBounds(origin,spacing);
 //
 // Traverse all input points. Each input point affects voxels within maxDistance.
 //
@@ -183,8 +183,8 @@ void vtkShepardMethod::Execute()
     
     for (i=0; i<3; i++) //compute dimensional bounds in data set
       {
-      min[i] = (int) ((float)((px[i] - maxDistance) - origin[i]) / ar[i]);
-      max[i] = (int) ((float)((px[i] + maxDistance) - origin[i]) / ar[i]);
+      min[i] = (int) ((float)((px[i] - maxDistance) - origin[i]) / spacing[i]);
+      max[i] = (int) ((float)((px[i] + maxDistance) - origin[i]) / spacing[i]);
       if (min[i] < 0) min[i] = 0;
       if (max[i] >= this->SampleDimensions[i]) 
 	max[i] = this->SampleDimensions[i] - 1;
@@ -193,13 +193,13 @@ void vtkShepardMethod::Execute()
     jkFactor = this->SampleDimensions[0]*this->SampleDimensions[1];
     for (k = min[2]; k <= max[2]; k++) 
       {
-      x[2] = ar[2] * k + origin[2];
+      x[2] = spacing[2] * k + origin[2];
       for (j = min[1]; j <= max[1]; j++)
         {
-        x[1] = ar[1] * j + origin[1];
+        x[1] = spacing[1] * j + origin[1];
         for (i = min[0]; i <= max[0]; i++) 
           {
-          x[0] = ar[0] * i + origin[0];
+          x[0] = spacing[0] * i + origin[0];
           idx = jkFactor*k + this->SampleDimensions[0]*j + i;
 
           distance2 = vtkMath::Distance2BetweenPoints(x,px);

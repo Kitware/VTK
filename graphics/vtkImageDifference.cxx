@@ -50,7 +50,7 @@ vtkImageDifference::vtkImageDifference()
 }
 
 // simple macro for calculating error
-#define vtkImageDifferenceCalcError(c1,c2) \
+#define vtkImageDifferenceComputeError(c1,c2) \
   r1 = abs(c1[0] - c2[0]); g1 = abs(c1[1] - c2[1]); b1 = abs(c1[2] - c2[2]); \
   if ((r1+g1+b1) < (tr+tg+tb)) { tr = r1; tg = g1; tb = b1; }
 
@@ -116,20 +116,20 @@ void vtkImageDifference::Execute()
       
       /* check the exact match pixel */
       color1 = s1->GetColor(idx+col);
-      vtkImageDifferenceCalcError(color1,color2);
+      vtkImageDifferenceComputeError(color1,color2);
 	
       /* check the pixel to the left */
       if (col)
 	{
 	color1 = s1->GetColor(idx + col - 1);
-	vtkImageDifferenceCalcError(color1,color2);
+	vtkImageDifferenceComputeError(color1,color2);
 	}
 	
 	/* check the pixel to the right */
       if (col < (dims1[0] -1))
 	{
 	color1 = s1->GetColor(idx + col + 1);
-	vtkImageDifferenceCalcError(color1,color2);
+	vtkImageDifferenceComputeError(color1,color2);
 	}
       
       /* check the line above if there is one */
@@ -137,20 +137,20 @@ void vtkImageDifference::Execute()
 	{
 	/* check the exact match pixel */
 	color1 = s1->GetColor(idx - dims1[0] + col);
-	vtkImageDifferenceCalcError(color1,color2);
+	vtkImageDifferenceComputeError(color1,color2);
 	
 	/* check the pixel to the left */
 	if (col)
 	  {
 	  color1 = s1->GetColor(idx - dims1[0] + col - 1);
-	  vtkImageDifferenceCalcError(color1,color2);
+	  vtkImageDifferenceComputeError(color1,color2);
 	  }
 	  
 	/* check the pixel to the right */
 	if (col < (dims1[0] -1))
 	  {
 	  color1 = s1->GetColor(idx - dims1[0] + col + 1);
-	  vtkImageDifferenceCalcError(color1,color2);
+	  vtkImageDifferenceComputeError(color1,color2);
 	  }
 	}
       
@@ -159,20 +159,20 @@ void vtkImageDifference::Execute()
 	{
 	/* check the exact match pixel */
 	color1 = s1->GetColor(idx + dims1[0] + col);
-	vtkImageDifferenceCalcError(color1,color2);
+	vtkImageDifferenceComputeError(color1,color2);
 	
 	/* check the pixel to the left */
 	if (col)
 	  {
 	  color1 = s1->GetColor(idx + dims1[0] + col - 1);
-	  vtkImageDifferenceCalcError(color1,color2);
+	  vtkImageDifferenceComputeError(color1,color2);
 	  }
 	
 	/* check the pixel to the right */
 	if (col < (dims1[0] -1))
 	  {
 	  color1 = s1->GetColor(idx + dims1[0] + col + 1);
-	  vtkImageDifferenceCalcError(color1,color2);
+	  vtkImageDifferenceComputeError(color1,color2);
 	  }
 	}
       

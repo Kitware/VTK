@@ -78,9 +78,18 @@ void vtkTransformFilter::Execute()
     }
 
   numPts = inPts->GetNumberOfPoints();
-  newPts = new vtkFloatPoints(numPts);
-  if ( inVectors ) newVectors = new vtkFloatVectors(numPts);
-  if ( inNormals ) newNormals = new vtkFloatNormals(numPts);
+  newPts = vtkFloatPoints::New();
+  newPts->Allocate(numPts);
+  if ( inVectors ) 
+    {
+    newVectors = vtkFloatVectors::New();
+    newVectors->Allocate(numPts);
+    }
+  if ( inNormals ) 
+    {
+    newNormals = vtkFloatNormals::New();
+    newNormals->Allocate(numPts);
+    }
   //
   // Loop over all points, updating position
   //

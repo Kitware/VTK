@@ -116,7 +116,7 @@ void vtkPolyNormals::Execute()
     if ( numPolys > 0 ) polys = new vtkCellArray(*(inPolys));
     else 
       {
-      polys = new vtkCellArray();
+      polys = vtkCellArray::New();
       polys->Allocate(polys->EstimateSize(numStrips,5));
       }
     strip.DecomposeStrips(inStrips,polys);
@@ -162,7 +162,8 @@ void vtkPolyNormals::Execute()
   if ( this->Consistency ) 
     {    
     NumFlips = 0;
-    Seeds = new vtkIdList(1000,1000);
+    Seeds = vtkIdList::New();
+    Seeds->Allocate(1000,1000);
 
     for (cellId=0; cellId < numPolys; cellId++)
       {
@@ -194,7 +195,8 @@ void vtkPolyNormals::Execute()
 //
 //  Compute polygon normals
 //
-  PolyNormals = new vtkFloatNormals(numPolys);
+  PolyNormals = vtkFloatNormals::New();
+  PolyNormals->Allocate(numPolys);
 
   for (cellId=0, newPolys->InitTraversal(); newPolys->GetNextCell(npts,pts); 
   cellId++ )
@@ -213,7 +215,7 @@ void vtkPolyNormals::Execute()
 //  Splitting will create new points.  Have to create index array to map
 //  new points into old points.
 //
-    Map = new vtkIdList(numPts,numPts/2);
+    Map = vtkIdList::New();
     Map->SetNumberOfIds(numPts);
     for (i=0; i < numPts; i++) Map->SetId(i,i);
 
@@ -241,7 +243,7 @@ void vtkPolyNormals::Execute()
     outPD->CopyNormalsOff();
     outPD->CopyAllocate(pd,numNewPts);
 
-    newPts = new vtkFloatPoints(numNewPts); newPts->SetNumberOfPoints(numNewPts);
+    newPts = vtkFloatPoints::New(); newPts->SetNumberOfPoints(numNewPts);
     for (ptId=0; ptId < numNewPts; ptId++)
       {
       oldId = Map->GetId(ptId);
@@ -264,7 +266,7 @@ void vtkPolyNormals::Execute()
 
   if ( this->FlipNormals && ! this->Consistency ) flipDirection = -1.0;
 
-  newNormals = new vtkFloatNormals(numNewPts);
+  newNormals = vtkFloatNormals::New();
   newNormals->SetNumberOfNormals(numNewPts);
   n[0] = n[1] = n[2] = 0.0;
   for (i=0; i < numNewPts; i++) newNormals->SetNormal(i,n);

@@ -1,15 +1,15 @@
 #include "vtkVolumeMapper.h"
 
 // Description:
-// Construct a vtkVolumeMapper with null ScalarInput
+// Construct a vtkVolumeMapper with empty scalar input and clipping off.
 vtkVolumeMapper::vtkVolumeMapper()
 {
-  this->ScalarInput           = NULL;
-  this->OrthoClippingEnabled  = 0;
+  this->ScalarInput = NULL;
+  this->Clipping = 0;
 }
 
 // Description:
-// Destruct the vtkVolumeMapper
+// Destroy the object.
 vtkVolumeMapper::~vtkVolumeMapper()
 {
 }
@@ -56,6 +56,7 @@ void vtkVolumeMapper::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "ScalarInput: (none)\n";
     }
 
+  os << indent << "Clipping: " << (this->Clipping ? "On\n" : "Off\n");
   os << indent << "Build Time: " <<this->BuildTime.GetMTime() << "\n";
 }
 

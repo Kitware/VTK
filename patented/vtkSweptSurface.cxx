@@ -87,7 +87,7 @@ void vtkSweptSurface::Execute()
   int i, numPts, numOutPts;
   vtkPointData *pd, *outPD;
   vtkScalars *inScalars, *newScalars;
-  float inAr[3], inOrigin[3];
+  float inSpacing[3], inOrigin[3];
   int inDim[3];
   int numSteps, stepNum;
   int numTransforms, transNum;
@@ -96,7 +96,7 @@ void vtkSweptSurface::Execute()
   float time;
   float position[3], position1[3], position2[3];
   float orient[3], orient1[3], orient2[3];
-  float origin[3], ar[3], bbox[24];
+  float origin[3], spacing[3], bbox[24];
   vtkStructuredPoints *input=(vtkStructuredPoints *)this->Input;
   vtkStructuredPoints *output=(vtkStructuredPoints *)this->Output;
 
@@ -128,10 +128,10 @@ void vtkSweptSurface::Execute()
     }
 
   output->SetDimensions(this->SampleDimensions);
-  this->ComputeBounds(origin, ar, bbox);
+  this->ComputeBounds(origin, spacing, bbox);
 
   input->GetDimensions(inDim);
-  input->GetAspectRatio(inAr);
+  input->GetSpacing(inSpacing);
   input->GetOrigin(inOrigin);
 //
 // Allocate data.  Scalar "type" is same as input.
@@ -193,7 +193,7 @@ void vtkSweptSurface::Execute()
 
       a.SetPosition(position);
       a.SetOrientation(orient);
-      this->SampleInput(a.vtkProp::GetMatrix(), inDim, inOrigin, inAr,
+      this->SampleInput(a.vtkProp::GetMatrix(), inDim, inOrigin, inSpacing,
                         inScalars, newScalars);
       }
     }
@@ -201,7 +201,7 @@ void vtkSweptSurface::Execute()
   //finish off last step
   a.SetPosition(position2);
   a.SetOrientation(orient2);
-  this->SampleInput(a.vtkProp::GetMatrix(), inDim, inOrigin, inAr,
+  this->SampleInput(a.vtkProp::GetMatrix(), inDim, inOrigin, inSpacing,
                     inScalars, newScalars);
 
   // Update ourselves and release memory
@@ -210,7 +210,7 @@ void vtkSweptSurface::Execute()
 }
 
 void vtkSweptSurface::SampleInput(vtkMatrix4x4& m, int inDim[3], 
-                                 float inOrigin[3], float inAr[3], 
+                                 float inOrigin[3], float inSpacing[3], 
                                  vtkScalars *inScalars, vtkScalars *outScalars)
 {
   int i, j, k, ii;
@@ -223,10 +223,10 @@ void vtkSweptSurface::SampleInput(vtkMatrix4x4& m, int inDim[3],
   int kOffset, jOffset, ijk[3], idx;
   float xTrans[4], weights[8];
   static vtkTransform t;
-  float *origin, *ar;
+  float *origin, *spacing;
 
   origin = ((vtkStructuredPoints *)this->Output)->GetOrigin();
-  ar = ((vtkStructuredPoints *)this->Output)->GetAspectRatio();
+  spacing = ((vtkStructuredPoints *)this->Output)->GetSpacing();
 
   t.SetMatrix(m);
   x[3] = 1.0; //homogeneous coordinates
@@ -234,14 +234,14 @@ void vtkSweptSurface::SampleInput(vtkMatrix4x4& m, int inDim[3],
   for (k=0; k<this->SampleDimensions[2]; k++)
     {
     kOffset = k*sliceSize;
-    x[2] = origin[2] + k * ar[2];
+    x[2] = origin[2] + k * spacing[2];
     for (j=0; j<this->SampleDimensions[1]; j++)
       {
       jOffset = j*this->SampleDimensions[0];
-      x[1] = origin[1] + j * ar[1];
+      x[1] = origin[1] + j * spacing[1];
       for (i=0; i<this->SampleDimensions[0]; i++)
         {
-        x[0] = origin[0] + i * ar[0];
+        x[0] = origin[0] + i * spacing[0];
 
         // transform into local space
         t.MultiplyPoint(x,xTrans);
@@ -250,7 +250,7 @@ void vtkSweptSurface::SampleInput(vtkMatrix4x4& m, int inDim[3],
         // determine which voxel point falls in.
         for (ii=0; ii<3; ii++)
           {
-          loc[ii] = (xTrans[ii]-inOrigin[ii]) / inAr[ii];
+          loc[ii] = (xTrans[ii]-inOrigin[ii]) / inSpacing[ii];
           ijk[ii] = (int)loc[ii];
           }
 
@@ -307,7 +307,7 @@ unsigned long int vtkSweptSurface::GetMTime()
 
 
 // compute model bounds from geometry and path
-void vtkSweptSurface::ComputeBounds(float origin[3], float ar[3], float bbox[24])
+void vtkSweptSurface::ComputeBounds(float origin[3], float spacing[3], float bbox[24])
 {
   int i, j, k, ii, idx, dim;
   float *bounds;
@@ -410,13 +410,13 @@ void vtkSweptSurface::ComputeBounds(float origin[3], float ar[3], float bbox[24]
     // adjust bounds larger (2.5%) to make sure data lies within volume
     for (i=0; i<3; i++)
       {
-      ar[i] = (xmax[i]-xmin[i]);
-      h = 0.0125 * ar[i];
+      spacing[i] = (xmax[i]-xmin[i]);
+      h = 0.0125 * spacing[i];
       xmin[i] -= h;
       xmax[i] += h;
       origin[i] = xmin[i];
       if ( (dim=this->SampleDimensions[i]) <= 1 ) dim=2;
-      if ( (ar[i]=ar[i]/(dim-1)) == 0.0 ) ar[i] = 1.0;
+      if ( (spacing[i]=spacing[i]/(dim-1)) == 0.0 ) spacing[i] = 1.0;
       }
     vtkDebugMacro(<<"Computed model bounds as (" << xmin[0] << "," << xmax[0]
                   << ", " << xmin[1] << "," << xmax[1]
@@ -429,15 +429,15 @@ void vtkSweptSurface::ComputeBounds(float origin[3], float ar[3], float bbox[24]
       {
       origin[i] = this->ModelBounds[2*i];
       if ( (dim=this->SampleDimensions[i]) <= 1 ) dim = 2;
-      ar[i] = (this->ModelBounds[2*i+1] - this->ModelBounds[2*i])
+      spacing[i] = (this->ModelBounds[2*i+1] - this->ModelBounds[2*i])
               / (dim - 1);
-      if ( ar[i] == 0.0 ) ar[i] = 1.0;
+      if ( spacing[i] == 0.0 ) spacing[i] = 1.0;
       }
     }
 
   // set output
   ((vtkStructuredPoints *)(this->Output))->SetOrigin(origin);
-  ((vtkStructuredPoints *)(this->Output))->SetAspectRatio(ar);
+  ((vtkStructuredPoints *)(this->Output))->SetSpacing(spacing);
 }
 
 // based on both path and bounding box of input, compute the number of 
@@ -447,7 +447,7 @@ int vtkSweptSurface::ComputeNumberOfSteps(vtkTransform *t1, vtkTransform *t2,
 {
   float x[4], xTrans1[4], xTrans2[4];
   float dist2, maxDist2;
-  float h, *ar;
+  float h, *spacing;
   int numSteps, i, j;
   
   // Compute maximum distance between points.
@@ -466,10 +466,11 @@ int vtkSweptSurface::ComputeNumberOfSteps(vtkTransform *t1, vtkTransform *t2,
     }
 
   // use magic factor to convert to nuumber of steps. Takes into account
-  // rotation (assuming maximum 90 degrees), aspect ratio of output, and 
+  // rotation (assuming maximum 90 degrees), data spacing of output, and 
   // effective size of voxel.
-  ar = ((vtkStructuredPoints *)this->Output)->GetAspectRatio();
-  h = sqrt(ar[0]*ar[0] + ar[1]*ar[1] + ar[2]*ar[2]) / 2.0;
+  spacing = ((vtkStructuredPoints *)this->Output)->GetSpacing();
+  h = sqrt(spacing[0]*spacing[0] + spacing[1]*spacing[1] + 
+           spacing[2]*spacing[2]) / 2.0;
   numSteps = (int) ((double)(1.414 * sqrt((double)maxDist2)) / h);
 
   if ( numSteps <= 0 ) return 1;

@@ -90,7 +90,7 @@ protected:
 			   int steps,float *res);
   void Composite(float *rays,int steps,int numRays,
 		 unsigned char *resultColor);
-  void CalcRayValues(vtkRenderer *,float foo[6][3], int *size, int *steps);
+  void ComputeRayValues(vtkRenderer *,float foo[6][3], int *size, int *steps);
 
   vtkTransform Transform; //use to perform ray transformation
 };

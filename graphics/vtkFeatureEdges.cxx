@@ -103,17 +103,21 @@ void vtkFeatureEdges::Execute()
   Mesh.SetPolys(inPolys);
   Mesh.BuildLinks();
 //
-//  Allocate storage for lines/points
+//  Allocate storage for lines/points (arbitrary allocations size)
 //
-  newPts = new vtkFloatPoints(numPts/10,numPts); // arbitrary allocations size 
-  newScalars = new vtkFloatScalars(numPts/10,numPts);
-  newLines = new vtkCellArray(numPts/10);
+  newPts = vtkFloatPoints::New();
+  newPts->Allocate(numPts/10,numPts); 
+  newScalars = vtkFloatScalars::New();
+  newScalars->Allocate(numPts/10,numPts);
+  newLines = vtkCellArray::New();
+  newLines->Allocate(numPts/10);
 //
 //  Loop over all polygons generating boundary, non-manifold, and feature edges
 //
   if ( this->FeatureEdges ) 
     {    
-    polyNormals = new vtkFloatNormals(inPolys->GetNumberOfCells());
+    polyNormals = vtkFloatNormals::New();
+    polyNormals->Allocate(inPolys->GetNumberOfCells());
 
     for (cellId=0, inPolys->InitTraversal(); inPolys->GetNextCell(npts,pts); 
     cellId++)

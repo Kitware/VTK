@@ -48,7 +48,7 @@ vtkContourFilter theConeSurface
     theConeSurface SetValue 0 0.0
 vtkPolyMapper coneMapper
     coneMapper SetInput [theConeSurface GetOutput]
-    coneMapper ScalarsVisibleOff
+    coneMapper ScalarVisibilityOff
 vtkActor coneActor
     coneActor SetMapper coneMapper
     eval [coneActor GetProperty] SetColor $chocolate
@@ -63,7 +63,7 @@ vtkContourFilter theCreamSurface
     theCreamSurface SetValue 0 0.0
 vtkPolyMapper creamMapper
     creamMapper SetInput [theCreamSurface GetOutput]
-    creamMapper ScalarsVisibleOff
+    creamMapper ScalarVisibilityOff
 vtkActor creamActor
     creamActor SetMapper creamMapper
     eval [creamActor GetProperty] SetColor $mint

@@ -182,7 +182,7 @@ void vtkSmoothPolyFilter::Execute()
         else //is edge vertex (unless already edge vertex!)
           {
           Verts[pts[j]].type = VTK_FEATURE_EDGE_VERTEX;
-          Verts[pts[j]].edges = new vtkIdList(2,2);
+          Verts[pts[j]].edges = vtkIdList::New();
           Verts[pts[j]].edges->SetNumberOfIds(2);
           Verts[pts[j]].edges->SetId(0,pts[j-1]);
           Verts[pts[j]].edges->SetId(1,pts[j+1]);
@@ -238,8 +238,16 @@ void vtkSmoothPolyFilter::Execute()
         p1 = pts[i];
         p2 = pts[(i+1)%npts];
 
-        if ( Verts[p1].edges == NULL ) Verts[p1].edges = new vtkIdList(6,6);
-        if ( Verts[p2].edges == NULL ) Verts[p2].edges = new vtkIdList(6,6);
+        if ( Verts[p1].edges == NULL )
+          {
+          Verts[p1].edges = vtkIdList::New();
+          Verts[p1].edges->Allocate(6,6);
+          }
+        if ( Verts[p2].edges == NULL )
+          {
+          Verts[p2].edges = vtkIdList::New();
+          Verts[p2].edges->Allocate(6,6);
+          }
 
         Mesh->GetCellEdgeNeighbors(cellId,p1,p2,neighbors);
         numNei = neighbors.GetNumberOfIds();
@@ -382,7 +390,7 @@ void vtkSmoothPolyFilter::Execute()
 //
   vtkDebugMacro(<<"Beginning smoothing iterations...");
 
-  newPts = new vtkFloatPoints(numPts);
+  newPts = vtkFloatPoints::New();
   newPts->SetNumberOfPoints(numPts);
   for (i=0; i<numPts; i++) //initialize to old coordinates
     {
@@ -437,7 +445,7 @@ void vtkSmoothPolyFilter::Execute()
 
   if ( this->GenerateErrorScalars )
     {
-    vtkFloatScalars *newScalars = new vtkFloatScalars(numPts);
+    vtkFloatScalars *newScalars = vtkFloatScalars::New();
     newScalars->SetNumberOfScalars(numPts);
     for (i=0; i<numPts; i++)
       {
@@ -451,7 +459,7 @@ void vtkSmoothPolyFilter::Execute()
 
   if ( this->GenerateErrorVectors )
     {
-    vtkFloatVectors *newVectors = new vtkFloatVectors(numPts);
+    vtkFloatVectors *newVectors = vtkFloatVectors::New();
     newVectors->SetNumberOfVectors(numPts);
     for (i=0; i<numPts; i++)
       {

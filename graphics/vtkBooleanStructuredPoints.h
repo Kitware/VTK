@@ -46,7 +46,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // incremental appending of data to the filter output.
 // .SECTION Caveats
 // To boolean two structured point datasets together requires that the 
-// dimensions of each dataset is identical. The origin and aspect ratio are 
+// dimensions of each dataset is identical. The origin and data spacing are 
 // ignored.
 
 #ifndef __vtkBooleanStructuredPoints_h
@@ -84,6 +84,13 @@ public:
   // Specify the type of boolean operation.
   vtkSetClampMacro(OperationType,int,VTK_UNION_OPERATOR,VTK_DIFFERENCE_OPERATOR);
   vtkGetMacro(OperationType,int);
+  void SetOperationTypeToUnion() 
+    {this->SetOperationType(VTK_UNION_OPERATOR);};
+  void SetOperationTypeToIntersection() 
+    {this->SetOperationType(VTK_INTERSECTION_OPERATOR);};
+  void SetOperationTypeToDifference() 
+    {this->SetOperationType(VTK_DIFFERENCE_OPERATOR);};
+  char *GetOperationTypeAsString();
 
   void SetSampleDimensions(int i, int j, int k);
   void SetSampleDimensions(int dim[3]);
@@ -117,5 +124,24 @@ protected:
   // various operations
   int OperationType;
 };
+
+// Description:
+// Return the boolean operation type as a descriptive character string.
+inline char *vtkBooleanStructuredPoints::GetOperationTypeAsString(void)
+{
+  if ( this->OperationType == VTK_UNION_OPERATOR )
+    {
+    return "Union";
+    }
+  else if ( this->OperationType == VTK_INTERSECTION_OPERATOR ) 
+    {
+    return "Intersection";
+    }
+  else
+    {
+    return "Difference";
+    }
+}
+
 
 #endif

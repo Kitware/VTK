@@ -102,7 +102,7 @@ void vtkVoxelModeller::Execute()
   int jkFactor;
   float *weights=new float[this->Input->GetMaxCellSize()];
   float closestPoint[3];
-  float voxelHalfWidth[3], origin[3], ar[3];
+  float voxelHalfWidth[3], origin[3], spacing[3];
   vtkStructuredPoints *output=(vtkStructuredPoints *)this->Output;
 //
 // Initialize self; create output objects
@@ -110,16 +110,16 @@ void vtkVoxelModeller::Execute()
   vtkDebugMacro(<< "Executing Voxel model");
 
   numPts = this->SampleDimensions[0] * this->SampleDimensions[1] * this->SampleDimensions[2];
-  newScalars = new vtkBitScalars(numPts);
+  newScalars = vtkBitScalars::New();
   newScalars->SetNumberOfScalars(numPts);
   for (i=0; i<numPts; i++) newScalars->SetScalar(i,0);
 
   output->SetDimensions(this->GetSampleDimensions());
-  maxDistance = this->ComputeModelBounds(origin,ar);
+  maxDistance = this->ComputeModelBounds(origin,spacing);
 //
 // Voxel widths are 1/2 the height, width, length of a voxel
 //
-  for (i=0; i < 3; i++) voxelHalfWidth[i] = ar[i] / 2.0;
+  for (i=0; i < 3; i++) voxelHalfWidth[i] = spacing[i] / 2.0;
 //
 // Traverse all cells; computing distance function on volume points.
 //
@@ -137,9 +137,9 @@ void vtkVoxelModeller::Execute()
     for (i=0; i<3; i++)
       {
       min[i] = (int) ((float)(adjBounds[2*i] - origin[i]) / 
-                      ar[i]);
+                      spacing[i]);
       max[i] = (int) ((float)(adjBounds[2*i+1] - origin[i]) / 
-                      ar[i]);
+                      spacing[i]);
       if (min[i] < 0) min[i] = 0;
       if (max[i] >= this->SampleDimensions[i]) max[i] = this->SampleDimensions[i] - 1;
       }
@@ -147,16 +147,16 @@ void vtkVoxelModeller::Execute()
     jkFactor = this->SampleDimensions[0]*this->SampleDimensions[1];
     for (k = min[2]; k <= max[2]; k++) 
       {
-      x[2] = ar[2] * k + origin[2];
+      x[2] = spacing[2] * k + origin[2];
       for (j = min[1]; j <= max[1]; j++)
         {
-        x[1] = ar[1] * j + origin[1];
+        x[1] = spacing[1] * j + origin[1];
         for (i = min[0]; i <= max[0]; i++) 
           {
 	  idx = jkFactor*k + this->SampleDimensions[0]*j + i;
 	  if (!(newScalars->GetScalar(idx)))
 	    {
-	    x[0] = ar[0] * i + origin[0];
+	    x[0] = spacing[0] * i + origin[0];
 
 	    if ( cell->EvaluatePosition(x, closestPoint, subId, pcoords, distance2, weights) != -1 &&
 	    ((fabs(closestPoint[0] - x[0]) <= voxelHalfWidth[0]) &&
@@ -179,7 +179,7 @@ void vtkVoxelModeller::Execute()
 
 // Description:
 // Compute the ModelBounds based on the input geometry.
-float vtkVoxelModeller::ComputeModelBounds(float origin[3], float ar[3])
+float vtkVoxelModeller::ComputeModelBounds(float origin[3], float spacing[3])
 {
   float *bounds, maxDist;
   int i, adjustBounds=0;
@@ -213,11 +213,11 @@ float vtkVoxelModeller::ComputeModelBounds(float origin[3], float ar[3])
       }
     }
 
-  // Set volume origin and aspect ratio
+  // Set volume origin and data spacing
   for (i=0; i<3; i++)
     {
     origin[i] = this->ModelBounds[2*i];
-    ar[i] = (this->ModelBounds[2*i+1] - this->ModelBounds[2*i])/
+    spacing[i] = (this->ModelBounds[2*i+1] - this->ModelBounds[2*i])/
       (this->SampleDimensions[i] - 1);
     }
 
@@ -270,7 +270,7 @@ void vtkVoxelModeller::Write(char *fname)
 {
   FILE *fp;
   int i, j, k;
-  float maxDistance, origin[3], ar[3];
+  float maxDistance, origin[3], spacing[3];
   
   vtkBitScalars *newScalars;
   int numPts, idx;
@@ -287,7 +287,7 @@ void vtkVoxelModeller::Write(char *fname)
   newScalars = (vtkBitScalars *)this->Output->GetPointData()->GetScalars();
 
   ((vtkStructuredPoints *)(this->Output))->SetDimensions(this->GetSampleDimensions());
-  maxDistance = this->ComputeModelBounds(origin,ar);
+  maxDistance = this->ComputeModelBounds(origin,spacing);
 
   fp = fopen(fname,"w");
   if (!fp) 
@@ -298,7 +298,7 @@ void vtkVoxelModeller::Write(char *fname)
 
   fprintf(fp,"Voxel Data File\n");
   fprintf(fp,"Origin: %f %f %f\n",origin[0],origin[1],origin[2]);
-  fprintf(fp,"Aspect: %f %f %f\n",ar[0],ar[1],ar[2]);
+  fprintf(fp,"Aspect: %f %f %f\n",spacing[0],spacing[1],spacing[2]);
   fprintf(fp,"Dimensions: %i %i %i\n",this->SampleDimensions[0],
 	  this->SampleDimensions[1],this->SampleDimensions[2]);
 

@@ -97,10 +97,10 @@ void vtkImageMagnify1D::ComputeOutputImageInformation(
 		    vtkImageRegion *inRegion, vtkImageRegion *outRegion)
 {
   int imageExtent[2];
-  float aspectRatio;
+  float Spacing;
 
   inRegion->GetImageExtent(1, imageExtent);
-  inRegion->GetAspectRatio(aspectRatio);
+  inRegion->GetSpacing(Spacing);
 
   // Scale the output extent
   imageExtent[0] *= this->MagnificationFactor;
@@ -113,11 +113,11 @@ void vtkImageMagnify1D::ComputeOutputImageInformation(
     imageExtent[1] = (imageExtent[1]+1) * this->MagnificationFactor - 1;
     }
   
-  // Change the aspect ratio.
-  aspectRatio /= (float)(this->MagnificationFactor);
+  // Change the data spacing
+  Spacing /= (float)(this->MagnificationFactor);
 
   outRegion->SetImageExtent(1, imageExtent);
-  outRegion->SetAspectRatio(aspectRatio);
+  outRegion->SetSpacing(Spacing);
 }
 
 

@@ -81,9 +81,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define VTK_INTEGRATE_BACKWARD 1
 #define VTK_INTEGRATE_BOTH_DIRECTIONS 2
 
-#define VTK_START_FROM_POSITION 0
-#define VTK_START_FROM_LOCATION 1
-
 typedef struct _vtkStreamPoint {
     float   x[3];    // position 
     int     cellId;  // cell
@@ -160,6 +157,13 @@ public:
   vtkSetClampMacro(IntegrationDirection,int,
                   VTK_INTEGRATE_FORWARD,VTK_INTEGRATE_BOTH_DIRECTIONS);
   vtkGetMacro(IntegrationDirection,int);
+  void SetIntegrationDirectionToForward()
+    {this->SetIntegrationDirection(VTK_INTEGRATE_FORWARD);};
+  void SetIntegrationDirectionToBackward()
+    {this->SetIntegrationDirection(VTK_INTEGRATE_BACKWARD);};
+  void SetIntegrationDirectionToIntegrateBothDirections()
+    {this->SetIntegrationDirection(VTK_INTEGRATE_BOTH_DIRECTIONS);};
+  char *GetIntegrationDirectionAsString();
 
   // Description:
   // Specify a nominal integration step size (expressed as a fraction of
@@ -231,6 +235,24 @@ protected:
   // boolean controls whether data scalars or velocity magnitude are used
   int SpeedScalars;
 };
+
+// Description:
+// Return the integration direction as a character string.
+inline char *vtkStreamer::GetIntegrationDirectionAsString(void)
+{
+  if ( this->IntegrationDirection == VTK_INTEGRATE_FORWARD ) 
+    {
+    return "IntegrateForward";
+    }
+  else if ( this->IntegrationDirection == VTK_INTEGRATE_BACKWARD ) 
+    {
+    return "IntegrateBackward";
+    }
+  else 
+    {
+    return "IntegrateBothDirections";
+    }
+}
 
 #endif
 

@@ -260,8 +260,6 @@ vtkViewRays \
 vtkVolume \
 vtkVolume16Reader \
 vtkVoxelModeller \
-vtkVoxelReader \
-vtkVoxelWriter \
 vtkWarpScalar \
 vtkWarpTo \
 vtkWarpVector  @OGLR_OBJ@ @GLR_OBJ@ @XGLR_OBJ@ @SBR_OBJ@

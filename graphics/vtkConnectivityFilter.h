@@ -96,21 +96,32 @@ public:
   vtkSetVectorMacro(ScalarRange,float,2);
   vtkGetVectorMacro(ScalarRange,float,2);
 
-  void ExtractPointSeededRegions();
-  void ExtractCellSeededRegions();
+  // Description:
+  // Control the extraction of connected surfaces.
+  vtkSetClampMacro(ExtractionMode,int,
+                  VTK_EXTRACT_POINT_SEEDED_REGIONS,VTK_EXTRACT_LARGEST_REGION);
+  vtkGetMacro(ExtractionMode,int);
+  void SetExtractionModeToPointSeededRegions()
+    {this->SetExtractionMode(VTK_EXTRACT_POINT_SEEDED_REGIONS);};
+  void SetExtractionModeToCellSeededRegions()
+    {this->SetExtractionMode(VTK_EXTRACT_CELL_SEEDED_REGIONS);};
+  void SetExtractionModeToLargestRegion()
+    {this->SetExtractionMode(VTK_EXTRACT_LARGEST_REGION);};
+  void SetExtractionModeToSpecifiedRegions()
+    {this->SetExtractionMode(VTK_EXTRACT_SPECIFIED_REGIONS);};
+  char *GetExtractionModeAsString();
 
-  void ExtractLargestRegion();
+  // Use with point or cell seeded extraction methods
+  void InitializeSeedList();
+  void AddSeed(int id);
+  void DeleteSeed(int id);
 
-  void ExtractSpecifiedRegions();
+  // Use with extract specified regions 
   void InitializeSpecifiedRegionList();
   void AddSpecifiedRegion(int id);
   void DeleteSpecifiedRegion(int id);
 
   int GetNumberOfExtractedRegions();
-
-  void InitializeSeedList();
-  void AddSeed(int id);
-  void DeleteSeed(int id);
 
   // Description:
   // The connectivity extraction algorithm works recursively. In some systems 
@@ -141,6 +152,28 @@ protected:
 
   void TraverseAndMark(int cellId);
 };
+
+// Description:
+// Return the method of extraction as a string.
+inline char *vtkConnectivityFilter::GetExtractionModeAsString(void)
+{
+  if ( this->ExtractionMode == VTK_EXTRACT_POINT_SEEDED_REGIONS ) 
+    {
+    return "ExtractPointSeededRegions";
+    }
+  else if ( this->ExtractionMode == VTK_EXTRACT_CELL_SEEDED_REGIONS ) 
+    {
+    return "ExtractCellSeededRegions";
+    }
+  else if ( this->ExtractionMode == VTK_EXTRACT_SPECIFIED_REGIONS ) 
+    {
+    return "ExtractSpecifiedRegions";
+    }
+  else 
+    {
+    return "ExtractLargestRegion";
+    }
+}
 
 #endif
 

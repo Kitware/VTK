@@ -212,7 +212,7 @@ void vtkPolyReader::Execute()
           return;
           }
 
-        this->Reader.ReadCells(size, verts->WritePtr(ncells,size));
+        this->Reader.ReadCells(size, verts->WritePointer(ncells,size));
         output->SetVerts(verts);
         verts->Delete();
         vtkDebugMacro(<<"Read " << ncells << " vertices");
@@ -228,7 +228,7 @@ void vtkPolyReader::Execute()
           return;
           }
 
-        this->Reader.ReadCells(size, lines->WritePtr(ncells,size));
+        this->Reader.ReadCells(size, lines->WritePointer(ncells,size));
         output->SetLines(lines);
         lines->Delete();
         vtkDebugMacro(<<"Read " << ncells << " lines");
@@ -244,7 +244,7 @@ void vtkPolyReader::Execute()
           return;
           }
 
-        this->Reader.ReadCells(size, polys->WritePtr(ncells,size));
+        this->Reader.ReadCells(size, polys->WritePointer(ncells,size));
         output->SetPolys(polys);
         polys->Delete();
         vtkDebugMacro(<<"Read " << ncells << " polygons");
@@ -260,7 +260,7 @@ void vtkPolyReader::Execute()
           return;
           }
 
-        this->Reader.ReadCells(size, tris->WritePtr(ncells,size));
+        this->Reader.ReadCells(size, tris->WritePointer(ncells,size));
         output->SetStrips(tris);
         tris->Delete();
         vtkDebugMacro(<<"Read " << ncells << " triangle strips");

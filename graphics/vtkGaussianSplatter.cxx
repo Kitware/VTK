@@ -97,7 +97,7 @@ static float (vtkGaussianSplatter::*SampleFactor)(float s);
 static char *Visited;
 static float Eccentricity2;
 static float *P, *N, S;
-static float Origin[3], AspectRatio[3];
+static float Origin[3], Spacing[3];
 
 void vtkGaussianSplatter::Execute()
 {
@@ -131,7 +131,7 @@ void vtkGaussianSplatter::Execute()
 
   numPts = this->SampleDimensions[0] * this->SampleDimensions[1] 
            * this->SampleDimensions[2];
-  NewScalars = new vtkFloatScalars(numPts); NewScalars->SetNumberOfScalars(numPts);
+  NewScalars = vtkFloatScalars::New(); NewScalars->SetNumberOfScalars(numPts);
   for (i=0; i<numPts; i++) NewScalars->SetScalar(i,0.0);
 
   Visited = new char[numPts];
@@ -167,7 +167,7 @@ void vtkGaussianSplatter::Execute()
       vtkDebugMacro(<< "Vertex #" << ptId);
 
     for (i=0; i<3; i++)  
-      loc[i] = (int) ((float)(P[i] - Origin[i]) / AspectRatio[i]);
+      loc[i] = (int) ((float)(P[i] - Origin[i]) / Spacing[i]);
 //
 //  For each of the eight corners of the cell, need to evaluate sample
 //  function and then begin recursive distribution
@@ -249,17 +249,17 @@ void vtkGaussianSplatter::ComputeModelBounds()
       }
     }
 
-  // Set volume origin and aspect ratio
+  // Set volume origin and data spacing
   output->SetOrigin(this->ModelBounds[0],this->ModelBounds[2],
 		    this->ModelBounds[4]);
   output->GetOrigin(Origin);
   
   for (i=0; i<3; i++)
     {
-    AspectRatio[i] = (this->ModelBounds[2*i+1] - this->ModelBounds[2*i])
+    Spacing[i] = (this->ModelBounds[2*i+1] - this->ModelBounds[2*i])
       / (this->SampleDimensions[i] - 1);
     }
-  output->SetAspectRatio(AspectRatio);
+  output->SetSpacing(Spacing);
 }
 
 // Description:
@@ -353,9 +353,9 @@ void vtkGaussianSplatter::SplitIJK (int i, int idir, int j, int jdir,
   int     idx, ip, jp, kp;
   float   cx[3], dist2;
 
-  cx[0] = Origin[0] + AspectRatio[0]*i;
-  cx[1] = Origin[1] + AspectRatio[1]*j;
-  cx[2] = Origin[2] + AspectRatio[2]*k;
+  cx[0] = Origin[0] + Spacing[0]*i;
+  cx[1] = Origin[1] + Spacing[1]*j;
+  cx[2] = Origin[2] + Spacing[2]*k;
 
   if ( (dist2= (this->*Sample)(cx)) <= Radius2 ) 
     {
@@ -410,9 +410,9 @@ void vtkGaussianSplatter::SplitIJ (int i, int idir, int j, int jdir, int k)
   int     idx, ip, jp;
   float   cx[3], dist2;
 
-  cx[0] = Origin[0] + AspectRatio[0]*i;
-  cx[1] = Origin[1] + AspectRatio[1]*j;
-  cx[2] = Origin[2] + AspectRatio[2]*k;
+  cx[0] = Origin[0] + Spacing[0]*i;
+  cx[1] = Origin[1] + Spacing[1]*j;
+  cx[2] = Origin[2] + Spacing[2]*k;
 
   if ( (dist2= (this->*Sample)(cx)) <= Radius2 ) 
     {
@@ -448,9 +448,9 @@ void vtkGaussianSplatter::SplitJK (int i, int j, int jdir, int k, int kdir)
   int     idx, jp, kp;
   float   cx[3], dist2;
 
-  cx[0] = Origin[0] + AspectRatio[0]*i;
-  cx[1] = Origin[1] + AspectRatio[1]*j;
-  cx[2] = Origin[2] + AspectRatio[2]*k;
+  cx[0] = Origin[0] + Spacing[0]*i;
+  cx[1] = Origin[1] + Spacing[1]*j;
+  cx[2] = Origin[2] + Spacing[2]*k;
 
   if ( (dist2= (this->*Sample)(cx)) <= Radius2 ) 
     {
@@ -485,9 +485,9 @@ void vtkGaussianSplatter::SplitIK (int i, int idir, int j, int k, int kdir)
   int     idx, ip, kp;
   float   cx[3], dist2;
 
-  cx[0] = Origin[0] + AspectRatio[0]*i;
-  cx[1] = Origin[1] + AspectRatio[1]*j;
-  cx[2] = Origin[2] + AspectRatio[2]*k;
+  cx[0] = Origin[0] + Spacing[0]*i;
+  cx[1] = Origin[1] + Spacing[1]*j;
+  cx[2] = Origin[2] + Spacing[2]*k;
 
   if ( (dist2= (this->*Sample)(cx)) <= Radius2 ) 
     {
@@ -521,9 +521,9 @@ void vtkGaussianSplatter::SplitI (int i, int idir, int j, int k)
   int     idx, ip;
   float   cx[3], dist2;
 
-  cx[0] = Origin[0] + AspectRatio[0]*i;
-  cx[1] = Origin[1] + AspectRatio[1]*j;
-  cx[2] = Origin[2] + AspectRatio[2]*k;
+  cx[0] = Origin[0] + Spacing[0]*i;
+  cx[1] = Origin[1] + Spacing[1]*j;
+  cx[2] = Origin[2] + Spacing[2]*k;
 
   if ( (dist2=(this->*Sample)(cx)) <= Radius2 ) 
     {
@@ -545,9 +545,9 @@ void vtkGaussianSplatter::SplitJ (int i, int j, int jdir, int k)
   int     idx, jp;
   float   cx[3], dist2;
 
-  cx[0] = Origin[0] + AspectRatio[0]*i;
-  cx[1] = Origin[1] + AspectRatio[1]*j;
-  cx[2] = Origin[2] + AspectRatio[2]*k;
+  cx[0] = Origin[0] + Spacing[0]*i;
+  cx[1] = Origin[1] + Spacing[1]*j;
+  cx[2] = Origin[2] + Spacing[2]*k;
 
   if ( (dist2=(this->*Sample)(cx)) <= Radius2 ) 
     {
@@ -568,9 +568,9 @@ void vtkGaussianSplatter::SplitK (int i, int j, int k, int kdir)
   int     idx, kp;
   float   cx[3], dist2;
 
-  cx[0] = Origin[0] + AspectRatio[0]*i;
-  cx[1] = Origin[1] + AspectRatio[1]*j;
-  cx[2] = Origin[2] + AspectRatio[2]*k;
+  cx[0] = Origin[0] + Spacing[0]*i;
+  cx[1] = Origin[1] + Spacing[1]*j;
+  cx[2] = Origin[2] + Spacing[2]*k;
 
   if ( (dist2=(this->*Sample)(cx)) <= Radius2 ) 
     {

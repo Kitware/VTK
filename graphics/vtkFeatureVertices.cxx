@@ -97,11 +97,14 @@ void vtkFeatureVertices::Execute()
   Mesh.SetLines(inLines);
   Mesh.BuildLinks();
 //
-//  Allocate storage for lines/points
+//  Allocate storage for lines/points (arbitrary allocations size)
 //
-  newPts = new vtkFloatPoints(numPts/10,numPts); // arbitrary allocations size 
-  newScalars = new vtkFloatScalars(numPts/10,numPts);
-  newVerts = new vtkCellArray(numPts/10);
+  newPts = vtkFloatPoints::New();
+  newPts->Allocate(numPts/10,numPts);
+  newScalars = vtkFloatScalars::New();
+  newScalars->Allocate(numPts/10,numPts);
+  newVerts = vtkCellArray::New();
+  newVerts->Allocate(numPts/10);
 //
 //  Loop over all lines generating boundary, non-manifold, and feature vertices
 //

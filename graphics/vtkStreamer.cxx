@@ -41,6 +41,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkStreamer.h"
 #include "vtkMath.h"
 
+#define VTK_START_FROM_POSITION 0
+#define VTK_START_FROM_LOCATION 1
+
 vtkStreamArray::vtkStreamArray()
 {
   this->MaxId = -1; 

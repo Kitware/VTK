@@ -139,9 +139,9 @@ protected:
   void TransformSlice (short *slice, short *pixels, int k, int dimensions[3], int bounds[3]);
   void ComputeTransformedDimensions(int dimensions[3]);
   void ComputeTransformedBounds(int bounds[6]);
-  void ComputeTransformedAspectRatio(float aspectRatio[3]);
+  void ComputeTransformedSpacing(float Spacing[3]);
   void ComputeTransformedOrigin(float origin[3]);
-  void AdjustAspectRatioAndOrigin(int dimensions[3], float aspectRatio[3], float origin[3]);
+  void AdjustSpacingAndOrigin(int dimensions[3], float Spacing[3], float origin[3]);
   vtkScalars *ReadImage(int ImageNumber);
   vtkScalars *ReadVolume(int FirstImage, int LastImage);
   int Read16BitImage(FILE *fp, short *pixels, int xsize, int ysize, 

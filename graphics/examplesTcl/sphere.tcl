@@ -22,7 +22,7 @@ vtkContourFilter iso
     iso SetValue 0 0.0
 vtkPolyMapper isoMapper
     isoMapper SetInput [iso GetOutput]
-    isoMapper ScalarsVisibleOff
+    isoMapper ScalarVisibilityOff
 vtkActor isoActor
     isoActor SetMapper isoMapper
     eval [isoActor GetProperty] SetColor $peacock

@@ -99,7 +99,8 @@ void vtkExtractGeometry::Execute()
   for (i=0; i < numPts; i++) pointMap[i] = -1;
 
   output->Allocate(numCells/4); //allocate storage for geometry/topology
-  newPts = new vtkFloatPoints(numPts/4,numPts);
+  newPts = vtkFloatPoints::New();
+  newPts->Allocate(numPts/4,numPts);
   pd = this->Input->GetPointData();
   outputPD->CopyAllocate(pd);
   

@@ -94,7 +94,7 @@ void vtkImplicitModeller::Execute()
   int jkFactor;
   float closestPoint[3];
   vtkStructuredPoints *output = this->GetOutput();
-  float *aspectRatio;
+  float *Spacing;
   float *origin;
   float *weights=new float[this->Input->GetMaxCellSize()];
   
@@ -102,13 +102,13 @@ void vtkImplicitModeller::Execute()
 
   numPts = this->SampleDimensions[0] * this->SampleDimensions[1] 
            * this->SampleDimensions[2];
-  newScalars = new vtkFloatScalars(numPts); newScalars->SetNumberOfScalars(numPts);
+  newScalars = vtkFloatScalars::New(); newScalars->SetNumberOfScalars(numPts);
   maxDistance = this->CapValue*this->CapValue;//sqrt taken later
   for (i=0; i<numPts; i++) newScalars->SetScalar(i,maxDistance);
 
   output->SetDimensions(this->GetSampleDimensions());
   maxDistance = this->ComputeModelBounds();
-  aspectRatio = output->GetAspectRatio();
+  Spacing = output->GetSpacing();
   origin = output->GetOrigin();
   
   //
@@ -128,9 +128,9 @@ void vtkImplicitModeller::Execute()
     for (i=0; i<3; i++)
       {
       min[i] = (int) ((float)(adjBounds[2*i] - origin[i]) / 
-                      aspectRatio[i]);
+                      Spacing[i]);
       max[i] = (int) ((float)(adjBounds[2*i+1] - origin[i]) / 
-                      aspectRatio[i]);
+                      Spacing[i]);
       if (min[i] < 0) min[i] = 0;
       if (max[i] >= this->SampleDimensions[i]) max[i] = this->SampleDimensions[i] - 1;
       }
@@ -138,13 +138,13 @@ void vtkImplicitModeller::Execute()
     jkFactor = this->SampleDimensions[0]*this->SampleDimensions[1];
     for (k = min[2]; k <= max[2]; k++) 
       {
-      x[2] = aspectRatio[2] * k + origin[2];
+      x[2] = Spacing[2] * k + origin[2];
       for (j = min[1]; j <= max[1]; j++)
         {
-        x[1] = aspectRatio[1] * j + origin[1];
+        x[1] = Spacing[1] * j + origin[1];
         for (i = min[0]; i <= max[0]; i++) 
           {
-          x[0] = aspectRatio[0] * i + origin[0];
+          x[0] = Spacing[0] * i + origin[0];
           idx = jkFactor*k + this->SampleDimensions[0]*j + i;
           prevDistance2 = newScalars->GetScalar(idx);
 
@@ -218,7 +218,7 @@ float vtkImplicitModeller::ComputeModelBounds()
       }
     }
 
-  // Set volume origin and aspect ratio
+  // Set volume origin and data spacing
   output->SetOrigin(this->ModelBounds[0],this->ModelBounds[2],
 		    this->ModelBounds[4]);
   
@@ -227,7 +227,7 @@ float vtkImplicitModeller::ComputeModelBounds()
     tempf[i] = (this->ModelBounds[2*i+1] - this->ModelBounds[2*i])
       / (this->SampleDimensions[i] - 1);
     }
-  output->SetAspectRatio(tempf);
+  output->SetSpacing(tempf);
 
   return maxDist;  
 }

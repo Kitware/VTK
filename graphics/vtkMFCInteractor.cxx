@@ -600,7 +600,7 @@ void vtkMFCInteractor::OnChar(CWnd *wnd,UINT nChar, UINT nRepCnt, UINT nFlags)
 	{
 	for (anActor->InitPartTraversal();(aPart=anActor->GetNextPart()); )
 	  {
-	  aPart->GetProperty()->SetWireframe();
+	  aPart->GetProperty()->SetRepresentationToWireframe();
 	  }
 	}
       Update();
@@ -617,7 +617,7 @@ void vtkMFCInteractor::OnChar(CWnd *wnd,UINT nChar, UINT nRepCnt, UINT nFlags)
 	{
 	for (anActor->InitPartTraversal();(aPart=anActor->GetNextPart()); )
 	  {
-	  aPart->GetProperty()->SetSurface();
+	  aPart->GetProperty()->SetRepresentationToSurface();
 	  }
 	}
       Update();

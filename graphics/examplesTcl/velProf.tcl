@@ -44,11 +44,11 @@ vtkPolyNormals normals
 vtkDataSetMapper planeMapper
     planeMapper SetInput [normals GetOutput]
     planeMapper SetScalarRange 0.197813 0.710419
-    planeMapper ScalarsVisibleOff
+    planeMapper ScalarVisibilityOff
 vtkActor planeActor
     planeActor SetMapper planeMapper
-set planeProp [planeActor GetProperty]
-eval $planeProp SetColor $salmon
+    set planeProp [planeActor GetProperty]
+    eval $planeProp SetColor $salmon
 
 vtkStructuredGridOutlineFilter outline
     outline SetInput [pl3d GetOutput]
@@ -56,8 +56,8 @@ vtkPolyMapper outlineMapper
     outlineMapper SetInput [outline GetOutput]
 vtkActor outlineActor
     outlineActor SetMapper outlineMapper
-set outlineProp [outlineActor GetProperty]
-eval $outlineProp SetColor $black
+    set outlineProp [outlineActor GetProperty]
+    eval $outlineProp SetColor $black
 
 $ren1 AddActors outlineActor
 $ren1 AddActors planeActor

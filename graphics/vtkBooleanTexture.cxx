@@ -72,7 +72,8 @@ void vtkBooleanTexture::Execute()
     }
 
   output->SetDimensions(this->XSize,this->YSize,1);
-  newScalars = new vtkAGraymap(numPts);
+  newScalars = vtkAGraymap::New();
+  newScalars->Allocate(numPts);
 //
 // Compute size of various regions
 //

@@ -409,7 +409,7 @@ void vtkDecimate::CreateOutput(int numPts, int numTris, int numEliminated,
     outputPD->CopyScalarsOff();
     }
   outputPD->CopyAllocate(pd,numNewPts);
-  newPts = new vtkFloatPoints(numNewPts);
+  newPts = vtkFloatPoints::New();
   newPts->SetNumberOfPoints(numNewPts);
 
   for (ptId=0; ptId < numPts; ptId++)
@@ -423,7 +423,8 @@ void vtkDecimate::CreateOutput(int numPts, int numTris, int numEliminated,
 
   if ( this->GenerateErrorScalars )
     {
-    newScalars = new vtkFloatScalars[numNewPts];
+    newScalars = vtkFloatScalars::New();
+    newScalars->SetNumberOfScalars(numNewPts);
     for (ptId=0; ptId < numPts; ptId++)
       if ( map[ptId] > -1 )
         newScalars->SetScalar(map[ptId],VertexError[ptId]);

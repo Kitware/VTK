@@ -97,7 +97,7 @@ float *vtkViewRays::GetPerspectiveViewRays(void)
       delete[] this->ViewRays;
 
     this->ViewRays = new float[this->Size[0]*this->Size[1]*3];
-    this->CalculatePerspectiveInfo(this->ViewRays,this->Size);
+    this->ComputePerspectiveInfo(this->ViewRays,this->Size);
 
     this->ViewRaysMTime = this->GetMTime();
     }
@@ -107,7 +107,7 @@ float *vtkViewRays::GetPerspectiveViewRays(void)
 
 // Description:
 // Private method to create the view rays into vr_ptr or a given size
-void vtkViewRays::CalculatePerspectiveInfo(float *vr_ptr,int size[2])
+void vtkViewRays::ComputePerspectiveInfo(float *vr_ptr,int size[2])
 {
   float         xpos, ypos, zpos;
   float         xinc, yinc;
@@ -248,7 +248,7 @@ float *vtkViewRays::GetParallelIncrements( void )
  
   if(update_info)
     {
-    this->CalculateParallelInfo( this->Size );
+    this->ComputeParallelInfo( this->Size );
     this->ViewRaysMTime = this->GetMTime();
     }
 
@@ -301,7 +301,7 @@ float *vtkViewRays::GetParallelStartPosition( void )
  
   if(update_info)
     {
-    this->CalculateParallelInfo( this->Size );
+    this->ComputeParallelInfo( this->Size );
     this->ViewRaysMTime = this->GetMTime();
     }
 
@@ -311,7 +311,7 @@ float *vtkViewRays::GetParallelStartPosition( void )
 // Description:
 // Calculate the information for stepping from ray to ray when using a parallel
 // projection.
-void vtkViewRays::CalculateParallelInfo( int size[2] )
+void vtkViewRays::ComputeParallelInfo( int size[2] )
 {
   float         x_half_inc, y_half_inc;
   float		p_scale;

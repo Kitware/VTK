@@ -111,30 +111,35 @@ void vtkTensorGlyph::Execute()
   numSourcePts = sourcePts->GetNumberOfPoints();
   numSourceCells = this->Source->GetNumberOfCells();
 
-  newPts = new vtkFloatPoints(numPts*numSourcePts);
+  newPts = vtkFloatPoints::New();
+  newPts->Allocate(numPts*numSourcePts);
 
   // Setting up for calls to PolyData::InsertNextCell()
   if ( (sourceCells=this->Source->GetVerts())->GetNumberOfCells() > 0 )
     {
-    cells = new vtkCellArray(numPts*sourceCells->GetSize());
+    cells = vtkCellArray::New();
+    cells->Allocate(numPts*sourceCells->GetSize());
     output->SetVerts(cells);
     cells->Delete();
     }
   if ( (sourceCells=this->Source->GetLines())->GetNumberOfCells() > 0 )
     {
-    cells = new vtkCellArray(numPts*sourceCells->GetSize());
+    cells = vtkCellArray::New();
+    cells->Allocate(numPts*sourceCells->GetSize());
     output->SetLines(cells);
     cells->Delete();
     }
   if ( (sourceCells=this->Source->GetPolys())->GetNumberOfCells() > 0 )
     {
-    cells = new vtkCellArray(numPts*sourceCells->GetSize());
+    cells = vtkCellArray::New();
+    cells->Allocate(numPts*sourceCells->GetSize());
     output->SetPolys(cells);
     cells->Delete();
     }
   if ( (sourceCells=this->Source->GetStrips())->GetNumberOfCells() > 0 )
     {
-    cells = new vtkCellArray(numPts*sourceCells->GetSize());
+    cells = vtkCellArray::New();
+    cells->Allocate(numPts*sourceCells->GetSize());
     output->SetStrips(cells);
     cells->Delete();
     }
@@ -142,7 +147,10 @@ void vtkTensorGlyph::Execute()
   // only copy scalar data through
   pd = this->Source->GetPointData();
   if ( inScalars &&  this->ColorGlyphs ) 
-    newScalars = new vtkFloatScalars(numPts*numSourcePts);
+    {
+    newScalars = vtkFloatScalars::New();
+    newScalars->Allocate(numPts*numSourcePts);
+    }
   else
     {
     outPD->CopyAllOff();
@@ -150,7 +158,10 @@ void vtkTensorGlyph::Execute()
     outPD->CopyAllocate(pd,numPts*numSourcePts);
     }
   if ( (sourceNormals = pd->GetNormals()) )
-    newNormals = new vtkFloatNormals(numPts*numSourcePts);
+    {
+    newNormals = vtkFloatNormals::New();
+    newNormals->Allocate(numPts*numSourcePts);
+    }
 //
 // First copy all topology (transformation independent)
 //

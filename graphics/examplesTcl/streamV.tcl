@@ -48,10 +48,10 @@ vtkContourFilter iso
     iso SetValue 0 190
 vtkPolyMapper isoMapper
     isoMapper SetInput [iso GetOutput]
-    isoMapper ScalarsVisibleOff
+    isoMapper ScalarVisibilityOff
 vtkActor isoActor
     isoActor SetMapper isoMapper
-    [isoActor GetProperty] SetWireframe
+    [isoActor GetProperty] SetRepresentationToWireframe
     [isoActor GetProperty] SetOpacity 0.25
 
 # outline
@@ -76,7 +76,7 @@ vtkCamera cam1
   cam1 SetClippingRange 17.4043 870.216
   cam1 SetFocalPoint 136.71 104.025 23
   cam1 SetPosition 204.747 258.939 63.7925
-  cam1 CalcViewPlaneNormal
+  cam1 ComputeViewPlaneNormal
   cam1 SetViewUp -0.102647 -0.210897 0.972104
   cam1 Zoom 1.6
 $ren1 SetActiveCamera cam1

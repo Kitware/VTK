@@ -62,7 +62,8 @@ void vtkBrownianPoints::Execute()
     return;
     }
 
-  newVectors = new vtkFloatVectors(numPts);
+  newVectors = vtkFloatVectors::New();
+  newVectors->Allocate(numPts);
 //
 // Check consistency of minumum and maximum speed
 //  

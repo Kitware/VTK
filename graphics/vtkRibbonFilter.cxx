@@ -89,7 +89,7 @@ void vtkRibbonFilter::Execute()
        (numNewPts=inPts->GetNumberOfPoints()*2) < 1 ||
        !inLines || inLines->GetNumberOfCells() < 1 )
     {
-    vtkErrorMacro(<< ": No input data!\n");
+    vtkErrorMacro(<< "No input data!");
     return;
     }
 
@@ -105,7 +105,8 @@ void vtkRibbonFilter::Execute()
     {
     vtkPolyLine lineNormalGenerator;
     deleteNormals = 1;
-    inNormals = new vtkFloatNormals(numNewPts);
+    inNormals = vtkFloatNormals::New();
+    ((vtkFloatNormals *)inNormals)->Allocate(numNewPts);
     if ( !lineNormalGenerator.GenerateSlidingNormals(inPts,inLines,(vtkFloatNormals*)inNormals) )
       {
       vtkErrorMacro(<< "No normals for line!\n");
@@ -121,8 +122,10 @@ void vtkRibbonFilter::Execute()
     inScalars->GetRange(range);
     }
 
-  newPts = new vtkFloatPoints(numNewPts);
-  newNormals = new vtkFloatNormals(numNewPts);
+  newPts = vtkFloatPoints::New();
+  newPts->Allocate(numNewPts);
+  newNormals = vtkFloatNormals::New();
+  newNormals->Allocate(numNewPts);
   newStrips = vtkCellArray::New();
   newStrips->Allocate(newStrips->EstimateSize(1,numNewPts));
 //

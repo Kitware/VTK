@@ -75,7 +75,7 @@ void vtkVectorNorm::Execute()
 //
 // Allocate
 //
-  newScalars = new vtkFloatScalars(numVectors); 
+  newScalars = vtkFloatScalars::New();
   newScalars->SetNumberOfScalars(numVectors);
 
   for (maxScalar=0.0, i=0; i < numVectors; i++)

@@ -88,7 +88,8 @@ void vtkCleanPolyData::Execute()
 
   // Initialize; compute absolute tolerance from relative given
   this->Locator->SetTolerance(this->Tolerance*input->GetLength());
-  newPts = new vtkFloatPoints(numPts);
+  newPts = vtkFloatPoints::New();
+  newPts->Allocate(numPts);
   this->Locator->InitPointInsertion (newPts, this->Input->GetBounds());
 
   //
@@ -97,7 +98,8 @@ void vtkCleanPolyData::Execute()
   // Vertices are renumbered and we remove duplicate vertices
   if ( inVerts->GetNumberOfCells() > 0 )
     {
-    newVerts = new vtkCellArray(inVerts->GetSize());
+    newVerts = vtkCellArray::New();
+    newVerts->Allocate(inVerts->GetSize());
 
     for (inVerts->InitTraversal(); inVerts->GetNextCell(npts,pts); )
       {
@@ -120,7 +122,8 @@ void vtkCleanPolyData::Execute()
   // lines reduced to one point are eliminated
   if ( inLines->GetNumberOfCells() > 0 )
     {
-    newLines = new vtkCellArray(inLines->GetSize());
+    newLines = vtkCellArray::New();
+    newLines->Allocate(inLines->GetSize());
 
     for (inLines->InitTraversal(); inLines->GetNextCell(npts,pts); )
       {
@@ -150,7 +153,8 @@ void vtkCleanPolyData::Execute()
   // polygons reduced to two points or less are eliminated
   if ( inPolys->GetNumberOfCells() > 0 )
     {
-    newPolys = new vtkCellArray(inPolys->GetSize());
+    newPolys = vtkCellArray::New();
+    newPolys->Allocate(inPolys->GetSize());
     for (inPolys->InitTraversal(); inPolys->GetNextCell(npts,pts); )
       {
       for ( numNewPts=0, i=0; i < npts; i++ )
@@ -179,7 +183,8 @@ void vtkCleanPolyData::Execute()
   // triangle strips reduced to two points or less are eliminated
   if ( inStrips->GetNumberOfCells() > 0 ) 
     {
-    newStrips = new vtkCellArray(inStrips->GetSize());
+    newStrips = vtkCellArray::New();
+    newStrips->Allocate(inStrips->GetSize());
 
     for (inStrips->InitTraversal(); inStrips->GetNextCell(npts,pts); )
       {

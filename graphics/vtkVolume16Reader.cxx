@@ -43,7 +43,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Description:
 // Construct object with NULL file prefix; file pattern "%s.%d"; image range 
-// set to (1,1); data origin (0,0,0); data aspect ratio (1,1,1); no data mask;
+// set to (1,1); data origin (0,0,0); data spacing (1,1,1); no data mask;
 // header size 0; and byte swapping turned off.
 vtkVolume16Reader::vtkVolume16Reader()
 {
@@ -80,7 +80,7 @@ void vtkVolume16Reader::Execute()
   int numberSlices;
   int *dim;
   int dimensions[3];
-  float aspectRatio[3];
+  float Spacing[3];
   float origin[3];
 
   vtkStructuredPoints *output=(vtkStructuredPoints *)this->Output;
@@ -124,16 +124,16 @@ void vtkVolume16Reader::Execute()
   ComputeTransformedDimensions (dimensions);
   output->SetDimensions(dimensions);
 
-  // calculate aspect ratio of output from data aspect ratio and transform
-  this->ComputeTransformedAspectRatio (aspectRatio);
+  // calculate spacing of output from data spacing and transform
+  this->ComputeTransformedSpacing (Spacing);
 
   // calculate origin of output from data origin and transform
   this->ComputeTransformedOrigin (origin);
 
-  // adjust aspect ratio and origin if aspect ratio is negative
-  this->AdjustAspectRatioAndOrigin (dimensions, aspectRatio, origin);
+  // adjust spacing and origin if spacing is negative
+  this->AdjustSpacingAndOrigin (dimensions, Spacing, origin);
 
-  output->SetAspectRatio(aspectRatio);
+  output->SetSpacing(Spacing);
   output->SetOrigin(origin);
   if ( newScalars ) 
     {
@@ -171,12 +171,12 @@ vtkStructuredPoints *vtkVolume16Reader::GetImage(int ImageNumber)
     return NULL;
     } 
   
-  result = new vtkStructuredPoints();
+  result = vtkStructuredPoints::New();
   newScalars = this->ReadImage(ImageNumber);
   dimensions[0] = dim[0]; dimensions[1] = dim[1];
   dimensions[2] = 1;
   result->SetDimensions(dimensions);
-  result->SetAspectRatio(this->DataAspectRatio);
+  result->SetSpacing(this->DataSpacing);
   result->SetOrigin(this->DataOrigin);
   if ( newScalars ) 
     {
@@ -208,10 +208,11 @@ vtkScalars *vtkVolume16Reader::ReadImage(int sliceNumber)
   numPts = this->DataDimensions[0] * this->DataDimensions[1];
 
   // create the short scalars
-  scalars = new vtkShortScalars(numPts);
+  scalars = vtkShortScalars::New();
+  scalars->Allocate(numPts);
 
   // get a pointer to the data
-  pixels = scalars->WritePtr(0, numPts);
+  pixels = scalars->WritePointer(0, numPts);
 
   // read the image data
   status = Read16BitImage (fp, pixels, this->DataDimensions[0], this->DataDimensions[1], this->HeaderSize, this->SwapBytes);
@@ -258,12 +259,14 @@ vtkScalars *vtkVolume16Reader::ReadVolume(int first, int last)
   slice = new short[numPts];
 
   // create the short scalars for all of the images
-  scalars = new vtkShortScalars(numPts * numberSlices);
+  scalars = vtkShortScalars::New();
+  scalars->Allocate(numPts * numberSlices);
 
   // get a pointer to the scalar data
-  pixels = scalars->WritePtr(0, numPts *numberSlices);
+  pixels = scalars->WritePointer(0, numPts*numberSlices);
 
-  vtkDebugMacro (<< "Creating scalars with " << numPts * numberSlices << " points.");
+  vtkDebugMacro (<< "Creating scalars with " << numPts * numberSlices 
+                 << " points.");
 
   // build each file name and read the data from the file
   for (fileNumber = first; fileNumber <= last; fileNumber++) 
@@ -279,7 +282,8 @@ vtkScalars *vtkVolume16Reader::ReadVolume(int first, int last)
     vtkDebugMacro ( << "Reading " << filename );
 
     // read the image data
-    status = Read16BitImage (fp, slice, this->DataDimensions[0], this->DataDimensions[1], this->HeaderSize, this->SwapBytes);
+    status = Read16BitImage (fp, slice, this->DataDimensions[0], 
+                    this->DataDimensions[1], this->HeaderSize, this->SwapBytes);
 
     fclose (fp);
 
@@ -334,21 +338,21 @@ int vtkVolume16Reader:: Read16BitImage (FILE *fp, short *pixels, int xsize,
   return status;
 }
 
-void vtkVolume16Reader::ComputeTransformedAspectRatio (float aspectRatio[3])
+void vtkVolume16Reader::ComputeTransformedSpacing (float Spacing[3])
 {
   if (!this->Transform)
     {
-    memcpy (aspectRatio, this->DataAspectRatio, 3 * sizeof (float));
+    memcpy (Spacing, this->DataSpacing, 3 * sizeof (float));
     }
   else
     {
-    float transformedAspectRatio[4];
-    memcpy (transformedAspectRatio, this->DataAspectRatio, 3 * sizeof (float));
-    transformedAspectRatio[3] = 1.0;
-    this->Transform->MultiplyPoint (transformedAspectRatio, transformedAspectRatio);
+    float transformedSpacing[4];
+    memcpy (transformedSpacing, this->DataSpacing, 3 * sizeof (float));
+    transformedSpacing[3] = 1.0;
+    this->Transform->MultiplyPoint (transformedSpacing, transformedSpacing);
 
-    for (int i = 0; i < 3; i++) aspectRatio[i] = transformedAspectRatio[i];
-    vtkDebugMacro("Transformed aspectRatio " << aspectRatio[0] << ", " << aspectRatio[1] << ", " << aspectRatio[2]);
+    for (int i = 0; i < 3; i++) Spacing[i] = transformedSpacing[i];
+    vtkDebugMacro("Transformed Spacing " << Spacing[0] << ", " << Spacing[1] << ", " << Spacing[2]);
     }
 }
 
@@ -447,17 +451,17 @@ void vtkVolume16Reader::ComputeTransformedBounds (int bounds[6])
     }
 }
 
-void vtkVolume16Reader::AdjustAspectRatioAndOrigin (int dimensions[3], float aspectRatio[3], float origin[3])
+void vtkVolume16Reader::AdjustSpacingAndOrigin (int dimensions[3], float Spacing[3], float origin[3])
 {
   for (int i = 0; i < 3; i++)
     {
-    if (aspectRatio[i] < 0)
+    if (Spacing[i] < 0)
       {
-      origin[i] = origin[i] + aspectRatio[i] * (dimensions[i] - 1);
-      aspectRatio[i] = -aspectRatio[i];
+      origin[i] = origin[i] + Spacing[i] * (dimensions[i] - 1);
+      Spacing[i] = -Spacing[i];
       }
     }
-  vtkDebugMacro("Adjusted aspectRatio " << aspectRatio[0] << ", " << aspectRatio[1] << ", " << aspectRatio[2]);
+  vtkDebugMacro("Adjusted Spacing " << Spacing[0] << ", " << Spacing[1] << ", " << Spacing[2]);
   vtkDebugMacro("Adjusted origin " << origin[0] << ", " << origin[1] << ", " << origin[2]);
 }
 

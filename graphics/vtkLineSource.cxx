@@ -70,8 +70,10 @@ void vtkLineSource::Execute()
   
   vtkDebugMacro(<<"Creating line");
 
-  newPoints = new vtkFloatPoints(numPts);
-  newTCoords = new vtkFloatTCoords(numPts,2);
+  newPoints = vtkFloatPoints::New();
+  newPoints->Allocate(numPts);
+  newTCoords = vtkFloatTCoords::New();
+  newTCoords->Allocate(numPts,2);
 
   newLines = vtkCellArray::New();
   newLines->Allocate(newLines->EstimateSize(numLines,2));

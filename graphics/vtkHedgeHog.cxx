@@ -68,7 +68,7 @@ void vtkHedgeHog::Execute()
     }
   outputPD->CopyAllocate(pd, 2*numPts);
 
-  newPts = new vtkFloatPoints(2*numPts); newPts->SetNumberOfPoints(2*numPts);
+  newPts = vtkFloatPoints::New(); newPts->SetNumberOfPoints(2*numPts);
   newLines = vtkCellArray::New();
   newLines->Allocate(newLines->EstimateSize(numPts,2));
 //

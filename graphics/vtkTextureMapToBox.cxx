@@ -82,7 +82,7 @@ void vtkTextureMapToBox::Execute()
     return;
     }
 
-  newTCoords = new vtkFloatTCoords(numPts,3);
+  newTCoords = vtkFloatTCoords::New();
   newTCoords->SetNumberOfTCoords(numPts);
 
   if ( this->AutomaticBoxGeneration ) 

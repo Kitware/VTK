@@ -65,9 +65,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkObject.h"
 #include "vtkRenderWindow.h"
 
-#define VTK_ASCII 1
-#define VTK_BINARY 2
-
 class VTK_EXPORT vtkExporter : public vtkObject 
 {
 public:

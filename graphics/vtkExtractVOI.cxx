@@ -81,7 +81,7 @@ void vtkExtractVOI::Execute()
 //
   input->GetDimensions(dims);
   input->GetOrigin(origin);
-  input->GetAspectRatio(ar);
+  input->GetSpacing(ar);
 
   for ( i=0; i < 6; i++ ) voi[i] = this->VOI[i];
 
@@ -108,7 +108,7 @@ void vtkExtractVOI::Execute()
     }
 
   output->SetDimensions(outDims);
-  output->SetAspectRatio(outAR);
+  output->SetSpacing(outAR);
   output->SetOrigin(outOrigin);
 //
 // If output same as input, just pass data through

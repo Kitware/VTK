@@ -155,8 +155,8 @@ void vtkImageInPlaceFilter::UpdatePointData(int dim, vtkImageRegion *outRegion)
   this->Input->UpdateRegion(inRegion);
   
   // Copy  Scalars (by reference if possible) from input to output.
-  if ((inRegion->GetData()->GetRefCount() > 1) ||
-      (inRegion->GetData()->GetScalars()->GetRefCount() > 1) ||
+  if ((inRegion->GetData()->GetReferenceCount() > 1) ||
+      (inRegion->GetData()->GetScalars()->GetReferenceCount() > 1) ||
       (inRegion->GetScalarType() != outRegion->GetScalarType()))
     {
     // we have to copy the data

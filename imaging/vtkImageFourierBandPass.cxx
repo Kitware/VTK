@@ -203,7 +203,7 @@ void vtkImageFourierBandPass::Execute(vtkImageRegion *inRegion,
   float *inPtr = (float *)(inRegion->GetScalarPointer());
   float *outPtr = (float *)(outRegion->GetScalarPointer());
   int *extent, *imageExtent;
-  float *aspectRatio;
+  float *Spacing;
   int inInc;
   int outInc;
   float temp, freq, mid;
@@ -226,7 +226,7 @@ void vtkImageFourierBandPass::Execute(vtkImageRegion *inRegion,
     }
 
   imageExtent = inRegion->GetImageExtent();
-  aspectRatio = inRegion->GetAspectRatio();
+  Spacing = inRegion->GetSpacing();
   sumLow = sumHigh = 0.0;
   // Sum up distance squared for each axis (except for component)
   for (idx = 1; idx < VTK_IMAGE_DIMENSIONS; ++idx)
@@ -239,11 +239,11 @@ void vtkImageFourierBandPass::Execute(vtkImageRegion *inRegion,
       {
       temp = mid + mid - temp;
       }
-    // Aspect ratio == 0 implies there is no spatial meaning for this axis
-    if (aspectRatio[idx] > 0.0)
+    // Spacing == 0 implies there is no spatial meaning for this axis
+    if (Spacing[idx] > 0.0)
       {
       // Convert location into cycles / world unit
-      freq = temp / (aspectRatio[idx] * 2.0 * mid);
+      freq = temp / (Spacing[idx] * 2.0 * mid);
       // Scale to unit circle (Pass band does not include Component Axis)
       temp = this->LowPass[idx - 1];
       if (temp > 0)

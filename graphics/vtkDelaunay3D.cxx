@@ -398,7 +398,8 @@ void vtkDelaunay3D::Execute()
 // Create initial bounding triangulation. Have to create bounding points.
 // Initialize mesh structure.
 //
-  points = new vtkFloatPoints(numPoints+6);
+  points = vtkFloatPoints::New();
+  points->Allocate(numPoints+6);
 
   input->GetCenter(center);
   tol = input->GetLength();

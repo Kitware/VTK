@@ -114,9 +114,12 @@ void vtkPlaneSource::Execute()
   numPts = (this->XResolution+1) * (this->YResolution+1);
   numPolys = this->XResolution * this->YResolution;
 
-  newPoints = new vtkFloatPoints(numPts);
-  newNormals = new vtkFloatNormals(numPts);
-  newTCoords = new vtkFloatTCoords(numPts,2);
+  newPoints = vtkFloatPoints::New();
+  newPoints->Allocate(numPts);
+  newNormals = vtkFloatNormals::New();
+  newNormals->Allocate(numPts);
+  newTCoords = vtkFloatTCoords::New();
+  newTCoords->Allocate(numPts,2);
 
   newPolys = vtkCellArray::New();
   newPolys->Allocate(newPolys->EstimateSize(numPolys,4));

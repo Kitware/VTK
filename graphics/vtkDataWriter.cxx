@@ -232,7 +232,7 @@ int vtkDataWriter::WritePoints(FILE *fp, vtkPoints *points)
     else
       {
       vtkFloatPoints *fpoints = (vtkFloatPoints *)points;
-      float *fptr=fpoints->GetPtr(0);
+      float *fptr=fpoints->GetPointer(0);
       // swap the bytes if necc
       vtkByteSwap::SwapWrite4BERange(fptr,3*numPts,fp);
       }
@@ -248,7 +248,7 @@ int vtkDataWriter::WritePoints(FILE *fp, vtkPoints *points)
       int *p;
       for (i=0; i<numPts; i++)
         {
-        p = ipoints->GetPtr(3*i);
+        p = ipoints->GetPointer(3*i);
         fprintf (fp, "%d %d %d ", p[0], p[1], p[2]);
         if ( !((i+1)%2) ) fprintf (fp,"\n");
         }
@@ -256,7 +256,7 @@ int vtkDataWriter::WritePoints(FILE *fp, vtkPoints *points)
     else
       {
       vtkIntPoints *ipoints = (vtkIntPoints *)points;
-      int *iptr=ipoints->GetPtr(0);
+      int *iptr=ipoints->GetPointer(0);
       // swap the bytes if necc
       vtkByteSwap::SwapWrite4BERange(iptr,3*numPts,fp);
       }
@@ -301,7 +301,7 @@ int vtkDataWriter::WriteCoordinates(FILE *fp, vtkScalars *coords, int axes)
     else
       {
       vtkFloatScalars *fscalars = (vtkFloatScalars *)coords;
-      float *fptr=fscalars->GetPtr(0);
+      float *fptr=fscalars->GetPointer(0);
       // swap the bytes if necc
       vtkByteSwap::SwapWrite4BERange(fptr,ncoords,fp);
       }
@@ -324,7 +324,7 @@ int vtkDataWriter::WriteCoordinates(FILE *fp, vtkScalars *coords, int axes)
     else
       {
       vtkIntScalars *iscalars = (vtkIntScalars *)coords;
-      int *iptr=iscalars->GetPtr(0);
+      int *iptr=iscalars->GetPointer(0);
       // swap the bytes if necc
       vtkByteSwap::SwapWrite4BERange(iptr,ncoords,fp);
       }
@@ -347,7 +347,7 @@ int vtkDataWriter::WriteCoordinates(FILE *fp, vtkScalars *coords, int axes)
     else
       {
       vtkBitScalars *bscalars = (vtkBitScalars *)coords;
-      unsigned char *cptr=bscalars->GetPtr(0);
+      unsigned char *cptr=bscalars->GetPointer(0);
       fwrite (cptr,sizeof(char),(ncoords-1)/8+1,fp);
       }
     fprintf (fp,"\n");
@@ -369,7 +369,7 @@ int vtkDataWriter::WriteCoordinates(FILE *fp, vtkScalars *coords, int axes)
     else
       {
       vtkIntScalars *iscalars = (vtkIntScalars *)coords;
-      int *iptr=iscalars->GetPtr(0);
+      int *iptr=iscalars->GetPointer(0);
       // swap the bytes if necc
       vtkByteSwap::SwapWrite4BERange(iptr,ncoords,fp);
       }
@@ -392,7 +392,7 @@ int vtkDataWriter::WriteCoordinates(FILE *fp, vtkScalars *coords, int axes)
     else
       {
       vtkIntScalars *iscalars = (vtkIntScalars *)coords;
-      int *iptr=iscalars->GetPtr(0);
+      int *iptr=iscalars->GetPointer(0);
       // swap the bytes if necc
       vtkByteSwap::SwapWrite4BERange(iptr,ncoords,fp);
       }
@@ -415,7 +415,7 @@ int vtkDataWriter::WriteCoordinates(FILE *fp, vtkScalars *coords, int axes)
     else
       {
       vtkIntScalars *iscalars = (vtkIntScalars *)coords;
-      int *iptr=iscalars->GetPtr(0);
+      int *iptr=iscalars->GetPointer(0);
       // swap the bytes if necc
       vtkByteSwap::SwapWrite4BERange(iptr,ncoords,fp);
       }
@@ -463,7 +463,7 @@ int vtkDataWriter::WriteScalarData(FILE *fp, vtkScalars *scalars, int numPts)
       else
         {
         vtkBitScalars *bscalars = (vtkBitScalars *)scalars;
-        unsigned char *cptr=bscalars->GetPtr(0);
+        unsigned char *cptr=bscalars->GetPointer(0);
         fwrite (cptr,sizeof(char),(numPts-1)/8+1,fp);
         }
       fprintf (fp,"\n");
@@ -485,7 +485,7 @@ int vtkDataWriter::WriteScalarData(FILE *fp, vtkScalars *scalars, int numPts)
       else
         {
         vtkUnsignedCharScalars *cscalars = (vtkUnsignedCharScalars *)scalars;
-        unsigned char *cptr=cscalars->GetPtr(0);
+        unsigned char *cptr=cscalars->GetPointer(0);
         fwrite (cptr,sizeof(unsigned char),numPts,fp);
         }
       fprintf (fp,"\n");
@@ -507,7 +507,7 @@ int vtkDataWriter::WriteScalarData(FILE *fp, vtkScalars *scalars, int numPts)
       else
         {
         vtkShortScalars *sscalars = (vtkShortScalars *)scalars;
-        short *sptr=sscalars->GetPtr(0);
+        short *sptr=sscalars->GetPointer(0);
 	// swap the bytes if necc
 	vtkByteSwap::SwapWrite2BERange(sptr,numPts,fp);
         }
@@ -532,7 +532,7 @@ int vtkDataWriter::WriteScalarData(FILE *fp, vtkScalars *scalars, int numPts)
         {
         vtkUnsignedShortScalars *usscalars = 
 	  (vtkUnsignedShortScalars *)scalars;
-        unsigned short *sptr=usscalars->GetPtr(0);
+        unsigned short *sptr=usscalars->GetPointer(0);
 	// swap the bytes if necc
 	vtkByteSwap::SwapWrite2BERange((short *)sptr,numPts,fp);
         }
@@ -555,7 +555,7 @@ int vtkDataWriter::WriteScalarData(FILE *fp, vtkScalars *scalars, int numPts)
       else
         {
         vtkIntScalars *iscalars = (vtkIntScalars *)scalars;
-        int *iptr=iscalars->GetPtr(0);
+        int *iptr=iscalars->GetPointer(0);
 	// swap the bytes if necc
 	vtkByteSwap::SwapWrite4BERange(iptr,numPts,fp);
         }
@@ -578,7 +578,7 @@ int vtkDataWriter::WriteScalarData(FILE *fp, vtkScalars *scalars, int numPts)
       else
         {
         vtkFloatScalars *fscalars = (vtkFloatScalars *)scalars;
-        float *fptr=fscalars->GetPtr(0);
+        float *fptr=fscalars->GetPointer(0);
 	// swap the bytes if necc
 	vtkByteSwap::SwapWrite4BERange(fptr,numPts,fp);
         }
@@ -647,7 +647,7 @@ int vtkDataWriter::WriteScalarData(FILE *fp, vtkScalars *scalars, int numPts)
       }
     else // binary type
       {
-      unsigned char *cptr=coscalars->GetPtr(0);
+      unsigned char *cptr=coscalars->GetPointer(0);
       fwrite (cptr,sizeof(unsigned char),nvs*numPts,fp);
       }
 
@@ -669,7 +669,7 @@ int vtkDataWriter::WriteScalarData(FILE *fp, vtkScalars *scalars, int numPts)
       }
     else
       {
-      unsigned char *colors=lut->GetPtr(0);
+      unsigned char *colors=lut->GetPointer(0);
       fwrite(colors,sizeof(unsigned char),4*size,fp);
       }
     fprintf (fp, "\n");
@@ -703,7 +703,7 @@ int vtkDataWriter::WriteVectorData(FILE *fp, vtkVectors *vectors, int numPts)
     else
       {
       vtkFloatVectors *fvectors = (vtkFloatVectors *)vectors;
-      float *fptr=fvectors->GetPtr(0);
+      float *fptr=fvectors->GetPointer(0);
       // swap the bytes if necc
       vtkByteSwap::SwapWrite4BERange(fptr,3*numPts,fp);
       }
@@ -743,7 +743,7 @@ int vtkDataWriter::WriteNormalData(FILE *fp, vtkNormals *normals, int numPts)
     else
       {
       vtkFloatNormals *fnormals = (vtkFloatNormals *)normals;
-      float *fptr=fnormals->GetPtr(0);
+      float *fptr=fnormals->GetPointer(0);
       // swap the bytes if necc
       vtkByteSwap::SwapWrite4BERange(fptr,3*numPts,fp);
       }
@@ -784,7 +784,7 @@ int vtkDataWriter::WriteTCoordData(FILE *fp, vtkTCoords *tcoords, int numPts)
     else
       {
       vtkFloatTCoords *ftcoords = (vtkFloatTCoords *)tcoords;
-      float *fptr=ftcoords->GetPtr(0);
+      float *fptr=ftcoords->GetPointer(0);
       // swap the bytes if necc
       vtkByteSwap::SwapWrite4BERange(fptr,dim*numPts,fp);
       }
@@ -828,7 +828,7 @@ int vtkDataWriter::WriteTensorData(FILE *fp, vtkTensors *tensors, int numPts)
     else
       {
       vtkFloatTensors *ftensors = (vtkFloatTensors *)tensors;
-      float *fptr=ftensors->GetPtr(0);
+      float *fptr=ftensors->GetPointer(0);
       // swap the bytes if necc
       vtkByteSwap::SwapWrite4BERange(fptr,dim*dim*numPts,fp);
       }
@@ -869,7 +869,7 @@ int vtkDataWriter::WriteCells(FILE *fp, vtkCellArray *cells, char *label)
   else
     {
     // swap the bytes if necc
-    vtkByteSwap::SwapWrite4BERange(cells->GetPtr(),size,fp);
+    vtkByteSwap::SwapWrite4BERange(cells->GetPointer(),size,fp);
     }
 
   fprintf (fp,"\n");

@@ -41,7 +41,7 @@ public:
   virtual void Update();
 
   // Description:
-  // Get the bounds of the scalar data
+  // Get the bounds of the scalar data.
   virtual float *GetBounds();
 
   // Description:
@@ -53,33 +53,33 @@ public:
   virtual int ImageLocatedInHardware( void ) = 0;
 
   // Description:
-  // Get the z buffer data for the image
+  // Get the z buffer data for the image.
   virtual float *GetZbufferData( void ) = 0;
 
   // Description:
-  // Get the RGBA color buffer data for the image
+  // Get the RGBA color buffer data for the image.
   virtual float *GetRGBAPixelData( void ) = 0;
 
   // Description:
-  // Turn On/Off OrthoClipping
-  vtkGetMacro( OrthoClippingEnabled, int );
-  void EnableOrthoClipping( void )  { this->OrthoClippingEnabled = 1; };
-  void DisableOrthoClipping( void ) { this->OrthoClippingEnabled = 0; };
+  // Turn On/Off orthogonal clipping. (Clipping planes are
+  // perpendicular to the coordinate axes.)
+  vtkSetMacro(Clipping,int);
+  vtkGetMacro(Clipping,int);
+  vtkBooleanMacro(Clipping,int);
 
-
-  float GetXminOrthoClipPlane( void ) { return this->OrthoClippingPlanes[0]; };
-  float GetXmaxOrthoClipPlane( void ) { return this->OrthoClippingPlanes[1]; };
-  float GetYminOrthoClipPlane( void ) { return this->OrthoClippingPlanes[2]; };
-  float GetYmaxOrthoClipPlane( void ) { return this->OrthoClippingPlanes[3]; };
-  float GetZminOrthoClipPlane( void ) { return this->OrthoClippingPlanes[4]; };
-  float GetZmaxOrthoClipPlane( void ) { return this->OrthoClippingPlanes[5]; };
+  float GetXminClipPlane( void ) { return this->ClippingPlanes[0]; };
+  float GetXmaxClipPlane( void ) { return this->ClippingPlanes[1]; };
+  float GetYminClipPlane( void ) { return this->ClippingPlanes[2]; };
+  float GetYmaxClipPlane( void ) { return this->ClippingPlanes[3]; };
+  float GetZminClipPlane( void ) { return this->ClippingPlanes[4]; };
+  float GetZmaxClipPlane( void ) { return this->ClippingPlanes[5]; };
 
   // Description:
-  // Set/Get the OrthoClippingPlanes ( xmin, ymin, zmin, xmax, ymax, zmax )
-  void SetOrthoClippingPlanes( float a, float b, float c, 
-			       float d, float e, float f );
-  void SetOrthoClippingPlanes( float p[6] ); 
-  float *GetOrthoClippingPlanes( void ) { return this->OrthoClippingPlanes; };
+  // Set/Get the ClippingPlanes ( xmin, ymin, zmin, xmax, ymax, zmax )
+  void SetClippingPlanes( float a, float b, float c, 
+                          float d, float e, float f );
+  void SetClippingPlanes( float p[6] ); 
+  float *GetClippingPlanes( void ) { return this->ClippingPlanes; };
 
   // Description:
   // Set/Get the scalar input data
@@ -90,31 +90,30 @@ public:
 
 protected:
   vtkStructuredPoints  *ScalarInput;
-  int                  OrthoClippingEnabled;
-  float                OrthoClippingPlanes[6];
-
-  vtkTimeStamp BuildTime;
+  int                  Clipping;
+  float                ClippingPlanes[6];
+  vtkTimeStamp         BuildTime;
 };
 
-inline void vtkVolumeMapper::SetOrthoClippingPlanes( 
+inline void vtkVolumeMapper::SetClippingPlanes( 
                      float a, float b, float c, float d, float e, float f )
 {
-  this->OrthoClippingPlanes[0] = a;
-  this->OrthoClippingPlanes[1] = b;
-  this->OrthoClippingPlanes[2] = c;
-  this->OrthoClippingPlanes[3] = d;
-  this->OrthoClippingPlanes[4] = e;
-  this->OrthoClippingPlanes[5] = f;
+  this->ClippingPlanes[0] = a;
+  this->ClippingPlanes[1] = b;
+  this->ClippingPlanes[2] = c;
+  this->ClippingPlanes[3] = d;
+  this->ClippingPlanes[4] = e;
+  this->ClippingPlanes[5] = f;
 }
 
-inline void vtkVolumeMapper::SetOrthoClippingPlanes( float p[6] )
+inline void vtkVolumeMapper::SetClippingPlanes( float p[6] )
 {
-  this->OrthoClippingPlanes[0] = p[0];
-  this->OrthoClippingPlanes[1] = p[1];
-  this->OrthoClippingPlanes[2] = p[2];
-  this->OrthoClippingPlanes[3] = p[3];
-  this->OrthoClippingPlanes[4] = p[4];
-  this->OrthoClippingPlanes[5] = p[5];
+  this->ClippingPlanes[0] = p[0];
+  this->ClippingPlanes[1] = p[1];
+  this->ClippingPlanes[2] = p[2];
+  this->ClippingPlanes[3] = p[3];
+  this->ClippingPlanes[4] = p[4];
+  this->ClippingPlanes[5] = p[5];
 }
 
 #endif

@@ -79,23 +79,22 @@ public:
   virtual void Render(vtkActor *,vtkRenderer *) {};
 
   // Description:
-  // Set the interpolation of this actor. These three are mutually exclusive.
-  void SetFlat(void);
-  void SetGouraud(void);
-  void SetPhong(void);
-
-  // Set the representation of this actor. These three are mutually exclusive.
-  void SetPoints(void);
-  void SetWireframe(void);
-  void SetSurface(void);
-
-  // Description:
-  // Get the method of representation for the object.
-  vtkGetMacro(Representation,int);
-
-  // Description:
-  // Get the shading method for the object.
+  // Set the shading interpolation method for an object.
+  vtkSetClampMacro(Interpolation,int,VTK_FLAT,VTK_PHONG);
   vtkGetMacro(Interpolation,int);
+  void SetInterpolationToFlat() {this->SetInterpolation(VTK_FLAT);};
+  void SetInterpolationToGouraud() {this->SetInterpolation(VTK_GOURAUD);};
+  void SetInterpolationToPhong() {this->SetInterpolation(VTK_PHONG);};
+  char *GetInterpolationAsString();
+
+  // Description:
+  // Control the surface geometry representation for the object.
+  vtkSetClampMacro(Representation,int,VTK_POINTS,VTK_SURFACE);
+  vtkGetMacro(Representation,int);
+  void SetRepresentationToPoints() {this->SetRepresentation(VTK_POINTS);};
+  void SetRepresentationToWireframe() {this->SetRepresentation(VTK_WIREFRAME);};
+  void SetRepresentationToSurface() {this->SetRepresentation(VTK_SURFACE);};
+  char *GetRepresentationAsString();
 
   // Description:
   // Set the color of the object. Has the side effect of setting the
@@ -202,5 +201,44 @@ protected:
   int   BackfaceCulling;
   int   FrontfaceCulling;
 };
+
+// Description:
+// Return the method of shading as a descriptive character string.
+inline char *vtkProperty::GetInterpolationAsString(void)
+{
+  if ( this->Interpolation == VTK_FLAT )
+    {
+    return "Flat";
+    }
+  else if ( this->Interpolation == VTK_GOURAUD ) 
+    {
+    return "Gouraud";
+    }
+  else 
+    {
+    return "Phong";
+    }
+}
+
+
+// Description:
+// Return the method of shading as a descriptive character string.
+inline char *vtkProperty::GetRepresentationAsString(void)
+{
+  if ( this->Representation == VTK_POINTS )
+    {
+    return "Points";
+    }
+  else if ( this->Representation == VTK_WIREFRAME ) 
+    {
+    return "Wireframe";
+    }
+  else 
+    {
+    return "Surface";
+    }
+}
+
+
 
 #endif

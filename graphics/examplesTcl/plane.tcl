@@ -15,7 +15,7 @@ vtkPolyMapper planeMapper
     planeMapper SetInput [plane GetOutput]
 vtkActor planeActor
     planeActor SetMapper planeMapper
-    [planeActor GetProperty] SetWireframe
+    [planeActor GetProperty] SetRepresentationToWireframe
 # create simple poly data so we can apply glyph
 vtkFloatPoints pts
     eval pts InsertPoint 0 [plane GetCenter]
@@ -36,7 +36,7 @@ vtkTransformPolyFilter transformF
 vtkGlyph3D glyph
     glyph SetInput pd
     glyph SetSource [transformF GetOutput]
-    glyph UseNormal
+    glyph SetVectorModeToUseNormal
 vtkPolyMapper mapGlyph
     mapGlyph SetInput [glyph GetOutput]
 vtkActor glyphActor

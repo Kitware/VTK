@@ -64,7 +64,7 @@ void vtkWarpVector::Execute()
     return;
     }
 
-  newPts = new vtkFloatPoints(numPts);
+  newPts = vtkFloatPoints::New();
   newPts->SetNumberOfPoints(numPts);
 //
 // Loop over all points, adjusting locations

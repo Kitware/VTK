@@ -28,7 +28,7 @@ vtkStructuredGridGeometryFilter wall
     wall SetExtent 0 100 0 0 0 100
 vtkPolyMapper wallMap
     wallMap SetInput [wall GetOutput]
-    wallMap ScalarsVisibleOff
+    wallMap ScalarVisibilityOff
 vtkActor wallActor
     wallActor SetMapper wallMap
     eval [wallActor GetProperty] SetColor 0.8 0.8 0.8
@@ -40,7 +40,7 @@ vtkStructuredGridGeometryFilter fin
     fin SetExtent 0 100 0 100 0 0
 vtkPolyMapper finMap
     finMap SetInput [fin GetOutput]
-    finMap ScalarsVisibleOff
+    finMap ScalarVisibilityOff
 vtkActor finActor
     finActor SetMapper finMap
     eval [finActor GetProperty] SetColor 0.8 0.8 0.8

@@ -110,7 +110,7 @@ void vtkWarpScalar::Execute()
     vtkDebugMacro(<<"Using Normal instance variable");
     }
 
-  newPts = new vtkFloatPoints(numPts); 
+  newPts = vtkFloatPoints::New();
   newPts->SetNumberOfPoints(numPts);
 //
 // Loop over all points, adjusting locations

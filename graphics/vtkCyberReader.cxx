@@ -332,8 +332,10 @@ void vtkCyberReader::Execute()
   nvertex = ((vtx->lgmax - vtx->lgmin + 1) / vtx->lgresol ) *
             ((vtx->ltmax - vtx->ltmin + 1) / vtx->lgresol );
 
-  newPoints = new vtkFloatPoints(nvertex);
-  newTCoords = new vtkFloatTCoords(nvertex,2);
+  newPoints = vtkFloatPoints::New();
+  newPoints->Allocate(nvertex);
+  newTCoords = vtkFloatTCoords::New();
+  newTCoords->Allocate(nvertex,2);
 //
 //  Generate points
 //

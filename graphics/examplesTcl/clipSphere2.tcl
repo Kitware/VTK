@@ -30,7 +30,7 @@ vtkClipPolyData clipper
     clipper SetValue 0.0
 vtkDataSetMapper clipMapper
     clipMapper SetInput [clipper GetOutput]
-    clipMapper ScalarsVisibleOff
+    clipMapper ScalarVisibilityOff
 vtkActor clipActor
     clipActor SetMapper clipMapper
     eval [clipActor GetProperty] SetColor $peacock

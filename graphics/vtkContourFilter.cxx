@@ -43,6 +43,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkFloatScalars.h"
 #include "vtkCell.h"
 #include "vtkMergePoints.h"
+#include "vtkScalarTree.h"
 
 #ifdef USE_PATENTED
 #include "vtkMarchingSquares.h"
@@ -64,6 +65,15 @@ vtkContourFilter::vtkContourFilter()
 
   this->Locator = NULL;
   this->SelfCreatedLocator = 0;
+
+  this->UseScalarTree = 0;
+  this->ScalarTree = NULL;
+}
+
+vtkContourFilter::~vtkContourFilter()
+{
+  if ( this->SelfCreatedLocator && this->Locator ) this->Locator->Delete();
+  if ( this->ScalarTree ) this->ScalarTree->Delete();
 }
 
 // Description:
@@ -160,13 +170,18 @@ void vtkContourFilter::Execute()
 // Create objects to hold output of contour operation. First estimate allocation size.
 //
   estimatedSize = (int) pow ((double) numCells, .75);
+  estimatedSize *= this->NumberOfContours;
   estimatedSize = estimatedSize / 1024 * 1024; //multiple of 1024
   if (estimatedSize < 1024) estimatedSize = 1024;
 
-  newPts = new vtkFloatPoints(estimatedSize,estimatedSize);
-  newVerts = new vtkCellArray(estimatedSize,estimatedSize);
-  newLines = new vtkCellArray(estimatedSize,estimatedSize);
-  newPolys = new vtkCellArray(estimatedSize,estimatedSize);
+  newPts = vtkFloatPoints::New();
+  newPts->Allocate(estimatedSize,estimatedSize);
+  newVerts = vtkCellArray::New();
+  newVerts->Allocate(estimatedSize,estimatedSize);
+  newLines = vtkCellArray::New();
+  newLines->Allocate(estimatedSize,estimatedSize);
+  newPolys = vtkCellArray::New();
+  newPolys->Allocate(estimatedSize,estimatedSize);
 
   // locator used to merge potentially duplicate points
   if ( this->Locator == NULL ) this->CreateDefaultLocator();
@@ -177,24 +192,43 @@ void vtkContourFilter::Execute()
   outPd = output->GetPointData();
   outPd->InterpolateAllocate(inPd,estimatedSize,estimatedSize);
 
+  // If enabled, build a scalar tree to accelerate search
   //
-  // Loop over all contour values.  Then for each contour value, 
-  // loop over all cells.
-  //
-  for (cellId=0; cellId < numCells; cellId++)
+  if ( !this->UseScalarTree )
     {
-    cell = Input->GetCell(cellId);
-    cellPts = cell->GetPointIds();
-    inScalars->GetScalars(*cellPts,cellScalars);
+    for (cellId=0; cellId < numCells; cellId++)
+      {
+      cell = this->Input->GetCell(cellId);
+      cellPts = cell->GetPointIds();
+      inScalars->GetScalars(*cellPts,cellScalars);
 
+      for (i=0; i < this->NumberOfContours; i++)
+        {
+        cell->Contour(this->Values[i], &cellScalars, this->Locator, 
+                      newVerts, newLines, newPolys, inPd, outPd);
+
+        } // for all contour values
+      } // for all cells
+    } //if using scalar tree
+  else
+    {
+    if ( this->ScalarTree == NULL ) this->ScalarTree = new vtkScalarTree;
+    this->ScalarTree->SetDataSet(this->Input);
+    //
+    // Loop over all contour values.  Then for each contour value, 
+    // loop over all cells.
+    //
     for (i=0; i < this->NumberOfContours; i++)
       {
+      for ( this->ScalarTree->InitTraversal(this->Values[i]); 
+      (cell=this->ScalarTree->GetNextCell(cellId,cellPts,cellScalars)) != NULL; )
+        {
+        cell->Contour(this->Values[i], &cellScalars, this->Locator, 
+                      newVerts, newLines, newPolys, inPd, outPd);
 
-      cell->Contour(this->Values[i], &cellScalars, this->Locator, 
-                    newVerts, newLines, newPolys, inPd, outPd);
-
-      } // for all contour values
-    } // for all cells
+        } //for all cells
+      } //for all contour values
+    } //using scalar tree
 
   vtkDebugMacro(<<"Created: " 
                << newPts->GetNumberOfPoints() << " points, " 

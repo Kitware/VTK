@@ -181,7 +181,8 @@ void vtkGeometryFilter::Execute()
 //
 // Allocate
 //
-  newPts = new vtkFloatPoints(numPts,numPts/2);
+  newPts = vtkFloatPoints::New();
+  newPts->Allocate(numPts,numPts/2);
   output->Allocate(4*numCells,numCells/2);
   outputPD->CopyAllocate(pd,numPts,numPts/2);
   if ( this->Merging )

@@ -71,7 +71,7 @@ public:
   // Description:
   // Set/Get the band to pass for each axis.
   // The components axis is ignored as if it does not exist.
-  // Units: Cyles per world unit (as defined by aspect ratio)
+  // Units: Cyles per world unit (as defined by the data spacing).
   void SetLowPass(int num, float *lowPass);
   vtkImageSetMacro(LowPass, float);
   void GetLowPass(int num, float *lowPass);

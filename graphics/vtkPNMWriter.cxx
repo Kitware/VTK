@@ -110,7 +110,7 @@ void vtkPNMWriter::WriteData()
     return;
     }
 
-  buffer = newScalars->GetPtr(0);
+  buffer = newScalars->GetPointer(0);
   
   if (bpp == 1)
     {

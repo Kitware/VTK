@@ -65,7 +65,7 @@ vtkImageReader::vtkImageReader()
     this->DataExtent[idx*2] = this->DataExtent[idx*2 + 1] = 0;
     this->FileExtent[idx*2] = this->FileExtent[idx*2 + 1] = 0;
     this->DataDimensions[idx] = 1;
-    this->DataAspectRatio[idx] = 1.0;
+    this->DataSpacing[idx] = 1.0;
     this->DataOrigin[idx] = 0.0;
     this->Flips[idx] = 0;
     }
@@ -146,10 +146,10 @@ void vtkImageReader::PrintSelf(ostream& os, vtkIndent indent)
     }
   os << ")\n";
   
-  os << indent << "DataAspectRatio: (" << this->DataAspectRatio[0];
+  os << indent << "DataSpacing: (" << this->DataSpacing[0];
   for (idx = 1; idx < VTK_IMAGE_DIMENSIONS; ++idx)
     {
-    os << ", " << this->DataAspectRatio[idx];
+    os << ", " << this->DataSpacing[idx];
     }
   os << ")\n";
   
@@ -224,24 +224,24 @@ void vtkImageReader::GetDataExtent(int num, int *extent)
 }
 
 //----------------------------------------------------------------------------
-void vtkImageReader::SetDataAspectRatio(int num, float *ratio)
+void vtkImageReader::SetDataSpacing(int num, float *ratio)
 {
   int idx;
   
   for (idx = 0; idx < num; ++idx)
     {
-    this->DataAspectRatio[idx] = ratio[idx];
+    this->DataSpacing[idx] = ratio[idx];
     }
   this->Modified();
 }
 //----------------------------------------------------------------------------
-void vtkImageReader::GetDataAspectRatio(int num, float *ratio)
+void vtkImageReader::GetDataSpacing(int num, float *ratio)
 {
   int idx;
   
   for (idx = 0; idx < num; ++idx)
     {
-    ratio[idx] = this->DataAspectRatio[idx];
+    ratio[idx] = this->DataSpacing[idx];
     }
 }
 
@@ -316,14 +316,14 @@ void vtkImageReader::UpdateImageInformation(vtkImageRegion *region)
   region->SetImageExtent(5, this->DataExtent); // One extra for component ?
   // Flips should change aspect ratio, but VTK cannot handle 
   // negative aspect ratios.
-  region->SetAspectRatio(4, this->DataAspectRatio);
+  region->SetSpacing(4, this->DataSpacing);
   // Flips an axis changes the origin.
   for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
     {
     if ( this->Flips[idx])
       {
       outOrigin[idx] = this->DataOrigin[idx] + 
-	(this->DataAspectRatio[idx] * this->DataExtent[idx*2+1]);
+	(this->DataSpacing[idx] * this->DataExtent[idx*2+1]);
       }
     else
       {

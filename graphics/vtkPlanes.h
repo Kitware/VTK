@@ -74,13 +74,13 @@ public:
 
   // Description:
   // Specify a list of points defining points through which the planes pass.
-  vtkSetRefCountedObjectMacro(Points,vtkPoints);
+  vtkSetReferenceCountedObjectMacro(Points,vtkPoints);
   vtkGetObjectMacro(Points,vtkPoints);
 
   // Description:
   // Specify a list of normal vectors for the planes. There is a one-to-one
   // correspondence between plane points and plane normals.
-  vtkSetRefCountedObjectMacro(Normals,vtkNormals);
+  vtkSetReferenceCountedObjectMacro(Normals,vtkNormals);
   vtkGetObjectMacro(Normals,vtkNormals);
 
 protected:

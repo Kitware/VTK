@@ -166,8 +166,8 @@ static void vtkImageGradientMagnitudeExecute(vtkImageGradientMagnitude *self,
   // We want the input pixel to correspond to output
   inPtr = (T *)(inRegion->GetScalarPointer(min0,min1,min2,min3));
 
-  // The aspect ratio is important for computing the gradient.
-  inRegion->GetAspectRatio(4, r);
+  // The data spacing is important for computing the gradient.
+  inRegion->GetSpacing(4, r);
   r[0] = 1.0 / r[0];
   r[1] = 1.0 / r[1];
   r[2] = 1.0 / r[2];
@@ -206,7 +206,7 @@ static void vtkImageGradientMagnitudeExecute(vtkImageGradientMagnitude *self,
 	    d = ((*idxs - 1) < *imageExtent) ? *inPtr0 : inPtr0[-*incs];
 	    ++imageExtent;  // now points to max.
 	    d -= ((*idxs + 1) > *imageExtent) ? *inPtr0 : inPtr0[*incs];
-	    d *= r[axisIdx]; // divide by aspect ratio
+	    d *= r[axisIdx]; // multiply by the data spacing
 	    ++imageExtent;
 	    ++idxs;
 	    ++incs;

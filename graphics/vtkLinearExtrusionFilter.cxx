@@ -162,7 +162,7 @@ void vtkLinearExtrusionFilter::Execute()
 //
   outputPD->CopyNormalsOff();
   outputPD->CopyAllocate(pd,2*numPts);
-  newPts = new vtkFloatPoints(2*numPts); newPts->SetNumberOfPoints(2*numPts);
+  newPts = vtkFloatPoints::New(); newPts->SetNumberOfPoints(2*numPts);
   if ( (ncells=inVerts->GetNumberOfCells()) > 0 ) 
     {
     newLines = vtkCellArray::New();
@@ -191,7 +191,8 @@ void vtkLinearExtrusionFilter::Execute()
     {
     if ( inPolys->GetNumberOfCells() > 0 )
       {
-      newPolys = new vtkCellArray(inPolys->GetSize());
+      newPolys = vtkCellArray::New();
+      newPolys->Allocate(inPolys->GetSize());
       for ( inPolys->InitTraversal(); inPolys->GetNextCell(npts,pts); )
         {
         newPolys->InsertNextCell(npts,pts);

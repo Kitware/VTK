@@ -83,7 +83,8 @@ void vtkElevationFilter::Execute()
 //
 // Allocate
 //
-  newScalars = new vtkFloatScalars(numPts);
+  newScalars = vtkFloatScalars::New();
+  newScalars->Allocate(numPts);
 //
 // Set up 1D parametric system
 //

@@ -18,7 +18,7 @@ vtkConnectivityFilter conn
   conn SetInput [sample GetOutput]
   conn ScalarConnectivityOn
   conn SetScalarRange 0.6 0.6
-  conn ExtractCellSeededRegions
+  conn SetExtractionModeToCellSeededRegions
   conn AddSeed 105
 
 # Create a surface 

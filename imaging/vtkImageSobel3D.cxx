@@ -201,9 +201,9 @@ static void vtkImageSobel3DExecute(vtkImageSobel3D *self,
   // We want the input pixel to correspond to output
   inPtr = (T *)(inRegion->GetScalarPointer(min0,min1,min2));
 
-  // The aspect ratio is important for computing the gradient.
+  // The data spacing is important for computing the gradient.
   // Scale so it has the same range as gradient.
-  inRegion->GetAspectRatio(r0, r1, r2);
+  inRegion->GetSpacing(r0, r1, r2);
   r0 = 0.059923 / r0;
   r1 = 0.059923 / r1;
   r2 = 0.059923 / r2;

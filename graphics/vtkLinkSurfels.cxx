@@ -67,13 +67,13 @@ void vtkLinkSurfels::Execute()
   int *dimensions;
   float *inDataPtr;
   vtkVectors *inVectors;
-  float *aspect, *origin;
+  float *spacing, *origin;
   
   vtkDebugMacro(<< "Extracting structured points geometry");
 
   pd = input->GetPointData();
   dimensions = input->GetDimensions();
-  aspect = input->GetAspectRatio();
+  spacing = input->GetSpacing();
   origin = input->GetOrigin();
   inScalars = (vtkFloatScalars *)pd->GetScalars();
   inVectors = pd->GetVectors();
@@ -84,7 +84,7 @@ void vtkLinkSurfels::Execute()
     }
 
   // set up the input
-  inDataPtr = inScalars->GetPtr(0);
+  inDataPtr = inScalars->GetPointer(0);
 
   // Finally do edge following to extract the edge data from the Thin image
   newPts = vtkFloatPoints::New();
@@ -96,7 +96,7 @@ void vtkLinkSurfels::Execute()
 
   this->LinkSurfels(dimensions[0], dimensions[1], dimensions[2],
 		    inDataPtr, inVectors, newLines, newPts, 
-		    outScalars, outVectors, aspect, origin);
+		    outScalars, outVectors, spacing, origin);
   
   output->SetPoints(newPts);
   output->SetPolys(newLines);
@@ -137,7 +137,7 @@ void vtkLinkSurfels::LinkSurfels(int xdim, int ydim, int zdim,
 				 vtkFloatPoints *newPts,
 				 vtkFloatScalars *outScalars, 
 				 vtkFloatVectors *outVectors,
-				 float *aspect, float *origin)
+				 float *spacing, float *origin)
 {
 
 //  at most 3 polygons (each 4 numbers make a polygon.)
@@ -428,9 +428,9 @@ void vtkLinkSurfels::LinkSurfels(int xdim, int ydim, int zdim,
   
   // allocate the locator
   locator = vtkMergePoints::New();
-  bounds[0] = origin[0]; bounds[1] = xdim*aspect[0] + origin[0]; 
-  bounds[2] = origin[1]; bounds[3] = ydim*aspect[1] + origin[1]; 
-  bounds[4] = origin[2]; bounds[5] = zdim*aspect[2] + origin[2]; 
+  bounds[0] = origin[0]; bounds[1] = xdim*spacing[0] + origin[0]; 
+  bounds[2] = origin[1]; bounds[3] = ydim*spacing[1] + origin[1]; 
+  bounds[4] = origin[2]; bounds[5] = zdim*spacing[2] + origin[2]; 
   locator->InitPointInsertion(newPts, bounds);
 
   // then do the threshold
@@ -488,9 +488,9 @@ void vtkLinkSurfels::LinkSurfels(int xdim, int ydim, int zdim,
 		xo = x + caseVal%2;
 		yo = y + (caseVal/2)%2;
 		zo = z + (caseVal/4)%2;
-		vec[0] = xo*aspect[0] + origin[0];
-		vec[1] = yo*aspect[1] + origin[1];
-		vec[2] = zo*aspect[2] + origin[2];
+		vec[0] = xo*spacing[0] + origin[0];
+		vec[1] = yo*spacing[1] + origin[1];
+		vec[2] = zo*spacing[2] + origin[2];
 		if ((Id[pointNum] = locator->IsInsertedPoint(vec)) < 0)
 		  {
 		  Id[pointNum] = locator->InsertNextPoint(vec);

@@ -76,9 +76,12 @@ void vtkTexturedSphereSource::Execute()
   // creating triangles
   numPolys = this->PhiResolution * 2 * this->ThetaResolution;
 
-  newPoints = new vtkFloatPoints(numPts);
-  newNormals = new vtkFloatNormals(numPts);
-  newTCoords = new vtkFloatTCoords(numPts,2);
+  newPoints = vtkFloatPoints::New();
+  newPoints->Allocate(numPts);
+  newNormals = vtkFloatNormals::New();
+  newNormals->Allocate(numPts);
+  newTCoords = vtkFloatTCoords::New();
+  newTCoords->Allocate(numPts,2);
   newPolys = vtkCellArray::New();
   newPolys->Allocate(newPolys->EstimateSize(numPolys,3));
   //

@@ -18,10 +18,10 @@ vtkMCubesReader reader
     reader SetFileName "../../../data/pineRoot/pine_root.tri"
 vtkPolyConnectivityFilter connect
     connect SetInput [reader GetOutput]
-    connect ExtractLargestRegion
+    connect SetExtractionModeToLargestRegion
 vtkPolyMapper isoMapper
     isoMapper SetInput [connect GetOutput]
-    isoMapper ScalarsVisibleOff
+    isoMapper ScalarVisibilityOff
 vtkActor isoActor
     isoActor SetMapper isoMapper
     eval [isoActor GetProperty] SetColor $raw_sienna
@@ -48,7 +48,7 @@ $iren SetUserMethod {wm deiconify .vtkInteract}
 set cam [$ren1 GetActiveCamera]
   $cam SetFocalPoint 40.6018 37.2813 50.1953
   $cam SetPosition 40.6018 -280.533 47.0172
-  $cam CalcViewPlaneNormal
+  $cam ComputeViewPlaneNormal
   $cam SetClippingRange 26.1073 1305.36
   $cam SetViewAngle 20.9219
   $cam SetViewUp 0.0 0.0 1.0

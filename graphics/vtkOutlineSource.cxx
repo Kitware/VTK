@@ -26,7 +26,8 @@ void vtkOutlineSource::Execute()
 //
 // Allocate storage and create outline
 //
-  newPts = new vtkFloatPoints(8);
+  newPts = vtkFloatPoints::New();
+  newPts->Allocate(8);
   newLines = vtkCellArray::New();
   newLines->Allocate(newLines->EstimateSize(12,2));
 

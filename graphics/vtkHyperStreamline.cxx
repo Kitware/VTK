@@ -41,6 +41,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkHyperStreamline.h"
 #include "vtkMath.h"
 
+#define VTK_START_FROM_POSITION 0
+#define VTK_START_FROM_LOCATION 1
+
 vtkHyperPoint::vtkHyperPoint()
 {
   this->v[0] = this->v0;
@@ -557,11 +560,17 @@ void vtkHyperStreamline::BuildTube()
 //
 // Allocate
 //
-  newPts  = new vtkFloatPoints(2500);
+  newPts  = vtkFloatPoints::New();
+  newPts ->Allocate(2500);
   if ( this->Input->GetPointData()->GetScalars() )
-    newScalars = new vtkFloatScalars(2500);
-  newVectors  = new vtkFloatVectors(2500);
-  newNormals  = new vtkFloatNormals(2500);
+    {
+    newScalars = vtkFloatScalars::New();
+    newScalars->Allocate(2500);
+    }
+  newVectors = vtkFloatVectors::New();
+  newVectors->Allocate(2500);
+  newNormals = vtkFloatNormals::New();
+  newNormals->Allocate(2500);
   newStrips = vtkCellArray::New();
   newStrips->Allocate(newStrips->EstimateSize(3*this->NumberOfStreamers,
                                               VTK_CELL_SIZE));

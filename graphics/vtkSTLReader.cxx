@@ -78,8 +78,10 @@ void vtkSTLReader::Execute()
     return;
     }
 
-  newPts = new vtkFloatPoints(5000,10000);
-  newPolys = new vtkCellArray(10000,20000);
+  newPts = vtkFloatPoints::New();
+  newPts->Allocate(5000,10000);
+  newPolys = vtkCellArray::New();
+  newPolys->Allocate(10000,20000);
 //
 // Depending upon file type, read differently
 //
@@ -107,8 +109,10 @@ void vtkSTLReader::Execute()
     int npts, *pts, i, nodes[3];
     float *x;
 
-    mergedPts = new vtkFloatPoints(newPts->GetNumberOfPoints()/2);
-    mergedPolys = new vtkCellArray(newPolys->GetSize());
+    mergedPts = vtkFloatPoints::New();
+    mergedPts->Allocate(newPts->GetNumberOfPoints()/2);
+    mergedPolys = vtkCellArray::New();
+    mergedPolys->Allocate(newPolys->GetSize());
 
     if ( this->Locator == NULL ) this->CreateDefaultLocator();
     this->Locator->InitPointInsertion (mergedPts, newPts->GetBounds());

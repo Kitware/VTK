@@ -395,8 +395,8 @@ int vtkDataReader::ReadPoints(vtkPointSet *ps, int numPts)
 
   if ( ! strncmp(this->LowerCase(line), "int", 3) )
     {
-    vtkIntPoints *points = new vtkIntPoints(numPts); 
-    int *ptr = points->WritePtr(0,numPts);
+    vtkIntPoints *points = vtkIntPoints::New();
+    int *ptr = points->WritePointer(0,numPts);
     if (this->FileType == VTK_BINARY)
       {
       // suck up newline
@@ -430,8 +430,8 @@ int vtkDataReader::ReadPoints(vtkPointSet *ps, int numPts)
 
   else if ( ! strncmp(line, "float", 5) )
     {
-    vtkFloatPoints *points = new vtkFloatPoints(numPts);
-    float *ptr = points->WritePtr(0,numPts);
+    vtkFloatPoints *points = vtkFloatPoints::New();
+    float *ptr = points->WritePointer(0,numPts);
     if ( this->FileType == VTK_BINARY)
       {
       // suck up newline
@@ -494,9 +494,9 @@ int vtkDataReader::ReadCoordinates(vtkRectilinearGrid *rg, int axes,
 
   if ( ! strncmp(this->LowerCase(line), "int", 3) )
     {
-    vtkIntScalars *intCoords = new vtkIntScalars(numCoords); 
+    vtkIntScalars *intCoords = vtkIntScalars::New();
     coords = (vtkScalars *)intCoords;
-    int *ptr = intCoords->WritePtr(0,numCoords);
+    int *ptr = intCoords->WritePointer(0,numCoords);
 
     if (this->FileType == VTK_BINARY)
       {
@@ -529,9 +529,9 @@ int vtkDataReader::ReadCoordinates(vtkRectilinearGrid *rg, int axes,
 
   else if ( ! strncmp(line, "float", 5) )
     {
-    vtkFloatScalars *floatCoords = new vtkFloatScalars(numCoords); 
+    vtkFloatScalars *floatCoords = vtkFloatScalars::New();
     coords = (vtkScalars *)floatCoords;
-    float *ptr = floatCoords->WritePtr(0,numCoords);
+    float *ptr = floatCoords->WritePointer(0,numCoords);
 
     if (this->FileType == VTK_BINARY)
       {
@@ -613,8 +613,8 @@ int vtkDataReader::ReadScalarData(vtkDataSet *ds, int numPts)
 
   if (!strncmp(this->LowerCase(line), "bit", 3))
     {
-    vtkBitScalars *scalars = new vtkBitScalars(numPts);
-    unsigned char *ptr = scalars->WritePtr(0,numPts);
+    vtkBitScalars *scalars = vtkBitScalars::New();
+    unsigned char *ptr = scalars->WritePointer(0,numPts);
     if ( this->FileType == VTK_BINARY)
       {
       // suck up newline
@@ -647,8 +647,8 @@ int vtkDataReader::ReadScalarData(vtkDataSet *ds, int numPts)
 
   else if (!strncmp(line, "unsigned_char", 13))
     {
-    vtkUnsignedCharScalars *scalars = new vtkUnsignedCharScalars(numPts);
-    unsigned char *ptr = scalars->WritePtr(0,numPts);
+    vtkUnsignedCharScalars *scalars = vtkUnsignedCharScalars::New();
+    unsigned char *ptr = scalars->WritePointer(0,numPts);
     if ( this->FileType == VTK_BINARY)
       {
       // suck up newline
@@ -681,8 +681,8 @@ int vtkDataReader::ReadScalarData(vtkDataSet *ds, int numPts)
 
   else if ( ! strncmp(line, "short", 5) )
     {
-    vtkShortScalars *scalars = new vtkShortScalars(numPts);
-    short *ptr = scalars->WritePtr(0,numPts);
+    vtkShortScalars *scalars = vtkShortScalars::New();
+    short *ptr = scalars->WritePointer(0,numPts);
     if ( this->FileType == VTK_BINARY)
       {
       // suck up newline
@@ -716,8 +716,8 @@ int vtkDataReader::ReadScalarData(vtkDataSet *ds, int numPts)
 
   else if ( ! strncmp(line, "unsigned_short", 14) )
     {
-    vtkUnsignedShortScalars *scalars = new vtkUnsignedShortScalars(numPts);
-    unsigned short *ptr = scalars->WritePtr(0,numPts);
+    vtkUnsignedShortScalars *scalars = vtkUnsignedShortScalars::New();
+    unsigned short *ptr = scalars->WritePointer(0,numPts);
     if ( this->FileType == VTK_BINARY)
       {
       // suck up newline
@@ -751,8 +751,8 @@ int vtkDataReader::ReadScalarData(vtkDataSet *ds, int numPts)
 
   else if ( ! strncmp(line, "int", 3) )
     {
-    vtkIntScalars *scalars = new vtkIntScalars(numPts);
-    int *ptr = scalars->WritePtr(0,numPts);
+    vtkIntScalars *scalars = vtkIntScalars::New();
+    int *ptr = scalars->WritePointer(0,numPts);
     if ( this->FileType == VTK_BINARY)
       {
       // suck up newline
@@ -786,8 +786,8 @@ int vtkDataReader::ReadScalarData(vtkDataSet *ds, int numPts)
 
   else if ( ! strncmp(line, "float", 5) )
     {
-    vtkFloatScalars *scalars = new vtkFloatScalars(numPts);
-    float *ptr = scalars->WritePtr(0,numPts);
+    vtkFloatScalars *scalars = vtkFloatScalars::New();
+    float *ptr = scalars->WritePointer(0,numPts);
     if ( this->FileType == VTK_BINARY)
       {
       // suck up newline
@@ -854,8 +854,8 @@ int vtkDataReader::ReadVectorData(vtkDataSet *ds, int numPts)
 
   if ( ! strncmp(this->LowerCase(line), "float", 5) )
     {
-    vtkFloatVectors *vectors = new vtkFloatVectors(numPts);
-    float *ptr = vectors->WritePtr(0,numPts);
+    vtkFloatVectors *vectors = vtkFloatVectors::New();
+    float *ptr = vectors->WritePointer(0,numPts);
     if ( this->FileType == VTK_BINARY)
       {
       // suck up newline
@@ -922,8 +922,8 @@ int vtkDataReader::ReadNormalData(vtkDataSet *ds, int numPts)
 
   if ( ! strncmp(this->LowerCase(line), "float", 5) )
     {
-    vtkFloatNormals *normals = new vtkFloatNormals(numPts);
-    float *ptr = normals->WritePtr(0,numPts);
+    vtkFloatNormals *normals = vtkFloatNormals::New();
+    float *ptr = normals->WritePointer(0,numPts);
     if ( this->FileType == VTK_BINARY)
       {
       // suck up newline
@@ -990,9 +990,9 @@ int vtkDataReader::ReadTensorData(vtkDataSet *ds, int numPts)
 
   if ( ! strncmp(this->LowerCase(line), "float", 5) )
     {
-    vtkFloatTensors *tensors = new vtkFloatTensors(numPts);
+    vtkFloatTensors *tensors = vtkFloatTensors::New();
     tensors->SetDimension(3);
-    float *ptr = tensors->WritePtr(0,numPts);
+    float *ptr = tensors->WritePointer(0,numPts);
     if ( this->FileType == VTK_BINARY)
       {
       // suck up newline
@@ -1065,8 +1065,8 @@ int vtkDataReader::ReadCoScalarData(vtkDataSet *ds, int numPts)
 
   if ( nValues == 1 )
     {
-    vtkGraymap *scalars = new vtkGraymap(numPts);
-    unsigned char *ptr = scalars->WritePtr(0,numPts);
+    vtkGraymap *scalars = vtkGraymap::New();
+    unsigned char *ptr = scalars->WritePointer(0,numPts);
     if ( this->FileType == VTK_BINARY)
       {
       // suck up newline
@@ -1101,8 +1101,8 @@ int vtkDataReader::ReadCoScalarData(vtkDataSet *ds, int numPts)
 
   else if ( nValues == 2 )
     {
-    vtkAGraymap *scalars = new vtkAGraymap(numPts);
-    unsigned char *ptr = scalars->WritePtr(0,numPts);
+    vtkAGraymap *scalars = vtkAGraymap::New();
+    unsigned char *ptr = scalars->WritePointer(0,numPts);
     if ( this->FileType == VTK_BINARY)
       {
       // suck up newline
@@ -1138,8 +1138,8 @@ int vtkDataReader::ReadCoScalarData(vtkDataSet *ds, int numPts)
 
   else if ( nValues == 3 )
     {
-    vtkPixmap *scalars = new vtkPixmap(numPts);
-    unsigned char *ptr = scalars->WritePtr(0,numPts);
+    vtkPixmap *scalars = vtkPixmap::New();
+    unsigned char *ptr = scalars->WritePointer(0,numPts);
     if ( this->FileType == VTK_BINARY)
       {
       // suck up newline
@@ -1178,8 +1178,8 @@ int vtkDataReader::ReadCoScalarData(vtkDataSet *ds, int numPts)
 
   else if ( nValues == 4 )
     {
-    vtkAPixmap *scalars = new vtkAPixmap(numPts);
-    unsigned char *ptr = scalars->WritePtr(0,numPts);
+    vtkAPixmap *scalars = vtkAPixmap::New();
+    unsigned char *ptr = scalars->WritePointer(0,numPts);
     if ( this->FileType == VTK_BINARY)
       {
       // suck up newline
@@ -1260,9 +1260,9 @@ int vtkDataReader::ReadTCoordsData(vtkDataSet *ds, int numPts)
 
   if ( ! strncmp(this->LowerCase(line), "float", 5) )
     {
-    vtkFloatTCoords *tcoords = new vtkFloatTCoords(numPts);
+    vtkFloatTCoords *tcoords = vtkFloatTCoords::New();
     tcoords->SetDimension(dim);
-    float *ptr = tcoords->WritePtr(0,numPts);
+    float *ptr = tcoords->WritePointer(0,numPts);
     if ( this->FileType == VTK_BINARY)
       {
       // suck up newline
@@ -1331,8 +1331,9 @@ int vtkDataReader::ReadLutData(vtkDataSet *ds)
     skipTable = 1;
     }
 
-  lut = new vtkLookupTable(size);
-  ptr = lut->WritePtr(0,size);
+  lut = vtkLookupTable::New();
+  lut->Allocate(size);
+  ptr = lut->WritePointer(0,size);
 
   if ( this->FileType == VTK_BINARY)
     {

@@ -384,7 +384,8 @@ void vtkCellLocator::BuildLocator()
           octant = this->Tree[idx];
           if ( ! octant )
             {
-            octant = new vtkIdList(numCellsPerBucket,numCellsPerBucket/2);
+            octant = vtkIdList::New();
+            octant->Allocate(numCellsPerBucket,numCellsPerBucket/2);
             this->Tree[idx] = octant;
             }
           octant->InsertNextId(cellId);
@@ -439,8 +440,10 @@ void vtkCellLocator::GenerateRepresentation(int level, vtkPolyData *pd)
     return;
     }
 
-  pts = new vtkFloatPoints(5000);
-  polys = new vtkCellArray(10000);
+  pts = vtkFloatPoints::New();
+  pts->Allocate(5000);
+  polys = vtkCellArray::New();
+  polys->Allocate(10000);
 
   //
   // Compute idx into tree at appropriate level; determine if

@@ -70,7 +70,7 @@ void vtkSliceCubes::Update()
 // NOTE: We calculate the negative of the gradient for efficiency
 template <class T>
 static void ComputePointGradient(int i, int j, int k, int dims[3], 
-                          float aspectRatio[3], float n[3],
+                          float Spacing[3], float n[3],
                           T *s0, T *s1, T *s2)
 {
   float sp, sm;
@@ -80,19 +80,19 @@ static void ComputePointGradient(int i, int j, int k, int dims[3],
     {
     sp = s1[i+1 + j*dims[0]];
     sm = s1[i + j*dims[0]];
-    n[0] = (sm - sp) / aspectRatio[0];
+    n[0] = (sm - sp) / Spacing[0];
     }
   else if ( i == (dims[0]-1) )
     {
     sp = s1[i + j*dims[0]];
     sm = s1[i-1 + j*dims[0]];
-    n[0] = (sm - sp) / aspectRatio[0];
+    n[0] = (sm - sp) / Spacing[0];
     }
   else
     {
     sp = s1[i+1 + j*dims[0]];
     sm = s1[i-1 + j*dims[0]];
-    n[0] = 0.5 * (sm - sp) / aspectRatio[0];
+    n[0] = 0.5 * (sm - sp) / Spacing[0];
     }
 
   // y-direction
@@ -100,20 +100,20 @@ static void ComputePointGradient(int i, int j, int k, int dims[3],
     {
     sp = s1[i + (j+1)*dims[0]];
     sm = s1[i + j*dims[0]];
-    n[1] = (sm - sp) / aspectRatio[1];
+    n[1] = (sm - sp) / Spacing[1];
     }
   else if ( j == (dims[1]-1) )
     {
     sp = s1[i + j*dims[0]];
     sm = s1[i + (j-1)*dims[0]];
-    n[1] = (sm - sp) / aspectRatio[1];
+    n[1] = (sm - sp) / Spacing[1];
     }
   else
 
     {
     sp = s1[i + (j+1)*dims[0]];
     sm = s1[i + (j-1)*dims[0]];
-    n[1] = 0.5 * (sm - sp) / aspectRatio[1];
+    n[1] = 0.5 * (sm - sp) / Spacing[1];
     }
 
   // z-direction
@@ -122,25 +122,25 @@ static void ComputePointGradient(int i, int j, int k, int dims[3],
     {
     sp = s2[i + j*dims[0]];
     sm = s1[i + j*dims[0]];
-    n[2] = (sm - sp) / aspectRatio[2];
+    n[2] = (sm - sp) / Spacing[2];
     }
   else if ( k == (dims[2]-1) )
     {
     sp = s1[i + j*dims[0]];
     sm = s0[i + j*dims[0]];
-    n[2] = (sm - sp) / aspectRatio[2];
+    n[2] = (sm - sp) / Spacing[2];
     }
   else
     {
     sp = s2[i + j*dims[0]];
     sm = s0[i + j*dims[0]];
-    n[2] = 0.5 * (sm - sp) / aspectRatio[2];
+    n[2] = 0.5 * (sm - sp) / Spacing[2];
     }
 }
 
 template <class T, class S>
 static int Contour(T *slice, S *scalars, int imageRange[2], int dims[3], float origin[3],
-            float aspectRatio[3], float value, float xmin[3], float xmax[3],
+            float Spacing[3], float value, float xmin[3], float xmax[3],
             FILE *outFP, vtkVolumeReader *reader, unsigned char debug)
 {
   S *slice0scalars=NULL, *slice1scalars;
@@ -163,7 +163,8 @@ static int Contour(T *slice, S *scalars, int imageRange[2], int dims[3], float o
   if ( slice == NULL ) //have to do conversion to float slice-by-slice
     {
     sliceSize = dims[0] * dims[1];
-    floatScalars = new vtkFloatScalars(sliceSize);
+    floatScalars = vtkFloatScalars::New();
+    floatScalars->Allocate(sliceSize);
     }
 
   slice1scalars = NULL;
@@ -173,24 +174,24 @@ static int Contour(T *slice, S *scalars, int imageRange[2], int dims[3], float o
   if ( slice2scalars == NULL ) return 0;
   if ( slice != NULL )
     {
-    slice1 = slice2 = slice2scalars->GetPtr(0);
+    slice1 = slice2 = slice2scalars->GetPointer(0);
     }
   else
     {//get as float
     slice2scalars->GetScalars(0,sliceSize-1,*floatScalars);
-    slice1 = slice2 = (T *) floatScalars->GetPtr(0);
+    slice1 = slice2 = (T *) floatScalars->GetPointer(0);
     }
   slice3scalars = (S *) reader->GetImage(imageRange[0]+1)->GetPointData()->GetScalars();
   if (debug)  vtkGenericWarningMacro(<< "  Slice# " << imageRange[0]+1 );
 
   if ( slice != NULL )
     {
-    slice3 = slice3scalars->GetPtr(0);
+    slice3 = slice3scalars->GetPointer(0);
     }
   else
     {//get as float: cast is ok because this code is only executed for float type
     slice3scalars->GetScalars(0,sliceSize-1,*floatScalars);
-    slice3 = (T *) floatScalars->GetPtr(0);
+    slice3 = (T *) floatScalars->GetPointer(0);
     }
 
   if ( !slice2 || !slice3 )
@@ -223,20 +224,20 @@ static int Contour(T *slice, S *scalars, int imageRange[2], int dims[3], float o
         }
       if ( slice != NULL )
         {
-        slice3 = slice3scalars->GetPtr(0);
+        slice3 = slice3scalars->GetPointer(0);
         }
       else
         {//get as float
         slice3scalars->GetScalars(0,sliceSize-1,*floatScalars);
-        slice3 = (T *) floatScalars->GetPtr(0);
+        slice3 = (T *) floatScalars->GetPointer(0);
         }
       }
 
-    pts[0][2] = origin[2] + k*aspectRatio[2];
+    pts[0][2] = origin[2] + k*Spacing[2];
     for ( j=0; j < (dims[1]-1); j++)
       {
       jOffset = j*dims[0];
-      pts[0][1] = origin[1] + j*aspectRatio[1];
+      pts[0][1] = origin[1] + j*Spacing[1];
       for ( i=0; i < (dims[0]-1); i++)
         {
         //get scalar values
@@ -258,52 +259,52 @@ static int Contour(T *slice, S *scalars, int imageRange[2], int dims[3], float o
         if ( index == 0 || index == 255 ) continue; //no surface
 
         //create voxel points
-        pts[0][0] = origin[0] + i*aspectRatio[0];
+        pts[0][0] = origin[0] + i*Spacing[0];
 
-        pts[1][0] = pts[0][0] + aspectRatio[0];  
+        pts[1][0] = pts[0][0] + Spacing[0];  
         pts[1][1] = pts[0][1];
         pts[1][2] = pts[0][2];
 
-        pts[2][0] = pts[0][0] + aspectRatio[0];  
-        pts[2][1] = pts[0][1] + aspectRatio[1];
+        pts[2][0] = pts[0][0] + Spacing[0];  
+        pts[2][1] = pts[0][1] + Spacing[1];
         pts[2][2] = pts[0][2];
 
         pts[3][0] = pts[0][0];
-        pts[3][1] = pts[0][1] + aspectRatio[1];
+        pts[3][1] = pts[0][1] + Spacing[1];
         pts[3][2] = pts[0][2];
 
         pts[4][0] = pts[0][0];
         pts[4][1] = pts[0][1];
-        pts[4][2] = pts[0][2] + aspectRatio[2];
+        pts[4][2] = pts[0][2] + Spacing[2];
 
-        pts[5][0] = pts[0][0] + aspectRatio[0];  
+        pts[5][0] = pts[0][0] + Spacing[0];  
         pts[5][1] = pts[0][1];
-        pts[5][2] = pts[0][2] + aspectRatio[2];
+        pts[5][2] = pts[0][2] + Spacing[2];
 
-        pts[6][0] = pts[0][0] + aspectRatio[0];  
-        pts[6][1] = pts[0][1] + aspectRatio[1];
-        pts[6][2] = pts[0][2] + aspectRatio[2];
+        pts[6][0] = pts[0][0] + Spacing[0];  
+        pts[6][1] = pts[0][1] + Spacing[1];
+        pts[6][2] = pts[0][2] + Spacing[2];
 
         pts[7][0] = pts[0][0];
-        pts[7][1] = pts[0][1] + aspectRatio[1];
-        pts[7][2] = pts[0][2] + aspectRatio[2];
+        pts[7][1] = pts[0][1] + Spacing[1];
+        pts[7][2] = pts[0][2] + Spacing[2];
 
         //create gradients
-        ComputePointGradient(i,j, k, dims, aspectRatio, grad[0],
+        ComputePointGradient(i,j, k, dims, Spacing, grad[0],
                              slice0, slice1, slice2);
-        ComputePointGradient(i+1,j, k, dims, aspectRatio, grad[1],
+        ComputePointGradient(i+1,j, k, dims, Spacing, grad[1],
                              slice0, slice1, slice2);
-        ComputePointGradient(i+1,j+1, k, dims, aspectRatio, grad[2],
+        ComputePointGradient(i+1,j+1, k, dims, Spacing, grad[2],
                              slice0, slice1, slice2);
-        ComputePointGradient(i,j+1, k, dims, aspectRatio, grad[3],
+        ComputePointGradient(i,j+1, k, dims, Spacing, grad[3],
                              slice0, slice1, slice2);
-        ComputePointGradient(i,j, k+1, dims, aspectRatio, grad[4],
+        ComputePointGradient(i,j, k+1, dims, Spacing, grad[4],
                              slice1, slice2, slice3);
-        ComputePointGradient(i+1,j, k+1, dims, aspectRatio, grad[5],
+        ComputePointGradient(i+1,j, k+1, dims, Spacing, grad[5],
                              slice1, slice2, slice3);
-        ComputePointGradient(i+1,j+1, k+1, dims, aspectRatio, grad[6],
+        ComputePointGradient(i+1,j+1, k+1, dims, Spacing, grad[6],
                              slice1, slice2, slice3);
-        ComputePointGradient(i,j+1, k+1, dims, aspectRatio, grad[7],
+        ComputePointGradient(i,j+1, k+1, dims, Spacing, grad[7],
                              slice1, slice2, slice3);
 
         triCase = triCases + index;
@@ -357,7 +358,7 @@ void vtkSliceCubes::Execute()
   int dims[3], imageRange[2];
   float xmin[3], xmax[3];
   char *type;
-  float origin[3], aspectRatio[3];
+  float origin[3], Spacing[3];
   int numTriangles;
 
   // check input/initialize
@@ -385,7 +386,7 @@ void vtkSliceCubes::Execute()
   tempStructPts = this->Reader->GetImage(imageRange[0]);
   tempStructPts->GetDimensions(dims);
   tempStructPts->GetOrigin(origin);
-  tempStructPts->GetAspectRatio(aspectRatio);
+  tempStructPts->GetSpacing(Spacing);
   
   dims[2] = (imageRange[1] - imageRange[0] + 1);
 
@@ -409,43 +410,43 @@ void vtkSliceCubes::Execute()
   if ( !strcmp(type,"unsigned char") && inScalars->GetNumberOfValuesPerScalar() == 1 )
     {
     vtkUnsignedCharScalars *scalars = (vtkUnsignedCharScalars *)inScalars;
-    unsigned char *s = scalars->GetPtr(0);
-    numTriangles = Contour(s,scalars,imageRange,dims,origin,aspectRatio,this->Value,
+    unsigned char *s = scalars->GetPointer(0);
+    numTriangles = Contour(s,scalars,imageRange,dims,origin,Spacing,this->Value,
                   xmin,xmax,outFP,this->Reader,this->Debug);
     }
   else if ( !strcmp(type,"unsigned short") )
     {
     vtkUnsignedShortScalars *scalars = (vtkUnsignedShortScalars *)inScalars;
-    unsigned short *s = scalars->GetPtr(0);
-    numTriangles = Contour(s,scalars,imageRange,dims,origin,aspectRatio,this->Value,
+    unsigned short *s = scalars->GetPointer(0);
+    numTriangles = Contour(s,scalars,imageRange,dims,origin,Spacing,this->Value,
                   xmin,xmax,outFP,this->Reader,this->Debug);
     }
   else if ( !strcmp(type,"short") )
     {
     vtkShortScalars *scalars = (vtkShortScalars *)inScalars;
-    short *s = scalars->GetPtr(0);
-    numTriangles = Contour(s,scalars,imageRange,dims,origin,aspectRatio,this->Value,
+    short *s = scalars->GetPointer(0);
+    numTriangles = Contour(s,scalars,imageRange,dims,origin,Spacing,this->Value,
                   xmin,xmax,outFP,this->Reader,this->Debug);
     }
   else if ( !strcmp(type,"float") )
     {
     vtkFloatScalars *scalars = (vtkFloatScalars *)inScalars;
-    float *s = scalars->GetPtr(0);
-    numTriangles = Contour(s,scalars,imageRange,dims,origin,aspectRatio,this->Value,
+    float *s = scalars->GetPointer(0);
+    numTriangles = Contour(s,scalars,imageRange,dims,origin,Spacing,this->Value,
                   xmin,xmax,outFP,this->Reader,this->Debug);
     }
   else if ( !strcmp(type,"int") )
     {
     vtkIntScalars *scalars = (vtkIntScalars *)inScalars;
-    int *s = scalars->GetPtr(0);
-    numTriangles = Contour(s,scalars,imageRange,dims,origin,aspectRatio,this->Value,
+    int *s = scalars->GetPointer(0);
+    numTriangles = Contour(s,scalars,imageRange,dims,origin,Spacing,this->Value,
                   xmin,xmax,outFP,this->Reader,this->Debug);
     }
   else //use general method
     {
     vtkFloatScalars *scalars = (vtkFloatScalars *)inScalars;
     float *s = NULL; //clue to use general method
-    numTriangles = Contour(s,scalars,imageRange,dims,origin,aspectRatio,this->Value,
+    numTriangles = Contour(s,scalars,imageRange,dims,origin,Spacing,this->Value,
                   xmin,xmax,outFP,this->Reader,this->Debug);
     }
 
@@ -465,7 +466,7 @@ void vtkSliceCubes::Execute()
       {
       for (i=0; i<3; i++)
         {
-        t = origin[i] + (dims[i] - 1)*aspectRatio[i];
+        t = origin[i] + (dims[i] - 1)*Spacing[i];
 	vtkByteSwap::SwapWrite4BERange(origin+i,1,outFP);
 	// swap if neccessary
 	vtkByteSwap::SwapWrite4BERange(&t,1,outFP);

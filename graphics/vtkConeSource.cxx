@@ -97,7 +97,8 @@ void vtkConeSource::Execute()
     newPolys->Allocate(newPolys->EstimateSize(numPolys,this->Resolution));
     break;
   }
-  newPoints = new vtkFloatPoints(numPts);
+  newPoints = vtkFloatPoints::New();
+  newPoints->Allocate(numPts);
 //
 // Create cone
 //

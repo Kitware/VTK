@@ -171,7 +171,7 @@ void vtkAppendPolyData::Execute()
   if ( !userDefinedPresent ) outputPD->CopyUserDefinedOff();
   outputPD->CopyAllocate(pd,numPts);
 
-  newPts = new vtkFloatPoints(numPts);
+  newPts = vtkFloatPoints::New();
   newPts->SetNumberOfPoints(numPts);
 
   newVerts = vtkCellArray::New();

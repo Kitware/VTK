@@ -24,7 +24,7 @@ vtkDividingCubes iso
     iso SetIncrement 1
 vtkPolyMapper isoMapper
     isoMapper SetInput [iso GetOutput]
-    isoMapper ScalarsVisibleOff
+    isoMapper ScalarVisibilityOff
 vtkActor isoActor
     isoActor SetMapper isoMapper
     eval [isoActor GetProperty] SetColor $bisque
@@ -49,7 +49,7 @@ vtkCamera cam1
     cam1 SetClippingRange 19.1589 957.946
     cam1 SetFocalPoint 33.7014 26.706 30.5867
     cam1 SetPosition 150.841 89.374 -107.462
-    cam1 CalcViewPlaneNormal
+    cam1 ComputeViewPlaneNormal
     cam1 SetViewUp -0.190015 0.944614 0.267578
 $ren1 SetActiveCamera cam1
 

@@ -69,6 +69,7 @@ public:
   // Set the image dimensions.  This also computes the increments.
   void SetDimensions(int num, int *size);
   vtkImageSetMacro(Dimensions,int);
+
   // Description:
   // Get the image dimensions.
   void GetDimensions(int num, int *size);
@@ -76,12 +77,12 @@ public:
   int *GetDimensions() {return this->Dimensions;};  
   
   // Description:
-  // Set/Get the aspect ratio of the data.
-  void SetAspectRatio(int num, float *ratio);
-  vtkImageSetMacro(AspectRatio,float);
-  void GetAspectRatio(int num, float *ratio);
-  vtkImageGetMacro(AspectRatio,float);
-  float *GetAspectRatio() {return this->AspectRatio;};  
+  // Set/Get the spacing of the data.
+  void SetSpacing(int num, float *ratio);
+  vtkImageSetMacro(Spacing,float);
+  void GetSpacing(int num, float *ratio);
+  vtkImageGetMacro(Spacing,float);
+  float *GetSpacing() {return this->Spacing;};  
   
   // Description:
   // Set/Get the origin of the data (location of point (0,0,0,...)).
@@ -142,7 +143,7 @@ protected:
   char *FilePattern;
   char *FileName;
   int Dimensions[VTK_IMAGE_DIMENSIONS];
-  float AspectRatio[VTK_IMAGE_DIMENSIONS];
+  float Spacing[VTK_IMAGE_DIMENSIONS];
   float Origin[VTK_IMAGE_DIMENSIONS];
   
   // The first image file has this index

@@ -28,7 +28,7 @@ vtkGlyph3D cones
     cones SetInput [mask GetOutput]
     cones SetSource [cone GetOutput]
     cones SetScaleFactor 0.5
-    cones ScaleByVector
+    cones SetScaleModeToScaleByVector
 vtkLookupTable lut
     lut SetHueRange .667 0.0
     lut Build
@@ -45,10 +45,10 @@ vtkContourFilter iso
     iso SetValue 0 190
 vtkPolyMapper isoMapper
     isoMapper SetInput [iso GetOutput]
-    isoMapper ScalarsVisibleOff
+    isoMapper ScalarVisibilityOff
 vtkActor isoActor
     isoActor SetMapper isoMapper
-    [isoActor GetProperty] SetWireframe
+    [isoActor GetProperty] SetRepresentationToWireframe
     [isoActor GetProperty] SetOpacity 0.25
 
 # outline

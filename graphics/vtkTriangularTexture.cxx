@@ -142,7 +142,8 @@ void vtkTriangularTexture::Execute()
     }
 
   output->SetDimensions(this->XSize,this->YSize,1);
-  newScalars = new vtkAGraymap(numPts);
+  newScalars = vtkAGraymap::New();
+  newScalars->Allocate(numPts);
 
   switch (this->TexturePattern) 
     {

@@ -179,7 +179,7 @@ void vtkDecimatePro::Execute()
     inPts = input->GetPoints();
     inPolys = input->GetPolys();
     Mesh = vtkPolyData::New();
-    newPts = new vtkFloatPoints(numPts); newPts->SetNumberOfPoints(numPts);
+    newPts = vtkFloatPoints::New(); newPts->SetNumberOfPoints(numPts);
     for ( i=0; i < numPts; i++ ) newPts->SetPoint(i,inPts->GetPoint(i));
     newPolys = new vtkCellArray(*(inPolys));
     Mesh->SetPoints(newPts);
@@ -201,7 +201,8 @@ void vtkDecimatePro::Execute()
 
   if ( this->AccumulateError )
     {
-    this->VertexError = new vtkFloatArray(numPts,(int) ((float)0.25*numPts));
+    this->VertexError = vtkFloatArray::New();
+    this->VertexError->Allocate(numPts,(int) ((float)0.25*numPts));
     for (i=0; i<numPts; i++) this->VertexError->SetValue(i, 0.0);
     }
 
@@ -1186,7 +1187,7 @@ void vtkDecimatePro::GetInflectionPoints(float *inflectionPoints)
 // This method returns a pointer to a list of inflection points.
 float *vtkDecimatePro::GetInflectionPoints()
 {
-  return this->InflectionPoints->GetPtr(0);
+  return this->InflectionPoints->GetPointer(0);
 }
 
 // Description:

@@ -86,7 +86,7 @@ void vtkTextureMapToPlane::Execute()
 //
 //  Allocate texture data
 //
-  newTCoords = new vtkFloatTCoords(numPts,2);
+  newTCoords = vtkFloatTCoords::New();
   newTCoords->SetNumberOfTCoords(numPts);
 //
 //  Compute least squares plane if on automatic mode; otherwise use

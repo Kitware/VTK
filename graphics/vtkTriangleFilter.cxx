@@ -59,7 +59,7 @@ void vtkTriangleFilter::Execute()
 
   vtkDebugMacro(<<"Executing triangle filter");
 
-  newPolys = new vtkCellArray();
+  newPolys = vtkCellArray::New();
   // approximation
   numCells = input->GetNumberOfPolys() + input->GetNumberOfStrips();
   newPolys->Allocate(newPolys->EstimateSize(numCells,3),3*numCells);

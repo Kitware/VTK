@@ -117,7 +117,7 @@ void vtkXglrTexture::Load(vtkRenderer *aren)
       }
     else
       {
-	dataPtr = ((vtkColorScalars *)scalars)->GetPtr(0);    
+	dataPtr = ((vtkColorScalars *)scalars)->GetPointer(0);    
       }
 
     // we only support 2d texture maps right now

@@ -78,8 +78,10 @@ void vtkSphereSource::Execute()
   // creating triangles
   numPolys = (this->PhiResolution - 1) * 2 * this->ThetaResolution;
 
-  newPoints = new vtkFloatPoints(numPts);
-  newNormals = new vtkFloatNormals(numPts);
+  newPoints = vtkFloatPoints::New();
+  newPoints->Allocate(numPts);
+  newNormals = vtkFloatNormals::New();
+  newNormals->Allocate(numPts);
   newPolys = vtkCellArray::New();
   newPolys->Allocate(newPolys->EstimateSize(numPolys,3));
 //

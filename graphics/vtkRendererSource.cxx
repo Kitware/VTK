@@ -85,7 +85,7 @@ void vtkRendererSource::Execute()
   // Get origin, aspect ratio and dimensions from this->Input
   dims[0] = (int)(x2 - x1 + 1); dims[1] = (int)(y2 -y1 + 1); dims[2] = 1;
   output->SetDimensions(dims);
-  output->SetAspectRatio(1,1,1);
+  output->SetSpacing(1,1,1);
   output->SetOrigin(0,0,0);
 
   // Allocate data.  Scalar type is FloatScalars.
@@ -96,7 +96,7 @@ void vtkRendererSource::Execute()
 							  (int)x2,(int)y2,1);
 
   // copy scalars over
-  memcpy(outScalars->WritePtr(0,numOutPts),pixels,3*numOutPts);
+  memcpy(outScalars->WritePointer(0,numOutPts),pixels,3*numOutPts);
 
   // Update ourselves
   output->GetPointData()->SetScalars(outScalars);

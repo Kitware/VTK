@@ -84,8 +84,10 @@ void vtkDicer::BuildTree(vtkIdList *ptIds, vtkOBBNode *OBBptr)
     OBBptr->Kids = new vtkOBBNode *[2];
     OBBptr->Kids[0] = LHnode;
     OBBptr->Kids[1] = RHnode;
-    vtkIdList *LHlist = new vtkIdList(numPts/2);
-    vtkIdList *RHlist = new vtkIdList(numPts/2);
+    vtkIdList *LHlist = vtkIdList::New();
+    LHlist->Allocate(numPts/2);
+    vtkIdList *RHlist = vtkIdList::New();
+    RHlist->Allocate(numPts/2);
     LHnode->Parent = OBBptr;
     RHnode->Parent = OBBptr;
     float n[3], p[3], *x, val;
@@ -150,8 +152,10 @@ void vtkDicer::Execute()
   //
   // Create list of points
   //
-  this->PointsList = new vtkFloatPoints(numPts);
-  ptIds = new vtkIdList(numPts); ptIds->SetNumberOfIds(numPts);
+  this->PointsList = vtkFloatPoints::New();
+  this->PointsList->Allocate(numPts);
+  ptIds = vtkIdList::New();
+  ptIds->SetNumberOfIds(numPts);
   for ( ptId=0; ptId < numPts; ptId++ )
     {
     ptIds->SetId(ptId,ptId);
@@ -164,7 +168,8 @@ void vtkDicer::Execute()
   // Generate scalar values
   //
   this->PointsList->Delete(); this->PointsList = NULL;
-  groupIds = new vtkShortScalars(numPts); groupIds->SetNumberOfScalars(numPts);
+  groupIds = vtkShortScalars::New();
+  groupIds->SetNumberOfScalars(numPts);
   this->NumberOfPieces = 0;
   this->MarkPoints(root,groupIds);
   this->DeleteTree(root);

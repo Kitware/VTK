@@ -291,7 +291,7 @@ LRESULT CALLBACK vtkHandleMessage(HWND hWnd,UINT uMsg, WPARAM wParam, LPARAM lPa
 	        {
 	        for (anActor->InitPartTraversal(); aPart=anActor->GetNextPart(); )
 	          {
-	          aPart->GetProperty()->SetWireframe();
+	          aPart->GetProperty()->SetRepresentationToWireframe();
 	          }
 	        }
 		
@@ -309,7 +309,7 @@ LRESULT CALLBACK vtkHandleMessage(HWND hWnd,UINT uMsg, WPARAM wParam, LPARAM lPa
 	        {
 	        for (anActor->InitPartTraversal(); aPart=anActor->GetNextPart(); )
 	          {
-	          aPart->GetProperty()->SetSurface();
+	          aPart->GetProperty()->SetRepresentationToSurface();
 	         }
 	       }
 		

@@ -2,7 +2,7 @@
 // .NAME vtkSLCReader - read an SLC volume file.
 // .SECTION Description
 // vtkSLCReader reads an SLC file and creates a structured point dataset.
-// The size of the volume and the aspect ratio is set from the SLC file
+// The size of the volume and the data spacing is set from the SLC file
 // header.
 
 #ifndef __vtkSLCReader_h

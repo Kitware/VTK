@@ -142,7 +142,7 @@ void vtkImageAnisotropicDiffusion2D::Execute(vtkImageRegion *inRegion,
   vtkImageRegion *temp;
 
 
-  inRegion->GetAspectRatio(ar0, ar1);
+  inRegion->GetSpacing(ar0, ar1);
 
   // make the temporary regions to iterate over.
   in = vtkImageRegion::New();

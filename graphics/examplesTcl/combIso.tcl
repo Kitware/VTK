@@ -27,7 +27,7 @@ vtkPolyNormals normals
     normals SetFeatureAngle 45
 vtkPolyMapper isoMapper
     isoMapper SetInput [normals GetOutput]
-    isoMapper ScalarsVisibleOff
+    isoMapper ScalarVisibilityOff
 vtkActor isoActor
     isoActor SetMapper isoMapper
     eval [isoActor GetProperty] SetColor $bisque
@@ -51,7 +51,7 @@ set cam1 [$ren1 GetActiveCamera]
 $cam1 SetClippingRange 3.95297 50
 $cam1 SetFocalPoint 9.71821 0.458166 29.3999
 $cam1 SetPosition 2.7439 -37.3196 38.7167
-$cam1 CalcViewPlaneNormal
+$cam1 ComputeViewPlaneNormal
 $cam1 SetViewUp -0.16123 0.264271 0.950876
 
 # render the image

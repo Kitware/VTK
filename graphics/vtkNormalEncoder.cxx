@@ -373,7 +373,7 @@ void vtkNormalEncoder::UpdateNormals( )
 
   // Get the dimensions of the data and its aspect ration
   this->ScalarInput->GetDimensions( scalar_input_size );
-  this->ScalarInput->GetAspectRatio( scalar_input_aspect );
+  this->ScalarInput->GetSpacing( scalar_input_aspect );
 
   // If we previously have allocated space for the encoded normals,
   // and this space is no longer the right size, delete it
@@ -456,31 +456,31 @@ VTK_THREAD_RETURN_TYPE SwitchOnDataType( void *arg )
   if ( strcmp( data_type, "unsigned char" ) == 0 )
     {
     uc_data_ptr = ((vtkUnsignedCharScalars *)
-      (encoder->ScalarInput->GetPointData()->GetScalars()))->GetPtr(0);
+      (encoder->ScalarInput->GetPointData()->GetScalars()))->GetPointer(0);
     ComputeGradients( encoder, uc_data_ptr, thread_id, thread_count );
     }
   else if ( strcmp( data_type, "unsigned short" ) == 0 )
     {
     us_data_ptr = ((vtkUnsignedShortScalars *)
-      (encoder->ScalarInput->GetPointData()->GetScalars()))->GetPtr(0);
+      (encoder->ScalarInput->GetPointData()->GetScalars()))->GetPointer(0);
     ComputeGradients( encoder, us_data_ptr, thread_id, thread_count );
     }
   else if ( strcmp( data_type, "short" ) == 0 )
     {
     s_data_ptr = ((vtkShortScalars *)
-      (encoder->ScalarInput->GetPointData()->GetScalars()))->GetPtr(0);
+      (encoder->ScalarInput->GetPointData()->GetScalars()))->GetPointer(0);
     ComputeGradients( encoder, s_data_ptr, thread_id, thread_count );
     }
   else if ( strcmp( data_type, "int" ) == 0 )
     {
     i_data_ptr = ((vtkIntScalars *)
-      (encoder->ScalarInput->GetPointData()->GetScalars()))->GetPtr(0);
+      (encoder->ScalarInput->GetPointData()->GetScalars()))->GetPointer(0);
     ComputeGradients( encoder, i_data_ptr, thread_id, thread_count );
     }
   else if ( strcmp( data_type, "float" ) == 0 )
     {
     f_data_ptr = ((vtkFloatScalars *)
-      (encoder->ScalarInput->GetPointData()->GetScalars()))->GetPtr(0);
+      (encoder->ScalarInput->GetPointData()->GetScalars()))->GetPointer(0);
     ComputeGradients( encoder, f_data_ptr, thread_id, thread_count );
     }
 

@@ -51,7 +51,7 @@ vtkRecursiveDividingCubes::vtkRecursiveDividingCubes()
 }
 
 static float X[3]; //origin of current voxel
-static float Ar[3]; //aspect ratio of current voxel
+static float Spacing[3]; //spacing of current voxel
 static float Normals[8][3]; //voxel normals
 static vtkFloatPoints *NewPts; //points being generated
 static vtkFloatNormals *NewNormals; //points being generated
@@ -90,13 +90,16 @@ void vtkRecursiveDividingCubes::Execute()
     return;
     }
   input->GetDimensions(dim);
-  input->GetAspectRatio(Ar);
+  input->GetSpacing(Spacing);
   input->GetOrigin(origin);
 
   // creating points
-  NewPts = new vtkFloatPoints(500000,1000000);
-  NewNormals = new vtkFloatNormals(500000,1000000);
-  NewVerts = new vtkCellArray(500000,1000000);
+  NewPts = vtkFloatPoints::New();
+  NewPts->Allocate(500000,1000000);
+  NewNormals = vtkFloatNormals::New();
+  NewNormals->Allocate(500000,1000000);
+  NewVerts = vtkCellArray::New();
+  NewVerts->Allocate(500000,1000000);
   NewVerts->InsertNextCell(0); //temporary cell count
 //
 // Loop over all cells checking to see which straddle the specified value. Since
@@ -106,17 +109,17 @@ void vtkRecursiveDividingCubes::Execute()
   for ( k=0; k < (dim[2]-1); k++)
     {
     kOffset = k*sliceSize;
-    X[2] = origin[2] + k*Ar[2];
+    X[2] = origin[2] + k*Spacing[2];
 
     for ( j=0; j < (dim[1]-1); j++)
       {
       jOffset = j*dim[0];
-      X[1] = origin[1] + j*Ar[1];
+      X[1] = origin[1] + j*Spacing[1];
 
       for ( i=0; i < (dim[0]-1); i++)
         {
         idx  = i + jOffset + kOffset;
-        X[0] = origin[0] + i*Ar[0];
+        X[0] = origin[0] + i*Spacing[0];
 
         // get point ids of this voxel
         voxelPts.SetId(0, idx);
@@ -150,7 +153,7 @@ void vtkRecursiveDividingCubes::Execute()
             input->GetPointGradient(i,j+1,k+1, inScalars, Normals[6]);
             input->GetPointGradient(i+1,j+1,k+1, inScalars, Normals[7]);
 
-            this->SubDivide(X, Ar, voxelScalars.GetPtr(0));
+            this->SubDivide(X, Spacing, voxelScalars.GetPointer(0));
             }
           }
         }
@@ -207,7 +210,7 @@ void vtkRecursiveDividingCubes::SubDivide(float origin[3], float h[3],
       {
       id = NewPts->InsertNextPoint(x);
       NewVerts->InsertCellPoint(id);
-      for (i=0; i<3; i++) p[i] = (x[i] - X[i]) / Ar[i];
+      for (i=0; i<3; i++) p[i] = (x[i] - X[i]) / Spacing[i];
       voxel.InterpolationFunctions(p,w);
       for (n[0]=n[1]=n[2]=0.0, i=0; i<8; i++)
 	{

@@ -106,11 +106,12 @@ void vtkThresholdPoints::Execute()
     }
      
   numPts = this->Input->GetNumberOfPoints();
-  newPoints = new vtkFloatPoints(numPts);
+  newPoints = vtkFloatPoints::New();
+  newPoints->Allocate(numPts);
   pd = this->Input->GetPointData();
   outPD = output->GetPointData();
   outPD->CopyAllocate(pd);
-  verts = new vtkCellArray();
+  verts = vtkCellArray::New();
   verts->Allocate(verts->EstimateSize(numPts,1));
 
   // Check that the scalars of each point satisfy the threshold criterion

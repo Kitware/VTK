@@ -130,20 +130,20 @@ void vtkImageMean1D::ComputeOutputImageInformation(
 		    vtkImageRegion *inRegion, vtkImageRegion *outRegion)
 {
   int imageExtent[2];
-  float aspectRatio;
+  float Spacing;
 
   inRegion->GetImageExtent(1, imageExtent);
-  inRegion->GetAspectRatio(aspectRatio);
+  inRegion->GetSpacing(Spacing);
 
   // Scale the output extent
   imageExtent[0] = (int)(ceil(((float)imageExtent[0]) /((float)this->Stride)));
   imageExtent[1] = (int)(floor(((float)imageExtent[1])/((float)this->Stride)));
   
-  // Change the aspect ratio.
-  aspectRatio *= (float)(this->Stride);
+  // Change the data spacing.
+  Spacing *= (float)(this->Stride);
 
   outRegion->SetImageExtent(1, imageExtent);
-  outRegion->SetAspectRatio(aspectRatio);
+  outRegion->SetSpacing(Spacing);
 }
 
 

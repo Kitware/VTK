@@ -131,10 +131,14 @@ void vtkClipPolyData::Execute()
   estimatedSize = estimatedSize / 1024 * 1024; //multiple of 1024
   if (estimatedSize < 1024) estimatedSize = 1024;
 
-  newPoints = new vtkFloatPoints(numPts,numPts/2);
-  newVerts = new vtkCellArray(estimatedSize,estimatedSize/2);
-  newLines = new vtkCellArray(estimatedSize,estimatedSize/2);
-  newPolys = new vtkCellArray(estimatedSize,estimatedSize/2);
+  newPoints = vtkFloatPoints::New();
+  newPoints->Allocate(numPts,numPts/2);
+  newVerts = vtkCellArray::New();
+  newVerts->Allocate(estimatedSize,estimatedSize/2);
+  newLines = vtkCellArray::New();
+  newLines->Allocate(estimatedSize,estimatedSize/2);
+  newPolys = vtkCellArray::New();
+  newPolys->Allocate(estimatedSize,estimatedSize/2);
 
   // locator used to merge potentially duplicate points
   if ( this->Locator == NULL ) this->CreateDefaultLocator();
@@ -143,7 +147,8 @@ void vtkClipPolyData::Execute()
   // Interpolate data along edge. If generating clip scalars, do the necessary setup.
   if ( this->GenerateClipScalars )
     {
-    clipScalars = new vtkFloatScalars(numPts);
+    clipScalars = vtkFloatScalars::New();
+    clipScalars->Allocate(numPts);
     inPD = new vtkPointData(*(input->GetPointData()));
     inPD->SetScalars(clipScalars);
     for ( i=0; i < numPts; i++ )
@@ -171,9 +176,12 @@ void vtkClipPolyData::Execute()
   if ( this->GenerateClippedOutput )
     {
     this->ClippedOutput->Initialize();
-    clippedVerts = new vtkCellArray(estimatedSize,estimatedSize/2);
-    clippedLines = new vtkCellArray(estimatedSize,estimatedSize/2);
-    clippedPolys = new vtkCellArray(estimatedSize,estimatedSize/2);
+    clippedVerts = vtkCellArray::New();
+    clippedVerts->Allocate(estimatedSize,estimatedSize/2);
+    clippedLines = vtkCellArray::New();
+    clippedLines->Allocate(estimatedSize,estimatedSize/2);
+    clippedPolys = vtkCellArray::New();
+    clippedPolys->Allocate(estimatedSize,estimatedSize/2);
     }
 
   // perform clipping on cells

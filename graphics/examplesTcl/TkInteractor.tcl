@@ -58,11 +58,15 @@ proc StartMotion {widget x y} {
 
     UpdateRenderer $widget
 
+   if {[$CurrentRenderWindow GetInAbortCheck] == 0} {
       $CurrentRenderWindow SetDesiredUpdateRate 5.0
       set LastX $x
       set LastY $y
       set WindowX [lindex [$widget configure -width] 4]
       set WindowY [lindex [$widget configure -height] 4]
+   } else {
+      $CurrentRenderWindow SetAbortRender 1
+   }
 }
 
 set CurrentRenderWindow ""
@@ -178,7 +182,7 @@ proc Wireframe {} {
     $actors InitTraversal
     set actor [$actors GetNextItem]
     while { $actor != "" } {
-        [$actor GetProperty] SetWireframe
+        [$actor GetProperty] SetRepresentationToWireframe
         set actor [$actors GetNextItem]
     }
 
@@ -193,7 +197,7 @@ proc Surface {} {
     $actors InitTraversal
     set actor [$actors GetNextItem]
     while { $actor != "" } {
-        [$actor GetProperty] SetSurface
+        [$actor GetProperty] SetRepresentationToSurface
         set actor [$actors GetNextItem]
     }
 

@@ -164,6 +164,11 @@ public:
   // Set/Get what type of stereo rendering to use.
   vtkGetMacro(StereoType,int);
   vtkSetMacro(StereoType,int);
+  void SetStereoTypeToCrystalEyes() 
+    {this->SetStereoType(VTK_STEREO_CRYSTAL_EYES);};
+  void SetStereoTypeToRedBlue() 
+    {this->SetStereoType(VTK_STEREO_RED_BLUE);};
+  char *GetStereoTypeAsString();
 
   virtual void StereoUpdate();
   virtual void StereoMidpoint();
@@ -321,6 +326,20 @@ protected:
   void (*AbortCheckMethodArgDelete)(void *);
   void *AbortCheckMethodArg;
 };
+
+// Description:
+// Return the stereo type as a character string.
+inline char *vtkRenderWindow::GetStereoTypeAsString(void)
+{
+  if ( this->StereoType == VTK_STEREO_CRYSTAL_EYES ) 
+    {
+    return "CrystalEyes";
+    }
+  else 
+    {
+    return "RedBlue";
+    }
+}
 
 #endif
 

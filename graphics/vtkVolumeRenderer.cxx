@@ -95,7 +95,7 @@ void vtkVolumeRenderer::Render(vtkRenderer *ren)
 					 pos[1] + size[1]-1,0);
 
   // calculate camera,ren,volume vector values
-  this->CalcRayValues(ren,Vecs,size,&steps);
+  this->ComputeRayValues(ren,Vecs,size,&steps);
 
   // allocate the memory for image and rays
   if (this->Image) delete [] this->Image;
@@ -159,8 +159,8 @@ void vtkVolumeRenderer::Render(vtkRenderer *ren)
 // Calculates six vectors from the camera, renderer, and volume information.
 // These six vectors can be combined to determine the start and end
 // world coordinate points for the rays to be cast.
-void vtkVolumeRenderer::CalcRayValues(vtkRenderer *ren, float Vecs[6][3],
-				     int *size,int *steps)
+void vtkVolumeRenderer::ComputeRayValues(vtkRenderer *ren, float Vecs[6][3],
+				         int *size,int *steps)
 {
   int i;
   vtkVolume *aVolume;
@@ -178,7 +178,7 @@ void vtkVolumeRenderer::CalcRayValues(vtkRenderer *ren, float Vecs[6][3],
   // get camera values
   cam = ren->GetActiveCamera();
   position = cam->GetPosition();
-  cam->CalcViewPlaneNormal();
+  cam->ComputeViewPlaneNormal();
   VPN = cam->GetViewPlaneNormal();
 
   // loop through actors to calc the front and back clipping planes
@@ -369,7 +369,7 @@ void vtkVolumeRenderer::TraceOneRay(float p1World[4],float p2World[4],
   float hitPosition[3];
   float t,t2;
   float p1Coords[3], p2Coords[3];
-  float origin[3], aspectRatio[3];
+  float origin[3], Spacing[3];
   float pcoords[3];
   float sf[8];
   vtkScalars *scalars;
@@ -442,12 +442,12 @@ void vtkVolumeRenderer::TraceOneRay(float p1World[4],float p2World[4],
 
       // convert the ends into local coordinates
       strPts->GetOrigin(origin);
-      strPts->GetAspectRatio(aspectRatio);
+      strPts->GetSpacing(Spacing);
       
       for (i = 0; i < 3; i++)
 	{
-	p1Coords[i] = (p1Mapper[i] - origin[i])/aspectRatio[i];
-	p2Coords[i] = (p2Mapper[i] - origin[i])/aspectRatio[i];
+	p1Coords[i] = (p1Mapper[i] - origin[i])/Spacing[i];
+	p2Coords[i] = (p2Mapper[i] - origin[i])/Spacing[i];
 	ray[i] = (p2Coords[i] - p1Coords[i])/calcSteps;
 	}
       

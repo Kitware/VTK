@@ -65,7 +65,7 @@ void vtkWarpTo::Execute()
     return;
     }
 
-  newPts = new vtkFloatPoints(numPts); newPts->SetNumberOfPoints(numPts);
+  newPts = vtkFloatPoints::New(); newPts->SetNumberOfPoints(numPts);
 
   if (this->Absolute)
     {

@@ -108,7 +108,7 @@ void vtkSLCReader::Execute()
   fscanf( fp, "%f", f );
   fscanf( fp, "%f", f+1 );
   fscanf( fp, "%f", f+2 );
-  output->SetAspectRatio(f);
+  output->SetSpacing(f);
 
   // Skip Over unit_type, data_origin, and data_modification 
   fscanf( fp, "%d", &temp );
@@ -119,8 +119,7 @@ void vtkSLCReader::Execute()
 
   plane_size = size[0] * size[1];
   volume_size = plane_size * size[2];
-  newScalars = new vtkUnsignedCharScalars();
-//  newScalars = new vtkUnsignedShortScalars();
+  newScalars = vtkUnsignedCharScalars::New();
   newScalars->SetNumberOfScalars(volume_size);
 
   // Skip Over Icon

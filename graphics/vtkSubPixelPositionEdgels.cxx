@@ -59,7 +59,7 @@ void vtkSubPixelPositionEdgels::Execute()
   float pnt[3];
   int *dimensions;
   float result[3], resultNormal[3];
-  float *aspect, *origin;
+  float *spacing, *origin;
   
   vtkDebugMacro(<<"SubPixelPositioning Edgels");
 
@@ -73,9 +73,9 @@ void vtkSubPixelPositionEdgels::Execute()
   newNormals = vtkFloatNormals::New();
   
   dimensions = this->GradMaps->GetDimensions();
-  aspect = this->GradMaps->GetAspectRatio();
+  spacing = this->GradMaps->GetSpacing();
   origin = this->GradMaps->GetOrigin();
-  MapData = ((vtkFloatScalars *)((this->GradMaps->GetPointData())->GetScalars()))->GetPtr(0);
+  MapData = ((vtkFloatScalars *)((this->GradMaps->GetPointData())->GetScalars()))->GetPointer(0);
   inVectors = this->GradMaps->GetPointData()->GetVectors();
 
   //
@@ -84,16 +84,16 @@ void vtkSubPixelPositionEdgels::Execute()
   for (ptId=0; ptId < inPts->GetNumberOfPoints(); ptId++)
     {
     inPts->GetPoint(ptId,pnt);
-    pnt[0] = (pnt[0] - origin[0])/aspect[0];
-    pnt[1] = (pnt[1] - origin[1])/aspect[1];
-    pnt[2] = (pnt[2] - origin[2])/aspect[2];
+    pnt[0] = (pnt[0] - origin[0])/spacing[0];
+    pnt[1] = (pnt[1] - origin[1])/spacing[1];
+    pnt[2] = (pnt[2] - origin[2])/spacing[2];
     this->Move(dimensions[0],dimensions[1],dimensions[2],
 	       (int)(pnt[0]+0.5),(int)(pnt[1]+0.5),MapData,
-	       inVectors, result, (int)(pnt[2]+0.5), aspect,
+	       inVectors, result, (int)(pnt[2]+0.5), spacing,
 	       resultNormal);
-    result[0] = result[0]*aspect[0] + origin[0];
-    result[1] = result[1]*aspect[1] + origin[1];
-    result[2] = result[2]*aspect[2] + origin[2];
+    result[0] = result[0]*spacing[0] + origin[0];
+    result[1] = result[1]*spacing[1] + origin[1];
+    result[2] = result[2]*spacing[2] + origin[2];
     newPts->InsertNextPoint(result);
     newNormals->InsertNextNormal(resultNormal);
     }
@@ -110,7 +110,7 @@ void vtkSubPixelPositionEdgels::Execute()
 void vtkSubPixelPositionEdgels::Move(int xdim, int ydim, int zdim,
 				     int x, int y,
 				     float *img, vtkVectors *inVecs, 
-				     float *result, int z, float *aspect,
+				     float *result, int z, float *spacing,
 				     float *resultNormal)
 {
   int ypos, zpos;
@@ -139,8 +139,8 @@ void vtkSubPixelPositionEdgels::Move(int xdim, int ydim, int zdim,
       {
       // first get the orientation
       inVecs->GetVector(x+ypos,vec);
-      vec[0] = vec[0]*aspect[0];
-      vec[1] = vec[1]*aspect[1];
+      vec[0] = vec[0]*spacing[0];
+      vec[1] = vec[1]*spacing[1];
       vec[2] = 0;
       vtkMath::Normalize(vec);
       mag = img[x+ypos];
@@ -213,9 +213,9 @@ void vtkSubPixelPositionEdgels::Move(int xdim, int ydim, int zdim,
       {
       // first get the orientation
       inVecs->GetVector(x+ypos+zpos,vec);
-      vec[0] = vec[0]*aspect[0];
-      vec[1] = vec[1]*aspect[1];
-      vec[2] = vec[2]*aspect[2];
+      vec[0] = vec[0]*spacing[0];
+      vec[1] = vec[1]*spacing[1];
+      vec[2] = vec[2]*spacing[2];
       vtkMath::Normalize(vec);
       mag = img[x+ypos+zpos];
       

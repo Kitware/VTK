@@ -93,13 +93,13 @@ void vtkDividingCubes::Execute()
     return;
     }
   input->GetDimensions(dim);
-  input->GetAspectRatio(ar);
+  input->GetSpacing(ar);
   input->GetOrigin(origin);
 
   // creating points
-  NewPts = new vtkFloatPoints(500000,500000);
-  NewNormals = new vtkFloatNormals(500000,500000);
-  NewVerts = new vtkCellArray(500000,500000);
+  NewPts = vtkFloatPoints::New(); NewPts->Allocate(500000,500000);
+  NewNormals = vtkFloatNormals::New(); NewNormals->Allocate(500000,500000);
+  NewVerts = vtkCellArray::New(); NewVerts->Allocate(500000,500000);
   NewVerts->InsertNextCell(0); //temporary cell count
 //
 // Loop over all cells checking to see which straddle the specified value. Since
@@ -113,10 +113,10 @@ void vtkDividingCubes::Execute()
     }
 
   SubSliceSize = n[0] * n[1];
-  SubNormals = new vtkFloatNormals(SubSliceSize*n[2]);
+  SubNormals = vtkFloatNormals::New();
   SubNormals->SetNumberOfNormals(SubSliceSize*n[2]);
 
-  SubScalars = new vtkFloatScalars(SubSliceSize*n[2]);
+  SubScalars = vtkFloatScalars::New();
   SubScalars->SetNumberOfScalars(SubSliceSize*n[2]);
 
   for ( k=0; k < (dim[2]-1); k++)
@@ -166,7 +166,7 @@ void vtkDividingCubes::Execute()
             input->GetPointGradient(i,j+1,k+1, inScalars, Normals[6]);
             input->GetPointGradient(i+1,j+1,k+1, inScalars, Normals[7]);
 
-            this->SubDivide(x, n, h, voxelScalars.GetPtr(0));
+            this->SubDivide(x, n, h, voxelScalars.GetPointer(0));
             }
           }
         }

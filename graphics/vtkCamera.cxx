@@ -141,7 +141,7 @@ void vtkCamera::SetPosition(float X, float Y, float Z)
   << this->Position[1] << ", " << this->Position[2] << ")");
 
   // recalculate distance
-  this->CalcDistance();
+  this->ComputeDistance();
   
   this->Modified();
 }
@@ -161,7 +161,7 @@ void vtkCamera::SetFocalPoint(float X, float Y, float Z)
   << this->FocalPoint[1] << ", " << this->FocalPoint[2] << ")");
 
   // recalculate distance
-  this->CalcDistance();
+  this->ComputeDistance();
   
   this->Modified();
 }
@@ -312,7 +312,7 @@ void vtkCamera::SetDistance(float X)
 
 // Description:
 // Compute the view plane normal from the position and focal point.
-void vtkCamera::CalcViewPlaneNormal()
+void vtkCamera::ComputeViewPlaneNormal()
 {
   float dx,dy,dz;
   float distance;
@@ -391,7 +391,7 @@ float vtkCamera::GetRoll()
 // Description:
 // Compute the camera distance, which is the distance between the 
 // focal point and position.
-void vtkCamera::CalcDistance ()
+void vtkCamera::ComputeDistance ()
 {
   float   *distance;
   float   dx, dy, dz;
@@ -438,8 +438,8 @@ void vtkCamera::CalcDistance ()
 float *vtkCamera::GetOrientation ()
 {
   // calculate a new orientation
-//  this->CalcPerspectiveTransform(1,0,1);
-  this->CalcViewTransform();
+//  this->ComputePerspectiveTransform(1,0,1);
+  this->ComputeViewTransform();
   this->PerspectiveTransform.GetOrientation (this->Orientation[0],
 					     this->Orientation[1],
 					     this->Orientation[2]);
@@ -485,7 +485,7 @@ float *vtkCamera::GetOrientationWXYZ()
 // Compute the view transform matrix. This is used in converting 
 // between view and world coordinates. It does not include any 
 // perspective effects but it does include shearing and scaling.
-void vtkCamera::CalcViewTransform()
+void vtkCamera::ComputeViewTransform()
 {
   vtkMatrix4x4  matrix;
   float *Rz, Rx[3], Ry[3];
@@ -551,7 +551,7 @@ void vtkCamera::CalcViewTransform()
 // Description:
 // Compute the perspective transform matrix. This is used in converting 
 // between view and world coordinates.
-void vtkCamera::CalcPerspectiveTransform(float aspect, 
+void vtkCamera::ComputePerspectiveTransform(float aspect, 
 					 float nearz, float farz)
 {
   vtkMatrix4x4  matrix;
@@ -696,39 +696,39 @@ void vtkCamera::CalcPerspectiveTransform(float aspect,
 
 
 // Description:
-// Return the perspective transform matrix. See CalcPerspectiveTransform.
+// Return the perspective transform matrix. See ComputePerspectiveTransform.
 vtkMatrix4x4 &vtkCamera::GetPerspectiveTransform(float aspect,
 						 float nearz, float farz)
 {
   // update transform 
   this->PerspectiveTransform.PostMultiply();  
   this->PerspectiveTransform.Identity();
-  this->CalcPerspectiveTransform(aspect, nearz,farz);
+  this->ComputePerspectiveTransform(aspect, nearz,farz);
   
   // return the transform 
   return this->PerspectiveTransform.GetMatrix();
 }
 
 // Description:
-// Return the perspective transform matrix. See CalcPerspectiveTransform.
+// Return the perspective transform matrix. See ComputePerspectiveTransform.
 vtkMatrix4x4 &vtkCamera::GetViewTransform()
 {
   // update transform 
-  this->CalcViewTransform();
+  this->ComputeViewTransform();
   
   // return the transform 
   return this->PerspectiveTransform.GetMatrix();
 }
 
 // Description:
-// Return the perspective transform matrix. See CalcPerspectiveTransform.
+// Return the perspective transform matrix. See ComputePerspectiveTransform.
 vtkMatrix4x4 &vtkCamera::GetCompositePerspectiveTransform(float aspect,
 							  float nearz,
 							  float farz)
 {
   // update transform 
-  this->CalcViewTransform();
-  this->CalcPerspectiveTransform(aspect, nearz,farz);
+  this->ComputeViewTransform();
+  this->ComputePerspectiveTransform(aspect, nearz,farz);
   
   // return the transform 
   return this->PerspectiveTransform.GetMatrix();

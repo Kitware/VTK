@@ -48,15 +48,27 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // or 0D cells will generate isopoints. Combinations of output type 
 // are possible if the input dimension is mixed.
 //
-// This filter will identify special dataset types (e.g., structured points) and use
-// the appropriate specialized filter to process the data. For examples, if the input
-// dataset type is a volume, this filter will create an internal vtkMarchingCubes
-// instance and use it. This gives much better performance.
+// This filter will identify special dataset types (e.g., structured
+// points) and use the appropriate specialized filter to process the
+// data. For examples, if the input dataset type is a volume, this
+// filter will create an internal vtkMarchingCubes instance and use
+// it. This gives much better performance.
+// 
+// To use this filter you must specify one or more contour values.
+// You can either use the method SetValue() to specify each contour
+// value, or use GenerateValues() to generate a series of evenly
+// spaced contours. It is also possible to accelerate the operation of
+// this filter (at the cost of extra memory) by using a
+// vtkScalarTree. A scalar tree is used to quickly locate cells that
+// contain a contour surface. This is especially effective if multiple
+// contours are being extracted. If you want to use a scalar tree,
+// invoke the method UseScalarTreeOn().
 
 // .SECTION Caveats
-// For unstructured data or structured grids, normals and gradients are not computed.
-// This calculation will be implemented in the future. In the mean time, use 
-// vtkPolyNormals to compute the surface normals.
+// For unstructured data or structured grids, normals and gradients
+// are not computed.  This calculation will be implemented in the
+// future. In the mean time, use vtkPolyNormals to compute the surface
+// normals.
 
 // .SECTION See Also
 // vtkMarchingCubes vtkSliceCubes vtkDividingCubes vtkMarchingSquares
@@ -68,11 +80,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #define VTK_MAX_CONTOURS 256
 
+class vtkScalarTree;
+
 class VTK_EXPORT vtkContourFilter : public vtkDataSetToPolyFilter
 {
 public:
   vtkContourFilter();
   static vtkContourFilter *New() {return new vtkContourFilter;};
+  ~vtkContourFilter();
   char *GetClassName() {return "vtkContourFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -113,6 +128,12 @@ public:
   vtkGetMacro(ComputeScalars,int);
   vtkBooleanMacro(ComputeScalars,int);
 
+  // Description:
+  // Enable the use of a scalar tree to accelerate contour extraction.
+  vtkSetMacro(UseScalarTree,int);
+  vtkGetMacro(UseScalarTree,int);
+  vtkBooleanMacro(UseScalarTree,int);
+
   void GenerateValues(int numContours, float range[2]);
   void GenerateValues(int numContours, float range1, float range2);
 
@@ -136,6 +157,8 @@ protected:
   float Range[2];
   vtkPointLocator *Locator;
   int SelfCreatedLocator;
+  int UseScalarTree;
+  vtkScalarTree *ScalarTree;
 
   void StructuredPointsContour(int dim); //special contouring for structured points
 };

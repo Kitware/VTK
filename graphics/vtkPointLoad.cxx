@@ -121,7 +121,7 @@ void vtkPointLoad::Execute()
   int numPts;
   float P, twoPi, xP[3], rho, rho2, rho3, rho5, nu;
   float x, x2, y, y2, z, z2, rhoPlusz2, zPlus2rho, txy, txz, tyz;
-  float sx, sy, sz, seff, ar[3], origin[3];
+  float sx, sy, sz, seff, spacing[3], origin[3];
   vtkStructuredPoints *output = (vtkStructuredPoints *)this->Output;
 
   vtkDebugMacro(<< "Computing point load stress tensors");
@@ -131,19 +131,24 @@ void vtkPointLoad::Execute()
 
   numPts = this->SampleDimensions[0] * this->SampleDimensions[1] 
            * this->SampleDimensions[2];
-  newTensors = new vtkFloatTensors(numPts);
-  if ( this->ComputeEffectiveStress ) newScalars = new vtkFloatScalars(numPts);
+  newTensors = vtkFloatTensors::New();
+  newTensors->Allocate(numPts);
+  if ( this->ComputeEffectiveStress ) 
+    {
+    newScalars = vtkFloatScalars::New();
+    newScalars->Allocate(numPts);
+    }
 
-  // Compute origin and aspect ratio
+  // Compute origin and data spacing
   output->SetDimensions(this->GetSampleDimensions());
   for (i=0; i < 3; i++)
     {
     origin[i] = this->ModelBounds[2*i];
-    ar[i] = (this->ModelBounds[2*i+1] - this->ModelBounds[2*i])
+    spacing[i] = (this->ModelBounds[2*i+1] - this->ModelBounds[2*i])
             / (this->SampleDimensions[i] - 1);
     }
   output->SetOrigin(origin);
-  output->SetAspectRatio(ar);
+  output->SetSpacing(spacing);
 //
 // Compute the location of the load
 //
@@ -159,13 +164,13 @@ void vtkPointLoad::Execute()
 
   for (k=0; k<this->SampleDimensions[2]; k++)
     {
-    z = xP[2] - (origin[2] + k*ar[2]);
+    z = xP[2] - (origin[2] + k*spacing[2]);
     for (j=0; j<this->SampleDimensions[1]; j++)
       {
-      y = xP[1] - (origin[1] + j*ar[1]);
+      y = xP[1] - (origin[1] + j*spacing[1]);
       for (i=0; i<this->SampleDimensions[0]; i++)
         {
-        x = (origin[0] + i*ar[0]) - xP[0];
+        x = (origin[0] + i*spacing[0]) - xP[0];
         rho = sqrt(x*x + y*y + z*z);//in local coordinates
         if ( rho < 1.0e-10 )
           {

@@ -21,7 +21,7 @@ v16 SetFileTypeLittleEndian
 v16 SetFilePrefix "../../../data/headsq/half"
 #v16 SetImageRange 19 24
 v16 SetImageRange 1 93
-v16 SetDataAspectRatio 1.6 1.6 1.5
+v16 SetDataSpacing 1.6 1.6 1.5
 v16 Update
 
 vtkMarchingCubes iso
@@ -30,7 +30,7 @@ iso SetValue 0 1150
 
 vtkPolyMapper isoMapper
 isoMapper SetInput [iso GetOutput]
-isoMapper ScalarsVisibleOff
+isoMapper ScalarVisibilityOff
 
 vtkActor isoActor
 isoActor SetMapper isoMapper

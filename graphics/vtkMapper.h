@@ -92,9 +92,9 @@ public:
 
   // Description:
   // Turn on/off flag to control whether scalar data is used to color objects.
-  vtkSetMacro(ScalarsVisible,int);
-  vtkGetMacro(ScalarsVisible,int);
-  vtkBooleanMacro(ScalarsVisible,int);
+  vtkSetMacro(ScalarVisibility,int);
+  vtkGetMacro(ScalarVisibility,int);
+  vtkBooleanMacro(ScalarVisibility,int);
 
   // Description:
   // Specify range in terms of scalar minimum and maximum (smin,smax). These
@@ -131,7 +131,7 @@ protected:
   void (*EndRenderArgDelete)(void *);
   void *EndRenderArg;
   vtkLookupTable *LookupTable;
-  int ScalarsVisible;
+  int ScalarVisibility;
   vtkTimeStamp BuildTime;
   float ScalarRange[2];
   int SelfCreatedLookupTable;

@@ -20,7 +20,7 @@ vtkPolyMapper boxMapper
   boxMapper SetInput [boxes GetOutput]
 vtkActor boxActor
   boxActor SetMapper boxMapper
-  [boxActor GetProperty] SetWireframe
+  [boxActor GetProperty] SetRepresentationToWireframe
 
 vtkRenderMaster rm
 set renWin [rm MakeRenderWindow]

@@ -85,7 +85,8 @@ void vtkVectorDot::Execute()
 //
 // Allocate
 //
-  newScalars = new vtkFloatScalars(numPts);
+  newScalars = vtkFloatScalars::New();
+  newScalars->Allocate(numPts);
 //
 // Compute initial scalars
 //

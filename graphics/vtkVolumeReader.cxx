@@ -49,7 +49,7 @@ vtkVolumeReader::vtkVolumeReader()
   this->FilePattern = strdup ("%s.%d");
   this->ImageRange[0] = this->ImageRange[1] = 1;
   this->DataOrigin[0] = this->DataOrigin[1] = this->DataOrigin[2] = 0.0;
-  this->DataAspectRatio[0] = this->DataAspectRatio[1] = this->DataAspectRatio[2] = 1.0;
+  this->DataSpacing[0] = this->DataSpacing[1] = this->DataSpacing[2] = 1.0;
 }
 
 void vtkVolumeReader::PrintSelf(ostream& os, vtkIndent indent)
@@ -59,9 +59,9 @@ void vtkVolumeReader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Data Origin: (" << this->DataOrigin[0] << ", "
                                    << this->DataOrigin[1] << ", "
                                    << this->DataOrigin[2] << ")\n";
-  os << indent << "Data Aspect Ratio: (" << this->DataAspectRatio[0] << ", "
-                                         << this->DataAspectRatio[1] << ", "
-                                         << this->DataAspectRatio[2] << ")\n";
+  os << indent << "Data Spacing: (" << this->DataSpacing[0] << ", "
+                                    << this->DataSpacing[1] << ", "
+                                    << this->DataSpacing[2] << ")\n";
   os << indent << "FilePrefix: " << (this->FilePrefix ? this->FilePrefix : "(none)") << "\n";
   os << indent << "FilePattern: " << (this->FilePattern ? this->FilePattern : "(none)") << "\n";
   os << indent << "Image Range: (" << this->ImageRange[0] << ", " 

@@ -135,9 +135,9 @@ static void vtkImageLaplacianExecute(vtkImageLaplacian *self,
   // We want the input pixel to correspond to output
   inPtr = (T *)(inRegion->GetScalarPointer(min0,min1,min2));
 
-  // The aspect ratio is important for computing the Laplacian.
+  // The data spcing is important for computing the Laplacian.
   // Divid by dx twice (second derivative).
-  inRegion->GetAspectRatio(4, r);
+  inRegion->GetSpacing(4, r);
   r[0] = 1.0 / r[0] * r[0];
   r[1] = 1.0 / r[1] * r[1];
   r[2] = 1.0 / r[2] * r[2];
@@ -170,7 +170,7 @@ static void vtkImageLaplacianExecute(vtkImageLaplacian *self,
 	  d = -2.0 * *inPtr0;
 	  d += (*idxs == *imageExtent++) ? *inPtr0 : inPtr0[-*incs];
 	  d += (*idxs == *imageExtent++) ? *inPtr0 : inPtr0[*incs];
-	  sum += d * r[axisIdx]; // divide by aspect ratio squared
+	  sum += d * r[axisIdx]; // divide by spacing squared
 	  ++idxs;
 	  ++incs;
 	  }

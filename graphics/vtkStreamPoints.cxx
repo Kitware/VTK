@@ -62,11 +62,16 @@ void vtkStreamPoints::Execute()
   this->vtkStreamer::Integrate();
   if ( this->NumberOfStreamers <= 0 ) return;
 
-  newPts  = new vtkFloatPoints(1000);
-  newVectors  = new vtkFloatVectors(1000);
+  newPts  = vtkFloatPoints::New();
+  newPts ->Allocate(1000);
+  newVectors  = vtkFloatVectors::New();
+  newVectors ->Allocate(1000);
   if ( this->Input->GetPointData()->GetScalars() || this->SpeedScalars )
-    newScalars = new vtkFloatScalars(1000);
-  newVerts = new vtkCellArray();
+    {
+    newScalars = vtkFloatScalars::New();
+    newScalars->Allocate(1000);
+    }
+  newVerts = vtkCellArray::New();
   newVerts->Allocate(newVerts->EstimateSize(2*this->NumberOfStreamers,VTK_CELL_SIZE));
   
 //

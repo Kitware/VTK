@@ -63,11 +63,16 @@ void vtkDashedStreamLine::Execute()
 //
 //  Convert streamer into lines. Lines may be dashed.
 //
-  newPts  = new vtkFloatPoints(1000);
-  newVectors  = new vtkFloatVectors(1000);
+  newPts = vtkFloatPoints::New();
+  newPts->Allocate(1000);
+  newVectors = vtkFloatVectors::New();
+  newVectors->Allocate(1000);
   if ( this->Input->GetPointData()->GetScalars() || this->SpeedScalars )
-    newScalars = new vtkFloatScalars(1000);
-  newLines = new vtkCellArray();
+    {
+    newScalars = vtkFloatScalars::New();
+    newScalars->Allocate(1000);
+    }
+  newLines = vtkCellArray::New();
   newLines->Allocate(newLines->EstimateSize(2*this->NumberOfStreamers,VTK_CELL_SIZE));
 //
 // Loop over all streamers generating points

@@ -95,12 +95,12 @@ public:
   
   
   // Description:
-  // Set/Get the aspect ratio of the data.
-  void SetDataAspectRatio(int num, float *ratio);
-  vtkImageSetMacro(DataAspectRatio,float);
-  void GetDataAspectRatio(int num, float *ratio);
-  vtkImageGetMacro(DataAspectRatio,float);
-  float *GetDataAspectRatio() {return this->DataAspectRatio;};  
+  // Set/Get the spacing of the data.
+  void SetDataSpacing(int num, float *ratio);
+  vtkImageSetMacro(DataSpacing,float);
+  void GetDataSpacing(int num, float *ratio);
+  vtkImageGetMacro(DataSpacing,float);
+  float *GetDataSpacing() {return this->DataSpacing;};  
   
   // Description:
   // Set/Get the origin of the data (location of point (0,0,0,...)).
@@ -179,7 +179,7 @@ protected:
   char *FileName;
 
   int DataDimensions[VTK_IMAGE_DIMENSIONS];
-  float DataAspectRatio[VTK_IMAGE_DIMENSIONS];
+  float DataSpacing[VTK_IMAGE_DIMENSIONS];
   float DataOrigin[VTK_IMAGE_DIMENSIONS];
   int DataExtent[VTK_IMAGE_EXTENT_DIMENSIONS];
   

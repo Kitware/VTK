@@ -57,7 +57,7 @@ void vtkStructuredPointsWriter::WriteData()
   FILE *fp;
   vtkStructuredPoints *input=(vtkStructuredPoints *)this->Input;
   int dim[3];
-  float ar[3], origin[3];
+  float spacing[3], origin[3];
 
   vtkDebugMacro(<<"Writing vtk structured points...");
 
@@ -71,8 +71,8 @@ void vtkStructuredPointsWriter::WriteData()
   input->GetDimensions(dim);
   fprintf(fp,"DIMENSIONS %d %d %d\n", dim[0], dim[1], dim[2]);
 
-  input->GetAspectRatio(ar);
-  fprintf(fp,"ASPECT_RATIO %g %g %g\n", ar[0], ar[1], ar[2]);
+  input->GetSpacing(spacing);
+  fprintf(fp,"SPACING %g %g %g\n", spacing[0], spacing[1], spacing[2]);
 
   input->GetOrigin(origin);
   fprintf(fp,"ORIGIN %g %g %g\n", origin[0], origin[1], origin[2]);

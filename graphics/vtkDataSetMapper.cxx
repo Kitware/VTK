@@ -101,7 +101,7 @@ void vtkDataSetMapper::Render(vtkRenderer *ren, vtkActor *act)
 //
   if ( this->PolyMapper == NULL ) 
     {
-    vtkGeometryFilter *gf = new vtkGeometryFilter();
+    vtkGeometryFilter *gf = vtkGeometryFilter::New();
     vtkPolyMapper *pm = vtkPolyMapper::New();
     pm->SetInput(gf->GetOutput());
 
@@ -124,7 +124,7 @@ void vtkDataSetMapper::Render(vtkRenderer *ren, vtkActor *act)
   
   // update ourselves in case something has changed
   this->PolyMapper->SetLookupTable(this->GetLookupTable());
-  this->PolyMapper->SetScalarsVisible(this->GetScalarsVisible());
+  this->PolyMapper->SetScalarVisibility(this->GetScalarVisibility());
   this->PolyMapper->SetScalarRange(this->GetScalarRange());
 
   this->PolyMapper->Render(ren,act);

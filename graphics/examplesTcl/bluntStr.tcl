@@ -48,7 +48,7 @@ vtkStructuredGridGeometryFilter wall
     wall SetExtent 0 100 0 0 0 100
 vtkPolyMapper wallMap
     wallMap SetInput [wall GetOutput]
-    wallMap ScalarsVisibleOff
+    wallMap ScalarVisibilityOff
 vtkActor wallActor
     wallActor SetMapper wallMap
     eval [wallActor GetProperty] SetColor 0.8 0.8 0.8
@@ -60,7 +60,7 @@ vtkStructuredGridGeometryFilter fin
     fin SetExtent 0 100 0 100 0 0
 vtkPolyMapper finMap
     finMap SetInput [fin GetOutput]
-    finMap ScalarsVisibleOff
+    finMap ScalarVisibilityOff
 vtkActor finActor
     finActor SetMapper finMap
     eval [finActor GetProperty] SetColor 0.8 0.8 0.8
@@ -87,7 +87,7 @@ $renWin SetSize 700 500
 vtkCamera cam1
   cam1 SetFocalPoint 2.87956 4.24691 2.73135
   cam1 SetPosition -3.46307 16.7005 29.7406
-  cam1 CalcViewPlaneNormal
+  cam1 ComputeViewPlaneNormal
   cam1 SetViewAngle 30
   cam1 SetViewUp 0.127555 0.911749 -0.390441
 $ren1 SetActiveCamera cam1

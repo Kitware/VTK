@@ -64,7 +64,8 @@ void vtkStructuredGridOutlineFilter::Execute()
 //
 //  Allocate storage for lines and points
 //
-  newPts = new vtkFloatPoints(4*(dim[0]+dim[1]+dim[2]));
+  newPts = vtkFloatPoints::New();
+  newPts->Allocate(4*(dim[0]+dim[1]+dim[2]));
   newLines = vtkCellArray::New();
   newLines->Allocate(newLines->EstimateSize(4*((dim[0]-1)+(dim[1]-1)+(dim[2]-1)),2));
 //

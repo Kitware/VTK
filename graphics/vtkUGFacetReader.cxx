@@ -105,15 +105,18 @@ void vtkUGFacetReader::Execute()
   // allocate memory
   if ( ! this->PartColors ) 
     {
-    this->PartColors = new vtkShortArray(100);
+    this->PartColors = vtkShortArray::New();
+    this->PartColors->Allocate(100);
     }
   else 
     {
     this->PartColors->Reset();
     }
 
-  newPts = new vtkFloatPoints(25000,25000);
-  newNormals = new vtkFloatNormals(25000,25000);
+  newPts = vtkFloatPoints::New();
+  newPts->Allocate(25000,25000);
+  newNormals = vtkFloatNormals::New();
+  newNormals->Allocate(25000,25000);
   newPolys = vtkCellArray::New();
   newPolys->Allocate(newPolys->EstimateSize(25000,3),25000);
 
@@ -177,9 +180,12 @@ void vtkUGFacetReader::Execute()
     int npts, *pts, i, nodes[3];
     float *x;
 
-    mergedPts = new vtkFloatPoints(newPts->GetNumberOfPoints()/3);
-    mergedNormals = new vtkFloatNormals(newNormals->GetNumberOfNormals()/3);
-    mergedPolys = new vtkCellArray(newPolys->GetSize());
+    mergedPts = vtkFloatPoints::New();
+    mergedPts->Allocate(newPts->GetNumberOfPoints()/3);
+    mergedNormals = vtkFloatNormals::New();
+    mergedNormals->Allocate(newNormals->GetNumberOfNormals()/3);
+    mergedPolys = vtkCellArray::New();
+    mergedPolys->Allocate(newPolys->GetSize());
 
     if ( this->Locator == NULL ) this->CreateDefaultLocator();
     this->Locator->InitPointInsertion (mergedPts, newPts->GetBounds());

@@ -80,7 +80,7 @@ void vtkLinkEdgels::Execute()
     }
 
   // set up the input
-  inDataPtr = inScalars->GetPtr(0);
+  inDataPtr = inScalars->GetPointer(0);
 
   // Finally do edge following to extract the edge data from the Thin image
   newPts = vtkFloatPoints::New();

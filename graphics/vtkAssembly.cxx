@@ -157,7 +157,7 @@ void vtkAssembly::UpdatePaths()
 // an ordered sequence of actors, with transformations properly concatenated.
 void vtkAssembly::BuildPaths(vtkAssemblyPaths *paths, vtkActorCollection *path)
 {
-  vtkActor *part, *actor, *copy=new vtkActor, *previous;
+  vtkActor *part, *actor, *copy=vtkActor::New(), *previous;
   vtkMatrix4x4 *matrix;
   vtkActorCollection *childPath;
 

@@ -91,6 +91,15 @@ public:
   // Specify the type of boolean operation.
   vtkSetClampMacro(OperationType,int,VTK_UNION,VTK_UNION_OF_MAGNITUDES);
   vtkGetMacro(OperationType,int);
+  void SetOperationTypeToUnion() 
+    {this->SetOperationType(VTK_UNION);};
+  void SetOperationTypeToIntersection() 
+    {this->SetOperationType(VTK_INTERSECTION);};
+  void SetOperationTypeToDifference() 
+    {this->SetOperationType(VTK_DIFFERENCE);};
+  void SetOperationTypeToUnionOfMagnitudes() 
+    {this->SetOperationType(VTK_UNION_OF_MAGNITUDES);};
+  char *GetOperationTypeAsString();
 
 protected:
   vtkImplicitFunctionCollection FunctionList;
@@ -98,6 +107,28 @@ protected:
   int OperationType;
 
 };
+
+// Description:
+// Return the boolean operation type as a descriptive character string.
+inline char *vtkImplicitBoolean::GetOperationTypeAsString(void)
+{
+  if ( this->OperationType == VTK_UNION )
+    {
+    return "Union";
+    }
+  else if ( this->OperationType == VTK_INTERSECTION ) 
+    {
+    return "Intersection";
+    }
+  else if ( this->OperationType == VTK_DIFFERENCE ) 
+    {
+    return "Difference";
+    }
+  else 
+    {
+    return "UnionOfMagnitudes";
+    }
+}
 
 #endif
 
