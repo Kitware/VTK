@@ -23,6 +23,7 @@ IF (VTK_USE_RENDERING)
       clipPyramid
       clipTet
       clipWedge
+      coneResolution
       contourCells
       contour2DAll
       contour3DAll
@@ -41,6 +42,7 @@ IF (VTK_USE_RENDERING)
       geomFilter
       glyph2D
       KlineBottle
+      motor
       MultidimensionalSolution
       nacaBinary
       OBBTree
@@ -50,6 +52,8 @@ IF (VTK_USE_RENDERING)
       PolyDataNormals
       probe
       probeComb
+      progGlyphs
+      progGlyphsBySource
       reconstructSurface
       quadricCut
       scalarConn
