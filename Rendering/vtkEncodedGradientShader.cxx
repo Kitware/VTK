@@ -31,7 +31,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkEncodedGradientShader, "1.27");
+vtkCxxRevisionMacro(vtkEncodedGradientShader, "1.28");
 vtkStandardNewMacro(vtkEncodedGradientShader);
 
 vtkEncodedGradientShader::vtkEncodedGradientShader()
@@ -304,6 +304,16 @@ void vtkEncodedGradientShader::UpdateShadingTable( vtkRenderer *ren,
   // in an update flag of 1, which means add to the shading table.
   // All lights are forced to be directional light sources
   // regardless of what they really are
+
+  // In rare cases there are no lights
+  vtkLight *artificialLight=NULL;
+  if ( lightCollection->GetNumberOfItems() == 0 )
+    {
+    artificialLight = vtkLight::New();
+    artificialLight->SetIntensity(0.0);
+    lightCollection->AddItem(artificialLight);
+    }
+
   while ( (light = lightCollection->GetNextItem()) != NULL  )
     { 
     if ( ! light->GetSwitch() )
@@ -344,6 +354,12 @@ void vtkEncodedGradientShader::UpdateShadingTable( vtkRenderer *ren,
                              gradest, update_flag );
       
     update_flag = 1;
+    }//while there is a light in the list of lights
+
+  if ( artificialLight )
+    {
+    lightCollection->RemoveItem(artificialLight);
+    artificialLight->Delete();
     }
 
   transform->Delete();

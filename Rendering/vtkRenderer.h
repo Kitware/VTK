@@ -116,6 +116,17 @@ public:
   vtkBooleanMacro(LightFollowCamera,int);
 
   // Description:
+  // Turn on/off a flag which disables the automatic light creation capability.
+  // Normally in VTK if no lights are associated with the renderer, then a light
+  // is automatically created. However, in special circumstances this feature is
+  // undesirable, so the following boolean is provided to disable automatic
+  // light creation. (Turn AutomaticLightCreation off if you do not want lights
+  // to be created.)
+  vtkGetMacro(AutomaticLightCreation,int);
+  vtkSetMacro(AutomaticLightCreation,int);
+  vtkBooleanMacro(AutomaticLightCreation,int);
+
+  // Description:
   // Ask the lights in the scene that are not in world space
   // (for instance, Headlights or CameraLights that are attached to the 
   // camera) to update their geometry to match the active camera.
@@ -336,6 +347,7 @@ protected:
   float              AllocatedRenderTime;
   float              TimeFactor;
   int                TwoSidedLighting;
+  int                AutomaticLightCreation;
   int                BackingStore;
   unsigned char      *BackingImage;
   vtkTimeStamp       RenderTime;
