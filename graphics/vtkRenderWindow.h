@@ -104,13 +104,6 @@ public:
   // This is typically done right before swapping buffers.
   virtual void CopyResultFrame();
 
-  // Description:
-  // Create a device specific renderer. This is the only way to create
-  // a renderer that will work. This method is implemented in the
-  // subclasses of vtkRenderWindow so that each subclass will return
-  // the correct renderer for its graphics library.
-  virtual vtkRenderer  *MakeRenderer();
-
   static char *GetRenderLibrary();
   
   // Description:

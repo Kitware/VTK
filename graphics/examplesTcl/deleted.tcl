@@ -21,9 +21,9 @@ rename renWin {}
 rename ren1 {}
 
 # create a new window
-vtkRenderWindowInteractor renWin
-    renWin SetRenderWindow renWin
-set ren1    [renWin MakeRenderer]
+vtkRenderWindow renWin
+vtkRenderer ren1
+   renWin AddRenderer ren1
 
 ren1 AddActor a1
 renWin SetSize 300 300

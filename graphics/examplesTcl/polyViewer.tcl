@@ -111,7 +111,8 @@ vtkActor bannerActor
     bannerActor SetMapper bannerMapper
 
 set renWin [.window GetRenderWindow]
-set ren   [$renWin MakeRenderer]
+vtkRenderer ren
+$renWin AddRenderer ren
 
-$ren AddActor bannerActor
-[$ren GetActiveCamera] Zoom 1.25
+ren AddActor bannerActor
+[ren GetActiveCamera] Zoom 1.25

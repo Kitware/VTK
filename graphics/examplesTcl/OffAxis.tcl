@@ -8,7 +8,8 @@ source ../../examplesTcl/vtkInt.tcl
 vtkRenderer ren1
 vtkRenderWindow renWin
     renWin AddRenderer ren1
-set ren2   [renWin MakeRenderer]
+vtkRenderer ren2
+    renWin AddRenderer ren2
 vtkRenderWindowInteractor iren
     iren SetRenderWindow renWin
 

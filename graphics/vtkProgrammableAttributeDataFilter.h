@@ -103,6 +103,7 @@ class VTK_EXPORT vtkProgrammableAttributeDataFilter : public vtkDataSetToDataSet
 {
 public:
   vtkProgrammableAttributeDataFilter();
+  ~vtkProgrammableAttributeDataFilter();
   static vtkProgrammableAttributeDataFilter *New() {return new vtkProgrammableAttributeDataFilter;};
   const char *GetClassName() {return "vtkProgrammableAttributeDataFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);

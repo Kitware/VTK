@@ -54,10 +54,12 @@ pack .top.f1.f2.f1.f1.label .top.f1.f2.f1.f1.ren -side top -expand 1 -fill both
 pack .top.f1.f2.f2.f1.label .top.f1.f2.f2.f1.ren -side top -expand 1 -fill both
 
 set renWin1 [.top.f1.f2.f1.f1.ren GetRenderWindow]
-set ren1   [$renWin1 MakeRenderer]
+vtkRenderer ren1
+$renWin1 AddRenderer ren1
 
 set renWin3 [.top.f1.f2.f2.f1.ren GetRenderWindow]
-set ren3   [$renWin3 MakeRenderer]
+vtkRenderer ren3
+$renWin3 AddRenderer ren3
 
 $renWin1 SetSize 256 256
 $renWin3 SetSize 256 256
@@ -507,7 +509,12 @@ $ren1 AddActor  plane_outline_actor3
 
 $ren3 AddVolume comp_volume
 $ren3 AddActor  outline_actor
-
+proc TkCheckAbort {} {
+  global renWin3
+  set foo [$renWin3 GetEventPending]
+  if {$foo != 0} {puts "Aborting a render"; $renWin3 SetAbortRender 1}
+}
+$renWin3 SetAbortCheckMethod {TkCheckAbort}
 
 
 proc change_active_controls { } {

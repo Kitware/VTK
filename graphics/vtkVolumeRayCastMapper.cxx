@@ -1294,7 +1294,7 @@ void vtkVolumeRayCastMapper::UpdateTransferFunctions( vtkRenderer *ren, vtkVolum
       {
       // Get values 0-255 (256 values)
       if ( this->ScalarOpacityTFArray )
-	delete this->ScalarOpacityTFArray;
+	delete [] this->ScalarOpacityTFArray;
 
       this->ScalarOpacityTFArray = new float[(int)(0x100)];
       scalar_opacity_transfer_function->GetTable( (float)(0x00),
@@ -1320,7 +1320,7 @@ void vtkVolumeRayCastMapper::UpdateTransferFunctions( vtkRenderer *ren, vtkVolum
     if ( rgb_tf_needs_updating )
       {
       if ( this->RGBTFArray )
-	delete this->RGBTFArray;
+	delete [] this->RGBTFArray;
       
       this->RGBTFArray = new float[3 * (int)(0x100)];
       rgb_transfer_function->GetTable( (float)(0x00),
@@ -1382,7 +1382,7 @@ void vtkVolumeRayCastMapper::UpdateTransferFunctions( vtkRenderer *ren, vtkVolum
   if ( scalar_opacity_tf_needs_updating )
     {
     if ( this->CorrectedScalarOpacityTFArray )
-      delete this->CorrectedScalarOpacityTFArray;
+      delete [] this->CorrectedScalarOpacityTFArray;
 
     this->CorrectedScalarOpacityTFArray = new float[this->TFArraySize];
     }

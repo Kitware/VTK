@@ -54,7 +54,6 @@ vtkActor outlineActor
 
 # Okay now the graphics stuff
 vtkRenderer ren1
-    ren1 SetBackground 0.1 0.2 0.4
 vtkRenderWindow renWin
     renWin AddRenderer ren1
     renWin SetSize 256 256
@@ -64,6 +63,12 @@ vtkRenderWindowInteractor iren
 #ren1 AddActor outlineActor
 ren1 AddVolume volume
 renWin Render
+
+proc TkCheckAbort {} {
+  set foo [renWin GetEventPending]
+  if {$foo != 0} {renWin SetAbortRender 1}
+}
+renWin SetAbortCheckMethod {TkCheckAbort}
 
 iren SetUserMethod {wm deiconify .vtkInteract}
 iren Initialize

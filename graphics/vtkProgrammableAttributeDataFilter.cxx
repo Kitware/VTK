@@ -44,6 +44,16 @@ vtkProgrammableAttributeDataFilter::vtkProgrammableAttributeDataFilter()
 {
   this->ExecuteMethod = NULL;
   this->ExecuteMethodArg = NULL;
+  this->ExecuteMethodArgDelete = NULL;
+}
+
+vtkProgrammableAttributeDataFilter::~vtkProgrammableAttributeDataFilter()
+{
+  // delete the current arg if there is one and a delete meth
+  if ((this->ExecuteMethodArg)&&(this->ExecuteMethodArgDelete))
+    {
+    (*this->ExecuteMethodArgDelete)(this->ExecuteMethodArg);
+    }
 }
 
 // Description:

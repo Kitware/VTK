@@ -52,6 +52,7 @@ class VTK_EXPORT vtkVectorText : public vtkPolyDataSource
 {
 public:
   vtkVectorText();
+  ~vtkVectorText();
   static vtkVectorText *New() {return new vtkVectorText;};
   const char *GetClassName() {return "vtkVectorText";};
   void PrintSelf(ostream& os, vtkIndent indent);

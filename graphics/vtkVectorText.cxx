@@ -1747,3 +1747,11 @@ void vtkVectorText::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Text: " << (this->Text ? this->Text : "(none)") << "\n";
 }
+
+vtkVectorText::~vtkVectorText()
+{
+  if (this->Text)
+    {
+    delete [] this->Text;
+    }
+}

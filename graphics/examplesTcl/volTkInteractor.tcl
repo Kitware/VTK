@@ -99,7 +99,7 @@ proc EndMotion {widget x y} {
     global RendererFound
 
     if { ! $RendererFound } {return}
-    $CurrentRenderWindow SetDesiredUpdateRate 0.2
+    $CurrentRenderWindow SetDesiredUpdateRate 0.01
     Render
 }
 

@@ -55,7 +55,12 @@ vtkVolumeReader::vtkVolumeReader()
 
 vtkVolumeReader::~vtkVolumeReader ()
 {
-  delete this->FilePattern;
+  if (this->FilePrefix)
+    {
+    delete [] this->FilePrefix;
+    }
+  
+  delete [] this->FilePattern;
 }
 
 void vtkVolumeReader::PrintSelf(ostream& os, vtkIndent indent)

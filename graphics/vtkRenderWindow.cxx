@@ -90,6 +90,11 @@ vtkRenderWindow::~vtkRenderWindow()
     delete [] this->ResultFrame;
     this->ResultFrame = NULL;
     }
+  // delete the current arg if there is one and a delete meth
+  if ((this->AbortCheckMethodArg)&&(this->AbortCheckMethodArgDelete))
+    {
+    (*this->AbortCheckMethodArgDelete)(this->AbortCheckMethodArg);
+    }
 }
 
 // Description:
@@ -204,16 +209,6 @@ vtkRenderWindow *vtkRenderWindow::New()
 #endif
   
   return new vtkRenderWindow;
-}
-
-vtkRenderer *vtkRenderWindow::MakeRenderer()
-{
-  vtkRenderer *ren = vtkRenderer::New();
-  this->AddRenderer(ren);
-
-  // by default we are its parent
-  ren->SetRenderWindow(this);
-  return ren;
 }
 
 // Description:

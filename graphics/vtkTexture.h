@@ -76,6 +76,7 @@ class VTK_EXPORT vtkTexture : public vtkObject
 {
 public:
   vtkTexture();
+  ~vtkTexture();
   static vtkTexture *New();
   const char *GetClassName() {return "vtkTexture";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -126,7 +127,7 @@ public:
   
   // Description:
   // Specify the lookup table to convert scalars if necessary
-  vtkSetObjectMacro(LookupTable,vtkLookupTable);
+  void SetLookupTable(vtkLookupTable *);
   vtkGetObjectMacro(LookupTable,vtkLookupTable);
 
   // Description:

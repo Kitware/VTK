@@ -78,6 +78,11 @@ vtkProgrammableSource::~vtkProgrammableSource()
   this->UnstructuredGrid->Delete();
   this->RectilinearGrid->Delete();
   this->PolyData->Delete();
+  // delete the current arg if there is one and a delete meth
+  if ((this->ExecuteMethodArg)&&(this->ExecuteMethodArgDelete))
+    {
+    (*this->ExecuteMethodArgDelete)(this->ExecuteMethodArg);
+    }
 }
 
 // Description:

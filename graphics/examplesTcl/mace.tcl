@@ -14,8 +14,10 @@ vtkRenderWindowInteractor iren
 # create a sphere source and actor
 #
 vtkSphereSource sphere
+sphere SetPhiResolution 100
 vtkPolyDataMapper   sphereMapper
     sphereMapper SetInput [sphere GetOutput]
+    sphereMapper GlobalImmediateModeRenderingOn
 vtkLODActor sphereActor
     sphereActor SetMapper sphereMapper
 
@@ -43,11 +45,19 @@ renWin SetSize 300 300
 # render the image
 #
 iren SetUserMethod {wm deiconify .vtkInteract}
+iren SetExitMethod {vtkCommand DeleteAllObjects; exit}
+
 set cam1 [ren1 GetActiveCamera]
 $cam1 Zoom 1.4
 iren Initialize
 #renWin SetFileName "mace.tcl.ppm"
 #renWin SaveImageAsPPM
+
+proc TkCheckAbort {} {
+  set foo [renWin GetEventPending]
+  if {$foo != 0} {renWin SetAbortRender 1}
+}
+renWin SetAbortCheckMethod {TkCheckAbort}
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .

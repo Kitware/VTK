@@ -79,6 +79,11 @@ vtkProgrammableFilter::~vtkProgrammableFilter()
   this->OutputUnstructuredGrid->Delete();
   this->OutputRectilinearGrid->Delete();
   this->Output = NULL;
+  // delete the current arg if there is one and a delete meth
+  if ((this->ExecuteMethodArg)&&(this->ExecuteMethodArgDelete))
+    {
+    (*this->ExecuteMethodArgDelete)(this->ExecuteMethodArg);
+    }
 }
 
 // Description:

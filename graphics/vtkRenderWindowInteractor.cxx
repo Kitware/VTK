@@ -116,6 +116,61 @@ vtkRenderWindowInteractor::~vtkRenderWindowInteractor()
   if ( this->OutlineActor ) this->OutlineActor->Delete();
   if ( this->OutlineMapper ) this->OutlineMapper->Delete();
   if ( this->SelfCreatedPicker && this->Picker) this->Picker->Delete();
+
+  // delete the current arg if there is one and a delete meth
+  if ((this->UserMethodArg)&&(this->UserMethodArgDelete))
+    {
+    (*this->UserMethodArgDelete)(this->UserMethodArg);
+    }
+  if ((this->ExitMethodArg)&&(this->ExitMethodArgDelete))
+    {
+    (*this->ExitMethodArgDelete)(this->ExitMethodArg);
+    }
+  if ((this->StartPickMethodArg)&&(this->StartPickMethodArgDelete))
+    {
+    (*this->StartPickMethodArgDelete)(this->StartPickMethodArg);
+    }
+  if ((this->EndPickMethodArg)&&(this->EndPickMethodArgDelete))
+    {
+    (*this->EndPickMethodArgDelete)(this->EndPickMethodArg);
+    }
+  if ((this->TimerMethodArg)&&(this->TimerMethodArgDelete))
+    {
+    (*this->TimerMethodArgDelete)(this->TimerMethodArg);
+    }
+  if ((this->LeftButtonPressMethodArg)&&(this->LeftButtonPressMethodArgDelete))
+    {
+    (*this->LeftButtonPressMethodArgDelete)(this->LeftButtonPressMethodArg);
+    }
+  if ((this->LeftButtonReleaseMethodArg)&&
+      (this->LeftButtonReleaseMethodArgDelete))
+    {
+    (*this->LeftButtonReleaseMethodArgDelete)
+      (this->LeftButtonReleaseMethodArg);
+    }
+  if ((this->MiddleButtonPressMethodArg)&&
+      (this->MiddleButtonPressMethodArgDelete))
+    {
+    (*this->MiddleButtonPressMethodArgDelete)
+      (this->MiddleButtonPressMethodArg);
+    }
+  if ((this->MiddleButtonReleaseMethodArg)&&
+      (this->MiddleButtonReleaseMethodArgDelete))
+    {
+    (*this->MiddleButtonReleaseMethodArgDelete)
+      (this->MiddleButtonReleaseMethodArg);
+    }
+  if ((this->RightButtonPressMethodArg)&&
+      (this->RightButtonPressMethodArgDelete))
+    {
+    (*this->RightButtonPressMethodArgDelete)(this->RightButtonPressMethodArg);
+    }
+  if ((this->RightButtonReleaseMethodArg)&&
+      (this->RightButtonReleaseMethodArgDelete))
+    {
+    (*this->RightButtonReleaseMethodArgDelete)
+      (this->RightButtonReleaseMethodArg);
+    }
 }
 
 vtkRenderWindowInteractor *vtkRenderWindowInteractor::New()
@@ -223,6 +278,11 @@ void vtkRenderWindowInteractor::SetStartPickMethod(void (*f)(void *), void *arg)
 {
   if ( f != this->StartPickMethod || arg != this->StartPickMethodArg )
     {
+    // delete the current arg if there is one and a delete meth
+    if ((this->StartPickMethodArg)&&(this->StartPickMethodArgDelete))
+      {
+      (*this->StartPickMethodArgDelete)(this->StartPickMethodArg);
+      }
     this->StartPickMethod = f;
     this->StartPickMethodArg = arg;
     this->Modified();
@@ -235,6 +295,11 @@ void vtkRenderWindowInteractor::SetEndPickMethod(void (*f)(void *), void *arg)
 {
   if ( f != this->EndPickMethod || arg != this->EndPickMethodArg )
     {
+    // delete the current arg if there is one and a delete meth
+    if ((this->EndPickMethodArg)&&(this->EndPickMethodArgDelete))
+      {
+      (*this->EndPickMethodArgDelete)(this->EndPickMethodArg);
+      }
     this->EndPickMethod = f;
     this->EndPickMethodArg = arg;
     this->Modified();

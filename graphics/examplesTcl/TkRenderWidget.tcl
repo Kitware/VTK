@@ -16,13 +16,13 @@ frame .top.f1
 vtkTkRenderWidget .top.f1.r1 -width 300 -height 300 
     BindTkRenderWidget .top.f1.r1
 
-vtkTkRenderWidget .top.f1.r2 -width 300 -height 300 
-    BindTkRenderWidget .top.f1.r2
+#vtkTkRenderWidget .top.f1.r2 -width 300 -height 300 
+#    BindTkRenderWidget .top.f1.r2
 
 button .top.btn  -text Quit -command exit
 
 pack .top.f1.r1 -side left -padx 3 -pady 3 -fill both -expand t
-pack .top.f1.r2 -side left -padx 3 -pady 3 -fill both -expand t
+#pack .top.f1.r2 -side left -padx 3 -pady 3 -fill both -expand t
 pack .top.f1  -fill both -expand t
 pack .top.btn -fill x
 
@@ -31,16 +31,17 @@ set renWin1 [.top.f1.r1 GetRenderWindow]
 vtkRenderer ren1;
 $renWin1 AddRenderer ren1;
 
-set renWin2 [.top.f1.r2 GetRenderWindow]
-vtkRenderer ren2;
-$renWin2 AddRenderer ren2;
+#set renWin2 [.top.f1.r2 GetRenderWindow]
+#vtkRenderer ren2;
+#$renWin2 AddRenderer ren2;
 
 
 # create a sphere source and actor
 vtkSphereSource sphere
+sphere SetPhiResolution 160
 vtkPolyDataMapper   sphereMapper
     sphereMapper SetInput [sphere GetOutput]
-    sphereMapper ImmediateModeRenderingOn
+    sphereMapper GlobalImmediateModeRenderingOn
 vtkLODActor sphereActor
     sphereActor SetMapper sphereMapper
 
@@ -66,7 +67,14 @@ ren1 AddActor spikeActor
 ren1 SetBackground 0.1 0.2 0.4
 $renWin1 SetSize 300 300
 
-ren2 AddActor sphereActor
-ren2 AddActor spikeActor
-ren2 SetBackground 0.1 0.2 0.4
-$renWin2 SetSize 300 300
+proc TkCheckAbort {} {
+  global renWin1
+  set foo [$renWin1 GetEventPending]
+  if {$foo != 0} {$renWin1 SetAbortRender 1}
+}
+$renWin1 SetAbortCheckMethod {TkCheckAbort}
+
+#ren2 AddActor sphereActor
+#ren2 AddActor spikeActor
+#ren2 SetBackground 0.1 0.2 0.4
+#$renWin2 SetSize 300 300
