@@ -1,4 +1,4 @@
-u/*=========================================================================
+/*=========================================================================
 
   Program:   Visualization Toolkit
   Module:    vtkBoxClipDataSet.cxx
@@ -33,7 +33,7 @@ u/*=========================================================================
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkBoxClipDataSet, "1.12");
+vtkCxxRevisionMacro(vtkBoxClipDataSet, "1.13");
 vtkStandardNewMacro(vtkBoxClipDataSet);
 
 //----------------------------------------------------------------------------
