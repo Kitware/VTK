@@ -18,7 +18,7 @@
 #include "vtkLookupTable.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkMapper, "1.106");
+vtkCxxRevisionMacro(vtkMapper, "1.107");
 
 // Initialize static member that controls global immediate mode rendering
 static int vtkMapperGlobalImmediateModeRendering = 0;
@@ -212,6 +212,19 @@ void vtkMapper::ShallowCopy(vtkAbstractMapper *mapper)
 // to the return value
 vtkUnsignedCharArray *vtkMapper::MapScalars(double alpha)
 {
+  // Lets try to resuse the old colors.
+  if (this->ScalarVisibility && this->Colors)
+    {
+    vtkDataArray *scalars = vtkAbstractMapper::
+      GetScalars(this->GetInput(), this->ScalarMode, this->ArrayAccessMode,
+                 this->ArrayId, this->ArrayName, this->ArrayComponent);
+    if (this->GetMTime() < this->Colors->GetMTime() &&
+        scalars->GetMTime() < this->Colors->GetMTime())
+      {
+      return this->Colors;
+      }
+    }
+
   // Get rid of old colors
   if ( this->Colors )
     {
