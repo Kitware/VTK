@@ -18,7 +18,7 @@ set VTK_IMAGE_COMPONENT_AXIS     4
 
 # Image pipeline
 
-vtkImageShortReader4D reader;
+vtkImageShortReader reader;
 #reader DebugOn
 	reader ReleaseDataFlagOff;
 	reader SwapBytesOff;
@@ -71,8 +71,6 @@ frame .wl.f3;
 label .wl.f3.plsvLabel -text LSV%;
 scale .wl.f3.plsv -from 0 -to 101  -orient horizontal -command SetPlsv
 
-checkbutton .wl.video -text "Inverse Video" -variable inverseVideo -command SetInverseVideo
-
 
 .wl.f1.window set 1
 .wl.f2.level set 1
@@ -81,7 +79,7 @@ checkbutton .wl.video -text "Inverse Video" -variable inverseVideo -command SetI
 
 pack .slice .wl -side left
 pack .slice.up .slice.down -side top
-pack .wl.f1 .wl.f2 .wl.f3 .wl.video -side top
+pack .wl.f1 .wl.f2 .wl.f3 -side top
 pack .wl.f1.windowLabel .wl.f1.window -side left
 pack .wl.f2.levelLabel .wl.f2.level -side left
 pack .wl.f3.plsvLabel .wl.f3.plsv -side left
@@ -123,22 +121,14 @@ proc SetPlsv plsv {
    [connect GetOutput] UpdateRegion region;
    viewer Render;
 }
-proc SetInverseVideo {} {
-   global viewer
-   if { $inverseVideo == 0 } {
-      viewer SetWindow -255;
-   } else {
-      viewer SetWindow 255;
-   }		
-   viewer Render;
-}
 
 
 puts "Done";
 
 
 #$renWin Render
-#wm withdraw .
+#wm withdraw
+
 
 
 
