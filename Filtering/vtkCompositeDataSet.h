@@ -28,6 +28,7 @@
 #include "vtkDataObject.h"
 
 class vtkCompositeDataIterator;
+class vtkInformation;
 
 class VTK_FILTERING_EXPORT vtkCompositeDataSet : public vtkDataObject
 {
@@ -73,6 +74,19 @@ public:
     { this->Superclass::SetUpdateExtent( x1, x2, y1, y2, z1, z2 ); };
   void SetUpdateExtent( int ext[6] )
     { this->Superclass::SetUpdateExtent( ext ); };
+
+  // Description:
+  // Adds dobj to the composite dataset. Where the dataset goes is determined
+  // by appropriate keys in the index information object. Which keys are used
+  // depends on the actual subclass.
+  virtual void AddDataSet(vtkInformation* index, vtkDataObject* dobj) = 0;
+
+  // Description: 
+  // Returns a dataset pointed by appropriate keys in the index information
+  // object.  Which keys are used depends on the actual subclass.
+  virtual vtkDataObject* GetDataSet(vtkInformation* index) = 0;
+
+  static vtkInformationIntegerKey* INDEX();
 
 protected:
   vtkCompositeDataSet();

@@ -52,6 +52,13 @@ public:
   unsigned int AddDataSet(vtkDataObject* data);
 
   // Description:
+  // Calls AddDataSet(dobj)
+  virtual void AddDataSet(vtkInformation* index, vtkDataObject* dobj)
+    {
+      this->AddDataSet(dobj);
+    }
+
+  // Description:
   // Restore data object to initial state,
   virtual void Initialize();
 
@@ -63,6 +70,10 @@ public:
   // Returns dataset with given id
   vtkDataObject* GetDataSet(unsigned int idx);
 
+  // Description:
+  // Passes the INDEX() key to GetDataSet(idx)
+  virtual vtkDataObject* GetDataSet(vtkInformation* index);
+  
 //BTX
   // Note that vtkMultiBlockDataIterator is dependent on the implementation
   // of the data structure in this class. Changes to the data structure

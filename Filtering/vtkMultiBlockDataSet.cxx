@@ -14,12 +14,13 @@
 =========================================================================*/
 #include "vtkMultiBlockDataSet.h"
 
+#include "vtkInformation.h"
 #include "vtkMultiBlockDataIterator.h"
 #include "vtkMultiBlockDataSetInternal.h"
 
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkMultiBlockDataSet, "1.3");
+vtkCxxRevisionMacro(vtkMultiBlockDataSet, "1.4");
 vtkStandardNewMacro(vtkMultiBlockDataSet);
 
 //----------------------------------------------------------------------------
@@ -48,6 +49,16 @@ vtkDataObject* vtkMultiBlockDataSet::GetDataSet(unsigned int idx)
     return 0;
     }
   return this->Internal->DataSets[idx];
+}
+
+//----------------------------------------------------------------------------
+vtkDataObject* vtkMultiBlockDataSet::GetDataSet(vtkInformation* index)
+{
+  if (index->Has(INDEX()))
+    {
+    return this->GetDataSet(index->Get(INDEX()));
+    }
+  return 0;
 }
 
 //----------------------------------------------------------------------------

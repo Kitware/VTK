@@ -16,12 +16,18 @@
 
 #include "vtkHierarchicalBoxDataSetInternal.h"
 
+#include "vtkHierarchicalDataInformation.h"
+#include "vtkInformation.h"
+#include "vtkInformationIntegerVectorKey.h"
+#include "vtkInformationKey.h"
 #include "vtkObjectFactory.h"
 #include "vtkUniformGrid.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkHierarchicalBoxDataSet, "1.4");
+vtkCxxRevisionMacro(vtkHierarchicalBoxDataSet, "1.5");
 vtkStandardNewMacro(vtkHierarchicalBoxDataSet);
+
+vtkInformationKeyMacro(vtkHierarchicalBoxDataSet,BOX,IntegerVector);
 
 //----------------------------------------------------------------------------
 vtkHierarchicalBoxDataSet::vtkHierarchicalBoxDataSet()
@@ -36,20 +42,19 @@ vtkHierarchicalBoxDataSet::~vtkHierarchicalBoxDataSet()
 }
 
 //----------------------------------------------------------------------------
-vtkHDSNode* vtkHierarchicalBoxDataSet::NewNode()
-{
-  return new vtkHBDSNode;
-}
-
-//----------------------------------------------------------------------------
 void vtkHierarchicalBoxDataSet::SetDataSet(
   unsigned int level, unsigned int id, vtkAMRBox& box, vtkUniformGrid* dataSet)
 {
   this->Superclass::SetDataSet(level, id, dataSet);
 
-  vtkHierarchicalDataSetInternal::LevelDataSetsType& ldataSets = 
-    this->Internal->DataSets[level];
-  static_cast<vtkHBDSNode*>(ldataSets[id])->Box = box;
+  vtkInformation* info = 
+    this->HierarchicalDataInformation->GetInformation(level, id);
+  if (info)
+    {
+    info->Set(BOX(), 
+              box.LoCorner[0], box.LoCorner[1], box.LoCorner[2],
+              box.HiCorner[0], box.HiCorner[1], box.HiCorner[2]);
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -74,8 +79,18 @@ vtkUniformGrid* vtkHierarchicalBoxDataSet::GetDataSet(unsigned int level,
     return 0;
     }
 
-  box = static_cast<vtkHBDSNode*>(ldataSets[id])->Box;
-  return static_cast<vtkUniformGrid*>(ldataSets[id]->DataSet.GetPointer());
+  vtkInformation* info = 
+    this->HierarchicalDataInformation->GetInformation(level, id);
+  if (info)
+    {
+    int* boxVec = info->Get(BOX());
+    if (boxVec)
+      {
+      memcpy(&box.LoCorner, boxVec  , 3*sizeof(int));
+      memcpy(&box.HiCorner, boxVec+3, 3*sizeof(int));
+      }
+    }
+  return static_cast<vtkUniformGrid*>(ldataSets[id].GetPointer());
 }
 
 //----------------------------------------------------------------------------
@@ -114,17 +129,14 @@ void vtkHierarchicalBoxDataSet::GenerateVisibilityArrays()
    
     // Copy boxes of higher level and coarsen to this level
     vtkstd::vector<vtkAMRBox> boxes;
-    vtkHierarchicalDataSetInternal::LevelDataSetsType& ldataSets = 
-      this->Internal->DataSets[levelIdx+1];
-    vtkHierarchicalDataSetInternal::LevelDataSetsIterator ldx;
-    for (ldx = ldataSets.begin(); ldx != ldataSets.end(); ldx++)
+    unsigned int numDataSets = this->GetNumberOfDataSets(levelIdx+1);
+    unsigned int dataSetIdx;
+    for (dataSetIdx=0; dataSetIdx<numDataSets; dataSetIdx++)
       {
-      if (! *ldx )
-        {
-        continue;
-        }
-      vtkAMRBox coarsebox = 
-        static_cast<vtkHBDSNode*>(*ldx)->Box;
+      vtkInformation* info = 
+        this->HierarchicalDataInformation->GetInformation(levelIdx+1,dataSetIdx);
+      int* boxVec = info->Get(BOX());
+      vtkAMRBox coarsebox(3, boxVec, boxVec+3);
       if (this->BoxInternal->RefinementRatios.size() <= levelIdx)
         {
         continue;
@@ -133,9 +145,7 @@ void vtkHierarchicalBoxDataSet::GenerateVisibilityArrays()
       boxes.push_back(coarsebox);
       }
 
-    unsigned int numDataSets = this->GetNumberOfDataSets(levelIdx);
-
-    for (unsigned int dataSetIdx=0; dataSetIdx<numDataSets; dataSetIdx++)
+    for (dataSetIdx=0; dataSetIdx<numDataSets; dataSetIdx++)
       {
       vtkAMRBox box;
       vtkUniformGrid* grid = this->GetDataSet(levelIdx, dataSetIdx, box);
@@ -263,5 +273,27 @@ void vtkHierarchicalBoxDataSet::DeepCopy(vtkDataObject *src)
 void vtkHierarchicalBoxDataSet::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+  unsigned int numLevels = this->GetNumberOfLevels();
+  os << indent << "Number of levels: " <<  numLevels << endl;
+  for (unsigned int i=0; i<numLevels; i++)
+    {
+    unsigned int numDataSets = this->GetNumberOfDataSets(i);
+    os << indent << "Level " << i << " number of datasets: " << numDataSets 
+       << endl;
+    for (unsigned j=0; j<numDataSets; j++)
+      {
+      os << indent << "DataSet(" << i << "," << j << "):";
+      vtkDataObject* dobj = this->GetDataSet(i, j);
+      if (dobj)
+        {
+        os << endl;
+        dobj->PrintSelf(os, indent.GetNextIndent());
+        }
+      else
+        {
+        os << "(none)" << endl;
+        }
+      }
+    }
 }
 

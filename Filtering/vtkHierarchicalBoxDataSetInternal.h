@@ -24,10 +24,4 @@ struct vtkHierarchicalBoxDataSetInternal
   vtkstd::vector<int> RefinementRatios;
 };
 
-class vtkHBDSNode : public vtkHDSNode
-{
-public:
-  vtkAMRBox Box;
-};
-
 #endif

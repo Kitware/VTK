@@ -30,10 +30,13 @@ struct vtkHierarchicalDataSetInternal;
 //ETX
 class vtkDataObject;
 class vtkHDSNode;
+class vtkHierarchicalDataInformation;
 
 class VTK_FILTERING_EXPORT vtkHierarchicalDataSet : public vtkCompositeDataSet
 {
 public:
+  static vtkHierarchicalDataSet *New();
+
   vtkTypeRevisionMacro(vtkHierarchicalDataSet,vtkCompositeDataSet);
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -77,30 +80,42 @@ public:
   void InitializeNode(unsigned int level, unsigned int id);
 
   // Description:
-  // Returns 1 if the node [level, id] is initialized. Since
-  // GetDataSet() returns NULL when either an existing node
-  // has NULL dataset pointer or the node does not exit, this
-  // is the only way to check if a node really exists.
-  int IsNodePresent(unsigned int level, unsigned int id);
-
-  // Description:
   // Set the dataset pointer for a given node. This method does
   // not remove the existing parent/child links. It only replaces
   // the dataset pointer.
   void SetDataSet(unsigned int level, unsigned int id, vtkDataObject* dataSet);
 
   // Description:
+  // Uses keys LEVEL() and INDEX() to call SetDataSet(LEVEL, INDEX, dobj)
+  virtual void AddDataSet(vtkInformation* index, vtkDataObject* dobj);
+
+  // Description:
   // Get a dataset give a level and an id.
   vtkDataObject* GetDataSet(unsigned int level, unsigned int id);
+
+  // Description:
+  // Uses keys LEVEL() and INDEX() to call GetDataSet(LEVEL, INDEX)
+  virtual vtkDataObject* GetDataSet(vtkInformation* index);
 
   // Description:
   // Shallow and Deep copy.
   virtual void ShallowCopy(vtkDataObject *src);  
   virtual void DeepCopy(vtkDataObject *src);
 
+  // Description:
+  // Returns the data structure containing information about
+  // the datasets.
+  vtkGetObjectMacro(HierarchicalDataInformation,vtkHierarchicalDataInformation);
+
+  // Description:
+  // Set the information about the datasets.
+  void SetHierarchicalDataInformation(vtkHierarchicalDataInformation* info);
+
 //BTX
   friend class vtkHierarchicalDataIterator;
 //ETX
+
+  static vtkInformationIntegerKey* LEVEL();
 
 protected:
   vtkHierarchicalDataSet();
@@ -111,6 +126,8 @@ protected:
   void InitializeDataSets();
 
   virtual vtkHDSNode* NewNode();
+
+  vtkHierarchicalDataInformation* HierarchicalDataInformation;
 
 private:
   vtkHierarchicalDataSet(const vtkHierarchicalDataSet&);  // Not implemented.

@@ -77,11 +77,11 @@ public:
   virtual void ShallowCopy(vtkDataObject *src);  
   virtual void DeepCopy(vtkDataObject *src);
 
+  static vtkInformationIntegerVectorKey* BOX();
+
 protected:
   vtkHierarchicalBoxDataSet();
   ~vtkHierarchicalBoxDataSet();
-
-  virtual vtkHDSNode* NewNode();
 
   vtkHierarchicalBoxDataSetInternal* BoxInternal;
 

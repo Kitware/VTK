@@ -18,7 +18,7 @@
 #include "vtkHierarchicalDataSetInternal.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkHierarchicalDataIterator, "1.2");
+vtkCxxRevisionMacro(vtkHierarchicalDataIterator, "1.3");
 vtkStandardNewMacro(vtkHierarchicalDataIterator);
 
 class vtkHierarchicalDataIteratorInternal
@@ -172,8 +172,7 @@ vtkDataObject* vtkHierarchicalDataIterator::GetCurrentDataObject()
     {
     return 0;
     }
-  vtkHDSNode* node = *this->Internal->LDSIterator;
-  return (node ? node->DataSet.GetPointer() : 0);
+  return this->Internal->LDSIterator->GetPointer();
 }
 
 //----------------------------------------------------------------------------

@@ -14,17 +14,26 @@
 =========================================================================*/
 #include "vtkHierarchicalDataSet.h"
 
+#include "vtkHierarchicalDataInformation.h"
 #include "vtkHierarchicalDataIterator.h"
 #include "vtkHierarchicalDataSetInternal.h"
+#include "vtkInformation.h"
+#include "vtkInformationIntegerKey.h"
 
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkHierarchicalDataSet, "1.1");
+vtkCxxRevisionMacro(vtkHierarchicalDataSet, "1.2");
+vtkStandardNewMacro(vtkHierarchicalDataSet);
+
+vtkCxxSetObjectMacro(vtkHierarchicalDataSet,HierarchicalDataInformation,vtkHierarchicalDataInformation);
+
+vtkInformationKeyMacro(vtkHierarchicalDataSet,LEVEL,Integer);
 
 //----------------------------------------------------------------------------
 vtkHierarchicalDataSet::vtkHierarchicalDataSet()
 {
   this->Internal = new vtkHierarchicalDataSetInternal;
+  this->HierarchicalDataInformation = vtkHierarchicalDataInformation::New();
 }
 
 //----------------------------------------------------------------------------
@@ -32,6 +41,7 @@ vtkHierarchicalDataSet::~vtkHierarchicalDataSet()
 {
   this->InitializeDataSets();
   delete this->Internal;
+  this->SetHierarchicalDataInformation(0);
 }
 
 //----------------------------------------------------------------------------
@@ -51,21 +61,8 @@ vtkHDSNode* vtkHierarchicalDataSet::NewNode()
 //----------------------------------------------------------------------------
 void vtkHierarchicalDataSet::InitializeDataSets()
 {
-  // We need to delete all nodes since we manage memory for them.
-  vtkHierarchicalDataSetInternal::DataSetsIterator idx;
-  for(idx  = this->Internal->DataSets.begin();
-      idx != this->Internal->DataSets.end()  ;
-      ++idx)
-    {
-    vtkHierarchicalDataSetInternal::LevelDataSetsType& ldataSets = *idx;
-    vtkHierarchicalDataSetInternal::LevelDataSetsIterator ldx;
-    for (ldx = ldataSets.begin(); ldx != ldataSets.end(); ldx++)
-      {
-      delete *ldx;
-      }
-    idx->clear();
-    }
   this->Internal->DataSets.clear();
+  this->HierarchicalDataInformation->Clear();
 }
 
 //----------------------------------------------------------------------------
@@ -73,6 +70,8 @@ void vtkHierarchicalDataSet::Initialize()
 {
   this->Superclass::Initialize();
   this->InitializeDataSets();
+  this->SetHierarchicalDataInformation(0);
+  this->HierarchicalDataInformation = vtkHierarchicalDataInformation::New();
 }
 
 //----------------------------------------------------------------------------
@@ -84,26 +83,13 @@ unsigned int vtkHierarchicalDataSet::GetNumberOfLevels()
 //----------------------------------------------------------------------------
 void vtkHierarchicalDataSet::SetNumberOfLevels(unsigned int numLevels)
 {
+  this->HierarchicalDataInformation->SetNumberOfLevels(numLevels);
   if (numLevels == this->GetNumberOfLevels())
     {
     return;
     }
-  unsigned int curNumLevels = this->Internal->DataSets.size();
-  if (curNumLevels > numLevels)
-    {
-    // We need to delete all extra nodes since we manage memory for them.
-    for(unsigned int i=numLevels; i<curNumLevels; i++)
-      {
-      vtkHierarchicalDataSetInternal::LevelDataSetsType& ldataSets = 
-        this->Internal->DataSets[i];
-      vtkHierarchicalDataSetInternal::LevelDataSetsIterator ldx;
-      for (ldx = ldataSets.begin(); ldx != ldataSets.end(); ldx++)
-        {
-        delete *ldx;
-        }
-      }
-    }
   this->Internal->DataSets.resize(numLevels);
+  this->HierarchicalDataInformation->SetNumberOfLevels(numLevels);
   this->Modified();
 }
 
@@ -125,6 +111,7 @@ unsigned int vtkHierarchicalDataSet::GetNumberOfDataSets(unsigned int level)
 void vtkHierarchicalDataSet::SetNumberOfDataSets(unsigned int level, 
                                                  unsigned int numDataSets)
 {
+  this->HierarchicalDataInformation->SetNumberOfDataSets(level, numDataSets);
   if (numDataSets == this->GetNumberOfDataSets(level))
     {
     return;
@@ -140,13 +127,6 @@ void vtkHierarchicalDataSet::SetNumberOfDataSets(unsigned int level,
   
   // We need to delete all extra nodes since we manage memory for them.
   unsigned int curNumDataSets = ldataSets.size();
-  if (curNumDataSets > numDataSets)
-    {
-    for (unsigned int i=numDataSets; i<curNumDataSets; i++)
-      {
-      delete ldataSets[i];
-      }
-    }
   ldataSets.resize(numDataSets);
 
   // Assign NULL to all new pointers. We use this later to figure out
@@ -158,6 +138,7 @@ void vtkHierarchicalDataSet::SetNumberOfDataSets(unsigned int level,
       ldataSets[i] = 0;
       }
     }
+  this->HierarchicalDataInformation->SetNumberOfDataSets(level, numDataSets);
   this->Modified();
 }
 
@@ -181,16 +162,17 @@ void vtkHierarchicalDataSet::InitializeNode(unsigned int level,
     this->SetNumberOfDataSets(level, id+1);
     }
 
-  if (ldataSets[id])
-    {
-    ldataSets[id]->DisconnectAll(vtkHDSNodeRef(level, id), 
-                                 this->Internal->DataSets);
-    ldataSets[id]->DataSet = 0;
-    }
-  else
-    {
-    ldataSets[id] = this->NewNode();
-    }
+  ldataSets[id] = 0;
+//   if (ldataSets[id])
+//     {
+//     ldataSets[id]->DisconnectAll(vtkHDSNodeRef(level, id), 
+//                                  this->Internal->DataSets);
+//     ldataSets[id]->DataSet = 0;
+//     }
+//   else
+//     {
+//     ldataSets[id] = this->NewNode();
+//     }
   this->Modified();
 }
 
@@ -214,37 +196,17 @@ void vtkHierarchicalDataSet::SetDataSet(unsigned int level,
     this->SetNumberOfDataSets(level, id+1);
     }
   
-  if (!ldataSets[id])
-    {
-    ldataSets[id] = this->NewNode();
-    }
-
-  ldataSets[id]->DataSet = ds;
+  ldataSets[id] = ds;
   this->Modified();
 }
 
 //----------------------------------------------------------------------------
-int vtkHierarchicalDataSet::IsNodePresent(unsigned int level, 
-                                          unsigned int id)
+void vtkHierarchicalDataSet::AddDataSet(vtkInformation* index, vtkDataObject* dobj)
 {
-  if (this->Internal->DataSets.size() <= level)
+  if (index->Has(INDEX()) && index->Has(LEVEL()))
     {
-    return 0;
+    this->SetDataSet(index->Get(LEVEL()), index->Get(INDEX()), dobj);
     }
-
-  vtkHierarchicalDataSetInternal::LevelDataSetsType& ldataSets = 
-    this->Internal->DataSets[level];
-  if (ldataSets.size() <= id)
-    {
-    return 0;
-    }
-
-  if (!ldataSets[id])
-    {
-    return 0;
-    }
-
-  return 1;
 }
 
 //----------------------------------------------------------------------------
@@ -268,7 +230,17 @@ vtkDataObject* vtkHierarchicalDataSet::GetDataSet(unsigned int level,
     return 0;
     }
 
-  return ldataSets[id]->DataSet.GetPointer();
+  return ldataSets[id];
+}
+
+//----------------------------------------------------------------------------
+vtkDataObject* vtkHierarchicalDataSet::GetDataSet(vtkInformation* index)
+{
+  if (index->Has(INDEX()) && index->Has(LEVEL()))
+    {
+    return this->GetDataSet(index->Get(LEVEL()), index->Get(INDEX()));
+    }
+  return 0;
 }
 
 //----------------------------------------------------------------------------
@@ -280,11 +252,11 @@ void vtkHierarchicalDataSet::ShallowCopy(vtkDataObject *src)
     }
   this->InitializeDataSets();
   this->Superclass::ShallowCopy(src);
-  this->Modified();
 
   vtkHierarchicalDataSet* from = vtkHierarchicalDataSet::SafeDownCast(src);
   if (from)
     {
+    this->SetHierarchicalDataInformation(from->HierarchicalDataInformation);
     unsigned int numLevels = from->GetNumberOfLevels();
     this->SetNumberOfLevels(numLevels);
     for (unsigned int i=0; i<numLevels; i++)
@@ -297,6 +269,8 @@ void vtkHierarchicalDataSet::ShallowCopy(vtkDataObject *src)
         }
       }
     }
+
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------
@@ -308,11 +282,14 @@ void vtkHierarchicalDataSet::DeepCopy(vtkDataObject *src)
     }
   this->InitializeDataSets();
   this->Superclass::ShallowCopy(src);
-  this->Modified();
+  this->SetHierarchicalDataInformation(0);
+  this->HierarchicalDataInformation = vtkHierarchicalDataInformation::New();
 
   vtkHierarchicalDataSet* from = vtkHierarchicalDataSet::SafeDownCast(src);
   if (from)
     {
+    this->HierarchicalDataInformation->DeepCopy(
+      from->HierarchicalDataInformation);
     unsigned int numLevels = from->GetNumberOfLevels();
     this->SetNumberOfLevels(numLevels);
     for (unsigned int i=0; i<numLevels; i++)
@@ -331,6 +308,8 @@ void vtkHierarchicalDataSet::DeepCopy(vtkDataObject *src)
         }
       }
     }
+
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------
