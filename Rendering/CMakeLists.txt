@@ -20,6 +20,11 @@ vtkFrustumCoverageCuller
 vtkGraphicsFactory
 vtkHull
 vtkImageActor
+vtkImageMapper
+vtkImager
+vtkImagerCollection
+vtkImageWindow
+vtkImagingFactory
 vtkImporter
 vtkInteractorStyle
 vtkInteractorStyleFlight
@@ -37,19 +42,10 @@ vtkLight
 vtkLightCollection
 vtkMapper
 vtkMapperCollection
-vtkOpenGLActor
-vtkOpenGLCamera
-vtkOpenGLImageActor
-vtkOpenGLLight
-vtkOpenGLPolyDataMapper
-vtkOpenGLProjectedPolyDataRayBounder
-vtkOpenGLProperty
-vtkOpenGLRenderer
-vtkOpenGLTexture
-vtkOpenGLVolumeTextureMapper2D
 vtkPicker
 vtkPointPicker
 vtkPolyDataMapper
+vtkPolyDataMapper2D
 vtkProjectedPolyDataRayBounder
 vtkProp3D
 vtkProp3DCollection
@@ -65,6 +61,7 @@ vtkRenderer
 vtkRendererCollection
 vtkRendererSource
 vtkSelectVisiblePoints
+vtkTextMapper
 vtkTexture
 vtkViewRays
 vtkVolume
@@ -100,21 +97,60 @@ vtkVolumeReader
 vtkVolumeTextureMapper 
 )
 
+#vtkMesaImageActor.h
+#vtkMesaImageMapper.h
+#vtkMesaImageWindow.h
+#vtkMesaImager.h
+#vtkXImageMapper.h
+#vtkXImageWindow.h
+#vtkOpenGLImageWindow
+
+SOURCE_FILES ( Rendering_SRCS
+vtkOpenGLActor
+vtkOpenGLCamera
+vtkOpenGLImageActor
+vtkOpenGLImageMapper
+vtkOpenGLImager
+vtkOpenGLLight
+vtkOpenGLPolyDataMapper
+vtkOpenGLPolyDataMapper2D
+vtkOpenGLProjectedPolyDataRayBounder
+vtkOpenGLProperty
+vtkOpenGLRenderer
+vtkOpenGLTexture
+vtkOpenGLVolumeTextureMapper2D
+)
+
 IF (WIN32)
   SOURCE_FILES(Rendering_SRCS 
      vtkWin32OpenGLRenderWindow 
-     vtkWin32RenderWindowInteractor)
+     vtkWin32RenderWindowInteractor
+     vtkWin32ImageMapper
+     vtkWin32ImageWindow
+     vtkWin32OpenGLImageWindow
+     vtkWin32OpenGLTextMapper
+     vtkWin32TextMapper)
+  LINK_LIBRARIES (opengl32)
 ENDIF (WIN32)
 
+ADD_LIBRARY(vtkRendering Rendering_SRCS)
+#WRAP_EXCLUDE_FILES(vtkImagingFactory)
+
 IF (VTK_WRAP_TCL)
+#  SOURCE_FILES(RenderingTCL_SRCS 
+#    vtkTkImageViewerWidget vtkTkImageWindowWidget)
   VTK_WRAP_TCL(vtkRenderingTCL RenderingTCL_SRCS Rendering_SRCS)
   ADD_LIBRARY(vtkRenderingTCL RenderingTCL_SRCS)
-  TARGET_LINK_LIBRARIES (vtkRenderingTCL vtkCommonTCL vtkFilteringTCL)
+  TARGET_LINK_LIBRARIES (vtkRenderingTCL vtkIOTCL vtkGraphicsTCL 
+                         vtkImagingTCL vtkFilteringTCL vtkCommonTCL)
 ENDIF (VTK_WRAP_TCL)
 
 LINK_LIBRARIES (
 vtkCommon 
 vtkFiltering 
+vtkImaging
+vtkGraphics
+vtkIO
 vtkRendering
 )
 

@@ -1,8 +1,15 @@
 PROJECT(VTK)
 
+BUILD_SHARED_LIBRARIES()
+
 SUBDIRS(Wrapping Common Filtering Imaging Graphics IO)
 
-BUILD_SHARED_LIBRARIES()
+OPTION (VTK_RENDERING "Build the rendering classes used for displaying")
+IF (VTK_RENDERING)
+  SUBDIRS(Rendering)
+  INCLUDE_DIRECTORIES(${VTK_SOURCE_DIR}/Rendering)
+  LINK_DIRECTORIES(${VTK_BINARY_DIR}/Rendering) 
+ENDIF (VTK_RENDERING)
 
 IF (WIN32)
   IF (BUILD_SHARED_LIBS)
@@ -55,8 +62,6 @@ ${VTK_SOURCE_DIR}/Filtering
 ${VTK_SOURCE_DIR}/Imaging
 ${VTK_SOURCE_DIR}/Graphics
 ${VTK_SOURCE_DIR}/IO
-${VTK_SOURCE_DIR}/rendering 
-${VTK_SOURCE_DIR}/implicit
 )
 
 LINK_DIRECTORIES(
@@ -65,8 +70,6 @@ ${VTK_BINARY_DIR}/Filtering
 ${VTK_BINARY_DIR}/Imaging
 ${VTK_BINARY_DIR}/Graphics
 ${VTK_BINARY_DIR}/IO
-${VTK_BINARY_DIR}/rendering
-${VTK_BINARY_DIR}/implicit
 ${PY_LIB_PATH}
 ${PY_LIB_PATH2}
 )
