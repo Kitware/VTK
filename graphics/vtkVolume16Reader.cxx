@@ -109,10 +109,10 @@ void vtkVolume16Reader::Execute()
   this->ComputeTransformedAspectRatio (aspectRatio);
 
   // calculate origin of output from data origin and transform
-  ComputeTransformedOrigin (origin);
+  this->ComputeTransformedOrigin (origin);
 
   // adjust aspect ratio and origin if aspect ratio is negative
-  AdjustAspectRatioAndOrigin (dimensions, aspectRatio, origin);
+  this->AdjustAspectRatioAndOrigin (dimensions, aspectRatio, origin);
 
   output->SetAspectRatio(aspectRatio);
   output->SetOrigin(origin);
