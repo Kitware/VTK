@@ -385,7 +385,7 @@ void vtkAbstractTransform::UnRegister(vtkObject *o)
 
 //----------------------------------------------------------------------------
 // A very, very minimal transformation
-class VTK_EXPORT vtkSimpleTransform : public vtkHomogeneousTransform
+class vtkSimpleTransform : public vtkHomogeneousTransform
 {
 public:
   vtkTypeMacro(vtkSimpleTransform,vtkHomogeneousTransform);

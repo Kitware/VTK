@@ -49,8 +49,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // sees it in the friend decl in vtkWin32RenderWindowInteractor, but
 // GCC needs to see the declaration beforehand. It has to do with the
 // CALLBACK attribute.
-VTK_EXPORT LRESULT CALLBACK vtkHandleMessage(HWND,UINT,WPARAM,LPARAM);
-VTK_EXPORT LRESULT CALLBACK vtkHandleMessage2(HWND,UINT,WPARAM,LPARAM,class vtkWin32RenderWindowInteractor*);
+VTK_RENDERING_EXPORT LRESULT CALLBACK vtkHandleMessage(HWND,UINT,WPARAM,LPARAM);
+VTK_RENDERING_EXPORT LRESULT CALLBACK vtkHandleMessage2(HWND,UINT,WPARAM,LPARAM,class vtkWin32RenderWindowInteractor*);
 
 #include "vtkWin32RenderWindowInteractor.h"
 #include "vtkInteractorStyle.h"
