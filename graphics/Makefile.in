@@ -148,7 +148,6 @@ vtkEnSight6Reader \
 vtkExtractEdges \
 vtkExtractGeometry \
 vtkExtractPolyDataGeometry \
-vtkExtractPolyDataPiece \
 vtkExtractGrid \
 vtkExtractTensorComponents \
 vtkExtractUnstructuredGrid \
@@ -163,7 +162,6 @@ vtkGaussianSplatter \
 vtkGeometryFilter \
 vtkGlyph2D \
 vtkGlyph3D \
-vtkGhostLevelToScalarFilter \
 vtkHedgeHog \
 vtkHull \
 vtkHyperStreamline \
@@ -247,7 +245,6 @@ vtkRectilinearGridSource \
 vtkRectilinearGridWriter \
 vtkRecursiveDividingCubes \
 vtkRecursiveSphereDirectionEncoder \
-vtkRemoveGhostCells \
 vtkRenderWindow \
 vtkRenderWindowCollection \
 vtkRenderWindowInteractor \

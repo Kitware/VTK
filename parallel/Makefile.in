@@ -10,6 +10,11 @@ ME = Parallel
 srcdir        = @srcdir@
 VPATH         = @srcdir@
 
+MPI_OBJ = \
+vtkMPIController \
+vtkMPIGroup \
+vtkMPICommunicator
+
 ABSTRACT_H = 
 
 CONCRETE_H = 
@@ -21,7 +26,18 @@ CONCRETE = \
 vtkMultiProcessController \
 vtkSharedMemoryCommunicator \
 vtkThreadedController \
-vtkTreeComposite
+vtkTreeComposite \
+vtkGetRemoteGhostCells \
+vtkPieceScalars \
+vtkInputPort \
+vtkOutputPort \
+vtkExtractPolyDataPiece \
+vtkGhostLevelToScalarFilter \
+vtkRemoveGhostCells \
+vtkImageComposite \
+${CONTROLLER_API_OBJ}
+
+
 
 #------------------------------------------------------------------------------
 # Autoconfig defines that can be overridden in user.make

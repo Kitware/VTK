@@ -10,17 +10,11 @@ ME = Contrib
 srcdir        = @srcdir@
 VPATH         = @srcdir@
 
-MPI_OBJ = \
-vtkMPIController \
-vtkMPIGroup \
-vtkMPICommunicator
-
 ABSTRACT_H = 
 
 CONCRETE_H = 
 
-ABSTRACT = \
-vtkCommunicator
+ABSTRACT = 
 
 CONCRETE = \
 vtkArcPlotter \
@@ -30,7 +24,6 @@ vtkCubeAxesActor2D \
 vtkDEMReader \
 vtkDepthSortPolyData \
 vtkEarthSource \
-vtkGetRemoteGhostCells \
 vtkGridTransform \
 vtkImageToPolyDataFilter \
 vtkImageReslice \
@@ -39,11 +32,9 @@ vtkLandmarkTransform \
 vtkLegendBoxActor \
 vtkLightKit \
 vtkMassProperties \
-vtkMultiProcessController \
 vtkOBJReader \
 vtkOutlineCornerFilter \
 vtkOutlineCornerSource \
-vtkPieceScalars \
 vtkProjectedTexture \
 vtkRenderLargeImage \
 vtkRIBExporter \
@@ -53,18 +44,12 @@ vtkSuperquadric \
 vtkSurfaceReconstructionFilter \
 vtkSuperquadricSource \
 vtkSubdivideTetra \
-vtkThreadedController \
 vtkThinPlateSplineTransform \
 vtkTransformToGrid \
-vtkTreeComposite \
 vtkVideoSource \
 vtkVolumeProMapper \
-vtkInputPort \
-vtkOutputPort \
 vtkVRMLImporter \
-vtkXYPlotActor \
-vtkSharedMemoryCommunicator \
-${CONTROLLER_API_OBJ}
+vtkXYPlotActor 
 
 
 WIN32_OBJ = \
@@ -86,7 +71,7 @@ vtkWin32OffscreenRenderWindow
 @MAKEINCLUDE@ @MAKEQUOTE@targets.make@MAKEQUOTE@
 
 # add in any extra libraries here
-KIT_LIBS =
+KIT_EXTERNAL_LIBS = 
 
 # standard stuff here
 KIT_OBJ = ${SRC_OBJ}
