@@ -315,9 +315,9 @@ float *vtkVolume::GetBounds()
   bbox[21] = bounds[0]; bbox[22] = bounds[3]; bbox[23] = bounds[4];
   
   // save the old transform
+  this->GetMatrix(matrix);
   this->Transform.Push();  
   this->Transform.Identity();
-  this->GetMatrix(matrix);
   this->Transform.Concatenate(matrix);
 
   // and transform into Volumes coordinates
@@ -334,7 +334,7 @@ float *vtkVolume::GetBounds()
     fptr += 3;
     }
   
-  this->Transform.Push();  
+  this->Transform.Pop();  
   
   // now calc the new bounds
   this->Bounds[0] = this->Bounds[2] = this->Bounds[4] = 1.0e30;

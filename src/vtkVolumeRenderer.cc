@@ -53,6 +53,7 @@ static vtkMath math;
 vtkVolumeRenderer::vtkVolumeRenderer()
 {
   this->StepSize = 1.0;
+  this->Image = NULL;
 }
 
 // Description:
@@ -153,7 +154,7 @@ void vtkVolumeRenderer::Render(vtkRenderer *ren)
 
   ren->GetRenderWindow()->SetPixelData(pos[0], pos[1],
 				       pos[0] + size[0]-1, pos[1] + size[1]-1,
-				       this->Image,1);
+				       this->Image,0);
 }
 
 // Description:
