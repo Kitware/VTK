@@ -36,16 +36,12 @@ iren SetUserMethod {wm deiconify .vtkInteract}
 set cam1 [ren1 GetActiveCamera]
 $cam1 Zoom 1.4
 iren Initialize
-renWin Render
-
-set lights [ren1 GetLights]
-$lights InitTraversal
-set light [$lights GetNextItem]
-$light SetLightTypeToSceneLight
 iren LightFollowCameraOff
 
-$cam1 Azimuth 30
-$cam1 Elevation -50
+vtkLight light
+light SetLightTypeToCameraLight
+light SetDirectionAngle 50 -30
+ren1 AddLight light
 
 set prop [sphereActor GetProperty]
 $prop SetDiffuseColor 1.0 0 0
