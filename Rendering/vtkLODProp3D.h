@@ -140,6 +140,7 @@ public:
   // LOD if automatic LOD selection is off.
   void EnableLOD( int id );
   void DisableLOD( int id );
+  int IsLODEnabled( int id );
 
   // Description:
   // Set the level of a particular LOD. When a LOD is selected for
