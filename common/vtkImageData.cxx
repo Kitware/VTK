@@ -206,6 +206,39 @@ void vtkImageData::ComputeIncrements()
 }
 
 
+
+
+//----------------------------------------------------------------------------
+float vtkImageData::GetScalarComponentAsFloat(int x, int y, int z, int comp)
+{
+  void *ptr;
+  
+  if (comp >= this->NumberOfScalarComponents || comp < 0)
+    {
+    vtkErrorMacro("Bad component index " << comp);
+    return 0.0;
+    }
+  
+  ptr = this->GetScalarPointer(x, y, z);
+  switch (this->ScalarType)
+    {
+    case VTK_FLOAT:
+      return *(((float *)ptr) + comp);
+    case VTK_INT:
+      return (float)(*(((int *)ptr) + comp));
+    case VTK_SHORT:
+      return (float)(*(((short *)ptr) + comp));
+    case VTK_UNSIGNED_SHORT:
+      return (float)(*(((unsigned short *)ptr) + comp));
+    case VTK_UNSIGNED_CHAR:
+      return (float)(*(((unsigned char *)ptr) + comp));
+    }
+
+  vtkErrorMacro("Unknown Scalar type");
+  return 0.0;
+}
+
+
 //----------------------------------------------------------------------------
 // Description:
 // This Method returns a pointer to a location in the vtkImageData.

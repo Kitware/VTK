@@ -101,6 +101,10 @@ public:
   void *GetScalarPointer();
 
   // Description:
+  // For acces to data from tcl
+  float GetScalarComponentAsFloat(int x, int y, int z, int component);
+  
+  // Description:
   // Allocate the vtkScalars object associated with this object.
   void AllocateScalars();
   
