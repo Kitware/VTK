@@ -17,6 +17,10 @@ static char sccsid[] = "@(#) tkAppInit.c 1.15 95/06/28 13:14:28";
 
 #include "tk.h"
 
+#ifdef USE_TIX
+#include "tix.h"
+#endif
+
 /*
  *----------------------------------------------------------------------
  *
@@ -90,6 +94,11 @@ int Tcl_AppInit(Tcl_Interp *interp)
   if (Tk_Init(interp) == TCL_ERROR) {
   return TCL_ERROR;
   }
+#ifdef USE_TIX
+  if (Tix_Init(interp) == TCL_ERROR) {
+  return TCL_ERROR;
+  }
+#endif
   
   /* init the core vtk stuff */
   if (Vtkcommontcl_Init(interp) == TCL_ERROR) 
