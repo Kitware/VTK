@@ -13,7 +13,8 @@ IF (VTK_DATA_ROOT)
     TestScalarBarWidget.cxx
     TestLineWidget.cxx
     TestPlaneWidget.cxx
-    TestPointWidget.cxx    
+    TestPointWidget.cxx
+    TestImageTracerWidget.cxx   
     )
 ENDIF (VTK_DATA_ROOT)
 
