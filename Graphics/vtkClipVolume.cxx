@@ -46,7 +46,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 #include "vtkFloatArray.h"
 
-vtkCxxRevisionMacro(vtkClipVolume, "1.42");
+vtkCxxRevisionMacro(vtkClipVolume, "1.43");
 vtkStandardNewMacro(vtkClipVolume);
 
 // Construct with user-specified implicit function; InsideOut turned off; value
@@ -66,7 +66,8 @@ vtkClipVolume::vtkClipVolume(vtkImplicitFunction *cf)
   this->Mesh = NULL;
 
   this->Triangulator = vtkOrderedTriangulator::New();
-  this->Triangulator->PreSortedOn();
+  // this->Triangulator->PreSortedOn();
+  this->Triangulator->UseTwoSortIdsOn();
   
   // optional clipped output
   this->vtkSource::SetNthOutput(1,vtkUnstructuredGrid::New());
@@ -453,6 +454,7 @@ void vtkClipVolume::ClipVoxel(float value, vtkDataArray *cellScalars,
   // that the PreSortedOn() flag was set in the triangulator.
   int type;
   vtkIdType internalId[8]; //used to merge points if nearby edge intersection
+  vtkIdType inputPtId;
   for (numPts=0; numPts<8; numPts++)
     {
     ptId = order[flip][numPts];
@@ -470,13 +472,17 @@ void vtkClipVolume::ClipVoxel(float value, vtkDataArray *cellScalars,
       }
 
     xPtr = cellPts->GetPoint(ptId);
+    inputPtId = cellIds->GetId(ptId);
     if ( this->Locator->InsertUniquePoint(xPtr, id) )
       {
-      outPD->CopyData(inPD,cellIds->GetId(ptId), id);
+      outPD->CopyData(inPD, inputPtId, id);
       }
-    itmp = id % dims[0];
-    jtmp = (id/dims[0]) % dims[1];
-    ktmp = id / (dims[0]*dims[1]);
+    // Find the global id of this point (if we are not working
+    // on the whole extent, this will be different than inputPtId)
+    // Use this as the unique id in sorting.
+    itmp = inputPtId % dims[0];
+    jtmp = (inputPtId/dims[0]) % dims[1];
+    ktmp = inputPtId / (dims[0]*dims[1]);
     sortId = (extent[0]+itmp) + (wextent[1]-wextent[0]+1)*(extent[2]+jtmp) + 
       ((wextent[1]-wextent[0]+1)*(wextent[3]-wextent[2]+1))*(extent[4]+ktmp);
     internalId[ptId] = this->Triangulator->InsertPoint(id, sortId, xPtr, type);
@@ -485,12 +491,15 @@ void vtkClipVolume::ClipVoxel(float value, vtkDataArray *cellScalars,
   // For each edge intersection point, insert into triangulation. Edge
   // intersections come from clipping value. Have to be careful of 
   // intersections near exisiting points (causes bad Delaunay behavior).
+  int sortId1, sortId2;
   for (edgeNum=0; edgeNum < 12; edgeNum++)
     {
     s1 = cellScalars->GetComponent(edges[edgeNum][0],0);
     s2 = cellScalars->GetComponent(edges[edgeNum][1],0);
+
     if ( (s1 < value && s2 >= value) || (s1 >= value && s2 < value) )
       {
+
       t = (value - s1) / (s2 - s1);
 
       // Check to see whether near the intersection is near a voxel corner. 
@@ -521,8 +530,32 @@ void vtkClipVolume::ClipVoxel(float value, vtkDataArray *cellScalars,
                                cellIds->GetId(edges[edgeNum][1]), t);
         }
 
+      // Find the global ids of the two points of this edge
+      // Use these as the unique id in sorting.
+      inputPtId = cellIds->GetId(edges[edgeNum][0]);
+      itmp = inputPtId % dims[0];
+      jtmp = (inputPtId/dims[0]) % dims[1];
+      ktmp = inputPtId / (dims[0]*dims[1]);
+      sortId1 = (extent[0]+itmp) + (wextent[1]-wextent[0]+1)*(extent[2]+jtmp)+
+	((wextent[1]-wextent[0]+1)*(wextent[3]-wextent[2]+1))*(extent[4]+ktmp);
+
+      inputPtId = cellIds->GetId(edges[edgeNum][1]);
+      itmp = inputPtId % dims[0];
+      jtmp = (inputPtId/dims[0]) % dims[1];
+      ktmp = inputPtId / (dims[0]*dims[1]);
+      sortId2 = (extent[0]+itmp) + (wextent[1]-wextent[0]+1)*(extent[2]+jtmp)+
+	((wextent[1]-wextent[0]+1)*(wextent[3]-wextent[2]+1))*(extent[4]+ktmp);
+
+      // Smaller id goes first
+      if (sortId2 < sortId1)
+	{
+	itmp = sortId1;
+	sortId1 = sortId2;
+	sortId2 = itmp;
+	}
+
       //Insert into Delaunay triangulation
-      this->Triangulator->InsertPoint(ptId,ptId,x,2);
+      this->Triangulator->InsertPoint(ptId,sortId1,sortId2,x,2);
 
       }//if edge intersects value
     }//for all edges
