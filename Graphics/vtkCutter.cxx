@@ -32,7 +32,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCutter, "1.72");
+vtkCxxRevisionMacro(vtkCutter, "1.73");
 vtkStandardNewMacro(vtkCutter);
 vtkCxxSetObjectMacro(vtkCutter,CutFunction,vtkImplicitFunction);
 
@@ -511,9 +511,9 @@ void vtkCutter::UnstructuredGridCutter()
         } // for all points in this cell
           
       int needCell = 0;
-      for (int i = 0; i < numContours; ++i) 
+      for (int cont = 0; cont < numContours; ++cont) 
         {
-        float val = this->ContourValues->GetValue(i);
+        float val = this->ContourValues->GetValue(cont);
         if (val >= range[0] && val <= range[1]) 
           {
           needCell = 1;

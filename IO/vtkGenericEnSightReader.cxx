@@ -30,7 +30,7 @@
 
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.47");
+vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.48");
 vtkStandardNewMacro(vtkGenericEnSightReader);
 
 vtkCxxSetObjectMacro(vtkGenericEnSightReader,TimeSets, 
@@ -268,7 +268,7 @@ int vtkGenericEnSightReader::DetermineEnSightVersion()
     vtkErrorMacro("A case file name must be specified.");
     return -1;
     }
-  vtkstd::string sfilename;
+  vtkstd::string sfilename = "";
   if (this->FilePath)
     {
     sfilename = this->FilePath;
@@ -348,7 +348,7 @@ int vtkGenericEnSightReader::DetermineEnSightVersion()
               // file set and fill in wildcards from there.
               this->ReplaceWildcards(fileName, timeSet, fileSet);
               }
-            vtkstd::string sfilename;
+            sfilename = "";
             if (this->FilePath)
               {
               sfilename = this->FilePath;
@@ -441,7 +441,7 @@ int vtkGenericEnSightReader::DetermineEnSightVersion()
           // wildcards from there.
           this->ReplaceWildcards(fileName, timeSet, fileSet);
           }
-        vtkstd::string sfilename;
+        sfilename = "";
         if (this->FilePath)
           {
           sfilename = this->FilePath;

@@ -27,7 +27,7 @@
 #include <float.h>
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageReslice, "1.35");
+vtkCxxRevisionMacro(vtkImageReslice, "1.36");
 vtkStandardNewMacro(vtkImageReslice);
 vtkCxxSetObjectMacro(vtkImageReslice, InformationInput, vtkImageData);
 vtkCxxSetObjectMacro(vtkImageReslice,ResliceAxes,vtkMatrix4x4);
@@ -1363,13 +1363,13 @@ int vtkTricubicInterpolation(T *&outPtr, const T *inPtr,
     int k = k1;
     do // loop over z
       {
-      F fz = fZ[k];
+      F ifz = fZ[k];
       int factz = factZ[k];
       int j = j1;
       do // loop over y
         {
-        F fy = fY[j];
-        F fzy = fz*fy;
+        F ify = fY[j];
+        F fzy = ifz*ify;
         int factzy = factz + factY[j];
         const T *tmpPtr = inPtr + factzy;
         // loop over x is unrolled (significant performance boost)
@@ -2562,11 +2562,11 @@ void vtkOptimizedExecute(vtkImageReslice *self,
           }
         else // optimize for nearest-neighbor interpolation
           {
-          for (int idX = r1; idX <= r2; idX++)
+          for (int iidX = r1; iidX <= r2; iidX++)
             {
-            inPoint[0] = inPoint1[0] + idX*xAxis[0];
-            inPoint[1] = inPoint1[1] + idX*xAxis[1];
-            inPoint[2] = inPoint1[2] + idX*xAxis[2];
+            inPoint[0] = inPoint1[0] + iidX*xAxis[0];
+            inPoint[1] = inPoint1[1] + iidX*xAxis[1];
+            inPoint[2] = inPoint1[2] + iidX*xAxis[2];
 
             int inIdX = vtkResliceRound(inPoint[0]) - inExt[0];
             int inIdY = vtkResliceRound(inPoint[1]) - inExt[2];

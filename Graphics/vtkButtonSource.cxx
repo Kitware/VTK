@@ -26,7 +26,7 @@
 #include "vtkPolyData.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkButtonSource, "1.6");
+vtkCxxRevisionMacro(vtkButtonSource, "1.7");
 vtkStandardNewMacro(vtkButtonSource);
 
 // Construct 
@@ -284,17 +284,17 @@ void vtkButtonSource::Execute()
       tcoords->SetTuple(i+numPts, tcoords->GetTuple(i));
       }
     //do the polygons
-    vtkIdType *pts = 0;
+    vtkIdType *ipts = 0;
     vtkIdType opts[4];
     
     vtkIdType npts = 0;
     int numPolys=newPolys->GetNumberOfCells();
     for ( j=0, newPolys->InitTraversal(); j < numPolys; j++ )
       {
-      newPolys->GetNextCell(npts,pts);
+      newPolys->GetNextCell(npts,ipts);
       for (i=0; i<npts; i++)
         {
-        opts[i] = pts[i] + numPts;
+        opts[i] = ipts[i] + numPts;
         }
       newPolys->InsertNextCell(npts,opts);
       }

@@ -29,7 +29,7 @@
 #include "vtkPolyData.h"
 #include "vtkRungeKutta2.h"
 
-vtkCxxRevisionMacro(vtkDistributedStreamTracer, "1.3");
+vtkCxxRevisionMacro(vtkDistributedStreamTracer, "1.4");
 vtkStandardNewMacro(vtkDistributedStreamTracer);
 
 vtkDistributedStreamTracer::vtkDistributedStreamTracer()
@@ -261,7 +261,7 @@ int vtkDistributedStreamTracer::ProcessTask(float seed[3],
   // moving outside the domain, move to the next seed.
   if (numPoints == 0 || resTerm != vtkStreamTracer::OUT_OF_DOMAIN)
     {
-    int retVal = this->ProcessNextLine(currentLine);
+    retVal = this->ProcessNextLine(currentLine);
     seeds->Delete(); 
     seedIds->Delete();
     integrationDirections->Delete();

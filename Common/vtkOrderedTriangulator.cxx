@@ -32,7 +32,7 @@
 #include <vtkstd/stack>
 #include <vtkstd/map>
 
-vtkCxxRevisionMacro(vtkOrderedTriangulator, "1.64");
+vtkCxxRevisionMacro(vtkOrderedTriangulator, "1.65");
 vtkStandardNewMacro(vtkOrderedTriangulator);
 
 #ifdef _WIN32_WCE
@@ -1546,15 +1546,15 @@ void vtkOrderedTriangulator::AddTemplate()
     
     // The tetras have been classified previously. So allocate space
     // and add it as a template list.
-    OTTemplate *tplate = new(this->TemplateHeap) 
+    OTTemplate *otplate = new(this->TemplateHeap) 
       OTTemplate(this->Mesh->NumberOfTetrasClassifiedInside,this->TemplateHeap);
-    (*tlist)[index] = tplate;
+    (*tlist)[index] = otplate;
     
     // Now fill in the connectivity list
     int i;
     TetraListIterator t;
     OTTetra *tetra;
-    vtkIdType *clist=tplate->Tetras;
+    vtkIdType *clist=otplate->Tetras;
     for (t=this->Mesh->Tetras.begin(); t != this->Mesh->Tetras.end(); ++t)
       {
       if ( (*t)->Type == OTTetra::Inside )

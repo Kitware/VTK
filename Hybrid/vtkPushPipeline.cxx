@@ -118,7 +118,7 @@ public:
   vtkPushPipeline *PushPipeline;
 };
 
-vtkCxxRevisionMacro(vtkPushPipeline, "1.15");
+vtkCxxRevisionMacro(vtkPushPipeline, "1.16");
 vtkStandardNewMacro(vtkPushPipeline);
 
 vtkPushPipeline::vtkPushPipeline()
@@ -272,7 +272,6 @@ void vtkPushPipeline::Trace(vtkProcessObject *po)
     {
     int numOut = src->GetNumberOfOutputs();
     vtkDataObject **outs = src->GetOutputs();
-    int i;
     src->UpdateInformation();
     for (i = 0; i < numOut; i++)
       {
@@ -298,7 +297,6 @@ void vtkPushPipeline::Trace(vtkProcessObject *po)
     {
     // a mappers consumers are props
     int numCon = am->GetNumberOfConsumers();
-    int i;
     for (i = 0; i < numCon; ++i)
       {
       vtkProp *prop = vtkProp::SafeDownCast(am->GetConsumer(i));

@@ -33,7 +33,7 @@
 #include "vtkVoxel.h"
 #include "vtkWedge.h"
 
-vtkCxxRevisionMacro(vtkGeometryFilter, "1.91");
+vtkCxxRevisionMacro(vtkGeometryFilter, "1.92");
 vtkStandardNewMacro(vtkGeometryFilter);
 
 // Construct with all types of clipping turned off.
@@ -874,32 +874,32 @@ void vtkGeometryFilter::UnstructuredGridExecute()
           {
           vtkGenericCell *cell = vtkGenericCell::New();
           input->GetCell(cellId,cell);
-          vtkIdList *pts = vtkIdList::New();  
+          vtkIdList *ipts = vtkIdList::New();  
           vtkPoints *coords = vtkPoints::New();
-          vtkIdList *cellIds = vtkIdList::New();
-          vtkIdType newCellId;
+          vtkIdList *icellIds = vtkIdList::New();
+          vtkIdType inewCellId;
 
           if ( cell->GetCellDimension() == 1 )
             {
-            cell->Triangulate(0,pts,coords);
-            for (i=0; i < pts->GetNumberOfIds(); i+=2)
+            cell->Triangulate(0,ipts,coords);
+            for (i=0; i < ipts->GetNumberOfIds(); i+=2)
               {
-              newCellId = Lines->InsertNextCell(2);
-              Lines->InsertCellPoint(pts->GetId(i));
-              Lines->InsertCellPoint(pts->GetId(i+1));
-              outputCD->CopyData(cd,cellId,newCellId);
+              inewCellId = Lines->InsertNextCell(2);
+              Lines->InsertCellPoint(ipts->GetId(i));
+              Lines->InsertCellPoint(ipts->GetId(i+1));
+              outputCD->CopyData(cd,cellId,inewCellId);
               }
             }
           else if ( cell->GetCellDimension() == 2 )
             {
-            cell->Triangulate(0,pts,coords);
-            for (i=0; i < pts->GetNumberOfIds(); i+=3)
+            cell->Triangulate(0,ipts,coords);
+            for (i=0; i < ipts->GetNumberOfIds(); i+=3)
               {
-              newCellId = Lines->InsertNextCell(2);
-              Polys->InsertCellPoint(pts->GetId(i));
-              Polys->InsertCellPoint(pts->GetId(i+1));
-              Polys->InsertCellPoint(pts->GetId(i+2));
-              outputCD->CopyData(cd,cellId,newCellId);
+              inewCellId = Lines->InsertNextCell(2);
+              Polys->InsertCellPoint(ipts->GetId(i));
+              Polys->InsertCellPoint(ipts->GetId(i+1));
+              Polys->InsertCellPoint(ipts->GetId(i+2));
+              outputCD->CopyData(cd,cellId,inewCellId);
               }
             } 
           else //3D nonlinear cell
@@ -908,24 +908,24 @@ void vtkGeometryFilter::UnstructuredGridExecute()
             for (int j=0; j < cell->GetNumberOfFaces(); j++)
               {
               face = cell->GetFace(j);
-              input->GetCellNeighbors(cellId, face->PointIds, cellIds);
-              if ( cellIds->GetNumberOfIds() <= 0)
+              input->GetCellNeighbors(cellId, face->PointIds, icellIds);
+              if ( icellIds->GetNumberOfIds() <= 0)
                 {
-                face->Triangulate(0,pts,coords);
-                for (i=0; i < pts->GetNumberOfIds(); i+=3)
+                face->Triangulate(0,ipts,coords);
+                for (i=0; i < ipts->GetNumberOfIds(); i+=3)
                   {
-                  newCellId = Lines->InsertNextCell(2);
-                  Polys->InsertCellPoint(pts->GetId(i));
-                  Polys->InsertCellPoint(pts->GetId(i+1));
-                  Polys->InsertCellPoint(pts->GetId(i+2));
-                  outputCD->CopyData(cd,cellId,newCellId);
+                  inewCellId = Lines->InsertNextCell(2);
+                  Polys->InsertCellPoint(ipts->GetId(i));
+                  Polys->InsertCellPoint(ipts->GetId(i+1));
+                  Polys->InsertCellPoint(ipts->GetId(i+2));
+                  outputCD->CopyData(cd,cellId,inewCellId);
                   }
                 }
               }
             } //3d cell
-          cellIds->Delete();
+          icellIds->Delete();
           coords->Delete();
-          pts->Delete();
+          ipts->Delete();
           cell->Delete();
           }
           break; //done with quadratic cells
