@@ -206,6 +206,45 @@ int *vtkActor2D::GetComputedDisplayPosition(vtkViewport* viewport)
   return this->ComputedDisplayPosition;
 }
 
+float *vtkActor2D::GetComputedWorldPosition(vtkViewport* viewport)
+{
+  float* actorPos;
+  float  temp[2];
+  static float worldPos[3];
+
+  // Get the actor's position in viewport coordinates
+  switch (this->PositionType) 
+    {
+    case VTK_VIEW_COORD:
+	viewport->SetViewPoint(this->ViewPosition[0], this->ViewPosition[1], 0);
+	viewport->ViewToWorld();
+        actorPos = viewport->GetWorldPoint();
+	worldPos[0] = actorPos[0];
+	worldPos[1] = actorPos[1];
+	worldPos[2] = actorPos[2];
+      	break;
+    case VTK_DISPLAY_COORD:
+        viewport->SetDisplayPoint(this->DisplayPosition[0], this->DisplayPosition[1], 0);
+	viewport->DisplayToWorld();
+        actorPos = viewport->GetWorldPoint();
+	worldPos[0] = actorPos[0];
+	worldPos[1] = actorPos[1];
+	worldPos[2] = actorPos[2];
+	break;
+    case VTK_WORLD_COORD:
+        worldPos[0] = this->WorldPosition[0];
+	worldPos[1] = this->WorldPosition[1];
+	worldPos[2] = this->WorldPosition[2];
+	break;
+    default:
+	vtkErrorMacro(<< "Unknown position type: " << this->PositionType);
+	break;
+    }
+
+  return worldPos;    
+
+}
+
 // Description:
 // Renders an actor2D's property and then it's mapper.
 void vtkActor2D::Render (vtkViewport* viewport)
