@@ -384,6 +384,10 @@ protected:
   virtual int LastRenderInFrontBuffer();
 
   // Description:
+  // Select buffer to read from / render into.
+  virtual int ChooseBuffer();
+  
+  // Description:
   // Sets the current render window's pixel data.
   virtual void SetRenderWindowPixelData(vtkUnsignedCharArray *pixels,
           const int pixelDimensions[2]);

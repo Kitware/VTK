@@ -70,7 +70,7 @@ const int vtkParallelRenderManager::REN_INFO_DOUBLE_SIZE =
 const int vtkParallelRenderManager::LIGHT_INFO_DOUBLE_SIZE =
   sizeof(vtkParallelRenderManager::LightInfoDouble)/sizeof(double);
 
-vtkCxxRevisionMacro(vtkParallelRenderManager, "1.13");
+vtkCxxRevisionMacro(vtkParallelRenderManager, "1.14");
 
 vtkParallelRenderManager::vtkParallelRenderManager()
 {
@@ -1065,6 +1065,16 @@ int vtkParallelRenderManager::LastRenderInFrontBuffer()
   return this->RenderWindow->GetSwapBuffers();
 }
 
+int vtkParallelRenderManager::ChooseBuffer()
+{
+  int myId = this->Controller->GetLocalProcessId();
+  if (myId == 0)
+    {
+    return 0;
+    }
+  return 1;
+}
+
 static void MagnifyImageNearest(vtkUnsignedCharArray *fullImage,
                                 int fullImageSize[2],
                                 vtkUnsignedCharArray *reducedImage,
@@ -1271,7 +1281,7 @@ void vtkParallelRenderManager::SetRenderWindowPixelData(
                                              pixelDimensions[0]-1,
                                              pixelDimensions[1]-1,
                                              pixels,
-                                             this->LastRenderInFrontBuffer());
+                                             this->ChooseBuffer());
     }
   else
     {
@@ -1279,7 +1289,7 @@ void vtkParallelRenderManager::SetRenderWindowPixelData(
                                      pixelDimensions[0]-1,
                                      pixelDimensions[1]-1,
                                      pixels,
-                                     this->LastRenderInFrontBuffer());
+                                     this->ChooseBuffer());
     }
 }
 
@@ -1296,14 +1306,14 @@ void vtkParallelRenderManager::ReadReducedImage()
     {
     this->RenderWindow->GetRGBACharPixelData(0, 0, this->ReducedImageSize[0]-1,
                                              this->ReducedImageSize[1]-1,
-                                             this->LastRenderInFrontBuffer(),
+                                             this->ChooseBuffer(),
                                              this->ReducedImage);
     }
   else
     {
     this->RenderWindow->GetRGBACharPixelData(0, 0, this->FullImageSize[0]-1,
                                              this->FullImageSize[1]-1,
-                                             this->LastRenderInFrontBuffer(),
+                                             this->ChooseBuffer(),
                                              this->FullImage);
     this->FullImageUpToDate = 1;
     this->ReducedImage
