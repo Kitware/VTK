@@ -128,6 +128,18 @@ void vtkDataSet::ComputeBounds()
     }
 }
 
+float *vtkDataSet::GetScalarRange()
+{
+  vtkScalars *tmp;
+  static float res[2] = {0.0,1.0};
+  
+  tmp = this->PointData.GetScalars();
+  
+  if (tmp) return tmp->GetRange();
+  
+  return res;
+}
+
 // Description:
 // Return a pointer to the geometry bounding box in the form
 // (xmin,xmax, ymin,ymax, zmin,zmax).
