@@ -257,8 +257,8 @@ void vtkWin32OpenGLImageWindow::Frame()
 
 
 void vtkWin32OpenGLImageWindow::SetupPixelFormat(HDC hDC, DWORD dwFlags, 
-                                                  int debug, int bpp, 
-                                                  int zbpp)
+                                                  int, int bpp, 
+                                                  int)
 {
   PIXELFORMATDESCRIPTOR pfd = {
     sizeof(PIXELFORMATDESCRIPTOR),  /* size */
@@ -307,7 +307,7 @@ void vtkWin32OpenGLImageWindow::SetupPixelFormat(HDC hDC, DWORD dwFlags,
     DescribePixelFormat(hDC, pixelFormat,sizeof(pfd), &pfd); 
     if (SetPixelFormat(hDC, pixelFormat, &pfd) != TRUE) 
       {
-      int err = GetLastError();
+      // int err = GetLastError();
       MessageBox(WindowFromDC(hDC), "SetPixelFormat failed.", "Error",
                  MB_ICONERROR | MB_OK);
       exit(1);
@@ -755,8 +755,6 @@ void vtkWin32OpenGLImageWindow::SetupMemoryRendering(int xsize, int ysize,
   
   // Create a compatible device context
   this->MemoryHdc = (HDC)CreateCompatibleDC(aHdc);
-  int cxPage = GetDeviceCaps(aHdc,LOGPIXELSX);
-  int mxPage = GetDeviceCaps(this->MemoryHdc,LOGPIXELSX);
   
   // Put the bitmap into the device context
   SelectObject(this->MemoryHdc, this->MemoryBuffer);
@@ -848,8 +846,6 @@ float *vtkWin32OpenGLImageWindow::GetRGBAPixelData(int x1, int y1, int x2, int y
 
   float   *data = NULL;
 
-  float   *p_data = NULL;
-
   // set the current window 
   this->MakeCurrent();
 
@@ -906,7 +902,6 @@ void vtkWin32OpenGLImageWindow::SetRGBAPixelData(int x1, int y1,
   int     y_low, y_hi;
   int     x_low, x_hi;
   int     width, height;
-  float   *p_data = NULL;
 
   // set the current window 
   this->MakeCurrent();

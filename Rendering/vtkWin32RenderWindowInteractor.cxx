@@ -146,11 +146,9 @@ void  vtkWin32RenderWindowInteractor::Start()
 // Begin processing keyboard strokes.
 void vtkWin32RenderWindowInteractor::Initialize() 
 {
-  static int any_initialized = 0;
   vtkWin32OpenGLRenderWindow *ren;
   int *size;
-  int *position;
-  int argc = 0;
+
   // make sure we have a RenderWindow and camera
   if ( ! this->RenderWindow) 
     {
@@ -166,7 +164,7 @@ void vtkWin32RenderWindowInteractor::Initialize()
   ren = (vtkWin32OpenGLRenderWindow *)(this->RenderWindow);
   ren->Start();
   size    = ren->GetSize();
-  position= ren->GetPosition();
+  ren->GetPosition();
   this->WindowId = ren->GetWindowId();
   this->Enable();
   this->Size[0] = size[0];
@@ -330,7 +328,7 @@ static char *VKeyCodeToKeySymTable[] = {
 //-------------------------------------------------------------
 // Event loop handlers
 //-------------------------------------------------------------
-void vtkWin32RenderWindowInteractor::OnMouseMove(HWND wnd, UINT nFlags, 
+void vtkWin32RenderWindowInteractor::OnMouseMove(HWND, UINT nFlags, 
                                                  int X, int Y) 
 {
   if (!this->Enabled) 
@@ -359,7 +357,7 @@ void vtkWin32RenderWindowInteractor::OnMouseMove(HWND wnd, UINT nFlags,
 
 }
 
-void vtkWin32RenderWindowInteractor::OnNCMouseMove(HWND wnd, UINT nFlags, 
+void vtkWin32RenderWindowInteractor::OnNCMouseMove(HWND, UINT nFlags, 
                                                    int X, int Y) 
 {
   if (!this->Enabled) 
@@ -377,7 +375,7 @@ void vtkWin32RenderWindowInteractor::OnNCMouseMove(HWND wnd, UINT nFlags,
     }
 }
 
-void vtkWin32RenderWindowInteractor::OnLButtonDown(HWND wnd,UINT nFlags, 
+void vtkWin32RenderWindowInteractor::OnLButtonDown(HWND,UINT nFlags, 
                                                    int X, int Y) 
 {
   if (!this->Enabled) 
@@ -390,7 +388,7 @@ void vtkWin32RenderWindowInteractor::OnLButtonDown(HWND wnd,UINT nFlags,
                                           X, this->Size[1] - Y - 1);
 }
 
-void vtkWin32RenderWindowInteractor::OnLButtonUp(HWND wnd,UINT nFlags, 
+void vtkWin32RenderWindowInteractor::OnLButtonUp(HWND,UINT nFlags, 
                                                  int X, int Y) 
 {
   if (!this->Enabled) 
@@ -403,7 +401,7 @@ void vtkWin32RenderWindowInteractor::OnLButtonUp(HWND wnd,UINT nFlags,
   ReleaseCapture( );
 }
 
-void vtkWin32RenderWindowInteractor::OnMButtonDown(HWND wnd,UINT nFlags, 
+void vtkWin32RenderWindowInteractor::OnMButtonDown(HWND,UINT nFlags, 
                                                    int X, int Y) 
 {
   if (!this->Enabled) 
@@ -416,7 +414,7 @@ void vtkWin32RenderWindowInteractor::OnMButtonDown(HWND wnd,UINT nFlags,
                                             X, this->Size[1] - Y - 1);
 }
 
-void vtkWin32RenderWindowInteractor::OnMButtonUp(HWND wnd,UINT nFlags, 
+void vtkWin32RenderWindowInteractor::OnMButtonUp(HWND,UINT nFlags, 
                                                  int X, int Y) 
 {
   if (!this->Enabled) 
@@ -429,7 +427,7 @@ void vtkWin32RenderWindowInteractor::OnMButtonUp(HWND wnd,UINT nFlags,
   ReleaseCapture( );
 }
 
-void vtkWin32RenderWindowInteractor::OnRButtonDown(HWND wnd,UINT nFlags, 
+void vtkWin32RenderWindowInteractor::OnRButtonDown(HWND,UINT nFlags, 
                                                    int X, int Y) 
 {
   if (!this->Enabled) 
@@ -442,7 +440,7 @@ void vtkWin32RenderWindowInteractor::OnRButtonDown(HWND wnd,UINT nFlags,
                                            X, this->Size[1] - Y - 1);
 }
 
-void vtkWin32RenderWindowInteractor::OnRButtonUp(HWND wnd,UINT nFlags, 
+void vtkWin32RenderWindowInteractor::OnRButtonUp(HWND,UINT nFlags, 
                                                  int X, int Y) 
 {
   if (!this->Enabled) 
@@ -455,7 +453,7 @@ void vtkWin32RenderWindowInteractor::OnRButtonUp(HWND wnd,UINT nFlags,
   ReleaseCapture( );
 }
 
-void vtkWin32RenderWindowInteractor::OnSize(HWND wnd,UINT nType, int X, int Y) {
+void vtkWin32RenderWindowInteractor::OnSize(HWND,UINT, int X, int Y) {
   this->UpdateSize(X,Y);
   if (this->Enabled)
     {
@@ -463,7 +461,7 @@ void vtkWin32RenderWindowInteractor::OnSize(HWND wnd,UINT nType, int X, int Y) {
     }
 }
 
-void vtkWin32RenderWindowInteractor::OnTimer(HWND wnd,UINT nIDEvent) 
+void vtkWin32RenderWindowInteractor::OnTimer(HWND,UINT) 
 {
   if (!this->Enabled) 
     {
@@ -472,7 +470,7 @@ void vtkWin32RenderWindowInteractor::OnTimer(HWND wnd,UINT nIDEvent)
   this->InteractorStyle->OnTimer();
 }
 
-void vtkWin32RenderWindowInteractor::OnKeyDown(HWND wnd, UINT vCode, UINT nRepCnt, UINT nFlags)
+void vtkWin32RenderWindowInteractor::OnKeyDown(HWND, UINT vCode, UINT nRepCnt, UINT nFlags)
 {
   if (!this->Enabled)
     {
@@ -503,7 +501,7 @@ void vtkWin32RenderWindowInteractor::OnKeyDown(HWND wnd, UINT vCode, UINT nRepCn
                                     keysym, nRepCnt);
 }
 
-void vtkWin32RenderWindowInteractor::OnKeyUp(HWND wnd, UINT vCode, UINT nRepCnt, UINT nFlags)
+void vtkWin32RenderWindowInteractor::OnKeyUp(HWND, UINT vCode, UINT nRepCnt, UINT nFlags)
 {
   if (!this->Enabled)
     {
@@ -534,8 +532,8 @@ void vtkWin32RenderWindowInteractor::OnKeyUp(HWND wnd, UINT vCode, UINT nRepCnt,
                                       keysym, nRepCnt);
 }
 
-void vtkWin32RenderWindowInteractor::OnChar(HWND wnd,UINT nChar,
-                                            UINT nRepCnt, UINT nFlags)
+void vtkWin32RenderWindowInteractor::OnChar(HWND,UINT nChar,
+                                            UINT nRepCnt, UINT)
 {
   if (!this->Enabled)
     {

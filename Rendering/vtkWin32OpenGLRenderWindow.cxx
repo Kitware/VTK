@@ -356,7 +356,7 @@ void vtkWin32OpenGLRenderWindow::SetupPixelFormat(HDC hDC, DWORD dwFlags,
     DescribePixelFormat(hDC, pixelFormat,sizeof(pfd), &pfd); 
     if (SetPixelFormat(hDC, pixelFormat, &pfd) != TRUE) 
       {
-      int err = GetLastError();
+      // int err = GetLastError();
       MessageBox(WindowFromDC(hDC), "SetPixelFormat failed.", "Error",
                  MB_ICONERROR | MB_OK);
       exit(1);
@@ -961,8 +961,6 @@ void vtkWin32OpenGLRenderWindow::CreateOffScreenDC(HBITMAP hbmp, HDC aHdc)
   
   // Create a compatible device context
   this->MemoryHdc = (HDC)CreateCompatibleDC(aHdc);
-  int cxPage = GetDeviceCaps(aHdc,LOGPIXELSX);
-  int mxPage = GetDeviceCaps(this->MemoryHdc,LOGPIXELSX);
   
   // Put the bitmap into the device context
   SelectObject(this->MemoryHdc, this->MemoryBuffer);

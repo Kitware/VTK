@@ -94,7 +94,8 @@ public:
   // Description:
   // Set the size of the window.
   virtual void SetSize(int,int);
-
+  virtual void SetSize(int a[2]) {vtkOpenGLRenderWindow::SetSize(a);};
+  
   // Description:
   // Get the current size of the window.
   virtual int *GetSize();
@@ -102,6 +103,7 @@ public:
   // Description:
   // Set the position of the window.
   virtual void SetPosition(int,int);
+  virtual void SetPosition(int a[2]) {vtkOpenGLRenderWindow::SetPosition(a);};
   
   // Description:
   // Return the screen size.

@@ -81,18 +81,22 @@ public:
   // Description:
   // Set the size of the window.
   virtual void SetSize(int,int);
+  virtual void SetSize(int a[2]) {this->vtkImageWindow::SetSize(a);};
 
   // Description:
   // Get the current size of the window.
   virtual int *GetSize();
+  virtual void GetSize(int *x, int *y) { this->vtkImageWindow::GetSize(x,y);};
 
   // Description:
   // Set the position of the window.
   virtual void SetPosition(int,int);
+  virtual void SetPosition(int a[2]) {this->vtkImageWindow::SetPosition(a);};
   
   // Description:
   // Get the position in screen coordinates of the window.
   virtual int *GetPosition();
+  virtual void GetPosition(int *x, int *y) { this->vtkImageWindow::GetPosition(x,y);};
 
   // Description:
   // Set the name of the window. This appears at the top of the window

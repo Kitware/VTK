@@ -288,7 +288,7 @@ float vtkVolumeRayCastMapper::GetGradientMagnitudeBias()
   return this->GradientEstimator->GetGradientMagnitudeBias();  
 }
 
-void vtkVolumeRayCastMapper::ReleaseGraphicsResources(vtkWindow *renWin)
+void vtkVolumeRayCastMapper::ReleaseGraphicsResources(vtkWindow *)
 {
 }
 
