@@ -110,7 +110,16 @@ void vtkExtractVOI::Execute()
   output->SetDimensions(outDims);
   output->SetAspectRatio(outAR);
   output->SetOrigin(outOrigin);
-
+//
+// If output same as input, just pass data through
+//
+  if ( outDims[0] == dims[0] && outDims[1] == dims[1] && outDims[2] == dims[2] &&
+  rate[0] == 1 && rate[1] == 1 && rate[2] == 1 )
+    {
+    output->GetPointData()->PassData(input->GetPointData());
+    vtkDebugMacro(<<"Passed data through bacause input and output are the same");
+    return;
+    }
 //
 // Allocate necessary objects
 //

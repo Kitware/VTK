@@ -103,13 +103,22 @@ void vtkExtractGrid::Execute()
     }
 
   output->SetDimensions(outDims);
-
+//
+// If output same as input, just pass data through
+//
+  if ( outDims[0] == dims[0] && outDims[1] == dims[1] && outDims[2] == dims[2] &&
+  rate[0] == 1 && rate[1] == 1 && rate[2] == 1 )
+    {
+    output->SetPoints(inPts);
+    output->GetPointData()->PassData(input->GetPointData());
+    vtkDebugMacro(<<"Passed data through bacause input and output are the same");
+    return;
+    }
 //
 // Allocate necessary objects
 //
   newPts = (vtkPoints *) inPts->MakeObject(outSize);
   outPD->CopyAllocate(pd,outSize,outSize);
-
 //
 // Traverse input data and copy point attributes to output
 //
@@ -133,6 +142,9 @@ void vtkExtractGrid::Execute()
   vtkDebugMacro(<<"Extracted " << newIdx << " point attributes on "
                 << dim << "-D dataset\n\tDimensions are (" << outDims[0]
                 << "," << outDims[1] << "," << outDims[2] <<")");
+
+  output->SetPoints(newPts);
+  newPts->Delete();
 }
 
 
