@@ -56,6 +56,7 @@ vtkRIBExporter::vtkRIBExporter()
   this->FilePtr = NULL;
   this->TexturePrefix = NULL;
   this->Size[0] = this->Size[1] = -1;
+  this->PixelSamples[0] = this->PixelSamples[1] = 2;
   this->Background = 0;
 }
 
@@ -208,6 +209,10 @@ void vtkRIBExporter::WriteHeader (vtkRenderer *aRen)
     fprintf (this->FilePtr, "Imager \"background\" \"bgcolor\" [%f %f %f]\n",
   	color[0], color[1], color[2]);
   }
+  fprintf (this->FilePtr, "PixelSamples %d %d\n",
+		this->PixelSamples[0],
+		this->PixelSamples[1]);
+	
   delete imageFilename;
 
 }
@@ -856,6 +861,8 @@ void vtkRIBExporter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "FilePrefix: " << this->FilePrefix << "\n";
   os << indent << "TexturePrefix: " << this->TexturePrefix << "\n";
   os << indent << "Background: " << (this->Background ? "On\n" : "Off\n");
+  os << indent << "Size: " << this->Size[0] << " " << this->Size[1] << "\n";
+  os << indent << "PixelSamples: " << this->PixelSamples[0] << " " << this->PixelSamples[1] << "\n";
 }
 
 void vtkRIBExporter::WriteTexture (vtkTexture *aTexture)

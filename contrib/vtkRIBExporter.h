@@ -93,6 +93,11 @@ public:
   vtkSetVector2Macro(Size,int);
   vtkGetVectorMacro(Size,int,2);
 
+  // Description
+  // Specify the sampling rate for the rendering. Default is 2 2.
+  vtkSetVector2Macro(PixelSamples,int);
+  vtkGetVectorMacro(PixelSamples,int,2);
+
   // Description:
   // Specify the prefix of the files to write out. The resulting filenames
   // will have .RIB appended to them.
@@ -127,6 +132,7 @@ public:
 protected:
   int Background;
   int Size[2];
+  int PixelSamples[2];
   // Description:
   // Write the RIB header.
   void WriteHeader (vtkRenderer *aRen);
