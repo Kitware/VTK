@@ -185,6 +185,23 @@ public:
   virtual void DeepCopy(vtkDataArray *da);
 
   // Description:
+  // Fill a component of a data array with a specified value. This method
+  // sets the specified component to specified value for all tuples in the
+  // data array.  This methods can be used to initialize or reinitialize a
+  // single component of a multi-component array.
+  virtual void FillComponent(const int j, const float c);
+
+  // Description:
+  // Copy a component from one data array into a component on this data array.
+  // This method copies the specified component ("fromComponent") from the
+  // specified data array ("from") to the specified component ("j") over all
+  // the tuples in this data array.  This method can be used to extract
+  // a component (column) from one data array and paste that data into
+  // a component on this data array.
+  virtual void CopyComponent(const int j, vtkDataArray *from,
+                             const int fromComponent);
+
+  // Description:
   // Return a void pointer. For image pipeline interface and other 
   // special pointer manipulation.
   virtual void *GetVoidPointer(const vtkIdType id) = 0;
