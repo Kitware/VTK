@@ -56,6 +56,7 @@ vtkFileOutputWindow
 vtkFloatArray 
 vtkGeneralTransform 
 vtkGenericCell 
+vtkHeap
 vtkHexahedron 
 vtkIdentityTransform 
 vtkIdList 
