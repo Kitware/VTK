@@ -51,6 +51,10 @@ vtkSphereSource::vtkSphereSource(int res)
 {
   res = res < 4 ? 4 : res;
   this->Radius = 0.5;
+  this->Center[0] = 0.0;
+  this->Center[1] = 0.0;
+  this->Center[2] = 0.0;
+
   this->ThetaResolution = res;
   this->PhiResolution = res;
 }
@@ -63,7 +67,7 @@ void vtkSphereSource::Execute()
   vtkFloatPoints *newPoints; 
   vtkFloatNormals *newNormals;
   vtkCellArray *newPolys;
-  float x[3], deltaPhi, deltaTheta, phi, theta, radius, norm;
+  float x[3], n[3], deltaPhi, deltaTheta, phi, theta, radius, norm;
   int pts[3], base;
   vtkPolyData *output=(vtkPolyData *)this->Output;
 //
@@ -82,15 +86,21 @@ void vtkSphereSource::Execute()
 // Create sphere
 //
   // Create north pole
-  x[0] = x[1] = 0.0; x[2] = this->Radius;
+  x[0] = this->Center[0];
+  x[1] = this->Center[1];
+  x[2] = this->Center[2] + this->Radius;
   newPoints->InsertPoint(0,x);
-  x[2] = 1.0;
+
+  x[0] = x[1] = 0.0; x[2] = 1.0;
   newNormals->InsertNormal(0,x);
 
   // Create south pole
-  x[0] = x[1] = 0.0; x[2] = -(this->Radius);
+  x[0] = this->Center[0];
+  x[1] = this->Center[1];
+  x[2] = this->Center[2] - this->Radius;
   newPoints->InsertPoint(1,x);
-  x[2] = -1.0;
+ 
+  x[0] = x[1] = 0.0; x[2] = -1.0;
   newNormals->InsertNormal(1,x);
 
   // Create intermediate points
@@ -103,14 +113,17 @@ void vtkSphereSource::Execute()
       {
       phi = j * deltaPhi;
       radius = this->Radius * sin((double)phi);
-      x[0] = radius * cos((double)theta);
-      x[1] = radius * sin((double)theta);
-      x[2] = this->Radius * cos((double)phi);
+      n[0] = radius * cos((double)theta);
+      n[1] = radius * sin((double)theta);
+      n[2] = this->Radius * cos((double)phi);
+      x[0] = n[0] + this->Center[0];
+      x[1] = n[1] + this->Center[1];
+      x[2] = n[2] + this->Center[2];
       newPoints->InsertNextPoint(x);
 
-      if ( (norm = vtkMath::Norm(x)) == 0.0 ) norm = 1.0;
-      x[0] /= norm; x[1] /= norm; x[2] /= norm; 
-      newNormals->InsertNextNormal(x);
+      if ( (norm = vtkMath::Norm(n)) == 0.0 ) norm = 1.0;
+      n[0] /= norm; n[1] /= norm; n[2] /= norm; 
+      newNormals->InsertNextNormal(n);
       }
     }
 //
@@ -167,4 +180,6 @@ void vtkSphereSource::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Theta Resolution: " << this->ThetaResolution << "\n";
   os << indent << "Phi Resolution: " << this->PhiResolution << "\n";
   os << indent << "Radius: " << this->Radius << "\n";
+  os << indent << "Center: (" << this->Center[0] << ", " 
+     << this->Center[1] << ", " << this->Center[2] << ")\n";
 }

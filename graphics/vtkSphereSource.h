@@ -61,9 +61,14 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Set radius of sphere.
+  // Set radius of sphere. Default is .5.
   vtkSetClampMacro(Radius,float,0.0,VTK_LARGE_FLOAT);
   vtkGetMacro(Radius,float);
+
+  // Description:
+  // Set the center of the sphere. Default is 0,0,0.
+  vtkSetVector3Macro(Center,float);
+  vtkGetVectorMacro(Center,float,3);
 
   // Description:
   // Set the number of points in the longitude direction.
@@ -88,6 +93,7 @@ public:
 protected:
   void Execute();
   float Radius;
+  float Center[3];
   float Theta;
   float Phi;
   int ThetaResolution;
