@@ -94,6 +94,8 @@ public:
   char *GetParameters ();
   
 protected:
+  void Render(vtkActor *a, vtkRenderer *ren);
+  vtkProperty *Property;
   char *SurfaceShader;
   char *DisplacementShader;
   char *Declarations;

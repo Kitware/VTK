@@ -47,6 +47,8 @@ vtkRIBProperty::vtkRIBProperty ()
   this->SurfaceShader = new char[strlen("plastic") + 1];
   strcpy (this->SurfaceShader, "plastic");
   this->DisplacementShader = NULL;
+  // create a vtkProperty that can be rendered
+  this->Property = vtkProperty::New ();;
 }
 
 vtkRIBProperty::~vtkRIBProperty()
@@ -54,6 +56,16 @@ vtkRIBProperty::~vtkRIBProperty()
   if (this->SurfaceShader) delete [] this->SurfaceShader;
   if (this->DisplacementShader) delete [] this->DisplacementShader;
   if (this->Declarations) delete [] this->Declarations;
+  if (this->Property) delete [] this->Property;
+}
+
+void vtkRIBProperty::Render(vtkActor *anActor, vtkRenderer *ren)
+{
+  // Copy this property's ivars into the property to be rendered
+  *this->Property = *((vtkProperty *) this);
+
+  // Render the property
+  this->Property->Render (anActor, ren);
 }
 
 void vtkRIBProperty::SetVariable (char *variable, char *value)
@@ -162,7 +174,7 @@ void vtkRIBProperty::PrintSelf(ostream& os, vtkIndent indent)
     }
   if (this->Declarations)
     {
-    os << indent << "Declarations: " << this->Declarations << "\n";
+    os << indent << "Declarations: " << this->Declarations;
     }
   else
     {
@@ -170,7 +182,7 @@ void vtkRIBProperty::PrintSelf(ostream& os, vtkIndent indent)
     }
   if (this->Parameters)
     {
-    os << indent << "Parameters: " << this->Parameters << "\n";
+    os << indent << "Parameters: " << this->Parameters;
     }
   else
     {
