@@ -36,7 +36,7 @@
 #include "vtkByteSwap.h"
 #include "vtkCellArray.h"
 
-vtkCxxRevisionMacro(vtkAVSucdReader, "1.13");
+vtkCxxRevisionMacro(vtkAVSucdReader, "1.14");
 vtkStandardNewMacro(vtkAVSucdReader);
 
 vtkAVSucdReader::vtkAVSucdReader()
@@ -719,7 +719,7 @@ void vtkAVSucdReader::ReadNodeData()
           }
         else
           {
-          float *ptr = new float[this->NodeDataInfo[i].veclen];
+          ptr = new float[this->NodeDataInfo[i].veclen];
           for(n=0; n < this->NumberOfNodes; n++)
             {
             this->ReadFloatBlock(this->NodeDataInfo[i].veclen, ptr);
@@ -828,7 +828,7 @@ void vtkAVSucdReader::ReadCellData()
           }
         else
           {
-          float *ptr = new float[this->NumberOfCells];
+          ptr = new float[this->NumberOfCells];
           for(j=0; j < this->CellDataInfo[i].veclen; j++)
             {
             this->fs->seekg(this->CellDataInfo[i].foffset + 
