@@ -27,7 +27,7 @@
 #include "vtkGenericCellIterator.h"
 #include "vtkGenericAdaptorCell.h"
 
-vtkCxxRevisionMacro(vtkGenericDataSetTessellator, "1.3");
+vtkCxxRevisionMacro(vtkGenericDataSetTessellator, "1.4");
 vtkStandardNewMacro(vtkGenericDataSetTessellator);
 
 //----------------------------------------------------------------------------
@@ -71,11 +71,11 @@ void vtkGenericDataSetTessellator::Execute()
   conn->Allocate(numCells);
 
   vtkGenericCellIterator *cellIt = input->NewCellIterator();
-  vtkIdType updateTime = numCells/20 + 1;  // update roughly every 5%
+  vtkIdType updateCount = numCells/20 + 1;  // update roughly every 5%
   vtkIdType count = 0;
   for(cellIt->Begin(); !cellIt->IsAtEnd() && !abortExecute; cellIt->Next(), count++)
     {
-    if ( !(count % updateTime) )
+    if ( !(count % updateCount) )
       {
       this->UpdateProgress((double)count / numCells);
       abortExecute = this->GetAbortExecute();
