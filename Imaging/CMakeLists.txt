@@ -146,11 +146,7 @@ TARGET_LINK_LIBRARIES (vtkImaging vtkFiltering)
 #
 IF (VTK_WRAP_TCL)
   VTK_WRAP_TCL(vtkImagingTCL ImagingTCL_SRCS ${Imaging_SRCS})
-  IF (APPLE)
-    ADD_LIBRARY(vtkImagingTCL SHARED vtkOSXImagingTclInit.c ${ImagingTCL_SRCS})
-  ELSE (APPLE)
-    ADD_LIBRARY(vtkImagingTCL ${ImagingTCL_SRCS})
-  ENDIF (APPLE)
+  ADD_LIBRARY(vtkImagingTCL ${ImagingTCL_SRCS})
   TARGET_LINK_LIBRARIES (vtkImagingTCL
                          vtkFilteringTCL
                          vtkImaging
