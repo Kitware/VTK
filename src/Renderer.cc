@@ -50,7 +50,6 @@ vlRenderer::vlRenderer()
 
   this->BackLight = 1;
   this->Erase = 1;
-  this->StereoRender = 0;
 
   this->Aspect[0] = this->Aspect[1] = 1.0;
 }
@@ -354,8 +353,6 @@ void vlRenderer::PrintSelf(ostream& os, vlIndent indent)
     os << indent << "Erase: " << (this->Erase ? "On\n" : "Off\n");
     os << indent << "Lights:\n";
     this->Lights.PrintSelf(os,indent.GetNextIndent());
-    os << indent << "Stereo Render: " 
-      << (this->StereoRender ? "On\n":"Off\n");
 
     os << indent << "ViewPoint: (" << this->ViewPoint[0] << ", " 
       << this->ViewPoint[1] << ", " << this->ViewPoint[2] << ")\n";

@@ -82,8 +82,6 @@ public:
   vlGetMacro(Erase,int);
   vlBooleanMacro(Erase,int);
 
-  vlGetMacro(StereoRender,int);
-
   // Description:
   // Create an image.
   virtual void Render() = 0;
@@ -156,7 +154,6 @@ protected:
   float Viewport[4];
   int   Erase;
   float Aspect[2];
-  int StereoRender;
 };
 
 // Description:
