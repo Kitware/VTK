@@ -24,7 +24,7 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 
-vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.17");
+vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.18");
 vtkStandardNewMacro(vtkStreamingDemandDrivenPipeline);
 
 //----------------------------------------------------------------------------
@@ -89,6 +89,29 @@ int vtkStreamingDemandDrivenPipeline::Update(vtkAlgorithm* algorithm)
   return this->Superclass::Update(algorithm);
 }
 
+int vtkStreamingDemandDrivenPipeline::UpdateWholeExtent(
+  vtkAlgorithm* algorithm)
+{
+  return this->Update(algorithm);
+
+#if 0
+  if(algorithm != this->GetAlgorithm())
+    {
+    vtkErrorMacro("Request to update algorithm not managed by this "
+                  "executive: " << algorithm);
+    return 0;
+    }
+
+  // update the info
+  if(!this->UpdateInformation())
+    {
+    return 0;
+    }
+  
+  // set the output UpdateExtent to the WholeExtent
+#endif
+}
+
 //----------------------------------------------------------------------------
 int vtkStreamingDemandDrivenPipeline::Update(vtkAlgorithm* algorithm, int port)
 {
@@ -98,9 +121,6 @@ int vtkStreamingDemandDrivenPipeline::Update(vtkAlgorithm* algorithm, int port)
 //----------------------------------------------------------------------------
 int vtkStreamingDemandDrivenPipeline::ExecuteInformation()
 {
-  // Setup default information for the outputs.
-  this->CopyDefaultInformation();
-
   // Let the superclass make the request to the algorithm.
   if(this->Superclass::ExecuteInformation())
     {
@@ -126,60 +146,32 @@ int vtkStreamingDemandDrivenPipeline::ExecuteInformation()
     }
 }
 
+void vtkStreamingDemandDrivenPipeline::
+FillDownstreamKeysToCopy(vtkInformation *info)
+{
+  this->Superclass::FillDownstreamKeysToCopy(info);
+  info->Append(vtkDemandDrivenPipeline::DOWNSTREAM_KEYS_TO_COPY(),
+               WHOLE_EXTENT());
+  info->Append(vtkDemandDrivenPipeline::DOWNSTREAM_KEYS_TO_COPY(),
+               MAXIMUM_NUMBER_OF_PIECES());
+}
+
 //----------------------------------------------------------------------------
 void vtkStreamingDemandDrivenPipeline::CopyDefaultInformation()
-{
-  // Disabling implementation until proper implementation is designed.
-#if 0
-  // Setup default information for the outputs.
-  if(this->Algorithm->GetNumberOfInputPorts() > 0)
+{ 
+  this->Superclass::CopyDefaultInformation();
+  
+  // Setup default information.
+  for(int i=0; i < this->Algorithm->GetNumberOfOutputPorts(); ++i)
     {
-    // Copy information from the first input.
-    vtkInformation* inInfo = this->GetInputInformation(0);
-    for(int i=0; i < this->Algorithm->GetNumberOfOutputPorts(); ++i)
+    vtkInformation* outPort = this->Algorithm->GetOutputPortInformation(i);
+    if(outPort->Has(vtkDataObject::DATA_EXTENT_TYPE()))
       {
-      vtkInformation* outPort = this->Algorithm->GetOutputPortInformation(i);
-      if(outPort->Has(vtkDataObject::DATA_EXTENT_TYPE()))
+      vtkInformation* outInfo = this->GetOutputInformation(i);
+      if(outPort->Get(vtkDataObject::DATA_EXTENT_TYPE()) ==
+         VTK_PIECES_EXTENT)
         {
-        vtkInformation* outInfo = this->GetOutputInformation(i);
-        if(outPort->Get(vtkDataObject::DATA_EXTENT_TYPE()) == VTK_3D_EXTENT)
-          {
-          if(inInfo->Has(WHOLE_EXTENT()))
-            {
-            int wholeExtent[6];
-            inInfo->Get(WHOLE_EXTENT(), wholeExtent);
-            outInfo->Set(WHOLE_EXTENT(), wholeExtent, 6);
-            }
-          }
-        else if(outPort->Get(vtkDataObject::DATA_EXTENT_TYPE()) ==
-                VTK_PIECES_EXTENT)
-          {
-          if(inInfo->Has(MAXIMUM_NUMBER_OF_PIECES()))
-            {
-            outInfo->Set(MAXIMUM_NUMBER_OF_PIECES(),
-                         inInfo->Get(MAXIMUM_NUMBER_OF_PIECES()));
-            }
-          else
-            {
-            // Since most unstructured filters in VTK generate all their
-            // data once, set the default maximum number of pieces to 1.
-            outInfo->Set(MAXIMUM_NUMBER_OF_PIECES(), 1);
-            }
-          }
-        }
-      }
-    }
-  else
-    {
-    // Setup default information.
-    for(int i=0; i < this->Algorithm->GetNumberOfOutputPorts(); ++i)
-      {
-      vtkInformation* outPort = this->Algorithm->GetOutputPortInformation(i);
-      if(outPort->Has(vtkDataObject::DATA_EXTENT_TYPE()))
-        {
-        vtkInformation* outInfo = this->GetOutputInformation(i);
-        if(outPort->Get(vtkDataObject::DATA_EXTENT_TYPE()) ==
-           VTK_PIECES_EXTENT)
+        if (!outInfo->Has(MAXIMUM_NUMBER_OF_PIECES()))
           {
           // Since most unstructured filters in VTK generate all their
           // data once, set the default maximum number of pieces to 1.
@@ -188,7 +180,6 @@ void vtkStreamingDemandDrivenPipeline::CopyDefaultInformation()
         }
       }
     }
-#endif
 }
 
 //----------------------------------------------------------------------------
@@ -227,7 +218,7 @@ int vtkStreamingDemandDrivenPipeline::PropagateUpdateExtent(int outputPort)
     {
     return 0;
     }
-
+  
   // If we need to update data, propagate the update extent.
   int result = 1;
   if(this->NeedToExecuteData(outputPort))
@@ -269,6 +260,7 @@ int vtkStreamingDemandDrivenPipeline::PropagateUpdateExtent(int outputPort)
         }
       }
     }
+
   return result;
 }
 
@@ -299,9 +291,15 @@ int vtkStreamingDemandDrivenPipeline::VerifyOutputInformation(int outputPort)
                   "output port " << outputPort << ".");
     return 0;
     }
-  vtkInformation* dataInfo = dataObject->GetInformation();
 
+  // if it is dummy then return ok
+  if(dataObject->IsA("vtkProcessObjectDummyData"))
+    {
+    return 1;
+    }
+  
   // Check extents.
+  vtkInformation* dataInfo = dataObject->GetInformation();
   if(dataInfo->Get(vtkDataObject::DATA_EXTENT_TYPE()) == VTK_PIECES_EXTENT)
     {
     // For an unstructured extent, make sure the update request

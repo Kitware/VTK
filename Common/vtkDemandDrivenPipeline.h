@@ -28,6 +28,7 @@ class vtkFieldData;
 class vtkInformation;
 class vtkInformationIntegerKey;
 class vtkInformationVector;
+class vtkInformationKeyVectorKey;
 
 class VTK_COMMON_EXPORT vtkDemandDrivenPipeline : public vtkDistributedExecutive
 {
@@ -55,6 +56,7 @@ public:
   virtual vtkDataObject* GetOutputData(int port);
   virtual vtkDataObject* GetOutputData(vtkAlgorithm* algorithm, int port);
 
+  static vtkInformationKeyVectorKey* DOWNSTREAM_KEYS_TO_COPY();
   static vtkInformationIntegerKey* REQUEST_INFORMATION();
   static vtkInformationIntegerKey* REQUEST_DATA();
   static vtkInformationIntegerKey* FROM_OUTPUT_PORT();
@@ -68,6 +70,9 @@ protected:
   virtual int ExecuteInformation();
   virtual int ExecuteData(int outputPort);
 
+  // By default what keys should be copied from input to output
+  virtual void FillDownstreamKeysToCopy(vtkInformation *);
+
   vtkDemandDrivenPipeline* GetConnectedInputExecutive(int port, int index);
   vtkInformation* GetConnectedInputInformation(int port, int index);
 
@@ -79,6 +84,7 @@ protected:
   vtkDataObject* GetInputData(int port, int index);
   void PrepareDownstreamRequest(vtkInformationIntegerKey* rkey);
   void PrepareUpstreamRequest(vtkInformationIntegerKey* rkey);
+  virtual void CopyDefaultInformation();
 
   // Input connection validity checkers.
   int InputCountIsValid();
@@ -118,9 +124,10 @@ protected:
 
   int InProcessDownstreamRequest;
   int InProcessUpstreamRequest;
+
 private:
   vtkDemandDrivenPipelineInternals* DemandDrivenInternal;
-private:
+
   vtkDemandDrivenPipeline(const vtkDemandDrivenPipeline&);  // Not implemented.
   void operator=(const vtkDemandDrivenPipeline&);  // Not implemented.
 };

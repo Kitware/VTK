@@ -165,6 +165,10 @@ public:
   virtual void Update();
 
   // Description:
+  // Bring this algorithm's outputs up-to-date.
+  virtual void UpdateWholeExtent();
+
+  // Description:
   // Decrement the count of references to this object and participate
   // in garbage collection.
   virtual void UnRegister(vtkObjectBase* o);

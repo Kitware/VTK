@@ -23,6 +23,7 @@
 #include "vtkGarbageCollector.h"
 #include "vtkInformation.h"
 #include "vtkInformationIntegerKey.h"
+#include "vtkInformationKeyVectorKey.h"
 #include "vtkInformationVector.h"
 #include "vtkInstantiator.h"
 #include "vtkObjectFactory.h"
@@ -37,7 +38,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.11");
+vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.12");
 vtkStandardNewMacro(vtkDemandDrivenPipeline);
 
 //----------------------------------------------------------------------------
@@ -73,6 +74,14 @@ vtkDemandDrivenPipeline::~vtkDemandDrivenPipeline()
 void vtkDemandDrivenPipeline::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+}
+
+//----------------------------------------------------------------------------
+vtkInformationKeyVectorKey* vtkDemandDrivenPipeline::DOWNSTREAM_KEYS_TO_COPY()
+{
+  static vtkInformationKeyVectorKey instance("DOWNSTREAM_KEYS_TO_COPY",
+                                             "vtkDemandDrivenPipeline");
+  return &instance;
 }
 
 //----------------------------------------------------------------------------
@@ -172,6 +181,15 @@ vtkInformation* vtkDemandDrivenPipeline::GetInputInformation(int port)
   return this->GetInputInformation()->GetInformationObject(port);
 }
 
+void vtkDemandDrivenPipeline::FillDownstreamKeysToCopy(vtkInformation *info)
+{
+  info->Append(vtkDemandDrivenPipeline::DOWNSTREAM_KEYS_TO_COPY(),
+               vtkDataObject::SCALAR_TYPE());
+  info->Append(vtkDemandDrivenPipeline::DOWNSTREAM_KEYS_TO_COPY(),
+               vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS());
+}
+
+
 //----------------------------------------------------------------------------
 vtkInformationVector* vtkDemandDrivenPipeline::GetOutputInformation()
 {
@@ -180,8 +198,21 @@ vtkInformationVector* vtkDemandDrivenPipeline::GetOutputInformation()
     this->DemandDrivenInternal->OutputInformation =
       vtkSmartPointer<vtkInformationVector>::New();
     }
+  int numberOfInfoObjs = 
+    this->DemandDrivenInternal->OutputInformation
+    ->GetNumberOfInformationObjects();
   this->DemandDrivenInternal->OutputInformation
     ->SetNumberOfInformationObjects(this->Algorithm->GetNumberOfOutputPorts());
+
+  // then set the keys to always copy the default values for any new
+  // informaiton objects
+  for (int i = numberOfInfoObjs; 
+       i < this->Algorithm->GetNumberOfOutputPorts();++i)
+    {
+    this->FillDownstreamKeysToCopy(
+      this->DemandDrivenInternal->OutputInformation->GetInformationObject(i));
+    }
+  
   return this->DemandDrivenInternal->OutputInformation.GetPointer();
 }
 
@@ -330,25 +361,25 @@ int vtkDemandDrivenPipeline::UpdateData(int outputPort)
     return 0;
     }
 
-  // Make sure everything on which we might rely is up-to-date.
-  for(int i=0; i < this->Algorithm->GetNumberOfInputPorts(); ++i)
-    {
-    for(int j=0; j < this->Algorithm->GetNumberOfInputConnections(i); ++j)
-      {
-      if(vtkDemandDrivenPipeline* e = this->GetConnectedInputExecutive(i, j))
-        {
-        if(!e->UpdateData(this->Algorithm->GetInputConnection(i, j)->GetIndex()))
-          {
-          return 0;
-          }
-        }
-      }
-    }
-
   // Make sure our outputs are up-to-date.
   int result = 1;
   if(this->NeedToExecuteData(outputPort))
     {
+    // Make sure everything on which we might rely is up-to-date.
+    for(int i=0; i < this->Algorithm->GetNumberOfInputPorts(); ++i)
+      {
+      for(int j=0; j < this->Algorithm->GetNumberOfInputConnections(i); ++j)
+        {
+        if(vtkDemandDrivenPipeline* e = this->GetConnectedInputExecutive(i, j))
+          {
+          if(!e->UpdateData(this->Algorithm->GetInputConnection(i, j)->GetIndex()))
+            {
+            return 0;
+            }
+          }
+        }
+      }
+    
     // Make sure inputs are valid before algorithm does anything.
     if(!this->InputCountIsValid() || !this->InputTypeIsValid() ||
        !this->InputFieldsAreValid())
@@ -377,13 +408,41 @@ int vtkDemandDrivenPipeline::UpdateData(int outputPort)
 }
 
 //----------------------------------------------------------------------------
+void vtkDemandDrivenPipeline::CopyDefaultInformation()
+{ 
+  // Setup default information for the outputs.
+  if(this->Algorithm->GetNumberOfInputPorts() > 0)
+    {
+    // Copy information from the first input.
+    vtkInformation* inInfo = 
+      this->GetInputInformation(0)
+      ->Get(vtkAlgorithm::INPUT_CONNECTION_INFORMATION())
+      ->GetInformationObject(0);
+    if (inInfo)
+      {
+      for(int i=0; i < this->Algorithm->GetNumberOfOutputPorts(); ++i)
+        {
+        vtkInformation* outInfo = this->GetOutputInformation(i);
+        outInfo->CopyEntries(
+          inInfo, vtkDemandDrivenPipeline::DOWNSTREAM_KEYS_TO_COPY());
+        }
+      }
+    }
+}
+
+//----------------------------------------------------------------------------
 int vtkDemandDrivenPipeline::ExecuteInformation()
 {
   this->PrepareDownstreamRequest(REQUEST_INFORMATION());
+
+  // Setup default information for the outputs.
+  this->CopyDefaultInformation();
+
   this->InProcessDownstreamRequest = 1;
   int result = this->Algorithm->ProcessDownstreamRequest(
     this->GetRequestInformation(), this->GetInputInformation(),
     this->GetOutputInformation());
+  
   this->InProcessDownstreamRequest = 0;
   return result;
 }

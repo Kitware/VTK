@@ -38,6 +38,7 @@ public:
   virtual int Update();
   virtual int Update(int port);
   virtual int Update(vtkAlgorithm* algorithm);
+  virtual int UpdateWholeExtent(vtkAlgorithm* algorithm);
   virtual int Update(vtkAlgorithm* algorithm, int port);
 
   static vtkInformationIntegerKey* CONTINUE_EXECUTING();
@@ -60,6 +61,10 @@ protected:
   virtual void CopyDefaultInformation();
   int VerifyOutputInformation(int outputPort);
   virtual int NeedToExecuteData(int outputPort);
+
+  // By default what keys should be copied from input to output
+  virtual void FillDownstreamKeysToCopy(vtkInformation *);
+
 private:
   vtkStreamingDemandDrivenPipelineInternals* StreamingDemandDrivenInternal;
 private:
