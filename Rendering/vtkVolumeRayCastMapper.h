@@ -27,8 +27,8 @@
 #define __vtkVolumeRayCastMapper_h
 
 #include "vtkVolumeMapper.h"
-#include "vtkVolumeRayCastFunction.h" // For VTKVRCStaticInfo 
-                                      // and VTKVRCDynamicInfo
+#include "vtkVolumeRayCastFunction.h" // For vtkVolumeRayCastStaticInfo 
+                                      // and vtkVolumeRayCastDynamicInfo
 class vtkEncodedGradientEstimator;
 class vtkEncodedGradientShader;
 class vtkMatrix4x4;
@@ -267,14 +267,14 @@ protected:
 
   float         MinimumViewDistance;
   
-  int           ClipRayAgainstVolume( VTKVRCDynamicInfo *dynamicInfo,
+  int           ClipRayAgainstVolume( vtkVolumeRayCastDynamicInfo *dynamicInfo,
                                       float bounds[6] );
 
-  void          InitializeClippingPlanes( VTKVRCStaticInfo *staticInfo,
+  void          InitializeClippingPlanes( vtkVolumeRayCastStaticInfo *staticInfo,
                                           vtkPlaneCollection *planes );
 
-  int           ClipRayAgainstClippingPlanes( VTKVRCDynamicInfo *dynamicInfo,
-                                              VTKVRCStaticInfo *staticInfo);
+  int           ClipRayAgainstClippingPlanes( vtkVolumeRayCastDynamicInfo *dynamicInfo,
+                                              vtkVolumeRayCastStaticInfo *staticInfo);
   
   // Get the ZBuffer value corresponding to location (x,y) where (x,y)
   // are indexing into the ImageInUse image. This must be converted to

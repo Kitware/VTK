@@ -24,7 +24,7 @@
 #include "vtkVolumeProperty.h"
 #include "vtkVolumeRayCastMapper.h"
 
-vtkCxxRevisionMacro(vtkVolumeRayCastFunction, "1.22");
+vtkCxxRevisionMacro(vtkVolumeRayCastFunction, "1.23");
 
 // Grab everything we need for rendering now. This procedure will be called
 // during the initialization phase of ray casting. It is called once per 
@@ -34,7 +34,7 @@ vtkCxxRevisionMacro(vtkVolumeRayCastFunction, "1.22");
 void vtkVolumeRayCastFunction::FunctionInitialize( 
                                 vtkRenderer *ren, 
                                 vtkVolume *vol,
-                                VTKVRCStaticInfo *staticInfo )
+                                vtkVolumeRayCastStaticInfo *staticInfo )
 {
   vtkVolumeRayCastMapper *mapper = 
     vtkVolumeRayCastMapper::SafeDownCast( vol->GetMapper() );

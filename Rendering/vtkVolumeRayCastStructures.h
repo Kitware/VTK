@@ -81,7 +81,7 @@ typedef struct
   unsigned short               *EncodedNormals;
   unsigned char                *GradientMagnitudes;
 
-} VTKRayCastVolumeInfo;
+} vtkRayCastVolumeInfo;
 
 
 #endif

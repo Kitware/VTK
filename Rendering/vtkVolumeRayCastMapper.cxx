@@ -36,7 +36,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkVolumeRayCastMapper, "1.93");
+vtkCxxRevisionMacro(vtkVolumeRayCastMapper, "1.94");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -402,7 +402,7 @@ void vtkVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume *vol )
   // required
   if ( this->ComputeRowBounds( vol, ren ) )
     {
-    VTKVRCStaticInfo *staticInfo = new VTKVRCStaticInfo;
+    vtkVolumeRayCastStaticInfo *staticInfo = new vtkVolumeRayCastStaticInfo;
     staticInfo->ClippingPlane = NULL;
     staticInfo->Volume = vol;
     staticInfo->Renderer = ren;
@@ -556,8 +556,8 @@ VTK_THREAD_RETURN_TYPE VolumeRayCastMapper_CastRays( void *arg )
   // Get the info out of the input structure
   int threadID    = ((vtkMultiThreader::ThreadInfoStruct *)(arg))->ThreadID;
   int threadCount = ((vtkMultiThreader::ThreadInfoStruct *)(arg))->NumberOfThreads;
-  VTKVRCStaticInfo *staticInfo  = 
-    (VTKVRCStaticInfo *)((vtkMultiThreader::ThreadInfoStruct *)arg)->UserData;
+  vtkVolumeRayCastStaticInfo *staticInfo  = 
+    (vtkVolumeRayCastStaticInfo *)((vtkMultiThreader::ThreadInfoStruct *)arg)->UserData;
   
   int i, j, k;
   unsigned char *ucptr;
@@ -571,7 +571,7 @@ VTK_THREAD_RETURN_TYPE VolumeRayCastMapper_CastRays( void *arg )
     return VTK_THREAD_RETURN_VALUE;
     }
   
-  VTKVRCDynamicInfo *dynamicInfo = new VTKVRCDynamicInfo;
+  vtkVolumeRayCastDynamicInfo *dynamicInfo = new vtkVolumeRayCastDynamicInfo;
 
   // Initialize this to avoid purify problems
   dynamicInfo->ScalarValue = 0;
@@ -1646,7 +1646,7 @@ void vtkVolumeRayCastMapper::ComputeMatrices( vtkImageData *data,
 }
 
 void vtkVolumeRayCastMapper::InitializeClippingPlanes( 
-                                           VTKVRCStaticInfo *staticInfo,
+                                           vtkVolumeRayCastStaticInfo *staticInfo,
                                            vtkPlaneCollection *planes )
 {
   vtkPlane *onePlane;
@@ -1703,8 +1703,8 @@ void vtkVolumeRayCastMapper::InitializeClippingPlanes(
 
 
 int vtkVolumeRayCastMapper::ClipRayAgainstClippingPlanes( 
-                                           VTKVRCDynamicInfo *dynamicInfo, 
-                                           VTKVRCStaticInfo *staticInfo )
+                                           vtkVolumeRayCastDynamicInfo *dynamicInfo, 
+                                           vtkVolumeRayCastStaticInfo *staticInfo )
 {
   float    *clippingPlane;
   int      i;
@@ -1781,7 +1781,7 @@ int vtkVolumeRayCastMapper::ClipRayAgainstClippingPlanes(
 }
 
 int vtkVolumeRayCastMapper::ClipRayAgainstVolume( 
-                                            VTKVRCDynamicInfo *dynamicInfo, 
+                                            vtkVolumeRayCastDynamicInfo *dynamicInfo, 
                                             float bounds[6] )
 {
   int    loop;

@@ -64,8 +64,8 @@ public:
   const char *GetMaximizeMethodAsString(void);
 
 //BTX
-  void CastRay( VTKVRCDynamicInfo *dynamicInfo,
-                VTKVRCStaticInfo *staticInfo );
+  void CastRay( vtkVolumeRayCastDynamicInfo *dynamicInfo,
+                vtkVolumeRayCastStaticInfo *staticInfo );
 //ETX
 
 
@@ -78,7 +78,7 @@ protected:
 //BTX
   void SpecificFunctionInitialize( vtkRenderer *ren,
                                    vtkVolume   *vol,
-                                   VTKVRCStaticInfo *staticInfo,
+                                   vtkVolumeRayCastStaticInfo *staticInfo,
                                    vtkVolumeRayCastMapper *mapper );
 
 //ETX

@@ -22,14 +22,14 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkVolumeRayCastMIPFunction, "1.28");
+vtkCxxRevisionMacro(vtkVolumeRayCastMIPFunction, "1.29");
 vtkStandardNewMacro(vtkVolumeRayCastMIPFunction);
 
 // This is the templated function that actually casts a ray and computes
 // the maximum value.  It is valid for unsigned char and unsigned short,
 template <class T>
-void vtkCastMaxScalarValueRay( T *data_ptr, VTKVRCDynamicInfo *dynamicInfo,
-                               VTKVRCStaticInfo *staticInfo )
+void vtkCastMaxScalarValueRay( T *data_ptr, vtkVolumeRayCastDynamicInfo *dynamicInfo,
+                               vtkVolumeRayCastStaticInfo *staticInfo )
 {
   float     triMax, triValue;
   int       max = 0;;
@@ -232,8 +232,8 @@ void vtkCastMaxScalarValueRay( T *data_ptr, VTKVRCDynamicInfo *dynamicInfo,
 // This is the templated function that actually casts a ray and computes
 // the maximum value.  It is valid for unsigned char and unsigned short,
 template <class T>
-void vtkCastMaxOpacityRay( T *data_ptr, VTKVRCDynamicInfo *dynamicInfo,
-                        VTKVRCStaticInfo *staticInfo )
+void vtkCastMaxOpacityRay( T *data_ptr, vtkVolumeRayCastDynamicInfo *dynamicInfo,
+                        vtkVolumeRayCastStaticInfo *staticInfo )
 {
   float     max;
   float     opacity;
@@ -454,8 +454,8 @@ vtkVolumeRayCastMIPFunction::~vtkVolumeRayCastMIPFunction()
 // It uses the integer data type flag that is passed in to
 // determine what type of ray needs to be cast (which is handled
 // by a templated function. 
-void vtkVolumeRayCastMIPFunction::CastRay( VTKVRCDynamicInfo *dynamicInfo,
-                                           VTKVRCStaticInfo *staticInfo)
+void vtkVolumeRayCastMIPFunction::CastRay( vtkVolumeRayCastDynamicInfo *dynamicInfo,
+                                           vtkVolumeRayCastStaticInfo *staticInfo)
 {
   void *data_ptr;
   
@@ -507,7 +507,7 @@ float vtkVolumeRayCastMIPFunction::GetZeroOpacityThreshold( vtkVolume *vtkNotUse
 void vtkVolumeRayCastMIPFunction::SpecificFunctionInitialize( 
                                  vtkRenderer *vtkNotUsed(ren), 
                                  vtkVolume *vtkNotUsed(vol),
-                                 VTKVRCStaticInfo *staticInfo,
+                                 vtkVolumeRayCastStaticInfo *staticInfo,
                                  vtkVolumeRayCastMapper *vtkNotUsed(mapper) )
 {
   staticInfo->MIPFunction = 1;

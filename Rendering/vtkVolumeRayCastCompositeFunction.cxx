@@ -25,7 +25,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkVolumeRayCastCompositeFunction, "1.35");
+vtkCxxRevisionMacro(vtkVolumeRayCastCompositeFunction, "1.36");
 vtkStandardNewMacro(vtkVolumeRayCastCompositeFunction);
 
 #define VTK_REMAINING_OPACITY           0.02
@@ -34,8 +34,8 @@ vtkStandardNewMacro(vtkVolumeRayCastCompositeFunction);
 // The composite value. This version uses nearest neighbor interpolation
 // and does not perform shading.
 template <class T>
-void vtkCastRay_NN_Unshaded( T *data_ptr, VTKVRCDynamicInfo *dynamicInfo,
-                          VTKVRCStaticInfo *staticInfo )
+void vtkCastRay_NN_Unshaded( T *data_ptr, vtkVolumeRayCastDynamicInfo *dynamicInfo,
+                          vtkVolumeRayCastStaticInfo *staticInfo )
 {
   int             value=0;
   unsigned char   *grad_mag_ptr = NULL;
@@ -255,8 +255,8 @@ void vtkCastRay_NN_Unshaded( T *data_ptr, VTKVRCDynamicInfo *dynamicInfo,
 // the composite value. This version uses nearest neighbor and does
 // perform shading.
 template <class T>
-void vtkCastRay_NN_Shaded( T *data_ptr, VTKVRCDynamicInfo *dynamicInfo,
-                           VTKVRCStaticInfo *staticInfo )
+void vtkCastRay_NN_Shaded( T *data_ptr, vtkVolumeRayCastDynamicInfo *dynamicInfo,
+                           vtkVolumeRayCastStaticInfo *staticInfo )
 {
   int             value = 0;
   unsigned char   *grad_mag_ptr = NULL;
@@ -543,8 +543,8 @@ void vtkCastRay_NN_Shaded( T *data_ptr, VTKVRCDynamicInfo *dynamicInfo,
 // the composite value.  This version uses trilinear interpolation and
 // does not compute shading
 template <class T>
-void vtkCastRay_TrilinSample_Unshaded( T *data_ptr, VTKVRCDynamicInfo *dynamicInfo,
-                                       VTKVRCStaticInfo *staticInfo )
+void vtkCastRay_TrilinSample_Unshaded( T *data_ptr, vtkVolumeRayCastDynamicInfo *dynamicInfo,
+                                       vtkVolumeRayCastStaticInfo *staticInfo )
 {
   unsigned char   *grad_mag_ptr = NULL;
   unsigned char   *gmptr = NULL;
@@ -894,8 +894,8 @@ void vtkCastRay_TrilinSample_Unshaded( T *data_ptr, VTKVRCDynamicInfo *dynamicIn
 // the composite value.  This version uses trilinear interpolation, and
 // does perform shading.
 template <class T>
-void vtkCastRay_TrilinSample_Shaded( T *data_ptr, VTKVRCDynamicInfo *dynamicInfo,
-                                     VTKVRCStaticInfo *staticInfo )
+void vtkCastRay_TrilinSample_Shaded( T *data_ptr, vtkVolumeRayCastDynamicInfo *dynamicInfo,
+                                     vtkVolumeRayCastStaticInfo *staticInfo )
 {
   unsigned char   *grad_mag_ptr = NULL;
   unsigned char   *gmptr = NULL;
@@ -1351,8 +1351,8 @@ void vtkCastRay_TrilinSample_Shaded( T *data_ptr, VTKVRCDynamicInfo *dynamicInfo
 // the composite value.  This version uses trilinear interpolation and
 // does not compute shading
 template <class T>
-void vtkCastRay_TrilinVertices_Unshaded( T *data_ptr, VTKVRCDynamicInfo *dynamicInfo,
-                                         VTKVRCStaticInfo *staticInfo )
+void vtkCastRay_TrilinVertices_Unshaded( T *data_ptr, vtkVolumeRayCastDynamicInfo *dynamicInfo,
+                                         vtkVolumeRayCastStaticInfo *staticInfo )
 {
   unsigned char   *grad_mag_ptr = NULL;
   unsigned char   *goptr;
@@ -1807,8 +1807,8 @@ void vtkCastRay_TrilinVertices_Unshaded( T *data_ptr, VTKVRCDynamicInfo *dynamic
 // the composite value.  This version uses trilinear interpolation, and
 // does perform shading.
 template <class T>
-void vtkCastRay_TrilinVertices_Shaded( T *data_ptr, VTKVRCDynamicInfo *dynamicInfo,
-                                       VTKVRCStaticInfo *staticInfo )
+void vtkCastRay_TrilinVertices_Shaded( T *data_ptr, vtkVolumeRayCastDynamicInfo *dynamicInfo,
+                                       vtkVolumeRayCastStaticInfo *staticInfo )
 {
   unsigned char   *grad_mag_ptr = NULL;
   unsigned char   *goptr;
@@ -2364,8 +2364,8 @@ vtkVolumeRayCastCompositeFunction::~vtkVolumeRayCastCompositeFunction()
 // by a templated function.  It also uses the shading and
 // interpolation types to determine which templated function
 // to call.
-void vtkVolumeRayCastCompositeFunction::CastRay( VTKVRCDynamicInfo *dynamicInfo,
-                                                 VTKVRCStaticInfo *staticInfo )
+void vtkVolumeRayCastCompositeFunction::CastRay( vtkVolumeRayCastDynamicInfo *dynamicInfo,
+                                                 vtkVolumeRayCastStaticInfo *staticInfo )
 {
   void *data_ptr;
 
@@ -2500,7 +2500,7 @@ float vtkVolumeRayCastCompositeFunction::GetZeroOpacityThreshold( vtkVolume
 void vtkVolumeRayCastCompositeFunction::SpecificFunctionInitialize( 
                                 vtkRenderer *vtkNotUsed(ren), 
                                 vtkVolume *vtkNotUsed(vol),
-                                VTKVRCStaticInfo *vtkNotUsed(staticInfo),
+                                vtkVolumeRayCastStaticInfo *vtkNotUsed(staticInfo),
                                 vtkVolumeRayCastMapper *vtkNotUsed(mapper) )
 {
 }
