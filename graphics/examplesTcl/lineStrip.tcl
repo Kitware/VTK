@@ -15,11 +15,8 @@ vtkVolume16Reader v16
 vtkContourFilter iso
     iso SetInput [v16 GetOutput]
     iso GenerateValues 6 600 1200
-vtkCleanPolyData cpd
-cpd SetInput [iso GetOutput]
-
 vtkStripper stripper
-    stripper SetInput [cpd GetOutput]
+    stripper SetInput [iso GetOutput]
 vtkTubeFilter tuber
     tuber SetInput [stripper GetOutput]
     tuber SetNumberOfSides 4
