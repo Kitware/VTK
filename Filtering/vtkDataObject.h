@@ -43,6 +43,7 @@ class vtkSource;
 class vtkSourceToDataObjectFriendship;
 class vtkExtentTranslator;
 class vtkInformationDataObjectKey;
+class vtkInformationDoubleVectorKey;
 class vtkInformationIntegerKey;
 class vtkInformationIntegerVectorKey;
 class vtkInformationStringKey;
@@ -387,6 +388,8 @@ public:
   static vtkInformationIntegerKey* FIELD_NUMBER_OF_TUPLES();
   static vtkInformationIntegerKey* FIELD_OPERATION();
   static vtkInformationStringKey* FIELD_NAME();
+  static vtkInformationDoubleVectorKey* ORIGIN();
+  static vtkInformationDoubleVectorKey* SPACING();
 
 protected:
 

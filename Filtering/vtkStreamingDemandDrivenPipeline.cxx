@@ -26,7 +26,7 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.1.2.12");
+vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.1.2.13");
 vtkStandardNewMacro(vtkStreamingDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, CONTINUE_EXECUTING, Integer);
@@ -186,6 +186,10 @@ vtkStreamingDemandDrivenPipeline
   this->Superclass::FillDefaultOutputInformation(port, info);
   info->Append(vtkDemandDrivenPipeline::DOWNSTREAM_KEYS_TO_COPY(),
                WHOLE_BOUNDING_BOX());
+  info->Append(vtkDemandDrivenPipeline::DOWNSTREAM_KEYS_TO_COPY(),
+               vtkDataObject::ORIGIN());
+  info->Append(vtkDemandDrivenPipeline::DOWNSTREAM_KEYS_TO_COPY(),
+               vtkDataObject::SPACING());
   info->Append(vtkDemandDrivenPipeline::DOWNSTREAM_KEYS_TO_COPY(),
                WHOLE_EXTENT());
   info->Append(vtkDemandDrivenPipeline::DOWNSTREAM_KEYS_TO_COPY(),

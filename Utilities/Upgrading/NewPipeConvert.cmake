@@ -3,8 +3,8 @@
 # for processing, other wise it will glob all .h and .cxx files
 
 IF (DEFINED CLASS)
-  SET (H_FILES ${CLASS}.h)
-  SET (CXX_FILES ${CLASS}.cxx)
+  FILE (GLOB H_FILES ${CLASS}.h) 
+  FILE (GLOB CXX_FILES ${CLASS}.cxx) 
 ELSE (DEFINED CLASS)
   FILE (GLOB H_FILES *.h) 
   FILE (GLOB CXX_FILES *.cxx) 

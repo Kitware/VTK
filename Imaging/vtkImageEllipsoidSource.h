@@ -23,13 +23,13 @@
 #ifndef __vtkImageEllipsoidSource_h
 #define __vtkImageEllipsoidSource_h
 
-#include "vtkImageSource.h"
+#include "vtkImageAlgorithm.h"
 
-class VTK_IMAGING_EXPORT vtkImageEllipsoidSource : public vtkImageSource
+class VTK_IMAGING_EXPORT vtkImageEllipsoidSource : public vtkImageAlgorithm
 {
 public:
   static vtkImageEllipsoidSource *New();
-  vtkTypeRevisionMacro(vtkImageEllipsoidSource,vtkImageSource);
+  vtkTypeRevisionMacro(vtkImageEllipsoidSource,vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);   
   
   // Description:
@@ -96,7 +96,7 @@ protected:
   double OutValue;
   int OutputScalarType;
   
-  virtual void ExecuteInformation();
+  virtual void ExecuteInformation (vtkInformation *, vtkInformationVector *, vtkInformationVector *);
   virtual void ExecuteData(vtkDataObject *outData);
 private:
   vtkImageEllipsoidSource(const vtkImageEllipsoidSource&);  // Not implemented.

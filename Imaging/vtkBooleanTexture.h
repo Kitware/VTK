@@ -41,14 +41,14 @@
 #ifndef __vtkBooleanTexture_h
 #define __vtkBooleanTexture_h
 
-#include "vtkImageSource.h"
+#include "vtkImageAlgorithm.h"
 
-class VTK_IMAGING_EXPORT vtkBooleanTexture : public vtkImageSource
+class VTK_IMAGING_EXPORT vtkBooleanTexture : public vtkImageAlgorithm
 {
 public:
   static vtkBooleanTexture *New();
 
-  vtkTypeRevisionMacro(vtkBooleanTexture,vtkImageSource);
+  vtkTypeRevisionMacro(vtkBooleanTexture,vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -115,7 +115,7 @@ protected:
   vtkBooleanTexture();
   ~vtkBooleanTexture() {};
 
-  virtual void ExecuteInformation();
+  virtual void ExecuteInformation (vtkInformation *, vtkInformationVector *, vtkInformationVector *);
   virtual void ExecuteData(vtkDataObject *data);
 
   int XSize;

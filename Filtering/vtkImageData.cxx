@@ -41,7 +41,7 @@
 #include "vtkVertex.h"
 #include "vtkVoxel.h"
 
-vtkCxxRevisionMacro(vtkImageData, "1.1.2.5");
+vtkCxxRevisionMacro(vtkImageData, "1.1.2.6");
 vtkStandardNewMacro(vtkImageData);
 
 //----------------------------------------------------------------------------
@@ -2245,3 +2245,5 @@ void vtkImageData::ComputeInternalExtent(int *intExt, int *tgtExt, int *bnds)
       }
     }
 }
+
+

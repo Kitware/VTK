@@ -24,7 +24,7 @@
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageAlgorithm, "1.1.2.6");
+vtkCxxRevisionMacro(vtkImageAlgorithm, "1.1.2.7");
 
 //----------------------------------------------------------------------------
 vtkImageAlgorithm::vtkImageAlgorithm()
@@ -119,16 +119,10 @@ int vtkImageAlgorithm::ProcessDownstreamRequest(
         {
         // after executing set the origin and spacing from the
         // WHOLE_BOUNDING_BOX
-        if (info->Has(vtkStreamingDemandDrivenPipeline::WHOLE_BOUNDING_BOX()))
+        if (info->Has(vtkDataObject::ORIGIN()))
           {
-          double wBB[6];
-          info->Get(vtkStreamingDemandDrivenPipeline::WHOLE_BOUNDING_BOX(),
-                    wBB);
-          output->SetOrigin(wBB[0],wBB[2],wBB[4]);
-          int *wExt = output->GetWholeExtent();
-          output->SetSpacing((wBB[1]-wBB[0])/(wExt[1] - wExt[0]+1),
-                             (wBB[3]-wBB[2])/(wExt[3] - wExt[2]+1),
-                             (wBB[5]-wBB[4])/(wExt[5] - wExt[4]+1));
+          output->SetOrigin(info->Get(vtkDataObject::ORIGIN()));
+          output->SetSpacing(info->Get(vtkDataObject::SPACING()));
           }
         output->DataHasBeenGenerated();
         }

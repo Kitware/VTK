@@ -24,11 +24,12 @@
 #include "vtkTrivialProducer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkInformationDataObjectKey.h"
+#include "vtkInformationDoubleVectorKey.h"
 #include "vtkInformationIntegerKey.h"
 #include "vtkInformationIntegerVectorKey.h"
 #include "vtkInformationStringKey.h"
 
-vtkCxxRevisionMacro(vtkDataObject, "1.2.2.9");
+vtkCxxRevisionMacro(vtkDataObject, "1.2.2.10");
 vtkStandardNewMacro(vtkDataObject);
 
 vtkCxxSetObjectMacro(vtkDataObject,Information,vtkInformation);
@@ -50,6 +51,8 @@ vtkInformationKeyMacro(vtkDataObject, FIELD_NUMBER_OF_COMPONENTS, Integer);
 vtkInformationKeyMacro(vtkDataObject, FIELD_NUMBER_OF_TUPLES, Integer);
 vtkInformationKeyMacro(vtkDataObject, FIELD_OPERATION, Integer);
 vtkInformationKeyRestrictedMacro(vtkDataObject, DATA_EXTENT, IntegerVector, 6);
+vtkInformationKeyRestrictedMacro(vtkDataObject, ORIGIN, DoubleVector, 3);
+vtkInformationKeyRestrictedMacro(vtkDataObject, SPACING, DoubleVector, 3);
 
 // Initialize static member that controls global data release 
 // after use by filter

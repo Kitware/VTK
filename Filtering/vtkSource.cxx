@@ -26,7 +26,7 @@
 
 #include "vtkImageData.h"
 
-vtkCxxRevisionMacro(vtkSource, "1.4.2.6");
+vtkCxxRevisionMacro(vtkSource, "1.4.2.7");
 
 #ifndef NULL
 #define NULL 0
@@ -644,16 +644,10 @@ int vtkSource::ProcessDownstreamRequest(vtkInformation* request,
         vtkImageData *id = vtkImageData::SafeDownCast(
           info->Get(vtkDataObject::DATA_OBJECT()));
         if (id && 
-            info->Has(vtkStreamingDemandDrivenPipeline::WHOLE_BOUNDING_BOX()))
+            info->Has(vtkDataObject::ORIGIN()))
           {
-          double wBB[6];
-          info->Get(vtkStreamingDemandDrivenPipeline::WHOLE_BOUNDING_BOX(), 
-                    wBB);
-          id->SetOrigin(wBB[0],wBB[2],wBB[4]);
-          int *wExt = id->GetWholeExtent();
-          id->SetSpacing((wBB[1]-wBB[0])/(wExt[1] - wExt[0]+1),
-                         (wBB[3]-wBB[2])/(wExt[3] - wExt[2]+1),
-                         (wBB[5]-wBB[4])/(wExt[5] - wExt[4]+1));
+          id->SetOrigin(info->Get(vtkDataObject::ORIGIN()));
+          id->SetSpacing(info->Get(vtkDataObject::SPACING()));
           }
         }
       }
@@ -671,19 +665,8 @@ int vtkSource::ProcessDownstreamRequest(vtkInformation* request,
         info->Get(vtkDataObject::DATA_OBJECT()));
       if (id)
         {
-        double wBB[6];
-        double *origin = id->GetOrigin();
-        double *spacing = id->GetSpacing();
-        int *wExt = id->GetWholeExtent();
-        int idx;
-        for (idx = 0; idx < 3; ++idx)
-          {
-          wBB[idx*2] = origin[idx];
-          wBB[idx*2+1] = origin[idx] + 
-            (wExt[idx*2+1] - wExt[idx*2] + 1)*spacing[idx];
-          }
-        info->Set(vtkStreamingDemandDrivenPipeline::WHOLE_BOUNDING_BOX(),
-                  wBB, 6);
+        info->Set(vtkDataObject::ORIGIN(), id->GetOrigin(), 3);
+        info->Set(vtkDataObject::SPACING(), id->GetSpacing(), 3);
         }
       }
     
@@ -778,19 +761,8 @@ int vtkSource::ProcessDownstreamRequest(vtkInformation* request,
         info->Get(vtkDataObject::DATA_OBJECT()));
       if (id)
         {
-        double wBB[6];
-        double *origin = id->GetOrigin();
-        double *spacing = id->GetSpacing();
-        int *wExt = id->GetWholeExtent();
-        int idx;
-        for (idx = 0; idx < 3; ++idx)
-          {
-          wBB[idx*2] = origin[idx];
-          wBB[idx*2+1] = origin[idx] + 
-            (wExt[idx*2+1] - wExt[idx*2] + 1)*spacing[idx];
-          }
-        info->Set(vtkStreamingDemandDrivenPipeline::WHOLE_BOUNDING_BOX(),
-                  wBB, 6);
+        info->Set(vtkDataObject::ORIGIN(), id->GetOrigin(), 3);
+        info->Set(vtkDataObject::SPACING(), id->GetSpacing(), 3);
         }
       if(this->Outputs[i] && this->Outputs[i]->GetRequestExactExtent())
         {
