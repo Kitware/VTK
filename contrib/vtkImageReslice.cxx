@@ -3223,10 +3223,14 @@ static inline int vtkCanUseNearestNeighbor(vtkMatrix4x4 *matrix, int outExt[6])
     x = 0;
     for (j = 0; j < 3; j++)
       {
-      x += matrix->GetElement(i,j);
+      if (matrix->GetElement(i,j) != 0)
+	{
+	break;
+	}
       }
+    x = matrix->GetElement(i,j);
     y = matrix->GetElement(i,3);
-    if (outExt[2*i] == outExt[2*i+1])
+    if (outExt[2*j] == outExt[2*j+1])
       {
       y += x*outExt[2*i];
       x = 0;
