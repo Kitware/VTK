@@ -14,6 +14,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
 
+#include <iostream.h>
 #include <stdlib.h>
 #include "vtkTclUtil.hh"
 
@@ -27,6 +28,52 @@ extern Tcl_HashTable vtkPointerLookup;
 extern Tcl_HashTable vtkCommandLookup;
 
 static int num = 0;
+static int vtkTclDebugOn = 0;
+
+// we do no error checking in this.  We assume that if we were called
+// then tcl must have been able to find the command function and object
+int vtkTclDeleteObjectFromHash(ClientData cd)
+{
+  char temps[80];
+  Tcl_HashEntry *entry;
+  char *temp;
+  int (*command)(ClientData, Tcl_Interp *,int, char *[]);
+
+  // lookup the objects name
+  sprintf(temps,"%x",(void *)cd);
+  entry = Tcl_FindHashEntry(&vtkPointerLookup,temps); 
+  temp = (char *)(Tcl_GetHashValue(entry));
+
+  // now delete the three hash entries
+  entry = Tcl_FindHashEntry(&vtkCommandLookup,temp);
+  command = 
+    (int (*)(ClientData,Tcl_Interp *,int,char *[]))Tcl_GetHashValue(entry);
+  Tcl_DeleteHashEntry(entry);
+  entry = Tcl_FindHashEntry(&vtkPointerLookup,temps); 
+  Tcl_DeleteHashEntry(entry);
+  entry = Tcl_FindHashEntry(&vtkInstanceLookup,temp);
+  Tcl_DeleteHashEntry(entry);
+
+  if (vtkTclDebugOn)
+    {
+    cerr << "vtkTcl Attempting to free object named " << temp << "\n";
+    }
+  // if it isn't a temp object (i.e. we created it) then delete it 
+  // except for two classes
+  if (strncmp(temp,"vtkTemp",7)||
+      (command == vtkRenderWindowCommand)||
+      (command == vtkRendererCommand))
+    {
+    // finally free the name we got from the hash table
+    // it was created using strdup
+    free (temp);
+    return 1;
+    }
+  // finally free the name we got from the hash table
+  // it was created using strdup
+  free (temp);
+  return 0;
+}
 
 // we do no error checking in this.  We assume that if we were called
 // then tcl must have been able to find the command function and object
@@ -35,43 +82,26 @@ void vtkTclGenericDeleteObject(ClientData cd)
   char temps[80];
   Tcl_HashEntry *entry;
   int (*command)(ClientData, Tcl_Interp *,int, char *[]);
-  char *args[1];
+  char *args[2];
   char *temp;
-
+  Tcl_Interp *i;
+  
   /* set up the args */
-  args[0] = "Delete";
+  args[1] = "Delete";
 
   // lookup the objects name
   sprintf(temps,"%x",(void *)cd);
   entry = Tcl_FindHashEntry(&vtkPointerLookup,temps); 
   temp = (char *)(Tcl_GetHashValue(entry));
-
+  args[0] = temp;
+  
   // get the command function and invoke the delete operation
   entry = Tcl_FindHashEntry(&vtkCommandLookup,temp);
   command = (int (*)(ClientData,Tcl_Interp *,int,char *[]))Tcl_GetHashValue(entry);
 
-  // if it isn't a temp object (i.e. we created it) then delete it 
-  if (strncmp(temp,"vtkTemp",7))
-    {
-    command(cd,(Tcl_Interp *)NULL,1,args);
-    }
-  
-  // the two exceptions are RenderingWindows and Renderers
-  if ((command == vtkRenderWindowCommand)||
-      (command == vtkRendererCommand))
-    {
-    command(cd,(Tcl_Interp *)NULL,1,args);
-    }
-  
-  // now delete the three hash entries
-  Tcl_DeleteHashEntry(entry);
-  entry = Tcl_FindHashEntry(&vtkPointerLookup,temps); 
-  Tcl_DeleteHashEntry(entry);
-  entry = Tcl_FindHashEntry(&vtkInstanceLookup,temp);
-  Tcl_DeleteHashEntry(entry);
-  // finally free the name we got from the hash table
-  // it was created using strdup
-  free (temp);
+  i = Tcl_CreateInterp();
+  command(cd,i,2,args);
+  Tcl_DeleteInterp(i);
 }
 
 int vtkCommand(ClientData cd, Tcl_Interp *interp, int argc, char *argv[])
@@ -89,6 +119,17 @@ int vtkCommand(ClientData cd, Tcl_Interp *interp, int argc, char *argv[])
       {
       Tcl_DeleteCommand(interp,(char *)Tcl_GetHashValue(entry));
       }
+    return TCL_OK;
+    }
+  if (!strcmp(argv[1],"DebugOn"))
+    {
+    vtkTclDebugOn = 1;
+    return TCL_OK;
+    }
+  if (!strcmp(argv[1],"DebugOff"))
+    {
+    vtkTclDebugOn = 0;
+    return TCL_OK;
     }
 }
 
