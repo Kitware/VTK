@@ -268,6 +268,12 @@ vtkCell *vtkImageData::GetCell(int cellId)
 
   iMin = iMax = jMin = jMax = kMin = kMax = 0;
   
+  if (dims[0] == 0 || dims[1] == 0 || dims[2] == 0)
+    {
+    vtkErrorMacro("Requesting a cell from an empty image.");
+    return NULL;
+    }
+  
   switch (this->DataDescription)
     {
     case VTK_SINGLE_POINT: // cellId can only be = 0
@@ -363,6 +369,12 @@ void vtkImageData::GetCell(int cellId, vtkGenericCell *cell)
 
   iMin = iMax = jMin = jMax = kMin = kMax = 0;
   
+  if (dims[0] == 0 || dims[1] == 0 || dims[2] == 0)
+    {
+    vtkErrorMacro("Requesting a cell from an empty image.");
+    return;
+    }
+  
   switch (this->DataDescription)
     {
     case VTK_SINGLE_POINT: // cellId can only be = 0
@@ -455,6 +467,14 @@ void vtkImageData::GetCellBounds(int cellId, float bounds[6])
 
   iMin = iMax = jMin = jMax = kMin = kMax = 0;
   
+  if (dims[0] == 0 || dims[1] == 0 || dims[2] == 0)
+    {
+    vtkErrorMacro("Requesting cell bounds from an empty image.");
+    bounds[0] = bounds[1] = bounds[2] = bounds[3] 
+      = bounds[4] = bounds[5] = 0.0;
+    return;
+    }
+  
   switch (this->DataDescription)
     {
     case VTK_SINGLE_POINT: // cellId can only be = 0
@@ -539,7 +559,14 @@ float *vtkImageData::GetPoint(int ptId)
   float *origin = this->GetOrigin();
   float *spacing = this->GetSpacing();
   int *dims = this->GetDimensions();
-  
+
+  if (dims[0] == 0 || dims[1] == 0 || dims[2] == 0)
+    {
+    vtkErrorMacro("Requesting a point from an empty image.");
+    x[0] = x[1] = x[2] = 0.0;
+    return x;
+    }
+
   switch (this->DataDescription)
     {
     case VTK_SINGLE_POINT: 
