@@ -77,7 +77,8 @@ void vtkWriter::Write()
   //
   input->Update();
   //
-  if (input->GetUpdateTime()<this->WriteTime)
+  if (input->GetUpdateTime() < this->WriteTime &&
+      this->GetMTime() < this->WriteTime)
   {
     // we are up to date
     return;
