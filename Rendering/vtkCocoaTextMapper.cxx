@@ -16,9 +16,13 @@
 
 =========================================================================*/
 #include "vtkCocoaTextMapper.h"
-#include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkCocoaTextMapper, "1.2");
+#include "vtkObjectFactory.h"
+#include "vtkProperty2D.h"
+#include "vtkTextProperty.h"
+#include "vtkViewport.h"
+
+vtkCxxRevisionMacro(vtkCocoaTextMapper, "1.3");
 vtkStandardNewMacro(vtkCocoaTextMapper);
 
 vtkCocoaTextMapper::vtkCocoaTextMapper()
@@ -51,8 +55,11 @@ void vtkCocoaTextMapper::GetSize(vtkViewport* viewport, int *size)
     return;
     }
 
+  vtkTextProperty *tprop = this->GetTextProperty();
+ 
   // Check to see whether we have to rebuild anything
-  if ( this->GetMTime() < this->BuildTime)
+  if ( this->GetMTime() < this->BuildTime &&
+       tprop->GetMTime() < this->BuildTime)
     {
     size[0] = this->LastSize[0];
     size[1] = this->LastSize[1];
@@ -75,7 +82,7 @@ void vtkCocoaTextMapper::GetSize(vtkViewport* viewport, int *size)
   void *fontStruct;
   char fontname[32];
   void *family;
-  switch (this->FontFamily)
+  switch (tprop->GetFontFamily())
     {
     case VTK_ARIAL:
       strcpy(fontname, "Arial");
@@ -94,13 +101,13 @@ void vtkCocoaTextMapper::GetSize(vtkViewport* viewport, int *size)
         //  family = FF_SWISS;
           break;
     }
-//  fontStruct.lfHeight = MulDiv(this->FontSize, 
+//  fontStruct.lfHeight = MulDiv(tprop->GetFontSize(), 
 //                             window->GetDPI(), 72);  
   // height in logical units
 //  fontStruct.lfWidth = 0;  // default width
 //  fontStruct.lfEscapement = 0;
 //  fontStruct.lfOrientation = 0;
-  if (this->Bold == 1)
+  if (tprop->GetBold() == 1)
     {
   //  fontStruct.lfWeight = FW_BOLD;
     }
@@ -108,7 +115,7 @@ void vtkCocoaTextMapper::GetSize(vtkViewport* viewport, int *size)
     {
   //  fontStruct.lfWeight = FW_NORMAL;
     }
-//  fontStruct.lfItalic = this->Italic;
+//  fontStruct.lfItalic = tprop->GetItalic();
 //  fontStruct.lfUnderline = 0;
 //  fontStruct.lfStrikeOut = 0;
 //  fontStruct.lfCharSet = ANSI_CHARSET;
@@ -147,6 +154,8 @@ void vtkCocoaTextMapper::RenderOverlay(vtkViewport* viewport,
 {
   vtkDebugMacro (<< "RenderOverlay");
 
+  vtkTextProperty *tprop = this->GetTextProperty();
+
   // Check for input
   if ( this->NumberOfLines > 1 )
     {
@@ -177,16 +186,37 @@ void vtkCocoaTextMapper::RenderOverlay(vtkViewport* viewport,
   int* actorPos = 
     actor->GetActualPositionCoordinate()->GetComputedLocalDisplayValue(viewport);
 //  ptDestOff.x = actorPos[0];
-//  ptDestOff.y = actorPos[1] - this->LineOffset;
+//  ptDestOff.y = actorPos[1] - tprop->GetLineOffset();
 
   // Set up the font color from the text actor
   unsigned char red = 0;
   unsigned char green = 0;
   unsigned char blue = 0;
-  float*  actorColor = actor->GetProperty()->GetColor();
+  unsigned char alpha = 0;
+  
+  // TOFIX: the default text prop color is set to a special (-1, -1, -1) value
+  // to maintain backward compatibility for a while. Text mapper classes will
+  // use the Actor2D color instead of the text prop color if this value is 
+  // found (i.e. if the text prop color has not been set).
+
+  float* actorColor = this->GetTextProperty()->GetColor();
+  if (actorColor[0] < 0.0 && actorColor[1] < 0.0 && actorColor[2] < 0.0)
+    {
+    actorColor = actor->GetProperty()->GetColor();
+    }
+
+  // TOFIX: same goes for opacity
+
+  float opacity = this->GetTextProperty()->GetOpacity();
+  if (opacity < 0.0)
+    {
+    opacity = actor->GetProperty()->GetOpacity();
+    }
+
   red = (unsigned char) (actorColor[0] * 255.0);
   green = (unsigned char) (actorColor[1] * 255.0);
   blue = (unsigned char) (actorColor[2] * 255.0);
+  alpha = (unsigned char) (opacity * 255.0);
 
   // Set up the shadow color
   float intensity;
@@ -218,7 +248,7 @@ void vtkCocoaTextMapper::RenderOverlay(vtkViewport* viewport,
 //  SetROP2(hdc, R2_COPYPEN);
 
   int winJust;
-  switch (this->Justification)
+  switch (tprop->GetJustification())
     {
     int tmp;
 //    case VTK_TEXT_LEFT: winJust = DT_LEFT; break;
@@ -235,7 +265,7 @@ void vtkCocoaTextMapper::RenderOverlay(vtkViewport* viewport,
   //    rect.right = rect.right - tmp;
         break;
     }
-  switch (this->VerticalJustification)
+  switch (tprop->GetVerticalJustification())
     {
     case VTK_TEXT_TOP: 
    //   rect.top = rect.bottom;
@@ -251,7 +281,7 @@ void vtkCocoaTextMapper::RenderOverlay(vtkViewport* viewport,
 
   // Set the colors for the shadow
   long status;
-  if (this->Shadow)
+  if (tprop->GetShadow())
     {
  //   status = SetTextColor(hdc, RGB(shadowRed, shadowGreen, shadowBlue));
 //    if (status == CLR_INVALID)
