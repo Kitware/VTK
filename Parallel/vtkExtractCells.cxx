@@ -30,7 +30,7 @@
 #include "vtkIntArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkExtractCells, "1.8");
+vtkCxxRevisionMacro(vtkExtractCells, "1.9");
 vtkStandardNewMacro(vtkExtractCells);
 
 #include <vtkstd/set>
@@ -113,8 +113,12 @@ void vtkExtractCells::Execute()
 
   if (numCells == numCellsInput)  
     {
+    #if 0
     this->Copy();
     return;
+   #else
+    // The Copy method seems to have a bug, causing codes using ExtractCells to die
+    #endif
     }
   vtkPointData *PD = input->GetPointData();
   vtkCellData *CD = input->GetCellData();
