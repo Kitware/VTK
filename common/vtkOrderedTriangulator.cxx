@@ -56,7 +56,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
 // A vector of type T to support operations.
-template <typename T>
+template <class T>
 class vtkOTVector
 {
 private:
@@ -129,7 +129,7 @@ public:
 
 
 // A linked list of type T to support operations.
-template <typename T>
+template <class T>
 class vtkOTLinkedList
 {
 private:
