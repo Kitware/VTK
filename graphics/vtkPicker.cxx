@@ -211,6 +211,7 @@ int vtkPicker::Pick(float selectionX, float selectionY, float selectionZ,
   //  line intersects the back clipping plane.
   for (i=0; i<3; i++) ray[i] = this->PickPosition[i] - cameraPos[i];
   for (i=0; i<3; i++) cameraDOP[i] = cameraFP[i] - cameraPos[i];
+  vtkMath::Normalize(cameraDOP);
 
   if (( rayLength = vtkMath::Dot(cameraDOP,ray)) == 0.0 ) 
     {
