@@ -31,5 +31,5 @@ plastic( float Ks=.5, Kd=.5, Ka=1, roughness=.1; color specularcolor=1 )
 
     Oi = Os;
     Ci = Os * ( Cs * (Ka*ambient() + Kd*diffuse(Nf)) + 
-	 	specularcolor * Ks * specular(Nf,V,roughness) );
+	 	specularcolor * Ks * phong(Nf,V,1.0/roughness) );
 }

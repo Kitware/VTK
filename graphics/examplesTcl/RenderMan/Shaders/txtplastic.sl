@@ -27,6 +27,6 @@ txtplastic(
 	}
 	Ci = Oi * ( Ci * 
 		    (Ka*ambient() + Kd*diffuse(Nf)) 
-	 	+ specularcolor * Ks * specular(Nf,-I,roughness) );
+	 	+ specularcolor * Ks * phong(Nf,-I,1.0/roughness) );
 }
 
