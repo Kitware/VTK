@@ -61,35 +61,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma warning( disable : 4005 )
 #endif
 
-// Use a user-managed heap to remove memory leaks
-// This code must come before "#include vtkVRML.h" because
-// it uses the functions below.
-#include "vtkHeap.h"
-static vtkHeap *vrmlHeap=NULL;
-static void vrmlInitialize()
-{
-  if ( vrmlHeap == NULL )
-    {
-    vrmlHeap = vtkHeap::New();
-    }
-}
-static void vrmlCleanUp()
-{
-  if ( vrmlHeap )
-    {
-    vrmlHeap->Delete();
-    vrmlHeap = NULL;
-    }
-}
-static void *vrmlAllocateMemory(size_t n)
-{
-  return vrmlHeap->AllocateMemory(n);
-}
-static char *vrmlStrDup(const char *str)
-{
-  return vrmlHeap->StrDup(str);
-}
-
 #include "vtkVRML.h"
 #include "vtkVRMLImporter.h"
 #include "vtkByteSwap.h"
