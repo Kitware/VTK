@@ -106,8 +106,6 @@ void vlTransform::RotateX ( float angle)
   //  the current transformation matrix.
 {
   vlMatrix4x4 ctm;
-
-  int i, j;
   float radians = angle * RADIANS_PER_DEGREE;
   float cos_angle, sin_angle;
 
@@ -134,7 +132,6 @@ void vlTransform::RotateY ( float angle)
   //  the current transformation matrix.
 {
   vlMatrix4x4 ctm;
-  int i, j;
   float radians = angle * RADIANS_PER_DEGREE;
   float cos_angle, sin_angle;
 
@@ -161,7 +158,6 @@ void vlTransform::RotateZ (float angle)
   //  the current transformation matrix.
 {
   vlMatrix4x4 ctm;
-  int i, j;
   float radians = angle * RADIANS_PER_DEGREE;
   float cos_angle, sin_angle;
 
@@ -195,8 +191,6 @@ void vlTransform::RotateWXYZ ( float angle, float x, float y, float z)
   float   quat[4];
   float   sin_angle;
   float   cos_angle;
-  int     i;
-  int     j;
 
   // build a rotation matrix and concatenate it
   quat[0] = angle;
@@ -251,8 +245,6 @@ void vlTransform::RotateWXYZ ( float angle, float x, float y, float z)
 void vlTransform::Scale ( float x, float y, float z)
 {
   vlMatrix4x4 ctm;
-  int     i;
-  int     j;
 
   if (x != 1.0 || y != 1.0 || z != 1.0) {
     ctm = 0.0;
@@ -285,7 +277,6 @@ void vlTransform::Scale ( float x, float y, float z)
 void vlTransform::Translate ( float x, float y, float z)
 {
   vlMatrix4x4 ctm;
-  int i, j;
 
   if (x != 0.0 || y != 0.0 || z != 0.0) {
     ctm = 0.0;
@@ -470,8 +461,7 @@ void vlTransform::Identity ()
 // Places an identity matrix on the top of the stack.
 {
   vlMatrix4x4 ctm;
-
-  int i, j;
+  int i;
 
   ctm = 0.0;
 
@@ -534,7 +524,6 @@ vlTransform::~vlTransform ()
 void vlTransform::PrintSelf (ostream& os, vlIndent indent)
 {
   vlMatrix4x4 ctm;
-  int i, j;
 
   if (this->ShouldIPrint (vlTransform::GetClassName()))
     {
