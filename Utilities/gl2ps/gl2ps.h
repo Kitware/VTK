@@ -41,7 +41,12 @@
 
 /* To generate a Windows dll, define GL2PSDLL at compile time */
 
+
 #ifdef WIN32
+#  if defined(_MSC_VER)
+/* shut up warning due to bad windows header file */
+#    pragma warning ( disable : 4115 )
+#  endif
 #  include <windows.h>
 #  ifdef GL2PSDLL
 #    ifdef GL2PSDLL_EXPORTS
