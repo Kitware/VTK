@@ -253,27 +253,27 @@ int vtkProgrammableFilter::InRegisterLoop(vtkObject *o)
   if (this->OutputStructuredPoints->GetSource() == this)
     {
     num++;
-    cnum += this->OutputStructuredPoints->GetReferenceCount();
+    cnum += this->OutputStructuredPoints->GetNetReferenceCount();
     }
   if (this->OutputRectilinearGrid->GetSource() == this)
     {
     num++;
-    cnum += this->OutputRectilinearGrid->GetReferenceCount();
+    cnum += this->OutputRectilinearGrid->GetNetReferenceCount();
     }
   if (this->OutputPolyData->GetSource() == this)
     {
     num++;
-    cnum += this->OutputPolyData->GetReferenceCount();
+    cnum += this->OutputPolyData->GetNetReferenceCount();
     }
   if (this->OutputStructuredGrid->GetSource() == this)
     {
     num++;
-    cnum += this->OutputStructuredGrid->GetReferenceCount();
+    cnum += this->OutputStructuredGrid->GetNetReferenceCount();
     }
   if (this->OutputUnstructuredGrid->GetSource() == this)
     {
     num++;
-    cnum += this->OutputUnstructuredGrid->GetReferenceCount();
+    cnum += this->OutputUnstructuredGrid->GetNetReferenceCount();
     }
   
   // if no one outside is using us

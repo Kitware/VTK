@@ -509,12 +509,12 @@ int vtkClipPolyData::InRegisterLoop(vtkObject *o)
   if (this->Output->GetSource() == this)
     {
     num++;
-    cnum += this->Output->GetReferenceCount();
+    cnum += this->Output->GetNetReferenceCount();
     }
   if (this->ClippedOutput->GetSource() == this)
     {
     num++;
-    cnum += this->ClippedOutput->GetReferenceCount();
+    cnum += this->ClippedOutput->GetNetReferenceCount();
     }
   
   // if no one outside is using us

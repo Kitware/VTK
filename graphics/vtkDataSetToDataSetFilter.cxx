@@ -262,27 +262,27 @@ int vtkDataSetToDataSetFilter::InRegisterLoop(vtkObject *o)
   if (this->StructuredPoints->GetSource() == this)
     {
     num++;
-    cnum += this->StructuredPoints->GetReferenceCount();
+    cnum += this->StructuredPoints->GetNetReferenceCount();
     }
   if (this->RectilinearGrid->GetSource() == this)
     {
     num++;
-    cnum += this->RectilinearGrid->GetReferenceCount();
+    cnum += this->RectilinearGrid->GetNetReferenceCount();
     }
   if (this->PolyData->GetSource() == this)
     {
     num++;
-    cnum += this->PolyData->GetReferenceCount();
+    cnum += this->PolyData->GetNetReferenceCount();
     }
   if (this->StructuredGrid->GetSource() == this)
     {
     num++;
-    cnum += this->StructuredGrid->GetReferenceCount();
+    cnum += this->StructuredGrid->GetNetReferenceCount();
     }
   if (this->UnstructuredGrid->GetSource() == this)
     {
     num++;
-    cnum += this->UnstructuredGrid->GetReferenceCount();
+    cnum += this->UnstructuredGrid->GetNetReferenceCount();
     }
   
   // if no one outside is using us

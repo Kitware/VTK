@@ -103,6 +103,12 @@ public:
   // Detect refernce loop PointSet <-> locator.
   void UnRegister(vtkObject *o);
   
+  // Description:
+  // Get the net reference count. That is the count minus
+  // any self created loops. This is used in the Source/Data
+  // registration to properly free the objects.
+  virtual int GetNetReferenceCount();
+
 protected:
   vtkPoints *Points;
   vtkPointLocator *Locator;

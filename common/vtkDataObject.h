@@ -135,7 +135,13 @@ public:
   // Description:
   // Handle the source/data loop.
   void UnRegister(vtkObject *o);
-  
+
+  // Description:
+  // Get the net reference count. That is the count minus
+  // any self created loops. This is used in the Source/Data
+  // registration to properly free the objects.
+  virtual int GetNetReferenceCount() {return this->ReferenceCount;};
+
 protected:
   vtkSource *Source;
   vtkFieldData *FieldData; //General field data associated with data object
