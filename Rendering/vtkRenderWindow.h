@@ -366,6 +366,7 @@ public:
   // Dummy stubs for vtkWindow API.
   virtual void SetDisplayId(void *) = 0;
   virtual void SetWindowId(void *)  = 0;
+  virtual void SetNextWindowId(void *) = 0;
   virtual void SetParentId(void *)  = 0;
   virtual void *GetGenericDisplayId() = 0;
   virtual void *GetGenericWindowId() = 0;
@@ -373,6 +374,7 @@ public:
   virtual void *GetGenericContext() = 0;
   virtual void *GetGenericDrawable() = 0;
   virtual void SetWindowInfo(char *) = 0;
+  virtual void SetNextWindowInfo(char *) = 0;
   virtual void SetParentInfo(char *) = 0;
 
   // Description:

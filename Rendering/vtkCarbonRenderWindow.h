@@ -101,6 +101,11 @@ public:
   // Set this RenderWindow's window id to a pre-existing window.
   void SetWindowInfo(void *);
 
+  void SetNextWindowInfo(char *)
+     {
+        vtkWarningMacro("SetNextWindowInfo not implemented (WindowRemap not implemented).");
+     }
+
   //BTX
   virtual void *GetGenericDisplayId() {return (void *)this->ContextId;};
   virtual void *GetGenericWindowId()  {return (void *)this->WindowId;};
@@ -127,6 +132,10 @@ public:
   // Get the window id.
   virtual WindowPtr GetWindowId();
   void  SetWindowId(void *foo) {this->SetWindowId((WindowPtr)foo);};
+  void SetNextWindowId(void *foo)
+    {
+       vtkWarningMacro("SetNextWindowId not implemented (WindowRemap not implemented).");
+    }
 
   // Description:
   // Get the window id.

@@ -31,7 +31,7 @@
 #include "vtkOpenGLPolyDataMapper.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkWinCEOpenGLRenderWindow, "1.6");
+vtkCxxRevisionMacro(vtkWinCEOpenGLRenderWindow, "1.7");
 vtkStandardNewMacro(vtkWinCEOpenGLRenderWindow);
 
 #define VTK_MAX_LIGHTS 8
@@ -682,6 +682,15 @@ void vtkWinCEOpenGLRenderWindow::SetWindowInfo(char *info)
   vtkDebugMacro(<< "Setting WindowId to " << this->WindowId << "\n"); 
 }
 
+void vtkWinCEOpenGLRenderWindow::SetNextWindowInfo(char *info)
+{
+  int tmp;
+  
+  sscanf(info,"%i",&tmp);
+ 
+  this->SetNextWindowId((HWND)tmp);
+}
+
 // Sets the HWND id of the window that WILL BE created.
 void vtkWinCEOpenGLRenderWindow::SetParentInfo(char *info)
 {
@@ -708,6 +717,12 @@ void vtkWinCEOpenGLRenderWindow::SetNextWindowId(HWND arg)
 
   this->NextWindowId = arg;
 }
+
+void vtkWinCEOpenGLRenderWindow::SetNextWindowId(void *arg)
+{
+   this->SetNextWindowId((HWND)arg);
+}
+
 
 // Begin the rendering process.
 void vtkWinCEOpenGLRenderWindow::Start(void)

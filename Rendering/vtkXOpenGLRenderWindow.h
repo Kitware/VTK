@@ -155,6 +155,13 @@ public:
   // Description:
   // Specify the X window id to use if a WindowRemap is done.
   void     SetNextWindowId(Window);
+  
+  // Description:
+  // Set the window id of the new window once a WindowRemap is done.
+  // This is the generic prototype as required by the vtkRenderWindow
+  // parent.
+  void     SetNextWindowId(void *);
+
   void     SetWindowName(const char *);
 
   // Description:
@@ -181,6 +188,10 @@ public:
   // Description:
   // Set this RenderWindow's X window id to a pre-existing window.
   void     SetWindowInfo(char *info);
+
+  // Description:
+  // Set the window info that will be used after WindowRemap()
+  void     SetNextWindowInfo(char *info);
 
   // Description:
   // Sets the X window id of the window that WILL BE created.

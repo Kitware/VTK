@@ -99,6 +99,10 @@ public:
   void SetWindowInfo(char *);
 
   // Description:
+  // Sets the WindowInfo that will be used after a WindowRemap.
+  void SetNextWindowInfo(char *);
+
+  // Description:
   // Sets the HWND id of the window that WILL BE created.
   void SetParentInfo(char *);
 
@@ -130,6 +134,13 @@ public:
   // Description:
   // Set the window id of the new window once a WindowRemap is done.
   virtual void  SetNextWindowId(HWND);
+
+  // Description:
+  // Set the window id of the new window once a WindowRemap is done.
+  // This is the generic prototype as required by the vtkRenderWindow
+  // parent.
+  virtual void SetNextWindowId(void *arg);
+
   //ETX
 
   // Description:

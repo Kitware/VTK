@@ -155,6 +155,7 @@ public:
   // Description:
   // Specify the X window id to use if a WindowRemap is done.
   void     SetNextWindowId(Window);
+  void     SetNextWindowId(void *);
   void     SetWindowName(const char *);
 
   // Description:
@@ -180,6 +181,8 @@ public:
   // Description:
   // Set this RenderWindow's X window id to a pre-existing window.
   void     SetWindowInfo(char *info);
+
+  void     SetNextWindowInfo(char *);
 
   // Description:
   // Sets the X window id of the window that WILL BE created.
