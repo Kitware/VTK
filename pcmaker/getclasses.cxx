@@ -980,11 +980,6 @@ void doMSCHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
     fprintf(fp,"IMAGING_FLAGS= /dll /incremental:yes /machine:I386\\\n");
     fprintf(fp," /out:\"$(LIBDIR)/vtkImaging.dll\" /implib:\"$(LIBDIR)/vtkImaging.lib\" \n");
     fprintf(fp,"IMAGING_LIBS=\"$(LIBDIR)/vtkCommon.lib\" ");
-    if ( vals->m_Graphics )
-      {
-      for (i = 0; i < NumOfGraphicsLibs ; i++)
-        fprintf(fp,"\"$(LIBDIR)/vtkGraphics%d.lib\" ",i);
-      }
     fprintf(fp,"\n");
 
     fprintf(fp,"IMAGING_OBJS= \\\n");
@@ -1171,7 +1166,7 @@ void doMSCHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
     }
   if ( vals->m_Imaging )
     {
-    fprintf(fp,"\"$(LIBDIR)\\vtkImaging.dll\" : $(DEF_FILE) $(IMAGING_OBJS) %s\\GraphicsSplitInfo.txt\n",vals->m_WhereBuild);
+    fprintf(fp,"\"$(LIBDIR)\\vtkImaging.dll\" : $(DEF_FILE) $(IMAGING_OBJS)\n");
 	  fprintf(fp,"    $(LINK32) @<<\n");
     fprintf(fp,"  $(LINK32_FLAGS) $(IMAGING_FLAGS) $(IMAGING_OBJS) $(IMAGING_LIBS)\n");
     fprintf(fp,"<<\n");
