@@ -10,7 +10,7 @@
 
 #include "vtkRegressionTestImage.h"
 
-void main( int argc, char *argv[] )
+int main( int argc, char *argv[] )
 {
   // Create the renderer, render window, and interactor
   vtkRenderer *ren1 = vtkRenderer::New();
