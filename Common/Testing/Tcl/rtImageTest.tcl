@@ -131,6 +131,13 @@ if {$validImageFound != 0} {
    rt_w2if Delete 
    rt_png Delete 
    if {[rt_id GetThresholdedError] > $threshold} {
+      if {[catch {set channel [open $validImage.diff.png w]}] == 0 } {
+         close $channel
+         vtkPNGWriter rt_pngw2
+	 rt_pngw2 SetFileName $validImage.diff.png
+         rt_pngw2 SetInput [rt_id GetOutput]
+         rt_pngw2 Write 
+      }
       puts "Failed Image Test with error: $imageError"
       vtkCommand DeleteAllObjects
       catch {destroy .top}
