@@ -24,7 +24,7 @@
 #include "vtkTimerLog.h"
 #include "vtkTriangle.h"
 
-vtkCxxRevisionMacro(vtkQuadricClustering, "1.63");
+vtkCxxRevisionMacro(vtkQuadricClustering, "1.64");
 vtkStandardNewMacro(vtkQuadricClustering);
 
 //----------------------------------------------------------------------------
@@ -201,9 +201,9 @@ void vtkQuadricClustering::StartAppend(double *bounds)
     this->Bounds[1] = this->Bounds[0] + (x * this->DivisionSpacing[0]);
     this->Bounds[3] = this->Bounds[2] + (y * this->DivisionSpacing[1]);
     this->Bounds[5] = this->Bounds[4] + (z * this->DivisionSpacing[2]);
-    this->NumberOfDivisions[0] = (int)x;
-    this->NumberOfDivisions[1] = (int)y;
-    this->NumberOfDivisions[2] = (int)z;
+    this->NumberOfDivisions[0] = (int)x > 0 ? (int)x : 1;
+    this->NumberOfDivisions[1] = (int)y > 0 ? (int)y : 1;
+    this->NumberOfDivisions[2] = (int)z > 0 ? (int)z : 1;
     }
   else
     {
