@@ -96,6 +96,7 @@ renWin SetAbortCheckMethod {TkCheckAbort}
 [ren1 GetActiveCamera] ComputeViewPlaneNormal
 ren1 ResetCamera
 [ren1 GetActiveCamera] Dolly 1.2
+ren1 ResetCameraClippingRange
 
 renWin Render
 renWin SetFileName dem.tcl.ppm

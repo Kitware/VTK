@@ -46,6 +46,7 @@ set cam [ren1 GetActiveCamera]
 ren1 ResetCamera
 $cam Azimuth 130
 $cam Dolly 1.3
+ren1 ResetCameraClippingRange
 
 set Pos [$cam GetPosition]
 set FP  [$cam GetFocalPoint]
