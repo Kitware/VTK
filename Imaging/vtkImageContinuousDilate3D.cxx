@@ -23,7 +23,7 @@
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageContinuousDilate3D, "1.30");
+vtkCxxRevisionMacro(vtkImageContinuousDilate3D, "1.31");
 vtkStandardNewMacro(vtkImageContinuousDilate3D);
 
 //----------------------------------------------------------------------------
@@ -291,6 +291,14 @@ void vtkImageContinuousDilate3D::ThreadedRequestData(
   vtkImageData **outData, 
   int outExt[6], int id)
 {
+  // return if nothing to do
+  if (outExt[1] < outExt[0] ||
+      outExt[3] < outExt[2] ||
+      outExt[5] < outExt[4])
+    {
+    return;
+    }
+
   int inExt[6], wholeExt[6];
 
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
