@@ -11,7 +11,7 @@ source vtkImageInclude.tcl
 vtkImageGaussianSource gauss
 gauss SetWholeExtent 0 225 0 225 0 20
 gauss SetCenter 100 100 10
-gauss SetStandardDeviation 100.0
+gauss SetStandardDeviation 50.0
 gauss SetMaximum 255.0
 gauss ReleaseDataFlagOff
 
@@ -21,6 +21,9 @@ viewer SetZSlice 10
 viewer SetColorWindow 255
 viewer SetColorLevel 127.5
 #viewer DebugOn
+
+viewer Render
+gauss SetStandardDeviation 100.0
 
 # make interface
 source WindowLevelInterface.tcl
