@@ -51,7 +51,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkMesaRenderWindow.h"
 #endif
 
-vtkCxxRevisionMacro(vtkCompositeManager, "1.11");
+vtkCxxRevisionMacro(vtkCompositeManager, "1.12");
 
 // Structures to communicate render info.
 struct vtkCompositeRenderWindowInfo 
@@ -403,6 +403,15 @@ void vtkCompositeManager::RenderRMI()
   for (i = 0; i < winInfo.NumberOfRenderers; ++i)
     {
     // Receive the camera information.
+
+    // We put this before receive because we want the pipeline
+    // to be updated the first time if the camera does not
+    // exist and we want it to happen before we block in receive
+    if (ren)
+      {
+      cam = ren->GetActiveCamera();
+      }
+
     controller->Receive((char*)(&renInfo), 
                         sizeof(struct vtkCompositeRendererInfo), 
                         0, vtkCompositeManager::REN_INFO_TAG);
@@ -413,7 +422,6 @@ void vtkCompositeManager::RenderRMI()
       }
     else
       {
-      cam = ren->GetActiveCamera();
       lc = ren->GetLights();
       lc->InitTraversal();
       light = lc->GetNextItem();
