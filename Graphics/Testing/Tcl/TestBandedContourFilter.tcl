@@ -54,15 +54,15 @@ vtkCellArray lines
   lines InsertCellPoint 10
 
 vtkCellArray polys
-  polys InsertNextCell 3
-  polys InsertCellPoint 11
-  polys InsertCellPoint 12
-  polys InsertCellPoint 13
   polys InsertNextCell 4
   polys InsertCellPoint 14
   polys InsertCellPoint 15
   polys InsertCellPoint 17
   polys InsertCellPoint 16
+  polys InsertNextCell 3
+  polys InsertCellPoint 11
+  polys InsertCellPoint 12
+  polys InsertCellPoint 13
 
 vtkCellArray strips
   strips InsertNextCell 8
@@ -115,14 +115,25 @@ vtkPolyData polyData
 vtkBandedPolyDataContourFilter bf
   bf SetInput polyData
   bf GenerateValues 3 25 75 
-
 vtkPolyDataMapper mapper
   mapper SetInput [bf GetOutput]
   mapper SetScalarModeToUseCellData
   mapper SetScalarRange 0 4
-
 vtkActor actor
   actor SetMapper mapper
+
+vtkIdFilter ids
+  ids SetInput [bf GetOutput]
+  ids PointIdsOn
+  ids CellIdsOn
+  ids FieldDataOn
+vtkLabeledDataMapper ldm
+  ldm SetInput [ids GetOutput]
+  ldm SetLabelFormat "%g"
+  ldm SetLabelModeToLabelFieldData
+vtkActor2D pointLabels
+  pointLabels SetMapper ldm    
+
 
 # Create the RenderWindow, Renderer and both Actors
 #
@@ -135,6 +146,9 @@ vtkRenderWindowInteractor iren
 # Add the actors to the renderer, set the background and size
 #
 ren1 AddActor actor
+#ren1 AddActor2D pointLabels #for debugging only
+
+
 ren1 SetBackground 0 0 0
 renWin SetSize 300 80
 renWin Render
