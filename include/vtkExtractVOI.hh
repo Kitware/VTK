@@ -85,7 +85,7 @@ public:
   // For example, if the SampleRate=(2,2,2), every other point will be selected,
   // resulting in a volume 1/8th the original size.
   vtkSetVector3Macro(SampleRate, int);
-  vtkGetVector3Macro(SampleRate, int);
+  vtkGetVectorMacro(SampleRate, int, 3);
 
 protected:
   void Execute();
