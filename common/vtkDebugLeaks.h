@@ -71,7 +71,7 @@ public:
   static void PrintCurrentLeaks();
   // Clean up the table memory
   static void DeleteTable();
-private:
+protected:
   vtkDebugLeaks(){}; 
   virtual ~vtkDebugLeaks(){}; 
   vtkDebugLeaks(const vtkDebugLeaks&) {};
