@@ -121,6 +121,10 @@ static void vtkImageMapToRGBAExecute(vtkImageMapToRGBA *self,
   
   // Get increments to march through data 
   inData->GetContinuousIncrements(outExt, inIncX, inIncY, inIncZ);
+  // because we are using void * and char * we must take care
+  // of the scalar size in the increments
+  inIncY *= scalarSize;
+  inIncZ *= scalarSize;
   outData->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
   numberOfComponents = inData->GetNumberOfScalarComponents();
   rowLength = extX*scalarSize;
