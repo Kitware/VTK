@@ -34,7 +34,7 @@
 #include "vtkColorTransferFunction.h"
 #include "vtkVolumeProperty.h"
 
-vtkCxxRevisionMacro(vtkUnstructuredGridBunykRayCastFunction, "1.5");
+vtkCxxRevisionMacro(vtkUnstructuredGridBunykRayCastFunction, "1.6");
 vtkStandardNewMacro(vtkUnstructuredGridBunykRayCastFunction);
 
 #define VTK_BUNYKRCF_NUMLISTS 100000
@@ -74,6 +74,9 @@ vtkUnstructuredGridBunykRayCastFunction::vtkUnstructuredGridBunykRayCastFunction
   this->SavedParametersInput         = NULL;
   
   this->SavedTriangleListInput       = NULL;
+  
+  // Need to vary this based on cell size - for now assume 1
+  this->SampleDistance = 1.0;
 }
 
 // Destructor - release all memory
@@ -666,9 +669,9 @@ void vtkUnstructuredGridBunykRayCastFunction::ComputePixelIntersections()
       if ( this->IsTriangleFrontFacing( triPtr, triPtr->ReferredByTetra[0] ) )
         {
         int   minX = static_cast<int>(this->Points[3*triPtr->PointIndex[0]]);
-        int   maxX = static_cast<int>(minX+1);
+        int   maxX = minX+1;
         int   minY = static_cast<int>(this->Points[3*triPtr->PointIndex[0]+1]);
-        int   maxY = static_cast<int>(minY+1);
+        int   maxY = minY+1;
         
         int tmp;
         
@@ -1084,7 +1087,7 @@ void vtkUnstructuredGridBunykRayCastFunctionCastRay( T scalars,
           {
           if ( index == 3 )
             {
-            cout << "Ugh - found too many triangles!" << endl;
+            vtkGenericWarningMacro( "Ugh - found too many triangles!" );
             }
           else
             {
