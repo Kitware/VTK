@@ -41,17 +41,17 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkThreshold.h"
 
 // Construct with lower threshold=0, upper threshold=1, and threshold 
-// function=upper.
+// function=upper AllScalars=1.
 vtkThreshold::vtkThreshold()
 {
   this->LowerThreshold = 0.0;
   this->UpperThreshold = 1.0;
-
+  this->AllScalars = 1;
   this->ThresholdFunction = &vtkThreshold::Upper;
 }
 
 // Description:
-// Criterion is cells whose scalars are less than lower threshold.
+// Criterion is cells whose scalars are less or equal to lower threshold.
 void vtkThreshold::ThresholdByLower(float lower) 
 {
   if ( this->LowerThreshold != lower )
@@ -63,7 +63,7 @@ void vtkThreshold::ThresholdByLower(float lower)
 }
                            
 // Description:
-// Criterion is cells whose scalars are less than upper threshold.
+// Criterion is cells whose scalars are greater or equal to upper threshold.
 void vtkThreshold::ThresholdByUpper(float upper)
 {
   if ( this->UpperThreshold != upper )
@@ -91,16 +91,17 @@ void vtkThreshold::Execute()
 {
   int cellId;
   vtkIdList *cellPts, *pointMap;
-  vtkIdList newCellPts(VTK_CELL_SIZE);
+  vtkIdList *newCellPts = new vtkIdList;
   vtkScalars *inScalars;
-  vtkFloatScalars cellScalars(VTK_CELL_SIZE);
+  vtkFloatScalars *cellScalars = new vtkFloatScalars;
   vtkCell *cell;
   vtkFloatPoints *newPoints;
   vtkPointData *pd, *outPD;
   int i, ptId, newId, numPts, numCellPts;
   float *x;
   vtkUnstructuredGrid *output= this->GetOutput();
-
+  int keepCell;
+  
   vtkDebugMacro(<< "Executing threshold filter");
 
   if ( ! (inScalars = this->Input->GetPointData()->GetScalars()) )
@@ -125,16 +126,31 @@ void vtkThreshold::Execute()
     {
     cell = this->Input->GetCell(cellId);
     cellPts = cell->GetPointIds();
-    inScalars->GetScalars(*cellPts,cellScalars);
+    inScalars->GetScalars(*cellPts,*cellScalars);
     numCellPts = cell->GetNumberOfPoints();
-
-    for ( i=0; i < numCellPts; i++)
+    
+    if (this->AllScalars)
       {
-      ptId = cellPts->GetId(i);
-      if ( ! ((this->*(this->ThresholdFunction))(cellScalars.GetScalar(ptId))) ) break;
+      keepCell = 1;
+      for ( i=0; keepCell && (i < numCellPts); i++)
+	{
+	ptId = cellPts->GetId(i);
+	keepCell = 
+	  (this->*(this->ThresholdFunction))(cellScalars->GetScalar(ptId));
+	}
       }
-
-    if ( i >= numCellPts ) // satisfied thresholding
+    else
+      {
+      keepCell = 0;
+      for ( i=0; (!keepCell) && (i < numCellPts); i++)
+	{
+	ptId = cellPts->GetId(i);
+	keepCell = 
+	  (this->*(this->ThresholdFunction))(cellScalars->GetScalar(ptId));
+	}
+      }
+    
+    if ( keepCell ) // satisfied thresholding
       {
       for (i=0; i < numCellPts; i++)
         {
@@ -146,9 +162,10 @@ void vtkThreshold::Execute()
           pointMap->SetId(ptId,newId);
           outPD->CopyData(pd,ptId,newId);
           }
-        newCellPts.InsertId(i,newId);
+        newCellPts->InsertId(i,newId);
         }
-      output->InsertNextCell(cell->GetCellType(),newCellPts);
+      output->InsertNextCell(cell->GetCellType(),*newCellPts);
+      newCellPts->Reset();
       } // satisfied thresholding
     } // for all cells
 
@@ -157,17 +174,20 @@ void vtkThreshold::Execute()
 
   // now clean up / update ourselves
   pointMap->Delete();
-
+  newCellPts->Delete();
+  
   output->SetPoints(newPoints);
   newPoints->Delete();
 
   output->Squeeze();
+  cellScalars->Delete();
 }
 
 void vtkThreshold::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkDataSetToUnstructuredGridFilter::PrintSelf(os,indent);
 
+  os << indent << "All Scalars: " << this->AllScalars << "\n";;
   if ( this->ThresholdFunction == &vtkThreshold::Upper )
     os << indent << "Threshold By Upper\n";
 

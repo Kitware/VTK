@@ -6,7 +6,7 @@
   Date:      $Date$
   Version:   $Revision$
 
-Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
+Copyright (c) 1993-1996 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
 The following terms apply to all files associated with the software unless
@@ -55,15 +55,6 @@ vtkImage2dNonMaximalSuppressionFilter::vtkImage2dNonMaximalSuppressionFilter()
   this->SetAxes3d(VTK_IMAGE_X_AXIS,VTK_IMAGE_Y_AXIS, VTK_IMAGE_COMPONENT_AXIS);
   this->SetOutputDataType(VTK_IMAGE_FLOAT);
 }
-
-
-//----------------------------------------------------------------------------
-void 
-vtkImage2dNonMaximalSuppressionFilter::PrintSelf(ostream& os, vtkIndent indent)
-{
-  this->vtkImageSpatialFilter::PrintSelf(os, indent);
-}
-
 
 
 //----------------------------------------------------------------------------
@@ -176,7 +167,17 @@ void vtkImage2dNonMaximalSuppressionFilter::ExecuteCenter3d(
       else
 	{
 	*outPtr0 = *inPtr0;
+	// also check for them being equal is neighbor with larger ptr
+	if ((neighbor > -neighbor)&&(inPtr0[neighbor] == *inPtr0))
+	  {
+	  *outPtr0 = 0.0;
+	  }
+	if ((-neighbor > neighbor)&&(inPtr0[-neighbor] == *inPtr0))
+	  {
+	  *outPtr0 = 0.0;
+	  }
 	}
+
       // Set Direction
       outPtr2 = outPtr0 + outInc2;
       *outPtr2 = d0;

@@ -57,17 +57,13 @@ class vtkImage2dNonMaximalSuppressionFilter : public vtkImageSpatialFilter
 public:
   vtkImage2dNonMaximalSuppressionFilter();
   char *GetClassName() {return "vtkImage2dNonMaximalSuppressionFilter";};
-  void PrintSelf(ostream& os, vtkIndent indent);
   
   void SetAxes2d(int axis0, int axis1);
   void InterceptCacheUpdate(vtkImageRegion *region);
-  
-  
-protected:
 
+protected:
   void ExecuteCenter3d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
   void ExecuteBoundary3d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
-
 };
 
 #endif

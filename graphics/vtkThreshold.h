@@ -40,12 +40,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkThreshold - extracts cells where scalar value of every point in cell satisfies threshold criterion
 // .SECTION Description
-// vtkThreshold is a filter that extracts cells from any dataset type that 
-// satisfy a threshold criterion. A cell satisfies the criterion if the 
-// scalar value of every point satisfies the criterion. The criterion can 
-// take three forms: 1) greater than a particular value; 2) less than a 
-// particular value; or 3) between two values. The output of this filter
-// is an unstructured grid.
+// vtkThreshold is a filter that extracts cells from any dataset type that
+// satisfy a threshold criterion. A cell satisfies the criterion if the
+// scalar value of (every or any) point satisfies the criterion. The
+// criterion can take three forms: 1) greater than a particular value; 2)
+// less than a particular value; or 3) between two values. The output of this
+// filter is an unstructured grid.
 // .SECTION See Also
 // vtkThresholdPoints vtkThresholdTextureCoords
 
@@ -68,10 +68,18 @@ public:
   vtkGetMacro(UpperThreshold,float);
   vtkGetMacro(LowerThreshold,float);
 
+  // Description:
+  // The test must be satisfied for all scalars of the cell
+  // or just one.
+  vtkSetMacro(AllScalars,int);
+  vtkGetMacro(AllScalars,int);
+  vtkBooleanMacro(AllScalars,int);
+  
 protected:
   // Usual data generation method
   void Execute();
 
+  int   AllScalars;
   float LowerThreshold;
   float UpperThreshold;
 

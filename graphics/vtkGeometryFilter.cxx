@@ -109,8 +109,8 @@ void vtkGeometryFilter::Execute()
   vtkCell *cell, *face, *cellCopy;
   float *x;
   vtkIdList *ptIds;
-  static vtkIdList cellIds(VTK_CELL_SIZE);
-  static vtkIdList pts(VTK_CELL_SIZE);
+  vtkIdList *cellIds = new vtkIdList;
+  vtkIdList *pts = new vtkIdList;
   vtkFloatPoints *newPts;
   int ptId;
   int npts, pt;
@@ -188,16 +188,18 @@ void vtkGeometryFilter::Execute()
         case 0: case 1: case 2:
           
           npts = cell->GetNumberOfPoints();
-          pts.Reset();
+          pts->Reset();
           for ( i=0; i < npts; i++)
             {
             ptId = cell->GetPointId(i);
             x = this->Input->GetPoint(ptId);
             pt = newPts->InsertNextPoint(x);
             outputPD->CopyData(pd,ptId,pt);
-            pts.InsertId(i,pt);
+            pts->InsertId(i,pt);
             }
-          output->InsertNextCell(cell->GetCellType(), pts);
+	  //	  cerr << "inserting " << npts << "," << pts->GetNumberOfIds() << "\n";
+	  // cerr << "total " << newPts->GetNumberOfPoints() << "\n";
+          output->InsertNextCell(cell->GetCellType(), *pts);
           break;
 
         case 3:
@@ -205,21 +207,21 @@ void vtkGeometryFilter::Execute()
           for (j=0; j < cellCopy->GetNumberOfFaces(); j++)
             {
             face = cellCopy->GetFace(j);
-            this->Input->GetCellNeighbors(cellId, face->PointIds, cellIds);
-            if ( cellIds.GetNumberOfIds() <= 0 || 
-            (!allVisible && !cellVis[cellIds.GetId(0)]) )
+            this->Input->GetCellNeighbors(cellId, face->PointIds, *cellIds);
+            if ( cellIds->GetNumberOfIds() <= 0 || 
+            (!allVisible && !cellVis[cellIds->GetId(0)]) )
               {
               npts = face->GetNumberOfPoints();
-              pts.Reset();
+              pts->Reset();
               for ( i=0; i < npts; i++)
                 {
                 ptId = face->GetPointId(i);
                 x = this->Input->GetPoint(ptId);
                 pt = newPts->InsertNextPoint(x);
                 outputPD->CopyData(pd,ptId,pt);
-                pts.InsertId(i,pt);
+                pts->InsertId(i,pt);
                 }
-              output->InsertNextCell(face->GetCellType(), pts);
+              output->InsertNextCell(face->GetCellType(), *pts);
               }
             }
             cellCopy->Delete();
@@ -239,6 +241,8 @@ void vtkGeometryFilter::Execute()
 
   output->Squeeze();
 
+  cellIds->Delete();
+  pts->Delete();
   if ( cellVis ) delete [] cellVis;
 }
 
