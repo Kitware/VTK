@@ -43,7 +43,6 @@ vtkTIFFWriter
 vtkUGFacetReader
 vtkUnstructuredGridReader
 vtkUnstructuredGridWriter
-vtkVectorText
 vtkVolume16Reader
 vtkVolumeReader
 vtkWriter

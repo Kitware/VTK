@@ -16,8 +16,9 @@ vtkRIBLight
 vtkRIBProperty 
 vtkThinPlateSplineTransform 
 vtkTransformToGrid 
+vtkVectorText
 vtkVideoSource 
-#vtkVRMLImporter 
+vtkVRMLImporter 
 vtkXYPlotActor 
 vtkWeightedTransformFilter 
 )
