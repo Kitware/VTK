@@ -21,7 +21,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageMathematics, "1.35");
+vtkCxxRevisionMacro(vtkImageMathematics, "1.36");
 vtkStandardNewMacro(vtkImageMathematics);
 
 //----------------------------------------------------------------------------
@@ -30,6 +30,7 @@ vtkImageMathematics::vtkImageMathematics()
   this->Operation = VTK_ADD;
   this->ConstantK = 1.0;
   this->ConstantC = 0.0;
+  this->DivideByZeroToC = 0;
 }
 
 
@@ -202,7 +203,8 @@ static void vtkImageMathematicsExecute2(vtkImageMathematics *self,
   unsigned long count = 0;
   unsigned long target;
   int op = self->GetOperation();
-
+  int DivideByZeroToC = self->GetDivideByZeroToC();
+  double constantc = self->GetConstantC();
   
   // find the region to loop over
   rowLength = (outExt[1] - outExt[0]+1)*in1Data->GetNumberOfScalarComponents();
@@ -256,7 +258,14 @@ static void vtkImageMathematicsExecute2(vtkImageMathematics *self,
               }
             else
               {
-              *outPtr = (T)(*in1Ptr / 0.00001);
+              if ( DivideByZeroToC )
+                {
+                *outPtr = (T) constantc;
+                }
+              else
+                {
+                *outPtr = (T)(*in1Ptr / 0.00001);
+                }
               }
             break;
           case VTK_MIN:

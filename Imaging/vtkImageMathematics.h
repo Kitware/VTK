@@ -91,6 +91,11 @@ public:
   vtkSetMacro(ConstantC,double);
   vtkGetMacro(ConstantC,double);
 
+  // How to handle divide by zero
+  vtkSetMacro(DivideByZeroToC,int);
+  vtkGetMacro(DivideByZeroToC,int);
+  vtkBooleanMacro(DivideByZeroToC,int);
+
 protected:
   vtkImageMathematics();
   ~vtkImageMathematics() {};
@@ -98,6 +103,7 @@ protected:
   int Operation;
   double ConstantK;
   double ConstantC;
+  int DivideByZeroToC;
   
   void ExecuteInformation(vtkImageData **inDatas, vtkImageData *outData);
   void ExecuteInformation(){this->vtkImageTwoInputFilter::ExecuteInformation();};
