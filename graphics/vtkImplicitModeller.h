@@ -67,6 +67,18 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // data in a sequence of operations to generate a single output. This is
 // useful when you have multiple datasets and want to create a
 // conglomeration of all the data.
+//
+// The ProcessMode ivar controls the method used within the Append function
+// (where the actual work is done regardless if the Append function is
+// explicitly called) to compute the implicit model.  If set to work in voxel
+// mode, each voxel is visited once.  If set to cell mode, each cell is visited
+// once.  Tests have shown once per voxel to be faster when there are a 
+// lot of cells (at least a thousand?); relative performance improvement 
+// increases with addition cells. Primitives should not be stripped for best
+// performance of the voxel mode.  Also, if explicitly using the Append feature
+// many times, the cell mode will probably be better because each voxel will be
+// visited each Append.  Append the data before input if possible when using
+// the voxel mode.
 
 // .SECTION See Also
 // vtkSampleFunction vtkContourFilter
@@ -75,6 +87,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkImplicitModeller_h
 
 #include "vtkDataSetToStructuredPointsFilter.h"
+
+#define VTK_VOXEL_MODE   0
+#define VTK_CELL_MODE    1
 
 class VTK_EXPORT vtkImplicitModeller : public vtkDataSetToStructuredPointsFilter 
 {
@@ -141,6 +156,23 @@ public:
   vtkGetMacro(CapValue,float);
 
   // Description:
+  // Specify whether to visit each cell once per append or each voxel once
+  // per append.  Some tests have shown once per voxel to be faster
+  // when there are a lot of cells (at least a thousand?); relative
+  // performance improvement increases with addition cells.  Primitives
+  // should not be stripped for best performance of the voxel mode.
+  vtkSetMacro(ProcessMode, int);
+  vtkGetMacro(ProcessMode, int);
+  void SetProcessModeToPerVoxel() {this->SetProcessMode(VTK_VOXEL_MODE);}
+  void SetProcessModeToPerCell()  {this->SetProcessMode(VTK_CELL_MODE);}
+
+  // Description:
+  // Specify the level of the locator to use when using the per voxel
+  // process mode.
+  vtkSetMacro(LocatorMaxLevel,int);
+  vtkGetMacro(LocatorMaxLevel,int);
+
+  // Description:
   // Special update methods handles possibility of appending data.
   void Update();
 
@@ -175,6 +207,8 @@ protected:
   int DataAppended;
   int AdjustBounds;
   float AdjustDistance;
+  int ProcessMode;
+  int LocatorMaxLevel;
 };
 
 #endif

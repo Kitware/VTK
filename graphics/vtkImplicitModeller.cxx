@@ -39,7 +39,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include <math.h>
+#include "vtkMath.h"
 #include "vtkImplicitModeller.h"
+#include "vtkCellLocator.h"
 #include "vtkScalars.h"
 
 // Construct with sample dimensions=(50,50,50), and so that model bounds are
@@ -66,6 +68,9 @@ vtkImplicitModeller::vtkImplicitModeller()
   this->DataAppended = 0;
   this->AdjustBounds = 1;
   this->AdjustDistance = 0.0125;
+
+  this->ProcessMode = VTK_CELL_MODE;
+  this->LocatorMaxLevel = 5;
 }
 
 // Initialize the filter for appending data. You must invoke the
@@ -105,18 +110,18 @@ void vtkImplicitModeller::Append(vtkDataSet *input)
 {
   int cellNum, i, j, k;
   float *bounds, adjBounds[6];
-  vtkCell *cell;
   float maxDistance, pcoords[3];
   vtkScalars *newScalars;
-  int idx, subId;
+  int idx, subId, cellId;
   int min[3], max[3];
   float x[3], prevDistance2, distance2;
   int jkFactor;
-  float closestPoint[3];
+  float closestPoint[3], mDist;
   vtkStructuredPoints *output = this->GetOutput();
   float *Spacing;
   float *origin;
   float *weights=new float[input->GetMaxCellSize()];
+  float maxDistance2;
   
   vtkDebugMacro(<< "Appending data");
 
@@ -125,37 +130,109 @@ void vtkImplicitModeller::Append(vtkDataSet *input)
 
   output->SetDimensions(this->GetSampleDimensions());
   maxDistance = this->ComputeModelBounds();
+  maxDistance2 = maxDistance * maxDistance;
   Spacing = output->GetSpacing();
   origin = output->GetOrigin();
-  
-  //
-  // Traverse all cells; computing distance function on volume points.
-  //
-  for (cellNum=0; cellNum < input->GetNumberOfCells(); cellNum++)
+
+  if (this->ProcessMode == VTK_CELL_MODE)
     {
-    cell = input->GetCell(cellNum);
-    bounds = cell->GetBounds();
+    //
+    // Traverse all cells; computing distance function on volume points.
+    //
+    vtkCell *cell;
+    for (cellNum=0; cellNum < input->GetNumberOfCells(); cellNum++)
+      {
+      cell = input->GetCell(cellNum);
+      bounds = cell->GetBounds();
+      for (i=0; i<3; i++)
+        {
+        adjBounds[2*i] = bounds[2*i] - maxDistance;
+        adjBounds[2*i+1] = bounds[2*i+1] + maxDistance;
+        }
+      
+      // compute dimensional bounds in data set
+      for (i=0; i<3; i++)
+        {
+        min[i] = (int) ((float)(adjBounds[2*i] - origin[i]) / 
+          Spacing[i]);
+        max[i] = (int) ((float)(adjBounds[2*i+1] - origin[i]) / 
+          Spacing[i]);
+        if (min[i] < 0)
+          {
+          min[i] = 0;
+          }
+        if (max[i] >= this->SampleDimensions[i])
+          {
+          max[i] = this->SampleDimensions[i] - 1;
+          }
+        }
+      
+      jkFactor = this->SampleDimensions[0]*this->SampleDimensions[1];
+      for (k = min[2]; k <= max[2]; k++) 
+        {
+        x[2] = Spacing[2] * k + origin[2];
+        for (j = min[1]; j <= max[1]; j++)
+          {
+          x[1] = Spacing[1] * j + origin[1];
+          for (i = min[0]; i <= max[0]; i++) 
+            {
+            x[0] = Spacing[0] * i + origin[0];
+            idx = jkFactor*k + this->SampleDimensions[0]*j + i;
+            prevDistance2 = newScalars->GetScalar(idx);
+            
+            // union combination of distances
+            if ( cell->EvaluatePosition(x, closestPoint, subId, pcoords, 
+              distance2, weights) != -1 && distance2 < prevDistance2 &&
+              distance2 <= maxDistance2 ) 
+              {
+              newScalars->SetScalar(idx,distance2);
+              }
+            }
+          }
+        }
+      }
+    }
+  else
+    {
+    //
+    // Traverse each voxel; using CellLocator to find the closest point
+    //
+    vtkGenericCell *cell = vtkGenericCell::New();
+    vtkCellLocator *locator = vtkCellLocator::New();
+    // Set up the cell locator.
+    // If AutomaticOff, then NumberOfCellsPerBucket only used for allocating
+    // memory.  If AutomaticOn, then NumberOfCellsPerBucket is used to guess
+    // the depth for the uniform octree required to support
+    // NumberOfCellsPerBucket (assuming uniform distribution of cells).
+    locator->SetDataSet( input );
+    locator->AutomaticOff();
+    locator->SetMaxLevel( this->LocatorMaxLevel );
+    locator->SetNumberOfCellsPerBucket( 1 );  
+    locator->CacheCellBoundsOn();
+    locator->BuildLocator();
+
+    bounds = input->GetBounds();
     for (i=0; i<3; i++)
       {
       adjBounds[2*i] = bounds[2*i] - maxDistance;
       adjBounds[2*i+1] = bounds[2*i+1] + maxDistance;
       }
-
+    
     // compute dimensional bounds in data set
     for (i=0; i<3; i++)
       {
       min[i] = (int) ((float)(adjBounds[2*i] - origin[i]) / 
-                      Spacing[i]);
+        Spacing[i]);
       max[i] = (int) ((float)(adjBounds[2*i+1] - origin[i]) / 
-                      Spacing[i]);
+        Spacing[i]);
       if (min[i] < 0)
-	{
-	min[i] = 0;
-	}
+        {
+        min[i] = 0;
+        }
       if (max[i] >= this->SampleDimensions[i])
-	{
-	max[i] = this->SampleDimensions[i] - 1;
-	}
+        {
+        max[i] = this->SampleDimensions[i] - 1;
+        }
       }
 
     jkFactor = this->SampleDimensions[0]*this->SampleDimensions[1];
@@ -164,25 +241,62 @@ void vtkImplicitModeller::Append(vtkDataSet *input)
       x[2] = Spacing[2] * k + origin[2];
       for (j = min[1]; j <= max[1]; j++)
         {
+        cellId = -1;
         x[1] = Spacing[1] * j + origin[1];
         for (i = min[0]; i <= max[0]; i++) 
           {
           x[0] = Spacing[0] * i + origin[0];
           idx = jkFactor*k + this->SampleDimensions[0]*j + i;
           prevDistance2 = newScalars->GetScalar(idx);
-
-          // union combination of distances
-          if ( cell->EvaluatePosition(x, closestPoint, subId, pcoords, 
-                  distance2, weights) != -1 && distance2 < prevDistance2 )
-	    {
-            newScalars->SetScalar(idx,distance2);
-	    }
+          
+          if (cellId != -1)
+            {
+            cell->EvaluatePosition(x, closestPoint, subId, pcoords,
+              distance2, weights);
+            if (distance2 <= maxDistance2 && distance2 < prevDistance2)
+              {
+              mDist = sqrt(distance2);
+              newScalars->SetScalar(idx,distance2);
+              }
+            else if (prevDistance2 < maxDistance2)
+              {
+              mDist = sqrt(prevDistance2);
+              }
+            else
+              {
+              mDist = maxDistance;
+              }
+            }
+          else if (prevDistance2 < maxDistance2)
+            {
+            mDist = sqrt(prevDistance2);
+            }
+          else
+            {
+            mDist = maxDistance;
+            }
+          
+          if (locator->FindClosestPointWithinRadius(x, mDist,
+              closestPoint, cell, cellId, subId, distance2) )
+            {
+            if(distance2 <= prevDistance2)
+              {
+              newScalars->SetScalar(idx,distance2);
+              }
+            }
+          else
+            {
+            cellId = -1;
+            }
           }
         }
       }
+    locator->Delete();
+    cell->Delete();
     }
 
   delete [] weights;
+
 }
 
 // Method completes the append process.
@@ -467,6 +581,8 @@ void vtkImplicitModeller::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "AdjustBounds: " << (this->AdjustBounds ? "On\n" : "Off\n");
   os << indent << "Adjust Distance: " << this->AdjustDistance << "\n";
+  os << indent << "Process Mode: " << this->ProcessMode << "\n";
+  os << indent << "Locator Max Level: " << this->LocatorMaxLevel << "\n";
 
   os << indent << "Capping: " << (this->Capping ? "On\n" : "Off\n");
   os << indent << "Cap Value: " << this->CapValue << "\n";
