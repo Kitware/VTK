@@ -10,6 +10,7 @@ typedef struct
   char *LibraryName;
   int NumberWrapped;
   void **SourceFiles;
+  char **HeaderFiles;
 } cmVTKWrapPythonData;
 
 /* this roputine creates the init file */
@@ -137,6 +138,7 @@ static int InitialPass(void *inf, void *mf, int argc, char *argv[])
   classes = (char **)malloc(sizeof(char *)*newArgc);
   cdata->LibraryName = strdup(newArgv[0]);
   cdata->SourceFiles = (void **)malloc(sizeof(void *)*newArgc);
+  cdata->HeaderFiles = (char **)malloc(sizeof(char *)*newArgc);
 
   /* was the list already populated */
   def = info->CAPI->GetDefinition(mf, newArgv[1]);
@@ -164,7 +166,9 @@ static int InitialPass(void *inf, void *mf, int argc, char *argv[])
       void *file = info->CAPI->CreateSourceFile();
       char *srcName;
       char *hname;
+      char *pathName;
       srcName = info->CAPI->GetFilenameWithoutExtension(newArgv[i]);
+      pathName = info->CAPI->GetFilenamePath(newArgv[i]);
       if (curr)
         {
         int abst = info->CAPI->SourceFileGetPropertyAsBool(curr,"ABSTRACT");
@@ -179,19 +183,28 @@ static int InitialPass(void *inf, void *mf, int argc, char *argv[])
                                      info->CAPI->GetCurrentOutputDirectory(mf),
                                      "cxx",0);
 
-      hname = (char *)malloc(strlen(cdir) + strlen(srcName) + 4);
-      sprintf(hname,"%s/%s.h",cdir,srcName);
+      if (strlen(pathName) > 1)
+        {
+        hname = (char *)malloc(strlen(pathName) + strlen(srcName) + 4);
+        sprintf(hname,"%s/%s.h",pathName,srcName);
+        }
+      else
+        {
+        hname = (char *)malloc(strlen(cdir) + strlen(srcName) + 4);
+        sprintf(hname,"%s/%s.h",cdir,srcName);
+        }
       /* add starting depends */
       info->CAPI->SourceFileAddDepend(file,hname);
       info->CAPI->AddSource(mf,file);
-      free(hname);
       cdata->SourceFiles[numWrapped] = file;
+      cdata->HeaderFiles[numWrapped] = hname;
       numWrapped++;
       strcat(sourceListValue,";");
       strcat(sourceListValue,newName);
       strcat(sourceListValue,".cxx");        
       free(newName);
       info->CAPI->Free(srcName);
+      info->CAPI->Free(pathName);
       }
     }
   
@@ -245,11 +258,7 @@ static void FinalPass(void *inf, void *mf)
     {
     char *res;
     const char *srcName = info->CAPI->SourceFileGetSourceName(cdata->SourceFiles[i]);
-    char *hname = (char *)malloc(strlen(cdir) + strlen(srcName) + 4);
-    sprintf(hname,"%s/%s",cdir,srcName);
-    hname[strlen(hname)-6]= '\0';
-    strcat(hname,".h");
-    args[0] = hname;
+    args[0] = cdata->HeaderFiles[i];
     numArgs = 1;
     if (hints)
       {
@@ -268,7 +277,6 @@ static void FinalPass(void *inf, void *mf)
                        wpython, numArgs, args, numDepends, depends, 
                        1, &res, cdata->LibraryName);
     free(res);
-    free(hname);
     }
 }
 
@@ -284,8 +292,10 @@ static void Destructor(void *inf)
     for (i = 0; i < cdata->NumberWrapped; ++i)
       {              
       info->CAPI->DestroySourceFile(cdata->SourceFiles[i]);
+      free(cdata->HeaderFiles[i]);
       }
     free(cdata->SourceFiles);
+    free(cdata->HeaderFiles);
     free(cdata->LibraryName);
     free(cdata);
     }
@@ -307,9 +317,9 @@ void CM_PLUGIN_EXPORT VTK_WRAP_PYTHON2Init(cmLoadedCommandInfo *info)
   info->InitialPass = InitialPass;
   info->FinalPass = FinalPass;
   info->Destructor = Destructor;
+  info->m_Inherited = 0;
   info->GetTerseDocumentation = GetTerseDocumentation;
   info->GetFullDocumentation = GetFullDocumentation;  
-  info->m_Inherited = 0;
   info->Name = "VTK_WRAP_PYTHON2";
 }
 
