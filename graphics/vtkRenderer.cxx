@@ -764,10 +764,19 @@ void vtkRenderer::ResetCameraClippingRange( float bounds[6] )
   // Make sure near is at least some fraction of far - this prevents near
   // from being behind the camera or too close in front. How close is too
   // close depends on the resolution of the depth buffer
-  if ( this->RenderWindow &&
-       this->RenderWindow->GetDepthBufferSize() <= 16 )
+  int ZBufferDepth = 16;
+  if (this->RenderWindow)
+    {
+      ZBufferDepth = this->RenderWindow->GetDepthBufferSize();
+    }
+  //
+  if ( ZBufferDepth <= 16 )
     {
     range[0] = (range[0] < 0.01*range[1])?(0.01*range[1]):(range[0]);
+    }
+  else if ( ZBufferDepth <= 24 )
+    {
+    range[0] = (range[0] < 0.001*range[1])?(0.001*range[1]):(range[0]);
     }
   else
     {
