@@ -361,6 +361,9 @@ typedef struct TkWindow {
 #endif /* TK_USE_INPUT_METHODS */
 } TkWindow;
 
+EXTERN void		TkWmAddToColormapWindows _ANSI_ARGS_((
+			    TkWindow *winPtr));
+
 
 
 #endif
