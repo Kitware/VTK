@@ -76,6 +76,18 @@ vtkReferenceCount::~vtkReferenceCount()
 }
 
 // Description:
+// Sets the reference count (use with care)
+void vtkReferenceCount::SetReferenceCount(int ref)
+{
+  if ( this->ReferenceCounting == 0 )
+    {
+    vtkErrorMacro(<<"Attempting to Register an object which has reference counting turned off.");
+    }
+  this->ReferenceCount = ref;
+  vtkDebugMacro(<< "Reference Count set to " << this->ReferenceCount);
+}
+
+// Description:
 // Increase the reference count (mark as used by another object).
 void vtkReferenceCount::Register(vtkObject* o)
 {
@@ -86,6 +98,11 @@ void vtkReferenceCount::Register(vtkObject* o)
   this->ReferenceCount++;
   vtkDebugMacro(<< "Registered by " << o->GetClassName() << " (" << o 
     << "), ReferenceCount = " << this->ReferenceCount);
+
+  if (this->ReferenceCount <= 0)
+    {
+    delete this;
+    }
 }
 
 // Description:

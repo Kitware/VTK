@@ -77,7 +77,8 @@ public:
   virtual void UnRegister(vtkObject* o);
   int  GetReferenceCount() {return this->ReferenceCount;};
   void ReferenceCountingOff();
-
+  void SetReferenceCount(int);
+  
 private:
   int ReferenceCount;      // Number of uses of this object by other objects
   int ReferenceCounting; // Turn on/off reference counting mechanism
