@@ -163,12 +163,12 @@ void vtkVolumeRayCastMapper::InitializeRender( vtkRenderer *ren, vtkVolume *vol,
 void vtkVolumeRayCastMapper::CastViewRay( VTKRayCastRayInfo *rayInfo,
 					  VTKRayCastVolumeInfo *volumeInfo )
 {
-  int largest_increment_index;
+  int i;
   float *volumeRayIncrement;
   float rayStart[4], rayEnd[4];
   float *rayOrigin, *rayDirection;
   float *volumeRayStart, *volumeRayEnd, *volumeRayDirection;
-  float t;
+  float incrementLength, rayLength;
   float *viewToVolumeMatrix;
   float nearplane, farplane, bounderNear, bounderFar;
   float oneStep[4], volumeOneStep[4];
@@ -244,41 +244,36 @@ void vtkVolumeRayCastMapper::CastViewRay( VTKRayCastRayInfo *rayInfo,
     volumeOneStep[1] - volumeRayStart[1];
   volumeRayIncrement[2] = 
     volumeOneStep[2] - volumeRayStart[2];
-  t = sqrt( (double) (volumeRayIncrement[0]*volumeRayIncrement[0] +
-		      volumeRayIncrement[1]*volumeRayIncrement[1] +
-		      volumeRayIncrement[2]*volumeRayIncrement[2]) );
-  if ( t )
+
+  incrementLength = sqrt( (double) (volumeRayIncrement[0]*volumeRayIncrement[0] +
+				    volumeRayIncrement[1]*volumeRayIncrement[1] +
+				    volumeRayIncrement[2]*volumeRayIncrement[2]) );
+  if ( incrementLength )
     {
-      volumeRayDirection[0] = volumeRayIncrement[0] / t;
-      volumeRayDirection[1] = volumeRayIncrement[1] / t;
-      volumeRayDirection[2] = volumeRayIncrement[2] / t;
+      volumeRayDirection[0] = volumeRayIncrement[0] / incrementLength;
+      volumeRayDirection[1] = volumeRayIncrement[1] / incrementLength;
+      volumeRayDirection[2] = volumeRayIncrement[2] / incrementLength;
     }
 
   if ( this->ClipRayAgainstVolume( rayInfo ) )
     {
-    if ( fabs((double) volumeRayIncrement[0]) >= 
-	 fabs((double) volumeRayIncrement[1]) &&
-	 fabs((double) volumeRayIncrement[0]) >= 
-	 fabs((double) volumeRayIncrement[2]) )
+    rayLength = 
+      sqrt((double)
+	   ((volumeRayEnd[0] - volumeRayStart[0])*(volumeRayEnd[0] - volumeRayStart[0]) +
+	    (volumeRayEnd[1] - volumeRayStart[1])*(volumeRayEnd[1] - volumeRayStart[1]) +
+	    (volumeRayEnd[2] - volumeRayStart[2])*(volumeRayEnd[2] - volumeRayStart[2])));
+
+    rayInfo->NumberOfStepsToTake = (rayLength / incrementLength) + 1;
+
+    for ( i = 0; i < 3; i++ )
       {
-      largest_increment_index = 0;
-      }
-    else if (fabs((double) volumeRayIncrement[1]) >= 
-	     fabs((double) volumeRayIncrement[2]))
-      {
-      largest_increment_index = 1;
-      }
-    else
-      {
-      largest_increment_index = 2;
+      if ( (volumeRayStart[i] + rayInfo->NumberOfStepsToTake * volumeRayIncrement[i]) >
+	   volumeRayEnd[i] )
+	{
+        rayInfo->NumberOfStepsToTake--;
+	}
       }
 
-
-    rayInfo->NumberOfStepsToTake = 
-      (int)( ( volumeRayEnd[largest_increment_index] - 
-	       volumeRayStart[largest_increment_index] ) /
-	     volumeRayIncrement[largest_increment_index] ) + 1;
-    
     if ( rayInfo->NumberOfStepsToTake > 0 )
       {
       this->VolumeRayCastFunction->CastRay( rayInfo, volumeInfo );
