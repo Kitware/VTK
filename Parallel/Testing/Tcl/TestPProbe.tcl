@@ -13,8 +13,10 @@ vtkRenderer Ren1
 	Ren1 SetBackground .5 .8 1
 vtkRenderWindow renWin
 	renWin AddRenderer Ren1
-	renWin SetSize 529 586
+	renWin SetSize 300 300
+puts $myProcId
         if { $myProcId > 0 } {
+            renWin SetPosition [expr $myProcId * 350] 0
            renWin OffScreenRenderingOn
         }
 

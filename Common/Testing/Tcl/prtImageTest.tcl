@@ -14,13 +14,14 @@ rtExMath RandomSeed 6
 vtkDebugLeaks rtDebugLeaks
 rtDebugLeaks PromptUserOff
 
-set myProcId 0
-set numProcs 1
+vtkMultiProcessController mpc
+set gc [mpc GetGlobalController]
+mpc Delete
+set myProcId [$gc GetLocalProcessId]
+set numProcs [$gc GetNumberOfProcesses]
+
 vtkCompositeRenderManager compManager
-if { [compManager GetController] != "" } {
-    catch [ set myProcId [[compManager GetController] GetLocalProcessId] ]
-    catch [ set numProcs [[compManager GetController] GetNumberOfProcesses] ]
-}
+compManager SetController $gc
 
 proc ExitMaster { code } {
     global numProcs
