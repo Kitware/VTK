@@ -204,25 +204,20 @@ int vtkEnSightGoldReader::ReadMeasuredGeometryFile(char* fileName,
   
   // Initialize
   //
-  if (!this->MeasuredFileName)
+  if (!fileName)
     {
     vtkErrorMacro("A MeasuredFileName must be specified in the case file.");
-    return 0;
-    }
-  if (strrchr(this->MeasuredFileName, '*') != NULL)
-    {
-    vtkErrorMacro("VTK does not currently handle time.");
     return 0;
     }
   if (this->FilePath)
     {
     strcpy(line, this->FilePath);
-    strcat(line, this->MeasuredFileName);
+    strcat(line, fileName);
     vtkDebugMacro("full path to measured geometry file: " << line);
     }
   else
     {
-    strcpy(line, this->MeasuredFileName);
+    strcpy(line, fileName);
     }
   
   this->IS = new ifstream(line, ios::in);
@@ -459,7 +454,7 @@ int vtkEnSightGoldReader::ReadVectorsPerNode(char* fileName, char* description,
   
   // Initialize
   //
-  if (!this->GeometryFileName)
+  if (!fileName)
     {
     vtkErrorMacro("NULL VectorPerNode variable file name");
     return 0;

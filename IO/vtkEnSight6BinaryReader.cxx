@@ -102,9 +102,6 @@ int vtkEnSight6BinaryReader::ReadGeometryFile(char* fileName, int timeStep)
   int i;
   int pointIdsListed;
   int *pointIds;
-  int iblanked;
-  int dimensions[3];
-  float *coordsRead;
   
   // Initialize
   //
@@ -248,17 +245,10 @@ int vtkEnSight6BinaryReader::ReadGeometryFile(char* fileName, int timeStep)
 void vtkEnSight6BinaryReader::SkipTimeStep()
 {
   char line[80], subLine[80];
-  int partId;
   int lineRead;
-  float point[3];
   float *coordinateArray;
-  int i;
   int pointIdsListed;
   int *pointIds;
-  int iblanked;
-  int dimensions[3];
-  float *coordsRead;
-  
 
   this->ReadLine(line);
   while (strncmp(line, "BEGIN TIME STEP", 15) != 0)
@@ -334,7 +324,6 @@ int vtkEnSight6BinaryReader::SkipStructuredGrid(char line[256])
   int lineRead = 1;
   int iblanked = 0;
   int dimensions[3];
-  int i;
   int numPts;
   float *coordsRead;
   int *iblanks;
@@ -370,10 +359,9 @@ int vtkEnSight6BinaryReader::SkipStructuredGrid(char line[256])
 int vtkEnSight6BinaryReader::SkipUnstructuredGrid(char line[256])
 {
   int lineRead = 1;
-  int i;
-  int *nodeIds, *nodeIdList;
+  int *nodeIdList;
   int numElements;
-  int cellId, cellType;
+  int cellType;
   
   while(lineRead && strncmp(line, "part", 4) != 0)
     {
@@ -664,25 +652,20 @@ int vtkEnSight6BinaryReader::ReadMeasuredGeometryFile(char* fileName,
   
   // Initialize
   //
-  if (!this->GeometryFileName)
+  if (!fileName)
     {
     vtkErrorMacro("A MeasuredFileName must be specified in the case file.");
-    return 0;
-    }
-  if (strrchr(this->MeasuredFileName, '*') != NULL)
-    {
-    vtkErrorMacro("VTK does not currently handle time.");
     return 0;
     }
   if (this->FilePath)
     {
     strcpy(line, this->FilePath);
-    strcat(line, this->MeasuredFileName);
+    strcat(line, fileName);
     vtkDebugMacro("full path to measured geometry file: " << line);
     }
   else
     {
-    strcpy(line, this->MeasuredFileName);
+    strcpy(line, fileName);
     }
   
   this->IFile = fopen(line, "rb");
@@ -857,6 +840,8 @@ int vtkEnSight6BinaryReader::ReadScalarsPerNode(char* fileName,
       // scalars for structured parts
       while (this->ReadLine(line) && strncmp(line, "part", 4) == 0)
 	{
+	sscanf(line, " part %d", &partId);
+	partId--;
 	this->ReadLine(line); // block
 	numPts = this->GetOutput(partId)->GetNumberOfPoints();
 	scalarsRead = new float[numPts];
@@ -1053,6 +1038,8 @@ int vtkEnSight6BinaryReader::ReadVectorsPerNode(char* fileName,
       // vectors for structured parts
       while (this->ReadLine(line) && strncmp(line, "part", 4) == 0)
 	{
+	sscanf(line, " part %d", &partId);
+	partId--;
 	this->ReadLine(line); // block
 	numPts = this->GetOutput(partId)->GetNumberOfPoints();
 	vectorsRead = new float[numPts*3];
@@ -1219,6 +1206,8 @@ int vtkEnSight6BinaryReader::ReadTensorsPerNode(char* fileName,
       while (this->ReadLine(line) &&
 	     strncmp(line, "part", 4) == 0)
 	{
+	sscanf(line, " part %d", &partId);
+	partId--;
 	this->ReadLine(line); // block
 	numPts = this->GetOutput(partId)->GetNumberOfPoints();
 	tensorsRead = new float[numPts*6];

@@ -92,7 +92,6 @@ int vtkEnSight6Reader::ReadGeometryFile(char* fileName, int timeStep)
   float point[3];
   int i, j;
   int pointIdsListed;
-  int count;
   
   // Initialize
   //
@@ -236,7 +235,7 @@ int vtkEnSight6Reader::ReadMeasuredGeometryFile(char* fileName, int timeStep)
 {
   char line[256], subLine[256];
   vtkPoints *newPoints = NULL;
-  int i, j, id;
+  int i, id;
   float coords[3];
   vtkPolyData *geom;
   
@@ -1358,17 +1357,6 @@ int vtkEnSight6Reader::CreateUnstructuredGridOutput(int partId,
   
   idx = this->UnstructuredPartIds->IsId(partId);
 
-  if (this->CellIds)
-    {
-    for (i = 0; i < 16; i++)
-      {
-      this->CellIds[idx][i]->Delete();
-      this->CellIds[idx][i] = NULL;
-      }
-    delete [] this->CellIds;
-    this->CellIds = NULL;
-    }
-  
   if (this->CellIds == NULL)
     {
     this->CellIds = new vtkIdList **[16];
