@@ -481,7 +481,7 @@ int vtkLegendBoxActor::RenderOpaqueGeometry(vtkViewport *viewport)
     size[1] = (int)((p2[1] - p1[1] - 2.0*this->Padding)/this->NumberOfEntries);
 
     // while the size is too small increase it
-    while ( tempi[0] < size[0] && tempi[1] < size[1] )
+    while ( tempi[0] < size[0] && tempi[1] < size[1] && fontSize < 100)
       {
       fontSize++;
       this->TextMapper[maxTextMapper]->SetFontSize(fontSize);
