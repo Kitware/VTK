@@ -100,6 +100,7 @@ public:
     ResetCameraEvent,
     ResetCameraClippingRangeEvent,
     ModifiedEvent,
+    WindowLevelEvent,
     UserEvent = 1000
   };
 //ETX

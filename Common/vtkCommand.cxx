@@ -74,6 +74,7 @@ static const char *vtkCommandEventStrings[] = {
   "ResetCameraEvent",
   "ResetCameraClippingRangeEvent",
   "ModifiedEvent",
+  "WindowEvent",
   NULL
 };
 

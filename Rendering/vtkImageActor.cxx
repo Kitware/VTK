@@ -233,3 +233,31 @@ void vtkImageActor::PrintSelf(ostream& os, vtkIndent indent)
     }
   os << ")\n";
 }
+
+//----------------------------------------------------------------------------
+int vtkImageActor::GetWholeZMin()
+{
+  int *extent;
+  
+  if ( ! this->GetInput())
+    {
+    return 0;
+    }
+  this->GetInput()->UpdateInformation();
+  extent = this->GetInput()->GetWholeExtent();
+  return extent[4];
+}
+
+//----------------------------------------------------------------------------
+int vtkImageActor::GetWholeZMax()
+{
+  int *extent;
+  
+  if ( ! this->GetInput())
+    {
+    return 0;
+    }
+  this->GetInput()->UpdateInformation();
+  extent = this->GetInput()->GetWholeExtent();
+  return extent[5];
+}
