@@ -599,7 +599,6 @@ void vtkWin32ImageMapper::RenderData(vtkViewport* viewport,
   else
     {
     // GrayScale images.
-    ptr0 = data->GetScalarPointer();
     // Call the appropriate templated function
     switch (data->GetScalarType())
       {
