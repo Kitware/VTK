@@ -12,6 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+// .NAME vtkCocoaWindow - Access Cocoa NSWindow context
+//
+// .SECTION Description
+// This class only takes care of allocating an NSWindow. Manage also an internal
+// pointer to a vtkCocoaGLView. This class uses Objective-C++
+
+// .SECTION See Also
+// vtkCocoaGLView vtkCocoaRenderWindow
 
 #import <Cocoa/Cocoa.h>
 

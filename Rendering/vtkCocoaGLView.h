@@ -15,8 +15,8 @@
 // .NAME vtkCocoaGLView - Cocoa OpenGL rendering context
 //
 // .SECTION Description
-// This class onle takes care of allocating an NSOpenGLView which simply
-// providea rendering context. This class uses Objective-C++
+// This class only takes care of allocating an NSOpenGLView which simply
+// provides a rendering context. This class uses Objective-C++
 //
 // .SECTION See Also
 // vtkCocoaRenderWindow
