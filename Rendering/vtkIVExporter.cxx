@@ -642,7 +642,9 @@ void vtkIVExporter::WritePointData(vtkPoints *points, vtkDataArray *normals,
   VTK_INDENT_MORE;
   for (i = 0; i < points->GetNumberOfPoints(); i++)
     {
+    VTK_INDENT_MORE;
     p = points->GetPoint(i);
+    VTK_INDENT_MORE;
     fprintf (fp,"%s%g %g %g,\n", indent, p[0], p[1], p[2]);
     }
   fprintf(fp,"%s]\n", indent);
