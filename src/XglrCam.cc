@@ -279,7 +279,10 @@ void vtkXglrCamera::Render(vtkCamera *cam, vtkXglrRenderer *ren)
     {
     xgl_object_set(*context,XGL_CTX_BACKGROUND_COLOR,
 		   &bg_color,0);
-    xgl_context_new_frame(*context);
+    if ((ren->GetRenderWindow())->GetErase())
+      {
+      xgl_context_new_frame(*context);
+      }
     }
 
   aspect[0] = ((vport[2] - vport[0])*size[0])/((vport[3] - vport[1])*size[1]);
@@ -303,7 +306,6 @@ void vtkXglrCamera::Render(vtkCamera *cam, vtkXglrRenderer *ren)
   focus.y = FocalPoint[1];
   focus.z = FocalPoint[2];
 
-  /* xgl_object_set(*context,XGL_CTX_VDC_WINDOW, &vdc_bounds, NULL); */
   xgl_object_set(*context,XGL_CTX_VDC_WINDOW, &vdc_bounds, NULL);
   xgl_object_set(*context,XGL_CTX_VIEW_CLIP_BOUNDS, &vdc_bounds, NULL);
 

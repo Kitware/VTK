@@ -288,7 +288,7 @@ void vtkSbrCamera::Render(vtkCamera *cam, vtkSbrRenderer *ren)
   background_color(fd, background[0], background[1], background[2]);
   
   // clear the view surface so the new background color takes effect
-  if (ren->GetErase()) 
+  if (rw->GetErase()) 
     {
     clear_view_surface(fd);
     vtkDebugMacro(<< " SB_clear_view_surface\n");

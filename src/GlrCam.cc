@@ -201,7 +201,7 @@ void vtkGlrCamera::Render(vtkCamera *cam, vtkGlrRenderer *ren)
   clr |= ((int)(255*bg_color[1])) << 8;
   clr |= (int)(255*bg_color[0]);
 
-  if (ren->GetErase()) 
+  if ((ren->GetRenderWindow())->GetErase()) 
     {
     czclear(clr, getgdesc(GD_ZMAX));
     vtkDebugMacro(<< "czclear: " << clr << "\n");

@@ -234,7 +234,7 @@ void vtkOglrCamera::Render(vtkCamera *cam, vtkOglrRenderer *ren)
   // get the background color
   bg_color = ren->GetBackground();
 
-  if (ren->GetErase()) 
+  if (((vtkOglrRenderWindow*)(ren->GetRenderWindow()))->GetErase()) 
     {
     glClearColor( ((GLclampf)(bg_color[0])),
 		  ((GLclampf)(bg_color[1])),
