@@ -96,8 +96,8 @@ vtkCell *vtkQuad::MakeObject()
   return cell;
 }
 
-static const int VTK_QUAD_MAX_ITERATION=10;
-static const float VTK_QUAD_CONVERGED=1.e-03;
+static const int VTK_QUAD_MAX_ITERATION=20;
+static const float VTK_QUAD_CONVERGED=1.e-05;
 
 int vtkQuad::EvaluatePosition(float x[3], float* closestPoint,
                              int& subId, float pcoords[3], 
@@ -219,8 +219,8 @@ int vtkQuad::EvaluatePosition(float x[3], float* closestPoint,
 
   this->InterpolationFunctions(pcoords, weights);
 
-  if ( pcoords[0] >= 0.0 && pcoords[0] <= 1.0 &&
-       pcoords[1] >= 0.0 && pcoords[1] <= 1.0 )
+  if ( pcoords[0] >= -0.001 && pcoords[0] <= 1.001 &&
+       pcoords[1] >= -0.001 && pcoords[1] <= 1.001 )
     {
     if (closestPoint)
       {
