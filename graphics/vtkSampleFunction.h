@@ -68,10 +68,11 @@ public:
   // Specify the implicit function to use to generate data.
   vtkSetObjectMacro(ImplicitFunction,vtkImplicitFunction);
   vtkGetObjectMacro(ImplicitFunction,vtkImplicitFunction);
+
   // Description:
-  // Specify the subclass of the vtkScalars by providing a scalar
-  // subclass object.  vtkSampleFunction() will allocate the necessary space
-  // for storing the sampled values in the vtkScalars subclass.
+  // Control the type of the vtkScalars object by explicitly providing a scalar
+  // object.  vtkSampleFunction() will allocate space (as necessary)
+  // in the scalar object.
   vtkSetObjectMacro(Scalars,vtkScalars);
 
   void SetSampleDimensions(int i, int j, int k);
