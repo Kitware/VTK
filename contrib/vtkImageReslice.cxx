@@ -93,7 +93,9 @@ vtkImageReslice::vtkImageReslice()
   this->IndexMatrix = NULL;
 }
 
+
 //----------------------------------------------------------------------------
+
 vtkImageReslice::~vtkImageReslice()
 {
   this->SetResliceTransform(NULL);
@@ -103,6 +105,24 @@ vtkImageReslice::~vtkImageReslice()
     this->IndexMatrix->Delete();
     }
 }
+//----------------------------------------------------------------------------
+
+void vtkImageReslice::SetInput( vtkImageData *input )
+{
+  // Call the superclasses method
+  this->vtkImageToImageFilter::SetInput( input );
+  
+  // flag to set defaults later
+  this->OutputOrigin[0] = FLT_MAX;
+  this->OutputOrigin[1] = FLT_MAX;
+  this->OutputOrigin[2] = FLT_MAX;
+
+  // ditto
+  this->OutputExtent[0] = this->OutputExtent[1] = INT_MAX;
+  this->OutputExtent[2] = this->OutputExtent[3] = INT_MAX;
+  this->OutputExtent[4] = this->OutputExtent[5] = INT_MAX;  
+}
+
 
 //----------------------------------------------------------------------------
 void vtkImageReslice::PrintSelf(ostream& os, vtkIndent indent)

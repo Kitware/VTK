@@ -179,6 +179,11 @@ public:
   // this check the modified time of the transform and matrix.
   unsigned long int GetMTime();
 
+  // Description:
+  // We need to override the SetInput method in order to reset some
+  // parameters to default values when the input is changed
+  virtual void SetInput(vtkImageData *input);
+
 //BTX
   // Description:
   // Helper functions not meant to be used outside this class. 
