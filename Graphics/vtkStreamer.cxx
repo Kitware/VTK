@@ -16,14 +16,16 @@
 
 =========================================================================*/
 #include "vtkStreamer.h"
+
+#include "vtkDataSet.h"
+#include "vtkFloatArray.h"
+#include "vtkInterpolatedVelocityField.h"
 #include "vtkMath.h"
 #include "vtkMultiThreader.h"
 #include "vtkObjectFactory.h"
-#include "vtkFloatArray.h"
-#include "vtkInterpolatedVelocityField.h"
 #include "vtkRungeKutta2.h"
 
-vtkCxxRevisionMacro(vtkStreamer, "1.79");
+vtkCxxRevisionMacro(vtkStreamer, "1.80");
 vtkCxxSetObjectMacro(vtkStreamer,Integrator,vtkInitialValueProblemSolver);
 
 #define VTK_START_FROM_POSITION 0
@@ -245,7 +247,7 @@ VTK_THREAD_RETURN_TYPE vtkStreamer::ThreadedIntegrate( void *arg )
 
   // Set the function set to be integrated
   vtkInterpolatedVelocityField* func = vtkInterpolatedVelocityField::New();
-  func->SetDataSet(input);
+  func->AddDataSet(input);
 
   if (self->GetIntegrator() == 0)
     {
@@ -255,7 +257,7 @@ VTK_THREAD_RETURN_TYPE vtkStreamer::ThreadedIntegrate( void *arg )
 
   // Create a new integrator, the type is the same as Integrator
   vtkInitialValueProblemSolver* integrator = 
-    self->GetIntegrator()->MakeObject();
+    self->GetIntegrator()->NewInstance();
   integrator->SetFunctionSet(func);
 
   // Used to avoid calling these function many times during
