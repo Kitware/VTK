@@ -75,8 +75,20 @@ public:
   vtkSetMacro(Opacity, float);
 
   // Description:
-  // Have the device specific subclass rneder this property.
-  void Render (vtkViewport* vtkNotUsed(viewport))  {}
+  // Set/Get the diameter of a Point. The size is expressed in screen units.
+  // This is only implemented for OpenGL. The default is 1.0.
+  vtkSetClampMacro(PointSize,float,0,VTK_LARGE_FLOAT);
+  vtkGetMacro(PointSize,float);
+
+  // Description:
+  // Set/Get the width of a Line. The width is expressed in screen units.
+  // This is only implemented for OpenGL. The default is 1.0.
+  vtkSetClampMacro(LineWidth,float,0,VTK_LARGE_FLOAT);
+  vtkGetMacro(LineWidth,float);
+
+  // Description:
+  // Have the device specific subclass render this property.
+  virtual void Render (vtkViewport* vtkNotUsed(viewport))  {}
   
 protected:
   vtkProperty2D();
@@ -85,7 +97,9 @@ protected:
   void operator=(const vtkProperty2D&) {};
 
   float Color[3];
-  float   Opacity;
+  float Opacity;
+  float PointSize;
+  float LineWidth;
 };
   
   
