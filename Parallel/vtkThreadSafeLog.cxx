@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include <iomanip.h>
 
-vtkCxxRevisionMacro(vtkThreadSafeLog, "1.3.22.2");
+vtkCxxRevisionMacro(vtkThreadSafeLog, "1.3.22.3");
 vtkStandardNewMacro(vtkThreadSafeLog);
 
 //----------------------------------------------------------------------------
@@ -80,7 +80,7 @@ void vtkThreadSafeLog::DumpLog(char *filename)
 //----------------------------------------------------------------------------
 void vtkThreadSafeLog::DumpLog(char *filename, int nMode)
 {
-  ofstream os(filename, nMode);
+  ofstream os(filename, static_cast<ios::openmode>(nMode));
   int idx;
   
   if (nMode == ios::out)
