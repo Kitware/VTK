@@ -30,7 +30,7 @@ set Data(2) "lineZ"
 set Data(0) "aPlane"
 
 vtkImplicitModeller imp
-    imp SetSampleDimensions 100 100 100
+    imp SetSampleDimensions 60 60 60
     imp SetCapValue 1000
     imp ComputeModelBounds [cubeForBounds GetOutput]
 
@@ -59,7 +59,7 @@ vtkActor outlineActor
 
 vtkStructuredPointsGeometryFilter plane
     plane SetInput [imp GetOutput]
-    plane SetExtent 0 100 0 100 50 50
+    plane SetExtent 0 60 0 60 30 30
 vtkPolyDataMapper planeMapper
     planeMapper SetInput [plane GetOutput]
     planeMapper SetScalarRange 0.197813 0.710419
