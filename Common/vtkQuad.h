@@ -28,6 +28,7 @@
 #include "vtkCell.h"
 
 class vtkLine;
+class vtkTriangle;
 
 class VTK_COMMON_EXPORT vtkQuad : public vtkCell
 {
@@ -74,12 +75,12 @@ public:
   static void InterpolationFunctions(float pcoords[3], float sf[4]);
   static void InterpolationDerivs(float pcoords[3], float derivs[8]);
 
-
 protected:
   vtkQuad();
   ~vtkQuad();
 
-  vtkLine *Line;
+  vtkLine     *Line;
+  vtkTriangle *Triangle;
 
 private:
   vtkQuad(const vtkQuad&);  // Not implemented.
