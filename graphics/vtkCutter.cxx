@@ -49,11 +49,17 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // generating cut scalars turned off.
 vtkCutter::vtkCutter(vtkImplicitFunction *cf)
 {
+  this->ContourValues = vtkContourValues::New();
   this->SortBy = VTK_SORT_BY_VALUE;
   this->CutFunction = cf;
   this->GenerateCutScalars = 0;
   this->Locator = NULL;
   this->SelfCreatedLocator = 0;
+}
+
+vtkCutter::~vtkCutter()
+{
+  this->ContourValues->Delete();
 }
 
 // Description:
