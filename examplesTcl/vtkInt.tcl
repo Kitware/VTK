@@ -42,7 +42,7 @@ proc vtkInteract {} {
     wm iconname .vtkInteract "vtk"
     
     frame .vtkInteract.buttons -bg #bbbbbb
-    pack  .vtkInteract.buttons -side bottom -fill both -expand 1 -pady 2m
+    pack  .vtkInteract.buttons -side bottom -fill both -expand 0 -pady 2m
     button .vtkInteract.buttons.dismiss -text Dismiss \
 	-command "wm withdraw .vtkInteract" \
 	-bg #bbbbbb -fg #221133 -activebackground #cccccc -activeforeground #221133
