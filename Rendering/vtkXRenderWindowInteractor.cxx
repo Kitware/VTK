@@ -27,7 +27,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkCommand.h"
 
-vtkCxxRevisionMacro(vtkXRenderWindowInteractor, "1.116");
+vtkCxxRevisionMacro(vtkXRenderWindowInteractor, "1.117");
 vtkStandardNewMacro(vtkXRenderWindowInteractor);
 
 // Initialize static members:
@@ -227,11 +227,11 @@ void vtkXRenderWindowInteractor::Initialize()
     }
   if (!vtkXRenderWindowInteractor::NumAppInitialized)
     {
-    vtkDebugMacro("toolkit init");
+    vtkDebugMacro( << "Toolkit init :" << vtkXRenderWindowInteractor::App );
     XtToolkitInitialize();
     vtkXRenderWindowInteractor::App = XtCreateApplicationContext();
     this->OwnApp = 1;
-    vtkDebugMacro("app ctx " << vtkXRenderWindowInteractor::App);
+    vtkDebugMacro( << "App context :" << vtkXRenderWindowInteractor::App);
     vtkXRenderWindowInteractor::NumAppInitialized = 1;
     }
   
