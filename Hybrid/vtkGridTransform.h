@@ -30,7 +30,8 @@
 #define __vtkGridTransform_h
 
 #include "vtkWarpTransform.h"
-#include "vtkImageData.h"
+
+class vtkImageData;
 
 #define VTK_GRID_NEAREST 0
 #define VTK_GRID_LINEAR 1
@@ -47,7 +48,7 @@ public:
   // Set/Get the grid transform (the grid transform must have three 
   // components for displacement in x, y, and z respectively).
   // The vtkGridTransform class will never modify the data.
-  vtkSetObjectMacro(DisplacementGrid,vtkImageData);
+  virtual void SetDisplacementGrid(vtkImageData*);
   vtkGetObjectMacro(DisplacementGrid,vtkImageData);
 
   // Description:

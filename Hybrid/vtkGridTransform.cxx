@@ -16,12 +16,17 @@
 
 =========================================================================*/
 #include "vtkGridTransform.h"
-#include "vtkObjectFactory.h"
+
+#include "vtkImageData.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
+
 #include "math.h"
 
-vtkCxxRevisionMacro(vtkGridTransform, "1.15");
+vtkCxxRevisionMacro(vtkGridTransform, "1.16");
 vtkStandardNewMacro(vtkGridTransform);
+
+vtkCxxSetObjectMacro(vtkGridTransform,DisplacementGrid,vtkImageData);
 
 //----------------------------------------------------------------------------
 // fast floor() function for converting a float to an int
