@@ -759,7 +759,7 @@ vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget *self)
 {
   Display *dpy;
   vtkImageViewer *ImageViewer;
-  vtkQuartzRenderWindow *ImageWindow;
+  vtkXOpenGLRenderWindow *ImageWindow;
   
   if (self->ImageViewer)
     {
@@ -820,7 +820,7 @@ vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget *self)
   
         
   // get the window
-  ImageWindow = static_cast<vtkQuartzRenderWindow *>(ImageViewer->GetRenderWindow());
+  ImageWindow = static_cast<vtkXOpenGLRenderWindow *>(ImageViewer->GetRenderWindow());
   // If the imageviewer has already created it's window, throw up our hands and quit...
   if ( ImageWindow->GetWindowId() != (Window)NULL )
     {
