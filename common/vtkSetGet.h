@@ -335,7 +335,7 @@ void Get##name (type data[count]) \
 //
 #define vtkGenericWarningMacro(x) \
 { char *vtkmsgbuff; ostrstream vtkmsg; \
-      vtkmsg << "Generic Warning: In " __FILE__ ", line " << __LINE__ << "\n" << x << ends; \
+      vtkmsg << "Generic Warning: In " __FILE__ ", line " << __LINE__ << "\n" x << ends; \
       vtkmsgbuff = vtkmsg.str(); \
       MessageBox(NULL,vtkmsgbuff,"Debug Info",MB_ICONINFORMATION | MB_OK); \
       vtkmsg.rdbuf()->freeze(0);}
