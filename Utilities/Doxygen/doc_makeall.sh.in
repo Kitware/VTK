@@ -1,6 +1,6 @@
 # -------------------------------------------------------------------------
 # Doxygen documentation batch
-# modified by S. Barre (Time-stamp: <2003-01-13 20:03:33 barre>
+# modified by S. Barre (Time-stamp: <2004-05-25 14:31:50 barre>
 # -------------------------------------------------------------------------
 
 # Path to several tools (_PROG to avoid the typical GZIP env var pb)
@@ -96,10 +96,10 @@ export DATA_ROOT="@VTK_DATA_ROOT@"
 #   CVSWEB_DATA_CHECKOUT=http://public.kitware.com/cgi-bin/cvsweb.cgi/~checkout~/VTKData
 #
 export CVSWEB=http://public.kitware.com/cgi-bin/cvsweb.cgi/VTK
-export CVSWEB_SUFFIX=
+export CVSWEB_SUFFIX=?cvsroot=VTK
 export CVSWEB_CHECKOUT=http://public.kitware.com/cgi-bin/cvsweb.cgi/~checkout~/VTK
 export CVSWEB_DATA=http://public.kitware.com/cgi-bin/cvsweb.cgi/VTKData
-export CVSWEB_DATA_SUFFIX=
+export CVSWEB_DATA_SUFFIX=?cvsroot=VTK
 export CVSWEB_DATA_CHECKOUT=http://public.kitware.com/cgi-bin/cvsweb.cgi/~checkout~/VTKData
 
 # DOXYFILE:
