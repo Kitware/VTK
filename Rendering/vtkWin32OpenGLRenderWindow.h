@@ -92,7 +92,7 @@ public:
   // Description:
   // Set the name of the window. This appears at the top of the window
   // normally.
-  virtual void SetWindowName(char *);
+  virtual void SetWindowName(const char *);
   
   // Description:
   // Set this RenderWindow's window id to a pre-existing window.

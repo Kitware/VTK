@@ -38,7 +38,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkWin32OpenGLRenderWindow, "1.86");
+vtkCxxRevisionMacro(vtkWin32OpenGLRenderWindow, "1.87");
 vtkStandardNewMacro(vtkWin32OpenGLRenderWindow);
 
 #define VTK_MAX_LIGHTS 8
@@ -166,7 +166,7 @@ LRESULT APIENTRY vtkWin32OpenGLRenderWindow::WndProc(HWND hWnd, UINT message,
   return DefWindowProc(hWnd, message, wParam, lParam);
 }
 
-void vtkWin32OpenGLRenderWindow::SetWindowName( char * _arg )
+void vtkWin32OpenGLRenderWindow::SetWindowName( const char * _arg )
 {
   vtkWindow::SetWindowName(_arg);
   if (this->WindowId)
