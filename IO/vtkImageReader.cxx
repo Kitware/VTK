@@ -21,7 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImageReader, "1.100");
+vtkCxxRevisionMacro(vtkImageReader, "1.101");
 vtkStandardNewMacro(vtkImageReader);
 
 vtkCxxSetObjectMacro(vtkImageReader,Transform,vtkTransform);
@@ -285,7 +285,8 @@ static void vtkImageReaderUpdate2(vtkImageReader *self, vtkImageData *data,
 
       // read the row.
       self->GetFile()->read((char *)buf, streamRead);
-      if ( self->GetFile()->gcount() != streamRead || self->GetFile()->fail())
+      if ( static_cast<unsigned long>(self->GetFile()->gcount()) != 
+           streamRead || self->GetFile()->fail())
         {
         vtkGenericWarningMacro("File operation failed. row = " << idx1
                                << ", Tried to Read = " << streamRead
