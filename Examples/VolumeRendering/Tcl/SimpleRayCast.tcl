@@ -33,6 +33,8 @@ vtkColorTransferFunction colorTransferFunction
 vtkVolumeProperty volumeProperty
     volumeProperty SetColor colorTransferFunction
     volumeProperty SetScalarOpacity opacityTransferFunction
+    volumeProperty ShadeOn
+    volumeProperty SetInterpolationTypeToLinear
 
 # The mapper / ray cast function know how to render the data
 vtkVolumeRayCastCompositeFunction  compositeFunction
@@ -57,7 +59,7 @@ proc TkCheckAbort {} {
 }
 renWin SetAbortCheckMethod {TkCheckAbort}
 
-iren AddObserver UserMethod {wm deiconify .vtkInteract}
+iren AddObserver UserEvent {wm deiconify .vtkInteract}
 iren Initialize
 
 wm withdraw .
