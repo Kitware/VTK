@@ -107,6 +107,7 @@ void vtkImporter::Read ()
       this->ImportLights (renderer);
       this->ImportProperties (renderer);
       }
+	this->ImportEnd();
     // Close the import file
     this->CloseImportFile ();
     }
