@@ -73,6 +73,7 @@ suppress umr _bcmp; addTexTableUsage
 suppress umc memcpy; vtkRendererSource::Execute(void)
 
 suppress mlk _malloc; Tcl_CreateFileHandler
+suppress mlk _malloc; Tcl_DoWhenIdle
 suppress mlk _malloc; DoConfig; Tk_ConfigureWidget
 suppress mlk _malloc; _calloc; _X11TransSocketOpen
 suppress mlk _malloc; _calloc; XOpenDisplay
