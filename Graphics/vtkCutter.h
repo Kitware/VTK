@@ -37,7 +37,7 @@
 #ifndef __vtkCutter_h
 #define __vtkCutter_h
 
-#include "vtkDataSetToPolyDataFilter.h"
+#include "vtkDataSetToPolyDataAlgorithm.h"
 
 #include "vtkContourValues.h" // Needed for inline methods
 
@@ -47,10 +47,10 @@
 class vtkImplicitFunction;
 class vtkPointLocator;
 
-class VTK_GRAPHICS_EXPORT vtkCutter : public vtkDataSetToPolyDataFilter
+class VTK_GRAPHICS_EXPORT vtkCutter : public vtkDataSetToPolyDataAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkCutter,vtkDataSetToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkCutter,vtkDataSetToPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -157,9 +157,9 @@ protected:
   vtkCutter(vtkImplicitFunction *cf=NULL);
   ~vtkCutter();
 
-  void Execute();
-  void UnstructuredGridCutter();
-  void DataSetCutter();
+  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  void UnstructuredGridCutter(vtkDataSet *input, vtkPolyData *output);
+  void DataSetCutter(vtkDataSet *input, vtkPolyData *output);
   vtkImplicitFunction *CutFunction;
   
   vtkPointLocator *Locator;
@@ -185,7 +185,4 @@ inline const char *vtkCutter::GetSortByAsString(void)
     }
 }
 
-
 #endif
-
-

@@ -19,7 +19,7 @@
 #include "vtkProp3D.h"
 
 
-vtkCxxRevisionMacro(vtkPolyDataSourceWidget, "1.5");
+vtkCxxRevisionMacro(vtkPolyDataSourceWidget, "1.6");
 
 vtkPolyDataSourceWidget::vtkPolyDataSourceWidget() : vtk3DWidget()
 {
@@ -55,6 +55,12 @@ void vtkPolyDataSourceWidget::PlaceWidget()
     }
     
   this->PlaceWidget(bounds);
+}
+
+vtkPolyDataSource* vtkPolyDataSourceWidget::GetPolyDataSource()
+{
+  vtkErrorMacro("Use GetPolyDataAlgorithm instead.");
+  return NULL;
 }
 
 void vtkPolyDataSourceWidget::PrintSelf(ostream& os, vtkIndent indent)

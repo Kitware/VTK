@@ -41,7 +41,7 @@
 #include "vtkTextureMapToPlane.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.88");
+vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.89");
 vtkStandardNewMacro(vtkImagePlaneWidget);
 
 vtkCxxSetObjectMacro(vtkImagePlaneWidget, PlaneProperty, vtkProperty);
@@ -2183,7 +2183,7 @@ void vtkImagePlaneWidget::GetPolyData(vtkPolyData *pd)
   pd->ShallowCopy(this->PlaneSource->GetOutput());
 }
 
-vtkPolyDataSource *vtkImagePlaneWidget::GetPolyDataSource()
+vtkPolyDataAlgorithm *vtkImagePlaneWidget::GetPolyDataAlgorithm()
 {
   return this->PlaneSource;
 }

@@ -260,7 +260,7 @@ public:
   // PolyData.  Make changes to this before calling the initial PlaceWidget()
   // to have the initial placement follow suit.  Or, make changes after the
   // widget has been initialised and call UpdatePlacement() to realise.
-  vtkPolyDataSource* GetPolyDataSource();
+  vtkPolyDataAlgorithm* GetPolyDataAlgorithm();
 
   // Description:
   // Satisfies superclass API.  This will change the state of the widget to

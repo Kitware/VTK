@@ -52,11 +52,11 @@ protected:
   vtkKitwareCutter();
   ~vtkKitwareCutter();
   
-  void Execute();
+  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
-  void StructuredPointsCutter();
-  void StructuredGridCutter();
-  void RectilinearGridCutter();
+  void StructuredPointsCutter(vtkDataSet *, vtkPolyData *);
+  void StructuredGridCutter(vtkDataSet *, vtkPolyData *);
+  void RectilinearGridCutter(vtkDataSet *, vtkPolyData *);
   
 private:
   vtkKitwareCutter(const vtkKitwareCutter&);  // Not implemented.

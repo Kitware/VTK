@@ -44,13 +44,13 @@
 #ifndef __vtkPlaneSource_h
 #define __vtkPlaneSource_h
 
-#include "vtkPolyDataSource.h"
+#include "vtkPolyDataAlgorithm.h"
 
-class VTK_GRAPHICS_EXPORT vtkPlaneSource : public vtkPolyDataSource 
+class VTK_GRAPHICS_EXPORT vtkPlaneSource : public vtkPolyDataAlgorithm 
 {
 public:
   void PrintSelf(ostream& os, vtkIndent indent);
-  vtkTypeRevisionMacro(vtkPlaneSource,vtkPolyDataSource);
+  vtkTypeRevisionMacro(vtkPlaneSource,vtkPolyDataAlgorithm);
 
   // Description:
   // Construct plane perpendicular to z-axis, resolution 1x1, width
@@ -116,7 +116,7 @@ protected:
   vtkPlaneSource();
   ~vtkPlaneSource() {};
 
-  void Execute();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   int XResolution;
   int YResolution;
@@ -133,5 +133,3 @@ private:
 };
 
 #endif
-
-

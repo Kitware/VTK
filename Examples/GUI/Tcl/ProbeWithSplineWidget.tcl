@@ -335,7 +335,7 @@ ipw SetInteractor $iact
 ipw On
 
 spline SetInteractor $iact
-spline SetPlaneSource [ ipw GetPolyDataSource ]
+spline SetPlaneSource [ ipw GetPolyDataAlgorithm ]
 spline SetProjectionNormal 3
 spline On
 

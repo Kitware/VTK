@@ -36,6 +36,7 @@
 
 #include "vtk3DWidget.h"
 
+class vtkPolyDataAlgorithm;
 class vtkPolyDataSource;
 
 class VTK_HYBRID_EXPORT vtkPolyDataSourceWidget : public vtk3DWidget
@@ -68,7 +69,8 @@ class VTK_HYBRID_EXPORT vtkPolyDataSourceWidget : public vtk3DWidget
   // called.  UpdatePlacement() will always update the planewidget according
   // to the geometry of the underlying PolyDataSource.  PlaceWidget() will
   // only make use of this geometry if there is no Input and no Prop3D set.
-  virtual vtkPolyDataSource* GetPolyDataSource() = 0;
+  virtual vtkPolyDataSource* GetPolyDataSource();
+  virtual vtkPolyDataAlgorithm* GetPolyDataAlgorithm() = 0;
 
   // Description:
   // If you've made changes to the underlying vtkPolyDataSource AFTER your

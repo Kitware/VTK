@@ -38,7 +38,7 @@
 #include "vtkTransform.h"
 #include "vtkTubeFilter.h"
 
-vtkCxxRevisionMacro(vtkImplicitPlaneWidget, "1.25");
+vtkCxxRevisionMacro(vtkImplicitPlaneWidget, "1.26");
 vtkStandardNewMacro(vtkImplicitPlaneWidget);
 
 vtkImplicitPlaneWidget::vtkImplicitPlaneWidget() : vtkPolyDataSourceWidget()
@@ -1134,7 +1134,7 @@ void vtkImplicitPlaneWidget::GetPolyData(vtkPolyData *pd)
   pd->ShallowCopy(this->Cutter->GetOutput()); 
 }
 
-vtkPolyDataSource *vtkImplicitPlaneWidget::GetPolyDataSource()
+vtkPolyDataAlgorithm *vtkImplicitPlaneWidget::GetPolyDataAlgorithm()
 {
   return this->Cutter;
 }

@@ -16,6 +16,8 @@
 
 #include "vtkCellArray.h"
 #include "vtkFloatArray.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
@@ -23,7 +25,7 @@
 #include "vtkPolyData.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkPlaneSource, "1.61");
+vtkCxxRevisionMacro(vtkPlaneSource, "1.62");
 vtkStandardNewMacro(vtkPlaneSource);
 
 // Construct plane perpendicular to z-axis, resolution 1x1, width and height
@@ -48,6 +50,8 @@ vtkPlaneSource::vtkPlaneSource()
   this->Normal[0] = this->Normal[1] = 0.0;
 
   this->Center[0] = this->Center[1] = this->Center[2] = 0.0;
+
+  this->SetNumberOfInputPorts(0);
 }
 
 // Set the number of x-y subdivisions in the plane.
@@ -65,8 +69,18 @@ void vtkPlaneSource::SetResolution(const int xR, const int yR)
     }
 }
 
-void vtkPlaneSource::Execute()
+int vtkPlaneSource::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **vtkNotUsed(inputVector),
+  vtkInformationVector *outputVector)
 {
+  // get the info object
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the ouptut
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   double x[3], tc[2], v1[3], v2[3];
   vtkIdType pts[4];
   int i, j, ii;
@@ -76,7 +90,6 @@ void vtkPlaneSource::Execute()
   vtkFloatArray *newNormals;
   vtkFloatArray *newTCoords;
   vtkCellArray *newPolys;
-  vtkPolyData *output = this->GetOutput();
   
   // Check input
   for ( i=0; i < 3; i++ )
@@ -86,7 +99,7 @@ void vtkPlaneSource::Execute()
     }
   if ( !this->UpdatePlane(v1,v2) )
     {
-    return;
+    return 0;
     }
 
   // Set things up; allocate memory
@@ -153,6 +166,8 @@ void vtkPlaneSource::Execute()
 
   output->SetPolys(newPolys);
   newPolys->Delete();
+
+  return 1;
 }
 
 // Set the normal to the plane. Will modify the Origin, Point1, and Point2
@@ -261,7 +276,6 @@ void vtkPlaneSource::SetCenter(double x, double y, double z)
   center[0] = x; center[1] = y; center[2] = z;
   this->SetCenter(center);
 }
-
 
 // modifies the normal and origin
 void vtkPlaneSource::SetPoint1(double pnt[3])

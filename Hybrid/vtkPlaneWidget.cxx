@@ -38,7 +38,7 @@
 #include "vtkSphereSource.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkPlaneWidget, "1.43");
+vtkCxxRevisionMacro(vtkPlaneWidget, "1.44");
 vtkStandardNewMacro(vtkPlaneWidget);
 
 vtkCxxSetObjectMacro(vtkPlaneWidget,PlaneProperty,vtkProperty);
@@ -1517,7 +1517,7 @@ void vtkPlaneWidget::GetPolyData(vtkPolyData *pd)
   pd->ShallowCopy(this->PlaneSource->GetOutput()); 
 }
 
-vtkPolyDataSource *vtkPlaneWidget::GetPolyDataSource()
+vtkPolyDataAlgorithm *vtkPlaneWidget::GetPolyDataAlgorithm()
 {
   return this->PlaneSource;
 }

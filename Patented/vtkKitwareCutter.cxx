@@ -19,6 +19,8 @@
 #include "vtkFloatArray.h"
 #include "vtkGridSynchronizedTemplates3D.h"
 #include "vtkImplicitFunction.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
@@ -29,7 +31,7 @@
 #include "vtkSynchronizedTemplates2D.h"
 #include "vtkSynchronizedTemplates3D.h"
 
-vtkCxxRevisionMacro(vtkKitwareCutter, "1.5");
+vtkCxxRevisionMacro(vtkKitwareCutter, "1.6");
 vtkStandardNewMacro(vtkKitwareCutter);
 
 vtkKitwareCutter::vtkKitwareCutter()
@@ -40,25 +42,28 @@ vtkKitwareCutter::~vtkKitwareCutter()
 {
 }
 
-void vtkKitwareCutter::Execute()
+int vtkKitwareCutter::RequestData(
+  vtkInformation *request,
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
-  vtkDataSet *input = this->GetInput();
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-  if (!input)
-    {
-    vtkErrorMacro("No input specified");
-    return;
-    }
-  
+  vtkDataSet *input = vtkDataSet::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   if (input->GetNumberOfCells() == 0)
     {
-    return;
+    return 1;
     }
 
   if (!this->CutFunction)
     {
     vtkErrorMacro("No cut function specified");
-    return;
+    return 0;
     }
   
   if (input->GetDataObjectType() == VTK_STRUCTURED_POINTS ||
@@ -66,8 +71,8 @@ void vtkKitwareCutter::Execute()
     {    
     if ( input->GetCell(0) && input->GetCell(0)->GetCellDimension() >= 3 )
       {
-      this->StructuredPointsCutter();
-      return;
+      this->StructuredPointsCutter(input, output);
+      return 1;
       }
     }
   
@@ -79,7 +84,7 @@ void vtkKitwareCutter::Execute()
       // only do 3D structured grids (to be extended in the future)
       if (dim >= 3)
         {
-        this->StructuredGridCutter();
+        this->StructuredGridCutter(input, output);
         }
       }
     }
@@ -90,19 +95,19 @@ void vtkKitwareCutter::Execute()
 
     if ( dim == 3 ) 
       {
-      this->RectilinearGridCutter();
-      return;
+      this->RectilinearGridCutter(input, output);
+      return 1;
       }
     }
   
-  this->Superclass::Execute();
+  return this->Superclass::RequestData(request, inputVector, outputVector);
 }
 
-void vtkKitwareCutter::StructuredPointsCutter()
+void vtkKitwareCutter::StructuredPointsCutter(vtkDataSet *dataSetInput,
+                                              vtkPolyData *thisOutput)
 {
-  vtkImageData *input = vtkImageData::SafeDownCast(this->GetInput());
+  vtkImageData *input = vtkImageData::SafeDownCast(dataSetInput);
   vtkPolyData *output;
-  vtkPolyData *thisOutput = this->GetOutput();
   vtkIdType numPts = input->GetNumberOfPoints();
   
   if (numPts < 1)
@@ -124,7 +129,6 @@ void vtkKitwareCutter::StructuredPointsCutter()
     {
     contourData->GetPointData()->AddArray(cutScalars);
     }
-  
   
   int i;
   double scalar;
@@ -158,12 +162,11 @@ void vtkKitwareCutter::StructuredPointsCutter()
   contourData->Delete();
 }
 
-void vtkKitwareCutter::StructuredGridCutter()
+void vtkKitwareCutter::StructuredGridCutter(vtkDataSet *dataSetInput,
+                                            vtkPolyData *thisOutput)
 {
-  vtkStructuredGrid *input =
-    vtkStructuredGrid::SafeDownCast(this->GetInput());
+  vtkStructuredGrid *input = vtkStructuredGrid::SafeDownCast(dataSetInput);
   vtkPolyData *output;
-  vtkPolyData *thisOutput = this->GetOutput();
   vtkIdType numPts = input->GetNumberOfPoints();
   
   if (numPts < 1)
@@ -217,12 +220,11 @@ void vtkKitwareCutter::StructuredGridCutter()
   contourData->Delete();
 }
 
-void vtkKitwareCutter::RectilinearGridCutter()
+void vtkKitwareCutter::RectilinearGridCutter(vtkDataSet *dataSetInput,
+                                             vtkPolyData *thisOutput)
 {
-  vtkRectilinearGrid *input =
-    vtkRectilinearGrid::SafeDownCast(this->GetInput());
+  vtkRectilinearGrid *input = vtkRectilinearGrid::SafeDownCast(dataSetInput);
   vtkPolyData *output;
-  vtkPolyData *thisOutput = this->GetOutput();
   vtkIdType numPts = input->GetNumberOfPoints();
   
   if (numPts < 1)

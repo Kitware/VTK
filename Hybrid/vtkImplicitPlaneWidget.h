@@ -164,7 +164,7 @@ public:
   // Description:
   // Satisfies superclass API.  This returns a pointer to the underlying
   // PolyData (which represents the plane).
-  vtkPolyDataSource* GetPolyDataSource();
+  vtkPolyDataAlgorithm* GetPolyDataAlgorithm();
    
   // Description:
   // Get the implicit function for the plane. The user must provide the

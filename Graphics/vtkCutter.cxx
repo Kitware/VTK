@@ -21,6 +21,8 @@
 #include "vtkDoubleArray.h"
 #include "vtkGenericCell.h"
 #include "vtkImplicitFunction.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkMergePoints.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
@@ -29,7 +31,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCutter, "1.78");
+vtkCxxRevisionMacro(vtkCutter, "1.79");
 vtkStandardNewMacro(vtkCutter);
 vtkCxxSetObjectMacro(vtkCutter,CutFunction,vtkImplicitFunction);
 
@@ -59,7 +61,7 @@ vtkCutter::~vtkCutter()
 // or contour values modified, then this object is modified as well.
 unsigned long vtkCutter::GetMTime()
 {
-  unsigned long mTime=this->vtkDataSetToPolyDataFilter::GetMTime();
+  unsigned long mTime=this->Superclass::GetMTime();
   unsigned long contourValuesMTime=this->ContourValues->GetMTime();
   unsigned long time;
  
@@ -82,43 +84,49 @@ unsigned long vtkCutter::GetMTime()
 
 // Cut through data generating surface.
 //
-void vtkCutter::Execute()
+int vtkCutter::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkDataSet *input = vtkDataSet::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   vtkDebugMacro(<< "Executing cutter");
 
-  vtkDataSet *input = this->GetInput();
-
-  if (!input)
-    {
-    vtkErrorMacro("No input specified");
-    return;
-    }
-  
   if (!this->CutFunction)
     {
     vtkErrorMacro("No cut function specified");
-    return;
+    return 0;
     }
 
   if ( input->GetNumberOfPoints() < 1 )
     {
-    return;
+    return 1;
     }
   
   if (input->GetDataObjectType() == VTK_UNSTRUCTURED_GRID)
     { 
     vtkDebugMacro(<< "Executing Unstructured Grid Cutter");   
-    this->UnstructuredGridCutter();
+    this->UnstructuredGridCutter(input, output);
     }
   else
     {
     vtkDebugMacro(<< "Executing DataSet Cutter");
-    this->DataSetCutter();
+    this->DataSetCutter(input, output);
     }
+
+  return 1;
 }
 
-void vtkCutter::DataSetCutter()
+void vtkCutter::DataSetCutter(vtkDataSet *input, vtkPolyData *output)
 {
   vtkIdType cellId, i;
   int iter;
@@ -129,8 +137,6 @@ void vtkCutter::DataSetCutter()
   vtkPoints *newPoints;
   vtkDoubleArray *cutScalars;
   double value, s;
-  vtkPolyData *output = this->GetOutput();
-  vtkDataSet *input=this->GetInput();
   vtkIdType estimatedSize, numCells=input->GetNumberOfCells();
   vtkIdType numPts=input->GetNumberOfPoints();
   int numCellPts;
@@ -313,8 +319,7 @@ void vtkCutter::DataSetCutter()
   output->Squeeze();
 }
 
-
-void vtkCutter::UnstructuredGridCutter()
+void vtkCutter::UnstructuredGridCutter(vtkDataSet *input, vtkPolyData *output)
 {
   vtkIdType cellId, i;
   int iter;
@@ -323,8 +328,6 @@ void vtkCutter::UnstructuredGridCutter()
   vtkPoints *newPoints;
   vtkDoubleArray *cutScalars;
   double value, s;
-  vtkPolyData *output = this->GetOutput();
-  vtkDataSet *input = this->GetInput();
   vtkIdType estimatedSize, numCells=input->GetNumberOfCells();
   vtkIdType numPts=input->GetNumberOfPoints();
   vtkIdType cellArrayIt = 0;
@@ -343,7 +346,7 @@ void vtkCutter::UnstructuredGridCutter()
   estimatedSize = estimatedSize / 1024 * 1024; //multiple of 1024
   if (estimatedSize < 1024)
     {
-      estimatedSize = 1024;
+    estimatedSize = 1024;
     }
 
   newPoints = vtkPoints::New();
@@ -575,7 +578,6 @@ void vtkCutter::UnstructuredGridCutter()
   this->Locator->Initialize();//release any extra memory
   output->Squeeze();
 }
-
 
 // Specify a spatial locator for merging points. By default, 
 // an instance of vtkMergePoints is used.
