@@ -19,7 +19,7 @@
 #include "vtkCallbackCommand.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtk3DWidget, "1.2");
+vtkCxxRevisionMacro(vtk3DWidget, "1.3");
 
 vtk3DWidget::vtk3DWidget()
 {
@@ -131,6 +131,7 @@ void vtk3DWidget::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
   
+  os << indent << "Interactor: " << this->Interactor << "\n";
   os << indent << "Prop3D: " << this->Prop3D << "\n";
   os << indent << "Input: " << this->Input << "\n";
   os << indent << "Priority: " << this->Priority << "\n";
