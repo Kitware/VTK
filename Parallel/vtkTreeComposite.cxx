@@ -102,7 +102,7 @@ struct vtkCompositeRendererInfo
 vtkTreeComposite* vtkTreeComposite::New()
 {
   // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkTreeCompssite");
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkTreeComposite");
   if(ret)
     {
     return (vtkTreeComposite*)ret;
