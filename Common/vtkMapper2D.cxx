@@ -20,8 +20,7 @@
 #include "vtkActor2D.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkMapper2D, "1.16");
-vtkStandardNewMacro(vtkMapper2D);
+vtkCxxRevisionMacro(vtkMapper2D, "1.17");
 
 void vtkMapper2D::PrintSelf(ostream& os, vtkIndent indent)
 {

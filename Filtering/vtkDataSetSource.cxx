@@ -18,8 +18,7 @@
 #include "vtkDataSetSource.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkDataSetSource, "1.9");
-vtkStandardNewMacro(vtkDataSetSource);
+vtkCxxRevisionMacro(vtkDataSetSource, "1.10");
 
 vtkDataSetSource::vtkDataSetSource()
 {

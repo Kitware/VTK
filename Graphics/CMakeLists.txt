@@ -156,6 +156,7 @@ ABSTRACT_FILES(
 vtkApproximatingSubdivisionFilter
 vtkDicer
 vtkInterpolatingSubdivisionFilter
+vtkStreamer
 )
 
 IF(VTK_MAKE_INSTANTIATOR)

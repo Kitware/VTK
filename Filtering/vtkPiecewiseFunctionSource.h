@@ -29,7 +29,6 @@
 class VTK_FILTERING_EXPORT vtkPiecewiseFunctionSource : public vtkSource
 {
 public:
-  static vtkPiecewiseFunctionSource *New();
   vtkTypeRevisionMacro(vtkPiecewiseFunctionSource,vtkSource);
 
   // Description:

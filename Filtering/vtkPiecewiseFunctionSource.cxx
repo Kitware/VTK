@@ -18,8 +18,7 @@
 #include "vtkPiecewiseFunctionSource.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPiecewiseFunctionSource, "1.1");
-vtkStandardNewMacro(vtkPiecewiseFunctionSource);
+vtkCxxRevisionMacro(vtkPiecewiseFunctionSource, "1.2");
 
 //----------------------------------------------------------------------------
 vtkPiecewiseFunctionSource::vtkPiecewiseFunctionSource()

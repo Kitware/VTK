@@ -174,6 +174,7 @@ vtkImplicitFunction
 vtkInitialValueProblemSolver
 vtkLinearTransform
 vtkLocator
+vtkMapper2D
 vtkNonLinearCell
 vtkObjectBase
 vtkObjectFactory
@@ -181,8 +182,11 @@ vtkOldStyleCallbackCommand
 vtkOverrideInformation
 vtkOverrideInformationCollection
 vtkPointSet
+vtkProcessObject
+vtkProp
 vtkScalarsToColors
 vtkSource
+vtkStructuredData
 vtkViewport
 vtkWarpTransform
 vtkWindow

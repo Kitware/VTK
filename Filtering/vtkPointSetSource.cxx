@@ -18,8 +18,7 @@
 #include "vtkPointSetSource.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPointSetSource, "1.8");
-vtkStandardNewMacro(vtkPointSetSource);
+vtkCxxRevisionMacro(vtkPointSetSource, "1.9");
 
 //----------------------------------------------------------------------------
 vtkPointSetSource::vtkPointSetSource()

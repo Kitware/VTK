@@ -18,8 +18,7 @@
 #include "vtkStructuredGridSource.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkStructuredGridSource, "1.24");
-vtkStandardNewMacro(vtkStructuredGridSource);
+vtkCxxRevisionMacro(vtkStructuredGridSource, "1.25");
 
 //----------------------------------------------------------------------------
 vtkStructuredGridSource::vtkStructuredGridSource()

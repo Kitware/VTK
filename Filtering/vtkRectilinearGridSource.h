@@ -32,7 +32,6 @@
 class VTK_FILTERING_EXPORT vtkRectilinearGridSource : public vtkSource
 {
 public:
-  static vtkRectilinearGridSource *New();
   vtkTypeRevisionMacro(vtkRectilinearGridSource,vtkSource);
 
   // Description:

@@ -54,10 +54,6 @@
 class VTK_COMMON_EXPORT vtkProcessObject : public vtkObject
 {
 public:
-  // Description:
-  // Instantiate object with no start, end, or progress methods.
-  static vtkProcessObject *New();
-
   vtkTypeRevisionMacro(vtkProcessObject,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 

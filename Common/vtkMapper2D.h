@@ -35,8 +35,6 @@ class vtkActor2D;
 class VTK_COMMON_EXPORT vtkMapper2D : public vtkAbstractMapper
 {
 public:
-  static vtkMapper2D* New();
-
   vtkTypeRevisionMacro(vtkMapper2D,vtkAbstractMapper);
   void PrintSelf(ostream& os, vtkIndent indent);
   

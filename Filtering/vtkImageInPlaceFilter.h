@@ -35,7 +35,6 @@
 class VTK_FILTERING_EXPORT vtkImageInPlaceFilter : public vtkImageToImageFilter
 {
 public:
-  static vtkImageInPlaceFilter *New();
   vtkTypeRevisionMacro(vtkImageInPlaceFilter,vtkImageToImageFilter);
 
 

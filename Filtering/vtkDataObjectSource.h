@@ -62,7 +62,6 @@ class vtkDataObject;
 class VTK_FILTERING_EXPORT vtkDataObjectSource : public vtkSource
 {
 public:
-  static vtkDataObjectSource *New();
   vtkTypeRevisionMacro(vtkDataObjectSource,vtkSource);
 
   // Description:

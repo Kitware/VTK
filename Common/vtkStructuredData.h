@@ -42,7 +42,6 @@
 class VTK_COMMON_EXPORT vtkStructuredData : public vtkObject 
 {
 public:
-  static vtkStructuredData *New();
   vtkTypeRevisionMacro(vtkStructuredData,vtkObject);
 
   // Description:

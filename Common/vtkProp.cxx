@@ -20,8 +20,7 @@
 #include "vtkAssemblyPaths.h"
 #include "vtkOldStyleCallbackCommand.h"
 
-vtkCxxRevisionMacro(vtkProp, "1.22");
-vtkStandardNewMacro(vtkProp);
+vtkCxxRevisionMacro(vtkProp, "1.23");
 
 // Creates an Prop with the following defaults: visibility on.
 vtkProp::vtkProp()

@@ -18,8 +18,7 @@
 #include "vtkPolyDataSource.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPolyDataSource, "1.4");
-vtkStandardNewMacro(vtkPolyDataSource);
+vtkCxxRevisionMacro(vtkPolyDataSource, "1.5");
 
 //----------------------------------------------------------------------------
 vtkPolyDataSource::vtkPolyDataSource()

@@ -18,8 +18,7 @@
 #include "vtkStructuredData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkStructuredData, "1.55");
-vtkStandardNewMacro(vtkStructuredData);
+vtkCxxRevisionMacro(vtkStructuredData, "1.56");
 
 // Return the topological dimension of the data (e.g., 0, 1, 2, or 3D).
 int vtkStructuredData::GetDataDimension(int dataDescription)

@@ -32,7 +32,6 @@
 class VTK_FILTERING_EXPORT vtkUnstructuredGridSource : public vtkSource
 {
 public:
-  static vtkUnstructuredGridSource *New();
   vtkTypeRevisionMacro(vtkUnstructuredGridSource,vtkSource);
 
   // Description:

@@ -119,12 +119,6 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Construct object to start from position (0,0,0); integrate forward;
-  // terminal speed 0.0; vorticity computation off; integrations step length
-  // 0.2; and maximum propagation time 100.0.
-  static vtkStreamer *New();
-  
-  // Description:
   // Specify the start of the streamline in the cell coordinate system. That
   // is, cellId and subId (if composite cell), and parametric coordinates.
   void SetStartLocation(vtkIdType cellId, int subId, float pcoords[3]);
@@ -159,7 +153,7 @@ public:
   // Specify the source object used to generate starting points.
   void SetSource(vtkDataSet *source);
   vtkDataSet *GetSource();
-  
+
   // Description:
   // Specify the maximum length of the Streamer expressed in elapsed time.
   vtkSetClampMacro(MaximumPropagationTime,float,0.0,VTK_LARGE_FLOAT);
@@ -233,7 +227,10 @@ public:
   vtkGetObjectMacro ( Integrator, vtkInitialValueProblemSolver );
 
 protected:
-
+  // Description:
+  // Construct object to start from position (0,0,0); integrate forward;
+  // terminal speed 0.0; vorticity computation off; integrations step length
+  // 0.2; and maximum propagation time 100.0.
   vtkStreamer();
   ~vtkStreamer();
 

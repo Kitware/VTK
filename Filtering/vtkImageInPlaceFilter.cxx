@@ -18,8 +18,7 @@
 #include "vtkImageInPlaceFilter.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageInPlaceFilter, "1.34");
-vtkStandardNewMacro(vtkImageInPlaceFilter);
+vtkCxxRevisionMacro(vtkImageInPlaceFilter, "1.35");
 
 //----------------------------------------------------------------------------
 

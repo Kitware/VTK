@@ -28,7 +28,6 @@
 class VTK_FILTERING_EXPORT vtkPointSetSource : public vtkSource
 {
 public:
-  static vtkPointSetSource *New();
   vtkTypeRevisionMacro(vtkPointSetSource,vtkSource);
 
   // Description:

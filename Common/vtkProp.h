@@ -39,11 +39,6 @@ class vtkMatrix4x4;
 class VTK_COMMON_EXPORT vtkProp : public vtkObject
 {
 public:
-  // Description:
-  // Creates an instance with visibility=1, pickable=1,
-  // and dragable=1.
-  static vtkProp* New();
-
   vtkTypeRevisionMacro(vtkProp,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 

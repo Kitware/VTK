@@ -22,8 +22,7 @@
 #include "vtkInterpolatedVelocityField.h"
 #include "vtkRungeKutta2.h"
 
-vtkCxxRevisionMacro(vtkStreamer, "1.74");
-vtkStandardNewMacro(vtkStreamer);
+vtkCxxRevisionMacro(vtkStreamer, "1.75");
 
 #define VTK_START_FROM_POSITION 0
 #define VTK_START_FROM_LOCATION 1
