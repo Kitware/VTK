@@ -70,7 +70,7 @@ extern "C" JNIEXPORT void  JNICALL
   JAWT_Win32DrawingSurfaceInfo* dsi_win;
   dsi_win = (JAWT_Win32DrawingSurfaceInfo*)dsi->platformInfo;
   temp0->SetWindowId((void *)dsi_win->hwnd);
-  
+  temp0->SetDisplayId((void *)dsi_win->hdc);
 // otherwise use X11 code
 #else
   JAWT_X11DrawingSurfaceInfo* dsi_x11;
