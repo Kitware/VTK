@@ -27,7 +27,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkVolumeRayCastMapper, "1.80");
+vtkCxxRevisionMacro(vtkVolumeRayCastMapper, "1.81");
 
 #define vtkVRCMultiplyPointMacro( A, B, M ) \
   B[0] = A[0]*M[0]  + A[1]*M[1]  + A[2]*M[2]  + M[3]; \
@@ -1626,6 +1626,7 @@ void vtkVolumeRayCastMapper::InitializeClippingPlanes(
   float    t;
   
   count = planes->GetNumberOfItems();
+  staticInfo->NumberOfClippingPlanes = count;
 
   if ( !count )
     {
@@ -1636,7 +1637,6 @@ void vtkVolumeRayCastMapper::InitializeClippingPlanes(
   voxelsToWorldMatrix = staticInfo->VoxelsToWorldMatrix;
 
   staticInfo->ClippingPlane = new float [4*count];
-  staticInfo->NumberOfClippingPlanes = count;
   
   // loop through all the clipping planes
   for ( i = 0; i < count; i++ )
