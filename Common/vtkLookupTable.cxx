@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkLookupTable, "1.91");
+vtkCxxRevisionMacro(vtkLookupTable, "1.92");
 vtkStandardNewMacro(vtkLookupTable);
 
 // Construct with range=(0,1); and hsv ranges set up for rainbow color table 
@@ -828,6 +828,11 @@ void vtkLookupTable::MapScalarsThroughTable2(void *input,
       
     case VTK_UNSIGNED_SHORT:
       vtkLookupTableMapData(this,static_cast<unsigned short *>(input),output,
+                            numberOfValues,inputIncrement,outputFormat);
+      break;
+      
+    case VTK_ID_TYPE:
+      vtkLookupTableMapData(this,static_cast<vtkIdType *>(input),output,
                             numberOfValues,inputIncrement,outputFormat);
       break;
       
