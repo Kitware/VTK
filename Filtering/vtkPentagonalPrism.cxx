@@ -29,7 +29,7 @@
 #include "vtkMath.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkPentagonalPrism, "1.4");
+vtkCxxRevisionMacro(vtkPentagonalPrism, "1.5");
 vtkStandardNewMacro(vtkPentagonalPrism);
 
 static const double VTK_DIVERGED = 1.e6;
@@ -227,6 +227,7 @@ int vtkPentagonalPrism::EvaluatePosition(double x[3], double closestPoint[3],
 // (2*sqrt(sqrt(5.0) + 5) - sqrt(2.0)*(sqrt(5.0)-5))/16
 // H:
 // (2 - sqrt(2.0))*sqrt(sqrt(5.0) + 5 ) / 16
+
 #define EXPRA 0.26684892042779546;
 #define EXPRB 0.52372049461429937;
 #define EXPRC 0.36619991616704034;
@@ -744,17 +745,23 @@ void vtkPentagonalPrism::GetFacePoints (int faceId, int *&pts)
 // Vi_x = CenterOfCircle + 1/2 ( cos( pi + pi/4 + i*2*pi/5) )
 // Vi_y = CenterOfCircle + 1/2 ( sin( pi + pi/4 + i*2*pi/5) )
 
+#define V1 0.14644660940672621
+#define V2 0.72699524986977337
+#define V3 0.054496737905816051
+#define V4 0.99384417029756889
+#define V5 0.57821723252011548
+
 static double vtkPentagonalPrismCellPCoords[30] = {
-0.14644660940672621 , 0.14644660940672621 , 0.0,
-0.72699524986977337 , 0.054496737905816051, 0.0,
-0.99384417029756889 , 0.57821723252011548 , 0.0,
-0.57821723252011548 , 0.99384417029756889 , 0.0,
-0.054496737905816051, 0.72699524986977337 , 0.0,
-0.14644660940672621 , 0.14644660940672621 , 1.0,
-0.72699524986977337 , 0.054496737905816051, 1.0,
-0.99384417029756889 , 0.57821723252011548 , 1.0,
-0.57821723252011548 , 0.99384417029756889 , 1.0,
-0.054496737905816051, 0.72699524986977337 , 1.0};
+V1 , V1 , 0.0,
+V2 , V3 , 0.0,
+V4 , V5 , 0.0,
+V5 , V4 , 0.0,
+V3 , V2 , 0.0,
+V1 , V1 , 1.0,
+V2 , V3 , 1.0,
+V4 , V5 , 1.0,
+V5 , V4 , 1.0,
+V3 , V2 , 1.0};
 
 //----------------------------------------------------------------------------
 double *vtkPentagonalPrism::GetParametricCoords()
