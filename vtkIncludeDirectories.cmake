@@ -150,11 +150,6 @@ VTK_THIRD_PARTY_INCLUDE(PNG  png)
 VTK_THIRD_PARTY_INCLUDE(TIFF tiff)
 VTK_THIRD_PARTY_INCLUDE(EXPAT expat)
 
-# DICOM support is disabled until the following are fixed by the authors:
-#  - Make it build with and without VTK_USE_ANSI_STDLIB.
-#  - Remove all build warnings from dashboard.
-#  - Add a test to bring up coverage of vtkDICOMImageReader.cxx
-#    and actually read a DICOM file.
-#IF(VTK_USE_ANSI_STDLIB)
-#  VTK_THIRD_PARTY_INCLUDE(DICOMParser DICOMParser)
-#ENDIF(VTK_USE_ANSI_STDLIB)
+IF(VTK_USE_ANSI_STDLIB)
+  VTK_THIRD_PARTY_INCLUDE(DICOMParser DICOMParser)
+ENDIF(VTK_USE_ANSI_STDLIB)
