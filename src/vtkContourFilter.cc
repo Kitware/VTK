@@ -54,6 +54,9 @@ vtkContourFilter::vtkContourFilter()
   this->NumberOfContours = 1;
   this->Range[0] = 0.0;
   this->Range[1] = 1.0;
+  this->ComputeNormals = 1;
+  this->ComputeGradients = 1;
+  this->ComputeScalars = 1;
 }
 
 // Description:
@@ -221,6 +224,9 @@ void vtkContourFilter::StructuredPointsContour(int dim)
     static vtkMarchingCubes mcubes;
 
     mcubes.SetInput((vtkStructuredPoints *)this->Input);
+    mcubes.SetComputeNormals (this->ComputeNormals);
+    mcubes.SetComputeGradients (this->ComputeGradients);
+    mcubes.SetComputeScalars (this->ComputeScalars);
     mcubes.SetDebug(this->Debug);
     for (i=0; i < this->NumberOfContours; i++)
       mcubes.SetValue(i,this->Values[i]);
