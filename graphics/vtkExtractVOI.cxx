@@ -55,12 +55,12 @@ void vtkExtractVOI::SetVOI(int imin, int imax, int jmin, int jmax,
 {
   int dim[6];
 
-  dim[0] = imin;
-  dim[1] = imax;
-  dim[2] = jmin;
-  dim[3] = jmax;
-  dim[4] = kmin;
-  dim[5] = kmax;
+  dim[0] = imin < imax ? imin : imax;
+  dim[1] = imax > imin ? imax : imin;
+  dim[2] = jmin < jmax ? jmin : jmax;
+  dim[3] = jmax > jmin ? jmax : jmin;
+  dim[4] = kmin < kmax ? kmin : kmax;
+  dim[5] = kmax > kmin ? kmax : kmin;
 
   this->SetVOI(dim);
 }
