@@ -1336,7 +1336,7 @@ int vtkDataReader::ReadCells(int size, int *data)
   return 1;
 }
 
-vtkFieldData *vtkDataReader::ReadFieldData(int num)
+vtkFieldData *vtkDataReader::ReadFieldData(int vtkNotUsed(num))
 {
   int i, numArrays, skipField=0;
   vtkFieldData *f;
@@ -1414,45 +1414,95 @@ void vtkDataReader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "File Name: " 
      << (this->FileName ? this->FileName : "(none)") << "\n";
 
+
   if ( this->FileType == VTK_BINARY )
+    {
     os << indent << "File Type: BINARY\n";
+    }
   else
+    {
     os << indent << "File Type: ASCII\n";
+    }
+
+  if ( this->Source )
+    {
+    this->Source->PrintSelf(os,indent);
+    }
+  else
+    {
+      os << indent << "Source: (none)\n";
+    }
+
+  os << indent << "ReadFromInputString: " << (this->ReadFromInputString ? "On\n" : "Off\n");
+  if ( this->InputString )
+    {
+    os << indent << "Input String: " << this->InputString << "\n";
+    }
+  else
+    {
+    os << indent << "Input String: (None)\n";
+    }
 
   if ( this->ScalarsName )
+    {
     os << indent << "Scalars Name: " << this->ScalarsName << "\n";
+    }
   else
+    {
     os << indent << "Scalars Name: (None)\n";
+    }
 
   if ( this->VectorsName )
+    {
     os << indent << "Vectors Name: " << this->VectorsName << "\n";
+    }
   else
+    {
     os << indent << "Vectors Name: (None)\n";
+    }
 
   if ( this->NormalsName )
+    {
     os << indent << "Normals Name: " << this->NormalsName << "\n";
+    }
   else
+    {
     os << indent << "Normals Name: (None)\n";
-
+    }
 
   if ( this->TensorsName )
+    {
     os << indent << "Tensors Name: " << this->TensorsName << "\n";
+    }
   else
+    {
     os << indent << "Tensors Name: (None)\n";
+    }
 
   if ( this->TCoordsName )
+    {
     os << indent << "Texture Coords Name: " << this->TCoordsName << "\n";
+    }
   else
+    {
     os << indent << "Texture Coordinates Name: (None)\n";
+    }
 
   if ( this->LookupTableName )
+    {
     os << indent << "Lookup Table Name: " << this->LookupTableName << "\n";
+    }
   else
+    {
     os << indent << "Lookup Table Name: (None)\n";
+    }
 
   if ( this->FieldDataName )
+    {
     os << indent << "Field Data Name: " << this->FieldDataName << "\n";
+    }
   else
+    {
     os << indent << "Field Data Name: (None)\n";
-
+    }
 }
