@@ -894,12 +894,10 @@ void vtkOpenGLRenderWindow::SetRGBAPixelData(int x1, int y1, int x2, int y2,
   if (front)
     {
     glDrawBuffer(GL_FRONT);
-printf("Drawing to the FRONT buffer\n");
     }
   else
     {
     glDrawBuffer(GL_BACK);
-printf("Drawing to the BACK buffer\n");
     }
 
   if (y1 < y2)
@@ -951,7 +949,6 @@ printf("Drawing to the BACK buffer\n");
   else
     {
     glDrawPixels( width, height, GL_RGBA, GL_FLOAT, data);
-printf("Not BLENDing\n");
     }
 }
 
