@@ -18,6 +18,62 @@ vtkXImageMapper::~vtkXImageMapper()
   
 }
 
+//----------------------------------------------------------------------------
+/* 
+ * This templated routine calculates effective lover and upper limits 
+ * for a window of values of type T, lower and upper. 
+ * It also returns in variable hit the flag with value 1, if the 
+ * interval [f_lower, f_upper) is above the type range, -1,  if the 
+ * interval [f_lower, f_upper) is below the type range, and 0, if 
+ * there is intersection between this interval and the type range.
+ */
+template <class T>
+static void vtkXImageMapperClamps ( vtkImageData *data, float w, float l, T& lower, T& upper, int& hit)
+{
+  double f_lower, f_upper;
+  double range[2];
+
+  data->GetPointData()->GetScalars()->GetDataTypeRange( range );
+
+  f_lower = l - fabs(w) / 2.0;
+  f_upper = f_lower + fabs(w);
+
+  // Look if we above the type range
+  if ( f_lower > range[1] )
+    {
+    hit = 1;
+    return;
+    }
+  // Look if we below the type range
+  if ( f_upper <= range[0] )
+    {
+    hit = -1;
+    return;
+    }
+
+  // Set the correct lower value
+  if ( f_lower >= range[0] )
+    {
+    lower = (T) f_lower;
+    }
+  else
+    {
+    lower = (T) range[0];
+    }
+
+  // Set the correct upper value
+  if ( f_upper <= range[1] )
+    {
+    upper = (T) f_upper;
+    }
+  else
+    {
+    upper = (T) range[1];
+    }
+
+  hit = 0;
+}
+
 int vtkXImageMapper::GetCompositingMode(vtkActor2D* actor)
 {
 
@@ -173,7 +229,7 @@ static void vtkXImageMapperRenderGray(vtkXImageMapper *mapper,
   float shift, scale;
   int colorsMax;
   int visualDepth, visualClass;
-  float lower, upper;
+  T lower, upper;
   unsigned char lowerPixel, upperPixel, temp;
   int colorIdx;
 
@@ -248,22 +304,11 @@ static void vtkXImageMapperRenderGray(vtkXImageMapper *mapper,
     lowerPixel = (unsigned char)(colors->pixel);
     }  
 
-  // Changed these back to float. It may be slower,
-  // but unsigned char has trouble with overflow.
-  lower = (-shift);
-  // trouble with prescision
-  upper = (float)((double)(lower) + (double)(colorsMax)/(double)(scale));
-  // scale may be negative (for inverse video)
-  if (lower > upper)
-    {
-    lower = upper;
-    upper = -shift;
-    temp = lowerPixel;
-    lowerPixel = upperPixel;
-    upperPixel = temp;
-    }
-  
-    inInc1 = -inInc1;
+  vtkXImageMapperClamps( data, self->GetColorWindow(),
+			 self->GetColorLevel(), 
+			 lower, upper, hit );
+
+  inInc1 = -inInc1;
 
   // Loop through in regions pixels
   inPtr1 = inPtr;
@@ -363,7 +408,8 @@ static void vtkXImageMapperRenderGray(vtkXImageMapper *mapper,
 // Description:
 // A templated function that handles color images. (only True Color 24 bit)
 template <class T>
-static void vtkXImageMapperRenderColor(vtkXImageMapper *mapper,vtkViewport *viewport,
+static void vtkXImageMapperRenderColor(vtkXImageMapper *mapper,
+				       vtkViewport *viewport,
                                        vtkImageData *data, T *redPtr, int bpp,
                                        unsigned char *outPtr)
 {
@@ -377,7 +423,8 @@ static void vtkXImageMapperRenderColor(vtkXImageMapper *mapper,vtkViewport *view
   float shift, scale;
   T *greenPtr;
   T *bluePtr;
-
+  T lower, upper;
+  
   vtkWindow*  window = viewport->GetVTKWindow();
     
   shift = mapper->GetColorShift();
@@ -429,6 +476,10 @@ static void vtkXImageMapperRenderColor(vtkXImageMapper *mapper,vtkViewport *view
 
   unsigned long* ulOutPtr = (unsigned long*) outPtr;
 
+  vtkXImageMapperClamps ( data, self->GetColorWindow(),
+			  self->GetColorLevel(), 
+			  lower, upper, hit );
+
   inInc1 = -inInc1;
 
   // Loop through in regions pixels
@@ -442,16 +493,17 @@ static void vtkXImageMapperRenderColor(vtkXImageMapper *mapper,vtkViewport *view
     bluePtr0 = bluePtr1;
     for (idx0 = inMin0; idx0 <= inMax0; idx0++)
       {
+      if (*redPtr0 <= lower) red = 0;
+      else if (*redPtr0 >= upper) red = 255;
+      else red = (unsigned char)(((float)(*redPtr0) + shift) * scale);
 
-      red = (int)(((float)(*redPtr0) + shift) * scale);
-      if (red < 0) red = 0;
-      if (red > 255) red = 255;
-      green = (int)(((float)(*greenPtr0) + shift) * scale);
-      if (green < 0) green = 0;
-      if (green > 255) green = 255;
-      blue = (int)(((float)(*bluePtr0) + shift) * scale);
-      if (blue < 0) blue = 0;
-      if (blue > 255) blue = 255;
+      if (*greenPtr0 <= lower) green = 0;
+      else if (*greenPtr0 >= upper) green = 255;
+      else green = (unsigned char)(((float)(*greenPtr0) + shift) * scale);
+  
+      if (*bluePtr0 <= lower) blue = 0;
+      else if (*bluePtr0 >= upper) blue = 255;
+      else blue = (unsigned char)(((float)(*bluePtr0) + shift) * scale);
 
       *ulOutPtr = 0;
       *ulOutPtr = *ulOutPtr | ((rmask & (red << 24)) >> rshift);
