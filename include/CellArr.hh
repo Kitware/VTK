@@ -4,7 +4,7 @@
 #ifndef __vlCellArray_h
 #define __vlCellArray_h
 
-#include "IntArray.h"
+#include "IntArray.hh"
 
 class vlCellArray : public vlObject 
 {

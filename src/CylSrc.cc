@@ -2,7 +2,7 @@
 // Methods for plane generator
 //
 #include <math.h>
-#include "CylSrc.h"
+#include "CylSrc.hh"
 
 void vlCylinderSource::SetResolution(int res)
 {

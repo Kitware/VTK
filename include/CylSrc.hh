@@ -4,7 +4,7 @@
 #ifndef __CylinderSource_h
 #define __CylinderSource_h
 
-#include "PolySrc.h"
+#include "PolySrc.hh"
 
 #define MAX_RESOLUTION MAX_VERTS
 

@@ -1,5 +1,5 @@
 #include <iostream.h>
-#include "CellList.h"
+#include "CellList.hh"
 
 vlCellList::vlCellList(const int sz, const int ext)
 {
