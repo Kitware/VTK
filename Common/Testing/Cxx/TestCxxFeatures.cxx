@@ -100,6 +100,9 @@
 //----------------------------------------------------------------------------
 
 /* Test use of namespaces.  */
+
+#if !defined(VTK_CXX_SGI_6)
+// Fails on kulu.crd IRIX64-6.5-CC-o32 (old SGI compiler).
 namespace NamespaceTest {}
 namespace {}
 void NamespaceTestFunc() {}
@@ -108,6 +111,7 @@ namespace NamespaceTest
   using ::NamespaceTestFunc;
 }
 using namespace NamespaceTest;
+#endif
 
 //----------------------------------------------------------------------------
 
