@@ -24,7 +24,7 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 
-vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.8");
+vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.9");
 vtkStandardNewMacro(vtkStreamingDemandDrivenPipeline);
 
 //----------------------------------------------------------------------------
@@ -246,10 +246,10 @@ int vtkStreamingDemandDrivenPipeline::VerifyUpdateExtent(int outputPort)
     }
 
 #if 0
-  // TODO: Use EXTENT_TYPE to check structured or unstructured extents.
+  // TODO: Use DATA_EXTENT_TYPE to check structured or unstructured extents.
   vtkInformation* info = this->GetOutputInformation(outputPort);
   if(info->Has(WHOLE_EXTENT()) && info->Has(UPDATE_EXTENT()) &&
-     info->Has(vtkInformation::EXTENT_TYPE()))
+     info->Has(vtkInformation::DATA_EXTENT_TYPE()))
     {
     }
 #endif
@@ -274,9 +274,10 @@ int vtkStreamingDemandDrivenPipeline::NeedToExecuteData(int outputPort)
       {
       return 1;
       }
-    if(info->Has(UPDATE_EXTENT()) && info->Has(vtkInformation::EXTENT_TYPE()))
+    if(info->Has(UPDATE_EXTENT()) &&
+       info->Has(vtkInformation::DATA_EXTENT_TYPE()))
       {
-      if(info->Get(vtkInformation::EXTENT_TYPE()) == VTK_3D_EXTENT)
+      if(info->Get(vtkInformation::DATA_EXTENT_TYPE()) == VTK_3D_EXTENT)
         {
         int dataExtent[6];
         int updateExtent[6];
