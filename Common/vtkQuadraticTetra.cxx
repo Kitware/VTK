@@ -25,7 +25,7 @@
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkQuadraticTetra, "1.10");
+vtkCxxRevisionMacro(vtkQuadraticTetra, "1.11");
 vtkStandardNewMacro(vtkQuadraticTetra);
 
 // Construct the line with two points.
@@ -467,8 +467,8 @@ void vtkQuadraticTetra::InterpolationFunctions(float pcoords[3],
   weights[5] = 4.0 * r * s;
   weights[6] = 4.0 * s * u;
   weights[7] = 4.0 * u * t;
-  weights[8] = 4.0 * s * t;
-  weights[9] = 4.0 * r * t;
+  weights[8] = 4.0 * r * t;
+  weights[9] = 4.0 * s * t;
 }
 
 // Derivatives in parametric space.
