@@ -4,9 +4,6 @@
 
 void vtkMapper2D::GetViewportClipSize(vtkViewport* viewport, int* clipWidth, int* clipHeight)
 {
-  
-  // vtkDebugMacro(<<"vtkMapper2D::GetViewportClipSize");
-  
   // Get the viewport coordinates
   float* vpt = viewport->GetViewport(); 
 
@@ -16,10 +13,8 @@ void vtkMapper2D::GetViewportClipSize(vtkViewport* viewport, int* clipWidth, int
 
   // Calculate a clip width and height for the image based on the 
   // size of the viewport
-
   float vptWidth = vpt[XMAX] - vpt[XMIN];
   float vptHeight = vpt[YMAX] - vpt[YMIN];
-
   *clipWidth = (int) (vptWidth * (float) winSize[0]);
   *clipHeight = (int) (vptHeight * (float) winSize[1]);
 
@@ -28,7 +23,6 @@ void vtkMapper2D::GetViewportClipSize(vtkViewport* viewport, int* clipWidth, int
 
 void vtkMapper2D::GetActorClipSize(vtkViewport* viewport, vtkActor2D* actor, int* clipWidth, int* clipHeight)
 {
-
   // Get the clipping width and height of the viewport
   this->GetViewportClipSize(viewport, clipWidth, clipHeight);
 
@@ -55,6 +49,5 @@ void vtkMapper2D::GetActorClipSize(vtkViewport* viewport, vtkActor2D* actor, int
 
   *clipWidth = ((float) *clipWidth) / actorScale[0];
   *clipHeight = ((float) *clipHeight) / actorScale[1];
-
 }
 

@@ -5,12 +5,27 @@
 #include "vtkActor2DCollection.h"
 
 // Description:
+// Render the collection of 2D actors.
+void vtkActor2DCollection::Render(vtkViewport* viewport)
+{
+  if (this->NumberOfItems != 0)
+    {
+    this->Sort();  
+    vtkActor2D* tempActor;
+    for ( this->InitTraversal(); 
+           (tempActor = this->GetNextItem());)
+      {
+	    // Make sure that the actor is visible before rendering
+	    if (tempActor->GetVisibility() == 1) tempActor->Render(viewport);
+      }
+    }
+}
+
+// Description:
 // Add an actor to the list.
 void vtkActor2DCollection::AddItem(vtkActor2D *a)
 {
-
   vtkCollectionElement* indexElem;
-
   vtkCollectionElement* elem = new vtkCollectionElement;
 
   // Check if the top item is NULL
@@ -18,7 +33,6 @@ void vtkActor2DCollection::AddItem(vtkActor2D *a)
     {
     vtkDebugMacro(<<"vtkActor2DCollection::AddItem - Adding item to top of the list");
   
-    //#### Check on where this item is deleted
     this->Top = elem;
     elem->Item = a;
     elem->Next = NULL;
@@ -34,7 +48,6 @@ void vtkActor2DCollection::AddItem(vtkActor2D *a)
     {
 
     vtkActor2D* tempActor = (vtkActor2D*) indexElem->Item;
-
     if (a->GetLayerNumber() < tempActor->GetLayerNumber())
       {
       // The indexElem item's layer number is larger, so swap
@@ -68,9 +81,6 @@ void vtkActor2DCollection::Sort()
    vtkActor2D* tempActor;
    int index;
    
-   // ### This needs to be checked !!!
-   // this->DebugOn();
-
    vtkDebugMacro(<<"vtkActor2DCollection::Sort");
 
    int numElems  = this->GetNumberOfItems();
@@ -87,12 +97,7 @@ void vtkActor2DCollection::Sort()
    for (index = 0; index < numElems; index++)
      {
      actorPtrArr[index] = this->GetNextItem();
-     // vtkDebugMacro(<<"vtkActor2DCollection::Sort - actorPtrArr["<<index<<"] layer: " <<
-     //	              actorPtrArr[index]->GetLayerNumber());
-     
      }
-
-   
 
   vtkDebugMacro(<<"vtkActor2DCollection::Sort - Starting selection sort");
    // Start the sorting - selection sort
@@ -122,119 +127,25 @@ void vtkActor2DCollection::Sort()
      actorPtrArr[index]->GetLayerNumber());
      }
 
-
   vtkDebugMacro(<<"vtkActor2DCollection::Sort - Rearraging the linked list.");
   // Now move the items around in the linked list -
-  // keep the links the same, but swap around 
-  // the items
+  // keep the links the same, but swap around the items
  
-  //vtkCollectionElement* elem = new vtkCollectionElement; 
-
   vtkCollectionElement* elem = this->Top;
-
   elem->Item = actorPtrArr[0];
-
-  // vtkDebugMacro(<<"vtkActor2DCollection::Sort - Layer number: " << actorPtrArr[0]->GetLayerNumber());
 
   for (i = 1; i < numElems; i++)
     {
     elem = elem->Next;
     elem->Item = actorPtrArr[i];
-	// vtkDebugMacro(<<"vtkActor2DCollection::Sort - Layer number: " << actorPtrArr[i]->GetLayerNumber());
     }
 
-  // vtkDebugMacro(<<"vtkActor2DCollection::Sort - Deleting elem.");
-  // delete elem;
-
-  vtkDebugMacro(<<"vtkActor2DCollection::Sort - Deleting actorPtrArr.");
   delete[] actorPtrArr;
-
-  vtkDebugMacro(<<"vtkActor2DCollection::Sort - Check list elements.");
-
-  int incr = 0;
-
-  for (this->InitTraversal();
-         tempActor = this->GetNextItem();)
-    {
-			 
-			vtkDebugMacro(<<"vtkActor2DCollection::Sort - Actor number: " << incr);
-			incr++;
-    }
-
-
-  vtkDebugMacro(<<"vtkActor2DCollection::Sort - Exit.");
-  
-
-
 }
 
 
 
 
-#if 0
-  // Sort so that layer number increases as you go down 
-  // the list
-
-  // Check for NULL pointer passed to function
-  if (a == NULL)
-    {
-    vtkErrorMacro (<< "vtkActor2DCollection::AddItem - Item to be
-                                    added is NULL!");
-    return;
-    }
-
-
-  // Check if the current item is NULL 
-  if (this->Current == NULL)
-    {
-    //#### Check on where this item is deleted
-    this->Current = new vtkCollectionElement;
-    this->Current->Item = a;
-    this->Current->Next = NULL;
-    this->Bottom = this->Current;
-    this->NumberOfItems++;
-    return;
-    }
-
-  // this->Current should now be the place where we insert 
-  // the new item.
-  
-  // Create a new collection element - check on deletion
-  elem = new vtkCollectionElement;
-  
-  // Set that element's items to be the vtkActor2D object
-  elem->Item = a;
-
-  // Check if we're at the end of the list
-  if (this->Current->Next != NULL)
-    {
-    // If we're not at the end of the list, put the next element 
-    // after the element we're adding
-    elem->Next = this->Current->Next;
-    }
-  else
-    {
-    // Otherwise make the element the end of the list
-    elem->Next = NULL;
-    this->Bottom = elem;
-    }
-
-  // Attach the new element to the list
-  this->Current->Next = elem;
-  
-  // Increment the number of items
-  this->NumberOfItems++;
-  
-#endif
 
 
 
-    //while (this->Current->Next != NULL)
-    // The Current layer isn't larger, so keep moving through the list
-    // "while" this->Current = this->Current->Next;
-
-
-#if 0
-  // Need to comment this line out later
-  this->vtkCollection::AddItem((vtkObject *)a);
-#endif

@@ -1,4 +1,50 @@
+/*=========================================================================
 
+  Program:   Visualization Toolkit
+  Module:    vtkProperty2D.h
+  Language:  C++
+  Date:      $Date$
+  Version:   $Revision$
+  Thanks:    Thanks to Matt Turek who developed this class.
+
+Copyright (c) 1993-1998 Ken Martin, Will Schroeder, Bill Lorensen.
+
+This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
+The following terms apply to all files associated with the software unless
+explicitly disclaimed in individual files. This copyright specifically does
+not apply to the related textbook "The Visualization Toolkit" ISBN
+013199837-4 published by Prentice Hall which is covered by its own copyright.
+
+The authors hereby grant permission to use, copy, and distribute this
+software and its documentation for any purpose, provided that existing
+copyright notices are retained in all copies and that this notice is included
+verbatim in any distributions. Additionally, the authors grant permission to
+modify this software and its documentation for any purpose, provided that
+such modifications are not distributed without the explicit consent of the
+authors and that existing copyright notices are retained in all copies. Some
+of the algorithms implemented by this software are patented, observe all
+applicable patent law.
+
+IN NO EVENT SHALL THE AUTHORS OR DISTRIBUTORS BE LIABLE TO ANY PARTY FOR
+DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING OUT
+OF THE USE OF THIS SOFTWARE, ITS DOCUMENTATION, OR ANY DERIVATIVES THEREOF,
+EVEN IF THE AUTHORS HAVE BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+THE AUTHORS AND DISTRIBUTORS SPECIFICALLY DISCLAIM ANY WARRANTIES, INCLUDING,
+BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+PARTICULAR PURPOSE, AND NON-INFRINGEMENT.  THIS SOFTWARE IS PROVIDED ON AN
+"AS IS" BASIS, AND THE AUTHORS AND DISTRIBUTORS HAVE NO OBLIGATION TO PROVIDE
+MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
+
+
+=========================================================================*/
+// .NAME vtkProperty2D
+// .SECTION Description
+// vtkProperty2D contains properties used to render two dimensional images
+// and annotations.
+
+// .SECTION See Also
+// vtkActor2D 
 
 #ifndef __vtkProperty2D_h
 #define __vtkProperty2D_h
@@ -25,37 +71,35 @@ public:
   ~vtkProperty2D();
   static vtkProperty2D *New() {return new vtkProperty2D;};
 
+  vtkSetVector3Macro(Color, float);
+  vtkGetVectorMacro(Color, float, 3);
+
+  vtkGetMacro(CompositingOperator, int);
+  vtkSetMacro(CompositingOperator, int);
+
   vtkGetMacro(Opacity, float);
   vtkSetMacro(Opacity, float);
 
-  void SetColor(float r, float g, float b);
-  void SetColor(float c[3]);
-  float* GetColor();
-  void GetColor(float c[3]);
-
-  void SetCompositingOperator(int); 
-  int GetCompositingOperator();
-  void SetCompositingOperatorToBlack() {this->Operator = VTK_BLACK;};
-  void SetCompositingOperatorToNotDest() {this->Operator = VTK_NOT_DEST;};
-  void SetCompositingOperatorToSrcAndDest() {this->Operator = VTK_SRC_AND_DEST;};
-  void SetCompositingOperatorToSrcOrDest() {this->Operator = VTK_SRC_OR_DEST;};
-  void SetCompositingOperatorToNotSrc() {this->Operator = VTK_NOT_SRC;};
-  void SetCompositingOperatorToSrcXorDest() {this->Operator = VTK_SRC_XOR_DEST;};
-  void SetCompositingOperatorToSrcAndNotDest() {this->Operator = VTK_SRC_AND_notDEST;};
-  void SetCompositingOperatorToSrc() {this->Operator = VTK_SRC;};
-  void SetCompositingOperatorToWhite() {this->Operator = VTK_WHITE;};
+  void SetCompositingOperatorToBlack() {this->CompositingOperator = VTK_BLACK;};
+  void SetCompositingOperatorToNotDest() {this->CompositingOperator = VTK_NOT_DEST;};
+  void SetCompositingOperatorToSrcAndDest() {this->CompositingOperator = VTK_SRC_AND_DEST;};
+  void SetCompositingOperatorToSrcOrDest() {this->CompositingOperator = VTK_SRC_OR_DEST;};
+  void SetCompositingOperatorToNotSrc() {this->CompositingOperator = VTK_NOT_SRC;};
+  void SetCompositingOperatorToSrcXorDest() {this->CompositingOperator = VTK_SRC_XOR_DEST;};
+  void SetCompositingOperatorToSrcAndNotDest() {this->CompositingOperator = VTK_SRC_AND_notDEST;};
+  void SetCompositingOperatorToSrc() {this->CompositingOperator = VTK_SRC;};
+  void SetCompositingOperatorToWhite() {this->CompositingOperator = VTK_WHITE;};
 
   void Render (vtkViewport* viewport)  { viewport;}
   
-
-
 protected:
-  float Opacity;
   float Color[3];
-  int Operator;
+  int   CompositingOperator;
+  float   Opacity;
 };
   
   
 #endif
 
 
+  

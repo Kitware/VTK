@@ -52,11 +52,9 @@ int *vtkActor2D::GetComputedDisplayPosition(vtkViewport* viewport)
   switch (this->PositionType) 
     {
     case VTK_VIEW_COORD:
-        vtkDebugMacro(<< "vpos[0]=" << this->ViewPosition[0] << " vpos[1]=" << this->ViewPosition[1]);
 	viewport->SetViewPoint(this->ViewPosition[0], this->ViewPosition[1], 0);
 	viewport->ViewToDisplay();
         actorPos = viewport->GetDisplayPoint();
-        vtkDebugMacro(<< "actorPos[0]=" << actorPos[0] << " actorPos[1]=" << actorPos[1]);
       	break;
     case VTK_DISPLAY_COORD:
         // Put the int DisplayPosition into a float array 
@@ -80,7 +78,7 @@ int *vtkActor2D::GetComputedDisplayPosition(vtkViewport* viewport)
 
   this->ComputedDisplayPosition[0] = actorPos[0] + 0.5;
 
-  // X and Win32 window origins have 0,0 at top left
+  // X and Win32 drawing origins have 0,0 at top left
   this->ComputedDisplayPosition[1] = winSize[1] - (actorPos[1] + 0.5);
 
   return this->ComputedDisplayPosition;
@@ -88,18 +86,13 @@ int *vtkActor2D::GetComputedDisplayPosition(vtkViewport* viewport)
 
 vtkActor2D::vtkActor2D()
 {
-
-  vtkDebugMacro (<< "vtkActor2D::vtkActor2D()"); 
   this->Orientation = 0.0;
   this->Scale[0] = 1.0;
   this->Scale[1] = 1.0;
- 
   this->LayerNumber = 0;
   this->Visibility = 1;  // ON
   this->SelfCreatedProperty = 0;
-  
   this->Property = (vtkProperty2D*) NULL;
-
   this->PositionType = VTK_VIEW_COORD;
   this->DisplayPosition[0] = 0;
   this->DisplayPosition[1] = 0;
@@ -113,27 +106,7 @@ vtkActor2D::vtkActor2D()
 
 vtkActor2D::~vtkActor2D()
 {
-  vtkDebugMacro (<< "vtkActor2D::~vtkActor2D()" );
-
   if (this->SelfCreatedProperty) delete this->Property;
-
-}
-
-vtkActor2D& vtkActor2D::operator=(const vtkActor2D& actor)
-{
-  vtkDebugMacro (<< "vtkActor2D::operator="); 
-
-  this->Orientation = actor.Orientation;
-  this->Scale[0] = actor.Scale[0];
-  this->Scale[1] = actor.Scale[1];
-
-  this->LayerNumber = actor.LayerNumber;
-  this->Visibility = actor.Visibility;
-
-  this->Property = actor.Property;
-
-  // Leave off the mapper 
-  return *this;
 }
 
 void vtkActor2D::Render (vtkViewport* viewport)
@@ -143,7 +116,6 @@ void vtkActor2D::Render (vtkViewport* viewport)
   if (!this->Property)
     {
     vtkDebugMacro(<< "vtkActor2D::Render - Creating Property2D");
-
     // Force creation of default property
     this->GetProperty();
     }
@@ -167,12 +139,9 @@ vtkProperty2D *vtkActor2D::GetProperty()
     {
     this->Property = vtkProperty2D::New();
     this->SelfCreatedProperty = 1;
-    // Do we need to call modified?
     this->Modified();
     }
-
   return this->Property;
-
 }
 
 
