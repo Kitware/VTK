@@ -404,7 +404,11 @@ void vtkQuad::Contour(float value, vtkFloatScalars *cellScalars,
           }
         }
       }
-    lines->InsertNextCell(2,pts);
+    // check for degenerate line
+    if ( pts[0] != pts[1] )
+      {
+      lines->InsertNextCell(2,pts);
+      }
     }
 }
 
@@ -650,6 +654,7 @@ void vtkQuad::Clip(float value, vtkFloatScalars *cellScalars,
   int pts[4];
   int vertexId;
   float t, x1[3], x2[3], x[3], deltaScalar;
+  float scalar0, scalar1, e1Scalar;
 
   // Build the index into the case table
   if ( insideOut )
@@ -693,21 +698,25 @@ void vtkQuad::Clip(float value, vtkFloatScalars *cellScalars,
         vert = edges[edge[i+1]];
 
         // calculate a preferred interpolation direction
-        deltaScalar = (cellScalars->GetScalar(vert[1]) - cellScalars->GetScalar(vert[0]));
+        scalar0 = cellScalars->GetScalar(vert[0]);
+        scalar1 = cellScalars->GetScalar(vert[1]);
+        deltaScalar = scalar1 - scalar0;
 
         if (deltaScalar > 0)
           {
 	  e1 = vert[0]; e2 = vert[1];
+          e1Scalar = scalar0;
           }
         else
           {
           e1 = vert[1]; e2 = vert[0];
+          e1Scalar = scalar1;
           deltaScalar = -deltaScalar;
           }
 
 	// linear interpolation
         if (deltaScalar == 0.0) t = 0.0;
-        else t = (value - cellScalars->GetScalar(e1)) / deltaScalar;
+        else t = (value - e1Scalar) / deltaScalar;
 
         this->Points.GetPoint(e1, x1);
         this->Points.GetPoint(e2, x2);

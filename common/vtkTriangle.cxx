@@ -359,7 +359,11 @@ void vtkTriangle::Contour(float value, vtkFloatScalars *cellScalars,
           }
         }
       }
-    lines->InsertNextCell(2,pts);
+    // check for degenerate line
+    if ( pts[0] != pts[1] )
+      {
+      lines->InsertNextCell(2,pts);
+      }
     }
 }
 
