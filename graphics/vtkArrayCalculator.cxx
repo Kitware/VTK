@@ -339,11 +339,28 @@ void vtkArrayCalculator::Execute()
   if (attributeDataType == 0)
     {
     output->GetPointData()->GetFieldData()->AddArray(resultArray);
+    if (resultType == 0)
+      {
+      output->GetPointData()->SetActiveScalars(this->ResultArrayName);
+      }
+    else
+      {
+      output->GetPointData()->SetActiveVectors(this->ResultArrayName);
+      }
     }
   else
     {
     output->GetCellData()->GetFieldData()->AddArray(resultArray);
+    if (resultType == 0)
+      {
+      output->GetCellData()->SetActiveScalars(this->ResultArrayName);
+      }
+    else
+      {
+      output->GetCellData()->SetActiveVectors(this->ResultArrayName);
+      }
     }
+  
   resultArray->Delete();
   resultArray = NULL;
 }
