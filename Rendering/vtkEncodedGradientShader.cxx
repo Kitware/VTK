@@ -31,7 +31,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkEncodedGradientShader, "1.28");
+vtkCxxRevisionMacro(vtkEncodedGradientShader, "1.29");
 vtkStandardNewMacro(vtkEncodedGradientShader);
 
 vtkEncodedGradientShader::vtkEncodedGradientShader()
@@ -50,6 +50,7 @@ vtkEncodedGradientShader::vtkEncodedGradientShader()
 
   this->ZeroNormalDiffuseIntensity  = 0.0;
   this->ZeroNormalSpecularIntensity = 0.0;
+  this->ActiveComponent             = 0;
 }
 
 vtkEncodedGradientShader::~vtkEncodedGradientShader()
@@ -250,10 +251,10 @@ void vtkEncodedGradientShader::UpdateShadingTable( vtkRenderer *ren,
   
   property = vol->GetProperty();
 
-  material[0] = property->GetAmbient();
-  material[1] = property->GetDiffuse();
-  material[2] = property->GetSpecular();
-  material[3] = property->GetSpecularPower();
+  material[0] = property->GetAmbient(this->ActiveComponent);
+  material[1] = property->GetDiffuse(this->ActiveComponent);
+  material[2] = property->GetSpecular(this->ActiveComponent);
+  material[3] = property->GetSpecularPower(this->ActiveComponent);
 
   // Set up the lights for traversal
   lightCollection = ren->GetLights();

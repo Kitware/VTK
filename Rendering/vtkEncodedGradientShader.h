@@ -73,6 +73,13 @@ public:
   float *GetGreenSpecularShadingTable( vtkVolume *vol );
   float *GetBlueSpecularShadingTable(  vtkVolume *vol );
 
+  // Description:
+  // Set the active component for shading. This component's 
+  // ambient / diffuse / specular / specular power values will
+  // be used to create the shading table. The default is 1.0
+  vtkSetClampMacro( ActiveComponent, int, 0, 3 );
+  vtkGetMacro( ActiveComponent, int );
+  
 protected:
   vtkEncodedGradientShader();
   ~vtkEncodedGradientShader();
@@ -109,6 +116,8 @@ protected:
   vtkVolume                    *ShadingTableVolume[VTK_MAX_SHADING_TABLES];
   int                          ShadingTableSize[VTK_MAX_SHADING_TABLES];
 
+  int                          ActiveComponent;
+  
   // The intensity of light used for the zero normals, since it
   // can not be computed from the normal angles. Defaults to 0.0.
   float    ZeroNormalDiffuseIntensity;
