@@ -18,7 +18,7 @@
 #include "vtkAlgorithm.h"
 #include "vtkGarbageCollector.h"
 
-vtkCxxRevisionMacro(vtkDistributedExecutive, "1.1");
+vtkCxxRevisionMacro(vtkDistributedExecutive, "1.2");
 vtkStandardNewMacro(vtkDistributedExecutive);
 vtkCxxSetObjectMacro(vtkDistributedExecutive, Algorithm, vtkAlgorithm);
 
@@ -106,4 +106,40 @@ int vtkDistributedExecutive::Update(vtkAlgorithm* algorithm)
     return 0;
     }
   return 0;
+}
+
+//----------------------------------------------------------------------------
+int vtkDistributedExecutive::InputPortIndexInRange(int port,
+                                                   const char* action)
+{
+  // Make sure the index of the input port is in range.
+  if(port < 0 || port >= this->Algorithm->GetNumberOfInputPorts())
+    {
+    vtkErrorMacro("Attempt to " << (action?action:"access")
+                  << " input port index " << port << " for algorithm "
+                  << this->Algorithm->GetClassName()
+                  << "(" << this->Algorithm << "), which has "
+                  << this->Algorithm->GetNumberOfInputPorts()
+                  << " input ports.");
+    return 0;
+    }
+  return 1;
+}
+
+//----------------------------------------------------------------------------
+int vtkDistributedExecutive::OutputPortIndexInRange(int port,
+                                                    const char* action)
+{
+  // Make sure the index of the output port is in range.
+  if(port < 0 || port >= this->Algorithm->GetNumberOfOutputPorts())
+    {
+    vtkErrorMacro("Attempt to " << (action?action:"access")
+                  << " output port index " << port << " for algorithm "
+                  << this->Algorithm->GetClassName()
+                  << "(" << this->Algorithm << "), which has "
+                  << this->Algorithm->GetNumberOfOutputPorts()
+                  << " output ports.");
+    return 0;
+    }
+  return 1;
 }

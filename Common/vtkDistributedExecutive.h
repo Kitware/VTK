@@ -47,6 +47,10 @@ protected:
   vtkDistributedExecutive();
   ~vtkDistributedExecutive();
 
+  // Helper methods for subclasses.
+  int InputPortIndexInRange(int port, const char* action);
+  int OutputPortIndexInRange(int port, const char* action);
+
   // Implement methods required by superclass.
   virtual void AddAlgorithm(vtkAlgorithm* algorithm);
   virtual void RemoveAlgorithm(vtkAlgorithm* algorithm);
