@@ -16,9 +16,11 @@
 
 =========================================================================*/
 #include "vtkDataSetSource.h"
-#include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkDataSetSource, "1.10");
+#include "vtkObjectFactory.h"
+#include "vtkDataSet.h"
+
+vtkCxxRevisionMacro(vtkDataSetSource, "1.11");
 
 vtkDataSetSource::vtkDataSetSource()
 {
@@ -42,3 +44,7 @@ void vtkDataSetSource::SetOutput(vtkDataSet *output)
   this->vtkSource::SetNthOutput(0, output);
 }
 
+vtkDataSet *vtkDataSetSource::GetOutput(int idx)
+{
+  return static_cast<vtkDataSet *>( this->vtkSource::GetOutput(idx) ); 
+}

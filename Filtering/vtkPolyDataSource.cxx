@@ -16,9 +16,11 @@
 
 =========================================================================*/
 #include "vtkPolyDataSource.h"
-#include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPolyDataSource, "1.5");
+#include "vtkObjectFactory.h"
+#include "vtkPolyData.h"
+
+vtkCxxRevisionMacro(vtkPolyDataSource, "1.6");
 
 //----------------------------------------------------------------------------
 vtkPolyDataSource::vtkPolyDataSource()
@@ -41,6 +43,12 @@ vtkPolyData *vtkPolyDataSource::GetOutput()
     }
   
   return (vtkPolyData *)(this->Outputs[0]);
+}
+
+//----------------------------------------------------------------------------
+vtkPolyData *vtkPolyDataSource::GetOutput(int idx)
+{
+  return (vtkPolyData *) this->vtkSource::GetOutput(idx); 
 }
 
 //----------------------------------------------------------------------------

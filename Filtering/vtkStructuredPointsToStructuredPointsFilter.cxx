@@ -17,7 +17,10 @@
 =========================================================================*/
 #include "vtkStructuredPointsToStructuredPointsFilter.h"
 
-vtkCxxRevisionMacro(vtkStructuredPointsToStructuredPointsFilter, "1.26");
+#include "vtkImageData.h"
+#include "vtkStructuredPoints.h"
+
+vtkCxxRevisionMacro(vtkStructuredPointsToStructuredPointsFilter, "1.27");
 
 //----------------------------------------------------------------------------
 // Specify the input data or filter.

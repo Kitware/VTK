@@ -17,7 +17,9 @@
 =========================================================================*/
 #include "vtkStructuredPointsToPolyDataFilter.h"
 
-vtkCxxRevisionMacro(vtkStructuredPointsToPolyDataFilter, "1.24");
+#include "vtkImageData.h"
+
+vtkCxxRevisionMacro(vtkStructuredPointsToPolyDataFilter, "1.25");
 
 //----------------------------------------------------------------------------
 // Specify the input data or filter.

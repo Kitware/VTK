@@ -17,7 +17,9 @@
 =========================================================================*/
 #include "vtkRectilinearGridToPolyDataFilter.h"
 
-vtkCxxRevisionMacro(vtkRectilinearGridToPolyDataFilter, "1.11");
+#include "vtkRectilinearGrid.h"
+
+vtkCxxRevisionMacro(vtkRectilinearGridToPolyDataFilter, "1.12");
 
 //----------------------------------------------------------------------------
 // Specify the input data or filter.

@@ -16,9 +16,11 @@
 
 =========================================================================*/
 #include "vtkRectilinearGridSource.h"
-#include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkRectilinearGridSource, "1.15");
+#include "vtkObjectFactory.h"
+#include "vtkRectilinearGrid.h"
+
+vtkCxxRevisionMacro(vtkRectilinearGridSource, "1.16");
 
 //----------------------------------------------------------------------------
 vtkRectilinearGridSource::vtkRectilinearGridSource()
@@ -28,6 +30,12 @@ vtkRectilinearGridSource::vtkRectilinearGridSource()
   // Filters will know it is empty. 
   this->Outputs[0]->ReleaseData();
   this->Outputs[0]->Delete();
+}
+
+//----------------------------------------------------------------------------
+vtkRectilinearGrid *vtkRectilinearGridSource::GetOutput(int idx)
+{
+  return (vtkRectilinearGrid *) this->vtkSource::GetOutput(idx); 
 }
 
 //----------------------------------------------------------------------------

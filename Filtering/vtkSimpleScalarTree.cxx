@@ -16,10 +16,12 @@
 
 =========================================================================*/
 #include "vtkSimpleScalarTree.h"
+
+#include "vtkDataSet.h"
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkSimpleScalarTree, "1.4");
+vtkCxxRevisionMacro(vtkSimpleScalarTree, "1.5");
 vtkStandardNewMacro(vtkSimpleScalarTree);
 
 class vtkScalarNode {};

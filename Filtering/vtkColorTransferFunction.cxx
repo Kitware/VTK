@@ -16,9 +16,11 @@
 
 =========================================================================*/
 #include "vtkColorTransferFunction.h"
-#include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkColorTransferFunction, "1.42");
+#include "vtkObjectFactory.h"
+#include "vtkPiecewiseFunction.h"
+
+vtkCxxRevisionMacro(vtkColorTransferFunction, "1.43");
 vtkStandardNewMacro(vtkColorTransferFunction);
 
 // Construct a new vtkColorTransferFunction with default values

@@ -17,7 +17,9 @@
 =========================================================================*/
 #include "vtkStructuredGridToPolyDataFilter.h"
 
-vtkCxxRevisionMacro(vtkStructuredGridToPolyDataFilter, "1.11");
+#include "vtkStructuredGrid.h"
+
+vtkCxxRevisionMacro(vtkStructuredGridToPolyDataFilter, "1.12");
 
 //----------------------------------------------------------------------------
 // Specify the input data or filter.

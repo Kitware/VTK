@@ -17,7 +17,9 @@
 =========================================================================*/
 #include "vtkDataSetToUnstructuredGridFilter.h"
 
-vtkCxxRevisionMacro(vtkDataSetToUnstructuredGridFilter, "1.22");
+#include "vtkUnstructuredGrid.h"
+
+vtkCxxRevisionMacro(vtkDataSetToUnstructuredGridFilter, "1.23");
 
 //----------------------------------------------------------------------------
 // Specify the input data or filter.

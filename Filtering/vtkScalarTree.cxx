@@ -16,10 +16,13 @@
 
 =========================================================================*/
 #include "vtkScalarTree.h"
+
+#include "vtkDataSet.h"
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkScalarTree, "1.26");
+vtkCxxRevisionMacro(vtkScalarTree, "1.27");
+vtkCxxSetObjectMacro(vtkScalarTree,DataSet,vtkDataSet);
 
 // Instantiate scalar tree with maximum level of 20 and branching
 // factor of 5.

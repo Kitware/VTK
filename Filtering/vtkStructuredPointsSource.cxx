@@ -16,9 +16,11 @@
 
 =========================================================================*/
 #include "vtkStructuredPointsSource.h"
-#include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkStructuredPointsSource, "1.32");
+#include "vtkObjectFactory.h"
+#include "vtkStructuredPoints.h"
+
+vtkCxxRevisionMacro(vtkStructuredPointsSource, "1.33");
 
 //----------------------------------------------------------------------------
 vtkStructuredPointsSource::vtkStructuredPointsSource()
@@ -47,6 +49,11 @@ vtkStructuredPoints *vtkStructuredPointsSource::GetOutput()
   return (vtkStructuredPoints *)(this->Outputs[0]);
 }
 
+//----------------------------------------------------------------------------
+vtkStructuredPoints *vtkStructuredPointsSource::GetOutput(int idx)
+{
+  return (vtkStructuredPoints *) this->vtkSource::GetOutput(idx); 
+}
 
 //----------------------------------------------------------------------------
 // Default method performs Update to get information.  Not all the old

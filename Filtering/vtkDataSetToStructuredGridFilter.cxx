@@ -17,7 +17,9 @@
 =========================================================================*/
 #include "vtkDataSetToStructuredGridFilter.h"
 
-vtkCxxRevisionMacro(vtkDataSetToStructuredGridFilter, "1.15");
+#include "vtkStructuredGrid.h"
+
+vtkCxxRevisionMacro(vtkDataSetToStructuredGridFilter, "1.16");
 
 //----------------------------------------------------------------------------
 // Specify the input data or filter.

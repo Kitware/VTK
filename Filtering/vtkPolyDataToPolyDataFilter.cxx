@@ -17,7 +17,9 @@
 =========================================================================*/
 #include "vtkPolyDataToPolyDataFilter.h"
 
-vtkCxxRevisionMacro(vtkPolyDataToPolyDataFilter, "1.13");
+#include "vtkPolyData.h"
+
+vtkCxxRevisionMacro(vtkPolyDataToPolyDataFilter, "1.14");
 
 //----------------------------------------------------------------------------
 vtkPolyDataToPolyDataFilter::vtkPolyDataToPolyDataFilter() 
