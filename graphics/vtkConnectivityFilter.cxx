@@ -124,7 +124,7 @@ void vtkConnectivityFilter::Execute()
   for ( i=0; i < numPts; i++ ) PointMap[i] = -1;
 
   NewScalars = vtkScalars::New();
-  NewScalars->Allocate(numPts);
+  NewScalars->SetNumberOfScalars(numPts);
   newPts = vtkPoints::New();
   newPts->Allocate(numPts);
   //
@@ -145,6 +145,12 @@ void vtkConnectivityFilter::Execute()
     { //visit all cells marking with region number
     for (cellId=0; cellId < numCells; cellId++)
       {
+
+      if ( cellId && !(cellId % 5000) )
+	{
+	this->UpdateProgress (0.1 + 0.8*cellId/numCells);
+	}
+
       if ( Visited[cellId] < 0 ) 
         {
         NumCellsInRegion = 0;
@@ -193,6 +199,7 @@ void vtkConnectivityFilter::Execute()
         if ( cellId >= 0 ) RecursionSeeds->InsertNextId(cellId);
         }
       }
+    this->UpdateProgress (0.5);
 
     //mark all seeded regions
     for (i=0; i < RecursionSeeds->GetNumberOfIds(); i++) 
@@ -201,6 +208,7 @@ void vtkConnectivityFilter::Execute()
       this->TraverseAndMark (RecursionSeeds->GetId(i));
       }
     this->RegionSizes->InsertValue(RegionNumber,NumCellsInRegion);
+    this->UpdateProgress (0.9);
     }
 
   vtkDebugMacro (<<"Extracted " << RegionNumber << " region(s)");
@@ -236,7 +244,8 @@ void vtkConnectivityFilter::Execute()
 // Create output cells
 //
   if ( this->ExtractionMode == VTK_EXTRACT_POINT_SEEDED_REGIONS ||
-  this->ExtractionMode == VTK_EXTRACT_CELL_SEEDED_REGIONS )
+  this->ExtractionMode == VTK_EXTRACT_CELL_SEEDED_REGIONS ||
+  this->ExtractionMode == VTK_EXTRACT_ALL_REGIONS)
     { // extract any cell that's been visited
     for (cellId=0; cellId < numCells; cellId++)
       {
