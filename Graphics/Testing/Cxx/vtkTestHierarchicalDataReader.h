@@ -47,6 +47,8 @@ protected:
 
   char* FileName;
 
+  virtual int FillOutputPortInformation(int port, vtkInformation* info);
+
 private:
   vtkTestHierarchicalDataReader(const vtkTestHierarchicalDataReader&);  // Not implemented.
   void operator=(const vtkTestHierarchicalDataReader&);  // Not implemented.

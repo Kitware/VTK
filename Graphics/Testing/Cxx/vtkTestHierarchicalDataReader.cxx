@@ -25,7 +25,7 @@
 #include "vtkUniformGrid.h"
 #include "vtkXMLImageDataReader.h"
 
-vtkCxxRevisionMacro(vtkTestHierarchicalDataReader, "1.1");
+vtkCxxRevisionMacro(vtkTestHierarchicalDataReader, "1.2");
 vtkStandardNewMacro(vtkTestHierarchicalDataReader);
 
 vtkTestHierarchicalDataReader::vtkTestHierarchicalDataReader()
@@ -197,6 +197,15 @@ int vtkTestHierarchicalDataReader::RequestCompositeData(
   // lower level information)
   hb->GenerateVisibilityArrays();
   
+  return 1;
+}
+
+int vtkTestHierarchicalDataReader::FillOutputPortInformation(
+  int vtkNotUsed(port), vtkInformation* info)
+{
+  info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkDataObject");
+  info->Set(vtkCompositeDataPipeline::COMPOSITE_DATA_TYPE_NAME(), 
+            "vtkHierarchicalBoxDataSet");
   return 1;
 }
 
