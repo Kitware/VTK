@@ -69,11 +69,14 @@ public:
     this->Controller = 0;
   }
 
-  friend vtkMPIController;
+  friend class vtkMPIController;
 
 protected:
 
   vtkMPIController* Controller;
+  vtkMPIOutputWindow(const vtkMPIOutputWindow&);
+  void operator=(const vtkMPIOutputWindow&);
+
 };
 
 void vtkMPIController::CreateOutputWindow()
