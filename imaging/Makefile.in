@@ -52,6 +52,7 @@ CONCRETE = \
 vtkAxisActor2D \
 vtkBMPReader \
 vtkBMPWriter \
+vtkGlyphSource2D \
 vtkImageAccumulate \
 vtkImageAnisotropicDiffusion2D \
 vtkImageAnisotropicDiffusion3D \
