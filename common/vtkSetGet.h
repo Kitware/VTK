@@ -50,7 +50,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #ifndef __vtkSetGet_h
 #define __vtkSetGet_h
-
 #include <string.h>
 
 //
@@ -334,44 +333,48 @@ void Get##name (type data[count]) \
 // vtkGenericWarningMacro(<< "this is debug info" << this->SomeVariable);
 //
 #define vtkGenericWarningMacro(x) \
-{ char *vtkmsgbuff; ostrstream vtkmsg; \
-      vtkmsg << "Generic Warning: In " __FILE__ ", line " << __LINE__ << "\n" x << ends; \
+{ if (vtkObject::GetGlobalWarningDisplay()) {char *vtkmsgbuff; ostrstream vtkmsg; \
+      vtkmsg << "Generic Warning: In " __FILE__ ", line " << __LINE__ << "\n" x << "\nPress Cancel to supress any further messages." << ends; \
       vtkmsgbuff = vtkmsg.str(); \
-      MessageBox(NULL,vtkmsgbuff,"Debug Info",MB_ICONINFORMATION | MB_OK); \
-      vtkmsg.rdbuf()->freeze(0);}
+      if (MessageBox(NULL,vtkmsgbuff,"Debug Info",MB_ICONINFORMATION | MB_OKCANCEL) == IDCANCEL) vtkObject::GlobalWarningDisplayOff(); \
+      vtkmsg.rdbuf()->freeze(0);}}
 
 //
 // This macro is used for  debug statements in instance methods
 // vtkDebugMacro(<< "this is debug info" << this->SomeVariable);
 //
+#ifdef VTK_LEAN_AND_MEAN
+#define vtkDebugMacro(x)
+#else
 #define vtkDebugMacro(x) \
-{ if (Debug) { char *vtkmsgbuff; ostrstream vtkmsg; \
-      vtkmsg << "Debug: In " __FILE__ ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): " x << ends; \
+{ if (Debug && vtkObject::GetGlobalWarningDisplay()) \
+    { char *vtkmsgbuff; ostrstream vtkmsg; \
+      vtkmsg << "Debug: In " __FILE__ ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): " x << "\nPress Cancel to supress any further messages." << ends; \
       vtkmsgbuff = vtkmsg.str(); \
-      MessageBox(NULL,vtkmsgbuff,"Debug Info",MB_ICONINFORMATION | MB_OK); \
+      if (MessageBox(NULL,vtkmsgbuff,"Debug Info",MB_ICONINFORMATION | MB_OKCANCEL) == IDCANCEL) vtkObject::GlobalWarningDisplayOff();  \
       vtkmsg.rdbuf()->freeze(0);}}
-
+#endif
 //
 // This macro is used to print out warning messages.
 // vtkWarningMacro(<< "Warning message" << variable);
 //
 #define vtkWarningMacro(x) \
-      { char *vtkmsgbuff; ostrstream vtkmsg; \
-      vtkmsg << "Warning: In " __FILE__ ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): " x << ends; \
+{ if (vtkObject::GetGlobalWarningDisplay()) {char *vtkmsgbuff; ostrstream vtkmsg; \
+      vtkmsg << "Warning: In " __FILE__ ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): " x << "\nPress Cancel to supress any further messages." << ends; \
       vtkmsgbuff = vtkmsg.str(); \
-      MessageBox(NULL,vtkmsgbuff,"Warning",MB_ICONWARNING | MB_OK); \
-      vtkmsg.rdbuf()->freeze(0);}
+      if (MessageBox(NULL,vtkmsgbuff,"Warning",MB_ICONWARNING | MB_OKCANCEL) == IDCANCEL) vtkObject::GlobalWarningDisplayOff(); \
+      vtkmsg.rdbuf()->freeze(0);}}
 
 //
 // This macro is used to print out errors
 // vtkErrorMacro(<< "Error message" << variable);
 //
 #define vtkErrorMacro(x) \
-      { char *vtkmsgbuff; ostrstream vtkmsg; \
-      vtkmsg << "ERROR: In " __FILE__ ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): " x << ends; \
+{ if (vtkObject::GetGlobalWarningDisplay()) {char *vtkmsgbuff; ostrstream vtkmsg; \
+      vtkmsg << "ERROR: In " __FILE__ ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): " x << "\nPress Cancel to supress any further messages." << ends; \
       vtkmsgbuff = vtkmsg.str(); \
-      MessageBox(NULL,vtkmsgbuff,"Error",MB_ICONERROR | MB_OK); \
-      vtkmsg.rdbuf()->freeze(0); vtkObject::BreakOnError();}
+      if (MessageBox(NULL,vtkmsgbuff,"Error",MB_ICONERROR | MB_OKCANCEL) == IDCANCEL) vtkObject::GlobalWarningDisplayOff(); \
+      vtkmsg.rdbuf()->freeze(0); vtkObject::BreakOnError();}}
 
 #else
 //
@@ -379,28 +382,31 @@ void Get##name (type data[count]) \
 // vtkGenericWarningMacro(<< "this is debug info" << this->SomeVariable);
 //
 #define vtkGenericWarningMacro(x) \
-  cerr << "Generic Warning: In " __FILE__ ", line " << __LINE__ << "\n  " x << "\n\n"
+if (vtkObject::GetGlobalWarningDisplay()) cerr << "Generic Warning: In " __FILE__ ", line " << __LINE__ << "\n  " x << "\n\n"
 
 //
 // This macro is used for  debug statements in instance methods
 // vtkDebugMacro(<< "this is debug info" << this->SomeVariable);
 //
+#ifdef VTK_LEAN_AND_MEAN
+#define vtkDebugMacro(x)
+#else
 #define vtkDebugMacro(x) \
-  if (Debug) cerr << "Debug: In " __FILE__ ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): " x <<  "\n\n"
-
+if (Debug && vtkObject::GetGlobalWarningDIsplay()) cerr << "Debug: In " __FILE__ ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): " x <<  "\n\n"
+#endif
 //
 // This macro is used to print out warning messages.
 // vtkWarningMacro(<< "Warning message" << variable);
 //
 #define vtkWarningMacro(x) \
-  cerr << "Warning: In " __FILE__ ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): " x << "\n\n"
+if (vtkObject::GetGlobalWarningDisplay()) cerr << "Warning: In " __FILE__ ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): " x << "\n\n"
 
 //
 // This macro is used to print out errors
 // vtkErrorMacro(<< "Error message" << variable);
 //
 #define vtkErrorMacro(x) \
-  {cerr << "ERROR In " __FILE__ ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): " x << "\n\n"; vtkObject::BreakOnError();}
+{ if (vtkObject::GetGlobalWarningDisplay()) cerr << "ERROR In " __FILE__ ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): " x << "\n\n"; vtkObject::BreakOnError();}
 #endif
 
 //
