@@ -6,9 +6,9 @@ if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdat
 #
 
 # get the interactor ui
-source ../../examplesTcl/vtkInt.tcl
-source ../../examplesTcl/colors.tcl
-source ../../examplesTcl/frog/SliceOrder.tcl
+source $VTK_TCL/vtkInt.tcl
+source $VTK_TCL/colors.tcl
+source $VTK_TCL/frog/SliceOrder.tcl
 
 # Create the RenderWindow, Renderer and Interactor
 #
@@ -19,7 +19,7 @@ vtkRenderWindowInteractor iren
   iren SetRenderWindow renWin
 
 vtkPolyDataReader skinReader
-  skinReader SetFileName "../../../vtkdata/skin.vtk"
+  skinReader SetFileName "$VTK_DATA/skin.vtk"
 
 set RESOLUTION 256
 set START_SLICE 1
@@ -35,7 +35,7 @@ set origin [expr ( $RESOLUTION / 2.0 ) * $PIXEL_SIZE * -1.0]
 set SLICE_ORDER si
 vtkVolume16Reader reader;
   eval reader SetDataDimensions $RESOLUTION $RESOLUTION
-  eval reader SetFilePrefix ../../../vtkdata/fullHead/headsq
+  eval reader SetFilePrefix $VTK_DATA/fullHead/headsq
   eval reader SetDataSpacing $PIXEL_SIZE $PIXEL_SIZE 1.5
   eval reader SetDataOrigin $origin $origin 1.5
   eval reader SetImageRange $START_SLICE $END_SLICE
