@@ -151,7 +151,7 @@ void vtkSTLWriter::WriteBinarySTL(vtkPoints *pts, vtkCellArray *polys)
 //
 //  Write header
 //
-  vtkDebugMacro("Writing ASCII sla file");
+  vtkDebugMacro("Writing Binary sla file");
   fwrite (header, 1, 80, fp);
 
   ulint = (unsigned long int) polys->GetNumberOfCells();

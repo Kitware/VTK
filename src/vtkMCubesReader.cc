@@ -41,6 +41,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <sys/stat.h>
 #include "vtkMCubesReader.hh"
 #include "vtkMergePoints.hh"
+#include "vtkByteSwap.hh"
 
 // Description:
 // Construct object with FlipNormals and Normals set to true.
@@ -78,6 +79,7 @@ void vtkMCubesReader::Execute()
   int nodes[3], numDegenerate=0;
   float direction, n[3], dummy[2];
   vtkPolyData *output = this->GetOutput();
+  vtkByteSwap swap;
   
   vtkDebugMacro(<<"Reading marching cubes file");
   //
@@ -106,12 +108,16 @@ void vtkMCubesReader::Execute()
     fread (dummy, sizeof(float), 2, limitp);
 
     // next three pairs are x, y, z limits
-    for (i = 0; i < 6; i++) fread (&bounds[i], sizeof (float), 1, limitp);
-
+    for (i = 0; i < 6; i++) 
+      {
+      fread (&bounds[i], sizeof (float), 1, limitp);
+      }
+    // do swapping if necc
+    swap.Swap4BERange(bounds,6);
+    
     fclose (limitp);
 
     // calculate the number of triangles and vertices from file size
-
     numTris = buf.st_size / (18*sizeof(float)); //3 points + normals
     numPts = numTris * 3;	    
     }
@@ -121,6 +127,8 @@ void vtkMCubesReader::Execute()
     bounds[1] = bounds[3] = bounds[5] = -VTK_LARGE_FLOAT;
     for (i=0; fread(&point, sizeof(pointType), 1, fp); i++) 
       {
+      // swap bytes if necc
+      swap.Swap4BERange((float *)(&point),6);
       for (j=0; j<3; j++) 
         {
         bounds[2*j] = (bounds[2*j] < point.x[j] ? bounds[2*j] : point.x[j]);
@@ -155,6 +163,8 @@ void vtkMCubesReader::Execute()
     for (j=0; j<3; j++) 
       {
       fread (&point, sizeof(pointType), 1, fp);
+      // swap bytes if necc
+      swap.Swap4BERange((float *)(&point),6);
       if ( (nodes[j] = this->Locator->IsInsertedPoint(point.x)) < 0 )
         {
         nodes[j] = this->Locator->InsertNextPoint(point.x);

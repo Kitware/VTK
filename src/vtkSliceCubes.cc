@@ -43,6 +43,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkMarchingCubesCases.hh"
 #include "vtkMath.hh"
 #include "vtkShortScalars.hh"
+#include "vtkByteSwap.hh"
 
 // Description:
 // Construct with NULL reader, output filename specification, and limits 
@@ -135,6 +136,7 @@ void vtkSliceCubes::Execute()
   float t, *x1, *x2, *n1, *n2, xmin[3], xmax[3];
   typedef struct {float x[3], n[3];} pointType;
   pointType point;
+  vtkByteSwap swap;
   static int edges[12][2] = { {0,1}, {1,2}, {2,3}, {3,0},
                               {4,5}, {5,6}, {6,7}, {7,4},
                               {0,4}, {1,5}, {3,7}, {2,6}};
@@ -316,7 +318,8 @@ void vtkSliceCubes::Execute()
               }
 
             math.Normalize(point.n);
-            fwrite(&point, sizeof(pointType), 1, outFP);
+	    // swap bytes if necc
+	    swap.SwapWrite4BERange((float *)(&point),6,outFP);
             }
           numTriangles++;
           }//for each triangle
@@ -346,13 +349,14 @@ void vtkSliceCubes::Execute()
       for (i=0; i<3; i++)
         {
         t = origin[i] + (dims[i] - 1)*aspectRatio[i];
-        fwrite(origin+i, sizeof(float), 1, outFP);
-        fwrite(&t, sizeof(float), 1, outFP);
+	swap.SwapWrite4BERange(origin+i,1,outFP);
+	// swap if neccessary
+	swap.SwapWrite4BERange(&t,1,outFP);
         }
       for (i=0; i<3; i++)
         {
-        fwrite(xmin+i, sizeof(float), 1, outFP);
-        fwrite(xmax+i, sizeof(float), 1, outFP);
+	swap.SwapWrite4BERange(xmin+i,1,outFP);
+	swap.SwapWrite4BERange(xmax+i,1,outFP);
         }
       }
      fclose(outFP);
