@@ -84,7 +84,6 @@ IF (VTK_USE_RENDERING)
       probeComb
       progGlyphs
       progGlyphsBySource
-      reconstructSurface
       quadricCut
       rectGrid
       recursiveDC
