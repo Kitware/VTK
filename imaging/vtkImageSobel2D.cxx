@@ -48,6 +48,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Construct an instance of vtkImageSobel2D fitler.
 vtkImageSobel2D::vtkImageSobel2D()
 {
+  this->KernelSize[0] = 3;
+  this->KernelSize[1] = 3;
+  this->KernelSize[2] = 1;
+  this->KernelMiddle[0] = 1;
+  this->KernelMiddle[1] = 1;
+  this->KernelMiddle[2] = 0;
+  this->HandleBoundaries = 1;
 }
 
 
@@ -63,6 +70,7 @@ void vtkImageSobel2D::PrintSelf(ostream& os, vtkIndent indent)
 void vtkImageSobel2D::ExecuteImageInformation()
 {
   this->Output->SetNumberOfScalarComponents(2);
+  this->Output->SetScalarType(VTK_FLOAT);
 }
 
 
@@ -193,7 +201,7 @@ void vtkImageSobel2D::ThreadedExecute(vtkImageData *inData,
     }
   
   // this filter cannot handle multi component input.
-  if (outData->GetNumberOfScalarComponents() != 1)
+  if (inData->GetNumberOfScalarComponents() != 1)
     {
     vtkWarningMacro("Expecting input with only one compenent.\n");
     }

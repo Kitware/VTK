@@ -42,7 +42,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .SECTION Description
 // vtkImageSobel3D computes a vector field from a scalar field by using
 // Sobel functions.  The number of vector components is 3 because
-// the input is a volume.  Output is always floats.
+// the input is a volume.  Output is always floats.  A little creative 
+// liberty was used to extend the 2D sobel kernels into 3D.
 
 
 
@@ -51,9 +52,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkImageSobel3D_h
 
 
-#include "vtkImageFilter.h"
+#include "vtkImageSpatialFilter.h"
 
-class VTK_EXPORT vtkImageSobel3D : public vtkImageFilter
+class VTK_EXPORT vtkImageSobel3D : public vtkImageSpatialFilter
 {
 public:
   vtkImageSobel3D();
@@ -61,16 +62,10 @@ public:
   const char *GetClassName() {return "vtkImageSobel3D";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Specify which axes will contribute to the gradient.
-  void SetFilteredAxes(int axis0, int axis1, int axis2);
-  vtkGetVector3Macro(FilteredAxes,int);
-  
 protected:
+  void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
+		       int outExt[6], int id);
   void ExecuteImageInformation();
-  void ComputeRequiredInputUpdateExtent();
-  void Execute(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
-
 };
 
 #endif
