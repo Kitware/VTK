@@ -53,7 +53,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdio.h>
 #include "vtkImageReader2.h"
 
-class VTK_EXPORT vtkJPEGReader : public vtkImageReader2
+class VTK_IO_EXPORT vtkJPEGReader : public vtkImageReader2
 {
 public:
   static vtkJPEGReader *New();

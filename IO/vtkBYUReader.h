@@ -52,7 +52,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdio.h>
 #include "vtkPolyDataSource.h"
 
-class VTK_EXPORT vtkBYUReader : public vtkPolyDataSource 
+class VTK_IO_EXPORT vtkBYUReader : public vtkPolyDataSource 
 {
 public:
   static vtkBYUReader *New();

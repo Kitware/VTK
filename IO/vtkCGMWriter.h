@@ -73,7 +73,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define VTK_COLOR_MODE_SPECIFIED_COLOR 1
 #define VTK_COLOR_MODE_RANDOM_COLORS 2
 
-class VTK_EXPORT vtkCGMWriter : public vtkPolyDataWriter
+class VTK_IO_EXPORT vtkCGMWriter : public vtkPolyDataWriter
 {
 public:
   // Description:

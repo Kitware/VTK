@@ -52,7 +52,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkDataWriter.h"
 #include "vtkUnstructuredGrid.h"
 
-class VTK_EXPORT vtkUnstructuredGridWriter : public vtkDataWriter
+class VTK_IO_EXPORT vtkUnstructuredGridWriter : public vtkDataWriter
 {
 public:
   static vtkUnstructuredGridWriter *New();

@@ -54,7 +54,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define VTK_ENSIGHT_GOLD 2
 #define VTK_ENSIGHT_GOLD_BINARY 3
 
-class VTK_EXPORT vtkGenericEnSightReader : public vtkDataSetSource
+class VTK_IO_EXPORT vtkGenericEnSightReader : public vtkDataSetSource
 {
 public:
   static vtkGenericEnSightReader *New();

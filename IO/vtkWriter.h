@@ -66,7 +66,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define VTK_ASCII 1
 #define VTK_BINARY 2
 
-class VTK_EXPORT vtkWriter : public vtkProcessObject
+class VTK_IO_EXPORT vtkWriter : public vtkProcessObject
 {
 public:
   vtkTypeMacro(vtkWriter,vtkProcessObject);

@@ -61,7 +61,7 @@ class vtkPoints;
 class vtkCellArray;
 class vtkDataArray;
 
-class VTK_EXPORT vtkDataWriter : public vtkWriter
+class VTK_IO_EXPORT vtkDataWriter : public vtkWriter
 {
 public:
   vtkTypeMacro(vtkDataWriter,vtkWriter);

@@ -57,7 +57,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkPolyDataWriter.h"
 #include "vtkPolyData.h"
 
-class VTK_EXPORT vtkBYUWriter : public vtkPolyDataWriter
+class VTK_IO_EXPORT vtkBYUWriter : public vtkPolyDataWriter
 {
 public:
   static vtkBYUWriter *New();

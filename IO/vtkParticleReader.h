@@ -57,7 +57,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define VTK_FILE_BYTE_ORDER_BIG_ENDIAN 0
 #define VTK_FILE_BYTE_ORDER_LITTLE_ENDIAN 1
 
-class VTK_EXPORT vtkParticleReader : public vtkPolyDataSource
+class VTK_IO_EXPORT vtkParticleReader : public vtkPolyDataSource
 {
 public:
   static vtkParticleReader *New();

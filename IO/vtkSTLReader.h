@@ -64,7 +64,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkPoints.h"
 #include "vtkCellArray.h"
 
-class VTK_EXPORT vtkSTLReader : public vtkPolyDataSource 
+class VTK_IO_EXPORT vtkSTLReader : public vtkPolyDataSource 
 {
 public:
   vtkTypeMacro(vtkSTLReader,vtkPolyDataSource);

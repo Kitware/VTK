@@ -105,7 +105,7 @@ class vtkFloatArray;
 #define VTK_WHOLE_SINGLE_GRID_NO_IBLANKING 0
 #define VTK_WHOLE_MULTI_GRID_NO_IBLANKING 2
 
-class VTK_EXPORT vtkPLOT3DReader : public vtkStructuredGridSource 
+class VTK_IO_EXPORT vtkPLOT3DReader : public vtkStructuredGridSource 
 {
 public:
   static vtkPLOT3DReader *New();

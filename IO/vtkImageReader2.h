@@ -54,7 +54,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define VTK_FILE_BYTE_ORDER_BIG_ENDIAN 0
 #define VTK_FILE_BYTE_ORDER_LITTLE_ENDIAN 1
 
-class VTK_EXPORT vtkImageReader2 : public vtkImageSource
+class VTK_IO_EXPORT vtkImageReader2 : public vtkImageSource
 {
 public:
   static vtkImageReader2 *New();

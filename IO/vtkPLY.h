@@ -185,7 +185,7 @@ typedef struct PlyFile {        /* description of PLY file */
 /* memory allocation */
 #define myalloc(mem_size) vtkPLY::my_alloc((mem_size), __LINE__, __FILE__)
 
-class VTK_EXPORT vtkPLY
+class VTK_IO_EXPORT vtkPLY
 {
 public:
   //standard PLY library interface

@@ -63,7 +63,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkPolyDataSource.h"
 
-class VTK_EXPORT vtkPLYReader : public vtkPolyDataSource 
+class VTK_IO_EXPORT vtkPLYReader : public vtkPolyDataSource 
 {
 public:
   vtkTypeMacro(vtkPLYReader,vtkPolyDataSource);

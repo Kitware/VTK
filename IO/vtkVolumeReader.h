@@ -72,7 +72,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdio.h>
 #include "vtkStructuredPointsSource.h"
 
-class VTK_EXPORT vtkVolumeReader : public vtkStructuredPointsSource
+class VTK_IO_EXPORT vtkVolumeReader : public vtkStructuredPointsSource
 {
 public:
   vtkTypeMacro(vtkVolumeReader,vtkStructuredPointsSource);

@@ -63,7 +63,7 @@ class vtkDataSet;
 class vtkPointSet;
 class vtkRectilinearGrid;
 
-class VTK_EXPORT vtkDataReader : public vtkSource
+class VTK_IO_EXPORT vtkDataReader : public vtkSource
 {
 public:
   static vtkDataReader *New();

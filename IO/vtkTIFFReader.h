@@ -79,7 +79,7 @@ struct _vtkTifTag
   vtkTiffLong  DataOffset;
 };
 //ETX
-class VTK_EXPORT vtkTIFFReader : public vtkImageReader
+class VTK_IO_EXPORT vtkTIFFReader : public vtkImageReader
 {
 public:
   static vtkTIFFReader *New();

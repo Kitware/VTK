@@ -53,7 +53,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkDataWriter.h"
 #include "vtkStructuredGrid.h"
 
-class VTK_EXPORT vtkStructuredGridWriter : public vtkDataWriter
+class VTK_IO_EXPORT vtkStructuredGridWriter : public vtkDataWriter
 {
 public:
   static vtkStructuredGridWriter *New();

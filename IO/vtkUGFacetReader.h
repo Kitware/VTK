@@ -52,7 +52,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkPolyDataSource.h"
 #include "vtkShortArray.h"
 
-class VTK_EXPORT vtkUGFacetReader : public vtkPolyDataSource 
+class VTK_IO_EXPORT vtkUGFacetReader : public vtkPolyDataSource 
 {
 public:
   vtkTypeMacro(vtkUGFacetReader,vtkPolyDataSource);

@@ -79,7 +79,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define VTK_COMPLEX_SCALAR_PER_ELEMENT 10
 #define VTK_COMPLEX_VECTOR_PER_ELEMENT 11
 
-class VTK_EXPORT vtkEnSightReader : public vtkDataSetSource
+class VTK_IO_EXPORT vtkEnSightReader : public vtkDataSetSource
 {
 public:
   vtkTypeMacro(vtkEnSightReader, vtkDataSetSource);

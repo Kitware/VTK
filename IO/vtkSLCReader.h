@@ -52,7 +52,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdio.h>
 #include "vtkStructuredPointsSource.h"
 
-class VTK_EXPORT vtkSLCReader : public vtkStructuredPointsSource 
+class VTK_IO_EXPORT vtkSLCReader : public vtkStructuredPointsSource 
 {
 public:
   static vtkSLCReader *New();

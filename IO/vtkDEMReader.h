@@ -54,7 +54,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <stdio.h>
 #include "vtkImageSource.h"
-class VTK_EXPORT vtkDEMReader : public vtkImageSource
+class VTK_IO_EXPORT vtkDEMReader : public vtkImageSource
 {
 public:
   static vtkDEMReader *New();
