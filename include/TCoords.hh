@@ -13,9 +13,9 @@ written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-// .NAME vlTCoords - abstract interface to 3D texture coordinates
+// .NAME vlTCoords - abstract interface to texture coordinates
 // .SECTION Description
-// vlTCoords provides an abstract interface to 3D texture coordinates. 
+// vlTCoords provides an abstract interface to 2D or 3D texture coordinates. 
 // Texture coordinates are 2D (s,t) or 3D (r,s,t) parametric values that
 // map geometry into regular 2D or 3D arrays of color and/or transparency
 // values. During rendering the array are mapped onto the geometry for
