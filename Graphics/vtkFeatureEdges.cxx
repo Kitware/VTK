@@ -26,7 +26,7 @@
 #include "vtkCellData.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkFeatureEdges, "1.68");
+vtkCxxRevisionMacro(vtkFeatureEdges, "1.69");
 vtkStandardNewMacro(vtkFeatureEdges);
 
 // Construct object with feature angle = 30; all types of edges, except 
@@ -276,7 +276,8 @@ void vtkFeatureEdges::Execute()
           continue;
           }
         }
-      else if ( this->ManifoldEdges )
+      else if ( this->ManifoldEdges &&
+                numNei == 1 && neighbors->GetId(0) > cellId )
         {
         if (ghostLevels && ghostLevels[cellId] > updateLevel)
           {
