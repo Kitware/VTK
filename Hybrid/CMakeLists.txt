@@ -47,9 +47,6 @@ vtkPointWidget.cxx
 vtkPolyDataSourceWidget.cxx
 vtkPolyDataToImageStencil.cxx
 vtkProcrustesAlignmentFilter.cxx
-vtkPushImageFilterSample.cxx
-vtkPushImageReader.cxx
-vtkPushPipeline.cxx
 vtkRIBExporter.cxx
 vtkRIBLight.cxx
 vtkRIBProperty.cxx
