@@ -70,7 +70,7 @@
 #endif
 
 
-vtkCxxRevisionMacro(vtkBridgeCell, "1.11");
+vtkCxxRevisionMacro(vtkBridgeCell, "1.12");
 
 vtkStandardNewMacro(vtkBridgeCell);
 
@@ -1215,9 +1215,11 @@ int *vtkBridgeCell::GetEdgeArray(int edgeId)
 #if VTK_MAJOR_VERSION>4 || (VTK_MAJOR_VERSION==4 && VTK_MINOR_VERSION>4)
     case VTK_PENTAGONAL_PRISM:
       assert("check: TODO" && 0);
+      result=0; // just to fix warning of some compilers
       break;
     case VTK_HEXAGONAL_PRISM:
       assert("check: TODO" && 0);
+      result=0; // just to fix warning of some compilers
       break;
 #endif
     default:
