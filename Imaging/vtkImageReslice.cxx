@@ -2829,6 +2829,7 @@ void vtkPermuteTricubicSummation(T *&outPtr, const T *inPtr,
     F fX3 = fX[3];
     fX += 4;
 
+    const T *inPtr0 = inPtr;
     int c = numscalars;
     do
       { // loop over components
@@ -2840,14 +2841,14 @@ void vtkPermuteTricubicSummation(T *&outPtr, const T *inPtr,
         F fz = fZ[k];
         if (fz != 0)
           {
-          int iz = iZ[k] + c;
+          int iz = iZ[k];
 	  int j = 0;
 	  do
             { // loop over y
             F fy = fY[j];
             F fzy = fz*fy;
             int izy = iz + iY[j];
-            const T *tmpPtr = inPtr + izy;
+            const T *tmpPtr = inPtr0 + izy;
             // loop over x is unrolled (significant performance boost)
             result += fzy*(fX0*tmpPtr[iX0] +
                            fX1*tmpPtr[iX1] +
@@ -2860,6 +2861,7 @@ void vtkPermuteTricubicSummation(T *&outPtr, const T *inPtr,
       while (++k <= hz);
 
       vtkResliceClamp(result, *outPtr++);
+      inPtr0++;
       }
     while (--c);
     }
