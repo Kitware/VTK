@@ -158,14 +158,6 @@ public:
   // Resize the array while conserving the data.
   virtual void Resize(vtkIdType numTuples);
 
-#ifndef VTK_REMOVE_LEGACY_CODE
-  // Description:
-  // For legacy compatibility. Do not use.
-  void DeepCopy(vtkDataArray &ia) 
-    {VTK_LEGACY_METHOD(DeepCopy,"3.2"); this->DeepCopy(&ia);}
-#endif
-  
-
 protected:
   vtkUnsignedShortArray(vtkIdType numComp=1);
   ~vtkUnsignedShortArray();
