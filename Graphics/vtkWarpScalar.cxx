@@ -21,7 +21,7 @@
 #include "vtkPointSet.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkWarpScalar, "1.46");
+vtkCxxRevisionMacro(vtkWarpScalar, "1.47");
 vtkStandardNewMacro(vtkWarpScalar);
 
 vtkWarpScalar::vtkWarpScalar()
@@ -85,7 +85,7 @@ void vtkWarpScalar::Execute()
   inScalars = pd->GetScalars(this->InputScalarsSelection);
   if ( !inPts || !inScalars )
     {
-    vtkErrorMacro(<<"No data to warp");
+    vtkDebugMacro(<<"No data to warp");
     return;
     }
 

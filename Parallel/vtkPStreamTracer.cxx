@@ -25,7 +25,7 @@
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkPStreamTracer, "1.13");
+vtkCxxRevisionMacro(vtkPStreamTracer, "1.14");
 
 vtkCxxSetObjectMacro(vtkPStreamTracer, Controller, vtkMultiProcessController);
 vtkCxxSetObjectMacro(vtkPStreamTracer, 
@@ -310,7 +310,7 @@ void vtkPStreamTracer::Execute()
   int maxCellSize = 0;
   if (this->CheckInputs(func, &maxCellSize) != VTK_OK)
     {
-    vtkErrorMacro("No appropriate inputs have been found. Can not execute.");
+    vtkDebugMacro("No appropriate inputs have been found. Can not execute.");
     func->Delete();
     // >>>>>>>>>> TODO: All should pass this test.
     return;

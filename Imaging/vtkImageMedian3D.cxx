@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkImageMedian3D, "1.39");
+vtkCxxRevisionMacro(vtkImageMedian3D, "1.40");
 vtkStandardNewMacro(vtkImageMedian3D);
 
 //-----------------------------------------------------------------------------
@@ -237,6 +237,11 @@ void vtkImageMedian3DExecute(vtkImageMedian3D *self,
   vtkDataArray *inArray;
 
   inArray = inData->GetPointData()->GetScalars(inputScalars);
+
+  if (!inArray)
+    {
+    return;
+    }
   
   // Get information to march through data
   inData->GetIncrements(inInc0, inInc1, inInc2); 

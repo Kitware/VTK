@@ -32,7 +32,7 @@
 #include "vtkRungeKutta4.h"
 #include "vtkRungeKutta45.h"
 
-vtkCxxRevisionMacro(vtkStreamTracer, "1.30");
+vtkCxxRevisionMacro(vtkStreamTracer, "1.31");
 vtkStandardNewMacro(vtkStreamTracer);
 vtkCxxSetObjectMacro(vtkStreamTracer,Integrator,vtkInitialValueProblemSolver);
 vtkCxxSetObjectMacro(vtkStreamTracer,InterpolatorPrototype,vtkInterpolatedVelocityField);
@@ -539,7 +539,7 @@ void vtkStreamTracer::Execute()
     int maxCellSize = 0;
     if (this->CheckInputs(func, &maxCellSize) != VTK_OK)
       {
-      vtkErrorMacro("No appropriate inputs have been found. Can not execute.");
+      vtkDebugMacro("No appropriate inputs have been found. Can not execute.");
       func->Delete();
       seeds->Delete();
       integrationDirections->Delete();
@@ -587,7 +587,7 @@ int vtkStreamTracer::CheckInputs(vtkInterpolatedVelocityField*& func,
       {
       if (!inp->GetPointData()->GetVectors(this->InputVectorsSelection))
         {
-        vtkErrorMacro("Input " << i << "does not contain a velocity vector.");
+        vtkDebugMacro("Input " << i << "does not contain a velocity vector.");
         continue;
         }
       int cellSize = inp->GetMaxCellSize();
@@ -601,7 +601,7 @@ int vtkStreamTracer::CheckInputs(vtkInterpolatedVelocityField*& func,
     }
   if ( numInputs == 0 )
     {
-    vtkErrorMacro("No appropriate inputs have been found. Can not execute.");
+    vtkDebugMacro("No appropriate inputs have been found. Can not execute.");
     return VTK_ERROR;
     }
   return VTK_OK;
