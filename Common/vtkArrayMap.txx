@@ -130,7 +130,7 @@ int vtkArrayMap<KeyType,DataType>::GetItem(const KeyType& key, DataType& data)
 
 template<class KeyType, class DataType>
 vtkAbstractMapItem<KeyType,DataType> *
-vtkArrayMap<KeyType,DataType>::FindDataItem(KeyType key)
+vtkArrayMap<KeyType,DataType>::FindDataItem(const KeyType key)
 {
   if ( !this->Array )
     {
