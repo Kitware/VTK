@@ -22,7 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkFloatArray.h"
 
-vtkCxxRevisionMacro(vtkRibbonFilter, "1.66");
+vtkCxxRevisionMacro(vtkRibbonFilter, "1.67");
 vtkStandardNewMacro(vtkRibbonFilter);
 
 // Construct ribbon so that width is 0.1, the width does 
@@ -146,6 +146,11 @@ void vtkRibbonFilter::Execute()
   if ( this->VaryWidth && inScalars )
     {
     inScalars->GetRange(range,0);
+    if ((range[1] - range[0]) == 0.0)
+      {
+      vtkWarningMacro(<< "Scalar range is zero!");
+      range[1] = range[0] + 1.0;
+      }
     }
 
   // Copy selected parts of cell data; certainly don't want normals
@@ -349,12 +354,8 @@ int vtkRibbonFilter::GeneratePoints(vtkIdType offset,
     vtkMath::Normalize(nP);
 
     // Compute a scale factor based on scalars or vectors
-    if ( inScalars ) // varying by scalar values
+    if ( inScalars && this->VaryWidth ) // varying by scalar values
       {
-      if ((range[1] - range[0]) == 0.0)
-        {
-        vtkWarningMacro(<< "Scalar range is zero!");
-        }
       sFactor = 1.0 + ((this->WidthFactor - 1.0) * 
                 (inScalars->GetComponent(pts[j],0) - range[0]) 
                        / (range[1]-range[0]));

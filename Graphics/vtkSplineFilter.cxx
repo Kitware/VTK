@@ -21,7 +21,7 @@
 #include "vtkFloatArray.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkSplineFilter, "1.2");
+vtkCxxRevisionMacro(vtkSplineFilter, "1.3");
 vtkStandardNewMacro(vtkSplineFilter);
 
 vtkSplineFilter::vtkSplineFilter()
@@ -236,7 +236,7 @@ int vtkSplineFilter::GeneratePoints(vtkIdType offset, vtkIdType npts,
     }
   else
     {
-    numDivs = length / this->Length;
+    numDivs = (int) (length / this->Length);
     }
   numDivs = ( numDivs < 1 ? 1 : (numDivs > this->MaximumNumberOfSubdivisions ? 
                                  this->MaximumNumberOfSubdivisions : numDivs));
