@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    GlrCam.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its
+This file is part of the Visualization Toolkit. No part of this file or its
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
@@ -40,14 +40,14 @@ void stereopersp(int fovy, float aspect, float near, float far,
 
 // Description:
 // Implement base class method.
-void vlGlrCamera::Render(vlCamera *cam, vlRenderer *ren)
+void vtkGlrCamera::Render(vtkCamera *cam, vtkRenderer *ren)
 {
-  this->Render(cam, (vlGlrRenderer *)ren);
+  this->Render(cam, (vtkGlrRenderer *)ren);
 }
 
 // Description:
 // Actual camera render method.
-void vlGlrCamera::Render(vlCamera *cam, vlGlrRenderer *ren)
+void vtkGlrCamera::Render(vtkCamera *cam, vtkGlrRenderer *ren)
 {
   float aspect[3];
   float *vport;
@@ -63,7 +63,7 @@ void vlGlrCamera::Render(vlCamera *cam, vlGlrRenderer *ren)
   getsize(&width,&height);
   
   // find out if we should stereo render
-  stereo = ((vlGlrRenderWindow*)(ren->GetRenderWindow()))->GetStereoRender();
+  stereo = ((vtkGlrRenderWindow*)(ren->GetRenderWindow()))->GetStereoRender();
 
   // must use width -1 and height -1 because width*1.0 = width,  
   // but the maximum pixel value allowed is width -1            
@@ -179,7 +179,7 @@ void vlGlrCamera::Render(vlCamera *cam, vlGlrRenderer *ren)
   if (ren->GetErase()) 
     {
     czclear(clr, getgdesc(GD_ZMAX));
-    vlDebugMacro(<< "czclear: " << clr << "\n");
+    vtkDebugMacro(<< "czclear: " << clr << "\n");
     }
 
   // if we have a stereo renderer, draw other eye next time 

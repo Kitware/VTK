@@ -1,26 +1,26 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    SbrRenW.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its
+This file is part of the Visualization Toolkit. No part of this file or its
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
-// .NAME vlSbrRenderWindow - HP starbase rendering window
+// .NAME vtkSbrRenderWindow - HP starbase rendering window
 // .SECTION Description
-// vlSbrRenderWindow is a concrete implementation of the abstract class
-// vlRenderWindow. vlSbrRenderer interfaces to the Hewlett-Packard starbase
+// vtkSbrRenderWindow is a concrete implementation of the abstract class
+// vtkRenderWindow. vtkSbrRenderer interfaces to the Hewlett-Packard starbase
 // graphics library.
 
-#ifndef __vlSbrRenderWindow_hh
-#define __vlSbrRenderWindow_hh
+#ifndef __vtkSbrRenderWindow_hh
+#define __vtkSbrRenderWindow_hh
 
 #include <stdlib.h>
 #include <X11/X.h>
@@ -28,18 +28,18 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include <X11/Xutil.h>
 #include "XRenWin.hh"
 
-class vlSbrRenderWindow : public vlXRenderWindow
+class vtkSbrRenderWindow : public vtkXRenderWindow
 {
 public:
-  vlSbrRenderWindow();
-  char *GetClassName() {return "vlSbrRenderWindow";};
-  void PrintSelf(ostream& os, vlIndent indent);
+  vtkSbrRenderWindow();
+  char *GetClassName() {return "vtkSbrRenderWindow";};
+  void PrintSelf(ostream& os, vtkIndent indent);
   
-  vlRenderer       *MakeRenderer();
-  vlLightDevice    *MakeLight();
-  vlCameraDevice   *MakeCamera();
-  vlPropertyDevice *MakeProperty();
-  vlTextureDevice  *MakeTexture();
+  vtkRenderer       *MakeRenderer();
+  vtkLightDevice    *MakeLight();
+  vtkCameraDevice   *MakeCamera();
+  vtkPropertyDevice *MakeProperty();
+  vtkTextureDevice  *MakeTexture();
 
   void Start(void);
   void Frame(void);
@@ -50,7 +50,7 @@ public:
   void PrefFullScreen(void);
   void SetSize(int,int);
 
-  vlGetMacro(Fd,int);
+  vtkGetMacro(Fd,int);
   virtual void SaveImageAsPPM();
 
   // stereo rendering stuff

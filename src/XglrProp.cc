@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    XglrProp.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its
+This file is part of the Visualization Toolkit. No part of this file or its
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
@@ -21,14 +21,14 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 // Description:
 // Implement base class method.
-void vlXglrProperty::Render(vlProperty *prop, vlRenderer *ren)
+void vtkXglrProperty::Render(vtkProperty *prop, vtkRenderer *ren)
 {
-  this->Render(prop, (vlXglrRenderer *)ren);
+  this->Render(prop, (vtkXglrRenderer *)ren);
 }
 
 // Description:
 // Actual property render method.
-void vlXglrProperty::Render(vlProperty *prop, vlXglrRenderer *ren)
+void vtkXglrProperty::Render(vtkProperty *prop, vtkXglrRenderer *ren)
 {
   int i, method, line_method;
   Xgl_ctx *context;
@@ -143,5 +143,5 @@ void vlXglrProperty::Render(vlProperty *prop, vlXglrRenderer *ren)
 		 NULL);
   
   // Tell the geometry primitives about the default properties 
-  vlXglrPrimitive::SetProperty(prop);
+  vtkXglrPrimitive::SetProperty(prop);
 }

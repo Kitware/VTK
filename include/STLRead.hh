@@ -1,23 +1,23 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    STLRead.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its 
+This file is part of the Visualization Toolkit. No part of this file or its 
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-// .NAME vlSTLReader - read ASCII or binary stereo lithography files
+// .NAME vtkSTLReader - read ASCII or binary stereo lithography files
 // .SECTION Description
-// vlSTLReader is a source object that reads ASCII or binary stereo 
+// vtkSTLReader is a source object that reads ASCII or binary stereo 
 // lithography files (.stl files). The filename must be specified to
-// vlSTLReader. The object automatically detects whether the file is
+// vtkSTLReader. The object automatically detects whether the file is
 // ASCII or binary.
 //     .stl files are quite inefficient and duplicate vertex definitions. 
 // By setting the Merging boolean you can control wether the point data
@@ -26,38 +26,38 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // table must be constructed.
 // .SECTION Caveats
 // Binary files written on one system may not be readable on other systems.
-// vlSTLWriter uses VAX or PC byte ordering and swaps bytes on other systems.
+// vtkSTLWriter uses VAX or PC byte ordering and swaps bytes on other systems.
 
-#ifndef __vlSTLReader_h
-#define __vlSTLReader_h
+#ifndef __vtkSTLReader_h
+#define __vtkSTLReader_h
 
 #include <stdio.h>
 #include "PolySrc.hh"
 #include "FPoints.hh"
 #include "CellArr.hh"
 
-class vlSTLReader : public vlPolySource 
+class vtkSTLReader : public vtkPolySource 
 {
 public:
-  vlSTLReader();
-  ~vlSTLReader();
-  char *GetClassName() {return "vlSTLReader";};
-  void PrintSelf(ostream& os, vlIndent indent);
+  vtkSTLReader();
+  ~vtkSTLReader();
+  char *GetClassName() {return "vtkSTLReader";};
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Specify file name of stereo lithography file.
-  vlSetStringMacro(Filename);
-  vlGetStringMacro(Filename);
+  vtkSetStringMacro(Filename);
+  vtkGetStringMacro(Filename);
 
   // Description:
   // Turn on/off merging of points/triangles.
-  vlSetMacro(Merging,int);
-  vlGetMacro(Merging,int);
-  vlBooleanMacro(Merging,int);
+  vtkSetMacro(Merging,int);
+  vtkGetMacro(Merging,int);
+  vtkBooleanMacro(Merging,int);
 
-  void SetLocator(vlLocator *locator);
-  void SetLocator(vlLocator& locator) {this->SetLocator(&locator);};
-  vlGetObjectMacro(Locator,vlLocator);
+  void SetLocator(vtkLocator *locator);
+  void SetLocator(vtkLocator& locator) {this->SetLocator(&locator);};
+  vtkGetObjectMacro(Locator,vtkLocator);
 
   // Description:
   // Create default locator. Used to create one when none is specified.
@@ -66,12 +66,12 @@ public:
 protected:
   char *Filename;
   int Merging;
-  vlLocator *Locator;
+  vtkLocator *Locator;
   int SelfCreatedLocator;
 
   void Execute();
-  int ReadBinarySTL(FILE *fp, vlFloatPoints*, vlCellArray*);
-  int ReadASCIISTL(FILE *fp, vlFloatPoints*, vlCellArray*);
+  int ReadBinarySTL(FILE *fp, vtkFloatPoints*, vtkCellArray*);
+  int ReadASCIISTL(FILE *fp, vtkFloatPoints*, vtkCellArray*);
   int GetSTLFileType(FILE *fp);
 };
 

@@ -1,47 +1,47 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    AppendF.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-// .NAME vlAppendFilter - appends one or more datasets together into a single unstructured grid
+// .NAME vtkAppendFilter - appends one or more datasets together into a single unstructured grid
 // .SECTION Description
-// vlAppendFilter is a filter that appends one of more datasets into a single
+// vtkAppendFilter is a filter that appends one of more datasets into a single
 // unstructured grid. All geometry is extracted and appended, but point 
 // attributes (i.e., scalars, vectors, normals) are extracted and appended
 // only if all datasets have the point attributes available. (For example, 
 // if one dataset has scalars but another does not, scalars will not be 
 // appended.)
 
-#ifndef __vlAppendFilter_h
-#define __vlAppendFilter_h
+#ifndef __vtkAppendFilter_h
+#define __vtkAppendFilter_h
 
 #include "UGrid.hh"
 #include "Filter.hh"
 #include "DataSetC.hh"
 
-class vlAppendFilter : public vlUnstructuredGrid, public vlFilter
+class vtkAppendFilter : public vtkUnstructuredGrid, public vtkFilter
 {
 public:
-  vlAppendFilter();
-  ~vlAppendFilter();
-  char *GetClassName() {return "vlAppendFilter";};
-  void PrintSelf(ostream& os, vlIndent indent);
+  vtkAppendFilter();
+  ~vtkAppendFilter();
+  char *GetClassName() {return "vtkAppendFilter";};
+  void PrintSelf(ostream& os, vtkIndent indent);
 
-  void AddInput(vlDataSet *in);
-  void AddInput(vlDataSet& in) {this->AddInput(&in);};
-  void RemoveInput(vlDataSet *in);
-  void RemoveInput(vlDataSet& in) {this->RemoveInput(&in);};
-  vlDataSetCollection *GetInput() {return &(this->InputList);};
+  void AddInput(vtkDataSet *in);
+  void AddInput(vtkDataSet& in) {this->AddInput(&in);};
+  void RemoveInput(vtkDataSet *in);
+  void RemoveInput(vtkDataSet& in) {this->RemoveInput(&in);};
+  vtkDataSetCollection *GetInput() {return &(this->InputList);};
 
   // filter interface
   void Update();
@@ -50,7 +50,7 @@ protected:
   // Usual data generation method
   void Execute();
   // list of data sets to append together
-  vlDataSetCollection InputList;
+  vtkDataSetCollection InputList;
   //Filter interface
   int GetDataReleased();
   void SetDataReleased(int flag);

@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    Plane.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
@@ -14,13 +14,13 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
 #include "Plane.hh"
-#include "vlMath.hh"
+#include "vtkMath.hh"
 
-static vlMath math;
+static vtkMath math;
 
 // Description
 // Construct plane passing through origin and normal to z-axis.
-vlPlane::vlPlane()
+vtkPlane::vtkPlane()
 {
   this->Normal[0] = 0.0;
   this->Normal[1] = 0.0;
@@ -35,7 +35,7 @@ vlPlane::vlPlane()
 // Project a point x onto plane defined by origin and normal. The 
 // projected point is returned in xproj. NOTE : normal assumed to
 // have magnitude 1.
-void vlPlane::ProjectPoint(float x[3], float origin[3], float normal[3], float xproj[3])
+void vtkPlane::ProjectPoint(float x[3], float origin[3], float normal[3], float xproj[3])
 {
   int i;
   float t, xo[3];
@@ -47,7 +47,7 @@ void vlPlane::ProjectPoint(float x[3], float origin[3], float normal[3], float x
 
 // Description
 // Evaluate plane equation for point x[3].
-float vlPlane::EvaluateFunction(float x[3])
+float vtkPlane::EvaluateFunction(float x[3])
 {
   return ( this->Normal[0]*(x[0]-this->Origin[0]) + 
            this->Normal[1]*(x[1]-this->Origin[1]) + 
@@ -56,7 +56,7 @@ float vlPlane::EvaluateFunction(float x[3])
 
 // Description
 // Evaluate function gradient at point x[3].
-void vlPlane::EvaluateGradient(float x[3], float n[3])
+void vtkPlane::EvaluateGradient(float x[3], float n[3])
 {
   for (int i=0; i<3; i++) n[i] = this->Normal[i];
 }
@@ -70,7 +70,7 @@ void vlPlane::EvaluateGradient(float x[3], float n[3])
 //
 #define TOL 1.0e-06
 
-int vlPlane::IntersectWithLine(float p1[3], float p2[3], float n[3], 
+int vtkPlane::IntersectWithLine(float p1[3], float p2[3], float n[3], 
                                float p0[3], float& t, float x[3])
 {
   float num, den, p21[3];
@@ -97,9 +97,9 @@ int vlPlane::IntersectWithLine(float p1[3], float p2[3], float n[3],
   else return 0;
 }
 
-void vlPlane::PrintSelf(ostream& os, vlIndent indent)
+void vtkPlane::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlImplicitFunction::PrintSelf(os,indent);
+  vtkImplicitFunction::PrintSelf(os,indent);
 
   os << indent << "Normal: (" << this->Normal[0] << ", " 
     << this->Normal[1] << ", " << this->Normal[2] << ")\n";

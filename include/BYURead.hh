@@ -1,80 +1,80 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    BYURead.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-// .NAME vlBYUReader - read MOVIE.BYU polygon files
+// .NAME vtkBYUReader - read MOVIE.BYU polygon files
 // .SECTION Description
-// vlBYUReader is a source object that reads MOVIE.BYU polygon files.
+// vtkBYUReader is a source object that reads MOVIE.BYU polygon files.
 // These files consist of a geometry file (.g), a scalar file (.s), a 
 // displacement or vector file (.d), and a 2D texture coordinate file
 // (.t).
 
-#ifndef __vlBYUReader_h
-#define __vlBYUReader_h
+#ifndef __vtkBYUReader_h
+#define __vtkBYUReader_h
 
 #include <stdio.h>
 #include "PolySrc.hh"
 
-class vlBYUReader : public vlPolySource 
+class vtkBYUReader : public vtkPolySource 
 {
 public:
-  vlBYUReader();
-  ~vlBYUReader();
-  char *GetClassName() {return "vlBYUReader";};
-  void PrintSelf(ostream& os, vlIndent indent);
+  vtkBYUReader();
+  ~vtkBYUReader();
+  char *GetClassName() {return "vtkBYUReader";};
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Specify name of geometry filename.
-  vlSetStringMacro(GeometryFilename);
-  vlGetStringMacro(GeometryFilename);
+  vtkSetStringMacro(GeometryFilename);
+  vtkGetStringMacro(GeometryFilename);
 
   // Description:
   // Specify name of displacement filename.
-  vlSetStringMacro(DisplacementFilename);
-  vlGetStringMacro(DisplacementFilename);
+  vtkSetStringMacro(DisplacementFilename);
+  vtkGetStringMacro(DisplacementFilename);
 
   // Description:
   // Specify name of scalar filename.
-  vlSetStringMacro(ScalarFilename);
-  vlGetStringMacro(ScalarFilename);
+  vtkSetStringMacro(ScalarFilename);
+  vtkGetStringMacro(ScalarFilename);
 
   // Description:
   // Specify name of texture coordinates filename.
-  vlSetStringMacro(TextureFilename);
-  vlGetStringMacro(TextureFilename);
+  vtkSetStringMacro(TextureFilename);
+  vtkGetStringMacro(TextureFilename);
 
   // Description:
   // Turn on/off the reading of the displacement file.
-  vlSetMacro(ReadDisplacement,int)
-  vlGetMacro(ReadDisplacement,int)
-  vlBooleanMacro(ReadDisplacement,int)
+  vtkSetMacro(ReadDisplacement,int)
+  vtkGetMacro(ReadDisplacement,int)
+  vtkBooleanMacro(ReadDisplacement,int)
   
   // Description:
   // Turn on/off the reading of the scalar file.
-  vlSetMacro(ReadScalar,int)
-  vlGetMacro(ReadScalar,int)
-  vlBooleanMacro(ReadScalar,int)
+  vtkSetMacro(ReadScalar,int)
+  vtkGetMacro(ReadScalar,int)
+  vtkBooleanMacro(ReadScalar,int)
   
   // Description:
   // Turn on/off the reading of the texture coordinate file.
   // Specify name of geometry filename.
-  vlSetMacro(ReadTexture,int)
-  vlGetMacro(ReadTexture,int)
-  vlBooleanMacro(ReadTexture,int)
+  vtkSetMacro(ReadTexture,int)
+  vtkGetMacro(ReadTexture,int)
+  vtkBooleanMacro(ReadTexture,int)
 
-  vlSetClampMacro(PartNumber,int,1,LARGE_INTEGER);
-  vlGetMacro(PartNumber,int);
+  vtkSetClampMacro(PartNumber,int,1,LARGE_INTEGER);
+  vtkGetMacro(PartNumber,int);
 
 protected:
   void Execute();

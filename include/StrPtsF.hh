@@ -1,40 +1,40 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    StrPtsF.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-// .NAME vlStructuredPointsFilter - filter that takes vlStructuredPoints as input
+// .NAME vtkStructuredPointsFilter - filter that takes vtkStructuredPoints as input
 // .SECTION Description
-// vlStructuredPointsFilter is a filter that takes a single vlStructuredPoints 
+// vtkStructuredPointsFilter is a filter that takes a single vtkStructuredPoints 
 // data object as input.
 
-#ifndef __vlStructuredPointsFilter_hh
-#define __vlStructuredPointsFilter_hh
+#ifndef __vtkStructuredPointsFilter_hh
+#define __vtkStructuredPointsFilter_hh
 
 #include "Filter.hh"
 #include "StrPts.hh"
 
-class vlStructuredPointsFilter : public vlFilter 
+class vtkStructuredPointsFilter : public vtkFilter 
 {
 public:
-  vlStructuredPointsFilter() {};
-  ~vlStructuredPointsFilter();
-  char *_GetClassName() {return "vlStructuredPointsFilter";};
-  void _PrintSelf(ostream& os, vlIndent indent);
+  vtkStructuredPointsFilter() {};
+  ~vtkStructuredPointsFilter();
+  char *_GetClassName() {return "vtkStructuredPointsFilter";};
+  void _PrintSelf(ostream& os, vtkIndent indent);
 
-  void SetInput(vlStructuredPoints *input);
-  void SetInput(vlStructuredPoints &input) {this->SetInput(&input);};
-  vlStructuredPoints *GetInput() {return (vlStructuredPoints *)this->Input;};
+  void SetInput(vtkStructuredPoints *input);
+  void SetInput(vtkStructuredPoints &input) {this->SetInput(&input);};
+  vtkStructuredPoints *GetInput() {return (vtkStructuredPoints *)this->Input;};
 
 };
 

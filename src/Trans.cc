@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    Trans.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its
+This file is part of the Visualization Toolkit. No part of this file or its
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
@@ -16,7 +16,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include <stdlib.h>
 #include <math.h>
 #include "Trans.hh"
-#include "vlMath.hh"
+#include "vtkMath.hh"
 
 // Description:
 // Constructs a transform. Sets the following defaults
@@ -24,16 +24,16 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // stackSize = 10
 // creates an identity matrix as the top matrix on the stack.
 
-vlTransform::vlTransform ()
+vtkTransform::vtkTransform ()
 {
   // pre multiply is on
   this->PreMultiplyFlag = 1;
   // create a reasonable size stack
   this->StackSize = 10;
   // allocate the stack
-  this->Stack = new vlMatrix4x4 *[this->StackSize];
+  this->Stack = new vtkMatrix4x4 *[this->StackSize];
   // put a matrix on the top
-  *this->Stack = new vlMatrix4x4;
+  *this->Stack = new vtkMatrix4x4;
   // initialize the bottom of the stack
   this->StackBottom = this->Stack;
   // initialize current matrix to identity
@@ -47,19 +47,19 @@ vlTransform::vlTransform ()
 
 // Description:
 // Copy constructor
-vlTransform::vlTransform (const vlTransform& t)
+vtkTransform::vtkTransform (const vtkTransform& t)
 {
   int i;
-  vlMatrix4x4 *stack;
+  vtkMatrix4x4 *stack;
 
   this->PreMultiplyFlag = t.PreMultiplyFlag;
   this->StackSize = t.StackSize;
-  this->Stack = new vlMatrix4x4 *[this->StackSize];
+  this->Stack = new vtkMatrix4x4 *[this->StackSize];
 
   // now copy each matrix in the stack
   for (stack = *this->Stack, i = 0; i < this->StackSize; i++)
     {
-    this->Stack[i] = new vlMatrix4x4(*(t.Stack[i]));
+    this->Stack[i] = new vtkMatrix4x4(*(t.Stack[i]));
     }
 
   this->StackBottom = this->Stack + (this->StackSize - 1);
@@ -69,7 +69,7 @@ vlTransform::vlTransform (const vlTransform& t)
 // Deletes the transformation on the top of the stack and sets the top 
 // to the next transformation on the stack.
 
-void vlTransform::Pop ()
+void vtkTransform::Pop ()
 {
   // if we're at the bottom of the stack, don't pop
   if (this->Stack == this->StackBottom) return;
@@ -89,7 +89,7 @@ void vlTransform::Pop ()
 // post multiply. All matrix subsequent matrix
 // operations will occur after those already represented
 // in the current transformation matrix.
-void vlTransform::PostMultiply ()
+void vtkTransform::PostMultiply ()
 {
   if (this->PreMultiplyFlag != 0) {
     this->PreMultiplyFlag = 0;
@@ -102,7 +102,7 @@ void vlTransform::PostMultiply ()
 // pre multiply. All matrix subsequent matrix
 // operations will occur before those already represented
 // in the current transformation matrix.
-void vlTransform::PreMultiply ()
+void vtkTransform::PreMultiply ()
 {
   if (this->PreMultiplyFlag != 1) {
     this->PreMultiplyFlag = 1;
@@ -113,9 +113,9 @@ void vlTransform::PreMultiply ()
 // Description:
 // Pushes the current transformation matrix onto the
 // transformation stack.
-void vlTransform::Push ()
+void vtkTransform::Push ()
 {
-  vlMatrix4x4 ctm;
+  vtkMatrix4x4 ctm;
 
   ctm = **this->Stack;
   this->Stack++;
@@ -125,7 +125,7 @@ void vlTransform::Push ()
   }
   // allocate a new matrix on the stack
 
-  *this->Stack = new vlMatrix4x4;
+  *this->Stack = new vtkMatrix4x4;
 
   // set the new matrix to the previous top of stack matrix
   **this->Stack = ctm;
@@ -136,10 +136,10 @@ void vlTransform::Push ()
 // Description:
 // Creates an x rotation matrix andn concatenates it with 
 // the current transformation matrix.
-void vlTransform::RotateX ( float angle)
+void vtkTransform::RotateX ( float angle)
 {
-  vlMatrix4x4 ctm;
-  vlMath math;
+  vtkMatrix4x4 ctm;
+  vtkMath math;
   float radians = angle * math.DegreesToRadians();
   float cosAngle, sinAngle;
 
@@ -162,12 +162,12 @@ void vlTransform::RotateX ( float angle)
 
 // Description:
 // Rotate about y-axis
-void vlTransform::RotateY ( float angle)
+void vtkTransform::RotateY ( float angle)
   //  Creates a y rotation matrix and concatenates it with 
   //  the current transformation matrix.
 {
-  vlMatrix4x4 ctm;
-  vlMath math;
+  vtkMatrix4x4 ctm;
+  vtkMath math;
   float radians = angle * math.DegreesToRadians();
   float cosAngle, sinAngle;
 
@@ -190,12 +190,12 @@ void vlTransform::RotateY ( float angle)
 
 // Description:
 // Rotate about y-axis
-void vlTransform::RotateZ (float angle)
+void vtkTransform::RotateZ (float angle)
   //  Creates a z rotation matrix and concatenates it with 
   //  the current transformation matrix.
 {
-  vlMatrix4x4 ctm;
-  vlMath math;
+  vtkMatrix4x4 ctm;
+  vtkMath math;
   float radians = angle * math.DegreesToRadians();
   float cosAngle, sinAngle;
 
@@ -220,15 +220,15 @@ void vlTransform::RotateZ (float angle)
 // Creates a matrix that rotates angle degrees about an axis
 // through the origin and x, y, z. Then concatenates
 // this matrix with the current transformation matrix.
-void vlTransform::RotateWXYZ ( float angle, float x, float y, float z)
+void vtkTransform::RotateWXYZ ( float angle, float x, float y, float z)
 {
-  vlMatrix4x4 ctm;
+  vtkMatrix4x4 ctm;
   float   radians;
   float   w;
   float   quat[4];
   float   sinAngle;
   float   cosAngle;
-  vlMath math;
+  vtkMath math;
 
   // build a rotation matrix and concatenate it
   quat[0] = angle;
@@ -245,7 +245,7 @@ void vlTransform::RotateWXYZ ( float angle, float x, float y, float z)
   // normalize x, y, z
   if ( math.Normalize(quat+1) == 0.0 )
     {
-    vlErrorMacro(<<"Trying to rotate around zero-length axis");
+    vtkErrorMacro(<<"Trying to rotate around zero-length axis");
     return;
     }
 
@@ -274,30 +274,30 @@ void vlTransform::RotateWXYZ ( float angle, float x, float y, float z)
 
 // Description:
 // Scale in x, y, z directions using current transformation matrix.
-void vlTransform::Scale ( float x, float y, float z)
+void vtkTransform::Scale ( float x, float y, float z)
 {
-  vlMatrix4x4 ctm;
+  vtkMatrix4x4 ctm;
 
   if (x != 1.0 || y != 1.0 || z != 1.0) 
     {
     ctm.Element[0][0] = x;
     if (ctm.Element[0][0] == 0.0) 
       {
-      vlErrorMacro(<< "scale: x scale is 0.0, reset to 1.0\n");
+      vtkErrorMacro(<< "scale: x scale is 0.0, reset to 1.0\n");
       ctm.Element[0][0] = 1.0;
       }
 
     ctm.Element[1][1] = y;
     if (ctm.Element[1][1] == 0.0) 
       {
-      vlErrorMacro(<<  "scale: y scale is 0.0, reset to 1.0\n");
+      vtkErrorMacro(<<  "scale: y scale is 0.0, reset to 1.0\n");
       ctm.Element[1][1] = 1.0;
       }
 
     ctm.Element[2][2] = z;
     if (ctm.Element[2][2] == 0.0) 
       {
-      vlErrorMacro(<< "scale: z scale is 0.0, reset to 1.0\n");
+      vtkErrorMacro(<< "scale: z scale is 0.0, reset to 1.0\n");
       ctm.Element[2][2] = 1.0;
       }
 
@@ -310,9 +310,9 @@ void vlTransform::Scale ( float x, float y, float z)
 
 // Description:
 // Translate in x, y, z directions using current transformation matrix.
-void vlTransform::Translate ( float x, float y, float z)
+void vtkTransform::Translate ( float x, float y, float z)
 {
-  vlMatrix4x4 ctm;
+  vtkMatrix4x4 ctm;
 
   if (x != 0.0 || y != 0.0 || z != 0.0) 
     {
@@ -332,9 +332,9 @@ void vlTransform::Translate ( float x, float y, float z)
 
 // Description:
 // Obtain transpose of current transformation matrix.
-void vlTransform::GetTranspose (vlMatrix4x4& (transpose))
+void vtkTransform::GetTranspose (vtkMatrix4x4& (transpose))
 {
-  vlMatrix4x4 temp;
+  vtkMatrix4x4 temp;
   int i, j;
 
   for (i = 0; i < 4; i++) 
@@ -349,7 +349,7 @@ void vlTransform::GetTranspose (vlMatrix4x4& (transpose))
 
 // Description:
 // Invert current transformation matrix.
-void vlTransform::Inverse ()
+void vtkTransform::Inverse ()
 {
   (**this->Stack).Invert (**this->Stack, **this->Stack);
 
@@ -358,18 +358,18 @@ void vlTransform::Inverse ()
 
 // Description:
 // Return inverse of current transformation matrix.
-void vlTransform::GetInverse ( vlMatrix4x4& inverse)
+void vtkTransform::GetInverse ( vtkMatrix4x4& inverse)
 {
   inverse.Invert (**this->Stack, inverse);
 }
 
 // Description:
 // Get the x, y, z orientation angles from transformation matrix.
-float *vlTransform::GetOrientation ()
+float *vtkTransform::GetOrientation ()
 {
 #define AXIS_EPSILON .01
   float	scale_x, scale_y, scale_z;
-  vlMatrix4x4  temp;
+  vtkMatrix4x4  temp;
   float   x,y,z;
   float   d;
   float   d1;
@@ -384,7 +384,7 @@ float *vlTransform::GetOrientation ()
   float   x2, y2, z2;
   float   x3, y3, z3;
   float   x3p, y3p;
-  vlMath math;
+  vtkMath math;
 
   // copy the matrix into local storage
 
@@ -477,7 +477,7 @@ float *vlTransform::GetOrientation ()
 
 // Description:
 // Return the x, y, z positions from the current transformation matrix.
-void vlTransform::GetPosition (float & x,float & y,float & z)
+void vtkTransform::GetPosition (float & x,float & y,float & z)
 {
   x = (**this->Stack).Element[0][3];
   y = (**this->Stack).Element[1][3];
@@ -486,11 +486,11 @@ void vlTransform::GetPosition (float & x,float & y,float & z)
 
 // Description:
 // Return the x, y, z scale factors of the current transformation matrix.
-void vlTransform::GetScale ( float & x, float & y, float & z)
+void vtkTransform::GetScale ( float & x, float & y, float & z)
 {
   int	i;
   float	scale[3];
-  vlMatrix4x4 temp;
+  vtkMatrix4x4 temp;
 
   // copy the matrix into local storage
 
@@ -511,23 +511,23 @@ void vlTransform::GetScale ( float & x, float & y, float & z)
 
 // Description:
 // Returns the current transformation matrix.
-vlMatrix4x4 & vlTransform::GetMatrix ()
+vtkMatrix4x4 & vtkTransform::GetMatrix ()
 {
   return **this->Stack;;
 }
 
 // Description:
 // Set the matrix directly.
-void vlTransform::SetMatrix(vlMatrix4x4& m)
+void vtkTransform::SetMatrix(vtkMatrix4x4& m)
 {
   **this->Stack = m;
 }
 
 // Description:
 // Creates an identity matrix and makes it the current transformation matrix.
-void vlTransform::Identity ()
+void vtkTransform::Identity ()
 {
-  vlMatrix4x4 ctm;
+  vtkMatrix4x4 ctm;
   int i;
 
   ctm = 0.0;
@@ -543,7 +543,7 @@ void vlTransform::Identity ()
 // Concatenates input matrix with the current transformation matrix.
 // The resulting matrix becomes the new current transformation matrix.
 
-void vlTransform::Concatenate (vlMatrix4x4 & matrix)
+void vtkTransform::Concatenate (vtkMatrix4x4 & matrix)
 {
   if (this->PreMultiplyFlag) 
     {
@@ -558,10 +558,10 @@ void vlTransform::Concatenate (vlMatrix4x4 & matrix)
 
 // Description:
 // Multiplies matrices a and b and stores result in c.
-void vlTransform::Multiply4x4 ( vlMatrix4x4 & a, vlMatrix4x4 & b, vlMatrix4x4 & c)
+void vtkTransform::Multiply4x4 ( vtkMatrix4x4 & a, vtkMatrix4x4 & b, vtkMatrix4x4 & c)
 {
   int i, j, k;
-  vlMatrix4x4 result;
+  vtkMatrix4x4 result;
 
   result = 0.0;
   for (i = 0; i < 4; i++) 
@@ -580,7 +580,7 @@ void vlTransform::Multiply4x4 ( vlMatrix4x4 & a, vlMatrix4x4 & b, vlMatrix4x4 & 
 // Description:
 // Transposes the current transformation matrix.
 
-void vlTransform::Transpose ()
+void vtkTransform::Transpose ()
 {
   this->GetTranspose (**this->Stack);
 }
@@ -588,7 +588,7 @@ void vlTransform::Transpose ()
 // Description:
 // Returns the current transformation matrix.
 
-void vlTransform::GetMatrix (vlMatrix4x4 & ctm)
+void vtkTransform::GetMatrix (vtkMatrix4x4 & ctm)
 {
   ctm = **this->Stack;
 }
@@ -596,7 +596,7 @@ void vlTransform::GetMatrix (vlMatrix4x4 & ctm)
 // Description:
 // Destructor. Deletes all matrices on the stack and the stack
 
-vlTransform::~vlTransform ()
+vtkTransform::~vtkTransform ()
 {
   // delete all matrices on the stack
 
@@ -609,9 +609,9 @@ vlTransform::~vlTransform ()
   delete this->Stack;
 }
 
-void vlTransform::PrintSelf (ostream& os, vlIndent indent)
+void vtkTransform::PrintSelf (ostream& os, vtkIndent indent)
 {
-  vlObject::PrintSelf(os, indent);
+  vtkObject::PrintSelf(os, indent);
 
   os << indent << "Current Transformation:" << "\n";
 
@@ -621,7 +621,7 @@ void vlTransform::PrintSelf (ostream& os, vlIndent indent)
 // Description:
 // Returns point transformed by the current transformation matrix. Point is
 // expressed in homogeneous coordinates.
-float *vlTransform::GetPoint()
+float *vtkTransform::GetPoint()
 {
   if (this->PreMultiplyFlag)
     {
@@ -636,16 +636,16 @@ float *vlTransform::GetPoint()
   return this->Point;
 }
 
-void vlTransform::GetPoint(float p[4])
+void vtkTransform::GetPoint(float p[4])
 {
-  float *x=this->vlTransform::GetPoint();
+  float *x=this->vtkTransform::GetPoint();
   for (int i=0; i<4; i++) p[i] = x[i];
 }
 
 // Description:
 // Multiplies list of points (inPts) by current transformation matrix.
 // Transformed points are appended to output list (outPts).
-void vlTransform::MultiplyPoints(vlPoints *inPts, vlPoints *outPts)
+void vtkTransform::MultiplyPoints(vtkPoints *inPts, vtkPoints *outPts)
 {
   float newX[3];
   float *x;
@@ -674,13 +674,13 @@ void vlTransform::MultiplyPoints(vlPoints *inPts, vlPoints *outPts)
 // by the transposed inverse of the matrix, ignoring the translational
 // components.
 
-void vlTransform::MultiplyVectors(vlVectors *inVectors, vlVectors *outVectors)
+void vtkTransform::MultiplyVectors(vtkVectors *inVectors, vtkVectors *outVectors)
 {
   float newV[3];
   float *v;
   int ptId, i;
   int numVectors = inVectors->GetNumberOfVectors();
-  vlMath math;
+  vtkMath math;
 
   this->Push();
   this->Inverse();
@@ -709,13 +709,13 @@ void vlTransform::MultiplyVectors(vlVectors *inVectors, vlVectors *outVectors)
 // by the transposed inverse of the matrix, ignoring the translational
 // components.
 
-void vlTransform::MultiplyNormals(vlNormals *inNormals, vlNormals *outNormals)
+void vtkTransform::MultiplyNormals(vtkNormals *inNormals, vtkNormals *outNormals)
 {
   float newN[3];
   float *n;
   int ptId, i;
   int numNormals = inNormals->GetNumberOfNormals();
-  vlMath math;
+  vtkMath math;
 
   this->Push();
   this->Inverse();

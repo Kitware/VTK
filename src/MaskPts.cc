@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    MaskPts.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
@@ -14,12 +14,12 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
 #include "MaskPts.hh"
-#include "vlMath.hh"
+#include "vtkMath.hh"
 
-void vlMaskPoints::Execute()
+void vtkMaskPoints::Execute()
 {
-  vlFloatPoints *newPts;
-  vlPointData *pd;
+  vtkFloatPoints *newPts;
+  vtkPointData *pd;
   int numPts=this->Input->GetNumberOfPoints();
   int numNewPts;
   float *x;
@@ -27,12 +27,12 @@ void vlMaskPoints::Execute()
 //
 // Check input
 //
-  vlDebugMacro(<<"Masking points");
+  vtkDebugMacro(<<"Masking points");
   this->Initialize();
 
   if ( numPts < 1 )
     {
-    vlErrorMacro(<<"No data to mask!");
+    vtkErrorMacro(<<"No data to mask!");
     return;
     }
 
@@ -41,14 +41,14 @@ void vlMaskPoints::Execute()
 // Allocate space
 //
   numNewPts = numPts / this->OnRatio;
-  newPts = new vlFloatPoints(numNewPts);
+  newPts = new vtkFloatPoints(numNewPts);
   this->PointData.CopyAllocate(pd);
 //
 // Traverse points and copy
 //
   if ( this->RandomMode ) // retro mode
     {
-    vlMath math;
+    vtkMath math;
     float cap = 1.0 / this->OnRatio;
     for ( ptId = this->Offset; ptId < numPts;  ptId++)
       {
@@ -75,12 +75,12 @@ void vlMaskPoints::Execute()
   this->SetPoints(newPts);
   this->Squeeze();
 
-  vlDebugMacro(<<"Masked " << numPts << " original points to " << id+1 << " points");
+  vtkDebugMacro(<<"Masked " << numPts << " original points to " << id+1 << " points");
 }
 
-void vlMaskPoints::PrintSelf(ostream& os, vlIndent indent)
+void vtkMaskPoints::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlDataSetToPolyFilter::PrintSelf(os,indent);
+  vtkDataSetToPolyFilter::PrintSelf(os,indent);
 
   os << indent << "On Ratio: " << this->OnRatio << "\n";
   os << indent << "Offset: " << this->Offset << "\n";

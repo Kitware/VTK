@@ -1,39 +1,39 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    SbrLgt.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its
+This file is part of the Visualization Toolkit. No part of this file or its
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
-// .NAME vlSbrLight - HP starbase light
+// .NAME vtkSbrLight - HP starbase light
 // .SECTION Description
-// vlSbrLight is a concrete implementation of the abstract class vlLight.
-// vlSbrLight interfaces to the Hewlett-Packard starbase rendering library.
+// vtkSbrLight is a concrete implementation of the abstract class vtkLight.
+// vtkSbrLight interfaces to the Hewlett-Packard starbase rendering library.
 
-#ifndef __vlSbrLight_hh
-#define __vlSbrLight_hh
+#ifndef __vtkSbrLight_hh
+#define __vtkSbrLight_hh
 
 #include "LgtDev.hh"
 
-class vlSbrRenderer;
+class vtkSbrRenderer;
 
-class vlSbrLight : public vlLightDevice
+class vtkSbrLight : public vtkLightDevice
 {
 protected:
   
 public:
-  char *GetClassName() {return "vlSbrLight";};
+  char *GetClassName() {return "vtkSbrLight";};
 
-  void Render(vlLight *lgt, vlRenderer *ren,int light_index);
-  void Render(vlLight *lgt, vlSbrRenderer *ren,int light_index);
+  void Render(vtkLight *lgt, vtkRenderer *ren,int light_index);
+  void Render(vtkLight *lgt, vtkSbrRenderer *ren,int light_index);
   
 };
 

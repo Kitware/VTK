@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    SetGet.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its 
+This file is part of the Visualization Toolkit. No part of this file or its 
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
@@ -22,8 +22,8 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // vector arrays of built-in types size 2,3,4; for setting objects; and
 // debug, warning, and error printout information.
 
-#ifndef __vlSetGet_hh
-#define __vlSetGet_hh
+#ifndef __vtkSetGet_hh
+#define __vtkSetGet_hh
 
 #include <string.h>
 
@@ -36,7 +36,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 //
 // Set built-in type.  Creates member Set"name"() (e.g., SetVisibility());
 //
-#define vlSetMacro(name,type) \
+#define vtkSetMacro(name,type) \
 void Set##name (type _arg) \
   { \
   if (Debug)   cerr << "Debug: In " __FILE__ << ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): setting " << #name " to " << _arg << "\n\n"; \
@@ -50,7 +50,7 @@ void Set##name (type _arg) \
 //
 // Get built-in type.  Creates member Get"name"() (e.g., GetVisibility());
 //
-#define vlGetMacro(name,type) \
+#define vtkGetMacro(name,type) \
 type Get##name () { \
   if (Debug)   cerr << "Debug: In " __FILE__ << ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): returning " << #name " of " << name << "\n\n"; \
   return name; \
@@ -60,7 +60,7 @@ type Get##name () { \
 // Set character string.  Creates member Set"name"() 
 // (e.g., SetFilename(char *));
 //
-#define vlSetStringMacro(name) \
+#define vtkSetStringMacro(name) \
 void Set##name (char* _arg) \
   { \
   if (Debug)   cerr << "Debug: In " __FILE__ << ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): setting " << #name " to " << _arg << "\n\n"; \
@@ -83,7 +83,7 @@ void Set##name (char* _arg) \
 // Get character string.  Creates member Get"name"() 
 // (e.g., char *GetFilename());
 //
-#define vlGetStringMacro(name) \
+#define vtkGetStringMacro(name) \
 char* Get##name () { \
   if (Debug)   cerr << "Debug: In " __FILE__ << ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): returning " << #name " of " << name << "\n\n"; \
   return name; \
@@ -94,7 +94,7 @@ char* Get##name () { \
 // Create member Set"name"() (e.q., SetRadius()). #defines are 
 // convienience for clamping open-ended values.
 //
-#define vlSetClampMacro(name,type,min,max) \
+#define vtkSetClampMacro(name,type,min,max) \
 void Set##name (type _arg) \
   { \
   if (Debug)   cerr << "Debug: In " __FILE__ << ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): setting " << #name " to " << _arg << "\n\n"; \
@@ -108,7 +108,7 @@ void Set##name (type _arg) \
 //
 // Set pointer to object. Creates method Set"name"() (e.g., SetPoints()).
 //
-#define vlSetObjectMacro(name,type) \
+#define vtkSetObjectMacro(name,type) \
 void Set##name (type* _arg) \
   { \
   if (Debug)   cerr << "Debug: In " __FILE__ << ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): setting " << #name " to " << &_arg << "\n\n"; \
@@ -124,10 +124,10 @@ void Set##name (type& _arg) \
   } 
 
 //
-// Set pointer to object; uses vlRefCount reference counting methodology.
+// Set pointer to object; uses vtkRefCount reference counting methodology.
 // Creates method Set"name"() (e.g., SetPoints()).
 //
-#define vlSetRefCountedObjectMacro(name,type) \
+#define vtkSetRefCountedObjectMacro(name,type) \
 void Set##name (type* _arg) \
   { \
   if (Debug)   cerr << "Debug: In " __FILE__ << ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): setting " << #name " to " << &_arg << "\n\n"; \
@@ -143,7 +143,7 @@ void Set##name (type* _arg) \
 //
 // Get pointer to object.  Creates member Get"name" (e.g., GetPoints()).
 //
-#define vlGetObjectMacro(name,type) \
+#define vtkGetObjectMacro(name,type) \
 type *Get##name () \
   { \
   if (Debug)   cerr << "Debug: In " __FILE__ << ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): returning " << #name " address " << name << "\n\n"; \
@@ -154,7 +154,7 @@ type *Get##name () \
 // Create members "name"On() and "name"Off() (e.g., DebugOn() DebugOff()).
 // Set method must be defined to use this macro.
 //
-#define vlBooleanMacro(name,type) \
+#define vtkBooleanMacro(name,type) \
 void name##On () { Set##name((type)1);}; \
 void name##Off () { Set##name((type)0);}
 
@@ -164,7 +164,7 @@ void name##Off () { Set##name((type)0);}
 // the second allows setting from an array (e.g., SetColor(float* rgb[3])).
 // The macros vary in the size of the vector they deal with.
 //
-#define vlSetVector2Macro(name,type) \
+#define vtkSetVector2Macro(name,type) \
 void Set##name (type _arg1, type _arg2) \
   { \
   if (Debug)   cerr << "Debug: In " __FILE__ << ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): setting " << #name " to (" << _arg1 << "," << _arg2 << ")\n\n"; \
@@ -180,7 +180,7 @@ void Set##name (type _arg[2]) \
   Set##name (_arg[0], _arg[1]); \
   } 
 
-#define vlSetVector3Macro(name,type) \
+#define vtkSetVector3Macro(name,type) \
 void Set##name (type _arg1, type _arg2, type _arg3) \
   { \
   if (Debug)   cerr << "Debug: In " __FILE__ << ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): setting " << #name " to (" << _arg1 << "," << _arg2 << "," << _arg3 << ")\n\n"; \
@@ -197,7 +197,7 @@ void Set##name (type _arg[3]) \
   Set##name (_arg[0], _arg[1], _arg[2]);\
   } 
 
-#define vlSetVector4Macro(name,type) \
+#define vtkSetVector4Macro(name,type) \
 void Set##name (type _arg1, type _arg2, type _arg3, type _arg4) \
   { \
   if (Debug)   cerr << "Debug: In " __FILE__ << ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): setting " << #name " to (" << _arg1 << "," << _arg2 << "," << _arg3 << "," << _arg4 << ")\n\n"; \
@@ -220,7 +220,7 @@ void Set##name (type _arg[4]) \
 // number of values into object.
 // Examples: void SetColor(c,3)
 //
-#define vlSetVectorMacro(name,type,count) \
+#define vtkSetVectorMacro(name,type,count) \
 void Set##name(type data[]) \
 { \
   for (int i=0; i<count; i++) if ( data[i] != name[i] ) break; \
@@ -237,7 +237,7 @@ void Set##name(type data[]) \
 // into user provided array. This is more object-oriented.
 // Examples: float *GetColor() and void GetColor(float c[count]).
 //
-#define vlGetVectorMacro(name,type,count) \
+#define vtkGetVectorMacro(name,type,count) \
 type *Get##name () \
 { \
   if (Debug)   cerr << "Debug: In " __FILE__ << ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): returning " << #name " pointer " << name << "\n\n"; \
@@ -250,23 +250,23 @@ void Get##name (type data[count]) \
 
 //
 // This macro is used for  debug statements in instance methods
-// vlDebugMacro(<< "this is debug info" << this->SomeVariable);
+// vtkDebugMacro(<< "this is debug info" << this->SomeVariable);
 //
-#define vlDebugMacro(x) \
+#define vtkDebugMacro(x) \
   if (Debug) cerr << "Debug: In " __FILE__ << ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): " x << "\n\n"
 
 //
 // This macro is used to print out warning messages.
-// vlWarningMacro(<< "Warning message" << variable);
+// vtkWarningMacro(<< "Warning message" << variable);
 //
-#define vlWarningMacro(x) \
+#define vtkWarningMacro(x) \
   cerr << "Warning: In " __FILE__ << ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): " x << "\n\n"
 
 //
 // This macro is used to print out errors
-// vlErrorMacro(<< "Error message" << variable);
+// vtkErrorMacro(<< "Error message" << variable);
 //
-#define vlErrorMacro(x) \
+#define vtkErrorMacro(x) \
   cerr << "ERROR In " __FILE__ << ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): " x << "\n\n"
 
 #endif

@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    Hexa.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
@@ -14,14 +14,14 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
 #include "Hexa.hh"
-#include "vlMath.hh"
+#include "vtkMath.hh"
 #include "Line.hh"
 #include "Quad.hh"
 #include "CellArr.hh"
 
 // Description:
 // Deep copy of cell.
-vlHexahedron::vlHexahedron(const vlHexahedron& h)
+vtkHexahedron::vtkHexahedron(const vtkHexahedron& h)
 {
   this->Points = h.Points;
   this->PointIds = h.PointIds;
@@ -34,7 +34,7 @@ vlHexahedron::vlHexahedron(const vlHexahedron& h)
 #define MAX_ITERATION 10
 #define CONVERGED 1.e-03
 
-int vlHexahedron::EvaluatePosition(float x[3], float closestPoint[3],
+int vtkHexahedron::EvaluatePosition(float x[3], float closestPoint[3],
                                    int& subId, float pcoords[3], 
                                    float& dist2, float weights[MAX_CELL_SIZE])
 {
@@ -44,7 +44,7 @@ int vlHexahedron::EvaluatePosition(float x[3], float closestPoint[3],
   int i, j;
   float  d, *pt;
   float derivs[24];
-  static vlMath math;
+  static vtkMath math;
 //
 //  set initial position for Newton's method
 //
@@ -148,7 +148,7 @@ int vlHexahedron::EvaluatePosition(float x[3], float closestPoint[3],
 //
 // Compute iso-parametrix interpolation functions
 //
-void vlHexahedron::InterpolationFunctions(float pcoords[3], float sf[8])
+void vtkHexahedron::InterpolationFunctions(float pcoords[3], float sf[8])
 {
   double rm, sm, tm;
 
@@ -166,7 +166,7 @@ void vlHexahedron::InterpolationFunctions(float pcoords[3], float sf[8])
   sf[7] = rm*pcoords[1]*pcoords[2];
 }
 
-void vlHexahedron::InterpolationDerivs(float pcoords[3], float derivs[24])
+void vtkHexahedron::InterpolationDerivs(float pcoords[3], float derivs[24])
 {
   double rm, sm, tm;
 
@@ -200,7 +200,7 @@ void vlHexahedron::InterpolationDerivs(float pcoords[3], float derivs[24])
   derivs[23] = rm*pcoords[1];
 }
 
-void vlHexahedron::EvaluateLocation(int& subId, float pcoords[3], float x[3],
+void vtkHexahedron::EvaluateLocation(int& subId, float pcoords[3], float x[3],
                                     float weights[MAX_CELL_SIZE])
 {
   int i, j;
@@ -219,7 +219,7 @@ void vlHexahedron::EvaluateLocation(int& subId, float pcoords[3], float x[3],
     }
 }
 
-int vlHexahedron::CellBoundary(int subId, float pcoords[3], vlIdList& pts)
+int vtkHexahedron::CellBoundary(int subId, float pcoords[3], vtkIdList& pts)
 {
   float t1=pcoords[0]-pcoords[1];
   float t2=1.0-pcoords[0]-pcoords[1];
@@ -299,10 +299,10 @@ static int faces[6][4] = { {0,4,7,3}, {1,2,6,5},
 //
 #include "MC_Cases.h"
 
-void vlHexahedron::Contour(float value, vlFloatScalars *cellScalars, 
-                      vlFloatPoints *points,
-                      vlCellArray *verts, vlCellArray *lines, 
-                      vlCellArray *polys, vlFloatScalars *scalars)
+void vtkHexahedron::Contour(float value, vtkFloatScalars *cellScalars, 
+                      vtkFloatPoints *points,
+                      vtkCellArray *verts, vtkCellArray *lines, 
+                      vtkCellArray *polys, vtkFloatScalars *scalars)
 {
   static int CASE_MASK[8] = {1,2,4,8,16,32,64,128};
   TRIANGLE_CASES *triCase;
@@ -336,10 +336,10 @@ void vlHexahedron::Contour(float value, vlFloatScalars *cellScalars,
     }
 }
 
-vlCell *vlHexahedron::GetEdge(int edgeId)
+vtkCell *vtkHexahedron::GetEdge(int edgeId)
 {
   int *verts;
-  static vlLine line;
+  static vtkLine line;
 
   verts = edges[edgeId];
 
@@ -354,10 +354,10 @@ vlCell *vlHexahedron::GetEdge(int edgeId)
   return &line;
 }
 
-vlCell *vlHexahedron::GetFace(int faceId)
+vtkCell *vtkHexahedron::GetFace(int faceId)
 {
   int *verts, i;
-  static vlQuad theQuad; // using "quad" bothers IBM xlc compiler!
+  static vtkQuad theQuad; // using "quad" bothers IBM xlc compiler!
 
   verts = faces[faceId];
 
@@ -372,7 +372,7 @@ vlCell *vlHexahedron::GetFace(int faceId)
 // 
 // Intersect hexa faces against line. Each hexa face is a quadrilateral.
 //
-int vlHexahedron::IntersectWithLine(float p1[3], float p2[3], float tol,
+int vtkHexahedron::IntersectWithLine(float p1[3], float p2[3], float tol,
                                     float &t, float x[3], float pcoords[3],
                                     int& subId)
 {
@@ -381,7 +381,7 @@ int vlHexahedron::IntersectWithLine(float p1[3], float p2[3], float tol,
   float tTemp;
   float pc[3], xTemp[3];
   int faceNum;
-  static vlQuad theQuad; // using "quad" bothers IBM xlc compiler!
+  static vtkQuad theQuad; // using "quad" bothers IBM xlc compiler!
 
   t = LARGE_FLOAT;
   for (faceNum=0; faceNum<6; faceNum++)

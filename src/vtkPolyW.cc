@@ -1,38 +1,38 @@
 /*=========================================================================
 
-  Program:   Visualization Library
-  Module:    vlPolyW.cc
+  Program:   Visualization Toolkit
+  Module:    vtkPolyW.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-#include "vlPolyW.hh"
+#include "vtkPolyW.hh"
 
 // Description:
 // Specify the input data or filter.
-void vlPolyWriter::SetInput(vlPolyData *input)
+void vtkPolyWriter::SetInput(vtkPolyData *input)
 {
   if ( this->Input != input )
     {
-    vlDebugMacro(<<" setting Input to " << (void *)input);
-    this->Input = (vlDataSet *) input;
+    vtkDebugMacro(<<" setting Input to " << (void *)input);
+    this->Input = (vtkDataSet *) input;
     this->Modified();
     }
 }
 
-void vlPolyWriter::WriteData()
+void vtkPolyWriter::WriteData()
 {
   FILE *fp;
-  vlPolyData *input=(vlPolyData *)this->Input;
+  vtkPolyData *input=(vtkPolyData *)this->Input;
 
-  vlDebugMacro(<<"Writing vl polygonal data...");
+  vtkDebugMacro(<<"Writing vtk polygonal data...");
 
   if ( !(fp=this->OpenVLFile()) || !this->WriteHeader(fp) )
       return;
@@ -52,7 +52,7 @@ void vlPolyWriter::WriteData()
   this->CloseVLFile(fp);
 }
 
-void vlPolyWriter::PrintSelf(ostream& os, vlIndent indent)
+void vtkPolyWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlDataWriter::PrintSelf(os,indent);
+  vtkDataWriter::PrintSelf(os,indent);
 }

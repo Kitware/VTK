@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    TubeF.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
@@ -15,9 +15,9 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 =========================================================================*/
 #include "TubeF.hh"
 #include "PolyLine.hh"
-#include "vlMath.hh"
+#include "vtkMath.hh"
 
-vlTubeFilter::vlTubeFilter()
+vtkTubeFilter::vtkTubeFilter()
 {
   this->Radius = 0.5;
   this->VaryRadius = 1;
@@ -25,18 +25,18 @@ vlTubeFilter::vlTubeFilter()
   this->RadiusFactor = 10;
 }
 
-void vlTubeFilter::Execute()
+void vtkTubeFilter::Execute()
 {
   int i, j, k;
-  vlPoints *inPts;
-  vlNormals *inNormals;
-  vlPointData *pd;
-  vlCellArray *inLines;
+  vtkPoints *inPts;
+  vtkNormals *inNormals;
+  vtkPointData *pd;
+  vtkCellArray *inLines;
   int numPts, numNewPts;
-  vlFloatPoints *newPts;
-  vlFloatNormals *newNormals;
-  vlCellArray *newStrips;
-  vlMath math;
+  vtkFloatPoints *newPts;
+  vtkFloatNormals *newNormals;
+  vtkCellArray *newStrips;
+  vtkMath math;
   int npts, *pts, i1, i2, ptOffset=0;
   float p[3], pNext[3];
   float *n, normal[3], nP[3];
@@ -44,20 +44,20 @@ void vlTubeFilter::Execute()
   double BevelAngle;
   float theta=2.0*math.Pi()/this->NumberOfSides;
   int deleteNormals=0, ptId;
-  vlPolyData *input=(vlPolyData *)this->Input;
-  vlScalars *inScalars=NULL;
+  vtkPolyData *input=(vtkPolyData *)this->Input;
+  vtkScalars *inScalars=NULL;
   float sFactor=1.0, range[2];
 //
 // Initialize
 //
-  vlDebugMacro(<<"Creating ribbon");
+  vtkDebugMacro(<<"Creating ribbon");
   this->Initialize();
 
   if ( !(inPts=input->GetPoints()) || 
   (numPts = inPts->GetNumberOfPoints()) < 1 ||
   !(inLines = input->GetLines()) || inLines->GetNumberOfCells() < 1 )
     {
-    vlErrorMacro(<< ": No input data!\n");
+    vtkErrorMacro(<< ": No input data!\n");
     return;
     }
   numNewPts = numPts * this->NumberOfSides;
@@ -69,12 +69,12 @@ void vlTubeFilter::Execute()
 
   if ( !(inNormals=pd->GetNormals()) )
     {
-    vlPolyLine lineNormalGenerator;
+    vtkPolyLine lineNormalGenerator;
     deleteNormals = 1;
-    inNormals = new vlFloatNormals(numNewPts);
-    if ( !lineNormalGenerator.GenerateSlidingNormals(inPts,inLines,(vlFloatNormals*)inNormals) )
+    inNormals = new vtkFloatNormals(numNewPts);
+    if ( !lineNormalGenerator.GenerateSlidingNormals(inPts,inLines,(vtkFloatNormals*)inNormals) )
       {
-      vlErrorMacro(<< "No normals for line!\n");
+      vtkErrorMacro(<< "No normals for line!\n");
       delete inNormals;
       return;
       }
@@ -87,9 +87,9 @@ void vlTubeFilter::Execute()
     inScalars->GetRange(range);
     }
 
-  newPts = new vlFloatPoints(numNewPts);
-  newNormals = new vlFloatNormals(numNewPts);
-  newStrips = new vlCellArray;
+  newPts = new vtkFloatPoints(numNewPts);
+  newNormals = new vtkFloatNormals(numNewPts);
+  newStrips = new vtkCellArray;
   newStrips->Allocate(newStrips->EstimateSize(1,numNewPts));
 //
 //  Create points along the line that are later connected into a 
@@ -139,7 +139,7 @@ void vlTubeFilter::Execute()
 
       if ( math.Normalize(sNext) == 0.0 )
         {
-        vlErrorMacro(<<"Coincident points!");
+        vtkErrorMacro(<<"Coincident points!");
         return;
         }
 
@@ -156,7 +156,7 @@ void vlTubeFilter::Execute()
       math.Cross(s,n,w);
       if ( math.Normalize(w) == 0.0)
         {
-        vlErrorMacro(<<"Bad normal!");
+        vtkErrorMacro(<<"Bad normal!");
         return;
         }
       
@@ -220,9 +220,9 @@ void vlTubeFilter::Execute()
   this->Squeeze();
 }
 
-void vlTubeFilter::PrintSelf(ostream& os, vlIndent indent)
+void vtkTubeFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlPolyToPolyFilter::PrintSelf(os,indent);
+  vtkPolyToPolyFilter::PrintSelf(os,indent);
 
   os << indent << "Radius: " << this->Radius << "\n";
   os << indent << "Vary Radius: " << (this->VaryRadius ? "On\n" : "Off\n");

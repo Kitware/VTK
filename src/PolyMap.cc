@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    PolyMap.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its 
+This file is part of the Visualization Toolkit. No part of this file or its 
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
@@ -18,7 +18,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // Description:
 // Construct mapper with vertices, lines, polygons, and triangle strips
 // turned on.
-vlPolyMapper::vlPolyMapper()
+vtkPolyMapper::vtkPolyMapper()
 {
   this->Verts = NULL;
   this->Lines = NULL;
@@ -32,7 +32,7 @@ vlPolyMapper::vlPolyMapper()
   this->StripsVisibility = 1;
 }
 
-vlPolyMapper::~vlPolyMapper()
+vtkPolyMapper::~vtkPolyMapper()
 {
   //delete internally created objects
   if ( this->Verts != NULL ) delete this->Verts;
@@ -42,12 +42,12 @@ vlPolyMapper::~vlPolyMapper()
   if ( this->Colors != NULL ) delete this->Colors;
 }
 
-void vlPolyMapper::SetInput(vlPolyData *in)
+void vtkPolyMapper::SetInput(vtkPolyData *in)
 {
   if (in != this->Input )
     {
-    vlDebugMacro(<<" setting Input to " << (void *)in);
-    this->Input = (vlDataSet *) in;
+    vtkDebugMacro(<<" setting Input to " << (void *)in);
+    this->Input = (vtkDataSet *) in;
     this->Modified();
     }
 }
@@ -55,7 +55,7 @@ void vlPolyMapper::SetInput(vlPolyData *in)
 //
 // Return bounding box of data
 //
-float *vlPolyMapper::GetBounds()
+float *vtkPolyMapper::GetBounds()
 {
   static float bounds[] = {-1.0,1.0, -1.0,1.0, -1.0,1.0};
 
@@ -71,19 +71,19 @@ float *vlPolyMapper::GetBounds()
 //
 // Receives from Actor -> maps data to primitives
 //
-void vlPolyMapper::Render(vlRenderer *ren)
+void vtkPolyMapper::Render(vtkRenderer *ren)
 {
-  vlPointData *pd;
-  vlScalars *scalars;
+  vtkPointData *pd;
+  vtkScalars *scalars;
   int i, numPts;
-  vlPolyData *input=(vlPolyData *)this->Input;
-  vlColorScalars *colors;
+  vtkPolyData *input=(vtkPolyData *)this->Input;
+  vtkColorScalars *colors;
 //
 // make sure that we've been properly initialized
 //
   if ( input == NULL ) 
     {
-    vlErrorMacro(<< "No input!");
+    vtkErrorMacro(<< "No input!");
     return;
     }
   else
@@ -111,7 +111,7 @@ void vlPolyMapper::Render(vlRenderer *ren)
         {
         if ( this->Colors == NULL ) 
           {
-          this->Colors = colors = (vlColorScalars *) new vlAPixmap(numPts);
+          this->Colors = colors = (vtkColorScalars *) new vtkAPixmap(numPts);
           }
         else
           {
@@ -129,7 +129,7 @@ void vlPolyMapper::Render(vlRenderer *ren)
         }
       else //color scalar
         {
-        colors = (vlColorScalars *)scalars;
+        colors = (vtkColorScalars *)scalars;
         }
       }
     else
@@ -182,9 +182,9 @@ void vlPolyMapper::Render(vlRenderer *ren)
 
 }
 
-void vlPolyMapper::PrintSelf(ostream& os, vlIndent indent)
+void vtkPolyMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlMapper::PrintSelf(os,indent);
+  vtkMapper::PrintSelf(os,indent);
 
   os << indent << "Vertex Visibility: " << (this->VertsVisibility ? "On\n" : "Off\n");
   os << indent << "Line Visibility: " << (this->LinesVisibility ? "On\n" : "Off\n");

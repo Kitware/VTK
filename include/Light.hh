@@ -1,91 +1,91 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    Light.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its
+This file is part of the Visualization Toolkit. No part of this file or its
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
-// .NAME vlLight - a virtual light for 3D rendering
+// .NAME vtkLight - a virtual light for 3D rendering
 // .SECTION Description
-// vlLight is a virtual light for 3D rendering. It provides methods to locate
+// vtkLight is a virtual light for 3D rendering. It provides methods to locate
 // and point the light, turn it on and off, and set its brightness and color.
 
-#ifndef __vlLight_hh
-#define __vlLight_hh
+#ifndef __vtkLight_hh
+#define __vtkLight_hh
 
 #include "Object.hh"
 
 /* need for virtual function */
-class vlRenderer;
-class vlLightDevice;
+class vtkRenderer;
+class vtkLightDevice;
 
-class vlLight : public vlObject
+class vtkLight : public vtkObject
 {
 public:
-  vlLight();
-  char *GetClassName() {return "vlLight";};
-  void PrintSelf(ostream& os, vlIndent indent);
+  vtkLight();
+  char *GetClassName() {return "vtkLight";};
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Abstract interface to renderer. Each concrete subclass of vlLight
+  // Abstract interface to renderer. Each concrete subclass of vtkLight
   // will load its data into graphics system in response to this method
   // invocation.
-  virtual void Render(vlRenderer *ren,int light_index);
+  virtual void Render(vtkRenderer *ren,int light_index);
 
   // Description:
   // Set the color of the light.
-  vlSetVector3Macro(Color,float);
-  vlGetVectorMacro(Color,float,3);
+  vtkSetVector3Macro(Color,float);
+  vtkGetVectorMacro(Color,float,3);
 
   // Description:
   // Set the position of the light.
-  vlSetVector3Macro(Position,float);
-  vlGetVectorMacro(Position,float,3);
+  vtkSetVector3Macro(Position,float);
+  vtkGetVectorMacro(Position,float,3);
 
   // Description:
   // Set the point at which the light is shining.
-  vlSetVector3Macro(FocalPoint,float);
-  vlGetVectorMacro(FocalPoint,float,3);
+  vtkSetVector3Macro(FocalPoint,float);
+  vtkGetVectorMacro(FocalPoint,float,3);
 
   // Description:
   // Set the brightness of the light.
-  vlSetMacro(Intensity,float);
-  vlGetMacro(Intensity,float);
+  vtkSetMacro(Intensity,float);
+  vtkGetMacro(Intensity,float);
 
   // Description:
   // Turn the light on/off.
-  vlSetMacro(Switch,int);
-  vlGetMacro(Switch,int);
-  vlBooleanMacro(Switch,int);
+  vtkSetMacro(Switch,int);
+  vtkGetMacro(Switch,int);
+  vtkBooleanMacro(Switch,int);
 
   // Description:
   // Turn positional lighting on/off.
-  vlSetMacro(Positional,int);
-  vlGetMacro(Positional,int);
-  vlBooleanMacro(Positional,int);
+  vtkSetMacro(Positional,int);
+  vtkGetMacro(Positional,int);
+  vtkBooleanMacro(Positional,int);
 
   // Description:
   // Set the exponent of the cosine used in positional lighting.
-  vlSetMacro(Exponent,float);
-  vlGetMacro(Exponent,float);
+  vtkSetMacro(Exponent,float);
+  vtkGetMacro(Exponent,float);
 
   // Description:
   // Set the lighting cone angle in degrees of a positional light.
-  vlSetMacro(ConeAngle,float);
-  vlGetMacro(ConeAngle,float);
+  vtkSetMacro(ConeAngle,float);
+  vtkGetMacro(ConeAngle,float);
 
   // Description:
   // Set the quadratic attenuation constants, const linear quad in order.
-  vlSetVector3Macro(AttenuationValues,float);
-  vlGetVectorMacro(AttenuationValues,float,3);
+  vtkSetVector3Macro(AttenuationValues,float);
+  vtkGetVectorMacro(AttenuationValues,float,3);
 
 protected:
   float FocalPoint[3];
@@ -97,7 +97,7 @@ protected:
   float Exponent;
   float ConeAngle;
   float AttenuationValues[3];
-  vlLightDevice *Device;
+  vtkLightDevice *Device;
 };
 
 #endif

@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    ConnectF.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
@@ -17,7 +17,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 // Description:
 // Construct with default extraction mode to extract largest regions.
-vlConnectivityFilter::vlConnectivityFilter()
+vtkConnectivityFilter::vtkConnectivityFilter()
 {
   this->ExtractionMode = EXTRACT_LARGEST_REGION;
   this->ColorRegions = 0;
@@ -26,23 +26,23 @@ vlConnectivityFilter::vlConnectivityFilter()
 
 static NumExceededMaxDepth;
 static int *Visited, *PointMap;
-static vlFloatScalars *NewScalars;
+static vtkFloatScalars *NewScalars;
 static int RecursionDepth;
 static int RegionNumber, PointNumber;    
 static int NumCellsInRegion;
-static  vlIdList *RecursionSeeds;
+static  vtkIdList *RecursionSeeds;
 
-void vlConnectivityFilter::Execute()
+void vtkConnectivityFilter::Execute()
 {
   int cellId, i, j, pt;
   int numPts, numCells;
-  vlFloatPoints *newPts;
-  vlIdList cellIds(MAX_CELL_SIZE), ptIds(MAX_CELL_SIZE);
-  vlPointData *pd;
+  vtkFloatPoints *newPts;
+  vtkIdList cellIds(MAX_CELL_SIZE), ptIds(MAX_CELL_SIZE);
+  vtkPointData *pd;
   int id;
   int maxCellsInRegion, largestRegionId;
    
-  vlDebugMacro(<<"Executing connectivity filter.");
+  vtkDebugMacro(<<"Executing connectivity filter.");
   this->Initialize();
 //
 //  Check input/allocate storage
@@ -50,7 +50,7 @@ void vlConnectivityFilter::Execute()
   if ( (numPts=this->Input->GetNumberOfPoints()) < 1 ||
   (numCells=this->Input->GetNumberOfCells()) < 1 )
     {
-    vlDebugMacro(<<"No data to connect!");
+    vtkDebugMacro(<<"No data to connect!");
     return;
     }
   this->Allocate(numCells,numCells);
@@ -63,14 +63,14 @@ void vlConnectivityFilter::Execute()
   PointMap = new int[numPts];  
   for ( i=0; i < numPts; i++ ) PointMap[i] = -1;
 
-  NewScalars = new vlFloatScalars(numPts);
-  newPts = new vlFloatPoints(numPts);
+  NewScalars = new vtkFloatScalars(numPts);
+  newPts = new vtkFloatPoints(numPts);
 //
 // Traverse all cells marking those visited.  Each new search
 // starts a new connected region.  Note: have to truncate recursion
 // and keep track of seeds to start up again.
 //
-  RecursionSeeds = new vlIdList(1000,10000);
+  RecursionSeeds = new vtkIdList(1000,10000);
 
   NumExceededMaxDepth = 0;
   PointNumber = 0;
@@ -140,8 +140,8 @@ void vlConnectivityFilter::Execute()
     this->RegionSizes.InsertValue(RegionNumber,NumCellsInRegion);
     }
 
-  vlDebugMacro (<<"Extracted " << RegionNumber << " region(s)\n");
-  vlDebugMacro (<<"Exceeded recursion depth " << NumExceededMaxDepth 
+  vtkDebugMacro (<<"Extracted " << RegionNumber << " region(s)\n");
+  vtkDebugMacro (<<"Exceeded recursion depth " << NumExceededMaxDepth 
                 << " times\n");
 
   delete RecursionSeeds;
@@ -243,10 +243,10 @@ void vlConnectivityFilter::Execute()
 // Mark current cell as visited and assign region number.  Note:
 // traversal occurs across shared vertices.
 //
-void vlConnectivityFilter::TraverseAndMark (int cellId)
+void vtkConnectivityFilter::TraverseAndMark (int cellId)
 {
   int j, k, ptId;
-  vlIdList ptIds, cellIds;
+  vtkIdList ptIds, cellIds;
 
   Visited[cellId] = RegionNumber;
   NumCellsInRegion++;
@@ -282,14 +282,14 @@ void vlConnectivityFilter::TraverseAndMark (int cellId)
 
 // Description:
 // Obtain the number of connected regions.
-int vlConnectivityFilter::GetNumberOfExtractedRegions()
+int vtkConnectivityFilter::GetNumberOfExtractedRegions()
 {
   return this->RegionSizes.GetSize();
 }
 
 // Description:
 // Set the extraction mode to extract regions sharing specified point ids.
-void vlConnectivityFilter::ExtractPointSeededRegions()
+void vtkConnectivityFilter::ExtractPointSeededRegions()
 {
   if ( this->ExtractionMode != EXTRACT_POINT_SEEDED_REGIONS )
     {
@@ -300,7 +300,7 @@ void vlConnectivityFilter::ExtractPointSeededRegions()
 
 // Description:
 // Set the extraction mode to extract regions sharing specified cell ids.
-void vlConnectivityFilter::ExtractCellSeededRegions()
+void vtkConnectivityFilter::ExtractCellSeededRegions()
 {
   if ( this->ExtractionMode != EXTRACT_CELL_SEEDED_REGIONS )
     {
@@ -312,7 +312,7 @@ void vlConnectivityFilter::ExtractCellSeededRegions()
 // Description:
 // Set the extraction mode to extract regions of specified id. You may 
 // have to execute filter first to determine region ids.
-void vlConnectivityFilter::ExtractSpecifiedRegions()
+void vtkConnectivityFilter::ExtractSpecifiedRegions()
 {
   if ( this->ExtractionMode != EXTRACT_SPECIFIED_REGIONS )
     {
@@ -323,7 +323,7 @@ void vlConnectivityFilter::ExtractSpecifiedRegions()
 
 // Description:
 // Set the extraction mode to extract the largest region found.
-void vlConnectivityFilter::ExtractLargestRegion()
+void vtkConnectivityFilter::ExtractLargestRegion()
 {
   if ( this->ExtractionMode != EXTRACT_LARGEST_REGION )
     {
@@ -334,7 +334,7 @@ void vlConnectivityFilter::ExtractLargestRegion()
 
 // Description:
 // Initialize list of point ids/cell ids used to seed regions.
-void vlConnectivityFilter::InitializeSeedList()
+void vtkConnectivityFilter::InitializeSeedList()
 {
   this->Modified();
   this->Seeds.Reset();
@@ -342,7 +342,7 @@ void vlConnectivityFilter::InitializeSeedList()
 
 // Description:
 // Add a seed id (point or cell id). Note: ids are 0-offset.
-void vlConnectivityFilter::AddSeed(int id)
+void vtkConnectivityFilter::AddSeed(int id)
 {
   this->Modified();
   this->Seeds.InsertNextId(id);
@@ -350,7 +350,7 @@ void vlConnectivityFilter::AddSeed(int id)
 
 // Description:
 // Delete a seed id (point or cell id). Note: ids are 0-offset.
-void vlConnectivityFilter::DeleteSeed(int id)
+void vtkConnectivityFilter::DeleteSeed(int id)
 {
   this->Modified();
   this->Seeds.DeleteId(id);
@@ -358,7 +358,7 @@ void vlConnectivityFilter::DeleteSeed(int id)
 
 // Description:
 // Initialize list of region ids to extract.
-void vlConnectivityFilter::InitializeSpecifiedRegionList()
+void vtkConnectivityFilter::InitializeSpecifiedRegionList()
 {
   this->Modified();
   this->SpecifiedRegionIds.Reset();
@@ -366,7 +366,7 @@ void vlConnectivityFilter::InitializeSpecifiedRegionList()
 
 // Description:
 // Add a region id to extract. Note: ids are 0-offset.
-void vlConnectivityFilter::AddSpecifiedRegion(int id)
+void vtkConnectivityFilter::AddSpecifiedRegion(int id)
 {
   this->Modified();
   this->SpecifiedRegionIds.InsertNextId(id);
@@ -374,15 +374,15 @@ void vlConnectivityFilter::AddSpecifiedRegion(int id)
 
 // Description:
 // Delete a region id to extract. Note: ids are 0-offset.
-void vlConnectivityFilter::DeleteSpecifiedRegion(int id)
+void vtkConnectivityFilter::DeleteSpecifiedRegion(int id)
 {
   this->Modified();
   this->SpecifiedRegionIds.DeleteId(id);
 }
 
-void vlConnectivityFilter::PrintSelf(ostream& os, vlIndent indent)
+void vtkConnectivityFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlDataSetToUnstructuredGridFilter::PrintSelf(os,indent);
+  vtkDataSetToUnstructuredGridFilter::PrintSelf(os,indent);
 
   os << indent << "Extraction Mode: ";
   switch (this->ExtractionMode)

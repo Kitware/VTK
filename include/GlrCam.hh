@@ -1,37 +1,37 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    GlrCam.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its
+This file is part of the Visualization Toolkit. No part of this file or its
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
-// .NAME vlGlrCamera - SGI gl camera
+// .NAME vtkGlrCamera - SGI gl camera
 // .SECTION Description
-// vlGlrCamera is a concrete implementation of the abstract class vlCamera.
-// vlGlrCamera interfaces to the Silicon Graphics gl rendering library.
+// vtkGlrCamera is a concrete implementation of the abstract class vtkCamera.
+// vtkGlrCamera interfaces to the Silicon Graphics gl rendering library.
 
-#ifndef __vlGlrCamera_hh
-#define __vlGlrCamera_hh
+#ifndef __vtkGlrCamera_hh
+#define __vtkGlrCamera_hh
 
 #include "CamDev.hh"
 
-class vlGlrRenderer;
+class vtkGlrRenderer;
 
-class vlGlrCamera : public vlCameraDevice
+class vtkGlrCamera : public vtkCameraDevice
 {
  public:
-  virtual char *GetClassName() {return "vlGlrCamera";};
+  virtual char *GetClassName() {return "vtkGlrCamera";};
 
-  void Render(vlCamera *cam, vlRenderer *ren);
-  void Render(vlCamera *cam, vlGlrRenderer *ren);
+  void Render(vtkCamera *cam, vtkRenderer *ren);
+  void Render(vtkCamera *cam, vtkGlrRenderer *ren);
 
 };
 

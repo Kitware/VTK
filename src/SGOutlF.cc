@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    SGOutlF.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
@@ -15,23 +15,23 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 =========================================================================*/
 #include "SGOutlF.hh"
 
-void vlStructuredGridOutlineFilter::Execute()
+void vtkStructuredGridOutlineFilter::Execute()
 {
-  vlStructuredGrid *input=(vlStructuredGrid *)this->Input;
-  vlPoints *inPts;
+  vtkStructuredGrid *input=(vtkStructuredGrid *)this->Input;
+  vtkPoints *inPts;
   int i, j, k;
   int idx, gridIdx;
-  vlPointData *pd;
+  vtkPointData *pd;
   int *dim, pts[2];
-  vlFloatPoints *newPts;
-  vlCellArray *newLines;
+  vtkFloatPoints *newPts;
+  vtkCellArray *newLines;
 
-  vlDebugMacro(<< "Creating structured outline");
+  vtkDebugMacro(<< "Creating structured outline");
   this->Initialize();
 
   if ( (inPts=input->GetPoints()) == NULL )
     {
-    vlErrorMacro("No input!");
+    vtkErrorMacro("No input!");
     return;
     }
   pd = input->GetPointData();
@@ -39,8 +39,8 @@ void vlStructuredGridOutlineFilter::Execute()
 //
 //  Allocate storage for lines and points
 //
-  newPts = new vlFloatPoints(4*(dim[0]+dim[1]+dim[2]));
-  newLines = new vlCellArray;
+  newPts = new vtkFloatPoints(4*(dim[0]+dim[1]+dim[2]));
+  newLines = new vtkCellArray;
   newLines->Allocate(newLines->EstimateSize(4*((dim[0]-1)+(dim[1]-1)+(dim[2]-1)),2));
 //
 //  Load data

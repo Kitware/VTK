@@ -1,37 +1,37 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    SbrProp.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its
+This file is part of the Visualization Toolkit. No part of this file or its
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
-// .NAME vlSbrProperty - HP starbase property
+// .NAME vtkSbrProperty - HP starbase property
 // .SECTION Description
-// vlSbrProperty is a concrete implementation of the abstract class vlProperty.
-// vlSbrProperty interfaces to the Hewlett-Packard starbase rendering library.
+// vtkSbrProperty is a concrete implementation of the abstract class vtkProperty.
+// vtkSbrProperty interfaces to the Hewlett-Packard starbase rendering library.
 
-#ifndef __vlSbrProperty_hh
-#define __vlSbrProperty_hh
+#ifndef __vtkSbrProperty_hh
+#define __vtkSbrProperty_hh
 
 #include "PropDev.hh"
 
-class vlSbrRenderer;
+class vtkSbrRenderer;
 
-class vlSbrProperty : public vlPropertyDevice
+class vtkSbrProperty : public vtkPropertyDevice
 {
  public:
-  char *GetClassName() {return "vlSbrProperty";};
+  char *GetClassName() {return "vtkSbrProperty";};
 
-  void Render(vlProperty *prop, vlRenderer *ren);
-  void Render(vlProperty *prop, vlSbrRenderer *ren);
+  void Render(vtkProperty *prop, vtkRenderer *ren);
+  void Render(vtkProperty *prop, vtkSbrRenderer *ren);
 };
 
 #endif

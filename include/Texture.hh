@@ -1,80 +1,80 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    Texture.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its
+This file is part of the Visualization Toolkit. No part of this file or its
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
-// .NAME vlTexture - handles properties associated with a texture map
+// .NAME vtkTexture - handles properties associated with a texture map
 // .SECTION Description
-// vlTexture is an object that handles loading and binding of texture
+// vtkTexture is an object that handles loading and binding of texture
 // maps. It obtains its data from a StructuredPoints input. Multiple 
-// actors using the same texture map should share the same vlTexture
+// actors using the same texture map should share the same vtkTexture
 // object.  This reduces the amount of memory being used. Currently
 // only 2D etxture maps are supported event though the data pipeline
 // supports 1,2, and 3D texture coordinates.
 // .SECTION See Also
-// See vlRenderer for definition of #define's.
+// See vtkRenderer for definition of #define's.
 
-#ifndef __vlTexture_hh
-#define __vlTexture_hh
+#ifndef __vtkTexture_hh
+#define __vtkTexture_hh
 
 #include "Render.hh"
 #include "Object.hh"
 #include "StrPts.hh"
 
-class vlRenderer;
-class vlTextureDevice;
+class vtkRenderer;
+class vtkTextureDevice;
 
-class vlTexture : public vlObject
+class vtkTexture : public vtkObject
 {
 public:
-  vlTexture();
-  char *GetClassName() {return "vlTexture";};
-  void PrintSelf(ostream& os, vlIndent indent);
+  vtkTexture();
+  char *GetClassName() {return "vtkTexture";};
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Renders a texture map. It first checks the MTimes to make sure
   // the texture maps Input is valid then it invokes the Load method.
-  virtual void Render(vlRenderer *ren);
+  virtual void Render(vtkRenderer *ren);
 
   // Description:
-  // Abstract interface to renderer. Each concrete subclass of vlTexture
+  // Abstract interface to renderer. Each concrete subclass of vtkTexture
   // will load its data into graphics system in response to this method
   // invocation.
-  virtual void Load(vlRenderer *ren);
+  virtual void Load(vtkRenderer *ren);
 
   // Description:
   // Turn on/off the repetition of the texture map when the texture
   // coords extend beyond the [0,1] range.
-  vlGetMacro(Repeat,int);
-  vlSetMacro(Repeat,int);
-  vlBooleanMacro(Repeat,int);
+  vtkGetMacro(Repeat,int);
+  vtkSetMacro(Repeat,int);
+  vtkBooleanMacro(Repeat,int);
 
   // Description:
   // Turn on/off linear interpolation of the texture map when rendering.
-  vlGetMacro(Interpolate,int);
-  vlSetMacro(Interpolate,int);
-  vlBooleanMacro(Interpolate,int);
+  vtkGetMacro(Interpolate,int);
+  vtkSetMacro(Interpolate,int);
+  vtkBooleanMacro(Interpolate,int);
 
   // Description:
   // Specify 2D or 3D texture map.
-  vlSetObjectMacro(Input,vlStructuredPoints);
-  vlGetObjectMacro(Input,vlStructuredPoints);
+  vtkSetObjectMacro(Input,vtkStructuredPoints);
+  vtkGetObjectMacro(Input,vtkStructuredPoints);
 
 protected:
   int   Repeat;
   int   Interpolate;
-  vlStructuredPoints *Input;
-  vlTextureDevice *Device;
+  vtkStructuredPoints *Input;
+  vtkTextureDevice *Device;
 };
 
 #endif

@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    LinkList.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its 
+This file is part of the Visualization Toolkit. No part of this file or its 
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
@@ -16,19 +16,19 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "LinkList.hh"
 #include "DataSet.hh"
 
-vlLinkList::vlLinkList(int sz, int ext)
+vtkLinkList::vtkLinkList(int sz, int ext)
 {
-  static _vlLink_s linkInit = {0,NULL};
+  static _vtkLink_s linkInit = {0,NULL};
 
   this->Size = sz;
-  this->Array = new _vlLink_s[sz];
+  this->Array = new _vtkLink_s[sz];
   this->Extend = ext;
   this->MaxId = -1;
 
   for (int i=0; i < sz; i++) this->Array[i] = linkInit;
 }
 
-vlLinkList::~vlLinkList()
+vtkLinkList::~vtkLinkList()
 {
   if ( this->Array == NULL ) return;
 
@@ -43,7 +43,7 @@ vlLinkList::~vlLinkList()
 
 // Description:
 // Allocate memory for the list of lists of cell ids.
-void vlLinkList::AllocateLinks(int n)
+void vtkLinkList::AllocateLinks(int n)
 {
   for (int i=0; i < n; i++)
     {
@@ -53,30 +53,30 @@ void vlLinkList::AllocateLinks(int n)
 
 // Description:
 // Reclaim any unused memory.
-void vlLinkList::Squeeze()
+void vtkLinkList::Squeeze()
 {
   this->Resize (this->MaxId+1);
 }
 
 
-void vlLinkList::Reset()
+void vtkLinkList::Reset()
 {
   this->MaxId = -1;
 }
 //
 // Private function does "reallocate"
 //
-_vlLink_s *vlLinkList::Resize(int sz)
+_vtkLink_s *vtkLinkList::Resize(int sz)
 {
   int i;
-  _vlLink_s *newArray;
+  _vtkLink_s *newArray;
   int newSize;
 
   if ( sz >= this->Size ) newSize = this->Size + 
     this->Extend*(((sz-this->Size)/this->Extend)+1);
   else newSize = sz;
 
-  newArray = new _vlLink_s[newSize];
+  newArray = new _vtkLink_s[newSize];
 
   for (i=0; i<sz && i<this->Size; i++)
     newArray[i] = this->Array[i];
@@ -90,12 +90,12 @@ _vlLink_s *vlLinkList::Resize(int sz)
 
 // Description:
 // Build the link list array.
-void vlLinkList::BuildLinks(vlDataSet *data)
+void vtkLinkList::BuildLinks(vtkDataSet *data)
 {
   int numPts = data->GetNumberOfPoints();
   int numCells = data->GetNumberOfCells();
   int i, j, ptId, cellId;
-  vlCell *cell;
+  vtkCell *cell;
   unsigned short *linkLoc;
 
   // traverse data to determine number of uses of each point

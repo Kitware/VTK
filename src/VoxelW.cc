@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    VoxelW.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its
+This file is part of the Visualization Toolkit. No part of this file or its
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
@@ -16,61 +16,61 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "VoxelW.hh"
 #include "BScalars.hh"
 
-vlVoxelWriter::vlVoxelWriter()
+vtkVoxelWriter::vtkVoxelWriter()
 {
   this->Filename = NULL;
 }
 
-vlVoxelWriter::~vlVoxelWriter()
+vtkVoxelWriter::~vtkVoxelWriter()
 {
   if ( this->Filename ) delete [] this->Filename;
 }
 
 // Description:
 // Specify the input data or filter.
-void vlVoxelWriter::SetInput(vlStructuredPoints *input)
+void vtkVoxelWriter::SetInput(vtkStructuredPoints *input)
 {
   if ( this->Input != input )
     {
-    vlDebugMacro(<<" setting Input to " << (void *)input);
-    this->Input = (vlDataSet *) input;
+    vtkDebugMacro(<<" setting Input to " << (void *)input);
+    this->Input = (vtkDataSet *) input;
     this->Modified();
     }
 }
 
 // Description:
 // Write voxel data out.
-void vlVoxelWriter::WriteData()
+void vtkVoxelWriter::WriteData()
 {
   FILE *fp;
   int i, j, k;
-  vlBitScalars *newScalars;
+  vtkBitScalars *newScalars;
   int numPts, idx;
   int bitcount;
   unsigned char uc;
   int *dim;
   float *origin,*aspect;
-  vlStructuredPoints *input=(vlStructuredPoints *)this->Input;
+  vtkStructuredPoints *input=(vtkStructuredPoints *)this->Input;
 
-  vlDebugMacro(<< "Writing Voxel model");
+  vtkDebugMacro(<< "Writing Voxel model");
 
   dim = input->GetDimensions();
   origin = input->GetOrigin();
   aspect = input->GetAspectRatio();
   numPts = dim[0]*dim[1]*dim[2];
 
-  newScalars = (vlBitScalars *)input->GetPointData()->GetScalars();
+  newScalars = (vtkBitScalars *)input->GetPointData()->GetScalars();
   
   if ( this->Filename == NULL)
     {
-    vlErrorMacro(<< "Please specify filename to write");
+    vtkErrorMacro(<< "Please specify filename to write");
     return;
     }
 
   fp = fopen(this->Filename,"w");
   if (!fp) 
     {
-    vlErrorMacro(<< "Couldn't open file: " << this->Filename << endl);
+    vtkErrorMacro(<< "Couldn't open file: " << this->Filename << endl);
     return;
     }
 
@@ -109,9 +109,9 @@ void vlVoxelWriter::WriteData()
   fclose(fp);
 }
 
-void vlVoxelWriter::PrintSelf(ostream& os, vlIndent indent)
+void vtkVoxelWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlWriter::PrintSelf(os,indent);
+  vtkWriter::PrintSelf(os,indent);
 
   os << indent << "Filename: " << this->Filename << "\n";
 }

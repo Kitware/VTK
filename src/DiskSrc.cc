@@ -1,6 +1,6 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    DiskSrc.cc
   Language:  C++
   Date:      $Date$
@@ -8,7 +8,7 @@
 
 Description:
 ---------------------------------------------------------------------------
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
@@ -20,9 +20,9 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 //
 #include <math.h>
 #include "DiskSrc.hh"
-#include "vlMath.hh"
+#include "vtkMath.hh"
 
-vlDiskSource::vlDiskSource()
+vtkDiskSource::vtkDiskSource()
 {
   this->InnerRadius = 0.25;
   this->OuterRadius = 0.5;
@@ -30,7 +30,7 @@ vlDiskSource::vlDiskSource()
   this->CircumferentialResolution = 6;
 }
 
-void vlDiskSource::Execute()
+void vtkDiskSource::Execute()
 {
   int numPolys, numPts;
   float x[3];
@@ -38,9 +38,9 @@ void vlDiskSource::Execute()
   int pts[4];
   float theta, deltaRadius;
   float cosTheta, sinTheta;
-  vlFloatPoints *newPoints; 
-  vlCellArray *newPolys;
-  vlMath math;
+  vtkFloatPoints *newPoints; 
+  vtkCellArray *newPolys;
+  vtkMath math;
 //
 // Set things up; allocate memory
 //
@@ -49,8 +49,8 @@ void vlDiskSource::Execute()
   numPts = (this->RadialResolution + 1) * 
            (this->CircumferentialResolution + 1);
   numPolys = this->RadialResolution * this->CircumferentialResolution;
-  newPoints = new vlFloatPoints(numPts);
-  newPolys = new vlCellArray;
+  newPoints = new vtkFloatPoints(numPts);
+  newPolys = new vtkCellArray;
   newPolys->Allocate(newPolys->EstimateSize(numPolys,4));
 //
 // Create disk
@@ -92,9 +92,9 @@ void vlDiskSource::Execute()
   this->SetPolys(newPolys);
 }
 
-void vlDiskSource::PrintSelf(ostream& os, vlIndent indent)
+void vtkDiskSource::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlPolySource::PrintSelf(os,indent);
+  vtkPolySource::PrintSelf(os,indent);
 
   os << indent << "InnerRadius: " << this->InnerRadius << "\n";
   os << indent << "OuterRadius: " << this->OuterRadius << "\n";

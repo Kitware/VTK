@@ -1,69 +1,69 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    RenderC.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its
+This file is part of the Visualization Toolkit. No part of this file or its
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
-// .NAME vlRendererCollection - a list of renderers
+// .NAME vtkRendererCollection - a list of renderers
 // .SECTION Description
-// vlRendererCollection represents and provides methods to manipulate list of
-// renderers (i.e., vlRenderer and subclasses). The list is unsorted and 
+// vtkRendererCollection represents and provides methods to manipulate list of
+// renderers (i.e., vtkRenderer and subclasses). The list is unsorted and 
 // duplicate entries are not prevented.
 
-#ifndef __vlRendererCollection_hh
-#define __vlRendererCollection_hh
+#ifndef __vtkRendererCollection_hh
+#define __vtkRendererCollection_hh
 
 #include "Collect.hh"
 #include "Renderer.hh"
 
-class vlRendererCollection : public vlCollection
+class vtkRendererCollection : public vtkCollection
 {
  public:
-  char *GetClassName() {return "vlRendererCollection";};
+  char *GetClassName() {return "vtkRendererCollection";};
 
-  void AddItem(vlRenderer *a);
-  void RemoveItem(vlRenderer *a);
-  int IsItemPresent(vlRenderer *a);
-  vlRenderer *GetNextItem();
+  void AddItem(vtkRenderer *a);
+  void RemoveItem(vtkRenderer *a);
+  int IsItemPresent(vtkRenderer *a);
+  vtkRenderer *GetNextItem();
   void Render();
 };
 
 // Description:
 // Add an renderer to the list.
-inline void vlRendererCollection::AddItem(vlRenderer *a) 
+inline void vtkRendererCollection::AddItem(vtkRenderer *a) 
 {
-  this->vlCollection::AddItem((vlObject *)a);
+  this->vtkCollection::AddItem((vtkObject *)a);
 }
 
 // Description:
 // Remove an renderer from the list.
-inline void vlRendererCollection::RemoveItem(vlRenderer *a) 
+inline void vtkRendererCollection::RemoveItem(vtkRenderer *a) 
 {
-  this->vlCollection::RemoveItem((vlObject *)a);
+  this->vtkCollection::RemoveItem((vtkObject *)a);
 }
 
 // Description:
 // Determine whether a particular renderer is present. Returns its position
 // in the list.
-inline int vlRendererCollection::IsItemPresent(vlRenderer *a) 
+inline int vtkRendererCollection::IsItemPresent(vtkRenderer *a) 
 {
-  return this->vlCollection::IsItemPresent((vlObject *)a);
+  return this->vtkCollection::IsItemPresent((vtkObject *)a);
 }
 
 // Description:
 // Get the next renderer in the list.
-inline vlRenderer *vlRendererCollection::GetNextItem() 
+inline vtkRenderer *vtkRendererCollection::GetNextItem() 
 {
-  return (vlRenderer *)(this->vlCollection::GetNextItem());
+  return (vtkRenderer *)(this->vtkCollection::GetNextItem());
 }
 
 #endif

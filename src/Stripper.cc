@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    Stripper.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
@@ -17,7 +17,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 // Description:
 // Construct object with vertex and line passing turned on.
-vlStripper::vlStripper()
+vtkStripper::vtkStripper()
 {
   this->MaximumStripLength = MAX_CELL_SIZE - 2;
 
@@ -25,21 +25,21 @@ vlStripper::vlStripper()
   this->PassLines = 1;
 }
 
-void vlStripper::Execute()
+void vtkStripper::Execute()
 {
   int longest, cellId, i, numCells, numPts, numStrips;
-  vlCellArray *newStrips, *inStrips;
-  vlPointData *pd=this->Input->GetPointData();
+  vtkCellArray *newStrips, *inStrips;
+  vtkPointData *pd=this->Input->GetPointData();
   int numTriPts, *triPts;
-  vlIdList cellIds(MAX_CELL_SIZE);
+  vtkIdList cellIds(MAX_CELL_SIZE);
   int neighbor;
-  vlPolyData Mesh;
+  vtkPolyData Mesh;
   char *visited;
   int pts[MAX_CELL_SIZE];
   int numStripPts, *stripPts;
-  vlPolyData *input=(vlPolyData *)this->Input;
+  vtkPolyData *input=(vtkPolyData *)this->Input;
 
-  vlDebugMacro(<<"Executing triangle strip filter");
+  vtkDebugMacro(<<"Executing triangle strip filter");
 
   this->Initialize();
 
@@ -51,11 +51,11 @@ void vlStripper::Execute()
   // check input
   if ( (numCells=Mesh.GetNumberOfCells()) < 1 )
     {
-    vlErrorMacro(<<"No data to strip!");
+    vtkErrorMacro(<<"No data to strip!");
     return;
     }
 
-  newStrips = new vlCellArray;
+  newStrips = new vtkCellArray;
   newStrips->Allocate(newStrips->EstimateSize(numCells,6));
 
   // pre-load existing strips
@@ -80,7 +80,7 @@ void vlStripper::Execute()
     if ( ! visited[cellId] )
       {
       visited[cellId] = 1;
-      if ( Mesh.GetCellType(cellId) == vlTRIANGLE )
+      if ( Mesh.GetCellType(cellId) == vtkTRIANGLE )
         {
 //
 //  Got a starting point for the strip.  Initialize.  Find a neighbor
@@ -99,7 +99,7 @@ void vlStripper::Execute()
           Mesh.GetCellEdgeNeighbors(cellId, pts[1], pts[2], cellIds);
           if ( cellIds.GetNumberOfIds() > 0 && 
           !visited[neighbor=cellIds.GetId(0)] &&
-          Mesh.GetCellType(neighbor) == vlTRIANGLE )
+          Mesh.GetCellType(neighbor) == vtkTRIANGLE )
             {
             pts[0] = triPts[(i+2)%3];
             break;
@@ -137,7 +137,7 @@ void vlStripper::Execute()
             // note: if updates value of neighbor
             if ( cellIds.GetNumberOfIds() <= 0 || 
             visited[neighbor=cellIds.GetId(0)] ||
-            Mesh.GetCellType(neighbor) != vlTRIANGLE ||
+            Mesh.GetCellType(neighbor) != vtkTRIANGLE ||
             numPts >= (this->MaximumStripLength+2) )
               {
               newStrips->InsertNextCell(numPts,pts);
@@ -163,13 +163,13 @@ void vlStripper::Execute()
   this->SetVerts(input->GetVerts());
   this->SetLines(input->GetLines());
 
-  vlDebugMacro (<<"Reduced " << numCells << " cells to " << numStrips << " triangle strips \n\t(Average " << (float)numCells/numStrips << " triangles per strip, longest strip = "<<  ((longest-2)>0?(longest-2):0) << " triangles)");
+  vtkDebugMacro (<<"Reduced " << numCells << " cells to " << numStrips << " triangle strips \n\t(Average " << (float)numCells/numStrips << " triangles per strip, longest strip = "<<  ((longest-2)>0?(longest-2):0) << " triangles)");
 
 }
 
-void vlStripper::PrintSelf(ostream& os, vlIndent indent)
+void vtkStripper::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlPolyToPolyFilter::PrintSelf(os,indent);
+  vtkPolyToPolyFilter::PrintSelf(os,indent);
 
   os << indent << "Maximum Strip Length: " << this->MaximumStripLength << "\n";
 

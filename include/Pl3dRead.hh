@@ -1,21 +1,21 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    Pl3dRead.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-// .NAME vlPLOT3DReader - read PLOT3D data files
+// .NAME vtkPLOT3DReader - read PLOT3D data files
 // .SECTION Description
-// vlPLOT3D is a reader object that reads PLOT3D formatted files and generates
+// vtkPLOT3D is a reader object that reads PLOT3D formatted files and generates
 // a structured grid on output. PLOT3D is a computer graphics program designed
 // to visualize the grids and solutions of computational fluid dynamics.
 // Please see the "PLOT3D User's Manual" available from NASA Ames Research 
@@ -28,7 +28,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // integration time (Time). In addition, the solution file contains 
 // the flow density (scalar), flow momentum (vector), and flow energy (scalar).
 //    The reader can generate additional scalars and vectors (or "functions")
-// from this information. To use vlPLOT3DReader, you must specify the 
+// from this information. To use vtkPLOT3DReader, you must specify the 
 // particular function number for the scalar and vector you want to visualize.
 // This implementation of the reader provides the following functions. The
 // scalar functions are:
@@ -63,8 +63,8 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // file is specified, as well as a scalar from the solution file (or derived
 // from the solution file), the function file takes precedence.
 
-#ifndef __vlPLOT3DReader_h
-#define __vlPLOT3DReader_h
+#ifndef __vtkPLOT3DReader_h
+#define __vtkPLOT3DReader_h
 
 #include <stdio.h>
 #include "SGridSrc.hh"
@@ -75,100 +75,100 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #define WHOLE_SINGLE_GRID_NO_IBLANKING 0
 #define WHOLE_MULTI_GRID_NO_IBLANKING 2
 
-class vlPLOT3DReader : public vlStructuredGridSource 
+class vtkPLOT3DReader : public vtkStructuredGridSource 
 {
 public:
-  vlPLOT3DReader();
-  ~vlPLOT3DReader();
-  char *GetClassName() {return "vlPLOT3DReader";};
-  void PrintSelf(ostream& os, vlIndent indent);
+  vtkPLOT3DReader();
+  ~vtkPLOT3DReader();
+  char *GetClassName() {return "vtkPLOT3DReader";};
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Specify the PLOT3D file format to use
-  vlSetClampMacro(FileFormat,int,0,7);
-  vlGetMacro(FileFormat,int);
+  vtkSetClampMacro(FileFormat,int,0,7);
+  vtkGetMacro(FileFormat,int);
 
   // Description:
   // Set/Get the PLOT3D geometry filename.
-  vlSetStringMacro(XYZFilename);
-  vlGetStringMacro(XYZFilename);
+  vtkSetStringMacro(XYZFilename);
+  vtkGetStringMacro(XYZFilename);
 
   // Description:
   // Set/Get the PLOT3D solution filename.
-  vlSetStringMacro(QFilename);
-  vlGetStringMacro(QFilename);
+  vtkSetStringMacro(QFilename);
+  vtkGetStringMacro(QFilename);
 
   // Description:
   // Set/Get the PLOT3D function filename.
-  vlSetStringMacro(FunctionFilename);
-  vlGetStringMacro(FunctionFilename);
+  vtkSetStringMacro(FunctionFilename);
+  vtkGetStringMacro(FunctionFilename);
 
 
   // Description:
   // Specify the grid to read.
-  vlSetMacro(GridNumber,int);
-  vlGetMacro(GridNumber,int);
+  vtkSetMacro(GridNumber,int);
+  vtkGetMacro(GridNumber,int);
 
   // Description:
   // Specify the scalar function to extract. If =-1, then no scalar 
   // function is extracted.
-  vlSetMacro(ScalarFunctionNumber,int);
-  vlGetMacro(ScalarFunctionNumber,int);
+  vtkSetMacro(ScalarFunctionNumber,int);
+  vtkGetMacro(ScalarFunctionNumber,int);
 
   // Description:
   // Specify the vector function to extract. If =-1, then no vector
   // function is extracted.
-  vlSetMacro(VectorFunctionNumber,int);
-  vlGetMacro(VectorFunctionNumber,int);
+  vtkSetMacro(VectorFunctionNumber,int);
+  vtkGetMacro(VectorFunctionNumber,int);
 
   // Description:
   // Specify which function to extract from the function file. If =-1, 
   // then no function is extracted.
-  vlSetMacro(FunctionFileFunctionNumber,int);
-  vlGetMacro(FunctionFileFunctionNumber,int);
+  vtkSetMacro(FunctionFileFunctionNumber,int);
+  vtkGetMacro(FunctionFileFunctionNumber,int);
 
 
   // these are read from PLOT3D file
   // Description:
   // Get the free-stream mach number.
-  vlGetMacro(Fsmach,float);
+  vtkGetMacro(Fsmach,float);
 
   // Description:
   // Get the angle of attack.
-  vlGetMacro(Alpha,float);
+  vtkGetMacro(Alpha,float);
 
   // Description:
   // Get the Reynold's number.
-  vlGetMacro(Re,float);
+  vtkGetMacro(Re,float);
 
   // Description:
   // Get the total integration time.
-  vlGetMacro(Time,float);
+  vtkGetMacro(Time,float);
 
   // Description:
   // Set/Get the gas constant.
-  vlSetMacro(R,float);
-  vlGetMacro(R,float);
+  vtkSetMacro(R,float);
+  vtkGetMacro(R,float);
 
   // Description:
   // Set/Get the ratio of specific heats.
-  vlSetMacro(Gamma,float);
-  vlGetMacro(Gamma,float);
+  vtkSetMacro(Gamma,float);
+  vtkGetMacro(Gamma,float);
 
   // Description:
   // Set/Get the x-component of the free-stream velocity.
-  vlSetMacro(Uvinf,float);
-  vlGetMacro(Uvinf,float);
+  vtkSetMacro(Uvinf,float);
+  vtkGetMacro(Uvinf,float);
 
   // Description:
   // Set/Get the y-component of the free-stream velocity.
-  vlSetMacro(Vvinf,float);
-  vlGetMacro(Vvinf,float);
+  vtkSetMacro(Vvinf,float);
+  vtkGetMacro(Vvinf,float);
 
   // Description:
   // Set/Get the z-component of the free-stream velocity.
-  vlSetMacro(Wvinf,float);
-  vlGetMacro(Wvinf,float);
+  vtkSetMacro(Wvinf,float);
+  vtkGetMacro(Wvinf,float);
 
 protected:
   void Execute();
@@ -212,10 +212,10 @@ protected:
   int ReadBinaryGrid(FILE *fp);
   int ReadBinarySolution(FILE *fp);
   int ReadBinaryFunctionFile(FILE *fp);
-  vlFloatPoints *Grid;
-  vlFloatScalars *Density;
-  vlFloatScalars *Energy;
-  vlFloatVectors *Momentum;
+  vtkFloatPoints *Grid;
+  vtkFloatScalars *Density;
+  vtkFloatScalars *Energy;
+  vtkFloatVectors *Momentum;
 
   // derived functions from data in PLOT3D files
   void ComputeDensity();

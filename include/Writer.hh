@@ -1,40 +1,40 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    Writer.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-// .NAME vlWriter - abstract class to write data to file(s)
+// .NAME vtkWriter - abstract class to write data to file(s)
 // .SECTION Description
-// vlWriter is an abstract class for mapper objects that write their data
+// vtkWriter is an abstract class for mapper objects that write their data
 // to disk (or into a communications port). All writers respond to Write()
 // method. This method insures that there is input and input is up to date.
 // .SECTION Caveats
-// Every subclass of vlWriter must implement a WriteData() method. Most likely
+// Every subclass of vtkWriter must implement a WriteData() method. Most likely
 // will have to create SetInput() method as well.
 
-#ifndef __vlWriter_hh
-#define __vlWriter_hh
+#ifndef __vtkWriter_hh
+#define __vtkWriter_hh
 
 #include "Object.hh"
 #include "DataSet.hh"
 
-class vlWriter : public vlObject 
+class vtkWriter : public vtkObject 
 {
 public:
-  vlWriter();
-  ~vlWriter() {};
-  char *GetClassName() {return "vlWriter";};
-  void PrintSelf(ostream& os, vlIndent indent);
+  vtkWriter();
+  ~vtkWriter() {};
+  char *GetClassName() {return "vtkWriter";};
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   virtual void Write();
   void Update();
@@ -45,7 +45,7 @@ public:
   void SetEndWriteArgDelete(void (*f)(void *));
 
 protected:
-  vlDataSet *Input;
+  vtkDataSet *Input;
   virtual void WriteData() = 0;
 
   void (*StartWrite)(void *);

@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    Scalars.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its 
+This file is part of the Visualization Toolkit. No part of this file or its 
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
@@ -18,7 +18,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "IdList.hh"
 #include "Lut.hh"
 
-vlScalars::vlScalars()
+vtkScalars::vtkScalars()
 {
   this->Range[0] = this->Range[2] = this->Range[4] = this->Range[6] = 0.0;
   this->Range[1] = this->Range[3] = this->Range[5] = this->Range[7] = 1.0;
@@ -26,14 +26,14 @@ vlScalars::vlScalars()
   this->LookupTable = NULL;
 }
 
-vlScalars::~vlScalars()
+vtkScalars::~vtkScalars()
 {
   if ( this->LookupTable ) this->LookupTable->UnRegister(this);
 }
 
 // Description:
 // Given a list of pt ids, return an array of scalar values.
-void vlScalars::GetScalars(vlIdList& ptId, vlFloatScalars& fs)
+void vtkScalars::GetScalars(vtkIdList& ptId, vtkFloatScalars& fs)
 {
   for (int i=0; i<ptId.GetNumberOfIds(); i++)
     {
@@ -43,7 +43,7 @@ void vlScalars::GetScalars(vlIdList& ptId, vlFloatScalars& fs)
 
 // Description:
 // Determine (rmin,rmax) range of scalar values.
-void vlScalars::ComputeRange()
+void vtkScalars::ComputeRange()
 {
   int i;
   float s;
@@ -66,7 +66,7 @@ void vlScalars::ComputeRange()
 // Description:
 // Return the range of scalar values. Data returned as pointer to float array
 // of length 2.
-float *vlScalars::GetRange()
+float *vtkScalars::GetRange()
 {
   this->ComputeRange();
   return this->Range;
@@ -74,21 +74,21 @@ float *vlScalars::GetRange()
 
 // Description:
 // Return the range of scalar values. Range copied into array provided.
-void vlScalars::GetRange(float range[2])
+void vtkScalars::GetRange(float range[2])
 {
   this->ComputeRange();
   range[0] = this->Range[0];
   range[1] = this->Range[1];
 }
 
-void vlScalars::CreateDefaultLookupTable()
+void vtkScalars::CreateDefaultLookupTable()
 {
   if ( this->LookupTable ) this->LookupTable->UnRegister(this);
-  this->LookupTable = new vlLookupTable;
+  this->LookupTable = new vtkLookupTable;
   this->LookupTable->Register(this);
 }
 
-void vlScalars::SetLookupTable(vlLookupTable *lut)
+void vtkScalars::SetLookupTable(vtkLookupTable *lut)
 {
   if ( this->LookupTable != lut ) 
     {
@@ -99,11 +99,11 @@ void vlScalars::SetLookupTable(vlLookupTable *lut)
     }
 }
 
-void vlScalars::PrintSelf(ostream& os, vlIndent indent)
+void vtkScalars::PrintSelf(ostream& os, vtkIndent indent)
 {
   float *range;
 
-  vlRefCount::PrintSelf(os,indent);
+  vtkRefCount::PrintSelf(os,indent);
 
   os << indent << "Number Of Scalars: " << this->GetNumberOfScalars() << "\n";
   range = this->GetRange();

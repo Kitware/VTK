@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    TCoords.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its 
+This file is part of the Visualization Toolkit. No part of this file or its 
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
@@ -17,7 +17,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "IdList.hh"
 #include "FTCoords.hh"
 
-void vlTCoords::GetTCoord(int id, float tc[3])
+void vtkTCoords::GetTCoord(int id, float tc[3])
 {
   float *tcp = this->GetTCoord(id);
   for (int i=0; i<this->Dimension; i++) tc[i] = tcp[i];
@@ -25,14 +25,14 @@ void vlTCoords::GetTCoord(int id, float tc[3])
 
 // Description:
 // Construct object whose texture coordinates are of specified dimension.
-vlTCoords::vlTCoords(int dim)
+vtkTCoords::vtkTCoords(int dim)
 {
   this->Dimension = dim;
 }
 
 // Description:
 // Given a list of pt ids, return an array of texture coordinates.
-void vlTCoords::GetTCoords(vlIdList& ptId, vlFloatTCoords& ftc)
+void vtkTCoords::GetTCoords(vtkIdList& ptId, vtkFloatTCoords& ftc)
 {
   for (int i=0; i<ptId.GetNumberOfIds(); i++)
     {
@@ -40,9 +40,9 @@ void vlTCoords::GetTCoords(vlIdList& ptId, vlFloatTCoords& ftc)
     }
 }
 
-void vlTCoords::PrintSelf(ostream& os, vlIndent indent)
+void vtkTCoords::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlRefCount::PrintSelf(os,indent);
+  vtkRefCount::PrintSelf(os,indent);
 
   os << indent << "Number Of Texture Coordinates: " << this->GetNumberOfTCoords() << "\n";
   os << indent << "Texture Dimension: " << this->Dimension << "\n";

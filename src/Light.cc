@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    Light.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its
+This file is part of the Visualization Toolkit. No part of this file or its
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
@@ -23,7 +23,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // Description:
 // Create a light with focal point at origin and position=(0,0,1).
 // Light color is white, intensity=1, and the light is turned on.
-vlLight::vlLight()
+vtkLight::vtkLight()
 {
   this->FocalPoint[0] = 0.0;
   this->FocalPoint[1] = 0.0;
@@ -49,7 +49,7 @@ vlLight::vlLight()
   this->Device = NULL;
 }
 
-void vlLight::Render(vlRenderer *ren,int light_index)
+void vtkLight::Render(vtkRenderer *ren,int light_index)
 {
   if (!this->Device)
     {
@@ -58,9 +58,9 @@ void vlLight::Render(vlRenderer *ren,int light_index)
   this->Device->Render(this,ren,light_index);
 }
 
-void vlLight::PrintSelf(ostream& os, vlIndent indent)
+void vtkLight::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlObject::PrintSelf(os,indent);
+  vtkObject::PrintSelf(os,indent);
 
   os << indent << "AttenuationValues: (" << this->AttenuationValues[0] << ", " 
     << this->AttenuationValues[1] << ", " << this->AttenuationValues[2] << ")\n";

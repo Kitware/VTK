@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    ImpMod.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
@@ -21,7 +21,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // Construct with sample dimensions=(50,50,50) and so that model bounds are
 // automatically computer from input. Capping is turned on with CapValue equal
 // to a large positive number.
-vlImplicitModeller::vlImplicitModeller()
+vtkImplicitModeller::vtkImplicitModeller()
 {
   this->MaximumDistance = 0.1;
 
@@ -40,9 +40,9 @@ vlImplicitModeller::vlImplicitModeller()
   this->CapValue = LARGE_FLOAT;
 }
 
-void vlImplicitModeller::PrintSelf(ostream& os, vlIndent indent)
+void vtkImplicitModeller::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlDataSetToStructuredPointsFilter::PrintSelf(os,indent);
+  vtkDataSetToStructuredPointsFilter::PrintSelf(os,indent);
 
   os << indent << "Maximum Distance: " << this->MaximumDistance << "\n";
   os << indent << "Sample Dimensions: (" << this->SampleDimensions[0] << ", "
@@ -55,12 +55,12 @@ void vlImplicitModeller::PrintSelf(ostream& os, vlIndent indent)
 }
 // Description:
 // Specify the position in space to perform the sampling.
-void vlImplicitModeller::SetModelBounds(float *bounds)
+void vtkImplicitModeller::SetModelBounds(float *bounds)
 {
-  vlImplicitModeller::SetModelBounds(bounds[0], bounds[1], bounds[2], bounds[3], bounds[4], bounds[5]);
+  vtkImplicitModeller::SetModelBounds(bounds[0], bounds[1], bounds[2], bounds[3], bounds[4], bounds[5]);
 }
 
-void vlImplicitModeller::SetModelBounds(float xmin, float xmax, float ymin, float ymax, float zmin, float zmax)
+void vtkImplicitModeller::SetModelBounds(float xmin, float xmax, float ymin, float ymax, float zmin, float zmax)
 {
   if (this->ModelBounds[0] != xmin || this->ModelBounds[1] != xmax ||
   this->ModelBounds[2] != ymin || this->ModelBounds[3] != ymax ||
@@ -87,13 +87,13 @@ void vlImplicitModeller::SetModelBounds(float xmin, float xmax, float ymin, floa
     }
 }
 
-void vlImplicitModeller::Execute()
+void vtkImplicitModeller::Execute()
 {
   int cellNum, i, j, k;
   float *bounds, adjBounds[6];
-  vlCell *cell;
+  vtkCell *cell;
   float maxDistance, pcoords[3];
-  vlFloatScalars *newScalars;
+  vtkFloatScalars *newScalars;
   int numPts, idx;
   int subId;
   int min[3], max[3];
@@ -102,12 +102,12 @@ void vlImplicitModeller::Execute()
   float weights[MAX_CELL_SIZE];
   float closestPoint[3];
 
-  vlDebugMacro(<< "Executing implicit model");
+  vtkDebugMacro(<< "Executing implicit model");
   this->Initialize();
 
   numPts = this->SampleDimensions[0] * this->SampleDimensions[1] 
            * this->SampleDimensions[2];
-  newScalars = new vlFloatScalars(numPts);
+  newScalars = new vtkFloatScalars(numPts);
   for (i=0; i<numPts; i++) newScalars->SetScalar(i,LARGE_FLOAT);
 
   this->SetDimensions(this->GetSampleDimensions());
@@ -181,7 +181,7 @@ void vlImplicitModeller::Execute()
 
 // Description:
 // Compute ModelBounds from input geometry.
-float vlImplicitModeller::ComputeModelBounds()
+float vtkImplicitModeller::ComputeModelBounds()
 {
   float *bounds, maxDist;
   int i, adjustBounds=0;
@@ -228,7 +228,7 @@ float vlImplicitModeller::ComputeModelBounds()
 
 // Description:
 // Set the i-j-k dimensions on which to sample the distance function.
-void vlImplicitModeller::SetSampleDimensions(int i, int j, int k)
+void vtkImplicitModeller::SetSampleDimensions(int i, int j, int k)
 {
   int dim[3];
 
@@ -239,16 +239,16 @@ void vlImplicitModeller::SetSampleDimensions(int i, int j, int k)
   this->SetSampleDimensions(dim);
 }
 
-void vlImplicitModeller::SetSampleDimensions(int dim[3])
+void vtkImplicitModeller::SetSampleDimensions(int dim[3])
 {
-  vlDebugMacro(<< " setting SampleDimensions to (" << dim[0] << "," << dim[1] << "," << dim[2] << ")");
+  vtkDebugMacro(<< " setting SampleDimensions to (" << dim[0] << "," << dim[1] << "," << dim[2] << ")");
 
   if ( dim[0] != this->SampleDimensions[0] || dim[1] != SampleDimensions[1] ||
   dim[2] != SampleDimensions[2] )
     {
     if ( dim[0]<1 || dim[1]<1 || dim[2]<1 )
       {
-      vlErrorMacro (<< "Bad Sample Dimensions, retaining previous values");
+      vtkErrorMacro (<< "Bad Sample Dimensions, retaining previous values");
       return;
       }
 
@@ -256,7 +256,7 @@ void vlImplicitModeller::SetSampleDimensions(int dim[3])
 
     if ( dataDim  < 3 )
       {
-      vlErrorMacro(<<"Sample dimensions must define a volume!");
+      vtkErrorMacro(<<"Sample dimensions must define a volume!");
       return;
       }
 
@@ -266,7 +266,7 @@ void vlImplicitModeller::SetSampleDimensions(int dim[3])
     }
 }
 
-void vlImplicitModeller::Cap(vlFloatScalars *s)
+void vtkImplicitModeller::Cap(vtkFloatScalars *s)
 {
   int i,j,k;
   int idx;

@@ -1,39 +1,39 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    XglrLgt.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its
+This file is part of the Visualization Toolkit. No part of this file or its
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
-// .NAME vlXglrLight - Light for Suns XGL
+// .NAME vtkXglrLight - Light for Suns XGL
 // .SECTION Description
-// vlXglrLight is a concrete implementation of the abstract class vlLight.
-// vlXglrLight interfaces to the Hewlett-Packard starbase rendering library.
+// vtkXglrLight is a concrete implementation of the abstract class vtkLight.
+// vtkXglrLight interfaces to the Hewlett-Packard starbase rendering library.
 
-#ifndef __vlXglrLight_hh
-#define __vlXglrLight_hh
+#ifndef __vtkXglrLight_hh
+#define __vtkXglrLight_hh
 
 #include "LgtDev.hh"
 
-class vlXglrRenderer;
+class vtkXglrRenderer;
 
-class vlXglrLight : public vlLightDevice
+class vtkXglrLight : public vtkLightDevice
 {
 protected:
   
 public:
-  char *GetClassName() {return "vlXglrLight";};
+  char *GetClassName() {return "vtkXglrLight";};
 
-  void Render(vlLight *lgt, vlRenderer *ren,int light_index);
-  void Render(vlLight *lgt, vlXglrRenderer *ren,int light_index);
+  void Render(vtkLight *lgt, vtkRenderer *ren,int light_index);
+  void Render(vtkLight *lgt, vtkXglrRenderer *ren,int light_index);
   
 };
 

@@ -1,21 +1,21 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    StreamL.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-// .NAME vlStreamLine - generate streamline in arbitrary dataset
+// .NAME vtkStreamLine - generate streamline in arbitrary dataset
 // .SECTION Description
-// vlStreamLine is a filter that generates a streamline for an arbitrary 
+// vtkStreamLine is a filter that generates a streamline for an arbitrary 
 // dataset. A streamline is a line that is everywhere tangent to the vector
 // field. Scalar values are also calculated along the streamline and can be 
 // used to color the line. Streamlines are calculated by integrating from
@@ -30,27 +30,27 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // to generate a dashed line where the dash length is proportional to the 
 // magnitude of the vector velocity.
 
-#ifndef __vlStreamLine_h
-#define __vlStreamLine_h
+#ifndef __vtkStreamLine_h
+#define __vtkStreamLine_h
 
 #include "Streamer.hh"
 
-class vlStreamLine : public vlStreamer
+class vtkStreamLine : public vtkStreamer
 {
 public:
-  vlStreamLine();
-  ~vlStreamLine() {};
-  char *GetClassName() {return "vlStreamLine";};
-  void PrintSelf(ostream& os, vlIndent indent);
+  vtkStreamLine();
+  ~vtkStreamLine() {};
+  char *GetClassName() {return "vtkStreamLine";};
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Specify the length of a dash expressed in time. This is the combined 
   // length of both the "on" and "off" parts of the dash.
-  vlSetClampMacro(DashTime,float,0.000001,LARGE_FLOAT);
-  vlGetMacro(DashTime,float);
+  vtkSetClampMacro(DashTime,float,0.000001,LARGE_FLOAT);
+  vtkGetMacro(DashTime,float);
 
 protected:
-  // Convert streamer array into vlPolyData
+  // Convert streamer array into vtkPolyData
   void Execute();
 
   // the combined length of on/off portion of dash

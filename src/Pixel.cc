@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    Pixel.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
@@ -17,23 +17,23 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "Quad.hh"
 #include "Polygon.hh"
 #include "Plane.hh"
-#include "vlMath.hh"
+#include "vtkMath.hh"
 #include "CellArr.hh"
 #include "Line.hh"
 
-static vlMath math;
-static vlPlane plane;
-static vlPolygon poly;
+static vtkMath math;
+static vtkPlane plane;
+static vtkPolygon poly;
 
 // Description:
 // Deep copy of cell.
-vlPixel::vlPixel(const vlPixel& p)
+vtkPixel::vtkPixel(const vtkPixel& p)
 {
   this->Points = p.Points;
   this->PointIds = p.PointIds;
 }
 
-int vlPixel::EvaluatePosition(float x[3], float closestPoint[3],
+int vtkPixel::EvaluatePosition(float x[3], float closestPoint[3],
                                   int& subId, float pcoords[3], 
                                   float& dist2, float weights[MAX_CELL_SIZE])
 {
@@ -90,7 +90,7 @@ int vlPixel::EvaluatePosition(float x[3], float closestPoint[3],
     }
 }
 
-void vlPixel::EvaluateLocation(int& subId, float pcoords[3], float x[3],
+void vtkPixel::EvaluateLocation(int& subId, float pcoords[3], float x[3],
                                    float weights[MAX_CELL_SIZE])
 {
   float *pt1, *pt2, *pt3;
@@ -109,7 +109,7 @@ void vlPixel::EvaluateLocation(int& subId, float pcoords[3], float x[3],
   this->InterpolationFunctions(pcoords, weights);
 }
 
-int vlPixel::CellBoundary(int subId, float pcoords[3], vlIdList& pts)
+int vtkPixel::CellBoundary(int subId, float pcoords[3], vtkIdList& pts)
 {
   float t1=pcoords[0]-pcoords[1];
   float t2=1.0-pcoords[0]-pcoords[1];
@@ -178,10 +178,10 @@ static LINE_CASES lineCases[] = {
   {-1, -1, -1, -1, -1}
 };
 
-void vlPixel::Contour(float value, vlFloatScalars *cellScalars,
-                     vlFloatPoints *points, vlCellArray *verts,
-                     vlCellArray *lines, vlCellArray *polys, 
-                     vlFloatScalars *scalars)
+void vtkPixel::Contour(float value, vtkFloatScalars *cellScalars,
+                     vtkFloatPoints *points, vtkCellArray *verts,
+                     vtkCellArray *lines, vtkCellArray *polys, 
+                     vtkFloatScalars *scalars)
 {
   static int CASE_MASK[4] = {1,2,8,4}; //note difference!
   LINE_CASES *lineCase;
@@ -215,9 +215,9 @@ void vlPixel::Contour(float value, vlFloatScalars *cellScalars,
     }
 }
 
-vlCell *vlPixel::GetEdge(int edgeId)
+vtkCell *vtkPixel::GetEdge(int edgeId)
 {
-  static vlLine line;
+  static vtkLine line;
   int *verts;
 
   verts = edges[edgeId];
@@ -235,7 +235,7 @@ vlCell *vlPixel::GetEdge(int edgeId)
 //
 // Compute interpolation functions (similar but different than Quad interpolation functions)
 //
-void vlPixel::InterpolationFunctions(float pcoords[3], float sf[4])
+void vtkPixel::InterpolationFunctions(float pcoords[3], float sf[4])
 {
   float rm, sm;
 
@@ -251,7 +251,7 @@ void vlPixel::InterpolationFunctions(float pcoords[3], float sf[4])
 // 
 // Intersect plane; see whether point is inside.
 //
-int vlPixel::IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
+int vtkPixel::IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
                                float x[3], float pcoords[3], int& subId)
 {
   float *pt1, *pt2, *pt3, *pt4, n[3];

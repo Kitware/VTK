@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    STLRead.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its 
+This file is part of the Visualization Toolkit. No part of this file or its 
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
@@ -23,7 +23,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 // Description:
 // Construct object with merging set to true.
-vlSTLReader::vlSTLReader()
+vtkSTLReader::vtkSTLReader()
 {
   this->Filename = NULL;
   this->Merging = 1;
@@ -31,17 +31,17 @@ vlSTLReader::vlSTLReader()
   this->SelfCreatedLocator = 0;
 }
 
-vlSTLReader::~vlSTLReader()
+vtkSTLReader::~vtkSTLReader()
 {
   if (this->Filename) delete [] this->Filename;
   if (this->SelfCreatedLocator) delete this->Locator;
 }
 
-void vlSTLReader::Execute()
+void vtkSTLReader::Execute()
 {
   FILE *fp;
-  vlFloatPoints *newPts, *mergedPts;
-  vlCellArray *newPolys, *mergedPolys;
+  vtkFloatPoints *newPts, *mergedPts;
+  vtkCellArray *newPolys, *mergedPolys;
 //
 // Initialize
 //
@@ -49,12 +49,12 @@ void vlSTLReader::Execute()
 
   if ((fp = fopen(this->Filename, "r")) == NULL)
     {
-    vlErrorMacro(<< "File " << this->Filename << " not found");
+    vtkErrorMacro(<< "File " << this->Filename << " not found");
     return;
     }
 
-  newPts = new vlFloatPoints(5000,10000);
-  newPolys = new vlCellArray(10000,20000);
+  newPts = new vtkFloatPoints(5000,10000);
+  newPolys = new vtkCellArray(10000,20000);
   
 //
 // Depending upon file type, read differently
@@ -68,7 +68,7 @@ void vlSTLReader::Execute()
     if ( this->ReadBinarySTL(fp,newPts,newPolys) ) return;
     }
 
-  vlDebugMacro(<< "Read: " 
+  vtkDebugMacro(<< "Read: " 
                << newPts->GetNumberOfPoints() << " points, "
                << newPolys->GetNumberOfCells() << " triangles");
 
@@ -80,8 +80,8 @@ void vlSTLReader::Execute()
     {
     int npts, *pts, i, nodes[3];
 
-    mergedPts = new vlFloatPoints(newPts->GetNumberOfPoints()/2);
-    mergedPolys = new vlCellArray(newPolys->GetSize());
+    mergedPts = new vtkFloatPoints(newPts->GetNumberOfPoints()/2);
+    mergedPolys = new vtkCellArray(newPolys->GetSize());
 
     if ( this->Locator == NULL ) this->CreateDefaultLocator();
     this->Locator->InitPointInsertion (mergedPts, newPts->GetBounds());
@@ -99,7 +99,7 @@ void vlSTLReader::Execute()
       delete newPts;
       delete newPolys;
 
-      vlDebugMacro(<< "Merged to: " 
+      vtkDebugMacro(<< "Merged to: " 
                    << mergedPts->GetNumberOfPoints() << " points, " 
                    << mergedPolys->GetNumberOfCells() << " triangles");
     }
@@ -123,17 +123,17 @@ void vlSTLReader::Execute()
   if (this->Locator) this->Locator->Initialize(); //free storage
 }
 
-int vlSTLReader::ReadBinarySTL(FILE *fp, vlFloatPoints *newPts, vlCellArray *newPolys)
+int vtkSTLReader::ReadBinarySTL(FILE *fp, vtkFloatPoints *newPts, vtkCellArray *newPolys)
 {
   int i, numTris, pts[3];
   unsigned long   ulint;
   unsigned short  ibuff2;
   char    header[81];
-  vlByteSwap swap;
+  vtkByteSwap swap;
   typedef struct  {float  n[3], v1[3], v2[3], v3[3];} facet_t;
   facet_t facet;
 
-  vlDebugMacro(<< " Reading BINARY STL file");
+  vtkDebugMacro(<< " Reading BINARY STL file");
 //
 //  File is read to obtain raw information as well as bounding box
 //
@@ -146,7 +146,7 @@ int vlSTLReader::ReadBinarySTL(FILE *fp, vlFloatPoints *newPts, vlCellArray *new
 //
   if ( (numTris = (int) ulint) <= 0 )
     {
-    vlDebugMacro(<< "Bad binary count: attempting to correct (" << numTris << ")");
+    vtkDebugMacro(<< "Bad binary count: attempting to correct (" << numTris << ")");
     }
 
   for ( i=0; fread(&facet,48,1,fp) > 0; i++ )
@@ -175,19 +175,19 @@ int vlSTLReader::ReadBinarySTL(FILE *fp, vlFloatPoints *newPts, vlCellArray *new
     newPolys->InsertNextCell(3,pts);
 
     if ( (i % 5000) == 0 && i != 0 )
-      vlDebugMacro(<< "triangle# " << i);
+      vtkDebugMacro(<< "triangle# " << i);
     }
 
   return 0;
 }
 
-int vlSTLReader::ReadASCIISTL(FILE *fp, vlFloatPoints *newPts, vlCellArray *newPolys)
+int vtkSTLReader::ReadASCIISTL(FILE *fp, vtkFloatPoints *newPts, vtkCellArray *newPolys)
 {
   char line[256];
   float x[3];
   int pts[3];
 
-  vlDebugMacro(<< " Reading ASCII STL file");
+  vtkDebugMacro(<< " Reading ASCII STL file");
 //
 //  Ingest header and junk to get to first vertex
 //
@@ -210,13 +210,13 @@ int vlSTLReader::ReadASCIISTL(FILE *fp, vlFloatPoints *newPts, vlCellArray *newP
     newPolys->InsertNextCell(3,pts);
 
     if ( (newPolys->GetNumberOfCells() % 5000) == 0 )
-      vlDebugMacro(<< "triangle# " << newPolys->GetNumberOfCells());
+      vtkDebugMacro(<< "triangle# " << newPolys->GetNumberOfCells());
     }
 
   return 0;
 }
 
-int vlSTLReader::GetSTLFileType(FILE *fp)
+int vtkSTLReader::GetSTLFileType(FILE *fp)
 {
   char header[256];
   int type, i;
@@ -237,8 +237,8 @@ int vlSTLReader::GetSTLFileType(FILE *fp)
 
 // Description:
 // Specify a spatial locator for merging points. By
-// default an instance of vlMergePoints is used.
-void vlSTLReader::SetLocator(vlLocator *locator)
+// default an instance of vtkMergePoints is used.
+void vtkSTLReader::SetLocator(vtkLocator *locator)
 {
   if ( this->Locator != locator ) 
     {
@@ -249,16 +249,16 @@ void vlSTLReader::SetLocator(vlLocator *locator)
     }
 }
 
-void vlSTLReader::CreateDefaultLocator()
+void vtkSTLReader::CreateDefaultLocator()
 {
   if ( this->SelfCreatedLocator ) delete this->Locator;
-  this->Locator = new vlMergePoints;
+  this->Locator = new vtkMergePoints;
   this->SelfCreatedLocator = 1;
 }
 
-void vlSTLReader::PrintSelf(ostream& os, vlIndent indent)
+void vtkSTLReader::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlPolySource::PrintSelf(os,indent);
+  vtkPolySource::PrintSelf(os,indent);
 
   os << indent << "Filename: " << this->Filename << "\n";
 }

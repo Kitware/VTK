@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    PolyData.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its 
+This file is part of the Visualization Toolkit. No part of this file or its 
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
@@ -27,9 +27,9 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // of verts, lines, polygons, and triangle strips lists.  It basically 
 // "marks" empty lists so that the traveral method "GetNextCell" 
 // works properly.
-vlCellArray *vlPolyData::Dummy = NULL;
+vtkCellArray *vtkPolyData::Dummy = NULL;
 
-vlPolyData::vlPolyData ()
+vtkPolyData::vtkPolyData ()
 {
   this->Verts = NULL;
   this->Lines = NULL;
@@ -37,16 +37,16 @@ vlPolyData::vlPolyData ()
   this->Strips = NULL;
 
   // static variable, initialized only once.
-  if (!this->Dummy) this->Dummy = new vlCellArray;
+  if (!this->Dummy) this->Dummy = new vtkCellArray;
 
   this->Cells = NULL;
   this->Links = NULL;
 }
 
 // Description:
-// Perform shallow construction of vlPolyData.
-vlPolyData::vlPolyData(const vlPolyData& pd) :
-vlPointSet(pd)
+// Perform shallow construction of vtkPolyData.
+vtkPolyData::vtkPolyData(const vtkPolyData& pd) :
+vtkPointSet(pd)
 {
   this->Verts = pd.Verts;
   if (this->Verts) this->Verts->Register(this);
@@ -67,29 +67,29 @@ vlPointSet(pd)
   if (this->Links) this->Links->Register(this);
 }
 
-vlPolyData::~vlPolyData()
+vtkPolyData::~vtkPolyData()
 {
-  vlPolyData::Initialize();
+  vtkPolyData::Initialize();
 }
 
-int vlPolyData::GetCellType(int cellId)
+int vtkPolyData::GetCellType(int cellId)
 {
   if ( !this->Cells ) this->BuildCells();
   return this->Cells->GetCellType(cellId);
 }
 
-vlCell *vlPolyData::GetCell(int cellId)
+vtkCell *vtkPolyData::GetCell(int cellId)
 {
-  static vlVertex vertex;
-  static vlPolyVertex pvertex;
-  static vlLine line;
-  static vlPolyLine pline;
-  static vlTriangle triangle;
-  static vlTriangleStrip strip;
-  static vlPolygon poly;
-  static vlQuad quad;
+  static vtkVertex vertex;
+  static vtkPolyVertex pvertex;
+  static vtkLine line;
+  static vtkPolyLine pline;
+  static vtkTriangle triangle;
+  static vtkTriangleStrip strip;
+  static vtkPolygon poly;
+  static vtkQuad quad;
   int i, loc, numPts, *pts;
-  vlCell *cell;
+  vtkCell *cell;
   unsigned char type;
 
   if ( !this->Cells ) this->BuildCells();
@@ -99,42 +99,42 @@ vlCell *vlPolyData::GetCell(int cellId)
 
   switch (type)
     {
-    case vlVERTEX:
+    case vtkVERTEX:
      cell = &vertex;
      this->Verts->GetCell(loc,numPts,pts);
      break;
 
-    case vlPOLY_VERTEX:
+    case vtkPOLY_VERTEX:
      cell = &pvertex;
      this->Verts->GetCell(loc,numPts,pts);
      break;
 
-    case vlLINE: 
+    case vtkLINE: 
       cell = &line;
       this->Lines->GetCell(loc,numPts,pts);
       break;
 
-    case vlPOLY_LINE:
+    case vtkPOLY_LINE:
       cell = &pline;
       this->Lines->GetCell(loc,numPts,pts);
       break;
 
-    case vlTRIANGLE:
+    case vtkTRIANGLE:
       cell = &triangle;
       this->Polys->GetCell(loc,numPts,pts);
       break;
 
-    case vlQUAD:
+    case vtkQUAD:
       cell = &quad;
       this->Polys->GetCell(loc,numPts,pts);
       break;
 
-    case vlPOLYGON:
+    case vtkPOLYGON:
       cell = &poly;
       this->Polys->GetCell(loc,numPts,pts);
       break;
 
-    case vlTRIANGLE_STRIP:
+    case vtkTRIANGLE_STRIP:
       cell = &strip;
       this->Strips->GetCell(loc,numPts,pts);
       break;
@@ -151,7 +151,7 @@ vlCell *vlPolyData::GetCell(int cellId)
 
 // Description:
 // Set the cell array defining vertices.
-void vlPolyData::SetVerts (vlCellArray* v) 
+void vtkPolyData::SetVerts (vtkCellArray* v) 
 {
   if ( v != this->Verts && v != this->Dummy )
     {
@@ -165,7 +165,7 @@ void vlPolyData::SetVerts (vlCellArray* v)
 // Description:
 // Get the cell array defining vertices. If there are no vertices, an
 // empty array will be returned (convenience to simplify traversal).
-vlCellArray* vlPolyData::GetVerts()
+vtkCellArray* vtkPolyData::GetVerts()
 {
   if ( !this->Verts ) return this->Dummy;
   else return this->Verts;
@@ -173,7 +173,7 @@ vlCellArray* vlPolyData::GetVerts()
 
 // Description:
 // Set the cell array defining lines.
-void vlPolyData::SetLines (vlCellArray* l) 
+void vtkPolyData::SetLines (vtkCellArray* l) 
 {
   if ( l != this->Lines && l != this->Dummy )
     {
@@ -187,7 +187,7 @@ void vlPolyData::SetLines (vlCellArray* l)
 // Description:
 // Get the cell array defining lines. If there are no lines, an
 // empty array will be returned (convenience to simplify traversal).
-vlCellArray* vlPolyData::GetLines()
+vtkCellArray* vtkPolyData::GetLines()
 {
   if ( !this->Lines ) return this->Dummy;
   else return this->Lines;
@@ -195,7 +195,7 @@ vlCellArray* vlPolyData::GetLines()
 
 // Description:
 // Set the cell array defining polygons.
-void vlPolyData::SetPolys (vlCellArray* p) 
+void vtkPolyData::SetPolys (vtkCellArray* p) 
 {
   if ( p != this->Polys && p != this->Dummy )
     {
@@ -209,7 +209,7 @@ void vlPolyData::SetPolys (vlCellArray* p)
 // Description:
 // Get the cell array defining polygons. If there are no polygons, an
 // empty array will be returned (convenience to simplify traversal).
-vlCellArray* vlPolyData::GetPolys()
+vtkCellArray* vtkPolyData::GetPolys()
 {
   if ( !this->Polys ) return this->Dummy;
   else return this->Polys;
@@ -217,7 +217,7 @@ vlCellArray* vlPolyData::GetPolys()
 
 // Description:
 // Set the cell array defining triangle strips.
-void vlPolyData::SetStrips (vlCellArray* s) 
+void vtkPolyData::SetStrips (vtkCellArray* s) 
 {
   if ( s != this->Strips && s != this->Dummy )
     {
@@ -232,7 +232,7 @@ void vlPolyData::SetStrips (vlCellArray* s)
 // Get the cell array defining triangle strips. If there are no
 // triangle strips, an empty array will be returned (convenience to 
 // simplify traversal).
-vlCellArray* vlPolyData::GetStrips()
+vtkCellArray* vtkPolyData::GetStrips()
 {
   if ( !this->Strips ) return this->Dummy;
   else return this->Strips;
@@ -240,9 +240,9 @@ vlCellArray* vlPolyData::GetStrips()
 
 // Description:
 // Restore object to initial state. Release memory back to system.
-void vlPolyData::Initialize()
+void vtkPolyData::Initialize()
 {
-  vlPointSet::Initialize();
+  vtkPointSet::Initialize();
 
   if ( this->Verts ) 
   {
@@ -282,57 +282,57 @@ void vlPolyData::Initialize()
 
 };
 
-int vlPolyData::GetNumberOfCells() 
+int vtkPolyData::GetNumberOfCells() 
 {
   return GetNumberOfVerts() + GetNumberOfLines() + 
          GetNumberOfPolys() + GetNumberOfStrips();
 }
 
-int vlPolyData::GetNumberOfVerts() 
+int vtkPolyData::GetNumberOfVerts() 
 {
   return (this->Verts ? this->Verts->GetNumberOfCells() : 0);
 }
 
-int vlPolyData::GetNumberOfLines() 
+int vtkPolyData::GetNumberOfLines() 
 {
   return (this->Lines ? this->Lines->GetNumberOfCells() : 0);
 }
 
-int vlPolyData::GetNumberOfPolys() 
+int vtkPolyData::GetNumberOfPolys() 
 {
   return (this->Polys ? this->Polys->GetNumberOfCells() : 0);
 }
 
-int vlPolyData::GetNumberOfStrips() 
+int vtkPolyData::GetNumberOfStrips() 
 {
   return (this->Strips ? this->Strips->GetNumberOfCells() : 0);
 }
 
 // Description:
 // Create data structure that allows random access of cells.
-void vlPolyData::BuildCells()
+void vtkPolyData::BuildCells()
 {
   int numCells=0;
-  vlCellArray *inVerts=this->GetVerts();
-  vlCellArray *inLines=this->GetLines();
-  vlCellArray *inPolys=this->GetPolys();
-  vlCellArray *inStrips=this->GetStrips();
+  vtkCellArray *inVerts=this->GetVerts();
+  vtkCellArray *inLines=this->GetLines();
+  vtkCellArray *inPolys=this->GetPolys();
+  vtkCellArray *inStrips=this->GetStrips();
   int npts, *pts;
-  vlCellList *cells;
-  vlPoints *inPoints=this->GetPoints();
+  vtkCellList *cells;
+  vtkPoints *inPoints=this->GetPoints();
 
-  vlDebugMacro (<< "Building PolyData cells.");
+  vtkDebugMacro (<< "Building PolyData cells.");
 
   numCells = this->GetNumberOfCells();
 
   if ( inPoints == NULL || numCells < 1 ) 
     {
-    vlErrorMacro (<< "No data to build");
+    vtkErrorMacro (<< "No data to build");
     return;
     }
   else
     {
-    this->Cells = cells = new vlCellList(numCells,3*numCells);
+    this->Cells = cells = new vtkCellList(numCells,3*numCells);
     this->Cells->Register(this);
     }
 //
@@ -341,42 +341,42 @@ void vlPolyData::BuildCells()
   for (inVerts->InitTraversal(); inVerts->GetNextCell(npts,pts); )
     {
     if ( npts > 1 )
-      cells->InsertNextCell(vlPOLY_VERTEX,inVerts->GetLocation(npts));
+      cells->InsertNextCell(vtkPOLY_VERTEX,inVerts->GetLocation(npts));
     else
-      cells->InsertNextCell(vlVERTEX,inVerts->GetLocation(npts));
+      cells->InsertNextCell(vtkVERTEX,inVerts->GetLocation(npts));
     }
 
   for (inLines->InitTraversal(); inLines->GetNextCell(npts,pts); )
     {
     if ( npts > 2 )
-      cells->InsertNextCell(vlPOLY_LINE,inLines->GetLocation(npts));
+      cells->InsertNextCell(vtkPOLY_LINE,inLines->GetLocation(npts));
     else
-      cells->InsertNextCell(vlLINE,inLines->GetLocation(npts));
+      cells->InsertNextCell(vtkLINE,inLines->GetLocation(npts));
     }
 
   for (inPolys->InitTraversal(); inPolys->GetNextCell(npts,pts); )
     {
     if ( npts == 3 )
-      cells->InsertNextCell(vlTRIANGLE,inPolys->GetLocation(npts));
+      cells->InsertNextCell(vtkTRIANGLE,inPolys->GetLocation(npts));
     else if ( npts == 4 )
-      cells->InsertNextCell(vlQUAD,inPolys->GetLocation(npts));
+      cells->InsertNextCell(vtkQUAD,inPolys->GetLocation(npts));
     else
-      cells->InsertNextCell(vlPOLYGON,inPolys->GetLocation(npts));
+      cells->InsertNextCell(vtkPOLYGON,inPolys->GetLocation(npts));
     }
 
   for (inStrips->InitTraversal(); inStrips->GetNextCell(npts,pts); )
     {
-    cells->InsertNextCell(vlTRIANGLE_STRIP,inStrips->GetLocation(npts));
+    cells->InsertNextCell(vtkTRIANGLE_STRIP,inStrips->GetLocation(npts));
     }
 }
 
 // Description:
 // Create upward links from points to cells that use each point. Enables
 // topologically complex queries.
-void vlPolyData::BuildLinks()
+void vtkPolyData::BuildLinks()
 {
   if ( this->Cells == NULL ) this->BuildCells();
-  this->Links = new vlLinkList(this->GetNumberOfPoints());
+  this->Links = new vtkLinkList(this->GetNumberOfPoints());
   this->Links->Register(this);
 
   this->Links->BuildLinks(this);
@@ -384,21 +384,21 @@ void vlPolyData::BuildLinks()
 
 // Description:
 // Copy a cells point ids into list provided. (Less efficient).
-void vlPolyData::GetCellPoints(int cellId, vlIdList& ptIds)
+void vtkPolyData::GetCellPoints(int cellId, vtkIdList& ptIds)
 {
   int i, npts, *pts;
 
   ptIds.Reset();
   if ( this->Cells == NULL ) this->BuildCells();
 
-  this->vlPolyData::GetCellPoints(cellId, npts, pts);
+  this->vtkPolyData::GetCellPoints(cellId, npts, pts);
   for (i=0; i<npts; i++) ptIds.SetId(i,pts[i]);
 }
 
 // Description:
 // Return a pointer to a list of point ids defining cell. (More efficient).
 // Assumes that cells have been built (with BuildCells()).
-void vlPolyData::GetCellPoints(int cellId, int& npts, int* &pts)
+void vtkPolyData::GetCellPoints(int cellId, int& npts, int* &pts)
 {
   int loc;
   unsigned char type;
@@ -408,25 +408,25 @@ void vlPolyData::GetCellPoints(int cellId, int& npts, int* &pts)
 
   switch (type)
     {
-    case vlVERTEX: case vlPOLY_VERTEX:
+    case vtkVERTEX: case vtkPOLY_VERTEX:
      this->Verts->GetCell(loc,npts,pts);
      break;
 
-    case vlLINE: case vlPOLY_LINE:
+    case vtkLINE: case vtkPOLY_LINE:
       this->Lines->GetCell(loc,npts,pts);
       break;
 
-    case vlTRIANGLE: case vlQUAD: case vlPOLYGON:
+    case vtkTRIANGLE: case vtkQUAD: case vtkPOLYGON:
       this->Polys->GetCell(loc,npts,pts);
       break;
 
-    case vlTRIANGLE_STRIP:
+    case vtkTRIANGLE_STRIP:
       this->Strips->GetCell(loc,npts,pts);
       break;
     }
 }
 
-void vlPolyData::GetPointCells(int ptId, vlIdList& cellIds)
+void vtkPolyData::GetPointCells(int ptId, vtkIdList& cellIds)
 {
   int *cells;
   int numCells;
@@ -449,39 +449,39 @@ void vlPolyData::GetPointCells(int ptId, vlIdList& cellIds)
 // triangle strips arrays. Use this method before the method 
 // PolyData::InsertNextCell(). (Or, provide vertex, line, polygon, and
 // triangle strip cell arrays.)
-void vlPolyData::Allocate(int numCells, int extSize)
+void vtkPolyData::Allocate(int numCells, int extSize)
 {
-  this->SetVerts(new vlCellArray(numCells,extSize));
-  this->SetLines(new vlCellArray(numCells,extSize));
-  this->SetPolys(new vlCellArray(numCells,extSize));
-  this->SetStrips(new vlCellArray(numCells,extSize));
+  this->SetVerts(new vtkCellArray(numCells,extSize));
+  this->SetLines(new vtkCellArray(numCells,extSize));
+  this->SetPolys(new vtkCellArray(numCells,extSize));
+  this->SetStrips(new vtkCellArray(numCells,extSize));
 }
 
 // Description:
-// Insert a cell of type vlVERTEX, vlPOLY_VERTEX, vlLINE, vlPOLY_LINE,
-// vlTRIANGLE, vlQUAD, vlPOLYGON, or vlTRIANGLE_STRIP.  Make sure that
+// Insert a cell of type vtkVERTEX, vtkPOLY_VERTEX, vtkLINE, vtkPOLY_LINE,
+// vtkTRIANGLE, vtkQUAD, vtkPOLYGON, or vtkTRIANGLE_STRIP.  Make sure that
 // the PolyData::Allocate() function has been called first or that vertex,
 // line, polygon, and triangle strip arrays have been supplied.
-// Note: will also insert vlPIXEL, but converts it to vlQUAD.
-int vlPolyData::InsertNextCell(int type, int npts, int pts[MAX_CELL_SIZE])
+// Note: will also insert vtkPIXEL, but converts it to vtkQUAD.
+int vtkPolyData::InsertNextCell(int type, int npts, int pts[MAX_CELL_SIZE])
 {
   int id = 0;
 
   switch (type)
     {
-    case vlVERTEX: case vlPOLY_VERTEX:
+    case vtkVERTEX: case vtkPOLY_VERTEX:
       id = this->Verts->InsertNextCell(npts,pts);
       break;
 
-    case vlLINE: case vlPOLY_LINE:
+    case vtkLINE: case vtkPOLY_LINE:
       id = this->Lines->InsertNextCell(npts,pts);
       break;
 
-    case vlTRIANGLE: case vlQUAD: case vlPOLYGON:
+    case vtkTRIANGLE: case vtkQUAD: case vtkPOLYGON:
       id = this->Polys->InsertNextCell(npts,pts);
       break;
 
-    case vlPIXEL: //need to rearrange vertices
+    case vtkPIXEL: //need to rearrange vertices
       {
       static int pixPts[4];
       pixPts[0] = pts[0];
@@ -492,12 +492,12 @@ int vlPolyData::InsertNextCell(int type, int npts, int pts[MAX_CELL_SIZE])
       break;
       }
 
-    case vlTRIANGLE_STRIP:
+    case vtkTRIANGLE_STRIP:
       id = this->Strips->InsertNextCell(npts,pts);
       break;
 
     default:
-      vlErrorMacro(<<"Bad cell type! Can't insert!");
+      vtkErrorMacro(<<"Bad cell type! Can't insert!");
     }
   return id;
 }
@@ -508,19 +508,19 @@ int vlPolyData::InsertNextCell(int type, int npts, int pts[MAX_CELL_SIZE])
 // when using the CellArray::EstimateSize() method to create vertices,
 // lines, polygons, or triangle strips.
 
-void vlPolyData::Squeeze()
+void vtkPolyData::Squeeze()
 {
   if ( this->Verts != NULL ) this->Verts->Squeeze();
   if ( this->Lines != NULL ) this->Lines->Squeeze();
   if ( this->Polys != NULL ) this->Polys->Squeeze();
   if ( this->Strips != NULL ) this->Strips->Squeeze();
 
-  vlPointSet::Squeeze();
+  vtkPointSet::Squeeze();
 }
 
 // Description:
 // Reverse the order of point ids defining the cell.
-void vlPolyData::ReverseCell(int cellId)
+void vtkPolyData::ReverseCell(int cellId)
 {
   int loc, type;
 
@@ -530,19 +530,19 @@ void vlPolyData::ReverseCell(int cellId)
 
   switch (type)
     {
-    case vlVERTEX: case vlPOLY_VERTEX:
+    case vtkVERTEX: case vtkPOLY_VERTEX:
      this->Verts->ReverseCell(loc);
      break;
 
-    case vlLINE: case vlPOLY_LINE:
+    case vtkLINE: case vtkPOLY_LINE:
       this->Lines->ReverseCell(loc);
       break;
 
-    case vlTRIANGLE: case vlQUAD: case vlPOLYGON:
+    case vtkTRIANGLE: case vtkQUAD: case vtkPOLYGON:
       this->Polys->ReverseCell(loc);
       break;
 
-    case vlTRIANGLE_STRIP:
+    case vtkTRIANGLE_STRIP:
       this->Strips->ReverseCell(loc);
       break;
     }
@@ -550,7 +550,7 @@ void vlPolyData::ReverseCell(int cellId)
 
 // Description:
 // Replace the points defining cell "cellId" with a new set of points.
-void vlPolyData::ReplaceCell(int cellId, int npts, int *pts)
+void vtkPolyData::ReplaceCell(int cellId, int npts, int *pts)
 {
   int loc, type;
 
@@ -560,44 +560,44 @@ void vlPolyData::ReplaceCell(int cellId, int npts, int *pts)
 
   switch (type)
     {
-    case vlVERTEX: case vlPOLY_VERTEX:
+    case vtkVERTEX: case vtkPOLY_VERTEX:
      this->Verts->ReplaceCell(loc,npts,pts);
      break;
 
-    case vlLINE: case vlPOLY_LINE:
+    case vtkLINE: case vtkPOLY_LINE:
       this->Lines->ReplaceCell(loc,npts,pts);
       break;
 
-    case vlTRIANGLE: case vlQUAD: case vlPOLYGON:
+    case vtkTRIANGLE: case vtkQUAD: case vtkPOLYGON:
       this->Polys->ReplaceCell(loc,npts,pts);
       break;
 
-    case vlTRIANGLE_STRIP:
+    case vtkTRIANGLE_STRIP:
       this->Strips->ReplaceCell(loc,npts,pts);
       break;
     }
 }
 
-void vlPolyData::ReplaceLinkedCell(int cellId, int npts, int *pts)
+void vtkPolyData::ReplaceLinkedCell(int cellId, int npts, int *pts)
 {
   int loc = this->Cells->GetCellLocation(cellId);
   int type = this->Cells->GetCellType(cellId);
 
   switch (type)
     {
-    case vlVERTEX: case vlPOLY_VERTEX:
+    case vtkVERTEX: case vtkPOLY_VERTEX:
      this->Verts->ReplaceCell(loc,npts,pts);
      break;
 
-    case vlLINE: case vlPOLY_LINE:
+    case vtkLINE: case vtkPOLY_LINE:
       this->Lines->ReplaceCell(loc,npts,pts);
       break;
 
-    case vlTRIANGLE: case vlQUAD: case vlPOLYGON:
+    case vtkTRIANGLE: case vtkQUAD: case vtkPOLYGON:
       this->Polys->ReplaceCell(loc,npts,pts);
       break;
 
-    case vlTRIANGLE_STRIP:
+    case vtkTRIANGLE_STRIP:
       this->Strips->ReplaceCell(loc,npts,pts);
       break;
     }
@@ -612,8 +612,8 @@ void vlPolyData::ReplaceLinkedCell(int cellId, int npts, int *pts)
 // Get the neighbors at an edge. More efficient than the general 
 // GetCellNeighbors(). Assumes links have been built (with BuildLinks()), 
 // and looks specifically for edge neighbors.
-void vlPolyData::GetCellEdgeNeighbors(int cellId, int p1, int p2,
-                                      vlIdList& cellIds)
+void vtkPolyData::GetCellEdgeNeighbors(int cellId, int p1, int p2,
+                                      vtkIdList& cellIds)
 {
   int *cells;
   int numCells;
@@ -636,9 +636,9 @@ void vlPolyData::GetCellEdgeNeighbors(int cellId, int p1, int p2,
     }
 }
 
-void vlPolyData::PrintSelf(ostream& os, vlIndent indent)
+void vtkPolyData::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlPointSet::PrintSelf(os,indent);
+  vtkPointSet::PrintSelf(os,indent);
 
   os << indent << "Number Of Vertices: " << this->GetNumberOfVerts() << "\n";
   os << indent << "Number Of Lines: " << this->GetNumberOfLines() << "\n";

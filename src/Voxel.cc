@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    Voxel.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
@@ -14,23 +14,23 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
 #include "Voxel.hh"
-#include "vlMath.hh"
+#include "vtkMath.hh"
 #include "Line.hh"
 #include "Pixel.hh"
 #include "CellArr.hh"
 
-static vlMath math;  
-static vlLine line;
+static vtkMath math;  
+static vtkLine line;
 
 // Description:
 // Deep copy of cell.
-vlVoxel::vlVoxel(const vlVoxel& b)
+vtkVoxel::vtkVoxel(const vtkVoxel& b)
 {
   this->Points = b.Points;
   this->PointIds = b.PointIds;
 }
 
-int vlVoxel::EvaluatePosition(float x[3], float closestPoint[3],
+int vtkVoxel::EvaluatePosition(float x[3], float closestPoint[3],
                               int& subId, float pcoords[3], 
                               float& dist2, float weights[MAX_CELL_SIZE])
 {
@@ -74,7 +74,7 @@ int vlVoxel::EvaluatePosition(float x[3], float closestPoint[3],
     }
 }
 
-void vlVoxel::EvaluateLocation(int& subId, float pcoords[3], float x[3],
+void vtkVoxel::EvaluateLocation(int& subId, float pcoords[3], float x[3],
                                float weights[MAX_CELL_SIZE])
 {
   float *pt1, *pt2, *pt3, *pt4;
@@ -98,7 +98,7 @@ void vlVoxel::EvaluateLocation(int& subId, float pcoords[3], float x[3],
 //
 // Compute Interpolation functions
 //
-void vlVoxel::InterpolationFunctions(float pcoords[3], float sf[8])
+void vtkVoxel::InterpolationFunctions(float pcoords[3], float sf[8])
 {
   float rm, sm, tm;
 
@@ -116,7 +116,7 @@ void vlVoxel::InterpolationFunctions(float pcoords[3], float sf[8])
   sf[7] = pcoords[0] * pcoords[1] * pcoords[2];
 }
 
-int vlVoxel::CellBoundary(int subId, float pcoords[3], vlIdList& pts)
+int vtkVoxel::CellBoundary(int subId, float pcoords[3], vtkIdList& pts)
 {
   float t1=pcoords[0]-pcoords[1];
   float t2=1.0-pcoords[0]-pcoords[1];
@@ -187,7 +187,7 @@ int vlVoxel::CellBoundary(int subId, float pcoords[3], vlIdList& pts)
 static int edges[12][2] = { {0,1}, {1,3}, {3,2}, {2,0},
                             {4,5}, {5,7}, {7,6}, {6,4},
                             {0,4}, {1,5}, {2,6}, {3,7}};
-// define in terms vlPixel understands
+// define in terms vtkPixel understands
 static int faces[6][4] = { {0,2,4,6}, {1,3,5,7},
                            {0,1,4,5}, {2,3,6,7},
                            {0,1,2,3}, {4,5,6,7} };
@@ -197,10 +197,10 @@ static int faces[6][4] = { {0,2,4,6}, {1,3,5,7},
 //
 #include "MC_Cases.h"
 
-void vlVoxel::Contour(float value, vlFloatScalars *cellScalars, 
-                      vlFloatPoints *points,
-                      vlCellArray *verts, vlCellArray *lines, 
-                      vlCellArray *polys, vlFloatScalars *scalars)
+void vtkVoxel::Contour(float value, vtkFloatScalars *cellScalars, 
+                      vtkFloatPoints *points,
+                      vtkCellArray *verts, vtkCellArray *lines, 
+                      vtkCellArray *polys, vtkFloatScalars *scalars)
 {
   static int CASE_MASK[8] = {1,2,4,8,16,32,64,128};
   TRIANGLE_CASES *triCase;
@@ -236,7 +236,7 @@ void vlVoxel::Contour(float value, vlFloatScalars *cellScalars,
 }
 
 
-vlCell *vlVoxel::GetEdge(int edgeId)
+vtkCell *vtkVoxel::GetEdge(int edgeId)
 {
   int *verts;
 
@@ -253,9 +253,9 @@ vlCell *vlVoxel::GetEdge(int edgeId)
   return &line;
 }
 
-vlCell *vlVoxel::GetFace(int faceId)
+vtkCell *vtkVoxel::GetFace(int faceId)
 {
-  static vlPixel pixel;
+  static vtkPixel pixel;
   int *verts, i;
 
   verts = faces[faceId];
@@ -272,7 +272,7 @@ vlCell *vlVoxel::GetFace(int faceId)
 // 
 // Intersect voxel with line using "bounding box" intersection.
 //
-int vlVoxel::IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
+int vtkVoxel::IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
                                float x[3], float pcoords[3], int& subId)
 {
   float *minPt, *maxPt;

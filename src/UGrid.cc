@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    UGrid.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
@@ -27,7 +27,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "Hexa.hh"
 #include "Voxel.hh"
 
-vlUnstructuredGrid::vlUnstructuredGrid ()
+vtkUnstructuredGrid::vtkUnstructuredGrid ()
 {
   this->Connectivity = NULL;
   this->Cells = NULL;
@@ -37,22 +37,22 @@ vlUnstructuredGrid::vlUnstructuredGrid ()
 // Description:
 // Allocate memory space for data insertion. Execute this method before
 // inserting and cells into object.
-void vlUnstructuredGrid::Allocate (int numCells, int extSize)
+void vtkUnstructuredGrid::Allocate (int numCells, int extSize)
 {
   if ( numCells < 1 ) numCells = 1000;
   if ( extSize < 1 ) extSize = 1000;
 
-  this->Connectivity = new vlCellArray(numCells,4*extSize);
+  this->Connectivity = new vtkCellArray(numCells,4*extSize);
   this->Connectivity->Register(this);
 
-  this->Cells = new vlCellList(numCells,extSize);
+  this->Cells = new vtkCellList(numCells,extSize);
   this->Cells->Register(this);
 }
 
 // Description:
 // Shallow construction of object.
-vlUnstructuredGrid::vlUnstructuredGrid(const vlUnstructuredGrid& pd) :
-vlPointSet(pd)
+vtkUnstructuredGrid::vtkUnstructuredGrid(const vtkUnstructuredGrid& pd) :
+vtkPointSet(pd)
 {
   this->Connectivity = pd.Connectivity;
   if (this->Connectivity) this->Connectivity->Register(this);
@@ -64,14 +64,14 @@ vlPointSet(pd)
   if (this->Links) this->Links->Register(this);
 }
 
-vlUnstructuredGrid::~vlUnstructuredGrid()
+vtkUnstructuredGrid::~vtkUnstructuredGrid()
 {
-  vlUnstructuredGrid::Initialize();
+  vtkUnstructuredGrid::Initialize();
 }
 
-void vlUnstructuredGrid::Initialize()
+void vtkUnstructuredGrid::Initialize()
 {
-  vlPointSet::Initialize();
+  vtkPointSet::Initialize();
 
   if ( this->Connectivity )
   {
@@ -92,75 +92,75 @@ void vlUnstructuredGrid::Initialize()
   }
 };
 
-int vlUnstructuredGrid::GetCellType(int cellId)
+int vtkUnstructuredGrid::GetCellType(int cellId)
 {
   return this->Cells->GetCellType(cellId);
 }
 
-vlCell *vlUnstructuredGrid::GetCell(int cellId)
+vtkCell *vtkUnstructuredGrid::GetCell(int cellId)
 {
-  static vlVertex vertex;
-  static vlPolyVertex pvertex;
-  static vlLine line;
-  static vlPolyLine pline;
-  static vlTriangle triangle;
-  static vlTriangleStrip strip;
-  static vlPolygon poly;
-  static vlPixel pixel;
-  static vlQuad quad;
-  static vlTetra tetra;
-  static vlVoxel voxel;
-  static vlHexahedron hexa;
+  static vtkVertex vertex;
+  static vtkPolyVertex pvertex;
+  static vtkLine line;
+  static vtkPolyLine pline;
+  static vtkTriangle triangle;
+  static vtkTriangleStrip strip;
+  static vtkPolygon poly;
+  static vtkPixel pixel;
+  static vtkQuad quad;
+  static vtkTetra tetra;
+  static vtkVoxel voxel;
+  static vtkHexahedron hexa;
   int i, loc, numPts, *pts;
-  vlCell *cell;
+  vtkCell *cell;
 
   switch (this->Cells->GetCellType(cellId))
     {
-    case vlVERTEX:
+    case vtkVERTEX:
      cell = &vertex;
      break;
 
-    case vlPOLY_VERTEX:
+    case vtkPOLY_VERTEX:
      cell = &pvertex;
      break;
 
-    case vlLINE: 
+    case vtkLINE: 
       cell = &line;
       break;
 
-    case vlPOLY_LINE:
+    case vtkPOLY_LINE:
       cell = &pline;
       break;
 
-    case vlTRIANGLE:
+    case vtkTRIANGLE:
       cell = &triangle;
       break;
 
-    case vlTRIANGLE_STRIP:
+    case vtkTRIANGLE_STRIP:
       cell = &strip;
       break;
 
-    case vlPIXEL:
+    case vtkPIXEL:
       cell = &pixel;
       break;
 
-    case vlQUAD:
+    case vtkQUAD:
       cell = &quad;
       break;
 
-    case vlPOLYGON:
+    case vtkPOLYGON:
       cell = &poly;
       break;
 
-    case vlTETRA:
+    case vtkTETRA:
       cell = &tetra;
       break;
 
-    case vlVOXEL:
+    case vtkVOXEL:
       cell = &voxel;
       break;
 
-    case vlHEXAHEDRON:
+    case vtkHEXAHEDRON:
       cell = &hexa;
       break;
     }
@@ -177,20 +177,20 @@ vlCell *vlUnstructuredGrid::GetCell(int cellId)
   return cell;
 }
 
-int vlUnstructuredGrid::GetNumberOfCells() 
+int vtkUnstructuredGrid::GetNumberOfCells() 
 {
   return (this->Connectivity ? this->Connectivity->GetNumberOfCells() : 0);
 }
 
-void vlUnstructuredGrid::PrintSelf(ostream& os, vlIndent indent)
+void vtkUnstructuredGrid::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlDataSet::PrintSelf(os,indent);
+  vtkDataSet::PrintSelf(os,indent);
 }
 
 // Description:
 // Insert/create cell in object by type and list of point ids defining
 // cell topology.
-int vlUnstructuredGrid::InsertNextCell(int type, vlIdList& ptIds)
+int vtkUnstructuredGrid::InsertNextCell(int type, vtkIdList& ptIds)
 {
   int i;
   int npts=ptIds.GetNumberOfIds();
@@ -207,7 +207,7 @@ int vlUnstructuredGrid::InsertNextCell(int type, vlIdList& ptIds)
 // Description:
 // Insert/create cell in object by type and list of point ids defining
 // cell topology.
-int vlUnstructuredGrid::InsertNextCell(int type, int npts, 
+int vtkUnstructuredGrid::InsertNextCell(int type, int npts, 
 				       int pts[MAX_CELL_SIZE])
 {
   this->Connectivity->InsertNextCell(npts,pts);
@@ -216,7 +216,7 @@ int vlUnstructuredGrid::InsertNextCell(int type, int npts,
     this->Cells->InsertNextCell(type,this->Connectivity->GetLocation(npts));
 }
 
-void vlUnstructuredGrid::SetCells(int *types, vlCellArray *cells)
+void vtkUnstructuredGrid::SetCells(int *types, vtkCellArray *cells)
 {
   int i, npts, *pts;
 
@@ -227,7 +227,7 @@ void vlUnstructuredGrid::SetCells(int *types, vlCellArray *cells)
 
   // see whether there are cell types available
   if ( this->Cells ) this->Cells->UnRegister(this);
-  this->Cells = new vlCellList(cells->GetNumberOfCells(),1000);
+  this->Cells = new vtkCellList(cells->GetNumberOfCells(),1000);
   this->Cells->Register(this);
 
   // build types
@@ -237,13 +237,13 @@ void vlUnstructuredGrid::SetCells(int *types, vlCellArray *cells)
     }
 }
 
-void vlUnstructuredGrid::BuildLinks()
+void vtkUnstructuredGrid::BuildLinks()
 {
-  this->Links = new vlLinkList(this->GetNumberOfPoints());
+  this->Links = new vtkLinkList(this->GetNumberOfPoints());
   this->Links->BuildLinks(this);
 }
 
-void vlUnstructuredGrid::GetCellPoints(int cellId, vlIdList& ptIds)
+void vtkUnstructuredGrid::GetCellPoints(int cellId, vtkIdList& ptIds)
 {
   int i, loc, numPts, *pts;
 
@@ -254,7 +254,7 @@ void vlUnstructuredGrid::GetCellPoints(int cellId, vlIdList& ptIds)
   for (i=0; i<numPts; i++) ptIds.SetId(i,pts[i]);
 }
 
-void vlUnstructuredGrid::GetPointCells(int ptId, vlIdList& cellIds)
+void vtkUnstructuredGrid::GetPointCells(int ptId, vtkIdList& cellIds)
 {
   int *cells;
   int numCells;
@@ -272,11 +272,11 @@ void vlUnstructuredGrid::GetPointCells(int ptId, vlIdList& cellIds)
     }
 }
 
-void vlUnstructuredGrid::Squeeze()
+void vtkUnstructuredGrid::Squeeze()
 {
   if ( this->Connectivity ) this->Connectivity->Squeeze();
   if ( this->Cells ) this->Cells->Squeeze();
   if ( this->Links ) this->Links->Squeeze();
 
-  vlPointSet::Squeeze();
+  vtkPointSet::Squeeze();
 }

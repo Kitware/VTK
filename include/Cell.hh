@@ -1,26 +1,26 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    Cell.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-// .NAME vlCell - abstract class to specify cell behavior
+// .NAME vtkCell - abstract class to specify cell behavior
 // .SECTION Description
-// vlCell is an abstract class that specifies the interfaces for data cells.
+// vtkCell is an abstract class that specifies the interfaces for data cells.
 // Data cells are simple topological elements like points, lines, polygons, 
 // and tetrahedra that visualization datasets are composed of. In some 
 // cases visualization datasets may explicitly represent cells (e.g., 
-// vlPolyData, vlUnstructuredGrid), and in some cases, the datasets are 
-// implicitly composed of cells (e.g., vlStructuredPoints).
+// vtkPolyData, vtkUnstructuredGrid), and in some cases, the datasets are 
+// implicitly composed of cells (e.g., vtkStructuredPoints).
 // .SECTION Caveats
 // The #define parameter MAX_CELL_SIZE represents the maximum number of points
 // that a cell can have. This parameter is used throughout the code to specify
@@ -29,8 +29,8 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // problem usually comes in with variable length objects like polylines, 
 // triangle strips, or polygons).
 
-#ifndef __vlCell_h
-#define __vlCell_h
+#ifndef __vtkCell_h
+#define __vtkCell_h
 
 #define MAX_CELL_SIZE 512
 #define TOL 1.e-05 // Tolerance for geometric calculation
@@ -41,18 +41,18 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "IdList.hh"
 #include "CellType.hh"
 
-class vlCellArray;
+class vtkCellArray;
 
-class vlCell : public vlObject
+class vtkCell : public vtkObject
 {
 public:
-  vlCell(): Points(MAX_CELL_SIZE), PointIds(MAX_CELL_SIZE) {};
-  void Initialize(int npts, int *pts, vlPoints *p);
-  char *GetClassName() {return "vlCell";};
+  vtkCell(): Points(MAX_CELL_SIZE), PointIds(MAX_CELL_SIZE) {};
+  void Initialize(int npts, int *pts, vtkPoints *p);
+  char *GetClassName() {return "vtkCell";};
 
   // Description:
   // Create concrete copy of this cell.
-  virtual vlCell *MakeObject() = 0;
+  virtual vtkCell *MakeObject() = 0;
 
   // Description:
   // Return the type of cell.
@@ -64,7 +64,7 @@ public:
 
   // Description:
   // Get the point coordinates for the cell.
-  vlFloatPoints *GetPoints() {return &this->Points;};
+  vtkFloatPoints *GetPoints() {return &this->Points;};
 
   // Description:
   // Return the number of points in the cell.
@@ -80,7 +80,7 @@ public:
 
   // Description:
   // Return the list of point ids defining cell.
-  vlIdList *GetPointIds() {return &this->PointIds;};
+  vtkIdList *GetPointIds() {return &this->PointIds;};
 
   // Description:
   // For cell point i, return the actual point id.
@@ -88,11 +88,11 @@ public:
 
   // Description:
   // Return the edge cell from the edgeId of the cell.
-  virtual vlCell *GetEdge(int edgeId) = 0;
+  virtual vtkCell *GetEdge(int edgeId) = 0;
 
   // Description:
   // Return the face cell from the faceId of the cell.
-  virtual vlCell *GetFace(int faceId) = 0;
+  virtual vtkCell *GetFace(int faceId) = 0;
 
   // Description:
   // Given parametric coordinates of a point, return the closest cell boundary,
@@ -100,7 +100,7 @@ public:
   // is defined by a list of points (pts) that specify a face (3D cell), edge 
   // (2D cell), or vertex (1D cell). If the return value of the method is != 0, 
   // then the point is inside the cell.
-  virtual int CellBoundary(int subId, float pcoords[3], vlIdList& pts) = 0;
+  virtual int CellBoundary(int subId, float pcoords[3], vtkIdList& pts) = 0;
 
   // Description:
   // Given a point x[3] return inside(=1) or outside(=0) cell; evaluate 
@@ -118,10 +118,10 @@ public:
 
   // Description:
   // Generate contouring primitives.
-  virtual void Contour(float value, vlFloatScalars *cellScalars, 
-                       vlFloatPoints *points, vlCellArray *verts, 
-                       vlCellArray *lines, vlCellArray *polys, 
-                       vlFloatScalars *scalars) = 0;
+  virtual void Contour(float value, vtkFloatScalars *cellScalars, 
+                       vtkFloatPoints *points, vtkCellArray *verts, 
+                       vtkCellArray *lines, vtkCellArray *polys, 
+                       vtkFloatScalars *scalars) = 0;
 
   // Description:
   // Intersect with a ray. Return parametric coordinates (both line and cell)
@@ -139,8 +139,8 @@ public:
                float coord[3], float& t);
 
   // left public for quick computational access
-  vlFloatPoints Points;
-  vlIdList PointIds;
+  vtkFloatPoints Points;
+  vtkIdList PointIds;
 
 };
 

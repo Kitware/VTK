@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    TMap2Pl.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
@@ -15,12 +15,12 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 =========================================================================*/
 #include <math.h>
 #include "TMap2Pl.hh"
-#include "vlMath.hh"
+#include "vtkMath.hh"
 #include "FTCoords.hh"
 
 // Description:
 // Construct with s,t range=(0,1) and automatic plane generation turned on.
-vlTextureMapToPlane::vlTextureMapToPlane()
+vtkTextureMapToPlane::vtkTextureMapToPlane()
 {
   this->Normal[0] = 0.0;
   this->Normal[1] = 0.0;
@@ -35,29 +35,29 @@ vlTextureMapToPlane::vlTextureMapToPlane()
   this->AutomaticPlaneGeneration = 1;
 }
 
-void vlTextureMapToPlane::Execute()
+void vtkTextureMapToPlane::Execute()
 {
-  vlMath math;
+  vtkMath math;
   float tcoords[2];
   int numPts;
-  vlFloatTCoords *newTCoords;
+  vtkFloatTCoords *newTCoords;
   int i, j;
   float *bounds;
   float proj, minProj, axis[3], sAxis[3], tAxis[3];
   int dir;
   float s, t, sSf, tSf, *p;
 
-  vlDebugMacro(<<"Generating texture coordinates!");
+  vtkDebugMacro(<<"Generating texture coordinates!");
   this->Initialize();
   if ( (numPts=this->Input->GetNumberOfPoints()) < 3 )
     {
-    vlErrorMacro(<< "Not enough points to map with\n");
+    vtkErrorMacro(<< "Not enough points to map with\n");
     return;
     }
 //
 //  Allocate texture data
 //
-  newTCoords = new vlFloatTCoords(numPts,2);
+  newTCoords = new vtkFloatTCoords(numPts,2);
 //
 //  Compute least squares plane if on automatic mode; otherwise use
 //  point and normal specified.
@@ -130,14 +130,14 @@ void vlTextureMapToPlane::Execute()
 
 #define TOLERANCE 1.0e-03
 
-void vlTextureMapToPlane::ComputeNormal()
+void vtkTextureMapToPlane::ComputeNormal()
 {
   int numPts=this->GetNumberOfPoints();
   float m[9], v[3], *x;
   int i, ptId, dir;
   float length, w, *c1, *c2, *c3, det;
   float *bounds;
-  vlMath math;
+  vtkMath math;
 //
 //  First thing to do is to get an initial normal and point to define
 //  the plane.  Then, use this information to construct better
@@ -205,9 +205,9 @@ void vlTextureMapToPlane::ComputeNormal()
   return;
 }
 
-void vlTextureMapToPlane::PrintSelf(ostream& os, vlIndent indent)
+void vtkTextureMapToPlane::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlDataSetToDataSetFilter::PrintSelf(os,indent);
+  vtkDataSetToDataSetFilter::PrintSelf(os,indent);
 
   os << indent << "S Range: (" << this->SRange[0] << ", "
                                << this->SRange[1] << ")\n";

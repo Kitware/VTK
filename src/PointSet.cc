@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    PointSet.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its 
+This file is part of the Visualization Toolkit. No part of this file or its 
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
@@ -15,14 +15,14 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 =========================================================================*/
 #include "PointSet.hh"
 
-vlPointSet::vlPointSet ()
+vtkPointSet::vtkPointSet ()
 {
   this->Points = NULL;
   this->Locator = NULL;
 }
 
-vlPointSet::vlPointSet(const vlPointSet& ps) :
-vlDataSet(ps)
+vtkPointSet::vtkPointSet(const vtkPointSet& ps) :
+vtkDataSet(ps)
 {
   this->Points = ps.Points;
   if (this->Points) this->Points->Register(this);
@@ -30,9 +30,9 @@ vlDataSet(ps)
   this->Locator = ps.Locator;
 }
 
-void vlPointSet::Initialize()
+void vtkPointSet::Initialize()
 {
-  vlDataSet::Initialize();
+  vtkDataSet::Initialize();
 
   if ( this->Points ) 
   {
@@ -45,7 +45,7 @@ void vlPointSet::Initialize()
     this->Locator->Initialize();
   }
 }
-void vlPointSet::ComputeBounds()
+void vtkPointSet::ComputeBounds()
 {
   float *bounds;
 
@@ -57,9 +57,9 @@ void vlPointSet::ComputeBounds()
     }
 }
 
-unsigned long int vlPointSet::GetMTime()
+unsigned long int vtkPointSet::GetMTime()
 {
-  unsigned long int dsTime = vlDataSet::GetMTime();
+  unsigned long int dsTime = vtkDataSet::GetMTime();
 
   if ( this->Points ) 
     {
@@ -73,14 +73,14 @@ unsigned long int vlPointSet::GetMTime()
   return dsTime;
 }
 
-int vlPointSet::FindCell(float x[3], vlCell *cell, float tol2, int& subId,
+int vtkPointSet::FindCell(float x[3], vtkCell *cell, float tol2, int& subId,
                          float pcoords[3], float weights[MAX_CELL_SIZE])
 {
   int i, j;
   int closestCell = -1;
   int ptId, cellId;
   float dist2, minDist2=LARGE_FLOAT;
-  static vlIdList cellIds(MAX_CELL_SIZE);
+  static vtkIdList cellIds(MAX_CELL_SIZE);
   int sId;
   float pc[3], w[MAX_CELL_SIZE];
   float closestPoint[3];
@@ -89,7 +89,7 @@ int vlPointSet::FindCell(float x[3], vlCell *cell, float tol2, int& subId,
 
   if ( !this->Locator )
     {
-    this->Locator = new vlLocator;
+    this->Locator = new vtkLocator;
     this->Locator->SetPoints(this->Points);
     }
 
@@ -122,15 +122,15 @@ int vlPointSet::FindCell(float x[3], vlCell *cell, float tol2, int& subId,
   return closestCell;
 }
 
-void vlPointSet::Squeeze()
+void vtkPointSet::Squeeze()
 {
   if ( this->Points ) this->Points->Squeeze();
-  vlDataSet::Squeeze();
+  vtkDataSet::Squeeze();
 }
 
-void vlPointSet::PrintSelf(ostream& os, vlIndent indent)
+void vtkPointSet::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlDataSet::PrintSelf(os,indent);
+  vtkDataSet::PrintSelf(os,indent);
 
   os << indent << "Number Of Points: " << this->GetNumberOfPoints() << "\n";
   os << indent << "Point Data: " << this->Points << "\n";

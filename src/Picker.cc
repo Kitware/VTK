@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    Picker.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
@@ -15,15 +15,15 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 =========================================================================*/
 #include "Picker.hh"
 #include "Camera.hh"
-#include "vlMath.hh"
+#include "vtkMath.hh"
 #include "Vertex.hh"
 #include "RenderW.hh"
 
-static vlMath math;
+static vtkMath math;
 
 // Description:
 // Construct object with initial tolerance of 1/40th of window.
-vlPicker::vlPicker()
+vtkPicker::vtkPicker()
 {
   this->Renderer = NULL;
 
@@ -48,7 +48,7 @@ vlPicker::vlPicker()
 }
 
 // Update state when actor is picked.
-void vlPicker::MarkPicked(vlActor *actor, vlMapper *mapper, float tMin, 
+void vtkPicker::MarkPicked(vtkActor *actor, vtkMapper *mapper, float tMin, 
                           float mapperPos[3])
 {
   int i;
@@ -79,16 +79,16 @@ void vlPicker::MarkPicked(vlActor *actor, vlMapper *mapper, float tMin,
 // Perform pick operation with selection point provided. Normally the 
 // first two values for the selection point are x-y pixel coordinate, and
 // the third value is =0. Return non-zero if something was successfully picked.
-int vlPicker::Pick(float selectionX, float selectionY, float selectionZ,
-                   vlRenderer *renderer)
+int vtkPicker::Pick(float selectionX, float selectionY, float selectionZ,
+                   vtkRenderer *renderer)
 {
   int i;
-  vlActorCollection *actors;
-  vlActor *actor;
-  vlCamera *camera;
-  vlMapper *mapper;
+  vtkActorCollection *actors;
+  vtkActor *actor;
+  vtkCamera *camera;
+  vtkMapper *mapper;
   float p1World[4], p2World[4], p1Mapper[4], p2Mapper[4];
-  static vlVertex cell; // use to take advantage of Hitbbox() method
+  static vtkVertex cell; // use to take advantage of Hitbbox() method
   int picked=0;
   int *winSize;
   float x, y, t;
@@ -116,7 +116,7 @@ int vlPicker::Pick(float selectionX, float selectionY, float selectionZ,
 
   if ( renderer == NULL )
     {
-    vlErrorMacro(<<"Must specify renderer!");
+    vtkErrorMacro(<<"Must specify renderer!");
     return 0;
     }
 //
@@ -139,7 +139,7 @@ int vlPicker::Pick(float selectionX, float selectionY, float selectionZ,
   worldCoords = renderer->GetWorldPoint();
   if ( worldCoords[3] == 0.0 )
     {
-    vlErrorMacro(<<"Bad homogeneous coordinates");
+    vtkErrorMacro(<<"Bad homogeneous coordinates");
     return 0;
     }
   for (i=0; i < 3; i++) 
@@ -154,7 +154,7 @@ int vlPicker::Pick(float selectionX, float selectionY, float selectionZ,
 
   if (( rayLength = math.Dot(ray,ray)) == 0.0 ) 
     {
-    vlWarningMacro("Cannot process points");
+    vtkWarningMacro("Cannot process points");
     return 0;
     } 
   else rayLength = sqrt (rayLength);
@@ -250,8 +250,8 @@ int vlPicker::Pick(float selectionX, float selectionY, float selectionZ,
 }
 
 // Intersect data with specified ray.
-void vlPicker::IntersectWithLine(float p1[3], float p2[3], float tol, 
-                                 vlActor *actor, vlMapper *mapper)
+void vtkPicker::IntersectWithLine(float p1[3], float p2[3], float tol, 
+                                 vtkActor *actor, vtkMapper *mapper)
 {
   int i;
   float *center, t, ray[3], rayFactor;
@@ -275,7 +275,7 @@ void vlPicker::IntersectWithLine(float p1[3], float p2[3], float tol,
 }
 
 // Initialize the picking process.
-void vlPicker::Initialize()
+void vtkPicker::Initialize()
 {
   this->Actors.RemoveAllItems();
 
@@ -292,9 +292,9 @@ void vlPicker::Initialize()
   this->GlobalTMin = LARGE_FLOAT;
 }
 
-void vlPicker::PrintSelf(ostream& os, vlIndent indent)
+void vtkPicker::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->vlObject::PrintSelf(os,indent);
+  this->vtkObject::PrintSelf(os,indent);
 
   os << indent << "Renderer: " << this->Renderer << "\n";
   os << indent << "Selection Point: (" <<  this->SelectionPoint[0] << ","

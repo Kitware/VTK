@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    VolRen.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its
+This file is part of the Visualization Toolkit. No part of this file or its
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
@@ -18,28 +18,28 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 #include "VolRen.hh"
 #include "RenderW.hh"
-#include "vlMath.hh"
+#include "vtkMath.hh"
 #include "Voxel.hh"
 
-static vlMath math;
+static vtkMath math;
 
 // Description:
 // Create an instance of a VolumeRenderer
-vlVolumeRenderer::vlVolumeRenderer()
+vtkVolumeRenderer::vtkVolumeRenderer()
 {
   this->StepSize = 1.0;
 }
 
 // Description:
 // Main routine to do the volume rendering.
-void vlVolumeRenderer::Render(vlRenderer *ren)
+void vtkVolumeRenderer::Render(vtkRenderer *ren)
 {
   int *tempip;
   float *tempfp;
   int pos[2];
   int size[2];
   unsigned char *orignalImage;
-  vlVolume *aVolume;
+  vtkVolume *aVolume;
   float p1World[4], p2World[4];
   int steps;
   float *rays;
@@ -125,7 +125,7 @@ void vlVolumeRenderer::Render(vlRenderer *ren)
     }
 
   // write out the resulting image
-  vlDebugMacro(<< "Copying Result " << size[0] << "," << size[1] << "\n");
+  vtkDebugMacro(<< "Copying Result " << size[0] << "," << size[1] << "\n");
 
   ren->GetRenderWindow()->SetPixelData(pos[0], pos[1],
 				       pos[0] + size[0]-1, pos[1] + size[1]-1,
@@ -136,12 +136,12 @@ void vlVolumeRenderer::Render(vlRenderer *ren)
 // Calculates six vectors from the camera, renderer and volume information.
 // These six vectors can be combined to determine the start and end
 // world coordinate points for the rays to be cast.
-void vlVolumeRenderer::CalcRayValues(vlRenderer *ren, float Vecs[6][3],
+void vtkVolumeRenderer::CalcRayValues(vtkRenderer *ren, float Vecs[6][3],
 				     int *size,int *steps)
 {
   int i;
-  vlVolume *aVolume;
-  vlCamera *cam;
+  vtkVolume *aVolume;
+  vtkCamera *cam;
   float minz = 1.0e30;
   float maxz = 0;
   float *position;
@@ -297,7 +297,7 @@ void vlVolumeRenderer::CalcRayValues(vlRenderer *ren, float Vecs[6][3],
 
 // Description:
 // Composite the rays into resulting pixel.
-void vlVolumeRenderer::Composite(float *rays,int steps, int numRays,
+void vtkVolumeRenderer::Composite(float *rays,int steps, int numRays,
 				 unsigned char *resultColor)
 {
   int i,j;
@@ -334,15 +334,15 @@ void vlVolumeRenderer::Composite(float *rays,int steps, int numRays,
 
 // Description:
 // Traces one ray through one volume.
-void vlVolumeRenderer::TraceOneRay(float p1World[4],float p2World[4], 
-				   vlVolume *vol, 
+void vtkVolumeRenderer::TraceOneRay(float p1World[4],float p2World[4], 
+				   vtkVolume *vol, 
 				   int steps, float *resultRay)
 {
   int i,j;
   float p1Mapper[4], p2Mapper[4];
   float ray[3];
-  vlStructuredPoints *strPts;
-  static vlVoxel cell; // use to take advantage of Hitbbox() method
+  vtkStructuredPoints *strPts;
+  static vtkVoxel cell; // use to take advantage of Hitbbox() method
   float *bounds;
   float hitPosition[3];
   float t,t2;
@@ -351,15 +351,15 @@ void vlVolumeRenderer::TraceOneRay(float p1World[4],float p2World[4],
   float origin[3], aspectRatio[3];
   float pcoords[3];
   float sf[8];
-  vlScalars *scalars;
+  vtkScalars *scalars;
   int dimensions[3];
   int index[3];
   float currentAlpha = 0;
   float mag;
   float calcSteps;
   unsigned char temp_col[4];
-  static vlIdList ptIds(8);
-  static vlFloatScalars voxelValues(8);
+  static vtkIdList ptIds(8);
+  static vtkFloatScalars voxelValues(8);
   int kOffset, ptId, newVoxel, idx;
   float value;
 
@@ -428,7 +428,7 @@ void vlVolumeRenderer::TraceOneRay(float p1World[4],float p2World[4],
       // get the scalar data
       if ((scalars = vol->GetInput()->GetPointData()->GetScalars()) == NULL)
 	{
-	vlErrorMacro(<< "No scalar data for Volume\n");
+	vtkErrorMacro(<< "No scalar data for Volume\n");
 	return;
 	}
       vol->GetInput()->GetDimensions(dimensions);
@@ -500,22 +500,22 @@ void vlVolumeRenderer::TraceOneRay(float p1World[4],float p2World[4],
 
 // Description:
 // Add a volume to the list of volumes.
-void vlVolumeRenderer::AddVolume(vlVolume *actor)
+void vtkVolumeRenderer::AddVolume(vtkVolume *actor)
 {
   this->Volumes.AddItem(actor);
 }
 
 // Description:
 // Remove an volume from the list of volumes.
-void vlVolumeRenderer::RemoveVolume(vlVolume *actor)
+void vtkVolumeRenderer::RemoveVolume(vtkVolume *actor)
 {
   this->Volumes.RemoveItem(actor);
 }
 
 
-void vlVolumeRenderer::PrintSelf(ostream& os, vlIndent indent)
+void vtkVolumeRenderer::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->vlObject::PrintSelf(os,indent);
+  this->vtkObject::PrintSelf(os,indent);
 
   os << indent << "Volumes:\n";
   this->Volumes.PrintSelf(os,indent.GetNextIndent());

@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    BYURead.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
@@ -19,7 +19,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "FScalars.hh"
 #include "FTCoords.hh"
 
-vlBYUReader::vlBYUReader()
+vtkBYUReader::vtkBYUReader()
 {
   this->GeometryFilename = NULL;
   this->DisplacementFilename = NULL;
@@ -33,7 +33,7 @@ vlBYUReader::vlBYUReader()
   this->PartNumber = 0;
 }
 
-vlBYUReader::~vlBYUReader()
+vtkBYUReader::~vtkBYUReader()
 {
   if ( this->GeometryFilename ) delete [] this->GeometryFilename;
   if ( this->DisplacementFilename ) delete [] this->DisplacementFilename;
@@ -41,7 +41,7 @@ vlBYUReader::~vlBYUReader()
   if ( this->TextureFilename ) delete [] this->TextureFilename;
 }
 
-void vlBYUReader::Execute()
+void vtkBYUReader::Execute()
 {
   FILE *geomFp;
   int numPts;
@@ -52,7 +52,7 @@ void vlBYUReader::Execute()
 
   if ((geomFp = fopen(this->GeometryFilename, "r")) == NULL)
     {
-    vlErrorMacro(<< "Geometry file: " << this->GeometryFilename << " not found");
+    vtkErrorMacro(<< "Geometry file: " << this->GeometryFilename << " not found");
     return;
     }
   else
@@ -65,13 +65,13 @@ void vlBYUReader::Execute()
   this->ReadTextureFile(numPts);
 }
 
-void vlBYUReader::ReadGeometryFile(FILE *geomFile, int &numPts)
+void vtkBYUReader::ReadGeometryFile(FILE *geomFile, int &numPts)
 {
   int numParts, numPolys, numEdges;
   int partStart, partEnd;
   int i;
-  vlFloatPoints *newPts;
-  vlCellArray *newPolys;
+  vtkFloatPoints *newPts;
+  vtkCellArray *newPolys;
   float x[3];
   int npts, pts[MAX_CELL_SIZE];
   int id, polyId;
@@ -82,20 +82,20 @@ void vlBYUReader::ReadGeometryFile(FILE *geomFile, int &numPts)
 
   if ( this->PartNumber > numParts )
     {
-    vlWarningMacro(<<"Specified part number > number of parts");
+    vtkWarningMacro(<<"Specified part number > number of parts");
     this->PartNumber = 0;
     }
 
   if ( this->PartNumber > 0 ) // read just part specified
     {
-    vlDebugMacro(<<"Reading part number: " << this->PartNumber);
+    vtkDebugMacro(<<"Reading part number: " << this->PartNumber);
     for (i=0; i < (this->PartNumber-1); i++) fscanf (geomFile, "%*d %*d");
     fscanf (geomFile, "%d %d", &partStart, &partEnd);
     for (i=this->PartNumber; i < numParts; i++) fscanf (geomFile, "%*d %*d");
     }
   else // read all parts
     {
-    vlDebugMacro(<<"Reading all parts.");
+    vtkDebugMacro(<<"Reading all parts.");
     for (i=0; i < numParts; i++) fscanf (geomFile, "%*d %*d");
     partStart = 1;
     partEnd = LARGE_INTEGER;
@@ -103,14 +103,14 @@ void vlBYUReader::ReadGeometryFile(FILE *geomFile, int &numPts)
 
   if ( numParts < 1 || numPts < 1 || numPolys < 1 )
     {
-    vlErrorMacro(<<"Bad MOVIE.BYU file");
+    vtkErrorMacro(<<"Bad MOVIE.BYU file");
     return;
     }
 //
 // Allocate data objects
 //
-  newPts = new vlFloatPoints(numPts);
-  newPolys = new vlCellArray(numPolys+numEdges);
+  newPts = new vtkFloatPoints(numPts);
+  newPolys = new vtkCellArray(numPolys+numEdges);
 //
 // Read data
 //
@@ -149,25 +149,25 @@ void vlBYUReader::ReadGeometryFile(FILE *geomFile, int &numPts)
       }
     }
 
-  vlDebugMacro(<<"Reading:" << numPts << " points, "
+  vtkDebugMacro(<<"Reading:" << numPts << " points, "
                  << numPolys << " polygons.");
 
   this->SetPoints(newPts);
   this->SetPolys(newPolys);
 }
 
-void vlBYUReader::ReadDisplacementFile(int numPts)
+void vtkBYUReader::ReadDisplacementFile(int numPts)
 {
   FILE *dispFp;
   int i;
   float v[3];
-  vlFloatVectors *newVectors;
+  vtkFloatVectors *newVectors;
 
   if ( this->ReadDisplacement && this->DisplacementFilename )
     {
     if ( !(dispFp = fopen(this->DisplacementFilename, "r")) )
       {
-      vlErrorMacro (<<"Couldn't open displacement file");
+      vtkErrorMacro (<<"Couldn't open displacement file");
       return;
       }
     }
@@ -175,7 +175,7 @@ void vlBYUReader::ReadDisplacementFile(int numPts)
 //
 // Allocate and read data
 //
-  newVectors = new vlFloatVectors(numPts);
+  newVectors = new vtkFloatVectors(numPts);
 
   for (i=0; i<numPts; i++)
     {
@@ -183,23 +183,23 @@ void vlBYUReader::ReadDisplacementFile(int numPts)
     newVectors->SetVector(i,v);
     }
 
-  vlDebugMacro(<<"Read " << numPts << " displacements");
+  vtkDebugMacro(<<"Read " << numPts << " displacements");
 
   this->PointData.SetVectors(newVectors);
 }
 
-void vlBYUReader::ReadScalarFile(int numPts)
+void vtkBYUReader::ReadScalarFile(int numPts)
 {
   FILE *scalarFp;
   int i;
   float s;
-  vlFloatScalars *newScalars;
+  vtkFloatScalars *newScalars;
 
   if ( this->ReadScalar && this->ScalarFilename )
     {
     if ( !(scalarFp = fopen(this->ScalarFilename, "r")) )
       {
-      vlErrorMacro (<<"Couldn't open scalar file");
+      vtkErrorMacro (<<"Couldn't open scalar file");
       return;
       }
     }
@@ -207,7 +207,7 @@ void vlBYUReader::ReadScalarFile(int numPts)
 //
 // Allocate and read data
 //
-  newScalars = new vlFloatScalars(numPts);
+  newScalars = new vtkFloatScalars(numPts);
 
   for (i=0; i<numPts; i++)
     {
@@ -215,23 +215,23 @@ void vlBYUReader::ReadScalarFile(int numPts)
     newScalars->SetScalar(i,s);
     }
 
-  vlDebugMacro(<<"Read " << numPts << " scalars");
+  vtkDebugMacro(<<"Read " << numPts << " scalars");
 
   this->PointData.SetScalars(newScalars);
 }
 
-void vlBYUReader::ReadTextureFile(int numPts)
+void vtkBYUReader::ReadTextureFile(int numPts)
 {
   FILE *textureFp;
   int i;
   float t[2];
-  vlFloatTCoords *newTCoords;
+  vtkFloatTCoords *newTCoords;
 
   if ( this->ReadTexture && this->TextureFilename )
     {
     if ( !(textureFp = fopen(this->TextureFilename, "r")) )
       {
-      vlErrorMacro (<<"Couldn't open texture file");
+      vtkErrorMacro (<<"Couldn't open texture file");
       return;
       }
     }
@@ -239,7 +239,7 @@ void vlBYUReader::ReadTextureFile(int numPts)
 //
 // Allocate and read data
 //
-  newTCoords = new vlFloatTCoords(numPts,2);
+  newTCoords = new vtkFloatTCoords(numPts,2);
 
   for (i=0; i<numPts; i++)
     {
@@ -247,14 +247,14 @@ void vlBYUReader::ReadTextureFile(int numPts)
     newTCoords->SetTCoord(i,t);
     }
 
-  vlDebugMacro(<<"Read " << numPts << " texture coordinates");
+  vtkDebugMacro(<<"Read " << numPts << " texture coordinates");
 
   this->PointData.SetTCoords(newTCoords);
 }
 
-void vlBYUReader::PrintSelf(ostream& os, vlIndent indent)
+void vtkBYUReader::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlPolySource::PrintSelf(os,indent);
+  vtkPolySource::PrintSelf(os,indent);
 
   os << indent << "Geometry Filename: " << this->GeometryFilename << "\n";
   os << indent << "Read Displacement: " << (this->ReadDisplacement ? "On\n" : "Off\n");

@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    EdgePts.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
@@ -17,32 +17,32 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 // Description:
 // Construct object with contour value of 0.0.
-vlEdgePoints::vlEdgePoints()
+vtkEdgePoints::vtkEdgePoints()
 {
   this->Value = 0.0;
 }
 
-vlEdgePoints::~vlEdgePoints()
+vtkEdgePoints::~vtkEdgePoints()
 {
 }
 
 //
 // General filter: handles arbitrary input.
 //
-void vlEdgePoints::Execute()
+void vtkEdgePoints::Execute()
 {
-  vlScalars *inScalars;
-  vlFloatPoints *newPts;
-  vlCellArray *newVerts;
+  vtkScalars *inScalars;
+  vtkFloatPoints *newPts;
+  vtkCellArray *newVerts;
   int cellId, above, below, ptId, i, numEdges, edgeId;
-  vlCell *cell, *edge;
+  vtkCell *cell, *edge;
   float range[2];
   float s0, s1, x0[3], x1[3], x[3], r;
-  vlFloatScalars *newScalars, cellScalars(MAX_CELL_SIZE);
-  vlIdList neighbors(MAX_CELL_SIZE);
+  vtkFloatScalars *newScalars, cellScalars(MAX_CELL_SIZE);
+  vtkIdList neighbors(MAX_CELL_SIZE);
   int visitedNei, nei, pts[1];
 
-  vlDebugMacro(<< "Generating edge points");
+  vtkDebugMacro(<< "Generating edge points");
 //
 // Initialize and check input
 //
@@ -50,20 +50,20 @@ void vlEdgePoints::Execute()
 
   if ( ! (inScalars = this->Input->GetPointData()->GetScalars()) )
     {
-    vlErrorMacro(<<"No scalar data to contour");
+    vtkErrorMacro(<<"No scalar data to contour");
     return;
     }
 
   inScalars->GetRange(range);
   if ( this->Value < range[0] || this->Value > range[1] )
     {
-    vlWarningMacro(<<"Value lies outside of scalar range");
+    vtkWarningMacro(<<"Value lies outside of scalar range");
     return;
     }
 
-  newPts = new vlFloatPoints(5000,10000);
-  newScalars = new vlFloatScalars(5000,10000);
-  newVerts = new vlCellArray(5000,10000);
+  newPts = new vtkFloatPoints(5000,10000);
+  newScalars = new vtkFloatScalars(5000,10000);
+  newVerts = new vtkCellArray(5000,10000);
 //
 // Traverse all edges. Since edges are not explicitly represented, use a
 // trick: traverse all cells and obtain cell edges and then cell edge
@@ -130,7 +130,7 @@ void vlEdgePoints::Execute()
       } //above and below
     } //for all cells
 
-  vlDebugMacro(<<"Created: " << newPts->GetNumberOfPoints() << " points");
+  vtkDebugMacro(<<"Created: " << newPts->GetNumberOfPoints() << " points");
 //
 // Update ourselves.  Because we don't know up front how many verts we've 
 // created, take care to reclaim memory. 
@@ -142,9 +142,9 @@ void vlEdgePoints::Execute()
   this->Squeeze();
 }
 
-void vlEdgePoints::PrintSelf(ostream& os, vlIndent indent)
+void vtkEdgePoints::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlDataSetToPolyFilter::PrintSelf(os,indent);
+  vtkDataSetToPolyFilter::PrintSelf(os,indent);
 
   os << indent << "Contour Value: " << this->Value << "\n";
 

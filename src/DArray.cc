@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    DArray.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
@@ -17,7 +17,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 // Description:
 // Allocate memory for this array. Delete old storage if present.
-int vlDoubleArray::Allocate(const int sz, const int ext)
+int vtkDoubleArray::Allocate(const int sz, const int ext)
 {
   if ( this->Array ) delete [] this->Array;
 
@@ -31,7 +31,7 @@ int vlDoubleArray::Allocate(const int sz, const int ext)
 
 // Description:
 // Release storage and reset array to initial state.
-void vlDoubleArray::Initialize()
+void vtkDoubleArray::Initialize()
 {
   if ( this->Array != NULL )
     {
@@ -44,7 +44,7 @@ void vlDoubleArray::Initialize()
 
 // Description:
 // Construct with specified storage and extend value.
-vlDoubleArray::vlDoubleArray(const int sz, const int ext)
+vtkDoubleArray::vtkDoubleArray(const int sz, const int ext)
 {
   this->Size = ( sz > 0 ? sz : 1);
   this->Array = new double[this->Size];
@@ -52,14 +52,14 @@ vlDoubleArray::vlDoubleArray(const int sz, const int ext)
   this->MaxId = -1;
 }
 
-vlDoubleArray::~vlDoubleArray()
+vtkDoubleArray::~vtkDoubleArray()
 {
   delete [] this->Array;
 }
 
 // Description:
 // Construct array from another array. Copy each element of other array.
-vlDoubleArray::vlDoubleArray(const vlDoubleArray& fa)
+vtkDoubleArray::vtkDoubleArray(const vtkDoubleArray& fa)
 {
   int i;
 
@@ -75,7 +75,7 @@ vlDoubleArray::vlDoubleArray(const vlDoubleArray& fa)
 
 // Description:
 // Deep copy of another array.
-vlDoubleArray& vlDoubleArray::operator=(const vlDoubleArray& fa)
+vtkDoubleArray& vtkDoubleArray::operator=(const vtkDoubleArray& fa)
 {
   int i;
 
@@ -96,7 +96,7 @@ vlDoubleArray& vlDoubleArray::operator=(const vlDoubleArray& fa)
 
 // Description:
 // Append one array onto the end of this array.
-void vlDoubleArray::operator+=(const vlDoubleArray& fa)
+void vtkDoubleArray::operator+=(const vtkDoubleArray& fa)
 {
   int i, sz;
 
@@ -109,9 +109,9 @@ void vlDoubleArray::operator+=(const vlDoubleArray& fa)
   this->MaxId += fa.MaxId + 1;
 }
 
-void vlDoubleArray::PrintSelf(ostream& os, vlIndent indent)
+void vtkDoubleArray::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlObject::PrintSelf(os,indent);
+  vtkObject::PrintSelf(os,indent);
 
   os << indent << "Array: " << this->Array << "\n";
   os << indent << "Size: " << this->Size << "\n";
@@ -121,7 +121,7 @@ void vlDoubleArray::PrintSelf(ostream& os, vlIndent indent)
 
 // Protected function does "reallocate"
 //
-double *vlDoubleArray::Resize(const int sz)
+double *vtkDoubleArray::Resize(const int sz)
 {
   double *newArray;
   int newSize;
@@ -132,7 +132,7 @@ double *vlDoubleArray::Resize(const int sz)
 
   if ( (newArray = new double[newSize]) == NULL )
     { 
-    vlErrorMacro(<< "Cannot allocate memory\n");
+    vtkErrorMacro(<< "Cannot allocate memory\n");
     return 0;
     }
 

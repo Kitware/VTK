@@ -1,12 +1,12 @@
 /*=========================================================================
 
- Program:   Visualization Library
+ Program:   Visualization Toolkit
  Module:    Source.cc
  Language:  C++
  Date:      $Date$
  Version:   $Revision$
 
- This file is part of the Visualization Library. No part of this file or its
+ This file is part of the Visualization Toolkit. No part of this file or its
  contents may be copied, reproduced or altered in any way without the express
  written consent of the authors.
  
@@ -19,7 +19,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #define NULL 0
 #endif
 
-vlSource::vlSource()
+vtkSource::vtkSource()
 {
   this->StartMethod = NULL;
   this->StartMethodArgDelete = NULL;
@@ -29,7 +29,7 @@ vlSource::vlSource()
   this->EndMethodArg = NULL;
 }
 
-void vlSource::UpdateFilter()
+void vtkSource::UpdateFilter()
 {
   // Make sure virtual getMTime method is called since subclasses will overload
   if ( this->_GetMTime() > this->ExecuteTime || this->GetDataReleased() )
@@ -44,7 +44,7 @@ void vlSource::UpdateFilter()
 
 // Description:
 // Specify function to be called before source executes.
-void vlSource::SetStartMethod(void (*f)(void *), void *arg)
+void vtkSource::SetStartMethod(void (*f)(void *), void *arg)
 {
   if ( f != this->StartMethod || arg != this->StartMethodArg )
     {
@@ -61,7 +61,7 @@ void vlSource::SetStartMethod(void (*f)(void *), void *arg)
 
 // Description:
 // Specify function to be called after source executes.
-void vlSource::SetEndMethod(void (*f)(void *), void *arg)
+void vtkSource::SetEndMethod(void (*f)(void *), void *arg)
 {
   if ( f != this->EndMethod || arg != this->EndMethodArg )
     {
@@ -79,7 +79,7 @@ void vlSource::SetEndMethod(void (*f)(void *), void *arg)
 
 // Description:
 // Set the arg delete method. This is used to free user memory.
-void vlSource::SetStartMethodArgDelete(void (*f)(void *))
+void vtkSource::SetStartMethodArgDelete(void (*f)(void *))
 {
   if ( f != this->StartMethodArgDelete)
     {
@@ -90,7 +90,7 @@ void vlSource::SetStartMethodArgDelete(void (*f)(void *))
 
 // Description:
 // Set the arg delete method. This is used to free user memory.
-void vlSource::SetEndMethodArgDelete(void (*f)(void *))
+void vtkSource::SetEndMethodArgDelete(void (*f)(void *))
 {
   if ( f != this->EndMethodArgDelete)
     {
@@ -99,25 +99,25 @@ void vlSource::SetEndMethodArgDelete(void (*f)(void *))
     }
 }
 
-void vlSource::Execute()
+void vtkSource::Execute()
 {
-  vl_ErrorMacro(<< "Execution of filter should be in derived class");
+  vtk_ErrorMacro(<< "Execution of filter should be in derived class");
 }
 
-int vlSource::GetDataReleased()
+int vtkSource::GetDataReleased()
 {
-  vl_ErrorMacro(<<"Method should be implemented by subclass!");
+  vtk_ErrorMacro(<<"Method should be implemented by subclass!");
   return 1;
 }
 
-void vlSource::SetDataReleased(int flag)
+void vtkSource::SetDataReleased(int flag)
 {
-  vl_ErrorMacro(<<"Method should be implemented by subclass!");
+  vtk_ErrorMacro(<<"Method should be implemented by subclass!");
 }
 
-void vlSource::_PrintSelf(ostream& os, vlIndent indent)
+void vtkSource::_PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlLWObject::_PrintSelf(os,indent);
+  vtkLWObject::_PrintSelf(os,indent);
 
   os << indent << "Execute Time: " << this->ExecuteTime.GetMTime() << "\n";
 }

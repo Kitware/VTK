@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    ImpTC.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
@@ -18,7 +18,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // Description:
 // Create object with texture dimension=2; no r-s-t implicit functions defined;
 // clamping off; and the r-s-t range set to (-100,100).
-vlImplicitTextureCoords::vlImplicitTextureCoords()
+vtkImplicitTextureCoords::vtkImplicitTextureCoords()
 {
   this->Dimension = 2;
 
@@ -37,25 +37,25 @@ vlImplicitTextureCoords::vlImplicitTextureCoords()
   this->TRange[1] =  100.0;
 }
 
-void vlImplicitTextureCoords::Execute()
+void vtkImplicitTextureCoords::Execute()
 {
   int ptId, numPts, tcoordDim;
-  vlFloatTCoords *newTCoords;
+  vtkFloatTCoords *newTCoords;
 //
 // Initialize
 //
-  vlDebugMacro(<<"Generating texture coordinates!");
+  vtkDebugMacro(<<"Generating texture coordinates!");
   this->Initialize();
 
   if ( ((numPts=this->Input->GetNumberOfPoints()) < 1) )
     {
-    vlErrorMacro(<< "No input!");
+    vtkErrorMacro(<< "No input!");
     return;
     }
 
   if ( this->RFunction == NULL )
     {
-    vlErrorMacro(<< "No input!");
+    vtkErrorMacro(<< "No input!");
     return;
     }
 
@@ -71,7 +71,7 @@ void vlImplicitTextureCoords::Execute()
 //
 // Allocate
 //
-  newTCoords = new vlFloatTCoords(numPts,tcoordDim);
+  newTCoords = new vtkFloatTCoords(numPts,tcoordDim);
 //
 // Compute texture coordinate and map into appropriate range
 //
@@ -87,9 +87,9 @@ void vlImplicitTextureCoords::Execute()
   this->PointData.SetTCoords(newTCoords);
 }
 
-void vlImplicitTextureCoords::PrintSelf(ostream& os, vlIndent indent)
+void vtkImplicitTextureCoords::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlDataSetToDataSetFilter::PrintSelf(os,indent);
+  vtkDataSetToDataSetFilter::PrintSelf(os,indent);
 
   os << indent << "Texture Dimension: " << this->Dimension << "\n";
   os << indent << "Clamp: " << (this->Clamp ? "On\n" : "Off\n");

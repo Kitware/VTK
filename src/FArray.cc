@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    FArray.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its 
+This file is part of the Visualization Toolkit. No part of this file or its 
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
@@ -17,7 +17,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 // Description:
 // Allocate memory for this array. Delete old storage if present.
-int vlFloatArray::Allocate(const int sz, const int ext)
+int vtkFloatArray::Allocate(const int sz, const int ext)
 {
   if ( this->Array ) delete [] this->Array;
 
@@ -31,7 +31,7 @@ int vlFloatArray::Allocate(const int sz, const int ext)
 
 // Description:
 // Release storage and reset array to initial state.
-void vlFloatArray::Initialize()
+void vtkFloatArray::Initialize()
 {
   if ( this->Array != NULL )
     {
@@ -44,7 +44,7 @@ void vlFloatArray::Initialize()
 
 // Description:
 // Construct with specified storage and extend value.
-vlFloatArray::vlFloatArray(const int sz, const int ext)
+vtkFloatArray::vtkFloatArray(const int sz, const int ext)
 {
   this->Size = ( sz > 0 ? sz : 1);
   this->Array = new float[this->Size];
@@ -52,7 +52,7 @@ vlFloatArray::vlFloatArray(const int sz, const int ext)
   this->MaxId = -1;
 }
 
-vlFloatArray::~vlFloatArray()
+vtkFloatArray::~vtkFloatArray()
 {
   if (this->Array)
     {
@@ -62,7 +62,7 @@ vlFloatArray::~vlFloatArray()
 
 // Description:
 // Construct array from another array. Copy each element of other array.
-vlFloatArray::vlFloatArray(const vlFloatArray& fa)
+vtkFloatArray::vtkFloatArray(const vtkFloatArray& fa)
 {
   int i;
 
@@ -78,7 +78,7 @@ vlFloatArray::vlFloatArray(const vlFloatArray& fa)
 
 // Description:
 // Deep copy of another array.
-vlFloatArray& vlFloatArray::operator=(const vlFloatArray& fa)
+vtkFloatArray& vtkFloatArray::operator=(const vtkFloatArray& fa)
 {
   int i;
 
@@ -99,7 +99,7 @@ vlFloatArray& vlFloatArray::operator=(const vlFloatArray& fa)
 
 // Description:
 // Append one array onto the end of this array.
-void vlFloatArray::operator+=(const vlFloatArray& fa)
+void vtkFloatArray::operator+=(const vtkFloatArray& fa)
 {
   int i, sz;
 
@@ -112,9 +112,9 @@ void vlFloatArray::operator+=(const vlFloatArray& fa)
   this->MaxId += fa.MaxId + 1;
 }
 
-void vlFloatArray::PrintSelf(ostream& os, vlIndent indent)
+void vtkFloatArray::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlObject::PrintSelf(os,indent);
+  vtkObject::PrintSelf(os,indent);
 
   os << indent << "Array: " << this->Array << "\n";
   os << indent << "Size: " << this->Size << "\n";
@@ -124,7 +124,7 @@ void vlFloatArray::PrintSelf(ostream& os, vlIndent indent)
 
 // Protected function does "reallocate"
 //
-float *vlFloatArray::Resize(const int sz)
+float *vtkFloatArray::Resize(const int sz)
 {
   float *newArray;
   int newSize;
@@ -135,7 +135,7 @@ float *vlFloatArray::Resize(const int sz)
 
   if ( (newArray = new float[newSize]) == NULL )
     { 
-    vlErrorMacro(<< "Cannot allocate memory\n");
+    vtkErrorMacro(<< "Cannot allocate memory\n");
     return 0;
     }
 

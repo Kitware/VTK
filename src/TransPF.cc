@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    TransPF.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
@@ -17,26 +17,26 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "FNormals.hh"
 #include "FVectors.hh"
 
-void vlTransformPolyFilter::Execute()
+void vtkTransformPolyFilter::Execute()
 {
-  vlPoints *inPts;
-  vlFloatPoints *newPts;
-  vlPointData *pd;
-  vlVectors *inVectors;
-  vlFloatVectors *newVectors=NULL;
-  vlNormals *inNormals;
-  vlFloatNormals *newNormals=NULL;
+  vtkPoints *inPts;
+  vtkFloatPoints *newPts;
+  vtkPointData *pd;
+  vtkVectors *inVectors;
+  vtkFloatVectors *newVectors=NULL;
+  vtkNormals *inNormals;
+  vtkFloatNormals *newNormals=NULL;
   int numPts;
-  vlPolyData *input=(vlPolyData *)this->Input;
+  vtkPolyData *input=(vtkPolyData *)this->Input;
 
-  vlDebugMacro(<<"Executing polygonal transformation");
+  vtkDebugMacro(<<"Executing polygonal transformation");
   this->Initialize();
 //
 // Check input
 //
   if ( this->Transform == NULL )
     {
-    vlErrorMacro(<<"No transform defined!");
+    vtkErrorMacro(<<"No transform defined!");
     return;
     }
 
@@ -47,14 +47,14 @@ void vlTransformPolyFilter::Execute()
 
   if ( !inPts )
     {
-    vlErrorMacro(<<"No input data");
+    vtkErrorMacro(<<"No input data");
     return;
     }
 
   numPts = inPts->GetNumberOfPoints();
-  newPts = new vlFloatPoints(numPts);
-  if ( inVectors ) newVectors = new vlFloatVectors(numPts);
-  if ( inNormals ) newNormals = new vlFloatNormals(numPts);
+  newPts = new vtkFloatPoints(numPts);
+  if ( inVectors ) newVectors = new vtkFloatVectors(numPts);
+  if ( inNormals ) newNormals = new vtkFloatNormals(numPts);
 //
 // Loop over all points, updating position
 //
@@ -88,7 +88,7 @@ void vlTransformPolyFilter::Execute()
   this->SetStrips(input->GetStrips());
 }
 
-unsigned long vlTransformPolyFilter::GetMTime()
+unsigned long vtkTransformPolyFilter::GetMTime()
 {
   unsigned long mTime=this->MTime.GetMTime();
   unsigned long transMTime;
@@ -102,9 +102,9 @@ unsigned long vlTransformPolyFilter::GetMTime()
   return mTime;
 }
 
-void vlTransformPolyFilter::PrintSelf(ostream& os, vlIndent indent)
+void vtkTransformPolyFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlPolyToPolyFilter::PrintSelf(os,indent);
+  vtkPolyToPolyFilter::PrintSelf(os,indent);
 
   os << indent << "Transform: " << this->Transform << "\n";
 }

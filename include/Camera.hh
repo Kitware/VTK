@@ -1,108 +1,108 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    Camera.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its
+This file is part of the Visualization Toolkit. No part of this file or its
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
-// .NAME vlCamera - a virtual camera for 3D rendering
+// .NAME vtkCamera - a virtual camera for 3D rendering
 // .SECTION Description
-// vlCamera is a virtual camera for 3D rendering. It provides methods
+// vtkCamera is a virtual camera for 3D rendering. It provides methods
 // to position and orient the view point and focal point. Convenience 
 // methods for moving about the focal point are also provided. More 
 // complex methods allow the manipulation of the computer graphics
 // graphics model including view up vector, clipping planes, and 
 // camera perspective.
 
-#ifndef __vlCamera_hh
-#define __vlCamera_hh
+#ifndef __vtkCamera_hh
+#define __vtkCamera_hh
 
 #include "Object.hh"
 #include "Trans.hh"
 
-class vlRenderer;
-class vlCameraDevice;
+class vtkRenderer;
+class vtkCameraDevice;
 
-class vlCamera : public vlObject
+class vtkCamera : public vtkObject
 {
  public:
-  vlCamera();
-  void PrintSelf(ostream& os, vlIndent indent);
-  char *GetClassName() {return "vlCamera";};
+  vtkCamera();
+  void PrintSelf(ostream& os, vtkIndent indent);
+  char *GetClassName() {return "vtkCamera";};
 
   void SetPosition(float x, float y, float z);
   void SetPosition(float a[3]);
-  vlGetVectorMacro(Position,float,3);
+  vtkGetVectorMacro(Position,float,3);
 
   void SetFocalPoint(float x, float y, float z);
   void SetFocalPoint(float a[3]);
-  vlGetVectorMacro(FocalPoint,float,3);
+  vtkGetVectorMacro(FocalPoint,float,3);
 
   void SetViewUp(float vx, float vy, float vz);
   void SetViewUp(float a[3]);
-  vlGetVectorMacro(ViewUp,float,3);
+  vtkGetVectorMacro(ViewUp,float,3);
 
   void SetClippingRange(float front, float back);
   void SetClippingRange(float a[2]);
-  vlGetVectorMacro(ClippingRange,float,2);
+  vtkGetVectorMacro(ClippingRange,float,2);
 
   // Description:
-  // Abstract interface to renderer. Each concrete subclass of vlCamera
+  // Abstract interface to renderer. Each concrete subclass of vtkCamera
   // will load its data into graphics system in response to this method
   // invocation.
-  virtual void Render(vlRenderer *ren);
+  virtual void Render(vtkRenderer *ren);
 
   // Description:
   // Set the camera view angle (i.e., the width of view in degrees). Larger
   // values yield greater perspective distortion.
-  vlSetClampMacro(ViewAngle,float,1.0,179.0);
+  vtkSetClampMacro(ViewAngle,float,1.0,179.0);
   // Description:
   // Get the camera view angle (i.e., the width of view in degrees).
-  vlGetMacro(ViewAngle,float);
+  vtkGetMacro(ViewAngle,float);
 
   // Description:
   // Set the seperation between eyes (in degrees). Used to generate stereo
   // images.
-  vlSetMacro(EyeAngle,float);
+  vtkSetMacro(EyeAngle,float);
   // Description:
   // Get the seperation between eyes (in degrees). Used to generate stereo
   // images.
-  vlGetMacro(EyeAngle,float);
+  vtkGetMacro(EyeAngle,float);
 
   // Description:
   // Set the size of the cameras lense in world coordinates.
-  vlSetMacro(FocalDisk,float);
+  vtkSetMacro(FocalDisk,float);
   // Description:
   // Get the size of the cameras lense in world coordinates.
-  vlGetMacro(FocalDisk,float);
+  vtkGetMacro(FocalDisk,float);
 
-  vlSetMacro(LeftEye,int);
-  vlGetMacro(LeftEye,int);
+  vtkSetMacro(LeftEye,int);
+  vtkGetMacro(LeftEye,int);
 
   void SetThickness(float);
-  vlGetMacro(Thickness,float);
+  vtkGetMacro(Thickness,float);
 
   void SetDistance(float);
-  vlGetMacro(Distance,float);
+  vtkGetMacro(Distance,float);
 
   // Description:
   // Turn the camera on/off.
-  vlSetMacro(Switch,int);
+  vtkSetMacro(Switch,int);
   // Description:
   // Get the value of the Switch instance variable. This indicates if the 
   // camera is on or off.
-  vlGetMacro(Switch,int);
+  vtkGetMacro(Switch,int);
   // Description:
   // Turn the camera on/off.
-  vlBooleanMacro(Switch,int);
+  vtkBooleanMacro(Switch,int);
 
   float GetTwist();
   void SetViewPlaneNormal(float a[3]);
@@ -110,8 +110,8 @@ class vlCamera : public vlObject
   void CalcViewPlaneNormal();
   void CalcDistance();
   void CalcPerspectiveTransform();
-  vlMatrix4x4 &GetPerspectiveTransform();
-  vlGetVectorMacro(ViewPlaneNormal,float,3);
+  vtkMatrix4x4 &GetPerspectiveTransform();
+  vtkGetVectorMacro(ViewPlaneNormal,float,3);
 
   void SetRoll(float);
   void Roll(float);
@@ -138,11 +138,11 @@ class vlCamera : public vlObject
   float Thickness;
   float Distance;
   float ViewPlaneNormal[3];
-  vlTransform Transform;
-  vlTransform PerspectiveTransform;
+  vtkTransform Transform;
+  vtkTransform PerspectiveTransform;
   float Orientation[3];
   float FocalDisk;
-  vlCameraDevice *Device;
+  vtkCameraDevice *Device;
 };
 
 #endif

@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    Lut.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its 
+This file is part of the Visualization Toolkit. No part of this file or its 
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
@@ -18,7 +18,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 // Description:
 // Construct with range=(0,1); and hsv ranges set up for rainbow color table.
-vlLookupTable::vlLookupTable(int sze, int ext)
+vtkLookupTable::vtkLookupTable(int sze, int ext)
 {
   this->NumberOfColors = sze;
   this->Table.Allocate(sze,ext);
@@ -42,7 +42,7 @@ vlLookupTable::vlLookupTable(int sze, int ext)
 
 // Description:
 // Allocate a color table of specified size.
-int vlLookupTable::Allocate(int sz, int ext) 
+int vtkLookupTable::Allocate(int sz, int ext) 
 {
   this->Modified();
   this->NumberOfColors = sz;
@@ -54,7 +54,7 @@ int vlLookupTable::Allocate(int sz, int ext)
 // less than minimum range value are clamped to minimum range value.
 // Scalar values greater than maximum range value are clamped to maximum
 // range value.
-void  vlLookupTable::SetTableRange(float r[2])
+void  vtkLookupTable::SetTableRange(float r[2])
 {
   this->SetTableRange(r[0],r[1]);
 }
@@ -64,11 +64,11 @@ void  vlLookupTable::SetTableRange(float r[2])
 // less than minimum range value are clamped to minimum range value.
 // Scalar values greater than maximum range value are clamped to maximum
 // range value.
-void  vlLookupTable::SetTableRange(float min, float max)
+void  vtkLookupTable::SetTableRange(float min, float max)
 {
   if ( min >= max )
     {
-    vlErrorMacro (<<"Bad table range");
+    vtkErrorMacro (<<"Bad table range");
     return;
     }
 
@@ -79,7 +79,7 @@ void  vlLookupTable::SetTableRange(float min, float max)
 // Description:
 // Generate lookup table from hue, saturation, value, alpha min/max values. 
 // Table is built from linear ramp of each value.
-void vlLookupTable::Build()
+void vtkLookupTable::Build()
 {
   int i, hueCase;
   float hue, sat, val, lx, ly, lz, frac, hinc, sinc, vinc, ainc;
@@ -165,7 +165,7 @@ void vlLookupTable::Build()
 
 // Description:
 // Given a scalar value v, return an rgba color value from lookup table.
-unsigned char *vlLookupTable::MapValue(float v)
+unsigned char *vtkLookupTable::MapValue(float v)
 {
   int indx;
 
@@ -178,7 +178,7 @@ unsigned char *vlLookupTable::MapValue(float v)
 // Description:
 // Directly load color into lookup table. Use [0,1] float values for color
 // component specification.
-void vlLookupTable::SetTableValue (int indx, float rgba[4])
+void vtkLookupTable::SetTableValue (int indx, float rgba[4])
 {
   unsigned char _rgba[4];
 
@@ -193,7 +193,7 @@ void vlLookupTable::SetTableValue (int indx, float rgba[4])
 // Description:
 // Directly load color into lookup table. Use [0,1] float values for color 
 // component specification.
-void vlLookupTable::SetTableValue(int indx, float r, float g, float b, float a)
+void vtkLookupTable::SetTableValue(int indx, float r, float g, float b, float a)
 {
   float rgba[4];
   rgba[0] = r; rgba[1] = g; rgba[2] = b; rgba[4] = a;
@@ -203,7 +203,7 @@ void vlLookupTable::SetTableValue(int indx, float r, float g, float b, float a)
 // Description:
 // Return a rgba color value for the given index into the lookup table. Color
 // componenets are expressed as [0,1] float values.
-float *vlLookupTable::GetTableValue (int indx)
+float *vtkLookupTable::GetTableValue (int indx)
 {
   static float rgba[4];
   unsigned char *_rgba;
@@ -218,16 +218,16 @@ float *vlLookupTable::GetTableValue (int indx)
 // Description:
 // Return a rgba color value for the given index into the lookup table. Color
 // componenets are expressed as [0,1] float values.
-void vlLookupTable::GetTableValue (int indx, float rgba[4])
+void vtkLookupTable::GetTableValue (int indx, float rgba[4])
 {
   float *_rgba = this->GetTableValue(indx);
 
   for (int i=0; i<4; i++) rgba[i] = _rgba[i];
 }
 
-void vlLookupTable::PrintSelf(ostream& os, vlIndent indent)
+void vtkLookupTable::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlObject::PrintSelf(os,indent);
+  vtkObject::PrintSelf(os,indent);
 
   os << indent << "Build Time: " <<this->BuildTime.GetMTime() << "\n";
   os << indent << "Hue Range: (" << this->HueRange[0] << ", "

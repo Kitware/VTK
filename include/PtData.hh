@@ -1,28 +1,28 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    PtData.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its 
+This file is part of the Visualization Toolkit. No part of this file or its 
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-// .NAME vlPointData - represent and manipulate point attribute data
+// .NAME vtkPointData - represent and manipulate point attribute data
 // .SECTION Description
-// vlPointData is a class that is used to represent and manipulate
+// vtkPointData is a class that is used to represent and manipulate
 // point attribute data (e.g., scalars, vectors, normals, texture 
 // coordinates, etc.) Special methods are provided to work with filter
 // objects such as passing data through filter, copying data from one 
 // point to another, and interpolating data given shape functions.
 
-#ifndef __vlPointData_h
-#define __vlPointData_h
+#ifndef __vtkPointData_h
+#define __vtkPointData_h
 
 #include "Object.hh"
 #include "Scalars.hh"
@@ -32,28 +32,28 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "Tensors.hh"
 #include "UserDef.hh"
 
-class vlPointData : public vlObject 
+class vtkPointData : public vtkObject 
 {
 public:
-  vlPointData();
+  vtkPointData();
   void Initialize();
-  ~vlPointData();
-  char *GetClassName() {return "vlPointData";};
-  void PrintSelf(ostream& os, vlIndent indent);
-  vlPointData (const vlPointData& pd);
-  vlPointData &operator=(vlPointData& pd);
+  ~vtkPointData();
+  char *GetClassName() {return "vtkPointData";};
+  void PrintSelf(ostream& os, vtkIndent indent);
+  vtkPointData (const vtkPointData& pd);
+  vtkPointData &operator=(vtkPointData& pd);
   virtual void Update() {};
 
   // pass thru all input data to output
-  void PassData(vlPointData* pd);
+  void PassData(vtkPointData* pd);
 
   // use to copy data on a point by point basis
-  void CopyAllocate(vlPointData* pd, int sze=0, int ext=1000);
-  void CopyData(vlPointData *fromPd, int fromId, int toId);
+  void CopyAllocate(vtkPointData* pd, int sze=0, int ext=1000);
+  void CopyData(vtkPointData *fromPd, int fromId, int toId);
 
   // use to interpolate data
-  void InterpolateAllocate(vlPointData* pd, int sze=0, int ext=1000);
-  void InterpolatePoint(vlPointData *fromPd, int toId, vlIdList *ptIds, float *weights);
+  void InterpolateAllocate(vtkPointData* pd, int sze=0, int ext=1000);
+  void InterpolatePoint(vtkPointData *fromPd, int toId, vtkIdList *ptIds, float *weights);
 
   // Set point data to null values
   void NullPoint(int ptId);
@@ -63,80 +63,80 @@ public:
 
   // Description:
   // Set scalar data.
-  vlSetRefCountedObjectMacro (Scalars, vlScalars);
-  vlGetObjectMacro (Scalars, vlScalars);
+  vtkSetRefCountedObjectMacro (Scalars, vtkScalars);
+  vtkGetObjectMacro (Scalars, vtkScalars);
 
   // Description:
   // Set vector data.
-  vlSetRefCountedObjectMacro (Vectors, vlVectors);
-  vlGetObjectMacro (Vectors, vlVectors);
+  vtkSetRefCountedObjectMacro (Vectors, vtkVectors);
+  vtkGetObjectMacro (Vectors, vtkVectors);
 
   // Description:
   // Set normal data.
-  vlSetRefCountedObjectMacro (Normals, vlNormals);
-  vlGetObjectMacro (Normals, vlNormals);
+  vtkSetRefCountedObjectMacro (Normals, vtkNormals);
+  vtkGetObjectMacro (Normals, vtkNormals);
 
   // Description:
   // Set texture coordinate data.
-  vlSetRefCountedObjectMacro (TCoords, vlTCoords);
-  vlGetObjectMacro (TCoords, vlTCoords);
+  vtkSetRefCountedObjectMacro (TCoords, vtkTCoords);
+  vtkGetObjectMacro (TCoords, vtkTCoords);
 
   // Description:
   // Set tensor data.
-  vlSetRefCountedObjectMacro (Tensors, vlTensors);
-  vlGetObjectMacro (Tensors, vlTensors);
+  vtkSetRefCountedObjectMacro (Tensors, vtkTensors);
+  vtkGetObjectMacro (Tensors, vtkTensors);
 
   // Description:
   // Set user defined data.
-  vlSetRefCountedObjectMacro (UserDefined, vlUserDefined);
-  vlGetObjectMacro (UserDefined, vlUserDefined);
+  vtkSetRefCountedObjectMacro (UserDefined, vtkUserDefined);
+  vtkGetObjectMacro (UserDefined, vtkUserDefined);
 
   // Description:
   // Turn on/off the copying of scalar data.
-  vlSetMacro(CopyScalars,int);
-  vlGetMacro(CopyScalars,int);
-  vlBooleanMacro(CopyScalars,int);
+  vtkSetMacro(CopyScalars,int);
+  vtkGetMacro(CopyScalars,int);
+  vtkBooleanMacro(CopyScalars,int);
 
   // Description:
   // Turn on/off the copying of vector data.
-  vlSetMacro(CopyVectors,int);
-  vlGetMacro(CopyVectors,int);
-  vlBooleanMacro(CopyVectors,int);
+  vtkSetMacro(CopyVectors,int);
+  vtkGetMacro(CopyVectors,int);
+  vtkBooleanMacro(CopyVectors,int);
 
   // Description:
   // Turn on/off the copying of normals data.
-  vlSetMacro(CopyNormals,int);
-  vlGetMacro(CopyNormals,int);
-  vlBooleanMacro(CopyNormals,int);
+  vtkSetMacro(CopyNormals,int);
+  vtkGetMacro(CopyNormals,int);
+  vtkBooleanMacro(CopyNormals,int);
 
   // Description:
   // Turn on/off the copying of texture coordinates data.
-  vlSetMacro(CopyTCoords,int);
-  vlGetMacro(CopyTCoords,int);
-  vlBooleanMacro(CopyTCoords,int);
+  vtkSetMacro(CopyTCoords,int);
+  vtkGetMacro(CopyTCoords,int);
+  vtkBooleanMacro(CopyTCoords,int);
 
   // Description:
   // Turn on/off the copying of tensor data.
-  vlSetMacro(CopyTensors,int);
-  vlGetMacro(CopyTensors,int);
-  vlBooleanMacro(CopyTensors,int);
+  vtkSetMacro(CopyTensors,int);
+  vtkGetMacro(CopyTensors,int);
+  vtkBooleanMacro(CopyTensors,int);
 
   // Description:
   // Turn on/off the copying of user defined data.
-  vlSetMacro(CopyUserDefined,int);
-  vlGetMacro(CopyUserDefined,int);
-  vlBooleanMacro(CopyUserDefined,int);
+  vtkSetMacro(CopyUserDefined,int);
+  vtkGetMacro(CopyUserDefined,int);
+  vtkBooleanMacro(CopyUserDefined,int);
 
   void CopyAllOn();
   void CopyAllOff();
 
 protected:
-  vlScalars *Scalars;
-  vlVectors *Vectors;
-  vlNormals *Normals;
-  vlTCoords *TCoords;
-  vlTensors *Tensors;
-  vlUserDefined *UserDefined;
+  vtkScalars *Scalars;
+  vtkVectors *Vectors;
+  vtkNormals *Normals;
+  vtkTCoords *TCoords;
+  vtkTensors *Tensors;
+  vtkUserDefined *UserDefined;
   int CopyScalars;
   int CopyVectors;
   int CopyNormals;

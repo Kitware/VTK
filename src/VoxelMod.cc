@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    VoxelMod.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its
+This file is part of the Visualization Toolkit. No part of this file or its
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
@@ -22,7 +22,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // Construct with sample dimensions=(50,50,50) and so that model bounds are
 // automatically computer from input. Maximum distance is set to examine
 // whole grid.
-vlVoxelModeller::vlVoxelModeller()
+vtkVoxelModeller::vtkVoxelModeller()
 {
   this->MaximumDistance = 1.0;
 
@@ -38,9 +38,9 @@ vlVoxelModeller::vlVoxelModeller()
   this->SampleDimensions[2] = 50;
 }
 
-void vlVoxelModeller::PrintSelf(ostream& os, vlIndent indent)
+void vtkVoxelModeller::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlDataSetToStructuredPointsFilter::PrintSelf(os,indent);
+  vtkDataSetToStructuredPointsFilter::PrintSelf(os,indent);
 
   os << indent << "Maximum Distance: " << this->MaximumDistance << "\n";
   os << indent << "Sample Dimensions: (" << this->SampleDimensions[0] << ", "
@@ -54,12 +54,12 @@ void vlVoxelModeller::PrintSelf(ostream& os, vlIndent indent)
 
 // Description:
 // Specify the position in space to perform the voxelization.
-void vlVoxelModeller::SetModelBounds(float *bounds)
+void vtkVoxelModeller::SetModelBounds(float *bounds)
 {
-  vlVoxelModeller::SetModelBounds(bounds[0], bounds[1], bounds[2], bounds[3], bounds[4], bounds[5]);
+  vtkVoxelModeller::SetModelBounds(bounds[0], bounds[1], bounds[2], bounds[3], bounds[4], bounds[5]);
 }
 
-void vlVoxelModeller::SetModelBounds(float xmin, float xmax, float ymin, float ymax, float zmin, float zmax)
+void vtkVoxelModeller::SetModelBounds(float xmin, float xmax, float ymin, float ymax, float zmin, float zmax)
 {
   if (this->ModelBounds[0] != xmin || this->ModelBounds[1] != xmax ||
   this->ModelBounds[2] != ymin || this->ModelBounds[3] != ymax ||
@@ -86,13 +86,13 @@ void vlVoxelModeller::SetModelBounds(float xmin, float xmax, float ymin, float y
     }
 }
 
-void vlVoxelModeller::Execute()
+void vtkVoxelModeller::Execute()
 {
   int cellNum, i, j, k;
   float *bounds, adjBounds[6];
-  vlCell *cell;
+  vtkCell *cell;
   float maxDistance, pcoords[3];
-  vlBitScalars *newScalars;
+  vtkBitScalars *newScalars;
   int numPts, idx;
   int subId;
   int min[3], max[3];
@@ -102,14 +102,14 @@ void vlVoxelModeller::Execute()
   float closestPoint[3];
   float voxelHalfWidth[3];
 
-  vlDebugMacro(<< "Executing Voxel model");
+  vtkDebugMacro(<< "Executing Voxel model");
 //
 // Initialize self; create output objects
 //
   this->Initialize();
 
   numPts = this->SampleDimensions[0] * this->SampleDimensions[1] * this->SampleDimensions[2];
-  newScalars = new vlBitScalars(numPts);
+  newScalars = new vtkBitScalars(numPts);
   for (i=0; i<numPts; i++) newScalars->SetScalar(i,0);
 
   this->SetDimensions(this->GetSampleDimensions());
@@ -177,7 +177,7 @@ void vlVoxelModeller::Execute()
 
 // Description:
 // Compute ModelBounds from input geometry.
-float vlVoxelModeller::ComputeModelBounds()
+float vtkVoxelModeller::ComputeModelBounds()
 {
   float *bounds, maxDist;
   int i, adjustBounds=0;
@@ -224,7 +224,7 @@ float vlVoxelModeller::ComputeModelBounds()
 
 // Description:
 // Set the i-j-k dimensions on which to sample the distance function.
-void vlVoxelModeller::SetSampleDimensions(int i, int j, int k)
+void vtkVoxelModeller::SetSampleDimensions(int i, int j, int k)
 {
   int dim[3];
 
@@ -235,16 +235,16 @@ void vlVoxelModeller::SetSampleDimensions(int i, int j, int k)
   this->SetSampleDimensions(dim);
 }
 
-void vlVoxelModeller::SetSampleDimensions(int dim[3])
+void vtkVoxelModeller::SetSampleDimensions(int dim[3])
 {
-  vlDebugMacro(<< " setting SampleDimensions to (" << dim[0] << "," << dim[1] << "," << dim[2] << ")");
+  vtkDebugMacro(<< " setting SampleDimensions to (" << dim[0] << "," << dim[1] << "," << dim[2] << ")");
 
   if ( dim[0] != this->SampleDimensions[0] || dim[1] != SampleDimensions[1] ||
   dim[2] != SampleDimensions[2] )
     {
     if ( dim[0]<1 || dim[1]<1 || dim[2]<1 )
       {
-      vlErrorMacro (<< "Bad Sample Dimensions, retaining previous values");
+      vtkErrorMacro (<< "Bad Sample Dimensions, retaining previous values");
       return;
       }
 
@@ -252,7 +252,7 @@ void vlVoxelModeller::SetSampleDimensions(int dim[3])
 
     if ( dataDim  < 3 )
       {
-      vlErrorMacro(<<"Sample dimensions must define a volume!");
+      vtkErrorMacro(<<"Sample dimensions must define a volume!");
       return;
       }
 
@@ -262,24 +262,24 @@ void vlVoxelModeller::SetSampleDimensions(int dim[3])
     }
 }
 
-void vlVoxelModeller::Write(char *fname)
+void vtkVoxelModeller::Write(char *fname)
 {
   FILE *fp;
   int i, j, k;
   float maxDistance;
-  vlBitScalars *newScalars;
+  vtkBitScalars *newScalars;
   int numPts, idx;
   int bitcount;
   unsigned char uc;
 
-  vlDebugMacro(<< "Writing Voxel model");
+  vtkDebugMacro(<< "Writing Voxel model");
 
   // update the data
   this->Execute();
   
   numPts = this->SampleDimensions[0] * this->SampleDimensions[1] * this->SampleDimensions[2];
 
-  newScalars = (vlBitScalars *)this->PointData.GetScalars();
+  newScalars = (vtkBitScalars *)this->PointData.GetScalars();
   
 
   this->SetDimensions(this->GetSampleDimensions());
@@ -288,7 +288,7 @@ void vlVoxelModeller::Write(char *fname)
   fp = fopen(fname,"w");
   if (!fp) 
     {
-    vlErrorMacro(<< "Couldn't open file: " << fname << endl);
+    vtkErrorMacro(<< "Couldn't open file: " << fname << endl);
     return;
     }
 

@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    ElevatF.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its 
+This file is part of the Visualization Toolkit. No part of this file or its 
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
@@ -17,13 +17,13 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // Methods for elevation filter
 //
 #include "ElevatF.hh"
-#include "vlMath.hh"
+#include "vtkMath.hh"
 #include "FScalars.hh"
 
 // Description:
 // Construct object with LowPoint=(0,0,0) and HighPoint=(0,0,1). Scalar
 // range is (0,1).
-vlElevationFilter::vlElevationFilter()
+vtkElevationFilter::vtkElevationFilter()
 {
   this->LowPoint[0] = 0.0;
   this->LowPoint[1] = 0.0;
@@ -41,28 +41,28 @@ vlElevationFilter::vlElevationFilter()
 // Convert position along ray into scalar value.  Example use includes 
 // coloring terrain by elevation.
 //
-void vlElevationFilter::Execute()
+void vtkElevationFilter::Execute()
 {
   int i, j, numPts;
-  vlFloatScalars *newScalars;
+  vtkFloatScalars *newScalars;
   float l, *bounds, *x, s, v[3];
   float diffVector[3], diffScalar;
-  vlMath math;
+  vtkMath math;
 //
 // Initialize
 //
-  vlDebugMacro(<<"Generating elevation scalars!");
+  vtkDebugMacro(<<"Generating elevation scalars!");
   this->Initialize();
 
   if ( ((numPts=this->Input->GetNumberOfPoints()) < 1) )
     {
-    vlErrorMacro(<< "No input!");
+    vtkErrorMacro(<< "No input!");
     return;
     }
 //
 // Allocate
 //
-  newScalars = new vlFloatScalars(numPts);
+  newScalars = new vtkFloatScalars(numPts);
 //
 // Set up 1D parametric system
 //
@@ -71,7 +71,7 @@ void vlElevationFilter::Execute()
   for (i=0; i<3; i++) diffVector[i] = this->HighPoint[i] - this->LowPoint[i];
   if ( (l = math.Dot(diffVector,diffVector)) == 0.0)
     {
-    vlErrorMacro(<< this << ": Bad vector, using (0,0,1)\n");
+    vtkErrorMacro(<< this << ": Bad vector, using (0,0,1)\n");
     diffVector[0] = diffVector[1] = 0.0; diffVector[2] = 1.0;
     l = 1.0;
     }
@@ -96,9 +96,9 @@ void vlElevationFilter::Execute()
   this->PointData.SetScalars(newScalars);
 }
 
-void vlElevationFilter::PrintSelf(ostream& os, vlIndent indent)
+void vtkElevationFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlDataSetToDataSetFilter::PrintSelf(os,indent);
+  vtkDataSetToDataSetFilter::PrintSelf(os,indent);
 
   os << indent << "Low Point: (" << this->LowPoint[0] << ", "
                                 << this->LowPoint[1] << ", "

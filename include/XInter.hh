@@ -1,21 +1,21 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    XInter.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its
+This file is part of the Visualization Toolkit. No part of this file or its
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
-// .NAME vlXRenderWindowInteractor - provide Xevent driven interface to renderer
+// .NAME vtkXRenderWindowInteractor - provide Xevent driven interface to renderer
 // .SECTION Description
-// vlXRenderWindowInteractor is a convenience object that provides event 
+// vtkXRenderWindowInteractor is a convenience object that provides event 
 // bindings to common graphics functions. For example, camera 
 // zoom-in/zoom-out, azimuth, and roll.
 
@@ -32,8 +32,8 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 //    s - turn all actors surface
 
 
-#ifndef __vlXRenderWindowInteractor_h
-#define __vlXRenderWindowInteractor_h
+#ifndef __vtkXRenderWindowInteractor_h
+#define __vtkXRenderWindowInteractor_h
 
 //===========================================================
 // now we define the C++ class
@@ -42,13 +42,13 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include <X11/StringDefs.h>
 #include <X11/Intrinsic.h>
 
-class vlXRenderWindowInteractor : public vlRenderWindowInteractor
+class vtkXRenderWindowInteractor : public vtkRenderWindowInteractor
 {
 public:
-  vlXRenderWindowInteractor();
-  ~vlXRenderWindowInteractor();
-  char *GetClassName() {return "vlXRenderWindowInteractor";};
-  void PrintSelf(ostream& os, vlIndent indent);
+  vtkXRenderWindowInteractor();
+  ~vtkXRenderWindowInteractor();
+  char *GetClassName() {return "vtkXRenderWindowInteractor";};
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   virtual void Initialize();
   virtual void Initialize(XtAppContext app);
@@ -64,9 +64,9 @@ public:
   void SetupNewWindow(int Stereo = 0);
   void FinishSettingUpNewWindow();
   
-  friend void vlXRenderWindowInteractorCallback(Widget,XtPointer,
+  friend void vtkXRenderWindowInteractorCallback(Widget,XtPointer,
 					     XEvent *,Boolean *);
-  friend void vlXRenderWindowInteractorTimer(XtPointer,XtIntervalId *);
+  friend void vtkXRenderWindowInteractorTimer(XtPointer,XtIntervalId *);
 
 protected:
   Widget top;

@@ -1,39 +1,39 @@
 /*=========================================================================
 
-  Program:   Visualization Library
-  Module:    vlSGridW.cc
+  Program:   Visualization Toolkit
+  Module:    vtkSGrdW.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-#include "vlSGridW.hh"
+#include "vtkSGridW.hh"
 
 // Description:
 // Specify the input data or filter.
-void vlStructuredGridWriter::SetInput(vlStructuredGrid *input)
+void vtkStructuredGridWriter::SetInput(vtkStructuredGrid *input)
 {
   if ( this->Input != input )
     {
-    vlDebugMacro(<<" setting Input to " << (void *)input);
-    this->Input = (vlDataSet *) input;
+    vtkDebugMacro(<<" setting Input to " << (void *)input);
+    this->Input = (vtkDataSet *) input;
     this->Modified();
     }
 }
 
-void vlStructuredGridWriter::WriteData()
+void vtkStructuredGridWriter::WriteData()
 {
   FILE *fp;
-  vlStructuredGrid *input=(vlStructuredGrid *)this->Input;
+  vtkStructuredGrid *input=(vtkStructuredGrid *)this->Input;
   int dim[3];
 
-  vlDebugMacro(<<"Writing vl structured grid...");
+  vtkDebugMacro(<<"Writing vtk structured grid...");
 
   if ( !(fp=this->OpenVLFile()) || !this->WriteHeader(fp) )
       return;
@@ -52,7 +52,7 @@ void vlStructuredGridWriter::WriteData()
   this->CloseVLFile(fp);
 }
 
-void vlStructuredGridWriter::PrintSelf(ostream& os, vlIndent indent)
+void vtkStructuredGridWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlDataWriter::PrintSelf(os,indent);
+  vtkDataWriter::PrintSelf(os,indent);
 }

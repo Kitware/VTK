@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    GlrRen.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its
+This file is part of the Visualization Toolkit. No part of this file or its
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
@@ -33,17 +33,17 @@ static float amb_light_info[] = {
   LMNULL
   };
 
-vlGlrRenderer::vlGlrRenderer()
+vtkGlrRenderer::vtkGlrRenderer()
 {
 }
 
 // Description:
 // Ask actors to build and draw themselves.
-int vlGlrRenderer::UpdateActors()
+int vtkGlrRenderer::UpdateActors()
 {
-  vlActor *anActor;
+  vtkActor *anActor;
   float visibility;
-  vlMatrix4x4 matrix;
+  vtkMatrix4x4 matrix;
   int count = 0;
  
   // set matrix mode for actors 
@@ -66,7 +66,7 @@ int vlGlrRenderer::UpdateActors()
       pushmatrix();
       multmatrix((float (*)[4])(matrix[0]));
  
-      anActor->Render((vlRenderer *)this);
+      anActor->Render((vtkRenderer *)this);
  
       popmatrix();
       }
@@ -76,19 +76,19 @@ int vlGlrRenderer::UpdateActors()
 
 // Description:
 // Ask active camera to load its view matrix.
-int vlGlrRenderer::UpdateCameras ()
+int vtkGlrRenderer::UpdateCameras ()
 {
   // update the viewing transformation 
   if (!this->ActiveCamera) return 0;
   
-  this->ActiveCamera->Render((vlRenderer *)this);
+  this->ActiveCamera->Render((vtkRenderer *)this);
   return 1;
 }
 
 // Description:
 // Internal method temporarily removes lights before reloading them
 // into graphics pipeline.
-void vlGlrRenderer::ClearLights (void)
+void vtkGlrRenderer::ClearLights (void)
 {
   short cur_light;
 
@@ -115,9 +115,9 @@ void vlGlrRenderer::ClearLights (void)
 
 // Description:
 // Ask lights to load themselves into graphics pipeline.
-int vlGlrRenderer::UpdateLights ()
+int vtkGlrRenderer::UpdateLights ()
 {
-  vlLight *light;
+  vtkLight *light;
   short cur_light;
   float status;
   int count = 0;
@@ -137,7 +137,7 @@ int vlGlrRenderer::UpdateLights ()
     // also make sure we still have room.             
     if ((status > 0.0)&& (cur_light < (LIGHT0+MAX_LIGHTS)))
       {
-      light->Render((vlRenderer *)this,cur_light);
+      light->Render((vtkRenderer *)this,cur_light);
       lmbind(cur_light, cur_light);
       // increment the current light by one 
       cur_light++;
@@ -162,7 +162,7 @@ int vlGlrRenderer::UpdateLights ()
  
 // Description:
 // Concrete gl render method.
-void vlGlrRenderer::Render(void)
+void vtkGlrRenderer::Render(void)
 {
   if (this->StartRenderMethod) 
     {
@@ -180,7 +180,7 @@ void vlGlrRenderer::Render(void)
 
   if (this->VolumeRenderer)
     {
-    this->VolumeRenderer->Render((vlRenderer *)this);
+    this->VolumeRenderer->Render((vtkRenderer *)this);
     }
 
   if (this->EndRenderMethod) 
@@ -191,37 +191,37 @@ void vlGlrRenderer::Render(void)
 
 // Description:
 // Create particular type of gl geometry primitive.
-vlGeometryPrimitive *vlGlrRenderer::GetPrimitive(char *type)
+vtkGeometryPrimitive *vtkGlrRenderer::GetPrimitive(char *type)
 {
-  vlGeometryPrimitive *prim;
+  vtkGeometryPrimitive *prim;
 
   if (!strcmp(type,"polygons"))
       {
-      prim = new vlGlrPolygons;
-      return (vlGeometryPrimitive *)prim;
+      prim = new vtkGlrPolygons;
+      return (vtkGeometryPrimitive *)prim;
       }
   if (!strcmp(type,"triangle_strips"))
       {
-      prim = new vlGlrTriangleMesh;
-      return (vlGeometryPrimitive *)prim;
+      prim = new vtkGlrTriangleMesh;
+      return (vtkGeometryPrimitive *)prim;
       }
   if (!strcmp(type,"lines"))
       {
-      prim = new vlGlrLines;
-      return (vlGeometryPrimitive *)prim;
+      prim = new vtkGlrLines;
+      return (vtkGeometryPrimitive *)prim;
       }
   if (!strcmp(type,"points"))
       {
-      prim = new vlGlrPoints;
-      return (vlGeometryPrimitive *)prim;
+      prim = new vtkGlrPoints;
+      return (vtkGeometryPrimitive *)prim;
       }
 
-  return((vlGeometryPrimitive *)NULL);
+  return((vtkGeometryPrimitive *)NULL);
 }
 
-void vlGlrRenderer::PrintSelf(ostream& os, vlIndent indent)
+void vtkGlrRenderer::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->vlRenderer::PrintSelf(os,indent);
+  this->vtkRenderer::PrintSelf(os,indent);
 
   os << indent << "Number Of Lights Bound: " << 
     this->NumberOfLightsBound << "\n";
@@ -230,7 +230,7 @@ void vlGlrRenderer::PrintSelf(ostream& os, vlIndent indent)
 
 // Description:
 // Return center of renderer in display coordinates.
-float *vlGlrRenderer::GetCenter()
+float *vtkGlrRenderer::GetCenter()
 {
   int *size;
   
@@ -274,7 +274,7 @@ float *vlGlrRenderer::GetCenter()
 
 // Description:
 // Convert display coordinates to view coordinates.
-void vlGlrRenderer::DisplayToView()
+void vtkGlrRenderer::DisplayToView()
 {
   float vx,vy,vz;
   int sizex,sizey;
@@ -324,7 +324,7 @@ void vlGlrRenderer::DisplayToView()
 
 // Description:
 // Convert view coordinates to display coordinates.
-void vlGlrRenderer::ViewToDisplay()
+void vtkGlrRenderer::ViewToDisplay()
 {
   int dx,dy;
   int sizex,sizey;
@@ -378,7 +378,7 @@ void vlGlrRenderer::ViewToDisplay()
 
 // Description:
 // Is a given display point in this renderer's viewport.
-int vlGlrRenderer::IsInViewport(int x,int y)
+int vtkGlrRenderer::IsInViewport(int x,int y)
 {
   int *size;
   

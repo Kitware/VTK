@@ -1,40 +1,40 @@
 /*=========================================================================
 
-  Program:   Visualization Library
-  Module:    vlSGridR.hh
+  Program:   Visualization Toolkit
+  Module:    vtkPolyR.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-// .NAME vlStructuredGridReader - read vl structured grid data file
+// .NAME vtkPolyReader - read vtk polygonal data file
 // .SECTION Description
-// vlStructuredGridReader is a source object that reads ASCII or binary 
-// structured grid data files in vl format. See text for format details.
+// vtkPolyReader is a source object that reads ASCII or binary 
+// polygonal data files in vtk format. See text for format details.
 // .SECTION Caveats
 // Binary files written on one system may not be readable on other systems.
 
-#ifndef __vlStructuredGridReader_h
-#define __vlStructuredGridReader_h
+#ifndef __vtkPolyReader_h
+#define __vtkPolyReader_h
 
-#include "SGridSrc.hh"
-#include "vlDataR.hh"
+#include "PolySrc.hh"
+#include "vtkDataR.hh"
 
-class vlStructuredGridReader : public vlStructuredGridSource
+class vtkPolyReader : public vtkPolySource
 {
 public:
-  vlStructuredGridReader();
-  ~vlStructuredGridReader();
-  char *GetClassName() {return "vlStructuredGridReader";};
-  void PrintSelf(ostream& os, vlIndent indent);
+  vtkPolyReader();
+  ~vtkPolyReader();
+  char *GetClassName() {return "vtkPolyReader";};
+  void PrintSelf(ostream& os, vtkIndent indent);
 
-  // overload because of vlDataReader ivar
+  // overload because of vtkDataReader ivar
   unsigned long int GetMTime();
 
   void SetFilename(char *name);
@@ -62,8 +62,7 @@ public:
 
 protected:
   void Execute();
-  vlDataReader Reader;
-
+  vtkDataReader Reader;
 };
 
 #endif

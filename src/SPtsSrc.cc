@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    SPtsSrc.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
@@ -15,48 +15,48 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 =========================================================================*/
 #include "SPtsSrc.hh"
 
-void vlStructuredPointsSource::Modified()
+void vtkStructuredPointsSource::Modified()
 {
-  this->vlStructuredPoints::Modified();
-  this->vlSource::_Modified();
+  this->vtkStructuredPoints::Modified();
+  this->vtkSource::_Modified();
 }
 
-unsigned long int vlStructuredPointsSource::GetMTime()
+unsigned long int vtkStructuredPointsSource::GetMTime()
 {
-  unsigned long dtime = this->vlStructuredPoints::GetMTime();
-  unsigned long ftime = this->vlSource::_GetMTime();
+  unsigned long dtime = this->vtkStructuredPoints::GetMTime();
+  unsigned long ftime = this->vtkSource::_GetMTime();
   return (dtime > ftime ? dtime : ftime);
 }
 
-void vlStructuredPointsSource::Update()
+void vtkStructuredPointsSource::Update()
 {
   this->UpdateFilter();
 }
 
-void vlStructuredPointsSource::DebugOn()
+void vtkStructuredPointsSource::DebugOn()
 {
-  vlStructuredPoints::DebugOn();
-  vlSource::_DebugOn();
+  vtkStructuredPoints::DebugOn();
+  vtkSource::_DebugOn();
 }
 
-void vlStructuredPointsSource::DebugOff()
+void vtkStructuredPointsSource::DebugOff()
 {
-  vlStructuredPoints::DebugOff();
-  vlSource::_DebugOff();
+  vtkStructuredPoints::DebugOff();
+  vtkSource::_DebugOff();
 }
 
-int vlStructuredPointsSource::GetDataReleased()
+int vtkStructuredPointsSource::GetDataReleased()
 {
   return this->DataReleased;
 }
 
-void vlStructuredPointsSource::SetDataReleased(int flag)
+void vtkStructuredPointsSource::SetDataReleased(int flag)
 {
   this->DataReleased = flag;
 }
 
-void vlStructuredPointsSource::PrintSelf(ostream& os, vlIndent indent)
+void vtkStructuredPointsSource::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlStructuredPoints::PrintSelf(os,indent);
-  vlSource::_PrintSelf(os,indent);
+  vtkStructuredPoints::PrintSelf(os,indent);
+  vtkSource::_PrintSelf(os,indent);
 }

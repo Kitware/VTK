@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    Cell.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
@@ -17,7 +17,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 //
 // Instantiate cell from outside
 //
-void vlCell::Initialize(int npts, int *pts, vlPoints *p)
+void vtkCell::Initialize(int npts, int *pts, vtkPoints *p)
 {
   for (int i=0; i<npts; i++)
     {
@@ -37,7 +37,7 @@ void vlCell::Initialize(int npts, int *pts, vlPoints *p)
 #define LEFT 1
 #define MIDDLE 2
 
-char vlCell::HitBBox (float bounds[6], float origin[3], float dir[3], 
+char vtkCell::HitBBox (float bounds[6], float origin[3], float dir[3], 
                       float coord[3], float& t)
 {
   char    inside=1;
@@ -120,7 +120,7 @@ char vlCell::HitBBox (float bounds[6], float origin[3], float dir[3],
 // Description:
 // Compute cell bounding box (xmin,xmax,ymin,ymax,zmin,zmax). Return pointer
 // to array of six float values.
-float *vlCell::GetBounds ()
+float *vtkCell::GetBounds ()
 {
   float *x;
   int i, j;
@@ -144,7 +144,7 @@ float *vlCell::GetBounds ()
 // Description:
 // Compute cell bounding box (xmin,xmax,ymin,ymax,zmin,zmax). Copy result into
 // user provided array.
-void vlCell::GetBounds(float bounds[6])
+void vtkCell::GetBounds(float bounds[6])
 {
   float *b=this->GetBounds();
   for (int i=0; i < 6; i++) bounds[i] = b[i];
@@ -152,7 +152,7 @@ void vlCell::GetBounds(float bounds[6])
 
 // Description:
 // Compute Length squared of cell (i.e., bounding box diagonal squared)
-float vlCell::GetLength2 ()
+float vtkCell::GetLength2 ()
 {
   float diff, l=0.0;
   float *bounds;

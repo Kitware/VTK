@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    STLWrite.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
@@ -17,45 +17,45 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "Polygon.hh"
 #include "ByteSwap.hh"
 
-vlSTLWriter::vlSTLWriter()
+vtkSTLWriter::vtkSTLWriter()
 {
   this->Filename = NULL;
   this->WriteMode = STL_ASCII;
 }
 
-vlSTLWriter::~vlSTLWriter()
+vtkSTLWriter::~vtkSTLWriter()
 {
   if ( this->Filename ) delete [] this->Filename;
 }
 
 // Description:
 // Specify the input data or filter.
-void vlSTLWriter::SetInput(vlPolyData *input)
+void vtkSTLWriter::SetInput(vtkPolyData *input)
 {
   if ( this->Input != input )
     {
-    vlDebugMacro(<<" setting Input to " << (void *)input);
-    this->Input = (vlDataSet *) input;
+    vtkDebugMacro(<<" setting Input to " << (void *)input);
+    this->Input = (vtkDataSet *) input;
     this->Modified();
     }
 }
 
-void vlSTLWriter::WriteData()
+void vtkSTLWriter::WriteData()
 {
-  vlPoints *pts;
-  vlCellArray *polys;
-  vlPolyData *input=(vlPolyData *)this->Input;
+  vtkPoints *pts;
+  vtkCellArray *polys;
+  vtkPolyData *input=(vtkPolyData *)this->Input;
 
   if ( (pts = input->GetPoints()) == NULL ||
   (polys = input->GetPolys()) == NULL )
     {
-    vlErrorMacro(<<"No data to write!");
+    vtkErrorMacro(<<"No data to write!");
     return;
     }
 
   if ( this->Filename == NULL)
     {
-    vlErrorMacro(<< "Please specify filename to write");
+    vtkErrorMacro(<< "Please specify filename to write");
     return;
     }
 
@@ -65,24 +65,24 @@ void vlSTLWriter::WriteData()
   this->EndWrite(this->EndWriteArg);
 }
 
-static char header[]="Visualization Library generated SLA File                                        ";
+static char header[]="Visualization Toolkit generated SLA File                                        ";
 
-void vlSTLWriter::WriteAsciiSTL(vlPoints *pts, vlCellArray *polys)
+void vtkSTLWriter::WriteAsciiSTL(vtkPoints *pts, vtkCellArray *polys)
 {
   FILE *fp;
   float n[3], *v1, *v2, *v3;
   int npts, *indx;
-  vlPolygon poly;
+  vtkPolygon poly;
 
   if ((fp = fopen(this->Filename, "w")) == NULL)
     {
-    vlErrorMacro(<< "Couldn't open file: " << this->Filename);
+    vtkErrorMacro(<< "Couldn't open file: " << this->Filename);
     return;
     }
 //
 //  Write header
 //
-  vlDebugMacro("Writing ASCII sla file");
+  vtkDebugMacro("Writing ASCII sla file");
   fprintf (fp, "%80s\n", header);
 //
 //  Write out triangle polygons.  In not a triangle polygon, only first 
@@ -108,25 +108,25 @@ void vlSTLWriter::WriteAsciiSTL(vlPoints *pts, vlCellArray *polys)
   fprintf (fp, "ENDSOLID\n");
 }
 
-void vlSTLWriter::WriteBinarySTL(vlPoints *pts, vlCellArray *polys)
+void vtkSTLWriter::WriteBinarySTL(vtkPoints *pts, vtkCellArray *polys)
 {
   FILE *fp;
   float n[3], *v1, *v2, *v3;
   int npts, *indx;
-  vlPolygon poly;
-  vlByteSwap swap;
+  vtkPolygon poly;
+  vtkByteSwap swap;
   unsigned long ulint;
   unsigned short ibuff2=0;
 
   if ((fp = fopen(this->Filename, "wb")) == NULL)
     {
-    vlErrorMacro(<< "Couldn't open file: " << this->Filename);
+    vtkErrorMacro(<< "Couldn't open file: " << this->Filename);
     return;
     }
 //
 //  Write header
 //
-  vlDebugMacro("Writing ASCII sla file");
+  vtkDebugMacro("Writing ASCII sla file");
   fwrite (header, 1, 80, fp);
 
   ulint = (unsigned long int) polys->GetNumberOfCells();
@@ -162,9 +162,9 @@ void vlSTLWriter::WriteBinarySTL(vlPoints *pts, vlCellArray *polys)
     }
 }
 
-void vlSTLWriter::PrintSelf(ostream& os, vlIndent indent)
+void vtkSTLWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlWriter::PrintSelf(os,indent);
+  vtkWriter::PrintSelf(os,indent);
  
   os << indent << "Filename: " << this->Filename << "\n";
 

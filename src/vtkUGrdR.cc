@@ -1,49 +1,49 @@
 /*=========================================================================
 
-  Program:   Visualization Library
-  Module:    vlUGridR.cc
+  Program:   Visualization Toolkit
+  Module:    vtkUGrdR.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-#include "vlUGridR.hh"
+#include "vtkUGridR.hh"
 
-vlUnstructuredGridReader::vlUnstructuredGridReader()
+vtkUnstructuredGridReader::vtkUnstructuredGridReader()
 {
 }
 
-vlUnstructuredGridReader::~vlUnstructuredGridReader()
+vtkUnstructuredGridReader::~vtkUnstructuredGridReader()
 {
 }
 
-unsigned long int vlUnstructuredGridReader::GetMTime()
+unsigned long int vtkUnstructuredGridReader::GetMTime()
 {
-  unsigned long dtime = this->vlUnstructuredGridSource::GetMTime();
+  unsigned long dtime = this->vtkUnstructuredGridSource::GetMTime();
   unsigned long rtime = this->Reader.GetMTime();
   return (dtime > rtime ? dtime : rtime);
 }
 
 // Description:
-// Specify file name of vl polygonal data file to read.
-void vlUnstructuredGridReader::SetFilename(char *name) 
+// Specify file name of vtk polygonal data file to read.
+void vtkUnstructuredGridReader::SetFilename(char *name) 
 {
   this->Reader.SetFilename(name);
 }
-char *vlUnstructuredGridReader::GetFilename() 
+char *vtkUnstructuredGridReader::GetFilename() 
 {
   return this->Reader.GetFilename();
 }
 
 // Description:
 // Get the type of file (ASCII or BINARY)
-int vlUnstructuredGridReader::GetFileType() 
+int vtkUnstructuredGridReader::GetFileType() 
 {
   return this->Reader.GetFileType();
 }
@@ -51,11 +51,11 @@ int vlUnstructuredGridReader::GetFileType()
 // Description:
 // Set the name of the scalar data to extract. If not specified, first 
 // scalar data encountered is extracted.
-void vlUnstructuredGridReader::SetScalarsName(char *name) 
+void vtkUnstructuredGridReader::SetScalarsName(char *name) 
 {
   this->Reader.SetScalarsName(name);
 }
-char *vlUnstructuredGridReader::GetScalarsName() 
+char *vtkUnstructuredGridReader::GetScalarsName() 
 {
   return this->Reader.GetScalarsName();
 }
@@ -63,11 +63,11 @@ char *vlUnstructuredGridReader::GetScalarsName()
 // Description:
 // Set the name of the vector data to extract. If not specified, first 
 // vector data encountered is extracted.
-void vlUnstructuredGridReader::SetVectorsName(char *name) 
+void vtkUnstructuredGridReader::SetVectorsName(char *name) 
 {
   this->Reader.SetVectorsName(name);
 }
-char *vlUnstructuredGridReader::GetVectorsName() 
+char *vtkUnstructuredGridReader::GetVectorsName() 
 {
   return this->Reader.GetVectorsName();
 }
@@ -75,11 +75,11 @@ char *vlUnstructuredGridReader::GetVectorsName()
 // Description:
 // Set the name of the tensor data to extract. If not specified, first 
 // tensor data encountered is extracted.
-void vlUnstructuredGridReader::SetTensorsName(char *name) 
+void vtkUnstructuredGridReader::SetTensorsName(char *name) 
 {
   this->Reader.SetTensorsName(name);
 }
-char *vlUnstructuredGridReader::GetTensorsName() 
+char *vtkUnstructuredGridReader::GetTensorsName() 
 {
   return this->Reader.GetTensorsName();
 }
@@ -87,11 +87,11 @@ char *vlUnstructuredGridReader::GetTensorsName()
 // Description:
 // Set the name of the normal data to extract. If not specified, first 
 // normal data encountered is extracted.
-void vlUnstructuredGridReader::SetNormalsName(char *name) 
+void vtkUnstructuredGridReader::SetNormalsName(char *name) 
 {
   this->Reader.SetNormalsName(name);
 }
-char *vlUnstructuredGridReader::GetNormalsName() 
+char *vtkUnstructuredGridReader::GetNormalsName() 
 {
   return this->Reader.GetNormalsName();
 }
@@ -99,11 +99,11 @@ char *vlUnstructuredGridReader::GetNormalsName()
 // Description:
 // Set the name of the texture coordinate data to extract. If not specified,
 // first texture coordinate data encountered is extracted.
-void vlUnstructuredGridReader::SetTCoordsName(char *name) 
+void vtkUnstructuredGridReader::SetTCoordsName(char *name) 
 {
   this->Reader.SetTCoordsName(name);
 }
-char *vlUnstructuredGridReader::GetTCoordsName() 
+char *vtkUnstructuredGridReader::GetTCoordsName() 
 {
   return this->Reader.GetTCoordsName();
 }
@@ -111,26 +111,26 @@ char *vlUnstructuredGridReader::GetTCoordsName()
 // Description:
 // Set the name of the lookup table data to extract. If not specified, uses 
 // lookup table named by scalar. Otherwise, this specification supersedes.
-void vlUnstructuredGridReader::SetLookupTableName(char *name) 
+void vtkUnstructuredGridReader::SetLookupTableName(char *name) 
 {
   this->Reader.SetLookupTableName(name);
 }
-char *vlUnstructuredGridReader::GetLookupTableName() 
+char *vtkUnstructuredGridReader::GetLookupTableName() 
 {
   return this->Reader.GetLookupTableName();
 }
 
-void vlUnstructuredGridReader::Execute()
+void vtkUnstructuredGridReader::Execute()
 {
   FILE *fp;
   int numPts=0;
   int retStat;
   char line[257];
   int npts, size, ncells;
-  vlCellArray *cells=NULL;
+  vtkCellArray *cells=NULL;
   int *types=NULL;
 
-  vlDebugMacro(<<"Reading vl unstructured grid...");
+  vtkDebugMacro(<<"Reading vtk unstructured grid...");
   this->Initialize();
   if ( this->Debug ) this->Reader.DebugOn();
   else this->Reader.DebugOff();
@@ -142,7 +142,7 @@ void vlUnstructuredGridReader::Execute()
 //
   if ( (retStat=fscanf(fp,"%256s",line)) == EOF || retStat < 1 ) 
     {
-    vlErrorMacro(<<"Data file ends prematurely!");
+    vtkErrorMacro(<<"Data file ends prematurely!");
     return;
     }
 
@@ -153,13 +153,13 @@ void vlUnstructuredGridReader::Execute()
 //
     if ( (retStat=fscanf(fp,"%256s",line)) == EOF || retStat < 1 ) 
       {
-      vlErrorMacro(<<"Data file ends prematurely!");
+      vtkErrorMacro(<<"Data file ends prematurely!");
       return;
       } 
 
     if ( strncmp(this->Reader.LowerCase(line),"unstructured_grid",17) )
       {
-      vlErrorMacro(<< "Cannot read dataset type: " << line);
+      vtkErrorMacro(<< "Cannot read dataset type: " << line);
       return;
       }
 //
@@ -173,22 +173,22 @@ void vlUnstructuredGridReader::Execute()
         {
         if ( (retStat=fscanf(fp,"%d", &numPts)) == EOF || retStat < 1 ) 
           {
-          vlErrorMacro(<<"Cannot read number of points!");
+          vtkErrorMacro(<<"Cannot read number of points!");
           return;
           }
 
-        if ( ! this->Reader.ReadPoints(fp, (vlPointSet *)this, numPts) ) return;
+        if ( ! this->Reader.ReadPoints(fp, (vtkPointSet *)this, numPts) ) return;
         }
 
       else if ( ! strncmp(line,"cells",5) )
         {
         if ((retStat=fscanf(fp,"%d %d", &ncells, &size)) == EOF || retStat < 2) 
           {
-          vlErrorMacro(<<"Cannot read cells!");
+          vtkErrorMacro(<<"Cannot read cells!");
           return;
           }
 
-        cells = new vlCellArray;
+        cells = new vtkCellArray;
         if ( !this->Reader.ReadCells(fp, size, cells->WritePtr(ncells,size)) ) return;
         cells->WrotePtr();
         if ( cells && types ) this->SetCells(types, cells);
@@ -198,7 +198,7 @@ void vlUnstructuredGridReader::Execute()
         {
         if ( (retStat=fscanf(fp,"%d", &ncells)) == EOF || retStat < 1 ) 
           {
-          vlErrorMacro(<<"Cannot read cell types!");
+          vtkErrorMacro(<<"Cannot read cell types!");
           return;
           }
 
@@ -208,7 +208,7 @@ void vlUnstructuredGridReader::Execute()
           if ( (fgets(line,256,fp) == NULL) ||
           (fread(types,sizeof(int),ncells,fp) != ncells) )
             {
-            vlErrorMacro(<<"Error reading binary cell types!");
+            vtkErrorMacro(<<"Error reading binary cell types!");
             return;
             }
           }
@@ -218,7 +218,7 @@ void vlUnstructuredGridReader::Execute()
             {
             if ((retStat=fscanf(fp,"%d",types+i)) == EOF || retStat < 1) 
               {
-              vlErrorMacro(<<"Error reading cell types!");
+              vtkErrorMacro(<<"Error reading cell types!");
               return;
               }
             }
@@ -230,57 +230,57 @@ void vlUnstructuredGridReader::Execute()
         {
         if ( (retStat=fscanf(fp,"%d", &npts)) == EOF || retStat < 1 ) 
           {
-          vlErrorMacro(<<"Cannot read point data!");
+          vtkErrorMacro(<<"Cannot read point data!");
           return;
           }
         
         if ( npts != numPts )
           {
-          vlErrorMacro(<<"Number of points don't match!");
+          vtkErrorMacro(<<"Number of points don't match!");
           return;
           }
 
-        this->Reader.ReadPointData(fp, (vlDataSet *)this, npts);
+        this->Reader.ReadPointData(fp, (vtkDataSet *)this, npts);
         break; //out of this loop
         }
 
       else
         {
-        vlErrorMacro(<< "Unrecognized keyord: " << line);
+        vtkErrorMacro(<< "Unrecognized keyord: " << line);
         return;
         }
       }
-      if ( ! this->GetPoints() ) vlWarningMacro(<<"No points read!");
-      if ( ! (cells && types) )  vlWarningMacro(<<"No topology read!");
+      if ( ! this->GetPoints() ) vtkWarningMacro(<<"No points read!");
+      if ( ! (cells && types) )  vtkWarningMacro(<<"No topology read!");
     }
 
   else if ( !strncmp(line, "point_data", 10) )
     {
-    vlWarningMacro(<<"No geometry defined in data file!");
+    vtkWarningMacro(<<"No geometry defined in data file!");
     if ( (retStat=fscanf(fp,"%d", &numPts)) == EOF || retStat < 1 ) 
       {
-      vlErrorMacro(<<"Cannot read point data!");
+      vtkErrorMacro(<<"Cannot read point data!");
       return;
       }
 
-    this->Reader.ReadPointData(fp, (vlDataSet *)this, numPts);
+    this->Reader.ReadPointData(fp, (vtkDataSet *)this, numPts);
     }
 
   else 
     {
-    vlErrorMacro(<< "Unrecognized keyord: " << line);
+    vtkErrorMacro(<< "Unrecognized keyord: " << line);
     }
 //
 // Clean-up and get out
 //
   if ( types ) delete [] types;
 
-  vlDebugMacro(<<"Read " <<this->GetNumberOfPoints() <<" points," <<this->GetNumberOfCells() <<" cells.\n");
+  vtkDebugMacro(<<"Read " <<this->GetNumberOfPoints() <<" points," <<this->GetNumberOfCells() <<" cells.\n");
   return;
 }
 
-void vlUnstructuredGridReader::PrintSelf(ostream& os, vlIndent indent)
+void vtkUnstructuredGridReader::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlUnstructuredGridSource::PrintSelf(os,indent);
+  vtkUnstructuredGridSource::PrintSelf(os,indent);
   this->Reader.PrintSelf(os,indent.GetNextIndent());
 }

@@ -1,44 +1,44 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    Sphere.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-// .NAME vlSphere - implicit function for a sphere
+// .NAME vtkSphere - implicit function for a sphere
 // .SECTION Description
-// vlSphere computes the implicit function and/or gradient for a sphere.
-// vlSphere is a concrete implementation of vlImplicitFunction.
+// vtkSphere computes the implicit function and/or gradient for a sphere.
+// vtkSphere is a concrete implementation of vtkImplicitFunction.
 
-#ifndef __vlSphere_h
-#define __vlSphere_h
+#ifndef __vtkSphere_h
+#define __vtkSphere_h
 
 #include "ImpFunc.hh"
 
-class vlSphere : public vlImplicitFunction
+class vtkSphere : public vtkImplicitFunction
 {
 public:
-  vlSphere();
-  char *GetClassName() {return "vlSphere";};
-  void PrintSelf(ostream& os, vlIndent indent);
+  vtkSphere();
+  char *GetClassName() {return "vtkSphere";};
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // ImplicitFunction interface
   float EvaluateFunction(float x[3]);
   void EvaluateGradient(float x[3], float n[3]);
 
-  vlSetMacro(Radius,float);
-  vlGetMacro(Radius,float);
+  vtkSetMacro(Radius,float);
+  vtkGetMacro(Radius,float);
 
-  vlSetVector3Macro(Center,float);
-  vlGetVectorMacro(Center,float,3);
+  vtkSetVector3Macro(Center,float);
+  vtkGetVectorMacro(Center,float,3);
 
 protected:
   float Radius;

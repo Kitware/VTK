@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    BrownPts.cc
   Language:  C++
   Date:      9/14/94
   Version:   1.1
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
@@ -15,38 +15,38 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 =========================================================================*/
 #include "BrownPts.hh"
 #include "FVectors.hh"
-#include "vlMath.hh"
+#include "vtkMath.hh"
 
-vlBrownianPoints::vlBrownianPoints()
+vtkBrownianPoints::vtkBrownianPoints()
 {
   this->MinimumSpeed = 0.0;
   this->MaximumSpeed = 1.0;
 }
 
-void vlBrownianPoints::Execute()
+void vtkBrownianPoints::Execute()
 {
   int i, numPts;
-  vlFloatVectors *newVectors;
-  vlMath math;
+  vtkFloatVectors *newVectors;
+  vtkMath math;
   float v[3], norm, speed;
 
-  vlDebugMacro(<< "Executing Brownian filter");
+  vtkDebugMacro(<< "Executing Brownian filter");
 
   this->Initialize();
 
   if ( ((numPts=this->Input->GetNumberOfPoints()) < 1) )
     {
-    vlErrorMacro(<< "No input!\n");
+    vtkErrorMacro(<< "No input!\n");
     return;
     }
 
-  newVectors = new vlFloatVectors(numPts);
+  newVectors = new vtkFloatVectors(numPts);
 //
 // Check consistency of minumum and maximum speed
 //  
   if ( this->MinimumSpeed > this->MaximumSpeed )
     {
-    vlErrorMacro(<< " Minimum speed > maximum speed; reset to (0,1).");
+    vtkErrorMacro(<< " Minimum speed > maximum speed; reset to (0,1).");
     this->MinimumSpeed = 0.0;
     this->MaximumSpeed = 1.0;
     }
@@ -76,9 +76,9 @@ void vlBrownianPoints::Execute()
   this->GetPointData()->SetVectors(newVectors);
 }
 
-void vlBrownianPoints::PrintSelf(ostream& os, vlIndent indent)
+void vtkBrownianPoints::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlDataSetToDataSetFilter::PrintSelf(os,indent);
+  vtkDataSetToDataSetFilter::PrintSelf(os,indent);
 
   os << indent << "Minimum Speed: " << this->MinimumSpeed << "\n";
   os << indent << "Maximum Speed: " << this->MaximumSpeed << "\n";

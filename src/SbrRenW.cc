@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    SbrRenW.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its
+This file is part of the Visualization Toolkit. No part of this file or its
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
@@ -29,73 +29,73 @@ static char *lights[MAX_LIGHTS] =
 {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
 
-vlSbrRenderWindow::vlSbrRenderWindow()
+vtkSbrRenderWindow::vtkSbrRenderWindow()
 {
   this->Fd = -1;
   this->StereoType = VL_STEREO_CRYSTAL_EYES;
-  strcpy(this->Name,"Visualization Library - Starbase");
+  strcpy(this->Name,"Visualization Toolkit - Starbase");
   this->Buffer = 0;
 }
 
 
 // Description:
 // Create a starbase specific light.
-vlLightDevice *vlSbrRenderWindow::MakeLight()
+vtkLightDevice *vtkSbrRenderWindow::MakeLight()
 {
-  vlSbrLight *light;
+  vtkSbrLight *light;
 
-  light = new vlSbrLight;
-  return (vlLightDevice *)light;
+  light = new vtkSbrLight;
+  return (vtkLightDevice *)light;
 }
 
 // Description:
 // Create a starbase specific renderer.
-vlRenderer *vlSbrRenderWindow::MakeRenderer()
+vtkRenderer *vtkSbrRenderWindow::MakeRenderer()
 {
-  vlSbrRenderer *ren;
+  vtkSbrRenderer *ren;
 
-  ren = new vlSbrRenderer;
+  ren = new vtkSbrRenderer;
   this->AddRenderers(ren);
 
   // by default we are its parent
-  ren->SetRenderWindow((vlRenderWindow*)this);
+  ren->SetRenderWindow((vtkRenderWindow*)this);
   
-  return (vlRenderer *)ren;
+  return (vtkRenderer *)ren;
 }
 
 // Description:
 // Create a starbase specific camera.
-vlCameraDevice *vlSbrRenderWindow::MakeCamera()
+vtkCameraDevice *vtkSbrRenderWindow::MakeCamera()
 {
-  vlSbrCamera *camera;
+  vtkSbrCamera *camera;
 
-  camera = new vlSbrCamera;
-  return (vlCameraDevice *)camera;
+  camera = new vtkSbrCamera;
+  return (vtkCameraDevice *)camera;
 }
 
 // Description:
 // Create a starbase specific property.
-vlPropertyDevice *vlSbrRenderWindow::MakeProperty()
+vtkPropertyDevice *vtkSbrRenderWindow::MakeProperty()
 {
-  vlSbrProperty *property;
+  vtkSbrProperty *property;
 
-  property = new vlSbrProperty;
-  return (vlPropertyDevice *)property;
+  property = new vtkSbrProperty;
+  return (vtkPropertyDevice *)property;
 }
 
 // Description:
 // Create a starbase specific texture.
-vlTextureDevice *vlSbrRenderWindow::MakeTexture()
+vtkTextureDevice *vtkSbrRenderWindow::MakeTexture()
 {
-  vlSbrTexture *texture;
+  vtkSbrTexture *texture;
 
-  texture = new vlSbrTexture;
-  return (vlTextureDevice *)texture;
+  texture = new vtkSbrTexture;
+  return (vtkTextureDevice *)texture;
 }
 
 // Description:
 // Begin the rendering process.
-void vlSbrRenderWindow::Start(void)
+void vtkSbrRenderWindow::Start(void)
 {
   // if the renderer has not been initialized, do so now
   if (this->Fd == -1)
@@ -106,7 +106,7 @@ void vlSbrRenderWindow::Start(void)
 
 // Description:
 // Update system if needed due to stereo rendering.
-void vlSbrRenderWindow::StereoUpdate(void)
+void vtkSbrRenderWindow::StereoUpdate(void)
 {
   // if stereo is on and it wasn't before
   if (this->StereoRender && (!this->StereoStatus))
@@ -153,7 +153,7 @@ void vlSbrRenderWindow::StereoUpdate(void)
 
 // Description:
 // End the rendering process and display the image.
-void vlSbrRenderWindow::Frame(void)
+void vtkSbrRenderWindow::Frame(void)
 {
   // flush and display the buffer
   if (this->DoubleBuffer) 
@@ -347,7 +347,7 @@ static Visual *xlib_get_best_visual(Display *display)
 }
 
 
-int vlSbrRenderWindow::GetDesiredDepth ()
+int vtkSbrRenderWindow::GetDesiredDepth ()
 {
   int depth;
 
@@ -357,7 +357,7 @@ int vlSbrRenderWindow::GetDesiredDepth ()
     this->DisplayId = XOpenDisplay((char *)NULL); 
     if (this->DisplayId == NULL) 
       {
-      vlErrorMacro(<< "bad X server connection.\n");
+      vtkErrorMacro(<< "bad X server connection.\n");
       }
     }
 
@@ -369,7 +369,7 @@ int vlSbrRenderWindow::GetDesiredDepth ()
 
 // Description:
 // Obtain a colormap from windowing system.
-Colormap vlSbrRenderWindow::GetDesiredColormap ()
+Colormap vtkSbrRenderWindow::GetDesiredColormap ()
 {
   XVisualInfo *pVisInfo, visInfo;
   Colormap cmapID;
@@ -398,7 +398,7 @@ Colormap vlSbrRenderWindow::GetDesiredColormap ()
   if(depth == 24)
     visInfo.c_class = DirectColor;
   
-  vlDebugMacro(<< "Starbase: The depth is " << depth << "\n");
+  vtkDebugMacro(<< "Starbase: The depth is " << depth << "\n");
   /*
    * First, ask for the desired visual
    */
@@ -459,7 +459,7 @@ Colormap vlSbrRenderWindow::GetDesiredColormap ()
 
 // Description:
 // Get a visual from the windowing system.
-Visual *vlSbrRenderWindow::GetDesiredVisual ()
+Visual *vtkSbrRenderWindow::GetDesiredVisual ()
 {
   Visual *vis;
 
@@ -469,7 +469,7 @@ Visual *vlSbrRenderWindow::GetDesiredVisual ()
     this->DisplayId = XOpenDisplay((char *)NULL); 
     if (this->DisplayId == NULL) 
       {
-      vlErrorMacro(<< "bad X server connection.\n");
+      vtkErrorMacro(<< "bad X server connection.\n");
       }
     }
 
@@ -482,7 +482,7 @@ Visual *vlSbrRenderWindow::GetDesiredVisual ()
 
 // Description:
 // Create a window for starbase output.
-int vlSbrRenderWindow::CreateXWindow(Display *dpy,int xpos,int ypos, 
+int vtkSbrRenderWindow::CreateXWindow(Display *dpy,int xpos,int ypos, 
 				     int width,int height,int depth, 
 				     char name[80])
 {
@@ -524,7 +524,7 @@ int vlSbrRenderWindow::CreateXWindow(Display *dpy,int xpos,int ypos,
   if(depth == 24)
     visInfo.c_class = DirectColor;
   
-  vlDebugMacro(<< "Starbase: The depth is " << depth << "\n");
+  vtkDebugMacro(<< "Starbase: The depth is " << depth << "\n");
   /*
    * First, ask for the desired visual
    */
@@ -629,7 +629,7 @@ int vlSbrRenderWindow::CreateXWindow(Display *dpy,int xpos,int ypos,
  
 // Description:
 // Initialize the rendering window.
-void vlSbrRenderWindow::WindowInitialize (void)
+void vtkSbrRenderWindow::WindowInitialize (void)
 {
   char *device, *driver, *str;
   int planes, depth, mode;
@@ -656,7 +656,7 @@ void vlSbrRenderWindow::WindowInitialize (void)
 			    this->Size[1],
 			    depth, this->Name)) 
       {
-      vlErrorMacro(<< "Couldn't create window\n");
+      vtkErrorMacro(<< "Couldn't create window\n");
       return;
       }
     this->OwnWindow = 1;
@@ -669,7 +669,7 @@ void vlSbrRenderWindow::WindowInitialize (void)
     /* make sure the window is unmapped */
     XUnmapWindow(this->DisplayId, this->WindowId);
     XSync(this->DisplayId,False);
-    vlDebugMacro(<< "Unmapping the xwindow\n");
+    vtkDebugMacro(<< "Unmapping the xwindow\n");
     XGetWindowAttributes(this->DisplayId,
 			 this->WindowId,&winattr);
     while (winattr.map_state != IsUnmapped)
@@ -680,7 +680,7 @@ void vlSbrRenderWindow::WindowInitialize (void)
       }; 
     
     /* make sure the window is full screen */
-    vlDebugMacro( << "Resizing the xwindow\n");
+    vtkDebugMacro( << "Resizing the xwindow\n");
     XSelectInput(this->DisplayId, this->WindowId, 
 		 KeyPressMask|ExposureMask);
 
@@ -710,7 +710,7 @@ void vlSbrRenderWindow::WindowInitialize (void)
   device = make_X11_gopen_string(this->DisplayId, (Window)this->WindowId);
   if (!device) 
     {
-    vlErrorMacro(<< "Could not create device file for window.\n");
+    vtkErrorMacro(<< "Could not create device file for window.\n");
     device = "/dev/crt";
     }
   
@@ -719,13 +719,13 @@ void vlSbrRenderWindow::WindowInitialize (void)
        gopen(device, mode, driver, 
 	     RESET_DEVICE | INIT | THREE_D | MODEL_XFORM)) == -1) 
     {
-    vlErrorMacro(<< "cannot open starbase driver error number= " 
+    vtkErrorMacro(<< "cannot open starbase driver error number= " 
     << errno << "\n");
     return;
     }
 
   // RESIZE THE WINDOW TO THE DESIRED SIZE
-  vlDebugMacro(<< "Resizing the xwindow\n");
+  vtkDebugMacro(<< "Resizing the xwindow\n");
   XResizeWindow(this->DisplayId,this->WindowId,
 		((this->Size[0] > 0) ? 
 		 (int)(this->Size[0]) : 256),
@@ -764,7 +764,7 @@ void vlSbrRenderWindow::WindowInitialize (void)
 
   /* Finally -- we can map the window!  We won't actually render anything
      to the window until the expose event happens later. */
-  vlDebugMacro(<< "Mapping the xwindow\n");
+  vtkDebugMacro(<< "Mapping the xwindow\n");
   XMapWindow(this->DisplayId, this->WindowId);
   XSync(this->DisplayId,False);
   XGetWindowAttributes(this->DisplayId,
@@ -783,7 +783,7 @@ void vlSbrRenderWindow::WindowInitialize (void)
 	    0.0, 1.0, 1.0, 1.0);
 
   mapping_mode(this->Fd, DISTORT);
-  vlDebugMacro(<< "SB_mapping_mode: DISTORT\n");
+  vtkDebugMacro(<< "SB_mapping_mode: DISTORT\n");
   
   // set clipping
   clip_rectangle(this->Fd, 0.0, 1.0, 0.0, 1.0);
@@ -802,7 +802,7 @@ void vlSbrRenderWindow::WindowInitialize (void)
 				TRUE | INIT | SUPPRESS_CLEAR,
 				depth)) != depth)
       {
-      vlDebugMacro(<< "Only " << planes <<
+      vtkDebugMacro(<< "Only " << planes <<
       " planes available for double buffering\n");
       this->NumPlanes = planes;
       }
@@ -832,7 +832,7 @@ void vlSbrRenderWindow::WindowInitialize (void)
 
 // Description:
 // Initialize the rendering window.
-void vlSbrRenderWindow::Initialize (void)
+void vtkSbrRenderWindow::Initialize (void)
 {
   // make sure we haven't already been initialized 
   if (this->Fd != -1) return;
@@ -844,7 +844,7 @@ void vlSbrRenderWindow::Initialize (void)
 
 // Description:
 // Change the window to fill the entire screen.
-void vlSbrRenderWindow::SetFullScreen(int arg)
+void vtkSbrRenderWindow::SetFullScreen(int arg)
 {
   int *temp;
 
@@ -903,7 +903,7 @@ void vlSbrRenderWindow::SetFullScreen(int arg)
 
 // Description:
 // Set the preferred window size to full screen.
-void vlSbrRenderWindow::PrefFullScreen()
+void vtkSbrRenderWindow::PrefFullScreen()
 {
   int *size;
 
@@ -922,7 +922,7 @@ void vlSbrRenderWindow::PrefFullScreen()
 
 // Description:
 // Resize the window.
-void vlSbrRenderWindow::WindowRemap()
+void vtkSbrRenderWindow::WindowRemap()
 {
   // close the starbase window 
   if (this->Fd)
@@ -947,7 +947,7 @@ void vlSbrRenderWindow::WindowRemap()
 
 // Description:
 // Specify the size of the rendering window.
-void vlSbrRenderWindow::SetSize(int x,int y)
+void vtkSbrRenderWindow::SetSize(int x,int y)
 {
   // if we arent mappen then just set the ivars 
   if (!this->Mapped)
@@ -972,9 +972,9 @@ void vlSbrRenderWindow::SetSize(int x,int y)
   XSync(this->DisplayId,False);
 }
 
-void vlSbrRenderWindow::PrintSelf(ostream& os, vlIndent indent)
+void vtkSbrRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->vlXRenderWindow::PrintSelf(os,indent);
+  this->vtkXRenderWindow::PrintSelf(os,indent);
 
   os << indent << "Fd: " << this->Fd << "\n";
 }
@@ -994,7 +994,7 @@ void vlSbrRenderWindow::PrintSelf(ostream& os, vlIndent indent)
 #define GREEN_FROM_666(p) ((p%36)/6*51)
 #define BLUE_FROM_666(p) ((p%6)*51)
 
-unsigned char *vlSbrRenderWindow::GetPixelData(int x1, int y1, int x2, int y2)
+unsigned char *vtkSbrRenderWindow::GetPixelData(int x1, int y1, int x2, int y2)
 {
   long     xloop,yloop;
   int     y_low, y_hi;
@@ -1158,7 +1158,7 @@ unsigned char *vlSbrRenderWindow::GetPixelData(int x1, int y1, int x2, int y2)
   return data;
 }
 
-void vlSbrRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
+void vtkSbrRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
 				     unsigned char *data)
 {
   int     y_low, y_hi;
@@ -1317,7 +1317,7 @@ void vlSbrRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
 
 // Description:
 // Handles work required at end of render cycle
-void vlSbrRenderWindow::CopyResultFrame(void)
+void vtkSbrRenderWindow::CopyResultFrame(void)
 {
   if (this->ResultFrame)
     {
@@ -1334,7 +1334,7 @@ void vlSbrRenderWindow::CopyResultFrame(void)
   this->Frame();
 }
 
-void vlSbrRenderWindow::SaveImageAsPPM()
+void vtkSbrRenderWindow::SaveImageAsPPM()
 {
   // flush and display the buffer
   if (this->DoubleBuffer) 
@@ -1342,7 +1342,7 @@ void vlSbrRenderWindow::SaveImageAsPPM()
     dbuffer_switch(this->Fd, this->Buffer = !(this->Buffer));
     }
 
-  this->vlRenderWindow::SaveImageAsPPM();
+  this->vtkRenderWindow::SaveImageAsPPM();
 
   // flush and display the buffer
   if (this->DoubleBuffer) 

@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    SbrProp.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its
+This file is part of the Visualization Toolkit. No part of this file or its
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
@@ -21,14 +21,14 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 // Description:
 // Implement base class method.
-void vlSbrProperty::Render(vlProperty *prop, vlRenderer *ren)
+void vtkSbrProperty::Render(vtkProperty *prop, vtkRenderer *ren)
 {
-  this->Render(prop, (vlSbrRenderer *)ren);
+  this->Render(prop, (vtkSbrRenderer *)ren);
 }
 
 // Description:
 // Actual property render method.
-void vlSbrProperty::Render(vlProperty *prop, vlSbrRenderer *ren)
+void vtkSbrProperty::Render(vtkProperty *prop, vtkSbrRenderer *ren)
 {
   int fd;
   int     style;
@@ -59,7 +59,7 @@ void vlSbrProperty::Render(vlProperty *prop, vlSbrRenderer *ren)
   bf_perimeter_color(fd, EdgeColor[0], EdgeColor[1], EdgeColor[2]);
 
   // Tell the geometry primitives about the default properties 
-  vlSbrPrimitive::SetProperty(prop);
+  vtkSbrPrimitive::SetProperty(prop);
 
   switch (prop->GetRepresentation()) 
     {

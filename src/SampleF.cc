@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    SampleF.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
@@ -14,14 +14,14 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
 #include "SampleF.hh"
-#include "vlMath.hh"
+#include "vtkMath.hh"
 #include "FScalars.hh"
 #include "FNormals.hh"
 
 // Description:
 // Construct with ModelBounds=(-1,1,-1,1,-1,1), SampleDimensions=(50,50,50),
 // Capping turned off, and normal generation on.
-vlSampleFunction::vlSampleFunction()
+vtkSampleFunction::vtkSampleFunction()
 {
   this->ModelBounds[0] = -1.0;
   this->ModelBounds[1] = 1.0;
@@ -42,9 +42,9 @@ vlSampleFunction::vlSampleFunction()
   this->ComputeNormals = 1;
 }
 
-void vlSampleFunction::PrintSelf(ostream& os, vlIndent indent)
+void vtkSampleFunction::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlStructuredPointsSource::PrintSelf(os,indent);
+  vtkStructuredPointsSource::PrintSelf(os,indent);
 
   os << indent << "Sample Dimensions: (" << this->SampleDimensions[0] << ", "
                << this->SampleDimensions[1] << ", "
@@ -58,7 +58,7 @@ void vlSampleFunction::PrintSelf(ostream& os, vlIndent indent)
 // Description:
 // Specify the model bounds is the location in space in which the 
 // sampling occurs.
-void vlSampleFunction::SetModelBounds(float xmin, float xmax, float ymin, float ymax, float zmin, float zmax)
+void vtkSampleFunction::SetModelBounds(float xmin, float xmax, float ymin, float ymax, float zmin, float zmax)
 {
   if (this->ModelBounds[0] != xmin || this->ModelBounds[1] != xmax ||
   this->ModelBounds[2] != ymin || this->ModelBounds[3] != ymax ||
@@ -74,21 +74,21 @@ void vlSampleFunction::SetModelBounds(float xmin, float xmax, float ymin, float 
     }
 }
 
-void vlSampleFunction::SetModelBounds(float *bounds)
+void vtkSampleFunction::SetModelBounds(float *bounds)
 {
-  vlSampleFunction::SetModelBounds(bounds[0], bounds[1], bounds[2], bounds[3], bounds[4], bounds[5]);
+  vtkSampleFunction::SetModelBounds(bounds[0], bounds[1], bounds[2], bounds[3], bounds[4], bounds[5]);
 }
 
-void vlSampleFunction::Execute()
+void vtkSampleFunction::Execute()
 {
   int ptId, i;
-  vlFloatScalars *newScalars;
-  vlFloatNormals *newNormals=NULL;
+  vtkFloatScalars *newScalars;
+  vtkFloatNormals *newNormals=NULL;
   int numPts;
   float *p, s;
-  vlMath math;
+  vtkMath math;
 
-  vlDebugMacro(<< "Sampling implicit function");
+  vtkDebugMacro(<< "Sampling implicit function");
 //
 // Initialize self; create output objects
 //
@@ -96,13 +96,13 @@ void vlSampleFunction::Execute()
 
   if ( !this->ImplicitFunction )
     {
-    vlErrorMacro(<<"No implicit function specified");
+    vtkErrorMacro(<<"No implicit function specified");
     return;
     }
 
   numPts = this->SampleDimensions[0] * this->SampleDimensions[1] 
            * this->SampleDimensions[2];
-  newScalars = new vlFloatScalars(numPts);
+  newScalars = new vtkFloatScalars(numPts);
 
   // Compute origin and aspect ratio
   this->SetDimensions(this->GetSampleDimensions());
@@ -127,7 +127,7 @@ void vlSampleFunction::Execute()
   if ( this->ComputeNormals )
     {
     float n[3];
-    newNormals = new vlFloatNormals(numPts);
+    newNormals = new vtkFloatNormals(numPts);
     for (ptId=0; ptId < numPts; ptId++ )
       {
       p = this->GetPoint(ptId);
@@ -152,7 +152,7 @@ void vlSampleFunction::Execute()
 }
 
 
-void vlSampleFunction::SetSampleDimensions(int i, int j, int k)
+void vtkSampleFunction::SetSampleDimensions(int i, int j, int k)
 {
   int dim[3];
 
@@ -163,9 +163,9 @@ void vlSampleFunction::SetSampleDimensions(int i, int j, int k)
   this->SetSampleDimensions(dim);
 }
 
-void vlSampleFunction::SetSampleDimensions(int dim[3])
+void vtkSampleFunction::SetSampleDimensions(int dim[3])
 {
-  vlDebugMacro(<< " setting SampleDimensions to (" << dim[0] << "," << dim[1] << "," << dim[2] << ")");
+  vtkDebugMacro(<< " setting SampleDimensions to (" << dim[0] << "," << dim[1] << "," << dim[2] << ")");
 
   if ( dim[0] != this->SampleDimensions[0] || dim[1] != SampleDimensions[1] ||
   dim[2] != SampleDimensions[2] )
@@ -176,9 +176,9 @@ void vlSampleFunction::SetSampleDimensions(int dim[3])
     }
 }
 
-unsigned long vlSampleFunction::GetMTime()
+unsigned long vtkSampleFunction::GetMTime()
 {
-  unsigned long mTime=this->vlStructuredPointsSource::GetMTime();
+  unsigned long mTime=this->vtkStructuredPointsSource::GetMTime();
   unsigned long impFuncMTime;
 
   if ( this->ImplicitFunction != NULL )
@@ -190,7 +190,7 @@ unsigned long vlSampleFunction::GetMTime()
   return mTime;
 }
 
-void vlSampleFunction::Cap(vlFloatScalars *s)
+void vtkSampleFunction::Cap(vtkFloatScalars *s)
 {
   int i,j,k;
   int idx;

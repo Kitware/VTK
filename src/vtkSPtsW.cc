@@ -1,40 +1,40 @@
 /*=========================================================================
 
-  Program:   Visualization Library
-  Module:    vlSPtsW.cc
+  Program:   Visualization Toolkit
+  Module:    vtkSPtsW.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-#include "vlSPtsW.hh"
+#include "vtkSPtsW.hh"
 
 // Description:
 // Specify the input data or filter.
-void vlStructuredPointsWriter::SetInput(vlStructuredPoints *input)
+void vtkStructuredPointsWriter::SetInput(vtkStructuredPoints *input)
 {
   if ( this->Input != input )
     {
-    vlDebugMacro(<<" setting Input to " << (void *)input);
-    this->Input = (vlDataSet *) input;
+    vtkDebugMacro(<<" setting Input to " << (void *)input);
+    this->Input = (vtkDataSet *) input;
     this->Modified();
     }
 }
 
-void vlStructuredPointsWriter::WriteData()
+void vtkStructuredPointsWriter::WriteData()
 {
   FILE *fp;
-  vlStructuredPoints *input=(vlStructuredPoints *)this->Input;
+  vtkStructuredPoints *input=(vtkStructuredPoints *)this->Input;
   int dim[3];
   float ar[3], origin[3];
 
-  vlDebugMacro(<<"Writing vl structured points...");
+  vtkDebugMacro(<<"Writing vtk structured points...");
 
   if ( !(fp=this->OpenVLFile()) || !this->WriteHeader(fp) )
       return;
@@ -57,7 +57,7 @@ void vlStructuredPointsWriter::WriteData()
   this->CloseVLFile(fp);
 }
 
-void vlStructuredPointsWriter::PrintSelf(ostream& os, vlIndent indent)
+void vtkStructuredPointsWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlDataWriter::PrintSelf(os,indent);
+  vtkDataWriter::PrintSelf(os,indent);
 }

@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    ContourF.cc
   Language:  C++
   Date:      02/07/94
   Version:   1.4
 
-This file is part of the Visualization Library. No part of this file or its 
+This file is part of the Visualization Toolkit. No part of this file or its 
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
@@ -21,7 +21,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // Description:
 // Construct object with initial range (0,1) and single contour value
 // of 0.0.
-vlContourFilter::vlContourFilter()
+vtkContourFilter::vtkContourFilter()
 {
   for (int i=0; i<MAX_CONTOURS; i++) this->Values[i] = 0.0;
   this->NumberOfContours = 1;
@@ -29,14 +29,14 @@ vlContourFilter::vlContourFilter()
   this->Range[1] = 1.0;
 }
 
-vlContourFilter::~vlContourFilter()
+vtkContourFilter::~vtkContourFilter()
 {
 }
 
 // Description:
 // Set a particular contour value at contour number i. The index i ranges 
 // between 0<=i<NumberOfContours.
-void vlContourFilter::SetValue(int i, float value)
+void vtkContourFilter::SetValue(int i, float value)
 {
   i = (i >= MAX_CONTOURS ? MAX_CONTOURS-1 : (i < 0 ? 0 : i) );
   if ( this->Values[i] != value )
@@ -49,7 +49,7 @@ void vlContourFilter::SetValue(int i, float value)
     }
 }
 
-void vlContourFilter::GenerateValues(int numContours, float range1, 
+void vtkContourFilter::GenerateValues(int numContours, float range1, 
 				     float range2)
 {
   float rng[2];
@@ -62,7 +62,7 @@ void vlContourFilter::GenerateValues(int numContours, float range1,
 // Description:
 // Generate numContours equally spaced contour values between specified
 // range. Contour values will include min/max range values.
-void vlContourFilter::GenerateValues(int numContours, float range[2])
+void vtkContourFilter::GenerateValues(int numContours, float range[2])
 {
   float val, incr;
   int i;
@@ -81,19 +81,19 @@ void vlContourFilter::GenerateValues(int numContours, float range[2])
 //
 // General contouring filter.  Handles arbitrary input.
 //
-void vlContourFilter::Execute()
+void vtkContourFilter::Execute()
 {
   int cellId, i;
-  vlIdList *cellPts;
-  vlScalars *inScalars;
-  vlFloatScalars cellScalars(MAX_CELL_SIZE);
-  vlCell *cell;
+  vtkIdList *cellPts;
+  vtkScalars *inScalars;
+  vtkFloatScalars cellScalars(MAX_CELL_SIZE);
+  vtkCell *cell;
   float *range, value;
-  vlFloatScalars *newScalars;
-  vlCellArray *newVerts, *newLines, *newPolys;
-  vlFloatPoints *newPts;
+  vtkFloatScalars *newScalars;
+  vtkCellArray *newVerts, *newLines, *newPolys;
+  vtkFloatPoints *newPts;
 
-  vlDebugMacro(<< "Executing contour filter");
+  vtkDebugMacro(<< "Executing contour filter");
 //
 // Initialize and check input
 //
@@ -101,18 +101,18 @@ void vlContourFilter::Execute()
 
   if ( ! (inScalars = this->Input->GetPointData()->GetScalars()) )
     {
-    vlErrorMacro(<<"No scalar data to contour");
+    vtkErrorMacro(<<"No scalar data to contour");
     return;
     }
   range = inScalars->GetRange();
 //
 // Create objects to hold output of contour operation
 //
-  newPts = new vlFloatPoints(1000,10000);
-  newVerts = new vlCellArray(1000,10000);
-  newLines = new vlCellArray(1000,10000);
-  newPolys = new vlCellArray(1000,10000);
-  newScalars = new vlFloatScalars(3000,30000);
+  newPts = new vtkFloatPoints(1000,10000);
+  newVerts = new vtkCellArray(1000,10000);
+  newLines = new vtkCellArray(1000,10000);
+  newPolys = new vtkCellArray(1000,10000);
+  newScalars = new vtkFloatScalars(3000,30000);
 //
 // Loop over all contour values.  Then for each contour value, 
 // loop over all cells.
@@ -131,7 +131,7 @@ void vlContourFilter::Execute()
       } // for all cells
     } // for all contour values
 
-  vlDebugMacro(<<"Created: " 
+  vtkDebugMacro(<<"Created: " 
                << newPts->GetNumberOfPoints() << " points, " 
                << newVerts->GetNumberOfCells() << " verts, " 
                << newLines->GetNumberOfCells() << " lines, " 
@@ -161,11 +161,11 @@ void vlContourFilter::Execute()
   this->Squeeze();
 }
 
-void vlContourFilter::PrintSelf(ostream& os, vlIndent indent)
+void vtkContourFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   int i;
 
-  vlDataSetToPolyFilter::PrintSelf(os,indent);
+  vtkDataSetToPolyFilter::PrintSelf(os,indent);
 
   os << indent << "Number Of Contours : " << this->NumberOfContours << "\n";
   os << indent << "Contour Values: \n";

@@ -1,68 +1,68 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    ImpFuncC.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-// .NAME vlImplicitFunctionCollection - maintain a list of implicit functions
+// .NAME vtkImplicitFunctionCollection - maintain a list of implicit functions
 // .SECTION Description
-// vlImplicitFunctionCollection is an object that creates and manipulates
-// lists of objects of type vlImplicitFunction. See also vlCollection and 
+// vtkImplicitFunctionCollection is an object that creates and manipulates
+// lists of objects of type vtkImplicitFunction. See also vtkCollection and 
 // subclasses.
 
-#ifndef __vlImplicitFunctionCollection_hh
-#define __vlImplicitFunctionCollection_hh
+#ifndef __vtkImplicitFunctionCollection_hh
+#define __vtkImplicitFunctionCollection_hh
 
 #include "Collect.hh"
 #include "ImpFunc.hh"
 
-class vlImplicitFunctionCollection : public vlCollection
+class vtkImplicitFunctionCollection : public vtkCollection
 {
 public:
-  char *GetClassName() {return "vlImplicitFunctionCollection";};
+  char *GetClassName() {return "vtkImplicitFunctionCollection";};
 
-  void AddItem(vlImplicitFunction *);
-  void RemoveItem(vlImplicitFunction *);
-  int IsItemPresent(vlImplicitFunction *);
-  vlImplicitFunction *GetNextItem();
+  void AddItem(vtkImplicitFunction *);
+  void RemoveItem(vtkImplicitFunction *);
+  int IsItemPresent(vtkImplicitFunction *);
+  vtkImplicitFunction *GetNextItem();
 };
 
 // Description:
 // Add a implicit functionl to the list.
-inline void vlImplicitFunctionCollection::AddItem(vlImplicitFunction *f) 
+inline void vtkImplicitFunctionCollection::AddItem(vtkImplicitFunction *f) 
 {
-  this->vlCollection::AddItem((vlObject *)f);
+  this->vtkCollection::AddItem((vtkObject *)f);
 }
 
 // Description:
 // Remove a implicit function from the list.
-inline void vlImplicitFunctionCollection::RemoveItem(vlImplicitFunction *f) 
+inline void vtkImplicitFunctionCollection::RemoveItem(vtkImplicitFunction *f) 
 {
-  this->vlCollection::RemoveItem((vlObject *)f);
+  this->vtkCollection::RemoveItem((vtkObject *)f);
 }
 
 // Description:
 // Determine whether a particular implicit function is present. Returns its position
 // in the list.
-inline int vlImplicitFunctionCollection::IsItemPresent(vlImplicitFunction *f) 
+inline int vtkImplicitFunctionCollection::IsItemPresent(vtkImplicitFunction *f) 
 {
-  return this->vlCollection::IsItemPresent((vlObject *)f);
+  return this->vtkCollection::IsItemPresent((vtkObject *)f);
 }
 
 // Description:
 // Get the next implicit function in the list.
-inline vlImplicitFunction *vlImplicitFunctionCollection::GetNextItem() 
+inline vtkImplicitFunction *vtkImplicitFunctionCollection::GetNextItem() 
 { 
-  return (vlImplicitFunction *)(this->vlCollection::GetNextItem());
+  return (vtkImplicitFunction *)(this->vtkCollection::GetNextItem());
 }
 
 #endif

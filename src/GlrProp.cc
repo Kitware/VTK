@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    KglrProp.cc
   Language:  C++
   Date:      2/8/94
   Version:   1.5
 
-This file is part of the Visualization Library. No part of this file or its
+This file is part of the Visualization Toolkit. No part of this file or its
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
@@ -30,14 +30,14 @@ static float mat[] = {
 
 // Description:
 // Implement base class method.
-void vlGlrProperty::Render(vlProperty *prop, vlRenderer *ren)
+void vtkGlrProperty::Render(vtkProperty *prop, vtkRenderer *ren)
 {
-  this->Render(prop, (vlGlrRenderer *)ren);
+  this->Render(prop, (vtkGlrRenderer *)ren);
 }
 
 // Description:
 // Actual property render method.
-void vlGlrProperty::Render(vlProperty *prop, vlGlrRenderer *ren)
+void vtkGlrProperty::Render(vtkProperty *prop, vtkGlrRenderer *ren)
 {
   int i, method;
   float Ambient, Diffuse, Specular;
@@ -69,7 +69,7 @@ void vlGlrProperty::Render(vlProperty *prop, vlGlrRenderer *ren)
   lmbind (BACKMATERIAL, 0);  
 
   // Tell the geometry primitives about the default properties 
-  vlGlrPrimitive::SetProperty(prop);
+  vtkGlrPrimitive::SetProperty(prop);
 
   // set interpolation 
   switch (prop->GetInterpolation()) 

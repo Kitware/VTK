@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    CoScalar.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
@@ -18,7 +18,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 // Description:
 // Use intensity to derive single scalar value from color
-float vlColorScalars::GetScalar(int i)
+float vtkColorScalars::GetScalar(int i)
 {
   unsigned char *rgba;
 
@@ -28,7 +28,7 @@ float vlColorScalars::GetScalar(int i)
 
 // Description:
 // Map through lookup table to set the color
-void vlColorScalars::SetScalar(int i, float s)
+void vtkColorScalars::SetScalar(int i, float s)
 {
   if ( this->LookupTable == NULL ) this->CreateDefaultLookupTable();
 
@@ -37,7 +37,7 @@ void vlColorScalars::SetScalar(int i, float s)
 
 // Description:
 // Map through lookup table  to set the color
-void vlColorScalars::InsertScalar(int i, float s)
+void vtkColorScalars::InsertScalar(int i, float s)
 {
   if ( this->LookupTable == NULL ) this->CreateDefaultLookupTable();
 
@@ -46,7 +46,7 @@ void vlColorScalars::InsertScalar(int i, float s)
 
 // Description:
 // Map through lookup table to set the color
-int vlColorScalars::InsertNextScalar(float s)
+int vtkColorScalars::InsertNextScalar(float s)
 {
   if ( this->LookupTable == NULL ) this->CreateDefaultLookupTable();
 
@@ -55,7 +55,7 @@ int vlColorScalars::InsertNextScalar(float s)
 
 // Description:
 // Given list of point id's, return colors for each point.
-void vlColorScalars::GetColors(vlIdList& ptId, vlAPixmap& p)
+void vtkColorScalars::GetColors(vtkIdList& ptId, vtkAPixmap& p)
 {
   for (int i=0; i<ptId.GetNumberOfIds(); i++)
     {
@@ -66,7 +66,7 @@ void vlColorScalars::GetColors(vlIdList& ptId, vlAPixmap& p)
 // Description:
 // Compute range of color rgba data (rmin,rmax, gmin,gmax, bmin,bmax, 
 // amin,amax). Return pointer to array of length 8.
-unsigned char *vlColorScalars::GetComponentRange ()
+unsigned char *vtkColorScalars::GetComponentRange ()
 {
   unsigned char *rgba;
   int i, j;
@@ -90,7 +90,7 @@ unsigned char *vlColorScalars::GetComponentRange ()
 // Description:
 // Compute range of color rgba data (rmin,rmax, gmin,gmax, bmin,bmax, 
 // amin,amax). Copy result into user provided array.
-void vlColorScalars::GetComponentRange(unsigned char range[8])
+void vtkColorScalars::GetComponentRange(unsigned char range[8])
 {
   unsigned char *r=this->GetComponentRange();
   for (int i=0; i < 8; i++) range[i] = r[i];

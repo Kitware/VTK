@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    ShrinkF.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its 
+This file is part of the Visualization Toolkit. No part of this file or its 
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
@@ -15,27 +15,27 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 =========================================================================*/
 #include "ShrinkF.hh"
 
-void vlShrinkFilter::Execute()
+void vtkShrinkFilter::Execute()
 {
-  vlIdList ptIds(MAX_CELL_SIZE), newPtIds(MAX_CELL_SIZE);
-  vlFloatPoints *newPts;
+  vtkIdList ptIds(MAX_CELL_SIZE), newPtIds(MAX_CELL_SIZE);
+  vtkFloatPoints *newPts;
   int i, j, cellId, numCells, numPts;
   int oldId, newId;
   float center[3], *p, pt[3];
-  vlPointData *pd;
+  vtkPointData *pd;
 
-  vlDebugMacro(<<"Shrinking cells");
+  vtkDebugMacro(<<"Shrinking cells");
   this->Initialize();
 
   if ( (numCells=this->Input->GetNumberOfCells()) < 1 ||
   (numPts = this->Input->GetNumberOfPoints()) < 1 )
     {
-    vlErrorMacro(<<"No data to shrink!");
+    vtkErrorMacro(<<"No data to shrink!");
     return;
     }
 
   this->Allocate(numCells);
-  newPts = new vlFloatPoints(numPts*8,numPts);
+  newPts = new vtkFloatPoints(numPts*8,numPts);
   pd = this->Input->GetPointData();
   this->PointData.CopyAllocate(pd,numPts*8,numPts);
 //
@@ -78,9 +78,9 @@ void vlShrinkFilter::Execute()
   this->Squeeze();
 }
 
-void vlShrinkFilter::PrintSelf(ostream& os, vlIndent indent)
+void vtkShrinkFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlDataSetToUnstructuredGridFilter::PrintSelf(os,indent);
+  vtkDataSetToUnstructuredGridFilter::PrintSelf(os,indent);
 
   os << indent << "Shrink Factor: " << this->ShrinkFactor << "\n";
 }

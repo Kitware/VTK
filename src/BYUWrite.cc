@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    BYUWrite.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
@@ -18,7 +18,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // Description:
 // Create object so that it writes displacement, scalar, and texture files
 // (if data is available).
-vlBYUWriter::vlBYUWriter()
+vtkBYUWriter::vtkBYUWriter()
 {
   this->GeometryFilename = NULL;
   this->DisplacementFilename = NULL;
@@ -30,7 +30,7 @@ vlBYUWriter::vlBYUWriter()
   this->WriteTexture = 1;
 }
 
-vlBYUWriter::~vlBYUWriter()
+vtkBYUWriter::~vtkBYUWriter()
 {
   if ( this->GeometryFilename ) delete [] this->GeometryFilename;
   if ( this->DisplacementFilename ) delete [] this->DisplacementFilename;
@@ -40,33 +40,33 @@ vlBYUWriter::~vlBYUWriter()
 
 // Description:
 // Specify the input data or filter.
-void vlBYUWriter::SetInput(vlPolyData *input)
+void vtkBYUWriter::SetInput(vtkPolyData *input)
 {
   if ( this->Input != input )
     {
-    vlDebugMacro(<<" setting Input to " << (void *)input);
-    this->Input = (vlDataSet *) input;
+    vtkDebugMacro(<<" setting Input to " << (void *)input);
+    this->Input = (vtkDataSet *) input;
     this->Modified();
     }
 }
 
 // Description:
 // Write out data in MOVIE.BYU format.
-void vlBYUWriter::WriteData()
+void vtkBYUWriter::WriteData()
 {
   FILE *geomFp;
-  vlPolyData *input=(vlPolyData *)this->Input;
+  vtkPolyData *input=(vtkPolyData *)this->Input;
   int numPts=input->GetNumberOfPoints();
 
   if ( numPts < 1 )
     {
-    vlErrorMacro(<<"No data to write!");
+    vtkErrorMacro(<<"No data to write!");
     return;
     }
 
   if ((geomFp = fopen(this->GeometryFilename, "w")) == NULL)
     {
-    vlErrorMacro(<< "Couldn't open geometry file: " << this->GeometryFilename);
+    vtkErrorMacro(<< "Couldn't open geometry file: " << this->GeometryFilename);
     return;
     }
   else
@@ -79,22 +79,22 @@ void vlBYUWriter::WriteData()
   this->WriteTextureFile(numPts);
 }
 
-void vlBYUWriter::WriteGeometryFile(FILE *geomFile, int numPts)
+void vtkBYUWriter::WriteGeometryFile(FILE *geomFile, int numPts)
 {
   int numPolys, numEdges;
   int i;
   float *x;
   int npts, *pts;
-  vlPoints *inPts;
-  vlCellArray *inPolys;
-  vlPolyData *input=(vlPolyData *)this->Input;
+  vtkPoints *inPts;
+  vtkCellArray *inPolys;
+  vtkPolyData *input=(vtkPolyData *)this->Input;
 //
 // Check input
 //
   if ( (inPts=input->GetPoints()) == NULL ||
   (inPolys=input->GetPolys()) == NULL )
     {
-    vlErrorMacro(<<"No data to write!");
+    vtkErrorMacro(<<"No data to write!");
     return;
     }
 //
@@ -128,23 +128,23 @@ void vlBYUWriter::WriteGeometryFile(FILE *geomFile, int numPts)
     fprintf (geomFile, "%d\n", -(pts[npts-1]+1));
     }
 
-  vlDebugMacro(<<"Wrote " << numPts << " points, " << numPolys << " polygons");
+  vtkDebugMacro(<<"Wrote " << numPts << " points, " << numPolys << " polygons");
 }
 
-void vlBYUWriter::WriteDisplacementFile(int numPts)
+void vtkBYUWriter::WriteDisplacementFile(int numPts)
 {
   FILE *dispFp;
   int i;
   float *v;
-  vlVectors *inVectors;
-  vlPolyData *input=(vlPolyData *)this->Input;
+  vtkVectors *inVectors;
+  vtkPolyData *input=(vtkPolyData *)this->Input;
 
   if ( this->WriteDisplacement && this->DisplacementFilename &&
   (inVectors = input->GetPointData()->GetVectors()) != NULL )
     {
     if ( !(dispFp = fopen(this->DisplacementFilename, "r")) )
       {
-      vlErrorMacro (<<"Couldn't open displacement file");
+      vtkErrorMacro (<<"Couldn't open displacement file");
       return;
       }
     }
@@ -159,23 +159,23 @@ void vlBYUWriter::WriteDisplacementFile(int numPts)
     if ( (i % 2) ) fprintf (dispFp, "\n");
     }
 
-  vlDebugMacro(<<"Wrote " << numPts << " displacements");
+  vtkDebugMacro(<<"Wrote " << numPts << " displacements");
 }
 
-void vlBYUWriter::WriteScalarFile(int numPts)
+void vtkBYUWriter::WriteScalarFile(int numPts)
 {
   FILE *scalarFp;
   int i;
   float s;
-  vlScalars *inScalars;
-  vlPolyData *input=(vlPolyData *)this->Input;
+  vtkScalars *inScalars;
+  vtkPolyData *input=(vtkPolyData *)this->Input;
 
   if ( this->WriteScalar && this->ScalarFilename &&
   (inScalars = input->GetPointData()->GetScalars()) != NULL )
     {
     if ( !(scalarFp = fopen(this->ScalarFilename, "r")) )
       {
-      vlErrorMacro (<<"Couldn't open scalar file");
+      vtkErrorMacro (<<"Couldn't open scalar file");
       return;
       }
     }
@@ -190,23 +190,23 @@ void vlBYUWriter::WriteScalarFile(int numPts)
     if ( i != 0 && !(i % 6) ) fprintf (scalarFp, "\n");
     }
 
-  vlDebugMacro(<<"Wrote " << numPts << " scalars");
+  vtkDebugMacro(<<"Wrote " << numPts << " scalars");
 }
 
-void vlBYUWriter::WriteTextureFile(int numPts)
+void vtkBYUWriter::WriteTextureFile(int numPts)
 {
   FILE *textureFp;
   int i;
   float *t;
-  vlTCoords *inTCoords;
-  vlPolyData *input=(vlPolyData *)this->Input;
+  vtkTCoords *inTCoords;
+  vtkPolyData *input=(vtkPolyData *)this->Input;
 
   if ( this->WriteTexture && this->TextureFilename &&
   (inTCoords = input->GetPointData()->GetTCoords()) != NULL )
     {
     if ( !(textureFp = fopen(this->TextureFilename, "r")) )
       {
-      vlErrorMacro (<<"Couldn't open texture file");
+      vtkErrorMacro (<<"Couldn't open texture file");
       return;
       }
     }
@@ -221,12 +221,12 @@ void vlBYUWriter::WriteTextureFile(int numPts)
     fprintf(textureFp, "%e %e", t[0], t[1]);
     }
 
-  vlDebugMacro(<<"Wrote " << numPts << " texture coordinates");
+  vtkDebugMacro(<<"Wrote " << numPts << " texture coordinates");
 }
 
-void vlBYUWriter::PrintSelf(ostream& os, vlIndent indent)
+void vtkBYUWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlWriter::PrintSelf(os,indent);
+  vtkWriter::PrintSelf(os,indent);
 
   os << indent << "Geometry Filename: " << this->GeometryFilename << "\n";
   os << indent << "Write Displacement: " << (this->WriteDisplacement ? "On\n" : "Off\n");

@@ -1,38 +1,38 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    SbrCam.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its
+This file is part of the Visualization Toolkit. No part of this file or its
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
-// .NAME vlSbrCamera - HP starbase camera
+// .NAME vtkSbrCamera - HP starbase camera
 // .SECTION Description
-// vlSbrCamera is a concrete implementation of the abstract class vlCamera.
-// vlSbrCamera interfaces to the Hewlett-Packard starbase rendering library.
+// vtkSbrCamera is a concrete implementation of the abstract class vtkCamera.
+// vtkSbrCamera interfaces to the Hewlett-Packard starbase rendering library.
 
-#ifndef __vlSbrCamera_hh
-#define __vlSbrCamera_hh
+#ifndef __vtkSbrCamera_hh
+#define __vtkSbrCamera_hh
 
 #include "CamDev.hh"
 #include "starbase.c.h"
 
-class vlSbrRenderer;
+class vtkSbrRenderer;
 
-class vlSbrCamera : public vlCameraDevice
+class vtkSbrCamera : public vtkCameraDevice
 {
  public:
-  char *GetClassName() {return "vlSbrCamera";};
+  char *GetClassName() {return "vtkSbrCamera";};
 
-  void Render(vlCamera *, vlRenderer *ren);
-  void Render(vlCamera *, vlSbrRenderer *ren);
+  void Render(vtkCamera *, vtkRenderer *ren);
+  void Render(vtkCamera *, vtkSbrRenderer *ren);
 };
 
 #endif

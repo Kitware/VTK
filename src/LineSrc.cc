@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    LineSrc.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its 
+This file is part of the Visualization Toolkit. No part of this file or its 
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
@@ -21,7 +21,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "FPoints.hh"
 #include "FTCoords.hh"
 
-vlLineSource::vlLineSource(int res)
+vtkLineSource::vtkLineSource(int res)
 {
   this->Pt1[0] = -0.5;
   this->Pt1[1] =  0.0;
@@ -34,24 +34,24 @@ vlLineSource::vlLineSource(int res)
   this->Resolution = (res < 1 ? 1 : res);
 }
 
-void vlLineSource::Execute()
+void vtkLineSource::Execute()
 {
   int numLines=this->Resolution;
   int numPts=this->Resolution+1;
   float x[3], tc[2], v[3];
   int i, j;
   int pts[2];
-  vlFloatPoints *newPoints; 
-  vlFloatTCoords *newTCoords; 
-  vlCellArray *newLines;
+  vtkFloatPoints *newPoints; 
+  vtkFloatTCoords *newTCoords; 
+  vtkCellArray *newLines;
 
-  vlDebugMacro(<<"Creating line");
+  vtkDebugMacro(<<"Creating line");
   this->Initialize();
 
-  newPoints = new vlFloatPoints(numPts);
-  newTCoords = new vlFloatTCoords(numPts,2);
+  newPoints = new vtkFloatPoints(numPts);
+  newTCoords = new vtkFloatTCoords(numPts,2);
 
-  newLines = new vlCellArray;
+  newLines = new vtkCellArray;
   newLines->Allocate(newLines->EstimateSize(numLines,2));
 //
 // Generate points and texture coordinates
@@ -83,9 +83,9 @@ void vlLineSource::Execute()
   this->SetLines(newLines);
 }
 
-void vlLineSource::PrintSelf(ostream& os, vlIndent indent)
+void vtkLineSource::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlPolySource::PrintSelf(os,indent);
+  vtkPolySource::PrintSelf(os,indent);
 
   os << indent << "Resolution: " << this->Resolution << "\n";
 

@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    MergePts.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
@@ -19,7 +19,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // Merge points together if they are exactly coincident. Return a list 
 // that maps unmerged point ids into new point ids. User is responsible 
 // for freeing list (use delete []).
-int *vlMergePoints::MergePoints()
+int *vtkMergePoints::MergePoints()
 {
   int ptId, i, j;
   int numPts;
@@ -28,9 +28,9 @@ int *vlMergePoints::MergePoints()
   float *pt, *p;
   int ijk[3];
   int cno;
-  vlIdList *ptIds;
+  vtkIdList *ptIds;
 
-  vlDebugMacro(<<"Merging points");
+  vtkDebugMacro(<<"Merging points");
 
   if ( this->Points == NULL || 
   (numPts=this->Points->GetNumberOfPoints()) < 1 ) return NULL;
@@ -90,11 +90,11 @@ int *vlMergePoints::MergePoints()
 // new point id is returned. Before using this method you must make sure 
 // that newPts have been supplied, the bounds has been set properly, and
 // that divs are properly set. (See InitPointInsertion()).
-int vlMergePoints::InsertPoint(float x[3])
+int vtkMergePoints::InsertPoint(float x[3])
 {
   int i, ijk[3];
   int idx;
-  vlIdList *bucket;
+  vtkIdList *bucket;
 //
 //  Locate bucket that point is in.
 //
@@ -110,7 +110,7 @@ int vlMergePoints::InsertPoint(float x[3])
 
   if ( ! bucket )
     {
-    bucket = new vlIdList(this->NumberOfPointsInBucket/2);
+    bucket = new vtkIdList(this->NumberOfPointsInBucket/2);
     this->HashTable[idx] = bucket;
     }
   else // see whether we've got duplicate point

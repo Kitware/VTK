@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    BoolText.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
@@ -16,7 +16,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "BoolText.hh"
 #include "AGraymap.hh"
 
-vlBooleanTexture::vlBooleanTexture()
+vtkBooleanTexture::vtkBooleanTexture()
 {
   this->Thickness = 0;
 
@@ -33,22 +33,22 @@ vlBooleanTexture::vlBooleanTexture()
   this->OutOn[0] = this->OutOn[1] = 255;
 }
 
-void vlBooleanTexture::Execute()
+void vtkBooleanTexture::Execute()
 {
   int numPts, i, j;
-  vlAGraymap *newScalars;
+  vtkAGraymap *newScalars;
   int midILower, midJLower, midIUpper, midJUpper;
 
   this->Initialize();
 
   if ( (numPts = this->XSize * this->YSize) < 1 )
     {
-    vlErrorMacro(<<"Bad texture (xsize,ysize) specification!");
+    vtkErrorMacro(<<"Bad texture (xsize,ysize) specification!");
     return;
     }
 
   this->SetDimensions(this->XSize,this->YSize,1);
-  newScalars = new vlAGraymap(numPts);
+  newScalars = new vtkAGraymap(numPts);
 //
 // Compute size of various regions
 //
@@ -90,9 +90,9 @@ void vlBooleanTexture::Execute()
   this->PointData.SetScalars(newScalars);
 }
 
-void vlBooleanTexture::PrintSelf(ostream& os, vlIndent indent)
+void vtkBooleanTexture::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlObject::PrintSelf(os,indent);
+  vtkObject::PrintSelf(os,indent);
 
   os << indent << "Thickness: " << this->Thickness << "\n";
   os << indent << "In/In: (" << this->InIn[0] << "," << this->InIn[1] << ")\n";

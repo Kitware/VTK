@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    VectDot.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
@@ -14,11 +14,11 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
 #include "VectDot.hh"
-#include "vlMath.hh"
+#include "vtkMath.hh"
 
 // Description:
 // Construct object with scalar range is (-1,1).
-vlVectorDot::vlVectorDot()
+vtkVectorDot::vtkVectorDot()
 {
   this->ScalarRange[0] = -1.0;
   this->ScalarRange[1] = 1.0;
@@ -27,41 +27,41 @@ vlVectorDot::vlVectorDot()
 //
 // Compute dot product.
 //
-void vlVectorDot::Execute()
+void vtkVectorDot::Execute()
 {
   int ptId, numPts;
-  vlFloatScalars *newScalars;
-  vlMath math;
-  vlDataSet *input=this->Input;
-  vlPointData *pd=input->GetPointData();
-  vlNormals *inNormals;
-  vlVectors *inVectors;
+  vtkFloatScalars *newScalars;
+  vtkMath math;
+  vtkDataSet *input=this->Input;
+  vtkPointData *pd=input->GetPointData();
+  vtkNormals *inNormals;
+  vtkVectors *inVectors;
   float s, *n, *v, min, max, dR, dS;
 //
 // Initialize
 //
-  vlDebugMacro(<<"Generating vector/normal dot product!");
+  vtkDebugMacro(<<"Generating vector/normal dot product!");
   this->Initialize();
 
   if ( (numPts=input->GetNumberOfPoints()) < 1 )
     {
-    vlErrorMacro(<< "No points!");
+    vtkErrorMacro(<< "No points!");
     return;
     }
   if ( (inVectors=pd->GetVectors()) == NULL )
     {
-    vlErrorMacro(<< "No vectors defined!");
+    vtkErrorMacro(<< "No vectors defined!");
     return;
     }
   if ( (inNormals=pd->GetNormals()) == NULL )
     {
-    vlErrorMacro(<< "No normals defined!");
+    vtkErrorMacro(<< "No normals defined!");
     return;
     }
 //
 // Allocate
 //
-  newScalars = new vlFloatScalars(numPts);
+  newScalars = new vtkFloatScalars(numPts);
 //
 // Compute initial scalars
 //
@@ -95,9 +95,9 @@ void vlVectorDot::Execute()
   this->PointData.SetScalars(newScalars);
 }
 
-void vlVectorDot::PrintSelf(ostream& os, vlIndent indent)
+void vtkVectorDot::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlDataSetToDataSetFilter::PrintSelf(os,indent);
+  vtkDataSetToDataSetFilter::PrintSelf(os,indent);
 
   os << indent << "Scalar Range: (" << this->ScalarRange[0] << ", "
                                 << this->ScalarRange[1] << ")\n";

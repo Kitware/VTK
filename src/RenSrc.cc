@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    RenSrc.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its
+This file is part of the Visualization Toolkit. No part of this file or its
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
@@ -17,25 +17,25 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "RenderW.hh"
 #include "Pixmap.hh"
 
-vlRendererSource::vlRendererSource()
+vtkRendererSource::vtkRendererSource()
 {
   this->Input = NULL;
 }
 
-void vlRendererSource::Execute()
+void vtkRendererSource::Execute()
 {
   int i, numPts, numOutPts;
-  vlPixmap *outScalars;
+  vtkPixmap *outScalars;
   float x1,y1,x2,y2;
   unsigned char *pixels;
-  vlRenderer *input = (vlRenderer *)this->Input;
+  vtkRenderer *input = (vtkRenderer *)this->Input;
 
-  vlDebugMacro(<<"Converting points");
+  vtkDebugMacro(<<"Converting points");
   this->Initialize();
 
   if (this->Input == NULL )
     {
-    vlErrorMacro(<<"Please specify a renderer as input!");
+    vtkErrorMacro(<<"Please specify a renderer as input!");
     return;
     }
 
@@ -67,7 +67,7 @@ void vlRendererSource::Execute()
 
   // Allocate data.  Scalar type is FloatScalars.
   numOutPts = this->Dimensions[0] * this->Dimensions[1];
-  outScalars = new vlPixmap;
+  outScalars = new vtkPixmap;
 
   pixels = (this->Input->GetRenderWindow())->GetPixelData((int)x1,(int)y1,
 							  (int)x2,(int)y2);
@@ -82,9 +82,9 @@ void vlRendererSource::Execute()
   delete [] pixels;
 }
 
-void vlRendererSource::PrintSelf(ostream& os, vlIndent indent)
+void vtkRendererSource::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlStructuredPointsSource::PrintSelf(os,indent);
+  vtkStructuredPointsSource::PrintSelf(os,indent);
 
   if ( this->Input )
     {

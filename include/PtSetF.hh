@@ -1,40 +1,40 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    PtSetF.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-// .NAME vlPointSetFilter - filter that takes vlPointSet as input
+// .NAME vtkPointSetFilter - filter that takes vtkPointSet as input
 // .SECTION Description
-// vlPointSetFilter is a filter that takes a single vlPointSet data object
+// vtkPointSetFilter is a filter that takes a single vtkPointSet data object
 // as input.
 
-#ifndef __vlPointSetFilter_h
-#define __vlPointSetFilter_h
+#ifndef __vtkPointSetFilter_h
+#define __vtkPointSetFilter_h
 
 #include "Filter.hh"
 #include "PointSet.hh"
 
-class vlPointSetFilter : public vlFilter 
+class vtkPointSetFilter : public vtkFilter 
 {
 public:
-  vlPointSetFilter() {};
-  ~vlPointSetFilter();
-  char *_GetClassName() {return "vlPointSetFilter";};
-  void _PrintSelf(ostream& os, vlIndent indent);
+  vtkPointSetFilter() {};
+  ~vtkPointSetFilter();
+  char *_GetClassName() {return "vtkPointSetFilter";};
+  void _PrintSelf(ostream& os, vtkIndent indent);
 
-  void SetInput(vlPointSet *input);
-  void SetInput(vlPointSet &input) {this->SetInput(&input);};
-  vlPointSet *GetInput() {return (vlPointSet *)this->Input;};
+  void SetInput(vtkPointSet *input);
+  void SetInput(vtkPointSet &input) {this->SetInput(&input);};
+  vtkPointSet *GetInput() {return (vtkPointSet *)this->Input;};
 };
 
 #endif

@@ -1,27 +1,27 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    StrData.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-// .NAME vlStructuredData - abstract class for topologically regular data
+// .NAME vtkStructuredData - abstract class for topologically regular data
 // .SECTION Description
-// vlStructuredData is an abstract class that specifies an interface for
+// vtkStructuredData is an abstract class that specifies an interface for
 // topologically regular data. Regular data is data that can be accessed
 // in rectangular fashion using a i-j-k index. A finite difference grid,
 // a volume, or a pixmap are all considered regular.
 
-#ifndef __vlStructuredData_h
-#define __vlStructuredData_h
+#ifndef __vtkStructuredData_h
+#define __vtkStructuredData_h
 
 #include "LWObject.hh"
 #include "BArray.hh"
@@ -36,13 +36,13 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #define XZ_PLANE 6
 #define XYZ_GRID 7
 
-class vlStructuredData : public vlLWObject 
+class vtkStructuredData : public vtkLWObject 
 {
 public:
-  vlStructuredData();
-  vlStructuredData(const vlStructuredData& sds);
-  virtual ~vlStructuredData();
-  void _PrintSelf(ostream& os, vlIndent indent);
+  vtkStructuredData();
+  vtkStructuredData(const vtkStructuredData& sds);
+  virtual ~vtkStructuredData();
+  void _PrintSelf(ostream& os, vtkIndent indent);
 
   // setting object dimensions
   void SetDimensions(int i, int j, int k);
@@ -64,18 +64,18 @@ protected:
   int _GetNumberOfCells();
   int _GetNumberOfPoints(); 
   void _Initialize();
-  void _GetCellPoints(int cellId, vlIdList& ptIds);
-  void _GetPointCells(int ptId, vlIdList& cellIds);
+  void _GetCellPoints(int cellId, vtkIdList& ptIds);
+  void _GetPointCells(int ptId, vtkIdList& cellIds);
 
   int Dimensions[3];
   int DataDescription;
   int Blanking;
-  vlBitArray *PointVisibility;
+  vtkBitArray *PointVisibility;
 };
 
 // Description:
 // Return non-zero value if specified point is visible.
-inline int vlStructuredData::IsPointVisible(int ptId) 
+inline int vtkStructuredData::IsPointVisible(int ptId) 
 {
   if (!this->Blanking) return 1; 
   else return this->PointVisibility->GetValue(ptId);

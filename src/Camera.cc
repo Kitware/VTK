@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    Camera.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its
+This file is part of the Visualization Toolkit. No part of this file or its
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
@@ -15,7 +15,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 =========================================================================*/
 #include <math.h>
 #include "Camera.hh"
-#include "vlMath.hh"
+#include "vtkMath.hh"
 #include "Renderer.hh"
 #include "RenderW.hh"
 #include "CamDev.hh"
@@ -24,7 +24,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // Construct camera instance with its focal point at the origin, 
 // and position=(0,0,1). The view up is along the y-axis, 
 // view angle is 30 degrees, and the clipping range is (.1,1000).
-vlCamera::vlCamera()
+vtkCamera::vtkCamera()
 {
   this->FocalPoint[0] = 0.0;
   this->FocalPoint[1] = 0.0;
@@ -62,7 +62,7 @@ vlCamera::vlCamera()
   this->Device = NULL;
 }
 
-void vlCamera::Render(vlRenderer *ren)
+void vtkCamera::Render(vtkRenderer *ren)
 {
   if (!this->Device)
     {
@@ -73,13 +73,13 @@ void vlCamera::Render(vlRenderer *ren)
 
 // Description:
 // Set the position of the camera in world coordinates.
-void vlCamera::SetPosition(float X, float Y, float Z)
+void vtkCamera::SetPosition(float X, float Y, float Z)
 {
   this->Position[0] = X;
   this->Position[1] = Y;
   this->Position[2] = Z;
 
-  vlDebugMacro(<< " Position set to ( " <<  this->Position[0] << ", "
+  vtkDebugMacro(<< " Position set to ( " <<  this->Position[0] << ", "
   << this->Position[1] << ", " << this->Position[2] << ")");
 
   // recalculate distance
@@ -91,20 +91,20 @@ void vlCamera::SetPosition(float X, float Y, float Z)
   this->Modified();
 }
 
-void vlCamera::SetPosition(float a[3])
+void vtkCamera::SetPosition(float a[3])
 {
   this->SetPosition(a[0],a[1],a[2]);
 }
 
 // Description:
 // Set the focal point of the camera in world coordinates.
-void vlCamera::SetFocalPoint(float X, float Y, float Z)
+void vtkCamera::SetFocalPoint(float X, float Y, float Z)
 {
   this->FocalPoint[0] = X; 
   this->FocalPoint[1] = Y; 
   this->FocalPoint[2] = Z;
 
-  vlDebugMacro(<< " FocalPoint set to ( " <<  this->FocalPoint[0] << ", "
+  vtkDebugMacro(<< " FocalPoint set to ( " <<  this->FocalPoint[0] << ", "
   << this->FocalPoint[1] << ", " << this->FocalPoint[2] << ")");
 
   // recalculate distance
@@ -116,14 +116,14 @@ void vlCamera::SetFocalPoint(float X, float Y, float Z)
   this->Modified();
 }
 
-void vlCamera::SetFocalPoint(float a[3])
+void vtkCamera::SetFocalPoint(float a[3])
 {
   this->SetFocalPoint(a[0],a[1],a[2]);
 }
 
 // Description:
 // Define the view-up direction for the camera.
-void vlCamera::SetViewUp(float X, float Y, float Z)
+void vtkCamera::SetViewUp(float X, float Y, float Z)
 {
   float dx, dy, dz, norm;
 
@@ -150,13 +150,13 @@ void vlCamera::SetViewUp(float X, float Y, float Z)
     this->ViewUp[2] = 0;
     }
   
-  vlDebugMacro(<< " ViewUp set to ( " <<  this->ViewUp[0] << ", "
+  vtkDebugMacro(<< " ViewUp set to ( " <<  this->ViewUp[0] << ", "
   << this->ViewUp[1] << ", " << this->ViewUp[2] << ")");
   
   this->Modified();
 }
 
-void vlCamera::SetViewUp(float a[3])
+void vtkCamera::SetViewUp(float a[3])
 {
   this->SetViewUp(a[0],a[1],a[2]);
 }
@@ -165,7 +165,7 @@ void vlCamera::SetViewUp(float a[3])
 // Specify the location of the front and back clipping planes along the
 // direction of projection. These are positive distances along the 
 // direction of projection.
-void vlCamera::SetClippingRange(float X, float Y)
+void vtkCamera::SetClippingRange(float X, float Y)
 {
   this->ClippingRange[0] = X; 
   this->ClippingRange[1] = Y; 
@@ -174,7 +174,7 @@ void vlCamera::SetClippingRange(float X, float Y)
   if(this->ClippingRange[0] > this->ClippingRange[1]) 
     {
     float temp;
-    vlDebugMacro(<< " Front and back clipping range reversed");
+    vtkDebugMacro(<< " Front and back clipping range reversed");
     temp = this->ClippingRange[0];
     this->ClippingRange[0] = this->ClippingRange[1];
     this->ClippingRange[1] = temp;
@@ -185,7 +185,7 @@ void vlCamera::SetClippingRange(float X, float Y)
     {
     this->ClippingRange[1] += 0.001 - this->ClippingRange[0];
     this->ClippingRange[0] = 0.001;
-    vlDebugMacro(<< " Front clipping range is set to minimum.");
+    vtkDebugMacro(<< " Front clipping range is set to minimum.");
     }
   
   this->Thickness = this->ClippingRange[1] - this->ClippingRange[0];
@@ -194,19 +194,19 @@ void vlCamera::SetClippingRange(float X, float Y)
   if (this->Thickness < 0.002) 
     {
     this->Thickness = 0.002;
-    vlDebugMacro(<< " ClippingRange thickness is set to minimum.");
+    vtkDebugMacro(<< " ClippingRange thickness is set to minimum.");
     
     // set back plane
     this->ClippingRange[1] = this->ClippingRange[0] + this->Thickness;
     }
   
-  vlDebugMacro(<< " ClippingRange set to ( " <<  this->ClippingRange[0] << ", "
+  vtkDebugMacro(<< " ClippingRange set to ( " <<  this->ClippingRange[0] << ", "
   << this->ClippingRange[1] << ")");
 
   this->Modified();
 }  
 
-void vlCamera::SetClippingRange(float a[2])
+void vtkCamera::SetClippingRange(float a[2])
 {
   this->SetClippingRange(a[0],a[1]);
 }
@@ -215,7 +215,7 @@ void vlCamera::SetClippingRange(float a[2])
 // Set the distance between clipping planes. A side effect of this method is
 // adjust the back clipping plane to be equal to the front clipping plane 
 // plus the thickness.
-void vlCamera::SetThickness(float X)
+void vtkCamera::SetThickness(float X)
 {
   if (this->Thickness == X) return;
 
@@ -225,13 +225,13 @@ void vlCamera::SetThickness(float X)
   if (this->Thickness < 0.002) 
     {
     this->Thickness = 0.002;
-    vlDebugMacro(<< " ClippingRange thickness is set to minimum.");
+    vtkDebugMacro(<< " ClippingRange thickness is set to minimum.");
     }
   
   // set back plane
   this->ClippingRange[1] = this->ClippingRange[0] + this->Thickness;
 
-  vlDebugMacro(<< " ClippingRange set to ( " <<  this->ClippingRange[0] << ", "
+  vtkDebugMacro(<< " ClippingRange set to ( " <<  this->ClippingRange[0] << ", "
   << this->ClippingRange[1] << ")");
 
   this->Modified();
@@ -240,7 +240,7 @@ void vlCamera::SetThickness(float X)
 // Description:
 // Set the distance of the focal point from the camera. The focal point is 
 // modified accordingly. This should be positive.
-void vlCamera::SetDistance(float X)
+void vtkCamera::SetDistance(float X)
 {
   if (this->Distance == X) return;
 
@@ -250,7 +250,7 @@ void vlCamera::SetDistance(float X)
   if (this->Distance < 0.002) 
     {
     this->Distance = 0.002;
-    vlDebugMacro(<< " Distance is set to minimum.");
+    vtkDebugMacro(<< " Distance is set to minimum.");
     }
   
   // recalculate FocalPoint
@@ -261,7 +261,7 @@ void vlCamera::SetDistance(float X)
   this->FocalPoint[2] = this->ViewPlaneNormal[2] * 
     this->Distance + this->Position[2];
 
-  vlDebugMacro(<< " Distance set to ( " <<  this->Distance << ")");
+  vtkDebugMacro(<< " Distance set to ( " <<  this->Distance << ")");
 
   this->Modified();
 }  
@@ -270,14 +270,14 @@ void vlCamera::SetDistance(float X)
 // This returns the twist of the camera.  The twist corrisponds to Roll and
 // represents the angle of rotation about the z axis to achieve the 
 // current view-up vector.
-float vlCamera::GetTwist()
+float vtkCamera::GetTwist()
 {
   float *vup, *vn;
   float twist = 0;
   float v1[3], v2[3], y_axis[3];
   double theta, dot, mag;
   double cosang;
-  vlMath math;
+  vtkMath math;
 
   vup = this->ViewUp;
   vn = this->GetViewPlaneNormal();
@@ -334,7 +334,7 @@ float vlCamera::GetTwist()
 
 // Description:
 // Compute the view plane normal from the position and focal point.
-void vlCamera::CalcViewPlaneNormal()
+void vtkCamera::CalcViewPlaneNormal()
 {
   float dx,dy,dz;
   float distance;
@@ -355,19 +355,19 @@ void vlCamera::CalcViewPlaneNormal()
     vpn[2] = -dz / distance;
     }
   
-  vlDebugMacro(<< "Calculating ViewPlaneNormal of (" << vpn[0] << " " << vpn[1] << " " << vpn[2] << ")");
+  vtkDebugMacro(<< "Calculating ViewPlaneNormal of (" << vpn[0] << " " << vpn[1] << " " << vpn[2] << ")");
 }
 
 
 // Description:
 // Set the roll angle of the camera about the view plane normal.
-void vlCamera::SetRoll(float roll)
+void vtkCamera::SetRoll(float roll)
 {
   float current;
   float temp[4];
 
   // roll is a rotation of camera view up about view plane normal
-  vlDebugMacro(<< " Setting Roll to " << roll << "");
+  vtkDebugMacro(<< " Setting Roll to " << roll << "");
 
   // get the current roll
   current = this->GetRoll();
@@ -398,14 +398,14 @@ void vlCamera::SetRoll(float roll)
 
 // Description:
 // Returns the roll of the camera, this is very similar to GetTwist.
-float vlCamera::GetRoll()
+float vtkCamera::GetRoll()
 {
   float	*orient;
   
   // set roll using orientation
   orient = this->GetOrientation();
 
-  vlDebugMacro(<< " Returning Roll of " << orient[2] << "");
+  vtkDebugMacro(<< " Returning Roll of " << orient[2] << "");
 
   return orient[2];
 }
@@ -413,7 +413,7 @@ float vlCamera::GetRoll()
 // Description:
 // Compute the camera distance which is the distance between the 
 // focal point and position.
-void vlCamera::CalcDistance ()
+void vtkCamera::CalcDistance ()
 {
   float   *distance;
   float   dx, dy, dz;
@@ -431,7 +431,7 @@ void vlCamera::CalcDistance ()
   if (this->Distance < 0.002) 
     {
     this->Distance = 0.002;
-    vlDebugMacro(<< " Distance is set to minimum.");
+    vtkDebugMacro(<< " Distance is set to minimum.");
 
     // recalculate position
     this->Position[0] = 
@@ -441,14 +441,14 @@ void vlCamera::CalcDistance ()
     this->Position[2] = 
       - this->ViewPlaneNormal[2] * *distance + this->FocalPoint[2];
     
-    vlDebugMacro(<< " Position set to ( " <<  this->Position[0] << ", "
+    vtkDebugMacro(<< " Position set to ( " <<  this->Position[0] << ", "
     << this->Position[1] << ", " << this->Position[2] << ")");
     
-    vlDebugMacro(<< " Distance set to ( " <<  this->Distance << ")");
+    vtkDebugMacro(<< " Distance set to ( " <<  this->Distance << ")");
     this->Modified();
     }
   
-  vlDebugMacro(<< " Distance set to ( " <<  this->Distance << ")");
+  vtkDebugMacro(<< " Distance set to ( " <<  this->Distance << ")");
   
   this->Modified();
 } 
@@ -457,12 +457,12 @@ void vlCamera::CalcDistance ()
 // Returns the orientation of the camera. This is a vector of X,Y and Z 
 // rotations that when performed in the order RotateZ, RotateX and finally
 // RotateY will yield the same 3x3 rotation matrix for the camera.
-float *vlCamera::GetOrientation ()
+float *vtkCamera::GetOrientation ()
 {
   // calculate a new orientation
   this->CalcPerspectiveTransform();
 
-  vlDebugMacro(<< " Returning Orientation of ( " <<  this->Orientation[0] 
+  vtkDebugMacro(<< " Returning Orientation of ( " <<  this->Orientation[0] 
   << ", " << this->Orientation[1] << ", " << this->Orientation[2] << ")");
   
   return this->Orientation;
@@ -471,9 +471,9 @@ float *vlCamera::GetOrientation ()
 // Description:
 // Compute the perspective transform matrix. This is used in converting 
 // between display, view and world coordinates.
-void vlCamera::CalcPerspectiveTransform ()
+void vtkCamera::CalcPerspectiveTransform ()
 {
-  vlMatrix4x4  matrix;
+  vtkMatrix4x4  matrix;
   float   view_ratio;
   float   distance, distance_old;
   float   twist;
@@ -594,7 +594,7 @@ void vlCamera::CalcPerspectiveTransform ()
 
 // Description:
 // Return the perspective transform matrix. See CalcPerspectiveTransform.
-vlMatrix4x4 &vlCamera::GetPerspectiveTransform()
+vtkMatrix4x4 &vtkCamera::GetPerspectiveTransform()
 {
   // update transform 
   this->CalcPerspectiveTransform();
@@ -608,11 +608,11 @@ vlMatrix4x4 &vlCamera::GetPerspectiveTransform()
 // Description:
 // Recompute the view up vector so that it is perpendicular to the
 // view plane normal.
-void vlCamera::OrthogonalizeViewUp()
+void vtkCamera::OrthogonalizeViewUp()
 {
   float *normal,*up,temp[3],new_up[3];
   float temp_mag_sq,new_mag_sq,ratio;
-  vlMath math;
+  vtkMath math;
 
   normal=this->ViewPlaneNormal;
   up=this->ViewUp;
@@ -629,7 +629,7 @@ void vlCamera::OrthogonalizeViewUp()
 // Move the position of the camera along the view plane normal. Moving
 // towards the focal point (e.g., zoom>1) is a zoom-in, moving away 
 // from the focal point (e.g., zoom<1) is a zoom-out.
-void vlCamera::Zoom(float amount)
+void vtkCamera::Zoom(float amount)
 {
   float	distance;
   
@@ -646,7 +646,7 @@ void vlCamera::Zoom(float amount)
 
 // Description:
 // Rotate the camera about the view up vector centered at the focal point.
-void vlCamera::Azimuth (float angle)
+void vtkCamera::Azimuth (float angle)
 {
   // azimuth is a rotation of camera position about view up vector
   this->Transform.Push();
@@ -681,7 +681,7 @@ void vlCamera::Azimuth (float angle)
 // Description:
 // Rotate the camera about the corss product of the view plane normal and 
 // the view_up vector centered on the focal_point.
-void vlCamera::Elevation (float angle)
+void vtkCamera::Elevation (float angle)
 {
   double	axis[3];
   
@@ -725,7 +725,7 @@ void vlCamera::Elevation (float angle)
 // Description:
 // Rotate the focal point about the view_up vector centered at the cameras 
 // position. 
-void vlCamera::Yaw (float angle)
+void vtkCamera::Yaw (float angle)
 {
   // yaw is a rotation of camera focal_point about view up vector
   this->Transform.Push();
@@ -760,7 +760,7 @@ void vlCamera::Yaw (float angle)
 // Description:
 // Rotate the focal point about the cross product of the view up vector 
 // and the view plane normal, centered at the cameras position.
-void vlCamera::Pitch (float angle)
+void vtkCamera::Pitch (float angle)
 {
   float	axis[3];
 
@@ -803,7 +803,7 @@ void vlCamera::Pitch (float angle)
 
 // Description:
 // Rotate the camera around the view plane normal.
-void vlCamera::Roll (float angle)
+void vtkCamera::Roll (float angle)
 {
   
   // roll is a rotation of camera view up about view plane normal
@@ -829,7 +829,7 @@ void vlCamera::Roll (float angle)
 // Description:
 // Set the direction that the camera points.
 // Adjusts position to be consistent with the view plane normal.
-void vlCamera::SetViewPlaneNormal(float X,float Y,float Z)
+void vtkCamera::SetViewPlaneNormal(float X,float Y,float Z)
 {
   float norm;
 
@@ -840,7 +840,7 @@ void vlCamera::SetViewPlaneNormal(float X,float Y,float Z)
   norm = sqrt( X * X + Y * Y + Z * Z );
   if (!norm)
     {
-    vlErrorMacro(<< "SetViewPlaneNormal of (0,0,0)");
+    vtkErrorMacro(<< "SetViewPlaneNormal of (0,0,0)");
     return;
     }
   
@@ -852,7 +852,7 @@ void vlCamera::SetViewPlaneNormal(float X,float Y,float Z)
   this->Position[2] = 
     - Z * this->Distance/norm + this->FocalPoint[2];
     
-  vlDebugMacro(<< " Position set to ( " <<  this->Position[0] << ", "
+  vtkDebugMacro(<< " Position set to ( " <<  this->Position[0] << ", "
   << this->Position[1] << ", " << this->Position[2] << ")");
   
   // recalculate view plane normal
@@ -861,14 +861,14 @@ void vlCamera::SetViewPlaneNormal(float X,float Y,float Z)
   this->Modified();
 }
 
-void vlCamera::SetViewPlaneNormal(float a[3])
+void vtkCamera::SetViewPlaneNormal(float a[3])
 {
   this->SetViewPlaneNormal(a[0],a[1],a[2]);
 }
 
-void vlCamera::PrintSelf(ostream& os, vlIndent indent)
+void vtkCamera::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlObject::PrintSelf(os,indent);
+  vtkObject::PrintSelf(os,indent);
 
   // update orientation
   this->GetOrientation();

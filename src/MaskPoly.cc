@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    MaskPoly.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
@@ -15,7 +15,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 =========================================================================*/
 #include "MaskPoly.hh"
 
-vlMaskPolyData::vlMaskPolyData()
+vtkMaskPolyData::vtkMaskPolyData()
 {
   this->OnRatio = 11;
   this->Offset = 0;
@@ -25,17 +25,17 @@ vlMaskPolyData::vlMaskPolyData()
 // Down sample polygonal data.  Don't down sample points (that is, use the
 // original points, since usually not worth it.
 //
-void vlMaskPolyData::Execute()
+void vtkMaskPolyData::Execute()
 {
   int numVerts, numLines, numPolys, numStrips;
-  vlCellArray *inVerts,*inLines,*inPolys,*inStrips;
+  vtkCellArray *inVerts,*inLines,*inPolys,*inStrips;
   int numNewVerts, numNewLines, numNewPolys, numNewStrips;
-  vlCellArray *newVerts=NULL, *newLines=NULL;
-  vlCellArray *newPolys=NULL, *newStrips=NULL;
+  vtkCellArray *newVerts=NULL, *newLines=NULL;
+  vtkCellArray *newPolys=NULL, *newStrips=NULL;
   int id, interval;
-  vlPointData *pd;
+  vtkPointData *pd;
   int npts, *pts;
-  vlPolyData *input=(vlPolyData *)this->Input;
+  vtkPolyData *input=(vtkPolyData *)this->Input;
 //
 // Check input / pass data through
 //
@@ -60,30 +60,30 @@ void vlMaskPolyData::Execute()
   if ( numNewVerts < 1 && numNewLines < 1 &&
   numNewPolys < 1 && numNewStrips < 1 )
     {
-    vlErrorMacro (<<"No PolyData to mask!");
+    vtkErrorMacro (<<"No PolyData to mask!");
     return;
     }
 //
 // Allocate space
 //
   if ( numNewVerts )
-    newVerts = new vlCellArray(numNewVerts);
+    newVerts = new vtkCellArray(numNewVerts);
 
   if ( numNewLines )
     {
-    newLines = new vlCellArray;
+    newLines = new vtkCellArray;
     newLines->Allocate(newLines->EstimateSize(numNewLines,2));
     }
 
   if ( numNewPolys )
     {
-    newPolys = new vlCellArray;
+    newPolys = new vtkCellArray;
     newPolys->Allocate(newPolys->EstimateSize(numNewPolys,4));
     }
 
   if ( numNewStrips )
     {
-    newStrips = new vlCellArray;
+    newStrips = new vtkCellArray;
     newStrips->Allocate(newStrips->EstimateSize(numNewStrips,6));
     }
 //
@@ -147,9 +147,9 @@ void vlMaskPolyData::Execute()
   this->Squeeze();
 }
 
-void vlMaskPolyData::PrintSelf(ostream& os, vlIndent indent)
+void vtkMaskPolyData::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlPolyToPolyFilter::PrintSelf(os,indent);
+  vtkPolyToPolyFilter::PrintSelf(os,indent);
 
   os << indent << "On Ratio: " << this->OnRatio << "\n";
   os << indent << "Offset: " << this->Offset << "\n";

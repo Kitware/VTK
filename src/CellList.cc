@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    CellList.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its 
+This file is part of the Visualization Toolkit. No part of this file or its 
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
@@ -15,24 +15,24 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 =========================================================================*/
 #include "CellList.hh"
 
-vlCellList::vlCellList(const int sz, const int ext)
+vtkCellList::vtkCellList(const int sz, const int ext)
 {
   this->Size = sz;
-  this->Array = new _vlCell_s[sz];
+  this->Array = new _vtkCell_s[sz];
   this->Extend = ext;
   this->MaxId = -1;
 }
 
-vlCellList::~vlCellList()
+vtkCellList::~vtkCellList()
 {
   delete [] this->Array;
 }
 
 // Description:
 // Add a cell to structure
-void vlCellList::InsertCell(const int cellId, const unsigned char type, const int loc)
+void vtkCellList::InsertCell(const int cellId, const unsigned char type, const int loc)
 {
-  _vlCell_s *cell;
+  _vtkCell_s *cell;
 
   if ( cellId >= this->Size ) this->Resize(cellId);
   if ( cellId > this->MaxId ) this->MaxId = cellId;
@@ -46,7 +46,7 @@ void vlCellList::InsertCell(const int cellId, const unsigned char type, const in
 
 // Description:
 // Add a cell to the object in the next available slot.
-int vlCellList::InsertNextCell(const unsigned char type, const int loc)
+int vtkCellList::InsertNextCell(const unsigned char type, const int loc)
 {
   this->InsertCell (++this->MaxId,type,loc);
   return this->MaxId;
@@ -54,31 +54,31 @@ int vlCellList::InsertNextCell(const unsigned char type, const int loc)
 
 // Description:
 // Reclaim any extra memory.
-void vlCellList::Squeeze()
+void vtkCellList::Squeeze()
 {
   this->Resize (this->MaxId+1);
 }
 
 // Description:
 // Initialize object without releasing memory.
-void vlCellList::Reset()
+void vtkCellList::Reset()
 {
   this->MaxId = -1;
 }
 //
 // Private function does "reallocate"
 //
-_vlCell_s *vlCellList::Resize(const int sz)
+_vtkCell_s *vtkCellList::Resize(const int sz)
 {
   int i;
-  _vlCell_s *newArray;
+  _vtkCell_s *newArray;
   int newSize;
 
   if ( sz >= this->Size )  newSize = this->Size + 
     this->Extend*(((sz-this->Size)/this->Extend)+1);
   else newSize = sz;
 
-  newArray = new _vlCell_s[newSize];
+  newArray = new _vtkCell_s[newSize];
 
   for (i=0; i<sz && i<this->Size; i++)
       newArray[i] = this->Array[i];

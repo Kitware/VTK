@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    GlrText.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its
+This file is part of the Visualization Toolkit. No part of this file or its
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
@@ -26,11 +26,11 @@ static float texprops[]
   };
 
 // shared increasing counter
-long vlGlrTexture::GlobalIndex = 0;
+long vtkGlrTexture::GlobalIndex = 0;
 
 // Description:
 // Initializes an instance, generates a unique index.
-vlGlrTexture::vlGlrTexture()
+vtkGlrTexture::vtkGlrTexture()
 {
   this->GlobalIndex++;
   this->Index = this->GlobalIndex;
@@ -38,19 +38,19 @@ vlGlrTexture::vlGlrTexture()
 
 // Description:
 // Implement base class method.
-void vlGlrTexture::Load(vlTexture *txt, vlRenderer *ren)
+void vtkGlrTexture::Load(vtkTexture *txt, vtkRenderer *ren)
 {
-  this->Load(txt, (vlGlrRenderer *)ren);
+  this->Load(txt, (vtkGlrRenderer *)ren);
 }
 
 // Description:
 // Actual Texture load method.
-void vlGlrTexture::Load(vlTexture *txt, vlGlrRenderer *ren)
+void vtkGlrTexture::Load(vtkTexture *txt, vtkGlrRenderer *ren)
 {
   // make sure it can handle textures
   if (!getgdesc(GD_TEXTURE)) 
     {
-    vlDebugMacro(<< "Texture mapping not supported on this machine\n");
+    vtkDebugMacro(<< "Texture mapping not supported on this machine\n");
     return;
     }
   
@@ -59,7 +59,7 @@ void vlGlrTexture::Load(vlTexture *txt, vlGlrRenderer *ren)
     {
     int bytesPerPixel;
     int *size;
-    vlScalars *scalars;
+    vtkScalars *scalars;
     unsigned char *dataPtr;
     int rowLength;
     unsigned char *resultData;
@@ -72,7 +72,7 @@ void vlGlrTexture::Load(vlTexture *txt, vlGlrRenderer *ren)
     // make sure scalars are non null
     if (!scalars) 
       {
-      vlErrorMacro(<< "No scalar values found for texture input!\n");
+      vtkErrorMacro(<< "No scalar values found for texture input!\n");
       return;
       }
 
@@ -82,11 +82,11 @@ void vlGlrTexture::Load(vlTexture *txt, vlGlrRenderer *ren)
     if ( strcmp(scalars->GetDataType(),"char") ||
     strcmp(scalars->GetScalarType(),"ColorScalar") )
       {
-      vlDebugMacro(<< "Cannot do quick coversion to unsigned char.\n");
+      vtkDebugMacro(<< "Cannot do quick coversion to unsigned char.\n");
       return;
       }
 
-    dataPtr = ((vlColorScalars *)scalars)->GetPtr(0);    
+    dataPtr = ((vtkColorScalars *)scalars)->GetPtr(0);    
 
     // we only support 2d texture maps right now
     // so one of the three sizes must be 1, but it 
@@ -107,7 +107,7 @@ void vlGlrTexture::Load(vlTexture *txt, vlGlrRenderer *ren)
 	ysize = size[1];
 	if (size[2] != 1)
 	  {
-	  vlErrorMacro(<< "3D texture maps currently are not supported!\n");
+	  vtkErrorMacro(<< "3D texture maps currently are not supported!\n");
 	  return;
 	  }
 	}

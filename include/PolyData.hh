@@ -1,31 +1,31 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    PolyData.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its 
+This file is part of the Visualization Toolkit. No part of this file or its 
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-// .NAME vlPolyData - concrete dataset represents vertices, lines, polygons, and triangle strips
+// .NAME vtkPolyData - concrete dataset represents vertices, lines, polygons, and triangle strips
 // .SECTION Description
-// vlPolyData is a data object that is a concrete implementation of vlDataSet.
-// vlPolyData represents a geometric structure consisting of vertices, lines,
+// vtkPolyData is a data object that is a concrete implementation of vtkDataSet.
+// vtkPolyData represents a geometric structure consisting of vertices, lines,
 // polygons, and triangle strips. Point attribute values (e.g., scalars,
 // vectors, etc.) are also represented.
 //
-// The actual cell types (CellType.hh) supported by vlPolyData are: vlVERTEX,
-// vlPOLY_VERTEX, vlLINE, vlPOLYLINE, vlTRIANGLE, vlTRIANGLE_STRIP,
-// vlPOLYGON, vlRECTANGLE, and vlQUAD.
+// The actual cell types (CellType.hh) supported by vtkPolyData are: vtkVERTEX,
+// vtkPOLY_VERTEX, vtkLINE, vtkPOLYLINE, vtkTRIANGLE, vtkTRIANGLE_STRIP,
+// vtkPOLYGON, vtkRECTANGLE, and vtkQUAD.
 
-#ifndef __vlPolyData_h
-#define __vlPolyData_h
+#ifndef __vtkPolyData_h
+#define __vtkPolyData_h
 
 #include "PointSet.hh"
 #include "FPoints.hh"
@@ -33,37 +33,37 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "CellList.hh"
 #include "LinkList.hh"
 
-class vlPolyData : public vlPointSet 
+class vtkPolyData : public vtkPointSet 
 {
 public:
-  vlPolyData();
-  vlPolyData(const vlPolyData& pd);
-  ~vlPolyData();
-  char *GetClassName() {return "vlPolyData";};
-  char *GetDataType() {return "vlPolyData";};
-  void PrintSelf(ostream& os, vlIndent indent);
+  vtkPolyData();
+  vtkPolyData(const vtkPolyData& pd);
+  ~vtkPolyData();
+  char *GetClassName() {return "vtkPolyData";};
+  char *GetDataType() {return "vtkPolyData";};
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // dataset interface
-  vlDataSet *MakeObject() {return new vlPolyData(*this);};
+  vtkDataSet *MakeObject() {return new vtkPolyData(*this);};
   int GetNumberOfCells();
-  vlCell *GetCell(int cellId);
+  vtkCell *GetCell(int cellId);
   int GetCellType(int cellId);
-  void GetCellPoints(int cellId, vlIdList& ptIds);
-  void GetPointCells(int ptId, vlIdList& cellIds);
+  void GetCellPoints(int cellId, vtkIdList& ptIds);
+  void GetPointCells(int ptId, vtkIdList& cellIds);
 
   // Can't use macros to set/get following cell arrays.  This is due to tricks
   // required to support traversal methods.
-  void SetVerts (vlCellArray* v);
-  vlCellArray *GetVerts();
+  void SetVerts (vtkCellArray* v);
+  vtkCellArray *GetVerts();
 
-  void SetLines (vlCellArray* l);
-  vlCellArray *GetLines();
+  void SetLines (vtkCellArray* l);
+  vtkCellArray *GetLines();
 
-  void SetPolys (vlCellArray* p);
-  vlCellArray *GetPolys();
+  void SetPolys (vtkCellArray* p);
+  vtkCellArray *GetPolys();
 
-  void SetStrips (vlCellArray* s);
-  vlCellArray *GetStrips();
+  void SetStrips (vtkCellArray* s);
+  vtkCellArray *GetStrips();
 
   int GetNumberOfVerts();
   int GetNumberOfLines();
@@ -83,7 +83,7 @@ public:
 
   // Special (efficient) operations on poly data. Use carefully.
   void GetPointCells(int ptId, unsigned short& ncells, int* &cells);
-  void GetCellEdgeNeighbors(int cellId, int p1, int p2, vlIdList& cellIds);
+  void GetCellEdgeNeighbors(int cellId, int p1, int p2, vtkIdList& cellIds);
   void GetCellPoints(int cellId, int& npts, int* &pts);
   int IsTriangle(int v1, int v2, int v3);
   int IsEdge(int v1, int v2);
@@ -101,25 +101,25 @@ protected:
 
   // points inherited
   // point data (i.e., scalars, vectors, normals, tcoords) inherited
-  vlCellArray *Verts;
-  vlCellArray *Lines;
-  vlCellArray *Polys;
-  vlCellArray *Strips;
+  vtkCellArray *Verts;
+  vtkCellArray *Lines;
+  vtkCellArray *Polys;
+  vtkCellArray *Strips;
 
   // dummy static member below used as a trick to simplify traversal
-  static vlCellArray *Dummy;
+  static vtkCellArray *Dummy;
 
   // supporting structures for more complex topological operations
   // built only when necessary
-  vlCellList *Cells;
-  vlLinkList *Links;
+  vtkCellList *Cells;
+  vtkLinkList *Links;
 
 };
 
 // Description:
 // Efficient method to obtain cells using a particular point. Make sure that
 // routine BuildLinks() has been called.
-inline void vlPolyData::GetPointCells(int ptId, unsigned short& ncells, 
+inline void vtkPolyData::GetPointCells(int ptId, unsigned short& ncells, 
                                       int* &cells)
 {
   ncells = this->Links->GetNcells(ptId);
@@ -129,7 +129,7 @@ inline void vlPolyData::GetPointCells(int ptId, unsigned short& ncells,
 // Description:
 // Given three vertices, determine whether it's a triangle. Make sure 
 // BuildLinks() has been called first.
-inline int vlPolyData::IsTriangle(int v1, int v2, int v3)
+inline int vtkPolyData::IsTriangle(int v1, int v2, int v3)
 {
   unsigned short int n1;
   int i, j, n2, *cells, tVerts[3], *tVerts2;
@@ -159,7 +159,7 @@ inline int vlPolyData::IsTriangle(int v1, int v2, int v3)
 // Description:
 // Determine whether a point is used by a particular cell. If it is, return
 // non-zero. Make sure BuildCells() has been called first.
-inline int vlPolyData::IsPointUsedByCell(int ptId, int cellId)
+inline int vtkPolyData::IsPointUsedByCell(int ptId, int cellId)
 {
   int npts, *pts;
   this->GetCellPoints(cellId, npts, pts);
@@ -172,7 +172,7 @@ inline int vlPolyData::IsPointUsedByCell(int ptId, int cellId)
 // Description:
 // Determine whether two points form an edge. If they do, return non-zero.
 // Make sure BuildLinks() has been called first.
-inline int vlPolyData::IsEdge(int p1, int p2)
+inline int vtkPolyData::IsEdge(int p1, int p2)
 {
   unsigned short int ncells;
   int i, *cells;
@@ -184,17 +184,17 @@ inline int vlPolyData::IsEdge(int p1, int p2)
   return 0;
 }
 
-inline void vlPolyData::DeletePoint(int ptId)
+inline void vtkPolyData::DeletePoint(int ptId)
 {
   this->Links->DeletePoint(ptId);
 }
 
-inline void vlPolyData::DeleteCell(int cellId)
+inline void vtkPolyData::DeleteCell(int cellId)
 {
   this->Cells->DeleteCell(cellId);
 }
 
-inline void vlPolyData::RemoveCellReference(int cellId)
+inline void vtkPolyData::RemoveCellReference(int cellId)
 {
   int npts, *pts;
   this->GetCellPoints(cellId, npts, pts);
@@ -202,7 +202,7 @@ inline void vlPolyData::RemoveCellReference(int cellId)
     this->Links->RemoveCellReference(cellId, pts[i]);  
 }
 
-inline void vlPolyData::ResizeCellList(int ptId, int size)
+inline void vtkPolyData::ResizeCellList(int ptId, int size)
 {
   this->Links->ResizeCellList(ptId,size);
 }

@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    RenderW.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its
+This file is part of the Visualization Toolkit. No part of this file or its
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
@@ -22,7 +22,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // Description:
 // Construct object with screen size 300x300, borders turned on, position
 // at (0,0), and double buffering turned on.
-vlRenderWindow::vlRenderWindow()
+vtkRenderWindow::vtkRenderWindow()
 {
   this->Size[0] = this->Size[1] = 300;
   this->Position[0] = this->Position[1] = 0;
@@ -37,7 +37,7 @@ vlRenderWindow::vlRenderWindow()
   this->StereoType = VL_STEREO_RED_BLUE;
   this->StereoStatus = 0;
   this->Interactor = NULL;
-  strcpy(this->Name,"Visualization Library");
+  strcpy(this->Name,"Visualization Toolkit");
   this->AAFrames = 0;
   this->AABuffer = NULL;
   this->FDFrames = 0;
@@ -51,11 +51,11 @@ vlRenderWindow::vlRenderWindow()
 
 // Description:
 // Ask each renderer to render an image. Synchronize this process.
-void vlRenderWindow::Render()
+void vtkRenderWindow::Render()
 {
   int i;
 
-  vlDebugMacro(<< "Starting Render Method.\n");
+  vtkDebugMacro(<< "Starting Render Method.\n");
 
   if ( this->Interactor && ! this->Interactor->GetInitialized() )
     this->Interactor->Initialize();
@@ -141,7 +141,7 @@ void vlRenderWindow::Render()
 
 // Description:
 // Ask each renderer to render an aa image. Synchronize this process.
-void vlRenderWindow::DoAARender()
+void vtkRenderWindow::DoAARender()
 {
   int i;
 
@@ -152,8 +152,8 @@ void vlRenderWindow::DoAARender()
     int x,y;
     int r,g,b;
     unsigned char *p1;
-    vlRenderer *aren;
-    vlCamera *acam;
+    vtkRenderer *aren;
+    vtkCamera *acam;
     float *dpoint;
     float offsets[2];
     float origfocus[4];
@@ -290,7 +290,7 @@ void vlRenderWindow::DoAARender()
 
 // Description:
 // Ask each renderer to render an image. Synchronize this process.
-void vlRenderWindow::DoFDRender()
+void vtkRenderWindow::DoFDRender()
 {
   int i;
 
@@ -301,13 +301,13 @@ void vlRenderWindow::DoFDRender()
     int x,y;
     int r,g,b;
     unsigned char *p1;
-    vlRenderer *aren;
-    vlCamera *acam;
+    vtkRenderer *aren;
+    vtkCamera *acam;
     float focalDisk;
     float viewUp[4];
     float *vpn;
     float *dpoint;
-    vlTransform aTrans;
+    vtkTransform aTrans;
     float offsets[2];
     float *orig;
 
@@ -422,7 +422,7 @@ void vlRenderWindow::DoFDRender()
 
 // Description:
 // Ask each renderer to render an image.
-void vlRenderWindow::DoStereoRender()
+void vtkRenderWindow::DoStereoRender()
 {
   this->Start();
   this->StereoUpdate();
@@ -437,7 +437,7 @@ void vlRenderWindow::DoStereoRender()
 
 // Description:
 // Add a renderer to the list of renderers.
-void vlRenderWindow::AddRenderers(vlRenderer *ren)
+void vtkRenderWindow::AddRenderers(vtkRenderer *ren)
 {
   // we are its parent 
   ren->SetRenderWindow(this);
@@ -446,7 +446,7 @@ void vlRenderWindow::AddRenderers(vlRenderer *ren)
 
 // Description:
 // Remove a renderer from the list of renderers.
-void vlRenderWindow::RemoveRenderers(vlRenderer *ren)
+void vtkRenderWindow::RemoveRenderers(vtkRenderer *ren)
 {
   // we are its parent 
   this->Renderers.RemoveItem(ren);
@@ -454,20 +454,20 @@ void vlRenderWindow::RemoveRenderers(vlRenderer *ren)
 
 // Description:
 // Set the size of the window in screen coordinates.
-void vlRenderWindow::SetSize(int a[2])
+void vtkRenderWindow::SetSize(int a[2])
 {
   this->SetSize(a[0],a[1]);
 }
 
 // Description:
 // Set the size of the window in screen coordinates.
-void vlRenderWindow::SetPosition(int a[2])
+void vtkRenderWindow::SetPosition(int a[2])
 {
   this->SetPosition(a[0],a[1]);
 }
 // Description:
 // Set the size of the window in screen coordinates.
-void vlRenderWindow::SetPosition(int x, int y)
+void vtkRenderWindow::SetPosition(int x, int y)
 {
   // if we arent mappen then just set the ivars 
   if (!this->Mapped)
@@ -481,11 +481,11 @@ void vlRenderWindow::SetPosition(int x, int y)
     }
 }
 
-void vlRenderWindow::PrintSelf(ostream& os, vlIndent indent)
+void vtkRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
 {
   int *temp;
 
-  vlObject::PrintSelf(os,indent);
+  vtkObject::PrintSelf(os,indent);
 
   os << indent << "Borders: " << (this->Borders ? "On\n":"Off\n");
   os << indent << "Double Buffer: " << (this->DoubleBuffer ? "On\n":"Off\n");
@@ -507,7 +507,7 @@ void vlRenderWindow::PrintSelf(ostream& os, vlIndent indent)
 }
 
 
-void vlRenderWindow::SaveImageAsPPM()
+void vtkRenderWindow::SaveImageAsPPM()
 {
   int    *size;
   FILE   *fp;
@@ -524,7 +524,7 @@ void vlRenderWindow::SaveImageAsPPM()
     fp = fopen(this->Filename,"w");
     if (!fp)
       {
-      vlErrorMacro(<< "RenderWindow unable to open image file for writing\n");
+      vtkErrorMacro(<< "RenderWindow unable to open image file for writing\n");
       delete [] buffer;
       return;
       }
@@ -543,7 +543,7 @@ void vlRenderWindow::SaveImageAsPPM()
 
 // Description:
 // Update system if needed due to stereo rendering.
-void vlRenderWindow::StereoUpdate(void)
+void vtkRenderWindow::StereoUpdate(void)
 {
   // if stereo is on and it wasn't before
   if (this->StereoRender && (!this->StereoStatus))
@@ -570,7 +570,7 @@ void vlRenderWindow::StereoUpdate(void)
 
 // Description:
 // Handles work required between the left and right eye renders.
-void vlRenderWindow::StereoMidpoint(void)
+void vtkRenderWindow::StereoMidpoint(void)
 {
   switch (this->StereoType) 
     {
@@ -587,7 +587,7 @@ void vlRenderWindow::StereoMidpoint(void)
 
 // Description:
 // Handles work required between the left and right eye renders.
-void vlRenderWindow::StereoRenderComplete(void)
+void vtkRenderWindow::StereoRenderComplete(void)
 {
   switch (this->StereoType) 
     {
@@ -611,7 +611,7 @@ void vlRenderWindow::StereoRenderComplete(void)
       result = new unsigned char [size[0]*size[1]*3];
       if (!result)
 	{
-	vlErrorMacro(<<"Couldn't allocate memory for RED BLUE stereo.");
+	vtkErrorMacro(<<"Couldn't allocate memory for RED BLUE stereo.");
 	return;
 	}
       p3 = result;
@@ -643,7 +643,7 @@ void vlRenderWindow::StereoRenderComplete(void)
 
 // Description:
 // Handles work required at end of render cycle
-void vlRenderWindow::CopyResultFrame(void)
+void vtkRenderWindow::CopyResultFrame(void)
 {
   if (this->ResultFrame)
     {
@@ -664,7 +664,7 @@ void vlRenderWindow::CopyResultFrame(void)
 
 // Description:
 // Indicates if a StereoOn will require the window to be remapped.
-int vlRenderWindow::GetRemapWindow(void)
+int vtkRenderWindow::GetRemapWindow(void)
 {
   switch (this->StereoType) 
     {

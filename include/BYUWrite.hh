@@ -1,83 +1,83 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    BYUWrite.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-// .NAME vlBYUWriter - write MOVIE.BYU files
+// .NAME vtkBYUWriter - write MOVIE.BYU files
 // .SECTION Description
-// vlBYUWriter writes MOVIE.BYU polygonal files. These files consist 
+// vtkBYUWriter writes MOVIE.BYU polygonal files. These files consist 
 // of a geometry file (.g), a scalar file (.s), a displacement or 
 // vector file (.d), and a 2D texture coordinate file (.t). These files 
 // must be specified to the object, the appropriate boolean 
 // variables must be true, and data must be available from the input
 // for the files to be written.
 
-#ifndef __vlBYUWriter_h
-#define __vlBYUWriter_h
+#ifndef __vtkBYUWriter_h
+#define __vtkBYUWriter_h
 
 #include <stdio.h>
 #include "Writer.hh"
 #include "PolyData.hh"
 
-class vlBYUWriter : public vlWriter
+class vtkBYUWriter : public vtkWriter
 {
 public:
-  vlBYUWriter();
-  ~vlBYUWriter();
-  char *GetClassName() {return "vlBYUWriter";};
-  void PrintSelf(ostream& os, vlIndent indent);
+  vtkBYUWriter();
+  ~vtkBYUWriter();
+  char *GetClassName() {return "vtkBYUWriter";};
+  void PrintSelf(ostream& os, vtkIndent indent);
 
-  void SetInput(vlPolyData *input);
-  void SetInput(vlPolyData &input) {this->SetInput(&input);};
-  vlPolyData *GetInput() {return (vlPolyData *)this->Input;};
+  void SetInput(vtkPolyData *input);
+  void SetInput(vtkPolyData &input) {this->SetInput(&input);};
+  vtkPolyData *GetInput() {return (vtkPolyData *)this->Input;};
                                
   // Description:
   // Specify the name of the geometry file to write.
-  vlSetStringMacro(GeometryFilename);
-  vlGetStringMacro(GeometryFilename);
+  vtkSetStringMacro(GeometryFilename);
+  vtkGetStringMacro(GeometryFilename);
 
   // Description:
   // Specify the name of the displacement file to write.
-  vlSetStringMacro(DisplacementFilename);
-  vlGetStringMacro(DisplacementFilename);
+  vtkSetStringMacro(DisplacementFilename);
+  vtkGetStringMacro(DisplacementFilename);
 
   // Description:
   // Specify the name of the scalar file to write.
-  vlSetStringMacro(ScalarFilename);
-  vlGetStringMacro(ScalarFilename);
+  vtkSetStringMacro(ScalarFilename);
+  vtkGetStringMacro(ScalarFilename);
 
   // Description:
   // Specify the name of the texture file to write.
-  vlSetStringMacro(TextureFilename);
-  vlGetStringMacro(TextureFilename);
+  vtkSetStringMacro(TextureFilename);
+  vtkGetStringMacro(TextureFilename);
 
   // Description:
   // Turn on/off writing the displacement file.
-  vlSetMacro(WriteDisplacement,int);
-  vlGetMacro(WriteDisplacement,int);
-  vlBooleanMacro(WriteDisplacement,int);
+  vtkSetMacro(WriteDisplacement,int);
+  vtkGetMacro(WriteDisplacement,int);
+  vtkBooleanMacro(WriteDisplacement,int);
   
   // Description:
   // Turn on/off writing the scalar file.
-  vlSetMacro(WriteScalar,int);
-  vlGetMacro(WriteScalar,int);
-  vlBooleanMacro(WriteScalar,int);
+  vtkSetMacro(WriteScalar,int);
+  vtkGetMacro(WriteScalar,int);
+  vtkBooleanMacro(WriteScalar,int);
   
   // Description:
   // Turn on/off writing the texture file.
-  vlSetMacro(WriteTexture,int);
-  vlGetMacro(WriteTexture,int);
-  vlBooleanMacro(WriteTexture,int);
+  vtkSetMacro(WriteTexture,int);
+  vtkGetMacro(WriteTexture,int);
+  vtkBooleanMacro(WriteTexture,int);
 
 protected:
   void WriteData();

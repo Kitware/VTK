@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    XglrRenW.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its
+This file is part of the Visualization Toolkit. No part of this file or its
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
@@ -28,72 +28,72 @@ Xgl_sys_state xglr_sys_state = 0;  // XGLR System State object
 static Xgl_bounds_d3d xglr_vdc_window = 
 {-1.0, 1.0, -1.0, 1.0, -1.0, 0.0};
 
-vlXglrRenderWindow::vlXglrRenderWindow()
+vtkXglrRenderWindow::vtkXglrRenderWindow()
 {
   this->Context = NULL;
   this->WindowRaster = NULL;
   this->StereoType = VL_STEREO_CRYSTAL_EYES;
-  strcpy(this->Name,"Visualization Library - XGL");
+  strcpy(this->Name,"Visualization Toolkit - XGL");
 }
 
 // Description:
 // Create a XGL specific light.
-vlLightDevice *vlXglrRenderWindow::MakeLight()
+vtkLightDevice *vtkXglrRenderWindow::MakeLight()
 {
-  vlXglrLight *light;
+  vtkXglrLight *light;
 
-  light = new vlXglrLight;
-  return (vlLightDevice *)light;
+  light = new vtkXglrLight;
+  return (vtkLightDevice *)light;
 }
 
 // Description:
 // Create a XGL specific renderer.
-vlRenderer *vlXglrRenderWindow::MakeRenderer()
+vtkRenderer *vtkXglrRenderWindow::MakeRenderer()
 {
-  vlXglrRenderer *ren;
+  vtkXglrRenderer *ren;
 
-  ren = new vlXglrRenderer;
+  ren = new vtkXglrRenderer;
   this->AddRenderers(ren);
 
   // by default we are its parent
-  ren->SetRenderWindow((vlRenderWindow*)this);
+  ren->SetRenderWindow((vtkRenderWindow*)this);
   
-  return (vlRenderer *)ren;
+  return (vtkRenderer *)ren;
 }
 
 // Description:
 // Create a XGL specific camera.
-vlCameraDevice *vlXglrRenderWindow::MakeCamera()
+vtkCameraDevice *vtkXglrRenderWindow::MakeCamera()
 {
-  vlXglrCamera *camera;
+  vtkXglrCamera *camera;
 
-  camera = new vlXglrCamera;
-  return (vlCameraDevice *)camera;
+  camera = new vtkXglrCamera;
+  return (vtkCameraDevice *)camera;
 }
 
 // Description:
 // Create a XGL specific property.
-vlPropertyDevice *vlXglrRenderWindow::MakeProperty()
+vtkPropertyDevice *vtkXglrRenderWindow::MakeProperty()
 {
-  vlXglrProperty *property;
+  vtkXglrProperty *property;
 
-  property = new vlXglrProperty;
-  return (vlPropertyDevice *)property;
+  property = new vtkXglrProperty;
+  return (vtkPropertyDevice *)property;
 }
 
 // Description:
 // Create a XGL specific texture.
-vlTextureDevice *vlXglrRenderWindow::MakeTexture()
+vtkTextureDevice *vtkXglrRenderWindow::MakeTexture()
 {
-  vlXglrTexture *texture;
+  vtkXglrTexture *texture;
 
-  texture = new vlXglrTexture;
-  return (vlTextureDevice *)texture;
+  texture = new vtkXglrTexture;
+  return (vtkTextureDevice *)texture;
 }
 
 // Description:
 // Begin the rendering process.
-void vlXglrRenderWindow::Start(void)
+void vtkXglrRenderWindow::Start(void)
 {
   // if the renderer has not been initialized, do so now
   if (!this->Context) this->Initialize();
@@ -101,7 +101,7 @@ void vlXglrRenderWindow::Start(void)
 
 // Description:
 // Update system if needed due to stereo rendering.
-void vlXglrRenderWindow::StereoUpdate(void)
+void vtkXglrRenderWindow::StereoUpdate(void)
 {
   // if stereo is on and it wasn't before
   if (this->StereoRender && (!this->StereoStatus))
@@ -132,7 +132,7 @@ void vlXglrRenderWindow::StereoUpdate(void)
 
 // Description:
 // End the rendering process and display the image.
-void vlXglrRenderWindow::Frame(void)
+void vtkXglrRenderWindow::Frame(void)
 {
   // flush and display the buffer
   if (this->DoubleBuffer) 
@@ -333,7 +333,7 @@ static Visual *xlib_get_best_visual(Display *display)
 }
 
 
-int vlXglrRenderWindow::GetDesiredDepth ()
+int vtkXglrRenderWindow::GetDesiredDepth ()
 {
   int depth;
 
@@ -343,7 +343,7 @@ int vlXglrRenderWindow::GetDesiredDepth ()
     this->DisplayId = XOpenDisplay((char *)NULL); 
     if (this->DisplayId == NULL) 
       {
-      vlErrorMacro(<< "bad X server connection.\n");
+      vtkErrorMacro(<< "bad X server connection.\n");
       }
     }
 
@@ -355,7 +355,7 @@ int vlXglrRenderWindow::GetDesiredDepth ()
 
 // Description:
 // Obtain a colormap from windowing system.
-Colormap vlXglrRenderWindow::GetDesiredColormap ()
+Colormap vtkXglrRenderWindow::GetDesiredColormap ()
 {
   Visual *vis;
 
@@ -365,7 +365,7 @@ Colormap vlXglrRenderWindow::GetDesiredColormap ()
     this->DisplayId = XOpenDisplay((char *)NULL); 
     if (this->DisplayId == NULL) 
       {
-      vlErrorMacro(<< "bad X server connection.\n");
+      vtkErrorMacro(<< "bad X server connection.\n");
       }
     }
 
@@ -394,7 +394,7 @@ Colormap vlXglrRenderWindow::GetDesiredColormap ()
 
 // Description:
 // Get a visual from the windowing system.
-Visual *vlXglrRenderWindow::GetDesiredVisual ()
+Visual *vtkXglrRenderWindow::GetDesiredVisual ()
 {
   Visual *vis;
 
@@ -404,7 +404,7 @@ Visual *vlXglrRenderWindow::GetDesiredVisual ()
     this->DisplayId = XOpenDisplay((char *)NULL); 
     if (this->DisplayId == NULL) 
       {
-      vlErrorMacro(<< "bad X server connection.\n");
+      vtkErrorMacro(<< "bad X server connection.\n");
       }
     }
 
@@ -459,7 +459,7 @@ XlibWindowCreate(Display *display, Visual *vis, int depth, char *name,
  
 // Description:
 // Initialize the rendering window.
-void vlXglrRenderWindow::WindowInitialize (void)
+void vtkXglrRenderWindow::WindowInitialize (void)
 {
   Visual *vis;
   Xgl_X_window        xglr_x_win;      /* XGLR-X data structure */
@@ -486,7 +486,7 @@ void vlXglrRenderWindow::WindowInitialize (void)
     this->DisplayId = XOpenDisplay((char *)NULL); 
     if (this->DisplayId == NULL) 
       {
-      vlErrorMacro(<< "bad X server connection.\n");
+      vtkErrorMacro(<< "bad X server connection.\n");
       }
     }
 
@@ -497,7 +497,7 @@ void vlXglrRenderWindow::WindowInitialize (void)
     {
     this->WindowId = XlibWindowCreate(this->DisplayId, vis, 
 				      this->GetDesiredDepth(), 
-				      "Visualization Library - XGL",
+				      "Visualization Toolkit - XGL",
 				      this->Size[0], 
 				      this->Size[1],
 				      this->Position[0],
@@ -625,7 +625,7 @@ void vlXglrRenderWindow::WindowInitialize (void)
 
 // Description:
 // Initialize the rendering window.
-void vlXglrRenderWindow::Initialize (void)
+void vtkXglrRenderWindow::Initialize (void)
 {
   // make sure we haven't already been initialized 
   if (this->Context) return;
@@ -636,7 +636,7 @@ void vlXglrRenderWindow::Initialize (void)
 
 // Description:
 // Change the window to fill the entire screen.
-void vlXglrRenderWindow::SetFullScreen(int arg)
+void vtkXglrRenderWindow::SetFullScreen(int arg)
 {
   int *temp;
 
@@ -695,7 +695,7 @@ void vlXglrRenderWindow::SetFullScreen(int arg)
 
 // Description:
 // Set the preferred window size to full screen.
-void vlXglrRenderWindow::PrefFullScreen()
+void vtkXglrRenderWindow::PrefFullScreen()
 {
   int *size;
 
@@ -713,7 +713,7 @@ void vlXglrRenderWindow::PrefFullScreen()
 
 // Description:
 // Resize the window.
-void vlXglrRenderWindow::WindowRemap()
+void vtkXglrRenderWindow::WindowRemap()
 {
   // close the XGL window 
   if (this->Context)
@@ -740,7 +740,7 @@ void vlXglrRenderWindow::WindowRemap()
 
 // Description:
 // Specify the size of the rendering window.
-void vlXglrRenderWindow::SetSize(int x,int y)
+void vtkXglrRenderWindow::SetSize(int x,int y)
 {
   // if we arent mappen then just set the ivars 
   if (!this->Mapped)
@@ -766,12 +766,12 @@ void vlXglrRenderWindow::SetSize(int x,int y)
   xgl_window_raster_resize(this->WindowRaster);
 }
 
-void vlXglrRenderWindow::PrintSelf(ostream& os, vlIndent indent)
+void vtkXglrRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->vlXRenderWindow::PrintSelf(os,indent);
+  this->vtkXRenderWindow::PrintSelf(os,indent);
 }
 
-unsigned char *vlXglrRenderWindow::GetPixelData(int x1, int y1, int x2, int y2)
+unsigned char *vtkXglrRenderWindow::GetPixelData(int x1, int y1, int x2, int y2)
 {
   long     xloop,yloop;
   int     y_low, y_hi;
@@ -823,7 +823,7 @@ unsigned char *vlXglrRenderWindow::GetPixelData(int x1, int y1, int x2, int y2)
   return data;
 }
 
-void vlXglrRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
+void vtkXglrRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
 				     unsigned char *data)
 {
   int     y_low, y_hi;
@@ -880,7 +880,7 @@ void vlXglrRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
 
 // Description:
 // Handles work required at end of render cycle
-void vlXglrRenderWindow::CopyResultFrame(void)
+void vtkXglrRenderWindow::CopyResultFrame(void)
 {
   if (this->ResultFrame)
     {

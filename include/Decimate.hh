@@ -1,25 +1,25 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    Decimate.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-// .NAME vlDecimate - reduce the number of triangles in a mesh
+// .NAME vtkDecimate - reduce the number of triangles in a mesh
 // .SECTION Description
-// vlDecimate is a filter to reduce the number of triangles in a triangle 
+// vtkDecimate is a filter to reduce the number of triangles in a triangle 
 // mesh, while preserving the original topology and a good approximation
-// to the original geometry. The input to vlDecimate is a vlPolyData object,
+// to the original geometry. The input to vtkDecimate is a vtkPolyData object,
 // and only triangles are treated. If you desire to decimate polygonal
-// meshes, first triangulate the polygons with the vlTriangleFilter object.
+// meshes, first triangulate the polygons with the vtkTriangleFilter object.
 //    The algorithm proceeds as follows. Each vertex in the triangle
 // list is evaluated for local planarity (i.e., the triangles using
 // the vertex are gathered and compared to an "average" plane). If the
@@ -46,11 +46,11 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // criterion. That is, the error is a global bounds on distance to original
 // surface.
 
-#ifndef __vlDecimate_h
-#define __vlDecimate_h
+#ifndef __vtkDecimate_h
+#define __vtkDecimate_h
 
 #include "P2PF.hh"
-#include "vlMath.hh"
+#include "vtkMath.hh"
 #include "Triangle.hh"
 #include "Plane.hh"
 #include "Polygon.hh"
@@ -78,143 +78,143 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 
 // Special structures for building loops
-typedef struct _vlLocalVertex 
+typedef struct _vtkLocalVertex 
   {
   int     id;
   float   x[3];
   float   FAngle;
   int     deRefs; //monitor memory requirements; new only when necessary
   int     newRefs;
-  } vlLocalVertex, *vlLocalVertexPtr;
+  } vtkLocalVertex, *vtkLocalVertexPtr;
     
-typedef struct _vlLocalTri
+typedef struct _vtkLocalTri
   {
   int     id;
   float   area;
   float   n[3];
   int     verts[3];
-  } vlLocalTri, *vlLocalTriPtr;
+  } vtkLocalTri, *vtkLocalTriPtr;
 
 //
 // Special classes for manipulating data
 //
 //BTX - begin tcl exclude
 //
-class vlVertexArray { //;prevent man page generation
+class vtkVertexArray { //;prevent man page generation
 public:
-  vlVertexArray(const int sz) 
-    {this->MaxId = -1; this->Array = new vlLocalVertex[sz];};
-  ~vlVertexArray() {if (this->Array) delete [] this->Array;};
+  vtkVertexArray(const int sz) 
+    {this->MaxId = -1; this->Array = new vtkLocalVertex[sz];};
+  ~vtkVertexArray() {if (this->Array) delete [] this->Array;};
   int GetNumberOfVertices() {return this->MaxId + 1;};
-  void InsertNextVertex(vlLocalVertex& v) 
+  void InsertNextVertex(vtkLocalVertex& v) 
     {this->MaxId++; this->Array[this->MaxId] = v;};
-  vlLocalVertex& GetVertex(int i) {return this->Array[i];};
+  vtkLocalVertex& GetVertex(int i) {return this->Array[i];};
   void Reset() {this->MaxId = -1;};
 
-  vlLocalVertex *Array;  // pointer to data
+  vtkLocalVertex *Array;  // pointer to data
   int MaxId;             // maximum index inserted thus far
 };
 
-class vlTriArray { //;prevent man page generation
+class vtkTriArray { //;prevent man page generation
 public:
-  vlTriArray(const int sz) 
-    {this->MaxId = -1; this->Array = new vlLocalTri[sz];};
-  ~vlTriArray() {if (this->Array) delete [] this->Array;};
+  vtkTriArray(const int sz) 
+    {this->MaxId = -1; this->Array = new vtkLocalTri[sz];};
+  ~vtkTriArray() {if (this->Array) delete [] this->Array;};
   int GetNumberOfTriangles() {return this->MaxId + 1;};
-  void InsertNextTriangle(vlLocalTri& t) 
+  void InsertNextTriangle(vtkLocalTri& t) 
     {this->MaxId++; this->Array[this->MaxId] = t;};
-  vlLocalTri& GetTriangle(int i) {return this->Array[i];};
+  vtkLocalTri& GetTriangle(int i) {return this->Array[i];};
   void Reset() {this->MaxId = -1;};
 
-  vlLocalTri *Array;  // pointer to data
+  vtkLocalTri *Array;  // pointer to data
   int MaxId;            // maximum index inserted thus far
 };
 //ETX - end tcl exclude
 //
 
 
-class vlDecimate : public vlPolyToPolyFilter
+class vtkDecimate : public vtkPolyToPolyFilter
 {
 public:
-  vlDecimate();
-  ~vlDecimate() {};
-  char *GetClassName() {return "vlDecimate";};
-  void PrintSelf(ostream& os, vlIndent indent);
+  vtkDecimate();
+  ~vtkDecimate() {};
+  char *GetClassName() {return "vtkDecimate";};
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Set the decimation error bounds. Expressed as a fraction of the longest
   // side of the input data's bounding box.
-  vlSetClampMacro(InitialError,float,0.0,1.0);
-  vlGetMacro(InitialError,float);
+  vtkSetClampMacro(InitialError,float,0.0,1.0);
+  vtkGetMacro(InitialError,float);
 
   // Description:
   // Set the value of the increment by which to increase the decimation
   // error after each iteration.
-  vlSetClampMacro(ErrorIncrement,float,0.0,1.0);
-  vlGetMacro(ErrorIncrement,float);
+  vtkSetClampMacro(ErrorIncrement,float,0.0,1.0);
+  vtkGetMacro(ErrorIncrement,float);
 
   // Description:
   // Set the largest decimation error that can be achieved during
   // by incrementing error.
-  vlSetClampMacro(MaximumError,float,0.0,1.0);
-  vlGetMacro(MaximumError,float);
+  vtkSetClampMacro(MaximumError,float,0.0,1.0);
+  vtkGetMacro(MaximumError,float);
 
   // Description:
   // Specify the desired reduction in the total number of polygons. Because
   // of various constraints, this level of reduction may not be realizable.
-  vlSetClampMacro(TargetReduction,float,0.0,1.0);
-  vlGetMacro(TargetReduction,float);
+  vtkSetClampMacro(TargetReduction,float,0.0,1.0);
+  vtkGetMacro(TargetReduction,float);
 
   // Description:
   // Specify the maximum number of iterations to attempt. If decimation target
   // is reached first, this value will not be reached.
-  vlSetClampMacro(MaximumIterations,int,1,LARGE_INTEGER);
-  vlGetMacro(MaximumIterations,int);
+  vtkSetClampMacro(MaximumIterations,int,1,LARGE_INTEGER);
+  vtkGetMacro(MaximumIterations,int);
 
   // Description:
   // Specify the maximum sub-iterations to perform. If no triangles are deleted
   // in a sub-iteration, the sub-iteration process is stopped.
-  vlSetClampMacro(MaximumSubIterations,int,1,LARGE_INTEGER);
-  vlGetMacro(MaximumSubIterations,int);
+  vtkSetClampMacro(MaximumSubIterations,int,1,LARGE_INTEGER);
+  vtkGetMacro(MaximumSubIterations,int);
   
   // Description:
   // Specify the mesh feature angles.
-  vlSetClampMacro(InitialFeatureAngle,float,0.0,180.0);
-  vlGetMacro(InitialFeatureAngle,float);
+  vtkSetClampMacro(InitialFeatureAngle,float,0.0,180.0);
+  vtkGetMacro(InitialFeatureAngle,float);
 
   // Description:
   // Increment by which to increase feature angle over each iteration.
-  vlSetClampMacro(FeatureAngleIncrement,float,0.0,180.0);
-  vlGetMacro(FeatureAngleIncrement,float);
+  vtkSetClampMacro(FeatureAngleIncrement,float,0.0,180.0);
+  vtkGetMacro(FeatureAngleIncrement,float);
 
   // Description:
   // Set the largest permissable feature angle.
-  vlSetClampMacro(MaximumFeatureAngle,float,0.0,180.0);
-  vlGetMacro(MaximumFeatureAngle,float);
+  vtkSetClampMacro(MaximumFeatureAngle,float,0.0,180.0);
+  vtkGetMacro(MaximumFeatureAngle,float);
 
   // Description:
   // Turn on/off the preservation of feature edges.
-  vlSetMacro(PreserveEdges,int);
-  vlGetMacro(PreserveEdges,int);
-  vlBooleanMacro(PreserveEdges,int);
+  vtkSetMacro(PreserveEdges,int);
+  vtkGetMacro(PreserveEdges,int);
+  vtkBooleanMacro(PreserveEdges,int);
 
   // Description:
   // Turn on/off the deletion of vertices on the boundary of a mesh.
-  vlSetMacro(BoundaryVertexDeletion,int);
-  vlGetMacro(BoundaryVertexDeletion,int);
-  vlBooleanMacro(BoundaryVertexDeletion,int);
+  vtkSetMacro(BoundaryVertexDeletion,int);
+  vtkGetMacro(BoundaryVertexDeletion,int);
+  vtkBooleanMacro(BoundaryVertexDeletion,int);
 
   // Description:
   // Specify the maximum allowable feature angle during triangulation.
-  vlSetClampMacro(AspectRatio,float,1.0,1000.0);
-  vlGetMacro(AspectRatio,float);
+  vtkSetClampMacro(AspectRatio,float,1.0,1000.0);
+  vtkGetMacro(AspectRatio,float);
 
   // Description:
   // If the number of triangles connected to a vertex exceeds "Degree", then 
   // the vertex is considered complex and is never deleted. (NOTE: the
   // complexity of the triangulation algorithm is proportional to Degree^2.)
-  vlSetClampMacro(Degree,int,25,MAX_CELL_SIZE);
-  vlGetMacro(Degree,int);
+  vtkSetClampMacro(Degree,int,25,MAX_CELL_SIZE);
+  vtkGetMacro(Degree,int);
   
 protected:
   void Execute();
@@ -236,17 +236,17 @@ protected:
   int GenerateErrorScalars; // turn on/off vertex error scalar generation
 
   void CreateOutput(int numPts, int numTris, int numEliminated, 
-                    vlPointData *pd, vlPoints *inPts);
+                    vtkPointData *pd, vtkPoints *inPts);
   int BuildLoop(int ptId, unsigned short int nTris, int* tris);
   void EvaluateLoop(int ptId, int& vtype, int& numFEdges, 
-                    vlLocalVertexPtr fedges[]);
-  int CanSplitLoop(vlLocalVertexPtr fedges[2], int numVerts, 
-                   vlLocalVertexPtr verts[], int& n1, vlLocalVertexPtr l1[], 
-                   int& n2, vlLocalVertexPtr l2[], float& ar);
-  void SplitLoop(vlLocalVertexPtr fedges[2], int numVerts, 
-                 vlLocalVertexPtr *verts, int& n1, vlLocalVertexPtr *l1, 
-                 int& n2, vlLocalVertexPtr *l2);
-  void Triangulate(int numVerts, vlLocalVertexPtr verts[]);
+                    vtkLocalVertexPtr fedges[]);
+  int CanSplitLoop(vtkLocalVertexPtr fedges[2], int numVerts, 
+                   vtkLocalVertexPtr verts[], int& n1, vtkLocalVertexPtr l1[], 
+                   int& n2, vtkLocalVertexPtr l2[], float& ar);
+  void SplitLoop(vtkLocalVertexPtr fedges[2], int numVerts, 
+                 vtkLocalVertexPtr *verts, int& n1, vtkLocalVertexPtr *l1, 
+                 int& n2, vtkLocalVertexPtr *l2);
+  void Triangulate(int numVerts, vtkLocalVertexPtr verts[]);
   int CheckError(int ptId);
 };
 

@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    VectNorm.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
@@ -14,34 +14,34 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
 #include "VectNorm.hh"
-#include "vlMath.hh"
+#include "vtkMath.hh"
 #include "FScalars.hh"
 
 // Description:
 // Construct with normalize flag off.
-vlVectorNorm::vlVectorNorm()
+vtkVectorNorm::vtkVectorNorm()
 {
   this->Normalize = 0;
 }
 
-void vlVectorNorm::PrintSelf(ostream& os, vlIndent indent)
+void vtkVectorNorm::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlDataSetToDataSetFilter::PrintSelf(os,indent);
+  vtkDataSetToDataSetFilter::PrintSelf(os,indent);
 
   os << indent << "Normalize: " << (this->Normalize ? "On\n" : "Off\n");
 }
 
-void vlVectorNorm::Execute()
+void vtkVectorNorm::Execute()
 {
   int i, numVectors;
-  vlFloatScalars *newScalars;
+  vtkFloatScalars *newScalars;
   float *v, s, maxScalar;
-  vlPointData *pd;
-  vlVectors *inVectors;
+  vtkPointData *pd;
+  vtkVectors *inVectors;
 //
 // Initialize
 //
-  vlDebugMacro(<<"Normalizing vectors!");
+  vtkDebugMacro(<<"Normalizing vectors!");
   this->Initialize();
 
   pd = this->Input->GetPointData();
@@ -49,14 +49,14 @@ void vlVectorNorm::Execute()
 
   if ( (numVectors=inVectors->GetNumberOfVectors()) < 1 )
     {
-    vlErrorMacro(<< "No input vectors!\n");
+    vtkErrorMacro(<< "No input vectors!\n");
     return;
     }
 
 //
 // Allocate
 //
-  newScalars = new vlFloatScalars(numVectors);
+  newScalars = new vtkFloatScalars(numVectors);
   for (maxScalar=0.0, i=0; i < numVectors; i++)
     {
     v = inVectors->GetVector(i);

@@ -1,55 +1,55 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    Graymap.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-// .NAME vlGraymap - scalar data in grayscale form
+// .NAME vtkGraymap - scalar data in grayscale form
 // .SECTION Description
-// vlGraymap is a concrete implementation of vlScalars. Scalars are
+// vtkGraymap is a concrete implementation of vtkScalars. Scalars are
 // represented using a single unsigned char for components of gray. 
 // Gray values range from (0,255) with 0 being black.
 
-#ifndef __vlGraymap_h
-#define __vlGraymap_h
+#ifndef __vtkGraymap_h
+#define __vtkGraymap_h
 
 #include "CoScalar.hh"
 #include "CArray.hh"
 
-class vlGraymap : public vlColorScalars 
+class vtkGraymap : public vtkColorScalars 
 {
 public:
-  vlGraymap() {};
-  ~vlGraymap() {};
-  vlGraymap(const vlGraymap& fs) {this->S = fs.S;};
-  vlGraymap(const int sz, const int ext=1000):S(sz,ext){};
+  vtkGraymap() {};
+  ~vtkGraymap() {};
+  vtkGraymap(const vtkGraymap& fs) {this->S = fs.S;};
+  vtkGraymap(const int sz, const int ext=1000):S(sz,ext){};
   int Allocate(const int sz, const int ext=1000) {return this->S.Allocate(sz,ext);};
   void Initialize() {this->S.Initialize();};
-  char *GetClassName() {return "vlGraymap";};
+  char *GetClassName() {return "vtkGraymap";};
 
-  // vlScalar interface
-  vlScalars *MakeObject(int sze, int ext=1000);
+  // vtkScalar interface
+  vtkScalars *MakeObject(int sze, int ext=1000);
   int GetNumberOfScalars() {return (this->S.GetMaxId()+1);};
   void Squeeze() {this->S.Squeeze();};
 
   // miscellaneous
-  vlGraymap &operator=(const vlGraymap& fs);
-  void operator+=(const vlGraymap& fs) {this->S += fs.S;};
+  vtkGraymap &operator=(const vtkGraymap& fs);
+  void operator+=(const vtkGraymap& fs) {this->S += fs.S;};
   void Reset() {this->S.Reset();};
   unsigned char *GetPtr(const int id);
   unsigned char *WritePtr(const int id, const int number);
   void WrotePtr();
 
-  // vlColorScalar interface.
+  // vtkColorScalar interface.
   unsigned char *GetColor(int id);
   void GetColor(int id, unsigned char rgba[4]);
   void SetColor(int id, unsigned char rgba[4]);
@@ -57,12 +57,12 @@ public:
   int InsertNextColor(unsigned char rgba[4]);
 
 protected:
-  vlCharArray S;
+  vtkCharArray S;
 };
 
 // Description:
 // Get pointer to array of data starting at data position "id".
-inline unsigned char *vlGraymap::GetPtr(const int id)
+inline unsigned char *vtkGraymap::GetPtr(const int id)
 {
   return this->S.GetPtr(id);
 }
@@ -72,7 +72,7 @@ inline unsigned char *vlGraymap::GetPtr(const int id)
 // bumped by number (and memory allocated if necessary). Id is the 
 // location you wish to write into; number is the number of scalars to 
 // write. Use the method WrotePtr() to mark completion of write.
-inline unsigned char *vlGraymap::WritePtr(const int id, const int number)
+inline unsigned char *vtkGraymap::WritePtr(const int id, const int number)
 {
   return this->S.WritePtr(id,number);
 }
@@ -80,6 +80,6 @@ inline unsigned char *vlGraymap::WritePtr(const int id, const int number)
 // Description:
 // Terminate direct write of data. Although dummy routine now, reserved for
 // future use.
-inline void vlGraymap::WrotePtr() {}
+inline void vtkGraymap::WrotePtr() {}
 
 #endif

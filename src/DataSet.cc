@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    DataSet.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its 
+This file is part of the Visualization Toolkit. No part of this file or its 
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
@@ -20,11 +20,11 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "DataSet.hh"
 
 // Initialize static member that controls global data release after use by filter
-int vlDataSet::GlobalReleaseDataFlag = 0;
+int vtkDataSet::GlobalReleaseDataFlag = 0;
 
 // Description:
 // Constructor with default bounds (0,1, 0,1, 0,1).
-vlDataSet::vlDataSet ()
+vtkDataSet::vtkDataSet ()
 {
   this->Bounds[0] = 0.0;
   this->Bounds[1] = 1.0;
@@ -38,13 +38,13 @@ vlDataSet::vlDataSet ()
 
 // Description:
 // Copy constructor.
-vlDataSet::vlDataSet (const vlDataSet& ds) :
+vtkDataSet::vtkDataSet (const vtkDataSet& ds) :
 PointData(ds.PointData)
 {
   for (int i=0; i < 6; i++) this->Bounds[i] = ds.Bounds[i];
 }
 
-void vlDataSet::Initialize()
+void vtkDataSet::Initialize()
 {
 //
 // We don't modify ourselves because the "ReleaseData" methods depend upon
@@ -53,25 +53,25 @@ void vlDataSet::Initialize()
   this->PointData.Initialize();
 };
 
-void vlDataSet::ReleaseData()
+void vtkDataSet::ReleaseData()
 {
   this->Initialize();
   this->DataReleased = 1;
 }
 
-int vlDataSet::ShouldIReleaseData()
+int vtkDataSet::ShouldIReleaseData()
 {
   if ( this->GlobalReleaseDataFlag || this->ReleaseDataFlag ) return 1;
   else return 0;
 }
 
-void vlDataSet::Update()
+void vtkDataSet::Update()
 {
 }
 
 // Description:
 // Compute the data bounding box from data points.
-void vlDataSet::ComputeBounds()
+void vtkDataSet::ComputeBounds()
 {
   int i, j;
   float *x;
@@ -97,13 +97,13 @@ void vlDataSet::ComputeBounds()
 // Description:
 // Return a pointer to the geometry bounding box in the form
 // (xmin,xmax, ymin,ymax, zmin,zmax).
-float *vlDataSet::GetBounds()
+float *vtkDataSet::GetBounds()
 {
   this->ComputeBounds();
   return this->Bounds;
 }
   
-void vlDataSet::GetBounds(float bounds[6])
+void vtkDataSet::GetBounds(float bounds[6])
 {
   this->ComputeBounds();
   for (int i=0; i<6; i++) bounds[i] = this->Bounds[i];
@@ -111,7 +111,7 @@ void vlDataSet::GetBounds(float bounds[6])
   
 // Description:
 // Get the center of the bounding box.
-float *vlDataSet::GetCenter()
+float *vtkDataSet::GetCenter()
 {
   static float center[3];
 
@@ -121,7 +121,7 @@ float *vlDataSet::GetCenter()
   return center;
 }
 
-void vlDataSet::GetCenter(float center[3])
+void vtkDataSet::GetCenter(float center[3])
 {
   float *c=this->GetCenter();
   for (int i=0; i<3; i++) center[i] = c[i];
@@ -129,7 +129,7 @@ void vlDataSet::GetCenter(float center[3])
   
 // Description:
 // Return the length of the diagonal of the bounding box.
-float vlDataSet::GetLength()
+float vtkDataSet::GetLength()
 {
   double diff, l=0.0;
   int i;
@@ -144,17 +144,17 @@ float vlDataSet::GetLength()
   return (float)sqrt(l);
 }
 
-unsigned long int vlDataSet::GetMTime()
+unsigned long int vtkDataSet::GetMTime()
 {
   if ( this->PointData.GetMTime() > this->MTime ) return this->PointData.GetMTime();
   else return this->MTime;
 }
 
-void vlDataSet::PrintSelf(ostream& os, vlIndent indent)
+void vtkDataSet::PrintSelf(ostream& os, vtkIndent indent)
 {
   float *bounds;
 
-  vlObject::PrintSelf(os,indent);
+  vtkObject::PrintSelf(os,indent);
 
   os << indent << "Number Of Points: " << this->GetNumberOfPoints() << "\n";
   os << indent << "Number Of Cells: " << this->GetNumberOfCells() << "\n";
@@ -170,11 +170,11 @@ void vlDataSet::PrintSelf(ostream& os, vlIndent indent)
   os << indent << "Global Release Data: " << (this->GlobalReleaseDataFlag ? "On\n" : "Off\n");
 }
 
-void vlDataSet::GetCellNeighbors(int cellId, vlIdList &ptIds,
-                                 vlIdList &cellIds)
+void vtkDataSet::GetCellNeighbors(int cellId, vtkIdList &ptIds,
+                                 vtkIdList &cellIds)
 {
   int i;
-  vlIdList otherCells(MAX_CELL_SIZE);
+  vtkIdList otherCells(MAX_CELL_SIZE);
 
   // load list with candidate cells, remove current cell
   this->GetPointCells(ptIds.GetId(0),cellIds);
@@ -191,7 +191,7 @@ void vlDataSet::GetCellNeighbors(int cellId, vlIdList &ptIds,
     }
 }
 
-void vlDataSet::Squeeze()
+void vtkDataSet::Squeeze()
 {
   this->PointData.Squeeze();
 }

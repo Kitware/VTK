@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    TriStrip.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
@@ -21,17 +21,17 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 //
 // Static minimizes constructor / destructor calls
 //
-static vlTriangle tri;
+static vtkTriangle tri;
 
 // Description:
 // Deep copy of cell.
-vlTriangleStrip::vlTriangleStrip(const vlTriangleStrip& ts)
+vtkTriangleStrip::vtkTriangleStrip(const vtkTriangleStrip& ts)
 {
   this->Points = ts.Points;
   this->PointIds = ts.PointIds;
 }
 
-int vlTriangleStrip::EvaluatePosition(float x[3], float closestPoint[3],
+int vtkTriangleStrip::EvaluatePosition(float x[3], float closestPoint[3],
                                       int& subId, float pcoords[3], 
                                       float& minDist2, float weights[MAX_CELL_SIZE])
 {
@@ -74,7 +74,7 @@ int vlTriangleStrip::EvaluatePosition(float x[3], float closestPoint[3],
   return return_status;
 }
 
-void vlTriangleStrip::EvaluateLocation(int& subId, float pcoords[3], float x[3],
+void vtkTriangleStrip::EvaluateLocation(int& subId, float pcoords[3], float x[3],
                                        float weights[MAX_CELL_SIZE])
 {
   int i;
@@ -93,18 +93,18 @@ void vlTriangleStrip::EvaluateLocation(int& subId, float pcoords[3], float x[3],
   weights[2] = pcoords[1];
 }
 
-int vlTriangleStrip::CellBoundary(int subId, float pcoords[3], vlIdList& pts)
+int vtkTriangleStrip::CellBoundary(int subId, float pcoords[3], vtkIdList& pts)
 {
   return 0;
 }
 
-void vlTriangleStrip::Contour(float value, vlFloatScalars *cellScalars, 
-                              vlFloatPoints *points, vlCellArray *verts, 
-                              vlCellArray *lines, vlCellArray *polys, 
-                              vlFloatScalars *scalars)
+void vtkTriangleStrip::Contour(float value, vtkFloatScalars *cellScalars, 
+                              vtkFloatPoints *points, vtkCellArray *verts, 
+                              vtkCellArray *lines, vtkCellArray *polys, 
+                              vtkFloatScalars *scalars)
 {
   int i;
-  vlFloatScalars triScalars(3);
+  vtkFloatScalars triScalars(3);
 
   for ( i=0; i<this->Points.GetNumberOfPoints()-2; i++)
     {
@@ -122,9 +122,9 @@ void vlTriangleStrip::Contour(float value, vlFloatScalars *cellScalars,
 }
 
 
-vlCell *vlTriangleStrip::GetEdge(int edgeId)
+vtkCell *vtkTriangleStrip::GetEdge(int edgeId)
 {
-  static vlLine line;
+  static vtkLine line;
   int id1, id2;
 
   if ( edgeId == 0 )
@@ -154,7 +154,7 @@ vlCell *vlTriangleStrip::GetEdge(int edgeId)
 // 
 // Intersect sub-triangles
 //
-int vlTriangleStrip::IntersectWithLine(float p1[3], float p2[3], float tol,
+int vtkTriangleStrip::IntersectWithLine(float p1[3], float p2[3], float tol,
                                        float& t, float x[3], float pcoords[3],
                                        int& subId)
 {

@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    Axes.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
@@ -19,7 +19,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 // Description:
 // Construct with origin=(0,0,0) and scale factor=1.
-vlAxes::vlAxes()
+vtkAxes::vtkAxes()
 {
   this->Origin[0] = 0.0;  
   this->Origin[1] = 0.0;  
@@ -28,23 +28,23 @@ vlAxes::vlAxes()
   this->ScaleFactor = 1.0;
 }
 
-void vlAxes::Execute()
+void vtkAxes::Execute()
 {
   int numPts=6, numLines=3;
-  vlFloatPoints *newPts;
-  vlCellArray *newLines;
-  vlFloatScalars *newScalars;
-  vlFloatNormals *newNormals;
+  vtkFloatPoints *newPts;
+  vtkCellArray *newLines;
+  vtkFloatScalars *newScalars;
+  vtkFloatNormals *newNormals;
   float x[3], n[3];
   int ptIds[2];
 
   this->Initialize();
 
-  newPts = new vlFloatPoints(numPts);
-  newLines = new vlCellArray();
+  newPts = new vtkFloatPoints(numPts);
+  newLines = new vtkCellArray();
   newLines->Allocate(newLines->EstimateSize(numLines,2));
-  newScalars = new vlFloatScalars(numPts);
-  newNormals = new vlFloatNormals(numPts);
+  newScalars = new vtkFloatScalars(numPts);
+  newNormals = new vtkFloatNormals(numPts);
 //
 // Create axes
 //
@@ -98,9 +98,9 @@ void vlAxes::Execute()
   this->SetLines(newLines);
 }
 
-void vlAxes::PrintSelf(ostream& os, vlIndent indent)
+void vtkAxes::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlPolySource::PrintSelf(os,indent);
+  vtkPolySource::PrintSelf(os,indent);
 
   os << indent << "Origin: (" << this->Origin[0] << ", "
                << this->Origin[1] << ", "

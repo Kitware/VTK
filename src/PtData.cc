@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    PtData.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its 
+This file is part of the Visualization Toolkit. No part of this file or its 
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
@@ -24,7 +24,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 // Description:
 // Construct with copying turned on for all data.
-vlPointData::vlPointData()
+vtkPointData::vtkPointData()
 {
   this->Scalars = NULL;
   this->Vectors = NULL;
@@ -41,7 +41,7 @@ vlPointData::vlPointData()
   this->CopyUserDefined = 1;
 }
 
-vlPointData::vlPointData (const vlPointData& pd)
+vtkPointData::vtkPointData (const vtkPointData& pd)
 {
   this->Scalars = pd.Scalars;
   if (this->Scalars) this->Scalars->Register(this);
@@ -69,14 +69,14 @@ vlPointData::vlPointData (const vlPointData& pd)
   this->CopyUserDefined = 1;
 }
 
-vlPointData::~vlPointData()
+vtkPointData::~vtkPointData()
 {
-  vlPointData::Initialize();
+  vtkPointData::Initialize();
 }
 
 // Description:
 // Shallow copy of data.
-vlPointData& vlPointData::operator=(vlPointData& pd)
+vtkPointData& vtkPointData::operator=(vtkPointData& pd)
 {
   this->SetScalars(pd.GetScalars());
   this->SetVectors(pd.GetVectors());
@@ -97,7 +97,7 @@ vlPointData& vlPointData::operator=(vlPointData& pd)
 
 // Description:
 // Copy the point data from one point to another.
-void vlPointData::CopyData(vlPointData* fromPd, int fromId, int toId)
+void vtkPointData::CopyData(vtkPointData* fromPd, int fromId, int toId)
 {
   if ( fromPd->Scalars && this->Scalars && this->CopyScalars )
     {
@@ -107,8 +107,8 @@ void vlPointData::CopyData(vlPointData* fromPd, int fromId, int toId)
       }
     else //color scalar
       {
-      vlColorScalars *to=(vlColorScalars *)this->Scalars;
-      vlColorScalars *from=(vlColorScalars *)fromPd->Scalars;
+      vtkColorScalars *to=(vtkColorScalars *)this->Scalars;
+      vtkColorScalars *from=(vtkColorScalars *)fromPd->Scalars;
       to->InsertColor(toId,from->GetColor(fromId));
       }
     }
@@ -140,7 +140,7 @@ void vlPointData::CopyData(vlPointData* fromPd, int fromId, int toId)
 }
 
 
-void vlPointData::Initialize()
+void vtkPointData::Initialize()
 {
 //
 // We don't modify ourselves because the "ReleaseData" methods depend upon
@@ -190,7 +190,7 @@ void vlPointData::Initialize()
 // Description:
 // Pass entire arrays of input data through to output. Obey the "copy"
 // flags.
-void vlPointData::PassData(vlPointData* pd)
+void vtkPointData::PassData(vtkPointData* pd)
 {
   if ( this->CopyScalars ) this->SetScalars(pd->GetScalars());
   if ( this->CopyVectors ) this->SetVectors(pd->GetVectors());
@@ -204,16 +204,16 @@ void vlPointData::PassData(vlPointData* pd)
 // Allocates point data for point-by-point copy operation.  If sze=0, then 
 // use the input PointData to create (i.e., find initial size of) new 
 // objects; otherwise use the sze variable.
-void vlPointData::CopyAllocate(vlPointData* pd, int sze, int ext)
+void vtkPointData::CopyAllocate(vtkPointData* pd, int sze, int ext)
 {
-  vlScalars *s, *newScalars;
-  vlVectors *v, *newVectors;
-  vlNormals *n, *newNormals;
-  vlTCoords *t, *newTCoords;
-  vlTensors *tens, *newTensors;
-  vlUserDefined *ud, *newUserDefined;
+  vtkScalars *s, *newScalars;
+  vtkVectors *v, *newVectors;
+  vtkNormals *n, *newNormals;
+  vtkTCoords *t, *newTCoords;
+  vtkTensors *tens, *newTensors;
+  vtkUserDefined *ud, *newUserDefined;
 
-  vlPointData::Initialize();
+  vtkPointData::Initialize();
 //
 // Now create various point data depending upon input
 //
@@ -265,26 +265,26 @@ void vlPointData::CopyAllocate(vlPointData* pd, int sze, int ext)
 
 
 // do it this way because some compilers don't initialize file scope statics
-static vlFloatScalars *cellScalars;
-static vlFloatVectors *cellVectors;
-static vlFloatNormals *cellNormals;
-static vlFloatTCoords *cellTCoords;
-static vlFloatTensors *cellTensors;
-static vlUserDefined *cellUserDefined;
-static vlAPixmap *cellColors;
+static vtkFloatScalars *cellScalars;
+static vtkFloatVectors *cellVectors;
+static vtkFloatNormals *cellNormals;
+static vtkFloatTCoords *cellTCoords;
+static vtkFloatTensors *cellTensors;
+static vtkUserDefined *cellUserDefined;
+static vtkAPixmap *cellColors;
 
 // Description:
 // Initialize point interpolation.
-void vlPointData::InterpolateAllocate(vlPointData* pd, int sze, int ext)
+void vtkPointData::InterpolateAllocate(vtkPointData* pd, int sze, int ext)
 {
   // statics avoid constructor/destructor calls
-  static vlFloatScalars cellScalars_s(MAX_CELL_SIZE);
-  static vlFloatVectors cellVectors_s(MAX_CELL_SIZE);
-  static vlFloatNormals cellNormals_s(MAX_CELL_SIZE);
-  static vlFloatTCoords cellTCoords_s(MAX_CELL_SIZE,3);
-  static vlFloatTensors cellTensors_s(MAX_CELL_SIZE,3);
-  static vlUserDefined cellUserDefined_s(MAX_CELL_SIZE);
-  static vlAPixmap cellColors_s(MAX_CELL_SIZE);
+  static vtkFloatScalars cellScalars_s(MAX_CELL_SIZE);
+  static vtkFloatVectors cellVectors_s(MAX_CELL_SIZE);
+  static vtkFloatNormals cellNormals_s(MAX_CELL_SIZE);
+  static vtkFloatTCoords cellTCoords_s(MAX_CELL_SIZE,3);
+  static vtkFloatTensors cellTensors_s(MAX_CELL_SIZE,3);
+  static vtkUserDefined cellUserDefined_s(MAX_CELL_SIZE);
+  static vtkAPixmap cellColors_s(MAX_CELL_SIZE);
 
   cellScalars = &cellScalars_s;
   cellVectors = &cellVectors_s;
@@ -309,11 +309,11 @@ void vlPointData::InterpolateAllocate(vlPointData* pd, int sze, int ext)
 
 // Description:
 // Interpolate data from points and interpolation weights.
-void vlPointData::InterpolatePoint(vlPointData *fromPd, int toId, vlIdList *ptIds, float *weights)
+void vtkPointData::InterpolatePoint(vtkPointData *fromPd, int toId, vtkIdList *ptIds, float *weights)
 {
   int i, j;
   float s, *pv, v[3], *pn, n[3], *ptc, tc[3];
-  static vlTensor tensor(3), &pt=tensor;
+  static vtkTensor tensor(3), &pt=tensor;
   void *ud;
 
   if ( fromPd->Scalars && this->Scalars && this->CopyScalars )
@@ -330,8 +330,8 @@ void vlPointData::InterpolatePoint(vlPointData *fromPd, int toId, vlIdList *ptId
     else //color scalar
       {
       unsigned char rgb[3], *prgb;
-      vlColorScalars *to=(vlColorScalars *)this->Scalars;
-      vlColorScalars *from=(vlColorScalars *)fromPd->Scalars;
+      vtkColorScalars *to=(vtkColorScalars *)this->Scalars;
+      vtkColorScalars *from=(vtkColorScalars *)fromPd->Scalars;
 
       from->GetColors(*ptIds, *cellColors);
       for (rgb[0]=rgb[1]=rgb[2]=0, i=0; i < ptIds->GetNumberOfIds(); i++)
@@ -404,11 +404,11 @@ void vlPointData::InterpolatePoint(vlPointData *fromPd, int toId, vlIdList *ptId
     }
 }
 
-void vlPointData::NullPoint (int ptId)
+void vtkPointData::NullPoint (int ptId)
 {
   static float null[3] = {0.0, 0.0, 0.0};
   static unsigned char cnull[3] = {0, 0, 0};
-  static vlTensor nullTensor;
+  static vtkTensor nullTensor;
 
   if ( this->Scalars )
     {
@@ -418,7 +418,7 @@ void vlPointData::NullPoint (int ptId)
       }
     else //color scalar
       {
-      vlColorScalars *to=(vlColorScalars *)this->Scalars;
+      vtkColorScalars *to=(vtkColorScalars *)this->Scalars;
       to->InsertColor(ptId,cnull);
       }
     }
@@ -450,7 +450,7 @@ void vlPointData::NullPoint (int ptId)
 
 }
 
-void vlPointData::Squeeze()
+void vtkPointData::Squeeze()
 {
   if ( this->Scalars ) this->Scalars->Squeeze();
   if ( this->Vectors ) this->Vectors->Squeeze();
@@ -462,7 +462,7 @@ void vlPointData::Squeeze()
 
 // Description:
 // Turn on copying of all data.
-void vlPointData::CopyAllOn()
+void vtkPointData::CopyAllOn()
 {
   this->CopyScalarsOn();
   this->CopyVectorsOn();
@@ -474,7 +474,7 @@ void vlPointData::CopyAllOn()
 
 // Description:
 // Turn off copying of all data.
-void vlPointData::CopyAllOff()
+void vtkPointData::CopyAllOff()
 {
   this->CopyScalarsOff();
   this->CopyVectorsOff();
@@ -484,9 +484,9 @@ void vlPointData::CopyAllOff()
   this->CopyUserDefinedOff();
 }
 
-void vlPointData::PrintSelf(ostream& os, vlIndent indent)
+void vtkPointData::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlObject::PrintSelf(os,indent);
+  vtkObject::PrintSelf(os,indent);
 
   if ( this->Scalars )
     {

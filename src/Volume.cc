@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    Volume.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its
+This file is part of the Visualization Toolkit. No part of this file or its
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
@@ -22,7 +22,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // Creates an Volume with the following defaults: origin(0,0,0) 
 // position=(0,0,0) scale=(1,1,1) visibility=1 pickable=1 dragable=1
 // orientation=(0,0,0).
-vlVolume::vlVolume()
+vtkVolume::vtkVolume()
 {
   this->Input = NULL;
 
@@ -50,7 +50,7 @@ vlVolume::vlVolume()
   this->SelfCreatedLookupTable = 0;
 }
 
-vlVolume::~vlVolume()
+vtkVolume::~vtkVolume()
 {
   if ( this->SelfCreatedLookupTable && this->LookupTable != NULL) 
     delete this->LookupTable;
@@ -58,7 +58,7 @@ vlVolume::~vlVolume()
 
 // Description:
 // Specify a lookup table for the Volume to use.
-void vlVolume::SetLookupTable(vlLookupTable *lut)
+void vtkVolume::SetLookupTable(vtkLookupTable *lut)
 {
   if ( this->LookupTable != lut ) 
     {
@@ -69,16 +69,16 @@ void vlVolume::SetLookupTable(vlLookupTable *lut)
     }
 }
 
-vlLookupTable *vlVolume::GetLookupTable()
+vtkLookupTable *vtkVolume::GetLookupTable()
 {
   if ( this->LookupTable == NULL) this->CreateDefaultLookupTable();
   return this->LookupTable;
 }
 
-void vlVolume::CreateDefaultLookupTable()
+void vtkVolume::CreateDefaultLookupTable()
 {
   if ( this->SelfCreatedLookupTable ) delete this->LookupTable;
-  this->LookupTable = new vlLookupTable;
+  this->LookupTable = new vtkLookupTable;
   this->LookupTable->SetAlphaRange(0,1);
   this->SelfCreatedLookupTable = 1;
 }
@@ -86,14 +86,14 @@ void vlVolume::CreateDefaultLookupTable()
 // Description:
 // This causes the volume to be rendered. It in turn will build
 // the volume's lookuptable.
-void vlVolume::Render()
+void vtkVolume::Render()
 {
   //
   // make sure that we've been properly initialized
   //
   if (this->Input == NULL ) 
     {
-    vlErrorMacro(<< "Volume has no input!");
+    vtkErrorMacro(<< "Volume has no input!");
     return;
     }
   else
@@ -105,7 +105,7 @@ void vlVolume::Render()
 
 // Description:
 // Change position by increments specified.
-void vlVolume::AddPosition (float deltaX,float deltaY,float deltaZ)
+void vtkVolume::AddPosition (float deltaX,float deltaY,float deltaZ)
 {
   float position[3];
 
@@ -116,7 +116,7 @@ void vlVolume::AddPosition (float deltaX,float deltaY,float deltaZ)
   this->SetPosition(position);
 }
 
-void vlVolume::AddPosition (float deltaPosition[3])
+void vtkVolume::AddPosition (float deltaPosition[3])
 {
   this->AddPosition (deltaPosition[0], deltaPosition[1], deltaPosition[2]);
 }
@@ -125,14 +125,14 @@ void vlVolume::AddPosition (float deltaPosition[3])
 // Sets the orientation of the Volume.  Orientation is specified as
 // X,Y and Z rotations in that order, but they are performed as
 // RotateZ, RotateX and finally RotateY.
-void vlVolume::SetOrientation (float x,float y,float z)
+void vtkVolume::SetOrientation (float x,float y,float z)
 {
   // store the coordinates
   this->Orientation[0] = x;
   this->Orientation[1] = y;
   this->Orientation[2] = z;
 
-  vlDebugMacro(<< " Orientation set to ( " <<  this->Orientation[0] << ", "
+  vtkDebugMacro(<< " Orientation set to ( " <<  this->Orientation[0] << ", "
   << this->Orientation[1] << ", " << this->Orientation[2] << ")\n");
 
   this->Transform.Identity();
@@ -142,7 +142,7 @@ void vlVolume::SetOrientation (float x,float y,float z)
 
   this->Modified();
 }
-void vlVolume::SetOrientation(float a[3])
+void vtkVolume::SetOrientation(float a[3])
 {
   this->SetOrientation(a[0],a[1],a[2]);
 }
@@ -152,7 +152,7 @@ void vlVolume::SetOrientation(float a[3])
 // The ordering in which these rotations must be done to generate the 
 // same matrix is RotateZ, RotateX and finally RotateY. See also 
 // SetOrientation.
-float *vlVolume::GetOrientation ()
+float *vtkVolume::GetOrientation ()
 {
   float   *orientation;
 
@@ -162,16 +162,16 @@ float *vlVolume::GetOrientation ()
   this->Orientation[1] = orientation[1];
   this->Orientation[2] = orientation[2];
 
-  vlDebugMacro(<< " Returning Orientation of ( " <<  this->Orientation[0] 
+  vtkDebugMacro(<< " Returning Orientation of ( " <<  this->Orientation[0] 
   << ", " << this->Orientation[1] << ", " << this->Orientation[2] << ")\n");
 
   return this->Orientation;
-} // vlVolume::Getorientation 
+} // vtkVolume::Getorientation 
 
 // Description:
 // Add to the current orientation. See SetOrientation and GetOrientation for 
 // more details.
-void vlVolume::AddOrientation (float a1,float a2,float a3)
+void vtkVolume::AddOrientation (float a1,float a2,float a3)
 {
   float *orient;
 
@@ -180,14 +180,14 @@ void vlVolume::AddOrientation (float a1,float a2,float a3)
 		       orient[1] + a2,
 		       orient[2] + a3);
 } 
-void vlVolume::AddOrientation(float a[3])
+void vtkVolume::AddOrientation(float a[3])
 {
   this->AddOrientation(a[0],a[1],a[2]);
 }
 
 // Description:
 // Rotate the Volume in degrees about the X axis using the right hand rule.
-void vlVolume::RotateX (float angle)
+void vtkVolume::RotateX (float angle)
 {
   this->Transform.RotateX(angle);
   this->Modified();
@@ -195,7 +195,7 @@ void vlVolume::RotateX (float angle)
 
 // Description:
 // Rotate the Volume in degrees about the Y axis using the right hand rule.
-void vlVolume::RotateY (float angle)
+void vtkVolume::RotateY (float angle)
 {
   this->Transform.RotateY(angle);
   this->Modified();
@@ -203,7 +203,7 @@ void vlVolume::RotateY (float angle)
 
 // Description:
 // Rotate the Volume in degrees about the Z axis using the right hand rule.
-void vlVolume::RotateZ (float angle)
+void vtkVolume::RotateZ (float angle)
 {
   this->Transform.RotateZ(angle);
   this->Modified();
@@ -212,7 +212,7 @@ void vlVolume::RotateZ (float angle)
 // Description:
 // Rotate the Volume in degrees about an arbitrary axis specified by the 
 // last three arguments. 
-void vlVolume::RotateWXYZ (float degree, float x, float y, float z)
+void vtkVolume::RotateWXYZ (float degree, float x, float y, float z)
 {
   this->Transform.PostMultiply();  
   this->Transform.RotateWXYZ(degree,x,y,z);
@@ -222,7 +222,7 @@ void vlVolume::RotateWXYZ (float degree, float x, float y, float z)
 
 // Description:
 // Copy the Volume's composite 4x4 matrix into the matrix provided.
-void vlVolume::GetMatrix(vlMatrix4x4& result)
+void vtkVolume::GetMatrix(vtkMatrix4x4& result)
 {
   this->GetOrientation();
   this->Transform.Push();  
@@ -261,21 +261,21 @@ void vlVolume::GetMatrix(vlMatrix4x4& result)
 
 // Description:
 // Return a reference to the Volume's 4x4 composite matrix.
-vlMatrix4x4& vlVolume::GetMatrix()
+vtkMatrix4x4& vtkVolume::GetMatrix()
 {
-  static vlMatrix4x4 result;
+  static vtkMatrix4x4 result;
   this->GetMatrix(result);
   return result;
 } 
 
 // Description:
 // Get the bounds for this Volume as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
-float *vlVolume::GetBounds()
+float *vtkVolume::GetBounds()
 {
   int i,n;
   float *bounds, bbox[24], *fptr;
   float *result;
-  vlMatrix4x4 matrix;
+  vtkMatrix4x4 matrix;
   
   // get the bounds of our input
   bounds = this->Input->GetBounds();
@@ -329,7 +329,7 @@ float *vlVolume::GetBounds()
 
 // Description:
 // Get the Volumes x range in world coordinates.
-float *vlVolume::GetXRange()
+float *vtkVolume::GetXRange()
 {
   this->GetBounds();
   return this->Bounds;
@@ -337,7 +337,7 @@ float *vlVolume::GetXRange()
 
 // Description:
 // Get the Volumes y range in world coordinates.
-float *vlVolume::GetYRange()
+float *vtkVolume::GetYRange()
 {
   this->GetBounds();
   return &(this->Bounds[2]);
@@ -345,15 +345,15 @@ float *vlVolume::GetYRange()
 
 // Description:
 // Get the Volumes z range in world coordinates.
-float *vlVolume::GetZRange()
+float *vtkVolume::GetZRange()
 {
   this->GetBounds();
   return &(this->Bounds[4]);
 }
 
-void vlVolume::PrintSelf(ostream& os, vlIndent indent)
+void vtkVolume::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlObject::PrintSelf(os,indent);
+  vtkObject::PrintSelf(os,indent);
 
   // make sure our bounds are up to date
   this->GetBounds();

@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    GlrLgt.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its
+This file is part of the Visualization Toolkit. No part of this file or its
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
@@ -27,14 +27,14 @@ static float light_info[] = {
 
 // Description:
 // Implement base class method.
-void vlGlrLight::Render(vlLight *lgt, vlRenderer *ren,int light_index)
+void vtkGlrLight::Render(vtkLight *lgt, vtkRenderer *ren,int light_index)
 {
-  this->Render(lgt, (vlGlrRenderer *)ren,light_index);
+  this->Render(lgt, (vtkGlrRenderer *)ren,light_index);
 }
 
 // Description:
 // Actual light render method.
-void vlGlrLight::Render(vlLight *lgt, vlGlrRenderer *ren,int light_index)
+void vtkGlrLight::Render(vtkLight *lgt, vtkGlrRenderer *ren,int light_index)
 {
   float	dx, dy, dz;
   float	color[3];
@@ -62,7 +62,7 @@ void vlGlrLight::Render(vlLight *lgt, vlGlrRenderer *ren,int light_index)
   light_info[6] = -dy;
   light_info[7] = -dz;
   
-  vlDebugMacro(<< "Defining front light\n");
+  vtkDebugMacro(<< "Defining front light\n");
   lmdef(DEFLIGHT, light_index, 0, light_info);
   
   // define another mirror light if backlit is on
@@ -71,7 +71,7 @@ void vlGlrLight::Render(vlLight *lgt, vlGlrRenderer *ren,int light_index)
     light_info[5] = dx;
     light_info[6] = dy;
     light_info[7] = dz;
-    vlDebugMacro(<< "Defining back light\n");
+    vtkDebugMacro(<< "Defining back light\n");
     lmdef(DEFLIGHT, light_index + 1, 0, light_info);
     }
 

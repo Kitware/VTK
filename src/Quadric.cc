@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    Quadric.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
@@ -18,7 +18,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 // Description
 // Construct quadric with all coefficients = 1.
-vlQuadric::vlQuadric()
+vtkQuadric::vtkQuadric()
 {
   this->Coefficients[0] = 1.0;
   this->Coefficients[1] = 1.0;
@@ -34,7 +34,7 @@ vlQuadric::vlQuadric()
 
 // Description
 // Set the 10 coefficients of the quadric equation.
-void vlQuadric::SetCoefficients(float a[10])
+void vtkQuadric::SetCoefficients(float a[10])
 {
   int i;
   float *c=this->Coefficients;
@@ -52,7 +52,7 @@ void vlQuadric::SetCoefficients(float a[10])
 
 // Description
 // Evaluate quadric equation.
-float vlQuadric::EvaluateFunction(float x[3])
+float vtkQuadric::EvaluateFunction(float x[3])
 {
   float *a = this->Coefficients;
   return ( a[0]*x[0]*x[0] + a[1]*x[1]*x[1] + a[2]*x[2]*x[2] +
@@ -62,7 +62,7 @@ float vlQuadric::EvaluateFunction(float x[3])
 
 // Description
 // Evaluate the gradient to the quadric equation.
-void vlQuadric::EvaluateGradient(float x[3], float n[3])
+void vtkQuadric::EvaluateGradient(float x[3], float n[3])
 {
   float *a=this->Coefficients;
 
@@ -74,7 +74,7 @@ void vlQuadric::EvaluateGradient(float x[3], float n[3])
 
 // Description
 // Set the 10 coefficients of the quadric equation.
-void vlQuadric::SetCoefficients(float a0,float a1,float a2,float a3, float a4, 
+void vtkQuadric::SetCoefficients(float a0,float a1,float a2,float a3, float a4, 
                                 float a5,float a6,float a7,float a8, float a9)
 {
   float a[10];
@@ -82,11 +82,11 @@ void vlQuadric::SetCoefficients(float a0,float a1,float a2,float a3, float a4,
   a[0] = a0; a[1] = a1; a[2] = a2; a[3] = a3; a[4] = a4; 
   a[5] = a5; a[6] = a6; a[7] = a7; a[8] = a8; a[9] = a9; 
 
-  vlQuadric::SetCoefficients(a);
+  vtkQuadric::SetCoefficients(a);
 }
-void vlQuadric::PrintSelf(ostream& os, vlIndent indent)
+void vtkQuadric::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlImplicitFunction::PrintSelf(os,indent);
+  vtkImplicitFunction::PrintSelf(os,indent);
 
   os << indent << "Coefficients: " 
      << "\n\ta0: " << this->Coefficients[0]

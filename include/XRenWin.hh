@@ -1,25 +1,25 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    XRenWin.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its
+This file is part of the Visualization Toolkit. No part of this file or its
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
-// .NAME vlXRenderWindow - rendering window for X Window system
+// .NAME vtkXRenderWindow - rendering window for X Window system
 // .SECTION Description
-// vlXRenderWindow is a concrete implementation of the abstract class
-// vlRenderWindow. vlXRenderer interfaces to the X Window system.
+// vtkXRenderWindow is a concrete implementation of the abstract class
+// vtkRenderWindow. vtkXRenderer interfaces to the X Window system.
 
-#ifndef __vlXRenderWindow_hh
-#define __vlXRenderWindow_hh
+#ifndef __vtkXRenderWindow_hh
+#define __vtkXRenderWindow_hh
 
 #include <stdlib.h>
 #include <X11/X.h>
@@ -27,15 +27,15 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include <X11/Xutil.h>
 #include "RenderW.hh"
 
-class vlXRenderWindow : public vlRenderWindow
+class vtkXRenderWindow : public vtkRenderWindow
 {
 public:
-  vlXRenderWindow();
-  char *GetClassName() {return "vlXRenderWindow";};
-  void PrintSelf(ostream& os, vlIndent indent);
+  vtkXRenderWindow();
+  char *GetClassName() {return "vtkXRenderWindow";};
+  void PrintSelf(ostream& os, vtkIndent indent);
   
   // supply base class virtual function
-  vlRenderWindowInteractor *MakeRenderWindowInteractor();
+  vtkRenderWindowInteractor *MakeRenderWindowInteractor();
 
   // Xwindow get set functions
   int     *GetSize();

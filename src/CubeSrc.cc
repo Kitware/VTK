@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    CubeSrc.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its 
+This file is part of the Visualization Toolkit. No part of this file or its 
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
@@ -21,7 +21,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "FPoints.hh"
 #include "FNormals.hh"
 
-vlCubeSource::vlCubeSource(float xL, float yL, float zL)
+vtkCubeSource::vtkCubeSource(float xL, float yL, float zL)
 {
   this->XLength = fabs(xL);
   this->YLength = fabs(yL);
@@ -32,24 +32,24 @@ vlCubeSource::vlCubeSource(float xL, float yL, float zL)
   this->Center[2] = 0.0;
 }
 
-void vlCubeSource::Execute()
+void vtkCubeSource::Execute()
 {
   float x[3], n[3];
   int numPolys=6, numPts=24;
   int i, j, k;
   int pts[4];
-  vlFloatPoints *newPoints; 
-  vlFloatNormals *newNormals;
-  vlCellArray *newPolys;
+  vtkFloatPoints *newPoints; 
+  vtkFloatNormals *newNormals;
+  vtkCellArray *newPolys;
 //
 // Set things up; allocate memory
 //
   this->Initialize();
 
-  newPoints = new vlFloatPoints(numPts);
-  newNormals = new vlFloatNormals(numPts);
+  newPoints = new vtkFloatPoints(numPts);
+  newNormals = new vtkFloatNormals(numPts);
 
-  newPolys = new vlCellArray;
+  newPolys = new vtkCellArray;
   newPolys->Allocate(newPolys->EstimateSize(numPolys,4));
 //
 // Generate points and normals
@@ -122,7 +122,7 @@ void vlCubeSource::Execute()
   this->SetPolys(newPolys);
 }
 
-void vlCubeSource::SetBounds(float bounds[6])
+void vtkCubeSource::SetBounds(float bounds[6])
 {
   this->SetXLength(bounds[1]-bounds[0]);
   this->SetYLength(bounds[3]-bounds[2]);
@@ -134,9 +134,9 @@ void vlCubeSource::SetBounds(float bounds[6])
 
 // Description:
 // Convenience method allows creation of cube by specifying bounding box.
-void vlCubeSource::PrintSelf(ostream& os, vlIndent indent)
+void vtkCubeSource::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlPolySource::PrintSelf(os,indent);
+  vtkPolySource::PrintSelf(os,indent);
 
   os << indent << "X Length: " << this->XLength << "\n";
   os << indent << "Y Length: " << this->YLength << "\n";

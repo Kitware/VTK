@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    Texture.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its
+This file is part of the Visualization Toolkit. No part of this file or its
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
@@ -21,7 +21,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 // Description:
 // Construct object and initialize.
-vlTexture::vlTexture()
+vtkTexture::vtkTexture()
 {
   this->Repeat = 1;
   this->Interpolate = 0;
@@ -30,7 +30,7 @@ vlTexture::vlTexture()
   this->Device = NULL;
 }
 
-void vlTexture::Load(vlRenderer *ren)
+void vtkTexture::Load(vtkRenderer *ren)
 {
   if (!this->Device)
     {
@@ -39,9 +39,9 @@ void vlTexture::Load(vlRenderer *ren)
   this->Device->Load(this,ren);
 }
 
-void vlTexture::PrintSelf(ostream& os, vlIndent indent)
+void vtkTexture::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlObject::PrintSelf(os,indent);
+  vtkObject::PrintSelf(os,indent);
 
   os << indent << "Interpolate: " << (this->Interpolate ? "On\n" : "Off\n");
   os << indent << "Repeat:      " << (this->Repeat ? "On\n" : "Off\n");
@@ -57,7 +57,7 @@ void vlTexture::PrintSelf(ostream& os, vlIndent indent)
 
 
 
-void vlTexture::Render(vlRenderer *ren)
+void vtkTexture::Render(vtkRenderer *ren)
 {
   if (this->Input) //load texture map
     {

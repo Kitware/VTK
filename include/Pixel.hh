@@ -1,48 +1,48 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    Pixel.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-// .NAME vlPixel - a cell that represents a orthogonal quadrilateral
+// .NAME vtkPixel - a cell that represents a orthogonal quadrilateral
 // .SECTION Description
-// vlPixel is a concrete implementation of vlCell to represent a 2D
-// orthogonal quadrilateral. Unlike vlQuad, the corners are at right angles,
+// vtkPixel is a concrete implementation of vtkCell to represent a 2D
+// orthogonal quadrilateral. Unlike vtkQuad, the corners are at right angles,
 // leading to large increases in computational efficiency.
 
-#ifndef __vlPixel_h
-#define __vlPixel_h
+#ifndef __vtkPixel_h
+#define __vtkPixel_h
 
 #include "Cell.hh"
 
-class vlPixel : public vlCell
+class vtkPixel : public vtkCell
 {
 public:
-  vlPixel() {};
-  vlPixel(const vlPixel& r);
-  char *GetClassName() {return "vlPixel";};
+  vtkPixel() {};
+  vtkPixel(const vtkPixel& r);
+  char *GetClassName() {return "vtkPixel";};
 
-  vlCell *MakeObject() {return new vlPixel(*this);};
-  int GetCellType() {return vlPIXEL;};
+  vtkCell *MakeObject() {return new vtkPixel(*this);};
+  int GetCellType() {return vtkPIXEL;};
   int GetCellDimension() {return 2;};
   int GetNumberOfEdges() {return 4;};
   int GetNumberOfFaces() {return 0;};
-  vlCell *GetEdge(int edgeId);
-  vlCell *GetFace(int faceId) {return 0;};
+  vtkCell *GetEdge(int edgeId);
+  vtkCell *GetFace(int faceId) {return 0;};
 
-  int CellBoundary(int subId, float pcoords[3], vlIdList& pts);
-  void Contour(float value, vlFloatScalars *cellScalars, 
-               vlFloatPoints *points, vlCellArray *verts, 
-               vlCellArray *lines, vlCellArray *polys, vlFloatScalars *s);
+  int CellBoundary(int subId, float pcoords[3], vtkIdList& pts);
+  void Contour(float value, vtkFloatScalars *cellScalars, 
+               vtkFloatPoints *points, vtkCellArray *verts, 
+               vtkCellArray *lines, vtkCellArray *polys, vtkFloatScalars *s);
   int EvaluatePosition(float x[3], float closestPoint[3],
                        int& subId, float pcoords[3],
                        float& dist2, float weights[MAX_CELL_SIZE]);

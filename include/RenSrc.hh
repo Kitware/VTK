@@ -1,21 +1,21 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    RenSrc.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its
+This file is part of the Visualization Toolkit. No part of this file or its
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
-// .NAME vlRendererSource - read pnm (i.e., portable anymap) files
+// .NAME vtkRendererSource - read pnm (i.e., portable anymap) files
 // .SECTION Description
-// vlRendererSource is a source object that reads pnm (portable anymap) files.
+// vtkRendererSource is a source object that reads pnm (portable anymap) files.
 // This includes .pbm (bitmap), .pgm (grayscale), and .ppm (pixmap) files.
 // (Currently this object only reads binary versions of these files).
 //    PNMSource creates structured point datasets. The dimension of the 
@@ -31,30 +31,30 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // differentiate between reading images and volumes, the image range is set
 // to  (-1,-1) to read a single image file.
 
-#ifndef __vlRendererSource_hh
-#define __vlRendererSource_hh
+#ifndef __vtkRendererSource_hh
+#define __vtkRendererSource_hh
 
 #include "SPtsSrc.hh"
 #include "Renderer.hh"
 
-class vlRendererSource : public vlStructuredPointsSource
+class vtkRendererSource : public vtkStructuredPointsSource
 {
 public:
-  vlRendererSource();
-  ~vlRendererSource() {};
-  char *GetClassName() {return "vlRendererSource";};
-  void PrintSelf(ostream& os, vlIndent indent);
+  vtkRendererSource();
+  ~vtkRendererSource() {};
+  char *GetClassName() {return "vtkRendererSource";};
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Indicates what renderer to get the pixel data from.
-  vlSetObjectMacro(Input,vlRenderer);
+  vtkSetObjectMacro(Input,vtkRenderer);
   // Description:
   // Returns which renderer is being used as the source for the pixel data.
-  vlGetObjectMacro(Input,vlRenderer);
+  vtkGetObjectMacro(Input,vtkRenderer);
 
 protected:
   void Execute();
-  vlRenderer *Input;
+  vtkRenderer *Input;
 };
 
 #endif

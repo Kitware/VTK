@@ -1,47 +1,47 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    PolyVert.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-// .NAME vlPolyVertex - cell represents a set of 0D vertices
+// .NAME vtkPolyVertex - cell represents a set of 0D vertices
 // .SECTION Description
-// vlPolyVertex is a concrete implementation of vlCell to represent a 
+// vtkPolyVertex is a concrete implementation of vtkCell to represent a 
 // set of 3D vertices.
 
-#ifndef __vlPolyVertex_h
-#define __vlPolyVertex_h
+#ifndef __vtkPolyVertex_h
+#define __vtkPolyVertex_h
 
 #include "Cell.hh"
 
-class vlPolyVertex : public vlCell
+class vtkPolyVertex : public vtkCell
 {
 public:
-  vlPolyVertex() {};
-  vlPolyVertex(const vlPolyVertex& pp);
-  char *GetClassName() {return "vlPolyVertex";};
+  vtkPolyVertex() {};
+  vtkPolyVertex(const vtkPolyVertex& pp);
+  char *GetClassName() {return "vtkPolyVertex";};
 
-  vlCell *MakeObject() {return new vlPolyVertex(*this);};
-  int GetCellType() {return vlPOLY_VERTEX;};
+  vtkCell *MakeObject() {return new vtkPolyVertex(*this);};
+  int GetCellType() {return vtkPOLY_VERTEX;};
   int GetCellDimension() {return 0;};
   int GetNumberOfEdges() {return 0;};
   int GetNumberOfFaces() {return 0;};
-  vlCell *GetEdge(int edgeId) {return 0;};
-  vlCell *GetFace(int faceId) {return 0;};
+  vtkCell *GetEdge(int edgeId) {return 0;};
+  vtkCell *GetFace(int faceId) {return 0;};
 
-  int CellBoundary(int subId, float pcoords[3], vlIdList& pts);
-  void Contour(float value, vlFloatScalars *cellScalars, 
-               vlFloatPoints *points, vlCellArray *verts, 
-               vlCellArray *lines, vlCellArray *polys, vlFloatScalars *s);
+  int CellBoundary(int subId, float pcoords[3], vtkIdList& pts);
+  void Contour(float value, vtkFloatScalars *cellScalars, 
+               vtkFloatPoints *points, vtkCellArray *verts, 
+               vtkCellArray *lines, vtkCellArray *polys, vtkFloatScalars *s);
   int EvaluatePosition(float x[3], float closestPoint[3], 
                        int& subId, float pcoords[3],
                        float& dist2, float weights[MAX_CELL_SIZE]);

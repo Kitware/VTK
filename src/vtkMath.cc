@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
-  Module:    vlMath.cc
+  Program:   Visualization Toolkit
+  Module:    vtkMath.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its 
+This file is part of the Visualization Toolkit. No part of this file or its 
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
@@ -16,9 +16,9 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include <math.h>
 #include <stdlib.h>
 #include <iostream.h>
-#include "vlMath.hh"
+#include "vtkMath.hh"
 
-long vlMath::Seed = 1177; // One authors home address
+long vtkMath::Seed = 1177; // One authors home address
 
 //
 // some constants we need
@@ -38,7 +38,7 @@ long vlMath::Seed = 1177; // One authors home address
 //
 // Borrowed from: Fuat C. Baran, Columbia University, 1988
 
-float vlMath::Random()
+float vtkMath::Random()
 {
   long hi, lo;
     
@@ -55,18 +55,18 @@ float vlMath::Random()
 // RandomSeed() a few times inside seed. This doesn't ruin the 
 // repeatability of Random().
 //
-void vlMath::RandomSeed(long s)
+void vtkMath::RandomSeed(long s)
 {
   this->Seed = s;
 
-  vlMath::Random();
-  vlMath::Random();
-  vlMath::Random();
+  vtkMath::Random();
+  vtkMath::Random();
+  vtkMath::Random();
 }
 
 // Description:
 // Cross product of two 3-vectors. Result vector in z[3].
-void vlMath::Cross(float x[3], float y[3], float z[3])
+void vtkMath::Cross(float x[3], float y[3], float z[3])
 {
   float Zx = x[1]*y[2] - x[2]*y[1]; 
   float Zy = x[2]*y[0] - x[0]*y[2];
@@ -88,7 +88,7 @@ void vlMath::Cross(float x[3], float y[3], float z[3])
 // decomposition; use the method "SingularValueBackSubstitution" to actually
 // solve Ax=B. This method creates the decomposition a = U*W*V. Note that the
 // vector W are the eigenvalues; the columns of V are the eigenvectors.
-void vlMath::SingularValueDecomposition(double **a, int m, int n, 
+void vtkMath::SingularValueDecomposition(double **a, int m, int n, 
                                         double *w, double **v)
 {
   static double at, bt, ct;                       // double should be enough
@@ -330,7 +330,7 @@ void vlMath::SingularValueDecomposition(double **a, int m, int n,
 // Solve matrix equation Ax = B for a vector x and load vector B. Note that
 // matrix A must first be factored A = U*W*V using singular value 
 // decomposition (method SingularValueDecomposition()).
-void vlMath::SingularValueBackSubstitution(double **u, double *w, double **v,
+void vtkMath::SingularValueBackSubstitution(double **u, double *w, double **v,
                                            int m, int n, double *b, double *x)
 {
   int i, j;

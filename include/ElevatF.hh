@@ -1,52 +1,52 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    ElevatF.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its 
+This file is part of the Visualization Toolkit. No part of this file or its 
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-// .NAME vlElevationFilter - generate scalars along a specified direction
+// .NAME vtkElevationFilter - generate scalars along a specified direction
 // .SECTION Description
-// vlElevationFilter is a filter to generate scalar values from a dataset.
+// vtkElevationFilter is a filter to generate scalar values from a dataset.
 // The scalar values lie within a user specified range, and are generated
 // by computing a projection of each dataset point onto a line. The line
 // can be oriented arbitrarily. A typical example is to generate scalars
 // based on elevation or height above a plane.
 
-#ifndef __vlElevationFilter_h
-#define __vlElevationFilter_h
+#ifndef __vtkElevationFilter_h
+#define __vtkElevationFilter_h
 
 #include "DS2DSF.hh"
 
-class vlElevationFilter : public vlDataSetToDataSetFilter 
+class vtkElevationFilter : public vtkDataSetToDataSetFilter 
 {
 public:
-  vlElevationFilter();
-  char *GetClassName() {return "vlElevationFilter";};
-  void PrintSelf(ostream& os, vlIndent indent);
+  vtkElevationFilter();
+  char *GetClassName() {return "vtkElevationFilter";};
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Define one end of the line (small scalar values).
-  vlSetVector3Macro(LowPoint,float);
-  vlGetVectorMacro(LowPoint,float,3);
+  vtkSetVector3Macro(LowPoint,float);
+  vtkGetVectorMacro(LowPoint,float,3);
 
   // Description:
   // Define other end of the line (large scalar values).
-  vlSetVector3Macro(HighPoint,float);
-  vlGetVectorMacro(HighPoint,float,3);
+  vtkSetVector3Macro(HighPoint,float);
+  vtkGetVectorMacro(HighPoint,float,3);
 
   // Description:
   // Specify range to map scalars into.
-  vlSetVector2Macro(ScalarRange,float);
-  vlGetVectorMacro(ScalarRange,float,2);
+  vtkSetVector2Macro(ScalarRange,float);
+  vtkGetVectorMacro(ScalarRange,float,2);
 
 protected:
   void Execute();

@@ -1,19 +1,19 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    RibbonF.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-#include "vlMath.hh"
+#include "vtkMath.hh"
 #include "RibbonF.hh"
 #include "FPoints.hh"
 #include "FNormals.hh"
@@ -22,7 +22,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // Description:
 // Construct ribbon so that width is 0.1, no normal rotation, the width does 
 // not vary with scalar values, and the width factor is 2.0.
-vlRibbonFilter::vlRibbonFilter()
+vtkRibbonFilter::vtkRibbonFilter()
 {
   this->Width = 0.5;
   this->Angle = 0.0;
@@ -30,40 +30,40 @@ vlRibbonFilter::vlRibbonFilter()
   this->WidthFactor = 2.0;
 }
 
-void vlRibbonFilter::Execute()
+void vtkRibbonFilter::Execute()
 {
   int i, j, k;
-  vlPoints *inPts;
-  vlNormals *inNormals;
-  vlPointData *pd;
-  vlCellArray *inLines;
+  vtkPoints *inPts;
+  vtkNormals *inNormals;
+  vtkPointData *pd;
+  vtkCellArray *inLines;
   int numNewPts;
-  vlFloatPoints *newPts;
-  vlFloatNormals *newNormals;
-  vlCellArray *newStrips;
+  vtkFloatPoints *newPts;
+  vtkFloatNormals *newNormals;
+  vtkCellArray *newStrips;
   int npts, *pts;
   float p[3], pNext[3];
   float *n;
   float s[3], sNext[3], sPrev[3], w[3];
   double BevelAngle;
-  vlMath math;
+  vtkMath math;
   float theta;
   int deleteNormals=0, ptId;
-  vlPolyData *input=(vlPolyData *)this->Input;
-  vlScalars *inScalars=NULL;
+  vtkPolyData *input=(vtkPolyData *)this->Input;
+  vtkScalars *inScalars=NULL;
   float sFactor=1.0, range[2];
   int ptOffset=0;
 //
 // Initialize
 //
-  vlDebugMacro(<<"Creating ribbon");
+  vtkDebugMacro(<<"Creating ribbon");
   this->Initialize();
 
   if ( !(inPts=input->GetPoints()) || 
   (numNewPts=inPts->GetNumberOfPoints()*2) < 1 ||
   !(inLines = input->GetLines()) || inLines->GetNumberOfCells() < 1 )
     {
-    vlErrorMacro(<< ": No input data!\n");
+    vtkErrorMacro(<< ": No input data!\n");
     return;
     }
 
@@ -74,12 +74,12 @@ void vlRibbonFilter::Execute()
 
   if ( !(inNormals=pd->GetNormals()) )
     {
-    vlPolyLine lineNormalGenerator;
+    vtkPolyLine lineNormalGenerator;
     deleteNormals = 1;
-    inNormals = new vlFloatNormals(numNewPts);
-    if ( !lineNormalGenerator.GenerateSlidingNormals(inPts,inLines,(vlFloatNormals*)inNormals) )
+    inNormals = new vtkFloatNormals(numNewPts);
+    if ( !lineNormalGenerator.GenerateSlidingNormals(inPts,inLines,(vtkFloatNormals*)inNormals) )
       {
-      vlErrorMacro(<< "No normals for line!\n");
+      vtkErrorMacro(<< "No normals for line!\n");
       delete inNormals;
       return;
       }
@@ -92,9 +92,9 @@ void vlRibbonFilter::Execute()
     inScalars->GetRange(range);
     }
 
-  newPts = new vlFloatPoints(numNewPts);
-  newNormals = new vlFloatNormals(numNewPts);
-  newStrips = new vlCellArray;
+  newPts = new vtkFloatPoints(numNewPts);
+  newNormals = new vtkFloatNormals(numNewPts);
+  newStrips = new vtkCellArray;
   newStrips->Allocate(newStrips->EstimateSize(1,numNewPts));
 //
 //  Create pairs of points along the line that are later connected into a 
@@ -145,7 +145,7 @@ void vlRibbonFilter::Execute()
 
       if ( math.Normalize(sNext) == 0.0 )
         {
-        vlErrorMacro(<<"Coincident points!");
+        vtkErrorMacro(<<"Coincident points!");
         return;
         }
 
@@ -162,7 +162,7 @@ void vlRibbonFilter::Execute()
       math.Cross(s,n,w);
       if ( math.Normalize(w) == 0.0)
         {
-        vlErrorMacro(<<"Bad normal!");
+        vtkErrorMacro(<<"Bad normal!");
         return;
         }
       
@@ -204,9 +204,9 @@ void vlRibbonFilter::Execute()
   this->Squeeze();
 }
 
-void vlRibbonFilter::PrintSelf(ostream& os, vlIndent indent)
+void vtkRibbonFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlPolyToPolyFilter::PrintSelf(os,indent);
+  vtkPolyToPolyFilter::PrintSelf(os,indent);
 
   os << indent << "Width: " << this->Width << "\n";
   os << indent << "Angle: " << this->Angle << "\n";

@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    SbrCam.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its
+This file is part of the Visualization Toolkit. No part of this file or its
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
@@ -135,14 +135,14 @@ void stereopersp(int fd, float fovy, float aspect, float near,
 
 // Description:
 // Implement base class method.
-void vlSbrCamera::Render(vlCamera *cam, vlRenderer *ren)
+void vtkSbrCamera::Render(vtkCamera *cam, vtkRenderer *ren)
 {
-  this->Render(cam, (vlSbrRenderer *)ren);
+  this->Render(cam, (vtkSbrRenderer *)ren);
 }
 
 // Description:
 // Actual camera render method.
-void vlSbrCamera::Render(vlCamera *cam, vlSbrRenderer *ren)
+void vtkSbrCamera::Render(vtkCamera *cam, vtkSbrRenderer *ren)
 {
   float aspect[3];
   float vaspect[2];
@@ -157,7 +157,7 @@ void vlSbrCamera::Render(vlCamera *cam, vlSbrRenderer *ren)
   int fd;
   int *size;
   int *screen_size;
-  vlSbrRenderWindow *rw;
+  vtkSbrRenderWindow *rw;
   float trans[2];
   float old;
   float view_size[2];
@@ -168,7 +168,7 @@ void vlSbrCamera::Render(vlCamera *cam, vlSbrRenderer *ren)
   // get the background color
   background = ren->GetBackground();
   // get size info
-  rw = (vlSbrRenderWindow*)(ren->GetRenderWindow());
+  rw = (vtkSbrRenderWindow*)(ren->GetRenderWindow());
   size = rw->GetSize();
   screen_size = rw->GetScreenSize();
   // find out if we should stereo render
@@ -178,7 +178,7 @@ void vlSbrCamera::Render(vlCamera *cam, vlSbrRenderer *ren)
   // set this renderer's viewport, must turn off z-buffering when changing
   // viewport
   hidden_surface(fd, FALSE, FALSE);
-  vlDebugMacro(<< " SB_hidden_surface: False False\n");
+  vtkDebugMacro(<< " SB_hidden_surface: False False\n");
 
   memcpy(viewport,ren->GetViewport(),sizeof(float)*4);
 
@@ -240,16 +240,16 @@ void vlSbrCamera::Render(vlCamera *cam, vlSbrRenderer *ren)
   vdc_extent(fd,vdc_vals[0],vdc_vals[1],vdc_vals[2],
 	     vdc_vals[3],vdc_vals[4],vdc_vals[5]);
 
-  vlDebugMacro(<< " screen_size " << screen_size[0] << " " 
+  vtkDebugMacro(<< " screen_size " << screen_size[0] << " " 
   << screen_size[1] << endl);
-  vlDebugMacro(<< " size " << size[0] << " " << size[1] << endl);
-  vlDebugMacro(<< " viewport " << viewport[0] << " " << viewport[1] 
+  vtkDebugMacro(<< " size " << size[0] << " " << size[1] << endl);
+  vtkDebugMacro(<< " viewport " << viewport[0] << " " << viewport[1] 
   << " " << viewport[2] << " " << viewport[3] << endl);
 
   // set viewport to clear entire window 
   view_port(fd,-1.0,-1.0,1.0,1.0); 
   hidden_surface(fd, TRUE, FALSE);
-  vlDebugMacro(<< " SB_hidden_surface: True False\n");
+  vtkDebugMacro(<< " SB_hidden_surface: True False\n");
 
   // Set the background color and clear the display.
   // Since clear control was set to clear z buffer, this is done here
@@ -260,11 +260,11 @@ void vlSbrCamera::Render(vlCamera *cam, vlSbrRenderer *ren)
   if (ren->GetErase()) 
     {
     clear_view_surface(fd);
-    vlDebugMacro(<< " SB_clear_view_surface\n");
+    vtkDebugMacro(<< " SB_clear_view_surface\n");
     }
 
   hidden_surface(fd, FALSE, FALSE);
-  vlDebugMacro(<< " SB_hidden_surface: False False\n");
+  vtkDebugMacro(<< " SB_hidden_surface: False False\n");
 
   // I think the z clipping is done before the divide by w 
   vdc_extent(fd,vdc_vals[0],vdc_vals[1],vdc_vals[2],
@@ -273,7 +273,7 @@ void vlSbrCamera::Render(vlCamera *cam, vlSbrRenderer *ren)
   view_port(fd,-1.0,-1.0,1.0,1.0); 
 
   hidden_surface(fd, TRUE, FALSE);
-  vlDebugMacro(<< " SB_hidden_surface: True False\n");
+  vtkDebugMacro(<< " SB_hidden_surface: True False\n");
 
   twist = cam->GetTwist();
 

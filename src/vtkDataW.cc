@@ -1,19 +1,19 @@
 /*=========================================================================
 
-  Program:   Visualization Library
-  Module:    vlDataW.cc
+  Program:   Visualization Toolkit
+  Module:    vtkDataW.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-#include "vlDataW.hh"
+#include "vtkDataW.hh"
 #include "BScalars.hh"
 #include "CScalars.hh"
 #include "FScalars.hh"
@@ -34,12 +34,12 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // Description:
 // Created object with default header, ASCII format, and default names for 
 // scalars, vectors, tensors, normals, and texture coordinates.
-vlDataWriter::vlDataWriter()
+vtkDataWriter::vtkDataWriter()
 {
   this->Filename = NULL;
 
   this->Header = new char[257];
-  strcpy(this->Header,"vl output");
+  strcpy(this->Header,"vtk output");
   this->FileType = ASCII;
 
   this->ScalarsName = new char[8];
@@ -61,7 +61,7 @@ vlDataWriter::vlDataWriter()
   strcpy(this->LookupTableName,"lookup_table");
 }
 
-vlDataWriter::~vlDataWriter()
+vtkDataWriter::~vtkDataWriter()
 {
   if ( this->Filename ) delete [] this->Filename;
   if ( this->Header ) delete [] this->Header;
@@ -74,22 +74,22 @@ vlDataWriter::~vlDataWriter()
 }
 
 // Description:
-// Open a vl data file. Returns NULL if error.
-FILE *vlDataWriter::OpenVLFile()
+// Open a vtk data file. Returns NULL if error.
+FILE *vtkDataWriter::OpenVLFile()
 {
   FILE *fptr;
 
-  vlDebugMacro(<<"Opening vl file for writing...");
+  vtkDebugMacro(<<"Opening vtk file for writing...");
 
   if ( !this->Filename )
     {
-    vlErrorMacro(<< "No filename specified! Can't write!");
+    vtkErrorMacro(<< "No filename specified! Can't write!");
     return NULL;
     }
 
   if ( (fptr=fopen(this->Filename, "wb")) == NULL )
     {
-    vlErrorMacro(<< "Unable to open file: "<< this->Filename);
+    vtkErrorMacro(<< "Unable to open file: "<< this->Filename);
     return NULL;
     }
 
@@ -97,12 +97,12 @@ FILE *vlDataWriter::OpenVLFile()
 }
 
 // Description:
-// Write the header of a vl data file. Returns 0 if error.
-int vlDataWriter::WriteHeader(FILE *fp)
+// Write the header of a vtk data file. Returns 0 if error.
+int vtkDataWriter::WriteHeader(FILE *fp)
 {
-  vlDebugMacro(<<"Writing header...");
+  vtkDebugMacro(<<"Writing header...");
 
-  fprintf (fp, "# vl DataSet Version 1.0\n");
+  fprintf (fp, "# vtk DataSet Version 1.0\n");
   fprintf (fp, "%s\n", this->Header);
 
   if ( this->FileType == ASCII )
@@ -114,19 +114,19 @@ int vlDataWriter::WriteHeader(FILE *fp)
 }
 
 // Description:
-// Write the point data (e.g., scalars, vectors, ...) of a vl data file. 
+// Write the point data (e.g., scalars, vectors, ...) of a vtk data file. 
 // Returns 0 if error.
-int vlDataWriter::WritePointData(FILE *fp, vlDataSet *ds)
+int vtkDataWriter::WritePointData(FILE *fp, vtkDataSet *ds)
 {
   int numPts;
-  vlScalars *scalars;
-  vlVectors *vectors;
-  vlNormals *normals;
-  vlTCoords *tcoords;
-  vlTensors *tensors;
-  vlPointData *pd=ds->GetPointData();
+  vtkScalars *scalars;
+  vtkVectors *vectors;
+  vtkNormals *normals;
+  vtkTCoords *tcoords;
+  vtkTensors *tensors;
+  vtkPointData *pd=ds->GetPointData();
 
-  vlDebugMacro(<<"Writing point data...");
+  vtkDebugMacro(<<"Writing point data...");
 
   numPts = ds->GetNumberOfPoints();
   scalars = pd->GetScalars();
@@ -137,7 +137,7 @@ int vlDataWriter::WritePointData(FILE *fp, vlDataSet *ds)
 
   if ( numPts <= 0 || !(scalars || vectors || normals || tcoords || tensors) )
     {
-    vlWarningMacro(<<"No point data to write!");
+    vtkWarningMacro(<<"No point data to write!");
     return 1;
     }
 
@@ -181,7 +181,7 @@ int vlDataWriter::WritePointData(FILE *fp, vlDataSet *ds)
   return 1;
 }
 
-int vlDataWriter::WritePoints(FILE *fp, vlPoints *points)
+int vtkDataWriter::WritePoints(FILE *fp, vtkPoints *points)
 {
   int i, numPts=points->GetNumberOfPoints();
   char *type;
@@ -204,7 +204,7 @@ int vlDataWriter::WritePoints(FILE *fp, vlPoints *points)
       }
     else
       {
-      vlFloatPoints *fpoints = (vlFloatPoints *)points;
+      vtkFloatPoints *fpoints = (vtkFloatPoints *)points;
       float *fptr=fpoints->GetPtr(0);
       fwrite (fptr,sizeof(float),3*numPts,fp);
       }
@@ -213,7 +213,7 @@ int vlDataWriter::WritePoints(FILE *fp, vlPoints *points)
 
   else if ( !strcmp(type,"int") )
     {
-    vlIntPoints *ipoints = (vlIntPoints *)points;
+    vtkIntPoints *ipoints = (vtkIntPoints *)points;
     fprintf (fp, "int\n");
     if ( this->FileType == ASCII )
       {
@@ -227,7 +227,7 @@ int vlDataWriter::WritePoints(FILE *fp, vlPoints *points)
       }
     else
       {
-      vlIntPoints *ipoints = (vlIntPoints *)points;
+      vtkIntPoints *ipoints = (vtkIntPoints *)points;
       int *iptr=ipoints->GetPtr(0);
       fwrite (iptr,sizeof(int),3*numPts,fp);
       }
@@ -236,18 +236,18 @@ int vlDataWriter::WritePoints(FILE *fp, vlPoints *points)
 
   else
     {
-    vlErrorMacro(<<"Point type: " << type << " currently not supported");
+    vtkErrorMacro(<<"Point type: " << type << " currently not supported");
     return 0;
     }
 
   return 1;
 }
 
-int vlDataWriter::WriteScalarData(FILE *fp, vlScalars *scalars, int numPts)
+int vtkDataWriter::WriteScalarData(FILE *fp, vtkScalars *scalars, int numPts)
 {
   int i, size;
   char *type, *name;
-  vlLookupTable *lut;
+  vtkLookupTable *lut;
 
   if ( (lut=scalars->GetLookupTable()) == NULL || (size = lut->GetNumberOfColors()) > 0 )
     name = "default";
@@ -274,7 +274,7 @@ int vlDataWriter::WriteScalarData(FILE *fp, vlScalars *scalars, int numPts)
         }
       else
         {
-        vlBitScalars *bscalars = (vlBitScalars *)scalars;
+        vtkBitScalars *bscalars = (vtkBitScalars *)scalars;
         unsigned char *cptr=bscalars->GetPtr(0);
         fwrite (cptr,sizeof(char),(numPts-1)/8+1,fp);
         }
@@ -296,7 +296,7 @@ int vlDataWriter::WriteScalarData(FILE *fp, vlScalars *scalars, int numPts)
         }
       else
         {
-        vlCharScalars *cscalars = (vlCharScalars *)scalars;
+        vtkCharScalars *cscalars = (vtkCharScalars *)scalars;
         unsigned char *cptr=cscalars->GetPtr(0);
         fwrite (cptr,sizeof(unsigned char),numPts,fp);
         }
@@ -318,7 +318,7 @@ int vlDataWriter::WriteScalarData(FILE *fp, vlScalars *scalars, int numPts)
         }
       else
         {
-        vlShortScalars *sscalars = (vlShortScalars *)scalars;
+        vtkShortScalars *sscalars = (vtkShortScalars *)scalars;
         short *sptr=sscalars->GetPtr(0);
         fwrite (sptr,sizeof(short),numPts,fp);
         }
@@ -340,7 +340,7 @@ int vlDataWriter::WriteScalarData(FILE *fp, vlScalars *scalars, int numPts)
         }
       else
         {
-        vlIntScalars *iscalars = (vlIntScalars *)scalars;
+        vtkIntScalars *iscalars = (vtkIntScalars *)scalars;
         int *iptr=iscalars->GetPtr(0);
         fwrite (iptr,sizeof(int),numPts,fp);
         }
@@ -362,7 +362,7 @@ int vlDataWriter::WriteScalarData(FILE *fp, vlScalars *scalars, int numPts)
         }
       else
         {
-        vlFloatScalars *fscalars = (vlFloatScalars *)scalars;
+        vtkFloatScalars *fscalars = (vtkFloatScalars *)scalars;
         float *fptr=fscalars->GetPtr(0);
         fwrite (fptr,sizeof(float),numPts,fp);
         }
@@ -371,7 +371,7 @@ int vlDataWriter::WriteScalarData(FILE *fp, vlScalars *scalars, int numPts)
 
     else
       {
-      vlErrorMacro(<<"Scalar type: " << type << " currently not supported");
+      vtkErrorMacro(<<"Scalar type: " << type << " currently not supported");
       return 0;
       }
     }
@@ -379,7 +379,7 @@ int vlDataWriter::WriteScalarData(FILE *fp, vlScalars *scalars, int numPts)
   else //color scalars
     {
     int nvs = scalars->GetNumberOfValuesPerScalar();
-    vlColorScalars *coscalars = (vlColorScalars *)scalars;
+    vtkColorScalars *coscalars = (vtkColorScalars *)scalars;
 
     fprintf (fp, "COLOR_SCALARS %s %d\n", this->ScalarsName, nvs);
 
@@ -462,7 +462,7 @@ int vlDataWriter::WriteScalarData(FILE *fp, vlScalars *scalars, int numPts)
   return 1;
 }
 
-int vlDataWriter::WriteVectorData(FILE *fp, vlVectors *vectors, int numPts)
+int vtkDataWriter::WriteVectorData(FILE *fp, vtkVectors *vectors, int numPts)
 {
   int i;
   char *type;
@@ -485,7 +485,7 @@ int vlDataWriter::WriteVectorData(FILE *fp, vlVectors *vectors, int numPts)
       }
     else
       {
-      vlFloatVectors *fvectors = (vlFloatVectors *)vectors;
+      vtkFloatVectors *fvectors = (vtkFloatVectors *)vectors;
       float *fptr=fvectors->GetPtr(0);
       fwrite (fptr,sizeof(float),3*numPts,fp);
       }
@@ -494,14 +494,14 @@ int vlDataWriter::WriteVectorData(FILE *fp, vlVectors *vectors, int numPts)
 
   else
     {
-    vlErrorMacro(<<"Vector type: " << type << " currently not supported");
+    vtkErrorMacro(<<"Vector type: " << type << " currently not supported");
     return 0;
     }
 
   return 1;
 }
 
-int vlDataWriter::WriteNormalData(FILE *fp, vlNormals *normals, int numPts)
+int vtkDataWriter::WriteNormalData(FILE *fp, vtkNormals *normals, int numPts)
 {
   int i;
   char *type;
@@ -524,7 +524,7 @@ int vlDataWriter::WriteNormalData(FILE *fp, vlNormals *normals, int numPts)
       }
     else
       {
-      vlFloatNormals *fnormals = (vlFloatNormals *)normals;
+      vtkFloatNormals *fnormals = (vtkFloatNormals *)normals;
       float *fptr=fnormals->GetPtr(0);
       fwrite (fptr,sizeof(float),3*numPts,fp);
       }
@@ -533,14 +533,14 @@ int vlDataWriter::WriteNormalData(FILE *fp, vlNormals *normals, int numPts)
 
   else
     {
-    vlErrorMacro(<<"Normal type: " << type << " currently not supported");
+    vtkErrorMacro(<<"Normal type: " << type << " currently not supported");
     return 0;
     }
 
   return 1;
 }
 
-int vlDataWriter::WriteTCoordData(FILE *fp, vlTCoords *tcoords, int numPts)
+int vtkDataWriter::WriteTCoordData(FILE *fp, vtkTCoords *tcoords, int numPts)
 {
   int i, j, dim;
   char *type;
@@ -564,7 +564,7 @@ int vlDataWriter::WriteTCoordData(FILE *fp, vlTCoords *tcoords, int numPts)
       }
     else
       {
-      vlFloatTCoords *ftcoords = (vlFloatTCoords *)tcoords;
+      vtkFloatTCoords *ftcoords = (vtkFloatTCoords *)tcoords;
       float *fptr=ftcoords->GetPtr(0);
       fwrite (fptr,sizeof(float),dim*numPts,fp);
       }
@@ -573,14 +573,14 @@ int vlDataWriter::WriteTCoordData(FILE *fp, vlTCoords *tcoords, int numPts)
 
   else
     {
-    vlErrorMacro(<<"Texture coord type: " << type << " currently not supported");
+    vtkErrorMacro(<<"Texture coord type: " << type << " currently not supported");
     return 0;
     }
 
   return 1;
 }
 
-int vlDataWriter::WriteTensorData(FILE *fp, vlTensors *tensors, int numPts)
+int vtkDataWriter::WriteTensorData(FILE *fp, vtkTensors *tensors, int numPts)
 {
   int i, j, k, dim;
   char *type;
@@ -594,7 +594,7 @@ int vlDataWriter::WriteTensorData(FILE *fp, vlTensors *tensors, int numPts)
     fprintf (fp, "%s float\n", this->TensorsName);
     if ( this->FileType == ASCII )
       {
-      vlTensor t;
+      vtkTensor t;
       for (i=0; i<numPts; i++)
         {
         tensors->GetTensor(i,t);
@@ -607,7 +607,7 @@ int vlDataWriter::WriteTensorData(FILE *fp, vlTensors *tensors, int numPts)
       }
     else
       {
-      vlFloatTensors *ftensors = (vlFloatTensors *)tensors;
+      vtkFloatTensors *ftensors = (vtkFloatTensors *)tensors;
       float *fptr=ftensors->GetPtr(0);
       fwrite (fptr,sizeof(float),dim*dim*numPts,fp);
       }
@@ -616,14 +616,14 @@ int vlDataWriter::WriteTensorData(FILE *fp, vlTensors *tensors, int numPts)
 
   else
     {
-    vlErrorMacro(<<"Tensor type: " << type << " currently not supported");
+    vtkErrorMacro(<<"Tensor type: " << type << " currently not supported");
     return 0;
     }
 
   return 1;
 }
 
-int vlDataWriter::WriteCells(FILE *fp, vlCellArray *cells, char *label)
+int vtkDataWriter::WriteCells(FILE *fp, vtkCellArray *cells, char *label)
 {
   int ncells=cells->GetNumberOfCells();
   int size=cells->GetSize();
@@ -655,16 +655,16 @@ int vlDataWriter::WriteCells(FILE *fp, vlCellArray *cells, char *label)
 }
 
 // Description:
-// Close a vl file.
-void vlDataWriter::CloseVLFile(FILE *fp)
+// Close a vtk file.
+void vtkDataWriter::CloseVLFile(FILE *fp)
 {
-  vlDebugMacro(<<"Closing vl file\n");
+  vtkDebugMacro(<<"Closing vtk file\n");
   if ( fp != NULL ) fclose(fp);
 }
 
-void vlDataWriter::PrintSelf(ostream& os, vlIndent indent)
+void vtkDataWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlWriter::PrintSelf(os,indent);
+  vtkWriter::PrintSelf(os,indent);
 
   if ( this->Filename )
     os << indent << "Filename: " << this->Filename << "\n";

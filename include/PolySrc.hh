@@ -1,33 +1,33 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    PolySrc.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its 
+This file is part of the Visualization Toolkit. No part of this file or its 
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-// .NAME vlPolySource - abstract class whose subclasses generate polygonal data
+// .NAME vtkPolySource - abstract class whose subclasses generate polygonal data
 // .SECTION Description
-// vlPolySource is an abstract class whose subclasses generate polygonal data.
+// vtkPolySource is an abstract class whose subclasses generate polygonal data.
 
-#ifndef __vlPolySource_h
-#define __vlPolySource_h
+#ifndef __vtkPolySource_h
+#define __vtkPolySource_h
 
 #include "Source.hh"
 #include "PolyData.hh"
 
-class vlPolySource : public vlSource, public vlPolyData 
+class vtkPolySource : public vtkSource, public vtkPolyData 
 {
 public:
-  char *GetClassName() {return "vlPolySource";};
-  void PrintSelf(ostream& os, vlIndent indent);
+  char *GetClassName() {return "vtkPolySource";};
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Object interface
   void Modified();

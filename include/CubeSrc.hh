@@ -1,55 +1,55 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    CubeSrc.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its 
+This file is part of the Visualization Toolkit. No part of this file or its 
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-// .NAME vlCubeSource - create a polygonal representation of a cube
+// .NAME vtkCubeSource - create a polygonal representation of a cube
 // .SECTION Description
-// vlCubeSource creates a cube centered at origin. The cube is represented
+// vtkCubeSource creates a cube centered at origin. The cube is represented
 // with four-sided polygons. It is possible to specify the length, width, 
 // and height of the cube independently.
 
-#ifndef __vlCubeSource_h
-#define __vlCubeSource_h
+#ifndef __vtkCubeSource_h
+#define __vtkCubeSource_h
 
 #include "PolySrc.hh"
 
-class vlCubeSource : public vlPolySource 
+class vtkCubeSource : public vtkPolySource 
 {
 public:
-  vlCubeSource(float xL=1.0, float yL=1.0, float zL=1.0);
-  char *GetClassName() {return "vlCubeSource";};
-  void PrintSelf(ostream& os, vlIndent indent);
+  vtkCubeSource(float xL=1.0, float yL=1.0, float zL=1.0);
+  char *GetClassName() {return "vtkCubeSource";};
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Set the length of the cube in the x-direction.
-  vlSetClampMacro(XLength,float,0.0,LARGE_FLOAT);
-  vlGetMacro(XLength,float);
+  vtkSetClampMacro(XLength,float,0.0,LARGE_FLOAT);
+  vtkGetMacro(XLength,float);
 
   // Description:
   // Set the length of the cube in the y-direction.
-  vlSetClampMacro(YLength,float,0.0,LARGE_FLOAT);
-  vlGetMacro(YLength,float);
+  vtkSetClampMacro(YLength,float,0.0,LARGE_FLOAT);
+  vtkGetMacro(YLength,float);
 
   // Description:
   // Set the length of the cube in the z-direction.
-  vlSetClampMacro(ZLength,float,0.0,LARGE_FLOAT);
-  vlGetMacro(ZLength,float);
+  vtkSetClampMacro(ZLength,float,0.0,LARGE_FLOAT);
+  vtkGetMacro(ZLength,float);
 
   // Description:
   // Set the center of the cube.
-  vlSetVector3Macro(Center,float);
-  vlGetVectorMacro(Center,float,3);
+  vtkSetVector3Macro(Center,float);
+  vtkGetVectorMacro(Center,float,3);
 
   void SetBounds(float bounds[6]);
 

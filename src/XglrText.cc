@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    XglrText.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its
+This file is part of the Visualization Toolkit. No part of this file or its
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
@@ -19,11 +19,11 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "XglrText.hh"
 
 // shared increasing counter
-long vlXglrTexture::GlobalIndex = 0;
+long vtkXglrTexture::GlobalIndex = 0;
 
 // Description:
 // Initializes an instance, generates a unique index.
-vlXglrTexture::vlXglrTexture()
+vtkXglrTexture::vtkXglrTexture()
 {
   this->GlobalIndex++;
   this->Index = this->GlobalIndex;
@@ -31,14 +31,14 @@ vlXglrTexture::vlXglrTexture()
 
 // Description:
 // Implement base class method.
-void vlXglrTexture::Load(vlTexture *txt, vlRenderer *ren)
+void vtkXglrTexture::Load(vtkTexture *txt, vtkRenderer *ren)
 {
-  this->Load(txt, (vlXglrRenderer *)ren);
+  this->Load(txt, (vtkXglrRenderer *)ren);
 }
 
 // Description:
 // Actual Texture load method.
-void vlXglrTexture::Load(vlTexture *txt, vlXglrRenderer *ren)
+void vtkXglrTexture::Load(vtkTexture *txt, vtkXglrRenderer *ren)
 {
   // currently a nop
 }

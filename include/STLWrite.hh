@@ -1,28 +1,28 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    STLWrite.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-// .NAME vlSTLWriter - write stereo lithography files
+// .NAME vtkSTLWriter - write stereo lithography files
 // .SECTION Description
-// vlSTLWriter writes stereo lithography (.stl) files in either ASCII or 
+// vtkSTLWriter writes stereo lithography (.stl) files in either ASCII or 
 // binary form.
 // .SECTION Caveats
 // Binary files written on one system may not be readable on other systems.
-// vlSTLWriter uses VAX or PC byte ordering and swaps bytes on other systems.
+// vtkSTLWriter uses VAX or PC byte ordering and swaps bytes on other systems.
 
-#ifndef __vlSTLWriter_h
-#define __vlSTLWriter_h
+#ifndef __vtkSTLWriter_h
+#define __vtkSTLWriter_h
 
 #include <stdio.h>
 #include "Writer.hh"
@@ -31,27 +31,27 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #define STL_ASCII 0
 #define STL_BINARY 1
 
-class vlSTLWriter : public vlWriter
+class vtkSTLWriter : public vtkWriter
 {
 public:
-  vlSTLWriter();
-  ~vlSTLWriter();
-  char *GetClassName() {return "vlSTLWriter";};
-  void PrintSelf(ostream& os, vlIndent indent);
+  vtkSTLWriter();
+  ~vtkSTLWriter();
+  char *GetClassName() {return "vtkSTLWriter";};
+  void PrintSelf(ostream& os, vtkIndent indent);
 
-  void SetInput(vlPolyData *input);
-  void SetInput(vlPolyData &input) {this->SetInput(&input);};
-  vlPolyData *GetInput() {return (vlPolyData *)this->Input;};
+  void SetInput(vtkPolyData *input);
+  void SetInput(vtkPolyData &input) {this->SetInput(&input);};
+  vtkPolyData *GetInput() {return (vtkPolyData *)this->Input;};
                                
   // Description:
   // Specify the name of the file to write.
-  vlSetStringMacro(Filename);
-  vlGetStringMacro(Filename);
+  vtkSetStringMacro(Filename);
+  vtkGetStringMacro(Filename);
 
   // Description:
   // Specify type of file to write (ascii or binary).
-  vlSetClampMacro(WriteMode,int,STL_ASCII,STL_BINARY);
-  vlGetMacro(WriteMode,int);
+  vtkSetClampMacro(WriteMode,int,STL_ASCII,STL_BINARY);
+  vtkGetMacro(WriteMode,int);
 
 protected:
   void WriteData();
@@ -59,8 +59,8 @@ protected:
   char *Filename;
   int WriteMode;
 
-  void WriteBinarySTL(vlPoints *pts, vlCellArray *polys);
-  void WriteAsciiSTL(vlPoints *pts, vlCellArray *polys);
+  void WriteBinarySTL(vtkPoints *pts, vtkCellArray *polys);
+  void WriteAsciiSTL(vtkPoints *pts, vtkCellArray *polys);
 };
 
 #endif

@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    StrPts.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
@@ -19,7 +19,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "Pixel.hh"
 #include "Voxel.hh"
 
-vlStructuredPoints::vlStructuredPoints()
+vtkStructuredPoints::vtkStructuredPoints()
 {
   this->AspectRatio[0] = 1.0;
   this->AspectRatio[1] = 1.0;
@@ -30,8 +30,8 @@ vlStructuredPoints::vlStructuredPoints()
   this->Origin[2] = 0.0;
 }
 
-vlStructuredPoints::vlStructuredPoints(const vlStructuredPoints& v) :
-vlStructuredData(v)
+vtkStructuredPoints::vtkStructuredPoints(const vtkStructuredPoints& v) :
+vtkStructuredData(v)
 {
 
   this->AspectRatio[1] = v.AspectRatio[1];
@@ -42,17 +42,17 @@ vlStructuredData(v)
   this->Origin[2] = v.Origin[2];
 }
 
-vlStructuredPoints::~vlStructuredPoints()
+vtkStructuredPoints::~vtkStructuredPoints()
 {
 }
 
-vlCell *vlStructuredPoints::GetCell(int cellId)
+vtkCell *vtkStructuredPoints::GetCell(int cellId)
 {
-  static vlVertex vertex;
-  static vlLine line;
-  static vlPixel pixel;
-  static vlVoxel voxel;
-  static vlCell *cell;
+  static vtkVertex vertex;
+  static vtkLine line;
+  static vtkPixel pixel;
+  static vtkVoxel voxel;
+  static vtkCell *cell;
   int idx, loc[3], npts;
   int iMin, iMax, jMin, jMax, kMin, kMax;
   int d01 = this->Dimensions[0]*this->Dimensions[1];
@@ -145,7 +145,7 @@ vlCell *vlStructuredPoints::GetCell(int cellId)
   return cell;
 }
 
-float *vlStructuredPoints::GetPoint(int ptId)
+float *vtkStructuredPoints::GetPoint(int ptId)
 {
   static float x[3];
   int i, loc[3];
@@ -202,28 +202,28 @@ float *vlStructuredPoints::GetPoint(int ptId)
   return x;
 }
 
-unsigned long vlStructuredPoints::GetMtime()
+unsigned long vtkStructuredPoints::GetMtime()
 {
-  unsigned long dtime = this->vlDataSet::GetMTime();
-  unsigned long ftime = this->vlStructuredData::_GetMTime();
+  unsigned long dtime = this->vtkDataSet::GetMTime();
+  unsigned long ftime = this->vtkStructuredData::_GetMTime();
   return (dtime > ftime ? dtime : ftime);
 }
 
-void vlStructuredPoints::Initialize()
+void vtkStructuredPoints::Initialize()
 {
-  vlStructuredData::_Initialize();
+  vtkStructuredData::_Initialize();
 
   this->SetAspectRatio(1,1,1);
   this->SetOrigin(0,0,0);
 }
 
-int vlStructuredPoints::FindCell(float x[3], vlCell *cell, float tol2, 
+int vtkStructuredPoints::FindCell(float x[3], vtkCell *cell, float tol2, 
                                  int& subId, float pcoords[3],
                                  float weights[MAX_CELL_SIZE])
 {
   int i, loc[3];
   float d, floatLoc[3];
-  static vlVoxel voxel;
+  static vtkVoxel voxel;
 //
 //  Compute the ijk location
 //
@@ -250,29 +250,29 @@ int vlStructuredPoints::FindCell(float x[3], vlCell *cell, float tol2,
          loc[1] * (this->Dimensions[0]-1) + loc[0];
 }
 
-int vlStructuredPoints::GetCellType(int cellId)
+int vtkStructuredPoints::GetCellType(int cellId)
 {
   switch (this->DataDescription)
     {
     case SINGLE_POINT: 
-      return vlVERTEX;
+      return vtkVERTEX;
 
     case X_LINE: case Y_LINE: case Z_LINE:
-      return vlLINE;
+      return vtkLINE;
 
     case XY_PLANE: case YZ_PLANE: case XZ_PLANE:
-      return vlPIXEL;
+      return vtkPIXEL;
 
     case XYZ_GRID:
-      return vlVOXEL;
+      return vtkVOXEL;
 
     default:
-      vlErrorMacro(<<"Bad data description!");
-      return vlNULL_ELEMENT;
+      vtkErrorMacro(<<"Bad data description!");
+      return vtkNULL_ELEMENT;
     }
 }
 
-void vlStructuredPoints::ComputeBounds()
+void vtkStructuredPoints::ComputeBounds()
 {
   this->Bounds[0] = this->Origin[0];
   this->Bounds[2] = this->Origin[1];
@@ -294,8 +294,8 @@ void vlStructuredPoints::ComputeBounds()
 // volume where forward difference is used). The scalars s are the scalars
 // from which the gradient is to be computed. This method will treat 
 // only 3D structured point datasets (i.e., volumes).
-void vlStructuredPoints::GetVoxelGradient(int i, int j, int k, vlScalars *s, 
-                                          vlFloatVectors& g)
+void vtkStructuredPoints::GetVoxelGradient(int i, int j, int k, vtkScalars *s, 
+                                          vtkFloatVectors& g)
 {
   float gv[3];
   int ii, jj, kk, idx;
@@ -318,7 +318,7 @@ void vlStructuredPoints::GetVoxelGradient(int i, int j, int k, vlScalars *s,
 // dataset, compute the gradient vector from the scalar data at that point. 
 // The scalars s are the scalars from which the gradient is to be computed.
 // This method will treat structured point datasets of any dimension.
-void vlStructuredPoints::GetPointGradient(int i,int j,int k, vlScalars *s, 
+void vtkStructuredPoints::GetPointGradient(int i,int j,int k, vtkScalars *s, 
                                           float g[3])
 {
   int *dims=this->Dimensions;
@@ -399,9 +399,9 @@ void vlStructuredPoints::GetPointGradient(int i,int j,int k, vlScalars *s,
     }
 }
 
-void vlStructuredPoints::PrintSelf(ostream& os, vlIndent indent)
+void vtkStructuredPoints::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlDataSet::PrintSelf(os,indent);
+  vtkDataSet::PrintSelf(os,indent);
 
   os << indent << "Origin: (" << this->Origin[0] << ", "
                                   << this->Origin[1] << ", "

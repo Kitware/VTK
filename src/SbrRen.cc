@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    SbrRen.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its
+This file is part of the Visualization Toolkit. No part of this file or its
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
@@ -33,17 +33,17 @@ static char *lights[MAX_LIGHTS] =
 {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
 
-vlSbrRenderer::vlSbrRenderer()
+vtkSbrRenderer::vtkSbrRenderer()
 {
 }
 
 // Description:
 // Ask actors to build and draw themselves.
-int vlSbrRenderer::UpdateActors()
+int vtkSbrRenderer::UpdateActors()
 {
-  vlActor *anActor;
+  vtkActor *anActor;
   float visibility;
-  vlMatrix4x4 matrix;
+  vtkMatrix4x4 matrix;
   int count = 0;
  
   // loop through actors 
@@ -62,7 +62,7 @@ int vlSbrRenderer::UpdateActors()
       // insert model transformation 
       concat_transformation3d(this->Fd,(float (*)[4])(matrix[0]), PRE, PUSH);
 
-      anActor->Render((vlRenderer *)this);
+      anActor->Render((vtkRenderer *)this);
  
       pop_matrix(this->Fd);
       pop_matrix(this->Fd);
@@ -73,39 +73,39 @@ int vlSbrRenderer::UpdateActors()
 
 // Description:
 // Ask active camera to load its view matrix.
-int vlSbrRenderer::UpdateCameras ()
+int vtkSbrRenderer::UpdateCameras ()
 {
   // update the viewing transformation 
   if (!this->ActiveCamera) return 0;
   
-  this->ActiveCamera->Render((vlRenderer *)this);
+  this->ActiveCamera->Render((vtkRenderer *)this);
   return 1;
 }
 
 // Description:
 // Internal method temporarily removes lights before reloading them
 // into graphics pipeline.
-void vlSbrRenderer::ClearLights (void)
+void vtkSbrRenderer::ClearLights (void)
 {
   light_ambient(this->Fd, this->Ambient[0],
 		this->Ambient[1], this->Ambient[2]);
   this->LightSwitch = 0x0001;
   
-  vlDebugMacro(<< "SB_light_ambient: " << this->Ambient[0] << " " <<
+  vtkDebugMacro(<< "SB_light_ambient: " << this->Ambient[0] << " " <<
   this->Ambient[1] << " " << this->Ambient[2] << "\n");
   
   light_switch(this->Fd, this->LightSwitch);
  
-  vlDebugMacro( << " SB_light_switch: " << this->LightSwitch << "\n");
+  vtkDebugMacro( << " SB_light_switch: " << this->LightSwitch << "\n");
 
   this->NumberOfLightsBound = 1;
 }
 
 // Description:
 // Ask lights to load themselves into graphics pipeline.
-int vlSbrRenderer::UpdateLights ()
+int vtkSbrRenderer::UpdateLights ()
 {
-  vlLight *light;
+  vtkLight *light;
   short cur_light;
   float status;
   int count = 0;
@@ -121,7 +121,7 @@ int vlSbrRenderer::UpdateLights ()
     // also make sure we still have room.             
     if ((status > 0.0)&& (cur_light < MAX_LIGHTS))
       {
-      light->Render((vlRenderer *)this,cur_light);
+      light->Render((vtkRenderer *)this,cur_light);
       // increment the current light by one 
       cur_light++;
       count++;
@@ -143,9 +143,9 @@ int vlSbrRenderer::UpdateLights ()
  
 // Description:
 // Concrete starbase render method.
-void vlSbrRenderer::Render(void)
+void vtkSbrRenderer::Render(void)
 {
-  vlSbrRenderWindow *temp;
+  vtkSbrRenderWindow *temp;
 
   if (this->StartRenderMethod) 
     {
@@ -153,7 +153,7 @@ void vlSbrRenderer::Render(void)
     }
 
   // update our Fd first
-  temp = (vlSbrRenderWindow *)this->GetRenderWindow();
+  temp = (vtkSbrRenderWindow *)this->GetRenderWindow();
   this->Fd = temp->GetFd();
 
   // standard render method 
@@ -164,7 +164,7 @@ void vlSbrRenderer::Render(void)
 
   if (this->VolumeRenderer)
     {
-    this->VolumeRenderer->Render((vlRenderer *)this);
+    this->VolumeRenderer->Render((vtkRenderer *)this);
     }
 
   if (this->EndRenderMethod) 
@@ -175,39 +175,39 @@ void vlSbrRenderer::Render(void)
 
 // Description:
 // Create particular type of starbase geometry primitive.
-vlGeometryPrimitive *vlSbrRenderer::GetPrimitive(char *type)
+vtkGeometryPrimitive *vtkSbrRenderer::GetPrimitive(char *type)
 {
-  vlGeometryPrimitive *prim;
+  vtkGeometryPrimitive *prim;
 
   if (!strcmp(type,"polygons"))
       {
-      prim = new vlSbrPolygons;
-      return (vlGeometryPrimitive *)prim;
+      prim = new vtkSbrPolygons;
+      return (vtkGeometryPrimitive *)prim;
       }
 
   if (!strcmp(type,"triangle_strips"))
       {
-      prim = new vlSbrTriangleMesh;
-      return (vlGeometryPrimitive *)prim;
+      prim = new vtkSbrTriangleMesh;
+      return (vtkGeometryPrimitive *)prim;
       }
   if (!strcmp(type,"lines"))
       {
-      prim = new vlSbrLines;
-      return (vlGeometryPrimitive *)prim;
+      prim = new vtkSbrLines;
+      return (vtkGeometryPrimitive *)prim;
       }
   if (!strcmp(type,"points"))
       {
-      prim = new vlSbrPoints;
-      return (vlGeometryPrimitive *)prim;
+      prim = new vtkSbrPoints;
+      return (vtkGeometryPrimitive *)prim;
       }
 
-  return((vlGeometryPrimitive *)NULL);
+  return((vtkGeometryPrimitive *)NULL);
 }
 
 
 // Description:
 // Return center of renderer in display coordinates.
-float *vlSbrRenderer::GetCenter()
+float *vtkSbrRenderer::GetCenter()
 {
   int *size;
   
@@ -251,7 +251,7 @@ float *vlSbrRenderer::GetCenter()
 
 // Description:
 // Convert display coordinates to view coordinates.
-void vlSbrRenderer::DisplayToView()
+void vtkSbrRenderer::DisplayToView()
 {
   float vx,vy,vz;
   int sizex,sizey;
@@ -300,7 +300,7 @@ void vlSbrRenderer::DisplayToView()
 
 // Description:
 // Convert view coordinates to display coordinates.
-void vlSbrRenderer::ViewToDisplay()
+void vtkSbrRenderer::ViewToDisplay()
 {
   int dx,dy;
   int sizex,sizey;
@@ -353,7 +353,7 @@ void vlSbrRenderer::ViewToDisplay()
 
 // Description:
 // Is a given display point in this renderer's viewport.
-int vlSbrRenderer::IsInViewport(int x,int y)
+int vtkSbrRenderer::IsInViewport(int x,int y)
 {
   int *size;
   
@@ -405,9 +405,9 @@ int vlSbrRenderer::IsInViewport(int x,int y)
   return 0;
 }
 
-void vlSbrRenderer::PrintSelf(ostream& os, vlIndent indent)
+void vtkSbrRenderer::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->vlRenderer::PrintSelf(os,indent);
+  this->vtkRenderer::PrintSelf(os,indent);
 
   os << indent << "Number Of Lights Bound: " << 
     this->NumberOfLightsBound << "\n";

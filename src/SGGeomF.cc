@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    SGGeomF.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
@@ -17,7 +17,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 // Description:
 // Construct with initial extent (0,100, 0,100, 0,0) (i.e., a plane).
-vlStructuredGridGeometryFilter::vlStructuredGridGeometryFilter()
+vtkStructuredGridGeometryFilter::vtkStructuredGridGeometryFilter()
 {
   this->Extent[0] = 0;
   this->Extent[1] = 100;
@@ -27,22 +27,22 @@ vlStructuredGridGeometryFilter::vlStructuredGridGeometryFilter()
   this->Extent[5] = 0;
 }
 
-void vlStructuredGridGeometryFilter::Execute()
+void vtkStructuredGridGeometryFilter::Execute()
 {
-  vlPointData *pd;
+  vtkPointData *pd;
   int *dims, dimension, dir[3], diff[3];
   int i, j, k, extent[6];
   int ptIds[4], idx, startIdx;
-  vlFloatPoints *newPts=0;
-  vlCellArray *newVerts=0;
-  vlCellArray *newLines=0;
-  vlCellArray *newPolys=0;
+  vtkFloatPoints *newPts=0;
+  vtkCellArray *newVerts=0;
+  vtkCellArray *newLines=0;
+  vtkCellArray *newPolys=0;
   int totPoints, numPolys;
   int offset[3], pos;
   float *x;
-  vlStructuredGrid *input=(vlStructuredGrid *)this->Input;
+  vtkStructuredGrid *input=(vtkStructuredGrid *)this->Input;
 
-  vlDebugMacro(<< "Extracting structured points geometry");
+  vtkDebugMacro(<< "Extracting structured points geometry");
   this->Initialize();
 
   pd = input->GetPointData();
@@ -74,8 +74,8 @@ void vlStructuredGridGeometryFilter::Execute()
 
       if ( input->IsPointVisible(startIdx) )
         {
-        newPts = new vlFloatPoints(1);
-        newVerts = new vlCellArray;
+        newPts = new vtkFloatPoints(1);
+        newVerts = new vtkCellArray;
         newVerts->Allocate(newVerts->EstimateSize(1,1));
         this->PointData.CopyAllocate(pd,1);
 
@@ -96,8 +96,8 @@ void vlStructuredGridGeometryFilter::Execute()
           break;
           }
         }
-      newPts = new vlFloatPoints(totPoints);
-      newLines = new vlCellArray;
+      newPts = new vtkFloatPoints(totPoints);
+      newLines = new vtkCellArray;
       newLines->Allocate(newLines->EstimateSize(totPoints-1,2));
       this->PointData.CopyAllocate(pd,totPoints);
 //
@@ -144,8 +144,8 @@ void vlStructuredGridGeometryFilter::Execute()
       totPoints = (diff[dir[0]]+1) * (diff[dir[1]]+1);
       numPolys = diff[dir[0]]  * diff[dir[1]];
 
-      newPts = new vlFloatPoints(totPoints);
-      newPolys = new vlCellArray;
+      newPts = new vtkFloatPoints(totPoints);
+      newPolys = new vtkCellArray;
       newPolys->Allocate(newLines->EstimateSize(numPolys,4));
       this->PointData.CopyAllocate(pd,totPoints);
 //
@@ -206,8 +206,8 @@ void vlStructuredGridGeometryFilter::Execute()
 
       totPoints = (diff[0]+1) * (diff[1]+1) * (diff[2]+1);
 
-      newPts = new vlFloatPoints(totPoints);
-      newVerts = new vlCellArray;
+      newPts = new vtkFloatPoints(totPoints);
+      newVerts = new vtkCellArray;
       newVerts->Allocate(newVerts->EstimateSize(totPoints,1));
       this->PointData.CopyAllocate(pd,totPoints);
 //
@@ -245,7 +245,7 @@ void vlStructuredGridGeometryFilter::Execute()
   this->SetPolys(newPolys);
 }
 
-void vlStructuredGridGeometryFilter::SetExtent(int iMin, int iMax, int jMin, int jMax, 
+void vtkStructuredGridGeometryFilter::SetExtent(int iMin, int iMax, int jMin, int jMax, 
                                    int kMin, int kMax)
 {
   int extent[6];
@@ -262,7 +262,7 @@ void vlStructuredGridGeometryFilter::SetExtent(int iMin, int iMax, int jMin, int
 
 // Description:
 // Specify (imin,imax, jmin,jmax, kmin,kmax) indices.
-void vlStructuredGridGeometryFilter::SetExtent(int *extent)
+void vtkStructuredGridGeometryFilter::SetExtent(int *extent)
 {
   int i;
 
@@ -281,9 +281,9 @@ void vlStructuredGridGeometryFilter::SetExtent(int *extent)
     }
 }
 
-void vlStructuredGridGeometryFilter::PrintSelf(ostream& os, vlIndent indent)
+void vtkStructuredGridGeometryFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlStructuredGridToPolyFilter::PrintSelf(os,indent);
+  vtkStructuredGridToPolyFilter::PrintSelf(os,indent);
 
   os << indent << "Extent: \n";
   os << indent << "  Imin,Imax: (" << this->Extent[0] << ", " << this->Extent[1] << ")\n";

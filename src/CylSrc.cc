@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    CylSrc.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its 
+This file is part of the Visualization Toolkit. No part of this file or its 
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
@@ -22,7 +22,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "FNormals.hh"
 #include "FTCoords.hh"
 
-vlCylinderSource::vlCylinderSource (int res)
+vtkCylinderSource::vtkCylinderSource (int res)
 {
   this->Resolution = res;
   this->Height = 1.0;
@@ -30,7 +30,7 @@ vlCylinderSource::vlCylinderSource (int res)
   this->Capping = 1;
 }
 
-void vlCylinderSource::Execute()
+void vtkCylinderSource::Execute()
 {
   float angle= 2.0*3.141592654/this->Resolution;
   int numPolys, numPts;
@@ -38,10 +38,10 @@ void vlCylinderSource::Execute()
   float xtop[3], tctop[2], ntop[3];
   int i, idx;
   int pts[MAX_CELL_SIZE];
-  vlFloatPoints *newPoints; 
-  vlFloatNormals *newNormals;
-  vlFloatTCoords *newTCoords;
-  vlCellArray *newPolys;
+  vtkFloatPoints *newPoints; 
+  vtkFloatNormals *newNormals;
+  vtkFloatTCoords *newTCoords;
+  vtkCellArray *newPolys;
 //
 // Set things up; allocate memory
 //
@@ -58,11 +58,11 @@ void vlCylinderSource::Execute()
     numPolys = this->Resolution;
     }
 
-  newPoints = new vlFloatPoints(numPts);
-  newNormals = new vlFloatNormals(numPts);
-  newTCoords = new vlFloatTCoords(numPts,2);
+  newPoints = new vtkFloatPoints(numPts);
+  newNormals = new vtkFloatNormals(numPts);
+  newTCoords = new vtkFloatTCoords(numPts,2);
 
-  newPolys = new vlCellArray;
+  newPolys = new vtkCellArray;
   newPolys->Allocate(newPolys->EstimateSize(numPolys,this->Resolution));
 //
 // Generate points and point data for sides
@@ -160,9 +160,9 @@ void vlCylinderSource::Execute()
   this->SetPolys(newPolys);
 }
 
-void vlCylinderSource::PrintSelf(ostream& os, vlIndent indent)
+void vtkCylinderSource::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlPolySource::PrintSelf(os,indent);
+  vtkPolySource::PrintSelf(os,indent);
 
   os << indent << "Resolution: " << this->Resolution << "\n";
   os << indent << "Height: " << this->Height << "\n";

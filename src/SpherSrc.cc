@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    SpherSrc.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its 
+This file is part of the Visualization Toolkit. No part of this file or its 
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
@@ -17,11 +17,11 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "SpherSrc.hh"
 #include "FPoints.hh"
 #include "FNormals.hh"
-#include "vlMath.hh"
+#include "vtkMath.hh"
 
 // Description:
 // Construct sphere with radius=0.5.
-vlSphereSource::vlSphereSource(int res)
+vtkSphereSource::vtkSphereSource(int res)
 {
   res = res < 4 ? 4 : res;
   this->Radius = 0.5;
@@ -29,17 +29,17 @@ vlSphereSource::vlSphereSource(int res)
   this->PhiResolution = res;
 }
 
-void vlSphereSource::Execute()
+void vtkSphereSource::Execute()
 {
   int i, j;
   int numPts;
   int numPolys;
-  vlFloatPoints *newPoints; 
-  vlFloatNormals *newNormals;
-  vlCellArray *newPolys;
+  vtkFloatPoints *newPoints; 
+  vtkFloatNormals *newNormals;
+  vtkCellArray *newPolys;
   float x[3], deltaPhi, deltaTheta, phi, theta, radius, norm;
   int pts[3], base;
-  vlMath math;
+  vtkMath math;
 //
 // Set things up; allocate memory
 //
@@ -49,9 +49,9 @@ void vlSphereSource::Execute()
   // creating triangles
   numPolys = (this->PhiResolution - 1) * 2 * this->ThetaResolution;
 
-  newPoints = new vlFloatPoints(numPts);
-  newNormals = new vlFloatNormals(numPts);
-  newPolys = new vlCellArray;
+  newPoints = new vtkFloatPoints(numPts);
+  newNormals = new vtkFloatNormals(numPts);
+  newPolys = new vtkCellArray;
   newPolys->Allocate(newPolys->EstimateSize(numPolys,3));
 //
 // Create sphere
@@ -130,9 +130,9 @@ void vlSphereSource::Execute()
   this->SetPolys(newPolys);
 }
 
-void vlSphereSource::PrintSelf(ostream& os, vlIndent indent)
+void vtkSphereSource::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlPolySource::PrintSelf(os,indent);
+  vtkPolySource::PrintSelf(os,indent);
 
   os << indent << "Theta Resolution: " << this->ThetaResolution << "\n";
   os << indent << "Phi Resolution: " << this->PhiResolution << "\n";

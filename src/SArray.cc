@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    SArray.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
@@ -17,7 +17,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 // Description:
 // Allocate memory for this array. Delete old storage if present.
-int vlShortArray::Allocate(const int sz, const int ext)
+int vtkShortArray::Allocate(const int sz, const int ext)
 {
   if ( this->Array != NULL ) delete [] this->Array;
 
@@ -31,7 +31,7 @@ int vlShortArray::Allocate(const int sz, const int ext)
 
 // Description:
 // Release storage and reset array to initial state.
-void vlShortArray::Initialize()
+void vtkShortArray::Initialize()
 {
   if ( this->Array != NULL )
     {
@@ -44,7 +44,7 @@ void vlShortArray::Initialize()
 
 // Description:
 // Construct with specified storage size and extend value.
-vlShortArray::vlShortArray(const int sz, const int ext)
+vtkShortArray::vtkShortArray(const int sz, const int ext)
 {
   this->Size = ( sz > 0 ? sz : 1);
   this->Array = new short[this->Size];
@@ -52,14 +52,14 @@ vlShortArray::vlShortArray(const int sz, const int ext)
   this->MaxId = -1;
 }
 
-vlShortArray::~vlShortArray()
+vtkShortArray::~vtkShortArray()
 {
   delete [] this->Array;
 }
 
 // Description:
 // Construct array from another array. Copy each element of other array.
-vlShortArray::vlShortArray(const vlShortArray& sa)
+vtkShortArray::vtkShortArray(const vtkShortArray& sa)
 {
   int i;
 
@@ -75,7 +75,7 @@ vlShortArray::vlShortArray(const vlShortArray& sa)
 
 // Description:
 // Deep copy of another array.
-vlShortArray& vlShortArray::operator=(const vlShortArray& sa)
+vtkShortArray& vtkShortArray::operator=(const vtkShortArray& sa)
 {
   int i;
 
@@ -96,7 +96,7 @@ vlShortArray& vlShortArray::operator=(const vlShortArray& sa)
 
 // Description:
 // Append one array onto the end of this array.
-void vlShortArray::operator+=(const vlShortArray& sa)
+void vtkShortArray::operator+=(const vtkShortArray& sa)
 {
   int i, sz;
 
@@ -109,9 +109,9 @@ void vlShortArray::operator+=(const vlShortArray& sa)
   this->MaxId += sa.MaxId + 1;
 }
 
-void vlShortArray::PrintSelf(ostream& os, vlIndent indent)
+void vtkShortArray::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlObject::PrintSelf(os,indent);
+  vtkObject::PrintSelf(os,indent);
 
   os << indent << "Array: " << this->Array << "\n";
   os << indent << "Size: " << this->Size << "\n";
@@ -122,7 +122,7 @@ void vlShortArray::PrintSelf(ostream& os, vlIndent indent)
 //
 // Private function does "reallocate"
 //
-short *vlShortArray::Resize(const int sz)
+short *vtkShortArray::Resize(const int sz)
 {
   short *newArray;
   int newSize;
@@ -133,7 +133,7 @@ short *vlShortArray::Resize(const int sz)
 
   if ( (newArray = new short[newSize]) == NULL )
     {
-    vlErrorMacro(<< "Cannot allocate memory\n");
+    vtkErrorMacro(<< "Cannot allocate memory\n");
     return 0;
     }
 

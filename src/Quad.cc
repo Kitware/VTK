@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    Quad.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
@@ -16,18 +16,18 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "Quad.hh"
 #include "Polygon.hh"
 #include "Plane.hh"
-#include "vlMath.hh"
+#include "vtkMath.hh"
 #include "CellArr.hh"
 #include "Line.hh"
 
-static vlMath math;
-static vlPolygon poly;
-static vlPlane plane;
-static vlLine line;
+static vtkMath math;
+static vtkPolygon poly;
+static vtkPlane plane;
+static vtkLine line;
 
 // Description:
 // Deep copy of cell.
-vlQuad::vlQuad(const vlQuad& q)
+vtkQuad::vtkQuad(const vtkQuad& q)
 {
   this->Points = q.Points;
   this->PointIds = q.PointIds;
@@ -36,7 +36,7 @@ vlQuad::vlQuad(const vlQuad& q)
 #define MAX_ITERATION 10
 #define CONVERGED 1.e-03
 
-int vlQuad::EvaluatePosition(float x[3], float closestPoint[3],
+int vtkQuad::EvaluatePosition(float x[3], float closestPoint[3],
                              int& subId, float pcoords[3], 
                              float& dist2, float weights[MAX_CELL_SIZE])
 {
@@ -49,7 +49,7 @@ int vlQuad::EvaluatePosition(float x[3], float closestPoint[3],
   float  params[2];
   float  fcol[2], rcol[3], scol[3];
   float derivs[8];
-  vlLine *aLine;
+  vtkLine *aLine;
   int edge;
 
   subId = 0;
@@ -170,14 +170,14 @@ int vlQuad::EvaluatePosition(float x[3], float closestPoint[3],
       else if (pcoords[1] < 0.0) edge = 0;
       else if (pcoords[1] > 1.0) edge = 2;
 
-      aLine = (vlLine *) this->GetEdge (edge);
+      aLine = (vtkLine *) this->GetEdge (edge);
       aLine->EvaluatePosition (x, closestPoint, subId, pcoords, dist2, weights);
       return 0;
       }
     }
 }
 
-void vlQuad::EvaluateLocation(int& subId, float pcoords[3], float x[3],
+void vtkQuad::EvaluateLocation(int& subId, float pcoords[3], float x[3],
                               float weights[MAX_CELL_SIZE])
 {
   int i, j;
@@ -199,7 +199,7 @@ void vlQuad::EvaluateLocation(int& subId, float pcoords[3], float x[3],
 //
 // Compute iso-parametrix interpolation functions
 //
-void vlQuad::InterpolationFunctions(float pcoords[3], float sf[4])
+void vtkQuad::InterpolationFunctions(float pcoords[3], float sf[4])
 {
   double rm, sm;
 
@@ -212,7 +212,7 @@ void vlQuad::InterpolationFunctions(float pcoords[3], float sf[4])
   sf[3] = rm * pcoords[1];
 }
 
-void vlQuad::InterpolationDerivs(float pcoords[3], float derivs[8])
+void vtkQuad::InterpolationDerivs(float pcoords[3], float derivs[8])
 {
   double rm, sm;
 
@@ -229,7 +229,7 @@ void vlQuad::InterpolationDerivs(float pcoords[3], float derivs[8])
   derivs[7] = rm;
 }
 
-int vlQuad::CellBoundary(int subId, float pcoords[3], vlIdList& pts)
+int vtkQuad::CellBoundary(int subId, float pcoords[3], vtkIdList& pts)
 {
   float t1=pcoords[0]-pcoords[1];
   float t2=1.0-pcoords[0]-pcoords[1];
@@ -298,10 +298,10 @@ static LINE_CASES lineCases[] = {
   {-1, -1, -1, -1, -1}
 };
 
-void vlQuad::Contour(float value, vlFloatScalars *cellScalars, 
-                     vlFloatPoints *points, vlCellArray *verts, 
-                     vlCellArray *lines, vlCellArray *polys, 
-                     vlFloatScalars *scalars)
+void vtkQuad::Contour(float value, vtkFloatScalars *cellScalars, 
+                     vtkFloatPoints *points, vtkCellArray *verts, 
+                     vtkCellArray *lines, vtkCellArray *polys, 
+                     vtkFloatScalars *scalars)
 {
   static int CASE_MASK[4] = {1,2,4,8};
   LINE_CASES *lineCase;
@@ -336,7 +336,7 @@ void vlQuad::Contour(float value, vlFloatScalars *cellScalars,
 }
 
 
-vlCell *vlQuad::GetEdge(int edgeId)
+vtkCell *vtkQuad::GetEdge(int edgeId)
 {
 
   // load point id's
@@ -353,7 +353,7 @@ vlCell *vlQuad::GetEdge(int edgeId)
 // 
 // Intersect plane; see whether point is in quadrilateral.
 //
-int vlQuad::IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
+int vtkQuad::IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
                               float x[3], float pcoords[3], int& subId)
 {
   float *pt1, *pt2, *pt3, n[3];

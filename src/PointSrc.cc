@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    PointSrc.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its 
+This file is part of the Visualization Toolkit. No part of this file or its 
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
@@ -14,9 +14,9 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
 #include "PointSrc.hh"
-#include "vlMath.hh"
+#include "vtkMath.hh"
 
-vlPointSource::vlPointSource(int numPts)
+vtkPointSource::vtkPointSource(int numPts)
 {
   this->NumberOfPoints = (numPts > 0 ? numPts : 10);
 
@@ -27,19 +27,19 @@ vlPointSource::vlPointSource(int numPts)
   this->Radius = 0.5;
 }
 
-void vlPointSource::Execute()
+void vtkPointSource::Execute()
 {
   int i;
   float radius, theta, phi, x[3], rho;
-  vlFloatPoints *newPoints;
-  vlCellArray *newVerts;
-  vlMath math;
+  vtkFloatPoints *newPoints;
+  vtkCellArray *newVerts;
+  vtkMath math;
 
-  vlDebugMacro(<< "Executing Brownian filter");
+  vtkDebugMacro(<< "Executing Brownian filter");
   this->Initialize();
 
-  newPoints = new vlFloatPoints(this->NumberOfPoints);
-  newVerts = new vlCellArray;
+  newPoints = new vtkFloatPoints(this->NumberOfPoints);
+  newVerts = new vtkCellArray;
   newVerts->Allocate(newVerts->EstimateSize(1,this->NumberOfPoints));
 
   newVerts->InsertNextCell(this->NumberOfPoints);
@@ -61,9 +61,9 @@ void vlPointSource::Execute()
   this->SetVerts(newVerts);
 }
 
-void vlPointSource::PrintSelf(ostream& os, vlIndent indent)
+void vtkPointSource::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlPolySource::PrintSelf(os,indent);
+  vtkPolySource::PrintSelf(os,indent);
 
   os << indent << "Number Of Points: " << this->NumberOfPoints << "\n";
   os << indent << "Radius: " << this->Radius << "\n";

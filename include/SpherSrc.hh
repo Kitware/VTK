@@ -1,64 +1,64 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    SpherSrc.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its 
+This file is part of the Visualization Toolkit. No part of this file or its 
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-// .NAME vlSphereSource - create a sphere centered at the origin
+// .NAME vtkSphereSource - create a sphere centered at the origin
 // .SECTION Description
-// vlSphereSource creates a polygonal sphere of specified radius centered 
+// vtkSphereSource creates a polygonal sphere of specified radius centered 
 // at the origin. The resolution (polygonal discretization) in both the
 // latitude (phi) and longitude (theta) diections can be specified. It is
 // also possible to create partial spheres by specifying maximum phi
 // and theta angles.
 
-#ifndef __vlSphereSource_h
-#define __vlSphereSource_h
+#ifndef __vtkSphereSource_h
+#define __vtkSphereSource_h
 
 #include "PolySrc.hh"
 
 #define MAX_SPHERE_RESOLUTION 1024
 
-class vlSphereSource : public vlPolySource 
+class vtkSphereSource : public vtkPolySource 
 {
 public:
-  vlSphereSource(int res=8);
-  char *GetClassName() {return "vlSphereSource";};
-  void PrintSelf(ostream& os, vlIndent indent);
+  vtkSphereSource(int res=8);
+  char *GetClassName() {return "vtkSphereSource";};
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Set radius of sphere.
-  vlSetClampMacro(Radius,float,0.0,LARGE_FLOAT);
-  vlGetMacro(Radius,float);
+  vtkSetClampMacro(Radius,float,0.0,LARGE_FLOAT);
+  vtkGetMacro(Radius,float);
 
   // Description:
   // Set the number of points in the longitude direction.
-  vlSetClampMacro(ThetaResolution,int,4,MAX_SPHERE_RESOLUTION);
-  vlGetMacro(ThetaResolution,int);
+  vtkSetClampMacro(ThetaResolution,int,4,MAX_SPHERE_RESOLUTION);
+  vtkGetMacro(ThetaResolution,int);
 
   // Description:
   // Set the number of points in the latitude direction.
-  vlSetClampMacro(PhiResolution,int,4,MAX_SPHERE_RESOLUTION);
-  vlGetMacro(PhiResolution,int);
+  vtkSetClampMacro(PhiResolution,int,4,MAX_SPHERE_RESOLUTION);
+  vtkGetMacro(PhiResolution,int);
 
   // Description:
   // Set the maximum longitude angle.
-  vlSetClampMacro(Theta,float,0.0,360.0);
-  vlGetMacro(Theta,float);
+  vtkSetClampMacro(Theta,float,0.0,360.0);
+  vtkGetMacro(Theta,float);
 
   // Description:
   // Set the maximum latitude angle (0 is at north pole).
-  vlSetClampMacro(Phi,float,0.0,180.0);
-  vlGetMacro(Phi,float);
+  vtkSetClampMacro(Phi,float,0.0,180.0);
+  vtkGetMacro(Phi,float);
 
 protected:
   void Execute();

@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    PtS2PtSF.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
@@ -16,70 +16,70 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "PtS2PtSF.hh"
 #include "PolyData.hh"
 
-vlPointSetToPointSetFilter::vlPointSetToPointSetFilter()
+vtkPointSetToPointSetFilter::vtkPointSetToPointSetFilter()
 {
   // prevents dangling reference to PointSet
-  this->PointSet = new vlPolyData;
+  this->PointSet = new vtkPolyData;
 }
 
-vlPointSetToPointSetFilter::~vlPointSetToPointSetFilter()
+vtkPointSetToPointSetFilter::~vtkPointSetToPointSetFilter()
 {
   delete this->PointSet;
 }
 
-vlDataSet* vlPointSetToPointSetFilter::MakeObject()
+vtkDataSet* vtkPointSetToPointSetFilter::MakeObject()
 {
-  vlPointSetToPointSetFilter *o = new vlPointSetToPointSetFilter();
+  vtkPointSetToPointSetFilter *o = new vtkPointSetToPointSetFilter();
   o->PointSet = this->PointSet;
   o->SetPoints(this->GetPoints());
   return o;
 }
 
-void vlPointSetToPointSetFilter::Modified()
+void vtkPointSetToPointSetFilter::Modified()
 {
-  this->vlPointSet::Modified();
-  this->vlPointSetFilter::_Modified();
+  this->vtkPointSet::Modified();
+  this->vtkPointSetFilter::_Modified();
 }
 
-unsigned long int vlPointSetToPointSetFilter::GetMTime()
+unsigned long int vtkPointSetToPointSetFilter::GetMTime()
 {
-  unsigned long dtime = this->vlPointSet::GetMTime();
-  unsigned long ftime = this->vlPointSetFilter::_GetMTime();
+  unsigned long dtime = this->vtkPointSet::GetMTime();
+  unsigned long ftime = this->vtkPointSetFilter::_GetMTime();
   return (dtime > ftime ? dtime : ftime);
 }
 
-void vlPointSetToPointSetFilter::DebugOn()
+void vtkPointSetToPointSetFilter::DebugOn()
 {
-  vlPointSet::DebugOn();
-  vlPointSetFilter::_DebugOn();
+  vtkPointSet::DebugOn();
+  vtkPointSetFilter::_DebugOn();
 }
 
-void vlPointSetToPointSetFilter::DebugOff()
+void vtkPointSetToPointSetFilter::DebugOff()
 {
-  vlPointSet::DebugOff();
-  vlPointSetFilter::_DebugOff();
+  vtkPointSet::DebugOff();
+  vtkPointSetFilter::_DebugOff();
 }
 
-int vlPointSetToPointSetFilter::GetDataReleased()
+int vtkPointSetToPointSetFilter::GetDataReleased()
 {
   return this->DataReleased;
 }
 
-void vlPointSetToPointSetFilter::SetDataReleased(int flag)
+void vtkPointSetToPointSetFilter::SetDataReleased(int flag)
 {
   this->DataReleased = flag;
 }
 
-void vlPointSetToPointSetFilter::Update()
+void vtkPointSetToPointSetFilter::Update()
 {
   this->UpdateFilter();
 }
 
-void vlPointSetToPointSetFilter::Initialize()
+void vtkPointSetToPointSetFilter::Initialize()
 {
   if ( this->Input != NULL )
     {
-    vlDataSet *ds=this->Input->MakeObject();
+    vtkDataSet *ds=this->Input->MakeObject();
     delete this->PointSet;
     // copies input geometry to internal data set
     this->PointSet = ds;
@@ -90,7 +90,7 @@ void vlPointSetToPointSetFilter::Initialize()
     }
 }
 
-void vlPointSetToPointSetFilter::ComputeBounds()
+void vtkPointSetToPointSetFilter::ComputeBounds()
 {
   if ( this->Points != NULL )
     {
@@ -100,10 +100,10 @@ void vlPointSetToPointSetFilter::ComputeBounds()
     }
 };
 
-void vlPointSetToPointSetFilter::PrintSelf(ostream& os, vlIndent indent)
+void vtkPointSetToPointSetFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlPointSet::PrintSelf(os,indent);
-  vlPointSetFilter::_PrintSelf(os,indent);
+  vtkPointSet::PrintSelf(os,indent);
+  vtkPointSetFilter::_PrintSelf(os,indent);
 
   if ( this->PointSet )
     {

@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    FeatVert.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
@@ -14,12 +14,12 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
 #include "FeatVert.hh"
-#include "vlMath.hh"
+#include "vtkMath.hh"
 
 // Description:
 // Construct object with feature angle = 30; all types of vertices extracted
 // and colored.
-vlFeatureVertices::vlFeatureVertices()
+vtkFeatureVertices::vtkFeatureVertices()
 {
   this->FeatureAngle = 30.0;
   this->BoundaryVertices = 1;
@@ -29,25 +29,25 @@ vlFeatureVertices::vlFeatureVertices()
 }
 
 // Generate feature vertices for mesh
-void vlFeatureVertices::Execute()
+void vtkFeatureVertices::Execute()
 {
-  vlPolyData *input=(vlPolyData *)this->Input;
-  vlPoints *inPts;
-  vlFloatPoints *newPts;
-  vlFloatScalars *newScalars;
-  vlCellArray *newVerts;
-  vlPolyData Mesh;
+  vtkPolyData *input=(vtkPolyData *)this->Input;
+  vtkPoints *inPts;
+  vtkFloatPoints *newPts;
+  vtkFloatScalars *newScalars;
+  vtkCellArray *newVerts;
+  vtkPolyData Mesh;
   int i, j, numCells, cellId, numPts;
   int numBVertices, numNonManifoldVertices, numFvertices;
   float scalar, *x1, x[3], xPrev[3], xNext[3], cosAngle;
   float vPrev[3], vNext[3];
-  vlMath math;
+  vtkMath math;
   int vertId[1];
   int npts, *pts;
-  vlCellArray *inLines;
-  vlIdList cells(MAX_CELL_SIZE);
+  vtkCellArray *inLines;
+  vtkIdList cells(MAX_CELL_SIZE);
 
-  vlDebugMacro(<<"Executing feature vertices");
+  vtkDebugMacro(<<"Executing feature vertices");
   this->Initialize();
 //
 //  Check input
@@ -56,13 +56,13 @@ void vlFeatureVertices::Execute()
   (inPts=input->GetPoints()) == NULL || 
   (inLines=input->GetPolys()) == NULL )
     {
-    vlErrorMacro(<<"No input data!");
+    vtkErrorMacro(<<"No input data!");
     return;
     }
 
   if ( !this->BoundaryVertices && !this->NonManifoldVertices && !this->FeatureVertices) 
     {
-    vlWarningMacro(<<"All vertex types turned off!");
+    vtkWarningMacro(<<"All vertex types turned off!");
     return;
     }
 
@@ -73,9 +73,9 @@ void vlFeatureVertices::Execute()
 //
 //  Allocate storage for lines/points
 //
-  newPts = new vlFloatPoints(numPts/10,numPts); // arbitrary allocations size 
-  newScalars = new vlFloatScalars(numPts/10,numPts);
-  newVerts = new vlCellArray(numPts/10);
+  newPts = new vtkFloatPoints(numPts/10,numPts); // arbitrary allocations size 
+  newScalars = new vtkFloatScalars(numPts/10,numPts);
+  newVerts = new vtkCellArray(numPts/10);
 //
 //  Loop over all lines generating boundary, non-manifold, and feature vertices
 //
@@ -145,7 +145,7 @@ void vlFeatureVertices::Execute()
       }
     }
 
-  vlDebugMacro(<<"Created " << numBVertices << " boundary vertices, " <<
+  vtkDebugMacro(<<"Created " << numBVertices << " boundary vertices, " <<
                numNonManifoldVertices << " non-manifold vertices, " <<
                numFvertices << " feature vertices");
 
@@ -160,9 +160,9 @@ void vlFeatureVertices::Execute()
     delete newScalars;
 }
 
-void vlFeatureVertices::PrintSelf(ostream& os, vlIndent indent)
+void vtkFeatureVertices::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlPolyToPolyFilter::PrintSelf(os,indent);
+  vtkPolyToPolyFilter::PrintSelf(os,indent);
 
   os << indent << "Feature Angle: " << this->FeatureAngle << "\n";
   os << indent << "Boundary Vertices: " << (this->BoundaryVertices ? "On\n" : "Off\n");

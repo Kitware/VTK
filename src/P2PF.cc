@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    P2PF.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its 
+This file is part of the Visualization Toolkit. No part of this file or its 
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
@@ -15,50 +15,50 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 =========================================================================*/
 #include "P2PF.hh"
 
-void vlPolyToPolyFilter::Modified()
+void vtkPolyToPolyFilter::Modified()
 {
-  this->vlPolyData::Modified();
-  this->vlPolyFilter::_Modified();
+  this->vtkPolyData::Modified();
+  this->vtkPolyFilter::_Modified();
 }
 
-unsigned long int vlPolyToPolyFilter::GetMTime()
+unsigned long int vtkPolyToPolyFilter::GetMTime()
 {
-  unsigned long dtime = this->vlPolyData::GetMTime();
-  unsigned long ftime = this->vlPolyFilter::_GetMTime();
+  unsigned long dtime = this->vtkPolyData::GetMTime();
+  unsigned long ftime = this->vtkPolyFilter::_GetMTime();
   return (dtime > ftime ? dtime : ftime);
 }
 
-void vlPolyToPolyFilter::Update()
+void vtkPolyToPolyFilter::Update()
 {
   this->UpdateFilter();
 }
 
-void vlPolyToPolyFilter::DebugOn()
+void vtkPolyToPolyFilter::DebugOn()
 {
-  vlPolyData::DebugOn();
-  vlPolyFilter::_DebugOn();
+  vtkPolyData::DebugOn();
+  vtkPolyFilter::_DebugOn();
 }
 
-void vlPolyToPolyFilter::DebugOff()
+void vtkPolyToPolyFilter::DebugOff()
 {
-  vlPolyData::DebugOff();
-  vlPolyFilter::_DebugOff();
+  vtkPolyData::DebugOff();
+  vtkPolyFilter::_DebugOff();
 }
 
-int vlPolyToPolyFilter::GetDataReleased()
+int vtkPolyToPolyFilter::GetDataReleased()
 {
   return this->DataReleased;
 }
 
-void vlPolyToPolyFilter::SetDataReleased(int flag)
+void vtkPolyToPolyFilter::SetDataReleased(int flag)
 {
   this->DataReleased = flag;
 }
 
-void vlPolyToPolyFilter::PrintSelf(ostream& os, vlIndent indent)
+void vtkPolyToPolyFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlPolyData::PrintSelf(os,indent);
-  vlPolyFilter::_PrintSelf(os,indent);
+  vtkPolyData::PrintSelf(os,indent);
+  vtkPolyFilter::_PrintSelf(os,indent);
 }
 
 

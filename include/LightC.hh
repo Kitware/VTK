@@ -1,68 +1,68 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    LightC.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its
+This file is part of the Visualization Toolkit. No part of this file or its
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
-// .NAME vlLightCollection - a list of lights
+// .NAME vtkLightCollection - a list of lights
 // .SECTION Description
-// vlLightCollection represents and provides methods to manipulate list of
-// lights (i.e., vlLight and subclasses). The list is unsorted and duplicate
+// vtkLightCollection represents and provides methods to manipulate list of
+// lights (i.e., vtkLight and subclasses). The list is unsorted and duplicate
 // entries are not prevented.
 
-#ifndef __vlLightC_hh
-#define __vlLightC_hh
+#ifndef __vtkLightC_hh
+#define __vtkLightC_hh
 
 #include "Collect.hh"
 #include "Light.hh"
 
-class vlLightCollection : public vlCollection
+class vtkLightCollection : public vtkCollection
 {
  public:
-  char *GetClassName() {return "vlLightCollection";};
+  char *GetClassName() {return "vtkLightCollection";};
 
-  void AddItem(vlLight *a);
-  void RemoveItem(vlLight *a);
-  int IsItemPresent(vlLight *a);
-  vlLight *GetNextItem();
+  void AddItem(vtkLight *a);
+  void RemoveItem(vtkLight *a);
+  int IsItemPresent(vtkLight *a);
+  vtkLight *GetNextItem();
 };
 
 // Description:
 // Add an light to the list.
-inline void vlLightCollection::AddItem(vlLight *a) 
+inline void vtkLightCollection::AddItem(vtkLight *a) 
 {
-  this->vlCollection::AddItem((vlObject *)a);
+  this->vtkCollection::AddItem((vtkObject *)a);
 }
 
 // Description:
 // Remove an light from the list.
-inline void vlLightCollection::RemoveItem(vlLight *a) 
+inline void vtkLightCollection::RemoveItem(vtkLight *a) 
 {
-  this->vlCollection::RemoveItem((vlObject *)a);
+  this->vtkCollection::RemoveItem((vtkObject *)a);
 }
 
 // Description:
 // Determine whether a particular light is present. Returns its position
 // in the list.
-inline int vlLightCollection::IsItemPresent(vlLight *a) 
+inline int vtkLightCollection::IsItemPresent(vtkLight *a) 
 {
-  return this->vlCollection::IsItemPresent((vlObject *)a);
+  return this->vtkCollection::IsItemPresent((vtkObject *)a);
 }
 
 // Description:
 // Get the next light in the list.
-inline vlLight *vlLightCollection::GetNextItem() 
+inline vtkLight *vtkLightCollection::GetNextItem() 
 { 
-  return (vlLight *)(this->vlCollection::GetNextItem());
+  return (vtkLight *)(this->vtkCollection::GetNextItem());
 }
 
 #endif

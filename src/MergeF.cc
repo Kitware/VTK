@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    MergeF.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
@@ -16,10 +16,10 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "MergeF.hh"
 #include "PolyData.hh"
 
-vlMergeFilter::vlMergeFilter()
+vtkMergeFilter::vtkMergeFilter()
 {
   // prevents dangling reference to DataSet
-  this->Geometry = new vlPolyData;
+  this->Geometry = new vtkPolyData;
 
   this->Scalars = NULL;
   this->Vectors = NULL;
@@ -29,11 +29,11 @@ vlMergeFilter::vlMergeFilter()
   this->UserDefined = NULL;
 }
 
-vlMergeFilter::~vlMergeFilter()
+vtkMergeFilter::~vtkMergeFilter()
 {
 }
 
-void vlMergeFilter::Update()
+void vtkMergeFilter::Update()
 {
   unsigned long int mtime=0, dsMtime;
 
@@ -111,7 +111,7 @@ void vlMergeFilter::Update()
     this->UserDefined->ReleaseData();
 }
 
-void vlMergeFilter::Initialize()
+void vtkMergeFilter::Initialize()
 {
   if ( this->Geometry )
     {
@@ -125,37 +125,37 @@ void vlMergeFilter::Initialize()
     }
 }
 
-int vlMergeFilter::GetDataReleased()
+int vtkMergeFilter::GetDataReleased()
 {
   return this->DataReleased;
 }
 
-void vlMergeFilter::SetDataReleased(int flag)
+void vtkMergeFilter::SetDataReleased(int flag)
 {
   this->DataReleased = flag;
 }
 
 // Merge it all together
-void vlMergeFilter::Execute()
+void vtkMergeFilter::Execute()
 {
   int numPts, numScalars=0, numVectors=0, numNormals=0, numTCoords=0;
   int numTensors=0, numUserDefined=0;
-  vlPointData *pd;
-  vlScalars *scalars;
-  vlVectors *vectors;
-  vlNormals *normals;
-  vlTCoords *tcoords;
-  vlTensors *tensors;
-  vlUserDefined *ud;
+  vtkPointData *pd;
+  vtkScalars *scalars;
+  vtkVectors *vectors;
+  vtkNormals *normals;
+  vtkTCoords *tcoords;
+  vtkTensors *tensors;
+  vtkUserDefined *ud;
 
-  vlDebugMacro(<<"Merging data!");
+  vtkDebugMacro(<<"Merging data!");
 
   // geometry is created
   this->Initialize();
 
   if ( (numPts = this->Geometry->GetNumberOfPoints()) < 1 )
     {
-    vlErrorMacro(<<"Nothing to merge!");
+    vtkErrorMacro(<<"Nothing to merge!");
     return;
     }
   
@@ -221,10 +221,10 @@ void vlMergeFilter::Execute()
     this->PointData.SetUserDefined(ud);
 }
 
-void vlMergeFilter::PrintSelf(ostream& os, vlIndent indent)
+void vtkMergeFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlFilter::_PrintSelf(os,indent);
-  vlDataSet::PrintSelf(os,indent);
+  vtkFilter::_PrintSelf(os,indent);
+  vtkDataSet::PrintSelf(os,indent);
 
   os << indent << "Geometry: (" << this->Geometry << ")\n";
   os << indent << "Geometry type: " << this->Geometry->GetClassName() << "\n";

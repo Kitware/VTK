@@ -1,49 +1,49 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    PtPicker.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-// .NAME vlPointPicker - select a point by shooting a ray into graphics window
+// .NAME vtkPointPicker - select a point by shooting a ray into graphics window
 // .SECTION Description
-// vlPointPicker is used to select a point by shooting a ray into graphics
+// vtkPointPicker is used to select a point by shooting a ray into graphics
 // window and intersecting with actor's defining geometry - specifically 
-// its points. Beside returning coordinates, actor and mapper, vlPointPicker
+// its points. Beside returning coordinates, actor and mapper, vtkPointPicker
 // returns the id of the closest point within the tolerance along the pick ray.
 // .SECTION See Also
-// For quick picking, see vlPicker. To uniquely pick actors, see vlCellPicker.
+// For quick picking, see vtkPicker. To uniquely pick actors, see vtkCellPicker.
 
-#ifndef __vlPointPicker_h
-#define __vlPointPicker_h
+#ifndef __vtkPointPicker_h
+#define __vtkPointPicker_h
 
 #include "Picker.hh"
 
-class vlPointPicker : public vlPicker
+class vtkPointPicker : public vtkPicker
 {
 public:
-  vlPointPicker();
-  ~vlPointPicker() {};
-  char *GetClassName() {return "vlPointPicker";};
-  void PrintSelf(ostream& os, vlIndent indent);
+  vtkPointPicker();
+  ~vtkPointPicker() {};
+  char *GetClassName() {return "vtkPointPicker";};
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Get the id of the picked point. If PointId = -1, nothing was picked.
-  vlGetMacro(PointId,int);
+  vtkGetMacro(PointId,int);
 
 protected:
   int PointId; //picked point
 
   void IntersectWithLine(float p1[3], float p2[3], float tol, 
-                         vlActor *a, vlMapper *m);
+                         vtkActor *a, vtkMapper *m);
   void Initialize();
 
 };

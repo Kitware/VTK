@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    CellArr.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
@@ -15,7 +15,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 =========================================================================*/
 #include "CellArr.hh"
 
-vlCellArray::vlCellArray (const vlCellArray& ca)
+vtkCellArray::vtkCellArray (const vtkCellArray& ca)
 {
   this->NumberOfCells = ca.NumberOfCells;
   this->Location = 0;
@@ -25,7 +25,7 @@ vlCellArray::vlCellArray (const vlCellArray& ca)
 // Description:
 // Returns the size of the largest cell. The size is the number of points
 // defining the cell.
-int vlCellArray::GetMaxCellSize()
+int vtkCellArray::GetMaxCellSize()
 {
   int i, npts, maxSize=0;
 

@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    Splatter.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
@@ -21,7 +21,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // Construct object with dimensions=(50,50,50); automatic computation of 
 // bounds; a splat radius of 0.1; an exponent factor of -5; and normal and 
 // scalar warping turned on.
-vlGaussianSplatter::vlGaussianSplatter()
+vtkGaussianSplatter::vtkGaussianSplatter()
 {
   this->SampleDimensions[0] = 50;
   this->SampleDimensions[1] = 50;
@@ -50,12 +50,12 @@ vlGaussianSplatter::vlGaussianSplatter()
 // Description:
 // Set the (xmin,xmax, ymin,ymax, zmin,zmax) bounding box in which the 
 // sampling is performed.
-void vlGaussianSplatter::SetModelBounds(float *bounds)
+void vtkGaussianSplatter::SetModelBounds(float *bounds)
 {
-  vlGaussianSplatter::SetModelBounds(bounds[0], bounds[1], bounds[2], bounds[3], bounds[4], bounds[5]);
+  vtkGaussianSplatter::SetModelBounds(bounds[0], bounds[1], bounds[2], bounds[3], bounds[4], bounds[5]);
 }
 
-void vlGaussianSplatter::SetModelBounds(float xmin, float xmax, float ymin, float ymax, float zmin, float zmax)
+void vtkGaussianSplatter::SetModelBounds(float xmin, float xmax, float ymin, float ymax, float zmin, float zmax)
 {
   if (this->ModelBounds[0] != xmin || this->ModelBounds[1] != xmax ||
   this->ModelBounds[2] != ymin || this->ModelBounds[3] != ymax ||
@@ -85,31 +85,31 @@ void vlGaussianSplatter::SetModelBounds(float xmin, float xmax, float ymin, floa
 //
 //  Static variables aid recursion
 //
-static vlFloatScalars *NewScalars;
+static vtkFloatScalars *NewScalars;
 static float Radius2;
-static float (vlGaussianSplatter::*Sample)(float x[3]);
-static float (vlGaussianSplatter::*SampleFactor)(float s);
+static float (vtkGaussianSplatter::*Sample)(float x[3]);
+static float (vtkGaussianSplatter::*SampleFactor)(float s);
 static char *Visited;
 static float Eccentricity2;
 static float *P, *N, S;
 
-void vlGaussianSplatter::Execute()
+void vtkGaussianSplatter::Execute()
 {
   int numSplatPts, numPts;
   int ptId, i, j, k;
-  vlPointData *pd;
-  vlNormals *inNormals;
-  vlScalars *inScalars;
+  vtkPointData *pd;
+  vtkNormals *inNormals;
+  vtkScalars *inScalars;
   int loc[3], ip, jp, kp, idir, jdir, kdir;
 
-  vlDebugMacro(<< "Splatting data");
+  vtkDebugMacro(<< "Splatting data");
   this->Initialize();
 //
 //  Make sure points are available
 //
   if ( (numSplatPts=this->Input->GetNumberOfPoints()) < 1 )
     {
-    vlErrorMacro(<<"No points to splat!");
+    vtkErrorMacro(<<"No points to splat!");
     return;
     }
 //
@@ -121,7 +121,7 @@ void vlGaussianSplatter::Execute()
 
   numPts = this->SampleDimensions[0] * this->SampleDimensions[1] 
            * this->SampleDimensions[2];
-  NewScalars = new vlFloatScalars(numPts);
+  NewScalars = new vtkFloatScalars(numPts);
   for (i=0; i<numPts; i++) NewScalars->SetScalar(i,0.0);
 
   Visited = new char[numPts];
@@ -134,14 +134,14 @@ void vlGaussianSplatter::Execute()
 //
   pd = this->Input->GetPointData();
   if ( this->NormalWarping && (inNormals=pd->GetNormals()) != NULL )
-    Sample = &vlGaussianSplatter::Gaussian;
+    Sample = &vtkGaussianSplatter::Gaussian;
   else
-    Sample = &vlGaussianSplatter::EccentricGaussian;
+    Sample = &vtkGaussianSplatter::EccentricGaussian;
 
   if ( this->ScalarWarping && (inScalars=pd->GetScalars()) != NULL )
-    SampleFactor = &vlGaussianSplatter::ScalarSampling;
+    SampleFactor = &vtkGaussianSplatter::ScalarSampling;
   else
-    SampleFactor = &vlGaussianSplatter::PositionSampling;
+    SampleFactor = &vtkGaussianSplatter::PositionSampling;
 //
 // Traverse all points - injecting into volume.
 // For each input point, determine which cell it is in.  Then start
@@ -154,7 +154,7 @@ void vlGaussianSplatter::Execute()
     if ( inScalars != NULL ) S = inScalars->GetScalar(ptId);
 
     if ( ! (ptId % 5000) && ptId > 0 )
-      vlDebugMacro(<< "Vertex #" << ptId);
+      vtkDebugMacro(<< "Vertex #" << ptId);
 
     for (i=0; i<3; i++)  
       loc[i] = (int) ((float)(P[i] - this->Origin[i]) / this->AspectRatio[i]);
@@ -201,7 +201,7 @@ void vlGaussianSplatter::Execute()
 // Description:
 // Compute the size of the sample bounding box automatically from the
 // input data.
-void vlGaussianSplatter::ComputeModelBounds()
+void vtkGaussianSplatter::ComputeModelBounds()
 {
   float *bounds, maxDist;
   int i, adjustBounds=0;
@@ -246,7 +246,7 @@ void vlGaussianSplatter::ComputeModelBounds()
 
 // Description:
 // Set the dimensions of the sampling structured point set.
-void vlGaussianSplatter::SetSampleDimensions(int i, int j, int k)
+void vtkGaussianSplatter::SetSampleDimensions(int i, int j, int k)
 {
   int dim[3];
 
@@ -257,16 +257,16 @@ void vlGaussianSplatter::SetSampleDimensions(int i, int j, int k)
   this->SetSampleDimensions(dim);
 }
 
-void vlGaussianSplatter::SetSampleDimensions(int dim[3])
+void vtkGaussianSplatter::SetSampleDimensions(int dim[3])
 {
-  vlDebugMacro(<< " setting SampleDimensions to (" << dim[0] << "," << dim[1] << "," << dim[2] << ")");
+  vtkDebugMacro(<< " setting SampleDimensions to (" << dim[0] << "," << dim[1] << "," << dim[2] << ")");
 
   if ( dim[0] != this->SampleDimensions[0] || dim[1] != SampleDimensions[1] ||
   dim[2] != SampleDimensions[2] )
     {
     if ( dim[0]<1 || dim[1]<1 || dim[2]<1 )
       {
-      vlErrorMacro (<< "Bad Sample Dimensions, retaining previous values");
+      vtkErrorMacro (<< "Bad Sample Dimensions, retaining previous values");
       return;
       }
 
@@ -274,7 +274,7 @@ void vlGaussianSplatter::SetSampleDimensions(int dim[3])
 
     if ( dataDim  < 3 )
       {
-      vlErrorMacro(<<"Sample dimensions must define a volume!");
+      vtkErrorMacro(<<"Sample dimensions must define a volume!");
       return;
       }
 
@@ -284,7 +284,7 @@ void vlGaussianSplatter::SetSampleDimensions(int dim[3])
     }
 }
 
-void vlGaussianSplatter::Cap(vlFloatScalars *s)
+void vtkGaussianSplatter::Cap(vtkFloatScalars *s)
 {
   int i,j,k;
   int idx;
@@ -327,7 +327,7 @@ void vlGaussianSplatter::Cap(vlFloatScalars *s)
 
 }
 
-void vlGaussianSplatter::SplitIJK (int i, int idir, int j, int jdir, 
+void vtkGaussianSplatter::SplitIJK (int i, int idir, int j, int jdir, 
                                    int k, int kdir)
 {
   int     idx, ip, jp, kp;
@@ -385,7 +385,7 @@ void vlGaussianSplatter::SplitIJK (int i, int idir, int j, int jdir,
     }
 }
 
-void vlGaussianSplatter::SplitIJ (int i, int idir, int j, int jdir, int k)
+void vtkGaussianSplatter::SplitIJ (int i, int idir, int j, int jdir, int k)
 {
   int     idx, ip, jp;
   float   cx[3], dist2;
@@ -423,7 +423,7 @@ void vlGaussianSplatter::SplitIJ (int i, int idir, int j, int jdir, int k)
     }
 }
 
-void vlGaussianSplatter::SplitJK (int i, int j, int jdir, int k, int kdir)
+void vtkGaussianSplatter::SplitJK (int i, int j, int jdir, int k, int kdir)
 {
   int     idx, jp, kp;
   float   cx[3], dist2;
@@ -460,7 +460,7 @@ void vlGaussianSplatter::SplitJK (int i, int j, int jdir, int k, int kdir)
     }
 }
 
-void vlGaussianSplatter::SplitIK (int i, int idir, int j, int k, int kdir)
+void vtkGaussianSplatter::SplitIK (int i, int idir, int j, int k, int kdir)
 {
   int     idx, ip, kp;
   float   cx[3], dist2;
@@ -496,7 +496,7 @@ void vlGaussianSplatter::SplitIK (int i, int idir, int j, int k, int kdir)
     }
 }
 
-void vlGaussianSplatter::SplitI (int i, int idir, int j, int k)
+void vtkGaussianSplatter::SplitI (int i, int idir, int j, int k)
 {
   int     idx, ip;
   float   cx[3], dist2;
@@ -520,7 +520,7 @@ void vlGaussianSplatter::SplitI (int i, int idir, int j, int k)
     }
 }
 
-void vlGaussianSplatter::SplitJ (int i, int j, int jdir, int k)
+void vtkGaussianSplatter::SplitJ (int i, int j, int jdir, int k)
 {
   int     idx, jp;
   float   cx[3], dist2;
@@ -543,7 +543,7 @@ void vlGaussianSplatter::SplitJ (int i, int j, int jdir, int k)
     }
 }
 
-void vlGaussianSplatter::SplitK (int i, int j, int k, int kdir)
+void vtkGaussianSplatter::SplitK (int i, int j, int k, int kdir)
 {
   int     idx, kp;
   float   cx[3], dist2;
@@ -569,7 +569,7 @@ void vlGaussianSplatter::SplitK (int i, int j, int k, int kdir)
 //
 //  Gaussian sampling
 //
-float vlGaussianSplatter::Gaussian (float cx[3])
+float vtkGaussianSplatter::Gaussian (float cx[3])
 {
   return ((cx[0]-P[0])*(cx[0]-P[0]) + (cx[1]-P[1])*(cx[1]-P[1]) +
           (cx[2]-P[2])*(cx[2]-P[2]) );
@@ -578,7 +578,7 @@ float vlGaussianSplatter::Gaussian (float cx[3])
 //
 //  Ellipsoidal Gaussian sampling
 //
-float vlGaussianSplatter::EccentricGaussian (float cx[3])
+float vtkGaussianSplatter::EccentricGaussian (float cx[3])
 {
   float   v[3], r2, z2, rxy2, mag;
 
@@ -602,7 +602,7 @@ float vlGaussianSplatter::EccentricGaussian (float cx[3])
   return (rxy2/Eccentricity2 + z2);
 }
     
-void vlGaussianSplatter::SetScalar(int idx, float dist2)
+void vtkGaussianSplatter::SetScalar(int idx, float dist2)
 {
   float v = (this->*SampleFactor)(S) * exp((double)
             (this->ExponentFactor*(dist2)/(Radius2)));
@@ -619,9 +619,9 @@ void vlGaussianSplatter::SetScalar(int idx, float dist2)
     }
 }
 
-void vlGaussianSplatter::PrintSelf(ostream& os, vlIndent indent)
+void vtkGaussianSplatter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlDataSetToStructuredPointsFilter::PrintSelf(os,indent);
+  vtkDataSetToStructuredPointsFilter::PrintSelf(os,indent);
 
   os << indent << "Sample Dimensions: (" << this->SampleDimensions[0] << ", "
                << this->SampleDimensions[1] << ", "

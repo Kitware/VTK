@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    GeomF.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
@@ -17,7 +17,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 // Description:
 // Construct with all types of clipping turned off.
-vlGeometryFilter::vlGeometryFilter()
+vtkGeometryFilter::vtkGeometryFilter()
 {
   this->PointMinimum = 0;
   this->PointMaximum = LARGE_INTEGER;
@@ -37,7 +37,7 @@ vlGeometryFilter::vlGeometryFilter()
   this->ExtentClipping = 0;
 }
 
-void vlGeometryFilter::SetExtent(float xMin, float xMax, float yMin,
+void vtkGeometryFilter::SetExtent(float xMin, float xMax, float yMin,
                                      float yMax, float zMin, float zMax)
 {
   float extent[6];
@@ -54,7 +54,7 @@ void vlGeometryFilter::SetExtent(float xMin, float xMax, float yMin,
 
 // Description:
 // Specify a (xmin,xmax, ymin,ymax, zmin,zmax) bounding box to clip data.
-void vlGeometryFilter::SetExtent(float *extent)
+void vtkGeometryFilter::SetExtent(float *extent)
 {
   int i;
 
@@ -73,20 +73,20 @@ void vlGeometryFilter::SetExtent(float *extent)
     }
 }
 
-void vlGeometryFilter::Execute()
+void vtkGeometryFilter::Execute()
 {
   int cellId, i, j;
   int numPts=this->Input->GetNumberOfPoints();
   int numCells=this->Input->GetNumberOfCells();
   char *cellVis;
-  vlCell *cell, *face, *cellCopy;
+  vtkCell *cell, *face, *cellCopy;
   float *x;
-  vlIdList *ptIds;
-  static vlIdList cellIds(MAX_CELL_SIZE);
-  vlFloatPoints *newPts;
+  vtkIdList *ptIds;
+  static vtkIdList cellIds(MAX_CELL_SIZE);
+  vtkFloatPoints *newPts;
   int ptId;
   int npts, pts[MAX_CELL_SIZE];
-  vlPointData *pd = this->Input->GetPointData();
+  vtkPointData *pd = this->Input->GetPointData();
   int allVisible;
 
   this->Initialize();
@@ -141,7 +141,7 @@ void vlGeometryFilter::Execute()
 //
 // Allocate
 //
-  newPts = new vlFloatPoints(numPts,numPts/2);
+  newPts = new vtkFloatPoints(numPts,numPts/2);
   this->Allocate(4*numCells,numCells/2);
   this->PointData.CopyAllocate(pd,numPts,numPts/2);
 //
@@ -204,9 +204,9 @@ void vlGeometryFilter::Execute()
 
 }
 
-void vlGeometryFilter::PrintSelf(ostream& os, vlIndent indent)
+void vtkGeometryFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlDataSetToPolyFilter::PrintSelf(os,indent);
+  vtkDataSetToPolyFilter::PrintSelf(os,indent);
 
   os << indent << "Point Minimum : " << this->PointMinimum << "\n";
   os << indent << "Point Maximum : " << this->PointMaximum << "\n";

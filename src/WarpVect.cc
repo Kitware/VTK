@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    WarpVect.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
@@ -15,17 +15,17 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 =========================================================================*/
 #include "WarpVect.hh"
 
-void vlWarpVector::Execute()
+void vtkWarpVector::Execute()
 {
-  vlPoints *inPts;
-  vlFloatPoints *newPts;
-  vlPointData *pd;
-  vlVectors *inVectors;
+  vtkPoints *inPts;
+  vtkFloatPoints *newPts;
+  vtkPointData *pd;
+  vtkVectors *inVectors;
   int i, ptId;
   float *x, *v, newX[3];
-  vlPointSet *input=(vlPointSet *)this->Input;
+  vtkPointSet *input=(vtkPointSet *)this->Input;
 
-  vlDebugMacro(<<"Warping data with vectors");
+  vtkDebugMacro(<<"Warping data with vectors");
   this->Initialize();
 
   inPts = input->GetPoints();
@@ -34,11 +34,11 @@ void vlWarpVector::Execute()
 
   if ( !inVectors || !inPts )
     {
-    vlErrorMacro(<<"No input data");
+    vtkErrorMacro(<<"No input data");
     return;
     }
 
-  newPts = new vlFloatPoints(inPts->GetNumberOfPoints());
+  newPts = new vtkFloatPoints(inPts->GetNumberOfPoints());
 //
 // Loop over all points, adjusting locations
 //
@@ -61,9 +61,9 @@ void vlWarpVector::Execute()
   this->SetPoints(newPts);
 }
 
-void vlWarpVector::PrintSelf(ostream& os, vlIndent indent)
+void vtkWarpVector::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlPointSetToPointSetFilter::PrintSelf(os,indent);
+  vtkPointSetToPointSetFilter::PrintSelf(os,indent);
 
   os << indent << "Scale Factor: " << this->ScaleFactor << "\n";
 }

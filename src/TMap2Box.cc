@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    TMap2Box.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
@@ -14,12 +14,12 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
 #include "TMap2Box.hh"
-#include "vlMath.hh"
+#include "vtkMath.hh"
 #include "FTCoords.hh"
 
 // Description:
 // Construct with r-s-t range=(0,1) and automatic box generation turned on.
-vlTextureMapToBox::vlTextureMapToBox()
+vtkTextureMapToBox::vtkTextureMapToBox()
 {
   this->Box[0] = this->Box[2] = this->Box[4] = 0.0;
   this->Box[1] = this->Box[3] = this->Box[5] = 1.0;
@@ -37,27 +37,27 @@ vlTextureMapToBox::vlTextureMapToBox()
 }
 
 
-void vlTextureMapToBox::Execute()
+void vtkTextureMapToBox::Execute()
 {
   float tc[3];
   int numPts;
-  vlFloatTCoords *newTCoords;
+  vtkFloatTCoords *newTCoords;
   int i, j;
   float *box, *p;
   float min[3], max[3];
 
-  vlDebugMacro(<<"Generating 3D texture coordinates!");
+  vtkDebugMacro(<<"Generating 3D texture coordinates!");
   this->Initialize();
 //
 //  Allocate texture data
 //
   if ( (numPts=this->Input->GetNumberOfPoints()) < 1 )
     {
-    vlErrorMacro(<<"No points to texture!");
+    vtkErrorMacro(<<"No points to texture!");
     return;
     }
 
-  newTCoords = new vlFloatTCoords(numPts,3);
+  newTCoords = new vtkFloatTCoords(numPts,3);
 
   if ( this->AutomaticBoxGeneration ) 
     box = this->Input->GetBounds();
@@ -91,7 +91,7 @@ void vlTextureMapToBox::Execute()
 
 // Description:
 // Specify the bounding box to map into.
-void vlTextureMapToBox::SetBox(float xmin, float xmax, float ymin, float ymax,
+void vtkTextureMapToBox::SetBox(float xmin, float xmax, float ymin, float ymax,
                                 float zmin, float zmax)
 {
   if ( xmin != this->Box[0] || xmax != this->Box[1] ||
@@ -110,15 +110,15 @@ void vlTextureMapToBox::SetBox(float xmin, float xmax, float ymin, float ymax,
     }
 }
 
-void vlTextureMapToBox::SetBox(float *bounds)
+void vtkTextureMapToBox::SetBox(float *bounds)
 {
   this->SetBox(bounds[0], bounds[1], bounds[2], bounds[3], bounds[4],
                bounds[5]);
 }
 
-void vlTextureMapToBox::PrintSelf(ostream& os, vlIndent indent)
+void vtkTextureMapToBox::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlDataSetToDataSetFilter::PrintSelf(os,indent);
+  vtkDataSetToDataSetFilter::PrintSelf(os,indent);
 
   os << indent << "R Range: (" << this->RRange[0] << ", "
                                << this->RRange[1] << ")\n";

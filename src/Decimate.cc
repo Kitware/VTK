@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    Decimate.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
@@ -17,12 +17,12 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 //
 //  Static variables used by object
 //
-static vlPlane plane; // eliminate constructor overhead
-static vlLine line;
-static vlTriangle triangle;
-static vlMath math;
+static vtkPlane plane; // eliminate constructor overhead
+static vtkLine line;
+static vtkTriangle triangle;
+static vtkMath math;
 
-static vlPolyData *Mesh; // operate on this data structure
+static vtkPolyData *Mesh; // operate on this data structure
 static float Pt[3], Normal[3]; // least squares plane point & normal
 static float Angle, Distance; // current feature angle and distance 
 static float CosAngle; // Cosine of dihedral angle
@@ -35,15 +35,15 @@ static int Squawks; // Control output
 static float X[3]; //coordinates of current point
 static float *VertexError, Error, MinEdgeError; //support error omputation
 
-static vlVertexArray *V; //cycle of vertices around point
-static vlTriArray *T; //cycle of triangles around point
+static vtkVertexArray *V; //cycle of vertices around point
+static vtkTriArray *T; //cycle of triangles around point
 
 
 // Description:
 // Create object with target reduction of 90%, feature angle of 30 degrees, 
 // intial error of 0.0, error increment of 0.005, maximum error of 0.1, and
 // maximum iterions of 6.
-vlDecimate::vlDecimate()
+vtkDecimate::vtkDecimate()
 {
   this->InitialFeatureAngle = 30;
   this->FeatureAngleIncrement = 0.0;
@@ -71,37 +71,37 @@ vlDecimate::vlDecimate()
 //  Reduce triangles in mesh by given amount or until total number of
 //  iterations completes
 //
-void vlDecimate::Execute()
+void vtkDecimate::Execute()
 {
   int numPts, numTris;
-  vlPoints *inPts;
-  vlCellArray *inPolys;
+  vtkPoints *inPts;
+  vtkCellArray *inPolys;
   int numVerts;
   float *bounds, max;
   int i, ptId;
-  vlCellArray *newPolys;
+  vtkCellArray *newPolys;
   float reduction=0.0;
   int iteration=0, sub;
   int trisEliminated;
   unsigned short int ncells;
   int *cells;
   int numFEdges;
-  vlLocalVertexPtr fedges[2];
+  vtkLocalVertexPtr fedges[2];
   int vtype;
   int npts, *pts;
-  vlLocalVertexPtr verts[MAX_TRIS_PER_VERTEX];
-  vlLocalVertexPtr l1[MAX_TRIS_PER_VERTEX], l2[MAX_TRIS_PER_VERTEX];
+  vtkLocalVertexPtr verts[MAX_TRIS_PER_VERTEX];
+  vtkLocalVertexPtr l1[MAX_TRIS_PER_VERTEX], l2[MAX_TRIS_PER_VERTEX];
   int n1, n2, cellId;
   float ar, error;
   int totalEliminated=0;
   int *map, numNewPts, size;
-  vlPolyData *input=(vlPolyData *)this->Input;
+  vtkPolyData *input=(vtkPolyData *)this->Input;
   // do it this way because some compilers can't handle construction of
   // static objects in file scope.
-  static vlVertexArray VertexArray(MAX_TRIS_PER_VERTEX+1);
-  static vlTriArray TriangleArray(MAX_TRIS_PER_VERTEX+1);
+  static vtkVertexArray VertexArray(MAX_TRIS_PER_VERTEX+1);
+  static vtkTriArray TriangleArray(MAX_TRIS_PER_VERTEX+1);
 
-  vlDebugMacro(<<"Decimating mesh...");
+  vtkDebugMacro(<<"Decimating mesh...");
   this->Initialize();
   V = &VertexArray;
   T = &TriangleArray;
@@ -111,7 +111,7 @@ void vlDecimate::Execute()
   if ( (numPts=input->GetNumberOfPoints()) < 1 || 
   (numTris=input->GetNumberOfPolys()) < 1 )
     {
-    vlErrorMacro(<<"No data to decimate!");
+    vtkErrorMacro(<<"No data to decimate!");
     return;
     }
 //
@@ -131,7 +131,7 @@ void vlDecimate::Execute()
   AspectRatio2 = 1.0 / (this->AspectRatio * this->AspectRatio);
   Squawks = 0;
 
-  vlDebugMacro(<<"Decimating " << numPts << " vertices, " << numTris 
+  vtkDebugMacro(<<"Decimating " << numPts << " vertices, " << numTris 
                << " triangles with:\n"
                << "\tIterations= " << this->MaximumIterations << "\n"
                << "\tSub-iterations= " << this->MaximumSubIterations << "\n"
@@ -146,9 +146,9 @@ void vlDecimate::Execute()
 //
   inPts = input->GetPoints();
   inPolys = input->GetPolys();
-  Mesh = new vlPolyData;
+  Mesh = new vtkPolyData;
   Mesh->SetPoints(inPts);
-  newPolys = new vlCellArray(*(inPolys));
+  newPolys = new vtkCellArray(*(inPolys));
   Mesh->SetPolys(newPolys);
   Mesh->BuildLinks();
 //
@@ -179,7 +179,7 @@ void vlDecimate::Execute()
 //
       for (ptId=0; ptId < numPts; ptId++)
         {
-        if ( ! (ptId % 5000) ) vlDebugMacro(<<"vertex #" << ptId);
+        if ( ! (ptId % 5000) ) vtkDebugMacro(<<"vertex #" << ptId);
 
         // compute allowable error for this vertex
         Mesh->GetPoint(ptId,X);
@@ -266,7 +266,7 @@ void vlDecimate::Execute()
       totalEliminated += trisEliminated;
       reduction = (float) totalEliminated / numTris;
 
-      vlDebugMacro(<<"\n\tIteration = " << iteration+1 << "\n"
+      vtkDebugMacro(<<"\n\tIteration = " << iteration+1 << "\n"
                    <<"\tSub-iteration = " << sub+1 << "\n"
                    <<"\tPolygons removed = " << trisEliminated << "\n"
                    <<"\tTotal removed = " << totalEliminated << "\n"
@@ -309,8 +309,8 @@ void vlDecimate::Execute()
   this->CreateOutput(numPts, numTris, totalEliminated, input->GetPointData(), inPts);
 }
 
-void vlDecimate::CreateOutput(int numPts, int numTris, int numEliminated,
-                              vlPointData *pd, vlPoints *inPts)
+void vtkDecimate::CreateOutput(int numPts, int numTris, int numEliminated,
+                              vtkPointData *pd, vtkPoints *inPts)
 {
   int *map, numNewPts, size;
   int i;
@@ -318,11 +318,11 @@ void vlDecimate::CreateOutput(int numPts, int numTris, int numEliminated,
   unsigned short int ncells;
   int *cells;
   int ptId, cellId, npts, *pts;
-  vlFloatPoints *newPts;
-  vlCellArray *newPolys;
-  vlFloatScalars *newScalars;
+  vtkFloatPoints *newPts;
+  vtkCellArray *newPolys;
+  vtkFloatScalars *newScalars;
 
-  vlDebugMacro (<<"Creating output...");
+  vtkDebugMacro (<<"Creating output...");
 
   if ( ! this->GenerateErrorScalars )
     delete [] VertexError;
@@ -338,7 +338,7 @@ void vlDecimate::CreateOutput(int numPts, int numTris, int numEliminated,
 
   if ( this->GenerateErrorScalars ) this->PointData.CopyScalarsOff();
   this->PointData.CopyAllocate(pd,numNewPts);
-  newPts = new vlFloatPoints(numNewPts);
+  newPts = new vtkFloatPoints(numNewPts);
 
   for (ptId=0; ptId < numPts; ptId++)
     {
@@ -351,19 +351,19 @@ void vlDecimate::CreateOutput(int numPts, int numTris, int numEliminated,
 
   if ( this->GenerateErrorScalars )
     {
-    newScalars = new vlFloatScalars[numNewPts];
+    newScalars = new vtkFloatScalars[numNewPts];
     for (ptId=0; ptId < numPts; ptId++)
       if ( map[ptId] > -1 )
         newScalars->SetScalar(map[ptId],VertexError[ptId]);
     }
 
   // Now renumber connectivity
-  newPolys = new vlCellArray;
+  newPolys = new vtkCellArray;
   newPolys->Allocate(newPolys->EstimateSize(3,numTris-numEliminated));
 
   for (cellId=0; cellId < numTris; cellId++)
     {
-    if ( Mesh->GetCellType(cellId) == vlTRIANGLE ) // non-null element
+    if ( Mesh->GetCellType(cellId) == vtkTRIANGLE ) // non-null element
       {
       Mesh->GetCellPoints(cellId, npts, pts);
       for (i=0; i<npts; i++) newCellPts[i] = map[pts[i]];
@@ -387,13 +387,13 @@ void vlDecimate::CreateOutput(int numPts, int numTris, int numEliminated,
 //  Build loop around vertex in question.  Basic intent of routine is
 //  to identify the nature of the topolgy around the vertex.
 //
-int vlDecimate::BuildLoop (int ptId, unsigned short int numTris, int *tris)
+int vtkDecimate::BuildLoop (int ptId, unsigned short int numTris, int *tris)
 {
   int numVerts;
   int numNei;
-  static vlIdList nei(MAX_TRIS_PER_VERTEX);
-  vlLocalTri t;
-  vlLocalVertex sn;
+  static vtkIdList nei(MAX_TRIS_PER_VERTEX);
+  vtkLocalTri t;
+  vtkLocalVertex sn;
   int i, j, *verts;
   int startVertex, nextVertex;
 //
@@ -402,7 +402,7 @@ int vlDecimate::BuildLoop (int ptId, unsigned short int numTris, int *tris)
   if ( numTris >= this->Degree ) 
     {
     if ( Squawks++ < MAX_SQUAWKS ) 
-      vlWarningMacro (<<"Exceeded maximum vertex degree");
+      vtkWarningMacro (<<"Exceeded maximum vertex degree");
     this->Stats[COMPLEX_VERTEX]++;
     this->Stats[FAILED_DEGREE_TEST]++;
     return COMPLEX_VERTEX;
@@ -489,7 +489,7 @@ int vlDecimate::BuildLoop (int ptId, unsigned short int numTris, int *tris)
   else if ( numNei > 1 || T->GetNumberOfTriangles() > numTris ) 
     {
     if ( Squawks++ < MAX_SQUAWKS ) 
-      vlWarningMacro(<<"Non-manifold geometry encountered");
+      vtkWarningMacro(<<"Non-manifold geometry encountered");
     this->Stats[FAILED_NON_MANIFOLD]++;
     this->Stats[COMPLEX_VERTEX]++;
     return COMPLEX_VERTEX;
@@ -596,7 +596,7 @@ int vlDecimate::BuildLoop (int ptId, unsigned short int numTris, int *tris)
     else // non-manifold
       {
       if ( Squawks++ < MAX_SQUAWKS ) 
-        vlWarningMacro(<<"Non-manifold geometry encountered");
+        vtkWarningMacro(<<"Non-manifold geometry encountered");
       this->Stats[FAILED_NON_MANIFOLD]++;
       this->Stats[COMPLEX_VERTEX]++;
       return COMPLEX_VERTEX;
@@ -610,8 +610,8 @@ int vlDecimate::BuildLoop (int ptId, unsigned short int numTris, int *tris)
 //  Compute the polygon normals and edge feature angles around the
 //  loop.  Determine if there are any feature edges across the loop.
 //
-void vlDecimate::EvaluateLoop (int ptId, int& vtype, int& numFEdeges, 
-                               vlLocalVertexPtr fedges[])
+void vtkDecimate::EvaluateLoop (int ptId, int& vtype, int& numFEdeges, 
+                               vtkLocalVertexPtr fedges[])
 {
   int i, j, numNormals;
   float *x1, *x2, *normal, loopArea;
@@ -731,10 +731,10 @@ void vlDecimate::EvaluateLoop (int ptId, int& vtype, int& numFEdeges,
 //
 //  Determine whether the loop can be split / build loops
 //
-int vlDecimate::CanSplitLoop (vlLocalVertexPtr fedges[2], int numVerts, 
-                              vlLocalVertexPtr verts[], int& n1, 
-                              vlLocalVertexPtr l1[], int& n2, 
-                              vlLocalVertexPtr l2[], float& ar)
+int vtkDecimate::CanSplitLoop (vtkLocalVertexPtr fedges[2], int numVerts, 
+                              vtkLocalVertexPtr verts[], int& n1, 
+                              vtkLocalVertexPtr l1[], int& n2, 
+                              vtkLocalVertexPtr l2[], float& ar)
 {
   int i, sign;
   float *x, val, absVal, sPt[3], v21[3], sN[3];
@@ -807,12 +807,12 @@ int vlDecimate::CanSplitLoop (vlLocalVertexPtr fedges[2], int numVerts,
 //
 //  Creates two loops from splitting plane provided
 //
-void vlDecimate::SplitLoop(vlLocalVertexPtr fedges[2], int numVerts, 
-                           vlLocalVertexPtr *verts, int& n1, 
-                           vlLocalVertexPtr *l1, int& n2, vlLocalVertexPtr *l2)
+void vtkDecimate::SplitLoop(vtkLocalVertexPtr fedges[2], int numVerts, 
+                           vtkLocalVertexPtr *verts, int& n1, 
+                           vtkLocalVertexPtr *l1, int& n2, vtkLocalVertexPtr *l2)
 {
   int i;
-  vlLocalVertexPtr *loop;
+  vtkLocalVertexPtr *loop;
   int *count;
 
   n1 = n2 = 0;
@@ -836,12 +836,12 @@ void vlDecimate::SplitLoop(vlLocalVertexPtr fedges[2], int numVerts,
 //  into triangles.  Ignore feature angles since we can preserve these 
 //  using the angle preserving capabilities of the algorithm.
 //
-void vlDecimate::Triangulate(int numVerts, vlLocalVertexPtr verts[])
+void vtkDecimate::Triangulate(int numVerts, vtkLocalVertexPtr verts[])
 {
   int i,j;
   int n1, n2;
-  vlLocalVertexPtr l1[MAX_TRIS_PER_VERTEX], l2[MAX_TRIS_PER_VERTEX];
-  vlLocalVertexPtr fedges[2];
+  vtkLocalVertexPtr l1[MAX_TRIS_PER_VERTEX], l2[MAX_TRIS_PER_VERTEX];
+  vtkLocalVertexPtr fedges[2];
   float max, ar;
   int maxI, maxJ;
 
@@ -939,7 +939,7 @@ void vlDecimate::Triangulate(int numVerts, vlLocalVertexPtr verts[])
     }
 }
 
-int vlDecimate::CheckError (int ptId)
+int vtkDecimate::CheckError (int ptId)
 {
     int i, j;
     float error, planeError;
@@ -988,9 +988,9 @@ int vlDecimate::CheckError (int ptId)
   return 1; // okay to delete; error computed and distributed
 }
 
-void vlDecimate::PrintSelf(ostream& os, vlIndent indent)
+void vtkDecimate::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlPolyToPolyFilter::PrintSelf(os,indent);
+  vtkPolyToPolyFilter::PrintSelf(os,indent);
 
   os << indent << "Target Reduction: " << this->TargetReduction << "\n";
   os << indent << "Initial Error: " << this->InitialError << "\n";

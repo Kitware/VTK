@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    CArray.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
@@ -21,7 +21,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 // Description:
 // Allocate memory for this array. Delete old storage if present.
-int vlCharArray::Allocate(const int sz, const int ext)
+int vtkCharArray::Allocate(const int sz, const int ext)
 {
   if ( this->Array != NULL ) delete [] this->Array;
 
@@ -35,7 +35,7 @@ int vlCharArray::Allocate(const int sz, const int ext)
 
 // Description:
 // Release storage and reset array to initial state.
-void vlCharArray::Initialize()
+void vtkCharArray::Initialize()
 {
   if ( this->Array != NULL )
     {
@@ -48,7 +48,7 @@ void vlCharArray::Initialize()
 
 // Description:
 // Construct with specified storage size and extend value.
-vlCharArray::vlCharArray(const int sz, const int ext)
+vtkCharArray::vtkCharArray(const int sz, const int ext)
 {
   this->Size = ( sz > 0 ? sz : 1);
   this->Array = new unsigned char[this->Size];
@@ -56,7 +56,7 @@ vlCharArray::vlCharArray(const int sz, const int ext)
   this->MaxId = -1;
 }
 
-vlCharArray::~vlCharArray()
+vtkCharArray::~vtkCharArray()
 {
   if (this->Array)
     {
@@ -66,7 +66,7 @@ vlCharArray::~vlCharArray()
 
 // Description:
 // Construct array from another array. Copy each element of other array.
-vlCharArray::vlCharArray(const vlCharArray& ia)
+vtkCharArray::vtkCharArray(const vtkCharArray& ia)
 {
   int i;
 
@@ -82,7 +82,7 @@ vlCharArray::vlCharArray(const vlCharArray& ia)
 
 // Description:
 // Deep copy of another array.
-vlCharArray& vlCharArray::operator=(const vlCharArray& ia)
+vtkCharArray& vtkCharArray::operator=(const vtkCharArray& ia)
 {
   int i;
 
@@ -103,7 +103,7 @@ vlCharArray& vlCharArray::operator=(const vlCharArray& ia)
 
 // Description:
 // Append one array onto the end of this array.
-void vlCharArray::operator+=(const vlCharArray& ia)
+void vtkCharArray::operator+=(const vtkCharArray& ia)
 {
   int i, sz;
 
@@ -116,9 +116,9 @@ void vlCharArray::operator+=(const vlCharArray& ia)
   this->MaxId += ia.MaxId + 1;
 }
 
-void vlCharArray::PrintSelf(ostream& os, vlIndent indent)
+void vtkCharArray::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlObject::PrintSelf(os,indent);
+  vtkObject::PrintSelf(os,indent);
 
   os << indent << "Array: " << this->Array << "\n";
   os << indent << "Size: " << this->Size << "\n";
@@ -129,7 +129,7 @@ void vlCharArray::PrintSelf(ostream& os, vlIndent indent)
 //
 // Private function does "reallocate"
 //
-unsigned char *vlCharArray::Resize(const int sz)
+unsigned char *vtkCharArray::Resize(const int sz)
 {
   unsigned char *newArray;
   int newSize;
@@ -140,7 +140,7 @@ unsigned char *vlCharArray::Resize(const int sz)
 
   if ( (newArray = new unsigned char[newSize]) == NULL )
     {
-    vlErrorMacro(<< "Cannot allocate memory\n");
+    vtkErrorMacro(<< "Cannot allocate memory\n");
     return 0;
     }
 

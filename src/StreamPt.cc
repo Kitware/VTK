@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    StreamPt.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
@@ -15,27 +15,27 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 =========================================================================*/
 #include "StreamPt.hh"
 
-vlStreamPoints::vlStreamPoints()
+vtkStreamPoints::vtkStreamPoints()
 {
   this->TimeIncrement = 1.0;
 }
 
-void vlStreamPoints::Execute()
+void vtkStreamPoints::Execute()
 {
-  vlStreamPoint *sPrev, *sPtr;
-  vlFloatPoints *newPts;
-  vlFloatVectors *newVectors;
-  vlFloatScalars *newScalars=NULL;
+  vtkStreamPoint *sPrev, *sPtr;
+  vtkFloatPoints *newPts;
+  vtkFloatVectors *newVectors;
+  vtkFloatScalars *newScalars=NULL;
   int i, ptId, j, id;
   float tOffset, x[3], v[3], s, r;
 
-  this->vlStreamer::Integrate();
+  this->vtkStreamer::Integrate();
   if ( this->NumberOfStreamers <= 0 ) return;
 
-  newPts  = new vlFloatPoints(1000);
-  newVectors  = new vlFloatVectors(1000);
+  newPts  = new vtkFloatPoints(1000);
+  newVectors  = new vtkFloatVectors(1000);
   if ( this->Input->GetPointData()->GetScalars() || this->SpeedScalars )
-    newScalars = new vlFloatScalars(1000);
+    newScalars = new vtkFloatScalars(1000);
 //
 // Loop over all streamers generating points
 //
@@ -85,7 +85,7 @@ void vlStreamPoints::Execute()
 //
 // Update ourselves
 //
-  vlDebugMacro(<<"Created " << newPts->GetNumberOfPoints() << " points");
+  vtkDebugMacro(<<"Created " << newPts->GetNumberOfPoints() << " points");
 
   this->SetPoints(newPts);
   this->PointData.SetVectors(newVectors);
@@ -94,9 +94,9 @@ void vlStreamPoints::Execute()
   this->Squeeze();
 }
 
-void vlStreamPoints::PrintSelf(ostream& os, vlIndent indent)
+void vtkStreamPoints::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlStreamer::PrintSelf(os,indent);
+  vtkStreamer::PrintSelf(os,indent);
 
   os << indent << "Time Increment: " << this->TimeIncrement << " <<\n";
 }

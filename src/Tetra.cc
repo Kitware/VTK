@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    Tetra.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
@@ -14,22 +14,22 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
 #include "Tetra.hh"
-#include "vlMath.hh"
+#include "vtkMath.hh"
 #include "Line.hh"
 #include "Triangle.hh"
 #include "CellArr.hh"
 
-static vlMath math;
+static vtkMath math;
 
 // Description:
 // Deep copy of cell.
-vlTetra::vlTetra(const vlTetra& t)
+vtkTetra::vtkTetra(const vtkTetra& t)
 {
   this->Points = t.Points;
   this->PointIds = t.PointIds;
 }
 
-int vlTetra::EvaluatePosition(float x[3], float closestPoint[3],
+int vtkTetra::EvaluatePosition(float x[3], float closestPoint[3],
                               int& subId, float pcoords[3], 
                               float& dist2, float weights[MAX_CELL_SIZE])
 {
@@ -96,7 +96,7 @@ int vlTetra::EvaluatePosition(float x[3], float closestPoint[3],
     }
 }
 
-void vlTetra::EvaluateLocation(int& subId, float pcoords[3], float x[3],
+void vtkTetra::EvaluateLocation(int& subId, float pcoords[3], float x[3],
                                float weights[MAX_CELL_SIZE])
 {
   float u4;
@@ -122,7 +122,7 @@ void vlTetra::EvaluateLocation(int& subId, float pcoords[3], float x[3],
   weights[3] = pcoords[2];
 }
 
-int vlTetra::CellBoundary(int subId, float pcoords[3], vlIdList& pts)
+int vtkTetra::CellBoundary(int subId, float pcoords[3], vtkIdList& pts)
 {
   float t1 = pcoords[0] - pcoords[1];
   float t2 = pcoords[1] - pcoords[2];
@@ -202,10 +202,10 @@ static TRIANGLE_CASES triCases[] = {
   {-1, -1, -1, -1, -1, -1, -1}
 };
 
-void vlTetra::Contour(float value, vlFloatScalars *cellScalars, 
-                      vlFloatPoints *points,
-                      vlCellArray *verts, vlCellArray *lines, 
-                      vlCellArray *polys, vlFloatScalars *scalars)
+void vtkTetra::Contour(float value, vtkFloatScalars *cellScalars, 
+                      vtkFloatPoints *points,
+                      vtkCellArray *verts, vtkCellArray *lines, 
+                      vtkCellArray *polys, vtkFloatScalars *scalars)
 {
   static int CASE_MASK[4] = {1,2,4,8};
   TRIANGLE_CASES *triCase;
@@ -240,9 +240,9 @@ void vlTetra::Contour(float value, vlFloatScalars *cellScalars,
 
 }
 
-vlCell *vlTetra::GetEdge(int edgeId)
+vtkCell *vtkTetra::GetEdge(int edgeId)
 {
-  static vlLine line;
+  static vtkLine line;
   int *verts;
 
   verts = edges[edgeId];
@@ -258,10 +258,10 @@ vlCell *vlTetra::GetEdge(int edgeId)
   return &line;
 }
 
-vlCell *vlTetra::GetFace(int faceId)
+vtkCell *vtkTetra::GetFace(int faceId)
 {
   int *verts;
-  static vlTriangle tri;
+  static vtkTriangle tri;
 
   verts = faces[faceId];
 
@@ -281,7 +281,7 @@ vlCell *vlTetra::GetFace(int faceId)
 // 
 // Intersect triangle faces against line.
 //
-int vlTetra::IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
+int vtkTetra::IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
                                float x[3], float pcoords[3], int& subId)
 {
   int intersection=0;
@@ -289,7 +289,7 @@ int vlTetra::IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
   float tTemp;
   float pc[3], xTemp[3];
   int faceNum;
-  static vlTriangle tri;
+  static vtkTriangle tri;
 
   t = LARGE_FLOAT;
   for (faceNum=0; faceNum<4; faceNum++)

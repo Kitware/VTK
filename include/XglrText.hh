@@ -1,41 +1,41 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    XglrText.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its
+This file is part of the Visualization Toolkit. No part of this file or its
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
-// .NAME vlKXglrTexture - starbase texture map object
+// .NAME vtkKXglrTexture - starbase texture map object
 // .SECTION Description
-// vlXglrTexture is a concrete implementation of the abstract class vlTexture.
+// vtkXglrTexture is a concrete implementation of the abstract class vtkTexture.
 // currently we don't support texture mapping on starbase.
 
-#ifndef __vlXglrTexture_hh
-#define __vlXglrTexture_hh
+#ifndef __vtkXglrTexture_hh
+#define __vtkXglrTexture_hh
 
 #include "TextDev.hh"
 
-class vlXglrRenderer;
+class vtkXglrRenderer;
 
-class vlXglrTexture : public vlTextureDevice
+class vtkXglrTexture : public vtkTextureDevice
 {
 public:
-  vlXglrTexture();
-  char *GetClassName() {return "vlXglrTexture";};
+  vtkXglrTexture();
+  char *GetClassName() {return "vtkXglrTexture";};
   
-  void Load(vlTexture *txt, vlRenderer *ren);
-  void Load(vlTexture *txt, vlXglrRenderer *ren);
+  void Load(vtkTexture *txt, vtkRenderer *ren);
+  void Load(vtkTexture *txt, vtkXglrRenderer *ren);
   
 protected:
-  vlTimeStamp   LoadTime;
+  vtkTimeStamp   LoadTime;
   long          Index;
   static   long GlobalIndex;
 };

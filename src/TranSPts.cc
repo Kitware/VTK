@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    TranSPts.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
@@ -19,7 +19,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // Construct object to use input dimensions as sample dimensions,
 // and to conpute bounds automatically from input. Fill value is set
 // to large positive integer.
-vlTransformStructuredPoints::vlTransformStructuredPoints()
+vtkTransformStructuredPoints::vtkTransformStructuredPoints()
 {
   this->ModelBounds[0] = 0.0;
   this->ModelBounds[1] = 0.0;
@@ -37,9 +37,9 @@ vlTransformStructuredPoints::vlTransformStructuredPoints()
   this->Transform = NULL;
 }
 
-void vlTransformStructuredPoints::PrintSelf(ostream& os, vlIndent indent)
+void vtkTransformStructuredPoints::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlStructuredPointsToStructuredPointsFilter::PrintSelf(os,indent);
+  vtkStructuredPointsToStructuredPointsFilter::PrintSelf(os,indent);
 
   os << indent << "Sample Dimensions: (" << this->SampleDimensions[0] << ", "
                << this->SampleDimensions[1] << ", "
@@ -56,12 +56,12 @@ void vlTransformStructuredPoints::PrintSelf(ostream& os, vlIndent indent)
 
 // Description:
 // Define pre-transformed size of structured point set.
-void vlTransformStructuredPoints::SetModelBounds(float *bounds)
+void vtkTransformStructuredPoints::SetModelBounds(float *bounds)
 {
-  vlTransformStructuredPoints::SetModelBounds(bounds[0], bounds[1], bounds[2], bounds[3], bounds[4], bounds[5]);
+  vtkTransformStructuredPoints::SetModelBounds(bounds[0], bounds[1], bounds[2], bounds[3], bounds[4], bounds[5]);
 }
 
-void vlTransformStructuredPoints::SetModelBounds(float xmin, float xmax, float ymin, float ymax, float zmin, float zmax)
+void vtkTransformStructuredPoints::SetModelBounds(float xmin, float xmax, float ymin, float ymax, float zmin, float zmax)
 {
   if (this->ModelBounds[0] != xmin || this->ModelBounds[1] != xmax ||
   this->ModelBounds[2] != ymin || this->ModelBounds[3] != ymax ||
@@ -88,16 +88,16 @@ void vlTransformStructuredPoints::SetModelBounds(float xmin, float xmax, float y
     }
 }
 
-void vlTransformStructuredPoints::Execute()
+void vtkTransformStructuredPoints::Execute()
 {
   int i, numPts, numOutPts;
   int *dimIn;
   float *originIn, *aspectIn, ar[3];
-  vlPointData *pd;
-  vlScalars *inScalars, *outScalars;
-  vlStructuredPoints *input=(vlStructuredPoints *)this->Input;
+  vtkPointData *pd;
+  vtkScalars *inScalars, *outScalars;
+  vtkStructuredPoints *input=(vtkStructuredPoints *)this->Input;
 
-  vlDebugMacro(<<"Transforming points");
+  vtkDebugMacro(<<"Transforming points");
   this->Initialize();
 
   // make sure there is input
@@ -106,7 +106,7 @@ void vlTransformStructuredPoints::Execute()
   if ( (numPts=this->Input->GetNumberOfPoints()) < 1 ||
   inScalars == NULL )
     {
-    vlErrorMacro(<<"No data to transform!");
+    vtkErrorMacro(<<"No data to transform!");
     return;
     }
 
@@ -167,7 +167,7 @@ void vlTransformStructuredPoints::Execute()
 }
 
 
-unsigned long int vlTransformStructuredPoints::GetMTime()
+unsigned long int vtkTransformStructuredPoints::GetMTime()
 {
   unsigned long int mtime = 0;
 

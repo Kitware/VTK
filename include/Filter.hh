@@ -1,38 +1,38 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    Filter.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its 
+This file is part of the Visualization Toolkit. No part of this file or its 
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-// .NAME vlFilter - abstract class for specifying filter behaviour
+// .NAME vtkFilter - abstract class for specifying filter behaviour
 // .SECTION Description
-// vlFilter is an abstract class that specifies the interface for data 
+// vtkFilter is an abstract class that specifies the interface for data 
 // filters. Each filter must have an UpdateFilter() and Execute() method 
 // that will cause the filter to execute if its input or the filter itself 
 // has been modified since the last execution time.
 
-#ifndef __vlFilter_h
-#define __vlFilter_h
+#ifndef __vtkFilter_h
+#define __vtkFilter_h
 
 #include "LWObject.hh"
 #include "DataSet.hh"
 
-class vlFilter : public vlLWObject
+class vtkFilter : public vtkLWObject
 {
 public:
-  vlFilter();
-  virtual ~vlFilter() {};
-  void _PrintSelf(ostream& os, vlIndent indent);
-  char *_GetClassName() {return "vlFilter";};
+  vtkFilter();
+  virtual ~vtkFilter() {};
+  void _PrintSelf(ostream& os, vtkIndent indent);
+  char *_GetClassName() {return "vtkFilter";};
 
   // Description:
   // All filters must provide a method to update the visualization 
@@ -45,7 +45,7 @@ public:
   void SetEndMethodArgDelete(void (*f)(void *));
 
 protected:
-  vlDataSet *Input;
+  vtkDataSet *Input;
   char Updating;
   void (*StartMethod)(void *);
   void (*StartMethodArgDelete)(void *);
@@ -53,7 +53,7 @@ protected:
   void (*EndMethod)(void *);
   void (*EndMethodArgDelete)(void *);
   void *EndMethodArg;
-  vlTimeStamp ExecuteTime;
+  vtkTimeStamp ExecuteTime;
 
   // Every filter must have execute method.
   virtual void Execute();

@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    PolyNrml.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
@@ -15,13 +15,13 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 =========================================================================*/
 #include "PolyNrml.hh"
 #include "Polygon.hh"
-#include "vlMath.hh"
+#include "vtkMath.hh"
 #include "FNormals.hh"
 
 // Description:
 // Construct with feature angle=30, splitting and consistency turned on, 
 // and flipNormals turned off.
-vlPolyNormals::vlPolyNormals()
+vtkPolyNormals::vtkPolyNormals()
 {
   this->FeatureAngle = 30.0;
   this->Splitting = 1;
@@ -32,16 +32,16 @@ vlPolyNormals::vlPolyNormals()
 
 static  int NumFlips=0, NumExceededMaxDepth=0;
 static  int *Visited;
-static  vlPolyData *OldMesh, *NewMesh;
+static  vtkPolyData *OldMesh, *NewMesh;
 static  int RecursionDepth;
 static  int Mark;    
-static  vlFloatNormals *PolyNormals;
+static  vtkFloatNormals *PolyNormals;
 static	float	CosAngle;
-static  vlIdList *Seeds, *Map;
+static  vtkIdList *Seeds, *Map;
 
 // Generate normals for polygon meshes
 
-void vlPolyNormals::Execute()
+void vtkPolyNormals::Execute()
 {
   int i, j;
   int *pts, npts;
@@ -50,26 +50,26 @@ void vlPolyNormals::Execute()
   float flipDirection=1.0;
   int replacementPoint, numPolys;
   int cellId, numPts;
-  vlPoints *inPts;
-  vlCellArray *inPolys;
-  vlPolygon poly;
-  vlMath math;
-  vlFloatPoints *newPts;
-  vlFloatNormals *newNormals;
-  vlPointData *pd;
+  vtkPoints *inPts;
+  vtkCellArray *inPolys;
+  vtkPolygon poly;
+  vtkMath math;
+  vtkFloatPoints *newPts;
+  vtkFloatNormals *newNormals;
+  vtkPointData *pd;
   float n[3];
-  vlCellArray *newPolys;
+  vtkCellArray *newPolys;
   int ptId, oldId;
-  vlIdList cellIds(MAX_CELL_SIZE);
-  vlPolyData *input=(vlPolyData *)this->Input;
+  vtkIdList cellIds(MAX_CELL_SIZE);
+  vtkPolyData *input=(vtkPolyData *)this->Input;
 
-  vlDebugMacro(<<"Generating surface normals");
+  vtkDebugMacro(<<"Generating surface normals");
   this->Initialize();
 
   if ( (numPts=input->GetNumberOfPoints()) < 1 || 
   (numPolys=input->GetNumberOfPolys()) < 1 )
     {
-    vlErrorMacro(<<"No data to generate normals for!");
+    vtkErrorMacro(<<"No data to generate normals for!");
     return;
     }
 //
@@ -80,17 +80,17 @@ void vlPolyNormals::Execute()
   inPts = input->GetPoints();
   inPolys = input->GetPolys();
 
-  OldMesh = new vlPolyData;
+  OldMesh = new vtkPolyData;
   OldMesh->SetPoints(inPts);
   OldMesh->SetPolys(inPolys);
   OldMesh->BuildLinks();
   
   pd = input->GetPointData();
     
-  NewMesh = new vlPolyData;
+  NewMesh = new vtkPolyData;
   NewMesh->SetPoints(inPts);
   // create a copy because we're modifying it
-  newPolys = new vlCellArray(*(inPolys));
+  newPolys = new vtkCellArray(*(inPolys));
   NewMesh->SetPolys(newPolys);
   NewMesh->BuildCells();
 
@@ -115,7 +115,7 @@ void vlPolyNormals::Execute()
   if ( this->Consistency ) 
     {    
     NumFlips = 0;
-    Seeds = new vlIdList(1000,1000);
+    Seeds = new vtkIdList(1000,1000);
 
     for (cellId=0; cellId < numPolys; cellId++)
       {
@@ -138,8 +138,8 @@ void vlPolyNormals::Execute()
 
       Seeds->Reset();
       }
-    vlDebugMacro(<<"Reversed ordering of " << NumFlips << " polygons");
-    vlDebugMacro(<<"Exceeded recursion depth " << NumExceededMaxDepth
+    vtkDebugMacro(<<"Reversed ordering of " << NumFlips << " polygons");
+    vtkDebugMacro(<<"Exceeded recursion depth " << NumExceededMaxDepth
                  <<" times");
 
     delete Seeds;
@@ -147,7 +147,7 @@ void vlPolyNormals::Execute()
 //
 //  Compute polygon normals
 //
-  PolyNormals = new vlFloatNormals(numPolys);
+  PolyNormals = new vtkFloatNormals(numPolys);
 
   for (cellId=0, newPolys->InitTraversal(); newPolys->GetNextCell(npts,pts); 
   cellId++ )
@@ -166,7 +166,7 @@ void vlPolyNormals::Execute()
 //  Splitting will create new points.  Have to create index array to map
 //  new points into old points.
 //
-    Map = new vlIdList(numPts,numPts);
+    Map = new vtkIdList(numPts,numPts);
     for (i=0; i < numPts; i++) Map->SetId(i,i);
 
     for (ptId=0; ptId < OldMesh->GetNumberOfPoints(); ptId++)
@@ -186,14 +186,14 @@ void vlPolyNormals::Execute()
     Map->Squeeze();
     numNewPts = Map->GetNumberOfIds();
 
-    vlDebugMacro(<<"Created " << numNewPts-numPts << " new points");
+    vtkDebugMacro(<<"Created " << numNewPts-numPts << " new points");
 //
 //  Now need to map values of old points into new points.
 //
     this->PointData.CopyNormalsOff();
     this->PointData.CopyAllocate(pd,numNewPts);
 
-    newPts = new vlFloatPoints(numNewPts);
+    newPts = new vtkFloatPoints(numNewPts);
     for (ptId=0; ptId < numNewPts; ptId++)
       {
       oldId = Map->GetId(ptId);
@@ -214,7 +214,7 @@ void vlPolyNormals::Execute()
 
   if ( this->FlipNormals && ! this->Consistency ) flipDirection = -1.0;
 
-  newNormals = new vlFloatNormals(numNewPts);
+  newNormals = new vtkFloatNormals(numNewPts);
   n[0] = n[1] = n[2] = 0.0;
   for (i=0; i < numNewPts; i++) newNormals->SetNormal(i,n);
 
@@ -269,12 +269,12 @@ void vlPolyNormals::Execute()
 //  Mark current polygon as visited, make sure that all neighboring
 //  polygons are ordered consistent with this one.
 //
-void vlPolyNormals::TraverseAndOrder (int cellId)
+void vtkPolyNormals::TraverseAndOrder (int cellId)
 {
   int p1, p2;
   int j, k, l;
   int npts, *pts;
-  vlIdList cellIds(MAX_CELL_SIZE);
+  vtkIdList cellIds(MAX_CELL_SIZE);
   int numNeiPts, *neiPts, neighbor;
 
   Visited[cellId] = Mark; //means that it's been ordered properly
@@ -328,15 +328,15 @@ void vlPolyNormals::TraverseAndOrder (int cellId)
 //  Mark polygons around vertex.  Create new vertex (if necessary) and
 //  replace (i.e., split mesh).
 //
-void vlPolyNormals::MarkAndReplace (int cellId, int n, int replacementPoint)
+void vtkPolyNormals::MarkAndReplace (int cellId, int n, int replacementPoint)
 {
   int i, spot;
   int neiNode[2];
   float *thisNormal, *neiNormal;
   int numOldPts, *oldPts;
   int numNewPts, *newPts;
-  vlIdList cellIds(MAX_CELL_SIZE);
-  vlMath math;
+  vtkIdList cellIds(MAX_CELL_SIZE);
+  vtkMath math;
 
   Visited[cellId] = Mark;
   OldMesh->GetCellPoints(cellId,numOldPts,oldPts);
@@ -398,9 +398,9 @@ void vlPolyNormals::MarkAndReplace (int cellId, int n, int replacementPoint)
   return;
 }
 
-void vlPolyNormals::PrintSelf(ostream& os, vlIndent indent)
+void vtkPolyNormals::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlPolyToPolyFilter::PrintSelf(os,indent);
+  vtkPolyToPolyFilter::PrintSelf(os,indent);
 
   os << indent << "Feature Angle: " << this->FeatureAngle << "\n";
   os << indent << "Splitting: " << (this->Splitting ? "On\n" : "Off\n");

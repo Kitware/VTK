@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    Interact.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
@@ -19,7 +19,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 // Description:
 // Construct object so that light follows camera motion.
-vlRenderWindowInteractor::vlRenderWindowInteractor()
+vtkRenderWindowInteractor::vtkRenderWindowInteractor()
 {
   this->RenderWindow    = NULL;
   this->CurrentCamera   = NULL;
@@ -47,16 +47,16 @@ vlRenderWindowInteractor::vlRenderWindowInteractor()
   this->UserMethodArg = NULL;
 }
 
-vlRenderWindowInteractor::~vlRenderWindowInteractor()
+vtkRenderWindowInteractor::~vtkRenderWindowInteractor()
 {
   if ( this->OutlineActor ) delete this->OutlineActor;
   if ( this->SelfCreatedPicker && this->Picker) delete this->Picker;
 }
 
-void vlRenderWindowInteractor::FindPokedRenderer(int x,int y)
+void vtkRenderWindowInteractor::FindPokedRenderer(int x,int y)
 {
-  vlRendererCollection *rc;
-  vlRenderer *aren;
+  vtkRendererCollection *rc;
+  vtkRenderer *aren;
 
   this->CurrentRenderer = NULL;
 
@@ -80,10 +80,10 @@ void vlRenderWindowInteractor::FindPokedRenderer(int x,int y)
     }
 }
 
-void  vlRenderWindowInteractor::FindPokedCamera(int x,int y)
+void  vtkRenderWindowInteractor::FindPokedCamera(int x,int y)
 {
   float *vp;
-  vlLightCollection *lc;
+  vtkLightCollection *lc;
 
   this->FindPokedRenderer(x,y);
   vp = this->CurrentRenderer->GetViewport();
@@ -103,12 +103,12 @@ void  vlRenderWindowInteractor::FindPokedCamera(int x,int y)
 // Description:
 // When pick action successfully selects actor, this method highlights the 
 // actor appropriately.
-void vlRenderWindowInteractor::HighlightActor(vlActor *actor)
+void vtkRenderWindowInteractor::HighlightActor(vtkActor *actor)
 {
   if ( ! this->OutlineActor )
     {
     // have to defer creation to get right type
-    this->OutlineActor = new vlActor;
+    this->OutlineActor = new vtkActor;
     this->OutlineActor->PickableOff();
     this->OutlineActor->DragableOff();
     this->OutlineActor->SetMapper(this->OutlineMapper);
@@ -136,7 +136,7 @@ void vlRenderWindowInteractor::HighlightActor(vlActor *actor)
 
 // Description:
 // Specify a method to be executed prior to the pick operation.
-void vlRenderWindowInteractor::SetStartPickMethod(void (*f)(void *), void *arg)
+void vtkRenderWindowInteractor::SetStartPickMethod(void (*f)(void *), void *arg)
 {
   if ( f != this->StartPickMethod || arg != this->StartPickMethodArg )
     {
@@ -148,7 +148,7 @@ void vlRenderWindowInteractor::SetStartPickMethod(void (*f)(void *), void *arg)
 
 // Description:
 // Specify a method to be executed after the pick operation.
-void vlRenderWindowInteractor::SetEndPickMethod(void (*f)(void *), void *arg)
+void vtkRenderWindowInteractor::SetEndPickMethod(void (*f)(void *), void *arg)
 {
   if ( f != this->EndPickMethod || arg != this->EndPickMethodArg )
     {
@@ -161,7 +161,7 @@ void vlRenderWindowInteractor::SetEndPickMethod(void (*f)(void *), void *arg)
 // Description:
 // Set the object used to perform pick operations. You can use this to 
 // control what type of data is picked.
-void vlRenderWindowInteractor::SetPicker(vlPicker *picker)
+void vtkRenderWindowInteractor::SetPicker(vtkPicker *picker)
 {
   if ( this->Picker != picker ) 
     {
@@ -172,16 +172,16 @@ void vlRenderWindowInteractor::SetPicker(vlPicker *picker)
     }
 }
 
-vlPicker *vlRenderWindowInteractor::CreateDefaultPicker()
+vtkPicker *vtkRenderWindowInteractor::CreateDefaultPicker()
 {
   if ( this->SelfCreatedPicker ) delete this->Picker;
   this->SelfCreatedPicker = 1;
-  return new vlCellPicker;
+  return new vtkCellPicker;
 }
 
 // Description:
 // Set the user method. This method is invokedon a ctrl-u.
-void vlRenderWindowInteractor::SetUserMethod(void (*f)(void *), void *arg)
+void vtkRenderWindowInteractor::SetUserMethod(void (*f)(void *), void *arg)
 {
   if ( f != this->UserMethod || arg != this->UserMethodArg )
     {
@@ -198,7 +198,7 @@ void vlRenderWindowInteractor::SetUserMethod(void (*f)(void *), void *arg)
 
 // Description:
 // Called when a void* argument is being discarded.  Lets the user free it.
-void vlRenderWindowInteractor::SetUserMethodArgDelete(void (*f)(void *))
+void vtkRenderWindowInteractor::SetUserMethodArgDelete(void (*f)(void *))
 {
   if ( f != this->UserMethodArgDelete)
     {
@@ -209,7 +209,7 @@ void vlRenderWindowInteractor::SetUserMethodArgDelete(void (*f)(void *))
 
 // Description:
 // Called when a void* argument is being discarded.  Lets the user free it.
-void vlRenderWindowInteractor::SetStartPickMethodArgDelete(void (*f)(void *))
+void vtkRenderWindowInteractor::SetStartPickMethodArgDelete(void (*f)(void *))
 {
   if ( f != this->StartPickMethodArgDelete)
     {
@@ -219,7 +219,7 @@ void vlRenderWindowInteractor::SetStartPickMethodArgDelete(void (*f)(void *))
 }
 // Description:
 // Called when a void* argument is being discarded.  Lets the user free it.
-void vlRenderWindowInteractor::SetEndPickMethodArgDelete(void (*f)(void *))
+void vtkRenderWindowInteractor::SetEndPickMethodArgDelete(void (*f)(void *))
 {
   if ( f != this->EndPickMethodArgDelete)
     {
@@ -228,9 +228,9 @@ void vlRenderWindowInteractor::SetEndPickMethodArgDelete(void (*f)(void *))
     }
 }
 
-void vlRenderWindowInteractor::PrintSelf(ostream& os, vlIndent indent)
+void vtkRenderWindowInteractor::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlObject::PrintSelf(os,indent);
+  vtkObject::PrintSelf(os,indent);
 
   os << indent << "RenderWindow:    " << this->RenderWindow << "\n";
   os << indent << "CurrentCamera:   " << this->CurrentCamera << "\n";

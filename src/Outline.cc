@@ -1,6 +1,6 @@
 #include "Outline.hh"
 
-vlOutlineSource::vlOutlineSource()
+vtkOutlineSource::vtkOutlineSource()
 {
   for (int i=0; i<3; i++) 
     {
@@ -9,15 +9,15 @@ vlOutlineSource::vlOutlineSource()
     }
 }
 
-void vlOutlineSource::Execute()
+void vtkOutlineSource::Execute()
 {
   float *bounds;
   float x[3];
   int pts[2];
-  vlFloatPoints *newPts;
-  vlCellArray *newLines;
+  vtkFloatPoints *newPts;
+  vtkCellArray *newLines;
 
-  vlDebugMacro(<< "Generating outline");
+  vtkDebugMacro(<< "Generating outline");
 //
 // Initialize
 //
@@ -26,8 +26,8 @@ void vlOutlineSource::Execute()
 //
 // Allocate storage and create outline
 //
-  newPts = new vlFloatPoints(8);
-  newLines = new vlCellArray;
+  newPts = new vtkFloatPoints(8);
+  newLines = new vtkCellArray;
   newLines->Allocate(newLines->EstimateSize(12,2));
 
   x[0] = bounds[0]; x[1] = bounds[2]; x[2] = bounds[4];
@@ -79,9 +79,9 @@ void vlOutlineSource::Execute()
 
 }
 
-void vlOutlineSource::PrintSelf(ostream& os, vlIndent indent)
+void vtkOutlineSource::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlPolySource::PrintSelf(os,indent);
+  vtkPolySource::PrintSelf(os,indent);
 
   os << indent << "Bounds: (" << this->Bounds[0] << ", " 
      << this->Bounds[1] << ") (" << this->Bounds[2] << ") ("

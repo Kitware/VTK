@@ -1,21 +1,21 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    RotExtrd.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-// .NAME vlRotationalExtrusionFilter - sweep polygonal data creating "skirt" from free edges and lines, and lines from vertices
+// .NAME vtkRotationalExtrusionFilter - sweep polygonal data creating "skirt" from free edges and lines, and lines from vertices
 // .SECTION Description
-// vlRotationalExtrusionFilter is a modelling filter. It takes polygonal 
+// vtkRotationalExtrusionFilter is a modelling filter. It takes polygonal 
 // data as input and generates polygonal data on output. The input dataset 
 // is swept around the z-axis to create new polygonal primitives. These 
 // primitives form a "skirt" or swept surface. For example, sweeping a
@@ -43,47 +43,47 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // this will result in two separate surfaces if capping is on, or no surface
 // if capping is off.
 // .SECTION See Also
-// vlLinearExtrusionFilter
+// vtkLinearExtrusionFilter
 
-#ifndef __vlRotationalExtrusionFilter_h
-#define __vlRotationalExtrusionFilter_h
+#ifndef __vtkRotationalExtrusionFilter_h
+#define __vtkRotationalExtrusionFilter_h
 
 #include "P2PF.hh"
 
-class vlRotationalExtrusionFilter : public vlPolyToPolyFilter 
+class vtkRotationalExtrusionFilter : public vtkPolyToPolyFilter 
 {
 public:
-  vlRotationalExtrusionFilter();
-  ~vlRotationalExtrusionFilter() {};
-  char *GetClassName() {return "vlRotationalExtrusionFilter";};
-  void PrintSelf(ostream& os, vlIndent indent);
+  vtkRotationalExtrusionFilter();
+  ~vtkRotationalExtrusionFilter() {};
+  char *GetClassName() {return "vtkRotationalExtrusionFilter";};
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Set/Get resolution of sweep operation. Resolution controls the number
   // of intermediate node points.
-  vlSetClampMacro(Resolution,int,1,LARGE_INTEGER);
-  vlGetMacro(Resolution,int);
+  vtkSetClampMacro(Resolution,int,1,LARGE_INTEGER);
+  vtkGetMacro(Resolution,int);
 
   // Description:
   // Turn on/off the capping of the skirt.
-  vlSetMacro(Capping,int);
-  vlGetMacro(Capping,int);
-  vlBooleanMacro(Capping,int);
+  vtkSetMacro(Capping,int);
+  vtkGetMacro(Capping,int);
+  vtkBooleanMacro(Capping,int);
 
   // Description:
   // Set/Get angle of rotation.
-  vlSetClampMacro(Angle,float,0,360.0);
-  vlGetMacro(Angle,float);
+  vtkSetClampMacro(Angle,float,0,360.0);
+  vtkGetMacro(Angle,float);
 
   // Description:
   // Set/Get total amount of translation along the z-axis.
-  vlSetMacro(Translation,float);
-  vlGetMacro(Translation,float);
+  vtkSetMacro(Translation,float);
+  vtkGetMacro(Translation,float);
 
   // Description:
   // Set/Get change in radius during sweep process.
-  vlSetMacro(DeltaRadius,float);
-  vlGetMacro(DeltaRadius,float);
+  vtkSetMacro(DeltaRadius,float);
+  vtkGetMacro(DeltaRadius,float);
 
 protected:
   void Execute();

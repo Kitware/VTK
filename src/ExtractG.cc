@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    ExtractG.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
@@ -14,11 +14,11 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
 #include "ExtractG.hh"
-#include "vlMath.hh"
+#include "vtkMath.hh"
 
 // Description:
 // Construct with ExtractInside turned on.
-vlExtractGeometry::vlExtractGeometry(vlImplicitFunction *f)
+vtkExtractGeometry::vtkExtractGeometry(vtkImplicitFunction *f)
 {
   this->ImplicitFunction = f;
   this->ExtractInside = 1;
@@ -27,7 +27,7 @@ vlExtractGeometry::vlExtractGeometry(vlImplicitFunction *f)
 // Description:
 // Overload standard modified time function. If cut functions is modified,
 // then we are modified as well.
-unsigned long vlExtractGeometry::GetMTime()
+unsigned long vtkExtractGeometry::GetMTime()
 {
   unsigned long mTime=this->MTime.GetMTime();
   unsigned long impFuncMTime;
@@ -41,25 +41,25 @@ unsigned long vlExtractGeometry::GetMTime()
   return mTime;
 }
 
-void vlExtractGeometry::Execute()
+void vtkExtractGeometry::Execute()
 {
   int ptId, numPts, numCells, i, cellId;
-  vlIdList *cellPts;
-  vlCell *cell;
-  vlMath math;
+  vtkIdList *cellPts;
+  vtkCell *cell;
+  vtkMath math;
   int numCellPts, newId, *pointMap;
-  vlPointData *pd;
+  vtkPointData *pd;
   float *x;
   float multiplier;
-  vlFloatPoints *newPts;
-  vlIdList newCellPts(MAX_CELL_SIZE);
+  vtkFloatPoints *newPts;
+  vtkIdList newCellPts(MAX_CELL_SIZE);
 
-  vlDebugMacro(<< "Extracting geometry");
+  vtkDebugMacro(<< "Extracting geometry");
   this->Initialize();
 
   if ( ! this->ImplicitFunction )
     {
-    vlErrorMacro(<<"No implicit function specified");
+    vtkErrorMacro(<<"No implicit function specified");
     return;
     }
 
@@ -75,7 +75,7 @@ void vlExtractGeometry::Execute()
   for (i=0; i < numPts; i++) pointMap[i] = -1;
 
   this->Allocate(numCells/4); //allocate storage for geometry/topology
-  newPts = new vlFloatPoints(numPts/4,numPts);
+  newPts = new vtkFloatPoints(numPts/4,numPts);
   pd = this->Input->GetPointData();
   this->PointData.CopyAllocate(pd);
   
@@ -120,9 +120,9 @@ void vlExtractGeometry::Execute()
   this->Squeeze();
 }
 
-void vlExtractGeometry::PrintSelf(ostream& os, vlIndent indent)
+void vtkExtractGeometry::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlDataSetToUnstructuredGridFilter::PrintSelf(os,indent);
+  vtkDataSetToUnstructuredGridFilter::PrintSelf(os,indent);
 
   os << indent << "Implicit Function: " << (void *)this->ImplicitFunction << "\n";
   os << indent << "Extract Inside: " << (this->ExtractInside ? "On\n" : "Off\n");

@@ -1,48 +1,48 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    Cutter.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-// .NAME vlCutter - Cut vlDataSets with user-specified implicit function
+// .NAME vtkCutter - Cut vtkDataSets with user-specified implicit function
 // .SECTION Description
-// vlCutter is a filter to cut through data using any subclass of 
-// vlImplicitFunction. That is, a polygonal surface is created
+// vtkCutter is a filter to cut through data using any subclass of 
+// vtkImplicitFunction. That is, a polygonal surface is created
 // corresponding to the implicit function F(x,y,z) = 0.
 
-#ifndef __vlCutter_h
-#define __vlCutter_h
+#ifndef __vtkCutter_h
+#define __vtkCutter_h
 
 #include "DS2PolyF.hh"
 #include "ImpFunc.hh"
 
-class vlCutter : public vlDataSetToPolyFilter
+class vtkCutter : public vtkDataSetToPolyFilter
 {
 public:
-  vlCutter(vlImplicitFunction *cf=NULL);
-  ~vlCutter();
-  char *GetClassName() {return "vlCutter";};
-  void PrintSelf(ostream& os, vlIndent indent);
+  vtkCutter(vtkImplicitFunction *cf=NULL);
+  ~vtkCutter();
+  char *GetClassName() {return "vtkCutter";};
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   unsigned long int GetMTime();
 
   // Description
   // Specify the implicit function to perform the cutting.
-  vlSetObjectMacro(CutFunction,vlImplicitFunction);
-  vlGetObjectMacro(CutFunction,vlImplicitFunction);
+  vtkSetObjectMacro(CutFunction,vtkImplicitFunction);
+  vtkGetObjectMacro(CutFunction,vtkImplicitFunction);
 
 protected:
   void Execute();
-  vlImplicitFunction *CutFunction;
+  vtkImplicitFunction *CutFunction;
   
 };
 

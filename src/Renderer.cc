@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    Renderer.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its
+This file is part of the Visualization Toolkit. No part of this file or its
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
@@ -19,12 +19,12 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "Renderer.hh"
 #include "RenderW.hh"
 #include "VolRen.hh"
-#include "vlMath.hh"
+#include "vtkMath.hh"
 
 // Description:
 // Create object with black background, ambient light white, backlighting 
 // turned on, erasing turned on, and viewport (0,0,1,1).
-vlRenderer::vlRenderer()
+vtkRenderer::vtkRenderer()
 {
   this->ActiveCamera = NULL;
 
@@ -70,70 +70,70 @@ vlRenderer::vlRenderer()
 
 // Description:
 // Specify the camera to use.
-void vlRenderer::SetActiveCamera(vlCamera *cam)
+void vtkRenderer::SetActiveCamera(vtkCamera *cam)
 {
   this->ActiveCamera = cam;
 }
 
 // Description:
 // Get the current camera.
-vlCamera *vlRenderer::GetActiveCamera()
+vtkCamera *vtkRenderer::GetActiveCamera()
 {
   return this->ActiveCamera;
 }
 
 // Description:
 // Specify a volume renderer to use.
-void vlRenderer::SetVolumeRenderer(vlVolumeRenderer *vol)
+void vtkRenderer::SetVolumeRenderer(vtkVolumeRenderer *vol)
 {
   this->VolumeRenderer = vol;
 }
 
 // Description:
 // Get the volume renderer.
-vlVolumeRenderer *vlRenderer::GetVolumeRenderer()
+vtkVolumeRenderer *vtkRenderer::GetVolumeRenderer()
 {
   return this->VolumeRenderer;
 }
 
 // Description:
 // Add a light to the list of lights.
-void vlRenderer::AddLights(vlLight *light)
+void vtkRenderer::AddLights(vtkLight *light)
 {
   this->Lights.AddItem(light);
 }
 
 // Description:
 // Add an actor to the list of actors.
-void vlRenderer::AddActors(vlActor *actor)
+void vtkRenderer::AddActors(vtkActor *actor)
 {
   this->Actors.AddItem(actor);
 }
 
 // Description:
 // Remove a light from the list of lights.
-void vlRenderer::RemoveLights(vlLight *light)
+void vtkRenderer::RemoveLights(vtkLight *light)
 {
   this->Lights.RemoveItem(light);
 }
 
 // Description:
 // Remove an actor from the list of actors.
-void vlRenderer::RemoveActors(vlActor *actor)
+void vtkRenderer::RemoveActors(vtkActor *actor)
 {
   this->Actors.RemoveItem(actor);
 }
 
 // Description:
 // Process the list of lights during the rendering process.
-void vlRenderer::DoLights()
+void vtkRenderer::DoLights()
 {
-  vlLight *light1;
+  vtkLight *light1;
 
   if (!this->UpdateLights())
     {
-    vlWarningMacro(<<"No lights are on, creating one.");
-    light1 = new vlLight;
+    vtkWarningMacro(<<"No lights are on, creating one.");
+    light1 = new vtkLight;
     this->AddLights(light1);
     light1->SetPosition(this->ActiveCamera->GetPosition());
     light1->SetFocalPoint(this->ActiveCamera->GetFocalPoint());
@@ -143,14 +143,14 @@ void vlRenderer::DoLights()
 
 // Description:
 // Process the list of cameras during the rendering process.
-void vlRenderer::DoCameras()
+void vtkRenderer::DoCameras()
 {
-  vlCamera *cam1;
+  vtkCamera *cam1;
 
   if (!this->UpdateCameras())
     {
-    vlWarningMacro(<< "No cameras are on, creating one.");
-    cam1 = new vlCamera;
+    vtkWarningMacro(<< "No cameras are on, creating one.");
+    cam1 = new vtkCamera;
     this->SetActiveCamera(cam1);
     this->ResetCamera();
     this->UpdateCameras();
@@ -159,12 +159,12 @@ void vlRenderer::DoCameras()
 
 // Description:
 // Process the list of actors during the rendering process.
-void vlRenderer::DoActors()
+void vtkRenderer::DoActors()
 {
 
   if (!this->UpdateActors())
     {
-    vlWarningMacro(<< "No actors are on.");
+    vtkWarningMacro(<< "No actors are on.");
     }
 }
 
@@ -173,10 +173,10 @@ void vlRenderer::DoActors()
 // Camera will reposition itself to view the center point of the actors,
 // and move along its initial view plane normal (i.e., vector defined from 
 // camera position to focal point).
-void vlRenderer::ResetCamera()
+void vtkRenderer::ResetCamera()
 {
-  vlVolume *aVolume;
-  vlActor *anActor;
+  vtkVolume *aVolume;
+  vtkActor *anActor;
   float *bounds;
   float allBounds[6];
   int nothingVisible=1;
@@ -226,7 +226,7 @@ void vlRenderer::ResetCamera()
 
   if ( nothingVisible )
     {
-    vlErrorMacro(<< "Can't reset camera if no actors are visible");
+    vtkErrorMacro(<< "Can't reset camera if no actors are visible");
     return;
     }
 
@@ -239,12 +239,12 @@ void vlRenderer::ResetCamera()
 // that its focal point is the center of the bounding box, and adjust its
 // distance and position to preserve its initial view plane normal 
 // (i.e., vector defined from camera position to focal point).
-void vlRenderer::ResetCamera(float bounds[6])
+void vtkRenderer::ResetCamera(float bounds[6])
 {
   float center[3];
   float distance;
   float width;
-  vlMath math;
+  vtkMath math;
   float vn[3];
 
   if ( this->ActiveCamera != NULL )
@@ -253,7 +253,7 @@ void vlRenderer::ResetCamera(float bounds[6])
     }
   else
     {
-    vlErrorMacro(<< "Trying to reset non-existant camera");
+    vtkErrorMacro(<< "Trying to reset non-existant camera");
     return;
     }
 
@@ -278,14 +278,14 @@ void vlRenderer::ResetCamera(float bounds[6])
   
 // Description:
 // Specify the rendering window in which to draw.
-void vlRenderer::SetRenderWindow(vlRenderWindow *renwin)
+void vtkRenderer::SetRenderWindow(vtkRenderWindow *renwin)
 {
   this->RenderWindow = renwin;
 }
 
 // Description:
 // Convert display coordinates to view coordinates.
-void vlRenderer::DisplayToView()
+void vtkRenderer::DisplayToView()
 {
   float vx,vy,vz;
   int sizex,sizey;
@@ -307,7 +307,7 @@ void vlRenderer::DisplayToView()
 
 // Description:
 // Convert view coordinates to display coordinates.
-void vlRenderer::ViewToDisplay()
+void vtkRenderer::ViewToDisplay()
 {
   int dx,dy;
   int sizex,sizey;
@@ -330,9 +330,9 @@ void vlRenderer::ViewToDisplay()
 
 // Description:
 // Convert view point coordinates to world coordinates.
-void vlRenderer::ViewToWorld()
+void vtkRenderer::ViewToWorld()
 {
-  vlMatrix4x4 mat;
+  vtkMatrix4x4 mat;
   float result[4];
 
   // get the perspective transformation from the active camera 
@@ -356,9 +356,9 @@ void vlRenderer::ViewToWorld()
 
 // Description:
 // Convert world point coordinates to view coordinates.
-void vlRenderer::WorldToView()
+void vtkRenderer::WorldToView()
 {
-  vlMatrix4x4 matrix;
+  vtkMatrix4x4 matrix;
   float     view[4];
   float     *world;
 
@@ -385,7 +385,7 @@ void vlRenderer::WorldToView()
 
 // Description:
 // Return center of renderer in display coordinates.
-float *vlRenderer::GetCenter()
+float *vtkRenderer::GetCenter()
 {
   int *size;
   
@@ -402,7 +402,7 @@ float *vlRenderer::GetCenter()
 
 // Description:
 // Is a given display point in this renderer's viewport.
-int vlRenderer::IsInViewport(int x,int y)
+int vtkRenderer::IsInViewport(int x,int y)
 {
   int *size;
   
@@ -424,7 +424,7 @@ int vlRenderer::IsInViewport(int x,int y)
 // Description:
 // Specify a function to be called before rendering process begins.
 // Function will be called with argument provided.
-void vlRenderer::SetStartRenderMethod(void (*f)(void *), void *arg)
+void vtkRenderer::SetStartRenderMethod(void (*f)(void *), void *arg)
 {
   if ( f != this->StartRenderMethod || arg != this->StartRenderMethodArg )
     {
@@ -441,7 +441,7 @@ void vlRenderer::SetStartRenderMethod(void (*f)(void *), void *arg)
 
 // Description:
 // Set the arg delete method. This is used to free user memory.
-void vlRenderer::SetStartRenderMethodArgDelete(void (*f)(void *))
+void vtkRenderer::SetStartRenderMethodArgDelete(void (*f)(void *))
 {
   if ( f != this->StartRenderMethodArgDelete)
     {
@@ -452,7 +452,7 @@ void vlRenderer::SetStartRenderMethodArgDelete(void (*f)(void *))
 
 // Description:
 // Set the arg delete method. This is used to free user memory.
-void vlRenderer::SetEndRenderMethodArgDelete(void (*f)(void *))
+void vtkRenderer::SetEndRenderMethodArgDelete(void (*f)(void *))
 {
   if ( f != this->EndRenderMethodArgDelete)
     {
@@ -464,7 +464,7 @@ void vlRenderer::SetEndRenderMethodArgDelete(void (*f)(void *))
 // Description:
 // Specify a function to be called when rendering process completes.
 // Function will be called with argument provided.
-void vlRenderer::SetEndRenderMethod(void (*f)(void *), void *arg)
+void vtkRenderer::SetEndRenderMethod(void (*f)(void *), void *arg)
 {
   if ( f != this->EndRenderMethod || arg != EndRenderMethodArg )
     {
@@ -479,9 +479,9 @@ void vlRenderer::SetEndRenderMethod(void (*f)(void *), void *arg)
     }
 }
 
-void vlRenderer::PrintSelf(ostream& os, vlIndent indent)
+void vtkRenderer::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->vlObject::PrintSelf(os,indent);
+  this->vtkObject::PrintSelf(os,indent);
 
   os << indent << "Actors:\n";
   this->Actors.PrintSelf(os,indent.GetNextIndent());

@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    Follower.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its
+This file is part of the Visualization Toolkit. No part of this file or its
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
@@ -15,29 +15,29 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 =========================================================================*/
 #include <stdlib.h>
 #include <math.h>
-#include "vlMath.hh"
+#include "vtkMath.hh"
 #include "Follower.hh"
 #include "Camera.hh"
 
 // Description:
 // Creates an follower with no camera set
-vlFollower::vlFollower()
+vtkFollower::vtkFollower()
 {
   this->Camera = NULL;
 }
 
-vlFollower::~vlFollower()
+vtkFollower::~vtkFollower()
 {
 }
 
 // Description:
 // Copy the Follower's composite 4x4 matrix into the matrix provided.
-void vlFollower::GetMatrix(vlMatrix4x4& result)
+void vtkFollower::GetMatrix(vtkMatrix4x4& result)
 {
   float *pos, mag;
   float direction[3];
   int i;
-  vlMatrix4x4 matrix;
+  vtkMatrix4x4 matrix;
 
   this->GetOrientation();
   this->Transform.Push();  
@@ -64,7 +64,7 @@ void vlFollower::GetMatrix(vlMatrix4x4& result)
     float v1[3], v2[3], y_axis[3];
     double theta, dot, mag;
     double cosang;
-    vlMath math;
+    vtkMath math;
     float vn[3];
 
     // calc the direction
@@ -212,9 +212,9 @@ void vlFollower::GetMatrix(vlMatrix4x4& result)
   this->Transform.Pop();  
 } 
 
-void vlFollower::PrintSelf(ostream& os, vlIndent indent)
+void vtkFollower::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlActor::PrintSelf(os,indent);
+  vtkActor::PrintSelf(os,indent);
 
   if ( this->Camera )
     {

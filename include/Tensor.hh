@@ -1,43 +1,43 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    Tensor.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-// .NAME vlTensor - supporting class to enable assignment and referencing of tensors
+// .NAME vtkTensor - supporting class to enable assignment and referencing of tensors
 // .SECTION Description
-// vlTensor is a floating point representation of an nxn tensor. vlTensor 
+// vtkTensor is a floating point representation of an nxn tensor. vtkTensor 
 // provides methods for assignment and reference of tensor components. It 
 // does it in such a way as to minimize data copying.
 // .SECTION Caveats
-// vlTensor performs its operations using pointer reference. You are 
+// vtkTensor performs its operations using pointer reference. You are 
 // responsible for supplying data storage (if necessary) if local copies 
 // of data are being made.
 
-#ifndef __vlTensor_h
-#define __vlTensor_h
+#ifndef __vtkTensor_h
+#define __vtkTensor_h
 
 #define MAXDIM 3
 
-class vlTensor
+class vtkTensor
 {
 public:
-  vlTensor(int dim=3);
+  vtkTensor(int dim=3);
   void Initialize();
   float GetComponent(int i, int j);
   void SetComponent(int i, int j, float v);
   void AddComponent(int i, int j, float v);
   void operator=(float *t);
-  void operator=(vlTensor &t);
+  void operator=(vtkTensor &t);
   operator float*() {return this->T;};
   void SetDimension(int dim);
   int GetDimension();
@@ -50,7 +50,7 @@ protected:
 
 // Description:
 // Construct tensor initially pointing to internal storage.
-inline vlTensor::vlTensor(int dim)
+inline vtkTensor::vtkTensor(int dim)
 {
   this->T = this->Storage;
   this->Dimension = dim;
@@ -61,21 +61,21 @@ inline vlTensor::vlTensor(int dim)
 
 // Description:
 // Set the dimensions of the tensor.
-inline void vlTensor::SetDimension(int dim)
+inline void vtkTensor::SetDimension(int dim)
 {
   this->Dimension = (dim < 1 ? 1 : (dim > MAXDIM ? MAXDIM : dim));
 }
 
 // Description:
 // Get the dimensions of the tensor.
-inline int vlTensor::GetDimension()
+inline int vtkTensor::GetDimension()
 {
   return this->Dimension;
 }
 
 // Description:
 // Initialize tensor components to 0.0.
-inline void vlTensor::Initialize()
+inline void vtkTensor::Initialize()
 {
   for (int j=0; j<this->Dimension; j++)
     for (int i=0; i<this->Dimension; i++)
@@ -84,21 +84,21 @@ inline void vlTensor::Initialize()
 
 // Description:
 // Get the tensor component (i,j).
-inline float vlTensor::GetComponent(int i, int j)
+inline float vtkTensor::GetComponent(int i, int j)
 {
   return this->T[i+this->Dimension*j];
 }
 
 // Description:
 // Set the value of the tensor component (i,j).
-inline void vlTensor::SetComponent(int i, int j, float v)
+inline void vtkTensor::SetComponent(int i, int j, float v)
 {
   this->T[i+this->Dimension*j] = v;
 }
 
 // Description:
 // Add to the value of the tensor component at location (i,j).
-inline void vlTensor::AddComponent(int i, int j, float v)
+inline void vtkTensor::AddComponent(int i, int j, float v)
 {
   this->T[i+this->Dimension*j] += v;
 }
@@ -106,7 +106,7 @@ inline void vlTensor::AddComponent(int i, int j, float v)
 // Description:
 // Assign tensors to a float array. Float array must be sized
 // Dimension*Dimension.
-inline void vlTensor::operator=(float *t)
+inline void vtkTensor::operator=(float *t)
 {
   for (int j=0; j < this->Dimension; j++)
     for (int i=0; i < this->Dimension; i++)
@@ -115,7 +115,7 @@ inline void vlTensor::operator=(float *t)
 
 // Description:
 // Assign tensor to another tensor.
-inline void vlTensor::operator=(vlTensor &t)
+inline void vtkTensor::operator=(vtkTensor &t)
 {
   for (int j=0; j < this->Dimension; j++)
     for (int i=0; i < this->Dimension; i++)

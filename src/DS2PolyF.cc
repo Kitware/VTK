@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    DS2PolyF.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its 
+This file is part of the Visualization Toolkit. No part of this file or its 
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
@@ -15,48 +15,48 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 =========================================================================*/
 #include "DS2PolyF.hh"
 
-void vlDataSetToPolyFilter::Modified()
+void vtkDataSetToPolyFilter::Modified()
 {
-  this->vlPolyData::Modified();
-  this->vlDataSetFilter::_Modified();
+  this->vtkPolyData::Modified();
+  this->vtkDataSetFilter::_Modified();
 }
 
-unsigned long int vlDataSetToPolyFilter::GetMTime()
+unsigned long int vtkDataSetToPolyFilter::GetMTime()
 {
-  unsigned long dtime = this->vlPolyData::GetMTime();
-  unsigned long ftime = this->vlDataSetFilter::_GetMTime();
+  unsigned long dtime = this->vtkPolyData::GetMTime();
+  unsigned long ftime = this->vtkDataSetFilter::_GetMTime();
   return (dtime > ftime ? dtime : ftime);
 }
 
-void vlDataSetToPolyFilter::DebugOn()
+void vtkDataSetToPolyFilter::DebugOn()
 {
-  vlPolyData::DebugOn();
-  vlDataSetFilter::_DebugOn();
+  vtkPolyData::DebugOn();
+  vtkDataSetFilter::_DebugOn();
 }
 
-void vlDataSetToPolyFilter::DebugOff()
+void vtkDataSetToPolyFilter::DebugOff()
 {
-  vlPolyData::DebugOff();
-  vlDataSetFilter::_DebugOff();
+  vtkPolyData::DebugOff();
+  vtkDataSetFilter::_DebugOff();
 }
 
-void vlDataSetToPolyFilter::Update()
+void vtkDataSetToPolyFilter::Update()
 {
   this->UpdateFilter();
 }
 
-int vlDataSetToPolyFilter::GetDataReleased()
+int vtkDataSetToPolyFilter::GetDataReleased()
 {
   return this->DataReleased;
 }
 
-void vlDataSetToPolyFilter::SetDataReleased(int flag)
+void vtkDataSetToPolyFilter::SetDataReleased(int flag)
 {
   this->DataReleased = flag;
 }
 
-void vlDataSetToPolyFilter::PrintSelf(ostream& os, vlIndent indent)
+void vtkDataSetToPolyFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlPolyData::PrintSelf(os,indent);
-  vlDataSetFilter::_PrintSelf(os,indent);
+  vtkPolyData::PrintSelf(os,indent);
+  vtkDataSetFilter::_PrintSelf(os,indent);
 }

@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    TextSrc.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its
+This file is part of the Visualization Toolkit. No part of this file or its
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
@@ -17,10 +17,10 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "FPoints.hh"
 #include "Graymap.hh"
 
-#define vlfont_width 9
-#define vlfont_row_width 864
-#define vlfont_height 15
-static char vlfont_bits[] = {
+#define vtkfont_width 9
+#define vtkfont_row_width 864
+#define vtkfont_height 15
+static char vtkfont_bits[] = {
  0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
  0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
  0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
@@ -133,18 +133,18 @@ static char vlfont_bits[] = {
 
 // Description:
 // Construct Text object with no string set and Backing enabled.
-vlTextSource::vlTextSource()
+vtkTextSource::vtkTextSource()
 {
   this->Text = NULL;
   this->Backing = 1;
 }
 
-void vlTextSource::Execute()
+void vtkTextSource::Execute()
 {
   int row, col;
-  vlFloatPoints *newPoints; 
-  vlCellArray *newPolys;
-  vlGraymap *newScalars;
+  vtkFloatPoints *newPoints; 
+  vtkCellArray *newPolys;
+  vtkGraymap *newScalars;
   float x[3];
   int pos = 0;
   int pixelPos;
@@ -160,32 +160,32 @@ void vlTextSource::Execute()
   this->Initialize();
   x[2] = 0;
 
-  newPoints = new vlFloatPoints();
-  newPolys = new vlCellArray;
-  newScalars = new vlGraymap;
+  newPoints = new vtkFloatPoints();
+  newPolys = new vtkCellArray;
+  newScalars = new vtkGraymap;
 
   // Create Text
   while (this->Text[pos])
     {
     if (this->Text[pos] != 32)
       {
-      for (col = 0; col < vlfont_width; col++)
+      for (col = 0; col < vtkfont_width; col++)
 	{
-	acol = (this->Text[pos] - 32)*vlfont_width + col - 2;
-	for (row = 0; row < vlfont_height; row++)
+	acol = (this->Text[pos] - 32)*vtkfont_width + col - 2;
+	for (row = 0; row < vtkfont_height; row++)
 	  {
-	  pixelPos = acol + row*vlfont_row_width;
-	  if (vlfont_bits[pixelPos/8] & (0x01 << pixelPos%8))
+	  pixelPos = acol + row*vtkfont_row_width;
+	  if (vtkfont_bits[pixelPos/8] & (0x01 << pixelPos%8))
 	    {
 	    if (drawingBlack)
 	      {
-	      x[0] = pos*vlfont_width + col + 1; 
-	      x[1] = vlfont_height - row;
+	      x[0] = pos*vtkfont_width + col + 1; 
+	      x[1] = vtkfont_height - row;
 	      newPoints->InsertNextPoint(x);
 	      newScalars->InsertNextColor(black);
 
-	      x[0] = pos*vlfont_width + col; 
-	      x[1] = vlfont_height - row;
+	      x[0] = pos*vtkfont_width + col; 
+	      x[1] = vtkfont_height - row;
 	      newPoints->InsertNextPoint(x);
 	      newScalars->InsertNextColor(black);
 
@@ -199,13 +199,13 @@ void vlTextSource::Execute()
 	      }
 	    if (!drawingWhite)
 	      {
-	      x[0] = pos*vlfont_width + col; 
-	      x[1] = vlfont_height - row;
+	      x[0] = pos*vtkfont_width + col; 
+	      x[1] = vtkfont_height - row;
 	      newPoints->InsertNextPoint(x);
 	      newScalars->InsertNextColor(white);
 
-	      x[0] = pos*vlfont_width + col + 1; 
-	      x[1] = vlfont_height - row;
+	      x[0] = pos*vtkfont_width + col + 1; 
+	      x[1] = vtkfont_height - row;
 	      newPoints->InsertNextPoint(x);
 	      newScalars->InsertNextColor(white);
 	      drawingWhite = 1;
@@ -216,13 +216,13 @@ void vlTextSource::Execute()
 	    {
 	    if (drawingWhite)
 	      {
-	      x[0] = pos*vlfont_width + col + 1; 
-	      x[1] = vlfont_height - row;
+	      x[0] = pos*vtkfont_width + col + 1; 
+	      x[1] = vtkfont_height - row;
 	      newPoints->InsertNextPoint(x);
 	      newScalars->InsertNextColor(white);
 
-	      x[0] = pos*vlfont_width + col; 
-	      x[1] = vlfont_height - row;
+	      x[0] = pos*vtkfont_width + col; 
+	      x[1] = vtkfont_height - row;
 	      newPoints->InsertNextPoint(x);
 	      newScalars->InsertNextColor(white);
 
@@ -236,13 +236,13 @@ void vlTextSource::Execute()
 	      }
 	    if (!drawingBlack && this->Backing)
 	      {
-	      x[0] = pos*vlfont_width + col; 
-	      x[1] = vlfont_height - row;
+	      x[0] = pos*vtkfont_width + col; 
+	      x[1] = vtkfont_height - row;
 	      newPoints->InsertNextPoint(x);
 	      newScalars->InsertNextColor(black);
 
-	      x[0] = pos*vlfont_width + col + 1; 
-	      x[1] = vlfont_height - row;
+	      x[0] = pos*vtkfont_width + col + 1; 
+	      x[1] = vtkfont_height - row;
 	      newPoints->InsertNextPoint(x);
 	      newScalars->InsertNextColor(black);
 	      drawingBlack = 1;
@@ -252,12 +252,12 @@ void vlTextSource::Execute()
 	// if we finished up a row but are still drawing close it up
 	if (drawingWhite)
 	  {
-	  x[0] = pos*vlfont_width + col + 1; 
+	  x[0] = pos*vtkfont_width + col + 1; 
 	  x[1] = 0;
 	  newPoints->InsertNextPoint(x);
 	  newScalars->InsertNextColor(white);
 
-	  x[0] = pos*vlfont_width + col; 
+	  x[0] = pos*vtkfont_width + col; 
 	  x[1] = 0;
 	  newPoints->InsertNextPoint(x);
 	  newScalars->InsertNextColor(white);
@@ -272,12 +272,12 @@ void vlTextSource::Execute()
 	  }
 	if (drawingBlack)
 	  {
-	  x[0] = pos*vlfont_width + col + 1; 
+	  x[0] = pos*vtkfont_width + col + 1; 
 	  x[1] = 0;
 	  newPoints->InsertNextPoint(x);
 	  newScalars->InsertNextColor(black);
 
-	  x[0] = pos*vlfont_width + col; 
+	  x[0] = pos*vtkfont_width + col; 
 	  x[1] = 0;
 	  newPoints->InsertNextPoint(x);
 	  newScalars->InsertNextColor(black);
@@ -297,22 +297,22 @@ void vlTextSource::Execute()
       // draw a black square for a space
       if (this->Backing)
 	{
-	x[0] = pos*vlfont_width; 
-	x[1] = vlfont_height;
+	x[0] = pos*vtkfont_width; 
+	x[1] = vtkfont_height;
 	newPoints->InsertNextPoint(x);
 	newScalars->InsertNextColor(black);
       
-	x[0] = pos*vlfont_width + vlfont_width; 
-	x[1] = vlfont_height;
+	x[0] = pos*vtkfont_width + vtkfont_width; 
+	x[1] = vtkfont_height;
 	newPoints->InsertNextPoint(x);
 	newScalars->InsertNextColor(black);
 
-	x[0] = pos*vlfont_width + vlfont_width; 
+	x[0] = pos*vtkfont_width + vtkfont_width; 
 	x[1] = 0;
 	newPoints->InsertNextPoint(x);
 	newScalars->InsertNextColor(black);
       
-	x[0] = pos*vlfont_width; 
+	x[0] = pos*vtkfont_width; 
 	x[1] = 0;
 	newPoints->InsertNextPoint(x);
 	newScalars->InsertNextColor(black);
@@ -334,9 +334,9 @@ void vlTextSource::Execute()
   this->SetPolys(newPolys);
 }
 
-void vlTextSource::PrintSelf(ostream& os, vlIndent indent)
+void vtkTextSource::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlPolySource::PrintSelf(os,indent);
+  vtkPolySource::PrintSelf(os,indent);
 
   os << indent << "Text: " << (this->Text ? this->Text : "(none)") << "\n";
 }

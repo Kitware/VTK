@@ -1,53 +1,53 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    Polygon.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-// .NAME vlPolygon - a cell that represents a n-sided polygon
+// .NAME vtkPolygon - a cell that represents a n-sided polygon
 // .SECTION Description
-// vlPolygon is a concrete implementation of vlCell to represent a 2D 
+// vtkPolygon is a concrete implementation of vtkCell to represent a 2D 
 // n-sided polygon. The polygons cannot have any internal holes, and cannot
 // self-intersect.
 
-#ifndef __vlPolygon_h
-#define __vlPolygon_h
+#ifndef __vtkPolygon_h
+#define __vtkPolygon_h
 
 #include "Cell.hh"
 #include "Points.hh"
 
-class vlPolygon : public vlCell
+class vtkPolygon : public vtkCell
 {
 public:
-  vlPolygon() {};
-  vlPolygon(const vlPolygon& p);
-  char *GetClassName() {return "vlPolygon";};
+  vtkPolygon() {};
+  vtkPolygon(const vtkPolygon& p);
+  char *GetClassName() {return "vtkPolygon";};
 
-  void ComputeNormal(vlPoints *p, int numPts, int *pts, float n[3]);
+  void ComputeNormal(vtkPoints *p, int numPts, int *pts, float n[3]);
   void ComputeNormal(float v1[3], float v2[3], float v3[3], float n[3]);
-  void ComputeNormal(vlFloatPoints *p, float n[3]);
+  void ComputeNormal(vtkFloatPoints *p, float n[3]);
 
-  vlCell *MakeObject() {return new vlPolygon(*this);};
-  int GetCellType() {return vlPOLYGON;};
+  vtkCell *MakeObject() {return new vtkPolygon(*this);};
+  int GetCellType() {return vtkPOLYGON;};
   int GetCellDimension() {return 2;};
   int GetNumberOfEdges() {return this->GetNumberOfPoints();};
   int GetNumberOfFaces() {return 0;};
-  vlCell *GetEdge(int edgeId);
-  vlCell *GetFace(int faceId) {return 0;};
+  vtkCell *GetEdge(int edgeId);
+  vtkCell *GetFace(int faceId) {return 0;};
 
-  int CellBoundary(int subId, float pcoords[3], vlIdList& pts);
-  void Contour(float value, vlFloatScalars *cellScalars, 
-               vlFloatPoints *points,vlCellArray *verts, 
-               vlCellArray *lines, vlCellArray *polys, vlFloatScalars *s);
+  int CellBoundary(int subId, float pcoords[3], vtkIdList& pts);
+  void Contour(float value, vtkFloatScalars *cellScalars, 
+               vtkFloatPoints *points,vtkCellArray *verts, 
+               vtkCellArray *lines, vtkCellArray *polys, vtkFloatScalars *s);
   int EvaluatePosition(float x[3], float closestPoint[3],
                        int& subId, float pcoords[3],
                        float& dist2, float weights[MAX_CELL_SIZE]);
@@ -63,8 +63,8 @@ public:
 
   int PointInPolygon(float bounds[6], float x[3], float n[3]);  
 
-  int Triangulate(vlIdList &outTris);
-  int FastTriangulate(int numVerts, int *verts, vlIdList& Tris);
+  int Triangulate(vtkIdList &outTris);
+  int FastTriangulate(int numVerts, int *verts, vtkIdList& Tris);
   int CanSplitLoop(int fedges[2], int numVerts, int *verts, int& n1, int *l1,
                    int& n2, int *l2, float& ar);
   void SplitLoop (int fedges[2], int numVerts, int *verts, int& n1, int *l1, 

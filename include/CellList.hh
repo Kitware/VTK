@@ -1,45 +1,45 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    CellList.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its 
+This file is part of the Visualization Toolkit. No part of this file or its 
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-// .NAME vlCellList - object provides direct access to cells in vlCellArray
+// .NAME vtkCellList - object provides direct access to cells in vtkCellArray
 // .SECTION Description
-// Supplemental object to vlCellArray to allow random access into cells.
-// The "location" field is the location in the vlCellArray list in terms of an 
+// Supplemental object to vtkCellArray to allow random access into cells.
+// The "location" field is the location in the vtkCellArray list in terms of an 
 // integer offset.  An integer offset was used instead of a pointer for easy 
 // storage and inter-process communication.
 
-#ifndef __vlCellList_h
-#define __vlCellList_h
+#ifndef __vtkCellList_h
+#define __vtkCellList_h
 
 #include "RefCount.hh"
 #include "CellType.hh"
 
-struct _vlCell_s {
+struct _vtkCell_s {
     unsigned char type; //from CellTypes.hh
     int loc; //location in associated CellArray object
 };
 
-class vlCellList : public vlRefCount 
+class vtkCellList : public vtkRefCount 
 {
 public:
-  vlCellList() : Array(NULL),Size(0),MaxId(-1),Extend(1000) {};
-  vlCellList(const int sz, const int ext);
-  ~vlCellList();
-  char *GetClassName() {return "vlCellList";};
+  vtkCellList() : Array(NULL),Size(0),MaxId(-1),Extend(1000) {};
+  vtkCellList(const int sz, const int ext);
+  ~vtkCellList();
+  char *GetClassName() {return "vtkCellList";};
 
-  _vlCell_s &GetCell(const int id);
+  _vtkCell_s &GetCell(const int id);
   unsigned char GetCellType(const int id);
   int GetCellLocation(const int id);
   void InsertCell(const int id, const unsigned char type, const int loc);
@@ -51,39 +51,39 @@ public:
   void Reset();
 
 private:
-  _vlCell_s *Array;   // pointer to data
+  _vtkCell_s *Array;   // pointer to data
   int Size;       // allocated size of data
   int MaxId;     // maximum index inserted thus far
   int Extend;     // grow array by this point
-  _vlCell_s *Resize(const int sz);  // function to resize data
+  _vtkCell_s *Resize(const int sz);  // function to resize data
 };
 
 // Description:
 // Return a reference to a cell list structure.
-inline _vlCell_s &vlCellList::GetCell(const int id) 
+inline _vtkCell_s &vtkCellList::GetCell(const int id) 
 {
   return this->Array[id];
 }
 
 // Description:
 // Return the type of cell.
-inline unsigned char vlCellList::GetCellType(const int cellId) 
+inline unsigned char vtkCellList::GetCellType(const int cellId) 
 {
   return this->Array[cellId].type;
 }
 
 // Description:
-// Return the location of the cell in the associated vlCellArray.
-inline int vlCellList::GetCellLocation(const int cellId) 
+// Return the location of the cell in the associated vtkCellArray.
+inline int vtkCellList::GetCellLocation(const int cellId) 
 {
   return this->Array[cellId].loc;
 }
 
 // Description:
 // Delete cell by setting to NULL cell type.
-inline void vlCellList::DeleteCell(int cellId)
+inline void vtkCellList::DeleteCell(int cellId)
 {
-  this->Array[cellId].type = vlNULL_ELEMENT;
+  this->Array[cellId].type = vtkNULL_ELEMENT;
 }
 
 #endif

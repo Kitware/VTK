@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    Actor.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its
+This file is part of the Visualization Toolkit. No part of this file or its
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
@@ -21,11 +21,11 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // Description:
 // Creates an actor with the following defaults: origin(0,0,0) 
 // position=(0,0,0) scale=(1,1,1) visibility=1 pickable=1 dragable=1
-// orientation=(0,0,0). IMPORTANT NOTE: Usually the vlRenderWindow
+// orientation=(0,0,0). IMPORTANT NOTE: Usually the vtkRenderWindow
 // method MakeActor() is used to create a device specific actor. This
 // has the added benefit that a default device-specific property is 
 // automatically created. Try to use MakeActor() whenever possible.
-vlActor::vlActor()
+vtkActor::vtkActor()
 {
   this->UserMatrix = NULL;
   this->Mapper = NULL;
@@ -55,7 +55,7 @@ vlActor::vlActor()
   this->SelfCreatedProperty = 0;
 }
 
-vlActor::~vlActor()
+vtkActor::~vtkActor()
 {
   if ( this->SelfCreatedProperty && this->Property != NULL) 
     delete this->Property;
@@ -64,7 +64,7 @@ vlActor::~vlActor()
 // Description:
 // This causes the actor to be rendered. It in turn will render the actor's
 // property and then mapper.  
-void vlActor::Render(vlRenderer *ren)
+void vtkActor::Render(vtkRenderer *ren)
 {
   /* render the property */
   if (!this->Property)
@@ -82,7 +82,7 @@ void vlActor::Render(vlRenderer *ren)
 
 }
 
-void vlActor::SetProperty(vlProperty *lut)
+void vtkActor::SetProperty(vtkProperty *lut)
 {
   if ( this->Property != lut ) 
     {
@@ -93,11 +93,11 @@ void vlActor::SetProperty(vlProperty *lut)
     }
 }
 
-vlProperty *vlActor::GetProperty()
+vtkProperty *vtkActor::GetProperty()
 {
   if ( this->Property == NULL )
     {
-    this->Property = new vlProperty;
+    this->Property = new vtkProperty;
     this->SelfCreatedProperty = 1;
     }
   return this->Property;
@@ -105,7 +105,7 @@ vlProperty *vlActor::GetProperty()
 
 // Description:
 // Change position by increments specified.
-void vlActor::AddPosition (float deltaX,float deltaY,float deltaZ)
+void vtkActor::AddPosition (float deltaX,float deltaY,float deltaZ)
 {
   float position[3];
 
@@ -116,7 +116,7 @@ void vlActor::AddPosition (float deltaX,float deltaY,float deltaZ)
   this->SetPosition(position);
 }
 
-void vlActor::AddPosition (float deltaPosition[3])
+void vtkActor::AddPosition (float deltaPosition[3])
 {
   this->AddPosition (deltaPosition[0], deltaPosition[1], deltaPosition[2]);
 }
@@ -125,14 +125,14 @@ void vlActor::AddPosition (float deltaPosition[3])
 // Sets the orientation of the actor.  Orientation is specified as
 // X,Y and Z rotations in that order, but they are performed as
 // RotateZ, RotateX and finally RotateY.
-void vlActor::SetOrientation (float x,float y,float z)
+void vtkActor::SetOrientation (float x,float y,float z)
 {
   // store the coordinates
   this->Orientation[0] = x;
   this->Orientation[1] = y;
   this->Orientation[2] = z;
 
-  vlDebugMacro(<< " Orientation set to ( " <<  this->Orientation[0] << ", "
+  vtkDebugMacro(<< " Orientation set to ( " <<  this->Orientation[0] << ", "
   << this->Orientation[1] << ", " << this->Orientation[2] << ")\n");
 
   this->Transform.Identity();
@@ -142,7 +142,7 @@ void vlActor::SetOrientation (float x,float y,float z)
 
   this->Modified();
 }
-void vlActor::SetOrientation(float a[3])
+void vtkActor::SetOrientation(float a[3])
 {
   this->SetOrientation(a[0],a[1],a[2]);
 }
@@ -152,7 +152,7 @@ void vlActor::SetOrientation(float a[3])
 // The ordering in which these rotations must be done to generate the 
 // same matrix is RotateZ, RotateX and finally RotateY. See also 
 // SetOrientation.
-float *vlActor::GetOrientation ()
+float *vtkActor::GetOrientation ()
 {
   float   *orientation;
 
@@ -162,16 +162,16 @@ float *vlActor::GetOrientation ()
   this->Orientation[1] = orientation[1];
   this->Orientation[2] = orientation[2];
 
-  vlDebugMacro(<< " Returning Orientation of ( " <<  this->Orientation[0] 
+  vtkDebugMacro(<< " Returning Orientation of ( " <<  this->Orientation[0] 
   << ", " << this->Orientation[1] << ", " << this->Orientation[2] << ")\n");
 
   return this->Orientation;
-} // vlActor::Getorientation 
+} // vtkActor::Getorientation 
 
 // Description:
 // Add to the current orientation. See SetOrientation and GetOrientation for 
 // more details.
-void vlActor::AddOrientation (float a1,float a2,float a3)
+void vtkActor::AddOrientation (float a1,float a2,float a3)
 {
   float *orient;
 
@@ -180,14 +180,14 @@ void vlActor::AddOrientation (float a1,float a2,float a3)
 		       orient[1] + a2,
 		       orient[2] + a3);
 } 
-void vlActor::AddOrientation(float a[3])
+void vtkActor::AddOrientation(float a[3])
 {
   this->AddOrientation(a[0],a[1],a[2]);
 }
 
 // Description:
 // Rotate the actor in degrees about the X axis using the right hand rule.
-void vlActor::RotateX (float angle)
+void vtkActor::RotateX (float angle)
 {
   this->Transform.RotateX(angle);
   this->Modified();
@@ -195,7 +195,7 @@ void vlActor::RotateX (float angle)
 
 // Description:
 // Rotate the actor in degrees about the Y axis using the right hand rule.
-void vlActor::RotateY (float angle)
+void vtkActor::RotateY (float angle)
 {
   this->Transform.RotateY(angle);
   this->Modified();
@@ -203,7 +203,7 @@ void vlActor::RotateY (float angle)
 
 // Description:
 // Rotate the actor in degrees about the Z axis using the right hand rule.
-void vlActor::RotateZ (float angle)
+void vtkActor::RotateZ (float angle)
 {
   this->Transform.RotateZ(angle);
   this->Modified();
@@ -212,7 +212,7 @@ void vlActor::RotateZ (float angle)
 // Description:
 // Rotate the actor in degrees about an arbitrary axis specified by the 
 // last three arguments. 
-void vlActor::RotateWXYZ (float degree, float x, float y, float z)
+void vtkActor::RotateWXYZ (float degree, float x, float y, float z)
 {
   this->Transform.PostMultiply();  
   this->Transform.RotateWXYZ(degree,x,y,z);
@@ -222,7 +222,7 @@ void vlActor::RotateWXYZ (float degree, float x, float y, float z)
 
 // Description:
 // Copy the actor's composite 4x4 matrix into the matrix provided.
-void vlActor::GetMatrix(vlMatrix4x4& result)
+void vtkActor::GetMatrix(vtkMatrix4x4& result)
 {
   this->GetOrientation();
   this->Transform.Push();  
@@ -267,21 +267,21 @@ void vlActor::GetMatrix(vlMatrix4x4& result)
 
 // Description:
 // Return a reference to the actor's 4x4 composite matrix.
-vlMatrix4x4& vlActor::GetMatrix()
+vtkMatrix4x4& vtkActor::GetMatrix()
 {
-  static vlMatrix4x4 result;
+  static vtkMatrix4x4 result;
   this->GetMatrix(result);
   return result;
 } 
 
 // Description:
 // Get the bounds for this Actor as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
-float *vlActor::GetBounds()
+float *vtkActor::GetBounds()
 {
   int i,n;
   float *bounds, bbox[24], *fptr;
   float *result;
-  vlMatrix4x4 matrix;
+  vtkMatrix4x4 matrix;
   
   // get the bounds of the Mapper
   bounds = this->Mapper->GetBounds();
@@ -335,7 +335,7 @@ float *vlActor::GetBounds()
 
 // Description:
 // Get the actors x range in world coordinates.
-float *vlActor::GetXRange()
+float *vtkActor::GetXRange()
 {
   this->GetBounds();
   return this->Bounds;
@@ -343,7 +343,7 @@ float *vlActor::GetXRange()
 
 // Description:
 // Get the actors y range in world coordinates.
-float *vlActor::GetYRange()
+float *vtkActor::GetYRange()
 {
   this->GetBounds();
   return &(this->Bounds[2]);
@@ -351,15 +351,15 @@ float *vlActor::GetYRange()
 
 // Description:
 // Get the actors z range in world coordinates.
-float *vlActor::GetZRange()
+float *vtkActor::GetZRange()
 {
   this->GetBounds();
   return &(this->Bounds[4]);
 }
 
-void vlActor::PrintSelf(ostream& os, vlIndent indent)
+void vtkActor::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlObject::PrintSelf(os,indent);
+  vtkObject::PrintSelf(os,indent);
 
   // make sure our bounds are up to date
   this->GetBounds();

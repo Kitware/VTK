@@ -1,68 +1,68 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    ActorC.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its
+This file is part of the Visualization Toolkit. No part of this file or its
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
-// .NAME vlActorCollection - a list of actors
+// .NAME vtkActorCollection - a list of actors
 // .SECTION Description
-// vlActorCollection represents and provides methods to manipulate list of
-// actors (i.e., vlActor and subclasses). The list is unsorted and duplicate
+// vtkActorCollection represents and provides methods to manipulate list of
+// actors (i.e., vtkActor and subclasses). The list is unsorted and duplicate
 // entries are not prevented.
 
-#ifndef __vlActorC_hh
-#define __vlActorC_hh
+#ifndef __vtkActorC_hh
+#define __vtkActorC_hh
 
 #include "Collect.hh"
 #include "Actor.hh"
 
-class vlActorCollection : public vlCollection
+class vtkActorCollection : public vtkCollection
 {
  public:
-  char *GetClassName() {return "vlActorCollection";};
+  char *GetClassName() {return "vtkActorCollection";};
 
-  void AddItem(vlActor *a);
-  void RemoveItem(vlActor *a);
-  int IsItemPresent(vlActor *a);
-  vlActor *GetNextItem();
+  void AddItem(vtkActor *a);
+  void RemoveItem(vtkActor *a);
+  int IsItemPresent(vtkActor *a);
+  vtkActor *GetNextItem();
 };
 
 // Description:
 // Add an actor to the list.
-inline void vlActorCollection::AddItem(vlActor *a) 
+inline void vtkActorCollection::AddItem(vtkActor *a) 
 {
-  this->vlCollection::AddItem((vlObject *)a);
+  this->vtkCollection::AddItem((vtkObject *)a);
 }
 
 // Description:
 // Remove an actor from the list.
-inline void vlActorCollection::RemoveItem(vlActor *a) 
+inline void vtkActorCollection::RemoveItem(vtkActor *a) 
 {
-  this->vlCollection::RemoveItem((vlObject *)a);
+  this->vtkCollection::RemoveItem((vtkObject *)a);
 }
 
 // Description:
 // Determine whether a particular actor is present. Returns its position
 // in the list.
-inline int vlActorCollection::IsItemPresent(vlActor *a) 
+inline int vtkActorCollection::IsItemPresent(vtkActor *a) 
 {
-  return this->vlCollection::IsItemPresent((vlObject *)a);
+  return this->vtkCollection::IsItemPresent((vtkObject *)a);
 }
 
 // Description:
 // Get the next actor in the list.
-inline vlActor *vlActorCollection::GetNextItem() 
+inline vtkActor *vtkActorCollection::GetNextItem() 
 { 
-  return (vlActor *)(this->vlCollection::GetNextItem());
+  return (vtkActor *)(this->vtkCollection::GetNextItem());
 }
 
 #endif

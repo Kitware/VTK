@@ -1,21 +1,21 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    RenderW.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its
+This file is part of the Visualization Toolkit. No part of this file or its
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
-// .NAME vlRenderWindow - create a window for renderers to draw into
+// .NAME vtkRenderWindow - create a window for renderers to draw into
 // .SECTION Description
-// vlRenderWindow is an abstract object to specify the behavior of a
+// vtkRenderWindow is an abstract object to specify the behavior of a
 // rendering window. A rendering window is a window in a graphical user
 // interface where renderers draw their images. Methods are provided to 
 // synchronize the rendering process, set window size, and control double
@@ -23,32 +23,32 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // device dependent actors, lights, and cameras. These objects are created
 // depending upon the value of the environment variable "VL_RENDERER".
 
-#ifndef __vlRenderWindow_hh
-#define __vlRenderWindow_hh
+#ifndef __vtkRenderWindow_hh
+#define __vtkRenderWindow_hh
 
 #include "Object.hh"
 #include "RenderC.hh"
 
-class vlRenderWindowInteractor;
-class vlLightDevice;
-class vlCameraDevice;
-class vlTextureDevice;
-class vlPropertyDevice;
+class vtkRenderWindowInteractor;
+class vtkLightDevice;
+class vtkCameraDevice;
+class vtkTextureDevice;
+class vtkPropertyDevice;
 
 // lets define the diferent types of stereo
 #define VL_STEREO_CRYSTAL_EYES 1
 #define VL_STEREO_RED_BLUE     2
 
-class vlRenderWindow : public vlObject
+class vtkRenderWindow : public vtkObject
 {
 public:
-  vlRenderWindow();
-  char *GetClassName() {return "vlRenderWindow";};
-  void PrintSelf(ostream& os, vlIndent indent);
+  vtkRenderWindow();
+  char *GetClassName() {return "vtkRenderWindow";};
+  void PrintSelf(ostream& os, vtkIndent indent);
 
-  void AddRenderers(vlRenderer *);
-  void RemoveRenderers(vlRenderer *);
-  vlRendererCollection *GetRenderers() {return &(this->Renderers);};
+  void AddRenderers(vtkRenderer *);
+  void RemoveRenderers(vtkRenderer *);
+  vtkRendererCollection *GetRenderers() {return &(this->Renderers);};
 
   virtual void Render();
 
@@ -66,27 +66,27 @@ public:
 
   // Description:
   // Create a device specific renderer.
-  virtual vlRenderer  *MakeRenderer() = 0;
+  virtual vtkRenderer  *MakeRenderer() = 0;
 
   // Description:
   // Create a device specific light.
-  virtual vlLightDevice *MakeLight() = 0;
+  virtual vtkLightDevice *MakeLight() = 0;
 
   // Description:
   // Create a device specific camera.
-  virtual vlCameraDevice    *MakeCamera() = 0;
+  virtual vtkCameraDevice    *MakeCamera() = 0;
 
   // Description:
   // Create a device specific property.
-  virtual vlPropertyDevice    *MakeProperty() = 0;
+  virtual vtkPropertyDevice    *MakeProperty() = 0;
 
   // Description:
   // Create a device specific texture.
-  virtual vlTextureDevice     *MakeTexture() = 0;
+  virtual vtkTextureDevice     *MakeTexture() = 0;
 
   // Description:
   // Create an interactor to control renderers in this window.
-  virtual vlRenderWindowInteractor *MakeRenderWindowInteractor() = 0;
+  virtual vtkRenderWindowInteractor *MakeRenderWindowInteractor() = 0;
 
   // Description:
   // Get the position in screen coordinates of the rendering window.
@@ -109,37 +109,37 @@ public:
   // Description:
   // Turn on/off rendering full screen window size.
   virtual void SetFullScreen(int) = 0;
-  vlGetMacro(FullScreen,int);
-  vlBooleanMacro(FullScreen,int);
+  vtkGetMacro(FullScreen,int);
+  vtkBooleanMacro(FullScreen,int);
 
   // Description:
   // Turn on/off window manager borders.
-  vlSetMacro(Borders,int);
-  vlGetMacro(Borders,int);
-  vlBooleanMacro(Borders,int);
+  vtkSetMacro(Borders,int);
+  vtkGetMacro(Borders,int);
+  vtkBooleanMacro(Borders,int);
 
   // Description:
   // Keep track of whether rendering window has been mapped to screen.
-  vlSetMacro(Mapped,int);
-  vlGetMacro(Mapped,int);
-  vlBooleanMacro(Mapped,int);
+  vtkSetMacro(Mapped,int);
+  vtkGetMacro(Mapped,int);
+  vtkBooleanMacro(Mapped,int);
 
   // Description:
   // Turn on/off double buffering.
-  vlSetMacro(DoubleBuffer,int);
-  vlGetMacro(DoubleBuffer,int);
-  vlBooleanMacro(DoubleBuffer,int);
+  vtkSetMacro(DoubleBuffer,int);
+  vtkGetMacro(DoubleBuffer,int);
+  vtkBooleanMacro(DoubleBuffer,int);
 
   // Description:
   // Turn on/off stereo rendering.
-  vlGetMacro(StereoRender,int);
-  vlSetMacro(StereoRender,int);
-  vlBooleanMacro(StereoRender,int);
+  vtkGetMacro(StereoRender,int);
+  vtkSetMacro(StereoRender,int);
+  vtkBooleanMacro(StereoRender,int);
 
   // Description:
   // Set what type of stereo rendering to use.
-  vlGetMacro(StereoType,int);
-  vlSetMacro(StereoType,int);
+  vtkGetMacro(StereoType,int);
+  vtkSetMacro(StereoType,int);
 
   virtual void StereoUpdate();
   virtual void StereoMidpoint();
@@ -149,12 +149,12 @@ public:
 
   // Description:
   // Get name of rendering window
-  vlGetStringMacro(Name);
+  vtkGetStringMacro(Name);
 
   // Description:
   // Set/Get the filename used for saving images.
-  vlSetStringMacro(Filename);
-  vlGetStringMacro(Filename);
+  vtkSetStringMacro(Filename);
+  vtkGetStringMacro(Filename);
 
 
   // Description:
@@ -169,25 +169,25 @@ public:
 
   // Description:
   // Set the number of frames for doing anti aliasing, default is zero.
-  vlGetMacro(AAFrames,int);
-  vlSetMacro(AAFrames,int);
+  vtkGetMacro(AAFrames,int);
+  vtkSetMacro(AAFrames,int);
 
   // Description:
   // Set the number of frames for doing focal depth, default is zero.
-  vlGetMacro(FDFrames,int);
-  vlSetMacro(FDFrames,int);
+  vtkGetMacro(FDFrames,int);
+  vtkSetMacro(FDFrames,int);
 
   // Description:
   // Set the number of sub frames for doing motion blur.
-  vlGetMacro(SubFrames,int);
-  vlSetMacro(SubFrames,int);
+  vtkGetMacro(SubFrames,int);
+  vtkSetMacro(SubFrames,int);
 
 protected:
   virtual void DoStereoRender();
   virtual void DoFDRender();
   virtual void DoAARender();
 
-  vlRendererCollection Renderers;
+  vtkRendererCollection Renderers;
   char Name[80];
   int Size[2];
   int Position[2];
@@ -199,7 +199,7 @@ protected:
   int StereoRender;
   int StereoType;
   int StereoStatus; // used for keeping track of what's going on
-  vlRenderWindowInteractor *Interactor;
+  vtkRenderWindowInteractor *Interactor;
   char *Filename;
   unsigned char* temp_buffer;  // used for red blue stereo
   unsigned char** AABuffer;    // used for anti aliasing

@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    UGridSrc.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
@@ -15,48 +15,48 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 =========================================================================*/
 #include "UGridSrc.hh"
 
-void vlUnstructuredGridSource::Modified()
+void vtkUnstructuredGridSource::Modified()
 {
-  this->vlUnstructuredGrid::Modified();
-  this->vlSource::_Modified();
+  this->vtkUnstructuredGrid::Modified();
+  this->vtkSource::_Modified();
 }
 
-unsigned long int vlUnstructuredGridSource::GetMTime()
+unsigned long int vtkUnstructuredGridSource::GetMTime()
 {
-  unsigned long dtime = this->vlUnstructuredGrid::GetMTime();
-  unsigned long ftime = this->vlSource::_GetMTime();
+  unsigned long dtime = this->vtkUnstructuredGrid::GetMTime();
+  unsigned long ftime = this->vtkSource::_GetMTime();
   return (dtime > ftime ? dtime : ftime);
 }
 
-void vlUnstructuredGridSource::Update()
+void vtkUnstructuredGridSource::Update()
 {
   this->UpdateFilter();
 }
 
-void vlUnstructuredGridSource::DebugOn()
+void vtkUnstructuredGridSource::DebugOn()
 {
-  vlUnstructuredGrid::DebugOn();
-  vlSource::_DebugOn();
+  vtkUnstructuredGrid::DebugOn();
+  vtkSource::_DebugOn();
 }
 
-void vlUnstructuredGridSource::DebugOff()
+void vtkUnstructuredGridSource::DebugOff()
 {
-  vlUnstructuredGrid::DebugOff();
-  vlSource::_DebugOff();
+  vtkUnstructuredGrid::DebugOff();
+  vtkSource::_DebugOff();
 }
 
-int vlUnstructuredGridSource::GetDataReleased()
+int vtkUnstructuredGridSource::GetDataReleased()
 {
   return this->DataReleased;
 }
 
-void vlUnstructuredGridSource::SetDataReleased(int flag)
+void vtkUnstructuredGridSource::SetDataReleased(int flag)
 {
   this->DataReleased = flag;
 }
 
-void vlUnstructuredGridSource::PrintSelf(ostream& os, vlIndent indent)
+void vtkUnstructuredGridSource::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlUnstructuredGrid::PrintSelf(os,indent);
-  vlSource::_PrintSelf(os,indent);
+  vtkUnstructuredGrid::PrintSelf(os,indent);
+  vtkSource::_PrintSelf(os,indent);
 }

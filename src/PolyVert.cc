@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    PolyVert.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
@@ -14,22 +14,22 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
 #include "PolyVert.hh"
-#include "vlMath.hh"
+#include "vtkMath.hh"
 #include "CellArr.hh"
 #include "Vertex.hh"
 
-static vlVertex vertex;
-static vlMath math;
+static vtkVertex vertex;
+static vtkMath math;
 
 // Description:
 // Deep copy of cell.
-vlPolyVertex::vlPolyVertex(const vlPolyVertex& pp)
+vtkPolyVertex::vtkPolyVertex(const vtkPolyVertex& pp)
 {
   this->Points = pp.Points;
   this->PointIds = pp.PointIds;
 }
 
-int vlPolyVertex::EvaluatePosition(float x[3], float closestPoint[3],
+int vtkPolyVertex::EvaluatePosition(float x[3], float closestPoint[3],
                                    int& subId, float pcoords[3], 
                                    float& minDist2, float weights[MAX_CELL_SIZE])
 {
@@ -66,7 +66,7 @@ int vlPolyVertex::EvaluatePosition(float x[3], float closestPoint[3],
 
 }
 
-void vlPolyVertex::EvaluateLocation(int& subId, float pcoords[3], 
+void vtkPolyVertex::EvaluateLocation(int& subId, float pcoords[3], 
                                     float x[3], float weights[MAX_CELL_SIZE])
 {
   int i;
@@ -79,7 +79,7 @@ void vlPolyVertex::EvaluateLocation(int& subId, float pcoords[3],
   weights[subId] = 1.0;
 }
 
-int vlPolyVertex::CellBoundary(int subId, float pcoords[3], vlIdList& pts)
+int vtkPolyVertex::CellBoundary(int subId, float pcoords[3], vtkIdList& pts)
 {
   pts.Reset();
   pts.SetId(subId,this->PointIds.GetId(subId));
@@ -91,10 +91,10 @@ int vlPolyVertex::CellBoundary(int subId, float pcoords[3], vlIdList& pts)
 
 }
 
-void vlPolyVertex::Contour(float value, vlFloatScalars *cellScalars, 
-                           vlFloatPoints *points, vlCellArray *verts,
-                           vlCellArray *lines, vlCellArray *polys, 
-                           vlFloatScalars *scalars)
+void vtkPolyVertex::Contour(float value, vtkFloatScalars *cellScalars, 
+                           vtkFloatPoints *points, vtkCellArray *verts,
+                           vtkCellArray *lines, vtkCellArray *polys, 
+                           vtkFloatScalars *scalars)
 {
   int i, pts[1];
 
@@ -112,7 +112,7 @@ void vlPolyVertex::Contour(float value, vlFloatScalars *cellScalars,
 //
 // Intersect with sub-vertices
 //
-int vlPolyVertex::IntersectWithLine(float p1[3], float p2[3], 
+int vtkPolyVertex::IntersectWithLine(float p1[3], float p2[3], 
                                     float tol, float& t, float x[3], 
                                     float pcoords[3], int& subId)
 {

@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    PolyLine.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
@@ -14,20 +14,20 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
 #include "PolyLine.hh"
-#include "vlMath.hh"
+#include "vtkMath.hh"
 #include "Line.hh"
 #include "CellArr.hh"
 
 //
 // eliminate constructor / destructor calls
 //
-static vlLine line;
-static vlMath math;
+static vtkLine line;
+static vtkMath math;
 
 
 // Description:
 // Deep copy of cell.
-vlPolyLine::vlPolyLine(const vlPolyLine& pl)
+vtkPolyLine::vtkPolyLine(const vtkPolyLine& pl)
 {
   this->Points = pl.Points;
   this->PointIds = pl.PointIds;
@@ -35,7 +35,7 @@ vlPolyLine::vlPolyLine(const vlPolyLine& pl)
 
 // Description:
 // Given points and lines, compute normals to lines.
-int vlPolyLine::GenerateNormals(vlPoints *pts, vlCellArray *lines, vlFloatNormals *normals)
+int vtkPolyLine::GenerateNormals(vtkPoints *pts, vtkCellArray *lines, vtkFloatNormals *normals)
 {
   int npts, *linePts;
   float s[3], sPrev[3], sNext[3], norm[3], *n, *nPrev;
@@ -52,7 +52,7 @@ int vlPolyLine::GenerateNormals(vlPoints *pts, vlCellArray *lines, vlFloatNormal
     // check input
     if ( npts < 1 )
       {
-      vlErrorMacro(<<"Line with no points!");
+      vtkErrorMacro(<<"Line with no points!");
       return 0;
       }
 
@@ -213,10 +213,10 @@ int vlPolyLine::GenerateNormals(vlPoints *pts, vlCellArray *lines, vlFloatNormal
 
 // Description:
 // Given points and lines, compute normals to lines. These are not true 
-// normals, they are "orientation" normals used by classes like vlTubeFilter
+// normals, they are "orientation" normals used by classes like vtkTubeFilter
 // that control the rotation around the line. The normals try to stay pointing
 // in the same direction as much as possible (i.e., minimal rotation).
-int vlPolyLine::GenerateSlidingNormals(vlPoints *pts, vlCellArray *lines, vlFloatNormals *normals)
+int vtkPolyLine::GenerateSlidingNormals(vtkPoints *pts, vtkCellArray *lines, vtkFloatNormals *normals)
 {
   int npts, *linePts;
   float sPrev[3], sNext[3], q[3], w[3], normal[3], theta;
@@ -338,7 +338,7 @@ int vlPolyLine::GenerateSlidingNormals(vlPoints *pts, vlCellArray *lines, vlFloa
 
 }
 
-int vlPolyLine::EvaluatePosition(float x[3], float closestPoint[3],
+int vtkPolyLine::EvaluatePosition(float x[3], float closestPoint[3],
                                  int& subId, float pcoords[3], 
                                  float& minDist2, float weights[MAX_CELL_SIZE])
 {
@@ -375,7 +375,7 @@ int vlPolyLine::EvaluatePosition(float x[3], float closestPoint[3],
   return return_status;
 }
 
-void vlPolyLine::EvaluateLocation(int& subId, float pcoords[3], float x[3],
+void vtkPolyLine::EvaluateLocation(int& subId, float pcoords[3], float x[3],
                                   float weights[MAX_CELL_SIZE])
 {
   int i;
@@ -388,7 +388,7 @@ void vlPolyLine::EvaluateLocation(int& subId, float pcoords[3], float x[3],
     }
 }
 
-int vlPolyLine::CellBoundary(int subId, float pcoords[3], vlIdList& pts)
+int vtkPolyLine::CellBoundary(int subId, float pcoords[3], vtkIdList& pts)
 {
   pts.Reset();
 
@@ -407,13 +407,13 @@ int vlPolyLine::CellBoundary(int subId, float pcoords[3], vlIdList& pts)
 
 }
 
-void vlPolyLine::Contour(float value, vlFloatScalars *cellScalars,
-                         vlFloatPoints *points, vlCellArray *verts, 
-                         vlCellArray *lines, vlCellArray *polys, 
-                         vlFloatScalars *scalars)
+void vtkPolyLine::Contour(float value, vtkFloatScalars *cellScalars,
+                         vtkFloatPoints *points, vtkCellArray *verts, 
+                         vtkCellArray *lines, vtkCellArray *polys, 
+                         vtkFloatScalars *scalars)
 {
   int i;
-  vlFloatScalars lineScalars(2);
+  vtkFloatScalars lineScalars(2);
 
   for ( i=0; i<this->Points.GetNumberOfPoints()-1; i++)
     {
@@ -432,7 +432,7 @@ void vlPolyLine::Contour(float value, vlFloatScalars *cellScalars,
 //
 // Intersect with sub-lines
 //
-int vlPolyLine::IntersectWithLine(float p1[3], float p2[3],float tol,float& t,
+int vtkPolyLine::IntersectWithLine(float p1[3], float p2[3],float tol,float& t,
                                   float x[3], float pcoords[3], int& subId)
 {
   for (subId=0; subId<this->Points.GetNumberOfPoints()-1; subId++)

@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    XglrCam.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its
+This file is part of the Visualization Toolkit. No part of this file or its
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
@@ -163,14 +163,14 @@ view_calc (Xgl_pt_f3d *eye, Xgl_pt_f3d *focus,
 
 // Description:
 // Implement base class method.
-void vlXglrCamera::Render(vlCamera *cam, vlRenderer *ren)
+void vtkXglrCamera::Render(vtkCamera *cam, vtkRenderer *ren)
 {
-  this->Render(cam, (vlXglrRenderer *)ren);
+  this->Render(cam, (vtkXglrRenderer *)ren);
 }
 
 // Description:
 // Actual camera render method.
-void vlXglrCamera::Render(vlCamera *cam, vlXglrRenderer *ren)
+void vtkXglrCamera::Render(vtkCamera *cam, vtkXglrRenderer *ren)
 {
   Xgl_ctx *context;
   Xgl_win_ras *win_ras = NULL; // XGLR Window Raster object 
@@ -185,14 +185,14 @@ void vlXglrCamera::Render(vlCamera *cam, vlXglrRenderer *ren)
   Xgl_pt_f3d  eye,focus;
   float twist;
   float matrix[4][4];
-  vlXglrRenderWindow *rw;
+  vtkXglrRenderWindow *rw;
   float *Position, *FocalPoint, *ClippingRange;
 
   context = ren->GetContext();
   win_ras = ren->GetRaster();
 
   // get size info
-  rw = (vlXglrRenderWindow*)(ren->GetRenderWindow());
+  rw = (vtkXglrRenderWindow*)(ren->GetRenderWindow());
   size = rw->GetSize();
 
   // find out if we should stereo render

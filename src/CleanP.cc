@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    CleanP.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
@@ -18,42 +18,42 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 // Description:
 // Construct object with initial tolerance of 0.0.
-vlCleanPolyData::vlCleanPolyData()
+vtkCleanPolyData::vtkCleanPolyData()
 {
   this->Tolerance = 0.0;
   this->Locator = NULL;
   this->SelfCreatedLocator = 0;
 }
 
-vlCleanPolyData::~vlCleanPolyData()
+vtkCleanPolyData::~vtkCleanPolyData()
 {
   if ( this->SelfCreatedLocator && this->Locator != NULL) 
     delete this->Locator;
 }
 
-void vlCleanPolyData::Execute()
+void vtkCleanPolyData::Execute()
 {
-  vlPolyData *input=(vlPolyData *)this->Input;
+  vtkPolyData *input=(vtkPolyData *)this->Input;
   int numPts=input->GetNumberOfPoints();
-  vlFloatPoints *newPts;
+  vtkFloatPoints *newPts;
   int numNewPts;
   
-  vlPointData *pd;
-  vlPoints *inPts;
+  vtkPointData *pd;
+  vtkPoints *inPts;
   int *Index;
   int i, j, count;
   int npts, *pts, updatedPts[MAX_CELL_SIZE];
-  vlCellArray *inVerts=input->GetVerts(), *newVerts=NULL;
-  vlCellArray *inLines=input->GetLines(), *newLines=NULL;
-  vlCellArray *inPolys=input->GetPolys(), *newPolys=NULL;
-  vlCellArray *inStrips=input->GetStrips(), *newStrips=NULL;
+  vtkCellArray *inVerts=input->GetVerts(), *newVerts=NULL;
+  vtkCellArray *inLines=input->GetLines(), *newLines=NULL;
+  vtkCellArray *inPolys=input->GetPolys(), *newPolys=NULL;
+  vtkCellArray *inStrips=input->GetStrips(), *newStrips=NULL;
 
-  vlDebugMacro(<<"Cleaning data");
+  vtkDebugMacro(<<"Cleaning data");
   this->Initialize();
 
   if ( numPts < 1 || (inPts=input->GetPoints()) == NULL )
     {
-    vlErrorMacro(<<"No data to clean!");
+    vtkErrorMacro(<<"No data to clean!");
     return;
     }
 
@@ -79,7 +79,7 @@ void vlCleanPolyData::Execute()
 //
 //  Load new array of points using index.
 //
-  newPts = new vlFloatPoints(numPts);
+  newPts = new vtkFloatPoints(numPts);
 
   for (numNewPts=0, i=0; i < numPts; i++) 
     {
@@ -95,7 +95,7 @@ void vlCleanPolyData::Execute()
   newPts->Squeeze();
   this->PointData.Squeeze();
 
-  vlDebugMacro(<<"Removed " << numPts-numNewPts << " points");
+  vtkDebugMacro(<<"Removed " << numPts-numNewPts << " points");
 
 //
 // Begin to adjust topology.
@@ -103,7 +103,7 @@ void vlCleanPolyData::Execute()
   // Vertices are just renumbered.
   if ( inVerts->GetNumberOfCells() > 0 )
     {
-    newVerts = new vlCellArray(inVerts->GetSize());
+    newVerts = new vtkCellArray(inVerts->GetSize());
     for (inVerts->InitTraversal(); inVerts->GetNextCell(npts,pts); )
       {
       for (j=0; j < npts; j++) updatedPts[j] = Index[pts[j]];
@@ -115,7 +115,7 @@ void vlCleanPolyData::Execute()
   // lines reduced to one point are eliminated
   if ( inLines->GetNumberOfCells() > 0 )
     {
-    newLines = new vlCellArray(inLines->GetSize());
+    newLines = new vtkCellArray(inLines->GetSize());
 
     for (inLines->InitTraversal(); inLines->GetNextCell(npts,pts); )
       {
@@ -130,14 +130,14 @@ void vlCleanPolyData::Execute()
         }
       }
     newLines->Squeeze();
-    vlDebugMacro(<<"Removed " << inLines->GetNumberOfCells() -
+    vtkDebugMacro(<<"Removed " << inLines->GetNumberOfCells() -
                  newLines->GetNumberOfCells() << " lines");
     }
 
   // polygons reduced to two points or less are eliminated
   if ( inPolys->GetNumberOfCells() > 0 )
     {
-    newPolys = new vlCellArray(inPolys->GetSize());
+    newPolys = new vtkCellArray(inPolys->GetSize());
 
     for (inPolys->InitTraversal(); inPolys->GetNextCell(npts,pts); )
       {
@@ -154,14 +154,14 @@ void vlCleanPolyData::Execute()
         }
       }
     newPolys->Squeeze();
-    vlDebugMacro(<<"Removed " << inPolys->GetNumberOfCells() -
+    vtkDebugMacro(<<"Removed " << inPolys->GetNumberOfCells() -
                  newPolys->GetNumberOfCells() << " polys");
     }
 
   // triangle strips reduced to two points or less are eliminated
   if ( inStrips->GetNumberOfCells() > 0 ) 
     {
-    newStrips = new vlCellArray(inStrips->GetSize());
+    newStrips = new vtkCellArray(inStrips->GetSize());
 
     for (inStrips->InitTraversal(); inStrips->GetNextCell(npts,pts); )
       {
@@ -176,7 +176,7 @@ void vlCleanPolyData::Execute()
         }
       }
     newStrips->Squeeze();
-    vlDebugMacro(<<"Removed " << inStrips->GetNumberOfCells() -
+    vtkDebugMacro(<<"Removed " << inStrips->GetNumberOfCells() -
                  newStrips->GetNumberOfCells() << " strips");
     }
 //
@@ -194,8 +194,8 @@ void vlCleanPolyData::Execute()
 
 // Description:
 // Specify a spatial locator for speeding the search process. By
-// default an instance of vlLocator is used.
-void vlCleanPolyData::SetLocator(vlLocator *locator)
+// default an instance of vtkLocator is used.
+void vtkCleanPolyData::SetLocator(vtkLocator *locator)
 {
   if ( this->Locator != locator ) 
     {
@@ -206,21 +206,21 @@ void vlCleanPolyData::SetLocator(vlLocator *locator)
     }
 }
 
-void vlCleanPolyData::CreateDefaultLocator()
+void vtkCleanPolyData::CreateDefaultLocator()
 {
   if ( this->SelfCreatedLocator ) delete this->Locator;
 
   if ( this->Tolerance <= 0.0 )
-    this->Locator = new vlMergePoints;
+    this->Locator = new vtkMergePoints;
   else
-    this->Locator = new vlLocator;
+    this->Locator = new vtkLocator;
 
   this->SelfCreatedLocator = 1;
 }
 
-void vlCleanPolyData::PrintSelf(ostream& os, vlIndent indent)
+void vtkCleanPolyData::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlPolyToPolyFilter::PrintSelf(os,indent);
+  vtkPolyToPolyFilter::PrintSelf(os,indent);
 
   os << indent << "Tolerance: " << this->Tolerance << "\n";
 

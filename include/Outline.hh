@@ -1,40 +1,40 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    Outline.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-// .NAME vlOutlineSource - create wireframe wireframe outline around bounding box
+// .NAME vtkOutlineSource - create wireframe wireframe outline around bounding box
 // .SECTION Description
-// vlOutlineSource creates a wireframe outline around a user specified 
+// vtkOutlineSource creates a wireframe outline around a user specified 
 // bounding box.
 
-#ifndef __vlOutlineSource_h
-#define __vlOutlineSource_h
+#ifndef __vtkOutlineSource_h
+#define __vtkOutlineSource_h
 
 #include "PolySrc.hh"
 
-class vlOutlineSource : public vlPolySource 
+class vtkOutlineSource : public vtkPolySource 
 {
 public:
-  vlOutlineSource();
-  ~vlOutlineSource() {};
-  char *GetClassName() {return "vlOutlineSource";};
-  void PrintSelf(ostream& os, vlIndent indent);
+  vtkOutlineSource();
+  ~vtkOutlineSource() {};
+  char *GetClassName() {return "vtkOutlineSource";};
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Specify the bounding box for this object.
-  vlSetVectorMacro(Bounds,float,6);
-  vlGetVectorMacro(Bounds,float,6);
+  vtkSetVectorMacro(Bounds,float,6);
+  vtkGetVectorMacro(Bounds,float,6);
 
 protected:
   void Execute();

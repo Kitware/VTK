@@ -1,39 +1,41 @@
 /*=========================================================================
 
-  Program:   Visualization Library
-  Module:    vlDSRead.hh
+  Program:   Visualization Toolkit
+  Module:    vtkSGrdR.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-// .NAME vlDataSetReader - class to read any type of vl dataset
+// .NAME vtkStructuredGridReader - read vtk structured grid data file
 // .SECTION Description
-// vlDataSetReader is a class that provides instance variables 
-// and methods to read any type of dataset in visualization library format. 
-// The output type of this class will vary depending upon the type of data
-// file. Note: these formats are not standard. Use other more standard 
-// formats when you can.
+// vtkStructuredGridReader is a source object that reads ASCII or binary 
+// structured grid data files in vtk format. See text for format details.
+// .SECTION Caveats
+// Binary files written on one system may not be readable on other systems.
 
-#ifndef __vlDataSetReader_h
-#define __vlDataSetReader_h
+#ifndef __vtkStructuredGridReader_h
+#define __vtkStructuredGridReader_h
 
-#include "DSSrc.hh"
-#include "vlDataR.hh"
+#include "SGridSrc.hh"
+#include "vtkDataR.hh"
 
-class vlDataSetReader : public vlDataSetSource
+class vtkStructuredGridReader : public vtkStructuredGridSource
 {
 public:
-  vlDataSetReader();
-  ~vlDataSetReader();
-  char *GetClassName() {return "vlDataSetReader";};
-  void PrintSelf(ostream& os, vlIndent indent);
+  vtkStructuredGridReader();
+  ~vtkStructuredGridReader();
+  char *GetClassName() {return "vtkStructuredGridReader";};
+  void PrintSelf(ostream& os, vtkIndent indent);
+
+  // overload because of vtkDataReader ivar
+  unsigned long int GetMTime();
 
   void SetFilename(char *name);
   char *GetFilename();
@@ -60,7 +62,8 @@ public:
 
 protected:
   void Execute();
-  vlDataReader Reader;
+  vtkDataReader Reader;
+
 };
 
 #endif

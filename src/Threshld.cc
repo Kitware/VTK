@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    Threshld.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
@@ -17,81 +17,81 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 // Construct with lower threshold=0, upper threshold=1, and threshold 
 // function=upper.
-vlThreshold::vlThreshold()
+vtkThreshold::vtkThreshold()
 {
   this->LowerThreshold = 0.0;
   this->UpperThreshold = 1.0;
 
-  this->ThresholdFunction = &vlThreshold::Upper;
+  this->ThresholdFunction = &vtkThreshold::Upper;
 }
 
 // Description:
 // Criterion is cells whose scalars are less than lower threshold.
-void vlThreshold::ThresholdByLower(float lower) 
+void vtkThreshold::ThresholdByLower(float lower) 
 {
   if ( this->LowerThreshold != lower )
     {
     this->LowerThreshold = lower; 
-    this->ThresholdFunction = &vlThreshold::Lower;
+    this->ThresholdFunction = &vtkThreshold::Lower;
     this->Modified();
     }
 }
                            
 // Description:
 // Criterion is cells whose scalars are less than upper threshold.
-void vlThreshold::ThresholdByUpper(float upper)
+void vtkThreshold::ThresholdByUpper(float upper)
 {
   if ( this->UpperThreshold != upper )
     {
     this->UpperThreshold = upper; 
-    this->ThresholdFunction = &vlThreshold::Upper;
+    this->ThresholdFunction = &vtkThreshold::Upper;
     this->Modified();
     }
 }
                            
 // Description:
 // Criterion is cells whose scalars are between lower and upper thresholds.
-void vlThreshold::ThresholdBetween(float lower, float upper)
+void vtkThreshold::ThresholdBetween(float lower, float upper)
 {
   if ( this->LowerThreshold != lower || this->UpperThreshold != upper )
     {
     this->LowerThreshold = lower; 
     this->UpperThreshold = upper;
-    this->ThresholdFunction = vlThreshold::Between;
+    this->ThresholdFunction = vtkThreshold::Between;
     this->Modified();
     }
 }
   
-void vlThreshold::Execute()
+void vtkThreshold::Execute()
 {
   int cellId;
-  vlIdList *cellPts, *pointMap;
-  vlIdList newCellPts(MAX_CELL_SIZE);
-  vlScalars *inScalars;
-  vlFloatScalars cellScalars(MAX_CELL_SIZE);
-  vlCell *cell;
-  vlFloatPoints *newPoints;
-  vlPointData *pd;
+  vtkIdList *cellPts, *pointMap;
+  vtkIdList newCellPts(MAX_CELL_SIZE);
+  vtkScalars *inScalars;
+  vtkFloatScalars cellScalars(MAX_CELL_SIZE);
+  vtkCell *cell;
+  vtkFloatPoints *newPoints;
+  vtkPointData *pd;
   int i, ptId, newId, numPts, numCellPts;
   float *x;
 
-  vlDebugMacro(<< "Executing threshold filter");
+  vtkDebugMacro(<< "Executing threshold filter");
   this->Initialize();
 
   if ( ! (inScalars = this->Input->GetPointData()->GetScalars()) )
     {
-    vlErrorMacro(<<"No scalar data to threshold");
+    vtkErrorMacro(<<"No scalar data to threshold");
     return;
     }
      
   numPts = this->Input->GetNumberOfPoints();
 
   this->Allocate(this->Input->GetNumberOfCells());
-  newPoints = new vlFloatPoints(numPts);
+  newPoints = new vtkFloatPoints(numPts);
   pd = this->Input->GetPointData();
   this->PointData.CopyAllocate(pd);
 
-  pointMap = new vlIdList(numPts); // maps old point ids into new
+  pointMap = new vtkIdList(numPts); // maps old point ids into new
   for (i=0; i < numPts; i++) pointMap->SetId(i,-1);
 
   // Check that the scalars of each cell satisfy the threshold criterion
@@ -126,7 +126,7 @@ void vlThreshold::Execute()
       } // satisfied thresholding
     } // for all cells
 
-  vlDebugMacro(<< "Extracted " << this->GetNumberOfCells() 
+  vtkDebugMacro(<< "Extracted " << this->GetNumberOfCells() 
                << " number of cells.");
 
   // now clean up / update ourselves
@@ -137,17 +137,17 @@ void vlThreshold::Execute()
   this->SetPoints(newPoints);
 }
 
-void vlThreshold::PrintSelf(ostream& os, vlIndent indent)
+void vtkThreshold::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlDataSetToUnstructuredGridFilter::PrintSelf(os,indent);
+  vtkDataSetToUnstructuredGridFilter::PrintSelf(os,indent);
 
-  if ( this->ThresholdFunction == &vlThreshold::Upper )
+  if ( this->ThresholdFunction == &vtkThreshold::Upper )
     os << indent << "Threshold By Upper\n";
 
-  else if ( this->ThresholdFunction == &vlThreshold::Lower )
+  else if ( this->ThresholdFunction == &vtkThreshold::Lower )
     os << indent << "Threshold By Lower\n";
 
-  else if ( this->ThresholdFunction == &vlThreshold::Between )
+  else if ( this->ThresholdFunction == &vtkThreshold::Between )
     os << indent << "Threshold Between\n";
 
   os << indent << "Lower Threshold: " << this->LowerThreshold << "\n";;

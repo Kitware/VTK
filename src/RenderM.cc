@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    RenderM.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its
+This file is part of the Visualization Toolkit. No part of this file or its
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
@@ -34,59 +34,59 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "XglrRenW.hh"
 #endif
 
-vlRenderMaster::vlRenderMaster()
+vtkRenderMaster::vtkRenderMaster()
 {
 }
 
 // Description:
 // Create named renderer type.
-vlRenderWindow *vlRenderMaster::MakeRenderWindow(char *type)
+vtkRenderWindow *vtkRenderMaster::MakeRenderWindow(char *type)
 {
 
 #ifdef USE_KGLR
   if (!strncmp("kglr",type,4))
     {
-    vlKglrRenderWindow *ren;
-    ren = new vlKglrRenderWindow;
-    return (vlRenderWindow *)ren;
+    vtkKglrRenderWindow *ren;
+    ren = new vtkKglrRenderWindow;
+    return (vtkRenderWindow *)ren;
     }
 #endif
 
 #ifdef USE_SBR
   if (!strncmp("sbr",type,4))
     {
-    vlSbrRenderWindow *ren;
-    ren = new vlSbrRenderWindow;
-    return (vlRenderWindow *)ren;
+    vtkSbrRenderWindow *ren;
+    ren = new vtkSbrRenderWindow;
+    return (vtkRenderWindow *)ren;
     }
 #endif
 
 #ifdef USE_GLR
   if (!strncmp("glr",type,3))
     {
-    vlGlrRenderWindow *ren;
-    ren = new vlGlrRenderWindow;
-    return (vlRenderWindow *)ren;
+    vtkGlrRenderWindow *ren;
+    ren = new vtkGlrRenderWindow;
+    return (vtkRenderWindow *)ren;
     }
 #endif
 
 #ifdef USE_XGLR
   if (!strncmp("xglr",type,4))
     {
-    vlXglrRenderWindow *ren;
-    ren = new vlXglrRenderWindow;
-    return (vlRenderWindow *)ren;
+    vtkXglrRenderWindow *ren;
+    ren = new vtkXglrRenderWindow;
+    return (vtkRenderWindow *)ren;
     }
 #endif
 
-  vlErrorMacro(<<"RenderMaster Error: unable to return render window.\n");
-  return (vlRenderWindow *)NULL;
+  vtkErrorMacro(<<"RenderMaster Error: unable to return render window.\n");
+  return (vtkRenderWindow *)NULL;
 }
 
 // Description:
 // Create renderer based on environment variable VL_RENDERER. If VL_RENDERER
 // not defined, then use default renderer kglr.
-vlRenderWindow *vlRenderMaster::MakeRenderWindow(void)
+vtkRenderWindow *vtkRenderMaster::MakeRenderWindow(void)
 {
   char *temp;
   
@@ -97,8 +97,8 @@ vlRenderWindow *vlRenderMaster::MakeRenderWindow(void)
   return (this->MakeRenderWindow(temp));
 }
 
-void vlRenderMaster::PrintSelf(ostream& os, vlIndent indent)
+void vtkRenderMaster::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlObject::PrintSelf(os,indent);
+  vtkObject::PrintSelf(os,indent);
 }
 

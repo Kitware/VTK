@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    ConeSrc.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its 
+This file is part of the Visualization Toolkit. No part of this file or its 
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
@@ -19,7 +19,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include <math.h>
 #include "ConeSrc.hh"
 
-vlConeSource::vlConeSource(int res)
+vtkConeSource::vtkConeSource(int res)
 {
   res = (res < 0 ? 0 : res);
   this->Resolution = res;
@@ -28,16 +28,16 @@ vlConeSource::vlConeSource(int res)
   this->Capping = 1;
 }
 
-void vlConeSource::Execute()
+void vtkConeSource::Execute()
 {
   float angle= 2.0*3.141592654/this->Resolution;
   int numLines, numPolys, numPts;
   float x[3], xbot;
   int i;
   int pts[MAX_CELL_SIZE];
-  vlFloatPoints *newPoints; 
-  vlCellArray *newLines=0;
-  vlCellArray *newPolys=0;
+  vtkFloatPoints *newPoints; 
+  vtkCellArray *newLines=0;
+  vtkCellArray *newPolys=0;
 //
 // Set things up; allocate memory
 //
@@ -48,24 +48,24 @@ void vlConeSource::Execute()
   case 0:
     numPts = 2;
     numLines =  1;
-    newLines = new vlCellArray;
+    newLines = new vtkCellArray;
     newLines->Allocate(newLines->EstimateSize(numLines,numPts));
   
   case 1: case 2:
     numPts = 2*this->Resolution + 1;
     numPolys = this->Resolution;
-    newPolys = new vlCellArray;
+    newPolys = new vtkCellArray;
     newPolys->Allocate(newPolys->EstimateSize(numPolys,3));
     break;
 
   default:
     numPts = this->Resolution + 1;
     numPolys = this->Resolution + 1;
-    newPolys = new vlCellArray;
+    newPolys = new vtkCellArray;
     newPolys->Allocate(newPolys->EstimateSize(numPolys,this->Resolution));
     break;
   }
-  newPoints = new vlFloatPoints(numPts);
+  newPoints = new vtkFloatPoints(numPts);
 //
 // Create cone
 //
@@ -148,9 +148,9 @@ void vlConeSource::Execute()
     }
 }
 
-void vlConeSource::PrintSelf(ostream& os, vlIndent indent)
+void vtkConeSource::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlPolySource::PrintSelf(os,indent);
+  vtkPolySource::PrintSelf(os,indent);
 
   os << indent << "Resolution: " << this->Resolution << "\n";
   os << indent << "Height: " << this->Height << "\n";

@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    TriF.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
@@ -16,25 +16,25 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "TriF.hh"
 #include "Polygon.hh"
 
-void vlTriangleFilter::Execute()
+void vtkTriangleFilter::Execute()
 {
-  vlPolyData *input=(vlPolyData *)this->Input;
-  vlCellArray *inPolys=input->GetPolys();
-  vlCellArray *inStrips=input->GetStrips();;
+  vtkPolyData *input=(vtkPolyData *)this->Input;
+  vtkCellArray *inPolys=input->GetPolys();
+  vtkCellArray *inStrips=input->GetStrips();;
   int npts, *pts;
-  vlCellArray *newPolys=NULL;
+  vtkCellArray *newPolys=NULL;
   int numCells;
   int p1, p2, p3;
-  vlPolygon poly;
+  vtkPolygon poly;
   int i, j;
-  vlIdList outVerts(3*MAX_CELL_SIZE);
-  vlPoints *inPoints=input->GetPoints();
-  vlPointData *pd;
+  vtkIdList outVerts(3*MAX_CELL_SIZE);
+  vtkPoints *inPoints=input->GetPoints();
+  vtkPointData *pd;
 
-  vlDebugMacro(<<"Executing triangle filter");
+  vtkDebugMacro(<<"Executing triangle filter");
   this->Initialize();
 
-  newPolys = new vlCellArray();
+  newPolys = new vtkCellArray();
   // approximation
   numCells = input->GetNumberOfPolys() + input->GetNumberOfStrips();
   newPolys->Allocate(newPolys->EstimateSize(numCells,3),3*numCells);
@@ -99,15 +99,15 @@ void vlTriangleFilter::Execute()
   if ( this->PassVerts ) this->SetVerts(input->GetVerts());
   if ( this->PassLines ) this->SetLines(input->GetLines());
 
-  vlDebugMacro(<<"Converted " << inPolys->GetNumberOfCells() <<
+  vtkDebugMacro(<<"Converted " << inPolys->GetNumberOfCells() <<
                " polygons and " << inStrips->GetNumberOfCells() <<
                " strips to " << newPolys->GetNumberOfCells() <<
                " triangles");
 }
 
-void vlTriangleFilter::PrintSelf(ostream& os, vlIndent indent)
+void vtkTriangleFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlPolyToPolyFilter::PrintSelf(os,indent);
+  vtkPolyToPolyFilter::PrintSelf(os,indent);
 
   os << indent << "Pass Verts: " << (this->PassVerts ? "On\n" : "Off\n");
   os << indent << "Pass Lines: " << (this->PassLines ? "On\n" : "Off\n");

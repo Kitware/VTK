@@ -1,51 +1,51 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    Property.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its
+This file is part of the Visualization Toolkit. No part of this file or its
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
-// .NAME vlProperty - represent surface properties of a geometric object
+// .NAME vtkProperty - represent surface properties of a geometric object
 // .SECTION Description
-// vlProperty is an object that represents lighting and other surface
+// vtkProperty is an object that represents lighting and other surface
 // properties of a geometric object. The primary properties that can be 
 // set are colors (object, ambient, diffuse, specular, and edge color),
 // specular power, transparency of the object, the representation of the
 // object (points, wireframe, or surface), and the shading method to be 
 // used (flat, Gouraud, and Phong).
 // .SECTION See Also
-// See vlRenderer for definition of #define's.
+// See vtkRenderer for definition of #define's.
 
-#ifndef __vlProperty_hh
-#define __vlProperty_hh
+#ifndef __vtkProperty_hh
+#define __vtkProperty_hh
 
 #include "Render.hh"
 #include "Object.hh"
 #include "StrPts.hh"
 
-class vlRenderer;
-class vlPropertyDevice;
+class vtkRenderer;
+class vtkPropertyDevice;
 
-class vlProperty : public vlObject
+class vtkProperty : public vtkObject
 {
 public:
-  vlProperty();
-  char *GetClassName() {return "vlProperty";};
-  void PrintSelf(ostream& os, vlIndent indent);
+  vtkProperty();
+  char *GetClassName() {return "vtkProperty";};
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Abstract interface to renderer. Each concrete subclass of vlProperty
+  // Abstract interface to renderer. Each concrete subclass of vtkProperty
   // will load its data into graphics system in response to this method
   // invocation.
-  virtual void Render(vlRenderer *ren);
+  virtual void Render(vtkRenderer *ren);
 
   void SetFlat (void);
   void SetGouraud (void);
@@ -56,68 +56,68 @@ public:
 
   // Description:
   // Get the method of representation for the object.
-  vlGetMacro(Representation,int);
+  vtkGetMacro(Representation,int);
 
   // Description:
   // Get the shading method for the object.
-  vlGetMacro(Interpolation,int);
+  vtkGetMacro(Interpolation,int);
 
   void SetColor(float r,float g,float b);
   void SetColor(float a[3]) { this->SetColor(a[0], a[1], a[2]); };
-  vlGetVectorMacro(Color,float,3);
+  vtkGetVectorMacro(Color,float,3);
 
   // Description:
   // Set ambient coefficient.
-  vlSetClampMacro(Ambient,float,0.0,1.0);
-  vlGetMacro(Ambient,float);
+  vtkSetClampMacro(Ambient,float,0.0,1.0);
+  vtkGetMacro(Ambient,float);
 
   // Description:
   // Set diffuse coefficient.
-  vlSetClampMacro(Diffuse,float,0.0,1.0);
-  vlGetMacro(Diffuse,float);
+  vtkSetClampMacro(Diffuse,float,0.0,1.0);
+  vtkGetMacro(Diffuse,float);
 
   // Description:
   // Set specular coefficient.
-  vlSetClampMacro(Specular,float,0.0,1.0);
-  vlGetMacro(Specular,float);
+  vtkSetClampMacro(Specular,float,0.0,1.0);
+  vtkGetMacro(Specular,float);
 
   // Description:
   // Set the specular power.
-  vlSetClampMacro(SpecularPower,float,0.0,100.0);
-  vlGetMacro(SpecularPower,float);
+  vtkSetClampMacro(SpecularPower,float,0.0,100.0);
+  vtkGetMacro(SpecularPower,float);
 
   // Description:
   // Set the object transparency.
-  vlSetClampMacro(Transparency,float,0.0,1.0);
-  vlGetMacro(Transparency,float);
+  vtkSetClampMacro(Transparency,float,0.0,1.0);
+  vtkGetMacro(Transparency,float);
 
   // Description:
   // Turn on/off the visibility of edges. On some renderers it is
   // possible to render the edges of geometric primitives separately
   // from the interior.
-  vlGetMacro(EdgeVisibility,int);
-  vlSetMacro(EdgeVisibility,int);
-  vlBooleanMacro(EdgeVisibility,int);
+  vtkGetMacro(EdgeVisibility,int);
+  vtkSetMacro(EdgeVisibility,int);
+  vtkBooleanMacro(EdgeVisibility,int);
 
   // Description:
   // Set the ambient light color.
-  vlSetVector3Macro(AmbientColor,float);
-  vlGetVectorMacro(AmbientColor,float,3);
+  vtkSetVector3Macro(AmbientColor,float);
+  vtkGetVectorMacro(AmbientColor,float,3);
 
   // Description:
   // Set the diffuse light color.
-  vlSetVector3Macro(DiffuseColor,float);
-  vlGetVectorMacro(DiffuseColor,float,3);
+  vtkSetVector3Macro(DiffuseColor,float);
+  vtkGetVectorMacro(DiffuseColor,float,3);
 
   // Description:
   // Set the specular color.
-  vlSetVector3Macro(SpecularColor,float);
-  vlGetVectorMacro(SpecularColor,float,3);
+  vtkSetVector3Macro(SpecularColor,float);
+  vtkGetVectorMacro(SpecularColor,float,3);
 
   // Description:
   // Set the color of edges (if edge visibility enabled).
-  vlSetVector3Macro(EdgeColor,float);
-  vlGetVectorMacro(EdgeColor,float,3);
+  vtkSetVector3Macro(EdgeColor,float);
+  vtkGetVectorMacro(EdgeColor,float,3);
 
 protected:
   float Color[3];
@@ -134,7 +134,7 @@ protected:
   int   Representation;
   int   EdgeVisibility;
   int   Backface;
-  vlPropertyDevice *Device;
+  vtkPropertyDevice *Device;
 };
 
 #endif

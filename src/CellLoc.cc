@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    CellLoc.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
@@ -16,18 +16,18 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include <math.h>
 #include "CellLoc.hh"
 #include "Locator.hh"
-#include "vlMath.hh"
+#include "vtkMath.hh"
 #include "IntArray.hh"
 
 #define OUTSIDE 0
 #define INSIDE 1
 
-typedef vlIdList *vlIdListPtr;
+typedef vtkIdList *vtkIdListPtr;
 
 // Description:
 // Construct with automatic computation of divisions, averaging
 // 25 cells per octant.
-vlCellLocator::vlCellLocator()
+vtkCellLocator::vtkCellLocator()
 {
   this->DataSet = NULL;
   this->Level = 4;
@@ -40,20 +40,20 @@ vlCellLocator::vlCellLocator()
   this->NumberOfDivisions = 1;
 }
 
-vlCellLocator::~vlCellLocator()
+vtkCellLocator::~vtkCellLocator()
 {
   this->Initialize();
 }
 
-void vlCellLocator::Initialize()
+void vtkCellLocator::Initialize()
 {
   // free up octants
   this->FreeSearchStructure();
 }
 
-void vlCellLocator::FreeSearchStructure()
+void vtkCellLocator::FreeSearchStructure()
 {
-  vlIdList *cellIds;
+  vtkIdList *cellIds;
   int i;
 
   if ( this->Tree )
@@ -70,7 +70,7 @@ void vlCellLocator::FreeSearchStructure()
 // Given a position x, return the id of the cell closest to it. Cell may 
 // contain the point, or just lie near it. Parametric coordinates, subId,
 // and distance squared to cell are returned.
-int vlCellLocator::FindClosestCell(float x[3], float dist2,
+int vtkCellLocator::FindClosestCell(float x[3], float dist2,
                                    int& subId, float pcoords[3])
 {
   int closest=(-1);
@@ -82,22 +82,22 @@ int vlCellLocator::FindClosestCell(float x[3], float dist2,
 // Return list of octants that are intersected by line. The octants
 // are ordered along the line and are represented by octant number. To obtain
 // the cells in the octant, use the method GetOctantCells().
-int vlCellLocator::IntersectWithLine(float a0[3], float a1[3], vlIdList& cells)
+int vtkCellLocator::IntersectWithLine(float a0[3], float a1[3], vtkIdList& cells)
 {
   return 0;
 }
 
 // Description:
 // Get the cells in an octant.
-vlIdList* vlCellLocator::GetOctantCells(int octantId)
+vtkIdList* vtkCellLocator::GetOctantCells(int octantId)
 {
   return NULL;
 }
 
 // Description:
-// Intersect against another vlCellLocator returning cells that lie in 
+// Intersect against another vtkCellLocator returning cells that lie in 
 // intersecting octants.
-int vlCellLocator::IntersectWithCellLocator(vlCellLocator& locator, vlIdList cells)
+int vtkCellLocator::IntersectWithCellLocator(vtkCellLocator& locator, vtkIdList cells)
 {
   return 0;
 }
@@ -107,27 +107,27 @@ int vlCellLocator::IntersectWithCellLocator(vlCellLocator& locator, vlIdList cel
 //  subject to the constraints of levels and NumberOfCellsInOctant.
 //  The result is directly addressable and of uniform subdivision.
 //
-void vlCellLocator::SubDivide()
+void vtkCellLocator::SubDivide()
 {
-  vlCell *cell;
+  vtkCell *cell;
   float *bounds, *cellBounds;
   int numCells;
   float level;
   int ndivs, product;
   int i, j, k, cellId, ijkMin[3], ijkMax[3];
   int idx, parentOffset;
-  vlIdList *octant;
+  vtkIdList *octant;
   int numCellsInOctant = this->NumberOfCellsInOctant;
-  typedef vlIdList *vlIdListPtr;
+  typedef vtkIdList *vtkIdListPtr;
   int prod, numOctants;
 
   if ( this->Tree != NULL && this->SubDivideTime > this->MTime ) return;
 
-  vlDebugMacro( << "Subdividing octree..." );
+  vtkDebugMacro( << "Subdividing octree..." );
 
   if ( !this->DataSet || (numCells = this->DataSet->GetNumberOfCells()) < 1 )
     {
-    vlErrorMacro( << "No cells to subdivide");
+    vtkErrorMacro( << "No cells to subdivide");
     return;
     }
 //
@@ -158,8 +158,8 @@ void vlCellLocator::SubDivide()
   this->NumberOfDivisions = ndivs;
   this->NumberOfOctants = numOctants;
 
-  this->Tree = new vlIdListPtr[numOctants];
-  memset (this->Tree, (int)NULL, numOctants*sizeof(vlIdListPtr));
+  this->Tree = new vtkIdListPtr[numOctants];
+  memset (this->Tree, (int)NULL, numOctants*sizeof(vtkIdListPtr));
 //
 //  Compute width of leaf octant in three directions
 //
@@ -196,7 +196,7 @@ void vlCellLocator::SubDivide()
           octant = this->Tree[idx];
           if ( ! octant )
             {
-            octant = new vlIdList(numCellsInOctant);
+            octant = new vtkIdList(numCellsInOctant);
             this->Tree[idx] = octant;
             }
           octant->InsertNextId(cellId);
@@ -209,7 +209,7 @@ void vlCellLocator::SubDivide()
   this->SubDivideTime.Modified();
 }
 
-void vlCellLocator::MarkParents(void* a, int i, int j, int k)
+void vtkCellLocator::MarkParents(void* a, int i, int j, int k)
 {
   // will's code
 }

@@ -1,46 +1,46 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    VoxelW.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its
+This file is part of the Visualization Toolkit. No part of this file or its
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
-// .NAME vlVoxelWriter - write out 0/1 voxel data from vlVoxelModeller
+// .NAME vtkVoxelWriter - write out 0/1 voxel data from vtkVoxelModeller
 // .SECTION Description
-// vlVoxelWriter writes a binary 0/1 voxel file. vlVoxelWriter writes only
+// vtkVoxelWriter writes a binary 0/1 voxel file. vtkVoxelWriter writes only
 // structured points data.
 
-#ifndef __vlVoxelWriter_h
-#define __vlVoxelWriter_h
+#ifndef __vtkVoxelWriter_h
+#define __vtkVoxelWriter_h
 
 #include <stdio.h>
 #include "Writer.hh"
 #include "StrPts.hh"
 
-class vlVoxelWriter : public vlWriter
+class vtkVoxelWriter : public vtkWriter
 {
 public:
-  vlVoxelWriter();
-  ~vlVoxelWriter();
-  char *GetClassName() {return "vlVoxelWriter";};
-  void PrintSelf(ostream& os, vlIndent indent);
+  vtkVoxelWriter();
+  ~vtkVoxelWriter();
+  char *GetClassName() {return "vtkVoxelWriter";};
+  void PrintSelf(ostream& os, vtkIndent indent);
 
-  void SetInput(vlStructuredPoints *input);
-  void SetInput(vlStructuredPoints &input) {this->SetInput(&input);};
-  vlStructuredPoints *GetInput() {return (vlStructuredPoints *)this->Input;};
+  void SetInput(vtkStructuredPoints *input);
+  void SetInput(vtkStructuredPoints &input) {this->SetInput(&input);};
+  vtkStructuredPoints *GetInput() {return (vtkStructuredPoints *)this->Input;};
 
   // Description:
   // Specify name of file to write.
-  vlSetStringMacro(Filename);
-  vlGetStringMacro(Filename);
+  vtkSetStringMacro(Filename);
+  vtkGetStringMacro(Filename);
 
 protected:
   void WriteData();

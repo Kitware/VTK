@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    PtPicker.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
@@ -14,18 +14,18 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
 #include "PtPicker.hh"
-#include "vlMath.hh"
+#include "vtkMath.hh"
 
-vlPointPicker::vlPointPicker()
+vtkPointPicker::vtkPointPicker()
 {
   this->PointId = -1;
 }
 
-void vlPointPicker::IntersectWithLine(float p1[3], float p2[3], float tol, 
-                                      vlActor *a, vlMapper *m)
+void vtkPointPicker::IntersectWithLine(float p1[3], float p2[3], float tol, 
+                                      vtkActor *a, vtkMapper *m)
 {
-  static vlMath math;
-  vlDataSet *input=m->GetInput();
+  static vtkMath math;
+  vtkDataSet *input=m->GetInput();
   int numPts;
   int ptId, i, minPtId;
   float ray[3], rayFactor, tMin, *p, t, projXYZ[3], minXYZ[3];
@@ -37,7 +37,7 @@ void vlPointPicker::IntersectWithLine(float p1[3], float p2[3], float tol,
   for (i=0; i<3; i++) ray[i] = p2[i] - p1[i];
   if (( rayFactor = math.Dot(ray,ray)) == 0.0 ) 
     {
-    vlErrorMacro("Cannot process points");
+    vtkErrorMacro("Cannot process points");
     return;
     }
 //
@@ -76,19 +76,19 @@ void vlPointPicker::IntersectWithLine(float p1[3], float p2[3], float tol,
     {
     this->MarkPicked(a, m, tMin, minXYZ);
     this->PointId = minPtId;
-    vlDebugMacro("Picked point id= " << minPtId);
+    vtkDebugMacro("Picked point id= " << minPtId);
     }
 }
 
-void vlPointPicker::Initialize()
+void vtkPointPicker::Initialize()
 {
   this->PointId = (-1);
-  this->vlPicker::Initialize();
+  this->vtkPicker::Initialize();
 }
 
-void vlPointPicker::PrintSelf(ostream& os, vlIndent indent)
+void vtkPointPicker::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->vlPicker::PrintSelf(os,indent);
+  this->vtkPicker::PrintSelf(os,indent);
 
   os << indent << "Point Id: " << this->PointId << "\n";
 }

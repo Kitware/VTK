@@ -1,41 +1,41 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    SbrText.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its
+This file is part of the Visualization Toolkit. No part of this file or its
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
-// .NAME vlKSbrTexture - starbase texture map object
+// .NAME vtkKSbrTexture - starbase texture map object
 // .SECTION Description
-// vlSbrTexture is a concrete implementation of the abstract class vlTexture.
+// vtkSbrTexture is a concrete implementation of the abstract class vtkTexture.
 // currently we don't support texture mapping on starbase.
 
-#ifndef __vlSbrTexture_hh
-#define __vlSbrTexture_hh
+#ifndef __vtkSbrTexture_hh
+#define __vtkSbrTexture_hh
 
 #include "Texture.hh"
 
-class vlSbrRenderer;
+class vtkSbrRenderer;
 
-class vlSbrTexture : public vlTexture
+class vtkSbrTexture : public vtkTexture
 {
 public:
-  vlSbrTexture();
-  char *GetClassName() {return "vlSbrTexture";};
+  vtkSbrTexture();
+  char *GetClassName() {return "vtkSbrTexture";};
   
-  void Load(vlTexture *txt, vlRenderer *ren);
-  void Load(vlTexture *txt, vlSbrRenderer *ren);
+  void Load(vtkTexture *txt, vtkRenderer *ren);
+  void Load(vtkTexture *txt, vtkSbrRenderer *ren);
   
 protected:
-  vlTimeStamp   LoadTime;
+  vtkTimeStamp   LoadTime;
   long          Index;
   static   long GlobalIndex;
 };

@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    XglrLgt.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its
+This file is part of the Visualization Toolkit. No part of this file or its
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
@@ -20,14 +20,14 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 // Description:
 // Implement base class method.
-void vlXglrLight::Render(vlLight *lgt, vlRenderer *ren,int light_index)
+void vtkXglrLight::Render(vtkLight *lgt, vtkRenderer *ren,int light_index)
 {
-  this->Render(lgt, (vlXglrRenderer *)ren,light_index);
+  this->Render(lgt, (vtkXglrRenderer *)ren,light_index);
 }
 
 // Description:
 // Actual light render method.
-void vlXglrLight::Render(vlLight *lgt, vlXglrRenderer *ren,int light_index)
+void vtkXglrLight::Render(vtkLight *lgt, vtkXglrRenderer *ren,int light_index)
 {
   Xgl_light *lights;
   Xgl_color light_color;
@@ -57,7 +57,7 @@ void vlXglrLight::Render(vlLight *lgt, vlXglrRenderer *ren,int light_index)
 		 XGL_LIGHT_DIRECTION, &direction,
 		 NULL);
   
-  vlDebugMacro(<< "Defining front light\n");
+  vtkDebugMacro(<< "Defining front light\n");
   
   // define another mirror light if backlit is on
   if (ren->GetBackLight()) 
@@ -73,7 +73,7 @@ void vlXglrLight::Render(vlLight *lgt, vlXglrRenderer *ren,int light_index)
 		   XGL_LIGHT_DIRECTION, &direction,
 		   NULL);
   
-    vlDebugMacro(<< "Defining back light\n");
+    vtkDebugMacro(<< "Defining back light\n");
     }
 }
 

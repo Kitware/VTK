@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    DS2DSF.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its 
+This file is part of the Visualization Toolkit. No part of this file or its 
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
@@ -16,13 +16,13 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "DS2DSF.hh"
 #include "PolyData.hh"
 
-vlDataSetToDataSetFilter::vlDataSetToDataSetFilter()
+vtkDataSetToDataSetFilter::vtkDataSetToDataSetFilter()
 {
   // prevents dangling reference to DataSet
-  this->DataSet = new vlPolyData;
+  this->DataSet = new vtkPolyData;
 }
 
-vlDataSetToDataSetFilter::~vlDataSetToDataSetFilter()
+vtkDataSetToDataSetFilter::~vtkDataSetToDataSetFilter()
 {
   delete this->DataSet;
 }
@@ -31,7 +31,7 @@ vlDataSetToDataSetFilter::~vlDataSetToDataSetFilter()
 // Initialize method is fancy: creates an internal dataset that holds
 // geometry representation. All methods directed at geometry are 
 // forwarded to internal dataset.
-void vlDataSetToDataSetFilter::Initialize()
+void vtkDataSetToDataSetFilter::Initialize()
 {
   if ( this->Input )
     {
@@ -45,56 +45,56 @@ void vlDataSetToDataSetFilter::Initialize()
     }
 }
 
-void vlDataSetToDataSetFilter::ComputeBounds()
+void vtkDataSetToDataSetFilter::ComputeBounds()
 {
   float *bounds = this->DataSet->GetBounds();
   for (int i=0; i<6; i++) this->Bounds[i] = bounds[i];
 }
 
-void vlDataSetToDataSetFilter::Modified()
+void vtkDataSetToDataSetFilter::Modified()
 {
-  this->vlDataSet::Modified();
-  this->vlDataSetFilter::_Modified();
+  this->vtkDataSet::Modified();
+  this->vtkDataSetFilter::_Modified();
 }
 
-void vlDataSetToDataSetFilter::DebugOn()
+void vtkDataSetToDataSetFilter::DebugOn()
 {
-  vlDataSet::DebugOn();
-  vlDataSetFilter::_DebugOn();
+  vtkDataSet::DebugOn();
+  vtkDataSetFilter::_DebugOn();
 }
 
-void vlDataSetToDataSetFilter::DebugOff()
+void vtkDataSetToDataSetFilter::DebugOff()
 {
-  vlDataSet::DebugOff();
-  vlDataSetFilter::_DebugOff();
+  vtkDataSet::DebugOff();
+  vtkDataSetFilter::_DebugOff();
 }
 
-unsigned long int vlDataSetToDataSetFilter::GetMTime()
+unsigned long int vtkDataSetToDataSetFilter::GetMTime()
 {
-  unsigned long dtime = this->vlDataSet::GetMTime();
-  unsigned long ftime = this->vlDataSetFilter::_GetMTime();
+  unsigned long dtime = this->vtkDataSet::GetMTime();
+  unsigned long ftime = this->vtkDataSetFilter::_GetMTime();
   return (dtime > ftime ? dtime : ftime);
 }
 
-int vlDataSetToDataSetFilter::GetDataReleased()
+int vtkDataSetToDataSetFilter::GetDataReleased()
 {
   return this->DataReleased;
 }
 
-void vlDataSetToDataSetFilter::SetDataReleased(int flag)
+void vtkDataSetToDataSetFilter::SetDataReleased(int flag)
 {
   this->DataReleased = flag;
 }
 
-void vlDataSetToDataSetFilter::Update()
+void vtkDataSetToDataSetFilter::Update()
 {
   this->UpdateFilter();
 }
 
-void vlDataSetToDataSetFilter::PrintSelf(ostream& os, vlIndent indent)
+void vtkDataSetToDataSetFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlDataSet::PrintSelf(os,indent);
-  vlDataSetFilter::_PrintSelf(os,indent);
+  vtkDataSet::PrintSelf(os,indent);
+  vtkDataSetFilter::_PrintSelf(os,indent);
 
   if ( this->DataSet )
     {

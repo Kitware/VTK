@@ -1,29 +1,29 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    Streamer.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-// .NAME vlStreamer - abstract object implements integration of massless particle through vector field
+// .NAME vtkStreamer - abstract object implements integration of massless particle through vector field
 // .SECTION Description
-// vlStreamer is a filter that integrates a massless particle through a vector
+// vtkStreamer is a filter that integrates a massless particle through a vector
 // field. The integration is performed using 2cnd order Runge-Kutta method. 
-// vlStreamer often serves as a base class for other classes that perform 
-// numerical integration through a vector field (e.g., vlStreamLine).
-//    Note that vlStreamer can integrate both forward and backward in time, or 
+// vtkStreamer often serves as a base class for other classes that perform 
+// numerical integration through a vector field (e.g., vtkStreamLine).
+//    Note that vtkStreamer can integrate both forward and backward in time, or 
 // in both directions. The length of the streamer time) is controlled by 
 // specifying an elapsed time. (The elapsed time is the time each particle 
 // travels). Otherwise, the integration terminates after exiting the dataset.
-//    vlStreamer integrates through any type of dataset. Thus if the dataset
+//    vtkStreamer integrates through any type of dataset. Thus if the dataset
 // contains 2D cells such as polygons or triangles, the integration is
 // constrained to lie on the surface defined by the 2D cells.
 //    The starting point of streamers may be defined in three different ways.
@@ -33,12 +33,12 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // may specify a source object to start multiple streamers. If you start 
 // streamers using a source object, for each point (that is inside the dataset)
 // a streamer is created.
-//    vlStreamer implements the Execute() method that its superclass vlFilter
+//    vtkStreamer implements the Execute() method that its superclass vtkFilter
 // requires. However, its subclasses use this method to generate data, and then
 // build their own data.
 
-#ifndef __vlStreamer_h
-#define __vlStreamer_h
+#ifndef __vtkStreamer_h
+#define __vtkStreamer_h
 
 #include "DS2PolyF.hh"
 
@@ -49,7 +49,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #define START_FROM_POSITION 0
 #define START_FROM_LOCATION 1
 
-typedef struct _vlStreamPoint {
+typedef struct _vtkStreamPoint {
     float   x[3];    // position 
     int     cellId;  // cell
     int     subId;   // cell sub id
@@ -61,28 +61,28 @@ typedef struct _vlStreamPoint {
     float   d;       // distance travelled so far 
     float   w[3];    // vorticity (if vorticity is computed)
     float   n[3];    // normal (if vorticity is computed)
-} vlStreamPoint;
+} vtkStreamPoint;
 
 //
 // Special classes for manipulating data
 //
 //BTX - begin tcl exclude
 //
-class vlStreamArray { //;prevent man page generation
+class vtkStreamArray { //;prevent man page generation
 public:
-  vlStreamArray();
-  ~vlStreamArray() {if (this->Array) delete [] this->Array;};
+  vtkStreamArray();
+  ~vtkStreamArray() {if (this->Array) delete [] this->Array;};
   int GetNumberOfPoints() {return this->MaxId + 1;};
-  vlStreamPoint *GetStreamPoint(int i) {return this->Array + i;};
-  vlStreamPoint *InsertNextStreamPoint() 
+  vtkStreamPoint *GetStreamPoint(int i) {return this->Array + i;};
+  vtkStreamPoint *InsertNextStreamPoint() 
     {
     if ( ++this->MaxId >= this->Size ) this->Resize(this->MaxId);
     return this->Array + this->MaxId;
     }
-  vlStreamPoint *Resize(int sz); //reallocates data
+  vtkStreamPoint *Resize(int sz); //reallocates data
   void Reset() {this->MaxId = -1;};
 
-  vlStreamPoint *Array;  // pointer to data
+  vtkStreamPoint *Array;  // pointer to data
   int MaxId;             // maximum index inserted thus far
   int Size;       // allocated size of data
   int Extend;     // grow array by this amount
@@ -91,13 +91,13 @@ public:
 //ETX - end tcl exclude
 //
 
-class vlStreamer : public vlDataSetToPolyFilter
+class vtkStreamer : public vtkDataSetToPolyFilter
 {
 public:
-  vlStreamer();
-  ~vlStreamer() {};
-  char *GetClassName() {return "vlStreamer";};
-  void PrintSelf(ostream& os, vlIndent indent);
+  vtkStreamer();
+  ~vtkStreamer() {};
+  char *GetClassName() {return "vtkStreamer";};
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   void SetStartLocation(int cellId, int subId, float pcoords[3]);
   void SetStartLocation(int cellId, int subId, float r, float s, float t);
@@ -111,44 +111,44 @@ public:
 
   // Description:
   // Specify the source object used to generate starting points.
-  vlSetObjectMacro(Source,vlDataSet);
-  vlGetObjectMacro(Source,vlDataSet);
+  vtkSetObjectMacro(Source,vtkDataSet);
+  vtkGetObjectMacro(Source,vtkDataSet);
 
   // Description:
   // Specify the maximum length of the Streamer expressed in elapsed time.
-  vlSetClampMacro(MaximumPropagationTime,float,0.0,LARGE_FLOAT);
-  vlGetMacro(MaximumPropagationTime,float);
+  vtkSetClampMacro(MaximumPropagationTime,float,0.0,LARGE_FLOAT);
+  vtkGetMacro(MaximumPropagationTime,float);
 
   // Description:
   // Specify the direction in which to integrate the Streamer.
-  vlSetClampMacro(IntegrationDirection,int,
+  vtkSetClampMacro(IntegrationDirection,int,
                   INTEGRATE_FORWARD,INTEGRATE_BOTH_DIRECTIONS);
-  vlGetMacro(IntegrationDirection,int);
+  vtkGetMacro(IntegrationDirection,int);
 
   // Description:
   // Specify a nominal integration step size (expressed as a fraction of
   // the size of each cell).
-  vlSetClampMacro(IntegrationStepLength,float,0.001,0.5);
-  vlGetMacro(IntegrationStepLength,float);
+  vtkSetClampMacro(IntegrationStepLength,float,0.001,0.5);
+  vtkGetMacro(IntegrationStepLength,float);
 
   // Description:
   // Turn on/off the creation of scalar data from velocity magnitude. If off,
   // and input dataset has scalars, input dataset scalars are used.
-  vlSetMacro(SpeedScalars,int);
-  vlGetMacro(SpeedScalars,int);
-  vlBooleanMacro(SpeedScalars,int);
+  vtkSetMacro(SpeedScalars,int);
+  vtkGetMacro(SpeedScalars,int);
+  vtkBooleanMacro(SpeedScalars,int);
 
   // Description:
   // Set/get terminal speed (i.e., speed is velocity magnitude).  Terminal 
   // speed is speed at which streamer will terminate propagation.
-  vlSetClampMacro(TerminalSpeed,float,0.0,LARGE_FLOAT);
-  vlGetMacro(TerminalSpeed,float);
+  vtkSetClampMacro(TerminalSpeed,float,0.0,LARGE_FLOAT);
+  vtkGetMacro(TerminalSpeed,float);
 
   // Description:
   // Turn on/off the computation of vorticity.
-  vlSetMacro(Vorticity,int);
-  vlGetMacro(Vorticity,int);
-  vlBooleanMacro(Vorticity,int);
+  vtkSetMacro(Vorticity,int);
+  vtkGetMacro(Vorticity,int);
+  vtkBooleanMacro(Vorticity,int);
 
 protected:
   // Integrate data
@@ -169,10 +169,10 @@ protected:
   float StartPosition[3];
 
   //points used to seed streamlines  
-  vlDataSet *Source; 
+  vtkDataSet *Source; 
 
   //array of streamers
-  vlStreamArray *Streamers;
+  vtkStreamArray *Streamers;
   int NumberOfStreamers;
 
   // length of Streamer is generated by time, or by MaximumSteps

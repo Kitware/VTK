@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    MCubesR.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
@@ -19,7 +19,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 // Description:
 // Construct object with FlipNormals and Normals set to true.
-vlMCubesReader::vlMCubesReader()
+vtkMCubesReader::vtkMCubesReader()
 {
   this->Filename = NULL;
   this->LimitsFilename = NULL;
@@ -31,19 +31,19 @@ vlMCubesReader::vlMCubesReader()
   this->Normals = 1;
 }
 
-vlMCubesReader::~vlMCubesReader()
+vtkMCubesReader::~vtkMCubesReader()
 {
   if (this->Filename) delete [] this->Filename;
   if (this->LimitsFilename) delete [] this->LimitsFilename;
   if (this->SelfCreatedLocator) delete this->Locator;
 }
 
-void vlMCubesReader::Execute()
+void vtkMCubesReader::Execute()
 {
   FILE *fp, *limitp;
-  vlFloatPoints *newPts;
-  vlCellArray *newPolys;
-  vlFloatNormals *newNormals;
+  vtkFloatPoints *newPts;
+  vtkCellArray *newPolys;
+  vtkFloatNormals *newNormals;
   float bounds[6];
   int i, j, k, numPts, numTris;
   typedef struct {
@@ -54,7 +54,7 @@ void vlMCubesReader::Execute()
   int nodes[3];
   float direction, n[3], dummy[2];
 
-  vlDebugMacro(<<"Reading marching cubes file");
+  vtkDebugMacro(<<"Reading marching cubes file");
 //
 // Initialize
 //
@@ -62,12 +62,12 @@ void vlMCubesReader::Execute()
 
   if ( this->Filename == NULL )
     {
-    vlErrorMacro(<< "Please specify input filename");
+    vtkErrorMacro(<< "Please specify input filename");
     return;
     }
   if ( (fp = fopen(this->Filename, "r")) == NULL)
     {
-    vlErrorMacro(<< "File " << this->Filename << " not found");
+    vtkErrorMacro(<< "File " << this->Filename << " not found");
     return;
     }
 
@@ -105,7 +105,7 @@ void vlMCubesReader::Execute()
 
       if ( i && ((i % 10000) == 0) )
         {
-        vlDebugMacro(<<"Triangle vertices #" << i);
+        vtkDebugMacro(<<"Triangle vertices #" << i);
         }
       }
     numTris = i / 3;
@@ -115,11 +115,11 @@ void vlMCubesReader::Execute()
 // Now re-read and merge
 //
   rewind (fp);
-  newPts = new vlFloatPoints(numPts);
-  newPolys = new vlCellArray;
+  newPts = new vtkFloatPoints(numPts);
+  newPolys = new vtkCellArray;
   newPolys->Allocate(newPolys->EstimateSize(numTris,3));
 
-  if ( this->Normals ) newNormals = new vlFloatNormals(numPts);
+  if ( this->Normals ) newNormals = new vtkFloatNormals(numPts);
   
   if ( this->Locator == NULL ) this->CreateDefaultLocator();
   this->Locator->InitPointInsertion (newPts, bounds);
@@ -142,7 +142,7 @@ void vlMCubesReader::Execute()
     nodes[1] != nodes[2] )
       newPolys->InsertNextCell(3,nodes);
     }
-  vlDebugMacro(<< "Read: " 
+  vtkDebugMacro(<< "Read: " 
                << newPts->GetNumberOfPoints() << " points, " 
                << newPolys->GetNumberOfCells() << " triangles");
 
@@ -160,8 +160,8 @@ void vlMCubesReader::Execute()
 
 // Description:
 // Specify a spatial locator for merging points. By
-// default an instance of vlMergePoints is used.
-void vlMCubesReader::SetLocator(vlLocator *locator)
+// default an instance of vtkMergePoints is used.
+void vtkMCubesReader::SetLocator(vtkLocator *locator)
 {
   if ( this->Locator != locator ) 
     {
@@ -172,16 +172,16 @@ void vlMCubesReader::SetLocator(vlLocator *locator)
     }
 }
 
-void vlMCubesReader::CreateDefaultLocator()
+void vtkMCubesReader::CreateDefaultLocator()
 {
   if ( this->SelfCreatedLocator ) delete this->Locator;
-  this->Locator = new vlMergePoints;
+  this->Locator = new vtkMergePoints;
   this->SelfCreatedLocator = 1;
 }
 
-void vlMCubesReader::PrintSelf(ostream& os, vlIndent indent)
+void vtkMCubesReader::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlPolySource::PrintSelf(os,indent);
+  vtkPolySource::PrintSelf(os,indent);
 
   os << indent << "Filename: " << this->Filename << "\n";
   os << indent << "Limits Filename: " << this->LimitsFilename << "\n";

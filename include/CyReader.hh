@@ -1,43 +1,43 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    CyReader.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-// .NAME vlCyberReader - read Cyberware laser digitizer files
+// .NAME vtkCyberReader - read Cyberware laser digitizer files
 // .SECTION Description
-// vlCyberReader is a source object that reads a Cyberware laser digitizer
+// vtkCyberReader is a source object that reads a Cyberware laser digitizer
 // file. (Original source code provided coutesy of Cyberware, Inc.)
 
-#ifndef __vlCyberReader_h
-#define __vlCyberReader_h
+#ifndef __vtkCyberReader_h
+#define __vtkCyberReader_h
 
 #include <stdio.h>
 #include "PolySrc.hh"
 #include "FPoints.hh"
 #include "CellArr.hh"
 
-class vlCyberReader : public vlPolySource 
+class vtkCyberReader : public vtkPolySource 
 {
 public:
-  vlCyberReader();
-  ~vlCyberReader();
-  char *GetClassName() {return "vlCyberReader";};
-  void PrintSelf(ostream& os, vlIndent indent);
+  vtkCyberReader();
+  ~vtkCyberReader();
+  char *GetClassName() {return "vtkCyberReader";};
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Specify Cyberware file name.
-  vlSetStringMacro(Filename);
-  vlGetStringMacro(Filename);
+  vtkSetStringMacro(Filename);
+  vtkGetStringMacro(Filename);
 
 protected:
   char *Filename;

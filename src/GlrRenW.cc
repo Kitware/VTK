@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    GlrRenW.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its
+This file is part of the Visualization Toolkit. No part of this file or its
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
@@ -97,7 +97,7 @@ static void set_window(int buffer,Window W,GLXconfig *conf)
 	    conf[i].arg = (int)W;
 }
 
-vlGlrRenderWindow::vlGlrRenderWindow()
+vtkGlrRenderWindow::vtkGlrRenderWindow()
 {
   this->Gid = -2;
   this->MultiSamples = 8;
@@ -107,67 +107,67 @@ vlGlrRenderWindow::vlGlrRenderWindow()
   this->ColorMap = (Colormap)0;
   this->StereoType = VL_STEREO_CRYSTAL_EYES;
 
-  strcpy(this->Name,"Visualization Library - GL");
+  strcpy(this->Name,"Visualization Toolkit - GL");
 }
 
 // Description:
 // Create a gl specific light.
-vlLightDevice *vlGlrRenderWindow::MakeLight()
+vtkLightDevice *vtkGlrRenderWindow::MakeLight()
 {
-  vlGlrLight *light;
+  vtkGlrLight *light;
 
-  light = new vlGlrLight;
-  return (vlLightDevice *)light;
+  light = new vtkGlrLight;
+  return (vtkLightDevice *)light;
 }
 
 // Description:
 // Create a gl specific renderer.
-vlRenderer *vlGlrRenderWindow::MakeRenderer()
+vtkRenderer *vtkGlrRenderWindow::MakeRenderer()
 {
-  vlGlrRenderer *ren;
+  vtkGlrRenderer *ren;
 
-  ren = new vlGlrRenderer;
+  ren = new vtkGlrRenderer;
   this->AddRenderers(ren);
 
   // by default we are its parent
-  ren->SetRenderWindow((vlRenderWindow*)this);
+  ren->SetRenderWindow((vtkRenderWindow*)this);
   
-  return (vlRenderer *)ren;
+  return (vtkRenderer *)ren;
 }
 
 // Description:
 // Create a gl specific camera.
-vlCameraDevice *vlGlrRenderWindow::MakeCamera()
+vtkCameraDevice *vtkGlrRenderWindow::MakeCamera()
 {
-  vlGlrCamera *camera;
+  vtkGlrCamera *camera;
 
-  camera = new vlGlrCamera;
-  return (vlCameraDevice *)camera;
+  camera = new vtkGlrCamera;
+  return (vtkCameraDevice *)camera;
 }
 
 // Description:
 // Create a gl specific property.
-vlPropertyDevice *vlGlrRenderWindow::MakeProperty()
+vtkPropertyDevice *vtkGlrRenderWindow::MakeProperty()
 {
-  vlGlrProperty *property;
+  vtkGlrProperty *property;
 
-  property = new vlGlrProperty;
-  return (vlPropertyDevice *)property;
+  property = new vtkGlrProperty;
+  return (vtkPropertyDevice *)property;
 }
 
 // Description:
 // Create a gl specific texture.
-vlTextureDevice *vlGlrRenderWindow::MakeTexture()
+vtkTextureDevice *vtkGlrRenderWindow::MakeTexture()
 {
-  vlGlrTexture *texture;
+  vtkGlrTexture *texture;
 
-  texture = new vlGlrTexture;
-  return (vlTextureDevice *)texture;
+  texture = new vtkGlrTexture;
+  return (vtkTextureDevice *)texture;
 }
 
 // Description:
 // Begin the rendering process.
-void vlGlrRenderWindow::Start(void)
+void vtkGlrRenderWindow::Start(void)
 {
   // if the renderer has not been initialized, do so now
   if (this->Gid < 0)
@@ -179,19 +179,19 @@ void vlGlrRenderWindow::Start(void)
 
 // Description:
 // End the rendering process and display the image.
-void vlGlrRenderWindow::Frame(void)
+void vtkGlrRenderWindow::Frame(void)
 {
   if (this->DoubleBuffer)
     {
     swapbuffers();
-    vlDebugMacro(<< " GL swapbuffers\n");
+    vtkDebugMacro(<< " GL swapbuffers\n");
     }
 }
  
 
 // Description:
 // Update system if needed due to stereo rendering.
-void vlGlrRenderWindow::StereoUpdate(void)
+void vtkGlrRenderWindow::StereoUpdate(void)
 {
   // if stereo is on and it wasn't before
   if (this->StereoRender && (!this->StereoStatus))
@@ -240,7 +240,7 @@ void vlGlrRenderWindow::StereoUpdate(void)
 
 // Description:
 // Specify various window parameters.
-void vlGlrRenderWindow::WindowConfigure()
+void vtkGlrRenderWindow::WindowConfigure()
 {
   if (this->DoubleBuffer)
     {
@@ -260,7 +260,7 @@ void vlGlrRenderWindow::WindowConfigure()
     if (extract_config_value(GLX_NORMAL,GLX_MSSAMPLE,the_config)
 	< this->MultiSamples) 
       {
-      vlDebugMacro(<< " Only got " << 
+      vtkDebugMacro(<< " Only got " << 
       extract_config_value(GLX_NORMAL,GLX_MSSAMPLE,the_config) 
       << " multisamples\n");
       this->MultiSamples =
@@ -278,7 +278,7 @@ void vlGlrRenderWindow::WindowConfigure()
 
 // Description:
 // Initialize the window for rendering.
-void vlGlrRenderWindow::WindowInitialize (void)
+void vtkGlrRenderWindow::WindowInitialize (void)
 {
   GLXconfig  *conf;
   XVisualInfo  *v;
@@ -310,7 +310,7 @@ void vlGlrRenderWindow::WindowInitialize (void)
     this->DisplayId = XOpenDisplay((char *)NULL); 
     if (this->DisplayId == NULL) 
       {
-      vlErrorMacro(<< "bad X server connection.\n");
+      vtkErrorMacro(<< "bad X server connection.\n");
       }
     }
 
@@ -319,7 +319,7 @@ void vlGlrRenderWindow::WindowInitialize (void)
 			   DefaultScreen(this->DisplayId),
 			   the_config)) == 0) 
     {
-    vlErrorMacro(<< "GL: getconfig failed\n");
+    vtkErrorMacro(<< "GL: getconfig failed\n");
     exit(1);
     }
 
@@ -356,7 +356,7 @@ void vlGlrRenderWindow::WindowInitialize (void)
     }
 
   // RESIZE THE WINDOW TO THE DESIRED SIZE
-  vlDebugMacro(<< "Resizing the xwindow\n");
+  vtkDebugMacro(<< "Resizing the xwindow\n");
   XResizeWindow(this->DisplayId,this->WindowId,
 		((this->Size[0] > 0) ? 
 		 (int)(this->Size[0]) : 256),
@@ -369,11 +369,11 @@ void vlGlrRenderWindow::WindowInitialize (void)
   // Bind the GL to the created windows 
   if (GLXlink(this->DisplayId, conf) < 0) 
     {
-    vlErrorMacro("GL: Bind failed\n");
+    vtkErrorMacro("GL: Bind failed\n");
     exit(1);
     }
 
-  vlDebugMacro(" Mapping the xwindow\n");
+  vtkDebugMacro(" Mapping the xwindow\n");
   XMapWindow(this->DisplayId, this->WindowId);
   XSync(this->DisplayId,False);
   XGetWindowAttributes(this->DisplayId,
@@ -386,27 +386,27 @@ void vlGlrRenderWindow::WindowInitialize (void)
   
   if (GLXwinset(this->DisplayId,this->WindowId) < 0)
     {
-    vlErrorMacro(<< "GL: winset failed\n");
+    vtkErrorMacro(<< "GL: winset failed\n");
     exit(1);
     }
 
-  vlDebugMacro(" mmode(MVIEWING)\n");
+  vtkDebugMacro(" mmode(MVIEWING)\n");
   mmode(MVIEWING);
 
-  vlDebugMacro(" zbuff stuff\n");
+  vtkDebugMacro(" zbuff stuff\n");
   zbuffer(TRUE);
 
-  vlDebugMacro(" subpixel stuff\n");
+  vtkDebugMacro(" subpixel stuff\n");
   subpixel(TRUE);
  
-  vlDebugMacro(" texture stuff\n");
+  vtkDebugMacro(" texture stuff\n");
   if (getgdesc(GD_TEXTURE))
     {
     tevdef(1,0,tevprops);
     tevbind(TV_ENV0,1);
     }
 
-  vlDebugMacro("% alpha stuff\n");
+  vtkDebugMacro("% alpha stuff\n");
   if (getgdesc(GD_AFUNCTION))
     {
     afunction(0,AF_NOTEQUAL);
@@ -415,7 +415,7 @@ void vlGlrRenderWindow::WindowInitialize (void)
   /*
    * initialize blending for transparency
    */
-  vlDebugMacro(" blend func stuff\n");
+  vtkDebugMacro(" blend func stuff\n");
   blendfunction(BF_SA, BF_MSA);
 
   this->Mapped = 1;
@@ -423,7 +423,7 @@ void vlGlrRenderWindow::WindowInitialize (void)
 
 // Description:
 // Initialize the rendering window.
-void vlGlrRenderWindow::Initialize (void)
+void vtkGlrRenderWindow::Initialize (void)
 {
   // make sure we havent already been initialized 
   if (this->Gid >= 0)
@@ -440,7 +440,7 @@ void vlGlrRenderWindow::Initialize (void)
 
 // Description:
 // Make the connection to the window manager.
-void vlGlrRenderWindow::Connect()
+void vtkGlrRenderWindow::Connect()
 {
   int status = -1;
 
@@ -456,7 +456,7 @@ void vlGlrRenderWindow::Connect()
     this->DisplayId = XOpenDisplay((char *)NULL); 
     if (this->DisplayId == NULL) 
       {
-      vlErrorMacro(<< "bad X server connection.\n");
+      vtkErrorMacro(<< "bad X server connection.\n");
       }
     }
   else
@@ -466,13 +466,13 @@ void vlGlrRenderWindow::Connect()
       /* try local host */
       if ((status = (int)dglopen ("localhost:0.0", DGLLOCAL)) < 0)
 	{
-	vlErrorMacro(<< " error from glopen : " << status << endl);
+	vtkErrorMacro(<< " error from glopen : " << status << endl);
 	exit(-1);
 	}
       else
 	{
 	/* this is recoverable */
-	vlErrorMacro(<< " error2 from glopen : " << status << endl);
+	vtkErrorMacro(<< " error2 from glopen : " << status << endl);
 	exit(-1);
 	}
       }
@@ -483,7 +483,7 @@ void vlGlrRenderWindow::Connect()
 
 // Description:
 // Change the window to fill the entire screen.
-void vlGlrRenderWindow::SetFullScreen(int arg)
+void vtkGlrRenderWindow::SetFullScreen(int arg)
 {
   int *temp;
   
@@ -542,7 +542,7 @@ void vlGlrRenderWindow::SetFullScreen(int arg)
 
 // Description:
 // Set the preferred window size to full screen.
-void vlGlrRenderWindow::PrefFullScreen()
+void vtkGlrRenderWindow::PrefFullScreen()
 {
   this->Connect();
 
@@ -558,7 +558,7 @@ void vlGlrRenderWindow::PrefFullScreen()
 
 // Description:
 // Resize the window.
-void vlGlrRenderWindow::WindowRemap()
+void vtkGlrRenderWindow::WindowRemap()
 {
   short cur_light;
 
@@ -585,7 +585,7 @@ void vlGlrRenderWindow::WindowRemap()
 
 // Description:
 // Specify the size of the rendering window.
-void vlGlrRenderWindow::SetSize(int x,int y)
+void vtkGlrRenderWindow::SetSize(int x,int y)
 {
   // if we arent mappen then just set the ivars 
   if (!this->Mapped)
@@ -605,7 +605,7 @@ void vlGlrRenderWindow::SetSize(int x,int y)
 
 
 
-int vlGlrRenderWindow::GetDesiredDepth()
+int vtkGlrRenderWindow::GetDesiredDepth()
 {
   GLXconfig *conf;
   XVisualInfo *v;
@@ -616,7 +616,7 @@ int vlGlrRenderWindow::GetDesiredDepth()
 			   DefaultScreen(this->DisplayId),
 			   the_config)) == 0) 
     {
-    vlErrorMacro(<< "GL: getconfig failed\n");
+    vtkErrorMacro(<< "GL: getconfig failed\n");
     exit(1);
     }
 
@@ -629,7 +629,7 @@ int vlGlrRenderWindow::GetDesiredDepth()
 
 // Description:
 // Get a visual from the windowing system.
-Visual *vlGlrRenderWindow::GetDesiredVisual ()
+Visual *vtkGlrRenderWindow::GetDesiredVisual ()
 {
   XVisualInfo  *v;
   GLXconfig *conf;
@@ -640,7 +640,7 @@ Visual *vlGlrRenderWindow::GetDesiredVisual ()
 			   DefaultScreen(this->DisplayId),
 			   the_config)) == 0) 
     {
-    vlErrorMacro(<< "GL: getconfig failed\n");
+    vtkErrorMacro(<< "GL: getconfig failed\n");
     exit(1);
     }
 
@@ -654,7 +654,7 @@ Visual *vlGlrRenderWindow::GetDesiredVisual ()
 
 // Description:
 // Get a colormap from the windowing system.
-Colormap vlGlrRenderWindow::GetDesiredColormap ()
+Colormap vtkGlrRenderWindow::GetDesiredColormap ()
 {
   GLXconfig *conf;
   XVisualInfo *v;
@@ -667,7 +667,7 @@ Colormap vlGlrRenderWindow::GetDesiredColormap ()
 			   DefaultScreen(this->DisplayId),
 			   the_config)) == 0) 
     {
-    vlErrorMacro(<< "GL: getconfig failed\n");
+    vtkErrorMacro(<< "GL: getconfig failed\n");
     exit(1);
     }
 
@@ -677,16 +677,16 @@ Colormap vlGlrRenderWindow::GetDesiredColormap ()
   return this->ColorMap;  
 }
 
-void vlGlrRenderWindow::PrintSelf(ostream& os, vlIndent indent)
+void vtkGlrRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->vlXRenderWindow::PrintSelf(os,indent);
+  this->vtkXRenderWindow::PrintSelf(os,indent);
 
   os << indent << "Gid: " << this->Gid << "\n";
   os << indent << "MultiSamples: " << this->MultiSamples << "\n";
 }
 
 
-unsigned char *vlGlrRenderWindow::GetPixelData(int x1, int y1, int x2, int y2)
+unsigned char *vtkGlrRenderWindow::GetPixelData(int x1, int y1, int x2, int y2)
 {
   long     xloop,yloop;
   int     y_low, y_hi;
@@ -742,7 +742,7 @@ unsigned char *vlGlrRenderWindow::GetPixelData(int x1, int y1, int x2, int y2)
   return data;
 }
 
-void vlGlrRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
+void vtkGlrRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
 				     unsigned char *data)
 {
   int     y_low, y_hi;

@@ -1,21 +1,21 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    Actor.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its
+This file is part of the Visualization Toolkit. No part of this file or its
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
-// .NAME vlActor - an entity in a rendered image
+// .NAME vtkActor - an entity in a rendered image
 // .SECTION Description
-// vlActor is used to represent an entity in a rendering scene.  It handles
+// vtkActor is used to represent an entity in a rendering scene.  It handles
 // functions related to the actors position, orientation and scaling. It
 // combines these instance variables into one matrix as follows: [x y z 1]
 // = [x y z 1] Translate(-origin) Scale(scale) Rot(y) Rot(x) Rot (z) 
@@ -24,8 +24,8 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // The actor also maintains a reference to the defining geometry (i.e., the 
 // mapper), and rendering properties. 
 
-#ifndef __vlActor_hh
-#define __vlActor_hh
+#ifndef __vtkActor_hh
+#define __vtkActor_hh
 
 #include "Object.hh"
 #include "Property.hh"
@@ -33,122 +33,122 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "Mapper.hh"
 #include "Trans.hh"
 
-class vlRenderer;
+class vtkRenderer;
 
-class vlActor : public vlObject
+class vtkActor : public vtkObject
 {
  public:
-  vlActor();
-  ~vlActor();
-  char *GetClassName() {return "vlActor";};
-  void PrintSelf(ostream& os, vlIndent indent);
+  vtkActor();
+  ~vtkActor();
+  char *GetClassName() {return "vtkActor";};
+  void PrintSelf(ostream& os, vtkIndent indent);
 
-  void Render(vlRenderer *ren);
+  void Render(vtkRenderer *ren);
 
   // Description:
   // Specify the property object to control rendering surface properties.
-  void SetProperty(vlProperty *lut);
-  void SetProperty(vlProperty& lut) {this->SetProperty(&lut);};
+  void SetProperty(vtkProperty *lut);
+  void SetProperty(vtkProperty& lut) {this->SetProperty(&lut);};
   // Description:
   // Get the property object that controls rendering surface properties.
-  vlProperty *GetProperty();
+  vtkProperty *GetProperty();
 
   // Description:
   // Specify the Texture object to control rendering texture.
-  vlSetObjectMacro(Texture,vlTexture);
+  vtkSetObjectMacro(Texture,vtkTexture);
   // Description:
   // Get the Texture object that controls rendering texture.
-  vlGetObjectMacro(Texture,vlTexture);
+  vtkGetObjectMacro(Texture,vtkTexture);
 
   // Description:
   // This is the method that is used to connect an actor to the end of a
   // visualization pipeline, i.e. the Mapper.  
-  vlSetObjectMacro(Mapper,vlMapper);
+  vtkSetObjectMacro(Mapper,vtkMapper);
   // Description:
   // Returns the Mapper that this actor is getting it's data from.
-  vlGetObjectMacro(Mapper,vlMapper);
+  vtkGetObjectMacro(Mapper,vtkMapper);
 
   // Description:
   // Set a user defined matrix to concatenate with.  
-  vlSetObjectMacro(UserMatrix,vlMatrix4x4);
+  vtkSetObjectMacro(UserMatrix,vtkMatrix4x4);
   // Description:
   // Returns the user defined transformation matrix.
-  vlGetObjectMacro(UserMatrix,vlMatrix4x4);
+  vtkGetObjectMacro(UserMatrix,vtkMatrix4x4);
 
   // Description:
   // Get the position of the actor.
-  vlGetVectorMacro(Position,float,3);
+  vtkGetVectorMacro(Position,float,3);
   // Description:
   // Sets the posiiton of the actor.
-  vlSetVector3Macro(Position,float);
+  vtkSetVector3Macro(Position,float);
   void AddPosition(float deltaPosition[3]);
   void AddPosition(float deltaX,float deltaY,float deltaZ);
 
   // Description:
   // Get the origin of the actor. This is the point about which all 
   // rotations take place.
-  vlGetVectorMacro(Origin,float,3);
+  vtkGetVectorMacro(Origin,float,3);
   // Description:
   // Set the origin of the actor. This is the point about which all 
   // rotations take place.
-  vlSetVector3Macro(Origin,float);
+  vtkSetVector3Macro(Origin,float);
 
   // Description:
   // Get the scale of the actor. Scaling in performed independently on the
   // X,Y and Z axis.
-  vlGetVectorMacro(Scale,float,3);
+  vtkGetVectorMacro(Scale,float,3);
   // Description:
   // Set the scale of the actor. Scaling in performed independently on the
   // X,Y and Z axis.
-  vlSetVector3Macro(Scale,float);
+  vtkSetVector3Macro(Scale,float);
 
   // Description:
   // Get the visibility of the actor. Visibility is like a light switch
   // for actors. Use it to turn them on or off.
-  vlGetMacro(Visibility,int);
+  vtkGetMacro(Visibility,int);
   // Description:
   // Set the visibility of the actor. Visibility is like a light switch
   // for actors. Use it to turn them on or off.
-  vlSetMacro(Visibility,int);
+  vtkSetMacro(Visibility,int);
   // Description:
   // Set the visibility of the actor. Visibility is like a light switch
   // for actors. Use it to turn them on or off.
-  vlBooleanMacro(Visibility,int);
+  vtkBooleanMacro(Visibility,int);
 
   // Description:
   // Get the pickable instance variable.  This determines if the actor can 
   // be picked (typically using the mouse). Also see dragable.
-  vlGetMacro(Pickable,int);
+  vtkGetMacro(Pickable,int);
   // Description:
   // Set the pickable instance variable.  This determines if the actor can 
   // be picked (typically using the mouse). Also see dragable.
-  vlSetMacro(Pickable,int);
+  vtkSetMacro(Pickable,int);
   // Description:
   // Set the pickable instance variable.  This determines if the actor can 
   // be picked (typically using the mouse). Also see dragable.
-  vlBooleanMacro(Pickable,int);
+  vtkBooleanMacro(Pickable,int);
 
   // Description:
   // Get the value of the dragable instance variable. This determines if 
   // an actor once picked, can be dragged (translated) through space.
   // This is typically done through an interactive mouse interface.
   // This does not affect methods such as SetPosition.
-  vlGetMacro(Dragable,int);
+  vtkGetMacro(Dragable,int);
   // Description:
   // Set the value of the dragable instance variable. This determines if 
   // an actor once picked, can be dragged (translated) through space.
   // This is typically done through an interactive mouse interface.
   // This does not affect methods such as SetPosition.
-  vlSetMacro(Dragable,int);
+  vtkSetMacro(Dragable,int);
   // Description:
   // Turn on/off the dragable instance variable. This determines if 
   // an actor once picked, can be dragged (translated) through space.
   // This is typically done through an interactive mouse interface.
   // This does not affect methods such as SetPosition.
-  vlBooleanMacro(Dragable,int);
+  vtkBooleanMacro(Dragable,int);
 
-  vlMatrix4x4& GetMatrix();
-  virtual void GetMatrix(vlMatrix4x4& m);
+  vtkMatrix4x4& GetMatrix();
+  virtual void GetMatrix(vtkMatrix4x4& m);
 
   float *GetBounds();
   float *GetXRange();
@@ -167,10 +167,10 @@ class vlActor : public vlObject
   void AddOrientation(float a[3]);
 
 protected:
-  vlMatrix4x4 *UserMatrix;
-  vlProperty *Property; 
-  vlTexture *Texture; 
-  vlMapper *Mapper;
+  vtkMatrix4x4 *UserMatrix;
+  vtkProperty *Property; 
+  vtkTexture *Texture; 
+  vtkMapper *Mapper;
   float Origin[3];
   float Position[3];
   float Orientation[3];
@@ -178,7 +178,7 @@ protected:
   int   Visibility;
   int   Pickable;
   int   Dragable;
-  vlTransform Transform;
+  vtkTransform Transform;
   float Bounds[6];
   int SelfCreatedProperty;
 };

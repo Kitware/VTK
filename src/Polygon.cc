@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    Polygon.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
@@ -14,20 +14,20 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
 #include "Polygon.hh"
-#include "vlMath.hh"
+#include "vtkMath.hh"
 #include "Line.hh"
 #include "Plane.hh"
 #include "DataSet.hh"
 #include "Triangle.hh"
 #include "CellArr.hh"
 
-static vlPlane plane;
-static vlMath math;
-static vlLine line;
+static vtkPlane plane;
+static vtkMath math;
+static vtkLine line;
 
 // Description:
 // Deep copy of cell.
-vlPolygon::vlPolygon(const vlPolygon& p)
+vtkPolygon::vtkPolygon(const vtkPolygon& p)
 {
   this->Points = p.Points;
   this->PointIds = p.PointIds;
@@ -48,7 +48,7 @@ vlPolygon::vlPolygon(const vlPolygon& p)
 // Description:
 // Compute the polygon normal from a points list, and a list of point ids
 // that index into the points list.
-void vlPolygon::ComputeNormal(vlPoints *p, int numPts, int *pts, float *n)
+void vtkPolygon::ComputeNormal(vtkPoints *p, int numPts, int *pts, float *n)
 {
   int     i;
   float   *v1, *v2, *v3;
@@ -90,7 +90,7 @@ void vlPolygon::ComputeNormal(vlPoints *p, int numPts, int *pts, float *n)
 
 // Description:
 // Compute the polygon normal from three points.
-void vlPolygon::ComputeNormal(float *v1, float *v2, float *v3, float *n)
+void vtkPolygon::ComputeNormal(float *v1, float *v2, float *v3, float *n)
 {
     float    length;
     float    ax, ay, az;
@@ -114,7 +114,7 @@ void vlPolygon::ComputeNormal(float *v1, float *v2, float *v3, float *n)
 
 // Description:
 // Compute the polygon normal from a list of floating points.
-void vlPolygon::ComputeNormal(vlFloatPoints *p, float *n)
+void vtkPolygon::ComputeNormal(vtkFloatPoints *p, float *n)
 {
   int     i, numPts;
   float   *v1, *v2, *v3;
@@ -155,7 +155,7 @@ void vlPolygon::ComputeNormal(vlFloatPoints *p, float *n)
     }
 }
 
-int vlPolygon::EvaluatePosition(float x[3], float closestPoint[3],
+int vtkPolygon::EvaluatePosition(float x[3], float closestPoint[3],
                                 int& subId, float pcoords[3], 
                                 float& minDist2, float weights[MAX_CELL_SIZE])
 {
@@ -202,7 +202,7 @@ int vlPolygon::EvaluatePosition(float x[3], float closestPoint[3],
   return 0;
 }
 
-void vlPolygon::EvaluateLocation(int& subId, float pcoords[3], float x[3],
+void vtkPolygon::EvaluateLocation(int& subId, float pcoords[3], float x[3],
                                  float weights[MAX_CELL_SIZE])
 {
   int i;
@@ -219,7 +219,7 @@ void vlPolygon::EvaluateLocation(int& subId, float pcoords[3], float x[3],
 
 // Description:
 //  Create a local s-t coordinate system for a polygon
-int vlPolygon::ParameterizePolygon(float *p0, float *p10, float& l10, 
+int vtkPolygon::ParameterizePolygon(float *p0, float *p10, float& l10, 
                                    float *p20,float &l20, float *n)
 {
   int i, j;
@@ -295,7 +295,7 @@ int vlPolygon::ParameterizePolygon(float *p0, float *p10, float& l10,
 #define FALSE 0
 #define TRUE 1
 
-int vlPolygon::PointInPolygon (float bounds[6], float *x, float *n)
+int vtkPolygon::PointInPolygon (float bounds[6], float *x, float *n)
 {
   float *x1, *x2, xray[3], u, v;
   float rayMag, mag, ray[3];
@@ -429,7 +429,7 @@ int vlPolygon::PointInPolygon (float bounds[6], float *x, float *n)
 // Following is used in a number of routines.  Made static to avoid 
 // constructor / destructor calls.
 //
-static vlIdList Tris((MAX_CELL_SIZE-2)*3);
+static vtkIdList Tris((MAX_CELL_SIZE-2)*3);
 
 #define TOLERANCE 1.0e-06
 
@@ -441,7 +441,7 @@ static  float   Normal[3]; //polygon normal
 // Triangulate polygon. Tries to use the fast triangulation technique 
 // first, and if that doesn't work, uses more complex routine that is
 //  guaranteed to work.
-int vlPolygon::Triangulate(vlIdList &outTris)
+int vtkPolygon::Triangulate(vtkIdList &outTris)
 {
   int i, success;
   float *bounds, d;
@@ -465,7 +465,7 @@ int vlPolygon::Triangulate(vlIdList &outTris)
 
   if ( !success ) // Use slower but always successful technique.
     {
-    vlErrorMacro(<<"Couldn't triangulate");
+    vtkErrorMacro(<<"Couldn't triangulate");
     }
   else // Copy the point id's into the supplied Id array
     {
@@ -481,7 +481,7 @@ int vlPolygon::Triangulate(vlIdList &outTris)
 // conquer based on plane splitting  to reduce loop into triangles.  
 // The cell (e.g., triangle) is presumed properly initialized (i.e., 
 // Points and PointIds).
-int vlPolygon::FastTriangulate (int numVerts, int *verts, vlIdList& Tris)
+int vtkPolygon::FastTriangulate (int numVerts, int *verts, vtkIdList& Tris)
 {
   int i,j;
   int n1, n2;
@@ -565,7 +565,7 @@ int vlPolygon::FastTriangulate (int numVerts, int *verts, vlIdList& Tris)
 
 // Description:
 //  Determine whether the loop can be split / build loops
-int vlPolygon::CanSplitLoop (int fedges[2], int numVerts, int *verts, 
+int vtkPolygon::CanSplitLoop (int fedges[2], int numVerts, int *verts, 
                              int& n1, int *l1, int& n2, int *l2, float& ar)
 {
   int i, sign;
@@ -634,7 +634,7 @@ int vlPolygon::CanSplitLoop (int fedges[2], int numVerts, int *verts,
 
 // Description:
 // Creates two loops from splitting plane provided
-void vlPolygon::SplitLoop (int fedges[2], int numVerts, int *verts, 
+void vtkPolygon::SplitLoop (int fedges[2], int numVerts, int *verts, 
                            int& n1, int *l1, int& n2, int* l2)
 {
   int i;
@@ -659,22 +659,22 @@ void vlPolygon::SplitLoop (int fedges[2], int numVerts, int *verts,
   return;
 }
 
-int vlPolygon::CellBoundary(int subId, float pcoords[3], vlIdList& pts)
+int vtkPolygon::CellBoundary(int subId, float pcoords[3], vtkIdList& pts)
 {
   return 0;
 }
 
-void vlPolygon::Contour(float value, vlFloatScalars *cellScalars, 
-                        vlFloatPoints *points,
-                        vlCellArray *verts, vlCellArray *lines, 
-                        vlCellArray *polys, vlFloatScalars *scalars)
+void vtkPolygon::Contour(float value, vtkFloatScalars *cellScalars, 
+                        vtkFloatPoints *points,
+                        vtkCellArray *verts, vtkCellArray *lines, 
+                        vtkCellArray *polys, vtkFloatScalars *scalars)
 {
   int i, success;
   int numVerts=this->Points.GetNumberOfPoints();
   float *bounds, d;
   int polyVerts[MAX_CELL_SIZE];
-  static vlTriangle tri;
-  static vlFloatScalars triScalars(3);
+  static vtkTriangle tri;
+  static vtkFloatScalars triScalars(3);
 
   bounds = this->GetBounds();
   
@@ -712,7 +712,7 @@ void vlPolygon::Contour(float value, vlFloatScalars *cellScalars,
     }
 }
 
-vlCell *vlPolygon::GetEdge(int edgeId)
+vtkCell *vtkPolygon::GetEdge(int edgeId)
 {
   int numPts=this->Points.GetNumberOfPoints();
 
@@ -730,7 +730,7 @@ vlCell *vlPolygon::GetEdge(int edgeId)
 //
 // Compute interpolation weights using 1/(1-r**2) normalized sum.
 //
-void vlPolygon::ComputeWeights(float x[3], float weights[MAX_CELL_SIZE])
+void vtkPolygon::ComputeWeights(float x[3], float weights[MAX_CELL_SIZE])
 {
   int i;
   int numPts=this->Points.GetNumberOfPoints();
@@ -751,7 +751,7 @@ void vlPolygon::ComputeWeights(float x[3], float weights[MAX_CELL_SIZE])
 // 
 // Intersect plane; see whether point is inside.
 //
-int vlPolygon::IntersectWithLine(float p1[3], float p2[3], float tol,float& t,
+int vtkPolygon::IntersectWithLine(float p1[3], float p2[3], float tol,float& t,
                                  float x[3], float pcoords[3], int& subId)
 {
   float *pt1, *pt2, *pt3, n[3];

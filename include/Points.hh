@@ -1,44 +1,44 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    Points.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its 
+This file is part of the Visualization Toolkit. No part of this file or its 
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-// .NAME vlPoints - abstract interface to 3D points
+// .NAME vtkPoints - abstract interface to 3D points
 // .SECTION Description
-// vlPoints provides an abstract interface to 3D points. The data model
-// for vlPoints is an array of x-y-z triplets accessible by point id.
-// The subclasses of vlPoints are concrete data types (float, int, etc.) 
-// that implement the interface of vlPoints. 
+// vtkPoints provides an abstract interface to 3D points. The data model
+// for vtkPoints is an array of x-y-z triplets accessible by point id.
+// The subclasses of vtkPoints are concrete data types (float, int, etc.) 
+// that implement the interface of vtkPoints. 
 
-#ifndef __vlPoints_h
-#define __vlPoints_h
+#ifndef __vtkPoints_h
+#define __vtkPoints_h
 
 #include "RefCount.hh"
 
-class vlFloatPoints;
-class vlIdList;
+class vtkFloatPoints;
+class vtkIdList;
 
-class vlPoints : public vlRefCount 
+class vtkPoints : public vtkRefCount 
 {
 public:
-  vlPoints();
-  virtual ~vlPoints() {};
-  char *GetClassName() {return "vlPoints";};
-  void PrintSelf(ostream& os, vlIndent indent);
+  vtkPoints();
+  virtual ~vtkPoints() {};
+  char *GetClassName() {return "vtkPoints";};
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Create a copy of this object.
-  virtual vlPoints *MakeObject(int sze, int ext=1000) = 0;
+  virtual vtkPoints *MakeObject(int sze, int ext=1000) = 0;
 
   // Description:
   // Return data type. One of "bit", "char", "short", "int", "float", or
@@ -77,7 +77,7 @@ public:
 
   // Description:
   // Get the point coordinates for the point ids specified.
-  virtual void GetPoints(vlIdList& ptId, vlFloatPoints& fp);
+  virtual void GetPoints(vtkIdList& ptId, vtkFloatPoints& fp);
 
   virtual void ComputeBounds();
   float *GetBounds();
@@ -85,7 +85,7 @@ public:
 
 protected:
   float Bounds[6];
-  vlTimeStamp ComputeTime; // Time at which bounds computed
+  vtkTimeStamp ComputeTime; // Time at which bounds computed
 
 };
 

@@ -1,42 +1,42 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    IPoints.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-// .NAME vlIntPoints - integer representation of 3D points
+// .NAME vtkIntPoints - integer representation of 3D points
 // .SECTION Description
-// vlIntPoints is a concrete implementation of vlPoints. Points are 
+// vtkIntPoints is a concrete implementation of vtkPoints. Points are 
 // represented using integer values.
 
-#ifndef __vlIntPoints_h
-#define __vlIntPoints_h
+#ifndef __vtkIntPoints_h
+#define __vtkIntPoints_h
 
 #include "Points.hh"
 #include "IntArray.hh"
 
-class vlIntPoints : public vlPoints
+class vtkIntPoints : public vtkPoints
 {
 public:
-  vlIntPoints() {};
-  vlIntPoints(const vlIntPoints& fp) {this->P = fp.P;};
-  vlIntPoints(const int sz, const int ext=1000):P(3*sz,3*ext){};
-  ~vlIntPoints() {};
+  vtkIntPoints() {};
+  vtkIntPoints(const vtkIntPoints& fp) {this->P = fp.P;};
+  vtkIntPoints(const int sz, const int ext=1000):P(3*sz,3*ext){};
+  ~vtkIntPoints() {};
   int Allocate(const int sz, const int ext=1000) {return this->P.Allocate(3*sz,3*ext);};
   void Initialize() {this->P.Initialize();};
-  char *GetClassName() {return "vlIntPoints";};
+  char *GetClassName() {return "vtkIntPoints";};
 
-  // vlPoint interface
-  vlPoints *MakeObject(int sze, int ext=1000);
+  // vtkPoint interface
+  vtkPoints *MakeObject(int sze, int ext=1000);
   char *GetDataType() {return "int";};
   int GetNumberOfPoints() {return (P.GetMaxId()+1)/3;};
   void Squeeze() {this->P.Squeeze();};
@@ -48,23 +48,23 @@ public:
   void InsertPoint(int i, float *x);
   int InsertNextPoint(int *x);
   int InsertNextPoint(float *x);
-  void GetPoints(vlIdList& ptId, vlFloatPoints& fp);
+  void GetPoints(vtkIdList& ptId, vtkFloatPoints& fp);
 
   // miscellaneous
   int *GetPtr(const int id);
   int *WritePtr(const int id, const int number);
   void WrotePtr();
-  vlIntPoints &operator=(const vlIntPoints& fp);
-  void operator+=(const vlIntPoints& fp) {this->P += fp.P;};
+  vtkIntPoints &operator=(const vtkIntPoints& fp);
+  void operator+=(const vtkIntPoints& fp) {this->P += fp.P;};
   void Reset() {this->P.Reset();};
 
 protected:
-  vlIntArray P;
+  vtkIntArray P;
 };
 
 // Description:
 // Get pointer to array of data starting at data position "id".
-inline int *vlIntPoints::GetPtr(const int id)
+inline int *vtkIntPoints::GetPtr(const int id)
 {
   return this->P.GetPtr(id);
 }
@@ -74,7 +74,7 @@ inline int *vlIntPoints::GetPtr(const int id)
 // bumped by number (and memory allocated if necessary). Id is the 
 // location you wish to write into; number is the number of points to 
 // write. Use the method WrotePtr() to mark completion of write.
-inline int *vlIntPoints::WritePtr(const int id, const int number)
+inline int *vtkIntPoints::WritePtr(const int id, const int number)
 {
   return this->P.WritePtr(id,3*number);
 }
@@ -82,15 +82,15 @@ inline int *vlIntPoints::WritePtr(const int id, const int number)
 // Description:
 // Terminate direct write of data. Although dummy routine now, reserved for
 // future use.
-inline void vlIntPoints::WrotePtr() {}
+inline void vtkIntPoints::WrotePtr() {}
 
-inline void vlIntPoints::GetPoint(int id, float x[3])
+inline void vtkIntPoints::GetPoint(int id, float x[3])
 {
   int *p=this->P.GetPtr(3*id); 
   x[0] = (float)p[0]; x[1] = (float)p[1]; x[2] = (float)p[2];
 }
 
-inline void vlIntPoints::SetPoint(int i, float x[3]) 
+inline void vtkIntPoints::SetPoint(int i, float x[3]) 
 {
   i*=3; 
   this->P[i]=(int)x[0]; 
@@ -98,7 +98,7 @@ inline void vlIntPoints::SetPoint(int i, float x[3])
   this->P[i+2]=(int)x[2];
 }
 
-inline void vlIntPoints::SetPoint(int i, int x[3]) 
+inline void vtkIntPoints::SetPoint(int i, int x[3]) 
 {
   i *= 3; 
   this->P[i] = x[0]; 
@@ -106,21 +106,21 @@ inline void vlIntPoints::SetPoint(int i, int x[3])
   this->P[i+2] = x[2];
 }
 
-inline void vlIntPoints::InsertPoint(int i, int *x) 
+inline void vtkIntPoints::InsertPoint(int i, int *x) 
 {
   this->P.InsertValue(3*i+2, x[2]);
   this->P[3*i] =  x[0];
   this->P[3*i+1] = x[1];
 }
 
-inline void vlIntPoints::InsertPoint(int i, float *x) 
+inline void vtkIntPoints::InsertPoint(int i, float *x) 
 {
   this->P.InsertValue(3*i+2, (int)x[2]);
   this->P[3*i] = (int)x[0];
   this->P[3*i+1] = (int)x[1];
 }
 
-inline int vlIntPoints::InsertNextPoint(int *x) 
+inline int vtkIntPoints::InsertNextPoint(int *x) 
 {
   int id = this->P.GetMaxId() + 3;
   this->P.InsertValue(id,x[2]);
@@ -129,7 +129,7 @@ inline int vlIntPoints::InsertNextPoint(int *x)
   return id/3;
 }
 
-inline int vlIntPoints::InsertNextPoint(float *x) 
+inline int vtkIntPoints::InsertNextPoint(float *x) 
 {
   int id = this->P.GetMaxId() + 3;
   this->P.InsertValue(id,(int)x[2]);

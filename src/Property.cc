@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    Property.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its
+This file is part of the Visualization Toolkit. No part of this file or its
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
@@ -24,7 +24,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // specular color, and edge color white; ambient coefficient=0; diffuse 
 // coefficient=0; specular coefficient=0; specular power=1; Gouraud shading;
 // and surface representation.
-vlProperty::vlProperty()
+vtkProperty::vtkProperty()
 {
   this->Color[0] = 1;
   this->Color[1] = 1;
@@ -58,7 +58,7 @@ vlProperty::vlProperty()
   this->Device = NULL;
 }
 
-void vlProperty::Render(vlRenderer *ren)
+void vtkProperty::Render(vtkRenderer *ren)
 {
   if (!this->Device)
     {
@@ -69,42 +69,42 @@ void vlProperty::Render(vlRenderer *ren)
 
 // Description:
 // Set shading method to flat.
-void vlProperty::SetFlat (void)
+void vtkProperty::SetFlat (void)
 {
   this->Interpolation= VL_FLAT;
 }
 
 // Description:
 // Set shading method to Gouraud.
-void vlProperty::SetGouraud (void)
+void vtkProperty::SetGouraud (void)
 {
   this->Interpolation = VL_GOURAUD;
 }
 
 // Description:
 // Set shading method to Phong.
-void vlProperty::SetPhong (void)
+void vtkProperty::SetPhong (void)
 {
   this->Interpolation = VL_PHONG;
 }
 
 // Description:
 // Represent geometry with points.
-void vlProperty::SetPoints (void)
+void vtkProperty::SetPoints (void)
 {
   this->Interpolation = VL_POINTS;
 }
 
 // Description:
 // Represent geometry as wireframe.
-void vlProperty::SetWireframe (void)
+void vtkProperty::SetWireframe (void)
 {
   this->Representation = VL_WIREFRAME;
 }
 
 // Description:
 // Represent geometry as surface.
-void vlProperty::SetSurface (void)
+void vtkProperty::SetSurface (void)
 {
   this->Representation = VL_SURFACE;
 }
@@ -112,7 +112,7 @@ void vlProperty::SetSurface (void)
 // Description:
 // Set the color of the object. Has side effects in that it sets the
 // ambient diffuse and specular colors as well.
-void vlProperty::SetColor(float R,float G,float B)
+void vtkProperty::SetColor(float R,float G,float B)
 {
   /* store the coordinates */
   this->Color[0] = R;
@@ -132,9 +132,9 @@ void vlProperty::SetColor(float R,float G,float B)
 }
 
  
-void vlProperty::PrintSelf(ostream& os, vlIndent indent)
+void vtkProperty::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlObject::PrintSelf(os,indent);
+  vtkObject::PrintSelf(os,indent);
 
   os << indent << "Ambient: " << this->Ambient << "\n";
   os << indent << "Ambient Color: (" << this->AmbientColor[0] << ", " 

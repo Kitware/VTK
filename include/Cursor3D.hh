@@ -1,85 +1,85 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    Cursor3D.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-// .NAME vlCursor3D - generate a 3D cursor representation
+// .NAME vtkCursor3D - generate a 3D cursor representation
 // .SECTION Description
-// vlCursor3D is an object that generates a 3D representation of a cursor.
+// vtkCursor3D is an object that generates a 3D representation of a cursor.
 // The cursor consists of a wireframe bounding box, three intersecting 
 // axes lines that meet at the cursor focus, and "shadows" or projections
 // of the axes against the sides of the bounding box. Each of these
 // components can be turned on/off.
 
-#ifndef __vlCursor3D_h
-#define __vlCursor3D_h
+#ifndef __vtkCursor3D_h
+#define __vtkCursor3D_h
 
 #include "PolySrc.hh"
 
-class vlCursor3D : public vlPolySource 
+class vtkCursor3D : public vtkPolySource 
 {
 public:
-  vlCursor3D();
-  char *GetClassName() {return "vlCursor3D";};
-  void PrintSelf(ostream& os, vlIndent indent);
+  vtkCursor3D();
+  char *GetClassName() {return "vtkCursor3D";};
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   void SetModelBounds(float *bounds);
   void SetModelBounds(float xmin, float xmax, float ymin, float ymax, float zmin, float zmax);
-  vlGetVectorMacro(ModelBounds,float,6);
+  vtkGetVectorMacro(ModelBounds,float,6);
 
   // Description:
   // Specify the position of cursor focus.
-  vlSetVector3Macro(FocalPoint,float);
-  vlGetVectorMacro(FocalPoint,float,3);
+  vtkSetVector3Macro(FocalPoint,float);
+  vtkGetVectorMacro(FocalPoint,float,3);
 
   // Description:
   // Turn on/off the wireframe bounding box.
-  vlSetMacro(Outline,int);
-  vlGetMacro(Outline,int);
-  vlBooleanMacro(Outline,int);
+  vtkSetMacro(Outline,int);
+  vtkGetMacro(Outline,int);
+  vtkBooleanMacro(Outline,int);
 
   // Description:
   // Turn on/off the wireframe axes.
   // 
-  vlSetMacro(Axes,int);
-  vlGetMacro(Axes,int);
-  vlBooleanMacro(Axes,int);
+  vtkSetMacro(Axes,int);
+  vtkGetMacro(Axes,int);
+  vtkBooleanMacro(Axes,int);
 
   // Description:
   // Turn on/off the wireframe x-shadows.
-  vlSetMacro(XShadows,int);
-  vlGetMacro(XShadows,int);
-  vlBooleanMacro(XShadows,int);
+  vtkSetMacro(XShadows,int);
+  vtkGetMacro(XShadows,int);
+  vtkBooleanMacro(XShadows,int);
 
   // Description:
   // Turn on/off the wireframe y-shadows.
-  vlSetMacro(YShadows,int);
-  vlGetMacro(YShadows,int);
-  vlBooleanMacro(YShadows,int);
+  vtkSetMacro(YShadows,int);
+  vtkGetMacro(YShadows,int);
+  vtkBooleanMacro(YShadows,int);
 
   // Description:
   // Turn on/off the wireframe z-shadows.
-  vlSetMacro(ZShadows,int);
-  vlGetMacro(ZShadows,int);
-  vlBooleanMacro(ZShadows,int);
+  vtkSetMacro(ZShadows,int);
+  vtkGetMacro(ZShadows,int);
+  vtkBooleanMacro(ZShadows,int);
 
   // Description:
   // Turn on/off cursor wrapping. If the cursor focus moves outside the
   // specified bounds, the cursor will either be restrained against the
   // nearest "wall" (Wrap=off), or it will wrap around (Wrap=on).
-  vlSetMacro(Wrap,int);
-  vlGetMacro(Wrap,int);
-  vlBooleanMacro(Wrap,int);
+  vtkSetMacro(Wrap,int);
+  vtkGetMacro(Wrap,int);
+  vtkBooleanMacro(Wrap,int);
 
 protected:
   void Execute();

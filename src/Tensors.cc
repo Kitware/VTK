@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    Tensors.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
@@ -15,20 +15,20 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 =========================================================================*/
 #include "Tensors.hh"
 
-vlTensors::vlTensors(int dim)
+vtkTensors::vtkTensors(int dim)
 {
   this->Dimension = dim;
 }
 
-void vlTensors::GetTensor(int id, vlTensor &ft)
+void vtkTensors::GetTensor(int id, vtkTensor &ft)
 {
-  vlTensor& t = this->GetTensor(id);
+  vtkTensor& t = this->GetTensor(id);
   ft = t;
 }
 
 // Description:
 // Given a list of pt ids, return an array of tensors.
-void vlTensors::GetTensors(vlIdList& ptId, vlFloatTensors& ft)
+void vtkTensors::GetTensors(vtkIdList& ptId, vtkFloatTensors& ft)
 {
   for (int i=0; i<ptId.GetNumberOfIds(); i++)
     {
@@ -36,9 +36,9 @@ void vlTensors::GetTensors(vlIdList& ptId, vlFloatTensors& ft)
     }
 }
 
-void vlTensors::PrintSelf(ostream& os, vlIndent indent)
+void vtkTensors::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlRefCount::PrintSelf(os,indent);
+  vtkRefCount::PrintSelf(os,indent);
 
   os << indent << "Number Of Tensors: " << this->GetNumberOfTensors() << "\n";
 }

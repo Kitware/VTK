@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    CellPick.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
@@ -15,21 +15,21 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 =========================================================================*/
 #include "CellPick.hh"
 
-vlCellPicker::vlCellPicker()
+vtkCellPicker::vtkCellPicker()
 {
   this->CellId = -1;
   this->SubId = -1;
   for (int i=0; i<3; i++) this->PCoords[i] = 0.0;
 }
 
-void vlCellPicker::IntersectWithLine(float p1[3], float p2[3], float tol, 
-                                     vlActor *a, vlMapper *m)
+void vtkCellPicker::IntersectWithLine(float p1[3], float p2[3], float tol, 
+                                     vtkActor *a, vtkMapper *m)
 {
   int numCells;
   int cellId, i, minCellId, minSubId, subId;
   float x[3], tMin, t, pcoords[3], minXYZ[3], minPcoords[3];
-  vlCell *cell;
-  vlDataSet *input=m->GetInput();
+  vtkCell *cell;
+  vtkDataSet *input=m->GetInput();
 
   if ( (numCells = input->GetNumberOfCells()) < 1 ) return;
 //
@@ -62,21 +62,21 @@ void vlCellPicker::IntersectWithLine(float p1[3], float p2[3], float tol,
     this->CellId = minCellId;
     this->SubId = minSubId;
     for (i=0; i<3; i++) this->PCoords[i] = minPcoords[i];
-    vlDebugMacro("Picked cell id= " << minCellId);
+    vtkDebugMacro("Picked cell id= " << minCellId);
     }
 }
 
-void vlCellPicker::Initialize()
+void vtkCellPicker::Initialize()
 {
   this->CellId = (-1);
   this->SubId = (-1);
   for (int i=0; i<3; i++) this->PCoords[i] = 0.0;
-  this->vlPicker::Initialize();
+  this->vtkPicker::Initialize();
 }
 
-void vlCellPicker::PrintSelf(ostream& os, vlIndent indent)
+void vtkCellPicker::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->vlPicker::PrintSelf(os,indent);
+  this->vtkPicker::PrintSelf(os,indent);
 
   os << indent << "Cell Id: " << this->CellId << "\n";
   os << indent << "SubId: " << this->SubId << "\n";

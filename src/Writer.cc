@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    Writer.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
@@ -17,7 +17,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 // Description:
 // Construct with no start and end write methods or arguments.
-vlWriter::vlWriter()
+vtkWriter::vtkWriter()
 {
   this->Input = NULL;
   this->StartWrite = NULL;
@@ -31,12 +31,12 @@ vlWriter::vlWriter()
 // Description:
 // Write data to output. Method executes subclasses WriteData() method, as 
 // well as StartWrite() and EndWrite() methods.
-void vlWriter::Write()
+void vtkWriter::Write()
 {
   // make sure input is available
   if ( !this->Input )
     {
-    vlErrorMacro(<< "No input!");
+    vtkErrorMacro(<< "No input!");
     return;
     }
 
@@ -51,7 +51,7 @@ void vlWriter::Write()
 
 // Description:
 // Convenient alias for Write() method.
-void vlWriter::Update()
+void vtkWriter::Update()
 {
   this->Write();
 }
@@ -59,7 +59,7 @@ void vlWriter::Update()
 // Description:
 // Specify a function to be called before data is written.
 // Function will be called with argument provided.
-void vlWriter::SetStartWrite(void (*f)(void *), void *arg)
+void vtkWriter::SetStartWrite(void (*f)(void *), void *arg)
 {
   if ( f != this->StartWrite )
     {
@@ -77,7 +77,7 @@ void vlWriter::SetStartWrite(void (*f)(void *), void *arg)
 
 // Description:
 // Set the arg delete method. This is used to free user memory.
-void vlWriter::SetStartWriteArgDelete(void (*f)(void *))
+void vtkWriter::SetStartWriteArgDelete(void (*f)(void *))
 {
   if ( f != this->StartWriteArgDelete)
     {
@@ -88,7 +88,7 @@ void vlWriter::SetStartWriteArgDelete(void (*f)(void *))
 
 // Description:
 // Set the arg delete method. This is used to free user memory.
-void vlWriter::SetEndWriteArgDelete(void (*f)(void *))
+void vtkWriter::SetEndWriteArgDelete(void (*f)(void *))
 {
   if ( f != this->EndWriteArgDelete)
     {
@@ -100,7 +100,7 @@ void vlWriter::SetEndWriteArgDelete(void (*f)(void *))
 // Description:
 // Specify a function to be called after data is written.
 // Function will be called with argument provided.
-void vlWriter::SetEndWrite(void (*f)(void *), void *arg)
+void vtkWriter::SetEndWrite(void (*f)(void *), void *arg)
 {
   if ( f != this->EndWrite )
     {
@@ -115,9 +115,9 @@ void vlWriter::SetEndWrite(void (*f)(void *), void *arg)
     }
 }
 
-void vlWriter::PrintSelf(ostream& os, vlIndent indent)
+void vtkWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlObject::PrintSelf(os,indent);
+  vtkObject::PrintSelf(os,indent);
 
   if ( this->Input )
     {

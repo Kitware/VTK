@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    Cursor3D.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
@@ -19,7 +19,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // Description:
 // Construct with model bounds = (-1,1,-1,1,-1,1), focal point = (0,0,0),
 // all parts of cursor visible, and wrapping off.
-vlCursor3D::vlCursor3D()
+vtkCursor3D::vtkCursor3D()
 {
   this->ModelBounds[0] = -1.0;
   this->ModelBounds[1] = 1.0;
@@ -40,16 +40,16 @@ vlCursor3D::vlCursor3D()
   this->Wrap = 0;
 }
 
-void vlCursor3D::Execute()
+void vtkCursor3D::Execute()
 {
   int i;
   int numPts=0, numLines=0;
-  vlFloatPoints *newPts;
-  vlCellArray *newLines;
+  vtkFloatPoints *newPts;
+  vtkCellArray *newLines;
   float x[3];
   int ptIds[2];
 
-  vlDebugMacro(<<"Generating cursor");
+  vtkDebugMacro(<<"Generating cursor");
   this->Initialize();
 //
 // Check bounding box and origin
@@ -108,8 +108,8 @@ void vlCursor3D::Execute()
 
   if ( numPts ) 
     {
-    newPts = new vlFloatPoints(numPts);
-    newLines = new vlCellArray();
+    newPts = new vtkFloatPoints(numPts);
+    newLines = new vtkCellArray();
     newLines->Allocate(newLines->EstimateSize(numLines,2));
     }
   else return;
@@ -299,7 +299,7 @@ void vlCursor3D::Execute()
 
 // Description:
 // Set the boundary of the 3D cursor.
-void vlCursor3D::SetModelBounds(float xmin, float xmax, float ymin, float ymax,
+void vtkCursor3D::SetModelBounds(float xmin, float xmax, float ymin, float ymax,
                                 float zmin, float zmax)
 {
   if ( xmin != this->ModelBounds[0] || xmax != this->ModelBounds[1] ||
@@ -318,15 +318,15 @@ void vlCursor3D::SetModelBounds(float xmin, float xmax, float ymin, float ymax,
     }
 }
 
-void vlCursor3D::SetModelBounds(float *bounds)
+void vtkCursor3D::SetModelBounds(float *bounds)
 {
   this->SetModelBounds(bounds[0], bounds[1], bounds[2], bounds[3], bounds[4],
                        bounds[5]);
 }
 
-void vlCursor3D::PrintSelf(ostream& os, vlIndent indent)
+void vtkCursor3D::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlPolySource::PrintSelf(os,indent);
+  vtkPolySource::PrintSelf(os,indent);
 
   os << indent << "ModelBounds: \n";
   os << indent << "  Xmin,Xmax: (" << this->ModelBounds[0] << ", " << this->ModelBounds[1] << ")\n";

@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    BoolSPts.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
@@ -18,7 +18,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // Description:
 // Construct with sample resolution of (50,50,50) and automatic 
 // computation of sample bounds. Initial boolean operation is union.
-vlBooleanStructuredPoints::vlBooleanStructuredPoints()
+vtkBooleanStructuredPoints::vtkBooleanStructuredPoints()
 {
   this->SampleDimensions[0] = 50;
   this->SampleDimensions[1] = 50;
@@ -35,20 +35,20 @@ vlBooleanStructuredPoints::vlBooleanStructuredPoints()
   // this->Operator = this->Union;
 }
 
-vlBooleanStructuredPoints::~vlBooleanStructuredPoints()
+vtkBooleanStructuredPoints::~vtkBooleanStructuredPoints()
 {
 }
 
-unsigned long int vlBooleanStructuredPoints::GetMTime()
+unsigned long int vtkBooleanStructuredPoints::GetMTime()
 {
-  unsigned long dtime = this->vlStructuredPoints::GetMTime();
-  unsigned long ftime = this->vlFilter::_GetMTime();
+  unsigned long dtime = this->vtkStructuredPoints::GetMTime();
+  unsigned long ftime = this->vtkFilter::_GetMTime();
   return (dtime > ftime ? dtime : ftime);
 }
 
 // Description:
 // Add another structured point set to the list of objects to boolean.
-void vlBooleanStructuredPoints::AddInput(vlStructuredPoints *sp)
+void vtkBooleanStructuredPoints::AddInput(vtkStructuredPoints *sp)
 {
   if ( ! this->InputList.IsItemPresent(sp) )
     {
@@ -59,7 +59,7 @@ void vlBooleanStructuredPoints::AddInput(vlStructuredPoints *sp)
 
 // Description:
 // Remove an object from the list of objects to boolean.
-void vlBooleanStructuredPoints::RemoveInput(vlStructuredPoints *sp)
+void vtkBooleanStructuredPoints::RemoveInput(vtkStructuredPoints *sp)
 {
   if ( this->InputList.IsItemPresent(sp) )
     {
@@ -68,10 +68,10 @@ void vlBooleanStructuredPoints::RemoveInput(vlStructuredPoints *sp)
     }
 }
 
-void vlBooleanStructuredPoints::Update()
+void vtkBooleanStructuredPoints::Update()
 {
   unsigned long int mtime, dsMtime;
-  vlDataSet *ds;
+  vtkDataSet *ds;
 
   // make sure input is available
   if ( this->InputList.GetNumberOfItems() < 1 ) return;
@@ -103,11 +103,11 @@ void vlBooleanStructuredPoints::Update()
 }
 
 // Initialize object prior to performing Boolean operations
-void vlBooleanStructuredPoints::InitializeBoolean()
+void vtkBooleanStructuredPoints::InitializeBoolean()
 {
-  vlScalars *inScalars=NULL;
-  vlScalars *newScalars;
-  vlStructuredPoints *sp;
+  vtkScalars *inScalars=NULL;
+  vtkScalars *newScalars;
+  vtkStructuredPoints *sp;
   float *bounds;
   int numPts;
   int i, j;
@@ -166,16 +166,16 @@ void vlBooleanStructuredPoints::InitializeBoolean()
     }
   else
     {
-    newScalars = new vlFloatScalars(numPts);
+    newScalars = new vtkFloatScalars(numPts);
     }
 
   this->PointData.SetScalars(newScalars);
 }
 
 // Perform Boolean operations on input volumes
-void vlBooleanStructuredPoints::Execute()
+void vtkBooleanStructuredPoints::Execute()
 {
-  vlStructuredPoints *sp;
+  vtkStructuredPoints *sp;
 
   this->InitializeBoolean();
 
@@ -187,9 +187,9 @@ void vlBooleanStructuredPoints::Execute()
 
 // Description:
 // Perform Boolean operations by appending to current output data.
-void vlBooleanStructuredPoints::Append(vlStructuredPoints *sp)
+void vtkBooleanStructuredPoints::Append(vtkStructuredPoints *sp)
 {
-  vlScalars *currentScalars, *inScalars;
+  vtkScalars *currentScalars, *inScalars;
   float *in_bounds;
   float *dest_bounds;
   int i,j,k;
@@ -258,7 +258,7 @@ void vlBooleanStructuredPoints::Append(vlStructuredPoints *sp)
 
 // Description:
 // Set the i-j-k dimensions on which to perform boolean operation.
-void vlBooleanStructuredPoints::SetSampleDimensions(int i, int j, int k)
+void vtkBooleanStructuredPoints::SetSampleDimensions(int i, int j, int k)
 {
   int dim[3];
 
@@ -269,18 +269,18 @@ void vlBooleanStructuredPoints::SetSampleDimensions(int i, int j, int k)
   this->SetSampleDimensions(dim);
 }
 
-void vlBooleanStructuredPoints::SetSampleDimensions(int dim[3])
+void vtkBooleanStructuredPoints::SetSampleDimensions(int dim[3])
 {
   int i;
 
-  vlDebugMacro(<< " setting SampleDimensions to (" << dim[0] << "," << dim[1] << "," << dim[2] << ")");
+  vtkDebugMacro(<< " setting SampleDimensions to (" << dim[0] << "," << dim[1] << "," << dim[2] << ")");
 
   if ( dim[0] != this->SampleDimensions[0] || dim[1] != SampleDimensions[1] ||
   dim[2] != SampleDimensions[2] )
     {
     if ( dim[0]<0 || dim[1]<0 || dim[2]<0 )
       {
-      vlErrorMacro (<< "Bad Sample Dimensions, retaining previous values");
+      vtkErrorMacro (<< "Bad Sample Dimensions, retaining previous values");
       return;
       }
 
@@ -292,12 +292,12 @@ void vlBooleanStructuredPoints::SetSampleDimensions(int dim[3])
 
 // Description:
 // Set the size of the volume oon which to perform the sampling.
-void vlBooleanStructuredPoints::SetModelBounds(float *bounds)
+void vtkBooleanStructuredPoints::SetModelBounds(float *bounds)
 {
-  vlBooleanStructuredPoints::SetModelBounds(bounds[0], bounds[1], bounds[2], bounds[3], bounds[4], bounds[5]);
+  vtkBooleanStructuredPoints::SetModelBounds(bounds[0], bounds[1], bounds[2], bounds[3], bounds[4], bounds[5]);
 }
 
-void vlBooleanStructuredPoints::SetModelBounds(float xmin, float xmax, float ymin, float ymax, float zmin, float zmax)
+void vtkBooleanStructuredPoints::SetModelBounds(float xmin, float xmax, float ymin, float ymax, float zmin, float zmax)
 {
   if (this->ModelBounds[0] != xmin || this->ModelBounds[1] != xmax ||
   this->ModelBounds[2] != ymin || this->ModelBounds[3] != ymax ||
@@ -325,20 +325,20 @@ void vlBooleanStructuredPoints::SetModelBounds(float xmin, float xmax, float ymi
 }
 
 
-int vlBooleanStructuredPoints::GetDataReleased()
+int vtkBooleanStructuredPoints::GetDataReleased()
 {
   return this->DataReleased;
 }
 
-void vlBooleanStructuredPoints::SetDataReleased(int flag)
+void vtkBooleanStructuredPoints::SetDataReleased(int flag)
 {
   this->DataReleased = flag;
 }
 
-void vlBooleanStructuredPoints::PrintSelf(ostream& os, vlIndent indent)
+void vtkBooleanStructuredPoints::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlStructuredPoints::PrintSelf(os,indent);
-  vlFilter::_PrintSelf(os,indent);
+  vtkStructuredPoints::PrintSelf(os,indent);
+  vtkFilter::_PrintSelf(os,indent);
 
   os << indent << "Input DataSets:\n";
   this->InputList.PrintSelf(os,indent.GetNextIndent());

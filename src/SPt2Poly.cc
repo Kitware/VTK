@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    SPt2Poly.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
@@ -15,48 +15,48 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 =========================================================================*/
 #include "SPt2Poly.hh"
 
-void vlStructuredPointsToPolyDataFilter::Modified()
+void vtkStructuredPointsToPolyDataFilter::Modified()
 {
-  this->vlPolyData::Modified();
-  this->vlStructuredPointsFilter::_Modified();
+  this->vtkPolyData::Modified();
+  this->vtkStructuredPointsFilter::_Modified();
 }
 
-unsigned long int vlStructuredPointsToPolyDataFilter::GetMTime()
+unsigned long int vtkStructuredPointsToPolyDataFilter::GetMTime()
 {
-  unsigned long dtime = this->vlPolyData::GetMTime();
-  unsigned long ftime = this->vlStructuredPointsFilter::_GetMTime();
+  unsigned long dtime = this->vtkPolyData::GetMTime();
+  unsigned long ftime = this->vtkStructuredPointsFilter::_GetMTime();
   return (dtime > ftime ? dtime : ftime);
 }
 
-void vlStructuredPointsToPolyDataFilter::DebugOn()
+void vtkStructuredPointsToPolyDataFilter::DebugOn()
 {
-  vlPolyData::DebugOn();
-  vlStructuredPointsFilter::_DebugOn();
+  vtkPolyData::DebugOn();
+  vtkStructuredPointsFilter::_DebugOn();
 }
 
-void vlStructuredPointsToPolyDataFilter::DebugOff()
+void vtkStructuredPointsToPolyDataFilter::DebugOff()
 {
-  vlPolyData::DebugOff();
-  vlStructuredPointsFilter::_DebugOff();
+  vtkPolyData::DebugOff();
+  vtkStructuredPointsFilter::_DebugOff();
 }
 
-void vlStructuredPointsToPolyDataFilter::Update()
+void vtkStructuredPointsToPolyDataFilter::Update()
 {
   this->UpdateFilter();
 }
 
-int vlStructuredPointsToPolyDataFilter::GetDataReleased()
+int vtkStructuredPointsToPolyDataFilter::GetDataReleased()
 {
   return this->DataReleased;
 }
 
-void vlStructuredPointsToPolyDataFilter::SetDataReleased(int flag)
+void vtkStructuredPointsToPolyDataFilter::SetDataReleased(int flag)
 {
   this->DataReleased = flag;
 }
 
-void vlStructuredPointsToPolyDataFilter::PrintSelf(ostream& os, vlIndent indent)
+void vtkStructuredPointsToPolyDataFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlPolyData::PrintSelf(os,indent);
-  vlStructuredPointsFilter::_PrintSelf(os,indent);
+  vtkPolyData::PrintSelf(os,indent);
+  vtkStructuredPointsFilter::_PrintSelf(os,indent);
 }

@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    IdList.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
@@ -16,9 +16,9 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "IdList.hh"
 #include "Cell.hh"
 
-void vlIdList::DeleteId(int cellId)
+void vtkIdList::DeleteId(int cellId)
 {
-  static vlIdList tempList(MAX_CELL_SIZE);
+  static vtkIdList tempList(MAX_CELL_SIZE);
   int i, id;
 
   tempList.Reset();
@@ -35,7 +35,7 @@ void vlIdList::DeleteId(int cellId)
 }
 
 
-void vlIdList::IntersectWith(vlIdList& otherIds)
+void vtkIdList::IntersectWith(vtkIdList& otherIds)
 {
   int id, i, j;
   int numOriginalIds=this->GetNumberOfIds();

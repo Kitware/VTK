@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    Glyph3D.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
@@ -17,13 +17,13 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "Trans.hh"
 #include "FVectors.hh"
 #include "FNormals.hh"
-#include "vlMath.hh"
+#include "vtkMath.hh"
 
 // Description
 // Construct object with scaling on, scaling mode is by scalar value, 
 // scale factor = 1.0, the range is (0,1), orient geometry is on, and
 // orientation is by vector.
-vlGlyph3D::vlGlyph3D()
+vtkGlyph3D::vtkGlyph3D()
 {
   this->Source = NULL;
   this->Scaling = 1;
@@ -35,34 +35,34 @@ vlGlyph3D::vlGlyph3D()
   this->VectorMode = USE_VECTOR;
 }
 
-vlGlyph3D::~vlGlyph3D()
+vtkGlyph3D::~vtkGlyph3D()
 {
 }
 
-void vlGlyph3D::Execute()
+void vtkGlyph3D::Execute()
 {
-  vlPointData *pd;
-  vlScalars *inScalars;
-  vlVectors *inVectors;
-  vlNormals *inNormals, *sourceNormals;
+  vtkPointData *pd;
+  vtkScalars *inScalars;
+  vtkVectors *inVectors;
+  vtkNormals *inNormals, *sourceNormals;
   int numPts, numSourcePts, numSourceCells;
   int inPtId, i;
-  vlPoints *sourcePts;
-  vlCellArray *sourceCells;  
-  vlFloatPoints *newPts;
-  vlFloatScalars *newScalars=NULL;
-  vlFloatVectors *newVectors=NULL;
-  vlFloatNormals *newNormals=NULL;
+  vtkPoints *sourcePts;
+  vtkCellArray *sourceCells;  
+  vtkFloatPoints *newPts;
+  vtkFloatScalars *newScalars=NULL;
+  vtkFloatVectors *newVectors=NULL;
+  vtkFloatNormals *newNormals=NULL;
   float *x, *v, vNew[3];
-  vlTransform trans;
-  vlCell *cell;
-  vlIdList *cellPts;
+  vtkTransform trans;
+  vtkCell *cell;
+  vtkIdList *cellPts;
   int npts, pts[MAX_CELL_SIZE];
   int orient, scaleSource, ptIncr, cellId;
   float scale, den;
-  vlMath math;
+  vtkMath math;
 
-  vlDebugMacro(<<"Generating glyphs");
+  vtkDebugMacro(<<"Generating glyphs");
   this->Initialize();
 
   pd = this->Input->GetPointData();
@@ -79,30 +79,30 @@ void vlGlyph3D::Execute()
   numSourceCells = this->Source->GetNumberOfCells();
   sourceNormals = this->Source->GetPointData()->GetNormals();
 
-  newPts = new vlFloatPoints(numPts*numSourcePts);
+  newPts = new vtkFloatPoints(numPts*numSourcePts);
   if (inScalars != NULL) 
-    newScalars = new vlFloatScalars(numPts*numSourcePts);
+    newScalars = new vtkFloatScalars(numPts*numSourcePts);
   if (inVectors != NULL || inNormals != NULL ) 
-    newVectors = new vlFloatVectors(numPts*numSourcePts);
+    newVectors = new vtkFloatVectors(numPts*numSourcePts);
   if (sourceNormals != NULL) 
-    newNormals = new vlFloatNormals(numPts*numSourcePts);
+    newNormals = new vtkFloatNormals(numPts*numSourcePts);
 
   // Setting up for calls to PolyData::InsertNextCell()
   if ( (sourceCells=this->Source->GetVerts())->GetNumberOfCells() > 0 )
     {
-    this->SetVerts(new vlCellArray(numPts*sourceCells->GetSize()));
+    this->SetVerts(new vtkCellArray(numPts*sourceCells->GetSize()));
     }
   if ( (sourceCells=this->Source->GetLines())->GetNumberOfCells() > 0 )
     {
-    this->SetLines(new vlCellArray(numPts*sourceCells->GetSize()));
+    this->SetLines(new vtkCellArray(numPts*sourceCells->GetSize()));
     }
   if ( (sourceCells=this->Source->GetPolys())->GetNumberOfCells() > 0 )
     {
-    this->SetPolys(new vlCellArray(numPts*sourceCells->GetSize()));
+    this->SetPolys(new vtkCellArray(numPts*sourceCells->GetSize()));
     }
   if ( (sourceCells=this->Source->GetStrips())->GetNumberOfCells() > 0 )
     {
-    this->SetStrips(new vlCellArray(numPts*sourceCells->GetSize()));
+    this->SetStrips(new vtkCellArray(numPts*sourceCells->GetSize()));
     }
 //
 // Copy (input scalars) to (output scalars) and either (input vectors or
@@ -227,12 +227,12 @@ void vlGlyph3D::Execute()
 // Description:
 // Override update method because execution can branch two ways (Input 
 // and Source)
-void vlGlyph3D::Update()
+void vtkGlyph3D::Update()
 {
   // make sure input is available
   if ( this->Input == NULL || this->Source == NULL )
     {
-    vlErrorMacro(<< "No input!");
+    vtkErrorMacro(<< "No input!");
     return;
     }
 
@@ -259,9 +259,9 @@ void vlGlyph3D::Update()
   if ( this->Source->ShouldIReleaseData() ) this->Source->ReleaseData();
 }
 
-void vlGlyph3D::PrintSelf(ostream& os, vlIndent indent)
+void vtkGlyph3D::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlDataSetToPolyFilter::PrintSelf(os,indent);
+  vtkDataSetToPolyFilter::PrintSelf(os,indent);
 
   os << indent << "Source: " << this->Source << "\n";
   os << indent << "Scaling: " << (this->Scaling ? "On\n" : "Off\n");

@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    CyReader.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
@@ -24,12 +24,12 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include <errno.h>
 #include <math.h>
 
-vlCyberReader::vlCyberReader()
+vtkCyberReader::vtkCyberReader()
 {
   this->Filename = NULL;
 }
 
-vlCyberReader::~vlCyberReader()
+vtkCyberReader::~vtkCyberReader()
 {
   if ( this->Filename ) delete [] this->Filename;
 }
@@ -249,7 +249,7 @@ if (vtx->pnt[(lg+1)%nlg][lt][_i] == SMALL_VOID) continue;\
 if (vtx->pnt[(lg+1)%nlg][lt+1][_i] == SMALL_VOID) continue;\
 if (vtx->pnt[lg][lt+1][_i] == SMALL_VOID) continue;
 
-void vlCyberReader::Execute()
+void vtkCyberReader::Execute()
 {
   int fd; //target image file
   GSPEC *gs; // database descriptor 
@@ -259,9 +259,9 @@ void vlCyberReader::Execute()
   int nvertex, npolygon; // out count of items 
   int nlt, nlg, lgPolys; // number of lats and longs in image 
   float	dlt, dlg; 
-  vlFloatPoints *newPoints;
-  vlFloatTCoords *newTCoords;
-  vlCellArray *newTris;
+  vtkFloatPoints *newPoints;
+  vtkFloatTCoords *newTCoords;
+  vtkCellArray *newTris;
   float x[3], tc[2];
   int voidLoc;
   int pts[3];
@@ -270,11 +270,11 @@ void vlCyberReader::Execute()
 
   if ( this->Filename == NULL )
     {
-    vlErrorMacro(<<"No file specified!");
+    vtkErrorMacro(<<"No file specified!");
     return;
     }
 
-  vlDebugMacro(<<"Reading Cyberware file: " << this->Filename);
+  vtkDebugMacro(<<"Reading Cyberware file: " << this->Filename);
 
   vtx = (struct Vertex *)calloc(1,sizeof(struct Vertex));
   vtx->ltresol = 1;
@@ -284,30 +284,30 @@ void vlCyberReader::Execute()
 //
   if ((fd = open(this->Filename, O_RDONLY)) == -1) 
     {
-    vlErrorMacro(<<"Cannot open file!");
+    vtkErrorMacro(<<"Cannot open file!");
     return;
     }
 
   if ((gs = cyread(0, fd)) == NULL) 
     {
-    vlErrorMacro(<<"Problem with image file format");
+    vtkErrorMacro(<<"Problem with image file format");
     return;
     }
 
   // convert range map image (gs) to vertex tables (vtx) 
   gstovtx(gs, vtx);
 //
-// Convert data into internal vl format
+// Convert data into internal vtk format
 //
   nvertex = ((vtx->lgmax - vtx->lgmin + 1) / vtx->lgresol ) *
             ((vtx->ltmax - vtx->ltmin + 1) / vtx->lgresol );
 
-  newPoints = new vlFloatPoints(nvertex);
-  newTCoords = new vlFloatTCoords(nvertex,2);
+  newPoints = new vtkFloatPoints(nvertex);
+  newTCoords = new vtkFloatTCoords(nvertex,2);
 //
 //  Generate points
 //
-  vlDebugMacro(<<"Creating points...");
+  vtkDebugMacro(<<"Creating points...");
   for (lg = vtx->lgmin; lg <= vtx->lgmax; lg += vtx->lgresol) 
     {
     for (lt = vtx->ltmin; lt <= vtx->ltmax; lt += vtx->ltresol) 
@@ -322,7 +322,7 @@ void vlCyberReader::Execute()
 //  Generate texture coordinates.  Note: these shouldn't change with
 //  lat/lon clipping 
 //
-  vlDebugMacro(<<"Creating texture coordinates...");
+  vtkDebugMacro(<<"Creating texture coordinates...");
   dlt = vtx->nlt - 1;
   dlg = vtx->nlg - 1;
   for (lg = vtx->lgmin; lg <= vtx->lgmax; lg += vtx->lgresol) 
@@ -337,8 +337,8 @@ void vlCyberReader::Execute()
 //
 //  Build polygons.  Have no more than number of vertex polygons.
 //
-  vlDebugMacro(<<"Creating triangles...");
-  newTris = new vlCellArray;
+  vtkDebugMacro(<<"Creating triangles...");
+  newTris = new vtkCellArray;
   newTris->Allocate(newTris->EstimateSize(2*nvertex,3));
 
   nlt = (vtx->ltmax - vtx->ltmin + 1) / vtx->ltresol;// verticies in y 
@@ -373,7 +373,7 @@ void vlCyberReader::Execute()
       }
     }
   npolygon = newTris->GetNumberOfCells();
-  vlDebugMacro(<<"Read "<<nvertex<<" vertices, "<<npolygon<<" polygons");
+  vtkDebugMacro(<<"Read "<<nvertex<<" vertices, "<<npolygon<<" polygons");
 //
 //  Send to data out
 //
@@ -389,16 +389,16 @@ void vlCyberReader::Execute()
   close(fd);
 }
 
-void vlCyberReader::PrintSelf(ostream& os, vlIndent indent)
+void vtkCyberReader::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlPolySource::PrintSelf(os,indent);
+  vtkPolySource::PrintSelf(os,indent);
 
   os << indent << "Filename: " << this->Filename << "\n";
 }
 
 //---------------------- Cyberware code follows ---------------------------//
 //
-// Following changes were made to incorporate Cyberware code into vl:
+// Following changes were made to incorporate Cyberware code into vtk:
 //    - directly included cyfile.h into this .cc file
 //    - directly included strings.h into this .cc file
 //    - remove extra write functions

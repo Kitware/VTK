@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    Streamer.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
@@ -14,30 +14,30 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
 #include "Streamer.hh"
-#include "vlMath.hh"
+#include "vtkMath.hh"
 
-vlStreamArray::vlStreamArray()
+vtkStreamArray::vtkStreamArray()
 {
   this->MaxId = -1; 
-  this->Array = new vlStreamPoint[1000];
+  this->Array = new vtkStreamPoint[1000];
   this->Size = 1000;
   this->Extend = 5000;
   this->Direction = INTEGRATE_FORWARD;
 }
 
-vlStreamPoint *vlStreamArray::Resize(int sz)
+vtkStreamPoint *vtkStreamArray::Resize(int sz)
 {
-  vlStreamPoint *newArray;
+  vtkStreamPoint *newArray;
   int newSize;
 
   if (sz >= this->Size) newSize = this->Size + 
     this->Extend*(((sz-this->Size)/this->Extend)+1);
   else newSize = sz;
 
-  newArray = new vlStreamPoint[newSize];
+  newArray = new vtkStreamPoint[newSize];
 
   memcpy(newArray, this->Array,
-         (sz < this->Size ? sz : this->Size) * sizeof(vlStreamPoint));
+         (sz < this->Size ? sz : this->Size) * sizeof(vtkStreamPoint));
 
   this->Size = newSize;
   delete [] this->Array;
@@ -47,7 +47,7 @@ vlStreamPoint *vlStreamArray::Resize(int sz)
 }
 
 
-vlStreamer::vlStreamer()
+vtkStreamer::vtkStreamer()
 {
   this->StartFrom = START_FROM_POSITION;
 
@@ -68,7 +68,7 @@ vlStreamer::vlStreamer()
 // Description:
 // Specify the start of the streamline in the cell coordinate system. That is,
 // cellId and subId (if composite cell), and parametric coordinates.
-void vlStreamer::SetStartLocation(int cellId, int subId, float pcoords[3])
+void vtkStreamer::SetStartLocation(int cellId, int subId, float pcoords[3])
 {
   if ( cellId != this->StartCell || subId != this->StartSubId ||
   pcoords[0] !=  this->StartPCoords[0] || 
@@ -89,7 +89,7 @@ void vlStreamer::SetStartLocation(int cellId, int subId, float pcoords[3])
 // Description:
 // Specify the start of the streamline in the cell coordinate system. That is,
 // cellId and subId (if composite cell), and parametric coordinates.
-void vlStreamer::SetStartLocation(int cellId, int subId, float r, float s, float t)
+void vtkStreamer::SetStartLocation(int cellId, int subId, float r, float s, float t)
 {
   float pcoords[3];
   pcoords[0] = r;
@@ -101,7 +101,7 @@ void vlStreamer::SetStartLocation(int cellId, int subId, float r, float s, float
 
 // Description:
 // Get the starting location of the streamline in the cell corrdinate system.
-int vlStreamer::GetStartLocation(int& subId, float pcoords[3])
+int vtkStreamer::GetStartLocation(int& subId, float pcoords[3])
 {
   subId = this->StartSubId;
   pcoords[0] = this->StartPCoords[0];
@@ -113,7 +113,7 @@ int vlStreamer::GetStartLocation(int& subId, float pcoords[3])
 // Description:
 // Specify the start of the streamline in the global coordinate system. Search
 // must be performed to find initial cell to strart integration from.
-void vlStreamer::SetStartPosition(float x[3])
+void vtkStreamer::SetStartPosition(float x[3])
 {
   if ( x[0] != this->StartPosition[0] || x[1] != this->StartPosition[1] || 
   x[2] != this->StartPosition[2] )
@@ -130,7 +130,7 @@ void vlStreamer::SetStartPosition(float x[3])
 // Description:
 // Specify the start of the streamline in the global coordinate system. Search
 // must be performed to find initial cell to strart integration from.
-void vlStreamer::SetStartPosition(float x, float y, float z)
+void vtkStreamer::SetStartPosition(float x, float y, float z)
 {
   float pos[3];
   pos[0] = x;
@@ -142,7 +142,7 @@ void vlStreamer::SetStartPosition(float x, float y, float z)
 
 // Description:
 // Get the start position in global x-y-z coordinates.
-float *vlStreamer::GetStartPosition()
+float *vtkStreamer::GetStartPosition()
 {
   return this->StartPosition;
 }
@@ -150,12 +150,12 @@ float *vlStreamer::GetStartPosition()
 // Description:
 // Override update method because execution can branch two ways (Input 
 // and Source)
-void vlStreamer::Update()
+void vtkStreamer::Update()
 {
   // make sure input is available
   if ( this->Input == NULL )
     {
-    vlErrorMacro(<< "No input!");
+    vtkErrorMacro(<< "No input!");
     return;
     }
 
@@ -183,32 +183,32 @@ void vlStreamer::Update()
     this->Source->ReleaseData();
 }
 
-void vlStreamer::Integrate()
+void vtkStreamer::Integrate()
 {
-  vlDataSet *input=this->Input;
-  vlDataSet *source=this->Source;
-  vlPointData *pd=input->GetPointData();
-  vlScalars *inScalars;
-  vlVectors *inVectors;
+  vtkDataSet *input=this->Input;
+  vtkDataSet *source=this->Source;
+  vtkPointData *pd=input->GetPointData();
+  vtkScalars *inScalars;
+  vtkVectors *inVectors;
   int numSourcePts;
-  vlStreamPoint *sNext, *sPtr;
+  vtkStreamPoint *sNext, *sPtr;
   int i, j, ptId, offset, numSteps, subId;
-  vlCell *cell;
-  vlFloatVectors cellVectors(MAX_CELL_SIZE);
-  vlFloatScalars cellScalars(MAX_CELL_SIZE);
+  vtkCell *cell;
+  vtkFloatVectors cellVectors(MAX_CELL_SIZE);
+  vtkFloatScalars cellScalars(MAX_CELL_SIZE);
   float *v, x[3], xNext[3];
-  vlMath math;
+  vtkMath math;
   float d, step, dir, vNext[3], tol2, p[3];
   float w[MAX_CELL_SIZE], dist2;
   float closestPoint[3], stepLength;
   
-  vlDebugMacro(<<"Generating streamers");
+  vtkDebugMacro(<<"Generating streamers");
   this->Initialize();
   this->NumberOfStreamers = 0;
 
   if ( ! (inVectors=pd->GetVectors()) )
     {
-    vlErrorMacro(<<"No vector data defined!");
+    vtkErrorMacro(<<"No vector data defined!");
     return;
     }
 
@@ -227,7 +227,7 @@ void vlStreamer::Integrate()
     this->NumberOfStreamers *= 2;
     }
 
-  this->Streamers = new vlStreamArray[this->NumberOfStreamers];
+  this->Streamers = new vtkStreamArray[this->NumberOfStreamers];
 
   if ( this->StartFrom == START_FROM_POSITION && !this->Source )
     {
@@ -402,13 +402,13 @@ void vlStreamer::Integrate()
     }
 }
 
-void vlStreamer::ComputeVorticity()
+void vtkStreamer::ComputeVorticity()
 {
 }
 
-void vlStreamer::PrintSelf(ostream& os, vlIndent indent)
+void vtkStreamer::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlDataSetToPolyFilter::PrintSelf(os,indent);
+  vtkDataSetToPolyFilter::PrintSelf(os,indent);
 
   if ( this->StartFrom == START_FROM_POSITION && !this->Source)
     {

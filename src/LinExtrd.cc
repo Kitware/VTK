@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    LinExtrd.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
@@ -18,7 +18,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // Description:
 // Create object with normal extrusion type, capping on, scale factor=1.0,
 // vector (0,0,1), and extrusion point (0,0,0).
-vlLinearExtrusionFilter::vlLinearExtrusionFilter()
+vtkLinearExtrusionFilter::vtkLinearExtrusionFilter()
 {
   this->ExtrusionType = NORMAL_EXTRUSION;
   this->Capping = 1;
@@ -27,7 +27,7 @@ vlLinearExtrusionFilter::vlLinearExtrusionFilter()
   this->ExtrusionPoint[0] = this->ExtrusionPoint[1] = this->ExtrusionPoint[2] = 0.0;
 }
 
-float *vlLinearExtrusionFilter::ViaNormal(float x[3], int id, vlNormals *n)
+float *vtkLinearExtrusionFilter::ViaNormal(float x[3], int id, vtkNormals *n)
 {
   static float xNew[3], *normal;
   int i;
@@ -39,7 +39,7 @@ float *vlLinearExtrusionFilter::ViaNormal(float x[3], int id, vlNormals *n)
   return xNew;
 }
 
-float *vlLinearExtrusionFilter::ViaVector(float x[3], int id, vlNormals *n)
+float *vtkLinearExtrusionFilter::ViaVector(float x[3], int id, vtkNormals *n)
 {
   static float xNew[3];
   int i;
@@ -50,7 +50,7 @@ float *vlLinearExtrusionFilter::ViaVector(float x[3], int id, vlNormals *n)
   return xNew;
 }
 
-float *vlLinearExtrusionFilter::ViaPoint(float x[3], int id, vlNormals *n)
+float *vtkLinearExtrusionFilter::ViaPoint(float x[3], int id, vtkNormals *n)
 {
   static float xNew[3];
   int i;
@@ -61,32 +61,32 @@ float *vlLinearExtrusionFilter::ViaPoint(float x[3], int id, vlNormals *n)
   return xNew;
 }
 
-void vlLinearExtrusionFilter::Execute()
+void vtkLinearExtrusionFilter::Execute()
 {
   int numPts, numCells;
-  vlPolyData *input=(vlPolyData *)this->Input;
-  vlPointData *pd=input->GetPointData();
-  vlNormals *inNormals;
-  vlPolyData mesh;
-  vlPoints *inPts;
-  vlCellArray *inVerts, *inLines, *inPolys, *inStrips;
+  vtkPolyData *input=(vtkPolyData *)this->Input;
+  vtkPointData *pd=input->GetPointData();
+  vtkNormals *inNormals;
+  vtkPolyData mesh;
+  vtkPoints *inPts;
+  vtkCellArray *inVerts, *inLines, *inPolys, *inStrips;
   int npts, *pts, numEdges, cellId, dim;
   int ptId, ncells, ptIds[MAX_CELL_SIZE], i, j, k, p1, p2;
   float *x;
-  vlFloatPoints *newPts;
-  vlCellArray *newLines=NULL, *newPolys=NULL, *newStrips=NULL;
-  vlCell *cell, *edge;
-  vlIdList cellIds(MAX_CELL_SIZE), *cellPts;
+  vtkFloatPoints *newPts;
+  vtkCellArray *newLines=NULL, *newPolys=NULL, *newStrips=NULL;
+  vtkCell *cell, *edge;
+  vtkIdList cellIds(MAX_CELL_SIZE), *cellPts;
 //
 // Initialize / check input
 //
-  vlDebugMacro(<<"Linearly extruding data");
+  vtkDebugMacro(<<"Linearly extruding data");
   this->Initialize();
 
   if ( (numPts=input->GetNumberOfPoints()) < 1 || 
   (numCells=input->GetNumberOfCells()) < 1 )
     {
-    vlErrorMacro(<<"No data to extrude!");
+    vtkErrorMacro(<<"No data to extrude!");
     return;
     }
 //
@@ -94,17 +94,17 @@ void vlLinearExtrusionFilter::Execute()
 //
   if ( this->ExtrusionType == POINT_EXTRUSION )
     {
-    this->ExtrudePoint = &vlLinearExtrusionFilter::ViaPoint;
+    this->ExtrudePoint = &vtkLinearExtrusionFilter::ViaPoint;
     }
   else if ( this->ExtrusionType == NORMAL_EXTRUSION  &&
   (inNormals = pd->GetNormals()) != NULL )
     {
-    this->ExtrudePoint = &vlLinearExtrusionFilter::ViaNormal;
+    this->ExtrudePoint = &vtkLinearExtrusionFilter::ViaNormal;
     inNormals = pd->GetNormals();
     }
   else // Vector_EXTRUSION
     {
-    this->ExtrudePoint = &vlLinearExtrusionFilter::ViaVector;
+    this->ExtrudePoint = &vtkLinearExtrusionFilter::ViaVector;
     }
 //
 // Build cell data structure.
@@ -127,17 +127,17 @@ void vlLinearExtrusionFilter::Execute()
 //
   this->PointData.CopyNormalsOff();
   this->PointData.CopyAllocate(pd,2*numPts);
-  newPts = new vlFloatPoints(2*numPts);
+  newPts = new vtkFloatPoints(2*numPts);
   if ( (ncells=inVerts->GetNumberOfCells()) > 0 ) 
     {
-    newLines = new vlCellArray;
+    newLines = new vtkCellArray;
     newLines->Allocate(newLines->EstimateSize(ncells,2));
     }
   // arbitrary initial allocation size
   ncells = inLines->GetNumberOfCells() + inPolys->GetNumberOfCells()/10 +
            inStrips->GetNumberOfCells()/10;
   ncells = (ncells < 100 ? 100 : ncells);
-  newStrips = new vlCellArray;
+  newStrips = new vtkCellArray;
   newStrips->Allocate(newStrips->EstimateSize(ncells,4));
 
   // copy points
@@ -156,7 +156,7 @@ void vlLinearExtrusionFilter::Execute()
     {
     if ( inPolys->GetNumberOfCells() > 0 )
       {
-      newPolys = new vlCellArray(inPolys->GetSize());
+      newPolys = new vtkCellArray(inPolys->GetSize());
       for ( inPolys->InitTraversal(); inPolys->GetNextCell(npts,pts); )
         {
         newPolys->InsertNextCell(npts,pts);
@@ -248,9 +248,9 @@ void vlLinearExtrusionFilter::Execute()
 
 
 
-void vlLinearExtrusionFilter::PrintSelf(ostream& os, vlIndent indent)
+void vtkLinearExtrusionFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlPolyToPolyFilter::PrintSelf(os,indent);
+  vtkPolyToPolyFilter::PrintSelf(os,indent);
 
   if ( this->ExtrusionType == VECTOR_EXTRUSION )
     {

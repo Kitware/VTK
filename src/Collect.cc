@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    Collect.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its
+This file is part of the Visualization Toolkit. No part of this file or its
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
@@ -20,7 +20,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 // Description:
 // Construct with empty list.
-vlCollection::vlCollection()
+vtkCollection::vtkCollection()
 {
   this->NumberOfItems = 0;
   this->Top = NULL;
@@ -28,18 +28,18 @@ vlCollection::vlCollection()
   this->Current = NULL;
 }
 
-vlCollection::~vlCollection()
+vtkCollection::~vtkCollection()
 {
   this->RemoveAllItems();
 }
 
 // Description:
 // Add an object to the list. Does not prevent duplicate entries.
-void vlCollection::AddItem(vlObject *a)
+void vtkCollection::AddItem(vtkObject *a)
 {
-  vlCollectionElement *elem;
+  vtkCollectionElement *elem;
 
-  elem = new vlCollectionElement;
+  elem = new vtkCollectionElement;
   
   if (!this->Top)
     {
@@ -60,10 +60,10 @@ void vlCollection::AddItem(vlObject *a)
 // Description:
 // Remove an object from the list. Removes the first object found, not
 // all occurences. If no object found, list is unaffected.
-void vlCollection::RemoveItem(vlObject *a)
+void vtkCollection::RemoveItem(vtkObject *a)
 {
   int i;
-  vlCollectionElement *elem,*prev;
+  vtkCollectionElement *elem,*prev;
   
   if (!this->Top) return;
 
@@ -100,9 +100,9 @@ void vlCollection::RemoveItem(vlObject *a)
 
 // Description:
 // Remove all object from the list.
-void vlCollection::RemoveAllItems()
+void vtkCollection::RemoveAllItems()
 {
-  vlCollectionElement *p, *next;
+  vtkCollectionElement *p, *next;
 
   for ( next=p=this->Top; next != NULL; p=next)
     {
@@ -117,10 +117,10 @@ void vlCollection::RemoveAllItems()
 // Description:
 // Search for an object and return location in list. If location == 0,
 // object was not found.
-int vlCollection::IsItemPresent(vlObject *a)
+int vtkCollection::IsItemPresent(vtkObject *a)
 {
   int i;
-  vlCollectionElement *elem;
+  vtkCollectionElement *elem;
   
   if (!this->Top) return 0;
 
@@ -143,15 +143,15 @@ int vlCollection::IsItemPresent(vlObject *a)
 
 // Description:
 // Return the number of objects in the list.
-int vlCollection::GetNumberOfItems()
+int vtkCollection::GetNumberOfItems()
 {
   return this->NumberOfItems;
 }
 
 
-void vlCollection::PrintSelf(ostream& os, vlIndent indent)
+void vtkCollection::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlObject::PrintSelf(os,indent);
+  vtkObject::PrintSelf(os,indent);
 
   os << indent << "Number Of Items: " << this->NumberOfItems << "\n";
 }

@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    Cutter.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
@@ -17,21 +17,21 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 // Description:
 // Construct with user-specified implicit function.
-vlCutter::vlCutter(vlImplicitFunction *cf)
+vtkCutter::vtkCutter(vtkImplicitFunction *cf)
 {
   this->CutFunction = cf;
 }
 
-vlCutter::~vlCutter()
+vtkCutter::~vtkCutter()
 {
 }
 
 // Description:
 // Overload standard modified time function. If cut functions is modified,
 // then we are modified as well.
-unsigned long vlCutter::GetMTime()
+unsigned long vtkCutter::GetMTime()
 {
-  unsigned long mTime=this->vlDataSetToPolyFilter::GetMTime();
+  unsigned long mTime=this->vtkDataSetToPolyFilter::GetMTime();
   unsigned long cutFuncMTime;
 
   if ( this->CutFunction != NULL )
@@ -46,18 +46,18 @@ unsigned long vlCutter::GetMTime()
 //
 // Cut through data generating surface.
 //
-void vlCutter::Execute()
+void vtkCutter::Execute()
 {
   int cellId, i;
-  vlFloatPoints *cellPts;
-  vlFloatScalars cellScalars(MAX_CELL_SIZE);
-  vlCell *cell;
-  vlFloatScalars *newScalars;
-  vlCellArray *newVerts, *newLines, *newPolys;
-  vlFloatPoints *newPoints;
+  vtkFloatPoints *cellPts;
+  vtkFloatScalars cellScalars(MAX_CELL_SIZE);
+  vtkCell *cell;
+  vtkFloatScalars *newScalars;
+  vtkCellArray *newVerts, *newLines, *newPolys;
+  vtkFloatPoints *newPoints;
   float value, *x, s;
 
-  vlDebugMacro(<< "Executing cutter");
+  vtkDebugMacro(<< "Executing cutter");
 //
 // Initialize self; create output objects
 //
@@ -65,17 +65,17 @@ void vlCutter::Execute()
 
   if ( !this->CutFunction )
     {
-    vlErrorMacro(<<"No cut function specified");
+    vtkErrorMacro(<<"No cut function specified");
     return;
     }
 //
 // Create objects to hold output of contour operation
 //
-  newPoints = new vlFloatPoints(1000,10000);
-  newVerts = new vlCellArray(1000,1000);
-  newLines = new vlCellArray(1000,10000);
-  newPolys = new vlCellArray(1000,10000);
-  newScalars = new vlFloatScalars(3000,30000);
+  newPoints = new vtkFloatPoints(1000,10000);
+  newVerts = new vtkCellArray(1000,1000);
+  newLines = new vtkCellArray(1000,10000);
+  newPolys = new vtkCellArray(1000,10000);
+  newScalars = new vtkFloatScalars(3000,30000);
 //
 // Loop over all cells creating scalar function determined by evaluating cell
 // points using cut function.
@@ -132,9 +132,9 @@ void vlCutter::Execute()
   this->Squeeze();
 }
 
-void vlCutter::PrintSelf(ostream& os, vlIndent indent)
+void vtkCutter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlDataSetToPolyFilter::PrintSelf(os,indent);
+  vtkDataSetToPolyFilter::PrintSelf(os,indent);
 
   os << indent << "Cut Function: " << this->CutFunction << "\n";
 }

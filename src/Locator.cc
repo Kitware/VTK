@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    Locator.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
@@ -14,14 +14,14 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
 #include "Locator.hh"
-#include "vlMath.hh"
+#include "vtkMath.hh"
 
 #include "IntArray.hh"
 
-class vlNeighborPoints
+class vtkNeighborPoints
 {
 public:
-  vlNeighborPoints(const int sz, const int ext=1000):P(3*sz,3*ext){};
+  vtkNeighborPoints(const int sz, const int ext=1000):P(3*sz,3*ext){};
   int GetNumberOfNeighbors() {return (P.GetMaxId()+1)/3;};
   void Reset() {this->P.Reset();};
 
@@ -29,12 +29,12 @@ public:
   int InsertNextPoint(int *x);
 
 protected:
-  vlIntArray P;
+  vtkIntArray P;
 };
 // some compiler can't initialize static file scope objects -ugh
-static vlNeighborPoints *Buckets; 
+static vtkNeighborPoints *Buckets; 
 
-inline int vlNeighborPoints::InsertNextPoint(int *x) 
+inline int vtkNeighborPoints::InsertNextPoint(int *x) 
 {
   int id = this->P.GetMaxId() + 3;
   this->P.InsertValue(id,x[2]);
@@ -47,9 +47,9 @@ inline int vlNeighborPoints::InsertNextPoint(int *x)
 // Description:
 // Construct with automatic computation of divisions, averaging
 // 25 points per bucket.
-vlLocator::vlLocator()
+vtkLocator::vtkLocator()
 {
-  static vlNeighborPoints BucketStorage(26,50);;
+  static vtkNeighborPoints BucketStorage(26,50);;
   Buckets = &BucketStorage;
 
   this->Points = NULL;
@@ -65,12 +65,12 @@ vlLocator::vlLocator()
 
 }
 
-vlLocator::~vlLocator()
+vtkLocator::~vtkLocator()
 {
   this->Initialize();
 }
 
-void vlLocator::Initialize()
+void vtkLocator::Initialize()
 {
   if (this->Points) this->Points->UnRegister(this);
   this->Points = NULL;
@@ -79,9 +79,9 @@ void vlLocator::Initialize()
   this->FreeSearchStructure();
 }
 
-void vlLocator::FreeSearchStructure()
+void vtkLocator::FreeSearchStructure()
 {
-  vlIdList *ptIds;
+  vtkIdList *ptIds;
   int i;
 
   if ( this->HashTable )
@@ -97,18 +97,18 @@ void vlLocator::FreeSearchStructure()
 
 // Description:
 // Given a position x, return the id of the point closest to it.
-int vlLocator::FindClosestPoint(float x[3])
+int vtkLocator::FindClosestPoint(float x[3])
 {
   int i, j;
   float minDist2, dist2;
   float *pt;
   int closest, level;
   int ptId, cno;
-  vlIdList *ptIds;
+  vtkIdList *ptIds;
   int ijk[3], *nei;
   int MULTIPLES;
   float diff;
-  vlMath math;
+  vtkMath math;
 
   this->SubDivide(); // will subdivide if modified; otherwise returns
 //
@@ -207,7 +207,7 @@ int vlLocator::FindClosestPoint(float x[3])
 // Description:
 // Merge points together based on tolerance specified. Return a list 
 // that maps unmerged point ids into new point ids.
-int *vlLocator::MergePoints()
+int *vtkLocator::MergePoints()
 {
   float *bounds, tol2;
   int ptId, i, j, k;
@@ -217,11 +217,11 @@ int *vlLocator::MergePoints()
   int maxDivs;
   float hmin, *pt, *p;
   int ijk[3], *nei;
-  int level, lvl, cno;
-  vlIdList *ptIds;
-  vlMath math;
+  int level, lvtk, cno;
+  vtkIdList *ptIds;
+  vtkMath math;
 
-  vlDebugMacro(<<"Merging points");
+  vtkDebugMacro(<<"Merging points");
 
   if ( this->Points == NULL || 
   (numPts=this->Points->GetNumberOfPoints()) < 1 ) return NULL;
@@ -260,9 +260,9 @@ int *vlLocator::MergePoints()
         ijk[j] = (int) ((float)((p[j] - this->Bounds[2*j])*0.999 / 
               (this->Bounds[2*j+1] - this->Bounds[2*j])) * this->Divisions[j]);
 
-      for (lvl=0; lvl <= level; lvl++) 
+      for (lvtk=0; lvtk <= level; lvtk++) 
         {
-        this->GetBucketNeighbors (ijk, this->Divisions, lvl);
+        this->GetBucketNeighbors (ijk, this->Divisions, lvtk);
 
         for ( k=0; k < Buckets->GetNumberOfNeighbors(); k++ ) 
           {
@@ -297,7 +297,7 @@ int *vlLocator::MergePoints()
 //  subject to the constraints of levels and NumberOfPointsInBucket.
 //  The result is directly addressable and of uniform subdivision.
 //
-void vlLocator::SubDivide()
+void vtkLocator::SubDivide()
 {
   float *bounds;
   int numBuckets;
@@ -305,19 +305,19 @@ void vlLocator::SubDivide()
   int ndivs[3], product;
   int i, j, ijk[3];
   int idx;
-  vlIdList *bucket;
+  vtkIdList *bucket;
   int numPts;
   int numPtsInBucket = this->NumberOfPointsInBucket;
   float *x;
-  typedef vlIdList *vlIdListPtr;
+  typedef vtkIdList *vtkIdListPtr;
 
   if ( this->HashTable != NULL && this->SubDivideTime > this->MTime ) return;
 
-  vlDebugMacro( << "Hashing points..." );
+  vtkDebugMacro( << "Hashing points..." );
 
   if ( !this->Points || (numPts = this->Points->GetNumberOfPoints()) < 1 )
     {
-    vlErrorMacro( << "No points to subdivide");
+    vtkErrorMacro( << "No points to subdivide");
     return;
     }
 //
@@ -355,8 +355,8 @@ void vlLocator::SubDivide()
     }
 
   this->NumberOfBuckets = numBuckets = ndivs[0]*ndivs[1]*ndivs[2];
-  this->HashTable = new vlIdListPtr[numBuckets];
-  memset (this->HashTable, (int)NULL, numBuckets*sizeof(vlIdListPtr));
+  this->HashTable = new vtkIdListPtr[numBuckets];
+  memset (this->HashTable, (int)NULL, numBuckets*sizeof(vtkIdListPtr));
 //
 //  Compute width of bucket in three directions
 //
@@ -379,7 +379,7 @@ void vlLocator::SubDivide()
     bucket = this->HashTable[idx];
     if ( ! bucket )
       {
-      bucket = new vlIdList(numPtsInBucket/2);
+      bucket = new vtkIdList(numPtsInBucket/2);
       this->HashTable[idx] = bucket;
       }
     bucket->InsertNextId(i);
@@ -392,7 +392,7 @@ void vlLocator::SubDivide()
 //
 //  Internal function to get bucket neighbors at specified level
 //
-void vlLocator::GetBucketNeighbors(int ijk[3], int ndivs[3], int level)
+void vtkLocator::GetBucketNeighbors(int ijk[3], int ndivs[3], int level)
 {
   int i, j, k, min, max, minLevel[3], maxLevel[3];
   int nei[3];
@@ -447,11 +447,11 @@ static float InsertionLevel;
 // Initialize the point insertion process. The newPts are an array of 
 // points that points will be inserted into, and bounds are the box
 // that the points lie in.
-int vlLocator::InitPointInsertion(vlPoints *newPts, float bounds[6])
+int vtkLocator::InitPointInsertion(vtkPoints *newPts, float bounds[6])
 {
   int i;
   int maxDivs;
-  typedef vlIdList *vlIdListPtr;
+  typedef vtkIdList *vtkIdListPtr;
   float hmin;
 
   this->InsertionPointId = 0;
@@ -470,8 +470,8 @@ int vlLocator::InitPointInsertion(vlPoints *newPts, float bounds[6])
   for (this->NumberOfBuckets=1, i=0; i<3; i++) 
     this->NumberOfBuckets *= this->Divisions[i];
 
-  this->HashTable = new vlIdListPtr[this->NumberOfBuckets];
-  memset (this->HashTable, (int)NULL, this->NumberOfBuckets*sizeof(vlIdListPtr));
+  this->HashTable = new vtkIdListPtr[this->NumberOfBuckets];
+  memset (this->HashTable, (int)NULL, this->NumberOfBuckets*sizeof(vtkIdListPtr));
 //
 //  Compute width of bucket in three directions
 //
@@ -499,11 +499,11 @@ int vlLocator::InitPointInsertion(vlPoints *newPts, float bounds[6])
 // point id is returned. Before using this method you must make sure that
 // newPts have been supplied, the bounds has been set properly, and that 
 // divs are properly set. (See InitPointInsertion()).
-int vlLocator::InsertPoint(float x[3])
+int vtkLocator::InsertPoint(float x[3])
 {
   int i, j, ijk[3];
   int idx;
-  vlIdList *bucket;
+  vtkIdList *bucket;
 //
 //  Locate bucket that point is in.
 //
@@ -518,7 +518,7 @@ int vlLocator::InsertPoint(float x[3])
   bucket = this->HashTable[idx];
   if ( ! bucket )
     {
-    bucket = new vlIdList(this->NumberOfPointsInBucket/2);
+    bucket = new vtkIdList(this->NumberOfPointsInBucket/2);
     this->HashTable[idx] = bucket;
     }
   else // see whether we've got duplicate point
@@ -529,14 +529,14 @@ int vlLocator::InsertPoint(float x[3])
 // and level of neighbors to search depends upon the tolerance and 
 // the bucket width.
 //
-    int *nei, lvl, cno, ptId;
-    vlIdList *ptIds;
-    vlMath math;
+    int *nei, lvtk, cno, ptId;
+    vtkIdList *ptIds;
+    vtkMath math;
     float *pt;
 
-    for (lvl=0; lvl <= InsertionLevel; lvl++)
+    for (lvtk=0; lvtk <= InsertionLevel; lvtk++)
       {
-      this->GetBucketNeighbors (ijk, this->Divisions, lvl);
+      this->GetBucketNeighbors (ijk, this->Divisions, lvtk);
 
       for ( i=0; i < Buckets->GetNumberOfNeighbors(); i++ ) 
         {

@@ -1,45 +1,45 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    Mapper.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its 
+This file is part of the Visualization Toolkit. No part of this file or its 
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-// .NAME vlMapper - abstract class specifies interface to map data to graphics primitives
+// .NAME vtkMapper - abstract class specifies interface to map data to graphics primitives
 // .SECTION Description
-// vlMapper is an abstract class to specify interface between data and 
-// graphics primitives. Subclasses of vlMapper map data through a 
+// vtkMapper is an abstract class to specify interface between data and 
+// graphics primitives. Subclasses of vtkMapper map data through a 
 // lookuptable and control the creation of rendering primitives that
 // interface to the graphics library. The mapping can be controlled by 
 // supplying a lookup table and specifying a scalar range to map data
 // through.
 
-#ifndef __vlMapper_hh
-#define __vlMapper_hh
+#ifndef __vtkMapper_hh
+#define __vtkMapper_hh
 
 #include "Object.hh"
 #include "GeomPrim.hh"
 #include "Lut.hh"
 #include "DataSet.hh"
 
-class vlRenderer;
+class vtkRenderer;
 
-class vlMapper : public vlObject 
+class vtkMapper : public vtkObject 
 {
 public:
-  vlMapper();
-  ~vlMapper();
-  char *GetClassName() {return "vlMapper";};
-  void PrintSelf(ostream& os, vlIndent indent);
-  void operator=(const vlMapper& m);
+  vtkMapper();
+  ~vtkMapper();
+  char *GetClassName() {return "vtkMapper";};
+  void PrintSelf(ostream& os, vtkIndent indent);
+  void operator=(const vtkMapper& m);
 
   unsigned long int GetMTime();
 
@@ -51,11 +51,11 @@ public:
   // Description:
   // Method initiates the mapping process. Generally sent by the actor 
   // as each frame is rendered.
-  virtual void Render(vlRenderer *) = 0;
+  virtual void Render(vtkRenderer *) = 0;
 
-  void SetLookupTable(vlLookupTable *lut);
-  void SetLookupTable(vlLookupTable& lut) {this->SetLookupTable(&lut);};
-  vlLookupTable *GetLookupTable();
+  void SetLookupTable(vtkLookupTable *lut);
+  void SetLookupTable(vtkLookupTable& lut) {this->SetLookupTable(&lut);};
+  vtkLookupTable *GetLookupTable();
 
   // Description:
   // Create default lookup table. Generally used to create one when none
@@ -64,15 +64,15 @@ public:
 
   // Description:
   // Turn on/off flag to control whether scalar data is used to color objects.
-  vlSetMacro(ScalarsVisible,int);
-  vlGetMacro(ScalarsVisible,int);
-  vlBooleanMacro(ScalarsVisible,int);
+  vtkSetMacro(ScalarsVisible,int);
+  vtkGetMacro(ScalarsVisible,int);
+  vtkBooleanMacro(ScalarsVisible,int);
 
   // Description:
   // Specify range in terms of (smin,smax) through which to map scalars
   // into lookup table.
-  vlSetVector2Macro(ScalarRange,float);
-  vlGetVectorMacro(ScalarRange,float,2);
+  vtkSetVector2Macro(ScalarRange,float);
+  vtkGetVectorMacro(ScalarRange,float,2);
 
   // Description:
   // Return bounding box of data in terms of (xmin,xmax, ymin,ymax, zmin,zmax).
@@ -81,10 +81,10 @@ public:
   virtual float *GetBounds() = 0;
 
   float *GetCenter();
-  virtual vlDataSet *GetInput() {return this->Input;};
+  virtual vtkDataSet *GetInput() {return this->Input;};
 
 protected:
-  vlDataSet *Input;
+  vtkDataSet *Input;
 
   void (*StartRender)(void *);
   void (*StartRenderArgDelete)(void *);
@@ -92,9 +92,9 @@ protected:
   void (*EndRender)(void *);
   void (*EndRenderArgDelete)(void *);
   void *EndRenderArg;
-  vlLookupTable *LookupTable;
+  vtkLookupTable *LookupTable;
   int ScalarsVisible;
-  vlTimeStamp BuildTime;
+  vtkTimeStamp BuildTime;
   float ScalarRange[2];
   int SelfCreatedLookupTable;
 

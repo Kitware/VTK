@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    Pl3dRead.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
@@ -27,7 +27,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #define CV (this->R / (this->Gamma-1.0))
 #define VINF (this->Fsmach*CINF)
 
-vlPLOT3DReader::vlPLOT3DReader()
+vtkPLOT3DReader::vtkPLOT3DReader()
 {
   this->FileFormat = WHOLE_SINGLE_GRID_NO_IBLANKING;
 
@@ -58,14 +58,14 @@ vlPLOT3DReader::vlPLOT3DReader()
 
 } 
 
-vlPLOT3DReader::~vlPLOT3DReader()
+vtkPLOT3DReader::~vtkPLOT3DReader()
 {
   if ( this->XYZFilename ) delete [] this->XYZFilename;
   if ( this->QFilename ) delete [] this->QFilename;
   if ( this->FunctionFilename ) delete [] this->FunctionFilename;
 }
 
-void vlPLOT3DReader::Execute()
+void vtkPLOT3DReader::Execute()
 {
   FILE *xyzFp, *QFp, *funcFp;
   int error;
@@ -76,12 +76,12 @@ void vlPLOT3DReader::Execute()
 
   if ( this->XYZFilename == NULL )
     {
-    vlErrorMacro(<< "Must specify geometry file");
+    vtkErrorMacro(<< "Must specify geometry file");
     return;
     }
   if ( (xyzFp = fopen(this->XYZFilename, "r")) == NULL)
     {
-    vlErrorMacro(<< "File: " << this->XYZFilename << " not found");
+    vtkErrorMacro(<< "File: " << this->XYZFilename << " not found");
     return;
     }
   if ( this->GetFileType(xyzFp) == ASCII )
@@ -91,7 +91,7 @@ void vlPLOT3DReader::Execute()
 
   if ( error )
     {
-    vlErrorMacro(<<"Error reading XYZ file");
+    vtkErrorMacro(<<"Error reading XYZ file");
     return;
     }
 //
@@ -102,7 +102,7 @@ void vlPLOT3DReader::Execute()
     {
     if ( (QFp = fopen(this->QFilename, "r")) == NULL)
       {
-      vlErrorMacro(<< "File: " << this->QFilename << " not found");
+      vtkErrorMacro(<< "File: " << this->QFilename << " not found");
       return;
       }
 
@@ -113,7 +113,7 @@ void vlPLOT3DReader::Execute()
 
     if ( error )
       {
-      vlErrorMacro(<<"Error reading solution file");
+      vtkErrorMacro(<<"Error reading solution file");
       return;
       }
     this->MapFunction(this->ScalarFunctionNumber);
@@ -126,7 +126,7 @@ void vlPLOT3DReader::Execute()
     {
     if ( (funcFp = fopen(this->FunctionFilename, "r")) == NULL)
       {
-      vlErrorMacro(<< "File: " << this->FunctionFilename << " not found");
+      vtkErrorMacro(<< "File: " << this->FunctionFilename << " not found");
       return;
       }
 
@@ -137,7 +137,7 @@ void vlPLOT3DReader::Execute()
 
     if ( error )
       {
-      vlErrorMacro(<<"Error reading function file");
+      vtkErrorMacro(<<"Error reading function file");
       return;
       }
     }
@@ -171,24 +171,24 @@ void vlPLOT3DReader::Execute()
     }
 }
 
-int vlPLOT3DReader::ReadASCIIGrid(FILE *fp)
+int vtkPLOT3DReader::ReadASCIIGrid(FILE *fp)
 {
   return 1;
 }
 
-int vlPLOT3DReader::ReadASCIISolution(FILE *fp)
+int vtkPLOT3DReader::ReadASCIISolution(FILE *fp)
 {
   return 1;
 }
 
-int vlPLOT3DReader::ReadASCIIFunctionFile(FILE *fp)
+int vtkPLOT3DReader::ReadASCIIFunctionFile(FILE *fp)
 {
   return 1;
 }
 
-int vlPLOT3DReader::ReadBinaryGrid(FILE *fp)
+int vtkPLOT3DReader::ReadBinaryGrid(FILE *fp)
 {
-  vlFloatPoints *newPts;
+  vtkFloatPoints *newPts;
   int dim[3];
   int i, gridFound, offset, gridSize, maxGridSize;
   float x[3];
@@ -222,13 +222,13 @@ int vlPLOT3DReader::ReadBinaryGrid(FILE *fp)
 
   if ( ! gridFound )
     {
-    vlErrorMacro (<<"Specified grid not found!");
+    vtkErrorMacro (<<"Specified grid not found!");
     return 1;
     }
     
   //allocate temporary storage to read into + points
   this->TempStorage = new float[3*this->NumPts];
-  newPts = new vlFloatPoints(this->NumPts);
+  newPts = new vtkFloatPoints(this->NumPts);
 
   //seek to correct spot and read grid
   fseek (fp, offset*sizeof(float), 1);
@@ -256,14 +256,14 @@ int vlPLOT3DReader::ReadBinaryGrid(FILE *fp)
   this->Grid->Register(this);
   this->SetPoints(newPts);
 
-  vlDebugMacro(<<"Read " << this->NumPts << " points");
+  vtkDebugMacro(<<"Read " << this->NumPts << " points");
   return 0;
 }
 
-int vlPLOT3DReader::ReadBinarySolution(FILE *fp)
+int vtkPLOT3DReader::ReadBinarySolution(FILE *fp)
 {
-  vlFloatScalars *newDensity, *newEnergy;
-  vlFloatVectors *newMomentum;
+  vtkFloatScalars *newDensity, *newEnergy;
+  vtkFloatVectors *newMomentum;
   int dim[3];
   int i, gridFound, offset, gridSize, maxGridSize;
   float *temp, m[3], params[4];
@@ -280,7 +280,7 @@ int vlPLOT3DReader::ReadBinarySolution(FILE *fp)
 
   if ( numGrids != this->NumGrids )
     {
-    vlErrorMacro(<<"Data mismatch in solution file!");
+    vtkErrorMacro(<<"Data mismatch in solution file!");
     return 1;
     }
 //
@@ -304,13 +304,13 @@ int vlPLOT3DReader::ReadBinarySolution(FILE *fp)
 
   if ( ! gridFound )
     {
-    vlErrorMacro (<<"Specified grid not found!");
+    vtkErrorMacro (<<"Specified grid not found!");
     return 1;
     }
     
   if ( numPts != this->NumPts )
     {
-    vlErrorMacro (<<"Data mismatch in solution file!");
+    vtkErrorMacro (<<"Data mismatch in solution file!");
     delete [] this->TempStorage;
     return 1;
     }
@@ -326,9 +326,9 @@ int vlPLOT3DReader::ReadBinarySolution(FILE *fp)
   this->Time = params[3];
 
   //allocate temporary storage to copy density data into
-  newDensity = new vlFloatScalars(numPts);
-  newEnergy = new vlFloatScalars(numPts);
-  newMomentum = new vlFloatVectors(numPts);
+  newDensity = new vtkFloatScalars(numPts);
+  newEnergy = new vtkFloatScalars(numPts);
+  newMomentum = new vtkFloatVectors(numPts);
 
   if ( fread (this->TempStorage, sizeof(float), numPts, fp) < numPts ) 
     {
@@ -391,7 +391,7 @@ int vlPLOT3DReader::ReadBinarySolution(FILE *fp)
   return 0;
 }
 
-int vlPLOT3DReader::ReadBinaryFunctionFile(FILE *fp)
+int vtkPLOT3DReader::ReadBinaryFunctionFile(FILE *fp)
 {
   return 1;
 }
@@ -400,7 +400,7 @@ int vlPLOT3DReader::ReadBinaryFunctionFile(FILE *fp)
 // Various PLOT3D functions.....................
 //
 
-void vlPLOT3DReader::MapFunction(int fNumber)
+void vtkPLOT3DReader::MapFunction(int fNumber)
 {
   switch (fNumber)
     {
@@ -464,32 +464,32 @@ void vlPLOT3DReader::MapFunction(int fNumber)
       break;
 
     default:
-      vlErrorMacro(<<"No function number " << fNumber);
+      vtkErrorMacro(<<"No function number " << fNumber);
     }
 }
 
-void vlPLOT3DReader::ComputeDensity()
+void vtkPLOT3DReader::ComputeDensity()
 {
   this->PointData.SetScalars(this->Density);
-  vlDebugMacro(<<"Created density scalar");
+  vtkDebugMacro(<<"Created density scalar");
 }
 
-void vlPLOT3DReader::ComputeTemperature()
+void vtkPLOT3DReader::ComputeTemperature()
 {
   float *m, e, rr, u, v, w, v2, p, d, rrgas;
   int i;
-  vlFloatScalars *temperature;
+  vtkFloatScalars *temperature;
 //
 //  Check that the required data is available
 //
   if ( this->Density == NULL || this->Momentum == NULL || 
   this->Energy == NULL )
     {
-    vlErrorMacro(<<"Cannot compute temperature");
+    vtkErrorMacro(<<"Cannot compute temperature");
     return;
     }
 
-  temperature = new vlFloatScalars(this->NumPts);
+  temperature = new vtkFloatScalars(this->NumPts);
 //
 //  Compute the temperature
 //
@@ -509,25 +509,25 @@ void vlPLOT3DReader::ComputeTemperature()
     temperature->SetScalar(i, p*rr*rrgas);
   }
   this->PointData.SetScalars(temperature);
-  vlDebugMacro(<<"Created temperature scalar");
+  vtkDebugMacro(<<"Created temperature scalar");
 }
 
-void vlPLOT3DReader::ComputePressure()
+void vtkPLOT3DReader::ComputePressure()
 {
   float *m, e, u, v, w, v2, p, d, t, rr;
   int i;
-  vlFloatScalars *pressure;
+  vtkFloatScalars *pressure;
 //
 //  Check that the required data is available
 //
   if ( this->Density == NULL || this->Momentum == NULL || 
   this->Energy == NULL )
     {
-    vlErrorMacro(<<"Cannot compute pressure");
+    vtkErrorMacro(<<"Cannot compute pressure");
     return;
     }
 
-  pressure = new vlFloatScalars(this->NumPts);
+  pressure = new vtkFloatScalars(this->NumPts);
 //
 //  Compute the pressure
 //
@@ -546,25 +546,25 @@ void vlPLOT3DReader::ComputePressure()
     pressure->SetScalar(i, p);
   }
   this->PointData.SetScalars(pressure);
-  vlDebugMacro(<<"Created pressure scalar");
+  vtkDebugMacro(<<"Created pressure scalar");
 }
 
-void vlPLOT3DReader::ComputeEnthalpy()
+void vtkPLOT3DReader::ComputeEnthalpy()
 {
   float *m, e, u, v, w, v2, d, rr;
   int i;
-  vlFloatScalars *enthalpy;
+  vtkFloatScalars *enthalpy;
 //
 //  Check that the required data is available
 //
   if ( this->Density == NULL || this->Momentum == NULL || 
   this->Energy == NULL )
     {
-    vlErrorMacro(<<"Cannot compute enthalpy");
+    vtkErrorMacro(<<"Cannot compute enthalpy");
     return;
     }
 
-  enthalpy = new vlFloatScalars(this->NumPts);
+  enthalpy = new vtkFloatScalars(this->NumPts);
 //
 //  Compute the enthalpy
 //
@@ -582,30 +582,30 @@ void vlPLOT3DReader::ComputeEnthalpy()
     enthalpy->SetScalar(i, this->Gamma*(e*rr - 0.5*v2));
   }
   this->PointData.SetScalars(enthalpy);
-  vlDebugMacro(<<"Created enthalpy scalar");
+  vtkDebugMacro(<<"Created enthalpy scalar");
 }
 
-void vlPLOT3DReader::ComputeInternalEnergy()
+void vtkPLOT3DReader::ComputeInternalEnergy()
 {
   this->PointData.SetScalars(this->Energy);
-  vlDebugMacro(<<"Created energy scalar");
+  vtkDebugMacro(<<"Created energy scalar");
 }
 
-void vlPLOT3DReader::ComputeKineticEnergy()
+void vtkPLOT3DReader::ComputeKineticEnergy()
 {
   float *m, u, v, w, v2, d, rr;
   int i;
-  vlFloatScalars *kineticEnergy;
+  vtkFloatScalars *kineticEnergy;
 //
 //  Check that the required data is available
 //
   if ( this->Density == NULL || this->Momentum == NULL )
     {
-    vlErrorMacro(<<"Cannot compute kinetic energy");
+    vtkErrorMacro(<<"Cannot compute kinetic energy");
     return;
     }
 
-  kineticEnergy = new vlFloatScalars(this->NumPts);
+  kineticEnergy = new vtkFloatScalars(this->NumPts);
 //
 //  Compute the kinetic energy
 //
@@ -622,25 +622,25 @@ void vlPLOT3DReader::ComputeKineticEnergy()
     kineticEnergy->SetScalar(i, 0.5*v2);
   }
   this->PointData.SetScalars(kineticEnergy);
-  vlDebugMacro(<<"Created kinetic energy scalar");
+  vtkDebugMacro(<<"Created kinetic energy scalar");
 }
 
-void vlPLOT3DReader::ComputeVelocityMagnitude()
+void vtkPLOT3DReader::ComputeVelocityMagnitude()
 {
   float *m, u, v, w, v2, d, rr, e;
   int i;
-  vlFloatScalars *velocityMag;
+  vtkFloatScalars *velocityMag;
 //
 //  Check that the required data is available
 //
   if ( this->Density == NULL || this->Momentum == NULL ||
   this->Energy == NULL )
     {
-    vlErrorMacro(<<"Cannot compute velocity magnitude");
+    vtkErrorMacro(<<"Cannot compute velocity magnitude");
     return;
     }
 
-  velocityMag = new vlFloatScalars(this->NumPts);
+  velocityMag = new vtkFloatScalars(this->NumPts);
 //
 //  Compute the velocity magnitude
 //
@@ -658,31 +658,31 @@ void vlPLOT3DReader::ComputeVelocityMagnitude()
     velocityMag->SetScalar(i, sqrt((double)v2));
   }
   this->PointData.SetScalars(velocityMag);
-  vlDebugMacro(<<"Created velocity magnitude scalar");
+  vtkDebugMacro(<<"Created velocity magnitude scalar");
 }
 
-void vlPLOT3DReader::ComputeStagnationEnergy()
+void vtkPLOT3DReader::ComputeStagnationEnergy()
 {
   this->PointData.SetScalars(this->Energy);
-  vlDebugMacro(<<"Created stagnation energy scalar");
+  vtkDebugMacro(<<"Created stagnation energy scalar");
 }
 
-void vlPLOT3DReader::ComputeEntropy()
+void vtkPLOT3DReader::ComputeEntropy()
 {
   float *m, u, v, w, v2, d, rr, s, p, e;
   int i;
-  vlFloatScalars *entropy;
+  vtkFloatScalars *entropy;
 //
 //  Check that the required data is available
 //
   if ( this->Density == NULL || this->Momentum == NULL ||
   this->Energy == NULL )
     {
-    vlErrorMacro(<<"Cannot compute entropy");
+    vtkErrorMacro(<<"Cannot compute entropy");
     return;
     }
 
-  entropy = new vlFloatScalars(this->NumPts);
+  entropy = new vtkFloatScalars(this->NumPts);
 //
 //  Compute the entropy
 //
@@ -702,27 +702,27 @@ void vlPLOT3DReader::ComputeEntropy()
     entropy->SetScalar(i, s);
   }
   this->PointData.SetScalars(entropy);
-  vlDebugMacro(<<"Created entropy scalar");
+  vtkDebugMacro(<<"Created entropy scalar");
 }
 
-void vlPLOT3DReader::ComputeSwirl()
+void vtkPLOT3DReader::ComputeSwirl()
 {
-  vlVectors *currentVector;
-  vlVectors *vorticity;
+  vtkVectors *currentVector;
+  vtkVectors *vorticity;
   float d, rr, *m, u, v, w, v2, *vort, s;
   int i;
-  vlFloatScalars *swirl;
+  vtkFloatScalars *swirl;
 //
 //  Check that the required data is available
 //
   if ( this->Density == NULL || this->Momentum == NULL ||
   this->Energy == NULL )
     {
-    vlErrorMacro(<<"Cannot compute swirl");
+    vtkErrorMacro(<<"Cannot compute swirl");
     return;
     }
 
-  swirl = new vlFloatScalars(this->NumPts);
+  swirl = new vtkFloatScalars(this->NumPts);
 
   currentVector = this->PointData.GetVectors();
   currentVector->Register(this);
@@ -751,7 +751,7 @@ void vlPLOT3DReader::ComputeSwirl()
     swirl->SetScalar(i,s);
   }
   this->PointData.SetScalars(swirl);
-  vlDebugMacro(<<"Created swirl scalar");
+  vtkDebugMacro(<<"Created swirl scalar");
 
   // reset current vector
   this->PointData.SetVectors(currentVector);
@@ -759,22 +759,22 @@ void vlPLOT3DReader::ComputeSwirl()
 }
 
 // Vector functions
-void vlPLOT3DReader::ComputeVelocity()
+void vtkPLOT3DReader::ComputeVelocity()
 {
   float *m, v[3], d, rr;
   int i;
-  vlFloatVectors *velocity;
+  vtkFloatVectors *velocity;
 //
 //  Check that the required data is available
 //
   if ( this->Density == NULL || this->Momentum == NULL ||
   this->Energy == NULL )
     {
-    vlErrorMacro(<<"Cannot compute velocity");
+    vtkErrorMacro(<<"Cannot compute velocity");
     return;
     }
 
-  velocity = new vlFloatVectors(this->NumPts);
+  velocity = new vtkFloatVectors(this->NumPts);
 //
 //  Compute the velocity
 //
@@ -790,15 +790,15 @@ void vlPLOT3DReader::ComputeVelocity()
     velocity->SetVector(i, v);
   }
   this->PointData.SetVectors(velocity);
-  vlDebugMacro(<<"Created velocity vector");
+  vtkDebugMacro(<<"Created velocity vector");
 }
 
-void vlPLOT3DReader::ComputeVorticity()
+void vtkPLOT3DReader::ComputeVorticity()
 {
-  vlVectors *velocity;
-  vlFloatVectors *vorticity;
+  vtkVectors *velocity;
+  vtkFloatVectors *vorticity;
   int dims[3], ijsize;
-  vlPoints *points;
+  vtkPoints *points;
   int i, j, k, idx, idx2;
   float vort[3], xp[3], xm[3], vp[3], vm[3], factor;
   float xxi, yxi, zxi, uxi, vxi, wxi;
@@ -811,11 +811,11 @@ void vlPLOT3DReader::ComputeVorticity()
   if ( (points=this->GetPoints()) == NULL || this->Density == NULL || 
   this->Momentum == NULL || this->Energy == NULL )
     {
-    vlErrorMacro(<<"Cannot compute vorticity");
+    vtkErrorMacro(<<"Cannot compute vorticity");
     return;
     }
 
-  vorticity = new vlFloatVectors(this->NumPts);
+  vorticity = new vtkFloatVectors(this->NumPts);
 
   this->ComputeVelocity();
   velocity = this->PointData.GetVectors();
@@ -1008,22 +1008,22 @@ void vlPLOT3DReader::ComputeVorticity()
     }
 
   this->PointData.SetVectors(vorticity);
-  vlDebugMacro(<<"Created vorticity vector");
+  vtkDebugMacro(<<"Created vorticity vector");
 }
 
-void vlPLOT3DReader::ComputeMomentum()
+void vtkPLOT3DReader::ComputeMomentum()
 {
   this->PointData.SetVectors(this->Momentum);
-  vlDebugMacro(<<"Created momentum vector");
+  vtkDebugMacro(<<"Created momentum vector");
 }
 
-void vlPLOT3DReader::ComputePressureGradient()
+void vtkPLOT3DReader::ComputePressureGradient()
 {
-  vlScalars *currentScalar;
-  vlScalars *pressure;
-  vlFloatVectors *gradient;
+  vtkScalars *currentScalar;
+  vtkScalars *pressure;
+  vtkFloatVectors *gradient;
   int dims[3], ijsize;
-  vlPoints *points;
+  vtkPoints *points;
   int i, j, k, idx, idx2;
   float g[3], xp[3], xm[3], pp, pm, factor;
   float xxi, yxi, zxi, pxi;
@@ -1036,11 +1036,11 @@ void vlPLOT3DReader::ComputePressureGradient()
   if ( (points=this->GetPoints()) == NULL || this->Density == NULL || 
   this->Momentum == NULL || this->Energy == NULL )
     {
-    vlErrorMacro(<<"Cannot compute pressure gradient");
+    vtkErrorMacro(<<"Cannot compute pressure gradient");
     return;
     }
 
-  gradient = new vlFloatVectors(this->NumPts);
+  gradient = new vtkFloatVectors(this->NumPts);
 
   currentScalar = this->PointData.GetScalars();
   currentScalar->Register(this);
@@ -1231,14 +1231,14 @@ void vlPLOT3DReader::ComputePressureGradient()
     }
 
   this->PointData.SetVectors(gradient);
-  vlDebugMacro(<<"Created pressure gradient vector");
+  vtkDebugMacro(<<"Created pressure gradient vector");
 
   // reset current scalar
   this->PointData.SetScalars(currentScalar);
   currentScalar->UnRegister(this);
 }
 
-int vlPLOT3DReader::GetFileType(FILE *fp)
+int vtkPLOT3DReader::GetFileType(FILE *fp)
 {
   char fourBytes[4];
   int type, i;
@@ -1256,9 +1256,9 @@ int vlPLOT3DReader::GetFileType(FILE *fp)
   return type;
 }
 
-void vlPLOT3DReader::PrintSelf(ostream& os, vlIndent indent)
+void vtkPLOT3DReader::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlStructuredGridSource::PrintSelf(os,indent);
+  vtkStructuredGridSource::PrintSelf(os,indent);
 
   os << indent << "XYZ Filename: " << this->XYZFilename << "\n";
   os << indent << "Q Filename: " << this->QFilename << "\n";

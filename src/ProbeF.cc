@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    ProbeF.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
@@ -15,22 +15,22 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 =========================================================================*/
 #include "ProbeF.hh"
 
-vlProbeFilter::vlProbeFilter()
+vtkProbeFilter::vtkProbeFilter()
 {
   this->Source = NULL;
 }
 
-void vlProbeFilter::Execute()
+void vtkProbeFilter::Execute()
 {
   int cellId, ptId;
   float *x, tol2;
-  vlCell *cell;
-  vlPointData *pd;
+  vtkCell *cell;
+  vtkPointData *pd;
   int numPts, subId;
   float pcoords[3], weights[MAX_CELL_SIZE];
-  vlDataSet *input=this->Input, *source=this->Source;
+  vtkDataSet *input=this->Input, *source=this->Source;
 
-  vlDebugMacro(<<"Probing data");
+  vtkDebugMacro(<<"Probing data");
   this->Initialize();
 
   pd = input->GetPointData();
@@ -65,7 +65,7 @@ void vlProbeFilter::Execute()
   this->Modified(); //make sure something's changed
 }
 
-void vlProbeFilter::Initialize()
+void vtkProbeFilter::Initialize()
 {
   if ( this->Source )
     {
@@ -78,12 +78,12 @@ void vlProbeFilter::Initialize()
 // Description:
 // Override update method because execution can branch two ways (Input 
 // and Source)
-void vlProbeFilter::Update()
+void vtkProbeFilter::Update()
 {
   // make sure input is available
   if ( this->Input == NULL || this->Source == NULL )
     {
-    vlErrorMacro(<< "No input!");
+    vtkErrorMacro(<< "No input!");
     return;
     }
 
@@ -110,9 +110,9 @@ void vlProbeFilter::Update()
   if ( this->Source->ShouldIReleaseData() ) this->Source->ReleaseData();
 }
 
-void vlProbeFilter::PrintSelf(ostream& os, vlIndent indent)
+void vtkProbeFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlDataSetToDataSetFilter::PrintSelf(os,indent);
+  vtkDataSetToDataSetFilter::PrintSelf(os,indent);
 
   os << indent << "Source: " << this->Source << "\n";
 }

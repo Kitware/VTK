@@ -1,54 +1,54 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    Scalars.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its 
+This file is part of the Visualization Toolkit. No part of this file or its 
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-// .NAME vlScalars - abstract interface to array of scalar data
+// .NAME vtkScalars - abstract interface to array of scalar data
 // .SECTION Description
-// vlScalars provides an abstract interface to an array of scalar data. 
-// The data model for vlScalars is an array accessible by point id.
-// The subclasses of vlScalars are concrete data types (float, int, etc.) 
-// that implement the interface of vlScalars.
+// vtkScalars provides an abstract interface to an array of scalar data. 
+// The data model for vtkScalars is an array accessible by point id.
+// The subclasses of vtkScalars are concrete data types (float, int, etc.) 
+// that implement the interface of vtkScalars.
 //    Scalars typically provide a single value per point. However, there are
-// types of scalars that have multiple values per point (e.g., vlPixmap or
-// vlAPixmap that provide three and four values per point, respectively).
+// types of scalars that have multiple values per point (e.g., vtkPixmap or
+// vtkAPixmap that provide three and four values per point, respectively).
 // These are used when reading data in rgb and rgba form (e.g., images 
 // and volumes).
 //    Because of the close relationship between scalars and colors, scalars 
 // also maintain in internal lookup table. If provided, this table is used 
-// to map scalars into colors, rather than the lookup table that the vlMapper
+// to map scalars into colors, rather than the lookup table that the vtkMapper
 // objects are associated with.
 
-#ifndef __vlScalars_h
-#define __vlScalars_h
+#ifndef __vtkScalars_h
+#define __vtkScalars_h
 
 #include "RefCount.hh"
 
-class vlIdList;
-class vlFloatScalars;
-class vlLookupTable;
+class vtkIdList;
+class vtkFloatScalars;
+class vtkLookupTable;
 
-class vlScalars : public vlRefCount 
+class vtkScalars : public vtkRefCount 
 {
 public:
-  vlScalars();
-  virtual ~vlScalars();
-  char *GetClassName() {return "vlScalars";};
-  void PrintSelf(ostream& os, vlIndent indent);
+  vtkScalars();
+  virtual ~vtkScalars();
+  char *GetClassName() {return "vtkScalars";};
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Create a copy of this object.
-  virtual vlScalars *MakeObject(int sze, int ext=1000) = 0;
+  virtual vtkScalars *MakeObject(int sze, int ext=1000) = 0;
 
   // Description:
   // Return data type. One of "bit", "char", "short", "int", "float", or
@@ -92,7 +92,7 @@ public:
 
   // Description:
   // Get the scalar values for the point ids specified.
-  virtual void GetScalars(vlIdList& ptIds, vlFloatScalars& fs);
+  virtual void GetScalars(vtkIdList& ptIds, vtkFloatScalars& fs);
 
   virtual void ComputeRange();
   float *GetRange();
@@ -103,13 +103,13 @@ public:
   // is available.
   virtual void CreateDefaultLookupTable();
 
-  void SetLookupTable(vlLookupTable *lut);
-  vlGetObjectMacro(LookupTable,vlLookupTable);
+  void SetLookupTable(vtkLookupTable *lut);
+  vtkGetObjectMacro(LookupTable,vtkLookupTable);
 
 protected:
   float Range[8];
-  vlTimeStamp ComputeTime; // Time at which range computed
-  vlLookupTable *LookupTable;
+  vtkTimeStamp ComputeTime; // Time at which range computed
+  vtkLookupTable *LookupTable;
 };
 
 // These include files are placed here so that if Scalars.hh is included 

@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    DSMapper.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its 
+This file is part of the Visualization Toolkit. No part of this file or its 
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
@@ -16,20 +16,20 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "DSMapper.hh"
 #include "PolyMap.hh"
 
-vlDataSetMapper::vlDataSetMapper()
+vtkDataSetMapper::vtkDataSetMapper()
 {
   this->GeometryExtractor = NULL;
   this->PolyMapper = NULL;
 }
 
-vlDataSetMapper::~vlDataSetMapper()
+vtkDataSetMapper::~vtkDataSetMapper()
 {
   // delete internally created objects.
   if ( this->GeometryExtractor ) delete this->GeometryExtractor;
   if ( this->PolyMapper ) delete this->PolyMapper;
 }
 
-void vlDataSetMapper::SetInput(vlDataSet *in)
+void vtkDataSetMapper::SetInput(vtkDataSet *in)
 {
   if (in != this->Input )
     {
@@ -41,7 +41,7 @@ void vlDataSetMapper::SetInput(vlDataSet *in)
 //
 // Return bounding box of data
 //
-float *vlDataSetMapper::GetBounds()
+float *vtkDataSetMapper::GetBounds()
 {
   static float bounds[] = {-1.0,1.0, -1.0,1.0, -1.0,1.0};
 
@@ -56,14 +56,14 @@ float *vlDataSetMapper::GetBounds()
 //
 // Receives from Actor -> maps data to primitives
 //
-void vlDataSetMapper::Render(vlRenderer *ren)
+void vtkDataSetMapper::Render(vtkRenderer *ren)
 {
 //
 // make sure that we've been properly initialized
 //
   if ( !this->Input )
     {
-    vlErrorMacro(<< "No input!\n");
+    vtkErrorMacro(<< "No input!\n");
     return;
     }
 //
@@ -76,8 +76,8 @@ void vlDataSetMapper::Render(vlRenderer *ren)
 //
   if ( this->PolyMapper == NULL ) 
     {
-    vlGeometryFilter *gf = new vlGeometryFilter();
-    vlPolyMapper *pm = new vlPolyMapper;
+    vtkGeometryFilter *gf = new vtkGeometryFilter();
+    vtkPolyMapper *pm = new vtkPolyMapper;
     pm->SetInput(gf);
 
     this->GeometryExtractor = gf;
@@ -93,9 +93,9 @@ void vlDataSetMapper::Render(vlRenderer *ren)
   this->PolyMapper->Render(ren);
 }
 
-void vlDataSetMapper::PrintSelf(ostream& os, vlIndent indent)
+void vtkDataSetMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlMapper::PrintSelf(os,indent);
+  vtkMapper::PrintSelf(os,indent);
 
   if ( this->PolyMapper )
     {

@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    XglrRen.cc
   Language:  C++
   Date:      04/20/95
   Version:   1.2
 
-This file is part of the Visualization Library. No part of this file or its
+This file is part of the Visualization Toolkit. No part of this file or its
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
@@ -27,17 +27,17 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "VolRen.hh"
 
 
-vlXglrRenderer::vlXglrRenderer()
+vtkXglrRenderer::vtkXglrRenderer()
 {
 }
 
 // Description:
 // Ask actors to build and draw themselves.
-int vlXglrRenderer::UpdateActors()
+int vtkXglrRenderer::UpdateActors()
 {
-  vlActor *anActor;
+  vtkActor *anActor;
   float visibility;
-  vlMatrix4x4 matrix;
+  vtkMatrix4x4 matrix;
   int count = 0;
   Xgl_trans model_trans;
 
@@ -61,7 +61,7 @@ int vlXglrRenderer::UpdateActors()
 		     XGL_CTX_GLOBAL_MODEL_TRANS, &model_trans);
       xgl_transform_write(model_trans,(float (*)[4])(matrix[0]));
 
-      anActor->Render((vlRenderer *)this);
+      anActor->Render((vtkRenderer *)this);
       }
     }
   return count;
@@ -69,20 +69,20 @@ int vlXglrRenderer::UpdateActors()
 
 // Description:
 // Ask active camera to load its view matrix.
-int vlXglrRenderer::UpdateCameras ()
+int vtkXglrRenderer::UpdateCameras ()
 {
   // update the viewing transformation 
   if (!this->ActiveCamera) return 0;
   
-  this->ActiveCamera->Render((vlRenderer *)this);
+  this->ActiveCamera->Render((vtkRenderer *)this);
   return 1;
 }
 
 // Description:
 // Ask lights to load themselves into graphics pipeline.
-int vlXglrRenderer::UpdateLights ()
+int vtkXglrRenderer::UpdateLights ()
 {
-  vlLight *light;
+  vtkLight *light;
   short cur_light, idx;
   float status;
   int count = 0;
@@ -119,7 +119,7 @@ int vlXglrRenderer::UpdateLights ()
     // also make sure we still have room.             
     if ((status > 0.0)&& (cur_light < MAX_LIGHTS))
       {
-      light->Render((vlRenderer *)this,cur_light);
+      light->Render((vtkRenderer *)this,cur_light);
       xglr_switches[cur_light] = TRUE;
       // increment the current light by one 
       cur_light++;
@@ -148,9 +148,9 @@ int vlXglrRenderer::UpdateLights ()
  
 // Description:
 // Concrete starbase render method.
-void vlXglrRenderer::Render(void)
+void vtkXglrRenderer::Render(void)
 {
-  vlXglrRenderWindow *temp;
+  vtkXglrRenderWindow *temp;
 
   if (this->StartRenderMethod) 
     {
@@ -158,7 +158,7 @@ void vlXglrRenderer::Render(void)
     }
 
   // update our Context first
-  temp = (vlXglrRenderWindow *)this->GetRenderWindow();
+  temp = (vtkXglrRenderWindow *)this->GetRenderWindow();
   this->Context = *(temp->GetContext());
 
   // standard render method 
@@ -167,7 +167,7 @@ void vlXglrRenderer::Render(void)
   this->DoActors();
   if (this->VolumeRenderer)
     {
-    this->VolumeRenderer->Render((vlRenderer *)this);
+    this->VolumeRenderer->Render((vtkRenderer *)this);
     }
 
   if (this->EndRenderMethod) 
@@ -178,38 +178,38 @@ void vlXglrRenderer::Render(void)
 
 // Description:
 // Create particular type of starbase geometry primitive.
-vlGeometryPrimitive *vlXglrRenderer::GetPrimitive(char *type)
+vtkGeometryPrimitive *vtkXglrRenderer::GetPrimitive(char *type)
 {
-  vlGeometryPrimitive *prim;
+  vtkGeometryPrimitive *prim;
 
   if (!strcmp(type,"polygons"))
       {
-      prim = new vlXglrPolygons;
-      return (vlGeometryPrimitive *)prim;
+      prim = new vtkXglrPolygons;
+      return (vtkGeometryPrimitive *)prim;
       }
 
   if (!strcmp(type,"triangle_strips"))
       {
-      prim = new vlXglrTriangleMesh;
-      return (vlGeometryPrimitive *)prim;
+      prim = new vtkXglrTriangleMesh;
+      return (vtkGeometryPrimitive *)prim;
       }
   if (!strcmp(type,"lines"))
       {
-      prim = new vlXglrLines;
-      return (vlGeometryPrimitive *)prim;
+      prim = new vtkXglrLines;
+      return (vtkGeometryPrimitive *)prim;
       }
   if (!strcmp(type,"points"))
       {
-      prim = new vlXglrPoints;
-      return (vlGeometryPrimitive *)prim;
+      prim = new vtkXglrPoints;
+      return (vtkGeometryPrimitive *)prim;
       }
 
-  return((vlGeometryPrimitive *)NULL);
+  return((vtkGeometryPrimitive *)NULL);
 }
 
-void vlXglrRenderer::PrintSelf(ostream& os, vlIndent indent)
+void vtkXglrRenderer::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->vlRenderer::PrintSelf(os,indent);
+  this->vtkRenderer::PrintSelf(os,indent);
 
   os << indent << "Number Of Lights Bound: " << 
     this->NumberOfLightsBound << "\n";

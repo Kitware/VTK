@@ -1,41 +1,41 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    WarpScal.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-// .NAME vlWarpScalar - deform geometry with scalar data
+// .NAME vtkWarpScalar - deform geometry with scalar data
 // .SECTION Description
-// vlWarpScalar is a filter that modifies point coordinates by moving
+// vtkWarpScalar is a filter that modifies point coordinates by moving
 // points along point normals by the scalar amount times the scale factor.
 // Useful for creating carpet or x-y-z plots.
 
-#ifndef __vlWarpScalar_h
-#define __vlWarpScalar_h
+#ifndef __vtkWarpScalar_h
+#define __vtkWarpScalar_h
 
 #include "PtS2PtSF.hh"
 
-class vlWarpScalar : public vlPointSetToPointSetFilter
+class vtkWarpScalar : public vtkPointSetToPointSetFilter
 {
 public:
-  vlWarpScalar() : ScaleFactor(1.0) {};
-  ~vlWarpScalar() {};
-  char *GetClassName() {return "vlWarpScalar";};
-  void PrintSelf(ostream& os, vlIndent indent);
+  vtkWarpScalar() : ScaleFactor(1.0) {};
+  ~vtkWarpScalar() {};
+  char *GetClassName() {return "vtkWarpScalar";};
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Specify value to scale displacement.
-  vlSetMacro(ScaleFactor,float);
-  vlGetMacro(ScaleFactor,float);
+  vtkSetMacro(ScaleFactor,float);
+  vtkGetMacro(ScaleFactor,float);
 
 protected:
   void Execute();

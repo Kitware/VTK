@@ -1,39 +1,39 @@
 /*=========================================================================
 
-  Program:   Visualization Library
-  Module:    vlUGridW.cc
+  Program:   Visualization Toolkit
+  Module:    vtkUGrdW.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-#include "vlUGridW.hh"
+#include "vtkUGridW.hh"
 
 // Description:
 // Specify the input data or filter.
-void vlUnstructuredGridWriter::SetInput(vlUnstructuredGrid *input)
+void vtkUnstructuredGridWriter::SetInput(vtkUnstructuredGrid *input)
 {
   if ( this->Input != input )
     {
-    vlDebugMacro(<<" setting Input to " << (void *)input);
-    this->Input = (vlDataSet *) input;
+    vtkDebugMacro(<<" setting Input to " << (void *)input);
+    this->Input = (vtkDataSet *) input;
     this->Modified();
     }
 }
 
-void vlUnstructuredGridWriter::WriteData()
+void vtkUnstructuredGridWriter::WriteData()
 {
   FILE *fp;
-  vlUnstructuredGrid *input=(vlUnstructuredGrid *)this->Input;
+  vtkUnstructuredGrid *input=(vtkUnstructuredGrid *)this->Input;
   int *types, ncells, cellId;
 
-  vlDebugMacro(<<"Writing vl unstructured grid data...");
+  vtkDebugMacro(<<"Writing vtk unstructured grid data...");
 
   if ( !(fp=this->OpenVLFile()) || !this->WriteHeader(fp) )
       return;
@@ -73,7 +73,7 @@ void vlUnstructuredGridWriter::WriteData()
   this->CloseVLFile(fp);  
 }
 
-void vlUnstructuredGridWriter::PrintSelf(ostream& os, vlIndent indent)
+void vtkUnstructuredGridWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlDataWriter::PrintSelf(os,indent);
+  vtkDataWriter::PrintSelf(os,indent);
 }

@@ -1,68 +1,68 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    VolumeC.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its
+This file is part of the Visualization Toolkit. No part of this file or its
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
-// .NAME vlVolumeCollection - a list of Volumes
+// .NAME vtkVolumeCollection - a list of Volumes
 // .SECTION Description
-// vlVolumeCollection represents and provides methods to manipulate list of
-// Volumes (i.e., vlVolume and subclasses). The list is unsorted and duplicate
+// vtkVolumeCollection represents and provides methods to manipulate list of
+// Volumes (i.e., vtkVolume and subclasses). The list is unsorted and duplicate
 // entries are not prevented.
 
-#ifndef __vlVolumeC_hh
-#define __vlVolumeC_hh
+#ifndef __vtkVolumeC_hh
+#define __vtkVolumeC_hh
 
 #include "Collect.hh"
 #include "Volume.hh"
 
-class vlVolumeCollection : public vlCollection
+class vtkVolumeCollection : public vtkCollection
 {
  public:
-  char *GetClassName() {return "vlVolumeCollection";};
+  char *GetClassName() {return "vtkVolumeCollection";};
 
-  void AddItem(vlVolume *a);
-  void RemoveItem(vlVolume *a);
-  int IsItemPresent(vlVolume *a);
-  vlVolume *GetNextItem();
+  void AddItem(vtkVolume *a);
+  void RemoveItem(vtkVolume *a);
+  int IsItemPresent(vtkVolume *a);
+  vtkVolume *GetNextItem();
 };
 
 // Description:
 // Add an Volume to the list.
-inline void vlVolumeCollection::AddItem(vlVolume *a) 
+inline void vtkVolumeCollection::AddItem(vtkVolume *a) 
 {
-  this->vlCollection::AddItem((vlObject *)a);
+  this->vtkCollection::AddItem((vtkObject *)a);
 }
 
 // Description:
 // Remove an Volume from the list.
-inline void vlVolumeCollection::RemoveItem(vlVolume *a) 
+inline void vtkVolumeCollection::RemoveItem(vtkVolume *a) 
 {
-  this->vlCollection::RemoveItem((vlObject *)a);
+  this->vtkCollection::RemoveItem((vtkObject *)a);
 }
 
 // Description:
 // Determine whether a particular Volume is present. Returns its position
 // in the list.
-inline int vlVolumeCollection::IsItemPresent(vlVolume *a) 
+inline int vtkVolumeCollection::IsItemPresent(vtkVolume *a) 
 {
-  return this->vlCollection::IsItemPresent((vlObject *)a);
+  return this->vtkCollection::IsItemPresent((vtkObject *)a);
 }
 
 // Description:
 // Get the next Volume in the list.
-inline vlVolume *vlVolumeCollection::GetNextItem() 
+inline vtkVolume *vtkVolumeCollection::GetNextItem() 
 { 
-  return (vlVolume *)(this->vlCollection::GetNextItem());
+  return (vtkVolume *)(this->vtkCollection::GetNextItem());
 }
 
 #endif

@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    Stack.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
@@ -17,16 +17,16 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 // Description:
 // Construct with empty stack.
-vlStack::vlStack()
+vtkStack::vtkStack()
 {
   this->NumberOfItems = 0;
   this->Top = NULL;
   this->Bottom = NULL;
 }
 
-vlStack::~vlStack()
+vtkStack::~vtkStack()
 {
-  vlStackElement *p;  
+  vtkStackElement *p;  
 
   for ( p=this->Top; p != NULL; p = p->Next )
     {
@@ -36,11 +36,11 @@ vlStack::~vlStack()
 
 // Description:
 // Add an object to the top of the stack. Does not prevent duplicate entries.
-void vlStack::Push(vlObject *a)
+void vtkStack::Push(vtkObject *a)
 {
-  vlStackElement *elem;
+  vtkStackElement *elem;
 
-  elem = new vlStackElement;
+  elem = new vtkStackElement;
   
   if ( this->Top == NULL )
     this->Bottom = elem;
@@ -54,10 +54,10 @@ void vlStack::Push(vlObject *a)
 
 // Description:
 // Remove an object from the top of the list.
-vlObject *vlStack::Pop()
+vtkObject *vtkStack::Pop()
 {
-  vlObject *item;
-  vlStackElement *next;
+  vtkObject *item;
+  vtkStackElement *next;
   
   if ( this->Top == NULL ) return NULL;
 
@@ -76,7 +76,7 @@ vlObject *vlStack::Pop()
 
 // Description:
 // Return the number of objects in the stack.
-vlObject *vlStack::GetTop()
+vtkObject *vtkStack::GetTop()
 {
   if ( this->Top != NULL )
     return this->Top->Item;
@@ -86,14 +86,14 @@ vlObject *vlStack::GetTop()
 
 // Description:
 // Return the number of objects in the stack.
-int vlStack::GetNumberOfItems()
+int vtkStack::GetNumberOfItems()
 {
   return this->NumberOfItems;
 }
 
-void vlStack::PrintSelf(ostream& os, vlIndent indent)
+void vtkStack::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlObject::PrintSelf(os,indent);
+  vtkObject::PrintSelf(os,indent);
 
   os << indent << "Number Of Items: " << this->NumberOfItems << "\n";
 }

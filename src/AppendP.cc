@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    AppendP.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
@@ -15,17 +15,17 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 =========================================================================*/
 #include "AppendP.hh"
 
-vlAppendPolyData::vlAppendPolyData()
+vtkAppendPolyData::vtkAppendPolyData()
 {
 }
 
-vlAppendPolyData::~vlAppendPolyData()
+vtkAppendPolyData::~vtkAppendPolyData()
 {
 }
 
 // Description:
 // Add a dataset to the list of data to append.
-void vlAppendPolyData::AddInput(vlPolyData *ds)
+void vtkAppendPolyData::AddInput(vtkPolyData *ds)
 {
   if ( ! this->InputList.IsItemPresent(ds) )
     {
@@ -36,7 +36,7 @@ void vlAppendPolyData::AddInput(vlPolyData *ds)
 
 // Description:
 // Remove a dataset from the list of data to append.
-void vlAppendPolyData::RemoveInput(vlPolyData *ds)
+void vtkAppendPolyData::RemoveInput(vtkPolyData *ds)
 {
   if ( this->InputList.IsItemPresent(ds) )
     {
@@ -45,15 +45,15 @@ void vlAppendPolyData::RemoveInput(vlPolyData *ds)
     }
 }
 
-void vlAppendPolyData::Update()
+void vtkAppendPolyData::Update()
 {
   unsigned long int mtime, pdMtime;
-  vlPolyData *pd;
+  vtkPolyData *pd;
 
   // make sure input is available
   if ( this->InputList.GetNumberOfItems() < 1 )
     {
-    vlErrorMacro(<< "No input!");
+    vtkErrorMacro(<< "No input!");
     return;
     }
 
@@ -84,23 +84,23 @@ void vlAppendPolyData::Update()
 }
 
 // Append data sets into single unstructured grid
-void vlAppendPolyData::Execute()
+void vtkAppendPolyData::Execute()
 {
   int scalarsPresent, vectorsPresent, normalsPresent, tcoordsPresent;
   int tensorsPresent, userDefinedPresent;
-  vlPolyData *ds;
-  vlPoints  *inPts;
-  vlFloatPoints *newPts;
-  vlCellArray *inVerts, *newVerts;
-  vlCellArray *inLines, *newLines;
-  vlCellArray *inPolys, *newPolys;
-  vlCellArray *inStrips, *newStrips;
+  vtkPolyData *ds;
+  vtkPoints  *inPts;
+  vtkFloatPoints *newPts;
+  vtkCellArray *inVerts, *newVerts;
+  vtkCellArray *inLines, *newLines;
+  vtkCellArray *inPolys, *newPolys;
+  vtkCellArray *inStrips, *newStrips;
   int i, ptId, ptOffset;
   int numPts, numCells;
-  vlPointData *pd;
+  vtkPointData *pd;
   int npts, *pts;
 
-  vlDebugMacro(<<"Appending data together");
+  vtkDebugMacro(<<"Appending data together");
   this->Initialize();
 
   // loop over all data sets, checking to see what point data is available.
@@ -128,7 +128,7 @@ void vlAppendPolyData::Execute()
 
   if ( numPts < 1 || numCells < 1 )
     {
-    vlErrorMacro(<<"No data to append!");
+    vtkErrorMacro(<<"No data to append!");
     return;
     }
 
@@ -141,18 +141,18 @@ void vlAppendPolyData::Execute()
   if ( !userDefinedPresent ) this->PointData.CopyUserDefinedOff();
   this->PointData.CopyAllocate(pd,numPts);
 
-  newPts = new vlFloatPoints(numPts);
+  newPts = new vtkFloatPoints(numPts);
 
-  newVerts = new vlCellArray;
+  newVerts = new vtkCellArray;
   newVerts->Allocate(numCells*4);
 
-  newLines = new vlCellArray;
+  newLines = new vtkCellArray;
   newLines->Allocate(numCells*4);
 
-  newPolys = new vlCellArray;
+  newPolys = new vtkCellArray;
   newPolys->Allocate(numCells*4);
 
-  newStrips = new vlCellArray;
+  newStrips = new vtkCellArray;
   newStrips->Allocate(numCells*4);
 
   // loop over all input sets
@@ -218,20 +218,20 @@ void vlAppendPolyData::Execute()
   this->Squeeze();
 }
 
-int vlAppendPolyData::GetDataReleased()
+int vtkAppendPolyData::GetDataReleased()
 {
   return this->DataReleased;
 }
 
-void vlAppendPolyData::SetDataReleased(int flag)
+void vtkAppendPolyData::SetDataReleased(int flag)
 {
   this->DataReleased = flag;
 }
 
-void vlAppendPolyData::PrintSelf(ostream& os, vlIndent indent)
+void vtkAppendPolyData::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlPolyData::PrintSelf(os,indent);
-  vlFilter::_PrintSelf(os,indent);
+  vtkPolyData::PrintSelf(os,indent);
+  vtkFilter::_PrintSelf(os,indent);
 
   os << indent << "Input DataSets:\n";
   this->InputList.PrintSelf(os,indent.GetNextIndent());

@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    IntArray.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its 
+This file is part of the Visualization Toolkit. No part of this file or its 
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
@@ -17,7 +17,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 // Description:
 // Allocate memory for this array. Delete old storage if present.
-int vlIntArray::Allocate(const int sz, const int ext)
+int vtkIntArray::Allocate(const int sz, const int ext)
 {
   if ( this->Array != NULL ) delete [] this->Array;
 
@@ -31,7 +31,7 @@ int vlIntArray::Allocate(const int sz, const int ext)
 
 // Description:
 // Release storage and reset array to initial state.
-void vlIntArray::Initialize()
+void vtkIntArray::Initialize()
 {
   if ( this->Array != NULL )
     {
@@ -44,7 +44,7 @@ void vlIntArray::Initialize()
 
 // Description:
 // Construct with specified storage and extend value.
-vlIntArray::vlIntArray(const int sz, const int ext)
+vtkIntArray::vtkIntArray(const int sz, const int ext)
 {
   this->Size = ( sz > 0 ? sz : 1);
   this->Array = new int[this->Size];
@@ -52,14 +52,14 @@ vlIntArray::vlIntArray(const int sz, const int ext)
   this->MaxId = -1;
 }
 
-vlIntArray::~vlIntArray()
+vtkIntArray::~vtkIntArray()
 {
   delete [] this->Array;
 }
 
 // Description:
 // Construct array from another array. Copy each element of other array.
-vlIntArray::vlIntArray(const vlIntArray& ia)
+vtkIntArray::vtkIntArray(const vtkIntArray& ia)
 {
   int i;
 
@@ -75,7 +75,7 @@ vlIntArray::vlIntArray(const vlIntArray& ia)
 
 // Description:
 // Deep copy of another array.
-vlIntArray& vlIntArray::operator=(const vlIntArray& ia)
+vtkIntArray& vtkIntArray::operator=(const vtkIntArray& ia)
 {
   int i;
 
@@ -96,7 +96,7 @@ vlIntArray& vlIntArray::operator=(const vlIntArray& ia)
 
 // Description:
 // Append one array onto the end of this array.
-void vlIntArray::operator+=(const vlIntArray& ia)
+void vtkIntArray::operator+=(const vtkIntArray& ia)
 {
   int i, sz;
 
@@ -109,9 +109,9 @@ void vlIntArray::operator+=(const vlIntArray& ia)
   this->MaxId += ia.MaxId + 1;
 }
 
-void vlIntArray::PrintSelf(ostream& os, vlIndent indent)
+void vtkIntArray::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlObject::PrintSelf(os,indent);
+  vtkObject::PrintSelf(os,indent);
 
   os << indent << "Array: " << this->Array << "\n";
   os << indent << "Size: " << this->Size << "\n";
@@ -122,7 +122,7 @@ void vlIntArray::PrintSelf(ostream& os, vlIndent indent)
 //
 // Protected function does "reallocate"
 //
-int *vlIntArray::Resize(const int sz)
+int *vtkIntArray::Resize(const int sz)
 {
   int *newArray;
   int newSize;
@@ -133,7 +133,7 @@ int *vlIntArray::Resize(const int sz)
 
   if ( (newArray = new int[newSize]) == NULL )
     {
-    vlErrorMacro(<< "Cannot allocate memory\n");
+    vtkErrorMacro(<< "Cannot allocate memory\n");
     return 0;
     }
 

@@ -1,41 +1,39 @@
 /*=========================================================================
 
-  Program:   Visualization Library
-  Module:    vlPolyR.hh
+  Program:   Visualization Toolkit
+  Module:    vtkDSRdr.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-// .NAME vlPolyReader - read vl polygonal data file
+// .NAME vtkDataSetReader - class to read any type of vtk dataset
 // .SECTION Description
-// vlPolyReader is a source object that reads ASCII or binary 
-// polygonal data files in vl format. See text for format details.
-// .SECTION Caveats
-// Binary files written on one system may not be readable on other systems.
+// vtkDataSetReader is a class that provides instance variables 
+// and methods to read any type of dataset in visualization library format. 
+// The output type of this class will vary depending upon the type of data
+// file. Note: these formats are not standard. Use other more standard 
+// formats when you can.
 
-#ifndef __vlPolyReader_h
-#define __vlPolyReader_h
+#ifndef __vtkDataSetReader_h
+#define __vtkDataSetReader_h
 
-#include "PolySrc.hh"
-#include "vlDataR.hh"
+#include "DSSrc.hh"
+#include "vtkDataR.hh"
 
-class vlPolyReader : public vlPolySource
+class vtkDataSetReader : public vtkDataSetSource
 {
 public:
-  vlPolyReader();
-  ~vlPolyReader();
-  char *GetClassName() {return "vlPolyReader";};
-  void PrintSelf(ostream& os, vlIndent indent);
-
-  // overload because of vlDataReader ivar
-  unsigned long int GetMTime();
+  vtkDataSetReader();
+  ~vtkDataSetReader();
+  char *GetClassName() {return "vtkDataSetReader";};
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   void SetFilename(char *name);
   char *GetFilename();
@@ -62,7 +60,7 @@ public:
 
 protected:
   void Execute();
-  vlDataReader Reader;
+  vtkDataReader Reader;
 };
 
 #endif

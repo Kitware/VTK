@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    Triangle.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
@@ -16,28 +16,28 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "Triangle.hh"
 #include "Polygon.hh"
 #include "Plane.hh"
-#include "vlMath.hh"
+#include "vtkMath.hh"
 #include "CellArr.hh"
 #include "Line.hh"
 
-static vlPolygon poly;
-static vlMath math;
-static vlPlane plane;
-static vlLine line;
+static vtkPolygon poly;
+static vtkMath math;
+static vtkPlane plane;
+static vtkLine line;
 
 // Description:
 // Deep copy of cell.
-vlTriangle::vlTriangle(const vlTriangle& t)
+vtkTriangle::vtkTriangle(const vtkTriangle& t)
 {
   this->Points = t.Points;
   this->PointIds = t.PointIds;
 }
 
-int vlTriangle::EvaluatePosition(float x[3], float closestPoint[3],
+int vtkTriangle::EvaluatePosition(float x[3], float closestPoint[3],
                                  int& subId, float pcoords[3], 
                                  float& dist2, float weights[MAX_CELL_SIZE])
 {
-  vlLine *aLine;
+  vtkLine *aLine;
   int i, j;
   float *pt1, *pt2, *pt3, n[3];
   float rhs[2], c1[2], c2[2];
@@ -111,13 +111,13 @@ int vlTriangle::EvaluatePosition(float x[3], float closestPoint[3],
     else if (pcoords[1] < 0.0)	edge = 0;
 
     // find distance to edge
-    aLine = (vlLine *) this->GetEdge (edge);
+    aLine = (vtkLine *) this->GetEdge (edge);
     aLine->EvaluatePosition (x, closestPoint, subId, pcoords, dist2, weights);
     return 0;
     }
 }
 
-void vlTriangle::EvaluateLocation(int& subId, float pcoords[3], float x[3],
+void vtkTriangle::EvaluateLocation(int& subId, float pcoords[3], float x[3],
                                   float weights[MAX_CELL_SIZE])
 {
   float u3;
@@ -140,7 +140,7 @@ void vlTriangle::EvaluateLocation(int& subId, float pcoords[3], float x[3],
   weights[2] = pcoords[1];
 }
 
-int vlTriangle::CellBoundary(int subId, float pcoords[3], vlIdList& pts)
+int vtkTriangle::CellBoundary(int subId, float pcoords[3], vtkIdList& pts)
 {
   float t1=pcoords[0]-pcoords[1];
   float t2=0.5*(1.0-pcoords[0])-pcoords[1];
@@ -195,10 +195,10 @@ static LINE_CASES lineCases[] = {
   {-1, -1, -1}
 };
 
-void vlTriangle::Contour(float value, vlFloatScalars *cellScalars, 
-                         vlFloatPoints *points,
-                         vlCellArray *verts, vlCellArray *lines, 
-                         vlCellArray *polys, vlFloatScalars *scalars)
+void vtkTriangle::Contour(float value, vtkFloatScalars *cellScalars, 
+                         vtkFloatPoints *points,
+                         vtkCellArray *verts, vtkCellArray *lines, 
+                         vtkCellArray *polys, vtkFloatScalars *scalars)
 {
   static int CASE_MASK[3] = {1,2,4};
   LINE_CASES *lineCase;
@@ -233,7 +233,7 @@ void vlTriangle::Contour(float value, vlFloatScalars *cellScalars,
     }
 }
 
-vlCell *vlTriangle::GetEdge(int edgeId)
+vtkCell *vtkTriangle::GetEdge(int edgeId)
 {
   int edgeIdPlus1 = edgeId + 1;
 
@@ -253,7 +253,7 @@ vlCell *vlTriangle::GetEdge(int edgeId)
 //
 // Plane intersection plus in/out test on triangle.
 //
-int vlTriangle::IntersectWithLine(float p1[3], float p2[3], float tol, 
+int vtkTriangle::IntersectWithLine(float p1[3], float p2[3], float tol, 
                                   float& t, float x[3], float pcoords[3], 
                                   int& subId)
 {

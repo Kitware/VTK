@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    DCubes.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
@@ -14,10 +14,10 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
 #include "DCubes.hh"
-#include "vlMath.hh"
+#include "vtkMath.hh"
 #include "Voxel.hh"
 
-vlDividingCubes::vlDividingCubes()
+vtkDividingCubes::vtkDividingCubes()
 {
   this->Value = 0.0;
   this->Distance = 0.1;
@@ -28,23 +28,23 @@ vlDividingCubes::vlDividingCubes()
 static float X[3]; //origin of current voxel
 static float Ar[3]; //aspect ratio of current voxel
 static float Normals[8][3]; //voxel normals
-static vlFloatPoints *NewPts; //points being generated
-static vlFloatNormals *NewNormals; //points being generated
-static vlCellArray *NewVerts; //verts being generated
+static vtkFloatPoints *NewPts; //points being generated
+static vtkFloatNormals *NewNormals; //points being generated
+static vtkCellArray *NewVerts; //verts being generated
 
-void vlDividingCubes::Execute()
+void vtkDividingCubes::Execute()
 {
   int i, j, k, idx, ii;
-  vlScalars *inScalars;
-  vlIdList voxelPts(8);
-  vlFloatScalars voxelScalars(8);
+  vtkScalars *inScalars;
+  vtkIdList voxelPts(8);
+  vtkFloatScalars voxelScalars(8);
   float origin[3];
   int dim[3], jOffset, kOffset, sliceSize;
   int above, below, vertNum;
-  vlStructuredPoints *input=(vlStructuredPoints *)this->Input;
-  vlMath math;
+  vtkStructuredPoints *input=(vtkStructuredPoints *)this->Input;
+  vtkMath math;
 
-  vlDebugMacro(<< "Executing dividing cubes...");
+  vtkDebugMacro(<< "Executing dividing cubes...");
 //
 // Initialize self; check input; create output objects
 //
@@ -54,14 +54,14 @@ void vlDividingCubes::Execute()
   // make sure we have scalar data
   if ( ! (inScalars = input->GetPointData()->GetScalars()) )
     {
-    vlErrorMacro(<<"No scalar data to contour");
+    vtkErrorMacro(<<"No scalar data to contour");
     return;
     }
 
   // just deal with volumes
   if ( input->GetDataDimension() != 3 )
     {
-    vlErrorMacro("Bad input: only treats 3D structured point datasets");
+    vtkErrorMacro("Bad input: only treats 3D structured point datasets");
     return;
     }
   input->GetDimensions(dim);
@@ -69,9 +69,9 @@ void vlDividingCubes::Execute()
   input->GetOrigin(origin);
 
   // creating points
-  NewPts = new vlFloatPoints(500000,1000000);
-  NewNormals = new vlFloatNormals(500000,1000000);
-  NewVerts = new vlCellArray(500000,1000000);
+  NewPts = new vtkFloatPoints(500000,1000000);
+  NewNormals = new vtkFloatNormals(500000,1000000);
+  NewVerts = new vtkCellArray(500000,1000000);
 //
 // Loop over all cells checking to see which straddle the specified value. Since
 // we know that we are working with a volume, can create appropriate data directly.
@@ -131,7 +131,7 @@ void vlDividingCubes::Execute()
         }
       }
     }
-  vlDebugMacro(<< "Created " << NewPts->GetNumberOfPoints() << "points");
+  vtkDebugMacro(<< "Created " << NewPts->GetNumberOfPoints() << "points");
 //
 // Update ourselves
 //
@@ -150,7 +150,7 @@ static int ScalarInterp[8][8] = {{0,8,12,24,16,22,20,26},
                                  {20,26,18,23,14,25,6,11},
                                  {26,21,23,19,25,15,11,7}};
 
-void vlDividingCubes::SubDivide(float origin[3], float h[3], float values[8])
+void vtkDividingCubes::SubDivide(float origin[3], float h[3], float values[8])
 {
   int i;
   float hNew[3];
@@ -163,7 +163,7 @@ void vlDividingCubes::SubDivide(float origin[3], float h[3], float values[8])
     int i, pts[1];
     float x[3], n[3];
     float p[3], w[8];
-    static vlVoxel voxel;
+    static vtkVoxel voxel;
 
     for (i=0; i <3; i++) x[i] = origin[i] + hNew[i];
 
@@ -248,9 +248,9 @@ void vlDividingCubes::SubDivide(float origin[3], float h[3], float values[8])
     }
 }
 
-void vlDividingCubes::PrintSelf(ostream& os, vlIndent indent)
+void vtkDividingCubes::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlStructuredPointsToPolyDataFilter::PrintSelf(os,indent);
+  vtkStructuredPointsToPolyDataFilter::PrintSelf(os,indent);
 
   os << indent << "Value: " << this->Value << "\n";
   os << indent << "Distance: " << this->Distance << "\n";

@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    Mapper.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its 
+This file is part of the Visualization Toolkit. No part of this file or its 
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
@@ -17,7 +17,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 // Description:
 // Construct with initial range (0,1).
-vlMapper::vlMapper()
+vtkMapper::vtkMapper()
 {
   this->Input = NULL;
 
@@ -36,7 +36,7 @@ vlMapper::vlMapper()
   this->SelfCreatedLookupTable = 0;
 }
 
-vlMapper::~vlMapper()
+vtkMapper::~vtkMapper()
 {
   if ( this->SelfCreatedLookupTable && this->LookupTable != NULL) 
     delete this->LookupTable;
@@ -45,7 +45,7 @@ vlMapper::~vlMapper()
 // Description:
 // Overload standard modified time function. If cut functions is modified,
 // then we are modified as well.
-unsigned long vlMapper::GetMTime()
+unsigned long vtkMapper::GetMTime()
 {
   unsigned long mTime=this->MTime.GetMTime();
   unsigned long lutMTime;
@@ -59,7 +59,7 @@ unsigned long vlMapper::GetMTime()
   return mTime;
 }
 
-void vlMapper::operator=(const vlMapper& m)
+void vtkMapper::operator=(const vtkMapper& m)
 {
   this->SetLookupTable(m.LookupTable);
 
@@ -73,7 +73,7 @@ void vlMapper::operator=(const vlMapper& m)
 // Description:
 // Specify a function to be called before rendering process begins.
 // Function will be called with argument provided.
-void vlMapper::SetStartRender(void (*f)(void *), void *arg)
+void vtkMapper::SetStartRender(void (*f)(void *), void *arg)
 {
   if ( f != this->StartRender || arg != this->StartRenderArg )
     {
@@ -90,7 +90,7 @@ void vlMapper::SetStartRender(void (*f)(void *), void *arg)
 
 // Description:
 // Set the arg delete method. This is used to free user memory.
-void vlMapper::SetStartRenderArgDelete(void (*f)(void *))
+void vtkMapper::SetStartRenderArgDelete(void (*f)(void *))
 {
   if ( f != this->StartRenderArgDelete)
     {
@@ -101,7 +101,7 @@ void vlMapper::SetStartRenderArgDelete(void (*f)(void *))
 
 // Description:
 // Set the arg delete method. This is used to free user memory.
-void vlMapper::SetEndRenderArgDelete(void (*f)(void *))
+void vtkMapper::SetEndRenderArgDelete(void (*f)(void *))
 {
   if ( f != this->EndRenderArgDelete)
     {
@@ -113,7 +113,7 @@ void vlMapper::SetEndRenderArgDelete(void (*f)(void *))
 // Description:
 // Specify a function to be called when rendering process completes.
 // Function will be called with argument provided.
-void vlMapper::SetEndRender(void (*f)(void *), void *arg)
+void vtkMapper::SetEndRender(void (*f)(void *), void *arg)
 {
   if ( f != this->EndRender || arg != EndRenderArg )
     {
@@ -130,7 +130,7 @@ void vlMapper::SetEndRender(void (*f)(void *), void *arg)
 
 // Description:
 // Specify a lookup table for the mapper to use.
-void vlMapper::SetLookupTable(vlLookupTable *lut)
+void vtkMapper::SetLookupTable(vtkLookupTable *lut)
 {
   if ( this->LookupTable != lut ) 
     {
@@ -141,20 +141,20 @@ void vlMapper::SetLookupTable(vlLookupTable *lut)
     }
 }
 
-vlLookupTable *vlMapper::GetLookupTable()
+vtkLookupTable *vtkMapper::GetLookupTable()
 {
   if ( this->LookupTable == NULL ) this->CreateDefaultLookupTable();
   return this->LookupTable;
 }
 
-void vlMapper::CreateDefaultLookupTable()
+void vtkMapper::CreateDefaultLookupTable()
 {
   if ( this->SelfCreatedLookupTable ) delete this->LookupTable;
-  this->LookupTable = new vlLookupTable;
+  this->LookupTable = new vtkLookupTable;
   this->SelfCreatedLookupTable = 1;
 }
 
-float *vlMapper::GetCenter()
+float *vtkMapper::GetCenter()
 {
   static float center[3];
   float *bounds;
@@ -164,9 +164,9 @@ float *vlMapper::GetCenter()
   return center;
 }
 
-void vlMapper::PrintSelf(ostream& os, vlIndent indent)
+void vtkMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlObject::PrintSelf(os,indent);
+  vtkObject::PrintSelf(os,indent);
 
   if ( this->Input )
     {

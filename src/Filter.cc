@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    Filter.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its 
+This file is part of the Visualization Toolkit. No part of this file or its 
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
@@ -17,7 +17,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 // Description:
 // Construct new filter without start or end methods.
-vlFilter::vlFilter()
+vtkFilter::vtkFilter()
 {
   this->Input = NULL;
 
@@ -31,25 +31,25 @@ vlFilter::vlFilter()
   this->Updating = 0;
 }
 
-int vlFilter::GetDataReleased()
+int vtkFilter::GetDataReleased()
 {
-  vl_ErrorMacro(<<"Method should be implemented by subclass!");
+  vtk_ErrorMacro(<<"Method should be implemented by subclass!");
   return 1;
 }
 
-void vlFilter::SetDataReleased(int flag)
+void vtkFilter::SetDataReleased(int flag)
 {
-  vl_ErrorMacro(<<"Method should be implemented by subclass!");
+  vtk_ErrorMacro(<<"Method should be implemented by subclass!");
 }
 
 // Description:
 // Update input to this filter and the filter itself.
-void vlFilter::UpdateFilter()
+void vtkFilter::UpdateFilter()
 {
   // make sure input is available
   if ( !this->Input )
     {
-    vl_ErrorMacro(<< "No input!");
+    vtk_ErrorMacro(<< "No input!");
     return;
     }
 
@@ -77,7 +77,7 @@ void vlFilter::UpdateFilter()
 // Description:
 // Set the filter start method. The start method is invoked before the 
 // filter executes.
-void vlFilter::SetStartMethod(void (*f)(void *), void *arg)
+void vtkFilter::SetStartMethod(void (*f)(void *), void *arg)
 {
   if ( f != this->StartMethod || arg != this->StartMethodArg )
     {
@@ -95,7 +95,7 @@ void vlFilter::SetStartMethod(void (*f)(void *), void *arg)
 // Description:
 // Set the filter end method. The end method is invoked after the 
 // filter executes.
-void vlFilter::SetEndMethod(void (*f)(void *), void *arg)
+void vtkFilter::SetEndMethod(void (*f)(void *), void *arg)
 {
   if ( f != this->EndMethod || arg != this->EndMethodArg )
     {
@@ -112,7 +112,7 @@ void vlFilter::SetEndMethod(void (*f)(void *), void *arg)
 
 // Description:
 // Set the arg delete method. This is used to free user memory.
-void vlFilter::SetStartMethodArgDelete(void (*f)(void *))
+void vtkFilter::SetStartMethodArgDelete(void (*f)(void *))
 {
   if ( f != this->StartMethodArgDelete)
     {
@@ -123,7 +123,7 @@ void vlFilter::SetStartMethodArgDelete(void (*f)(void *))
 
 // Description:
 // Set the arg delete method. This is used to free user memory.
-void vlFilter::SetEndMethodArgDelete(void (*f)(void *))
+void vtkFilter::SetEndMethodArgDelete(void (*f)(void *))
 {
   if ( f != this->EndMethodArgDelete)
     {
@@ -132,14 +132,14 @@ void vlFilter::SetEndMethodArgDelete(void (*f)(void *))
     }
 }
 
-void vlFilter::Execute()
+void vtkFilter::Execute()
 {
-  vl_ErrorMacro(<< "Execution of filter should be in derived class");
+  vtk_ErrorMacro(<< "Execution of filter should be in derived class");
 }
 
-void vlFilter::_PrintSelf(ostream& os, vlIndent indent)
+void vtkFilter::_PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlLWObject::_PrintSelf(os,indent);
+  vtkLWObject::_PrintSelf(os,indent);
 
   if ( this->StartMethod )
     {

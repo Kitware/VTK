@@ -1,49 +1,49 @@
 /*=========================================================================
 
-  Program:   Visualization Library
-  Module:    vlSPtsR.cc
+  Program:   Visualization Toolkit
+  Module:    vtkSPtsR.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-#include "vlSPtsR.hh"
+#include "vtkSPtsR.hh"
 
-vlStructuredPointsReader::vlStructuredPointsReader()
+vtkStructuredPointsReader::vtkStructuredPointsReader()
 {
 }
 
-vlStructuredPointsReader::~vlStructuredPointsReader()
+vtkStructuredPointsReader::~vtkStructuredPointsReader()
 {
 }
 
-unsigned long int vlStructuredPointsReader::GetMTime()
+unsigned long int vtkStructuredPointsReader::GetMTime()
 {
-  unsigned long dtime = this->vlStructuredPointsSource::GetMTime();
+  unsigned long dtime = this->vtkStructuredPointsSource::GetMTime();
   unsigned long rtime = this->Reader.GetMTime();
   return (dtime > rtime ? dtime : rtime);
 }
 
 // Description:
-// Specify file name of vl polygonal data file to read.
-void vlStructuredPointsReader::SetFilename(char *name) 
+// Specify file name of vtk polygonal data file to read.
+void vtkStructuredPointsReader::SetFilename(char *name) 
 {
   this->Reader.SetFilename(name);
 }
-char *vlStructuredPointsReader::GetFilename() 
+char *vtkStructuredPointsReader::GetFilename() 
 {
   return this->Reader.GetFilename();
 }
 
 // Description:
 // Get the type of file (ASCII or BINARY)
-int vlStructuredPointsReader::GetFileType() 
+int vtkStructuredPointsReader::GetFileType() 
 {
   return this->Reader.GetFileType();
 }
@@ -51,11 +51,11 @@ int vlStructuredPointsReader::GetFileType()
 // Description:
 // Set the name of the scalar data to extract. If not specified, first 
 // scalar data encountered is extracted.
-void vlStructuredPointsReader::SetScalarsName(char *name) 
+void vtkStructuredPointsReader::SetScalarsName(char *name) 
 {
   this->Reader.SetScalarsName(name);
 }
-char *vlStructuredPointsReader::GetScalarsName() 
+char *vtkStructuredPointsReader::GetScalarsName() 
 {
   return this->Reader.GetScalarsName();
 }
@@ -63,11 +63,11 @@ char *vlStructuredPointsReader::GetScalarsName()
 // Description:
 // Set the name of the vector data to extract. If not specified, first 
 // vector data encountered is extracted.
-void vlStructuredPointsReader::SetVectorsName(char *name) 
+void vtkStructuredPointsReader::SetVectorsName(char *name) 
 {
   this->Reader.SetVectorsName(name);
 }
-char *vlStructuredPointsReader::GetVectorsName() 
+char *vtkStructuredPointsReader::GetVectorsName() 
 {
   return this->Reader.GetVectorsName();
 }
@@ -75,11 +75,11 @@ char *vlStructuredPointsReader::GetVectorsName()
 // Description:
 // Set the name of the tensor data to extract. If not specified, first 
 // tensor data encountered is extracted.
-void vlStructuredPointsReader::SetTensorsName(char *name) 
+void vtkStructuredPointsReader::SetTensorsName(char *name) 
 {
   this->Reader.SetTensorsName(name);
 }
-char *vlStructuredPointsReader::GetTensorsName() 
+char *vtkStructuredPointsReader::GetTensorsName() 
 {
   return this->Reader.GetTensorsName();
 }
@@ -87,11 +87,11 @@ char *vlStructuredPointsReader::GetTensorsName()
 // Description:
 // Set the name of the normal data to extract. If not specified, first 
 // normal data encountered is extracted.
-void vlStructuredPointsReader::SetNormalsName(char *name) 
+void vtkStructuredPointsReader::SetNormalsName(char *name) 
 {
   this->Reader.SetNormalsName(name);
 }
-char *vlStructuredPointsReader::GetNormalsName() 
+char *vtkStructuredPointsReader::GetNormalsName() 
 {
   return this->Reader.GetNormalsName();
 }
@@ -99,11 +99,11 @@ char *vlStructuredPointsReader::GetNormalsName()
 // Description:
 // Set the name of the texture coordinate data to extract. If not specified,
 // first texture coordinate data encountered is extracted.
-void vlStructuredPointsReader::SetTCoordsName(char *name) 
+void vtkStructuredPointsReader::SetTCoordsName(char *name) 
 {
   this->Reader.SetTCoordsName(name);
 }
-char *vlStructuredPointsReader::GetTCoordsName() 
+char *vtkStructuredPointsReader::GetTCoordsName() 
 {
   return this->Reader.GetTCoordsName();
 }
@@ -111,16 +111,16 @@ char *vlStructuredPointsReader::GetTCoordsName()
 // Description:
 // Set the name of the lookup table data to extract. If not specified, uses 
 // lookup table named by scalar. Otherwise, this specification supersedes.
-void vlStructuredPointsReader::SetLookupTableName(char *name) 
+void vtkStructuredPointsReader::SetLookupTableName(char *name) 
 {
   this->Reader.SetLookupTableName(name);
 }
-char *vlStructuredPointsReader::GetLookupTableName() 
+char *vtkStructuredPointsReader::GetLookupTableName() 
 {
   return this->Reader.GetLookupTableName();
 }
 
-void vlStructuredPointsReader::Execute()
+void vtkStructuredPointsReader::Execute()
 {
   FILE *fp;
   int numPts=0;
@@ -129,7 +129,7 @@ void vlStructuredPointsReader::Execute()
   int npts;
   int dimsRead=0, arRead=0, originRead=0;
 
-  vlDebugMacro(<<"Reading vl structured points file...");
+  vtkDebugMacro(<<"Reading vtk structured points file...");
   this->Initialize();
   if ( this->Debug ) this->Reader.DebugOn();
   else this->Reader.DebugOff();
@@ -141,7 +141,7 @@ void vlStructuredPointsReader::Execute()
 //
   if ( (retStat=fscanf(fp,"%256s",line)) == EOF || retStat < 1 ) 
     {
-    vlErrorMacro(<<"Data file ends prematurely!");
+    vtkErrorMacro(<<"Data file ends prematurely!");
     return;
     }
 
@@ -152,13 +152,13 @@ void vlStructuredPointsReader::Execute()
 //
     if ( (retStat=fscanf(fp,"%256s",line)) == EOF || retStat < 1 ) 
       {
-      vlErrorMacro(<<"Data file ends prematurely!");
+      vtkErrorMacro(<<"Data file ends prematurely!");
       return;
       } 
 
     if ( strncmp(this->Reader.LowerCase(line),"structured_points",17) )
       {
-      vlErrorMacro(<< "Cannot read dataset type: " << line);
+      vtkErrorMacro(<< "Cannot read dataset type: " << line);
       return;
       }
 //
@@ -175,7 +175,7 @@ void vlStructuredPointsReader::Execute()
         if ( (retStat=fscanf(fp,"%d %d %d",dim, dim+1, dim+2)) == EOF
         || retStat < 3 ) 
           {
-          vlErrorMacro(<<"Error reading dimensions!");
+          vtkErrorMacro(<<"Error reading dimensions!");
           return;
           }
 
@@ -190,7 +190,7 @@ void vlStructuredPointsReader::Execute()
         if ( (retStat=fscanf(fp,"%f %f %f",ar, ar+1, ar+2)) == EOF
         || retStat < 3 ) 
           {
-          vlErrorMacro(<<"Error reading aspect ratio!");
+          vtkErrorMacro(<<"Error reading aspect ratio!");
           return;
           }
 
@@ -204,7 +204,7 @@ void vlStructuredPointsReader::Execute()
         if ( (retStat=fscanf(fp,"%f %f %f",origin, origin+1, origin+2)) == EOF
         || retStat < 3 ) 
           {
-          vlErrorMacro(<<"Error reading origin!");
+          vtkErrorMacro(<<"Error reading origin!");
           return;
           }
 
@@ -216,52 +216,52 @@ void vlStructuredPointsReader::Execute()
         {
         if ( (retStat=fscanf(fp,"%d", &npts)) == EOF || retStat < 1 ) 
           {
-          vlErrorMacro(<<"Cannot read point data!");
+          vtkErrorMacro(<<"Cannot read point data!");
           return;
           }
         
         if ( npts != numPts )
           {
-          vlErrorMacro(<<"Number of points don't match data values!");
+          vtkErrorMacro(<<"Number of points don't match data values!");
           return;
           }
 
-        this->Reader.ReadPointData(fp, (vlDataSet *)this, npts);
+        this->Reader.ReadPointData(fp, (vtkDataSet *)this, npts);
         break; //out of this loop
         }
 
       else
         {
-        vlErrorMacro(<< "Unrecognized keyord: " << line);
+        vtkErrorMacro(<< "Unrecognized keyord: " << line);
         return;
         }
       }
 
-      if ( !dimsRead ) vlWarningMacro(<<"No dimensions read.");
-      if ( !arRead ) vlWarningMacro(<<"No aspect ratio read.");
-      if ( !originRead ) vlWarningMacro(<<"No origin read.");
+      if ( !dimsRead ) vtkWarningMacro(<<"No dimensions read.");
+      if ( !arRead ) vtkWarningMacro(<<"No aspect ratio read.");
+      if ( !originRead ) vtkWarningMacro(<<"No origin read.");
     }
 
   else if ( !strncmp(line,"point_data",10) )
     {
-    vlWarningMacro(<<"No geometry defined in data file!");
+    vtkWarningMacro(<<"No geometry defined in data file!");
     if ( (retStat=fscanf(fp,"%d", &npts)) == EOF || retStat < 1 ) 
       {
-      vlErrorMacro(<<"Cannot read point data!");
+      vtkErrorMacro(<<"Cannot read point data!");
       return;
       }
-    this->Reader.ReadPointData(fp, (vlDataSet *)this, numPts);
+    this->Reader.ReadPointData(fp, (vtkDataSet *)this, numPts);
     }
 
   else 
     {
-    vlErrorMacro(<< "Unrecognized keyord: " << line);
+    vtkErrorMacro(<< "Unrecognized keyord: " << line);
     }
 }
 
 
-void vlStructuredPointsReader::PrintSelf(ostream& os, vlIndent indent)
+void vtkStructuredPointsReader::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlStructuredPointsSource::PrintSelf(os,indent);
+  vtkStructuredPointsSource::PrintSelf(os,indent);
   this->Reader.PrintSelf(os,indent);
 }

@@ -1,27 +1,27 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    BoolText.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-// .NAME vlBooleanTexture - generate 2D texture map based on combinations of inside, outside, and on region boundary
+// .NAME vtkBooleanTexture - generate 2D texture map based on combinations of inside, outside, and on region boundary
 // .SECTION Description
-// vlBooleanTexture is a filter to generate a 2D texture map based on 
+// vtkBooleanTexture is a filter to generate a 2D texture map based on 
 // combinations of inside, outside, and on region boundary. The "region" is
 // implicitly represented via 2D texture coordinates. These texture 
 // coordinates are normally generated using a filter like 
-// vlImplicitTextureCoords which generates the texture coordinates for 
+// vtkImplicitTextureCoords which generates the texture coordinates for 
 // any implicit function.
-//   vlBooleanTexture generates the map according to the s-t texture
+//   vtkBooleanTexture generates the map according to the s-t texture
 // coordinates plus the notion of being in, on, or outside of a
 // region. An in region is when the texture coordinate is between
 // (0,0.5-thickness/2).  An out region is where the texture coordinate
@@ -34,80 +34,80 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // a black region (for intensity) and a fully transparent region (for
 // transparency).
 // .SECTION See Also
-// vlImplicitTextureCoords
+// vtkImplicitTextureCoords
 
-#ifndef __vlBooleanTexture_h
-#define __vlBooleanTexture_h
+#ifndef __vtkBooleanTexture_h
+#define __vtkBooleanTexture_h
 
 #include "SPtsSrc.hh"
 
-class vlBooleanTexture : public vlStructuredPointsSource
+class vtkBooleanTexture : public vtkStructuredPointsSource
 {
 public:
-  vlBooleanTexture();
-  ~vlBooleanTexture() {};
-  char *GetClassName() {return "vlBooleanTexture";};
-  void PrintSelf(ostream& os, vlIndent indent);
+  vtkBooleanTexture();
+  ~vtkBooleanTexture() {};
+  char *GetClassName() {return "vtkBooleanTexture";};
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Set the X texture map dimension.
-  vlSetMacro(XSize,int);
-  vlGetMacro(XSize,int);
+  vtkSetMacro(XSize,int);
+  vtkGetMacro(XSize,int);
 
   // Description:
   // Set the Y texture map dimension.
-  vlSetMacro(YSize,int);
-  vlGetMacro(YSize,int);
+  vtkSetMacro(YSize,int);
+  vtkGetMacro(YSize,int);
 
   // Description:
   // Set the thickness of the "on" region.
-  vlSetMacro(Thickness,int);
-  vlGetMacro(Thickness,int);
+  vtkSetMacro(Thickness,int);
+  vtkGetMacro(Thickness,int);
 
   // Description:
   // Specify intensity/transparency for "in/in" region.
-  vlSetVector2Macro(InIn,unsigned char);
-  vlGetVectorMacro(InIn,unsigned char,2);
+  vtkSetVector2Macro(InIn,unsigned char);
+  vtkGetVectorMacro(InIn,unsigned char,2);
 
   // Description:
   // Specify intensity/transparency for "in/out" region.
-  vlSetVector2Macro(InOut,unsigned char);
-  vlGetVectorMacro(InOut,unsigned char,2);
+  vtkSetVector2Macro(InOut,unsigned char);
+  vtkGetVectorMacro(InOut,unsigned char,2);
 
   // Description:
   // Specify intensity/transparency for "out/in" region.
-  vlSetVector2Macro(OutIn,unsigned char);
-  vlGetVectorMacro(OutIn,unsigned char,2);
+  vtkSetVector2Macro(OutIn,unsigned char);
+  vtkGetVectorMacro(OutIn,unsigned char,2);
 
   // Description:
   // Specify intensity/transparency for "out/out" region.
-  vlSetVector2Macro(OutOut,unsigned char);
-  vlGetVectorMacro(OutOut,unsigned char,2);
+  vtkSetVector2Macro(OutOut,unsigned char);
+  vtkGetVectorMacro(OutOut,unsigned char,2);
 
   // Description:
   // Specify intensity/transparency for "on/on" region.
-  vlSetVector2Macro(OnOn,unsigned char);
-  vlGetVectorMacro(OnOn,unsigned char,2);
+  vtkSetVector2Macro(OnOn,unsigned char);
+  vtkGetVectorMacro(OnOn,unsigned char,2);
 
   // Description:
   // Specify intensity/transparency for "on/in" region.
-  vlSetVector2Macro(OnIn,unsigned char);
-  vlGetVectorMacro(OnIn,unsigned char,2);
+  vtkSetVector2Macro(OnIn,unsigned char);
+  vtkGetVectorMacro(OnIn,unsigned char,2);
 
   // Description:
   // Specify intensity/transparency for "on/out" region.
-  vlSetVector2Macro(OnOut,unsigned char);
-  vlGetVectorMacro(OnOut,unsigned char,2);
+  vtkSetVector2Macro(OnOut,unsigned char);
+  vtkGetVectorMacro(OnOut,unsigned char,2);
 
   // Description:
   // Specify intensity/transparency for "in/on" region.
-  vlSetVector2Macro(InOn,unsigned char);
-  vlGetVectorMacro(InOn,unsigned char,2);
+  vtkSetVector2Macro(InOn,unsigned char);
+  vtkGetVectorMacro(InOn,unsigned char,2);
 
   // Description:
   // Specify intensity/transparency for "out/on" region.
-  vlSetVector2Macro(OutOn,unsigned char);
-  vlGetVectorMacro(OutOn,unsigned char,2);
+  vtkSetVector2Macro(OutOn,unsigned char);
+  vtkGetVectorMacro(OutOn,unsigned char,2);
 
 protected:
   void Execute();

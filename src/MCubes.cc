@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    MCubes.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
@@ -17,12 +17,12 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "MC_Cases.h"
 #include "StrPts.hh"
 #include "SScalars.hh"
-#include "vlMath.hh"
+#include "vtkMath.hh"
 
 // Description:
 // Construct object with initial range (0,1) and single contour value
 // of 0.0.
-vlMarchingCubes::vlMarchingCubes()
+vtkMarchingCubes::vtkMarchingCubes()
 {
   for (int i=0; i<MAX_CONTOURS; i++) this->Values[i] = 0.0;
   this->NumberOfContours = 1;
@@ -30,13 +30,13 @@ vlMarchingCubes::vlMarchingCubes()
   this->Range[1] = 1.0;
 }
 
-vlMarchingCubes::~vlMarchingCubes()
+vtkMarchingCubes::~vtkMarchingCubes()
 {
 }
 
 // Description:
 // Set a particular contour value at contour number i.
-void vlMarchingCubes::SetValue(int i, float value)
+void vtkMarchingCubes::SetValue(int i, float value)
 {
   i = (i >= MAX_CONTOURS ? MAX_CONTOURS-1 : (i < 0 ? 0 : i) );
   if ( this->Values[i] != value )
@@ -52,7 +52,7 @@ void vlMarchingCubes::SetValue(int i, float value)
 // Description:
 // Generate numContours equally spaced contour values between specified
 // range.
-void vlMarchingCubes::GenerateValues(int numContours, float range[2])
+void vtkMarchingCubes::GenerateValues(int numContours, float range[2])
 {
   float val, incr;
   int i;
@@ -70,7 +70,7 @@ void vlMarchingCubes::GenerateValues(int numContours, float range[2])
 // Description:
 // Generate numContours equally spaced contour values between specified
 // range.
-void vlMarchingCubes::GenerateValues(int numContours, float r1, float r2)
+void vtkMarchingCubes::GenerateValues(int numContours, float r1, float r2)
 {
   float rng[2];
 
@@ -82,7 +82,7 @@ void vlMarchingCubes::GenerateValues(int numContours, float r1, float r2)
 void ComputePointNormal(int i, int j, int k, short *s, int dims[3], 
                       int sliceSize, float origin[3], float ar[3], float n[3])
 {
-  static vlMath math;
+  static vtkMath math;
   float sp, sm;
 
   // x-direction
@@ -151,15 +151,15 @@ void ComputePointNormal(int i, int j, int k, short *s, int dims[3],
 //
 // Contouring filter specialized for volumes and "short int" data values.  
 //
-void vlMarchingCubes::Execute()
+void vtkMarchingCubes::Execute()
 {
-  vlFloatPoints *newPts;
-  vlCellArray *newPolys;
-  vlShortScalars *newScalars;
-  vlFloatNormals *newNormals;
-  vlStructuredPoints *input=(vlStructuredPoints *)this->Input;
-  vlPointData *pd=input->GetPointData();
-  vlScalars *inScalars=pd->GetScalars();
+  vtkFloatPoints *newPts;
+  vtkCellArray *newPolys;
+  vtkShortScalars *newScalars;
+  vtkFloatNormals *newNormals;
+  vtkStructuredPoints *input=(vtkStructuredPoints *)this->Input;
+  vtkPointData *pd=input->GetPointData();
+  vtkScalars *inScalars=pd->GetScalars();
   short *scalars, s[8], value;
   int dims[3];
   float ar[3], origin[3];
@@ -175,20 +175,20 @@ void vlMarchingCubes::Execute()
                               {4,5}, {5,6}, {6,7}, {7,4},
                               {0,4}, {1,5}, {3,7}, {2,6}};
 
-  vlDebugMacro(<< "Executing marching cubes");
+  vtkDebugMacro(<< "Executing marching cubes");
   this->Initialize();
 //
 // Initialize and check input
 //
   if ( inScalars == NULL )
     {
-    vlErrorMacro(<<"Scalars must be defined for contouring");
+    vtkErrorMacro(<<"Scalars must be defined for contouring");
     return;
     }
 
   if ( input->GetDataDimension() != 3 )
     {
-    vlErrorMacro(<<"Cannot contour data of dimension != 3");
+    vtkErrorMacro(<<"Cannot contour data of dimension != 3");
     return;
     }
   input->GetDimensions(dims);
@@ -197,15 +197,15 @@ void vlMarchingCubes::Execute()
 
   if ( strcmp("short",inScalars->GetDataType()) )
     {
-    vlErrorMacro(<<"Scalars must be short ints...");
+    vtkErrorMacro(<<"Scalars must be short ints...");
     return;
     }
-  scalars = ((vlShortScalars *)inScalars)->GetPtr(0);
+  scalars = ((vtkShortScalars *)inScalars)->GetPtr(0);
 
-  newPts = new vlFloatPoints(10000,50000);
-  newScalars = new vlShortScalars(10000,50000);
-  newNormals = new vlFloatNormals(10000,50000);
-  newPolys = new vlCellArray();
+  newPts = new vtkFloatPoints(10000,50000);
+  newScalars = new vtkShortScalars(10000,50000);
+  newNormals = new vtkFloatNormals(10000,50000);
+  newPolys = new vtkCellArray();
   newPolys->Allocate(newPolys->EstimateSize(25000,3));
 //
 // Traverse all voxel cells, generating triangles and point normals
@@ -313,7 +313,7 @@ void vlMarchingCubes::Execute()
       }//for k
     }//for all contours
 
-  vlDebugMacro(<<"Created: " 
+  vtkDebugMacro(<<"Created: " 
                << newPts->GetNumberOfPoints() << " points, " 
                << newPolys->GetNumberOfCells() << " triangles");
 //
@@ -327,11 +327,11 @@ void vlMarchingCubes::Execute()
   this->Squeeze();
 }
 
-void vlMarchingCubes::PrintSelf(ostream& os, vlIndent indent)
+void vtkMarchingCubes::PrintSelf(ostream& os, vtkIndent indent)
 {
   int i;
 
-  vlStructuredPointsToPolyDataFilter::PrintSelf(os,indent);
+  vtkStructuredPointsToPolyDataFilter::PrintSelf(os,indent);
 
   os << indent << "Number Of Contours : " << this->NumberOfContours << "\n";
   os << indent << "Contour Values: \n";

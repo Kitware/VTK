@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    StreamL.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
@@ -15,31 +15,31 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 =========================================================================*/
 #include "StreamL.hh"
 
-vlStreamLine::vlStreamLine()
+vtkStreamLine::vtkStreamLine()
 {
   this->DashTime = 0.01;
 }
 
-void vlStreamLine::Execute()
+void vtkStreamLine::Execute()
 {
-  vlStreamPoint *sPrev, *sPtr;
-  vlFloatPoints *newPts;
-  vlFloatVectors *newVectors;
-  vlFloatScalars *newScalars=NULL;
-  vlCellArray *newLines;
+  vtkStreamPoint *sPrev, *sPtr;
+  vtkFloatPoints *newPts;
+  vtkFloatVectors *newVectors;
+  vtkFloatScalars *newScalars=NULL;
+  vtkCellArray *newLines;
   int i, ptId, j, npts, pts[MAX_CELL_SIZE];
   float tOffset, x[3], v[3], s, r;
 
-  this->vlStreamer::Integrate();
+  this->vtkStreamer::Integrate();
   if ( this->NumberOfStreamers <= 0 ) return;
 //
 //  Convert streamer into lines. Lines may be dashed.
 //
-  newPts  = new vlFloatPoints(1000);
-  newVectors  = new vlFloatVectors(1000);
+  newPts  = new vtkFloatPoints(1000);
+  newVectors  = new vtkFloatVectors(1000);
   if ( this->Input->GetPointData()->GetScalars() || this->SpeedScalars )
-    newScalars = new vlFloatScalars(1000);
-  newLines = new vlCellArray();
+    newScalars = new vtkFloatScalars(1000);
+  newLines = new vtkCellArray();
   newLines->Allocate(newLines->EstimateSize(2*this->NumberOfStreamers,MAX_CELL_SIZE));
 //
 // Loop over all streamers generating points
@@ -115,7 +115,7 @@ void vlStreamLine::Execute()
 //
 // Update ourselves
 //
-  vlDebugMacro(<<"Created " << newPts->GetNumberOfPoints() << " points, "
+  vtkDebugMacro(<<"Created " << newPts->GetNumberOfPoints() << " points, "
                << newLines->GetNumberOfCells() << " lines");
 
   this->SetPoints(newPts);
@@ -127,9 +127,9 @@ void vlStreamLine::Execute()
 
 }
 
-void vlStreamLine::PrintSelf(ostream& os, vlIndent indent)
+void vtkStreamLine::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlStreamer::PrintSelf(os,indent);
+  vtkStreamer::PrintSelf(os,indent);
 
   os << indent << "Dash Time: " << this->DashTime << " <<\n";
 

@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    WarpTo.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its
+This file is part of the Visualization Toolkit. No part of this file or its
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
@@ -15,17 +15,17 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 =========================================================================*/
 #include "WarpTo.hh"
 
-void vlWarpTo::Execute()
+void vtkWarpTo::Execute()
 {
-  vlPoints *inPts;
-  vlFloatPoints *newPts;
-  vlPointData *pd;
+  vtkPoints *inPts;
+  vtkFloatPoints *newPts;
+  vtkPointData *pd;
   int i, ptId;
   float *x, newX[3];
-  vlPointSet *input=(vlPointSet *)this->Input;
+  vtkPointSet *input=(vtkPointSet *)this->Input;
   float dist;
 
-  vlDebugMacro(<<"Warping data to a point");
+  vtkDebugMacro(<<"Warping data to a point");
   this->Initialize();
 
   inPts = input->GetPoints();
@@ -33,11 +33,11 @@ void vlWarpTo::Execute()
 
   if (!inPts )
     {
-    vlErrorMacro(<<"No input data");
+    vtkErrorMacro(<<"No input data");
     return;
     }
 
-  newPts = new vlFloatPoints(inPts->GetNumberOfPoints());
+  newPts = new vtkFloatPoints(inPts->GetNumberOfPoints());
   //
   // Loop over all points, adjusting locations
   //
@@ -60,9 +60,9 @@ void vlWarpTo::Execute()
   this->SetPoints(newPts);
 }
 
-void vlWarpTo::PrintSelf(ostream& os, vlIndent indent)
+void vtkWarpTo::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlPointSetToPointSetFilter::PrintSelf(os,indent);
+  vtkPointSetToPointSetFilter::PrintSelf(os,indent);
 
   os << indent << "Position: (" << this->Position[0] << ", " 
     << this->Position[1] << ", " << this->Position[2] << ")\n";

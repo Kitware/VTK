@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    OutlineF.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
@@ -15,15 +15,15 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 =========================================================================*/
 #include "OutlineF.hh"
 
-void vlOutlineFilter::Execute()
+void vtkOutlineFilter::Execute()
 {
   float *bounds;
   float x[3];
   int pts[2];
-  vlFloatPoints *newPts;
-  vlCellArray *newLines;
+  vtkFloatPoints *newPts;
+  vtkCellArray *newLines;
 
-  vlDebugMacro(<< "Creating dataset outline");
+  vtkDebugMacro(<< "Creating dataset outline");
 //
 // Initialize
 //
@@ -32,8 +32,8 @@ void vlOutlineFilter::Execute()
 //
 // Allocate storage and create outline
 //
-  newPts = new vlFloatPoints(8);
-  newLines = new vlCellArray;
+  newPts = new vtkFloatPoints(8);
+  newLines = new vtkCellArray;
   newLines->Allocate(newLines->EstimateSize(12,2));
 
   x[0] = bounds[0]; x[1] = bounds[2]; x[2] = bounds[4];

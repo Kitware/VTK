@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    VoxelR.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its
+This file is part of the Visualization Toolkit. No part of this file or its
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
@@ -16,10 +16,10 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include <ctype.h>
 #include "VoxelR.hh"
 
-void vlVoxelReader::Execute()
+void vtkVoxelReader::Execute()
 {
   FILE *fp;
-  vlBitScalars *newScalars;
+  vtkBitScalars *newScalars;
   int i,numPts;
   int bitcount;
   unsigned char uc;
@@ -31,7 +31,7 @@ void vlVoxelReader::Execute()
 
   if ((fp = fopen(this->Filename, "r")) == NULL)
     {
-    vlErrorMacro(<< "File " << this->Filename << " not found");
+    vtkErrorMacro(<< "File " << this->Filename << " not found");
     return;
     }
 
@@ -49,7 +49,7 @@ void vlVoxelReader::Execute()
   this->SetDimensions(ti);
 
   numPts = this->Dimensions[0] * this->Dimensions[1] * this->Dimensions[2];
-  newScalars = new vlBitScalars(numPts);
+  newScalars = new vtkBitScalars(numPts);
 
   bitcount = 0;
   for (i=0; i<numPts;) 
@@ -65,14 +65,14 @@ void vlVoxelReader::Execute()
     newScalars->SetScalar(i++,(int)(uc&0x01));
     }
 
-  vlDebugMacro(<< "Read " << numPts<< " points");
+  vtkDebugMacro(<< "Read " << numPts<< " points");
 
   this->PointData.SetScalars(newScalars);
 }
 
-void vlVoxelReader::PrintSelf(ostream& os, vlIndent indent)
+void vtkVoxelReader::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlStructuredPointsSource::PrintSelf(os,indent);
+  vtkStructuredPointsSource::PrintSelf(os,indent);
 
   os << indent << "Filename: " << this->Filename << "\n";
 }

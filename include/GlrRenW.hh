@@ -1,33 +1,33 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    GlrRenW.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its
+This file is part of the Visualization Toolkit. No part of this file or its
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
-// .NAME vlGlrRenderWindow - SGI gl rendering window
+// .NAME vtkGlrRenderWindow - SGI gl rendering window
 // .SECTION Description
-// vlGlrRenderWindow is a concrete implementation of the abstract class
-// vlRenderWindow. vlGlrRenderer interfaces to the Silicon Graphics gl
+// vtkGlrRenderWindow is a concrete implementation of the abstract class
+// vtkRenderWindow. vtkGlrRenderer interfaces to the Silicon Graphics gl
 // graphics library.
 
-#ifndef __vlGlrRenderWindow_hh
-#define __vlGlrRenderWindow_hh
+#ifndef __vtkGlrRenderWindow_hh
+#define __vtkGlrRenderWindow_hh
 
 #include <stdlib.h>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include "XRenWin.hh"
 
-class vlGlrRenderWindow : public vlXRenderWindow
+class vtkGlrRenderWindow : public vtkXRenderWindow
 {
 protected:
   int Gid;
@@ -35,15 +35,15 @@ protected:
   long OldMonitorSetting;
 
 public:
-  vlGlrRenderWindow();
-  char *GetClassName() {return "vlGlrRenderWindow";};
-  void PrintSelf(ostream& os, vlIndent indent);
+  vtkGlrRenderWindow();
+  char *GetClassName() {return "vtkGlrRenderWindow";};
+  void PrintSelf(ostream& os, vtkIndent indent);
   
-  vlRenderer  *MakeRenderer();
-  vlLightDevice     *MakeLight();
-  vlCameraDevice    *MakeCamera();
-  vlTextureDevice   *MakeTexture();
-  vlPropertyDevice  *MakeProperty();
+  vtkRenderer  *MakeRenderer();
+  vtkLightDevice     *MakeLight();
+  vtkCameraDevice    *MakeCamera();
+  vtkTextureDevice   *MakeTexture();
+  vtkPropertyDevice  *MakeProperty();
 
   void Start(void);
   void Frame(void);
@@ -60,8 +60,8 @@ public:
   virtual Colormap GetDesiredColormap();
   virtual Visual  *GetDesiredVisual();
 
-  vlSetMacro(MultiSamples,int);
-  vlGetMacro(MultiSamples,int);
+  vtkSetMacro(MultiSamples,int);
+  vtkGetMacro(MultiSamples,int);
 
   // stereo rendering stuff
   virtual void StereoUpdate();

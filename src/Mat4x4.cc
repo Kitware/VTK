@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    Mat4x4.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its
+This file is part of the Visualization Toolkit. No part of this file or its
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
@@ -17,11 +17,11 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include <math.h>
 
 #include "Mat4x4.hh"
-#include "vlMath.hh"
+#include "vtkMath.hh"
 
 // Description:
 // Construct identity matrix.
-vlMatrix4x4::vlMatrix4x4 ()
+vtkMatrix4x4::vtkMatrix4x4 ()
 {
   int i,j;
 
@@ -35,7 +35,7 @@ vlMatrix4x4::vlMatrix4x4 ()
     }
 }
 
-vlMatrix4x4::vlMatrix4x4(const vlMatrix4x4& m)
+vtkMatrix4x4::vtkMatrix4x4(const vtkMatrix4x4& m)
 {
   int i,j;
 
@@ -50,7 +50,7 @@ vlMatrix4x4::vlMatrix4x4(const vlMatrix4x4& m)
 
 // Description:
 // Set all elements of matrix to input value.
-void vlMatrix4x4::operator= (float element)
+void vtkMatrix4x4::operator= (float element)
 {
   int i,j;
 
@@ -67,7 +67,7 @@ void vlMatrix4x4::operator= (float element)
 // Description:
 // Multiply a point (in homogeneous coordinates) by matrix. The in[4] and 
 // result[4] arrays can be the same array.
-void vlMatrix4x4::PointMultiply(float in[4],float result[4])
+void vtkMatrix4x4::PointMultiply(float in[4],float result[4])
 {
   int i;
   float v1 = in[0];
@@ -89,7 +89,7 @@ void vlMatrix4x4::PointMultiply(float in[4],float result[4])
 // Description:
 // Matrix Inversion (by Richard Carling from "Graphics Gems", 
 // Academic Press, 1990).
-void vlMatrix4x4::Invert (vlMatrix4x4 in,vlMatrix4x4 & out)
+void vtkMatrix4x4::Invert (vtkMatrix4x4 in,vtkMatrix4x4 & out)
 {
 
 #define SMALL_NUMBER	1.e-9
@@ -111,7 +111,7 @@ void vlMatrix4x4::Invert (vlMatrix4x4 in,vlMatrix4x4 & out)
 
   det = in.Determinant(in);
   if ( fabs( det ) < SMALL_NUMBER) {
-    vlErrorMacro(<< "Singular matrix, no inverse! Determinant= " << det );
+    vtkErrorMacro(<< "Singular matrix, no inverse! Determinant= " << det );
     det = 0.0;
     return;
   }
@@ -129,9 +129,9 @@ void vlMatrix4x4::Invert (vlMatrix4x4 in,vlMatrix4x4 & out)
 
 // Description:
 // Compute the determinant of the matrix.
-float vlMatrix4x4::Determinant (vlMatrix4x4 & in)
+float vtkMatrix4x4::Determinant (vtkMatrix4x4 & in)
 {
-  vlMath math;
+  vtkMath math;
   double a1, a2, a3, a4, b1, b2, b3, b4, c1, c2, c3, c4, d1, d2, d3, d4;
 
   // assign to individual variable names to aid selecting
@@ -157,7 +157,7 @@ float vlMatrix4x4::Determinant (vlMatrix4x4 & in)
 
 // Description:
 // Compute adjoint of matrix.
-void vlMatrix4x4::Adjoint (vlMatrix4x4 & in,vlMatrix4x4 & out)
+void vtkMatrix4x4::Adjoint (vtkMatrix4x4 & in,vtkMatrix4x4 & out)
 {
 // 
 //   adjoint( original_matrix, inverse_matrix )
@@ -176,7 +176,7 @@ void vlMatrix4x4::Adjoint (vlMatrix4x4 & in,vlMatrix4x4 & out)
 //    The matrix B = (b  ) is the adjoint of A
 //                     ij
 //
-  vlMath m;
+  vtkMath m;
   double a1, a2, a3, a4, b1, b2, b3, b4;
   double c1, c2, c3, c4, d1, d2, d3, d4;
 
@@ -219,7 +219,7 @@ void vlMatrix4x4::Adjoint (vlMatrix4x4 & in,vlMatrix4x4 & out)
   out.Element[3][3]  =   m.Determinant3x3( a1, a2, a3, b1, b2, b3, c1, c2, c3);
 }
 
-void vlMatrix4x4::operator= (vlMatrix4x4& source)
+void vtkMatrix4x4::operator= (vtkMatrix4x4& source)
 {
   int i, j;
 
@@ -234,7 +234,7 @@ void vlMatrix4x4::operator= (vlMatrix4x4& source)
 
 // Description:
 // 
-void vlMatrix4x4::Transpose (vlMatrix4x4 in,vlMatrix4x4 & out)
+void vtkMatrix4x4::Transpose (vtkMatrix4x4 in,vtkMatrix4x4 & out)
 {
   int i, j;
   float temp;
@@ -248,11 +248,11 @@ void vlMatrix4x4::Transpose (vlMatrix4x4 in,vlMatrix4x4 & out)
       }
 }
 
-void vlMatrix4x4::PrintSelf (ostream& os, vlIndent indent)
+void vtkMatrix4x4::PrintSelf (ostream& os, vtkIndent indent)
 {
   int i, j;
 
-        vlObject::PrintSelf(os, indent);
+        vtkObject::PrintSelf(os, indent);
 
         os << indent << "Elements:\n";
         for (i = 0; i < 4; i++) {

@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    Points.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its 
+This file is part of the Visualization Toolkit. No part of this file or its 
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
@@ -15,13 +15,13 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 =========================================================================*/
 #include "Points.hh"
 
-vlPoints::vlPoints()
+vtkPoints::vtkPoints()
 {
   this->Bounds[0] = this->Bounds[2] = this->Bounds[4] = 0.0;
   this->Bounds[1] = this->Bounds[3] = this->Bounds[5] = 1.0;
 }
 
-void vlPoints::GetPoint(int id, float x[3])
+void vtkPoints::GetPoint(int id, float x[3])
 {
   float *xp = this->GetPoint(id);
   for (int i=0; i<3; i++) x[i] = xp[i];
@@ -29,7 +29,7 @@ void vlPoints::GetPoint(int id, float x[3])
 
 // Description:
 // Given a list of pt ids, return an array of point coordinates.
-void vlPoints::GetPoints(vlIdList& ptId, vlFloatPoints& fp)
+void vtkPoints::GetPoints(vtkIdList& ptId, vtkFloatPoints& fp)
 {
   for (int i=0; i<ptId.GetNumberOfIds(); i++)
     {
@@ -39,7 +39,7 @@ void vlPoints::GetPoints(vlIdList& ptId, vlFloatPoints& fp)
 
 // Description:
 // Determine (xmin,xmax, ymin,ymax, zmin,zmax) bounds of points.
-void vlPoints::ComputeBounds()
+void vtkPoints::ComputeBounds()
 {
   int i, j;
   float *x;
@@ -64,7 +64,7 @@ void vlPoints::ComputeBounds()
 
 // Description:
 // Return the bounds of the points.
-float *vlPoints::GetBounds()
+float *vtkPoints::GetBounds()
 {
   this->ComputeBounds();
   return this->Bounds;
@@ -72,17 +72,17 @@ float *vlPoints::GetBounds()
 
 // Description:
 // Return the bounds of the points.
-void vlPoints::GetBounds(float bounds[6])
+void vtkPoints::GetBounds(float bounds[6])
 {
   this->ComputeBounds();
   for (int i=0; i<6; i++) bounds[i] = this->Bounds[i];
 }
 
-void vlPoints::PrintSelf(ostream& os, vlIndent indent)
+void vtkPoints::PrintSelf(ostream& os, vtkIndent indent)
 {
   float *bounds;
 
-  vlRefCount::PrintSelf(os,indent);
+  vtkRefCount::PrintSelf(os,indent);
 
   os << indent << "Number Of Points: " << this->GetNumberOfPoints() << "\n";
   bounds = this->GetBounds();

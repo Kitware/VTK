@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    PlaneSrc.cc
   Language:  C++
   Date:      5/15/94
   Version:   1.12
 
-This file is part of the Visualization Library. No part of this file or its 
+This file is part of the Visualization Toolkit. No part of this file or its 
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
@@ -20,7 +20,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 // Description:
 // Set the number of x-y subdivisions in the plane.
-void vlPlaneSource::SetResolution(const int xR, const int yR)
+void vtkPlaneSource::SetResolution(const int xR, const int yR)
 {
   if ( xR != this->XRes || yR != this->YRes )
   {
@@ -34,17 +34,17 @@ void vlPlaneSource::SetResolution(const int xR, const int yR)
   }
 }
 
-void vlPlaneSource::Execute()
+void vtkPlaneSource::Execute()
 {
   float x[3], tc[2], n[3], xinc, yinc;
   int pts[MAX_CELL_SIZE];
   int i, j;
   int numPts;
   int numPolys;
-  vlFloatPoints *newPoints; 
-  vlFloatNormals *newNormals;
-  vlFloatTCoords *newTCoords;
-  vlCellArray *newPolys;
+  vtkFloatPoints *newPoints; 
+  vtkFloatNormals *newNormals;
+  vtkFloatTCoords *newTCoords;
+  vtkCellArray *newPolys;
 //
 // Set things up; allocate memory
 //
@@ -53,11 +53,11 @@ void vlPlaneSource::Execute()
   numPts = (this->XRes+1) * (this->YRes+1);
   numPolys = this->XRes * this->YRes;
 
-  newPoints = new vlFloatPoints(numPts);
-  newNormals = new vlFloatNormals(numPts);
-  newTCoords = new vlFloatTCoords(numPts,2);
+  newPoints = new vtkFloatPoints(numPts);
+  newNormals = new vtkFloatNormals(numPts);
+  newTCoords = new vtkFloatTCoords(numPts,2);
 
-  newPolys = new vlCellArray;
+  newPolys = new vtkCellArray;
   newPolys->Allocate(newPolys->EstimateSize(numPolys,4));
 //
 // Generate points and point data
@@ -106,9 +106,9 @@ void vlPlaneSource::Execute()
   this->SetPolys(newPolys);
 }
 
-void vlPlaneSource::PrintSelf(ostream& os, vlIndent indent)
+void vtkPlaneSource::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlPolySource::PrintSelf(os,indent);
+  vtkPolySource::PrintSelf(os,indent);
 
   os << indent << "Resolution: (" << this->XRes << " by " << this->YRes << ")\n";
 }

@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    Line.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
@@ -14,14 +14,14 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
 #include "Line.hh"
-#include "vlMath.hh"
+#include "vtkMath.hh"
 #include "CellArr.hh"
 
-static vlMath math;
+static vtkMath math;
 
 // Description:
 // Deep copy of cell.
-vlLine::vlLine(const vlLine& l)
+vtkLine::vtkLine(const vtkLine& l)
 {
   this->Points = l.Points;
   this->PointIds = l.PointIds;
@@ -31,7 +31,7 @@ vlLine::vlLine(const vlLine& l)
 #define INTERSECTION 2
 #define ON_LINE 6
 
-int vlLine::EvaluatePosition(float x[3], float closestPoint[3], 
+int vtkLine::EvaluatePosition(float x[3], float closestPoint[3], 
                              int& subId, float pcoords[3],
                              float& dist2, float weights[MAX_CELL_SIZE])
 {
@@ -91,7 +91,7 @@ int vlLine::EvaluatePosition(float x[3], float closestPoint[3],
   return return_status;
 }
 
-void vlLine::EvaluateLocation(int& subId, float pcoords[3], float x[3],
+void vtkLine::EvaluateLocation(int& subId, float pcoords[3], float x[3],
                               float weights[MAX_CELL_SIZE])
 {
   int i;
@@ -110,7 +110,7 @@ void vlLine::EvaluateLocation(int& subId, float pcoords[3], float x[3],
 //
 //  Intersect two 3D lines
 //
-int vlLine::Intersection (float a1[3], float a2[3], float b1[3], float b2[3],
+int vtkLine::Intersection (float a1[3], float a2[3], float b1[3], float b2[3],
                           float& u, float& v)
 {
   float a21[3], b21[3], b1a1[3];
@@ -166,7 +166,7 @@ int vlLine::Intersection (float a1[3], float a2[3], float b1[3], float b2[3],
     }
 }
 
-int vlLine::CellBoundary(int subId, float pcoords[3], vlIdList& pts)
+int vtkLine::CellBoundary(int subId, float pcoords[3], vtkIdList& pts)
 {
   pts.Reset();
 
@@ -199,10 +199,10 @@ static LINE_CASES lineCases[]= {
   {0,1},
   {-1,-1}};
 
-void vlLine::Contour(float value, vlFloatScalars *cellScalars, 
-                     vlFloatPoints *points,
-                     vlCellArray *verts, vlCellArray *lines, 
-                     vlCellArray *polys, vlFloatScalars *scalars)
+void vtkLine::Contour(float value, vtkFloatScalars *cellScalars, 
+                     vtkFloatPoints *points,
+                     vtkCellArray *verts, vtkCellArray *lines, 
+                     vtkCellArray *polys, vtkFloatScalars *scalars)
 {
   static int CASE_MASK[2] = {1,2};
   int index, i;
@@ -238,7 +238,7 @@ void vlLine::Contour(float value, vlFloatScalars *cellScalars,
 //  Determine the distance of the current vertex to the edge defined by
 //  the vertices provided.  Returns distance squared.
 //
-float vlLine::DistanceToLine (float x[3], float p1[3], float p2[3])
+float vtkLine::DistanceToLine (float x[3], float p1[3], float p2[3])
 {
   int i;
   float np1[3], p1p2[3], proj, den;
@@ -264,7 +264,7 @@ float vlLine::DistanceToLine (float x[3], float p1[3], float p2[3])
 // Line-line intersection. Intersection has to occur within [0,1] parametric
 // coordinates and with specified tolerance.
 //
-int vlLine::IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
+int vtkLine::IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
                               float x[3], float pcoords[3], int& subId)
 {
   float *a1, *a2;

@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    StrData.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
@@ -15,7 +15,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 =========================================================================*/
 #include "StrData.hh"
 
-vlStructuredData::vlStructuredData()
+vtkStructuredData::vtkStructuredData()
 {
   this->Dimensions[0] = 1;
   this->Dimensions[1] = 1;
@@ -26,7 +26,7 @@ vlStructuredData::vlStructuredData()
   this->PointVisibility = NULL;
 }
 
-vlStructuredData::vlStructuredData(const vlStructuredData& sds)
+vtkStructuredData::vtkStructuredData(const vtkStructuredData& sds)
 {
   this->Dimensions[0] = sds.Dimensions[0];
   this->Dimensions[1] = sds.Dimensions[1];
@@ -35,18 +35,18 @@ vlStructuredData::vlStructuredData(const vlStructuredData& sds)
 
   this->Blanking = sds.Blanking;
   if ( sds.PointVisibility != NULL )
-    this->PointVisibility = new vlBitArray(*sds.PointVisibility);
+    this->PointVisibility = new vtkBitArray(*sds.PointVisibility);
   else
     this->PointVisibility = NULL;
 }
 
-vlStructuredData::~vlStructuredData()
+vtkStructuredData::~vtkStructuredData()
 {
 }
 
 // Description:
 // Return the topological dimension of the data (e.g.,0, 1, 2, or 3D).
-int vlStructuredData::GetDataDimension()
+int vtkStructuredData::GetDataDimension()
 {
   switch (this->DataDescription)
     {
@@ -65,7 +65,7 @@ int vlStructuredData::GetDataDimension()
 
 // Description:
 // Set the i-j-k dimensions of the data.
-void vlStructuredData::SetDimensions(int i, int j, int k)
+void vtkStructuredData::SetDimensions(int i, int j, int k)
 {
   int dim[3];
 
@@ -76,16 +76,16 @@ void vlStructuredData::SetDimensions(int i, int j, int k)
   this->SetDimensions(dim);
 }
 
-void vlStructuredData::SetDimensions(int dim[3])
+void vtkStructuredData::SetDimensions(int dim[3])
 {
-  vl_DebugMacro(<< " setting Dimensions to (" << dim[0] << "," << dim[1] << "," << dim[2] << ")");
+  vtk_DebugMacro(<< " setting Dimensions to (" << dim[0] << "," << dim[1] << "," << dim[2] << ")");
 
   if ( dim[0] != this->Dimensions[0] || dim[1] != Dimensions[1] ||
   dim[2] != Dimensions[2] )
     {
     if ( dim[0]<1 || dim[1]<1 || dim[2]<1 )
       {
-      vl_ErrorMacro (<< "Bad Dimensions, retaining previous values");
+      vtk_ErrorMacro (<< "Bad Dimensions, retaining previous values");
       return;
       }
 
@@ -120,12 +120,12 @@ void vlStructuredData::SetDimensions(int dim[3])
     }
 }
 
-int *vlStructuredData::GetDimensions() 
+int *vtkStructuredData::GetDimensions() 
 { 
   return this->Dimensions;
 }
 
-void vlStructuredData::GetDimensions(int dim[3])
+void vtkStructuredData::GetDimensions(int dim[3])
 { 
   for (int i=0; i<3; i++) dim[i] = this->Dimensions[i];
 }
@@ -136,14 +136,14 @@ void vlStructuredData::GetDimensions(int dim[3])
 // portions of the grid when displaying or operating on it. Some data
 // (like finite difference data) routinely turns off data to simulate
 // solid obstacles.
-void vlStructuredData::BlankingOn()
+void vtkStructuredData::BlankingOn()
 {
   this->Blanking = 1;
   this->_Modified();
 
   if ( !this->PointVisibility )
     {
-    this->PointVisibility = new vlBitArray(this->_GetNumberOfPoints(),1000);
+    this->PointVisibility = new vtkBitArray(this->_GetNumberOfPoints(),1000);
     for (int i=0; i<this->_GetNumberOfPoints(); i++)
       {
       this->PointVisibility->InsertValue(i,1);
@@ -153,7 +153,7 @@ void vlStructuredData::BlankingOn()
 
 // Description:
 // Turn off data blanking.
-void vlStructuredData::BlankingOff()
+void vtkStructuredData::BlankingOff()
 {
   this->Blanking = 0;
   this->_Modified();
@@ -161,7 +161,7 @@ void vlStructuredData::BlankingOff()
 
 // Description:
 // Turn off a particular data point.
-void vlStructuredData::BlankPoint(int ptId)
+void vtkStructuredData::BlankPoint(int ptId)
 {
   if ( !this->PointVisibility ) this->BlankingOn();
   this->PointVisibility->InsertValue(ptId,0);
@@ -169,13 +169,13 @@ void vlStructuredData::BlankPoint(int ptId)
 
 // Description:
 // Turn on a particular data point.
-void vlStructuredData::UnBlankPoint(int ptId)
+void vtkStructuredData::UnBlankPoint(int ptId)
 {
   if ( !this->PointVisibility ) this->BlankingOn();
   this->PointVisibility->InsertValue(ptId,1);
 }
 
-int vlStructuredData::_GetNumberOfCells()
+int vtkStructuredData::_GetNumberOfCells()
 {
   int nCells=1;
   int i;
@@ -187,12 +187,12 @@ int vlStructuredData::_GetNumberOfCells()
   return nCells;
 }
 
-int vlStructuredData::_GetNumberOfPoints()
+int vtkStructuredData::_GetNumberOfPoints()
 {
   return Dimensions[0]*Dimensions[1]*Dimensions[2];
 }
 
-void vlStructuredData::_Initialize()
+void vtkStructuredData::_Initialize()
 {
   this->SetDimensions(1,1,1);
   this->Blanking = 0;
@@ -204,7 +204,7 @@ void vlStructuredData::_Initialize()
     }
 }
 
-void vlStructuredData::_GetCellPoints(int cellId, vlIdList& ptIds)
+void vtkStructuredData::_GetCellPoints(int cellId, vtkIdList& ptIds)
 {
   int idx, loc[3], npts;
   int iMin, iMax, jMin, jMax, kMin, kMax;
@@ -284,7 +284,7 @@ void vlStructuredData::_GetCellPoints(int cellId, vlIdList& ptIds)
     }
 }
 
-void vlStructuredData::_GetPointCells(int ptId, vlIdList& cellIds)
+void vtkStructuredData::_GetPointCells(int ptId, vtkIdList& cellIds)
 {
   int ptDim[3], cellDim[3];
   int ptLoc[3], cellLoc[3];
@@ -328,9 +328,9 @@ void vlStructuredData::_GetPointCells(int ptId, vlIdList& cellIds)
   return;
 }
 
-void vlStructuredData::_PrintSelf(ostream& os, vlIndent indent)
+void vtkStructuredData::_PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlLWObject::_PrintSelf(os,indent);
+  vtkLWObject::_PrintSelf(os,indent);
 
   os << indent << "Dimensions: (" << this->Dimensions[0] << ", "
                                   << this->Dimensions[1] << ", "

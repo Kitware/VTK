@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    AppendF.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
@@ -15,18 +15,18 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 =========================================================================*/
 #include "AppendF.hh"
 
-vlAppendFilter::vlAppendFilter()
+vtkAppendFilter::vtkAppendFilter()
 {
 
 }
 
-vlAppendFilter::~vlAppendFilter()
+vtkAppendFilter::~vtkAppendFilter()
 {
 }
 
 // Description:
 // Add a dataset to the list of data to append.
-void vlAppendFilter::AddInput(vlDataSet *ds)
+void vtkAppendFilter::AddInput(vtkDataSet *ds)
 {
   if ( ! this->InputList.IsItemPresent(ds) )
     {
@@ -37,7 +37,7 @@ void vlAppendFilter::AddInput(vlDataSet *ds)
 
 // Description:
 // Remove a dataset from the list of data to append.
-void vlAppendFilter::RemoveInput(vlDataSet *ds)
+void vtkAppendFilter::RemoveInput(vtkDataSet *ds)
 {
   if ( this->InputList.IsItemPresent(ds) )
     {
@@ -46,15 +46,15 @@ void vlAppendFilter::RemoveInput(vlDataSet *ds)
     }
 }
 
-void vlAppendFilter::Update()
+void vtkAppendFilter::Update()
 {
   unsigned long int mtime, dsMtime;
-  vlDataSet *ds;
+  vtkDataSet *ds;
 
   // make sure input is available
   if ( this->InputList.GetNumberOfItems() < 1 )
     {
-    vlErrorMacro(<< "No input!\n");
+    vtkErrorMacro(<< "No input!\n");
     return;
     }
 
@@ -85,19 +85,19 @@ void vlAppendFilter::Update()
 }
 
 // Append data sets into single unstructured grid
-void vlAppendFilter::Execute()
+void vtkAppendFilter::Execute()
 {
   int scalarsPresent, vectorsPresent, normalsPresent, tcoordsPresent;
   int tensorsPresent, userDefinedPresent;
   int numPts, numCells, ptOffset;
-  vlFloatPoints *newPts;
-  vlPointData *pd;
-  vlIdList ptIds(MAX_CELL_SIZE), newPtIds(MAX_CELL_SIZE);
+  vtkFloatPoints *newPts;
+  vtkPointData *pd;
+  vtkIdList ptIds(MAX_CELL_SIZE), newPtIds(MAX_CELL_SIZE);
   int i;
-  vlDataSet *ds;
+  vtkDataSet *ds;
   int ptId, cellId;
 
-  vlDebugMacro(<<"Appending data together");
+  vtkDebugMacro(<<"Appending data together");
   this->Initialize();
 
   // loop over all data sets, checking to see what point data is available.
@@ -125,7 +125,7 @@ void vlAppendFilter::Execute()
 
   if ( numPts < 1 || numCells < 1 )
     {
-    vlErrorMacro(<<"No data to append!");
+    vtkErrorMacro(<<"No data to append!");
     return;
     }
 
@@ -139,7 +139,7 @@ void vlAppendFilter::Execute()
   if ( !userDefinedPresent ) this->PointData.CopyUserDefinedOff();
   this->PointData.CopyAllocate(pd,numPts);
 
-  newPts = new vlFloatPoints(numPts);
+  newPts = new vtkFloatPoints(numPts);
 
   for ( ptOffset=0, this->InputList.InitTraversal(); ds = this->InputList.GetNextItem(); ptOffset+=numPts)
     {
@@ -168,21 +168,21 @@ void vlAppendFilter::Execute()
   this->SetPoints(newPts);
 }
 
-void vlAppendFilter::PrintSelf(ostream& os, vlIndent indent)
+void vtkAppendFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlUnstructuredGrid::PrintSelf(os,indent);
-  vlFilter::_PrintSelf(os,indent);
+  vtkUnstructuredGrid::PrintSelf(os,indent);
+  vtkFilter::_PrintSelf(os,indent);
 
   os << indent << "Input DataSets:\n";
   this->InputList.PrintSelf(os,indent.GetNextIndent());
 }
 
-int vlAppendFilter::GetDataReleased()
+int vtkAppendFilter::GetDataReleased()
 {
   return this->DataReleased;
 }
 
-void vlAppendFilter::SetDataReleased(int flag)
+void vtkAppendFilter::SetDataReleased(int flag)
 {
   this->DataReleased = flag;
 }

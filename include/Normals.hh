@@ -1,45 +1,45 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    Normals.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its 
+This file is part of the Visualization Toolkit. No part of this file or its 
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-// .NAME vlNormals - abstract interface to 3D normals
+// .NAME vtkNormals - abstract interface to 3D normals
 // .SECTION Description
-// vlNormals provides an abstract interface to 3D normals. The data model
-// for vlNormals is an array of nx-ny-nz triplets accessible by point id.
+// vtkNormals provides an abstract interface to 3D normals. The data model
+// for vtkNormals is an array of nx-ny-nz triplets accessible by point id.
 // (Each normal is assumed normalized |n| = 1). The subclasses of 
-// vlNormals are concrete data types (float, int, etc.) that implement 
-// the interface of vlNormals. 
+// vtkNormals are concrete data types (float, int, etc.) that implement 
+// the interface of vtkNormals. 
 
-#ifndef __vlNormals_h
-#define __vlNormals_h
+#ifndef __vtkNormals_h
+#define __vtkNormals_h
 
 #include "RefCount.hh"
 
-class vlIdList;
-class vlFloatNormals;
+class vtkIdList;
+class vtkFloatNormals;
 
-class vlNormals : public vlRefCount 
+class vtkNormals : public vtkRefCount 
 {
 public:
-  vlNormals() {};
-  virtual ~vlNormals() {};
-  char *GetClassName() {return "vlNormals";};
-  void PrintSelf(ostream& os, vlIndent indent);
+  vtkNormals() {};
+  virtual ~vtkNormals() {};
+  char *GetClassName() {return "vtkNormals";};
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Create a copy of this object.
-  virtual vlNormals *MakeObject(int sze, int ext=1000) = 0;
+  virtual vtkNormals *MakeObject(int sze, int ext=1000) = 0;
 
   // Description:
   // Return data type. One of "bit", "char", "short", "int", "float", or
@@ -76,7 +76,7 @@ public:
   // Reclaim any extra memory.
   virtual void Squeeze() = 0;
 
-  void GetNormals(vlIdList& ptId, vlFloatNormals& fp);
+  void GetNormals(vtkIdList& ptId, vtkFloatNormals& fp);
 };
 
 // These include files are placed here so that if Normals.hh is included 

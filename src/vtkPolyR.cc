@@ -1,49 +1,49 @@
 /*=========================================================================
 
-  Program:   Visualization Library
-  Module:    vlPolyR.cc
+  Program:   Visualization Toolkit
+  Module:    vtkPolyR.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-#include "vlPolyR.hh"
+#include "vtkPolyR.hh"
 
-vlPolyReader::vlPolyReader()
+vtkPolyReader::vtkPolyReader()
 {
 }
 
-vlPolyReader::~vlPolyReader()
+vtkPolyReader::~vtkPolyReader()
 {
 }
 
-unsigned long int vlPolyReader::GetMTime()
+unsigned long int vtkPolyReader::GetMTime()
 {
-  unsigned long dtime = this->vlPolySource::GetMTime();
+  unsigned long dtime = this->vtkPolySource::GetMTime();
   unsigned long rtime = this->Reader.GetMTime();
   return (dtime > rtime ? dtime : rtime);
 }
 
 // Description:
-// Specify file name of vl polygonal data file to read.
-void vlPolyReader::SetFilename(char *name) 
+// Specify file name of vtk polygonal data file to read.
+void vtkPolyReader::SetFilename(char *name) 
 {
   this->Reader.SetFilename(name);
 }
-char *vlPolyReader::GetFilename() 
+char *vtkPolyReader::GetFilename() 
 {
   return this->Reader.GetFilename();
 }
 
 // Description:
 // Get the type of file (ASCII or BINARY)
-int vlPolyReader::GetFileType() 
+int vtkPolyReader::GetFileType() 
 {
   return this->Reader.GetFileType();
 }
@@ -51,11 +51,11 @@ int vlPolyReader::GetFileType()
 // Description:
 // Set the name of the scalar data to extract. If not specified, first 
 // scalar data encountered is extracted.
-void vlPolyReader::SetScalarsName(char *name) 
+void vtkPolyReader::SetScalarsName(char *name) 
 {
   this->Reader.SetScalarsName(name);
 }
-char *vlPolyReader::GetScalarsName() 
+char *vtkPolyReader::GetScalarsName() 
 {
   return this->Reader.GetScalarsName();
 }
@@ -63,11 +63,11 @@ char *vlPolyReader::GetScalarsName()
 // Description:
 // Set the name of the vector data to extract. If not specified, first 
 // vector data encountered is extracted.
-void vlPolyReader::SetVectorsName(char *name) 
+void vtkPolyReader::SetVectorsName(char *name) 
 {
   this->Reader.SetVectorsName(name);
 }
-char *vlPolyReader::GetVectorsName() 
+char *vtkPolyReader::GetVectorsName() 
 {
   return this->Reader.GetVectorsName();
 }
@@ -75,11 +75,11 @@ char *vlPolyReader::GetVectorsName()
 // Description:
 // Set the name of the tensor data to extract. If not specified, first 
 // tensor data encountered is extracted.
-void vlPolyReader::SetTensorsName(char *name) 
+void vtkPolyReader::SetTensorsName(char *name) 
 {
   this->Reader.SetTensorsName(name);
 }
-char *vlPolyReader::GetTensorsName() 
+char *vtkPolyReader::GetTensorsName() 
 {
   return this->Reader.GetTensorsName();
 }
@@ -87,11 +87,11 @@ char *vlPolyReader::GetTensorsName()
 // Description:
 // Set the name of the normal data to extract. If not specified, first 
 // normal data encountered is extracted.
-void vlPolyReader::SetNormalsName(char *name) 
+void vtkPolyReader::SetNormalsName(char *name) 
 {
   this->Reader.SetNormalsName(name);
 }
-char *vlPolyReader::GetNormalsName() 
+char *vtkPolyReader::GetNormalsName() 
 {
   return this->Reader.GetNormalsName();
 }
@@ -99,11 +99,11 @@ char *vlPolyReader::GetNormalsName()
 // Description:
 // Set the name of the texture coordinate data to extract. If not specified,
 // first texture coordinate data encountered is extracted.
-void vlPolyReader::SetTCoordsName(char *name) 
+void vtkPolyReader::SetTCoordsName(char *name) 
 {
   this->Reader.SetTCoordsName(name);
 }
-char *vlPolyReader::GetTCoordsName() 
+char *vtkPolyReader::GetTCoordsName() 
 {
   return this->Reader.GetTCoordsName();
 }
@@ -111,16 +111,16 @@ char *vlPolyReader::GetTCoordsName()
 // Description:
 // Set the name of the lookup table data to extract. If not specified, uses 
 // lookup table named by scalar. Otherwise, this specification supersedes.
-void vlPolyReader::SetLookupTableName(char *name) 
+void vtkPolyReader::SetLookupTableName(char *name) 
 {
   this->Reader.SetLookupTableName(name);
 }
-char *vlPolyReader::GetLookupTableName() 
+char *vtkPolyReader::GetLookupTableName() 
 {
   return this->Reader.GetLookupTableName();
 }
 
-void vlPolyReader::Execute()
+void vtkPolyReader::Execute()
 {
   FILE *fp;
   int numPts=0;
@@ -128,7 +128,7 @@ void vlPolyReader::Execute()
   char line[257];
   int npts, size, ncells;
 
-  vlDebugMacro(<<"Reading vl polygonal data...");
+  vtkDebugMacro(<<"Reading vtk polygonal data...");
   this->Initialize();
   if ( this->Debug ) this->Reader.DebugOn();
   else this->Reader.DebugOff();
@@ -141,7 +141,7 @@ void vlPolyReader::Execute()
 //
   if ( (retStat=fscanf(fp,"%256s",line)) == EOF || retStat < 1 ) 
     {
-    vlErrorMacro(<<"Data file ends prematurely!");
+    vtkErrorMacro(<<"Data file ends prematurely!");
     return;
     }
 
@@ -152,13 +152,13 @@ void vlPolyReader::Execute()
 //
     if ( (retStat=fscanf(fp,"%256s",line)) == EOF || retStat < 1 ) 
       {
-      vlErrorMacro(<<"Data file ends prematurely!");
+      vtkErrorMacro(<<"Data file ends prematurely!");
       return;
       } 
 
     if ( strncmp(this->Reader.LowerCase(line),"polydata",8) )
       {
-      vlErrorMacro(<< "Cannot read dataset type: " << line);
+      vtkErrorMacro(<< "Cannot read dataset type: " << line);
       return;
       }
 //
@@ -172,124 +172,124 @@ void vlPolyReader::Execute()
         {
         if ( (retStat=fscanf(fp,"%d", &numPts)) == EOF || retStat < 1 ) 
           {
-          vlErrorMacro(<<"Cannot read number of points!");
+          vtkErrorMacro(<<"Cannot read number of points!");
           return;
           }
 
-        this->Reader.ReadPoints(fp, (vlPointSet *)this, numPts);
+        this->Reader.ReadPoints(fp, (vtkPointSet *)this, numPts);
         }
 
       else if ( ! strncmp(line,"vertices",8) )
         {
-        vlCellArray *verts = new vlCellArray;
+        vtkCellArray *verts = new vtkCellArray;
         if ( (retStat=fscanf(fp,"%d %d", &ncells, &size)) == EOF || retStat < 2 ) 
           {
-          vlErrorMacro(<<"Cannot read vertices!");
+          vtkErrorMacro(<<"Cannot read vertices!");
           return;
           }
 
         this->Reader.ReadCells(fp, size, verts->WritePtr(ncells,size));
         verts->WrotePtr();
         this->SetVerts(verts);
-        vlDebugMacro(<<"Read " << ncells << " vertices");
+        vtkDebugMacro(<<"Read " << ncells << " vertices");
         }
 
       else if ( ! strncmp(line,"lines",5) )
         {
-        vlCellArray *lines = new vlCellArray;
+        vtkCellArray *lines = new vtkCellArray;
         if ( (retStat=fscanf(fp,"%d %d", &ncells, &size)) == EOF || retStat < 2 ) 
           {
-          vlErrorMacro(<<"Cannot read lines!");
+          vtkErrorMacro(<<"Cannot read lines!");
           return;
           }
 
         this->Reader.ReadCells(fp, size, lines->WritePtr(ncells,size));
         lines->WrotePtr();
         this->SetLines(lines);
-        vlDebugMacro(<<"Read " << ncells << " lines");
+        vtkDebugMacro(<<"Read " << ncells << " lines");
         }
 
       else if ( ! strncmp(line,"polygons",8) )
         {
-        vlCellArray *polys = new vlCellArray;
+        vtkCellArray *polys = new vtkCellArray;
         if ( (retStat=fscanf(fp,"%d %d", &ncells, &size)) == EOF || retStat < 2 ) 
           {
-          vlErrorMacro(<<"Cannot read polygons!");
+          vtkErrorMacro(<<"Cannot read polygons!");
           return;
           }
 
         this->Reader.ReadCells(fp, size, polys->WritePtr(ncells,size));
         polys->WrotePtr();
         this->SetPolys(polys);
-        vlDebugMacro(<<"Read " << ncells << " polygons");
+        vtkDebugMacro(<<"Read " << ncells << " polygons");
         }
 
       else if ( ! strncmp(line,"triangle_strips",15) )
         {
-        vlCellArray *tris = new vlCellArray;
+        vtkCellArray *tris = new vtkCellArray;
         if ( (retStat=fscanf(fp,"%d %d", &ncells, &size)) == EOF || retStat < 2 ) 
           {
-          vlErrorMacro(<<"Cannot read triangle strips!");
+          vtkErrorMacro(<<"Cannot read triangle strips!");
           return;
           }
 
         this->Reader.ReadCells(fp, size, tris->WritePtr(ncells,size));
         tris->WrotePtr();
         this->SetStrips(tris);
-        vlDebugMacro(<<"Read " << ncells << " triangle strips");
+        vtkDebugMacro(<<"Read " << ncells << " triangle strips");
         }
 
       else if ( ! strncmp(line, "point_data", 10) )
         {
         if ( (retStat=fscanf(fp,"%d", &npts)) == EOF || retStat < 1 ) 
           {
-          vlErrorMacro(<<"Cannot read point data!");
+          vtkErrorMacro(<<"Cannot read point data!");
           return;
           }
         
         if ( npts != numPts )
           {
-          vlErrorMacro(<<"Number of points don't match number data values!");
+          vtkErrorMacro(<<"Number of points don't match number data values!");
           return;
           }
 
-        this->Reader.ReadPointData(fp, (vlDataSet *)this, npts);
+        this->Reader.ReadPointData(fp, (vtkDataSet *)this, npts);
         break; //out of this loop
         }
 
       else
         {
-        vlErrorMacro(<< "Unrecognized keyord: " << line);
+        vtkErrorMacro(<< "Unrecognized keyord: " << line);
         return;
         }
       }
 
-      if ( ! this->GetPoints() ) vlWarningMacro(<<"No points read!");
+      if ( ! this->GetPoints() ) vtkWarningMacro(<<"No points read!");
       if ( !(this->GetVerts() || this->GetLines() || 
       this->GetPolys() || this->GetStrips()) ) 
-        vlWarningMacro(<<"No topology read!");
+        vtkWarningMacro(<<"No topology read!");
     }
 
   else if ( !strncmp(line, "point_data", 10) )
     {
-    vlWarningMacro(<<"No geometry defined in data file!");
+    vtkWarningMacro(<<"No geometry defined in data file!");
     if ( (retStat=fscanf(fp,"%d", &numPts)) == EOF || retStat < 1 ) 
       {
-      vlErrorMacro(<<"Cannot read point data!");
+      vtkErrorMacro(<<"Cannot read point data!");
       return;
       }
 
-    this->Reader.ReadPointData(fp, (vlDataSet *)this, numPts);
+    this->Reader.ReadPointData(fp, (vtkDataSet *)this, numPts);
     }
 
   else 
     {
-    vlErrorMacro(<< "Unrecognized keyord: " << line);
+    vtkErrorMacro(<< "Unrecognized keyord: " << line);
     }
 }
 
-void vlPolyReader::PrintSelf(ostream& os, vlIndent indent)
+void vtkPolyReader::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlPolySource::PrintSelf(os,indent);
+  vtkPolySource::PrintSelf(os,indent);
   this->Reader.PrintSelf(os,indent);
 }

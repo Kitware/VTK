@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    SbrLgt.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its
+This file is part of the Visualization Toolkit. No part of this file or its
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
@@ -20,14 +20,14 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 // Description:
 // Implement base class method.
-void vlSbrLight::Render(vlLight *lgt, vlRenderer *ren,int light_index)
+void vtkSbrLight::Render(vtkLight *lgt, vtkRenderer *ren,int light_index)
 {
-  this->Render(lgt, (vlSbrRenderer *)ren,light_index);
+  this->Render(lgt, (vtkSbrRenderer *)ren,light_index);
 }
 
 // Description:
 // Actual light render method.
-void vlSbrLight::Render(vlLight *lgt, vlSbrRenderer *ren,int light_index)
+void vtkSbrLight::Render(vtkLight *lgt, vtkSbrRenderer *ren,int light_index)
 {
   float	dx, dy, dz;
   float	color[3];
@@ -76,7 +76,7 @@ void vlSbrLight::Render(vlLight *lgt, vlSbrRenderer *ren,int light_index)
     }
   
   light_flag |= (0x0001 << light_index);
-  vlDebugMacro(<< "Defining front light\n");
+  vtkDebugMacro(<< "Defining front light\n");
   
   // define another mirror light if backlit is on and not positional
   if (ren->GetBackLight() && !lgt->GetPositional()) 
@@ -85,13 +85,13 @@ void vlSbrLight::Render(vlLight *lgt, vlSbrRenderer *ren,int light_index)
     light_source(fd, light_index, DIRECTIONAL,
 		 color[0], color[1], color[2],
 		 dx, dy, dz);
-    vlDebugMacro(<< "Defining back light\n");
+    vtkDebugMacro(<< "Defining back light\n");
     light_flag |= (0x0001 << light_index);
     }
 
   // update the light switch
   light_switch(fd, light_flag);
  
-  vlDebugMacro(<< "SB_light_switch: " << light_flag << "\n");
+  vtkDebugMacro(<< "SB_light_switch: " << light_flag << "\n");
 }
 

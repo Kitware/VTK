@@ -1,68 +1,68 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    DataSetC.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-// .NAME vlDataSetCollection - maintain an unordered list of dataset objects
+// .NAME vtkDataSetCollection - maintain an unordered list of dataset objects
 // .SECTION Description
-// vlDataSetCollection is an object that creates and manipulates lists of
-// datasets. See also vlCollection and subclasses.
+// vtkDataSetCollection is an object that creates and manipulates lists of
+// datasets. See also vtkCollection and subclasses.
 
-#ifndef __vlDataSetCollection_hh
-#define __vlDataSetCollection_hh
+#ifndef __vtkDataSetCollection_hh
+#define __vtkDataSetCollection_hh
 
 #include "Collect.hh"
 #include "DataSet.hh"
 
-class vlDataSetCollection : public vlCollection
+class vtkDataSetCollection : public vtkCollection
 {
 public:
-  char *GetClassName() {return "vlDataSetCollection";};
+  char *GetClassName() {return "vtkDataSetCollection";};
 
-  void AddItem(vlDataSet *);
-  void RemoveItem(vlDataSet *);
-  int IsItemPresent(vlDataSet *);
-  vlDataSet *GetNextItem();
+  void AddItem(vtkDataSet *);
+  void RemoveItem(vtkDataSet *);
+  int IsItemPresent(vtkDataSet *);
+  vtkDataSet *GetNextItem();
 
 };
 
 // Description:
 // Add an DataSet to the list.
-inline void vlDataSetCollection::AddItem(vlDataSet *ds) 
+inline void vtkDataSetCollection::AddItem(vtkDataSet *ds) 
 {
-  this->vlCollection::AddItem((vlObject *)ds);
+  this->vtkCollection::AddItem((vtkObject *)ds);
 }
 
 // Description:
 // Remove an DataSet from the list.
-inline void vlDataSetCollection::RemoveItem(vlDataSet *ds) 
+inline void vtkDataSetCollection::RemoveItem(vtkDataSet *ds) 
 {
-  this->vlCollection::RemoveItem((vlObject *)ds);
+  this->vtkCollection::RemoveItem((vtkObject *)ds);
 }
 
 // Description:
 // Determine whether a particular DataSet is present. Returns its position
 // in the list.
-inline int vlDataSetCollection::IsItemPresent(vlDataSet *ds) 
+inline int vtkDataSetCollection::IsItemPresent(vtkDataSet *ds) 
 {
-  return this->vlCollection::IsItemPresent((vlObject *)ds);
+  return this->vtkCollection::IsItemPresent((vtkObject *)ds);
 }
 
 // Description:
 // Get the next DataSet in the list.
-inline vlDataSet *vlDataSetCollection::GetNextItem() 
+inline vtkDataSet *vtkDataSetCollection::GetNextItem() 
 { 
-  return (vlDataSet *)(this->vlCollection::GetNextItem());
+  return (vtkDataSet *)(this->vtkCollection::GetNextItem());
 }
 
 #endif

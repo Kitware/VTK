@@ -1,44 +1,44 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    Vectors.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its 
+This file is part of the Visualization Toolkit. No part of this file or its 
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-// .NAME vlVectors - abstract interface to 3D vectors
+// .NAME vtkVectors - abstract interface to 3D vectors
 // .SECTION Description
-// vlVectors provides an abstract interface to 3D vectors. The data model
-// for vlVectors is an array of vx-vy-vz triplets accessible by point id.
-// The subclasses of vlVectors are concrete data types (float, int, etc.)
-// that implement the interface of vlVectors.
+// vtkVectors provides an abstract interface to 3D vectors. The data model
+// for vtkVectors is an array of vx-vy-vz triplets accessible by point id.
+// The subclasses of vtkVectors are concrete data types (float, int, etc.)
+// that implement the interface of vtkVectors.
 
-#ifndef __vlVectors_h
-#define __vlVectors_h
+#ifndef __vtkVectors_h
+#define __vtkVectors_h
 
 #include "RefCount.hh"
 
-class vlIdList;
-class vlFloatVectors;
+class vtkIdList;
+class vtkFloatVectors;
 
-class vlVectors : public vlRefCount 
+class vtkVectors : public vtkRefCount 
 {
 public:
-  vlVectors();
-  virtual ~vlVectors() {};
-  char *GetClassName() {return "vlVectors";};
-  void PrintSelf(ostream& os, vlIndent indent);
+  vtkVectors();
+  virtual ~vtkVectors() {};
+  char *GetClassName() {return "vtkVectors";};
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Create a copy of this object.
-  virtual vlVectors *MakeObject(int sze, int ext=1000) = 0;
+  virtual vtkVectors *MakeObject(int sze, int ext=1000) = 0;
 
   // Description:
   // Return data type. One of "bit", "char", "short", "int", "float", or
@@ -75,13 +75,13 @@ public:
   // Reclaim any extra memory.
   virtual void Squeeze() = 0;
 
-  void GetVectors(vlIdList& ptId, vlFloatVectors& fp);
+  void GetVectors(vtkIdList& ptId, vtkFloatVectors& fp);
   virtual void ComputeMaxNorm();
   float GetMaxNorm();
 
 protected:
   float MaxNorm;
-  vlTimeStamp ComputeTime; // Time at which MaxNorm computed
+  vtkTimeStamp ComputeTime; // Time at which MaxNorm computed
 };
 
 // These include files are placed here so that if Vectors.hh is included 

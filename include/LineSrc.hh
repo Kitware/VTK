@@ -1,50 +1,50 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    LineSrc.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its 
+This file is part of the Visualization Toolkit. No part of this file or its 
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-// .NAME vlLineSource - create a line defined by two end points
+// .NAME vtkLineSource - create a line defined by two end points
 // .SECTION Description
-// vlLineSource is a source object that creates a polyline defined by
+// vtkLineSource is a source object that creates a polyline defined by
 // two endpoints. The number of segments composing the polyline is
 // controlled by setting the object resolution.
 
-#ifndef __vlLineSource_h
-#define __vlLineSource_h
+#ifndef __vtkLineSource_h
+#define __vtkLineSource_h
 
 #include "PolySrc.hh"
 
-class vlLineSource : public vlPolySource 
+class vtkLineSource : public vtkPolySource 
 {
 public:
-  vlLineSource(int res=1);
-  char *GetClassName() {return "vlLineSource";};
-  void PrintSelf(ostream& os, vlIndent indent);
+  vtkLineSource(int res=1);
+  char *GetClassName() {return "vtkLineSource";};
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Set position of first end point.
-  vlSetVector3Macro(Pt1,float);
-  vlGetVectorMacro(Pt1,float,3);
+  vtkSetVector3Macro(Pt1,float);
+  vtkGetVectorMacro(Pt1,float,3);
 
   // Description:
   // Set position of other end point.
-  vlSetVector3Macro(Pt2,float);
-  vlGetVectorMacro(Pt2,float,3);
+  vtkSetVector3Macro(Pt2,float);
+  vtkGetVectorMacro(Pt2,float,3);
 
   // Description:
   // Divide line into resolution number of pieces.
-  vlSetClampMacro(Resolution,int,1,LARGE_INTEGER);
-  vlGetMacro(Resolution,int);
+  vtkSetClampMacro(Resolution,int,1,LARGE_INTEGER);
+  vtkGetMacro(Resolution,int);
 
 protected:
   void Execute();

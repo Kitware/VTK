@@ -1,21 +1,21 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    PNMSrc.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-// .NAME vlPNMSource - read pnm (i.e., portable anymap) files
+// .NAME vtkPNMSource - read pnm (i.e., portable anymap) files
 // .SECTION Description
-// vlPNMSource is a source object that reads pnm (portable anymap) files.
+// vtkPNMSource is a source object that reads pnm (portable anymap) files.
 // This includes .pbm (bitmap), .pgm (grayscale), and .ppm (pixmap) files.
 // (Currently this object only reads binary versions of these files).
 //    PNMSource creates structured point datasets. The dimension of the 
@@ -31,8 +31,8 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // differentiate between reading images and volumes, the image range is set
 // to  (-1,-1) to read a single image file.
 
-#ifndef __vlPNMSource_h
-#define __vlPNMSource_h
+#ifndef __vtkPNMSource_h
+#define __vtkPNMSource_h
 
 #include <stdio.h>
 #include "SPtsSrc.hh"
@@ -40,33 +40,33 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "Graymap.hh"
 #include "Bitmap.hh"
 
-class vlPNMSource : public vlStructuredPointsSource
+class vtkPNMSource : public vtkStructuredPointsSource
 {
 public:
-  vlPNMSource();
-  ~vlPNMSource() {};
-  char *GetClassName() {return "vlPNMSource";};
-  void PrintSelf(ostream& os, vlIndent indent);
+  vtkPNMSource();
+  ~vtkPNMSource() {};
+  char *GetClassName() {return "vtkPNMSource";};
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Specify file name of pnm file(s).
-  vlSetStringMacro(Filename);
-  vlGetStringMacro(Filename);
+  vtkSetStringMacro(Filename);
+  vtkGetStringMacro(Filename);
 
   // Description:
   // Set the range of files to read.
-  vlSetVector2Macro(ImageRange,int);
-  vlGetVectorMacro(ImageRange,int,2);
+  vtkSetVector2Macro(ImageRange,int);
+  vtkGetVectorMacro(ImageRange,int,2);
 
   // Description:
   // Specify an aspect ratio for the data.
-  vlSetVector3Macro(DataAspectRatio,float);
-  vlGetVectorMacro(DataAspectRatio,float,3);
+  vtkSetVector3Macro(DataAspectRatio,float);
+  vtkGetVectorMacro(DataAspectRatio,float,3);
 
   // Description:
   // Specify the origin for the data.
-  vlSetVector3Macro(DataOrigin,float);
-  vlGetVectorMacro(DataOrigin,float,3);
+  vtkSetVector3Macro(DataOrigin,float);
+  vtkGetVectorMacro(DataOrigin,float,3);
 
 protected:
   void Execute();
@@ -75,12 +75,12 @@ protected:
   float DataAspectRatio[3];
   float DataOrigin[3];
 
-  vlColorScalars *ReadImage(int dim[3]);
-  vlColorScalars *ReadVolume(int dim[3]);
+  vtkColorScalars *ReadImage(int dim[3]);
+  vtkColorScalars *ReadVolume(int dim[3]);
 
-  int ReadBinaryPBM(FILE *fp, vlBitmap *s, int n, int xsize, int ysize);
-  int ReadBinaryPGM(FILE *fp, vlGraymap *s, int n, int xsize, int ysize);
-  int ReadBinaryPPM(FILE *fp, vlPixmap *s, int n, int xsize, int ysize);
+  int ReadBinaryPBM(FILE *fp, vtkBitmap *s, int n, int xsize, int ysize);
+  int ReadBinaryPGM(FILE *fp, vtkGraymap *s, int n, int xsize, int ysize);
+  int ReadBinaryPPM(FILE *fp, vtkPixmap *s, int n, int xsize, int ysize);
 };
 
 #endif

@@ -1,41 +1,41 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    GlrText.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its
+This file is part of the Visualization Toolkit. No part of this file or its
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
-// .NAME vlGlrTexture - SGI gl texture map
+// .NAME vtkGlrTexture - SGI gl texture map
 // .SECTION Description
-// vlGlrTexture is a concrete implementation of the abstract class vlTexture.
-// vlGlrTexture interfaces to the Silicon Graphics gl rendering library.
+// vtkGlrTexture is a concrete implementation of the abstract class vtkTexture.
+// vtkGlrTexture interfaces to the Silicon Graphics gl rendering library.
 
-#ifndef __vlGlrTexture_hh
-#define __vlGlrTexture_hh
+#ifndef __vtkGlrTexture_hh
+#define __vtkGlrTexture_hh
 
 #include "TextDev.hh"
 
-class vlGlrRenderer;
+class vtkGlrRenderer;
 
-class vlGlrTexture : public vlTextureDevice
+class vtkGlrTexture : public vtkTextureDevice
 {
 public:
-  vlGlrTexture();
-  char *GetClassName() {return "vlGlrTexture";};
+  vtkGlrTexture();
+  char *GetClassName() {return "vtkGlrTexture";};
   
-  void Load(vlTexture *txt, vlRenderer *ren);
-  void Load(vlTexture *txt, vlGlrRenderer *ren);
+  void Load(vtkTexture *txt, vtkRenderer *ren);
+  void Load(vtkTexture *txt, vtkGlrRenderer *ren);
   
 protected:
-  vlTimeStamp   LoadTime;
+  vtkTimeStamp   LoadTime;
   long          Index;
   static   long GlobalIndex;
 };

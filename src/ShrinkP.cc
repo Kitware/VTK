@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    ShrinkP.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its 
+This file is part of the Visualization Toolkit. No part of this file or its 
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
@@ -15,23 +15,23 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 =========================================================================*/
 #include "ShrinkP.hh"
 
-void vlShrinkPolyData::Execute()
+void vtkShrinkPolyData::Execute()
 {
   int j, k;
   float center[3];
-  vlPoints *inPts;
-  vlPointData *pd;
-  vlCellArray *inVerts,*inLines,*inPolys,*inStrips;
+  vtkPoints *inPts;
+  vtkPointData *pd;
+  vtkCellArray *inVerts,*inLines,*inPolys,*inStrips;
   int numNewPts, numNewLines, numNewPolys, poly_alloc_size;
   int npts, *pts, newId, newIds[3];
-  vlFloatPoints *newPoints;
-  vlCellArray *newVerts, *newLines, *newPolys;
+  vtkFloatPoints *newPoints;
+  vtkCellArray *newVerts, *newLines, *newPolys;
   float *p1, *p2, *p3, pt[3];
-  vlPolyData *input=(vlPolyData *)this->Input;
+  vtkPolyData *input=(vtkPolyData *)this->Input;
 //
 // Initialize
 //
-  vlDebugMacro(<<"Shrinking polygonal data");
+  vtkDebugMacro(<<"Shrinking polygonal data");
   this->Initialize();
 
   inPts = input->GetPoints();
@@ -69,14 +69,14 @@ void vlShrinkPolyData::Execute()
 //
 // Allocate
 //
-  newPoints = new vlFloatPoints(numNewPts);
+  newPoints = new vtkFloatPoints(numNewPts);
 
-  newVerts = new vlCellArray(input->GetNumberOfVerts());
+  newVerts = new vtkCellArray(input->GetNumberOfVerts());
 
-  newLines = new vlCellArray;
+  newLines = new vtkCellArray;
   newLines->Allocate(numNewLines*3);
  
-  newPolys = new vlCellArray;
+  newPolys = new vtkCellArray;
   newPolys->Allocate(poly_alloc_size);
 
   this->PointData.CopyAllocate(pd);
@@ -183,9 +183,9 @@ void vlShrinkPolyData::Execute()
 }
 
 
-void vlShrinkPolyData::PrintSelf(ostream& os, vlIndent indent)
+void vtkShrinkPolyData::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlPolyToPolyFilter::PrintSelf(os,indent);
+  vtkPolyToPolyFilter::PrintSelf(os,indent);
 
   os << indent << "Shrink Factor: " << this->ShrinkFactor << "\n";
 }

@@ -1,25 +1,25 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    XglrRenW.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file or its
+This file is part of the Visualization Toolkit. No part of this file or its
 contents may be copied, reproduced or altered in any way without the express
 written consent of the authors.
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
-// .NAME vlXglrRenderWindow - Suns XGL rendering window
+// .NAME vtkXglrRenderWindow - Suns XGL rendering window
 // .SECTION Description
-// vlXglrRenderWindow is a concrete implementation of the abstract class
-// vlRenderWindow. vlXglrRenderer interfaces to Suns XGL graphics library.
+// vtkXglrRenderWindow is a concrete implementation of the abstract class
+// vtkRenderWindow. vtkXglrRenderer interfaces to Suns XGL graphics library.
 
-#ifndef __vlXglrRenderWindow_hh
-#define __vlXglrRenderWindow_hh
+#ifndef __vtkXglrRenderWindow_hh
+#define __vtkXglrRenderWindow_hh
 
 #include <stdlib.h>
 #include <X11/X.h>
@@ -28,18 +28,18 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "XRenWin.hh"
 #include <xgl/xgl.h>
 
-class vlXglrRenderWindow : public vlXRenderWindow
+class vtkXglrRenderWindow : public vtkXRenderWindow
 {
 public:
-  vlXglrRenderWindow();
-  char *GetClassName() {return "vlXglrRenderWindow";};
-  void PrintSelf(ostream& os, vlIndent indent);
+  vtkXglrRenderWindow();
+  char *GetClassName() {return "vtkXglrRenderWindow";};
+  void PrintSelf(ostream& os, vtkIndent indent);
   
-  vlRenderer  *MakeRenderer();
-  vlLightDevice     *MakeLight();
-  vlCameraDevice    *MakeCamera();
-  vlPropertyDevice  *MakeProperty();
-  vlTextureDevice   *MakeTexture();
+  vtkRenderer  *MakeRenderer();
+  vtkLightDevice     *MakeLight();
+  vtkCameraDevice    *MakeCamera();
+  vtkPropertyDevice  *MakeProperty();
+  vtkTextureDevice   *MakeTexture();
 
   void Start(void);
   void Frame(void);

@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    RotExtrd.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
@@ -14,14 +14,14 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
 #include "RotExtrd.hh"
-#include "vlMath.hh"
+#include "vtkMath.hh"
 #include "IdList.hh"
 
 // Description:
 // Create object with capping on, angle of 360 degrees, resolution = 12, and
 // no translation along z-axis.
 // vector (0,0,1), and point (0,0,0).
-vlRotationalExtrusionFilter::vlRotationalExtrusionFilter()
+vtkRotationalExtrusionFilter::vtkRotationalExtrusionFilter()
 {
   this->Capping = 1;
   this->Angle = 360.0;
@@ -30,33 +30,33 @@ vlRotationalExtrusionFilter::vlRotationalExtrusionFilter()
   this->Resolution = 12; // 30 degree increments
 }
 
-void vlRotationalExtrusionFilter::Execute()
+void vtkRotationalExtrusionFilter::Execute()
 {
   int numPts, numCells;
-  vlPolyData *input=(vlPolyData *)this->Input;
-  vlPointData *pd=input->GetPointData();
-  vlPolyData mesh;
-  vlPoints *inPts;
-  vlCellArray *inVerts, *inLines, *inPolys, *inStrips;
+  vtkPolyData *input=(vtkPolyData *)this->Input;
+  vtkPointData *pd=input->GetPointData();
+  vtkPolyData mesh;
+  vtkPoints *inPts;
+  vtkCellArray *inVerts, *inLines, *inPolys, *inStrips;
   int npts, *pts, numEdges, cellId, dim;
   int ptId, ncells;
   float *x, newX[3], radius, angleIncr, radIncr, transIncr;
-  vlFloatPoints *newPts;
-  vlCellArray *newLines=NULL, *newPolys=NULL, *newStrips=NULL;
-  vlCell *cell, *edge;
-  vlIdList cellIds(MAX_CELL_SIZE), *cellPts;
-  vlMath math;
+  vtkFloatPoints *newPts;
+  vtkCellArray *newLines=NULL, *newPolys=NULL, *newStrips=NULL;
+  vtkCell *cell, *edge;
+  vtkIdList cellIds(MAX_CELL_SIZE), *cellPts;
+  vtkMath math;
   int i, j, k, p1, p2;
 //
 // Initialize / check input
 //
-  vlDebugMacro(<<"Rotationally extruding data");
+  vtkDebugMacro(<<"Rotationally extruding data");
   this->Initialize();
 
   if ( (numPts=input->GetNumberOfPoints()) < 1 || 
   (numCells=input->GetNumberOfCells()) < 1 )
     {
-    vlErrorMacro(<<"No data to extrude!");
+    vtkErrorMacro(<<"No data to extrude!");
     return;
     }
 //
@@ -79,17 +79,17 @@ void vlRotationalExtrusionFilter::Execute()
 //
   this->PointData.CopyNormalsOff();
   this->PointData.CopyAllocate(pd,(this->Resolution+1)*numPts);
-  newPts = new vlFloatPoints((this->Resolution+1)*numPts);
+  newPts = new vtkFloatPoints((this->Resolution+1)*numPts);
   if ( (ncells=inVerts->GetNumberOfCells()) > 0 ) 
     {
-    newLines = new vlCellArray;
+    newLines = new vtkCellArray;
     newLines->Allocate(newLines->EstimateSize(ncells,this->Resolution+1));
     }
   // arbitrary initial allocation size
   ncells = inLines->GetNumberOfCells() + inPolys->GetNumberOfCells()/10 +
            inStrips->GetNumberOfCells()/10;
   ncells = (ncells < 100 ? 100 : ncells);
-  newStrips = new vlCellArray;
+  newStrips = new vtkCellArray;
   newStrips->Allocate(newStrips->EstimateSize(ncells,2*(this->Resolution+1)));
 
   // copy points
@@ -124,7 +124,7 @@ void vlRotationalExtrusionFilter::Execute()
     {
     if ( inPolys->GetNumberOfCells() > 0 )
       {
-      newPolys = new vlCellArray(inPolys->GetSize());
+      newPolys = new vtkCellArray(inPolys->GetSize());
       for ( inPolys->InitTraversal(); inPolys->GetNextCell(npts,pts); )
         {
         newPolys->InsertNextCell(npts,pts);
@@ -219,9 +219,9 @@ void vlRotationalExtrusionFilter::Execute()
 
 
 
-void vlRotationalExtrusionFilter::PrintSelf(ostream& os, vlIndent indent)
+void vtkRotationalExtrusionFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlPolyToPolyFilter::PrintSelf(os,indent);
+  vtkPolyToPolyFilter::PrintSelf(os,indent);
 
   os << indent << "Resolution: " << this->Resolution << "\n";
   os << indent << "Capping: " << (this->Capping ? "On\n" : "Off\n");

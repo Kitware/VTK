@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    FeatEdge.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
@@ -14,14 +14,14 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
 #include "FeatEdge.hh"
-#include "vlMath.hh"
+#include "vtkMath.hh"
 #include "Polygon.hh"
 #include "FNormals.hh"
 
 // Description:
 // Construct object with feature angle = 30; all types of edges extracted
 // and colored.
-vlFeatureEdges::vlFeatureEdges()
+vtkFeatureEdges::vtkFeatureEdges()
 {
   this->FeatureAngle = 30.0;
   this->BoundaryEdges = 1;
@@ -31,28 +31,28 @@ vlFeatureEdges::vlFeatureEdges()
 }
 
 // Generate feature edges for mesh
-void vlFeatureEdges::Execute()
+void vtkFeatureEdges::Execute()
 {
-  vlPolyData *input=(vlPolyData *)this->Input;
-  vlPoints *inPts;
-  vlFloatPoints *newPts;
-  vlFloatScalars *newScalars;
-  vlCellArray *newLines;
-  vlPolyData Mesh;
+  vtkPolyData *input=(vtkPolyData *)this->Input;
+  vtkPoints *inPts;
+  vtkFloatPoints *newPts;
+  vtkFloatScalars *newScalars;
+  vtkCellArray *newLines;
+  vtkPolyData Mesh;
   int i, j, numNei, cellId;
   int numBEdges, numNonManifoldEdges, numFedges;
   float scalar, n[3], *x1, *x2, cosAngle;
-  vlMath math;
-  vlPolygon poly;
+  vtkMath math;
+  vtkPolygon poly;
   int lineIds[2];
   int npts, *pts;
-  vlCellArray *inPolys;
-  vlFloatNormals *polyNormals;
+  vtkCellArray *inPolys;
+  vtkFloatNormals *polyNormals;
   int numPts, nei;
-  vlIdList neighbors(MAX_CELL_SIZE);
+  vtkIdList neighbors(MAX_CELL_SIZE);
   int p1, p2;
 
-  vlDebugMacro(<<"Executing feature edges");
+  vtkDebugMacro(<<"Executing feature edges");
   this->Initialize();
 //
 //  Check input
@@ -61,13 +61,13 @@ void vlFeatureEdges::Execute()
   (inPts=input->GetPoints()) == NULL || 
   (inPolys=input->GetPolys()) == NULL )
     {
-    vlErrorMacro(<<"No input data!");
+    vtkErrorMacro(<<"No input data!");
     return;
     }
 
   if ( !this->BoundaryEdges && !this->NonManifoldEdges && !this->FeatureEdges) 
     {
-    vlWarningMacro(<<"All edge types turned off!");
+    vtkWarningMacro(<<"All edge types turned off!");
     return;
     }
 
@@ -78,15 +78,15 @@ void vlFeatureEdges::Execute()
 //
 //  Allocate storage for lines/points
 //
-  newPts = new vlFloatPoints(numPts/10,numPts); // arbitrary allocations size 
-  newScalars = new vlFloatScalars(numPts/10,numPts);
-  newLines = new vlCellArray(numPts/10);
+  newPts = new vtkFloatPoints(numPts/10,numPts); // arbitrary allocations size 
+  newScalars = new vtkFloatScalars(numPts/10,numPts);
+  newLines = new vtkCellArray(numPts/10);
 //
 //  Loop over all polygons generating boundary, non-manifold, and feature edges
 //
   if ( this->FeatureEdges ) 
     {    
-    polyNormals = new vlFloatNormals(inPolys->GetNumberOfCells());
+    polyNormals = new vtkFloatNormals(inPolys->GetNumberOfCells());
 
     for (cellId=0, inPolys->InitTraversal(); inPolys->GetNextCell(npts,pts); 
     cellId++)
@@ -157,7 +157,7 @@ void vlFeatureEdges::Execute()
       }
     }
 
-  vlDebugMacro(<<"Created " << numBEdges << " boundary edges, " <<
+  vtkDebugMacro(<<"Created " << numBEdges << " boundary edges, " <<
                numNonManifoldEdges << " non-manifold edges, " <<
                numFedges << " feature edges");
 
@@ -174,9 +174,9 @@ void vlFeatureEdges::Execute()
     delete newScalars;
 }
 
-void vlFeatureEdges::PrintSelf(ostream& os, vlIndent indent)
+void vtkFeatureEdges::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlPolyToPolyFilter::PrintSelf(os,indent);
+  vtkPolyToPolyFilter::PrintSelf(os,indent);
 
   os << indent << "Feature Angle: " << this->FeatureAngle << "\n";
   os << indent << "Boundary Edges: " << (this->BoundaryEdges ? "On\n" : "Off\n");

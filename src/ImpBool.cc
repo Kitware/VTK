@@ -1,12 +1,12 @@
 /*=========================================================================
 
-  Program:   Visualization Library
+  Program:   Visualization Toolkit
   Module:    ImpBool.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-This file is part of the Visualization Library. No part of this file
+This file is part of the Visualization Toolkit. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
 
@@ -17,20 +17,20 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 // Description:
 // 
-vlImplicitBoolean::vlImplicitBoolean()
+vtkImplicitBoolean::vtkImplicitBoolean()
 {
   this->OperationType = UNION;
 }
 
-vlImplicitBoolean::~vlImplicitBoolean()
+vtkImplicitBoolean::~vtkImplicitBoolean()
 {
 }
 
-unsigned long int vlImplicitBoolean::GetMTime()
+unsigned long int vtkImplicitBoolean::GetMTime()
 {
   unsigned long int fMtime;
-  unsigned long int mtime = this->vlImplicitFunction::GetMTime();
-  vlImplicitFunction *f;
+  unsigned long int mtime = this->vtkImplicitFunction::GetMTime();
+  vtkImplicitFunction *f;
 
   for (this->FunctionList.InitTraversal(); f=this->FunctionList.GetNextItem(); )
     {
@@ -42,7 +42,7 @@ unsigned long int vlImplicitBoolean::GetMTime()
 
 // Description:
 // Add another implicit function to the list of functions.
-void vlImplicitBoolean::AddFunction(vlImplicitFunction *f)
+void vtkImplicitBoolean::AddFunction(vtkImplicitFunction *f)
 {
   if ( ! this->FunctionList.IsItemPresent(f) )
     {
@@ -53,7 +53,7 @@ void vlImplicitBoolean::AddFunction(vlImplicitFunction *f)
 
 // Description:
 // Remove a function from the list of implicit functions to boolean.
-void vlImplicitBoolean::RemoveFunction(vlImplicitFunction *f)
+void vtkImplicitBoolean::RemoveFunction(vtkImplicitFunction *f)
 {
   if ( this->FunctionList.IsItemPresent(f) )
     {
@@ -64,10 +64,10 @@ void vlImplicitBoolean::RemoveFunction(vlImplicitFunction *f)
 
 // Description
 // Evaluate boolean combinations of implicit function using current operator.
-float vlImplicitBoolean::EvaluateFunction(float x[3])
+float vtkImplicitBoolean::EvaluateFunction(float x[3])
 {
   float value, v;
-  vlImplicitFunction *f;
+  vtkImplicitFunction *f;
 
   if ( this->OperationType == UNION )
     { //take minimum value
@@ -89,7 +89,7 @@ float vlImplicitBoolean::EvaluateFunction(float x[3])
 
   else //difference
     {
-    vlImplicitFunction *firstF;
+    vtkImplicitFunction *firstF;
     this->FunctionList.InitTraversal();
     if ( (firstF = this->FunctionList.GetNextItem()) != NULL )
       value = firstF->FunctionValue(x);
@@ -109,10 +109,10 @@ float vlImplicitBoolean::EvaluateFunction(float x[3])
 
 // Description
 // Evaluate gradient of boolean combination.
-void vlImplicitBoolean::EvaluateGradient(float x[3], float g[3])
+void vtkImplicitBoolean::EvaluateGradient(float x[3], float g[3])
 {
   float value, v;
-  vlImplicitFunction *f;
+  vtkImplicitFunction *f;
 
   if ( this->OperationType == UNION )
     { //take minimum value
@@ -143,7 +143,7 @@ void vlImplicitBoolean::EvaluateGradient(float x[3], float g[3])
   else //difference
     {
     float gTemp[3];
-    vlImplicitFunction *firstF;
+    vtkImplicitFunction *firstF;
     this->FunctionList.InitTraversal();
     if ( (firstF = this->FunctionList.GetNextItem()) != NULL )
       {
@@ -168,9 +168,9 @@ void vlImplicitBoolean::EvaluateGradient(float x[3], float g[3])
     }//else
 }
 
-void vlImplicitBoolean::PrintSelf(ostream& os, vlIndent indent)
+void vtkImplicitBoolean::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vlImplicitFunction::PrintSelf(os,indent);
+  vtkImplicitFunction::PrintSelf(os,indent);
 
   os << indent << "Function List:\n";
   this->FunctionList.PrintSelf(os,indent.GetNextIndent());
