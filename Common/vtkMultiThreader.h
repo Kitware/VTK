@@ -32,7 +32,7 @@
 #include <unistd.h> // Needed for unix implementation of sproc
 #endif
 
-#ifdef VTK_USE_PTHREADS
+#if defined(VTK_USE_PTHREADS) || defined(VTK_HP_PTHREADS)
 #include <pthread.h> // Needed for PTHREAD implementation of mutex
 #include <sys/types.h> // Needed for unix implementation of pthreads
 #include <unistd.h> // Needed for unix implementation of pthreads

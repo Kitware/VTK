@@ -20,7 +20,7 @@
 #include "vtkMutexLock.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkMultiThreader, "1.42");
+vtkCxxRevisionMacro(vtkMultiThreader, "1.43");
 vtkStandardNewMacro(vtkMultiThreader);
 
 // These are the includes necessary for multithreaded rendering on an SGI
@@ -36,7 +36,7 @@ vtkStandardNewMacro(vtkMultiThreader);
 // platforms about passing function pointer to an argument expecting an
 // extern "C" function.  Placing the typedef of the function pointer type
 // inside an extern "C" block solves this problem.
-#ifdef VTK_USE_PTHREADS
+#if defined(VTK_USE_PTHREADS) || defined(VTK_HP_PTHREADS)
 #include <pthread.h>
 extern "C" { typedef void *(*vtkExternCThreadFunctionType)(void *); }
 #else

@@ -45,11 +45,11 @@
 typedef abilock_t vtkCritSecType;
 #endif
 
-#ifdef VTK_USE_PTHREADS
+#if defined(VTK_USE_PTHREADS) || defined(VTK_HP_PTHREADS)
 #include <pthread.h> // Needed for pthreads implementation of mutex
 typedef pthread_mutex_t vtkCritSecType;
 #endif
- 
+
 #ifdef VTK_USE_WIN32_THREADS
 #include <winbase.h> // Needed for win32 implementation of mutex
 typedef CRITICAL_SECTION vtkCritSecType;

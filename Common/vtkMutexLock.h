@@ -34,7 +34,7 @@
 typedef abilock_t vtkMutexType;
 #endif
 
-#ifdef VTK_USE_PTHREADS
+#if defined(VTK_USE_PTHREADS) || defined(VTK_HP_PTHREADS)
 #include <pthread.h> // Needed for PTHREAD implementation of mutex
 typedef pthread_mutex_t vtkMutexType;
 #endif
