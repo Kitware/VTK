@@ -21,7 +21,7 @@
 #include "expat.h"
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkXMLParser, "1.3");
+vtkCxxRevisionMacro(vtkXMLParser, "1.4");
 vtkStandardNewMacro(vtkXMLParser);
 
 //----------------------------------------------------------------------------
@@ -58,10 +58,10 @@ int vtkXMLParser::Parse()
   // Create the expat XML parser.
   this->Parser = XML_ParserCreate(0);
   XML_SetElementHandler(this->Parser,
-                        &vtkXMLParser::StartElementFunction,
-                        &vtkXMLParser::EndElementFunction);
+                        &vtkXMLParserStartElement,
+                        &vtkXMLParserEndElement);
   XML_SetCharacterDataHandler(this->Parser,
-                              &vtkXMLParser::CharacterDataHandlerFunction);
+                              &vtkXMLParserCharacterDataHandler);
   XML_SetUserData(this->Parser, this);
   
   // Parse the input.
@@ -221,27 +221,35 @@ int vtkXMLParser::ParseBuffer(const char* buffer)
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLParser::StartElementFunction(void* parser, const char *name,
-                                        const char **atts)
+int vtkXMLParser::IsSpace(char c)
 {
+  return isspace(c);
+}
+
+//----------------------------------------------------------------------------
+void vtkXMLParserStartElement(void* parser, const char *name,
+                              const char **atts)
+{
+  // Begin element handler that is registered with the XML_Parser.
+  // This just casts the user data to a vtkXMLParser and calls
+  // StartElement.
   static_cast<vtkXMLParser*>(parser)->StartElement(name, atts);
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLParser::EndElementFunction(void* parser, const char *name)
+void vtkXMLParserEndElement(void* parser, const char *name)
 {
+  // End element handler that is registered with the XML_Parser.  This
+  // just casts the user data to a vtkXMLParser and calls EndElement.
   static_cast<vtkXMLParser*>(parser)->EndElement(name);
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLParser::CharacterDataHandlerFunction(void* parser, const char* data,
-                                                int length)
+void vtkXMLParserCharacterDataHandler(void* parser, const char* data,
+                                      int length)
 {
+  // Character data handler that is registered with the XML_Parser.
+  // This just casts the user data to a vtkXMLParser and calls
+  // CharacterDataHandler.
   static_cast<vtkXMLParser*>(parser)->CharacterDataHandler(data, length);
-}
-
-//----------------------------------------------------------------------------
-int vtkXMLParser::IsSpace(char c)
-{
-  return isspace(c);
 }
