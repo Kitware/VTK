@@ -25,7 +25,7 @@
 #include "vtkPointData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkConvexPointSet, "1.10");
+vtkCxxRevisionMacro(vtkConvexPointSet, "1.11");
 vtkStandardNewMacro(vtkConvexPointSet);
 
 // Construct the hexahedron with eight points.
@@ -95,7 +95,8 @@ vtkCell *vtkConvexPointSet::GetFace(int faceId)
   return this->Triangle;
 }
 
-int vtkConvexPointSet::Triangulate(int index, vtkIdList *ptIds, vtkPoints *pts)
+int vtkConvexPointSet::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
+                                   vtkPoints *pts)
 {
   int numPts=this->GetNumberOfPoints();
   int i;
@@ -133,7 +134,8 @@ int vtkConvexPointSet::Triangulate(int index, vtkIdList *ptIds, vtkPoints *pts)
 }
 
   
-void vtkConvexPointSet::Contour(float value, vtkDataArray *cellScalars, 
+void vtkConvexPointSet::Contour(float value,
+                                vtkDataArray *vtkNotUsed(cellScalars),
                                 vtkPointLocator *locator,
                                 vtkCellArray *verts, vtkCellArray *lines, 
                                 vtkCellArray *polys, 
@@ -192,7 +194,6 @@ int vtkConvexPointSet::CellBoundary(int subId, float pcoords[3],
                                     vtkIdList *pts)
 {
   int i;
-  vtkIdType minId;
   float p[3], *x, dist2, minDist2=VTK_LARGE_FLOAT, pMin[3], closest[3], pc[3];
   float weights[4];
 
@@ -207,7 +208,6 @@ int vtkConvexPointSet::CellBoundary(int subId, float pcoords[3],
     dist2 = vtkMath::Distance2BetweenPoints(x,p);
     if ( dist2 < minDist2 )
       {
-      minId = i;
       pMin[0] = x[0];
       pMin[1] = x[1];
       pMin[2] = x[2];
@@ -217,7 +217,6 @@ int vtkConvexPointSet::CellBoundary(int subId, float pcoords[3],
   // Get the faces connected to the point, find the closest face
   this->BoundaryTris->Reset();
   this->Triangulator->AddTriangles(this->BoundaryTris);
-  int numTris = this->BoundaryTris->GetNumberOfCells();
 
   vtkIdType npts, *tpts;
   for ( minDist2=VTK_LARGE_FLOAT, this->BoundaryTris->InitTraversal(); 
@@ -241,7 +240,8 @@ int vtkConvexPointSet::CellBoundary(int subId, float pcoords[3],
   return 1;
 }
 
-int vtkConvexPointSet::EvaluatePosition(float x[3], float* closestPoint,
+int vtkConvexPointSet::EvaluatePosition(float x[3],
+                                        float* vtkNotUsed(closestPoint),
                                         int& subId, float pcoords[3],
                                         float& minDist2, float *weights)
 {
