@@ -86,7 +86,7 @@ class VTK_IO_EXPORT vtkTIFFReader : public vtkImageReader2
   // the format .extension
   virtual const char* GetFileExensions()
     {
-    return ".tif";
+    return ".tif .tiff";
     }
 
   // Description: 

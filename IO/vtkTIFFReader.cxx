@@ -63,7 +63,16 @@ public:
   unsigned short Photometrics;
   unsigned short PlanarConfig;
   unsigned long int TileDepth;
+  static void ErrorHandler(const char* module, const char* fmt, va_list ap);
 };
+
+void TIFFInternal::ErrorHandler(const char* vtkNotUsed(module), 
+                                const char* vtkNotUsed(fmt), 
+                                va_list vtkNotUsed(ap))
+{
+  // Do nothing
+  // Ignore errors
+}
 
 int TIFFInternal::Open( const char *filename )
 {
@@ -98,7 +107,8 @@ TIFFInternal::TIFFInternal()
   this->Compression     = 0;
   this->BitsPerSample   = 0;
   this->Photometrics    = 0;
-  this->PlanarConfig    = 0;
+  this->PlanarConfig    = 0;  
+  TIFFSetErrorHandler(&TIFFInternal::ErrorHandler);
 }
 
 int TIFFInternal::Initialize()
