@@ -5,11 +5,11 @@ source vtkImageInclude.tcl
 # Image pipeline
 
 vtkImageEllipsoidSource sphere1
-sphere1 SetCenter 95 100 
+sphere1 SetCenter 95 100 0
 sphere1 SetRadius 70 70 70
 
 vtkImageEllipsoidSource sphere2
-sphere2 SetCenter 161 100 
+sphere2 SetCenter 161 100 0
 sphere2 SetRadius 70 70 70 
 
 vtkImageLogic xor

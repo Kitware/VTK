@@ -178,6 +178,16 @@ vtkXImageWindow::vtkXImageWindow()
 vtkXImageWindow::~vtkXImageWindow()
 {
   vtkDebugMacro(<< "vtkXImageWindow::vtkXImageWindow");
+
+  /* free the Xwindow we created no need to free the colormap */
+  if (this->DisplayId && this->WindowId)
+    {
+    XDestroyWindow(this->DisplayId,this->WindowId);
+    }
+  if (this->DisplayId)
+    {
+    XSync(this->DisplayId,0);
+    }
 }
 
 

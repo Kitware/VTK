@@ -12,16 +12,14 @@ reader SetDataByteOrderToLittleEndian
 reader SetDataExtent 0 255 0 255 1 93
 reader SetFilePrefix "../../../vtkdata/fullHead/headsq"
 reader SetDataMask 0x7fff
-reader SetOutputScalarType $VTK_SHORT
+reader SetDataScalarType $VTK_SHORT
 #reader DebugOn
 
 vtkImageThreshold thresh
 thresh SetInput [reader GetOutput]
-thresh SetOutputScalarType $VTK_UNSIGNED_CHAR
 thresh ThresholdByUpper 2000.0
 thresh SetInValue 255
 thresh SetOutValue 0
-thresh ReleaseDataFlagOff
 
 vtkImageViewer viewer
 viewer SetInput [thresh GetOutput]

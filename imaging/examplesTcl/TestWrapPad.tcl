@@ -16,7 +16,7 @@ reader SetDataMask 0x7fff
 
 vtkImageWrapPad pad
 pad SetInput [reader GetOutput]
-pad SetOutputWholeExtent -300 355 -300 370 0 92
+pad SetOutputWholeExtent -200 355 -200 370 0 92
 pad ReleaseDataFlagOff
 
 vtkImageViewer viewer
@@ -24,7 +24,7 @@ viewer SetInput [pad GetOutput]
 viewer SetZSlice 22
 viewer SetColorWindow 2000
 viewer SetColorLevel 1000
-#viewer DebugOn
+[viewer GetActor2D] SetDisplayPosition 200 200
 
 # make interface
 source WindowLevelInterface.tcl

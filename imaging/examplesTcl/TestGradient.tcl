@@ -20,7 +20,6 @@ reader SetDataMask 0x7fff
 vtkImageGradient gradient
 gradient SetInput [reader GetOutput]
 gradient SetDimensionality 3
-gradient Update
 
 vtkImageViewer viewer
 #viewer DebugOn

@@ -1,6 +1,9 @@
 # a simple user interface that manipulates window level.
 # places in the tcl top window.  Looks for object named viewer
 
+#only use this interface when not doing regression tests
+if {[info commands rtExMath] != "rtExMath"} {
+
 # Take window level parameters from viewer
 proc InitializeWindowLevelInterface {} {
    global viewer sliceNumber
@@ -82,3 +85,4 @@ proc SetInverseVideo {} {
 
 InitializeWindowLevelInterface
 
+}

@@ -53,11 +53,11 @@ viewer3 SetZSlice 22
 viewer3 SetColorWindow 3000
 viewer3 SetColorLevel 1000
 
-vtkImageViewer viewer4
-viewer4 SetInput [med GetOutput]
-viewer4 SetZSlice 22
-viewer4 SetColorWindow 3000
-viewer4 SetColorLevel 1000
+vtkImageViewer viewer
+viewer SetInput [med GetOutput]
+viewer SetZSlice 22
+viewer SetColorWindow 3000
+viewer SetColorLevel 1000
 
 # Create the GUI
 wm withdraw .
@@ -69,7 +69,7 @@ frame .top.f2
 vtkTkImageViewerWidget .top.f1.r1 -width 256 -height 256 -iv viewer1
 vtkTkImageViewerWidget .top.f1.r2 -width 256 -height 256 -iv viewer2
 vtkTkImageViewerWidget .top.f2.r3 -width 256 -height 256 -iv viewer3
-vtkTkImageViewerWidget .top.f2.r4 -width 256 -height 256 -iv viewer4
+vtkTkImageViewerWidget .top.f2.r4 -width 256 -height 256 -iv viewer
 
 button .top.btn  -text Quit -command exit
 

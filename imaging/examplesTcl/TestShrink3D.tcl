@@ -7,25 +7,20 @@ source vtkImageInclude.tcl
 # Image pipeline
 
 vtkImageReader reader
-#reader DebugOn
 reader SetDataByteOrderToLittleEndian
 reader SetDataExtent 0 255 0 255 1 93
 reader SetFilePrefix "../../../vtkdata/fullHead/headsq"
 reader SetDataMask 0x7fff
-#[reader GetOutput] DebugOn
 
 vtkImageShrink3D shrink
-shrink DebugOn
 shrink SetInput [reader GetOutput]
 shrink SetShrinkFactors 2 2 2
 puts [shrink GetShrinkFactors]
 #shrink SetProgressMethod {set pro [shrink GetProgress]; puts "Completed $pro"; flush stdout}
 #shrink Update
 shrink SetNumberOfThreads 1
-#[shrink GetOutput] DebugOn
 
 vtkImageViewer viewer
-#viewer DebugOn
 viewer SetInput [shrink GetOutput]
 viewer SetZSlice 11
 viewer SetColorWindow 2000

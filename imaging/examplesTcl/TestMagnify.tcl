@@ -19,7 +19,6 @@ reader SetDataMask 0x7fff
 vtkImageMagnify magnify
 magnify SetInput [reader GetOutput]
 magnify SetMagnificationFactors 3 2 1
-magnify ReleaseDataFlagOff
 
 
 vtkImageViewer viewer
@@ -28,7 +27,7 @@ viewer SetInput [magnify GetOutput]
 viewer SetZSlice 22
 viewer SetColorWindow 2000
 viewer SetColorLevel 1000
-
+[viewer GetActor2D] SetDisplayPosition -250 -180
 
 # make interface
 source WindowLevelInterface.tcl

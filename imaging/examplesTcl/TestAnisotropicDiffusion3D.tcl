@@ -20,7 +20,6 @@ diffusion SetDiffusionFactor 1.0
 diffusion SetDiffusionThreshold 100.0
 diffusion SetNumberOfIterations 5
 diffusion ReleaseDataFlagOff
-diffusion DebugOn
 
 
 vtkImageViewer viewer
