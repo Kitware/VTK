@@ -15,8 +15,8 @@ vtkRenderWindow renWin
 vtkRenderWindowInteractor iren
     iren SetRenderWindow renWin
 
-vtkPNMReader pnm1
-    pnm1 SetFileName "$VTK_DATA_ROOT/Data/fran_cut.ppm"
+vtkPNGReader pnm1
+    pnm1 SetFileName "$VTK_DATA_ROOT/Data/fran_cut.png"
 
 vtkTexture atext
   atext SetInput [pnm1 GetOutput]
@@ -26,6 +26,9 @@ vtkTexture atext
 #
 vtkPolyDataReader fran
     fran SetFileName "$VTK_DATA_ROOT/Data/fran_cut.vtk"
+
+vtkPolyDataMapper mp1
+mp1 SetInput [fran GetOutput]
 
 set topologies "On Off"
 set accumulates "On Off"
@@ -50,6 +53,8 @@ ren1 SetViewport 0 .5 .5 1
 ren2 SetViewport .5 .5 1 1
 ren3 SetViewport 0 0 .5 .5
 ren4 SetViewport .5 0 1 .5
+
+franOnOn SetMapper mp1
 
 ren1 AddActor franOnOn
 ren2 AddActor franOnOff
