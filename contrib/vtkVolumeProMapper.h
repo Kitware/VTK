@@ -213,10 +213,10 @@ public:
   vtkGetMacro( MajorBoardVersion, int );
   vtkGetMacro( MinorBoardVersion, int );
   virtual int GetAvailableBoardMemory() { return 0; }
-  virtual void GetLockSizesForBoardMemory( unsigned int type,
-					   unsigned int *xSize,
-					   unsigned int *ySize,
-					   unsigned int *zSize ) {};
+  virtual void GetLockSizesForBoardMemory( unsigned int vtkNotUsed(type),
+					   unsigned int * vtkNotUsed(xSize),
+					   unsigned int * vtkNotUsed(ySize),
+					   unsigned int * vtkNotUsed(zSize)) {};
  
 protected:
   vtkVolumeProMapper();

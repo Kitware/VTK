@@ -193,7 +193,7 @@ vtkVolumeProVG500Mapper *vtkVolumeProVG500Mapper::New()
 
 
 
-void vtkVolumeProVG500Mapper::UpdateCamera( vtkRenderer *ren, vtkVolume *vol )
+void vtkVolumeProVG500Mapper::UpdateCamera( vtkRenderer *ren, vtkVolume * vtkNotUsed(vol) )
 {
   VLICamera                 *camera;
   VLIMatrix                 *matrixVLI;
@@ -338,7 +338,8 @@ void vtkVolumeProVG500Mapper::UpdateLights( vtkRenderer *ren, vtkVolume *vol )
     }
 }
 
-void vtkVolumeProVG500Mapper::UpdateProperties( vtkRenderer *ren, vtkVolume *vol )
+void vtkVolumeProVG500Mapper::UpdateProperties( vtkRenderer *vtkNotUsed(ren), 
+						vtkVolume *vol )
 {
   vtkPiecewiseFunction      *grayFunc;
   vtkPiecewiseFunction      *goFunc;
@@ -347,7 +348,7 @@ void vtkVolumeProVG500Mapper::UpdateProperties( vtkRenderer *ren, vtkVolume *vol
   VLIuint8                  rgbTable[4096][3];
   VLIuint16                 aTable[4096];
   int                       i;
-  float                     scale;
+  float                     scale = 1.0;
   double                    *gradientTable;
 
   switch ( this->VolumeDataType )
@@ -434,7 +435,7 @@ void vtkVolumeProVG500Mapper::UpdateProperties( vtkRenderer *ren, vtkVolume *vol
 
 }
 
-void vtkVolumeProVG500Mapper::UpdateCropping( vtkRenderer *ren, vtkVolume *vol )
+void vtkVolumeProVG500Mapper::UpdateCropping( vtkRenderer * vtkNotUsed(ren), vtkVolume * vtkNotUsed(vol) )
 {
   VLICrop  *crop;
 
@@ -482,7 +483,7 @@ void vtkVolumeProVG500Mapper::UpdateCropping( vtkRenderer *ren, vtkVolume *vol )
   delete crop;
 }
 
-void vtkVolumeProVG500Mapper::UpdateCutPlane( vtkRenderer *ren, vtkVolume *vol )
+void vtkVolumeProVG500Mapper::UpdateCutPlane( vtkRenderer * vtkNotUsed(ren), vtkVolume *vtkNotUsed(vol) )
 {
   VLIStatus   status;
 
@@ -541,7 +542,7 @@ void vtkVolumeProVG500Mapper::UpdateCutPlane( vtkRenderer *ren, vtkVolume *vol )
     }
 }
 
-void vtkVolumeProVG500Mapper::UpdateCursor( vtkRenderer *ren, vtkVolume *vol )
+void vtkVolumeProVG500Mapper::UpdateCursor( vtkRenderer *vtkNotUsed(ren), vtkVolume *vtkNotUsed(vol) )
 {
   VLICursor     *cursor;
 
@@ -573,7 +574,7 @@ void vtkVolumeProVG500Mapper::UpdateCursor( vtkRenderer *ren, vtkVolume *vol )
   delete cursor;
 }
 
-void vtkVolumeProVG500Mapper::UpdateVolume( vtkRenderer *ren, vtkVolume *vol )
+void vtkVolumeProVG500Mapper::UpdateVolume( vtkRenderer * vtkNotUsed(ren), vtkVolume * vol )
 {
   int                       dataSize[3];
   int			    dataType;
