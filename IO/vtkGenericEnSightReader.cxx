@@ -93,6 +93,8 @@ vtkGenericEnSightReader::vtkGenericEnSightReader()
   this->NumberOfComplexVectorsPerElement = 0;
   
   this->TimeValue = 0;
+  this->MinimumTimeValue = 0;
+  this->MaximumTimeValue = 0;
 }
 
 //----------------------------------------------------------------------------
