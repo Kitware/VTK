@@ -177,18 +177,16 @@ WRAP_EXCLUDE_FILES(vtkLargeInteger)
 # source files
 #
 IF (VTK_WRAP_TCL)
-  SOURCE_FILES (CommonTCL_SRCS vtkTclUtil)
   VTK_WRAP_TCL(vtkCommonTCL CommonTCL_SRCS Common_SRCS)
-  ADD_LIBRARY(vtkCommonTCL CommonTCL_SRCS)
+  ADD_LIBRARY(vtkCommonTCL CommonTCL_SRCS vtkTclUtil)
 ENDIF (VTK_WRAP_TCL)
 
 # if we are wrapping into Python then add the library and extra 
 # source files
 #
 IF (VTK_WRAP_PYTHON)
-  SOURCE_FILES (CommonPython_SRCS vtkPythonUtil)
   VTK_WRAP_PYTHON(vtkCommonPython CommonPython_SRCS Common_SRCS)
-  ADD_LIBRARY(vtkCommonPython CommonPython_SRCS)
+  ADD_LIBRARY(vtkCommonPython CommonPython_SRCS vtkPythonUtil)
   TARGET_LINK_LIBRARIES (vtkCommonPython debug python21_d optimized python21)
 ENDIF (VTK_WRAP_PYTHON)
 
@@ -196,9 +194,8 @@ ENDIF (VTK_WRAP_PYTHON)
 # source files
 #
 IF (VTK_WRAP_JAVA)
-  SOURCE_FILES (CommonJava_SRCS vtkJavaUtil)
   VTK_WRAP_JAVA(vtkCommonJava CommonJava_SRCS Common_SRCS)
-  ADD_LIBRARY(vtkCommonJava CommonJava_SRCS)
+  ADD_LIBRARY(vtkCommonJava CommonJava_SRCS vtkJavaUtil)
 ENDIF (VTK_WRAP_JAVA)
 
 LINK_LIBRARIES (vtkCommon )

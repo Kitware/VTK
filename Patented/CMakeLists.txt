@@ -38,6 +38,16 @@ IF (VTK_WRAP_PYTHON)
                          debug python21_d optimized python21)
 ENDIF (VTK_WRAP_PYTHON)
 
+# if we are wrapping into Java then add the library and extra 
+# source files
+#
+IF (VTK_WRAP_JAVA)
+  VTK_WRAP_JAVA(vtkPatentedJava PatentedJava_SRCS Patented_SRCS)
+  ADD_LIBRARY(vtkPatentedJava PatentedJava_SRCS)
+  TARGET_LINK_LIBRARIES (vtkPatentedJava vtkCommonJava vtkFilteringJava
+                         vtkImagingJava vtkGraphicsJava)
+ENDIF (VTK_WRAP_JAVA)
+
 LINK_LIBRARIES (
 vtkCommon 
 vtkFiltering 

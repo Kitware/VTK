@@ -64,6 +64,14 @@ IF (VTK_WRAP_PYTHON)
                          debug python21_d optimized python21)
 ENDIF (VTK_WRAP_PYTHON)
 
+IF (VTK_WRAP_JAVA)
+  VTK_WRAP_JAVA(vtkParallelJava ParallelJava_SRCS Parallel_SRCS)
+  ADD_LIBRARY(vtkParallelJava ParallelJava_SRCS)
+  TARGET_LINK_LIBRARIES (vtkParallelJava vtkCommonJava vtkFilteringJava
+                         vtkImagingJava vtkGraphicsJava vtkRenderingJava
+                         vtkIOJava)
+ENDIF (VTK_WRAP_JAVA)
+
 LINK_LIBRARIES (
 vtkCommon 
 vtkFiltering 
