@@ -8,11 +8,11 @@ def vtkLoadPythonTkWidgets(interp):
     the python path and the tcl path are searched.
     """
     name = 'vtkRenderingPythonTkWidgets'
+    pkgname = string.capitalize(string.lower(name))
 
     # find out if the file is already loaded
     loaded = interp.call('info', 'loaded')
-    tkname = string.capitalize(string.lower(name))
-    if string.find(loaded, tkname) >= 0:
+    if string.find(loaded, pkgname) >= 0:
         return
 
     # create the platform-dependent file name
@@ -23,19 +23,28 @@ def vtkLoadPythonTkWidgets(interp):
     filename = prefix+name+extension
 
     # create an extensive list of paths to search
-    pathlist = sys.path + string.split(interp.getvar('auto_path'))
+    pathlist = sys.path
+    # add tcl paths, ensure that {} is handled properly
+    for path in string.split(interp.getvar('auto_path')):
+        prev = pathlist[-1]
+        if len(prev) > 0 and prev[0] == '{' and prev[-1] != '}':
+            pathlist[-1] = prev+' '+path
+        else:
+            pathlist.append(path)
+    # a common place for these sorts of things  
     if os.name == 'posix':
         pathlist.append('/usr/local/lib')
 
     # attempt to load
     for path in pathlist:
+        if len(path) > 0 and path[0] == '{' and path[-1] == '}':
+            path = path[1:-1]
         fullpath = os.path.join(path, filename)
-        if interp.eval('catch {load '+fullpath+'} errormsg') == '0':
+        if ' ' in fullpath:
+            fullpath = '{'+fullpath+'}'
+        if interp.eval('catch {load '+fullpath+' '+pkgname+'}') == '0':
             return
 
-    # this is how to get the error from tcl (we don't use it, though)
-    errormsg = interp.getvar('errormsg')
-    
     # re-generate the error
     interp.call('load', filename)
     
