@@ -264,8 +264,9 @@ void vtkLinearRayIntegratorTransferFunction::GetTransferFunction(
 inline void vtkLinearRayIntegratorTransferFunction::GetColor(double x,
                                                              double c[4])
 {
-  int i = 1;
-  while (this->ControlPoints[i] < x) i++;
+  unsigned int i = 1;
+  unsigned int size = this->ControlPoints.size();
+  while ((this->ControlPoints[i] < x) && (i < size-1)) i++;
 
   double before = this->ControlPoints[i-1];
   double after = this->ControlPoints[i];
@@ -282,7 +283,7 @@ inline void vtkLinearRayIntegratorTransferFunction::GetColor(double x,
 
 //-----------------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkUnstructuredGridLinearRayIntegrator, "1.13");
+vtkCxxRevisionMacro(vtkUnstructuredGridLinearRayIntegrator, "1.14");
 vtkStandardNewMacro(vtkUnstructuredGridLinearRayIntegrator);
 
 vtkUnstructuredGridLinearRayIntegrator::vtkUnstructuredGridLinearRayIntegrator()
