@@ -22,7 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkTransformToGrid, "1.15");
+vtkCxxRevisionMacro(vtkTransformToGrid, "1.16");
 vtkStandardNewMacro(vtkTransformToGrid);
 
 vtkCxxSetObjectMacro(vtkTransformToGrid,Input,vtkAbstractTransform);
@@ -49,7 +49,7 @@ vtkTransformToGrid::vtkTransformToGrid()
 //----------------------------------------------------------------------------
 vtkTransformToGrid::~vtkTransformToGrid()
 {
-  this->SetInput(NULL);
+  this->SetInput(static_cast<vtkAbstractTransform*>(0));
 }
 
 //----------------------------------------------------------------------------
