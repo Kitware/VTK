@@ -60,11 +60,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 
-// There used to be some condition for setting this.
-// Until I see the need, I am not going to duplicate the code.
-#define MESA
-
-
 
 class vtkIdList;
 
