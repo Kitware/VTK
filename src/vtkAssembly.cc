@@ -304,6 +304,8 @@ float *vtkAssembly::GetBounds()
       }//if mapper
     }//for each path
 
+  this->Transform.PreMultiply();  
+
   return this->Bounds;
 }
 
