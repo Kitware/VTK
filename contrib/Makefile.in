@@ -16,7 +16,6 @@ vtkImporter \
 vtkSpline
 
 CONCRETE = \
-vtkImageToIsoSurface \
 vtkEarthSource \
 vtkIVWriter \
 vtkCardinalSpline \

@@ -37,6 +37,8 @@ PARTICULAR PURPOSE, AND NON-INFRINGEMENT.  THIS SOFTWARE IS PROVIDED ON AN
 MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
+#include "vtkImageToStructuredPoints.h"
+#include "vtkImageRegion.h"
 #include "vtkImageCache.h"
 
 //----------------------------------------------------------------------------
@@ -78,12 +80,19 @@ vtkImageCache::vtkImageCache()
   // default is to save data,
   // (But caches automatically created by sources set ReleaseDataFlag to 1)
   this->ReleaseDataFlag = 0;
+
+  // for automatic conversion
+  this->ImageToStructuredPoints = NULL;
 }
 
 
 //----------------------------------------------------------------------------
 vtkImageCache::~vtkImageCache()
 {
+  if (this->ImageToStructuredPoints)
+    {
+    this->ImageToStructuredPoints->Delete();
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -302,7 +311,7 @@ void vtkImageCache::SetReleaseDataFlag(int value)
 // It Allocates and fills the passed region.
 // If the method cannot complete, the region is not allocated.
 // "region" should not have data when this method is called.
-void vtkImageCache::UpdateRegion(vtkImageRegion *region)
+void vtkImageCache::Update(vtkImageRegion *region)
 {
   int saveAxes[VTK_IMAGE_DIMENSIONS];
   int saveExtent[VTK_IMAGE_EXTENT_DIMENSIONS];
@@ -324,14 +333,14 @@ void vtkImageCache::UpdateRegion(vtkImageRegion *region)
   region->SetMemoryOrder(VTK_IMAGE_DIMENSIONS, this->MemoryOrder);
   
   // If the extent has no "volume", just return.
-  if (region->GetVolume() <= 0)
+  if (region->IsEmpty())
     {
     return;
     }
   // Must have a source to generate the data
   if ( ! this->Source)
     {
-    vtkErrorMacro(<< "UpdateRegion: Can not generate data with no Source");
+    vtkErrorMacro(<< "Update: Can not generate data with no Source");
     return;
     }
   
@@ -347,7 +356,7 @@ void vtkImageCache::UpdateRegion(vtkImageRegion *region)
 	(saveExtent[idx*2+1] > imageExtent[idx*2+1]))
       {
       int *axes = region->GetAxes();
-      vtkErrorMacro(<< "UpdateRegion: extent of " 
+      vtkErrorMacro(<< "Update: extent of " 
           << vtkImageAxisNameMacro(axes[idx]) << " [" << saveExtent[idx*2] 
           << "->" << saveExtent[idx*2+1] << "] is out of image extent ["
           << imageExtent[idx*2] << "->" << imageExtent[idx*2+1] << "]");
@@ -384,7 +393,7 @@ void vtkImageCache::UpdateRegion(vtkImageRegion *region)
     tempRegion->SetExtent(VTK_IMAGE_DIMENSIONS, region->GetExtent());
     tempRegion->SetScalarType(saveScalarType);
     tempRegion->SetMemoryOrder(this->MemoryOrder);
-    vtkWarningMacro(<< "UpdateRegion: Have to copy data from type "
+    vtkWarningMacro(<< "Update: Have to copy data from type "
         << vtkImageScalarTypeNameMacro(this->ScalarType) << " to type "
         << vtkImageScalarTypeNameMacro(saveScalarType));
     
@@ -401,7 +410,7 @@ void vtkImageCache::UpdateRegion(vtkImageRegion *region)
 //----------------------------------------------------------------------------
 // Description:
 // This method uses the source to generate a whole region.  
-// It is called by UpdateRegion when ReleaseDataFlag is on, or
+// It is called by Update when ReleaseDataFlag is on, or
 // by the subclass GenerateUnCachedRegionData method when the region data
 // is not in cache.  The method returns the region (or NULL if a something 
 // failed).  The subclass method which calls this function is responsible for
@@ -420,7 +429,7 @@ void vtkImageCache::GenerateUnCachedRegionData(vtkImageRegion *region)
   // IMPORTANT: Region is just to communicate extent, and does not
   // necessarily return any infomation!  Data is really returned
   // when source calls CacheRegion.
-  this->Source->UpdatePointData(VTK_IMAGE_DIMENSIONS, region);
+  this->Source->Update(region);
 }
 
 
@@ -432,7 +441,7 @@ vtkImageRegion *vtkImageCache::UpdateRegion()
   vtkImageRegion *region = vtkImageRegion::New();
   this->UpdateImageInformation(region);
   region->SetExtent(VTK_IMAGE_DIMENSIONS, region->GetImageExtent());
-  this->UpdateRegion(region);
+  this->Update(region);
   
   return region;
 }
@@ -629,18 +638,33 @@ void vtkImageCache::GetBounds(int num, float *bounds)
   return;
 }
 
-
+//----------------------------------------------------------------------------
 void vtkImageCache::SetGlobalReleaseDataFlag(int val)
 {
   // not implemented yet ...
 }
 
+//----------------------------------------------------------------------------
 int  vtkImageCache::GetGlobalReleaseDataFlag()
 {
   // not implemented yet ...
   return 0;
 }
 
+//----------------------------------------------------------------------------
+// Description:  
+// This method is used translparently by the "SetInput(vtkImageSource *)"
+// method to connect the image pipeline to the visualization pipeline.
+vtkImageToStructuredPoints *vtkImageCache::GetImageToStructuredPoints()
+{
+  if ( ! this->ImageToStructuredPoints)
+    {
+    this->ImageToStructuredPoints = vtkImageToStructuredPoints::New();
+    this->ImageToStructuredPoints->SetScalarInput(this);
+    }
+  
+  return this->ImageToStructuredPoints;
+}
 
 
 

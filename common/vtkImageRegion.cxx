@@ -40,6 +40,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include <math.h>
 #include "vtkImageRegion.h"
+#include "vtkImageCache.h"
 
 //----------------------------------------------------------------------------
 // Description:
@@ -87,7 +88,7 @@ void vtkImageRegion::PrintSelf(ostream& os, vtkIndent indent)
 {
   int idx;
   
-  vtkImageSource::PrintSelf(os,indent);
+  vtkImageCachedSource::PrintSelf(os,indent);
   os << indent << "Axes: (" << vtkImageAxisNameMacro(this->Axes[0]);
   for (idx = 1; idx < VTK_IMAGE_DIMENSIONS; ++idx)
     {
@@ -315,12 +316,11 @@ void vtkImageRegion::MakeDataWritable()
 // Don't ask for for a larger region than this one!  This implementation
 // also ignores the relative coordinates of the regions.  If this becomes a 
 // problem, an execute method that copies the data cound be created.
-void vtkImageRegion::UpdateRegion(vtkImageRegion *region)
+void vtkImageRegion::Update(vtkImageRegion *region)
 {
   this->UpdateImageInformation(region);
-  region->ReleaseData();
-  region->SetScalarType(this->GetScalarType());
   region->SetData(this->GetData());
+  this->Output->CacheRegion(region);
 }
 
   
@@ -1043,8 +1043,6 @@ void vtkImageRegion::MakeData()
 void vtkImageRegion::SetData(vtkImageData *data)
 {
   this->Modified();
-  // data objects have reference counts
-  data->Register(this);
 
   // delete previous data
   if (this->Data)
@@ -1054,18 +1052,23 @@ void vtkImageRegion::SetData(vtkImageData *data)
     }
 
   this->Data = data;
+
+  if (data)
+    {
+    // data objects have reference counts
+    data->Register(this);
+    // Set the scalar type
+    this->ScalarType = data->GetScalarType();
   
-  // Set the scalar type
-  this->ScalarType = data->GetScalarType();
+    // set the MemoryOrder of this region
+    data->GetAxes(VTK_IMAGE_DIMENSIONS, this->MemoryOrder);
   
-  // set the MemoryOrder of this region
-  data->GetAxes(VTK_IMAGE_DIMENSIONS, this->MemoryOrder);
-  
-  // Compute the increments.
-  // Note that this implies that the extent of the data is fixed.
-  vtkImageRegionChangeVectorCoordinateSystem(this->Data->GetIncrements(),
-					     this->Data->GetAxes(), 
-					     this->Increments, this->Axes);
+    // Compute the increments.
+    // Note that this implies that the extent of the data is fixed.
+    vtkImageRegionChangeVectorCoordinateSystem(this->Data->GetIncrements(),
+					       this->Data->GetAxes(), 
+					       this->Increments, this->Axes);
+    }
 }
 
 
@@ -1079,6 +1082,55 @@ vtkImageData *vtkImageRegion::GetData()
     this->MakeData();
     }
   return this->Data;
+}
+
+//----------------------------------------------------------------------------
+// Description:
+// This method returns the memory that would be required to fill the region.
+// The returned value is in units KBytes.
+// This method is used for determining when to stream.
+int vtkImageRegion::GetExtentMemorySize()
+{
+  int size = 1;
+  int idx;
+  
+  // Compute the number of scalars.
+  for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
+    {
+    size *= (this->Extent[idx*2+1] - this->Extent[idx*2] + 1);
+    }
+  
+  // Consider the size of each scalar.
+  switch (this->ScalarType)
+    {
+    case VTK_FLOAT:
+      size *= sizeof(float);
+      break;
+    case VTK_INT:
+      size *= sizeof(int);
+      break;
+    case VTK_SHORT:
+      size *= sizeof(short);
+      break;
+    case VTK_UNSIGNED_SHORT:
+      size *= sizeof(unsigned short);
+      break;
+    case VTK_UNSIGNED_CHAR:
+      size *= sizeof(unsigned char);
+      break;
+    default:
+      vtkWarningMacro(<< "GetExtentMemorySize: "
+        << "Cannot determine input scalar type");
+    }  
+
+  // In case the extent is set improperly
+  if (size < 0)
+    {
+    vtkErrorMacro("GetExtentMemorySize: Computed value negative: " << size);
+    return 0;
+    }
+  
+  return size / 1000;
 }
 
 

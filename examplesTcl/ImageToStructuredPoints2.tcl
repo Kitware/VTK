@@ -17,13 +17,13 @@ planeActor SetMapper planeMapper;
 
 
 
-vtkImageSeriesReader reader;
+vtkImageVolume16Reader reader;
 #reader DebugOn
 reader ReleaseDataFlagOff;
 reader SwapBytesOn;
 reader SetDataDimensions 256 256 94 1;
 reader SetFilePrefix "../data/fullHead/headsq";
-reader SetPixelMask 0x7fff;
+reader SetDataMask 0x7fff;
 
 vtkImageClip clip;
 clip SetInput [reader GetOutput];

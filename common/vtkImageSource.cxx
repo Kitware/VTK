@@ -38,23 +38,19 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
+#include "vtkImageRegion.h"
 #include "vtkImageSource.h"
-#include "vtkImageToStructuredPoints.h"
+
 
 //----------------------------------------------------------------------------
 vtkImageSource::vtkImageSource()
 {
-  this->ImageToStructuredPoints = NULL;
 }
 
 
 //----------------------------------------------------------------------------
 vtkImageSource::~vtkImageSource()
 {
-  if (this->ImageToStructuredPoints)
-    {
-    this->ImageToStructuredPoints->Delete();
-    }
 }
 
 
@@ -101,25 +97,12 @@ vtkImageRegion *vtkImageSource::UpdateRegion()
   region = vtkImageRegion::New();
   this->UpdateImageInformation(region);
   region->SetExtent(region->GetImageExtent());
-  this->UpdateRegion(region);
+  this->Update(region);
   
   return region;
 }
 
 
-
-
-//----------------------------------------------------------------------------
-vtkImageToStructuredPoints *vtkImageSource::GetImageToStructuredPoints()
-{
-  if ( ! this->ImageToStructuredPoints)
-    {
-    this->ImageToStructuredPoints = vtkImageToStructuredPoints::New();
-    this->ImageToStructuredPoints->SetScalarInput(this);
-    }
-  
-  return this->ImageToStructuredPoints;
-}
 
 
 

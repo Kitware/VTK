@@ -38,18 +38,23 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageCachedSourceB - Source of data for pipeline.
+// .NAME vtkImageCachedSource - Source of data for pipeline.
 // .SECTION Description
-// vtkImageCachedSourceB is a source that has two output caches.  It is
-// an experiment to see if this is a viable alternative to a 5th dimension.
+// vtkImageCachedSource is the supperclass for all sources and filters.
+// The method UpdateRegion, called by the cache, is the major interface
+// to the source.
+
+// .SECTION See Also
+// vtkImageCache vtkImageRegion
 
 
 #ifndef __vtkImageCachedSource_h
 #define __vtkImageCachedSource_h
 
 #include "vtkObject.h"
+#include "vtkImageData.h"
 #include "vtkImageSource.h"
-#include "vtkImageRegion.h"
+class vtkImageRegion;
 class vtkImageCache;
 
 
@@ -62,8 +67,10 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   virtual void InterceptCacheUpdate(vtkImageRegion *region);
-  virtual void UpdatePointData(int dim, vtkImageRegion *region); 
+  virtual void Update(vtkImageRegion *region); 
+  virtual void Update();
   virtual void UpdateImageInformation(vtkImageRegion *region) = 0;
+  virtual void UpdateImageInformation();
 
   virtual unsigned long GetPipelineMTime();
   vtkImageCache *GetOutput();
@@ -102,15 +109,6 @@ public:
   vtkImageGetMacro(Axes,int);
   int *GetAxes() {return this->Axes;};
 
-  // Description:
-  // Get the dimensionality of the source.
-  // The Update/Execute methods operate on this number of axes.
-  vtkGetMacro(Dimensionality, int);
-
-  void Update();
-  
-  void UpdateImageInformation();
-  
   virtual void SetStartMethod(void (*f)(void *), void *arg);
   virtual void SetEndMethod(void (*f)(void *), void *arg);
   virtual void SetStartMethodArgDelete(void (*f)(void *));
@@ -118,7 +116,8 @@ public:
   
 protected:
   vtkImageCache *Output;
-  int Dimensionality;             
+  // The number of dimensions expected/handled by the execute method
+  int ExecuteDimensionality; 
   int Axes[VTK_IMAGE_DIMENSIONS]; 
   int ExecuteScalars;
   int ExecuteVectors;
@@ -130,13 +129,11 @@ protected:
   void (*EndMethodArgDelete)(void *);
   void *EndMethodArg;
   
-  virtual void UpdatePointData(vtkImageRegion *region); 
+  virtual void RecursiveLoopUpdate(int dim, vtkImageRegion *region); 
+  virtual void Execute(vtkImageRegion *region); 
   virtual void CheckCache();
 };
 
-
-// all necessary header files will be included automatically.
-#include "vtkImageCache.h"
 
 #endif
 

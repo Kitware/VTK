@@ -42,7 +42,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .NAME vtkImageToStructuredPoints - Attaches image pipeline to VTK. 
 // .SECTION Description
 // vtkImageToStructuredPoints changes an image region format to
-// a structured points dataset.
+// a structured points dataset.  The Order of the axes is fixed.
+// VTK_IMAGE_X_AXIS is always mapped to X axis of the structured points,
+// VTK_IMAGE_COMPONENT_AXIS is always mapped to the Colors of
+// ColorScalars of Vectors.  The only use of the Axes instance variable
+// is for specifying an extent.
 
 
 #ifndef __vtkImageToStructuredPoints_h
@@ -50,9 +54,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkStructuredPointsSource.h"
 #include "vtkGraymap.h"
-#include "vtkImageSource.h"
 #include "vtkImageRegion.h"
-
+class vtkImageCache;
 class vtkColorScalars;
 
 class VTK_EXPORT vtkImageToStructuredPoints : public vtkStructuredPointsSource
@@ -66,15 +69,15 @@ public:
   
   // Description:
   // Set/Get the scalar input object from the image pipeline.
-  vtkSetObjectMacro(ScalarInput,vtkImageSource);
-  vtkGetObjectMacro(ScalarInput,vtkImageSource);
-  void SetInput(vtkImageSource *input) {this->SetScalarInput(input);} 
-  vtkImageSource *GetInput() {return this->GetScalarInput();} 
+  vtkSetObjectMacro(ScalarInput,vtkImageCache);
+  vtkGetObjectMacro(ScalarInput,vtkImageCache);
+  void SetInput(vtkImageCache *input) {this->SetScalarInput(input);} 
+  vtkImageCache *GetInput() {return this->GetScalarInput();} 
 
   // Description:
   // Set/Get the vector input object from the image pipeline.
-  vtkSetObjectMacro(VectorInput,vtkImageSource);
-  vtkGetObjectMacro(VectorInput,vtkImageSource);
+  vtkSetObjectMacro(VectorInput,vtkImageCache);
+  vtkGetObjectMacro(VectorInput,vtkImageCache);
 
   // Description:
   // Set/Get the flag that tells the object to convert the whole image or not.
@@ -119,8 +122,8 @@ public:
   void Update();
   
 protected:
-  vtkImageSource *ScalarInput;
-  vtkImageSource *VectorInput;
+  vtkImageCache *ScalarInput;
+  vtkImageCache *VectorInput;
   int WholeImage;
   int Coordinate3;
   int Extent[VTK_IMAGE_EXTENT_DIMENSIONS];
@@ -131,11 +134,11 @@ protected:
 
   void Execute();
   vtkScalars *ScalarExecute(vtkImageRegion *region);
-  int ScalarSplitExecute(vtkImageRegion *outRegion, long volumeLimit);
+  int ScalarSplitExecute(vtkImageRegion *outRegion);
   vtkVectors *VectorExecute(vtkImageRegion *region);
   vtkColorScalars *CreateColorScalars(vtkScalars *scalars, int dim);
   
-  vtkScalars *ReformatRegionData(vtkImageRegion *region);
+  vtkScalars *ReformatRegionData(vtkImageRegion *region, int flag);
 };
 
 

@@ -18,17 +18,18 @@ planeActor SetMapper planeMapper;
 
 
 
-vtkImageSeriesReader reader;
+vtkImageVolume16Reader reader;
 #reader DebugOn
 reader ReleaseDataFlagOff;
 reader SwapBytesOn;
 reader SetDataDimensions 256 256 94 1;
 reader SetFilePrefix "../data/fullHead/headsq";
 reader SetDataMask 0x7fff;
+#reader SetOutputScalarTypeToUnsignedChar
 
 vtkImageToStructuredPoints image;
 image SetScalarInput [reader GetOutput];
-image SetExtent 0 0 0 255 0 255 20 20;
+image SetExtent 0 255 0 255 20 20;
 
 # load in the texture map
 #

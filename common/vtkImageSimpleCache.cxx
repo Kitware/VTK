@@ -127,6 +127,11 @@ void vtkImageSimpleCache::GenerateCachedRegionData(vtkImageRegion *region)
   
   // Generate a new region
   this->GenerateUnCachedRegionData(region);
+
+  if ( ! this->CachedData)
+    {
+    vtkErrorMacro("Source did not cache data");
+    }
   
   // Now the cached data should be OK.
   region->SetData(this->CachedData);

@@ -38,8 +38,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
+#include "vtkImageRegion.h"
+#include "vtkImageCache.h"
 #include "vtkImageCachedSource.h"
 #include "vtkImageSimpleCache.h"
+
 #include <stdio.h>
 
 //----------------------------------------------------------------------------
@@ -57,6 +60,8 @@ vtkImageCachedSource::vtkImageCachedSource()
   this->EndMethod = NULL;
   this->EndMethodArgDelete = NULL;
   this->EndMethodArg = NULL;
+
+  this->ExecuteDimensionality = -1;  // invalid
 }
 
 
@@ -79,7 +84,8 @@ void vtkImageCachedSource::PrintSelf(ostream& os, vtkIndent indent)
   int idx;
   vtkObject::PrintSelf(os,indent);
 
-  os << indent << "Dimensionality: " << this->Dimensionality << "\n";
+  os << indent << "ExecuteDimensionality: " 
+     << this->ExecuteDimensionality << "\n";
   os << indent << "Axes: (" << vtkImageAxisNameMacro(this->Axes[0]);
   for (idx = 1; idx < VTK_IMAGE_DIMENSIONS; ++idx)
     {
@@ -113,69 +119,97 @@ void vtkImageCachedSource::InterceptCacheUpdate(vtkImageRegion *region)
 
 //----------------------------------------------------------------------------
 // Description:
-// This method loops over an axis and calls UpdatePointData
-// with a lower dimensional region.  The recursion is terminated when 
-// axesIdx is equal to Dimensionality.  At this point the subclasses
-// UpdatePointData is called.
-void vtkImageCachedSource::UpdatePointData(int dim, vtkImageRegion *region)
+// This method is called by the cache to update a region.
+// One unresolved API issue.  Is the passed parameter "region"
+// only to specify the bounding box to updat, or does it return data?
+// See the note on CacheRegion below.
+void vtkImageCachedSource::Update(vtkImageRegion *region)
 {
-  int coordinate;
-  int min, max;
-  int axis = this->Axes[dim - 1];
-  
-  // Since this is the first method called by the cache, start end methods
-  // must be placed here.  But since this is a recursive method, ...
-  if (dim == VTK_IMAGE_DIMENSIONS)
+  // Make sure the subclss has defined the ExecuteDimensionality.
+  // It is needed to terminate recursion.
+  if (this->ExecuteDimensionality < 0)
     {
-    if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);  
-    }
-  
-  // Terminate recursion?
-  if (dim == this->Dimensionality)
-    {
-    this->UpdatePointData(region);
+    vtkErrorMacro(<< "Subclass has not set ExecuteDimensionality");
     return;
     }
   
-  region->GetAxisExtent(axis, min, max);
-  
-  for (coordinate = min; coordinate <= max; ++coordinate)
-    {
-    // colapse one dimension.
-    region->SetAxisExtent(axis, coordinate, coordinate);
-    // Continue recursion.
-    this->vtkImageCachedSource::UpdatePointData(dim - 1, region);
-    }
-  // restore original extent
-  region->SetAxisExtent(axis, min, max);  
-  
-  // Since this class does not have a top level (non recursive) update
-  // method, we need this check. (hack)
-  if (dim == VTK_IMAGE_DIMENSIONS)
-    {
-    this->CheckCache();
-    this->Output->CacheRegion(region);
-    }
+  // Start and end method are placed here so they will be called only once.
+  if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);  
 
-  // Since this is the first method called by the cache, start end methods
-  // must be placed here.  But since this is a recursive method, ...
-  if (dim == VTK_IMAGE_DIMENSIONS)
+  // Call a recursive method that will loop over the extra axes.
+  this->RecursiveLoopUpdate(VTK_IMAGE_DIMENSIONS, region);
+
+  // I am not happy with the necessity of the call CacheRegion.
+  // Getting the region from the cache originally seems more consistent
+  // and more compatable with the visualization pipeline.
+  this->CheckCache();
+  this->Output->CacheRegion(region);
+
+  if ( this->EndMethod ) (*this->EndMethod)(this->EndMethodArg);  
+}
+
+  
+//----------------------------------------------------------------------------
+// Description:
+// This is a recursive method that loops over "extra" axes.
+// The recursion stops when the dimensionality of the regions
+// are equal to "ExecuteDimensionality"
+void 
+vtkImageCachedSource::RecursiveLoopUpdate(int dim, vtkImageRegion *region)
+{
+  // Terminate recursion?
+  if (dim == this->ExecuteDimensionality)
     {
-    if ( this->EndMethod ) (*this->EndMethod)(this->EndMethodArg);  
+    this->Execute(region);
+    return;
     }
+  else
+    {
+    int coordinate;
+    int min, max;
+    int axis = this->Axes[dim - 1];
+    
+    region->GetAxisExtent(axis, min, max);
+    for (coordinate = min; coordinate <= max; ++coordinate)
+      {
+      // colapse one dimension.
+      region->SetAxisExtent(axis, coordinate, coordinate);
+      // Continue recursion.
+      this->vtkImageCachedSource::RecursiveLoopUpdate(dim - 1, region);
+      }
+    // restore original extent
+    region->SetAxisExtent(axis, min, max);  
+    }
+}
+
+//----------------------------------------------------------------------------
+// Description:
+// This method updates the cache with the whole image extent.
+void vtkImageCachedSource::Update()
+{
+  this->CheckCache();
+  this->GetOutput()->Update();
+}
+
+//----------------------------------------------------------------------------
+// Description:
+// This method updates the caches image information (no data).
+// It sould be called before GetBounds ...
+void vtkImageCachedSource::UpdateImageInformation()
+{
+  this->CheckCache();
+  this->Output->UpdateImageInformation();
 }
 
 //----------------------------------------------------------------------------
 // Description:
 // This function can be defined in a subclass to generate the data
 // for a region.
-void vtkImageCachedSource::UpdatePointData(vtkImageRegion *region)
+void vtkImageCachedSource::Execute(vtkImageRegion *region)
 {
   region = region;
-  vtkErrorMacro(<< "UpdatePointData: Method not defined.");
+  vtkErrorMacro(<< "Execute(region): Method not defined.");
 }
-
-
 
 //----------------------------------------------------------------------------
 // Description:
@@ -257,7 +291,6 @@ void vtkImageCachedSource::SetAxes(int dim, int *axes)
     {
     allAxes[idx1] = axes[idx1];
     }
-  this->Dimensionality = dim;
   
   // choose the rest of the axes
   // look through original axes to find ones not taken
@@ -356,27 +389,6 @@ int vtkImageCachedSource::GetOutputScalarType()
   return this->Output->GetScalarType();
 }
 
-
-
-//----------------------------------------------------------------------------
-// Description:
-// This method updates the cache with the whole image extent.
-void vtkImageCachedSource::Update()
-{
-  this->CheckCache();
-  this->GetOutput()->Update();
-}
-
-
-//----------------------------------------------------------------------------
-// Description:
-// This method updates the caches image information (no data).
-// It sould be called before GetBounds ...
-void vtkImageCachedSource::UpdateImageInformation()
-{
-  this->CheckCache();
-  this->Output->UpdateImageInformation();
-}
 
 
 //----------------------------------------------------------------------------

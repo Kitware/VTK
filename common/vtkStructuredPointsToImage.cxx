@@ -41,6 +41,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkStructuredPointsToImage.h"
 #include "vtkColorScalars.h"
 #include "vtkImageRegion.h"
+#include "vtkImageCache.h"
 
 //----------------------------------------------------------------------------
 vtkStructuredPointsToImage::vtkStructuredPointsToImage()
@@ -60,7 +61,7 @@ vtkStructuredPointsToImage::~vtkStructuredPointsToImage()
 //----------------------------------------------------------------------------
 void vtkStructuredPointsToImage::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkImageSource::PrintSelf(os,indent);
+  vtkImageCachedSource::PrintSelf(os,indent);
   os << indent << "Input: (" << this->Input << ")\n";
 }
 
@@ -88,7 +89,7 @@ void vtkStructuredPointsToImage::UpdateInput()
 
 
 //----------------------------------------------------------------------------
-void vtkStructuredPointsToImage::UpdateRegion(vtkImageRegion *region)
+void vtkStructuredPointsToImage::Update(vtkImageRegion *region)
 {
   // Make sure input is up to date
   this->UpdateInput();
@@ -98,6 +99,7 @@ void vtkStructuredPointsToImage::UpdateRegion(vtkImageRegion *region)
   
   // Create the data for the region.
   this->Execute(region);
+  this->Output->CacheRegion(region);
 
   // Release the inputs data, if that is what it wants.
   if ( this->Input->ShouldIReleaseData() ) this->Input->ReleaseData();

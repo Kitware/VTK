@@ -61,10 +61,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkImageSetGet.h"
 #include "vtkImageData.h"
-#include "vtkImageSource.h"
+#include "vtkImageCachedSource.h"
 
 
-class VTK_EXPORT vtkImageRegion : public vtkImageSource 
+class VTK_EXPORT vtkImageRegion : public vtkImageCachedSource
 {
 public:
   vtkImageRegion();
@@ -118,7 +118,7 @@ public:
   
   
   // Stuff to use region as an vtkImageSource.
-  void UpdateRegion(vtkImageRegion *region); 
+  void Update(vtkImageRegion *region); 
   void UpdateImageInformation(vtkImageRegion *region);
   unsigned long GetPipelineMTime();
 
@@ -203,13 +203,7 @@ public:
   void CopyRegionData(vtkImageRegion *region);
   void Fill(float value);
   
-  // Description:
-  // This method returns the number of pixels enclosed in this bounding box.
-  int GetVolume(){return ((Extent[1]-Extent[0]+1) 
-			  * (Extent[3]-Extent[2]+1)
-			  * (Extent[5]-Extent[4]+1)
-			  * (Extent[7]-Extent[6]+1)
-			  * (Extent[9]-Extent[8]+1));};
+  int GetExtentMemorySize();
   
   // Description:
   // This method returns 1 if this bounding box has zero volume.

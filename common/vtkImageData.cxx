@@ -467,7 +467,6 @@ int vtkImageData::AllocateScalars()
     case VTK_VOID:
       vtkErrorMacro(<< "AllocateScalars: ScalarType Unknown");
       return 0;
-      break;
     case VTK_FLOAT:
       scalars = vtkFloatScalars::New();
       this->ScalarsAllocated = scalars->Allocate(this->Volume);

@@ -56,8 +56,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkImageSource.h"
 #include "vtkImageCachedSource.h"
 #include "vtkImageData.h"
-#include "vtkImageRegion.h"
-
+class vtkImageRegion;
 
 class VTK_EXPORT vtkImageCache : public vtkImageSource
 {
@@ -69,7 +68,7 @@ public:
   
   unsigned long int GetPipelineMTime();
   void UpdateImageInformation(vtkImageRegion *region);
-  void UpdateRegion(vtkImageRegion *region);
+  void Update(vtkImageRegion *region);
   vtkImageRegion *UpdateRegion();
   void Update();
   void UpdateImageInformation();
@@ -151,9 +150,12 @@ public:
   vtkImageSetMacro(Spacing, float);
   void SetOrigin(int num, float *origin);
   vtkImageSetMacro(Origin, float);
-  
+
+  vtkImageToStructuredPoints *GetImageToStructuredPoints();
+
 protected:
   vtkImageCachedSource *Source;
+  vtkImageToStructuredPoints *ImageToStructuredPoints;
 
   // Spacing, Dimensions, ... are accessed in this fixed (0, 1, 2, 3, 4)
   // coordinate system.  Should we allow the user to change the caches axes?
