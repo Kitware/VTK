@@ -48,6 +48,7 @@ vtkPolyDataMapper cylinderMapper
 vtkActor cylinderActor
     cylinderActor SetMapper cylinderMapper
     [cylinderActor GetProperty] SetColor 1 0 0
+
 vtkAssembly assembly
     assembly AddPart cylinderActor
     assembly AddPart sphereActor
@@ -67,7 +68,13 @@ renWin SetSize 450 450
 # Get handles to some useful objects
 #
 iren SetUserMethod {wm deiconify .vtkInteract}
-iren Initialize
+vtkCamera camera
+    camera SetClippingRange 21.9464 30.0179
+    camera SetFocalPoint 3.49221 2.28844 -0.970866
+    camera SetPosition 3.49221 2.28844 24.5216
+    camera SetViewAngle 30
+    camera SetViewUp 0 1 0
+ren1 SetActiveCamera camera
 renWin Render
 
 #renWin SetFileName assembly.tcl.ppm
