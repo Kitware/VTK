@@ -127,12 +127,6 @@ public:
   vtkBooleanMacro(Borders,int);
 
   // Description:
-  // Turn on/off double buffering.
-  vtkSetMacro(DoubleBuffer,int);
-  vtkGetMacro(DoubleBuffer,int);
-  vtkBooleanMacro(DoubleBuffer,int);
-
-  // Description:
   // Turn on/off stereo rendering.
   vtkGetMacro(StereoRender,int);
   vtkSetMacro(StereoRender,int);
@@ -259,6 +253,7 @@ public:
   virtual void *GetGenericWindowId() {return NULL;};
   virtual void *GetGenericParentId() {return NULL;};
   virtual void *GetGenericContext() {return NULL;};
+  virtual void *GetGenericDrawable() {return NULL;};
   virtual void SetWindowInfo(char *) {};
 
 protected:
@@ -270,7 +265,6 @@ protected:
   int Borders;
   int FullScreen;
   int OldScreen[5];
-  int DoubleBuffer;
   int StereoRender;
   int StereoType;
   int StereoStatus; // used for keeping track of what's going on
