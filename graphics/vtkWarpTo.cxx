@@ -41,6 +41,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkWarpTo.h"
 #include "vtkMath.h"
 
+vtkWarpTo::vtkWarpTo() 
+{
+  this->ScaleFactor = 0.5; 
+  this->Absolute = 0;
+  this->Position[0] = this->Position[1] = this->Position[2] = 0.0;
+}
+
 void vtkWarpTo::Execute()
 {
   vtkPoints *inPts;
