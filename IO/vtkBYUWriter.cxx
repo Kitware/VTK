@@ -27,7 +27,7 @@
 # include <unistd.h> /* unlink */
 #endif
 
-vtkCxxRevisionMacro(vtkBYUWriter, "1.50");
+vtkCxxRevisionMacro(vtkBYUWriter, "1.51");
 vtkStandardNewMacro(vtkBYUWriter);
 
 // Create object so that it writes displacement, scalar, and texture files
@@ -126,7 +126,7 @@ void vtkBYUWriter::WriteData()
       errorMessage << this->DisplacementFileName << " ";
       }
     unlink(this->ScalarFileName);
-    errorMessage << this->ScalarFileName << endl;
+    errorMessage << this->ScalarFileName << ends;
     vtkErrorMacro( << errorMessage.str());
     errorMessage.rdbuf()->freeze(0);
     return;
@@ -150,7 +150,7 @@ void vtkBYUWriter::WriteData()
       errorMessage << this->ScalarFileName << " ";
       }
     unlink(this->TextureFileName);
-    errorMessage << this->TextureFileName << endl;
+    errorMessage << this->TextureFileName << ends;
     vtkErrorMacro( << errorMessage.str());
     errorMessage.rdbuf()->freeze(0);
     return;
