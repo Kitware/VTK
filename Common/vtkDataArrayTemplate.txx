@@ -164,11 +164,15 @@ void vtkDataArrayTemplate<T>::PrintSelf(ostream& os, vtkIndent indent)
 
   if(this->Array)
     {
-    os << indent << "Array: " << this->Array << "\n";
+    os << indent;
+    os << "Array: ";
+    os << this->Array;
+    os << "\n";
     }
   else
     {
-    os << indent << "Array: (null)\n";
+    os << indent;
+    os << "Array: (null)\n";
     }
 }
 
