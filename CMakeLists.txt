@@ -34,6 +34,156 @@ INCLUDE(${VTK_SOURCE_DIR}/CMake/vtkDependentOption.cmake)
 INCLUDE(${VTK_SOURCE_DIR}/CMake/vtkThirdParty.cmake)
 INCLUDE(${VTK_SOURCE_DIR}/CMake/vtkExportKit.cmake)
 INCLUDE(${VTK_SOURCE_DIR}/CMake/vtkMakeInstantiator.cmake)
+INCLUDE(${CMAKE_ROOT}/Modules/CMakeExportBuildSettings.cmake)
+
+#-----------------------------------------------------------------------------
+# Save the compiler settings so another project can import them.
+CMAKE_EXPORT_BUILD_SETTINGS(${VTK_BINARY_DIR}/VTKBuildSettings.cmake)
+INSTALL_FILES(/lib/vtk .cmake VTKBuildSettings)
+
+#-----------------------------------------------------------------------------
+# Choose static or shared libraries.
+OPTION(BUILD_SHARED_LIBS "Build VTK with shared libraries." OFF)
+SET(VTK_BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS})
+
+OPTION(VTK_USE_EXECUTIVES "Build VTK with the new pipeline" OFF)
+
+#-----------------------------------------------------------------------------
+# Determine the set of VTK kits that should be built.
+OPTION(VTK_USE_RENDERING "Build the vtkRendering kit.  Needed for displaying data." ON)
+OPTION(VTK_USE_PATENTED
+       "Build the vtkPatented kit.  These classes are patented and may require a license to use."
+       OFF)
+VTK_DEPENDENT_OPTION(VTK_USE_HYBRID "Build the vtkHybrid kit." OFF
+                     "VTK_USE_RENDERING" OFF)
+VTK_DEPENDENT_OPTION(VTK_USE_PARALLEL "Build the vtkParallel kit." OFF
+                     "VTK_USE_RENDERING" OFF)
+
+SET(VTK_KITS COMMON FILTERING IO GRAPHICS IMAGING)
+IF(VTK_USE_RENDERING)
+  SET(VTK_KITS ${VTK_KITS} RENDERING)
+ENDIF(VTK_USE_RENDERING)
+IF(VTK_USE_HYBRID)
+  SET(VTK_KITS ${VTK_KITS} HYBRID)
+ENDIF(VTK_USE_HYBRID)
+IF(VTK_USE_PARALLEL)
+  SET(VTK_KITS ${VTK_KITS} PARALLEL)
+ENDIF(VTK_USE_PARALLEL)
+IF(VTK_USE_PATENTED)
+  SET(VTK_KITS ${VTK_KITS} PATENTED)
+ENDIF(VTK_USE_PATENTED)
+
+#-----------------------------------------------------------------------------
+# Determine GUI.
+FIND_PACKAGE(X11)
+SET(VTK_USE_X_OPTIONAL 0)
+SET(VTK_USE_X_FORCE 0)
+IF(X11_FOUND)
+  IF(CYGWIN)
+    SET(VTK_USE_X_OPTIONAL 1)
+  ENDIF(CYGWIN)
+  IF(APPLE)
+    SET(VTK_USE_X_OPTIONAL 1)
+  ELSE(APPLE)
+    SET(VTK_USE_X_FORCE ${VTK_USE_RENDERING})
+  ENDIF(APPLE)
+ENDIF(X11_FOUND)
+
+VTK_DEPENDENT_OPTION(VTK_USE_CARBON "Build classes using Carbon API." ON
+                     "APPLE;VTK_USE_RENDERING" OFF)
+VTK_DEPENDENT_OPTION(VTK_USE_COCOA "Build classes using Cocoa API." OFF
+                     "APPLE;VTK_USE_RENDERING" OFF)
+VTK_DEPENDENT_OPTION(VTK_USE_X
+                     "Build classes for the X11 window system." OFF
+                     "X11_FOUND;VTK_USE_RENDERING;VTK_USE_X_OPTIONAL"
+                     "${VTK_USE_X_FORCE}")
+
+IF(VTK_USE_CARBON AND VTK_USE_COCOA)
+  MESSAGE(SEND_ERROR "Only one of VTK_USE_CARBON and VTK_USE_COCOA may be ON.")
+  SET(VTK_USE_CARBON 0)
+  SET(VTK_USE_COCOA 0)
+ENDIF(VTK_USE_CARBON AND VTK_USE_COCOA)
+
+#-----------------------------------------------------------------------------
+# VTK requires special compiler flags on some platforms.
+SET(VTK_REQUIRED_C_FLAGS)
+SET(VTK_REQUIRED_CXX_FLAGS)
+IF(CMAKE_COMPILER_IS_GNUCXX)
+  # A GCC compiler.  Quiet warning about strstream deprecation.
+  SET(VTK_REQUIRED_CXX_FLAGS "${VTK_REQUIRED_CXX_FLAGS} -Wno-deprecated")
+  IF(WIN32)
+    # The platform is gcc on cygwin.
+    SET(VTK_REQUIRED_CXX_FLAGS "${VTK_REQUIRED_CXX_FLAGS} -mwin32")
+    SET(VTK_REQUIRED_C_FLAGS "${VTK_REQUIRED_C_FLAGS} -mwin32")
+  ENDIF(WIN32)
+  IF(MINGW)
+    LINK_LIBRARIES(-lgdi32)
+  ENDIF(MINGW)
+  IF(CMAKE_SYSTEM MATCHES "SunOS.*")
+    # Disable warnings that occur in X11 headers.
+    IF(DART_ROOT AND BUILD_TESTING)
+      SET(VTK_REQUIRED_CXX_FLAGS "${VTK_REQUIRED_CXX_FLAGS} -Wno-unknown-pragmas")
+      SET(VTK_REQUIRED_C_FLAGS "${VTK_REQUIRED_C_FLAGS} -Wno-unknown-pragmas")
+    ENDIF(DART_ROOT AND BUILD_TESTING)
+  ENDIF(CMAKE_SYSTEM MATCHES "SunOS.*")
+ELSE(CMAKE_COMPILER_IS_GNUCXX)
+  IF(CMAKE_ANSI_CFLAGS)
+    SET(VTK_REQUIRED_C_FLAGS "${VTK_REQUIRED_C_FLAGS} ${CMAKE_ANSI_CFLAGS}")
+  ENDIF(CMAKE_ANSI_CFLAGS)
+  IF(CMAKE_SYSTEM MATCHES "OSF1-V.*")
+     SET(VTK_REQUIRED_CXX_FLAGS
+         "${VTK_REQUIRED_CXX_FLAGS} -timplicit_local -no_implicit_include")
+  ENDIF(CMAKE_SYSTEM MATCHES "OSF1-V.*")
+  #silence duplicate symbol warnings on AIX
+  IF(CMAKE_SYSTEM MATCHES "AIX.*")
+    SET(VTK_REQUIRED_EXE_LINKER_FLAGS "${VTK_REQUIRED_EXE_LINKER_FLAGS} -bhalt:5")
+  ENDIF(CMAKE_SYSTEM MATCHES "AIX.*")
+ENDIF(CMAKE_COMPILER_IS_GNUCXX)
+
+IF(APPLE)
+  SET(CMAKE_SHARED_LIBRARY_CREATE_C_FLAGS "${CMAKE_SHARED_LIBRARY_CREATE_C_FLAGS} -Wl,-flat_namespace,-U,_environ")
+  SET(CMAKE_SHARED_MODULE_CREATE_C_FLAGS "${CMAKE_SHARED_MODULE_CREATE_C_FLAGS} -Wl,-flat_namespace,-U,_environ")
+  IF(CMAKE_COMPILER_IS_GNUCXX)
+    SET(VTK_REQUIRED_C_FLAGS "${VTK_REQUIRED_C_FLAGS} -no-cpp-precomp")
+    SET(VTK_REQUIRED_CXX_FLAGS "${VTK_REQUIRED_CXX_FLAGS} -no-cpp-precomp")
+    IF(VTK_USE_CARBON)
+      SET(VTK_REQUIRED_CXX_FLAGS "${VTK_REQUIRED_CXX_FLAGS} -fpascal-strings")
+    ENDIF(VTK_USE_CARBON)
+  ENDIF(CMAKE_COMPILER_IS_GNUCXX)
+  IF(BUILD_SHARED_LIBS)
+    SET(VTK_APPLE_SHARED_FLAGS_NEEDED 1)
+  ENDIF(BUILD_SHARED_LIBS)
+ENDIF(APPLE)
+
+IF(UNIX)
+  IF(NOT CMAKE_COMPILER_IS_GNUCXX)
+    INCLUDE(${VTK_SOURCE_DIR}/CMake/TestNO_ICC_IDYNAMIC_NEEDED.cmake)
+    TESTNO_ICC_IDYNAMIC_NEEDED(NO_ICC_IDYNAMIC_NEEDED ${VTK_SOURCE_DIR}/CMake)
+    IF(NO_ICC_IDYNAMIC_NEEDED)
+      SET(VTK_REQUIRED_CXX_FLAGS "${VTK_REQUIRED_CXX_FLAGS}")
+    ELSE(NO_ICC_IDYNAMIC_NEEDED)
+      SET(VTK_REQUIRED_CXX_FLAGS "${VTK_REQUIRED_CXX_FLAGS} -i_dynamic")
+    ENDIF(NO_ICC_IDYNAMIC_NEEDED)
+  ENDIF(NOT CMAKE_COMPILER_IS_GNUCXX)
+ENDIF(UNIX)
+
+IF(CMAKE_BUILD_TOOL MATCHES "(msdev|devenv|nmake)")
+  # Use the highest warning level for visual studio.
+  SET(CMAKE_CXX_WARNING_LEVEL 4)
+  IF(CMAKE_CXX_FLAGS MATCHES "/W[0-4]")
+    STRING(REGEX REPLACE "/W[0-4]" "/W4" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+  ELSE(CMAKE_CXX_FLAGS MATCHES "/W[0-4]")
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
+  ENDIF(CMAKE_CXX_FLAGS MATCHES "/W[0-4]")
+ENDIF(CMAKE_BUILD_TOOL MATCHES "(msdev|devenv|nmake)")
+
+#-----------------------------------------------------------------------------
+# Add compiler flags VTK needs to work on this platform.  This must be
+# done after the call to CMAKE_EXPORT_BUILD_SETTINGS, but before any
+# try-compiles are done.
+SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${VTK_REQUIRED_C_FLAGS}")
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${VTK_REQUIRED_CXX_FLAGS}")
+SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${VTK_REQUIRED_EXE_LINKER_FLAGS}")
 
 #-----------------------------------------------------------------------------
 # Platform configuration tests.
@@ -159,38 +309,6 @@ IF(VTK_CMAKE_EXTENSIONS_COMPILED)
 ENDIF(VTK_CMAKE_EXTENSIONS_COMPILED)
 
 #-----------------------------------------------------------------------------
-# Choose static or shared libraries.
-OPTION(BUILD_SHARED_LIBS "Build VTK with shared libraries." OFF)
-SET(VTK_BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS})
-
-OPTION(VTK_USE_EXECUTIVES "Build VTK with the new pipeline" OFF)
-
-#-----------------------------------------------------------------------------
-# Determine the set of VTK kits that should be built.
-OPTION(VTK_USE_RENDERING "Build the vtkRendering kit.  Needed for displaying data." ON)
-OPTION(VTK_USE_PATENTED
-       "Build the vtkPatented kit.  These classes are patented and may require a license to use."
-       OFF)
-VTK_DEPENDENT_OPTION(VTK_USE_HYBRID "Build the vtkHybrid kit." OFF
-                     "VTK_USE_RENDERING" OFF)
-VTK_DEPENDENT_OPTION(VTK_USE_PARALLEL "Build the vtkParallel kit." OFF
-                     "VTK_USE_RENDERING" OFF)
-
-SET(VTK_KITS COMMON FILTERING IO GRAPHICS IMAGING)
-IF(VTK_USE_RENDERING)
-  SET(VTK_KITS ${VTK_KITS} RENDERING)
-ENDIF(VTK_USE_RENDERING)
-IF(VTK_USE_HYBRID)
-  SET(VTK_KITS ${VTK_KITS} HYBRID)
-ENDIF(VTK_USE_HYBRID)
-IF(VTK_USE_PARALLEL)
-  SET(VTK_KITS ${VTK_KITS} PARALLEL)
-ENDIF(VTK_USE_PARALLEL)
-IF(VTK_USE_PATENTED)
-  SET(VTK_KITS ${VTK_KITS} PATENTED)
-ENDIF(VTK_USE_PATENTED)
-
-#-----------------------------------------------------------------------------
 # Configure Dart testing support.
 INCLUDE(${CMAKE_ROOT}/Modules/Dart.cmake)
 MARK_AS_ADVANCED(BUILD_TESTING DART_ROOT TCL_TCLSH)
@@ -290,36 +408,6 @@ ENDIF(BUILD_TESTING)
 IF(BUILD_EXAMPLES)
   SUBDIRS(Examples)
 ENDIF(BUILD_EXAMPLES)
-
-#-----------------------------------------------------------------------------
-# Determine GUI.
-SET(VTK_USE_X_OPTIONAL 0)
-SET(VTK_USE_X_FORCE 0)
-IF(CMAKE_HAS_X)
-  IF(CYGWIN)
-    SET(VTK_USE_X_OPTIONAL 1)
-  ENDIF(CYGWIN)
-  IF(APPLE)
-    SET(VTK_USE_X_OPTIONAL 1)
-  ELSE(APPLE)
-    SET(VTK_USE_X_FORCE ${VTK_USE_RENDERING})
-  ENDIF(APPLE)
-ENDIF(CMAKE_HAS_X)
-
-VTK_DEPENDENT_OPTION(VTK_USE_CARBON "Build classes using Carbon API." ON
-                     "APPLE;VTK_USE_RENDERING" OFF)
-VTK_DEPENDENT_OPTION(VTK_USE_COCOA "Build classes using Cocoa API." OFF
-                     "APPLE;VTK_USE_RENDERING" OFF)
-VTK_DEPENDENT_OPTION(VTK_USE_X
-                     "Build classes for the X11 window system." OFF
-                     "CMAKE_HAS_X;VTK_USE_RENDERING;VTK_USE_X_OPTIONAL"
-                     "${VTK_USE_X_FORCE}")
-
-IF(VTK_USE_CARBON AND VTK_USE_COCOA)
-  MESSAGE(SEND_ERROR "Only one of VTK_USE_CARBON and VTK_USE_COCOA may be ON.")
-  SET(VTK_USE_CARBON 0)
-  SET(VTK_USE_COCOA 0)
-ENDIF(VTK_USE_CARBON AND VTK_USE_COCOA)
 
 #-----------------------------------------------------------------------------
 # Select a streams library.
@@ -445,87 +533,6 @@ VTK_THIRD_PARTY_OPTION(JPEG jpeg)
 VTK_THIRD_PARTY_OPTION(PNG  png)
 VTK_THIRD_PARTY_OPTION(TIFF tiff)
 VTK_THIRD_PARTY_OPTION(EXPAT expat)
-
-#-----------------------------------------------------------------------------
-# VTK requires special compiler flags on some platforms.
-SET(VTK_REQUIRED_C_FLAGS)
-SET(VTK_REQUIRED_CXX_FLAGS)
-IF(CMAKE_COMPILER_IS_GNUCXX)
-  # A GCC compiler.  Quiet warning about strstream deprecation.
-  SET(VTK_REQUIRED_CXX_FLAGS "${VTK_REQUIRED_CXX_FLAGS} -Wno-deprecated")
-  IF(WIN32)
-    # The platform is gcc on cygwin.
-    SET(VTK_REQUIRED_CXX_FLAGS "${VTK_REQUIRED_CXX_FLAGS} -mwin32")
-    SET(VTK_REQUIRED_C_FLAGS "${VTK_REQUIRED_C_FLAGS} -mwin32")
-  ENDIF(WIN32)
-  IF(MINGW)
-    LINK_LIBRARIES(-lgdi32)
-  ENDIF(MINGW)
-  IF(CMAKE_SYSTEM MATCHES "SunOS.*")
-    # Disable warnings that occur in X11 headers.
-    IF(DART_ROOT AND BUILD_TESTING)
-      SET(VTK_REQUIRED_CXX_FLAGS "${VTK_REQUIRED_CXX_FLAGS} -Wno-unknown-pragmas")
-      SET(VTK_REQUIRED_C_FLAGS "${VTK_REQUIRED_C_FLAGS} -Wno-unknown-pragmas")
-    ENDIF(DART_ROOT AND BUILD_TESTING)
-  ENDIF(CMAKE_SYSTEM MATCHES "SunOS.*")
-ELSE(CMAKE_COMPILER_IS_GNUCXX)
-  IF(CMAKE_ANSI_CFLAGS)
-    SET(VTK_REQUIRED_C_FLAGS "${VTK_REQUIRED_C_FLAGS} ${CMAKE_ANSI_CFLAGS}")
-  ENDIF(CMAKE_ANSI_CFLAGS)
-  IF(CMAKE_SYSTEM MATCHES "OSF1-V.*")
-     SET(VTK_REQUIRED_CXX_FLAGS
-         "${VTK_REQUIRED_CXX_FLAGS} -timplicit_local -no_implicit_include")
-  ENDIF(CMAKE_SYSTEM MATCHES "OSF1-V.*")
-  #silence duplicate symbol warnings on AIX
-  IF(CMAKE_SYSTEM MATCHES "AIX.*")
-    SET(VTK_REQUIRED_EXE_LINKER_FLAGS "${VTK_REQUIRED_EXE_LINKER_FLAGS} -bhalt:5")
-  ENDIF(CMAKE_SYSTEM MATCHES "AIX.*")
-ENDIF(CMAKE_COMPILER_IS_GNUCXX)
-
-IF(APPLE)
-  SET(CMAKE_SHARED_LIBRARY_CREATE_C_FLAGS "${CMAKE_SHARED_LIBRARY_CREATE_C_FLAGS} -Wl,-flat_namespace,-U,_environ")
-  SET(CMAKE_SHARED_MODULE_CREATE_C_FLAGS "${CMAKE_SHARED_MODULE_CREATE_C_FLAGS} -Wl,-flat_namespace,-U,_environ")
-  IF(CMAKE_COMPILER_IS_GNUCXX)
-    SET(VTK_REQUIRED_C_FLAGS "${VTK_REQUIRED_C_FLAGS} -no-cpp-precomp")
-    SET(VTK_REQUIRED_CXX_FLAGS "${VTK_REQUIRED_CXX_FLAGS} -no-cpp-precomp")
-    IF(VTK_USE_CARBON)
-      SET(VTK_REQUIRED_CXX_FLAGS "${VTK_REQUIRED_CXX_FLAGS} -fpascal-strings")
-    ENDIF(VTK_USE_CARBON)
-  ENDIF(CMAKE_COMPILER_IS_GNUCXX)
-  IF(BUILD_SHARED_LIBS)
-    SET(VTK_APPLE_SHARED_FLAGS_NEEDED 1)
-  ENDIF(BUILD_SHARED_LIBS)
-ENDIF(APPLE)
-
-IF(UNIX)
-  IF(NOT CMAKE_COMPILER_IS_GNUCXX)
-    INCLUDE(${VTK_SOURCE_DIR}/CMake/TestNO_ICC_IDYNAMIC_NEEDED.cmake)
-    TESTNO_ICC_IDYNAMIC_NEEDED(NO_ICC_IDYNAMIC_NEEDED ${VTK_SOURCE_DIR}/CMake)
-    IF(NO_ICC_IDYNAMIC_NEEDED)
-      SET(VTK_REQUIRED_CXX_FLAGS "${VTK_REQUIRED_CXX_FLAGS}")
-    ELSE(NO_ICC_IDYNAMIC_NEEDED)
-      SET(VTK_REQUIRED_CXX_FLAGS "${VTK_REQUIRED_CXX_FLAGS} -i_dynamic")
-    ENDIF(NO_ICC_IDYNAMIC_NEEDED)
-  ENDIF(NOT CMAKE_COMPILER_IS_GNUCXX)
-ENDIF(UNIX)
-
-
-IF(VTK_USE_X)
-  IF(CMAKE_X_CFLAGS)
-    SET(VTK_REQUIRED_C_FLAGS "${VTK_REQUIRED_C_FLAGS} ${CMAKE_X_CFLAGS}")
-    SET(VTK_REQUIRED_CXX_FLAGS "${VTK_REQUIRED_CXX_FLAGS} ${CMAKE_X_CFLAGS}")
-  ENDIF(CMAKE_X_CFLAGS)
-ENDIF(VTK_USE_X)
-
-IF(CMAKE_BUILD_TOOL MATCHES "(msdev|devenv|nmake)")
-  # Use the highest warning level for visual studio.
-  SET(CMAKE_CXX_WARNING_LEVEL 4)
-  IF(CMAKE_CXX_FLAGS MATCHES "/W[0-4]")
-    STRING(REGEX REPLACE "/W[0-4]" "/W4" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-  ELSE(CMAKE_CXX_FLAGS MATCHES "/W[0-4]")
-    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
-  ENDIF(CMAKE_CXX_FLAGS MATCHES "/W[0-4]")
-ENDIF(CMAKE_BUILD_TOOL MATCHES "(msdev|devenv|nmake)")
 
 #-----------------------------------------------------------------------------
 # Configure OpenGL support.
@@ -913,11 +920,6 @@ IF (VTK_NEED_LOADED_COMMANDS)
   ENDFOREACH(cmd)
 ENDIF (VTK_NEED_LOADED_COMMANDS)
 
-# Save the compiler settings so another project can import them.
-INCLUDE(${CMAKE_ROOT}/Modules/CMakeExportBuildSettings.cmake)
-CMAKE_EXPORT_BUILD_SETTINGS(${VTK_BINARY_DIR}/VTKBuildSettings.cmake)
-INSTALL_FILES(/lib/vtk .cmake VTKBuildSettings)
-
 # Save library dependencies.
 EXPORT_LIBRARY_DEPENDENCIES(${VTK_BINARY_DIR}/VTKLibraryDepends.cmake)
 
@@ -927,14 +929,6 @@ INSTALL_FILES(/lib/vtk .cmake UseVTK VTKLibraryDepends)
 IF(VTK_WRAP_HINTS)
   INSTALL_FILES(/lib/vtk FILES ${VTK_WRAP_HINTS})
 ENDIF(VTK_WRAP_HINTS)
-
-#-----------------------------------------------------------------------------
-# Add compiler flags VTK needs to work on this platform.  This must be
-# done AFTER the call to CMAKE_EXPORT_BUILD_SETTINGS.
-
-SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${VTK_REQUIRED_C_FLAGS}")
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${VTK_REQUIRED_CXX_FLAGS}")
-SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${VTK_REQUIRED_EXE_LINKER_FLAGS}")
 
 #-----------------------------------------------------------------------------
 # Allow local additions to this file without CVS conflicts.
