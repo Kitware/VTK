@@ -466,31 +466,10 @@ void vtkAppendPolyData::Execute()
     }
   outputCD->CopyAllocate(cd,numCells);
 
-
-  // Examine all points data and check if they're the same type. If not,
-  // use highest (double probably), otherwise the type of the first
-  // array (float no doubt). Depends on defs in vtkSetGet.h - Warning.
-
-  int ttype, AllSame=1;
-  int pointtype = ((vtkPolyData *)(this->Inputs[0]))->GetPoints()->GetData()->GetDataType();
-  //
-  for (idx = 0; idx < this->NumberOfInputs; ++idx)
-    {
-    ds = (vtkPolyData *)(this->Inputs[idx]);
-    if (ds != NULL && ds->GetNumberOfPoints()>0)
-      {
-      ttype = ds->GetPoints()->GetData()->GetDataType();
-      if (ttype!=pointtype)
-        {
-        AllSame = 0;
-        vtkDebugMacro(<<"Different point data types");
-        }
-      pointtype = pointtype>ttype ? pointtype : ttype;
-      }
-    }
-  //
-
-  newPts = vtkPoints::New(pointtype);
+  // Set the point type of the output initially to the point
+  // type of the first input
+  inPts = ((vtkPolyData *)(this->Inputs[0]))->GetPoints();
+  newPts = vtkPoints::New(inPts->GetData()->GetDataType());
   newPts->SetNumberOfPoints(numPts);
 
   newVerts = vtkCellArray::New();
@@ -515,7 +494,7 @@ void vtkAppendPolyData::Execute()
     // this check is not necessary, but I'll put it in anyway
     if (ds != NULL)
       {
-
+    
       numPts = ds->GetNumberOfPoints();
       numCells = ds->GetNumberOfCells();
       if ( numPts <= 0 && numCells <= 0 )
@@ -525,36 +504,28 @@ void vtkAppendPolyData::Execute()
 
       pd = ds->GetPointData();
       cd = ds->GetCellData();
-
+      
       inPts = ds->GetPoints();
       inVerts = ds->GetVerts();
       inLines = ds->GetLines();
       inPolys = ds->GetPolys();
       inStrips = ds->GetStrips();
-
+      
       if (ds->GetNumberOfPoints() > 0)
         {
         // copy points directly
-        if (AllSame)
-          {
-          this->AppendData(newPts->GetData(),
+        this->AppendData(newPts->GetData(), 
                          inPts->GetData(), ptOffset);
-          }
-        else
-          {
-          this->AppendDifferentPoints(newPts->GetData(),
-                         inPts->GetData(), ptOffset);
-          }
         // copy scalars directly
         if (newPtScalars)
           {
-          this->AppendData(newPtScalars->GetData(),
+          this->AppendData(newPtScalars->GetData(), 
                            pd->GetScalars()->GetData(), ptOffset);
           }
         // copy normals directly
         if (newPtNormals)
           {
-          this->AppendData(newPtNormals->GetData(),
+          this->AppendData(newPtNormals->GetData(), 
                            pd->GetNormals()->GetData(), ptOffset);
           }
         // copy vectors directly
@@ -566,13 +537,13 @@ void vtkAppendPolyData::Execute()
         // copy tcoords directly
         if (newPtTCoords)
           {
-          this->AppendData(newPtTCoords->GetData(),
+          this->AppendData(newPtTCoords->GetData(), 
                            pd->GetTCoords()->GetData(), ptOffset);
           }
         // copy tensors directly
         if (newPtTensors)
           {
-          this->AppendData(newPtTensors->GetData(),
+          this->AppendData(newPtTensors->GetData(), 
                            pd->GetTensors()->GetData(), ptOffset);
           }
         // copy field directly
@@ -580,12 +551,12 @@ void vtkAppendPolyData::Execute()
           {
           for (i = 0; i < newPtField->GetNumberOfArrays(); ++i)
             {
-            this->AppendData(newPtField->GetArray(i),
+            this->AppendData(newPtField->GetArray(i), 
                              pd->GetFieldData()->GetArray(i), ptOffset);
             }
           }
         }
-
+      
       if (ds->GetNumberOfPoints() > 0)
         {
         // cell data could be made efficient like the point data,
@@ -617,7 +588,7 @@ void vtkAppendPolyData::Execute()
             newLines->InsertCellPoint(pts[i]+ptOffset);
             }
           }
-
+      
         for (inStrips->InitTraversal(); inStrips->GetNextCell(npts,pts); )
           {
           newStrips->InsertNextCell(npts);
@@ -627,7 +598,7 @@ void vtkAppendPolyData::Execute()
             }
           }
         }
-      ptOffset += numPts;
+      ptOffset += numPts; 
       cellOffset += numCells;
       }
     }
@@ -747,7 +718,7 @@ vtkPolyData *vtkAppendPolyData::GetInput(int idx)
     {
     return NULL;
     }
-
+  
   return (vtkPolyData *)(this->Inputs[idx]);
 }
 
@@ -831,72 +802,14 @@ void vtkAppendPolyData::AppendData(vtkDataArray *dest, vtkDataArray *src,
     default:
       vtkErrorMacro("Unknown data type " << src->GetDataType());
     }
-
+  
   pSrc  = src->GetVoidPointer(0);
-  pDest = dest->GetVoidPointer(offset);
-
+  pDest = dest->GetVoidPointer(offset);  
+  
   memcpy(pDest, pSrc, length);
 }
 
-void vtkAppendPolyData::AppendDifferentPoints(vtkDataArray *dest, vtkDataArray *src,
-                                                        int offset)
-{
-  float  *fSrc, *fDest;
-  double *dSrc, *dDest;
-  int p;
-
-  if (src->GetNumberOfTuples() + offset > dest->GetNumberOfTuples())
-    {
-    vtkErrorMacro("Destination not big enough");
-    return;
-    }
-    
-
-  int vals = src->GetMaxId()+1;
-
-  switch (dest->GetDataType())
-    {
-    //
-    // Dest is FLOAT - if sources are not all same type, dest ought to
-    // be double. (assuming float and double are the only choices)
-    //
-    case VTK_FLOAT:
-        vtkErrorMacro("Dest type should be double? "
-            << dest->GetDataType());
-        break;
-    //
-    // Dest is DOUBLE - sources may be mixed float/double combinations
-    //
-
-    case VTK_DOUBLE:
-      dDest = (double*)(dest->GetVoidPointer(offset*src->GetNumberOfComponents()));
-      //
-      switch (src->GetDataType())
-        {
-        case VTK_FLOAT:
-          fSrc = (float*)(src->GetVoidPointer(0));
-          for (p=0; p<vals; p++)
-            {
-              dDest[p] = (double) fSrc[p];
-            }
-          break;
-        case VTK_DOUBLE:
-          dSrc = (double*)(src->GetVoidPointer(0));
-          memcpy(dDest, dSrc, vals*sizeof(double));
-          break;
-        default:
-          vtkErrorMacro("Unknown data type " << dest->GetDataType());
-        }
-      break;
-      //
-    default:
-      vtkErrorMacro("Unknown data type " << dest->GetDataType());
-    }
-
-}
-
-
-// returns the next pointer in dest
+// returns the next pointer in dest      
 int *vtkAppendPolyData::AppendCells(int *pDest, vtkCellArray *src, int offset)
 {
   int *pSrc, *end;

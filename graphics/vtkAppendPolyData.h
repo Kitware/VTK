@@ -126,7 +126,6 @@ protected:
 
   // An efficient way to append data/cells.
   void AppendData(vtkDataArray *dest, vtkDataArray *src, int offset);
-  void AppendDifferentPoints(vtkDataArray *dest, vtkDataArray *src, int offset);
   int *AppendCells(int *pDest, vtkCellArray *src, int offset);
 
  private:
