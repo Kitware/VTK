@@ -66,12 +66,12 @@ vtkLinearExtrusionFilter::vtkLinearExtrusionFilter()
   this->ExtrusionPoint[0] = this->ExtrusionPoint[1] = this->ExtrusionPoint[2] = 0.0;
 }
 
-float *vtkLinearExtrusionFilter::ViaNormal(float x[3], int id, vtkNormals *n)
+float *vtkLinearExtrusionFilter::ViaNormal(float x[3], int id, vtkDataArray *n)
 {
   static float xNew[3], *normal;
   int i;
 
-  normal = n->GetNormal(id);
+  normal = n->GetTuple(id);
   for (i=0; i<3; i++) 
     {
     xNew[i] = x[i] + this->ScaleFactor*normal[i];
@@ -81,7 +81,7 @@ float *vtkLinearExtrusionFilter::ViaNormal(float x[3], int id, vtkNormals *n)
 }
 
 float *vtkLinearExtrusionFilter::ViaVector(float x[3], int vtkNotUsed(id), 
-					   vtkNormals *vtkNotUsed(n))
+					   vtkDataArray *vtkNotUsed(n))
 {
   static float xNew[3];
   int i;
@@ -95,7 +95,7 @@ float *vtkLinearExtrusionFilter::ViaVector(float x[3], int vtkNotUsed(id),
 }
 
 float *vtkLinearExtrusionFilter::ViaPoint(float x[3], int vtkNotUsed(id), 
-					  vtkNormals *vtkNotUsed(n))
+					  vtkDataArray *vtkNotUsed(n))
 {
   static float xNew[3];
   int i;
@@ -113,7 +113,7 @@ void vtkLinearExtrusionFilter::Execute()
   int numPts, numCells;
   vtkPolyData *input= this->GetInput();
   vtkPointData *pd=input->GetPointData();
-  vtkNormals *inNormals=NULL;
+  vtkDataArray *inNormals=NULL;
   vtkPolyData *mesh;
   vtkPoints *inPts;
   vtkCellArray *inVerts, *inLines, *inPolys, *inStrips;
@@ -148,10 +148,10 @@ void vtkLinearExtrusionFilter::Execute()
     this->ExtrudePoint = &vtkLinearExtrusionFilter::ViaPoint;
     }
   else if ( this->ExtrusionType == VTK_NORMAL_EXTRUSION  &&
-  (inNormals = pd->GetNormals()) != NULL )
+	    (inNormals = pd->GetActiveNormals()) != NULL )
     {
     this->ExtrudePoint = &vtkLinearExtrusionFilter::ViaNormal;
-    inNormals = pd->GetNormals();
+    inNormals = pd->GetActiveNormals();
     }
   else // VTK_VECTOR_EXTRUSION
     {

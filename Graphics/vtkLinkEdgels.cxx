@@ -76,36 +76,37 @@ void vtkLinkEdgels::Execute()
   vtkPointData *pd;
   vtkPoints *newPts=0;
   vtkCellArray *newLines=0;
-  vtkScalars *inScalars;
-  vtkScalars *outScalars;
+  vtkFloatArray *inScalars;
+  vtkFloatArray *outScalars;
   vtkImageData *input = this->GetInput();
-  vtkVectors *outVectors;
+  vtkFloatArray *outVectors;
   vtkPolyData *output = this->GetOutput();
   int *dimensions;
   float *CurrMap, *inDataPtr;
-  vtkVectors *inVectors;
+  vtkDataArray *inVectors;
   int ptId;
   
   vtkDebugMacro(<< "Extracting structured points geometry");
 
   pd = input->GetPointData();
   dimensions = input->GetDimensions();
-  inScalars = (vtkScalars *)pd->GetScalars();
-  inVectors = pd->GetVectors();
+  inScalars = vtkFloatArray::SafeDownCast(pd->GetActiveScalars());
+  inVectors = pd->GetActiveVectors();
   if ((input->GetNumberOfPoints()) < 2 || inScalars == NULL)
     {
-    vtkErrorMacro(<<"No data to transform!");
+    vtkErrorMacro(<<"No data to transform (or wrong data type)!");
     return;
     }
 
   // set up the input
-  inDataPtr = ((vtkFloatArray *)inScalars->GetData())->GetPointer(0);
+  inDataPtr = inScalars->GetPointer(0);
 
   // Finally do edge following to extract the edge data from the Thin image
   newPts = vtkPoints::New();
   newLines = vtkCellArray::New();
-  outScalars = vtkScalars::New();
-  outVectors = vtkVectors::New();
+  outScalars = vtkFloatArray::New();
+  outVectors = vtkFloatArray::New();
+  outVectors->SetNumberOfComponents(3);
 
   vtkDebugMacro("doing edge linking\n");
   //
@@ -123,7 +124,7 @@ void vtkLinkEdgels::Execute()
   output->SetLines(newLines);
 
   // Update ourselves
-  outScalars->ComputeRange();
+//  outScalars->ComputeRange();
   output->GetPointData()->SetScalars(outScalars);
   output->GetPointData()->SetVectors(outVectors);
   
@@ -135,12 +136,12 @@ void vtkLinkEdgels::Execute()
 
 // This method links the edges for one image. 
 void vtkLinkEdgels::LinkEdgels(int xdim, int ydim, float *image, 
-				    vtkVectors *inVectors,
-				    vtkCellArray *newLines, 
-				    vtkPoints *newPts,
-				    vtkScalars *outScalars, 
-				    vtkVectors *outVectors,
-				    int z)
+			       vtkDataArray *inVectors,
+			       vtkCellArray *newLines, 
+			       vtkPoints *newPts,
+			       vtkFloatArray *outScalars, 
+			       vtkFloatArray *outVectors,
+			       int z)
 {
   int **forward;
   int **backward;
@@ -192,7 +193,7 @@ void vtkLinkEdgels::LinkEdgels(int xdim, int ydim, float *image,
       else
 	{
 	// try all neighbors as forward, first try four connected
-	inVectors->GetVector(x+ypos+zpos,vec1); 
+	inVectors->GetTuple(x+ypos+zpos,vec1); 
 	vtkMath::Normalize(vec1); 
 	// first eliminate based on phi1 - alpha
 	bestError = 0;
@@ -211,7 +212,7 @@ void vtkLinkEdgels::LinkEdgels(int xdim, int ydim, float *image,
 		 this->GradientThreshold)) 
 	      {
 	      // satisfied the first test, now check second
-	      inVectors->GetVector(x + xoffset[i] + 
+	      inVectors->GetTuple(x + xoffset[i] + 
 				   (y + yoffset[i])*xdim + zpos,vec2); 
 	      vtkMath::Normalize(vec2); 
 	      if ((vec1[0]*vec2[0] + vec1[1]*vec2[1]) >= phiThresh)
@@ -259,7 +260,7 @@ void vtkLinkEdgels::LinkEdgels(int xdim, int ydim, float *image,
 		   this->GradientThreshold)) 
 		{
 		// satisfied the first test, now check second
-		inVectors->GetVector(x + xoffset[i] + 
+		inVectors->GetTuple(x + xoffset[i] + 
 				     (y + yoffset[i])*xdim + zpos,vec2); 
 		vtkMath::Normalize(vec2); 
 		if ((vec1[0]*vec2[0] + vec1[1]*vec2[1]) >= phiThresh)
@@ -319,17 +320,17 @@ void vtkLinkEdgels::LinkEdgels(int xdim, int ydim, float *image,
 
 	// now trace to the end and build the digital curve
 	length = 0;
-	start = outScalars->GetNumberOfScalars();
+	start = outScalars->GetNumberOfTuples();
 	newX = currX;
 	newY = currY;
 	do
 	  {
 	  currX = newX;
 	  currY = newY;
-	  outScalars->InsertNextScalar(image[currX + currY*xdim]);
-	  inVectors->GetVector(currX+currY*xdim+zpos,vec2); 
+	  outScalars->InsertNextTuple(&(image[currX + currY*xdim]));
+	  inVectors->GetTuple(currX+currY*xdim+zpos,vec2); 
 	  vtkMath::Normalize(vec2); 
-          outVectors->InsertNextVector(vec2);
+          outVectors->InsertNextTuple(vec2);
 	  vec[0] = currX;
 	  vec[1] = currY;
 	  newPts->InsertNextPoint(vec);
