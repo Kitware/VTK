@@ -56,6 +56,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkViewport_h
 
 #include "vtkObject.h"
+#include "vtkActor2DCollection.h"
 
 class vtkWindow;
 
@@ -123,6 +124,8 @@ public:
   virtual void DisplayToWorld();
   virtual void WorldToDisplay();
 
+  void AddActor2D(vtkActor2D* actor);
+  void RemoveActor2D(vtkActor2D* actor);
 
   // Description:
   // Get the size and origin of the viewport in display coordinates
@@ -147,6 +150,7 @@ protected:
   float DisplayPoint[3];
   float ViewPoint[3];
   float WorldPoint[4];
+  vtkActor2DCollection Actors2D;
 
 };
 

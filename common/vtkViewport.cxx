@@ -90,6 +90,23 @@ vtkViewport::vtkViewport()
 
 }
 
+
+void vtkViewport::AddActor2D(vtkActor2D* actor)
+{
+  vtkDebugMacro (<< "vtkViewport::AddActor2D");
+  this->Actors2D.AddItem(actor);
+}
+
+void vtkViewport::RemoveActor2D(vtkActor2D* actor)
+{
+  vtkDebugMacro (<< "vtkViewport::RemoveActor2D");
+
+  this->Actors2D.RemoveItem(actor);
+}
+
+
+
+
 // Description:
 // Convert display coordinates to view coordinates.
 void vtkViewport::DisplayToView()
