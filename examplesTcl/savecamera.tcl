@@ -10,5 +10,6 @@ proc saveCamera { fileName } {
     puts $filePtr "$camera SetViewAngle [$activeCamera GetViewAngle]"
     puts $filePtr "$camera SetViewUp [$activeCamera GetViewUp]"
     puts $filePtr "$camera SetViewPlaneNormal [$activeCamera GetViewPlaneNormal]"
+    puts $filePtr "$camera SetClippingRange [$activeCamera GetClippingRange]"
     close $filePtr
 }
