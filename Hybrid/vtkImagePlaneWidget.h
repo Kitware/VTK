@@ -111,11 +111,8 @@ public:
     {this->Superclass::PlaceWidget(xmin,xmax,ymin,ymax,zmin,zmax);}
 
   // Description:
-  // Set the image data and generate a default texture plane.  
-  void SetInput(vtkDataSet* input)
-    {this->Superclass::SetInput(input);
-     this->GenerateTexturePlane();
-    }
+  // Set the vtkImageData* input for the vtkImageReslice.
+  void SetInput(vtkDataSet* input);
 
   // Description:
   // Set/Get the origin of the plane.
@@ -176,6 +173,10 @@ public:
     { this->SetResliceInterpolate(2); }
 
   // Description:
+  // Convenience method to get the vtkImageReslice output.
+  vtkImageData* GetResliceOutput();    
+
+  // Description:
   // Make sure that the plane remains within the volume.
   // Default is On.
   vtkSetMacro(RestrictPlaneToVolume,int);
@@ -208,7 +209,7 @@ public:
 
   // Description:
   // Convenience method sets the plane orientation normal to the
-  // x, y, or z axes.
+  // x, y, or z axes.  Default is XAxes (0).
   void SetPlaneOrientation(int);
   vtkGetMacro(PlaneOrientation,int);
   void SetPlaneOrientationToXAxes()
@@ -221,9 +222,18 @@ public:
   // Description:
   // Set the internal picker to one defined by the user.  In this way,
   // a set of three orthogonal planes can share the same picker so that
-  // picking is performed correctly.
+  // picking is performed correctly.  The default internal picker can be
+  // re-set/allocated by setting to 0 (NULL).
   void SetPicker(vtkCellPicker*);
 
+  // Description:
+  // Set the internal lookuptable (lut) to one defined by the user, or,
+  // alternatively, to the lut of another vtkImgePlaneWidget.  In this way,
+  // a set of three orthogonal planes can share the same lut so that
+  // window-levelling is performed uniformly among planes.  The default
+  // internal lut can be re-set/allocated by setting to 0 (NULL).
+  void SetLookupTable(vtkLookupTable*);
+  vtkGetObjectMacro(LookupTable,vtkLookupTable);
 
 protected:
   vtkImagePlaneWidget();
@@ -261,6 +271,7 @@ protected:
   int   ResliceInterpolate;
   int   TextureInterpolate;
   int   UserPickerEnabled;
+  int   UserLookupTableEnabled;
 
   // the plane
   vtkActor          *PlaneActor;
