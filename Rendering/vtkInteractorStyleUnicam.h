@@ -1,3 +1,13 @@
+/*=========================================================================
+
+  Program:   Visualization Toolkit
+  Module:    vtkInteractorStyleUnicam.h
+  Language:  C++
+  Date:      $Date$
+  Version:   $Revision$
+
+=========================================================================*/
+
 /*
  * This work (vtkInteractorStyleUnicam.h) was produced under a grant from
  * the Department of Energy to Brown University.  Neither Brown University
