@@ -21,7 +21,7 @@ def vtkCreateKitModuleName(kit):
     if os.name == 'posix':
         return 'libvtk'+kit+'Python'
     else:
-        return 'vtk+'+kit+'Python'
+        return 'vtk'+kit+'Python'
 
 # load the required kits
 for kit in required_kits:
