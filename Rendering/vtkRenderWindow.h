@@ -151,7 +151,7 @@ public:
 
   // Description:
   // Prescribe that the window be created in a stereo-capable mode. This
-  // method must be called before the window is realized. Default if off.
+  // method must be called before the window is realized. Default is off.
   vtkGetMacro(StereoCapableWindow,int);
   vtkBooleanMacro(StereoCapableWindow,int);
   virtual void SetStereoCapableWindow(int capable);
@@ -292,8 +292,9 @@ public:
   // for every Render().  If you set this to five, you will need to do 
   // five Render() invocations before seeing the result. This isn't
   // very impressive unless something is changing between the Renders.
+  // Changing this value may reset the current subframe count.
   vtkGetMacro(SubFrames,int);
-  vtkSetMacro(SubFrames,int);
+  virtual void SetSubFrames(int subFrames);
 
   // Description:
   // This flag is set if the window hasn't rendered since it was created

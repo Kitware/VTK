@@ -25,7 +25,7 @@
 #include "vtkRendererCollection.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkRenderWindow, "1.132");
+vtkCxxRevisionMacro(vtkRenderWindow, "1.133");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -130,6 +130,20 @@ void vtkRenderWindow::SetInteractor(vtkRenderWindowInteractor *rwi)
         this->Interactor->SetRenderWindow(this);
         }
       }
+    }
+}
+
+void vtkRenderWindow::SetSubFrames(int subFrames)
+{
+  if (this->SubFrames != subFrames)
+    {
+    this->SubFrames = subFrames;
+    if (this->CurrentSubFrame >= this->SubFrames)
+      {
+      this->CurrentSubFrame = 0;
+      }
+    vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting SubFrames to " << subFrames);
+    this->Modified();
     }
 }
 
@@ -284,7 +298,7 @@ void vtkRenderWindow::Render()
     
     // if this is the last sub frame then convert back into unsigned char
     this->CurrentSubFrame++;
-    if (this->CurrentSubFrame == this->SubFrames)
+    if (this->CurrentSubFrame >= this->SubFrames)
       {
       float num;
       unsigned char *p2 = new unsigned char [3*size[0]*size[1]];
