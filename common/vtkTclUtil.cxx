@@ -47,7 +47,16 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 int vtkTclEval(char *str)
 {
-  return Tcl_GlobalEval(vtkGlobalTclInterp, str);
+  int res;
+  
+  res = Tcl_GlobalEval(vtkGlobalTclInterp, str);
+  
+  if (res == TCL_ERROR)
+    {
+    vtkGenericWarningMacro("Error returned from vtk/tcl callback.\n" <<
+			   vtkGlobalTclInterp->result << endl);
+    }
+  return res;
 }
 
 // The string result returned is volatile so you should copy it.
@@ -295,11 +304,20 @@ void *vtkTclGetPointerFromObject(char *name,char *result_type,
 
 void vtkTclVoidFunc(void *arg)
 {
+  int res;
+
   vtkTclVoidFuncArg *arg2;
 
   arg2 = (vtkTclVoidFuncArg *)arg;
 
-  Tcl_GlobalEval(arg2->interp, arg2->command);
+  res = Tcl_GlobalEval(arg2->interp, arg2->command);
+
+  if (res == TCL_ERROR)
+    {
+    vtkGenericWarningMacro("Error returned from vtk/tcl callback:\n" <<
+			   Tcl_GetVar(arg2->interp,"errorInfo",0) <<
+			   " at line number " << arg2->interp->errorLine);
+    }
 }
 
 void vtkTclVoidFuncArgDelete(void *arg)
