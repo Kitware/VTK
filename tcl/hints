@@ -37,9 +37,9 @@ vtkProp			GetYRange	301 2
 vtkProp			GetZRange	301 2
 vtkProp			GetOrientation	301 3
 vtkProp			GetOrientationWXYZ	301 4
-vtkRenderer		GetCenter	301 3
-vtkRenderWindow		GetPosition	304 2
-vtkRenderWindow		GetSize		304 2
+vtkViewport		GetCenter	301 3
+vtkWindow		GetPosition	304 2
+vtkWindow		GetSize		304 2
 vtkStructuredGridGeometryFilter	GetExtent	301 6
 vtkStructuredGrid	GetPoint	301 3
 vtkStructuredPointsGeometryFilter	GetExtent	301 6
