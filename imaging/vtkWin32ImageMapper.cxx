@@ -576,7 +576,8 @@ void vtkWin32ImageMapper::RenderData(vtkViewport* viewport,
 
   hOldBitmap = (HBITMAP)SelectObject(compatDC,this->HBitmap);
 
-  float* actorScale = actor->GetScale();
+  //  float* actorScale = actor->GetScale();
+  float actorScale[2]; actorScale[0] = actorScale[1] = 1.0;
     
   int xSize= (int) (actorScale[0] * (float) width);
   int ySize = (int) (actorScale[1] * (float) height);

@@ -189,8 +189,8 @@ void vtkXPolyDataMapper2D::Render(vtkViewport* viewport, vtkActor2D* actor)
 	rgba = c->GetColor(pts[j]);
 	}
       aColor.red = (unsigned short) (rgba[0] * 256);
-      aColor.green = (unsigned short) (actorColor[1] * 256);
-      aColor.blue = (unsigned short) (actorColor[2] * 256);
+      aColor.green = (unsigned short) (rgba[1] * 256);
+      aColor.blue = (unsigned short) (rgba[2] * 256);
       XAllocColor(displayId, attr.colormap, &aColor);
       XSetForeground(displayId, gc, aColor.pixel);
       }

@@ -38,11 +38,16 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkTextMapper - 2D Text annotation
+// .NAME vtkTextMapper - 2D text annotation
 // .SECTION Description
 // vtkTextMapper provides 2D text annotation support for vtk.
-// It is a Mapper2D that can be accosciated with a Actor2D
-// and placed withint a RenderWindow or ImageWindow.
+// It is a vtkMapper2D that can be associated with a vtkActor2D
+// and placed into a vtkRenderer or vtkImager.
+//
+// To use vtkTextMapper, specify an input text string, a font size,
+// a font name, and whether to turn on bold or shadows (shadows make the
+// font more visible when on top of other objects). You'll also need to 
+// create a vtkActor2D and add it to the renderer or imager.
 
 // .SECTION See Also
 // vtkMapper2D vtkActor2D
@@ -76,8 +81,8 @@ public:
   virtual void Render(vtkViewport*, vtkActor2D*) {};
 
   // Description:
-  // Set the input to the mapper.  The mapper doesn't parse the string
-  // for carriage returns or line feeds.
+  // Set the input text string to the mapper.  The mapper doesn't parse 
+  // the string for carriage returns or line feeds.
   vtkSetStringMacro(Input);
 
   // Description:
@@ -94,8 +99,7 @@ public:
   vtkGetMacro(FontSize, int);
 
   // Description:
-  // Set/Get the bold property.
-  //  vtkSetMacro(Bold, int);
+  // Enable/disable text bolding.
   void SetBold(int val) 
   {if (val == this->Bold) return;
     this->Bold = val; this->FontChanged = 1; this->Modified();};
@@ -103,8 +107,7 @@ public:
   vtkBooleanMacro(Bold, int);
 
   // Description:
-  // Set/Get the italic property.
-  // vtkSetMacro(Italic, int);
+  // Enable/disable text italic.
   void SetItalic(int val) 
   {if (val == this->Italic) return;
     this->Italic = val; this->FontChanged = 1; this->Modified();};
@@ -112,8 +115,7 @@ public:
   vtkBooleanMacro(Italic, int);
 
   // Description:
-  // Set/Get the shadow property.
-  // vtkSetMacro(Shadow, int);
+  // Enable/disable text shadows.
   void SetShadow(int val);
   vtkGetMacro(Shadow, int);
   vtkBooleanMacro(Shadow, int);
@@ -121,7 +123,6 @@ public:
   // Description:
   // Set/Get the font family.  Three font types are allowed: Arial (VTK_ARIAL),
   // Courier (VTK_COURIER), and Times (VTK_TIMES).
-  // vtkSetMacro(FontFamily, int);
   void SetFontFamily(int val) 
   {if (val == this->FontFamily) return;
     this->FontFamily = val; this->FontChanged = 1; this->Modified();};

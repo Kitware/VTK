@@ -37,11 +37,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkPolyDataMapper2D - 2D Text annotation
+// .NAME vtkPolyDataMapper2D - draw vtkPolyData onto image plane
 // .SECTION Description
-// vtkPolyDataMapper2D provides 2D text annotation support for vtk.
-// It is a Mapper2D that can be accosciated with a Actor2D
-// and placed withint a RenderWindow or ImageWindow.
+// vtkPolyDataMapper2D is a mapper that renders 3D polygonal data 
+// (vtkPolyData) onto the 2D image plane (i.e., the renderer'v viewport).
+// The 3D data is transformed into 2D data by ignoring the z-coordinate
+// of the 3D points in vtkPolyData.
 
 // .SECTION See Also
 // vtkMapper2D vtkActor2D
