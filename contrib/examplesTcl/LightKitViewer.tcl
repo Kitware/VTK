@@ -224,7 +224,7 @@ if {[winfo exists $helpfrm]} {
 toplevel $helpfrm
 wm title $helpfrm "Help for LightKitViewer"
 set msg [label $helpfrm.msg -justify left \
-	-wraplength 300 -font {-weight normal -family Helvetica}]
+	-wraplength 350 -font {-weight normal -family Helvetica}]
 $msg config -text \
 {The key light is the dominant light in the scene, located in front of\
 and above the object. The fill light is usually positioned to shine\
@@ -235,8 +235,14 @@ Fill and headlights are dimmer than the key light; K:F and K:H control\
 the key-to-fill and key-to-headlight intensity ratios, respectively. The\
 key light intensity, in effect, controls the entire scene brightness level.
 
-The position of the key and fill lights are controlled by their elevation\
-(latitude) and azimuth (longitude). 
+Lights always shine on the point where the camera looking, but their angles\
+can be adjusted.  The position of the key and fill lights are controlled by\
+their elevation (latitude) and azimuth (longitude) expressed in degrees.\
+Both angles are specified with respect to the camera.\
+(elevation=0, azimuth=0) is located at the camera (a headlight).\
+(elevation=90, azimuth=0) is directly over the object\
+shining down. Negative azimuth angles position a light to the left of the\
+camera, positive values right.
 
 The warmth parameter controls the color of the lights: 0.5 is white, 0 is\
 cold blue, and 1 is deep sunset red.  Use extreme colors with restraint.

@@ -72,10 +72,20 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // of all the lights in the scene can be changed by changing the key light 
 // intensity.
 //
+// All lights are directional lights (infinitely far away with no
+// falloff).  Lights move with the camera.
+//
 // For simplicity, the position of lights in the LightKit can only be
 // specified using angles: the elevation (latitude) and azimuth
-// (longitude) of each light with respect to the camera.  All lights
-// are directional lights (infinitely far away with no falloff).
+// (longitude) of each light with respect to the camera, expressed in
+// degrees.  (Lights always shine on the camera's lookat point.) For
+// example, a light at (elevation=0, azimuth=0) is located at the
+// camera (a headlight).  A light at (elevation=90, azimuth=0) is
+// above the lookat point, shining down.  Negative azimuth values move
+// the lights clockwise as seen above, positive values
+// counter-clockwise.  So, a light at (elevation=45, azimuth=-20) is
+// above and in front of the object and shining slightly from the left
+// side.
 //
 // vtkLightKit limits the colors that can be assigned to any light to
 // those of incandescent sources such as light bulbs and sunlight.  It
