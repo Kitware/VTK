@@ -20,7 +20,7 @@
 #include <ctype.h>
 #include <string.h>
 
-vtkCxxRevisionMacro(vtkImageExport, "1.26");
+vtkCxxRevisionMacro(vtkImageExport, "1.27");
 vtkStandardNewMacro(vtkImageExport);
 
 //----------------------------------------------------------------------------
@@ -117,6 +117,12 @@ void vtkImageExport::SetExportVoidPointer(void *ptr)
 // Exports all the data from the input.
 void vtkImageExport::Export(void *output)
 {
+  if (!this->GetPointerToData())
+    {
+    // GetPointerToData() outputs an error message.
+    return;
+    }
+  
   if (this->ImageLowerLeft)
     {
     memcpy(output,this->GetPointerToData(),this->GetDataMemorySize());
@@ -314,11 +320,19 @@ void* vtkImageExport::BufferPointerCallbackFunction(void* userData)
 //----------------------------------------------------------------------------
 void vtkImageExport::UpdateInformationCallback()
 {
-  this->GetInput()->UpdateInformation();
+  if (this->GetInput())
+    {
+    this->GetInput()->UpdateInformation();
+    }
 }
 
 int vtkImageExport::PipelineModifiedCallback()
 {
+  if (!this->GetInput())
+    {
+    return 0;
+    }
+  
   unsigned long mtime = this->GetInput()->GetPipelineMTime();
   if(mtime > this->LastPipelineMTime)
     {
@@ -330,21 +344,50 @@ int vtkImageExport::PipelineModifiedCallback()
 
 int* vtkImageExport::WholeExtentCallback()
 {
-  return this->GetInput()->GetWholeExtent();
+  static int defaultextent[6] = {0,0,0,0,0,0};
+  if (!this->GetInput())
+    {
+    return defaultextent;
+    }
+  else
+    {
+    return this->GetInput()->GetWholeExtent();
+    }
 }
 
 double* vtkImageExport::SpacingCallback()
 {
+  static double defaultspacing[6] = {0.0,0.0,0.0};
+  if (!this->GetInput())
+    {
+    return defaultspacing;
+    }
+  else
+    {
   return this->GetInput()->GetSpacing();
+    }
 }
 
 double* vtkImageExport::OriginCallback()
 {
-  return this->GetInput()->GetOrigin();
+  static double defaultorigin[3] = {0.0,0.0,0.0};
+  if (!this->GetInput())
+    {
+    return defaultorigin;
+    }
+  else
+    {
+    return this->GetInput()->GetOrigin();
+    }
 }
 
 const char* vtkImageExport::ScalarTypeCallback()
 {
+  if (!this->GetInput())
+    {
+    return "unsigned char";
+    }
+  
   switch (this->GetInput()->GetScalarType())
     {
     case VTK_DOUBLE:
@@ -374,27 +417,55 @@ const char* vtkImageExport::ScalarTypeCallback()
   
 int vtkImageExport::NumberOfComponentsCallback()
 {
-  return this->GetInput()->GetNumberOfScalarComponents();
+  if (!this->GetInput())
+    {
+    return 1;
+    }
+  else
+    {
+    return this->GetInput()->GetNumberOfScalarComponents();
+    }
 }
 
 void vtkImageExport::PropagateUpdateExtentCallback(int* extent)
 {
-  this->GetInput()->SetUpdateExtent(extent);
+  if (this->GetInput())
+    {
+    this->GetInput()->SetUpdateExtent(extent);
+    }
 }
 
 void vtkImageExport::UpdateDataCallback()
 {
-  this->GetInput()->Update();
+  if (this->GetInput())
+    {
+    this->GetInput()->Update();
+    }
 }
 
 int* vtkImageExport::DataExtentCallback()
 {
-  return this->GetInput()->GetExtent();
+  static int defaultextent[6] = {0,0,0,0,0,0};
+  if (!this->GetInput())
+    {
+    return defaultextent;
+    }
+  else
+    {
+    return this->GetInput()->GetExtent();
+    }
 }
 
 void* vtkImageExport::BufferPointerCallback()
 {
-  return this->GetInput()->GetScalarPointer();
+  if (!this->GetInput())
+    {
+    return (void*)NULL;
+    }
+  else
+    {
+    return this->GetInput()->GetScalarPointer();
+    }
 }
 
 int vtkImageExport::GetDataNumberOfScalarComponents() 
