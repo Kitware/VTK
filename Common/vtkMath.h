@@ -471,7 +471,7 @@ inline int vtkMath::Floor(double x)
   // round-to-nearest,even mode instead of round-to-nearest,+infinity
   return ((int*)&tempval)[0] >> 1;
 #else
-  return floor(x);
+  return (int)floor(x);
 #endif
 }
 
