@@ -56,7 +56,6 @@ void vlStack::Push(vlObject *a)
 // Remove an object from the top of the list.
 vlObject *vlStack::Pop()
 {
-  int i;
   vlObject *item;
   vlStackElement *next;
   
