@@ -1177,7 +1177,7 @@ int vtkPolygon::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
 
   if ( !success ) // Indicate possible failure
     {
-    vtkErrorMacro(<<"Possible triangulation failure");
+    vtkDebugMacro(<<"Possible triangulation failure");
     }
   for (i=0; i<this->Tris->GetNumberOfIds(); i++)
     {
