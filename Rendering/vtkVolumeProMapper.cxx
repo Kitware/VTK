@@ -140,13 +140,17 @@ vtkVolumeProMapper *vtkVolumeProMapper::New()
   
 #ifdef VTK_HAVE_VP1000
   return vtkVolumeProVP1000Mapper::New();
-#elif VTK_HAVE_VG500
+#else
+
+#ifdef VTK_HAVE_VG500
   return vtkVolumeProVG500Mapper::New();
 #else
   // if not using vli, then return the stub class, which will render
   // nothing....
   return new vtkVolumeProMapper;
-#endif  
+#endif
+  
+#endif
 }
 
 int vtkVolumeProMapper::StatusOK()
