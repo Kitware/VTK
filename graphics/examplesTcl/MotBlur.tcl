@@ -51,11 +51,13 @@ ren1 AddActor sphereActor2
 ren1 AddActor spikeActor2
 ren1 SetBackground 0.1 0.2 0.4
 renWin SetSize 200 200
-renWin DoubleBufferOff 
+renWin DoubleBufferOn
 
 # do the first render and then zoom in a little
 renWin Render 
 [ren1 GetActiveCamera]   Zoom 1.5
+
+iren Initialize
 
 renWin SetSubFrames 21
 
@@ -66,7 +68,6 @@ for  {set i 0} {$i <= 1.0} {set i [expr $i + 0.05]} {
 }
 
 iren SetUserMethod {wm deiconify .vtkInteract}
-iren Initialize
 
 #renWin SetFileName MotBlur.tcl.ppm
 #renWin SaveImageAsPPM
