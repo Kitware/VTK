@@ -25,15 +25,11 @@
 #include "vtkStructuredPoints.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkEnSightReader, "1.34");
+vtkCxxRevisionMacro(vtkEnSightReader, "1.35");
 
 //----------------------------------------------------------------------------
 vtkEnSightReader::vtkEnSightReader()
 {
-  this->FilePath = NULL;
-  
-  this->CaseFileName = NULL;
-  this->GeometryFileName = NULL;
   this->MeasuredFileName = NULL;
   this->MatchFileName = NULL;
 
@@ -41,33 +37,14 @@ vtkEnSightReader::vtkEnSightReader()
   
   this->VariableMode = -1;
   
-  this->NumberOfVariables = 0;
-  this->NumberOfComplexVariables = 0;
-
   this->UnstructuredPartIds = vtkIdList::New();
   this->CellIds = NULL;
-  
-  this->VariableTypes = NULL;
-  this->ComplexVariableTypes = NULL;
   
   this->VariableFileNames = NULL;
   this->ComplexVariableFileNames = NULL;
   
   this->VariableDescriptions = NULL;
   this->ComplexVariableDescriptions = NULL;
-
-  this->NumberOfScalarsPerNode = 0;
-  this->NumberOfVectorsPerNode = 0;
-  this->NumberOfTensorsSymmPerNode = 0;
-  this->NumberOfScalarsPerElement = 0;
-  this->NumberOfVectorsPerElement = 0;
-  this->NumberOfTensorsSymmPerElement = 0;
-  this->NumberOfScalarsPerMeasuredNode = 0;
-  this->NumberOfVectorsPerMeasuredNode = 0;
-  this->NumberOfComplexScalarsPerNode = 0;
-  this->NumberOfComplexVectorsPerNode = 0;
-  this->NumberOfComplexScalarsPerElement = 0;
-  this->NumberOfComplexVectorsPerElement = 0;
 
   this->VariableTimeSets = vtkIdList::New();
   this->ComplexVariableTimeSets = vtkIdList::New();
@@ -92,9 +69,6 @@ vtkEnSightReader::vtkEnSightReader()
   this->UseTimeSets = 0;
   this->UseFileSets = 0;
 
-  this->TimeValue = 0;
-  this->MinimumTimeValue = 0;
-  this->MaximumTimeValue = 0;
   this->GeometryTimeValue = -1;
   this->MeasuredTimeValue = -1;
   
@@ -125,22 +99,6 @@ vtkEnSightReader::~vtkEnSightReader()
     this->CellIds = NULL;
     }
   
-  if (this->FilePath)
-    {
-    delete [] this->FilePath;
-    this->FilePath = NULL;
-    }
-  
-  if (this->CaseFileName)
-    {
-    delete [] this->CaseFileName;
-    this->CaseFileName = NULL;
-    }
-  if (this->GeometryFileName)
-    {
-    delete [] this->GeometryFileName;
-    this->GeometryFileName = NULL;
-    }
   if (this->MeasuredFileName)
     {
     delete [] this->MeasuredFileName;
@@ -152,25 +110,14 @@ vtkEnSightReader::~vtkEnSightReader()
     this->MatchFileName = NULL;
     }
 
-  if (this->IS)
-    {
-    delete this->IS;
-    this->IS = NULL;
-    }
-
   if (this->NumberOfVariables > 0)
     {
     for (i = 0; i < this->NumberOfVariables; i++)
       {
       delete [] this->VariableFileNames[i];
-      delete [] this->VariableDescriptions[i];
       }
     delete [] this->VariableFileNames;
     this->VariableFileNames = NULL;
-    delete [] this->VariableDescriptions;
-    this->VariableDescriptions = NULL;
-    delete [] this->VariableTypes;
-    this->VariableTypes = NULL;
     }
 
   if (this->NumberOfComplexVariables > 0)
@@ -178,17 +125,9 @@ vtkEnSightReader::~vtkEnSightReader()
     for (i = 0; i < this->NumberOfComplexVariables*2; i++)
       {
       delete [] this->ComplexVariableFileNames[i];
-      if (i < this->NumberOfComplexVariables)
-        {
-        delete [] this->ComplexVariableDescriptions[i];
-        }
       }
     delete [] this->ComplexVariableFileNames;
     this->ComplexVariableFileNames = NULL;
-    delete [] this->ComplexVariableDescriptions;
-    this->ComplexVariableDescriptions = NULL;
-    delete [] this->ComplexVariableTypes;
-    this->ComplexVariableTypes = NULL;
     }
   
   this->UnstructuredPartIds->Delete();
@@ -1601,134 +1540,6 @@ void vtkEnSightReader::AddVariableType()
     }
 }
 
-// Internal function to read in a line up to 256 characters.
-// Returns zero if there was an error.
-int vtkEnSightReader::ReadLine(char result[256])
-{
-  this->IS->getline(result,256);
-//  if (this->IS->eof()) 
-  if (this->IS->fail())
-    {
-    return 0;
-    }
-  
-  return 1;
-}
-
-// Internal function that skips blank lines and comment lines
-// and reads the next line it finds (up to 256 characters).
-// Returns 0 is there was an error.
-int vtkEnSightReader::ReadNextDataLine(char result[256])
-{
-  int value, sublineFound;
-  char subline[256];
-  
-  value = this->ReadLine(result);
-  sublineFound = sscanf(result, " %s", subline);
-  
-  while((strcmp(result, "") == 0 || subline[0] == '#' || sublineFound < 1) &&
-        value != 0)
-    {
-    value = this->ReadLine(result);
-    sublineFound = sscanf(result, " %s", subline);
-    }
-  return value;
-}
-
-int vtkEnSightReader::GetNumberOfVariables(int type)
-{
-  switch (type)
-    {
-    case VTK_SCALAR_PER_NODE:
-      return this->GetNumberOfScalarsPerNode();
-    case VTK_VECTOR_PER_NODE:
-      return this->GetNumberOfVectorsPerNode();
-    case VTK_TENSOR_SYMM_PER_NODE:
-      return this->GetNumberOfTensorsSymmPerNode();
-    case VTK_SCALAR_PER_ELEMENT:
-      return this->GetNumberOfScalarsPerElement();
-    case VTK_VECTOR_PER_ELEMENT:
-      return this->GetNumberOfVectorsPerElement();
-    case VTK_TENSOR_SYMM_PER_ELEMENT:
-      return this->GetNumberOfTensorsSymmPerElement();
-    case VTK_SCALAR_PER_MEASURED_NODE:
-      return this->GetNumberOfScalarsPerMeasuredNode();
-    case VTK_VECTOR_PER_MEASURED_NODE:
-      return this->GetNumberOfVectorsPerMeasuredNode();
-    case VTK_COMPLEX_SCALAR_PER_NODE:
-      return this->GetNumberOfComplexScalarsPerNode();
-    case VTK_COMPLEX_VECTOR_PER_NODE:
-      return this->GetNumberOfComplexVectorsPerNode();
-    case VTK_COMPLEX_SCALAR_PER_ELEMENT:
-      return this->GetNumberOfComplexScalarsPerElement();
-    case VTK_COMPLEX_VECTOR_PER_ELEMENT:
-      return this->GetNumberOfComplexVectorsPerElement();
-    default:
-      vtkWarningMacro("unknow variable type");
-      return -1;
-    }
-}
-
-char* vtkEnSightReader::GetDescription(int n)
-{
-  if (n < this->NumberOfVariables)
-    {
-    return this->VariableDescriptions[n];
-    }
-  return NULL;
-}
-
-char* vtkEnSightReader::GetComplexDescription(int n)
-{
-  if (n < this->NumberOfComplexVariables)
-    {
-    return this->ComplexVariableDescriptions[n];
-    }
-  return NULL;
-}
-
-char* vtkEnSightReader::GetDescription(int n, int type)
-{
-  int i, numMatches = 0;
-  
-  if (type < 8)
-    {
-    for (i = 0; i < this->NumberOfVariables; i++)
-      {
-      if (this->VariableTypes[i] == type)
-        {
-        if (numMatches == n)
-          {
-          return this->VariableDescriptions[i];
-          }
-        else
-          {
-          numMatches++;
-          }
-        }
-      }
-    }
-  else
-    {
-    for (i = 0; i < this->NumberOfVariables; i++)
-      {
-      if (this->ComplexVariableTypes[i] == type)
-        {
-        if (numMatches == n)
-          {
-          return this->ComplexVariableDescriptions[i];
-          }
-        else
-          {
-          numMatches++;
-          }
-        }
-      }
-    }
-  
-  return NULL;
-}
-
 int vtkEnSightReader::GetElementType(char* line)
 {
   if (strcmp(line, "point") == 0)
@@ -1799,67 +1610,6 @@ int vtkEnSightReader::GetElementType(char* line)
     {
     return -1;
     }
-}
-
-void vtkEnSightReader::SetCaseFileName(char* fileName)
-{
-  char *endingSlash = NULL;
-  char *path, *newFileName;
-  int position, numChars;
-  
-  if ( this->CaseFileName && fileName && (!strcmp(this->CaseFileName, fileName)))
-    {
-    return;
-    }
-  if (this->CaseFileName)
-    {
-    delete [] this->CaseFileName;
-    }
-  if (fileName)
-    {
-    this->CaseFileName = new char[strlen(fileName)+1];
-    strcpy(this->CaseFileName, fileName);
-    }
-   else
-    {
-    this->CaseFileName = NULL;
-    }
-  
-  // strip off the path and save it as FilePath if it was included in the filename
-  if ((endingSlash = strrchr(this->CaseFileName, '/')))
-    {
-    position = endingSlash - this->CaseFileName + 1;
-    path = new char[position + 1];
-    numChars = static_cast<int>(strlen(this->CaseFileName));
-    newFileName = new char[numChars - position + 1];
-    strcpy(path, "");
-    strncat(path, this->CaseFileName, position);
-    this->SetFilePath(path);
-    strcpy(newFileName, this->CaseFileName + position);
-    strcpy(this->CaseFileName, newFileName);
-    delete [] path;
-    delete [] newFileName;
-    }
-      
-  this->Modified();
-}
-
-int vtkEnSightReader::GetVariableType(int n)
-{
-  if (n < this->NumberOfVariables)
-    {
-    return this->VariableTypes[n];
-    }
-  return -1;
-}
-
-int vtkEnSightReader::GetComplexVariableType(int n)
-{
-  if (n < this->NumberOfComplexVariables)
-    {
-    return this->ComplexVariableTypes[n];
-    }
-  return -1;
 }
 
 void vtkEnSightReader::ReplaceWildcards(char* filename, int num)

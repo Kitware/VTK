@@ -20,7 +20,7 @@
 #ifndef __vtkEnSightReader_h
 #define __vtkEnSightReader_h
 
-#include "vtkDataSetSource.h"
+#include "vtkGenericEnSightReader.h"
 
 class vtkCollection;
 
@@ -56,84 +56,14 @@ class vtkCollection;
 #define VTK_COMPLEX_SCALAR_PER_ELEMENT 10
 #define VTK_COMPLEX_VECTOR_PER_ELEMENT 11
 
-class VTK_IO_EXPORT vtkEnSightReader : public vtkDataSetSource
+class VTK_IO_EXPORT vtkEnSightReader : public vtkGenericEnSightReader
 {
 public:
-  vtkTypeRevisionMacro(vtkEnSightReader, vtkDataSetSource);
+  vtkTypeRevisionMacro(vtkEnSightReader, vtkGenericEnSightReader);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
-  // Description:
-  // Set/Get the Case file name.
-  void SetCaseFileName(char* fileName);
-  vtkGetStringMacro(CaseFileName);
-  
-  // Description:
-  // Set/Get the path the the data files.  If specified, this reader will look
-  // in this directory for all data files.
-  vtkSetStringMacro(FilePath);
-  vtkGetStringMacro(FilePath);
-  
-  // Description:
-  // Get the number of variables listed in the case file.
-  int GetNumberOfVariables() { return this->NumberOfVariables; }
-  int GetNumberOfComplexVariables() { return this->NumberOfComplexVariables; }
-  
-  // Description:
-  // Get the number of variables of a particular type.
-  int GetNumberOfVariables(int type); // returns -1 if unknown type specified
-  vtkGetMacro(NumberOfScalarsPerNode, int);
-  vtkGetMacro(NumberOfVectorsPerNode, int);
-  vtkGetMacro(NumberOfTensorsSymmPerNode, int);
-  vtkGetMacro(NumberOfScalarsPerElement, int);
-  vtkGetMacro(NumberOfVectorsPerElement, int);
-  vtkGetMacro(NumberOfTensorsSymmPerElement, int);
-  vtkGetMacro(NumberOfScalarsPerMeasuredNode, int);
-  vtkGetMacro(NumberOfVectorsPerMeasuredNode, int);
-  vtkGetMacro(NumberOfComplexScalarsPerNode, int);
-  vtkGetMacro(NumberOfComplexVectorsPerNode, int);
-  vtkGetMacro(NumberOfComplexScalarsPerElement, int);
-  vtkGetMacro(NumberOfComplexVectorsPerElement, int);
-  
-  // Description:
-  // Get the nth description for a non-complex variable.
-  char* GetDescription(int n);
-  
-  // Description:
-  // Get the nth description for a complex variable.
-  char* GetComplexDescription(int n);
-  
-  // Description:
-  // Get the nth description of a particular variable type.  Returns NULL if no
-  // variable of this type exists in this data set.
-  // VTK_SCALAR_PER_NODE = 0; VTK_VECTOR_PER_NODE = 1;
-  // VTK_TENSOR_SYMM_PER_NODE = 2; VTK_SCALAR_PER_ELEMENT = 3;
-  // VTK_VECTOR_PER_ELEMENT = 4; VTK_TENSOR_SYMM_PER_ELEMENT = 5;
-  // VTK_SCALAR_PER_MEASURED_NODE = 6; VTK_VECTOR_PER_MEASURED_NODE = 7;
-  // VTK_COMPLEX_SCALAR_PER_NODE = 8; VTK_COMPLEX_VECTOR_PER_NODE 9;
-  // VTK_COMPLEX_SCALAR_PER_ELEMENT  = 10; VTK_COMPLEX_VECTOR_PER_ELEMENT = 11
-  char* GetDescription(int n, int type);
-
-  // Description:
-  // Get the variable type of variable n.
-  int GetVariableType(int n);
-  int GetComplexVariableType(int n);
   
   void Update();
   void UpdateInformation();
-  
-  // Description:
-  // Set/Get the time value at which to get the value.
-  vtkSetMacro(TimeValue, float);
-  vtkGetMacro(TimeValue, float);
-  
-  // Description:
-  // Get the minimum or maximum time value in this data set.
-  vtkGetMacro(MinimumTimeValue, float);
-  vtkGetMacro(MaximumTimeValue, float);
-
-  // Description:
-  // Get the time values per time set
-  vtkGetObjectMacro(TimeSetTimeValuesCollection, vtkCollection);
   
 protected:
   vtkEnSightReader();
@@ -226,16 +156,6 @@ protected:
   vtkGetStringMacro(MatchFileName);
   
   // Description:
-  // Internal function to read in a line up to 256 characters.
-  // Returns zero if there was an error.
-  int ReadLine(char result[256]);
-
-  // Internal function that skips blank lines and reads the 1st
-  // non-blank line it finds (up to 256 characters).
-  // Returns 0 is there was an error.
-  int ReadNextDataLine(char result[256]);
-  
-  // Description:
   // Add another file name to the list for a particular variable type.
   void AddVariableFileName(char* fileName1, char* fileName2 = NULL);
   
@@ -256,10 +176,6 @@ protected:
   // Replace the *'s in the filename with the given filename number.
   void ReplaceWildcards(char* filename, int num);
   
-  char* FilePath;
-  
-  char* CaseFileName;
-  char* GeometryFileName;
   char* MeasuredFileName;
   char* MatchFileName; // may not actually be necessary to read this file
 
@@ -270,21 +186,11 @@ protected:
   vtkIdList* UnstructuredPartIds;
   
   int VariableMode;
-  int NumberOfVariables; // non-complex
-  int NumberOfComplexVariables;
-  
-  // array of types (one entry per instance of variable type in case file)
-  int* VariableTypes; // non-complex
-  int* ComplexVariableTypes;
   
   // pointers to lists of filenames
   char** VariableFileNames; // non-complex
   char** ComplexVariableFileNames;
   
-  // pointers to lists of descriptions
-  char** VariableDescriptions; // non-complex
-  char** ComplexVariableDescriptions;
-
   // array of time sets
   vtkIdList *VariableTimeSets;
   vtkIdList *ComplexVariableTimeSets;
@@ -316,29 +222,9 @@ protected:
   int MeasuredTimeSet;
   int MeasuredFileSet;
   
-  float TimeValue;
   float GeometryTimeValue;
   float MeasuredTimeValue;
   
-  float MinimumTimeValue;
-  float MaximumTimeValue;
-  
-  // number of file names / descriptions per type
-  int NumberOfScalarsPerNode;
-  int NumberOfVectorsPerNode;
-  int NumberOfTensorsSymmPerNode;
-  int NumberOfScalarsPerElement;
-  int NumberOfVectorsPerElement;
-  int NumberOfTensorsSymmPerElement;
-  int NumberOfScalarsPerMeasuredNode;
-  int NumberOfVectorsPerMeasuredNode;
-  int NumberOfComplexScalarsPerNode;
-  int NumberOfComplexVectorsPerNode;  
-  int NumberOfComplexScalarsPerElement;
-  int NumberOfComplexVectorsPerElement;
-  
-  istream* IS;
-
   int UseTimeSets;
   vtkSetMacro(UseTimeSets, int);
   vtkGetMacro(UseTimeSets, int);

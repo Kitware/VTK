@@ -23,7 +23,9 @@
 #ifndef __vtkGenericEnSightReader_h
 #define __vtkGenericEnSightReader_h
 
-#include "vtkEnSightReader.h"
+#include "vtkDataSetSource.h"
+
+class vtkCollection;
 
 #define VTK_ENSIGHT_6    0
 #define VTK_ENSIGHT_6_BINARY 1
@@ -47,9 +49,14 @@ public:
   vtkSetStringMacro(FilePath);
   vtkGetStringMacro(FilePath);
   
-  void Update();
-  void UpdateInformation();
+  virtual void Update();
+  virtual void UpdateInformation();
   
+  // Description:
+  // Get the number of variables listed in the case file.
+  int GetNumberOfVariables() { return this->NumberOfVariables; }
+  int GetNumberOfComplexVariables() { return this->NumberOfComplexVariables; }
+
   // Description:
   // Get the number of variables of a particular type.
   int GetNumberOfVariables(int type); // returns -1 if unknown type specified
@@ -154,15 +161,17 @@ protected:
   
   istream* IS;
   FILE *IFile;
-  vtkEnSightReader *Reader;
+  vtkGenericEnSightReader *Reader;
   
   char* CaseFileName;
   char* GeometryFileName;
   char* FilePath;
 
+  // array of types (one entry per instance of variable type in case file)
   int* VariableTypes;
   int* ComplexVariableTypes;
   
+  // pointers to lists of descriptions
   char** VariableDescriptions;
   char** ComplexVariableDescriptions;
   
