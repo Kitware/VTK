@@ -23,8 +23,8 @@
 
 extern "C"
 {
-#if (TCL_MAJOR_VERSION == 8) && (TCL_MINOR_VERSION >= 4)
-  typedef int (*vtkTclCommandType)(ClientData, Tcl_Interp *,int, CONST char *[]);
+#if (TCL_MAJOR_VERSION == 8) && (TCL_MINOR_VERSION >= 4 && TCL_RELEASE_LEVEL >= TCL_FINAL_RELEASE)
+  typedef int (*vtkTclCommandType)(ClientData, Tcl_Interp *,int, CONST84 char *[]);
 #else
   typedef int (*vtkTclCommandType)(ClientData, Tcl_Interp *,int, char *[]);
 #endif
