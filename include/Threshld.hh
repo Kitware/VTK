@@ -32,17 +32,10 @@ public:
   char *GetClassName() {return "vlThreshold";};
   void PrintSelf(ostream& os, vlIndent indent);
 
-/*  void ThresholdByLower(float lower) 
-    {this->LowerThreshold = lower; this->ThresholdFunction = &(this->Lower);};
-                           
-  void ThresholdByUpper(float upper)
-    {this->UpperThreshold = upper; 
-     this->ThresholdFunction = Upper;};
-                           
-  void ThresholdBetween(float lower, float upper)
-    {this->LowerThreshold = lower; this->UpperThreshold = upper;
-     this->ThresholdFunction = this->Between;};
-*/  
+  void ThresholdByLower(float lower);
+  void ThresholdByUpper(float upper);
+  void ThresholdBetween(float lower, float upper);
+  
   vlGetMacro(UpperThreshold,float);
   vlGetMacro(LowerThreshold,float);
 
@@ -53,11 +46,11 @@ protected:
   float LowerThreshold;
   float UpperThreshold;
 
-  int (*ThresholdFunction)(float s);
+  int (vlThreshold::*ThresholdFunction)(float s);
   int Lower(float s) {return ( s <= this->LowerThreshold ? 1 : 0 );};
   int Upper(float s) {return ( s >= this->UpperThreshold ? 1 : 0 );};
   int Between(float s) {return ( s >= this->LowerThreshold ? 
-                                 ( s <= this->UpperThreshold ? 1 : 0 ) : 0 );};
+                               ( s <= this->UpperThreshold ? 1 : 0 ) : 0 );};
 };
 
 #endif

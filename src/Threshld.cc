@@ -17,6 +17,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 =========================================================================*/
 #include "Threshld.hh"
 
+
 vlThreshold::vlThreshold()
 {
   this->LowerThreshold = 0.0;
@@ -25,6 +26,37 @@ vlThreshold::vlThreshold()
  // this->ThresholdFunction = this->Upper;
 }
 
+void vlThreshold::ThresholdByLower(float lower) 
+{
+  if ( this->LowerThreshold != lower )
+    {
+    this->LowerThreshold = lower; 
+    this->ThresholdFunction = this->Lower;
+    this->Modified();
+    }
+}
+                           
+void vlThreshold::ThresholdByUpper(float upper)
+{
+  if ( this->UpperThreshold != upper )
+    {
+    this->UpperThreshold = upper; 
+    this->ThresholdFunction = Upper;
+    this->Modified();
+    }
+}
+                           
+void vlThreshold::ThresholdBetween(float lower, float upper)
+{
+  if ( this->LowerThreshold != lower || this->UpperThreshold != upper )
+    {
+    this->LowerThreshold = lower; 
+    this->UpperThreshold = upper;
+    this->ThresholdFunction = Between;
+    this->Modified();
+    }
+}
+  
 void vlThreshold::Execute()
 {
   int cellId;
@@ -70,7 +102,7 @@ void vlThreshold::Execute()
     for ( i=0; i < numCellPts; i++)
       {
       ptId = cellPts->GetId(i);
-      if ( !(*(this->ThresholdFunction))(cellScalars.GetScalar(ptId)) ) break;
+      if ( ! ((this->ThresholdFunction)(cellScalars.GetScalar(ptId))) ) break;
       }
 
     if ( i >= numCellPts ) // satisfied thresholding
@@ -102,7 +134,7 @@ void vlThreshold::Execute()
   this->SetPoints(newPoints);
 }
 
-void vlThreshold::PrintSelf()
+void vlThreshold::PrintSelf(ostream& os, vlIndent indent)
 {
   if (this->ShouldIPrint(vlThreshold::GetClassName()))
     {
