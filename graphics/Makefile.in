@@ -139,6 +139,7 @@ vtkInterpolateDataSetAttributes \
 vtkIVExporter \
 vtkKochanekSpline \
 vtkLODActor \
+vtkLODProp3D \
 vtkLight \
 vtkLightCollection \
 vtkLineSource \
