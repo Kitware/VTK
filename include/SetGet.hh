@@ -81,7 +81,7 @@ type *Get##name () \
   } 
 
 //
-// Create members "name"On() and "name"Off() (e.g., VisibilityOn() VisibilityOff()).
+// Create members "name"On() and "name"Off() (e.g., DebugOn() DebugOff()).
 // Set method must be defined to use this macro.
 //
 #define vlBooleanMacro(name,type) \
@@ -90,7 +90,7 @@ void name##Off () { Set##name((type)0);}
 
 //
 // Following set macros for vectors define two members for each macro.  The first 
-// allows setting of individual components (e.g., SetColor(float,float,float)), 
+// allows setting of individual components (e.g, SetColor(float,float,float)), 
 // the second allows setting from an array (e.g., SetColor(float* rgb[3])).
 // The macros vary in the size of the vector they deal with.
 //
@@ -174,6 +174,13 @@ void Set##name (type _arg[4]) \
 type *Get##name () { \
   if (Debug) cerr << GetClassName() << " " << this << ", returning " << #name " pointer " << name << "\n"; \
   return name; \
-  } 
+} 
+
+//
+// This macro is used for  debug statements in instance methods
+// vlDebugMacro(<< "this is debug info" << this->SomeVariable << "\n");
+//
+#define vlDebugMacro(x) \
+  if (Debug) cerr << "In " __FILE__ << ", line " << __LINE__ << "\n   : " x
 
 #endif
