@@ -65,6 +65,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkObject.hh"
 #include "vtkStructuredPoints.hh"
+#include "vtkLookupTable.hh"
+#include "vtkColorScalars.hh"
 
 class vtkRenderer;
 class vtkTextureDevice;
@@ -91,6 +93,10 @@ public:
   virtual void Load(vtkRenderer *ren);
 
   // Description:
+  // An instance of vtkTextureDevice will created if needed.
+  virtual void MakeTextureDevice(vtkRenderer *ren);
+
+  // Description:
   // Turn on/off the repetition of the texture map when the texture
   // coords extend beyond the [0,1] range.
   vtkGetMacro(Repeat,int);
@@ -108,11 +114,27 @@ public:
   vtkSetObjectMacro(Input,vtkStructuredPoints);
   vtkGetObjectMacro(Input,vtkStructuredPoints);
 
+  // Description:
+  // Specify the lookup table to convert scalars if necessary
+  vtkSetObjectMacro(LookupTable,vtkLookupTable);
+  vtkGetObjectMacro(LookupTable,vtkLookupTable);
+
+  // Description:
+  // Get the texture device.
+  vtkGetObjectMacro(Device,vtkTextureDevice);
+
+  // Description:
+  // Map scalar values into color scalars
+  unsigned char *MapScalarsToColors (vtkScalars *scalars);
+
 protected:
   int   Repeat;
   int   Interpolate;
+  int   SelfCreatedLookupTable;
   vtkStructuredPoints *Input;
   vtkTextureDevice *Device;
+  vtkLookupTable *LookupTable;
+  vtkColorScalars *MappedScalars;
 };
 
 #endif
