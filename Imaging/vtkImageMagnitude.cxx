@@ -16,20 +16,25 @@
 
 #include "vtkImageData.h"
 #include "vtkImageProgressIterator.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageMagnitude, "1.36.10.1");
+vtkCxxRevisionMacro(vtkImageMagnitude, "1.36.10.2");
 vtkStandardNewMacro(vtkImageMagnitude);
 
-//----------------------------------------------------------------------------
-// This method tells the superclass that the first axis will collapse.
-void vtkImageMagnitude::ExecuteInformation(vtkImageData *vtkNotUsed(inData), 
-                                           vtkImageData *outData)
+void vtkImageMagnitude::ExecuteInformation(
+  vtkInformation       * vtkNotUsed( request ),
+  vtkInformationVector * vtkNotUsed( inputVector ), 
+  vtkInformationVector * outputVector)
 {
-  outData[0]->SetNumberOfScalarComponents(1);
+  // get the info objects
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+  outInfo->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(),1);
 }
 
 //----------------------------------------------------------------------------
@@ -47,7 +52,7 @@ void vtkImageMagnitudeExecute(vtkImageMagnitude *self,
   float sum;
 
   // find the region to loop over
-  int maxC = inData[0][0]->GetNumberOfScalarComponents();
+  int maxC = inData->GetNumberOfScalarComponents();
   int idxC;
 
   // Loop through ouput pixels
