@@ -410,7 +410,8 @@ renWin Render
 
 vtkVRMLExporter vrml
   vrml SetInput renWin
-  vrml SetFileName cells.wrl
+  vrml SetStartWrite {vrml SetFileName cells.wrl}
+  vrml SetEndWrite {vrml SetFileName /a/acells.wrl}
   vrml Write
 
 if { [info command vtkRIBExporter] != "" } {
