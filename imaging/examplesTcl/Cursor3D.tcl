@@ -5,7 +5,7 @@ source ../../examplesTcl/WidgetObject.tcl
 # This script uses a vtkTkRenderWidget to create a
 # Tk widget that is associated with a vtkRenderWindow.
 source ../../graphics/examplesTcl/TkInteractor.tcl
-source TkImageViewerInteractor.tcl
+source ../../imaging/examplesTcl/TkImageViewerInteractor.tcl
 
 
 
@@ -37,19 +37,22 @@ set IMAGE_MAG_Z 1
 wm withdraw .
 toplevel .top 
 
+set help [label .top.help -text "MiddleMouse (or shift-LeftMouse) in image viewer to place cursor"]
 set displayFrame [frame .top.f1]
 set quitButton [button .top.btn  -text Quit -command exit]
+pack $help
 pack $displayFrame  -fill both -expand t
 pack $quitButton -fill x
 
 set viewerFrame [frame $displayFrame.vFm]
 set rendererFrame [frame $displayFrame.rFm]
-pack $viewerFrame $rendererFrame -padx 3 -pady 3 \
+pack $viewerFrame -padx 3 -pady 3 -side left -fill both -expand f
+pack $rendererFrame -padx 3 -pady 3 \
     -side left -fill both -expand t
 
 set viewerWidget [vtkTkImageViewerWidget $viewerFrame.v -width 264 -height 264]
 set viewerControls [frame $viewerFrame.c]
-pack $viewerControls $viewerWidget -side bottom -fill both -expand t
+pack $viewerControls $viewerWidget -side bottom -fill both -expand f
 
 set downButton [button $viewerControls.down -text "Down" -command "ViewerDown"]
 set upButton [button $viewerControls.up -text "Up" -command "ViewerUp"]
@@ -57,8 +60,7 @@ set sliceLabel [label $viewerControls.slice \
 		    -text "slice: [expr $CURSOR_Z * $IMAGE_MAG_Z]"]
 pack $downButton $upButton $sliceLabel -side left -expand t -fill both
 
-vtkRenderWindow renWin
-set renderWidget [vtkTkRenderWidget $rendererFrame.r -width 264 -height 264 -rw renWin]
+set renderWidget [vtkTkRenderWidget $rendererFrame.r -width 264 -height 264]
 pack $renderWidget -side top
 
 
@@ -152,19 +154,21 @@ vtkActor outlineActor
 
 # create the renderer
 vtkRenderer ren1
-    renWin AddRenderer ren1
-    renWin SetSize 256 256
+set renWin [$renderWidget GetRenderWindow]
+    $renWin AddRenderer ren1
+    $renWin SetSize 256 256
 
 ren1 AddActor axesActor
 ren1 AddVolume volume
 ren1 SetBackground 0.1 0.2 0.4
-renWin Render
+$renWin Render
 
 proc TkCheckAbort {} {
-  set foo [renWin GetEventPending]
-  if {$foo != 0} {renWin SetAbortRender 1}
+  global renWin
+  set foo [$renWin GetEventPending]
+  if {$foo != 0} {$renWin SetAbortRender 1}
 }
-renWin SetAbortCheckMethod {TkCheckAbort}
+$renWin SetAbortCheckMethod {TkCheckAbort}
 
 
 
@@ -174,6 +178,7 @@ BindTkRenderWidget $renderWidget
 # lets ass an extra binding of the middle button in the image viewer
 # to set the cursor location
 bind $viewerWidget <Button-2> {SetCursorFromViewer %x %y}
+bind $viewerWidget <Shift-Button-1> {SetCursorFromViewer %x %y}
 
 
 
@@ -207,7 +212,6 @@ proc SetCursorFromViewer {x y} {
 
     # we have to flip y axis because tk uses upper right origin.
     set height [lindex [$viewerWidget configure -height] 4]
-    puts "height = $height"
     set y [expr $height - $y]
     set z [$viewer GetZSlice]
     SetCursor [expr $x / $IMAGE_MAG_X] [expr $y / $IMAGE_MAG_Y] \
@@ -225,7 +229,7 @@ proc SetCursor {x y z} {
     imageCursor SetCursorPosition [expr $CURSOR_X * $IMAGE_MAG_X] \
 	[expr $CURSOR_Y * $IMAGE_MAG_Y] [expr $CURSOR_Z * $IMAGE_MAG_Z]
     $viewer Render
-    renWin Render
+    $renWin Render
 }
 
 
