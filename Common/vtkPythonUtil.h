@@ -15,8 +15,6 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkObject.h"
-#include "vtkTimeStamp.h"
 #include "Python.h"
 #include "vtkCommand.h"
 
@@ -32,7 +30,7 @@
 
 // This is the VTK/Python 'class,' it contains the method list and a pointer
 // to the superclass
-typedef vtkObject *(*vtknewfunc)();
+typedef vtkObjectBase *(*vtknewfunc)();
 
 typedef struct {
   PyObject_HEAD
@@ -51,17 +49,17 @@ typedef struct {
 } PyVTKClass;
 
 // This is the VTK/Python 'object,' it contains the python object header
-// plus a pointer to the associated vtkObject and PyVTKClass.
+// plus a pointer to the associated vtkObjectBase and PyVTKClass.
 typedef struct {
   PyObject_HEAD
   // the first two are common with the PyInstanceObject
   PyVTKClass *vtk_class;
   PyObject *vtk_dict;
   // the rest are unique to the PyVTKObject
-  vtkObject *vtk_ptr;
+  vtkObjectBase *vtk_ptr;
 } PyVTKObject;
 
-// This for objects not derived from vtkObject
+// This for objects not derived from vtkObjectBase
 typedef struct {
   PyObject_HEAD
   void *vtk_ptr;
@@ -77,7 +75,7 @@ VTK_PYTHON_EXPORT int PyVTKObject_Check(PyObject *obj);
 VTK_PYTHON_EXPORT int PyVTKClass_Check(PyObject *obj);
 VTK_PYTHON_EXPORT int PyVTKSpecialObjectCheck(PyObject *obj);
 VTK_PYTHON_EXPORT
-PyObject *PyVTKObject_New(PyObject *vtkclass, vtkObject *ptr);
+PyObject *PyVTKObject_New(PyObject *vtkclass, vtkObjectBase *ptr);
 VTK_PYTHON_EXPORT
 PyObject *PyVTKClass_New(vtknewfunc constructor, PyMethodDef *methods,
                          char *classname, char *modulename, char *docstring[],
@@ -89,8 +87,8 @@ PyObject *PyVTKSpecialObject_New(void *ptr, PyMethodDef *methods,
 // this is a special version of ParseTuple that handles both bound
 // and unbound method calls for VTK objects
 VTK_PYTHON_EXPORT
-vtkObject *PyArg_VTKParseTuple(PyObject *self, PyObject *args, 
-                               char *format, ...);
+vtkObjectBase *PyArg_VTKParseTuple(PyObject *self, PyObject *args, 
+                                   char *format, ...);
 }
 
 // Add a PyVTKClass to the type lookup table, this allows us to later
@@ -98,30 +96,30 @@ vtkObject *PyArg_VTKParseTuple(PyObject *self, PyObject *args,
 extern VTK_PYTHON_EXPORT
 void vtkPythonAddClassToHash(PyObject *obj, const char *type); 
 
-// Extract the vtkObject from a PyVTKObject.  If the PyObject is not a 
+// Extract the vtkObjectBase from a PyVTKObject.  If the PyObject is not a 
 // PyVTKObject, or is not a PyVTKObject of the specified type, the python
 // error indicator will be set.
 // Special behaviour: Py_None is converted to NULL without no error.
 extern VTK_PYTHON_EXPORT
-vtkObject *vtkPythonGetPointerFromObject(PyObject *obj, const char *type);
+vtkObjectBase *vtkPythonGetPointerFromObject(PyObject *obj, const char *type);
 
-// Convert a vtkObject to a PyVTKObject.  This will first check to see if
+// Convert a vtkObjectBase to a PyVTKObject.  This will first check to see if
 // the PyVTKObject already exists, and create a new PyVTKObject if necessary.
 // This function also passes ownership of the reference to the PyObject.
 // Special behaviour: NULL is converted to Py_None.
 extern VTK_PYTHON_EXPORT
-PyObject *vtkPythonGetObjectFromPointer(vtkObject *ptr);
+PyObject *vtkPythonGetObjectFromPointer(vtkObjectBase *ptr);
 
 // Try to convert some PyObject into a PyVTKObject, currently conversion
 // is supported for SWIG-style mangled pointer strings.
 extern VTK_PYTHON_EXPORT
 PyObject *vtkPythonGetObjectFromObject(PyObject *arg, const char *type);
 
-// Add and delete PyVTKObject/vtkObject pairs from the wrapper hash table,
-// these methods do not change the reference counts of either the vtkObject
+// Add and delete PyVTKObject/vtkObjectBase pairs from the wrapper hash table,
+// these methods do not change the reference counts of either the vtkObjectBase
 // or the PyVTKObject.
 extern VTK_PYTHON_EXPORT
-void vtkPythonAddObjectToHash(PyObject *obj, vtkObject *anInstance);
+void vtkPythonAddObjectToHash(PyObject *obj, vtkObjectBase *anInstance);
 extern VTK_PYTHON_EXPORT
 void vtkPythonDeleteObjectFromHash(PyObject *obj);
 

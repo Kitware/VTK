@@ -175,7 +175,7 @@ void do_return(FILE *fp)
     case 109:
     case 309:  
       {
-      fprintf(fp,"    return vtkPythonGetObjectFromPointer((vtkObject *)temp%i);\n",
+      fprintf(fp,"    return vtkPythonGetObjectFromPointer((vtkObjectBase *)temp%i);\n",
               MAX_ARGS);
       break;
       }
@@ -509,7 +509,7 @@ void outputFunction2(FILE *fp, FileInfo *data)
   FunctionInfo *theFunc;
   FunctionInfo *backFunc;
 
-  is_vtkobject = ((strcmp(data->ClassName,"vtkObject") == 0) || 
+  is_vtkobject = ((strcmp(data->ClassName,"vtkObjectBase") == 0) || 
                   (data->NumberOfSuperClasses != 0));
 
   /* create a python-type signature for each method (for use in docstring) */
@@ -834,8 +834,11 @@ void outputFunction2(FILE *fp, FileInfo *data)
   
   if (!strcmp("vtkObject",data->ClassName))
     {
-    fprintf(fp,"  {\"GetAddressAsString\",  (PyCFunction)Py%s_GetAddressAsString, 1,\n   \"V.GetAddressAsString(string) -> string\\n\\n Get address of C++ object in format 'Addr=%%p' after casting to\\n the specified type.  You can get the same information from V.__this__.\"},\n", data->ClassName);
     fprintf(fp,"  {\"AddObserver\",  (PyCFunction)Py%s_AddObserver, 1,\n   \"V.AddObserver(int, function) -> int\\n\\n Add an event callback function(vtkObject, int) for an event type.\\n Returns a handle that can be used with RemoveEvent(int).\"},\n", data->ClassName);
+    }
+  else if (!strcmp("vtkObjectBase",data->ClassName))
+    {
+    fprintf(fp,"  {\"GetAddressAsString\",  (PyCFunction)Py%s_GetAddressAsString, 1,\n   \"V.GetAddressAsString(string) -> string\\n\\n Get address of C++ object in format 'Addr=%%p' after casting to\\n the specified type.  You can get the same information from V.__this__.\"},\n", data->ClassName);
     }
   
   fprintf(fp,"  {NULL,                       NULL, 0, NULL}\n};\n\n");
@@ -1053,9 +1056,12 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     fprintf(fp,"    }\n");
     fprintf(fp,"  return NULL;\n");
     fprintf(fp,"}\n\n");
- 
-/* while we are at it spit out the GetStringFromObject method */
-    fprintf(fp,"PyObject *PyvtkObject_GetAddressAsString(PyObject *self, PyObject *args)\n");
+    }
+
+  if (!strcmp("vtkObjectBase",data->ClassName))
+    {
+    /* while we are at it spit out the GetStringFromObject method */
+    fprintf(fp,"PyObject *PyvtkObjectBase_GetAddressAsString(PyObject *self, PyObject *args)\n");
     fprintf(fp,"{\n");
 
     /* declare the variables */
@@ -1092,15 +1098,10 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
   
   /* output the class initilization function */
   if (strcmp(data->ClassName,"vtkObjectBase") == 0)
-    { /* no support for vtkObjectBase yet */
-    fprintf(fp,"PyObject *PyVTKClass_%sNew(char *vtkNotUsed(modulename))\n{\n",data->ClassName);
-    fprintf(fp,"  return NULL;\n}\n\n");
-    }  
-  else if (strcmp(data->ClassName,"vtkObject") == 0)
     { /* special wrapping for vtkObject */
     if (class_has_new)
       {
-      fprintf(fp,"static vtkObject *%sStaticNew()\n",data->ClassName);
+      fprintf(fp,"static vtkObjectBase *%sStaticNew()\n",data->ClassName);
       fprintf(fp,"{\n  return %s::New();\n}\n\n",data->ClassName);
       }
     fprintf(fp,"PyObject *PyVTKClass_%sNew(char *modulename)\n{\n",data->ClassName);
@@ -1117,10 +1118,10 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     fprintf(fp,"                        %sDoc,0);\n}\n\n",data->ClassName);
     }
   else if (data->NumberOfSuperClasses)
-    { /* wrapping of descendants of vtkObject */
+    { /* wrapping of descendants of vtkObjectBase */
     if (class_has_new)
       {
-      fprintf(fp,"static vtkObject *%sStaticNew()\n",data->ClassName);
+      fprintf(fp,"static vtkObjectBase *%sStaticNew()\n",data->ClassName);
       fprintf(fp,"{\n  return %s::New();\n}\n\n",data->ClassName);
       }
     fprintf(fp,"PyObject *PyVTKClass_%sNew(char *modulename)\n{\n",data->ClassName);
@@ -1140,7 +1141,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     }
   else if (!data->IsAbstract)
     { /* wrapping of 'special' non-vtkObject classes */
-    fprintf(fp,"PyObject *PyVTKObject_%sNew(PyObject *vtkNotUsed(self), PyObject *args)\n{\n",data->ClassName);
+    fprintf(fp,"PyObject *PyVTKObject_%sNew(PyObject *, PyObject *args)\n{\n",data->ClassName);
     fprintf(fp,"  if (!(PyArg_ParseTuple(args, \"\")))\n    {\n");
     fprintf(fp,"    return NULL;\n    }\n\n");
     fprintf(fp,"  %s *obj = new %s;\n",data->ClassName,data->ClassName);
@@ -1152,13 +1153,13 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
             data->ClassName,data->ClassName);
     fprintf(fp,"  %sDoc[0] };\n\n",data->ClassName);
 
-    fprintf(fp,"PyObject *PyVTKClass_%sNew(char *vtkNotUsed(modulename))\n{\n",data->ClassName);
+    fprintf(fp,"PyObject *PyVTKClass_%sNew(char *)\n{\n",data->ClassName);
     fprintf(fp,"  return PyCFunction_New(&Py%sNewMethod,Py_None);\n}\n\n",
             data->ClassName);
     }
   else
     { /* un-wrappable classes */
-    fprintf(fp,"PyObject *PyVTKClass_%sNew(char *vtkNotUsed(modulename))\n{\n",data->ClassName);
+    fprintf(fp,"PyObject *PyVTKClass_%sNew(char *)\n{\n",data->ClassName);
     fprintf(fp,"  return NULL;\n}\n\n");
     }
 }

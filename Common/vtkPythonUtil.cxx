@@ -18,6 +18,7 @@
 #include "vtkPythonUtil.h"
 
 #include "vtkObject.h"
+#include "vtkTimeStamp.h"
 #include "vtkObjectFactory.h"
 #include "vtkString.h"
 #include "vtkHashMap.txx"
@@ -40,7 +41,7 @@ public:
   vtkPythonUtil();
   ~vtkPythonUtil();
 
-  vtkHashMap<vtkObject *, PyObject *> *ObjectHash;
+  vtkHashMap<vtkObjectBase *, PyObject *> *ObjectHash;
   vtkHashMap<const char *, PyObject *> *ClassHash;
 };
 
@@ -50,7 +51,7 @@ vtkPythonUtil *vtkPythonHash = NULL;
 //--------------------------------------------------------------------
 vtkPythonUtil::vtkPythonUtil()
 {
-  this->ObjectHash = vtkHashMap<vtkObject *, PyObject *>::New();
+  this->ObjectHash = vtkHashMap<vtkObjectBase *, PyObject *>::New();
   this->ClassHash = vtkHashMap<const char *, PyObject *>::New();
 }
 
@@ -396,7 +397,7 @@ int PyVTKObject_Check(PyObject *obj)
   return (obj->ob_type == &PyVTKObjectType);
 }
 
-PyObject *PyVTKObject_New(PyObject *pyvtkclass, vtkObject *ptr)
+PyObject *PyVTKObject_New(PyObject *pyvtkclass, vtkObjectBase *ptr)
 {
   PyVTKClass *vtkclass = (PyVTKClass *)pyvtkclass;
 
@@ -1105,7 +1106,7 @@ static PyTypeObject PyVTKSpecialObjectType = {
   (setattrofunc)0,                       // tp_setattro
   0,                                     // tp_as_buffer
   0,                                     // tp_flags
-  "vtkspecialobject - a vtk object not derived from vtkObject." // tp_doc
+  "vtkspecialobject - a vtk object not derived from vtkObjectBase." // tp_doc
 };
 
 int PyVTKSpecialObject_Check(PyObject *obj)
@@ -1127,11 +1128,11 @@ PyObject *PyVTKSpecialObject_New(void *ptr, PyMethodDef *methods,
 }
 
 //--------------------------------------------------------------------
-vtkObject *PyArg_VTKParseTuple(PyObject *pself, PyObject *args, 
-                               char *format, ...)
+vtkObjectBase *PyArg_VTKParseTuple(PyObject *pself, PyObject *args, 
+                                   char *format, ...)
 {
   PyVTKObject *self = (PyVTKObject *)pself;
-  vtkObject *obj = NULL;
+  vtkObjectBase *obj = NULL;
   va_list va;
   va_start(va, format);
 
@@ -1200,7 +1201,7 @@ void vtkPythonAddClassToHash(PyObject *vtkclass, const char *classname)
 }  
 
 //--------------------------------------------------------------------
-void vtkPythonAddObjectToHash(PyObject *obj, vtkObject *ptr)
+void vtkPythonAddObjectToHash(PyObject *obj, vtkObjectBase *ptr)
 {
   if (vtkPythonHash == NULL)
     {
@@ -1223,7 +1224,7 @@ void vtkPythonAddObjectToHash(PyObject *obj, vtkObject *ptr)
 //--------------------------------------------------------------------
 void vtkPythonDeleteObjectFromHash(PyObject *obj)
 {
-  vtkObject *ptr = ((PyVTKObject *)obj)->vtk_ptr;
+  vtkObjectBase *ptr = ((PyVTKObject *)obj)->vtk_ptr;
 
 #ifdef VTKPYTHONDEBUG
   vtkGenericWarningMacro("Deleting an object from hash obj = " << obj << " "
@@ -1234,9 +1235,9 @@ void vtkPythonDeleteObjectFromHash(PyObject *obj)
 }
 
 //--------------------------------------------------------------------
-static PyObject *vtkFindNearestBase(vtkObject *ptr);
+static PyObject *vtkFindNearestBase(vtkObjectBase *ptr);
 
-PyObject *vtkPythonGetObjectFromPointer(vtkObject *ptr)
+PyObject *vtkPythonGetObjectFromPointer(vtkObjectBase *ptr)
 {
   PyObject *obj = NULL;
 
@@ -1283,7 +1284,7 @@ PyObject *vtkPythonGetObjectFromPointer(vtkObject *ptr)
 
 // this is a helper function to find the nearest base class for an
 // object whose class is not in the ClassDict
-static PyObject *vtkFindNearestBase(vtkObject *ptr)
+static PyObject *vtkFindNearestBase(vtkObjectBase *ptr)
 {
   vtkHashMap<const char *, PyObject *>::IteratorType *classes = 
     vtkPythonHash->ClassHash->NewIterator();
@@ -1309,7 +1310,7 @@ static PyObject *vtkFindNearestBase(vtkObject *ptr)
         cls = PyTuple_GetItem(bases,0);
         bases = ((PyVTKClass *)cls)->vtk_bases;
         }
-      // we want the class that is furthest from vtkObject
+      // we want the class that is furthest from vtkObjectBase
       if (depth > maxdepth)
         {
         maxdepth = depth;
@@ -1324,10 +1325,10 @@ static PyObject *vtkFindNearestBase(vtkObject *ptr)
 }
 
 //--------------------------------------------------------------------
-vtkObject *vtkPythonGetPointerFromObject(PyObject *obj,
-                                         const char *result_type)
+vtkObjectBase *vtkPythonGetPointerFromObject(PyObject *obj,
+                                             const char *result_type)
 { 
-  vtkObject *ptr;
+  vtkObjectBase *ptr;
 
   // convert Py_None to NULL every time
   if (obj == Py_None)
@@ -1393,7 +1394,7 @@ vtkObject *vtkPythonGetPointerFromObject(PyObject *obj,
     vtkGenericWarningMacro("vtk bad argument, type conversion failed.");
 #endif
     sprintf(error_string,"method requires a %s, a %s was provided.",
-            result_type,((vtkObject *)ptr)->GetClassName());
+            result_type,((vtkObjectBase *)ptr)->GetClassName());
     PyErr_SetString(PyExc_ValueError,error_string);
     return NULL;
     }
@@ -1405,7 +1406,7 @@ PyObject *vtkPythonGetObjectFromObject(PyObject *arg, const char *type)
     {
     char *ptrText = PyString_AsString(arg);
 
-    vtkObject *ptr;
+    vtkObjectBase *ptr;
     char typeCheck[256];  // typeCheck is currently not used
     int i = sscanf(ptrText,"_%lx_%s",(long *)&ptr,typeCheck);
       
@@ -1427,7 +1428,7 @@ PyObject *vtkPythonGetObjectFromObject(PyObject *arg, const char *type)
       {
       char error_string[256];
       sprintf(error_string,"method requires a %s address, a %s address was provided.",
-              type,((vtkObject *)ptr)->GetClassName());
+              type,((vtkObjectBase *)ptr)->GetClassName());
       PyErr_SetString(PyExc_TypeError,error_string);
       return NULL;
       }
