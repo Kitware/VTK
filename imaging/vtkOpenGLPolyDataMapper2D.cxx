@@ -79,7 +79,11 @@ void vtkOpenGLPolyDataMapper2D::RenderOpaqueGeometry(vtkViewport* viewport,
   int            *pts;
   int            cellScalars = 0;
   int            cellNum = 0;
-  
+  vtkPlaneCollection *clipPlanes;
+  vtkPlane           *plane;
+  int                 i,numClipPlanes;
+  double              planeEquation[4];
+
   vtkDebugMacro (<< "vtkOpenGLPolyDataMapper2D::Render");
 
   if ( input == NULL ) 
@@ -173,30 +177,65 @@ void vtkOpenGLPolyDataMapper2D::RenderOpaqueGeometry(vtkViewport* viewport,
     vtkgluPickMatrix(viewport->GetPickX(), viewport->GetPickY(),
 		     1, 1, viewport->GetOrigin(), viewport->GetSize());
     }
-  
+
   glMatrixMode( GL_MODELVIEW );
   glPushMatrix();
   glLoadIdentity();
 
   glDisable(GL_TEXTURE_2D);
   glDisable( GL_LIGHTING);
-  if ( actor->GetProperty()->GetDisplayLocation() == 
+  if ( actor->GetProperty()->GetDisplayLocation() ==
        VTK_FOREGROUND_LOCATION )
     {
     glOrtho(-actorPos[0],-actorPos[0] + size[0],
             -actorPos[1], -actorPos[1] +size[1], 0, 1);
-    }  
+    }
   else
     {
     glOrtho(-actorPos[0],-actorPos[0] + size[0],
             -actorPos[1], -actorPos[1] +size[1], -1, 0);
     }
-    
+
+  // Clipping plane stuff
+
+  clipPlanes = this->ClippingPlanes;
+
+  if (clipPlanes == NULL)
+    {
+    numClipPlanes = 0;
+    }
+  else
+    {
+    numClipPlanes = clipPlanes->GetNumberOfItems();
+    if (numClipPlanes > 4)
+      {
+      vtkErrorMacro(<< "Only 4 clipping planes are used with 2D mappers");
+      }
+    }
+
+  for (i = 0; i < numClipPlanes; i++)
+    {
+     glEnable((GLenum)(GL_CLIP_PLANE0+i));
+    }
+
+  for (i = 0; i < numClipPlanes; i++)
+    {
+    plane = (vtkPlane *)clipPlanes->GetItemAsObject(i);
+
+    planeEquation[0] = plane->GetNormal()[0];
+    planeEquation[1] = plane->GetNormal()[1];
+    planeEquation[2] = plane->GetNormal()[2];
+    planeEquation[3] = -(planeEquation[0]*plane->GetOrigin()[0]+
+                         planeEquation[1]*plane->GetOrigin()[1]+
+                         planeEquation[2]*plane->GetOrigin()[2]);
+    glClipPlane((GLenum)(GL_CLIP_PLANE0+i),planeEquation);
+    }
+
   aPrim = input->GetPolys();
   for (aPrim->InitTraversal(); aPrim->GetNextCell(npts,pts); cellNum++)
     { 
     glBegin(GL_POLYGON);
-    for (j = 0; j < npts; j++) 
+    for (j = 0; j < npts; j++)
       {
       if (c) 
 	      {
@@ -282,6 +321,11 @@ void vtkOpenGLPolyDataMapper2D::RenderOpaqueGeometry(vtkViewport* viewport,
   if ( this->TransformCoordinate )
     {
     p->Delete();
+    }
+
+  for (i = 0; i < numClipPlanes; i++)
+    {
+    glDisable((GLenum)(GL_CLIP_PLANE0+i));
     }
 
   // push a 2D matrix on the stack

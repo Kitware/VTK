@@ -56,6 +56,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class vtkWindow;
 class vtkViewport;
 class vtkActor2D;
+
 #include "vtkImageData.h"
 
 class VTK_EXPORT vtkImageMapper : public vtkMapper2D
@@ -73,7 +74,7 @@ public:
   // Set/Get the window value for window/level
   vtkSetMacro(ColorWindow, float);
   vtkGetMacro(ColorWindow, float);
-  
+
   // Description:
   // Set/Get the level value for window/level
   vtkSetMacro(ColorLevel, float);
@@ -109,7 +110,7 @@ public:
   int DisplayExtent[6];
 
   // Description:
-  // Set the Input of a filter. 
+  // Set the Input of a filter.
   virtual void SetInput(vtkImageData *input);
   vtkImageData *GetInput();
 
@@ -152,6 +153,7 @@ protected:
   int UseCustomExtents;
   int CustomDisplayExtents[4];
   int RenderToRectangle;
+
 };
 
 

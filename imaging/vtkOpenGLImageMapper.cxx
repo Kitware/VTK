@@ -527,7 +527,7 @@ void vtkOpenGLImageMapper::RenderData(vtkViewport* viewport,
   shift = this->GetColorShift();
   scale = this->GetColorScale();
   
-  ptr0 = data->GetScalarPointer(this->DisplayExtent[0], 
+  ptr0 = data->GetScalarPointer(this->DisplayExtent[0],
 				this->DisplayExtent[2], 
 				this->DisplayExtent[4]);
 
@@ -547,9 +547,9 @@ void vtkOpenGLImageMapper::RenderData(vtkViewport* viewport,
   // If picking then set up a model view matrix
   if(viewport->GetIsPicking())
     {
-    glOrtho(0,vsize[0] -1, 0, vsize[1] -1, 0, 1); 
+    glOrtho(0,vsize[0] -1, 0, vsize[1] -1, 0, 1);
     }
-  
+
   glDisable( GL_LIGHTING);
 
   // Get the position of the text actor
@@ -581,13 +581,13 @@ void vtkOpenGLImageMapper::RenderData(vtkViewport* viewport,
     glEnable( GL_LIGHTING);
     return;
     }
-  
-  int front = 
+
+  int front =
     (actor->GetProperty()->GetDisplayLocation() == VTK_FOREGROUND_LOCATION);
 
   switch (data->GetScalarType())
     {
-    case VTK_DOUBLE:  
+    case VTK_DOUBLE:
       vtkOpenGLImageMapperRender(this, data,
 				 (double *)(ptr0),
 				 shift, scale, actorPos, actorPos2, front, vsize);
