@@ -113,73 +113,84 @@ vtkPolyData *vtkDownStreamPort::GetPolyDataOutput()
 
 
 //----------------------------------------------------------------------------
+// The only tricky thing here is the translation of the PipelineMTime
+// into a value meaningful to this process, and the Update occuring in
+// the UpdateInformation call.
 void vtkDownStreamPort::UpdateInformation()
 {
-  vtkDataObject *output;
+  vtkDataObject *output = this->GetOutput();
+  unsigned long pmt;
+
+  if (this->Output == NULL)
+    {
+    vtkErrorMacro("No output.");
+    return;
+    }
 
   // This should be cleared by this point.
+  // UpdateInformation and Update calls need to be made in pairs.
   if (this->TransferNeeded)
     {
     vtkWarningMacro("Transfer should have been received.");
     return;
     }
-
-  // If our data were released, force a transfer.
-  if (this->Outputs == NULL || this->Outputs[0] == NULL)
-    {
-    vtkErrorMacro("No output.");
-    return;
-    }
-  output = this->Outputs[0];
   
-  // This forces the upstream port to resend if our data is released.
-  if (this->Outputs[0]->GetDataReleased())
-    {
-    this->DataTime = 0;
-    }
-  
+  // Trigger UpdateInformation in UpStreamPort.
   // Up-stream port should have the same tag.
   this->Controller->TriggerRMI(this->UpStreamProcessId, this->Tag);
+
+  // Now receive the information
+  this->Controller->Receive(output->GetDataInformation(), 
+                            this->UpStreamProcessId,
+                            VTK_PORT_INFORMATION_TRANSFER_TAG);
+
+  // Convert Pipeline MTime into a value meaningful in this process.
+  pmt = output->GetDataInformation()->GetPipelineMTime();
+  if (pmt > this->DataTime)
+    {
+    this->Modified();
+    }
+  output->SetPipelineMTime(this->GetMTime());
+  // Locality has to be changed too.
+  output->SetLocality(0);
+
+  // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  // This would normally be done in the Update method, but since
+  // we want task parallelism whith multiple input filters, 
+  // it needs to be here.
+
+  // Do the normal clipping which also may release data if we do not
+  // have the UpdateExtent.
+  output->ClipUpdateExtentWithWholeExtent();
+
+  // Do we need to update?
+  if (pmt <= this->DataTime && ! output->GetDataReleased())
+    { 
+    // No, we do not need to update.
+    return;
+    }
+
+  // Trigger Update in UpStreamPort.
+  // UpStreamPort should have the same tag.
+  this->Controller->TriggerRMI(this->UpStreamProcessId, this->Tag+1);
 
   // Send the UpdateExtent request.
   this->Controller->Send((vtkObject*)(output->GetGenericUpdateExtent()),
 			 this->UpStreamProcessId, VTK_PORT_UPDATE_EXTENT_TAG);
-  
-  // Send the DataTime for the up-stream port to evaluate.
-  this->Controller->Send( &(this->DataTime), 1, this->UpStreamProcessId,
-			  VTK_PORT_DOWN_DATA_TIME_TAG);
-  
-  // Receive the result of mtime comparison: Do we need new data?
-  this->Controller->Receive( &(this->TransferNeeded), 1, 
-			     this->UpStreamProcessId,
-			     VTK_PORT_TRANSFER_NEEDED_TAG);
-  
-  if (this->TransferNeeded)
-    {
-    // Signal to downstream pipeline that an update is necessary.
-    this->Modified();
-    }
-  
-  // Now do the normal UpdateInformation dance.
-  this->vtkSource::UpdateInformation();
 
-  // Now this is a hack until we can receive information from upstream.
-  if (this->TransferNeeded)
-    {
-    ((vtkPolyData*)(output))->GetUnstructuredInformation()->SetMaximumNumberOfPieces(256);
-    }
-  
+  // This automatically causes to UpStreamPort to send the data.
+  // Tell the update method to receive the data.
+  this->TransferNeeded = 1;
 }
 
 
 //----------------------------------------------------------------------------
 void vtkDownStreamPort::InternalUpdate(vtkDataObject *output)
 {
-  // It is important to deal with UpdateExtent.  Ignore for now!
 
   if ( ! this->TransferNeeded)
     {
-    // If something unexpected happens, let me know.
+    // If something unexpected happened, let me know.
     vtkWarningMacro("InternalUpdate was called when no data was needed.");
     return;
     }
@@ -187,19 +198,19 @@ void vtkDownStreamPort::InternalUpdate(vtkDataObject *output)
   if ( this->StartMethod )
     {
     (*this->StartMethod)(this->StartMethodArg);
-    }  
-  
+    }    
   // receive the data
   this->Controller->Receive(output, this->UpStreamProcessId,
 			    VTK_PORT_DATA_TRANSFER_TAG);
-  // receive the data time
-  this->Controller->Send( &(this->DataTime), 1, this->UpStreamProcessId,
-			  VTK_PORT_NEW_DATA_TIME_TAG);
-     
   if ( this->EndMethod )
     {
     (*this->EndMethod)(this->EndMethodArg);
     }
+
+  // Receive the data time
+  this->Controller->Receive( &(this->DataTime), 1, this->UpStreamProcessId,
+			    VTK_PORT_NEW_DATA_TIME_TAG);
+     
       
   this->TransferNeeded = 0;
 }
