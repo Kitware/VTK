@@ -861,24 +861,6 @@ static void SplitVertex(int ptId, int type, unsigned short int numTris, int *tri
     }
 
   //
-  // Non-manifold case tears off triangle(s) in current loop. Points are
-  // then re-inserted - possibly recursively.
-  //
-/*  else if ( type == VTK_NON_MANIFOLD_VERTEX )
-    {
-    // tear off manifold part
-    id = Mesh->InsertNextLinkedPoint(X,T->MaxId+1);
-    for ( i=0; i <= T->MaxId; i++ )
-      {
-      Mesh->RemoveReferenceToCell(ptId,T->Array[i].id);
-      Mesh->AddReferenceToCell(id,T->Array[i].id);
-      Mesh->ReplaceCellPoint(T->Array[i].id, ptId, id);
-      }
-    VertexQueue->Insert(id);
-    VertexQueue->Insert(ptId);
-    }
-*/
-  //
   // Default case just splits off triangle(s) in current loop. Other
   // triangles are given a new vertex and are re-inserted.
   //
@@ -926,7 +908,7 @@ static int FindSplit (int ptId, int type, int fedges[2], int& pt1, int& pt2,
                       vtkIdList& CollapseTris)
 {
   int i, maxI;
-  float dist2;
+  float dist2, e2dist2;
   int numVerts=V->MaxId+1;
   static vtkPriorityQueue EdgeLengths(VTK_MAX_TRIS_PER_VERTEX);
 
@@ -984,15 +966,18 @@ static int FindSplit (int ptId, int type, int fedges[2], int& pt1, int& pt2,
     case VTK_BOUNDARY_VERTEX: //--------------------------------------------
       // Compute the edge lengths
       dist2 = vtkMath::Distance2BetweenPoints(X, V->Array[0].x);
-      EdgeLengths.Insert(dist2,0);
+      e2dist2 = vtkMath::Distance2BetweenPoints(X, V->Array[V->MaxId].x);
 
-      dist2 = vtkMath::Distance2BetweenPoints(X, V->Array[V->MaxId].x);
-      EdgeLengths.Insert(dist2,V->MaxId);
-
-      // See whether the collapse is okay
-      while ( (maxI = EdgeLengths.Pop(dist2)) >= 0 )
+      maxI = -1;
+      if ( dist2 <= e2dist2 )
         {
-        if ( IsValidSplit(type,maxI) ) break;
+        if ( IsValidSplit(type,0) ) maxI = 0;
+        else if ( IsValidSplit(type,V->MaxId) ) maxI = V->MaxId;
+        }
+      else
+        {
+        if ( IsValidSplit(type,V->MaxId) ) maxI = V->MaxId;
+        else if ( IsValidSplit(type,0) ) maxI = 0;
         }
 
       if ( maxI >= 0 )
