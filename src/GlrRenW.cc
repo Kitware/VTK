@@ -751,7 +751,7 @@ unsigned char *vtkGlrRenderWindow::GetPixelData(int x1, int y1, int x2, int y2,
 }
 
 void vtkGlrRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
-				     unsigned char *data)
+				     unsigned char *data, int front)
 {
   int     y_low, y_hi;
   int     x_low, x_hi;
