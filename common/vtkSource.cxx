@@ -155,6 +155,16 @@ void vtkSource::PrintSelf(ostream& os, vtkIndent indent)
     }
 }
 
+int vtkSource::InRegisterLoop(vtkObject *o)
+{
+  if (this->ReferenceCount == 2 &&
+    this->Output == o)
+    {
+    return 1;
+    }
+  return 0;
+}
+                           
 void vtkSource::UnRegister(vtkObject *o)
 {
   // detect the circular loop source <-> data

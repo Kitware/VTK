@@ -145,6 +145,10 @@ public:
   // Handle the source/data loop.
   void UnRegister(vtkObject *o);
 
+  // Description:
+  // Test to see if this object is in a reference counting loop.
+  virtual int InRegisterLoop(vtkObject *);
+
 protected:
   void Execute();
 

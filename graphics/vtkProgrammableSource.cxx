@@ -192,3 +192,51 @@ void vtkProgrammableSource::UnRegister(vtkObject *o)
   
   this->vtkObject::UnRegister(o);
 }
+
+int vtkProgrammableSource::InRegisterLoop(vtkObject *o)
+{
+  int num = 0;
+  int cnum = 0;
+  
+  if (this->StructuredPoints->GetSource() == this)
+    {
+    num++;
+    cnum += this->StructuredPoints->GetReferenceCount();
+    }
+  if (this->RectilinearGrid->GetSource() == this)
+    {
+    num++;
+    cnum += this->RectilinearGrid->GetReferenceCount();
+    }
+  if (this->PolyData->GetSource() == this)
+    {
+    num++;
+    cnum += this->PolyData->GetReferenceCount();
+    }
+  if (this->StructuredGrid->GetSource() == this)
+    {
+    num++;
+    cnum += this->StructuredGrid->GetReferenceCount();
+    }
+  if (this->UnstructuredGrid->GetSource() == this)
+    {
+    num++;
+    cnum += this->UnstructuredGrid->GetReferenceCount();
+    }
+  
+  // if no one outside is using us
+  // and our data objects are down to one net reference
+  // and we are being asked by one of our data objects
+  if (this->ReferenceCount == num &&
+      cnum == (num + 1) &&
+      (this->PolyData == o ||
+       this->StructuredPoints == o ||
+       this->RectilinearGrid == o ||
+       this->StructuredGrid == o ||
+       this->UnstructuredGrid == o))
+    {
+    return 1;
+    }
+  return 0;
+}
+

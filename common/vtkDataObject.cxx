@@ -172,9 +172,7 @@ void vtkDataObject::UnRegister(vtkObject *o)
   // If we have two references and one of them is my data
   // and I am not being unregistered by my data, break the loop.
   if (this->ReferenceCount == 2 && this->Source != NULL &&
-      this->Source->GetOutputAsDataObject() == this && 
-      o != this->Source &&
-      this->Source->GetReferenceCount() == 1)
+      o != this->Source && this->Source->InRegisterLoop(this))
     {
     this->SetSource(NULL);
     }

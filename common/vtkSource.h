@@ -107,6 +107,9 @@ public:
   // Get the output as a DataObject, useful highlevel get output method.
   vtkDataObject *GetOutputAsDataObject() {return this->Output;};
   
+  // Description:
+  // Test to see if this object is in a reference counting loop.
+  virtual int InRegisterLoop(vtkObject *);
   
 protected:
   virtual void Execute();
