@@ -46,7 +46,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkPoints.h"
 #include "vtkIdTypeArray.h"
 
-vtkCxxRevisionMacro(vtkPDBReader, "1.3");
+vtkCxxRevisionMacro(vtkPDBReader, "1.4");
 vtkStandardNewMacro(vtkPDBReader);
 
 vtkPDBReader::vtkPDBReader()
@@ -69,7 +69,8 @@ void vtkPDBReader::ReadSpecificMolecule(FILE* fp)
   this->Points->Allocate(500);
   this->AtomType->Allocate(500);
 
-  vtkDebugMacro( << "PDB File (" << this->HBScale << ", " << this->BScale << ")");
+  vtkDebugMacro( << "PDB File (" << this->HBScale 
+    << ", " << this->BScale << ")");
   while(fgets(linebuf, sizeof linebuf, fp) != NULL &&
     strncmp("END", linebuf, 3)) 
     {
@@ -83,7 +84,7 @@ void vtkPDBReader::ReadSpecificMolecule(FILE* fp)
         {
         this->Points->InsertNextPoint(x);
 
-        for(j=0, i=strspn(dum1, " "); i < 5; i++)
+        for(j=0, i=static_cast<int>(strspn(dum1, " ")); i < 5; i++)
           {
           atype[j++] = dum1[i];
           }
@@ -93,7 +94,7 @@ void vtkPDBReader::ReadSpecificMolecule(FILE* fp)
       else if( !(dum1[0]=='H' || dum1[0]=='h') ) 
         { /* skip hydrogen */
         this->Points->InsertNextPoint(x);
-        for(j=0, i=strspn(dum1, " "); i < 5; i++)
+        for(j=0, i=static_cast<int>(strspn(dum1, " ")); i < 5; i++)
           {
           atype[j++] = dum1[i];
           }
