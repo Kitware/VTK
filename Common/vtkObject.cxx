@@ -52,7 +52,7 @@ int vtkObject::GetGlobalWarningDisplay()
 class vtkObserver
 {
  public:
-  vtkObserver():Command(0),Event(0),Tag(0),Next(0) {}
+  vtkObserver():Command(0),Event(0),Tag(0),Next(0),Priority(0.0) {}
   ~vtkObserver();
   void PrintSelf(ostream& os, vtkIndent indent);
   
@@ -288,7 +288,7 @@ vtkObject *vtkObject::SafeDownCast(vtkObject *o)
 
 void vtkObject::CollectRevisions(ostream& os)
 {
-  os << "vtkObject 1.73\n";
+  os << "vtkObject 1.74\n";
 }
 
 //----------------------------------Command/Observer stuff-------------------
