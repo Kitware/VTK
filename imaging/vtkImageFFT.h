@@ -40,7 +40,15 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkImageFFT -  Fast Fourier Transform.
 // .SECTION Description
-// vtkImageFFT implements a 1d, 2d, or 3d  fast Fourier transform.
+// vtkImageFFT implements a  fast Fourier transform.  The input
+// can have real or imaginary data in any components and data types, but
+// the output is always float with real values in component0, and
+// imaginary values in component1.  The filter is faster for images that
+// have power of two sizes.  The one dimension filter exists in case
+// the user wants to decompose higher dimensional FFTs themself.
+// (For Streaming or threaded execution) 
+// (However, for these to work properly, we need control over how
+// the output is broken up (avoid filtered axis))
 
 
 #ifndef __vtkImageFFT_h
@@ -52,25 +60,16 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageFFT : public vtkImageFourierFilter
 {
 public:
-  vtkImageFFT();
   static vtkImageFFT *New() {return new vtkImageFFT;};
   const char *GetClassName() {return "vtkImageFFT";};
-  void PrintSelf(ostream& os, vtkIndent indent);
 
-  vtkSetMacro(Dimensionality, int);
-  vtkGetMacro(Dimensionality, int);
-  
+  int SplitExtent(int splitExt[6], int startExt[6], 
+		  int num, int total);
 protected:
-  int Dimensionality;
-
-  void ComputeIterationInputExtent(int interation, 
-				   int inExt[6], int outExt[6]);
-  void ExecuteIteration(int iteration, vtkImageData *inData, int inExt[6],
-			vtkImageData *outData, int outExt[6]);
-  
   void ExecuteImageInformation();
   void ComputeRequiredInputUpdateExtent(int inExt[6], int outExt[6]);
-  void Execute(vtkImageData *inData, vtkImageData *outData);
+  void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
+		       int outExt[6], int threadId);
 };
 
 #endif

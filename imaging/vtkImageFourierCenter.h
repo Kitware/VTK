@@ -41,32 +41,38 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .NAME vtkImageFourierCenter - Shifts constant frequency to center for
 // display.
 // .SECTION Description
-// This filter is used for dispaying images in frequency space.  
-// FFT converts spatial
+// Is used for dispaying images in frequency space.  FFT converts spatial
 // images into ferequency space, but puts the zero frequency at the origin.
 // This filter shifts the zero frequency to the center of the image.
 // Input and output are assumed to be floats.
-
-
 
 #ifndef __vtkImageFourierCenter_h
 #define __vtkImageFourierCenter_h
 
 
-#include "vtkImageDecomposedFilter.h"
-#include "vtkImageFourierCenter1D.h"
+#include "vtkImageDecomposeFilter.h"
 
-class VTK_EXPORT vtkImageFourierCenter : public vtkImageDecomposedFilter
+class VTK_EXPORT vtkImageFourierCenter : public vtkImageDecomposeFilter
 {
 public:
   vtkImageFourierCenter();
   static vtkImageFourierCenter *New() {return new vtkImageFourierCenter;};
   const char *GetClassName() {return "vtkImageFourierCenter";};
-
+  
 protected:
+  void ComputeRequiredInputUpdateExtent(int inExt[6], int outExt[6]);
+  void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
+		       int outExt[6], int threadId);
 };
 
 #endif
+
+
+
+
+
+
+
 
 
 

@@ -15,8 +15,10 @@ ABSTRACT_H =
 CONCRETE_H = 
 
 ABSTRACT = \
+vtkImageDecomposeFilter \
 vtkImageFilter \
 vtkImageInPlaceFilter \
+vtkImageIterateFilter \
 vtkImageMultipleInputFilter \
 vtkImagePadFilter \
 vtkImageSpatialFilter \
@@ -32,6 +34,8 @@ vtkBMPWriter \
 vtkImageAnisotropicDiffusion2D \
 vtkImageAnisotropicDiffusion3D \
 vtkImageAppendComponents \
+vtkImageButterworthHighPass \
+vtkImageButterworthLowPass \
 vtkImageCanvasSource2D \
 vtkImageCast \
 vtkImageClip \
@@ -40,8 +44,8 @@ vtkImageConstantPad \
 vtkImageCursor3D \
 vtkImageExtractComponents \
 vtkImageFFT \
-vtkImageFFT1D \
 vtkImageFlip \
+vtkImageFourierCenter \
 vtkImageGaussianSmooth \
 vtkImageGradient \
 vtkImageGradientMagnitude \
@@ -56,6 +60,7 @@ vtkImageMirrorPad \
 vtkImageNonMaximumSuppression \
 vtkImagePermute \
 vtkImageReader \
+vtkImageRFFT \
 vtkImageRGBToHSV \
 vtkImageSeedConnectivity \
 vtkImageShiftScale \
@@ -72,8 +77,6 @@ vtkTIFFWriter
 
 
 #vtkImageAccumulate \
-#vtkImageButterworthHighPass \
-#vtkImageButterworthLowPass \
 #vtkImageCityBlockDistance \
 #vtkImageCityBlockDistance1D \
 #vtkImageContinuousDilate3D \
@@ -86,8 +89,6 @@ vtkTIFFWriter
 #vtkImageElipsoidSource \
 #vtkImageEuclideanToPolar \
 #vtkImageFeatureAnd \
-#vtkImageFourierCenter \
-#vtkImageFourierCenter1D \
 #vtkImageGaussianSource \
 #vtkImageHistogram \
 #vtkImageHistogramEqualization \
@@ -101,8 +102,6 @@ vtkTIFFWriter
 #vtkImageMask \
 #vtkImageNoiseSource \
 #vtkImageOpenClose3D \
-#vtkImageRFFT \
-#vtkImageRFFT1D \
 #vtkImageRange3D \
 #vtkImageResample \
 #vtkImageResample1D \

@@ -38,11 +38,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageButterworthLowPass - Simple frequency domain band pass.
+// .NAME vtkImageButterworthLowPass - Frequency domain Low pass.
 // .SECTION Description
-// vtkImageButterworthLowPass just sets a portion of the image to zero.
-// Input and Output must be floats.  Dimensionality is set when the
-// axes are set.  Defaults to 2D on X and Y axes.
+// vtkImageButterworthLowPass  the high frequency components are
+// attenuated.  Input and output are in floats, with two components
+// (complex numbers).
+// out(i, j) = (1 + pow(CutOff/Freq(i,j), 2*Order));
 
 
 
@@ -64,17 +65,15 @@ public:
   // Set/Get the cutoff frequency for each axis.
   // The values are specified in the order X, Y, Z, Time.
   // Units: Cycles per world unit (as defined by the data spacing).
-  vtkSetVector4Macro(CutOff,float);
-  void SetCutOff(float v) {this->SetCutOff(v, v, v, v);}
+  vtkSetVector3Macro(CutOff,float);
+  void SetCutOff(float v) {this->SetCutOff(v, v, v);}
   void SetXCutOff(float v);
   void SetYCutOff(float v);
   void SetZCutOff(float v);
-  void SetTimeCutOff(float v);
-  vtkGetVector4Macro(CutOff,float);
+  vtkGetVector3Macro(CutOff,float);
   float GetXCutOff() {return this->CutOff[0];}
   float GetYCutOff() {return this->CutOff[1];}
   float GetZCutOff() {return this->CutOff[2];}
-  float GetTimeCutOff() {return this->CutOff[3];}
 
   // Description:
   // The order determines sharpness of the cutoff curve.
@@ -84,9 +83,10 @@ public:
   
 protected:
   int Order;
-  float CutOff[4];
+  float CutOff[3];
   
-  void Execute(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
+  void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
+		       int outExt[6], int id);
 };
 
 #endif

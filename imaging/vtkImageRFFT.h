@@ -38,31 +38,45 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageRFFT - Reverse Fast Fourier Transform
+// .NAME vtkImageRFFT -  Reverse Fast Fourier Transform.
 // .SECTION Description
-// vtkImageRFFT implements a reverse Fast Fourier Transform that operates
-// on images of any dimensionality.
-// It really consists of multiple 1d RFFTs.
+// vtkImageRFFT implements the reverse fast Fourier transform.  The input
+// can have real or imaginary data in any components and data types, but
+// the output is always float with real values in component0, and
+// imaginary values in component1.  The filter is faster for images that
+// have power of two sizes.  
+
 
 
 #ifndef __vtkImageRFFT_h
 #define __vtkImageRFFT_h
 
 
-#include "vtkImageDecomposedFilter.h"
-#include "vtkImageRFFT1D.h"
+#include "vtkImageFourierFilter.h"
 
-class VTK_EXPORT vtkImageRFFT : public vtkImageDecomposedFilter
+class VTK_EXPORT vtkImageRFFT : public vtkImageFourierFilter
 {
 public:
-  vtkImageRFFT();
   static vtkImageRFFT *New() {return new vtkImageRFFT;};
   const char *GetClassName() {return "vtkImageRFFT";};
 
+  int SplitExtent(int splitExt[6], int startExt[6], 
+		  int num, int total);
 protected:
+  void ExecuteImageInformation();
+  void ComputeRequiredInputUpdateExtent(int inExt[6], int outExt[6]);
+  void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
+		       int outExt[6], int threadId);
 };
 
 #endif
+
+
+
+
+
+
+
 
 
 

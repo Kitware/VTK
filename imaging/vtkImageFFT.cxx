@@ -45,23 +45,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 //----------------------------------------------------------------------------
 // Description:
-// Construct an instance of vtkImageFFT fitler.
-vtkImageFFT::vtkImageFFT()
-{
-  this->Dimensionality = 2;
-}
-
-
-//----------------------------------------------------------------------------
-void vtkImageFFT::PrintSelf(ostream& os, vtkIndent indent)
-{
-  vtkImageFourierFilter::PrintSelf(os,indent);
-
-  os << indent << "Dimensionality: " << this->Dimensionality << "\n";
-}
-
-//----------------------------------------------------------------------------
-// Description:
 // This extent of the components changes to real and imaginary values.
 void vtkImageFFT::ExecuteImageInformation()
 {
@@ -76,105 +59,21 @@ void vtkImageFFT::ExecuteImageInformation()
 void vtkImageFFT::ComputeRequiredInputUpdateExtent(int inExt[6], 
 						   int outExt[6])
 {
-  int ext1[6], ext2[6];
-
-  switch (this->Dimensionality)
-    {
-    case 1:
-      this->ComputeIterationInputExtent(0, inExt, outExt);
-      break;
-    case 2:
-      this->ComputeIterationInputExtent(0, ext1, outExt);
-      this->ComputeIterationInputExtent(0, inExt, ext1);
-      break;
-    case 3:
-      this->ComputeIterationInputExtent(0, ext2, outExt);
-      this->ComputeIterationInputExtent(0, ext1, ext2);
-      this->ComputeIterationInputExtent(0, inExt, ext1);
-      break;
-    }
-}
-
-
-
-
-//----------------------------------------------------------------------------
-// Description:
-// Computes the input extent for each iteration.
-void vtkImageFFT::ComputeIterationInputExtent(int iteration, 
-					      int inExt[6], int outExt[6])
-{
   int *extent;
   
   // Assumes that the input update extent has been initialized to output ...
   extent = this->Input->GetWholeExtent();
   memcpy(inExt, outExt, 6 * sizeof(int));
-  inExt[iteration*2] = extent[iteration*2];
-  inExt[iteration*2 + 1] = extent[iteration*2 + 1];
+  inExt[this->Iteration*2] = extent[this->Iteration*2];
+  inExt[this->Iteration*2 + 1] = extent[this->Iteration*2 + 1];
 }
-
-
-
-
-//----------------------------------------------------------------------------
-// Description:
-// This methods decomposes the FFT along the axes.
-void vtkImageFFT::Execute(vtkImageData *inData, vtkImageData *outData)
-{
-  int ext0[6], ext1[6], ext2[6], *outExt;
-  vtkImageData *data1, *data2;
-  
-  switch (this->Dimensionality)
-    {
-    case 1:
-      outExt = this->GetOutput()->GetUpdateExtent();
-      this->ComputeIterationInputExtent(0, ext0, outExt);
-      this->ExecuteIteration(0, inData, ext0, outData, outExt);
-      break;
-    case 2:
-      outExt = this->GetOutput()->GetUpdateExtent();
-      this->ComputeIterationInputExtent(1, ext1, outExt);
-      this->ComputeIterationInputExtent(0, ext0, ext1);
-      data1 = vtkImageData::New();
-      data1->SetExtent(ext1);
-      data1->SetNumberOfScalarComponents(2);
-      data1->SetScalarType(VTK_FLOAT);
-      this->ExecuteIteration(0, inData, ext0, data1, ext1);
-      this->ExecuteIteration(1, data1, ext1, outData, outExt);
-      data1->Delete();
-      break;
-    case 3:
-      outExt = this->GetOutput()->GetUpdateExtent();
-      this->ComputeIterationInputExtent(2, ext2, outExt);
-      this->ComputeIterationInputExtent(1, ext1, ext2);
-      this->ComputeIterationInputExtent(0, ext0, ext1);
-      data1 = vtkImageData::New();
-      data1->SetExtent(ext1);
-      data1->SetNumberOfScalarComponents(2);
-      data1->SetScalarType(VTK_FLOAT);
-      data2 = vtkImageData::New();
-      data2->SetExtent(ext2);
-      data2->SetNumberOfScalarComponents(2);
-      data2->SetScalarType(VTK_FLOAT);
-      this->ExecuteIteration(0, inData, ext0, data1, ext1);
-      this->ExecuteIteration(1, data1, ext1, data2, ext2);
-      this->ExecuteIteration(2, data2, ext2, outData, outExt);
-      data1->Delete();
-      data2->Delete();
-      break;
-    }
-}
-
-
-
-
 
 //----------------------------------------------------------------------------
 // Description:
 // This templated execute method handles any type input, but the output
 // is always floats.
 template <class T>
-static void vtkImageFFTExecute(vtkImageFFT *self, int axis,
+static void vtkImageFFTExecute(vtkImageFFT *self,
 			 vtkImageData *inData, int inExt[6], T *inPtr,
 			 vtkImageData *outData, int outExt[6], float *outPtr)
 {
@@ -192,38 +91,11 @@ static void vtkImageFFTExecute(vtkImageFFT *self, int axis,
   //
   int idx0, idx1, idx2, inSize0, numberOfComponents;
   
-  // Reorder axes (brute force)
-  outMin2 = 0;
-  switch (axis)
-    {
-    case 0:
-      inMin0 = inExt[0];      inMax0 = inExt[1];
-      inData->GetIncrements(inInc0, inInc1, inInc2);
-      outData->GetIncrements(outInc0, outInc1, outInc2);
-      outMin0 = outExt[0];    outMax0 = outExt[1];
-      outMin1 = outExt[2];    outMax1 = outExt[3];
-      outMin2 = outExt[4];    outMax2 = outExt[5];
-      break;
-    case 1:
-      inMin0 = inExt[2];      inMax0 = inExt[3];
-      inData->GetIncrements(inInc1, inInc0, inInc2);
-      outData->GetIncrements(outInc1, outInc0, outInc2);
-      outMin0 = outExt[2];    outMax0 = outExt[3];
-      outMin1 = outExt[0];    outMax1 = outExt[1];
-      outMin2 = outExt[4];    outMax2 = outExt[5];
-      break;
-    case 2:
-      inMin0 = inExt[4];      inMax0 = inExt[5];
-      inData->GetIncrements(inInc2, inInc0, inInc1);
-      outData->GetIncrements(outInc2, outInc0, outInc1);
-      outMin0 = outExt[4];    outMax0 = outExt[5];
-      outMin1 = outExt[0];    outMax1 = outExt[1];
-      outMin2 = outExt[2];    outMax2 = outExt[3];
-      break;
-    default:
-      vtkGenericWarningMacro("bad axis ");
-      return;
-    }
+  // Reorder axes (The outs here are just placeholdes
+  self->PermuteExtent(inExt, inMin0, inMax0, outMin1,outMax1,outMin2,outMax2);
+  self->PermuteExtent(outExt, outMin0,outMax0,outMin1,outMax1,outMin2,outMax2);
+  self->PermuteIncrements(inData->GetIncrements(), inInc0, inInc1, inInc2);
+  self->PermuteIncrements(outData->GetIncrements(), outInc0, outInc1, outInc2);
   
   inSize0 = inMax0 - inMin0 + 1;
   
@@ -238,7 +110,7 @@ static void vtkImageFFTExecute(vtkImageFFT *self, int axis,
   // Allocate the arrays of complex numbers
   inComplex = new vtkImageComplex[inSize0];
   outComplex = new vtkImageComplex[inSize0];
-  
+
   // loop over other axes
   inPtr2 = inPtr;
   outPtr2 = outPtr;
@@ -295,14 +167,15 @@ static void vtkImageFFTExecute(vtkImageFFT *self, int axis,
 // This method is passed input and output Datas, and executes the fft
 // algorithm to fill the output from the input.
 // Not threaded yet.
-void vtkImageFFT::ExecuteIteration(int iteration, 
-				   vtkImageData *inData, int inExt[6],
-				   vtkImageData *outData, int outExt[6])
+void vtkImageFFT::ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
+				  int outExt[6], int threadId)
 {
   void *inPtr, *outPtr;
+  int inExt[6];
 
-  inPtr = inData->GetScalarPointer();
-  outPtr = outData->GetScalarPointer();
+  this->ComputeRequiredInputUpdateExtent(inExt, outExt);  
+  inPtr = inData->GetScalarPointerForExtent(inExt);
+  outPtr = outData->GetScalarPointerForExtent(outExt);
   
   // this filter expects that the output be floats.
   if (outData->GetScalarType() != VTK_FLOAT)
@@ -323,25 +196,23 @@ void vtkImageFFT::ExecuteIteration(int iteration,
   switch (inData->GetScalarType())
     {
     case VTK_FLOAT:
-      vtkImageFFTExecute(this, iteration, inData, inExt, (float *)(inPtr), 
+      vtkImageFFTExecute(this, inData, inExt, (float *)(inPtr), 
 			 outData, outExt, (float *)(outPtr));
       break;
     case VTK_INT:
-      vtkImageFFTExecute(this, iteration, inData, inExt, (int *)(inPtr),
+      vtkImageFFTExecute(this, inData, inExt, (int *)(inPtr),
 			 outData, outExt, (float *)(outPtr));
       break;
     case VTK_SHORT:
-      vtkImageFFTExecute(this, iteration, inData, inExt, (short *)(inPtr),
+      vtkImageFFTExecute(this, inData, inExt, (short *)(inPtr),
 			 outData, outExt, (float *)(outPtr));
       break;
     case VTK_UNSIGNED_SHORT:
-      vtkImageFFTExecute(this, iteration, inData, inExt, 
-			 (unsigned short *)(inPtr), 
+      vtkImageFFTExecute(this, inData, inExt, (unsigned short *)(inPtr), 
 			 outData, outExt, (float *)(outPtr));
       break;
     case VTK_UNSIGNED_CHAR:
-      vtkImageFFTExecute(this, iteration, inData, inExt, 
-			 (unsigned char *)(inPtr),
+      vtkImageFFTExecute(this, inData, inExt, (unsigned char *)(inPtr),
 			 outData, outExt, (float *)(outPtr));
       break;
     default:
@@ -352,6 +223,76 @@ void vtkImageFFT::ExecuteIteration(int iteration,
 
 
 
+//----------------------------------------------------------------------------
+// Description:
+// For streaming and threads.  Splits output update extent into num pieces.
+// This method needs to be called num times.  Results must not overlap for
+// consistent starting extent.  Subclass can override this method.
+// This method returns the number of peices resulting from a successful split.
+// This can be from 1 to "total".  
+// If 1 is returned, the extent cannot be split.
+int vtkImageFFT::SplitExtent(int splitExt[6], int startExt[6], 
+			     int num, int total)
+{
+  int splitAxis;
+  int min, max;
+
+  vtkDebugMacro("SplitExtent: ( " << startExt[0] << ", " << startExt[1] << ", "
+		<< startExt[2] << ", " << startExt[3] << ", "
+		<< startExt[4] << ", " << startExt[5] << "), " 
+		<< num << " of " << total);
+
+  // start with same extent
+  memcpy(splitExt, startExt, 6 * sizeof(int));
+
+  splitAxis = 2;
+  min = startExt[4];
+  max = startExt[5];
+  while ((splitAxis == this->Iteration) || (min == max))
+    {
+    splitAxis--;
+    if (splitAxis < 0)
+      { // cannot split
+      vtkDebugMacro("  Cannot Split");
+      return 1;
+      }
+    min = startExt[splitAxis*2];
+    max = startExt[splitAxis*2+1];
+    }
+
+  // determine the actual number of pieces that will be generated
+  if ((max - min + 1) < total)
+    {
+    total = max - min + 1;
+    }
+  
+  if (num >= total)
+    {
+    vtkDebugMacro("  SplitRequest (" << num 
+		  << ") larger than total: " << total);
+    return total;
+    }
+  
+  // determine the extent of the piece
+  splitExt[splitAxis*2] = min + (max - min + 1)*num/total;
+  if (num == total - 1)
+    {
+    splitExt[splitAxis*2+1] = max;
+    }
+  else
+    {
+    splitExt[splitAxis*2+1] = (min-1) + (max - min + 1)*(num+1)/total;
+    }
+  
+  vtkDebugMacro("  Split Piece: ( " <<splitExt[0]<< ", " <<splitExt[1]<< ", "
+		<< splitExt[2] << ", " << splitExt[3] << ", "
+		<< splitExt[4] << ", " << splitExt[5] << ")");
+  fflush(stderr);
+
+  return total;
+}
+
+  
 
 
 

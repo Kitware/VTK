@@ -52,14 +52,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 
-//----------------------------------------------------------------------------
-void vtkImageFourierFilter::PrintSelf(ostream& os, vtkIndent indent)
-{
-  vtkImageFilter::PrintSelf(os,indent);
-}
-
-
-
 
 //----------------------------------------------------------------------------
 // Description:

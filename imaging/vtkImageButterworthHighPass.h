@@ -65,17 +65,15 @@ public:
   // Set/Get the cutoff frequency for each axis.
   // The values are specified in the order X, Y, Z, Time.
   // Units: Cycles per world unit (as defined by the data spacing).
-  vtkSetVector4Macro(CutOff,float);
-  void SetCutOff(float v) {this->SetCutOff(v, v, v, v);}
+  vtkSetVector3Macro(CutOff,float);
+  void SetCutOff(float v) {this->SetCutOff(v, v, v);}
   void SetXCutOff(float v);
   void SetYCutOff(float v);
   void SetZCutOff(float v);
-  void SetTimeCutOff(float v);
-  vtkGetVector4Macro(CutOff,float);
+  vtkGetVector3Macro(CutOff,float);
   float GetXCutOff() {return this->CutOff[0];}
   float GetYCutOff() {return this->CutOff[1];}
   float GetZCutOff() {return this->CutOff[2];}
-  float GetTimeCutOff() {return this->CutOff[3];}
 
   // Description:
   // The order determines sharpness of the cutoff curve.
@@ -85,9 +83,10 @@ public:
   
 protected:
   int Order;
-  float CutOff[4];
+  float CutOff[3];
   
-  void Execute(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
+  void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
+		       int outExt[6], int id);
 };
 
 #endif

@@ -39,7 +39,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include <math.h>
-#include "vtkImageRegion.h"
 #include "vtkImageButterworthHighPass.h"
 
 
@@ -49,15 +48,11 @@ vtkImageButterworthHighPass::vtkImageButterworthHighPass()
 {
   int idx;
   
-  this->SetOutputScalarType(VTK_FLOAT);
-  for (idx = 0; idx < 4; ++idx)
+  for (idx = 0; idx < 3; ++idx)
     {
     this->CutOff[idx] = VTK_LARGE_FLOAT;
     }
   this->Order = 1;
-  
-  // One complex number at a time. (sssssslowwww)
-  this->SetExecutionAxes(VTK_IMAGE_COMPONENT_AXIS);
 }
 
 
@@ -91,128 +86,151 @@ void vtkImageButterworthHighPass::SetZCutOff(float cutOff)
   this->CutOff[2] = cutOff;
   this->Modified();
 }
-//----------------------------------------------------------------------------
-void vtkImageButterworthHighPass::SetTimeCutOff(float cutOff)
-{
-  if (cutOff == this->CutOff[3])
-    {
-    return;
-    }
-  this->CutOff[3] = cutOff;
-  this->Modified();
-}
-
-
 
 //----------------------------------------------------------------------------
-// Description:
-// This function zeros a portion of the image.  Zero is assumed
-// to be the origin. (1d easy but slow)
-void vtkImageButterworthHighPass::Execute(vtkImageRegion *inRegion, 
-					  vtkImageRegion *outRegion)
+void vtkImageButterworthHighPass::ThreadedExecute(vtkImageData *inData, 
+						  vtkImageData *outData,
+						  int ext[6], int id)
 {
-  int idx;
-  float *inPtr = (float *)(inRegion->GetScalarPointer());
-  float *outPtr = (float *)(outRegion->GetScalarPointer());
-  int *extent, *wholeExtent;
+  int idx0, idx1, idx2;
+  int min0, max0;
+  float *inPtr;
+  float *outPtr;
+  int *wholeExtent;
   float *spacing;
-  int inInc;
-  int outInc;
-  float temp, freq, mid;
-  float sum;
-  
-  // Make sure we have real and imaginary components.
-  extent = inRegion->GetExtent();
-  if (extent[0] != 0 || extent[1] != 1)
-    {
-    vtkErrorMacro(<< "Execute: Components mismatch");
-    return;
-    }
-  
-  // this filter expects that input is the same type as output (float).
-  if (inRegion->GetScalarType() != VTK_FLOAT ||
-      outRegion->GetScalarType() != VTK_FLOAT)
-    {
-    vtkErrorMacro(<< "Execute: input " 
-      << vtkImageScalarTypeNameMacro(inRegion->GetScalarType()) 
-      << " and output " 
-      << vtkImageScalarTypeNameMacro(outRegion->GetScalarType()) 
-      << " must be floats");
-    return;
-    }
+  int inInc0, inInc1, inInc2;
+  int outInc0, outInc1, outInc2;
+  float temp0, temp1, temp2, mid0, mid1, mid2;
+  // normalization factors
+  float norm0, norm1, norm2;
+  float sum1, sum0;
 
-  wholeExtent = inRegion->GetWholeExtent();
-  spacing = inRegion->GetSpacing();
-  sum = 0.0;
-  // Sum up distance squared for each axis (except for component)
-  // This assumes the order of the regions axes is C,X,Y,Z,T.
-  for (idx = 1; idx < VTK_IMAGE_DIMENSIONS; ++idx)
+  // Error checking
+  if (inData->GetNumberOfScalarComponents() != 2)
     {
-    temp = (float)(extent[2*idx]);
-    // Assumes image min is 0.
-    mid = (float)(wholeExtent[2*idx + 1] + 1) / 2.0;
+    vtkErrorMacro("Expecting 2 components not " 
+		  << inData->GetNumberOfScalarComponents());
+    return;
+    }
+  if (inData->GetScalarType() != VTK_FLOAT || 
+      outData->GetScalarType() != VTK_FLOAT)
+    {
+    vtkErrorMacro("Expecting input and output to be of type float");
+    return;
+    }
+  
+  wholeExtent = this->Input->GetWholeExtent();
+  spacing = inData->GetSpacing();
+
+  inPtr = (float *)(inData->GetScalarPointerForExtent(ext));
+  outPtr = (float *)(outData->GetScalarPointerForExtent(ext));
+
+  inData->GetContinuousIncrements(ext, inInc0, inInc1, inInc2);
+  outData->GetContinuousIncrements(ext, outInc0, outInc1, outInc2);  
+  
+  min0 = ext[0];
+  max0 = ext[1];
+  mid0 = (float)(wholeExtent[0] + wholeExtent[1] + 1) / 2.0;
+  mid1 = (float)(wholeExtent[2] + wholeExtent[3] + 1) / 2.0;
+  mid2 = (float)(wholeExtent[4] + wholeExtent[5] + 1) / 2.0;
+  if ( this->CutOff[0] == 0.0)
+    {
+    norm0 = VTK_LARGE_FLOAT;
+    }
+  else
+    {
+    norm0 = 1.0 / ((spacing[0] * 2.0 * mid0) * this->CutOff[0]);
+    }
+  if ( this->CutOff[1] == 0.0)
+    {
+    norm1 = VTK_LARGE_FLOAT;
+    }
+  else
+    {
+    norm1 = 1.0 / ((spacing[1] * 2.0 * mid1) * this->CutOff[1]);
+    }
+  if ( this->CutOff[2] == 0.0)
+    {
+    norm2 = VTK_LARGE_FLOAT;
+    }
+  else
+    {
+    norm2 = 1.0 / ((spacing[2] * 2.0 * mid2) * this->CutOff[2]);
+    }
+  
+  // loop over all the pixels (keeping track of normalized distance to origin.
+  for (idx2 = ext[4]; idx2 <= ext[5]; ++idx2)
+    {
+    // distance to min (this axis' contribution)
+    temp2 = (float)idx2;
     // Wrap back to 0.
-    if (temp > mid)
+    if (temp2 > mid2)
       {
-      temp = mid + mid - temp;
+      temp2 = mid2 + mid2 - temp2;
       }
-    // spacing == 0 implies there is no spatial meaning for this axis
-    if (spacing[idx] > 0.0)
+    // Convert location into normalized cycles/world unit
+    temp2 = temp2 * norm2;
+
+    for (idx1 = ext[2]; idx1 <= ext[3]; ++idx1)
       {
+      // distance to min (this axis' contribution)
+      temp1 = (float)idx1;
+      // Wrap back to 0.
+      if (temp1 > mid1)
+	{
+	temp1 = mid1 + mid1 - temp1;
+	}
       // Convert location into cycles / world unit
-      freq = temp / (spacing[idx] * 2.0 * mid);
-      // Scale to unit circle (Pass band does not include Component Axis)
-      temp = this->CutOff[idx - 1];
-      if (temp > 0)
+      temp1 = temp1 * norm1;
+      sum1 = temp2 * temp2 + temp1 * temp1;
+      
+      for (idx0 = min0; idx0 <= max0; ++idx0)
 	{
-	temp = freq / temp;
-	sum += temp * temp;
+	// distance to min (this axis' contribution)
+	temp0 = (float)idx0;
+	// Wrap back to 0.
+	if (temp0 > mid0)
+	  {
+	  temp0 = mid0 + mid0 - temp0;
+	  }
+	// Convert location into cycles / world unit
+	temp0 = temp0 * norm0;
+	sum0 = sum1 + temp0 * temp0;
+	
+	// compute Butterworth1D function from sum = d^2
+	if (sum0 == 0.0)
+	  {
+	  sum0 = VTK_LARGE_FLOAT;
+	  }
+	else
+	  {
+	  sum0 = 1.0 / sum0;
+	  }
+	if (this->Order == 1)
+	  {
+	  sum0 = 1.0 / (1.0 + sum0);
+	  }
+	else
+	  {
+	  sum0 = 1.0 / (1.0 + pow(sum0, this->Order));
+	  }	
+	
+	// real component
+	*outPtr++ = *inPtr++ * sum0;
+	// imaginary component	
+	*outPtr++ = *inPtr++ * sum0;
+	
 	}
-      else
-	{
-	sum = VTK_LARGE_FLOAT;
-	}
+      inPtr += inInc1;
+      outPtr += outInc1;
       }
+    inPtr += inInc2;
+    outPtr += outInc2;    
     }
-  
-  // compute Butterworth1D function from sum = d^2
-  if (sum == 0.0)
-    {
-    sum = VTK_LARGE_FLOAT;
-    }
-  else
-    {
-    sum = 1.0 / sum;
-    }
-  if (this->Order == 1)
-    {
-    sum = 1.0 / (1.0 + sum);
-    }
-  else
-    {
-    sum = 1.0 / (1.0 + pow(sum, this->Order));
-    }
-  
-  inRegion->GetIncrements(inInc);
-  outRegion->GetIncrements(outInc);
-  
-  // real component
-  *outPtr = *inPtr * sum;
-  // imaginary component
-  outPtr[outInc] = inPtr[inInc] * sum;
 }
 
-
-
-
-
-
-
-
-
-
-
-
+      
+  
 
 
 

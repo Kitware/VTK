@@ -15,12 +15,12 @@ reader SetDataMask 0x7fff
 #reader DebugOn
 
 vtkImageFFT fft
-fft SetFilteredAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS
+fft SetDimensionality 2
 fft SetInput [reader GetOutput]
 #fft DebugOn
 
 vtkImageRFFT rfft
-rfft SetFilteredAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS
+rfft SetDimensionality 2
 rfft SetInput [fft GetOutput]
 rfft ReleaseDataFlagOff
 #fft DebugOn
