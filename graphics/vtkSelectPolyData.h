@@ -122,7 +122,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Set/Get the flag to control beahvior of the filter. If
+  // Set/Get the flag to control behavior of the filter. If
   // GenerateSelectionScalars is on, then the output of the filter
   // is the same as the input, except that scalars are generated.
   // If off, the filter outputs the cells laying inside the loop, and
