@@ -26,8 +26,8 @@
 // If you do not have the VolumePRO libraries when building this object, then
 // the New method will create a default renderer that will not render.
 // You can check the NumberOfBoards ivar to see if it is a real rendering class.
-// To build with the VolumePRO board see vtkVolumeProVG500Mapper.h or
-// vtkVolumeProVP1000Mapper.h for instructions.
+// To build with the VolumePRO board see vtkVolumeProVP1000Mapper.h 
+// for instructions.
 //
 // For more information on the VolumePRO hardware, please see:
 //
@@ -38,8 +38,7 @@
 //
 //
 // .SECTION See Also
-// vtkVolumeMapper vtkVolumeProVG500Mapper vtkOpenGLVolumeProVG500Mapper
-// vtkVolumeProVP1000Mapper vtkOpenGLVolumeProVP1000Mapper
+// vtkVolumeMapper vtkVolumeProVP1000Mapper vtkOpenGLVolumeProVP1000Mapper
 //
 
 
@@ -216,7 +215,6 @@ public:
 
   // Description:
   // Specify whether any geometry intersects the volume.
-  // Does nothing with VG500
   vtkSetClampMacro(IntermixIntersectingGeometry, int, 0, 1);
   vtkGetMacro(IntermixIntersectingGeometry, int);
   vtkBooleanMacro(IntermixIntersectingGeometry, int);

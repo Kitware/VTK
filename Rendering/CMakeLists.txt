@@ -119,12 +119,6 @@ vtkWindowToImageFilter.cxx
 vtkWorldPointPicker.cxx
 )
 
-IF (VTK_HAVE_VG500)
-  SET( Kit_SRCS ${Kit_SRCS}
-    vtkVolumeProVG500Mapper.cxx
-    vtkOpenGLVolumeProVG500Mapper.cxx
-    )
-ENDIF (VTK_HAVE_VG500)
 IF (VTK_HAVE_VP1000)
   SET( Kit_SRCS ${Kit_SRCS}
     vtkVolumeProVP1000Mapper.cxx
@@ -213,9 +207,6 @@ ENDIF(VTK_USE_X)
 # Build a list of libraries to link to vtkRendering.
 
 IF(VTK_USE_VOLUMEPRO)
-  IF(VTK_HAVE_VG500)
-    SET(KIT_LIBS ${KIT_LIBS} ${VLI_LIBRARY_FOR_VG500})
-  ENDIF(VTK_HAVE_VG500)
   IF(VTK_HAVE_VP1000)
     SET(KIT_LIBS ${KIT_LIBS} ${VLI_LIBRARY_FOR_VP1000})
   ENDIF(VTK_HAVE_VP1000)
