@@ -160,19 +160,19 @@ void vtkImageMapper::Render(vtkViewport* viewport, vtkActor2D* actor)
     {
     displayExtent[0] = -pos[0];
     }
-  if ((pos[0]+wholeExtent[1]) >= 
+  if ((pos[0]+wholeExtent[1]) > 
       (winSize[0] - 1)*(vpt[XMAX]-vpt[XMIN])) 
     {
-    displayExtent[1] = (winSize[0] - 1)*(vpt[XMAX]-vpt[XMIN]) - pos[0] - 1;
+    displayExtent[1] = (winSize[0] - 1)*(vpt[XMAX]-vpt[XMIN]) - pos[0];
     }
   if (pos[1] + wholeExtent[2] < 0) 
     {
     displayExtent[2] = -pos[1];
     }
-  if ((pos[1]+wholeExtent[3]) >= 
+  if ((pos[1]+wholeExtent[3]) > 
       (winSize[1] - 1)*(vpt[YMAX]-vpt[YMIN])) 
     {
-    displayExtent[3] = (winSize[1] - 1)*(vpt[YMAX]-vpt[YMIN]) - pos[1] - 1;
+    displayExtent[3] = (winSize[1] - 1)*(vpt[YMAX]-vpt[YMIN]) - pos[1];
     }
 
   this->Input->SetUpdateExtent(displayExtent);
