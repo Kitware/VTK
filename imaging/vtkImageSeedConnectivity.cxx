@@ -93,6 +93,7 @@ void vtkImageSeedConnectivity::AddSeed(int num, int *index)
   seed = this->Connector->NewSeed(newIndex, NULL);
   seed->Next = this->Seeds;
   this->Seeds = seed;
+  this->Modified();
 }
 //----------------------------------------------------------------------------
 void vtkImageSeedConnectivity::AddSeed(int i0, int i1, int i2)
