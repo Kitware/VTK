@@ -21,6 +21,7 @@ vtkAbstractMapper \
 vtkAbstractTransform \
 vtkAttributeData \
 vtkCell \
+vtkCommand \
 vtkDataArray \
 vtkDataSet \
 vtkHomogeneousTransform \
