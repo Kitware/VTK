@@ -114,10 +114,14 @@ void vtkDataReader::SetInputString(char* _arg, int len)
 // an InputString.
 void vtkDataReader::EatWhiteSpace()
 {
-  while ((this->InputString[this->InputStringPos] < 33)&&
-         (this->InputString[this->InputStringPos] != '\0'))
+  char c;
+  while (this->IS->get(c)) 
     {
-    this->InputStringPos++;
+    if (c == '\n' || isspace(c)==0)
+      {
+      this->IS->putback(c);
+      break;
+      }
     }
 }
 
