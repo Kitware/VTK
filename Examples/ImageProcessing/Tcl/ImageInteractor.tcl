@@ -1,6 +1,8 @@
-# This example shows how to use the InteractorStyleImage.
-# The InteractorStyleImage is a special interactor designed
-# to be used with vtkImageActor in a rendering window context.
+# This example shows how to use the InteractorStyleImage and add your own
+# event handling.  The InteractorStyleImage is a special interactor designed
+# to be used with vtkImageActor in a rendering window context. It forces the
+# camera to stay perpendicular to the x-y plane. You may also wish to refer
+# to the MandelbrotViewer.tcl example for comparison.
 
 package require vtk
 package require vtkinteraction
@@ -46,6 +48,8 @@ vtkRenderWindowInteractor iren
 # Create an image interactor
 vtkInteractorStyleImage interactor
 iren SetInteractorStyle interactor
+interactor AddObserver LeftButtonPressEvent {StartZoom}
+interactor AddObserver LeftButtonReleaseEvent {EndZoom}
 
 # Add the actors to the renderer, set the background and size
 ren1 AddActor ia
@@ -63,6 +67,103 @@ renWin Render
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .
+
+# methods to support Mandelbrot viewing
+proc Reset {} {
+  global MAX_ITERATIONS_1 MAX_ITERATIONS_2 RANGE XRAD
+
+  set MAX_ITERATIONS_2 $RANGE
+  set MAX_ITERATIONS_1 $RANGE
+
+  set sample [expr 1.3 / $XRAD]
+  mandelbrot1 SetSampleCX $sample $sample $sample $sample 
+  mandelbrot1 SetOriginCX -0.72 0.22  0.0 0.0
+
+  set sample [expr 1.3 / $XRAD]
+  mandelbrot2 SetSampleCX $sample $sample $sample $sample 
+  mandelbrot2 SetOriginCX -0.72 0.22  0.0 0.0
+
+  MandelbrotUpdate
+}
+
+proc MandelbrotUpdate {} {
+  global MAX_ITERATIONS_1 MAX_ITERATIONS_2 RANGE
+  global manRange
+
+  mandelbrot1 SetMaximumNumberOfIterations [expr int($MAX_ITERATIONS_1)]
+  
+  set tmp [mandelbrot1 GetOriginCX]
+  set cr [lindex $tmp 0]
+  set ci [lindex $tmp 1]
+  set xr [lindex $tmp 2]
+  set xi [lindex $tmp 3]
+
+  mandelbrot1 Update
+  set tmp [[mandelbrot1 GetOutput] GetScalarRange]
+  set min [lindex $tmp 0]
+  set max [lindex $tmp 1]
+  eval table1 SetTableRange [expr $min - 1] $max
+  set MAX_ITERATIONS_1 [expr $min + $RANGE]
+
+  renWin Render
+}
+
+proc StartZoom {x y} {
+  global X Y
+
+  set X $x
+  set Y $y
+}
+
+# prescision good enough?
+proc EndZoom {x y} {
+  global X Y XRAD YRAD
+  
+  # Tk origin in uppder left. Flip y axis. Put origin in middle. 
+  set y [expr $YRAD - $y]
+  set Y [expr $YRAD - $Y]
+  set x [expr $x - $XRAD]
+  set X [expr $X - $XRAD]
+
+  # sort
+  if {$X < $x} {
+    set tmp $X
+    set X $x
+    set x $tmp
+  }
+  if {$Y < $y} {
+    set tmp $Y
+    set Y $y
+    set y $tmp
+  }
+
+  # middle/radius
+  set xMid [expr 0.5 * ($x + $X)]
+  set yMid [expr 0.5 * ($y + $Y)]
+  set xDim [expr ($X - $x)]
+  set yDim [expr ($Y - $y)]
+
+  # determine scale
+  if { $xDim <= 4 && $yDim <= 4} {
+    # Box too small.  Zoom into point.
+    set scale 0.5
+  } else {
+    # relative to window dimensions
+    set xDim [expr 1.0 * $xDim / (2*$XRAD)]
+    set yDim [expr 1.0 * $yDim / (2*$YRAD)]
+    # take the largest
+    if {$xDim > $yDim} {
+      set scale $xDim
+    } else {
+      set scale $yDim
+    }
+  }
+
+  mandelbrot1 Pan $xMid $yMid 0.0
+  mandelbrot1 Zoom $scale
+
+  MandelbrotUpdate
+}
 
 
 
