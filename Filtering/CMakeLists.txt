@@ -63,7 +63,6 @@ vtkGenericCellTessellator.cxx
 vtkSimpleCellTessellator.cxx
 vtkGenericDataSet.cxx
 vtkGenericDataSetAlgorithm.cxx
-vtkGenericDataSetSource.cxx
 vtkGenericEdgeTable.cxx
 vtkGenericPointIterator.cxx
 vtkGenericSubdivisionErrorMetric.cxx
@@ -216,7 +215,6 @@ vtkGenericCellIterator
 vtkGenericCellTessellator
 vtkGenericDataSet
 vtkGenericDataSetAlgorithm
-vtkGenericDataSetSource
 vtkGenericPointIterator
 vtkGenericSubdivisionErrorMetric
 vtkHierarchicalDataSetAlgorithm
