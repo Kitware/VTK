@@ -38,7 +38,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <GL/gl.h>
 #endif
 
-vtkCxxRevisionMacro(vtkWin32OpenGLRenderWindow, "1.109");
+vtkCxxRevisionMacro(vtkWin32OpenGLRenderWindow, "1.110");
 vtkStandardNewMacro(vtkWin32OpenGLRenderWindow);
 
 #define VTK_MAX_LIGHTS 8
@@ -52,11 +52,6 @@ vtkStandardNewMacro(vtkWin32OpenGLRenderWindow);
 #  define vtkGetWindowLong GetWindowLong
 #  define vtkSetWindowLong SetWindowLong
 #endif // 
-
-// this is a global because we really don't think you are doing
-// multithreaded OpenGL rendering anyhow. Most current libraries
-// don't support it.
-static HGLRC vtkWin32OpenGLGlobalContext = 0;
 
 vtkWin32OpenGLRenderWindow::vtkWin32OpenGLRenderWindow()
 {
@@ -140,7 +135,6 @@ void vtkWin32OpenGLRenderWindow::Clean()
       ren->SetRenderWindow(NULL);
       }
     
-    vtkWin32OpenGLGlobalContext = NULL;
     if (wglMakeCurrent(NULL, NULL) != TRUE) 
       {
       vtkErrorMacro("wglMakeCurrent failed in Clean(), error: " << GetLastError());
@@ -204,31 +198,27 @@ int vtkWin32OpenGLRenderWindow::GetEventPending()
 
 void vtkWin32OpenGLRenderWindow::MakeCurrent()
 {
-  if (this->ContextId != vtkWin32OpenGLGlobalContext)
-    {
-    // Try to avoid doing anything (for performance).
-    if (this->ContextId)
-      { 
-      if (wglMakeCurrent(this->DeviceContext, this->ContextId) != TRUE) 
-        {
-        LPVOID lpMsgBuf;
-        ::FormatMessage( 
-          FORMAT_MESSAGE_ALLOCATE_BUFFER | 
-          FORMAT_MESSAGE_FROM_SYSTEM | 
-          FORMAT_MESSAGE_IGNORE_INSERTS,
-          NULL,
-          GetLastError(),
-          MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
-          (LPTSTR) &lpMsgBuf,
-          0,
-          NULL 
-          );
-        vtkErrorMacro("wglMakeCurrent failed in MakeCurrent(), error: " 
-                      << (LPCTSTR)lpMsgBuf);
-        ::LocalFree( lpMsgBuf );
-        }
+  // Try to avoid doing anything (for performance).
+  if (this->ContextId)
+    { 
+    if (wglMakeCurrent(this->DeviceContext, this->ContextId) != TRUE) 
+      {
+      LPVOID lpMsgBuf;
+      ::FormatMessage( 
+        FORMAT_MESSAGE_ALLOCATE_BUFFER | 
+        FORMAT_MESSAGE_FROM_SYSTEM | 
+        FORMAT_MESSAGE_IGNORE_INSERTS,
+        NULL,
+        GetLastError(),
+        MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
+        (LPTSTR) &lpMsgBuf,
+        0,
+        NULL 
+        );
+      vtkErrorMacro("wglMakeCurrent failed in MakeCurrent(), error: " 
+                    << (LPCTSTR)lpMsgBuf);
+      ::LocalFree( lpMsgBuf );
       }
-    vtkWin32OpenGLGlobalContext = this->ContextId;
     }
 }
 
