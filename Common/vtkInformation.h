@@ -119,48 +119,6 @@ public:
   void Remove(vtkInformationDataObjectKey* key);
   int Has(vtkInformationDataObjectKey* key);
 
-  //BTX
-  // Description:
-  // Possible values for the FIELD_ASSOCIATION information entry.
-  enum FieldAssociations
-  {
-    FIELD_ASSOCIATION_POINTS,
-    FIELD_ASSOCIATION_CELLS,
-    FIELD_ASSOCIATION_NONE
-  };
-  //ETX
-
-  //BTX
-  // Description:
-  // Possible values for the FIELD_OPERATION information entry.
-  enum FieldOperations
-  {
-    FIELD_OPERATION_PRESERVED,
-    FIELD_OPERATION_REINTERPOLATED,
-    FIELD_OPERATION_MODIFIED,
-    FIELD_OPERATION_REMOVED
-  };
-  //ETX
-
-  // Description:
-  // Get a key instance for the information entry specified by the
-  // method name.
-  static vtkInformationIntegerKey* INPUT_IS_OPTIONAL();
-  static vtkInformationIntegerKey* INPUT_IS_REPEATABLE();
-  static vtkInformationInformationVectorKey* INPUT_CONNECTION_INFORMATION();
-  static vtkInformationInformationVectorKey* INPUT_REQUIRED_FIELDS();
-  static vtkInformationStringKey* INPUT_REQUIRED_DATA_TYPE();
-  static vtkInformationStringKey* OUTPUT_DATA_TYPE();
-  static vtkInformationInformationVectorKey* OUTPUT_PROVIDED_FIELDS();
-  static vtkInformationDataObjectKey* DATA_OBJECT();
-  static vtkInformationIntegerKey* FIELD_ARRAY_TYPE();
-  static vtkInformationIntegerKey* FIELD_ASSOCIATION();
-  static vtkInformationIntegerKey* FIELD_ATTRIBUTE_TYPE();
-  static vtkInformationIntegerKey* FIELD_NUMBER_OF_COMPONENTS();
-  static vtkInformationIntegerKey* FIELD_NUMBER_OF_TUPLES();
-  static vtkInformationIntegerKey* FIELD_OPERATION();
-  static vtkInformationStringKey* FIELD_NAME();
-
   // Description:
   // Upcast the given key instance.
   vtkInformationKey* GetKey(vtkInformationDataObjectKey* key);

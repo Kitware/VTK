@@ -23,10 +23,12 @@
 #include "vtkSource.h"
 #include "vtkTrivialProducer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkInformationDataObjectKey.h"
 #include "vtkInformationIntegerKey.h"
 #include "vtkInformationIntegerVectorKey.h"
+#include "vtkInformationStringKey.h"
 
-vtkCxxRevisionMacro(vtkDataObject, "1.113");
+vtkCxxRevisionMacro(vtkDataObject, "1.114");
 vtkStandardNewMacro(vtkDataObject);
 
 vtkCxxSetObjectMacro(vtkDataObject,Information,vtkInformation);
@@ -998,7 +1000,8 @@ void vtkDataObject::RemoveReferences()
     static vtkInformation##type##Key instance(#NAME, "vtkDataObject");      \
     return &instance;                                                       \
     }
-VTK_DATA_OBJECT_DEFINE_KEY_METHOD(DATA_TYPE, Integer);
+VTK_DATA_OBJECT_DEFINE_KEY_METHOD(DATA_TYPE_NAME, String);
+VTK_DATA_OBJECT_DEFINE_KEY_METHOD(DATA_OBJECT, DataObject);
 VTK_DATA_OBJECT_DEFINE_KEY_METHOD(DATA_EXTENT_TYPE, Integer);
 VTK_DATA_OBJECT_DEFINE_KEY_METHOD(DATA_EXTENT, IntegerVector);
 VTK_DATA_OBJECT_DEFINE_KEY_METHOD(DATA_PIECE_NUMBER, Integer);
@@ -1006,6 +1009,13 @@ VTK_DATA_OBJECT_DEFINE_KEY_METHOD(DATA_NUMBER_OF_PIECES, Integer);
 VTK_DATA_OBJECT_DEFINE_KEY_METHOD(DATA_NUMBER_OF_GHOST_LEVELS, Integer);
 VTK_DATA_OBJECT_DEFINE_KEY_METHOD(SCALAR_TYPE, Integer);
 VTK_DATA_OBJECT_DEFINE_KEY_METHOD(SCALAR_NUMBER_OF_COMPONENTS, Integer);
+VTK_DATA_OBJECT_DEFINE_KEY_METHOD(FIELD_ARRAY_TYPE, Integer);
+VTK_DATA_OBJECT_DEFINE_KEY_METHOD(FIELD_ASSOCIATION, Integer);
+VTK_DATA_OBJECT_DEFINE_KEY_METHOD(FIELD_ATTRIBUTE_TYPE, Integer);
+VTK_DATA_OBJECT_DEFINE_KEY_METHOD(FIELD_NAME, String);
+VTK_DATA_OBJECT_DEFINE_KEY_METHOD(FIELD_NUMBER_OF_COMPONENTS, Integer);
+VTK_DATA_OBJECT_DEFINE_KEY_METHOD(FIELD_NUMBER_OF_TUPLES, Integer);
+VTK_DATA_OBJECT_DEFINE_KEY_METHOD(FIELD_OPERATION, Integer);
 #undef VTK_DATA_OBJECT_DEFINE_KEY_METHOD
 
 //----------------------------------------------------------------------------

@@ -24,7 +24,7 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkSource, "1.121");
+vtkCxxRevisionMacro(vtkSource, "1.122");
 
 #ifndef NULL
 #define NULL 0
@@ -823,7 +823,7 @@ void vtkSource::SetNthOutput(int index, vtkDataObject* newOutput)
     oldOutput->SetSource(0);
     oldOutput->UnRegister(this);
     this->Outputs[index] = 0;
-    info->Set(vtkInformation::DATA_OBJECT(), 0);
+    info->Set(vtkDataObject::DATA_OBJECT(), 0);
     }
 
   if(newOutput)
@@ -833,7 +833,7 @@ void vtkSource::SetNthOutput(int index, vtkDataObject* newOutput)
       {
       oldSource->RemoveOutput(newOutput);
       }
-    info->Set(vtkInformation::DATA_OBJECT(), newOutput);
+    info->Set(vtkDataObject::DATA_OBJECT(), newOutput);
     this->Outputs[index] = newOutput;
     newOutput->SetSource(this);
     }
@@ -1009,7 +1009,7 @@ void vtkSource::SetExecutive(vtkExecutive* executive)
   for(int i=0; i < this->GetNumberOfOutputPorts(); ++i)
     {
     vtkInformation* info = this->GetExecutive()->GetOutputInformation(this, i);
-    info->Set(vtkInformation::DATA_OBJECT(), this->Outputs[i]);
+    info->Set(vtkDataObject::DATA_OBJECT(), this->Outputs[i]);
     }
 #endif
 }
@@ -1039,7 +1039,7 @@ int vtkSource::ProcessUpstreamRequest(vtkInformation* request,
       {
       vtkInformation* info =
         this->GetExecutive()->GetOutputInformation(this, i);
-      this->SetNthOutput(i, info->Get(vtkInformation::DATA_OBJECT()));
+      this->SetNthOutput(i, info->Get(vtkDataObject::DATA_OBJECT()));
       }
 
     // If the user defines a ComputeInputUpdateExtent method, we want
@@ -1099,7 +1099,7 @@ int vtkSource::ProcessUpstreamRequest(vtkInformation* request,
         {
         vtkInformation* info =
           inputVector->GetInformationObject(0)
-          ->Get(vtkInformation::INPUT_CONNECTION_INFORMATION())
+          ->Get(vtkAlgorithm::INPUT_CONNECTION_INFORMATION())
           ->GetInformationObject(i);
         vtkSourceToDataObjectFriendship::
           CopyUpdateExtentToInformation(this->Inputs[i], info);
@@ -1129,7 +1129,7 @@ int vtkSource::ProcessDownstreamRequest(vtkInformation* request,
       {
       vtkInformation* info =
         this->GetExecutive()->GetOutputInformation(this, i);
-      this->SetNthOutput(i, info->Get(vtkInformation::DATA_OBJECT()));
+      this->SetNthOutput(i, info->Get(vtkDataObject::DATA_OBJECT()));
       }
 
     // Copy whole extent from information objects into data objects
@@ -1142,7 +1142,7 @@ int vtkSource::ProcessDownstreamRequest(vtkInformation* request,
       if(this->Inputs[i])
         {
         vtkInformation* info = inputVector->GetInformationObject(0)
-          ->Get(vtkInformation::INPUT_CONNECTION_INFORMATION())
+          ->Get(vtkAlgorithm::INPUT_CONNECTION_INFORMATION())
           ->GetInformationObject(i);
         vtkSourceToDataObjectFriendship::
           CopyWholeExtentFromInformation(this->Inputs[i], info);
@@ -1178,7 +1178,7 @@ int vtkSource::ProcessDownstreamRequest(vtkInformation* request,
       {
       vtkInformation* info =
         this->GetExecutive()->GetOutputInformation(this, i);
-      this->SetNthOutput(i, info->Get(vtkInformation::DATA_OBJECT()));
+      this->SetNthOutput(i, info->Get(vtkDataObject::DATA_OBJECT()));
       }
     int outputPort = request->Get(vtkDemandDrivenPipeline::FROM_OUTPUT_PORT());
 

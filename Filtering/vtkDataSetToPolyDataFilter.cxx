@@ -17,7 +17,7 @@
 #include "vtkDataSet.h"
 #include "vtkInformation.h"
 
-vtkCxxRevisionMacro(vtkDataSetToPolyDataFilter, "1.17");
+vtkCxxRevisionMacro(vtkDataSetToPolyDataFilter, "1.18");
 
 //----------------------------------------------------------------------------
 vtkDataSetToPolyDataFilter::vtkDataSetToPolyDataFilter()
@@ -75,7 +75,7 @@ vtkDataSetToPolyDataFilter
     {
     return 0;
     }
-  info->Set(vtkInformation::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
   return 1;
 }
 

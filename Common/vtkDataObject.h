@@ -41,8 +41,10 @@ class vtkProcessObject;
 class vtkSource;
 class vtkSourceToDataObjectFriendship;
 class vtkExtentTranslator;
+class vtkInformationDataObjectKey;
 class vtkInformationIntegerKey;
 class vtkInformationIntegerVectorKey;
+class vtkInformationStringKey;
 
 #define VTK_PIECES_EXTENT   0
 #define VTK_3D_EXTENT       1
@@ -320,7 +322,31 @@ public:
   // with only one piece (no streaming possible).
   virtual int GetExtentType() { return VTK_PIECES_EXTENT; };
 
-  static vtkInformationIntegerKey* DATA_TYPE();
+  //BTX
+  // Description:
+  // Possible values for the FIELD_ASSOCIATION information entry.
+  enum FieldAssociations
+  {
+    FIELD_ASSOCIATION_POINTS,
+    FIELD_ASSOCIATION_CELLS,
+    FIELD_ASSOCIATION_NONE
+  };
+  //ETX
+
+  //BTX
+  // Description:
+  // Possible values for the FIELD_OPERATION information entry.
+  enum FieldOperations
+  {
+    FIELD_OPERATION_PRESERVED,
+    FIELD_OPERATION_REINTERPOLATED,
+    FIELD_OPERATION_MODIFIED,
+    FIELD_OPERATION_REMOVED
+  };
+  //ETX
+
+  static vtkInformationStringKey* DATA_TYPE_NAME();
+  static vtkInformationDataObjectKey* DATA_OBJECT();
   static vtkInformationIntegerKey* DATA_EXTENT_TYPE();
   static vtkInformationIntegerVectorKey* DATA_EXTENT();
   static vtkInformationIntegerKey* DATA_PIECE_NUMBER();
@@ -328,6 +354,13 @@ public:
   static vtkInformationIntegerKey* DATA_NUMBER_OF_GHOST_LEVELS();
   static vtkInformationIntegerKey* SCALAR_TYPE();
   static vtkInformationIntegerKey* SCALAR_NUMBER_OF_COMPONENTS();
+  static vtkInformationIntegerKey* FIELD_ARRAY_TYPE();
+  static vtkInformationIntegerKey* FIELD_ASSOCIATION();
+  static vtkInformationIntegerKey* FIELD_ATTRIBUTE_TYPE();
+  static vtkInformationIntegerKey* FIELD_NUMBER_OF_COMPONENTS();
+  static vtkInformationIntegerKey* FIELD_NUMBER_OF_TUPLES();
+  static vtkInformationIntegerKey* FIELD_OPERATION();
+  static vtkInformationStringKey* FIELD_NAME();
 
 protected:
 

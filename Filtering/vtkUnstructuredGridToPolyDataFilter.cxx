@@ -17,7 +17,7 @@
 #include "vtkInformation.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkUnstructuredGridToPolyDataFilter, "1.9");
+vtkCxxRevisionMacro(vtkUnstructuredGridToPolyDataFilter, "1.10");
 
 //----------------------------------------------------------------------------
 vtkUnstructuredGridToPolyDataFilter::vtkUnstructuredGridToPolyDataFilter()
@@ -73,7 +73,7 @@ vtkUnstructuredGridToPolyDataFilter
     {
     return 0;
     }
-  info->Set(vtkInformation::INPUT_REQUIRED_DATA_TYPE(), "vtkUnstructuredGrid");
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkUnstructuredGrid");
   return 1;
 }
 

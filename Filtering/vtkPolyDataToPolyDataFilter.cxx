@@ -17,7 +17,7 @@
 #include "vtkInformation.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkPolyDataToPolyDataFilter, "1.18");
+vtkCxxRevisionMacro(vtkPolyDataToPolyDataFilter, "1.19");
 
 //----------------------------------------------------------------------------
 vtkPolyDataToPolyDataFilter::vtkPolyDataToPolyDataFilter() 
@@ -53,8 +53,8 @@ int vtkPolyDataToPolyDataFilter::FillInputPortInformation(int port,
     {
     return 0;
     }
-  //info->Set(vtkInformation::INPUT_REQUIRED_DATA_TYPE(), "vtkPolyData"); HACK
-  info->Set(vtkInformation::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
+  //info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPolyData"); HACK
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
   return 1;
 }
 

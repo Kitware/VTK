@@ -20,7 +20,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageStencilSource, "1.6");
+vtkCxxRevisionMacro(vtkImageStencilSource, "1.7");
 vtkStandardNewMacro(vtkImageStencilSource);
 
 //----------------------------------------------------------------------------
@@ -111,6 +111,7 @@ int vtkImageStencilSource::FillOutputPortInformation(int port,
     {
     return 0;
     }
-  info->Set(vtkInformation::OUTPUT_DATA_TYPE(), "vtkImageStencilData");
+  info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkImageStencilData");
+  info->Set(vtkDataObject::DATA_EXTENT_TYPE(), VTK_3D_EXTENT);
   return 1;
 }

@@ -18,7 +18,7 @@
 #include "vtkInformation.h"
 #include "vtkStructuredPoints.h"
 
-vtkCxxRevisionMacro(vtkStructuredPointsToStructuredPointsFilter, "1.31");
+vtkCxxRevisionMacro(vtkStructuredPointsToStructuredPointsFilter, "1.32");
 
 //----------------------------------------------------------------------------
 vtkStructuredPointsToStructuredPointsFilter::vtkStructuredPointsToStructuredPointsFilter()
@@ -90,7 +90,7 @@ vtkStructuredPointsToStructuredPointsFilter
     {
     return 0;
     }
-  info->Set(vtkInformation::INPUT_REQUIRED_DATA_TYPE(), "vtkImageData");
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkImageData");
   return 1;
 }
 

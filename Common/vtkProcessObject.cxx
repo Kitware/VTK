@@ -27,7 +27,7 @@
 
 #include "vtkDebugLeaks.h"
 
-vtkCxxRevisionMacro(vtkProcessObject, "1.44");
+vtkCxxRevisionMacro(vtkProcessObject, "1.45");
 
 //----------------------------------------------------------------------------
 
@@ -489,10 +489,10 @@ void vtkProcessObject::SortMerge(vtkDataObject **a1, int l1,
 //----------------------------------------------------------------------------
 int vtkProcessObject::FillInputPortInformation(int, vtkInformation* info)
 {
-  info->Set(vtkInformation::INPUT_IS_REPEATABLE(), 1);
+  info->Set(vtkAlgorithm::INPUT_IS_REPEATABLE(), 1);
   if(this->NumberOfRequiredInputs == 0)
     {
-    info->Set(vtkInformation::INPUT_IS_OPTIONAL(), 1);
+    info->Set(vtkAlgorithm::INPUT_IS_OPTIONAL(), 1);
     }
   return 1;
 }

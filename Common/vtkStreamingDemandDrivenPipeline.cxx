@@ -24,7 +24,7 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 
-vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.16");
+vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.17");
 vtkStandardNewMacro(vtkStreamingDemandDrivenPipeline);
 
 //----------------------------------------------------------------------------
@@ -98,6 +98,10 @@ int vtkStreamingDemandDrivenPipeline::Update(vtkAlgorithm* algorithm, int port)
 //----------------------------------------------------------------------------
 int vtkStreamingDemandDrivenPipeline::ExecuteInformation()
 {
+  // Setup default information for the outputs.
+  this->CopyDefaultInformation();
+
+  // Let the superclass make the request to the algorithm.
   if(this->Superclass::ExecuteInformation())
     {
     // For each port, if the update extent has not been set
@@ -120,6 +124,71 @@ int vtkStreamingDemandDrivenPipeline::ExecuteInformation()
     {
     return 0;
     }
+}
+
+//----------------------------------------------------------------------------
+void vtkStreamingDemandDrivenPipeline::CopyDefaultInformation()
+{
+  // Disabling implementation until proper implementation is designed.
+#if 0
+  // Setup default information for the outputs.
+  if(this->Algorithm->GetNumberOfInputPorts() > 0)
+    {
+    // Copy information from the first input.
+    vtkInformation* inInfo = this->GetInputInformation(0);
+    for(int i=0; i < this->Algorithm->GetNumberOfOutputPorts(); ++i)
+      {
+      vtkInformation* outPort = this->Algorithm->GetOutputPortInformation(i);
+      if(outPort->Has(vtkDataObject::DATA_EXTENT_TYPE()))
+        {
+        vtkInformation* outInfo = this->GetOutputInformation(i);
+        if(outPort->Get(vtkDataObject::DATA_EXTENT_TYPE()) == VTK_3D_EXTENT)
+          {
+          if(inInfo->Has(WHOLE_EXTENT()))
+            {
+            int wholeExtent[6];
+            inInfo->Get(WHOLE_EXTENT(), wholeExtent);
+            outInfo->Set(WHOLE_EXTENT(), wholeExtent, 6);
+            }
+          }
+        else if(outPort->Get(vtkDataObject::DATA_EXTENT_TYPE()) ==
+                VTK_PIECES_EXTENT)
+          {
+          if(inInfo->Has(MAXIMUM_NUMBER_OF_PIECES()))
+            {
+            outInfo->Set(MAXIMUM_NUMBER_OF_PIECES(),
+                         inInfo->Get(MAXIMUM_NUMBER_OF_PIECES()));
+            }
+          else
+            {
+            // Since most unstructured filters in VTK generate all their
+            // data once, set the default maximum number of pieces to 1.
+            outInfo->Set(MAXIMUM_NUMBER_OF_PIECES(), 1);
+            }
+          }
+        }
+      }
+    }
+  else
+    {
+    // Setup default information.
+    for(int i=0; i < this->Algorithm->GetNumberOfOutputPorts(); ++i)
+      {
+      vtkInformation* outPort = this->Algorithm->GetOutputPortInformation(i);
+      if(outPort->Has(vtkDataObject::DATA_EXTENT_TYPE()))
+        {
+        vtkInformation* outInfo = this->GetOutputInformation(i);
+        if(outPort->Get(vtkDataObject::DATA_EXTENT_TYPE()) ==
+           VTK_PIECES_EXTENT)
+          {
+          // Since most unstructured filters in VTK generate all their
+          // data once, set the default maximum number of pieces to 1.
+          outInfo->Set(MAXIMUM_NUMBER_OF_PIECES(), 1);
+          }
+        }
+      }
+    }
+#endif
 }
 
 //----------------------------------------------------------------------------
@@ -223,7 +292,7 @@ int vtkStreamingDemandDrivenPipeline::VerifyOutputInformation(int outputPort)
 
   // Make sure there is a data object.  It is supposed to be created
   // by the ExecuteInformation step.
-  vtkDataObject* dataObject = outInfo->Get(vtkInformation::DATA_OBJECT());
+  vtkDataObject* dataObject = outInfo->Get(vtkDataObject::DATA_OBJECT());
   if(!dataObject)
     {
     vtkErrorMacro("No data object has been set in the information for "
@@ -352,7 +421,7 @@ int vtkStreamingDemandDrivenPipeline::NeedToExecuteData(int outputPort)
   // existence of values because it has already been verified by
   // VerifyOutputInformation.
   vtkInformation* outInfo = this->GetOutputInformation(outputPort);
-  vtkDataObject* dataObject = outInfo->Get(vtkInformation::DATA_OBJECT());
+  vtkDataObject* dataObject = outInfo->Get(vtkDataObject::DATA_OBJECT());
   vtkInformation* dataInfo = dataObject->GetInformation();
   if(dataInfo->Get(vtkDataObject::DATA_EXTENT_TYPE()) == VTK_PIECES_EXTENT)
     {

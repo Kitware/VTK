@@ -57,6 +57,7 @@ protected:
   ~vtkStreamingDemandDrivenPipeline();
 
   virtual int ExecuteInformation();
+  virtual void CopyDefaultInformation();
   int VerifyOutputInformation(int outputPort);
   virtual int NeedToExecuteData(int outputPort);
 private:

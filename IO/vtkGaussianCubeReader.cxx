@@ -25,7 +25,7 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkGaussianCubeReader, "1.9");
+vtkCxxRevisionMacro(vtkGaussianCubeReader, "1.10");
 vtkStandardNewMacro(vtkGaussianCubeReader);
 
 // Construct object with merging set to true.
@@ -224,6 +224,7 @@ int vtkGaussianCubeReader::FillOutputPortInformation(int port,
     {
     return this->Superclass::FillOutputPortInformation(port, info);
     }
-  info->Set(vtkInformation::OUTPUT_DATA_TYPE(), "vtkImageData");
+  info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkImageData");
+  info->Set(vtkDataObject::DATA_EXTENT_TYPE(), VTK_3D_EXTENT);
   return 1;
 }

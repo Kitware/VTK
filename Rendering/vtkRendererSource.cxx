@@ -27,7 +27,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkRendererSource, "1.54");
+vtkCxxRevisionMacro(vtkRendererSource, "1.55");
 vtkStandardNewMacro(vtkRendererSource);
 
 vtkCxxSetObjectMacro(vtkRendererSource,Input,vtkRenderer);
@@ -70,7 +70,7 @@ void vtkRendererSource::ExecuteData(vtkDataObject *outp)
 #ifdef VTK_USE_EXECUTIVES
   vtkInformation* info = outputVector->GetInformationObject(0);
   vtkImageData *output = 
-    vtkImageData::SafeDownCast(info->Get(vtkInformation::DATA_OBJECT()));
+    vtkImageData::SafeDownCast(info->Get(vtkDataObject::DATA_OBJECT()));
   int uExtent[6];
   info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), uExtent);
   output->SetExtent(uExtent);  
@@ -396,12 +396,12 @@ int vtkRendererSource::ProcessDownstreamRequest(
     
     // make sure the output is there
     vtkImageData *output = 
-      vtkImageData::SafeDownCast(info->Get(vtkInformation::DATA_OBJECT()));
+      vtkImageData::SafeDownCast(info->Get(vtkDataObject::DATA_OBJECT()));
     
     if (!output)
       {
       output = vtkImageData::New();
-      info->Set(vtkInformation::DATA_OBJECT(), output);
+      info->Set(vtkDataObject::DATA_OBJECT(), output);
       output->Delete();
       }
     output->SetScalarType(VTK_UNSIGNED_CHAR);
@@ -417,7 +417,7 @@ int vtkRendererSource::ProcessDownstreamRequest(
     // get the output data object
     vtkInformation* info = outputVector->GetInformationObject(0);
     vtkImageData *output = 
-      vtkImageData::SafeDownCast(info->Get(vtkInformation::DATA_OBJECT()));
+      vtkImageData::SafeDownCast(info->Get(vtkDataObject::DATA_OBJECT()));
     
     output->PrepareForNewData();
     
@@ -452,7 +452,8 @@ int vtkRendererSource::FillOutputPortInformation(
   int retVal = this->Superclass::FillOutputPortInformation(port, info);
   
   // now add our info
-  info->Set(vtkInformation::OUTPUT_DATA_TYPE(), "vtkImageData");
+  info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkImageData");
+  info->Set(vtkDataObject::DATA_EXTENT_TYPE(), VTK_3D_EXTENT);
   
   return retVal;
 }

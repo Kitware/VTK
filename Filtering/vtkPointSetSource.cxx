@@ -18,7 +18,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointSet.h"
 
-vtkCxxRevisionMacro(vtkPointSetSource, "1.12");
+vtkCxxRevisionMacro(vtkPointSetSource, "1.13");
 
 //----------------------------------------------------------------------------
 vtkPointSetSource::vtkPointSetSource()
@@ -59,7 +59,7 @@ int vtkPointSetSource::FillOutputPortInformation(int port,
     {
     return 0;
     }
-  info->Set(vtkInformation::OUTPUT_DATA_TYPE(), "vtkPointSet");
+  info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkPointSet");
   return 1;
 }
 

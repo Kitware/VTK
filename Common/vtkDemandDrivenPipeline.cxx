@@ -37,7 +37,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.10");
+vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.11");
 vtkStandardNewMacro(vtkDemandDrivenPipeline);
 
 //----------------------------------------------------------------------------
@@ -416,7 +416,7 @@ vtkDataObject* vtkDemandDrivenPipeline::GetOutputData(int port)
   // If the algorithm specifies the output type, make sure an instance
   // of the specified type is set as the output.
   vtkInformation* portInfo = this->Algorithm->GetOutputPortInformation(port);
-  if(const char* dt = portInfo->Get(vtkInformation::OUTPUT_DATA_TYPE()))
+  if(const char* dt = portInfo->Get(vtkDataObject::DATA_TYPE_NAME()))
     {
     if(!(data && data->IsA(dt)))
       {
@@ -446,7 +446,7 @@ vtkDataObject* vtkDemandDrivenPipeline::GetOutputData(int port)
     // algorithm create the output.
     if(this->UpdateInformation())
       {
-      data = info->Get(vtkInformation::DATA_OBJECT());
+      data = info->Get(vtkDataObject::DATA_OBJECT());
       if(!data)
         {
         // The algorithm has a bug and did not create the data object.
@@ -507,11 +507,11 @@ vtkDemandDrivenPipeline
     vtkInformation* info = inputVector->GetInformationObject(ip);
     int numConnections = this->Algorithm->GetNumberOfInputConnections(ip);
     vtkInformationVector* connInfo =
-      info->Get(vtkInformation::INPUT_CONNECTION_INFORMATION());
+      info->Get(vtkAlgorithm::INPUT_CONNECTION_INFORMATION());
     if(!connInfo)
       {
       connInfo = vtkInformationVector::New();
-      info->Set(vtkInformation::INPUT_CONNECTION_INFORMATION(), connInfo);
+      info->Set(vtkAlgorithm::INPUT_CONNECTION_INFORMATION(), connInfo);
       connInfo->Delete();
       }
     connInfo->SetNumberOfInformationObjects(numConnections);
@@ -621,7 +621,7 @@ int vtkDemandDrivenPipeline::InputTypeIsValid(int port, int index)
     }
 
   // Enforce required type, if any.
-  if(const char* dt = info->Get(vtkInformation::INPUT_REQUIRED_DATA_TYPE()))
+  if(const char* dt = info->Get(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE()))
     {
     // The input cannot be NULL.
     if(!input)
@@ -684,7 +684,7 @@ int vtkDemandDrivenPipeline::InputFieldsAreValid(int port, int index)
 {
   vtkInformation* info = this->Algorithm->GetInputPortInformation(port);
   vtkInformationVector* fields =
-    info->Get(vtkInformation::INPUT_REQUIRED_FIELDS());
+    info->Get(vtkAlgorithm::INPUT_REQUIRED_FIELDS());
 
   // If there are no required fields, there is nothing to check.
   if(!fields)
@@ -710,15 +710,15 @@ int vtkDemandDrivenPipeline::InputFieldsAreValid(int port, int index)
     int checkPoints = 1;
     int checkCells = 1;
     int checkFields = 1;
-    if(field->Has(vtkInformation::FIELD_ASSOCIATION()))
+    if(field->Has(vtkDataObject::FIELD_ASSOCIATION()))
       {
-      switch(field->Get(vtkInformation::FIELD_ASSOCIATION()))
+      switch(field->Get(vtkDataObject::FIELD_ASSOCIATION()))
         {
-        case vtkInformation::FIELD_ASSOCIATION_POINTS:
+        case vtkDataObject::FIELD_ASSOCIATION_POINTS:
           checkCells = 0; checkFields = 0; break;
-        case vtkInformation::FIELD_ASSOCIATION_CELLS:
+        case vtkDataObject::FIELD_ASSOCIATION_CELLS:
           checkPoints = 0; checkFields = 0; break;
-        case vtkInformation::FIELD_ASSOCIATION_NONE:
+        case vtkDataObject::FIELD_ASSOCIATION_NONE:
           checkPoints = 0; checkCells = 0; break;
         }
       }
@@ -749,10 +749,10 @@ int vtkDemandDrivenPipeline::InputFieldsAreValid(int port, int index)
 int vtkDemandDrivenPipeline::DataSetAttributeExists(vtkDataSetAttributes* dsa,
                                                     vtkInformation* field)
 {
-  if(field->Has(vtkInformation::FIELD_ATTRIBUTE_TYPE()))
+  if(field->Has(vtkDataObject::FIELD_ATTRIBUTE_TYPE()))
     {
     // A specific attribute must match the requirements.
-    int attrType = field->Get(vtkInformation::FIELD_ATTRIBUTE_TYPE());
+    int attrType = field->Get(vtkDataObject::FIELD_ATTRIBUTE_TYPE());
     return this->ArrayIsValid(dsa->GetAttribute(attrType), field);
     }
   else
@@ -790,7 +790,7 @@ int vtkDemandDrivenPipeline::ArrayIsValid(vtkDataArray* array,
 
   // Enforce name of the array.  This should really only be used for
   // field data (not point or cell data).
-  if(const char* name = field->Get(vtkInformation::FIELD_NAME()))
+  if(const char* name = field->Get(vtkDataObject::FIELD_NAME()))
     {
     if(!array->GetName() || (strcmp(name, array->GetName()) != 0))
       {
@@ -799,9 +799,9 @@ int vtkDemandDrivenPipeline::ArrayIsValid(vtkDataArray* array,
     }
 
   // Enforce component type for the array.
-  if(field->Has(vtkInformation::FIELD_ARRAY_TYPE()))
+  if(field->Has(vtkDataObject::FIELD_ARRAY_TYPE()))
     {
-    int arrayType = field->Get(vtkInformation::FIELD_ARRAY_TYPE());
+    int arrayType = field->Get(vtkDataObject::FIELD_ARRAY_TYPE());
     if(array->GetDataType() != arrayType)
       {
       return 0;
@@ -809,10 +809,10 @@ int vtkDemandDrivenPipeline::ArrayIsValid(vtkDataArray* array,
     }
 
   // Enforce number of components for the array.
-  if(field->Has(vtkInformation::FIELD_NUMBER_OF_COMPONENTS()))
+  if(field->Has(vtkDataObject::FIELD_NUMBER_OF_COMPONENTS()))
     {
     int arrayNumComponents =
-      field->Get(vtkInformation::FIELD_NUMBER_OF_COMPONENTS());
+      field->Get(vtkDataObject::FIELD_NUMBER_OF_COMPONENTS());
     if(array->GetNumberOfComponents() != arrayNumComponents)
       {
       return 0;
@@ -821,9 +821,9 @@ int vtkDemandDrivenPipeline::ArrayIsValid(vtkDataArray* array,
 
   // Enforce number of tuples.  This should really only be used for
   // field data (not point or cell data).
-  if(field->Has(vtkInformation::FIELD_NUMBER_OF_TUPLES()))
+  if(field->Has(vtkDataObject::FIELD_NUMBER_OF_TUPLES()))
     {
-    int arrayNumTuples = field->Get(vtkInformation::FIELD_NUMBER_OF_TUPLES());
+    int arrayNumTuples = field->Get(vtkDataObject::FIELD_NUMBER_OF_TUPLES());
     if(array->GetNumberOfTuples() != arrayNumTuples)
       {
       return 0;
@@ -838,7 +838,7 @@ int vtkDemandDrivenPipeline::InputIsOptional(int port)
 {
   if(vtkInformation* info = this->Algorithm->GetInputPortInformation(port))
     {
-    return info->Get(vtkInformation::INPUT_IS_OPTIONAL());
+    return info->Get(vtkAlgorithm::INPUT_IS_OPTIONAL());
     }
   return 0;
 }
@@ -848,7 +848,7 @@ int vtkDemandDrivenPipeline::InputIsRepeatable(int port)
 {
   if(vtkInformation* info = this->Algorithm->GetInputPortInformation(port))
     {
-    return info->Get(vtkInformation::INPUT_IS_REPEATABLE());
+    return info->Get(vtkAlgorithm::INPUT_IS_REPEATABLE());
     }
   return 0;
 }
@@ -899,7 +899,7 @@ void vtkDemandDrivenPipeline::ReportReferences(vtkGarbageCollector* collector)
   for(int i=0; i < this->Algorithm->GetNumberOfOutputPorts(); ++i)
     {
     collector->ReportReference(
-      this->GetOutputInformation(i)->Get(vtkInformation::DATA_OBJECT()),
+      this->GetOutputInformation(i)->Get(vtkDataObject::DATA_OBJECT()),
       "AlgorithmOutput");
     }
 }
@@ -909,7 +909,7 @@ void vtkDemandDrivenPipeline::RemoveReferences()
 {
   for(int i=0; i < this->Algorithm->GetNumberOfOutputPorts(); ++i)
     {
-    this->GetOutputInformation(i)->Remove(vtkInformation::DATA_OBJECT());
+    this->GetOutputInformation(i)->Remove(vtkDataObject::DATA_OBJECT());
     }
   this->Superclass::RemoveReferences();
 }

@@ -30,11 +30,14 @@
 #include "vtkObject.h"
 
 class vtkAlgorithmInternals;
+class vtkAlgorithmOutput;
 class vtkDataObject;
 class vtkExecutive;
 class vtkInformation;
+class vtkInformationInformationVectorKey;
+class vtkInformationIntegerKey;
+class vtkInformationStringKey;
 class vtkInformationVector;
-class vtkAlgorithmOutput;
 
 class VTK_COMMON_EXPORT vtkAlgorithm : public vtkObject
 {
@@ -193,6 +196,13 @@ public:
   // left public for performance since it is used in inner loops
   int AbortExecute;
 
+  // Description:
+  // Keys used to specify input port requirements.
+  static vtkInformationIntegerKey* INPUT_IS_OPTIONAL();
+  static vtkInformationIntegerKey* INPUT_IS_REPEATABLE();
+  static vtkInformationInformationVectorKey* INPUT_CONNECTION_INFORMATION();
+  static vtkInformationInformationVectorKey* INPUT_REQUIRED_FIELDS();
+  static vtkInformationStringKey* INPUT_REQUIRED_DATA_TYPE();
 protected:
   vtkAlgorithm();
   ~vtkAlgorithm();

@@ -32,7 +32,7 @@
 #include <vtkstd/string>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkInformation, "1.17");
+vtkCxxRevisionMacro(vtkInformation, "1.18");
 vtkStandardNewMacro(vtkInformation);
 
 #ifdef VTK_DEBUG_LEAKS
@@ -244,29 +244,6 @@ VTK_INFORMATION_DEFINE_OBJECT_PROPERTY(InformationVector);
 
 VTK_INFORMATION_DEFINE_SCALAR_PROPERTY(Integer, int);
 //VTK_INFORMATION_DEFINE_SCALAR_PROPERTY(Float, float);
-
-#define VTK_INFORMATION_DEFINE_KEY_METHOD(NAME, type)                       \
-  vtkInformation##type##Key* vtkInformation::NAME()                         \
-    {                                                                       \
-    static vtkInformation##type##Key instance(#NAME, "vtkInformation");     \
-    return &instance;                                                       \
-    }
-
-VTK_INFORMATION_DEFINE_KEY_METHOD(OUTPUT_DATA_TYPE, String);
-VTK_INFORMATION_DEFINE_KEY_METHOD(INPUT_REQUIRED_DATA_TYPE, String);
-VTK_INFORMATION_DEFINE_KEY_METHOD(INPUT_IS_OPTIONAL, Integer);
-VTK_INFORMATION_DEFINE_KEY_METHOD(INPUT_IS_REPEATABLE, Integer);
-VTK_INFORMATION_DEFINE_KEY_METHOD(INPUT_CONNECTION_INFORMATION, InformationVector);
-VTK_INFORMATION_DEFINE_KEY_METHOD(INPUT_REQUIRED_FIELDS, InformationVector);
-VTK_INFORMATION_DEFINE_KEY_METHOD(OUTPUT_PROVIDED_FIELDS, InformationVector);
-VTK_INFORMATION_DEFINE_KEY_METHOD(DATA_OBJECT, DataObject);
-VTK_INFORMATION_DEFINE_KEY_METHOD(FIELD_ARRAY_TYPE, Integer);
-VTK_INFORMATION_DEFINE_KEY_METHOD(FIELD_ASSOCIATION, Integer);
-VTK_INFORMATION_DEFINE_KEY_METHOD(FIELD_ATTRIBUTE_TYPE, Integer);
-VTK_INFORMATION_DEFINE_KEY_METHOD(FIELD_NAME, String);
-VTK_INFORMATION_DEFINE_KEY_METHOD(FIELD_NUMBER_OF_COMPONENTS, Integer);
-VTK_INFORMATION_DEFINE_KEY_METHOD(FIELD_NUMBER_OF_TUPLES, Integer);
-VTK_INFORMATION_DEFINE_KEY_METHOD(FIELD_OPERATION, Integer);
 
 //----------------------------------------------------------------------------
 #define VTK_INFORMATION_DEFINE_VECTOR_PROPERTY(name, type)                  \

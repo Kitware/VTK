@@ -17,7 +17,7 @@
 #include "vtkInformation.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkUnstructuredGridToUnstructuredGridFilter, "1.14");
+vtkCxxRevisionMacro(vtkUnstructuredGridToUnstructuredGridFilter, "1.15");
 
 //----------------------------------------------------------------------------
 vtkUnstructuredGridToUnstructuredGridFilter::vtkUnstructuredGridToUnstructuredGridFilter()
@@ -59,7 +59,7 @@ vtkUnstructuredGridToUnstructuredGridFilter
     {
     return 0;
     }
-  info->Set(vtkInformation::INPUT_REQUIRED_DATA_TYPE(), "vtkUnstructuredGrid");
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkUnstructuredGrid");
   return 1;
 }
 

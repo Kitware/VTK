@@ -16,17 +16,20 @@
 
 #include "vtkAlgorithmOutput.h"
 #include "vtkCommand.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkGarbageCollector.h"
 #include "vtkInformation.h"
+#include "vtkInformationInformationVectorKey.h"
+#include "vtkInformationIntegerKey.h"
+#include "vtkInformationStringKey.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
 #include <vtkstd/set>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkAlgorithm, "1.15");
+vtkCxxRevisionMacro(vtkAlgorithm, "1.16");
 vtkStandardNewMacro(vtkAlgorithm);
 
 vtkCxxSetObjectMacro(vtkAlgorithm,Information,vtkInformation);
@@ -720,3 +723,17 @@ void vtkAlgorithm::RemoveReferences()
   this->AlgorithmInternal->OutputPorts.clear();
   this->Superclass::RemoveReferences();
 }
+
+//----------------------------------------------------------------------------
+// Define information keys for algorithms.
+#define VTK_ALGORITHM_DEFINE_KEY_METHOD(NAME, type)                         \
+  vtkInformation##type##Key* vtkAlgorithm::NAME()                           \
+    {                                                                       \
+    static vtkInformation##type##Key instance(#NAME, "vtkAlgorithm");       \
+    return &instance;                                                       \
+    }
+VTK_ALGORITHM_DEFINE_KEY_METHOD(INPUT_REQUIRED_DATA_TYPE, String);
+VTK_ALGORITHM_DEFINE_KEY_METHOD(INPUT_IS_OPTIONAL, Integer);
+VTK_ALGORITHM_DEFINE_KEY_METHOD(INPUT_IS_REPEATABLE, Integer);
+VTK_ALGORITHM_DEFINE_KEY_METHOD(INPUT_CONNECTION_INFORMATION, InformationVector);
+VTK_ALGORITHM_DEFINE_KEY_METHOD(INPUT_REQUIRED_FIELDS, InformationVector);

@@ -17,7 +17,7 @@
 #include "vtkHierarchicalBoxDataSet.h"
 #include "vtkInformation.h"
 
-vtkCxxRevisionMacro(vtkHierarchicalBoxToHierarchicalBoxFilter, "1.4");
+vtkCxxRevisionMacro(vtkHierarchicalBoxToHierarchicalBoxFilter, "1.5");
 
 //----------------------------------------------------------------------------
 vtkHierarchicalBoxToHierarchicalBoxFilter::vtkHierarchicalBoxToHierarchicalBoxFilter()
@@ -60,7 +60,7 @@ vtkHierarchicalBoxToHierarchicalBoxFilter
     {
     return 0;
     }
-  info->Set(vtkInformation::INPUT_REQUIRED_DATA_TYPE(), "vtkHierarchicalBoxDataSet");
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkHierarchicalBoxDataSet");
   return 1;
 }
 

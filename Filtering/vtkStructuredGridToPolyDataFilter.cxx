@@ -17,7 +17,7 @@
 #include "vtkInformation.h"
 #include "vtkStructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkStructuredGridToPolyDataFilter, "1.16");
+vtkCxxRevisionMacro(vtkStructuredGridToPolyDataFilter, "1.17");
 
 //----------------------------------------------------------------------------
 vtkStructuredGridToPolyDataFilter::vtkStructuredGridToPolyDataFilter()
@@ -59,7 +59,7 @@ vtkStructuredGridToPolyDataFilter
     {
     return 0;
     }
-  info->Set(vtkInformation::INPUT_REQUIRED_DATA_TYPE(), "vtkStructuredGrid");
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkStructuredGrid");
   return 1;
 }
 

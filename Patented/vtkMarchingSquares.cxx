@@ -51,7 +51,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkMarchingSquares, "1.59");
+vtkCxxRevisionMacro(vtkMarchingSquares, "1.60");
 vtkStandardNewMacro(vtkMarchingSquares);
 
 // Description:
@@ -589,7 +589,7 @@ int vtkMarchingSquares::FillInputPortInformation(int port,
     {
     return 0;
     }
-  info->Set(vtkInformation::INPUT_REQUIRED_DATA_TYPE(), "vtkImageData");
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkImageData");
   return 1;
 }
 

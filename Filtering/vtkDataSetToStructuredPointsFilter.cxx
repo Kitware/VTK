@@ -17,7 +17,7 @@
 #include "vtkInformation.h"
 #include "vtkStructuredPoints.h"
 
-vtkCxxRevisionMacro(vtkDataSetToStructuredPointsFilter, "1.31");
+vtkCxxRevisionMacro(vtkDataSetToStructuredPointsFilter, "1.32");
 
 //----------------------------------------------------------------------------
 vtkDataSetToStructuredPointsFilter::vtkDataSetToStructuredPointsFilter()
@@ -84,7 +84,7 @@ vtkDataSetToStructuredPointsFilter
     {
     return 0;
     }
-  info->Set(vtkInformation::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
   return 1;
 }
 

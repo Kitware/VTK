@@ -17,7 +17,7 @@
 #include "vtkHierarchicalBoxDataSet.h"
 #include "vtkInformation.h"
 
-vtkCxxRevisionMacro(vtkHierarchicalBoxToPolyDataFilter, "1.4");
+vtkCxxRevisionMacro(vtkHierarchicalBoxToPolyDataFilter, "1.5");
 
 //----------------------------------------------------------------------------
 vtkHierarchicalBoxToPolyDataFilter::vtkHierarchicalBoxToPolyDataFilter()
@@ -60,7 +60,7 @@ vtkHierarchicalBoxToPolyDataFilter
     {
     return 0;
     }
-  info->Set(vtkInformation::INPUT_REQUIRED_DATA_TYPE(), "vtkHierarchicalBoxDataSet");
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkHierarchicalBoxDataSet");
   return 1;
 }
 

@@ -18,7 +18,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkDataSet.h"
 
-vtkCxxRevisionMacro(vtkDataSetSource, "1.14");
+vtkCxxRevisionMacro(vtkDataSetSource, "1.15");
 
 vtkDataSetSource::vtkDataSetSource()
 {
@@ -55,7 +55,7 @@ int vtkDataSetSource::FillOutputPortInformation(int port, vtkInformation* info)
     {
     return 0;
     }
-  info->Set(vtkInformation::OUTPUT_DATA_TYPE(), "vtkDataSet");
+  info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkDataSet");
   return 1;
 }
 
