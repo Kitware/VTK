@@ -21,13 +21,13 @@
 #ifndef __vtkImageRGBToHSI_h
 #define __vtkImageRGBToHSI_h
 
-#include "vtkImageToImageFilter.h"
+#include "vtkImageAlgorithm.h"
 
-class VTK_IMAGING_EXPORT vtkImageRGBToHSI : public vtkImageToImageFilter
+class VTK_IMAGING_EXPORT vtkImageRGBToHSI : public vtkImageAlgorithm
 {
 public:
   static vtkImageRGBToHSI *New();
-  vtkTypeRevisionMacro(vtkImageRGBToHSI,vtkImageToImageFilter);
+  vtkTypeRevisionMacro(vtkImageRGBToHSI,vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -43,7 +43,7 @@ protected:
 
   double Maximum;
   
-  void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
+  void ThreadedExecute (vtkImageData ***inData, vtkImageData **outData,
                        int ext[6], int id);
 private:
   vtkImageRGBToHSI(const vtkImageRGBToHSI&);  // Not implemented.
