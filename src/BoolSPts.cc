@@ -210,7 +210,7 @@ void vlBooleanStructuredPoints::Append(vlStructuredPoints *sp)
       for (k = 0; k < this->SampleDimensions[2]; k++)
 	{
 	in_z = dest_bounds[4] + k*this->AspectRatio[2];
-	in_k = (in_z - in_bounds[4])/in_aspect[2];
+	in_k = int ((float)(in_z - in_bounds[4])/in_aspect[2]);
 	if ((in_k >= 0)&&(in_k < in_dimensions[2]))
 	  {
 	  in_kval = in_k*in_dimensions[0]*in_dimensions[1];
@@ -218,7 +218,7 @@ void vlBooleanStructuredPoints::Append(vlStructuredPoints *sp)
 	  for (j = 0; j < this->SampleDimensions[1]; j++)
 	    {
 	    in_y = dest_bounds[2] + j*this->AspectRatio[1];
-	    in_j = (in_y - in_bounds[2])/in_aspect[1];
+	    in_j = (int) ((float)(in_y - in_bounds[2])/in_aspect[1]);
 	    if ((in_j >= 0)&&(in_j < in_dimensions[1]))
 	      {
 	      in_jval = in_j*in_dimensions[0];
@@ -226,7 +226,7 @@ void vlBooleanStructuredPoints::Append(vlStructuredPoints *sp)
 	      for (i = 0; i < this->SampleDimensions[0]; i++)
 		{
 		in_x = dest_bounds[0] + i*this->AspectRatio[0];
-		in_i = (in_x - in_bounds[0])/in_aspect[0];
+		in_i = (int) ((float)(in_x - in_bounds[0])/in_aspect[0]);
 		if ((in_i >= 0)&&(in_i < in_dimensions[0]))
 		  {
 		  if (inScalars->GetScalar(in_kval+in_jval+in_i))

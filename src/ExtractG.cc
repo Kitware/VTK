@@ -35,7 +35,7 @@ void vlExtractGeometry::Execute()
   vlPointData *pd;
   float *x;
   float r2=this->Radius*this->Radius;
-  vlFloatPoints *newPoints;
+  vlFloatPoints *newPts;
   vlIdList newCellPts(MAX_CELL_SIZE);
 
   vlDebugMacro(<< "Extracting geometry in sphere");
@@ -48,6 +48,7 @@ void vlExtractGeometry::Execute()
   pointMap = new vlIdList(numPts); // maps old point ids into new
   for (i=0; i < numPts; i++) pointMap->SetId(i,-1);
 
+  newPts = new vlFloatPoints(numPts/4,numPts);
   pd = this->Input->GetPointData();
   this->PointData.CopyAllocate(pd);
   
@@ -56,7 +57,7 @@ void vlExtractGeometry::Execute()
     x = this->Input->GetPoint(ptId);
     if ( math.Distance2BetweenPoints(x,this->Center) <= r2 )
       {
-      newId = newPoints->InsertNextPoint(x);
+      newId = newPts->InsertNextPoint(x);
       pointMap->SetId(ptId,newId);
       this->PointData.CopyData(pd,ptId,newId);
       }
@@ -88,7 +89,7 @@ void vlExtractGeometry::Execute()
 //
   delete pointMap;
 
-  this->SetPoints(newPoints);
+  this->SetPoints(newPts);
   this->Squeeze();
 }
 

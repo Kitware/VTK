@@ -51,6 +51,12 @@ void vlTextureMapToBox::Execute()
 //
 //  Allocate texture data
 //
+  if ( (numPts=this->Input->GetNumberOfPoints()) < 1 )
+    {
+    vlErrorMacro(<<"No points to texture!");
+    return;
+    }
+
   newTCoords = new vlFloatTCoords(numPts,3);
 
   if ( this->AutomaticBoxGeneration ) 

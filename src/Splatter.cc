@@ -157,7 +157,7 @@ void vlGaussianSplatter::Execute()
       vlDebugMacro(<< "Vertex #" << ptId);
 
     for (i=0; i<3; i++)  
-      loc[i] = (P[i] - this->Origin[i]) / this->AspectRatio[i];
+      loc[i] = (int) ((float)(P[i] - this->Origin[i]) / this->AspectRatio[i]);
 //
 //  For each of the eight corners of the cell, need to evaluate sample
 //  function and then begin recursive distribution

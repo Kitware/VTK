@@ -131,8 +131,10 @@ void vlImplicitModeller::Execute()
     // compute dimensional bounds in data set
     for (i=0; i<3; i++)
       {
-      min[i] = (adjBounds[2*i] - this->Origin[i]) / this->AspectRatio[i];
-      max[i] = (adjBounds[2*i+1] - this->Origin[i]) / this->AspectRatio[i];
+      min[i] = (int) ((float)(adjBounds[2*i] - this->Origin[i]) / 
+                      this->AspectRatio[i]);
+      max[i] = (int) ((float)(adjBounds[2*i+1] - this->Origin[i]) / 
+                      this->AspectRatio[i]);
       if (min[i] < 0) min[i] = 0;
       if (max[i] >= this->SampleDimensions[i]) max[i] = this->SampleDimensions[i] - 1;
       }
