@@ -167,7 +167,9 @@ static void vtkImageShrink3DExecute(vtkImageShrink3D *self,
   tmpPtr2 = inPtr;
   outPtr2 = outPtr;
   for (outIdx2 = min2; outIdx2 <= max2; ++outIdx2)
-    {
+  {
+    self->UpdateProgress( (float) (outIdx2 - min2 + 1) / (float)(max2 - min2));
+    
     tmpPtr1 = tmpPtr2;
     outPtr1 = outPtr2;
     for (outIdx1 = min1; outIdx1 <= max1; ++outIdx1)
