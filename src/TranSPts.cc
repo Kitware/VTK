@@ -174,7 +174,8 @@ unsigned long int vlTransformStructuredPoints::GetMTime()
   unsigned long int mtime = 0;
 
   if ( this->Transform ) mtime = this->Transform->GetMTime();
-  return ( mtime > this->MTime ? mtime : this->MTime );
+  if (mtime > this->MTime) return mtime;
+  return this->MTime;
 }
 
 
