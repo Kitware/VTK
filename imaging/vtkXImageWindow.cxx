@@ -595,8 +595,9 @@ void vtkXImageWindow::SetPosition(int x, int y)
     return;
     }
 
-  XMoveResizeWindow(this->DisplayId,this->WindowId,x,y,
-                    this->Size[0], this->Size[1]);
+  // This is different from vtkXRenderWindow which calls XMoveResizeWindow.
+  // XMoveResizeWindow cannot be called here beacuse, this->Size[] may be zero.
+  XMoveWindow(this->DisplayId,this->WindowId,x,y);
   XSync(this->DisplayId,False);
 }
 
