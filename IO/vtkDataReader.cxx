@@ -1030,7 +1030,7 @@ vtkDataArray *vtkDataReader::ReadArray(const char *dataType, int numTuples, int 
     if ( this->FileType == VTK_BINARY )
       {
       ReadBinaryData(this->IS, ptr, numTuples, numComp);
-      //      vtkByteSwap::Swap4BERange(ptr,numTuples*numComp);
+      vtkByteSwap::Swap8BERange(ptr,numTuples*numComp);
       }
     else 
       {

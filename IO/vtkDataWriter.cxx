@@ -470,21 +470,25 @@ static void WriteDataArray(ostream *fp, T *data, int fileType, const char *forma
     }
   else
     {
-    // need to byteswap ??
-    switch (sizeT)
-      {
-      case 2:
-        // typecast doesn't have to be valid here
-        vtkByteSwap::SwapWrite2BERange((short *)data,num*numComp, fp);
-        break;
-      case 4:
-        // typecast doesn't have to be valid here
-        vtkByteSwap::SwapWrite4BERange((float *)data,num*numComp, fp);
-        break;
-      default:
-        fp->write((char *)data, ( sizeof(T))*( num*numComp));
+      // need to byteswap ??
+      switch (sizeT)
+        {
+        case 2:
+          // typecast doesn't have to be valid here
+          vtkByteSwap::SwapWrite2BERange((short *)data,num*numComp, fp);
+          break;
+        case 4:
+          // typecast doesn't have to be valid here
+          vtkByteSwap::SwapWrite4BERange((float *)data,num*numComp, fp);
+          break;
+        case 8:
+          // typecast doesn't have to be valid here
+          vtkByteSwap::SwapWrite8BERange((double *)data,num*numComp, fp);
+          break;
+        default:
+          fp->write((char *)data, ( sizeof(T))*( num*numComp));
 
-      }
+        }
     }
   *fp << "\n";
 }
