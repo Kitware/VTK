@@ -19,6 +19,8 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include <math.h>
 #include "DataSet.hh"
 
+// Description:
+// Constructor with default bounds (0,1, 0,1, 0,1).
 vlDataSet::vlDataSet ()
 {
   this->Bounds[0] = 0.0;
@@ -35,6 +37,8 @@ void vlDataSet::Initialize()
   this->Modified();
 };
 
+// Description:
+// Compute the data bounding box from data points.
 void vlDataSet::ComputeBounds()
 {
   int i, j;
@@ -58,12 +62,17 @@ void vlDataSet::ComputeBounds()
     }
 }
 
+// Description:
+// Return a pointer to the geometry bounding box in the form
+// (xmin,xmax, ymin,ymax, zmin,zmax).
 float *vlDataSet::GetBounds()
 {
   this->ComputeBounds();
   return this->Bounds;
 }
   
+// Description:
+// Get the center of the bounding box.
 float *vlDataSet::GetCenter()
 {
   static float center[3];
@@ -74,6 +83,8 @@ float *vlDataSet::GetCenter()
   return center;
 }
 
+// Description:
+// Return the length of the diagonal of the bounding box.
 float vlDataSet::GetLength()
 {
   double diff, l=0.0;

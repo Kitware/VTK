@@ -6,8 +6,6 @@
   Date:      $Date$
   Version:   $Revision$
 
-Description:
----------------------------------------------------------------------------
 This file is part of the Visualization Library. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
@@ -15,9 +13,13 @@ without the express written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-//
-// Abstract class for specifying dataset behaviour
-//
+// .NAME vlDataSet - abstract class to specify dataset behavior
+// .SECTION Description
+// vlDataSet is an abstract class that specifies an interface for 
+// data objects. (Data objects are synomous with datasets). vlDataSet
+// also provides methods to provide informations about the data such
+// as center, bounding box, and representative length.
+
 #ifndef __vlDataSet_h
 #define __vlDataSet_h
 
@@ -34,37 +36,61 @@ public:
   char *GetClassName() {return "vlDataSet";};
   void PrintSelf(ostream& os, vlIndent indent);
 
-  // restore data to initial state (i.e., release memory, etc.)
+  // Description:
+  // Restore data object to initial state (i.e., release memory, etc.).
   virtual void Initialize();
-  // absorb update methods which propagate through network
+
+  // Description:
+  // Absorb update methods which propagate through network.
   virtual void Update() {};
 
-  // Create concrete instance of this dataset
+  // Description:
+  // Create concrete instance of this dataset.
   virtual vlDataSet *MakeObject() = 0;
-  // return class name of data type
+
+  // Description:
+  // Return class name of data type.
   virtual char *GetDataType() = 0;
 
-  // Determine number of points and cells composing dataset
+  // Description:
+  // Determine number of points composing dataset.
   virtual int GetNumberOfPoints() = 0;
+
+  // Description:
+  // Determine number of cells composing dataset.
   virtual int GetNumberOfCells() = 0;
 
-  // Get point or cell of id 0<=cellId<NumberOfPoints/Cells
+  // Description:
+  // Get point coordinates with ptId such that: 0 <= ptId < NumberOfPoints
   virtual float *GetPoint(int ptId) = 0;
+
+  // Description:
+  // Get cell with cellId such that: 0 <= cellId < NumberOfCells
   virtual vlCell *GetCell(int cellId) = 0;
+
+  // Description:
+  // Get type of cell with cellId such that: 0 <= cellId < NumberOfCells
   virtual int GetCellType(int cellId) = 0;
 
-  // topological inquiries to get neighbors and cells that use a point
+  // Description:
+  // Topological inquiry to get points defining cell.
   virtual void GetCellPoints(int cellId, vlIdList& ptIds) = 0;
-  virtual void GetPointCells(int ptId, vlIdList& cellIds) = 0;
-  virtual void GetCellNeighbors(int cellId, vlIdList& ptIds, 
-                                vlIdList& cellIds);
 
-  // Locate cell based on global coordinate x and tolerance squared.  If cell 
-  // is non-Null, then search starts from this cell and looks at 
-  // immediate neighbors. Returns cellId >= 0 if inside, < 0 otherwise.  The
-  // parametric coords are provided in pcoords[3].
-  virtual int FindCell(float x[3], vlCell *cell, float tol2, 
-                       int& subId, float pcoords[3]) = 0;
+  // Description:
+  // Topological inquiry to get cells using point.
+  virtual void GetPointCells(int ptId, vlIdList& cellIds) = 0;
+
+  // Description:
+  // Topological inquiry to get all cells using list of points exclusive of
+  // cell specified (e.g., cellId)
+  virtual void GetCellNeighbors(int cellId, vlIdList& ptIds, vlIdList& cellIds);
+
+  // Description:
+  // Locate cell based on global coordinate x and tolerance squared. If
+  // cell is non-NULL, then search starts from this cell and looks at 
+  // immediate neighbors. Returns cellId >= 0 if inside, < 0 otherwise.
+  // The parametric coordinates are provided in pcoords[3].
+  virtual int FindCell(float x[3], vlCell *cell, float tol2, int& subId, float pcoords[3]) = 0;
 
   // some data sets are composite objects and need to check each part for MTime
   unsigned long int GetMTime();
@@ -78,7 +104,8 @@ public:
   // return pointer to this dataset's point data
   vlPointData *GetPointData() {return &this->PointData;};
 
-  // reclaim memory
+  // Description:
+  // Reclaim any extra memory used to store data.
   virtual void Squeeze();
 
 protected:
