@@ -82,7 +82,7 @@ public:
   // Returns the luminance value for the specified scalar value.
   float GetLuminance(float x) 
     {float rgb[3]; this->GetColor(x,rgb);
-    return rgb[0]*0.30 + rgb[1]*0.59 + rgb[2]*0.11;}
+    return static_cast<float>(rgb[0]*0.30 + rgb[1]*0.59 + rgb[2]*0.11);}
 
   // Description:
   // Specify an additional opacity (alpha) value to blend with. Values

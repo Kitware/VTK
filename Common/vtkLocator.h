@@ -92,7 +92,7 @@ public:
   // Description:
   // Specify absolute tolerance (in world coordinates) for performing
   // geometric operations.
-  vtkSetClampMacro(Tolerance,float,0.0,VTK_LARGE_FLOAT);
+  vtkSetClampMacro(Tolerance,float,0.0f,VTK_LARGE_FLOAT);
   vtkGetMacro(Tolerance,float);
 
   // Description:

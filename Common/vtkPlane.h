@@ -119,8 +119,8 @@ inline float vtkPlane::Evaluate(float normal[3], float origin[3], float x[3])
 }
 inline float vtkPlane::Evaluate(double normal[3], double origin[3],double x[3])
 {
-  return normal[0]*(x[0]-origin[0]) + normal[1]*(x[1]-origin[1]) + 
-         normal[2]*(x[2]-origin[2]);
+  return static_cast<float> (normal[0]*(x[0]-origin[0]) + normal[1]*(x[1]-origin[1]) + 
+         normal[2]*(x[2]-origin[2]));
 }
 
 inline float vtkPlane::DistanceToPlane(float x[3], float n[3], float p0[3])

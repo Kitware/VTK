@@ -184,7 +184,7 @@ private:
 
 inline int vtkTriangle::GetParametricCenter(float pcoords[3])
 {
-  pcoords[0] = pcoords[1] = 0.333; pcoords[2] = 0.0;
+  pcoords[0] = pcoords[1] = 0.333f; pcoords[2] = 0.0;
   return 0;
 }
 
@@ -209,7 +209,7 @@ inline void vtkTriangle::ComputeNormal(float v1[3], float v2[3],
   
   vtkTriangle::ComputeNormalDirection(v1, v2, v3, n);
   
-  if ( (length = sqrt((n[0]*n[0] + n[1]*n[1] + n[2]*n[2]))) != 0.0 )
+  if ( (length = static_cast<float>(sqrt((n[0]*n[0] + n[1]*n[1] + n[2]*n[2])))) != 0.0 )
     {
     n[0] /= length;
     n[1] /= length;
@@ -249,9 +249,9 @@ inline void vtkTriangle::ComputeNormal(double v1[3], double v2[3],
 inline void vtkTriangle::TriangleCenter(float p1[3], float p2[3], float p3[3],
                                        float center[3])
 {
-  center[0] = (p1[0]+p2[0]+p3[0]) / 3.0;
-  center[1] = (p1[1]+p2[1]+p3[1]) / 3.0;
-  center[2] = (p1[2]+p2[2]+p3[2]) / 3.0;
+  center[0] = (p1[0]+p2[0]+p3[0]) / 3.0f;
+  center[1] = (p1[1]+p2[1]+p3[1]) / 3.0f;
+  center[2] = (p1[2]+p2[2]+p3[2]) / 3.0f;
 }
 
 inline float vtkTriangle::TriangleArea(float p1[3], float p2[3], float p3[3])
@@ -260,7 +260,7 @@ inline float vtkTriangle::TriangleArea(float p1[3], float p2[3], float p3[3])
   a = vtkMath::Distance2BetweenPoints(p1,p2);
   b = vtkMath::Distance2BetweenPoints(p2,p3);
   c = vtkMath::Distance2BetweenPoints(p3,p1);
-  return (0.25* sqrt(fabs((double)4.0*a*c - (a-b+c)*(a-b+c))));
+  return static_cast<float>(0.25* sqrt(fabs((double)4.0*a*c - (a-b+c)*(a-b+c))));
 } 
 
 #endif

@@ -92,7 +92,7 @@ public:
 
   // Description:
   // Set/Get the execution progress of a process object.
-  vtkSetClampMacro(Progress,float,0.0,1.0);
+  vtkSetClampMacro(Progress,float,0.0f,1.0f);
   vtkGetMacro(Progress,float);
 
   // Description:

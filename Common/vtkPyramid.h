@@ -103,8 +103,8 @@ private:
 
 inline int vtkPyramid::GetParametricCenter(float pcoords[3])
 {
-  pcoords[0] = pcoords[1] = 0.5;
-  pcoords[2] = 0.333333;
+  pcoords[0] = pcoords[1] = 0.5f;
+  pcoords[2] = 0.333333f;
   return 0;
 }
 

@@ -157,7 +157,7 @@ public:
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
   // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
-  float  GetArraySize () { return this->ArraySize; };
+  float  GetArraySize () { return static_cast<float>(this->ArraySize); };
 
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE

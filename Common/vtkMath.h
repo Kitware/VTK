@@ -36,13 +36,15 @@ public:
   
   // Description:
   // Useful constants.
-  static float Pi() {return 3.14159265358979;};
-  static float DegreesToRadians() {return 0.017453292;};
-  static float RadiansToDegrees() {return 57.2957795131;};
+  static float Pi() {return 3.14159265358979f;};
+  static float DegreesToRadians() {return 0.017453292f;};
+  static float RadiansToDegrees() {return 57.2957795131f;};
 
   // Description:
   // Useful constants. (double-precision version)
   static double DoubleDegreesToRadians() {return 0.017453292519943295;};
+  static double DoublePi() {return 3.1415926535897932384626;};
+  static double DoubleRadiansToDegrees() {return 57.29577951308232;};
 
   // Description:
   // Rounds a float to the nearest integer.
@@ -77,7 +79,7 @@ public:
   // Description:
   // Compute the norm of 3-vector.
   static float Norm(const float x[3]) {
-    return sqrt(x[0]*x[0] + x[1]*x[1] + x[2]*x[2]);};
+    return static_cast<float> (sqrt(x[0]*x[0] + x[1]*x[1] + x[2]*x[2]));};
   
   // Description:
   // Compute the norm of 3-vector (double-precision version).
@@ -126,7 +128,7 @@ public:
   // Description:
   // Compute the norm of a 2-vector. Ignores z-component.
   static float Norm2D(const float x[3]) {
-    return sqrt(x[0]*x[0] + x[1]*x[1]);};
+    return static_cast<float> (sqrt(x[0]*x[0] + x[1]*x[1]));};
 
   // Description:
   // Compute the norm of a 2-vector. Ignores z-component

@@ -181,7 +181,9 @@ class VTK_COMMON_EXPORT vtkTransform : public vtkLinearTransform
   void GetOrientation(double orient[3]);
   void GetOrientation(float orient[3]) {
     double temp[3]; this->GetOrientation(temp); 
-    orient[0] = temp[0]; orient[1] = temp[1]; orient[2] = temp[2]; };
+    orient[0] = static_cast<float>(temp[0]); 
+    orient[1] = static_cast<float>(temp[1]); 
+    orient[2] = static_cast<float>(temp[2]); };
   float *GetOrientation() { 
     this->GetOrientation(this->ReturnValue); return this->ReturnValue; };
 
@@ -190,7 +192,10 @@ class VTK_COMMON_EXPORT vtkTransform : public vtkLinearTransform
   void GetOrientationWXYZ(double wxyz[4]);
   void GetOrientationWXYZ(float wxyz[3]) {
     double temp[4]; this->GetOrientationWXYZ(temp); 
-    wxyz[0]=temp[0]; wxyz[1]=temp[1]; wxyz[2]=temp[2]; wxyz[3]=temp[3];};
+    wxyz[0]=static_cast<float>(temp[0]); 
+    wxyz[1]=static_cast<float>(temp[1]); 
+    wxyz[2]=static_cast<float>(temp[2]); 
+    wxyz[3]=static_cast<float>(temp[3]);};
   float *GetOrientationWXYZ() { 
     this->GetOrientationWXYZ(this->ReturnValue); return this->ReturnValue; };
 
@@ -201,7 +206,9 @@ class VTK_COMMON_EXPORT vtkTransform : public vtkLinearTransform
   void GetPosition(double pos[3]);
   void GetPosition(float pos[3]) {
     double temp[3]; this->GetPosition(temp); 
-    pos[0] = temp[0]; pos[1] = temp[1]; pos[2] = temp[2]; };
+    pos[0] = static_cast<float>(temp[0]); 
+    pos[1] = static_cast<float>(temp[1]); 
+    pos[2] = static_cast<float>(temp[2]); };
   float *GetPosition() { 
     this->GetPosition(this->ReturnValue); return this->ReturnValue; };
 
@@ -213,7 +220,9 @@ class VTK_COMMON_EXPORT vtkTransform : public vtkLinearTransform
   void GetScale(double scale[3]);
   void GetScale(float scale[3]) {
     double temp[3]; this->GetScale(temp); 
-    scale[0] = temp[0]; scale[1] = temp[1]; scale[2] = temp[2]; };
+    scale[0] = static_cast<float>(temp[0]); 
+    scale[1] = static_cast<float>(temp[1]); 
+    scale[2] = static_cast<float>(temp[2]); };
   float *GetScale() { 
     this->GetScale(this->ReturnValue); return this->ReturnValue; };
 

@@ -54,10 +54,10 @@ public:
   // Set the window for the lookup table.  The window is the difference
   // between TableRange[0] and TableRange[1].
   void SetWindow(float window) {
-    if (window < 1e-5) { window = 1e-5; }
+    if (window < 1e-5f) { window = 1e-5f; }
     this->Window = window;
-    this->SetTableRange(this->Level - this->Window/2.0,
-                        this->Level + this->Window/2.0); };
+    this->SetTableRange(this->Level - this->Window/2.0f,
+                        this->Level + this->Window/2.0f); };
   vtkGetMacro(Window,float);
 
   // Description:
@@ -65,8 +65,8 @@ public:
   // TableRange[0] and TableRange[1].
   void SetLevel(float level) {
     this->Level = level;
-    this->SetTableRange(this->Level - this->Window/2.0,
-                        this->Level + this->Window/2.0); };
+    this->SetTableRange(this->Level - this->Window/2.0f,
+                        this->Level + this->Window/2.0f); };
   vtkGetMacro(Level,float);
 
   // Description:
@@ -95,7 +95,7 @@ public:
   // in the range [0,255].  Deprecated: use SetMinimumTableValue()
   // instead.
   void SetMinimumColor(int r, int g, int b, int a) {
-    this->SetMinimumTableValue(r*255.0,g*255.0,b*255.0,a*255.0); };
+    this->SetMinimumTableValue(r*255.0f,g*255.0f,b*255.0f,a*255.0f); };
   void SetMinimumColor(const unsigned char rgba[4]) {
     this->SetMinimumColor(rgba[0],rgba[1],rgba[2],rgba[3]); };
   void GetMinimumColor(unsigned char rgba[4]) {
@@ -112,7 +112,7 @@ public:
   // in the range [0,255].  Deprecated: use SetMaximumTableValue()
   // instead.
   void SetMaximumColor(int r, int g, int b, int a) {
-    this->SetMaximumTableValue(r*255.0,g*255.0,b*255.0,a*255.0); };
+    this->SetMaximumTableValue(r*255.0f,g*255.0f,b*255.0f,a*255.0f); };
   void SetMaximumColor(const unsigned char rgba[4]) {
     this->SetMaximumColor(rgba[0],rgba[1],rgba[2],rgba[3]); };
   void GetMaximumColor(unsigned char rgba[4]) {

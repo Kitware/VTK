@@ -88,7 +88,7 @@ public:
   // changing the priority does not effect event processing. You will have
   // to SetInteractor(NULL), change priority, and then SetInteractor(iren)
   // to have the priority take effect.)
-  vtkSetClampMacro(Priority,float,0.0,1.0);
+  vtkSetClampMacro(Priority,float,0.0f,1.0f);
   vtkGetMacro(Priority,float);
 
   // Description:
