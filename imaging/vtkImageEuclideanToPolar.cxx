@@ -39,7 +39,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include <math.h>
-#include "vtkImageRegion.h"
 #include "vtkImageEuclideanToPolar.h"
 
 
@@ -48,102 +47,136 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 vtkImageEuclideanToPolar::vtkImageEuclideanToPolar()
 {
   this->ThetaMaximum = 255.0;
-  // One pixel at a time. (sssssslowwww)
-  this->SetExecutionAxes(VTK_IMAGE_COMPONENT_AXIS);
 }
 
 //----------------------------------------------------------------------------
+// Description:
+// This templated function executes the filter for any type of data.
 template <class T>
 static void vtkImageEuclideanToPolarExecute(vtkImageEuclideanToPolar *self,
-				    vtkImageRegion *inRegion, T *inPtr,
-				    vtkImageRegion *outRegion, T *outPtr)
+				    vtkImageData *inData, T *inPtr,
+				    vtkImageData *outData, T *outPtr,
+				    int outExt[6], int id)
 {
+  int idxX, idxY, idxZ;
+  int maxC, maxX, maxY, maxZ;
+  int inIncX, inIncY, inIncZ;
+  int outIncX, outIncY, outIncZ;
+  unsigned long count = 0;
+  unsigned long target;
   float X, Y, Theta, R;
   float thetaMax = self->GetThetaMaximum();
-  int inInc;
-  int outInc;
   
-  inRegion->GetAxisIncrements(VTK_IMAGE_COMPONENT_AXIS, inInc);
-  outRegion->GetAxisIncrements(VTK_IMAGE_COMPONENT_AXIS, outInc);
+  // find the region to loop over
+  maxC = inData->GetNumberOfScalarComponents();
+  maxX = outExt[1] - outExt[0]; 
+  maxY = outExt[3] - outExt[2]; 
+  maxZ = outExt[5] - outExt[4];
+  target = (unsigned long)((maxZ+1)*(maxY+1)/50.0);
+  target++;
   
-  X = (float)(*inPtr);
-  inPtr += inInc;
-  Y = (float)(*inPtr);
+  // Get increments to march through data 
+  inData->GetContinuousIncrements(outExt, inIncX, inIncY, inIncZ);
+  outData->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
 
-  Theta = atan2(X, Y) * thetaMax / 6.2831853;
-  if (Theta < 0.0)
+  // Loop through ouput pixels
+  for (idxZ = 0; idxZ <= maxZ; idxZ++)
     {
-    Theta += thetaMax;
+    for (idxY = 0; idxY <= maxY; idxY++)
+      {
+      if (!id) 
+	{
+	if (!(count%target)) self->UpdateProgress(count/(50.0*target));
+	count++;
+	}
+      for (idxX = 0; idxX <= maxX; idxX++)
+	{
+	// Pixel operation
+	X = (float)(*inPtr);
+	Y = (float)(inPtr[1]);
+	
+	Theta = atan2(Y, X) * thetaMax / 6.2831853;
+	if (Theta < 0.0)
+	  {
+	  Theta += thetaMax;
+	  }
+	R = sqrt(X*X + Y*Y);
+	
+	*outPtr = (T)(Theta);
+	outPtr[1] = (T)(R);
+	inPtr += maxC;
+	outPtr += maxC;
+	}
+      outPtr += outIncY;
+      inPtr += inIncY;
+      }
+    outPtr += outIncZ;
+    inPtr += inIncZ;
     }
-  R = sqrt(X*X + Y*Y);
-
-  // assign output.
-  *outPtr = (T)(Theta);
-  outPtr += outInc;
-  *outPtr = (T)(R);
 }
 
-
 //----------------------------------------------------------------------------
-void vtkImageEuclideanToPolar::Execute(vtkImageRegion *inRegion, 
-			       vtkImageRegion *outRegion)
+void vtkImageEuclideanToPolar::ThreadedExecute(vtkImageData *inData, 
+				       vtkImageData *outData,
+				       int outExt[6], int id)
 {
-  int min, max;
-  void *inPtr = inRegion->GetScalarPointer();
-  void *outPtr = outRegion->GetScalarPointer();
+  void *inPtr = inData->GetScalarPointerForExtent(outExt);
+  void *outPtr = outData->GetScalarPointerForExtent(outExt);
   
-  if (inRegion->GetScalarType() != outRegion->GetScalarType())
+  vtkDebugMacro(<< "Execute: inData = " << inData 
+		<< ", outData = " << outData);
+  
+  // this filter expects that input is the same type as output.
+  if (inData->GetScalarType() != outData->GetScalarType())
     {
-    vtkErrorMacro("Scalar type of input, " 
-      << vtkImageScalarTypeNameMacro(inRegion->GetScalarType())
-      << ", must match scalar type of output, "
-      << vtkImageScalarTypeNameMacro(outRegion->GetScalarType()));
-    return;
-    }
-  inRegion->GetAxisExtent(VTK_IMAGE_COMPONENT_AXIS, min, max);
-  if (max - min + 1 < 2)
-    {
-    vtkErrorMacro("Input has too few components");
-    return;
-    }
-  outRegion->GetAxisExtent(VTK_IMAGE_COMPONENT_AXIS, min, max);
-  if (max - min + 1 < 2)
-    {
-    vtkErrorMacro("Output has too few components");
+    vtkErrorMacro(<< "Execute: input ScalarType, " << inData->GetScalarType()
+    << ", must match out ScalarType " << outData->GetScalarType());
     return;
     }
   
-  switch (inRegion->GetScalarType())
+  // input must have at least two components
+  if (inData->GetNumberOfScalarComponents() < 2)
+    {
+    vtkErrorMacro(<< "Execute: input does not have at least two components");
+    return;
+    }
+
+  switch (inData->GetScalarType())
     {
     case VTK_FLOAT:
-      vtkImageEuclideanToPolarExecute(this, inRegion, (float *)inPtr, 
-			      outRegion, (float *)outPtr);
-      break;
-    case VTK_SHORT:
-      vtkImageEuclideanToPolarExecute(this, inRegion, (short *)inPtr, 
-			      outRegion, (short *)outPtr);
+      vtkImageEuclideanToPolarExecute(this, 
+			      inData, (float *)(inPtr), 
+			      outData, (float *)(outPtr), outExt, id);
       break;
     case VTK_INT:
-      vtkImageEuclideanToPolarExecute(this, inRegion, (int *)inPtr, 
-			      outRegion, (int *)outPtr);
+      vtkImageEuclideanToPolarExecute(this, 
+			      inData, (int *)(inPtr), 
+			      outData, (int *)(outPtr), outExt, id);
+      break;
+    case VTK_SHORT:
+      vtkImageEuclideanToPolarExecute(this, 
+			      inData, (short *)(inPtr), 
+			      outData, (short *)(outPtr), outExt, id);
       break;
     case VTK_UNSIGNED_SHORT:
-      vtkImageEuclideanToPolarExecute(this, inRegion, (unsigned short *)inPtr, 
-			      outRegion, (unsigned short *)outPtr);
+      vtkImageEuclideanToPolarExecute(this, 
+			      inData, (unsigned short *)(inPtr), 
+			      outData, (unsigned short *)(outPtr), 
+			      outExt, id);
       break;
     case VTK_UNSIGNED_CHAR:
-      vtkImageEuclideanToPolarExecute(this, inRegion, (unsigned char*)inPtr, 
-			      outRegion, (unsigned char *)outPtr);
+      vtkImageEuclideanToPolarExecute(this, 
+			      inData, (unsigned char *)(inPtr), 
+			      outData, (unsigned char *)(outPtr), 
+			      outExt, id);
       break;
     default:
-      vtkErrorMacro("Unknown data type" << inRegion->GetScalarType());
+      vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;
     }
 }
 
-
-
-
+  
 
 
 

@@ -49,6 +49,7 @@ vtkImageCursor3D \
 vtkImageDivergence \
 vtkImageDotProduct \
 vtkImageEllipsoidSource \
+vtkImageEuclideanToPolar \
 vtkImageExtractComponents \
 vtkImageFFT \
 vtkImageFlip \
@@ -101,7 +102,6 @@ vtkXTextMapper
 #vtkImageContinuousErode3D \
 #vtkImageConvolution1D \
 #vtkImageDilateErode3D \
-#vtkImageEuclideanToPolar \
 #vtkImageFeatureAnd \
 #vtkImageHistogram \
 #vtkImageHistogramEqualization \
@@ -112,7 +112,6 @@ vtkXTextMapper
 #vtkImageMIPFilter \
 #vtkImageOpenClose3D \
 #vtkImageRange3D \
-#vtkImageShortWriter \
 #vtkImageSkeleton2D \
 #vtkImageSobel2D \
 #vtkImageSobel3D \

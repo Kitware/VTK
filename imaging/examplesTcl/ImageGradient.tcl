@@ -16,7 +16,7 @@ cast SetOutputScalarTypeToFloat
 
 vtkImageMagnify magnify
     magnify SetInput [cast GetOutput]
-    magnify SetMagnificationFactors 4 4 1
+    magnify SetMagnificationFactors 3 3 1
     magnify InterpolateOn
 
 # remove high freqeuncy artifacts due to linear interpolation

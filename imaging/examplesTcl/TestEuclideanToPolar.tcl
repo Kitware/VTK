@@ -8,15 +8,14 @@ source vtkImageInclude.tcl
 # Image pipeline
 
 vtkImageGaussianSource gauss
-gauss SetWholeExtent 0 255 0 255 0 44 0 0
-gauss SetCenter 127 127 22 0
+gauss SetWholeExtent 0 255 0 255 0 44
+gauss SetCenter 127 127 22 
 gauss SetStandardDeviation 50.0
 gauss SetMaximum 10000.0
 
 vtkImageGradient gradient
 gradient SetInput [gauss GetOutput]
-gradient SetFilteredAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS
-gradient ReleaseDataFlagOff
+gradient SetDimensionality 2
 
 vtkImageEuclideanToPolar polar
 polar SetInput [gradient GetOutput]

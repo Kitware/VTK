@@ -59,10 +59,6 @@ viewer SetInput [rgb GetOutput]
 viewer SetZSlice 22
 viewer SetColorWindow 255
 viewer SetColorLevel 127
-#viewer SetRedComponent 1
-#viewer SetBlueComponent 1
-#viewer SetGreenComponent 1
-
 
 #make interface
 source WindowLevelInterface.tcl
