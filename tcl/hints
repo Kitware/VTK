@@ -57,3 +57,4 @@ vtkVolume		GetYRange	301 2
 vtkVolume		GetZRange	301 2
 vtkVolume		GetOrientation	301 3
 
+vtkDFALeader		GetTextPosition 301 2
