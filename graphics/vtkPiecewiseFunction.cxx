@@ -585,7 +585,7 @@ void vtkPiecewiseFunction::PrintSelf(ostream& os, vtkIndent indent)
 {
   int i;
 
-  vtkObject::PrintSelf(os, indent);
+  vtkDataObject::PrintSelf(os, indent);
 
   os << indent << "Clamping: " << this->Clamping << "\n";
   os << indent << "Function Points: " << this->GetSize() << "\n";
