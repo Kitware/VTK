@@ -15,7 +15,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 =========================================================================*/
 // .NAME vlCleanPolyData - merge duplicate points and remove degenerate primitives
 // .SECTION Description
-// vlCleanPolyData is a filter that takes as input polygonal data and 
+// vlCleanPolyData is a filter that takes polygonal data as input and 
 // generates polygonal as output. vlCleanPolyData merges duplicate 
 // points (within specified tolerance) and transforms degenerate 
 // topology into appropriate form (for example, triangle is converted
