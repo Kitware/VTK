@@ -75,7 +75,7 @@ void vlObject::PrintSelf(ostream& os, vlIndent indent)
 {
   if (this->ShouldIPrint(vlObject::GetClassName()))
     {
-    os << indent << "Debug state: " << this->Debug << "\n";
+    os << indent << "Debug: " << (this->Debug ? "On\n" : "Off\n");
     os << indent << "Modified Time: " << this->GetMtime() << "\n";
     os << indent << "Reference Count: " << this->RefCount << "\n";
     }
