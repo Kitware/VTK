@@ -27,7 +27,7 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkObjectFactory, "1.35");
+vtkCxxRevisionMacro(vtkObjectFactory, "1.36");
 
 vtkObjectFactoryCollection* vtkObjectFactory::RegisteredFactories = 0;
 
@@ -425,7 +425,7 @@ void vtkObjectFactory::UnRegisterAllFactories()
   while((factory =
          vtkObjectFactory::RegisteredFactories->GetNextItem()))
     {
-    libs[index] = factory->LibraryHandle;
+    libs[index++] = factory->LibraryHandle;
     }
   // delete the factory list and its factories
   vtkObjectFactory::RegisteredFactories->Delete();
