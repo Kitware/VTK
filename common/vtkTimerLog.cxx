@@ -100,7 +100,7 @@ void vtkTimerLog::ResetLog()
 // string.
 void vtkTimerLog::FormatAndMarkEvent(char *format, ...)
 {
-  char event[80];
+static  char event[4096];
 
   va_list var_args;
   va_start(var_args, format);
