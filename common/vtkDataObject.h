@@ -42,15 +42,18 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .SECTION Description
 // vtkDataObject is an general representation of visualization data. It serves
 // to encapsulate instance variables and methods for visualization network 
-// execution, as well as representing data consisting of a field.
+// execution, as well as representing data consisting of a field (i.e., just
+// an unstructured pile of data). This is to be compared with a vtkDataSet,
+// which is data with geometric and/or topological structure.
 //
 // vtkDataObjects are used to represent arbitrary repositories of data via the
 // vtkFieldData instance variable. These data must be eventually mapped into a
 // concrete subclass of vtkDataSet before they can actually be displayed.
 //
 // .SECTION See Also
-// vtkDataSet vtkFieldData vtkFieldDataSource vtkFieldDataFilter
-// vtkFieldDataMapper
+// vtkDataSet vtkFieldData vtkDataObjectSource vtkDataObjectFilter
+// vtkDataObjectMapper vtkDataObjectToDataSet 
+// vtkFieldDataToAttributeDataFilter
 
 #ifndef __vtkDataObject_h
 #define __vtkDataObject_h
@@ -127,8 +130,9 @@ public:
 
   //BTX - begin tcl exclude
   // Description:
-  // This method is to be used only by the source.
-  // The source is not reference counted by this data object.
+  // This method is to be used only by the source (i.e., the filter generating
+  // this data object). The source is not reference counted by this data object to
+  // avoid mutually referenceing loops.
   void SetSource(vtkSource *source);
   //ETX
   
