@@ -136,7 +136,7 @@ class_def : CLASS VTK_ID
       {
 	if ((!num_superclasses)&&(have_delete))
 	  {
-	  fprintf(yyout,"\nextern \"C\" void Java_vtk_%s_VTKDelete(JNIEnv *env,jobject obj)\n",
+	  fprintf(yyout,"\nextern \"C\" JNIEXPORT void JNICALL Java_vtk_%s_VTKDelete(JNIEnv *env,jobject obj)\n",
 		  class_name);
 	  fprintf(yyout,"{\n  %s *op;\n",class_name);
 	  fprintf(yyout,"  op = (%s *)vtkJavaGetPointerFromObject(env,obj,\"%s\");\n",
@@ -157,7 +157,7 @@ class_def : CLASS VTK_ID
 	  fprintf(yyout,"static int vtk_%s_NoCreate = 0;\n",class_name);
 	  fprintf(yyout,"void vtk_%s_NoCPP()\n",class_name);
 	  fprintf(yyout,"{\n  vtk_%s_NoCreate = 1;\n}\n\n",class_name);
-	  fprintf(yyout,"\nextern \"C\" void Java_vtk_%s_VTKInit(JNIEnv *env, jobject obj)\n",
+	  fprintf(yyout,"\nextern \"C\" JNIEXPORT void JNICALL Java_vtk_%s_VTKInit(JNIEnv *env, jobject obj)\n",
 		  class_name);
 	  fprintf(yyout,"{\n  if (!vtk_%s_NoCreate)\n",class_name);
 	  fprintf(yyout,"    {\n    %s *aNewOne = new %s;\n",class_name,
@@ -578,7 +578,7 @@ macro:
    
    if (!done_one())
      {
-     fprintf(yyout,"extern \"C\" void Java_vtk_%s_%s_1%i(JNIEnv *env,jobject obj",
+     fprintf(yyout,"extern \"C\" JNIEXPORT void JNICALL Java_vtk_%s_%s_1%i(JNIEnv *env,jobject obj",
 	     class_name,func_name,numFuncs);
      
      for (i = 0; i < num_args; i++)
@@ -629,7 +629,7 @@ macro:
    
    if (!done_one())
      {
-     fprintf(yyout,"extern \"C\" void Java_vtk_%s_%s_1%i(JNIEnv *env,jobject obj",
+     fprintf(yyout,"extern \"C\" JNIEXPORT void JNICALL Java_vtk_%s_%s_1%i(JNIEnv *env,jobject obj",
 	     class_name,func_name,numFuncs);
      fprintf(yyout,",");
      output_proto_vars(0);
@@ -738,14 +738,14 @@ output_proto_vars(int i)
 
   if ((arg_types[i] == 301)||(arg_types[i] == 307))
     {
-    fprintf(yyout,"jarray ");
+    fprintf(yyout,"jdoubleArray ");
     fprintf(yyout,"id%i",i);
     return;
     }
 
   if ((arg_types[i] == 304)||(arg_types[i] == 306))
     {
-    fprintf(yyout,"jarray ");
+    fprintf(yyout,"jlongArray ");
     fprintf(yyout,"id%i",i);
     return;
     }
@@ -944,7 +944,7 @@ get_args(int i)
   switch (arg_types[i]%1000)
     {
     case 3:
-      fprintf(yyout,"  temp%i = *(argv[%i]);\n",i,i+2);
+      fprintf(yyout,"  temp%i = (char)(0xff & id%i);\n",i,i);
       break;
     case 303:
       fprintf(yyout,"  temp%i = vtkJavaUTFToChar(env,id%i);\n",i,i);
@@ -997,7 +997,7 @@ do_return()
       fprintf(yyout,"  tempH = vtkJavaGetObjectFromPointer((void *)temp10);\n");
       fprintf(yyout,"  if (!tempH)\n    {\n");
       fprintf(yyout,"    vtk_%s_NoCPP();\n",arg_ids[10]);
-      fprintf(yyout,"    tempH = env->NewObject(env->FindClass(\"vtk/%s\"),env->GetMethodID(env->FindClass(\"vtk/%s\"),\"<init>\",\"void(V)\"));\n",arg_ids[10],arg_ids[10]);
+      fprintf(yyout,"    tempH = env->NewObject(env->FindClass(\"vtk/%s\"),env->GetMethodID(env->FindClass(\"vtk/%s\"),\"<init>\",\"()V\"));\n",arg_ids[10],arg_ids[10]);
       fprintf(yyout,"    vtkJavaAddObjectToHash(env, tempH,(void *)temp10,(void *)%s_Typecast,0);\n    }\n",arg_ids[10]);
       fprintf(yyout,"  return tempH;\n",arg_ids[10]);
       break;
@@ -1165,9 +1165,9 @@ output_function()
 	  {
 	  handle_vtkobj_return();
 	  }
-	fprintf(yyout,"extern \"C\" ");
+	fprintf(yyout,"extern \"C\" JNIEXPORT ");
 	return_result();
-	fprintf(yyout,"Java_vtk_%s_%s_1%i(JNIEnv *env, jobject obj",
+	fprintf(yyout," JNICALL Java_vtk_%s_%s_1%i(JNIEnv *env, jobject obj",
 		class_name,func_name, numFuncs);
 	
 	for (i = 0; i < num_args; i++)
