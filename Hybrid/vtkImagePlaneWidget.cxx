@@ -16,30 +16,35 @@
 
 =========================================================================*/
 #include "vtkImagePlaneWidget.h"
+
+#include "vtkAssemblyNode.h"
+#include "vtkCallbackCommand.h"
+#include "vtkCellPicker.h"
+#include "vtkDataSetMapper.h"
+#include "vtkDoubleArray.h"
+#include "vtkFloatArray.h"
+#include "vtkImageData.h"
+#include "vtkImageMapToColors.h"
+#include "vtkImageReslice.h"
+#include "vtkLookupTable.h"
 #include "vtkMath.h"
+#include "vtkMatrix4x4.h"
+#include "vtkObjectFactory.h"
+#include "vtkPlaneSource.h"
+#include "vtkPlanes.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
-#include "vtkFloatArray.h"
-#include "vtkCellPicker.h"
-#include "vtkAssemblyNode.h"
-#include "vtkDoubleArray.h"
-#include "vtkPlanes.h"
-#include "vtkCallbackCommand.h"
-#include "vtkObjectFactory.h"
-#include "vtkLookupTable.h"
-#include "vtkImageReslice.h"
-#include "vtkImageMapToColors.h"
-#include "vtkTextureMapToPlane.h"
 #include "vtkTexture.h"
-#include "vtkDataSetMapper.h"
-#include "vtkImageData.h"
+#include "vtkTextureMapToPlane.h"
 #include "vtkTransform.h"
-#include "vtkMatrix4x4.h"
 
 #define ABS(x) ((x)<0 ? -(x) : (x))
 
-vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.17");
+vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.18");
 vtkStandardNewMacro(vtkImagePlaneWidget);
+
+vtkCxxSetObjectMacro(vtkImagePlaneWidget, PlaneProperty,vtkProperty);
+vtkCxxSetObjectMacro(vtkImagePlaneWidget, SelectedPlaneProperty,vtkProperty);
 
 vtkImagePlaneWidget::vtkImagePlaneWidget()
 {
@@ -1225,4 +1230,86 @@ int vtkImagePlaneWidget::GetSliceIndex()
     } 
 
   return 0;
+}
+
+void vtkImagePlaneWidget::SetOrigin(float x, float y, float z)
+{
+  this->PlaneSource->SetOrigin(x,y,z);
+}
+
+void vtkImagePlaneWidget::SetOrigin(float x[3])
+{
+  this->PlaneSource->SetOrigin(x);
+}
+
+float* vtkImagePlaneWidget::GetOrigin()
+{
+  return this->PlaneSource->GetOrigin();
+}
+
+void vtkImagePlaneWidget::GetOrigin(float xyz[3])
+{
+  this->PlaneSource->GetOrigin(xyz);
+}
+
+void vtkImagePlaneWidget::SetPoint1(float x, float y, float z)
+{
+  this->PlaneSource->SetPoint1(x,y,z);
+}
+
+void vtkImagePlaneWidget::SetPoint1(float x[3])
+{
+  this->PlaneSource->SetPoint1(x);
+}
+
+float* vtkImagePlaneWidget::GetPoint1()
+{
+  return this->PlaneSource->GetPoint1();
+}
+void vtkImagePlaneWidget::GetPoint1(float xyz[3])
+{
+  this->PlaneSource->GetPoint1(xyz);
+}
+void vtkImagePlaneWidget::SetPoint2(float x, float y, float z)
+{
+  this->PlaneSource->SetPoint2(x,y,z);
+}
+
+void vtkImagePlaneWidget::SetPoint2(float x[3])
+{
+  this->PlaneSource->SetPoint2(x);
+}
+
+float* vtkImagePlaneWidget::GetPoint2()
+{
+  return this->PlaneSource->GetPoint2();
+}
+void vtkImagePlaneWidget::GetPoint2(float xyz[3])
+{
+  this->PlaneSource->GetPoint2(xyz);
+}
+
+float* vtkImagePlaneWidget::GetCenter() 
+{
+  return this->PlaneSource->GetCenter();
+}
+
+void vtkImagePlaneWidget::GetCenter(float xyz[3]) 
+{
+  this->PlaneSource->GetCenter(xyz);
+}
+
+float* vtkImagePlaneWidget::GetNormal() 
+{
+  return this->PlaneSource->GetNormal();
+}
+
+void vtkImagePlaneWidget::GetNormal(float xyz[3]) 
+{
+  this->PlaneSource->GetNormal(xyz);
+}
+
+void vtkImagePlaneWidget::GetPolyData(vtkPolyData *pd)
+{ 
+  pd->ShallowCopy(this->PlaneSource->GetOutput()); 
 }

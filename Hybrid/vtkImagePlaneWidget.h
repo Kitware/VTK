@@ -70,7 +70,6 @@
 #define __vtkImagePlaneWidget_h
 
 #include "vtk3DWidget.h"
-#include "vtkPlaneSource.h"
 
 class vtkActor;
 class vtkPolyDataMapper;
@@ -85,6 +84,7 @@ class vtkDataSetMapper;
 class vtkLookupTable;
 class vtkImageMapToColors;
 class vtkImageData;
+class vtkPlaneSource;
 
 #define VTK_NEAREST_RESLICE 0
 #define VTK_LINEAR_RESLICE  1
@@ -119,50 +119,34 @@ public:
 
   // Description:
   // Set/Get the origin of the plane.
-  void SetOrigin(float x, float y, float z)
-    {this->PlaneSource->SetOrigin(x,y,z);}
-  void SetOrigin(float x[3])
-    {this->PlaneSource->SetOrigin(x);}
-  float* GetOrigin()
-    {return this->PlaneSource->GetOrigin();}
-  void GetOrigin(float xyz[3])
-    {this->PlaneSource->GetOrigin(xyz);}
-
+  void SetOrigin(float x, float y, float z);
+  void SetOrigin(float x[3]);
+  float* GetOrigin();
+  void GetOrigin(float xyz[3]);
+  
   // Description:
   // Set/Get the position of the point defining the first axis of the plane.
-  void SetPoint1(float x, float y, float z)
-    {this->PlaneSource->SetPoint1(x,y,z);}
-  void SetPoint1(float x[3])
-    {this->PlaneSource->SetPoint1(x);}
-  float* GetPoint1()
-    {return this->PlaneSource->GetPoint1();}
-  void GetPoint1(float xyz[3])
-    {this->PlaneSource->GetPoint1(xyz);}
+  void SetPoint1(float x, float y, float z);
+  void SetPoint1(float x[3]);
+  float* GetPoint1();
+  void GetPoint1(float xyz[3]);
 
   // Description:
   // Set/Get the position of the point defining the second axis of the plane.
-  void SetPoint2(float x, float y, float z) 
-    {this->PlaneSource->SetPoint2(x,y,z);}
-  void SetPoint2(float x[3]) 
-    {this->PlaneSource->SetPoint2(x);}
-  float* GetPoint2() 
-    {return this->PlaneSource->GetPoint2();}
-  void GetPoint2(float xyz[3]) 
-    {this->PlaneSource->GetPoint2(xyz);}
+  void SetPoint2(float x, float y, float z);
+  void SetPoint2(float x[3]);
+  float* GetPoint2();
+  void GetPoint2(float xyz[3]);
 
   // Description:
   // Get the center of the plane.
-  float* GetCenter() 
-    {return this->PlaneSource->GetCenter();}
-  void GetCenter(float xyz[3]) 
-    {this->PlaneSource->GetCenter(xyz);}
+  float* GetCenter();
+  void GetCenter(float xyz[3]);
 
   // Description:
   // Get the normal to the plane.
-  float* GetNormal() 
-    {return this->PlaneSource->GetNormal();}
-  void GetNormal(float xyz[3]) 
-    {this->PlaneSource->GetNormal(xyz);}
+  float* GetNormal();
+  void GetNormal(float xyz[3]);
 
   // Description:
   // Get the slice position in terms of the data extent.
@@ -212,15 +196,14 @@ public:
   // are guaranteed to be up-to-date when either the InteractionEvent or
   // EndInteraction events are invoked. The user provides the vtkPolyData and
   // the points and polyplane are added to it.
-  void GetPolyData(vtkPolyData *pd)
-    { pd->ShallowCopy(this->PlaneSource->GetOutput()); }
+  void GetPolyData(vtkPolyData *pd);
 
   // Description:
   // Get the plane properties. The properties of the plane when selected
   // and unselected can be manipulated.
-  vtkSetObjectMacro(PlaneProperty,vtkProperty);
+  virtual void SetPlaneProperty(vtkProperty*);
   vtkGetObjectMacro(PlaneProperty,vtkProperty);
-  vtkSetObjectMacro(SelectedPlaneProperty,vtkProperty);
+  virtual void SetSelectedPlaneProperty(vtkProperty*);
   vtkGetObjectMacro(SelectedPlaneProperty,vtkProperty);
 
   // Description:
