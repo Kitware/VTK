@@ -43,7 +43,6 @@ protected:
 public:
   vtkTypeRevisionMacro(vtkMesaRenderWindow,vtkRenderWindow);
   void PrintSelf(ostream& os, vtkIndent indent);
-  static vtkMesaRenderWindow *New();
   
   // Description:
   // Set/Get the maximum number of multisamples
