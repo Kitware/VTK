@@ -20,7 +20,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkRendererCollection.h"
 
-vtkCxxRevisionMacro(vtkWindowToImageFilter, "1.28");
+vtkCxxRevisionMacro(vtkWindowToImageFilter, "1.29");
 vtkStandardNewMacro(vtkWindowToImageFilter);
 
 //----------------------------------------------------------------------------
@@ -267,8 +267,8 @@ void vtkWindowToImageFilter::ExecuteData(vtkDataObject *vtkNotUsed(data))
         }      
       pixels = this->Input->GetPixelData(int(this->Viewport[0]* winsize[0]),
                                          int(this->Viewport[1]* winsize[1]),
-                                         int(this->Viewport[2]* winsize[0]) - 1,  
-                                         int(this->Viewport[3]* winsize[1]) - 1, buffer);
+                                         int(this->Viewport[2]* winsize[0] + 0.5) - 1,  
+                                         int(this->Viewport[3]* winsize[1] + 0.5) - 1, buffer);
 
       unsigned char *pixels1 = pixels;
       
