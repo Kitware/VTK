@@ -20,14 +20,9 @@
 
 #include "expat.h"
 #include <ctype.h>
+#include <sys/stat.h>
 
-#if defined(VTK_USE_ANSI_STDLIB) || (defined(__GNUC__) && (__GNUC__  >= 3))
-#define VTK_IOS_NOCREATE 
-#else
-#define VTK_IOS_NOCREATE | ios::nocreate
-#endif
-
-vtkCxxRevisionMacro(vtkXMLParser, "1.10");
+vtkCxxRevisionMacro(vtkXMLParser, "1.11");
 vtkStandardNewMacro(vtkXMLParser);
 
 //----------------------------------------------------------------------------
@@ -80,10 +75,16 @@ int vtkXMLParser::Parse()
   if ( !this->InputString && !this->Stream && this->FileName )
     {
     // If it is file, open it and set the appropriate stream
+    struct stat fs;
+    if (stat(this->FileName, &fs) != 0) 
+      {
+      vtkErrorMacro("Cannot open XML file: " << this->FileName);
+      return 0;
+      }
 #ifdef _WIN32
-    ifs.open(this->FileName, ios::binary | ios::in VTK_IOS_NOCREATE);
+    ifs.open(this->FileName, ios::binary | ios::in);
 #else
-    ifs.open(this->FileName, ios::in VTK_IOS_NOCREATE);
+    ifs.open(this->FileName, ios::in);
 #endif
     if ( !ifs )
       {
