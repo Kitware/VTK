@@ -35,7 +35,7 @@
 #include "vtkRenderer.h"
 #include "vtkTextProperty.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyle, "1.86");
+vtkCxxRevisionMacro(vtkInteractorStyle, "1.87");
 vtkStandardNewMacro(vtkInteractorStyle);
 
 //----------------------------------------------------------------------------
@@ -56,8 +56,6 @@ vtkInteractorStyle::vtkInteractorStyle()
   // These widgets are not activated with a key
 
   this->KeyPressActivation  = 0; 
-
-  this->CurrentRenderer     = NULL;
 
   this->Outline             = vtkOutlineSource::New();
   this->OutlineActor        = NULL;
@@ -107,11 +105,7 @@ vtkInteractorStyle::~vtkInteractorStyle()
   this->Outline->Delete();
   this->Outline = NULL;
 
-  if ( this->CurrentRenderer)
-    {
-    this->CurrentRenderer->UnRegister(this);
-    this->CurrentRenderer = NULL;
-    }
+  this->SetCurrentRenderer(NULL);
 }
 
 //----------------------------------------------------------------------------
