@@ -55,13 +55,13 @@ ren1 AddActor model
 ren1 AddActor boxActor
 ren1 SetBackground 0.1 0.2 0.4
 renWin SetSize 500 500
-renWin Render
+iren Initialize
 
 # render the image
 #
 iren SetUserMethod {wm deiconify .vtkInteract}
 [ren1 GetActiveCamera] Zoom 1.4
-iren Initialize
+renWin Render
 
 #renWin SetFileName valid/SpatialRep.tcl.ppm
 #renWin SaveImageAsPPM
