@@ -34,7 +34,7 @@
 #include "vtkTriangleStrip.h"
 #include "vtkVertex.h"
 
-vtkCxxRevisionMacro(vtkPolyData, "1.150");
+vtkCxxRevisionMacro(vtkPolyData, "1.150.2.1");
 vtkStandardNewMacro(vtkPolyData);
 
 //----------------------------------------------------------------------------
@@ -988,7 +988,7 @@ void vtkPolyData::DeleteLinks()
 //----------------------------------------------------------------------------
 // Create upward links from points to cells that use each point. Enables
 // topologically complex queries.
-void vtkPolyData::BuildLinks()
+void vtkPolyData::BuildLinks(int initialSize)
 {
   if ( this->Links )
     {
@@ -1001,7 +1001,14 @@ void vtkPolyData::BuildLinks()
     }
 
   this->Links = vtkCellLinks::New();
+  if ( initialSize > 0 )
+    {
+    this->Links->Allocate(initialSize);
+    }
+  else
+    {
   this->Links->Allocate(this->GetNumberOfPoints());
+    }
   this->Links->Register(this);
   this->Links->Delete();
 
@@ -1387,6 +1394,15 @@ void vtkPolyData::ReverseCell(vtkIdType cellId)
     default:
       break;
     }
+}
+
+//----------------------------------------------------------------------------
+// Add a point to the cell data structure (after cell pointers have been
+// built). This method allocates memory for the links to the cells.  (To 
+// use this method, make sure points are available and BuildLinks() has been invoked.)
+int vtkPolyData::InsertNextLinkedPoint(int numLinks)
+{
+  return this->Links->InsertNextPoint(numLinks);
 }
 
 //----------------------------------------------------------------------------
