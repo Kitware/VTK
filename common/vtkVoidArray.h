@@ -133,7 +133,7 @@ public:
 
   // Description:
   // Insert data at the end of the array. Return its location in the array.
-  int InsertNextValue(void* v);
+  vtkIdType InsertNextValue(void* v);
 
   // Description:
   // Get the address of a particular data index. Performs no checks
@@ -205,7 +205,7 @@ inline void vtkVoidArray::InsertValue(const vtkIdType id, void* p)
     }
 }
 
-inline int vtkVoidArray::InsertNextValue(void* p)
+inline vtkIdType vtkVoidArray::InsertNextValue(void* p)
 {
   this->InsertValue (++this->MaxId,p);
   return this->MaxId;

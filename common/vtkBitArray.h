@@ -129,7 +129,7 @@ public:
   // Description:
   // Insets values and checks to make sure there is enough memory
   void InsertValue(const vtkIdType id, const int i);
-  int InsertNextValue(const int i);
+  vtkIdType InsertNextValue(const int i);
 
   // Description:
   // Direct manipulation of the underlying data.
@@ -233,7 +233,7 @@ inline void vtkBitArray::InsertValue(const vtkIdType id, const int i)
     }
 }
 
-inline int vtkBitArray::InsertNextValue(const int i)
+inline vtkIdType vtkBitArray::InsertNextValue(const int i)
 {
   this->InsertValue (++this->MaxId,i); return this->MaxId;
 }

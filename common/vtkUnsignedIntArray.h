@@ -127,7 +127,7 @@ public:
 
   // Description:
   // Insert data at the end of the array. Return its location in the array.
-  int InsertNextValue(const unsigned int);
+  vtkIdType InsertNextValue(const unsigned int);
 
   // Description:
   // Get the address of a particular data index. Performs no checks
@@ -224,7 +224,7 @@ inline void vtkUnsignedIntArray::InsertValue(const vtkIdType id,
     }
 }
 
-inline int vtkUnsignedIntArray::InsertNextValue(const unsigned int i)
+inline vtkIdType vtkUnsignedIntArray::InsertNextValue(const unsigned int i)
 {
   this->InsertValue (++this->MaxId,i); 
   return this->MaxId;

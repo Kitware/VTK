@@ -93,7 +93,7 @@ public:
   // every cell is the same size (in terms of number of points), then the 
   // memory estimate is guaranteed exact. (If not exact, use Squeeze() to
   // reclaim any extra memory.)
-  int EstimateSize(vtkIdType numCells, int maxPtsPerCell)
+  vtkIdType EstimateSize(vtkIdType numCells, int maxPtsPerCell)
     {return numCells*(1+maxPtsPerCell);}
 
   // Description:
@@ -131,7 +131,7 @@ public:
   // Description:
   // Create a cell by specifying the number of points and an array of point
   // id's.  Return the cell id of the cell.
-  vtkIdType InsertNextCell(int npts, vtkIdType* pts);
+  vtkIdType InsertNextCell(vtkIdType npts, vtkIdType* pts);
 
   // Description:
   // Create a cell by specifying a list of point ids. Return the cell id of
@@ -171,7 +171,7 @@ public:
   // Description:
   // Computes the current traversal location within the internal array. Used 
   // in conjunction with GetCell(int loc,...).
-  vtkIdType GetTraversalLocation(int npts) 
+  vtkIdType GetTraversalLocation(vtkIdType npts) 
     {return(this->TraversalLocation-npts-1);}
   
   // Description:
@@ -250,7 +250,7 @@ protected:
 };
 
 
-inline vtkIdType vtkCellArray::InsertNextCell(int npts, vtkIdType* pts)
+inline vtkIdType vtkCellArray::InsertNextCell(vtkIdType npts, vtkIdType* pts)
 {
   vtkIdType i = this->Ia->GetMaxId() + 1;
   vtkIdType *ptr = this->Ia->WritePointer(i, npts+1);
