@@ -164,7 +164,7 @@ int vtkCommand(ClientData vtkNotUsed(cd), Tcl_Interp *interp, int argc, char *ar
     {
     return TCL_OK;
     }
-  
+
   if (!strcmp(argv[1],"DeleteAllObjects"))
     {
     for (entry = Tcl_FirstHashEntry(&vtkPointerLookup,&search); 
@@ -218,9 +218,10 @@ int vtkCommand(ClientData vtkNotUsed(cd), Tcl_Interp *interp, int argc, char *ar
   return TCL_ERROR;
 }
 
-VTKTCL_EXPORT void vtkTclGetObjectFromPointer(Tcl_Interp *interp,
-					      void *temp1,
-			  int command(ClientData, Tcl_Interp *,int, char *[]))
+VTKTCL_EXPORT void
+vtkTclGetObjectFromPointer(Tcl_Interp *interp,
+			void *temp1,
+			int (*command)(ClientData, Tcl_Interp *,int, char *[]))
 {
   int is_new;
   vtkObject *temp = (vtkObject *)temp1;
