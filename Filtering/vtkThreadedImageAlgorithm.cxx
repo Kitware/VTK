@@ -26,7 +26,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTrivialProducer.h"
 
-vtkCxxRevisionMacro(vtkThreadedImageAlgorithm, "1.3");
+vtkCxxRevisionMacro(vtkThreadedImageAlgorithm, "1.4");
 
 //----------------------------------------------------------------------------
 vtkThreadedImageAlgorithm::vtkThreadedImageAlgorithm()
@@ -220,36 +220,50 @@ void vtkThreadedImageAlgorithm::RequestData(
   str.OutputsInfo = outputVector;
 
   // now we must create the output array
-  str.Outputs = new vtkImageData * [this->GetNumberOfOutputPorts()];
-  for (i = 0; i < this->GetNumberOfOutputPorts(); ++i)
+  str.Outputs = 0;
+  if (this->GetNumberOfOutputPorts())
     {
-    vtkInformation* info = outputVector->GetInformationObject(i);
-    vtkImageData *outData = static_cast<vtkImageData *>(
-      info->Get(vtkDataObject::DATA_OBJECT()));
-    str.Outputs[i] = outData;
-
-    int updateExtent[6];
-    info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), updateExtent);
-
-    // for image filters as a convinience we usually allocate the output data
-    // in the superclass
-    this->AllocateOutputData(outData, updateExtent);
+    str.Outputs = new vtkImageData * [this->GetNumberOfOutputPorts()];
+    for (i = 0; i < this->GetNumberOfOutputPorts(); ++i)
+      {
+      vtkInformation* info = outputVector->GetInformationObject(i);
+      vtkImageData *outData = static_cast<vtkImageData *>(
+        info->Get(vtkDataObject::DATA_OBJECT()));
+      str.Outputs[i] = outData;
+      
+      int updateExtent[6];
+      info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), 
+                updateExtent);
+      
+      // for image filters as a convinience we usually allocate the output data
+      // in the superclass
+      this->AllocateOutputData(outData, updateExtent);
+      }
     }
   
   // now create the inputs array
-  str.Inputs = new vtkImageData ** [this->GetNumberOfInputPorts()];
-  for (i = 0; i < this->GetNumberOfInputPorts(); ++i)
+  str.Inputs = 0;
+  if (this->GetNumberOfInputPorts())
     {
-    int j;
-    str.Inputs[i] = new vtkImageData *[this->GetNumberOfInputConnections(i)];
-    for (j = 0; j < this->GetNumberOfInputConnections(i); ++j)
+    str.Inputs = new vtkImageData ** [this->GetNumberOfInputPorts()];
+    for (i = 0; i < this->GetNumberOfInputPorts(); ++i)
       {
-      vtkInformation* info = inputVector[i]->GetInformationObject(j);
-      str.Inputs[i][j] =
-        static_cast<vtkImageData*>(info->Get(vtkDataObject::DATA_OBJECT()));
+      str.Inputs[i] = 0;
+      if (this->GetNumberOfInputConnections(i))
+        {
+        int j;
+        str.Inputs[i] = 
+          new vtkImageData *[this->GetNumberOfInputConnections(i)];
+        for (j = 0; j < this->GetNumberOfInputConnections(i); ++j)
+          {
+          vtkInformation* info = inputVector[i]->GetInformationObject(j);
+          str.Inputs[i][j] =
+            static_cast<vtkImageData*>(info->Get(vtkDataObject::DATA_OBJECT()));
+          }
+        }
       }
     }
-
+  
   // copy other arrays
   if (str.Inputs && str.Inputs[0] && str.Outputs)
     {
@@ -268,10 +282,20 @@ void vtkThreadedImageAlgorithm::RequestData(
   // free up the arrays
   for (i = 0; i < this->GetNumberOfInputPorts(); ++i)
     {
-    delete [] str.Inputs[i];
+    if (str.Inputs[i])
+      {
+      delete [] str.Inputs[i];
+      }
     }
-  delete [] str.Inputs;
-  delete [] str.Outputs;  
+  // note the check isn't required by C++ standard but due to bad compilers
+  if (str.Inputs)
+    {
+    delete [] str.Inputs;
+    }
+  if (str.Outputs)
+    {
+    delete [] str.Outputs;  
+    }
 }
 
 //----------------------------------------------------------------------------
