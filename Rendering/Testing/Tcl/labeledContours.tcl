@@ -46,12 +46,12 @@ vtkLabeledDataMapper ldm
     ldm SetInput [mask GetOutput]
     ldm SetLabelFormat "%g"
     ldm SetLabelModeToLabelScalars
-    ldm SetFontFamilyToArial
-    ldm SetFontSize 8
+set tprop [ldm GetLabelTextProperty]
+    $tprop SetFontFamilyToArial
+    $tprop SetFontSize 8
+    $tprop SetColor 1 0 0
 vtkActor2D contourLabels
     contourLabels SetMapper ldm
-    contourLabels SetMapper ldm
-    [contourLabels GetProperty] SetColor 1 0 0
 
 # Add the actors to the renderer, set the background and size
 #

@@ -89,9 +89,9 @@ vtkLabeledDataMapper cellMapper
     cellMapper SetInput [visCells GetOutput]
     cellMapper SetLabelFormat "%g"
     cellMapper SetLabelModeToLabelFieldData
+    [cellMapper GetLabelTextProperty] SetColor 0 1 0
 vtkActor2D cellLabels
     cellLabels SetMapper cellMapper    
-    [cellLabels GetProperty] SetColor 0 1 0
 
 # Create the RenderWindow and RenderWindowInteractor
 #

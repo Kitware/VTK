@@ -86,6 +86,12 @@ vtkXYPlotActor xyplot
     xyplot SetPlotSymbol 2 [triangle GetOutput]
     xyplot SetPlotColor 2 0 0 1
     xyplot SetGlyphSize 0.025
+    # Set text prop color (same color for backward compat with test)
+    # Assign same object to all text props
+    set tprop [xyplot GetTitleTextProperty]
+    eval $tprop SetColor [[xyplot GetProperty] GetColor]
+    xyplot SetAxisTitleTextProperty $tprop
+    xyplot SetAxisLabelTextProperty $tprop
 
 vtkSphereSource vertexGlyph
 vtkXYPlotActor xyplot2
@@ -115,6 +121,12 @@ vtkXYPlotActor xyplot2
     xyplot2 SetPlotSymbol 2 [triangle GetOutput]
     xyplot2 SetPlotColor 2 0 0 1
     xyplot2 SetPlotLabel 2 "VTK Quality"
+    # Set text prop color (same color for backward compat with test)
+    # Assign same object to all text props
+    set tprop [xyplot2 GetTitleTextProperty]
+    eval $tprop SetColor [[xyplot2 GetProperty] GetColor]
+    xyplot2 SetAxisTitleTextProperty $tprop
+    xyplot2 SetAxisLabelTextProperty $tprop
 
 #Okay exercise data object stuff
 vtkDataSetToDataObjectFilter ds2do
@@ -152,6 +164,12 @@ vtkXYPlotActor xyplot3
     xyplot3 LegendOn
     xyplot3 SetLegendPosition 0.8 0.35
     xyplot3 SetLegendPosition2 0.20 0.20
+    # Set text prop color (same color for backward compat with test)
+    # Assign same object to all text props
+    set tprop [xyplot3 GetTitleTextProperty]
+    eval $tprop SetColor [[xyplot3 GetProperty] GetColor]
+    xyplot3 SetAxisTitleTextProperty $tprop
+    xyplot3 SetAxisLabelTextProperty $tprop
 
 # draw an outline
 vtkStructuredGridOutlineFilter outline

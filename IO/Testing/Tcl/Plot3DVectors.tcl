@@ -19,6 +19,13 @@ set vectorFunctions  "200 201 202 210"
 vtkCamera camera
 vtkLight light
 
+# All text actors will share the same text prop
+
+vtkTextProperty textProp
+  textProp SetFontSize 10
+  textProp SetFontFamilyToArial
+  textProp SetColor .3 1 1
+
 set i 0
 foreach vectorFunction $vectorFunctions {
   vtkPLOT3DReader pl3d$vectorFunction
@@ -47,12 +54,11 @@ ren$vectorFunction AddActor actor$vectorFunction
 
 vtkTextMapper textMapper$vectorFunction
   textMapper$vectorFunction SetInput [lindex $vectorLabels $i]
-  textMapper$vectorFunction SetFontSize 10
-  textMapper$vectorFunction SetFontFamilyToArial
+  textMapper$vectorFunction SetTextProperty textProp
 vtkActor2D text$vectorFunction
   text$vectorFunction SetMapper textMapper$vectorFunction
   text$vectorFunction SetPosition 2 5
-  [text$vectorFunction GetProperty] SetColor .3 1 1
+
   if { [info command rtExMath] == ""} {
     ren$vectorFunction AddActor2D text$vectorFunction
   }

@@ -94,6 +94,12 @@ vtkXYPlotActor xyplot
     xyplot SetYRange .2 .4
     [xyplot GetProperty] SetColor 0 0 0
     [xyplot GetProperty] SetLineWidth 2
+    # Set text prop color (same color for backward compat with test)
+    # Assign same object to all text props
+    set tprop [xyplot GetTitleTextProperty]
+    eval $tprop SetColor [[xyplot GetProperty] GetColor]
+    xyplot SetAxisTitleTextProperty $tprop
+    xyplot SetAxisLabelTextProperty $tprop
 
 # Create an xy-plot using the output of the 3 probe filters as input.
 # The x-values we are plotting are normalized arc length.
@@ -112,6 +118,12 @@ vtkXYPlotActor xyplot2
     xyplot2 PlotLinesOff
     [xyplot2 GetProperty] SetColor 1 0 0
     [xyplot2 GetProperty] SetPointSize 2
+    # Set text prop color (same color for backward compat with test)
+    # Assign same object to all text props
+    set tprop [xyplot2 GetTitleTextProperty]
+    eval $tprop SetColor [[xyplot2 GetProperty] GetColor]
+    xyplot2 SetAxisTitleTextProperty $tprop
+    xyplot2 SetAxisLabelTextProperty $tprop
 
 # Create an xy-plot using the output of the 3 probe filters as input.
 # The x-values we are plotting are the underlying point data values.
@@ -129,6 +141,12 @@ vtkXYPlotActor xyplot3
     xyplot3 PlotPointsOn
     [xyplot3 GetProperty] SetColor 0 0 1
     [xyplot3 GetProperty] SetPointSize 3
+    # Set text prop color (same color for backward compat with test)
+    # Assign same object to all text props
+    set tprop [xyplot3 GetTitleTextProperty]
+    eval $tprop SetColor [[xyplot3 GetProperty] GetColor]
+    xyplot3 SetAxisTitleTextProperty $tprop
+    xyplot3 SetAxisLabelTextProperty $tprop
 
 # Draw an outline of the PLOT3D data set.
 vtkStructuredGridOutlineFilter outline

@@ -24,9 +24,7 @@ vtkSphereSource sphereGlyph
 
 vtkCaptionActor2D caption
     caption SetCaption "This is the\nsouth pole"
-    [caption GetProperty] SetColor 1 0 0
     caption SetAttachmentPoint 0 0 -0.5
-    caption SetJustificationToCentered
     [caption GetPositionCoordinate] SetCoordinateSystemToNormalizedViewport
     [caption GetPositionCoordinate] SetReferenceCoordinate ""
     [caption GetPositionCoordinate] SetValue 0.05 0.05
@@ -36,6 +34,11 @@ vtkCaptionActor2D caption
     caption SetLeaderGlyph [coneGlyph GetOutput]
     caption SetMaximumLeaderGlyphSize 10
     caption SetLeaderGlyphSize 0.025
+    [caption GetProperty] SetColor 1 0 0
+
+set tprop [caption GetCaptionTextProperty]
+    eval $tprop SetColor [[caption GetProperty] GetColor]
+    $tprop SetJustificationToCentered
 
 vtkCaptionActor2D caption2
     caption2 SetCaption "Santa lives here"
@@ -50,6 +53,9 @@ vtkCaptionActor2D caption2
     caption2 SetHeight 0.10
     caption2 SetMaximumLeaderGlyphSize 10
     caption2 SetLeaderGlyphSize 0.025
+
+set tprop [caption2 GetCaptionTextProperty]
+    eval $tprop SetColor [[caption2 GetProperty] GetColor]
 
 ren1 AddActor2D caption2
 ren1 AddActor2D caption

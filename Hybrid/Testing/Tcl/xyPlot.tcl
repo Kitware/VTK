@@ -75,6 +75,12 @@ vtkXYPlotActor xyplot
     xyplot SetYRange .2 .4
     [xyplot GetProperty] SetColor 0 0 0
     [xyplot GetProperty] SetLineWidth 2
+    # Set text prop color (same color for backward compat with test)
+    # Assign same object to all text props
+    set tprop [xyplot GetTitleTextProperty]
+    eval $tprop SetColor [[xyplot GetProperty] GetColor]
+    xyplot SetAxisTitleTextProperty $tprop
+    xyplot SetAxisLabelTextProperty $tprop
 
 vtkXYPlotActor xyplot2
     xyplot2 AddInput [probe GetOutput]
@@ -91,6 +97,12 @@ vtkXYPlotActor xyplot2
     xyplot2 PlotLinesOff
     [xyplot2 GetProperty] SetColor 1 0 0
     [xyplot2 GetProperty] SetPointSize 2
+    # Set text prop color (same color for backward compat with test)
+    # Assign same object to all text props
+    set tprop [xyplot2 GetTitleTextProperty]
+    eval $tprop SetColor [[xyplot2 GetProperty] GetColor]
+    xyplot2 SetAxisTitleTextProperty $tprop
+    xyplot2 SetAxisLabelTextProperty $tprop
 
 vtkXYPlotActor xyplot3
     xyplot3 AddInput [probe GetOutput]
@@ -106,6 +118,12 @@ vtkXYPlotActor xyplot3
     xyplot3 PlotPointsOn
     [xyplot3 GetProperty] SetColor 0 0 1
     [xyplot3 GetProperty] SetPointSize 3
+    # Set text prop color (same color for backward compat with test)
+    # Assign same object to all text props
+    set tprop [xyplot3 GetTitleTextProperty]
+    eval $tprop SetColor [[xyplot3 GetProperty] GetColor]
+    xyplot3 SetAxisTitleTextProperty $tprop
+    xyplot3 SetAxisLabelTextProperty $tprop
 
 # draw an outline
 vtkStructuredGridOutlineFilter outline

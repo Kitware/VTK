@@ -10,21 +10,20 @@ package require vtkinteraction
 # Create a sphere source, mapper, and actor
 vtkSphereSource sphere
 
-vtkPolyDataMapper   sphereMapper
+vtkPolyDataMapper sphereMapper
     sphereMapper SetInput [sphere GetOutput]
     sphereMapper GlobalImmediateModeRenderingOn
 vtkLODActor sphereActor
     sphereActor SetMapper sphereMapper
 
-# Create a scaled text actor. 
-# Set the text, font, justification, and properties (bold, italics, etc.).
-vtkTextActor textActor
-    textActor ScaledTextOn
-    textActor SetDisplayPosition 90 50 
-    [textActor GetProperty] SetColor 0 0 1
-    textActor SetInput "This is a sphere"
+# Create a text mapper.
+vtkTextMapper textMapper
+    textMapper SetInput "This is a sphere"
 
-set tprop [textActor GetTextProperty]
+# Set the text, font, justification, and text
+# properties (bold, italics, etc.).
+
+set tprop [textMapper GetTextProperty]
     $tprop SetFontSize 18
     $tprop SetFontFamilyToArial
     $tprop SetJustificationToCentered
@@ -32,6 +31,11 @@ set tprop [textActor GetTextProperty]
     $tprop ItalicOn
     $tprop ShadowOn
     $tprop SetColor 0 0 1
+
+# Create a scaled text actor. Set the position of the text.
+vtkScaledTextActor textActor
+    textActor SetMapper textMapper
+    textActor SetDisplayPosition 90 50
 
 # Create the Renderer, RenderWindow, RenderWindowInteractor
 #

@@ -38,14 +38,15 @@ vtkCellPicker picker
 
 # Create a text mapper and actor to display the results of picking.
 vtkTextMapper textMapper
-    textMapper SetFontFamilyToArial
-    textMapper SetFontSize 10
-    textMapper BoldOn
-    textMapper ShadowOn
+set tprop [textMapper GetTextProperty]
+    $tprop SetFontFamilyToArial
+    $tprop SetFontSize 10
+    $tprop BoldOn
+    $tprop ShadowOn
+    $tprop SetColor 1 0 0
 vtkActor2D textActor
     textActor VisibilityOff
     textActor SetMapper textMapper
-    [textActor GetProperty] SetColor 1 0 0
 
 # Create the Renderer, RenderWindow, and RenderWindowInteractor
 #

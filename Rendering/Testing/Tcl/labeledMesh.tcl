@@ -88,9 +88,9 @@ vtkLabeledDataMapper cellMapper
 #    cellMapper SetLabelModeToLabelScalars
 #    cellMapper SetLabelModeToLabelNormals
     cellMapper SetLabelModeToLabelFieldData
+    [cellMapper GetLabelTextProperty] SetColor 0 1 0
 vtkActor2D cellLabels
     cellLabels SetMapper cellMapper    
-    [cellLabels GetProperty] SetColor 0 1 0
 
 # Add the actors to the renderer, set the background and size
 #

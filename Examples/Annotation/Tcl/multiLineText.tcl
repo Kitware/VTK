@@ -11,108 +11,106 @@ package require vtkinteraction
 
 set font_size 14
 
-# Create the text mappers and the associated Actor2Ds.  The font and text
-# properties (except justification) are the same for each mapper.
+# Create the text mappers and the associated Actor2Ds.
+
+# The font and text properties (except justification) are the same for each
+# single line mapper. Let's create a common text property object
+
+vtkTextProperty singleLineTextProp
+    singleLineTextProp SetFontSize $font_size
+    singleLineTextProp SetFontFamilyToArial
+    singleLineTextProp BoldOff
+    singleLineTextProp ItalicOff
+    singleLineTextProp ShadowOff
+
+# The font and text properties (except justification) are the same for each
+# multi line mapper. Let's create a common text property object
+
+vtkTextProperty multiLineTextProp
+    multiLineTextProp ShallowCopy singleLineTextProp
+    multiLineTextProp BoldOn
+    multiLineTextProp ItalicOn
+    multiLineTextProp ShadowOn
+    multiLineTextProp SetLineSpacing 0.8
 
 # The text is on a single line and bottom-justified.
 vtkTextMapper singleLineTextB
     singleLineTextB SetInput "Single line (bottom)"
-    singleLineTextB SetFontSize $font_size
-    singleLineTextB SetFontFamilyToArial
-    singleLineTextB BoldOff
-    singleLineTextB ItalicOff
-    singleLineTextB ShadowOff
-    singleLineTextB SetVerticalJustificationToBottom
+    set tprop [singleLineTextB GetTextProperty]
+    $tprop ShallowCopy singleLineTextProp
+    $tprop SetVerticalJustificationToBottom
+    $tprop SetColor 1 0 0
 vtkActor2D singleLineTextActorB
     singleLineTextActorB SetMapper singleLineTextB    
     [singleLineTextActorB GetPositionCoordinate] \
           SetCoordinateSystemToNormalizedDisplay
     [singleLineTextActorB GetPositionCoordinate] SetValue 0.05 0.85
-    [singleLineTextActorB GetProperty] SetColor 1 0 0
 
 # The text is on a single line and center-justified (vertical justification).
 vtkTextMapper singleLineTextC
     singleLineTextC SetInput "Single line (centered)"
-    singleLineTextC SetFontSize $font_size
-    singleLineTextC SetFontFamilyToArial
-    singleLineTextC BoldOff
-    singleLineTextC ItalicOff
-    singleLineTextC ShadowOff
-    singleLineTextC SetVerticalJustificationToCentered
+    set tprop [singleLineTextC GetTextProperty]
+    $tprop ShallowCopy singleLineTextProp
+    $tprop SetVerticalJustificationToCentered
+    $tprop SetColor 0 1 0
 vtkActor2D singleLineTextActorC
     singleLineTextActorC SetMapper singleLineTextC    
     [singleLineTextActorC GetPositionCoordinate] \
           SetCoordinateSystemToNormalizedDisplay
     [singleLineTextActorC GetPositionCoordinate] SetValue 0.05 0.75
-    [singleLineTextActorC GetProperty] SetColor 0 1 0
 
 # The text is on a single line and top-justified.
 vtkTextMapper singleLineTextT
     singleLineTextT SetInput "Single line (top)"
-    singleLineTextT SetFontSize $font_size
-    singleLineTextT SetFontFamilyToArial
-    singleLineTextT BoldOff
-    singleLineTextT ItalicOff
-    singleLineTextT ShadowOff
-    singleLineTextT SetVerticalJustificationToTop
+    set tprop [singleLineTextT GetTextProperty]
+    $tprop ShallowCopy singleLineTextProp
+    $tprop SetVerticalJustificationToTop
+    $tprop SetColor 0 0 1
 vtkActor2D singleLineTextActorT
     singleLineTextActorT SetMapper singleLineTextT    
     [singleLineTextActorT GetPositionCoordinate] \
           SetCoordinateSystemToNormalizedDisplay
     [singleLineTextActorT GetPositionCoordinate] SetValue 0.05 0.65
-    [singleLineTextActorT GetProperty] SetColor 0 0 1
 
 # The text is on multiple lines and left- and top-justified.
 vtkTextMapper textMapperL
     textMapperL SetInput "This is\nmulti-line\ntext output\n(left-top)"
-    textMapperL SetFontSize $font_size
-    textMapperL SetFontFamilyToArial
-    textMapperL BoldOn
-    textMapperL ItalicOn
-    textMapperL ShadowOn
-    textMapperL SetJustificationToLeft
-    textMapperL SetVerticalJustificationToTop
-    textMapperL SetLineSpacing 0.8
+    set tprop [textMapperL GetTextProperty]
+    $tprop ShallowCopy multiLineTextProp
+    $tprop SetJustificationToLeft
+    $tprop SetVerticalJustificationToTop
+    $tprop SetColor 1 0 0
 vtkActor2D textActorL
     textActorL SetMapper textMapperL    
     [textActorL GetPositionCoordinate] SetCoordinateSystemToNormalizedDisplay
     [textActorL GetPositionCoordinate] SetValue 0.05 0.5
-    [textActorL GetProperty] SetColor 1 0 0
 
 # The text is on multiple lines and center-justified (both horizontal and
 # vertical).
 vtkTextMapper textMapperC
     textMapperC SetInput "This is\nmulti-line\ntext output\n(centered)"
-    textMapperC SetFontSize $font_size
-    textMapperC SetFontFamilyToArial
-    textMapperC BoldOn
-    textMapperC ItalicOn
-    textMapperC ShadowOn
-    textMapperC SetJustificationToCentered
-    textMapperC SetVerticalJustificationToCentered
-    textMapperC SetLineSpacing 0.8
+    set tprop [textMapperC GetTextProperty]
+    $tprop ShallowCopy multiLineTextProp
+    $tprop SetJustificationToCentered
+    $tprop SetVerticalJustificationToCentered
+    $tprop SetColor 0 1 0
 vtkActor2D textActorC
     textActorC SetMapper textMapperC    
     [textActorC GetPositionCoordinate] SetCoordinateSystemToNormalizedDisplay
     [textActorC GetPositionCoordinate] SetValue 0.5 0.5
-    [textActorC GetProperty] SetColor 0 1 0
 
 # The text is on multiple lines and right- and bottom-justified.
 vtkTextMapper textMapperR
     textMapperR SetInput "This is\nmulti-line\ntext output\n(right-bottom)"
-    textMapperR SetFontSize $font_size
-    textMapperR SetFontFamilyToArial
-    textMapperR BoldOn
-    textMapperR ItalicOn
-    textMapperR ShadowOn
-    textMapperR SetJustificationToRight
-    textMapperR SetVerticalJustificationToBottom
-    textMapperR SetLineSpacing 0.8
+    set tprop [textMapperR GetTextProperty]
+    $tprop ShallowCopy multiLineTextProp
+    $tprop SetJustificationToRight
+    $tprop SetVerticalJustificationToBottom
+    $tprop SetColor 0 0 1
 vtkActor2D textActorR
     textActorR SetMapper textMapperR    
     [textActorR GetPositionCoordinate] SetCoordinateSystemToNormalizedDisplay
     [textActorR GetPositionCoordinate] SetValue 0.95 0.5
-    [textActorR GetProperty] SetColor 0 0 1
 
 # Draw the grid to demonstrate the placement of the text.
 

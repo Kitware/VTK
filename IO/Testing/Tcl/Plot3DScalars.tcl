@@ -17,6 +17,13 @@ vtkCamera camera
 vtkLight light
 vtkMath math
 
+# All text actors will share the same text prop
+
+vtkTextProperty textProp
+  textProp SetFontSize 10
+  textProp SetFontFamilyToArial
+  textProp SetColor 0 0 0
+
 set i 0
 foreach scalarFunction $scalarFunctions {
   vtkPLOT3DReader pl3d$scalarFunction
@@ -44,12 +51,10 @@ ren$scalarFunction AddActor actor$scalarFunction
 
 vtkTextMapper textMapper$scalarFunction
   textMapper$scalarFunction SetInput [lindex $scalarLabels $i]
-  textMapper$scalarFunction SetFontSize 10
-  textMapper$scalarFunction SetFontFamilyToArial
+  textMapper$scalarFunction SetTextProperty textProp
 vtkActor2D text$scalarFunction
   text$scalarFunction SetMapper textMapper$scalarFunction
   text$scalarFunction SetPosition 2 3
-  [text$scalarFunction GetProperty] SetColor 0 0 0
 
     if { [info command rtExMath] == ""} {
 	ren$scalarFunction AddActor2D text$scalarFunction

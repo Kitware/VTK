@@ -18,6 +18,9 @@ vtkParallelCoordinatesActor actor
     [actor GetPositionCoordinate] SetValue 0.05 0.05 0.0
     [actor GetPosition2Coordinate] SetValue 0.95 0.85 0.0
     [actor GetProperty] SetColor 1 0 0
+    # Set text colors (same as actor for backward compat with test)
+    [actor GetTitleTextProperty] SetColor 1 0 0
+    [actor GetLabelTextProperty] SetColor 1 0 0
 
 # Create the RenderWindow, Renderer and both Actors
 vtkRenderer ren1

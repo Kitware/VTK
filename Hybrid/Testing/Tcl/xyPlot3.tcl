@@ -101,6 +101,13 @@ vtkXYPlotActor xyplot
     xyplot SetPlotColor 2 0 0 1
     xyplot SetGlyphSize 0.025
 
+    # Set text prop color (same color for backward compat with test)
+    # Assign same object to all text props
+    set tprop [xyplot GetTitleTextProperty]
+    eval $tprop SetColor [[xyplot GetProperty] GetColor]
+    xyplot SetAxisTitleTextProperty $tprop
+    xyplot SetAxisLabelTextProperty $tprop
+
 #Okay exercise data object stuff
 vtkDataSetToDataObjectFilter ds2do
     ds2do SetInput [probe GetOutput]
@@ -147,6 +154,13 @@ vtkXYPlotActor xyplot3
     xyplot3 SetPlotPoints 2 1
 
     xyplot3 LogxOn
+
+    # Set text prop color (same color for backward compat with test)
+    # Assign same object to all text props
+    set tprop [xyplot3 GetTitleTextProperty]
+    eval $tprop SetColor [[xyplot3 GetProperty] GetColor]
+    xyplot3 SetAxisTitleTextProperty $tprop
+    xyplot3 SetAxisLabelTextProperty $tprop
 
 # draw an outline
 vtkStructuredGridOutlineFilter outline
