@@ -217,7 +217,7 @@ void MyMain( vtkMultiProcessController *controller, void *arg )
 
 
     *(args->retVal) = 
-      vtkRegressionTestImage2(args->argc, args->argv, renWindow);
+      vtkRegressionTestImage2(args->argc, args->argv, renWindow, 10);
 
     // Tell the other processors to stop processing RMIs.
     for (i = 1; i < numProcs; ++i)
