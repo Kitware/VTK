@@ -87,7 +87,7 @@ protected:
 
   virtual void Execute();
   int ReadMolecule(FILE *fp);
-  int MakeAtomType(char *atype);
+  int MakeAtomType(const char *atype);
   int MakeBonds(vtkPoints*, vtkIdTypeArray*, vtkCellArray*);
 
   vtkPoints *Points;
