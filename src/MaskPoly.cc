@@ -30,7 +30,8 @@ void vlMaskPolyData::Execute()
   int numVerts, numLines, numPolys, numStrips;
   vlCellArray *inVerts,*inLines,*inPolys,*inStrips;
   int numNewVerts, numNewLines, numNewPolys, numNewStrips;
-  vlCellArray *newVerts, *newLines, *newPolys, *newStrips;
+  vlCellArray *newVerts=NULL, *newLines=NULL;
+  vlCellArray *newPolys=NULL, *newStrips=NULL;
   int id, interval;
   vlPointData *pd;
   int npts, *pts;
@@ -65,52 +66,73 @@ void vlMaskPolyData::Execute()
 //
 // Allocate space
 //
-  newVerts = new vlCellArray(numNewVerts);
+  if ( numNewVerts )
+    newVerts = new vlCellArray(numNewVerts);
 
-  newLines = new vlCellArray;
-  newLines->Allocate(newLines->EstimateSize(numNewLines,2));
+  if ( numNewLines )
+    {
+    newLines = new vlCellArray;
+    newLines->Allocate(newLines->EstimateSize(numNewLines,2));
+    }
 
-  newPolys = new vlCellArray;
-  newPolys->Allocate(newPolys->EstimateSize(numNewPolys,4));
+  if ( numNewPolys )
+    {
+    newPolys = new vlCellArray;
+    newPolys->Allocate(newPolys->EstimateSize(numNewPolys,4));
+    }
 
-  newStrips = new vlCellArray;
-  newStrips->Allocate(newStrips->EstimateSize(numNewStrips,6));
+  if ( numNewStrips )
+    {
+    newStrips = new vlCellArray;
+    newStrips->Allocate(newStrips->EstimateSize(numNewStrips,6));
+    }
 //
 // Traverse topological lists and traverse
 //
   interval = this->Offset + this->OnRatio;
-  for (id=0, inVerts->InitTraversal(); inVerts->GetNextCell(npts,pts); id++)
+  if ( newVerts )
     {
-    if ( ! (id % interval) )
+    for (id=0, inVerts->InitTraversal(); inVerts->GetNextCell(npts,pts); id++)
       {
-      newVerts->InsertNextCell(npts,pts);
+      if ( ! (id % interval) )
+        {
+        newVerts->InsertNextCell(npts,pts);
+        }
       }
     }
 
-  for (id=0, inLines->InitTraversal(); inLines->GetNextCell(npts,pts); id++)
+  if ( newLines )
     {
-    if ( ! (id % interval) )
+    for (id=0, inLines->InitTraversal(); inLines->GetNextCell(npts,pts); id++)
       {
-      newLines->InsertNextCell(npts,pts);
+      if ( ! (id % interval) )
+        {
+        newLines->InsertNextCell(npts,pts);
+        }
       }
     }
 
-  for (id=0, inPolys->InitTraversal(); inPolys->GetNextCell(npts,pts); id++)
+  if ( newPolys )
     {
-    if ( ! (id % interval) )
+    for (id=0, inPolys->InitTraversal(); inPolys->GetNextCell(npts,pts); id++)
       {
-      newPolys->InsertNextCell(npts,pts);
+      if ( ! (id % interval) )
+        {
+        newPolys->InsertNextCell(npts,pts);
+        }
       }
     }
 
-  for (id=0, inStrips->InitTraversal(); inStrips->GetNextCell(npts,pts); id++)
+  if ( newStrips )
     {
-    if ( ! (id % interval) )
+    for (id=0, inStrips->InitTraversal(); inStrips->GetNextCell(npts,pts); id++)
       {
-      newStrips->InsertNextCell(npts,pts);
+      if ( ! (id % interval) )
+        {
+        newStrips->InsertNextCell(npts,pts);
+        }
       }
     }
-
 //
 // Update ourselves
 //
