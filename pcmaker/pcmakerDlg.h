@@ -15,9 +15,11 @@ public:
 	enum { IDD = IDD_PCMAKER_DIALOG };
 	CString	m_WhereVTK;
 	CString	m_WhereBuild;
-	CString	m_WhereCompiler;
 	BOOL	m_BorlandComp;
 	BOOL	m_MSComp;
+	BOOL	m_Contrib;
+	BOOL	m_Graphics;
+	BOOL	m_Imaging;
 	//}}AFX_DATA
 
 	// ClassWizard generated virtual function overrides

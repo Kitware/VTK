@@ -72,26 +72,31 @@ IDR_MAINFRAME           ICON    DISCARDABLE     "res\\pcmaker.ico"
 // Dialog
 //
 
-IDD_PCMAKER_DIALOG DIALOGEX 0, 0, 185, 145
+IDD_PCMAKER_DIALOG DIALOGEX 0, 0, 185, 154
 STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
 EXSTYLE WS_EX_APPWINDOW
 CAPTION "pcmaker"
 FONT 8, "MS Sans Serif"
 BEGIN
-    DEFPUSHBUTTON   "OK",IDOK,31,123,50,14
-    PUSHBUTTON      "Cancel",IDCANCEL,97,123,50,14
-    GROUPBOX        "What Compiler",IDC_COMPILER,16,89,152,30,WS_TABSTOP
+    DEFPUSHBUTTON   "OK",IDOK,31,133,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,97,133,50,14
+    GROUPBOX        "What Compiler",IDC_COMPILER,7,99,171,30,WS_TABSTOP
     EDITTEXT        IDC_WHEREVTK,16,15,155,14,ES_AUTOHSCROLL
     LTEXT           "Where is vtk installed",IDC_STATIC,7,7,65,8
-    LTEXT           "Where is your compiler installed",IDC_STATIC,7,32,104,8
-    EDITTEXT        IDC_WHERECOMPILER,16,42,155,14,ES_AUTOHSCROLL
     LTEXT           "Where do you want to build the vtk libraries",
-                    IDC_STATIC,7,58,139,8
-    EDITTEXT        IDC_WHEREBUILD,16,69,154,14,ES_AUTOHSCROLL
+                    IDC_STATIC,7,33,139,8
+    EDITTEXT        IDC_WHEREBUILD,16,44,154,14,ES_AUTOHSCROLL
     CONTROL         "Microsoft",IDC_MSCOMP,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,35,101,43,10
+                    WS_TABSTOP,35,111,43,10
     CONTROL         "Borland",IDC_BORLANDCOMP,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,115,102,40,10
+                    WS_TABSTOP,115,112,40,10
+    GROUPBOX        "Additional Toolkits",IDC_STATIC,7,66,171,30
+    CONTROL         "Graphics",IDC_Graphics,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,15,79,56,10
+    CONTROL         "Imaging",IDC_Imaging,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,75,79,41,10
+    CONTROL         "Contrib",IDC_Contrib,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,129,79,38,10
 END
 
 
@@ -151,7 +156,7 @@ BEGIN
         LEFTMARGIN, 7
         RIGHTMARGIN, 178
         TOPMARGIN, 7
-        BOTTOMMARGIN, 138
+        BOTTOMMARGIN, 147
     END
 END
 #endif    // APSTUDIO_INVOKED

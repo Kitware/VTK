@@ -23,9 +23,11 @@ CPcmakerDlg::CPcmakerDlg(CWnd* pParent /*=NULL*/)
 	//{{AFX_DATA_INIT(CPcmakerDlg)
 	m_WhereVTK = _T("");
 	m_WhereBuild = _T("");
-	m_WhereCompiler = _T("");
 	m_BorlandComp = FALSE;
-	m_MSComp = FALSE;
+	m_MSComp = TRUE;
+	m_Contrib = TRUE;
+	m_Graphics = TRUE;
+	m_Imaging = TRUE;
 	//}}AFX_DATA_INIT
 	// Note that LoadIcon does not require a subsequent DestroyIcon in Win32
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
@@ -39,10 +41,11 @@ void CPcmakerDlg::DoDataExchange(CDataExchange* pDX)
 	DDV_MaxChars(pDX, m_WhereVTK, 80);
 	DDX_Text(pDX, IDC_WHEREBUILD, m_WhereBuild);
 	DDV_MaxChars(pDX, m_WhereBuild, 80);
-	DDX_Text(pDX, IDC_WHERECOMPILER, m_WhereCompiler);
-	DDV_MaxChars(pDX, m_WhereCompiler, 80);
 	DDX_Check(pDX, IDC_BORLANDCOMP, m_BorlandComp);
 	DDX_Check(pDX, IDC_MSCOMP, m_MSComp);
+	DDX_Check(pDX, IDC_Contrib, m_Contrib);
+	DDX_Check(pDX, IDC_Graphics, m_Graphics);
+	DDX_Check(pDX, IDC_Imaging, m_Imaging);
 	//}}AFX_DATA_MAP
 }
 
@@ -60,9 +63,8 @@ BOOL CPcmakerDlg::OnInitDialog()
 {
 	this->m_WhereBuild = "C:\\vtkbin";
 	this->m_WhereVTK = "C:\\vtk";
-    this->m_WhereCompiler = "C:\\msdev";
-	this->m_MSComp = TRUE;
-	this->m_BorlandComp = FALSE;
+	//this->m_MSComp = TRUE;
+	//this->m_BorlandComp = FALSE;
 	CDialog::OnInitDialog();
 
 	// Set the icon for this dialog.  The framework does this automatically
@@ -112,7 +114,8 @@ HCURSOR CPcmakerDlg::OnQueryDragIcon()
 }
 
 extern void makeMakefile(const char *vtkHome, 
-                         const char *vtkBuild, int useMS);
+                         const char *vtkBuild, int useMS,
+						 int useGraphics, int useImaging, int useContrib);
 
 void CPcmakerDlg::OnOK() 
 {
@@ -168,8 +171,11 @@ void CPcmakerDlg::OnOK()
   if (_stat(fname,&statBuff) == -1) _mkdir(fname);
   sprintf(fname,"%s\\vtktcl",this->m_WhereBuild);
   if (_stat(fname,&statBuff) == -1) _mkdir(fname);
+  sprintf(fname,"%s\\vtktcl\\src",this->m_WhereBuild);
+  if (_stat(fname,&statBuff) == -1) _mkdir(fname);
+  
+  makeMakefile(this->m_WhereVTK, this->m_WhereBuild, this->m_MSComp,
+	           this->m_Graphics, this->m_Imaging, this->m_Contrib);
 
-	makeMakefile(this->m_WhereVTK, this->m_WhereBuild, this->m_MSComp);
-
-	CDialog::OnOK();
+  CDialog::OnOK();
 }
