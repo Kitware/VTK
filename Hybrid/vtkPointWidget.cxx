@@ -17,6 +17,7 @@
 =========================================================================*/
 #include "vtkPointWidget.h"
 
+#include "vtkActor.h"
 #include "vtkAssemblyNode.h"
 #include "vtkCallbackCommand.h"
 #include "vtkCamera.h"
@@ -24,11 +25,12 @@
 #include "vtkMath.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
+#include "vtkRenderer.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderWindow.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPointWidget, "1.10");
+vtkCxxRevisionMacro(vtkPointWidget, "1.11");
 vtkStandardNewMacro(vtkPointWidget);
 
 vtkPointWidget::vtkPointWidget()

@@ -17,6 +17,7 @@
 =========================================================================*/
 #include "vtkActor.h"
 #include "vtkCamera.h"
+#include "vtkCullerCollection.h"
 #include "vtkPlaneSource.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRenderWindow.h"

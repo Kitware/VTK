@@ -21,9 +21,11 @@
 #include "vtkCamera.h"
 #include "vtkCommand.h"
 #include "vtkCuller.h"
+#include "vtkCullerCollection.h"
 #include "vtkFrustumCoverageCuller.h"
 #include "vtkGraphicsFactory.h"
 #include "vtkLight.h"
+#include "vtkLightCollection.h"
 #include "vtkMath.h"
 #include "vtkOutputWindow.h"
 #include "vtkPicker.h"
@@ -32,7 +34,7 @@
 #include "vtkTimerLog.h"
 #include "vtkVolume.h"
 
-vtkCxxRevisionMacro(vtkRenderer, "1.185");
+vtkCxxRevisionMacro(vtkRenderer, "1.186");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.

@@ -17,6 +17,7 @@
 =========================================================================*/
 #include "vtkInteractorStyle.h"
 
+#include "vtkActor.h"
 #include "vtkActor2D.h"
 #include "vtkAssemblyNode.h"
 #include "vtkCallbackCommand.h"
@@ -30,9 +31,10 @@
 #include "vtkProperty2D.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkTextProperty.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyle, "1.81");
+vtkCxxRevisionMacro(vtkInteractorStyle, "1.82");
 vtkStandardNewMacro(vtkInteractorStyle);
 
 //----------------------------------------------------------------------------

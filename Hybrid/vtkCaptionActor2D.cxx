@@ -31,8 +31,9 @@
 #include "vtkProperty2D.h"
 #include "vtkTextActor.h"
 #include "vtkTextProperty.h"
+#include "vtkViewport.h"
 
-vtkCxxRevisionMacro(vtkCaptionActor2D, "1.20");
+vtkCxxRevisionMacro(vtkCaptionActor2D, "1.21");
 vtkStandardNewMacro(vtkCaptionActor2D);
 
 vtkCxxSetObjectMacro(vtkCaptionActor2D,LeaderGlyph,vtkPolyData);

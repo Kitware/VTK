@@ -15,13 +15,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include <math.h>
 #include "vtkOpenGLRenderer.h"
-#include "vtkRenderWindow.h"
-#include "vtkOpenGLProperty.h"
+
+#include "vtkCuller.h"
+#include "vtkLightCollection.h"
+#include "vtkObjectFactory.h"
 #include "vtkOpenGLCamera.h"
 #include "vtkOpenGLLight.h"
-#include "vtkCuller.h"
+#include "vtkOpenGLProperty.h"
+#include "vtkRenderWindow.h"
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
 #ifdef __APPLE__
@@ -30,7 +32,8 @@
 #include <GL/gl.h>
 #endif
 #endif
-#include "vtkObjectFactory.h"
+
+#include <math.h>
 
 class vtkGLPickInfo
 {
@@ -40,7 +43,7 @@ public:
 };
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLRenderer, "1.42");
+vtkCxxRevisionMacro(vtkOpenGLRenderer, "1.43");
 vtkStandardNewMacro(vtkOpenGLRenderer);
 #endif
 

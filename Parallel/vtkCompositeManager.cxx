@@ -23,6 +23,7 @@
 #include "vtkCompressCompositer.h"
 #include "vtkFloatArray.h"
 #include "vtkLight.h"
+#include "vtkLightCollection.h"
 #include "vtkMultiProcessController.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyDataMapper.h"
@@ -44,7 +45,7 @@
  #include <mpi.h>
 #endif
 
-vtkCxxRevisionMacro(vtkCompositeManager, "1.42");
+vtkCxxRevisionMacro(vtkCompositeManager, "1.43");
 vtkStandardNewMacro(vtkCompositeManager);
 
 

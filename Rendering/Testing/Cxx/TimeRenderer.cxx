@@ -20,6 +20,7 @@
 #include "vtkCellArray.h"
 #include "vtkConeSource.h"
 #include "vtkCubeSource.h"
+#include "vtkCullerCollection.h"
 #include "vtkGlyph3D.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"

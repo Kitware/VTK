@@ -34,14 +34,8 @@
 
 #include "vtkViewport.h"
 
-//#include "vtkMatrix4x4.h"
-#include "vtkLightCollection.h"
-#include "vtkVolumeCollection.h"
-#include "vtkCullerCollection.h"
-//#include "vtkCamera.h"
-//#include "vtkActor.h"
-//#include "vtkActor2D.h"
-#include "vtkActorCollection.h"
+#include "vtkVolumeCollection.h" // Needed for access in inline members
+#include "vtkActorCollection.h" // Needed for access in inline members
 
 class vtkRenderWindow;
 class vtkVolume;
@@ -49,6 +43,9 @@ class vtkCuller;
 class vtkActor;
 class vtkActor2D;
 class vtkCamera;
+class vtkLightCollection;
+class vtkCullerCollection;
+class vtkLight;
 
 class VTK_RENDERING_EXPORT vtkRenderer : public vtkViewport
 {

@@ -17,6 +17,7 @@
 =========================================================================*/
 #include "vtkPlaneWidget.h"
 
+#include "vtkActor.h"
 #include "vtkAssemblyNode.h"
 #include "vtkCallbackCommand.h"
 #include "vtkCamera.h"
@@ -32,11 +33,12 @@
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
+#include "vtkRenderer.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkSphereSource.h"
 #include "vtkPlane.h"
 
-vtkCxxRevisionMacro(vtkPlaneWidget, "1.25");
+vtkCxxRevisionMacro(vtkPlaneWidget, "1.26");
 vtkStandardNewMacro(vtkPlaneWidget);
 
 vtkCxxSetObjectMacro(vtkPlaneWidget,PlaneProperty,vtkProperty);

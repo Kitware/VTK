@@ -16,10 +16,12 @@
 
 =========================================================================*/
 #include "vtkPolyDataMapper.h"
+
 #include "vtkRenderWindow.h"
 #include "vtkGraphicsFactory.h"
+#include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkPolyDataMapper, "1.30");
+vtkCxxRevisionMacro(vtkPolyDataMapper, "1.31");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.

@@ -52,9 +52,11 @@
 #include "vtkPolyDataMapper.h"
 #include "vtkPolyDataNormals.h"
 #include "vtkProperty.h"
+#include "vtkRenderer.h"
 #include "vtkSphereSource.h"
 #include "vtkStripper.h"
 #include "vtkSystemIncludes.h"
+#include "vtkTransform.h"
 #include "vtkVRML.h"
 
 class vtkVRMLImporterInternal {
@@ -4250,7 +4252,7 @@ YY_MALLOC_DECL
 #define YY_BREAK break;
 #endif
 
-vtkCxxRevisionMacro(vtkVRMLImporter, "1.54");
+vtkCxxRevisionMacro(vtkVRMLImporter, "1.55");
 vtkStandardNewMacro(vtkVRMLImporter);
 
 vtkPoints* vtkVRMLImporter::PointsNew()

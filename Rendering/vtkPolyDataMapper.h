@@ -30,8 +30,9 @@
 #define __vtkPolyDataMapper_h
 
 #include "vtkMapper.h"
-#include "vtkPolyData.h"
-#include "vtkRenderer.h"
+
+class vtkPolyData;
+class vtkRenderer;
 
 class VTK_RENDERING_EXPORT vtkPolyDataMapper : public vtkMapper 
 {
@@ -76,7 +77,7 @@ public:
   // (xmin,xmax, ymin,ymax, zmin,zmax).
   virtual float *GetBounds();
   virtual void GetBounds(float bounds[6]) 
-    {this->vtkMapper::GetBounds(bounds);};
+    {this->Superclass::GetBounds(bounds);};
   
   // Description:
   // Make a shallow copy of this mapper.

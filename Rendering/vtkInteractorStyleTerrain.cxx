@@ -17,6 +17,7 @@
 =========================================================================*/
 #include "vtkInteractorStyleTerrain.h"
 
+#include "vtkActor.h"
 #include "vtkCamera.h"
 #include "vtkCommand.h"
 #include "vtkExtractEdges.h"
@@ -25,9 +26,10 @@
 #include "vtkPolyDataMapper.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSphereSource.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleTerrain, "1.4");
+vtkCxxRevisionMacro(vtkInteractorStyleTerrain, "1.5");
 vtkStandardNewMacro(vtkInteractorStyleTerrain);
 
 //----------------------------------------------------------------------------

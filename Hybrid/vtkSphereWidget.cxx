@@ -17,6 +17,7 @@
 =========================================================================*/
 #include "vtkSphereWidget.h"
 
+#include "vtkActor.h"
 #include "vtkAssemblyNode.h"
 #include "vtkCallbackCommand.h"
 #include "vtkCamera.h"
@@ -26,11 +27,12 @@
 #include "vtkObjectFactory.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
+#include "vtkRenderer.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkSphere.h"
 #include "vtkSphereSource.h"
 
-vtkCxxRevisionMacro(vtkSphereWidget, "1.17");
+vtkCxxRevisionMacro(vtkSphereWidget, "1.18");
 vtkStandardNewMacro(vtkSphereWidget);
 
 vtkSphereWidget::vtkSphereWidget()

@@ -34,9 +34,10 @@
 #define __vtkProp3D_h
 
 #include "vtkProp.h"
-#include "vtkTransform.h"
 
 class vtkRenderer;
+class vtkTransform;
+class vtkLinearTransform;
 
 class VTK_RENDERING_EXPORT vtkProp3D : public vtkProp
 {
@@ -145,9 +146,7 @@ public:
   // Description:
   // The UserMatrix can be used in place of UserTransform.
   void SetUserMatrix(vtkMatrix4x4 *matrix);
-  vtkMatrix4x4 *GetUserMatrix() { 
-    if (this->UserTransform) { this->UserTransform->Update(); };
-    return this->UserMatrix; };
+  vtkMatrix4x4 *GetUserMatrix();
 
   // Description:
   // Return a reference to the Prop3D's 4x4 composite matrix.

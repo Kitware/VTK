@@ -16,15 +16,16 @@
 
 =========================================================================*/
 #include "vtkProp3D.h"
+
 #include "vtkActor.h"
 #include "vtkMatrixToLinearTransform.h"
+#include "vtkTransform.h"
 
-#include <stdlib.h>
 #include <math.h>
 
 typedef double (*SqMatPtr)[4];
 
-vtkCxxRevisionMacro(vtkProp3D, "1.27");
+vtkCxxRevisionMacro(vtkProp3D, "1.28");
 
 // Construct with the following defaults: origin(0,0,0) 
 // position=(0,0,0) and orientation=(0,0,0). No user defined 
@@ -525,6 +526,15 @@ void vtkProp3D::InitPathTraversal()
   path->Delete();
 
   this->Paths->InitTraversal();
+}
+
+vtkMatrix4x4* vtkProp3D::GetUserMatrix() 
+{ 
+  if (this->UserTransform) 
+    { 
+    this->UserTransform->Update(); 
+    }
+  return this->UserMatrix; 
 }
 
 void vtkProp3D::PrintSelf(ostream& os, vtkIndent indent)

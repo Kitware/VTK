@@ -19,6 +19,7 @@
 
 #include "vtkMapperCollection.h"
 #include "vtkMaskPoints.h"
+#include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
 #include "vtkOutlineFilter.h"
 #include "vtkPolyDataMapper.h"
@@ -29,7 +30,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkLODActor, "1.62");
+vtkCxxRevisionMacro(vtkLODActor, "1.63");
 vtkStandardNewMacro(vtkLODActor);
 
 //----------------------------------------------------------------------------

@@ -17,6 +17,7 @@
 =========================================================================*/
 #include "vtkImplicitPlaneWidget.h"
 
+#include "vtkActor.h"
 #include "vtkAssemblyNode.h"
 #include "vtkCallbackCommand.h"
 #include "vtkCamera.h"
@@ -32,12 +33,13 @@
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
+#include "vtkRenderer.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkPlane.h"
 #include "vtkFeatureEdges.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImplicitPlaneWidget, "1.9");
+vtkCxxRevisionMacro(vtkImplicitPlaneWidget, "1.10");
 vtkStandardNewMacro(vtkImplicitPlaneWidget);
 
 vtkImplicitPlaneWidget::vtkImplicitPlaneWidget() : vtkPolyDataSourceWidget()

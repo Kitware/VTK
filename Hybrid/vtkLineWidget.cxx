@@ -17,6 +17,7 @@
 =========================================================================*/
 #include "vtkLineWidget.h"
 
+#include "vtkActor.h"
 #include "vtkAssemblyNode.h"
 #include "vtkCallbackCommand.h"
 #include "vtkCamera.h"
@@ -29,13 +30,14 @@
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
+#include "vtkRenderer.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkSphereSource.h"
 #include "vtkRenderWindow.h"
 #include "vtkPointWidget.h"
 #include "vtkCommand.h"
 
-vtkCxxRevisionMacro(vtkLineWidget, "1.31");
+vtkCxxRevisionMacro(vtkLineWidget, "1.32");
 vtkStandardNewMacro(vtkLineWidget);
 
 // This class is used to coordinate the interaction between the point widget
