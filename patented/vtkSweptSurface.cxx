@@ -413,7 +413,8 @@ void vtkSweptSurface::ComputeBounds(float origin[3], float spacing[3], float bbo
     {
     int numTransforms, transNum;
     float position[3], orientation[3], position1[3], orient1[3];
-    float position2[3], orient2[3];
+    // position2 is [4] for GetPoint() call in GetRelativePosition
+    float position2[4], orient2[3];
     vtkActor *a = vtkActor::New();
     vtkTransform *t, *t2, *transform1, *transform2;
 
