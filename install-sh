@@ -26,6 +26,7 @@ chownprog="${CHOWNPROG-chown}"
 chgrpprog="${CHGRPPROG-chgrp}"
 stripprog="${STRIPPROG-strip}"
 rmprog="${RMPROG-rm}"
+mkdirprog="${MKDIRPROG-mkdir -p}"
 
 instcmd="$mvprog"
 chmodcmd=""
@@ -36,10 +37,17 @@ rmcmd="$rmprog -f"
 mvcmd="$mvprog"
 src=""
 dst=""
+mkdir=n
 
 while [ x"$1" != x ]; do
     case $1 in
 	-c) instcmd="$cpprog"
+	    shift
+	    continue;;
+
+	-d) instcmd="$mkdirprog"
+	    mkdir=y
+	    src="/dev/null"
 	    shift
 	    continue;;
 
@@ -86,23 +94,30 @@ then
 fi
 
 
-# If destination is a directory, append the input filename; if your system
-# does not like double slashes in filenames, you may need to add some logic
+if [ $mkdir = y ]; then
+	$doit $instcmd $dst
+	dsttmp=$dst
+else
 
-if [ -d $dst ]
-then
-	dst="$dst"/`basename $src`
+	# If destination is a directory, append the input filename; if your
+	# system does not like double slashes in filenames, you may need to
+	# add some logic
+
+	if [ $mkdir = n -a -d $dst ]
+	then
+		dst="$dst"/`basename $src`
+	fi
+
+	# Make a temp file name in the proper directory.
+	
+	dstdir=`dirname $dst`
+	dsttmp=$dstdir/#inst.$$#
+
+	# Move or copy the file name to the temp name
+
+	$doit $instcmd $src $dsttmp
 fi
-
-# Make a temp file name in the proper directory.
-
-dstdir=`dirname $dst`
-dsttmp=$dstdir/#inst.$$#
-
-# Move or copy the file name to the temp name
-
-$doit $instcmd $src $dsttmp
-
+	
 # and set any options; do chmod last to preserve setuid bits
 
 if [ x"$chowncmd" != x ]; then $doit $chowncmd $dsttmp; fi
@@ -110,10 +125,11 @@ if [ x"$chgrpcmd" != x ]; then $doit $chgrpcmd $dsttmp; fi
 if [ x"$stripcmd" != x ]; then $doit $stripcmd $dsttmp; fi
 if [ x"$chmodcmd" != x ]; then $doit $chmodcmd $dsttmp; fi
 
-# Now rename the file to the real destination.
-
-$doit $rmcmd $dst
-$doit $mvcmd $dsttmp $dst
-
+if [ $mkdir = n ]; then
+	# Now rename the file to the real destination.
+	
+	$doit $rmcmd $dst
+	$doit $mvcmd $dsttmp $dst
+fi
 
 exit 0
