@@ -46,9 +46,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkCellArray.hh"
 #include "vtkLine.hh"
 
-static vtkMath math;
-static vtkPlane plane;
-static vtkPolygon poly;
+static vtkPlane vtkAPlane;
 
 // Description:
 // Deep copy of cell.
@@ -66,6 +64,8 @@ int vtkPixel::EvaluatePosition(float x[3], float closestPoint[3],
   int i;
   float p[3], p21[3], p31[3];
   float l21, l31, n[3];
+  static vtkPolygon vtkAPoly;
+  static vtkMath vtkAMath;
 
   subId = 0;
   pcoords[0] = pcoords[1] = pcoords[2] = 0.0;
@@ -76,11 +76,11 @@ int vtkPixel::EvaluatePosition(float x[3], float closestPoint[3],
   pt2 = this->Points.GetPoint(1);
   pt3 = this->Points.GetPoint(2);
 
-  poly.ComputeNormal (pt1, pt2, pt3, n);
+  vtkAPoly.ComputeNormal (pt1, pt2, pt3, n);
 //
 // Project point to plane
 //
-  plane.ProjectPoint(x,pt1,n,closestPoint);
+  vtkAPlane.ProjectPoint(x,pt1,n,closestPoint);
 
   for (i=0; i<3; i++)
     {
@@ -89,18 +89,18 @@ int vtkPixel::EvaluatePosition(float x[3], float closestPoint[3],
     p[i] = x[i] - pt1[i];
     }
 
-  if ( (l21=math.Norm(p21)) == 0.0 ) l21 = 1.0;
-  if ( (l31=math.Norm(p31)) == 0.0 ) l31 = 1.0;
+  if ( (l21=vtkAMath.Norm(p21)) == 0.0 ) l21 = 1.0;
+  if ( (l31=vtkAMath.Norm(p31)) == 0.0 ) l31 = 1.0;
 
-  pcoords[0] = math.Dot(p21,p) / (l21*l21);
-  pcoords[1] = math.Dot(p31,p) / (l31*l31);
+  pcoords[0] = vtkAMath.Dot(p21,p) / (l21*l21);
+  pcoords[1] = vtkAMath.Dot(p31,p) / (l31*l31);
 
   this->InterpolationFunctions(pcoords, weights);
 
   if ( pcoords[0] >= 0.0 && pcoords[1] <= 1.0 &&
   pcoords[1] >= 0.0 && pcoords[1] <= 1.0 )
     {
-    dist2 = math.Distance2BetweenPoints(closestPoint,x); //projection distance
+    dist2 = vtkAMath.Distance2BetweenPoints(closestPoint,x); //projection distance
     return 1;
     }
   else
@@ -113,7 +113,7 @@ int vtkPixel::EvaluatePosition(float x[3], float closestPoint[3],
       else pc[i] = pcoords[i];
       }
     this->EvaluateLocation(subId, pc, closestPoint, (float *)w);
-    dist2 = math.Distance2BetweenPoints(closestPoint,x);
+    dist2 = vtkAMath.Distance2BetweenPoints(closestPoint,x);
     return 0;
     }
 }
@@ -310,7 +310,7 @@ int vtkPixel::IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
 //
 // Intersect plane of pixel with line
 //
-  if ( ! plane.IntersectWithLine(p1,p2,n,pt1,t,x) ) return 0;
+  if ( ! vtkAPlane.IntersectWithLine(p1,p2,n,pt1,t,x) ) return 0;
 //
 // Use evaluate position
 //
