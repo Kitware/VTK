@@ -28,6 +28,10 @@
 
 #ifdef VTK_USE_ANSI_STDLIB
 
+#ifdef _MSC_VER
+#pragma warning (push, 3)
+#endif
+
 // Forward-declare ansi streams.
 # include <iosfwd>
 using std::ios;
@@ -39,6 +43,11 @@ using std::filebuf;
 using std::ifstream;
 using std::ofstream;
 using std::fstream;
+
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
+
 #else
 # ifdef __BORLANDC__
 #  include <iosfwd.h>
