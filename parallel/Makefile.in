@@ -24,6 +24,7 @@ vtkCommunicator
 
 CONCRETE = \
 vtkExtractPolyDataPiece \
+vtkExtractUnstructuredGridPiece \
 vtkGetRemoteGhostCells \
 vtkImageComposite \
 vtkInputPort \
