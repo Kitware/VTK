@@ -47,7 +47,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkBase64InputStream.h"
 #include "vtkDataCompressor.h"
 
-vtkCxxRevisionMacro(vtkXMLDataParser, "1.1");
+vtkCxxRevisionMacro(vtkXMLDataParser, "1.2");
 vtkStandardNewMacro(vtkXMLDataParser);
 vtkCxxSetObjectMacro(vtkXMLDataParser, Compressor, vtkDataCompressor);
 
@@ -78,6 +78,13 @@ vtkXMLDataParser::vtkXMLDataParser()
 #else
   this->ByteOrder = vtkXMLDataParser::LittleEndian;
 #endif  
+
+  // Input id type defaults to that compiled in.
+#ifdef VTK_USE_64BIT_IDS
+  this->IdType = vtkXMLDataParser::Int64;
+#else
+  this->IdType = vtkXMLDataParser::Int32;
+#endif
 }
 
 //----------------------------------------------------------------------------
@@ -122,6 +129,28 @@ void vtkXMLDataParser::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
+int vtkXMLDataParser::Parse()
+{
+  // Parse the input from the stream.
+  int result = this->Superclass::Parse();
+  
+  // Check that the input is okay.
+  if(!this->CheckPrimaryAttributes())
+    {
+    result = 0;
+    }
+  
+  return result;
+}
+
+//----------------------------------------------------------------------------
+int vtkXMLDataParser::Parse(const char*)
+{
+  vtkErrorMacro("Parsing from a string is not supported.");
+  return 0;
+}
+
+//----------------------------------------------------------------------------
 void vtkXMLDataParser::StartElement(const char* name, const char** atts)
 {
   vtkXMLDataElement* element = vtkXMLDataElement::New();
@@ -163,7 +192,6 @@ void vtkXMLDataParser::EndElement(const char*)
   else
     {
     this->RootElement = finished;
-    this->SetupByteOrder();
     }  
 }
 
@@ -187,22 +215,48 @@ void vtkXMLDataParser::ClearStreamEOF()
 } 
 
 //----------------------------------------------------------------------------
-void vtkXMLDataParser::SetupByteOrder()
+int vtkXMLDataParser::CheckPrimaryAttributes()
 {
   const char* byte_order = this->RootElement->GetAttribute("byte_order");
-  if(!byte_order) { return; }
-  if(strcmp(byte_order, "big") == 0)
+  if(byte_order)
     {
-    this->ByteOrder = vtkXMLDataParser::BigEndian;
+    if(strcmp(byte_order, "BigEndian") == 0)
+      {
+      this->ByteOrder = vtkXMLDataParser::BigEndian;
+      }
+    else if(strcmp(byte_order, "LittleEndian") == 0)
+      {
+      this->ByteOrder = vtkXMLDataParser::LittleEndian;
+      }
+    else
+      {
+      vtkErrorMacro("Unsupported byte_order=\"" << byte_order << "\"");
+      return 0;
+      }
     }
-  else if(strcmp(byte_order, "little") == 0)
+  const char* id_type = this->RootElement->GetAttribute("id_type");
+  if(id_type)
     {
-    this->ByteOrder = vtkXMLDataParser::LittleEndian;
+    if(strcmp(id_type, "Int32") == 0)
+      {
+      this->IdType = vtkXMLDataParser::Int32;
+      }
+    else if(strcmp(id_type, "Int64") == 0)
+      {
+#ifdef VTK_USE_64BIT_IDS
+      this->IdType = vtkXMLDataParser::Int64;
+#else
+      vtkErrorMacro("Int64 support not compiled in VTK.");
+      return 0;
+#endif
+      }
+    else
+      {
+      vtkErrorMacro("Unsupported id_type=\"" << id_type << "\"");
+      return 0;
+      }    
     }
-  else
-    {
-    vtkWarningMacro("Ignoring invalid byte_order=\"" << byte_order << "\"");
-    }
+  return 1;
 }
 
 //----------------------------------------------------------------------------
@@ -599,20 +653,33 @@ vtkXMLDataElement* vtkXMLDataParser::GetRootElement()
 }
 
 //----------------------------------------------------------------------------
-unsigned long vtkXMLDataParser::ReadBinaryData(void* buffer, int startWord,
+unsigned long vtkXMLDataParser::ReadBinaryData(void* in_buffer, int startWord,
                                                int numWords, int wordType)
 {
   unsigned long wordSize = this->GetWordTypeSize(wordType);  
-  unsigned long startByte = startWord*wordSize;
-  unsigned long numBytes = numWords*wordSize;
-  unsigned char* d = reinterpret_cast<unsigned char*>(buffer);
-  unsigned long actualBytes = 0;
+  void* buffer = in_buffer;
   
   // Make sure our streams are setup correctly.
   this->DataStream->SetStream(this->Stream);
   this->ClearStreamEOF();
   
+#ifdef VTK_USE_64BIT_IDS
+  // If the type is vtkIdType, it may need to be converted from the type
+  // in the file to the real vtkIdType.
+  int* intBuffer = 0;
+  if((wordType == VTK_ID_TYPE) && (this->IdType == vtkXMLDataParser::Int32))
+    {
+    intBuffer = new int[numWords];
+    wordSize = this->GetWordTypeSize(VTK_INT);
+    buffer = intBuffer;
+    }
+#endif
+  
   // Read the data.
+  unsigned char* d = reinterpret_cast<unsigned char*>(buffer);
+  unsigned long startByte = startWord*wordSize;
+  unsigned long numBytes = numWords*wordSize;
+  unsigned long actualBytes = 0;
   if(this->Compressor)
     {
     this->ReadCompressionHeader();
@@ -627,9 +694,27 @@ unsigned long vtkXMLDataParser::ReadBinaryData(void* buffer, int startWord,
     this->DataStream->EndReading();
     }
   
-  // Byte swap and return the amount read.
+  // Byte swap.
   unsigned long actualWords = actualBytes / wordSize;
   this->PerformByteSwap(d, actualWords, wordSize);
+  
+#ifdef VTK_USE_64BIT_IDS
+  if(intBuffer)
+    {
+    // The data were read as integers.  Convert to vtkIdType.
+    vtkIdType* idBuffer = static_cast<vtkIdType*>(in_buffer);
+    
+    int i;
+    for(i=0;i < numWords; ++i)
+      {
+      idBuffer[i] = static_cast<vtkIdType>(intBuffer[i]);
+      }
+    
+    delete [] intBuffer;
+    }
+#endif  
+  
+  // Return the actual amount read.
   return actualWords;
 }
 

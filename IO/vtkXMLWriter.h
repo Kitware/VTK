@@ -57,6 +57,14 @@ public:
   enum { Ascii, Binary, Appended };
   //ETX
   
+  //BTX
+  // Description:
+  // Enumerate the supported vtkIdType bit lengths.
+  //   Int32 = File stores 32-bit values for vtkIdType.
+  //   Int64 = File stores 64-bit values for vtkIdType.
+  enum { Int32=32, Int64=64 };
+  //ETX
+  
   // Description:
   // Get/Set the byte order of data written to the file.  The default
   // is the machine's hardware byte order.
@@ -64,6 +72,14 @@ public:
   vtkGetMacro(ByteOrder, int);
   void SetByteOrderToBigEndian();
   void SetByteOrderToLittleEndian();
+  
+  // Description:
+  // Get/Set the size of the vtkIdType values stored in the file.  The
+  // default is the real size of vtkIdType.
+  virtual void SetIdType(int);
+  vtkGetMacro(IdType, int);
+  void SetIdTypeToInt32();
+  void SetIdTypeToInt64();
   
   // Description:
   // Get/Set the name of the output file.
@@ -123,6 +139,9 @@ protected:
   
   // The output byte order.
   int ByteOrder;
+  
+  // The output vtkIdType.
+  int IdType;
   
   // The form of binary data to write.  Used by subclasses to choose
   // how to write data.

@@ -72,6 +72,14 @@ public:
   enum { BigEndian, LittleEndian };
   //ETX
   
+  //BTX
+  // Description:
+  // Enumerate the supported vtkIdType bit lengths.
+  //   Int32 = File stores 32-bit values for vtkIdType.
+  //   Int64 = File stores 64-bit values for vtkIdType.
+  enum { Int32=32, Int64=64 };
+  //ETX
+  
   // Description:
   // Get the root element from the XML document.
   vtkXMLDataElement* GetRootElement();
@@ -118,16 +126,25 @@ public:
   // Description:
   // Get the size of a word of the given type.
   unsigned long GetWordTypeSize(int wordType);
-  
+
+  // Description:
+  // Parse the XML input and check that the file is safe to read.
+  // Returns 1 for okay, 0 for error.
+  virtual int Parse();
+
 protected:
   vtkXMLDataParser();
   ~vtkXMLDataParser();
   
+  // This parser does not support parsing from a string.
+  virtual int Parse(const char*);
+  
+  // Implement parsing methods.
   void StartElement(const char* name, const char** atts);
   void EndElement(const char*);
   int ParsingComplete();
   void ClearStreamEOF();
-  void SetupByteOrder();
+  int CheckPrimaryAttributes();
   void FindAppendedDataPosition();
   unsigned long FindInlineDataPosition(unsigned long start);
   int ParseBuffer(const char* buffer, unsigned int count);
@@ -167,6 +184,9 @@ protected:
   
   // The byte order of the binary input.
   int ByteOrder;
+  
+  // The input vtkIdType.
+  int IdType;
   
   // The input stream used to read data.  Set by ReadAppendedData and
   // ReadInlineData methods.

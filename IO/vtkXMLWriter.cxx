@@ -27,7 +27,7 @@
 #include "vtkPoints.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkXMLWriter, "1.1");
+vtkCxxRevisionMacro(vtkXMLWriter, "1.2");
 vtkCxxSetObjectMacro(vtkXMLWriter, Compressor, vtkDataCompressor);
 
 //----------------------------------------------------------------------------
@@ -45,7 +45,14 @@ vtkXMLWriter::vtkXMLWriter()
 #else
   this->ByteOrder = vtkXMLWriter::LittleEndian;
 #endif  
-  
+
+  // Output vtkIdType size defaults to real size.
+#ifdef VTK_USE_64BIT_IDS
+  this->IdType = vtkXMLWriter::Int64;
+#else
+  this->IdType = vtkXMLWriter::Int32;
+#endif
+
   // Initialize compression data.
   this->BlockSize = 32768;
   this->Compressor = 0;  
@@ -77,6 +84,14 @@ void vtkXMLWriter::PrintSelf(ostream& os, vtkIndent indent)
   else
     {
     os << indent << "ByteOrder: LittleEndian\n";
+    }
+  if(this->IdType == vtkXMLWriter::Int32)
+    {
+    os << indent << "IdType: Int32\n";
+    }
+  else
+    {
+    os << indent << "IdType: Int64\n";
     }
   if(this->DataMode == vtkXMLWriter::Ascii)
     {
@@ -112,6 +127,37 @@ void vtkXMLWriter::SetByteOrderToBigEndian()
 void vtkXMLWriter::SetByteOrderToLittleEndian()
 {
   this->SetByteOrder(vtkXMLWriter::LittleEndian);
+}
+
+//----------------------------------------------------------------------------
+void vtkXMLWriter::SetIdType(int t)
+{
+#if !defined(VTK_USE_64BIT_IDS)
+  if(t == vtkXMLWriter::Int64)
+    {
+    vtkErrorMacro("Int64 support not compiled in VTK.");
+    return;
+    }
+#endif
+  vtkDebugMacro(<< this->GetClassName() << " (" << this
+                << "): setting IdType to " << t);
+  if(this->IdType != t)
+    {
+    this->IdType = t;
+    this->Modified();
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkXMLWriter::SetIdTypeToInt32()
+{
+  this->SetIdType(vtkXMLWriter::Int32);
+}
+
+//----------------------------------------------------------------------------
+void vtkXMLWriter::SetIdTypeToInt64()
+{
+  this->SetIdType(vtkXMLWriter::Int64);
 }
 
 //----------------------------------------------------------------------------
@@ -214,11 +260,21 @@ void vtkXMLWriter::WriteFileAttributes()
   // Write the byte order for the file.
   if(this->ByteOrder == vtkXMLWriter::BigEndian)
     {
-    os << " byte_order=\"big\"";
+    os << " byte_order=\"BigEndian\"";
     }
   else
     {
-    os << " byte_order=\"little\"";
+    os << " byte_order=\"LittleEndian\"";
+    }
+  
+  // Write the vtkIdType size for the file.
+  if(this->IdType == vtkXMLWriter::Int32)
+    {
+    os << " id_type=\"Int32\"";
+    }
+  else
+    {
+    os << " id_type=\"Int64\"";
     }
   
   // Write the compressor that will be used for the file.
@@ -311,16 +367,37 @@ unsigned long vtkXMLWriter::WriteAppendedDataOffset(unsigned long streamPos,
 }
 
 //----------------------------------------------------------------------------
-int vtkXMLWriter::WriteBinaryData(void* data, int numWords, int wordType)
+int vtkXMLWriter::WriteBinaryData(void* in_data, int numWords, int wordType)
 {
   // Find the total size of the data.
   unsigned long wordSize = this->GetWordTypeSize(wordType);
-  unsigned long binaryDataSize = wordSize*numWords;
   int result = 0;
+  void* data = in_data;
+  
+#ifdef VTK_USE_64BIT_IDS
+  // If the type is vtkIdType, it may need to be converted to the type
+  // requested for output.
+  int* intBuffer = 0;
+  if((wordType == VTK_ID_TYPE) && (this->IdType == vtkXMLWriter::Int32))
+    {
+    vtkIdType* idBuffer = static_cast<vtkIdType*>(in_data);
+    intBuffer = new int[numWords];
+    
+    int i;
+    for(i=0;i < numWords; ++i)
+      {
+      intBuffer[i] = static_cast<int>(idBuffer[i]);
+      }
+    
+    wordSize = this->GetWordTypeSize(VTK_INT);
+    data = intBuffer;
+    }
+#endif
   
   if(wordSize > 1)
     {
     // Byte swap first.
+    unsigned long binaryDataSize = wordSize*numWords;
     char* byteSwapBuffer = new char[binaryDataSize];
     memcpy(byteSwapBuffer, static_cast<char*>(data), binaryDataSize);
     this->PerformByteSwap(byteSwapBuffer, numWords, wordSize);
@@ -341,6 +418,13 @@ int vtkXMLWriter::WriteBinaryData(void* data, int numWords, int wordType)
     delete [] this->CompressionHeader;
     this->CompressionHeader = 0;
     }
+  
+#ifdef VTK_USE_64BIT_IDS
+  if(intBuffer)
+    {
+    delete [] intBuffer;
+    }
+#endif
   
   return result;
 }
