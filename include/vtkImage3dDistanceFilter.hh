@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageMIPFilter.hh
+  Module:    vtkImage3dDistanceFilter.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -37,43 +37,27 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageMIPFilter - Maximum Intensity Projections of pixel values
+// .NAME vtkImage3dDistanceFilter - 3d image distance map.
 // .SECTION Description
-// vtkImageMIPFilter is a filter that takes the maximum or minimum intensity 
-// projecttions along any orthogonal plane (x-y, x-z, or y-z).
+// vtkImage3dDistanceFilter creates a Manhatten distance map from
+// a mask.  It used three 1d distance filters along each axis.
 
 
-#ifndef __vtkImageMIPFilter_h
-#define __vtkImageMIPFilter_h
+
+#ifndef __vtkImage3dDistanceFilter_h
+#define __vtkImage3dDistanceFilter_h
 
 
-#include "vtkImageFilter.hh"
+#include "vtkImage3dDecomposedFilter.hh"
+#include "vtkImage1dDistanceFilter.hh"
 
-class vtkImageMIPFilter : public vtkImageFilter
+class vtkImage3dDistanceFilter : public vtkImage3dDecomposedFilter
 {
 public:
-  vtkImageMIPFilter();
-  char *GetClassName() {return "vtkImageMIPFilter";};
-
-  // Description:
-  // Set/Get the range of slices for MIPs
-     vtkSetVector2Macro(ProjectionRange,int);
-     vtkGetVector2Macro(ProjectionRange,int);
-
-  // Description:
-  // Set/Get Min Intensity Projection = 0 or Max Intensity Projection = 1
-     vtkSetMacro(MinMaxIP,int);
-     vtkGetMacro(MinMaxIP,int);
+  vtkImage3dDistanceFilter();
+  char *GetClassName() {return "vtkImage3dDistanceFilter";};
 
 protected:
-  int ProjectionRange[2];
-  int MinMaxIP;
-
-  void Execute3d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
-  void ComputeOutputImageInformation(vtkImageRegion *inRegion,
-				     vtkImageRegion *outRegion);
-  void ComputeRequiredInputRegionBounds(vtkImageRegion *outRegion, 
-					vtkImageRegion *inRegion);
 };
 
 #endif

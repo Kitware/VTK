@@ -136,7 +136,7 @@ void vtkImageMIPFilterExecute3d(vtkImageMIPFilter *self,
 // It just executes a switch statement to call the correct function for
 // the regions data types.
 void vtkImageMIPFilter::Execute3d(vtkImageRegion *inRegion, 
-					     vtkImageRegion *outRegion)
+				  vtkImageRegion *outRegion)
 {
   void *inPtr = inRegion->GetVoidPointer3d();
   void *outPtr = outRegion->GetVoidPointer3d();
@@ -191,7 +191,9 @@ void vtkImageMIPFilter::Execute3d(vtkImageRegion *inRegion,
 // This method is passed a region that holds the boundary of this filters
 // input, and changes the region to hold the boundary of this filters
 // output.
-void vtkImageMIPFilter::ComputeOutputImageInformation(vtkImageRegion *region)
+void 
+vtkImageMIPFilter::ComputeOutputImageInformation(vtkImageRegion *inRegion,
+						 vtkImageRegion *outRegion)
 {
   int bounds[6];
 

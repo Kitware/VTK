@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageMIPFilter.hh
+  Module:    vtkImage3dDistanceFilter.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -37,46 +37,19 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageMIPFilter - Maximum Intensity Projections of pixel values
-// .SECTION Description
-// vtkImageMIPFilter is a filter that takes the maximum or minimum intensity 
-// projecttions along any orthogonal plane (x-y, x-z, or y-z).
+#include "vtkImage3dDistanceFilter.hh"
 
-
-#ifndef __vtkImageMIPFilter_h
-#define __vtkImageMIPFilter_h
-
-
-#include "vtkImageFilter.hh"
-
-class vtkImageMIPFilter : public vtkImageFilter
+//----------------------------------------------------------------------------
+// Description:
+// This method sets up the 2 1d filters that perform the convolution.
+vtkImage3dDistanceFilter::vtkImage3dDistanceFilter()
 {
-public:
-  vtkImageMIPFilter();
-  char *GetClassName() {return "vtkImageMIPFilter";};
+  // create the filter chain 
+  this->Filter0 = new vtkImage1dDistanceFilter;
+  this->Filter1 = new vtkImage1dDistanceFilter;
+  this->Filter2 = new vtkImage1dDistanceFilter;
 
-  // Description:
-  // Set/Get the range of slices for MIPs
-     vtkSetVector2Macro(ProjectionRange,int);
-     vtkGetVector2Macro(ProjectionRange,int);
-
-  // Description:
-  // Set/Get Min Intensity Projection = 0 or Max Intensity Projection = 1
-     vtkSetMacro(MinMaxIP,int);
-     vtkGetMacro(MinMaxIP,int);
-
-protected:
-  int ProjectionRange[2];
-  int MinMaxIP;
-
-  void Execute3d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
-  void ComputeOutputImageInformation(vtkImageRegion *inRegion,
-				     vtkImageRegion *outRegion);
-  void ComputeRequiredInputRegionBounds(vtkImageRegion *outRegion, 
-					vtkImageRegion *inRegion);
-};
-
-#endif
-
+  this->SetAxes3d(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS, VTK_IMAGE_Z_AXIS);
+}
 
 

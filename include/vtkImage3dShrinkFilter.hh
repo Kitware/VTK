@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageMIPFilter.hh
+  Module:    vtkImage3dShrinkFilter.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -37,43 +37,52 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageMIPFilter - Maximum Intensity Projections of pixel values
+// .NAME vtkImage3dShrinkFilter - Subsamples an image.
 // .SECTION Description
-// vtkImageMIPFilter is a filter that takes the maximum or minimum intensity 
-// projecttions along any orthogonal plane (x-y, x-z, or y-z).
+// vtkImage3dShrinkFilter shrinks an image by sub sampling on a 
+// uniform grid. (integer multiples)
 
 
-#ifndef __vtkImageMIPFilter_h
-#define __vtkImageMIPFilter_h
+#ifndef __vtkImage3dShrinkFilter_h
+#define __vtkImage3dShrinkFilter_h
 
 
 #include "vtkImageFilter.hh"
 
-class vtkImageMIPFilter : public vtkImageFilter
+class vtkImage3dShrinkFilter : public vtkImageFilter
 {
 public:
-  vtkImageMIPFilter();
-  char *GetClassName() {return "vtkImageMIPFilter";};
+  vtkImage3dShrinkFilter();
+  char *GetClassName() {return "vtkImage3dShrinkFilter";};
+  void PrintSelf(ostream& os, vtkIndent indent);
+  
+  // Description:
+  // Set/Get the shrink factors
+  vtkSetVector3Macro(ShrinkFactors,int);
+  vtkGetVector3Macro(ShrinkFactors,int);
 
   // Description:
-  // Set/Get the range of slices for MIPs
-     vtkSetVector2Macro(ProjectionRange,int);
-     vtkGetVector2Macro(ProjectionRange,int);
+  // Set/Get the pixel to use as origin.
+  vtkSetVector3Macro(Shift,int);
+  vtkGetVector3Macro(Shift,int);
 
   // Description:
-  // Set/Get Min Intensity Projection = 0 or Max Intensity Projection = 1
-     vtkSetMacro(MinMaxIP,int);
-     vtkGetMacro(MinMaxIP,int);
-
+  // Choose Averaging or sub sampling
+  vtkSetMacro(Averaging,int);
+  vtkGetMacro(Averaging,int);
+  vtkBooleanMacro(Averaging,int);
+  
+  
 protected:
-  int ProjectionRange[2];
-  int MinMaxIP;
+  int ShrinkFactors[3];
+  int Shift[3];
+  int Averaging;
 
-  void Execute3d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
   void ComputeOutputImageInformation(vtkImageRegion *inRegion,
 				     vtkImageRegion *outRegion);
-  void ComputeRequiredInputRegionBounds(vtkImageRegion *outRegion, 
+  void ComputeRequiredInputRegionBounds(vtkImageRegion *outRegion,
 					vtkImageRegion *inRegion);
+  void Execute3d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);  
 };
 
 #endif
