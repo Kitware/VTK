@@ -15,6 +15,7 @@ vtkEnSight6Reader
 vtkEnSightGoldBinaryReader
 vtkEnSightGoldReader
 vtkEnSightReader
+vtkGESignaReader
 vtkGenericEnSightReader
 vtkImageReader
 vtkImageReader2
