@@ -62,7 +62,7 @@ vtkImplicitModeller::vtkImplicitModeller()
   this->SampleDimensions[2] = 50;
 
   this->Capping = 1;
-  this->CapValue = VTK_LARGE_FLOAT;
+  this->CapValue = sqrt(VTK_LARGE_FLOAT) / 3.0;
 }
 
 void vtkImplicitModeller::SetModelBounds(float xmin, float xmax, float ymin, 
