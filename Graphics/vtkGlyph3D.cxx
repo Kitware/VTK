@@ -298,7 +298,14 @@ void vtkGlyph3D::Execute()
     }
 
   // Setting up for calls to PolyData::InsertNextCell()
-  output->Allocate(3*numPts*numSourceCells,numPts*numSourceCells);
+  if (this->IndexMode != VTK_INDEXING_OFF )
+    {
+    output->Allocate(3*numPts*numSourceCells,numPts*numSourceCells);
+    }
+  else
+    {
+    output->Allocate(this->GetSource(0),3*numPts*numSourceCells,numPts*numSourceCells);
+    }
 
   // Traverse all Input points, transforming Source points and copying
   // point attributes.
