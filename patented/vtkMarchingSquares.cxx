@@ -303,6 +303,7 @@ void vtkMarchingSquares::Execute()
   vtkCellArray *newLines;
   vtkScalars *inScalars, *newScalars;
   int i, dims[3], roi[6], dataSize, dim, plane=0;
+  int *ext;
   float origin[3], ar[3];
   vtkPolyData *output = this->GetOutput();
   int start[2], end[2], offset[3], dir[3], estimatedSize;
@@ -334,6 +335,7 @@ void vtkMarchingSquares::Execute()
 // Check dimensionality of data and get appropriate form
 //
   input->GetDimensions(dims);
+  ext = input->GetExtent();
   input->GetOrigin(origin);
   input->GetSpacing(ar);
   dataSize = dims[0] * dims[1] * dims[2];
@@ -347,32 +349,28 @@ void vtkMarchingSquares::Execute()
     }
   else
     {
-    roi[0] = roi[2] = roi[4] = 0;
-    for (i=0; i < 3; i++)
-      {
-      roi[2*i+1] = dims[i] - 1;
-      }
+    input->GetExtent(roi);
     }
 
   // check the final region of interest to make sure its acceptable
   for ( dim=0, i=0; i < 3; i++ )
     {
-    if ( roi[2*i+1] >= dims[i] )
+    if ( roi[2*i+1] > ext[2*i+1] )
       {
-      roi[2*i+1] = dims[i] - 1;
+      roi[2*i+1] = ext[2*i+1];
       }
-    else if ( roi[2*i+1] < 0 )
+    else if ( roi[2*i+1] < ext[2*i] )
       {
-      roi[2*i+1] = 0;
+      roi[2*i+1] = ext[2*i];
       }
 
     if ( roi[2*i] > roi[2*i+1] )
       {
       roi[2*i] = roi[2*i+1];
       }
-    else if ( roi[2*i] < 0 )
+    else if ( roi[2*i] < ext[2*i] )
       {
-      roi[2*i] = 0;
+      roi[2*i] = ext[2*i];
       }
 
     if ( (roi[2*i+1]-roi[2*i]) > 0 )
@@ -399,7 +397,7 @@ void vtkMarchingSquares::Execute()
     start[1] = 4; end[1] = 5;
     offset[0] = dims[0];
     offset[1] = dims[0]*dims[1];
-    offset[2] = roi[0];
+    offset[2] = (roi[0]-ext[0]);
     dir[0] = 1; dir[1] = 2; dir[2] = 0;
     }
   else if ( plane == 1 ) //y-plane
@@ -408,7 +406,7 @@ void vtkMarchingSquares::Execute()
     start[1] = 4; end[1] = 5;
     offset[0] = 1;
     offset[1] = dims[0]*dims[1];
-    offset[2] = roi[2]*dims[0];
+    offset[2] = (roi[2]-ext[2])*dims[0];
     dir[0] = 0; dir[1] = 2; dir[2] = 1;
     }
   else //z-plane
@@ -417,7 +415,7 @@ void vtkMarchingSquares::Execute()
     start[1] = 2; end[1] = 3;
     offset[0] = 1;
     offset[1] = dims[0];
-    offset[2] = roi[4]*dims[0]*dims[1];
+    offset[2] = (roi[4]-ext[4])*dims[0]*dims[1];
     dir[0] = 0; dir[1] = 1; dir[2] = 2;
     }
 //
