@@ -156,24 +156,37 @@ IF (WIN32)
   LINK_LIBRARIES ( ${OPENGL_LIBRARY} )
 ELSE (WIN32)
   IF (APPLE)
-    SET(HAVE_OPENGL_SRCS ON)
-      IF(VTK_USE_COCOA)
-        SOURCE_FILES(RenderingOpenGL_SRCS
-	             vtkCocoaTextMapper.cxx
-                     vtkCocoaRenderWindowInteractor.mm
-                     vtkCocoaRenderWindow.mm
-                     vtkCocoaWindow.mm
-                     vtkCocoaGLView.mm)
-        WRAP_EXCLUDE_FILES(vtkCocoaGLView
-		           vtkCocoaWindow)
-      ENDIF(VTK_USE_COCOA)
-      IF(VTK_USE_CARBON)
-        SOURCE_FILES(RenderingOpenGL_SRCS
-	             vtkCarbonTextMapper.cxx
-		     vtkCarbonRenderWindowInteractor.cxx
-		     vtkCarbonRenderWindow.cxx)
-      ENDIF(VTK_USE_CARBON)
+    IF(VTK_USE_COCOA)
+      SET(HAVE_OPENGL_SRCS ON)
+      SOURCE_FILES(RenderingOpenGL_SRCS
+                   vtkCocoaTextMapper.cxx
+                   vtkCocoaRenderWindowInteractor.mm
+                   vtkCocoaRenderWindow.mm
+                   vtkCocoaWindow.mm
+                   vtkCocoaGLView.mm)
+      WRAP_EXCLUDE_FILES(vtkCocoaGLView
+                         vtkCocoaWindow)
       LINK_LIBRARIES (${OPENGL_LIBRARY} )
+    ENDIF(VTK_USE_COCOA)
+    IF(VTK_USE_CARBON)
+      SET(HAVE_OPENGL_SRCS ON)
+      SOURCE_FILES(RenderingOpenGL_SRCS
+                   vtkCarbonTextMapper.cxx
+                   vtkCarbonRenderWindowInteractor.cxx
+                   vtkCarbonRenderWindow.cxx)
+      LINK_LIBRARIES (${OPENGL_LIBRARY} )
+    ENDIF(VTK_USE_CARBON)
+    IF(VTK_USE_X)
+      IF (OPENGL_LIBRARY)
+        SET(HAVE_OPENGL_SRCS ON)
+        SOURCE_FILES(RenderingOpenGL_SRCS
+                     vtkXOpenGLRenderWindow.cxx
+                     vtkXOpenGLTextMapper.cxx)
+        ABSTRACT_FILES(
+                       vtkXTextMapper)
+        LINK_LIBRARIES (${OPENGL_LIBRARY} )
+      ENDIF (OPENGL_LIBRARY)
+    ENDIF(VTK_USE_X)
   ELSE (APPLE)
     IF (OPENGL_LIBRARY)
       SET(HAVE_OPENGL_SRCS ON)
