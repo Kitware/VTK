@@ -284,7 +284,7 @@ void vtkVoxel::Contour(float value, vtkScalars *cellScalars,
   EDGE_LIST  *edge;
   int i, j, index, *vert;
   static int vertMap[8] = { 0, 1, 3, 2, 4, 5, 7, 6 };
-  int pts[3];
+  int pts[3], newCellId;
   float t, *x1, *x2, x[3];
 
   // Build the case table
@@ -321,7 +321,8 @@ void vtkVoxel::Contour(float value, vtkScalars *cellScalars,
 	 pts[0] != pts[2] &&
 	 pts[1] != pts[2] )
       {
-      polys->InsertNextCell(3,pts);
+      newCellId = polys->InsertNextCell(3,pts);
+      outCd->CopyData(inCd,cellId,newCellId);
       }
     }
 }

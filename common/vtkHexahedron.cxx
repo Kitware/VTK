@@ -343,7 +343,7 @@ void vtkHexahedron::Contour(float value, vtkScalars *cellScalars,
   TRIANGLE_CASES *triCase;
   EDGE_LIST  *edge;
   int i, j, index, *vert;
-  int e1, e2;
+  int e1, e2, newCellId;
   int pts[3];
   float t, x1[3], x2[3], x[3], deltaScalar;
 
@@ -396,7 +396,8 @@ void vtkHexahedron::Contour(float value, vtkScalars *cellScalars,
 	 pts[0] != pts[2] &&
 	 pts[1] != pts[2] )
       {
-      polys->InsertNextCell(3,pts);
+      newCellId = polys->InsertNextCell(3,pts);
+      outCd->CopyData(inCd,cellId,newCellId);
       }
     }
 }

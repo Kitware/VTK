@@ -312,7 +312,7 @@ void vtkTriangle::Contour(float value, vtkScalars *cellScalars,
   EDGE_LIST  *edge;
   int i, j, index, *vert;
   int pts[2];
-  int e1, e2;
+  int e1, e2, newCellId;
   float t, x1[3], x2[3], x[3], deltaScalar;
 
   // Build the case table
@@ -362,7 +362,8 @@ void vtkTriangle::Contour(float value, vtkScalars *cellScalars,
     // check for degenerate line
     if ( pts[0] != pts[1] )
       {
-      lines->InsertNextCell(2,pts);
+      newCellId = lines->InsertNextCell(2,pts);
+      outCd->CopyData(inCd,cellId,newCellId);
       }
     }
 }
@@ -724,7 +725,7 @@ void vtkTriangle::Clip(float value, vtkScalars *cellScalars,
   TRIANGLE_CASES *triangleCase;
   TRIANGLE_EDGE_LIST  *edge;
   int i, j, index, *vert;
-  int e1, e2;
+  int e1, e2, newCellId;
   int pts[3];
   int vertexId;
   float t, x1[3], x2[3], x[3], deltaScalar;
@@ -800,7 +801,8 @@ void vtkTriangle::Clip(float value, vtkScalars *cellScalars,
     // check for degenerate tri's
     if (pts[0] == pts[1] || pts[0] == pts[2] || pts[1] == pts[2]) continue;
 
-    tris->InsertNextCell(3,pts);
+    newCellId = tris->InsertNextCell(3,pts);
+    outCd->CopyData(inCd,cellId,newCellId);
     }
 }
 

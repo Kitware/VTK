@@ -202,7 +202,7 @@ void vtkPixel::Contour(float value, vtkScalars *cellScalars,
   LINE_CASES *lineCase;
   EDGE_LIST  *edge;
   int i, j, index, *vert;
-  int pts[2];
+  int pts[2], newCellId;
   float t, *x1, *x2, x[3];
 
   // Build the case table
@@ -237,7 +237,8 @@ void vtkPixel::Contour(float value, vtkScalars *cellScalars,
     // check for degenerate line
     if ( pts[0] != pts[1] )
       {
-      lines->InsertNextCell(2,pts);
+      newCellId = lines->InsertNextCell(2,pts);
+      outCd->CopyData(inCd,cellId,newCellId);
       }
     }
 }
