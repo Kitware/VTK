@@ -23,6 +23,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 static vlMath math;
 static vlPolygon poly;
 static vlPlane plane;
+static vlLine line;
 
 // Description:
 // Deep copy of cell.
@@ -48,6 +49,8 @@ int vlQuad::EvaluatePosition(float x[3], float closestPoint[3],
   float  params[2];
   float  fcol[2], rcol[3], scol[3];
   float derivs[8];
+  vlLine *aLine;
+  int edge;
 
   subId = 0;
   pcoords[0] = pcoords[1] = pcoords[2] = params[0] = params[1] = 0.5;
@@ -115,6 +118,7 @@ int vlQuad::EvaluatePosition(float x[3], float closestPoint[3],
 //
     if ( (det=math.Determinant2x2(rcol,scol)) == 0.0 )
       {
+	cout << "Determinant is zero\n";
       return 0;
       }
 
@@ -124,7 +128,7 @@ int vlQuad::EvaluatePosition(float x[3], float closestPoint[3],
 //  check for convergence
 //
     if ( ((fabs(pcoords[0]-params[0])) < CONVERGED) &&
-    ((fabs(pcoords[1]-params[1])) < CONVERGED) )
+         ((fabs(pcoords[1]-params[1])) < CONVERGED) )
       {
       converged = 1;
       }
@@ -145,25 +149,29 @@ int vlQuad::EvaluatePosition(float x[3], float closestPoint[3],
     {
     pcoords[0] = pcoords[1] =  pcoords[2] = 10.0;
     dist2 = LARGE_FLOAT;
+    cout << "Failed to converge\n";
     return 0;
     }
   else
     {
     if ( pcoords[0] >= 0.0 && pcoords[0] <= 1.0 &&
-    pcoords[1] >= 0.0 && pcoords[1] <= 1.0 )
+         pcoords[1] >= 0.0 && pcoords[1] <= 1.0 )
       {
       dist2 = math.Distance2BetweenPoints(closestPoint,x); //projection distance
       return 1;
       }
     else
       {
-      for (i=0; i<2; i++)
-        {
-        if (pcoords[i] < 0.0) pcoords[i] = 0.0;
-        if (pcoords[i] > 1.0) pcoords[i] = 1.0;
-        }
-      this->EvaluateLocation(subId, pcoords, closestPoint, weights);
-      dist2 = math.Distance2BetweenPoints(closestPoint,x);
+
+// find closest edge, then distance to that edge
+
+      if      (pcoords[0] < 0.0) edge = 3;
+      else if (pcoords[0] > 1.0) edge = 1;
+      else if (pcoords[1] < 0.0) edge = 0;
+      else if (pcoords[1] > 1.0) edge = 2;
+
+      aLine = (vlLine *) this->GetEdge (edge);
+      aLine->EvaluatePosition (x, closestPoint, subId, pcoords, dist2, weights);
       return 0;
       }
     }
@@ -175,7 +183,7 @@ void vlQuad::EvaluateLocation(int& subId, float pcoords[3], float x[3],
   int i, j;
   float *pt, pc[3];
 
-  this->InterpolationFunctions(pc, weights);
+  this->InterpolationFunctions(pcoords, weights);
 
   x[0] = x[1] = x[2] = 0.0;
   for (i=0; i<4; i++)
@@ -330,7 +338,6 @@ void vlQuad::Contour(float value, vlFloatScalars *cellScalars,
 
 vlCell *vlQuad::GetEdge(int edgeId)
 {
-  static vlLine line;
 
   // load point id's
   line.PointIds.SetId(0,this->PointIds.GetId(edgeId));
