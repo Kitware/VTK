@@ -19,7 +19,6 @@ vtkFiniteDifferenceGradientEstimator
 vtkFollower
 vtkFrustumCoverageCuller
 vtkGraphicsFactory
-vtkHull
 vtkImageActor
 vtkImageMapper
 vtkImager

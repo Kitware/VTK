@@ -48,6 +48,7 @@ vtkGlyph2D
 vtkGlyph3D
 vtkGlyphSource2D
 vtkHedgeHog
+vtkHull
 vtkHyperStreamline
 vtkIdFilter
 vtkImplicitModeller
