@@ -42,22 +42,36 @@ vtkSampleFunction::vtkSampleFunction()
   this->ComputeNormals = 1;
 }
 
-void vtkSampleFunction::PrintSelf(ostream& os, vtkIndent indent)
+// Description:
+// Specify the dimensions of the data on which to sample.
+void vtkSampleFunction::SetSampleDimensions(int i, int j, int k)
 {
-  vtkStructuredPointsSource::PrintSelf(os,indent);
+  int dim[3];
 
-  os << indent << "Sample Dimensions: (" << this->SampleDimensions[0] << ", "
-               << this->SampleDimensions[1] << ", "
-               << this->SampleDimensions[2] << ")\n";
-  os << indent << "ModelBounds: \n";
-  os << indent << "  Xmin,Xmax: (" << this->ModelBounds[0] << ", " << this->ModelBounds[1] << ")\n";
-  os << indent << "  Ymin,Ymax: (" << this->ModelBounds[2] << ", " << this->ModelBounds[3] << ")\n";
-  os << indent << "  Zmin,Zmax: (" << this->ModelBounds[4] << ", " << this->ModelBounds[5] << ")\n";
+  dim[0] = i;
+  dim[1] = j;
+  dim[2] = k;
+
+  this->SetSampleDimensions(dim);
 }
 
 // Description:
-// Specify the model bounds is the location in space in which the 
-// sampling occurs.
+// Specify the dimensions of the data on which to sample.
+void vtkSampleFunction::SetSampleDimensions(int dim[3])
+{
+  vtkDebugMacro(<< " setting SampleDimensions to (" << dim[0] << "," << dim[1] << "," << dim[2] << ")");
+
+  if ( dim[0] != this->SampleDimensions[0] || dim[1] != SampleDimensions[1] ||
+  dim[2] != SampleDimensions[2] )
+    {
+    for ( int i=0; i<3; i++) 
+      this->SampleDimensions[i] = (dim[i] > 0 ? dim[i] : 1);
+    this->Modified();
+    }
+}
+
+// Description:
+// Specify the region in space over which the sampling occurs.
 void vtkSampleFunction::SetModelBounds(float xmin, float xmax, float ymin, float ymax, float zmin, float zmax)
 {
   if (this->ModelBounds[0] != xmin || this->ModelBounds[1] != xmax ||
@@ -74,6 +88,8 @@ void vtkSampleFunction::SetModelBounds(float xmin, float xmax, float ymin, float
     }
 }
 
+// Description:
+// Specify the region in space over which the sampling occurs.
 void vtkSampleFunction::SetModelBounds(float *bounds)
 {
   vtkSampleFunction::SetModelBounds(bounds[0], bounds[1], bounds[2], bounds[3], bounds[4], bounds[5]);
@@ -152,30 +168,6 @@ void vtkSampleFunction::Execute()
 }
 
 
-void vtkSampleFunction::SetSampleDimensions(int i, int j, int k)
-{
-  int dim[3];
-
-  dim[0] = i;
-  dim[1] = j;
-  dim[2] = k;
-
-  this->SetSampleDimensions(dim);
-}
-
-void vtkSampleFunction::SetSampleDimensions(int dim[3])
-{
-  vtkDebugMacro(<< " setting SampleDimensions to (" << dim[0] << "," << dim[1] << "," << dim[2] << ")");
-
-  if ( dim[0] != this->SampleDimensions[0] || dim[1] != SampleDimensions[1] ||
-  dim[2] != SampleDimensions[2] )
-    {
-    for ( int i=0; i<3; i++) 
-      this->SampleDimensions[i] = (dim[i] > 0 ? dim[i] : 1);
-    this->Modified();
-    }
-}
-
 unsigned long vtkSampleFunction::GetMTime()
 {
   unsigned long mTime=this->vtkStructuredPointsSource::GetMTime();
@@ -233,4 +225,17 @@ void vtkSampleFunction::Cap(vtkFloatScalars *s)
 
 }
 
+
+void vtkSampleFunction::PrintSelf(ostream& os, vtkIndent indent)
+{
+  vtkStructuredPointsSource::PrintSelf(os,indent);
+
+  os << indent << "Sample Dimensions: (" << this->SampleDimensions[0] << ", "
+               << this->SampleDimensions[1] << ", "
+               << this->SampleDimensions[2] << ")\n";
+  os << indent << "ModelBounds: \n";
+  os << indent << "  Xmin,Xmax: (" << this->ModelBounds[0] << ", " << this->ModelBounds[1] << ")\n";
+  os << indent << "  Ymin,Ymax: (" << this->ModelBounds[2] << ", " << this->ModelBounds[3] << ")\n";
+  os << indent << "  Zmin,Zmax: (" << this->ModelBounds[4] << ", " << this->ModelBounds[5] << ")\n";
+}
 

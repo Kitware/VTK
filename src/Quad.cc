@@ -200,7 +200,7 @@ void vtkQuad::EvaluateLocation(int& subId, float pcoords[3], float x[3],
                               float weights[MAX_CELL_SIZE])
 {
   int i, j;
-  float *pt, pc[3];
+  float *pt;
 
   this->InterpolationFunctions(pcoords, weights);
 
