@@ -141,13 +141,19 @@ void vtkThresholdTextureCoords::PrintSelf(ostream& os, vtkIndent indent)
   vtkDataSetToDataSetFilter::PrintSelf(os,indent);
 
   if ( this->ThresholdFunction == &vtkThresholdTextureCoords::Upper )
+    {
     os << indent << "Threshold By Upper\n";
+    }
 
   else if ( this->ThresholdFunction == &vtkThresholdTextureCoords::Lower )
+    {
     os << indent << "Threshold By Lower\n";
+    }
 
   else if ( this->ThresholdFunction == &vtkThresholdTextureCoords::Between )
+    {
     os << indent << "Threshold Between\n";
+    }
 
   os << indent << "Lower Threshold: " << this->LowerThreshold << "\n";;
   os << indent << "Upper Threshold: " << this->UpperThreshold << "\n";;

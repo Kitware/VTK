@@ -93,16 +93,28 @@ vtkTexture *vtkTexture::New()
   char *temp = vtkRenderWindow::GetRenderLibrary();
   
 #ifdef VTK_USE_SBR
-  if (!strcmp("Starbase",temp)) return vtkStarbaseTexture::New();
+  if (!strcmp("Starbase",temp))
+    {
+    return vtkStarbaseTexture::New();
+    }
 #endif
 #ifdef VTK_USE_OGLR
-  if (!strcmp("OpenGL",temp)) return vtkOpenGLTexture::New();
+  if (!strcmp("OpenGL",temp))
+    {
+    return vtkOpenGLTexture::New();
+    }
 #endif
 #ifdef _WIN32
-  if (!strcmp("Win32OpenGL",temp)) return vtkOpenGLTexture::New();
+  if (!strcmp("Win32OpenGL",temp))
+    {
+    return vtkOpenGLTexture::New();
+    }
 #endif
 #ifdef VTK_USE_XGLR
-  if (!strcmp("XGL",temp)) return vtkXGLTexture::New();
+  if (!strcmp("XGL",temp))
+    {
+    return vtkXGLTexture::New();
+    }
 #endif
   
   return new vtkTexture;

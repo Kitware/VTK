@@ -56,8 +56,14 @@ vtkUGFacetReader::vtkUGFacetReader()
 
 vtkUGFacetReader::~vtkUGFacetReader()
 {
-  if ( this->FileName ) delete [] this->FileName;
-  if ( this->PartColors ) this->PartColors->Delete();
+  if ( this->FileName )
+    {
+    delete [] this->FileName;
+    }
+  if ( this->PartColors )
+    {
+    this->PartColors->Delete();
+    }
   if (this->Locator != NULL)
     {
     this->Locator->UnRegister(this);
@@ -215,7 +221,10 @@ void vtkUGFacetReader::Execute()
     mergedPolys = vtkCellArray::New();
     mergedPolys->Allocate(newPolys->GetSize());
 
-    if ( this->Locator == NULL ) this->CreateDefaultLocator();
+    if ( this->Locator == NULL )
+      {
+      this->CreateDefaultLocator();
+      }
     this->Locator->InitPointInsertion (mergedPts, newPts->GetBounds());
 
     for (newPolys->InitTraversal(); newPolys->GetNextCell(npts,pts); )
@@ -232,7 +241,9 @@ void vtkUGFacetReader::Execute()
 
       if ( nodes[0] != nodes[1] && nodes[0] != nodes[2] && 
       nodes[1] != nodes[2] )
+	{
         mergedPolys->InsertNextCell(3,nodes);
+	}
       }
 
       newPts->Delete();
@@ -261,7 +272,10 @@ void vtkUGFacetReader::Execute()
   output->SetPolys(mergedPolys);
   mergedPolys->Delete();
 
-  if (this->Locator) this->Locator->Initialize(); //free storage
+  if (this->Locator)
+    {
+    this->Locator->Initialize(); //free storage
+    }
 
   output->Squeeze();
 }
@@ -345,7 +359,9 @@ void vtkUGFacetReader::SetLocator(vtkPointLocator *locator)
 void vtkUGFacetReader::CreateDefaultLocator()
 {
   if ( this->Locator == NULL )
+    {
     this->Locator = vtkMergePoints::New();
+    }
 }
 
 void vtkUGFacetReader::PrintSelf(ostream& os, vtkIndent indent)

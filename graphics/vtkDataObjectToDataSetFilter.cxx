@@ -129,10 +129,12 @@ vtkDataObjectToDataSetFilter::~vtkDataObjectToDataSetFilter()
   this->Output = NULL;
   
   for (i=0; i<3; i++) 
+    {
     if ( this->PointArrays[i] != NULL )
       {
       delete [] this->PointArrays[i];
       }
+    }
   if ( this->VertsArray != NULL )
     {
     delete [] this->VertsArray;

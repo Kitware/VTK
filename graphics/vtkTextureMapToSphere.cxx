@@ -101,8 +101,14 @@ void vtkTextureMapToSphere::Execute()
       if ( fabs((diff=x[2]-this->Center[2])) > rho )
         {
         phi = 0.0;
-        if ( diff > 0.0 ) tc[1] = 0.0;
-        else tc[1] = 1.0;
+        if ( diff > 0.0 )
+	  {
+	  tc[1] = 0.0;
+	  }
+        else
+	  {
+	  tc[1] = 1.0;
+	  }
         }
       else
         {
@@ -121,8 +127,14 @@ void vtkTextureMapToSphere::Execute()
       // watch for truncation problems
       if ( fabs((diff=x[0]-this->Center[0])) > r )
         {
-        if ( diff > 0.0 ) thetaX = 0.0;
-        else thetaX = vtkMath::Pi();
+        if ( diff > 0.0 )
+	  {
+	  thetaX = 0.0;
+	  }
+        else
+	  {
+	  thetaX = vtkMath::Pi();
+	  }
         }
       else
         {
@@ -131,8 +143,14 @@ void vtkTextureMapToSphere::Execute()
 
       if ( fabs((diff=x[1]-this->Center[1])) > r )
         {
-        if ( diff > 0.0 ) thetaY = PiOverTwo;
-        else thetaY = -PiOverTwo;
+        if ( diff > 0.0 )
+	  {
+	  thetaY = PiOverTwo;
+	  }
+        else
+	  {
+	  thetaY = -PiOverTwo;
+	  }
         }
       else
         {

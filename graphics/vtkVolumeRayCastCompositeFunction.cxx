@@ -1388,7 +1388,9 @@ static void CastRay_TrilinSample_Shaded(
     accum_red_intensity = 1.0;
     }
   if ( accum_green_intensity > 1.0 )
+    {
     accum_green_intensity = 1.0;
+    }
   if ( accum_blue_intensity > 1.0 )
     {
     accum_blue_intensity = 1.0;

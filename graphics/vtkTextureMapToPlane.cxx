@@ -97,7 +97,10 @@ void vtkTextureMapToPlane::Execute()
 	this->Origin[2] == 0.0 && this->Point1[0] == 0.0 && 
 	this->Point1[1] == 0.0 && this->Point1[2] == 0.0) )
     {
-    if ( this->AutomaticPlaneGeneration ) this->ComputeNormal();
+    if ( this->AutomaticPlaneGeneration )
+      {
+      this->ComputeNormal();
+      }
 
     vtkMath::Normalize (this->Normal);
     //
@@ -132,7 +135,10 @@ void vtkTextureMapToPlane::Execute()
     //  corner of bounding box unto plane and backing out scale factors.
     //
     bounds = output->GetBounds();
-    for (i=0; i<3; i++) axis[i] = bounds[2*i+1] - bounds[2*i];
+    for (i=0; i<3; i++)
+      {
+      axis[i] = bounds[2*i+1] - bounds[2*i];
+      }
 
     s = vtkMath::Dot(sAxis,axis);
     t = vtkMath::Dot(tAxis,axis);
@@ -146,7 +152,10 @@ void vtkTextureMapToPlane::Execute()
     for (i=0; i<numPts; i++) 
       {
       p = output->GetPoint(i);
-      for (j=0; j<3; j++) axis[j] = p[j] - bounds[2*j];
+      for (j=0; j<3; j++)
+	{
+	axis[j] = p[j] - bounds[2*j];
+	}
 
       tcoords[0] = this->SRange[0] + vtkMath::Dot(sAxis,axis) * sSf;
       tcoords[1] = this->TRange[0] + vtkMath::Dot(tAxis,axis) * tSf;
@@ -178,7 +187,10 @@ void vtkTextureMapToPlane::Execute()
     for (i=0; i < numPts; i++) 
       {
       p = output->GetPoint(i);
-      for (j=0; j<3; j++) axis[j] = p[j] - this->Origin[j];
+      for (j=0; j<3; j++)
+	{
+	axis[j] = p[j] - this->Origin[j];
+	}
 
       //s-coordinate
       num = sAxis[0]*axis[0] + sAxis[1]*axis[1] + sAxis[2]*axis[2];
@@ -202,7 +214,7 @@ void vtkTextureMapToPlane::Execute()
   newTCoords->Delete();
 }
 
-#define TOLERANCE 1.0e-03
+#define VTK_TOLERANCE 1.0e-03
 
 void vtkTextureMapToPlane::ComputeNormal()
 {
@@ -237,14 +249,20 @@ void vtkTextureMapToPlane::ComputeNormal()
 //  quickly compute normal.
 //
   this->Normal[dir] = 1.0;
-  if ( w <= (length*TOLERANCE) ) return;
+  if ( w <= (length*VTK_TOLERANCE) )
+    {
+    return;
+    }
 //
 //  Need to compute least squares approximation.  Depending on major
 //  normal direction (dir), construct matrices appropriately.
 //
     //  Compute 3x3 least squares matrix
   v[0] = v[1] = v[2] = 0.0;
-  for (i=0; i<9; i++) m[i] = 0.0;
+  for (i=0; i<9; i++)
+    {
+    m[i] = 0.0;
+    }
 
   for (ptId=0; ptId < numPts; ptId++) 
     {
@@ -270,8 +288,10 @@ void vtkTextureMapToPlane::ComputeNormal()
 //  Solve linear system using Kramers rule
 //
   c1 = m; c2 = m+3; c3 = m+6;
-  if ( (det = vtkMath::Determinant3x3 (c1,c2,c3)) <= TOLERANCE )
+  if ( (det = vtkMath::Determinant3x3 (c1,c2,c3)) <= VTK_TOLERANCE )
+    {
     return;
+    }
 
   this->Normal[0] = vtkMath::Determinant3x3 (v,c2,c3) / det;
   this->Normal[1] = vtkMath::Determinant3x3 (c1,v,c3) / det;

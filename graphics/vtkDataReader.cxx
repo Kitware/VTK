@@ -79,18 +79,50 @@ vtkDataReader::vtkDataReader()
 
 vtkDataReader::~vtkDataReader()
 {
-  if (this->FileName) delete [] this->FileName;
-  if (this->ScalarsName) delete [] this->ScalarsName;
-
-  if (this->VectorsName) delete [] this->VectorsName;
-  if (this->TensorsName) delete [] this->TensorsName;
-  if (this->NormalsName) delete [] this->NormalsName;
-  if (this->TCoordsName) delete [] this->TCoordsName;
-  if (this->LookupTableName) delete [] this->LookupTableName;
-  if (this->FieldDataName) delete [] this->FieldDataName;
-  if (this->ScalarLut) delete [] this->ScalarLut;
-  if (this->InputString) delete [] this->InputString;
-  if (this->Header) delete [] this->Header;
+  if (this->FileName)
+    {
+    delete [] this->FileName;
+    }
+  if (this->ScalarsName)
+    {
+    delete [] this->ScalarsName;
+    }
+  if (this->VectorsName)
+    {
+    delete [] this->VectorsName;
+    }
+  if (this->TensorsName)
+    {
+    delete [] this->TensorsName;
+    }
+  if (this->NormalsName)
+    {
+    delete [] this->NormalsName;
+    }
+  if (this->TCoordsName)
+    {
+    delete [] this->TCoordsName;
+    }
+  if (this->LookupTableName)
+    {
+    delete [] this->LookupTableName;
+    }
+  if (this->FieldDataName)
+    {
+    delete [] this->FieldDataName;
+    }
+  if (this->ScalarLut)
+    {
+    delete [] this->ScalarLut;
+    }
+  if (this->InputString)
+    {
+    delete [] this->InputString;
+    }
+  if (this->Header)
+    {
+    delete [] this->Header;
+    }
 }
 
 // no reference counting
@@ -116,7 +148,10 @@ void vtkDataReader::SetInputString(char* _arg, int len)
     return;
     }
   
-  if (this->InputString) delete [] this->InputString; 
+  if (this->InputString)
+    {
+    delete [] this->InputString; 
+    }
   if (_arg) 
     { 
     this->InputString = new char[len]; 
@@ -149,7 +184,10 @@ void vtkDataReader::EatWhiteSpace()
 int vtkDataReader::ReadLine(char result[256])
 {
   this->IS->getline(result,256);
-  if (this->IS->eof()) return 0;
+  if (this->IS->eof()) 
+    {
+    return 0;
+    }
   return 1;
 }
 
@@ -158,7 +196,10 @@ int vtkDataReader::ReadLine(char result[256])
 int vtkDataReader::ReadString(char result[256])
 {
   *this->IS >> result;
-  if (this->IS->fail()) return 0;
+  if (this->IS->fail())
+    {
+    return 0;
+    }
   return 1;
 }
 
@@ -168,7 +209,10 @@ int vtkDataReader::Read(char *result)
 {
   int intData;
   *this->IS >> intData;
-  if (this->IS->fail()) return 0;
+  if (this->IS->fail())
+    {
+    return 0;
+    }
 
   *result = (char) intData;
   return 1;
@@ -178,7 +222,10 @@ int vtkDataReader::Read(unsigned char *result)
 {
   int intData;
   *this->IS >> intData;
-  if (this->IS->fail()) return 0;
+  if (this->IS->fail())
+    {
+    return 0;
+    }
 
   *result = (unsigned char) intData;
   return 1;
@@ -187,56 +234,80 @@ int vtkDataReader::Read(unsigned char *result)
 int vtkDataReader::Read(short *result)
 {
   *this->IS >> *result;
-  if (this->IS->fail()) return 0;
+  if (this->IS->fail())
+    {
+    return 0;
+    }
   return 1;
 }
 
 int vtkDataReader::Read(unsigned short *result)
 {
   *this->IS >> *result;
-  if (this->IS->fail()) return 0;
+  if (this->IS->fail())
+    {
+    return 0;
+    }
   return 1;
 }
 
 int vtkDataReader::Read(int *result)
 {
   *this->IS >> *result;
-  if (this->IS->fail()) return 0;
+  if (this->IS->fail())
+    {
+    return 0;
+    }
   return 1;
 }
 
 int vtkDataReader::Read(unsigned int *result)
 {
   *this->IS >> *result;
-  if (this->IS->fail()) return 0;
+  if (this->IS->fail())
+    {
+    return 0;
+    }
   return 1;
 }
 
 int vtkDataReader::Read(long *result)
 {
   *this->IS >> *result;
-  if (this->IS->fail()) return 0;
+  if (this->IS->fail())
+    {
+    return 0;
+    }
   return 1;
 }
 
 int vtkDataReader::Read(unsigned long *result)
 {
   *this->IS >> *result;
-  if (this->IS->fail()) return 0;
+  if (this->IS->fail())
+    {
+    return 0;
+    }
   return 1;
 }
 
 int vtkDataReader::Read(float *result)
 {
   *this->IS >> *result;
-  if (this->IS->fail()) return 0;
+  if (this->IS->fail())
+    {
+    return 0;
+    }
   return 1;
 }
 
 int vtkDataReader::Read(double *result)
 {
   *this->IS >> *result;
-  if (this->IS->fail()) return 0;
+  if (this->IS->fail()) 
+    {
+    return 0;
+    }
   return 1;
 }
 
@@ -324,8 +395,14 @@ int vtkDataReader::ReadHeader()
     return 0;
     }
 
-  if ( !strncmp(this->LowerCase(line),"ascii",5) ) this->FileType = VTK_ASCII;
-  else if ( !strncmp(line,"binary",6) ) this->FileType = VTK_BINARY;
+  if ( !strncmp(this->LowerCase(line),"ascii",5) )
+    {
+    this->FileType = VTK_ASCII;
+    }
+  else if ( !strncmp(line,"binary",6) )
+    {
+    this->FileType = VTK_BINARY;
+    }
   else
     {
     vtkErrorMacro(<< "Unrecognized file type: "<< line << " for file: " 
@@ -387,49 +464,70 @@ int vtkDataReader::ReadCellData(vtkDataSet *ds, int numCells)
     //
     if ( ! strncmp(this->LowerCase(line), "scalars", 7) )
       {
-      if ( ! this->ReadScalarData(a, numCells) ) return 0;
+      if ( ! this->ReadScalarData(a, numCells) )
+	{
+	return 0;
+	}
       }
     //
     // read vector data
     //
     else if ( ! strncmp(line, "vectors", 7) )
       {
-      if ( ! this->ReadVectorData(a, numCells) ) return 0;
+      if ( ! this->ReadVectorData(a, numCells) )
+	{
+	return 0;
+	}
       }
     //
     // read 3x3 tensor data
     //
     else if ( ! strncmp(line, "tensors", 7) )
       {
-      if ( ! this->ReadTensorData(a, numCells) ) return 0;
+      if ( ! this->ReadTensorData(a, numCells) )
+	{
+	return 0;
+	}
       }
     //
     // read normals data
     //
     else if ( ! strncmp(line, "normals", 7) )
       {
-      if ( ! this->ReadNormalData(a, numCells) ) return 0;
+      if ( ! this->ReadNormalData(a, numCells) )
+	{
+	return 0;
+	}
       }
     //
     // read texture coordinates data
     //
     else if ( ! strncmp(line, "texture_coordinates", 19) )
       {
-      if ( ! this->ReadTCoordsData(a, numCells) ) return 0;
+      if ( ! this->ReadTCoordsData(a, numCells) )
+	{
+	return 0;
+	}
       }
     //
     // read color scalars data
     //
     else if ( ! strncmp(line, "color_scalars", 13) )
       {
-      if ( ! this->ReadCoScalarData(a, numCells) ) return 0;
+      if ( ! this->ReadCoScalarData(a, numCells) )
+	{
+	return 0;
+	}
       }
     //
     // read lookup table. Associate with scalar data.
     //
     else if ( ! strncmp(line, "lookup_table", 12) )
       {
-      if ( ! this->ReadLutData(a) ) return 0;
+      if ( ! this->ReadLutData(a) )
+	{
+	return 0;
+	}
       }
     //
     // read field of data
@@ -437,7 +535,10 @@ int vtkDataReader::ReadCellData(vtkDataSet *ds, int numCells)
     else if ( ! strncmp(line, "field", 5) )
       {
       vtkFieldData *f;
-      if ( ! (f=this->ReadFieldData()) ) return 0;
+      if ( ! (f=this->ReadFieldData()) )
+	{
+	return 0;
+	}
       a->SetFieldData(f);
       f->Delete();
       }
@@ -488,21 +589,30 @@ int vtkDataReader::ReadPointData(vtkDataSet *ds, int numPts)
     //
     if ( ! strncmp(this->LowerCase(line), "scalars", 7) )
       {
-      if ( ! this->ReadScalarData(a, numPts) ) return 0;
+      if ( ! this->ReadScalarData(a, numPts) )
+	{
+	return 0;
+	}
       }
     //
     // read vector data
     //
     else if ( ! strncmp(line, "vectors", 7) )
       {
-      if ( ! this->ReadVectorData(a, numPts) ) return 0;
+      if ( ! this->ReadVectorData(a, numPts) )
+	{
+	return 0;
+	}
       }
     //
     // read 3x3 tensor data
     //
     else if ( ! strncmp(line, "tensors", 7) )
       {
-      if ( ! this->ReadTensorData(a, numPts) ) return 0;
+      if ( ! this->ReadTensorData(a, numPts) )
+	{
+	return 0;
+	}
       }
     //
     // read normals data
@@ -510,28 +620,40 @@ int vtkDataReader::ReadPointData(vtkDataSet *ds, int numPts)
     else if ( ! strncmp(line, "normals", 7) )
       {
 
-      if ( ! this->ReadNormalData(a, numPts) ) return 0;
+      if ( ! this->ReadNormalData(a, numPts) )
+	{
+	return 0;
+	}
       }
     //
     // read texture coordinates data
     //
     else if ( ! strncmp(line, "texture_coordinates", 19) )
       {
-      if ( ! this->ReadTCoordsData(a, numPts) ) return 0;
+      if ( ! this->ReadTCoordsData(a, numPts) )
+	{
+	return 0;
+	}
       }
     //
     // read color scalars data
     //
     else if ( ! strncmp(line, "color_scalars", 13) )
       {
-      if ( ! this->ReadCoScalarData(a, numPts) ) return 0;
+      if ( ! this->ReadCoScalarData(a, numPts) )
+	{
+	return 0;
+	}
       }
     //
     // read lookup table. Associate with scalar data.
     //
     else if ( ! strncmp(line, "lookup_table", 12) )
       {
-      if ( ! this->ReadLutData(a) ) return 0;
+      if ( ! this->ReadLutData(a) )
+	{
+	return 0;
+	}
       }
     //
     // read field of data
@@ -539,7 +661,10 @@ int vtkDataReader::ReadPointData(vtkDataSet *ds, int numPts)
     else if ( ! strncmp(line, "field", 5) )
       {
       vtkFieldData *f;
-      if ( ! (f=this->ReadFieldData()) ) return 0;
+      if ( ! (f=this->ReadFieldData()) )
+	{
+	return 0;
+	}
       a->SetFieldData(f);
       f->Delete();
       }
@@ -876,9 +1001,18 @@ int vtkDataReader::ReadCoordinates(vtkRectilinearGrid *rg, int axes,
     return 0;
     }
 
-  if ( axes == 0 ) rg->SetXCoordinates(coords);
-  else if ( axes == 1 ) rg->SetYCoordinates(coords);
-  else rg->SetZCoordinates(coords);
+  if ( axes == 0 )
+    {
+    rg->SetXCoordinates(coords);
+    }
+  else if ( axes == 1 )
+    {
+    rg->SetYCoordinates(coords);
+    }
+  else
+    {
+    rg->SetZCoordinates(coords);
+    }
 
 
   coords->Delete();
@@ -920,9 +1054,13 @@ int vtkDataReader::ReadScalarData(vtkDataSetAttributes *a, int numPts)
   // matches name in file. 
   //
   if ( a->GetScalars() != NULL || (this->ScalarsName && strcmp(name,this->ScalarsName)) )
+    {
     skipScalar = 1;
+    }
   else
+    {
     this->SetScalarLut(tableName); //may be "default"
+    }
 
   // Read the data
   data = this->ReadArray(line, numPts, 1);
@@ -931,7 +1069,10 @@ int vtkDataReader::ReadScalarData(vtkDataSetAttributes *a, int numPts)
     vtkScalars *scalars=vtkScalars::New();
     scalars->SetData(data);
     data->Delete();
-    if ( ! skipScalar ) a->SetScalars(scalars);
+    if ( ! skipScalar )
+      {
+      a->SetScalars(scalars);
+      }
     scalars->Delete();
     }
   else
@@ -976,7 +1117,10 @@ int vtkDataReader::ReadVectorData(vtkDataSetAttributes *a, int numPts)
     vtkVectors *vectors=vtkVectors::New();
     vectors->SetData(data);
     data->Delete();
-    if ( ! skipVector ) a->SetVectors(vectors);
+    if ( ! skipVector )
+      {
+      a->SetVectors(vectors);
+      }
     vectors->Delete();
     }
   else
@@ -1022,7 +1166,10 @@ int vtkDataReader::ReadNormalData(vtkDataSetAttributes *a, int numPts)
     vtkNormals *normals=vtkNormals::New();
     normals->SetData(data);
     data->Delete();
-    if ( ! skipNormal ) a->SetNormals(normals);
+    if ( ! skipNormal )
+      {
+      a->SetNormals(normals);
+      }
     normals->Delete();
     }
   else
@@ -1066,7 +1213,10 @@ int vtkDataReader::ReadTensorData(vtkDataSetAttributes *a, int numPts)
     vtkTensors *tensors=vtkTensors::New();
     tensors->SetData(data);
     data->Delete();
-    if ( ! skipTensor ) a->SetTensors(tensors);
+    if ( ! skipTensor )
+      {
+      a->SetTensors(tensors);
+      }
     tensors->Delete();
     }
   else
@@ -1210,7 +1360,10 @@ int vtkDataReader::ReadTCoordsData(vtkDataSetAttributes *a, int numPts)
     vtkTCoords *tcoords=vtkTCoords::New();
     tcoords->SetData(data);
     data->Delete();
-    if ( ! skipTCoord ) a->SetTCoords(tcoords);
+    if ( ! skipTCoord )
+      {
+      a->SetTCoords(tcoords);
+      }
     tcoords->Delete();
     }
   else
@@ -1282,7 +1435,10 @@ int vtkDataReader::ReadLutData(vtkDataSetAttributes *a)
       }
     }
 
-  if ( ! skipTable ) a->GetScalars()->SetLookupTable(lut);
+  if ( ! skipTable )
+    {
+    a->GetScalars()->SetLookupTable(lut);
+    }
   lut->Delete();
 
   if ( this->Source )
@@ -1403,7 +1559,9 @@ char *vtkDataReader::LowerCase(char *str)
   char *s;
 
   for ( i=0, s=str; *s != '\0' && i<256; s++,i++) 
+    {
     *s = tolower(*s);
+    }
   return str;
 }
 
@@ -1411,7 +1569,10 @@ char *vtkDataReader::LowerCase(char *str)
 void vtkDataReader::CloseVTKFile()
 {
   vtkDebugMacro(<<"Closing vtk file");
-  if ( this->IS != NULL ) delete this->IS;
+  if ( this->IS != NULL )
+    {
+    delete this->IS;
+    }
   this->IS = NULL;
 }
 
@@ -1433,9 +1594,13 @@ void vtkDataReader::PrintSelf(ostream& os, vtkIndent indent)
     }
 
   if ( this->Header )
+    {
     os << indent << "Header: " << this->Header << "\n";
+    }
   else
+    {
     os << indent << "Header: (None)\n";
+    }
 
   if ( this->Source )
     {

@@ -178,7 +178,10 @@ void vtkTensorGlyph::Execute()
       cell = this->Source->GetCell(cellId);
       cellPts = cell->GetPointIds();
       npts = cellPts->GetNumberOfIds();
-      for (i=0; i < npts; i++) pts[i] = cellPts->GetId(i) + ptIncr;
+      for (i=0; i < npts; i++)
+	{
+	pts[i] = cellPts->GetId(i) + ptIncr;
+	}
       output->InsertNextCell(cell->GetCellType(),npts,pts);
       }
     }
@@ -203,9 +206,12 @@ void vtkTensorGlyph::Execute()
     if ( this->ExtractEigenvalues ) // extract appropriate eigenfunctions
       {
       for (j=0; j<3; j++)
+	{
         for (i=0; i<3; i++)
+	  {
           m[i][j] = tensor->GetComponent(i,j);
-
+	  }
+	}
       vtkMath::Jacobi(m, w, v);
 
       //copy eigenvectors
@@ -234,13 +240,19 @@ void vtkTensorGlyph::Execute()
     if ( this->ClampScaling )
       {
       for (maxScale=0.0, i=0; i<3; i++)
-        if ( maxScale < fabs(w[i]) ) maxScale = fabs(w[i]);
-
+	{
+        if ( maxScale < fabs(w[i]) )
+	  {
+	  maxScale = fabs(w[i]);
+	  }
+	}
       if ( maxScale > this->MaxScaleFactor )
         {
         maxScale = this->MaxScaleFactor / maxScale;
         for (i=0; i<3; i++)
+	  {
           w[i] *= maxScale; //preserve overall shape of glyph
+	  }
         }
       }
 
@@ -258,28 +270,47 @@ void vtkTensorGlyph::Execute()
 
     // make sure scale is okay (non-zero) and scale data
     for (maxScale=0.0, i=0; i<3; i++)
-      if ( w[i] > maxScale ) maxScale = w[i];
-    if ( maxScale == 0.0 ) maxScale = 1.0;
+      {
+      if ( w[i] > maxScale )
+	{
+	maxScale = w[i];
+	}
+      }
+    if ( maxScale == 0.0 )
+      {
+      maxScale = 1.0;
+      }
     for (i=0; i<3; i++)
-      if ( w[i] == 0.0 ) w[i] = maxScale * 1.0e-06;
+      {
+      if ( w[i] == 0.0 )
+	{
+	w[i] = maxScale * 1.0e-06;
+	}
+      }
     trans->Scale(w[0], w[1], w[2]);
 
     // multiply points (and normals if available) by resulting matrix
     trans->MultiplyPoints(sourcePts,newPts);
     if ( newNormals )
+      {
       trans->MultiplyNormals(sourceNormals,newNormals);
+      }
 
     // Copy point data from source
     if ( inScalars && this->ColorGlyphs ) 
       {
       s = inScalars->GetScalar(inPtId);
       for (i=0; i < numSourcePts; i++) 
+	{
         newScalars->InsertScalar(ptIncr+i, s);
+	}
       }
     else
       {
       for (i=0; i < numSourcePts; i++) 
+	{
         outPD->CopyData(pd,i,ptIncr+i);
+	}
       }
     }
   vtkDebugMacro(<<"Generated " << numPts <<" tensor glyphs");
@@ -331,23 +362,44 @@ void vtkTensorGlyph::Update()
   this->Source->GetMTime() > this->ExecuteTime || 
   this->GetMTime() > this->ExecuteTime )
     {
-    if ( this->Input->GetDataReleased() ) this->Input->ForceUpdate();
-    if ( this->Source->GetDataReleased() ) this->Source->ForceUpdate();
+    if ( this->Input->GetDataReleased() )
+      {
+      this->Input->ForceUpdate();
+      }
+    if ( this->Source->GetDataReleased() )
+      {
+      this->Source->ForceUpdate();
+      }
 
-    if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);
+    if ( this->StartMethod )
+      {
+      (*this->StartMethod)(this->StartMethodArg);
+      }
     this->Output->Initialize(); //clear output
     // reset AbortExecute flag and Progress
     this->AbortExecute = 0;
     this->Progress = 0.0;
     this->Execute();
     this->ExecuteTime.Modified();
-    if ( !this->AbortExecute ) this->UpdateProgress(1.0);
+    if ( !this->AbortExecute )
+      {
+      this->UpdateProgress(1.0);
+      }
     this->SetDataReleased(0);
-    if ( this->EndMethod ) (*this->EndMethod)(this->EndMethodArg);
+    if ( this->EndMethod )
+      {
+      (*this->EndMethod)(this->EndMethodArg);
+      }
     }
 
-  if ( this->Input->ShouldIReleaseData() ) this->Input->ReleaseData();
-  if ( this->Source->ShouldIReleaseData() ) this->Source->ReleaseData();
+  if ( this->Input->ShouldIReleaseData() )
+    {
+    this->Input->ReleaseData();
+    }
+  if ( this->Source->ShouldIReleaseData() )
+    {
+    this->Source->ReleaseData();
+    }
 }
 
 void vtkTensorGlyph::PrintSelf(ostream& os, vtkIndent indent)

@@ -86,14 +86,18 @@ void vtkTextureMapToBox::Execute()
   newTCoords->SetNumberOfTCoords(numPts);
 
   if ( this->AutomaticBoxGeneration ) 
+    {
     box = input->GetBounds();
+    }
   else
+    {
     box = this->Box;
+    }
   //
   // Loop over all points generating coordinates
   //
-  min[0] = RRange[0]; min[1] = SRange[0]; min[2] = TRange[0]; 
-  max[0] = RRange[1]; max[1] = SRange[1]; max[2] = TRange[1]; 
+  min[0] = this->RRange[0]; min[1] = this->SRange[0]; min[2] = this->TRange[0]; 
+  max[0] = this->RRange[1]; max[1] = this->SRange[1]; max[2] = this->TRange[1]; 
 
   for (i=0; i<numPts; i++) 
     {
@@ -102,8 +106,14 @@ void vtkTextureMapToBox::Execute()
       {
       tc[j] = min[j] + (max[j]-min[j]) * (p[j] - box[2*j]) / 
 	(box[2*j+1] - box[2*j]);
-      if ( tc[j] < min[j] ) tc[j] = min[j];
-      if ( tc[j] > max[j] ) tc[j] = max[j];
+      if ( tc[j] < min[j] )
+	{
+	tc[j] = min[j];
+	}
+      if ( tc[j] > max[j] )
+	{
+	tc[j] = max[j];
+	}
       }
     newTCoords->SetTCoord(i,tc);
     }
@@ -133,8 +143,12 @@ void vtkTextureMapToBox::SetBox(float xmin, float xmax, float ymin, float ymax,
     this->Box[4] = zmin; this->Box[5] = zmax; 
 
     for (int i=0; i<3; i++)
+      {
       if ( this->Box[2*i] > this->Box[2*i+1] )
+	{
          this->Box[2*i] = this->Box[2*i+1];
+	}
+      }
     }
 }
 

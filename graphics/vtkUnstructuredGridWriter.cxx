@@ -63,7 +63,9 @@ void vtkUnstructuredGridWriter::WriteData()
   vtkDebugMacro(<<"Writing vtk unstructured grid data...");
 
   if ( !(fp=this->OpenVTKFile()) || !this->WriteHeader(fp) )
-      return;
+    {
+    return;
+    }
 //
 // Write unstructured grid specific stuff
 //

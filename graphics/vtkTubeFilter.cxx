@@ -164,7 +164,10 @@ void vtkTubeFilter::Execute()
 					  (vtkNormals*)inNormals) )
       {
         vtkErrorMacro(<< "No normals for line!\n");
-        if (deleteNormals) inNormals->Delete();
+        if (deleteNormals)
+	  {
+	  inNormals->Delete();
+	  }
 	lineNormalGenerator->Delete();
         return;
       }
@@ -202,7 +205,10 @@ void vtkTubeFilter::Execute()
 
       else
         {
-        for (i=0; i<3; i++) p[i] = pNext[i];
+	  for (i=0; i<3; i++)
+	  {
+	  p[i] = pNext[i];
+	  }
         inPts->GetPoint(pts[j+1],pNext);
         for (i=0; i<3; i++)
           {
@@ -224,7 +230,10 @@ void vtkTubeFilter::Execute()
         return;
         }
 
-      for (i=0; i<3; i++) s[i] = (sPrev[i] + sNext[i]) / 2.0; //average vector
+      for (i=0; i<3; i++)
+	{
+	s[i] = (sPrev[i] + sNext[i]) / 2.0; //average vector
+	}
       // if s is zero then just use sPrev cross n
       if (vtkMath::Normalize(s) == 0.0)
 	{
@@ -236,10 +245,19 @@ void vtkTubeFilter::Execute()
 	  }
 	}
       
-      if ( (BevelAngle = vtkMath::Dot(sNext,sPrev)) > 1.0 ) BevelAngle = 1.0;
-      if ( BevelAngle < -1.0 ) BevelAngle = -1.0;
+      if ( (BevelAngle = vtkMath::Dot(sNext,sPrev)) > 1.0 )
+	{
+	BevelAngle = 1.0;
+	}
+      if ( BevelAngle < -1.0 )
+	{
+	BevelAngle = -1.0;
+	}
       BevelAngle = acos((double)BevelAngle) / 2.0; //(0->90 degrees)
-      if ( (BevelAngle = cos(BevelAngle)) == 0.0 ) BevelAngle = 1.0;
+      if ( (BevelAngle = cos(BevelAngle)) == 0.0 )
+	{
+	BevelAngle = 1.0;
+	}
 
       BevelAngle = this->Radius / BevelAngle; //keep tube constant radius
 
@@ -247,7 +265,10 @@ void vtkTubeFilter::Execute()
       if ( vtkMath::Normalize(w) == 0.0)
         {
         vtkErrorMacro(<<"Bad normal s = " << s[0] << " " << s[1] << " " << s[2] << " n = " << n[0] << " " << n[1] << " " << n[2]);
-        if (deleteNormals) inNormals->Delete();
+        if (deleteNormals)
+	  {
+	  inNormals->Delete();
+	  }
         newPts->Delete();
         newNormals->Delete();
         newStrips->Delete();
@@ -271,7 +292,10 @@ void vtkTubeFilter::Execute()
         {
         sFactor = 
 	  sqrt((double)maxSpeed/vtkMath::Norm(inVectors->GetVector(pts[j])));
-        if ( sFactor > this->RadiusFactor ) sFactor = this->RadiusFactor;
+        if ( sFactor > this->RadiusFactor )
+	  {
+	  sFactor = this->RadiusFactor;
+	  }
         }
 
       //create points around line
@@ -308,7 +332,10 @@ void vtkTubeFilter::Execute()
   //
   // Update ourselves
   //
-  if ( deleteNormals ) inNormals->Delete();
+  if ( deleteNormals )
+    {
+    inNormals->Delete();
+    }
 
   output->SetPoints(newPts);
   newPts->Delete();

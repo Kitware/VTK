@@ -107,9 +107,18 @@ void vtkTransformTextureCoords::Execute()
   transform->Scale(this->Scale[0], this->Scale[1], this->Scale[2]);
 
   // rotate about z, then x, then y
-  if ( this->FlipT ) transform->RotateZ(180.0);
-  if ( this->FlipR ) transform->RotateX(180.0);
-  if ( this->FlipS ) transform->RotateY(180.0);
+  if ( this->FlipT )
+    {
+    transform->RotateZ(180.0);
+    }
+  if ( this->FlipR )
+    {
+    transform->RotateX(180.0);
+    }
+  if ( this->FlipS )
+    {
+    transform->RotateY(180.0);
+    }
 
   // move back from origin and translate
   transform->Translate(this->Origin[0] + this->Position[0],

@@ -109,7 +109,10 @@ void vtkTextureMapToCylinder::Execute()
     }
 
   //compute axis which is theta (angle measure) origin
-  for ( i=0; i < 3; i++ ) axis[i] = this->Point2[i] - this->Point1[i];
+  for ( i=0; i < 3; i++ )
+    {
+    axis[i] = this->Point2[i] - this->Point1[i];
+    }
   if ( vtkMath::Norm(axis) == 0.0 )
     {
     vtkErrorMacro(<<"Bad cylinder axis");
@@ -138,7 +141,10 @@ void vtkTextureMapToCylinder::Execute()
     x = input->GetPoint(ptId);
     vtkLine::DistanceToLine(x,this->Point1,this->Point2,tc[1],closest);
 
-    for (i=0; i < 3; i++) v[i] = x[i] - closest[i];
+    for (i=0; i < 3; i++)
+      {
+      v[i] = x[i] - closest[i];
+      }
     vtkMath::Normalize(v);
 
     thetaX = acos ((double)vtkMath::Dot(v,vec));
