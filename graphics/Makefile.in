@@ -228,7 +228,6 @@ vtkStructuredPointsToPolyDataFilter \
 vtkStructuredPointsToStructuredPointsFilter \
 vtkStructuredPointsWriter \
 vtkSubPixelPositionEdgels \
-vtkSweptSurface \
 vtkTensorGlyph \
 vtkTextSource \
 vtkTexture \
