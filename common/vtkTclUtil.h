@@ -44,6 +44,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define __vtkTclInclude_h
 
 #include "vtkObject.h"
+#include "vtkCommand.h"
 #include <tcl.h>
 #include <tk.h>
 
@@ -53,11 +54,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define VTKTCL_EXPORT
 #endif
 
-extern VTKTCL_EXPORT Tcl_Interp *vtkGlobalTclInterp;
-extern VTKTCL_EXPORT Tcl_Interp *vtkTclGetGlobalInterp();
-extern VTKTCL_EXPORT int vtkTclEval(char *str);
-extern VTKTCL_EXPORT char *vtkTclGetResult();
-extern VTKTCL_EXPORT void vtkTclDeleteObjectFromHash(void *cd);
+extern VTKTCL_EXPORT void vtkTclDeleteObjectFromHash(vtkObject *,
+                                                     void *, void *);
 extern VTKTCL_EXPORT void vtkTclGenericDeleteObject(ClientData cd);
 
 extern VTKTCL_EXPORT void 
@@ -73,7 +71,7 @@ extern VTKTCL_EXPORT void vtkTclVoidFunc(void *);
 extern VTKTCL_EXPORT void vtkTclVoidFuncArgDelete(void *);
 extern VTKTCL_EXPORT void vtkTclListInstances(Tcl_Interp *interp, 
 					      ClientData arg);
-extern VTKTCL_EXPORT int  vtkTclInDelete();
+extern VTKTCL_EXPORT int  vtkTclInDelete(Tcl_Interp *interp);
 
 extern VTKTCL_EXPORT int vtkTclNewInstanceCommand(ClientData cd, 
 						  Tcl_Interp *interp,
@@ -86,17 +84,74 @@ void vtkTclCreateNew(Tcl_Interp *interp, char *cname,
 					    Tcl_Interp *interp,
 					    int argc, char *argv[]));
 
+class vtkTclCommand : public vtkCommand
+{
+public:
+  vtkTclCommand() { this->Interp = NULL; this->StringCommand = NULL;};
+  ~vtkTclCommand() 
+    { 
+      delete [] this->StringCommand;
+    };
+  void SetStringCommand(char *arg) { this->StringCommand = arg; };
+  void SetInterp(Tcl_Interp *interp) { this->Interp = interp; };
+  
+  void Execute(vtkObject *caller, void *callData)
+    {
+      int res;
+      res = Tcl_GlobalEval(this->Interp, this->StringCommand);
+      
+      if (res == TCL_ERROR)
+        {
+        if (Tcl_GetVar(this->Interp,"errorInfo",0))
+          {
+          vtkGenericWarningMacro("Error returned from vtk/tcl callback:\n" <<
+                                 this->StringCommand << endl <<
+                                 Tcl_GetVar(this->Interp,"errorInfo",0) <<
+                                 " at line number " << this->Interp->errorLine);
+          }
+        else
+          {
+          vtkGenericWarningMacro("Error returned from vtk/tcl callback:\n" <<
+                                 this->StringCommand << endl <<
+                                 " at line number " << 
+                                 this->Interp->errorLine);
+          }
+        }
+    };
+  
+  char *StringCommand;
+  Tcl_Interp *Interp;
+};
+
 typedef  struct _vtkTclVoidFuncArg 
 {
   Tcl_Interp *interp;
   char *command;
 } vtkTclVoidFuncArg;
 
+struct vtkTclCommandArgStruct
+{
+  void *Pointer;
+  Tcl_Interp *Interp;
+  unsigned long Tag;
+};
+
 struct vtkTclCommandStruct
 {
   ClientData (*NewCommand)();
   int (*CommandFunction)(ClientData cd, Tcl_Interp *interp,
                          int argc, char *argv[]);
+};
+
+struct vtkTclInterpStruct
+{
+  Tcl_HashTable InstanceLookup;
+  Tcl_HashTable PointerLookup;
+  Tcl_HashTable CommandLookup;
+
+  int Number;
+  int DebugOn;
+  int InDelete;
 };
 
 #endif
