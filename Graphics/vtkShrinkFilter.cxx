@@ -23,7 +23,7 @@
 #include "vtkPointData.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkShrinkFilter, "1.63");
+vtkCxxRevisionMacro(vtkShrinkFilter, "1.64");
 vtkStandardNewMacro(vtkShrinkFilter);
 
 vtkShrinkFilter::vtkShrinkFilter(double sf)
@@ -63,7 +63,7 @@ int vtkShrinkFilter::RequestData(
   numPts = input->GetNumberOfPoints();
   if (numCells < 1 || numPts < 1)
     {
-    vtkErrorMacro(<<"No data to shrink!");
+    vtkDebugMacro("No data to shrink!");
     return 1;
     }
 
