@@ -17,38 +17,56 @@
 #include "vtkImageData.h"
 #include "vtkImageDilateErode3D.h"
 #include "vtkObjectFactory.h"
+#include "vtkCommand.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageOpenClose3D, "1.23");
+vtkCxxRevisionMacro(vtkImageOpenClose3D, "1.24");
 vtkStandardNewMacro(vtkImageOpenClose3D);
 
 //----------------------------------------------------------------------------
 // functions to convert progress calls.
-void vtkImageOpenClose3DUpdateProgress0(void *arg)
+class vtkImageOpenClose3DProgress : public vtkCommand
 {
-  vtkImageOpenClose3D *self = (vtkImageOpenClose3D *)(arg);
-  // fprintf(stderr, "progress0: %f\n",(0.5 * self->GetFilter0()->GetProgress()));
-  self->UpdateProgress(0.5 * self->GetFilter0()->GetProgress());
-}
+public:
+  // generic new method
+  static vtkImageOpenClose3DProgress *New()
+    { return new vtkImageOpenClose3DProgress; }
 
-void vtkImageOpenClose3DUpdateProgress1(void *arg)
-{
-  vtkImageOpenClose3D *self = (vtkImageOpenClose3D *)(arg);
-  self->UpdateProgress(0.5 * self->GetFilter1()->GetProgress() + 0.5);
-}
-
+  // the execute
+  virtual void Execute(vtkObject *caller, 
+                       unsigned long event, void* vtkNotUsed(v))
+    {
+      vtkProcessObject *po = vtkProcessObject::SafeDownCast(caller);
+      if (event == vtkCommand::ProgressEvent && po)
+        {
+        this->Self->UpdateProgress(this->Offset + 0.5 * 
+                                   po->GetProgress());
+        }
+    }
+  
+  // some ivars that should be set
+  vtkImageOpenClose3D *Self;
+  float Offset;
+};
 
 //----------------------------------------------------------------------------
 vtkImageOpenClose3D::vtkImageOpenClose3D()
 {
   // create the filter chain 
   this->Filter0 = vtkImageDilateErode3D::New();
-  this->Filter0->SetProgressMethod(vtkImageOpenClose3DUpdateProgress0,
-                                   (void *)this);
+  vtkImageOpenClose3DProgress *cb = vtkImageOpenClose3DProgress::New();
+  cb->Self = this;
+  cb->Offset = 0;
+  this->Filter0->AddObserver(vtkCommand::ProgressEvent, cb);
+  cb->Delete();
+  
   this->Filter1 = vtkImageDilateErode3D::New();
-  this->Filter1->SetProgressMethod(vtkImageOpenClose3DUpdateProgress1, 
-                                   (void *)this); 
+  cb = vtkImageOpenClose3DProgress::New();
+  cb->Self = this;
+  cb->Offset = 0.5;
+  this->Filter1->AddObserver(vtkCommand::ProgressEvent, cb);
+  cb->Delete();
   this->SetOpenValue(0.0);
   this->SetCloseValue(255.0);
 

@@ -70,7 +70,15 @@
 //
 // vtkInteractorStyle can be subclassed to provide new interaction styles and
 // a facility to override any of the default mouse/key operations which
-// currently handle trackball or joystick styles is provided.
+// currently handle trackball or joystick styles is provided. Note that this
+// class will fire a variety of events that can be watched using an observer,
+// such as LeftButtonPressEvent, LeftButtonReleaseEvent,
+// MiddleButtonPressEvent, MiddleButtonReleaseEvent, RightButtonPressEvent,
+// RightButtonReleaseEvent, EnterEvent, LeaveEvent, KeyPressEvent,
+// KeyReleaseEvent, CharEvent, ExposeEvent, ConfigureEvent, TimerEvent,
+// MouseMoveEvent,
+
+
 //
 // .SECTION See Also
 // vtkInteractorStyleTrackball
@@ -231,23 +239,6 @@ public:
   virtual void StartTimer();
   virtual void EndTimer();
 
-#ifndef VTK_REMOVE_LEGACY_CODE
-  // Description:
-  // For legacy compatibility.  Do not use.
-  void SetLeftButtonPressMethod(void (*f)(void *), void *arg);
-  void SetLeftButtonPressMethodArgDelete(void (*f)(void *));
-  void SetLeftButtonReleaseMethod(void (*f)(void *), void *arg);
-  void SetLeftButtonReleaseMethodArgDelete(void (*f)(void *));
-  void SetMiddleButtonPressMethod(void (*f)(void *), void *arg);
-  void SetMiddleButtonPressMethodArgDelete(void (*f)(void *));
-  void SetMiddleButtonReleaseMethod(void (*f)(void *), void *arg);
-  void SetMiddleButtonReleaseMethodArgDelete(void (*f)(void *));
-  void SetRightButtonPressMethod(void (*f)(void *), void *arg);
-  void SetRightButtonPressMethodArgDelete(void (*f)(void *));
-  void SetRightButtonReleaseMethod(void (*f)(void *), void *arg);
-  void SetRightButtonReleaseMethodArgDelete(void (*f)(void *));
-#endif
-
   // Description:
   // When picking successfully selects an actor, this method highlights the
   // picked prop appropriately. Currently this is done by placing a bounding 
@@ -296,17 +287,6 @@ protected:
   vtkActor2D         *PickedActor2D;
   int                PropPicked;      // bool: prop picked?
   float              PickColor[3];    // support 2D picking
-
-  // These should be removed when the Set*Method methods that are
-  // deprecated above are removed.  We don't want these inside the
-  // check for VTK_REMOVE_LEGACY_CODE because it will change the size
-  // of the object.
-  unsigned long LeftButtonPressTag;
-  unsigned long LeftButtonReleaseTag;
-  unsigned long MiddleButtonPressTag;
-  unsigned long MiddleButtonReleaseTag;
-  unsigned long RightButtonPressTag;
-  unsigned long RightButtonReleaseTag;
 
 private:
   vtkInteractorStyle(const vtkInteractorStyle&);  // Not implemented.

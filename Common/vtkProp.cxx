@@ -15,9 +15,9 @@
 #include "vtkProp.h"
 #include "vtkObjectFactory.h"
 #include "vtkAssemblyPaths.h"
-#include "vtkOldStyleCallbackCommand.h"
+#include "vtkCommand.h"
 
-vtkCxxRevisionMacro(vtkProp, "1.24");
+vtkCxxRevisionMacro(vtkProp, "1.25");
 
 // Creates an Prop with the following defaults: visibility on.
 vtkProp::vtkProp()
@@ -25,7 +25,6 @@ vtkProp::vtkProp()
   this->Visibility = 1;  // ON
 
   this->Pickable   = 1;
-  this->PickTag = 0;
   this->Dragable   = 1;
   
   this->AllocatedRenderTime = 10.0;
@@ -47,36 +46,6 @@ vtkProp::~vtkProp()
   if (this->Consumers)
     {
     delete [] this->Consumers;
-    }
-}
-
-// This method is invoked when an instance of vtkProp (or subclass, 
-// e.g., vtkActor) is picked by vtkPicker.
-void vtkProp::SetPickMethod(void (*f)(void *), void *arg)
-{
-  if ( this->PickTag )
-    {
-    this->RemoveObserver(this->PickTag);
-    }
-  
-  if ( f )
-    {
-    vtkOldStyleCallbackCommand *cbc = vtkOldStyleCallbackCommand::New();
-    cbc->Callback = f;
-    cbc->ClientData = arg;
-    this->PickTag = this->AddObserver(vtkCommand::PickEvent,cbc);
-    cbc->Delete();
-    }
-}
-
-// Set a method to delete user arguments for PickMethod.
-void vtkProp::SetPickMethodArgDelete(void (*f)(void *))
-{
-  vtkOldStyleCallbackCommand *cmd = 
-    (vtkOldStyleCallbackCommand *)this->GetCommand(this->PickTag);
-  if (cmd)
-    {
-    cmd->SetClientDataDeleteCallback(f);
     }
 }
 

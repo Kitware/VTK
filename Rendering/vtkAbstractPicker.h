@@ -24,12 +24,12 @@
 // resulting pick position in global coordinates with the GetPickPosition()
 // method.
 //
-// vtkPicker has hooks for methods to call during the picking process.  These
-// methods are StartPickMethod(), PickMethod(), and EndPickMethod() which are
+// vtkPicker fires events during the picking process.  These
+// events are StartPickEvent, PickEvent, and EndPickEvent which are
 // invoked prior to picking, when something is picked, and after all picking
 // candidates have been tested. Note that during the pick process the
-// PickMethod() of vtkProp (and its subclasses such as vtkActor) is called
-// prior to the pick method of vtkPicker.
+// PickEvent of vtkProp (and its subclasses such as vtkActor) is fired
+// prior to the PickEvent of vtkPicker.
 
 // .SECTION Caveats
 // vtkAbstractPicker and its subclasses will not pick props that are 
@@ -94,31 +94,6 @@ public:
   int Pick(float selectionPt[3], vtkRenderer *ren)
     {return this->Pick(selectionPt[0],selectionPt[1],selectionPt[2],ren);};  
 
-  // Description: Specify function to be called as picking operation
-  // begins.
-  void SetStartPickMethod(void (*f)(void *), void *arg);
-
-  // Description:
-  // Specify function to be called when something is picked.
-  void SetPickMethod(void (*f)(void *), void *arg);
-
-  // Description:
-  // Specify function to be called after all picking operations have been
-  // performed.
-  void SetEndPickMethod(void (*f)(void *), void *arg);
-
-  // Description:
-  // Set a method to delete user arguments for StartPickMethod.
-  void SetStartPickMethodArgDelete(void (*f)(void *));
-
-  // Description:
-  // Set a method to delete user arguments for PickMethod.
-  void SetPickMethodArgDelete(void (*f)(void *));
-
-  // Description:
-  // Set a method to delete user arguments for EndPickMethod.
-  void SetEndPickMethodArgDelete(void (*f)(void *));
-
   // Description:
   // Use these methods to control whether to limit the picking to this list
   // (rather than renderer's actors). Make sure that the pick list contains 
@@ -152,11 +127,6 @@ protected:
   vtkRenderer *Renderer; //pick occurred in this renderer's viewport
   float SelectionPoint[3]; //selection point in window (pixel) coordinates
   float PickPosition[3]; //selection point in world coordinates
-  
-  // the following are used to manage invocation of pick methods
-  unsigned long StartPickTag;
-  unsigned long PickTag;
-  unsigned long EndPickTag;
   
   // use the following to control picking from a list
   int PickFromList;

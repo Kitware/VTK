@@ -15,18 +15,15 @@
 #include "vtkProcessObject.h"
 
 #include "vtkObjectFactory.h"
-#include "vtkOldStyleCallbackCommand.h"
 #include "vtkDataObject.h"
 #include "vtkErrorCode.h"
+#include "vtkCommand.h"
 
-vtkCxxRevisionMacro(vtkProcessObject, "1.33");
+vtkCxxRevisionMacro(vtkProcessObject, "1.34");
 
 // Instantiate object with no start, end, or progress methods.
 vtkProcessObject::vtkProcessObject()
 {
-  this->StartTag = 0;
-  this->ProgressTag = 0;
-  this->EndTag = 0;
   this->AbortExecute = 0;
   this->Progress = 0.0;
   this->ProgressText = NULL;
@@ -264,94 +261,6 @@ void vtkProcessObject::UpdateProgress(float amount)
 {
   this->Progress = amount;
   this->InvokeEvent(vtkCommand::ProgressEvent,(void *)&amount);
-}
-
-// Specify function to be called before object executes.
-void vtkProcessObject::SetStartMethod(void (*f)(void *), void *arg)
-{
-  if ( this->StartTag )
-    {
-    this->RemoveObserver(this->StartTag);
-    }
-  
-  if ( f )
-    {
-    vtkOldStyleCallbackCommand *cbc = vtkOldStyleCallbackCommand::New();
-    cbc->Callback = f;
-    cbc->ClientData = arg;
-    this->StartTag = this->AddObserver(vtkCommand::StartEvent,cbc);
-    cbc->Delete();
-    }
-}
-
-// Specify function to be called to show progress of filter
-void vtkProcessObject::SetProgressMethod(void (*f)(void *), void *arg)
-{
-  if ( this->ProgressTag )
-    {
-    this->RemoveObserver(this->ProgressTag);
-    }
-  
-  if ( f )
-    {
-    vtkOldStyleCallbackCommand *cbc = vtkOldStyleCallbackCommand::New();
-    cbc->Callback = f;
-    cbc->ClientData = arg;
-    this->ProgressTag = this->AddObserver(vtkCommand::ProgressEvent,cbc);
-    cbc->Delete();
-    }
-}
-
-// Specify function to be called after object executes.
-void vtkProcessObject::SetEndMethod(void (*f)(void *), void *arg)
-{
-  if ( this->EndTag )
-    {
-    this->RemoveObserver(this->EndTag);
-    }
-  
-  if ( f )
-    {
-    vtkOldStyleCallbackCommand *cbc = vtkOldStyleCallbackCommand::New();
-    cbc->Callback = f;
-    cbc->ClientData = arg;
-    this->EndTag = this->AddObserver(vtkCommand::EndEvent,cbc);
-    cbc->Delete();
-    }
-}
-
-
-// Set the arg delete method. This is used to free user memory.
-void vtkProcessObject::SetStartMethodArgDelete(void (*f)(void *))
-{
-  vtkOldStyleCallbackCommand *cmd = 
-    (vtkOldStyleCallbackCommand *)this->GetCommand(this->StartTag);
-  if (cmd)
-    {
-    cmd->SetClientDataDeleteCallback(f);
-    }
-}
-
-// Set the arg delete method. This is used to free user memory.
-void vtkProcessObject::SetProgressMethodArgDelete(void (*f)(void *))
-{
-  vtkOldStyleCallbackCommand *cmd = 
-    (vtkOldStyleCallbackCommand *)this->GetCommand(this->ProgressTag);
-  if (cmd)
-    {
-    cmd->SetClientDataDeleteCallback(f);
-    }
-}
-
-// Set the arg delete method. This is used to free user memory.
-void vtkProcessObject::SetEndMethodArgDelete(void (*f)(void *))
-{
-  vtkOldStyleCallbackCommand *cmd = 
-    (vtkOldStyleCallbackCommand *)this->GetCommand(this->EndTag);
-  if (cmd)
-    {
-    cmd->SetClientDataDeleteCallback(f);
-    }
 }
 
 void vtkProcessObject::RemoveAllInputs()

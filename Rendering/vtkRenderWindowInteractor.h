@@ -148,19 +148,6 @@ public:
   // Default is an instance of vtkPropPicker.
   virtual vtkAbstractPropPicker *CreateDefaultPicker();
 
-#ifndef VTK_REMOVE_LEGACY_CODE
-  // Description:
-  // For legacy compatibility.  Do not use.
-  void SetStartPickMethod(void (*f)(void *), void *arg);
-  void SetStartPickMethodArgDelete(void (*f)(void *));
-  void SetEndPickMethod(void (*f)(void *), void *arg);
-  void SetEndPickMethodArgDelete(void (*f)(void *));
-  void SetUserMethod(void (*f)(void *), void *arg);
-  void SetUserMethodArgDelete(void (*f)(void *));
-  void SetExitMethod(void (*f)(void *), void *arg);
-  void SetExitMethodArgDelete(void (*f)(void *));
-#endif
-  
   // Description:
   // These methods correspond to the the Exit, User and Pick
   // callbacks. They allow for the Style to invoke them.
@@ -362,15 +349,6 @@ protected:
   int   LastEventPosition[2];
   int   EventSize[2];
   int   Size[2];
-  
-  // These should be removed when the Set*Method methods that are
-  // deprecated above are removed.  We don't want these inside the
-  // check for VTK_REMOVE_LEGACY_CODE because it will change the size
-  // of the object.
-  unsigned long StartPickTag;
-  unsigned long EndPickTag;
-  unsigned long UserTag;
-  unsigned long ExitTag;
   
   // control the fly to
   int NumberOfFlyFrames;

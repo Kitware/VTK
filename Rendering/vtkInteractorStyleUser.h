@@ -42,37 +42,6 @@ public:
   vtkTypeRevisionMacro(vtkInteractorStyleUser,vtkInteractorStyle);
   void PrintSelf(ostream& os, vtkIndent indent);
   
-#ifndef VTK_REMOVE_LEGACY_CODE
-  // Description:
-  // For legacy compatibility.  Do not use.
-  void SetMouseMoveMethod(void (*f)(void *), void *arg);
-  void SetMouseMoveMethodArgDelete(void (*f)(void *));
-  void SetButtonPressMethod(void (*f)(void *), void *arg);
-  void SetButtonPressMethodArgDelete(void (*f)(void *));
-  void SetButtonReleaseMethod(void (*f)(void *), void *arg);
-  void SetButtonReleaseMethodArgDelete(void (*f)(void *));
-  void SetKeyPressMethod(void (*f)(void *), void *arg);
-  void SetKeyPressMethodArgDelete(void (*f)(void *));
-  void SetKeyReleaseMethod(void (*f)(void *), void *arg);
-  void SetKeyReleaseMethodArgDelete(void (*f)(void *));
-  void SetCharMethod(void (*f)(void *), void *arg);
-  void SetCharMethodArgDelete(void (*f)(void *));
-  void SetConfigureMethod(void (*f)(void *), void *arg);
-  void SetConfigureMethodArgDelete(void (*f)(void *));
-  void SetExposeMethod(void (*f)(void *), void *arg);
-  void SetExposeMethodArgDelete(void (*f)(void *));
-  void SetEnterMethod(void (*f)(void *), void *arg);
-  void SetEnterMethodArgDelete(void (*f)(void *));
-  void SetLeaveMethod(void (*f)(void *), void *arg);
-  void SetLeaveMethodArgDelete(void (*f)(void *));
-  void SetTimerMethod(void (*f)(void *), void *arg);
-  void SetTimerMethodArgDelete(void (*f)(void *));
-  void SetUserInteractionMethod(void (*f)(void *), void *arg);
-  void SetUserInteractionMethodArgDelete(void (*f)(void *));
-  void StartUserInteraction();
-  void EndUserInteraction();
-#endif
-  
   // Description:
   // Get the most recent mouse position during mouse motion.  
   // In your user interaction method, you must use this to track
@@ -145,22 +114,6 @@ protected:
   char *KeySym;
   int Button;
 
-  unsigned long MouseMoveTag;
-  unsigned long KeyPressTag;
-  unsigned long KeyReleaseTag;
-  unsigned long CharTag;
-  unsigned long EnterTag;
-  unsigned long LeaveTag;
-  unsigned long ExposeTag;
-  unsigned long ConfigureTag;
-  unsigned long TimerTag;
-  unsigned long UserTag;
-
-#ifndef VTK_REMOVE_LEGACY_CODE
-  void vtkSetOldCallback(unsigned long &tag, unsigned long event, 
-                         void (*f)(void *), void *arg);
-  void vtkSetOldDelete(unsigned long tag, void (*f)(void *));
-#endif
 private:
   vtkInteractorStyleUser(const vtkInteractorStyleUser&);  // Not implemented.
   void operator=(const vtkInteractorStyleUser&);  // Not implemented.

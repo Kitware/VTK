@@ -20,9 +20,9 @@
 #include "vtkAssemblyPath.h"
 #include "vtkCallbackCommand.h"
 #include "vtkCellPicker.h"
+#include "vtkCommand.h"
 #include "vtkMath.h" 
 #include "vtkObjectFactory.h"
-#include "vtkOldStyleCallbackCommand.h"
 #include "vtkOutlineSource.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
@@ -32,7 +32,7 @@
 #include "vtkRenderer.h"
 #include "vtkTextProperty.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyle, "1.89");
+vtkCxxRevisionMacro(vtkInteractorStyle, "1.90");
 vtkStandardNewMacro(vtkInteractorStyle);
 
 //----------------------------------------------------------------------------
@@ -68,13 +68,6 @@ vtkInteractorStyle::vtkInteractorStyle()
   this->PickColor[1]        = 0.0; 
   this->PickColor[2]        = 0.0;
   this->PickedActor2D       = NULL;
-
-  this->LeftButtonPressTag            = 0;
-  this->LeftButtonReleaseTag          = 0;
-  this->MiddleButtonPressTag          = 0;
-  this->MiddleButtonReleaseTag        = 0;
-  this->RightButtonPressTag           = 0;
-  this->RightButtonReleaseTag         = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -855,35 +848,6 @@ void vtkInteractorStyle::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Prop Picked: " <<
     (this->PropPicked ? "Yes\n" : "No\n");
   
-#ifndef VTK_REMOVE_LEGACY_CODE
-  if (this->LeftButtonPressTag)
-    {
-    os << indent << "LeftButtonPressMethod: Defined\n";
-    }
-  if (this->LeftButtonReleaseTag)
-    {
-    os << indent << "LeftButtonReleaseMethod: Defined\n";
-    }
-  
-  if (this->MiddleButtonPressTag)
-    {
-    os << indent << "MiddleButtonPressMethod: Defined\n";
-    }
-  if (this->MiddleButtonReleaseTag)
-    {
-    os << indent << "MiddleButtonReleaseMethod: Defined\n";
-    }
-  
-  if (this->RightButtonPressTag)
-    {
-    os << indent << "RightButtonPressMethod: Defined\n";
-    }
-  if (this->RightButtonReleaseTag)
-    {
-    os << indent << "RightButtonReleaseMethod: Defined\n";
-    }
-#endif
-  
   os << indent << "State: " << this->State << endl;
   os << indent << "UseTimers: " << this->UseTimers << endl;
   os << indent << "HandleObservers: " << this->HandleObservers << endl;
@@ -1088,218 +1052,3 @@ void vtkInteractorStyle::ProcessEvents(vtkObject* vtkNotUsed(object),
     }
 }
 
-#ifndef VTK_REMOVE_LEGACY_CODE
-//----------------------------------------------------------------------------
-// Set the left button pressed method. 
-// This method is invoked on a left mouse button press.
-void vtkInteractorStyle::SetLeftButtonPressMethod(void (*f)(void *), void *arg)
-{
-  VTK_LEGACY_METHOD(SetLeftButtonPressMethod, "4.2");
-  if ( this->LeftButtonPressTag )
-    {
-    this->RemoveObserver(this->LeftButtonPressTag);
-    }
-  
-  if ( f )
-    {
-    vtkOldStyleCallbackCommand *cbc = vtkOldStyleCallbackCommand::New();
-    cbc->Callback = f;
-    cbc->ClientData = arg;
-    this->LeftButtonPressTag = 
-      this->AddObserver(vtkCommand::LeftButtonPressEvent, 
-                        cbc);
-    cbc->Delete();
-    }
-}
-
-//----------------------------------------------------------------------------
-// Called when a void* argument is being discarded.  Lets the user free it.
-void vtkInteractorStyle::SetLeftButtonPressMethodArgDelete(void (*f)(void *))
-{
-  VTK_LEGACY_METHOD(SetLeftButtonPressMethodArgDelete, "4.2");
-  vtkOldStyleCallbackCommand *cmd = 
-    (vtkOldStyleCallbackCommand *)this->GetCommand(this->LeftButtonPressTag);
-  if (cmd)
-    {
-    cmd->SetClientDataDeleteCallback(f);
-    }
-}
-
-//----------------------------------------------------------------------------
-void vtkInteractorStyle::SetLeftButtonReleaseMethod(void (*f)(void *), 
-                                                    void *arg)
-{
-  VTK_LEGACY_METHOD(SetLeftButtonReleaseMethod, "4.2");
-  if ( this->LeftButtonReleaseTag )
-    {
-    this->RemoveObserver(this->LeftButtonReleaseTag);
-    }
-  
-  if ( f )
-    {
-    vtkOldStyleCallbackCommand *cbc = vtkOldStyleCallbackCommand::New();
-    cbc->Callback = f;
-    cbc->ClientData = arg;
-    this->LeftButtonReleaseTag = 
-      this->AddObserver(vtkCommand::LeftButtonReleaseEvent,
-                        cbc);
-    cbc->Delete();
-    }
-}
-
-//----------------------------------------------------------------------------
-// Called when a void* argument is being discarded.  Lets the user free it.
-void vtkInteractorStyle::SetLeftButtonReleaseMethodArgDelete(void (*f)(void *))
-{
-  VTK_LEGACY_METHOD(SetLeftButtonReleaseMethodArgDelete, "4.2");
-  vtkOldStyleCallbackCommand *cmd = 
-    (vtkOldStyleCallbackCommand *)this->GetCommand(this->LeftButtonReleaseTag);
-  if (cmd)
-    {
-    cmd->SetClientDataDeleteCallback(f);
-    }
-}
-
-//----------------------------------------------------------------------------
-void vtkInteractorStyle::SetMiddleButtonPressMethod(void (*f)(void *), 
-                                                    void *arg)
-{
-  VTK_LEGACY_METHOD(SetMiddleButtonPressMethod, "4.2");
-  if ( this->MiddleButtonPressTag )
-    {
-    this->RemoveObserver(this->MiddleButtonPressTag);
-    }
-  
-  if ( f )
-    {
-    vtkOldStyleCallbackCommand *cbc = vtkOldStyleCallbackCommand::New();
-    cbc->Callback = f;
-    cbc->ClientData = arg;
-    this->MiddleButtonPressTag = 
-      this->AddObserver(vtkCommand::MiddleButtonPressEvent,
-                        cbc);
-    cbc->Delete();
-    }
-}
-
-//----------------------------------------------------------------------------
-// Called when a void* argument is being discarded.  Lets the user free it.
-void vtkInteractorStyle::SetMiddleButtonPressMethodArgDelete(void (*f)(void *))
-{
-  VTK_LEGACY_METHOD(SetMiddleButtonPressMethodArgDelete, "4.2");
-  vtkOldStyleCallbackCommand *cmd = 
-    (vtkOldStyleCallbackCommand *)this->GetCommand(this->MiddleButtonPressTag);
-  if (cmd)
-    {
-    cmd->SetClientDataDeleteCallback(f);
-    }
-}
-
-//----------------------------------------------------------------------------
-// Set the exit method. This method is invoked on a <e> keyrelease.
-void vtkInteractorStyle::SetMiddleButtonReleaseMethod(void (*f)(void *), 
-                                                      void *arg)
-{
-  VTK_LEGACY_METHOD(SetMiddleButtonReleaseMethod, "4.2");
-  if ( this->MiddleButtonReleaseTag )
-    {
-    this->RemoveObserver(this->MiddleButtonReleaseTag);
-    }
-  
-  if ( f )
-    {
-    vtkOldStyleCallbackCommand *cbc = vtkOldStyleCallbackCommand::New();
-    cbc->Callback = f;
-    cbc->ClientData = arg;
-    this->MiddleButtonPressTag = 
-      this->AddObserver(vtkCommand::MiddleButtonReleaseEvent,
-                        cbc);
-    cbc->Delete();
-    }
-}
-
-//----------------------------------------------------------------------------
-// Called when a void* argument is being discarded.  Lets the user free it.
-void vtkInteractorStyle::SetMiddleButtonReleaseMethodArgDelete(void (*f)(void *))
-{
-  VTK_LEGACY_METHOD(SetMiddleButtonReleaseMethodArgDelete, "4.2");
-  vtkOldStyleCallbackCommand *cmd = 
-    (vtkOldStyleCallbackCommand *)this->GetCommand(this->MiddleButtonReleaseTag);
-  if (cmd)
-    {
-    cmd->SetClientDataDeleteCallback(f);
-    }
-}
-
-//----------------------------------------------------------------------------
-// Set the exit method. This method is invoked on a <e> keypress.
-void vtkInteractorStyle::SetRightButtonPressMethod(void (*f)(void *), 
-                                                   void *arg)
-{
-  VTK_LEGACY_METHOD(SetRightButtonPressMethod, "4.2");
-  if ( this->RightButtonPressTag )
-    {
-    this->RemoveObserver(this->RightButtonPressTag);
-    }
-  
-  if ( f )
-    {
-    vtkOldStyleCallbackCommand *cbc = vtkOldStyleCallbackCommand::New();
-    cbc->Callback = f;
-    cbc->ClientData = arg;
-    this->RightButtonPressTag = 
-      this->AddObserver(vtkCommand::RightButtonPressEvent,
-                        cbc);
-    cbc->Delete();
-    }
-}
-
-//----------------------------------------------------------------------------
-// Called when a void* argument is being discarded.  Lets the user free it.
-void vtkInteractorStyle::SetRightButtonPressMethodArgDelete(void (*f)(void *))
-{
-  VTK_LEGACY_METHOD(SetRightButtonPressMethodArgDelete, "4.2");
-  vtkOldStyleCallbackCommand *cmd = 
-    (vtkOldStyleCallbackCommand *)this->GetCommand(this->RightButtonPressTag);
-  if (cmd)
-    {
-    cmd->SetClientDataDeleteCallback(f);
-    }
-}
-
-//----------------------------------------------------------------------------
-// Set the exit method. This method is invoked on a <e> keyrelease.
-void vtkInteractorStyle::SetRightButtonReleaseMethod(void (*f)(void *), 
-                                                     void *arg)
-{
-  VTK_LEGACY_METHOD(SetRightButtonReleaseMethod, "4.2");
-  if ( this->RightButtonReleaseTag )
-    {
-    this->RemoveObserver(this->RightButtonReleaseTag);
-    }
-  
-  if ( f )
-    {
-    vtkOldStyleCallbackCommand *cbc = vtkOldStyleCallbackCommand::New();
-    cbc->Callback = f;
-    cbc->ClientData = arg;
-    this->RightButtonReleaseTag = 
-      this->AddObserver(vtkCommand::RightButtonReleaseEvent,
-                        cbc);
-    cbc->Delete();
-    }
-}
-
-//----------------------------------------------------------------------------
-// Called when a void* argument is being discarded.  Lets the user free it.
-void vtkInteractorStyle::SetRightButtonReleaseMethodArgDelete(void (*f)(void *))
-{
-  VTK_LEGACY_METHOD(SetRightButtonReleaseMethodArgDelete, "4.2");
-  vtkOldStyleCallbackCommand *cmd = 
-    (vtkOldStyleCallbackCommand *)this->GetCommand(this->RightButtonReleaseTag);
-  if (cmd)
-    {
-    cmd->SetClientDataDeleteCallback(f);
-    }
-}
-#endif

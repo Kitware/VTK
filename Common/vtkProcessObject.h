@@ -21,17 +21,13 @@
 // input, process, and output visualization data; and mappers transform data
 // into another form (like rendering primitives or write data to a file).
 //
-// vtkProcessObject provides a mechanism for invoking the methods
-// StartMethod() and EndMethod() before and after object execution (via
-// Execute()). These are convenience methods you can use for any purpose
-// (e.g., debugging info, highlighting/notifying user interface, etc.) These
-// methods accept a single void* pointer that can be used to send data to the
-// methods. It is also possible to specify a function to delete the argument
-// via StartMethodArgDelete and EndMethodArgDelete.
+// vtkProcessObject fires events for Start and End events before and after
+// object execution (via Execute()). These events can be used for any purpose
+// (e.g., debugging info, highlighting/notifying user interface, etc.)
 //
-// Another method, ProgressMethod() can be specified. Some filters invoke this 
-// method periodically during their execution. The use is similar to that of 
-// StartMethod() and EndMethod(). Filters may also check their AbortExecute
+// Another event, Progress, can be observed. Some filters fire this 
+// event periodically during their execution. The use is similar to that of 
+// Start and End events. Filters may also check their AbortExecute
 // flag to determine whether to prematurely end their execution.
 //
 // An important feature of subclasses of vtkProcessObject is that it is
@@ -55,30 +51,6 @@ class VTK_COMMON_EXPORT vtkProcessObject : public vtkObject
 public:
   vtkTypeRevisionMacro(vtkProcessObject,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
-
-  // Description:
-  // Specify function to be called before object executes.
-  void SetStartMethod(void (*f)(void *), void *arg);
-
-  // Description:
-  // Specify function to be called to show progress of filter
-  void SetProgressMethod(void (*f)(void *), void *arg);
-
-  // Description:
-  // Specify function to be called after object executes.
-  void SetEndMethod(void (*f)(void *), void *arg);
-
-  // Description:
-  // Set the arg delete method. This is used to free user memory.
-  void SetStartMethodArgDelete(void (*f)(void *));
-
-  // Description:
-  // Set the arg delete method. This is used to free user memory.
-  void SetProgressMethodArgDelete(void (*f)(void *));
-
-  // Description:
-  // Set the arg delete method. This is used to free user memory.
-  void SetEndMethodArgDelete(void (*f)(void *));
 
   // Description:
   // Set/Get the AbortExecute flag for the process object. Process objects
@@ -133,9 +105,6 @@ protected:
   ~vtkProcessObject();
 
   // Progress/Update handling
-  unsigned long StartTag;
-  unsigned long ProgressTag;
-  unsigned long EndTag;
   float Progress;
   char  *ProgressText;
 

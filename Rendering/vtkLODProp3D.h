@@ -36,6 +36,7 @@ class vtkAbstractMapper3D;
 class vtkProperty;
 class vtkVolumeProperty;
 class vtkTexture;
+class vtkLODProp3DCallback;
 
 typedef struct
 {
@@ -186,12 +187,6 @@ public:
   virtual void GetActors(vtkPropCollection *);
   
   // Description:
-  // This method is invoked when an instance of vtkProp (or subclass, 
-  // e.g., vtkActor) is picked by vtkPicker.
-  void SetPickMethod(void (*f)(void *), void *arg);
-  void SetPickMethodArgDelete(void (*f)(void *));
-
-  // Description:
   // Set the id of the LOD that is to be used for picking when  automatic 
   // LOD pick selection is turned off.
   void SetSelectedPickLODID(int id);
@@ -261,9 +256,8 @@ protected:
   int               SelectedLODID;
   int               SelectedPickLODID;
   int               AutomaticPickLODSelection;
-  vtkProp*          PreviousPickProp;
-  void (*PreviousPickMethod)(void *);
-  void *            PreviousPickMethodArg;
+  vtkLODProp3DCallback *PickCallback;
+
 private:
   vtkLODProp3D(const vtkLODProp3D&);  // Not implemented.
   void operator=(const vtkLODProp3D&);  // Not implemented.

@@ -15,6 +15,7 @@
 #include "vtkLODProp3D.h"
 
 #include "vtkActor.h"
+#include "vtkCommand.h"
 #include "vtkMapper.h"
 #include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
@@ -25,7 +26,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkLODProp3D, "1.39");
+vtkCxxRevisionMacro(vtkLODProp3D, "1.40");
 vtkStandardNewMacro(vtkLODProp3D);
 
 #define VTK_INDEX_NOT_IN_USE    -1
@@ -34,6 +35,29 @@ vtkStandardNewMacro(vtkLODProp3D);
 
 #define VTK_LOD_ACTOR_TYPE       1
 #define VTK_LOD_VOLUME_TYPE      2
+
+class vtkLODProp3DCallback : public vtkCommand
+{
+public:
+  // generic new method
+  static vtkLODProp3DCallback *New()
+    { return new vtkLODProp3DCallback; }
+  
+  // the execute
+  virtual void Execute(vtkObject *caller, 
+                       unsigned long event, void* vtkNotUsed(v))
+    {
+      vtkProp *po = vtkProp::SafeDownCast(caller);
+      if (event == vtkCommand::PickEvent && po)
+        {
+        this->Self->InvokeEvent(vtkCommand::PickEvent,NULL);
+        }
+    }
+  
+  // some ivars that should be set
+  vtkLODProp3D *Self;
+};
+
 
 // Construct a new vtkLODProp3D. Automatic LOD selection is on, there are
 // no LODs.
@@ -48,9 +72,8 @@ vtkLODProp3D::vtkLODProp3D()
   this->SelectedLODIndex              = -1;
   this->SelectedPickLODID             = 1000;
   this->AutomaticPickLODSelection     = 1;
-  this->PreviousPickProp              = NULL;
-  this->PreviousPickMethod            = NULL;
-  this->PreviousPickMethodArg         = NULL;
+  this->PickCallback = vtkLODProp3DCallback::New();
+  this->PickCallback->Self = this;
 }
 
 // Destruct the vtkLODProp3D. Delete the vtkProp3Ds that were created
@@ -64,6 +87,7 @@ vtkLODProp3D::~vtkLODProp3D()
     {
     if ( this->LODs[i].ID != VTK_INDEX_NOT_IN_USE )
       {
+      this->LODs[i].Prop3D->RemoveObserver(this->PickCallback);
       this->LODs[i].Prop3D->Delete();
       }
     }
@@ -71,8 +95,10 @@ vtkLODProp3D::~vtkLODProp3D()
   // Delete the array of LODs
   if ( this->NumberOfEntries > 0 )
     {
-      delete [] this->LODs;
+    delete [] this->LODs;
     }
+  
+  this->PickCallback->Delete();
 }
 
 int vtkLODProp3D::ConvertIDToIndex( int id )
@@ -209,7 +235,8 @@ void vtkLODProp3D::RemoveLOD( int id )
     {
     return;
     }
-
+  
+  this->LODs[index].Prop3D->RemoveObserver(this->PickCallback);
   this->LODs[index].Prop3D->Delete();
   this->LODs[index].ID = VTK_INDEX_NOT_IN_USE;
   this->NumberOfLODs--;
@@ -339,6 +366,8 @@ int vtkLODProp3D::AddLOD( vtkMapper *m, vtkProperty *p,
   this->LODs[index].EstimatedTime = time;
   this->LODs[index].Level         = 0.0;
   this->LODs[index].State         = 1;
+  this->LODs[index].Prop3D->AddObserver(vtkCommand::PickEvent,
+                                        this->PickCallback);
   this->NumberOfLODs++;
 
   actor->SetEstimatedRenderTime(time);
@@ -380,6 +409,8 @@ int vtkLODProp3D::AddLOD( vtkVolumeMapper *m, vtkVolumeProperty *p,
   this->LODs[index].EstimatedTime = time;
   this->LODs[index].Level         = 0.0;
   this->LODs[index].State         = 1;
+  this->LODs[index].Prop3D->AddObserver(vtkCommand::PickEvent,
+                                        this->PickCallback);
   this->NumberOfLODs++;
 
   volume->SetEstimatedRenderTime(time);
@@ -1012,22 +1043,6 @@ void vtkLODProp3D::GetActors(vtkPropCollection *ac)
     }
 }
 
-void vtkLODProp3D::SetPickMethod(void (*f)(void *), void *arg)
-{
-  for (int i = 0; i < this->NumberOfLODs; i++) 
-    {
-    this->LODs[i].Prop3D->SetPickMethod(f, arg);
-    }
-}
-
-void vtkLODProp3D::SetPickMethodArgDelete(void (*f)(void *))
-{
-  for (int i = 0; i < this->NumberOfLODs; i++) 
-    {
-    this->LODs[i].Prop3D->SetPickMethodArgDelete(f);
-    }
-}
-
 int vtkLODProp3D::GetAutomaticPickPropIndex(void)
 {
   float bestTime = -1.0;
@@ -1095,17 +1110,13 @@ int vtkLODProp3D::GetPickLODID(void)
       {
       index = this->SelectedLODIndex;
       }
-        lodID = this->LODs[index].ID;
+    lodID = this->LODs[index].ID;
     }
   else
     {
-    if (this->PreviousPickProp)
-      {
-      this->PreviousPickProp->SetPickMethod(NULL, NULL);
-      }
-          lodID = this->SelectedPickLODID;
+    lodID = this->SelectedPickLODID;
     }
-
+  
     return lodID;
 }
 

@@ -62,13 +62,7 @@ public:
   vtkBooleanMacro(Pickable,int);
 
   // Description:
-  // This method is invoked when an instance of vtkProp (or subclass, 
-  // e.g., vtkActor) is picked by vtkPicker.
-  void SetPickMethod(void (*f)(void *), void *arg);
-  void SetPickMethodArgDelete(void (*f)(void *));
-
-  // Description:
-  // Method invokes PickMethod() if one defined and the prop is picked.
+  // Method fires PickEvent if the prop is picked.
   virtual void Pick();
 
   // Description:
@@ -250,7 +244,6 @@ protected:
 
   int Visibility;
   int Pickable;
-  unsigned long PickTag;
   int Dragable;
 
   float AllocatedRenderTime;
