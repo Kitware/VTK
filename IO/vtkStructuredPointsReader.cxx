@@ -21,7 +21,7 @@
 #include "vtkPointData.h"
 #include "vtkStructuredPoints.h"
 
-vtkCxxRevisionMacro(vtkStructuredPointsReader, "1.58");
+vtkCxxRevisionMacro(vtkStructuredPointsReader, "1.59");
 vtkStandardNewMacro(vtkStructuredPointsReader);
 
 vtkStructuredPointsReader::vtkStructuredPointsReader()
@@ -247,6 +247,31 @@ void vtkStructuredPointsReader::ExecuteInformation()
             else
               {
               output->SetNumberOfScalarComponents(1);
+              }
+            break;
+            }
+          else if ( ! strncmp(this->LowerCase(line), "color_scalars", 13) )
+            {
+            this->ReadString(line);
+            this->ReadString(line);
+            int numComp = atoi(line);
+            if (numComp < 1)
+              {
+              vtkErrorMacro("Cannot read color_scalar header!" << " for file: "
+                            << (this->FileName?this->FileName:"(Null FileName)"));
+              return;
+              }
+            output->SetNumberOfScalarComponents(numComp);
+
+            // Color scalar type is predefined by FileType.
+            scalarTypeRead = 1;
+            if(this->FileType == VTK_BINARY)
+              {
+              output->SetScalarTypeToUnsignedChar();
+              }
+            else
+              {
+              output->SetScalarTypeToFloat();
               }
             break;
             }
