@@ -17,6 +17,7 @@
 =========================================================================*/
 #include "vtkWin32OpenGLRenderWindow.h"
 
+#include "vtkIdList.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLActor.h"
 #include "vtkOpenGLCamera.h"
@@ -37,7 +38,7 @@
 #include <GL/gl.h>
 #endif
 
-vtkCxxRevisionMacro(vtkWin32OpenGLRenderWindow, "1.93");
+vtkCxxRevisionMacro(vtkWin32OpenGLRenderWindow, "1.94");
 vtkStandardNewMacro(vtkWin32OpenGLRenderWindow);
 
 #define VTK_MAX_LIGHTS 8
