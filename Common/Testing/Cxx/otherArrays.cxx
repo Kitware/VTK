@@ -32,7 +32,7 @@
 #define SIZE 1000
 
 template <class T, class A, class V>
-static int doArrayTest (ostream& strm, T *ptr, A *array, V value, int size)
+int doArrayTest (ostream& strm, T *ptr, A *array, V value, int size)
 {
   T *ptr2;
   float tuple1[SIZE/100];
