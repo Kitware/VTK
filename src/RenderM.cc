@@ -26,6 +26,10 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "SbrRenW.hh"
 #endif
 
+#ifdef USE_GLR
+#include "GlrRenW.hh"
+#endif
+
 vlRenderMaster::vlRenderMaster()
 {
 }
@@ -47,6 +51,15 @@ vlRenderWindow *vlRenderMaster::MakeRenderWindow(char *type)
     {
     vlSbrRenderWindow *ren;
     ren = new vlSbrRenderWindow;
+    return (vlRenderWindow *)ren;
+    }
+#endif
+
+#ifdef USE_GLR
+  if (!strncmp("glr",type,4))
+    {
+    vlGlrRenderWindow *ren;
+    ren = new vlGlrRenderWindow;
     return (vlRenderWindow *)ren;
     }
 #endif
