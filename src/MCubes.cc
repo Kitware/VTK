@@ -17,6 +17,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "MC_Cases.h"
 #include "StrPts.hh"
 #include "SScalars.hh"
+#include "vlMath.hh"
 
 // Description:
 // Construct object with initial range (0,1) and single contour value
@@ -78,6 +79,75 @@ void vlMarchingCubes::GenerateValues(int numContours, float r1, float r2)
   this->GenerateValues(numContours,rng);
 }
 
+void ComputePointNormal(int i, int j, int k, short *s, int dims[3], 
+                      int sliceSize, float origin[3], float ar[3], float n[3])
+{
+  static vlMath math;
+  float sp, sm;
+
+  // x-direction
+  if ( i == 0 )
+    {
+    sp = s[i+1 + j*dims[0] + k*sliceSize];
+    sm = s[i + j*dims[0] + k*sliceSize];
+    n[0] = (sp - sm) / ar[0];
+    }
+  else if ( i == (dims[0]-1) )
+    {
+    sp = s[i + j*dims[0] + k*sliceSize];
+    sm = s[i-1 + j*dims[0] + k*sliceSize];
+    n[0] = (sp - sm) / ar[0];
+    }
+  else
+    {
+    sp = s[i+1 + j*dims[0] + k*sliceSize];
+    sm = s[i-1 + j*dims[0] + k*sliceSize];
+    n[0] = 0.5 * (sp - sm) / ar[0];
+    }
+
+  // y-direction
+  if ( j == 0 )
+    {
+    sp = s[i + (j+1)*dims[0] + k*sliceSize];
+    sm = s[i + j*dims[0] + k*sliceSize];
+    n[1] = (sp - sm) / ar[1];
+    }
+  else if ( j == (dims[1]-1) )
+    {
+    sp = s[i + j*dims[0] + k*sliceSize];
+    sm = s[i + (j-1)*dims[0] + k*sliceSize];
+    n[1] = (sp - sm) / ar[1];
+    }
+  else
+    {
+    sp = s[i + (j+1)*dims[0] + k*sliceSize];
+    sm = s[i + (j-1)*dims[0] + k*sliceSize];
+    n[1] = 0.5 * (sp - sm) / ar[1];
+    }
+
+  // z-direction
+  if ( k == 0 )
+    {
+    sp = s[i + j*dims[0] + (k+1)*sliceSize];
+    sm = s[i + j*dims[0] + k*sliceSize];
+    n[2] = (sp - sm) / ar[2];
+    }
+  else if ( k == (dims[1]-1) )
+    {
+    sp = s[i + j*dims[0] + k*sliceSize];
+    sm = s[i + j*dims[0] + (k-1)*sliceSize];
+    n[2] = (sp - sm) / ar[2];
+    }
+  else
+    {
+    sp = s[i + j*dims[0] + (k+1)*sliceSize];
+    sm = s[i + j*dims[0] + (k-1)*sliceSize];
+    n[2] = 0.5 * (sp - sm) / ar[2];
+    }
+
+  math.Normalize(n);
+}
+
 //
 // Contouring filter specialized for volumes and "short int" data values.  
 //
@@ -86,6 +156,7 @@ void vlMarchingCubes::Execute()
   vlFloatPoints *newPts;
   vlCellArray *newPolys;
   vlShortScalars *newScalars;
+  vlFloatNormals *newNormals;
   vlStructuredPoints *input=(vlStructuredPoints *)this->Input;
   vlPointData *pd=input->GetPointData();
   vlScalars *inScalars=pd->GetScalars();
@@ -98,8 +169,8 @@ void vlMarchingCubes::Execute()
   EDGE_LIST  *edge;
   int contNum, jOffset, kOffset, idx, ii, jj, index, *vert;
   int ptIds[3];
-  float t, *x1, *x2, x[3];
-  float pts[8][3];
+  float t, *x1, *x2, x[3], *n1, *n2, n[3];
+  float pts[8][3], normals[8][3];
   static int edges[12][2] = { {0,1}, {1,2}, {2,3}, {3,0},
                               {4,5}, {5,6}, {6,7}, {7,4},
                               {0,4}, {1,5}, {3,7}, {2,6}};
@@ -121,6 +192,8 @@ void vlMarchingCubes::Execute()
     return;
     }
   input->GetDimensions(dims);
+  input->GetOrigin(origin);
+  input->GetAspectRatio(ar);
 
   if ( strcmp("short",inScalars->GetDataType()) )
     {
@@ -131,6 +204,7 @@ void vlMarchingCubes::Execute()
 
   newPts = new vlFloatPoints(10000,50000);
   newScalars = new vlShortScalars(10000,50000);
+  newNormals = new vlFloatNormals(10000,50000);
   newPolys = new vlCellArray();
   newPolys->Allocate(newPolys->EstimateSize(25000,3));
 //
@@ -165,7 +239,7 @@ void vlMarchingCubes::Execute()
           // Build the case table
           for ( ii=0, index = 0; ii < 8; ii++)
               if ( s[ii] >= value )
-                  index |= CASE_MASK[i];
+                  index |= CASE_MASK[ii];
 
           if ( index == 0 || index == 255 ) continue; //no surface
 
@@ -200,6 +274,16 @@ void vlMarchingCubes::Execute()
           pts[7][1] = pts[0][1] + ar[1];
           pts[7][2] = pts[0][2] + ar[2];
 
+          //create normals
+          ComputePointNormal(i,j,k, scalars, dims, sliceSize, origin, ar, normals[0]);
+          ComputePointNormal(i+1,j,k, scalars, dims, sliceSize, origin, ar, normals[1]);
+          ComputePointNormal(i+1,j+1,k, scalars, dims, sliceSize, origin, ar, normals[2]);
+          ComputePointNormal(i,j+1,k, scalars, dims, sliceSize, origin, ar, normals[3]);
+          ComputePointNormal(i,j,k+1, scalars, dims, sliceSize, origin, ar, normals[4]);
+          ComputePointNormal(i+1,j,k+1, scalars, dims, sliceSize, origin, ar, normals[5]);
+          ComputePointNormal(i+1,j+1,k+1, scalars, dims, sliceSize, origin, ar, normals[6]);
+          ComputePointNormal(i,j+1,k+1, scalars, dims, sliceSize, origin, ar, normals[7]);
+
           triCase = triCases + index;
           edge = triCase->edges;
 
@@ -208,12 +292,19 @@ void vlMarchingCubes::Execute()
             for (ii=0; ii<3; ii++) //insert triangle
               {
               vert = edges[edge[ii]];
-              t = (value - s[vert[0]]) / (s[vert[1]] - s[vert[0]]);
+              t = (float)(value - s[vert[0]]) / (s[vert[1]] - s[vert[0]]);
               x1 = pts[vert[0]];
               x2 = pts[vert[1]];
-              for (jj=0; jj<3; jj++) x[jj] = x1[jj] + t * (x2[jj] - x1[jj]);
+              n1 = normals[vert[0]];
+              n2 = normals[vert[1]];
+              for (jj=0; jj<3; jj++)
+                {
+                x[jj] = x1[jj] + t * (x2[jj] - x1[jj]);
+                n[jj] = n1[jj] + t * (n2[jj] - n1[jj]);
+                }
               ptIds[ii] = newPts->InsertNextPoint(x);
-              newScalars->InsertNextScalar(value);
+              newScalars->InsertScalar(ptIds[ii],value);
+              newNormals->InsertNormal(ptIds[ii],n);
               }
             newPolys->InsertNextCell(3,ptIds);
             }//for each triangle
@@ -232,6 +323,7 @@ void vlMarchingCubes::Execute()
   this->SetPoints(newPts);
   this->SetPolys(newPolys);
   this->PointData.SetScalars(newScalars);
+  this->PointData.SetNormals(newNormals);
   this->Squeeze();
 }
 
