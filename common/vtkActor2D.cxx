@@ -164,9 +164,9 @@ void vtkActor2D::SetWorldPosition(float XPos, float YPos, float ZPos)
 }
 
 // Description:
-// Returns the actor's pixel position in a window with origin
-// in the upper left (drawing origin for both X and Win32).
-int *vtkActor2D::GetComputedDisplayPosition(vtkViewport* viewport)
+// Returns the actor's pixel position relative to the viewports
+// lower left corner
+int *vtkActor2D::GetComputedViewportPixelPosition(vtkViewport* viewport)
 {
   float* actorPos;
   float  temp[2];
@@ -197,11 +197,56 @@ int *vtkActor2D::GetComputedDisplayPosition(vtkViewport* viewport)
     }
 
   int* winSize = viewport->GetVTKWindow()->GetSize();
+  float* vpt = viewport->GetViewport(); 
 
-  this->ComputedDisplayPosition[0] = actorPos[0] + 0.5;
+  this->ComputedDisplayPosition[0] = 
+    (int)(actorPos[0] + 0.5 - vpt[0]*winSize[0]);
+  this->ComputedDisplayPosition[1] = 
+    (int)(actorPos[1] + 0.5 - vpt[1]*winSize[1]);
+  
+  return this->ComputedDisplayPosition;
+}
+
+// Description:
+// Returns the actor's pixel position in a window with origin
+// in the upper left (drawing origin for both X and Win32).
+int *vtkActor2D::GetComputedDisplayPosition(vtkViewport* viewport)
+{
+  float* actorPos;
+  float  temp[2];
+
+  // Get the actor's position in viewport coordinates
+  switch (this->PositionType) 
+    {
+    case VTK_VIEW_COORD:
+	viewport->SetViewPoint(this->ViewPosition[0], this->ViewPosition[1], 0);
+	viewport->ViewToDisplay();
+        actorPos = viewport->GetDisplayPoint();
+      	break;
+    case VTK_DISPLAY_COORD:
+        // Put the int DisplayPosition into a float array 
+        // and point actorPos at that array
+        temp[0] = this->DisplayPosition[0];
+	temp[1] = this->DisplayPosition[1];
+	actorPos = temp;
+	break;
+    case VTK_WORLD_COORD:
+	viewport->SetWorldPoint(this->WorldPosition[0], this->WorldPosition[1], 
+				this->WorldPosition[2], 1);
+	viewport->WorldToDisplay();
+        actorPos = viewport->GetDisplayPoint();
+	break;
+    default:
+	vtkErrorMacro(<< "Unknown position type: " << this->PositionType);
+	break;
+    }
+
+  int* winSize = viewport->GetVTKWindow()->GetSize();
+
+  this->ComputedDisplayPosition[0] = (int)(actorPos[0] + 0.5);
 
   // X and Win32 drawing origins have 0,0 at top left
-  this->ComputedDisplayPosition[1] = winSize[1] - (actorPos[1] + 0.5);
+  this->ComputedDisplayPosition[1] = (int)(winSize[1] - (actorPos[1] + 0.5));
 
   return this->ComputedDisplayPosition;
 }
@@ -209,7 +254,6 @@ int *vtkActor2D::GetComputedDisplayPosition(vtkViewport* viewport)
 float *vtkActor2D::GetComputedWorldPosition(vtkViewport* viewport)
 {
   float* actorPos;
-  float  temp[2];
   static float worldPos[3];
 
   // Get the actor's position in viewport coordinates

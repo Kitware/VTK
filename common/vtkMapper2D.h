@@ -65,10 +65,8 @@ class VTK_EXPORT vtkMapper2D : public vtkReferenceCount
 public:
   void PrintSelf(ostream& os, vtkIndent indent);
   virtual void Render(vtkViewport* viewport, vtkActor2D* actor) = 0;
-  void GetActorClipSize(vtkViewport* viewport, vtkActor2D* actor, int* clipWidth, int* clipHeight);
-  void GetViewportClipSize(vtkViewport* viewport, int* clipWidth, int* clipHeight);
-protected:
 
+protected:
 
 };
 
