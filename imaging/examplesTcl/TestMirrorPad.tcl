@@ -19,6 +19,7 @@ reader SetDataMask 0x7fff
 vtkImageMirrorPad pad
 pad SetInput [reader GetOutput]
 pad SetOutputWholeExtent -230 350 -230 350 0 92
+pad SetOutputNumberOfScalarComponents 3
 
 vtkImageViewer viewer
 viewer SetInput [pad GetOutput]
