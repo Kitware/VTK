@@ -38,15 +38,16 @@
 // arbitrarily translated. If you select the normal vector, the plane can be
 // arbitrarily rotated. Selecting any part of the widget with the middle
 // mouse button enables translation of the plane along its normal. (Once
-// selected using middle mouse, moving "up" in the middle moves the plane in
-// the direction of the normal; moving "down" moves it in the opposite
-// direction.) Scaling (about the center of the plane) is achieved by using
-// the right mouse button. By moving the mouse "up" the render window the
-// plane will be made bigger; by moving "down" the render window the widget
-// will be made smaller. Events that occur outside of the widget (i.e., no
-// part of the widget is picked) are propagated to any other registered
-// obsevers (such as the interaction style).  Turn off the widget by pressing
-// the "i" key again (or invoke the Off() method).
+// selected using middle mouse, moving the mouse in the direction of the
+// normal translates the plane in the direction of the normal; moving in the
+// direction opposite the normal translates the plane in the direction
+// opposite the normal.) Scaling (about the center of the plane) is achieved
+// by using the right mouse button. By moving the mouse "up" the render
+// window the plane will be made bigger; by moving "down" the render window
+// the widget will be made smaller. Events that occur outside of the widget
+// (i.e., no part of the widget is picked) are propagated to any other
+// registered obsevers (such as the interaction style).  Turn off the widget
+// by pressing the "i" key again (or invoke the Off() method).
 //
 // The vtkPlaneWidget has several methods that can be used in conjunction
 // with other VTK objects. The Set/GetResolution() methods control the number
@@ -285,15 +286,25 @@ protected:
   int HighlightHandle(vtkProp *prop); //returns cell id
   
   // the normal cone
-  vtkActor *ConeActor;
+  vtkActor          *ConeActor;
   vtkPolyDataMapper *ConeMapper;
-  vtkConeSource *ConeSource;
+  vtkConeSource     *ConeSource;
   void HighlightNormal(int highlight);
 
   // the normal line
-  vtkActor *LineActor;
+  vtkActor          *LineActor;
   vtkPolyDataMapper *LineMapper;
-  vtkLineSource *LineSource;
+  vtkLineSource     *LineSource;
+
+  // the normal cone
+  vtkActor          *ConeActor2;
+  vtkPolyDataMapper *ConeMapper2;
+  vtkConeSource     *ConeSource2;
+
+  // the normal line
+  vtkActor          *LineActor2;
+  vtkPolyDataMapper *LineMapper2;
+  vtkLineSource     *LineSource2;
 
   // Do the picking
   vtkCellPicker *HandlePicker;

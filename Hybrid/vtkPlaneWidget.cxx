@@ -36,7 +36,7 @@
 #include "vtkSphereSource.h"
 #include "vtkPlane.h"
 
-vtkCxxRevisionMacro(vtkPlaneWidget, "1.21");
+vtkCxxRevisionMacro(vtkPlaneWidget, "1.22");
 vtkStandardNewMacro(vtkPlaneWidget);
 
 vtkCxxSetObjectMacro(vtkPlaneWidget,PlaneProperty,vtkProperty);
@@ -90,7 +90,7 @@ vtkPlaneWidget::vtkPlaneWidget() : vtkPolyDataSourceWidget()
     this->Handle[i]->SetMapper(this->HandleMapper[i]);
     }
   
-  // Create the plane normal
+  // Create the + plane normal
   this->LineSource = vtkLineSource::New();
   this->LineSource->SetResolution(1);
   this->LineMapper = vtkPolyDataMapper::New();
@@ -105,6 +105,22 @@ vtkPlaneWidget::vtkPlaneWidget() : vtkPolyDataSourceWidget()
   this->ConeMapper->SetInput(this->ConeSource->GetOutput());
   this->ConeActor = vtkActor::New();
   this->ConeActor->SetMapper(this->ConeMapper);
+
+  // Create the - plane normal
+  this->LineSource2 = vtkLineSource::New();
+  this->LineSource2->SetResolution(1);
+  this->LineMapper2 = vtkPolyDataMapper::New();
+  this->LineMapper2->SetInput(this->LineSource2->GetOutput());
+  this->LineActor2 = vtkActor::New();
+  this->LineActor2->SetMapper(this->LineMapper2);
+
+  this->ConeSource2 = vtkConeSource::New();
+  this->ConeSource2->SetResolution(12);
+  this->ConeSource2->SetAngle(25.0);
+  this->ConeMapper2 = vtkPolyDataMapper::New();
+  this->ConeMapper2->SetInput(this->ConeSource2->GetOutput());
+  this->ConeActor2 = vtkActor::New();
+  this->ConeActor2->SetMapper(this->ConeMapper2);
 
   this->Transform = vtkTransform::New();
 
@@ -134,6 +150,8 @@ vtkPlaneWidget::vtkPlaneWidget() : vtkPolyDataSourceWidget()
   this->PlanePicker->AddPickList(this->PlaneActor);
   this->PlanePicker->AddPickList(this->ConeActor);
   this->PlanePicker->AddPickList(this->LineActor);
+  this->PlanePicker->AddPickList(this->ConeActor2);
+  this->PlanePicker->AddPickList(this->LineActor2);
   this->PlanePicker->PickFromListOn();
   
   this->CurrentHandle = NULL;
@@ -172,6 +190,14 @@ vtkPlaneWidget::~vtkPlaneWidget()
   this->LineActor->Delete();
   this->LineMapper->Delete();
   this->LineSource->Delete();
+
+  this->ConeActor2->Delete();
+  this->ConeMapper2->Delete();
+  this->ConeSource2->Delete();
+
+  this->LineActor2->Delete();
+  this->LineMapper2->Delete();
+  this->LineSource2->Delete();
 
   this->HandlePicker->Delete();
   this->PlanePicker->Delete();
@@ -256,6 +282,10 @@ void vtkPlaneWidget::SetEnabled(int enabling)
     this->LineActor->SetProperty(this->HandleProperty);
     this->CurrentRenderer->AddActor(this->ConeActor);
     this->ConeActor->SetProperty(this->HandleProperty);
+    this->CurrentRenderer->AddActor(this->LineActor2);
+    this->LineActor2->SetProperty(this->HandleProperty);
+    this->CurrentRenderer->AddActor(this->ConeActor2);
+    this->ConeActor2->SetProperty(this->HandleProperty);
 
     this->SelectRepresentation();
     this->InvokeEvent(vtkCommand::EnableEvent,NULL);
@@ -287,6 +317,8 @@ void vtkPlaneWidget::SetEnabled(int enabling)
     // turn off the normal vector
     this->CurrentRenderer->RemoveActor(this->LineActor);
     this->CurrentRenderer->RemoveActor(this->ConeActor);
+    this->CurrentRenderer->RemoveActor(this->LineActor2);
+    this->CurrentRenderer->RemoveActor(this->ConeActor2);
 
     this->CurrentHandle = NULL;
     this->InvokeEvent(vtkCommand::DisableEvent,NULL);
@@ -439,18 +471,27 @@ void vtkPlaneWidget::PositionHandles()
   float center[3];
   this->PlaneSource->GetCenter(center);
   this->LineSource->SetPoint1(center);
+  this->LineSource2->SetPoint1(center);
   float p2[3];
   this->PlaneSource->GetNormal(this->Normal);
   vtkMath::Normalize(this->Normal);
   float d = sqrt( 
     vtkMath::Distance2BetweenPoints(
       this->PlaneSource->GetPoint1(),this->PlaneSource->GetPoint2()) );
+
   p2[0] = center[0] + 0.35 * d * this->Normal[0];
   p2[1] = center[1] + 0.35 * d * this->Normal[1];
   p2[2] = center[2] + 0.35 * d * this->Normal[2];
   this->LineSource->SetPoint2(p2);
   this->ConeSource->SetCenter(p2);
   this->ConeSource->SetDirection(this->Normal);
+
+  p2[0] = center[0] - 0.35 * d * this->Normal[0];
+  p2[1] = center[1] - 0.35 * d * this->Normal[1];
+  p2[2] = center[2] - 0.35 * d * this->Normal[2];
+  this->LineSource2->SetPoint2(p2);
+  this->ConeSource2->SetCenter(p2);
+  this->ConeSource2->SetDirection(this->Normal);
 }
 
 int vtkPlaneWidget::HighlightHandle(vtkProp *prop)
@@ -484,11 +525,15 @@ void vtkPlaneWidget::HighlightNormal(int highlight)
     {
     this->LineActor->SetProperty(this->SelectedHandleProperty);
     this->ConeActor->SetProperty(this->SelectedHandleProperty);
+    this->LineActor2->SetProperty(this->SelectedHandleProperty);
+    this->ConeActor2->SetProperty(this->SelectedHandleProperty);
     }
   else
     {
     this->LineActor->SetProperty(this->HandleProperty);
     this->ConeActor->SetProperty(this->HandleProperty);
+    this->LineActor2->SetProperty(this->HandleProperty);
+    this->ConeActor2->SetProperty(this->HandleProperty);
     }
 }
 
@@ -529,7 +574,8 @@ void vtkPlaneWidget::OnLeftButtonDown()
     if ( path != NULL )
       {
       vtkProp *prop = path->GetFirstNode()->GetProp();
-      if ( prop == this->ConeActor || prop == this->LineActor )
+      if ( prop == this->ConeActor || prop == this->LineActor ||
+           prop == this->ConeActor2 || prop == this->LineActor2 )
         {
         this->HighlightNormal(1);
         this->State = vtkPlaneWidget::Rotating;
@@ -1194,6 +1240,8 @@ void vtkPlaneWidget::PlaceWidget(float bds[6])
   // Set the height and radius of the cone
   this->ConeSource->SetHeight(0.060*this->InitialLength);
   this->ConeSource->SetRadius(0.025*this->InitialLength);  
+  this->ConeSource2->SetHeight(0.060*this->InitialLength);
+  this->ConeSource2->SetRadius(0.025*this->InitialLength);  
 }
 
 void vtkPlaneWidget::SelectRepresentation()
