@@ -100,8 +100,8 @@ public:
   // performed, that is, interpolation is computed so that potential errors 
   // fall below the error bounds defined in the text. By default, automatic
   // computation is performed (Interpolation = 0).
-  vtkSetMacro(Interpolation,int);
-  vtkGetMacro(Interpolation,int);
+  vtkSetMacro(NumberOfInterpolationSteps,int);
+  vtkGetMacro(NumberOfInterpolationSteps,int);
 
   // Description:
   // The outer boundary of the sampling volume can be capped (i.e., assigned 
@@ -138,7 +138,7 @@ protected:
   int SampleDimensions[3];
   float FillValue;
   float ModelBounds[6];
-  int Interpolation;
+  int NumberOfInterpolationSteps;
   int Capping;
 
   vtkTransformCollection *Transforms;

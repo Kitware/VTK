@@ -59,7 +59,7 @@ vtkSweptSurface::vtkSweptSurface()
   this->SampleDimensions[1] = 50;
   this->SampleDimensions[2] = 50;
 
-  this->Interpolation = 0;
+  this->NumberOfInterpolationSteps = 0;
   this->FillValue = LARGE_FLOAT;
   this->Transforms = NULL;
   this->Capping = 1;
@@ -155,9 +155,12 @@ void vtkSweptSurface::Execute()
 // Loop over all points (i.e., voxels), transform into input coordinate system,
 // and obtain interpolated value. Then perform union operation.  
 //
-    if ( this->Interpolation > 0 ) numSteps = this->Interpolation;
-    else if ( this->Interpolation < 0 ) numSteps = 1;
-    else numSteps = this->ComputeNumberOfSteps(transform1,transform2);
+    if ( this->NumberOfInterpolationSteps > 0 ) 
+      numSteps = this->NumberOfInterpolationSteps;
+    else if ( this->NumberOfInterpolationSteps < 0 ) 
+      numSteps = 1;
+    else 
+      numSteps = this->ComputeNumberOfSteps(transform1,transform2);
 
     for (i=0; i<3; i++)
       {
