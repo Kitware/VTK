@@ -35,6 +35,7 @@ vtkTreeComposite.cxx
 vtkTreeCompositer.cxx
 )
 
+
 IF (CMAKE_USE_PTHREADS)
    SET(VTK_HAS_THREADS 1)
 ENDIF (CMAKE_USE_PTHREADS)
@@ -102,7 +103,15 @@ IF (VTK_WRAP_TCL)
 
   IF (VTK_USE_MPI)
 
-    ADD_EXECUTABLE(pvtk paraTkAppInit.cxx)
+    # create the vtk executable
+    CONFIGURE_FILE(
+      ${VTK_SOURCE_DIR}/Wrapping/Tcl/tkAppInit.cxx.in 
+      ${VTK_BINARY_DIR}/Parallel/paraTkAppInit.cxx)
+
+    SET_SOURCE_FILES_PROPERTIES(${VTK_BINARY_DIR}/Parallel/paraTkAppInit.cxx 
+                                COMPILE_FLAGS "-DVTK_COMPILED_USING_MPI")
+    ADD_EXECUTABLE(pvtk ${VTK_BINARY_DIR}/Parallel/paraTkAppInit.cxx)
+
     TARGET_LINK_LIBRARIES (pvtk vtkParallelTCL vtkParallel)
 
     IF (VTK_USE_PATENTED)
