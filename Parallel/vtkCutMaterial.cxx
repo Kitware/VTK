@@ -122,7 +122,7 @@ void vtkCutMaterial::Execute()
   // It would be nice to get rid of this in the future.
   thresh = vtkThreshold::New();
   thresh->SetInput(input);
-  thresh->SetArrayName(this->MaterialArrayName);
+  thresh->SelectInputScalars(this->MaterialArrayName);
   thresh->SetAttributeModeToUseCellData();
   thresh->ThresholdBetween(this->Material-0.5, this->Material+0.5);
   thresh->Update();
