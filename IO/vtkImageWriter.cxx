@@ -26,7 +26,7 @@
 # include <unistd.h> /* unlink */
 #endif
 
-vtkCxxRevisionMacro(vtkImageWriter, "1.48");
+vtkCxxRevisionMacro(vtkImageWriter, "1.49");
 vtkStandardNewMacro(vtkImageWriter);
 
 #ifdef write
@@ -315,6 +315,7 @@ void vtkImageWriter::RecursiveWrite(int axis, vtkImageData *cache,
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
     {
     this->DeleteFiles();
+    return;
     }
   if (file && fileOpenedHere)
     {
@@ -563,10 +564,6 @@ void vtkImageWriter::WriteFile(ofstream *file, vtkImageData *data,
       ptr = data->GetScalarPointer(extent[0], idxY, idxZ);
       if ( ! file->write((char *)ptr, rowLength))
         {
-        vtkErrorMacro("WriteFile: write failed");
-        file->close();
-        delete file;
-        this->DeleteFiles();
         return;
         }
       }
