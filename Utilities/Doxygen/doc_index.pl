@@ -67,6 +67,7 @@ my %default =
             "../../GenericFiltering/Testing/Cxx",
             "../../Graphics",
             "../../GUISupport/MFC",
+            "../../GUISupport/Qt",
             "../../Hybrid",
             "../../Imaging",
             "../../IO",
