@@ -47,7 +47,7 @@ class vtkCommunicator;
 class vtkSubGroup;
 class vtkIntArray;
 
-class VTK_EXPORT vtkPKdTree : public vtkKdTree
+class VTK_PARALLEL_EXPORT vtkPKdTree : public vtkKdTree
 {
 public:
   vtkTypeRevisionMacro(vtkPKdTree, vtkKdTree);
@@ -462,7 +462,7 @@ private:
 };
 
 //BTX
-class VTK_EXPORT vtkSubGroup{
+class VTK_PARALLEL_EXPORT vtkSubGroup{
 public:
 
   enum {MINOP = 1, MAXOP = 2, SUMOP = 3};

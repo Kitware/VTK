@@ -56,7 +56,7 @@ class vtkIdList;
 class vtkUnstructuredGrid;
 #include <vtkstd/map> // used for declaration
 
-class VTK_EXPORT vtkDistributedDataFilter: public vtkDataSetToUnstructuredGridFilter
+class VTK_PARALLEL_EXPORT vtkDistributedDataFilter: public vtkDataSetToUnstructuredGridFilter
 {
   vtkTypeRevisionMacro(vtkDistributedDataFilter, 
     vtkDataSetToUnstructuredGridFilter);

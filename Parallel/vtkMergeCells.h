@@ -52,7 +52,7 @@ class vtkUnstructuredGrid;
 class vtkPointData;
 class vtkCellData;
 
-class VTK_EXPORT vtkMergeCells : public vtkObject
+class VTK_PARALLEL_EXPORT vtkMergeCells : public vtkObject
 { 
 public:
   vtkTypeRevisionMacro(vtkMergeCells, vtkObject);

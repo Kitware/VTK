@@ -34,7 +34,7 @@
 class vtkIdList;
 class vtkUnstructuredGrid;
 
-class VTK_EXPORT vtkExtractCells : public vtkDataSetToUnstructuredGridFilter
+class VTK_PARALLEL_EXPORT vtkExtractCells : public vtkDataSetToUnstructuredGridFilter
 {
 public:
   vtkTypeRevisionMacro(vtkExtractCells, vtkDataSetToUnstructuredGridFilter);

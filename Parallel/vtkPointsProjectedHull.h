@@ -31,7 +31,7 @@
 
 #include "vtkPoints.h"
 
-class VTK_EXPORT vtkPointsProjectedHull : public vtkPoints
+class VTK_PARALLEL_EXPORT vtkPointsProjectedHull : public vtkPoints
 {
     vtkTypeRevisionMacro(vtkPointsProjectedHull, vtkPoints);
 

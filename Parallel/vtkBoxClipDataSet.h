@@ -55,7 +55,7 @@ class vtkPoints;
 class vtkIdList;                    
 class vtkPointLocator;
 
-class VTK_EXPORT vtkBoxClipDataSet : public vtkDataSetToUnstructuredGridFilter
+class VTK_PARALLEL_EXPORT vtkBoxClipDataSet : public vtkDataSetToUnstructuredGridFilter
 {
 public:
   vtkTypeRevisionMacro(vtkBoxClipDataSet,vtkDataSetToUnstructuredGridFilter);

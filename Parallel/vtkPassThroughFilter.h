@@ -25,7 +25,7 @@
 
 class vtkFieldData;
 
-class VTK_EXPORT vtkPassThroughFilter : public vtkDataSetToDataSetFilter
+class VTK_PARALLEL_EXPORT vtkPassThroughFilter : public vtkDataSetToDataSetFilter
 {
 public:
   vtkTypeRevisionMacro(vtkPassThroughFilter,vtkDataSetToDataSetFilter);

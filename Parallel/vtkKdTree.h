@@ -80,7 +80,7 @@ class vtkCamera;
 
 class vtkKdNode;
 
-class VTK_EXPORT vtkKdTree : public vtkLocator
+class VTK_PARALLEL_EXPORT vtkKdTree : public vtkLocator
 {
 public:
   vtkTypeRevisionMacro(vtkKdTree, vtkLocator);
@@ -832,7 +832,7 @@ private:
 
 //BTX
 
-class VTK_EXPORT vtkKdNode{
+class VTK_PARALLEL_EXPORT vtkKdNode{
 public:
 
   vtkKdNode();

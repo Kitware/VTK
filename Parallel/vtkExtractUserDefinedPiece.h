@@ -34,7 +34,7 @@
 
 #include "vtkExtractUnstructuredGridPiece.h"
 
-class VTK_EXPORT vtkExtractUserDefinedPiece : public vtkExtractUnstructuredGridPiece
+class VTK_PARALLEL_EXPORT vtkExtractUserDefinedPiece : public vtkExtractUnstructuredGridPiece
 {
 public:
   vtkTypeRevisionMacro(vtkExtractUserDefinedPiece, vtkExtractUnstructuredGridPiece);
