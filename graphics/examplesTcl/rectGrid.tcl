@@ -3,14 +3,14 @@
 catch {load vtktcl}
 
 # get the interactor ui
-source vtkInt.tcl
-source colors.tcl
-source vtkInclude.tcl
+source ../../examplesTcl/vtkInt.tcl
+source ../../examplesTcl/colors.tcl
+source ../../examplesTcl/vtkInclude.tcl
 
 # create pipeline
 #
 vtkRectilinearGridReader reader
-    reader SetFileName "../../../data/RectGrid.vtk"
+    reader SetFileName "../../../vtkdata/RectGrid.vtk"
     reader DebugOn
     reader Update
 vtkRectilinearGridGeometryFilter plane

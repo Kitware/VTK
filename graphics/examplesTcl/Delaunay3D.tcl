@@ -1,6 +1,6 @@
 catch {load vtktcl}
 # get the interactor ui
-source vtkInt.tcl
+source ../../examplesTcl/vtkInt.tcl
 
 # create some random points in the unit cube centered at (.5,.5,.5)
 #

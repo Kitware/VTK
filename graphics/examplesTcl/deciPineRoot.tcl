@@ -1,7 +1,7 @@
 catch {load vtktcl}
 # get the interactor ui and colors
-source vtkInt.tcl
-source "colors.tcl"
+source ../../examplesTcl/vtkInt.tcl
+source ../../examplesTcl/colors.tcl
 
 # Create the RenderWindow, Renderer and both Actors
 #
@@ -14,7 +14,7 @@ vtkRenderWindowInteractor iren
 # create pipeline
 #
 vtkMCubesReader reader
-    reader SetFileName "../../../data/pineRoot/pine_root.tri"
+    reader SetFileName "../../../vtkdata/pineRoot/pine_root.tri"
     reader FlipNormalsOff
     reader DebugOn
 vtkDecimate deci

@@ -1,7 +1,7 @@
 catch {load vtktcl}
 # this is a tcl version of old spike-face
 # get the interactor ui
-source vtkInt.tcl
+source ../../examplesTcl/vtkInt.tcl
 
 # Create the RenderWindow, Renderer and both Actors
 #
@@ -14,7 +14,7 @@ vtkRenderWindowInteractor iren
 # create a cyberware source
 #
 vtkCyberReader cyber
-    cyber SetFileName "../../../data/fran_cut"
+    cyber SetFileName "../../../vtkdata/fran_cut"
 vtkDecimate deci
     deci SetInput [cyber GetOutput]
     deci SetTargetReduction 0.90

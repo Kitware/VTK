@@ -2,7 +2,7 @@ catch {load vtktcl}
 #create triangle strip - won't see anything with backface culling on
 
 # get the interactor ui
-source vtkInt.tcl
+source ../../examplesTcl/vtkInt.tcl
 
 # Create the RenderWindow, Renderer and both Actors
 #

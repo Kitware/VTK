@@ -1,7 +1,7 @@
 catch {load vtktcl}
 # this is a tcl version of old franFace
 # get the interactor ui
-source vtkInt.tcl
+source ../../examplesTcl/vtkInt.tcl
 
 # Create the RenderWindow, Renderer and both Actors
 #
@@ -14,12 +14,12 @@ vtkRenderWindowInteractor iren
 # create a cyberware source
 #
 vtkCyberReader cyber
-    cyber SetFileName "../../../data/fran_cut"
+    cyber SetFileName "../../../vtkdata/fran_cut"
 vtkPolyDataMapper cyberMapper
     cyberMapper SetInput [cyber GetOutput]
 
 vtkPNMReader pnm1
-    pnm1 SetFileName "../../../data/fran_cut.ppm"
+    pnm1 SetFileName "../../../vtkdata/fran_cut.ppm"
 
 vtkTexture atext
   atext SetInput [pnm1 GetOutput]

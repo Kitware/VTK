@@ -2,8 +2,8 @@ catch {load vtktcl}
 # Generate marching cubes head model (full resolution)
 
 # get the interactor ui and colors
-source vtkInt.tcl
-source colors.tcl
+source ../../examplesTcl/vtkInt.tcl
+source ../../examplesTcl/colors.tcl
 
 # Create the RenderWindow, Renderer and both Actors
 #

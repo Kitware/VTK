@@ -1,7 +1,7 @@
 catch {load vtktcl}
 # get the interactor ui
-source vtkInt.tcl
-source colors.tcl
+source ../../examplesTcl/vtkInt.tcl
+source ../../examplesTcl/colors.tcl
 
 # create pipeline
 #
@@ -9,7 +9,7 @@ vtkVolume16Reader v16
     v16 SetDataDimensions 128 128 
     [v16 GetOutput] SetOrigin 0.0 0.0 0.0
     v16 SetDataByteOrderToLittleEndian
-    v16 SetFilePrefix "../../../data/headsq/half"
+    v16 SetFilePrefix "../../../vtkdata/headsq/half"
     v16 SetImageRange 45 45
     v16 SetDataSpacing 1.6 1.6 1.5
 vtkContourFilter iso

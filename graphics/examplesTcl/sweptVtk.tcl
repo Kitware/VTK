@@ -1,6 +1,6 @@
 catch {load vtktcl}
 # get the interactor ui
-source vtkInt.tcl
+source ../../examplesTcl/vtkInt.tcl
 
 # Create ren1dering stuff
 vtkRenderer ren1
@@ -11,7 +11,7 @@ vtkRenderWindowInteractor iren
 
 # ingest data file
 vtkPolyDataReader reader
-  reader SetFileName "../../../data/vtk.vtk"
+  reader SetFileName "../../../vtkdata/vtk.vtk"
 
 # create implicit model of vtk
 vtkImplicitModeller imp

@@ -15,4 +15,3 @@ proc new {className} {
    $className $instanceName
 
    return $instanceName
-}

@@ -1,17 +1,16 @@
 ## LOx post CFD case study
 
 # get helper scripts
-source vtkInt.tcl
-source colors.tcl
+source ../../examplesTcl/vtkInt.tcl
+source ../../examplesTcl/colors.tcl
 
 # read data
 #
 vtkPLOT3DReader pl3d
-    pl3d SetXYZFileName "../../../data/postxyz.bin"
-    pl3d SetQFileName "../../../data/postq.bin"
+    pl3d SetXYZFileName "../../../vtkdata/postxyz.bin"
+    pl3d SetQFileName "../../../vtkdata/postq.bin"
     pl3d SetScalarFunctionNumber 153
     pl3d SetVectorFunctionNumber 200
-    pl3d DebugOn
     pl3d Update
 
 #blue to red lut
@@ -140,7 +139,7 @@ vtkCamera aCam
 
 ren1 SetBackground .1 .2 .4
 ren1 SetActiveCamera aCam
-renWin SetSize 1000 1000
+renWin SetSize 400 400
 
 iren Initialize
 renWin Render
@@ -150,6 +149,8 @@ renWin Render
 iren SetUserMethod {wm deiconify .vtkInteract}
 
 renWin Render
+#renWin SetFileName "LOx.tcl.ppm"
+#renWin SaveImageAsPPM
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .

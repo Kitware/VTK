@@ -5,7 +5,7 @@ catch {load vtktcl}
 
 # Source external files
 source TkInteractor.tcl
-source vtkInt.tcl
+source ../../examplesTcl/vtkInt.tcl
 
 # Define global variables
 set deciReduction 0.0

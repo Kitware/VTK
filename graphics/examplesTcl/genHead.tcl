@@ -2,15 +2,15 @@ catch {load vtktcl}
 # Generate marching cubes head model (full resolution)
 
 # get the interactor ui and colors
-source vtkInt.tcl
-source colors.tcl
+source ../../examplesTcl/vtkInt.tcl
+source ../../examplesTcl/colors.tcl
 
 # create pipeline
 # reader reads slices
 vtkVolume16Reader v16
     v16 SetDataDimensions 256 256
     v16 SetDataByteOrderToLittleEndian
-    v16 SetFilePrefix "../../../data/fullHead/headsq"
+    v16 SetFilePrefix "../../../vtkdata/fullHead/headsq"
     v16 SetDataSpacing 0.8 0.8 1.5
     v16 SetImageRange 1 94;#uncomment for the whole head
     v16 SetDataMask 0x7fff

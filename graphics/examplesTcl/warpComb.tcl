@@ -1,6 +1,6 @@
 catch {load vtktcl}
 # get the interactor ui
-source vtkInt.tcl
+source ../../examplesTcl/vtkInt.tcl
 
 # Create the RenderWindow, Renderer and both Actors
 #
@@ -13,8 +13,8 @@ vtkRenderWindowInteractor iren
 # create pipeline
 #
 vtkPLOT3DReader pl3d
-    pl3d SetXYZFileName "../../../data/combxyz.bin"
-    pl3d SetQFileName "../../../data/combq.bin"
+    pl3d SetXYZFileName "../../../vtkdata/combxyz.bin"
+    pl3d SetQFileName "../../../vtkdata/combq.bin"
     pl3d SetScalarFunctionNumber 100
     pl3d SetVectorFunctionNumber 202
     pl3d Update

@@ -1,14 +1,14 @@
 # Create dashed streamlines
 
-source vtkInt.tcl
-source colors.tcl
-source vtkInclude.tcl
+source ../../examplesTcl/vtkInt.tcl
+source ../../examplesTcl/colors.tcl
+source ../../examplesTcl/vtkInclude.tcl
 
 #
 # Read data
 #
 vtkStructuredGridReader reader
-   reader SetFileName "../../../data/3d.vtk" ;
+   reader SetFileName "../../../vtkdata/3d.vtk" ;
    reader Update;#force a read to occur
 
 set dims [[reader GetOutput] GetDimensions]
@@ -18,7 +18,7 @@ set dims [[reader GetOutput] GetDimensions]
 #
 vtkOutlineSource OutlineSource
    OutlineSource SetBounds  -1.2 1.2 -1.2 1.2 0 4
-vtkPolyMapper outlineMapper
+vtkPolyDataMapper outlineMapper
    outlineMapper SetInput [OutlineSource GetOutput]
 vtkActor outline
    outline SetMapper outlineMapper ;
@@ -30,10 +30,10 @@ vtkStructuredGridGeometryFilter humpGeom
    humpGeom SetInput [reader GetOutput]
    eval humpGeom SetExtent 0 [expr [lindex $dims 0] - 1]\
          0 [expr [lindex $dims 1] - 1] 0 0 ;
-vtkPolyNormals AddNormals;
+vtkPolyDataNormals AddNormals;
    AddNormals SetInput [humpGeom GetOutput]
    AddNormals SetFeatureAngle 60 ;
-vtkPolyMapper humpMapper
+vtkPolyDataMapper humpMapper
    humpMapper SetInput [AddNormals GetOutput]
    humpMapper ScalarVisibilityOff;
 vtkActor hump
@@ -73,7 +73,7 @@ vtkTubeFilter tubeF;
    tubeF SetNumberOfSides 6 ;
    tubeF SetVaryRadius $VTK_VARY_RADIUS_OFF ;
 
-vtkPolyMapper tubeMapper
+vtkPolyDataMapper tubeMapper
    tubeMapper SetLookupTable ColorLookupTable ;
    tubeMapper SetInput [tubeF GetOutput]
 

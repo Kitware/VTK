@@ -1,7 +1,7 @@
 catch {load vtktcl}
 ## Test the marching squares contouring class
 
-source vtkInt.tcl
+source ../../examplesTcl/vtkInt.tcl
 
 # Quadric definition
 vtkQuadric quadric

@@ -1,7 +1,7 @@
 catch {load vtktcl}
 # this demonstrates assemblies hierarchies
 # include get the vtk interactor ui
-source vtkInt.tcl
+source ../../examplesTcl/vtkInt.tcl
 
 # Create the RenderWindow, Renderer and both Actors
 #

@@ -1,7 +1,7 @@
 catch {load vtktcl}
 # Demonstrate use of scalar connectivity
 
-source vtkInt.tcl
+source ../../examplesTcl/vtkInt.tcl
 
 # Quadric definition
 vtkQuadric quadric

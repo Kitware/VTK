@@ -2,8 +2,8 @@ catch {load vtktcl}
 # generate four hyperstreamlines
 
 # get the supporting scripts
-source vtkInt.tcl
-source vtkInclude.tcl
+source ../../examplesTcl/vtkInt.tcl
+source ../../examplesTcl/vtkInclude.tcl
 
 # create tensor ellipsoids
 

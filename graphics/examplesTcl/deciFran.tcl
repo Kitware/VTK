@@ -1,7 +1,7 @@
 catch {load vtktcl}
 # this is a tcl version to decimtae fran's face
 # get the interactor ui
-source vtkInt.tcl
+source ../../examplesTcl/vtkInt.tcl
 
 # Create the RenderWindow, Renderer and both Actors
 #
@@ -14,7 +14,7 @@ vtkRenderWindowInteractor iren
 # create a cyberware source
 #
 vtkCyberReader cyber
-    cyber SetFileName "../../../data/fran_cut"
+    cyber SetFileName "../../../vtkdata/fran_cut"
 #7347 triangles remain
 vtkDecimate deci; 
     deci SetInput [cyber GetOutput]

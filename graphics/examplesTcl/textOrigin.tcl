@@ -1,6 +1,6 @@
 catch {load vtktcl}
 # Created oriented text
-source vtkInt.tcl
+source ../../examplesTcl/vtkInt.tcl
 
 # pipeline
 vtkAxes axes

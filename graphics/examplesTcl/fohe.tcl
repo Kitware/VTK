@@ -1,7 +1,7 @@
 catch {load vtktcl}
 # this is a tcl version of motor visualization
 # get the interactor ui
-source vtkInt.tcl
+source ../../examplesTcl/vtkInt.tcl
 
 # Create the RenderWindow, Renderer and both Actors
 #
@@ -14,7 +14,7 @@ vtkRenderWindowInteractor iren
 # read a vtk file
 #
 vtkBYUReader byu
-    byu SetGeometryFileName "../../../data/fohe.g"
+    byu SetGeometryFileName "../../../vtkdata/fohe.g"
 vtkPolyDataNormals normals
     normals SetInput [byu GetOutput]
 vtkPolyDataMapper byuMapper

@@ -1,7 +1,7 @@
 catch {load vtktcl}
 # get the interactor ui
-source vtkInt.tcl
-source "colors.tcl"
+source ../../examplesTcl/vtkInt.tcl
+source ../../examplesTcl/colors.tcl
 
 # Create the RenderWindow, Renderer and both Actors
 #
@@ -13,7 +13,7 @@ vtkRenderWindowInteractor iren
 
 # create lines
 vtkPolyDataReader reader
-    reader SetFileName "../../../data/hello.vtk"
+    reader SetFileName "../../../vtkdata/hello.vtk"
 vtkPolyDataMapper lineMapper
     lineMapper SetInput [reader GetOutput]
 vtkActor lineActor

@@ -1,6 +1,6 @@
 catch {load vtktcl}
 # get the interactor ui
-source vtkInt.tcl
+source ../../examplesTcl/vtkInt.tcl
 
 # create tensor ellipsoids
 # Create the RenderWindow, Renderer and interactive renderer

@@ -2,9 +2,9 @@ catch {load vtktcl}
 #
 # Demonstrate the use of clipping and cutting
 #
-source vtkInt.tcl
-source "colors.tcl"
-source vtkInclude.tcl
+source ../../examplesTcl/vtkInt.tcl
+source ../../examplesTcl/colors.tcl
+source ../../examplesTcl/vtkInclude.tcl
 
 # create test data by hand. Use an alternative creation method for 
 # polygonal data.

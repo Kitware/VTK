@@ -3,7 +3,7 @@ catch {load vtktcl}
 ## curve to generate a tube.
 
 # get the interactor ui
-source vtkInt.tcl
+source ../../examplesTcl/vtkInt.tcl
 
 # create bottle profile
 #

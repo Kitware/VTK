@@ -1,6 +1,6 @@
 catch {load vtktcl}
 # get the interactor ui
-source vtkInt.tcl
+source ../../examplesTcl/vtkInt.tcl
 
 # lines make a nice test
 vtkLineSource line1
@@ -16,9 +16,9 @@ vtkLineSource line2
 #  asource AddInput [line2 GetOutput]
 
 vtkSTLReader asource
-  asource SetFileName ../../../data/42400-IDGH.stl
+  asource SetFileName ../../../vtkdata/42400-IDGH.stl
 #vtkCyberReader asource
-#  asource SetFileName ../../../data/fran_cut
+#  asource SetFileName ../../../vtkdata/fran_cut
 vtkPolyDataMapper dataMapper
   dataMapper SetInput [asource GetOutput]
 vtkActor model
@@ -31,9 +31,9 @@ vtkActor model
 vtkCellLocator locator
   locator SetMaxLevel 4
   locator AutomaticOff
-vtkSpatialRepFilter boxes
+vtkSpatialRepresentationFilter boxes
   boxes SetInput [asource GetOutput]
-  boxes SetSpatialRep locator
+  boxes SetSpatialRepresentation locator
 vtkPolyDataMapper boxMapper
   boxMapper SetInput [boxes GetOutput]
 #  boxMapper SetInput [boxes GetOutput 2]

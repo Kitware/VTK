@@ -1,7 +1,7 @@
 catch {load vtktcl}
 # this is a tcl version of plate vibration
 # get the interactor ui
-source vtkInt.tcl
+source ../../examplesTcl/vtkInt.tcl
 
 # Create the RenderWindow, Renderer and both Actors
 #
@@ -14,7 +14,7 @@ vtkRenderWindowInteractor iren
 # read a vtk file
 #
 vtkPolyDataReader plate
-    plate SetFileName "../../../data/plate.vtk"
+    plate SetFileName "../../../vtkdata/plate.vtk"
     plate SetVectorsName "mode2"
 vtkPolyDataNormals normals
     normals SetInput [plate GetOutput]

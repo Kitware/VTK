@@ -3,10 +3,10 @@ catch {load vtktcl}
 # generated.
 
 # get the interactor ui
-source vtkInt.tcl
+source ../../examplesTcl/vtkInt.tcl
 
 # get some nice colors
-source colors.tcl
+source ../../examplesTcl/colors.tcl
 
 # create some points
 #

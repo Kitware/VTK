@@ -1,7 +1,7 @@
 catch {load vtktcl}
 # this demonstrates use of assemblies
 # include get the vtk interactor ui
-source vtkInt.tcl
+source ../../examplesTcl/vtkInt.tcl
 
 # Create the RenderWindow, Renderer and both Actors
 #

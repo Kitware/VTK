@@ -1,7 +1,7 @@
 catch {load vtktcl}
 # get the interactor ui
-source vtkInt.tcl
-source "colors.tcl"
+source ../../examplesTcl/vtkInt.tcl
+source ../../examplesTcl/colors.tcl
 
 # Create the RenderWindow, Renderer and both Actors
 #
@@ -14,7 +14,7 @@ vtkRenderWindowInteractor iren
 # read data
 #
 vtkStructuredPointsReader reader
-    reader SetFileName "../../../data/carotid.vtk"
+    reader SetFileName "../../../vtkdata/carotid.vtk"
 vtkThresholdPoints threshold
     threshold SetInput [reader GetOutput]
     threshold ThresholdByUpper 200
@@ -35,56 +35,56 @@ vtkActor vectorActor
 
 # 8 texture maps
 vtkStructuredPointsReader tmap1
-  tmap1 SetFileName "../../../data/vecTex/vecAnim1.vtk"
+  tmap1 SetFileName "../../../vtkdata/vecTex/vecAnim1.vtk"
 vtkTexture texture1
   texture1 SetInput [tmap1 GetOutput]
   texture1 InterpolateOff
   texture1 RepeatOff
 
 vtkStructuredPointsReader tmap2
-  tmap2 SetFileName "../../../data/vecTex/vecAnim2.vtk"
+  tmap2 SetFileName "../../../vtkdata/vecTex/vecAnim2.vtk"
 vtkTexture texture2
   texture2 SetInput [tmap2 GetOutput]
   texture2 InterpolateOff
   texture2 RepeatOff
 
 vtkStructuredPointsReader tmap3
-  tmap3 SetFileName "../../../data/vecTex/vecAnim3.vtk"
+  tmap3 SetFileName "../../../vtkdata/vecTex/vecAnim3.vtk"
 vtkTexture texture3
   texture3 SetInput [tmap3 GetOutput]
   texture3 InterpolateOff
   texture3 RepeatOff
 
 vtkStructuredPointsReader tmap4
-  tmap4 SetFileName "../../../data/vecTex/vecAnim4.vtk"
+  tmap4 SetFileName "../../../vtkdata/vecTex/vecAnim4.vtk"
 vtkTexture texture4
   texture4 SetInput [tmap4 GetOutput]
   texture4 InterpolateOff
   texture4 RepeatOff
 
 vtkStructuredPointsReader tmap5
-  tmap5 SetFileName "../../../data/vecTex/vecAnim5.vtk"
+  tmap5 SetFileName "../../../vtkdata/vecTex/vecAnim5.vtk"
 vtkTexture texture5
   texture5 SetInput [tmap5 GetOutput]
   texture5 InterpolateOff
   texture5 RepeatOff
 
 vtkStructuredPointsReader tmap6
-  tmap6 SetFileName "../../../data/vecTex/vecAnim6.vtk"
+  tmap6 SetFileName "../../../vtkdata/vecTex/vecAnim6.vtk"
 vtkTexture texture6
   texture6 SetInput [tmap6 GetOutput]
   texture6 InterpolateOff
   texture6 RepeatOff
 
 vtkStructuredPointsReader tmap7
-  tmap7 SetFileName "../../../data/vecTex/vecAnim7.vtk"
+  tmap7 SetFileName "../../../vtkdata/vecTex/vecAnim7.vtk"
 vtkTexture texture7
   texture7 SetInput [tmap7 GetOutput]
   texture7 InterpolateOff
   texture7 RepeatOff
 
 vtkStructuredPointsReader tmap8
-  tmap8 SetFileName "../../../data/vecTex/vecAnim8.vtk"
+  tmap8 SetFileName "../../../vtkdata/vecTex/vecAnim8.vtk"
 vtkTexture texture8
   texture8 SetInput [tmap8 GetOutput]
   texture8 InterpolateOff

@@ -1,6 +1,6 @@
 catch {load vtktcl}
 # create camera figure
-source vtkInt.tcl
+source ../../examplesTcl/vtkInt.tcl
 
 # Create the RenderWindow, Renderer and both Actors
 #

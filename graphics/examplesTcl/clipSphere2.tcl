@@ -2,8 +2,8 @@ catch {load vtktcl}
 #
 # Demonstrate the use of clipping on polygonal data
 #
-source vtkInt.tcl
-source "colors.tcl"
+source ../../examplesTcl/vtkInt.tcl
+source ../../examplesTcl/colors.tcl
 
 # create pipeline
 #

@@ -1,5 +1,5 @@
 catch {load vtktcl}
-source vtkInt.tcl
+source ../../examplesTcl/vtkInt.tcl
 
 vtkRenderer ren1
 vtkRenderWindow renWin

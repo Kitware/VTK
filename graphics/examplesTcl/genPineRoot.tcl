@@ -2,8 +2,8 @@ catch {load vtktcl}
 # Generate marching cubes pine root model (256^3 model)
 
 # get the interactor ui and colors
-source vtkInt.tcl
-source colors.tcl
+source ../../examplesTcl/vtkInt.tcl
+source ../../examplesTcl/colors.tcl
 
 # Create the RenderWindow, Renderer and both Actors
 #
@@ -18,7 +18,7 @@ vtkRenderWindowInteractor iren
 vtkVolume16Reader v16
     v16 SetDataDimensions 256 256
     v16 SetDataByteOrderToBigEndian
-    v16 SetFilePrefix "../../../data/pineRoot/pine_root"
+    v16 SetFilePrefix "../../../vtkdata/pineRoot/pine_root"
     v16 SetImageRange 1 256
     v16 SetDataSpacing 0.3125 0.3125 0.390625
     v16 SetDataMask 0x7fff

@@ -1,7 +1,7 @@
 catch {load vtktcl}
 # get the interactor ui
-source vtkInt.tcl
-source colors.tcl
+source ../../examplesTcl/vtkInt.tcl
+source ../../examplesTcl/colors.tcl
 
 # Create the RenderWindow, Renderer and both Actors
 #
@@ -14,8 +14,8 @@ vtkRenderWindowInteractor iren
 # read data
 #
 vtkPLOT3DReader pl3d
-    pl3d SetXYZFileName "../../../data/bluntfinxyz.bin"
-    pl3d SetQFileName "../../../data/bluntfinq.bin"
+    pl3d SetXYZFileName "../../../vtkdata/bluntfinxyz.bin"
+    pl3d SetQFileName "../../../vtkdata/bluntfinq.bin"
     pl3d SetScalarFunctionNumber 100
     pl3d SetVectorFunctionNumber 202
     pl3d Update
@@ -46,7 +46,7 @@ vtkActor finActor
 
 # planes to threshold
 vtkStructuredPointsReader tmap
-  tmap SetFileName "../../../data/texThres.vtk"
+  tmap SetFileName "../../../vtkdata/texThres.vtk"
 vtkTexture texture
   texture SetInput [tmap GetOutput]
   texture InterpolateOff

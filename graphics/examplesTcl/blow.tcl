@@ -1,10 +1,10 @@
 # Create blow molding image (data point 5)
 # get the interactor
-source "vtkInt.tcl"
+source ../../examplesTcl/vtkInt.tcl
 
 # create reader and warp data with vectors
 vtkUnstructuredGridReader reader
-    reader SetFileName "../../../data/blow.vtk"
+    reader SetFileName "../../../vtkdata/blow.vtk"
     reader SetScalarsName "thickness9"
     reader SetVectorsName "displacement9"
 vtkWarpVector warp
@@ -54,10 +54,15 @@ vtkRenderWindowInteractor iren
 ren1 AddActor moldActor
 ren1 AddActor parisonActor
 ren1 SetBackground 1 1 1
-renWin SetSize 750 400
-
+renWin SetSize 500 350
+[ren1 GetActiveCamera] Roll 90
+[ren1 GetActiveCamera] Elevation 90
+[ren1 GetActiveCamera] Zoom 2
 iren Initialize
 iren SetUserMethod {wm deiconify .vtkInteract}
+
+#renWin SetFileName blow.tcl.ppm
+#renWin SaveImageAsPPM
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .

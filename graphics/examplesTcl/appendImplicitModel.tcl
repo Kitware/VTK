@@ -1,7 +1,7 @@
 # this demonstrates appending data to generate an implicit model
 
 catch {load vtktcl}
-source vtkInt.tcl
+source ../../examplesTcl/vtkInt.tcl
 
 vtkLineSource lineX
     lineX SetPoint1 -2.0 0.0 0.0
@@ -26,7 +26,6 @@ set Data(3) "aPlane"
 vtkImplicitModeller imp
     imp SetModelBounds -2.5 2.5 -2.5 2.5 -2.5 2.5
     imp SetSampleDimensions 100 100 100
-    imp DebugOn
 
 # Okay now let's see if we can append
 imp StartAppend
@@ -61,17 +60,24 @@ vtkActor planeActor
     planeActor SetMapper planeMapper
 
 # graphics stuff
-vtkRenderer ren
-    ren AddActor actor
-    ren AddActor planeActor
-    ren AddActor outlineActor
+vtkRenderer ren1
+    ren1 AddActor actor
+    ren1 AddActor planeActor
+    ren1 AddActor outlineActor
 vtkRenderWindow renWin
-    renWin AddRenderer ren
+    renWin AddRenderer ren1
 vtkRenderWindowInteractor iren
     iren SetRenderWindow renWin
 
-ren SetBackground 0.1 0.2 0.4
+ren1 SetBackground 0.1 0.2 0.4
 iren SetUserMethod {wm deiconify .vtkInteract}
 iren Initialize
+
+[ren1 GetActiveCamera] Azimuth 30
+[ren1 GetActiveCamera] Elevation 30
+renWin Render
+
+#renWin SetFileName appendImplicitModel.tcl.ppm
+#renWin SaveImageAsPPM
 
 wm withdraw .

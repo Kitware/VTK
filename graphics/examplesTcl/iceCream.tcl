@@ -1,8 +1,8 @@
 catch {load vtktcl}
 # create ice-cream cone
 # get the interactor ui
-source vtkInt.tcl
-source "colors.tcl"
+source ../../examplesTcl/vtkInt.tcl
+source ../../examplesTcl/colors.tcl
 
 vtkRenderer ren1
 vtkRenderWindow renWin

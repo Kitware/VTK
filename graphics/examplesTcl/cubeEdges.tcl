@@ -1,6 +1,6 @@
 catch {load vtktcl}
 # user interface command widget
-source vtkInt.tcl
+source ../../examplesTcl/vtkInt.tcl
 
 # create a rendering window and renderer
 vtkRenderer ren1

@@ -2,8 +2,8 @@ catch {load vtktcl}
 # this is a tcl version of hawaii coloration
 
 # get the interactor ui
-source vtkInt.tcl
-source "colors.tcl"
+source ../../examplesTcl/vtkInt.tcl
+source ../../examplesTcl/colors.tcl
 
 # Create the RenderWindow, Renderer and both Actors
 #
@@ -16,7 +16,7 @@ vtkRenderWindowInteractor iren
 # read a vtk file
 #
 vtkPolyDataReader hawaii
-    hawaii SetFileName "../../../data/honolulu.vtk"
+    hawaii SetFileName "../../../vtkdata/honolulu.vtk"
     hawaii Update
 vtkElevationFilter elevation
     elevation SetInput [hawaii GetOutput]

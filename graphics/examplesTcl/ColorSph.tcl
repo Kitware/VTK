@@ -1,7 +1,7 @@
 catch {load vtktcl}
 # Example demonstrates use of vtkCastToConcrete
 #
-source vtkInt.tcl
+source ../../examplesTcl/vtkInt.tcl
 
 vtkSphereSource sphere
     sphere SetPhiResolution 12

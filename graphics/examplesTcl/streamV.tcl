@@ -1,7 +1,7 @@
 catch {load vtktcl}
 # create selected streamlines in arteries
-source colors.tcl
-source vtkInclude.tcl
+source ../../examplesTcl/colors.tcl
+source ../../examplesTcl/vtkInclude.tcl
 
 vtkRenderer ren1
 vtkRenderWindow renWin
@@ -12,7 +12,7 @@ vtkRenderWindowInteractor iren
 # create pipeline
 #
 vtkStructuredPointsReader reader
-    reader SetFileName "../../../data/carotid.vtk"
+    reader SetFileName "../../../vtkdata/carotid.vtk"
 vtkPointSource psource
     psource SetNumberOfPoints 25
     psource SetCenter 133.1 116.3 5.0

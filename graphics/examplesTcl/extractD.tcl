@@ -1,8 +1,8 @@
 catch {load vtktcl}
 # extract data
 # get the interactor ui
-source vtkInt.tcl
-source "colors.tcl"
+source ../../examplesTcl/vtkInt.tcl
+source ../../examplesTcl/colors.tcl
 
 vtkRenderer ren1
 vtkRenderWindow renWin

@@ -1,8 +1,8 @@
 catch {load vtktcl}
 # create selected cones
 # get the interactor ui
-source vtkInt.tcl
-source "colors.tcl"
+source ../../examplesTcl/vtkInt.tcl
+source ../../examplesTcl/colors.tcl
 
 vtkRenderer ren1
 vtkRenderWindow renWin
@@ -13,7 +13,7 @@ vtkRenderWindowInteractor iren
 # create pipeline
 #
 vtkStructuredPointsReader reader
-    reader SetFileName "../../../data/carotid.vtk"
+    reader SetFileName "../../../vtkdata/carotid.vtk"
 vtkThresholdPoints threshold
     threshold SetInput [reader GetOutput]
     threshold ThresholdByUpper 200

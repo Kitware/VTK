@@ -1,6 +1,6 @@
 catch {load vtktcl}
 # get the interactor ui
-source vtkInt.tcl
+source ../../examplesTcl/vtkInt.tcl
 
 # Create the RenderWindow, Renderer and both Actors
 #
@@ -11,7 +11,7 @@ vtkRenderWindowInteractor iren
     iren SetRenderWindow renWin
 
 vtkSTLReader sr
-    sr SetFileName ../../../data/42400-IDGH.stl
+    sr SetFileName ../../../vtkdata/42400-IDGH.stl
 
 vtkPolyDataMapper   stlMapper
     stlMapper SetInput [sr GetOutput]

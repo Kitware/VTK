@@ -1,8 +1,8 @@
 catch {load vtktcl}
 # Generate implicit model of a sphere
 #
-source vtkInt.tcl
-source "colors.tcl"
+source ../../examplesTcl/vtkInt.tcl
+source ../../examplesTcl/colors.tcl
 
 # Create renderer stuff
 #

@@ -5,7 +5,7 @@ wm title .top {VTK and TK}
 wm positionfrom .top program
 wm geometry .top +50+50
  
-source vtkInt.tcl
+source ../../examplesTcl/vtkInt.tcl
  
 # Create the RenderWindow, Renderer and both Actors
 #
