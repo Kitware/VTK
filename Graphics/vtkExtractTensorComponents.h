@@ -40,16 +40,16 @@
 #ifndef __vtkExtractTensorComponents_h
 #define __vtkExtractTensorComponents_h
 
-#include "vtkDataSetToDataSetFilter.h"
+#include "vtkDataSetAlgorithm.h"
 
 #define VTK_EXTRACT_COMPONENT 0
 #define VTK_EXTRACT_EFFECTIVE_STRESS 1
 #define VTK_EXTRACT_DETERMINANT 2
 
-class VTK_GRAPHICS_EXPORT vtkExtractTensorComponents : public vtkDataSetToDataSetFilter 
+class VTK_GRAPHICS_EXPORT vtkExtractTensorComponents : public vtkDataSetAlgorithm 
 {
 public:
-  vtkTypeRevisionMacro(vtkExtractTensorComponents,vtkDataSetToDataSetFilter);
+  vtkTypeRevisionMacro(vtkExtractTensorComponents,vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -148,7 +148,7 @@ protected:
   vtkExtractTensorComponents();
   ~vtkExtractTensorComponents() {};
 
-  void Execute();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   int PassTensorsToOutput;
 

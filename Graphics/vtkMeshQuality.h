@@ -51,7 +51,7 @@
 #ifndef vtkMeshQuality_h
 #define vtkMeshQuality_h
 
-#include "vtkDataSetToDataSetFilter.h"
+#include "vtkDataSetAlgorithm.h"
 
 class vtkCell;
 
@@ -62,11 +62,11 @@ class vtkCell;
 #define VTK_QUALITY_MED_FROBENIUS_NORM 4
 #define VTK_QUALITY_MAX_FROBENIUS_NORM 5
 
-class VTK_GRAPHICS_EXPORT vtkMeshQuality : public vtkDataSetToDataSetFilter
+class VTK_GRAPHICS_EXPORT vtkMeshQuality : public vtkDataSetAlgorithm
 {
 public:
   void PrintSelf(ostream& os, vtkIndent indent);
-  vtkTypeRevisionMacro(vtkMeshQuality,vtkDataSetToDataSetFilter);
+  vtkTypeRevisionMacro(vtkMeshQuality,vtkDataSetAlgorithm);
   static vtkMeshQuality* New();
 
   // Description:
@@ -427,7 +427,7 @@ protected:
   vtkMeshQuality();
   ~vtkMeshQuality();
 
-  virtual void Execute();
+  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   int SaveCellQuality;
   int TriangleQualityMeasure;

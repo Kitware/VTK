@@ -21,16 +21,16 @@
 #ifndef __vtkBrownianPoints_h
 #define __vtkBrownianPoints_h
 
-#include "vtkDataSetToDataSetFilter.h"
+#include "vtkDataSetAlgorithm.h"
 
-class VTK_GRAPHICS_EXPORT vtkBrownianPoints : public vtkDataSetToDataSetFilter
+class VTK_GRAPHICS_EXPORT vtkBrownianPoints : public vtkDataSetAlgorithm
 {
 public:
   // Description:
   // Create instance with minimum speed 0.0, maximum speed 1.0.
   static vtkBrownianPoints *New();
 
-  vtkTypeRevisionMacro(vtkBrownianPoints,vtkDataSetToDataSetFilter);
+  vtkTypeRevisionMacro(vtkBrownianPoints,vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -47,7 +47,7 @@ protected:
   vtkBrownianPoints();
   ~vtkBrownianPoints() {};
 
-  void Execute();
+  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   double MinimumSpeed;
   double MaximumSpeed;
 private:
@@ -56,5 +56,3 @@ private:
 };
 
 #endif
-
-

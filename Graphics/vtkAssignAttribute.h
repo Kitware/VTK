@@ -54,16 +54,16 @@
 #ifndef __vtkAssignAttribute_h
 #define __vtkAssignAttribute_h
 
-#include "vtkDataSetToDataSetFilter.h"
+#include "vtkDataSetAlgorithm.h"
 
 #include "vtkDataSetAttributes.h" // Needed for NUM_ATTRIBUTES
 
 class vtkFieldData;
 
-class VTK_GRAPHICS_EXPORT vtkAssignAttribute : public vtkDataSetToDataSetFilter
+class VTK_GRAPHICS_EXPORT vtkAssignAttribute : public vtkDataSetAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkAssignAttribute,vtkDataSetToDataSetFilter);
+  vtkTypeRevisionMacro(vtkAssignAttribute,vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -106,7 +106,7 @@ protected:
   vtkAssignAttribute();
   virtual ~vtkAssignAttribute();
 
-  void Execute();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   char* FieldName;
   int FieldType;
@@ -122,5 +122,3 @@ private:
 };
 
 #endif
-
-

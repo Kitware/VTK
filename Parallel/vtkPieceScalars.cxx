@@ -17,12 +17,15 @@
 #include "vtkCellData.h"
 #include "vtkDataSet.h"
 #include "vtkFloatArray.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkIntArray.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkPieceScalars, "1.14");
+vtkCxxRevisionMacro(vtkPieceScalars, "1.15");
 vtkStandardNewMacro(vtkPieceScalars);
 
 //----------------------------------------------------------------------------
@@ -39,10 +42,21 @@ vtkPieceScalars::~vtkPieceScalars()
 
 //----------------------------------------------------------------------------
 // Append data sets into single unstructured grid
-void vtkPieceScalars::Execute()
-{  
-  vtkDataSet *input = this->GetInput();
-  vtkDataSet *output = this->GetOutput();
+int vtkPieceScalars::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
+{
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkDataSet *input = vtkDataSet::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataSet *output = vtkDataSet::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  
   vtkDataArray *pieceColors;
   vtkIdType num;
   
@@ -55,13 +69,15 @@ void vtkPieceScalars::Execute()
     num = input->GetNumberOfPoints();
     }
   
+  int piece = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
+
   if (this->RandomMode)
     {
-    pieceColors = this->MakeRandomScalars(output->GetUpdatePiece(), num);
+    pieceColors = this->MakeRandomScalars(piece, num);
     }
   else
     {
-    pieceColors = this->MakePieceScalars(output->GetUpdatePiece(), num);
+    pieceColors = this->MakePieceScalars(piece, num);
     }
     
   output->ShallowCopy(input);
@@ -78,6 +94,8 @@ void vtkPieceScalars::Execute()
     }
     
   pieceColors->Delete();
+
+  return 1;
 }
 
 //----------------------------------------------------------------------------

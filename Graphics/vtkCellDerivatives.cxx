@@ -19,13 +19,15 @@
 #include "vtkDataSet.h"
 #include "vtkDoubleArray.h"
 #include "vtkGenericCell.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkTensor.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCellDerivatives, "1.26");
+vtkCxxRevisionMacro(vtkCellDerivatives, "1.27");
 vtkStandardNewMacro(vtkCellDerivatives);
 
 vtkCellDerivatives::vtkCellDerivatives()
@@ -34,10 +36,21 @@ vtkCellDerivatives::vtkCellDerivatives()
   this->TensorMode = VTK_TENSOR_MODE_COMPUTE_GRADIENT;
 }
 
-void vtkCellDerivatives::Execute()
+int vtkCellDerivatives::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
-  vtkDataSet *input = this->GetInput();
-  vtkDataSet *output = this->GetOutput();
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkDataSet *input = vtkDataSet::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataSet *output = vtkDataSet::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   vtkPointData *pd=input->GetPointData(), *outPD=output->GetPointData();
   vtkCellData *cd=input->GetCellData(), *outCD=output->GetCellData();
   vtkDataArray *inScalars=pd->GetScalars();
@@ -57,7 +70,7 @@ void vtkCellDerivatives::Execute()
   if ( numCells < 1 )
     {
     vtkErrorMacro("No cells to generate derivatives from");
-    return;
+    return 1;
     }
 
   // Figure out what to compute
@@ -191,6 +204,8 @@ void vtkCellDerivatives::Execute()
   // Pass appropriate data through to output
   outPD->PassData(pd);
   outCD->PassData(cd);
+
+  return 1;
 }
 
 const char *vtkCellDerivatives::GetVectorModeAsString(void)

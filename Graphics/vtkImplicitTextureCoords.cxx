@@ -17,10 +17,12 @@
 #include "vtkDataSet.h"
 #include "vtkFloatArray.h"
 #include "vtkImplicitFunction.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkImplicitTextureCoords, "1.47");
+vtkCxxRevisionMacro(vtkImplicitTextureCoords, "1.48");
 vtkStandardNewMacro(vtkImplicitTextureCoords);
 vtkCxxSetObjectMacro(vtkImplicitTextureCoords,SFunction,vtkImplicitFunction);
 vtkCxxSetObjectMacro(vtkImplicitTextureCoords,RFunction,vtkImplicitFunction);
@@ -45,16 +47,27 @@ vtkImplicitTextureCoords::~vtkImplicitTextureCoords()
 }
 
 
-void vtkImplicitTextureCoords::Execute()
+int vtkImplicitTextureCoords::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkDataSet *input = vtkDataSet::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataSet *output = vtkDataSet::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   vtkIdType ptId, numPts;
   int tcoordDim;
   vtkFloatArray *newTCoords;
   double min[3], max[3], scale[3];
   double tCoord[3], tc[3], x[3];
   int i;
-  vtkDataSet *input = this->GetInput();
-  vtkDataSet *output = this->GetOutput();
 
   // Initialize
   //
@@ -66,13 +79,13 @@ void vtkImplicitTextureCoords::Execute()
   if ( ((numPts=input->GetNumberOfPoints()) < 1) )
     {
     vtkErrorMacro(<< "No input points!");
-    return;
+    return 1;
     }
 
   if ( this->RFunction == NULL )
     {
     vtkErrorMacro(<< "No implicit functions defined!");
-    return;
+    return 1;
     }
 
   tcoordDim = 1;
@@ -187,6 +200,8 @@ void vtkImplicitTextureCoords::Execute()
 
   output->GetPointData()->SetTCoords(newTCoords);
   newTCoords->Delete();
+
+  return 1;
 }
 
 void vtkImplicitTextureCoords::PrintSelf(ostream& os, vtkIndent indent)

@@ -17,10 +17,12 @@
 #include "vtkCellData.h"
 #include "vtkDataSet.h"
 #include "vtkDataSetAttributes.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkAssignAttribute, "1.10");
+vtkCxxRevisionMacro(vtkAssignAttribute, "1.11");
 vtkStandardNewMacro(vtkAssignAttribute);
 
 char vtkAssignAttribute::AttributeLocationNames[2][12] 
@@ -171,10 +173,20 @@ void vtkAssignAttribute::Assign(const char* name,
     }
 }
 
-void vtkAssignAttribute::Execute()
+int vtkAssignAttribute::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
-  vtkDataSet *input = static_cast<vtkDataSet*>(this->GetInput());
-  vtkDataSet *output = static_cast<vtkDataSet*>(this->GetOutput());
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkDataSet *input = vtkDataSet::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataSet *output = vtkDataSet::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   // This has to be here because it initialized all field datas.
   output->CopyStructure( input );
@@ -219,6 +231,8 @@ void vtkAssignAttribute::Execute()
         }
       }
     }
+
+  return 1;
 }
 
 void vtkAssignAttribute::PrintSelf(ostream& os, vtkIndent indent)

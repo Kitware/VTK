@@ -19,10 +19,12 @@
 #include "vtkDataSet.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkFieldData.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkRearrangeFields, "1.13");
+vtkCxxRevisionMacro(vtkRearrangeFields, "1.14");
 vtkStandardNewMacro(vtkRearrangeFields);
 
 typedef vtkRearrangeFields::Operation Operation;
@@ -59,10 +61,20 @@ vtkRearrangeFields::~vtkRearrangeFields()
   this->DeleteAllOperations();
 }
 
-void vtkRearrangeFields::Execute()
+int vtkRearrangeFields::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
-  vtkDataSet *input = static_cast<vtkDataSet*>(this->GetInput());
-  vtkDataSet *output = static_cast<vtkDataSet*>(this->GetOutput());
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkDataSet *input = vtkDataSet::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataSet *output = vtkDataSet::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   // This has to be here because it initialized all field datas.
   output->CopyStructure( input );
@@ -88,6 +100,8 @@ void vtkRearrangeFields::Execute()
     }
   output->GetPointData()->PassData( input->GetPointData() );
   output->GetCellData()->PassData( input->GetCellData() );
+
+  return 1;
 }
 
 // Given location (DATA_OBJECT, CELL_DATA, POINT_DATA) return the

@@ -16,11 +16,13 @@
 
 #include "vtkDataSet.h"
 #include "vtkFloatArray.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkExtractTensorComponents, "1.28");
+vtkCxxRevisionMacro(vtkExtractTensorComponents, "1.29");
 vtkStandardNewMacro(vtkExtractTensorComponents);
 
 // Construct object to extract nothing and to not pass tensor data
@@ -54,13 +56,25 @@ vtkExtractTensorComponents::vtkExtractTensorComponents()
 
 // Extract data from tensors.
 //
-void vtkExtractTensorComponents::Execute()
+int vtkExtractTensorComponents::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkDataSet *input = vtkDataSet::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataSet *output = vtkDataSet::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   vtkDataArray *inTensors;
   double tensor[9];
-  vtkDataSet *input = this->GetInput();
   vtkPointData *pd = input->GetPointData();
-  vtkPointData *outPD = this->GetOutput()->GetPointData();
+  vtkPointData *outPD = output->GetPointData();
   double s = 0.0;
   double v[3];
   vtkFloatArray *newScalars=NULL;
@@ -75,7 +89,7 @@ void vtkExtractTensorComponents::Execute()
   vtkDebugMacro(<<"Extracting vector components!");
 
   // First, copy the input to the output as a starting point
-  this->GetOutput()->CopyStructure( input );
+  output->CopyStructure( input );
 
   inTensors = pd->GetTensors();
   numPts = input->GetNumberOfPoints();
@@ -83,7 +97,7 @@ void vtkExtractTensorComponents::Execute()
   if ( !inTensors || numPts < 1 )
     {
     vtkErrorMacro(<<"No data to extract!");
-    return;
+    return 1;
     }
 
   if ( !this->ExtractScalars && !this->ExtractVectors && 
@@ -210,6 +224,8 @@ void vtkExtractTensorComponents::Execute()
     outPD->SetTCoords(newTCoords);
     newTCoords->Delete();
     }
+
+  return 1;
 }
 
 void vtkExtractTensorComponents::PrintSelf(ostream& os, vtkIndent indent)
@@ -267,6 +283,4 @@ void vtkExtractTensorComponents::PrintSelf(ostream& os, vtkIndent indent)
      << this->TCoordComponents[2] << ", " << this->TCoordComponents[3] << ")\n";
   os << indent << "  (row,column)2: (" 
      << this->TCoordComponents[4] << ", " << this->TCoordComponents[5] << ")\n";
-
 }
-

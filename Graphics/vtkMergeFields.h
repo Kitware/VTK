@@ -42,15 +42,15 @@
 #ifndef __vtkMergeFields_h
 #define __vtkMergeFields_h
 
-#include "vtkDataSetToDataSetFilter.h"
+#include "vtkDataSetAlgorithm.h"
 
 class vtkDataArray;
 class vtkFieldData;
 
-class VTK_GRAPHICS_EXPORT vtkMergeFields : public vtkDataSetToDataSetFilter
+class VTK_GRAPHICS_EXPORT vtkMergeFields : public vtkDataSetAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkMergeFields,vtkDataSetToDataSetFilter);
+  vtkTypeRevisionMacro(vtkMergeFields,vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -121,7 +121,7 @@ protected:
   vtkMergeFields();
   virtual ~vtkMergeFields();
 
-  void Execute();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   char* FieldName;
   int FieldLocation;

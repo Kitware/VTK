@@ -17,11 +17,13 @@
 #include "vtkCellData.h"
 #include "vtkDataSet.h"
 #include "vtkFloatArray.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkElevationFilter, "1.55");
+vtkCxxRevisionMacro(vtkElevationFilter, "1.56");
 vtkStandardNewMacro(vtkElevationFilter);
 
 // Construct object with LowPoint=(0,0,0) and HighPoint=(0,0,1). Scalar
@@ -44,14 +46,26 @@ vtkElevationFilter::vtkElevationFilter()
 // Convert position along ray into scalar value.  Example use includes 
 // coloring terrain by elevation.
 //
-void vtkElevationFilter::Execute()
+int vtkElevationFilter::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkDataSet *input = vtkDataSet::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataSet *output = vtkDataSet::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   vtkIdType numPts, i;
   int j;
   vtkFloatArray *newScalars;
   double l, x[3], s, v[3];
   double diffVector[3], diffScalar;
-  vtkDataSet *input = this->GetInput();
   int abort=0;
 
   // Initialize
@@ -59,12 +73,12 @@ void vtkElevationFilter::Execute()
   vtkDebugMacro(<<"Generating elevation scalars!");
 
   // First, copy the input to the output as a starting point
-  this->GetOutput()->CopyStructure( input );
+  output->CopyStructure( input );
 
   if ( ((numPts=input->GetNumberOfPoints()) < 1) )
     {
     //vtkErrorMacro(<< "No input!");
-    return;
+    return 1;
     }
 
   // Allocate
@@ -109,14 +123,16 @@ void vtkElevationFilter::Execute()
 
   // Update self
   //
-  this->GetOutput()->GetPointData()->PassData(input->GetPointData());
+  output->GetPointData()->PassData(input->GetPointData());
 
-  this->GetOutput()->GetCellData()->PassData(input->GetCellData());
+  output->GetCellData()->PassData(input->GetCellData());
 
   newScalars->SetName("Elevation");
-  GetOutput()->GetPointData()->AddArray(newScalars);
-  this->GetOutput()->GetPointData()->SetActiveScalars("Elevation");
+  output->GetPointData()->AddArray(newScalars);
+  output->GetPointData()->SetActiveScalars("Elevation");
   newScalars->Delete();
+
+  return 1;
 }
 
 void vtkElevationFilter::PrintSelf(ostream& os, vtkIndent indent)

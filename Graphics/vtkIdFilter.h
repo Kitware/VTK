@@ -27,12 +27,12 @@
 #ifndef __vtkIdFilter_h
 #define __vtkIdFilter_h
 
-#include "vtkDataSetToDataSetFilter.h"
+#include "vtkDataSetAlgorithm.h"
 
-class VTK_GRAPHICS_EXPORT vtkIdFilter : public vtkDataSetToDataSetFilter 
+class VTK_GRAPHICS_EXPORT vtkIdFilter : public vtkDataSetAlgorithm 
 {
 public:
-  vtkTypeRevisionMacro(vtkIdFilter,vtkDataSetToDataSetFilter);
+  vtkTypeRevisionMacro(vtkIdFilter,vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -70,7 +70,7 @@ protected:
   vtkIdFilter();
   ~vtkIdFilter();
 
-  void Execute();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   int PointIds;
   int CellIds;

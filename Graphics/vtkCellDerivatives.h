@@ -41,7 +41,7 @@
 #ifndef __vtkCellDerivatives_h
 #define __vtkCellDerivatives_h
 
-#include "vtkDataSetToDataSetFilter.h"
+#include "vtkDataSetAlgorithm.h"
 
 #define VTK_VECTOR_MODE_PASS_VECTORS      0
 #define VTK_VECTOR_MODE_COMPUTE_GRADIENT  1
@@ -51,10 +51,10 @@
 #define VTK_TENSOR_MODE_COMPUTE_GRADIENT 1
 #define VTK_TENSOR_MODE_COMPUTE_STRAIN   2
 
-class VTK_GRAPHICS_EXPORT vtkCellDerivatives : public vtkDataSetToDataSetFilter 
+class VTK_GRAPHICS_EXPORT vtkCellDerivatives : public vtkDataSetAlgorithm 
 {
 public:
-  vtkTypeRevisionMacro(vtkCellDerivatives,vtkDataSetToDataSetFilter);
+  vtkTypeRevisionMacro(vtkCellDerivatives,vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -96,7 +96,7 @@ public:
 protected:
   vtkCellDerivatives();
   ~vtkCellDerivatives() {};
-  void Execute();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   int VectorMode;
   int TensorMode;
@@ -106,5 +106,3 @@ private:
 };
 
 #endif
-
-

@@ -25,17 +25,17 @@
 #ifndef __vtkPieceScalars_h
 #define __vtkPieceScalars_h
 
-#include "vtkDataSetToDataSetFilter.h"
+#include "vtkDataSetAlgorithm.h"
 
 class vtkFloatArray;
 class vtkIntArray;
 
-class VTK_PARALLEL_EXPORT vtkPieceScalars : public vtkDataSetToDataSetFilter
+class VTK_PARALLEL_EXPORT vtkPieceScalars : public vtkDataSetAlgorithm
 {
 public:
   static vtkPieceScalars *New();
 
-  vtkTypeRevisionMacro(vtkPieceScalars,vtkDataSetToDataSetFilter);
+  vtkTypeRevisionMacro(vtkPieceScalars,vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -56,7 +56,7 @@ protected:
   ~vtkPieceScalars();
   
   // Append the pieces.
-  void Execute();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   
   vtkIntArray *MakePieceScalars(int piece, vtkIdType numScalars);
   vtkFloatArray *MakeRandomScalars(int piece, vtkIdType numScalars);

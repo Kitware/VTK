@@ -15,6 +15,8 @@
 #include "vtkFacetReader.h"
 
 #include "vtkPolyData.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkErrorCode.h"
 #include "vtkCellType.h"
@@ -32,7 +34,7 @@
 #include <vtkstd/string>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkFacetReader, "1.2");
+vtkCxxRevisionMacro(vtkFacetReader, "1.3");
 vtkStandardNewMacro(vtkFacetReader);
 
 //------------------------------------------------------------------------------
@@ -81,6 +83,7 @@ static bool GetLineFromStream(istream& is,
 vtkFacetReader::vtkFacetReader()
 {
   this->FileName  = NULL;
+  this->SetNumberOfInputPorts(0);
 }
 
 //----------------------------------------------------------------------------
@@ -93,12 +96,22 @@ vtkFacetReader::~vtkFacetReader()
 }
 
 //----------------------------------------------------------------------------
-void vtkFacetReader::Execute()
+int vtkFacetReader::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **vtkNotUsed(inputVector),
+  vtkInformationVector *outputVector)
 {
+  // get the info object
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the ouptut
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   if ( !this->FileName )
     {
     vtkErrorMacro("No filename specified");
-    return;
+    return 1;
     }
 
   struct stat fs;
@@ -106,7 +119,7 @@ void vtkFacetReader::Execute()
     {
     this->SetErrorCode(vtkErrorCode::FileNotFoundError);
     vtkErrorMacro("Specified filename not found");
-    return;
+    return 1;
     }
 
   ifstream ifs(this->FileName, ios::in);
@@ -114,7 +127,7 @@ void vtkFacetReader::Execute()
     {
     this->SetErrorCode(vtkErrorCode::FileNotFoundError);
     vtkErrorMacro("Specified filename not found");
-    return;
+    return 1;
     }
 
   vtkDebugMacro( << "Reading Facet file");
@@ -124,7 +137,7 @@ void vtkFacetReader::Execute()
   if ( !GetLineFromStream(ifs, line) )
     {
     vtkErrorMacro("Cannot read file comment");
-    return;
+    return 1;
     }
 
   // Read number of parts
@@ -134,7 +147,7 @@ void vtkFacetReader::Execute()
     num_parts < 0 )
     {
     vtkErrorMacro("Bad number of parts line");
-    return;
+    return 1;
     }
 
   vtkDebugMacro("Number of parts is: " << num_parts);
@@ -142,8 +155,6 @@ void vtkFacetReader::Execute()
   // Buffers for various information from file
   vtkstd::vector<vtkIdType> pointList;
   vtkstd::vector<char> stringBuffer;
-
-  vtkPolyData* output = this->GetOutput();
 
   // We will need append individual parts together. Once multiblock is
   // supported, this should go out.
@@ -363,6 +374,8 @@ void vtkFacetReader::Execute()
   // Release garbage collection
   vtkGarbageCollector::DeferredCollectionPop();  
   vtkDebugMacro("Done reading file: " << this->FileName);
+
+  return 1;
 }
 
 //----------------------------------------------------------------------------

@@ -58,7 +58,7 @@
 #ifndef __vtkArrayCalculator_h
 #define __vtkArrayCalculator_h
 
-#include "vtkDataSetToDataSetFilter.h"
+#include "vtkDataSetAlgorithm.h"
 
 class vtkFunctionParser;
 
@@ -66,10 +66,10 @@ class vtkFunctionParser;
 #define VTK_ATTRIBUTE_MODE_USE_POINT_DATA 1
 #define VTK_ATTRIBUTE_MODE_USE_CELL_DATA 2
 
-class VTK_GRAPHICS_EXPORT vtkArrayCalculator : public vtkDataSetToDataSetFilter 
+class VTK_GRAPHICS_EXPORT vtkArrayCalculator : public vtkDataSetAlgorithm 
 {
 public:
-  vtkTypeRevisionMacro(vtkArrayCalculator,vtkDataSetToDataSetFilter);
+  vtkTypeRevisionMacro(vtkArrayCalculator,vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   static vtkArrayCalculator *New();
@@ -145,7 +145,7 @@ protected:
   vtkArrayCalculator();
   ~vtkArrayCalculator();
 
-  void Execute();
+  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   
   char* Function;
   char* ResultArrayName;

@@ -16,11 +16,13 @@
 
 #include "vtkDataSet.h"
 #include "vtkFloatArray.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkProjectedTexture, "1.29");
+vtkCxxRevisionMacro(vtkProjectedTexture, "1.30");
 vtkStandardNewMacro(vtkProjectedTexture);
 
 // Description:
@@ -77,8 +79,21 @@ void vtkProjectedTexture::SetFocalPoint(double x, double y, double z)
   this->FocalPoint[2] = z;
 }
 
-void vtkProjectedTexture::Execute()
+int vtkProjectedTexture::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkDataSet *input = vtkDataSet::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataSet *output = vtkDataSet::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   double tcoords[2];
   vtkIdType numPts;
   vtkFloatArray *newTCoords;
@@ -87,9 +102,7 @@ void vtkProjectedTexture::Execute()
   double proj;
   double rightv[3], upv[3], diff[3];
   double sScale, tScale, sOffset, tOffset, sSize, tSize, s, t;
-  vtkDataSet *input = this->GetInput();
   double p[3];
-  vtkDataSet *output = this->GetOutput();
 
   vtkDebugMacro(<<"Generating texture coordinates!");
 
@@ -223,6 +236,8 @@ void vtkProjectedTexture::Execute()
   
   output->GetPointData()->SetTCoords(newTCoords);
   newTCoords->Delete();
+
+  return 1;
 }
 
 void vtkProjectedTexture::PrintSelf(ostream& os, vtkIndent indent)

@@ -38,13 +38,13 @@
 #ifndef __vtkMergeDataObjectFilter_h
 #define __vtkMergeDataObjectFilter_h
 
-#include "vtkDataSetToDataSetFilter.h"
+#include "vtkDataSetAlgorithm.h"
 
-class VTK_GRAPHICS_EXPORT vtkMergeDataObjectFilter : public vtkDataSetToDataSetFilter
+class VTK_GRAPHICS_EXPORT vtkMergeDataObjectFilter : public vtkDataSetAlgorithm
 {
 public:
   static vtkMergeDataObjectFilter *New();
-  vtkTypeRevisionMacro(vtkMergeDataObjectFilter,vtkDataSetToDataSetFilter);
+  vtkTypeRevisionMacro(vtkMergeDataObjectFilter,vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -68,7 +68,8 @@ protected:
   ~vtkMergeDataObjectFilter();
 
   // Usual data generation method
-  void Execute();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int FillInputPortInformation(int port, vtkInformation *info);
 
   int OutputField; // which output field
 

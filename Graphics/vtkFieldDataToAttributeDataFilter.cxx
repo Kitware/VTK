@@ -14,13 +14,16 @@
 =========================================================================*/
 #include "vtkFieldDataToAttributeDataFilter.h"
 
+#include "vtkCellData.h"
 #include "vtkDataArray.h"
 #include "vtkDataSet.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
-#include "vtkCellData.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkFieldDataToAttributeDataFilter, "1.38");
+vtkCxxRevisionMacro(vtkFieldDataToAttributeDataFilter, "1.39");
 vtkStandardNewMacro(vtkFieldDataToAttributeDataFilter);
 
 // Instantiate object with no input and no defined output.
@@ -123,14 +126,24 @@ vtkFieldDataToAttributeDataFilter::~vtkFieldDataToAttributeDataFilter()
 
 // Stuff related to filter interface------------------------------------------
 //
-void vtkFieldDataToAttributeDataFilter::Execute()
+int vtkFieldDataToAttributeDataFilter::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkDataSet *input = vtkDataSet::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataSet *output = vtkDataSet::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   vtkIdType num;
   vtkDataSetAttributes *attr;
   vtkFieldData *fd;
-  vtkDataSet *input = this->GetInput();
-  vtkDataSet *output = this->GetOutput();
-
   vtkDebugMacro(<<"Generating attribute data from field data");
 
   // First, copy the input to the output as a starting point
@@ -154,7 +167,7 @@ void vtkFieldDataToAttributeDataFilter::Execute()
   if ( num < 1 )
     {
     vtkDebugMacro(<<"No input points/cells to create attribute data for");
-    return;
+    return 1;
     }
 
   fd = NULL;
@@ -173,7 +186,7 @@ void vtkFieldDataToAttributeDataFilter::Execute()
   if ( fd == NULL )
     {
     vtkErrorMacro(<<"No field data available");
-    return;
+    return 1;
     }
 
   this->ConstructScalars(num, fd, attr, this->ScalarComponentRange,
@@ -192,7 +205,8 @@ void vtkFieldDataToAttributeDataFilter::Execute()
                          this->NormalArrays, this->NormalArrayComponents, 
                          this->NormalNormalize);
   this->ConstructFieldData(num, attr);
-  
+
+  return 1;
 }
 
 void vtkFieldDataToAttributeDataFilter::PrintSelf(ostream& os, 
@@ -1149,10 +1163,25 @@ int vtkFieldDataToAttributeDataFilter::UpdateComponentRange(vtkDataArray *da,
 
 
 //----------------------------------------------------------------------------
-void vtkFieldDataToAttributeDataFilter::ComputeInputUpdateExtents(vtkDataObject *output)
+int vtkFieldDataToAttributeDataFilter::RequestUpdateExtent(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
-  vtkDataObject *input = this->GetInput();
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-  this->vtkDataSetToDataSetFilter::ComputeInputUpdateExtents(output);
-  input->SetRequestExactExtent(output->GetRequestExactExtent());
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(),
+              outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()));
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(),
+              outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES()));
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
+              outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS()));
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
+              outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT()),
+              6);
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::EXACT_EXTENT(),
+              outInfo->Get(vtkStreamingDemandDrivenPipeline::EXACT_EXTENT()));
+  return 1;
 }

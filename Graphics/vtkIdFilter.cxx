@@ -18,10 +18,12 @@
 #include "vtkDataSet.h"
 #include "vtkDataSet.h"
 #include "vtkIdTypeArray.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkIdFilter, "1.20");
+vtkCxxRevisionMacro(vtkIdFilter, "1.21");
 vtkStandardNewMacro(vtkIdFilter);
 
 // Construct object with PointIds and CellIds on; and ids being generated
@@ -46,13 +48,24 @@ vtkIdFilter::~vtkIdFilter()
 // 
 // Map ids into attribute data
 //
-void vtkIdFilter::Execute()
+int vtkIdFilter::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkDataSet *input = vtkDataSet::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataSet *output = vtkDataSet::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   vtkIdType numPts, numCells, id;
   vtkIdTypeArray *ptIds;
   vtkIdTypeArray *cellIds;
-  vtkDataSet *input = this->GetInput();
-  vtkDataSet *output = this->GetOutput();
   vtkPointData *inPD=input->GetPointData(), *outPD=output->GetPointData();
   vtkCellData *inCD=input->GetCellData(), *outCD=output->GetCellData();
 
@@ -122,6 +135,8 @@ void vtkIdFilter::Execute()
 
   outPD->PassData(inPD);
   outCD->PassData(inCD);
+
+  return 1;
 }
 
 void vtkIdFilter::PrintSelf(ostream& os, vtkIndent indent)

@@ -18,10 +18,12 @@
 #include "vtkDataSet.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkFloatArray.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkMergeFields, "1.17");
+vtkCxxRevisionMacro(vtkMergeFields, "1.18");
 vtkStandardNewMacro(vtkMergeFields);
 
 char vtkMergeFields::FieldLocationNames[3][12] 
@@ -129,10 +131,20 @@ void vtkMergeFields::Merge(int component, const char* arrayName,
     }
 }
 
-void vtkMergeFields::Execute()
+int vtkMergeFields::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
-  vtkDataSet *input = static_cast<vtkDataSet*>(this->GetInput());
-  vtkDataSet *output = static_cast<vtkDataSet*>(this->GetOutput());
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkDataSet *input = vtkDataSet::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataSet *output = vtkDataSet::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   // This has to be here because it initialized all field datas.
   output->CopyStructure( input );
@@ -147,7 +159,7 @@ void vtkMergeFields::Execute()
   Component* cur = this->GetFirst();
   Component* before;
 
-  if (!cur) { return; }
+  if (!cur) { return 1; }
 
   // Get the input and output field data
   if ( this->FieldLocation == vtkMergeFields::DATA_OBJECT)
@@ -157,7 +169,7 @@ void vtkMergeFields::Execute()
     if (!fd || !outputFD)
       {
       vtkErrorMacro("No field data in vtkDataObject.");
-      return;
+      return 1;
       }
     }
   else if ( this->FieldLocation == vtkMergeFields::POINT_DATA )
@@ -218,12 +230,12 @@ void vtkMergeFields::Execute()
   if (!sameNumTuples)
     {
     vtkErrorMacro("The number of tuples in the input arrays do not match.");
-    return;
+    return 1;
     }
   if ( dataType == -1 )
     {
     vtkErrorMacro("No input array(s) were found.");
-    return;
+    return 1;
     }
   vtkDataArray* outputArray;
   if (!sameDataType)
@@ -260,7 +272,7 @@ void vtkMergeFields::Execute()
                             before->SourceIndex, before->Index))
         {
         outputArray->Delete();
-        return;
+        return 1;
         }
       }
     else
@@ -276,6 +288,8 @@ void vtkMergeFields::Execute()
   while (cur);
   outputFD->AddArray(outputArray);
   outputArray->Delete();
+
+  return 1;
 }
 
 // fast pointer copy

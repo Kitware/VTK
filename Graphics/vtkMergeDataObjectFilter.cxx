@@ -16,12 +16,15 @@
 
 #include "vtkCellData.h"
 #include "vtkDataSet.h"
+#include "vtkExecutive.h"
 #include "vtkFieldData.h"
 #include "vtkFieldDataToAttributeDataFilter.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkMergeDataObjectFilter, "1.20");
+vtkCxxRevisionMacro(vtkMergeDataObjectFilter, "1.21");
 vtkStandardNewMacro(vtkMergeDataObjectFilter);
 
 //----------------------------------------------------------------------------
@@ -40,39 +43,56 @@ vtkMergeDataObjectFilter::~vtkMergeDataObjectFilter()
 // Specify a data object at a specified table location.
 void vtkMergeDataObjectFilter::SetDataObject(vtkDataObject *d)
 {
-  this->vtkProcessObject::SetNthInput(1, d);
+  this->SetInput(1, d);
 }
 
 //----------------------------------------------------------------------------
 // Get a pointer to a data object at a specified table location.
 vtkDataObject *vtkMergeDataObjectFilter::GetDataObject()
 {
-  if (this->NumberOfInputs < 2)
+  if (this->GetNumberOfInputConnections(1) < 1)
     {
     return NULL;
     }
-  else
-    {
-    return this->Inputs[1];
-    }
+  return this->GetExecutive()->GetInputData(1, 0);
 }
 
 
 //----------------------------------------------------------------------------
 // Merge it all together
-void vtkMergeDataObjectFilter::Execute()
+int vtkMergeDataObjectFilter::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
-  vtkDataObject *dataObject=this->GetDataObject();
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation *dataObjectInfo = 0;
+  if (this->GetNumberOfInputConnections(1) > 0)
+    {
+    dataObjectInfo = inputVector[1]->GetInformationObject(0);
+    }
+  
+  // get the input and ouptut
+  vtkDataSet *input = vtkDataSet::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataSet *output = vtkDataSet::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataObject *dataObject=0;
+  if (dataObjectInfo)
+    {
+    dataObject = dataObjectInfo->Get(vtkDataObject::DATA_OBJECT());
+    }
+
   vtkFieldData *fd;
-  vtkDataSet *input=this->GetInput();
-  vtkDataSet *output=this->GetOutput();
   
   vtkDebugMacro(<<"Merging dataset and data object");
 
-  if (dataObject == NULL)
+  if (!dataObject)
     {
     vtkErrorMacro(<< "Data Object's Field Data is NULL.");
-    return;
+    return 1;
     }
 
   fd=dataObject->GetFieldData();
@@ -86,7 +106,7 @@ void vtkMergeDataObjectFilter::Execute()
     if ( ncells != input->GetNumberOfCells() )
       {
       vtkErrorMacro(<<"Field data size incompatible with number of cells");
-      return;
+      return 1;
       }
     for(int i=0; i<fd->GetNumberOfArrays(); i++)
       {
@@ -99,13 +119,15 @@ void vtkMergeDataObjectFilter::Execute()
     if ( npts != input->GetNumberOfPoints() )
       {
       vtkErrorMacro(<<"Field data size incompatible with number of points");
-      return;
+      return 1;
       }
     for(int i=0; i<fd->GetNumberOfArrays(); i++)
       {
       output->GetPointData()->AddArray(fd->GetArray(i));
       }
     }
+
+  return 1;
 }
 
 //----------------------------------------------------------------------------
@@ -124,6 +146,19 @@ void vtkMergeDataObjectFilter::SetOutputFieldToPointDataField()
 void vtkMergeDataObjectFilter::SetOutputFieldToCellDataField() 
 {
   this->SetOutputField(VTK_CELL_DATA_FIELD);
+}
+
+//----------------------------------------------------------------------------
+int vtkMergeDataObjectFilter::FillInputPortInformation(int port,
+                                                       vtkInformation *info)
+{
+  if (port == 0)
+    {
+    return this->Superclass::FillInputPortInformation(port, info);
+    }
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataObject");
+  info->Set(vtkAlgorithm::INPUT_IS_OPTIONAL(), 1);
+  return 1;
 }
 
 //----------------------------------------------------------------------------
@@ -146,4 +181,3 @@ void vtkMergeDataObjectFilter::PrintSelf(ostream& os, vtkIndent indent)
     }
 
 }
-

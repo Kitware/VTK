@@ -17,11 +17,13 @@
 #include "vtkCellData.h"
 #include "vtkDataSet.h"
 #include "vtkFloatArray.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkSimpleElevationFilter, "1.18");
+vtkCxxRevisionMacro(vtkSimpleElevationFilter, "1.19");
 vtkStandardNewMacro(vtkSimpleElevationFilter);
 
 // Construct object with LowPoint=(0,0,0) and HighPoint=(0,0,1). Scalar
@@ -36,13 +38,24 @@ vtkSimpleElevationFilter::vtkSimpleElevationFilter()
 // Convert position along ray into scalar value.  Example use includes 
 // coloring terrain by elevation.
 //
-void vtkSimpleElevationFilter::Execute()
+int vtkSimpleElevationFilter::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkDataSet *input = vtkDataSet::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataSet *output = vtkDataSet::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   vtkIdType i, numPts;
   vtkFloatArray *newScalars;
   double s, x[3];
-  vtkDataSet *input = this->GetInput();
-  vtkDataSet *output = this->GetOutput();
 
   // Initialize
   //
@@ -54,7 +67,7 @@ void vtkSimpleElevationFilter::Execute()
   if ( ((numPts=input->GetNumberOfPoints()) < 1) )
     {
     //vtkErrorMacro(<< "No input!");
-    return;
+    return 1;
     }
 
   // Allocate
@@ -98,6 +111,8 @@ void vtkSimpleElevationFilter::Execute()
   output->GetPointData()->AddArray(newScalars);
   output->GetPointData()->SetActiveScalars(newScalars->GetName());
   newScalars->Delete();
+
+  return 1;
 }
 
 void vtkSimpleElevationFilter::PrintSelf(ostream& os, vtkIndent indent)

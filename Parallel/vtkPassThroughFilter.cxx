@@ -16,16 +16,28 @@
 
 #include "vtkCellData.h"
 #include "vtkDataSet.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkPassThroughFilter, "1.4");
+vtkCxxRevisionMacro(vtkPassThroughFilter, "1.5");
 vtkStandardNewMacro(vtkPassThroughFilter);
 
-void vtkPassThroughFilter::Execute()
+int vtkPassThroughFilter::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
-  vtkDataSet *input = static_cast<vtkDataSet*>(this->GetInput());
-  vtkDataSet *output = static_cast<vtkDataSet*>(this->GetOutput());
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkDataSet *input = vtkDataSet::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataSet *output = vtkDataSet::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   // This has to be here because it initialized all field datas.
   output->CopyStructure( input );
@@ -35,6 +47,7 @@ void vtkPassThroughFilter::Execute()
   output->GetPointData()->PassData( input->GetPointData() );
   output->GetCellData()->PassData( input->GetCellData() );
 
+  return 1;
 }
 
 void vtkPassThroughFilter::PrintSelf(ostream& os, vtkIndent indent)

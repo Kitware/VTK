@@ -17,10 +17,12 @@
 #include "vtkCellData.h"
 #include "vtkDataSet.h"
 #include "vtkDataSetAttributes.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkSplitField, "1.16");
+vtkCxxRevisionMacro(vtkSplitField, "1.17");
 vtkStandardNewMacro(vtkSplitField);
 
 char vtkSplitField::FieldLocationNames[3][12] 
@@ -168,10 +170,20 @@ void vtkSplitField::Split(int component, const char* arrayName)
     }
 }
 
-void vtkSplitField::Execute()
+int vtkSplitField::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
-  vtkDataSet *input = static_cast<vtkDataSet*>(this->GetInput());
-  vtkDataSet *output = static_cast<vtkDataSet*>(this->GetOutput());
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkDataSet *input = vtkDataSet::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataSet *output = vtkDataSet::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   // This has to be here because it initialized all field datas.
   output->CopyStructure( input );
@@ -188,7 +200,7 @@ void vtkSplitField::Execute()
   Component* cur = this->GetFirst();
   Component* before;
 
-  if (!cur) { return; }
+  if (!cur) { return 1; }
 
   // find the input and output field data
   if ( this->FieldLocation == vtkSplitField::DATA_OBJECT)
@@ -198,7 +210,7 @@ void vtkSplitField::Execute()
     if (!fd || !outputFD)
       {
       vtkErrorMacro("No field data in vtkDataObject.");
-      return;
+      return 1;
       }
     }
   else if ( this->FieldLocation == vtkSplitField::POINT_DATA )
@@ -224,7 +236,7 @@ void vtkSplitField::Execute()
     if (!dsa)
       {
       vtkErrorMacro("Sanity check failed, returning.");
-      return;
+      return 1;
       }
     inputArray = dsa->GetAttribute(this->AttributeType);
     }
@@ -232,7 +244,7 @@ void vtkSplitField::Execute()
   if (!inputArray)
     {
     vtkErrorMacro("Sanity check failed, returning.");
-    return;
+    return 1;
     }
 
   // iterate over all components in the linked list and 
@@ -253,6 +265,8 @@ void vtkSplitField::Execute()
       }
     } 
   while (cur);
+
+  return 1;
 }
 
 // fast pointer copy

@@ -29,16 +29,16 @@
 #ifndef __vtkProjectedTexture_h
 #define __vtkProjectedTexture_h
 
-#include "vtkDataSetToDataSetFilter.h"
+#include "vtkDataSetAlgorithm.h"
 
 #define VTK_PROJECTED_TEXTURE_USE_PINHOLE 0
 #define VTK_PROJECTED_TEXTURE_USE_TWO_MIRRORS 1
 
-class VTK_GRAPHICS_EXPORT vtkProjectedTexture : public vtkDataSetToDataSetFilter 
+class VTK_GRAPHICS_EXPORT vtkProjectedTexture : public vtkDataSetAlgorithm 
 {
 public:
   static vtkProjectedTexture *New();
-  vtkTypeRevisionMacro(vtkProjectedTexture,vtkDataSetToDataSetFilter);
+  vtkTypeRevisionMacro(vtkProjectedTexture,vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -96,7 +96,7 @@ protected:
   vtkProjectedTexture();
   ~vtkProjectedTexture() {};
 
-  void Execute();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   void ComputeNormal();
 
   int CameraMode;

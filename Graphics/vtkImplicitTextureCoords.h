@@ -46,14 +46,14 @@
 #ifndef __vtkImplicitTextureCoords_h
 #define __vtkImplicitTextureCoords_h
 
-#include "vtkDataSetToDataSetFilter.h"
+#include "vtkDataSetAlgorithm.h"
 
 class vtkImplicitFunction;
 
-class VTK_GRAPHICS_EXPORT vtkImplicitTextureCoords : public vtkDataSetToDataSetFilter 
+class VTK_GRAPHICS_EXPORT vtkImplicitTextureCoords : public vtkDataSetAlgorithm 
 {
 public:
-  vtkTypeRevisionMacro(vtkImplicitTextureCoords,vtkDataSetToDataSetFilter);
+  vtkTypeRevisionMacro(vtkImplicitTextureCoords,vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -87,7 +87,7 @@ protected:
   vtkImplicitTextureCoords();
   ~vtkImplicitTextureCoords();
 
-  void Execute();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   vtkImplicitFunction *RFunction;
   vtkImplicitFunction *SFunction;

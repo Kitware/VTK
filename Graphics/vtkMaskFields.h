@@ -27,16 +27,16 @@
 #ifndef __vtkMaskFields_h
 #define __vtkMaskFields_h
 
-#include "vtkDataSetToDataSetFilter.h"
+#include "vtkDataSetAlgorithm.h"
 
 #include "vtkDataSetAttributes.h" // Needed for NUM_ATTRIBUTES
 
 class vtkDataSet;
 
-class VTK_GRAPHICS_EXPORT vtkMaskFields : public vtkDataSetToDataSetFilter
+class VTK_GRAPHICS_EXPORT vtkMaskFields : public vtkDataSetAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkMaskFields,vtkDataSetToDataSetFilter);
+  vtkTypeRevisionMacro(vtkMaskFields,vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -132,7 +132,7 @@ protected:
   vtkMaskFields();
   virtual ~vtkMaskFields();
 
-  void Execute();
+  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
 //BTX
   struct CopyFieldFlag

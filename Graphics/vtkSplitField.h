@@ -51,16 +51,16 @@
 #ifndef __vtkSplitField_h
 #define __vtkSplitField_h
 
-#include "vtkDataSetToDataSetFilter.h"
+#include "vtkDataSetAlgorithm.h"
 
 #include "vtkDataSetAttributes.h" // Needed for NUM_ATTRIBUTES
 
 class vtkFieldData;
 
-class VTK_GRAPHICS_EXPORT vtkSplitField : public vtkDataSetToDataSetFilter
+class VTK_GRAPHICS_EXPORT vtkSplitField : public vtkDataSetAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkSplitField,vtkDataSetToDataSetFilter);
+  vtkTypeRevisionMacro(vtkSplitField,vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -129,7 +129,7 @@ protected:
   vtkSplitField();
   virtual ~vtkSplitField();
 
-  void Execute();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   char* FieldName;
   int FieldType;

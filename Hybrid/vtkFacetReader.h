@@ -36,13 +36,13 @@ PURPOSE.  See the above copyright notice for more information.
 #ifndef __vtkFacetReader_h
 #define __vtkFacetReader_h
 
-#include "vtkPolyDataSource.h"
+#include "vtkPolyDataAlgorithm.h"
 
-class VTK_HYBRID_EXPORT vtkFacetReader : public vtkPolyDataSource
+class VTK_HYBRID_EXPORT vtkFacetReader : public vtkPolyDataAlgorithm
 {
 public:
   static vtkFacetReader *New();
-  vtkTypeRevisionMacro(vtkFacetReader,vtkPolyDataSource);
+  vtkTypeRevisionMacro(vtkFacetReader,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -54,7 +54,7 @@ protected:
   vtkFacetReader();
   ~vtkFacetReader();
 
-  void Execute();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   char *FileName;
 

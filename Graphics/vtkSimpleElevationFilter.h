@@ -24,12 +24,12 @@
 #ifndef __vtkSimpleElevationFilter_h
 #define __vtkSimpleElevationFilter_h
 
-#include "vtkDataSetToDataSetFilter.h"
+#include "vtkDataSetAlgorithm.h"
 
-class VTK_GRAPHICS_EXPORT vtkSimpleElevationFilter : public vtkDataSetToDataSetFilter 
+class VTK_GRAPHICS_EXPORT vtkSimpleElevationFilter : public vtkDataSetAlgorithm 
 {
 public:
-  vtkTypeRevisionMacro(vtkSimpleElevationFilter,vtkDataSetToDataSetFilter);
+  vtkTypeRevisionMacro(vtkSimpleElevationFilter,vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -45,7 +45,7 @@ protected:
   vtkSimpleElevationFilter();
   ~vtkSimpleElevationFilter() {};
 
-  void Execute();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   double Vector[3];
 private:
   vtkSimpleElevationFilter(const vtkSimpleElevationFilter&);  // Not implemented.

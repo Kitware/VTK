@@ -22,6 +22,8 @@
  */
 
 #include "vtkMeshQuality.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkDataSet.h"
 #include "vtkCellData.h"
@@ -33,7 +35,7 @@
 #include "vtkMath.h"
 #include "vtkTetra.h"
 
-vtkCxxRevisionMacro(vtkMeshQuality,"1.23");
+vtkCxxRevisionMacro(vtkMeshQuality,"1.24");
 vtkStandardNewMacro(vtkMeshQuality);
 
 typedef double (*CellQualityType)( vtkCell* );
@@ -87,13 +89,24 @@ vtkMeshQuality::~vtkMeshQuality()
   // Nothing yet.
 }
 
-void vtkMeshQuality::Execute()
+int vtkMeshQuality::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkDataSet *in = vtkDataSet::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataSet *out = vtkDataSet::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   CellQualityType TriangleQuality,QuadQuality,TetQuality;
   vtkDoubleArray* quality = 0;
   vtkDoubleArray* volume = 0;
-  vtkDataSet* in = this->GetInput();
-  vtkDataSet* out = this->GetOutput();
   vtkIdType N = in->GetNumberOfCells();
   double qtrim,qtriM,Eqtri,Eqtri2;
   double qquam,qquaM,Eqqua,Eqqua2;
@@ -418,6 +431,8 @@ void vtkMeshQuality::Execute()
   quality->InsertNextTuple( tuple );
   out->GetFieldData()->AddArray( quality );
   quality->Delete();
+
+  return 1;
 }
 
 double vtkMeshQuality::TriangleRadiusRatio( vtkCell* cell )

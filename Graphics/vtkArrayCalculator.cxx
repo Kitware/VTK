@@ -19,10 +19,12 @@
 #include "vtkDoubleArray.h"
 #include "vtkFieldData.h"
 #include "vtkFunctionParser.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkArrayCalculator, "1.28");
+vtkCxxRevisionMacro(vtkArrayCalculator, "1.29");
 vtkStandardNewMacro(vtkArrayCalculator);
 
 vtkArrayCalculator::vtkArrayCalculator()
@@ -145,15 +147,26 @@ void vtkArrayCalculator::SetResultArrayName(const char* name)
   strcpy(this->ResultArrayName, name);
 }
 
-void vtkArrayCalculator::Execute()
+int vtkArrayCalculator::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkDataSet *input = vtkDataSet::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataSet *output = vtkDataSet::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   int resultType; // 0 for scalar, 1 for vector
   int attributeDataType; // 0 for point data, 1 for cell data
   vtkIdType i;
   int j;
   
-  vtkDataSet* input = this->GetInput();
-  vtkDataSet* output = this->GetOutput();
   vtkPointData* inPD = input->GetPointData();
   vtkCellData* inCD = input->GetCellData();
   vtkFieldData* inFD;
@@ -197,13 +210,13 @@ void vtkArrayCalculator::Execute()
         {
         vtkErrorMacro("Array " << this->ScalarArrayNames[i]
                       << " does not contain the selected component.");
-        return;
+        return 1;
         }
       }
     else
       {
       vtkErrorMacro("Invalid array name: " << this->ScalarArrayNames[i]);
-      return;
+      return 1;
       }
     }
 
@@ -229,13 +242,13 @@ void vtkArrayCalculator::Execute()
         {
         vtkErrorMacro("Array " << this->VectorArrayNames[i]
                       << " does not contain one of the selected components.");
-        return;
+        return 1;
         }
       }
     else
       {
       vtkErrorMacro("Invalid array name: " << this->VectorArrayNames[i]);
-      return;
+      return 1;
       }
     }
 
@@ -250,7 +263,7 @@ void vtkArrayCalculator::Execute()
   else
     {
     // Error occurred in vtkFunctionParser.
-    return;
+    return 1;
     }
 
   resultArray = vtkDoubleArray::New();
@@ -327,6 +340,8 @@ void vtkArrayCalculator::Execute()
     }
   
   resultArray->Delete();
+
+  return 1;
 }
 
 void vtkArrayCalculator::SetFunction(const char* function)

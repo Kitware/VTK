@@ -52,7 +52,7 @@
 #ifndef __vtkFieldDataToAttributeDataFilter_h
 #define __vtkFieldDataToAttributeDataFilter_h
 
-#include "vtkDataSetToDataSetFilter.h"
+#include "vtkDataSetAlgorithm.h"
 
 #define VTK_DATA_OBJECT_FIELD 0
 #define VTK_POINT_DATA_FIELD 1
@@ -65,11 +65,11 @@ class vtkDataArray;
 class vtkDataSetAttributes;
 class vtkFieldData;
 
-class VTK_GRAPHICS_EXPORT vtkFieldDataToAttributeDataFilter : public vtkDataSetToDataSetFilter
+class VTK_GRAPHICS_EXPORT vtkFieldDataToAttributeDataFilter : public vtkDataSetAlgorithm
 {
 public:
   void PrintSelf(ostream& os, vtkIndent indent);
-  vtkTypeRevisionMacro(vtkFieldDataToAttributeDataFilter,vtkDataSetToDataSetFilter);
+  vtkTypeRevisionMacro(vtkFieldDataToAttributeDataFilter,vtkDataSetAlgorithm);
 
   // Description:
   // Construct object with input field set to the data object field, and the
@@ -220,13 +220,13 @@ public:
 
   // Description:
   // If output does not need exact extent, the I do not either.
-  virtual void ComputeInputUpdateExtents( vtkDataObject *output );
+  virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
 protected:
   vtkFieldDataToAttributeDataFilter();
   ~vtkFieldDataToAttributeDataFilter();
 
-  void Execute(); //generate output data
+  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *); //generate output data
 
   int InputField;
   int OutputAttributeData;

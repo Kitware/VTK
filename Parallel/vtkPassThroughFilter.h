@@ -21,14 +21,14 @@
 #ifndef __vtkPassThroughFilter_h
 #define __vtkPassThroughFilter_h
 
-#include "vtkDataSetToDataSetFilter.h"
+#include "vtkDataSetAlgorithm.h"
 
 class vtkFieldData;
 
-class VTK_PARALLEL_EXPORT vtkPassThroughFilter : public vtkDataSetToDataSetFilter
+class VTK_PARALLEL_EXPORT vtkPassThroughFilter : public vtkDataSetAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkPassThroughFilter,vtkDataSetToDataSetFilter);
+  vtkTypeRevisionMacro(vtkPassThroughFilter,vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -41,7 +41,7 @@ protected:
   vtkPassThroughFilter() {};
   virtual ~vtkPassThroughFilter() {};
 
-  void Execute();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
 private:
   vtkPassThroughFilter(const vtkPassThroughFilter&);  // Not implemented.

@@ -15,7 +15,7 @@
 // .NAME vtkAttributeDataToFieldDataFilter - map attribute data to field data
 // .SECTION Description
 // vtkAttributeDataToFieldDataFilter is a class that maps attribute data into
-// field data. Since this filter is a subclass of vtkDataSetToDataSetFilter,
+// field data. Since this filter is a subclass of vtkDataSetAlgorithm,
 // the output dataset (whose structure is the same as the input dataset),
 // will contain the field data that is generated. The filter will convert
 // point and cell attribute data to field data and assign it as point and
@@ -38,13 +38,13 @@
 #ifndef __vtkAttributeDataToFieldDataFilter_h
 #define __vtkAttributeDataToFieldDataFilter_h
 
-#include "vtkDataSetToDataSetFilter.h"
+#include "vtkDataSetAlgorithm.h"
 
-class VTK_GRAPHICS_EXPORT vtkAttributeDataToFieldDataFilter : public vtkDataSetToDataSetFilter
+class VTK_GRAPHICS_EXPORT vtkAttributeDataToFieldDataFilter : public vtkDataSetAlgorithm
 {
 public:
   void PrintSelf(ostream& os, vtkIndent indent);
-  vtkTypeRevisionMacro(vtkAttributeDataToFieldDataFilter,vtkDataSetToDataSetFilter);
+  vtkTypeRevisionMacro(vtkAttributeDataToFieldDataFilter,vtkDataSetAlgorithm);
 
   // Description:
   // Construct this object.
@@ -61,7 +61,7 @@ protected:
   vtkAttributeDataToFieldDataFilter();
   ~vtkAttributeDataToFieldDataFilter() {};
 
-  void Execute(); //generate output data
+  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *); //generate output data
 
   int PassAttributeData;
 private:
@@ -70,5 +70,3 @@ private:
 };
 
 #endif
-
-

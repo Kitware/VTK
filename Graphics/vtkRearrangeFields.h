@@ -55,16 +55,16 @@
 #ifndef __vtkRearrangeFields_h
 #define __vtkRearrangeFields_h
 
-#include "vtkDataSetToDataSetFilter.h"
+#include "vtkDataSetAlgorithm.h"
 
 #include "vtkDataSetAttributes.h" // Needed for NUM_ATTRIBUTES
 
 class vtkFieldData;
 
-class VTK_GRAPHICS_EXPORT vtkRearrangeFields : public vtkDataSetToDataSetFilter
+class VTK_GRAPHICS_EXPORT vtkRearrangeFields : public vtkDataSetAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkRearrangeFields,vtkDataSetToDataSetFilter);
+  vtkTypeRevisionMacro(vtkRearrangeFields,vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -159,7 +159,7 @@ protected:
   vtkRearrangeFields();
   virtual ~vtkRearrangeFields();
 
-  void Execute();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
 
   // Operations are stored as a linked list.

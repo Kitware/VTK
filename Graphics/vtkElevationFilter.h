@@ -23,12 +23,12 @@
 #ifndef __vtkElevationFilter_h
 #define __vtkElevationFilter_h
 
-#include "vtkDataSetToDataSetFilter.h"
+#include "vtkDataSetAlgorithm.h"
 
-class VTK_GRAPHICS_EXPORT vtkElevationFilter : public vtkDataSetToDataSetFilter 
+class VTK_GRAPHICS_EXPORT vtkElevationFilter : public vtkDataSetAlgorithm 
 {
 public:
-  vtkTypeRevisionMacro(vtkElevationFilter,vtkDataSetToDataSetFilter);
+  vtkTypeRevisionMacro(vtkElevationFilter,vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -55,7 +55,7 @@ protected:
   vtkElevationFilter();
   ~vtkElevationFilter() {};
 
-  void Execute();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   double LowPoint[3];
   double HighPoint[3];
   double ScalarRange[2];
