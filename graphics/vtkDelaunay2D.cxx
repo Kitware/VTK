@@ -146,13 +146,12 @@ int vtkDelaunay2D::InCircle (double x[3], double x1[3], double x2[3],
 // triangle (tri) and "walks" towards it. Influenced by some of Guibas and 
 // Stolfi's work. Returns id of enclosing triangle, or -1 if no triangle
 // found. Also, the array nei[3] is used to communicate info about points
-// that loe on triangle edges: nei[0] is neighboring triangle id, and nei[1]
+// that lie on triangle edges: nei[0] is neighboring triangle id, and nei[1]
 // and nei[2] are the vertices defining the edge.
 int vtkDelaunay2D::FindTriangle(double x[3], int ptIds[3], int tri, 
-                                double tol, int nei[3])
+                                double tol, int nei[3], vtkIdList *neighbors)
 {
-  int i, j, npts, *pts, inside, i2, i3, newNei;
-  vtkIdList *neighbors;
+  int i, j, ir, ic, npts, *pts, inside, i2, i3, newNei;
   double p[3][3], n[2], vp[2], vx[2], dp, minProj;
 
   // get local triangle info
@@ -163,9 +162,14 @@ int vtkDelaunay2D::FindTriangle(double x[3], int ptIds[3], int tri,
     this->GetPoint(ptIds[i],p[i]);
     }
 
+  // Randomization (of find edge neighbora) avoids walking in 
+  // circles in certain weird cases
+  srand(tri);
+  ir = rand() % 3;
   // evaluate in/out of each edge
-  for (inside=1, minProj=0.0, i=0; i<3; i++)
+  for (inside=1, minProj=0.0, ic=0; ic<3; ic++)
     {
+    i  = (ir+ic) % 3;
     i2 = (i+1) % 3;
     i3 = (i+2) % 3;
 
@@ -204,11 +208,9 @@ int vtkDelaunay2D::FindTriangle(double x[3], int ptIds[3], int tri,
       }//outside this edge
     }//for each edge
 
-  neighbors = vtkIdList::New(); neighbors->Allocate(2);
   if ( inside ) // all edges have tested positive
     {
     nei[0] = (-1);
-    neighbors->Delete();
     return tri;
     }
 
@@ -216,7 +218,6 @@ int vtkDelaunay2D::FindTriangle(double x[3], int ptIds[3], int tri,
     {
     this->Mesh->GetCellEdgeNeighbors(tri,nei[1],nei[2],neighbors);
     nei[0] = neighbors->GetId(0);
-    neighbors->Delete();
     return tri;
     }
 
@@ -226,14 +227,12 @@ int vtkDelaunay2D::FindTriangle(double x[3], int ptIds[3], int tri,
     if ( (newNei=neighbors->GetId(0)) == nei[0] )
       {
       this->NumberOfDegeneracies++;
-      neighbors->Delete();
       return -1;
       }
     else
       {
       nei[0] = tri;
-      neighbors->Delete();
-      return this->FindTriangle(x,ptIds,newNei,tol,nei);
+      return this->FindTriangle(x,ptIds,newNei,tol,nei,neighbors);
       }
     }
 }
@@ -268,9 +267,9 @@ void vtkDelaunay2D::CheckEdge(int ptId, double x[3], int p1, int p2, int tri)
     for (i=0; i<2; i++)
       {
       if ( pts[i] != p1 && pts[i] != p2 )
-	{
+        {
         break;
-	}
+        }
       }
     p3 = pts[i];
     this->GetPoint(p3,x3);
@@ -393,7 +392,7 @@ void vtkDelaunay2D::Execute()
   triangles->InsertNextCell(3,pts);
   pts[0] = numPoints + 2; pts[1] = numPoints + 4; pts[2] = numPoints + 6;
   triangles->InsertNextCell(3,pts);
-  tri[0] = 0; //initialize value for FindTriangle
+  tri[0] = 0;
 
   this->Mesh->SetPoints(points);
   this->Mesh->SetPolys(triangles);
@@ -409,7 +408,7 @@ void vtkDelaunay2D::Execute()
     this->GetPoint(ptId,x); 
     nei[0] = (-1); //where we are coming from...nowhere initially
 
-    if ( (tri[0] = this->FindTriangle(x,pts,tri[0],tol,nei)) >= 0 )
+    if ( (tri[0] = this->FindTriangle(x,pts,tri[0],tol,nei,neighbors)) >= 0 )
       {
       if ( nei[0] < 0 ) //in triangle
         {
@@ -576,9 +575,9 @@ void vtkDelaunay2D::Execute()
         else
           {
           for (int j=0; j<3; j++)
-	    {
-	    pointUse[triPts[j]] = 1; 
-	    }
+            {
+            pointUse[triPts[j]] = 1; 
+            }
           }
         }//if non-deleted triangle
       }//for all triangles
