@@ -193,7 +193,15 @@ public:
   // real symmetric matrix. Square 3x3 matrix a; output eigenvalues in w;
   // and output eigenvectors in v. Resulting eigenvalues/vectors are sorted
   // in decreasing order; eigenvectors are normalized.
-  static int Jacobi(float **a, float *d, float **v);
+  static int Jacobi(float **a, float *w, float **v);
+
+  // Description:
+  // JacobiN iteration for the solution of eigenvectors/eigenvalues of a nxn
+  // real symmetric matrix. Square nxn matrix a; size of matrix in n; output
+  // eigenvalues in w; and output eigenvectors in v. Resulting
+  // eigenvalues/vectors are sorted in decreasing order; eigenvectors are
+  // normalized.  w and v need to be allocated previously
+  static int JacobiN(float **a, int n, float *w, float **v);
 
   // Description:
   // Solves a cubic equation c0*t^3 + c1*t^2 + c2*t + c3 = 0 when c0, c1, c2,

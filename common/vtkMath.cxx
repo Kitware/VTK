@@ -361,20 +361,38 @@ void vtkMath::LUSolveLinearSystem(double **A, int *index, double *x, int size)
 // in decreasing order; eigenvectors are normalized.
 int vtkMath::Jacobi(float **a, float *w, float **v)
 {
+  return vtkMath::JacobiN(a, 3, w, v);
+}
+
+
+//#undef VTK_MAX_ROTATIONS
+
+//#define VTK_MAX_ROTATIONS 50
+
+// Jacobi iteration for the solution of eigenvectors/eigenvalues of a nxn
+// real symmetric matrix. Square nxn matrix a; size of matrix in n;
+// output eigenvalues in w; and output eigenvectors in v. Resulting
+// eigenvalues/vectors are sorted in decreasing order; eigenvectors are
+// normalized.
+int vtkMath::JacobiN(float **a, int n, float *w, float **v)
+{
   int i, j, k, iq, ip, numPos;
   float tresh, theta, tau, t, sm, s, h, g, c;
-  float b[3], z[3], tmp;
+  float *b, *z, tmp;
 
+  b = new float[n];
+  z = new float[n];
+  
   // initialize
-  for (ip=0; ip<3; ip++) 
+  for (ip=0; ip<n; ip++) 
     {
-    for (iq=0; iq<3; iq++)
+    for (iq=0; iq<n; iq++)
       {
       v[ip][iq] = 0.0;
       }
     v[ip][ip] = 1.0;
     }
-  for (ip=0; ip<3; ip++) 
+  for (ip=0; ip<n; ip++) 
     {
     b[ip] = w[ip] = a[ip][ip];
     z[ip] = 0.0;
@@ -384,9 +402,9 @@ int vtkMath::Jacobi(float **a, float *w, float **v)
   for (i=0; i<VTK_MAX_ROTATIONS; i++) 
     {
     sm = 0.0;
-    for (ip=0; ip<2; ip++) 
+    for (ip=0; ip<n-1; ip++) 
       {
-      for (iq=ip+1; iq<3; iq++)
+      for (iq=ip+1; iq<n; iq++)
 	{
 	sm += fabs(a[ip][iq]);
 	}
@@ -396,21 +414,23 @@ int vtkMath::Jacobi(float **a, float *w, float **v)
       break;
       }
 
-    if (i < 4)
+    if (i < 3)                                // first 3 sweeps
       {
-      tresh = 0.2*sm/(9);
+      tresh = 0.2*sm/(n*n);
       }
     else
       {
       tresh = 0.0;
       }
 
-    for (ip=0; ip<2; ip++) 
+    for (ip=0; ip<n-1; ip++) 
       {
-      for (iq=ip+1; iq<3; iq++) 
+      for (iq=ip+1; iq<n; iq++) 
         {
         g = 100.0*fabs(a[ip][iq]);
-        if (i > 4 && (fabs(w[ip])+g) == fabs(w[ip])
+
+        // after 4 sweeps
+        if (i > 3 && (fabs(w[ip])+g) == fabs(w[ip])
         && (fabs(w[iq])+g) == fabs(w[iq]))
           {
           a[ip][iq] = 0.0;
@@ -440,19 +460,23 @@ int vtkMath::Jacobi(float **a, float *w, float **v)
           w[ip] -= h;
           w[iq] += h;
           a[ip][iq]=0.0;
-          for (j=0;j<ip-1;j++) 
+
+          // ip already shifted left by 1 unit
+          for (j = 0;j <= ip-1;j++) 
             {
             VTK_ROTATE(a,j,ip,j,iq)
-            }
-          for (j=ip+1;j<iq-1;j++) 
+              }
+          // ip and iq already shifted left by 1 unit
+          for (j = ip+1;j <= iq-1;j++) 
             {
             VTK_ROTATE(a,ip,j,j,iq)
-            }
-          for (j=iq+1; j<3; j++) 
+              }
+          // iq already shifted left by 1 unit
+          for (j=iq+1; j<n; j++) 
             {
             VTK_ROTATE(a,ip,j,iq,j)
-            }
-          for (j=0; j<3; j++) 
+              }
+          for (j=0; j<n; j++) 
             {
             VTK_ROTATE(v,j,ip,j,iq)
             }
@@ -460,7 +484,7 @@ int vtkMath::Jacobi(float **a, float *w, float **v)
         }
       }
 
-    for (ip=0; ip<3; ip++) 
+    for (ip=0; ip<n; ip++) 
       {
       b[ip] += z[ip];
       w[ip] = b[ip];
@@ -468,6 +492,7 @@ int vtkMath::Jacobi(float **a, float *w, float **v)
       }
     }
 
+  //// this is NEVER called
   if ( i >= VTK_MAX_ROTATIONS )
     {
     vtkGenericWarningMacro(
@@ -475,14 +500,14 @@ int vtkMath::Jacobi(float **a, float *w, float **v)
     return 0;
     }
 
-  // sort eigenfunctions
-  for (j=0; j<3; j++) 
+  // sort eigenfunctions                 these changes do not affect accuracy 
+  for (j=0; j<n-1; j++)                  // boundary incorrect
     {
     k = j;
     tmp = w[k];
-    for (i=j; i<3; i++)
+    for (i=j+1; i<n; i++)                // boundary incorrect, shifted already
       {
-      if (w[i] >= tmp) 
+      if (w[i] >= tmp)                   // why exchage if same?
         {
         k = i;
         tmp = w[k];
@@ -492,7 +517,7 @@ int vtkMath::Jacobi(float **a, float *w, float **v)
       {
       w[k] = w[j];
       w[j] = tmp;
-      for (i=0; i<3; i++) 
+      for (i=0; i<n; i++) 
         {
         tmp = v[i][j];
         v[i][j] = v[i][k];
@@ -504,18 +529,18 @@ int vtkMath::Jacobi(float **a, float *w, float **v)
   // are negative of one another (.707,.707,0) and (-.707,-.707,0). This can
   // reek havoc in hyperstreamline/other stuff. We will select the most
   // positive eigenvector.
-  for (j=0; j<3; j++)
+  for (j=0; j<n; j++)
     {
-    for (numPos=0, i=0; i<3; i++)
+    for (numPos=0, i=0; i<n; i++)
       {
       if ( v[i][j] >= 0.0 )
 	{
 	numPos++;
 	}
       }
-    if ( numPos < 2 )
+    if ( numPos < ceil(double(n)/double(2.0)) )
       {
-      for(i=0; i<3; i++)
+      for(i=0; i<n; i++)
 	{
 	v[i][j] *= -1.0;
 	}
@@ -524,6 +549,7 @@ int vtkMath::Jacobi(float **a, float *w, float **v)
 
   return 1;
 }
+
 #undef VTK_ROTATE
 #undef VTK_MAX_ROTATIONS
 
