@@ -5,7 +5,7 @@
 <!-- Changed by: kenneth m martin,  5-Jun-1998 -->
 <!-- Changed by: will schroeder,  30-Dec-2000 -->
 <!-- Changed by: Bill Hoffman,  15-Jun-2000 -->
-<!-- Created by: will schroeder,  31-Oct-2001 -->
+<!-- Changed by: will schroeder,  5-Dec-2001 -->
 
 </header>
 <body>
@@ -25,9 +25,10 @@ Welcome To The Visualization Toolkit
         <LI> <A HREF="#Cygwin">Cygwin Installation</A>
         <LI> <A HREF="#PC">PC Installation</A>
         </UL>
-    <LI> <A HREF="#Execution">Execution</A>
-    <LI> <A HREF="#Problems">Common Problems</A>
+    <LI> <A HREF="#Data">Getting Data</A>
+    <LI> <A HREF="#Running">Running VTK</A>
     <LI> <A HREF="#NewClass">Adding A New Class</A>
+    <LI> <A HREF="#Help">Getting Help / Mailing List</A>
     </UL>
 <HR>
 <h1><A NAME="Copyright">Copyright Notice</h1>
@@ -185,13 +186,13 @@ free disk space (not in the VTK tree), a possible name would be
 vtk-solaris. cd into this directory and then run cmake similar to the
 following example:
 <pre>
-ls /home/joe_user
-    vtk vtk-solaris vtk-sgi
+  ls /home/joe_user
+      vtk vtk-solaris vtk-sgi
 
-cd vtk-solaris
-ccmake /home/joe_user/VTK
-or
-cmake -i /home/joe_user/VTK
+  cd vtk-solaris
+  ccmake /home/joe_user/VTK
+  or
+  cmake -i /home/joe_user/VTK
 </pre>
 This will create makefiles in the vtk-solaris directory.  Then you can run
 make in vtk-solaris to compile VTK.  Repeate this process for each
@@ -223,73 +224,106 @@ TK_XLIB_PATH /usr/src/tcltk-20001125-1/tk/xlib
 
 
 <h3><A NAME="PC">PC Installation</h3><p>
-    The PC build process uses the CMake GUI CMakeSetup. Then you use the compiler make utility
-    to compile as follows.
-    <pre>
-    1. Install vtk 4.0 distribution by unzipping into the appropriate directory.
+    The PC build process uses the CMake GUI CMakeSetup. Then you use the 
+    compiler make utility to compile as follows.
+  <pre>
+  1) Install vtk 4.0 distribution by unzipping into the appropriate directory.
 
-    2. Execute CMakeSetup. This will pop-up a little
-       GUI that allows you to tailor the build. It then starts
-       building .dsw and .dsp files for microsoft, or makefiles for borland.
-        You'll have to tell CMakeSetup
-       where you've placed your VTK source code, and where to build
-       the object code and dll's (we'll call it "vtkbin").
+  2) Execute CMakeSetup. This will pop-up a little
+     GUI that allows you to tailor the build. It then starts
+     building .dsw and .dsp files for microsoft, or makefiles for borland.
+      You'll have to tell CMakeSetup
+     where you've placed your VTK source code, and where to build
+     the object code and dll's (we'll call it "vtkbin").
 
-    3. When CMakeSetup completes, start up msdev and load VTK.dsw.
-       Select ALL_BUILD project, and build it.
+  3) When CMakeSetup completes, start up msdev and load VTK.dsw.
+     Select ALL_BUILD project, and build it.
 
 </pre>
 We recommend a 300MByte minimum swap size or you'll have trouble
 during the link phase.<p>
 
 <HR>
-<h1><A NAME="Execution">Execution</h1>
+<h1><A NAME="Data">Getting Data and Test Images</h1>
 
-Many of the examples require the data found in vtk20data.part1.tar.gz
-through vtk20data.part4.tar.gz, plus the additional file
-MissingData.tar.gz. (These files can be found at
-ftp://public.kitware.com/pub/vtk, or in the vtkdata/ directory if this
-document is part of the CD-ROM distribution.) 
-The examples that require data look for it in ../../../vtkdata.
+Many of the examples require data. There are two ways to get data. The
+first is to download the file VTKData.tgz. The second is to access the
+data via CVS checkout. The CVS checkout also includes many test images
+used by the testing process (see http://public.kitware.com/dashboard.php).
+These can be used if you wish to test VTK or submit testing dashboards. 
+The VTKData.tgz contains only data in compressed form is therefore can
+be obtained much faster.
+
+<pre>
+  1) Download the data at ftp://public.kitware.com/pub/vtk/VTKData.tgz
+
+  2) Checkout the data from CVS using the folling commands:
+     cvs -d :pserver:anonymous@public.kitware.com:/vtk/cvsroot login
+        (respond with password vtk)
+     cvs -d :pserver:anonymous@public.kitware.com:/vtk/cvsroot checkout VTKData
+</pre>
+
+<HR>
+<h1><A NAME="Running">Running VTK</h1>
+
+Many C++ examples will be compiled if BUILD_TESTING and/or BUILD_EXAMPLES are
+enabled in CMake. To run these C++ examples just type their name. (They will
+be found in the binary build directory.) If you have built shared libraries,
+make sure the PATH environment variable (Windows) or the LD_LIBRARY_PATH
+(Unix) point to the shared libraries.
+
+If you have enabled Tcl wrapping, you will want to set TCLLIBPATH to point to
+the VTK/Wrapping/Tcl directory. You will then run the vtk executable found in
+the bin directory where the code was compiled. Assuming that the executable
+vtk is in your path, or has been aliased, you would type:
+<pre>
+  vtk mace.tcl 
+</pre>
+Note that most Tcl scripts allow you to type "u" in the render window to
+obtain an interpreter. You can use the interpreter to modify the application
+at run-time.
+
+<HR>
+<h1><A NAME="NewClass">Adding A New Class</h1> There are several ways to
+extend VTK. The simplest way is, in your own code, create classes that
+inherit from the appropriate VTK classes. This does not provide the benefit
+of wrapping the C++ class into Tcl, Java, and Python. If you would like your
+class to be wrapped into these languages, you will have to add your class to
+the VTK build. This is the recommended procedure.
+
+<pre>
+  1) Create a new directory called VTK/Local.
+  2) Create a file called LocalUserOptions.cmake in VTK/. In that file, 
+     add the command "SUBDIRS(Local)". This will add the Local directory 
+     to the build.
+  3) Create the .cxx and .h file for the new class in VTK/Local. Make 
+     sure that you use VTK conventions to insure that the wrapping 
+     occurs correctly. Complex code may break the wrapper parser; 
+     use //BTX and //ETX around the  code to fix this.
+  4) Create a CMakeLists.txt in VTK/Local. You can model it after 
+     a CMakeList.txt file found in another directory 
+     (like VTK/IO/CMakeLists.txt).
+  5) Rerun ccmake (Unix) or CMakeSetup.exe (Windows).
+  6) Then make/gmake (Unix) or msdev (Windows).
+</pre>
+
+<HR>
+<h1><A NAME="Help">Getting Help / Mailing List</h1> 
+If you run into problems, your best bet is to join the VTK mailing list.
+Visit <a href="http://public.kitware.com/mailman/listinfo/vtkusers">
+http://public.kitware.com/mailman/listinfo/vtkusers</a> to join the list.
 <p>
-
-To run the cc examples just type their name.  To run the tcl examples,
-(assuming that you built the tcl stuff) type 
-<pre>
-../../../vtk/tcl/vtk mace.tcl 
-</pre>
-
-<HR>
-<h1><A NAME="Problems">Common Problems</h1>
-  <ul>
-  <li>I got a "warning: no configuration information is in tcl" from configure.
-      This is correct and is supposed to happen.
-  <li>Strange compile errors on Unix. Make sure that you specify the
-      environment variables CXX and CC prior to running configure.
-      (If you have already run configure, do a "make clean" to remove
-      the cached configure information.)
-  <li>Errors on Tcl or Tk include files. Make sure that you edit
-      CMakeCache.txt to point to the correct location.
-  <li>Errors on Tcl or Tk libraries. Make sure that you edit
-      CMakeCache.txt to point to the correct location.
-  <li>Link errors on Windows platforms. Make sure that the swap space is
-      at least 300 MByte.
-  <li> Link error with borland: TCL82.LIB contains invalid OMF record, type 0x21 (possibly COFF).
-      You have to convert tcl libraires from coff to omf with the borland utilitiy coff2omf.
-      Once you have created OMF versions, re-run cmake to tell it where the borland
-      versions of tcl and tk are located.
-  </ul>
-
-<HR>
-<h1><A NAME="NewClass">Adding A New Class</h1>
-<pre>
-1) create the .cxx and .h file for the new class in one of the existing 
-   directories. We recommend that you use the local/ directory.
-2) edit CMakeLists.txt for that directory and follow the instructions in
-   there. You will need to add the class in only one place.
-3) you will need to rerun cmake (Unix) or CMakeSetup (Windows)
-4) then make/gmake (Unix) or msdev (Windows).
-</pre>
+Commercial support contracts are available from Kitware at
+<a href="http://www.kitware.com/products/vtksupport.html">
+http://www.kitware.com/products/vtksupport.html</a>.
+<p>
+Kitware also provides consulting services. Read more at
+<a href="http://www.kitware.com/products/consult.html">
+http://www.kitware.com/products/consult.html</a>.
+<p>
+Training is also available from Kitware. See
+<a href="http://www.kitware.com/products/vtktrain.html">
+http://www.kitware.com/products/vtktrain.html</a>.
 
 </body>
 </HTML>
