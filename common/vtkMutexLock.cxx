@@ -52,7 +52,11 @@ vtkMutexLock::vtkMutexLock()
 #endif
 
 #ifdef VTK_USE_PTHREADS
+#ifdef VTK_HP_PTHREADS
+  pthread_mutex_init(&(this->MutexLock), pthread_mutexattr_default);
+#else
   pthread_mutex_init(&(this->MutexLock), NULL);
+#endif
 #endif
 
 }
