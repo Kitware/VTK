@@ -37,7 +37,8 @@
 #define __vtkRectilinearGrid_h
 
 #include "vtkDataSet.h"
-#include "vtkStructuredData.h"
+#include "vtkStructuredData.h" // For inline methods
+
 class vtkVertex;
 class vtkLine;
 class vtkPixel;
@@ -130,17 +131,17 @@ public:
 
   // Description:
   // Specify the grid coordinates in the x-direction.
-  vtkSetObjectMacro(XCoordinates,vtkDataArray);
+  virtual void SetXCoordinates(vtkDataArray*);
   vtkGetObjectMacro(XCoordinates,vtkDataArray);
 
   // Description:
   // Specify the grid coordinates in the y-direction.
-  vtkSetObjectMacro(YCoordinates,vtkDataArray);
+  virtual void SetYCoordinates(vtkDataArray*);
   vtkGetObjectMacro(YCoordinates,vtkDataArray);
 
   // Description:
   // Specify the grid coordinates in the z-direction.
-  vtkSetObjectMacro(ZCoordinates,vtkDataArray);
+  virtual void SetZCoordinates(vtkDataArray*);
   vtkGetObjectMacro(ZCoordinates,vtkDataArray);
 
   // Description:

@@ -24,8 +24,12 @@
 #include "vtkFloatArray.h"
 #include "vtkExtentTranslator.h"
 
-vtkCxxRevisionMacro(vtkRectilinearGrid, "1.53");
+vtkCxxRevisionMacro(vtkRectilinearGrid, "1.54");
 vtkStandardNewMacro(vtkRectilinearGrid);
+
+vtkCxxSetObjectMacro(vtkRectilinearGrid,XCoordinates,vtkDataArray);
+vtkCxxSetObjectMacro(vtkRectilinearGrid,YCoordinates,vtkDataArray);
+vtkCxxSetObjectMacro(vtkRectilinearGrid,ZCoordinates,vtkDataArray);
 
 //----------------------------------------------------------------------------
 vtkRectilinearGrid::vtkRectilinearGrid()
