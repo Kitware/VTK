@@ -76,7 +76,7 @@ protected:
   
   // Description:
   // Decodes an array of eight bit run-length encoded data.
-  unsigned char *Decode_8bit_data( unsigned char *in_ptr, int size );
+  unsigned char *Decode8BitData( unsigned char *in_ptr, int size );
 };
 
 #endif

@@ -51,7 +51,7 @@ vtkSLCReader::vtkSLCReader()
 
 // Description:
 // Decodes an array of eight bit run-length encoded data.
-unsigned char* vtkSLCReader::Decode_8bit_data( unsigned char *in_ptr, 
+unsigned char* vtkSLCReader::Decode8BitData( unsigned char *in_ptr, 
 					       int size )
 {
   unsigned char           *curr_ptr;
@@ -207,7 +207,7 @@ void vtkSLCReader::Execute()
 	  return;
 	}
 
-	scan_ptr = Decode_8bit_data( compressed_ptr, plane_size );
+	scan_ptr = Decode8BitData( compressed_ptr, plane_size );
 
 	delete compressed_ptr;
 
