@@ -22,7 +22,7 @@
 #include "vtkMath.h"
 #include "vtkOldStyleCallbackCommand.h"
 
-vtkCxxRevisionMacro(vtkRenderWindowInteractor, "1.89");
+vtkCxxRevisionMacro(vtkRenderWindowInteractor, "1.90");
 
 // Construct object so that light follows camera motion.
 vtkRenderWindowInteractor::vtkRenderWindowInteractor()
@@ -441,9 +441,14 @@ vtkRenderer* vtkRenderWindowInteractor::FindPokedRenderer(int x,int y)
 }
 
 //----------------------------------------------------------------------------
-vtkCamera*  vtkRenderWindowInteractor::FindPokedCamera(int x,int y) 
+vtkCamera* vtkRenderWindowInteractor::FindPokedCamera(int x,int y) 
 {
-  return this->FindPokedRenderer(x,y)->GetActiveCamera();
+  vtkRenderer *aren = this->FindPokedRenderer(x,y);
+  if (aren != NULL) 
+    {
+    return aren->GetActiveCamera();
+    }
+  return NULL;
 }
 
 void vtkRenderWindowInteractor::PrintSelf(ostream& os, vtkIndent indent)
