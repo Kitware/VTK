@@ -351,6 +351,7 @@ void WriteTiffRGB (FILE *fd, int width, int height, int orientation, unsigned ch
   int offset;
   int sizeTags;
   int pad = (sizeof (char) * 4 * width * height) % 2;
+  int longShift;
 
   // the tag size will be needed for the header
   sizeTags =  pad + (sizeof(char) * 4 * width * height)
@@ -361,8 +362,10 @@ void WriteTiffRGB (FILE *fd, int width, int height, int orientation, unsigned ch
   // fill the header and write it
 #ifdef WORDS_BIGENDIAN
   myHeader.tiff_magic = TIFF_BIGENDIAN;
+  longShift = 16;
 #else
   myHeader.tiff_magic = TIFF_LITTLEENDIAN;
+  longShift = 0;
 #endif
   myHeader.tiff_version = TIFF_VERSION;
   myHeader.tiff_diroff = sizeof (TIFFHeader) + sizeTags;
@@ -436,14 +439,14 @@ void WriteTiffRGB (FILE *fd, int width, int height, int orientation, unsigned ch
     myDir.tdir_tag = TIFFTAG_COMPRESSION;
     myDir.tdir_type = TIFF_SHORT;
     myDir.tdir_count = 1;
-    myDir.tdir_offset = (long) compression << 16;
+    myDir.tdir_offset = (long) compression << longShift;
     fwrite (&myDir, sizeof (myDir), 1, fd);
 
   short photometricInterpretation = PHOTOMETRIC_RGB;
     myDir.tdir_tag = TIFFTAG_PHOTOMETRIC;
     myDir.tdir_type = TIFF_SHORT;
     myDir.tdir_count = 1;
-    myDir.tdir_offset = (long) photometricInterpretation << 16;
+    myDir.tdir_offset = (long) photometricInterpretation << longShift;
     fwrite (&myDir, sizeof (myDir), 1, fd);
 
     myDir.tdir_tag = TIFFTAG_STRIPOFFSETS;
@@ -455,14 +458,14 @@ void WriteTiffRGB (FILE *fd, int width, int height, int orientation, unsigned ch
     myDir.tdir_tag = TIFFTAG_ORIENTATION;
     myDir.tdir_type = TIFF_SHORT;
     myDir.tdir_count = 1;
-    myDir.tdir_offset = (long) orientation << 16;
+    myDir.tdir_offset = (long) orientation << longShift;
     fwrite (&myDir, sizeof (myDir), 1, fd);
 
   short samplesPerPixel = 4;
     myDir.tdir_tag = TIFFTAG_SAMPLESPERPIXEL;
     myDir.tdir_type = TIFF_SHORT;
     myDir.tdir_count = 1;
-    myDir.tdir_offset = (long) samplesPerPixel << 16;
+    myDir.tdir_offset = (long) samplesPerPixel << longShift;
     fwrite (&myDir, sizeof (myDir), 1, fd);
 
   long rowsPerStrip = height;
@@ -495,21 +498,21 @@ void WriteTiffRGB (FILE *fd, int width, int height, int orientation, unsigned ch
     myDir.tdir_tag = TIFFTAG_PLANARCONFIG;
     myDir.tdir_type = TIFF_SHORT;
     myDir.tdir_count = 1;
-    myDir.tdir_offset = (long) planarConfiguration << 16;
+    myDir.tdir_offset = (long) planarConfiguration << longShift;
     fwrite (&myDir, sizeof (myDir), 1, fd);
 
   short resolutionUnit = RESUNIT_NONE;
     myDir.tdir_tag = TIFFTAG_RESOLUTIONUNIT;
     myDir.tdir_type = TIFF_SHORT;
     myDir.tdir_count = 1;
-    myDir.tdir_offset = (long) resolutionUnit << 16;
+    myDir.tdir_offset = (long) resolutionUnit << longShift;
     fwrite (&myDir, sizeof (myDir), 1, fd);
 
   short extraSamples = EXTRASAMPLES_ASSOCIATEDALPHA;
     myDir.tdir_tag = TIFFTAG_EXTRASAMPLES;
     myDir.tdir_type = TIFF_SHORT;
     myDir.tdir_count = 1;
-    myDir.tdir_offset = (long) extraSamples << 16;
+    myDir.tdir_offset = (long) extraSamples << longShift;
     fwrite (&myDir, sizeof (myDir), 1, fd);
 
 // end of image file directory
@@ -525,6 +528,7 @@ void WriteTiffRGBA (FILE *fd, int width, int height, int orientation, unsigned c
   int offset;
   int sizeTags;
   int pad = (sizeof (char) * 4 * width * height) % 2;
+  int longShift;
 
   // the tag size will be needed for the header
   sizeTags =  pad + (sizeof(char) * 4 * width * height)
@@ -535,8 +539,10 @@ void WriteTiffRGBA (FILE *fd, int width, int height, int orientation, unsigned c
   // fill the header and write it
 #ifdef WORDS_BIGENDIAN
   myHeader.tiff_magic = TIFF_BIGENDIAN;
+  longShift = 16;
 #else
   myHeader.tiff_magic = TIFF_LITTLEENDIAN;
+  longShift = 0;
 #endif
   myHeader.tiff_version = TIFF_VERSION;
   myHeader.tiff_diroff = sizeof (TIFFHeader) + sizeTags;
@@ -605,14 +611,14 @@ void WriteTiffRGBA (FILE *fd, int width, int height, int orientation, unsigned c
     myDir.tdir_tag = TIFFTAG_COMPRESSION;
     myDir.tdir_type = TIFF_SHORT;
     myDir.tdir_count = 1;
-    myDir.tdir_offset = (long) compression << 16;
+    myDir.tdir_offset = (long) compression << longShift;
     fwrite (&myDir, sizeof (myDir), 1, fd);
 
   short photometricInterpretation = PHOTOMETRIC_RGB;
     myDir.tdir_tag = TIFFTAG_PHOTOMETRIC;
     myDir.tdir_type = TIFF_SHORT;
     myDir.tdir_count = 1;
-    myDir.tdir_offset = (long) photometricInterpretation << 16;
+    myDir.tdir_offset = (long) photometricInterpretation << longShift;
     fwrite (&myDir, sizeof (myDir), 1, fd);
 
     myDir.tdir_tag = TIFFTAG_STRIPOFFSETS;
@@ -624,14 +630,14 @@ void WriteTiffRGBA (FILE *fd, int width, int height, int orientation, unsigned c
     myDir.tdir_tag = TIFFTAG_ORIENTATION;
     myDir.tdir_type = TIFF_SHORT;
     myDir.tdir_count = 1;
-    myDir.tdir_offset = (long) orientation << 16;
+    myDir.tdir_offset = (long) orientation << longShift;
     fwrite (&myDir, sizeof (myDir), 1, fd);
 
   short samplesPerPixel = 4;
     myDir.tdir_tag = TIFFTAG_SAMPLESPERPIXEL;
     myDir.tdir_type = TIFF_SHORT;
     myDir.tdir_count = 1;
-    myDir.tdir_offset = (long) samplesPerPixel << 16;
+    myDir.tdir_offset = (long) samplesPerPixel << longShift;
     fwrite (&myDir, sizeof (myDir), 1, fd);
 
   long rowsPerStrip = height;
@@ -664,21 +670,21 @@ void WriteTiffRGBA (FILE *fd, int width, int height, int orientation, unsigned c
     myDir.tdir_tag = TIFFTAG_PLANARCONFIG;
     myDir.tdir_type = TIFF_SHORT;
     myDir.tdir_count = 1;
-    myDir.tdir_offset = (long) planarConfiguration << 16;
+    myDir.tdir_offset = (long) planarConfiguration << longShift;
     fwrite (&myDir, sizeof (myDir), 1, fd);
 
   short resolutionUnit = RESUNIT_NONE;
     myDir.tdir_tag = TIFFTAG_RESOLUTIONUNIT;
     myDir.tdir_type = TIFF_SHORT;
     myDir.tdir_count = 1;
-    myDir.tdir_offset = (long) resolutionUnit << 16;
+    myDir.tdir_offset = (long) resolutionUnit << longShift;
     fwrite (&myDir, sizeof (myDir), 1, fd);
 
   short extraSamples = EXTRASAMPLES_ASSOCIATEDALPHA;
     myDir.tdir_tag = TIFFTAG_EXTRASAMPLES;
     myDir.tdir_type = TIFF_SHORT;
     myDir.tdir_count = 1;
-    myDir.tdir_offset = (long) extraSamples << 16;
+    myDir.tdir_offset = (long) extraSamples << longShift;
     fwrite (&myDir, sizeof (myDir), 1, fd);
 
 // end of image file directory
@@ -694,6 +700,7 @@ void WriteTiffI (FILE *fd, int width, int height, int orientation, unsigned char
   int offset;
   int sizeTags;
   int pad = (sizeof (char) * 1 * width * height) % 2;
+  int longShift;
 
   // the tag size will be needed for the header
   sizeTags =  pad + (sizeof(char) * 1 * width * height)
@@ -703,8 +710,10 @@ void WriteTiffI (FILE *fd, int width, int height, int orientation, unsigned char
   // fill the header and write it
 #ifdef WORDS_BIGENDIAN
   myHeader.tiff_magic = TIFF_BIGENDIAN;
+  longShift = 16;
 #else
   myHeader.tiff_magic = TIFF_LITTLEENDIAN;
+  longShift = 0;
 #endif
   myHeader.tiff_version = TIFF_VERSION;
   myHeader.tiff_diroff = sizeof (TIFFHeader) + sizeTags;
@@ -759,21 +768,21 @@ void WriteTiffI (FILE *fd, int width, int height, int orientation, unsigned char
     myDir.tdir_tag = TIFFTAG_BITSPERSAMPLE;
     myDir.tdir_type = TIFF_SHORT;
     myDir.tdir_count = 1;
-    myDir.tdir_offset = (long) depth << 16;
+    myDir.tdir_offset = (long) depth << longShift;
     fwrite (&myDir, sizeof (myDir), 1, fd);
 
   short compression = COMPRESSION_NONE;
     myDir.tdir_tag = TIFFTAG_COMPRESSION;
     myDir.tdir_type = TIFF_SHORT;
     myDir.tdir_count = 1;
-    myDir.tdir_offset = (long) compression << 16;
+    myDir.tdir_offset = (long) compression << longShift;
     fwrite (&myDir, sizeof (myDir), 1, fd);
 
   short photometricInterpretation = PHOTOMETRIC_MINISBLACK;
     myDir.tdir_tag = TIFFTAG_PHOTOMETRIC;
     myDir.tdir_type = TIFF_SHORT;
     myDir.tdir_count = 1;
-    myDir.tdir_offset = (long) photometricInterpretation << 16;
+    myDir.tdir_offset = (long) photometricInterpretation << longShift;
     fwrite (&myDir, sizeof (myDir), 1, fd);
 
     myDir.tdir_tag = TIFFTAG_STRIPOFFSETS;
@@ -785,14 +794,14 @@ void WriteTiffI (FILE *fd, int width, int height, int orientation, unsigned char
     myDir.tdir_tag = TIFFTAG_ORIENTATION;
     myDir.tdir_type = TIFF_SHORT;
     myDir.tdir_count = 1;
-    myDir.tdir_offset = (long) orientation << 16;
+    myDir.tdir_offset = (long) orientation << longShift;
     fwrite (&myDir, sizeof (myDir), 1, fd);
 
   short samplesPerPixel = 1;
     myDir.tdir_tag = TIFFTAG_SAMPLESPERPIXEL;
     myDir.tdir_type = TIFF_SHORT;
     myDir.tdir_count = 1;
-    myDir.tdir_offset = (long) samplesPerPixel << 16;
+    myDir.tdir_offset = (long) samplesPerPixel << longShift;
     fwrite (&myDir, sizeof (myDir), 1, fd);
 
   long rowsPerStrip = height;
@@ -825,14 +834,14 @@ void WriteTiffI (FILE *fd, int width, int height, int orientation, unsigned char
     myDir.tdir_tag = TIFFTAG_PLANARCONFIG;
     myDir.tdir_type = TIFF_SHORT;
     myDir.tdir_count = 1;
-    myDir.tdir_offset = (long) planarConfiguration << 16;
+    myDir.tdir_offset = (long) planarConfiguration << longShift;
     fwrite (&myDir, sizeof (myDir), 1, fd);
 
   short resolutionUnit = RESUNIT_NONE;
     myDir.tdir_tag = TIFFTAG_RESOLUTIONUNIT;
     myDir.tdir_type = TIFF_SHORT;
     myDir.tdir_count = 1;
-    myDir.tdir_offset = (long) resolutionUnit << 16;
+    myDir.tdir_offset = (long) resolutionUnit << longShift;
     fwrite (&myDir, sizeof (myDir), 1, fd);
 
 // end of image file directory
@@ -847,6 +856,7 @@ void WriteTiffIA (FILE *fd, int width, int height, int orientation, unsigned cha
   TIFFDirEntry myDir;
   int offset;
   int sizeTags;
+  int longShift;
 
   // the tag size will be needed for the header
   sizeTags = (sizeof(char) * 4 * width * height)
@@ -857,8 +867,10 @@ void WriteTiffIA (FILE *fd, int width, int height, int orientation, unsigned cha
   // fill the header and write it
 #ifdef WORDS_BIGENDIAN
   myHeader.tiff_magic = TIFF_BIGENDIAN;
+  longShift = 16;
 #else
   myHeader.tiff_magic = TIFF_LITTLEENDIAN;
+  longShift = 0;
 #endif
   myHeader.tiff_version = TIFF_VERSION;
   myHeader.tiff_diroff = sizeof (TIFFHeader) + sizeTags;
@@ -932,14 +944,14 @@ void WriteTiffIA (FILE *fd, int width, int height, int orientation, unsigned cha
     myDir.tdir_tag = TIFFTAG_COMPRESSION;
     myDir.tdir_type = TIFF_SHORT;
     myDir.tdir_count = 1;
-    myDir.tdir_offset = (long) compression << 16;
+    myDir.tdir_offset = (long) compression << longShift;
     fwrite (&myDir, sizeof (myDir), 1, fd);
 
   short photometricInterpretation = PHOTOMETRIC_RGB;
     myDir.tdir_tag = TIFFTAG_PHOTOMETRIC;
     myDir.tdir_type = TIFF_SHORT;
     myDir.tdir_count = 1;
-    myDir.tdir_offset = (long) photometricInterpretation << 16;
+    myDir.tdir_offset = (long) photometricInterpretation << longShift;
     fwrite (&myDir, sizeof (myDir), 1, fd);
 
     myDir.tdir_tag = TIFFTAG_STRIPOFFSETS;
@@ -951,14 +963,14 @@ void WriteTiffIA (FILE *fd, int width, int height, int orientation, unsigned cha
     myDir.tdir_tag = TIFFTAG_ORIENTATION;
     myDir.tdir_type = TIFF_SHORT;
     myDir.tdir_count = 1;
-    myDir.tdir_offset = (long) orientation << 16;
+    myDir.tdir_offset = (long) orientation << longShift;
     fwrite (&myDir, sizeof (myDir), 1, fd);
 
   short samplesPerPixel = 4;
     myDir.tdir_tag = TIFFTAG_SAMPLESPERPIXEL;
     myDir.tdir_type = TIFF_SHORT;
     myDir.tdir_count = 1;
-    myDir.tdir_offset = (long) samplesPerPixel << 16;
+    myDir.tdir_offset = (long) samplesPerPixel << longShift;
     fwrite (&myDir, sizeof (myDir), 1, fd);
 
   long rowsPerStrip = height;
@@ -991,21 +1003,21 @@ void WriteTiffIA (FILE *fd, int width, int height, int orientation, unsigned cha
     myDir.tdir_tag = TIFFTAG_PLANARCONFIG;
     myDir.tdir_type = TIFF_SHORT;
     myDir.tdir_count = 1;
-    myDir.tdir_offset = (long) planarConfiguration << 16;
+    myDir.tdir_offset = (long) planarConfiguration << longShift;
     fwrite (&myDir, sizeof (myDir), 1, fd);
 
   short resolutionUnit = RESUNIT_NONE;
     myDir.tdir_tag = TIFFTAG_RESOLUTIONUNIT;
     myDir.tdir_type = TIFF_SHORT;
     myDir.tdir_count = 1;
-    myDir.tdir_offset = (long) resolutionUnit << 16;
+    myDir.tdir_offset = (long) resolutionUnit << longShift;
     fwrite (&myDir, sizeof (myDir), 1, fd);
 
   short extraSamples = EXTRASAMPLES_ASSOCIATEDALPHA;
     myDir.tdir_tag = TIFFTAG_EXTRASAMPLES;
     myDir.tdir_type = TIFF_SHORT;
     myDir.tdir_count = 1;
-    myDir.tdir_offset = (long) extraSamples << 16;
+    myDir.tdir_offset = (long) extraSamples << longShift;
     fwrite (&myDir, sizeof (myDir), 1, fd);
 
 // end of image file directory
