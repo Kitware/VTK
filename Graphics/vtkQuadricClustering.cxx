@@ -22,7 +22,7 @@
 #include "vtkFeatureEdges.h"
 #include "vtkTimerLog.h"
 
-vtkCxxRevisionMacro(vtkQuadricClustering, "1.40");
+vtkCxxRevisionMacro(vtkQuadricClustering, "1.41");
 vtkStandardNewMacro(vtkQuadricClustering);
 
 //----------------------------------------------------------------------------
@@ -1330,3 +1330,4 @@ void vtkQuadricClustering::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "UseFeaturePoints: " << this->UseFeaturePoints << endl;
   os << indent << "CopyCellData : " << this->CopyCellData << endl;
 }
+
