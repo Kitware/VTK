@@ -152,7 +152,7 @@ void vtkXglrCamera::Render(vtkCamera *cam, vtkXglrRenderer *ren)
   xgl_object_set(*context,XGL_CTX_VDC_WINDOW, &vdc_bounds, NULL);
   xgl_object_set(*context,XGL_CTX_VIEW_CLIP_BOUNDS, &vdc_bounds, NULL);
 
-  matrix = cam->GetCompositePerspectiveTransform(aspect[0]/aspect[1],-1,0);
+  matrix = cam->GetCompositePerspectiveTransform(aspect[0]/aspect[1],0,-1);
   matrix.Transpose();
  
   // insert model transformation 
