@@ -197,6 +197,12 @@ vtkDataArray *vtkAbstractMapper::GetScalars(vtkDataSet *input,
 }
 
 
+// Shallow copy of vtkProp.
+void vtkAbstractMapper::ShallowCopy(vtkAbstractMapper *mapper)
+{
+  this->SetClippingPlanes( mapper->GetClippingPlanes() );
+}
+
 void vtkAbstractMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->vtkProcessObject::PrintSelf(os,indent);

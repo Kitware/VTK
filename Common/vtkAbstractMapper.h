@@ -109,6 +109,10 @@ public:
   void SetClippingPlanes(vtkPlanes *planes);
 
   // Description:
+  // Make a shallow copy of this mapper.
+  void ShallowCopy(vtkAbstractMapper *m);
+
+  // Description:
   // Internal helper function for getting the active scalars. The scalar
   // mode indicates where the scalars come from; the arrayAccessMode
   // is used to indicate how to retrieve the scalars from field data (if
@@ -125,6 +129,7 @@ protected:
   float TimeToDraw;
   vtkWindow *LastWindow;   // Window used for the previous render
   vtkPlaneCollection *ClippingPlanes;
+
 private:
   vtkAbstractMapper(const vtkAbstractMapper&);  // Not implemented.
   void operator=(const vtkAbstractMapper&);  // Not implemented.
