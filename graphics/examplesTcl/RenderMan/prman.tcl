@@ -3,11 +3,12 @@
 #
 
 vtkRIBExporter aRIB
+set RIBPrefix "prman"
 set frame 1
 proc Pick {} {
-  global frame
-  aRIB SetFilePrefix prman$frame
-  aRIB SetTexturePrefix prman$frame
+  global frame RIBPrefix
+  aRIB SetFilePrefix $RIBPrefix$frame
+  aRIB SetTexturePrefix $RIBPrefix$frame
   aRIB BackgroundOn
   aRIB SetInput renWin
   aRIB Write
