@@ -202,7 +202,7 @@ void vtkGlyph3D::Execute()
       for (i=0; i < numSourcePts; i++) 
         newVectors->InsertVector(ptIncr+i,v);
           
-      if ( this->Orient ) 
+      if (this->Orient && (scale > 0)) 
         {
         vNew[0] = (v[0]+scale) / 2.0;
         vNew[1] = v[1] / 2.0;
