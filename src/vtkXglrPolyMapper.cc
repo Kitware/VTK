@@ -132,6 +132,82 @@ float *vtkXglrPolyMapper::AddVertex(int npts, int pointSize, int *pts,
   return fTemp;
 }
 
+
+float *vtkXglrPolyMapper::AddVertexComputeNormal(int npts, int pointSize, 
+						 int *pts, vtkPoints *p, 
+						 vtkColorScalars *c,
+						 vtkTCoords *t, 
+						 vtkPolygon *polygon,
+						 float *polyNorm)
+{
+  float *fTemp;
+  int j, idx[3];
+  float *pPtr;
+  int adder = 0;
+  unsigned char *rgb;
+  
+  // allocate memory
+  fTemp = new float [npts*pointSize];
+  
+  if (fTemp == NULL) 
+    {
+    vtkErrorMacro(<< "XglrPoly out of memory.\n");
+    return NULL;
+    }
+  
+  for (j = 0; j < npts; j++)
+    {
+    pPtr = p->GetPoint(pts[j]);
+    adder = j*pointSize;
+    fTemp[adder] = pPtr[0];
+    fTemp[adder + 1] = pPtr[1];
+    fTemp[adder + 2] = pPtr[2];
+    adder += 3;
+    
+    if (c)
+      {
+      rgb = c->GetColor(pts[j]);
+      fTemp[adder] = rgb[0]/255.0;
+      fTemp[adder + 1] = rgb[1]/255.0;
+      fTemp[adder + 2] = rgb[2]/255.0;
+      adder += 3;
+      }
+    
+    if ( j > 2)
+      {
+      if (j % 2)
+	{
+	idx[0] = pts[j-2]; idx[1] = pts[j]; idx[2] = pts[j-1]; 
+	polygon->ComputeNormal(p, 3, idx, polyNorm);
+	}
+      else
+	{
+	idx[0] = pts[j-2]; idx[1] = pts[j-1]; idx[2] = pts[j]; 
+	polygon->ComputeNormal(p, 3, idx, polyNorm);
+	}
+      }
+    else if ( j == 0 )
+      {
+      polygon->ComputeNormal(p, 3, pts, polyNorm);
+      }
+    pPtr = polyNorm;
+
+    fTemp[adder] = pPtr[0];
+    fTemp[adder + 1] = pPtr[1];
+    fTemp[adder + 2] = pPtr[2];
+    adder += 3;
+    
+    if (t)
+      {
+      pPtr = t->GetTCoord(pts[j]);
+      fTemp[adder] = pPtr[0];
+      fTemp[adder + 1] = pPtr[1];
+      }
+    }
+
+  return fTemp;
+}
+
 float *vtkXglrPolyMapper::AddVertexWithNormal(int npts, int pointSize, 
 					      int *pts, vtkPoints *p, 
 					      vtkColorScalars *c,
@@ -345,11 +421,19 @@ void vtkXglrPolyMapper::Build(vtkPolyData *data, vtkColorScalars *c)
       this->PL[i].pt_type = ptType;
       this->PL[i].num_data_values = numDataVals;
       
-      if (!n) polygon.ComputeNormal(p,npts,pts,polyNorm);
-      
-      this->PL[i].pts.data_f3d = 
-	(Xgl_pt_data_f3d *)this->AddVertexWithNormal(npts,pointSize,pts,
-						     p,c,t,n,polyNorm);
+      if (n) 
+	{
+	this->PL[i].pts.data_f3d = 
+	  (Xgl_pt_data_f3d *)this->AddVertexWithNormal(npts,pointSize,pts,
+						       p,c,t,n,polyNorm);
+	}
+      else
+	{
+	this->PL[i].pts.data_f3d = 
+	  (Xgl_pt_data_f3d *)this->AddVertexComputeNormal(npts,pointSize,pts,
+							  p,c,t,
+							  &polygon ,polyNorm);
+	}
       }
     }
   
