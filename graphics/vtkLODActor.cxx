@@ -127,7 +127,8 @@ void vtkLODActor::Render(vtkRenderer *ren)
     this->GetProperty();
     }
   this->Property->Render(this, ren);
-
+  this->Device->SetProperty(this->Property);
+  
   /* render the texture */
   if (this->Texture) this->Texture->Render(ren);
     
