@@ -2,21 +2,18 @@
 #ifndef __DICOM_PARSER_MAP__H_
 #define __DICOM_PARSER_MAP__H_
 
-#ifdef _MSC_VER 
-#pragma warning (push, 1) 
-#pragma warning (disable:4503)
-#pragma warning (disable:4514) 
-#pragma warning (disable:4702)
-#pragma warning (disable:4710) 
-#pragma warning (disable:4786)
+#ifdef _MSC_VER
+#pragma warning ( disable : 4514 )
+#pragma warning ( disable : 4786 )
+#pragma warning ( disable : 4503 )
+#pragma warning ( disable : 4710 )
+#pragma warning ( disable : 4702 )
+#pragma warning ( push, 3 )
 #endif 
 
 #include <map>
 #include <utility>
 
-#ifdef _MSC_VER 
-#pragma warning(pop) 
-#endif 
 
 class DICOMCallback;
 
@@ -107,5 +104,9 @@ class DICOMImplicitTypeMap :
 {
 
 };
+
+#ifdef _MSC_VER
+#pragma warning ( pop )
+#endif 
 
 #endif
