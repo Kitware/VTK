@@ -1,7 +1,7 @@
 set SLICE_ORDER si
 set ROWS 470
 set COLUMNS 500
-set STUDY ../../data/frog/frogTissue
+set STUDY ../../../vtkdata/frog/frogTissue
 set PIXEL_SIZE 1
 set SPACING 1.5
 set VALUE 511.5
