@@ -36,7 +36,7 @@
 #include "vtkByteSwap.h"
 #include "vtkCellArray.h"
 
-vtkCxxRevisionMacro(vtkAVSucdReader, "1.17");
+vtkCxxRevisionMacro(vtkAVSucdReader, "1.18");
 vtkStandardNewMacro(vtkAVSucdReader);
 
 vtkAVSucdReader::vtkAVSucdReader()
@@ -491,10 +491,22 @@ void vtkAVSucdReader::ReadBinaryCellTopology(vtkIntArray *materials,
     {
     //listcells->SetValue(k1++, Ctype[4*i+2]);
     *list++ = Ctype[4*i+2];
-    for(j=0; j < Ctype[4*i+2]; j++)
+
+    if(Ctype[4*i+3] == vtkAVSucdReader::PYR)
+      { //UCD ordering is 0,1,2,3,4 => VTK ordering is 1,2,3,4,0
+      *list++ = topology_list[++k2] - 1;
+      *list++ = topology_list[++k2] - 1;
+      *list++ = topology_list[++k2] - 1;
+      *list++ = topology_list[++k2] - 1;
+      *list++ = topology_list[k2-4] - 1;
+      k2++;
+      }
+    else
       {
-      //listcells->SetValue(k1++, topology_list[k2++] - 1);
-      *list++ = topology_list[k2++] - 1;
+      for(j=0; j < Ctype[4*i+2]; j++)
+        {
+        *list++ = topology_list[k2++] - 1;
+        }
       }
     }
 
@@ -609,6 +621,10 @@ void vtkAVSucdReader::ReadASCIICellTopology(vtkIntArray *materials,
           list[k]--;
           }
         }
+      int tmp;
+      tmp = list[0];
+      list[0] = list[1]; list[1] = list[2]; list[2] = list[3];
+      list[3] = list[4]; list[4] = tmp;
       output->InsertNextCell(VTK_PYRAMID, 5, list);
       }
     else if(!strcmp(ctype, "prism"))
