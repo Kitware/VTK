@@ -33,7 +33,7 @@
 #include "vtkQuadraticEdge.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkUnstructuredGrid, "1.100");
+vtkCxxRevisionMacro(vtkUnstructuredGrid, "1.101");
 vtkStandardNewMacro(vtkUnstructuredGrid);
 
 vtkUnstructuredGrid::vtkUnstructuredGrid ()
@@ -121,6 +121,7 @@ vtkUnstructuredGrid::~vtkUnstructuredGrid()
   this->Hexahedron->Delete();
   this->Wedge->Delete();
   this->Pyramid->Delete();
+  this->QuadraticEdge->Delete();
 }
 
 // Copy the geometric and topological structure of an input unstructured grid.
