@@ -201,15 +201,15 @@ protected:
 
 // Description:
 // Get the list of lights for this renderer.
-inline vtkLightCollection *vtkRenderer::GetLights() {return &(this->Lights);};
+inline vtkLightCollection *vtkRenderer::GetLights() {return &(this->Lights);}
 
 // Description:
 // Get the list of actors for this renderer.
-inline vtkActorCollection *vtkRenderer::GetActors() {return &(this->Actors);};
+inline vtkActorCollection *vtkRenderer::GetActors() {return &(this->Actors);}
 
 // Description:
 // Get the list of volumes for this renderer.
-inline vtkVolumeCollection *vtkRenderer::GetVolumes() {return &(this->Volumes);};
+inline vtkVolumeCollection *vtkRenderer::GetVolumes(){return &(this->Volumes);}
 
 
 #endif

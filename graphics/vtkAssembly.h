@@ -132,7 +132,7 @@ protected:
 
 // Description:
 // Get the list of parts for this assembly.
-inline vtkActorCollection *vtkAssembly::GetParts() {return &(this->Parts);};
+inline vtkActorCollection *vtkAssembly::GetParts() {return &(this->Parts);}
 
 #endif
 
