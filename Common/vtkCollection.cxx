@@ -21,7 +21,7 @@
 #include <stdlib.h>
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCollection, "1.40");
+vtkCxxRevisionMacro(vtkCollection, "1.41");
 vtkStandardNewMacro(vtkCollection);
 
 // Construct with empty list.
@@ -185,13 +185,20 @@ vtkObject *vtkCollection::GetItemAsObject(int i)
     {
     return NULL;
     }
-  
-  while (elem != NULL && i > 0)
+
+  if (i == this->NumberOfItems - 1)
     {
-    elem = elem->Next;
-    i--;
+    // optimize for the special case where we're looking for the last elem
+    elem = this->Bottom;
     }
-  
+  else
+    {
+    while (elem != NULL && i > 0)
+      {
+      elem = elem->Next;
+      i--;
+      }
+    }
   if ( elem != NULL )
     {
     return elem->Item;
@@ -214,8 +221,15 @@ void vtkCollection::ReplaceItem(int i, vtkObject *a)
     }
   
   elem = this->Top;
-  for (int j = 0; j < i; j++, elem = elem->Next ) 
-    {}
+  if (i == this->NumberOfItems - 1)
+    {
+    elem = this->Bottom;
+    }
+  else
+    {
+    for (int j = 0; j < i; j++, elem = elem->Next ) 
+      {}
+    }
 
   // Take care of reference counting
   if (elem->Item != NULL)
