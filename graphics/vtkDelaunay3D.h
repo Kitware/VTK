@@ -117,16 +117,15 @@ class vtkSphereArray;
 class VTK_EXPORT vtkDelaunay3D : public vtkPointSetFilter
 {
 public:
-
-// Description:
-// Construct object with Alpha = 0.0; Tolerance = 0.001; Offset = 2.5;
-// BoundingTriangulation turned off.
   vtkDelaunay3D();
-
   ~vtkDelaunay3D();
-  static vtkDelaunay3D *New() {return new vtkDelaunay3D;};
   const char *GetClassName() {return "vtkDelaunay3D";};
   void PrintSelf(ostream& os, vtkIndent indent);
+
+  // Description:
+  // Construct object with Alpha = 0.0; Tolerance = 0.001; Offset = 2.5;
+  // BoundingTriangulation turned off.
+  static vtkDelaunay3D *New() {return new vtkDelaunay3D;};
 
   // Description:
   // Specify alpha (or distance) value to control output of this filter.
@@ -160,13 +159,11 @@ public:
 
   // Description:
   // Get the output of this filter.
-  vtkUnstructuredGrid *GetOutput() 
-    {return (vtkUnstructuredGrid *)this->Output;};
-
-  // Use different object for locating "coincident" vertices
+  vtkUnstructuredGrid *GetOutput() {
+    return (vtkUnstructuredGrid *)this->Output;};
 
   // Description:
-  // Specify a spatial locator for merging points. By default, 
+  // Set / get a spatial locator for merging points. By default, 
   // an instance of vtkMergePoints is used.
   void SetLocator(vtkPointLocator *locator);
   vtkGetObjectMacro(Locator,vtkPointLocator);
@@ -175,9 +172,6 @@ public:
   // Create default locator. Used to create one when none is specified. The 
   // locator is used to eliminate "coincident" points.
   void CreateDefaultLocator();
-
-  // Methods available to other objects for forming and manipulating 
-  // triangulations.
 
   // Description:
   // This is a helper method used with InsertPoint() to create 
@@ -192,7 +186,7 @@ public:
   // you will be inserting points between (0,numPtsToInsert-1).
   vtkUnstructuredGrid *InitPointInsertion(float center[3], float length, 
 					  int numPts, vtkPoints* &pts);
-  
+
   // Description:
   // This is a helper method used with InsertPoint() to create 
   // tetrahedronalizations of points. Its purpose is construct an initial
@@ -223,20 +217,22 @@ public:
 		   int id, float x[3], vtkIdList *holeTetras);
 
   
-  unsigned long int GetMTime();
-  
-  
+  // Description:
+  // Return the MTime also considering the locator.
+  unsigned long GetMTime();
+
   // Description:
   // For legacy compatability. Do not use.
   void SetLocator(vtkPointLocator& locator) {this->SetLocator(&locator);};  
   vtkUnstructuredGrid *InitPointInsertion(int numPtsToInsert,  int numTetra,
 					  vtkPoints &boundingTetraPts, 
 					  float bounds[6], vtkPoints* &pts) 
-    {return this->InitPointInsertion(numPtsToInsert, numTetra, 
-				     &boundingTetraPts, bounds, pts);}
+  {return this->InitPointInsertion(numPtsToInsert, numTetra, 
+				   &boundingTetraPts, bounds, pts);};
   void InsertPoint(vtkUnstructuredGrid *Mesh, vtkPoints *points,
-		   int id, float x[3], vtkIdList &holeTetras)
-    {this->InsertPoint(Mesh, points, id, x, &holeTetras);}
+		   int id, float x[3], vtkIdList &holeTetras) {
+    this->InsertPoint(Mesh, points, id, x, &holeTetras);};
+  
   
     
 protected:

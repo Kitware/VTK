@@ -88,16 +88,15 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkClipPolyData : public vtkPolyDataToPolyDataFilter
 {
 public:
-
-  // Description:
-  // Construct with user-specified implicit function; InsideOut turned
-  // off; value set to 0.0; and generate clip scalars turned off.
   vtkClipPolyData(vtkImplicitFunction *cf=NULL);
-
   ~vtkClipPolyData();
-  static vtkClipPolyData *New() {return new vtkClipPolyData;};
   const char *GetClassName() {return "vtkClipPolyData";};
   void PrintSelf(ostream& os, vtkIndent indent);
+
+  // Description:
+  // Construct with user-specified implicit function; InsideOut turned off;
+  // value set to 0.0; and generate clip scalars turned off.
+  static vtkClipPolyData *New() {return new vtkClipPolyData;};
 
   // Description:
   // Set the clipping value of the implicit function (if clipping with
@@ -140,13 +139,14 @@ public:
   vtkGetMacro(GenerateClippedOutput,int);
   vtkBooleanMacro(GenerateClippedOutput,int);
 
+  // Description:
+  // Return the Clipped output.
   vtkPolyData *GetClippedOutput() {return this->ClippedOutput;};
 
   // Description:
   // Specify a spatial locator for merging points. By default, an
   // instance of vtkMergePoints is used.
   void SetLocator(vtkPointLocator *locator);
-
   void SetLocator(vtkPointLocator& locator) {this->SetLocator(&locator);};
   vtkGetObjectMacro(Locator,vtkPointLocator);
 
@@ -155,7 +155,9 @@ public:
   // locator is used to merge coincident points.
   void CreateDefaultLocator();
 
-  unsigned long int GetMTime();
+  // Description:
+  // Return the mtime also considering the locator and clip function.
+  unsigned long GetMTime();
 
 protected:
   void Execute();

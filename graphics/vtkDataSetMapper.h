@@ -79,6 +79,8 @@ public:
   // Get the internal poly data mapper used to map data set to graphics system.
   vtkGetObjectMacro(PolyDataMapper, vtkPolyDataMapper);
 
+  // Description:
+  // Get the mtime also considering the lookup table.
   unsigned long GetMTime();
 
 protected:

@@ -40,9 +40,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkCardinalSpline - computes an interpolating spline using a
 // a Cardinal basis.
+
 // .SECTION Description
 // vtkCardinalSpline is a concrete implementation of vtkSpline using a
 // Cardinal basis.
+
 // .SECTION See Also
 // vtkSpline vtkKochanekSpline
 
@@ -55,20 +57,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkCardinalSpline : public vtkSpline
 {
 public:
-
-// Description:
-// Construct a Cardinal Spline.
   vtkCardinalSpline();
-
   static vtkCardinalSpline *New() {return new vtkCardinalSpline;};
   const char *GetClassName() {return "vtkCardinalSpline";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
-
-// Description
-// Compute Cardinal Splines for each dependent variable
+  // Description
+  // Compute Cardinal Splines for each dependent variable
   void Compute ();
-
 
   // Description:
   // Evaluate a 1D cardinal spline.

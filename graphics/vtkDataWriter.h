@@ -68,16 +68,15 @@ class vtkDataArray;
 class VTK_EXPORT vtkDataWriter : public vtkWriter
 {
 public:
-
-// Description:
-// Created object with default header, ASCII format, and default names for 
-// scalars, vectors, tensors, normals, and texture coordinates.
   vtkDataWriter();
-
   ~vtkDataWriter();
-  static vtkDataWriter *New() {return new vtkDataWriter;};
   const char *GetClassName() {return "vtkDataWriter";};
   void PrintSelf(ostream& os, vtkIndent indent);
+
+  // Description:
+  // Created object with default header, ASCII format, and default names for 
+  // scalars, vectors, tensors, normals, and texture coordinates.
+  static vtkDataWriter *New() {return new vtkDataWriter;};
 
   // Description:
   // Specify file name of vtk polygon data file to write.
@@ -138,39 +137,42 @@ public:
   vtkSetStringMacro(FieldDataName);
   vtkGetStringMacro(FieldDataName);
 
-
-// Description:
-// Open a vtk data file. Returns NULL if error.
+  // Description:
+  // Open a vtk data file. Returns NULL if error.
   FILE *OpenVTKFile();
 
-
-// Description:
-// Write the header of a vtk data file. Returns 0 if error.
+  // Description:
+  // Write the header of a vtk data file. Returns 0 if error.
   int WriteHeader(FILE *fp);
 
+  // Description:
+  // Write out the points of the data set.
   int WritePoints(FILE *fp, vtkPoints *p);
 
-// Description:
-// Write out coordinates for rectilinear grids.
+  // Description:
+  // Write out coordinates for rectilinear grids.
   int WriteCoordinates(FILE *fp, vtkScalars *coords, int axes);
 
+  // Description:
+  // Write out the cells of the data set.
   int WriteCells(FILE *fp, vtkCellArray *cells, char *label);
 
-// Description:
-// Write the cell data (e.g., scalars, vectors, ...) of a vtk dataset.
-// Returns 0 if error.
+  // Description:
+  // Write the cell data (e.g., scalars, vectors, ...) of a vtk dataset.
+  // Returns 0 if error.
   int WriteCellData(FILE *fp, vtkDataSet *ds);
 
-
-// Description:
-// Write the point data (e.g., scalars, vectors, ...) of a vtk dataset.
-// Returns 0 if error.
+  // Description:
+  // Write the point data (e.g., scalars, vectors, ...) of a vtk dataset.
+  // Returns 0 if error.
   int WritePointData(FILE *fp, vtkDataSet *ds);
 
+  // Description:
+  // Write out the field data.
   int WriteFieldData(FILE *fp, vtkFieldData *f);
-
-// Description:
-// Close a vtk file.
+  
+  // Description:
+  // Close a vtk file.
   void CloseVTKFile(FILE *fp);
 
 

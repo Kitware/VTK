@@ -61,29 +61,65 @@ class vtkImplicitFunction;
 class VTK_EXPORT vtkCutter : public vtkDataSetToPolyDataFilter
 {
 public:
-
-// Description:
-// Construct with user-specified implicit function; initial value of 0.0; and
-// generating cut scalars turned off.
   vtkCutter(vtkImplicitFunction *cf=NULL);
-
   ~vtkCutter();
-  static vtkCutter *New() {return new vtkCutter;};
   const char *GetClassName() {return "vtkCutter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Methods to set contour values
-  void SetValue(int i, float value);
-  float GetValue(int i);
-  float *GetValues();
-  void GetValues(float *contourValues);
-  void SetNumberOfContours(int number);
-  int GetNumberOfContours();
-  void GenerateValues(int numContours, float range[2]);
-  void GenerateValues(int numContours, float rangeStart, float rangeEnd);
+  // Description:
+  // Construct with user-specified implicit function; initial value of 0.0; and
+  // generating cut scalars turned off.
+  static vtkCutter *New() {return new vtkCutter;};
 
-  // Because we delegate to vtkContourValues & refer to vtkImplicitFunction
-  unsigned long int GetMTime();
+  // Description:
+  // Set a particular contour value at contour number i. The index i ranges 
+  // between 0<=i<NumberOfContours.
+  void SetValue(int i, float value) {this->ContourValues->SetValue(i,value);};
+  
+  // Description:
+  // Get the ith contour value.
+  float GetValue(int i) { return this->ContourValues->GetValue(i);};
+
+  // Description:
+  // Get a pointer to an array of contour values. There will be
+  // GetNumberOfContours() values in the list.
+  float *GetValues() {return this->ContourValues->GetValues();};
+
+  // Description:
+  // Fill a supplied list with contour values. There will be
+  // GetNumberOfContours() values in the list. Make sure you allocate
+  // enough memory to hold the list.
+  void GetValues(float *contourValues){
+    this->ContourValues->GetValues(contourValues);};
+  
+  // Description:
+  // Set the number of contours to place into the list. You only really
+  // need to use this method to reduce list size. The method SetValue()
+  // will automatically increase list size as needed.
+  void SetNumberOfContours(int number) {
+    this->ContourValues->SetNumberOfContours(number);};
+
+  // Description:
+  // Get the number of contours in the list of contour values.
+  int GetNumberOfContours() {
+    return this->ContourValues->GetNumberOfContours();};
+
+  // Description:
+  // Generate numContours equally spaced contour values between specified
+  // range. Contour values will include min/max range values.
+  void GenerateValues(int numContours, float range[2]) {
+    this->ContourValues->GenerateValues(numContours, range);};
+
+  // Description:
+  // Generate numContours equally spaced contour values between specified
+  // range. Contour values will include min/max range values.
+  void GenerateValues(int numContours, float rangeStart, float rangeEnd) {
+    this->ContourValues->GenerateValues(numContours, rangeStart, rangeEnd);};
+
+  // Description:
+  // New GetMTime because we delegate to vtkContourValues & refer to
+  // vtkImplicitFunction
+  unsigned long GetMTime();
 
   // Description
   // Specify the implicit function to perform the cutting.
@@ -91,18 +127,17 @@ public:
   vtkGetObjectMacro(CutFunction,vtkImplicitFunction);
 
   // Description:
-  // If this flag is enabled, then the output scalar values will be interpolated
-  // from the implicit function values, and not the input scalar data.
+  // If this flag is enabled, then the output scalar values will be
+  // interpolated from the implicit function values, and not the input scalar
+  // data.
   vtkSetMacro(GenerateCutScalars,int);
   vtkGetMacro(GenerateCutScalars,int);
   vtkBooleanMacro(GenerateCutScalars,int);
 
-
-// Description:
-// Specify a spatial locator for merging points. By default, 
-// an instance of vtkMergePoints is used.
+  // Description:
+  // Specify a spatial locator for merging points. By default, 
+  // an instance of vtkMergePoints is used.
   void SetLocator(vtkPointLocator *locator);
-
   void SetLocator(vtkPointLocator& locator) {this->SetLocator(&locator);};
   vtkGetObjectMacro(Locator,vtkPointLocator);
 
@@ -151,54 +186,6 @@ inline char *vtkCutter::GetSortByAsString(void)
     }
 }
 
-// Description:
-// Set a particular contour value at contour number i. The index i ranges 
-// between 0<=i<NumberOfContours.
-inline void vtkCutter::SetValue(int i, float value)
-{this->ContourValues->SetValue(i,value);}
-
-// Description:
-// Get the ith contour value.
-inline float vtkCutter::GetValue(int i)
-{return this->ContourValues->GetValue(i);}
-
-// Description:
-// Get a pointer to an array of contour values. There will be
-// GetNumberOfContours() values in the list.
-inline float *vtkCutter::GetValues()
-{return this->ContourValues->GetValues();}
-
-// Description:
-// Fill a supplied list with contour values. There will be
-// GetNumberOfContours() values in the list. Make sure you allocate
-// enough memory to hold the list.
-inline void vtkCutter::GetValues(float *contourValues)
-{this->ContourValues->GetValues(contourValues);}
-
-// Description:
-// Set the number of contours to place into the list. You only really
-// need to use this method to reduce list size. The method SetValue()
-// will automatically increase list size as needed.
-inline void vtkCutter::SetNumberOfContours(int number)
-{this->ContourValues->SetNumberOfContours(number);}
-
-// Description:
-// Get the number of contours in the list of contour values.
-inline int vtkCutter::GetNumberOfContours()
-{return this->ContourValues->GetNumberOfContours();}
-
-// Description:
-// Generate numContours equally spaced contour values between specified
-// range. Contour values will include min/max range values.
-inline void vtkCutter::GenerateValues(int numContours, float range[2])
-{this->ContourValues->GenerateValues(numContours, range);}
-
-// Description:
-// Generate numContours equally spaced contour values between specified
-// range. Contour values will include min/max range values.
-inline void vtkCutter::GenerateValues(int numContours, float
-                                             rangeStart, float rangeEnd)
-{this->ContourValues->GenerateValues(numContours, rangeStart, rangeEnd);}
 
 #endif
 

@@ -49,6 +49,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // If tolerance is specified precisely=0.0, then this object will use
 // the vtkMergePoints object to merge points (very fast). Otherwise the 
 // slower vtkPointLocator is used.
+
 // .SECTION Caveats
 // Merging points can alter topology, including introducing non-manifold 
 // forms. Tolerance should be chosen carefully to avoid these problems.
@@ -61,10 +62,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkCleanPolyData : public vtkPolyDataToPolyDataFilter
 {
 public:
-  // Description:
-  // Construct object with initial tolerance of 0.0.
   vtkCleanPolyData();
-
   ~vtkCleanPolyData();
   static vtkCleanPolyData *New() {return new vtkCleanPolyData;};
   const char *GetClassName() {return "vtkCleanPolyData";};
@@ -76,10 +74,9 @@ public:
   vtkGetMacro(Tolerance,float);
 
   // Description:
-  // Specify a spatial locator for speeding the search process. By
+  // Set/Get a spatial locator for speeding the search process. By
   // default an instance of vtkLocator is used.
   void SetLocator(vtkPointLocator *locator);
-
   void SetLocator(vtkPointLocator& locator) {this->SetLocator(&locator);};
   vtkGetObjectMacro(Locator,vtkPointLocator);
 
@@ -87,6 +84,8 @@ public:
   // Create default locator. Used to create one when none is specified.
   void CreateDefaultLocator();
 
+  // Description:
+  // Get the MTime of this object also considering the locator.
   unsigned long int GetMTime();
 
 protected:

@@ -42,11 +42,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .SECTION Description
 // vtkCellLocator is a spatial search object to quickly locate cells in 3D.
 // vtkCellLocator uses a uniform-level octree subdivision, where each octant
-// (an octant is also referred to as a bucket) carries an indication of whether 
-// it is empty or not, and each leaf octant carries a list of the cells inside 
-// of it. (An octant is not empty if it has one or more cells inside of it.) 
-// Typical operations are intersection with a line to return candidate cells, 
-// or intersection with another vtkCellLocator to return candidate cells.
+// (an octant is also referred to as a bucket) carries an indication of
+// whether it is empty or not, and each leaf octant carries a list of the
+// cells inside of it. (An octant is not empty if it has one or more cells
+// inside of it.)  Typical operations are intersection with a line to return
+// candidate cells, or intersection with another vtkCellLocator to return
+// candidate cells.
 
 // .SECTION Caveats
 // Many other types of spatial locators have been developed, such as 
@@ -65,23 +66,20 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkCellLocator : public vtkLocator
 {
 public:
+  vtkCellLocator();
+  ~vtkCellLocator();
+  const char *GetClassName() {return "vtkCellLocator";};
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Construct with automatic computation of divisions, averaging
   // 25 cells per bucket.
-  vtkCellLocator();
-
-  ~vtkCellLocator();
   static vtkCellLocator *New() {return new vtkCellLocator;};
-  const char *GetClassName() {return "vtkCellLocator";};
-  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Specify the average number of cells in each octant.
   vtkSetClampMacro(NumberOfCellsPerBucket,int,1,VTK_LARGE_INTEGER);
   vtkGetMacro(NumberOfCellsPerBucket,int);
-
-  // methods that all cell locators must provide
 
   // Description:
   // Return intersection point (if any) of finite line with cells contained
@@ -90,23 +88,19 @@ public:
 				float& t, float x[3], float pcoords[3],
 				int &subId);
 
-
+  // Description:
   // Return intersection point (if any) AND the cell which was intersected by
   // the finite line.
   virtual int IntersectWithLine(float a0[3], float a1[3], float tol,
 				float& t, float x[3], float pcoords[3],
 				int &subId, int &cellId);
 
+  // Description:
+  // Get the cells in a particular bucket.
   virtual vtkIdList *GetCells(int bucket);
 
   // Description:
-  // Intersect against another vtkCellLocator returning cells that lie in 
-  // intersecting octants. Not implimented yet.
-  virtual void InitializeIntersection(vtkCellLocator& locator);
-
-  virtual int GetNextIntersection(int& bucket1, int& bucket2);
-
-  // satisfy vtkLocator abstract interface
+  // Satisfy vtkLocator abstract interface
   void FreeSearchStructure();
   void BuildLocator();
   void GenerateRepresentation(int level, vtkPolyData *pd);

@@ -46,6 +46,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // the superclass' vtkImplicitFunction transformation matrix if necessary to 
 // reposition.) The angle specifies the angle between the axis of rotation 
 // and the side of the cone.
+
 // .SECTION Caveats
 // The cone is infinite in extent. To truncate the cone use the 
 // vtkImplicitBoolean in combination with clipping planes.
@@ -58,26 +59,21 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkCone : public vtkImplicitFunction
 {
 public:
-
-// Description
-// Construct cone with angle of 45 degrees.
   vtkCone();
-
-  static vtkCone *New() {return new vtkCone;};
   const char *GetClassName() {return "vtkCone";};
   void PrintSelf(ostream& os, vtkIndent indent);
+  
+  // Description
+  // Construct cone with angle of 45 degrees.
+  static vtkCone *New() {return new vtkCone;};
 
-  // ImplicitFunction interface
-
-// Description
-// Evaluate cone equation.
+  // Description
+  // Evaluate cone equation.
   float EvaluateFunction(float x[3]);
 
-
-// Description
-// Evaluate cone normal.
+  // Description
+  // Evaluate cone normal.
   void EvaluateGradient(float x[3], float g[3]);
-
 
   // Description:
   // Set/Get the cone angle (expressed in degrees).

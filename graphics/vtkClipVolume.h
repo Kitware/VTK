@@ -85,40 +85,38 @@ class vtkDelaunay3D;
 class VTK_EXPORT vtkClipVolume : public vtkStructuredPointsToUnstructuredGridFilter
 {
 public:
-
-// Description:
-// Construct with user-specified implicit function; InsideOut turned off; value
-// set to 0.0; and generate clip scalars turned off. The merge tolerance is set
-// to 0.01.
   vtkClipVolume(vtkImplicitFunction *cf=NULL);
-
   ~vtkClipVolume();
-  static vtkClipVolume *New() {return new vtkClipVolume;};
   const char *GetClassName() {return "vtkClipVolume";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
+  // Construct with user-specified implicit function; InsideOut turned off;
+  // value set to 0.0; and generate clip scalars turned off. The merge
+  // tolerance is set to 0.01.
+  static vtkClipVolume *New() {return new vtkClipVolume;};
+
+  // Description:
   // Set the clipping value of the implicit function (if clipping with
-  // implicit function) or scalar value (if clipping with
-  // scalars). The default value is 0.0. 
+  // implicit function) or scalar value (if clipping with scalars). The
+  // default value is 0.0.
   vtkSetMacro(Value,float);
   vtkGetMacro(Value,float);
   
   // Description:
-  // Set/Get the InsideOut flag. When off, a vertex is considered
-  // inside the implicit function if its value is greater than the
-  // Value ivar. When InsideOutside is turned on, a vertex is
-  // considered inside the implicit function if its implicit function
-  // value is less than or equal to the Value ivar.  InsideOut is off
-  // by default.
+  // Set/Get the InsideOut flag. When off, a vertex is considered inside the
+  // implicit function if its value is greater than the Value ivar. When
+  // InsideOutside is turned on, a vertex is considered inside the implicit
+  // function if its implicit function value is less than or equal to the
+  // Value ivar.  InsideOut is off by default.
   vtkSetMacro(InsideOut,int);
   vtkGetMacro(InsideOut,int);
   vtkBooleanMacro(InsideOut,int);
 
   // Description
-  // Specify the implicit function with which to perform the
-  // clipping. If you do not define an implicit function, then the input
-  // scalar data will be used for clipping.
+  // Specify the implicit function with which to perform the clipping. If you
+  // do not define an implicit function, then the input scalar data will be
+  // used for clipping.
   vtkSetObjectMacro(ClipFunction,vtkImplicitFunction);
   vtkGetObjectMacro(ClipFunction,vtkImplicitFunction);
 
@@ -138,6 +136,8 @@ public:
   vtkGetMacro(GenerateClippedOutput,int);
   vtkBooleanMacro(GenerateClippedOutput,int);
 
+  // Description:
+  // Return the clipped output.
   vtkUnstructuredGrid *GetClippedOutput() {return this->ClippedOutput;};
 
   // Description:
@@ -147,12 +147,10 @@ public:
   vtkSetClampMacro(MergeTolerance,float,0.0001,0.25);
   vtkGetMacro(MergeTolerance,float);
   
-
-// Description:
-// Specify a spatial locator for merging points. By default, 
-// an instance of vtkMergePoints is used.
+  // Description:
+  // Set / Get a spatial locator for merging points. By default, 
+  // an instance of vtkMergePoints is used.
   void SetLocator(vtkPointLocator *locator);
-
   void SetLocator(vtkPointLocator& locator) {this->SetLocator(&locator);};
   vtkGetObjectMacro(Locator,vtkPointLocator);
 
@@ -161,6 +159,8 @@ public:
   // locator is used to merge coincident points.
   void CreateDefaultLocator();
 
+  // Description:
+  // Return the mtime also considering the locator and clip function.
   unsigned long int GetMTime();
 
 protected:

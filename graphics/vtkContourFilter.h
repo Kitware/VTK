@@ -84,17 +84,18 @@ class vtkScalarTree;
 class VTK_EXPORT vtkContourFilter : public vtkDataSetToPolyDataFilter
 {
 public:
-  // Description:
-  // Construct object with initial range (0,1) and single contour value
-  // of 0.0.
   vtkContourFilter();
-
-  static vtkContourFilter *New() {return new vtkContourFilter;};
   ~vtkContourFilter();
   const char *GetClassName() {return "vtkContourFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Methods to set contour values
+  // Description:
+  // Construct object with initial range (0,1) and single contour value
+  // of 0.0.
+  static vtkContourFilter *New() {return new vtkContourFilter;};
+
+  // Description:
+  // Methods to set / get contour values.
   void SetValue(int i, float value);
   float GetValue(int i);
   float *GetValues();
@@ -104,8 +105,9 @@ public:
   void GenerateValues(int numContours, float range[2]);
   void GenerateValues(int numContours, float rangeStart, float rangeEnd);
 
-  // Because we delegate to vtkContourValues
-  unsigned long int GetMTime();
+  // Description:
+  // Modified GetMTime Because we delegate to vtkContourValues
+  unsigned long GetMTime();
 
   // Description:
   // Set/Get the computation of normals. Normal computation is failrly
@@ -140,10 +142,9 @@ public:
   vtkBooleanMacro(UseScalarTree,int);
 
   // Description:
-  // Specify a spatial locator for merging points. By default, 
+  // Set / get a spatial locator for merging points. By default, 
   // an instance of vtkMergePoints is used.
   void SetLocator(vtkPointLocator *locator);
-
   void SetLocator(vtkPointLocator& locator) {this->SetLocator(&locator);};
   vtkGetObjectMacro(Locator,vtkPointLocator);
 

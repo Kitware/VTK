@@ -38,7 +38,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-
 // .NAME vtkCuller - a superclass for actor cullers
 // .SECTION Description
 // A culler has two methods called by the vtkRenderer - OuterCullMethod

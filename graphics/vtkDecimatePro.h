@@ -46,15 +46,15 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // you desire to decimate polygonal meshes, first triangulate the polygons
 // with vtkTriangleFilter object.
 // 
-// The implementation of vtkDecimatePro is similar to the algorithm originally
-// described in "Decimation of Triangle Meshes", Proc Siggraph `92, with
-// three major differences. First, this algorithm does not necessarily
-// preserve the topology of the mesh. Second, it is guaranteed to give the a
-// mesh reduction factor specified by the user (as long as certain
-// contraints are not set - see Caveats). Third, it is set up generate progressive
-// meshes, that is a stream of operations that can be easily transmitted and
-// incrementally updated (see Hugues Hoppe's Siggraph '96 paper on
-// progressive meshes).
+// The implementation of vtkDecimatePro is similar to the algorithm
+// originally described in "Decimation of Triangle Meshes", Proc Siggraph
+// `92, with three major differences. First, this algorithm does not
+// necessarily preserve the topology of the mesh. Second, it is guaranteed to
+// give the a mesh reduction factor specified by the user (as long as certain
+// contraints are not set - see Caveats). Third, it is set up generate
+// progressive meshes, that is a stream of operations that can be easily
+// transmitted and incrementally updated (see Hugues Hoppe's Siggraph '96
+// paper on progressive meshes).
 // 
 // The algorithm proceeds as follows. Each vertex in the mesh is classified
 // and inserted into a priority queue. The priority is based on the error to
@@ -162,6 +162,11 @@ public:
 class VTK_EXPORT vtkDecimatePro : public vtkPolyDataToPolyDataFilter
 {
 public:
+  vtkDecimatePro();
+  ~vtkDecimatePro();
+  const char *GetClassName() {return "vtkDecimatePro";};
+  void PrintSelf(ostream& os, vtkIndent indent);
+
   // Description:
   // Create object with specified reduction of 90% and feature angle of
   // 15 degrees. Edge splitting is on, defer splitting is on, and the
@@ -169,12 +174,7 @@ public:
   // boundary vertices is on, and the maximum error is set to
   // VTK_LARGE_FLOAT. The inflection point ratio is 10 and the vertex
   // degree is 25. Error accumulation is turned off.
-  vtkDecimatePro();
-
-  ~vtkDecimatePro();
   static vtkDecimatePro *New() {return new vtkDecimatePro;};
-  const char *GetClassName() {return "vtkDecimatePro";};
-  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Specify the desired reduction in the total number of polygons. Because
@@ -269,14 +269,13 @@ public:
   vtkSetClampMacro(InflectionPointRatio,float,1.001,VTK_LARGE_FLOAT);
   vtkGetMacro(InflectionPointRatio,float);
 
-  // Get a list of inflection points. The values in the list are mesh
-  // reduction values at each inflection point. Note: the first inflection
-  // point always occurs right before non-planar triangles are decimated
-  // (i.e., as the error becomes non-zero).
 
   // Description:
-  // Get the number of inflection points. Only returns a valid value
-  // after the filter has executed.
+  // Get the number of inflection points. Only returns a valid value after
+  // the filter has executed.  The values in the list are mesh reduction
+  // values at each inflection point. Note: the first inflection point always
+  // occurs right before non-planar triangles are decimated (i.e., as the
+  // error becomes non-zero).
   int GetNumberOfInflectionPoints();
 
   // Description:

@@ -60,36 +60,39 @@ class VTK_EXPORT vtkAssemblyPaths : public vtkCollection
   static vtkAssemblyPaths *New() {return new vtkAssemblyPaths;};
   const char *GetClassName() {return "vtkAssemblyPaths";};
 
+  // Description:
+  // Add a path to the list.
   void AddItem(vtkActorCollection *a);
+
+  // Description:
+  // Remove a path from the list.
   void RemoveItem(vtkActorCollection *a);
+
+  // Description:
+  // Determine whether a particular path is present. Returns its position
+  // in the list.
   int IsItemPresent(vtkActorCollection *a);
+
+  // Description:
+  // Get the next path in the list.
   vtkActorCollection *GetNextItem();
 };
 
-// Description:
-// Add a path to the list.
 inline void vtkAssemblyPaths::AddItem(vtkActorCollection *a) 
 {
   this->vtkCollection::AddItem((vtkObject *)a);
 }
 
-// Description:
-// Remove a path from the list.
 inline void vtkAssemblyPaths::RemoveItem(vtkActorCollection *a) 
 {
   this->vtkCollection::RemoveItem((vtkObject *)a);
 }
 
-// Description:
-// Determine whether a particular path is present. Returns its position
-// in the list.
 inline int vtkAssemblyPaths::IsItemPresent(vtkActorCollection *a) 
 {
   return this->vtkCollection::IsItemPresent((vtkObject *)a);
 }
 
-// Description:
-// Get the next path in the list.
 inline vtkActorCollection *vtkAssemblyPaths::GetNextItem() 
 { 
   return (vtkActorCollection *)(this->GetNextItemAsObject());

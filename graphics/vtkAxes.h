@@ -40,11 +40,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkAxes - create an x-y-z axes
 // .SECTION Description
-// vtkAxes creates three lines that form an x-y-z axes. The origin of the 
-// axes is user specified (0,0,0 is default), and the size is specified 
-// with a scale factor. Three scalar values are generated for the three 
-// lines and can be used (via color map) to indicate a particular 
-// coordinate axis.
+// vtkAxes creates three lines that form an x-y-z axes. The origin of the
+// axes is user specified (0,0,0 is default), and the size is specified with
+// a scale factor. Three scalar values are generated for the three lines and
+// can be used (via color map) to indicate a particular coordinate axis.
 
 #ifndef __vtkAxes_h
 #define __vtkAxes_h
@@ -54,11 +53,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkAxes : public vtkPolyDataSource 
 {
 public:
-
-// Description:
-// Construct with origin=(0,0,0) and scale factor=1.
   vtkAxes();
-
   static vtkAxes *New() {return new vtkAxes;};
   const char *GetClassName() {return "vtkAxes";};
   void PrintSelf(ostream& os, vtkIndent indent);

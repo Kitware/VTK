@@ -63,14 +63,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkCellCenters : public vtkDataSetToPolyDataFilter
 {
 public:
-
-// Description:
-// Construct object with vertex cell generation turned off.
   vtkCellCenters();
-
-  static vtkCellCenters *New() {return new vtkCellCenters;};
   const char *GetClassName() {return "vtkCellCenters";};
   void PrintSelf(ostream& os, vtkIndent indent);
+
+  // Description:
+  // Construct object with vertex cell generation turned off.
+  static vtkCellCenters *New() {return new vtkCellCenters;};
 
   // Description:
   // Enable/disable the generation of vertex cells.

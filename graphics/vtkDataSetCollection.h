@@ -55,40 +55,28 @@ public:
   static vtkDataSetCollection *New() {return new vtkDataSetCollection;};
   const char *GetClassName() {return "vtkDataSetCollection";};
 
-  void AddItem(vtkDataSet *);
-  void RemoveItem(vtkDataSet *);
-  int IsItemPresent(vtkDataSet *);
-  vtkDataSet *GetNextItem();
+  // Description:
+  // Add a dataset to the list.
+  void AddItem(vtkDataSet *ds) {
+    this->vtkCollection::AddItem((vtkObject *)ds);};
+  
+  // Description:
+  // Remove a dataset from the list.
+  void RemoveItem(vtkDataSet *ds) {
+    this->vtkCollection::RemoveItem((vtkObject *)ds);};
+
+  // Description:
+  // Determine whether a particular dataset is present. Returns its position
+  // in the list.
+  int IsItemPresent(vtkDataSet *ds) {
+    return this->vtkCollection::IsItemPresent((vtkObject *)ds);};
+
+  // Description:
+  // Get the next dataset in the list.
+  vtkDataSet *GetNextItem() { 
+    return (vtkDataSet *)(this->GetNextItemAsObject());};
 
 };
 
-// Description:
-// Add a dataset to the list.
-inline void vtkDataSetCollection::AddItem(vtkDataSet *ds) 
-{
-  this->vtkCollection::AddItem((vtkObject *)ds);
-}
-
-// Description:
-// Remove a dataset from the list.
-inline void vtkDataSetCollection::RemoveItem(vtkDataSet *ds) 
-{
-  this->vtkCollection::RemoveItem((vtkObject *)ds);
-}
-
-// Description:
-// Determine whether a particular dataset is present. Returns its position
-// in the list.
-inline int vtkDataSetCollection::IsItemPresent(vtkDataSet *ds) 
-{
-  return this->vtkCollection::IsItemPresent((vtkObject *)ds);
-}
-
-// Description:
-// Get the next dataset in the list.
-inline vtkDataSet *vtkDataSetCollection::GetNextItem() 
-{ 
-  return (vtkDataSet *)(this->GetNextItemAsObject());
-}
 
 #endif

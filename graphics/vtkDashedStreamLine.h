@@ -51,6 +51,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // create the dashes. DashFactor is the percentage of the StepLength line 
 // segment that is visible. Thus, if the DashFactor=0.75, the dashes will be 
 // "three-quarters on" and "one-quarter off".
+
 // .SECTION See Also
 // vtkStreamer vtkStreamLine vtkStreamPoints
 

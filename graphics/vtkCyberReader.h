@@ -42,6 +42,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .SECTION Description
 // vtkCyberReader is a source object that reads a Cyberware laser digitizer
 // file. (Original source code provided courtesy of Cyberware, Inc.)
+// WARNING this does not work under Windows95, 98 or NT.
 
 #ifndef __vtkCyberReader_h
 #define __vtkCyberReader_h

@@ -39,6 +39,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 // .NAME vtkBooleanTexture - generate 2D texture map based on combinations of inside, outside, and on region boundary
+
 // .SECTION Description
 // vtkBooleanTexture is a filter to generate a 2D texture map based on 
 // combinations of inside, outside, and on region boundary. The "region" is
@@ -59,6 +60,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // and/or opacity use the value 255. A minimum value of 0 results in
 // a black region (for intensity) and a fully transparent region (for
 // transparency).
+
 // .SECTION See Also
 // vtkImplicitTextureCoords vtkThresholdTextureCoords
 

@@ -69,14 +69,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkDicer : public vtkDataSetToDataSetFilter 
 {
 public:
-
-// Description:
-// Create object with 5000 points per piece.
   vtkDicer();
-
-  static vtkDicer *New() {return new vtkDicer;};
   const char *GetClassName() {return "vtkDicer";};
   void PrintSelf(ostream& os, vtkIndent indent);
+
+  // Description:
+  // Create object with 5000 points per piece.
+  static vtkDicer *New() {return new vtkDicer;};
 
   // Description:
   // Specify the number of cells per group (i.e., piece).

@@ -34,9 +34,6 @@ THE AUTHORS AND DISTRIBUTORS SPECIFICALLY DISCLAIM ANY WARRANTIES, INCLUDING,
 BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
 PARTICULAR PURPOSE, AND NON-INFRINGEMENT.  THIS SOFTWARE IS PROVIDED ON AN
 "AS IS" BASIS, AND THE AUTHORS AND DISTRIBUTORS HAVE NO OBLIGATION TO PROVIDE
-
-
-
 MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
@@ -66,9 +63,8 @@ public:
   const char *GetClassName() {return "vtkDataSetFilter";};
 
   // Description:
-  // Specify the input data or filter.
+  // Set / get the input data or filter.
   virtual void SetInput(vtkDataSet *input);
-
   virtual void SetInput(vtkImageCache *cache)
     {this->SetInput(cache->GetImageToStructuredPoints()->GetOutput());}
   void SetInput(vtkDataSet &input) {this->SetInput(&input);};

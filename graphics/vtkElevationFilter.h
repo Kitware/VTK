@@ -54,14 +54,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkElevationFilter : public vtkDataSetToDataSetFilter 
 {
 public:
+  vtkElevationFilter();
+  const char *GetClassName() {return "vtkElevationFilter";};
+  void PrintSelf(ostream& os, vtkIndent indent);
+
   // Description:
   // Construct object with LowPoint=(0,0,0) and HighPoint=(0,0,1). Scalar
   // range is (0,1).
-  vtkElevationFilter();
-
   static vtkElevationFilter *New() {return new vtkElevationFilter;};
-  const char *GetClassName() {return "vtkElevationFilter";};
-  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Define one end of the line (small scalar values).

@@ -64,11 +64,7 @@ class vtkRectilinearGrid;
 class VTK_EXPORT vtkDataReader : public vtkObject
 {
 public:
-
-// Description:
-// Construct object.
   vtkDataReader();
-
   ~vtkDataReader();
   static vtkDataReader *New() {return new vtkDataReader;};
   const char *GetClassName() {return "vtkDataReader";};
@@ -144,57 +140,46 @@ public:
   vtkSetObjectMacro(Source,vtkSource);
   vtkGetObjectMacro(Source,vtkSource);
 
-  // Special methods for reading in stuff
-  char *LowerCase(char *);
-
-// Description:
-// Open a vtk data file. Returns zero if error.
+  // Description:
+  // Open a vtk data file. Returns zero if error.
   int OpenVTKFile();
 
-
-// Description:
-// Read the header of a vtk data file. Returns 0 if error.
+  // Description:
+  // Read the header of a vtk data file. Returns 0 if error.
   int ReadHeader();
 
-
-// Description:
-// Read the cell data of a vtk data file. The number of cells (from the 
-// dataset) must match the number of cells defined in cell attributes (unless
-// no geometry was defined).
+  // Description:
+  // Read the cell data of a vtk data file. The number of cells (from the 
+  // dataset) must match the number of cells defined in cell attributes (unless
+  // no geometry was defined).
   int ReadCellData(vtkDataSet *ds, int numCells);
 
-
-// Description:
-// Read the point data of a vtk data file. The number of points (from the 
-// dataset) must match the number of points defined in point attributes (unless
-// no geometry was defined).
+  // Description:
+  // Read the point data of a vtk data file. The number of points (from the
+  // dataset) must match the number of points defined in point attributes
+  // (unless no geometry was defined).
   int ReadPointData(vtkDataSet *ds, int numPts);
 
-
-// Description:
-// Read point coordinates. Return 0 if error.
+  // Description:
+  // Read point coordinates. Return 0 if error.
   int ReadPoints(vtkPointSet *ps, int numPts);
 
-
-// Description:
-// Read lookup table. Return 0 if error.
+  // Description:
+  // Read lookup table. Return 0 if error.
   int ReadCells(int size, int *data);
 
-
-// Description:
-// Read the coordinates for a rectilinear grid. The axes parameter specifies
-// which coordinate axes (0,1,2) is being read.
+  // Description:
+  // Read the coordinates for a rectilinear grid. The axes parameter specifies
+  // which coordinate axes (0,1,2) is being read.
   int ReadCoordinates(vtkRectilinearGrid *rg, int axes, int numCoords);
 
   vtkDataArray *ReadArray(char *dataType, int numTuples, int numComp);
   vtkFieldData *ReadFieldData();
 
-
-// Description:
-// Internal function to read in an integer value.
-// Returns zero if there was an error.
+  // Description:
+  // Internal function to read in a value.  Returns zero if there was an
+  // error.
   int Read(char *);
-
   int Read(unsigned char *);
   int Read(short *);
   int Read(unsigned short *);
@@ -205,28 +190,31 @@ public:
   int Read(float *);
   int Read(double *);
 
-// Description:
-// Close a vtk file.
+  // Description:
+  // Close a vtk file.
   void CloseVTKFile();
 
-
-// Description:
-// Internal function to read in a line up to 256 characters.
-// Returns zero if there was an error.
+  // Description:
+  // Internal function to read in a line up to 256 characters.
+  // Returns zero if there was an error.
   int ReadLine(char result[256]);
 
-
-// Description:
-// Internal function to read in a string up to 256 characters.
-// Returns zero if there was an error.
+  // Description:
+  // Internal function to read in a string up to 256 characters.
+  // Returns zero if there was an error.
   int ReadString(char result[256]);
 
-
-// Description:
-// Internal function used to consume whitespace when reading in
-// an InputString.
+  // Description:
+  // Helper method for reading in data.
+  char *LowerCase(char *);
+  
+  // Description:
+  // Internal function used to consume whitespace when reading in
+  // an InputString.
   void EatWhiteSpace();
 
+  // Description:
+  // Return the istream being used to read in the data.
   istream *GetIStream() {return this->IS;};
 
 protected:

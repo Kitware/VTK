@@ -69,23 +69,23 @@ class vtkRenderer;
 class VTK_EXPORT vtkActor : public vtkProp
 {
  public:
-  // Description:
-  // Creates an actor with the following defaults: origin(0,0,0)
-  // position=(0,0,0) scale=(1,1,1) visibility=1 pickable=1 dragable=1
-  // orientation=(0,0,0). No user defined matrix and no texture map.
   vtkActor();
   ~vtkActor();
-  static vtkActor *New();
   const char *GetClassName() {return "vtkActor";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // This causes the actor to be rendered. It in turn will render the
-  // actor's property, texture map and then mapper. If a property
-  // hasn't been assigned, then the actor will create one
-  // automatically. Note that a side effect of this method is that the
-  virtual void Render(vtkRenderer *ren);
+  // Creates an actor with the following defaults: origin(0,0,0)
+  // position=(0,0,0) scale=(1,1,1) visibility=1 pickable=1 dragable=1
+  // orientation=(0,0,0). No user defined matrix and no texture map.
+  static vtkActor *New();
 
+  // Description:
+  // This causes the actor to be rendered. It in turn will render the actor's
+  // property, texture map and then mapper. If a property hasn't been
+  // assigned, then the actor will create one automatically. Note that a side
+  // effect of this method is that the
+  virtual void Render(vtkRenderer *ren);
   virtual void Render(vtkRenderer *, vtkMapper *) {};
 
   // Description:
@@ -93,22 +93,26 @@ class VTK_EXPORT vtkActor : public vtkProp
   vtkActor &operator=(const vtkActor& actor);
 
   // Description: 
-  // Set/Get the property object that controls this
-  // actors surface properties.  This should be an instance of a
-  // vtkProperty object.  Every actor must have a property associated
-  // with it.  If one isn't specified, then one will be generated
-  // automatically. Multiple actors can share one property object.
+  // Set/Get the property object that controls this actors surface
+  // properties.  This should be an instance of a vtkProperty object.  Every
+  // actor must have a property associated with it.  If one isn't specified,
+  // then one will be generated automatically. Multiple actors can share one
+  // property object.
   void SetProperty(vtkProperty *lut);
   vtkProperty *GetProperty();
 
+  // Description: 
+  // Set/Get the property object that controls this actors backface surface
+  // properties.  This should be an instance of a vtkProperty object. If one
+  // isn't specified, then the front face properties will be used.  Multiple
+  // actors can share one property object.
   void SetBackfaceProperty(vtkProperty *lut);
   vtkProperty *GetBackfaceProperty();
 
   // Description: 
-  // Set/Get the texture object to control rendering
-  // texture maps.  This will be a vtkTexture object. An actor does
-  // not need to have an associated texture map and multiple actors
-  // can share one texture.
+  // Set/Get the texture object to control rendering texture maps.  This will
+  // be a vtkTexture object. An actor does not need to have an associated
+  // texture map and multiple actors can share one texture.
   vtkSetObjectMacro(Texture,vtkTexture);
   vtkGetObjectMacro(Texture,vtkTexture);
 
@@ -130,9 +134,8 @@ class VTK_EXPORT vtkActor : public vtkProp
   vtkGetVectorMacro(Scale,float,3);
 
   // Description:
-  // Get the matrix from the position, origin, scale and orientation
-  // This matrix is cached, so multiple GetMatrix() calls will be
-  // efficient.
+  // Get the matrix from the position, origin, scale and orientation This
+  // matrix is cached, so multiple GetMatrix() calls will be efficient.
   void GetMatrix(vtkMatrix4x4 *m);
 
   // Description:
@@ -171,7 +174,10 @@ class VTK_EXPORT vtkActor : public vtkProp
   // necessary.
   virtual void Update();
 
-  unsigned long int GetMTime();//overload superclasses' implementation
+  // Description:
+  // Get the actors mtime plus consider its properties, texture and
+  // usermatrix if set.
+  unsigned long int GetMTime();
 
   // Description:
   // The renderer may use the allocated rendering time to determine

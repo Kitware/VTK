@@ -39,9 +39,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 // .NAME vtkColorTransferFunction - Defines a transfer function for mapping a property to an RGB color value.
+
 // .SECTION Description
-// vtkPiecewiseFunction 
-// 
+// vtkColorTransferFunction encapsulates three vtkPiecewiseFunction instances
+// to provide a full RGB transfer funciton.
 
 // .SECTION see also
 // vtkPiecewiseFunction
@@ -55,23 +56,15 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkColorTransferFunction : public vtkObject 
 {
 public:
-
-// Description:
-// Construct a new vtkColorTransferFunction with default values
   vtkColorTransferFunction();
-
-
-// Description:
-// Destruct a vtkColorTransferFunction
   ~vtkColorTransferFunction();
-
-  static vtkColorTransferFunction *New() {return new vtkColorTransferFunction;};
+  static vtkColorTransferFunction *New() {
+    return new vtkColorTransferFunction;};
   const char *GetClassName() {return "vtkColorTransferFunction";};
 
-// Description:
-// Print method for vtkColorTransferFunction
+  // Description:
+  // Print method for vtkColorTransferFunction
   void PrintSelf(ostream& os, vtkIndent indent);
-
 
   // Description:
   // Returns the sum of the number of function points used to specify 
@@ -135,8 +128,8 @@ public:
   // Sets and gets the clamping value for this transfer function.
   void SetClamping(int val);
   int  GetClamping();
-protected:
 
+protected:
   // Determines the function value outside of defined points
   // in each of the R,G,B transfer functions.
   // Zero = always return 0.0 outside of defined points
@@ -156,7 +149,8 @@ protected:
   float Range[2]; 
 
   // Description:
-  // Calculates the min and max point locations for all three transfer functions
+  // Calculates the min and max point locations for all three transfer
+  // functions
   void UpdateRange();
 
 };

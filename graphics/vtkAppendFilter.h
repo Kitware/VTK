@@ -46,6 +46,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // only if all datasets have the point attributes available. (For example, 
 // if one dataset has scalars but another does not, scalars will not be 
 // appended.)
+
 // .SECTION See Also
 // vtkAppendPolyData
 
@@ -73,7 +74,9 @@ public:
   // Remove a dataset from the list of data to append.
   void RemoveInput(vtkDataSet *in);
   void RemoveInput(vtkDataSet& in) {this->RemoveInput(&in);}
-  
+
+  // Description:
+  // Return the list of inputs to this filter.
   vtkDataSetCollection *GetInputList() {return this->InputList;}
 
   // filter interface

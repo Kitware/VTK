@@ -57,14 +57,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkConeSource : public vtkPolyDataSource 
 {
 public:
+  vtkConeSource(int res=6);
+  const char *GetClassName() {return "vtkConeSource";};
+  void PrintSelf(ostream& os, vtkIndent indent);
+
   // Description:
   // Construct with default resolution 6, height 1.0, radius 0.5, and
   // capping on.
-  vtkConeSource(int res=6);
-
   static vtkConeSource *New() {return new vtkConeSource;};
-  const char *GetClassName() {return "vtkConeSource";};
-  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Set the height of the cone.

@@ -56,10 +56,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // list of actors. This is because they are automatically renderered 
 // during the hierarchical traversal process.
 //
-// Since a vtkAssembly object is a derived class of vtkActor, it has properties
-// and possibly a mapper. During the rendering process, if a mapper is associated
-// with the assembly, it is rendered with these properties. Otherwise, the 
-// properties have no effect (i.e., on the children of the assembly).
+// Since a vtkAssembly object is a derived class of vtkActor, it has
+// properties and possibly a mapper. During the rendering process, if a
+// mapper is associated with the assembly, it is rendered with these
+// properties. Otherwise, the properties have no effect (i.e., on the
+// children of the assembly).
 
 // .SECTION Caveats
 // Collections of assemblies are slower to render than an equivalent list
@@ -85,15 +86,12 @@ class vtkAssemblyPaths;
 class VTK_EXPORT vtkAssembly : public vtkActor
 {
 public:
-  // Description:
-  // Construct object with no children.
   vtkAssembly();
-
   ~vtkAssembly();
   static vtkAssembly *New() {return new vtkAssembly;};
   const char *GetClassName() {return "vtkAssembly";};
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // Add a part to the list of parts.
   void AddPart(vtkActor *);
@@ -102,6 +100,8 @@ public:
   // Remove a part from the list of parts,
   void RemovePart(vtkActor *);
 
+  // Description:
+  // Return the parts of this asembly.
   vtkActorCollection *GetParts();
 
   // Description:
@@ -128,14 +128,22 @@ public:
   vtkActor *GetNextPart();
   int GetNumberOfParts();
 
+  // Description:
+  // Build assembly paths from this current assembly. Paths consist of
+  // an ordered sequence of actors, with transformations properly concatenated.
   void BuildPaths(vtkAssemblyPaths *paths, vtkActorCollection *path);
 
-  void ApplyProperties(); //recursive application of properties
+  // Description:
+  // Recursively apply properties to parts.
+  void ApplyProperties(); 
 
   // Description:
   // Get the bounds for the assembly as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
   float *GetBounds();
 
+  // Description:
+  // Override default GetMTime method to also consider all of the
+  // assembly's parts.
   unsigned long int GetMTime();
 
   // Description:

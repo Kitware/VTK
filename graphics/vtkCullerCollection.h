@@ -40,9 +40,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkCullerCollection - a list of Cullers
 // .SECTION Description
-// vtkCullerCollection represents and provides methods to 
-// manipulate a list of Cullers (i.e., vtkCuller and 
-// subclasses). The list is unsorted and duplicate entries are not prevented.
+// vtkCullerCollection represents and provides methods to manipulate a list
+// of Cullers (i.e., vtkCuller and subclasses). The list is unsorted and
+// duplicate entries are not prevented.
 
 // .SECTION see also
 // vtkCuller vtkCollection 
@@ -59,44 +59,33 @@ class VTK_EXPORT vtkCullerCollection : public vtkCollection
   static vtkCullerCollection *New() {return new vtkCullerCollection;};
   const char *GetClassName() {return "vtkCullerCollection";};
 
-  void AddItem(vtkCuller *a);
-  void RemoveItem(vtkCuller *a);
-  int IsItemPresent(vtkCuller *a);
-  vtkCuller *GetNextItem();
+  // Description:
+  // Add an Culler to the list.
+  void AddItem(vtkCuller *a) {
+    this->vtkCollection::AddItem((vtkObject *)a);};
+
+  // Description:
+  // Remove an Culler from the list.
+  void RemoveItem(vtkCuller *a) {
+    this->vtkCollection::RemoveItem((vtkObject *)a);};
+  
+  // Description:
+  // Determine whether a particular Culler is present. Returns its position
+  // in the list.
+  int IsItemPresent(vtkCuller *a) {
+    return this->vtkCollection::IsItemPresent((vtkObject *)a);};
+  
+  // Description:
+  // Get the next Culler in the list.
+  vtkCuller *GetNextItem() { 
+    return (vtkCuller *)(this->GetNextItemAsObject());};
+  
+  // Description:
+  // Get the last Culler in the list.
   vtkCuller *GetLastItem();
 };
 
-// Description:
-// Add an Culler to the list.
-inline void vtkCullerCollection::AddItem(vtkCuller *a) 
-{
-  this->vtkCollection::AddItem((vtkObject *)a);
-}
 
-// Description:
-// Remove an Culler from the list.
-inline void vtkCullerCollection::RemoveItem(vtkCuller *a) 
-{
-  this->vtkCollection::RemoveItem((vtkObject *)a);
-}
-
-// Description:
-// Determine whether a particular Culler is present. Returns its position
-// in the list.
-inline int vtkCullerCollection::IsItemPresent(vtkCuller *a) 
-{
-  return this->vtkCollection::IsItemPresent((vtkObject *)a);
-}
-
-// Description:
-// Get the next Culler in the list.
-inline vtkCuller *vtkCullerCollection::GetNextItem() 
-{ 
-  return (vtkCuller *)(this->GetNextItemAsObject());
-}
-
-// Description:
-// Get the last Culler in the list.
 inline vtkCuller *vtkCullerCollection::GetLastItem() 
 { 
   if ( this->Bottom == NULL )
