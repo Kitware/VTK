@@ -443,7 +443,6 @@ public:
       }
     
   protected:
-    int IsInList(int index);
 
     int* List;
     int ListSize;
@@ -454,7 +453,6 @@ public:
   {
   public:
 
-    Iterator();
     Iterator(const Iterator& source);
     Iterator& operator=(const Iterator& source);
     virtual ~Iterator();

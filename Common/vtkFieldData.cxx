@@ -42,7 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkFieldData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkFieldData, "1.41");
+vtkCxxRevisionMacro(vtkFieldData, "1.42");
 vtkStandardNewMacro(vtkFieldData);
 
 vtkFieldData::BasicIterator::BasicIterator(const int* list, 
@@ -87,12 +87,6 @@ vtkFieldData::BasicIterator::BasicIterator()
 {
   this->List  = 0;
   this->ListSize = 0;
-}
-
-vtkFieldData::Iterator::Iterator()
-{
-  this->Detached = 0;
-  this->Fields = 0;
 }
 
 vtkFieldData::BasicIterator::BasicIterator(const vtkFieldData::BasicIterator& 
@@ -186,18 +180,6 @@ void vtkFieldData::Iterator::DetachFieldData()
     }
 }
 
-int vtkFieldData::BasicIterator::IsInList(int index)
-{
-  for(int i=0; i<this->ListSize; i++)
-    {
-    if (index == this->List[i])
-      {
-      return 1;
-      }
-    }
-  return 0;
-}
-
 // Construct object with no data initially.
 vtkFieldData::vtkFieldData()
 {
@@ -277,6 +259,8 @@ vtkFieldData *vtkFieldData::MakeObject()
   vtkDataArray *data;
   
   f->AllocateArrays(this->GetNumberOfArrays());
+  f->NumberOfActiveArrays = this->GetNumberOfArrays();
+
   for ( i=0; i < this->GetNumberOfArrays(); i++ )
     {
     data = this->Data[i]->MakeObject();
@@ -757,7 +741,10 @@ int vtkFieldData::GetNumberOfComponents()
 
   for ( i=numComp=0; i < this->GetNumberOfArrays(); i++ )
     {
-    numComp += this->Data[i]->GetNumberOfComponents();
+    if (this->Data[i])
+      {
+      numComp += this->Data[i]->GetNumberOfComponents();
+      }
     }
 
   return numComp;

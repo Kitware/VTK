@@ -57,7 +57,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkIdTypeArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkDataSetAttributes, "1.55");
+vtkCxxRevisionMacro(vtkDataSetAttributes, "1.56");
 vtkStandardNewMacro(vtkDataSetAttributes);
 
 //--------------------------------------------------------------------------
@@ -532,9 +532,13 @@ void vtkDataSetAttributes::InterpolateTime(vtkDataSetAttributes *from1,
     // If this attribute is to be copied
     if (this->CopyAttributeFlags[attributeType])
       {
-      this->InterpolateTuple(from1->GetAttribute(attributeType), 
-                             from2->GetAttribute(attributeType),
-                             this->GetAttribute(attributeType), id, t);
+      if (from1->GetAttribute(attributeType) && 
+	  from2->GetAttribute(attributeType))
+	{
+	this->InterpolateTuple(from1->GetAttribute(attributeType), 
+			       from2->GetAttribute(attributeType),
+			       this->GetAttribute(attributeType), id, t);
+	}
       }
     }
 }
@@ -1410,7 +1414,7 @@ int vtkDataSetAttributes::SetActiveAttribute(int index, int attributeType)
     }
 }
 
-    // Scalars set to NOLIMIT and 1024 (limit is arbitrary, so make it big.)
+    // Scalars set to NOLIMIT 
 int vtkDataSetAttributes::NumberOfAttributeComponents[vtkDataSetAttributes::NUM_ATTRIBUTES]
 = { 0,
     3,
@@ -1863,24 +1867,6 @@ int vtkDataSetAttributes::FieldList::IsAttributePresent(int attrType)
   return this->FieldIndices[attrType];
 }
 
-int vtkDataSetAttributes::FieldList::IsFieldPresent(const char *name)
-{
-  if ( !name )
-    {
-    return -1;
-    }
-
-  // First five slots are reserved for named attributes
-  for (int i=0; i < this->NumberOfFields; i++)
-    {
-    if ( this->Fields[i] && !strcmp(this->Fields[i],name) )
-      {
-      return i;
-      }
-    }
-
-  return -1;
-}
 
 vtkDataSetAttributes::FieldList::FieldList(int numInputs)
 {

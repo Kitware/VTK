@@ -433,7 +433,6 @@ public:
 
     //Determine whether data is available
     int IsAttributePresent(int attrType); //true/false attributes specified
-    int IsFieldPresent(const char *name); //return idx into field arrays
 
     friend class vtkDataSetAttributes;
 
