@@ -380,7 +380,7 @@ case $system in
 	SHLIB_CFLAGS="-fPIC"
 	SHLIB_LD_LIBS=""
 	SHLIB_SUFFIX=".so"
-	VTK_SHLIB_BUILD_FLAGS="-shared -rdata_shared"
+	VTK_SHLIB_BUILD_FLAGS="-shared"
 	if test "$have_dl" = yes; then
 	    DL_LIBS="-ldl"
 	    VTK_SHLIB_LINK_FLAGS="-rdynamic"
@@ -512,6 +512,7 @@ case $system in
 	VTK_SHLIB_LINK_FLAGS="-Wl,-Bexport"
 	;;
 esac
+export SHLIB_SUFFIX
 
 # If we're running gcc, then change the C flags for compiling shared
 # libraries to the right flags for gcc, instead of those for the
@@ -546,6 +547,7 @@ else
        TOOLKIT_DEPENDS="${TOOLKIT_DEPENDS} \${VTK_OBJ}/contrib/libVTKContribTcl.a"
     fi
 fi
+export VTK_LIB_EXT
 
 AC_SUBST(VTK_TCL_SHLIB_TARGET)
 
