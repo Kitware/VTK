@@ -830,6 +830,10 @@ void vtkTransform::PrintSelf (ostream& os, vtkIndent indent)
 
   os << indent << (this->PreMultiplyFlag ? "PreMultiply\n" : "PostMultiply\n");
 
+  os << indent << "DoublePoint: " << "( " << 
+     this->DoublePoint[0] << ", " << this->DoublePoint[1] << ", " <<
+     this->DoublePoint[2] << ", " << this->DoublePoint[3] << "\n";
+
   os << indent << "Point: " << "( " << 
      this->Point[0] << ", " << this->Point[1] << ", " <<
      this->Point[2] << ", " << this->Point[3] << "\n";
