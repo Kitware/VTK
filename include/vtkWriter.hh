@@ -52,7 +52,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // will have to create SetInput() method as well.
 
 // .SECTION See Also
-// vtkBYUWriter vtkDataWriter vtkSTLWriter vtkVoxelWriter
+// vtkBYUWriter vtkDataWriter vtkSTLWriter vtkVoxelWriter vtkMCubesWriter
 
 #ifndef __vtkWriter_hh
 #define __vtkWriter_hh
