@@ -173,10 +173,11 @@ public:
   vtkGetObjectMacro(InformationInput, vtkImageData);
 
   // Description:
-  // Specify whether to transform the spacing and extent of the
-  // Input (or the InformationInput) according to the direction
-  // cosines of the ResliceAxes before applying it to the
-  // output.  Default: On.
+  // Specify whether to transform the spacing, origin and extent
+  // of the Input (or the InformationInput) according to the
+  // direction cosines and origin of the ResliceAxes before applying
+  // them as the default output spacing, origin and extent. 
+  // Default: On.
   vtkSetMacro(TransformInputSampling, int);
   vtkBooleanMacro(TransformInputSampling, int);
   vtkGetMacro(TransformInputSampling, int);
@@ -236,21 +237,29 @@ public:
   // spacing is the input spacing permuted through the ResliceAxes.
   vtkSetVector3Macro(OutputSpacing, float);
   vtkGetVector3Macro(OutputSpacing, float);
+  void SetOutputSpacingToDefault() {
+    this->SetOutputSpacing(VTK_FLOAT_MAX, VTK_FLOAT_MAX, VTK_FLOAT_MAX); };
 
   // Description:
   // Set the origin for the output data.  The default output origin
   // is the input origin permuted through the ResliceAxes.
   vtkSetVector3Macro(OutputOrigin, float);
   vtkGetVector3Macro(OutputOrigin, float);
+  void SetOutputOriginToDefault() {
+    this->SetOutputOrigin(VTK_FLOAT_MAX, VTK_FLOAT_MAX, VTK_FLOAT_MAX); };
 
   // Description:
   // Set the extent for the output data.  The default output extent
   // is the input extent permuted through the ResliceAxes.
   vtkSetVector6Macro(OutputExtent, int);
   vtkGetVector6Macro(OutputExtent, int);
+  void SetOutputExtentToDefault() {
+    this->SetOutputExtent(VTK_INT_MIN, VTK_INT_MAX,
+			  VTK_INT_MIN, VTK_INT_MAX,
+			  VTK_INT_MIN, VTK_INT_MAX); };
 
   // Description:
-  // Specify the dimensionality of the output as either 1, 2,
+  // Force the dimensionality of the output to either 1, 2,
   // 3 or 0 (default: 3).  If the dimensionality is 2D, then
   // the Z extent of the output is forced to (0,0) and the Z
   // origin of the output is forced to 0.0 (i.e. the output

@@ -6,7 +6,19 @@ if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdat
 # In this example, we allow vtkImageReslice to calculate the
 # output origin for us, rather than explicitly calling
 # reslice SetOutputOrigin.  This means that the output images
-# will always be centered. 
+# will always be centered, and when used in combination with
+# SetOutputDimensionality(2) the output slices will pass through
+# whatever point we set as the ResliceAxesOrigin.
+
+# If you don't want the images to always be centered, then see
+# the example ResliceExtractSlices2 -- the way that it does things
+# provides more flexibility in setting the exact extents/origins
+# of the extracted slices.
+# The difference between this example and ResliceExtractSlices2
+# is that this example gives a quick & dirty way to do things,
+# while ResliceExtractSlices2 is more suitable as the basis for
+# a serious visualization program but requires a greater
+# understanding of how vtkImageReslice actually works.
 
 # Image pipeline
 
@@ -20,14 +32,14 @@ reader SetDataMask 0x7fff
 #reader DebugOn
 reader Update
 
-# the center of the volume will be {127.5 127.5 92}
+# we want to extract slices through the center of the volume
 set center [[reader GetOutput] GetCenter]
 set x [lindex $center 0]
 set y [lindex $center 1]
 set z [lindex $center 2]
 
 # a transform can be applied to the image before slicing if desired
-# (not that the transform goes from output coords -> input coords)
+#  - uncomment in reslice1, reslice2 etc. to apply to the image
 vtkTransform transform
 # rotate about the center of the image
 transform Translate $x $y $z
@@ -191,11 +203,16 @@ proc InitializeInterface {} {
    label .ct.f4.oLabel -text "O(mm)"
    scale .ct.f4.o -from $zl -to $zh  -orient horizontal \
 	   -resolution 0.5 -command SetO -variable o
+   frame .ct.f5
+   label .ct.f5.sLabel -text "Spacing"
+   scale .ct.f5.s -from 0.1 -to 2  -orient horizontal \
+	   -resolution 0.01 -command SetSpacing -variable s
 
    .ct.f1.x set [lindex $center 0]
    .ct.f2.y set [lindex $center 1]
    .ct.f3.z set [lindex $center 2]
    .ct.f4.o set [lindex $center 2]
+   .ct.f5.s set 1
 
    frame .wl
    frame .wl.f1
@@ -224,11 +241,12 @@ proc InitializeInterface {} {
 
    pack .ct .wl .ex -side top
    
-   pack .ct.f1 .ct.f2 .ct.f3 .ct.f4 -side top
+   pack .ct.f1 .ct.f2 .ct.f3 .ct.f4 .ct.f5 -side top
    pack .ct.f1.xLabel .ct.f1.x -side left
    pack .ct.f2.yLabel .ct.f2.y -side left
    pack .ct.f3.zLabel .ct.f3.z -side left
    pack .ct.f4.oLabel .ct.f4.o -side left
+   pack .ct.f5.sLabel .ct.f5.s -side left
 
    pack .wl.f1 .wl.f2 .wl.video -side top
    pack .wl.f1.windowLabel .wl.f1.window -side left
@@ -277,6 +295,19 @@ proc SetO o {
    imgWin Render
 }
 
+proc SetSpacing spacing {
+   global reslice1 reslice2 reslice3 reslice4
+   global imgWin
+   # don't modify the slice spacing
+   set s [reslice1 GetOutputSpacing]
+   set s [lindex $s 2]
+   reslice1 SetOutputSpacing $spacing $spacing $s
+   reslice2 SetOutputSpacing $spacing $spacing $s
+   reslice3 SetOutputSpacing $spacing $spacing $s
+   reslice4 SetOutputSpacing $spacing $spacing $s
+
+   imgWin Render
+}
 
 proc SetWindow window {
    global mapper1 mapper2 mapper3 mapper4
