@@ -38,6 +38,7 @@ IF (VTK_USE_RENDERING)
       contour3DAll
       cowHair
       createBFont
+      cutLoop
       cylMap
       dataSetSurfaceFilter
       deciFranFace
