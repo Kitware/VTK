@@ -50,7 +50,7 @@
 #ifndef __vtkImageMarchingCubes_h
 #define __vtkImageMarchingCubes_h
 
-#include "vtkPolyDataSource.h"
+#include "vtkPolyDataAlgorithm.h"
 
 #include "vtkContourValues.h" // Needed for direct access to ContourValues
 
@@ -59,18 +59,14 @@ class vtkFloatArray;
 class vtkImageData;
 class vtkPoints;
 
-class VTK_PATENTED_EXPORT vtkImageMarchingCubes : public vtkPolyDataSource
+class VTK_PATENTED_EXPORT vtkImageMarchingCubes : public vtkPolyDataAlgorithm
 {
 public:
   static vtkImageMarchingCubes *New();
-  vtkTypeRevisionMacro(vtkImageMarchingCubes,vtkPolyDataSource);
+  vtkTypeRevisionMacro(vtkImageMarchingCubes,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:
-  // Set/Get the source for the scalar data to contour.
-  void SetInput(vtkImageData *input);
-  vtkImageData *GetInput();
-  
   // Methods to set contour values
   void SetValue(int i, double value);
   double GetValue(int i);
@@ -81,6 +77,7 @@ public:
   void GenerateValues(int numContours, double range[2]);
   void GenerateValues(int numContours, double rangeStart, double rangeEnd);
 
+  // Description:
   // Because we delegate to vtkContourValues & refer to vtkImplicitFunction
   unsigned long int GetMTime();
 
@@ -124,8 +121,6 @@ public:
   void AddLocatorPoint(int cellX, int cellY, int edge, int ptId);
   void IncrementLocatorZ();
 
-  void Update();
-  
   // Description:
   // The InputMemoryLimit determines the chunk size (the number of slices
   // requested at each iteration).  The units of this limit is KiloBytes.
@@ -148,7 +143,7 @@ protected:
   int LocatorMinX;
   int LocatorMinY;
   
-  void Execute();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   void March(vtkImageData *inData, int chunkMin, int chunkMax,
              int numContours, double *values);
@@ -212,6 +207,3 @@ inline void vtkImageMarchingCubes::GenerateValues(int numContours, double
 {this->ContourValues->GenerateValues(numContours, rangeStart, rangeEnd);}
 
 #endif
-
-
-
