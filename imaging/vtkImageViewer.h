@@ -149,12 +149,19 @@ public:
   // These are here for using a tk window.
   virtual void SetDisplayId(void *) {};
   virtual void SetWindowId(void *) {};
+  virtual void SetParentId(void *) {};
   
   // Description:
   // Keep track of whether the rendering window has been mapped to screen.
   vtkSetMacro(Mapped,int);
   vtkGetMacro(Mapped,int);
   vtkBooleanMacro(Mapped,int);
+
+  // Description:
+  // Set/Get the position in screen coordinates of the rendering window.
+  virtual int *GetPosition() {return (int *)NULL;};
+  virtual void SetPosition(int,int);
+  virtual void SetPosition(int a[2]);
 
   // Description:
   // Set/Get the size of the window in screen coordinates.
@@ -183,6 +190,7 @@ protected:
   int Blue;
   char *WindowName;
   int Size[2];
+  int Position[2];
 };
 
 #endif

@@ -46,7 +46,9 @@ vtkImageXViewer::vtkImageXViewer()
 {
   this->DisplayId = (Display *)NULL;
   this->WindowId = (Window)(NULL);
+  this->ParentId = (Window)(NULL);
   this->NumberOfColors = 150;
+  this->ColorMap = (Colormap)0;
 }
 
 
@@ -62,7 +64,83 @@ void vtkImageXViewer::PrintSelf(ostream& os, vtkIndent indent)
   vtkImageViewer::PrintSelf(os, indent);
 }
 
+// Description:
+// Get this RenderWindow's X window id.
+Window vtkImageXViewer::GetWindowId()
+{
+  vtkDebugMacro(<< "Returning WindowId of " << (void *)this->WindowId << "\n");
+  return this->WindowId;
+}
 
+// Description:
+// Get this RenderWindow's parent X window id.
+Window vtkImageXViewer::GetParentId()
+{
+  vtkDebugMacro(<< "Returning ParentId of " << (void *)this->ParentId << "\n");
+  return this->ParentId;
+}
+
+// Description:
+// Sets the parent of the window that WILL BE created.
+void vtkImageXViewer::SetParentId(Window arg)
+{
+  if (this->ParentId)
+    {
+    vtkErrorMacro("ParentId is already set.");
+    return;
+    }
+  
+  vtkDebugMacro(<< "Setting ParentId to " << (void *)arg << "\n"); 
+
+  this->ParentId = arg;
+}
+
+// Description:
+// Get the position in screen coordinates (pixels) of the window.
+int *vtkImageXViewer::GetPosition(void)
+{
+  XWindowAttributes attribs;
+  int x,y;
+  Window child;
+  
+  // if we aren't mapped then just return the ivar 
+  if (!this->Mapped)
+    {
+    return(this->Position);
+    }
+
+  //  Find the current window size 
+  XGetWindowAttributes(this->DisplayId, this->WindowId, &attribs);
+  x = attribs.x;
+  y = attribs.y;
+
+  XTranslateCoordinates(this->DisplayId,this->WindowId,
+			RootWindowOfScreen(ScreenOfDisplay(this->DisplayId,0)),
+			x,y,&this->Position[0],&this->Position[1],&child);
+
+  return this->Position;
+}
+
+// Description:
+// Move the window to a new position on the display.
+void vtkImageXViewer::SetPosition(int x, int y)
+{
+  // if we aren't mapped then just set the ivars
+  if (!this->Mapped)
+    {
+    if ((this->Position[0] != x)||(this->Position[1] != y))
+      {
+      this->Modified();
+      }
+    this->Position[0] = x;
+    this->Position[1] = y;
+    return;
+    }
+
+  XMoveResizeWindow(this->DisplayId,this->WindowId,x,y,
+                    this->Size[0], this->Size[1]);
+  XSync(this->DisplayId,False);
+}
 
 //----------------------------------------------------------------------------
 // Description:
@@ -428,16 +506,8 @@ Window vtkImageXViewer::MakeDefaultWindow(int width, int height)
   
   // Create a window 
   // If this is a pseudocolor visual, create a color map.
-  if (info.depth == 8)
-    {
-    values.colormap = this->MakeColorMap(info.visual);
-    }
-  else
-    {
-    values.colormap = 
-      XCreateColormap(this->DisplayId, RootWindow(this->DisplayId, screen),
-		      info.visual, AllocNone);
-    }
+  values.colormap = this->GetDesiredColormap();
+  
   values.background_pixel = BlackPixel(this->DisplayId, screen);
   values.border_pixel = None;
   values.event_mask = 0;
@@ -445,7 +515,14 @@ Window vtkImageXViewer::MakeDefaultWindow(int width, int height)
   //  if ((w > 0) && (x >= 0) && (!borders))
   //  values.override_redirect = True;
   XFlush(this->DisplayId);
-  window = XCreateWindow(this->DisplayId, RootWindow(this->DisplayId,screen),
+
+  // get a default parent if one has not been set.
+  if (! this->ParentId)
+    {
+    this->ParentId = RootWindow(this->DisplayId, screen);
+    }
+
+  window = XCreateWindow(this->DisplayId, this->ParentId,
 			 0, 0, width, height, 0, info.depth, 
 			 InputOutput, info.visual,
 			 CWEventMask | CWBackPixel | CWBorderPixel | 
@@ -554,6 +631,53 @@ void vtkImageXViewer::GetDefaultVisualInfo(XVisualInfo *info)
   XFree(visuals);
 }
 
+int vtkImageXViewer::GetDesiredDepth()
+{
+  XVisualInfo v;
+
+  // get the default visual to use 
+  this->GetDefaultVisualInfo(&v);
+
+  return v.depth;  
+}
+
+// Description:
+// Get a visual from the windowing system.
+Visual *vtkImageXViewer::GetDesiredVisual ()
+{
+  XVisualInfo v;
+
+  // get the default visual to use 
+  this->GetDefaultVisualInfo(&v);
+
+  return v.visual;  
+}
+
+
+// Description:
+// Get a colormap from the windowing system.
+Colormap vtkImageXViewer::GetDesiredColormap ()
+{
+  XVisualInfo v;
+
+  if (this->ColorMap) return this->ColorMap;
+  
+  // get the default visual to use 
+  this->GetDefaultVisualInfo(&v);
+
+  if (v.depth == 8)
+    {
+    this->ColorMap = this->MakeColorMap(v.visual);
+    }
+  else
+    {
+    this->ColorMap = 
+      XCreateColormap(this->DisplayId, RootWindow(this->DisplayId, v.screen),
+		      v.visual, AllocNone);
+    }
+  
+  return this->ColorMap;  
+}
 
 //----------------------------------------------------------------------------
 int vtkImageXViewer::GetWindow() 

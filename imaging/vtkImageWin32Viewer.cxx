@@ -69,7 +69,44 @@ void vtkImageWin32Viewer::PrintSelf(ostream& os, vtkIndent indent)
   vtkImageViewer::PrintSelf(os, indent);
 }
 
+// Description:
+// Get the position in screen coordinates of the window.
+int *vtkImageWin32Viewer::GetPosition(void)
+{
+  // if we aren't mapped then just return the ivar 
+  if (!this->Mapped)
+    {
+    return(this->Position);
+    }
 
+  //  Find the current window position 
+//  x,y,&this->Position[0],&this->Position[1],&child);
+
+  return this->Position;
+}
+
+void vtkImageWin32Viewer::SetPosition(int x, int y)
+{
+  static int resizing = 0;
+
+  if ((this->Position[0] != x) || (this->Position[1] != y))
+    {
+    this->Modified();
+    this->Position[0] = x;
+    this->Position[1] = y;
+    if (this->Mapped)
+      {
+      if (!resizing)
+        {
+        resizing = 1;
+   
+        SetWindowPos(this->WindowId,HWND_TOP,x,y,
+            0, 0, SWP_NOSIZE | SWP_NOZORDER);
+        resizing = 0;
+        }
+      }
+    }
+}
 
 //----------------------------------------------------------------------------
 // Description:

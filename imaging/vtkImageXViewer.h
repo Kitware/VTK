@@ -93,15 +93,25 @@ public:
 
   // Description:
   // These are here for using a tk window.
-  void SetDisplayId(Display *);
-  void SetDisplayId(void *);
-  void SetWindowId(Window);
-  void SetWindowId(void *);
+  Window   GetParentId();
+  void     SetParentId(Window);
+  void     SetDisplayId(Display *);
+  void     SetDisplayId(void *);
+  void     SetWindowId(Window);
+  void     SetWindowId(void *);
+  Window   GetWindowId();
   Display *GetDisplayId();
   GC  GetGC();
+  int     *GetPosition();
+  void     SetPosition(int,int);
+
+  virtual int      GetDesiredDepth();
+  virtual Colormap GetDesiredColormap();
+  virtual Visual  *GetDesiredVisual();
 
 protected:
   // X stuff
+  Window               ParentId;
   Window	       WindowId;
   Display             *DisplayId;
   Visual              *VisualId;

@@ -1,13 +1,13 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageWin32Viewer.h
+  Module:    vtkTkImageViewerWidget.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
 
-Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
+Copyright (c) 1993-1996 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
 The following terms apply to all files associated with the software unless
@@ -38,54 +38,58 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageWin32Viewer - Display a 2d image in an Win32Window.
+// .NAME vtkTkImageViewerWidget - a Tk Widget for viewing vtk images
+
 // .SECTION Description
-// vtkImageWin32Viewer displays a 2d image in an Win32 window.
+// vtkTkImageViewerWidget is a Tk widget that you can render into. It has a 
+// GetImageViewer method that returns a vtkImageViewer. You can also 
+// specify a vtkImageViewer to be used when creating the widget by using
+// the -iv option. It also takes -width and -height options.
 
-#ifndef __vtkImageWin32Viewer_h
-#define __vtkImageWin32Viewer_h
+
+// .SECTION Event Bindings
+// Events can be bound on this widget just liek any other Tk widget.
+
+// .SECTION See Also
+// vtkImageViewer
 
 
-#include 	"vtkImageViewer.h"
+#ifndef __vtkTkImageViewerWidget_h
+#define __vtkTkImageViewerWidget_h
 
-class VTK_EXPORT vtkImageWin32Viewer : public vtkImageViewer 
+#include "vtkTclUtil.h"
+#include "vtkImageViewer.h"
+
+struct vtkTkImageViewerWidget
 {
-public:
-  HINSTANCE ApplicationInstance;
-  HPALETTE  Palette;
-  HDC       DeviceContext;
-  HWND      WindowId;
-  HWND      ParentId;
-
-  vtkImageWin32Viewer();
-  ~vtkImageWin32Viewer();
-  static vtkImageWin32Viewer *New() {return new vtkImageWin32Viewer;};
-  char *GetClassName() {return "vtkImageWin32Viewer";};
-  void PrintSelf(ostream& os, vtkIndent indent);
-
-  // output to the viewer.
-  vtkImageWin32Viewer *GetOutput(){return this;};
-
-  void Render(void);
-  
-  //BTX
-  HWND      GetWindowId();
-  void      SetDisplayId(void *foo) {};
-  void      SetWindowId(void *foo) {this->SetWindowId((HWND)foo);};
-  void      SetWindowId(HWND);
-  void      SetParentId(void *foo) {this->SetParentId((HWND)foo);};
-  void      SetParentId(HWND);
-  void      SetDeviceContext(HDC);
-  //ETX
-
-  void   SetSize(int,int);
-  int   *GetSize();
-  int   *GetPosition();
-  void   SetPosition(int,int);
-
-protected:
-  int OwnWindow; // do we create this window ?
-  void MakeDefaultWindow();  
+  Tk_Window  TkWin;		/* Tk window structure */
+  Tcl_Interp *Interp;		/* Tcl interpreter */
+  int Width;
+  int Height;
+  vtkImageViewer *ImageViewer;
+  char *IV;
+#ifdef _WIN32
+  WNDPROC OldProc;
+#endif
 };
 
+// This widget requires access to structures that are normally 
+// not visible to Tcl/Tk applications. For this reason you must
+// have access to tkInt.h
+#include "tkInt.h"
+
+#ifdef _WIN32
+extern "C" {
+#include "tkWinInt.h" 
+}
 #endif
+
+#endif
+
+
+
+
+
+
+
+
