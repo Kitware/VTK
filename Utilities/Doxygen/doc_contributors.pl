@@ -1,9 +1,13 @@
 #!/usr/bin/env perl
-# Time-stamp: <2002-02-13 18:17:58 barre>
+# Time-stamp: <2002-02-15 10:15:43 barre>
 #
 # Get author and contributors.
 #
 # barre : Sebastien Barre <sebastien@barre.nom.fr>
+#
+# 0.7 (barre) :
+#   - Fix empty cached log file pb (regenerated)
+#   - Add link from name to detailed description of contribution
 #
 # 0.6 (barre) :
 #   - Change --history_img in order to create any contribution graph(s)
@@ -35,7 +39,7 @@ use strict;
 use FileHandle;
 use Time::Local;
 
-my ($VERSION, $PROGNAME, $AUTHOR) = (0.6, $0, "Sebastien Barre");
+my ($VERSION, $PROGNAME, $AUTHOR) = (0.7, $0, "Sebastien Barre");
 $PROGNAME =~ s/^.*[\\\/]//;
 
 # -------------------------------------------------------------------------
@@ -339,8 +343,11 @@ foreach my $file_name (@files_submitted) {
     my $old_slurp = $/;
     undef $/;                           # slurp mode  
     
+    # Use the cache if it exists, is not older than file, and not empty
+
     if (-e $cache_name && 
-        (stat $cache_name)[9] >= (stat $file_name)[9]) {
+        (stat $cache_name)[9] >= (stat $file_name)[9] &&
+        (stat $cache_name)[7]) {
         sysopen(CACHE_FILE, 
                 $cache_name, 
                 O_RDONLY|$open_file_as_text)
@@ -729,21 +736,7 @@ $header = $indent . join("\n$indent", @summary) . "\n\n" .
   $indent . join("\n$indent", @credits) . "\n\n";
 
 # -------------------------------------------------------------------------
-# Build documentation
-
-my $destination_file = $args{"to"} . "/" . $args{"store"};
-print "Building documentation to ", $destination_file, "\n";
-
-sysopen(DEST_FILE, 
-        $destination_file, 
-        O_WRONLY|O_TRUNC|O_CREAT|$open_file_as_text)
-  or croak "$PROGNAME: unable to open destination file $destination_file\n";
-
-print DEST_FILE 
-  "/*! \@page contributors Contributors\n\n$header"; 
-
-print DEST_FILE 
-  "\n$indent\@section contributors_alphabetical Contributors (by alphabetical order)\n\n";
+# Update contributions stats
 
 # %contribution_by_author is indexed by author
 # (i.e $contribution_by_author{$author})
@@ -758,17 +751,8 @@ my %contribution_by_author;
 
 my %contribution_by_date;
 
-sub compare_by_author_name {
-    my $a_name = exists $authors{$a}{'name'} ? $authors{$a}{'name'} : $a;
-    my $b_name = exists $authors{$b}{'name'} ? $authors{$b}{'name'} : $b;
-    return lc $a_name cmp lc $b_name;
-}
-
-foreach my $contributor (sort compare_by_author_name 
-                         keys %contribution_by_author_file) {
+foreach my $contributor (keys %contribution_by_author_file) {
     
-    print DEST_FILE "$indent - " . (exists $authors{$contributor}{'name'} ? $authors{$contributor}{'name'} : $contributor) . "\n";
-
     foreach my $file_name 
       (keys %{$contribution_by_author_file{$contributor}}) {
         $contribution_by_author{$contributor} += 
@@ -795,9 +779,48 @@ foreach my $date
   }
 
 my @all_contribution_dates = sort {$a cmp $b} keys %contribution_by_date;
+
 my $last_contribution_date = $all_contribution_dates[$#all_contribution_dates];
 my $first_contribution_date = $all_contribution_dates[0];
 my $total_contribution = $contribution_by_date{$last_contribution_date};
+
+# -------------------------------------------------------------------------
+# Build documentation
+
+my $destination_file = $args{"to"} . "/" . $args{"store"};
+print "Building documentation to ", $destination_file, "\n";
+
+sysopen(DEST_FILE, 
+        $destination_file, 
+        O_WRONLY|O_TRUNC|O_CREAT|$open_file_as_text)
+  or croak "$PROGNAME: unable to open destination file $destination_file\n";
+
+print DEST_FILE 
+  "/*! \@page contributors Contributors\n\n$header"; 
+
+print DEST_FILE 
+  "\n$indent\@section contributors_alphabetical Contributors (by alphabetical order)\n\n";
+
+sub compare_by_author_name {
+    my $a_name = exists $authors{$a}{'name'} ? $authors{$a}{'name'} : $a;
+    my $b_name = exists $authors{$b}{'name'} ? $authors{$b}{'name'} : $b;
+    return lc $a_name cmp lc $b_name;
+}
+
+foreach my $contributor (sort compare_by_author_name 
+                         keys %contribution_by_author_file) {
+
+    my $c_ratio = $contribution_by_author{$contributor} / $total_contribution;
+
+    my $name = exists $authors{$contributor}{'name'} 
+      ? $authors{$contributor}{'name'} : $contributor;
+
+    if ($c_ratio < $args{"min_gcontrib"}) {
+        print DEST_FILE "$indent - $name\n";
+    } else {
+        print DEST_FILE "$indent - \@ref $contributor \"$name\"\n";
+    }
+}
 
 print DEST_FILE 
   "\n$indent\@section contributors_decreasing Contributors (by decreasing order of global contribution)\n";
@@ -813,8 +836,11 @@ foreach my $contributor (@contributors_sorted) {
 
     my $c_ratio = $contribution_by_author{$contributor} / $total_contribution;
     last if $c_ratio < $args{"min_gcontrib"};
-    
-    print DEST_FILE "$indent -# " . (exists $authors{$contributor}{'name'} ? $authors{$contributor}{'name'} : $contributor) . "\n";
+
+    my $name = exists $authors{$contributor}{'name'} 
+      ? $authors{$contributor}{'name'} : $contributor;
+
+    print DEST_FILE "$indent -# \@ref $contributor \"$name\"\n";
 }
 
 foreach my $history (@{$args{"history_img"}}) {
@@ -884,17 +910,16 @@ foreach my $contributor (@contributors_sorted) {
         push @ok_files, get_short_relative_name($file_name, $args{"relativeto"}) . " (" . int($ratio * 100.0) . "%)";
     }
 
+    my $name = exists $authors{$contributor}{'name'} 
+      ? $authors{$contributor}{'name'} . " ($contributor)" : $contributor;
+
+    print DEST_FILE "$indent -# \@anchor $contributor \@b $name:\n";
+
     my @contribution_dates = sort { $a cmp $b } 
       keys %{$contribution_by_author_date{$contributor}};
+
     my $last_contrib_date = $contribution_dates[$#contribution_dates];
     my $first_contrib_date = $contribution_dates[0];
-
-    if (exists $authors{$contributor}{'name'}) {
-        print DEST_FILE 
-          "$indent -# \@b ". $authors{$contributor}{'name'}. " ($contributor):\n";
-    } else {
-        print DEST_FILE "$indent -# \@b $contributor:\n";
-    }
 
     print DEST_FILE 
       "$indent   - \@b ", int(10000.0 * $c_ratio) / 100, "% ($last_contribution_date), ", int(10000.0 * ($contribution_by_author_date{$contributor}{$last_contrib_date} / $contribution_by_date{$last_contrib_date})) / 100, "% ($last_contrib_date), ", int(10000.0 * ($contribution_by_author_date{$contributor}{$first_contrib_date} / $contribution_by_date{$first_contrib_date})) / 100, "% ($first_contrib_date)\n";
