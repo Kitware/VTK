@@ -136,27 +136,32 @@ low_res_mapper SetInput [low_res_sphere GetOutput]
 ## Add all the actors - one for each sphere in the flake list
 set i 0
 foreach s $flake_list {
-    vtkLODActor actor_$i
-    actor_$i SetMapper mapper
-    actor_$i AddLODMapper low_res_mapper
-    actor_$i AddLODMapper med_res_mapper
-    actor_$i SetPosition [lindex $s 0] [lindex $s 1] [lindex $s 2]
-    actor_$i SetScale [lindex $s 3] [lindex $s 3] [lindex $s 3]
-
+    vtkProperty property_$i
     set r [lindex $s 4]
     set g [lindex $s 5]
     set b [lindex $s 6]
+    property_$i SetColor $r $g $b
+    property_$i SetOpacity 0.5
+    property_$i SetAmbient 0.1
+    property_$i SetDiffuse 0.9
+    property_$i SetSpecular 0.2
 
-    [actor_$i GetProperty] SetColor $r $g $b
 
-    ren1 AddActor actor_$i
+    vtkLODProp3D actor_$i
+    actor_$i AddLOD mapper property_$i 0.0
+    actor_$i AddLOD low_res_mapper property_$i 0.0
+    actor_$i AddLOD med_res_mapper property_$i 0.0
+    actor_$i SetPosition [lindex $s 0] [lindex $s 1] [lindex $s 2]
+    actor_$i SetScale [lindex $s 3] [lindex $s 3] [lindex $s 3]
+
+    ren1 AddProp actor_$i
 
     incr i
 }
 
-## Add the frustum coverage culler to the renderer
-vtkFrustumCoverageCuller culler
-ren1 AddCuller culler
+## Get the culler from the renderer
+[ren1 GetCullers] InitTraversal
+set culler [[ren1 GetCullers] GetNextItem]
 
 
 ## Create some UI stuff for controling things
@@ -202,8 +207,8 @@ bind .top.f2.f1.s3 <ButtonRelease> {
 pack .top.f2.f1.s1 .top.f2.f1.s2 .top.f2.f1.s3 -side top -expand 1 -fill both
 
 
-set min_coverage [culler GetMinimumCoverage]
-set max_coverage [culler GetMaximumCoverage]
+set min_coverage [$culler GetMinimumCoverage]
+set max_coverage [$culler GetMaximumCoverage]
 
 scale .top.f2.f2.s1 -label "Minumum Coverage: " -orient horizontal \
 	-length 200 -from 0.0000 -to 0.0010 -variable min_coverage \
@@ -218,12 +223,14 @@ scale .top.f2.f2.s2 -label "Maximum Coverage: " -orient horizontal \
 
 
 bind .top.f2.f2.s1 <ButtonRelease> { 
-    culler SetMinimumCoverage $min_coverage
+    global culler
+    $culler SetMinimumCoverage $min_coverage
     $renWin Render
 }
 
 bind .top.f2.f2.s2 <ButtonRelease> { 
-    culler SetMaximumCoverage $max_coverage
+    global culler
+    $culler SetMaximumCoverage $max_coverage
     $renWin Render
 }
 
