@@ -83,7 +83,5 @@ wm withdraw .
 # and then re-renders. The render causes the pipeline to update.
 proc SelectPolygons {} {
    boxWidget GetPlanes planes
-   planes Modified
    selectActor VisibilityOn
-   renWin Render
 }

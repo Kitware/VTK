@@ -71,7 +71,5 @@ wm withdraw .
 
 proc SelectPolygons {} {
    boxWidget GetPlanes planes
-   planes Modified
    selectActor VisibilityOn
-   renWin Render
 }
