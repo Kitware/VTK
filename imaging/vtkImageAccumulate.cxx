@@ -288,5 +288,14 @@ void vtkImageAccumulate::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkImageFilter::PrintSelf(os,indent);
 
+  os << indent << "ComponentOrigin: ( "
+     << this->ComponentOrigin[0] << ", "
+     << this->ComponentOrigin[1] << ", "
+     << this->ComponentOrigin[2] << " )\n";
+
+  os << indent << "ComponentSpacing: ( "
+     << this->ComponentSpacing[0] << ", "
+     << this->ComponentSpacing[1] << ", "
+     << this->ComponentSpacing[2] << " )\n";
 }
 

@@ -347,5 +347,8 @@ void vtkImageLogic::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkImageTwoInputFilter::PrintSelf(os,indent);
 
+  os << indent << "Operation: " << this->Operation << "\n";
+
+  os << indent << "OutputTrueValue: " << this->OutputTrueValue << "\n";
 }
 

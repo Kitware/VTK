@@ -236,5 +236,10 @@ void vtkImageFlip::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkImageFilter::PrintSelf(os,indent);
 
+  os << indent << "FilteredAxis: " << this->FilteredAxis << "\n";
+
+  os << indent << "PreserveImageExtent: " << (this->PreserveImageExtent ? "On\n" : "Off\n");
+
+
 }
 

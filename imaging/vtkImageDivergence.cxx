@@ -243,5 +243,7 @@ void vtkImageDivergence::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkImageFilter::PrintSelf(os,indent);
 
+  os << indent << "Dimensionality: " << this->Dimensionality << "\n";
+
 }
 

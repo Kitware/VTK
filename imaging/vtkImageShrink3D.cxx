@@ -56,12 +56,15 @@ vtkImageShrink3D::vtkImageShrink3D()
 //----------------------------------------------------------------------------
 void vtkImageShrink3D::PrintSelf(ostream& os, vtkIndent indent)
 {
+  vtkImageFilter::PrintSelf(os,indent);
+
   os << indent << "ShrinkFactors: (" << this->ShrinkFactors[0] << ", "
      << this->ShrinkFactors[1] << ", " << this->ShrinkFactors[2] << ")\n";
   os << indent << "Shift: (" << this->Shift[0] << ", "
      << this->Shift[1] << ", " << this->Shift[2] << ")\n";
-  
-  vtkImageFilter::PrintSelf(os,indent);
+
+  os << indent << "Averaging: " << (this->Averaging ? "On\n" : "Off\n");
+
 }
 
 //----------------------------------------------------------------------------

@@ -230,5 +230,6 @@ void vtkImageCast::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkImageFilter::PrintSelf(os,indent);
 
+  os << indent << "OutputScalarType: " << this->OutputScalarType << "\n";
 }
 

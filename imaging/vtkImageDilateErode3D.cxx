@@ -79,6 +79,9 @@ vtkImageDilateErode3D::~vtkImageDilateErode3D()
 void vtkImageDilateErode3D::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkImageSpatialFilter::PrintSelf(os,indent);
+
+  os << indent << "DilateValue: " << this->DilateValue << "\n";
+  os << indent << "ErodeValue: " << this->ErodeValue << "\n";
 }
 
 //----------------------------------------------------------------------------

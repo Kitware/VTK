@@ -64,7 +64,20 @@ void vtkImageGaussianSmooth::PrintSelf(ostream& os, vtkIndent indent)
   // int idx;
   
   this->vtkImageFilter::PrintSelf(os, indent);
+
   //os << indent << "BoundaryRescale: " << this->BoundaryRescale << "\n";
+
+  os << indent << "Dimensionality: " << this->Dimensionality << "\n";
+
+  os << indent << "RadiusFactors: ( "
+     << this->RadiusFactors[0] << ", "
+     << this->RadiusFactors[1] << ", "
+     << this->RadiusFactors[2] << " )\n";
+
+  os << indent << "StandardDeviations: ( "
+     << this->StandardDeviations[0] << ", "
+     << this->StandardDeviations[1] << ", "
+     << this->StandardDeviations[2] << " )\n";
 }
 
 //----------------------------------------------------------------------------

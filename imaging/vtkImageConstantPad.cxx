@@ -210,5 +210,7 @@ void vtkImageConstantPad::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkImagePadFilter::PrintSelf(os,indent);
 
+  os << indent << "Constant: " << this->Constant << "\n";
+
 }
 

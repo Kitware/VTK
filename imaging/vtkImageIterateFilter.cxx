@@ -60,9 +60,13 @@ vtkImageIterateFilter::~vtkImageIterateFilter()
 //----------------------------------------------------------------------------
 void vtkImageIterateFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
+  vtkImageFilter::PrintSelf(os,indent);
+
   os << indent << "NumberOfIterations: " << this->NumberOfIterations << "\n";
 
-  vtkImageFilter::PrintSelf(os,indent);
+  // This variable is included here to pass the PrintSelf test.
+  // The variable is public to get around a compiler issue.
+  // this->Iteration
 }
 
   

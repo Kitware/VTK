@@ -337,5 +337,7 @@ void vtkImageSkeleton2D::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkImageIterateFilter::PrintSelf(os,indent);
 
+  os << indent << "Prune: " << (this->Prune ? "On\n" : "Off\n");
+
 }
 

@@ -201,5 +201,8 @@ void vtkImageConnector::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkObject::PrintSelf(os,indent);
 
+  os << indent << "ConnectedValue: " << this->ConnectedValue << "\n";
+  os << indent << "UnconnectedValue: " << this->UnconnectedValue << "\n";
+
 }
  

@@ -224,5 +224,9 @@ void vtkImagePermute::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkImageFilter::PrintSelf(os,indent);
 
+    os << indent << "FilteredAxes: ( "
+     << this->FilteredAxes[0] << ", "
+     << this->FilteredAxes[1] << ", "
+     << this->FilteredAxes[2] << " )\n";
 }
 

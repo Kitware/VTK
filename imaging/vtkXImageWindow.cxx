@@ -273,7 +273,7 @@ void vtkXImageWindow::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Icon Pixmap: " << this->IconPixmap << "\n";
   os << indent << "Offset: " << this->Offset << "\n";
   os << indent << "Colors: " << this->Colors << "\n";
-  os << indent << "Number Of Colors: " << this->Colors << "\n";
+  os << indent << "Number Of Colors: " << this->NumberOfColors << "\n";
   os << indent << "Drawable: " << this->Drawable << "\n";
 
 }
