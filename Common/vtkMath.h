@@ -38,6 +38,7 @@ public:
   // Useful constants.
   static float Pi() {return 3.14159265358979;};
   static float DegreesToRadians() {return 0.017453292;};
+  static float RadiansToDegrees() {return 57.2957795131;};
 
   // Description:
   // Useful constants. (double-precision version)
