@@ -255,8 +255,8 @@ int vtkCaptionActor2D::RenderOpaqueGeometry(vtkViewport *viewport)
   x2 = this->PositionCoordinate->GetComputedDisplayValue(viewport);
   x3 = this->Position2Coordinate->GetComputedDisplayValue(viewport);
   p1[0] = (float)x1[0]; p1[1] = (float)x1[1]; p1[2] = 0.5;
-  p2[0] = (float)x2[0]; p2[1] = (float)x2[1]; p2[2] = 0.5;
-  p3[0] = (float)x3[0]; p3[1] = (float)x3[1]; p3[2] = 0.5;
+  p2[0] = (float)x2[0]; p2[1] = (float)x2[1]; p2[2] = p1[2];
+  p3[0] = (float)x3[0]; p3[1] = (float)x3[1]; p3[2] = p1[2];
 
   // Set up the scaled text - take into account the padding
   this->CaptionActor->GetPositionCoordinate()->SetValue(
@@ -267,9 +267,9 @@ int vtkCaptionActor2D::RenderOpaqueGeometry(vtkViewport *viewport)
   // Define the border
   vtkPoints *pts = this->BorderPolyData->GetPoints();
   pts->SetPoint(0, p2);
-  pts->SetPoint(1, p3[0],p2[1],0.5);
-  pts->SetPoint(2, p3[0],p3[1],0.5);
-  pts->SetPoint(3, p2[0],p3[1],0.5);
+  pts->SetPoint(1, p3[0],p2[1],p1[2]);
+  pts->SetPoint(2, p3[0],p3[1],p1[2]);
+  pts->SetPoint(3, p2[0],p3[1],p1[2]);
 
   // Define the leader. Have to find the closest point from the
   // border to the attachment point. We look at the four vertices
@@ -359,19 +359,20 @@ int vtkCaptionActor2D::RenderOpaqueGeometry(vtkViewport *viewport)
     // compute the scale
     this->LeaderGlyph->Update();
     float length = this->LeaderGlyph->GetLength();
-
-    this->MapperCoordinate2D->SetValue(0,0,0);
-    x1 = this->MapperCoordinate2D->GetComputedDisplayValue(viewport);
-    p1[0] = x1[0]; p1[1] = x1[1]; p1[2] = 0.0;
-
-    this->MapperCoordinate2D->SetValue(1,1,1);
-    x1 = this->MapperCoordinate2D->GetComputedDisplayValue(viewport);
-    p2[0] = x1[0]; p2[1] = x1[1]; p2[2] = 0.0;
-    
     int *sze = viewport->GetSize();
-    float sf = this->LeaderGlyphSize * 
-      sqrt(static_cast<float>(sze[0]*sze[0] + sze[1]*sze[1])) /
-      (sqrt(vtkMath::Distance2BetweenPoints(p1,p2)) * length);
+    int   numPixels = this->LeaderGlyphSize * 
+      sqrt(static_cast<float>(sze[0]*sze[0] + sze[1]*sze[1]));
+
+    this->MapperCoordinate2D->SetValue(sze[0]/2,0,0);
+    w1 = this->MapperCoordinate2D->GetComputedWorldValue(viewport);
+    p1[0] = w1[0]; p1[1] = w1[1]; p1[2] = w1[2];
+
+    this->MapperCoordinate2D->SetValue((sze[0]/2)+1,0,0);
+    w1 = this->MapperCoordinate2D->GetComputedWorldValue(viewport);
+    p2[0] = w1[0]; p2[1] = w1[1]; p2[2] = w1[2];
+    
+    float sf = 0.01 * numPixels / 
+               (length * sqrt(vtkMath::Distance2BetweenPoints(p1,p2)) );
 
     vtkDebugMacro(<<"Scale factor: " << sf);
 
@@ -442,7 +443,7 @@ void vtkCaptionActor2D::PrintSelf(ostream& os, vtkIndent indent)
     os << "(none)\n";
     }
 
-  os << indent << "Leader: " << (this->Border ? "On\n" : "Off\n");
+  os << indent << "Leader: " << (this->Leader ? "On\n" : "Off\n");
   os << indent << "Three Dimensional Leader: " 
      << (this->ThreeDimensionalLeader ? "On\n" : "Off\n");
   os << indent << "Leader Glyph Size: " 
@@ -497,10 +498,13 @@ void vtkCaptionActor2D::ShallowCopy(vtkProp *prop)
   if ( a != NULL )
     {
     this->SetCaption(a->GetCaption());
+    this->SetAttachmentPoint(a->GetAttachmentPoint());
     this->SetBorder(a->GetBorder());
     this->SetLeader(a->GetLeader());
+    this->SetThreeDimensionalLeader(a->GetThreeDimensionalLeader());
+    this->SetLeaderGlyph(a->GetLeaderGlyph());
+    this->SetLeaderGlyphSize(a->GetLeaderGlyphSize());
     this->SetPadding(a->GetPadding());
-    this->SetAttachmentPoint(a->GetAttachmentPoint());
     this->SetBold(a->GetBold());
     this->SetItalic(a->GetItalic());
     this->SetShadow(a->GetShadow());
