@@ -106,12 +106,6 @@ SET(VTK_INCLUDE_DIRS_SOURCE_TREE ${VTK_INCLUDE_DIRS_SOURCE_TREE}
   ${VTK_SOURCE_DIR}/Common/Testing/Cxx
 )
 
-# Give access to a few utilities.
-SET(VTK_INCLUDE_DIRS_SOURCE_TREE ${VTK_INCLUDE_DIRS_SOURCE_TREE}
-  ${VTK_BINARY_DIR}/Utilities/expat
-  ${VTK_SOURCE_DIR}/Utilities/expat
-)
-
 #-----------------------------------------------------------------------------
 # Include directories from the build tree.
 SET(VTK_INCLUDE_DIRS_BUILD_TREE ${VTK_BINARY_DIR})
@@ -146,3 +140,4 @@ VTK_THIRD_PARTY_INCLUDE(ZLIB zlib)
 VTK_THIRD_PARTY_INCLUDE(JPEG jpeg)
 VTK_THIRD_PARTY_INCLUDE(PNG  png)
 VTK_THIRD_PARTY_INCLUDE(TIFF tiff)
+VTK_THIRD_PARTY_INCLUDE(EXPAT expat)
