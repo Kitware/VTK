@@ -21,7 +21,8 @@
 #include "vtkPolyData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPointLocator2D, "1.22");
+vtkCxxRevisionMacro(vtkPointLocator2D, "1.23");
+vtkCxxSetObjectMacro(vtkPointLocator2D,Points,vtkPoints);
 
 vtkPointLocator2D* vtkPointLocator2D::New() 
 { 

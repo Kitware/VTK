@@ -43,8 +43,9 @@
 #define __vtkPointLocator2D_h
 
 #include "vtkLocator.h"
-#include "vtkPoints.h"
-#include "vtkIdList.h"
+
+class vtkPoints;
+class vtkIdList;
 
 class vtkNeighborPoints2D;
 
@@ -112,7 +113,7 @@ public:
 
   // Description:
   // set the points to use when looking up a coordinate
-  vtkSetObjectMacro(Points,vtkPoints);
+  virtual void SetPoints(vtkPoints*);
   vtkGetObjectMacro(Points,vtkPoints);
   
 protected:
