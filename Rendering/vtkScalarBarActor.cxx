@@ -29,7 +29,7 @@
 #include "vtkWindow.h"
 #include "vtkLogLookupTable.h"
 
-vtkCxxRevisionMacro(vtkScalarBarActor, "1.48.2.1");
+vtkCxxRevisionMacro(vtkScalarBarActor, "1.48.2.2");
 vtkStandardNewMacro(vtkScalarBarActor);
 
 vtkCxxSetObjectMacro(vtkScalarBarActor,LookupTable,vtkScalarsToColors);
@@ -354,7 +354,7 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
         {
         float rgbval = log10(range[0]) + 
           i*(log10(range[1])-log10(range[0]))/(numColors -1);
-        rgba = lut->MapValue(pow(10f,rgbval));
+        rgba = lut->MapValue(pow(10.0f,rgbval));
         }
       else
         {
