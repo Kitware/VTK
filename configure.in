@@ -742,7 +742,8 @@ use_pthreads=no
 AC_CHECK_HEADERS(pthread.h, [use_pthreads=yes])
 if test "$use_pthreads" = "yes"; then
   if test "$use_sproc" = "no"; then
-	THREAD_LIBS="-lpthread"
+    AC_CHECK_LIB(pthreads, pthread_create, THREAD_LIBS="-lpthreads")
+    AC_CHECK_LIB(pthread, pthread_create, THREAD_LIBS="-lpthread")
 	THREAD_FLAGS="-DVTK_USE_PTHREADS"
   fi
 fi
