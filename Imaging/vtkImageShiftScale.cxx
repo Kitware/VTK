@@ -97,7 +97,7 @@ static void vtkImageShiftScaleExecute(vtkImageShiftScale *self,
                                       vtkImageData *outData, OT *outPtr,
                                       int outExt[6], int id)
 {
-  float typeMin, typeMax, val;
+  double typeMin, typeMax, val;
   int clamp;
   float shift = self->GetShift();
   float scale = self->GetScale();
