@@ -25,7 +25,7 @@
 #include "vtkXMLDataElement.h"
 #include "vtkXMLDataParser.h"
 
-vtkCxxRevisionMacro(vtkXMLDataReader, "1.5");
+vtkCxxRevisionMacro(vtkXMLDataReader, "1.6");
 
 //----------------------------------------------------------------------------
 vtkXMLDataReader::vtkXMLDataReader()
@@ -150,8 +150,8 @@ void vtkXMLDataReader::SetupOutputInformation()
   // Use the configuration of the first piece since all are the same.
   vtkXMLDataElement* ePointData = this->PointDataElements[0];
   vtkXMLDataElement* eCellData = this->CellDataElements[0];
-  vtkPointData* pointData = this->GetOutputAsDataSet()->GetPointData();
-  vtkCellData* cellData = this->GetOutputAsDataSet()->GetCellData();  
+  vtkPointData* pointData = this->GetOutputAsDataSet(0)->GetPointData();
+  vtkCellData* cellData = this->GetOutputAsDataSet(0)->GetCellData();  
   
   // Setup the point and cell data arrays without allocation.
   this->NumberOfPointArrays = 0;
@@ -211,7 +211,7 @@ void vtkXMLDataReader::SetupOutputData()
 {
   this->Superclass::SetupOutputData();
   
-  vtkDataSet* output = this->GetOutputAsDataSet();
+  vtkDataSet* output = this->GetOutputAsDataSet(0);
   vtkPointData* pointData = output->GetPointData();
   vtkCellData* cellData = output->GetCellData();
   
@@ -287,8 +287,8 @@ int vtkXMLDataReader::ReadPieceData(int piece)
 //----------------------------------------------------------------------------
 int vtkXMLDataReader::ReadPieceData()
 {
-  vtkPointData* pointData = this->GetOutputAsDataSet()->GetPointData();
-  vtkCellData* cellData = this->GetOutputAsDataSet()->GetCellData();
+  vtkPointData* pointData = this->GetOutputAsDataSet(0)->GetPointData();
+  vtkCellData* cellData = this->GetOutputAsDataSet(0)->GetCellData();
   vtkXMLDataElement* ePointData = this->PointDataElements[this->Piece];
   vtkXMLDataElement* eCellData = this->CellDataElements[this->Piece];
   

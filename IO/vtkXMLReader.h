@@ -53,6 +53,7 @@ public:
   // Description:
   // Get the output as a vtkDataSet pointer.
   vtkDataSet* GetOutputAsDataSet();
+  vtkDataSet* GetOutputAsDataSet(int index);
   
   // Description:
   // Get the data array selection tables used to configure which data
@@ -175,6 +176,10 @@ protected:
   
   // Whether there was an error reading the file in ExecuteData.
   int DataError;
+  
+  // The index of the output on which ExecuteData is currently
+  // running.
+  int CurrentOutput;
   
   // The current range over which progress is moving.  This allows for
   // incrementally fine-tuned progress updates.

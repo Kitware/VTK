@@ -32,7 +32,7 @@
 
 #include <sys/stat.h>
 
-vtkCxxRevisionMacro(vtkXMLReader, "1.13");
+vtkCxxRevisionMacro(vtkXMLReader, "1.14");
 
 //----------------------------------------------------------------------------
 vtkXMLReader::vtkXMLReader()
@@ -44,6 +44,7 @@ vtkXMLReader::vtkXMLReader()
   this->CellDataArraySelection = vtkDataArraySelection::New();
   this->InformationError = 0;
   this->DataError = 0;
+  this->CurrentOutput = -1;
   this->ProgressRange[0] = 0;
   this->ProgressRange[1] = 1;
   
@@ -88,8 +89,14 @@ void vtkXMLReader::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 vtkDataSet* vtkXMLReader::GetOutputAsDataSet()
 {
-  if(this->NumberOfOutputs < 1) { return 0; }
-  return static_cast<vtkDataSet*>(this->Outputs[0]);
+  return this->GetOutputAsDataSet(0);
+}
+
+//----------------------------------------------------------------------------
+vtkDataSet* vtkXMLReader::GetOutputAsDataSet(int index)
+{
+  if(index < 0 || index >= this->NumberOfOutputs) { return 0; }
+  return static_cast<vtkDataSet*>(this->Outputs[index]);
 }
 
 //----------------------------------------------------------------------------
@@ -248,8 +255,25 @@ void vtkXMLReader::ExecuteInformation()
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLReader::ExecuteData(vtkDataObject* vtkNotUsed(output))
+void vtkXMLReader::ExecuteData(vtkDataObject* output)
 {
+  // Set which output we are updating.  If the given object is not one
+  // of our outputs, just initialize it to empty and return.
+  int i;
+  this->CurrentOutput = -1;
+  for(i=0; this->CurrentOutput < 0 && i < this->NumberOfOutputs; ++i)
+    {
+    if(output == this->Outputs[i])
+      {
+      this->CurrentOutput = i;
+      }
+    }
+  if(this->CurrentOutput < 0)
+    {
+    output->Initialize();
+    return;
+    }
+  
   // Re-open the input file.  If it fails, the error was already
   // reported by OpenVTKFile.
   if(!this->OpenVTKFile())
@@ -264,7 +288,7 @@ void vtkXMLReader::ExecuteData(vtkDataObject* vtkNotUsed(output))
   // Give the vtkXMLParser instance its file back so that data section
   // reads will work.
   this->XMLParser->SetStream(this->FileStream);
-
+  
   // We are just starting to read.  Do not call UpdateProgressDiscrete
   // because we want a 0 progress callback the first time.
   this->UpdateProgress(0);
@@ -285,13 +309,13 @@ void vtkXMLReader::ExecuteData(vtkDataObject* vtkNotUsed(output))
     // If we aborted or there was an error, provide empty output.
     if(this->DataError || this->AbortExecute)
       {
-      this->GetOutputAsDataSet()->Initialize();
+      this->GetOutputAsDataSet(this->CurrentOutput)->Initialize();
       }
     }
   else
     {
     // There was an error reading the file.  Provide empty output.
-    this->GetOutputAsDataSet()->Initialize();
+    this->GetOutputAsDataSet(this->CurrentOutput)->Initialize();
     }
   
   // We have finished reading.
@@ -315,9 +339,14 @@ void vtkXMLReader::ReadXMLInformation()
     }
   else
     {
+    int i;
+    
     // There was an error reading the file.  Provide empty output.
     this->InformationError = 1;
-    this->GetOutputAsDataSet()->Initialize();
+    for(i=0; i < this->NumberOfOutputs; ++i)
+      {
+      this->Outputs[i]->Initialize();
+      }
     }
 }
 
@@ -369,7 +398,11 @@ int vtkXMLReader::ReadPrimaryElement(vtkXMLDataElement*)
 void vtkXMLReader::SetupOutputInformation()
 {
   // Initialize the output.
-  this->GetOutputAsDataSet()->Initialize();
+  int i;
+  for(i=0; i < this->NumberOfOutputs; ++i)
+    {
+    this->Outputs[i]->Initialize();
+    }
 }
 
 //----------------------------------------------------------------------------

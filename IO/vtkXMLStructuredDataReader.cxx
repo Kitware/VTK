@@ -22,7 +22,7 @@
 #include "vtkXMLDataElement.h"
 #include "vtkXMLDataParser.h"
 
-vtkCxxRevisionMacro(vtkXMLStructuredDataReader, "1.8");
+vtkCxxRevisionMacro(vtkXMLStructuredDataReader, "1.9");
 
 //----------------------------------------------------------------------------
 vtkXMLStructuredDataReader::vtkXMLStructuredDataReader()
@@ -64,7 +64,7 @@ int vtkXMLStructuredDataReader::ReadPrimaryElement(vtkXMLDataElement* ePrimary)
   int extent[6];
   if(ePrimary->GetVectorAttribute("WholeExtent", 6, extent) == 6)
     {
-    this->GetOutputAsDataSet()->SetWholeExtent(extent);
+    this->GetOutputAsDataSet(0)->SetWholeExtent(extent);
     }
   else
     {
@@ -79,7 +79,7 @@ int vtkXMLStructuredDataReader::ReadPrimaryElement(vtkXMLDataElement* ePrimary)
 void vtkXMLStructuredDataReader::SetupEmptyOutput()
 {
   // Special extent to indicate no input.
-  this->GetOutputAsDataSet()->SetUpdateExtent(1, 0, 1, 0, 1, 0);
+  this->GetOutputAsDataSet(0)->SetUpdateExtent(1, 0, 1, 0, 1, 0);
 }
 
 //----------------------------------------------------------------------------
@@ -174,7 +174,7 @@ int vtkXMLStructuredDataReader::ReadPiece(vtkXMLDataElement* ePiece)
 void vtkXMLStructuredDataReader::ReadXMLData()
 {
   // Get the requested Update Extent.
-  this->GetOutputAsDataSet()->GetUpdateExtent(this->UpdateExtent);
+  this->GetOutputAsDataSet(0)->GetUpdateExtent(this->UpdateExtent);
   
   vtkDebugMacro("Updating extent "
                 << this->UpdateExtent[0] << " " << this->UpdateExtent[1] << " "

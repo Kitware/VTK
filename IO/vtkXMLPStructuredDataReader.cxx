@@ -23,7 +23,7 @@
 #include "vtkXMLDataElement.h"
 #include "vtkXMLStructuredDataReader.h"
 
-vtkCxxRevisionMacro(vtkXMLPStructuredDataReader, "1.7");
+vtkCxxRevisionMacro(vtkXMLPStructuredDataReader, "1.8");
 
 //----------------------------------------------------------------------------
 vtkXMLPStructuredDataReader::vtkXMLPStructuredDataReader()
@@ -71,7 +71,7 @@ vtkIdType vtkXMLPStructuredDataReader::GetNumberOfCells()
 void vtkXMLPStructuredDataReader::ReadXMLData()
 {
   // Get the requested Update Extent.
-  this->GetOutputAsDataSet()->GetUpdateExtent(this->UpdateExtent);
+  this->GetOutputAsDataSet(0)->GetUpdateExtent(this->UpdateExtent);
   
   vtkDebugMacro("Updating extent "
                 << this->UpdateExtent[0] << " " << this->UpdateExtent[1] << " "
@@ -160,7 +160,7 @@ int
 vtkXMLPStructuredDataReader::ReadPrimaryElement(vtkXMLDataElement* ePrimary)
 {
   if(!this->Superclass::ReadPrimaryElement(ePrimary)) { return 0; }
-  vtkDataSet* output = this->GetOutputAsDataSet();
+  vtkDataSet* output = this->GetOutputAsDataSet(0);
   
   // Read information about the structured data.
   int extent[6];
@@ -182,14 +182,14 @@ void vtkXMLPStructuredDataReader::SetupOutputInformation()
   
   // Tell the output to use the table extent translator to provide the
   // correct piece breakdown for the file layout.
-  this->GetOutputAsDataSet()->SetExtentTranslator(this->ExtentTranslator);
+  this->GetOutputAsDataSet(0)->SetExtentTranslator(this->ExtentTranslator);
 }
 
 //----------------------------------------------------------------------------
 void vtkXMLPStructuredDataReader::SetupEmptyOutput()
 {
   // Special extent to indicate no input.
-  this->GetOutputAsDataSet()->SetUpdateExtent(1, 0, 1, 0, 1, 0);
+  this->GetOutputAsDataSet(0)->SetUpdateExtent(1, 0, 1, 0, 1, 0);
 }
 
 //----------------------------------------------------------------------------
