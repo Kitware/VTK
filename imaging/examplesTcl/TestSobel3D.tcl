@@ -1,5 +1,5 @@
-# This script is for testing the 1d Gaussian Smooth filter.
-
+# This script is for testing the 3D Sobel filter.
+# Displays the 3 components using color.
 
 
 set sliceNumber 22
@@ -28,20 +28,26 @@ reader SetDimensions 256 256 93;
 reader SetFilePrefix "../../data/fullHead/headsq"
 reader SetPixelMask 0x7fff;
 
-vtkImageGaussianSmooth smooth;
-smooth SetDimensionality 2;
-smooth SetInput [reader GetOutput];
-smooth SetStandardDeviation 6 6;
-smooth SetRadiusFactor 1.5;
-smooth ReleaseDataFlagOff;
+vtkImageSobel3D sobel;
+sobel SetInput [reader GetOutput];
+sobel SetAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS $VTK_IMAGE_Z_AXIS;
+sobel ReleaseDataFlagOff;
+
+
+
+
 
 vtkImageXViewer viewer;
 #viewer DebugOn;
-viewer SetAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS $VTK_IMAGE_Z_AXIS;
-viewer SetInput [smooth GetOutput];
-viewer SetCoordinate2 $sliceNumber;
-viewer SetColorWindow 2000
-viewer SetColorLevel 1000
+viewer SetAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS $VTK_IMAGE_COMPONENT_AXIS $VTK_IMAGE_Z_AXIS;
+viewer SetInput [sobel GetOutput];
+viewer SetCoordinate3 $sliceNumber;
+viewer SetColorWindow 200;
+viewer SetColorLevel 0;
+viewer ColorFlagOn;
+viewer SetRed 0;
+viewer SetGreen 1;
+viewer SetBlue 2;
 viewer Render;
 
 
@@ -55,15 +61,15 @@ button .slice.down -text "Slice Down" -command SliceDown
 frame .wl
 frame .wl.f1;
 label .wl.f1.windowLabel -text Window;
-scale .wl.f1.window -from 1 -to 3000 -orient horizontal -command SetWindow
+scale .wl.f1.window -from 1 -to 1000 -orient horizontal -command SetWindow
 frame .wl.f2;
 label .wl.f2.levelLabel -text Level;
-scale .wl.f2.level -from 1 -to 1500 -orient horizontal -command SetLevel
+scale .wl.f2.level -from -1000 -to 1000 -orient horizontal -command SetLevel
 checkbutton .wl.video -text "Inverse Video" -variable inverseVideo -command SetInverseVideo
 
 
-.wl.f1.window set 2000
-.wl.f2.level set 1000
+.wl.f1.window set 200
+.wl.f2.level set 0
 
 
 pack .slice .wl -side left
@@ -77,7 +83,7 @@ proc SliceUp {} {
    global sliceNumber viewer
    if {$sliceNumber < 92} {set sliceNumber [expr $sliceNumber + 1]}
    puts $sliceNumber
-   viewer SetCoordinate2 $sliceNumber;
+   viewer SetCoordinate3 $sliceNumber;
    viewer Render;
 }
 
@@ -85,7 +91,7 @@ proc SliceDown {} {
    global sliceNumber viewer
    if {$sliceNumber > 0} {set sliceNumber [expr $sliceNumber - 1]}
    puts $sliceNumber
-   viewer SetCoordinate2 $sliceNumber;
+   viewer SetCoordinate3 $sliceNumber;
    viewer Render;
 }
 

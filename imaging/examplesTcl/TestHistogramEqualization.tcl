@@ -59,6 +59,16 @@ vtkImageHistogram hist2;
 	hist2 SetInput [histequal GetOutput];
 	hist2 ReleaseDataFlagOff;
 
+vtkImageXViewer viewer3;
+	viewer3 SetAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS $VTK_IMAGE_Z_AXIS;
+	viewer3 SetInput [hist2 GetOutput];
+	viewer3 SetCoordinate2 $slicenumber;
+	viewer3 SetColorWindow $window;
+	viewer3 SetColorLevel $level;
+	viewer3 SetXOffset $xdim;
+	viewer3 SetYOffset $ydim;	
+	viewer3 Render;
+
 vtkImageXViewer viewer;
 	#viewer DebugOn;
 	viewer SetAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS $VTK_IMAGE_Z_AXIS;
@@ -67,7 +77,7 @@ vtkImageXViewer viewer;
 	viewer SetColorWindow $window
 	viewer SetColorLevel  $level
 	viewer SetXOffset 0
-	viewer Render;
+	viewer SetWindow [viewer3 GetWindow];
 
 vtkImageXViewer viewer1;
 	viewer1 SetAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS $VTK_IMAGE_Z_AXIS;
@@ -76,7 +86,7 @@ vtkImageXViewer viewer1;
 	viewer1 SetColorWindow $window;
 	viewer1 SetColorLevel $level;
 	viewer1 SetXOffset $xdim;
-	viewer1 SetWindow [viewer GetWindow];
+	viewer1 SetWindow [viewer3 GetWindow];
 
 vtkImageXViewer viewer2;
 	viewer2 SetAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS $VTK_IMAGE_Z_AXIS;
@@ -86,17 +96,7 @@ vtkImageXViewer viewer2;
 	viewer2 SetColorLevel $level;
 	viewer2 SetXOffset 0;
 	viewer2 SetYOffset $xdim;
-	viewer2 SetWindow [viewer GetWindow];
-
-vtkImageXViewer viewer3;
-	viewer3 SetAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS $VTK_IMAGE_Z_AXIS;
-	viewer3 SetInput [hist2 GetOutput];
-	viewer3 SetCoordinate2 $slicenumber;
-	viewer3 SetColorWindow $window;
-	viewer3 SetColorLevel $level;
-	viewer3 SetXOffset $xdim;
-	viewer3 SetYOffset $ydim;	
-	viewer3 SetWindow [viewer GetWindow];
+	viewer2 SetWindow [viewer3 GetWindow];
 
 #make interface
 #

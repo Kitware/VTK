@@ -1,5 +1,4 @@
-# This script is for testing the 1d Gaussian Smooth filter.
-
+# This script shows the magnitude of an image in frequency domain.
 
 
 set sliceNumber 22
@@ -17,31 +16,39 @@ set VTK_IMAGE_TIME_AXIS          3
 set VTK_IMAGE_COMPONENT_AXIS     4
 
 
-
-
 # Image pipeline
 
 vtkImageShortReader reader;
-#reader DebugOn
+[reader GetCache] ReleaseDataFlagOff;
 reader SwapBytesOn;
 reader SetDimensions 256 256 93;
 reader SetFilePrefix "../../data/fullHead/headsq"
 reader SetPixelMask 0x7fff;
+reader SetOutputScalarType $VTK_FLOAT;
+#reader DebugOn;
 
-vtkImageGaussianSmooth smooth;
-smooth SetDimensionality 2;
-smooth SetInput [reader GetOutput];
-smooth SetStandardDeviation 6 6;
-smooth SetRadiusFactor 1.5;
-smooth ReleaseDataFlagOff;
+vtkImageShiftScale scale2;
+scale2 SetInput [reader GetOutput];
+scale2 SetScale 0.05;
+
+vtkImageGradient gradient;
+gradient SetInput [scale2 GetOutput];
+gradient SetAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS $VTK_IMAGE_Z_AXIS;
+gradient ReleaseDataFlagOff;
+#gradient DebugOn;
+
+vtkImageDotProduct magnitude
+magnitude SetInput1 [gradient GetOutput];
+magnitude SetInput2 [gradient GetOutput];
+magnitude ReleaseDataFlagOff;
 
 vtkImageXViewer viewer;
-#viewer DebugOn;
 viewer SetAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS $VTK_IMAGE_Z_AXIS;
-viewer SetInput [smooth GetOutput];
+viewer SetInput [magnitude GetOutput];
 viewer SetCoordinate2 $sliceNumber;
-viewer SetColorWindow 2000
-viewer SetColorLevel 1000
+viewer SetColorWindow 1000
+viewer SetColorLevel 500
+#viewer DebugOn;
 viewer Render;
 
 
@@ -55,15 +62,15 @@ button .slice.down -text "Slice Down" -command SliceDown
 frame .wl
 frame .wl.f1;
 label .wl.f1.windowLabel -text Window;
-scale .wl.f1.window -from 1 -to 3000 -orient horizontal -command SetWindow
+scale .wl.f1.window -from 1 -to 2000 -orient horizontal -command SetWindow
 frame .wl.f2;
 label .wl.f2.levelLabel -text Level;
-scale .wl.f2.level -from 1 -to 1500 -orient horizontal -command SetLevel
+scale .wl.f2.level -from 1 -to 1000 -orient horizontal -command SetLevel
 checkbutton .wl.video -text "Inverse Video" -variable inverseVideo -command SetInverseVideo
 
 
-.wl.f1.window set 2000
-.wl.f2.level set 1000
+.wl.f1.window set 1000
+.wl.f2.level set 500
 
 
 pack .slice .wl -side left

@@ -30,6 +30,7 @@ reader SetFilePrefix "../../data/fullHead/headsq"
 reader SetPixelMask 0x7fff;
 
 vtkImageGradientMagnitude gradient;
+gradient SetDimensionality 3;
 gradient SetInput [reader GetOutput];
 gradient SetAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS $VTK_IMAGE_Z_AXIS;
 gradient ReleaseDataFlagOff;

@@ -1,5 +1,4 @@
-# This script is for testing the 1d Gaussian Smooth filter.
-
+# Compute the second derivative the long way
 
 
 set sliceNumber 22
@@ -22,26 +21,41 @@ set VTK_IMAGE_COMPONENT_AXIS     4
 # Image pipeline
 
 vtkImageShortReader reader;
-#reader DebugOn
+reader ReleaseDataFlagOff;
 reader SwapBytesOn;
 reader SetDimensions 256 256 93;
-reader SetFilePrefix "../../data/fullHead/headsq"
+reader SetFilePrefix "../../data/fullHead/headsq";
 reader SetPixelMask 0x7fff;
+#reader DebugOn
 
-vtkImageGaussianSmooth smooth;
-smooth SetDimensionality 2;
-smooth SetInput [reader GetOutput];
-smooth SetStandardDeviation 6 6;
-smooth SetRadiusFactor 1.5;
-smooth ReleaseDataFlagOff;
+vtkImageGradient gradient;
+gradient SetAxes 0 1 2;
+gradient SetInput [reader GetOutput];
+
+vtkImageMagnitude magnitude
+magnitude SetInput [gradient GetOutput];
+
+vtkImageGradient gradient2;
+gradient2 SetAxes 0 1 2;
+gradient2 SetInput [magnitude GetOutput];
+
+vtkImageDotProduct dot
+dot SetInput1 [gradient GetOutput];
+dot SetInput2 [gradient2 GetOutput];
+
+vtkImageArithmetic normalize;
+normalize SetInput1 [dot GetOutput];
+normalize SetInput2 [magnitude GetOutput];
+normalize SetOperator 3;    # division
+normalize ReleaseDataFlagOff;
 
 vtkImageXViewer viewer;
-#viewer DebugOn;
 viewer SetAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS $VTK_IMAGE_Z_AXIS;
-viewer SetInput [smooth GetOutput];
+viewer SetInput [normalize GetOutput];
 viewer SetCoordinate2 $sliceNumber;
-viewer SetColorWindow 2000
-viewer SetColorLevel 1000
+viewer SetColorWindow 3000
+viewer SetColorLevel 0
+#viewer DebugOn;
 viewer Render;
 
 
@@ -58,12 +72,12 @@ label .wl.f1.windowLabel -text Window;
 scale .wl.f1.window -from 1 -to 3000 -orient horizontal -command SetWindow
 frame .wl.f2;
 label .wl.f2.levelLabel -text Level;
-scale .wl.f2.level -from 1 -to 1500 -orient horizontal -command SetLevel
+scale .wl.f2.level -from -1500 -to 1500 -orient horizontal -command SetLevel
 checkbutton .wl.video -text "Inverse Video" -variable inverseVideo -command SetInverseVideo
 
 
-.wl.f1.window set 2000
-.wl.f2.level set 1000
+.wl.f1.window set 3000
+.wl.f2.level set 0
 
 
 pack .slice .wl -side left

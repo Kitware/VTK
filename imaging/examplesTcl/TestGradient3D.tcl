@@ -39,7 +39,7 @@ vtkImageXViewer viewer;
 viewer SetAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS $VTK_IMAGE_COMPONENT_AXIS $VTK_IMAGE_Z_AXIS;
 viewer SetInput [gradient GetOutput];
 viewer SetCoordinate3 $sliceNumber;
-viewer SetColorWindow 400;
+viewer SetColorWindow 200;
 viewer SetColorLevel 0;
 viewer ColorFlagOn;
 viewer SetRed 0;
@@ -58,14 +58,14 @@ button .slice.down -text "Slice Down" -command SliceDown
 frame .wl
 frame .wl.f1;
 label .wl.f1.windowLabel -text Window;
-scale .wl.f1.window -from 1 -to 2000 -orient horizontal -command SetWindow
+scale .wl.f1.window -from 1 -to 1000 -orient horizontal -command SetWindow
 frame .wl.f2;
 label .wl.f2.levelLabel -text Level;
 scale .wl.f2.level -from -1000 -to 1000 -orient horizontal -command SetLevel
 checkbutton .wl.video -text "Inverse Video" -variable inverseVideo -command SetInverseVideo
 
 
-.wl.f1.window set 400
+.wl.f1.window set 200
 .wl.f2.level set 0
 
 

@@ -33,7 +33,7 @@ reader SetOutputScalarType $VTK_SHORT;
 vtkImageGaussianSmooth smooth
 smooth SetDimensionality 2
 smooth SetInput [reader GetOutput];
-smooth SetStandardDeviation 6.0;
+smooth SetStandardDeviation 6.0 6.0;
 smooth SetRadiusFactor 1.5;
 
 vtkImageArithmetic subtract;
