@@ -147,7 +147,7 @@ public:
   // If called, allow MakeCurrent() to skip cache-check when called.
   // MakeCurrent() reverts to original behavior of cache-checking
   // on the next render.
-  void SetForceMakeCurrent() { this->ForceMakeCurrent = 1;};
+  void SetForceMakeCurrent();
 
   // Description:
   // Check to see if a mouse button has been pressed.

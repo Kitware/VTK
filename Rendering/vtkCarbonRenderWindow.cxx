@@ -32,7 +32,7 @@ Thanks:    to Yves Starreveld for developing this class
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.12");
+vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.13");
 vtkStandardNewMacro(vtkCarbonRenderWindow);
 
 
@@ -467,6 +467,11 @@ void vtkCarbonRenderWindow::MakeCurrent()
     aglSetCurrentContext(this->ContextId);
     this->ForceMakeCurrent = 0;
     }
+}
+
+void vtkCarbonRenderWindow::SetForceMakeCurrent()
+{
+  this.ForceMakeCurrent = 1;
 }
 
 // --------------------------------------------------------------------------
