@@ -29,7 +29,7 @@
 
 #include <float.h>
 
-vtkCxxRevisionMacro(vtkBandedPolyDataContourFilter, "1.49");
+vtkCxxRevisionMacro(vtkBandedPolyDataContourFilter, "1.50");
 vtkStandardNewMacro(vtkBandedPolyDataContourFilter);
 
 // Construct object.
@@ -571,7 +571,7 @@ int vtkBandedPolyDataContourFilter::RequestData(
         {
         v = pts[i];
         vR = pts[(i+1)%npts];
-        
+
         s[numFullPts] = outScalars->GetTuple1(v);
         isContourValue[numFullPts] = this->IsContourValue(s[numFullPts]);
         isOriginalVertex[numFullPts] = 1;
@@ -593,7 +593,7 @@ int vtkBandedPolyDataContourFilter::RequestData(
             }
           }
         } //for all points and edges
-      
+
       //Produce contour edges if requested
       if ( this->GenerateContourEdges )
         {
@@ -666,7 +666,7 @@ int vtkBandedPolyDataContourFilter::RequestData(
 
       //We've got an edge (mL,mR) that marks the edge of the region not yet
       //clipped. We move this edge forward from intersection point to
-      //interection point.
+      //intersection point.
       m2R = mR;
       m2L = mL;
       while ( m2R != m2L )
@@ -697,14 +697,14 @@ int vtkBandedPolyDataContourFilter::RequestData(
             {
             numRightPointsToAdd++;
             m2R = (m2R + 1) % numFullPts;
-            if ( isContourValue[m2R] && s[m2R] != s[mR] ) intersectionPoint = 1;
+            if ( isContourValue[m2R] ) intersectionPoint = 1;
             }
           for ( intersectionPoint=0; 
                 !intersectionPoint && ((m2L+numFullPts-1)%numFullPts) != m2R; )
             {
             numLeftPointsToAdd++;
             m2L = (m2L + numFullPts - 1) % numFullPts;
-            if ( isContourValue[m2L] && s[m2L] != s[mL] ) intersectionPoint = 1;
+            if ( isContourValue[m2L] ) intersectionPoint = 1;
             }
 
           //specify the polygon vertices. From m2L to mL, then mR to m2R.
