@@ -383,6 +383,14 @@ LRESULT CALLBACK vtkHandleMessage(HWND hWnd,UINT uMsg, WPARAM wParam, LPARAM lPa
       break;
 	    
     case WM_MOUSEMOVE: lastPos = lParam; break;
+
+    case WM_CLOSE:
+      if (me->ExitMethod)
+	(*me->ExitMethod)(me->ExitMethodArg);
+      else if (me->ClassExitMethod)
+	(*me->ClassExitMethod)(me->ClassExitMethodArg);
+      else PostQuitMessage(0); 
+      break;
 	    
     case WM_CHAR:
       switch (wParam)
