@@ -50,7 +50,7 @@ class VTK_RENDERING_EXPORT vtkOpenGLVolumeShearWarpMapper : public vtkVolumeShea
 {
 public:
 //  vtkTypeMacro(vtkOpenGLVolumeShearWarpMapper,vtkVolumeShearWarpMapper);
-  void PrintSelf( ostream& os, vtkIndent index );
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   static vtkOpenGLVolumeShearWarpMapper *New();
   vtkTypeRevisionMacro(vtkOpenGLVolumeShearWarpMapper,vtkVolumeShearWarpMapper);

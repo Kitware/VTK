@@ -61,8 +61,8 @@ class vtkMatrix4x4;
 class vtkRenderer;
 class vtkRenderWindow;
 
-#include "vtkVolumeShearWarpDataStructure.h"
-/*
+//#include "vtkVolumeShearWarpDataStructure.h"
+
 class vtkShearWarpPixelData;
 class vtkShearWarpRLEImage;
 struct vtkShearWarpVoxelData;
@@ -74,7 +74,7 @@ class vtkShearWarpSummedAreaTable;
 struct vtkShearWarpOctreeRun;
 class vtkShearWarpOctreeNode;
 class vtkShearWarpOctree;
-*/
+
 #define VTK_X_AXIS  0
 #define VTK_Y_AXIS  1
 #define VTK_Z_AXIS  2
@@ -117,7 +117,7 @@ class VTK_RENDERING_EXPORT vtkVolumeShearWarpMapper : public vtkVolumeMapper
 public:
   static vtkVolumeShearWarpMapper *New();  
   vtkTypeRevisionMacro(vtkVolumeShearWarpMapper,vtkVolumeMapper);
-  void PrintSelf( ostream& os, vtkIndent index );
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Update the volume rendering pipeline by updating the scalar input

@@ -12,6 +12,8 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+#include "vtkShearWarpBase.h"
+
 #define VTK_X_AXIS  0
 #define VTK_Y_AXIS  1
 #define VTK_Z_AXIS  2
@@ -600,7 +602,7 @@ protected:
 
 // A runlength encoded volume. It contains voxel data encoded for each major viewing direction.
 template <class T>
-class vtkShearWarpRLEVolume : public vtkShearWarpBase
+class VTK_RENDERING_EXPORT vtkShearWarpRLEVolume : public vtkShearWarpBase
 {
 public:
   vtkShearWarpRLEVolume()
@@ -1017,9 +1019,12 @@ private:
 };
 
 template <class T>
-class vtkShearWarpOctree : public vtkShearWarpBase
+class VTK_RENDERING_EXPORT vtkShearWarpOctree : public vtkShearWarpBase
 {
 public:
+  vtkTypeRevisionMacro(vtkShearWarpOctree,vtkShearWarpBase);
+  void PrintSelf(ostream& os, vtkIndent indent);
+
   vtkShearWarpOctree()
   {
   };
@@ -1066,4 +1071,6 @@ private:
   vtkShearWarpSummedAreaTable<T> Table;
   int Dimensions[3];
   
+  vtkShearWarpOctree(const vtkShearWarpOctree&);  // Not implemented.
+  void operator=(const vtkShearWarpOctree&);  // Not implemented.
 };
