@@ -182,37 +182,37 @@ void vtkDataSetSurfaceFilter::StructuredExecute(vtkDataSet *input, int *ext)
   // It may be overkill comptuing the exact amount, but we can do it, so ...
   cellArraySize = numPoints = 0;
   // xMin face
-  if (ext[0] == wholeExt[0] && ext[2] != ext[3] && ext[4] != ext[5])
+  if (ext[0] == wholeExt[0] && ext[2] != ext[3] && ext[4] != ext[5] && ext[0] != ext[1])
     {
     cellArraySize += 2*(ext[3]-ext[2]+1)*(ext[5]-ext[4]+1);
     numPoints += (ext[3]-ext[2]+1)*(ext[5]-ext[4]+1);
     }
   // xMax face
-  if (ext[1] == wholeExt[1] && ext[1] != ext[0] && ext[2] != ext[3] && ext[4] != ext[5])
+  if (ext[1] == wholeExt[1] && ext[2] != ext[3] && ext[4] != ext[5])
     {
     cellArraySize += 2*(ext[3]-ext[2]+1)*(ext[5]-ext[4]+1);
     numPoints += (ext[3]-ext[2]+1)*(ext[5]-ext[4]+1);
     }
   // yMin face
-  if (ext[2] == wholeExt[2] && ext[0] != ext[1] && ext[4] != ext[5])
+  if (ext[2] == wholeExt[2] && ext[0] != ext[1] && ext[4] != ext[5] && ext[2] != ext[3])
     {
     cellArraySize += 2*(ext[1]-ext[0]+1)*(ext[5]-ext[4]+1);
     numPoints += (ext[1]-ext[0]+1)*(ext[5]-ext[4]+1);
     }
   // yMax face
-  if (ext[3] == wholeExt[3] && ext[3] != ext[2] && ext[0] != ext[1] && ext[4] != ext[5])
+  if (ext[3] == wholeExt[3] && ext[0] != ext[1] && ext[4] != ext[5])
     {
     cellArraySize += 2*(ext[1]-ext[0]+1)*(ext[5]-ext[4]+1);
     numPoints += (ext[1]-ext[0]+1)*(ext[5]-ext[4]+1);
     }
   // zMin face
-  if (ext[4] == wholeExt[4] && ext[0] != ext[1] && ext[2] != ext[3])
+  if (ext[4] == wholeExt[4] && ext[0] != ext[1] && ext[2] != ext[3] && ext[4] != ext[5])
     {
     cellArraySize += 2*(ext[1]-ext[0]+1)*(ext[3]-ext[2]+1);
     numPoints += (ext[1]-ext[0]+1)*(ext[3]-ext[2]+1);
     }
   // zMax face
-  if (ext[5] == wholeExt[5] && ext[5] != ext[4] && ext[0] != ext[1] && ext[2] != ext[3])
+  if (ext[5] == wholeExt[5] && ext[0] != ext[1] && ext[2] != ext[3])
     {
     cellArraySize += 2*(ext[1]-ext[0]+1)*(ext[3]-ext[2]+1);
     numPoints += (ext[1]-ext[0]+1)*(ext[3]-ext[2]+1);
@@ -275,6 +275,7 @@ void vtkDataSetSurfaceFilter::StructuredExecute(vtkDataSet *input, int *ext)
     // zMax face
     this->ExecuteFaceQuads(input, 1, ext, 2,1,0);
     }
+  this->GetOutput()->Squeeze();
 }
 
 //----------------------------------------------------------------------------
@@ -463,15 +464,15 @@ void vtkDataSetSurfaceFilter::ExecuteFaceQuads(vtkDataSet *input,
     return;
     }
   if (maxFlag)
-    { // max faces have a slightly different condition to avoid coincident faces.
-    if (ext[aA2] == ext[aA2+1] || ext[aA2+1] < wholeExt[aA2+1])
+    { 
+    if (ext[aA2+1] < wholeExt[aA2+1])
       {
       return;
       } 
     }
   else
-    {
-    if (ext[aA2] > wholeExt[aA2])
+    { // min faces have a slightly different condition to avoid coincident faces.
+    if (ext[aA2] == ext[aA2+1] || ext[aA2] > wholeExt[aA2])
       {
       return;
       }
@@ -479,7 +480,11 @@ void vtkDataSetSurfaceFilter::ExecuteFaceQuads(vtkDataSet *input,
 
   // Assuming no ghost cells ...
   inStartPtId = inStartCellId = 0;
-  if (maxFlag)
+  // I put this confusing conditional to fix a regression test.
+  // If we are creating a maximum face, then we indeed have to offset the input cell Ids.
+  // However, vtkGeometryFilter created a 2d image as a max face, but the cells are copied
+  // as a min face (no offset).  Hence maxFlag = 1 and there should be no offset.
+  if (maxFlag && ext[aA2] < ext[1+aA2])
     {
     inStartPtId = pInc[aAxis]*(ext[aA2+1]-ext[aA2]);
     inStartCellId = qInc[aAxis]*(ext[aA2+1]-ext[aA2]-1);
