@@ -14,6 +14,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
 #include <math.h>
+#include <stdio.h>
 #include "VoxelMod.hh"
 #include "BScalars.hh"
 
@@ -75,7 +76,7 @@ void vlVoxelModeller::SetModelBounds(float xmin, float xmax, float ymin, float y
     this->Origin[1] = ymin;
     this->Origin[2] = zmin;
 
-    if ( (length = xmin - xmax) == 0.0 ) length = 1.0;
+    if ( (length = xmax - xmin) == 0.0 ) length = 1.0;
     this->AspectRatio[0] = 1.0;
     this->AspectRatio[1] = (ymax - ymin) / length;
     this->AspectRatio[2] = (zmax - zmin) / length;
@@ -151,10 +152,12 @@ void vlVoxelModeller::Execute()
 	    x[0] = this->AspectRatio[0] * i + this->Origin[0];
 	    cell->EvaluatePosition(x, closestPoint, subId, pcoords, 
                                    distance2, weights);
-	    if ( closestPoint[0] <= voxelHalfWidth[0] ||
-            closestPoint[1] <= voxelHalfWidth[1] ||
-            closestPoint[2] <= voxelHalfWidth[2] )
+	    if ((fabs(closestPoint[0] - x[0]) <= voxelHalfWidth[0]) &&
+		(fabs(closestPoint[1] - x[1]) <= voxelHalfWidth[1]) &&
+		(fabs(closestPoint[2] - x[2]) <= voxelHalfWidth[2]))
+	      {
 	      newScalars->SetScalar(idx,1);
+	      }
 	    }
 	  }
         }
@@ -248,4 +251,73 @@ void vlVoxelModeller::SetSampleDimensions(int dim[3])
 
     this->Modified();
     }
+}
+
+void vlVoxelModeller::Write(char *fname)
+{
+  FILE *fp;
+  int cellNum, i, j, k;
+  float *bounds;
+  float maxDistance;
+  vlBitScalars *newScalars;
+  int numPts, idx;
+  int bitcount;
+  unsigned char uc;
+
+  vlDebugMacro(<< "Writing Voxel model");
+
+  // update the data
+  this->Execute();
+  
+  numPts = this->SampleDimensions[0] * this->SampleDimensions[1] * this->SampleDimensions[2];
+
+  newScalars = (vlBitScalars *)this->PointData.GetScalars();
+  
+
+  this->SetDimensions(this->GetSampleDimensions());
+  maxDistance = this->ComputeModelBounds();
+
+  fp = fopen(fname,"w");
+  if (!fp) 
+    {
+    vlErrorMacro(<< "Couldn't open file: " << fname << endl);
+    return;
+    }
+
+  fprintf(fp,"Voxel Data File\n");
+  fprintf(fp,"Origin: %f %f %f\n",this->Origin[0],
+	  this->Origin[1],this->Origin[2]);
+  fprintf(fp,"Aspect: %f %f %f\n",this->AspectRatio[0],
+	  this->AspectRatio[1],this->AspectRatio[2]);
+  fprintf(fp,"Dimensions: %i %i %i\n",this->SampleDimensions[0],
+	  this->SampleDimensions[1],this->SampleDimensions[2]);
+
+  // write out the data
+  bitcount = 0;
+  idx = 0;
+  uc = 0x00;
+
+  for (k = 0; k < this->SampleDimensions[2]; k++)
+    for (j = 0; j < this->SampleDimensions[1]; j++)
+      for (i = 0; i < this->SampleDimensions[0]; i++)
+	{
+	if (newScalars->GetScalar(idx))
+	  {
+	  uc |= (0x80 >> bitcount);
+	  }
+	bitcount++;
+	if (bitcount == 8)
+	  {
+	  fputc(uc,fp);
+	  uc = 0x00;
+	  bitcount = 0;
+	  }
+	idx++;
+	}
+  if (bitcount)
+    {
+    fputc(uc,fp);
+    }
+
+  fclose(fp);
 }
