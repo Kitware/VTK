@@ -38,6 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
+#include <stdlib.h>
 #include "vtkThreshold.h"
 
 // Construct with lower threshold=0, upper threshold=1, and threshold 
@@ -47,6 +48,7 @@ vtkThreshold::vtkThreshold()
   this->LowerThreshold = 0.0;
   this->UpperThreshold = 1.0;
   this->AllScalars = 1;
+  this->Connectivity = 0;
   this->ThresholdFunction = &vtkThreshold::Upper;
 }
 
@@ -89,28 +91,20 @@ void vtkThreshold::ThresholdBetween(float lower, float upper)
   
 void vtkThreshold::Execute()
 {
-  int cellId;
+  vtkThresholdLinkedList *cellsToKeep, *temp;
   vtkIdList *cellPts, *pointMap;
   vtkIdList *newCellPts = new vtkIdList;
-  vtkScalars *inScalars;
   vtkCell *cell;
   vtkFloatPoints *newPoints;
   vtkPointData *pd, *outPD;
   int i, ptId, newId, numPts, numCellPts;
   float *x;
   vtkUnstructuredGrid *output= this->GetOutput();
-  int keepCell;
   
+
   vtkDebugMacro(<< "Executing threshold filter");
 
-  if ( ! (inScalars = this->Input->GetPointData()->GetScalars()) )
-    {
-    vtkErrorMacro(<<"No scalar data to threshold");
-    return;
-    }
-     
   numPts = this->Input->GetNumberOfPoints();
-
   output->Allocate(this->Input->GetNumberOfCells());
   newPoints = new vtkFloatPoints(numPts);
   pd = this->Input->GetPointData();
@@ -119,9 +113,71 @@ void vtkThreshold::Execute()
 
   pointMap = new vtkIdList(numPts); // maps old point ids into new
   for (i=0; i < numPts; i++) pointMap->SetId(i,-1);
+  
+  // Determine which cells to keep
+  cellsToKeep = this->ComputeCellsToKeep();
+  // Copy the cells and their points.
+  while (cellsToKeep)
+    {
+    cell = this->Input->GetCell(cellsToKeep->Id);
+    cellPts = cell->GetPointIds();
+    numCellPts = cell->GetNumberOfPoints();
+    // Copy the points if they have not been copied already
+    for (i=0; i < numCellPts; i++)
+      {
+      ptId = cellPts->GetId(i);
+      if ( (newId = pointMap->GetId(ptId)) < 0 )
+	{
+	x = this->Input->GetPoint(ptId);
+	newId = newPoints->InsertNextPoint(x);
+	pointMap->SetId(ptId,newId);
+	outPD->CopyData(pd,ptId,newId);
+	}
+      newCellPts->InsertId(i,newId);
+      }
+    // Copy the point ids to the new cell.
+    output->InsertNextCell(cell->GetCellType(),*newCellPts);
+    newCellPts->Reset();
+    temp = cellsToKeep;
+    cellsToKeep = cellsToKeep->Next;
+    delete temp;
+    }
 
+  vtkDebugMacro(<< "Extracted " << output->GetNumberOfCells() 
+       << " number of cells.");
+
+  // now clean up / update ourselves
+  pointMap->Delete();
+  newCellPts->Delete();
+  
+  output->SetPoints(newPoints);
+  newPoints->Delete();
+
+  output->Squeeze();
+}
+
+//----------------------------------------------------------------------------
+// This function returns a linked list of cell ids to keep.
+vtkThresholdLinkedList *vtkThreshold::ComputeCellsToKeep()
+{
+  vtkThresholdLinkedList *temp, *cellsToKeep = NULL;
+  int cellId;
+  vtkIdList *cellPts;
+  vtkScalars *inScalars;
+  vtkCell *cell;
+  int i, ptId, numCells, numCellPts;
+  int keepCell;
+  
+
+  if ( ! (inScalars = this->Input->GetPointData()->GetScalars()) )
+    {
+    vtkErrorMacro(<<"No scalar data to threshold");
+    return NULL;
+    }
+     
+  numCells = this->Input->GetNumberOfCells();
   // Check that the scalars of each cell satisfy the threshold criterion
-  for (cellId=0; cellId < this->Input->GetNumberOfCells(); cellId++)
+  for (cellId=0; cellId < numCells; cellId++)
     {
     cell = this->Input->GetCell(cellId);
     cellPts = cell->GetPointIds();
@@ -150,35 +206,101 @@ void vtkThreshold::Execute()
     
     if ( keepCell ) // satisfied thresholding
       {
-      for (i=0; i < numCellPts; i++)
-        {
-        ptId = cellPts->GetId(i);
-        if ( (newId = pointMap->GetId(ptId)) < 0 )
-          {
-          x = this->Input->GetPoint(ptId);
-          newId = newPoints->InsertNextPoint(x);
-          pointMap->SetId(ptId,newId);
-          outPD->CopyData(pd,ptId,newId);
-          }
-        newCellPts->InsertId(i,newId);
-        }
-      output->InsertNextCell(cell->GetCellType(),*newCellPts);
-      newCellPts->Reset();
+      // Add to the linked list
+      temp = (vtkThresholdLinkedList *)malloc(sizeof(vtkThresholdLinkedList));
+      temp->Id = cellId;
+      temp->Next = cellsToKeep;
+      cellsToKeep = temp;
       } // satisfied thresholding
     } // for all cells
 
-  vtkDebugMacro(<< "Extracted " << output->GetNumberOfCells() 
-                << " number of cells.");
-
-  // now clean up / update ourselves
-  pointMap->Delete();
-  newCellPts->Delete();
-  
-  output->SetPoints(newPoints);
-  newPoints->Delete();
-
-  output->Squeeze();
+  return cellsToKeep;
 }
+
+
+//----------------------------------------------------------------------------
+// This function takes a list of seeds (cell ids)  and returns a list
+// of cells connected to the seeds.
+vtkThresholdLinkedList *
+vtkThreshold::ComputeConnectedCells(vtkThresholdLinkedList *seeds)
+{
+  vtkIdList *visitedList, *cellPts;
+  vtkIdList neighborIds(VTK_CELL_SIZE);
+  vtkThresholdLinkedList *returnList, *temp, *end;
+  int idx, k, neighborId, ptId, numCells, numCellPts;
+  vtkCell *cell;
+  
+
+  if (seeds == NULL)
+    {
+    return NULL;
+    }
+  
+  // list to show which cells have been visited.
+  visitedList = new vtkIdList(this->Input->GetNumberOfCells());
+  for (idx = 0 ; idx < this->Input->GetNumberOfCells(); ++idx) 
+    {
+    visitedList->SetId(idx, -1);
+    }
+
+  // Find the end of the list (marking seeds as visited along the way.
+  end = seeds;
+  visitedList->SetId(end->Id, 0);
+  while (end->Next)
+    {
+    end = end->Next;
+    visitedList->SetId(end->Id, 0);
+    }
+  
+  // breadth first search of connected cells, starting with the seeds.
+  returnList = NULL;
+  while(seeds)
+    {
+    // Get the first cell seed
+    cell = this->Input->GetCell(seeds->Id);
+    cellPts = cell->GetPointIds();
+    numCellPts = cell->GetNumberOfPoints();
+    // for each point of the cell
+    for (idx = 0; idx < numCellPts; ++idx) 
+      {
+      ptId = cellPts->GetId(idx);
+      // Find neighboring cells.
+      this->Input->GetPointCells(ptId,neighborIds); 
+      numCells = neighborIds.GetNumberOfIds();
+      // For each neighboring cell
+      for (k=0; k < numCells; k++) 
+	{
+	neighborId = neighborIds.GetId(k);
+	// If the neighbor has not been visited
+	if (visitedList->GetId(neighborId) == -1)
+	  {
+	  // Add neighbor to the end of the seed list
+	  end->Next = (vtkThresholdLinkedList *)
+	    malloc(sizeof(vtkThresholdLinkedList));
+	  end->Next->Next = NULL;
+	  end->Id = neighborId;
+	  end = end->Next;
+	  visitedList->SetId(neighborId, 0);
+	  }
+	}
+      }
+    // Transfer cell from seed list to output list.
+    temp = seeds;
+    seeds = seeds->Next;
+    temp->Next = returnList;
+    returnList = temp;
+    }
+  
+  return returnList;
+}
+
+    
+	  
+	    
+  
+  
+  
+  
 
 void vtkThreshold::PrintSelf(ostream& os, vtkIndent indent)
 {
@@ -196,4 +318,20 @@ void vtkThreshold::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Lower Threshold: " << this->LowerThreshold << "\n";;
   os << indent << "Upper Threshold: " << this->UpperThreshold << "\n";;
+  if (this->AllScalars)
+    {
+    os << indent << "AllScalars On\n";
+    }
+  else
+    {
+    os << indent << "AllScalars Off\n";
+    }
+  if (this->Connectivity)
+    {
+    os << indent << "Connectivity On\n";
+    }
+  else
+    {
+    os << indent << "Connectivity Off\n";
+    }
 }
