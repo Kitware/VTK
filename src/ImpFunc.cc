@@ -32,6 +32,17 @@ float vlImplicitFunction::FunctionValue(float x[3])
 
   else //pass point through transform
     {
+    float pt[4];
+    int i;
+
+    pt[0] = x[0];
+    pt[1] = x[1];
+    pt[2] = x[2];
+    pt[3] = 1.0;
+    this->Transform->PointMultiply(pt,pt);
+    if (pt[3] != 1.0 ) for (i=0; i<3; i++) pt[i] /= pt[3];
+
+    return this->EvaluateFunction(pt);
     }
 }
 
@@ -42,7 +53,7 @@ void vlImplicitFunction::FunctionGradient(float x[3], float g[3])
 {
   if ( ! this->Transform )
     {
-    return this->EvaluateGradient(x,g);
+    this->EvaluateGradient(x,g);
     }
 
   else //pass point through transform
@@ -50,4 +61,16 @@ void vlImplicitFunction::FunctionGradient(float x[3], float g[3])
     }
 }
 
+void vlImplicitFunction::PrintSelf(ostream& os, vlIndent indent)
+{
+  vlObject::PrintSelf(os,indent);
+
+  if ( this->Transform )
+    {
+    os << indent << "Transform:\n";
+    this->Transform->PrintSelf(os,indent.GetNextIndent());
+    }
+  else
+    os << indent << "Transform: (None)\n";
+}
 

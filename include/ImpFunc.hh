@@ -22,8 +22,13 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 //    vlImplicitFunction provides a mechanism to transform the implicit
 // function(s) via a transform filter. This capability can be used to 
 // translate, orient, or scale implicit functions. For example, a sphere 
-// implicit function can be transformed into an oriented ellipse.
-
+// implicit function can be transformed into an oriented ellipse. This is 
+// accomplished by using an instance of vlTransform.
+// .SECTION Caveats
+// The transformation matrix transforms a point into the space of the implicit
+// function (i.e., the model space). Typically we want to transpose the 
+// implicit model into world coordinates. In this case thus inverse of the 
+// transform is required.
 
 #ifndef __vlImplicitFunction_h
 #define __vlImplicitFunction_h
@@ -37,6 +42,7 @@ public:
   vlImplicitFunction();
   ~vlImplicitFunction() {};
   char *GetClassName() {return "vlImplicitFunction";};
+  void PrintSelf(ostream& os, vlIndent indent);
 
   float FunctionValue(float x[3]);
   void FunctionGradient(float x[3], float g[3]);

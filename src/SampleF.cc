@@ -178,7 +178,7 @@ void vlSampleFunction::SetSampleDimensions(int dim[3])
 
 unsigned long vlSampleFunction::GetMTime()
 {
-  unsigned long mTime=this->MTime.GetMTime();
+  unsigned long mTime=this->vlStructuredPointsSource::GetMTime();
   unsigned long impFuncMTime;
 
   if ( this->ImplicitFunction != NULL )
