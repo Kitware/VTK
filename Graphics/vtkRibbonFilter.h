@@ -109,7 +109,7 @@ public:
   // calculated from scalars or length) is mapped to the [0,1)
   // texture space.
   vtkSetClampMacro(TextureLength,float,0.000001,VTK_LARGE_INTEGER);
-  vtkGetMacro(TextureLength,int);
+  vtkGetMacro(TextureLength,float);
 
 protected:
   vtkRibbonFilter();
