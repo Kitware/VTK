@@ -41,7 +41,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkHyperStreamline.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
-
+#include "vtkFloatArray.h"
 
 
 //------------------------------------------------------------------------------
@@ -677,9 +677,9 @@ void vtkHyperStreamline::BuildTube()
 {
   vtkHyperPoint *sPrev, *sPtr;
   vtkPoints *newPts;
-  vtkVectors *newVectors;
-  vtkNormals *newNormals;
-  vtkScalars *newScalars=NULL;
+  vtkFloatArray *newVectors;
+  vtkFloatArray *newNormals;
+  vtkFloatArray *newScalars=NULL;
   vtkCellArray *newStrips;
   vtkIdType i, npts, ptOffset=0;
   int ptId, j, id, k, i1, i2;
@@ -713,13 +713,15 @@ void vtkHyperStreamline::BuildTube()
   newPts ->Allocate(2500);
   if ( input->GetPointData()->GetScalars() )
     {
-    newScalars = vtkScalars::New();
+    newScalars = vtkFloatArray::New();
     newScalars->Allocate(2500);
     }
-  newVectors = vtkVectors::New();
-  newVectors->Allocate(2500);
-  newNormals = vtkNormals::New();
-  newNormals->Allocate(2500);
+  newVectors = vtkFloatArray::New();
+  newVectors->SetNumberOfComponents(3);
+  newVectors->Allocate(7500);
+  newNormals = vtkFloatArray::New();
+  newNormals->SetNumberOfComponents(3);
+  newNormals->Allocate(7500);
   newStrips = vtkCellArray::New();
   newStrips->Allocate(newStrips->EstimateSize(3*this->NumberOfStreamers,
                                               VTK_CELL_SIZE));
@@ -782,9 +784,9 @@ void vtkHyperStreamline::BuildTube()
             xT[j] = x[j] + sFactor * normal[j];
             }
           id = newPts->InsertNextPoint(xT);
-          newVectors->InsertVector(id,v);
+          newVectors->InsertTuple(id,v);
           vtkMath::Normalize(normal);
-          newNormals->InsertNormal(id,normal);
+          newNormals->InsertTuple(id,normal);
           }
 
         if ( newScalars ) //add scalars around tube
@@ -792,7 +794,7 @@ void vtkHyperStreamline::BuildTube()
           s = sPrev->S + r * (sPtr->S - sPrev->S);
           for (k=0; k<this->NumberOfSides; k++)
 	    {
-            newScalars->InsertNextScalar(s);
+            newScalars->InsertNextTuple(&s);
 	    }
           }
 

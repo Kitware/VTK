@@ -42,7 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkPolyDataStreamer.h"
 #include "vtkAppendPolyData.h"
 #include "vtkObjectFactory.h"
-
+#include "vtkFloatArray.h"
 
 
 //------------------------------------------------------------------------------
@@ -113,11 +113,12 @@ void vtkPolyDataStreamer::Execute()
   vtkAppendPolyData *append = vtkAppendPolyData::New();
   int outPiece, outNumPieces, outGhost;
   int i, j, inPiece;
-  vtkScalars *pieceColors = NULL;
+  vtkFloatArray *pieceColors = NULL;
+  float tmp;
 
   if (this->ColorByPiece)
     {
-    pieceColors = vtkScalars::New();
+    pieceColors = vtkFloatArray::New();
     }
 
   outGhost = output->GetUpdateGhostLevel();
@@ -137,7 +138,8 @@ void vtkPolyDataStreamer::Execute()
       {
       for (j = 0; j < input->GetNumberOfCells(); ++j)
         {
-        pieceColors->InsertNextScalar((float)inPiece);
+	tmp = static_cast<float>(inPiece);
+        pieceColors->InsertNextTuple(&tmp);
         }
       }
     }

@@ -93,11 +93,9 @@ void vtkGlyphSource2D::Execute()
   lines->Allocate(lines->EstimateSize(4,2),2);
   vtkCellArray *polys = vtkCellArray::New();
   polys->Allocate(polys->EstimateSize(1,4),4);
-  vtkScalars *scalars = vtkScalars::New();
   vtkUnsignedCharArray *colors = vtkUnsignedCharArray::New();
   colors->SetNumberOfComponents(3);
   colors->Allocate(2,2);
-  scalars->SetData(colors);
   
   this->ConvertColor();
 
@@ -172,9 +170,8 @@ void vtkGlyphSource2D::Execute()
   output->SetPolys(polys);
   polys->Delete();
 
-  output->GetCellData()->SetScalars(scalars);
+  output->GetCellData()->SetScalars(colors);
   colors->Delete();
-  scalars->Delete();
 }
 
 void vtkGlyphSource2D::ConvertColor()

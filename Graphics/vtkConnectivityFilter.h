@@ -83,6 +83,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define VTK_EXTRACT_ALL_REGIONS 5
 #define VTK_EXTRACT_CLOSEST_POINT_REGION 6
 
+class vtkFloatArray;
+
 class VTK_EXPORT vtkConnectivityFilter : public vtkDataSetToUnstructuredGridFilter
 {
 public:
@@ -189,15 +191,15 @@ protected:
 
 private:
   // used to support algorithm execution
-  vtkScalars *CellScalars;
+  vtkFloatArray *CellScalars;
   vtkIdList *NeighborCellPointIds;
   vtkIdType *Visited;
   vtkIdType *PointMap;
-  vtkScalars *NewScalars;
+  vtkFloatArray *NewScalars;
   int RegionNumber;
   vtkIdType PointNumber;    
   int NumCellsInRegion;
-  vtkScalars *InScalars;
+  vtkDataArray *InScalars;
   vtkIdList *Wave;
   vtkIdList *Wave2;
   vtkIdList *PointIds;
