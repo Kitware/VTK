@@ -53,9 +53,9 @@ const char* vtkDynamicLoader::LastError()
 
 
 // ---------------------------------------------------------------
-// 2. Implementation for Darwin (OSX) Machines
+// 2. Implementation for Darwin (including OSX) Machines
 
-#ifdef DARWIN
+#ifdef __APPLE__
 #define VTKDYNAMICLOADER_DEFINED
 #include <mach-o/dyld.h>
 
