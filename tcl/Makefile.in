@@ -42,12 +42,12 @@ LDLIBS =  \
 	${THREAD_LIBS}
 
 
-CXX_FLAGS = ${CPPFLAGS} ${CXXFLAGS} -I${srcdir} \
+CXX_FLAGS = ${USER_CFLAGS} ${CPPFLAGS} ${CXXFLAGS} -I${srcdir} \
 	-I${srcdir}/../common ${TK_INCLUDE} ${TCL_INCLUDE} \
 	@USE_TKWIDGET_FLAG@ ${GRAPHICS_API_FLAGS} \
 	${USE_TOOLKIT_FLAGS}
 
-C_FLAGS = ${CPPFLAGS} ${CFLAGS} -I${srcdir} \
+C_FLAGS = ${USER_CXXFLAGS} ${CPPFLAGS} ${CFLAGS} -I${srcdir} \
 	${TK_INCLUDE} ${TCL_INCLUDE} @USE_TKWIDGET_FLAG@ \
 	${GRAPHICS_API_FLAGS} ${USE_TOOLKIT_FLAGS}
 
@@ -70,7 +70,7 @@ cpp_parse: $(srcdir)/y.tab.c $(srcdir)/lex.yy.c
 #
 vtk: 	Makefile tkAppInit.o ${TOOLKIT_DEPENDS} 
 	$(CXX) -o vtk tkAppInit.o \
-	-L. ${VTK_SHLIB_LINK_FLAGS} ${XLDFLAGS} ${LDLIBS} \
+	-L. ${CXX_FLAGS} ${VTK_SHLIB_LINK_FLAGS} ${XLDFLAGS} ${LDLIBS} \
 	${XLIBS} -lXext ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
 
 vtktcl: Makefile vtktcl.o ${COMMON_DEPENDS}

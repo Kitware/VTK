@@ -11,6 +11,10 @@ TK_LIB=/common/software/tk4.2/sun4/5.4/lib/libtk4.2.a
 MESA_INCLUDE=-I/home/martink/storage/Mesa-1.2.6/include
 MESA_LIB=/home/martink/storage/Mesa-1.2.6/lib-sun4-solaris/libMesaGL.a
 
+# Add additional CFLAGS and CXXFLAGS for compilation
+USER_CFLAGS = 
+USER_CXXFLAGS = 
+
 # if you want to try the java support you'll need to set the following
 #
 #JAVAC=/home/martink/JDK/java/bin/javac

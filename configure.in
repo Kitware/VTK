@@ -122,10 +122,12 @@ AC_ARG_WITH(shared,
          [  --with-shared               create shared libraries],
          [vtk_shared_ok=yes], [vtk_shared_ok=no])
 
+INSTALL_TARGET="install"
 AC_ARG_WITH(tcl,
          [  --with-tcl              build vtk the tcl based interpreter],
          tcldir=tcl
          BUILD_TCL=build_tcl
+         INSTALL_TARGET="${INSTALL_TARGET}_tcl"
          CLEAN_TCL=clean_tcl)
 
 AC_SUBST(BUILD_TCL)
@@ -136,21 +138,25 @@ USE_TOOLKIT_FLAGS=""
 AC_ARG_WITH(java,
          [  --with-java             very buggy build vtk with java support],
          javadir=java
+         INSTALL_TARGET="${INSTALL_TARGET}_java"
          BUILD_JAVA=build_java
          CLEAN_JAVA=clean_java)
 
 AC_SUBST(BUILD_JAVA)
 AC_SUBST(CLEAN_JAVA)
+AC_SUBST(INSTALL_TARGET)
 
 BUILD_TOOLKITS=""
 CLEAN_TOOLKITS=""
 DEPEND_TOOLKITS=""
+INSTALL_TOOLKITS=""
 
 AC_ARG_WITH(graphics,
          [  --without-graphics      do not include the graphics classes],,
          graphicsdir=graphics
          USE_GRAPHICS_LIBS="-L../graphics -lVTKGraphicsTcl"
          USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I$(srcdir)/../graphics -DVTK_USE_GRAPHICS"
+         INSTALL_TOOLKITS="${INSTALL_TOOLKITS} install_graphics"
          BUILD_TOOLKITS="${BUILD_TOOLKITS} build_graphics"
          DEPEND_TOOLKITS="${DEPEND_TOOLKITS} depend_graphics"
          CLEAN_TOOLKITS="${CLEAN_TOOLKITS} clean_graphics")
@@ -160,6 +166,7 @@ AC_ARG_WITH(imaging,
          imagingdir=imaging
          USE_IMAGING_LIBS="-L../imaging -lVTKImagingTcl"
          USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I$(srcdir)/../imaging -DVTK_USE_IMAGING"
+         INSTALL_TOOLKITS="${INSTALL_TOOLKITS} install_imaging"
          BUILD_TOOLKITS="${BUILD_TOOLKITS} build_imaging"
          DEPEND_TOOLKITS="${DEPEND_TOOLKITS} depend_imaging"
          CLEAN_TOOLKITS="${CLEAN_TOOLKITS} clean_imaging")
@@ -172,6 +179,7 @@ AC_ARG_WITH(patented,
          patenteddir=patented
          USE_PATENTED_LIBS="-L../patented -lVTKPatentedTcl"
          USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I$(srcdir)/../patented -DVTK_USE_PATENTED"
+         INSTALL_TOOLKITS="${INSTALL_TOOLKITS} install_patented"
          BUILD_TOOLKITS="${BUILD_TOOLKITS} build_patented"
          DEPEND_TOOLKITS="${DEPEND_TOOLKITS} depend_patented"
          CLEAN_TOOLKITS="${CLEAN_TOOLKITS} clean_patented",)
@@ -181,6 +189,7 @@ AC_ARG_WITH(volume,
          volumedir=volume
          USE_VOLUME_LIBS="-L../volume -lVTKVolumeTcl"
          USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I$(srcdir)/../volume -DVTK_USE_VOLUME"
+         INSTALL_TOOLKITS="${INSTALL_TOOLKITS} install_volume"
          BUILD_TOOLKITS="${BUILD_TOOLKITS} build_volume"
          DEPEND_TOOLKITS="${DEPEND_TOOLKITS} depend_volume"
          CLEAN_TOOLKITS="${CLEAN_TOOLKITS} clean_volume",)
@@ -190,6 +199,7 @@ AC_ARG_WITH(contrib,
          contribdir=contrib
          USE_CONTRIB_LIBS="-L../contrib -lVTKContribTcl"
          USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I$(srcdir)/../contrib -DVTK_USE_CONTRIB"
+         INSTALL_TOOLKITS="${INSTALL_TOOLKITS} install_contrib"
          BUILD_TOOLKITS="${BUILD_TOOLKITS} build_contrib"
          DEPEND_TOOLKITS="${DEPEND_TOOLKITS} depend_contrib"
          CLEAN_TOOLKITS="${CLEAN_TOOLKITS} clean_contrib",)
@@ -199,6 +209,7 @@ AC_ARG_WITH(geae,
          geaedir=geae
          USE_GEAE_LIBS="-L../geae -lVTKGeaeTcl"
          USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I$(srcdir)/../geae -DVTK_USE_GEAE"
+         INSTALL_TOOLKITS="${INSTALL_TOOLKITS} install_geae"
          BUILD_TOOLKITS="${BUILD_TOOLKITS} build_geae"
          DEPEND_TOOLKITS="${DEPEND_TOOLKITS} depend_geae"
          CLEAN_TOOLKITS="${CLEAN_TOOLKITS} clean_geae",)
@@ -208,6 +219,7 @@ AC_ARG_WITH(gemsip,
          gemsipdir=gemsip
          USE_GEMSIP_LIBS="-L../gemsip -lVTKGemsipTcl"
          USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I$(srcdir)/../gemsip -DVTK_USE_GEMSIP"
+         INSTALL_TOOLKITS="${INSTALL_TOOLKITS} install_gemsip"
          BUILD_TOOLKITS="${BUILD_TOOLKITS} build_gemsip"
          DEPEND_TOOLKITS="${DEPEND_TOOLKITS} depend_gemsip"
          CLEAN_TOOLKITS="${CLEAN_TOOLKITS} clean_gemsip",)
@@ -217,6 +229,7 @@ AC_ARG_WITH(gemsio,
          gemsiodir=gemsio
          USE_GEMSIO_LIBS="-L../gemsio -lVTKGemsioTcl"
          USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I$(srcdir)/../gemsio -DVTK_USE_GEMSIO"
+         INSTALL_TOOLKITS="${INSTALL_TOOLKITS} install_gemsio"
          BUILD_TOOLKITS="${BUILD_TOOLKITS} build_gemsio"
          DEPEND_TOOLKITS="${DEPEND_TOOLKITS} depend_gemsio"
          CLEAN_TOOLKITS="${CLEAN_TOOLKITS} clean_gemsio",)
@@ -226,11 +239,13 @@ AC_ARG_WITH(gemsvolume,
          gemsvolumedir=gemsvolume
          USE_GEMSVOLUME_LIBS="-L../gemsvolume -lVTKGemsvolumeTcl"
          USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I$(srcdir)/../gemsvolume -DVTK_USE_GEMSVOLUME"
+         INSTALL_TOOLKITS="${INSTALL_TOOLKITS} install_gemsvolume"
          BUILD_TOOLKITS="${BUILD_TOOLKITS} build_gemsvolume"
          DEPEND_TOOLKITS="${DEPEND_TOOLKITS} depend_gemsvolume"
          CLEAN_TOOLKITS="${CLEAN_TOOLKITS} clean_gemsvolume",)
 
 AC_SUBST(BUILD_TOOLKITS)
+AC_SUBST(INSTALL_TOOLKITS)
 AC_SUBST(DEPEND_TOOLKITS)
 AC_SUBST(CLEAN_TOOLKITS)
 
@@ -285,8 +300,6 @@ fi
 #	SHLIB_CFLAGS -	Flags to pass to cc when compiling the components
 #			of a shared library (may request position-independent
 #			code, among other things).
-#	SHLIB_LD -	Base command to use for combining object files
-#			into a shared library.
 #	SHLIB_LD_LIBS -	Dependent libraries for the linker to scan when
 #			creating shared libraries.  This symbol typically
 #			goes at the end of the "ld" commands that build
@@ -305,13 +318,12 @@ fi
 #			in a version string, this provides a default version
 #			string to use;  it is an empty string on platforms
 #			where it isn't needed.
-#	LD_FLAGS -	Flags to pass to the compiler when linking object
+#	VTK_SHLIB_BUILD_FLAGS -
+#                       Flags to use when building a shared library.	
+#	VTK_SHLIB_LINK_FLAGS -	
+#                       Flags to pass to the compiler when linking object
 #			files into an executable application binary such
 #			as tclsh.
-#	LD_SEARCH_FLAGS-Flags to pass to ld, such as "-R /usr/local/tcl/lib",
-#			that tell the run-time dynamic linker where to look
-#			for shared libraries such as libtcl.so.  Depends on
-#			the variable LIB_INSTALL_DIR in the Makefile.
 #--------------------------------------------------------------------
 
 # Step 1: set the variable "system" to hold the name and version number
@@ -342,72 +354,45 @@ fi
 
 AC_CHECK_LIB(dl, dlopen, have_dl=yes, have_dl=no)
 
-# Step 3: disable dynamic loading if requested via a command-line switch.
-
-AC_ARG_ENABLE(load, [  --disable-load          disallow dynamic loading and "load" command],
-    [tcl_ok=$enableval], [tcl_ok=yes])
-if test "$tcl_ok" = "no"; then
-    system=unknown
-fi
-
 # Step 4: set configuration options based on system name and version.
 
 fullSrcDir=`cd $srcdir; pwd`
-mustUseSharedLibs=no
 case $system in
     AIX-*)
 	# AIX: can't link shared library extensions unless Tcl and Tk are
 	# also shared libraries.
-	mustUseSharedLibs=yes
 	SHLIB_CFLAGS=""
-	SHLIB_LD="$fullSrcDir/ldAix /bin/ld -e _nostart -berok -bM:SRE -bE:lib.exp -H512 -T512"
 	SHLIB_LD_LIBS='${LIBS}'
 	SHLIB_SUFFIX="..o"
 	SHLIB_VERSION=""
 	DL_LIBS=""
         AC_CHECK_LIB(ld,printf, DL_LIBS="-lld")
-	LD_FLAGS=""
-	LD_SEARCH_FLAGS=""
+	VTK_SHLIB_LINK_FLAGS=""
 	;;
     HP-UX-*.08.*|HP-UX-*.09.*|HP-UX-*.10.*)
 	SHLIB_CFLAGS="+z"
-	SHLIB_LD="ld -b"
 	SHLIB_LD_LIBS=""
 	SHLIB_SUFFIX=".sl"
 	SHLIB_VERSION=""
 	DL_LIBS="-ldld"
-	LD_FLAGS="-Wl,-E"
-	LD_SEARCH_FLAGS='-Wl,+b,${LIB_INSTALL_DIR}'
-	;;
-    IRIX-4.*)
-	SHLIB_CFLAGS="-G 0"
-	SHLIB_SUFFIX="..o"
-	SHLIB_LD="echo tclLdAout $CC \{$SHLIB_CFLAGS\} | tclsh -r -G 0"
-	SHLIB_LD_LIBS=""
-	SHLIB_VERSION=""
-	DL_LIBS=""
-	LD_FLAGS="-Wl,-D,08000000"
-	LD_SEARCH_FLAGS='-rpath ${LIB_INSTALL_DIR}'
+	VTK_SHLIB_BUILD_FLAGS='-Wl,-E'
+	VTK_SHLIB_LINK_FLAGS='-Wl,+s -Wl,+b,${LIB_RUNTIME_DIR}'
 	;;
     IRIX-5.*)
 	SHLIB_CFLAGS=""
-	SHLIB_LD="${CXX} -shared -rdata_shared"
 	SHLIB_LD_LIBS=""
 	SHLIB_SUFFIX=".so"
 	SHLIB_VERSION=""
 	DL_LIBS=""
-	LD_FLAGS=""
-	LD_SEARCH_FLAGS=""
+	VTK_SHLIB_BUILD_FLAGS="-shared -rdata_shared"
 	;;
     IRIX64-6* | IRIX-64-6*)
 	SHLIB_CFLAGS=""
-	SHLIB_LD="${CXX} -shared -rdata_shared"
 	SHLIB_LD_LIBS=""
 	SHLIB_SUFFIX=".so"
 	SHLIB_VERSION=""
 	DL_LIBS=""
-	LD_FLAGS=""
-	LD_SEARCH_FLAGS=""
+	VTK_SHLIB_BUILD_FLAGS="-shared -rdata_shared"
 	;;
     Linux*)
 	SHLIB_CFLAGS="-fPIC"
@@ -415,176 +400,143 @@ case $system in
 	SHLIB_SUFFIX=".so"
 	SHLIB_VERSION=""
 	if test "$have_dl" = yes; then
-	    SHLIB_LD="${CC} -shared"
 	    DL_LIBS="-ldl"
-	    LD_FLAGS="-rdynamic"
-	    LD_SEARCH_FLAGS=""
+	    VTK_SHLIB_LINK_FLAGS="-rdynamic"
 	else
 	    AC_CHECK_HEADER(dld.h, [
-		SHLIB_LD="ld -shared"
 		DL_LIBS="-ldld"
-		LD_FLAGS=""
-		LD_SEARCH_FLAGS=""])
+		VTK_SHLIB_LINK_FLAGS=""])
 	fi
 	;;
     MP-RAS-02*)
 	SHLIB_CFLAGS="-K PIC"
-	SHLIB_LD="cc -G"
 	SHLIB_LD_LIBS=""
 	SHLIB_SUFFIX=".so"
 	SHLIB_VERSION=""
 	DL_LIBS="-ldl"
-	LD_FLAGS=""
-	LD_SEARCH_FLAGS=""
+	VTK_SHLIB_LINK_FLAGS=""
 	;;
     MP-RAS-*)
 	SHLIB_CFLAGS="-K PIC"
-	SHLIB_LD="cc -G"
 	SHLIB_LD_LIBS=""
 	SHLIB_SUFFIX=".so"
 	SHLIB_VERSION=""
 	DL_LIBS="-ldl"
-	LD_FLAGS="-Wl,-Bexport"
-	LD_SEARCH_FLAGS=""
+	VTK_SHLIB_LINK_FLAGS="-Wl,-Bexport"
 	;;
     NetBSD-*|FreeBSD-*)
 	# Not available on all versions:  check for include file.
 	if test -f /usr/include/dlfcn.h; then
 	    SHLIB_CFLAGS="-fpic"
-	    SHLIB_LD="ld -Bshareable"
 	    SHLIB_LD_LIBS=""
 	    SHLIB_SUFFIX=".so"
 	    SHLIB_VERSION=".1.0"
 	    DL_LIBS=""
-	    LD_FLAGS=""
-	    LD_SEARCH_FLAGS=""
+	    VTK_SHLIB_LINK_FLAGS=""
 	else
 	    SHLIB_CFLAGS=""
-	    SHLIB_LD="echo tclLdAout $CC \{$SHLIB_CFLAGS\} | tclsh -r -G 0"
 	    SHLIB_LD_LIBS=""
 	    SHLIB_SUFFIX="..o"
 	    SHLIB_VERSION=""
 	    DL_LIBS=""
-	    LD_FLAGS=""
-	    LD_SEARCH_FLAGS=""
+	    VTK_SHLIB_LINK_FLAGS=""
 	fi
 	;;
     NEXTSTEP-*)
 	SHLIB_CFLAGS=""
-	SHLIB_LD="cc -nostdlib -r"
 	SHLIB_LD_LIBS=""
 	SHLIB_SUFFIX=".so"
 	SHLIB_VERSION=""
 	DL_LIBS=""
-	LD_FLAGS=""
-	LD_SEARCH_FLAGS=""
+	VTK_SHLIB_LINK_FLAGS=""
 	;;
     OSF1-1.[012])
 	# OSF/1 1.[012] from OSF, and derivatives, including Paragon OSF/1
 	SHLIB_CFLAGS=""
 	# Hack: make package name same as library name
-	SHLIB_LD='ld -R -export $@:'
 	SHLIB_LD_LIBS=""
 	SHLIB_SUFFIX=".so"
 	SHLIB_VERSION=""
 	DL_LIBS=""
-	LD_FLAGS=""
-	LD_SEARCH_FLAGS=""
+	VTK_SHLIB_LINK_FLAGS=""
 	;;
     OSF1-1.*)
 	# OSF/1 1.3 from OSF using ELF, and derivatives, including AD2
 	SHLIB_CFLAGS="-fpic"
-	SHLIB_LD="ld -shared"
 	SHLIB_LD_LIBS=""
 	SHLIB_SUFFIX=".so"
 	SHLIB_VERSION=""
 	DL_LIBS=""
-	LD_FLAGS=""
-	LD_SEARCH_FLAGS=""
+	VTK_SHLIB_LINK_FLAGS=""
 	;;
     OSF1-V*)
         # Digital OSF/1
 	SHLIB_CFLAGS=""
-	SHLIB_LD='ld -shared -expect_unresolved "*"'
 	SHLIB_LD_LIBS=""
 	SHLIB_SUFFIX=".so"
 	SHLIB_VERSION=""
 	DL_LIBS=""
-	LD_FLAGS=""
-	LD_SEARCH_FLAGS=""
+	VTK_SHLIB_LINK_FLAGS=""
 	;;
     RISCos-*)
 	SHLIB_CFLAGS="-G 0"
-	SHLIB_LD="echo tclLdAout $CC \{$SHLIB_CFLAGS\} | tclsh -r -G 0"
 	SHLIB_LD_LIBS=""
 	SHLIB_SUFFIX="..o"
 	SHLIB_VERSION=""
 	DL_LIBS=""
-	LD_FLAGS="-Wl,-D,08000000"
-	LD_SEARCH_FLAGS=""
+	VTK_SHLIB_LINK_FLAGS="-Wl,-D,08000000"
 	;;
     SCO_SV-3.2*)
         # Note, dlopen is available only on SCO 3.2.5 and greater.  However,
         # this test works, since "uname -s" was non-standard in 3.2.4 and
         # below.
 	SHLIB_CFLAGS="-Kpic -belf"
-	SHLIB_LD="ld -G"
 	SHLIB_LD_LIBS=""
 	SHLIB_SUFFIX=".so"
 	SHLIB_VERSION=""
 	DL_LIBS=""
-	LD_FLAGS="-belf -Wl,-Bexport"
-	LD_SEARCH_FLAGS=""
+	VTK_SHLIB_LINK_FLAGS="-belf -Wl,-Bexport"
 	;;
      SINIX*5.4*)
 	SHLIB_CFLAGS="-K PIC"
-	SHLIB_LD="cc -G"
 	SHLIB_LD_LIBS=""
 	SHLIB_SUFFIX=".so"
 	SHLIB_VERSION=""
 	DL_LIBS="-ldl"
-	LD_FLAGS=""
-	LD_SEARCH_FLAGS=""
+	VTK_SHLIB_LINK_FLAGS=""
 	;;
     SunOS-4*)
 	SHLIB_CFLAGS="-PIC"
-	SHLIB_LD="ld"
 	SHLIB_LD_LIBS=""
 	SHLIB_SUFFIX=".so"
 	SHLIB_VERSION=""
 	DL_LIBS="-ldl"
-	LD_FLAGS=""
-	LD_SEARCH_FLAGS=""
+	VTK_SHLIB_LINK_FLAGS=""
 	;;
     SunOS-5*)
 	SHLIB_CFLAGS="-PIC"
-	SHLIB_LD="/usr/ccs/bin/ld -G -z text"
 	SHLIB_LD_LIBS='${LIBS}'
 	SHLIB_SUFFIX=".so"
 	SHLIB_VERSION=""
 	DL_LIBS="-ldl"
-	LD_FLAGS=""
-	LD_SEARCH_FLAGS='-R ${LIB_INSTALL_DIR}'
+	VTK_SHLIB_BUILD_FLAGS='-Wl,-G'
+	VTK_SHLIB_LINK_FLAGS='-Wl,-R,${LIB_RUNTIME_DIR}'
 	;;
     ULTRIX-4.*)
 	SHLIB_CFLAGS="-G 0"
 	SHLIB_SUFFIX="..o"
-	SHLIB_LD="echo tclLdAout $CC \{$SHLIB_CFLAGS\} | tclsh -r -G 0"
 	SHLIB_LD_LIBS=""
 	SHLIB_VERSION=""
 	DL_LIBS=""
-	LD_FLAGS="-Wl,-D,08000000"
-	LD_SEARCH_FLAGS=""
+	VTK_SHLIB_LINK_FLAGS="-Wl,-D,08000000"
 	;;
     UNIX_SV*)
 	SHLIB_CFLAGS="-K PIC"
-	SHLIB_LD="cc -G"
 	SHLIB_LD_LIBS=""
 	SHLIB_SUFFIX=".so"
 	SHLIB_VERSION=""
 	DL_LIBS="-ldl"
-	LD_FLAGS="-Wl,-Bexport"
-	LD_SEARCH_FLAGS=""
+	VTK_SHLIB_LINK_FLAGS="-Wl,-Bexport"
 	;;
 esac
 
@@ -652,23 +604,11 @@ AC_SUBST(USE_GEMSVOLUME_LIBS)
 AC_SUBST(TOOLKIT_DEPENDS)
 AC_SUBST(USE_TOOLKIT_FLAGS)
 
-# on an HP using gcc with shared libraries we need to add a link flag
-#
-VTK_SHLIB_LINK_FLAGS=""
-if test "$vtk_shared_ok" = "yes"; then
-  if test $ac_cv_prog_gxx = yes; then
-    case $system in
-       HP-UX-*.08.*|HP-UX-*.09.*|HP-UX-*.10.*)
-	  VTK_SHLIB_LINK_FLAGS="-Wl,+s"
-	  ;;
-    esac
-  fi
-fi
 AC_SUBST(VTK_SHLIB_LINK_FLAGS)
+AC_SUBST(VTK_SHLIB_BUILD_FLAGS)
 
 AC_SUBST(VTK_SHLIB_CFLAGS)
 AC_SUBST(VTK_LIB_EXT)
-AC_SUBST(SHLIB_LD)
 AC_SUBST(DL_LIBS)
 AC_SUBST(SHLIB_LD_LIBS)
 AC_SUBST(SHLIB_SUFFIX)
