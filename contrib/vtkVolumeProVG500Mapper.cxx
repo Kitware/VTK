@@ -352,8 +352,8 @@ void vtkVolumeProVG500Mapper::UpdateProperties( vtkRenderer *vtkNotUsed(ren),
   int                       i;
   float                     scale = 1.0;
   double                    *gradientTable;
-  int                       val;
-  
+  float                     val;
+
   switch ( this->VolumeDataType )
     {
     case VTK_VOLUME_8BIT:
@@ -375,13 +375,13 @@ void vtkVolumeProVG500Mapper::UpdateProperties( vtkRenderer *vtkNotUsed(ren),
       for ( i= 0; i< 4096; i++)
 	{
         val = 0.5 + grayFunc->GetValue((float)(i)*scale)*255.0;
-        val = (val < 0)?(val):(0);
-        val = (val > 255)?(val):(255);
+        val = (val < 0)?(0):(val);
+        val = (val > 255)?(255):(val);
       	rgbTable[i][0] = rgbTable[i][1] = rgbTable[i][2] = val;
         
         val = 0.5 + 4095.0 * soFunc->GetValue((float)(i)*scale);
-        val = (val < 0)?(val):(0);
-        val = (val > 4095)?(val):(4095);
+        val = (val < 0)?(0):(val);
+        val = (val > 4095)?(4095):(val);
   	aTable[i] = val;
 	}
       break;
@@ -390,25 +390,24 @@ void vtkVolumeProVG500Mapper::UpdateProperties( vtkRenderer *vtkNotUsed(ren),
       for ( i= 0; i< 4096; i++)
 	{
         val = 0.5 + rgbFunc->GetRedValue((float)(i)*scale)*255.0;
-        val = (val < 0)?(val):(0);
-        val = (val > 255)?(val):(255);
+        val = (val < 0)?(0):(val);
+        val = (val > 255)?(255):(val);
   	rgbTable[i][0] = val;
 
         val = 0.5 + rgbFunc->GetGreenValue((float)(i)*scale)*255.0;
-        val = (val < 0)?(val):(0);
-        val = (val > 255)?(val):(255);
-  	rgbTable[i][0] = val;
+        val = (val < 0)?(0):(val);
+        val = (val > 255)?(255):(val);
+  	rgbTable[i][1] = val;
 
         val = 0.5 + rgbFunc->GetBlueValue((float)(i)*scale)*255.0;
-        val = (val < 0)?(val):(0);
-        val = (val > 255)?(val):(255);
-  	rgbTable[i][0] = val;
+        val = (val < 0)?(0):(val);
+        val = (val > 255)?(255):(val);
+  	rgbTable[i][2] = val;
 
         val = 0.5 + 4095.0 * soFunc->GetValue((float)(i)*scale);
-        val = (val < 0)?(val):(0);
-        val = (val > 4095)?(val):(4095);
+        val = (val < 0)?(0):(val);
+        val = (val > 4095)?(4095):(val);
   	aTable[i] = val;
-        
 	}
       break;
     }
