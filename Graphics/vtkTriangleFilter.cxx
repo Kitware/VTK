@@ -61,59 +61,184 @@ void vtkTriangleFilter::Execute()
 {
   vtkPolyData *input = this->GetInput();
   vtkIdType numCells=input->GetNumberOfCells();
-  vtkIdType cellNum, numPts, numSimplices, newId, i;
-  int dim, j, type;
-  vtkIdType pts[3];
-  vtkIdList *ptIds=vtkIdList::New();
-  vtkPoints *spts=vtkPoints::New();
+  vtkIdType cellNum=0, numPts, newId, npts, *pts;
+  int i, j;
   vtkPolyData *output=this->GetOutput();
   vtkCellData *inCD=input->GetCellData();
   vtkCellData *outCD=output->GetCellData();
-  vtkCell *cell;
   vtkIdType updateInterval;
   vtkIdType numPoints=input->GetNumberOfPoints();
-
-  output->Allocate(numPoints, numPoints);
-  outCD->CopyAllocate(inCD,numPoints);
+  vtkCellArray *cells, *newCells;
+  vtkPoints *inPts=input->GetPoints();
 
   int abort=0;
   updateInterval = numCells/100 + 1;
-  for (cellNum=0; cellNum < numCells && !abort; cellNum++)
+  outCD->CopyAllocate(inCD,numCells);
+
+  // Do each of the verts, lines, polys, and strips separately
+  // verts
+  if ( !abort && input->GetVerts()->GetNumberOfCells() > 0 )
     {
-    if ( ! (cellNum % updateInterval) ) //manage progress reports / early abort
+    cells = input->GetVerts();
+    if ( this->PassVerts )
       {
-      this->UpdateProgress ((float)cellNum / numCells);
-      abort = this->GetAbortExecute();
-      }
-
-    cell = input->GetCell(cellNum);
-    dim = cell->GetCellDimension() + 1;
-    
-    cell->Triangulate(cellNum, ptIds, spts);
-    numPts = ptIds->GetNumberOfIds();
-    numSimplices = numPts / dim;
-    
-    if ( dim == 3 || (this->PassVerts && dim == 1) ||
-    (this->PassLines && dim == 2) )
-      {
-      type = (dim == 3 ? VTK_TRIANGLE : (dim == 2 ? VTK_LINE : VTK_VERTEX ));
-      for ( i=0; i < numSimplices; i++ )
+      newId = output->GetNumberOfCells();
+      newCells = vtkCellArray::New();
+      newCells->EstimateSize(cells->GetNumberOfCells(),1);
+      for (cells->InitTraversal(); cells->GetNextCell(npts,pts) && !abort; cellNum++)
         {
-        for (j=0; j<dim; j++)
+        if ( ! (cellNum % updateInterval) ) //manage progress reports / early abort
           {
-          pts[j] = ptIds->GetId(dim*i+j);
+          this->UpdateProgress ((float)cellNum / numCells);
+          abort = this->GetAbortExecute();
           }
-        // copy cell data
-        newId = output->InsertNextCell(type, dim, pts);
-        outCD->CopyData(inCD, cellNum, newId);
-        
-        }//for each simplex
-      }//if polygon or strip or (line or verts and passed on)
-    }//for all cells
-
-  ptIds->Delete();
-  spts->Delete();
+        if ( npts > 1 )
+          {
+          for (i=0; i<npts; i++)
+            {
+            newCells->InsertNextCell(1,pts+i);
+            outCD->CopyData(inCD, cellNum, newId++);
+            }
+          }
+        else
+          {
+          newCells->InsertNextCell(1,pts);
+          outCD->CopyData(inCD, cellNum, newId++);
+          }
+        }
+      output->SetVerts(newCells);
+      newCells->Delete();
+      }
+    else
+      {
+      cellNum += cells->GetNumberOfCells(); //skip over verts
+      }
+    }
   
+  // lines
+  if ( !abort && input->GetLines()->GetNumberOfCells() > 0 )
+    {
+    cells = input->GetLines();
+    if ( this->PassVerts )
+      {
+      newId = output->GetNumberOfCells();
+      newCells = vtkCellArray::New();
+      newCells->EstimateSize(cells->GetNumberOfCells(),2);
+      for (cells->InitTraversal(); cells->GetNextCell(npts,pts) && !abort; cellNum++)
+        {
+        if ( ! (cellNum % updateInterval) ) //manage progress reports / early abort
+          {
+          this->UpdateProgress ((float)cellNum / numCells);
+          abort = this->GetAbortExecute();
+          }
+        if ( npts > 2 )
+          {
+          for (i=0; i<(npts-1); i++)
+            {
+            newCells->InsertNextCell(2,pts+i);
+            outCD->CopyData(inCD, cellNum, newId++);
+            }
+          }
+        else
+          {
+          newCells->InsertNextCell(2,pts);
+          outCD->CopyData(inCD, cellNum, newId++);
+          }
+        }//for all lines
+      output->SetLines(newCells);
+      newCells->Delete();
+      }
+    else
+      {
+      cellNum += cells->GetNumberOfCells(); //skip over lines
+      }
+    }
+
+  vtkCellArray *newPolys=NULL;
+  if ( !abort && input->GetPolys()->GetNumberOfCells() > 0 )
+    {
+    cells = input->GetPolys();
+    newId = output->GetNumberOfCells();
+    newPolys = vtkCellArray::New();
+    newPolys->EstimateSize(cells->GetNumberOfCells(),3);
+    output->SetPolys(newPolys);
+    vtkIdList *ptIds = vtkIdList::New();
+    ptIds->Allocate(VTK_CELL_SIZE);
+    int numSimplices;
+    vtkPolygon *poly=vtkPolygon::New();
+    vtkIdType triPts[3];
+    
+    for (cells->InitTraversal(); cells->GetNextCell(npts,pts) && !abort; cellNum++)
+      {
+      if ( ! (cellNum % updateInterval) ) //manage progress reports / early abort
+        {
+        this->UpdateProgress ((float)cellNum / numCells);
+        abort = this->GetAbortExecute();
+        }
+      if ( npts == 3 )
+        {
+        newPolys->InsertNextCell(3,pts);
+        outCD->CopyData(inCD, cellNum, newId++);
+        }
+      else //triangulate polygon
+        {
+        //initialize polygon
+        poly->PointIds->SetNumberOfIds(npts);
+        poly->Points->SetNumberOfPoints(npts);
+        for (i=0; i<npts; i++)
+          {
+          poly->PointIds->SetId(i,pts[i]);
+          poly->Points->SetPoint(i,inPts->GetPoint(pts[i]));
+          }
+        poly->Triangulate(ptIds);
+        numPts = ptIds->GetNumberOfIds();
+        numSimplices = numPts / 3;
+        for ( i=0; i < numSimplices; i++ )
+          {
+          for (j=0; j<3; j++)
+            {
+            triPts[j] = poly->PointIds->GetId(ptIds->GetId(3*i+j));
+            }
+          newPolys->InsertNextCell(3, triPts);
+          outCD->CopyData(inCD, cellNum, newId++);
+          }//for each simplex
+        }//triangulate polygon
+      }
+    ptIds->Delete();
+    poly->Delete();
+    }
+  
+  //strips
+  if ( !abort && input->GetStrips()->GetNumberOfCells() > 0 )
+    {
+    cells = input->GetStrips();
+    newId = output->GetNumberOfCells();
+    if ( newPolys == NULL )
+      {
+      newPolys = vtkCellArray::New();
+      newPolys->EstimateSize(cells->GetNumberOfCells(),3);
+      output->SetPolys(newPolys);
+      }
+    for (cells->InitTraversal(); cells->GetNextCell(npts,pts) && !abort; cellNum++)
+      {
+      if ( ! (cellNum % updateInterval) ) //manage progress reports / early abort
+        {
+        this->UpdateProgress ((float)cellNum / numCells);
+        abort = this->GetAbortExecute();
+        }
+      vtkTriangleStrip::DecomposeStrip(npts,pts,newPolys);
+      for (i=0; i<(npts-2); i++)
+        {
+        outCD->CopyData(inCD, cellNum, newId++);
+        }
+      }//for all strips
+    }
+
+  if ( newPolys != NULL )
+    {
+    newPolys->Delete();
+    }
+
   // Update output
   output->SetPoints(input->GetPoints());
   output->GetPointData()->PassData(input->GetPointData());
@@ -123,6 +248,7 @@ void vtkTriangleFilter::Execute()
                 << "input cells to "
                 << output->GetNumberOfCells()
                 <<" output cells");
+
 }
 
 void vtkTriangleFilter::PrintSelf(ostream& os, vtkIndent indent)
