@@ -40,6 +40,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkStreamer.h"
 #include "vtkMath.h"
+#include "vtkMultiThreader.h"
 
 #define VTK_START_FROM_POSITION 0
 #define VTK_START_FROM_LOCATION 1
@@ -99,6 +100,8 @@ vtkStreamer::vtkStreamer()
   this->Vorticity = 0;
   this->TerminalSpeed = 0.0;
   this->SpeedScalars = 0;
+  this->Threader = vtkMultiThreader::New();
+  this->NumberOfThreads = this->Threader->GetNumberOfThreads();
 }
 
 vtkStreamer::~vtkStreamer()
@@ -108,6 +111,10 @@ vtkStreamer::~vtkStreamer()
     delete [] this->Streamers;
     }
   this->SetSource(NULL);
+  if (this->Threader)
+    {
+    this->Threader->Delete();
+    }
 }
 
 
@@ -256,9 +263,184 @@ void vtkStreamer::Update()
     }
 }
 
+static VTK_THREAD_RETURN_TYPE vtkStreamer_ThreadedIntegrate( void *arg )
+{
+  vtkStreamer              *self;
+  int                      thread_count;
+  int                      thread_id;
+  vtkStreamArray           *streamer;
+  vtkStreamPoint           *sNext, *sPtr;
+  int                      i, j, ptId, subId;
+  int                      idx, idxNext;
+  float                    d, step, dir, vNext[3], p[3];
+  float                    *v, xNext[3];
+  float                    *w, dist2, tol2;
+  vtkDataSet               *input;
+  vtkGenericCell           *cell;
+  vtkPointData             *pd;
+  vtkVectors               *inVectors;
+  vtkScalars               *inScalars;
+  float                    closestPoint[3];
+  vtkVectors               *cellVectors;
+  vtkScalars               *cellScalars;
+
+  thread_id = ((ThreadInfoStruct *)(arg))->ThreadID;
+  thread_count = ((ThreadInfoStruct *)(arg))->NumberOfThreads;
+  self = (vtkStreamer *)(((ThreadInfoStruct *)(arg))->UserData);
+
+  input     = self->GetInput();
+  pd        = input->GetPointData();
+  inVectors = pd->GetVectors();
+  inScalars = pd->GetScalars();
+
+  cell      = vtkGenericCell::New();
+
+  cellVectors = vtkVectors::New();
+  cellVectors->Allocate(VTK_CELL_SIZE);
+  cellScalars = vtkScalars::New();
+  cellScalars->Allocate(VTK_CELL_SIZE);
+
+  w = new float[input->GetMaxCellSize()];
+
+  tol2 = input->GetLength()/1000; 
+  tol2 = tol2*tol2;
+
+  // For each streamer, integrate in appropriate direction (using RK2)
+  // Do only the streamers that this thread should handle.
+  for (ptId=0; ptId < self->GetNumberOfStreamers(); ptId++)
+    {
+    if ( ptId % thread_count == thread_id )
+      {
+      //get starting step
+      streamer = self->GetStreamers() + ptId;
+      sPtr = streamer->GetStreamPoint(idx=0);
+      if ( sPtr->cellId < 0 )
+	{
+        continue;
+	}
+
+      dir = streamer->Direction;
+      input->GetCell(sPtr->cellId, cell);
+      cell->EvaluateLocation(sPtr->subId, sPtr->p, xNext, w);
+      step = self->GetIntegrationStepLength() * sqrt((double)cell->GetLength2());
+      inVectors->GetVectors(cell->PointIds, cellVectors);
+      if ( inScalars )
+	{
+	inScalars->GetScalars(cell->PointIds, cellScalars);
+	}
+
+      //integrate until time has been exceeded
+      while ( sPtr->cellId >= 0 && sPtr->speed > self->GetTerminalSpeed() &&
+	      sPtr->t < self->GetMaximumPropagationTime() )
+	{
+
+	//compute updated position using this step (Euler integration)
+	//use normalized velocity vector (to keep integration in cell)
+	for (i=0; i<3; i++)
+	  {
+	  xNext[i] = sPtr->x[i] + dir * step * sPtr->v[i] / sPtr->speed;
+	  }
+
+	//compute updated position using updated step
+	cell->EvaluatePosition(xNext, closestPoint, subId, p, dist2, w);
+
+	//interpolate velocity
+	vNext[0] = vNext[1] = vNext[2] = 0.0;
+	for (i=0; i < cell->GetNumberOfPoints(); i++)
+	  {
+	  v = cellVectors->GetVector(i);
+	  for (j=0; j < 3; j++)
+	    {
+	    vNext[j] += v[j] * w[i];
+	    }
+	  }
+
+	//now compute final position
+	for (i=0; i<3; i++)
+	  {
+	  xNext[i] = sPtr->x[i] +   
+	    dir * (step/2.0) * (sPtr->v[i] + vNext[i]) / sPtr->speed;
+	  }
+
+	idxNext = streamer->InsertNextStreamPoint();
+	sNext = streamer->GetStreamPoint(idxNext);
+	sPtr = streamer->GetStreamPoint(idx);
+
+	if ( cell->EvaluatePosition(xNext, closestPoint, sNext->subId, 
+				    sNext->p, dist2, w) == 1)
+	  { //integration still in cell
+	  for (i=0; i<3; i++)
+	    {
+	    sNext->x[i] = closestPoint[i];
+	    }
+	  sNext->cellId = sPtr->cellId;
+	  sNext->subId = sPtr->subId;
+	  }
+	else
+	  { //integration has passed out of cell
+	  sNext->cellId = input->FindCell(xNext, cell, sPtr->cellId, tol2, 
+					  sNext->subId, sNext->p, w);
+	  if ( sNext->cellId >= 0 ) //make sure not out of dataset
+	    {
+	    for (i=0; i<3; i++)
+	      {
+	      sNext->x[i] = xNext[i];
+	      }
+	    input->GetCell(sNext->cellId, cell);
+	    inVectors->GetVectors(cell->PointIds, cellVectors);
+	    if ( inScalars )
+	      {
+	      inScalars->GetScalars(cell->PointIds, cellScalars);
+	      }
+	    step = self->GetIntegrationStepLength() * sqrt((double)cell->GetLength2());
+	    }
+	  }
+
+	if ( sNext->cellId >= 0 )
+	  {
+	  cell->EvaluateLocation(sNext->subId, sNext->p, xNext, w);
+	  sNext->v[0] = sNext->v[1] = sNext->v[2] = 0.0;
+	  for (i=0; i < cell->GetNumberOfPoints(); i++)
+	    {
+	    v = cellVectors->GetVector(i);
+	    for (j=0; j < 3; j++)
+	      {
+	      sNext->v[j] += v[j] * w[i];
+	      }
+	    }
+	  sNext->speed = vtkMath::Norm(sNext->v);
+	  if ( inScalars )
+	    {
+	    for (sNext->s=0.0, i=0; i < cell->GetNumberOfPoints(); i++)
+	      {
+	      sNext->s += cellScalars->GetScalar(i) * w[i];
+	      }
+	    }
+	  d = sqrt((double)vtkMath::Distance2BetweenPoints(sPtr->x,sNext->x));
+	  sNext->d = sPtr->d + d;
+	  sNext->t = sPtr->t + (2.0 * d / (sPtr->speed + sNext->speed));
+	  }
+
+	idx = idxNext;
+	sPtr = sNext;
+
+	}//for elapsed time
+      } //for each streamer
+    }
+
+  cell->Delete();
+
+  cellVectors->Delete();
+  cellScalars->Delete();
+
+  delete [] w;
+
+  return VTK_THREAD_RETURN_VALUE;
+}
+
 void vtkStreamer::Integrate()
 {
-  vtkDataSet *input=(vtkDataSet *)this->Input;
+  vtkDataSet *input=this->GetInput();
   vtkDataSet *source=this->Source;
   vtkPointData *pd=input->GetPointData();
   vtkScalars *inScalars;
@@ -294,7 +476,9 @@ void vtkStreamer::Integrate()
   cellScalars->Allocate(VTK_CELL_SIZE);
   
   inScalars = pd->GetScalars();
-  tol2 = input->GetLength()/1000; tol2 = tol2*tol2;
+  tol2 = input->GetLength()/1000; 
+  tol2 = tol2*tol2;
+
   //
   // Create starting points
   //
@@ -393,123 +577,17 @@ void vtkStreamer::Integrate()
       }
     } //for each streamer
 
-  // For each streamer, integrate in appropriate direction (using RK2)
-  //
-  for (ptId=0; ptId < this->NumberOfStreamers; ptId++)
-    {
-    //get starting step
-    sPtr = this->Streamers[ptId].GetStreamPoint(idx=0);
-    if ( sPtr->cellId < 0 )
-      {
-      continue;
-      }
+  // Some data access methods must be called once from a single thread before they
+  // can safely be used. Call those now
+  vtkGenericCell *gcell = vtkGenericCell::New();
+  input->GetCell(0,gcell);
+  gcell->Delete();
+  
+  // Set up and execute the thread
+  this->Threader->SetNumberOfThreads( this->NumberOfThreads );
+  this->Threader->SetSingleMethod( vtkStreamer_ThreadedIntegrate, (void *)this );
+  this->Threader->SingleMethodExecute();
 
-    dir = this->Streamers[ptId].Direction;
-    cell = input->GetCell(sPtr->cellId);
-    cell->EvaluateLocation(sPtr->subId, sPtr->p, xNext, w);
-    step = this->IntegrationStepLength * sqrt((double)cell->GetLength2());
-    inVectors->GetVectors(cell->PointIds, cellVectors);
-    if ( inScalars )
-      {
-      inScalars->GetScalars(cell->PointIds, cellScalars);
-      }
-
-    //integrate until time has been exceeded
-    while ( sPtr->cellId >= 0 && sPtr->speed > this->TerminalSpeed &&
-    sPtr->t < this->MaximumPropagationTime )
-      {
-
-      //compute updated position using this step (Euler integration)
-      //use normalized velocity vector (to keep integration in cell)
-      for (i=0; i<3; i++)
-	{
-        xNext[i] = sPtr->x[i] + dir * step * sPtr->v[i] / sPtr->speed;
-	}
-
-      //compute updated position using updated step
-      cell->EvaluatePosition(xNext, closestPoint, subId, p, dist2, w);
-
-      //interpolate velocity
-      vNext[0] = vNext[1] = vNext[2] = 0.0;
-      for (i=0; i < cell->GetNumberOfPoints(); i++)
-        {
-        v = cellVectors->GetVector(i);
-        for (j=0; j < 3; j++)
-	  {
-	  vNext[j] += v[j] * w[i];
-	  }
-        }
-
-      //now compute final position
-      for (i=0; i<3; i++)
-	{
-        xNext[i] = sPtr->x[i] +   
-                   dir * (step/2.0) * (sPtr->v[i] + vNext[i]) / sPtr->speed;
-	}
-      idxNext = this->Streamers[ptId].InsertNextStreamPoint();
-      sNext = this->Streamers[ptId].GetStreamPoint(idxNext);
-      sPtr = this->Streamers[ptId].GetStreamPoint(idx);
-
-      if ( cell->EvaluatePosition(xNext, closestPoint, sNext->subId, 
-      sNext->p, dist2, w) == 1)
-        { //integration still in cell
-        for (i=0; i<3; i++)
-	  {
-	  sNext->x[i] = closestPoint[i];
-	  }
-        sNext->cellId = sPtr->cellId;
-        sNext->subId = sPtr->subId;
-        }
-      else
-        { //integration has passed out of cell
-        sNext->cellId = input->FindCell(xNext, cell, sPtr->cellId, tol2, 
-                                        sNext->subId, sNext->p, w);
-        if ( sNext->cellId >= 0 ) //make sure not out of dataset
-          {
-          for (i=0; i<3; i++)
-	    {
-	    sNext->x[i] = xNext[i];
-	    }
-          cell = input->GetCell(sNext->cellId);
-          inVectors->GetVectors(cell->PointIds, cellVectors);
-          if ( inScalars )
-	    {
-	    inScalars->GetScalars(cell->PointIds, cellScalars);
-	    }
-          step = this->IntegrationStepLength * sqrt((double)cell->GetLength2());
-          }
-        }
-
-      if ( sNext->cellId >= 0 )
-        {
-        cell->EvaluateLocation(sNext->subId, sNext->p, xNext, w);
-        sNext->v[0] = sNext->v[1] = sNext->v[2] = 0.0;
-        for (i=0; i < cell->GetNumberOfPoints(); i++)
-          {
-          v = cellVectors->GetVector(i);
-          for (j=0; j < 3; j++)
-	    {
-	    sNext->v[j] += v[j] * w[i];
-	    }
-          }
-        sNext->speed = vtkMath::Norm(sNext->v);
-        if ( inScalars )
-	  {
-          for (sNext->s=0.0, i=0; i < cell->GetNumberOfPoints(); i++)
-	    {
-            sNext->s += cellScalars->GetScalar(i) * w[i];
-	    }
-	  }
-        d = sqrt((double)vtkMath::Distance2BetweenPoints(sPtr->x,sNext->x));
-        sNext->d = sPtr->d + d;
-        sNext->t = sPtr->t + (2.0 * d / (sPtr->speed + sNext->speed));
-        }
-
-      idx = idxNext;
-      sPtr = sNext;
-
-      }//for elapsed time
-    } //for each streamer
 
   // Compute vorticity if desired.
   //
@@ -525,8 +603,8 @@ void vtkStreamer::Integrate()
     for (ptId=0; ptId < this->NumberOfStreamers; ptId++)
       {
       for ( sPtr=this->Streamers[ptId].GetStreamPoint(0), i=0; 
-      i < this->Streamers[ptId].GetNumberOfPoints() && sPtr->cellId >= 0; 
-      i++, sPtr=this->Streamers[ptId].GetStreamPoint(i) )
+	    i < this->Streamers[ptId].GetNumberOfPoints() && sPtr->cellId >= 0; 
+	    i++, sPtr=this->Streamers[ptId].GetStreamPoint(i) )
         {
         sPtr->s = sPtr->speed;
         }
@@ -586,6 +664,8 @@ void vtkStreamer::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Terminal Speed: " << this->TerminalSpeed << "\n";
 
   os << indent << "Speed Scalars: " << (this->SpeedScalars ? "On\n" : "Off\n");
+
+  os << indent << "Number Of Threads: " << this->NumberOfThreads << "\n";
 }
 
 

@@ -78,6 +78,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkDataSetToPolyDataFilter.h"
 
+class vtkMultiThreader;
+
 #define VTK_INTEGRATE_FORWARD 0
 #define VTK_INTEGRATE_BACKWARD 1
 #define VTK_INTEGRATE_BOTH_DIRECTIONS 2
@@ -232,6 +234,20 @@ public:
   vtkGetMacro(Vorticity,int);
   vtkBooleanMacro(Vorticity,int);
 
+  vtkSetMacro( NumberOfThreads, int );
+  vtkGetMacro( NumberOfThreads, int );
+
+//BTX
+
+  // Description:
+  // These methods were added to allow access to these variablse from the
+  // threads. 
+  // Not intended for general use.
+  vtkGetMacro( NumberOfStreamers, int );
+  vtkStreamArray *GetStreamers() { return this->Streamers; };
+
+//ETX
+
 protected:
   // Integrate data
   void Integrate();
@@ -274,6 +290,10 @@ protected:
 
   // boolean controls whether data scalars or velocity magnitude are used
   int SpeedScalars;
+
+  void InitializeThreadedIntegrate();
+  vtkMultiThreader           *Threader;
+  int                        NumberOfThreads;
 };
 
 // Description:
