@@ -112,7 +112,10 @@ public:
   void DrawPoint(int p0, int p1);
   void DrawSegment(int x0, int y0, int x1, int y1);
   void DrawSegment3D(float *p0, float *p1);
-
+  void DrawSegment3D(float x1, float y1, float z1, float x2, float y2, float z2) 
+    { float p1[3], p2[3]; 
+    p1[0] = x1; p1[1] = y1; p1[2] = z1; p2[0] = x2; p2[1] = y2; p2[2] = z2;
+    this->DrawSegment3D(p1, p2);}
 
   // Description:
   // Fill a colored area with another color. (like connectivity)

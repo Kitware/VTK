@@ -15,9 +15,9 @@ canvas FillBox 32 511 100 500
 canvas SetDrawColor 100 0 0
 canvas FillTube 550 20 30 400 5
 canvas SetDrawColor 255 255 255
-canvas DrawSegment 10 20 90 510
+canvas DrawSegment3D 10 20 0  90 510 0
 canvas SetDrawColor 200 50 50
-canvas DrawSegment 510 90 10 20
+canvas DrawSegment3D 510 90 0  10 20 0
 
 # Check segment clipping
 canvas SetDrawColor 0 200 0
