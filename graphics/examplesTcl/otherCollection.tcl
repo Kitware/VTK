@@ -8,8 +8,7 @@
 
 catch {load vtktcl}
 
-set rtSelector "sed -e s/0x0/0/ | sed -e s/-0/0/ | grep -v -i thread | grep -v StartTime: | grep -v 0x | grep -v Modified | grep -v 'Compute Time:'"
-set rtSelector "sed -e s/0x0/0/ | sed -e s/-0/0/ | grep -v -i thread | grep -v Time: | grep -v 0x | grep -v Modified"
+set rtSelector "cat"
 set rtComparator "diff -b"
 
 proc rtOtherTest { fileid } {
@@ -59,22 +58,22 @@ proc rtOtherTest { fileid } {
     }
 
     puts $fileid "Reference counts"
-    puts "a1 Ref count is [a1 GetReferenceCount]"
-    puts "a2 Ref count is [a2 GetReferenceCount]"
-    puts "a3 Ref count is [a3 GetReferenceCount]"
-    puts "a4 Ref count is [a4 GetReferenceCount]"
-    puts "a5 Ref count is [a5 GetReferenceCount]"
-    puts "a6 Ref count is [a6 GetReferenceCount]"
+    puts $fileid  "a1 Ref count is [a1 GetReferenceCount]"
+    puts $fileid  "a2 Ref count is [a2 GetReferenceCount]"
+    puts $fileid  "a3 Ref count is [a3 GetReferenceCount]"
+    puts $fileid  "a4 Ref count is [a4 GetReferenceCount]"
+    puts $fileid  "a5 Ref count is [a5 GetReferenceCount]"
+    puts $fileid  "a6 Ref count is [a6 GetReferenceCount]"
 
     a2dc Delete
     
     puts $fileid "Reference counts after delete"
-    puts "a1 Ref count is [a1 GetReferenceCount]"
-    puts "a2 Ref count is [a2 GetReferenceCount]"
-    puts "a3 Ref count is [a3 GetReferenceCount]"
-    puts "a4 Ref count is [a4 GetReferenceCount]"
-    puts "a5 Ref count is [a5 GetReferenceCount]"
-    puts "a6 Ref count is [a6 GetReferenceCount]"
+    puts $fileid  "a1 Ref count is [a1 GetReferenceCount]"
+    puts $fileid  "a2 Ref count is [a2 GetReferenceCount]"
+    puts $fileid  "a3 Ref count is [a3 GetReferenceCount]"
+    puts $fileid  "a4 Ref count is [a4 GetReferenceCount]"
+    puts $fileid  "a5 Ref count is [a5 GetReferenceCount]"
+    puts $fileid  "a6 Ref count is [a6 GetReferenceCount]"
 }
 
 # All tests should end with the following...
