@@ -39,6 +39,7 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
+#include "vtkMath.h"
 #include "vtkLight.h"
 #include "vtkGraphicsFactory.h"
 
@@ -82,6 +83,20 @@ vtkLight::~vtkLight()
       TransformMatrix = NULL;
     }
 }
+
+void vtkLight::SetDirectionAngle(float elevation, float azimuth)
+{
+  elevation *= vtkMath::DegreesToRadians();
+  azimuth   *= vtkMath::DegreesToRadians();
+
+  this->SetPosition(cos(elevation)*sin(azimuth), 
+		    sin(elevation), 
+		    cos(elevation)*cos(azimuth));
+
+  this->SetFocalPoint(0.0, 0.0, 0.0);
+  this->SetPositional(0);
+}
+
 
 // return the correct type of light 
 vtkLight *vtkLight::New()
@@ -233,17 +248,21 @@ void vtkLight::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Switch: " << (this->Switch ? "On\n" : "Off\n");
 
   os << indent << "LightType: ";
-  if (this->LightTypeIsHeadlight()) 
+  if (this->LightType == VTK_LIGHT_TYPE_HEADLIGHT) 
     {
       os << "Headlight\n";
     }
-  else if (this->LightTypeIsCameraLight())
+  else if (this->LightType == VTK_LIGHT_TYPE_CAMERA_LIGHT)
     {
       os << "CameraLight\n";
     }
-  else if (this->LightTypeIsSceneLight())
+  else if (this->LightType == VTK_LIGHT_TYPE_SCENE_LIGHT)
     {
       os << "SceneLight\n";
+    }
+  else
+    {
+      os << "(unknown light type)\n";
     }
 
   os << indent << "TransformMatrix: ";
