@@ -42,8 +42,6 @@ class vtkMyCallback : public vtkCommand
 public:
   static vtkMyCallback *New() 
     { return new vtkMyCallback; }
-  void Delete()
-    { delete this; }
   virtual void Execute(vtkObject *caller, unsigned long, void*)
     {
       vtkRenderer *renderer = reinterpret_cast<vtkRenderer*>(caller);
@@ -78,7 +76,7 @@ int main( int argc, char *argv[] )
 
   // Here is where we setup the observer, we do a new and ren1 will
   // eventually free the observer
-  myCallback *mo1 = myCallback::New();
+  vtkMyCallback *mo1 = vtkMyCallback::New();
   ren1->AddObserver(vtkCommand::StartEvent,mo1);
   mo1->Delete();
   
