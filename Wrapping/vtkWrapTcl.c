@@ -672,7 +672,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     fprintf(fp,"    op->Print(buf);\n");
     fprintf(fp,"    buf.put('\\0');\n");
     fprintf(fp,"    Tcl_SetResult(interp,buf.str(),TCL_VOLATILE);\n");
-    fprintf(fp,"    buf.freeze(0);\n");
+    fprintf(fp,"    delete [] buf.str();\n");
     fprintf(fp,"    return TCL_OK;\n    }\n");
     /* Add the PrintRevisions method to vtkObjectBase. */
     fprintf(fp,"  if ((!strcmp(\"PrintRevisions\",argv[1]))&&(argc == 2))\n    {\n");
@@ -680,7 +680,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     fprintf(fp,"    op->PrintRevisions(buf);\n");
     fprintf(fp,"    buf.put('\\0');\n");
     fprintf(fp,"    Tcl_SetResult(interp,buf.str(),TCL_VOLATILE);\n");
-    fprintf(fp,"    buf.freeze(0);\n");
+    fprintf(fp,"    delete [] buf.str();\n");
     fprintf(fp,"    return TCL_OK;\n    }\n");    
     }
   /* Add the AddObserver method to vtkObject. */
