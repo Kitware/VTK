@@ -38,7 +38,7 @@
 #include "vtkSphereSource.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkPlaneWidget, "1.42");
+vtkCxxRevisionMacro(vtkPlaneWidget, "1.43");
 vtkStandardNewMacro(vtkPlaneWidget);
 
 vtkCxxSetObjectMacro(vtkPlaneWidget,PlaneProperty,vtkProperty);
@@ -431,7 +431,6 @@ void vtkPlaneWidget::PrintSelf(ostream& os, vtkIndent indent)
 
 void vtkPlaneWidget::PositionHandles()
 {
-  //int res = this->PlaneSource->GetXResolution();
   double *o = this->PlaneSource->GetOrigin();
   double *pt1 = this->PlaneSource->GetPoint1();
   double *pt2 = this->PlaneSource->GetPoint2();
@@ -441,9 +440,9 @@ void vtkPlaneWidget::PositionHandles()
   this->HandleGeometry[2]->SetCenter(pt2);
 
   double x[3];
-  x[0] = o[0] + (pt1[0]-o[0]) + (pt2[0]-o[0]);
-  x[1] = o[1] + (pt1[1]-o[1]) + (pt2[1]-o[1]);
-  x[2] = o[2] + (pt1[2]-o[2]) + (pt2[2]-o[2]);
+  x[0] = pt1[0] + pt2[0] - o[0];
+  x[1] = pt1[1] + pt2[1] - o[1];
+  x[2] = pt1[2] + pt2[2] - o[2];
   this->HandleGeometry[3]->SetCenter(x); //far corner
 
   // set up the outline
@@ -1191,9 +1190,9 @@ void vtkPlaneWidget::Scale(double *p1, double *p2, int vtkNotUsed(X), int Y)
   double *pt2 = this->PlaneSource->GetPoint2();
 
   double center[3];
-  center[0] = o[0] + (pt1[0]-o[0])/2.0 + (pt2[0]-o[0])/2.0;
-  center[1] = o[1] + (pt1[1]-o[1])/2.0 + (pt2[1]-o[1])/2.0;
-  center[2] = o[2] + (pt1[2]-o[2])/2.0 + (pt2[2]-o[2])/2.0;
+  center[0] = 0.5 * ( pt1[0] + pt2[0] );
+  center[1] = 0.5 * ( pt1[1] + pt2[1] );
+  center[2] = 0.5 * ( pt1[2] + pt2[2] );
 
   // Compute the scale factor
   double sf = 
