@@ -64,8 +64,8 @@ public:
   // Set/Get the size at which blocks are allocated. If a memory
   // request is bigger than the block size, then that size
   // will be allocated.
-  vtkSetMacro(BlockSize,size_t);
-  vtkGetMacro(BlockSize,size_t);
+  virtual void SetBlockSize(size_t);
+  virtual size_t GetBlockSize() { return this->BlockSize;};
 
   // Description:
   // Get the number of allocations thus far.

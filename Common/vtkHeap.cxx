@@ -18,7 +18,7 @@
 #include "vtkHeap.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkHeap, "1.11");
+vtkCxxRevisionMacro(vtkHeap, "1.12");
 vtkStandardNewMacro(vtkHeap);
 
 struct vtkTestAlignLong
@@ -68,6 +68,18 @@ vtkHeap::vtkHeap()
 vtkHeap::~vtkHeap()
 {
   this->CleanAll();
+}
+
+void vtkHeap::SetBlockSize(size_t _arg)
+{
+  vtkDebugMacro(
+    << this->GetClassName() << " (" << this << "): setting BlockSize to " 
+    << (int)_arg); 
+  if (this->BlockSize != _arg) 
+    { 
+    this->BlockSize = _arg; 
+    this->Modified(); 
+    } 
 }
 
 void* vtkHeap::AllocateMemory(size_t n)
@@ -165,10 +177,10 @@ void vtkHeap::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  os << indent << "Block Size: " << this->BlockSize << "\n";
+  os << indent << "Block Size: " << (int)this->BlockSize << "\n";
   os << indent << "Number of Blocks: " << this->NumberOfBlocks << "\n";
   os << indent << "Number of Allocations: " << this->NumberOfAllocations << "\n";
   os << indent << "Current bytes allocated: " 
-     << ((this->NumberOfBlocks-1)*this->BlockSize + this->Position) << "\n";
+     << ((this->NumberOfBlocks-1)*(int)this->BlockSize + this->Position) << "\n";
 }
 
