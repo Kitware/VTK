@@ -110,7 +110,7 @@ vtkImageDataStreamer::vtkImageDataStreamer()
   this->MemoryLimit = 1000000; 
 
   // Set a default split mode to be slabs
-  this->SplitMode   = VTK_IMAGE_DATA_STREAMER_Z_SLAB_MODE;
+  this->SplitMode   = vtkImageDataStreamer::Z_SLAB_MODE;
   
   // By default this is not incremental (all the output is produced
   // in one update)
@@ -140,19 +140,19 @@ void vtkImageDataStreamer::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "IncrementalUpdate: " << this->IncrementalUpdate << endl;
 
   os << indent << "SplitMode: ";
-  if (this->SplitMode == VTK_IMAGE_DATA_STREAMER_BLOCK_MODE)
+  if (this->SplitMode == vtkImageDataStreamer::BLOCK_MODE)
     {
     os << "Block\n";
     }
-  else if (this->SplitMode == VTK_IMAGE_DATA_STREAMER_X_SLAB_MODE)
+  else if (this->SplitMode == vtkImageDataStreamer::X_SLAB_MODE)
     {
     os << "X Slab\n";
     }
-  else if (this->SplitMode == VTK_IMAGE_DATA_STREAMER_Y_SLAB_MODE)
+  else if (this->SplitMode == vtkImageDataStreamer::Y_SLAB_MODE)
     {
     os << "Y Slab\n";
     }
-  else if (this->SplitMode == VTK_IMAGE_DATA_STREAMER_Z_SLAB_MODE)
+  else if (this->SplitMode == vtkImageDataStreamer::Z_SLAB_MODE)
     {
     os << "Z Slab\n";
     }
@@ -394,7 +394,7 @@ void vtkImageDataStreamer::UpdateData(vtkDataObject *out)
         splitSize[i] = -1;
 
         if ( currExt[i*2+1] - currExt[i*2] > 0 &&
-	     ( this->SplitMode == VTK_IMAGE_DATA_STREAMER_BLOCK_MODE ||
+	     ( this->SplitMode == vtkImageDataStreamer::BLOCK_MODE ||
 	       this->SplitMode == i ) )
           {
           memcpy( newExt, currExt, 6*sizeof(int) );
@@ -453,7 +453,7 @@ void vtkImageDataStreamer::UpdateData(vtkDataObject *out)
         // Do a quick check - if we are in block mode, and two or
         // three of the split sizes are the same, pick the one
         // with the bigger extent (otherwise X will always split)
-        if ( this->SplitMode ==  VTK_IMAGE_DATA_STREAMER_BLOCK_MODE )
+        if ( this->SplitMode ==  vtkImageDataStreamer::BLOCK_MODE )
           {
           // Check one of the other axes
           i = (best+1)%3;
