@@ -71,6 +71,7 @@ public:
   // should be set before the "Scalars" are set or allocated.
   // The Extent is stored  in the order (X, Y, Z).
   void SetExtent(int *extent);
+  void SetExtent(int x1, int x2, int y1, int y2, int z1, int z2);
   vtkGetVectorMacro(Extent,int,6);
   void GetExtent(int &x1, int &x2, int &y1, int &y2, int &z1, int &z2);
   
@@ -110,6 +111,8 @@ public:
   // Set/Get the number of scalar components
   void SetNumberOfScalarComponents(int num);
   vtkGetMacro(NumberOfScalarComponents,int);
+  
+  void CopyAndCastFrom(vtkImageData *inData, int extent[6]);
   
 protected:
   int Extent[6];
