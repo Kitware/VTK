@@ -104,6 +104,10 @@ vtkParallelCoordinatesActor::~vtkParallelCoordinatesActor()
 {
   this->Position2Coordinate->Delete();
   this->Position2Coordinate = NULL;
+  this->TitleMapper->Delete();
+  this->TitleMapper = NULL;
+  this->TitleActor->Delete();
+  this->TitleActor = NULL;
   
   if ( this->Input )
     {
