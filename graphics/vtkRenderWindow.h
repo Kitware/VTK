@@ -67,6 +67,8 @@ class vtkPolyDataMapperDevice;
 // lets define the diferent types of stereo
 #define VTK_STEREO_CRYSTAL_EYES 1
 #define VTK_STEREO_RED_BLUE     2
+#define VTK_STEREO_LEFT         3
+#define VTK_STEREO_RIGHT        4
 
 class VTK_EXPORT vtkRenderWindow : public vtkWindow
 {
@@ -140,6 +142,10 @@ public:
     {this->SetStereoType(VTK_STEREO_CRYSTAL_EYES);};
   void SetStereoTypeToRedBlue() 
     {this->SetStereoType(VTK_STEREO_RED_BLUE);};
+  void SetStereoTypeToLeft() 
+    {this->SetStereoType(VTK_STEREO_LEFT);};
+  void SetStereoTypeToRight() 
+    {this->SetStereoType(VTK_STEREO_RIGHT);};
   char *GetStereoTypeAsString();
 
   virtual void StereoUpdate();
@@ -291,13 +297,18 @@ protected:
 // Return the stereo type as a character string.
 inline char *vtkRenderWindow::GetStereoTypeAsString(void)
 {
-  if ( this->StereoType == VTK_STEREO_CRYSTAL_EYES ) 
+  switch ( this->StereoType )
     {
-    return "CrystalEyes";
-    }
-  else 
-    {
-    return "RedBlue";
+    case VTK_STEREO_CRYSTAL_EYES:
+      return "CrystalEyes";
+    case VTK_STEREO_RED_BLUE:
+      return "RedBlue";
+    case VTK_STEREO_LEFT:
+      return "Left";
+    case VTK_STEREO_RIGHT:
+      return "Right";
+    default:
+      return "";
     }
 }
 

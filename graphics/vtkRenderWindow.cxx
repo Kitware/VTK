@@ -650,11 +650,18 @@ void vtkRenderWindow::DoStereoRender()
 {
   this->Start();
   this->StereoUpdate();
-  this->Renderers.Render();
+  if (this->StereoType != VTK_STEREO_RIGHT)
+    { // render the left eye
+    this->Renderers.Render();
+    }
+
   if (this->StereoRender)
     {
     this->StereoMidpoint();
-    this->Renderers.Render();
+    if (this->StereoType != VTK_STEREO_LEFT)
+      { // render the right eye
+      this->Renderers.Render();
+      }
     this->StereoRenderComplete();
     }
 }
