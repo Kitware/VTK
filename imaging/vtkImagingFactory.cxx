@@ -72,10 +72,20 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkWin32ImageMapper.h"
 #include "vtkWin32PolyDataMapper2D.h"
 #else
-#include "vtkXTextMapper.h"
-#include "vtkXImageWindow.h"
-#include "vtkXImageMapper.h"
-#include "vtkXPolyDataMapper2D.h"
+ #ifdef VTK_USE_QUARTZ
+  #include "vtkOpenGLImageMapper.h"
+  #include "vtkOpenGLImager.h"
+  #include "vtkOpenGLPolyDataMapper2D.h"
+  #include "vtkQuartzTextMapper.h"
+  #include "vtkQuartzImageWindow.h"
+  #include "vtkQuartzImageMapper.h"
+  #include "vtkQuartzPolyDataMapper2D.h"
+ #else
+  #include "vtkXTextMapper.h"
+  #include "vtkXImageWindow.h"
+  #include "vtkXImageMapper.h"
+  #include "vtkXPolyDataMapper2D.h"
+ #endif
 #endif
 
 const char *vtkImagingFactoryGetRenderLibrary()
@@ -129,6 +139,9 @@ const char *vtkImagingFactoryGetRenderLibrary()
 #endif
 #ifdef _WIN32
     temp = "Win32OpenGL";
+#endif
+#ifdef VTK_USE_QUARTZ
+    temp = "QuartzOpenGL";
 #endif
     }
   
@@ -244,6 +257,52 @@ vtkObject* vtkImagingFactory::CreateInstance(const char* vtkclassname )
     }
 #endif
 #endif
+
+#ifdef VTK_USE_QUARTZ
+#ifdef VTK_USE_NATIVE_IMAGING
+  if(strcmp(vtkclassname, "vtkTextMapper") == 0)
+    {
+    return vtkQuartzTextMapper::New();
+    }
+  if(strcmp(vtkclassname, "vtkImageWindow") == 0)
+    {
+    return vtkQuartzImageWindow::New();
+    }
+  if(strcmp(vtkclassname, "vtkImageMapper") == 0)
+    {
+    return vtkQuartzImageMapper::New();
+    }
+  if(strcmp(vtkclassname, "vtkPolyDataMapper2D") == 0)
+    {
+    return vtkQuartzPolyDataMapper2D::New();
+    }
+#else
+  if (!strcmp("QuartzOpenGL",rl))
+    {
+    if(strcmp(vtkclassname, "vtkTextMapper") == 0)
+      {
+      return vtkQuartzTextMapper::New();
+      }
+    if(strcmp(vtkclassname, "vtkImageWindow") == 0)
+      {
+      return vtkQuartzImageWindow::New();
+      }
+    if(strcmp(vtkclassname, "vtkImager") == 0)
+      {
+      return vtkOpenGLImager::New();
+      }
+    if(strcmp(vtkclassname, "vtkImageMapper") == 0)
+      {
+      return vtkOpenGLImageMapper::New();
+      }
+    if(strcmp(vtkclassname, "vtkPolyDataMapper2D") == 0)
+      {
+      return vtkOpenGLPolyDataMapper2D::New();
+      }
+    }
+#endif
+#endif
+
 
 #ifdef VTK_USE_MESA
 #ifdef VTK_USE_NATIVE_IMAGING
