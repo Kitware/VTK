@@ -83,6 +83,17 @@ void vtkImplicitFunction::FunctionGradient(float x[3], float g[3])
 
   else //pass point through transform
     {
+    float pt[4];
+    int i;
+
+    pt[0] = x[0];
+    pt[1] = x[1];
+    pt[2] = x[2];
+    pt[3] = 1.0;
+    this->Transform->MultiplyPoint(pt,pt);
+    if (pt[3] != 1.0 ) for (i=0; i<3; i++) pt[i] /= pt[3];
+
+    this->EvaluateGradient((float *)pt,g);
     }
 }
 
