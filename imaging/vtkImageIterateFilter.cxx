@@ -553,7 +553,7 @@ void vtkImageIterateFilter::SetNumberOfIterations(int num)
     }
   
   // create new ones (first and last set later to input and output)
-  this->IterationCaches = (vtkImageCache **)(new (void *)[num + 1]);
+  this->IterationCaches = (vtkImageCache **) new void *[num + 1];
   this->IterationCaches[0] = this->IterationCaches[num] = NULL;
   for (idx = 1; idx < num; ++idx)
     {

@@ -26,7 +26,6 @@ vtkImageTwoInputFilter \
 vtkImageFourierFilter 
 
 #vtkImageCopy \
-#vtkImageDecomposedFilter \
 #vtkImageTwoOutputFilter
 
 CONCRETE = \
