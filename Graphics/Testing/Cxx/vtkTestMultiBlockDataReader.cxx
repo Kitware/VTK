@@ -23,7 +23,7 @@
 #include "vtkStructuredGrid.h"
 #include "vtkXMLStructuredGridReader.h"
 
-vtkCxxRevisionMacro(vtkTestMultiBlockDataReader, "1.4");
+vtkCxxRevisionMacro(vtkTestMultiBlockDataReader, "1.5");
 vtkStandardNewMacro(vtkTestMultiBlockDataReader);
 
 vtkTestMultiBlockDataReader::vtkTestMultiBlockDataReader()
@@ -123,8 +123,8 @@ int vtkTestMultiBlockDataReader::SetUpdateBlocks(
       }
     for (unsigned int i=minBlock; i<maxBlock; i++)
       {
-      vtkInformation* info = updateInfo->GetInformation(j, i);
-      info->Set(vtkCompositeDataPipeline::MARKED_FOR_UPDATE(), 1);
+      vtkInformation* blockInfo = updateInfo->GetInformation(j, i);
+      blockInfo->Set(vtkCompositeDataPipeline::MARKED_FOR_UPDATE(), 1);
       }
     }
   updateInfo->Delete();

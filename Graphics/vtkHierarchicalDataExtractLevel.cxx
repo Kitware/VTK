@@ -23,7 +23,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkHierarchicalDataExtractLevel, "1.3");
+vtkCxxRevisionMacro(vtkHierarchicalDataExtractLevel, "1.4");
 vtkStandardNewMacro(vtkHierarchicalDataExtractLevel);
 
 // Construct object with PointIds and CellIds on; and ids being generated
@@ -181,8 +181,8 @@ int vtkHierarchicalDataExtractLevel::SetUpdateBlocks(
       vtkInformation* inBInfo = inUpdateInfo->GetInformation(j, i);
       if (inBInfo->Get(vtkCompositeDataPipeline::MARKED_FOR_UPDATE()))
         {
-        info = updateInfo->GetInformation(j, i);
-        info->Set(vtkCompositeDataPipeline::MARKED_FOR_UPDATE(), 1);
+        vtkInformation* blockInfo = updateInfo->GetInformation(j, i);
+        blockInfo->Set(vtkCompositeDataPipeline::MARKED_FOR_UPDATE(), 1);
         }
       }
     }
