@@ -131,6 +131,58 @@ void vtkImageRegion::PrintSelf(ostream& os, vtkIndent indent)
     }
 }
 
+//----------------------------------------------------------------------------
+// Description:
+// Convert 4d vector (not extent!) from one coordinate system into another
+// coordinate system.  "vectIn" and "vectOut" may be the same array.
+template <class T>
+void
+vtkImageRegionChangeVectorCoordinateSystem(T *vectIn, int *axesIn, 
+					   T *vectOut, int *axesOut)
+{
+  int idx;
+  T absolute[VTK_IMAGE_DIMENSIONS];
+
+  // Convert to an intermediate coordinate system (0,1,2,...)
+  for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
+    {
+    absolute[axesIn[idx]] = vectIn[idx];
+    }
+  // Change back into the new coordinate system
+  for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
+    {
+    vectOut[idx] = absolute[axesOut[idx]];
+    }
+}
+
+
+//----------------------------------------------------------------------------
+// Description:
+// Convert 4d extent from one coordinate system into another.
+// "extentIn" and "extentOut" may be the same array.
+void vtkImageRegion::ChangeExtentCoordinateSystem(int *extentIn, int *axesIn,
+						  int *extentOut, int *axesOut)
+{
+  int idx;
+  int absolute[VTK_IMAGE_EXTENT_DIMENSIONS];
+
+  // Change into a known coordinate system (0,1,2,...)
+  for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
+    {
+    absolute[axesIn[idx]*2] = extentIn[idx*2];
+    absolute[axesIn[idx]*2+1] = extentIn[idx*2+1];
+    }
+
+  // Change into the desired coordinate system.
+  for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
+    {
+    extentOut[idx*2] = absolute[axesOut[idx]*2];
+    extentOut[idx*2+1] = absolute[axesOut[idx]*2+1];
+    }
+}
+
+
+
 
 //----------------------------------------------------------------------------
 // Description:
@@ -171,32 +223,47 @@ int vtkImageRegion::GetMemorySize()
 
 //----------------------------------------------------------------------------
 // Description:
-// This function allows you to write into a region.  If there are multple
-// references to the data, the data is copied into a new object.
-void vtkImageRegion::MakeWritable()
+// This function makes sure we are the only one referenceing the data.
+// The data object is copied if necessary.  It does not make the point
+// data writable.
+void vtkImageRegion::MakeDataWritable()
 {
-  vtkImageData *newData;
-  int axesSave[VTK_IMAGE_DIMENSIONS];
-  
-  if ((this->Data->GetRefCount() > 1) || 
-      (this->Data->GetPointData()->GetScalars()->GetRefCount() > 1))
+  int extent[VTK_IMAGE_EXTENT_DIMENSIONS];
+
+  // Check to make sure we have a data object.
+  if ( ! this->Data)
     {
-    vtkDebugMacro(<< "MakeWritable: Need to copy data because of references.");
+    this->Modified();
+    this->Data = new vtkImageData;
+    this->Data->SetScalarType(this->ScalarType);
+    this->GetExtent(extent);
+    this->ChangeExtentCoordinateSystem(this->Extent, this->Axes,
+				       extent, this->Data->GetAxes());
+    this->Data->SetExtent(extent);
+    // Compute the increments.
+    vtkImageRegionChangeVectorCoordinateSystem(this->Data->GetIncrements(),
+					       this->Data->GetAxes(),
+					       this->Increments, this->Axes);
+    }
+
+  // Check to make sure no one is referencing the data object.
+  if (this->Data->GetRefCount() > 1)
+    {
+    vtkImageData *newData;
+    vtkVectors *vectors = this->Data->GetPointData()->GetVectors();
+    vtkScalars *scalars = this->Data->GetPointData()->GetScalars();
+    // Data has more than one reference. Make a new data object.
+    this->Modified();
     newData = new vtkImageData;
     newData->SetAxes(this->Data->GetAxes());
-    
-    // Set the extent (the same as region)
-    this->GetAxes(axesSave);
-    this->SetAxes(newData->GetAxes());
-    newData->SetExtent(this->GetExtent());
-    this->SetAxes(axesSave);
-    
-    // Replace the data object with a copy
-    newData->CopyData(this->Data);
-    this->SetData(newData);
-    newData->Delete();
+    newData->SetExtent(this->Data->GetExtent());
+    newData->GetPointData()->SetScalars(scalars);
+    newData->GetPointData()->SetVectors(vectors);
+    this->Data->UnRegister(this);
+    this->Data = newData;
     }
 }
+
 
 
 
@@ -314,70 +381,6 @@ unsigned long vtkImageRegion::GetPipelineMTime()
 
 
 
-/*****************************************************************************
-  Stuff to access region information (4d, 3d, 2d or 1d)
-*****************************************************************************/
-
-
-
-
-
-
-
-
-
-//----------------------------------------------------------------------------
-// Description:
-// Convert 4d vector (not extent!) from one coordinate system into another
-// coordinate system.  "vectIn" and "vectOut" may be the same array.
-template <class T>
-void
-vtkImageRegionChangeVectorCoordinateSystem(T *vectIn, int *axesIn, 
-					   T *vectOut, int *axesOut)
-{
-  int idx;
-  T absolute[VTK_IMAGE_DIMENSIONS];
-
-  // Convert to an intermediate coordinate system (0,1,2,...)
-  for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
-    {
-    absolute[axesIn[idx]] = vectIn[idx];
-    }
-  // Change back into the new coordinate system
-  for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
-    {
-    vectOut[idx] = absolute[axesOut[idx]];
-    }
-}
-
-
-//----------------------------------------------------------------------------
-// Description:
-// Convert 4d extent from one coordinate system into another.
-// "extentIn" and "extentOut" may be the same array.
-void vtkImageRegion::ChangeExtentCoordinateSystem(int *extentIn, int *axesIn,
-						  int *extentOut, int *axesOut)
-{
-  int idx;
-  int absolute[VTK_IMAGE_EXTENT_DIMENSIONS];
-
-  // Change into a known coordinate system (0,1,2,...)
-  for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
-    {
-    absolute[axesIn[idx]*2] = extentIn[idx*2];
-    absolute[axesIn[idx]*2+1] = extentIn[idx*2+1];
-    }
-
-  // Change into the desired coordinate system.
-  for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
-    {
-    extentOut[idx*2] = absolute[axesOut[idx]*2];
-    extentOut[idx*2+1] = absolute[axesOut[idx]*2+1];
-    }
-}
-
-
-
 //----------------------------------------------------------------------------
 // Description:
 // When dealing with Regions directly (no caches), they can be allocated
@@ -385,25 +388,7 @@ void vtkImageRegion::ChangeExtentCoordinateSystem(int *extentIn, int *axesIn,
 // object and setting it explicitley.
 void vtkImageRegion::AllocateScalars()
 {
-  int extent[VTK_IMAGE_EXTENT_DIMENSIONS];
-  
-  this->Modified();
-
-  if ( ! this->Data)
-    {
-    this->Data = new vtkImageData;
-    this->Data->SetScalarType(this->ScalarType);
-    this->GetExtent(extent);
-    this->ChangeExtentCoordinateSystem(this->Extent, this->Axes,
-				       extent, this->Data->GetAxes());
-    this->Data->SetExtent(extent);
-    // Compute the increments.
-    vtkImageRegionChangeVectorCoordinateSystem(this->Data->GetIncrements(),
-					       this->Data->GetAxes(),
-					       this->Increments, this->Axes);
-    }
-  
-  this->Data->AllocateScalars();
+  this->MakeScalarsWritable();
 }
 
 
@@ -461,12 +446,6 @@ void vtkImageRegion::ReleaseData()
 // and the increments will not change.
 void vtkImageRegion::SetData(vtkImageData *data)
 {
-  if (! data->AreScalarsAllocated())
-    {
-    vtkErrorMacro(<< "SetData:Current implementation requires allocated data");
-    return;
-    }
-  
   this->Modified();
   // data objects have reference counts
   data->Register(this);
@@ -481,6 +460,7 @@ void vtkImageRegion::SetData(vtkImageData *data)
   this->Data = data;
   
   // Compute the increments.
+  // Note that this implies that the extent of the data is fixed.
   vtkImageRegionChangeVectorCoordinateSystem(this->Data->GetIncrements(),
 					     this->Data->GetAxes(),
 					     this->Increments, this->Axes);
@@ -541,64 +521,6 @@ void *vtkImageRegion::GetScalarPointer(int dim, int *coordinates)
   
   return this->Data->GetScalarPointer(temp);
 }
-//----------------------------------------------------------------------------
-void *vtkImageRegion::GetScalarPointer(int c0, int c1, int c2, int c3, int c4)
-{
-  int coords[5];
-  coords[0] = c0;
-  coords[1] = c1;
-  coords[2] = c2;
-  coords[3] = c3;
-  coords[4] = c4;
-  return this->GetScalarPointer(5, coords);
-}
-//----------------------------------------------------------------------------
-void *vtkImageRegion::GetScalarPointer(int c0, int c1, int c2, int c3)
-{
-  int coords[4];
-  coords[0] = c0;
-  coords[1] = c1;
-  coords[2] = c2;
-  coords[3] = c3;
-  return this->GetScalarPointer(4, coords);
-}
-//----------------------------------------------------------------------------
-void *vtkImageRegion::GetScalarPointer(int c0, int c1, int c2)
-{
-  int coords[3];
-  coords[0] = c0;
-  coords[1] = c1;
-  coords[2] = c2;
-  return this->GetScalarPointer(3, coords);
-}
-//----------------------------------------------------------------------------
-void *vtkImageRegion::GetScalarPointer(int c0, int c1)
-{
-  int coords[2];
-  coords[0] = c0;
-  coords[1] = c1;
-  return this->GetScalarPointer(2, coords);
-}
-//----------------------------------------------------------------------------
-void *vtkImageRegion::GetScalarPointer(int c0)
-{
-  int coords[1];
-  coords[0] = c0;
-  return this->GetScalarPointer(1, coords);
-}
-//----------------------------------------------------------------------------
-void *vtkImageRegion::GetScalarPointer()
-{
-  int coords[VTK_IMAGE_DIMENSIONS];
-
-  coords[0] = this->Extent[0];
-  coords[1] = this->Extent[2];
-  coords[2] = this->Extent[4];
-  coords[3] = this->Extent[6];
-  coords[4] = this->Extent[8];
-  
-  return this->GetScalarPointer(5, coords);
-}
 
 
 //----------------------------------------------------------------------------
@@ -630,67 +552,6 @@ float *vtkImageRegion::GetVectorPointer(int dim, int *coordinates)
   
   return this->Data->GetVectorPointer(temp);
 }
-//----------------------------------------------------------------------------
-float *vtkImageRegion::GetVectorPointer(int c0, int c1, int c2, int c3, int c4)
-{
-  int coords[5];
-  coords[0] = c0;
-  coords[1] = c1;
-  coords[2] = c2;
-  coords[3] = c3;
-  coords[4] = c4;
-  return this->GetVectorPointer(5, coords);
-}
-//----------------------------------------------------------------------------
-float *vtkImageRegion::GetVectorPointer(int c0, int c1, int c2, int c3)
-{
-  int coords[4];
-  coords[0] = c0;
-  coords[1] = c1;
-  coords[2] = c2;
-  coords[3] = c3;
-  return this->GetVectorPointer(4, coords);
-}
-//----------------------------------------------------------------------------
-float *vtkImageRegion::GetVectorPointer(int c0, int c1, int c2)
-{
-  int coords[3];
-  coords[0] = c0;
-  coords[1] = c1;
-  coords[2] = c2;
-  return this->GetVectorPointer(3, coords);
-}
-//----------------------------------------------------------------------------
-float *vtkImageRegion::GetVectorPointer(int c0, int c1)
-{
-  int coords[2];
-  coords[0] = c0;
-  coords[1] = c1;
-  return this->GetVectorPointer(2, coords);
-}
-//----------------------------------------------------------------------------
-float *vtkImageRegion::GetVectorPointer(int c0)
-{
-  int coords[1];
-  coords[0] = c0;
-  return this->GetVectorPointer(1, coords);
-}
-
-//----------------------------------------------------------------------------
-float *vtkImageRegion::GetVectorPointer()
-{
-  int coords[VTK_IMAGE_DIMENSIONS];
-
-  coords[0] = this->Extent[0];
-  coords[1] = this->Extent[2];
-  coords[2] = this->Extent[4];
-  coords[3] = this->Extent[6];
-  coords[4] = this->Extent[8];
-  
-  return this->GetVectorPointer(5, coords);
-}
-
-
 
 //----------------------------------------------------------------------------
 void vtkImageRegion::SetAxes(int dim, int *axes)

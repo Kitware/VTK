@@ -99,7 +99,6 @@ virtual void SetAxis##name (int _axis, type _val) \
   vtkErrorMacro(<< "Could not find axis number " << _axis); \
 } 
 #define vtkImageGetMacro(name,type) \
-virtual type *Get##name () { return this->##name ;}  \
 virtual void Get##name (type _tmp[5]) { this->Get##name (5,_tmp);} \
 virtual void Get##name (type &_name0,type &_name1,type &_name2,type &_name3, \
 			type &_name4) \
@@ -273,6 +272,60 @@ virtual void GetAxis##name (int _axis, int &_min, int &_max) \
   _min = _max = 0; \
   vtkErrorMacro(<< "Could not find axis number " << _axis); \
 } 
+
+
+#define vtkImageGetPointerMacro(name,type) \
+type *Get##name##Pointer(int coords[5]) \
+{ \
+  return this->Get##name##Pointer(5, coords); \
+} \
+type *Get##name##Pointer(int _c0, int _c1, int _c2, int _c3, int _c4) \
+{ \
+  int _tmp[5]; \
+  _tmp[0] = _c0; \
+  _tmp[1] = _c1; \
+  _tmp[2] = _c2; \
+  _tmp[3] = _c3; \
+  _tmp[4] = _c4; \
+  return this->Get##name##Pointer (5,_tmp); \
+} \
+type *Get##name##Pointer(int _c0, int _c1, int _c2, int _c3) \
+{ \
+  int _tmp[4]; \
+  _tmp[0] = _c0; \
+  _tmp[1] = _c1; \
+  _tmp[2] = _c2; \
+  _tmp[3] = _c3; \
+  return this->Get##name##Pointer (4,_tmp); \
+} \
+type *Get##name##Pointer(int _c0, int _c1, int _c2) \
+{ \
+  int _tmp[3]; \
+  _tmp[0] = _c0; \
+  _tmp[1] = _c1; \
+  _tmp[2] = _c2; \
+  return this->Get##name##Pointer (3,_tmp); \
+} \
+type *Get##name##Pointer(int _c0, int _c1) \
+{ \
+  int _tmp[2]; \
+  _tmp[0] = _c0; \
+  _tmp[1] = _c1; \
+  return this->Get##name##Pointer (2,_tmp); \
+} \
+type *Get##name##Pointer(int _c0) \
+{ \
+  int _tmp[1]; \
+  _tmp[0] = _c0; \
+  return this->Get##name##Pointer (1,_tmp); \
+} \
+type *Get##name##Pointer() \
+{ \
+  return this->Get##name##Pointer (0, (int *)(NULL)); \
+} 
+
+
+
 
 
 

@@ -108,14 +108,20 @@ void vtkImageSimpleCache::GenerateCachedRegionData(vtkImageRegion *region)
     }
   // Generate a new region
   this->GenerateUnCachedRegionData(region);
+}
+
+
+//----------------------------------------------------------------------------
+// Description:
+// This Method saves a region in cache.
+void vtkImageSimpleCache::CacheRegion(vtkImageRegion *region)
+{
   // Save the data in cache
   this->CachedData = region->GetData();
   this->CachedData->Register(this);
   // Mark when this data was generated
   this->GenerateTime.Modified();
 }
-
-
 
 
 //----------------------------------------------------------------------------

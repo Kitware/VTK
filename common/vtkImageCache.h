@@ -67,34 +67,31 @@ public:
   char *GetClassName() {return "vtkImageCache";};
   void PrintSelf(ostream& os, vtkIndent indent);
   
-  void UpdateRegion(vtkImageRegion *region);
-  virtual void AllocateRegion(vtkImageRegion *region);
   unsigned long int GetPipelineMTime();
   void UpdateImageInformation(vtkImageRegion *region);
+  void UpdateRegion(vtkImageRegion *region);
   
   // Description:
   // Set/Get the source associated with this cache
   vtkSetObjectMacro(Source,vtkImageCachedSource);
   vtkGetObjectMacro(Source,vtkImageCachedSource);
 
-  void SetReleaseDataFlag(int value);
   // Description:
   // Turn the save data option on or off
+  void SetReleaseDataFlag(int value);
   vtkGetMacro(ReleaseDataFlag,int);
   vtkBooleanMacro(ReleaseDataFlag,int);
+
   // Description:
   // Subclass implements this method to delete any cached data.
   virtual void ReleaseData() = 0;
-  
-  // Description:
-  // Set/Get the OutputMemoryLimit for region.  If a UpdateRegion
-  // exceeds this limit (number of pixels), the UpdateRegion method
-  // will return NULL.  
-  vtkSetMacro(OutputMemoryLimit,long);
-  vtkGetMacro(OutputMemoryLimit,long);
 
   // Description:
-  // Set the data type of the regions created by this cache.
+  // This method saves a region in the cache for later reference.
+  virtual void CacheRegion(vtkImageRegion *region) = 0;
+  
+  // Description:
+  // Set the data scalar type of the regions created by this cache.
   vtkSetMacro(ScalarType,int);
   vtkGetMacro(ScalarType,int);
   
@@ -103,13 +100,6 @@ protected:
 
   //  to tell the cache to save data or not.
   int ReleaseDataFlag;
-
-  // A pointer to the data is kept during one generate.
-  // This may not be needed.
-  vtkImageData *Data;
-  
-  // Upperlimit on memory that can be allocated by UpdateRegion call
-  long OutputMemoryLimit;
 
   // Cache the ImageExtent, to avoid recomputing the ImageExtent on each pass.
   int ImageExtent[VTK_IMAGE_EXTENT_DIMENSIONS];

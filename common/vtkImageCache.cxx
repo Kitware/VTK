@@ -49,7 +49,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 vtkImageCache::vtkImageCache()
 {
   this->Source = NULL;
-  this->Data = NULL;
   
   // Invalid data type
   // This will be changed when the filter gets an input or
@@ -59,18 +58,12 @@ vtkImageCache::vtkImageCache()
   // default is to save data,
   // (But caches automatically created by sources set ReleaseDataFlag to 1)
   this->ReleaseDataFlag = 0;
-  this->OutputMemoryLimit = 100000; // 100 MB
 }
 
 
 //----------------------------------------------------------------------------
 vtkImageCache::~vtkImageCache()
 {
-  if (this->Data)
-    {
-    this->Data->Delete();
-    this->Data = NULL;
-    }
 }
 
 //----------------------------------------------------------------------------
@@ -80,10 +73,8 @@ void vtkImageCache::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Source: (" << this->Source << ").\n";
   os << indent << "ReleaseDataFlag: " << this->ReleaseDataFlag << "\n";
-  os << indent << "OutputMemoryLimit: " << this->OutputMemoryLimit << "\n";
-  os << indent << "ScalarType: " << vtkImageScalarTypeNameMacro(this->ScalarType) 
+  os << indent << "ScalarType: "<<vtkImageScalarTypeNameMacro(this->ScalarType)
      << "\n";
-  os << indent << "Data: " << this->Data << "\n";
 }
   
     
@@ -198,9 +189,6 @@ void vtkImageCache::UpdateRegion(vtkImageRegion *region)
   // First Update the Image information 
   this->UpdateImageInformation(region);
 
-  // Just in case the region already has data
-  region->ReleaseData();
-  
   // Save the extent to restore later.
   region->GetExtent(VTK_IMAGE_DIMENSIONS, saveExtent);
   
@@ -227,17 +215,9 @@ void vtkImageCache::UpdateRegion(vtkImageRegion *region)
   
   // Check if extent exceeds memory limit
   memory = region->GetMemorySize();
-  if ( memory > this->OutputMemoryLimit)
-    {
-    vtkDebugMacro(<< "UpdateRegion: Reuest too large " << memory);
-    region->SetAxes(VTK_IMAGE_DIMENSIONS, saveAxes);
-    return;
-    }
-  
-  // If the region extent has no "volume", allocate and return.
+  // If the extent has no "volume", restore coordinate system and return.
   if (memory <= 0)
     {
-    this->AllocateRegion(region);
     region->SetAxes(VTK_IMAGE_DIMENSIONS, saveAxes);
     return;
     }
@@ -261,6 +241,12 @@ void vtkImageCache::UpdateRegion(vtkImageRegion *region)
     this->GenerateCachedRegionData(region);
     }
 
+  // Release the cached data if needed.
+  if (this->ReleaseDataFlag)
+    {
+    this->ReleaseData();
+    }
+  
   // Leave the region in the original (before this method) coordinate system.
   region->SetAxes(VTK_IMAGE_DIMENSIONS, saveAxes);
   region->SetExtent(VTK_IMAGE_DIMENSIONS, saveExtent);
@@ -280,6 +266,7 @@ void vtkImageCache::UpdateRegion(vtkImageRegion *region)
 void vtkImageCache::GenerateUnCachedRegionData(vtkImageRegion *region)
 {
   int saveAxes[VTK_IMAGE_DIMENSIONS];
+  vtkImageData *data;
 
   vtkDebugMacro(<< "GenerateUnCachedRegionData: ");
   
@@ -287,84 +274,25 @@ void vtkImageCache::GenerateUnCachedRegionData(vtkImageRegion *region)
   // (Update region probably does not care but ...)
   region->GetAxes(saveAxes);
 
-  // this->Data should be NULL, but just in case subclass did somthing funny.
-  if (this->Data)
-    {
-    this->Data->Delete();
-    this->Data = NULL;
-    }
-  
   // Create the data object for this region, but delay allocating the
   // memory for as long as possible.
-  // Note: This step is simply to save the extent of the region.
-  this->Data = new vtkImageData;
-  region->SetAxes(VTK_IMAGE_DIMENSIONS, this->Data->GetAxes());
-  this->Data->SetExtent(VTK_IMAGE_DIMENSIONS, region->GetExtent());
-  this->Data->SetScalarType(this->ScalarType);
+  // Note: This step is simply to save the requested extent of the region.
+  data = new vtkImageData;
+  region->SetAxes(VTK_IMAGE_DIMENSIONS, data->GetAxes());
+  data->SetExtent(VTK_IMAGE_DIMENSIONS, region->GetExtent());
+  data->SetScalarType(this->ScalarType);
   region->SetAxes(saveAxes);
+  region->SetData(data);
+  // Since region has registered data, we mst delet our reference
+  data->Delete();
   
   // Tell the filter to generate the data for this region
   // IMPORTANT: Region is just to communicate extent, and does not
   // return any infomation!
   this->Source->UpdatePointData(VTK_IMAGE_DIMENSIONS, region);
-
-  // this->Data should be allocated by now. 
-  // (unless somthing unexpected happened).
-  if ( ! this->Data->AreScalarsAllocated())
-    {
-    vtkWarningMacro(<< "GenerateUnCachedRegionData: Data should be allocated, "
-                    << "but is not!");
-    // Split Factor should have been set by source or GetRegion method
-    this->Data->Delete();
-    this->Data = NULL;
-    return;
-    }
-
-  // Prepare region to be returned
-  region->SetData(this->Data);
-
-  // Delete (unregister) the data. (region has pointer/register by now)
-  this->Data->UnRegister(this);
-  this->Data = NULL;
 }
 
 
-
-
-//----------------------------------------------------------------------------
-// Description:
-// The caches source calls this method to allocate the region to fill in.
-// The data may or may not be allocated before the method is called,
-// but must be allocated before the method returns.  The region
-// may or may not be the same region passed to GenerateRegion method.
-void vtkImageCache::AllocateRegion(vtkImageRegion *region)
-{
-  int saveAxes[VTK_IMAGE_DIMENSIONS];
-
-  // Allocate memory at the last possible moment
-  if ( ! this->Data)
-    {
-    this->Data = new vtkImageData;
-    region->GetAxes(saveAxes);
-    region->SetAxes(this->Data->GetAxes());
-    this->Data->SetExtent(region->GetExtent());
-    region->SetAxes(saveAxes);
-    this->Data->SetScalarType(this->ScalarType);
-    }
-
-  if ( ! this->Data->AreScalarsAllocated())
-    if ( ! this->Data->AllocateScalars())
-      {
-      // Output data could not be allocated.  Splitting will help.
-      // Memory failure should not happen. MemoryLimits set wrong.
-      vtkWarningMacro(<< "AllocateRegion: OutputMemoryLimit must be too big.");
-      return;
-      }
-
-  // Set up the region for the source
-  region->SetData(this->Data);
-}
-  
 
 
 

@@ -134,6 +134,14 @@ void vtkImageCachedSource::UpdatePointData(int dim, vtkImageRegion *region)
     }
   // restore original extent
   region->SetAxisExtent(axis, min, max);  
+  
+  // Since this class does not have a top level (non recursive) update
+  // method, we need this check. (hack)
+  if (dim == VTK_IMAGE_DIMENSIONS)
+    {
+    this->CheckCache();
+    this->Output->CacheRegion(region);
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -191,23 +199,6 @@ unsigned long vtkImageCachedSource::GetPipelineMTime()
   
   return time1;
 }
-
-
-
-
-
-//----------------------------------------------------------------------------
-// Description:
-// Limits the size of tile which can be returned. 
-// The messaged is forwarded to the sources cache.
-// If the source does not have a cache, a default cache is created.
-void vtkImageCachedSource::SetOutputMemoryLimit(long limit)
-{
-  this->CheckCache();
-  this->Output->SetOutputMemoryLimit(limit);
-  this->Modified();
-}
-
 
 
 //----------------------------------------------------------------------------

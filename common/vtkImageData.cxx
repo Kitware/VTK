@@ -411,6 +411,71 @@ int vtkImageData::AllocateScalars()
 
 
 
+
+//----------------------------------------------------------------------------
+// Description:
+// This method makes sure the scalars are allocated, 
+// and we have the only reference.  It copies the scalars if necessary.
+void vtkImageData::MakeScalarsWritable()
+{
+  vtkScalars* scalars = this->PointData.GetScalars();
+  
+  // special case zero length array
+  if (this->Volume <= 0)
+    {
+    return;
+    }
+  
+  // make sure the scalars are allocated
+  if ( ! scalars)
+    {
+    this->AllocateScalars(); 
+    scalars = this->PointData.GetScalars();
+    }
+  
+  // We should also make sure there are enough scalars for volume.
+  // ... switch ...
+  
+  // Make sure we have the only reference to the scalars.
+  if (scalars->GetRefCount() > 1)
+    {
+    vtkScalars *newScalars;
+    // Scalars need to be copied (some one else is referencing them)
+    switch (this->GetScalarType())
+      {
+      case VTK_FLOAT:
+	newScalars = new vtkFloatScalars();
+	*((vtkFloatScalars *)newScalars) = *((vtkFloatScalars *)scalars);
+	break;
+      case VTK_INT:
+	newScalars = new vtkIntScalars();
+	*((vtkIntScalars *)newScalars) = *((vtkIntScalars *)scalars);
+	break;
+      case VTK_SHORT:
+	newScalars = new vtkShortScalars();
+	*((vtkShortScalars *)newScalars) = *((vtkShortScalars *)scalars);
+	break;
+      case VTK_UNSIGNED_SHORT:
+	newScalars = new vtkUnsignedShortScalars();
+	*((vtkUnsignedShortScalars *)newScalars) 
+	  = *((vtkUnsignedShortScalars *)scalars);
+	break;
+      case VTK_UNSIGNED_CHAR:
+	newScalars = new vtkUnsignedCharScalars();
+	*((vtkUnsignedCharScalars *)newScalars) 
+	  = *((vtkUnsignedCharScalars *)scalars);
+	break;
+      default:
+	vtkErrorMacro(<< "MakeScalarsWritable: Cannot handle ScalarType.\n");
+	return;
+      }
+
+    // Automatically dereferences old scalars and references new scalars.
+    this->PointData.SetScalars(newScalars);
+    this->Modified();
+    }
+}
+
 //----------------------------------------------------------------------------
 // Description:
 // This method returns 1 if the vectors have been allocated.
@@ -455,6 +520,47 @@ int vtkImageData::AllocateVectors()
 
   return this->VectorsAllocated;
 }
+
+
+//----------------------------------------------------------------------------
+// Description:
+// This method makes sure the vectors are allocated, 
+// and we have the only reference.  It copies the vectors if necessary.
+void vtkImageData::MakeVectorsWritable()
+{
+  vtkVectors* vectors = this->PointData.GetVectors();
+  
+  // special case zero length array
+  if (this->Volume <= 0)
+    {
+    return;
+    }
+  
+  // make sure the vectors are allocated
+  if ( ! vectors)
+    {
+    this->AllocateVectors(); 
+    vectors = this->PointData.GetVectors();
+    }
+  
+  // We should also make sure there are enough vectors for volume.
+  // ...
+  
+  // Make sure we have the only reference to the vectors.
+  if (vectors->GetRefCount() > 1)
+    {
+    vtkVectors *newVectors;
+
+    // Vectors need to be copied (some one else is referencing them)
+    newVectors = new vtkFloatVectors();
+    *((vtkFloatVectors *)newVectors) = *((vtkFloatVectors *)vectors);
+
+    // Automatically dereferences old vectors and references new vectors.
+    this->PointData.SetVectors(newVectors);
+    this->Modified();
+    }
+}
+
 
 
 
@@ -532,8 +638,19 @@ void vtkImageData::SetScalars(vtkScalars *scalars)
 // image origin.
 void *vtkImageData::GetScalarPointer(int coordinates[VTK_IMAGE_DIMENSIONS])
 {
+  vtkScalars *scalars;
   int idx;
     
+  // Make sure the scalars have been allocated.
+  scalars = this->PointData.GetScalars();
+  if (scalars == NULL)
+    {
+    vtkErrorMacro(<< "GetScalarPointer: Scalars not allocated.  "
+    << "Either you are referencing uninitialized data, or "
+    << "your should be using 'GetScalarWritePointer'");
+    return NULL;
+    }
+  
   // error checking: since most acceses will be from pointer arithmetic.
   // this should not waste much time.
   for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
@@ -548,13 +665,14 @@ void *vtkImageData::GetScalarPointer(int coordinates[VTK_IMAGE_DIMENSIONS])
       }
     }
   
+  // compute the index of the vector.
   idx = ((coordinates[0] - this->Extent[0]) * this->Increments[0]
 	 + (coordinates[1] - this->Extent[2]) * this->Increments[1]
 	 + (coordinates[2] - this->Extent[4]) * this->Increments[2]
 	 + (coordinates[3] - this->Extent[6]) * this->Increments[3]
 	 + (coordinates[4] - this->Extent[8]) * this->Increments[4]);
   
-  return this->PointData.GetScalars()->GetVoidPtr(idx);
+  return scalars->GetVoidPtr(idx);
 }
 
 
@@ -578,12 +696,14 @@ float *vtkImageData::GetVectorPointer(int coordinates[VTK_IMAGE_DIMENSIONS])
   int idx;
   vtkVectors *vectors;
 
-  // Make sure the vectors have been allocated.
+  // Make sure the scalars have been allocated.
   vectors = this->PointData.GetVectors();
-  if (! vectors || vectors->GetNumberOfVectors() == 0)
+  if (vectors == NULL)
     {
-    this->AllocateVectors();
-    vectors = this->PointData.GetVectors();
+    vtkErrorMacro(<< "GetScalarPointer: Vectors not allocated.  "
+    << "Either you are referencing uninitialized data, or "
+    << "your should be using 'GetVectorWritePointer'");
+    return NULL;
     }
   
   // error checking: since most acceses will be from pointer arithmetic.
@@ -600,7 +720,7 @@ float *vtkImageData::GetVectorPointer(int coordinates[VTK_IMAGE_DIMENSIONS])
       }
     }
   
-  // compute the index of the vector.
+  // compute the index of the point
   idx = ((coordinates[0] - this->Extent[0]) * this->Increments[0]
 	 + (coordinates[1] - this->Extent[2]) * this->Increments[1]
 	 + (coordinates[2] - this->Extent[4]) * this->Increments[2]

@@ -83,8 +83,7 @@ public:
   vtkImageSetMacro(Axes,int);
   void GetAxes(int dim, int *axes);
   vtkImageGetMacro(Axes,int);
-
-  void SetOutputMemoryLimit(long limit);
+  int *GetAxes() {return this->Axes;};
 
 protected:
   vtkImageCache *Output;

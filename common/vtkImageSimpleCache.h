@@ -60,6 +60,7 @@ public:
   ~vtkImageSimpleCache();
   char *GetClassName() {return "vtkImageSimpleCache";};
   void ReleaseData();
+  void CacheRegion(vtkImageRegion *region);
 
 protected:
   vtkImageData *CachedData;

@@ -89,7 +89,8 @@ public:
   // pointers have been converted to their actual type.
   void GetIncrements(int dim, int *increments);
   vtkImageGetMacro(Increments, int);
-  
+  int *GetIncrements() {return this->Increments;};
+
   // Description:
   // Different methods for setting the extent.
   // The 2d and 1d functions do not modify extent of the higher dimensions.
@@ -123,6 +124,7 @@ public:
   // Different methods for getting the Aspect Ratio.
   void GetAspectRatio(int dim, float *ratio);
   vtkImageGetMacro(AspectRatio, float);
+  float *GetAspectRatio() {return this->AspectRatio;};
   
 
   // Description:
@@ -133,6 +135,7 @@ public:
   // Different methods for getting the Origin.
   void GetOrigin(int dim, float *origin);
   vtkImageGetMacro(Origin, float);
+  float *GetOrigin() {return this->Origin;};
   
 
   // Description:
@@ -144,36 +147,37 @@ public:
   // Different methods for getting the axes.
   void GetAxes(int dim, int *axes);  
   vtkImageGetMacro(Axes, int);
+  int *GetAxes() {return this->Axes;};
 
   // Description:
-  // Returns a pointer to the scalar point data.
+  // Returns a pointer for reading the scalar point data.
   // Coordinates are relative to image origin.
+  // Extent mins are used for unspecified coordinates.
   void *GetScalarPointer(int dim, int *coordinates);
-  void *GetScalarPointer(int coords[5])
-  {return this->GetScalarPointer(5, coords);};
-  void *GetScalarPointer(int c0, int c1, int c2, int c3, int c4);
-  void *GetScalarPointer(int c0, int c1, int c2, int c3);
-  void *GetScalarPointer(int c0, int c1, int c2);
-  void *GetScalarPointer(int c0, int c1);
-  void *GetScalarPointer(int c0);
+  vtkImageGetPointerMacro(Scalar, void);
+
   // Description:
-  // Returns pointer to the minimum extent (min0, min1, ...)
-  void *GetScalarPointer();
+  // Returns a pointer for writing into the scalar point data.
+  // Coordinates are relative to image origin.
+  // Extent mins are used for unspecified coordinates.
+  void *GetScalarWritePointer(int dim, int *coordinates)
+  {this->MakeScalarsWritable();return this->GetScalarPointer(dim,coordinates);}
+  vtkImageGetPointerMacro(ScalarWrite, void);
+
+  // Description:
+  // Returns a pointer for reading the vector point data.
+  // Coordinates are relative to image origin.
+  // Extent mins are used for unspecified coordinates.
+  float *GetVectorPointer(int dim, int *coordinates);
+  vtkImageGetPointerMacro(Vector, float);
   
   // Description:
-  // Returns a pointer to the vector point data.
+  // Returns a pointer for writing into the vector point data.
   // Coordinates are relative to image origin.
-  float *GetVectorPointer(int dim, int *coordinates);
-  float *GetVectorPointer(int coords[5])
-  {return this->GetVectorPointer(5, coords);};
-  float *GetVectorPointer(int c0, int c1, int c2, int c3, int c4);
-  float *GetVectorPointer(int c0, int c1, int c2, int c3);
-  float *GetVectorPointer(int c0, int c1, int c2);
-  float *GetVectorPointer(int c0, int c1);
-  float *GetVectorPointer(int c0);
-  // Description:
-  // Returns pointer to the minimum extent of region (min0, min1, ...)
-  float *GetVectorPointer();
+  // Extent mins are used for unspecified coordinates.
+  float *GetVectorWritePointer(int dim, int *coordinates)
+  {this->MakeVectorsWritable();return this->GetVectorPointer(dim,coordinates);}
+  vtkImageGetPointerMacro(VectorWrite, float);
   
   // Description:
   // This method returns the number of pixels enclosed in this bounding box.
@@ -212,9 +216,6 @@ public:
   void AllocateVectors();
   void ReleaseData();
   
-  void MakeWritable();
-  
-
   //------------------------------------------------------------------
   // This should really be handled by one of the macros, 
   // but Set is not in the name.
@@ -253,6 +254,11 @@ protected:
   float Origin[VTK_IMAGE_DIMENSIONS];
 
   // Helper methods.
+  void MakeDataWritable();
+  void MakeScalarsWritable()
+  {this->MakeDataWritable(); this->Data->MakeScalarsWritable();};
+  void MakeVectorsWritable()
+  {this->MakeDataWritable(); this->Data->MakeVectorsWritable();};
   void ChangeExtentCoordinateSystem(int *extentIn, int *axesIn,
 				    int *extentOut, int *axesOut);
 };

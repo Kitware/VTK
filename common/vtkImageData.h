@@ -138,15 +138,17 @@ public:
   vtkGetVectorMacro(Increments,int,5);
 
   int AreScalarsAllocated();
-  int AllocateScalars();
   void *GetScalarPointer(int coordinates[VTK_IMAGE_DIMENSIONS]);
   void *GetScalarPointer();
+  void MakeScalarsWritable();
+  int AllocateScalars();
 
   int AreVectorsAllocated();
-  int AllocateVectors();
   float *GetVectorPointer(int coordinates[VTK_IMAGE_DIMENSIONS]);
   float *GetVectorPointer();
-
+  void MakeVectorsWritable();
+  int AllocateVectors();
+  
   void Translate(int vector[VTK_IMAGE_DIMENSIONS]);
   
   
@@ -175,6 +177,7 @@ protected:
   int Volume;
   int ScalarsAllocated;
   int VectorsAllocated;
+
 };
 
 
