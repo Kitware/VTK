@@ -25,11 +25,12 @@
 #include "vtkTriangle.h"
 #include "vtkTriangleFilter.h"
 
-vtkCxxRevisionMacro(vtkWindowedSincPolyDataFilter, "1.35");
+vtkCxxRevisionMacro(vtkWindowedSincPolyDataFilter, "1.36");
 vtkStandardNewMacro(vtkWindowedSincPolyDataFilter);
 
 // Construct object with number of iterations 20; passband .1;
 // feature edge smoothing turned off; feature 
+
 // angle 45 degrees; edge angle 15 degrees; and boundary smoothing turned 
 // on. Error scalars and vectors are not generated (by default). The 
 // convergence criterion is 0.0 of the bounding box diagonal.
@@ -46,6 +47,8 @@ vtkWindowedSincPolyDataFilter::vtkWindowedSincPolyDataFilter()
 
   this->GenerateErrorScalars = 0;
   this->GenerateErrorVectors = 0;
+
+  this->NormalizeCoordinates = 0;
 }
 
 #define VTK_SIMPLE_VERTEX 0
@@ -431,10 +434,30 @@ void vtkWindowedSincPolyDataFilter::Execute()
   newPts[3] = vtkPoints::New();
   newPts[3]->SetNumberOfPoints(numPts);
 
-  
-  for (i=0; i<numPts; i++) //initialize to old coordinates
+  // Get the center and length of the input dataset
+  double *inCenter = input->GetCenter();
+  double inLength = input->GetLength();
+
+  if (!this->NormalizeCoordinates)
     {
-    newPts[zero]->SetPoint(i,inPts->GetPoint(i));
+    for (i=0; i<numPts; i++) //initialize to old coordinates
+      {
+      newPts[zero]->SetPoint(i,inPts->GetPoint(i));
+      }
+    }
+  else
+    {
+    // center the data and scale to be within unit cube [-1, 1]
+    double normalizedPoint[3];
+    for (i=0; i<numPts; i++) //initialize to old coordinates
+      {
+      inPts->GetPoint(i, normalizedPoint);
+      for (j=0; j<3; ++j)
+        {
+        normalizedPoint[j] = (normalizedPoint[j] - inCenter[j]) / inLength;
+        }
+      newPts[zero]->SetPoint(i,normalizedPoint);
+      }
     }
 
   // Smooth with a low pass filter defined as a windowed sinc function.
@@ -677,6 +700,23 @@ void vtkWindowedSincPolyDataFilter::Execute()
   
   vtkDebugMacro(<<"Performed " << iterationNumber << " smoothing passes");
   
+  // if we scaled the data down to the unit cube, then scale data back
+  // up to the original space
+  if (this->NormalizeCoordinates)
+    {
+    // Re-position the coordinated
+    double repositionedPoint[3];
+    for (i=0; i<numPts; i++) 
+      {
+      newPts[zero]->GetPoint(i, repositionedPoint);
+      for (j=0; j<3; ++j)
+        {
+        repositionedPoint[j] = repositionedPoint[j] * inLength + inCenter[j];
+        }
+      newPts[zero]->SetPoint(i,repositionedPoint);
+      }
+    }
+
 //
 // Update output. Only point coordinates have changed.
 //
@@ -717,7 +757,7 @@ void vtkWindowedSincPolyDataFilter::Execute()
     output->GetPointData()->SetVectors(newVectors);
     newVectors->Delete();
     }
-  
+
   output->SetPoints(newPts[zero]);
   newPts[0]->Delete();
   newPts[1]->Delete();

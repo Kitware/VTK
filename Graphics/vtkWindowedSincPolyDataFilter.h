@@ -60,6 +60,15 @@
 // such that the actual pass band is k_pb + sigma and such that the
 // filter transfer function evaluates to unity at k_pb, i.e. f(k_pb) = 1
 //
+// To improve the numerical stability of the solution and minimize the
+// scaling the translation effects, the algorithm can translate and
+// scale the position coordinates to within the unit cube [-1, 1],
+// perform the smoothing, and translate and scale the position
+// coordinates back to the original coordinate frame.  This mode is
+// controlled with the NormalizeCoordinatesOn() /
+// NormalizeCoordinatesOff() methods.  For legacy reasons, the default
+// is NormalizeCoordinatesOff.
+//
 // This implementation is currently limited to using an interpolation
 // kernel based on Hamming windows.  Other windows (such as Hann, Blackman,
 // Kaiser, Lanczos, Gaussian, and exponential windows) could be used
@@ -154,6 +163,18 @@ public:
   // Set the passband value for the windowed sinc filter
   vtkSetClampMacro(PassBand,double, 0.0, 2.0);
   vtkGetMacro(PassBand,double);
+
+  // Description:
+  // Turn on/off coordinate normalization.  The positions can be
+  // translated and scaled such that they fit within a [-1, 1] prior
+  // to the smoothing computation. The default is off.  The numerical
+  // stability of the solution can be improved by turning
+  // normalization on.  If normalization is on, the coordinates will
+  // be rescaled to the original coordinate system after smoothing has
+  // completed.
+  vtkSetMacro(NormalizeCoordinates, int);
+  vtkGetMacro(NormalizeCoordinates, int);
+  vtkBooleanMacro(NormalizeCoordinates, int);
   
   // Description:
   // Turn on/off smoothing along sharp interior edges.
@@ -211,6 +232,7 @@ public:
   int NonManifoldSmoothing;
   int GenerateErrorScalars;
   int GenerateErrorVectors;
+  int NormalizeCoordinates;
 private:
   vtkWindowedSincPolyDataFilter(const vtkWindowedSincPolyDataFilter&);  // Not implemented.
   void operator=(const vtkWindowedSincPolyDataFilter&);  // Not implemented.
