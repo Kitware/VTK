@@ -23,7 +23,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageCanvasSource2D, "1.35");
+vtkCxxRevisionMacro(vtkImageCanvasSource2D, "1.36");
 vtkStandardNewMacro(vtkImageCanvasSource2D);
 
 //----------------------------------------------------------------------------
@@ -118,12 +118,14 @@ void vtkImageCanvasSource2DDrawImage(vtkImageData *image, vtkImageData *simage,
   int idx0, idx1, idxV;
   int inc0, inc1, inc2;
   int sinc0, sinc1, sinc2;
-  int maxV;
+  int maxV, smaxV;
+  int sinc;
   
   image->GetIncrements(inc0, inc1, inc2);
   simage->GetIncrements(sinc0, sinc1, sinc2);
 
   maxV = image->GetNumberOfScalarComponents() - 1;
+  smaxV = simage->GetNumberOfScalarComponents() - 1;
 
   ptr1 = ptr;
   sptr1 = sptr;
@@ -136,13 +138,19 @@ void vtkImageCanvasSource2DDrawImage(vtkImageData *image, vtkImageData *simage,
       ptrV = ptr0;
       sptrV = sptr0;
       
+      sinc = 0;
+
       // Assign color to pixel.
       for (idxV = 0; idxV <= maxV; ++idxV)
         {
-        *ptrV = *sptrV;
+        *ptrV = *(sptrV + sinc);
         ptrV++;
-        sptrV++;
+        if ( sinc < smaxV )
+          {
+          sinc++;
+          }
         }
+      sptrV += smaxV;
       
       ptr0 += inc0;
       sptr0 += sinc0;
@@ -200,9 +208,9 @@ void vtkImageCanvasSource2D::DrawImage(int x0, int y0,
   ext[2] = vtkMAX(sy, ext[2]);
   ext[3] = vtkMAX(sy+height-1, ext[3]);
   clip->SetOutputWholeExtent(ext);
-    
+
   vtkImageCast* ic = vtkImageCast::New();
-  ic->SetInput(image);
+  ic->SetInput(clip->GetOutput());
   ic->SetOutputScalarType(this->GetScalarType());
   ic->Update();
   int min0, max0, min1, max1;
