@@ -175,7 +175,6 @@ void vtkAsynchronousBuffer::BlockingUpdateInformation()
 {
   vtkDataSet *input = this->GetInput();
   vtkDataSet *output = this->GetOutput();
-  unsigned long t1, t2;
   
   // just some error checking
   if (input == NULL)

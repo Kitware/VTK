@@ -11,8 +11,6 @@
 
 void main( int argc, char *argv[] )
 {
-  int i;
-  
   // create rendering windows and three renderers
   vtkRenderer *ren1 = vtkRenderer::New();
   vtkRenderer *ren2 = vtkRenderer::New();

@@ -14,8 +14,8 @@
 
 void main( int argc, char *argv[] )
 {
-  float range[2], c[3];
-  float maxVelocity, maxTime, length;
+  float range[2];
+  float maxVelocity, maxTime;
   
   vtkRenderer *aren = vtkRenderer::New();
   vtkRenderWindow *renWin = vtkRenderWindow::New();
@@ -30,8 +30,8 @@ void main( int argc, char *argv[] )
     //reader->DebugOn();
     reader->SetFileName("../../../vtkdata/kitchen.vtk");
     reader->Update(); //force a read to occur
+    reader->GetOutput()->GetLength();
 
-  length = reader->GetOutput()->GetLength();
   if ( reader->GetOutput()->GetPointData()->GetScalars() )
     {
     reader->GetOutput()->GetPointData()->GetScalars()->GetRange(range);

@@ -20,7 +20,6 @@ static int ParseFile(FILE *file, char *tag, float *data);
 void main( int argc, char *argv[] )
 {
   float bounds[6];
-  int npts;
   vtkDataSet *dataSet;
   
   // read data

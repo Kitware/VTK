@@ -12,7 +12,6 @@
 void main( int argc, char *argv[] )
 {
   char c;
-  float i;
 
   // create the rendering objects
   vtkRenderer *ren1 = vtkRenderer::New();

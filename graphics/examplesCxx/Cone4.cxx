@@ -10,8 +10,6 @@
 
 void main( int argc, char *argv[] )
 {
-  char a;
-  
   // create a rendering window and renderer
   vtkRenderer *ren = vtkRenderer::New();
   vtkRenderWindow *renWindow = vtkRenderWindow::New();

@@ -14,7 +14,7 @@
 int main( int argc, char *argv[] )
 {
   float range[2], c[3];
-  float maxVelocity, maxTime, length;
+  float maxVelocity, maxTime;
   
   vtkRenderer *aren = vtkRenderer::New();
   vtkRenderWindow *renWin = vtkRenderWindow::New();
@@ -29,7 +29,7 @@ int main( int argc, char *argv[] )
     reader->SetFileFormat(VTK_WHOLE_SINGLE_GRID_NO_IBLANKING);
     reader->Update(); //force a read to occur
     reader->GetOutput()->GetCenter(c);
-  length = reader->GetOutput()->GetLength();
+    reader->GetOutput()->GetLength();
   if ( reader->GetOutput()->GetPointData()->GetScalars() )
     {
     reader->GetOutput()->GetPointData()->GetScalars()->GetRange(range);

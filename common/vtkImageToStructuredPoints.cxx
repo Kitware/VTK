@@ -47,14 +47,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 //----------------------------------------------------------------------------
 vtkImageToStructuredPoints::vtkImageToStructuredPoints()
 {
-  int idx;
-  
   this->Translate[0] = this->Translate[1] = this->Translate[2] = 0;
   this->SetOutput(0,vtkStructuredPoints::New());
   this->Outputs[0]->Delete();
 }
-
-
 
 //----------------------------------------------------------------------------
 vtkImageToStructuredPoints::~vtkImageToStructuredPoints()

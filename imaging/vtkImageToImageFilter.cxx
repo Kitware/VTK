@@ -191,7 +191,7 @@ void vtkImageToImageFilter::RecursiveStreamUpdate(vtkImageData *outData)
 {
   int memory;
   vtkImageData *inData;
-  int inExt[6], outExt[6], splitExt[6];
+  int inExt[6], outExt[6];
     
   // abort if required
   if (this->AbortExecute) 
@@ -246,7 +246,6 @@ void vtkImageToImageFilter::UpdateInformation()
   vtkImageData *input = this->GetInput();
   vtkImageData *output = this->GetOutput();
   int *iTmp;
-  float *fTmp;
   
   // Make sure the Input has been set.
   if ( ! input)
