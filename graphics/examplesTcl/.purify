@@ -73,5 +73,8 @@ suppress umc memcpy; vtkRendererSource::Execute(void)
 suppress mlk _malloc; __glXInitThread
 suppress mlk _malloc; __glXMalloc; __glven_InitPixelState
 suppress mlk _malloc; Tcl_GetFile; DisplaySetupProc
+suppress umr __glSPDlalloc; __glsplc_Disable; __glce_common_listable
+suppress umr __glSPDlalloc; __glsplc_Enable; __glce_common_listable
+suppress umc memcpy; vtkWindowToImageFilter::Execute(vtkImageData*)
 
 
