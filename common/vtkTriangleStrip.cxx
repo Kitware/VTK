@@ -279,7 +279,7 @@ void vtkTriangleStrip::Derivatives(int subId, float pcoords[3], float *values,
   this->Triangle->Points->SetPoint(1,this->Points->GetPoint(subId+1));
   this->Triangle->Points->SetPoint(2,this->Points->GetPoint(subId+2));
 
-  this->Triangle->Derivatives(0, pcoords, values, dim, derivs);
+  this->Triangle->Derivatives(0, pcoords, values+subId, dim, derivs);
 }
 
 // Given a triangle strip, decompose it into (triangle) polygons. The 

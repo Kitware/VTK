@@ -437,7 +437,7 @@ void vtkPolyLine::Derivatives(int subId, float pcoords[3], float *values,
   this->Line->Points->SetPoint(0,this->Points->GetPoint(subId));
   this->Line->Points->SetPoint(1,this->Points->GetPoint(subId+1));
 
-  this->Line->Derivatives(0, pcoords, values, dim, derivs);
+  this->Line->Derivatives(0, pcoords, values+subId, dim, derivs);
 }
 
 void vtkPolyLine::Clip(float value, vtkScalars *cellScalars, 
