@@ -366,7 +366,6 @@ void doHeader(FILE *fp, const char *vtkHome,
   fprintf(fp," /out:\"$(OUTDIR)/vtkdll.dll\" /implib:\"$(OUTDIR)/vtkdll.lib\" \n");
   fprintf(fp,"LINK32_OBJS= \\\n");
   fprintf(fp,"    \"$(OUTDIR)\\StdAfx.obj\" \\\n");
-  fprintf(fp,"    \"$(OUTDIR)\\vtkdll.obj\" \\\n");
   for (i = 0; i < num_abstract; i++)
   {
     fprintf(fp,"    \"$(OUTDIR)\\%s.obj\" \\\n",abstract[i]);
@@ -401,21 +400,16 @@ void doHeader(FILE *fp, const char *vtkHome,
   fprintf(fp,"\n");
   fprintf(fp,"################################################################################\n");
   fprintf(fp,"\n");
-  fprintf(fp,"SOURCE=%s\\vtkdll\\StdAfx.cpp\n",vtkHome);
-  fprintf(fp,"\n");
-  fprintf(fp,"# ADD CPP /Yc\"stdafx.h\"\n");
-  fprintf(fp,"\n");
   fprintf(fp,"BuildCmds= \\\n");
   fprintf(fp,"	$(CPP) /nologo /MD /GX /O2 /I \"%s\\common\" /I \"%s\\graphics\" /D \"NDEBUG\" /D \"WIN32\" /D \"_WINDOWS\"\\\n",
     vtkHome,vtkHome);
   fprintf(fp," /D \"_WINDLL\" /D \"_AFXDLL\" /D \"_MBCS\" /D \"_USRDLL\" /D \"VTKDLL\"\\\n");
-  fprintf(fp," /Fp\"$(OUTDIR)/vtkdll.pch\" /Yc\"stdafx.h\" /Fo\"$(OUTDIR)/\" /c $(SOURCE) \\\n");
+  fprintf(fp," /Fp\"$(OUTDIR)/vtkdll.pch\" /Yc\"stdafx.h\" /Fo\"$(OUTDIR)/\" /c %s\\vtkdll\\StdAfx.cpp \\\n",
+	  vtkHome);
   fprintf(fp,"	\n");
   fprintf(fp,"\n");
-  fprintf(fp,"\"$(OUTDIR)\\StdAfx.obj\" : $(SOURCE) \"$(OUTDIR)\"\n");
-  fprintf(fp,"   $(BuildCmds)\n");
-  fprintf(fp,"\n");
-  fprintf(fp,"\"$(OUTDIR)\\vtkdll.pch\" : $(SOURCE) \"$(OUTDIR)\"\n");
+  fprintf(fp,"\"$(OUTDIR)\\StdAfx.obj\" : %s\\vtkdll\\StdAfx.cpp \"$(OUTDIR)\"\n",
+	  vtkHome);
   fprintf(fp,"   $(BuildCmds)\n");
   fprintf(fp,"\n");
 
@@ -423,7 +417,8 @@ void doHeader(FILE *fp, const char *vtkHome,
   {
     fprintf(fp,"\"$(OUTDIR)\\%s.obj\" : %s\\%s\\%s.cxx \"$(OUTDIR)\"\n",
 	    abstract[i],vtkHome,abstract_lib[i],abstract[i]);
-    fprintf(fp,"  $(CPP) $(CPP_PROJ) $(SOURCE)\n\n");
+    fprintf(fp,"  $(CPP) $(CPP_PROJ) %s\\%s\\%s.cxx\n\n",
+		vtkHome,abstract_lib[i],abstract[i]);
   }
   for (i = 0; i < num_concrete; i++)
   {
@@ -435,7 +430,7 @@ void doHeader(FILE *fp, const char *vtkHome,
   fprintf(fp,"################################################################################\n");
 }
 
-void doMSTclHeader(FILE *fp, const char *vtkHome,
+void doTclHeader(FILE *fp, const char *vtkHome,
 		   const char *vtkBuild)
 {
   int i;
