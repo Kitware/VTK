@@ -12,7 +12,10 @@ IF (VTK_USE_RENDERING)
         ResliceColorWrap
         ResliceInterpolationModes
         ResliceInterpolationOblique
+        ResliceMirrorOblique
+        ResliceMirrorPad
         ResliceOptimizationOff
+        ReslicePermutations
         ReslicePermuteResample
         ResliceWrapOblique
         ResliceWrapPad
