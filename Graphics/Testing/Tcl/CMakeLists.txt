@@ -93,6 +93,7 @@ IF (VTK_USE_RENDERING)
       stripF
       subdividePointData
       subDivideTetra
+      subPixelPositionMin
       teapotHulls
       TenEllip
       TestCellDerivs
