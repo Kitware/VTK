@@ -593,8 +593,17 @@ void TestVoidReturnOuter()
 #if defined(_COMPILER_VERSION)
 # pragma set woff 3303 // type qualifier on return is meaningless
 #endif
+// Intel C++ warns about type qualifiers on return types.
+#if defined(__INTEL_COMPILER)
+# pragma warning (push)
+# pragma warning (disable:858) // type qualifier on return is meaningless
+#endif
 
 void const TestVoidConstReturn() {}
+
+#if defined(__INTEL_COMPILER)
+# pragma warning (pop)
+#endif
 
 #if defined(_COMPILER_VERSION)
 # pragma reset woff 3303 // type qualifier on return is meaningless
