@@ -26,7 +26,7 @@
 #include "vtkOverrideInformation.h"
 #include "vtkDebugLeaks.h"
 
-vtkCxxRevisionMacro(vtkObjectFactory, "1.32");
+vtkCxxRevisionMacro(vtkObjectFactory, "1.33");
 
 vtkObjectFactoryCollection* vtkObjectFactory::RegisteredFactories = 0;
 
@@ -657,6 +657,9 @@ public:
         ((vtkObjectFactoryCollectionIterator*)this->Source)->Top;
     }
   vtkCollection* Source;
+private:
+  vtkObjectFactoryCollectionIterator(const vtkObjectFactoryCollectionIterator&);
+  void operator=(const vtkObjectFactoryCollectionIterator&);
 };
 
 

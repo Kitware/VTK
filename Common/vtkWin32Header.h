@@ -46,6 +46,7 @@
 #pragma warning ( disable : 4244 )
 #pragma warning ( disable : 4305 )
 #pragma warning ( disable : 4309 )
+#pragma warning ( disable : 4706 )
 #endif
 
 #if defined(WIN32) && !defined(VTKSTATIC)

@@ -136,7 +136,7 @@ int vtkRegressionTester::Test(int argc, char *argv[], vtkRenderWindow *rw,
     // If the test failed with the first image (foo.png)
     // check if there are images of the form foo_N.png
     // (where N=1,2,3...) and compare against them.
-    float error;
+    float error=0;
     int count=1, errIndex=-1;
     char* newFileName;
     while (1)
