@@ -26,8 +26,8 @@ void proc2( vtkMultiProcessController *controller, void *arg );
 void MyMain( vtkMultiProcessController *controller, void *arg )
 {
 
-//  MPIGroupsArgs_tmp* args = 
-//    reinterpret_cast<MPIGroupsArgs_tmp*>(arg);
+  MPIGroupsArgs_tmp* args = 
+    reinterpret_cast<MPIGroupsArgs_tmp*>(arg);
 
   int myId = controller->GetLocalProcessId();
 
@@ -50,6 +50,7 @@ void MyMain( vtkMultiProcessController *controller, void *arg )
   localController->SetCommunicator(localComm);
   localComm->UnRegister(0);
 
+  int locRetVal;
   if ( currentGroup == 0 )
     {
     localController->SetSingleMethod(proc1, arg);
@@ -57,11 +58,23 @@ void MyMain( vtkMultiProcessController *controller, void *arg )
     }
   else if ( currentGroup == 1 )
     {
-    localController->SetSingleMethod(proc2, 0);
+    localController->SetSingleMethod(proc2, &locRetVal);
     localController->SingleMethodExecute();
     }
   localController->Delete();
 
+  if ( myId == 0 )
+    {
+    controller->Receive(&locRetVal, 1, 3, 33);
+    if (args->retVal && (!locRetVal))
+      {
+      *(args->retVal) = locRetVal;
+      }
+    }
+  else if (myId == 3)
+    {
+    controller->Send(&locRetVal, 1, 0, 33);
+    }
 }
 
 // This will be called by all processes
@@ -168,38 +181,65 @@ void proc2( vtkMultiProcessController *contr, void *arg )
     }
   else if (controller->GetLocalProcessId() == 1)
     {
+    int* retVal = static_cast<int*>(arg);
+    *retVal = 1;
+
     int vali;
     vtkMPICommunicator::Request req1;
     controller->NoBlockReceive(&vali, 1, vtkMultiProcessController::ANY_SOURCE,
                                95, req1);
+    req1.Wait();
     if (req1.Test() && (vali == 12))
+      {
       cout << "Receive (int) succeeded." << endl;
+      }
     else
+      {
       cout << "Receive (int) failed:" << vali << endl;
+      *retVal = 0;
+      }
     int valul;
     vtkMPICommunicator::Request req2;
     controller->NoBlockReceive(&valul, 1, vtkMultiProcessController::ANY_SOURCE,
                                96, req2);
+    req2.Wait();
     if (req2.Test() && (valul == 12))
+      {
       cout << "Receive (unsigned long) succeeded." << endl;
+      }
     else
+      {
       cout << "Receive (unsigned long) failed:" << valul << endl;
+      *retVal = 0;
+      }
     int valc;
     vtkMPICommunicator::Request req3;
     controller->NoBlockReceive(&valc, 1, vtkMultiProcessController::ANY_SOURCE,
                                97, req3);
+    req3.Wait();
     if (req3.Test() && (valc == 12))
+      {
       cout << "Receive (char) succeeded." << endl;
+      }
     else
+      {
       cout << "Receive (char) failed:" << valc  << endl;
+      *retVal = 0;
+      }
     int valf;
     vtkMPICommunicator::Request req4;
     controller->NoBlockReceive(&valf, 1, vtkMultiProcessController::ANY_SOURCE,
                                98, req4);
+    req4.Wait();
     if (req4.Test() && (valf == 12))
+      {
       cout << "Receive (float) succeeded." << endl;
+      }
     else
+      {
       cout << "Receive (float) failed:" << valf  << endl;
+      *retVal = 0;
+      }
     }
 
   // Just for coverage
@@ -215,9 +255,23 @@ int main( int argc, char* argv[] )
   // is configured, vtkMPIController otherwise.
   controller = vtkMPIController::New();
 
+
   vtkDebugLeaks::PromptUserOff();
   controller->Initialize(&argc, &argv);
   vtkDebugLeaks::PromptUserOff();
+
+  int numProcs = controller->GetNumberOfProcesses();
+  int myId = controller->GetLocalProcessId();
+  if (numProcs != 4)
+    {
+    if (!myId)
+      {
+      cerr << "This program requires 4 processes." << endl;
+      }
+    controller->Finalize();
+    controller->Delete();
+    return -1;
+    }
 
   vtkParallelFactory* pf = vtkParallelFactory::New();
   vtkObjectFactory::RegisterFactory(pf);
