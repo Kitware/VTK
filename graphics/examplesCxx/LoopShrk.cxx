@@ -12,6 +12,7 @@
 void main( int argc, char *argv[] )
 {
   vtkRenderer *renderer = vtkRenderer::New();
+  renderer->GetCullers()->RemoveAllItems();
   vtkRenderWindow *renWin = vtkRenderWindow::New();
     renWin->AddRenderer(renderer);
   vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
