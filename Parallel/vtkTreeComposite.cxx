@@ -385,8 +385,6 @@ vtkTreeComposite::SetRenderWindowInteractor(vtkRenderWindowInteractor *iren)
   
   if (this->RenderWindowInteractor)
     {
-    this->RenderWindowInteractor->UnRegister(this);
-    this->RenderWindowInteractor =  NULL;
     if (this->Controller->GetLocalProcessId() > 0)
       {
       this->RenderWindowInteractor->RemoveObserver(this->StartInteractorTag);
@@ -395,6 +393,8 @@ vtkTreeComposite::SetRenderWindowInteractor(vtkRenderWindowInteractor *iren)
       {
       this->RenderWindowInteractor->RemoveObserver(this->EndInteractorTag);
       }
+    this->RenderWindowInteractor->UnRegister(this);
+    this->RenderWindowInteractor =  NULL;
     }
   if (iren)
     {
