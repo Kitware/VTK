@@ -19,7 +19,7 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkRectilinearGrid.h"
 
-vtkCxxRevisionMacro(vtkDataSetToDataSetFilter, "1.64");
+vtkCxxRevisionMacro(vtkDataSetToDataSetFilter, "1.65");
 
 // Construct object.
 vtkDataSetToDataSetFilter::vtkDataSetToDataSetFilter()
@@ -171,7 +171,11 @@ vtkDataSet *vtkDataSetToDataSetFilter::GetInput()
 // copy information
 void vtkDataSetToDataSetFilter::ExecuteInformation()
 {
-  this->GetOutput()->CopyTypeSpecificInformation( this->GetInput() );
+  vtkDataSet* output = this->GetOutput();
+  if(output)
+    {
+    output->CopyTypeSpecificInformation( this->GetInput() );
+    }
 }
 
 //----------------------------------------------------------------------------
