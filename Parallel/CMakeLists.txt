@@ -123,6 +123,8 @@ IF (VTK_WRAP_PYTHON)
                          vtkFilteringPython
                          vtkCommonPython)
   TARGET_LINK_LIBRARIES (vtkParallelPython 
+			 ${OPENGL_LIBRARY})
+  TARGET_LINK_LIBRARIES (vtkParallelPython 
                          debug ${PYTHON_DEBUG_LIBRARY} 
                          optimized ${PYTHON_LIBRARY})
   INSTALL_TARGETS(/lib vtkParallelPython)

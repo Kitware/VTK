@@ -63,6 +63,8 @@ IF (VTK_WRAP_PYTHON)
                          vtkFilteringPython
                          vtkCommonPython)
   TARGET_LINK_LIBRARIES (vtkHybridPython 
+			 ${OPENGL_LIBRARY})
+  TARGET_LINK_LIBRARIES (vtkHybridPython 
                          debug ${PYTHON_DEBUG_LIBRARY} 
                          optimized ${PYTHON_LIBRARY})
   INSTALL_TARGETS(/lib vtkHybridPython)
