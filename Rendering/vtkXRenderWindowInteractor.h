@@ -134,7 +134,7 @@ public:
   // window. You must use the SetWidget method to tell this Interactor
   // about that widget. It's X and it's not terribly easy, but it looks cool.
   virtual void SetWidget(Widget);
-  Widget GetWidget() {return this->top;};
+  Widget GetWidget() {return this->Top;};
   
   // Description
   // This method will store the top level shell widget for the interactor.
@@ -183,8 +183,8 @@ protected:
 
   Display *DisplayId;
   Window WindowId;
-  Widget top;
-  Widget oldTop;
+  Widget Top;
+  int OwnTop;
   XtAppContext App;
   int PositionBeforeStereo[2];
   Widget TopLevelShell;

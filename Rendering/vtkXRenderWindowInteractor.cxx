@@ -95,13 +95,19 @@ XrmOptionDescRec Desc[] =
 vtkXRenderWindowInteractor::vtkXRenderWindowInteractor()
 {
   this->App = 0;
-  this->top = 0;
+  this->Top = 0;
+  this->OwnTop = 0;
   this->TopLevelShell = NULL;
   this->BreakLoopFlag = 0;
 }
 
 vtkXRenderWindowInteractor::~vtkXRenderWindowInteractor()
 {
+  this->Disable();
+  if(this->OwnTop)
+    {
+    XtDestroyWidget(this->Top);
+    }
 }
 
 // Specify the Xt widget to use for interaction. This method is
@@ -120,7 +126,8 @@ vtkXRenderWindowInteractor::~vtkXRenderWindowInteractor()
 // about that widget. It's X and it's not terribly easy, but it looks cool.
 void  vtkXRenderWindowInteractor::SetWidget(Widget foo)
 {
-  this->top = foo;
+  this->Top = foo;
+  this->OwnTop = 0;
 } 
 
 // This method will store the top level shell widget for the interactor.
@@ -263,7 +270,7 @@ void vtkXRenderWindowInteractor::Initialize()
   else
     {
     // if there is no parent widget
-    if (!this->top)
+    if (!this->Top)
       {
       XtDisplayInitialize(this->App,this->DisplayId,
                           "VTK","vtk",NULL,0,&argc,NULL);
@@ -276,14 +283,14 @@ void vtkXRenderWindowInteractor::Initialize()
   size    = ren->GetSize();
   size[0] = ((size[0] > 0) ? size[0] : 300);
   size[1] = ((size[1] > 0) ? size[1] : 300);
-  if (!this->top)
+  if (!this->Top)
     {
     depth   = ren->GetDesiredDepth();
     cmap    = ren->GetDesiredColormap();
     vis     = ren->GetDesiredVisual();
     position= ren->GetPosition();
 
-    this->top = XtVaAppCreateShell(this->RenderWindow->GetWindowName(),"vtk",
+    this->Top = XtVaAppCreateShell(this->RenderWindow->GetWindowName(),"vtk",
                                    applicationShellWidgetClass,
                                    this->DisplayId,
                                    XtNdepth, depth,
@@ -296,27 +303,28 @@ void vtkXRenderWindowInteractor::Initialize()
                                    XtNinput, True,
                                    XtNmappedWhenManaged, 0,
                                    NULL);
-    XtRealizeWidget(this->top);
+    this->OwnTop = 1;
+    XtRealizeWidget(this->Top);
     XSync(this->DisplayId,False);
-    ren->SetWindowId(XtWindow(this->top));
+    ren->SetWindowId(XtWindow(this->Top));
     }
   else
     {
     XWindowAttributes attribs;
     
-    XtRealizeWidget(this->top);
+    XtRealizeWidget(this->Top);
     XSync(this->DisplayId,False);
-    ren->SetWindowId(XtWindow(this->top));
+    ren->SetWindowId(XtWindow(this->Top));
 
     //  Find the current window size 
     XGetWindowAttributes(this->DisplayId, 
-                         XtWindow(this->top), &attribs);
+                         XtWindow(this->Top), &attribs);
     size[0] = attribs.width;
     size[1] = attribs.height;
     ren->SetSize(size[0], size[1]);
     }
 
-  this->WindowId = XtWindow(this->top);
+  this->WindowId = XtWindow(this->Top);
   ren->Start();
   this->Enable();
   this->Size[0] = size[0];
@@ -337,7 +345,7 @@ void vtkXRenderWindowInteractor::Enable()
   // to work properly, both the callback function AND the client data
   // passed to XtAddEventHandler and XtRemoveEventHandler must MATCH
   // PERFECTLY
-  XtAddEventHandler(this->top,
+  XtAddEventHandler(this->Top,
                     KeyPressMask | KeyReleaseMask | ButtonPressMask | 
                     ExposureMask | StructureNotifyMask | ButtonReleaseMask |
                     EnterWindowMask | LeaveWindowMask | 
@@ -366,7 +374,7 @@ void vtkXRenderWindowInteractor::Disable()
   // keep track of the window size (we will not render if we are disabled,
   // we simply track the window size changes for a possible Enable()).
   // Expose events are disabled.
-  XtRemoveEventHandler(this->top,
+  XtRemoveEventHandler(this->Top,
                     KeyPressMask | KeyReleaseMask | ButtonPressMask | 
                     ExposureMask | ButtonReleaseMask |
                     EnterWindowMask | LeaveWindowMask | 
@@ -560,7 +568,7 @@ void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
       // Force the keyboard focus to be this render window
       if (me->TopLevelShell != NULL)
         {
-        XtSetKeyboardFocus(me->TopLevelShell, me->top);
+        XtSetKeyboardFocus(me->TopLevelShell, me->Top);
         }
       if (me->Enabled)
         {
