@@ -53,7 +53,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class vtkMaskPoints : public vtkDataSetToPolyFilter
 {
 public:
-  vtkMaskPoints():OnRatio(2),Offset(0),RandomMode(0) {};
+  vtkMaskPoints();
   ~vtkMaskPoints() {};
   char *GetClassName() {return "vtkMaskPoints";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -62,6 +62,11 @@ public:
   // Turn on every nth point.
   vtkSetClampMacro(OnRatio,int,1,LARGE_INTEGER);
   vtkGetMacro(OnRatio,int);
+
+  // Description:
+  // Limit the number of points that can be passed through
+  vtkSetClampMacro(MaximumNumberOfPoints,int,0,LARGE_INTEGER);
+  vtkGetMacro(MaximumNumberOfPoints,int);
 
   // Description:
   // Start with this point.
@@ -81,6 +86,7 @@ protected:
   int OnRatio;     // every OnRatio point is on; all others are off.
   int Offset;      // offset (or starting point id)
   int RandomMode;  // turn on/off randomization
+  int MaximumNumberOfPoints;
 };
 
 #endif
