@@ -168,8 +168,9 @@ void vtkImageSinusoidSource::ExecuteInformation()
   output->SetNumberOfScalarComponents(1);
 }
 
-void vtkImageSinusoidSource::Execute(vtkImageData *data)
+void vtkImageSinusoidSource::ExecuteData(vtkDataObject *output)
 {
+  vtkImageData *data = this->GetOutput();
   float *outPtr;
   int idxX, idxY, idxZ;
   int maxX, maxY, maxZ;

@@ -86,8 +86,7 @@ protected:
   int WholeExtent[6];
 
   void ExecuteInformation();
-  void Execute(vtkImageData *data);
-  void Execute() { this->vtkImageSource::Execute(); };
+  void ExecuteData(vtkDataObject *data);
 };
 
 

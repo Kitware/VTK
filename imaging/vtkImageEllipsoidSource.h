@@ -126,8 +126,7 @@ protected:
   int OutputScalarType;
   
   void ExecuteInformation();
-  void Execute(vtkImageData *outData);
-  void Execute() { this->vtkImageSource::Execute(); };
+  void ExecuteData(vtkDataObject *outData);
 };
 
 

@@ -269,10 +269,12 @@ static void vtkImageEllipsoidSourceExecute(vtkImageEllipsoidSource *self,
 }
 
 //----------------------------------------------------------------------------
-void vtkImageEllipsoidSource::Execute(vtkImageData *data)
+void vtkImageEllipsoidSource::ExecuteData(vtkDataObject *output)
 {
   int *extent;
   void *ptr;
+  
+  vtkImageData *data = this->AllocateOutputData(output);
   
   extent = this->GetOutput()->GetUpdateExtent();
   ptr = data->GetScalarPointerForExtent(extent);

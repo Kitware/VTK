@@ -173,11 +173,12 @@ static void vtkImageGridSourceExecute(vtkImageGridSource *self,
 }  
 
 //----------------------------------------------------------------------------
-void vtkImageGridSource::Execute(vtkImageData *data)
+void vtkImageGridSource::ExecuteData(vtkDataObject *output)
 {
+  vtkImageData *data = this->AllocateOutputData(output);
   int *outExt = data->GetExtent();
   void *outPtr = data->GetScalarPointerForExtent(outExt);
-
+  
   // Call the correct templated function for the output
   switch (this->GetDataScalarType())
     {

@@ -130,7 +130,7 @@ void vtkImageGaussianSource::ExecuteInformation()
   output->SetNumberOfScalarComponents(1);
 }
 
-void vtkImageGaussianSource::Execute(vtkImageData *data)
+void vtkImageGaussianSource::ExecuteData(vtkDataObject *output)
 {
   float *outPtr;
   int idxX, idxY, idxZ;
@@ -143,6 +143,8 @@ void vtkImageGaussianSource::Execute(vtkImageData *data)
   unsigned long count = 0;
   unsigned long target;
   
+  vtkImageData *data = this->AllocateOutputData(output);
+
   if (data->GetScalarType() != VTK_FLOAT)
     {
     vtkErrorMacro("Execute: This source only outputs floats");

@@ -127,8 +127,9 @@ void vtkImageNoiseSource::ExecuteInformation()
   output->SetNumberOfScalarComponents(1);
 }
 
-void vtkImageNoiseSource::Execute(vtkImageData *data)
+void vtkImageNoiseSource::ExecuteData(vtkDataObject *output)
 {
+  vtkImageData *data = this->AllocateOutputData(output);
   float *outPtr;
   int idxR, idxY, idxZ;
   int maxY, maxZ;
