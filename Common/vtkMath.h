@@ -508,6 +508,15 @@ public:
     return 1;
   }
 
+  // Description:
+  // Clamp some values against a range
+  // The method without 'clamped_values' will perform in-place clamping.
+  static void ClampValue(double *value, const double range[2]);
+  static void ClampValue(double value, const double range[2], double *clamped_value);
+  static void ClampValues(
+    double *values, int nb_values, const double range[2]);
+  static void ClampValues(
+    const double *values, int nb_values, const double range[2], double *clamped_values);
 
 protected:
   vtkMath() {};
@@ -686,5 +695,41 @@ inline double vtkMath::Determinant3x3(double A[3][3])
   return vtkDeterminant3x3(A);
 }
 
+//----------------------------------------------------------------------------
+inline void vtkMath::ClampValue(double *value, const double range[2])
+{
+  if (value && range)
+    {
+    if (*value < range[0])
+      {
+      *value = range[0];
+      }
+    else if (*value > range[1])
+      {
+      *value = range[1];
+      }
+    }
+}
+
+//----------------------------------------------------------------------------
+inline void vtkMath::ClampValue(
+  double value, const double range[2], double *clamped_value)
+{
+  if (range && clamped_value)
+    {
+    if (value < range[0])
+      {
+      *clamped_value = range[0];
+      }
+    else if (value > range[1])
+      {
+      *clamped_value = range[1];
+      }
+    else
+      {
+      *clamped_value = value;
+      }
+    }
+}
 
 #endif
