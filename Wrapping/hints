@@ -106,6 +106,7 @@ vtkPlaneWidget		GetPoint2		301 3
 vtkLineWidget           GetPoint1               301 3
 vtkLineWidget           GetPoint2               301 3
 vtkSphereWidget         GetCenter               301 3
+vtkPointWidget          GetPosition             301 3
 vtkPointSet             GetPoint                301 3
 vtkPoints               GetBounds               301 6
 vtkPoints               GetPoint                301 3
