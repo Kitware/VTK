@@ -98,9 +98,9 @@ protected:
   int ShouldRerender;
   double Viewport[4];
 
-  virtual void ExecuteInformation(vtkInformation *, 
-                                  vtkInformationVector *, 
-                                  vtkInformationVector *);
+  virtual void ExecuteInformation(vtkInformation*,
+                                  vtkInformationVector**,
+                                  vtkInformationVector*);
 
   void ExecuteData(vtkDataObject *data);
 

@@ -30,7 +30,7 @@
 #include <vtkstd/set>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkAlgorithm, "1.5");
+vtkCxxRevisionMacro(vtkAlgorithm, "1.6");
 vtkStandardNewMacro(vtkAlgorithm);
 
 vtkCxxSetObjectMacro(vtkAlgorithm,Information,vtkInformation);
@@ -38,7 +38,6 @@ vtkCxxSetObjectMacro(vtkAlgorithm,Information,vtkInformation);
 vtkInformationKeyMacro(vtkAlgorithm, INPUT_REQUIRED_DATA_TYPE, String);
 vtkInformationKeyMacro(vtkAlgorithm, INPUT_IS_OPTIONAL, Integer);
 vtkInformationKeyMacro(vtkAlgorithm, INPUT_IS_REPEATABLE, Integer);
-vtkInformationKeyMacro(vtkAlgorithm, INPUT_CONNECTION_INFORMATION, InformationVector);
 vtkInformationKeyMacro(vtkAlgorithm, INPUT_REQUIRED_FIELDS, InformationVector);
 
 //----------------------------------------------------------------------------
@@ -105,6 +104,10 @@ public:
     {
     executive->SetAlgorithm(algorithm);
     }
+  static void UpdateInputInformationVector(vtkExecutive* executive)
+    {
+    executive->UpdateInputInformationVector();
+    }
 };
 
 //----------------------------------------------------------------------------
@@ -118,6 +121,12 @@ void vtkAlgorithm::ConnectionAdd(vtkAlgorithm* producer, int producerPort,
   // Add the producer's reference to the consumer.
   producer->AlgorithmInternal
     ->OutputPorts[producerPort].Insert(consumer, consumerPort);
+
+  // Tell the consumer's executive to update its input pipeline information.
+  if(vtkExecutive* ce = consumer->GetExecutive())
+    {
+    vtkAlgorithmToExecutiveFriendship::UpdateInputInformationVector(ce);
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -131,6 +140,12 @@ void vtkAlgorithm::ConnectionRemove(vtkAlgorithm* producer, int producerPort,
   // Remove the producer's reference to the consumer.
   producer->AlgorithmInternal
     ->OutputPorts[producerPort].Remove(consumer, consumerPort);
+
+  // Tell the consumer's executive to update its input pipeline information.
+  if(vtkExecutive* ce = consumer->GetExecutive())
+    {
+    vtkAlgorithmToExecutiveFriendship::UpdateInputInformationVector(ce);
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -149,6 +164,12 @@ void vtkAlgorithm::ConnectionRemoveAllInput(vtkAlgorithm* consumer, int port)
 
   // Remove this consumer's references to all producers.
   inputPort.clear();
+
+  // Tell the consumer's executive to update its input pipeline information.
+  if(vtkExecutive* ce = consumer->GetExecutive())
+    {
+    vtkAlgorithmToExecutiveFriendship::UpdateInputInformationVector(ce);
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -163,6 +184,12 @@ void vtkAlgorithm::ConnectionRemoveAllOutput(vtkAlgorithm* producer, int port)
     {
     i->Algorithm->AlgorithmInternal
       ->InputPorts[i->PortIndex].Remove(producer, port);
+
+    // Tell the consumer's executive to update its input pipeline information.
+    if(vtkExecutive* ce = i->Algorithm->GetExecutive())
+      {
+      vtkAlgorithmToExecutiveFriendship::UpdateInputInformationVector(ce);
+      }
     }
 
   // Remove this producer's references to all consumers.
@@ -282,19 +309,9 @@ void vtkAlgorithm::SetExecutive(vtkExecutive* executive)
 
 //----------------------------------------------------------------------------
 int vtkAlgorithm::ProcessRequest(vtkInformation*,
-                                         vtkInformationVector* inVector,
-                                         vtkInformationVector* outVector)
+                                 vtkInformationVector**,
+                                 vtkInformationVector*)
 {
-  if(!inVector)
-    {
-    vtkErrorMacro("ProcessRequest called with NULL input vector.");
-    return 0;
-    }
-  if(!outVector)
-    {
-    vtkErrorMacro("ProcessRequest called with NULL output vector.");
-    return 0;
-    }
   return 1;
 }
 
@@ -521,26 +538,6 @@ vtkAlgorithmOutput* vtkAlgorithm::GetOutputPort(int port)
   return this->AlgorithmInternal->Outputs[port].GetPointer();
 }
 
-vtkInformation* vtkAlgorithm::GetInputConnectionInformation(
-  vtkInformationVector *inInfo,
-  int port, int connection)
-{
-  vtkInformation* info = inInfo->GetInformationObject(port);
-  if (!info)
-    {
-    return 0;
-    }
-  
-  vtkInformationVector *inVec = 
-    info->Get(vtkAlgorithm::INPUT_CONNECTION_INFORMATION());
-  if (!inVec)
-    {
-    return 0;
-    }
-  
-  return inVec->GetInformationObject(connection);
-}
-
 //----------------------------------------------------------------------------
 vtkInformation* vtkAlgorithm::GetInputPortInformation(int port)
 {
@@ -620,7 +617,7 @@ int vtkAlgorithm::GetTotalNumberOfInputConnections()
 //----------------------------------------------------------------------------
 vtkAlgorithmOutput* vtkAlgorithm::GetInputConnection(int port, int index)
 {
-  if(!this->InputPortIndexInRange(port, "get number of connections for"))
+  if(!this->InputPortIndexInRange(port, "get a connection for"))
     {
     return 0;
     }

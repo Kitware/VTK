@@ -23,7 +23,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageAccumulate, "1.54");
+vtkCxxRevisionMacro(vtkImageAccumulate, "1.55");
 vtkStandardNewMacro(vtkImageAccumulate);
 
 //----------------------------------------------------------------------------
@@ -272,16 +272,15 @@ void vtkImageAccumulateExecute(vtkImageAccumulate *self,
 // It just executes a switch statement to call the correct function for
 // the Datas data types.
 void vtkImageAccumulate::RequestData(
-  vtkInformation * vtkNotUsed( request ), 
-  vtkInformationVector * inputVector, 
-  vtkInformationVector * outputVector)
+  vtkInformation* vtkNotUsed( request ),
+  vtkInformationVector** inputVector,
+  vtkInformationVector* outputVector)
 {
   void *inPtr;
   void *outPtr;
   
   // get the input
-  vtkInformation *in1Info = 
-    this->GetInputConnectionInformation(inputVector,0,0);
+  vtkInformation* in1Info = inputVector[0]->GetInformationObject(0);
   vtkImageData *inData = vtkImageData::SafeDownCast(
     in1Info->Get(vtkDataObject::DATA_OBJECT()));
   
@@ -332,17 +331,15 @@ void vtkImageAccumulate::RequestData(
 
 //----------------------------------------------------------------------------
 void vtkImageAccumulate::ExecuteInformation (
-  vtkInformation * vtkNotUsed(request),
-  vtkInformationVector *inputVector,
-  vtkInformationVector *outputVector)
+  vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector,
+  vtkInformationVector* outputVector)
 {
   // get the info objects
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
-  vtkInformation *inInfo =
-    this->GetInputConnectionInformation(inputVector,0,0);
-  vtkInformation *inInfo2 =
-    this->GetInputConnectionInformation(inputVector,1,0);
-  
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* inInfo2 = inputVector[1]->GetInformationObject(0);
+
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
                this->ComponentExtent,6);
   outInfo->Set(vtkDataObject::ORIGIN(),this->ComponentOrigin,3);
@@ -363,13 +360,12 @@ void vtkImageAccumulate::ExecuteInformation (
 //----------------------------------------------------------------------------
 // Get ALL of the input.
 void vtkImageAccumulate::RequestUpdateExtent (
-  vtkInformation * vtkNotUsed(request),
-  vtkInformationVector *inputVector,
-  vtkInformationVector * vtkNotUsed( outputVector ))
+  vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector,
+  vtkInformationVector* vtkNotUsed( outputVector ))
 {
   // get the info objects
-  vtkInformation *inInfo =
-     this->GetInputConnectionInformation(inputVector,0,0);
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
 
   inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
               inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()),6);

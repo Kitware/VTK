@@ -104,14 +104,15 @@ protected:
   double ComponentOrigin[3];
   int ComponentExtent[6];
 
-  void ExecuteInformation (vtkInformation *, vtkInformationVector *, 
-                           vtkInformationVector *);
-  void RequestUpdateExtent (vtkInformation *, vtkInformationVector *, 
-                            vtkInformationVector *);
-  
-  void RequestData(  vtkInformation *request, 
-                     vtkInformationVector * inputVector, 
-                     vtkInformationVector * outputVector);
+  virtual void RequestUpdateExtent(vtkInformation*,
+                                   vtkInformationVector**,
+                                   vtkInformationVector*);
+  void ExecuteInformation(vtkInformation*,
+                          vtkInformationVector**,
+                          vtkInformationVector*);
+  virtual void RequestData(vtkInformation* request,
+                           vtkInformationVector** inputVector,
+                           vtkInformationVector* outputVector);
 
   double Min[3];
   double Max[3];

@@ -52,10 +52,13 @@ protected:
   int OutputWholeExtent[6];
   int OutputNumberOfScalarComponents;
 
-  void ExecuteInformation (vtkInformation *, vtkInformationVector *, 
-                           vtkInformationVector *);
-  void RequestUpdateExtent (vtkInformation *, vtkInformationVector *, 
-                            vtkInformationVector *);
+  void ExecuteInformation (vtkInformation*,
+                           vtkInformationVector**,
+                           vtkInformationVector*);
+  void RequestUpdateExtent(vtkInformation*,
+                           vtkInformationVector**,
+                           vtkInformationVector*);
+
   virtual void ComputeInputUpdateExtent (int inExt[6], int outExt[6], 
                                          int wExt[6]);
   

@@ -53,8 +53,16 @@ public:
   virtual int Update(int port);
 
   // Description:
-  // Get the information object for an output port of the algorithm.
+  // Get the pipeline information object for the given output port.
   virtual vtkInformation* GetOutputInformation(int port);
+
+  // Description:
+  // Get the pipeline information for the given input connection.
+  vtkInformation* GetInputInformation(int port, int connection);
+
+  // Description:
+  // Get the executive managing the given input connection.
+  vtkExecutive* GetInputExecutive(int port, int connection);
 
   // Description:
   // Get/Set the data object for an output port of the algorithm.
@@ -93,12 +101,14 @@ protected:
 
   // Access methods to arguments passed to vtkAlgorithm::ProcessRequest.
   vtkInformation* GetRequestInformation();
-  vtkInformationVector* GetInputInformation();
+  vtkInformationVector** GetInputInformation();
   vtkInformationVector* GetOutputInformation();
 
   // Put default information in output information objects.
   virtual void FillDefaultOutputInformation(int port, vtkInformation*)=0;
-  vtkInformation* GetInputInformation(int port);
+
+  // Bring the input information up to date with current connections.
+  void UpdateInputInformationVector();
 
   // Garbage collection support.
   virtual void GarbageCollectionStarting();

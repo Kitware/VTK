@@ -20,7 +20,7 @@
 #include "vtkInformationVector.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageConstantPad, "1.35");
+vtkCxxRevisionMacro(vtkImageConstantPad, "1.36");
 vtkStandardNewMacro(vtkImageConstantPad);
 
 //----------------------------------------------------------------------------
@@ -143,7 +143,7 @@ void vtkImageConstantPadExecute(vtkImageConstantPad *self,
 // the datas data types.
 void vtkImageConstantPad::ThreadedRequestData(
   vtkInformation * vtkNotUsed( request ), 
-  vtkInformationVector *inputVector, 
+  vtkInformationVector** inputVector,
   vtkInformationVector * vtkNotUsed( outputVector ),
   vtkImageData ***inData, 
   vtkImageData **outData,
@@ -163,8 +163,7 @@ void vtkImageConstantPad::ThreadedRequestData(
   
   // get the whole extent
   int wExt[6];
-  vtkInformation *inInfo =
-    this->GetInputConnectionInformation(inputVector,0,0);
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),wExt);
 
   // need to get the correct pointer for the input data

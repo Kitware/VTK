@@ -88,13 +88,12 @@ protected:
   vtkRendererSource();
   ~vtkRendererSource();
 
-  void RequestData(vtkInformation *request, 
-                        vtkInformationVector *inputVector, 
-                        vtkInformationVector *outputVector);
-  
-  virtual void ExecuteInformation(vtkInformation *, 
-                                      vtkInformationVector *, 
-                                      vtkInformationVector *);
+  void RequestData(vtkInformation* request,
+                   vtkInformationVector** inputVector,
+                   vtkInformationVector* outputVector);
+  virtual void ExecuteInformation(vtkInformation*,
+                                  vtkInformationVector**,
+                                  vtkInformationVector*);
 
   vtkRenderer *Input;
   int WholeWindow;

@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageWrapPad, "1.29");
+vtkCxxRevisionMacro(vtkImageWrapPad, "1.30");
 vtkStandardNewMacro(vtkImageWrapPad);
 
 //----------------------------------------------------------------------------
@@ -202,7 +202,7 @@ void vtkImageWrapPadExecute(vtkImageWrapPad *self,
 // the regions data types.
 void vtkImageWrapPad::ThreadedRequestData (  
   vtkInformation * vtkNotUsed( request ), 
-  vtkInformationVector *inputVector, 
+  vtkInformationVector** inputVector, 
   vtkInformationVector * vtkNotUsed( outputVector ),
   vtkImageData ***inData, 
   vtkImageData **outData,
@@ -212,8 +212,7 @@ void vtkImageWrapPad::ThreadedRequestData (
 
   // get the whole extent
   int wExt[6];
-  vtkInformation *inInfo =
-    this->GetInputConnectionInformation(inputVector,0,0);
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),wExt);
   this->ComputeInputUpdateExtent(inExt,outExt,wExt);
   void *inPtr = inData[0][0]->GetScalarPointerForExtent(inExt);

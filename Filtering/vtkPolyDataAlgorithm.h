@@ -53,7 +53,7 @@ public:
   // Description:
   // see vtkAlgorithm for details
   virtual int ProcessRequest(vtkInformation*,
-                             vtkInformationVector*,
+                             vtkInformationVector**,
                              vtkInformationVector*);
 
   // this method is not recommended for use, but lots of old style filters
@@ -76,21 +76,21 @@ protected:
   ~vtkPolyDataAlgorithm();
 
   // convinience method
-  virtual int ExecuteInformation(vtkInformation *request, 
-                                 vtkInformationVector *inputVector, 
-                                 vtkInformationVector *outputVector);
+  virtual int ExecuteInformation(vtkInformation* request,
+                                 vtkInformationVector** inputVector,
+                                 vtkInformationVector* outputVector);
 
   // This is called by the superclass.
   // This is the method you should override.
-  virtual int RequestData(vtkInformation *request, 
-                          vtkInformationVector *inputVector, 
-                          vtkInformationVector *outputVector);
-  
+  virtual int RequestData(vtkInformation* request,
+                          vtkInformationVector** inputVector,
+                          vtkInformationVector* outputVector);
+
   // This is called by the superclass.
   // This is the method you should override.
   virtual int ComputeInputUpdateExtent(vtkInformation*,
-                                       vtkInformationVector*,
-                                       vtkInformationVector*) 
+                                       vtkInformationVector**,
+                                       vtkInformationVector*)
     {
       return 1;
     };

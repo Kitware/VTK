@@ -67,16 +67,15 @@ protected:
   vtkExtractVOI();
   ~vtkExtractVOI() {};
 
-  virtual void RequestUpdateExtent (vtkInformation *, 
-                                    vtkInformationVector *, 
-                                    vtkInformationVector *);
-  void ExecuteInformation (vtkInformation *, 
-                           vtkInformationVector *, 
-                           vtkInformationVector *);
-  
-  virtual void RequestData(vtkInformation *request, 
-                           vtkInformationVector *inputVector, 
-                           vtkInformationVector *outputVector);
+  virtual void RequestUpdateExtent(vtkInformation*,
+                                   vtkInformationVector**,
+                                   vtkInformationVector*);
+  void ExecuteInformation(vtkInformation*,
+                          vtkInformationVector**,
+                          vtkInformationVector*);
+  virtual void RequestData(vtkInformation* request,
+                           vtkInformationVector** inputVector,
+                           vtkInformationVector* outputVector);
 
   int VOI[6];
   int SampleRate[3];

@@ -50,7 +50,7 @@ public:
   
   // See the vtkAlgorithm for a desciption of what these do
   int ProcessRequest(vtkInformation*,
-                     vtkInformationVector*,
+                     vtkInformationVector**,
                      vtkInformationVector*);
 
 protected:

@@ -59,7 +59,7 @@ protected:
   double Center[3];
   double Maximum;
 
-  virtual void ExecuteInformation (vtkInformation *, vtkInformationVector *, vtkInformationVector *);
+  virtual void ExecuteInformation (vtkInformation *, vtkInformationVector**, vtkInformationVector *);
   virtual void ExecuteData(vtkDataObject *data);
 private:
   vtkImageGaussianSource(const vtkImageGaussianSource&);  // Not implemented.

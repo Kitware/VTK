@@ -144,11 +144,11 @@ protected:
   virtual void ReportReferences(vtkGarbageCollector*);
   virtual void RemoveReferences();
 
-  virtual int RequestData(vtkInformation *request, 
-                          vtkInformationVector *inputVector, 
-                          vtkInformationVector *outputVector);
+  virtual int RequestData(vtkInformation* request,
+                          vtkInformationVector** inputVector,
+                          vtkInformationVector* outputVector);
   virtual int ComputeInputUpdateExtent(vtkInformation*,
-                                       vtkInformationVector*,
+                                       vtkInformationVector**,
                                        vtkInformationVector*);
 
   virtual int FillInputPortInformation(int port, vtkInformation* info);

@@ -26,7 +26,7 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.5");
+vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.6");
 vtkStandardNewMacro(vtkStreamingDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, CONTINUE_EXECUTING, Integer);
@@ -283,16 +283,12 @@ vtkStreamingDemandDrivenPipeline
     // Loop over all input ports.
     for(int i=0; i < this->Algorithm->GetNumberOfInputPorts(); ++i)
       {
-      // Get the vector of connections on this input port.
-      vtkInformationVector* inVec =
-        this->GetInputInformation(i)->Get(
-          vtkAlgorithm::INPUT_CONNECTION_INFORMATION());
       // Loop over all connections on this input port.
-      int numInConnections = inVec->GetNumberOfInformationObjects();
+      int numInConnections = this->Algorithm->GetNumberOfInputConnections(i);
       for (int j=0; j<numInConnections; j++)
         {
         // Get the pipeline information for this input connection.
-        vtkInformation* inInfo = inVec->GetInformationObject(j);
+        vtkInformation* inInfo = this->GetInputInformation(i, j);
 
         // Get the executive and port number producing this input.
         vtkStreamingDemandDrivenPipeline* inExec =

@@ -26,8 +26,9 @@
 #include "vtkSmartPointer.h"
 #include "vtkSource.h"
 
-vtkCxxRevisionMacro(vtkExecutive, "1.4");
-vtkCxxSetObjectMacro(vtkExecutive, Algorithm, vtkAlgorithm);
+#include <vtkstd/vector>
+
+vtkCxxRevisionMacro(vtkExecutive, "1.5");
 vtkInformationKeyMacro(vtkExecutive, EXECUTIVE, Executive);
 vtkInformationKeyMacro(vtkExecutive, PORT_NUMBER, Integer);
 
@@ -35,15 +36,17 @@ vtkInformationKeyMacro(vtkExecutive, PORT_NUMBER, Integer);
 class vtkExecutiveInternals
 {
 public:
-  vtkSmartPointer<vtkInformationVector> OutputInformation;
-  vtkSmartPointer<vtkInformationVector> InputInformation;
   vtkSmartPointer<vtkInformation> RequestInformation;
+  vtkSmartPointer<vtkInformationVector> OutputInformation;
+  vtkstd::vector< vtkSmartPointer<vtkInformationVector> > InputInformation;
+  vtkstd::vector<vtkInformationVector*> InputInformationArray;
 
   vtkExecutiveInternals()
     {
     this->OutputInformation = vtkSmartPointer<vtkInformationVector>::New();
-    this->InputInformation = vtkSmartPointer<vtkInformationVector>::New();
     }
+
+  vtkInformationVector** GetInputInformation(int newNumberOfPorts);
 };
 
 //----------------------------------------------------------------------------
@@ -94,6 +97,31 @@ void vtkExecutive::GarbageCollectionStarting()
 }
 
 //----------------------------------------------------------------------------
+void vtkExecutive::SetAlgorithm(vtkAlgorithm* newAlgorithm)
+{
+  vtkDebugMacro(<< this->GetClassName() << " (" << this
+                << "): setting Algorithm to " << newAlgorithm);
+  vtkAlgorithm* oldAlgorithm = this->Algorithm;
+  if(oldAlgorithm != newAlgorithm)
+    {
+    this->Algorithm = newAlgorithm;
+    if(newAlgorithm)
+      {
+      newAlgorithm->Register(this);
+      }
+    if(oldAlgorithm)
+      {
+      oldAlgorithm->UnRegister(this);
+      }
+
+    // Update the connected pipeline information objects.
+    this->UpdateInputInformationVector();
+
+    this->Modified();
+    }
+}
+
+//----------------------------------------------------------------------------
 vtkAlgorithm* vtkExecutive::GetAlgorithm()
 {
   return this->Algorithm;
@@ -111,22 +139,83 @@ vtkInformation* vtkExecutive::GetRequestInformation()
 }
 
 //----------------------------------------------------------------------------
-vtkInformationVector* vtkExecutive::GetInputInformation()
+vtkInformationVector**
+vtkExecutiveInternals::GetInputInformation(int newNumberOfPorts)
 {
-  if(!this->ExecutiveInternal->InputInformation)
+  int oldNumberOfPorts = int(this->InputInformation.size());
+  if(oldNumberOfPorts != newNumberOfPorts)
     {
-    this->ExecutiveInternal->InputInformation =
-      vtkSmartPointer<vtkInformationVector>::New();
+    this->InputInformation.resize(newNumberOfPorts);
+    this->InputInformationArray.resize(newNumberOfPorts);
+    for(int i=oldNumberOfPorts; i < newNumberOfPorts; ++i)
+      {
+      this->InputInformation[i] = vtkSmartPointer<vtkInformationVector>::New();
+      this->InputInformationArray[i] = this->InputInformation[i];
+      }
     }
-  this->ExecutiveInternal->InputInformation
-    ->SetNumberOfInformationObjects(this->Algorithm->GetNumberOfInputPorts());
-  return this->ExecutiveInternal->InputInformation.GetPointer();
+  if(newNumberOfPorts > 0)
+    {
+    return &this->InputInformationArray[0];
+    }
+  else
+    {
+    return 0;
+    }
 }
 
 //----------------------------------------------------------------------------
-vtkInformation* vtkExecutive::GetInputInformation(int port)
+vtkInformationVector** vtkExecutive::GetInputInformation()
 {
-  return this->GetInputInformation()->GetInformationObject(port);
+  if(this->Algorithm)
+    {
+    int numPorts = this->Algorithm->GetNumberOfInputPorts();
+    return this->ExecutiveInternal->GetInputInformation(numPorts);
+    }
+  else
+    {
+    return this->ExecutiveInternal->GetInputInformation(0);
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkExecutive::UpdateInputInformationVector()
+{
+  if(this->Algorithm)
+    {
+    // Store all the input connection information objects.
+    int numPorts = this->Algorithm->GetNumberOfInputPorts();
+    vtkInformationVector** inVectorArray =
+      this->ExecutiveInternal->GetInputInformation(numPorts);
+    for(int i=0; i < this->Algorithm->GetNumberOfInputPorts(); ++i)
+      {
+      vtkInformationVector* inVector = inVectorArray[i];
+      int numConnections = this->Algorithm->GetNumberOfInputConnections(i);
+      inVector->SetNumberOfInformationObjects(numConnections);
+      for(int j=0; j < numConnections; ++j)
+        {
+        vtkAlgorithmOutput* input = this->Algorithm->GetInputConnection(i, j);
+        vtkExecutive* inExecutive = this->GetInputExecutive(i, j);
+        vtkInformation* info =
+          inExecutive->GetOutputInformation(input->GetIndex());
+        inVector->SetInformationObject(j, info);
+        }
+      }
+    }
+  else
+    {
+    this->ExecutiveInternal->GetInputInformation(0);
+    }
+}
+
+//----------------------------------------------------------------------------
+vtkInformation* vtkExecutive::GetInputInformation(int port, int connection)
+{
+  if(!this->InputPortIndexInRange(port, "get connected input information from"))
+    {
+    return 0;
+    }
+  vtkInformationVector* inVector = this->GetInputInformation()[port];
+  return inVector->GetInformationObject(connection);
 }
 
 //----------------------------------------------------------------------------
@@ -163,12 +252,40 @@ vtkInformation* vtkExecutive::GetOutputInformation(int port)
 }
 
 //----------------------------------------------------------------------------
+vtkExecutive* vtkExecutive::GetInputExecutive(int port, int index)
+{
+  if(!this->InputPortIndexInRange(port, "get the executive for a connection on"))
+    {
+    return 0;
+    }
+  if(index < 0 || index >= this->Algorithm->GetNumberOfInputConnections(port))
+    {
+    vtkErrorMacro("Attempt to get executive for connection index " << index
+                  << " on input port " << port << " of algorithm "
+                  << this->Algorithm->GetClassName() << "(" << this->Algorithm
+                  << "), which has "
+                  << this->Algorithm->GetNumberOfInputConnections(port)
+                  << " connections.");
+    return 0;
+    }
+  if(vtkAlgorithmOutput* input =
+     this->Algorithm->GetInputConnection(port, index))
+    {
+    return input->GetProducer()->GetExecutive();
+    }
+  return 0;
+}
+
+//----------------------------------------------------------------------------
 void vtkExecutive::ReportReferences(vtkGarbageCollector* collector)
 {
   // Report reference to our algorithm.
   collector->ReportReference(this->GetAlgorithm(), "Algorithm");
-  collector->ReportReference(this->ExecutiveInternal->InputInformation,
-                             "Input Information Vector");
+  for(int i=0; i < int(this->ExecutiveInternal->InputInformation.size()); ++i)
+    {
+    collector->ReportReference(this->ExecutiveInternal->InputInformation[i],
+                               "Input Information Vector");
+    }
   collector->ReportReference(this->ExecutiveInternal->OutputInformation,
                              "Output Information Vector");
 }
@@ -194,9 +311,16 @@ int vtkExecutive::Update(int)
 }
 
 //----------------------------------------------------------------------------
-int vtkExecutive::InputPortIndexInRange(int port,
-                                                   const char* action)
+int vtkExecutive::InputPortIndexInRange(int port, const char* action)
 {
+  // Make sure the algorithm is set.
+  if(!this->Algorithm)
+    {
+    vtkErrorMacro("Attempt to " << (action?action:"access") <<
+                  " input port index " << port << " with no algorithm set.");
+    return 0;
+    }
+
   // Make sure the index of the input port is in range.
   if(port < 0 || port >= this->Algorithm->GetNumberOfInputPorts())
     {
@@ -212,9 +336,16 @@ int vtkExecutive::InputPortIndexInRange(int port,
 }
 
 //----------------------------------------------------------------------------
-int vtkExecutive::OutputPortIndexInRange(int port,
-                                                    const char* action)
+int vtkExecutive::OutputPortIndexInRange(int port, const char* action)
 {
+  // Make sure the algorithm is set.
+  if(!this->Algorithm)
+    {
+    vtkErrorMacro("Attempt to " << (action?action:"access") <<
+                  " output port index " << port << " with no algorithm set.");
+    return 0;
+    }
+
   // Make sure the index of the output port is in range.
   if(port < 0 || port >= this->Algorithm->GetNumberOfOutputPorts())
     {

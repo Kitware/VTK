@@ -54,8 +54,8 @@ protected:
   vtkPointDataToCellData();
   ~vtkPointDataToCellData() {};
 
-  virtual int RequestData(vtkInformation* request, 
-                          vtkInformationVector* inputVector, 
+  virtual int RequestData(vtkInformation* request,
+                          vtkInformationVector** inputVector,
                           vtkInformationVector* outputVector);
 
   int PassPointData;

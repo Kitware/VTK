@@ -115,7 +115,7 @@ protected:
   vtkBooleanTexture();
   ~vtkBooleanTexture() {};
 
-  virtual void ExecuteInformation (vtkInformation *, vtkInformationVector *, vtkInformationVector *);
+  virtual void ExecuteInformation (vtkInformation *, vtkInformationVector**, vtkInformationVector *);
   virtual void ExecuteData(vtkDataObject *data);
 
   int XSize;

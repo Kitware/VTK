@@ -38,7 +38,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.6");
+vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.7");
 vtkStandardNewMacro(vtkDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkDemandDrivenPipeline, DOWNSTREAM_KEYS_TO_COPY, KeyVector);
@@ -375,10 +375,7 @@ int vtkDemandDrivenPipeline::UpdateData(int outputPort)
       {
       for(int j=0; j < this->Algorithm->GetNumberOfInputConnections(k); ++j)
         {
-        vtkInformation* inInfo =
-          this->GetInputInformation(k)
-          ->Get(vtkAlgorithm::INPUT_CONNECTION_INFORMATION())
-          ->GetInformationObject(j);
+        vtkInformation* inInfo = this->GetInputInformation(k, j);
         vtkDataObject* dataObject = inInfo->Get(vtkDataObject::DATA_OBJECT());
         if(dataObject && (dataObject->GetGlobalReleaseDataFlag() ||
                           inInfo->Get(RELEASE_DATA())))
@@ -401,11 +398,7 @@ void vtkDemandDrivenPipeline::CopyDefaultDownstreamInformation()
   if(this->Algorithm->GetNumberOfInputPorts() > 0)
     {
     // Copy information from the first input.
-    vtkInformation* inInfo = 
-      this->GetInputInformation(0)
-      ->Get(vtkAlgorithm::INPUT_CONNECTION_INFORMATION())
-      ->GetInformationObject(0);
-    if (inInfo)
+    if(vtkInformation* inInfo = this->GetInputInformation(0, 0))
       {
       for(int i=0; i < this->Algorithm->GetNumberOfOutputPorts(); ++i)
         {
@@ -594,30 +587,8 @@ vtkDemandDrivenPipeline
   request->Clear();
   request->Set(rkey, 1);
 
-  // Put all the input data objects into the input information.
-  vtkInformationVector* inputVector = this->GetInputInformation();
-  for(int ip=0; ip < this->Algorithm->GetNumberOfInputPorts(); ++ip)
-    {
-    vtkInformation* info = inputVector->GetInformationObject(ip);
-    int numConnections = this->Algorithm->GetNumberOfInputConnections(ip);
-    vtkInformationVector* connInfo =
-      info->Get(vtkAlgorithm::INPUT_CONNECTION_INFORMATION());
-    if(!connInfo)
-      {
-      connInfo = vtkInformationVector::New();
-      info->Set(vtkAlgorithm::INPUT_CONNECTION_INFORMATION(), connInfo);
-      connInfo->Delete();
-      }
-    connInfo->SetNumberOfInformationObjects(numConnections);
-    if(numConnections > 0)
-      {
-      for(int i=0; i < numConnections; ++i)
-        {
-        connInfo->SetInformationObject(
-          i, this->GetConnectedInputInformation(ip, i));
-        }
-      }
-    }
+  // Make sure the input connection information is up to date.
+  this->GetInputInformation();
 }
 
 //----------------------------------------------------------------------------

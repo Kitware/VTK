@@ -82,8 +82,8 @@ public:
   // of an upstream request are stored in the input information vector
   // passed to ProcessRequest.
   virtual int ProcessRequest(vtkInformation* request,
-                                       vtkInformationVector* inInfo,
-                                       vtkInformationVector* outInfo);
+                             vtkInformationVector** inInfo,
+                             vtkInformationVector* outInfo);
 
   // Description:
   // Get the information object associated with an input port.  There
@@ -92,15 +92,6 @@ public:
   // this algorithm can handle for that input.
   vtkInformation* GetInputPortInformation(int port);
 
-  // Description:
-  // Get the information object associated with an input connection.  this is
-  // a convienience method that filters can use to reduce duplicated
-  // code. Basically it will look up in the inputVector passed in the port
-  // info and then lookup the conneciton info for the port and connection
-  // passed in.
-  vtkInformation* GetInputConnectionInformation(vtkInformationVector *inInfo,
-                                                int port, int connection);
-  
   // Description:
   // Get the information object associated with an output port.  There
   // is one output port per output from the algorithm.  Each output
@@ -205,7 +196,6 @@ public:
   // Keys used to specify input port requirements.
   static vtkInformationIntegerKey* INPUT_IS_OPTIONAL();
   static vtkInformationIntegerKey* INPUT_IS_REPEATABLE();
-  static vtkInformationInformationVectorKey* INPUT_CONNECTION_INFORMATION();
   static vtkInformationInformationVectorKey* INPUT_REQUIRED_FIELDS();
   static vtkInformationStringKey* INPUT_REQUIRED_DATA_TYPE();
 

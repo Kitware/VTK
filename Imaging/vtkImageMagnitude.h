@@ -33,7 +33,7 @@ protected:
   vtkImageMagnitude();
   ~vtkImageMagnitude() {};
 
-  void ExecuteInformation (vtkInformation *, vtkInformationVector *, 
+  void ExecuteInformation (vtkInformation *, vtkInformationVector**,
                            vtkInformationVector *);
 
   void ThreadedExecute (vtkImageData *inData, vtkImageData *outData,

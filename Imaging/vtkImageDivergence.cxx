@@ -22,7 +22,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageDivergence, "1.29");
+vtkCxxRevisionMacro(vtkImageDivergence, "1.30");
 vtkStandardNewMacro(vtkImageDivergence);
 
 vtkImageDivergence::vtkImageDivergence()
@@ -34,9 +34,9 @@ vtkImageDivergence::vtkImageDivergence()
 //----------------------------------------------------------------------------
 // This method tells the superclass that the first axis will collapse.
 void vtkImageDivergence::ExecuteInformation(
-  vtkInformation * vtkNotUsed(request),
-  vtkInformationVector * vtkNotUsed(inputVector),
-  vtkInformationVector *outputVector)
+  vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** vtkNotUsed(inputVector),
+  vtkInformationVector* outputVector)
 {
   // get the info objects
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
@@ -47,13 +47,12 @@ void vtkImageDivergence::ExecuteInformation(
 // Just clip the request.  The subclass may need to overwrite this method.
 void vtkImageDivergence::RequestUpdateExtent (
   vtkInformation * vtkNotUsed(request),
-  vtkInformationVector *inputVector,
+  vtkInformationVector** inputVector,
   vtkInformationVector *outputVector)
 {
   // get the info objects
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
-  vtkInformation *inInfo = 
-    this->GetInputConnectionInformation(inputVector,0,0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
 
   int idx;
   int wholeExtent[6];

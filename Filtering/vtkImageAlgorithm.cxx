@@ -24,7 +24,7 @@
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageAlgorithm, "1.4");
+vtkCxxRevisionMacro(vtkImageAlgorithm, "1.5");
 
 //----------------------------------------------------------------------------
 vtkImageAlgorithm::vtkImageAlgorithm()
@@ -50,9 +50,9 @@ void vtkImageAlgorithm::PrintSelf(ostream& os, vtkIndent indent)
 // This is the superclasses style of Execute method.  Convert it into
 // an imaging style Execute method.
 void vtkImageAlgorithm::RequestData(
-  vtkInformation *request, 
-  vtkInformationVector * vtkNotUsed( inputVector ), 
-  vtkInformationVector * outputVector)
+  vtkInformation* request,
+  vtkInformationVector** vtkNotUsed( inputVector ),
+  vtkInformationVector* outputVector)
 {
   // the default implimentation is to do what the old pipeline did find what
   // output is requesting the data, and pass that into ExecuteData
@@ -77,7 +77,7 @@ void vtkImageAlgorithm::RequestData(
 
 //----------------------------------------------------------------------------
 int vtkImageAlgorithm::ProcessRequest(vtkInformation* request,
-                                      vtkInformationVector* inputVector,
+                                      vtkInformationVector** inputVector,
                                       vtkInformationVector* outputVector)
 {
   // generate the data
@@ -174,17 +174,17 @@ void vtkImageAlgorithm::Execute()
 }
 
 void vtkImageAlgorithm::ExecuteInformation(
-  vtkInformation * vtkNotUsed(request),
-  vtkInformationVector * vtkNotUsed(inputVector), 
-  vtkInformationVector * vtkNotUsed(outputVector))
+  vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** vtkNotUsed(inputVector),
+  vtkInformationVector* vtkNotUsed(outputVector))
 {
   // do nothing let subclasses handle it
 }
 
 void vtkImageAlgorithm::RequestUpdateExtent(
-  vtkInformation * vtkNotUsed(request),
-  vtkInformationVector * vtkNotUsed(inputVector), 
-  vtkInformationVector * vtkNotUsed(outputVector))
+  vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** vtkNotUsed(inputVector),
+  vtkInformationVector* vtkNotUsed(outputVector))
 {
   // do nothing let subclasses handle it
 }

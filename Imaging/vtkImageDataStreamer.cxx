@@ -22,7 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageDataStreamer, "1.32");
+vtkCxxRevisionMacro(vtkImageDataStreamer, "1.33");
 vtkStandardNewMacro(vtkImageDataStreamer);
 vtkCxxSetObjectMacro(vtkImageDataStreamer,ExtentTranslator,vtkExtentTranslator);
 
@@ -95,7 +95,7 @@ int vtkImageDataStreamer::FillInputPortInformation(
 
 //----------------------------------------------------------------------------
 int vtkImageDataStreamer::ProcessRequest(vtkInformation* request,
-                                         vtkInformationVector* inputVector,
+                                         vtkInformationVector** inputVector,
                                          vtkInformationVector* outputVector)
 {
   // this is basically execute information
@@ -145,9 +145,7 @@ int vtkImageDataStreamer::ProcessRequest(vtkInformation* request,
       translator->GetExtent(inExt);
       }
     
-    inputVector->GetInformationObject(0)
-      ->Get(vtkAlgorithm::INPUT_CONNECTION_INFORMATION())
-      ->GetInformationObject(0)
+    inputVector[0]->GetInformationObject(0)
       ->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), inExt, 6);
     
     return 1;
@@ -180,9 +178,7 @@ int vtkImageDataStreamer::ProcessRequest(vtkInformation* request,
       }
 
     // actually copy the data
-    vtkInformation* inInfo = inputVector->GetInformationObject(0)
-      ->Get(vtkAlgorithm::INPUT_CONNECTION_INFORMATION())
-      ->GetInformationObject(0);
+    vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
     vtkImageData *input = 
       vtkImageData::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
 

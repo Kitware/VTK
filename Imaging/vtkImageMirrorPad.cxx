@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageMirrorPad, "1.32");
+vtkCxxRevisionMacro(vtkImageMirrorPad, "1.33");
 vtkStandardNewMacro(vtkImageMirrorPad);
 
 //----------------------------------------------------------------------------
@@ -207,7 +207,7 @@ void vtkImageMirrorPadExecute(vtkImageMirrorPad *self,
 // the regions data types.
 void vtkImageMirrorPad::ThreadedRequestData(
   vtkInformation * vtkNotUsed( request ), 
-  vtkInformationVector *inputVector, 
+  vtkInformationVector** inputVector,
   vtkInformationVector * vtkNotUsed( outputVector ),
   vtkImageData ***inData, 
   vtkImageData **outData,
@@ -217,8 +217,7 @@ void vtkImageMirrorPad::ThreadedRequestData(
   
    // get the whole extent
   int wExt[6];
-  vtkInformation *inInfo =
-    this->GetInputConnectionInformation(inputVector,0,0);
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),wExt);
 
   // this filter expects that input is the same type as output.

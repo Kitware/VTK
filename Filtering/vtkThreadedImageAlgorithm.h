@@ -42,7 +42,7 @@ public:
   // will call this method. It is public so that the thread functions
   // can call this method.
   virtual void ThreadedRequestData(vtkInformation *request, 
-                                   vtkInformationVector *inputVector, 
+                                   vtkInformationVector **inputVector, 
                                    vtkInformationVector *outputVector,
                                    vtkImageData ***inData, 
                                    vtkImageData **outData,
@@ -72,9 +72,9 @@ protected:
 
   // This is called by the superclass.
   // This is the method you should override.
-  virtual void RequestData(vtkInformation *request, 
-                           vtkInformationVector *inputVector, 
-                           vtkInformationVector *outputVector);
+  virtual void RequestData(vtkInformation* request,
+                           vtkInformationVector** inputVector,
+                           vtkInformationVector* outputVector);
 
 private:
   vtkThreadedImageAlgorithm(const vtkThreadedImageAlgorithm&);  // Not implemented.

@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImagePadFilter, "1.30");
+vtkCxxRevisionMacro(vtkImagePadFilter, "1.31");
 vtkStandardNewMacro(vtkImagePadFilter);
 
 //----------------------------------------------------------------------------
@@ -87,14 +87,13 @@ void vtkImagePadFilter::GetOutputWholeExtent(int extent[6])
 //----------------------------------------------------------------------------
 // Just change the Image extent.
 void vtkImagePadFilter::ExecuteInformation (
-  vtkInformation * vtkNotUsed(request),
-  vtkInformationVector *inputVector,
-  vtkInformationVector *outputVector)
+  vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector,
+  vtkInformationVector* outputVector)
 {
   // get the info objects
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
-  vtkInformation *inInfo =
-     this->GetInputConnectionInformation(inputVector,0,0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
 
   if (this->OutputWholeExtent[0] > this->OutputWholeExtent[1])
     {
@@ -148,14 +147,13 @@ void vtkImagePadFilter::ComputeInputUpdateExtent (int inExt[6],
 //----------------------------------------------------------------------------
 // Just clip the request.  The subclass may need to overwrite this method.
 void vtkImagePadFilter::RequestUpdateExtent (
-  vtkInformation * vtkNotUsed(request),
-  vtkInformationVector *inputVector,
-  vtkInformationVector *outputVector)
+  vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector,
+  vtkInformationVector* outputVector)
 {
   // get the info objects
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
-  vtkInformation *inInfo =
-     this->GetInputConnectionInformation(inputVector,0,0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
 
   int wholeExtent[6];
   int inExt[6];

@@ -46,11 +46,11 @@ protected:
   ~vtkImageConstantPad() {};
 
   double Constant;
-  
-  void ThreadedRequestData (vtkInformation *request, 
-                            vtkInformationVector *inputVector, 
-                            vtkInformationVector *outputVector,
-                            vtkImageData ***inData, vtkImageData **outData, 
+
+  void ThreadedRequestData (vtkInformation* request,
+                            vtkInformationVector** inputVector,
+                            vtkInformationVector* outputVector,
+                            vtkImageData ***inData, vtkImageData **outData,
                             int ext[6], int id);
 private:
   vtkImageConstantPad(const vtkImageConstantPad&);  // Not implemented.

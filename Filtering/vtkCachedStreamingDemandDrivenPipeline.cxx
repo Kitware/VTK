@@ -25,7 +25,7 @@
 #include "vtkInformationVector.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkCachedStreamingDemandDrivenPipeline, "1.2");
+vtkCxxRevisionMacro(vtkCachedStreamingDemandDrivenPipeline, "1.3");
 vtkStandardNewMacro(vtkCachedStreamingDemandDrivenPipeline);
 
 
@@ -304,9 +304,7 @@ int vtkCachedStreamingDemandDrivenPipeline::ExecuteData(int outputPort)
   vtkImageData *id = vtkImageData::SafeDownCast(dataObject);  
   if (id)
     {
-    vtkInformation* inInfo = this->GetInputInformation(0)
-      ->Get(vtkAlgorithm::INPUT_CONNECTION_INFORMATION())
-      ->GetInformationObject(0);
+    vtkInformation* inInfo = this->GetInputInformation(0, 0);
     vtkImageData *input = 
       vtkImageData::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
     id->SetExtent(input->GetExtent());

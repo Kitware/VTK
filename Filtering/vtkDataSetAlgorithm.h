@@ -80,7 +80,7 @@ public:
   // Description:
   // see vtkAlgorithm for details
   virtual int ProcessRequest(vtkInformation* request, 
-                             vtkInformationVector* inputVector, 
+                             vtkInformationVector** inputVector,
                              vtkInformationVector* outputVector);
 
 protected:
@@ -90,25 +90,25 @@ protected:
   // This is called by the superclass.
   // This is the method you should override.
   virtual int CreateOutput(vtkInformation* request, 
-                           vtkInformationVector* inputVector, 
+                           vtkInformationVector** inputVector, 
                            vtkInformationVector* outputVector);
 
   // This is called by the superclass.
   // This is the method you should override.
   virtual int ExecuteInformation(vtkInformation*, 
-                                 vtkInformationVector*, 
+                                 vtkInformationVector**, 
                                  vtkInformationVector*) {return 1;};
 
   // This is called by the superclass.
   // This is the method you should override.
   virtual int RequestData(vtkInformation*, 
-                          vtkInformationVector*, 
+                          vtkInformationVector**, 
                           vtkInformationVector*) {return 1;};
 
   // This is called by the superclass.
   // This is the method you should override.
   virtual int ComputeInputUpdateExtent(vtkInformation*,
-                                       vtkInformationVector*,
+                                       vtkInformationVector**,
                                        vtkInformationVector*) 
     {
       return 1;

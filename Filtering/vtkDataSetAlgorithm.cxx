@@ -27,7 +27,7 @@
 #include "vtkStructuredPoints.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkDataSetAlgorithm, "1.4");
+vtkCxxRevisionMacro(vtkDataSetAlgorithm, "1.5");
 vtkStandardNewMacro(vtkDataSetAlgorithm);
 
 //----------------------------------------------------------------------------
@@ -114,7 +114,7 @@ vtkDataObject* vtkDataSetAlgorithm::GetInput(int port)
 //----------------------------------------------------------------------------
 int vtkDataSetAlgorithm::ProcessRequest(
   vtkInformation* request, 
-  vtkInformationVector* inputVector, 
+  vtkInformationVector** inputVector, 
   vtkInformationVector* outputVector)
 {
   // generate the data
@@ -169,12 +169,10 @@ int vtkDataSetAlgorithm::ProcessRequest(
 //----------------------------------------------------------------------------
 int vtkDataSetAlgorithm::CreateOutput(
   vtkInformation*, 
-  vtkInformationVector* inputVector , 
+  vtkInformationVector** inputVector , 
   vtkInformationVector* outputVector)
 {
-  vtkInformation* inInfo = 
-    inputVector->GetInformationObject(0)->Get(
-      vtkAlgorithm::INPUT_CONNECTION_INFORMATION())->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   if (!inInfo)
     {
     return 0;

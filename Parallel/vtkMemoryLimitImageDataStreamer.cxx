@@ -24,7 +24,7 @@
 #include "vtkPipelineSize.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkMemoryLimitImageDataStreamer, "1.11");
+vtkCxxRevisionMacro(vtkMemoryLimitImageDataStreamer, "1.12");
 vtkStandardNewMacro(vtkMemoryLimitImageDataStreamer);
 
 //----------------------------------------------------------------------------
@@ -47,7 +47,7 @@ void vtkMemoryLimitImageDataStreamer::PrintSelf(ostream& os, vtkIndent indent)
 int
 vtkMemoryLimitImageDataStreamer
 ::ProcessRequest(vtkInformation* request,
-                 vtkInformationVector* inputVector,
+                 vtkInformationVector** inputVector,
                  vtkInformationVector* outputVector)
 {
   if(request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
@@ -61,9 +61,7 @@ vtkMemoryLimitImageDataStreamer
       int outExt[6];
       outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), outExt);
       
-      vtkInformation* inInfo = inputVector->GetInformationObject(0)
-        ->Get(vtkAlgorithm::INPUT_CONNECTION_INFORMATION())
-        ->GetInformationObject(0);
+      vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
       vtkImageData *input = 
         vtkImageData::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
       

@@ -26,7 +26,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTrivialProducer.h"
 
-vtkCxxRevisionMacro(vtkThreadedImageAlgorithm, "1.2");
+vtkCxxRevisionMacro(vtkThreadedImageAlgorithm, "1.3");
 
 //----------------------------------------------------------------------------
 vtkThreadedImageAlgorithm::vtkThreadedImageAlgorithm()
@@ -54,7 +54,7 @@ struct vtkImageThreadStruct
 {
   vtkThreadedImageAlgorithm *Filter;
   vtkInformation *Request;
-  vtkInformationVector *InputsInfo;
+  vtkInformationVector **InputsInfo;
   vtkInformationVector *OutputsInfo;
   vtkImageData   ***Inputs;
   vtkImageData   **Outputs;
@@ -166,8 +166,7 @@ VTK_THREAD_RETURN_TYPE vtkThreadedImageAlgorithmThreadedExecute( void *arg )
       if (str->Filter->GetNumberOfInputConnections(inPort))
         {
         int updateExtent[6];
-        str->InputsInfo->GetInformationObject(inPort)
-          ->Get(vtkAlgorithm::INPUT_CONNECTION_INFORMATION())
+        str->InputsInfo[inPort]
           ->GetInformationObject(0)
           ->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), 
                 updateExtent);
@@ -207,9 +206,9 @@ VTK_THREAD_RETURN_TYPE vtkThreadedImageAlgorithmThreadedExecute( void *arg )
 // This is the superclasses style of Execute method.  Convert it into
 // an imaging style Execute method.
 void vtkThreadedImageAlgorithm::RequestData(
-  vtkInformation *request, 
-  vtkInformationVector *inputVector, 
-  vtkInformationVector *outputVector)
+  vtkInformation* request,
+  vtkInformationVector** inputVector,
+  vtkInformationVector* outputVector)
 {
   int i;
   
@@ -242,15 +241,12 @@ void vtkThreadedImageAlgorithm::RequestData(
   for (i = 0; i < this->GetNumberOfInputPorts(); ++i)
     {
     int j;
-    vtkInformation* info = inputVector->GetInformationObject(i);
     str.Inputs[i] = new vtkImageData *[this->GetNumberOfInputConnections(i)];
     for (j = 0; j < this->GetNumberOfInputConnections(i); ++j)
       {
-      vtkInformation *connInfo = 
-        info->Get(vtkAlgorithm::INPUT_CONNECTION_INFORMATION())
-        ->GetInformationObject(j);
-      str.Inputs[i][j] = static_cast<vtkImageData *>(
-        connInfo->Get(vtkDataObject::DATA_OBJECT()));
+      vtkInformation* info = inputVector[i]->GetInformationObject(j);
+      str.Inputs[i][j] =
+        static_cast<vtkImageData*>(info->Get(vtkDataObject::DATA_OBJECT()));
       }
     }
 
@@ -281,9 +277,9 @@ void vtkThreadedImageAlgorithm::RequestData(
 //----------------------------------------------------------------------------
 // The execute method created by the subclass.
 void vtkThreadedImageAlgorithm::ThreadedRequestData(
-  vtkInformation * vtkNotUsed( request ), 
-  vtkInformationVector * vtkNotUsed( inputVector ), 
-  vtkInformationVector * vtkNotUsed( outputVector ),
+  vtkInformation* vtkNotUsed( request ),
+  vtkInformationVector** vtkNotUsed( inputVector ),
+  vtkInformationVector* vtkNotUsed( outputVector ),
   vtkImageData ***inData, 
   vtkImageData **outData,
   int extent[6], 

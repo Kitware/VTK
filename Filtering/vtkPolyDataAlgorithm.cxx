@@ -22,7 +22,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTrivialProducer.h"
 
-vtkCxxRevisionMacro(vtkPolyDataAlgorithm, "1.4");
+vtkCxxRevisionMacro(vtkPolyDataAlgorithm, "1.5");
 vtkStandardNewMacro(vtkPolyDataAlgorithm);
 
 //----------------------------------------------------------------------------
@@ -71,7 +71,7 @@ vtkPolyData* vtkPolyDataAlgorithm::GetPolyDataInput(int port)
 
 //----------------------------------------------------------------------------
 int vtkPolyDataAlgorithm::ProcessRequest(vtkInformation* request,
-                                         vtkInformationVector* inputVector,
+                                         vtkInformationVector** inputVector,
                                          vtkInformationVector* outputVector)
 {
   // generate the data
@@ -136,9 +136,9 @@ int vtkPolyDataAlgorithm::FillInputPortInformation(
 
 //----------------------------------------------------------------------------
 int vtkPolyDataAlgorithm::ExecuteInformation(
-  vtkInformation * vtkNotUsed(request),
-  vtkInformationVector * vtkNotUsed(inputVector), 
-  vtkInformationVector * vtkNotUsed(outputVector))
+  vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** vtkNotUsed(inputVector),
+  vtkInformationVector* vtkNotUsed(outputVector))
 {
   // do nothing let subclasses handle it
   return 1;
@@ -148,9 +148,9 @@ int vtkPolyDataAlgorithm::ExecuteInformation(
 // This is the superclasses style of Execute method.  Convert it into
 // an imaging style Execute method.
 int vtkPolyDataAlgorithm::RequestData(
-  vtkInformation *request, 
-  vtkInformationVector * vtkNotUsed( inputVector ), 
-  vtkInformationVector *outputVector)
+  vtkInformation* request,
+  vtkInformationVector** vtkNotUsed( inputVector ),
+  vtkInformationVector* outputVector)
 {
   // the default implimentation is to do what the old pipeline did find what
   // output is requesting the data, and pass that into ExecuteData

@@ -22,7 +22,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkExtractVOI, "1.40");
+vtkCxxRevisionMacro(vtkExtractVOI, "1.41");
 vtkStandardNewMacro(vtkExtractVOI);
 
 //-----------------------------------------------------------------------------
@@ -38,13 +38,12 @@ vtkExtractVOI::vtkExtractVOI()
 //-----------------------------------------------------------------------------
 // Get ALL of the input.
 void vtkExtractVOI::RequestUpdateExtent (
-  vtkInformation * vtkNotUsed(request),
-  vtkInformationVector *inputVector,
-  vtkInformationVector *vtkNotUsed( outputVector ))
+  vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector,
+  vtkInformationVector* vtkNotUsed( outputVector ))
 {
   // get the info objects
-  vtkInformation *inInfo =
-     this->GetInputConnectionInformation(inputVector,0,0);
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
 
   // request all of the VOI, (note from Ken why are we not looking at the UE?)
   int i;
@@ -69,14 +68,13 @@ void vtkExtractVOI::RequestUpdateExtent (
 //-----------------------------------------------------------------------------
 void 
 vtkExtractVOI::ExecuteInformation (
-  vtkInformation * vtkNotUsed(request),
-  vtkInformationVector *inputVector,
-  vtkInformationVector *outputVector)
+  vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector,
+  vtkInformationVector* outputVector)
 {
   // get the info objects
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
-  vtkInformation *inInfo =
-     this->GetInputConnectionInformation(inputVector,0,0);
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
 
   int i, outDims[3], voi[6];
   int rate[3];
@@ -141,9 +139,9 @@ vtkExtractVOI::ExecuteInformation (
 
 //-----------------------------------------------------------------------------
 void vtkExtractVOI::RequestData(
-  vtkInformation * vtkNotUsed( request ), 
-  vtkInformationVector * inputVector, 
-  vtkInformationVector * outputVector)
+  vtkInformation* vtkNotUsed( request ),
+  vtkInformationVector** inputVector,
+  vtkInformationVector* outputVector)
 {
   // get the data objects
   vtkInformation *outInfo = 
@@ -151,8 +149,7 @@ void vtkExtractVOI::RequestData(
   vtkImageData *output = vtkImageData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
   
-  vtkInformation *inInfo = 
-    this->GetInputConnectionInformation(inputVector, 0, 0);
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkImageData *input = vtkImageData::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
   

@@ -23,7 +23,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageNormalize, "1.14");
+vtkCxxRevisionMacro(vtkImageNormalize, "1.15");
 vtkStandardNewMacro(vtkImageNormalize);
 
 //----------------------------------------------------------------------------
@@ -36,7 +36,7 @@ vtkImageNormalize::vtkImageNormalize()
 //----------------------------------------------------------------------------
 void vtkImageNormalize::ExecuteInformation(
   vtkInformation       * vtkNotUsed( request ),
-  vtkInformationVector * vtkNotUsed( inputVector ), 
+  vtkInformationVector ** vtkNotUsed( inputVector ),
   vtkInformationVector * outputVector)
 {
   // get the info objects

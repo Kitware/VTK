@@ -79,10 +79,10 @@ protected:
   ~vtkKitwareContourFilter();
 
   virtual int ComputeInputUpdateExtent(vtkInformation* request,
-                                       vtkInformationVector* inputVector,
+                                       vtkInformationVector** inputVector,
                                        vtkInformationVector* outputVector);
-  virtual int RequestData(vtkInformation* request, 
-                          vtkInformationVector* inputVector, 
+  virtual int RequestData(vtkInformation* request,
+                          vtkInformationVector** inputVector,
                           vtkInformationVector* outputVector);
 
   //special contouring for structured points

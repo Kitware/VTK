@@ -36,7 +36,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImplicitModeller, "1.88");
+vtkCxxRevisionMacro(vtkImplicitModeller, "1.89");
 vtkStandardNewMacro(vtkImplicitModeller);
 
 struct vtkImplicitModellerAppendInfo
@@ -957,7 +957,7 @@ vtkImplicitModeller::FillInputPortInformation(int port, vtkInformation* info)
 
 //----------------------------------------------------------------------------
 int vtkImplicitModeller::ProcessRequest(vtkInformation* request,
-                                        vtkInformationVector* inputVector,
+                                        vtkInformationVector** inputVector,
                                         vtkInformationVector* outputVector)
 {
   // should we generate the data?

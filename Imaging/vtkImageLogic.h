@@ -75,12 +75,12 @@ protected:
 
   int Operation;
   double OutputTrueValue;
-  
-  void ThreadedRequestData (vtkInformation *request, 
-                            vtkInformationVector *inputVector, 
-                            vtkInformationVector *outputVector,
+
+  void ThreadedRequestData (vtkInformation* request,
+                            vtkInformationVector** inputVector,
+                            vtkInformationVector* outputVector,
                             vtkImageData ***inData, vtkImageData **outData,
-                            int extent[6], int id);
+                            int ext[6], int id);
 
 private:
   vtkImageLogic(const vtkImageLogic&);  // Not implemented.

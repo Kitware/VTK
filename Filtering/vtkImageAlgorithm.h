@@ -43,7 +43,7 @@ public:
   // Description:
   // see vtkAlgorithm for details
   virtual int ProcessRequest(vtkInformation*,
-                             vtkInformationVector*,
+                             vtkInformationVector**,
                              vtkInformationVector*);
 
   // Description:
@@ -61,18 +61,18 @@ protected:
   ~vtkImageAlgorithm();
 
   // convinience method
-  virtual void ExecuteInformation(vtkInformation *request, 
-                                  vtkInformationVector *inputVector, 
-                                  vtkInformationVector *outputVector);
-  virtual void RequestUpdateExtent(vtkInformation *,
-                                   vtkInformationVector *,
-                                   vtkInformationVector *);
+  virtual void ExecuteInformation(vtkInformation* request,
+                                  vtkInformationVector** inputVector,
+                                  vtkInformationVector* outputVector);
+  virtual void RequestUpdateExtent(vtkInformation*,
+                                   vtkInformationVector**,
+                                   vtkInformationVector*);
 
   // This is called by the superclass.
   // This is the method you should override.
-  virtual void RequestData(vtkInformation *request, 
-                           vtkInformationVector *inputVector, 
-                           vtkInformationVector *outputVector);
+  virtual void RequestData(vtkInformation *request,
+                           vtkInformationVector** inputVector,
+                           vtkInformationVector* outputVector);
 
   // Description:
   // This method is the old style execute method

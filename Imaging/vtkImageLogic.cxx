@@ -20,7 +20,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageLogic, "1.30");
+vtkCxxRevisionMacro(vtkImageLogic, "1.31");
 vtkStandardNewMacro(vtkImageLogic);
 
 //----------------------------------------------------------------------------
@@ -212,7 +212,7 @@ void vtkImageLogicExecute2(vtkImageLogic *self, vtkImageData *in1Data,
 // the regions data types.
 void vtkImageLogic::ThreadedRequestData (
   vtkInformation * vtkNotUsed( request ), 
-  vtkInformationVector * vtkNotUsed( inputVector ), 
+  vtkInformationVector** vtkNotUsed( inputVector ),
   vtkInformationVector * vtkNotUsed( outputVector ),
   vtkImageData ***inData, 
   vtkImageData **outData,

@@ -24,7 +24,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageGradientMagnitude, "1.38");
+vtkCxxRevisionMacro(vtkImageGradientMagnitude, "1.39");
 vtkStandardNewMacro(vtkImageGradientMagnitude);
 
 //----------------------------------------------------------------------------
@@ -56,17 +56,16 @@ void vtkImageGradientMagnitude::PrintSelf(ostream& os, vtkIndent indent)
 // input, and changes the region to hold the image extent of this filters
 // output.
 void vtkImageGradientMagnitude::ExecuteInformation (
-  vtkInformation * vtkNotUsed(request),
-  vtkInformationVector *inputVector,
-  vtkInformationVector *outputVector)
+  vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector,
+  vtkInformationVector* outputVector)
 {  
   int extent[6];
   int idx;
 
   // get the info objects
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
-  vtkInformation *inInfo = 
-    this->GetInputConnectionInformation(inputVector,0,0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
 
   // invalid setting, it has not been set, so default to whole Extent
   inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), 
@@ -90,17 +89,16 @@ void vtkImageGradientMagnitude::ExecuteInformation (
 //----------------------------------------------------------------------------
 // This method computes the input extent necessary to generate the output.
 void vtkImageGradientMagnitude::RequestUpdateExtent (
-  vtkInformation * vtkNotUsed(request),
-  vtkInformationVector *inputVector,
-  vtkInformationVector *outputVector)
+  vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector,
+  vtkInformationVector* outputVector)
 {
   int wholeExtent[6];
   int idx;
 
   // get the info objects
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
-  vtkInformation *inInfo = 
-    this->GetInputConnectionInformation(inputVector,0,0);
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
 
   // invalid setting, it has not been set, so default to whole Extent
   inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), 
