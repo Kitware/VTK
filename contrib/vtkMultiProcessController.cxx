@@ -586,25 +586,30 @@ int vtkMultiProcessController::ReadImageData(vtkImageData *object)
 //----------------------------------------------------------------------------
 int vtkMultiProcessController::WriteDataSet(vtkDataSet *data)
 {
+  vtkDataSet *copy;
   unsigned long size;
   vtkDataSetWriter *writer = vtkDataSetWriter::New();
   vtkTimerLog *log = vtkTimerLog::New();
 
   log->StartTimer();
 
+  copy = (vtkDataSet*)(data->MakeObject());
+  copy->ShallowCopy(data);
+
   // There is a problem with binary files with no data.
-  if (data->GetNumberOfCells() > 0)
+  if (copy->GetNumberOfCells() > 0)
     {
     writer->SetFileTypeToBinary();
     }
   writer->WriteToOutputStringOn();
-  writer->SetInput(data);
+  writer->SetInput(copy);
   
   writer->Write();
   size = writer->GetOutputStringLength();
   this->DeleteAndSetMarshalString(writer->RegisterAndGetOutputString(), size);
   this->MarshalDataLength = size;
   writer->Delete();
+  copy->Delete();
 
   log->StopTimer();
   this->WriteTime = log->GetElapsedTime();
