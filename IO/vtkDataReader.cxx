@@ -38,7 +38,7 @@
 #include <ctype.h>
 #include <sys/stat.h>
 
-vtkCxxRevisionMacro(vtkDataReader, "1.123");
+vtkCxxRevisionMacro(vtkDataReader, "1.124");
 vtkStandardNewMacro(vtkDataReader);
 
 // this undef is required on the hp. vtkMutexLock ends up including
@@ -1880,7 +1880,7 @@ int vtkDataReader::CharacterizeFile()
                    this->NormalsNameInFile, this->NormalsNameAllocSize);
     this->CheckFor("tcoords", line, this->NumberOfTCoordsInFile,
                    this->TCoordsNameInFile, this->TCoordsNameAllocSize);
-    this->CheckFor("fielddata", line, this->NumberOfFieldDataInFile,
+    this->CheckFor("field", line, this->NumberOfFieldDataInFile,
                    this->FieldDataNameInFile, this->FieldDataNameAllocSize);
     }
 
