@@ -58,6 +58,7 @@ public:
   const char *GetClassName() {return "vtkCellData";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
+  // Description:
   // Set cell data to null values
   void NullCell(int cellId);
 };

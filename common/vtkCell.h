@@ -106,8 +106,8 @@ public:
   virtual int GetCellDimension() = 0;
 
   // Description:
-  // Return the interpolation order of the cell.
-  virtual int GetInterpolationOrder() {return 1;}; //usually linear
+  // Return the interpolation order of the cell. Usually linear.
+  virtual int GetInterpolationOrder() {return 1;};
 
   // Description:
   // Get the point coordinates for the cell.

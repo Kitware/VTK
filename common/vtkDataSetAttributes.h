@@ -40,7 +40,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkDataSetAttributes - represent and manipulate attribute data in a dataset
 // .SECTION Description
-
 // vtkDataSetAttributes is a class that is used to represent and manipulate
 // attribute data (e.g., scalars, vectors, normals, texture coordinates,
 // tensors, and field data) Special methods are provided to work with filter
