@@ -130,9 +130,12 @@ vtkTreeComposite::vtkTreeComposite()
   
   this->ReductionFactor = 1;
   
-  this->GetBuffersTime = 0;
-  this->SetBuffersTime = 0;
-  this->TransmitTime = 0;
+  this->GetBuffersTime = 0.0;
+  this->SetBuffersTime = 0.0;
+  this->CompositeTime = 0.0;
+  this->MaxRenderTime = 0.0;
+
+  this->Timer = vtkTimerLog::New();
 }
 
   
@@ -141,6 +144,9 @@ vtkTreeComposite::~vtkTreeComposite()
 {
   this->SetRenderWindow(NULL);
   
+  this->Timer->Delete();
+  this->Timer = NULL;
+
   this->SetRendererSize(0,0);
   
   if (this->Lock)
@@ -551,11 +557,14 @@ void vtkTreeComposite::StartRender()
   
   vtkDebugMacro("StartRender");
   
+  // Used to time the total render (without compositing.)
+  this->Timer->StartTimer();
+
   if (!this->UseCompositing)
     {
     return;
-    }
-  
+    }  
+
   vtkRenderWindow* renWin = this->RenderWindow;
   vtkMultiProcessController *controller = this->Controller;
 
@@ -640,13 +649,11 @@ void vtkTreeComposite::EndRender()
   vtkMultiProcessController *controller = this->Controller;
   int numProcs;
   
-  if (controller == NULL)
+  if (controller == NULL || ! this->UseCompositing)
     {
-    return;
-    }
-
-  if (!this->UseCompositing)
-    {
+    // Stop the timer that has been timing the render.
+    this->Timer->StopTimer();
+    this->MaxRenderTime = this->Timer->GetElapsedTime();
     return;
     }
 
@@ -1039,6 +1046,10 @@ void vtkTreeComposite::Composite()
   int myId, numProcs;
   int i, id, front;
   
+  // Stop the timer that has been timing the render.
+  this->Timer->StopTimer();
+  this->MaxRenderTime = this->Timer->GetElapsedTime();
+
   vtkTimerLog *timer = vtkTimerLog::New();
   
   myId = this->Controller->GetLocalProcessId();
@@ -1125,7 +1136,7 @@ void vtkTreeComposite::Composite()
     }
   
   timer->StopTimer();
-  this->TransmitTime = timer->GetElapsedTime();
+  this->CompositeTime = timer->GetElapsedTime();
     
   if (myId == 0) 
     {
@@ -1207,7 +1218,8 @@ void vtkTreeComposite::PrintSelf(ostream& os, vtkIndent indent)
   
   os << indent << "SetBuffersTime: " << this->SetBuffersTime << "\n";
   os << indent << "GetBuffersTime: " << this->GetBuffersTime << "\n";
-  os << indent << "TransmitTime: " << this->TransmitTime << "\n";
+  os << indent << "CompositeTime: " << this->CompositeTime << "\n";
+  os << indent << "MaxRenderTime: " << this->MaxRenderTime << "\n";
   if (this->UseCompositing)
     {
     os << indent << "UseCompositing: On\n";
