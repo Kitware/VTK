@@ -46,6 +46,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Construct with user-specified implicit function.
 vtkCutter::vtkCutter(vtkImplicitFunction *cf)
 {
+  for (int i=0; i<VTK_MAX_CONTOURS; i++) this->Values[i] = 0.0;
+  this->NumberOfContours = 1;
+  this->Range[0] = 0.0;
+  this->Range[1] = 1.0;
+
   this->CutFunction = cf;
 
   this->Locator = NULL;
@@ -74,7 +79,7 @@ unsigned long vtkCutter::GetMTime()
 //
 void vtkCutter::Execute()
 {
-  int cellId, i;
+  int cellId, i, iter;
   vtkFloatPoints *cellPts;
   vtkFloatScalars cellScalars(VTK_CELL_SIZE);
   vtkCell *cell;
@@ -112,11 +117,11 @@ void vtkCutter::Execute()
   // locator used to merge potentially duplicate points
   if ( this->Locator == NULL ) this->CreateDefaultLocator();
   this->Locator->InitPointInsertion (newPoints, this->Input->GetBounds());
+
 //
 // Loop over all cells creating scalar function determined by evaluating cell
 // points using cut function.
 //
-  value = 0.0;
   for (cellId=0; cellId < numCells; cellId++)
     {
     cell = Input->GetCell(cellId);
@@ -128,9 +133,17 @@ void vtkCutter::Execute()
       cellScalars.SetScalar(i,s);
       }
 
-    cell->Contour(value, &cellScalars, this->Locator, 
-                  newVerts, newLines, newPolys, newScalars);
+  //
+  // Loop over all contour values.  Then for each contour value, 
+  // loop over all cells.
+  //
+    for (iter=0; iter < this->NumberOfContours; iter++)
+      {
+      value = this->Values[iter];
+      cell->Contour(value, &cellScalars, this->Locator, 
+                    newVerts, newLines, newPolys, newScalars);
 
+      } // for all contour values
     } // for all cells
 //
 // Update ourselves.  Because we don't know upfront how many verts, lines,
@@ -176,6 +189,52 @@ void vtkCutter::CreateDefaultLocator()
   this->SelfCreatedLocator = 1;
 }
 
+// Description:
+// Set a particular contour value at contour number i. The index i ranges 
+// between 0<=i<NumberOfContours.
+void vtkCutter::SetValue(int i, float value)
+{
+  i = (i >= VTK_MAX_CONTOURS ? VTK_MAX_CONTOURS-1 : (i < 0 ? 0 : i) );
+  if ( this->Values[i] != value )
+    {
+    this->Modified();
+    this->Values[i] = value;
+    if ( i >= this->NumberOfContours ) this->NumberOfContours = i + 1;
+    if ( value < this->Range[0] ) this->Range[0] = value;
+    if ( value > this->Range[1] ) this->Range[1] = value;
+    }
+}
+
+void vtkCutter::GenerateValues(int numContours, float range1, 
+				     float range2)
+{
+  float rng[2];
+
+  rng[0] = range1;
+  rng[1] = range2;
+  this->GenerateValues(numContours,rng);
+}
+
+// Description:
+// Generate numContours equally spaced contour values between specified
+// range. Contour values will include min/max range values.
+void vtkCutter::GenerateValues(int numContours, float range[2])
+{
+  float val, incr;
+  int i;
+
+  numContours = (numContours >= VTK_MAX_CONTOURS ? VTK_MAX_CONTOURS-1 : 
+                (numContours > 1 ? numContours : 2) );
+
+  incr = (range[1] - range[0]) / (numContours-1);
+  for (i=0, val=range[0]; i < numContours; i++, val+=incr)
+    {
+    this->SetValue(i,val);
+    }
+
+  this->NumberOfContours = numContours;
+}
+
 void vtkCutter::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkDataSetToPolyFilter::PrintSelf(os,indent);
@@ -189,5 +248,12 @@ void vtkCutter::PrintSelf(ostream& os, vtkIndent indent)
   else
     {
     os << indent << "Locator: (none)\n";
+    }
+
+  os << indent << "Number Of Contours : " << this->NumberOfContours << "\n";
+  os << indent << "Contour Values: \n";
+  for ( int i=0; i<this->NumberOfContours; i++)
+    {
+    os << indent << "  Value " << i << ": " << this->Values[i] << "\n";
     }
 }

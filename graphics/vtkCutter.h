@@ -52,6 +52,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkDataSetToPolyFilter.h"
 #include "vtkImplicitFunction.h"
 
+#define VTK_MAX_CONTOURS 256
+
 class vtkCutter : public vtkDataSetToPolyFilter
 {
 public:
@@ -60,6 +62,22 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   unsigned long int GetMTime();
+
+  void SetValue(int i, float value);
+  float GetValue(int i) {return this->Values[i];};
+
+  // Description:
+  // Return array of contour values (size of numContours).
+  vtkGetVectorMacro(Values,float,VTK_MAX_CONTOURS);
+
+  // Description:
+  // Return the number of contour values. The number of values set (using SetValue)
+  // should match the NumberOfContours ivar value.
+  vtkSetMacro(NumberOfContours,int);
+  vtkGetMacro(NumberOfContours,int);
+
+  void GenerateValues(int numContours, float range[2]);
+  void GenerateValues(int numContours, float range1, float range2);
 
   // Description
   // Specify the implicit function to perform the cutting.
@@ -81,6 +99,9 @@ protected:
   
   vtkPointLocator *Locator;
   int SelfCreatedLocator;
+  float Values[VTK_MAX_CONTOURS];
+  int NumberOfContours;
+  float Range[2];
 };
 
 #endif
