@@ -678,7 +678,7 @@ void vtkFieldDataToAttributeDataFilter::ConstructGhostLevels(int num,
     newGhostLevels->SetNumberOfGhostLevels(num);
 
 
-    if ( this->ConstructArray(newGhostLevels->GetData(), i, fieldArray[0],
+    if ( this->ConstructArray(newGhostLevels->GetData(), 0, fieldArray[0],
 			      arrayComp, componentRange[0], componentRange[1],
 			      normalize) == 0 )
       {
