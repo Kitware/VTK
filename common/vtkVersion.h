@@ -55,11 +55,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkObject.h"
 
-#define VTK_VERSION "3.1.1"
 #define VTK_MAJOR_VERSION 3
 #define VTK_MINOR_VERSION 1
 #define VTK_BUILD_VERSION 2
-#define VTK_SOURCE_VERSION "vtk version " VTK_VERSION ", vtk source $Revision: 1.490 $, $Date: 2000-04-17 00:08:26 $ (GMT)"
+#define VTK_VERSION "3.1.2"
+#define VTK_SOURCE_VERSION "vtk version " VTK_VERSION ", vtk source $Revision: 1.491 $, $Date: 2000-04-17 19:02:40 $ (GMT)"
 
 
 class VTK_EXPORT vtkVersion : public vtkObject {
