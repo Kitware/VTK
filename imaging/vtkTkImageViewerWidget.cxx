@@ -666,12 +666,23 @@ vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget *self)
     }
   else
     {
+    // is IV an address ? big ole python hack here
+    if (self->IV[0] == 'A' && self->IV[1] == 'd' && 
+	self->IV[2] == 'd' && self->IV[3] == 'r')
+      {
+      void *tmp;
+      sscanf(self->IV+5,"%p",&tmp);
+      ImageViewer = (vtkImageViewer *)tmp;
+      }
+    else
+      {
 #ifndef VTK_PYTHON_BUILD
-		int new_flag;
-    ImageViewer = (vtkImageViewer *)
-      vtkTclGetPointerFromObject(self->IV, "vtkImageViewer", self->Interp,
-				 new_flag);
+      int new_flag;
+      ImageViewer = (vtkImageViewer *)
+	vtkTclGetPointerFromObject(self->IV, "vtkImageViewer", self->Interp,
+				   new_flag);
 #endif
+      }
     if (ImageViewer != self->ImageViewer)
       {
       if (self->ImageViewer != NULL)
