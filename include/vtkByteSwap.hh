@@ -47,6 +47,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #ifndef __vtkByteSwap_hh
 #define __vtkByteSwap_hh
+#include <stdio.h>
 
 class vtkByteSwap
 {
@@ -73,10 +74,22 @@ public:
   void Swap4BERange(int *i,int num) {Swap4BERange((char *)i,num);};
   void Swap4BERange(unsigned long *i,int num) {Swap4BERange((char *)i,num);};
 
+  void SwapWrite4BERange(char *c,int num,FILE *fp);
+  void SwapWrite4BERange(float *p,int num, FILE *fp) 
+  {SwapWrite4BERange((char *)p,num,fp);};
+  void SwapWrite4BERange(int *i,int num,FILE *fp) 
+  {SwapWrite4BERange((char *)i,num,fp);};
+  void SwapWrite4BERange(unsigned long *i,int num, FILE *fp) 
+  {SwapWrite4BERange((char *)i,num,fp);};
+
   void Swap2BERange(char *c,int num);
   void Swap2LERange(char *c,int num);
   void Swap2BERange(short *i,int num) {Swap2BERange((char *)i,num);};
   void Swap2LERange(short *i,int num) {Swap2LERange((char *)i,num);};
+
+  void SwapWrite2BERange(char *c,int num,FILE *fp);
+  void SwapWrite2BERange(short *i,int num, FILE *fp) 
+  {SwapWrite2BERange((char *)i,num,fp);};
 };
 
 #endif
