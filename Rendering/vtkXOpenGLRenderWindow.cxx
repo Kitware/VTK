@@ -80,7 +80,7 @@ vtkXOpenGLRenderWindowInternal::vtkXOpenGLRenderWindowInternal(
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.17");
+vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.18");
 vtkStandardNewMacro(vtkXOpenGLRenderWindow);
 #endif
 
@@ -1090,7 +1090,7 @@ void vtkXOpenGLRenderWindow::SetParentId(void *arg)
 }
 
 
-void vtkXOpenGLRenderWindow::SetWindowName(char * name)
+void vtkXOpenGLRenderWindow::SetWindowName(const char * name)
 {
   XTextProperty win_name_text_prop;
 

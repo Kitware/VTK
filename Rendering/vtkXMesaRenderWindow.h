@@ -137,7 +137,7 @@ public:
   // Description:
   // Specify the X window id to use if a WindowRemap is done.
   void     SetNextWindowId(Window);
-  void     SetWindowName(char *);
+  void     SetWindowName(const char *);
 
   // Description:
   // Move the window to a new position on the display.
