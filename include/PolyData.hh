@@ -29,7 +29,7 @@ public:
   void Initialize();
   float *GetPoint(int i) {return this->Points->GetPoint(i);};
   void GetPoints(vlIdList& ptId, vlFloatPoints& fp);
-  vlMapper *MakeMapper(vlDataSet *ds);
+  vlMapper *MakeMapper();
 
   // PolyData specific stuff follows
   vlSetObjectMacro(Points,vlPoints);

@@ -194,7 +194,7 @@ int vlPolyData::NumStrips()
   return (this->Strips ? this->Strips->GetNumCells() : 0);
 }
 
-vlMapper *vlPolyData::MakeMapper(vlDataSet *ds)
+vlMapper *vlPolyData::MakeMapper()
 {
   vlPolyMapper *mapper;
 
@@ -202,8 +202,7 @@ vlMapper *vlPolyData::MakeMapper(vlDataSet *ds)
     {
     this->Mapper = mapper = new vlPolyMapper;
     this->Mapper->Register((void *)this);
-    // following cast ok because using virtual function
-    mapper->SetInput((vlPolyData *)ds);
+    mapper->SetInput(this);
     }
   return this->Mapper;
 }
