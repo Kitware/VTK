@@ -140,7 +140,7 @@ void ContourImage(T *scalars, vtkScalars *newScalars, int roi[6], int dir[3],
   static int CASE_MASK[4] = {1,2,8,4};  LINE_CASES *lineCase;
   static int edges[4][2] = { {0,1}, {1,3}, {3,2}, {2,0} };
   EDGE_LIST  *edge;
-  T value, s[4];
+  float value, s[4];
 
 //
 // Get min/max contour values
@@ -193,7 +193,7 @@ void ContourImage(T *scalars, vtkScalars *newScalars, int roi[6], int dir[3],
       // Loop over contours in this pixel
       for (contNum=0; contNum < numValues; contNum++)
         {
-        value = (T) values[contNum];
+        value = values[contNum];
 
         // Build the case table
         for ( ii=0, index = 0; ii < 4; ii++)
@@ -210,7 +210,7 @@ void ContourImage(T *scalars, vtkScalars *newScalars, int roi[6], int dir[3],
           for (ii=0; ii<2; ii++) //insert line
             {
             vert = edges[edge[ii]];
-            t = (float)(value - s[vert[0]]) / (s[vert[1]] - s[vert[0]]);
+            t = (value - s[vert[0]]) / (s[vert[1]] - s[vert[0]]);
             x1 = pts[vert[0]];
             x2 = pts[vert[1]];
             for (jj=0; jj<2; jj++) //only need to interpolate two values

@@ -296,7 +296,7 @@ void ContourVolume(T *scalars, int dims[3], float origin[3], float aspectRatio[3
 	  }
         for (contNum=0; contNum < numValues; contNum++)
           {
-          value = (T) values[contNum];
+          value = values[contNum];
           // Build the case table
           for ( ii=0, index = 0; ii < 8; ii++)
               if ( s[ii] >= value )
