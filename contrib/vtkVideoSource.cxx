@@ -40,9 +40,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <ctype.h>
 #include <string.h>
 #include <iostream.h>
+#include <unistd.h>
 #include "vtkVideoSource.h"
 #include "vtkObjectFactory.h"
-#include "vtkMultiThreader.h"
 
 
 //----------------------------------------------------------------------------
