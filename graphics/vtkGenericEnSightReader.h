@@ -66,6 +66,11 @@ public:
   void SetCaseFileName(char* fileName);
   vtkGetStringMacro(CaseFileName);
 
+  // Description:
+  // Set/Get the file path.
+  vtkSetStringMacro(FilePath);
+  vtkGetStringMacro(FilePath);
+  
   void Update();
   
   // Description:
@@ -137,11 +142,6 @@ protected:
   // Returns 0 is there was an error.
   int ReadNextDataLine(char result[256]);
 
-  // Description:
-  // Set/Get the file path.
-  vtkSetStringMacro(FilePath);
-  vtkGetStringMacro(FilePath);
-  
   // Description:
   // Set/Get the geometry file name.
   vtkSetStringMacro(GeometryFileName);
