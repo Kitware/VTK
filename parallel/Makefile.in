@@ -28,6 +28,7 @@ vtkExtractUnstructuredGridPiece \
 vtkGetRemoteGhostCells \
 vtkImageComposite \
 vtkInputPort \
+vtkMemoryLimitImageDataStreamer \
 vtkMultiProcessController \
 vtkOutputPort \
 vtkParallelFactory \
