@@ -58,6 +58,13 @@ vtkWindow::vtkWindow()
   this->Erase = 1;
   this->DoubleBuffer = 0;
   this->DPI = 120;
+  this->TileViewport[0] = 0;
+  this->TileViewport[1] = 0;
+  this->TileViewport[2] = 1.0;
+  this->TileViewport[3] = 1.0;
+  this->TileSize[0] = 0;
+  this->TileSize[1] = 0;  
+  this->TileScale = 1;
 }
 
 // Destructor for the vtkWindow object.
@@ -98,7 +105,10 @@ void vtkWindow::SetWindowName( char * _arg )
 
 int *vtkWindow::GetSize()
 {
-  return this->Size;
+  this->TileSize[0] = this->Size[0]*this->TileScale;
+  this->TileSize[1] = this->Size[1]*this->TileScale;
+  
+  return this->TileSize;
 }
 
 void vtkWindow::SetSize(int a[2])
@@ -159,6 +169,9 @@ void vtkWindow::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "OffScreenRendering: " << this->OffScreenRendering << "\n";
   os << indent << "Double Buffered: " << this->DoubleBuffer << "\n";
   os << indent << "DPI: " << this->DPI << "\n";
-
+  os << indent << "TileScale: " << this->TileScale << "\n";
+  os << indent << "TileViewport: (" << this->TileViewport[0] << ", " 
+     << this->TileViewport[1] << ", " << this->TileViewport[2] << ", " 
+     << this->TileViewport[3] << ")\n";
 }
 
