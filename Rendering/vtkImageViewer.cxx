@@ -19,7 +19,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkInteractorStyleImage.h"
 
-vtkCxxRevisionMacro(vtkImageViewer, "1.40");
+vtkCxxRevisionMacro(vtkImageViewer, "1.41");
 vtkStandardNewMacro(vtkImageViewer);
 
 //----------------------------------------------------------------------------
@@ -91,7 +91,9 @@ public:
   static vtkImageViewerCallback *New() {
     return new vtkImageViewerCallback; }
   
-  void Execute(vtkObject *caller, unsigned long event, void *callData)
+  void Execute(vtkObject *caller, 
+               unsigned long event, 
+               void *vtkNotUsed(callData))
     {
       if (this->IV->GetInput() == NULL)
         {
