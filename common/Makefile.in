@@ -38,6 +38,8 @@ vtkMapper2D
 
 # put all concrete classes here
 CONCRETE = \
+vtkActor2D \
+vtkActor2DCollection \
 vtkAGraymap \
 vtkAPixmap \
 vtkBitArray \
@@ -89,6 +91,7 @@ vtkPolyLine \
 vtkPolyVertex \
 vtkPolygon \
 vtkPriorityQueue \
+vtkProperty2D \
 vtkQuad \
 vtkRectilinearGrid \
 vtkReferenceCount \
@@ -117,9 +120,7 @@ vtkVertex \
 vtkVoidArray \
 vtkVoxel \
 vtkWindowLevelLookupTable \
-vtkActor2D \
-vtkActor2DCollection \
-vtkProperty2D 
+vtkWindowToImageFilter
 
 #------------------------------------------------------------------------------
 # Autoconfig defines that can be overridden in user.make
