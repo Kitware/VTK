@@ -28,14 +28,20 @@
 #include "vtkActor.h"
 #include "vtkRenderer.h"
 
-class myCallback : public vtkCommand
+// Callback for the interaction
+class vtkMyCallback : public vtkCommand
 {
 public:
-  static myCallback *New() {
-    return new myCallback; }
-  virtual void Execute(vtkObject *caller, unsigned long, void *callData)
+  static vtkMyCallback *New() 
+    { return new vtkMyCallback; }
+  void Delete()
+    { delete this; }
+  virtual void Execute(vtkObject *caller, unsigned long, void*)
     {
-    cerr << "Starting to Render\n";
+      vtkRenderer *renderer = reinterpret_cast<vtkRenderer*>(caller);
+      cout << renderer->GetActiveCamera()->GetPosition()[0] << " "
+           << renderer->GetActiveCamera()->GetPosition()[1] << " "
+           << renderer->GetActiveCamera()->GetPosition()[2] << "\n";
     }
 };
 

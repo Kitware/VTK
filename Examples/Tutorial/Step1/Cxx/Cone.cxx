@@ -16,8 +16,8 @@
 
 =========================================================================*/
 //
-// This example creates a polygonal model of a cone, and then rendered it to
-// the screen. It willrotate the cone 360 degrees and then exit. The basic
+// This example creates a polygonal model of a cone, and then renders it to
+// the screen. It rotates the cone 360 degrees and then exits. The basic
 // setup of source -> mapper -> actor -> renderer -> renderwindow is 
 // typical of most VTK programs.
 //
@@ -34,7 +34,8 @@ int main( int argc, char *argv[] )
 {
   //
   // Next we create an instance of vtkConeSource and set some of its 
-  // properties
+  // properties. All objects in VTK are instantiated with the New() static
+  // class method.
   //
   vtkConeSource *cone = vtkConeSource::New();
   cone->SetHeight( 3.0 );
@@ -61,23 +62,23 @@ int main( int argc, char *argv[] )
   // Create the Renderer and assign actors to it. A renderer is like a
   // viewport. It is part or all of a window on the screen and it is
   // responsible for drawing the actors it has.  We also set the background
-  // color here
+  // color here.
   //
   vtkRenderer *ren1= vtkRenderer::New();
   ren1->AddActor( coneActor );
   ren1->SetBackground( 0.1, 0.2, 0.4 );
 
   //
-  // Finally we create the render window which will show up on the screen
+  // Finally we create the render window which will show up on the screen.
   // We put our renderer into the render window using AddRenderer. We also
-  // set the size to be 300 pixels by 300
+  // set the size to be 300 pixels by 300.
   //
   vtkRenderWindow *renWin = vtkRenderWindow::New();
   renWin->AddRenderer( ren1 );
   renWin->SetSize( 300, 300 );
 
   //
-  // now we loop over 360 degreeees and render the cone each time
+  // Now we loop over 360 degreeees and render the cone each time.
   //
   int i;
   for (i = 0; i < 360; ++i)
@@ -89,7 +90,8 @@ int main( int argc, char *argv[] )
     }
   
   //
-  // Free up any objects we created
+  // Free up any objects we created. All instances in VTK are deleted by
+  // using the Delete() method.
   //
   cone->Delete();
   coneMapper->Delete();

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# a modified version of COne.py that shows how to add callbacks, see Step1 for 
+# a modified version of Cone.py that shows how to add callbacks, see Step1 for 
 # comments on the basic pipeline setup
 #
 

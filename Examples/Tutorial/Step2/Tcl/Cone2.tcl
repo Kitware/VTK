@@ -1,5 +1,5 @@
 #
-# This example demonstrates how to add observers to an applicaiton. It
+# This example demonstrates how to add observers to an application. It
 # extends the Step1/Tcl/Cone.tcl example by adding an oberver. See Step1 for
 # more information on the basics of the pipeline
 #
