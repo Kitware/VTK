@@ -220,6 +220,14 @@ float *vlSbrRenderer::GetCenter()
 				/2.0*(float)size[1]);
 	this->Center[1] = this->Center[1]/2.0;
 	}
+	break;
+      default:
+	{
+	this->Center[0] = ((this->Viewport[2]+this->Viewport[0])
+			   /2.0*(float)size[0]);
+	this->Center[1] = ((this->Viewport[3]+this->Viewport[1])
+			   /2.0*(float)size[1]);
+	}
       }
     }
   else
@@ -258,6 +266,14 @@ void vlSbrRenderer::DisplayToView()
 	  (sizex*(this->Viewport[2]-this->Viewport[0])) - 1.0;
 
 	vy = 2.0 * (this->DisplayPoint[1]*2.0 - sizey*this->Viewport[1])/ 
+	  (sizey*(this->Viewport[3]-this->Viewport[1])) - 1.0;
+	}
+	break;
+      default:
+	{
+	vx = 2.0 * (this->DisplayPoint[0] - sizex*this->Viewport[0])/ 
+	  (sizex*(this->Viewport[2]-this->Viewport[0])) - 1.0;
+	vy = 2.0 * (this->DisplayPoint[1] - sizey*this->Viewport[1])/ 
 	  (sizey*(this->Viewport[3]-this->Viewport[1])) - 1.0;
 	}
       }
@@ -303,6 +319,16 @@ void vlSbrRenderer::ViewToDisplay()
 		   sizey*this->Viewport[1]);
 	dy = dy/2.0;
 	}
+	break;
+      default:
+	{
+	dx = (int)((this->ViewPoint[0]/this->Aspect[0] + 1.0) * 
+		   (sizex*(this->Viewport[2]-this->Viewport[0])) / 2.0 +
+		   sizex*this->Viewport[0]);
+	dy = (int)((this->ViewPoint[1]/this->Aspect[1] + 1.0) * 
+		   (sizey*(this->Viewport[3]-this->Viewport[1])) / 2.0 +
+		   sizey*this->Viewport[1]);
+	}
       }
     }
   else
@@ -341,6 +367,17 @@ int vlSbrRenderer::IsInViewport(int x,int y)
 	    (this->Viewport[2]*size[0] >= x)&&
 	    (this->Viewport[1]*size[1] <= ty)&&
 	    (this->Viewport[3]*size[1] >= ty))
+	  {
+	  return 1;
+	  }
+	}
+	break;
+      default:
+	{
+	if ((this->Viewport[0]*size[0] <= x)&&
+	    (this->Viewport[2]*size[0] >= x)&&
+	    (this->Viewport[1]*size[1] <= y)&&
+	    (this->Viewport[3]*size[1] >= y))
 	  {
 	  return 1;
 	  }
