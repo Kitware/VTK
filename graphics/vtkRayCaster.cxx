@@ -84,6 +84,10 @@ vtkRayCaster::vtkRayCaster()
 
   this->ViewToWorldTransform = vtkTransform::New();
 
+  for ( i = 0; i < VTK_MAX_THREADS; i++ )
+    {
+    this->NumberOfSamplesTaken[i] = 0;
+    }
 }
 
 // Destructor for vtkRayCaster
@@ -603,6 +607,18 @@ float vtkRayCaster::GetViewportStepSize()
     }
 }
 
+int vtkRayCaster::GetNumberOfSamplesTaken()
+{
+  int sum, i;
+
+  sum = 0;
+  for ( i = 0; i < VTK_MAX_THREADS; i++ )
+    {
+    sum += this->NumberOfSamplesTaken[i];
+    }
+  return sum;
+}
+
 // Initialize the buffers that we will need for rendering. If we have
 // something in the frame buffer (either geometry or volumes drawn by 
 // the graphics hardware) capture it for later use.
@@ -913,7 +929,6 @@ void vtkRayCaster::InitializeRayCasting(vtkRenderer *ren)
   // of the matrix are important, and which are zero.
   matrix = transform->GetMatrixPointer();
 
-
   // Do initialization for orthographic view - we need to 
   // know the starting position of the first ray, and the increments
   // in x and y to move to each of the next rays. Also, check our assumptions
@@ -964,10 +979,14 @@ void vtkRayCaster::InitializeRayCasting(vtkRenderer *ren)
     this->CameraInverse32   = matrix->Element[3][2];
     this->CameraInverse33   = matrix->Element[3][3];
 
-
     // Delete the object we created
     transform->Delete();
 
+    // Zero out all the number of samples taken values
+    for ( i = 0; i < VTK_MAX_THREADS; i++ )
+      {
+      this->NumberOfSamplesTaken[i] = 0;
+      }
 }
 
 // This is the multithreaded piece of the rendering - it is called once 
@@ -992,6 +1011,7 @@ VTK_THREAD_RETURN_TYPE RayCast_RenderImage( void *arg )
   float                        r, g, b, a, remaining_a;
   int                          icount;
   struct VolumeRayCastRayInfoStruct  rayInfo;
+  int                          numSamples = 0;
 
   // Get the info out of the input structure
   thread_id    = ((ThreadInfoStruct *)(arg))->ThreadID;
@@ -1155,6 +1175,8 @@ VTK_THREAD_RETURN_TYPE RayCast_RenderImage( void *arg )
 	    green[icount] = rayInfo.RayColor[1];
 	    blue[icount]  = rayInfo.RayColor[2];
 	    alpha[icount] = rayInfo.RayColor[3];
+	    numSamples += rayInfo.VolumeRayStepsTaken;
+
 	    if ( raycaster->ParallelProjection )
 	      {
 	      depth[icount] = rayInfo.RayDepth + nearclip;
@@ -1240,6 +1262,8 @@ VTK_THREAD_RETURN_TYPE RayCast_RenderImage( void *arg )
   delete blue;
   delete alpha;
   delete depth;
+
+  raycaster->NumberOfSamplesTaken[thread_id] = numSamples;
 
   return VTK_THREAD_RETURN_VALUE;
 

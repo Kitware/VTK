@@ -171,6 +171,8 @@ public:
   vtkSetMacro( NumberOfThreads, int );
   vtkGetMacro( NumberOfThreads, int );
 
+  int GetNumberOfSamplesTaken();
+
   float *GetCurrentZBuffer()
   {
     if ( this->FirstBlend )
@@ -217,6 +219,8 @@ protected:
   vtkMultiThreader *Threader;
 
   int              NumberOfThreads;
+
+  int              NumberOfSamplesTaken[VTK_MAX_THREADS];
 
   vtkRenderer   *Renderer;
 
