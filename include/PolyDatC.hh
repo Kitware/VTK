@@ -6,8 +6,6 @@
   Date:      $Date$
   Version:   $Revision$
 
-Description:
----------------------------------------------------------------------------
 This file is part of the Visualization Library. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
@@ -15,6 +13,11 @@ without the express written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
+// .NAME vlPolyDataCollection - maintain a list of polygonal data objects
+// .SECTION Description
+// vlPolyDataCollection is an object that creates and manipulates lists of
+// datasets. See also vlDataSetCollection and vlCollection and subclasses.
+
 #ifndef __vlPolyDataCollection_hh
 #define __vlPolyDataCollection_hh
 
@@ -32,13 +35,14 @@ class vlPolyDataCollection : public vlObject
 {
 public:
   vlPolyDataCollection();
+  void PrintSelf(ostream& os, vlIndent indent);
+  char *GetClassName() {return "vlPolyDataCollection";};
+
   void AddItem(vlPolyData *);
   void RemoveItem(vlPolyData *);
   int IsItemPresent(vlPolyData *);
   int GetNumberOfItems();
   vlPolyData *GetItem(int num);
-  void PrintSelf(ostream& os, vlIndent indent);
-  char *GetClassName() {return "vlPolyDataCollection";};
 
 private:
   int NumberOfItems;

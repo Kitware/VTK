@@ -27,7 +27,6 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // of verts, lines, polygons, and triangle strips lists.  It basically 
 // "marks" empty lists so that the traveral method "GetNextCell" 
 // works properly.
-//
 vlCellArray *vlPolyData::Dummy = NULL;
 
 vlPolyData::vlPolyData ()

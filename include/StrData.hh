@@ -6,8 +6,6 @@
   Date:      $Date$
   Version:   $Revision$
 
-Description:
----------------------------------------------------------------------------
 This file is part of the Visualization Library. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
@@ -15,9 +13,13 @@ without the express written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-//
-// Structured data (described by dimensions)
-//
+// .NAME vlStructuredDataSet - abstract class for topologically structured datasets
+// .SECTION Description
+// vlStructuredDataSet is an abstract class that specifies an interface for
+// topologically regular data. Regular data is data that can be accessed
+// in rectangular fashion using a i-j-k index. A finite difference grid,
+// a volume, or a pixmap are all considered regular.
+
 #ifndef __vlStructuredDataSet_h
 #define __vlStructuredDataSet_h
 
@@ -60,8 +62,7 @@ public:
   int GetBlanking() {return this->Blanking;};
   void BlankPoint(int ptId);
   void UnBlankPoint(int ptId);
-  int IsPointVisible(int ptId) {if (!this->Blanking) return 1; 
-                                else return this->PointVisibility->GetValue(ptId);} 
+  int IsPointVisible(int ptId);
 
 protected:
   int Dimensions[3];
@@ -69,5 +70,11 @@ protected:
   int Blanking;
   vlBitArray *PointVisibility;
 };
+
+inline int vlStructuredDataSet::IsPointVisible(int ptId) 
+{
+  if (!this->Blanking) return 1; 
+  else return this->PointVisibility->GetValue(ptId);
+}
 
 #endif

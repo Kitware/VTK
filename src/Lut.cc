@@ -13,12 +13,11 @@ written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-//
-// Methods for lookup table
-//
 #include <math.h>
 #include "Lut.hh"
 
+// Description:
+// Construct with range=(0,1); and hsv ranges set up for rainbow color table.
 vlLookupTable::vlLookupTable(int sze, int ext)
 {
   this->NumberOfColors = sze;
@@ -37,6 +36,8 @@ vlLookupTable::vlLookupTable(int sze, int ext)
   this->ValueRange[1] = 1.0;
 };
 
+// Description:
+// Allocate a color table of specified size.
 int vlLookupTable::Allocate(int sz, int ext) 
 {
   this->Modified();
@@ -44,17 +45,30 @@ int vlLookupTable::Allocate(int sz, int ext)
   return this->Table.Allocate(this->NumberOfColors,ext);
 }
 
+// Description:
+// Set the minimum/maximum scalar values for scalar mapping. Scalar values
+// less than minimum range value are clamped to minimum range value.
+// Scalar values greater than maximum range value are clamped to maximum
+// range value.
 void  vlLookupTable::SetTableRange(float r[2])
 {
   this->TableRange[0] = r[0];
   this->TableRange[1] = r[1];
 }
+
+// Description:
+// Set the minimum/maximum scalar values for scalar mapping. Scalar values
+// less than minimum range value are clamped to minimum range value.
+// Scalar values greater than maximum range value are clamped to maximum
+// range value.
 void  vlLookupTable::SetTableRange(float min, float max)
 {
   this->TableRange[0] = min;
   this->TableRange[1] = max;
 }
 
+// Description:
+// Generate lookup table from object parameters.
 void vlLookupTable::Build()
 {
   int i, hueCase;
@@ -132,6 +146,8 @@ void vlLookupTable::Build()
   this->BuildTime.Modified();
 }
 
+// Description:
+// Given a scalar value v, return an r-g-b color value from lookup table.
 float *vlLookupTable::MapValue(float v)
 {
   int indx;
@@ -142,6 +158,8 @@ float *vlLookupTable::MapValue(float v)
   return this->Table.GetColor(indx);
 }
 
+// Description:
+// Directly load color into lookup table
 void vlLookupTable::SetTableValue (int indx, float rgb[3])
 {
   indx = (indx < 0 ? 0 : (indx >= this->NumberOfColors ? this->NumberOfColors-1 : indx));
@@ -150,6 +168,8 @@ void vlLookupTable::SetTableValue (int indx, float rgb[3])
   this->Modified();
 }
 
+// Description:
+// Directly load color into lookup table
 void vlLookupTable::SetTableValue (int indx, float r, float g, float b)
 {
   float rgb[3];
@@ -157,6 +177,8 @@ void vlLookupTable::SetTableValue (int indx, float r, float g, float b)
   vlLookupTable::SetTableValue(indx,rgb);
 }
 
+// Description:
+// Return a r-g-b color value for the given index into the lookup table.
 float *vlLookupTable::GetTableValue (int indx)
 {
   indx = (indx < 0 ? 0 : (indx >= this->NumberOfColors ? this->NumberOfColors-1 : indx));

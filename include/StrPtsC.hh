@@ -6,8 +6,6 @@
   Date:      $Date$
   Version:   $Revision$
 
-Description:
----------------------------------------------------------------------------
 This file is part of the Visualization Library. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
@@ -15,6 +13,11 @@ without the express written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
+// .NAME vlStructuredPointsCollection - maintain a list of structured points data objects
+// .SECTION Description
+// vlStructuredPointsCollection is an object that creates and manipulates lists of
+// structured points datasets. See also vlCollection and subclasses.
+
 #ifndef __vlStructuredPointsCollection_hh
 #define __vlStructuredPointsCollection_hh
 

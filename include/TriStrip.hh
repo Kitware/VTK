@@ -6,8 +6,6 @@
   Date:      $Date$
   Version:   $Revision$
 
-Description:
----------------------------------------------------------------------------
 This file is part of the Visualization Library. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
@@ -15,9 +13,15 @@ without the express written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-//
-// Computational class for triangle strips.
-//
+// .NAME vlTriangleStrip - a cell that represents a triangle strip
+// .SECTION Description
+// vlTriangleStrip is a concrete implementation of vlCell to represent a 2D 
+// triangle strip. A triangle strip is a compact representation of triangles
+// connected edge to edge in strip fashion. The connectivity of a triangle 
+// strip is three points defining an initial triangle, then for each 
+// additional triangle, a single point that, combined with the previous two
+// points, defines the next triangle.
+
 #ifndef __vlTriangleStrip_h
 #define __vlTriangleStrip_h
 

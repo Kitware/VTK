@@ -6,8 +6,6 @@
   Date:      $Date$
   Version:   $Revision$
 
-Description:
----------------------------------------------------------------------------
 This file is part of the Visualization Library. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
@@ -15,9 +13,13 @@ without the express written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-//
-// Unstructured Grid (i.e., arbitrary combinations of all possible cell types)
-//
+// .NAME vlUnstructuredGrid - dataset represents arbitrary combinations of all possible cell types
+// .SECTION Description
+// vlUnstructuredGrid is a data object that is a concrete implementation 
+// of vlDataSet. vlUnstructuredGrid represents any combinations of any cell
+// types. This includes 0D (e.g., points), 1D (e.g., lines, polylines), 2D 
+// (e.g., triangles, polygons), and 3D (e.g., bricks, tetrahedron).
+
 #ifndef __vlUnstructuredGrid_h
 #define __vlUnstructuredGrid_h
 
@@ -32,12 +34,12 @@ public:
   vlUnstructuredGrid();
   vlUnstructuredGrid(const vlUnstructuredGrid& up);
   ~vlUnstructuredGrid();
-  void Allocate(int numCells=1000, int extSize=1000);
   char *GetClassName() {return "vlUnstructuredGrid";};
   char *GetDataType() {return "vlUnstructuredGrid";};
   void PrintSelf(ostream& os, vlIndent indent);
 
   // cell creation methods
+  void Allocate(int numCells=1000, int extSize=1000);
   int InsertNextCell(int type, vlIdList& ptIds);
   int InsertNextCell(int type, int npts, int pts[MAX_CELL_SIZE]);
   void InsertCells(int numCells, int width, int* data);

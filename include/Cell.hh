@@ -6,8 +6,6 @@
   Date:      $Date$
   Version:   $Revision$
 
-Description:
----------------------------------------------------------------------------
 This file is part of the Visualization Library. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
@@ -15,9 +13,15 @@ without the express written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-//
-// Abstract specification of computational cells.
-//
+// .NAME vlCell - abstract class to specify cell behavior
+// .SECTION Description
+// vlCell is an abstract class that specifies the interfaces for data cells.
+// Data cells are simple topological elements like points, lines, polygons, 
+// and tetrahedra that visualization datasets are composed of. In some 
+// cases visualization datasets may explicitly represent cells (e.g., 
+// vlPolyData, vlUnstructuredGrid), and in some cases, the datasets are 
+// implicitly composed of cells (e.g., vlStructuredPoints).
+
 #ifndef __vlCell_h
 #define __vlCell_h
 
@@ -43,27 +47,48 @@ public:
   // objects, and because they are used internally, do not use memory 
   // reference counting.
 
-  // Type of cell
+  // Description:
+  // Return the type of cell.
   virtual int GetCellType() = 0;
 
-  // Dimensionality of cell (0,1,2, or 3)
+  // Description:
+  // Return the topological dimensional of the cell (0,1,2, or 3).
   virtual int GetCellDimension() = 0;
 
-  // Point coordinates for cell.
+  // Description:
+  // Get the point coordinates for the cell.
   vlFloatPoints *GetPoints() {return &this->Points;};
 
-  // Number of points (and other topological entities) in cell
+  // Description:
+  // Return the number of points in the cell.
   int GetNumberOfPoints() {return this->PointIds.GetNumberOfIds();};
+
+  // Description:
+  // Return the number of edges in the cell.
   virtual int GetNumberOfEdges() = 0;
+
+  // Description:
+  // Return the number of faces in the cell.
   virtual int GetNumberOfFaces() = 0;
 
-  // Get topological entities
+  // Description:
+  // Return the list of point ids defining cell.
   vlIdList *GetPointIds() {return &this->PointIds;};
+
+  // Description:
+  // For cell point i, return the actual point id.
   int GetPointId(int ptId) {return this->PointIds.GetId(ptId);};
+
+  // Description:
+  // Return the edge cell from the edgeId of the cell.
   virtual vlCell *GetEdge(int edgeId) = 0;
+
+  // Description:
+  // Return the face cell from the faceId of the cell.
   virtual vlCell *GetFace(int faceId) = 0;
 
-  // given a point x[3] return inside(=1) or outside(=0) cell; evaluate 
+  // Description:
+  // Given a point x[3] return inside(=1) or outside(=0) cell; evaluate 
   // parametric coordinates, sub-cell id (!=0 only if cell is composite),
   // distance squared  of point x[3] to cell (in particular, the sub-cell 
   // indicated), and interpolation weights in cell.
@@ -71,20 +96,19 @@ public:
                                int& subId, float pcoords[3], 
                                float& dist2, float weights[MAX_CELL_SIZE]) = 0;
 
+  // Description:
   // Determine global coordinate from subId and parametric coordinates
   virtual void EvaluateLocation(int& subId, float pcoords[3], 
                                 float x[3], float weights[MAX_CELL_SIZE]) = 0;
 
+  // Description:
   // Generate contouring primitives
   virtual void Contour(float value, vlFloatScalars *cellScalars, 
                        vlFloatPoints *points, vlCellArray *verts, 
                        vlCellArray *lines, vlCellArray *polys, 
                        vlFloatScalars *scalars) = 0;
 
-  // Compute cell bounding box (xmin,xmax,ymin,ymax,zmin,zmax)
   float *GetBounds();
-
-  // Compute Length squared of cell (i.e., bounding box diagonal squared)
   float GetLength2();
 
   // Quick intersection of cell bounding box.  Returns != 0 for hit.

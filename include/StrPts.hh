@@ -6,8 +6,6 @@
   Date:      $Date$
   Version:   $Revision$
 
-Description:
----------------------------------------------------------------------------
 This file is part of the Visualization Library. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
@@ -15,9 +13,13 @@ without the express written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-//
-// Structured points (e.g., volume(3D), image(2D), etc.)
-//
+// .NAME vlStructuredPoints - topologically and geometrically regular array of data
+// .SECTION Description
+// vlStructuredPoints is a data object that is a concrete implementation of
+// vlDataSet.vlStructuredPoints represents a geometric structure that is a 
+// topological and geometrical regular array of points. Examples include
+// volumes (voxel data) and pixmaps. 
+
 #ifndef __vlStructuredPoints_h
 #define __vlStructuredPoints_h
 
@@ -37,14 +39,18 @@ public:
   float *GetPoint(int ptId);
   vlCell *GetCell(int cellId);
   void Initialize();
-  int FindCell(float x[3], vlCell *cell, float tol2, 
-               int& subId, float pcoords[3]);
+  int FindCell(float x[3], vlCell *cell, float tol2, int& subId, float pcoords[3]);
   int GetCellType(int cellId);
 
-  // specific object methods
+  // Description:
+  // Set the aspect ratio of the cubical cells that compose the structured
+  // point set.
   vlSetVector3Macro(AspectRatio,float);
   vlGetVectorMacro(AspectRatio,float);
 
+  // Description:
+  // Set the origin of the data. The origin plus aspect ratio determine the
+  // position in space of the structured points.
   vlSetVector3Macro(Origin,float);
   vlGetVectorMacro(Origin,float);
 

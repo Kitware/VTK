@@ -6,8 +6,6 @@
   Date:      $Date$
   Version:   $Revision$
 
-Description:
----------------------------------------------------------------------------
 This file is part of the Visualization Library. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
@@ -36,6 +34,9 @@ vlUnstructuredGrid::vlUnstructuredGrid ()
   this->Links = NULL;
 }
 
+// Description:
+// Allocate memory space for data insertion. Execute this method before
+// inserting and cells into object.
 void vlUnstructuredGrid::Allocate (int numCells=1000, int extSize=1000)
 {
   if ( numCells < 1 ) numCells = 1000;
@@ -51,7 +52,10 @@ void vlUnstructuredGrid::Allocate (int numCells=1000, int extSize=1000)
   this->Links->Register(this);
 }
 
-vlUnstructuredGrid::vlUnstructuredGrid(const vlUnstructuredGrid& pd)
+// Description:
+// Shallow construction of object.
+vlUnstructuredGrid::vlUnstructuredGrid(const vlUnstructuredGrid& pd) :
+vlPointSet(pd)
 {
   this->Connectivity = pd.Connectivity;
   if (this->Connectivity) this->Connectivity->Register(this);
@@ -189,6 +193,9 @@ void vlUnstructuredGrid::PrintSelf(ostream& os, vlIndent indent)
     }
 }
 
+// Description:
+// Insert/create cell in object by type and list of point ids defining
+// cell topology.
 int vlUnstructuredGrid::InsertNextCell(int type, vlIdList& ptIds)
 {
   int i;
@@ -202,6 +209,9 @@ int vlUnstructuredGrid::InsertNextCell(int type, vlIdList& ptIds)
   this->Cells->InsertNextCell(type,this->Connectivity->GetLocation(npts));
 }
 
+// Description:
+// Insert/create cell in object by type and list of point ids defining
+// cell topology.
 int vlUnstructuredGrid::InsertNextCell(int type, int npts, int pts[MAX_CELL_SIZE])
 {
   this->Connectivity->InsertNextCell(npts,pts);

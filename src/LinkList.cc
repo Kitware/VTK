@@ -33,9 +33,8 @@ vlLinkList::~vlLinkList()
   delete [] this->Array;
 }
 
-//
-// Add a link to structure
-//
+// Description:
+// Allocate memory for the list of lists of cell ids.
 void vlLinkList::AllocateLinks(int n)
 {
   for (int i=0; i < n; i++)
@@ -44,10 +43,13 @@ void vlLinkList::AllocateLinks(int n)
     }
 }
 
+// Description:
+// Reclaim any unused memory.
 void vlLinkList::Squeeze()
 {
   this->Resize (this->MaxId+1);
 }
+
 
 void vlLinkList::Reset()
 {
@@ -78,6 +80,8 @@ vlLink *vlLinkList::Resize(int sz)
   return this->Array;
 }
 
+// Description:
+// Build the link list array.
 void vlLinkList::BuildLinks(vlDataSet *data)
 {
   int numPts = data->GetNumberOfPoints();

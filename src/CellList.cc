@@ -29,34 +29,39 @@ vlCellList::~vlCellList()
   delete [] this->Array;
 }
 
-//
+// Description:
 // Add a cell to structure
-//
-void vlCellList::InsertCell(const int id, const unsigned char type, const int loc)
+void vlCellList::InsertCell(const int cellId, const unsigned char type, const int loc)
 {
   vlCell_s *cell;
 
-  if ( id >= this->Size ) this->Resize(id);
-  if ( id > this->MaxId ) this->MaxId = id;
+  if ( cellId >= this->Size ) this->Resize(cellId);
+  if ( cellId > this->MaxId ) this->MaxId = cellId;
 
-  cell = this->Array + id;
+  cell = this->Array + cellId;
   cell->type = type;
   cell->loc = loc;
 
   return;
 }
 
+// Description:
+// Add a cell to the object in the next available slot.
 int vlCellList::InsertNextCell(const unsigned char type, const int loc)
 {
   this->InsertCell (++this->MaxId,type,loc);
   return this->MaxId;
 }
 
+// Description:
+// Reclaim any extra memory.
 void vlCellList::Squeeze()
 {
   this->Resize (this->MaxId+1);
 }
 
+// Description:
+// Initialize object without releasing memory.
 void vlCellList::Reset()
 {
   this->MaxId = -1;

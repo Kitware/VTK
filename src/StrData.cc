@@ -6,8 +6,6 @@
   Date:      $Date$
   Version:   $Revision$
 
-Description:
----------------------------------------------------------------------------
 This file is part of the Visualization Library. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
@@ -28,7 +26,8 @@ vlStructuredDataSet::vlStructuredDataSet()
   this->PointVisibility = 0;
 }
 
-vlStructuredDataSet::vlStructuredDataSet(const vlStructuredDataSet& sds)
+vlStructuredDataSet::vlStructuredDataSet(const vlStructuredDataSet& sds) :
+vlDataSet(sds)
 {
   this->Dimensions[0] = sds.Dimensions[0];
   this->Dimensions[1] = sds.Dimensions[1];
@@ -44,6 +43,8 @@ vlStructuredDataSet::~vlStructuredDataSet()
   this->Initialize();
 }
 
+// Description:
+// Return the topological dimension of the data (e.g.,0, 1, 2, or 3D).
 int vlStructuredDataSet::GetDataDimension()
 {
   switch (this->DataDescription)
@@ -58,6 +59,8 @@ int vlStructuredDataSet::GetDataDimension()
     }
 }
 
+// Description:
+// Set the i-j-k dimensions of the data.
 void vlStructuredDataSet::SetDimensions(int i, int j, int k)
 {
   int dim[3];
@@ -142,6 +145,11 @@ int vlStructuredDataSet::GetNumberOfPoints()
   return Dimensions[0]*Dimensions[1]*Dimensions[2];
 }
 
+// Description:
+// Turn on data blanking. Data blanking is the ability to turn off
+// portions of the grid when displaying or operating on it. Some data
+// (like finite difference data) routinely turns off data to simulate
+// solid obstacles.
 void vlStructuredDataSet::BlankingOn()
 {
   this->Blanking = 1;
@@ -157,18 +165,24 @@ void vlStructuredDataSet::BlankingOn()
     }
 }
 
+// Description:
+// Turn off data blanking.
 void vlStructuredDataSet::BlankingOff()
 {
   this->Blanking = 0;
   this->Modified();
 }
 
+// Description:
+// Turn off a particular data point.
 void vlStructuredDataSet::BlankPoint(int ptId)
 {
   if ( !this->PointVisibility ) this->BlankingOn();
   this->PointVisibility->InsertValue(ptId,0);
 }
 
+// Description:
+// Turn on a particular data point.
 void vlStructuredDataSet::UnBlankPoint(int ptId)
 {
   if ( !this->PointVisibility ) this->BlankingOn();

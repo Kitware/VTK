@@ -6,8 +6,6 @@
   Date:      $Date$
   Version:   $Revision$
 
-Description:
----------------------------------------------------------------------------
 This file is part of the Visualization Library. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
@@ -15,9 +13,11 @@ without the express written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-//
-// Computational class for polypoints.
-//
+// .NAME vlPolyPoints - cell represents a set of 0D vertices
+// .SECTION Description
+// vlPolyPoints is a concrete implementation of vlCell to represent a 
+// set of 0D vertices.
+
 #ifndef __vlPolyPoints_h
 #define __vlPolyPoints_h
 

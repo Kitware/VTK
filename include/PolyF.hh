@@ -13,9 +13,11 @@ written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-//
-// PolyFilter takes PolyData as input
-//
+// .NAME vlPolyFilter - filter that takes vlPolyData as input
+// .SECTION Description
+// vlPolyFilter is a filter that takes a single vlPolyData data object
+// as input.
+
 #ifndef __vlPolyFilter_h
 #define __vlPolyFilter_h
 
@@ -30,6 +32,9 @@ public:
   void PrintSelf(ostream& os, vlIndent indent);
 
   void Update();
+
+  // Description:
+  // Specify the input object.
   vlSetObjectMacro(Input,vlPolyData);
   vlGetObjectMacro(Input,vlPolyData);
 

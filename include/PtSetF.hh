@@ -6,8 +6,6 @@
   Date:      $Date$
   Version:   $Revision$
 
-Description:
----------------------------------------------------------------------------
 This file is part of the Visualization Library. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
@@ -15,9 +13,11 @@ without the express written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-//
-// PointSetFilter takes general structured datasets as input
-//
+// .NAME vlPointSetFilter - filter that takes vlPointSet as input
+// .SECTION Description
+// vlPointSetFilter is a filter that takes a single vlPointSet data object
+// as input.
+
 #ifndef __vlPointSetFilter_h
 #define __vlPointSetFilter_h
 
@@ -33,6 +33,9 @@ public:
   void PrintSelf(ostream& os, vlIndent indent);
 
   void Update();
+
+  // Description:
+  // Specify the input object.
   vlSetObjectMacro(Input,vlPointSet);
   vlGetObjectMacro(Input,vlPointSet);
 

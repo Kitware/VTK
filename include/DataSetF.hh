@@ -13,9 +13,11 @@ written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-//
-// DataSetFilter takes general DataSet as input
-//
+// .NAME vlDataSetFilter - filter that takes vlDataSet as input
+// .SECTION Description
+// vlDataSetFilter is a filter that takes a single vlDataSet data object
+// as input.
+
 #ifndef __vlDataSetFilter_h
 #define __vlDataSetFilter_h
 
@@ -31,6 +33,9 @@ public:
   void PrintSelf(ostream& os, vlIndent indent);
 
   void Update();
+
+  // Description:
+  // Specify the input object.
   vlSetObjectMacro(Input,vlDataSet);
   vlGetObjectMacro(Input,vlDataSet);
 

@@ -6,8 +6,6 @@
   Date:      $Date$
   Version:   $Revision$
 
-Description:
----------------------------------------------------------------------------
 This file is part of the Visualization Library. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
@@ -15,10 +13,14 @@ without the express written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-//
-// Class to localize mapping of cell types to object.  Adding new cell type 
-// means adding new & unique #define and then implementing the object.
-//
+// .NAME vlCellType - define types of cells
+// .SECTION Description
+// vlCellType defines the allowable cell types in the visualization 
+// library (vl). In vl, datasets consist of collections of cells. 
+// Different datasets consist of different cell types. The cells may be 
+// explicitly represented (as in vlPolyData), or may be implicit to the
+// data type (vlStructuredPoints).
+
 #ifndef __vlCellTypes_h
 #define __vlCellTypes_h
 

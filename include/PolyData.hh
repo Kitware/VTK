@@ -13,10 +13,17 @@ written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
+// .NAME vlPolyData - concrete dataset represents vertices, lines, polygons, and triangle strips
+// .SECTION Description
+// vlPolyData is a data object that is a concrete implementation of vlDataSet.
+// vlPolyData represents a geometric structure consisting of vertices, lines,
+// polygons, and triangle strips. Point attribute values (e.g., scalars,
+// vectors, etc.) are also represented.
 //
-// Represent polygonal data (topological vertices (as compared to
-// geometric point coordinates), lines, polygons, and triangle strips
-//
+// The actual cell types (CellType.hh) supported by vlPolyData are: vlPOINT,
+// vlPOLY_POINTS, vlLINE, vlPOLYLINE, vlTRIANGLE, vlTRIANGLE_STRIP,
+// vlPOLYGON, vlRECTANGLE, and vlQUAD.
+
 #ifndef __vlPolyData_h
 #define __vlPolyData_h
 
@@ -64,7 +71,7 @@ public:
   int GetNumberOfPolys();
   int GetNumberOfStrips();
 
-  // Allocate storage for cells when using following InsertNextCell method
+  // Allocate storage for cells when using the following InsertNextCell method
   void Allocate(int numCells=1000, int extSize=1000);
   // create verts, lines, polys, tmeshes from cell object
   void InsertNextCell(int type, int npts, int pts[MAX_CELL_SIZE]);

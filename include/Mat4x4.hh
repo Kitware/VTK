@@ -13,6 +13,10 @@ written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
+// .NAME vlMatrix4x4 - represent and manipulate 4x4 matrices
+// .SECTION Description
+// vlMatrix4x4 is a class to represent and manipulate 4x4 matrices.
+
 #ifndef __vlMatrix4x4_hh
 #define __vlMatrix4x4_hh
 
@@ -25,6 +29,9 @@ class vlMatrix4x4 : public vlObject
   //  A 4 x 4 matrix.
   vlMatrix4x4 ();
   vlMatrix4x4 (const vlMatrix4x4& m);
+  char *GetClassName () {return "vlMatrix4x4";};
+  void PrintSelf (ostream& os, vlIndent indent);
+
   void operator= (float element);
   void operator= (vlMatrix4x4& source);
   float *operator[](const unsigned int i) {return &(Element[i][0]);};
@@ -38,7 +45,5 @@ class vlMatrix4x4 : public vlObject
   void PointMultiply(float in[4], float out[4]);
   void Adjoint (vlMatrix4x4 & in,vlMatrix4x4 & out);
   float Determinant (vlMatrix4x4 & in);
-  char *GetClassName () {return "vlMatrix4x4";};
-  void PrintSelf (ostream& os, vlIndent indent);
 };
 #endif

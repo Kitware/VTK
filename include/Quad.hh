@@ -6,8 +6,6 @@
   Date:      $Date$
   Version:   $Revision$
 
-Description:
----------------------------------------------------------------------------
 This file is part of the Visualization Library. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
@@ -15,9 +13,11 @@ without the express written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-//
-// Computational class for quads.
-//
+// .NAME vlQuad - a cell that represents a four sided quadrilateral
+// .SECTION Description
+// vlQuad is a concrete implementation of vlCell to represent a 2D 
+// quadrilateral.
+
 #ifndef __vlQuad_h
 #define __vlQuad_h
 

@@ -6,8 +6,6 @@
   Date:      $Date$
   Version:   $Revision$
 
-Description:
----------------------------------------------------------------------------
 This file is part of the Visualization Library. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
@@ -15,9 +13,15 @@ without the express written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-//
-// Structured Grid (i.e., topologically regular arrangement of points)
-//
+// .NAME vlStructuredGrid - topologically regular array of data
+// .SECTION Description
+// vlStructuredGrid is a data object that is a concrete implementation of
+// vlDataSet. vlStructuredGrid represents a geometric structure that is a
+// topologically regular array of points. The topology is that of a cube that
+// has been subdivided into a regular array of smaller cubes. Each point/cell
+// can be addressed with i-j-k indices. Examples include finite difference 
+// grids.
+
 #ifndef __vlStructuredGrid_h
 #define __vlStructuredGrid_h
 

@@ -6,8 +6,6 @@
   Date:      $Date$
   Version:   $Revision$
 
-Description:
----------------------------------------------------------------------------
 This file is part of the Visualization Library. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
@@ -36,6 +34,9 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // through the GetCell(id) method in the DataSet objects.
 //
 
+// Description:
+// Compute the polygon normal from a points list, and a list of point ids
+// that index into the points list.
 void vlPolygon::ComputeNormal(vlPoints *p, int numPts, int *pts, float *n)
 {
   int     i;
@@ -76,6 +77,8 @@ void vlPolygon::ComputeNormal(vlPoints *p, int numPts, int *pts, float *n)
     }
 }
 
+// Description:
+// Compute the polygon normal from three points.
 void vlPolygon::ComputeNormal(float *v1, float *v2, float *v3, float *n)
 {
     float    length;
@@ -98,6 +101,8 @@ void vlPolygon::ComputeNormal(float *v1, float *v2, float *v3, float *n)
     }
 }
 
+// Description:
+// Compute the polygon normal from a list of floating points.
 void vlPolygon::ComputeNormal(vlFloatPoints *p, float *n)
 {
   int     i, numPts;
@@ -205,9 +210,8 @@ void vlPolygon::EvaluateLocation(int& subId, float pcoords[3], float x[3],
   this->ComputeWeights(x,weights);
 }
 
-//
+// Description:
 //  Create a local s-t coordinate system for a polygon
-//
 int vlPolygon::ParameterizePolygon(float *p0, float *p10, float& l10, 
                                    float *p20,float &l20, float *n)
 {
@@ -272,10 +276,10 @@ int vlPolygon::ParameterizePolygon(float *p0, float *p10, float& l10,
   return 1;
 }
 
-//
-//  Function uses ray-casting to determine if point is inside polygon.
-//  Works for arbitrary polygon shape (e.g., non-convex).
-//
+// Description:
+// Determine whether point is inside polygon.
+// Function uses ray-casting to determine if point is inside polygon.
+// Works for arbitrary polygon shape (e.g., non-convex).
 #define CERTAIN 1
 #define UNCERTAIN 0
 #define RAY_TOL 1.e-03 //Tolerance for ray firing
@@ -430,11 +434,10 @@ static  float   Tolerance; // Intersection tolerance
 static  int     SuccessfulTriangulation; // Stops recursive tri. if necessary
 static  float   Normal[3]; //polygon normal
 
-//
-//  General triangulation entry point.  Tries to use the fast triangulation 
-//  technique first, and if that doesn't work, something more complex but
+// Description:
+// Triangulate polygon. Tries to use the fast triangulation technique 
+// first, and if that doesn't work, uses more complex routine that is
 //  guaranteed to work.
-//
 int vlPolygon::Triangulate(vlIdList &outTris)
 {
   int i, success;
@@ -471,11 +474,10 @@ int vlPolygon::Triangulate(vlIdList &outTris)
   return 1;
 }
 
-//
-//  Triangulate loop.  Use recursive divide and conquer based on plane 
-//  splitting  to reduce loop into triangles.  The cell is presumed 
-//  properly initialized (i.e., Points and PointIds).
-//
+// Description: A fast triangulation method. Uses recursive divide and 
+// conquer based on plane splitting  to reduce loop into triangles.  
+// The cell (e.g., triangle) is presumed properly initialized (i.e., 
+// Points and PointIds).
 int vlPolygon::FastTriangulate (int numVerts, int *verts, vlIdList& Tris)
 {
   int i,j;
@@ -558,9 +560,8 @@ int vlPolygon::FastTriangulate (int numVerts, int *verts, vlIdList& Tris)
     }
 }
 
-//
+// Description:
 //  Determine whether the loop can be split / build loops
-//
 int vlPolygon::CanSplitLoop (int fedges[2], int numVerts, int *verts, 
                              int& n1, int *l1, int& n2, int *l2, float& ar)
 {
@@ -630,9 +631,8 @@ int vlPolygon::CanSplitLoop (int fedges[2], int numVerts, int *verts,
   return 1;
 }
 
-//
-//  Creates two loops from splitting plane provided
-//
+// Description:
+// Creates two loops from splitting plane provided
 void vlPolygon::SplitLoop (int fedges[2], int numVerts, int *verts, 
                            int& n1, int *l1, int& n2, int* l2)
 {
