@@ -24,7 +24,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkExtractEdges, "1.49");
+vtkCxxRevisionMacro(vtkExtractEdges, "1.50");
 vtkStandardNewMacro(vtkExtractEdges);
 
 // Construct object.
@@ -68,7 +68,6 @@ void vtkExtractEdges::Execute()
   numPts=input->GetNumberOfPoints();
   if ( (numCells=input->GetNumberOfCells()) < 1 || numPts < 1 )
     {
-    vtkErrorMacro(<<"No input data!");
     return;
     }
 
