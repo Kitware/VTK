@@ -87,6 +87,7 @@ vtkStructuredData \
 vtkStructuredGrid \
 vtkStructuredPoints \
 vtkTetra \
+vtkTimerLog \
 vtkTimeStamp \
 vtkTransform \
 vtkTriangle \
