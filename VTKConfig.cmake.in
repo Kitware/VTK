@@ -4,17 +4,25 @@
 #
 # The following variables are defined to help external projects use VTK:
 #
-# VTK_VERSION_MAJOR     - The VTK major version number.
-# VTK_VERSION_MINOR     - The VTK minor version number (odd for non-release).
-# VTK_VERSION_PATCH     - The VTK patch level ("development" for non-release).
+# VTK_VERSION_MAJOR   - The VTK major version number.
+# VTK_VERSION_MINOR   - The VTK minor version number (odd for non-release).
+# VTK_VERSION_PATCH   - The VTK patch level ("development" for non-release).
 #
-# VTK_USE_FILE          - A CMake source file that can be included
-#                         to set the include directories, library
-#                         directories, and preprocessor macros.
+# VTK_USE_FILE        - A CMake source file that can be included
+#                       to set the include directories, library
+#                       directories, and preprocessor macros.
 #
-# VTK_INCLUDE_DIRS      - Include directories for VTK headers.
-# VTK_LIBRARY_DIRS      - Link directories for VTK libraries.
-# VTK_DEFINITIONS       - Preprocessor macros needed for including VTK headers.
+# VTK_INCLUDE_DIRS    - Include directories for VTK headers.
+# VTK_LIBRARY_DIRS    - Link directories for VTK libraries.
+# VTK_DEFINITIONS     - Preprocessor macros needed for including VTK headers.
+#
+# VTK_TCL_EXE         - Location of Tcl wrapper executable (vtk).
+# VTK_PYTHON_EXE      - Location of Python wrapper executable (vtkpython).
+# VTK_JAVA_HOME       - Location of Java wrapper class directory.
+# VTK_PARSE_JAVA_EXE  - Location of vtkParseJava executable.
+# VTK_WRAP_JAVA_EXE   - Location of vtkWrapJava executable.
+# VTK_WRAP_PYTHON_EXE - Location of vtkWrapPython executable.
+# VTK_WRAP_TCL_EXE    - Location of vtkWrapTcl executable.
 #
 # There are many configuration settings controlling how VTK is built.
 # These settings are available through the following settings:
@@ -43,17 +51,6 @@
 # VTK_WRAP_PYTHON           - Python wrapping.
 # VTK_WRAP_TCL              - Tcl wrapping.
 #
-# VTK_TCL_EXE               - Location of Tcl wrapper executable.
-# VTK_PYTHON_EXE            - Location of Python wrapper executable.
-# VTK_JAVA_HOME             - Location of Java wrapper class directory.
-# VTK_PARSE_JAVA_EXE        - Location of vtkParseJava executable.
-# VTK_WRAP_JAVA_EXE         - Location of vtkWrapJava executable.
-# VTK_WRAP_PYTHON_EXE       - Location of vtkWrapPython executable.
-# VTK_WRAP_TCL_EXE          - Location of vtkWrapTcl executable.
-
-# VTK_DATA_ROOT  ??
-# VTK_WRAP_HINTS ??
-
 # VTK_BUILD_TYPE               - The choice of Debug/Release/... used for VTK.
 # VTK_C_COMPILER               - C compiler used to build VTK.
 # VTK_C_FLAGS                  - C compiler flags used to build VTK.
