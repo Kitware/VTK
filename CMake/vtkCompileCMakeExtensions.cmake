@@ -13,11 +13,10 @@ MACRO(VTK_COMPILE_CMAKE_EXTENSIONS source_dir build_dir result_var)
     IF("${result_var}")
       MESSAGE(STATUS "Compiling VTK CMake commands - done")
     ELSE("${result_var}")
-      MESSAGE(FATAL_ERROR "Compiling VTK CMake commands - failed")
-      MESSAGE("Failed to compile VTK extensions to CMake")
       WRITE_FILE(${CMAKE_BINARY_DIR}/CMakeError.log 
         "Building of VTK extensions failed with the following output:\n"
         "${VTK_COMPILE_CMAKE_EXTENSIONS_OUTPUT}\n" APPEND)
+      MESSAGE(FATAL_ERROR "Compiling VTK CMake commands - failed")
     ENDIF("${result_var}")
   ENDIF(COMMAND VTK_MAKE_INSTANTIATOR2)
 ENDMACRO(VTK_COMPILE_CMAKE_EXTENSIONS)
