@@ -49,7 +49,7 @@
 #include "vtkVoxel.h"
 #include "vtkWedge.h"
 
-vtkCxxRevisionMacro(vtkUnstructuredGrid, "1.5");
+vtkCxxRevisionMacro(vtkUnstructuredGrid, "1.6");
 vtkStandardNewMacro(vtkUnstructuredGrid);
 
 vtkUnstructuredGrid::vtkUnstructuredGrid ()
@@ -138,55 +138,105 @@ vtkUnstructuredGrid::~vtkUnstructuredGrid()
 {
   vtkUnstructuredGrid::Initialize();
   if(this->Vertex)
+    {
     this->Vertex->Delete();
+    }
   if(this->PolyVertex)
+    {
     this->PolyVertex->Delete();
+    }
   if(this->Line)
+    {
     this->Line->Delete();
+    }
   if(this->PolyLine)
+    {
     this->PolyLine->Delete();
+    }
   if(this->Triangle)
+    {
     this->Triangle->Delete();
+    }
   if(this->TriangleStrip)
+    {
     this->TriangleStrip->Delete();
+    }
   if(this->Pixel)
+    {
     this->Pixel->Delete();
+    }
   if(this->Quad)
+    {
     this->Quad->Delete();
+    }
   if(this->Polygon)
+    {
     this->Polygon->Delete();
+    }
   if(this->Tetra)
+    {
     this->Tetra->Delete();
+    }
   if(this->Voxel)
+    {
     this->Voxel->Delete();
+    }
   if(this->Hexahedron)
+    {
     this->Hexahedron->Delete();
+    }
   if(this->Wedge)
+    {
     this->Wedge->Delete();
+    }
   if(this->Pyramid)
+    {
     this->Pyramid->Delete();
+    }
   if(this->PentagonalPrism)
+    {
     this->PentagonalPrism->Delete();
+    }
   if(this->HexagonalPrism)
+    {
     this->HexagonalPrism->Delete();
+    }
   if(this->QuadraticEdge)
+    {
     this->QuadraticEdge->Delete();
+    }
   if(this->QuadraticTriangle)
+    {
     this->QuadraticTriangle->Delete();
+    }
   if(this->QuadraticQuad)
+    {
     this->QuadraticQuad->Delete();
+    }
   if(this->QuadraticTetra)
+    {
     this->QuadraticTetra->Delete();
+    }
   if(this->QuadraticHexahedron)
+    {
     this->QuadraticHexahedron->Delete();
+    }
   if(this->QuadraticWedge)
+    {
     this->QuadraticWedge->Delete();
+    }
   if(this->QuadraticPyramid)
+    {
     this->QuadraticPyramid->Delete();
+    }
   if(this->ConvexPointSet)
+    {
     this->ConvexPointSet->Delete();
+    }
   if(this->EmptyCell)
+    {
     this->EmptyCell->Delete();
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -326,152 +376,202 @@ vtkCell *vtkUnstructuredGrid::GetCell(vtkIdType cellId)
   switch ((int)this->Types->GetValue(cellId))
     {
     case VTK_VERTEX:
-      if(this->Vertex==NULL)
-        this->Vertex=vtkVertex::New();
+      if(!this->Vertex)
+        {
+        this->Vertex = vtkVertex::New();
+        }
       cell = this->Vertex;
       break;
 
     case VTK_POLY_VERTEX:
-      if(this->PolyVertex==NULL)
-        this->PolyVertex=vtkPolyVertex::New();
+      if(!this->PolyVertex)
+        {
+        this->PolyVertex = vtkPolyVertex::New();
+        }
       cell = this->PolyVertex;
       break;
 
     case VTK_LINE:
-      if(this->Line==NULL)
-        this->Line=vtkLine::New();
+      if(!this->Line)
+        {
+        this->Line = vtkLine::New();
+        }
       cell = this->Line;
       break;
 
     case VTK_POLY_LINE:
-      if(this->PolyLine==NULL)
-        this->PolyLine=vtkPolyLine::New();
+      if(!this->PolyLine)
+        {
+        this->PolyLine = vtkPolyLine::New();
+        }
       cell = this->PolyLine;
       break;
 
     case VTK_TRIANGLE:
-      if(this->Triangle==NULL)
-        this->Triangle=vtkTriangle::New();
+      if(!this->Triangle)
+        {
+        this->Triangle = vtkTriangle::New();
+        }
       cell = this->Triangle;
       break;
 
     case VTK_TRIANGLE_STRIP:
-      if(this->TriangleStrip==NULL)
-        this->TriangleStrip=vtkTriangleStrip::New();
+      if(!this->TriangleStrip)
+        {
+        this->TriangleStrip = vtkTriangleStrip::New();
+        }
       cell = this->TriangleStrip;
       break;
 
     case VTK_PIXEL:
-      if(this->Pixel==NULL)
-        this->Pixel=vtkPixel::New();
+      if(!this->Pixel)
+        {
+        this->Pixel = vtkPixel::New();
+        }
       cell = this->Pixel;
       break;
 
     case VTK_QUAD:
-      if(this->Quad==NULL)
-        this->Quad=vtkQuad::New();
+      if(!this->Quad)
+        {
+        this->Quad = vtkQuad::New();
+        }
       cell = this->Quad;
       break;
 
     case VTK_POLYGON:
-      if(this->Polygon==NULL)
-        this->Polygon=vtkPolygon::New();
+      if(!this->Polygon)
+        {
+        this->Polygon = vtkPolygon::New();
+        }
       cell = this->Polygon;
       break;
 
     case VTK_TETRA:
-      if(this->Tetra==NULL)
-        this->Tetra=vtkTetra::New();
+      if(!this->Tetra)
+        {
+        this->Tetra = vtkTetra::New();
+        }
       cell = this->Tetra;
       break;
 
     case VTK_VOXEL:
-      if(this->Voxel==NULL)
-        this->Voxel=vtkVoxel::New();
+      if(!this->Voxel)
+        {
+        this->Voxel = vtkVoxel::New();
+        }
       cell = this->Voxel;
       break;
 
     case VTK_HEXAHEDRON:
-      if(this->Hexahedron==NULL)
-        this->Hexahedron=vtkHexahedron::New();
+      if(!this->Hexahedron)
+        {
+        this->Hexahedron = vtkHexahedron::New();
+        }
       cell = this->Hexahedron;
       break;
 
     case VTK_WEDGE:
-      if(this->Wedge==NULL)
-        this->Wedge=vtkWedge::New();
+      if(!this->Wedge)
+        {
+        this->Wedge = vtkWedge::New();
+        }
       cell = this->Wedge;
       break;
 
     case VTK_PYRAMID:
-      if(this->Pyramid==NULL)
-        this->Pyramid=vtkPyramid::New();
+      if(!this->Pyramid)
+        {
+        this->Pyramid = vtkPyramid::New();
+        }
       cell = this->Pyramid;
       break;
 
     case VTK_PENTAGONAL_PRISM:
-      if(this->PentagonalPrism==NULL)
-        this->PentagonalPrism=vtkPentagonalPrism::New();
+      if(!this->PentagonalPrism)
+        {
+        this->PentagonalPrism = vtkPentagonalPrism::New();
+        }
       cell = this->PentagonalPrism;
       break;
 
     case VTK_HEXAGONAL_PRISM:
-      if(this->HexagonalPrism==NULL)
-        this->HexagonalPrism=vtkHexagonalPrism::New();
+      if(!this->HexagonalPrism)
+        {
+        this->HexagonalPrism = vtkHexagonalPrism::New();
+        }
       cell = this->HexagonalPrism;
       break;
 
     case VTK_QUADRATIC_EDGE:
-      if(this->QuadraticEdge==NULL)
-        this->QuadraticEdge=vtkQuadraticEdge::New();
+      if(!this->QuadraticEdge)
+        {
+        this->QuadraticEdge = vtkQuadraticEdge::New();
+        }
       cell = this->QuadraticEdge;
       break;
 
     case VTK_QUADRATIC_TRIANGLE:
-      if(this->QuadraticTriangle==NULL)
-        this->QuadraticTriangle=vtkQuadraticTriangle::New();
+      if(!this->QuadraticTriangle)
+        {
+        this->QuadraticTriangle = vtkQuadraticTriangle::New();
+        }
       cell = this->QuadraticTriangle;
       break;
 
     case VTK_QUADRATIC_QUAD:
-      if(this->QuadraticQuad==NULL)
-        this->QuadraticQuad=vtkQuadraticQuad::New();
+      if(!this->QuadraticQuad)
+        {
+        this->QuadraticQuad = vtkQuadraticQuad::New();
+        }
       cell = this->QuadraticQuad;
       break;
 
     case VTK_QUADRATIC_TETRA:
-      if(this->QuadraticTetra==NULL)
-        this->QuadraticTetra=vtkQuadraticTetra::New();
+      if(!this->QuadraticTetra)
+        {
+        this->QuadraticTetra = vtkQuadraticTetra::New();
+        }
       cell = this->QuadraticTetra;
       break;
 
     case VTK_QUADRATIC_HEXAHEDRON:
-      if(this->QuadraticHexahedron==NULL)
-        this->QuadraticHexahedron=vtkQuadraticHexahedron::New();
+      if(!this->QuadraticHexahedron)
+        {
+        this->QuadraticHexahedron = vtkQuadraticHexahedron::New();
+        }
       cell = this->QuadraticHexahedron;
       break;
 
     case VTK_QUADRATIC_WEDGE:
-      if(this->QuadraticWedge==NULL)
-        this->QuadraticWedge=vtkQuadraticWedge::New();
+      if(!this->QuadraticWedge)
+        {
+        this->QuadraticWedge = vtkQuadraticWedge::New();
+        }
       cell = this->QuadraticWedge;
       break;
 
     case VTK_QUADRATIC_PYRAMID:
-      if(this->QuadraticPyramid==NULL)
-        this->QuadraticPyramid=vtkQuadraticPyramid::New();
+      if(!this->QuadraticPyramid)
+        {
+        this->QuadraticPyramid = vtkQuadraticPyramid::New();
+        }
       cell = this->QuadraticPyramid;
       break;
 
     case VTK_CONVEX_POINT_SET:
-      if(this->ConvexPointSet==NULL)
-        this->ConvexPointSet=vtkConvexPointSet::New();
+      if(!this->ConvexPointSet)
+        {
+        this->ConvexPointSet = vtkConvexPointSet::New();
+        }
       cell = this->ConvexPointSet;
       break;
 
     case VTK_EMPTY_CELL:
-      if(this->EmptyCell==NULL)
-        this->EmptyCell=vtkEmptyCell::New();
+      if(!this->EmptyCell)
+        {
+        this->EmptyCell = vtkEmptyCell::New();
+        }
       cell = this->EmptyCell;
       break;
     }
