@@ -160,6 +160,8 @@
 #  endif
 #endif
 
+#include "zlibDllConfig.h"
+
 /* Compile with -DZLIB_DLL for Windows DLL support */
 #if defined(ZLIB_DLL)
 #  if defined(_WINDOWS) || defined(WINDOWS)

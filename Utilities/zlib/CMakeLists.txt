@@ -1,4 +1,8 @@
 PROJECT(VTKZLIB)
+INCLUDE_REGULAR_EXPRESSION("^(deflate|inf|trees|zconf|zlib|zutil).*$")
+
+INCLUDE_DIRECTORIES(${VTKZLIB_SOURCE_DIR})
+INCLUDE_DIRECTORIES(${VTKZLIB_BINARY_DIR})
 
 # source files for zlib
 SOURCE_FILES(ZLIB_SRCS
@@ -9,22 +13,23 @@ deflate.c   inffast.c
 inflate.c   trees.c 
 )
 
-CONFIGURE_FILE(
-${VTKZLIB_SOURCE_DIR}/.NoDartCoverage 
-${VTKZLIB_BINARY_DIR}/.NoDartCoverage)
-
 # for windows add the .def and .rc files to the source list
 IF(WIN32)
   IF(BUILD_SHARED_LIBS)
-    ADD_DEFINITIONS(-DZLIB_DLL)
+    SET(ZLIB_DLL 1)
   ENDIF(BUILD_SHARED_LIBS)
   IF(NOT UNIX)
     IF(NOT BORLAND)
        SOURCE_FILES(ZLIB_SRCS zlib.def zlib.rc  )
     ENDIF(NOT BORLAND)  
-  ENDIF(NOT UNIX)
-    
+  ENDIF(NOT UNIX)    
 ENDIF(WIN32)
+
+CONFIGURE_FILE(${VTKZLIB_SOURCE_DIR}/.NoDartCoverage 
+               ${VTKZLIB_BINARY_DIR}/.NoDartCoverage)
+CONFIGURE_FILE(${VTKZLIB_SOURCE_DIR}/zlibDllConfig.h.in 
+               ${VTKZLIB_BINARY_DIR}/zlibDllConfig.h)
+
 
 ADD_LIBRARY(vtkzlib ZLIB_SRCS)
 
