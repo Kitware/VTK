@@ -111,9 +111,7 @@ void vtkImageViewer::PrintSelf(ostream& os, vtkIndent indent)
      << vtkImageAxisNameMacro(this->PermutationAxes[3]) << ")\n";
   os << indent << "DisplayExtent: (" << this->DisplayExtent[0] << ", " 
      << this->DisplayExtent[1] << ", " << this->DisplayExtent[2] << ", " 
-     << this->DisplayExtent[3] << ", " << this->DisplayExtent[4] << ", " 
-     << this->DisplayExtent[5] << ", " << this->DisplayExtent[6] << ", " 
-     << this->DisplayExtent[7] << ")\n";
+     << this->DisplayExtent[3] << ")\n";
   os << indent << "ColorWindow: " << this->ColorWindow << "\n";
   os << indent << "ColorLevel: " << this->ColorLevel << "\n";
   if (this->ColorFlag)
