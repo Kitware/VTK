@@ -249,6 +249,7 @@ PyObject *vtkPythonGetObjectFromPointer(void *ptr)
 void *vtkPythonGetPointerFromObject(PyObject *obj, char *result_type)
 {
   void *ptr;
+  void *result;
   void *(*command)(void *,char *);
   
   ptr = vtkInstanceLookup->GetHashTableValue((void *)obj);
@@ -264,12 +265,13 @@ void *vtkPythonGetPointerFromObject(PyObject *obj, char *result_type)
     return NULL;
     }
   
-  if (command(ptr,result_type))
+  result = command(ptr,result_type);
+  if (result)
     {
 #ifdef VTKPYTHONDEBUG
     vtkGenericWarningMacro("Got obj= " << obj << " ptr= " << ptr << " " << result_type);
 #endif  
-    return command(ptr,result_type);
+    return result;
     }
   else
     {
