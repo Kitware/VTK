@@ -90,6 +90,7 @@ vtkImageWrapPad
 vtkPointLoad
 vtkSampleFunction
 vtkTriangularTexture
+vtkWindowToImageFilter 
 )
 
 ABSTRACT_FILES(
