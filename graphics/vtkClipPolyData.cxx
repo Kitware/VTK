@@ -321,7 +321,14 @@ void vtkClipPolyData::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkPolyDataToPolyDataFilter::PrintSelf(os,indent);
 
-  os << indent << "Clip Function: " << this->ClipFunction << "\n";
+  if ( this->ClipFunction )
+    {
+    os << indent << "Clip Function: " << this->ClipFunction << "\n";
+    }
+  else
+    {
+    os << indent << "Clip Function: (none)\n";
+    }
   os << indent << "InsideOut: " << (this->InsideOut ? "On\n" : "Off\n");
   os << indent << "Value: " << this->Value << "\n";
   if ( this->Locator )
