@@ -60,9 +60,49 @@ public:
   vtkImageData *GetInput();
 
   // Description:
+  // Does the data have independent components, or do some define color 
+  // only? If IndependentComponents is On (the default) then each component 
+  // will be independently passed through a lookup table to determine RGBA, 
+  // shaded, and then combined with the other components using the 
+  // ComponentBlendMode. Some volume Mappers can handle 1 to 4 component 
+  // unsigned char or unsigned short data (see each mapper header file to
+  // determine functionality). If IndependentComponents is Off, then you 
+  // must have either 2 or 4 componenet data. For 2 component data, the 
+  // first is passed through the first color tranfser function and the 
+  // second component is passed through the first opacity transfer function. 
+  // Normals will be generated off of the second component. For 4 component 
+  // data, the first three will directly represent RGB (no lookup table). 
+  // The fourth component will be passed through the first scalar opacity 
+  // transfer function for opacity. Normals will be generated from the fourth 
+  // component.
+  vtkSetClampMacro( IndependentComponents, int, 0, 1 );
+  vtkGetMacro( IndependentComponents, int );
+  vtkBooleanMacro( IndependentComponents, int );
+
+  // Description:
+  // If we have more than 1 independent components, how will the resulting
+  // RGBA values be combined?
+  //
+  // Add:  R = R1 + R2, G = G1 + G2, B = B1 + B2, A = A1 + A2
+  //
+  // MaxOpacity:  A1 >= A2 then R = R1, G = G1, B = B1, A = A1
+  //              A2 >  A1 then R = R2, G = G2, B = B2, A = A2
+  //
+  vtkSetClampMacro( ComponentBlendMode, int, 
+                    vtkVolumeMapper::ComponentBlendAdd,
+                    vtkVolumeMapper::ComponentBlendMaxOpacity );
+  vtkGetMacro( ComponentBlendMode, int );
+  void SetComponentBlendModeToAdd() 
+    {this->SetComponentBlendMode(vtkVolumeMapper::ComponentBlendAdd);};
+  void SetComponentBlendModeToMaxOpacity() 
+    {this->SetComponentBlendMode(vtkVolumeMapper::ComponentBlendMaxOpacity);};
+  
+      
+  
+  // Description:
   // Turn On/Off orthogonal cropping. (Clipping planes are
   // perpendicular to the coordinate axes.)
-  vtkSetMacro(Cropping,int);
+  vtkSetClampMacro(Cropping,int,0,1);
   vtkGetMacro(Cropping,int);
   vtkBooleanMacro(Cropping,int);
 
@@ -128,6 +168,12 @@ public:
   // The parameter window could be used to determine which graphic
   // resources to release.
   virtual void ReleaseGraphicsResources(vtkWindow *) {};
+  
+  enum ComponentBlendModes {
+    ComponentBlendAdd = 0,
+    ComponentBlendMaxOpacity
+  };
+  
 //ETX
 
 
@@ -135,15 +181,25 @@ protected:
   vtkVolumeMapper();
   ~vtkVolumeMapper();
 
+  // Cropping variables, and a method for converting the world
+  // coordinate cropping region planes to voxel coordinates
   int                  Cropping;
   float                CroppingRegionPlanes[6];
   float                VoxelCroppingRegionPlanes[6];
   int                  CroppingRegionFlags;
+  void ConvertCroppingRegionPlanesToVoxels();
+  
+  // Flag for independent or dependent components
+  int                  IndependentComponents;
+  
+  // How should we combine the components
+  int                  ComponentBlendMode;
+  
   vtkTimeStamp         BuildTime;
 
+  // Clipper used on input to ensure it is the right size
   vtkImageClip        *ImageClipper;
   
-  void ConvertCroppingRegionPlanesToVoxels();
   
 private:
   vtkVolumeMapper(const vtkVolumeMapper&);  // Not implemented.

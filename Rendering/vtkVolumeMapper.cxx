@@ -18,7 +18,7 @@
 #include "vtkVolumeMapper.h"
 #include "vtkImageClip.h"
 
-vtkCxxRevisionMacro(vtkVolumeMapper, "1.38");
+vtkCxxRevisionMacro(vtkVolumeMapper, "1.39");
 
 // Construct a vtkVolumeMapper with empty scalar input and clipping off.
 vtkVolumeMapper::vtkVolumeMapper()
@@ -40,6 +40,9 @@ vtkVolumeMapper::vtkVolumeMapper()
   
   this->ImageClipper = vtkImageClip::New();
   this->ImageClipper->ClipDataOn();
+  
+  this->IndependentComponents = 1;
+  this->ComponentBlendMode = vtkVolumeMapper::ComponentBlendAdd;
 }
 
 vtkVolumeMapper::~vtkVolumeMapper()
