@@ -591,12 +591,12 @@ void vtkVoxel::Derivatives(int vtkNotUsed(subId), float pcoords[3],
     }
 }
 
-void vtkVoxel::GetEdge(int edgeId, int* &pts)
+void vtkVoxel::GetEdgePoints(int edgeId, int* &pts)
 {
   pts = this->GetEdgeArray(edgeId);
 }
 
-void vtkVoxel::GetFace(int faceId, int* &pts)
+void vtkVoxel::GetFacePoints(int faceId, int* &pts)
 {
   pts = this->GetFaceArray(faceId);
 }

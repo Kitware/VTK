@@ -59,8 +59,8 @@ public:
 
   // Description:
   // See vtkCell3D API for description of these methods.
-  virtual void GetEdge(int edgeId, int* &pts);
-  virtual void GetFace(int faceId, int* &pts);
+  virtual void GetEdgePoints(int edgeId, int* &pts);
+  virtual void GetFacePoints(int faceId, int* &pts);
 
   // Description:
   // See the vtkCell API for descriptions of these methods.

@@ -747,12 +747,12 @@ void vtkHexahedron::JacobianInverse(float pcoords[3], double **inverse,
     }
 }
 
-void vtkHexahedron::GetEdge(int edgeId, int* &pts)
+void vtkHexahedron::GetEdgePoints(int edgeId, int* &pts)
 {
   pts = this->GetEdgeArray(edgeId);
 }
 
-void vtkHexahedron::GetFace(int faceId, int* &pts)
+void vtkHexahedron::GetFacePoints(int faceId, int* &pts)
 {
   pts = this->GetFaceArray(faceId);
 }
