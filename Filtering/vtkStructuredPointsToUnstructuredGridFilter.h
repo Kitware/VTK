@@ -27,8 +27,9 @@
 #ifndef __vtkStructuredPointsToUnstructuredGridFilter_h
 #define __vtkStructuredPointsToUnstructuredGridFilter_h
 
-#include "vtkStructuredPoints.h"
 #include "vtkUnstructuredGridSource.h"
+
+class vtkImageData;
 
 class VTK_FILTERING_EXPORT vtkStructuredPointsToUnstructuredGridFilter : public vtkUnstructuredGridSource
 {

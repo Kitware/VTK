@@ -26,6 +26,8 @@
 
 #include "vtkStructuredGridSource.h"
 
+class vtkDataSet;
+
 class VTK_FILTERING_EXPORT vtkDataSetToStructuredGridFilter : public vtkStructuredGridSource
 {
 public:

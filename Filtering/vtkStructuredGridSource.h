@@ -27,7 +27,8 @@
 #define __vtkStructuredGridSource_h
 
 #include "vtkSource.h"
-#include "vtkStructuredGrid.h"
+
+class vtkStructuredGrid;
 
 class VTK_FILTERING_EXPORT vtkStructuredGridSource : public vtkSource
 {
@@ -37,8 +38,7 @@ public:
   // Description:
   // Get the output of this source.
   vtkStructuredGrid *GetOutput();
-  vtkStructuredGrid *GetOutput(int idx)
-    {return (vtkStructuredGrid *) this->vtkSource::GetOutput(idx); };
+  vtkStructuredGrid *GetOutput(int idx);
   void SetOutput(vtkStructuredGrid *output);  
 
 protected:

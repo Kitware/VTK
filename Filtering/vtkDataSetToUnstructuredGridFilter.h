@@ -30,6 +30,8 @@
 
 #include "vtkUnstructuredGridSource.h"
 
+class vtkDataSet;
+
 class VTK_FILTERING_EXPORT vtkDataSetToUnstructuredGridFilter : public vtkUnstructuredGridSource
 {
 public:

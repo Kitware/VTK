@@ -31,7 +31,8 @@
 #define __vtkPolyDataToPolyDataFilter_h
 
 #include "vtkPolyDataSource.h"
-#include "vtkPolyData.h"
+
+class vtkPolyData;
 
 class VTK_FILTERING_EXPORT vtkPolyDataToPolyDataFilter : public vtkPolyDataSource
 {

@@ -23,7 +23,8 @@
 #define __vtkDataSetSource_h
 
 #include "vtkSource.h"
-#include "vtkDataSet.h"
+
+class vtkDataSet;
 
 class VTK_FILTERING_EXPORT vtkDataSetSource : public vtkSource
 {
@@ -33,8 +34,8 @@ public:
   // Description:
   // Get the output of this source.
   vtkDataSet *GetOutput();
-  vtkDataSet *GetOutput(int idx)
-    {return (vtkDataSet *) this->vtkSource::GetOutput(idx); };
+  vtkDataSet *GetOutput(int idx);
+
   void SetOutput(vtkDataSet *);
   
 protected:  

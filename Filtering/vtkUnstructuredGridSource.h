@@ -27,7 +27,8 @@
 #define __vtkUnstructuredGridSource_h
 
 #include "vtkSource.h"
-#include "vtkUnstructuredGrid.h"
+
+class vtkUnstructuredGrid;
 
 class VTK_FILTERING_EXPORT vtkUnstructuredGridSource : public vtkSource
 {
@@ -37,8 +38,7 @@ public:
   // Description:
   // Get the output of this source.
   vtkUnstructuredGrid *GetOutput();
-  vtkUnstructuredGrid *GetOutput(int idx)
-    {return (vtkUnstructuredGrid *) this->vtkSource::GetOutput(idx); };
+  vtkUnstructuredGrid *GetOutput(int idx);
   void SetOutput(vtkUnstructuredGrid *output);
   
 protected:

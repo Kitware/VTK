@@ -25,7 +25,7 @@
 #define __vtkStructuredPointsCollection_h
 
 #include "vtkCollection.h"
-#include "vtkStructuredPoints.h"
+#include "vtkStructuredPoints.h" // Needed for static cast
 
 class VTK_FILTERING_EXPORT vtkStructuredPointsCollection : public vtkCollection
 {

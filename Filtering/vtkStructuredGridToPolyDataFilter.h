@@ -27,7 +27,8 @@
 #define __vtkStructuredGridToPolyDataFilter_h
 
 #include "vtkPolyDataSource.h"
-#include "vtkStructuredGrid.h"
+
+class vtkStructuredGrid;
 
 class VTK_FILTERING_EXPORT vtkStructuredGridToPolyDataFilter : public vtkPolyDataSource
 {

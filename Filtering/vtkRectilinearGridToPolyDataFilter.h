@@ -27,7 +27,8 @@
 #define __vtkRectilinearGridToPolyDataFilter_h
 
 #include "vtkPolyDataSource.h"
-#include "vtkRectilinearGrid.h"
+
+class vtkRectilinearGrid;
 
 class VTK_FILTERING_EXPORT vtkRectilinearGridToPolyDataFilter : public vtkPolyDataSource
 {

@@ -30,6 +30,8 @@
 
 #include "vtkStructuredPointsSource.h"
 
+class vtkImageData;
+
 class VTK_FILTERING_EXPORT vtkStructuredPointsToStructuredPointsFilter : public vtkStructuredPointsSource
 {
 public:

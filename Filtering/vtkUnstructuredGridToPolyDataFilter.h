@@ -28,7 +28,8 @@
 #define __vtkUnstructuredGridToPolyDataFilter_h
 
 #include "vtkPolyDataSource.h"
-#include "vtkUnstructuredGrid.h"
+
+class vtkUnstructuredGrid;
 
 class VTK_FILTERING_EXPORT vtkUnstructuredGridToPolyDataFilter : public vtkPolyDataSource
 {

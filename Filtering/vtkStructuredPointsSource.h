@@ -27,7 +27,8 @@
 #define __vtkStructuredPointsSource_h
 
 #include "vtkSource.h"
-#include "vtkStructuredPoints.h"
+
+class vtkStructuredPoints;
 
 class VTK_FILTERING_EXPORT vtkStructuredPointsSource : public vtkSource
 {
@@ -38,8 +39,7 @@ public:
   // Set/Get the output of this source.
   void SetOutput(vtkStructuredPoints *output);
   vtkStructuredPoints *GetOutput();
-  vtkStructuredPoints *GetOutput(int idx)
-    {return (vtkStructuredPoints *) this->vtkSource::GetOutput(idx); };
+  vtkStructuredPoints *GetOutput(int idx);
   
 protected:
   vtkStructuredPointsSource();

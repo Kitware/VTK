@@ -29,6 +29,8 @@
 
 #include "vtkStructuredPointsSource.h"
 
+class vtkDataSet;
+
 class VTK_FILTERING_EXPORT vtkDataSetToStructuredPointsFilter : public vtkStructuredPointsSource
 {
 public:

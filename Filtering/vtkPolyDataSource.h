@@ -30,7 +30,8 @@
 #define __vtkPolyDataSource_h
 
 #include "vtkSource.h"
-#include "vtkPolyData.h"
+
+class vtkPolyData;
 
 class VTK_FILTERING_EXPORT vtkPolyDataSource : public vtkSource
 {
@@ -40,8 +41,7 @@ public:
   // Description:
   // Get the output of this source.
   vtkPolyData *GetOutput();
-  vtkPolyData *GetOutput(int idx)
-    {return (vtkPolyData *) this->vtkSource::GetOutput(idx); };
+  vtkPolyData *GetOutput(int idx);
   void SetOutput(vtkPolyData *output);
 
 protected:

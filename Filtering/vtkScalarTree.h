@@ -36,7 +36,12 @@
 #define __vtkScalarTree_h
 
 #include "vtkObject.h"
-#include "vtkDataSet.h"
+
+class vtkCell;
+class vtkDataArray;
+class vtkDataSet;
+class vtkIdList;
+class vtkTimeStamp;
 
 class VTK_FILTERING_EXPORT vtkScalarTree : public vtkObject
 {
@@ -46,7 +51,7 @@ public:
 
   // Description:
   // Build the tree from the points/cells defining this dataset.
-  vtkSetObjectMacro(DataSet,vtkDataSet);
+  virtual void SetDataSet(vtkDataSet*);
   vtkGetObjectMacro(DataSet,vtkDataSet);
 
   // Description:

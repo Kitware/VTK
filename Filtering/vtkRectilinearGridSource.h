@@ -27,7 +27,8 @@
 #define __vtkRectilinearGridSource_h
 
 #include "vtkSource.h"
-#include "vtkRectilinearGrid.h"
+
+class vtkRectilinearGrid;
 
 class VTK_FILTERING_EXPORT vtkRectilinearGridSource : public vtkSource
 {
@@ -37,8 +38,7 @@ public:
   // Description:
   // Get the output of this source.
   vtkRectilinearGrid *GetOutput();
-  vtkRectilinearGrid *GetOutput(int idx)
-    {return (vtkRectilinearGrid *) this->vtkSource::GetOutput(idx); };
+  vtkRectilinearGrid *GetOutput(int idx);
   void SetOutput(vtkRectilinearGrid *output);
 
 protected:

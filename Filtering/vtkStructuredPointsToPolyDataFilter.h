@@ -29,8 +29,8 @@
 #define __vtkStructuredPointsToPolyDataFilter_h
 
 #include "vtkPolyDataSource.h"
-#include "vtkImageData.h"
-#include "vtkStructuredPoints.h"
+
+class vtkImageData;
 
 class VTK_FILTERING_EXPORT vtkStructuredPointsToPolyDataFilter : public vtkPolyDataSource
 {
@@ -39,7 +39,7 @@ public:
 
   // Description:
   // Set / get the input data or filter.
-  void SetInput(vtkImageData *input);
+  virtual void SetInput(vtkImageData *input);
   vtkImageData *GetInput();
   
 protected:  

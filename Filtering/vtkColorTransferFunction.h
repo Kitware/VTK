@@ -28,7 +28,8 @@
 #define __vtkColorTransferFunction_h
 
 #include "vtkScalarsToColors.h"
-#include "vtkPiecewiseFunction.h"
+
+class vtkPiecewiseFunction;
 
 #define VTK_CTF_RGB   0
 #define VTK_CTF_HSV   1
