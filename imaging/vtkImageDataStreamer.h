@@ -61,7 +61,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Set the memory limit in kilobytes.
+  // Set / Get the memory limit in kilobytes.
   vtkSetMacro(MemoryLimit, unsigned long);
   vtkGetMacro(MemoryLimit, unsigned long);
   
