@@ -56,9 +56,9 @@ vtkAbstractMapper3D 	GetBounds	301 6
 vtkAbstractMapper3D	GetCenter	301 3
 vtkMath			SolveCubic	2307 4
 vtkMath			SolveQuadratic	2307 3
-vtkMatrix4x4		MultiplyPoint	301 3
-vtkMatrix4x4		MultiplyFloatPoint	301 3
-vtkMatrix4x4		MultiplyDoublePoint	307 3
+vtkMatrix4x4		MultiplyPoint	301 4
+vtkMatrix4x4		MultiplyFloatPoint	301 4
+vtkMatrix4x4		MultiplyDoublePoint	307 4
 vtkMergeFilter		GetPoint	301 3
 vtkNormals		GetNormal	301 3
 vtkPHANToMController    GetPosition     301 3
