@@ -20,13 +20,14 @@
 
 #include "vtkBSPCuts.h"
 #include "vtkKdNode.h"
+#include "vtkKdTree.h"
 #include "vtkObjectFactory.h"
 
 #ifdef _MSC_VER
 #pragma warning ( disable : 4100 )
 #endif
 
-vtkCxxRevisionMacro(vtkBSPCuts, "1.1");
+vtkCxxRevisionMacro(vtkBSPCuts, "1.2");
 vtkStandardNewMacro(vtkBSPCuts);
 
 //----------------------------------------------------------------------------
@@ -158,39 +159,7 @@ void vtkBSPCuts::CreateCuts(vtkKdNode *kd)
     this->Top = NULL;
     }
 
-  this->Top = vtkKdNode::New();
-  vtkBSPCuts::CopyKdNode(this->Top, kd);
-  vtkBSPCuts::CopyChildNodes(this->Top, kd);
-}
-//----------------------------------------------------------------------------
-void vtkBSPCuts::CopyChildNodes(vtkKdNode *to, vtkKdNode *from)
-{
-  if (from->GetLeft())
-    {
-    vtkKdNode *left = vtkKdNode::New();
-    vtkKdNode *right = vtkKdNode::New();
-
-    vtkBSPCuts::CopyKdNode(left, from->GetLeft());
-    vtkBSPCuts::CopyKdNode(right, from->GetRight());
-
-    to->AddChildNodes(left, right);
-
-    vtkBSPCuts::CopyChildNodes(to->GetLeft(), from->GetLeft());
-    vtkBSPCuts::CopyChildNodes(to->GetRight(), from->GetRight());
-    }
-}
-//----------------------------------------------------------------------------
-void vtkBSPCuts::CopyKdNode(vtkKdNode *to, vtkKdNode *from)
-{
-  to->SetMinBounds(from->GetMinBounds());
-  to->SetMaxBounds(from->GetMaxBounds());
-  to->SetMinDataBounds(from->GetMinDataBounds());
-  to->SetMaxDataBounds(from->GetMaxDataBounds());
-  to->SetID(from->GetID());
-  to->SetMinID(from->GetMinID());
-  to->SetMaxID(from->GetMaxID());
-  to->SetNumberOfPoints(from->GetNumberOfPoints());
-  to->SetDim(from->GetDim());
+  this->Top = vtkKdTree::CopyTree(kd);
 }
 //----------------------------------------------------------------------------
 int vtkBSPCuts::CountNodes(vtkKdNode *kd)

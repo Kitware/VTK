@@ -45,7 +45,7 @@
 #include <vtkstd/set>
 #include <vtkstd/algorithm>
 
-vtkCxxRevisionMacro(vtkKdTree, "1.26");
+vtkCxxRevisionMacro(vtkKdTree, "1.27");
 
 // Timing data ---------------------------------------------
 
@@ -84,8 +84,6 @@ static char * makeEntry(const char *s)
 // Timing data ---------------------------------------------
 
 vtkStandardNewMacro(vtkKdTree);
-
-vtkCxxSetObjectMacro(vtkKdTree, Cuts, vtkBSPCuts)
 
 //----------------------------------------------------------------------------
 vtkKdTree::vtkKdTree()
@@ -130,6 +128,7 @@ vtkKdTree::vtkKdTree()
 
   this->BSPCalculator = NULL;
   this->Cuts = NULL;
+  this->UserDefinedCuts = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -237,6 +236,7 @@ vtkKdTree::~vtkKdTree()
   this->ClearLastBuildCache();
 
   this->SetCalculator(NULL);
+  this->SetCuts(NULL);
 }
 //----------------------------------------------------------------------------
 void vtkKdTree::SetCalculator(vtkKdNode *kd)
@@ -245,21 +245,76 @@ void vtkKdTree::SetCalculator(vtkKdNode *kd)
     {
     this->BSPCalculator->Delete();
     this->BSPCalculator = NULL;
-    this->SetCuts(NULL);
     }
 
-  if (kd)
+  if (!this->UserDefinedCuts)
+    {
+    this->SetCuts(NULL, 0);
+    }
+
+  if (kd == NULL)
+    {
+    return;
+    }
+
+  if (!this->UserDefinedCuts)
     {
     vtkBSPCuts *cuts = vtkBSPCuts::New();
     cuts->CreateCuts(kd);
+    this->SetCuts(cuts, 0);
+    }
 
-    this->BSPCalculator = vtkBSPIntersections::New();
-    this->BSPCalculator->SetCuts(cuts);
+  this->BSPCalculator = vtkBSPIntersections::New();
+  this->BSPCalculator->SetCuts(this->Cuts);
+}
+//----------------------------------------------------------------------------
+void vtkKdTree::SetCuts(vtkBSPCuts *cuts)
+{
+  this->SetCuts(cuts, 1);
+}
+//----------------------------------------------------------------------------
+void vtkKdTree::SetCuts(vtkBSPCuts *cuts, int userDefined)
+{
+  if (userDefined != 0)
+    {
+    userDefined = 1;
+    }
 
-    this->Cuts = cuts;
+  if ((cuts == this->Cuts) && (userDefined == this->UserDefinedCuts))
+    {
+    return;
+    }
+
+  this->Modified();
+
+  if (this->Cuts)
+    {
+    if (this->UserDefinedCuts)
+      {
+      this->Cuts->UnRegister(this);
+      }
+    else
+      {
+      this->Cuts->Delete();
+      }
+
+    this->Cuts = NULL;
+    this->UserDefinedCuts = 0;
+    }
+
+  if (cuts == NULL)
+    {
+    return;
+    }
+
+  this->Cuts = cuts;
+  this->UserDefinedCuts = userDefined;
+
+  if (this->UserDefinedCuts)
+    {
+    this->Cuts->Register(this);
     }
 }
-
 //----------------------------------------------------------------------------
 // Add and remove data sets.  We don't update this->Modify() here, because
 // changing the data sets doesn't necessarily require rebuilding the
@@ -728,6 +783,7 @@ void vtkKdTree::ComputeCellCenter(vtkCell *cell, double *center, double *weights
 //
 void vtkKdTree::BuildLocator()
 {
+
   int nCells=0;
   int i;
 
@@ -831,46 +887,61 @@ void vtkKdTree::BuildLocator()
       }
     }
   TIMERDONE("Set up to build k-d tree");
-   
-  // cell centers - basis of spacial decomposition
 
-  TIMER("Create centroid list");
-
-  float *ptarray = this->ComputeCellCenters();
-
-  TIMERDONE("Create centroid list");
-
-  if (!ptarray)
+  if (this->UserDefinedCuts)
     {
-    vtkErrorMacro( << "vtkKdTree::BuildLocator - insufficient memory");
-    return;
+    // Actually, we will not compute the k-d tree.  We will use a
+    // k-d tree provided to us.
+
+    int fail = this->ProcessUserDefinedCuts(volBounds);
+
+    if (fail)
+      {
+      return;
+      }
     }
-
-  // create kd tree structure that balances cell centers
-
-  vtkKdNode *kd = this->Top = vtkKdNode::New();
-
-  kd->SetBounds((double)volBounds[0], (double)volBounds[1], 
-                (double)volBounds[2], (double)volBounds[3], 
-                (double)volBounds[4], (double)volBounds[5]);
-
-  kd->SetNumberOfPoints(nCells);
-
-  kd->SetDataBounds((double)volBounds[0], (double)volBounds[1],
-                (double)volBounds[2], (double)volBounds[3],
-                (double)volBounds[4], (double)volBounds[5]); 
-
-  TIMER("Build tree");
-
-  this->DivideRegion(kd, ptarray, NULL, 0);
-
-  TIMERDONE("Build tree");
-
-  // In the process of building the k-d tree regions,
-  //   the cell centers became reordered, so no point
-  //   in saving them, for example to build cell lists.
-
-  delete [] ptarray;
+  else
+    {
+    // cell centers - basis of spacial decomposition
+  
+    TIMER("Create centroid list");
+  
+    float *ptarray = this->ComputeCellCenters();
+  
+    TIMERDONE("Create centroid list");
+  
+    if (!ptarray)
+      {
+      vtkErrorMacro( << "vtkKdTree::BuildLocator - insufficient memory");
+      return;
+      }
+  
+    // create kd tree structure that balances cell centers
+  
+    vtkKdNode *kd = this->Top = vtkKdNode::New();
+  
+    kd->SetBounds((double)volBounds[0], (double)volBounds[1], 
+                  (double)volBounds[2], (double)volBounds[3], 
+                  (double)volBounds[4], (double)volBounds[5]);
+  
+    kd->SetNumberOfPoints(nCells);
+  
+    kd->SetDataBounds((double)volBounds[0], (double)volBounds[1],
+                  (double)volBounds[2], (double)volBounds[3],
+                  (double)volBounds[4], (double)volBounds[5]); 
+  
+    TIMER("Build tree");
+  
+    this->DivideRegion(kd, ptarray, NULL, 0);
+  
+    TIMERDONE("Build tree");
+  
+    // In the process of building the k-d tree regions,
+    //   the cell centers became reordered, so no point
+    //   in saving them, for example to build cell lists.
+  
+    delete [] ptarray;
+    }
 
   this->SetActualLevel();
   this->BuildRegionList();
@@ -880,6 +951,197 @@ void vtkKdTree::BuildLocator()
   this->SetCalculator(this->Top);
 
   return;
+}
+
+int vtkKdTree::ProcessUserDefinedCuts(double *minBounds)
+{
+  if (!this->Cuts)
+    {
+    vtkErrorMacro(<< "vtkKdTree::ProcessUserDefinedCuts - no cuts" );
+    return 1;
+    }
+  // Fix the bounds for the entire partitioning.  They must be at
+  // least as large of the bounds of all the data sets.  
+
+  vtkKdNode *kd = this->Cuts->GetKdNodeTree();
+  double bounds[6];
+  kd->GetBounds(bounds);
+  int fixBounds = 0;
+
+  for (int j=0; j<3; j++)
+    {
+    int min = 2*j;
+    int max = min+1;
+
+    if (minBounds[min] < bounds[min])
+      {
+      bounds[min] = minBounds[min]; 
+      fixBounds = 1;
+      }
+    if (minBounds[max] > bounds[max])
+      {
+      bounds[max] = minBounds[max]; 
+      fixBounds = 1;
+      }
+    }
+
+  this->Top = vtkKdTree::CopyTree(kd);
+
+  if (fixBounds)
+    {
+    this->SetNewBounds(bounds);
+    }
+
+  // We don't really know the data bounds, so we'll just set them
+  // to the spatial bounds.  
+
+  vtkKdTree::SetDataBoundsToSpatialBounds(this->Top);
+
+  // And, we don't know how many points are in each region.  The number
+  // in the provided vtkBSPCuts object was for some other dataset.  So
+  // we zero out those fields.
+
+  vtkKdTree::ZeroNumberOfPoints(this->Top);
+   
+  return 0;
+}
+//----------------------------------------------------------------------------
+void vtkKdTree::ZeroNumberOfPoints(vtkKdNode *kd)
+{
+  kd->SetNumberOfPoints(0);
+
+  if (kd->GetLeft())
+    {
+    vtkKdTree::ZeroNumberOfPoints(kd->GetLeft());
+    vtkKdTree::ZeroNumberOfPoints(kd->GetRight());
+    }
+}
+//----------------------------------------------------------------------------
+void vtkKdTree::SetNewBounds(double *bounds)
+{
+  vtkKdNode *kd = this->Top;
+
+  if (!kd)
+    {
+    return;
+    }
+
+  int fixDimLeft[6], fixDimRight[6];
+  int go=0;
+
+  double kdb[6];
+  kd->GetBounds(kdb);
+
+  for (int i=0; i<3; i++)
+    {
+    int min = 2*i;
+    int max = 2*i + 1;
+
+    fixDimLeft[min] = fixDimRight[min] = 0;
+    fixDimLeft[max] = fixDimRight[max] = 0;
+
+    if (kdb[min] > bounds[min])
+      {
+      kdb[min] = bounds[min];
+      go = fixDimLeft[min] = fixDimRight[min] = 1;
+      }
+    if (kdb[max] < bounds[max])
+      {
+      kdb[max] = bounds[max];
+      go = fixDimLeft[max] = fixDimRight[max] = 1;
+      }
+    }
+
+  if (go)
+    {
+    kd->SetBounds(kdb[0],kdb[1],kdb[2],kdb[3],kdb[4],kdb[5]);
+
+    if (kd->GetLeft())
+      {
+      int cutDim = kd->GetDim() * 2;
+
+      fixDimLeft[cutDim + 1] = 0;
+      vtkKdTree::_SetNewBounds(kd->GetLeft(), bounds, fixDimLeft);
+  
+      fixDimRight[cutDim] = 0;
+      vtkKdTree::_SetNewBounds(kd->GetRight(), bounds, fixDimRight);
+      }
+    }
+}
+//----------------------------------------------------------------------------
+void vtkKdTree::_SetNewBounds(vtkKdNode *kd, double *b, int *fixDim)
+{
+  int go=0;
+  int fixDimLeft[6], fixDimRight[6];
+
+  double kdb[6];
+  kd->GetBounds(kdb);
+
+  for (int i=0; i<6; i++)
+    {
+    if (fixDim[i])
+      {
+      kdb[i] = b[i]; 
+      go = 1;
+      }
+    fixDimLeft[i] = fixDim[i];
+    fixDimRight[i] = fixDim[i];
+    }
+
+  if (go)
+    {
+    kd->SetBounds(kdb[0],kdb[1],kdb[2],kdb[3],kdb[4],kdb[5]);
+
+    if (kd->GetLeft())
+      {
+      int cutDim = kd->GetDim() * 2;
+
+      fixDimLeft[cutDim + 1] = 0;
+      vtkKdTree::_SetNewBounds(kd->GetLeft(), b, fixDimLeft);
+    
+      fixDimRight[cutDim] = 0;
+      vtkKdTree::_SetNewBounds(kd->GetRight(), b, fixDimRight);
+      }
+    }
+}
+//----------------------------------------------------------------------------
+vtkKdNode *vtkKdTree::CopyTree(vtkKdNode *kd)
+{
+  vtkKdNode *top = vtkKdNode::New();
+  vtkKdTree::CopyKdNode(top, kd);
+  vtkKdTree::CopyChildNodes(top, kd);
+
+  return top;
+}
+//----------------------------------------------------------------------------
+void vtkKdTree::CopyChildNodes(vtkKdNode *to, vtkKdNode *from)
+{   
+  if (from->GetLeft())
+    {
+    vtkKdNode *left = vtkKdNode::New();
+    vtkKdNode *right = vtkKdNode::New();
+    
+    vtkKdTree::CopyKdNode(left, from->GetLeft());
+    vtkKdTree::CopyKdNode(right, from->GetRight());
+  
+    to->AddChildNodes(left, right);
+    
+    vtkKdTree::CopyChildNodes(to->GetLeft(), from->GetLeft());
+    vtkKdTree::CopyChildNodes(to->GetRight(), from->GetRight());
+    }
+}
+//----------------------------------------------------------------------------
+void vtkKdTree::CopyKdNode(vtkKdNode *to, vtkKdNode *from)
+{
+  to->SetMinBounds(from->GetMinBounds());
+  to->SetMaxBounds(from->GetMaxBounds());
+  to->SetMinDataBounds(from->GetMinDataBounds());
+  to->SetMaxDataBounds(from->GetMaxDataBounds());
+  to->SetID(from->GetID());
+  to->SetMinID(from->GetMinID());
+  to->SetMaxID(from->GetMaxID());
+  to->SetNumberOfPoints(from->GetNumberOfPoints());
+  to->SetDim(from->GetDim());
 }
 
 //----------------------------------------------------------------------------
@@ -908,7 +1170,18 @@ int vtkKdTree::ComputeLevel(vtkKdNode *kd)
     }
   return iam;
 }
+//----------------------------------------------------------------------------
+void vtkKdTree::SetDataBoundsToSpatialBounds(vtkKdNode *kd)
+{
+  kd->SetMinDataBounds(kd->GetMinBounds());
+  kd->SetMaxDataBounds(kd->GetMaxBounds());
 
+  if (kd->GetLeft())
+    {
+    vtkKdTree::SetDataBoundsToSpatialBounds(kd->GetLeft());
+    vtkKdTree::SetDataBoundsToSpatialBounds(kd->GetRight());
+    }
+}
 //----------------------------------------------------------------------------
 int vtkKdTree::SelectCutDirection(vtkKdNode *kd)
 {

@@ -119,6 +119,13 @@ public:
 
   vtkGetObjectMacro(Cuts, vtkBSPCuts);
 
+  // Description:
+  //   Normally the k-d tree is computed from the dataset(s) provided
+  //   in SetDataSet.  Alternatively, you can provide the cuts that will
+  //   be applied by calling SetCuts.
+
+  void SetCuts(vtkBSPCuts *cuts);
+
   // Description:   
   //    Omit partitions along the X axis, yielding shafts in the X direction
   void OmitXPartitioning();
@@ -183,6 +190,15 @@ public:
   //   Get the spatial bounds of the entire k-d tree space. Sets
   //    bounds array to xmin, xmax, ymin, ymax, zmin, zmax.
   void GetBounds(double *bounds);
+
+  // Description:
+  //   There are certain applications where you want the bounds of
+  //   the k-d tree space to be at least as large as a specified
+  //   box.  If the k-d tree has been built, you can expand it's 
+  //   bounds with this method.  If the bounds supplied are smaller
+  //   than those computed, they will be ignored.
+
+  void SetNewBounds(double *bounds);
 
   // Description:
   //   The number of leaf nodes of the tree, the spatial regions
@@ -441,16 +457,25 @@ public:
   //    the k-d tree.
   int NewGeometry(vtkDataSet **sets, int numDataSets);
 
+  // Description:
+  //    Create a copy of the binary tree representation of the
+  //    k-d tree spatial partitioning provided.  
+
+  static vtkKdNode *CopyTree(vtkKdNode *kd);
+
 protected:
 
   vtkKdTree();
   ~vtkKdTree();
 
   vtkBSPIntersections *BSPCalculator;
+  int UserDefinedCuts;
 
   void SetCalculator(vtkKdNode *kd);
 
-  void SetCuts(vtkBSPCuts *cuts);
+  int ProcessUserDefinedCuts(double *bounds);
+
+  void SetCuts(vtkBSPCuts *cuts, int userDefined);
 
   // Description:
   //   Save enough state so NewGeometry() can work,
@@ -532,6 +557,12 @@ protected:
   float *ComputeCellCenters(vtkDataSet *set);
 
 private:
+
+  static void _SetNewBounds(vtkKdNode *kd, double *b, int *fixDim);
+  static void CopyChildNodes(vtkKdNode *to, vtkKdNode *from);
+  static void CopyKdNode(vtkKdNode *to, vtkKdNode *from);
+  static void SetDataBoundsToSpatialBounds(vtkKdNode *kd);
+  static void ZeroNumberOfPoints(vtkKdNode *kd);
 
 //BTX
   int DivideRegion(vtkKdNode *kd, float *c1, int *ids, int nlevels);

@@ -101,8 +101,6 @@ protected:
 private:
 
   static void DeleteAllDescendants(vtkKdNode *kd);
-  static void CopyChildNodes(vtkKdNode *to, vtkKdNode *from);
-  static void CopyKdNode(vtkKdNode *to, vtkKdNode *from);
 
   static int CountNodes(vtkKdNode *kd);
   static void SetMinMaxId(vtkKdNode *kd);
