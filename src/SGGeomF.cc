@@ -27,8 +27,6 @@ vlStructuredGridGeometryFilter::vlStructuredGridGeometryFilter()
   this->Extent[5] = 0;
 }
 
-
-#include "SGrid.hh"
 void vlStructuredGridGeometryFilter::Execute()
 {
   vlPointData *pd;
@@ -44,7 +42,7 @@ void vlStructuredGridGeometryFilter::Execute()
   float *x;
   vlStructuredGrid *input=(vlStructuredGrid *)this->Input;
 
-  vlDebugMacro(<< "Creating structured geometry");
+  vlDebugMacro(<< "Extracting structured points geometry");
   this->Initialize();
 
   pd = input->GetPointData();
