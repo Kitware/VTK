@@ -28,7 +28,7 @@
 # include <io.h> /* unlink */
 #endif
 
-vtkCxxRevisionMacro(vtkImageWriter, "1.57");
+vtkCxxRevisionMacro(vtkImageWriter, "1.58");
 vtkStandardNewMacro(vtkImageWriter);
 
 #ifdef write
@@ -110,89 +110,7 @@ vtkImageData *vtkImageWriter::GetInput()
   return vtkImageData::SafeDownCast(
     this->GetExecutive()->GetInputData(0, 0));
 }
-
-
 //----------------------------------------------------------------------------
-// This function sets the name of the file. 
-void vtkImageWriter::SetFileName(const char *name)
-{
-  if ( this->FileName && name && (!strcmp(this->FileName,name)))
-    {
-    return;
-    }
-  if (!name && !this->FileName)
-    {
-    return;
-    }
-  if (this->FileName)
-    {
-    delete [] this->FileName;
-    }
-  if (this->FilePrefix)
-    {
-    delete [] this->FilePrefix;
-    this->FilePrefix = NULL;
-    }  
-  this->FileName = new char[strlen(name) + 1];
-  strcpy(this->FileName, name);
-  this->Modified();
-}
-
-//----------------------------------------------------------------------------
-// This function sets the prefix of the file name. "image" would be the
-// name of a series: image.1, image.2 ...
-void vtkImageWriter::SetFilePrefix(char *prefix)
-{
-  if ( this->FilePrefix && prefix && (!strcmp(this->FilePrefix,prefix)))
-    {
-    return;
-    }
-  if (!prefix && !this->FilePrefix)
-    {
-    return;
-    }
-  if (this->FilePrefix)
-    {
-    delete [] this->FilePrefix;
-    }
-  if (this->FileName)
-    {
-    delete [] this->FileName;
-    this->FileName = NULL;
-    }  
-  this->FilePrefix = new char[strlen(prefix) + 1];
-  strcpy(this->FilePrefix, prefix);
-  this->Modified();
-}
-
-//----------------------------------------------------------------------------
-// This function sets the pattern of the file name which turn a prefix
-// into a file name. "%s.%3d" would be the
-// pattern of a series: image.001, image.002 ...
-void vtkImageWriter::SetFilePattern(const char *pattern)
-{
-  if ( this->FilePattern && pattern && 
-       (!strcmp(this->FilePattern,pattern)))
-    {
-    return;
-    }
-  if (!pattern && !this->FilePattern)
-    {
-    return;
-    }
-  if (this->FilePattern)
-    {
-    delete [] this->FilePattern;
-    }
-  if (this->FileName)
-    {
-    delete [] this->FileName;
-    this->FileName = NULL;
-    }
-  this->FilePattern = new char[strlen(pattern) + 1];
-  strcpy(this->FilePattern, pattern);
-  this->Modified();
-}
 
 int vtkImageWriter::RequestData(
   vtkInformation* vtkNotUsed( request ),
