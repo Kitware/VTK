@@ -70,6 +70,9 @@ void vtkImageMIPFilter::PrintSelf(ostream& os, vtkIndent indent)
      << this->GetMIPZ() << ")\n";
 }
 
+// prototype for local function
+int  mipflag(int m1, int m2, int m3);
+
 //----------------------------------------------------------------------------
 // Description:
 // This templated function executes the filter for any type of data.
@@ -87,7 +90,6 @@ void vtkImageMIPFilterExecute(vtkImageMIPFilter *self,
   int prorange[2], minmaxip;
   int defmin;
   int mipx,mipy,mipz;
-  int  mipflag(int m1,int m2, int m3);
 
   // Get information to march through data 
   inRegion->GetIncrements(inInc0, inInc1, inInc2);
