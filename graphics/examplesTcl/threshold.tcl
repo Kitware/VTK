@@ -53,8 +53,12 @@ ren1 AddActor skin
 ren1 SetBackground 1 1 1
 renWin SetSize 500 500
 eval ren1 SetBackground $slate_grey
-[ren1 GetActiveCamera] Zoom 1.5
-[ren1 GetActiveCamera] Elevation 90
+
+[ren1 GetActiveCamera] SetPosition 98.3334 642.549 15 
+[ren1 GetActiveCamera] SetFocalPoint 98.3334 100.372 15 
+[ren1 GetActiveCamera] SetViewAngle 20
+[ren1 GetActiveCamera] SetViewUp 0 0 -1
+
 ren1 ResetCameraClippingRange
 
 # render the image
