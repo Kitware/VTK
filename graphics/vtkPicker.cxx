@@ -432,6 +432,7 @@ void vtkPicker::Initialize()
   this->vtkAbstractPropPicker::Initialize();
 
   this->Actors->RemoveAllItems();
+  this->Prop3Ds->RemoveAllItems();
   this->PickedPositions->Reset();
   
   this->MapperPosition[0] = 0.0;
