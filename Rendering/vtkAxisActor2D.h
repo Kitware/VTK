@@ -33,11 +33,14 @@
 // should be close.
 //
 // Labels are drawn on the "right" side of the axis. The "right" side is
-// the side of the axis on the right as you move from Point1 to Point2. The
-// way the labels and title line up with the axis and tick marks depends on
+// the side of the axis on the right as you move from Position to Position2. 
+// The way the labels and title line up with the axis and tick marks depends on
 // whether the line is considered horizontal or vertical.
 //
-// The instance variables Point1 and Point2 are instances of vtkCoordinate.
+// The vtkActor2D instance variables Position and Position2 are instances of 
+// vtkCoordinate. Note that the Position2 is an absolute position in that 
+// class (it was by default relative to Position in vtkActor2D).
+//
 // What this means is that you can specify the axis in a variety of coordinate
 // systems. Also, the axis does not have to be either horizontal or vertical.
 // The tick marks are created so that they are perpendicular to the axis.
@@ -71,17 +74,27 @@ public:
   // Description:
   // Instantiate object.
   static vtkAxisActor2D *New();
-  
+
   // Description:
   // Specify the position of the first point defining the axis.
-  vtkViewportCoordinateMacro(Point1);
-  
+  // Note: backward compatibility only, use vtkActor2D's Position instead.
+  virtual vtkCoordinate *GetPoint1Coordinate() 
+    { return this->GetPositionCoordinate(); };
+  virtual void SetPoint1(float x[2]) { this->SetPosition(x); };
+  virtual void SetPoint1(float x, float y) { this->SetPosition(x,y); };
+  virtual float *GetPoint1() { return this->GetPosition(); };
+
   // Description:
   // Specify the position of the second point defining the axis. Note that
   // the order from Point1 to Point2 controls which side the tick marks
   // are drawn on (ticks are drawn on the right, if visible).
-  vtkViewportCoordinateMacro(Point2);
-  
+  // Note: backward compatibility only, use vtkActor2D's Position2 instead.
+  virtual vtkCoordinate *GetPoint2Coordinate() 
+    { return this->GetPosition2Coordinate(); };
+  virtual void SetPoint2(float x[2]) { this->SetPosition2(x); };
+  virtual void SetPoint2(float x, float y) { this->SetPosition2(x,y); };
+  virtual float *GetPoint2() { return this->GetPosition2(); };
+
   // Description:
   // Specify the (min,max) axis range. This will be used in the generation
   // of labels, if labels are visible.
@@ -283,36 +296,33 @@ protected:
   vtkAxisActor2D();
   ~vtkAxisActor2D();
 
-  vtkCoordinate *Point1Coordinate;
-  vtkCoordinate *Point2Coordinate;
-
   vtkTextProperty *TitleTextProperty;
   vtkTextProperty *LabelTextProperty;
 
   char  *Title;
   float Range[2];
-  float AdjustedRange[2];
   int   NumberOfLabels;
-  int   AdjustedNumberOfLabels;
   char  *LabelFormat;
-  int   NumberOfLabelsBuilt;
   int   AdjustLabels;
   float FontFactor;
   float LabelFactor;
   int   TickLength;
   int   TickOffset;
 
+  float AdjustedRange[2];
+  int   AdjustedNumberOfLabels;
+  int   NumberOfLabelsBuilt;
+
   int   AxisVisibility;
   int   TickVisibility;
   int   LabelVisibility;
   int   TitleVisibility;
   
-  int   LastPoint1[2];
-  int   LastPoint2[2];
+  int   LastPosition[2];
+  int   LastPosition2[2];
   
   int   LastSize[2];
-  int   LastTitleFontSize;
-  int   LastLabelFontSize;
+  int   LastMaxLabelSize[2];
   
   virtual void BuildAxis(vtkViewport *viewport);
   static float ComputeStringOffset(float width, float height, float theta);
