@@ -49,7 +49,7 @@ public:
   // Description:
   // Set the number of divisions in x-y-z directions.
   vlSetVector3Macro(Divisions,int);
-  vlGetVectorMacro(Divisions,int);
+  vlGetVectorMacro(Divisions,int,3);
 
   // Description:
   // Boolean controls whether automatic subdivision size is computed

@@ -39,7 +39,7 @@ public:
 
 protected:
   virtual void Execute() 
-    {vlErrorMacro(<< "Execute is a Filter subclass responsability");};
+    {vlErrorMacro(<< "Execute is a Filter subclass responsibility");};
   char Updating;
   void (*StartMethod)(void *);
   void *StartMethodArg;

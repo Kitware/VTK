@@ -43,10 +43,10 @@ public:
   void EvaluateNormal(float x, float y, float z, float n[3]);
 
   vlSetVector3Macro(Normal,float);
-  vlGetVectorMacro(Normal,float);
+  vlGetVectorMacro(Normal,float,3);
 
   vlSetVector3Macro(Origin,float);
-  vlGetVectorMacro(Origin,float);
+  vlGetVectorMacro(Origin,float,3);
 
 protected:
   float Normal[3];

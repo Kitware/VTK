@@ -53,7 +53,7 @@ public:
   // specific object methods
   void SetDimensions(int i, int j, int k);
   void SetDimensions(int dim[3]);
-  vlGetVectorMacro(Dimensions,int);
+  vlGetVectorMacro(Dimensions,int,3);
 
   int GetDataDimension();
 

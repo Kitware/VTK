@@ -37,7 +37,7 @@ public:
   void SetCoefficients(float a[10]);
   void SetCoefficients(float a0, float a1, float a2, float a3, float a4, 
                        float a5, float a6, float a7, float a8, float a9);
-  vlGetVectorMacro(Coefficients,float);
+  vlGetVectorMacro(Coefficients,float,10);
 
 protected:
   float Coefficients[10];

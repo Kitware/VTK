@@ -37,7 +37,7 @@ public:
   vlGetMacro(Radius,float);
 
   vlSetVector3Macro(Origin,float);
-  vlGetVectorMacro(Origin,float);
+  vlGetVectorMacro(Origin,float,3);
 
 protected:
   float Radius;

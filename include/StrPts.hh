@@ -46,13 +46,13 @@ public:
   // Set the aspect ratio of the cubical cells that compose the structured
   // point set.
   vlSetVector3Macro(AspectRatio,float);
-  vlGetVectorMacro(AspectRatio,float);
+  vlGetVectorMacro(AspectRatio,float,3);
 
   // Description:
   // Set the origin of the data. The origin plus aspect ratio determine the
   // position in space of the structured points.
   vlSetVector3Macro(Origin,float);
-  vlGetVectorMacro(Origin,float);
+  vlGetVectorMacro(Origin,float,3);
 
 protected:
   float Origin[3];
