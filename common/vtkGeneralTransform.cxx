@@ -229,6 +229,20 @@ void vtkGeneralTransform::UnRegister(vtkObject *o)
     this->MyInverse = NULL;
     this->InUnRegister = 0;
     }
+  // for transforms with a concatenation, check to see whether we
+  // are being used as an inverse transform
+  else if (this->Concatenation && 
+	   this->Concatenation->GetNumberOfTransforms() > 0)
+    {
+    vtkGeneralTransform *transform = this->Concatenation->GetTransform(0);
+    if (transform->MyInverse == this && this->ReferenceCount == 2 &&
+	transform->GetReferenceCount() == 1)
+      {
+      this->InUnRegister = 1;
+      this->Concatenation->Identity();
+      this->InUnRegister = 0;
+      }
+    }
 
   this->vtkObject::UnRegister(o);
 }
