@@ -64,7 +64,7 @@ float vtkImplicitFunction::FunctionValue(float x[3])
     pt[1] = x[1];
     pt[2] = x[2];
     pt[3] = 1.0;
-    this->Transform->PointMultiply(pt,pt);
+    this->Transform->MultiplyPoint(pt,pt);
     if (pt[3] != 1.0 ) for (i=0; i<3; i++) pt[i] /= pt[3];
 
     return this->EvaluateFunction((float *)pt);
