@@ -123,7 +123,7 @@ BEGIN
                     169,138,42,14
     PUSHBUTTON      "Browse...",IDC_VTK_INSTALL_BROWSE,130,17,31,12
     PUSHBUTTON      "Browse...",IDC_VTK_LIB_BROWSE,130,46,31,12
-    PUSHBUTTON      "Browse...",IDC_COMPILER_PATH_BROWSE,131,75,31,12
+    PUSHBUTTON      "Browse...",IDC_COMPILER_PATH_BROWSE,130,76,31,12
     PUSHBUTTON      "Browse...",IDC_JDK_WHERE,297,66,31,12
     PUSHBUTTON      "Browse...",IDC_PYTHON_WHERE,297,110,31,12
 END
@@ -155,8 +155,8 @@ BEGIN
     LTEXT           "Where is libtcl (leave blank for default)",IDC_STATIC,9,
                     60,152,11
     EDITTEXT        IDC_WHERETCL,9,71,153,15,ES_AUTOHSCROLL
-    PUSHBUTTON      "Browse...",IDC_WhereLibTCL,166,72,31,12
-    PUSHBUTTON      "Browse...",IDC_WHERE_LIBTK,167,98,31,12
+    PUSHBUTTON      "Browse...",IDC_WhereLibTCL,167,72,31,12
+    PUSHBUTTON      "Browse...",IDC_WHERE_LIBTK,167,99,31,12
 END
 
 

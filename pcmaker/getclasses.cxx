@@ -2571,11 +2571,11 @@ void doMSCJavaHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
 	    concrete[i],vals->m_WhereVTK,concrete_lib[i],concrete[i]);
     fprintf(fp,"   %s\\pcmaker\\vtkWrapJava %s\\%s\\%s.h\\\n",
 	    vals->m_WhereVTK, vals->m_WhereVTK, concrete_lib[i], concrete[i]);
-    fprintf(fp,"  %s\\wrap\\hints 0 > src\\%sJava.cxx\n\n",
+    fprintf(fp,"  %s\\wrap\\hints 1 > src\\%sJava.cxx\n\n",
 	    vals->m_WhereVTK, concrete[i]);
     fprintf(fp,"   %s\\pcmaker\\vtkParseJava %s\\%s\\%s.h\\\n",
 	    vals->m_WhereVTK, vals->m_WhereVTK, concrete_lib[i], concrete[i]);
-    fprintf(fp,"  %s\\wrap\\hints 0 > vtk\\%s.java\n\n",
+    fprintf(fp,"  %s\\wrap\\hints 1 > vtk\\%s.java\n\n",
 	    vals->m_WhereVTK, concrete[i]);
     fprintf(fp,"\"$(OUTDIR)\\%sJava.obj\" : src\\%sJava.cxx $(DEPENDS) \"$(OUTDIR)\"\n",
 	    concrete[i],concrete[i]);
@@ -2613,11 +2613,11 @@ void doMSCJavaHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
 	    concrete_h[i],vals->m_WhereVTK,concrete_h_lib[i],concrete_h[i]);
     fprintf(fp,"   %s\\pcmaker\\vtkWrapJava %s\\%s\\%s.h\\\n",
 	    vals->m_WhereVTK, vals->m_WhereVTK, concrete_h_lib[i], concrete_h[i]);
-    fprintf(fp,"  %s\\wrap\\hints 0 > src\\%sJava.cxx\n\n",
+    fprintf(fp,"  %s\\wrap\\hints 1 > src\\%sJava.cxx\n\n",
 	    vals->m_WhereVTK, concrete_h[i]);
     fprintf(fp,"   %s\\pcmaker\\vtkParseJava %s\\%s\\%s.h\\\n",
 	    vals->m_WhereVTK, vals->m_WhereVTK, concrete_h_lib[i], concrete_h[i]);
-    fprintf(fp,"  %s\\wrap\\hints 0 > vtk\\%s.java\n\n",
+    fprintf(fp,"  %s\\wrap\\hints 1 > vtk\\%s.java\n\n",
 	    vals->m_WhereVTK, concrete_h[i]);
     fprintf(fp,"\"$(OUTDIR)\\%sJava.obj\" : src\\%sJava.cxx $(DEPENDS) \"$(OUTDIR)\"\n",
 	    concrete_h[i],concrete_h[i]);
@@ -2870,11 +2870,11 @@ void doBorJavaHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
 
     fprintf(fp,"   $(WHEREVTK)\\pcmaker\\vtkWrapJava $(WHEREVTK)\\%s\\%s.h\\\n",
 	    concrete_lib[i], concrete[i]);
-    fprintf(fp,"  $(WHEREVTK)\\wrap\\hints 0 > src\\%sJava.cxx\n\n",
+    fprintf(fp,"  $(WHEREVTK)\\wrap\\hints 1 > src\\%sJava.cxx\n\n",
 	    concrete[i]);
     fprintf(fp,"   $(WHEREVTK)\\pcmaker\\vtkParseJava $(WHEREVTK)\\%s\\%s.h\\\n",
 	    concrete_lib[i], concrete[i]);
-    fprintf(fp,"  $(WHEREVTK)\\wrap\\hints 0 > vtk\\%s.java\n\n",
+    fprintf(fp,"  $(WHEREVTK)\\wrap\\hints 1 > vtk\\%s.java\n\n",
 	    concrete[i]);
     fprintf(fp,"| vtkjava.bat \n  vtkjava \n\n");
 
@@ -2920,11 +2920,11 @@ void doBorJavaHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
     fprintf(fp,"  copy &&| \n");
     fprintf(fp,"   $(WHEREVTK)\\pcmaker\\vtkWrapJava $(WHEREVTK)\\%s\\%s.h\\\n",
 	    concrete_h_lib[i], concrete_h[i]);
-    fprintf(fp,"  $(WHEREVTK)\\wrap\\hints 0 > src\\%sJava.cxx\n\n",
+    fprintf(fp,"  $(WHEREVTK)\\wrap\\hints 1 > src\\%sJava.cxx\n\n",
 	    concrete_h[i]);
     fprintf(fp,"   $(WHEREVTK)\\pcmaker\\vtkParseJava $(WHEREVTK)\\%s\\%s.h\\\n",
 	    concrete_h_lib[i], concrete_h[i]);
-    fprintf(fp,"  $(WHEREVTK)\\wrap\\hints 0 > vtk\\%s.java\n\n",
+    fprintf(fp,"  $(WHEREVTK)\\wrap\\hints 1 > vtk\\%s.java\n\n",
 	    concrete_h[i]);
     fprintf(fp,"| vtkjava.bat \n  vtkjava \n\n");
 
