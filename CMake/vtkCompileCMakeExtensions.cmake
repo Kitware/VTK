@@ -10,10 +10,11 @@ MACRO(VTK_COMPILE_CMAKE_EXTENSIONS source_dir build_dir result_var)
     TRY_COMPILE("${result_var}" "${build_dir}" "${source_dir}"
                 VTK_LOADED_COMMANDS
                 OUTPUT_VARIABLE VTK_COMPILE_CMAKE_EXTENSIONS_OUTPUT)
+    SET(${result_var} 0)
     IF("${result_var}")
       MESSAGE(STATUS "Compiling VTK CMake commands - done")
     ELSE("${result_var}")
-      MESSAGE(STATUS "Compiling VTK CMake commands - failed")
+      MESSAGE(FATAL_ERROR "Compiling VTK CMake commands - failed")
       MESSAGE("Failed to compile VTK extensions to CMake")
       WRITE_FILE(${CMAKE_BINARY_DIR}/CMakeError.log 
         "Building of VTK extensions failed with the following output:\n"
