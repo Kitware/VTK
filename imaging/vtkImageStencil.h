@@ -41,50 +41,28 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 // .NAME vtkImageStencil - combine images via a cookie-cutter operation
 // .SECTION Description
-//  vtkImageStencil will combine two images give a vtkImplicitFunction as
-//  a stencil.  More generally, a vtkImageClippingExtents object can be
-//  used to allow clipping with a broad variety of vtk object types,
-//  e.g. a closed vtkPolyData surface.
+// vtkImageStencil will combine two images together using a stencil.
+// The stencil should be provided in the form of a vtkImageStencilData,
+
 
 #ifndef __vtkImageStencil_h
 #define __vtkImageStencil_h
 
-#include "vtkImageMultipleInputFilter.h"
-#include "vtkImplicitFunction.h"
-#include "vtkImageClippingExtents.h"
+#include "vtkImageToImageFilter.h"
+#include "vtkImageStencilData.h"
 
-class VTK_EXPORT vtkImageStencil : public vtkImageMultipleInputFilter
+class VTK_EXPORT vtkImageStencil : public vtkImageToImageFilter
 {
 public:
   static vtkImageStencil *New();
-  vtkTypeMacro(vtkImageStencil, vtkImageMultipleInputFilter);
+  vtkTypeMacro(vtkImageStencil, vtkImageToImageFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Set the input.  This image will be used for the 'inside' of the stencil.
-  virtual void SetInput(vtkImageData *input);
-  virtual void SetInput(int n, vtkImageData *input);
-
-  // Description:
-  // NOTE: Not yet implemented, use SetDefaultValue instead.
-  // Set the second input.  This image will be used for the 'outside' of the
-  // stencil.  If not set, the output voxels will be filled with
-  // DefaultValue instead.
-  virtual void SetInput2(vtkImageData *input);
-  vtkImageData *GetInput2() { return this->GetInput(1); };
-
-  // Description:
-  // Set the implicit function to use as a stencil.
-  vtkSetObjectMacro(StencilFunction, vtkImplicitFunction);
-  vtkGetObjectMacro(StencilFunction, vtkImplicitFunction);
-
-  // Description:
-  // Specify a vtkImageClippingExtents object to use instead of 
-  // setting a StencilFunction.  The vtkImageClippingExtents
-  // is a class for efficiently specifying an image stencil
-  // for large images.
-  vtkSetObjectMacro(ClippingExtents, vtkImageClippingExtents);
-  vtkGetObjectMacro(ClippingExtents, vtkImageClippingExtents);
+  // Specify the stencil to use.  The stencil can be created
+  // from a vtkImplicitFunction or a vtkPolyData.
+  virtual void SetStencil(vtkImageStencilData *stencil);
+  vtkImageStencilData *GetStencil();
 
   // Description:
   // Reverse the stencil.
@@ -93,15 +71,25 @@ public:
   vtkGetMacro(ReverseStencil, int);
 
   // Description:
+  // NOTE: Not yet implemented, use SetBackgroundValue instead.
+  // Set the second input.  This image will be used for the 'outside' of the
+  // stencil.  If not set, the output voxels will be filled with
+  // BackgroundValue instead.
+  virtual void SetBackgroundInput(vtkImageData *input);
+  vtkImageData *GetBackgroundInput();
+
+  // Description:
   // Set the default output value to use when the second input is not set.
-  void SetDefaultValue(float val) { this->SetDefaultColor(val,val,val,val); };
-  float GetDefaultValue() { return this->DefaultColor[0]; };
+  void SetBackgroundValue(float val) {
+    this->SetBackgroundColor(val,val,val,val); };
+  float GetBackgroundValue() {
+    return this->BackgroundColor[0]; };
 
   // Description:
   // Set the default color to use when the second input is not set.
-  // This is like SetDefaultValue, but for multi-component images.
-  vtkSetVector4Macro(DefaultColor, float);
-  vtkGetVector4Macro(DefaultColor, float);
+  // This is like SetBackgroundValue, but for multi-component images.
+  vtkSetVector4Macro(BackgroundColor, float);
+  vtkGetVector4Macro(BackgroundColor, float);
 
 protected:
   vtkImageStencil();
@@ -109,19 +97,15 @@ protected:
   vtkImageStencil(const vtkImageStencil&) {};
   void operator=(const vtkImageStencil&) {};
 
-  void ComputeInputUpdateExtent(int inExt[6], int outExt[6], int n);
-  
-  void ExecuteInformation() { 
-    this->vtkImageMultipleInputFilter::ExecuteInformation(); };
-  void ExecuteInformation(vtkImageData **inDatas, vtkImageData *outData);
+  void ExecuteInformation() {
+    this->vtkImageToImageFilter::ExecuteInformation(); };
+  void ExecuteInformation(vtkImageData *inData, vtkImageData *outData);
 
-  void ThreadedExecute(vtkImageData **inDatas, vtkImageData *outData,
+  void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
                        int extent[6], int id);
   
-  vtkImplicitFunction *StencilFunction;
-  vtkImageClippingExtents *ClippingExtents;
   int ReverseStencil;
-  float DefaultColor[4];
+  float BackgroundColor[4];
 };
 
 #endif
