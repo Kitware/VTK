@@ -999,7 +999,7 @@ static dword read_dword(vtk3DSImporter *importer)
 
   if (fread (&data, 4, 1, importer->GetFileFD()) != 1)
     {
-    vtkGenericWarningMacro(<<"Pre-mature end of file in read_dword\n");
+//    vtkGenericWarningMacro(<<"Pre-mature end of file in read_dword\n");
     data = 0;
     }
 
