@@ -60,7 +60,11 @@ case 1:
 { int c1 = 0; int c2; c2 = input();
        for (;;)
          {
-         if (c2 == EOF) break;
+         if (c2 == 0)
+           {
+           fprintf(yyout,"Cannot find closing comment.\n");
+           break;
+           }
          if (c1 == '*' && c2 == '/') break;
          c1 = c2; c2 = input();
          }
@@ -73,16 +77,20 @@ case 2:
      { int c1 = 0, c2 = 0, c3 = 0, c4 = 0; int c5; c5 = input();
        for (;;)
          {
-         if (c5 == EOF) break;
+         if (c5 == 0)
+           {
+           fprintf(yyout,"Cannot find matching //ETX.\n");
+           break;
+           }
          if (c1 == '/' && c2 == '/' && c3 == 'E' && c4 == 'T' && c5 == 'X') break;
          c1 = c2; c2 = c3; c3 = c4; c4 = c5; c5 = input();
          }
        for (;;)
          {
-         if (c5 == EOF) break;
+         if (c5 == 0) break;
          if (c5 == '\n') break;
          c5 = input();
-         } 
+         }
      }
 break;
 case 3:
