@@ -62,7 +62,7 @@ $cam1 Zoom 2.5
 iren Initialize
 #renWin SetFileName "StructuredPointsGeometry.tcl.ppm"
 #renWin SaveImageAsPPM
-vtkStructuredPointsWriter writer
+vtkDataSetWriter writer
   writer SetFileName sp.vtk
   writer SetInput sp3
   writer Update
