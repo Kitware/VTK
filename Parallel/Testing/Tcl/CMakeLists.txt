@@ -1,4 +1,10 @@
 IF (VTK_DATA_ROOT)
+  ADD_TEST(RecOutline-image ${VTK_EXECUTABLE}
+           ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl
+           ${VTK_SOURCE_DIR}/Parallel/Testing/Tcl/RectOutline.tcl
+           -D ${VTK_DATA_ROOT}
+           -V Baseline/Parallel/RectOutline.tcl.png
+           -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
   ADD_TEST(ExtrudePiece-image ${VTK_EXECUTABLE}
            ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
            ${VTK_SOURCE_DIR}/Parallel/Testing/Tcl/TestExtrudePiece.tcl
