@@ -318,8 +318,8 @@ int vtkGenericEnSightReader::DetermineEnSightVersion()
             } // end if IFile == NULL
           
           this->ReadBinaryLine(binaryLine);
-          sscanf(line, " %*s %s", subLine);
-          if (strcmp(subLine, "Binary") != 0)
+          sscanf(binaryLine, " %*s %s", subLine);
+          if (strcmp(subLine, "Binary") == 0)
             {
             fclose(this->IFile);
             this->IFile = NULL;
@@ -387,8 +387,8 @@ int vtkGenericEnSightReader::DetermineEnSightVersion()
           } // end if IFile == NULL
         
         this->ReadBinaryLine(binaryLine);
-        sscanf(line, " %*s %s", subLine);
-        if (strcmp(subLine, "Binary") != 0)
+        sscanf(binaryLine, " %*s %s", subLine);
+        if (strcmp(subLine, "Binary") == 0)
           {
           fclose(this->IFile);
           this->IFile = NULL;
