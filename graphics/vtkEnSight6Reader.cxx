@@ -219,7 +219,7 @@ int vtkEnSight6Reader::ReadScalarsPerNode(char* fileName, char* description,
   vtkFieldData *fieldData;
   int numLines, moreScalars;
   float scalarsRead[6];
-  int lineRead, arrayNum;
+  int arrayNum;
   
   // Initialize
   //
@@ -250,7 +250,7 @@ int vtkEnSight6Reader::ReadScalarsPerNode(char* fileName, char* description,
 
   this->ReadLine(line); // skip the description line
 
-  lineRead = this->ReadNextDataLine(line); // 1st data line or part #
+  this->ReadNextDataLine(line); // 1st data line or part #
   if (strncmp(line, "part", 4) != 0)
     {
     // There are 6 values per line, and one scalar per point.
@@ -281,7 +281,7 @@ int vtkEnSight6Reader::ReadScalarsPerNode(char* fileName, char* description,
         {
         scalars->InsertComponent(i*6 + j, component, scalarsRead[j]);        
         }
-      lineRead = this->ReadNextDataLine(line);
+      this->ReadNextDataLine(line);
       }
     strcpy(formatLine, "");
     strcpy(tempLine, "");
@@ -317,7 +317,7 @@ int vtkEnSight6Reader::ReadScalarsPerNode(char* fileName, char* description,
     }
 
   // scalars for structured parts
-  while (lineRead = this->ReadNextDataLine(line) &&
+  while (this->ReadNextDataLine(line) &&
          strncmp(line, "part", 4) == 0)
     {
     sscanf(line, " part %d", &partId);
@@ -340,7 +340,7 @@ int vtkEnSight6Reader::ReadScalarsPerNode(char* fileName, char* description,
       }
     for (i = 0; i < numLines; i++)
       {
-      lineRead = this->ReadNextDataLine(line);
+      this->ReadNextDataLine(line);
       sscanf(line, " %f %f %f %f %f %f", &scalarsRead[0], &scalarsRead[1],
              &scalarsRead[2], &scalarsRead[3], &scalarsRead[4],
              &scalarsRead[5]);
@@ -349,7 +349,7 @@ int vtkEnSight6Reader::ReadScalarsPerNode(char* fileName, char* description,
         scalars->InsertComponent(i*6 + j, component, scalarsRead[j]);        
         }
       }
-    lineRead = this->ReadNextDataLine(line);
+    this->ReadNextDataLine(line);
     strcpy(formatLine, "");
     strcpy(tempLine, "");
     for (j = 0; j < moreScalars; j++)
@@ -393,7 +393,6 @@ int vtkEnSight6Reader::ReadVectorsPerNode(char* fileName, char* description)
   vtkFieldData *fieldData;
   int numLines, moreVectors;
   float vector1[3], vector2[3], values[6];
-  int lineRead;
   
   // Initialize
   //
@@ -425,7 +424,7 @@ int vtkEnSight6Reader::ReadVectorsPerNode(char* fileName, char* description)
   //this->ReadNextDataLine(line);
   this->ReadLine(line); // skip the description line
 
-  lineRead = this->ReadNextDataLine(line); // 1st data line or part #
+  this->ReadNextDataLine(line); // 1st data line or part #
   if (strncmp(line, "part", 4) != 0)
     {
     // There are 6 values per line, and 3 values (or 1 vector) per point.
@@ -442,7 +441,7 @@ int vtkEnSight6Reader::ReadVectorsPerNode(char* fileName, char* description)
              &vector1[2], &vector2[0], &vector2[1], &vector2[2]);
       vectors->InsertTuple(i*2, vector1);
       vectors->InsertTuple(i*2 + 1, vector2);
-      lineRead = this->ReadNextDataLine(line);
+      this->ReadNextDataLine(line);
       }
     strcpy(formatLine, "");
     strcpy(tempLine, "");
@@ -471,7 +470,7 @@ int vtkEnSight6Reader::ReadVectorsPerNode(char* fileName, char* description)
     }
 
   // vectors for structured parts
-  while (lineRead = this->ReadNextDataLine(line) &&
+  while (this->ReadNextDataLine(line) &&
          strncmp(line, "part", 4) == 0)
     {
     sscanf(line, " part %d", &partId);
@@ -489,7 +488,7 @@ int vtkEnSight6Reader::ReadVectorsPerNode(char* fileName, char* description)
       {
       for (i = 0; i < numLines; i++)
         {
-        lineRead = this->ReadNextDataLine(line);
+        this->ReadNextDataLine(line);
         sscanf(line, " %f %f %f %f %f %f", &values[0], &values[1],
                &values[2], &values[3], &values[4], &values[5]);
         for (j = 0; j < 6; j++)
@@ -500,7 +499,7 @@ int vtkEnSight6Reader::ReadVectorsPerNode(char* fileName, char* description)
       
       if (moreVectors)
         {
-        lineRead = this->ReadNextDataLine(line);
+        this->ReadNextDataLine(line);
         strcpy(formatLine, "");
         strcpy(tempLine, "");
         for (j = 0; j < moreVectors; j++)
