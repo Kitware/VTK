@@ -67,6 +67,12 @@ void vtkFollower::GetMatrix(vtkMatrix4x4& result)
   this->Transform.Identity();  
   this->Transform.PreMultiply();  
 
+  // apply user defined matrix last if there is one 
+  if (this->UserMatrix)
+    {
+    this->Transform.Concatenate(*this->UserMatrix);
+    }
+
   // first translate
   this->Transform.Translate(this->Position[0],
 			    this->Position[1],
