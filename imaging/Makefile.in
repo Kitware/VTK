@@ -12,7 +12,8 @@ VPATH         = @srcdir@
 
 ABSTRACT_H = 
 
-CONCRETE_H = 
+CONCRETE_H = \
+vtkImagerCollection
 
 ABSTRACT = \
 vtkImageDecomposeFilter \
@@ -57,12 +58,14 @@ vtkImageIslandRemoval2D \
 vtkImageLogic \
 vtkImageMagnify \
 vtkImageMagnitude \
+vtkImageMapper \
 vtkImageMask \
 vtkImageMathematics \
 vtkImageMedian3D \
 vtkImageMirrorPad \
 vtkImageNonMaximumSuppression \
 vtkImagePermute \
+vtkImager \
 vtkImageReader \
 vtkImageRFFT \
 vtkImageRGBToHSV \
@@ -71,6 +74,7 @@ vtkImageShiftScale \
 vtkImageShrink3D \
 vtkImageThreshold \
 vtkImageViewer \
+vtkImageWindow \
 vtkImageWrapPad \
 vtkImageWriter \
 vtkImageXViewer \
@@ -79,6 +83,8 @@ vtkPNMWriter \
 vtkTextMapper \
 vtkTIFFReader \
 vtkTIFFWriter \
+vtkXImageMapper \
+vtkXImageWindow \
 vtkXTextMapper 
 
 
