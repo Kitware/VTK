@@ -82,19 +82,24 @@ public:
   vtkGetStringMacro(FileName);
 
   // Description:
-  // Specify the OutputString for use when writing to a character array.
-  // If no string is specified, ostrstream allocates one of its own.
-  // If a string is given, it is the users responsibility to delete the string.
-  void SetOutputString(char *str, int length);
-  vtkGetStringMacro(OutputString);
-  vtkGetMacro(OutputStringLength, int);
-
-  // Description:
   // Enable writing to an OutputString instead of the default, a file.
   vtkSetMacro(WriteToOutputString,int);
   vtkGetMacro(WriteToOutputString,int);
   vtkBooleanMacro(WriteToOutputString,int);
 
+  // Description:
+  // When WriteToOutputString in on, then a string is allocated, written to,
+  // and can be retrieved with these methods.  The string is deleted during
+  // the next call to write ...
+  vtkGetMacro(OutputStringLength, int);  
+  vtkGetStringMacro(OutputString);
+
+  // Description:
+  // This convenience method returns the string, sets the IVAR to NULL,
+  // so that the user is responsible for deleting the string.
+  // I am not sure what the name should be, so it may change in the future.
+  char *RegisterAndGetOutputString();
+  
   // Description:
   // Specify the header for the vtk data file.
   vtkSetStringMacro(Header);
@@ -197,8 +202,8 @@ protected:
   int WriteToOutputString;
   char *OutputString;
   int OutputStringLength;
-  int UserOwnsOutputString;
-
+  int OutputStringAllocatedLength;
+  
   void WriteData(); //dummy method to allow this class to be instantiated and delegated to
 
   char *FileName;

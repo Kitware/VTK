@@ -96,12 +96,12 @@ vtkDataWriter::vtkDataWriter()
 
   this->WriteToOutputString = 0;
   this->OutputString = NULL;
+  this->OutputStringAllocatedLength = 0;
   this->OutputStringLength = 0;
-  this->UserOwnsOutputString = 0;
 }
 
 vtkDataWriter::~vtkDataWriter()
-{
+{ 
   if ( this->FileName )
     {
     delete [] this->FileName;
@@ -138,30 +138,13 @@ vtkDataWriter::~vtkDataWriter()
     {
     delete [] this->FieldDataName;
     }
-}
-
-void vtkDataWriter::SetOutputString(char *str, int strLength)
-{
-  // just a sanity check
-  if ((str == NULL && strLength > 0) || (str != NULL && strLength <= 0))
-    {
-    vtkErrorMacro("str and strlength mismatch");
-    return;
-    }
   
-  if (this->OutputString && ! this->UserOwnsOutputString)
+  if (this->OutputString)
     {
     delete [] this->OutputString;
-    }
-  this->OutputString = str;
-  this->OutputStringLength = strLength;
-  if (str)
-    {
-    this->UserOwnsOutputString = 1;
-    }
-  else
-    {
-    this->UserOwnsOutputString = 0;
+    this->OutputString = NULL;
+    this->OutputStringLength = 0;
+    this->OutputStringAllocatedLength = 0;
     }
 }
 
@@ -170,31 +153,40 @@ void vtkDataWriter::SetOutputString(char *str, int strLength)
 ostream *vtkDataWriter::OpenVTKFile()
 {
   ostream *fptr;
-
-  vtkDebugMacro(<<"Opening vtk file for writing...");
-
+  vtkDataObject *input = this->GetInput();
+  
   if ((!this->WriteToOutputString) && ( !this->FileName ))
     {
     vtkErrorMacro(<< "No FileName specified! Can't write!");
     return NULL;
     }
+  if (input == NULL)
+    {
+    vtkErrorMacro(<< "No input! Can't write!");
+    return NULL;    
+    }
+  
+  vtkDebugMacro(<<"Opening vtk file for writing...");
 
   if (this->WriteToOutputString)
     {
-    if (this->UserOwnsOutputString)
+    // Get rid of any old output string.
+    if (this->OutputString)
       {
-      fptr = new ostrstream(this->OutputString, this->OutputStringLength);
+      delete [] this->OutputString;
+      this->OutputString = NULL;
+      this->OutputStringLength = 0;
+      this->OutputStringAllocatedLength = 0;
       }
-    else
-      {
-      if (this->OutputString)
-	{
-	delete [] this->OutputString;
-	this->OutputStringLength = 0;
-	}
-      fptr = new ostrstream();
-      }
-    } 
+    // Allocate the new output string. (Note: this will only work with binary).
+    input->Update();
+    this->OutputStringAllocatedLength = 500 
+      + 1000 * input->GetActualMemorySize();
+    this->OutputString = new char[this->OutputStringAllocatedLength];
+
+    fptr = new ostrstream(this->OutputString, 
+			  this->OutputStringAllocatedLength);
+    }
   else 
     {
     if ( this->FileType == VTK_ASCII )
@@ -828,14 +820,6 @@ void vtkDataWriter::CloseVTKFile(ostream *fp)
 {
   vtkDebugMacro(<<"Closing vtk file\n");
   
-  // this should not be necessary
-  if (this->OutputString && ! this->UserOwnsOutputString)
-    {
-    delete [] this->OutputString;
-    this->OutputString = NULL;
-    this->OutputStringLength = 0;
-    }
-  
   if ( fp != NULL )
     {
     if (this->WriteToOutputString)
@@ -843,12 +827,16 @@ void vtkDataWriter::CloseVTKFile(ostream *fp)
       char *tmp;
       ostrstream *ostr = (ostrstream*)(fp);
       this->OutputStringLength = ostr->pcount();
-      tmp = ostr->str();
-      // just in case the user set the output string when an ostrstream was open.
-      if (this->UserOwnsOutputString && tmp != this->OutputString)
+
+      if (this->OutputStringLength == this->OutputStringAllocatedLength)
 	{
-	vtkWarningMacro("Ignoring UsersOutputString.  Write was in progress");
-	this->UserOwnsOutputString = 0;
+	vtkErrorMacro("OutputString was not long enough.");
+	}
+      // Sanity check.
+      tmp = ostr->str();
+      if (tmp != this->OutputString)
+	{
+	vtkErrorMacro("String mismatch");
 	}
       this->OutputString = tmp;
       }
@@ -857,6 +845,18 @@ void vtkDataWriter::CloseVTKFile(ostream *fp)
     }
 
 }
+
+char *vtkDataWriter::RegisterAndGetOutputString()
+{
+  char *tmp = this->OutputString;
+  
+  this->OutputString = NULL;
+  this->OutputStringLength = 0;
+  this->OutputStringAllocatedLength = 0;
+  
+  return tmp;
+}
+
 
 void vtkDataWriter::PrintSelf(ostream& os, vtkIndent indent)
 {

@@ -125,7 +125,19 @@ void vtkDataSetWriter::WriteData()
   writer->SetFieldDataName(this->FieldDataName);
   writer->SetFileType(this->FileType);
   writer->SetDebug(this->Debug);
+  writer->SetWriteToOutputString(this->WriteToOutputString);
   writer->Write();
+  if (this->WriteToOutputString)
+    {
+    if (this->OutputString)
+      {
+      delete [] this->OutputString;
+      }
+    this->OutputStringLength = writer->GetOutputStringLength();
+    // should fill something here.
+    this->OutputStringAllocatedLength = this->OutputStringLength;
+    this->OutputString = writer->RegisterAndGetOutputString();
+    }
   writer->Delete();
 }
 

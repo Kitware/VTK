@@ -94,6 +94,7 @@ public:
   void SetInputString(char *in);
   vtkGetStringMacro(InputString);
   void SetInputString(char *in, int len);
+  vtkGetMacro(InputStringLength, int);
   
   // Description:
   // Get the header from the vtk data file.
