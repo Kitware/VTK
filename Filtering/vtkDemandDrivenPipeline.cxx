@@ -38,7 +38,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.1.2.3");
+vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.1.2.4");
 vtkStandardNewMacro(vtkDemandDrivenPipeline);
 
 //----------------------------------------------------------------------------
@@ -75,6 +75,14 @@ void vtkDemandDrivenPipeline::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "PipelineMTime: " << this->PipelineMTime << "\n";
+}
+
+//----------------------------------------------------------------------------
+vtkInformationKeyVectorKey* vtkDemandDrivenPipeline::UPSTREAM_KEYS_TO_COPY()
+{
+  static vtkInformationKeyVectorKey instance("UPSTREAM_KEYS_TO_COPY",
+                                             "vtkDemandDrivenPipeline");
+  return &instance;
 }
 
 //----------------------------------------------------------------------------
@@ -219,6 +227,8 @@ vtkInformationVector* vtkDemandDrivenPipeline::GetOutputInformation()
        i < this->Algorithm->GetNumberOfOutputPorts();++i)
     {
     this->FillDownstreamKeysToCopy(
+      this->DemandDrivenInternal->OutputInformation->GetInformationObject(i));
+    this->FillUpstreamKeysToCopy(
       this->DemandDrivenInternal->OutputInformation->GetInformationObject(i));
     }
 
@@ -489,6 +499,33 @@ int vtkDemandDrivenPipeline::UpdateData(int outputPort)
     this->DataTime.Modified();
     }
   return result;
+}
+
+//----------------------------------------------------------------------------
+void vtkDemandDrivenPipeline::CopyDefaultUpstreamInformation()
+{ 
+  // Setup default information for the inputs.
+  if(this->Algorithm->GetNumberOfOutputPorts() > 0)
+    {
+    // Copy information from the first input.
+    vtkInformation* outInfo = 
+      this->GetOutputInformation(0);
+    if (outInfo)
+      {
+      for(int i=0; i < this->Algorithm->GetNumberOfInputPorts(); ++i)
+        {
+        vtkInformationVector* inInfo = 
+          this->GetInputInformation(i)->Get(
+            vtkAlgorithm::INPUT_CONNECTION_INFORMATION());
+        int numInConnections = inInfo->GetNumberOfInformationObjects();
+        for (int j=0; j<numInConnections; j++)
+          {
+          inInfo->GetInformationObject(j)->CopyEntries(
+            outInfo, vtkDemandDrivenPipeline::UPSTREAM_KEYS_TO_COPY());
+          }
+        }
+      }
+    }
 }
 
 //----------------------------------------------------------------------------

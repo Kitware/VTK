@@ -24,7 +24,7 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 
-vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.1.2.2");
+vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.1.2.3");
 vtkStandardNewMacro(vtkStreamingDemandDrivenPipeline);
 
 //----------------------------------------------------------------------------
@@ -172,6 +172,20 @@ FillDownstreamKeysToCopy(vtkInformation *info)
                MAXIMUM_NUMBER_OF_PIECES());
 }
 
+void vtkStreamingDemandDrivenPipeline::
+FillUpstreamKeysToCopy(vtkInformation *info)
+{
+  this->Superclass::FillUpstreamKeysToCopy(info);
+  info->Append(vtkDemandDrivenPipeline::UPSTREAM_KEYS_TO_COPY(),
+               UPDATE_EXTENT());
+  info->Append(vtkDemandDrivenPipeline::UPSTREAM_KEYS_TO_COPY(),
+               UPDATE_PIECE_NUMBER());
+  info->Append(vtkDemandDrivenPipeline::UPSTREAM_KEYS_TO_COPY(),
+               UPDATE_NUMBER_OF_PIECES());
+  info->Append(vtkDemandDrivenPipeline::UPSTREAM_KEYS_TO_COPY(),
+               UPDATE_NUMBER_OF_GHOST_LEVELS());
+}
+
 //----------------------------------------------------------------------------
 void vtkStreamingDemandDrivenPipeline::CopyDefaultInformation()
 { 
@@ -244,6 +258,8 @@ int vtkStreamingDemandDrivenPipeline::PropagateUpdateExtent(int outputPort)
       {
       return 0;
       }
+
+    this->CopyDefaultUpstreamInformation();
 
     // Request information from the algorithm.
     this->PrepareUpstreamRequest(REQUEST_UPDATE_EXTENT());

@@ -81,6 +81,9 @@ protected:
   // By default what keys should be copied from input to output
   virtual void FillDownstreamKeysToCopy(vtkInformation *);
 
+  // By default what keys should be copied from output to input
+  virtual void FillUpstreamKeysToCopy(vtkInformation *);
+
 private:
   vtkStreamingDemandDrivenPipelineInternals* StreamingDemandDrivenInternal;
 private:
