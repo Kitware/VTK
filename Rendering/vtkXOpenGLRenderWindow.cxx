@@ -41,7 +41,6 @@
 #include "vtkIdList.h"
 #include "vtkObjectFactory.h"
 #include "vtkRendererCollection.h"
-#include "vtkString.h"
 
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
@@ -88,7 +87,7 @@ vtkXOpenGLRenderWindowInternal::vtkXOpenGLRenderWindowInternal(
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.36");
+vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.37");
 vtkStandardNewMacro(vtkXOpenGLRenderWindow);
 #endif
 
@@ -1252,7 +1251,8 @@ int vtkXOpenGLRenderWindow::IsDirect()
 
 void vtkXOpenGLRenderWindow::SetWindowName(const char * cname)
 {
-  char *name = vtkString::Duplicate(cname);
+  char *name = new char[ strlen(cname)+1 ];
+  strcpy(name, cname);
   XTextProperty win_name_text_prop;
 
   vtkOpenGLRenderWindow::SetWindowName( name );

@@ -28,7 +28,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLTexture.h"
 #include "vtkRendererCollection.h"
-#include "vtkString.h"
 #include "vtkWin32RenderWindowInteractor.h"
 
 #include <math.h>
@@ -39,7 +38,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <GL/gl.h>
 #endif
 
-vtkCxxRevisionMacro(vtkWin32OpenGLRenderWindow, "1.103");
+vtkCxxRevisionMacro(vtkWin32OpenGLRenderWindow, "1.104");
 vtkStandardNewMacro(vtkWin32OpenGLRenderWindow);
 
 #define VTK_MAX_LIGHTS 8
@@ -629,7 +628,7 @@ void vtkWin32OpenGLRenderWindow::CreateAWindow(int x, int y, int width,
     WNDCLASS wndClass;
     this->DeviceContext = 0;
     
-    int len = vtkString::Length( "Visualization Toolkit - Win32OpenGL #") 
+    int len = static_cast<int>(strlen("Visualization Toolkit - Win32OpenGL #")) 
       + (int)ceil( (double) log10( (double)(count+1) ) )
       + 1; 
     windowName = new char [ len ];
