@@ -551,7 +551,7 @@ int vtkMultiProcessController::WriteImageData(vtkImageData *data)
 {
   vtkImageClip *clip;
   vtkStructuredPointsWriter *writer;
-  int *ext, size;
+  int size;
   
   // keep Update from propagating
   vtkImageData *tmp = vtkImageData::New();
@@ -626,7 +626,6 @@ void vtkMultiProcessController::CopyImageData(vtkImageData *src,
 int vtkMultiProcessController::WriteDataSet(vtkDataSet *data)
 {
   unsigned long size;
-  char *str;
   vtkDataSetWriter *writer = vtkDataSetWriter::New();
   vtkTimerLog *log = vtkTimerLog::New();
 
