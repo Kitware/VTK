@@ -858,7 +858,7 @@ static int
 vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget *self) 
 {
   Display *dpy;
-  vtkImageViewer *ImageViewer;
+  vtkImageViewer *ImageViewer = 0;
   vtkXOpenGLRenderWindow *ImageWindow;
   
   if (self->ImageViewer)

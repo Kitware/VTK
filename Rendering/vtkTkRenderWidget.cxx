@@ -1165,7 +1165,7 @@ static int
 vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget *self) 
 {
   Display *dpy;
-  vtkXOpenGLRenderWindow *renderWindow;
+  vtkXOpenGLRenderWindow *renderWindow = 0;
   
   if (self->RenderWindow)
     {
