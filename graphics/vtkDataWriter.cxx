@@ -1,5 +1,3 @@
-#include "Precompiled_Header.h"
-#pragma hdrstop
 /*=========================================================================
 
   Program:   Visualization Toolkit
