@@ -165,8 +165,9 @@ CONFIGURE_FILE(${VTKFTGL_SOURCE_DIR}/vtkftglConfig.h.in
 # Build examples (testing purposes)
 # (Warning, they use Glut)
 #
-OPTION (FTGL_BUILD_EXAMPLES "Build FTGL examples (warning: you need Glut)" OFF)
-MARK_AS_ADVANCED (FTGL_BUILD_EXAMPLES)
+#OPTION (FTGL_BUILD_EXAMPLES "Build FTGL examples (warning: you need Glut)" OFF)
+#MARK_AS_ADVANCED (FTGL_BUILD_EXAMPLES)
+SET(FTGL_BUILD_EXAMPLES 0)
 
 IF (FTGL_BUILD_EXAMPLES)
 

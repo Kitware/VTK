@@ -358,6 +358,10 @@ ENDIF(VTK_USE_RENDERING)
 # Configure Mangled MESA support.
 IF(VTK_USE_MANGLED_MESA)
   INCLUDE(${VTK_SOURCE_DIR}/CMake/FindMangledMesa.cmake)
+
+  MARK_AS_ADVANCED(MANGLED_MESA_INCLUDE_DIR MANGLED_MESA_LIBRARY
+                   MANGLED_OSMESA_INCLUDE_DIR MANGLED_OSMESA_LIBRARY)
+
   IF(MANGLED_MESA_INCLUDE_DIR)
     USE_MANGLED_MESA(${MANGLED_MESA_INCLUDE_DIR}/GL
                      ${VTK_BINARY_DIR}/MangleMesaInclude)
@@ -368,6 +372,7 @@ ENDIF(VTK_USE_MANGLED_MESA)
 # Configure Off-Screen MESA support.
 IF(VTK_OPENGL_HAS_OSMESA)
   INCLUDE(${VTK_SOURCE_DIR}/CMake/FindOSMesa.cmake)
+  MARK_AS_ADVANCED(OSMESA_INCLUDE_DIR OSMESA_LIBRARY)
 ENDIF(VTK_OPENGL_HAS_OSMESA)
 
 #-----------------------------------------------------------------------------
@@ -423,7 +428,17 @@ ENDIF(VTK_USE_PARALLEL)
 # Configure Tcl wrapping support.
 IF(VTK_WRAP_TCL)
   INCLUDE(${CMAKE_ROOT}/Modules/FindTCL.cmake)
-  MARK_AS_ADVANCED(TK_WISH TCL_LIBRARY_DEBUG TK_LIBRARY_DEBUG)
+
+  # Hide useless settings provided by FindTCL.
+  FOREACH(entry TCL_LIBRARY_DEBUG
+		TK_LIBRARY_DEBUG
+		TCL_STUB_LIBRARY
+		TCL_STUB_LIBRARY_DEBUG
+		TK_STUB_LIBRARY
+		TK_STUB_LIBRARY_DEBUG
+                TK_WISH)
+    SET(${entry} "${${entry}}" CACHE INTERNAL "This value is not used by VTK.")
+  ENDFOREACH(entry)
 
   # Wrapping executables.
   UTILITY_SOURCE(VTK_WRAP_TCL_EXE vtkWrapTcl Wrapping vtkWrapTcl.c)
