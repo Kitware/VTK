@@ -281,14 +281,6 @@ public:
   vtkGetMacro(RotationScale, float);
 
   // Description:
-  // If you want to generate traces using an arbitrary vector array, 
-  // then set its name here. By default this in NULL and the filter will 
-  // use the active vector array.
-  vtkGetStringMacro(InputVectorsSelection);
-  void SelectInputVectors(const char *fieldName) 
-    {this->SetInputVectorsSelection(fieldName);}
-  
-  // Description:
   // Add a dataset to the list inputs
   void AddInput(vtkDataSet *in);
 

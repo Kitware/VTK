@@ -50,14 +50,6 @@ public:
   vtkSetClampMacro(Dimensionality,int,2,3);
   vtkGetMacro(Dimensionality,int);
   
-  // Description:
-  // If you want to compute the gradient magnitude of an arbitrary point 
-  // scalar array, then set its name here.
-  // By default this in NULL and the filter will use the active scalar array.
-  vtkGetStringMacro(InputScalarsSelection);
-  void SelectInputScalars(const char *fieldName) 
-    {this->SetInputScalarsSelection(fieldName);}  
-
 protected:
   vtkImageGradientMagnitude();
   ~vtkImageGradientMagnitude() {};

@@ -89,17 +89,23 @@ public:
   vtkGetMacro(AllScalars,int);
   vtkBooleanMacro(AllScalars,int);
   
-  // Description:
-  // If you want to threshold by an arbitrary array, then set its name here.
-  // By default this in NULL and the filter will use the active scalar array.
-  vtkGetStringMacro(InputScalarsSelection);
-  void SelectInputScalars(const char *fieldName) 
-    {this->SetInputScalarsSelection(fieldName);}
-  
 protected:
   vtkThreshold();
   ~vtkThreshold();
 
+//BTX
+  // This is temporary solution. The vtkCutMaterial must be able
+  // to call SelectInputScalars().
+  friend class vtkCutMaterial;
+
+  // Description:
+  // If you want to threshold by an arbitrary array, then set its name here.
+  // By default this in NULL and the filter will use the active scalar array.
+  vtkGetStringMacro(InputScalarsSelection);
+  virtual void SelectInputScalars(const char *fieldName) 
+    {this->SetInputScalarsSelection(fieldName);}
+//ETX
+  
   // Usual data generation method
   void Execute();
 

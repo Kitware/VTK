@@ -36,11 +36,14 @@ streamer SetIntegrator rk
 streamer SetRotationScale 0.5
 streamer SetMaximumError 1.0E-8
 
+vtkAssignAttribute aa
+aa SetInput [streamer GetOutput]
+aa Assign Normals NORMALS POINT_DATA
+
 vtkRibbonFilter rf1
-rf1 SetInput [streamer GetOutput]
+rf1 SetInput [aa GetOutput]
 rf1 SetWidth 0.1
 rf1 VaryWidthOff
-rf1 SelectInputVectors Normals
 
 vtkPolyDataMapper mapStream
 mapStream SetInput [rf1 GetOutput]

@@ -46,14 +46,6 @@ public:
   // Return the number of elements in the median mask
   vtkGetMacro(NumberOfElements,int);
 
-  // Description:
-  // If you want the neighborhood median of an arbitrary point 
-  // scalar array, then set its name here.
-  // By default this in NULL and the filter will use the active scalar array.
-  vtkGetStringMacro(InputScalarsSelection);
-  void SelectInputScalars(const char *fieldName) 
-    {this->SetInputScalarsSelection(fieldName);}  
-
 protected:
   vtkImageMedian3D();
   ~vtkImageMedian3D();

@@ -121,13 +121,6 @@ public:
   vtkSetClampMacro(TextureLength,float,0.000001,VTK_LARGE_INTEGER);
   vtkGetMacro(TextureLength,float);
 
-  // Description:
-  // If you want to use an arbitrary normals array, then set its name here.
-  // By default this in NULL and the filter will use the active normal array.
-  vtkGetStringMacro(InputVectorsSelection);
-  void SelectInputVectors(const char *fieldName) 
-    {this->SetInputVectorsSelection(fieldName);}
-
 protected:
   vtkRibbonFilter();
   ~vtkRibbonFilter();

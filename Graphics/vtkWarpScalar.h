@@ -76,13 +76,6 @@ public:
   vtkGetMacro(XYPlane,int);
   vtkBooleanMacro(XYPlane,int);
 
-  // Description:
-  // If you want to warp by an arbitrary scalar array, then set its name here.
-  // By default this in NULL and the filter will use the active scalar array.
-  vtkGetStringMacro(InputScalarsSelection);
-  void SelectInputScalars(const char *fieldName) 
-    {this->SetInputScalarsSelection(fieldName);}
-  
 protected:
   vtkWarpScalar();
   ~vtkWarpScalar();

@@ -26,7 +26,6 @@ reader Update
 
 vtkContourFilter Contour0
 Contour0 SetInput [reader GetOutput]
-Contour0 SelectInputScalars {scalars}
 Contour0 SetValue 0 200
 Contour0 SetComputeScalars 1
 

@@ -23,7 +23,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkImageMedian3D, "1.36");
+vtkCxxRevisionMacro(vtkImageMedian3D, "1.37");
 vtkStandardNewMacro(vtkImageMedian3D);
 
 //-----------------------------------------------------------------------------
@@ -212,7 +212,8 @@ template <class T>
 void vtkImageMedian3DExecute(vtkImageMedian3D *self,
                              vtkImageData *inData, T *inPtr, 
                              vtkImageData *outData, T *outPtr,
-                             int outExt[6], int id)
+                             int outExt[6], int id,
+                             const char* inputScalars)
 {
   int *kernelMiddle, *kernelSize;
   int NumberOfElements;
@@ -238,7 +239,7 @@ void vtkImageMedian3DExecute(vtkImageMedian3D *self,
   unsigned long target;
   vtkDataArray *inArray;
 
-  inArray = inData->GetPointData()->GetScalars(self->GetInputScalarsSelection());
+  inArray = inData->GetPointData()->GetScalars(inputScalars);
   
   // Get information to march through data
   inData->GetIncrements(inInc0, inInc1, inInc2); 
@@ -491,8 +492,9 @@ void vtkImageMedian3D::ThreadedExecute(vtkImageData *inData,
   
   switch (inArray->GetDataType())
     {
-    vtkTemplateMacro7(vtkImageMedian3DExecute, this,inData, (VTK_TT *)(inPtr), 
-                      outData, (VTK_TT *)(outPtr),outExt, id);
+    vtkTemplateMacro8(vtkImageMedian3DExecute, this,inData, (VTK_TT *)(inPtr), 
+                      outData, (VTK_TT *)(outPtr),outExt, id,
+                      this->InputScalarsSelection);
     default:
       vtkErrorMacro(<< "Execute: Unknown input ScalarType");
       return;

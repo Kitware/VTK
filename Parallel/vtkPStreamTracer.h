@@ -44,6 +44,14 @@ public:
   // other methods.
   void SetController(vtkMultiProcessController* controller);
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
+
+  // Description:
+  // If you want to generate traces using an arbitrary vector array, 
+  // then set its name here. By default this in NULL and the filter will 
+  // use the active vector array.
+  vtkGetStringMacro(InputVectorsSelection);
+  void SelectInputVectors(const char *fieldName) 
+    {this->SetInputVectorsSelection(fieldName);}
   
 protected:
 

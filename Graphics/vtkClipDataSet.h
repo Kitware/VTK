@@ -145,13 +145,6 @@ public:
   // Return the mtime also considering the locator and clip function.
   unsigned long GetMTime();
 
-  // Description:
-  // If you want to clip by an arbitrary array, then set its name here.
-  // By default this in NULL and the filter will use the active scalar array.
-  vtkGetStringMacro(InputScalarsSelection);
-  void SelectInputScalars(const char *fieldName) 
-    {this->SetInputScalarsSelection(fieldName);}
-
 protected:
   vtkClipDataSet(vtkImplicitFunction *cf=NULL);
   ~vtkClipDataSet();

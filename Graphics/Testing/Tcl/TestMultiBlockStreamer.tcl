@@ -71,7 +71,6 @@ vtkStreamTracer Stream0
 Stream0 AddInput [ExtractGrid0 GetOutput]
 Stream0 AddInput [ExtractGrid1 GetOutput]
 Stream0 AddInput [ExtractGrid2 GetOutput]
-Stream0 SelectInputVectors {Momentum}
 Stream0 SetSource [LineSourceWidget0 GetOutput]
 Stream0 SetMaximumPropagationUnit 1
 Stream0 SetMaximumPropagation 20
@@ -82,9 +81,12 @@ Stream0 SetIntegratorType 0
 Stream0 SetMaximumNumberOfSteps 2000
 Stream0 SetTerminalSpeed 1e-12
 
+vtkAssignAttribute aa
+aa SetInput [Stream0 GetOutput]
+aa Assign Normals NORMALS POINT_DATA
+
 vtkRibbonFilter Ribbon0
-Ribbon0 SetInput [Stream0 GetOutput]
-Ribbon0 SelectInputVectors {Normals}
+Ribbon0 SetInput [aa GetOutput]
 Ribbon0 SetWidth 0.1
 Ribbon0 SetAngle 0
 Ribbon0 SetDefaultNormal 0 0 1 

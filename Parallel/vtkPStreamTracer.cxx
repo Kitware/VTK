@@ -29,7 +29,7 @@
 #include "vtkPolyData.h"
 #include "vtkRungeKutta2.h"
 
-vtkCxxRevisionMacro(vtkPStreamTracer, "1.5");
+vtkCxxRevisionMacro(vtkPStreamTracer, "1.6");
 vtkStandardNewMacro(vtkPStreamTracer);
 
 vtkCxxSetObjectMacro(vtkPStreamTracer, Controller, vtkMultiProcessController);
@@ -370,4 +370,7 @@ void vtkPStreamTracer::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
   os << indent << "Controller: " << this->Controller << endl;
+  os << indent << "InputVectorsSelection: " 
+     << (this->InputVectorsSelection ? this->InputVectorsSelection : "(none)")
+     << endl;
 }
