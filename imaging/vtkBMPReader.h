@@ -65,12 +65,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkBMPReader : public vtkImageReader
 {
 public:
-  vtkBMPReader();
-  ~vtkBMPReader();
   static vtkBMPReader *New() {return new vtkBMPReader;};
   const char *GetClassName() {return "vtkBMPReader";};
-
-  void PrintSelf(ostream& os, vtkIndent indent);
+  vtkBMPReader();
+  ~vtkBMPReader();
   
   vtkGetMacro(Depth,int);
 

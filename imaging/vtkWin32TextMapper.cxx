@@ -92,7 +92,6 @@ void vtkWin32TextMapper::Render(vtkViewport* viewport, vtkActor2D* actor)
   if (this->Input == NULL) 
     {
     vtkErrorMacro (<<"vtkWin32TextMapper::Render - No input");
-    return;
     }
 
   // Get the window information for display

@@ -45,9 +45,9 @@ proc BindTkImageViewer {widget} {
    bind $widget <ButtonRelease-1> {EndWindowLevelInteraction %W}
 
    # Get the value
-   bind $widget <ButtonPress-3> {StartQueryInteraction %W %x %y}
-   bind $widget <B3-Motion> {UpdateQueryInteraction %W %x %y}
-   bind $widget <ButtonRelease-3> {EndQueryInteraction %W}
+   bind $widget <ButtonPress-2> {StartQueryInteraction %W %x %y}
+   bind $widget <B2-Motion> {UpdateQueryInteraction %W %x %y}
+   bind $widget <ButtonRelease-2> {EndQueryInteraction %W}
 
    bind $widget <Expose> {ExposeTkImageViewer %W %x %y %w %h}
    bind $widget <Enter> {EnterTkViewer %W}

@@ -229,16 +229,9 @@ void vtkImageButterworthHighPass::ThreadedExecute(vtkImageData *inData,
     }
 }
 
-void vtkImageButterworthHighPass::PrintSelf(ostream& os, vtkIndent indent)
-{
-  vtkImageFilter::PrintSelf(os,indent);
+      
+  
 
-  os << indent << "Order: " << this->Order << "\n";
 
-  os << indent << "CutOff: ( "
-     << this->CutOff[0] << ", "
-     << this->CutOff[1] << ", "
-     << this->CutOff[2] << " )\n";
 
-}
 

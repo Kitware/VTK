@@ -325,75 +325,10 @@ vtkFloatScalars faceColors
   faceColors InsertNextScalar 2
   faceColors InsertNextScalar 2
 
-vtkFloatScalars vertexColors
-  vertexColors InsertNextScalar 2
-  vertexColors InsertNextScalar 2
-  vertexColors InsertNextScalar 2
-  vertexColors InsertNextScalar 2
-  vertexColors InsertNextScalar 2
-  vertexColors InsertNextScalar 2
-  vertexColors InsertNextScalar 2
-  vertexColors InsertNextScalar 2
-  vertexColors InsertNextScalar 2
-  vertexColors InsertNextScalar 2
-  vertexColors InsertNextScalar 2
-  vertexColors InsertNextScalar 2
-  vertexColors InsertNextScalar 2
-  vertexColors InsertNextScalar 2
-  vertexColors InsertNextScalar 2
-  vertexColors InsertNextScalar 2
-  vertexColors InsertNextScalar 2
-  vertexColors InsertNextScalar 2
-  vertexColors InsertNextScalar 2
-  vertexColors InsertNextScalar 2
-  vertexColors InsertNextScalar 2
-  vertexColors InsertNextScalar 2
-  vertexColors InsertNextScalar 2
-  vertexColors InsertNextScalar 2
-  vertexColors InsertNextScalar 2
-  vertexColors InsertNextScalar 2
-  vertexColors InsertNextScalar 2
-  vertexColors InsertNextScalar 2
-  vertexColors InsertNextScalar 2
-  vertexColors InsertNextScalar 2
-  vertexColors InsertNextScalar 2
-  vertexColors InsertNextScalar 2
-  vertexColors InsertNextScalar 2
-  vertexColors InsertNextScalar 2
-  vertexColors InsertNextScalar 2
-  vertexColors InsertNextScalar 2
-  vertexColors InsertNextScalar 2
-  vertexColors InsertNextScalar 2
-  vertexColors InsertNextScalar 2
-  vertexColors InsertNextScalar 2
-  vertexColors InsertNextScalar 2
-  vertexColors InsertNextScalar 2
-  vertexColors InsertNextScalar 2
-  vertexColors InsertNextScalar 2
-  vertexColors InsertNextScalar 2
-  vertexColors InsertNextScalar 2
-  vertexColors InsertNextScalar 2
-  vertexColors InsertNextScalar 2
-  vertexColors InsertNextScalar 2
-  vertexColors InsertNextScalar 2
-  vertexColors InsertNextScalar 2
-  vertexColors InsertNextScalar 2
-  vertexColors InsertNextScalar 2
-  vertexColors InsertNextScalar 2
-  vertexColors InsertNextScalar 2
-  vertexColors InsertNextScalar 2
-  vertexColors InsertNextScalar 2
-  vertexColors InsertNextScalar 2
-  vertexColors InsertNextScalar 2
-  vertexColors InsertNextScalar 2
-  vertexColors InsertNextScalar 2
-  vertexColors InsertNextScalar 2
-
 vtkPolyData model
   model SetPolys faces
   model SetPoints points
   [model GetCellData] SetScalars faceColors
-  [model GetPointData] SetScalars vertexColors
 
 vtkLookupTable lut
   lut SetNumberOfColors 3
@@ -402,7 +337,7 @@ vtkLookupTable lut
   lut SetTableValue 1 .1 .1 .1 1
   lut SetTableValue 2 .8 .8 .9 1
 
-vtkDataSetMapper mapper
+vtkPolyDataMapper mapper
     mapper SetInput model
     mapper SetScalarModeToUseCellData
     mapper SetLookupTable lut

@@ -39,7 +39,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 // .NAME vtkImageGaussianSource - Create an image with Gaussian pixel values.
-// .SECTION Description
 // vtkImageGaussianSource just produces images with pixel values determined 
 // by a Gaussian.
 
@@ -56,8 +55,6 @@ public:
   static vtkImageGaussianSource *New() {return new vtkImageGaussianSource;};
   const char *GetClassName() {return "vtkImageGaussianSource";};
   
-  void PrintSelf(ostream& os, vtkIndent indent);
-
   // Description:
   // Set/Get the extent of the whole output image.
   void SetWholeExtent(int xMinx, int xMax, int yMin, int yMax,

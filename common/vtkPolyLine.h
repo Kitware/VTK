@@ -91,7 +91,6 @@ public:
   int Triangulate(int index, vtkIdList &ptIds, vtkPoints &pts);
   void Derivatives(int subId, float pcoords[3], float *values, 
                    int dim, float *derivs);
-  int GetParametricCenter(float pcoords[3]);
 
 protected:
   vtkLine Line;

@@ -52,15 +52,12 @@ vtkXGLRenderer \
 vtkXGLTexture 
 
 ABSTRACT_H = \
-vtkCuller \
 vtkRayBounder 
 
 CONCRETE_H = \
 vtkActorCollection \
 vtkAssemblyPaths \
-vtkCullerCollection \
 vtkDataSetCollection \
-vtkMapperCollection \
 vtkPolyDataCollection \
 vtkRenderWindowCollection \
 vtkStructuredPointsCollection \
@@ -93,7 +90,6 @@ vtkBrownianPoints \
 vtkCamera \
 vtkCardinalSpline \
 vtkCastToConcrete \
-vtkCellCenters \
 vtkCellDataToPointData \
 vtkCellLocator \
 vtkCellPicker \
@@ -146,13 +142,11 @@ vtkFieldDataToDataSet \
 vtkFieldDataWriter \
 vtkFilter \
 vtkFollower \
-vtkFrustumCoverageCuller \
 vtkGaussianSplatter \
 vtkGeometryFilter \
 vtkGlyph3D \
 vtkHedgeHog \
 vtkHyperStreamline \
-vtkIdFilter \
 vtkImplicitBoolean \
 vtkImplicitDataSet \
 vtkImplicitModeller \
@@ -225,7 +219,6 @@ vtkSTLReader \
 vtkSTLWriter \
 vtkSampleFunction \
 vtkScalarTree \
-vtkSelectVisiblePoints \
 vtkShepardMethod \
 vtkShrinkFilter \
 vtkShrinkPolyData \

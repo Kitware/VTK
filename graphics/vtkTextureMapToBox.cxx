@@ -148,13 +148,6 @@ void vtkTextureMapToBox::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkDataSetToDataSetFilter::PrintSelf(os,indent);
 
-  os << indent << "Box: " << "( " << this->Box[0] << ", " 
-     << this->Box[1] << ", "
-     << this->Box[2] << ", "
-     << this->Box[3] << ", "
-     << this->Box[4] << ", "
-     << this->Box[5] << " )\n";
-
   os << indent << "R Range: (" << this->RRange[0] << ", "
                                << this->RRange[1] << ")\n";
   os << indent << "S Range: (" << this->SRange[0] << ", "

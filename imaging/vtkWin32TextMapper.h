@@ -56,8 +56,8 @@ class VTK_EXPORT vtkWin32TextMapper : public vtkTextMapper
 {
 public:
   const char *GetClassName() {return "vtkWin32TextMapper";};
-  static vtkWin32TextMapper *New() {return new vtkWin32TextMapper;};
 
+  static vtkWin32TextMapper *New() {return new vtkWin32TextMapper;};
   int GetCompositingMode(vtkActor2D* actor);
 
   void Render(vtkViewport* viewport, vtkActor2D* actor);

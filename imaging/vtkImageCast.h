@@ -58,7 +58,6 @@ public:
   vtkImageCast();
   static vtkImageCast *New() {return new vtkImageCast;};
   const char *GetClassName() {return "vtkImageCast";};
-  void PrintSelf(ostream& os, vtkIndent indent);
 
   void SetOutputScalarTypeToFloat(){this->SetOutputScalarType(VTK_FLOAT);}
   void SetOutputScalarTypeToInt(){this->SetOutputScalarType(VTK_INT);}

@@ -210,10 +210,6 @@ vtkDebugMacro(<< cellScalars);
 	{
 	rgba = c->GetColor(pts[j]);
 	}
-      npen = (HPEN) CreatePen(PS_SOLID,0,RGB(rgba[0],rgba[1],rgba[2]));
-      pen = (HPEN) SelectObject(hdc,pen);
-      DeleteObject(pen);
-      pen = npen;
       nbrush = (HBRUSH)CreateSolidBrush(RGB(rgba[0],rgba[1],rgba[2]));
       brush = (HBRUSH)SelectObject(hdc,nbrush);   
       DeleteObject(brush);
@@ -249,9 +245,9 @@ vtkDebugMacro(<< cellScalars);
 	rgba = c->GetColor(pts[j]);
 	}
       //      npen = (HPEN) CreatePen(PS_SOLID,0,RGB(rgba[0],rgba[1],rgba[2]));
-      //      pen =  (HPEN) SelectObject(hdc,npen);   
-      //      DeleteObject(pen);
-      //      pen = npen;
+      // pen =  (HPEN) SelectObject(hdc,npen);   
+      // DeleteObject(pen);
+      // pen = npen;
       }
     if (npts > currSize)
       {

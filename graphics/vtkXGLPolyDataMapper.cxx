@@ -120,12 +120,6 @@ void vtkXGLPolyDataMapper::Render(vtkRenderer *ren, vtkActor *act)
 {
   int numPts;
   vtkPolyData *input= (vtkPolyData *)this->Input;
-
-  // a chance to abort rendering.
-  if (ren->GetRenderWindow()->CheckAbortStatus())
-    {
-    return;
-    }
 //
 // make sure that we've been properly initialized
 //

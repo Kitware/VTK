@@ -209,14 +209,4 @@ void vtkSpatialRepresentationFilter::PrintSelf(ostream& os, vtkIndent indent)
   vtkDataSetFilter::PrintSelf(os,indent);
 
   os << indent << "Level: " << this->Level << "\n";
-
-  if ( this->SpatialRepresentation )
-    {
-    os << indent << "Spatial Representation: " << this->SpatialRepresentation
-       << "\n";
-    }
-  else
-    {
-    os << indent << "Spatial Representation: (none)\n";
-    }
 }

@@ -3,7 +3,6 @@
 catch {load vtktcl}
 
 source vtkImageInclude.tcl
-source ../../examplesTcl/WidgetObject.tcl
 
 # This script uses a vtkTkRenderWidget to create a
 # Tk widget that is associated with a vtkRenderWindow.
@@ -72,19 +71,9 @@ vtkTkImageViewerWidget .top.f1.r1 -width 512 -height 256 -iv viewer
 
 bind .top.f1.r1 <Button-1> {moveLens %x %y}
 bind .top.f1.r1 <B1-Motion> {moveLens %x %y}
-bind .top.f1.r1 <Expose> {Expose %W}
+bind .top.f1.r1 <Expose> {%W Render}
 
-# a litle more complex than just "bind $widget <Expose> {%W Render}"
-# we have to handle all pending expose events otherwise they que up.
-proc Expose {widget} {
-   if {[GetWidgetVariableValue $widget InExpose] == 1} {
-      return
-   }
-   SetWidgetVariableValue $widget InExpose 1
-   update
-   $widget Render
-   SetWidgetVariableValue $widget InExpose 0
-}
+
 
 button .top.btn  -text Quit -command exit
 

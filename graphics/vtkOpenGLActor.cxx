@@ -56,7 +56,6 @@ void vtkOpenGLActor::Render(vtkRenderer *ren, vtkMapper *mapper)
   matrix.Transpose();
 
   // insert model transformation 
-  glMatrixMode( GL_MODELVIEW );
   glPushMatrix();
   glMultMatrixf(matrix[0]);
 
@@ -64,7 +63,6 @@ void vtkOpenGLActor::Render(vtkRenderer *ren, vtkMapper *mapper)
   mapper->Render(ren,this);
 
   // pop transformation matrix
-  glMatrixMode( GL_MODELVIEW );
   glPopMatrix();
 }
 

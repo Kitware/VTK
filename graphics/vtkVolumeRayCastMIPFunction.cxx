@@ -521,8 +521,5 @@ void vtkVolumeRayCastMIPFunction::SpecificFunctionInitialize(
 // Print method for vtkVolumeRayCastMIPFunction
 void vtkVolumeRayCastMIPFunction::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkVolumeRayCastFunction::PrintSelf(os,indent);
-
-  os << indent << "Maximize Method: " << this->GetMaximizeMethodAsString()
-     << "\n";
+  vtkObject::PrintSelf(os,indent);
 }

@@ -20,13 +20,11 @@ CONCRETE = \
 vtkEarthSource \
 vtkIVWriter \
 vtkOBJReader \
-vtkProjectedTexture \
 vtkRenderLargeImage \
 vtkRIBExporter \
 vtkRIBLight \
 vtkRIBProperty \
-vtkSubdivideTetra \
-vtkMassProperties
+vtkSubdivideTetra
 
 #vtkHershey \
 #vtkVectorTextSource

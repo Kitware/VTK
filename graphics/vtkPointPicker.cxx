@@ -46,16 +46,15 @@ vtkPointPicker::vtkPointPicker()
   this->PointId = -1;
 }
 
-float vtkPointPicker::IntersectWithLine(float p1[3], float p2[3], float tol, 
-					vtkActor *assem, vtkActor *a, 
-					vtkMapper *m)
+void vtkPointPicker::IntersectWithLine(float p1[3], float p2[3], float tol, 
+                                    vtkActor *assem, vtkActor *a, vtkMapper *m)
 {
   vtkDataSet *input=m->GetInput();
   int numPts;
   int ptId, i, minPtId;
   float ray[3], rayFactor, tMin, *p, t, projXYZ[3], minXYZ[3];
 
-  if ( (numPts = input->GetNumberOfPoints()) < 1 ) return 2.0;
+  if ( (numPts = input->GetNumberOfPoints()) < 1 ) return;
 //
 //   Determine appropriate info
 //
@@ -63,7 +62,7 @@ float vtkPointPicker::IntersectWithLine(float p1[3], float p2[3], float tol,
   if (( rayFactor = vtkMath::Dot(ray,ray)) == 0.0 ) 
     {
     vtkErrorMacro("Cannot process points");
-    return 2.0;
+    return;
     }
 //
 //  Project each point onto ray.  Keep track of the one within the
@@ -103,8 +102,6 @@ float vtkPointPicker::IntersectWithLine(float p1[3], float p2[3], float tol,
     this->PointId = minPtId;
     vtkDebugMacro("Picked point id= " << minPtId);
     }
-
-  return tMin;
 }
 
 void vtkPointPicker::Initialize()

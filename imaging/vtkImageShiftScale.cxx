@@ -210,12 +210,16 @@ void vtkImageShiftScale::ThreadedExecute(vtkImageData *inData,
 
 
 
-void vtkImageShiftScale::PrintSelf(ostream& os, vtkIndent indent)
-{
-  vtkImageFilter::PrintSelf(os,indent);
 
-  os << indent << "Shift: " << this->Shift << "\n";
-  os << indent << "Scale: " << this->Scale << "\n";
-  os << indent << "Output Scalar Type: " << this->OutputScalarType << "\n";
-}
+
+
+
+
+
+
+
+
+
+
+
 

@@ -43,6 +43,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Initialize static member that controls global immediate mode rendering
 static int vtkMapperGlobalImmediateModeRendering = 0;
 
+// Description:
 // Construct with initial range (0,1).
 vtkMapper::vtkMapper()
 {
@@ -58,8 +59,6 @@ vtkMapper::vtkMapper()
 
   this->ColorMode = VTK_COLOR_MODE_DEFAULT;
   this->ScalarMode = VTK_SCALAR_MODE_DEFAULT;
-  
-  this->RenderTime = 0.0;
 }
 
 vtkMapper::~vtkMapper()
@@ -82,6 +81,7 @@ int vtkMapper::GetGlobalImmediateModeRendering()
   return vtkMapperGlobalImmediateModeRendering;
 }
 
+// Description:
 // Overload standard modified time function. If lookup table is modified,
 // then this object is modified as well.
 unsigned long vtkMapper::GetMTime()
@@ -162,6 +162,7 @@ vtkScalars *vtkMapper::GetColors()
   return this->Colors;
 }
 
+// Description:
 // Specify a lookup table for the mapper to use.
 void vtkMapper::SetLookupTable(vtkLookupTable *lut)
 {
@@ -221,6 +222,7 @@ float vtkMapper::GetLength()
   return (float)sqrt(l);
 }
 
+// Description:
 // Update the network connected to this mapper.
 void vtkMapper::Update()
 {
@@ -230,7 +232,7 @@ void vtkMapper::Update()
     }
 }
 
-
+// Description:
 // Return the method of coloring scalar data.
 char *vtkMapper::GetColorModeAsString(void)
 {
@@ -248,6 +250,7 @@ char *vtkMapper::GetColorModeAsString(void)
     }
 }
 
+// Description:
 // Return the method for obtaining scalar data.
 char *vtkMapper::GetScalarModeAsString(void)
 {
@@ -301,6 +304,4 @@ void vtkMapper::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Scalar Mode: " << this->GetScalarModeAsString() << endl;
 
-  os << indent << "RenderTime: " << this->RenderTime << endl;
 }
-

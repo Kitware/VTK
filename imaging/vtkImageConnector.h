@@ -80,8 +80,6 @@ public:
   static vtkImageConnector *New() {return new vtkImageConnector;};
   const char *GetClassName() {return "vtkImageConnector";};
   
-  void PrintSelf(ostream& os, vtkIndent indent);
-
   //BTX
   vtkImageConnectorSeed *NewSeed(int index[3], void *ptr);
   void AddSeed(vtkImageConnectorSeed *seed);

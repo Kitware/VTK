@@ -77,7 +77,5 @@ suppress umr __glSPDlalloc; __glsplc_Disable; __glce_common_listable
 suppress umr __glSPDlalloc; __glsplc_Enable; __glce_common_listable
 suppress umc memcpy; vtkWindowToImageFilter::Execute(vtkImageData*)
 suppress abr strncmp; vtkDataReader::SetInputString(char*,int)
-suppress fmr  __glXCloseDisplay; XCloseDisplay
-
 
 

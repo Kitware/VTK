@@ -90,9 +90,7 @@ public:
   int InsertNextCell(vtkCell *cell);
   int InsertNextCell(int npts, int* pts);
   int InsertNextCell(vtkIdList &pts);
-
-  // this and next two methods work together
-  int InsertNextCell(int npts);
+  int InsertNextCell(int npts); //this and next two methods work together
   void InsertCellPoint(int id);
   void UpdateCellCount(int npts);
 

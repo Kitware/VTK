@@ -33,7 +33,6 @@ vtkImageSource \
 vtkLocator \
 vtkMapper2D \
 vtkPointSet \
-vtkProp2D \
 vtkViewport \
 vtkWindow
 

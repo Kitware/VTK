@@ -161,15 +161,6 @@ class VTK_EXPORT vtkActor : public vtkProp
 
   unsigned long int GetMTime();//overload superclasses' implementation
 
-  // Description:
-  // The renderer may use the allocated rendering time to determine
-  // how to render this actor. (LOD Experiment)
-  // The set method is not a macro in order to avoid resetting the mtime of
-  // the actor - otherwise the actor would have been modified during every 
-  // render.
-  void SetAllocatedRenderTime(float t) {this->AllocatedRenderTime = t;};
-  vtkGetMacro(AllocatedRenderTime, float);
-  
 protected:
   vtkProperty *Property; 
   vtkProperty *BackfaceProperty; 
@@ -179,14 +170,6 @@ protected:
 
   // this stuff supports multiple-part actors (e.g. assemblies)
   int TraversalLocation;
-  
-  // This is for LOD experiment
-  float AllocatedRenderTime;
-
-  // Bounds are cached in an actor - the MapperBounds are also cache to
-  // help know when the Bounds need to be recomputed.
-  float        MapperBounds[6];
-  vtkTimeStamp BoundsMTime;
 
 };
 

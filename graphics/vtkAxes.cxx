@@ -51,8 +51,6 @@ vtkAxes::vtkAxes()
   this->Origin[2] = 0.0;
 
   this->ScaleFactor = 1.0;
-  
-  this->Symmetric = 0;
 }
 
 void vtkAxes::Execute()
@@ -79,15 +77,8 @@ void vtkAxes::Execute()
 //
 // Create axes
 //
-  x[0] = this->Origin[0];
-  x[1] = this->Origin[1];
-  x[2] = this->Origin[2];
-  if (this->Symmetric)
-    {
-    x[0] = this->Origin[0] - this->ScaleFactor;
-    }
   n[0] = 0.0; n[1] = 1.0; n[2] = 0.0; 
-  ptIds[0] = newPts->InsertNextPoint(x);
+  ptIds[0] = newPts->InsertNextPoint(this->Origin);
   newScalars->InsertNextScalar(0.0);
   newNormals->InsertNextNormal(n);
 
@@ -99,15 +90,8 @@ void vtkAxes::Execute()
   newScalars->InsertNextScalar(0.0);
   newNormals->InsertNextNormal(n);
 
-  x[0] = this->Origin[0];
-  x[1] = this->Origin[1];
-  x[2] = this->Origin[2];
-  if (this->Symmetric)
-    {
-    x[1] = this->Origin[1] - this->ScaleFactor;
-    }
   n[0] = 0.0; n[1] = 0.0; n[2] = 1.0; 
-  ptIds[0] = newPts->InsertNextPoint(x);
+  ptIds[0] = newPts->InsertNextPoint(this->Origin);
   newScalars->InsertNextScalar(0.25);
   newNormals->InsertNextNormal(n);
 
@@ -119,15 +103,8 @@ void vtkAxes::Execute()
   newNormals->InsertNextNormal(n);
   newLines->InsertNextCell(2,ptIds);
 
-  x[0] = this->Origin[0];
-  x[1] = this->Origin[1];
-  x[2] = this->Origin[2];
-  if (this->Symmetric)
-    {
-    x[2] = this->Origin[2] - this->ScaleFactor;
-    }
   n[0] = 1.0; n[1] = 0.0; n[2] = 0.0; 
-  ptIds[0] = newPts->InsertNextPoint(x);
+  ptIds[0] = newPts->InsertNextPoint(this->Origin);
   newScalars->InsertNextScalar(0.5);
   newNormals->InsertNextNormal(n);
 

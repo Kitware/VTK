@@ -44,12 +44,12 @@ vtkRIBLight::vtkRIBLight ()
 {
   this->Shadows = 0;
   // create a vtkLight that can be rendered
-  this->Light = vtkLight::New ();
+  this->Light = vtkLight::New ();;
 }
 
 vtkRIBLight::~vtkRIBLight()
 {
-  if (this->Light) this->Light->Delete();
+  if (this->Light) delete [] this->Light;
 }
 
 void vtkRIBLight::Render(vtkRenderer *ren, int index)

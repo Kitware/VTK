@@ -38,8 +38,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageNoiseSource - Create an image filled with noise.
-// .SECTION Description
+// .NAME vtkImageSphereSource - Create a binary image of a sphere.
+// .SECTION
 // vtkImageNoiseSource just produces images filled with noise.  
 // The only option now is uniform noise
 // specified by a min and a max.  
@@ -65,8 +65,6 @@ public:
   static vtkImageNoiseSource *New() {return new vtkImageNoiseSource;};
   const char *GetClassName() {return "vtkImageNoiseSource";};
   
-  void PrintSelf(ostream& os, vtkIndent indent);
-
   vtkSetMacro(Minimum, float);
   vtkGetMacro(Minimum, float);
   vtkSetMacro(Maximum, float);

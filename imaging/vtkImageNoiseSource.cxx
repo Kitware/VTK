@@ -149,11 +149,9 @@ void vtkImageNoiseSource::Execute(vtkImageData *data)
     }
 }
 
-void vtkImageNoiseSource::PrintSelf(ostream& os, vtkIndent indent)
-{
-  vtkImageSource::PrintSelf(os,indent);
 
-  os << indent << "Minimum: " << this->Minimum << "\n";
-  os << indent << "Maximum: " << this->Maximum << "\n";
-}
+
+
+
+
 

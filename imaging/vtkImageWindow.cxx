@@ -159,21 +159,12 @@ vtkImageWindow* vtkImageWindow::New()
 
 void vtkImageWindow::PrintSelf(ostream& os, vtkIndent indent)
 {
+
   vtkWindow::PrintSelf(os, indent);
-
-  if ( this->FileName )
-    {
-    os << indent << "FileName: " << this->FileName << "\n";
-    }
-  else
-    {
-    os << indent << "FileName: (none)\n";
-    }
-
   os << indent << "Position: (" << this->Position[0]
      << "," << this->Position[1] << ") \n";
-
   os << indent << "Gray scale hint: " << this->GrayScaleHint << "\n";
+
 }
 
 

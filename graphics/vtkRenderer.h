@@ -58,7 +58,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkMatrix4x4.h"
 #include "vtkLightCollection.h"
 #include "vtkVolumeCollection.h"
-#include "vtkCullerCollection.h"
 #include "vtkCamera.h"
 #include "vtkActor.h"
 #include "vtkViewport.h"
@@ -67,7 +66,6 @@ class vtkRenderWindow;
 class vtkRayCaster;
 class vtkVolume;
 class vtkRayCaster;
-class vtkCuller;
 
 class VTK_EXPORT vtkRenderer : public vtkViewport
 {
@@ -93,10 +91,6 @@ public:
   void SetActiveCamera(vtkCamera *);
   vtkCamera *GetActiveCamera();
 
-  void AddCuller(vtkCuller *);
-  void RemoveCuller(vtkCuller *);
-  vtkCullerCollection *GetCullers();
-
   // Description:
   // Set the intensity of ambient lighting.
   vtkSetVector3Macro(Ambient,float);
@@ -104,7 +98,8 @@ public:
 
   // Description:
   // Set/Get the amount of time this renderer is allowed to spend
-  // rendering its scene. This is used by vtkLODActor's.
+  // rendering its scene. Zero indicates an infinite amount of time.
+  // This is used by vtkLODActor's.
   vtkSetMacro(AllocatedRenderTime,float);
   vtkGetMacro(AllocatedRenderTime,float);
 
@@ -120,7 +115,7 @@ public:
   // Description:
   // Ask all actors to build and draw themselves.
   // Returns the number of actors processed.
-  virtual int UpdateActors(void);
+  virtual int UpdateActors(void) {return 0;};
 
   // Description:
   // Ask the volumes to build and draw themselves.
@@ -151,13 +146,12 @@ public:
 
   void ResetCamera();
   void ResetCamera(float bounds[6]);
-  void ResetCamera(float xmin, float xmax, float ymin, float ymax, 
-                   float zmin, float zmax);
 
   void SetRenderWindow(vtkRenderWindow *);
   vtkRenderWindow *GetRenderWindow() {return RenderWindow;};
   virtual vtkWindow *GetVTKWindow();
   
+
   // Description:
   // Turn on/off two-sided lighting of surfaces. If two-sided lighting is
   // off, then only the side of the surface facing the light(s) will be lit,
@@ -188,10 +182,6 @@ public:
 
   unsigned long int GetMTime();
 
-  // Description:
-  // Get the time required, in seconds, for the last Render call.
-  vtkGetMacro( LastRenderTimeInSeconds, float );
-
 protected:
 
   vtkRayCaster *RayCaster;
@@ -202,17 +192,13 @@ protected:
   vtkActorCollection Actors;
   vtkVolumeCollection Volumes;
 
-  vtkCullerCollection Cullers;
-
-  float              Ambient[3];  
-  vtkRenderWindow    *RenderWindow;
-  float              AllocatedRenderTime;
-  int                TwoSidedLighting;
-  int                BackingStore;
-  unsigned char      *BackingImage;
-  vtkTimeStamp       RenderTime;
-
-  float              LastRenderTimeInSeconds;
+  float Ambient[3];  
+  vtkRenderWindow *RenderWindow;
+  float AllocatedRenderTime;
+  int   TwoSidedLighting;
+  int   BackingStore;
+  unsigned char *BackingImage;
+  vtkTimeStamp RenderTime;
 };
 
 // Description:
@@ -226,10 +212,6 @@ inline vtkActorCollection *vtkRenderer::GetActors() {return &(this->Actors);}
 // Description:
 // Get the list of volumes for this renderer.
 inline vtkVolumeCollection *vtkRenderer::GetVolumes(){return &(this->Volumes);}
-
-// Description:
-// Get the list of cullers for this renderer.
-inline vtkCullerCollection *vtkRenderer::GetCullers(){return &(this->Cullers);}
 
 
 #endif

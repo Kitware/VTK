@@ -325,12 +325,6 @@ void vtkTubeFilter::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Radius: " << this->Radius << "\n";
   os << indent << "Vary Radius: " << (this->VaryRadius ? "On\n" : "Off\n");
-  os << indent << "Radius Factor: " << this->RadiusFactor << "\n";
   os << indent << "Number Of Sides: " << this->NumberOfSides << "\n";
-
-  os << indent << "Use Default Normal: " << (this->UseDefaultNormal ? "On\n" : "Off\n");
-  os << indent << "Default Normal: " << "( " << this->DefaultNormal[0] <<
-     ", " << this->DefaultNormal[1] << ", " << this->DefaultNormal[2] <<
-     " )\n";
 }
 

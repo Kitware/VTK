@@ -229,13 +229,11 @@ void vtkImageIdealHighPass::ThreadedExecute(vtkImageData *inData,
     }
 }
 
-void vtkImageIdealHighPass::PrintSelf(ostream& os, vtkIndent indent)
-{
-  vtkImageFilter::PrintSelf(os,indent);
 
-  os << indent << "CutOff: ( "
-     << this->CutOff[0] << ", "
-     << this->CutOff[1] << ", "
-     << this->CutOff[2] << " )\n";
-}
+
+
+
+
+
+
 

@@ -925,15 +925,6 @@ void vtkDelaunay3D::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Tolerance: " << this->Tolerance << "\n";
   os << indent << "Offset: " << this->Offset << "\n";
   os << indent << "Bounding Triangulation: " << (this->BoundingTriangulation ? "On\n" : "Off\n");
-
-  if ( this->Locator )
-    {
-    os << indent << "Locator: " << this->Locator << "\n";
-    }
-  else
-    {
-    os << indent << "Locator: (none)\n";
-    }
 }
 
 unsigned long int vtkDelaunay3D::GetMTime()

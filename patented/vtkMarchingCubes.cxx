@@ -413,7 +413,7 @@ void vtkMarchingCubes::Execute()
     bounds[2*i+1] = origin[i] + (dims[i]-1) * Spacing[i];
     }
   if ( this->Locator == NULL ) this->CreateDefaultLocator();
-  this->Locator->InitPointInsertion (newPts, bounds, estimatedSize);
+  this->Locator->InitPointInsertion (newPts, bounds);
 
   if (this->ComputeNormals)
     {
@@ -618,10 +618,6 @@ void vtkMarchingCubes::PrintSelf(ostream& os, vtkIndent indent)
   vtkStructuredPointsToPolyDataFilter::PrintSelf(os,indent);
 
   this->ContourValues->PrintSelf(os,indent);
-
-  os << indent << "Compute Normals: " << (this->ComputeNormals ? "On\n" : "Off\n");
-  os << indent << "Compute Gradients: " << (this->ComputeGradients ? "On\n" : "Off\n");
-  os << indent << "Compute Scalars: " << (this->ComputeScalars ? "On\n" : "Off\n");
 
   if ( this->Locator )
     {

@@ -331,16 +331,7 @@ void vtkImageMagnify::ThreadedExecute(vtkImageData *inData,
     }
 }
 
-void vtkImageMagnify::PrintSelf(ostream& os, vtkIndent indent)
-{
-  vtkImageFilter::PrintSelf(os,indent);
 
-  os << indent << "MagnificationFactors: ( "
-     << this->MagnificationFactors[0] << ", "
-     << this->MagnificationFactors[1] << ", "
-     << this->MagnificationFactors[2] << " )\n";
 
-  os << indent << "Interpolate: " << (this->Interpolate ? "On\n" : "Off\n");
 
-}
 

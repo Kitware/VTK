@@ -110,7 +110,6 @@ XVisualInfo *vtkOpenGLRenderWindow::GetDesiredVisualInfo()
       {
       vtkErrorMacro(<< "bad X server connection.\n");
       }
-    this->OwnDisplay = 1;
     }
 
   // try every possibility stoping when we find one that works
@@ -185,6 +184,10 @@ vtkOpenGLRenderWindow::~vtkOpenGLRenderWindow()
     if (this->OwnWindow && this->DisplayId && this->WindowId)
       {
       XDestroyWindow(this->DisplayId,this->WindowId);
+      }
+    if (this->DisplayId)
+      {
+      XSync(this->DisplayId,0);
       }
     }
 }
@@ -310,7 +313,6 @@ void vtkOpenGLRenderWindow::WindowInitialize (void)
       {
       vtkErrorMacro(<< "bad X server connection.\n");
       }
-    this->OwnDisplay = 1;
     }
 
   v = this->GetDesiredVisualInfo();
@@ -793,9 +795,9 @@ void vtkOpenGLRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
     glRasterPos3f( (2.0 * (GLfloat)(x_low) / this->Size[0] - 1),
 		   (2.0 * (GLfloat)(yloop) / this->Size[1] - 1),
 		   -1.0 );
-    glMatrixMode( GL_PROJECTION );
-    glPopMatrix();
     glMatrixMode( GL_MODELVIEW );
+    glPopMatrix();
+    glMatrixMode( GL_PROJECTION );
     glPopMatrix();
 
     glDrawPixels((x_hi-x_low+1),1, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
@@ -815,9 +817,9 @@ void vtkOpenGLRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
   glRasterPos3f( (2.0 * (GLfloat)(x_low) / this->Size[0] - 1), 
                  (2.0 * (GLfloat)(y_low) / this->Size[1] - 1),
                  -1.0 );
-  glMatrixMode( GL_PROJECTION );
-  glPopMatrix();
   glMatrixMode( GL_MODELVIEW );
+  glPopMatrix();
+  glMatrixMode( GL_PROJECTION );
   glPopMatrix();
 
   glPixelStorei( GL_UNPACK_ALIGNMENT, 1);
@@ -933,9 +935,9 @@ void vtkOpenGLRenderWindow::SetRGBAPixelData(int x1, int y1, int x2, int y2,
   glRasterPos3f( (2.0 * (GLfloat)(x_low) / this->Size[0] - 1), 
                  (2.0 * (GLfloat)(y_low) / this->Size[1] - 1),
 		 -1.0 );
-  glMatrixMode( GL_PROJECTION );
-  glPopMatrix();
   glMatrixMode( GL_MODELVIEW );
+  glPopMatrix();
+  glMatrixMode( GL_PROJECTION );
   glPopMatrix();
 
   if (!blend)
@@ -1038,9 +1040,9 @@ void vtkOpenGLRenderWindow::SetZbufferData( int x1, int y1, int x2, int y2,
   glLoadIdentity();
   glRasterPos2f( 2.0 * (GLfloat)(x_low) / this->Size[0] - 1, 
                  2.0 * (GLfloat)(y_low) / this->Size[1] - 1);
-  glMatrixMode( GL_PROJECTION );
-  glPopMatrix();
   glMatrixMode( GL_MODELVIEW );
+  glPopMatrix();
+  glMatrixMode( GL_PROJECTION );
   glPopMatrix();
 
   glDrawPixels( width, height, GL_DEPTH_COMPONENT, GL_FLOAT, buffer);

@@ -690,8 +690,6 @@ int vtkNormalEncoder::GetEncodedNormalIndex( int x_index, int y_index,
 // Print the vtkNormalEncoder
 void vtkNormalEncoder::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkObject::PrintSelf(os,indent);
-
   if ( this->ScalarInput )
     {
     os << indent << "ScalarInput: (" << this->ScalarInput << ")\n";
@@ -700,15 +698,6 @@ void vtkNormalEncoder::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "ScalarInput: (none)\n";
     }
-
-  os << indent << "Gradient Magnitude Bias: " << this->GradientMagnitudeBias
-     << "\n";
-  os << indent << "Gradient Magnitude Scale: " << this->GradientMagnitudeScale
-     << "\n";
-  os << indent << "Number of Threads: " << this->NumberOfThreads
-     << "\n";
-  os << indent << "Sample Spacing: " << this->SampleSpacingInVoxels
-     << "\n";
 
   os << indent << "Build Time: " <<this->BuildTime.GetMTime() << "\n";
 }

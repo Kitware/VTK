@@ -159,12 +159,17 @@ void vtkImagePadFilter::ComputeRequiredInputUpdateExtent(int inExt[6],
     }
 }
 
-void vtkImagePadFilter::PrintSelf(ostream& os, vtkIndent indent)
-{
-  vtkImageFilter::PrintSelf(os,indent);
 
-  os << indent << "OutputNumberOfScalarComponents: " 
-     << this->OutputNumberOfScalarComponents << "\n";
-}
+
+
+
+
+
+
+
+
+
+
+
 
 

@@ -111,8 +111,6 @@ void vtkRendererSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkStructuredPointsSource::PrintSelf(os,indent);
 
-  os << indent << "Whole Window: " << (this->WholeWindow ? "On\n" : "Off\n");
-
   if ( this->Input )
     {
     os << indent << "Input:\n";

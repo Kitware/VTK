@@ -51,6 +51,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkPiecewiseFunction_h
 
 #include "vtkObject.h"
+//#include "vtkInterpolator.h"
 
 class VTK_EXPORT vtkPiecewiseFunction : public vtkObject 
 {
@@ -64,6 +65,10 @@ public:
   // Description:
   // Get the number of points used to specify the function
   int  GetSize();
+
+  //  This we will add when we go beyond linear interpolation
+  //  vtkSetObjectMacro( Interpolator, vtkInterpolator );
+  //  vtkGetObjectMacro( Interpolator, vtkInterpolator );
 
   // Description:
   // Add/Remove points to/from the function. If a duplicate point is added
@@ -133,6 +138,9 @@ protected:
   // One  = clamp to the lowest value below defined points and
   //        highest value above defined points
   int	Clamping;
+
+  // If no interpolator defined, defaults to nearest neighbor
+  //  vtkInterpolator	*Interpolator;
 
   // Array of points ((X,Y) pairs)
   float	*Function;

@@ -39,7 +39,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 // .NAME vtkImageSinusoidSource - Create an image with sinusoidal pixel values.
-// .SECTION Description
 // vtkImageSinusoidSource just produces images with pixel values determined 
 // by a sinusoid.
 
@@ -56,8 +55,6 @@ public:
   static vtkImageSinusoidSource *New() {return new vtkImageSinusoidSource;};
   const char *GetClassName() {return "vtkImageSinusoidSource";};
   
-  void PrintSelf(ostream& os, vtkIndent indent);
-
   // Description:
   // Set/Get the extent of the whole output image.
   void SetWholeExtent(int xMinx, int xMax, int yMin, int yMax,

@@ -311,8 +311,6 @@ void vtkCutter::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Cut Function: " << this->CutFunction << "\n";
 
-  os << indent << "Sort By: " << this->GetSortByAsString() << "\n";
-
   if ( this->Locator )
     {
     os << indent << "Locator: " << this->Locator << "\n";

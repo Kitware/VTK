@@ -61,7 +61,6 @@ public:
   static vtkImageIdealHighPass *New() 
     {return new vtkImageIdealHighPass;};
   const char *GetClassName() {return "vtkImageIdealHighPass";};
-  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Set/Get the cutoff frequency for each axis.

@@ -64,8 +64,6 @@ public:
   static vtkImageSkeleton2D *New() {return new vtkImageSkeleton2D;};
   const char *GetClassName() {return "vtkImageSkeleton2D";};
 
-  void PrintSelf(ostream& os, vtkIndent indent);
-
   // Description:
   // When prune is on, only closed loops are left un changed.
   vtkSetMacro(Prune,int);

@@ -153,7 +153,5 @@ void vtkTexturedSphereSource::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Theta Resolution: " << this->ThetaResolution << "\n";
   os << indent << "Phi Resolution: " << this->PhiResolution << "\n";
-  os << indent << "Theta: " << this->Theta << "\n";
-  os << indent << "Phi: " << this->Phi << "\n";
   os << indent << "Radius: " << this->Radius << "\n";
 }

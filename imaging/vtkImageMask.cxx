@@ -202,12 +202,17 @@ void vtkImageMask::ThreadedExecute(vtkImageData **inData,
 }
 
 
-void vtkImageMask::PrintSelf(ostream& os, vtkIndent indent)
-{
-  vtkImageTwoInputFilter::PrintSelf(os,indent);
 
-  os << indent << "MaskedOutputValue: " << this->MaskedOutputValue << "\n";
 
-  os << indent << "NotMask: " << (this->NotMask ? "On\n" : "Off\n");
-}
+
+
+
+
+
+
+
+
+
+
+
 

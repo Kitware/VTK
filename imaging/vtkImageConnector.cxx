@@ -197,12 +197,4 @@ void vtkImageConnector::MarkData(vtkImageData *data, int numberOfAxes, int exten
   vtkDebugMacro("Marked " << count << " pixels");
 }
 
-void vtkImageConnector::PrintSelf(ostream& os, vtkIndent indent)
-{
-  vtkObject::PrintSelf(os,indent);
-
-  os << indent << "ConnectedValue: " << this->ConnectedValue << "\n";
-  os << indent << "UnconnectedValue: " << this->UnconnectedValue << "\n";
-
-}
- 
+  

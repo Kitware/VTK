@@ -38,6 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
+
 #include "vtkActor2D.h"
 #include "vtkProperty2D.h"
 #include "vtkMapper2D.h"
@@ -48,13 +49,52 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // orientation 0, scale (1,1), layer 0, visibility on
 vtkActor2D::vtkActor2D()
 {
+  this->Orientation = 0.0;
+  this->Scale[0] = 1.0;
+  this->Scale[1] = 1.0;
+  this->LayerNumber = 0;
+  this->Visibility = 1;  // ON
+  this->SelfCreatedProperty = 0;
+  this->Property = (vtkProperty2D*) NULL;
   this->Mapper = (vtkMapper2D*) NULL;
+  this->PositionCoordinate = vtkCoordinate::New();
+  this->PositionCoordinate->SetCoordinateSystem(VTK_VIEWPORT);
 }
 
 // Description:
-// Destroy an actor2D.
+// Destroy an actor2D.  If the actor2D created it's own
+// property, that property is deleted.
 vtkActor2D::~vtkActor2D()
 {
+  if (this->SelfCreatedProperty) this->Property->Delete();
+  this->PositionCoordinate->Delete();
+  this->PositionCoordinate = NULL;
+}
+
+void vtkActor2D::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->vtkReferenceCount::PrintSelf(os,indent);
+  os << indent << "Orientation: " << this->Orientation << "\n";
+  os << indent << "Scale: (" << this->Scale[0] << ", " << this->Scale[1] << ")\n";
+  os << indent << "Layer Number: " << this->LayerNumber << "\n";
+  os << indent << "Visibility: " << (this->Visibility ? "On\n" : "Off\n");
+
+  os << indent << "PositionCoordinate: " << this->PositionCoordinate << "\n";
+  this->PositionCoordinate->PrintSelf(os, indent.GetNextIndent());
+  
+  os << indent << "Self Created Property: " << (this->SelfCreatedProperty ? "Yes\n" : "No\n");
+  os << indent << "Property: " << this->Property << "\n";
+  if (this->Property) this->Property->PrintSelf(os, indent.GetNextIndent());
+  os << indent << "Mapper: " << this->Mapper << "\n";
+  if (this->Mapper) this->Mapper->PrintSelf(os, indent.GetNextIndent());
+}
+
+// Description:
+// Set the actor2D's position in display coordinates.  
+void vtkActor2D::SetDisplayPosition(int XPos, int YPos)
+{
+  this->PositionCoordinate->SetCoordinateSystem(VTK_DISPLAY);
+  this->PositionCoordinate->SetValue((float)XPos,(float)YPos,0.0);
 }
 
 // Description:
@@ -83,11 +123,38 @@ void vtkActor2D::Render (vtkViewport* viewport)
 
 }
 
-void vtkActor2D::PrintSelf(ostream& os, vtkIndent indent)
+// Description:
+// Returns an actor2D's property2D.  Creates a property if one
+// doesn't already exist.
+vtkProperty2D *vtkActor2D::GetProperty()
 {
-  this->vtkProp2D::PrintSelf(os,indent);
-
-  os << indent << "Mapper: " << this->Mapper << "\n";
-  if (this->Mapper) this->Mapper->PrintSelf(os, indent.GetNextIndent());
+  if (this->Property == NULL)
+    {
+    this->Property = vtkProperty2D::New();
+    this->SelfCreatedProperty = 1;
+    this->Modified();
+    }
+  return this->Property;
 }
+
+
+unsigned long int vtkActor2D::GetMTime()
+{
+  unsigned long mTime=this->vtkObject::GetMTime();
+  unsigned long time;
+  
+  time = this->PositionCoordinate->GetMTime();
+  mTime = ( time > mTime ? time : mTime );
+  
+  if ( this->Property != NULL )
+    {
+    time = this->Property->GetMTime();
+    mTime = ( time > mTime ? time : mTime );
+    }
+
+  return mTime;
+}
+
+
+
 

@@ -71,7 +71,6 @@ vtkProp::vtkProp()
   
   this->Bounds[0] = this->Bounds[2] = this->Bounds[4] = -1.0;
   this->Bounds[1] = this->Bounds[3] = this->Bounds[5] = 1.0;
-
   this->Center[0] = this->Center[1] = this->Center[2] = 0.0;
 
   this->UserMatrix = NULL;
@@ -398,15 +397,6 @@ void vtkProp::PrintSelf(ostream& os, vtkIndent indent)
 
   if ( this->PickMethod ) os << indent << "Pick Method defined\n";
   else os << indent <<"No Pick Method\n";
-
-  if ( this->UserMatrix )
-    {
-    os << indent << "User Matrix: " << this->UserMatrix << "\n";
-    }
-  else
-    {
-    os << indent << "User Matrix: (none)\n";
-    }
 
   os << indent << "Position: (" << this->Position[0] << ", " 
      << this->Position[1] << ", " << this->Position[2] << ")\n";

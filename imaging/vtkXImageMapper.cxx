@@ -730,10 +730,6 @@ void vtkXImageMapper::RenderData(vtkViewport* viewport, vtkImageData* data, vtkA
 
 }
 
-void vtkXImageMapper::PrintSelf(ostream& os, vtkIndent indent)
-{
-  vtkImageMapper::PrintSelf(os,indent);
 
-  os << indent << "NumberOfColors: " << this->NumberOfColors << "\n";
-}
+
 

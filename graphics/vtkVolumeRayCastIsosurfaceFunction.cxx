@@ -1154,9 +1154,7 @@ void vtkVolumeRayCastIsosurfaceFunction::SpecificFunctionInitialize(
 // Print method for vtkVolumeRayCastIsosurfaceFunction
 void vtkVolumeRayCastIsosurfaceFunction::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkVolumeRayCastFunction::PrintSelf(os,indent);
-
-  os << indent << "Isosurface Value: " << this->IsoValue << "\n";
+  vtkObject::PrintSelf(os,indent);
 }
 
 

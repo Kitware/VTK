@@ -287,14 +287,21 @@ void vtkImageExtractComponents::ThreadedExecute(vtkImageData *inData,
     }
 }
 
-void vtkImageExtractComponents::PrintSelf(ostream& os, vtkIndent indent)
-{
-  vtkImageFilter::PrintSelf(os,indent);
 
-  os << indent << "Components: ( "
-     << this->Components[0] << ", "
-     << this->Components[1] << ", "
-     << this->Components[2] << " )\n";
 
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

@@ -487,11 +487,11 @@ void vtkPolyLine::Contour(float value, vtkScalars *cellScalars,
                          vtkPointData *inPd, vtkPointData *outPd,
                          vtkCellData *inCd, int cellId, vtkCellData *outCd)
 {
-  int i, numLines=this->Points.GetNumberOfPoints() - 1;
+  int i;
   vtkScalars *lineScalars=vtkScalars::New();
   lineScalars->SetNumberOfScalars(2);
 
-  for ( i=0; i < numLines; i++)
+  for ( i=0; i<this->Points.GetNumberOfPoints()-1; i++)
     {
     this->Line.Points.SetPoint(0,this->Points.GetPoint(i));
     this->Line.Points.SetPoint(1,this->Points.GetPoint(i+1));
@@ -517,9 +517,9 @@ void vtkPolyLine::Contour(float value, vtkScalars *cellScalars,
 int vtkPolyLine::IntersectWithLine(float p1[3], float p2[3],float tol,float& t,
                                   float x[3], float pcoords[3], int& subId)
 {
-  int subTest, numLines=this->Points.GetNumberOfPoints() - 1;
+  int subTest;
 
-  for (subId=0; subId < numLines; subId++)
+  for (subId=0; subId<this->Points.GetNumberOfPoints()-1; subId++)
     {
     this->Line.Points.SetPoint(0,this->Points.GetPoint(subId));
     this->Line.Points.SetPoint(1,this->Points.GetPoint(subId+1));
@@ -534,11 +534,10 @@ int vtkPolyLine::IntersectWithLine(float p1[3], float p2[3],float tol,float& t,
 int vtkPolyLine::Triangulate(int vtkNotUsed(index), vtkIdList &ptIds,
                              vtkPoints &pts)
 {
-  int numLines=this->Points.GetNumberOfPoints() - 1;
   pts.Reset();
   ptIds.Reset();
 
-  for (int subId=0; subId < numLines; subId++)
+  for (int subId=0; subId<this->Points.GetNumberOfPoints()-1; subId++)
     {
     pts.InsertNextPoint(this->Points.GetPoint(subId));
     ptIds.InsertNextId(this->PointIds.GetId(subId));
@@ -567,11 +566,11 @@ void vtkPolyLine::Clip(float value, vtkScalars *cellScalars,
                        vtkCellData *inCd, int cellId, vtkCellData *outCd,
                        int insideOut)
 {
-  int i, numLines=this->Points.GetNumberOfPoints() - 1;
+  int i;
   vtkScalars *lineScalars=vtkScalars::New();
   lineScalars->SetNumberOfScalars(2);
 
-  for ( i=0; i < numLines; i++)
+  for ( i=0; i < this->Points.GetNumberOfPoints()-1; i++)
     {
     this->Line.Points.SetPoint(0,this->Points.GetPoint(i));
     this->Line.Points.SetPoint(1,this->Points.GetPoint(i+1));
@@ -587,12 +586,4 @@ void vtkPolyLine::Clip(float value, vtkScalars *cellScalars,
     }
   
   lineScalars->Delete();
-}
-
-// Description:
-// Return the center of the point cloud in parametric coordinates.
-inline int vtkPolyLine::GetParametricCenter(float pcoords[3])
-{
-  pcoords[0] = 0.5; pcoords[1] = pcoords[2] = 0.0;
-  return ((this->Points.GetNumberOfPoints() - 1) / 2);
 }

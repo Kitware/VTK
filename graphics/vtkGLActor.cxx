@@ -53,7 +53,6 @@ void vtkGLActor::Render(vtkRenderer *ren, vtkMapper *mapper)
   matrix.Transpose();
 
   // insert model transformation 
-  mmode(MVIEWING);
   pushmatrix();
   multmatrix((float (*)[4])(matrix[0]));
 
@@ -61,7 +60,6 @@ void vtkGLActor::Render(vtkRenderer *ren, vtkMapper *mapper)
   mapper->Render(ren,this);
 
   // pop transformation matrix
-  mmode(MVIEWING);
   popmatrix();
 }
 

@@ -70,8 +70,6 @@ vtkImageAnisotropicDiffusion2D::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "DiffusionThreshold: " << this->DiffusionThreshold << "\n";
   os << indent << "DiffusionFactor: " << this->DiffusionFactor << "\n";
 
-  os << indent << "Faces: " << this->Faces << "\n";
-
   if (this->Edges)
     {
     os << indent << "Edges: On\n";

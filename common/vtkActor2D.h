@@ -38,25 +38,33 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkActor2D - a actor that draws data into the viewport overlay plane
+// .NAME vtkActor2D
 // .SECTION Description
 // vtkActor2D is similar to vtkActor, but it is made to be used with
-// two dimensional images and annotation.  vtkActor2D has a position
-// (inherited from vtkProp) but does not use a transformation matrix
-// like vtkActor.  vtkActor2D has a reference to a vtkMapper2D object
-// which does the rendering.
+// two dimensional images and annotation.  vtkActor2D has a position, 
+// orientation, and scale, but does not use a transformation matrix 
+// like vtkActor.  vtkActor2D also has a layer property which allows two
+// dimensional actors to be rendered on top of each other in a certain
+// order.  vtkActor2D has a reference to a vtkMapper2D object which does
+// the rendering.
+
 // .SECTION See Also
-// vtkProp2D  vtkMapper2D vtkProperty2D
+// vtkProperty2D  vtkMapper2D
 
 #ifndef __vtkActor2D_h
 #define __vtkActor2D_h
 
-#include "vtkProp2D.h"
-class vtkMapper2D;
+#include "vtkReferenceCount.h"
+#include "vtkCoordinate.h"
 
-class VTK_EXPORT vtkActor2D : public vtkProp2D
+class vtkMapper2D;
+class vtkProperty2D;
+
+
+class VTK_EXPORT vtkActor2D : public vtkReferenceCount
 {
 public:
+
   vtkActor2D();
   ~vtkActor2D();
 
@@ -64,16 +72,46 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
   const char *GetClassName() {return "vtkActor2D";};
 
-  virtual void Render(vtkViewport *viewport);
+  void Render(vtkViewport *viewport);
+
+  vtkSetObjectMacro(Mapper, vtkMapper2D);
+
+  vtkSetVector2Macro(Scale, float);
+  vtkGetVectorMacro(Scale, float, 2);
+
+  vtkSetMacro(Orientation, float);
+  vtkGetMacro(Orientation, float);
+
+  vtkSetMacro(LayerNumber, int);
+  vtkGetMacro(LayerNumber, int);
+
+  vtkSetMacro(Visibility, int);
+  vtkGetMacro(Visibility, int);
+  vtkBooleanMacro(Visibility, int);
+
+  vtkProperty2D* GetProperty();
+  vtkSetObjectMacro(Property, vtkProperty2D);
 
   // Description:
-  // Set/Get the vtkMapper2D which defines the data to be drawn.
-  vtkSetObjectMacro(Mapper, vtkMapper2D);
-  vtkGetObjectMacro(Mapper, vtkMapper2D);
+  // Get the PositionCoordinate instance of vtkCoordinate
+  // This is used for for complicated or relative positioning
+  vtkViewportCoordinateMacro(Position);
+  
+  void SetDisplayPosition(int,int);
+  
+  unsigned long int GetMTime();//overload superclasses' implementation
 
 protected:
-  vtkMapper2D *Mapper;
+  float Orientation;
+  float Scale[2];
 
+  int LayerNumber;
+  int Visibility;
+  int SelfCreatedProperty;
+
+  vtkProperty2D *Property;
+  vtkMapper2D *Mapper;
+  vtkCoordinate *PositionCoordinate;
 };
 
 #endif

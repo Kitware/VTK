@@ -172,10 +172,22 @@ void vtkImageLogarithmicScale::ThreadedExecute(vtkImageData *inData,
     }
 }
 
-void vtkImageLogarithmicScale::PrintSelf(ostream& os, vtkIndent indent)
-{
-  vtkImageFilter::PrintSelf(os,indent);
 
-  os << indent << "Constant: " << this->Constant << "\n";
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

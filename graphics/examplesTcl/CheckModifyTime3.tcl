@@ -1,15 +1,15 @@
-# Check all the set methods to see if resetting a variable
-# changes the modified time.
+# Check that the modified times of pipeline objects change when a
+# set method is called.
 
-# Use List methods to find SetMethods.
-# This script records an error when the mtime changes when it should not.
-# i.e. "SetIVarValue 1" followed by "SetIVarValue 1"
-# It does not find errors of MTime not changing (alot of exceptions)
-# It does not change IVars of sub objects (PointLocator Resolution ...)
-# It does not check methods with no arguments
+# since it is easy, also check that MTime does not change when the variable 
+# is reset.  (Keep original reset script because it test more).
+
+# this script deletes all objects created, so it is a Good 
+# reference counting check as well.
 
 # get the interactor ui
 source ../../examplesTcl/vtkInt.tcl
+
 
 
 
@@ -57,10 +57,14 @@ proc TestKit {kit} {
 proc TestObject {kit objectClass} {
    global DEBUG
 
-   if {$DEBUG == 1} {puts "    ----------------Object: $objectClass"}
+   #puts "    Object: $objectClass"
 
-   # This checks all the objects (not just sources)
-   # (unlike CheckModifyTime3.tcl)
+   if { [CheckSubclassRelationship "vtkImageSource" $objectClass $kit] == 0 \
+	&& [CheckSubclassRelationship "vtkSource" $objectClass $kit] == 0} {
+      # dont' bother to check non pipeline objects.
+      #puts "            Is not a pipeline object"
+      return
+   }
 
    # make sure we can actualy create the object
    set objectName [new $objectClass]
@@ -106,7 +110,7 @@ proc TestObject {kit objectClass} {
 
 
 proc TestMethod {methodName numberOfArgs methodClass kit objectName} {
-   global ERROR_LOG_FD ERROR_STRING DEBUG
+   global ERROR_LOG_FD ERROR_STRING_CHANGE ERROR_STRING_RESET DEBUG
 
    #puts "        Method: $methodName with $numberOfArgs args"
 
@@ -138,6 +142,28 @@ proc TestMethod {methodName numberOfArgs methodClass kit objectName} {
       return
    }
 
+   # first call
+   set argValues1 [GetArgValues $argTypes 0 $kit]
+   set call1 "$objectName $methodName $argValues1"
+   if {$DEBUG} {puts "  $call1; $objectName GetMTime"}
+   if { [catch {eval $call1}] != 0} {
+      return
+   }
+   if {[catch {set modifyTime1 [$objectName GetMTime]}] != 0} {
+      return
+   }
+   if {$DEBUG} { puts "        = $modifyTime1"}
+   # second call
+   set argValues2 [GetArgValues $argTypes 1 $kit]
+   set call2 "$objectName $methodName $argValues2"
+   if {$DEBUG} { puts "  $call2; $objectName GetMTime"}
+   if { [catch {eval $call2}] != 0} {
+      return
+   }
+   if {[catch {set modifyTime2 [$objectName GetMTime]}] != 0} {
+      return
+   }
+   if {$DEBUG} { puts "        = $modifyTime2"}
    # third call
    set argValues3 [GetArgValues $argTypes 2 $kit]
    set call3 "$objectName $methodName $argValues3"
@@ -149,6 +175,16 @@ proc TestMethod {methodName numberOfArgs methodClass kit objectName} {
       return
    }
    if {$DEBUG} { puts "        = $modifyTime3"}
+   if { $modifyTime0 == $modifyTime1 && $modifyTime0 == $modifyTime2 && \
+	  $modifyTime0 == $modifyTime3} {
+      set ERROR_STRING_CHANGE [format "%s   %s %s," $ERROR_STRING_CHANGE \
+			  $methodClass $methodName]
+      puts "--------------------------- error -------------------------------"
+      puts "MTime did not changed : ------------------------"
+      puts "MTime: $modifyTime0, $modifyTime1, $modifyTime2, $modifyTime3"  
+      puts " method class: $methodClass"
+      if {$DEBUG} { debug}
+   }
 
    # forth call (reset test)
    if {$DEBUG} { puts "  $call3; $objectName GetMTime"}
@@ -161,7 +197,7 @@ proc TestMethod {methodName numberOfArgs methodClass kit objectName} {
    if {$DEBUG} { puts "        = $modifyTime4"}
 
    if { $modifyTime3 != $modifyTime4} {
-      set ERROR_STRING [format "%s   %s %s," $ERROR_STRING \
+      set ERROR_STRING_RESET [format "%s   %s %s," $ERROR_STRING_RESET \
 				$methodClass $methodName]
       puts "--------------------- reset error -------------------------------"
       puts "MTime changed : ------------------------"
@@ -170,6 +206,9 @@ proc TestMethod {methodName numberOfArgs methodClass kit objectName} {
       if {$DEBUG} { debug}
    }
 
+
+   DeleteArgValues $argValues1
+   DeleteArgValues $argValues2
    DeleteArgValues $argValues3
 }
 
@@ -632,16 +671,7 @@ proc new {className} {
 
 # do not test certain methods (with no error checking)
 proc CheckException {methodName} {
-   # I give up on this one!
-   if {$methodName == "SetRoll"} {
-      return 1
-   }
-
    if {$methodName == "SetScalar"} {
-      return 1
-   }
-
-   if {$methodName == "SetTensor"} {
       return 1
    }
 
@@ -683,12 +713,13 @@ wm withdraw .
 vtkImageCanvasSource2D canvas
   canvas SetNumberOfScalarComponents 1
   canvas SetScalarType 4
-  canvas SetExtent 0 1200 0 40 0 0
+  canvas SetExtent 0 1200 0 80 0 0
   canvas SetDrawColor 0
-  canvas FillBox 0 1200 0 40 
+  canvas FillBox 0 1200 0 80 
 
 vtkImageViewer viewer
   viewer SetInput [canvas GetOutput]
+
 # stuff for text
 vtkTextMapper mapper
   mapper SetInput ""
@@ -699,42 +730,53 @@ vtkActor2D actor
   actor SetLayerNumber 1
   [actor GetPositionCoordinate] SetValue 4 10
   [actor GetProperty] SetColor 1 1 1
+vtkTextMapper mapper2
+  mapper2 SetInput ""
+  mapper2 SetFontFamilyToTimes
+  mapper2 SetFontSize 18
+vtkActor2D actor2
+  actor2 SetMapper mapper2
+  actor2 SetLayerNumber 1
+  [actor2 GetPositionCoordinate] SetValue 4 50
+  [actor2 GetProperty] SetColor 1 1 1
+
 set imager [viewer GetImager]
   $imager AddActor2D actor
-
-set LABEL_STRING "Reset Modify Time Bugs:"
-set ERROR_STRING ""
+  $imager AddActor2D actor2
 
 
+
+
+set LABEL_STRING_CHANGE "Change Modify Time Bugs:"
+set LABEL_STRING_RESET "Reset Modify Time Bugs:"
+set ERROR_STRING_CHANGE ""
+set ERROR_STRING_RESET ""
 
 viewer GlobalWarningDisplayOff
 
+#TestObject graphics vtkExtractVectorComponents
+#TestObject graphics vtkGlyph3D
 
-# Check to see if  classes was specified.
-if { $argv != ""} {
-   foreach file $argv {
-      # we do not know what kit it is in, so try them all
-      TestObject graphics $file
-      TestObject imaging $file
-      TestObject patented $file
-      TestObject common $file
-   }
-} else {
-   # Still Reference counting problems in graphics. (seg faults)
-   # next: Exporter has pointer to deleted window (GetMTime)
-   #TestObject graphics vtkIVExporter
-   #TestKit graphics
-   TestKit imaging
-   TestKit patented
-   TestKit common
-}
+TestKit graphics
+TestKit imaging
+TestKit patented
+TestKit common
 
-if {$ERROR_STRING != ""} {
-   mapper SetInput "$LABEL_STRING $ERROR_STRING"
+if {$ERROR_STRING_CHANGE != ""} {
+   mapper SetInput "$LABEL_STRING_CHANGE $ERROR_STRING_CHANGE"
 }
+if {$ERROR_STRING_RESET != ""} {
+   mapper2 SetInput "$LABEL_STRING_RESET $ERROR_STRING_RESET"
+}
+mapper SetInput $ERROR_STRING_CHANGE
+mapper2 SetInput $ERROR_STRING_RESET
 viewer Render
 
 
 viewer GlobalWarningDisplayOn
+
+exit
+
+
 
 

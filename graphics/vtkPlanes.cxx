@@ -135,13 +135,4 @@ void vtkPlanes::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "No Planes Defined.\n";
     }
-
-  if ( this->Normals )
-    {
-    os << indent << "Normals: " << this->Normals << "\n";
-    }
-  else
-    {
-    os << indent << "Normals: (none)\n";
-    }
 }

@@ -61,8 +61,6 @@ public:
   vtkImageNonMaximumSuppression();
   static vtkImageNonMaximumSuppression *New() {return new vtkImageNonMaximumSuppression;};
   const char *GetClassName() {return "vtkImageNonMaximumSuppression";};
-
-  void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:
   // Rename the inputs.

@@ -76,8 +76,6 @@ public:
   static vtkImageMathematics *New() {return new vtkImageMathematics;};
   const char *GetClassName() {return "vtkImageMathematics";};
 
-  void PrintSelf(ostream& os, vtkIndent indent);
-
   // Description:
   // Set/Get the Operation to perform.
   vtkSetMacro(Operation,int);

@@ -59,8 +59,6 @@ public:
   static vtkImageAccumulate *New() {return new vtkImageAccumulate;};
   const char *GetClassName() {return "vtkImageAccumulate";};
 
-  void PrintSelf(ostream& os, vtkIndent indent);
-
   // Always generate the whole data set.
   void InterceptCacheUpdate();
 

@@ -154,14 +154,14 @@ void vtkImageAppendComponents::ThreadedExecute(vtkImageData **inData,
 	// this filter expects that input is the same type as output.
 	if (inData[idx1]->GetScalarType() != outData->GetScalarType())
 	  {
-	  vtkErrorMacro(<< "Execute: input" << idx1 << " ScalarType (" << 
-	  inData[idx1]->GetScalarType() << 
+	  vtkErrorMacro(<< "Execute: input" << inComp << " ScalarType (" << 
+	  inData[inComp]->GetScalarType() << 
 	  "), must match output ScalarType (" << outData->GetScalarType() 
 	  << ")");
 	  return;
 	  }
 	
-	switch (inData[idx1]->GetScalarType())
+	switch (inData[inComp]->GetScalarType())
 	  {
 	  case VTK_FLOAT:
 	    vtkImageAppendComponentsExecute(this, inData[idx1],

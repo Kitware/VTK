@@ -196,17 +196,10 @@ void vtkImageSinusoidSource::Execute(vtkImageData *data)
     }
 }
 
-void vtkImageSinusoidSource::PrintSelf(ostream& os, vtkIndent indent)
-{
-  vtkImageSource::PrintSelf(os,indent);
 
-  os << indent << "Period: " << this->Period << "\n";
-  os << indent << "Phase: " << this->Phase << "\n";
-  os << indent << "Amplitude: " << this->Amplitude << "\n";
-  os << indent << "Direction: ( "
-     << this->Direction[0] << ", "
-     << this->Direction[1] << ", "
-     << this->Direction[2] << " )\n";
 
-}
+
+
+
+
 

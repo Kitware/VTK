@@ -41,8 +41,6 @@ vtkDataSetMapper hawaiiMapper
     hawaiiMapper SetInput [elevation GetOutput]
     hawaiiMapper SetScalarRange 0 1000
     hawaiiMapper SetLookupTable lut
-    hawaiiMapper ImmediateModeRenderingOn
-
 vtkActor hawaiiActor
     hawaiiActor SetMapper hawaiiMapper
 
