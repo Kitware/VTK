@@ -22,8 +22,9 @@
 #include "vtkMath.h"
 #include <assert.h>
 #include "vtkCoordinate.h"
+#include "vtkViewport.h"
 
-vtkCxxRevisionMacro(vtkViewDependentErrorMetric,"1.3");
+vtkCxxRevisionMacro(vtkViewDependentErrorMetric,"1.4");
 vtkStandardNewMacro(vtkViewDependentErrorMetric);
 
 //-----------------------------------------------------------------------------
@@ -134,9 +135,9 @@ void vtkViewDependentErrorMetric::PrintSelf(ostream& os, vtkIndent indent)
   
   os << indent << "PixelTolerance: "  << this->PixelTolerance << endl;
   os << indent << "ViewPort: ";
-  if( this->ViewPort )
+  if( this->Viewport )
     {
-    this->ViewPort->PrintSelf( os << endl, indent.GetNextIndent());
+    this->Viewport->PrintSelf( os << endl, indent.GetNextIndent());
     }
   else
     {
