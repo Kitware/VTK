@@ -172,7 +172,6 @@ void vtkLinearTransform::TransformNormals(vtkNormals *inNms,
   int n = inNms->GetNumberOfNormals();
   float in[3],out[3];
   double matrix[4][4];
-  int index[3];
   
   this->Update();
 

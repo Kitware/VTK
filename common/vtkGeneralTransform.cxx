@@ -141,7 +141,6 @@ void vtkGeneralTransform::TransformPointsNormalsVectors(vtkPoints *inPts,
 
   float matrix[3][3];
   float coord[3];
-  float vec1[3],vec2[3];
 
   int i;
   int n = inPts->GetNumberOfPoints();

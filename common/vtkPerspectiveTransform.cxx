@@ -183,7 +183,6 @@ void vtkPerspectiveTransform::TransformPointsNormalsVectors(vtkPoints *inPts,
   float inPnt[3],outPnt[3],inNrm[3],inVec[3],out[3];
   float w;
   double f;
-  int index[3];
   
   this->Update();
 

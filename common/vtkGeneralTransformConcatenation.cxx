@@ -206,16 +206,13 @@ void vtkGeneralTransformConcatenation::InternalTransformDerivative(
 						   float output[3],
 						   float derivative[3][3])
 {
-float matrix[3][3];
-  float tmpvec[3];
+  float matrix[3][3];
 
   output[0] = input[0];
   output[1] = input[1];
   output[2] = input[2];
 
   vtkGeneralTransform::Identity3x3(derivative);
-
-  vtkGeneralTransform *transform;
 
   if (this->InverseFlag)
     {
