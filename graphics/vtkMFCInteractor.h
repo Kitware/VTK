@@ -79,7 +79,6 @@ public:
   
   virtual void Initialize();
   virtual void Start();
-
   
   // Description: 
   // Various methods that a MFCView class can forward
@@ -96,20 +95,29 @@ public:
 
   void UpdateSize(int cx,int cy);
 
-  void MakeDirectRenderer(CDC* pDC, CRect *rcBounds,vtkRenderWindow *renw);
-  void MakeIndirectRenderer(int,int,int,vtkRenderWindow *);
   void Update();
+  void DescribePixelFormat(HDC hDC,DWORD,int);
   void Update2(HDC hDC);
   void BitBlt(CDC *pDC,int x_position,int y_position);
-  void StretchDIB(CDC *pDC,int x_position,int y_position, int x_width, int y_width);
-  void DescribePixelFormat(HDC hDC,DWORD,int);
   HBITMAP GetBitmap();
   HDIB GetDIB();
   void GetBitmapInfo(LPBITMAPINFOHEADER);
   void SetupLogicalPalette(void);
   void DoPalette(HDC hDC);
-  
+  HDIB GetDIB(int width, int height, int bitsperpixel);
+  BOOL StretchDIB(CDC *pDC,int x_position,int y_position, int x_width, int y_width,
+							 int width, int height, int bitsperpixel);
+  BOOL SaveBMP(LPCTSTR lpszPathName,int width, int height, int bitsperpixel);
+  void Initialize(HWND hwnd, CRect *rcBounds,vtkRenderWindow *renw);
+#ifdef TIMER
+  void StartTiming(int count);
+  void StopTiming();
+  void OnEnterIdle();
+#endif
+
+
 protected:
+  HANDLE Mutex;
   HWND  WindowId;
   UINT  TimerId;
   int   WindowLeft;
@@ -122,9 +130,15 @@ protected:
   HDC   WindowDC;
   HBITMAP WindowBitmap;
   HBITMAP OldBitmap;	
-  CPoint  LastPosition;
-  vtkRenderWindow *RenderWindow2; // very confusing to me 
+  CRect  WindowRectangle;
+  CPoint LastPosition;
+  unsigned int MiliSeconds;
+  vtkRenderWindow *RenderWindow;
   HPALETTE WindowPalette;
+  void MakeDirectRenderer(HWND hwnd, CRect *rcBounds,vtkRenderWindow *renw);
+  void MakeIndirectRenderer(int,int,int,vtkRenderWindow *);
+  void CreateBMPFile(HWND hwnd, LPTSTR pszFile, PBITMAPINFO pbi,HBITMAP hBMP, HDC hDC);
+  PBITMAPINFO CreateBitmapInfoStruct(HWND hwnd, HBITMAP hBmp);
 };
 
 #endif
