@@ -38,7 +38,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <GL/gl.h>
 #endif
 
-vtkCxxRevisionMacro(vtkWin32OpenGLRenderWindow, "1.105");
+vtkCxxRevisionMacro(vtkWin32OpenGLRenderWindow, "1.106");
 vtkStandardNewMacro(vtkWin32OpenGLRenderWindow);
 
 #define VTK_MAX_LIGHTS 8
@@ -370,7 +370,7 @@ const char* vtkWin32OpenGLRenderWindow::ReportCapabilities()
   DescribePixelFormat(this->DeviceContext, pixelFormat, sizeof(PIXELFORMATDESCRIPTOR), &pfd);
 
   ostrstream strm;
-  strm << "depth:  " << pfd.cDepthBits << endl;
+  strm << "depth:  " << static_cast<int>(pfd.cDepthBits) << endl;
   if (pfd.cColorBits <= 8)
     {
       strm << "class:  PseudoColor" << endl;
@@ -379,8 +379,8 @@ const char* vtkWin32OpenGLRenderWindow::ReportCapabilities()
     {
       strm << "class:  TrueColor" << endl;
     }
-  strm << "buffer size:  " << pfd.cColorBits << endl;
-  strm << "level:  " << pfd.bReserved << endl;
+  strm << "buffer size:  " << static_cast<int>(pfd.cColorBits) << endl;
+  strm << "level:  " << static_cast<int>(pfd.bReserved) << endl;
   if (pfd.iPixelType == PFD_TYPE_RGBA)
     {
     strm << "renderType:  rgba" << endl;
@@ -404,12 +404,13 @@ const char* vtkWin32OpenGLRenderWindow::ReportCapabilities()
   } else {
     strm << "hardware acceleration:  True" << endl; 
   }
-  strm << "rgba:  redSize=" << pfd.cRedBits << " greenSize=" << pfd.cGreenBits << "blueSize=" << pfd.cBlueBits << "alphaSize=" << pfd.cAlphaBits << endl;
-  strm << "aux buffers:  " << pfd.cAuxBuffers << endl;
-  strm << "depth size:  " << pfd.cDepthBits << endl;
-  strm << "stencil size:  " << pfd.cStencilBits << endl;
-  strm << "accum:  redSize=" << pfd.cAccumRedBits << " greenSize=" << pfd.cAccumGreenBits << "blueSize=" << pfd.cAccumBlueBits << "alphaSize=" << pfd.cAccumAlphaBits << endl;
+  strm << "rgba:  redSize=" << static_cast<int>(pfd.cRedBits) << " greenSize=" << static_cast<int>(pfd.cGreenBits) << "blueSize=" << static_cast<int>(pfd.cBlueBits) << "alphaSize=" << static_cast<int>(pfd.cAlphaBits) << endl;
+  strm << "aux buffers:  " << static_cast<int>(pfd.cAuxBuffers)<< endl;
+  strm << "depth size:  " << static_cast<int>(pfd.cDepthBits) << endl;
+  strm << "stencil size:  " << static_cast<int>(pfd.cStencilBits) << endl;
+  strm << "accum:  redSize=" << static_cast<int>(pfd.cAccumRedBits) << " greenSize=" << static_cast<int>(pfd.cAccumGreenBits) << "blueSize=" << static_cast<int>(pfd.cAccumBlueBits) << "alphaSize=" << static_cast<int>(pfd.cAccumAlphaBits) << endl;
 
+  strm << ends;
   return strm.str();
 }
 

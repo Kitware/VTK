@@ -87,7 +87,7 @@ vtkXOpenGLRenderWindowInternal::vtkXOpenGLRenderWindowInternal(
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.37");
+vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.38");
 vtkStandardNewMacro(vtkXOpenGLRenderWindow);
 #endif
 
@@ -1213,7 +1213,7 @@ const char* vtkXOpenGLRenderWindow::ReportCapabilities()
         strm << extlist[i] << endl;
       }
     }
-
+  strm << ends;
   return strm.str();
 }
 
