@@ -676,7 +676,7 @@ int vtkRayCaster::Render(vtkRenderer *ren)
 
         case VR_HARDWARE:
 
-          if( destroy_hw_buffer || something_in_hardware_buffer )
+          if( destroy_hw_buffer && something_in_hardware_buffer )
             {
             // Store the color and zbuffer data
             prev_cdata = ren->GetRenderWindow()->GetRGBAPixelData( 
