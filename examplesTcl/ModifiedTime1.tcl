@@ -58,7 +58,16 @@ proc TestKit {kit} {
 proc TestObject {kit objectClass} {
    global DEBUG
 
-   if {$objectClass == "vtkIndent" || $objectClass == "vtkTimeStamp" || $objectClass == "vtkOutputPort"} {
+   if {$objectClass == "vtkOutputPort" || $objectClass == "vtkAssemblyNode"} {
+     return
+   }
+   if {$objectClass == "vtkMatrixToHomogeneousTransform" || $objectClass == "vtkGhostLevels"} {
+     return
+   }
+   if {$objectClass == "vtkIndent" || $objectClass == "vtkTimeStamp"} {
+     return
+   }
+   if {$objectClass == "vtkMatrixToLinearTransform" || $objectClass == "vtkOutputWindow"} {
      return
    }
 
@@ -89,7 +98,7 @@ proc TestObject {kit objectClass} {
 	 set idx [expr $idx + 2]
 	 set methodClass [string trim [lindex $methodList $idx] ":"]
       }
-      if {$DEBUG} {puts "look at: $str"}
+      if {$DEBUG && 0} {puts "look at: $str"}
       if {[string range $str 0 2] == "Set"} {
 	 regsub "\{" $str " " str
 	 # we found a Set method
@@ -125,6 +134,10 @@ proc TestMethod {methodName numberOfArgs methodClass kit objectName} {
 
    if {[CheckException $methodName]} {
       return
+   }
+
+   if {$DEBUG} {
+      puts "     Method: $methodName"
    }
 
    if { $numberOfArgs == 0} {
@@ -647,8 +660,13 @@ proc new {className} {
 
 # do not test certain methods (with no error checking)
 proc CheckException {methodName} {
+
    # I give up on this one!
    if {$methodName == "SetRoll"} {
+      return 1
+   }
+
+   if {$methodName == "SetPromptUser"} {
       return 1
    }
 
