@@ -136,6 +136,10 @@ public:
   vtkSetObjectMacro(TransformCoordinate, vtkCoordinate);
   vtkGetObjectMacro(TransformCoordinate, vtkCoordinate);
 
+  // Description:
+  // Make a shallow copy of this mapper.
+  void ShallowCopy(vtkPolyDataMapper2D *m);
+
 protected:
   vtkPolyDataMapper2D();
   ~vtkPolyDataMapper2D();

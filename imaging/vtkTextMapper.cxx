@@ -61,6 +61,19 @@ vtkTextMapper::vtkTextMapper()
   this->LineSpacing = 1.0;
 }
 
+// Shallow copy of an actor.
+void vtkTextMapper::ShallowCopy(vtkTextMapper *tm)
+{
+  this->SetInput(tm->GetInput());
+  this->SetFontSize(tm->GetFontSize());
+  this->SetBold(tm->GetBold());
+  this->SetItalic(tm->GetItalic());
+  this->SetShadow(tm->GetShadow());
+  this->SetFontFamily(tm->GetFontFamily());
+  this->SetJustification(tm->GetJustification());
+  this->SetVerticalJustification(tm->GetVerticalJustification());
+}
+
 vtkTextMapper *vtkTextMapper::New()
 {
   // First try to create the object from the vtkObjectFactory

@@ -58,6 +58,15 @@ vtkPolyDataMapper2D::vtkPolyDataMapper2D()
   this->TransformCoordinate = NULL;
 }
 
+void vtkPolyDataMapper2D::ShallowCopy(vtkPolyDataMapper2D *m)
+{
+  this->SetLookupTable(m->GetLookupTable());
+  this->SetColorMode(m->GetColorMode());
+  this->SetScalarVisibility(m->GetScalarVisibility());
+  this->SetScalarRange(m->GetScalarRange());
+  this->SetTransformCoordinate(m->GetTransformCoordinate());
+}
+
 vtkPolyDataMapper2D::~vtkPolyDataMapper2D()
 {  
   if (this->TransformCoordinate)

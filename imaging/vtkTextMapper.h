@@ -171,6 +171,10 @@ public:
   vtkGetMacro(LineSpacing, float);
   vtkGetMacro(NumberOfLines,int);
   
+  // Description:
+  // Shallow copy of an actor.
+  void ShallowCopy(vtkTextMapper *tm);
+
 protected:
   vtkTextMapper();
   ~vtkTextMapper();
