@@ -74,6 +74,7 @@ private:
   unsigned int Progressive;
   unsigned int WriteToMemory;
   vtkUnsignedCharArray *Result;
+  FILE *TempFP;
   
 private:
   vtkJPEGWriter(const vtkJPEGWriter&);  // Not implemented.
