@@ -26,7 +26,7 @@ vtkActor actor
     actor SetMapper mapper
     [actor GetProperty] SetPointSize 8
 
-ren1 AddProp actor
+ren1 AddViewProp actor
 
 renWin Render
 
