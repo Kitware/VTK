@@ -35,7 +35,7 @@
 #include <GL/gl.h>
 #endif
 
-vtkCxxRevisionMacro(vtkWin32OpenGLRenderWindow, "1.127");
+vtkCxxRevisionMacro(vtkWin32OpenGLRenderWindow, "1.128");
 vtkStandardNewMacro(vtkWin32OpenGLRenderWindow);
 
 #define VTK_MAX_LIGHTS 8
@@ -739,7 +739,6 @@ void vtkWin32OpenGLRenderWindow::CreateAWindow(int x, int y, int width,
 #ifdef UNICODE
       wchar_t *wname = new wchar_t [mbstowcs(NULL, this->WindowName, 32000)+1];
       mbstowcs(wname, this->WindowName, 32000);
-      SetWindowText(this->WindowId, wname);
 #endif
 
         /* create window */
