@@ -78,15 +78,15 @@ void vtkPointSet::Initialize()
   vtkDataSet::Initialize();
 
   if ( this->Points ) 
-  {
+    {
     this->Points->UnRegister(this);
     this->Points = NULL;
-  }
+    }
 
   if ( this->Locator ) 
-  {
+    {
     this->Locator->Initialize();
-  }
+    }
 }
 void vtkPointSet::ComputeBounds()
 {
