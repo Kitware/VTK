@@ -674,7 +674,7 @@ vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget *self)
   else
     {
     renderWindow = (vtkXRenderWindow *)
-      vtkTclGetPointerFromObject(self->RW,"vtkXRenderWindow",self->Interp, new_flag);
+      vtkTclGetPointerFromObject(self->RW,"vtkRenderWindow",self->Interp, new_flag);
     self->RenderWindow = (vtkRenderWindow *)(renderWindow);
     }
   
