@@ -20,7 +20,7 @@
 
 #include "math.h"
 
-vtkCxxRevisionMacro(vtkGridTransform, "1.20");
+vtkCxxRevisionMacro(vtkGridTransform, "1.20.2.1");
 vtkStandardNewMacro(vtkGridTransform);
 
 vtkCxxSetObjectMacro(vtkGridTransform,DisplacementGrid,vtkImageData);
@@ -102,21 +102,7 @@ inline void vtkNearestNeighborInterpolation(double point[3],
 
   switch (gridType)
     {
-    case VTK_CHAR:
-      vtkNearestHelper(displacement, (char *)gridPtr, increment);
-      break;
-    case VTK_UNSIGNED_CHAR:
-      vtkNearestHelper(displacement, (unsigned char *)gridPtr, increment); 
-      break;
-    case VTK_SHORT:
-      vtkNearestHelper(displacement, (short *)gridPtr, increment);
-      break;
-    case VTK_UNSIGNED_SHORT:
-      vtkNearestHelper(displacement, (unsigned short *)gridPtr, increment);
-      break;
-    case VTK_DOUBLE:
-      vtkNearestHelper(displacement, (double *)gridPtr, increment);
-      break;
+    vtkTemplateMacro(vtkNearestHelper(displacement, static_cast<VTK_TT*>(gridPtr), increment));
     }
 }
 
@@ -231,26 +217,8 @@ void vtkNearestNeighborInterpolation(double point[3], double displacement[3],
   // do nearest-neighbor interpolation
   switch (gridType)
     {
-    case VTK_CHAR:
-      vtkNearestHelper(displacement, derivatives, (char *)gridPtr, 
-                       gridId, gridId0, gridId1, gridInc);
-      break;
-    case VTK_UNSIGNED_CHAR:
-      vtkNearestHelper(displacement, derivatives, (unsigned char *)gridPtr, 
-                       gridId, gridId0, gridId1, gridInc);
-      break;
-    case VTK_SHORT:
-      vtkNearestHelper(displacement, derivatives, (short *)gridPtr, 
-                       gridId, gridId0, gridId1, gridInc);
-      break;
-    case VTK_UNSIGNED_SHORT:
-      vtkNearestHelper(displacement, derivatives, (unsigned short *)gridPtr, 
-                       gridId, gridId0, gridId1, gridInc);
-      break;
-    case VTK_DOUBLE:
-      vtkNearestHelper(displacement, derivatives, (double *)gridPtr, 
-                       gridId, gridId0, gridId1, gridInc);
-      break;
+    vtkTemplateMacro(vtkNearestHelper(displacement, derivatives, static_cast<VTK_TT*>(gridPtr),
+                       gridId, gridId0, gridId1, gridInc));
     }
 }
 
@@ -405,31 +373,9 @@ void vtkTrilinearInterpolation(double point[3], double displacement[3],
   
   switch (gridType)
     {
-    case VTK_CHAR:
-      vtkLinearHelper(displacement, derivatives, f[0], f[1], f[2], 
-                      (char *)gridPtr,
-                      i000, i001, i010, i011, i100, i101, i110, i111);
-      break;
-    case VTK_UNSIGNED_CHAR:
-      vtkLinearHelper(displacement, derivatives, f[0], f[1], f[2], 
-                      (unsigned char *)gridPtr,
-                      i000, i001, i010, i011, i100, i101, i110, i111);
-      break;
-    case VTK_SHORT:
-      vtkLinearHelper(displacement, derivatives, f[0], f[1], f[2], 
-                      (short *)gridPtr, 
-                      i000, i001, i010, i011, i100, i101, i110, i111);
-      break;
-    case VTK_UNSIGNED_SHORT:
-      vtkLinearHelper(displacement, derivatives, f[0], f[1], f[2], 
-                      (unsigned short *)gridPtr,
-                      i000, i001, i010, i011, i100, i101, i110, i111);
-      break;
-    case VTK_DOUBLE:
-      vtkLinearHelper(displacement, derivatives, f[0], f[1], f[2], 
-                      (double *)gridPtr,
-                      i000, i001, i010, i011, i100, i101, i110, i111);
-      break;
+    vtkTemplateMacro(vtkLinearHelper(displacement, derivatives, f[0], f[1], f[2], 
+        static_cast<VTK_TT*>(gridPtr),
+        i000, i001, i010, i011, i100, i101, i110, i111));
     }
 }
 
@@ -750,36 +696,11 @@ void vtkTricubicInterpolation(double point[3], double displacement[3],
 
   switch (gridType)
     {
-    case VTK_CHAR:
+    vtkTemplateMacro(
       vtkCubicHelper(displacement, derivatives, f[0], f[1], f[2],
-                     (char *)gridPtr,
+                     static_cast<VTK_TT*>(gridPtr),
                      interpModeX, interpModeY, interpModeZ,
-                     factX, factY, factZ);
-      break;
-    case VTK_UNSIGNED_CHAR:
-      vtkCubicHelper(displacement, derivatives, f[0], f[1], f[2],
-                     (unsigned char *)gridPtr,
-                     interpModeX, interpModeY, interpModeZ,
-                     factX, factY, factZ);
-      break;
-    case VTK_SHORT:
-      vtkCubicHelper(displacement, derivatives, f[0], f[1], f[2],
-                     (short *)gridPtr,
-                     interpModeX, interpModeY, interpModeZ,
-                     factX, factY, factZ);
-      break;
-    case VTK_UNSIGNED_SHORT:
-      vtkCubicHelper(displacement, derivatives, f[0], f[1], f[2],
-                     (unsigned short *)gridPtr,
-                     interpModeX, interpModeY, interpModeZ,
-                     factX, factY, factZ);
-      break;
-    case VTK_DOUBLE:
-      vtkCubicHelper(displacement, derivatives, f[0], f[1], f[2],
-                     (double *)gridPtr,
-                     interpModeX, interpModeY, interpModeZ,
-                     factX, factY, factZ);
-      break;
+                     factX, factY, factZ));
     }
 }                 
 
