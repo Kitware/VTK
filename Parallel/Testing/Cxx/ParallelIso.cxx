@@ -71,11 +71,14 @@ void MyMain( vtkMultiProcessController *controller, void *arg )
     
   // Create the reader, the data file name might have
   // to be changed depending on where the data files are.
+  char* fname = vtkExpandDataFileName(args->argc, args->argv, 
+				      "Data/headsq/quarter");
   reader = vtkImageReader::New();
   reader->SetDataByteOrderToLittleEndian();
   reader->SetDataExtent(0, 63, 0, 63, 1, 93);
-  reader->SetFilePrefix("../../../../vtkdata/headsq/quarter");
+  reader->SetFilePrefix(fname);
   reader->SetDataSpacing(3.2, 3.2, 1.5);
+  delete[] fname;
 
   // Iso-surface.
   iso = vtkContourFilter::New();
@@ -269,8 +272,6 @@ int main( int argc, char* argv[] )
     } 
   controller->SingleMethodExecute();
 
-  int myid = controller->GetLocalProcessId();
-  
   controller->Finalize();
   controller->Delete();
 
