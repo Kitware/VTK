@@ -319,7 +319,7 @@ public:
   // When an event occurs, we must determine which Renderer the event
   // occurred within, since one RenderWindow may contain multiple
   // renderers.
-  vtkRenderer *FindPokedRenderer(int,int);
+  virtual vtkRenderer *FindPokedRenderer(int,int);
 
 protected:
   vtkRenderWindowInteractor();
