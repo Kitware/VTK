@@ -291,6 +291,7 @@ protected:
   
   char** CreateStringArray(int numStrings);
   void DestroyStringArray(int numStrings, char** strings);
+  virtual int IsSafeToWrite();
   
 private:
   vtkXMLWriter(const vtkXMLWriter&);  // Not implemented.
