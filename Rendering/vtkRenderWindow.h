@@ -324,13 +324,11 @@ public:
   virtual void ClearInRenderStatus() { this->InRender = 0; }
 
   // Description:
-  // Specify a function to be called to check and see if an abort
-  // of the rendering in progress is desired.
+  // For legacy compatibility.  Do not use.
+#ifndef VTK_REMOVE_LEGACY_CODE
   void SetAbortCheckMethod(void (*f)(void *), void *arg);
-
-  // Description:
-  // Set the arg delete method. This is used to free user memory.
   void SetAbortCheckMethodArgDelete(void (*f)(void *));
+#endif
 
   // Description:
   // Set/Get the desired update rate. This is used with

@@ -25,7 +25,7 @@
 #include "vtkRendererCollection.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkRenderWindow, "1.129");
+vtkCxxRevisionMacro(vtkRenderWindow, "1.130");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -94,33 +94,6 @@ vtkRenderWindow::~vtkRenderWindow()
     }
   
   this->Renderers->Delete();
-}
-
-// Specify a function to be called to check and see if an abort
-// of the rendering in progress is desired.
-void vtkRenderWindow::SetAbortCheckMethod(void (*f)(void *), void *arg)
-{
-  if ( f != this->AbortCheckMethod || arg != this->AbortCheckMethodArg )
-    {
-    // delete the current arg if there is one and a delete meth
-    if ((this->AbortCheckMethodArg)&&(this->AbortCheckMethodArgDelete))
-      {
-      (*this->AbortCheckMethodArgDelete)(this->AbortCheckMethodArg);
-      }
-    this->AbortCheckMethod = f;
-    this->AbortCheckMethodArg = arg;
-    this->Modified();
-    }
-}
-
-// Set the arg delete method. This is used to free user memory.
-void vtkRenderWindow::SetAbortCheckMethodArgDelete(void (*f)(void *))
-{
-  if ( f != this->AbortCheckMethodArgDelete)
-    {
-    this->AbortCheckMethodArgDelete = f;
-    this->Modified();
-    }
 }
 
 // return the correct type of RenderWindow 
@@ -1020,3 +993,32 @@ const char *vtkRenderWindow::GetRenderLibrary()
 {
   return vtkGraphicsFactory::GetRenderLibrary();
 }
+
+//----------------------------------------------------------------------------
+#ifndef VTK_REMOVE_LEGACY_CODE
+void vtkRenderWindow::SetAbortCheckMethod(void (*f)(void *), void *arg)
+{
+  VTK_LEGACY_METHOD(SetAbortCheckMethod, "4.2");
+  if ( f != this->AbortCheckMethod || arg != this->AbortCheckMethodArg )
+    {
+    // delete the current arg if there is one and a delete meth
+    if ((this->AbortCheckMethodArg)&&(this->AbortCheckMethodArgDelete))
+      {
+      (*this->AbortCheckMethodArgDelete)(this->AbortCheckMethodArg);
+      }
+    this->AbortCheckMethod = f;
+    this->AbortCheckMethodArg = arg;
+    this->Modified();
+    }
+}
+
+void vtkRenderWindow::SetAbortCheckMethodArgDelete(void (*f)(void *))
+{
+  VTK_LEGACY_METHOD(SetAbortCheckMethodArgDelete, "4.2");
+  if ( f != this->AbortCheckMethodArgDelete)
+    {
+    this->AbortCheckMethodArgDelete = f;
+    this->Modified();
+    }
+}
+#endif
