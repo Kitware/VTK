@@ -46,6 +46,7 @@
 // Events that occur outside of the widget (i.e., no part of the widget is
 // picked) are propagated to any other registered obsevers (such as the
 // interaction style).  Turn off the widget by pressing the "W" key again.
+// (See the superclass documentation on key press activiation.)
 //
 // The vtkBoxWidget is very flexible. It can be used to select, cut, clip, or
 // perform any other operation that depends on an implicit function (use the
@@ -57,9 +58,10 @@
 // (either left or right button).
 //
 // Some additional features of this class include the ability to control the
-// properties of the widget. You can set the properties of the selected and
-// unselected representations of the widget. For example, you can set the
-// property for the handles, faces, and outline.
+// rendered properties of the widget. You can set the properties of the
+// selected and unselected representations of the parts of the widget. For
+// example, you can set the property for the handles, faces, and outline in
+// their normal and selected states.
 
 // .SECTION Caveats
 // Note that handles can be picked even when they are "behind" other actors.
@@ -67,7 +69,6 @@
 
 // .SECTION See Also
 // vtk3DWidget vtkLineWidget
-
 
 #ifndef __vtkBoxWidget_h
 #define __vtkBoxWidget_h
@@ -100,17 +101,17 @@ public:
   virtual void SetInteractor(vtkRenderWindowInteractor *interactor);
 
   // Description:
-  // Get the planes defining the ROI. The user must provide the
-  // instance of the class. Note that vtkPlanes is a subclass of
-  // vtkImplicitFunction, meaning that it can be used by a variety
-  // of filters to perform clipping, cutting, and selection of data.
-  // (The direction of the normals of the planes can be reversed
-  // enabling the InsideOut flag.)
+  // Get the planes describing the implicit function defined by the box
+  // widget. The user must provide the instance of the class vtkPlanes. Note
+  // that vtkPlanes is a subclass of vtkImplicitFunction, meaning that it can
+  // be used by a variety of filters to perform clipping, cutting, and
+  // selection of data.  (The direction of the normals of the planes can be
+  // reversed enabling the InsideOut flag.)
   void GetPlanes(vtkPlanes *planes);
 
   // Description:
   // Set/Get the InsideOut flag. When off, the normals point out of the
-  // hexadral box. When on, the normals point into the hexahedron.  InsideOut
+  // box. When on, the normals point into the hexahedron.  InsideOut
   // is off by default.
   vtkSetMacro(InsideOut,int);
   vtkGetMacro(InsideOut,int);
@@ -118,41 +119,41 @@ public:
 
   // Description:
   // Retrieve a linear transform characterizing the transformation of the
-  // hexahedra. Note that the transformation is relative to where PlaceWidget
+  // box. Note that the transformation is relative to where PlaceWidget
   // was initially called. This method modifies the transform provided. The
   // transform can be used to control the position of vtkProp3D's, as well as
   // other transformation operations (e.g., vtkTranformPolyData).
   void GetTransform(vtkTransform *t);
 
   // Description:
-  // Grab the polydata (including points) that define the hexahedral
-  // manipulator. The polydata consists of 6 quadrilateral faces and 15
-  // points. The first eight points define the eight corner vertices; the
-  // next six define the -x,+x, -y,+y, -z,+z face points; and the final point
-  // (the 15th out of 15 points) defines the center of the hexahedron. These
-  // point values are guaranteed to be up-to-date when either the
-  // InteractionEvent or EndInteractionEvent events are invoked. The user
-  // provides the vtkPolyData and the points and cells are added to it.
+  // Grab the polydata (including points) that define the box widget. The
+  // polydata consists of 6 quadrilateral faces and 15 points. The first
+  // eight points define the eight corner vertices; the next six define the
+  // -x,+x, -y,+y, -z,+z face points; and the final point (the 15th out of 15
+  // points) defines the center of the hexahedron. These point values are
+  // guaranteed to be up-to-date when either the InteractionEvent or
+  // EndInteractionEvent events are invoked. The user provides the
+  // vtkPolyData and the points and cells are added to it.
   void GetPolyData(vtkPolyData *pd);
 
   // Description:
   // Get the handle properties (the little balls are the handles). The 
   // properties of the handles when selected and normal can be 
-  // manipulated.
+  // set.
   vtkGetObjectMacro(HandleProperty,vtkProperty);
   vtkGetObjectMacro(SelectedHandleProperty,vtkProperty);
   
   // Description:
   // Get the face properties (the faces of the box). The 
   // properties of the face when selected and normal can be 
-  // manipulated.
+  // set.
   vtkGetObjectMacro(FaceProperty,vtkProperty);
   vtkGetObjectMacro(SelectedFaceProperty,vtkProperty);
   
   // Description:
   // Get the outline properties (the outline of the box). The 
   // properties of the outline when selected and normal can be 
-  // manipulated.
+  // set.
   vtkGetObjectMacro(OutlineProperty,vtkProperty);
   vtkGetObjectMacro(SelectedOutlineProperty,vtkProperty);
   
@@ -198,7 +199,6 @@ protected:
   void OnRightButtonDown(int ctrl, int shift, int X, int Y);
   void OnRightButtonUp(int ctrl, int shift, int X, int Y);
   void OnMouseMove(int ctrl, int shift, int X, int Y);
-
   
   // the hexahedron (6 faces)
   vtkActor          *HexActor;

@@ -28,7 +28,7 @@
 #include "vtkCallbackCommand.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkBoxWidget, "1.1");
+vtkCxxRevisionMacro(vtkBoxWidget, "1.2");
 vtkStandardNewMacro(vtkBoxWidget);
 
 vtkBoxWidget::vtkBoxWidget()
@@ -207,7 +207,7 @@ vtkBoxWidget::~vtkBoxWidget()
     }
 }
 
-#define AVERAGE(a,b,c) \
+#define VTK_AVERAGE(a,b,c) \
   c[0] = (a[0] + b[0])/2.0; \
   c[1] = (a[1] + b[1])/2.0; \
   c[2] = (a[2] + b[2])/2.0;
@@ -225,19 +225,19 @@ void vtkBoxWidget::PositionHandles()
   double *p7 = pts + 3*7;
   double x[3];
 
-  AVERAGE(p0,p7,x);
+  VTK_AVERAGE(p0,p7,x);
   this->Points->SetPoint(8, x);
-  AVERAGE(p1,p6,x);
+  VTK_AVERAGE(p1,p6,x);
   this->Points->SetPoint(9, x);
-  AVERAGE(p0,p5,x);
+  VTK_AVERAGE(p0,p5,x);
   this->Points->SetPoint(10, x);
-  AVERAGE(p2,p7,x);
+  VTK_AVERAGE(p2,p7,x);
   this->Points->SetPoint(11, x);
-  AVERAGE(p1,p3,x);
+  VTK_AVERAGE(p1,p3,x);
   this->Points->SetPoint(12, x);
-  AVERAGE(p5,p7,x);
+  VTK_AVERAGE(p5,p7,x);
   this->Points->SetPoint(13, x);
-  AVERAGE(p0,p6,x);
+  VTK_AVERAGE(p0,p6,x);
   this->Points->SetPoint(14, x);
 
   this->HandleGeometry[0]->SetCenter(this->Points->GetPoint(8));
@@ -252,7 +252,7 @@ void vtkBoxWidget::PositionHandles()
   this->HexPolyData->Modified();
   this->GenerateOutline();
 }
-#undef AVERAGE
+#undef VTK_AVERAGE
 
 void vtkBoxWidget::On()
 {
@@ -382,7 +382,7 @@ void vtkBoxWidget::ProcessEvents(vtkObject* object, unsigned long event,
       self->OnChar(rwi->GetControlKey(), rwi->GetShiftKey(),
                    rwi->GetKeyCode(), rwi->GetRepeatCount()); //will invoke superclass'
       break;
-    case vtkCommand::DeleteEvent:
+    case vtkCommand::DeleteEvent: //necessary to prevent hanging Interactor pointer
       self->Interactor = 0;
       break;
     }
@@ -1199,5 +1199,3 @@ void vtkBoxWidget::GenerateOutline()
     }
   this->OutlinePolyData->Modified();
 }
-
-

@@ -28,8 +28,9 @@
 // input, and then invoking the "On" method to activate it. (You can also
 // specify a bounding box to help position the widget.) Prior to invoking the
 // On() method, the user may also wish to use the PlaceWidget() to initially
-// position it. The 'w' or 'W' (for "widget") keypresses also can be used to
-// turn the widgets on and off.
+// position it. The 'W' (for "widget") keypresses also can be used to
+// turn the widgets on and off (methods exist to change the key value
+// and enable keypress activiation).
 // 
 // To support interactive manipulation of objects, this class (and
 // subclasses) invoke the events StartInteractionEvent, InteractionEvent, and
@@ -66,13 +67,11 @@ public:
   virtual void Off() = 0;
 
   // Description:
-  // This method is used to initially place the widget.
-  // The placement of the widget depends on whether a
-  // Prop3D or input dataset is provided. If one of these
-  // two is provided, they will be used to obtain a bounding
-  // box, around which the widget is placed. Otherwise,
-  // you can manually specify a bounds with the 
-  // PlaceWidget(bounds) method.
+  // This method is used to initially place the widget.  The placement of the
+  // widget depends on whether a Prop3D or input dataset is provided. If one
+  // of these two is provided, they will be used to obtain a bounding box,
+  // around which the widget is placed. Otherwise, you can manually specify a
+  // bounds with the PlaceWidget(bounds) method.
   virtual void PlaceWidget();
 
   // Description:
@@ -95,36 +94,43 @@ public:
   vtkGetObjectMacro(Input,vtkDataSet);
   
   // Description:
-  // This method is used to associate the widget with the render window interactor. 
-  // Observers of the appropriate events invoked in the render window interactor are 
-  // set up as a result of this method invocation.
+  // This method is used to associate the widget with the render window
+  // interactor.  Observers of the appropriate events invoked in the render
+  // window interactor are set up as a result of this method invocation.
   virtual void SetInteractor(vtkRenderWindowInteractor *interactor) = 0;
   vtkGetObjectMacro(Interactor, vtkRenderWindowInteractor);
 
   // Description:
-  // Set/Get the priority at which events are processed. This is used when multiple
-  // widgets are used simultaneously. The default value is 1.0 (highest priority.) Note
-  // that when multiple widgets (or observers) have the same priority, then the last
-  // observer added will process the event first.
+  // Set/Get the priority at which events are processed. This is used when
+  // multiple widgets are used simultaneously. The default value is 1.0
+  // (highest priority.) Note that when multiple widgets (or observers) have
+  // the same priority, then the last observer added will process the event
+  // first.
   vtkSetClampMacro(Priority,float,0.0,1.0);
   vtkGetMacro(Priority,float);
 
   // Description:
-  // Enable/Disable of the use of a keypress to turn on and off the widget. (By default,
-  // the keypress is 'W' for "widget"...note the capital letter W. This may interfere 
-  // with the 'W' key for wireframe in the interactor style.)
+  // Enable/Disable of the use of a keypress to turn on and off the
+  // widget. (By default, the keypress is 'W' for "widget"...note the capital
+  // letter W. This may interfere with the 'W' key for wireframe in the
+  // interactor style. Set the KeyPressActivationValue to change which
+  // key is pressed.)
   vtkSetMacro(KeyPressActivation,int);
   vtkGetMacro(KeyPressActivation,int);
   vtkBooleanMacro(KeyPressActivation,int);
   
   // Description:
   // Specify which key press value to use to activate the widget (if key press
-  // activation is enabled). By default, the key press activation value is 'w'.
+  // activation is enabled). By default, the key press activation value is 'W'.
   // Note: once the SetInteractor() method is invoked, changing the key press
   // activation value will not affect the key press until SetInteractor is 
   // called again.
   vtkSetMacro(KeyPressActivationValue,char);
   vtkGetMacro(KeyPressActivationValue,char);
+
+protected:
+  vtk3DWidget();
+  ~vtk3DWidget();
 
 //BTX
   // Description:
@@ -143,17 +149,15 @@ public:
   };
 //ETX
 
-protected:
-  vtk3DWidget();
-  ~vtk3DWidget();
-
-  // Sets up the keypress-W event. Should be invoked by subclass' ProcessEvents()
+  // Sets up the keypress-W event. 
+  // Should be invoked by subclass' ProcessEvents()
   void OnChar(int ctrl, int shift, char keycode, int repeatcount);
   
   // helper method for subclasses
   void ComputeDisplayToWorld(double x, double y, double z, double *worldPt);
   void ComputeWorldToDisplay(double x, double y, double z, double *displayPt);
     
+  // Used to position and scale the widget initially
   vtkProp3D *Prop3D;
   vtkDataSet *Input;
   
@@ -170,7 +174,7 @@ protected:
   // Priority at which events are processed
   float Priority;
 
-  // Keypress activation
+  // Keypress activation controls
   int KeyPressActivation;
   char KeyPressActivationValue;
 
@@ -182,7 +186,6 @@ protected:
   vtkCamera *CurrentCamera;
   float OldX;
   float OldY;
-
 
 private:
   vtk3DWidget(const vtk3DWidget&);  // Not implemented.
