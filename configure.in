@@ -696,12 +696,12 @@ fi
 
 # we cant have pthreads and java at the same time
 # so clear them out if java was defined
-# AC_ARG_WITH(java,
-#          [  --with-java             build vtk with java support],
-# 	 if test "$withval" = yes; then
-# 	 THREAD_FLAGS=""
-#          THREAD_LIBS=""
-#          fi)
+AC_ARG_WITH(java,
+         [  --with-java             build vtk with java support],
+	 if test "$withval" = yes; then
+	 THREAD_FLAGS=""
+         THREAD_LIBS=""
+         fi)
 
 AC_SUBST(THREAD_FLAGS)
 AC_SUBST(THREAD_LIBS)
