@@ -245,7 +245,8 @@ vtkCell *vtkPixel::GetEdge(int edgeId)
   return &line;
 }
 //
-// Compute interpolation functions (similar but different than Quad interpolation functions)
+// Compute interpolation functions (similar but different than Quad interpolation 
+// functions)
 //
 void vtkPixel::InterpolationFunctions(float pcoords[3], float sf[4])
 {
@@ -258,6 +259,29 @@ void vtkPixel::InterpolationFunctions(float pcoords[3], float sf[4])
   sf[1] = pcoords[0] * sm;
   sf[2] = rm * pcoords[1];
   sf[3] = pcoords[0] * pcoords[1];
+}
+
+//
+// Compute derivatives of interpolation functions.
+//
+void vtkPixel::InterpolationDerivs(float pcoords[3], float derivs[8])
+{
+  double rm, sm;
+
+  rm = 1. - pcoords[0];
+  sm = 1. - pcoords[1];
+
+  // r derivatives
+  derivs[0] = -sm;
+  derivs[1] = sm;
+  derivs[2] = -pcoords[1];
+  derivs[3] = pcoords[1];
+
+  // s derivatives
+  derivs[4] = -rm;
+  derivs[5] = -pcoords[0];
+  derivs[6] = rm;
+  derivs[7] = pcoords[0];
 }
 
 // 
@@ -323,17 +347,59 @@ void vtkPixel::Derivatives(int vtkNotUsed(subId),
 			   float *values, 
 			   int dim, float *derivs)
 {
-  int i, idx;
+  float functionDerivs[8], sum;
+  int i, j, k, plane, idx[2], jj;
+  float *x0, *x1, *x2, ar[3];
 
-  // The following code is incorrect. Will be fixed in future release.
-  vtkWarningMacro("This calculation is incorrect");
-  
-  for (i=0; i<dim; i++)
+  x0 = this->Points.GetPoint(0);
+  x1 = this->Points.GetPoint(1);
+  x2 = this->Points.GetPoint(2);
+
+  //figure which plane this pixel is in
+  for (i=0; i < 3; i++) ar[i] = x2[i] - x0[i];
+
+  if ( ar[0] > ar[2] && ar[1] > ar[2] ) // z-plane
     {
-    idx = i*dim;
-    derivs[idx] = 0.0;
-    derivs[idx+1] = 0.0;
-    derivs[idx+2] = 0.0;
+    plane = 2;
+    idx[0] = 0; idx[1] = 1;
+    }
+  else if ( ar[0] > ar[1] && ar[2] > ar[1] ) // y-plane
+    {
+    plane = 1;
+    idx[0] = 0; idx[1] = 2;
+    }
+  else // x-plane
+    {
+    plane = 0;
+    idx[0] = 1; idx[1] = 2;
+    }
+
+  ar[0] = x1[idx[0]] - x0[idx[0]];
+  ar[1] = x2[idx[1]] - x0[idx[1]];
+
+  // get derivatives in r-s directions
+  this->InterpolationDerivs(pcoords, functionDerivs);
+
+  // since two of the x-y-z axes are aligned with r-s axes, only need to scale
+  // the derivative values by aspect ratio (ar).
+  for (k=0; k < dim; k++) //loop over values per vertex
+    {
+    for (jj=j=0; j < 3; j++, jj++) //loop over derivative directions
+      {
+      if ( j == plane ) // 0-derivate values in this direction
+        {
+        sum = 0.0;
+        }
+      else //compute derivatives
+        {
+        for (sum=0.0, i=0; i < 4; i++) //loop over interp. function derivatives
+          {
+          sum += functionDerivs[4*idx[jj] + i] * values[dim*i + k];
+          }
+        sum /= ar[idx[jj]];
+        }
+      derivs[3*k + j] = sum;
+      }
     }
 }
 

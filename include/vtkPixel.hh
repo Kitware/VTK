@@ -83,6 +83,7 @@ public:
 
   // pixel specific
   void InterpolationFunctions(float pcoords[3], float weights[4]);
+  void InterpolationDerivs(float pcoords[3], float derivs[8]);
 };
 
 #endif
