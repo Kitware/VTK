@@ -57,8 +57,8 @@ int *vtkMergePoints::MergePoints()
 
   vtkDebugMacro(<<"Merging points");
 
-  if ( this->Points == NULL || 
-  (numPts=this->Points->GetNumberOfPoints()) < 1 ) return NULL;
+  if ( this->DataSet == NULL || 
+  (numPts=this->DataSet->GetNumberOfPoints()) < 1 ) return NULL;
 
   this->BuildLocator(); // subdivides if necessary
 
@@ -77,7 +77,7 @@ int *vtkMergePoints::MergePoints()
     // Only try to merge the point if it hasn't yet been merged.
     if ( index[i] == -1 ) 
       {
-      p = this->Points->GetPoint(i);
+      p = this->DataSet->GetPoint(i);
       index[i] = newPtId;
 
       for (j=0; j<3; j++) 
@@ -92,7 +92,7 @@ int *vtkMergePoints::MergePoints()
         for (j=0; j < ptIds->GetNumberOfIds(); j++) 
           {
           ptId = ptIds->GetId(j);
-          pt = this->Points->GetPoint(ptId);
+          pt = this->DataSet->GetPoint(ptId);
 
           if ( index[ptId] == -1 && pt[0] == p[0] && pt[1] == p[1]
           && pt[2] == p[2] )
@@ -113,7 +113,7 @@ int *vtkMergePoints::MergePoints()
 // with pre-inserted point (if precisely coincident). If point is merged 
 // with pre-inserted point, pre-inserted point id is returned. Otherwise, 
 // new point id is returned. Before using this method you must make sure 
-// that newPts have been supplied, the bounds has been set properly, and 
+// that a point list has been supplied, the bounds has been set properly, and 
 // that divs are properly set (see InitPointInsertion() from superclass.)
 int vtkMergePoints::InsertPoint(float x[3])
 {
@@ -149,7 +149,7 @@ int vtkMergePoints::InsertPoint(float x[3])
     for (i=0; i < bucket->GetNumberOfIds(); i++) 
       {
       ptId = bucket->GetId(i);
-      pt = this->Points->GetPoint(ptId);
+      pt = this->DataSet->GetPoint(ptId);
       if ( x[0] == pt[0] && x[1] == pt[1] && x[2] == pt[2] ) return ptId;
       }
     }

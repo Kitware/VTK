@@ -285,6 +285,7 @@ void vtkCellLocator::InitializeIntersection(vtkCellLocator& locator)
 int vtkCellLocator::GetNextIntersection(int& bucket1, int& bucket2)
 {
   // not yet implemented
+  return 0;
 }
 
 
@@ -593,3 +594,10 @@ void vtkCellLocator::GenerateFace(int face, int numDivs, int i, int j, int k,
   polys->InsertNextCell(4,ids);
 }
 
+void vtkCellLocator::PrintSelf(ostream& os, vtkIndent indent)
+{
+  vtkLocator::PrintSelf(os,indent);
+
+  os << indent << "Number of Cells Per Bucket: " << this->NumberOfCellsPerBucket << "\n";
+
+}

@@ -74,9 +74,6 @@ vtkOBBTree::vtkOBBTree()
 
 void vtkOBBTree::FreeSearchStructure()
 {
-  vtkIdList *cellIds;
-  int i;
-
   if ( this->Tree )
     {
     this->DeleteTree(this->Tree);

@@ -127,11 +127,11 @@ void vtkContourFilter::Execute()
 //
 // Create objects to hold output of contour operation
 //
-  newPts = new vtkFloatPoints(1000,10000);
-  newVerts = new vtkCellArray(1000,10000);
-  newLines = new vtkCellArray(1000,10000);
-  newPolys = new vtkCellArray(1000,10000);
-  newScalars = new vtkFloatScalars(3000,30000);
+  newPts = new vtkFloatPoints(10000,25000);
+  newVerts = new vtkCellArray(10000,25000);
+  newLines = new vtkCellArray(10000,25000);
+  newPolys = new vtkCellArray(10000,25000);
+  newScalars = new vtkFloatScalars(10000,25000);
 //
 // Loop over all contour values.  Then for each contour value, 
 // loop over all cells.
