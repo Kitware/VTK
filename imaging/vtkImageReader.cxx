@@ -748,7 +748,7 @@ void vtkImageReader::SetDataScalarType(int type)
 //----------------------------------------------------------------------------
 // Description:
 // Sets the default ScalarType of the cache.
-vtkImageSource *vtkImageReader::GetOutput()
+vtkImageCache *vtkImageReader::GetOutput()
 {
   this->CheckCache();
   if (this->Output->GetScalarType() == VTK_VOID)

@@ -121,7 +121,7 @@ public:
   int *GetDataMemoryOrder() {return this->DataMemoryOrder;};
   
   void UpdateImageInformation(vtkImageRegion *region);
-  vtkImageSource *GetOutput();
+  vtkImageCache *GetOutput();
   
   // Description:
   // Get the size of the header computed by this object.

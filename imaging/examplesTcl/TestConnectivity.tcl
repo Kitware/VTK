@@ -25,10 +25,10 @@ set VTK_IMAGE_COMPONENT_AXIS     4
 
 vtkImageSeriesReader reader
 #reader DebugOn
-	#reader SetFileByteOrderToBigEndian
+	#reader SetDataByteOrderToBigEndian
 	reader SetDataDimensions 128 128 60 1
 	reader SetFilePrefix $prefix
-	reader SetPixelMask 0x7fff
+	reader SetDataMask 0x7fff
 	reader ReleaseDataFlagOff
 
 vtkImageConnectivity connect

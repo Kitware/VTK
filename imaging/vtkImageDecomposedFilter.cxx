@@ -139,8 +139,6 @@ void vtkImageDecomposedFilter::Modified()
 // Set the Input of the filter.
 void vtkImageDecomposedFilter::SetInput(vtkImageSource *input)
 {
-  int idx;
-  
   this->Input = input;
   this->Modified();
   vtkDebugMacro(<< "SetInput: " << input->GetClassName()
@@ -274,9 +272,9 @@ void vtkImageDecomposedFilter::SetReleaseDataFlag(int flag)
 // Description:
 // This method returns the cache to make a connection
 // It justs feeds the request to the sub filter.
-vtkImageSource *vtkImageDecomposedFilter::GetOutput()
+vtkImageCache *vtkImageDecomposedFilter::GetOutput()
 {
-  vtkImageSource *source;
+  vtkImageCache *source;
 
   if ( ! this->Filters[this->Dimensionality - 1])
     {

@@ -71,7 +71,7 @@ public:
   // Foward Source messages to filter1
   void SetCache(vtkImageCache *cache);
   vtkImageCache *GetCache();
-  vtkImageSource *GetOutput();
+  vtkImageCache *GetOutput();
   unsigned long GetPipelineMTime();
   // Foward filter messages
   void SetInput(vtkImageSource *Input);

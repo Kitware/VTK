@@ -21,11 +21,11 @@ set VTK_IMAGE_COMPONENT_AXIS     4
 
 vtkImageSeriesReader reader
 #reader DebugOn
-reader SetFileByteOrderToLittleEndian
+reader SetDataByteOrderToLittleEndian
 reader SetDataDimensions 256 256 93
 reader SetFilePrefix "../../../data/fullHead/headsq"
 reader SetFlips 0 0 1
-reader SetPixelMask 0x7fff
+reader SetDataMask 0x7fff
 
 vtkImageResample magnify
 magnify SetInput [reader GetOutput]

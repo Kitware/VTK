@@ -10,10 +10,10 @@ source vtkImageInclude.tcl
 
 vtkImageSeriesReader reader
 reader ReleaseDataFlagOff
-reader SetFileByteOrderToLittleEndian
+reader SetDataByteOrderToLittleEndian
 reader SetDataDimensions 256 256 93
 reader SetFilePrefix "../../../data/fullHead/headsq"
-reader SetPixelMask 0x7fff
+reader SetDataMask 0x7fff
 #reader DebugOn
 #reader Update
 

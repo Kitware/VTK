@@ -143,9 +143,9 @@ void vtkImageOpenClose::SetCache(vtkImageCache *cache)
 // Description:
 // This method returns the cache to make a connection
 // It justs feeds the request to the sub filter.
-vtkImageSource *vtkImageOpenClose::GetOutput()
+vtkImageCache *vtkImageOpenClose::GetOutput()
 {
-  vtkImageSource *source;
+  vtkImageCache *source;
 
   if ( ! this->Filter1)
     {

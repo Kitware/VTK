@@ -67,7 +67,7 @@ public:
   void SetCache(vtkImageCache *cache);
   vtkImageCache *GetCache();
   void SetReleaseDataFlag(int flag);
-  vtkImageSource *GetOutput();
+  vtkImageCache *GetOutput();
   unsigned long GetPipelineMTime();
   // Foward filter messages to first fitler
   void SetInput(vtkImageSource *Input);

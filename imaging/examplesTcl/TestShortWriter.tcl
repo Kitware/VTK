@@ -25,10 +25,10 @@ set VTK_IMAGE_COMPONENT_AXIS     4
 
 vtkImageSeriesReader reader
 #reader DebugOn
-reader SetFileByteOrderToLittleEndian
+reader SetDataByteOrderToLittleEndian
 reader SetDataDimensions 256 256 93
 reader SetFilePrefix "../../../data/fullHead/headsq"
-reader SetPixelMask 0x7fff
+reader SetDataMask 0x7fff
 
 vtkImageThreshold thresh
 thresh SetInput [reader GetOutput]
@@ -39,7 +39,7 @@ thresh ReplaceOutOn
 
 vtkImageShortWriter writer
 writer SetInput [thresh GetOutput]
-writer SetFileByteOrderToLittleEndian
+writer SetDataByteOrderToLittleEndian
 writer SetFilePrefix "test"
 writer DebugOn
 writer Write
@@ -51,7 +51,7 @@ writer Write
 vtkImageSeriesReader reader2
 #reader2 DebugOn
 reader2 ReleaseDataFlagOff
-reader2 SetFileByteOrderToLittleEndian
+reader2 SetDataByteOrderToLittleEndian
 reader2 SetDataDimensions 256 256 93
 reader2 SetFilePrefix "test"
 

@@ -42,7 +42,7 @@ vtkImageSeriesReader reader
         reader  SetFirst $firstslice
 	reader  SetFilePrefix $prefix
 	reader  SetOutputScalarType $VTK_SHORT
-	reader  SetPixelMask 0x7fff
+	reader  SetDataMask 0x7fff
 	reader  ReleaseDataFlagOff
 
 vtkImageSubSampling ss
@@ -135,7 +135,7 @@ vtkImageToStructuredPoints image
 
 vtkStructuredPointsWriter writer
         writer SetInput [image GetOutput]
-	writer SetFileType 2
+	writer SetDataType 2
         writer SetFileName "CTAStrucutredPoints.bin"
 
 
