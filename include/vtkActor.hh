@@ -68,7 +68,7 @@ class vtkActor : public vtkObject
   char *GetClassName() {return "vtkActor";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  void Render(vtkRenderer *ren);
+  virtual void Render(vtkRenderer *ren);
 
   // Description:
   // Specify the property object to control rendering surface properties.
