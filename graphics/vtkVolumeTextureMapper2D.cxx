@@ -397,7 +397,7 @@ VolumeTextureMapper2D_YMajorDirection( T *data_ptr,
   v[5] = origin[2];
 
   v[6] = spacing[0] * size[0] + origin[0];
-  v[8] = spacing[2] * size[2] + origin[1];
+  v[8] = spacing[2] * size[2] + origin[2];
 
   v[9] = origin[0];
   v[11] = spacing[2] * size[2] + origin[2];
