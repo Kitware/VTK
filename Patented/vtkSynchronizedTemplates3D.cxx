@@ -44,7 +44,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkExtentTranslator.h"
 
-vtkCxxRevisionMacro(vtkSynchronizedTemplates3D, "1.62");
+vtkCxxRevisionMacro(vtkSynchronizedTemplates3D, "1.63");
 vtkStandardNewMacro(vtkSynchronizedTemplates3D);
 
 //----------------------------------------------------------------------------
@@ -786,8 +786,7 @@ void vtkSynchronizedTemplates3D::Execute()
     int firstPD=1;
     for (idx = 0; idx < this->NumberOfThreads; ++idx)
       {
-      if ( !this->Threads[idx] || 
-           this->Threads[idx]->GetNumberOfPoints() <= 0 )
+        if ( !this->Threads[idx])
         {
         continue; //no input, just skip
         }
@@ -810,8 +809,7 @@ void vtkSynchronizedTemplates3D::Execute()
 
     for (idx = 0; idx < this->NumberOfThreads; ++idx)
       {
-      if ( !this->Threads[idx] || 
-           this->Threads[idx]->GetNumberOfPoints() <= 0 )
+      if ( !this->Threads[idx])
         {
         continue; //no input, just skip
         }
