@@ -15,6 +15,8 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 =========================================================================*/
 #include "MCubes.hh"
 #include "MC_Cases.h"
+#include "StrPts.hh"
+#include "SScalars.hh"
 
 // Description:
 // Construct object with initial range (0,1) and single contour value
@@ -65,18 +67,48 @@ void vlMarchingCubes::GenerateValues(int numContours, float range[2])
 }
 
 //
-// General contouring filter.  Handles arbitrary input.
+// Contouring filter specialized for volumes and "short int" data values.  
 //
 void vlMarchingCubes::Execute()
 {
   vlFloatPoints *newPts;
   vlCellArray *newPolys;
+  vlStructuredPoints *input=(vlStructuredPoints *)this->Input;
+  vlPointData *pd=input->GetPointData();
+  vlScalars *inScalars=pd->GetScalars();
+  short *scalars;
+  int dims[3];
 
-  vlDebugMacro(<< "Executing contour filter");
+  vlDebugMacro(<< "Executing marching cubes");
+  this->Initialize();
 //
 // Initialize and check input
 //
-  this->Initialize();
+  if ( inScalars == NULL )
+    {
+    vlErrorMacro(<<"Scalars must be defined for contouring");
+    return;
+    }
+
+  if ( input->GetDataDimension() != 3 )
+    {
+    vlErrorMacro(<<"Cannot contour data of dimension != 3");
+    return;
+    }
+  input->GetDimensions(dims);
+
+  if ( strcmp("short",inScalars->GetDataType()) )
+    {
+    vlErrorMacro(<<"Scalars must be short ints...");
+    return;
+    }
+  scalars = ((vlShortScalars *)inScalars)->GetPtr(0);
+//
+// Traverse all voxel cells, generating triangles and point normals
+// using marching cubes algorithm.
+//  
+
+
 
   vlDebugMacro(<<"Created: " 
                << newPts->GetNumberOfPoints() << " points, " 
