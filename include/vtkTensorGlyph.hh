@@ -54,7 +54,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 //
 // A scale factor is provided to control the amount of scaling. Also, you 
 // can turn off scaling completely if desired. The boolean variable 
-// ClampScaling controls the maximum scaling (in conjunection with
+// ClampScaling controls the maximum scaling (in conjunction with
 // MaxScaleFactor.) This is useful in certain applications where 
 // singularities or large order of magnitude differences exist in 
 // the eigenvalues.

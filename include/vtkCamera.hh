@@ -116,7 +116,7 @@ class vtkCamera : public vtkObject
   vtkGetMacro(EyeAngle,float);
 
   // Description:
-  // Is this camera rendering in stereo ?
+  // Is this camera rendering in stereo?
   vtkGetMacro(Stereo,int);
 
   // Description:

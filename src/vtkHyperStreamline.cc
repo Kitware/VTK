@@ -229,7 +229,7 @@ void vtkHyperStreamline::IntegrateMajorEigenvector()
 // Description:
 // Use the major eigenvector field as the vector field through which to 
 // integrate. The major eigenvector is the eigenvector whose corresponding
-// eigenvalue is between the major and minro eigenvalues.
+// eigenvalue is between the major and minor eigenvalues.
 void vtkHyperStreamline::IntegrateMediumEigenvector()
 {
   if ( this->IntegrationEigenvector != 1 )

@@ -44,7 +44,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // executed. This time is guaranteed to be monotonically increasing.
 // Classes use this object to record modified and/or execution time.
 // There is built in support for the binary < and > comparison
-// operators between two vtkTimeStamp's.
+// operators between two vtkTimeStamp objects.
 
 #ifndef __vtkTimeStamp_h
 #define __vtkTimeStamp_h

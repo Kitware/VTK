@@ -112,7 +112,7 @@ public:
   vtkBooleanMacro(Wrap,int);
 
   // Description:
-  // Get the focus for this filter..
+  // Get the focus for this filter.
   vtkPolyData *GetFocus() {return (vtkPolyData *)this->Focus;};
 
 protected:
