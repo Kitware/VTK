@@ -79,9 +79,9 @@ vtkVolumeProMapper::vtkVolumeProMapper()
 
   this->CutPlane                   = 0;
   this->CutPlaneEquation[0]        = 1.0;
-  this->CutPlaneEquation[0]        = 0.0;
-  this->CutPlaneEquation[0]        = 0.0;
-  this->CutPlaneEquation[0]        = 0.0;
+  this->CutPlaneEquation[1]        = 0.0;
+  this->CutPlaneEquation[2]        = 0.0;
+  this->CutPlaneEquation[3]        = 0.0;
   this->CutPlaneThickness          = 0.0;
   this->CutPlaneFallOffDistance    = 0;
 
@@ -995,4 +995,50 @@ void vtkVolumeProMapper::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Minor Board Version: " << this->MinorBoardVersion << endl;
 
+  os << indent << "Hardware Available: " << 
+    (this->NoHardware ? "No\n" : "Yes\n");
+
+  os << indent << "Correct vli Version: " << 
+    (this->WrongVLIVersion ? "No\n" : "Yes\n");
+
+  os << indent << "Super Sampling: " <<  
+    (this->SuperSampling ? "On\n" : "Off\n");
+
+  os << indent << "Super Sampling Factor: " << 
+    this->SuperSamplingFactor[0] << " by " << 
+    this->SuperSamplingFactor[1] << " by " << 
+    this->SuperSamplingFactor[2] << endl;
+
+  os << indent << "Cursor: " <<  (this->Cursor ? "On\n" : "Off\n");
+
+  os << indent << "Cursor Position: (" << 
+    this->CursorPosition[0] << ", " <<
+    this->CursorPosition[1] << ", " <<
+    this->CursorPosition[0] << ")\n";
+
+  os << indent << "Cursor Type: " << this->GetCursorTypeAsString() << endl;
+
+  os << indent << "Blend Mode: " << this->GetBlendModeAsString() << endl;
+
+  os << indent << "Cut Plane: " << (this->CutPlane ? "On\n" : "Off\n");
+
+  os << indent << "Cut Plane Equation: \n" << indent << "  (" <<
+    this->CutPlaneEquation[0] << ")X + (" <<
+    this->CutPlaneEquation[1] << ")Y + (" <<
+    this->CutPlaneEquation[2] << ")Z + (" <<
+    this->CutPlaneEquation[3] << ") = 0\n";
+
+  os << indent << "Cut Plane Thickness " << this->CutPlaneThickness << endl;
+
+  os << indent << "Cut Plane FallOff Distance " << 
+    this->CutPlaneFallOffDistance << endl;
+
+  os << indent << "Gradient Opacity Modulation: " <<
+    (this->GradientOpacityModulation ? "On\n" : "Off\n");
+
+  os << indent << "Gradient Specular Modulation: " <<
+    (this->GradientSpecularModulation ? "On\n" : "Off\n");
+
+  os << indent << "Gradient Diffuse Modulation: " <<
+    (this->GradientDiffuseModulation ? "On\n" : "Off\n");
 }
