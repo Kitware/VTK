@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkTransmitPolyDataPiece.h
+  Module:    vtkPDataSetWriter.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -39,60 +39,72 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-// .NAME vtkTransmitPolyDataPiece - Return specified piece, including specified
-// number of ghost levels.
-// .DESCRIPTION
-// This filter updates the appropriate piece by requesting the piece from 
-// process 0.  Process 0 always updates all of the data.  It is important that 
-// Execute get called on all processes, otherwise the filter will deadlock.
+// .NAME vtkPDataSetWriter - Manages writing pieces of a data set.
+// .SECTION Description
+// vtkPDataSetWriter will write a piece of a file, and will also create
+// a metadata file that lists all of the files in a data set.
 
 
-#ifndef __vtkTransmitPolyDataPiece_h
-#define __vtkTransmitPolyDataPiece_h
+#ifndef __vtkPDataSetWriter_h
+#define __vtkPDataSetWriter_h
 
-#include "vtkPolyDataToPolyDataFilter.h"
-#include "vtkMultiProcessController.h"
+#include "vtkDataSetWriter.h"
 
 
-class VTK_EXPORT vtkTransmitPolyDataPiece : public vtkPolyDataToPolyDataFilter
+class VTK_EXPORT vtkPDataSetWriter : public vtkDataSetWriter
 {
 public:
-  static vtkTransmitPolyDataPiece *New();
-  vtkTypeMacro(vtkTransmitPolyDataPiece, vtkPolyDataToPolyDataFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
-  // Description:
-  // By defualt this filter uses the global controller,
-  // but this method can be used to set another instead.
-  vtkSetObjectMacro(Controller, vtkMultiProcessController);
-  vtkGetObjectMacro(Controller, vtkMultiProcessController);
+  vtkTypeMacro(vtkPDataSetWriter,vtkDataSetWriter);
+  static vtkPDataSetWriter *New();
 
   // Description:
-  // Turn on/off creating ghost cells (on by default).
-  vtkSetMacro(CreateGhostCells, int);
-  vtkGetMacro(CreateGhostCells, int);
-  vtkBooleanMacro(CreateGhostCells, int);
+  // Write the pvtk file and cooresponding vtk files.
+  virtual void Write();
+
+  // Description:
+  // This is how many pieces the whole data set will be divided into.
+  vtkSetMacro(NumberOfPieces, int);
+  vtkGetMacro(NumberOfPieces, int);
+
+  // Description:
+  // Extra ghost cells will be written out to each piece file
+  // if this value is larger than 0.
+  vtkSetMacro(GhostLevel, int);
+  vtkGetMacro(GhostLevel, int);
   
+  // Description:
+  // This is the range of pieces that that this writer is 
+  // responsible for writing.  All pieces must be written
+  // by some process.  The process that writes piece 0 also
+  // writes the pvtk file that lists all the piece file names.
+  vtkSetMacro(StartPiece, int);
+  vtkGetMacro(StartPiece, int);
+  vtkSetMacro(EndPiece, int);
+  vtkGetMacro(EndPiece, int);
+  
+  // Description:
+  // This file pattern uses the file name and piece number
+  // to contruct a file name for the piece file.
+  vtkSetStringMacro(FilePattern);
+  vtkGetStringMacro(FilePattern);
+
 protected:
-  vtkTransmitPolyDataPiece();
-  ~vtkTransmitPolyDataPiece();
-  vtkTransmitPolyDataPiece(const vtkTransmitPolyDataPiece&);
-  void operator=(const vtkTransmitPolyDataPiece&);
+  vtkPDataSetWriter();
+  ~vtkPDataSetWriter();
+  vtkPDataSetWriter(const vtkPDataSetWriter&);
+  void operator=(const vtkPDataSetWriter&);
 
-  // Data generation method
-  void Execute();
-  void RootExecute();
-  void SatelliteExecute(int procId);
-  void ExecuteInformation();
-  void ComputeInputUpdateExtents(vtkDataObject *out);
- 
-  vtkPolyData *Buffer;
-  int BufferPiece;
-  int BufferNumberOfPieces;
-  int BufferGhostLevel;
+//BTX
+  ostream *vtkPDataSetWriter::OpenFile();
+//ETX
 
-  int CreateGhostCells;
-  vtkMultiProcessController *Controller;
+  int StartPiece;
+  int EndPiece;
+  int NumberOfPieces;
+  int GhostLevel;
+
+  char *FilePattern;
 };
 
 #endif

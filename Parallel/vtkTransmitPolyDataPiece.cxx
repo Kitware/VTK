@@ -67,6 +67,9 @@ vtkTransmitPolyDataPiece::vtkTransmitPolyDataPiece()
   this->SetController(vtkMultiProcessController::GetGlobalController());  
 
   this->Buffer = vtkPolyData::New();
+  this->BufferPiece = -1;
+  this->BufferNumberOfPieces = 0;
+  this->BufferGhostLevel = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -130,14 +133,14 @@ void vtkTransmitPolyDataPiece::Execute()
 
   // Just use the buffer if possible.
   if (output->GetPipelineMTime() < this->Buffer->GetMTime()
-      && output->GetUpdatePiece() == this->Buffer->GetPiece()
-      && output->GetUpdateNumberOfPieces() == this->Buffer->GetNumberOfPieces()
-      && updateGhostLevel <= this->Buffer->GetUpdateGhostLevel())
+      && output->GetUpdatePiece() == this->BufferPiece
+      && output->GetUpdateNumberOfPieces() == this->BufferNumberOfPieces
+      && updateGhostLevel <= this->BufferGhostLevel)
     {
     // We deep copy, because we do not want to modify the buffer 
     // when we remove ghost cells from the output.
     output->DeepCopy(this->Buffer);
-    if (updateGhostLevel < this->Buffer->GetUpdateGhostLevel())
+    if (updateGhostLevel < this->BufferGhostLevel)
       {
       output->RemoveGhostCells(updateGhostLevel+1);
       }
@@ -165,6 +168,11 @@ void vtkTransmitPolyDataPiece::Execute()
 
   // Save the output in the buffer.
   this->Buffer->ShallowCopy(output);
+  // Piece inforomation is not set by this point.
+  // We do not have access to buffers piece, so save in ivars.
+  this->BufferPiece = output->GetUpdatePiece();
+  this->BufferNumberOfPieces = output->GetUpdateNumberOfPieces();
+  this->BufferGhostLevel = updateGhostLevel;
 }
 
 //----------------------------------------------------------------------------

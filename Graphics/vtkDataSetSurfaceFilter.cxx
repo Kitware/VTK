@@ -752,12 +752,11 @@ void vtkDataSetSurfaceFilter::UnstructuredGridExecute()
 
   // Allocate
   //
-  output->Allocate(4*numCells,numCells/2);
   newPts = vtkPoints::New();
   newPts->Allocate(numPts);
-  output->SetPoints(newPts);
-  newPolys = output->GetPolys();
-  
+  newPolys = vtkCellArray::New();
+  newPolys->Allocate(4*numCells,numCells/2);
+
   outputPD->CopyAllocate(inputPD, numPts, numPts/2);
   outputCD->CopyAllocate(inputCD, numCells, numCells/2);
 
@@ -889,8 +888,12 @@ void vtkDataSetSurfaceFilter::UnstructuredGridExecute()
   //
   cell->Delete();
   pts->Delete();
+
+  output->SetPoints(newPts);
   newPts->Delete();
-  
+  output->SetPolys(newPolys);
+  newPolys->Delete();
+
   //free storage
   output->Squeeze();
 

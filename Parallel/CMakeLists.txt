@@ -10,6 +10,8 @@ vtkMemoryLimitImageDataStreamer
 vtkMultiProcessController 
 vtkOutputPort 
 vtkParallelFactory 
+vtkPDataSetReader
+vtkPDataSetWriter
 vtkPieceScalars 
 vtkPipelineSize 
 vtkPImageWriter 

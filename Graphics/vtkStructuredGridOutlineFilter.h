@@ -56,19 +56,13 @@ public:
   static vtkStructuredGridOutlineFilter *New();
   vtkTypeMacro(vtkStructuredGridOutlineFilter,vtkStructuredGridToPolyDataFilter);
 
-
 protected:
   vtkStructuredGridOutlineFilter() {};
   ~vtkStructuredGridOutlineFilter() {};
   vtkStructuredGridOutlineFilter(const vtkStructuredGridOutlineFilter&);
   void operator=(const vtkStructuredGridOutlineFilter&);
 
-  int GetNumberOfStreamDivisions();
-  int ComputeDivisionExtents(vtkDataObject *output, int idx, int NumDivisions);
-  void StreamExecuteStart();
   void Execute();
-
-  void ConvertPiece(int piece, int numPieces, int &start, int &end);
 };
 
 #endif

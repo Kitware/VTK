@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkTransmitPolyDataPiece.h
+  Module:    vtkPDataSetReader.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -39,60 +39,69 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-// .NAME vtkTransmitPolyDataPiece - Return specified piece, including specified
-// number of ghost levels.
-// .DESCRIPTION
-// This filter updates the appropriate piece by requesting the piece from 
-// process 0.  Process 0 always updates all of the data.  It is important that 
-// Execute get called on all processes, otherwise the filter will deadlock.
+// .NAME vtkPDataSetReader - Manages writing pieces of a data set.
+// .SECTION Description
+// vtkPDataSetReader will write a piece of a file, and will also create
+// a metadata file that lists all of the files in a data set.
 
 
-#ifndef __vtkTransmitPolyDataPiece_h
-#define __vtkTransmitPolyDataPiece_h
+#ifndef __vtkPDataSetReader_h
+#define __vtkPDataSetReader_h
 
-#include "vtkPolyDataToPolyDataFilter.h"
-#include "vtkMultiProcessController.h"
+#include "vtkSource.h"
+#include "vtkDataSet.h"
 
 
-class VTK_EXPORT vtkTransmitPolyDataPiece : public vtkPolyDataToPolyDataFilter
+class VTK_EXPORT vtkPDataSetReader : public vtkSource
 {
 public:
-  static vtkTransmitPolyDataPiece *New();
-  vtkTypeMacro(vtkTransmitPolyDataPiece, vtkPolyDataToPolyDataFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
+  vtkTypeMacro(vtkPDataSetReader,vtkSource);
+  static vtkPDataSetReader *New();
   
   // Description:
-  // By defualt this filter uses the global controller,
-  // but this method can be used to set another instead.
-  vtkSetObjectMacro(Controller, vtkMultiProcessController);
-  vtkGetObjectMacro(Controller, vtkMultiProcessController);
+  // This file to open and read.
+  vtkSetStringMacro(FileName);
+  vtkGetStringMacro(FileName);
 
   // Description:
-  // Turn on/off creating ghost cells (on by default).
-  vtkSetMacro(CreateGhostCells, int);
-  vtkGetMacro(CreateGhostCells, int);
-  vtkBooleanMacro(CreateGhostCells, int);
+  // The output of this reader depends on the file choosen.
+  // You cannot get the output until the filename is set.
+  void SetOutput(vtkDataSet *output);
+  virtual vtkDataSet *GetOutput();
+
+  // Description:
+  // We need to define this so that the output gets created.
+  virtual void Update();
+
+  // Description:
+  // This is set when UpdateInformation is called. 
+  // It shows the type of the output.
+  vtkGetMacro(DataType, int);
   
 protected:
-  vtkTransmitPolyDataPiece();
-  ~vtkTransmitPolyDataPiece();
-  vtkTransmitPolyDataPiece(const vtkTransmitPolyDataPiece&);
-  void operator=(const vtkTransmitPolyDataPiece&);
+  vtkPDataSetReader();
+  ~vtkPDataSetReader();
+  vtkPDataSetReader(const vtkPDataSetReader&);
+  void operator=(const vtkPDataSetReader&);
 
-  // Data generation method
-  void Execute();
-  void RootExecute();
-  void SatelliteExecute(int procId);
-  void ExecuteInformation();
-  void ComputeInputUpdateExtents(vtkDataObject *out);
- 
-  vtkPolyData *Buffer;
-  int BufferPiece;
-  int BufferNumberOfPieces;
-  int BufferGhostLevel;
+  virtual void ExecuteInformation();
+  virtual void Execute();
+  void PolyDataExecute();
+  void UnstructuredGridExecute();
 
-  int CreateGhostCells;
-  vtkMultiProcessController *Controller;
+  vtkDataSet *CheckOutput();
+  void SetNumberOfPieces(int num);
+
+//BTX
+  ifstream *vtkPDataSetReader::OpenFile();
+//ETX
+
+  int VTKFileFlag;
+  char *FileName;
+  int DataType;
+  int NumberOfPieces;
+  char **PieceFileNames;
 };
 
 #endif
