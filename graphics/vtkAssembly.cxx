@@ -246,6 +246,7 @@ float *vtkAssembly::GetBounds()
   float *bounds, bbox[24], *fptr;
   float *result;
   vtkMatrix4x4 matrix;
+  int actorVisible=0;
 
   this->UpdatePaths();
 
@@ -265,8 +266,9 @@ float *vtkAssembly::GetBounds()
     {
     actor = path->GetLastItem();
 
-    if ( (mapper = actor->GetMapper()) )
+    if ( actor->GetVisibility() && (mapper = actor->GetMapper()) )
       {
+      actorVisible = 1;
       bounds = mapper->GetBounds();
 
       // fill out vertices of a bounding box
@@ -313,6 +315,12 @@ float *vtkAssembly::GetBounds()
     }//for each path
 
   this->Transform.PreMultiply();  
+
+  if ( ! actorVisible )
+    {
+    this->Bounds[0] = this->Bounds[2] = this->Bounds[4] = -1.0;
+    this->Bounds[1] = this->Bounds[3] = this->Bounds[5] =  1.0;
+    }
 
   return this->Bounds;
 }
