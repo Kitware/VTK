@@ -95,14 +95,13 @@ class istringstream: private kwsys_stl::string, public istrstream
 public:
   typedef kwsys_stl::string StdString;
   typedef istrstream IStrStream;
-  istringstream(): StdString(), IStrStream(StdString::c_str()) {}
+  istringstream(): StdString(),
+                   IStrStream(const_cast<char*>(StdString::c_str())) {}
   istringstream(const kwsys_stl::string& s):
-    StdString(s), IStrStream(StdString::c_str()) {}
+    StdString(s), IStrStream(const_cast<char*>(StdString::c_str())) {}
   kwsys_stl::string str() const { return *this; }
   void str(const kwsys_stl::string& s)
     {
-    // Very dangerous.  If this throws, the object is hosed.  When the
-    // destructor is later called, the program is hosed too.
     this->~istringstream();
     new (this) istringstream(s);
     }
