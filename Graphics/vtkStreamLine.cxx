@@ -81,10 +81,14 @@ void vtkStreamLine::Execute()
   vtkNormals* normals = NULL;
   vtkFloatArray* rotation = 0;
   vtkPolyData *output=this->GetOutput();
+  vtkFieldData *fd;
 
   this->SavePointInterval = this->StepLength;
   this->vtkStreamer::Integrate();
   if ( this->NumberOfStreamers <= 0 ) {return;}
+
+  //fd = vtkFieldData::New();
+  fd = output->GetPointData()->GetFieldData();
 
   pts = vtkIdList::New();
   pts->Allocate(2500);
@@ -104,6 +108,8 @@ void vtkStreamLine::Execute()
     rotation = vtkFloatArray::New();
     rotation->SetNumberOfComponents(1);
     rotation->Allocate(1000);
+    rotation->SetName("Thetas");
+    fd->AddArray(rotation);
     }
 
   if ( this->GetInput()->GetPointData()->GetScalars() || this->SpeedScalars
@@ -239,7 +245,9 @@ void vtkStreamLine::Execute()
   delete[] this->Streamers;
   this->Streamers = 0;
   this->NumberOfStreamers = 0;
-  
+
+  //output->SetFieldData(fd);
+  //fd->Delete();
   
   output->Squeeze();
 }
