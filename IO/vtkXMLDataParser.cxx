@@ -25,7 +25,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkXMLDataElement.h"
 
-vtkCxxRevisionMacro(vtkXMLDataParser, "1.15");
+vtkCxxRevisionMacro(vtkXMLDataParser, "1.16");
 vtkStandardNewMacro(vtkXMLDataParser);
 vtkCxxSetObjectMacro(vtkXMLDataParser, Compressor, vtkDataCompressor);
 
@@ -209,6 +209,11 @@ int vtkXMLDataParser::CheckPrimaryAttributes()
 //----------------------------------------------------------------------------
 void vtkXMLDataParser::FindAppendedDataPosition()
 {
+  // Clear stream fail and eof bits.  We may have already read past
+  // the end of the stream when processing the AppendedData element.
+  this->Stream->clear(this->Stream->rdstate() & ~ios::failbit);
+  this->Stream->clear(this->Stream->rdstate() & ~ios::eofbit);
+  
   // Scan for the start of the actual appended data.
   char c=0;
   unsigned long returnPosition = this->Stream->tellg();
