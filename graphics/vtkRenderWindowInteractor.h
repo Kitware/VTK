@@ -30,7 +30,7 @@ modification, are permitted provided that the following conditions are met:
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
 AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-ARE DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE FOR
+ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
 ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
 DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
 SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
@@ -39,14 +39,19 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-// .NAME vtkRenderWindowInteractor - base class for platform dependent
-// implementations which handle routing of mouse/key/timer messages to
-// vtkInterActorStyle and subclasses which handle all motion control
-//
+// .NAME vtkRenderWindowInteractor - platform-independent render window interaction including picking and frame rate control.
+
 // .SECTION Description
+// vtkRenderWindowInteractor provides a platform-independent interaction
+// mechanism for mouse/key/time events. It serves as a base class for
+// platform-dependent implementations that handle routing of mouse/key/timer
+// messages to vtkInterActorStyle and its subclasses. 
+// vtkRenderWindowInteractor also provides controls for picking,
+// rendering frame rate, and headlights.
+//
 // vtkRenderWindowInteractor has changed from previous implementations and
 // now serves only as a shell to hold user preferences and route messages
-// to vtkInterActorStyle. Callbacks are available for many Events.
+// to vtkInteractorStyle. Callbacks are available for many Events.
 // Platform specific subclasses should provide methods for
 // CreateTimer/DestroyTimer, TerminateApp, and an event loop if required
 // via Initialize/Start/Enable/Disable.
@@ -223,7 +228,8 @@ public:
   virtual void EndPickCallback();
   
   // Description:
-  // Render the scene. Just pass the render call on to the RenderWindow.
+  // Render the scene. Just pass the render call on to the 
+  // associated vtkRenderWindow.
   void Render();
 
 protected:

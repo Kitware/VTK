@@ -30,7 +30,7 @@ modification, are permitted provided that the following conditions are met:
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
 AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-ARE DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE FOR
+ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
 ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
 DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
 SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
@@ -39,10 +39,20 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
+// .NAME vtkInteractorStyleTrackball - provides trackball motion control
 
-// .NAME vtkInteractorStyleTrackball - provides Trackball/Joystick motion routines
-//
 // .SECTION Description
+// vtkInteractorStyleTrackball is an implementation of vtkInteractorStyle
+// that defines the trackball style. The trackball style can be thought of
+// as a "grab and move" approach. That is, on mouse down a point on the
+// object is grabbed, and then moving the mouse cause motion in proportion
+// to the amount of motion. Note that the events that are bound by this
+// class are the same as vtkInteractorStyle (which implements joystick mode),
+// just the behavior is modified consistent with the trackball style of 
+// interaction.
+
+// .SECTION See Also
+// vtkInteractorStyle
 
 #ifndef __vtkInteractorStyleTrackball_h
 #define __vtkInteractorStyleTrackball_h

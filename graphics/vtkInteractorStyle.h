@@ -39,18 +39,68 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-
-// .NAME vtkInteractorStyle - provide event driven interface to rendering window
-
-// .SECTION Description
-// vtkInteractorStyle is a base class performing the majority of motion control
-// routines and am event driven interface to RenderWindowInteractor which
-// implements platform dependent key/m0ouse routing and timer control.
+// .NAME vtkInteractorStyle - provide event-driven interface to the rendering window (defines trackball mode)
+// .SECTION Description 
+// vtkInteractorStyle is a base class implementing the majority of motion
+// control routines and defines an event driven interface to support
+// vtkRenderWindowInteractor. vtkRenderWindowInteractor implements 
+// platform dependent key/mouse routing and timer control, which forwards
+// events in a neutral form to vtkInteractorStyle.
+//
+// vtkInteractorStyle implements the "joystick" style of interaction. That
+// is, holding down the mouse keys generates a stream of events that cause
+// continuous actions (e.g., rotate, translate, pan, zoom). (The class
+// vtkInteractorStyleTrackball implements a grab and move style.) The event
+// bindings for this class include the following:
+// - Keypress j / Keypress t: toggle between joystick (position sensitive) and
+// trackball (motion sensitive) styles. In joystick style, motion occurs
+// continuously as long as a mouse button is pressed. In trackball style,
+// motion occurs when the mouse button is pressed and the mouse pointer
+// moves.
+// - Keypress c / Keypress o: toggle between camera and object (actor)
+// modes. In camera mode, mouse events affect the camera position and focal
+// point. In object mode, mouse events affect the actor that is under the
+// mouse pointer.
+// - Button 1: rotate the camera around its focal point (if camera mode) or
+// rotate the actor around its origin (if actor mode). The rotation is in the
+// direction defined from the center of the renderer's viewport towards
+// the mouse position. In joystick mode, the magnitude of the rotation is
+// determined by the distance the mouse is from the center of the render
+// window.
+// - Button 2: pan the camera (if camera mode) or translate the actor (if
+// object mode). In joystick mode, the direction of pan or translation is
+// from the center of the viewport towards the mouse position. In trackball
+// mode, the direction of motion is the direction the mouse moves. (Note:
+// with 2-button mice, pan is defined as <Shift>-Button 1.)
+// - Button 3: zoom the camera (if camera mode) or scale the actor (if
+// object mode). Zoom in/increase scale if the mouse position is in the top
+// half of the viewport; zoom out/decrease scale if the mouse position is in
+// the bottom half. In joystick mode, the amount of zoom is controlled by the
+// distance of the mouse pointer from the horizontal centerline of the
+// window.
+// - Keypress 3: toggle the render window into and out of stereo mode. By
+// default, red-blue stereo pairs are created. Some systems support Crystal
+// Eyes LCD stereo glasses; you have to invoke SetStereoTypeToCrystalEyes()
+// on the rendering window.
+// - Keypress e: exit the application.
+// - Keypress p: perform a pick operation. The render window interactor has
+// an internal instance of vtkCellPicker that it uses to pick. 
+// - Keypress r: reset the camera view along the current view
+// direction. Centers the actors and moves the camera so that all actors are
+// visible.
+// - Keypress s: modify the representation of all actors so that they are
+// surfaces.  
+// - Keypress u: invoke the user-defined function. Typically,
+// this keypress will bring up an interactor that you can type commands in.
+// - Keypress w: modify the representation of all actors so that they are
+// wireframe.
 //
 // vtkInteractorStyle can be subclassed to provide new interaction styles and
 // a facility to override any of the default mouse/key operations which
-// currently handle trackball or joystick styles is provided
+// currently handle trackball or joystick styles is provided.
 //
+// .SECTION See Also
+// vtkInteractorStyleTrackball
 
 #ifndef __vtkInteractorStyle_h
 #define __vtkInteractorStyle_h
