@@ -154,8 +154,8 @@ public:
   virtual   void OnMouseMove(int ctrl, int shift, int X, int Y);
   
   virtual   void OnLeftButtonMove  (int ctrl, int shift, int X, int Y);
-  virtual   void OnMiddleButtonMove(int ctrl, int shift, int X, int Y) {}
-  virtual   void OnRightButtonMove (int ctrl, int shift, int X, int Y) {}
+  virtual   void OnMiddleButtonMove(int , int , int , int) {}
+  virtual   void OnRightButtonMove (int , int , int , int) {}
 
   // Description:
   // OnTimer calls RotateCamera, RotateActor etc which should be overridden by
