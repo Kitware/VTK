@@ -401,6 +401,11 @@ public:
   void ShallowCopy(vtkDataObject *src);  
   void DeepCopy(vtkDataObject *src);
 
+  // Description:
+  // This method will remove any cell that has a ghost level array value
+  // greater or equal to level.  It does not remove unused points (yet).
+  void RemoveGhostCells(int level);
+
 protected:
   vtkPolyData();
   ~vtkPolyData();
