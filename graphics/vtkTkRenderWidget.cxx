@@ -317,7 +317,8 @@ static void vtkTkRenderWidget_EventProc(ClientData clientData,
       if ((eventPtr->xexpose.count == 0)
 	    /* && !self->UpdatePending*/) 
 	      {
-	      self->RenderWindow->Render();
+	      // let the user bind expose events
+	      // self->RenderWindow->Render();
 	      }
       break;
     case ConfigureNotify:
