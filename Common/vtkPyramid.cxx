@@ -22,7 +22,7 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPyramid, "1.26");
+vtkCxxRevisionMacro(vtkPyramid, "1.27");
 vtkStandardNewMacro(vtkPyramid);
 
 static const float VTK_DIVERGED = 1.e6;
@@ -686,4 +686,12 @@ void vtkPyramid::GetEdgePoints(int edgeId, int* &pts)
 void vtkPyramid::GetFacePoints(int faceId, int* &pts)
 {
   pts = this->GetFaceArray(faceId);
+}
+
+static float CellPCoords[15] = {0.0,0.0,0.0, 1.0,0.0,0.0,
+                                1.0,1.0,0.0, 0.0,1.0,0.0, 0.5,0.5,1.0};
+
+float *vtkPyramid::GetParametricCoords()
+{
+  return CellPCoords;
 }

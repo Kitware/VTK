@@ -35,6 +35,7 @@ class vtkUnstructuredGrid;
 class vtkCellArray;
 class vtkTriangle;
 class vtkTetra;
+class vtkFloatArray;
 
 class VTK_COMMON_EXPORT vtkConvexPointSet : public vtkCell3D
 {
@@ -46,6 +47,7 @@ public:
   // See vtkCell3D API for description of these methods.
   virtual void GetEdgePoints(int vtkNotUsed(edgeId), int* &vtkNotUsed(pts)) {}
   virtual void GetFacePoints(int vtkNotUsed(faceId), int* &vtkNotUsed(pts)) {}
+  virtual float *GetParametricCoords();
 
   // Description:
   // See the vtkCell API for descriptions of these methods.
@@ -133,13 +135,14 @@ protected:
   vtkConvexPointSet();
   ~vtkConvexPointSet();
 
-  vtkTetra *Tetra;
-  vtkIdList *TetraIds;
-  vtkPoints *TetraPoints;
+  vtkTetra      *Tetra;
+  vtkIdList     *TetraIds;
+  vtkPoints     *TetraPoints;
   vtkFloatArray *TetraScalars;
 
-  vtkCellArray *BoundaryTris;
-  vtkTriangle *Triangle;
+  vtkCellArray  *BoundaryTris;
+  vtkTriangle   *Triangle;
+  vtkFloatArray *ParametricCoords;
 
 private:
   vtkConvexPointSet(const vtkConvexPointSet&);  // Not implemented.

@@ -25,7 +25,7 @@
 #include "vtkPointData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkConvexPointSet, "1.12");
+vtkCxxRevisionMacro(vtkConvexPointSet, "1.13");
 vtkStandardNewMacro(vtkConvexPointSet);
 
 // Construct the hexahedron with eight points.
@@ -121,7 +121,7 @@ int vtkConvexPointSet::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
     {
     ptId = this->PointIds->GetId(i);
     xPtr = this->Points->GetPoint(i);
-    this->Triangulator->InsertPoint(i, ptId, xPtr, 0);
+    this->Triangulator->InsertPoint(i, ptId, xPtr, xPtr, 0);
     }//for all points
   
   // triangulate the points
@@ -193,7 +193,7 @@ void vtkConvexPointSet::Clip(float value,
 int vtkConvexPointSet::CellBoundary(int subId, float pcoords[3], 
                                     vtkIdList *pts)
 {
-  int i;
+  int i, status, returnStatus=(-1);
   float p[3], *x, dist2, minDist2=VTK_LARGE_FLOAT, pMin[3], closest[3], pc[3];
   float weights[4];
 
@@ -228,16 +228,18 @@ int vtkConvexPointSet::CellBoundary(int subId, float pcoords[3],
     this->Triangle->Points->SetPoint(0,this->Points->GetPoint(tpts[0]));
     this->Triangle->Points->SetPoint(1,this->Points->GetPoint(tpts[1]));
     this->Triangle->Points->SetPoint(2,this->Points->GetPoint(tpts[2]));
-    this->Triangle->EvaluatePosition(pMin, closest, subId, pc, dist2, weights);
-    if ( dist2 < minDist2 )
+    status = this->Triangle->
+      EvaluatePosition(pMin, closest, subId, pc, dist2, weights);
+    if ( status != -1 && dist2 < minDist2 )
       {
+      returnStatus = 1;
       pts->SetId(0,this->PointIds->GetId(tpts[0]));
       pts->SetId(1,this->PointIds->GetId(tpts[1]));
       pts->SetId(2,this->PointIds->GetId(tpts[2]));
       }
     }
 
-  return 1;
+  return returnStatus;
 }
 
 int vtkConvexPointSet::EvaluatePosition(float x[3],
@@ -350,5 +352,27 @@ void vtkConvexPointSet::Derivatives(int subId, float pcoords[3],
   this->Tetra->Derivatives(subId, pcoords, values, dim, derivs);
 }
 
+float *vtkConvexPointSet::GetParametricCoords()
+{
+  int numPts = this->PointIds->GetNumberOfIds();
+  if ( ! this->ParametricCoords )
+    {
+    this->ParametricCoords = vtkFloatArray::New();
+    }
 
+  this->ParametricCoords->SetNumberOfComponents(3);
+  this->ParametricCoords->SetNumberOfTuples(numPts);
+  float p[3], *x, *bounds = this->GetBounds();
+  int i, j;
+  for (i=0; i < numPts; i++)
+    {
+    x = this->Points->GetPoint(i);
+    for (j=0; j<3; j++)
+      {
+      p[j] = (x[j] - bounds[2*j]) / (bounds[2*j+1] - bounds[2*j]);
+      }
+    this->ParametricCoords->SetTuple(i,p);
+    }
 
+  return this->ParametricCoords->GetPointer(0);
+}

@@ -24,7 +24,7 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkTetra, "1.72");
+vtkCxxRevisionMacro(vtkTetra, "1.73");
 vtkStandardNewMacro(vtkTetra);
 
 // Construct the tetra with four points.
@@ -817,4 +817,11 @@ void vtkTetra::Clip(float value, vtkDataArray *cellScalars,
     vtkCell3D::Clip(value, cellScalars, locator, tets, inPD, outPD,
                     inCD, cellId, outCD, insideOut);
     }
+}
+static float CellPCoords[12] = {0.0,0.0,0.0, 1.0,0.0,0.0,
+                                0.0,1.0,0.0, 0.0,0.0,1.0};
+
+float *vtkTetra::GetParametricCoords()
+{
+  return CellPCoords;
 }

@@ -88,23 +88,28 @@ public:
   // Description:
   // Initialize the triangulation process. Provide a bounding box and
   // the maximum number of points to be inserted.
+  void InitTriangulation(float xmin, float xmax, float ymin, float ymax,
+                         float zmin, float zmax, int numPts);
   void InitTriangulation(float bounds[6], int numPts);
 
   // Description:
-  // For each point to be inserted, provide an id, a position x, and
-  // whether the point is inside (type=0), outside (type=1), or on the
-  // boundary (type=2). You must call InitTriangulation() prior to 
-  // invoking this method. Make sure that the number of points inserted
-  // does not exceed the numPts specified in InitTriangulation(). Also
-  // note that the "id" can be any integer and can be greater than 
-  // numPts. It is used to create tetras (in AddTetras() with the
-  // appropriate connectivity ids. The method returns an internal id that
-  // can be used prior to the Triangulate() method to update the type of
-  // the point with UpdatePointType().
-  vtkIdType InsertPoint(vtkIdType id, float x[3], int type);
-  vtkIdType InsertPoint(vtkIdType id, vtkIdType sortid, float x[3], int type);
+  // For each point to be inserted, provide an id, a position x, parametric
+  // coordinate p, and whether the point is inside (type=0), outside
+  // (type=1), or on the boundary (type=2). You must call InitTriangulation()
+  // prior to invoking this method. Make sure that the number of points
+  // inserted does not exceed the numPts specified in
+  // InitTriangulation(). Also note that the "id" can be any integer and can
+  // be greater than numPts. It is used to create tetras (in AddTetras()) with
+  // the appropriate connectivity ids. The method returns an internal id that
+  // can be used prior to the Triangulate() method to update the type of the
+  // point with UpdatePointType(). (Note: the algorithm triangulated with the
+  // parametric coordinate p[3] and creates tetras with the global coordinate
+  // x[3]. These may be the same.)
+  vtkIdType InsertPoint(vtkIdType id, float x[3], float p[3], int type);
+  vtkIdType InsertPoint(vtkIdType id, vtkIdType sortid, float x[3], float p[3],
+                        int type);
   vtkIdType InsertPoint(vtkIdType id, vtkIdType sortid,  vtkIdType sortid2, 
-                        float x[3], int type);
+                        float x[3], float p[3], int type);
 
   // Description:
   // Perform the triangulation. (Complete all calls to InsertPoint() prior

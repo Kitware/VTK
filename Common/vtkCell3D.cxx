@@ -22,7 +22,7 @@
 #include "vtkMarchingCubesCases.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkCell3D, "1.28");
+vtkCxxRevisionMacro(vtkCell3D, "1.29");
 
 vtkCell3D::~vtkCell3D()
 {
@@ -31,6 +31,12 @@ vtkCell3D::~vtkCell3D()
     this->Triangulator->Delete();
     this->Triangulator = NULL;
     }
+}
+
+// usually overridden
+float *vtkCell3D::GetParametricCoords()
+{
+  return (float *)this->Points->GetVoidPointer(0);
 }
 
 void vtkCell3D::Clip(float value, vtkDataArray *cellScalars, 
@@ -47,8 +53,9 @@ void vtkCell3D::Clip(float value, vtkDataArray *cellScalars,
   int i, j;
   int type;
   vtkIdType id, ptId;
-  int internalId[VTK_CELL_SIZE];
+  vtkIdType internalId[VTK_CELL_SIZE];
   float s1, s2, *xPtr, t, p1[3], p2[3], x[3], deltaScalar;
+  int allInside;
   
   // Create a triangulator if necessary.
   if ( ! this->Triangulator )
@@ -59,13 +66,16 @@ void vtkCell3D::Clip(float value, vtkDataArray *cellScalars,
 
   // Initialize Delaunay insertion process.
   // No more than (numPts + numEdges) points can be inserted.
-  this->Triangulator->InitTriangulation(this->GetBounds(),
+  // The triangulation is performed in parametric space so the
+  // initial bounds is in the (0,1) cube.
+  this->Triangulator->InitTriangulation(0.0,1.0, 0.0,1.0, 0.0,1.0,
                                         (numPts + numEdges));
 
   // Inject cell points into triangulation. Recall that the PreSortedOff() 
   // flag was set which means that the triangulator will order the points 
   // according to point id.
-  for (i=0; i<numPts; i++)
+  float *p, *pPtr = this->GetParametricCoords();
+  for (allInside=1, p=pPtr, i=0; i<numPts; i++, p+=3)
     {
     ptId = this->PointIds->GetId(i);
       
@@ -78,7 +88,8 @@ void vtkCell3D::Clip(float value, vtkDataArray *cellScalars,
       }
     else
       {
-      type = 4; //no insert, but its type might change later
+      allInside = 0;
+      type = 4; //outside, its type might change later (nearby intersection)
       }
 
     xPtr = this->Points->GetPoint(i);
@@ -86,17 +97,28 @@ void vtkCell3D::Clip(float value, vtkDataArray *cellScalars,
       {
       outPD->CopyData(inPD,ptId, id);
       }
-    internalId[i] = this->Triangulator->InsertPoint(id, ptId, xPtr, type);
+    internalId[i] = this->Triangulator->InsertPoint(id, xPtr, p, type);
     }//for all points
   
+  // Some cell types support templates for interior clipping. Templates
+  // are a heck of a lot faster.
+  if ( allInside && this->ClipInteriorCell(tets) )
+    {
+    return;
+    }
+
   // For each edge intersection point, insert into triangulation. Edge
   // intersections come from clipping value. Have to be careful of 
   // intersections near exisiting points (causes bad Delaunay behavior).
+  // Intersections near existing points are collapsed to existing point.
+  float pc[3], *pc1, *pc2;
   for (int edgeNum=0; edgeNum < numEdges; edgeNum++)
     {
     cell3D->GetEdgePoints(edgeNum, verts);
 
-    // calculate a preferred interpolation direction
+    // Calculate a preferred interpolation direction.
+    // Has to be done in same direction to insure coincident points are
+    // merged (different interpolation direction causes pertubations).
     s1 = cellScalars->GetComponent(verts[0],0);
     s2 = cellScalars->GetComponent(verts[1],0);
 
@@ -131,10 +153,13 @@ void vtkCell3D::Clip(float value, vtkDataArray *cellScalars,
 
       this->Points->GetPoint(v1, p1);
       this->Points->GetPoint(v2, p2);
+      pc1 = pPtr + 3*v1;
+      pc2 = pPtr + 3*v2;
 
       for (j=0; j<3; j++)
         {
         x[j] = p1[j] + t*(p2[j] - p1[j]);
+        pc[j] = pc1[j] + t*(pc2[j] - pc1[j]);
         }
       
       // Incorporate point into output and interpolate edge data as necessary
@@ -145,7 +170,7 @@ void vtkCell3D::Clip(float value, vtkDataArray *cellScalars,
         }
 
       //Insert intersection point into Delaunay triangulation
-      this->Triangulator->InsertPoint(ptId,x,2);
+      this->Triangulator->InsertPoint(ptId,x,pc,2);
 
       }//if edge intersects value
     }//for all edges

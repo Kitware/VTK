@@ -21,7 +21,7 @@
 #include "vtkEdgeTable.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkOrderedTriangulator, "1.41");
+vtkCxxRevisionMacro(vtkOrderedTriangulator, "1.42");
 vtkStandardNewMacro(vtkOrderedTriangulator);
 
 #ifdef _WIN32_WCE
@@ -326,7 +326,10 @@ public:
 struct vtkOTPoint
 {
   vtkOTPoint() : Id(0), SortId(0), SortId2(0), InternalId(0), Type(Inside) 
-    {this->X[0] = this->X[1] = this->X[2] = 0.0;}
+    {
+      this->X[0] = this->X[1] = this->X[2] = 0.0;
+      this->P[0] = this->P[1] = this->P[2] = 0.0;
+    }
   enum PointClassification 
     {Inside=0,Outside=1,Boundary=2,Added=3,NoInsert=4};
   vtkIdType Id; //Id to data outside this class
@@ -341,6 +344,7 @@ struct vtkOTPoint
 
   vtkIdType InternalId; //Id (order) of point insertion
   double X[3];
+  double P[3];
   PointClassification Type; //inside, outside
 };
 
@@ -358,21 +362,21 @@ struct vtkOTFace //used during tetra construction
   void ComputePsuedoNormal()
     {
       double v20[3], v10[3];
-      v20[0] = this->Points[2]->X[0] - this->Points[0]->X[0];
-      v20[1] = this->Points[2]->X[1] - this->Points[0]->X[1];
-      v20[2] = this->Points[2]->X[2] - this->Points[0]->X[2];
-      v10[0] = this->Points[1]->X[0] - this->Points[0]->X[0];
-      v10[1] = this->Points[1]->X[1] - this->Points[0]->X[1];
-      v10[2] = this->Points[1]->X[2] - this->Points[0]->X[2];
+      v20[0] = this->Points[2]->P[0] - this->Points[0]->P[0];
+      v20[1] = this->Points[2]->P[1] - this->Points[0]->P[1];
+      v20[2] = this->Points[2]->P[2] - this->Points[0]->P[2];
+      v10[0] = this->Points[1]->P[0] - this->Points[0]->P[0];
+      v10[1] = this->Points[1]->P[1] - this->Points[0]->P[1];
+      v10[2] = this->Points[1]->P[2] - this->Points[0]->P[2];
       vtkMath::Cross(v10,v20,this->Normal);
       this->N2 = vtkMath::Dot(this->Normal,this->Normal);
     }
   int IsValidCavityFace(double X[3],double tol2)
     {
       double vp[3], d;
-      vp[0] = X[0] - this->Points[0]->X[0];
-      vp[1] = X[1] - this->Points[0]->X[1];
-      vp[2] = X[2] - this->Points[0]->X[2];
+      vp[0] = X[0] - this->Points[0]->P[0];
+      vp[1] = X[1] - this->Points[0]->P[1];
+      vp[2] = X[2] - this->Points[0]->P[2];
       d = vtkMath::Dot(vp,this->Normal);
       return ( (d > 0.0L && (d*d) > (tol2*this->N2)) ? 1 : 0 );
     }
@@ -461,6 +465,23 @@ vtkOrderedTriangulator::~vtkOrderedTriangulator()
 }
 
 //------------------------------------------------------------------------
+void vtkOrderedTriangulator::InitTriangulation(float xmin, float xmax,
+                                               float ymin, float ymax,
+                                               float zmin, float zmax,
+                                               int numPts)
+{
+  float bounds[6];
+  bounds[0] = xmin;
+  bounds[1] = xmax;
+  bounds[2] = ymin;
+  bounds[3] = ymax;
+  bounds[4] = zmin;
+  bounds[5] = zmax;
+  
+  this->InitTriangulation(bounds,numPts);
+}
+
+//------------------------------------------------------------------------
 void vtkOrderedTriangulator::InitTriangulation(float bounds[6], int numPts)
 {
   double length;
@@ -484,47 +505,47 @@ void vtkOrderedTriangulator::InitTriangulation(float bounds[6], int numPts)
                  (bounds[3]-bounds[2])*(bounds[3]-bounds[2]) +
                  (bounds[5]-bounds[4])*(bounds[5]-bounds[4])) );
   radius2 /= 2.0;
-  this->Mesh->Tolerance2 = length*length*1.0e-10;
+  this->Mesh->Tolerance2 = length*length*1.0e-8;
   
   //Define the points (-x,+x,-y,+y,-z,+z)
-  this->Mesh->Points[numPts].X[0] = center[0] - length;
-  this->Mesh->Points[numPts].X[1] = center[1];
-  this->Mesh->Points[numPts].X[2] = center[2];
+  this->Mesh->Points[numPts].P[0] = center[0] - length;
+  this->Mesh->Points[numPts].P[1] = center[1];
+  this->Mesh->Points[numPts].P[2] = center[2];
   this->Mesh->Points[numPts].Id = numPts;
   this->Mesh->Points[numPts].InternalId = numPts;
   this->Mesh->Points[numPts].Type = vtkOTPoint::Added;
 
-  this->Mesh->Points[numPts+1].X[0] = center[0] + length;
-  this->Mesh->Points[numPts+1].X[1] = center[1];
-  this->Mesh->Points[numPts+1].X[2] = center[2];
+  this->Mesh->Points[numPts+1].P[0] = center[0] + length;
+  this->Mesh->Points[numPts+1].P[1] = center[1];
+  this->Mesh->Points[numPts+1].P[2] = center[2];
   this->Mesh->Points[numPts+1].Id = numPts + 1;
   this->Mesh->Points[numPts+1].InternalId = numPts + 1;
   this->Mesh->Points[numPts+1].Type = vtkOTPoint::Added;
 
-  this->Mesh->Points[numPts+2].X[0] = center[0];              
-  this->Mesh->Points[numPts+2].X[1] = center[1] - length;
-  this->Mesh->Points[numPts+2].X[2] = center[2];
+  this->Mesh->Points[numPts+2].P[0] = center[0];              
+  this->Mesh->Points[numPts+2].P[1] = center[1] - length;
+  this->Mesh->Points[numPts+2].P[2] = center[2];
   this->Mesh->Points[numPts+2].Id = numPts + 2;
   this->Mesh->Points[numPts+2].InternalId = numPts + 2;
   this->Mesh->Points[numPts+2].Type = vtkOTPoint::Added;
 
-  this->Mesh->Points[numPts+3].X[0] = center[0];              
-  this->Mesh->Points[numPts+3].X[1] = center[1] + length;
-  this->Mesh->Points[numPts+3].X[2] = center[2];
+  this->Mesh->Points[numPts+3].P[0] = center[0];              
+  this->Mesh->Points[numPts+3].P[1] = center[1] + length;
+  this->Mesh->Points[numPts+3].P[2] = center[2];
   this->Mesh->Points[numPts+3].Id = numPts + 3;
   this->Mesh->Points[numPts+3].InternalId = numPts + 3;
   this->Mesh->Points[numPts+3].Type = vtkOTPoint::Added;
 
-  this->Mesh->Points[numPts+4].X[0] = center[0];              
-  this->Mesh->Points[numPts+4].X[1] = center[1];
-  this->Mesh->Points[numPts+4].X[2] = center[2] - length;
+  this->Mesh->Points[numPts+4].P[0] = center[0];              
+  this->Mesh->Points[numPts+4].P[1] = center[1];
+  this->Mesh->Points[numPts+4].P[2] = center[2] - length;
   this->Mesh->Points[numPts+4].Id = numPts + 4;
   this->Mesh->Points[numPts+4].InternalId = numPts + 4;
   this->Mesh->Points[numPts+4].Type = vtkOTPoint::Added;
 
-  this->Mesh->Points[numPts+5].X[0] = center[0];              
-  this->Mesh->Points[numPts+5].X[1] = center[1];
-  this->Mesh->Points[numPts+5].X[2] = center[2] + length;
+  this->Mesh->Points[numPts+5].P[0] = center[0];              
+  this->Mesh->Points[numPts+5].P[1] = center[1];
+  this->Mesh->Points[numPts+5].P[2] = center[2] + length;
   this->Mesh->Points[numPts+5].Id = numPts + 5;
   this->Mesh->Points[numPts+5].InternalId = numPts + 5;
   this->Mesh->Points[numPts+5].Type = vtkOTPoint::Added;
@@ -583,7 +604,7 @@ void vtkOrderedTriangulator::InitTriangulation(float bounds[6], int numPts)
 
 //------------------------------------------------------------------------
 vtkIdType vtkOrderedTriangulator::InsertPoint(vtkIdType id, float x[3],
-                                              int type)
+                                              float p[3], int type)
 {
   vtkIdType idx = this->NumberOfPoints++;
   if ( idx > this->MaximumNumberOfPoints )
@@ -599,13 +620,16 @@ vtkIdType vtkOrderedTriangulator::InsertPoint(vtkIdType id, float x[3],
   this->Mesh->Points[idx].X[0] = (double) x[0];
   this->Mesh->Points[idx].X[1] = (double) x[1];
   this->Mesh->Points[idx].X[2] = (double) x[2];
+  this->Mesh->Points[idx].P[0] = (double) p[0];
+  this->Mesh->Points[idx].P[1] = (double) p[1];
+  this->Mesh->Points[idx].P[2] = (double) p[2];
   this->Mesh->Points[idx].Type = (vtkOTPoint::PointClassification) type;
   
   return idx;
 }
 
 vtkIdType vtkOrderedTriangulator::InsertPoint(vtkIdType id, vtkIdType sortid,
-                                              float x[3], int type)
+                                              float x[3], float p[3], int type)
 {
   vtkIdType idx = this->NumberOfPoints++;
   if ( idx > this->MaximumNumberOfPoints )
@@ -621,6 +645,9 @@ vtkIdType vtkOrderedTriangulator::InsertPoint(vtkIdType id, vtkIdType sortid,
   this->Mesh->Points[idx].X[0] = (double) x[0];
   this->Mesh->Points[idx].X[1] = (double) x[1];
   this->Mesh->Points[idx].X[2] = (double) x[2];
+  this->Mesh->Points[idx].P[0] = (double) p[0];
+  this->Mesh->Points[idx].P[1] = (double) p[1];
+  this->Mesh->Points[idx].P[2] = (double) p[2];
   this->Mesh->Points[idx].Type = (vtkOTPoint::PointClassification) type;
   
   return idx;
@@ -628,7 +655,7 @@ vtkIdType vtkOrderedTriangulator::InsertPoint(vtkIdType id, vtkIdType sortid,
 
 vtkIdType vtkOrderedTriangulator::InsertPoint(vtkIdType id, vtkIdType sortid,
                                               vtkIdType sortid2,
-                                              float x[3], int type)
+                                              float x[3], float p[3], int type)
 {
   vtkIdType idx = this->NumberOfPoints++;
   if ( idx > this->MaximumNumberOfPoints )
@@ -644,6 +671,9 @@ vtkIdType vtkOrderedTriangulator::InsertPoint(vtkIdType id, vtkIdType sortid,
   this->Mesh->Points[idx].X[0] = (double) x[0];
   this->Mesh->Points[idx].X[1] = (double) x[1];
   this->Mesh->Points[idx].X[2] = (double) x[2];
+  this->Mesh->Points[idx].P[0] = (double) p[0];
+  this->Mesh->Points[idx].P[1] = (double) p[1];
+  this->Mesh->Points[idx].P[2] = (double) p[2];
   this->Mesh->Points[idx].Type = (vtkOTPoint::PointClassification) type;
   
   return idx;
@@ -850,10 +880,10 @@ static vtkOTTetra *CreateTetra(vtkOTPoint& p, vtkOTFace& face,
                                vtkMemoryPool& pool)
 {
   vtkOTTetra *tetra = new(pool.GetNextPointer()) vtkOTTetra;
-  tetra->Radius2 = vtkTetra::Circumsphere(p.X,
-                                          face.Points[0]->X,
-                                          face.Points[1]->X,
-                                          face.Points[2]->X,
+  tetra->Radius2 = vtkTetra::Circumsphere(p.P,
+                                          face.Points[0]->P,
+                                          face.Points[1]->P,
+                                          face.Points[2]->P,
                                           tetra->Center);
 
   // the order is carefully choosen to produce a tetrahedron
@@ -912,13 +942,13 @@ int vtkOTMesh::CreateInsertionCavity(vtkOTPoint* p, vtkOTTetra *initialTet,
         face = this->CavityFaces.InsertNextValue();
         tetra->GetFacePoints(i,face);
         face->Neighbor = 0;
-        valid = face->IsValidCavityFace(p->X,this->Tolerance2);
+        valid = face->IsValidCavityFace(p->P,this->Tolerance2);
         }
       // Not yet visited, check the face as possible boundary
       else if ( nei->CurrentPointId != p->InternalId )
         {
         nei->CurrentPointId = p->InternalId; //mark visited
-        if ( nei->InCircumSphere(p->X) )
+        if ( nei->InCircumSphere(p->P) )
           {
           nei->Type = vtkOTTetra::InCavity;
           this->TetraQueue.InsertNextValue(nei);
@@ -929,7 +959,7 @@ int vtkOTMesh::CreateInsertionCavity(vtkOTPoint* p, vtkOTTetra *initialTet,
           face = this->CavityFaces.InsertNextValue();
           tetra->GetFacePoints(i,face);
           face->Neighbor = nei;
-          valid = face->IsValidCavityFace(p->X,this->Tolerance2);
+          valid = face->IsValidCavityFace(p->P,this->Tolerance2);
           }
         }//if a not-visited face neighbor
       // Visited before, check face for cavity boundary
@@ -938,7 +968,7 @@ int vtkOTMesh::CreateInsertionCavity(vtkOTPoint* p, vtkOTTetra *initialTet,
         face = this->CavityFaces.InsertNextValue();
         tetra->GetFacePoints(i,face);
         face->Neighbor = nei;
-        valid = face->IsValidCavityFace(p->X,this->Tolerance2);
+        valid = face->IsValidCavityFace(p->P,this->Tolerance2);
         }
       }//for each of the four faces
 
@@ -995,7 +1025,7 @@ int vtkOTMesh::CreateInsertionCavity(vtkOTPoint* p, vtkOTTetra *initialTet,
   if ( somethingNotValid )
     {
     //please leave this for debugging
-    this->DumpInsertionCavity(p->X);
+    this->DumpInsertionCavity(p->P);
 //    exit(1);
     }
 #endif
@@ -1019,15 +1049,15 @@ void vtkOTMesh::DumpInsertionCavity(double x[3])
   for (fptr=this->CavityFaces.Begin(); 
        fptr != this->CavityFaces.End(); ++fptr)
     {
-    cout << fptr->Points[0]->X[0] << " "
-         << fptr->Points[0]->X[1] << " "
-         << fptr->Points[0]->X[2] << " "
-         << fptr->Points[1]->X[0] << " "
-         << fptr->Points[1]->X[1] << " "
-         << fptr->Points[1]->X[2] << " "
-         << fptr->Points[2]->X[0] << " "
-         << fptr->Points[2]->X[1] << " "
-         << fptr->Points[2]->X[2] << "\n";
+    cout << fptr->Points[0]->P[0] << " "
+         << fptr->Points[0]->P[1] << " "
+         << fptr->Points[0]->P[2] << " "
+         << fptr->Points[1]->P[0] << " "
+         << fptr->Points[1]->P[1] << " "
+         << fptr->Points[1]->P[2] << " "
+         << fptr->Points[2]->P[0] << " "
+         << fptr->Points[2]->P[1] << " "
+         << fptr->Points[2]->P[2] << "\n";
     }
 
   //write out point insertion vertex
@@ -1062,8 +1092,8 @@ vtkOTMesh::WalkToTetra(vtkOTTetra* tetra, double x[3], int depth, double bc[4])
     return 0;
     }
 
-  vtkTetra::BarycentricCoords(x, tetra->Points[0]->X, tetra->Points[1]->X, 
-                              tetra->Points[2]->X, tetra->Points[3]->X, bc);
+  vtkTetra::BarycentricCoords(x, tetra->Points[0]->P, tetra->Points[1]->P, 
+                              tetra->Points[2]->P, tetra->Points[3]->P, bc);
 
   // find the most negative face
   for ( negValue=VTK_LARGE_FLOAT, numNeg=j=0; j<4; j++ )
@@ -1153,7 +1183,7 @@ void vtkOrderedTriangulator::Triangulate()
     // Walk to a tetrahedron (start with first one on list)
     double bc[4];
     vtkOTTetra *tetra = 
-      this->Mesh->WalkToTetra(*(this->Mesh->Tetras.Begin()),p->X,0,bc);
+      this->Mesh->WalkToTetra(*(this->Mesh->Tetras.Begin()),p->P,0,bc);
 
     if ( tetra == 0 || !this->Mesh->CreateInsertionCavity(p, tetra, bc) )
       {

@@ -22,7 +22,7 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkWedge, "1.26");
+vtkCxxRevisionMacro(vtkWedge, "1.27");
 vtkStandardNewMacro(vtkWedge);
 
 static const float VTK_DIVERGED = 1.e6;
@@ -738,4 +738,12 @@ void vtkWedge::GetEdgePoints(int edgeId, int* &pts)
 void vtkWedge::GetFacePoints(int faceId, int* &pts)
 {
   pts = this->GetFaceArray(faceId);
+}
+
+static float CellPCoords[18] = {0.0,0.0,0.0, 1.0,0.0,0.0, 0.5,0.5,1.0,
+                                0.0,1.0,0.0, 1.0,1.0,0.0, 0.5,1.0,1.0};
+
+float *vtkWedge::GetParametricCoords()
+{
+  return CellPCoords;
 }
