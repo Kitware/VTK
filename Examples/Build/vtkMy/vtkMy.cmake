@@ -25,8 +25,16 @@ IF (USE_VTK_FILE)
 
 ELSE (USE_VTK_FILE)
 
-  MESSAGE("Warning. This project is supposed to work with VTK, which might be found on your system as different flavours: installed VTK, or (multiple) built VTK. Please, make sure that the VTK_INSTALL_PATH or VTK_BINARY_PATH setting reflect which VTK you are planning to use, then set one of the USE_INSTALLED_VTK or USE_BUILT_VTK to ON.")
   SET (VTKMY_CAN_BUILD 0)
+
+  # This warning message has been moved to CMake since 1.1
+  # You can safely remove the following lines if you are using Cmake > 1.0
+
+  IF (CMAKE_MAJOR_VERSION MATCHES "^1$")
+    IF (CMAKE_MINOR_VERSION MATCHES "^0$")
+      MESSAGE("Warning. VTK might be found on your system as different flavours: installed VTK or built VTK. Please make sure that the VTK_INSTALL_PATH or VTK_BINARY_PATH setting reflects which VTK you are planning to use, then set ONE of the USE_INSTALLED_VTK or USE_BUILT_VTK setting to ON.")
+    ENDIF (CMAKE_MINOR_VERSION MATCHES "^0$")
+  ENDIF (CMAKE_MAJOR_VERSION MATCHES "^1$")
 
 ENDIF (USE_VTK_FILE)
 
