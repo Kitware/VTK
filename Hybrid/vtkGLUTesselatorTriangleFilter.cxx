@@ -28,15 +28,14 @@
 # define VTK_STDCALL
 #endif //_WIN32
 
-vtkCxxRevisionMacro(vtkGLUTesselatorTriangleFilter, "1.7");
+vtkCxxRevisionMacro(vtkGLUTesselatorTriangleFilter, "1.8");
 vtkStandardNewMacro(vtkGLUTesselatorTriangleFilter);
 
 // GLU support methods
 static void VTK_STDCALL GluError(GLenum err) 
 {
-  // what the heck is this ?????
   const GLubyte* pByte = gluErrorString(err);
-  (void)pByte;
+  vtkGenericWarningMacro( << pByte );
 }
 static void VTK_STDCALL GlBegin(GLenum mode, void * polygon_data);
 static void VTK_STDCALL GlEnd(void * polygon_data);

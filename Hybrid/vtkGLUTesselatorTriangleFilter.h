@@ -29,7 +29,11 @@
 #define __vtkGLUTesselatorTriangleFilter_h
 
 #include "vtkPolyDataToPolyDataFilter.h"
-#include <GL/glu.h> // Needed for GLUtesselator
+#if defined(__APPLE__) && (defined(VTK_USE_CARBON) || defined(VTK_USE_COCOA))
+# include <OpenGL/glu.h> // Needed for GLUtesselator
+#else
+# include <GL/glu.h> // Needed for GLUtesselator
+#endif
 
 class VTK_HYBRID_EXPORT vtkGLUTesselatorTriangleFilter : public vtkPolyDataToPolyDataFilter
 {
