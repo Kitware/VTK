@@ -419,7 +419,7 @@ void vtkWin32ImageMapper::RenderData(vtkViewport* viewport,
 				     vtkImageData *data, vtkActor2D *actor)
 {
   int dataWidth, width, height;
-  void *ptr0, *ptr1, *ptr2;
+  void *ptr0;
   float shift, scale;
   HDC compatDC;
   HBITMAP hOldBitmap;
