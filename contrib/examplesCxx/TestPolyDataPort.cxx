@@ -39,8 +39,6 @@ VTK_THREAD_RETURN_TYPE process_b( void *arg )
   int myid, otherid;
   char *save_filename = (char*)arg;
   
-  putenv("DISPLAY=:0.0");
-  
   controller = vtkMultiProcessController::RegisterAndGetGlobalController(NULL);
   myid = controller->GetLocalProcessId();
   if (myid == 0)
