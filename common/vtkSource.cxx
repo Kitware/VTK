@@ -40,6 +40,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkSource.h"
 #include "vtkDataObject.h"
+#include "vtkDataInformation.h"
 
 #ifndef NULL
 #define NULL 0
@@ -310,6 +311,17 @@ void vtkSource::InternalUpdate(vtkDataObject *output)
     // Compute the update extent for all of the inputs.
     if (this->ComputeDivisionExtents(output, division, numDivisions))
       {
+      // Preupdate: Needed for ports. (like a non-blocking  update)
+      this->Updating = 1;
+      for (idx = 0; idx < this->NumberOfInputs; ++idx)
+	{
+	if (this->Inputs[idx] != NULL)
+	  {
+	  this->Inputs[idx]->PreUpdate();
+	  }
+	}
+      this->Updating = 0;
+      
       // Update the inputs
       this->Updating = 1;
       for (idx = 0; idx < this->NumberOfInputs; ++idx)
@@ -358,6 +370,36 @@ void vtkSource::InternalUpdate(vtkDataObject *output)
   // Information gets invalidated as soon as Update is called,
   // so validate it again here.
   this->InformationTime.Modified();
+}
+
+//----------------------------------------------------------------------------
+void vtkSource::PreUpdate(vtkDataObject *output)
+{
+  int idx;
+  int numDivisions, division;
+
+  // prevent chasing our tail
+  if (this->Updating)
+    {
+    return;
+    }
+
+  // Determine how many pieces we are going to process.
+  numDivisions = this->GetNumberOfStreamDivisions();
+  // Compute the update extent for all of the inputs (for the first piece)
+  if (this->ComputeDivisionExtents(output, 0, numDivisions))
+    {
+    // Preupdate: Needed for ports. (like a non-blocking  update)
+    this->Updating = 1;
+    for (idx = 0; idx < this->NumberOfInputs; ++idx)
+      {
+      if (this->Inputs[idx] != NULL)
+	{
+	this->Inputs[idx]->PreUpdate();
+	}
+      }
+    this->Updating = 0;
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -418,7 +460,8 @@ int vtkSource::ComputeInputUpdateExtents(vtkDataObject *output)
 void vtkSource::UpdateInformation()
 {
   unsigned long t1, t2, size;
-  int locality, l2, idx;
+  float locality, l2;
+  int idx;
   vtkDataObject *pd;
   vtkDataObject *output;
 
@@ -452,7 +495,7 @@ void vtkSource::UpdateInformation()
       this->Updating = 0;
       
       // for MPI port stuff
-      l2 = pd->GetLocality();
+      l2 = pd->GetDataInformation()->GetLocality();
       if (l2 > locality)
 	{
 	locality = l2;
@@ -500,7 +543,7 @@ void vtkSource::UpdateInformation()
       if (output)
 	{
 	output->SetPipelineMTime(t1);
-	output->SetLocality(locality + 1);
+	output->GetDataInformation()->SetLocality(locality * 0.5);
 	output->SetEstimatedWholeMemorySize(size);
 	// By default, copy information from first input.
 	if (pd)

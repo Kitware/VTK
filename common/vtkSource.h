@@ -90,6 +90,13 @@ public:
   virtual void InternalUpdate(vtkDataObject *output);
 
   // Description:
+  // This method is called by the data object as part of the update chain
+  // of events.  It provides a mechanism to start a non-blocking update
+  // in upstream ports.  A side effect of this method is that the 
+  // UpdateExtents are propagated upstream.
+  void PreUpdate(vtkDataObject *output);
+  
+  // Description:
   // Turn on/off flag to control whether this object's data is released
   // after being used by a source.
   virtual void SetReleaseDataFlag(int);

@@ -221,12 +221,6 @@ public:
   void CopyInformation(vtkDataObject *data); 
 
   // Description:
-  // Part of data's "Information".
-  // Are upstream filters local to the process?
-  void SetLocality(int val);
-  int GetLocality();
-  
-  // Description:
   // Return class name of data type. This is one of VTK_STRUCTURED_GRID, 
   // VTK_STRUCTURED_POINTS, VTK_UNSTRUCTURED_GRID, VTK_POLY_DATA, or
   // VTK_RECTILINEAR_GRID (see vtkSetGet.h for definitions).
@@ -237,6 +231,11 @@ public:
   // Used by Threaded ports to determine if they should initiate an
   // asynchronous update (still in development).
   unsigned long GetUpdateTime();
+
+  // Dscription:
+  // A non-blocking InternalUpdate for ports. This method has a side effect
+  // of propagating the UpdateExtents up the pipeline.
+  void PreUpdate();
   
 protected:
 
@@ -262,6 +261,7 @@ protected:
   int DataReleased; //keep track of data release during network execution
   int ReleaseDataFlag; //data will release after use by a filter
   vtkTimeStamp UpdateTime;
+  vtkTimeStamp PreUpdateTime;
   
   // The input of a filter holds the memory limit that triggers streamining.
   // Not all filters will respect this limit.

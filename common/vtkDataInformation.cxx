@@ -46,7 +46,7 @@ vtkDataInformation::vtkDataInformation()
 {
   this->EstimatedWholeMemorySize = 0;
   this->PipelineMTime = 0;
-  this->Locality = 0;
+  this->Locality = 0.0;
   this->SeriesLength = 1;
 }
 

@@ -87,8 +87,8 @@ public:
   // of how long the processing should take to update our data.
   // It is used to sort Update requests in multiple input filters to
   // get the best possible parallel perfomance.
-  vtkSetMacro(Locality, int);
-  vtkGetMacro(Locality, int);
+  vtkSetMacro(Locality, float);
+  vtkGetMacro(Locality, float);
   
   // Description:
   // Sources that can generate a series of data objects can communicate
@@ -120,7 +120,7 @@ protected:
   unsigned long PipelineMTime;
   // How many upstream filters are local to the process.
   // This will have to change to a float for Kens definition of locality.
-  int Locality;  
+  float Locality;  
   // Support for processing series of data sets.
   int SeriesLength;
 };
