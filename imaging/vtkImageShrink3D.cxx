@@ -141,6 +141,8 @@ static void vtkImageShrink3DExecute(vtkImageShrink3D *self,
   float sum, norm;
   unsigned long count = 0;
   unsigned long target;
+  int idxC, maxC, maxX;
+  T *outPtr2;
 
   averaging = self->GetAveraging();
   self->GetShrinkFactors(factor0, factor1, factor2);
@@ -156,11 +158,16 @@ static void vtkImageShrink3DExecute(vtkImageShrink3D *self,
   target = (unsigned long)((outExt[5] - outExt[4] + 1)*
     (outExt[3] - outExt[2] + 1)/50.0);
   target++;
+  maxX = outExt[1] - outExt[0];
+  maxC = inData->GetNumberOfScalarComponents();
 
-  // Loop through ouput pixels
-  tmpPtr2 = inPtr;
-  for (outIdx2 = outExt[4]; outIdx2 <= outExt[5]; ++outIdx2)
+  // Loop through output pixels
+  for (idxC = 0; idxC < maxC; idxC++)
     {
+    tmpPtr2 = inPtr + idxC;
+    outPtr2 = outPtr + idxC;
+    for (outIdx2 = outExt[4]; outIdx2 <= outExt[5]; ++outIdx2)
+      {
     tmpPtr1 = tmpPtr2;
     for (outIdx1 = outExt[2]; outIdx1 <= outExt[3]; ++outIdx1)
       {
@@ -170,12 +177,12 @@ static void vtkImageShrink3DExecute(vtkImageShrink3D *self,
 	count++;
 	}
       tmpPtr0 = tmpPtr1;
-      for (outIdx0 = 0; outIdx0 < rowLength; ++outIdx0)
+      for (outIdx0 = 0; outIdx0 <= maxX; ++outIdx0)
 	{
 	// Copy pixel from this location
 	if ( ! averaging)
 	  {
-	  *outPtr = *tmpPtr0;
+	  *outPtr2 = *tmpPtr0;
 	  }
 	else
 	  {
@@ -197,17 +204,18 @@ static void vtkImageShrink3DExecute(vtkImageShrink3D *self,
 	      }
 	    inPtr2 += inInc2;
 	    }
-	  *outPtr = (T)(sum * norm);
+	  *outPtr2 = (T)(sum * norm);
 	  }
 	tmpPtr0 += tmpInc0;
-	outPtr++;
+	outPtr2 += maxC;
 	}
       tmpPtr1 += tmpInc1;
-      outPtr += outInc1;
+      outPtr2 += outInc1;
       }
     tmpPtr2 += tmpInc2;
-    outPtr += outInc2;
+    outPtr2 += outInc2;
     }
+  }
 }
 
     
