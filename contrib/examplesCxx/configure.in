@@ -1,7 +1,7 @@
 #
 # configure script for vtk example directory
 #
-AC_INIT(TestMPI.cxx)
+AC_INIT()
 
 VTK_LIB_FILE="../../contrib/libVTKContrib\${VTK_LIB_EXT} ../../graphics/libVTKGraphics\${VTK_LIB_EXT} ../../common/libVTKCommon\${VTK_LIB_EXT}"
 

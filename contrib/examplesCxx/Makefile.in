@@ -24,11 +24,7 @@ VTK_LIB_FILE  = @VTK_LIB_FILE@
 
 #-----------------------------------------------------------------------------
 
-EXAMPLES = TestPolyDataPort \
-	TestStructuredPointsPort \
-        TestImagePort \
-	TestStructuredGridPort \
-	ParallelIso 
+EXAMPLES =
 
 
 CXX_FLAGS = ${CPPFLAGS} ${USER_CXXFLAGS} ${CXXFLAGS} -I${srcdir} \
@@ -49,41 +45,6 @@ LDLIBS = ${VTK_LIB_FILE} ${XLIBS} ${GRAPHICS_API_LIBS} ${DL_LIBS} \
 
 all: ${EXAMPLES}
 
-TestMPI: TestMPI.o 
-	${CXX} -o TestMPI ${CXX_FLAGS} TestMPI.o ${XLDFLAGS} ${LDLIBS} \
-	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
-
-TestController: TestController.o 
-	${CXX} -o TestController ${CXX_FLAGS} TestController.o ${XLDFLAGS} ${LDLIBS} \
-	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
-
-TestPolyDataPort: TestPolyDataPort.o
-	${CXX} -o TestPolyDataPort ${CXX_FLAGS} TestPolyDataPort.o ${XLDFLAGS} ${LDLIBS} \
-	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
-
-TestImagePort: TestImagePort.o
-	${CXX} -o TestImagePort ${CXX_FLAGS} TestImagePort.o ${XLDFLAGS} ${LDLIBS} \
-	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
-
-TestStructuredPointsPort: TestStructuredPointsPort.o
-	${CXX} -o TestStructuredPointsPort ${CXX_FLAGS} TestStructuredPointsPort.o ${XLDFLAGS} ${LDLIBS} \
-	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
-
-TestStructuredGridPort: TestStructuredGridPort.o
-	${CXX} -o TestStructuredGridPort ${CXX_FLAGS} TestStructuredGridPort.o ${XLDFLAGS} ${LDLIBS} \
-	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
-
-ParallelIso: ParallelIso.o
-	${CXX} -o ParallelIso ${CXX_FLAGS} ParallelIso.o ${XLDFLAGS} ${LDLIBS} \
-	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
-
-TimeIso: TimeIso.o
-	${CXX} -o TimeIso ${CXX_FLAGS} TimeIso.o ${XLDFLAGS} ${LDLIBS} \
-	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
-
-StreamPort: StreamPort.o
-	${CXX} -o StreamPort ${CXX_FLAGS} StreamPort.o ${XLDFLAGS} ${LDLIBS} \
-	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
 
 #------------------------------------------------------------------------------
 
