@@ -74,8 +74,7 @@ protected:
   
   void ExecuteImageInformation();
   void ComputeOutputWholeExtent(int *extent, int handleBoundaries);
-  void ComputeRequiredInputUpdateExtent();
-  void ComputeRequiredInputExtent(int *extent, int *wholeExtent);
+  void ComputeRequiredInputUpdateExtent(int *extent, int *wholeExtent);
 
 };
 

@@ -115,7 +115,6 @@ static void vtkImageCastExecute(vtkImageCast *self,
   // Loop through ouput pixels
   for (idxZ = 0; idxZ <= maxZ; idxZ++)
     {
-    if (!id) self->UpdateProgress((float)idxZ/(float)(maxZ));
     for (idxY = 0; idxY <= maxY; idxY++)
       {
       if (!id) 

@@ -49,7 +49,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkImageCanvasSource2D_h
 
 #include <math.h>
-#include "vtkImageRegion.h"
+#include "vtkImageData.h"
 
 //
 // Special classes for manipulating data
@@ -68,7 +68,7 @@ public:
 //
 
 
-class VTK_EXPORT vtkImageCanvasSource2D : public vtkImageRegion
+class VTK_EXPORT vtkImageCanvasSource2D : public vtkImageData
 {
 public:
   vtkImageCanvasSource2D();
@@ -79,18 +79,20 @@ public:
 
   // Description:
   // To drawing into a different image, set it with this method.
-  vtkSetObjectMacro(ImageRegion, vtkImageRegion);
-  vtkGetObjectMacro(ImageRegion, vtkImageRegion);
+  vtkSetObjectMacro(ImageData, vtkImageData);
+  vtkGetObjectMacro(ImageData, vtkImageData);
   
   // Description:
-  // Set/Get DrawValue.  This is the value that is used when filling regions
+  // Set/Get DrawValue.  This is the value that is used when filling datas
   // or drawing lines.
   void SetDrawColor(int dim, float *color);
   void GetDrawColor(int dim, float *color);
-  float *GetDrawColor() {return this->DrawColor;}
-  vtkImageSetMacro(DrawColor, float);
-  vtkImageGetMacro(DrawColor, float);
-  
+  vtkSetVector4Macro(DrawColor, float);
+  vtkGetVector4Macro(DrawColor, float);
+  void SetDrawColor(float a) {this->SetDrawColor(a, 0.0, 0.0, 0.0);}
+  void SetDrawColor(float a,float b) {this->SetDrawColor(a, b, 0.0, 0.0);}
+  void SetDrawColor(float a, float b, float c) {this->SetDrawColor(a, b, c, 0.0);}
+    
   void FillBox(int min0, int max0, int min1, int max1);
   void FillTube(int x0, int y0, int x1, int y1, float radius);
   void FillTriangle(int x0, int y0, int x1, int y1, int x2, int y2);
@@ -102,8 +104,8 @@ public:
   void FillPixel(int x, int y);
   
 protected:
-  vtkImageRegion *ImageRegion;
-  float DrawColor[VTK_IMAGE_DIMENSIONS];
+  vtkImageData *ImageData;
+  float DrawColor[4];
   
   int ClipSegment(int &a0, int &a1, int &b0, int &b1);
 };

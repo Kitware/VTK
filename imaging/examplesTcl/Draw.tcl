@@ -4,9 +4,8 @@ catch {load vtktcl}
 source vtkImageInclude.tcl
 
 vtkImageCanvasSource2D canvas
-canvas SetAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS $VTK_IMAGE_COMPONENT_AXIS 
 canvas SetScalarType $VTK_UNSIGNED_CHAR
-canvas SetExtent 0 511 0 511
+canvas SetExtent 0 511 0 511 0 0
 canvas SetDrawColor 66
 canvas FillBox 0 511 0 511
 canvas SetDrawColor 132
@@ -45,7 +44,7 @@ canvas FillPixel 450 350
 
 
 vtkImageViewer viewer
-viewer SetInput [canvas GetOutput]
+viewer SetInput canvas
 viewer SetColorWindow 256
 viewer SetColorLevel 128
 

@@ -73,7 +73,6 @@ public:
   const char *GetClassName() {return "vtkImageAnisotropicDiffusion3D";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  void SetFilteredAxes(int a0, int a1, int a2);
   void SetNumberOfIterations(int num);
   // Description:
   // Get the number of iterations.
@@ -118,8 +117,9 @@ protected:
   // What threshold to use
   int GradientMagnitudeThreshold;
   
-  void Execute(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
-  void Iterate(vtkImageRegion *in, vtkImageRegion *out, 
+  void ThreadedExecute(vtkImageData *inData, vtkImageData *outData, 
+		       int extent[6], int id);
+  void Iterate(vtkImageData *in, vtkImageData *out, 
 	       float ar0, float ar1, float ar3, int *coreExtent, int count);
 };
 

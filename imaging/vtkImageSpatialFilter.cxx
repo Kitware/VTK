@@ -149,24 +149,6 @@ void vtkImageSpatialFilter::ComputeOutputWholeExtent(int *extent,
 }
 
 
-//----------------------------------------------------------------------------
-// Description:
-// This method computes the extent of the input region necessary to generate
-// an output region.  Before this method is called "region" should have the 
-// extent of the output region.  After this method finishes, "region" should 
-// have the extent of the required input region.
-void 
-vtkImageSpatialFilter::ComputeRequiredInputUpdateExtent()
-{
-  int extent[6];
-  int wholeExtent[6];
-  
-  this->Output->GetUpdateExtent(extent);
-  this->Input->GetWholeExtent(wholeExtent);
-  this->ComputeRequiredInputExtent(extent, wholeExtent);
-  this->Input->SetUpdateExtent(extent);
-}
-
 
 //----------------------------------------------------------------------------
 // Description:
@@ -174,16 +156,16 @@ vtkImageSpatialFilter::ComputeRequiredInputUpdateExtent()
 // an output region.  Before this method is called "region" should have the 
 // extent of the output region.  After this method finishes, "region" should 
 // have the extent of the required input region.
-void vtkImageSpatialFilter::ComputeRequiredInputExtent(int *extent, 
-						       int *wholeExtent)
+void vtkImageSpatialFilter::ComputeRequiredInputUpdateExtent(int *extent, 
+							     int *wholeExtent)
 {
   int idx;
   
   for (idx = 0; idx < 3; ++idx)
     {
     // Magnify by strides
-    extent[idx*2] *= this->Strides[idx];
-    extent[idx*2+1] = (extent[idx*2+1]+1)*this->Strides[idx] - 1;
+    extent[idx*2] = wholeExtent[idx*2]*this->Strides[idx];
+    extent[idx*2+1] = (wholeExtent[idx*2+1]+1)*this->Strides[idx] - 1;
     // Expand to get inRegion Extent
     extent[idx*2] -= this->KernelMiddle[idx];
     extent[idx*2+1] += (this->KernelSize[idx]-1) - this->KernelMiddle[idx];

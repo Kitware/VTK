@@ -29,6 +29,8 @@ vtkImageTwoInputFilter
 
 CONCRETE = \
 vtkBMPWriter \
+vtkImageAnisotropicDiffusion3D \
+vtkImageCanvasSource2D \
 vtkImageCast \
 vtkImageClip \
 vtkImageConnector \
@@ -62,11 +64,9 @@ vtkTIFFWriter
 
 #vtkImageAccumulate \
 #vtkImageAnisotropicDiffusion2D \
-#vtkImageAnisotropicDiffusion3D \
 #vtkImageAppendComponents \
 #vtkImageButterworthHighPass \
 #vtkImageButterworthLowPass \
-#vtkImageCanvasSource2D \
 #vtkImageCityBlockDistance \
 #vtkImageCityBlockDistance1D \
 #vtkImageContinuousDilate3D \

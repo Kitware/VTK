@@ -10,8 +10,7 @@ reader SetDataByteOrderToLittleEndian
 reader SetDataExtent 0 255 0 255 1 93
 reader SetFilePrefix "../../../vtkdata/fullHead/headsq"
 reader SetDataMask 0x7fff
-reader SetOutputScalarType $VTK_FLOAT
-reader SetDataSpacing 1 1 2 0
+reader SetDataSpacing 1 1 2 
 #reader DebugOn
 
 
@@ -27,7 +26,7 @@ diffusion DebugOn
 vtkImageViewer viewer
 #viewer DebugOn
 viewer SetInput [diffusion GetOutput]
-viewer SetCoordinate2 22
+viewer SetZSlice 22
 viewer SetColorWindow 3000
 viewer SetColorLevel 1500
 

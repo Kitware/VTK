@@ -47,8 +47,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Construct an instance of vtkImageAnisotropicDiffusion3D fitler.
 vtkImageAnisotropicDiffusion3D::vtkImageAnisotropicDiffusion3D()
 {
-  this->SetFilteredAxes(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS, VTK_IMAGE_Z_AXIS);
-  
   this->HandleBoundaries = 1;
   this->SetNumberOfIterations(4);
   this->DiffusionThreshold = 5.0;
@@ -57,8 +55,6 @@ vtkImageAnisotropicDiffusion3D::vtkImageAnisotropicDiffusion3D()
   this->EdgesOn();
   this->CornersOn();
   this->GradientMagnitudeThresholdOff();
-
-  this->NumberOfExecutionAxes = 3;
 }
 
 
@@ -108,21 +104,6 @@ vtkImageAnisotropicDiffusion3D::PrintSelf(ostream& os, vtkIndent indent)
     }
 }
 
-
-
-
-
-//----------------------------------------------------------------------------
-void vtkImageAnisotropicDiffusion3D::SetFilteredAxes(int a0, int a1, int a2)
-{
-  int axes[3];
-  
-  axes[0] = a0;
-  axes[1] = a1;
-  axes[2] = a2;
-  this->vtkImageFilter::SetFilteredAxes(3, axes);
-}
-
 //----------------------------------------------------------------------------
 // Description:
 // This method sets the number of inputs which also affects the
@@ -130,9 +111,12 @@ void vtkImageAnisotropicDiffusion3D::SetFilteredAxes(int a0, int a1, int a2)
 void vtkImageAnisotropicDiffusion3D::SetNumberOfIterations(int num)
 {
   int temp;
-  
-  this->Modified();
+
   vtkDebugMacro(<< "SetNumberOfIterations: " << num);
+  
+  if (this->NumberOfIterations == num) return;
+
+  this->Modified();
   temp = num*2 + 1;
   this->KernelSize[0] = temp;
   this->KernelSize[1] = temp;
@@ -143,62 +127,67 @@ void vtkImageAnisotropicDiffusion3D::SetNumberOfIterations(int num)
 
   this->NumberOfIterations = num;
 }
-
-
-  
-  
-  
   
 //----------------------------------------------------------------------------
 // Description:
 // This method contains a switch statement that calls the correct
 // templated function for the input region type.  The input and output regions
 // must have the same data type.
-void vtkImageAnisotropicDiffusion3D::Execute(vtkImageRegion *inRegion, 
-					     vtkImageRegion *outRegion)
+void vtkImageAnisotropicDiffusion3D::ThreadedExecute(vtkImageData *inData, 
+						     vtkImageData *outData,
+						     int outExt[6], int id)
 {
+  int inExt[6];
+  float *ar;
   int idx;
-  int extent[6];
-  float ar0, ar1, ar2;
-  vtkImageRegion *in;
-  vtkImageRegion *out;
-  vtkImageRegion *temp;
-
-
-  inRegion->GetSpacing(ar0, ar1, ar2);
+  vtkImageData *temp;
+  
+  this->ComputeRequiredInputUpdateExtent(inExt,outExt);
+  
+  vtkDebugMacro(<< "Execute: inData = " << inData 
+  << ", outData = " << outData);
+  
+  // this filter expects that input is the same type as output.
+  if (inData->GetScalarType() != outData->GetScalarType())
+    {
+    vtkErrorMacro(<< "Execute: input ScalarType, " << inData->GetScalarType()
+                  << ", must match out ScalarType " << outData->GetScalarType());
+    return;
+    }
+  
+  ar = inData->GetSpacing();
 
   // make the temporary regions to iterate over.
-  in = vtkImageRegion::New();
-  out = vtkImageRegion::New();
-  
-  // might as well make these floats
-  in->SetExtent(VTK_IMAGE_DIMENSIONS, inRegion->GetExtent());
+  vtkImageData *in = vtkImageData::New();
+  in->SetExtent(inExt);
+  in->SetNumberOfScalarComponents(inData->GetNumberOfScalarComponents());
   in->SetScalarType(VTK_FLOAT);
-  in->CopyRegionData(inRegion);
-  out->SetExtent(VTK_IMAGE_DIMENSIONS, inRegion->GetExtent());
-  out->SetScalarType(VTK_FLOAT);
-  out->AllocateScalars();
+  in->CopyAndCastFrom(inData,inExt);
   
-  // To compute extent of diffusion which will shrink.
-  outRegion->GetExtent(3, extent);
+  vtkImageData *out = vtkImageData::New();
+  out->SetExtent(inExt);
+  out->SetNumberOfScalarComponents(inData->GetNumberOfScalarComponents());
+  out->SetScalarType(VTK_FLOAT);
   
   // Loop performing the diffusion
   // Note: region extent could get smaller as the diffusion progresses
   // (but never get smaller than output region).
   for (idx = this->NumberOfIterations - 1; idx >= 0; --idx)
     {
-    this->Iterate(in, out, ar0, ar1, ar2, extent, idx);
+    if (!id) this->UpdateProgress((float)(this->NumberOfIterations - idx)
+				  /this->NumberOfIterations);
+    this->Iterate(in, out, ar[0], ar[1], ar[2], outExt, idx);
     temp = in;
     in = out;
     out = temp;
     }
   
   // copy results into output.
-  outRegion->GetScalarPointer ();
-  outRegion->CopyRegionData(in);
-  in->Delete ();
-  out->Delete ();
+  outData->CopyAndCastFrom(in,outExt);
+  in->Delete();
+  out->Delete();
 }
+
 
 
 
@@ -207,10 +196,10 @@ void vtkImageAnisotropicDiffusion3D::Execute(vtkImageRegion *inRegion,
 //----------------------------------------------------------------------------
 // Description:
 // This method performs one pass of the diffusion filter.
-// The inRegion and outRegion are assumed to have data type float,
+// The inData and outData are assumed to have data type float,
 // and have the same extent.
-void vtkImageAnisotropicDiffusion3D::Iterate(vtkImageRegion *inRegion, 
-					     vtkImageRegion *outRegion,
+void vtkImageAnisotropicDiffusion3D::Iterate(vtkImageData *inData, 
+					     vtkImageData *outData,
 					     float ar0, float ar1, float ar2,
 					     int *coreExtent, int count)
 {
@@ -225,9 +214,9 @@ void vtkImageAnisotropicDiffusion3D::Iterate(vtkImageRegion *inRegion,
   float df0, df1, df2, df01, df02, df12, df012;
   float temp, sum;
 
-  inRegion->GetExtent(inMin0, inMax0, inMin1, inMax1, inMin2, inMax2);
-  inRegion->GetIncrements(inInc0, inInc1, inInc2);
-  outRegion->GetIncrements(outInc0, outInc1, outInc2);
+  inData->GetExtent(inMin0, inMax0, inMin1, inMax1, inMin2, inMax2);
+  inData->GetIncrements(inInc0, inInc1, inInc2);
+  outData->GetIncrements(outInc0, outInc1, outInc2);
 
   // Avoid the warnings.
   th0 = th1 = th2 = th01 = th02 = th12 = th012 =
@@ -307,8 +296,8 @@ void vtkImageAnisotropicDiffusion3D::Iterate(vtkImageRegion *inRegion,
   // I apologize for explicitely diffusing each neighbor, but it is the easiest
   // way to deal with the boundary conditions.  Besides it is fast.
   // (Are you sure every one is correct?!!!)
-  inPtr2 = (float *)(inRegion->GetScalarPointer(min0, min1, min2));
-  outPtr2 = (float *)(outRegion->GetScalarPointer(min0, min1, min2));
+  inPtr2 = (float *)(inData->GetScalarPointer(min0, min1, min2));
+  outPtr2 = (float *)(outData->GetScalarPointer(min0, min1, min2));
   for (idx2 = min2; idx2 <= max2; ++idx2, inPtr2+=inInc2, outPtr2+=outInc2)
     {
     inPtr1 = inPtr2;

@@ -43,7 +43,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkImageFilter is a filter class that hides some of the pipeline 
 // complexity.  This super class will loop over extra dimensions so the
 // subclass can deal with simple low dimensional regions.
-// "ComputeRequiredInputExtent(vtkImageCache *out, *in)" must set the
+// "ComputeRequiredInputUpdateExtent(vtkImageCache *out, *in)" must set the
 // extent of in required to compute out. 
 // The advantage of using the execute method is that this super class
 // will automatically break the execution into pieces if the 

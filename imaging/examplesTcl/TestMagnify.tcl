@@ -17,9 +17,7 @@ reader SetDataMask 0x7fff
 
 vtkImageMagnify magnify
 magnify SetInput [reader GetOutput]
-magnify SetMagnificationFactors 3 2
-magnify SetFilteredAxes $VTK_IMAGE_Y_AXIS $VTK_IMAGE_X_AXIS
-magnify InterpolateOn
+magnify SetMagnificationFactors 3 2 1
 magnify ReleaseDataFlagOff
 
 
