@@ -47,6 +47,7 @@ vtkThreshold::vtkThreshold()
   this->LowerThreshold = 0.0;
   this->UpperThreshold = 1.0;
   this->AllScalars = 1;
+  this->AttributeMode = VTK_ATTRIBUTE_MODE_USE_POINT_DATA;
   this->ThresholdFunction = &vtkThreshold::Upper;
 }
 
@@ -108,7 +109,7 @@ void vtkThreshold::Execute()
   outPD = output->GetPointData();
   outPD->CopyAllocate(pd);
   outCD = output->GetCellData();
-  outCD->CopyAllocate(pd);
+  outCD->CopyAllocate(cd);
 
   if ( !(pointScalars || cellScalars) )
     {
