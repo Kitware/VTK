@@ -60,12 +60,9 @@ protected:
   void operator=(const vtkCollectPolyData&);
 
   // Data generation method
+  void ComputeInputUpdateExtents(vtkDataObject *output);
   void Execute();
-  void RootExecute();
-  void SatelliteExecute(int procId);
   void ExecuteInformation();
- 
-  vtkPolyData *Buffer;
 
   unsigned long Threshold;
   int Collected;
