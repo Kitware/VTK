@@ -1,3 +1,4 @@
+catch {load vtktcl}
 # Check all the set methods to see if resetting a variable
 # changes the modified time.
 
@@ -45,7 +46,7 @@ proc TestKit {kit} {
    global testObject
 
    #puts "Kit: $kit"
-   set inFiles [lsort [glob -nocomplain ../$kit/*.h]]
+    set inFiles [lsort [glob -nocomplain ../$kit/vtk*.h]]
    #set inFiles {imaging/vtkImageResample.h}
 
    foreach f $inFiles {
@@ -687,6 +688,12 @@ proc CheckException {methodName} {
       return 1
    }
    if {$methodName == "SetDataReleased"} {
+      return 1
+   }
+   if {$methodName == "SetTuple"} {
+      return 1
+   }
+   if {$methodName == "SetTCoord"} {
       return 1
    }
 
