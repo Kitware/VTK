@@ -122,6 +122,7 @@ class VTK_EXPORT vtkSmoothPolyFilter : public vtkPolyToPolyFilter
 {
 public:
   vtkSmoothPolyFilter();
+  vtkSmoothPolyFilter *New() {return new vtkSmoothPolyFilter;};
   char *GetClassName() {return "vtkSmoothPolyFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
