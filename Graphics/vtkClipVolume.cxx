@@ -30,7 +30,7 @@
 #include "vtkIdTypeArray.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkClipVolume, "1.66");
+vtkCxxRevisionMacro(vtkClipVolume, "1.67");
 vtkStandardNewMacro(vtkClipVolume);
 vtkCxxSetObjectMacro(vtkClipVolume,ClipFunction,vtkImplicitFunction);
 
@@ -282,7 +282,7 @@ void vtkClipVolume::Execute()
       {
       for ( i=0; i < numICells; i++ )
         {
-        flip = (extOffset+i+j+k) | 0x1; // Equivalent (according to Ken) to % 2
+        flip = (extOffset+i+j+k) & 0x1;
         cellId = i + j*numICells + k*sliceSize;
         
         input->GetCell(cellId,cell);
