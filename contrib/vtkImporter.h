@@ -83,7 +83,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Specify file name of the file to read.
+  // Specify the name of the file to read.
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
 
@@ -93,11 +93,11 @@ public:
   vtkGetObjectMacro(Renderer,vtkRenderer);
 
   // Description
-  // Set the RenderWindow that to contain the imported actors, cameras and
-  // lights, If no RenderWindow is set, one will be created and can be
-  // obtained with the GetRenderWindow method. If the RenderWindow has been
-  // specified, the first renderer it has will be used to import the
-  // objects. If the RenderWindow has no Renderer, one will be created and
+  // Set the vtkRenderWindow to contain the imported actors, cameras and
+  // lights, If no vtkRenderWindow is set, one will be created and can be
+  // obtained with the GetRenderWindow method. If the vtkRenderWindow has been
+  // specified, the first vtkRenderer it has will be used to import the
+  // objects. If the vtkRenderWindow has no Renderer, one will be created and
   // can be accessed using GetRenderer.
   vtkSetObjectMacro(RenderWindow,vtkRenderWindow);
   vtkGetObjectMacro(RenderWindow,vtkRenderWindow);
@@ -105,13 +105,12 @@ public:
   // Description:
   // Set/Get the computation of normals. If on, imported geometry will
   // be run through vtkPolyNormals.
-  // for Props. Use it to turn them on or off.
   vtkSetMacro(ComputeNormals,int);
   vtkGetMacro(ComputeNormals,int);
   vtkBooleanMacro(ComputeNormals,int);
 
   // Description
-  // Import the actors, cameras, lights and properties into a RenderWindow.
+  // Import the actors, cameras, lights and properties into a vtkRenderWindow.
   void Read ();
   
   FILE *FileFD;
