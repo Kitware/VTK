@@ -27,7 +27,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 
-vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.11");
+vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.12");
 vtkStandardNewMacro(vtkStreamingDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, CONTINUE_EXECUTING, Integer);
@@ -100,6 +100,12 @@ int vtkStreamingDemandDrivenPipeline::ProcessRequest(vtkInformation* request)
     int result = 1;
     if(this->NeedToExecuteData(outputPort))
       {
+      // Make sure input types are valid before algorithm does anything.
+      if(!this->InputCountIsValid() || !this->InputTypeIsValid())
+        {
+        return 0;
+        }
+
       // Invoke the request on the algorithm.
       vtkSmartPointer<vtkInformation> r = vtkSmartPointer<vtkInformation>::New();
       r->Set(REQUEST_UPDATE_EXTENT(), 1);
