@@ -71,8 +71,9 @@ public:
   // can be used.
   vtkSetObjectMacro(Source,vtkDataSet);
   vtkGetObjectMacro(Source,vtkDataSet);
-  void SetSource(vtkImageCache *cache) {
-    this->SetSource(cache->GetImageToStructuredPoints()->GetOutput());}
+  void SetSource(vtkImageCache *cache) 
+    {vtkImageToStructuredPoints *tmp = cache->MakeImageToStructuredPoints();
+    this->SetSource(tmp->GetOutput()); tmp->Delete();}
 
 protected:
   void Execute();

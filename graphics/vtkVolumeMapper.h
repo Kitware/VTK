@@ -131,7 +131,8 @@ public:
   // Set/Get the scalar input data
   vtkSetObjectMacro( ScalarInput, vtkStructuredPoints );
   void SetScalarInput(vtkImageCache *cache)
-    {this->SetScalarInput(cache->GetImageToStructuredPoints()->GetOutput());}
+    {vtkImageToStructuredPoints *tmp = cache->MakeImageToStructuredPoints();
+    this->SetScalarInput(tmp->GetOutput()); tmp->Delete();}
   virtual vtkStructuredPoints *GetScalarInput() {return this->ScalarInput;};
 
 
@@ -139,7 +140,8 @@ public:
   // Set/Get the rgb texture input data
   void SetRGBTextureInput( vtkStructuredPoints *rgbTexture );
   void SetRGBTextureInput(vtkImageCache *cache)
-    {this->SetRGBTextureInput(cache->GetImageToStructuredPoints()->GetOutput());}
+    {vtkImageToStructuredPoints *tmp = cache->MakeImageToStructuredPoints();
+    this->SetRGBTextureInput(tmp->GetOutput()); tmp->Delete();}
   virtual vtkStructuredPoints *GetRGBTextureInput() {return this->RGBTextureInput;};
 
 

@@ -63,7 +63,8 @@ public:
   // Set / get the input data or filter.
   void SetInput(vtkDataSet *input);
   void SetInput(vtkImageCache *cache)
-    {this->SetInput(cache->GetImageToStructuredPoints()->GetOutput());}
+    {vtkImageToStructuredPoints *tmp = cache->MakeImageToStructuredPoints();
+    this->SetInput(tmp->GetOutput()); tmp->Delete();}
   vtkDataSet *GetInput() {return (vtkDataSet *)this->Input;};
 
   // Description:

@@ -72,7 +72,8 @@ public:
   // Specify the input data to map.
   void SetInput(vtkDataSet *in);
   void SetInput(vtkImageCache *cache)
-    {this->SetInput(cache->GetImageToStructuredPoints()->GetOutput());}
+    {vtkImageToStructuredPoints *tmp = cache->MakeImageToStructuredPoints();
+    this->SetInput(tmp->GetOutput()); tmp->Delete();}
   
   // Description:
   // Get the internal poly data mapper used to map data set to graphics system.

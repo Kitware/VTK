@@ -85,7 +85,8 @@ public:
   vtkSetObjectMacro(Input, vtkImageCache);
   vtkGetObjectMacro(Input,vtkImageCache);
   void SetInput(vtkStructuredPoints *spts)
-    {this->SetInput(spts->GetStructuredPointsToImage()->GetOutput());}
+    {vtkStructuredPointsToImage *tmp = spts->MakeStructuredPointsToImage();
+     this->SetInput(tmp->GetOutput()); tmp->Delete();}
 
   // Description:
   // Set/Get the current slice number. The axis Z in ZSlice does not

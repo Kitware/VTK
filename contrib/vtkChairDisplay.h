@@ -64,7 +64,8 @@ public:
   vtkSetObjectMacro(Input, vtkImageCache);
   vtkGetObjectMacro(Input, vtkImageCache);
   void SetInput(vtkStructuredPoints *spts)
-    {this->SetInput(spts->GetStructuredPointsToImage()->GetOutput());}
+    {vtkStructuredPointsToImage *tmp = spts->MakeStructuredPointsToImage();
+     this->SetInput(tmp->GetOutput()); tmp->Delete();}
   
   // Description:
   // Set/Get the size of the notch.
