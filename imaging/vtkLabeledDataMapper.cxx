@@ -105,7 +105,7 @@ void vtkLabeledDataMapper::RenderOverlay(vtkViewport *viewport,
 					 vtkActor2D *actor)
 {
   int i;
-  float val, x[3];
+  float x[3];
   vtkDataSet *input=this->GetInput();
 
   if ( ! input )

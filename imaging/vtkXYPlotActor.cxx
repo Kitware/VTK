@@ -197,10 +197,10 @@ float vtkXYPlotActor::GetHeight()
 // Plot scalar data for each input dataset.
 int vtkXYPlotActor::RenderOverlay(vtkViewport *viewport)
 {
-  int numDS, renderedSomething=0;
+  int renderedSomething=0;
 
   // Make sure input is up to date.
-  if ( (numDS=this->InputList->GetNumberOfItems()) < 1 )
+  if ( this->InputList->GetNumberOfItems() < 1 )
     {
     vtkErrorMacro(<< "Nothing to plot!");
     return 0;
@@ -430,7 +430,7 @@ void vtkXYPlotActor::PrintSelf(ostream& os, vtkIndent indent)
 
 void vtkXYPlotActor::ComputeXRange(float range[2], float *lengths)
 {
-  int i, maxNum, numPts, ptId, dsNum;
+  int maxNum, numPts, ptId, dsNum;
   float maxLength=0.0, xPrev[3], x[3];
   vtkDataSet *ds;
 
@@ -483,14 +483,13 @@ void vtkXYPlotActor::ComputeXRange(float range[2], float *lengths)
 
 void vtkXYPlotActor::ComputeYRange(float range[2])
 {
-  int num, maxNum;
   vtkDataSet *ds;
   vtkScalars *scalars;
   float sRange[2];
 
   range[0]=VTK_LARGE_FLOAT, range[1]=(-VTK_LARGE_FLOAT);
 
-  for ( maxNum=0, this->InputList->InitTraversal(); 
+  for ( this->InputList->InitTraversal(); 
        (ds = this->InputList->GetNextItem()); )
     {
     scalars = ds->GetPointData()->GetScalars();

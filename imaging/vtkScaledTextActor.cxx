@@ -101,10 +101,7 @@ int vtkScaledTextActor::RenderOverlay(vtkViewport *viewport)
 
 int vtkScaledTextActor::RenderOpaqueGeometry(vtkViewport *viewport)
 {
-  int renderedSomething = 0;
-  int i;
   int size[2];
-  int stringHeight, stringWidth;
   int fontSize;
   
   if ( ! this->TextActor->GetMapper() )
@@ -120,7 +117,7 @@ int vtkScaledTextActor::RenderOpaqueGeometry(vtkViewport *viewport)
     {
     // if the viewport has changed we may - or may not need
     // to rebuild, it depends on if the projected coords chage
-    int *textOrigin, textWidth, textHeight;
+    int *textOrigin;
     textOrigin = this->PositionCoordinate->GetComputedViewportValue(viewport);
     size[0] = 
       this->Position2Coordinate->GetComputedViewportValue(viewport)[0] -
@@ -142,7 +139,7 @@ int vtkScaledTextActor::RenderOpaqueGeometry(vtkViewport *viewport)
     vtkDebugMacro(<<"Rebuilding text");
     
     // get the viewport size in display coordinates
-    int *textOrigin, textWidth, textHeight;
+    int *textOrigin;
     textOrigin = this->PositionCoordinate->GetComputedViewportValue(viewport);
     size[0] = 
       this->Position2Coordinate->GetComputedViewportValue(viewport)[0] -

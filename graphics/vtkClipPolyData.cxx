@@ -122,7 +122,7 @@ void vtkClipPolyData::Execute()
   vtkCellArray *clippedPolys=NULL, *clippedList=NULL;
   vtkPoints *newPoints;
   vtkIdList *cellIds;
-  float value, s;
+  float s;
   int estimatedSize, numCells=input->GetNumberOfCells();
   int numPts=input->GetNumberOfPoints();
   vtkPoints *inPts=input->GetPoints();  
@@ -228,7 +228,6 @@ void vtkClipPolyData::Execute()
   cellScalars->Allocate(VTK_CELL_SIZE);
   
   // perform clipping on cells
-  value = this->Value;
   for (cellId=0; cellId < numCells; cellId++)
     {
     cell = input->GetCell(cellId);

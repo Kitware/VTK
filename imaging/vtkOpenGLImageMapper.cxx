@@ -110,7 +110,6 @@ static void vtkOpenGLImageMapperRender(vtkOpenGLImageMapper *self,
   int height = inMax1 - inMin1 + 1;
 
   int* tempIncs = data->GetIncrements();
-  int inInc0 = tempIncs[0];
   int inInc1 = tempIncs[1];
 
   int bpp = data->GetNumberOfScalarComponents();
@@ -222,7 +221,6 @@ static void vtkOpenGLImageMapperRenderShort(vtkOpenGLImageMapper *self,
   int height = inMax1 - inMin1 + 1;
 
   int* tempIncs = data->GetIncrements();
-  int inInc0 = tempIncs[0];
   int inInc1 = tempIncs[1];
 
   int bpp = data->GetNumberOfScalarComponents();
@@ -344,7 +342,6 @@ static void vtkOpenGLImageMapperRenderChar(vtkOpenGLImageMapper *self,
   int height = inMax1 - inMin1 + 1;
 
   int* tempIncs = data->GetIncrements();
-  int inInc0 = tempIncs[0];
   int inInc1 = tempIncs[1];
 
   int bpp = data->GetNumberOfScalarComponents();
@@ -456,10 +453,7 @@ static void vtkOpenGLImageMapperRenderChar(vtkOpenGLImageMapper *self,
 void vtkOpenGLImageMapper::RenderData(vtkViewport* viewport, 
 				     vtkImageData *data, vtkActor2D *actor)
 {
-  int dataWidth, width, height;
-  int size;
-  unsigned char *dataOut;
-  void *ptr0, *ptr1, *ptr2;
+  void *ptr0;
   float shift, scale;
 
   vtkWindow* window = (vtkWindow *) viewport->GetVTKWindow();
@@ -471,14 +465,10 @@ void vtkOpenGLImageMapper::RenderData(vtkViewport* viewport,
 
   // Determine the size of the displayed data.
   int* extent = this->Input->GetUpdateExtent();
-  width = (extent[1] - extent[0] + 1);
-  height = (extent[3] - extent[2] + 1);
   
   shift = this->GetColorShift();
   scale = this->GetColorScale();
   
-  int dim = 0;
-  dim = data->GetNumberOfScalarComponents();
   ptr0 = data->GetScalarPointer(extent[0], extent[2], extent[4]);
 
   // push a 2D matrix on the stack

@@ -214,7 +214,7 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
     {
     // if the viewport has changed we may - or may not need
     // to rebuild, it depends on if the projected coords chage
-    int *barOrigin, barWidth, barHeight;
+    int *barOrigin;
     barOrigin = this->PositionCoordinate->GetComputedViewportValue(viewport);
     size[0] = 
       this->Position2Coordinate->GetComputedViewportValue(viewport)[0] -

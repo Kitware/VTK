@@ -48,16 +48,13 @@ void vtkOpenGLPolyDataMapper2D::RenderOpaqueGeometry(vtkViewport* viewport,
 {
   int numPts;
   vtkPolyData *input= (vtkPolyData *)this->Input;
-  int npts, idx[3], rep, j;
-  float fclr[4];
-  short clr[4];
+  int npts, j;
   vtkPoints *p, *displayPts;
   vtkCellArray *aPrim;
   vtkScalars *c=NULL;
   unsigned char *rgba;
 	unsigned char color[4];
   int *pts;
-  float *ftmp;
   int cellScalars = 0;
   int cellNum = 0;
 

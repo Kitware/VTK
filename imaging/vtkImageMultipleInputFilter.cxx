@@ -72,8 +72,6 @@ vtkImageMultipleInputFilter::~vtkImageMultipleInputFilter()
 //----------------------------------------------------------------------------
 void vtkImageMultipleInputFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  int idx;
-  
   os << indent << "NumberOfThreads: " << this->NumberOfThreads << "\n";
   os << indent << "Bypass: " << this->Bypass << "\n";
   
@@ -118,8 +116,6 @@ unsigned long int vtkImageMultipleInputFilter::GetPipelineMTime()
 // Expands the list memory if necessary
 void vtkImageMultipleInputFilter::AddInput(vtkImageData *input)
 {
-  int idx;
-  
   this->vtkProcessObject::AddInput(input);
 }
 
