@@ -23,7 +23,7 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkXMLDataElement, "1.15");
+vtkCxxRevisionMacro(vtkXMLDataElement, "1.16");
 vtkStandardNewMacro(vtkXMLDataElement);
 
 //----------------------------------------------------------------------------
@@ -778,6 +778,7 @@ void vtkXMLDataElementVectorAttributeSet(vtkXMLDataElement *elem, const char* na
     }
   vstr << ends;
   elem->SetAttribute(name, vstr.str());
+  vstr.rdbuf()->freeze(0);
 }
 
 //----------------------------------------------------------------------------
