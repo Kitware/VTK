@@ -11,7 +11,8 @@ MACRO(VTK_LOAD_CMAKE_EXTENSIONS SOURCE_DIR BUILD_DIR)
      TRY_COMPILE(COMPILE_OK 
         ${BUILD_DIR}
         ${SOURCE_DIR}
-        VTK_LOADED_COMMANDS)
+        VTK_LOADED_COMMANDS
+        OUTPUT_VARIABLE OUTPUT)
      IF (COMPILE_OK)
         MESSAGE(STATUS "Compiling VTK loaded commands - done")
         # load the four extra CMake commands 
@@ -22,6 +23,9 @@ MACRO(VTK_LOAD_CMAKE_EXTENSIONS SOURCE_DIR BUILD_DIR)
      ELSE (COMPILE_OK)
         MESSAGE(STATUS "Compiling VTK loaded commands - failed")
         MESSAGE("failed to compile VTK extensions to CMake")
+        WRITE_FILE(${CMAKE_BINARY_DIR}/CMakeError.log 
+        "Building of VTK extensions failed with the following output:\n"
+        "${OUTPUT}\n" APPEND)
      ENDIF (COMPILE_OK)
   ENDIF (COMMAND VTK_MAKE_INSTANTIATOR2)
   SET(VTK_USE_INSTANTIATOR_NEW "1")
