@@ -33,6 +33,7 @@
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkShortArray.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnsignedIntArray.h"
 #include "vtkUnsignedLongArray.h"
@@ -40,7 +41,7 @@
 #include "vtkVertex.h"
 #include "vtkVoxel.h"
 
-vtkCxxRevisionMacro(vtkImageData, "1.1.2.4");
+vtkCxxRevisionMacro(vtkImageData, "1.1.2.5");
 vtkStandardNewMacro(vtkImageData);
 
 //----------------------------------------------------------------------------
@@ -1084,26 +1085,17 @@ void vtkImageData::PrintSelf(ostream& os, vtkIndent indent)
   os << ")\n";
 }
 
-
 //----------------------------------------------------------------------------
-// Should we split up cells, or just points.  It does not matter for now.
-// Extent of structured data assumes points.
 void vtkImageData::SetUpdateExtent(int piece, int numPieces, int ghostLevel)
 {
-  int ext[6];
-  
-  this->UpdateInformation();
-  this->GetWholeExtent(ext);
-  this->ExtentTranslator->SetWholeExtent(ext);
-  this->ExtentTranslator->SetPiece(piece);
-  this->ExtentTranslator->SetNumberOfPieces(numPieces);
-  this->ExtentTranslator->SetGhostLevel(ghostLevel);
-  this->ExtentTranslator->PieceToExtent();
-  this->SetUpdateExtent(this->ExtentTranslator->GetExtent());
-
-  this->SetUpdatePiece(piece);
-  this->SetUpdateNumberOfPieces(numPieces);
-  this->SetUpdateGhostLevel(ghostLevel);
+  if(SDDP* sddp = this->TrySDDP("SetUpdateExtent"))
+    {
+    if(sddp->SetUpdateExtent(this->GetPortNumber(), piece,
+                             numPieces, ghostLevel))
+      {
+      this->Modified();
+      }
+    }
 }
 
 //----------------------------------------------------------------------------

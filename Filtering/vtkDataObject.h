@@ -313,8 +313,8 @@ public:
 
   // Description:
   // An object that will translate pieces into structured extents.
-  void SetExtentTranslator(vtkExtentTranslator *translator);
-  vtkExtentTranslator *GetExtentTranslator();  
+  void SetExtentTranslator(vtkExtentTranslator* translator);
+  vtkExtentTranslator* GetExtentTranslator();
 
   // Description:
   // Get the number of consumers
@@ -397,8 +397,6 @@ protected:
   virtual void CopyPipelineInformation(vtkInformation* oldPInfo,
                                        vtkInformation* newPInfo);
 
-  // An object to translate from unstructured pieces to structured extents.
-  vtkExtentTranslator *ExtentTranslator;
   // This request flag indicates whether the requester can handle 
   // more data than requested.  Right now it is used in vtkImageData.
   // Image filters can return more data than requested.  The the 
@@ -450,17 +448,17 @@ protected:
   vtkInformation* PipelineInformation;
 
   //BTX
+  // Check whether this data object is owned by a vtkStreamingDemandDrivenPipeline.
+  vtkStreamingDemandDrivenPipeline* TrySDDP(const char* method);
+  typedef vtkStreamingDemandDrivenPipeline SDDP;
+  //ETX
+
+  //BTX
   friend class vtkSourceToDataObjectFriendship;
   //ETX
 private:
   // Helper method for the ShallowCopy and DeepCopy methods.
   void InternalDataObjectCopy(vtkDataObject *src);
-
-  //BTX
-  // Check whether this data object is owned by a vtkStreamingDemandDrivenPipeline.
-  vtkStreamingDemandDrivenPipeline* TrySDDP(const char* method);
-  typedef vtkStreamingDemandDrivenPipeline SDDP;
-  //ETX
 
 private:
   vtkDataObject(const vtkDataObject&);  // Not implemented.

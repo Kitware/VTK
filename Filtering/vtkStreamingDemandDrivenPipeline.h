@@ -21,8 +21,10 @@
 
 #include "vtkDemandDrivenPipeline.h"
 
+class vtkExtentTranslator;
 class vtkInformationIntegerKey;
 class vtkInformationIntegerVectorKey;
+class vtkInformationObjectBaseKey;
 class vtkStreamingDemandDrivenPipelineInternals;
 
 class VTK_FILTERING_EXPORT vtkStreamingDemandDrivenPipeline : public vtkDemandDrivenPipeline
@@ -50,24 +52,28 @@ public:
   static vtkInformationIntegerKey* UPDATE_PIECE_NUMBER();
   static vtkInformationIntegerKey* UPDATE_NUMBER_OF_PIECES();
   static vtkInformationIntegerKey* UPDATE_NUMBER_OF_GHOST_LEVELS();
+  static vtkInformationObjectBaseKey* EXTENT_TRANSLATOR();
 
   int PropagateUpdateExtent(int outputPort);
 
-  void SetMaximumNumberOfPieces(int port, int n);
+  int SetMaximumNumberOfPieces(int port, int n);
   int GetMaximumNumberOfPieces(int port);
-  void SetWholeExtent(int port, int extent[6]);
+  int SetWholeExtent(int port, int extent[6]);
   void GetWholeExtent(int port, int extent[6]);
   int* GetWholeExtent(int port);
-  void SetUpdateExtentToWholeExtent(int port);
-  void SetUpdateExtent(int port, int extent[6]);
+  int SetUpdateExtentToWholeExtent(int port);
+  int SetUpdateExtent(int port, int extent[6]);
   void GetUpdateExtent(int port, int extent[6]);
   int* GetUpdateExtent(int port);
-  void SetUpdatePiece(int port, int piece);
+  int SetUpdateExtent(int port, int piece, int numPieces, int ghostLevel);
+  int SetUpdatePiece(int port, int piece);
   int GetUpdatePiece(int port);
-  void SetUpdateNumberOfPieces(int port, int n);
+  int SetUpdateNumberOfPieces(int port, int n);
   int GetUpdateNumberOfPieces(int port);
-  void SetUpdateGhostLevel(int port, int n);
+  int SetUpdateGhostLevel(int port, int n);
   int GetUpdateGhostLevel(int port);
+  int SetExtentTranslator(int port, vtkExtentTranslator* translator);
+  vtkExtentTranslator* GetExtentTranslator(int port);
 
 protected:
   vtkStreamingDemandDrivenPipeline();
@@ -75,7 +81,7 @@ protected:
 
   virtual int ExecuteInformation();
   virtual void CopyDefaultDownstreamInformation();
-  virtual void CopyDefaultUpstreamInformation();
+  virtual void CopyDefaultUpstreamInformation(int outputPort);
   int VerifyOutputInformation(int outputPort);
   virtual int NeedToExecuteData(int outputPort);
 

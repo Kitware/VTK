@@ -14,17 +14,18 @@
 =========================================================================*/
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-#include "vtkInformationIntegerKey.h"
-#include "vtkInformationIntegerVectorKey.h"
-#include "vtkObjectFactory.h"
-
 #include "vtkAlgorithm.h"
 #include "vtkAlgorithmOutput.h"
 #include "vtkDataObject.h"
+#include "vtkExtentTranslator.h"
 #include "vtkInformation.h"
+#include "vtkInformationIntegerKey.h"
+#include "vtkInformationIntegerVectorKey.h"
+#include "vtkInformationObjectBaseKey.h"
 #include "vtkInformationVector.h"
+#include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.1.2.7");
+vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.1.2.8");
 vtkStandardNewMacro(vtkStreamingDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, CONTINUE_EXECUTING, Integer);
@@ -36,6 +37,9 @@ vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, UPDATE_NUMBER_OF_PIECES
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, UPDATE_NUMBER_OF_GHOST_LEVELS, Integer);
 vtkInformationKeyRestrictedMacro(vtkStreamingDemandDrivenPipeline, WHOLE_EXTENT, IntegerVector, 6);
 vtkInformationKeyRestrictedMacro(vtkStreamingDemandDrivenPipeline, UPDATE_EXTENT, IntegerVector, 6);
+vtkInformationKeyRestrictedMacro(vtkStreamingDemandDrivenPipeline,
+                                 EXTENT_TRANSLATOR, ObjectBase,
+                                 "vtkExtentTranslator");
 
 //----------------------------------------------------------------------------
 class vtkStreamingDemandDrivenPipelineInternals
@@ -182,6 +186,8 @@ vtkStreamingDemandDrivenPipeline
                WHOLE_EXTENT());
   info->Append(vtkDemandDrivenPipeline::DOWNSTREAM_KEYS_TO_COPY(),
                MAXIMUM_NUMBER_OF_PIECES());
+  info->Append(vtkDemandDrivenPipeline::DOWNSTREAM_KEYS_TO_COPY(),
+               EXTENT_TRANSLATOR());
 }
 
 //----------------------------------------------------------------------------
@@ -196,8 +202,7 @@ void vtkStreamingDemandDrivenPipeline::CopyDefaultDownstreamInformation()
     if(outPort->Has(vtkDataObject::DATA_EXTENT_TYPE()))
       {
       vtkInformation* outInfo = this->GetOutputInformation(i);
-      if(outPort->Get(vtkDataObject::DATA_EXTENT_TYPE()) ==
-         VTK_PIECES_EXTENT)
+      if(outPort->Get(vtkDataObject::DATA_EXTENT_TYPE()) == VTK_PIECES_EXTENT)
         {
         if (!outInfo->Has(MAXIMUM_NUMBER_OF_PIECES()))
           {
@@ -206,18 +211,32 @@ void vtkStreamingDemandDrivenPipeline::CopyDefaultDownstreamInformation()
           outInfo->Set(MAXIMUM_NUMBER_OF_PIECES(), 1);
           }
         }
+      else if(outPort->Get(vtkDataObject::DATA_EXTENT_TYPE()) == VTK_3D_EXTENT)
+        {
+        if(!outInfo->Has(EXTENT_TRANSLATOR()) ||
+           !outInfo->Get(EXTENT_TRANSLATOR()))
+          {
+          // Create a default extent translator.
+          vtkExtentTranslator* translator = vtkExtentTranslator::New();
+          outInfo->Set(EXTENT_TRANSLATOR(), translator);
+          translator->Delete();
+          }
+        }
       }
     }
 }
 
 //----------------------------------------------------------------------------
-void vtkStreamingDemandDrivenPipeline::CopyDefaultUpstreamInformation()
+void
+vtkStreamingDemandDrivenPipeline
+::CopyDefaultUpstreamInformation(int outputPort)
 {
   // Setup default information for the inputs.
   if(this->Algorithm->GetNumberOfOutputPorts() > 0)
     {
-    // Copy information from the first output.
-    vtkInformation* outInfo = this->GetOutputInformation(0);
+    // Copy information from the output port that made the request.
+    vtkInformation* outInfo =
+      this->GetOutputInformation((outputPort >= 0)? outputPort : 0);
     if(outInfo)
       {
       for(int i=0; i < this->Algorithm->GetNumberOfInputPorts(); ++i)
@@ -295,7 +314,7 @@ int vtkStreamingDemandDrivenPipeline::PropagateUpdateExtent(int outputPort)
       return 0;
       }
 
-    this->CopyDefaultUpstreamInformation();
+    this->CopyDefaultUpstreamInformation(outputPort);
 
     // Request information from the algorithm.
     this->PrepareUpstreamRequest(REQUEST_UPDATE_EXTENT());
@@ -360,12 +379,13 @@ int vtkStreamingDemandDrivenPipeline::VerifyOutputInformation(int outputPort)
     return 0;
     }
 
-  // if it is dummy then return ok
+  // If the data object is a dummy used by vtkProcessObject to store
+  // NULL connections for backward compatibility, then check nothing.
   if(dataObject->IsA("vtkProcessObjectDummyData"))
     {
     return 1;
     }
-  
+
   // Check extents.
   vtkInformation* dataInfo = dataObject->GetInformation();
   if(dataInfo->Get(vtkDataObject::DATA_EXTENT_TYPE()) == VTK_PIECES_EXTENT)
@@ -530,15 +550,19 @@ int vtkStreamingDemandDrivenPipeline::NeedToExecuteData(int outputPort)
 }
 
 //----------------------------------------------------------------------------
-void vtkStreamingDemandDrivenPipeline::SetMaximumNumberOfPieces(int port,
-                                                                int n)
+int vtkStreamingDemandDrivenPipeline::SetMaximumNumberOfPieces(int port, int n)
 {
   if(!this->OutputPortIndexInRange(port, "set maximum number of pieces on"))
     {
-    return;
+    return 0;
     }
   vtkInformation* info = this->GetOutputInformation(port);
-  info->Set(MAXIMUM_NUMBER_OF_PIECES(), n);
+  if(this->GetMaximumNumberOfPieces(port) != n)
+    {
+    info->Set(MAXIMUM_NUMBER_OF_PIECES(), n);
+    return 1;
+    }
+  return 0;
 }
 
 //----------------------------------------------------------------------------
@@ -557,14 +581,24 @@ int vtkStreamingDemandDrivenPipeline::GetMaximumNumberOfPieces(int port)
 }
 
 //----------------------------------------------------------------------------
-void vtkStreamingDemandDrivenPipeline::SetWholeExtent(int port, int extent[6])
+int vtkStreamingDemandDrivenPipeline::SetWholeExtent(int port, int extent[6])
 {
   if(!this->OutputPortIndexInRange(port, "set whole extent on"))
     {
-    return;
+    return 0;
     }
   vtkInformation* info = this->GetOutputInformation(port);
-  info->Set(WHOLE_EXTENT(), extent, 6);
+  int modified = 0;
+  int oldExtent[6];
+  this->GetWholeExtent(port, oldExtent);
+  if(oldExtent[0] != extent[0] || oldExtent[1] != extent[1] ||
+     oldExtent[2] != extent[2] || oldExtent[3] != extent[3] ||
+     oldExtent[4] != extent[4] || oldExtent[5] != extent[5])
+    {
+    modified = 1;
+    info->Set(WHOLE_EXTENT(), extent, 6);
+    }
+  return modified;
 }
 
 //----------------------------------------------------------------------------
@@ -601,11 +635,11 @@ int* vtkStreamingDemandDrivenPipeline::GetWholeExtent(int port)
 }
 
 //----------------------------------------------------------------------------
-void vtkStreamingDemandDrivenPipeline::SetUpdateExtentToWholeExtent(int port)
+int vtkStreamingDemandDrivenPipeline::SetUpdateExtentToWholeExtent(int port)
 {
   if(!this->OutputPortIndexInRange(port, "set update extent to whole extent on"))
     {
-    return;
+    return 0;
     }
   vtkInformation* info = this->GetOutputInformation(port);
 
@@ -614,19 +648,20 @@ void vtkStreamingDemandDrivenPipeline::SetUpdateExtentToWholeExtent(int port)
   info->Set(UPDATE_EXTENT_INITIALIZED(), 0);
 
   // Request all data.
+  int modified = 0;
   if(vtkDataObject* data = info->Get(vtkDataObject::DATA_OBJECT()))
     {
     if(data->GetExtentType() == VTK_PIECES_EXTENT)
       {
-      info->Set(UPDATE_PIECE_NUMBER(), 0);
-      info->Set(UPDATE_NUMBER_OF_PIECES(), 1);
-      info->Set(UPDATE_NUMBER_OF_GHOST_LEVELS(), 0);
+      modified |= this->SetUpdatePiece(port, 0);
+      modified |= this->SetUpdateNumberOfPieces(port, 1);
+      modified |= this->SetUpdateGhostLevel(port, 0);
       }
     else if(data->GetExtentType() == VTK_3D_EXTENT)
       {
       int extent[6] = {0,-1,0,-1,0,-1};
       info->Get(WHOLE_EXTENT(), extent);
-      info->Set(UPDATE_EXTENT(), extent, 6);
+      modified |= this->SetUpdateExtent(port, extent);
       }
     }
   else
@@ -634,18 +669,70 @@ void vtkStreamingDemandDrivenPipeline::SetUpdateExtentToWholeExtent(int port)
     vtkErrorMacro("SetUpdateExtentToWholeExtent called with no data object on port "
                   << port << ".");
     }
+  return modified;
 }
 
 //----------------------------------------------------------------------------
-void vtkStreamingDemandDrivenPipeline::SetUpdateExtent(int port, int extent[6])
+int vtkStreamingDemandDrivenPipeline::SetUpdateExtent(int port, int extent[6])
 {
   if(!this->OutputPortIndexInRange(port, "set update extent on"))
     {
-    return;
+    return 0;
     }
   vtkInformation* info = this->GetOutputInformation(port);
-  info->Set(UPDATE_EXTENT(), extent, 6);
+  int modified = 0;
+  int oldExtent[6];
+  this->GetUpdateExtent(port, oldExtent);
+  if(oldExtent[0] != extent[0] || oldExtent[1] != extent[1] ||
+     oldExtent[2] != extent[2] || oldExtent[3] != extent[3] ||
+     oldExtent[4] != extent[4] || oldExtent[5] != extent[5])
+    {
+    modified = 1;
+    info->Set(UPDATE_EXTENT(), extent, 6);
+    }
   info->Set(UPDATE_EXTENT_INITIALIZED(), 1);
+  return modified;
+}
+
+//----------------------------------------------------------------------------
+int vtkStreamingDemandDrivenPipeline::SetUpdateExtent(int port, int piece,
+                                                      int numPieces,
+                                                      int ghostLevel)
+{
+  if(!this->OutputPortIndexInRange(port, "set unstructured update extent on"))
+    {
+    return 0;
+    }
+  vtkInformation* info = this->GetOutputInformation(port);
+  int modified = 0;
+  modified |= this->SetUpdatePiece(port, piece);
+  modified |= this->SetUpdateNumberOfPieces(port, numPieces);
+  modified |= this->SetUpdateGhostLevel(port, ghostLevel);
+  if(vtkDataObject* data = info->Get(vtkDataObject::DATA_OBJECT()))
+    {
+    if(data->GetExtentType() == VTK_3D_EXTENT)
+      {
+      if(vtkExtentTranslator* translator = this->GetExtentTranslator(port))
+        {
+        int wholeExtent[6];
+        this->GetWholeExtent(port, wholeExtent);
+        translator->SetWholeExtent(wholeExtent);
+        translator->SetPiece(piece);
+        translator->SetNumberOfPieces(numPieces);
+        translator->SetGhostLevel(ghostLevel);
+        translator->PieceToExtent();
+        modified |= this->SetUpdateExtent(port, translator->GetExtent());
+        }
+      else
+        {
+        vtkErrorMacro("Cannot translate unstructured extent to structured "
+                      "for output port " << port << " of algorithm "
+                      << this->Algorithm->GetClassName() << "("
+                      << this->Algorithm << ").");
+        }
+      }
+    }
+  return modified;
 }
 
 //----------------------------------------------------------------------------
@@ -684,15 +771,21 @@ int* vtkStreamingDemandDrivenPipeline::GetUpdateExtent(int port)
 }
 
 //----------------------------------------------------------------------------
-void vtkStreamingDemandDrivenPipeline::SetUpdatePiece(int port, int piece)
+int vtkStreamingDemandDrivenPipeline::SetUpdatePiece(int port, int piece)
 {
   if(!this->OutputPortIndexInRange(port, "set update piece on"))
     {
-    return;
+    return 0;
     }
   vtkInformation* info = this->GetOutputInformation(port);
-  info->Set(UPDATE_PIECE_NUMBER(), piece);
+  int modified = 0;
+  if(this->GetUpdatePiece(port) != piece)
+    {
+    info->Set(UPDATE_PIECE_NUMBER(), piece);
+    modified = 1;
+    }
   info->Set(UPDATE_EXTENT_INITIALIZED(), 1);
+  return modified;
 }
 
 //----------------------------------------------------------------------------
@@ -711,15 +804,21 @@ int vtkStreamingDemandDrivenPipeline::GetUpdatePiece(int port)
 }
 
 //----------------------------------------------------------------------------
-void vtkStreamingDemandDrivenPipeline::SetUpdateNumberOfPieces(int port, int n)
+int vtkStreamingDemandDrivenPipeline::SetUpdateNumberOfPieces(int port, int n)
 {
   if(!this->OutputPortIndexInRange(port, "set update numer of pieces on"))
     {
-    return;
+    return 0;
     }
   vtkInformation* info = this->GetOutputInformation(port);
-  info->Set(UPDATE_NUMBER_OF_PIECES(), n);
+  int modified = 0;
+  if(this->GetUpdateNumberOfPieces(port) != n)
+    {
+    info->Set(UPDATE_NUMBER_OF_PIECES(), n);
+    modified = 1;
+    }
   info->Set(UPDATE_EXTENT_INITIALIZED(), 1);
+  return modified;
 }
 
 //----------------------------------------------------------------------------
@@ -738,14 +837,19 @@ int vtkStreamingDemandDrivenPipeline::GetUpdateNumberOfPieces(int port)
 }
 
 //----------------------------------------------------------------------------
-void vtkStreamingDemandDrivenPipeline::SetUpdateGhostLevel(int port, int n)
+int vtkStreamingDemandDrivenPipeline::SetUpdateGhostLevel(int port, int n)
 {
   if(!this->OutputPortIndexInRange(port, "set update numer of ghost levels on"))
     {
-    return;
+    return 0;
     }
   vtkInformation* info = this->GetOutputInformation(port);
-  info->Set(UPDATE_NUMBER_OF_GHOST_LEVELS(), n);
+  if(this->GetUpdateGhostLevel(port) != n)
+    {
+    info->Set(UPDATE_NUMBER_OF_GHOST_LEVELS(), n);
+    return 1;
+    }
+  return 0;
 }
 
 //----------------------------------------------------------------------------
@@ -761,4 +865,44 @@ int vtkStreamingDemandDrivenPipeline::GetUpdateGhostLevel(int port)
     info->Set(UPDATE_NUMBER_OF_GHOST_LEVELS(), 0);
     }
   return info->Get(UPDATE_NUMBER_OF_GHOST_LEVELS());
+}
+
+//----------------------------------------------------------------------------
+int
+vtkStreamingDemandDrivenPipeline
+::SetExtentTranslator(int port, vtkExtentTranslator* translator)
+{
+  if(!this->OutputPortIndexInRange(port, "set extent translator on"))
+    {
+    return 0;
+    }
+  vtkInformation* info = this->GetOutputInformation(port);
+  vtkExtentTranslator* oldTranslator =
+    vtkExtentTranslator::SafeDownCast(info->Get(EXTENT_TRANSLATOR()));
+  if(translator != oldTranslator)
+    {
+    info->Set(EXTENT_TRANSLATOR(), translator);
+    return 1;
+    }
+  return 0;
+}
+
+//----------------------------------------------------------------------------
+vtkExtentTranslator*
+vtkStreamingDemandDrivenPipeline::GetExtentTranslator(int port)
+{
+  if(!this->OutputPortIndexInRange(port, "get extent translator from"))
+    {
+    return 0;
+    }
+  vtkInformation* info = this->GetOutputInformation(port);
+  vtkExtentTranslator* translator =
+    vtkExtentTranslator::SafeDownCast(info->Get(EXTENT_TRANSLATOR()));
+  if(!translator)
+    {
+    translator = vtkExtentTranslator::New();
+    info->Set(EXTENT_TRANSLATOR(), translator);
+    translator->Delete();
+    }
+  return translator;
 }

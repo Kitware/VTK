@@ -24,11 +24,12 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStructuredVisibilityConstraint.h"
 #include "vtkQuad.h"
 #include "vtkVertex.h"
 
-vtkCxxRevisionMacro(vtkStructuredGrid, "1.1.2.1");
+vtkCxxRevisionMacro(vtkStructuredGrid, "1.1.2.2");
 vtkStandardNewMacro(vtkStructuredGrid);
 
 vtkCxxSetObjectMacro(vtkStructuredGrid,
@@ -844,25 +845,17 @@ void vtkStructuredGrid::GetCellPoints(vtkIdType cellId, vtkIdList *ptIds)
 }
 
 //----------------------------------------------------------------------------
-// Should we split up cells, or just points.  It does not matter for now.
-// Extent of structured data assumes points.
 void vtkStructuredGrid::SetUpdateExtent(int piece, int numPieces,
                                         int ghostLevel)
 {
-  int ext[6];
-  
-  this->UpdateInformation();
-  this->GetWholeExtent(ext);
-  this->ExtentTranslator->SetWholeExtent(ext);
-  this->ExtentTranslator->SetPiece(piece);
-  this->ExtentTranslator->SetNumberOfPieces(numPieces);
-  this->ExtentTranslator->SetGhostLevel(ghostLevel);
-  this->ExtentTranslator->PieceToExtent();
-  this->SetUpdateExtent(this->ExtentTranslator->GetExtent());
-
-  this->SetUpdatePiece(piece);
-  this->SetUpdateNumberOfPieces(numPieces);
-  this->SetUpdateGhostLevel(ghostLevel);
+  if(SDDP* sddp = this->TrySDDP("SetUpdateExtent"))
+    {
+    if(sddp->SetUpdateExtent(this->GetPortNumber(), piece,
+                             numPieces, ghostLevel))
+      {
+      this->Modified();
+      }
+    }
 }
 
 //----------------------------------------------------------------------------

@@ -27,7 +27,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkDataSet, "1.1.2.1");
+vtkCxxRevisionMacro(vtkDataSet, "1.1.2.2");
 
 //----------------------------------------------------------------------------
 // Constructor with default bounds (0,1, 0,1, 0,1).
@@ -452,13 +452,14 @@ void vtkDataSet::GenerateGhostLevelArray()
     int i, j, k, di, dj, dk, dist;
 
     this->Information->Get(vtkDataObject::DATA_EXTENT(), extent);
+    vtkExtentTranslator* translator = this->GetExtentTranslator();
     // Get the extent with ghost level 0.
-    this->ExtentTranslator->SetWholeExtent(this->GetWholeExtent());
-    this->ExtentTranslator->SetPiece(this->GetUpdatePiece());
-    this->ExtentTranslator->SetNumberOfPieces(this->GetUpdateNumberOfPieces());
-    this->ExtentTranslator->SetGhostLevel(0);
-    this->ExtentTranslator->PieceToExtent();
-    this->ExtentTranslator->GetExtent(zeroExt);
+    translator->SetWholeExtent(this->GetWholeExtent());
+    translator->SetPiece(this->GetUpdatePiece());
+    translator->SetNumberOfPieces(this->GetUpdateNumberOfPieces());
+    translator->SetGhostLevel(0);
+    translator->PieceToExtent();
+    translator->GetExtent(zeroExt);
 
     // ---- POINTS ----
     // Allocate the appropriate number levels (number of points).

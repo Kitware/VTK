@@ -28,7 +28,7 @@
 #include "vtkInformationIntegerVectorKey.h"
 #include "vtkInformationStringKey.h"
 
-vtkCxxRevisionMacro(vtkDataObject, "1.2.2.5");
+vtkCxxRevisionMacro(vtkDataObject, "1.2.2.6");
 vtkStandardNewMacro(vtkDataObject);
 
 vtkCxxSetObjectMacro(vtkDataObject,Information,vtkInformation);
@@ -79,10 +79,6 @@ vtkDataObject::vtkDataObject()
   
   this->Locality = 0.0;
 
-  this->ExtentTranslator = vtkExtentTranslator::New();
-  this->ExtentTranslator->Register(this);
-  this->ExtentTranslator->Delete();
-
   this->LastUpdateExtentWasOutsideOfTheExtent = 0;
 
   this->NumberOfConsumers = 0;
@@ -97,7 +93,6 @@ vtkDataObject::~vtkDataObject()
   this->SetInformation(0);
   this->SetFieldData(NULL);
 
-  this->SetExtentTranslator(NULL);
   delete [] this->Consumers;
 }
 
@@ -186,6 +181,12 @@ void vtkDataObject::PrintSelf(ostream& os, vtkIndent indent)
          << pInfo->Get(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES())
          << endl;
       }
+    if(pInfo->Has(vtkStreamingDemandDrivenPipeline::EXTENT_TRANSLATOR()))
+      {
+      os << indent << "ExtentTranslator: ("
+         << pInfo->Get(vtkStreamingDemandDrivenPipeline::EXTENT_TRANSLATOR())
+         << ")\n";
+      }
     }
 
   if (this->RequestExactExtent)
@@ -202,7 +203,6 @@ void vtkDataObject::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Locality: " << this->Locality << endl;
   os << indent << "NumberOfConsumers: " << this->NumberOfConsumers << endl;
-  os << indent << "ExtentTranslator: (" << this->ExtentTranslator << ")\n";
 }
 
 //----------------------------------------------------------------------------
@@ -648,34 +648,6 @@ void vtkDataObject::InternalDataObjectCopy(vtkDataObject *src)
 }
 
 //----------------------------------------------------------------------------
-void vtkDataObject::SetExtentTranslator(vtkExtentTranslator *t)
-{
-  if (this->ExtentTranslator == t)
-    {
-    return;
-    }
-
-  if (this->ExtentTranslator)
-    {
-    this->ExtentTranslator->UnRegister(this);
-    this->ExtentTranslator = NULL;
-    }
-  if (t)
-    {
-    t->Register(this);
-    this->ExtentTranslator = t;
-    }
-
-  this->Modified();
-} 
-
-//----------------------------------------------------------------------------
-vtkExtentTranslator *vtkDataObject::GetExtentTranslator()
-{
-  return this->ExtentTranslator;
-}
-
-//----------------------------------------------------------------------------
 // This should be a pure virutal method.
 void vtkDataObject::Crop()
 {
@@ -764,7 +736,10 @@ void vtkDataObject::SetUpdateExtentToWholeExtent()
 {
   if(SDDP* sddp = this->TrySDDP("SetUpdateExtentToWholeExtent"))
     {
-    sddp->SetUpdateExtentToWholeExtent(this->GetPortNumber());
+    if(sddp->SetUpdateExtentToWholeExtent(this->GetPortNumber()))
+      {
+      this->Modified();
+      }
     }
 }
 
@@ -773,7 +748,10 @@ void vtkDataObject::SetMaximumNumberOfPieces(int n)
 {
   if(SDDP* sddp = this->TrySDDP("SetMaximumNumberOfPieces"))
     {
-    sddp->SetMaximumNumberOfPieces(this->GetPortNumber(), n);
+    if(sddp->SetMaximumNumberOfPieces(this->GetPortNumber(), n))
+      {
+      this->Modified();
+      }
     }
 }
 
@@ -800,7 +778,10 @@ void vtkDataObject::SetWholeExtent(int extent[6])
 {
   if(SDDP* sddp = this->TrySDDP("SetWholeExtent"))
     {
-    sddp->SetWholeExtent(this->GetPortNumber(), extent);
+    if(sddp->SetWholeExtent(this->GetPortNumber(), extent))
+      {
+      this->Modified();
+      }
     }
 }
 
@@ -854,7 +835,10 @@ void vtkDataObject::SetUpdateExtent(int extent[6])
 {
   if(SDDP* sddp = this->TrySDDP("SetUpdateExtent"))
     {
-    sddp->SetUpdateExtent(this->GetPortNumber(), extent);
+    if(sddp->SetUpdateExtent(this->GetPortNumber(), extent))
+      {
+      this->Modified();
+      }
     }
 }
 
@@ -900,7 +884,10 @@ void vtkDataObject::SetUpdatePiece(int piece)
 {
   if(SDDP* sddp = this->TrySDDP("SetUpdatePiece"))
     {
-    sddp->SetUpdatePiece(this->GetPortNumber(), piece);
+    if(sddp->SetUpdatePiece(this->GetPortNumber(), piece))
+      {
+      this->Modified();
+      }
     }
 }
 
@@ -919,7 +906,10 @@ void vtkDataObject::SetUpdateNumberOfPieces(int n)
 {
   if(SDDP* sddp = this->TrySDDP("SetUpdateNumberOfPieces"))
     {
-    sddp->SetUpdateNumberOfPieces(this->GetPortNumber(), n);
+    if(sddp->SetUpdateNumberOfPieces(this->GetPortNumber(), n))
+      {
+      this->Modified();
+      }
     }
 }
 
@@ -938,7 +928,10 @@ void vtkDataObject::SetUpdateGhostLevel(int level)
 {
   if(SDDP* sddp = this->TrySDDP("SetUpdateGhostLevel"))
     {
-    sddp->SetUpdateGhostLevel(this->GetPortNumber(), level);
+    if(sddp->SetUpdateGhostLevel(this->GetPortNumber(), level))
+      {
+      this->Modified();
+      }
     }
 }
 
@@ -948,6 +941,28 @@ int vtkDataObject::GetUpdateGhostLevel()
   if(SDDP* sddp = this->TrySDDP("GetUpdateGhostLevel"))
     {
     return sddp->GetUpdateGhostLevel(this->GetPortNumber());
+    }
+  return 0;
+}
+
+//----------------------------------------------------------------------------
+void vtkDataObject::SetExtentTranslator(vtkExtentTranslator* translator)
+{
+  if(SDDP* sddp = this->TrySDDP("SetExtentTranslator"))
+    {
+    if(sddp->SetExtentTranslator(this->GetPortNumber(), translator))
+      {
+      this->Modified();
+      }
+    }
+}
+
+//----------------------------------------------------------------------------
+vtkExtentTranslator* vtkDataObject::GetExtentTranslator()
+{
+  if(SDDP* sddp = this->TrySDDP("GetExtentTranslator"))
+    {
+    return sddp->GetExtentTranslator(this->GetPortNumber());
     }
   return 0;
 }

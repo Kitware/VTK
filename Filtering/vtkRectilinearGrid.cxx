@@ -25,11 +25,12 @@
 #include "vtkPixel.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkVertex.h"
 #include "vtkVoxel.h"
 
-vtkCxxRevisionMacro(vtkRectilinearGrid, "1.1.2.1");
+vtkCxxRevisionMacro(vtkRectilinearGrid, "1.1.2.2");
 vtkStandardNewMacro(vtkRectilinearGrid);
 
 vtkCxxSetObjectMacro(vtkRectilinearGrid,XCoordinates,vtkDataArray);
@@ -864,27 +865,18 @@ int vtkRectilinearGrid::ComputeStructuredCoordinates(double x[3], int ijk[3],
 }
 
 //----------------------------------------------------------------------------
-// Should we split up cells, or just points.  It does not matter for now.
-// Extent of structured data assumes points.
 void vtkRectilinearGrid::SetUpdateExtent(int piece, int numPieces,
                                          int ghostLevel)
 {
-  int ext[6];
-  
-  this->UpdateInformation();
-  this->GetWholeExtent(ext);
-  this->ExtentTranslator->SetWholeExtent(ext);
-  this->ExtentTranslator->SetPiece(piece);
-  this->ExtentTranslator->SetNumberOfPieces(numPieces);
-  this->ExtentTranslator->SetGhostLevel(ghostLevel);
-  this->ExtentTranslator->PieceToExtent();
-  this->SetUpdateExtent(this->ExtentTranslator->GetExtent());
-
-  this->SetUpdatePiece(piece);
-  this->SetUpdateNumberOfPieces(numPieces);
-  this->SetUpdateGhostLevel(ghostLevel);
+  if(SDDP* sddp = this->TrySDDP("SetUpdateExtent"))
+    {
+    if(sddp->SetUpdateExtent(this->GetPortNumber(), piece,
+                             numPieces, ghostLevel))
+      {
+      this->Modified();
+      }
+    }
 }
-
 
 //----------------------------------------------------------------------------
 unsigned long vtkRectilinearGrid::GetActualMemorySize()
