@@ -520,14 +520,14 @@ JNIEXPORT char *vtkJavaUTFToChar(JNIEnv *env, jstring in)
   
   for (i = 0; i < length; i++)
     {
-    if ((inBytes[i] >= 0)&&(inBytes[i] < 128 )) resultLength++;
+    if ((inBytes[i] & 0x80) == 0) resultLength++;
     }
   result = new char [resultLength];
 
   resultLength = 0; // the 0 versus 1 up above is on purpose
   for (i = 0; i < length; i++)
     {
-    if ((inBytes[i] >= 0)&&(inBytes[i] < 128 ))
+    if ((inBytes[i] & 0x80) == 0)
       {
       result[resultLength] = inBytes[i];
       resultLength++;
