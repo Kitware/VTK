@@ -245,7 +245,14 @@ void vtkGeneralTransform::InternalUpdate()
   // update the input
   if (this->Input)
     {
-    this->Input->Update();
+    if (this->Concatenation->GetInverseFlag())
+      {
+      this->Input->GetInverse()->Update();
+      }
+    else
+      {
+      this->Input->Update();
+      }
     }
 
   // update the concatenation
