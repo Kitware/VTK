@@ -23,7 +23,7 @@
 #include "vtkPolyData.h"
 #include "vtkPolyLine.h"
 
-vtkCxxRevisionMacro(vtkTubeFilter, "1.67");
+vtkCxxRevisionMacro(vtkTubeFilter, "1.68");
 vtkStandardNewMacro(vtkTubeFilter);
 
 // Construct object with radius 0.5, radius variation turned off, the number 
@@ -86,7 +86,6 @@ void vtkTubeFilter::Execute()
       !(inLines = input->GetLines()) || 
        (numLines = inLines->GetNumberOfCells()) < 1 )
     {
-    vtkWarningMacro(<< " No input data!");
     return;
     }
 

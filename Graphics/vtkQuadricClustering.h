@@ -113,7 +113,8 @@ public:
   // Description:
   // Set/Get the number of divisions along each axis for the spatial bins.
   // The number of spatial bins is NumberOfXDivisions*NumberOfYDivisions*
-  // NumberOfZDivisions.
+  // NumberOfZDivisions.  The filter may choose to ignore large numbers of 
+  // divisions if input has few points.
   void SetNumberOfXDivisions(int num);
   void SetNumberOfYDivisions(int num);
   void SetNumberOfZDivisions(int num);
@@ -251,6 +252,10 @@ protected:
   int NumberOfXDivisions;
   int NumberOfYDivisions;
   int NumberOfZDivisions;
+
+  // Used internally.
+  // can be smaller than user values when input numb er of points is small.
+  int NumberOfDivisions[3];
 
   // Since there are two was of specifing the grid, we have this flag
   // to indicate which the user has set.  When this flag is on, 

@@ -33,7 +33,7 @@
 #include "vtkIdTypeArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkDataSetAttributes, "1.60");
+vtkCxxRevisionMacro(vtkDataSetAttributes, "1.61");
 vtkStandardNewMacro(vtkDataSetAttributes);
 
 //--------------------------------------------------------------------------
@@ -1297,7 +1297,7 @@ vtkDataArray* vtkDataSetAttributes::GetTensors()
 
 vtkDataArray* vtkDataSetAttributes::GetScalars(const char* name)
 {
-  if (name == NULL)
+  if (name == NULL || name[0] == '\0')
     {
     return this->GetScalars();
     }
@@ -1312,7 +1312,7 @@ vtkDataArray* vtkDataSetAttributes::GetScalars(const char* name)
 
 vtkDataArray* vtkDataSetAttributes::GetVectors(const char* name)
 {
-  if (name == NULL)
+  if (name == NULL || name[0] == '\0')
     {
     return this->GetVectors();
     }
@@ -1327,7 +1327,7 @@ vtkDataArray* vtkDataSetAttributes::GetVectors(const char* name)
 
 vtkDataArray* vtkDataSetAttributes::GetNormals(const char* name)
 {
-  if (name == NULL)
+  if (name == NULL || name[0] == '\0')
     {
     return this->GetNormals();
     }
@@ -1342,7 +1342,7 @@ vtkDataArray* vtkDataSetAttributes::GetNormals(const char* name)
 
 vtkDataArray* vtkDataSetAttributes::GetTCoords(const char* name)
 {
-  if (name == NULL)
+  if (name == NULL || name[0] == '\0')
     {
     return this->GetTCoords();
     }
@@ -1357,7 +1357,7 @@ vtkDataArray* vtkDataSetAttributes::GetTCoords(const char* name)
 
 vtkDataArray* vtkDataSetAttributes::GetTensors(const char* name)
 {
-  if (name == NULL)
+  if (name == NULL || name[0] == '\0')
     {
     return this->GetTensors();
     }

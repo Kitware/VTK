@@ -88,7 +88,7 @@ vtkXOpenGLRenderWindowInternal::vtkXOpenGLRenderWindowInternal(
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.31");
+vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.32");
 vtkStandardNewMacro(vtkXOpenGLRenderWindow);
 #endif
 
@@ -151,6 +151,10 @@ XVisualInfo *vtkXOpenGLRenderWindowTryForVisual(Display *DisplayId,
     
   attributes[index++] = None;
 
+  if (!DisplayId)
+    {
+    return NULL;
+    }
   return glXChooseVisual(DisplayId, DefaultScreen(DisplayId), attributes );
 }
 

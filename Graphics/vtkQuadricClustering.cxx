@@ -25,7 +25,7 @@
 #include "vtkTimerLog.h"
 #include "vtkTriangle.h"
 
-vtkCxxRevisionMacro(vtkQuadricClustering, "1.46");
+vtkCxxRevisionMacro(vtkQuadricClustering, "1.47");
 vtkStandardNewMacro(vtkQuadricClustering);
 
 //----------------------------------------------------------------------------
@@ -119,6 +119,28 @@ void vtkQuadricClustering::Execute()
     tlog->StartTimer();
     }
 
+  // Lets limit the number of divisions based on 
+  // the number of points in the input.
+  int target = this->GetInput()->GetNumberOfPoints();
+  int numDiv = (this->NumberOfXDivisions * this->NumberOfYDivisions
+                  * this->NumberOfZDivisions) / 2;
+  if (numDiv > target) 
+    {
+    double factor = pow(((double)numDiv/(double)target),0.33333);
+    this->NumberOfDivisions[0] = 
+      (int)(0.5+(float)(this->NumberOfXDivisions)/factor);  
+    this->NumberOfDivisions[1] = 
+      (int)(0.5+(float)(this->NumberOfYDivisions)/factor);  
+    this->NumberOfDivisions[2] = 
+      (int)(0.5+(float)(this->NumberOfZDivisions)/factor);  
+    }
+  else
+    {
+    this->NumberOfDivisions[0] = this->NumberOfXDivisions;
+    this->NumberOfDivisions[1] = this->NumberOfYDivisions;
+    this->NumberOfDivisions[2] = this->NumberOfZDivisions;
+    }
+
   this->StartAppend(input->GetBounds());
 
   this->Append(input);
@@ -173,18 +195,18 @@ void vtkQuadricClustering::StartAppend(float *bounds)
     this->Bounds[1] = this->Bounds[0] + (x * this->DivisionSpacing[0]);
     this->Bounds[3] = this->Bounds[2] + (y * this->DivisionSpacing[1]);
     this->Bounds[5] = this->Bounds[4] + (z * this->DivisionSpacing[2]);
-    this->NumberOfXDivisions = (int)x;
-    this->NumberOfYDivisions = (int)y;
-    this->NumberOfZDivisions = (int)z;
+    this->NumberOfDivisions[0] = (int)x;
+    this->NumberOfDivisions[1] = (int)y;
+    this->NumberOfDivisions[2] = (int)z;
     }
   else
     {
     this->DivisionOrigin[0] = bounds[0];
     this->DivisionOrigin[1] = bounds[2];
     this->DivisionOrigin[2] = bounds[4];
-    this->DivisionSpacing[0] = (bounds[1]-bounds[0])/this->NumberOfXDivisions;
-    this->DivisionSpacing[1] = (bounds[3]-bounds[2])/this->NumberOfYDivisions;
-    this->DivisionSpacing[2] = (bounds[5]-bounds[4])/this->NumberOfZDivisions;
+    this->DivisionSpacing[0] = (bounds[1]-bounds[0])/this->NumberOfDivisions[0];
+    this->DivisionSpacing[1] = (bounds[3]-bounds[2])/this->NumberOfDivisions[1];
+    this->DivisionSpacing[2] = (bounds[5]-bounds[4])/this->NumberOfDivisions[2];
     }
 
   // Check for conditions that can occur if the Append methods 
@@ -205,9 +227,9 @@ void vtkQuadricClustering::StartAppend(float *bounds)
   this->OutputTriangleArray = vtkCellArray::New();
   this->OutputLines = vtkCellArray::New();
 
-  this->XBinSize = (this->Bounds[1]-this->Bounds[0])/this->NumberOfXDivisions;
-  this->YBinSize = (this->Bounds[3]-this->Bounds[2])/this->NumberOfYDivisions;
-  this->ZBinSize = (this->Bounds[5]-this->Bounds[4])/this->NumberOfZDivisions;   
+  this->XBinSize = (this->Bounds[1]-this->Bounds[0])/this->NumberOfDivisions[0];
+  this->YBinSize = (this->Bounds[3]-this->Bounds[2])/this->NumberOfDivisions[1];
+  this->ZBinSize = (this->Bounds[5]-this->Bounds[4])/this->NumberOfDivisions[2];   
 
   this->NumberOfBinsUsed = 0;
   if (this->QuadricArray)
@@ -215,16 +237,16 @@ void vtkQuadricClustering::StartAppend(float *bounds)
     delete [] this->QuadricArray;
     this->QuadricArray = NULL;
     }
-  this->QuadricArray = new VTK_POINT_QUADRIC[this->NumberOfXDivisions *
-                                            this->NumberOfYDivisions *
-                                            this->NumberOfZDivisions];
+  this->QuadricArray = new VTK_POINT_QUADRIC[this->NumberOfDivisions[0] *
+                                             this->NumberOfDivisions[1] *
+                                             this->NumberOfDivisions[2]];
   if (this->QuadricArray == NULL)
     {
     vtkErrorMacro("Could not allocate quadric grid.");
     return;
     }
-  numBins = this->NumberOfXDivisions 
-              * this->NumberOfYDivisions * this->NumberOfZDivisions;
+  numBins = this->NumberOfDivisions[0] 
+              * this->NumberOfDivisions[1] * this->NumberOfDivisions[2];
   for (i = 0; i < numBins; i++)
     {
     this->QuadricArray[i].VertexId = -1;
@@ -650,6 +672,15 @@ void vtkQuadricClustering::AddVertex(vtkIdType binId, float *pt,
       {
       this->QuadricArray[binId].VertexId = this->NumberOfBinsUsed;
       this->NumberOfBinsUsed++;
+
+
+      if (this->CopyCellData && this->GetInput())
+        {
+        this->GetOutput()->GetCellData()->CopyData(this->GetInput()->GetCellData(),
+                                      this->InCellCount,
+                                      this->OutCellCount++);
+        }
+
       }
     }
 }
@@ -689,9 +720,9 @@ vtkIdType vtkQuadricClustering::HashPoint(float point[3])
     {
     xBinCoord = 0;
     }
-  if (xBinCoord >= this->NumberOfXDivisions)
+  if (xBinCoord >= this->NumberOfDivisions[0])
     {
-    xBinCoord = this->NumberOfXDivisions - 1;
+    xBinCoord = this->NumberOfDivisions[0] - 1;
     }
 
   yBinCoord = int((point[1] - this->Bounds[2]) / this->YBinSize);
@@ -699,9 +730,9 @@ vtkIdType vtkQuadricClustering::HashPoint(float point[3])
     {
     yBinCoord = 0;
     }
-  if (yBinCoord >= this->NumberOfYDivisions)
+  if (yBinCoord >= this->NumberOfDivisions[1])
     {
-    yBinCoord = this->NumberOfYDivisions - 1;
+    yBinCoord = this->NumberOfDivisions[1] - 1;
     }
 
   zBinCoord = int((point[2] - this->Bounds[4]) / this->ZBinSize);
@@ -709,13 +740,13 @@ vtkIdType vtkQuadricClustering::HashPoint(float point[3])
     {
     zBinCoord = 0;
     }
-  if (zBinCoord >= this->NumberOfZDivisions)
+  if (zBinCoord >= this->NumberOfDivisions[2])
     {
-    zBinCoord = this->NumberOfZDivisions - 1;
+    zBinCoord = this->NumberOfDivisions[2] - 1;
     }
 
-  binId = xBinCoord * this->NumberOfYDivisions * this->NumberOfZDivisions + 
-    yBinCoord * this->NumberOfZDivisions + zBinCoord;
+  binId = xBinCoord * this->NumberOfDivisions[1] * this->NumberOfDivisions[2] + 
+    yBinCoord * this->NumberOfDivisions[2] + zBinCoord;
 
   return binId;
 }
@@ -738,7 +769,7 @@ void vtkQuadricClustering::EndAppend()
 
   outputPoints = vtkPoints::New();
 
-  numBuckets = this->NumberOfXDivisions * this->NumberOfYDivisions * this->NumberOfZDivisions;
+  numBuckets = this->NumberOfDivisions[0] * this->NumberOfDivisions[1] * this->NumberOfDivisions[2];
   tenth = numBuckets/10 + 1;
   for (i = 0; !abortExecute && i < numBuckets; i++ )
     {
@@ -1029,8 +1060,8 @@ void vtkQuadricClustering::EndAppendUsingPoints(vtkPolyData *input)
   output->GetPointData()->CopyAllocate(input->GetPointData(), this->NumberOfBinsUsed);
 
   // Allocate and initialize an array to hold errors for each bin.
-  numBins = this->NumberOfXDivisions * this->NumberOfYDivisions 
-                  * this->NumberOfZDivisions;
+  numBins = this->NumberOfDivisions[0] * this->NumberOfDivisions[1] 
+                  * this->NumberOfDivisions[2];
   minError = new float[numBins];
   for (i = 0; i < numBins; ++i)
     {

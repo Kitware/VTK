@@ -26,7 +26,7 @@
 #include "vtkViewport.h"
 #include "vtkWindow.h"
 
-vtkCxxRevisionMacro(vtkScalarBarActor, "1.44");
+vtkCxxRevisionMacro(vtkScalarBarActor, "1.45");
 vtkStandardNewMacro(vtkScalarBarActor);
 
 vtkCxxSetObjectMacro(vtkScalarBarActor,LookupTable,vtkScalarsToColors);

@@ -25,7 +25,7 @@
 #include "vtkTransform.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkGlyph3D, "1.104");
+vtkCxxRevisionMacro(vtkGlyph3D, "1.105");
 vtkStandardNewMacro(vtkGlyph3D);
 
 // Construct object with scaling on, scaling mode is by scalar value,
@@ -253,12 +253,17 @@ void vtkGlyph3D::Execute()
     {
     newScalars =  inScalars->MakeObject ();
     newScalars->Allocate(inScalars->GetNumberOfComponents()*numPts*numSourcePts);
+    newScalars->SetName(inScalars->GetName());
     }
   else if ( (this->ColorMode == VTK_COLOR_BY_SCALE) && inScalars)
     {
     newScalars = vtkFloatArray::New();
     newScalars->Allocate(numPts*numSourcePts);
     newScalars->SetName("GlyphScale");
+    if (this->ScaleMode == VTK_SCALE_BY_SCALAR)
+      {
+      newScalars->SetName(inScalars->GetName());
+      }
     }
   else if ( (this->ColorMode == VTK_COLOR_BY_VECTOR) && haveVectors)
     {

@@ -45,15 +45,29 @@ public:
   // Description:
   // Return the number of elements in the median mask
   vtkGetMacro(NumberOfElements,int);
+
+  // Description:
+  // If you want to warp by an arbitrary scalar array, then set its name here.
+  // By default this in NULL and the filter will use the active scalar array.
+  vtkGetStringMacro(InputScalarsSelection);
+  void SelectInputScalars(const char *fieldName) 
+    {this->SetInputScalarsSelection(fieldName);}
   
 protected:
   vtkImageMedian3D();
-  ~vtkImageMedian3D() {};
+  ~vtkImageMedian3D();
 
   int NumberOfElements;
 
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData, 
                        int extent[6], int id);
+
+  void ExecuteInformation(vtkImageData *inData, vtkImageData *outData);
+  // Called by the superclass
+  void ExecuteInformation() { this->Superclass::ExecuteInformation(); }
+
+  char *InputScalarsSelection;
+  vtkSetStringMacro(InputScalarsSelection);
 
 private:
   vtkImageMedian3D(const vtkImageMedian3D&);  // Not implemented.

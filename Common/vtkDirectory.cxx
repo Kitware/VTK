@@ -19,7 +19,7 @@
 
 #include "vtkDebugLeaks.h"
 
-vtkCxxRevisionMacro(vtkDirectory, "1.17");
+vtkCxxRevisionMacro(vtkDirectory, "1.18");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
