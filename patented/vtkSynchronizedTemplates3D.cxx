@@ -744,7 +744,7 @@ int vtkSynchronizedTemplates3D::GetNumberOfStreamDivisions()
 
   // Hack to get around getting a single piece
   input->SetUpdateExtent(input->GetWholeExtent());
-  memSize = input->GetUpdateExtentMemorySize();
+  memSize = input->GetEstimatedUpdateMemorySize();
   // relative to what we are generating
   memSize = memSize / output->GetUpdateNumberOfPieces();
   memLimit = input->GetMemoryLimit();
