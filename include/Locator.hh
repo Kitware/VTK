@@ -6,8 +6,6 @@
   Date:      $Date$
   Version:   $Revision$
 
-Description:
----------------------------------------------------------------------------
 This file is part of the Visualization Library. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
@@ -15,9 +13,18 @@ without the express written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-//
-// Object used to locate close points
-//
+// .NAME vlLocator - spatial search object to quickly locate points
+// .SECTION Description
+// vlLocator is a spatial search object to quickly locate points in 3-D.
+// vlLocator works by dividing a specified region of space into a regular
+// array of cells, and then keeping a list of points that exist in each 
+// cell. Typical operation involves giving a position in 3-D and finding
+// the closest point.
+// .SECTION Caveats
+// Many other types of spatial locators have been developed such as 
+// octrees and k-d trees. These are often more efficient for the 
+// operations described here.
+
 #ifndef __vlLocator_h
 #define __vlLocator_h
 
@@ -34,25 +41,35 @@ public:
   void Initialize();
   void FreeHashTable();
 
+  // Description:
+  // Set list of points to insert into locator.
   vlSetObjectMacro(Points,vlPoints);
   vlGetObjectMacro(Points,vlPoints);
 
+  // Description:
+  // Set the number of divisions in x-y-z directions.
   vlSetVector3Macro(Divisions,int);
   vlGetVectorMacro(Divisions,int);
 
+  // Description:
+  // Boolean controls whether automatic subdivision size is computed
+  // from average number of points in cell.
   vlSetMacro(Automatic,int);
   vlGetMacro(Automatic,int);
   vlBooleanMacro(Automatic,int);
 
+  // Description:
+  // Specify the average number of points in each "cell".
   vlSetClampMacro(NumberOfPointsInCell,int,1,LARGE_INTEGER);
   vlGetMacro(NumberOfPointsInCell,int);
 
+  // Description:
+  // Specify absolute tolerance (in world coordinates) for performing
+  // merge operations.
   vlSetClampMacro(Tolerance,float,0.0,LARGE_FLOAT);
   vlGetMacro(Tolerance,float);
 
-  // return closest point id to coordinate specified
   int FindClosestPoint(float x[3]);
-  // return index of merged points
   int *MergePoints(); // dimensioned Points->NumberOfPoints long
 
 protected:

@@ -6,8 +6,6 @@
   Date:      $Date$
   Version:   $Revision$
 
-Description:
----------------------------------------------------------------------------
 This file is part of the Visualization Library. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
@@ -29,20 +27,26 @@ public:
   void Reset() {this->P.Reset();};
 
   int *GetPoint(int i) {return this->P.GetPtr(3*i);};
-  int InsertNextPoint(int *x) {
-    int id = this->P.GetMaxId() + 3;
-    this->P.InsertValue(id,x[2]);
-    this->P[id-2] = x[0];
-    this->P[id-1] = x[1];
-    return id/3;
-  }
+  int InsertNextPoint(int *x);
 
 protected:
   vlIntArray P;
 };
 
+inline int vlNeighborPoints::InsertNextPoint(int *x) 
+{
+  int id = this->P.GetMaxId() + 3;
+  this->P.InsertValue(id,x[2]);
+  this->P[id-2] = x[0];
+  this->P[id-1] = x[1];
+  return id/3;
+}
+
 static vlNeighborPoints Cells(26,50);
 
+// Description:
+// Construct with automatic computation of divisions, averaging
+// 40 points per cell.
 vlLocator::vlLocator()
 {
   this->Points = NULL;
@@ -84,6 +88,8 @@ void vlLocator::FreeHashTable()
     }
 }
 
+// Description:
+// Given a position x, return the id of the point closest to it.
 int vlLocator::FindClosestPoint(float x[3])
 {
   int i, j;
@@ -191,6 +197,9 @@ int vlLocator::FindClosestPoint(float x[3])
     return closest;
 }
 
+// Description:
+// Merge points together based on tolerance specified. Return a list 
+// that maps unmerged point ids into new point ids.
 int *vlLocator::MergePoints()
 {
   float *bounds, tol2;
