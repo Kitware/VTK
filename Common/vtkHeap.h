@@ -50,10 +50,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // the method AllocateMemory(). Memory is then deleted with an invocation
 // of CleanUp().
 //
-// .SECTION Caveat
+// .SECTION Caveats
 // Do not use this method as a replacement for system memory allocation.
 // This class should be used only as a last resort if memory leaks cannot
 // be tracked down and eliminated by conventional means.
+
+// .SECTION See Also
+// vtkVRMLImporter vtkPLY
 
 #ifndef __vtkHeap_h
 #define __vtkHeap_h
