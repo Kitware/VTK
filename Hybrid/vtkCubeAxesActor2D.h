@@ -196,6 +196,16 @@ public:
   // to another).
   vtkSetClampMacro(Inertia, int, 1, VTK_LARGE_INTEGER);
   vtkGetMacro(Inertia, double);
+  
+  // Description:
+  // Set/Get the variable that controls whether the actual
+  // bounds of the dataset are always shown. Setting this variable
+  // to 1 means that clipping is disabled and that the actual
+  // value of the bounds is displayed even with corner offsets
+  // Setting this variable to 0 means these axis will clip
+  // themselves and show variable bounds (legacy mode)
+  vtkSetClampMacro(ShowActualBounds, int, 0, 1);
+  vtkGetMacro(ShowActualBounds, int);
 
   // Description:
   // Specify an offset value to "pull back" the axes from the corner at
@@ -312,6 +322,9 @@ protected:
   int   InertiaAxes[8];
   
   int RenderSomething;
+  
+  // Always show the actual bounds of the object
+  int ShowActualBounds;
   
   // various helper methods
   void TransformBounds(vtkViewport *viewport, double bounds[6], 

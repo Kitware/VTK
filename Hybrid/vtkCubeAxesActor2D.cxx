@@ -22,7 +22,7 @@
 #include "vtkTextProperty.h"
 #include "vtkViewport.h"
 
-vtkCxxRevisionMacro(vtkCubeAxesActor2D, "1.47");
+vtkCxxRevisionMacro(vtkCubeAxesActor2D, "1.48");
 vtkStandardNewMacro(vtkCubeAxesActor2D);
 
 vtkCxxSetObjectMacro(vtkCubeAxesActor2D,Input, vtkDataSet);
@@ -81,6 +81,7 @@ vtkCubeAxesActor2D::vtkCubeAxesActor2D()
   this->FontFactor = 1.0;
   this->CornerOffset = 0.05;
   this->Inertia = 1;
+  this->ShowActualBounds = 1;
   this->RenderCount = 0;
 
   this->XAxisVisibility = 1;
@@ -227,7 +228,7 @@ int vtkCubeAxesActor2D::RenderOpaqueGeometry(vtkViewport *viewport)
   this->TransformBounds(viewport, bounds, pts);
 
   // Find the portion of the bounding box that fits within the viewport,
-  if ( this->ClipBounds(viewport, pts, bounds) == 0 )
+  if ( !ShowActualBounds && (this->ClipBounds(viewport, pts, bounds) == 0) )
     {
     this->RenderSomething = 0;
     return 0;
@@ -359,6 +360,10 @@ int vtkCubeAxesActor2D::RenderOpaqueGeometry(vtkViewport *viewport)
   this->AdjustAxes(pts, bounds, idx, xIdx, yIdx, zIdx, zIdx2, 
                    xAxes, yAxes, zAxes, 
                    xCoords, yCoords, zCoords, xRange, yRange, zRange);
+                   
+  // Sorry for ugly hack. I find the fonts slightly too large on the axis. BNW
+  double AxisFontFactor = this->FontFactor*.75;
+  
 
   // Upate axes
   this->Labels[0] = this->XLabel;
@@ -371,7 +376,7 @@ int vtkCubeAxesActor2D::RenderOpaqueGeometry(vtkViewport *viewport)
   this->XAxis->SetTitle(this->Labels[xAxes]);
   this->XAxis->SetNumberOfLabels(this->NumberOfLabels);
   this->XAxis->SetLabelFormat(this->LabelFormat);
-  this->XAxis->SetFontFactor(this->FontFactor);
+  this->XAxis->SetFontFactor(AxisFontFactor); 
   this->XAxis->SetProperty(this->GetProperty());
 
   this->YAxis->GetPositionCoordinate()->SetValue(yCoords[2], yCoords[3]);
@@ -380,7 +385,7 @@ int vtkCubeAxesActor2D::RenderOpaqueGeometry(vtkViewport *viewport)
   this->YAxis->SetTitle(this->Labels[yAxes]);
   this->YAxis->SetNumberOfLabels(this->NumberOfLabels);
   this->YAxis->SetLabelFormat(this->LabelFormat);
-  this->YAxis->SetFontFactor(this->FontFactor);
+  this->YAxis->SetFontFactor(AxisFontFactor);
   this->YAxis->SetProperty(this->GetProperty());
 
   this->ZAxis->GetPositionCoordinate()->SetValue(zCoords[0], zCoords[1]);
@@ -389,7 +394,7 @@ int vtkCubeAxesActor2D::RenderOpaqueGeometry(vtkViewport *viewport)
   this->ZAxis->SetTitle(this->Labels[zAxes]);
   this->ZAxis->SetNumberOfLabels(this->NumberOfLabels);
   this->ZAxis->SetLabelFormat(this->LabelFormat);
-  this->ZAxis->SetFontFactor(this->FontFactor);
+  this->ZAxis->SetFontFactor(AxisFontFactor);
   this->ZAxis->SetProperty(this->GetProperty());
 
   // Rebuid text props
@@ -544,8 +549,11 @@ void vtkCubeAxesActor2D::AdjustAxes(double pts[8][3], double bounds[6],
     xCoords[3] = xCoords[3] - this->CornerOffset * (xCoords[3] - ave);
 
     ave = (xRange[1] + xRange[0]) / 2.0;
-    xRange[0] = xRange[0] - this->CornerOffset * (xRange[0] - ave);
-    xRange[1] = xRange[1] - this->CornerOffset * (xRange[1] - ave);
+    if (!ShowActualBounds)
+      {
+      xRange[0] = xRange[0] - this->CornerOffset * (xRange[0] - ave);
+      xRange[1] = xRange[1] - this->CornerOffset * (xRange[1] - ave);
+      }
     
     // y-axis
     ave = (yCoords[0] + yCoords[2]) / 2.0;
@@ -557,8 +565,11 @@ void vtkCubeAxesActor2D::AdjustAxes(double pts[8][3], double bounds[6],
     yCoords[3] = yCoords[3] - this->CornerOffset * (yCoords[3] - ave);
 
     ave = (yRange[1] + yRange[0]) / 2.0;
-    yRange[0] = yRange[0] - this->CornerOffset * (yRange[0] - ave);
-    yRange[1] = yRange[1] - this->CornerOffset * (yRange[1] - ave);
+    if (!ShowActualBounds)
+      {
+      yRange[0] = yRange[0] - this->CornerOffset * (yRange[0] - ave);
+      yRange[1] = yRange[1] - this->CornerOffset * (yRange[1] - ave);
+      }
     
     // z-axis
     ave = (zCoords[0] + zCoords[2]) / 2.0;
@@ -570,8 +581,11 @@ void vtkCubeAxesActor2D::AdjustAxes(double pts[8][3], double bounds[6],
     zCoords[3] = zCoords[3] - this->CornerOffset * (zCoords[3] - ave);
 
     ave = (zRange[1] + zRange[0]) / 2.0;
-    zRange[0] = zRange[0] - this->CornerOffset * (zRange[0] - ave);
-    zRange[1] = zRange[1] - this->CornerOffset * (zRange[1] - ave);
+    if (!ShowActualBounds)
+      {
+      zRange[0] = zRange[0] - this->CornerOffset * (zRange[0] - ave);
+      zRange[1] = zRange[1] - this->CornerOffset * (zRange[1] - ave);
+      }
     }
 }
 
