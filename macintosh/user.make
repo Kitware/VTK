@@ -8,20 +8,21 @@ PYTHON_LIB=
 
 # Add additional CFLAGS and CXXFLAGS for compilation
 # uncomment the following two lines to set your own flags
-USER_CFLAGS = -DDARWIN -dynamic -O2 -traditional-cpp
-USER_CXXFLAGS = -DDARWIN -dynamic -O2  -traditional-cpp 
+#USER_CFLAGS = -DDARWIN -O3 -fomit-frame-pointer -fno-schedule-insns -fschedule-insns2 -mcpu=750 -force_cpusubtype_ALL
+#USER_CXXFLAGS = -DDARWIN -O3 -fomit-frame-pointer -fno-schedule-insns -fschedule-insns2 -mcpu=750 -force_cpusubtype_ALL
+USER_CFLAGS = -DDARWIN -O
+USER_CXXFLAGS = -DDARWIN -O
+
 
 # if you want to try the java support you'll need to set the following
 # variables to match your environment and uncomment them
 #
-#JDKHOME=/home/calvin/content/ITL/java-packages/dev-kits/JDK/jdk1.1
-#JAVAC=${JDKHOME}/bin/javac
-#JAR=${JDKHOME}/bin/jar
-#JAVA_CLASS_HOME=/home/martink/java
-#JAVAH=${JDKHOME}/bin/javah
-#JAVA_INCLUDES=-I${JDKHOME}/include -I${JDKHOME}/include/solaris
-#JAVA_CXX_LIB=/common/software/g++-2.7.1/sun4/5.4/lib/libiberty.a /common/software/g++-2.7.1/sun4/5.4/lib/libstdc++.a /common/software/g++-2.7.1/sun4/5.4/lib/gcc-lib/sparc-sun-solaris2.4/2.7.1/libgcc.a
-
+JDKHOME=/System/Library/Frameworks/JavaVM.framework/Home
+JAVAC=${JDKHOME}/bin/javac -classpath $(VTK_OBJ)/java
+JAR=${JDKHOME}/bin/jar
+JAVA_CLASS_HOME=$(VTK_OBJ)/java
+JAVAH=${JDKHOME}/bin/javah
+JAVA_INCLUDES=-I/System/Library/Frameworks/JavaVM.framework/Headers
 
 
 

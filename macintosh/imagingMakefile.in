@@ -25,9 +25,7 @@ vtkXMesaTextMapper \
 vtkMesaPolyDataMapper2D 
 
 UNIX_CONCRETE = \
-vtkXImageMapper \
 vtkXImageWindow \
-vtkXPolyDataMapper2D \
 vtkXTextMapper 
 
 ABSTRACT_H = 
@@ -64,12 +62,16 @@ vtkImageButterworthLowPass \
 vtkImageCacheFilter \
 vtkImageCanvasSource2D \
 vtkImageCast \
+vtkImageChangeInformation \
+vtkImageCheckerboard \
 vtkImageCityBlockDistance \
 vtkImageClip \
+vtkImageClippingExtents \
 vtkImageConnector \
 vtkImageConstantPad \
 vtkImageContinuousDilate3D \
 vtkImageContinuousErode3D \
+vtkImageConvolve \
 vtkImageCorrelation \
 vtkImageCursor3D \
 vtkImageDataStreamer \
@@ -122,6 +124,7 @@ vtkImagerCollection \
 vtkImageReader \
 vtkImageReader2 \
 vtkImageResample \
+vtkImageReslice \
 vtkImageRFFT \
 vtkImageRGBToHSV \
 vtkImageRange3D \
@@ -132,9 +135,11 @@ vtkImageSinusoidSource \
 vtkImageSkeleton2D \
 vtkImageSobel2D \
 vtkImageSobel3D \
+vtkImageStencil \
 vtkImageThreshold \
 vtkImageTranslateExtent \
 vtkImageVariance3D \
+vtkImageVectorConvolve \
 vtkImageViewer \
 vtkImageWindow \
 vtkImageWrapPad \
@@ -155,15 +160,11 @@ ${VTK_PLATFORM_CONCRETE} \
 ${GRAPHICS_API_OBJ} 
 
 WIN32_OBJ = \
-vtkWin32ImageMapper \
 vtkWin32OpenGLTextMapper \
 vtkOpenGLImageMapper \
 vtkOpenGLPolyDataMapper2D \
 vtkOpenGLImager \
 vtkWin32OpenGLImageWindow \
-vtkWin32ImageWindow \
-vtkWin32TextMapper \
-vtkWin32PolyDataMapper2D 
 
 QUARTZ_OBJ = \
 vtkQuartzImageMapper \
@@ -171,9 +172,7 @@ vtkQuartzImageWindow \
 vtkOpenGLImageMapper \
 vtkOpenGLPolyDataMapper2D \
 vtkOpenGLImager \
-vtkQuartzPolyDataMapper2D \
 vtkQuartzTextMapper
-
 
 
 #------------------------------------------------------------------------------
