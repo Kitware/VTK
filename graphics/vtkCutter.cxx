@@ -238,7 +238,8 @@ void vtkCutter::Execute()
           } // for all cells
         } // for all contour values
       } // sort by cell
-
+      break;
+      
     case VTK_SORT_BY_VALUE:
       {
       //
