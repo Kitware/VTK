@@ -313,12 +313,12 @@ ren1 AddActor aQuadContourActor
 
 ren1 AddActor aTetActor 
 [aTetActor GetProperty] SetDiffuseColor 1 0 0
-ren1 AddActor aTetContourActor
+#ren1 AddActor aTetContourActor
 [aTetContourActor GetProperty] SetDiffuseColor 1 0 0
 
 ren1 AddActor aHexActor 
 [aHexActor GetProperty] SetDiffuseColor 1 0 0
-ren1 AddActor aHexContourActor
+#ren1 AddActor aHexContourActor
 [aHexContourActor GetProperty] SetDiffuseColor 1 0 0
 
 # places everyone!!
