@@ -195,7 +195,7 @@ BOOL CPcmakerApp::InitInstance()
     {
     dlg.m_WhereVTK = "C:\\vtk";
     dlg.m_WhereBuild = "C:\\vtkbin";
-	  dlg.m_WhereCompiler = "C:\\msdev";
+	dlg.m_WhereCompiler = "C:\\MSDEV";
     dlg.m_WhereJDK = "";
   	dlg.DoModal();
     }
