@@ -84,6 +84,8 @@ vtkLookupTable \
 vtkMapper2D \
 vtkMath \
 vtkMatrix4x4 \
+vtkMatrixToLinearTransform \
+vtkMatrixToPerspectiveTransform \
 vtkMergePoints2D \
 vtkMultiThreader \
 vtkMutexLock \
