@@ -56,14 +56,22 @@ vtkAssembly::~vtkAssembly()
 // Add a part to the list of parts.
 void vtkAssembly::AddPart(vtkActor *actor)
 {
-  this->Parts.AddItem(actor);
+  if ( ! this->Parts.IsItemPresent(actor) )
+    {
+    this->Parts.AddItem(actor);
+    this->Modified();
+    } 
 }
 
 // Description:
 // Remove a part from the list of parts,
 void vtkAssembly::RemovePart(vtkActor *actor)
 {
-  this->Parts.RemoveItem(actor);
+  if ( this->Parts.IsItemPresent(actor) )
+    {
+    this->Parts.RemoveItem(actor);
+    this->Modified();
+    } 
 }
 
 // Description:
