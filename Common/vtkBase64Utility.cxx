@@ -19,7 +19,7 @@
 #include "vtkObjectFactory.h"
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkBase64Utility, "1.1");
+vtkCxxRevisionMacro(vtkBase64Utility, "1.2");
 vtkStandardNewMacro(vtkBase64Utility);
 
 //----------------------------------------------------------------------------
@@ -79,7 +79,8 @@ inline void vtkBase64Utility::EncodeSingle(unsigned char i0,
 //----------------------------------------------------------------------------
 unsigned long vtkBase64Utility::Encode(const unsigned char *input, 
                                        unsigned long length, 
-                                       unsigned char *output)
+                                       unsigned char *output,
+                                       int mark_end)
 {
   
   const unsigned char *ptr = input;
@@ -111,6 +112,14 @@ unsigned long vtkBase64Utility::Encode(const unsigned char *input,
     {
     vtkBase64Utility::EncodeSingle(ptr[0],
                                    &optr[0], &optr[1], &optr[2], &optr[3]);
+    optr += 4;
+    }
+
+  // Do we need to mark the end
+
+  else if (mark_end)
+    {
+    optr[0] = optr[1] = optr[2] = optr[3] = '=';
     optr += 4;
     }
 
@@ -206,54 +215,63 @@ inline int vtkBase64Utility::DecodeTriplet(unsigned char i0,
 //----------------------------------------------------------------------------
 unsigned long vtkBase64Utility::Decode(const unsigned char *input, 
                                        unsigned long length, 
-                                       unsigned char *output)
+                                       unsigned char *output,
+                                       unsigned long max_input_length)
 {
   const unsigned char *ptr = input;
   unsigned char *optr = output;
-  unsigned char *oend = output + length;
 
   // Decode complete triplet
 
-  while ((oend - optr) >= 3)
+  if (max_input_length)
     {
-    int len = vtkBase64Utility::DecodeTriplet(ptr[0], ptr[1], ptr[2], ptr[3], 
-                                              &optr[0], &optr[1], &optr[2]);
-    optr += len;
-    if(len < 3)
+    const unsigned char *end = input + max_input_length;
+    while (ptr < end)
       {
-      return optr - output;
+      int len = 
+        vtkBase64Utility::DecodeTriplet(ptr[0], ptr[1], ptr[2], ptr[3], 
+                                        &optr[0], &optr[1], &optr[2]);
+      optr += len;
+      if(len < 3)
+        {
+        return optr - output;
+        }
+      ptr += 4;
       }
-    ptr += 4;
-    }
+    } 
+  else 
+    {
+    unsigned char *oend = output + length;
+    while ((oend - optr) >= 3)
+      {
+      int len = 
+        vtkBase64Utility::DecodeTriplet(ptr[0], ptr[1], ptr[2], ptr[3], 
+                                        &optr[0], &optr[1], &optr[2]);
+      optr += len;
+      if(len < 3)
+        {
+        return optr - output;
+        }
+      ptr += 4;
+      }
 
-  // Decode the last triplet
+    // Decode the last triplet
   
-  if (oend - optr == 2)
-    {
     unsigned char temp;
-    int len = vtkBase64Utility::DecodeTriplet(ptr[0], ptr[1], ptr[2], ptr[3], 
-                                              &optr[0], &optr[1], &temp);
-    if (len > 2) 
-      { 
-      optr += 2; 
+    if (oend - optr == 2)
+      {
+      int len = 
+        vtkBase64Utility::DecodeTriplet(ptr[0], ptr[1], ptr[2], ptr[3], 
+                                        &optr[0], &optr[1], &temp);
+      optr += (len > 2 ? 2 : len); 
       }
-    else 
-      { 
-      optr += len; 
-      }
-    }
-  else if (oend - optr == 1)
-    {
-    unsigned char temp1, temp2;
-    int len = vtkBase64Utility::DecodeTriplet(ptr[0], ptr[1], ptr[2], ptr[3], 
-                                              &optr[0], &temp1, &temp2);
-    if (len > 1) 
-      { 
-      optr += 1; 
-      }
-    else 
-      { 
-      optr += len; 
+    else if (oend - optr == 1)
+      {
+      unsigned char temp2;
+      int len = 
+        vtkBase64Utility::DecodeTriplet(ptr[0], ptr[1], ptr[2], ptr[3], 
+                                        &optr[0], &temp, &temp2);
+      optr += (len > 2 ? 2 : len); 
       }
     }
 
