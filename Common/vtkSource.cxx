@@ -23,7 +23,7 @@
 #include "vtkFieldData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkSource, "1.99");
+vtkCxxRevisionMacro(vtkSource, "1.100");
 
 #ifndef NULL
 #define NULL 0
@@ -242,19 +242,6 @@ void vtkSource::PropagateUpdateExtent(vtkDataObject *output)
     return;
     }
 
-  // Make sure the fitler does not implement this legacy method.
-  this->LegacyHack = 1;
-  this->EnlargeOutputUpdateExtents(output);
-  if (this->LegacyHack)
-    {
-    vtkErrorMacro("EnlargeOutputUpdateExtent is no longer being supported."
-        << " This method was used by inmaging filters to change the"
-        << "UpdateExtent of their input so that the vtkImmageToImageFilter superclass"
-        << " would allocate a larger volume.  Changing the UpdateExtent of your input is"
-        << " no longer allowed.  The alternative method is to write your own 'ExecuteData(vtkDataObject *)'"
-        << " method and allocate your own data.");  
-    }
-  
   // If the user defines a ComputeInputUpdateExtent method,
   // I want RequestExactUpdateExtent to be off by default (User does nothing else).
   // Otherwise, the ComputeInputUpdateExtent in this superclass sets
@@ -792,10 +779,3 @@ void vtkSource::UnRegister(vtkObjectBase *o)
   
   this->vtkObject::UnRegister(o);
 }
-
-
-void vtkSource::EnlargeOutputUpdateExtents(vtkDataObject *vtkNotUsed(output))
-{
-  this->LegacyHack = 0;
-}
-

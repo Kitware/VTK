@@ -120,15 +120,6 @@ public:
   int GetOutputIndex(vtkDataObject *out);
   
   // Description:
-  // Legacy method.  This method was used by inmaging filters to change the 
-  // UpdateExtent of their input so that the vtkImmageToImageFilter superclass
-  // would allocate a larger volume.  Changing the UpdateExtent of your input is 
-  // no longer allowed.  The alternative method is to write your own "Execute()" 
-  // method and allocate your own data.
-  virtual void EnlargeOutputUpdateExtents(vtkDataObject *output);
-  int LegacyHack;
-
-  // Description:
   // The reader should set this code at the end of the update.
   // The error code contains a possible error that occured while
   // reading the file.
