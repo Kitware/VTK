@@ -1702,19 +1702,122 @@ void vtkMath::Matrix3x3ToQuaternion(const double A[3][3], double quat[4])
   
 //----------------------------------------------------------------------------
 //  The orthogonalization is done via quaternions in order to avoid
-//  having to use singular value decomposition.
+//  having to use a singular value decomposition algorithm.  
+template <class T1, class T2>
+static inline void vtkOrthogonalize3x3(const T1 A[3][3], T2 B[3][3])
+{
+  int i;
+
+  // copy the matrix
+  for (i = 0; i < 3; i++)
+    {
+    B[0][i] = A[0][i];
+    B[1][i] = A[1][i];
+    B[2][i] = A[2][i];
+    }
+
+  // Pivot the matrix to improve accuracy
+  T2 scale[3];
+  int index[3];
+  T2 tmp, largest;
+
+  // Loop over rows to get implicit scaling information
+  for (i = 0; i < 3; i++)
+    {
+    largest = fabs(B[i][0]);
+    if ((tmp = fabs(B[i][1])) > largest)
+      {
+      largest = tmp;
+      }
+    if ((tmp = fabs(B[i][2])) > largest)
+      {
+      largest = tmp;
+      }
+    scale[i] = T2(1.0)/largest;
+    }
+
+  // first column
+  index[0] = 0;
+  largest = scale[0]*fabs(B[0][0]);
+  if ((tmp = scale[1]*fabs(B[1][0])) >= largest) 
+    {
+    largest = tmp;
+    index[0] = 1;
+    }
+  if ((tmp = scale[2]*fabs(B[2][0])) >= largest) 
+    {
+    index[0] = 2;
+    }
+  if (index[0] != 0) 
+    {
+    vtkSwapVectors3(B[index[0]],B[0]);
+    scale[index[0]] = scale[0];
+    }
+
+  // second column
+  index[1] = 1;
+  largest = scale[1]*fabs(B[1][1]);
+  if ((tmp = scale[2]*fabs(B[2][1])) >= largest) 
+    {
+    index[1] = 2;
+    vtkSwapVectors3(B[2],B[1]);
+    }
+
+  // third column
+  index[2] = 2;
+
+  // A quaternian can only describe a pure rotation, not
+  // a rotation with a flip, therefore the flip must be
+  // removed before the matrix is converted to a quaternion.
+  T2 d = vtkDeterminant3x3(B);
+  if (d < 0)
+    {
+    for (i = 0; i < 3; i++)
+      {
+      B[0][i] = -B[0][i];
+      B[1][i] = -B[1][i];
+      B[2][i] = -B[2][i];
+      }
+    }
+
+  // Do orthogonalization using a quaternion intermediate
+  // (this, essentially, does the orthogonalization via
+  // diagonalization of an appropriately constructed symmetric
+  // 4x4 matrix rather than by doing SVD of the 3x3 matrix)
+  T2 quat[4];
+  vtkMath::Matrix3x3ToQuaternion(B,quat);
+  vtkMath::QuaternionToMatrix3x3(quat,B);
+
+  // Put the flip back into the orthogonalized matrix.
+  if (d < 0)
+    {
+    for (i = 0; i < 3; i++)
+      {
+      B[0][i] = -B[0][i];
+      B[1][i] = -B[1][i];
+      B[2][i] = -B[2][i];
+      }
+    }
+
+  // Undo the pivoting
+  if (index[1] != 1)
+    {
+    vtkSwapVectors3(B[index[1]],B[1]);
+    }
+  if (index[0] != 0)
+    {
+    vtkSwapVectors3(B[index[0]],B[0]);
+    }
+}
+
 void vtkMath::Orthogonalize3x3(const float A[3][3], float B[3][3])
 {
-  float quat[4];
-  vtkMath::Matrix3x3ToQuaternion(A,quat);
-  vtkMath::QuaternionToMatrix3x3(quat,B);
+  vtkOrthogonalize3x3(A,B);
 }
 
 void vtkMath::Orthogonalize3x3(const double A[3][3], double B[3][3])
 {
-  double quat[4];
-  vtkMath::Matrix3x3ToQuaternion(A,quat);
-  vtkMath::QuaternionToMatrix3x3(quat,B);
+  vtkOrthogonalize3x3(A,B);
 }
 
 //----------------------------------------------------------------------------
@@ -1801,10 +1904,10 @@ static inline void vtkDiagonalize3x3(const T1 A[3][3], T2 w[3], T2 V[3][3])
       return;
       }
     }
-   
+
   // the three eigenvalues are different, just sort the eigenvectors
   // to align them with the x, y, and z axes
- 
+
   // find the vector with the largest x element, make that vector
   // the first vector
   maxVal = fabs(V[0][0]);
@@ -1867,33 +1970,70 @@ void vtkMath::Diagonalize3x3(const double A[3][3],double w[3],double V[3][3])
 }
 
 //----------------------------------------------------------------------------
-void vtkMath::SingularValueDecomposition3x3(const float A[3][3], 
-					    float U[3][3], float w[3],
-					    float VT[3][3])
+// Perform singular value decomposition on the matrix A:
+//    A = U * W * VT
+// where U and VT are orthogonal W is diagonal (the diagonal elements
+// are returned in vector w).
+// The matrices U and VT will both have positive determinants.
+// The scale factors w are ordered according to how well the
+// corresponding eigenvectors (in U) match the x, y and z axes
+// respectively.
+//
+// The singular value decomposition is used to decompose a linear
+// transformation into a rotation, followed by a scale, followed
+// by a second rotation.  The scale factors w will be negative if
+// the determinant of matrix A is negative.
+template <class T1, class T2>
+static inline void vtkSingularValueDecomposition3x3(const T1 A[3][3], 
+						    T2 U[3][3], T2 w[3],
+						    T2 VT[3][3])
 {
-  vtkMath::Orthogonalize3x3(A, VT);
-  vtkMath::Transpose3x3(VT, VT);
-  vtkMath::Multiply3x3(VT, A, U);
-  vtkMath::Transpose3x3(VT, VT);
-  vtkMath::Diagonalize3x3(U, w, U);
-  vtkMath::Multiply3x3(VT, U, VT);
-  vtkMath::Transpose3x3(U, U);
-}
+  int i;
+  T2 B[3][3];
 
-void vtkMath::SingularValueDecomposition3x3(const double A[3][3], 
-					    double U[3][3], double w[3],
-					    double VT[3][3])
-{
-  vtkMath::Orthogonalize3x3(A, VT);
-  vtkMath::Transpose3x3(VT, VT);
-  vtkMath::Multiply3x3(A, VT, U);
-  vtkMath::Transpose3x3(VT, VT);
-  vtkMath::Diagonalize3x3(U, w, U);
-  vtkMath::Multiply3x3(VT, U, VT);
+  // copy so that A can be used for U or VT without risk
+  for (i = 0; i < 3; i++)
+    {
+    B[0][i] = A[0][i];
+    B[1][i] = A[1][i];
+    B[2][i] = A[2][i];
+    }
+
+  // temporarily flip if determinant is negative
+  T2 d = vtkMath::Determinant3x3(B);
+  if (d < 0)
+    {
+    for (i = 0; i < 3; i++)
+      {
+      B[0][i] = -B[0][i];
+      B[1][i] = -B[1][i];
+      B[2][i] = -B[2][i];
+      }
+    }
+
+  // orthogonalize, diagonalize, etc.
+  vtkMath::Orthogonalize3x3(B, U);
+  vtkMath::Transpose3x3(B, B);
+  vtkMath::Multiply3x3(U, B, VT);
   vtkMath::Transpose3x3(U, U);
-  /*
-  double M[3][3];
-  double W[3][3];
+  vtkMath::Diagonalize3x3(VT, w, VT);
+  vtkMath::Multiply3x3(U, VT, U);
+  vtkMath::Transpose3x3(U, U);
+
+  // re-create the flip
+  if (d < 0)
+    {
+    w[0] = -w[0];
+    w[1] = -w[1];
+    w[2] = -w[2];
+    }
+
+  /* paranoia check: recombine to ensure that the SVD is correct 
+  int j;
+  T2 maxerr = 0;
+  T2 tmp;
+  T2 M[3][3];
+  T2 W[3][3];
   vtkMath::Identity3x3(W);
   W[0][0] = w[0]; W[1][1] = w[1]; W[2][2] = w[2];
   vtkMath::Identity3x3(M);
@@ -1901,12 +2041,34 @@ void vtkMath::SingularValueDecomposition3x3(const double A[3][3],
   vtkMath::Multiply3x3(M, W, M);
   vtkMath::Multiply3x3(M, U, M);
 
-  cerr << A[0][0] << ' ' << A[0][1] << ' ' << A[0][2] << '\n';
-  cerr << A[1][0] << ' ' << A[1][1] << ' ' << A[1][2] << '\n';
-  cerr << A[2][0] << ' ' << A[2][1] << ' ' << A[2][2] << '\n';
-  cerr << '\n';
-  cerr << M[0][0] << ' ' << M[0][1] << ' ' << M[0][2] << '\n';
-  cerr << M[1][0] << ' ' << M[1][1] << ' ' << M[1][2] << '\n';
-  cerr << M[2][0] << ' ' << M[2][1] << ' ' << M[2][2] << '\n';
+  for (i = 0; i < 3; i++)
+    {
+    for (j = 0; j < 3; j++)
+      {
+      if ((tmp = fabs(A[i][j] - M[i][j])) > maxerr)
+	{
+	maxerr = tmp;
+	}
+      }
+    }
+
+  vtkGenericWarningMacro("SingularValueDecomposition max error = " << maxerr);
   */
 }
+
+void vtkMath::SingularValueDecomposition3x3(const float A[3][3], 
+					    float U[3][3], float w[3],
+					    float VT[3][3])
+{
+  vtkSingularValueDecomposition3x3(A,U,w,VT);
+}
+
+void vtkMath::SingularValueDecomposition3x3(const double A[3][3], 
+					    double U[3][3], double w[3],
+					    double VT[3][3])
+{
+  vtkSingularValueDecomposition3x3(A,U,w,VT);
+}
+
+
+
