@@ -21,7 +21,7 @@
 #include "vtkTriangleStrip.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkBandedPolyDataContourFilter, "1.18");
+vtkCxxRevisionMacro(vtkBandedPolyDataContourFilter, "1.19");
 vtkStandardNewMacro(vtkBandedPolyDataContourFilter);
 
 // Construct object.
@@ -157,7 +157,7 @@ inline int vtkBandedPolyDataContourFilter::InsertCell(vtkCellArray *cells,
   int idx = this->ComputeLowerScalarIndex(s+this->ClipTolerance);
 
   if ( !this->Clipping || 
-       idx >= this->ClipIndex[0] && idx <= this->ClipIndex[1] )
+       idx >= this->ClipIndex[0] && idx < this->ClipIndex[1] )
     {
     cells->InsertNextCell(npts,pts);
 
