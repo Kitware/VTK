@@ -24,7 +24,7 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkRotationFilter, "1.3");
+vtkCxxRevisionMacro(vtkRotationFilter, "1.4");
 vtkStandardNewMacro(vtkRotationFilter);
 
 //---------------------------------------------------------------------------
@@ -69,12 +69,12 @@ int vtkRotationFilter::RequestData(
   vtkPointData *inPD = input->GetPointData();
   vtkPointData *outPD = output->GetPointData();
   vtkCellData *inCD = input->GetCellData();
-  vtkCellData *outCD = output->GetCellData();  
+  vtkCellData *outCD = output->GetCellData();
 
   double tuple[3];
   vtkPoints *outPoints;
   double point[3], center[3];
-  int ptId, cellId, j;
+  int ptId, cellId, j, k;
   vtkGenericCell *cell = vtkGenericCell::New();
   vtkIdList *ptIds = vtkIdList::New();
 
@@ -133,7 +133,7 @@ int vtkRotationFilter::RequestData(
   switch (this->Axis)
     {
     case USE_X:
-      for (int k = 0; k < this->GetNumberOfCopies(); k++)
+      for (k = 0; k < this->GetNumberOfCopies(); k++)
         {
          for (i = 0; i < numPts; i++)
            {
@@ -158,7 +158,7 @@ int vtkRotationFilter::RequestData(
     break;
 
     case USE_Y:
-      for (int k = 0; k < this->GetNumberOfCopies(); k++)
+      for (k = 0; k < this->GetNumberOfCopies(); k++)
         {
          for (i = 0; i < numPts; i++)
            {
@@ -183,7 +183,7 @@ int vtkRotationFilter::RequestData(
     break;
 
     case USE_Z:
-      for (int k = 0; k < this->GetNumberOfCopies(); k++)
+      for (k = 0; k < this->GetNumberOfCopies(); k++)
         {
         for (i = 0; i < numPts; i++)
            {
@@ -207,11 +207,11 @@ int vtkRotationFilter::RequestData(
         }
       break;
     }
-  
+
   int numCellPts,  cellType;
   vtkIdType *newCellPts;
   vtkIdList *cellPts;
-  
+
   // Copy original cells.
   if (this->CopyInput)
     {
@@ -224,7 +224,7 @@ int vtkRotationFilter::RequestData(
     }
 
   // Generate rotated cells.
-  for (int k = 0; k < this->GetNumberOfCopies(); k++)
+  for (k = 0; k < this->GetNumberOfCopies(); k++)
     {
     for (i = 0; i < numCells; i++)
       {
@@ -238,7 +238,7 @@ int vtkRotationFilter::RequestData(
       // introduce to flip all the triangles properly.
       if (cellType == VTK_TRIANGLE_STRIP && numCellPts % 2 == 0)
         {
-        numCellPts++;  
+        numCellPts++;
         newCellPts = new vtkIdType[numCellPts];
          newCellPts[0] = cellPts->GetId(0) + numPts;
         newCellPts[1] = cellPts->GetId(2) + numPts;
