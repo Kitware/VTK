@@ -38,7 +38,7 @@ public:
     { return new vtkMyCallback; }
   void Delete()
     { delete this; }
-  virtual void Execute(vtkObject *caller, unsigned long, void *callData)
+  virtual void Execute(vtkObject *caller, unsigned long, void*)
     {
       vtkBoxWidget *boxWidget = reinterpret_cast<vtkBoxWidget*>(caller);
       boxWidget->GetTransform(this->Transform);
