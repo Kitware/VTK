@@ -22,7 +22,7 @@
 #include "vtkMarchingCubesCases.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkCell3D, "1.29");
+vtkCxxRevisionMacro(vtkCell3D, "1.30");
 
 vtkCell3D::~vtkCell3D()
 {
@@ -194,7 +194,7 @@ void vtkCell3D::PrintSelf(ostream& os, vtkIndent indent)
 // Edges to intersect.  Three at a time form a triangle. Comments at 
 // end of line indicate case number (0->255) and base case number (0->15).
 //
-static VTK_TRIANGLE_CASES  VTK_MARCHING_CUBES_TRICASES[] = { 
+static vtkMarchingCubesTriangleCases  VTK_MARCHING_CUBES_TRICASES[] = { 
 {{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}}, /* 0 0 */
 {{ 0, 3, 8, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}}, /* 1 1 */
 {{ 0, 9, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}}, /* 2 1 */
@@ -452,7 +452,7 @@ static VTK_TRIANGLE_CASES  VTK_MARCHING_CUBES_TRICASES[] = {
 {{ 0, 8, 3, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}}, /* 254 1 */
 {{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}}}; /* 255 0 */
 
-VTK_TRIANGLE_CASES* VTK_TRIANGLE_CASES::GetCases()
+vtkMarchingCubesTriangleCases* vtkMarchingCubesTriangleCases::GetCases()
 {
   return VTK_MARCHING_CUBES_TRICASES;
 }

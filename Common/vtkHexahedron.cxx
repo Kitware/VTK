@@ -26,7 +26,7 @@
 #include "vtkPointLocator.h"
 #include "vtkQuad.h"
 
-vtkCxxRevisionMacro(vtkHexahedron, "1.82");
+vtkCxxRevisionMacro(vtkHexahedron, "1.83");
 vtkStandardNewMacro(vtkHexahedron);
 
 static const float VTK_DIVERGED = 1.e6;
@@ -372,7 +372,7 @@ void vtkHexahedron::Contour(float value, vtkDataArray *cellScalars,
                             vtkCellData *outCd)
 {
   static int CASE_MASK[8] = {1,2,4,8,16,32,64,128};
-  VTK_TRIANGLE_CASES *triCase;
+  vtkMarchingCubesTriangleCases *triCase;
   EDGE_LIST  *edge;
   int i, j, index, *vert;
   int v1, v2, newCellId;
@@ -388,7 +388,7 @@ void vtkHexahedron::Contour(float value, vtkDataArray *cellScalars,
       }
     }
 
-  triCase = VTK_TRIANGLE_CASES::GetCases() + index;
+  triCase = vtkMarchingCubesTriangleCases::GetCases() + index;
   edge = triCase->edges;
 
   for ( ; edge[0] > -1; edge += 3 )

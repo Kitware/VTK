@@ -28,7 +28,7 @@
 #include "vtkPointData.h"
 #include "vtkCellData.h"
 
-vtkCxxRevisionMacro(vtkPixel, "1.73");
+vtkCxxRevisionMacro(vtkPixel, "1.74");
 vtkStandardNewMacro(vtkPixel);
 
 // Construct the pixel with four points.
@@ -227,7 +227,7 @@ void vtkPixel::Contour(float value, vtkDataArray *cellScalars,
                        vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd)
 {
   static int CASE_MASK[4] = {1,2,8,4}; //note differenceom quad!
-  VTK_LINE_CASES *lineCase;
+  vtkMarchingSquaresLineCases *lineCase;
   EDGE_LIST  *edge;
   int i, j, index, *vert;
   int newCellId;
@@ -243,7 +243,7 @@ void vtkPixel::Contour(float value, vtkDataArray *cellScalars,
       }
     }
 
-  lineCase = VTK_LINE_CASES::GetCases() + index;
+  lineCase = vtkMarchingSquaresLineCases::GetCases() + index;
   edge = lineCase->edges;
 
   for ( ; edge[0] > -1; edge += 2 )

@@ -18,7 +18,7 @@
 #include "vtkPriorityQueue.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPriorityQueue, "1.28");
+vtkCxxRevisionMacro(vtkPriorityQueue, "1.29");
 vtkStandardNewMacro(vtkPriorityQueue);
 
 // Instantiate priority queue with default size and extension size of 1000.
@@ -47,7 +47,7 @@ void vtkPriorityQueue::Allocate(const vtkIdType sz, const vtkIdType ext)
     {
     delete [] this->Array;
     }
-  this->Array = new vtkPriorityItem[sz];
+  this->Array = new vtkPriorityQueue::Item[sz];
   this->Extend = ( ext > 0 ? ext : 1);
   this->MaxId = -1;
 }
@@ -69,7 +69,7 @@ vtkPriorityQueue::~vtkPriorityQueue()
 void vtkPriorityQueue::Insert(float priority, vtkIdType id)
 {
   vtkIdType i, idx;
-  vtkPriorityItem temp;
+  vtkPriorityQueue::Item temp;
 
   // check and make sure item hasn't been inserted before
   if ( id <= this->ItemLocation->GetMaxId() && 
@@ -125,7 +125,7 @@ vtkIdType vtkPriorityQueue::Pop(vtkIdType location)
 vtkIdType vtkPriorityQueue::Pop(vtkIdType location, float &priority)
 {
   vtkIdType id, i, j, idx;
-  vtkPriorityItem temp;
+  vtkPriorityQueue::Item temp;
 
   if ( this->MaxId < 0 )
     {
@@ -182,9 +182,9 @@ vtkIdType vtkPriorityQueue::Pop(vtkIdType location, float &priority)
 }
 
 // Protected method reallocates queue.
-vtkPriorityItem *vtkPriorityQueue::Resize(const vtkIdType sz)
+vtkPriorityQueue::Item *vtkPriorityQueue::Resize(const vtkIdType sz)
 {
-  vtkPriorityItem *newArray;
+  vtkPriorityQueue::Item *newArray;
   vtkIdType newSize;
 
   if (sz >= this->Size)
@@ -201,12 +201,12 @@ vtkPriorityItem *vtkPriorityQueue::Resize(const vtkIdType sz)
     newSize = 1;
     }
 
-  newArray = new vtkPriorityItem[newSize];
+  newArray = new vtkPriorityQueue::Item[newSize];
 
   if (this->Array)
     {
     memcpy(newArray, this->Array,
-           (sz < this->Size ? sz : this->Size) * sizeof(vtkPriorityItem));
+           (sz < this->Size ? sz : this->Size) * sizeof(vtkPriorityQueue::Item));
     delete [] this->Array;
     }
 

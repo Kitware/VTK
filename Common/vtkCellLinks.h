@@ -32,14 +32,17 @@
 class vtkDataSet;
 class vtkCellArray;
 
-struct _vtkLink_s {
-    unsigned short ncells;
-    vtkIdType *cells;
-};
-
 class VTK_COMMON_EXPORT vtkCellLinks : public vtkObject 
 {
 public:
+
+  //BTX
+  struct LinkStruct {
+    unsigned short ncells;
+    vtkIdType *cells;
+  };
+  //ETX
+
   static vtkCellLinks *New();
   vtkTypeRevisionMacro(vtkCellLinks,vtkObject);
 
@@ -50,7 +53,7 @@ public:
 
   // Description:
   // Get a link structure given a point id.
-  _vtkLink_s &GetLink(vtkIdType ptId) {return this->Array[ptId];};
+  LinkStruct &GetLink(vtkIdType ptId) {return this->Array[ptId];};
 
   // Description:
   // Get the number of cells using the point specified by ptId.
@@ -137,11 +140,11 @@ protected:
   void InsertCellReference(vtkIdType ptId, unsigned short pos,
                            vtkIdType cellId);
 
-  _vtkLink_s *Array;   // pointer to data
+  LinkStruct *Array;   // pointer to data
   vtkIdType Size;       // allocated size of data
   vtkIdType MaxId;     // maximum index inserted thus far
   vtkIdType Extend;     // grow array by this point
-  _vtkLink_s *Resize(vtkIdType sz);  // function to resize data
+  LinkStruct *Resize(vtkIdType sz);  // function to resize data
 private:
   vtkCellLinks(const vtkCellLinks&);  // Not implemented.
   void operator=(const vtkCellLinks&);  // Not implemented.

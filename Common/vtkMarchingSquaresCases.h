@@ -22,10 +22,10 @@
 //
 
 typedef int EDGE_LIST;
-struct VTK_COMMON_EXPORT VTK_LINE_CASES 
+struct VTK_COMMON_EXPORT vtkMarchingSquaresLineCases 
 {
   EDGE_LIST edges[5];
-  static VTK_LINE_CASES* GetCases();
+  static vtkMarchingSquaresLineCases* GetCases();
 };
 
 #endif

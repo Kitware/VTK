@@ -18,7 +18,7 @@
 #include "vtkCell.h"
 #include "vtkMarchingSquaresCases.h"
 
-vtkCxxRevisionMacro(vtkCell, "1.52");
+vtkCxxRevisionMacro(vtkCell, "1.53");
 
 // Construct cell.
 vtkCell::vtkCell()
@@ -283,7 +283,7 @@ void vtkCell::PrintSelf(ostream& os, vtkIndent indent)
 
 // Note: the following code is placed here to deal with cross-library
 // symbol export and import on Microsoft compilers.
-static VTK_LINE_CASES VTK_MARCHING_SQUARES_LINECASES[] = { 
+static vtkMarchingSquaresLineCases VTK_MARCHING_SQUARES_LINECASES[] = { 
   {{-1, -1, -1, -1, -1}},
   {{0, 3, -1, -1, -1}},
   {{1, 0, -1, -1, -1}},
@@ -302,7 +302,7 @@ static VTK_LINE_CASES VTK_MARCHING_SQUARES_LINECASES[] = {
   {{-1, -1, -1, -1, -1}}
 };
 
-VTK_LINE_CASES* VTK_LINE_CASES::GetCases()
+vtkMarchingSquaresLineCases* vtkMarchingSquaresLineCases::GetCases()
 {
   return VTK_MARCHING_SQUARES_LINECASES;
 }

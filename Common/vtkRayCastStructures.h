@@ -77,6 +77,6 @@ typedef struct
   // a ray caster that takes steps
   int                          NumberOfStepsTaken;
 
-} VTKRayCastRayInfo;
+} vtkRayCastRayInfo;
 
 #endif

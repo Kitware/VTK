@@ -41,17 +41,17 @@
 #include "vtkObject.h"
 #include "vtkIdTypeArray.h"
 
-//BTX
-typedef struct _vtkPriorityItem
-  {
-  float priority;
-  vtkIdType id;
-  } vtkPriorityItem;
-//ETX
-
 class VTK_COMMON_EXPORT vtkPriorityQueue : public vtkObject
 {
 public:
+  //BTX
+  typedef struct ItemStruct
+  {
+    float priority;
+    vtkIdType id;
+  } Item;
+  //ETX
+
   // Description:
   // Instantiate priority queue with default size and extension size of 1000.
   static vtkPriorityQueue *New();
@@ -117,10 +117,10 @@ protected:
   vtkPriorityQueue();
   ~vtkPriorityQueue();
   
-  vtkPriorityItem *Resize(const vtkIdType sz);
+  Item *Resize(const vtkIdType sz);
 
   vtkIdTypeArray *ItemLocation;
-  vtkPriorityItem *Array;
+  Item *Array;
   vtkIdType Size;
   vtkIdType MaxId;
   vtkIdType Extend;
