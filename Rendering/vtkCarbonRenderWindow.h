@@ -225,6 +225,8 @@ protected:
 
   int CursorHidden;
 
+  void CreateAWindow(int x, int y, int width, int height);
+  void InitializeApplication();
 private:
   vtkCarbonRenderWindow(const vtkCarbonRenderWindow&);  // Not implemented.
   void operator=(const vtkCarbonRenderWindow&);  // Not implemented.

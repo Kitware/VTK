@@ -32,7 +32,7 @@ Thanks:    to Yves Starreveld for developing this class
 #include "vtkObjectFactory.h"
 
 
-vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.4");
+vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.5");
 vtkStandardNewMacro(vtkCarbonRenderWindow);
 
 
@@ -105,15 +105,15 @@ OSStatus glReportError (void)
 // CheckRenderer
 // looks at renderer attributes it has at least the VRAM is accelerated
 // Inputs:   hGD: GDHandle to device to look at
-//        pVRAM: pointer to VRAM in bytes required; out is actual VRAM if
-//                   a renderer was found, otherwise it is the input parameter
+// pVRAM: pointer to VRAM in bytes required; out is actual VRAM if
+//     a renderer was found, otherwise it is the input parameter
 //     pTextureRAM:  pointer to texture RAM in bytes required; out is same
-//                   (implementation assume VRAM returned by card is total
-//                   so we add texture and VRAM)
+//     (implementation assume VRAM returned by card is total
+//     so we add texture and VRAM)
 //   fAccelMust: do we check for acceleration
 // Returns: true if renderer for the requested device complies, false otherwise
 static Boolean CheckRenderer (GDHandle hGD, long* pVRAM, long* pTextureRAM,
-            GLint* pDepthSizeSupport, Boolean fAccelMust)
+     GLint* pDepthSizeSupport, Boolean fAccelMust)
 {
   AGLRendererInfo info, head_info;
   GLint inum;
@@ -138,7 +138,7 @@ static Boolean CheckRenderer (GDHandle hGD, long* pVRAM, long* pTextureRAM,
       aglDescribeRenderer(info, AGL_ACCELERATED, &dAccel);
       aglReportError ();
       if (dAccel)
-        canAccel = true;
+ canAccel = true;
       info = aglNextRendererInfo(info);
       aglReportError ();
       inum++;
@@ -153,23 +153,23 @@ static Boolean CheckRenderer (GDHandle hGD, long* pVRAM, long* pTextureRAM,
       // if we can accel then we will choose the accelerated renderer
       // how about compliant renderers???
       if ((canAccel && dAccel) || (!canAccel && (!fAccelMust || dAccel)))
-        {
-        aglDescribeRenderer (info, AGL_VIDEO_MEMORY, &dVRAM);
-        // we assume that VRAM returned is total thus add
-        // texture and VRAM required
-        aglReportError ();
-        if (dVRAM >= (*pVRAM + *pTextureRAM))
-          {
-          if (dVRAM >= dMaxVRAM) // find card with max VRAM
-            {
-            aglDescribeRenderer (info, AGL_DEPTH_MODES, pDepthSizeSupport);
-            // which depth buffer modes are supported
-            aglReportError ();
-            dMaxVRAM = dVRAM; // store max
-            found = true;
-            }
-          }
-        }
+ {
+ aglDescribeRenderer (info, AGL_VIDEO_MEMORY, &dVRAM);
+ // we assume that VRAM returned is total thus add
+ // texture and VRAM required
+ aglReportError ();
+ if (dVRAM >= (*pVRAM + *pTextureRAM))
+   {
+   if (dVRAM >= dMaxVRAM) // find card with max VRAM
+     {
+     aglDescribeRenderer (info, AGL_DEPTH_MODES, pDepthSizeSupport);
+     // which depth buffer modes are supported
+     aglReportError ();
+     dMaxVRAM = dVRAM; // store max
+     found = true;
+     }
+   }
+ }
       info = aglNextRendererInfo(info);
       aglReportError ();
       inum++;
@@ -190,18 +190,18 @@ static Boolean CheckRenderer (GDHandle hGD, long* pVRAM, long* pTextureRAM,
 // looks at renderer attributes and each device must have at least one 
 // renderer that fits the profile.
 // Inputs:   pVRAM: pointer to VRAM in bytes required; 
-//                  out is actual min VRAM of all renderers found,
-//                  otherwise it is the input parameter
+//    out is actual min VRAM of all renderers found,
+//    otherwise it is the input parameter
 //     pTextureRAM: pointer to texture RAM in bytes required; 
-//                  out is same (implementation assumes VRAM returned 
-//                  by card is total so we add texture and VRAM)
+//    out is same (implementation assumes VRAM returned 
+//    by card is total so we add texture and VRAM)
 //      fAccelMust: do we check fro acceleration
 // Returns: true if any renderer on each device complies (not necessarily
-//          the same renderer), false otherwise
+//   the same renderer), false otherwise
 
 static Boolean CheckAllDeviceRenderers (long* pVRAM, long* pTextureRAM,
-          GLint* pDepthSizeSupport, 
-          Boolean fAccelMust)
+   GLint* pDepthSizeSupport, 
+   Boolean fAccelMust)
 {
   AGLRendererInfo info, head_info;
   GLint inum;
@@ -226,51 +226,51 @@ static Boolean CheckAllDeviceRenderers (long* pVRAM, long* pTextureRAM,
       // if accelerated renderer, ignore non-accelerated ones
       // prevents returning info on software renderer when get hardware one
       while (info)
-        {
-        aglDescribeRenderer(info, AGL_ACCELERATED, &dAccel);
-        aglReportError ();
-        if (dAccel)
-          canAccel = true;
-        info = aglNextRendererInfo(info);
-        aglReportError ();
-        inum++;
-        }
+ {
+ aglDescribeRenderer(info, AGL_ACCELERATED, &dAccel);
+ aglReportError ();
+ if (dAccel)
+   canAccel = true;
+ info = aglNextRendererInfo(info);
+ aglReportError ();
+ inum++;
+ }
 
       info = head_info;
       inum = 0;
       while (info)
-        {
-        aglDescribeRenderer(info, AGL_ACCELERATED, &dAccel);
-        aglReportError ();
-        // if we can accel then we will choose the accelerated renderer
-        // how about compliant renderers???
-        if ((canAccel && dAccel) || (!canAccel && (!fAccelMust || dAccel)))
-          {
-          aglDescribeRenderer(info, AGL_VIDEO_MEMORY, &dVRAM);
-          aglReportError ();
-          if (dVRAM >= (*pVRAM + *pTextureRAM))
-            {
-            if (dVRAM >= dMaxVRAM) // find card with max VRAM
-              {// which depth buffer modes are supported
-              aglDescribeRenderer(info, AGL_DEPTH_MODES, pDepthSizeSupport);
-              aglReportError ();
-              dMaxVRAM = dVRAM; // store max
-              found = true;
-              }
-            }
-          }
-        info = aglNextRendererInfo(info);
-        aglReportError ();
-        inum++;
-        }
+ {
+ aglDescribeRenderer(info, AGL_ACCELERATED, &dAccel);
+ aglReportError ();
+ // if we can accel then we will choose the accelerated renderer
+ // how about compliant renderers???
+ if ((canAccel && dAccel) || (!canAccel && (!fAccelMust || dAccel)))
+   {
+   aglDescribeRenderer(info, AGL_VIDEO_MEMORY, &dVRAM);
+   aglReportError ();
+   if (dVRAM >= (*pVRAM + *pTextureRAM))
+     {
+     if (dVRAM >= dMaxVRAM) // find card with max VRAM
+       {// which depth buffer modes are supported
+       aglDescribeRenderer(info, AGL_DEPTH_MODES, pDepthSizeSupport);
+       aglReportError ();
+       dMaxVRAM = dVRAM; // store max
+       found = true;
+       }
+     }
+   }
+ info = aglNextRendererInfo(info);
+ aglReportError ();
+ inum++;
+ }
       }
     aglDestroyRendererInfo(head_info);
     if (found) // found card with enough VRAM and meets the accel criteria
       {
       if (MinVRAM > dMaxVRAM)
-        {
-        MinVRAM = dMaxVRAM; // return VRAM
-        }
+ {
+ MinVRAM = dMaxVRAM; // return VRAM
+ }
       }
     else
       goodCheck = false; // one device failed thus entire requirement fails
@@ -316,25 +316,25 @@ short FindGDHandleFromWindow (WindowPtr pWindow, GDHandle * phgdOnThisDevice)
     {
     if (TestDeviceAttribute (hgdNthDevice, screenDevice))
       if (TestDeviceAttribute (hgdNthDevice, screenActive))
-        {
-        // The SectRect routine calculates the intersection
-        //  of the window rectangle and this gDevice
-        //  rectangle and returns TRUE if the rectangles intersect,
-        //  FALSE if they don't.
-        SectRect (&rectWind, &(**hgdNthDevice).gdRect, &rectSect);
-        // determine which screen holds greatest window area
-        //  first, calculate area of rectangle on current device
-        sectArea = (long) ((rectSect.right - rectSect.left) * 
-         (rectSect.bottom - rectSect.top));
-        if (sectArea > 0)
-          numDevices++;
-        if (sectArea > greatestArea)
-          {
-          greatestArea = sectArea; // set greatest area so far
-          *phgdOnThisDevice = hgdNthDevice; // set zoom device
-          }
-        hgdNthDevice = GetNextDevice(hgdNthDevice);
-        }
+ {
+ // The SectRect routine calculates the intersection
+ //  of the window rectangle and this gDevice
+ //  rectangle and returns TRUE if the rectangles intersect,
+ //  FALSE if they don't.
+ SectRect (&rectWind, &(**hgdNthDevice).gdRect, &rectSect);
+ // determine which screen holds greatest window area
+ //  first, calculate area of rectangle on current device
+ sectArea = (long) ((rectSect.right - rectSect.left) * 
+  (rectSect.bottom - rectSect.top));
+ if (sectArea > 0)
+   numDevices++;
+ if (sectArea > greatestArea)
+   {
+   greatestArea = sectArea; // set greatest area so far
+   *phgdOnThisDevice = hgdNthDevice; // set zoom device
+   }
+ hgdNthDevice = GetNextDevice(hgdNthDevice);
+ }
     }
     SetPort (pgpSave);
     return numDevices;
@@ -388,14 +388,14 @@ void vtkCarbonRenderWindow::Clean()
       id = (GLuint) this->TextureResourceIds->GetId(i);
 #ifdef GL_VERSION_1_1
       if (glIsTexture(id))
-        {
-        glDeleteTextures(1, &id);
-        }
+ {
+ glDeleteTextures(1, &id);
+ }
 #else
       if (glIsList(id))
-        {
-        glDeleteLists(id,1);
-        }
+ {
+ glDeleteLists(id,1);
+ }
 #endif
       }
 
@@ -404,8 +404,8 @@ void vtkCarbonRenderWindow::Clean()
     // destructor)
     this->Renderers->InitTraversal();
     for (ren=(vtkOpenGLRenderer *)this->Renderers->GetNextItemAsObject();
-         ren != NULL;
-         ren = (vtkOpenGLRenderer *)this->Renderers->GetNextItemAsObject())
+  ren != NULL;
+  ren = (vtkOpenGLRenderer *)this->Renderers->GetNextItemAsObject())
       {
       ren->SetRenderWindow(NULL);
       }
@@ -480,11 +480,11 @@ void vtkCarbonRenderWindow::SetSize(int x, int y)
     if (this->Mapped)
       {
       if (!resizing)
-        {
-        resizing = 1;
-        SizeWindow(this->WindowId, x, y, TRUE);
-        resizing = 0;
-        }
+ {
+ resizing = 1;
+ SizeWindow(this->WindowId, x, y, TRUE);
+ resizing = 0;
+ }
       }
     }
 }
@@ -502,11 +502,11 @@ void vtkCarbonRenderWindow::SetPosition(int x, int y)
     if (this->Mapped)
       {
       if (!resizing)
-        {
-        resizing = 1;
-        MoveWindow(this->WindowId, x, y, FALSE);
-        resizing = 0;
-        }
+ {
+ resizing = 1;
+ MoveWindow(this->WindowId, x, y, FALSE);
+ resizing = 0;
+ }
       }
     }
 }
@@ -533,14 +533,14 @@ void vtkCarbonRenderWindow::StereoUpdate(void)
     switch (this->StereoType)
       {
       case VTK_STEREO_CRYSTAL_EYES:
-        {
-        this->StereoStatus = 1;
-        }
-        break;
+ {
+ this->StereoStatus = 1;
+ }
+ break;
       case VTK_STEREO_RED_BLUE:
-        {
-        this->StereoStatus = 1;
-        }
+ {
+ this->StereoStatus = 1;
+ }
       }
     }
   else if ((!this->StereoRender) && this->StereoStatus)
@@ -548,14 +548,14 @@ void vtkCarbonRenderWindow::StereoUpdate(void)
     switch (this->StereoType)
       {
       case VTK_STEREO_CRYSTAL_EYES:
-        {
-        this->StereoStatus = 0;
-        }
-        break;
+ {
+ this->StereoStatus = 0;
+ }
+ break;
       case VTK_STEREO_RED_BLUE:
-        {
-        this->StereoStatus = 0;
-        }
+ {
+ this->StereoStatus = 0;
+ }
       }
     }
 }
@@ -569,8 +569,8 @@ void vtkCarbonRenderWindow::WindowConfigure()
 
 //--------------------------------------------------------------------------
 void vtkCarbonRenderWindow::SetupPixelFormat(void *hDC, void *dwFlags,
-                                             int debug, int bpp,
-                                             int zbpp)
+          int debug, int bpp,
+          int zbpp)
 {
   cout << "vtkCarbonRenderWindow::SetupPixelFormat - IMPLEMENT\n";
 }
@@ -582,10 +582,23 @@ void vtkCarbonRenderWindow::SetupPalette(void *hDC)
 }
 
 //--------------------------------------------------------------------------
-// Initialize the window for rendering.
-void vtkCarbonRenderWindow::WindowInitialize (void)
+void vtkCarbonRenderWindow::InitializeApplication()
 {
-  int x, y, width, height;
+  if (!this->ApplicationInitialized)
+    {
+      if (!this->ParentId)
+ { // Initialize the Toolbox managers if we are running the show
+ InitCursor();
+ DrawMenuBar();
+ this->ApplicationInitialized=1;
+ }
+    }
+}
+
+//--------------------------------------------------------------------------
+// Initialize the window for rendering.
+void vtkCarbonRenderWindow::CreateAWindow(int x, int y, int width, int height)
+{
   GDHandle hGD = NULL;
   GLint depthSizeSupport;
   OSStatus err = noErr;
@@ -594,18 +607,9 @@ void vtkCarbonRenderWindow::WindowInitialize (void)
   char *windowName;
   short numDevices;     // number of graphics devices our window covers
   WindowAttributes windowAttrs = (kWindowStandardDocumentAttributes | 
-                                  kWindowLiveResizeAttribute |
-                                  kWindowStandardHandlerAttribute);
+      kWindowLiveResizeAttribute |
+      kWindowStandardHandlerAttribute);
 
-  // create our own window if not already set
-  this->OwnWindow = 0;
-  // Initialize Toolbox Managers if not done already
-  if (!this->ApplicationInitialized)
-    {
-    InitCursor();
-    DrawMenuBar();
-    this->ApplicationInitialized=1;
-    }
   if ((this->Size[0]+this->Size[1])==0)
     {
     this->Size[0]=300;
@@ -619,120 +623,147 @@ void vtkCarbonRenderWindow::WindowInitialize (void)
 
   // Rect is defined as {top, left, bottom, right} (really)
   Rect rectWin = {this->Position[1], this->Position[0],
-                  this->Position[1]+this->Size[1],
-                  this->Position[0]+this->Size[0]};
+    this->Position[1]+this->Size[1],
+    this->Position[0]+this->Size[0]};
   
   if (!this->WindowId)
     {
-    if (noErr != CreateNewWindow (kDocumentWindowClass, windowAttrs,
-                                  &rectWin, &(this->WindowId)))
+    if (this->ParentId)
       {
-      vtkErrorMacro("Could not create window, serious error!");
-      return;
+      // do nothing, since we already have a home
       }
-    int len = strlen("vtkX - Carbon #")
-      + (int)ceil( (double) log10( (double)(count+1) ) )
-      + 1;
-    windowName = new char [ len ];
-    sprintf(windowName,"vtkX - Carbon #%i",count++);
-    this->SetWindowName(windowName);
-    delete [] windowName;
-    this->OwnWindow = 1;
-    SetWRefCon(this->WindowId, (long)this);
-    ShowWindow(this->WindowId);
-    SetPortWindowPort(this->WindowId);
-    this->fAcceleratedMust = false;  //must renderer be accelerated?
-    this->VRAM = 0 * 1048576;    // minimum VRAM
-    this->textureRAM = 0 * 1048576;  // minimum texture RAM
-    this->fmt = 0;      // output pixel format
-    i = 0;
-    this->aglAttributes [i++] = AGL_RGBA;
-    this->aglAttributes [i++] = AGL_DOUBLEBUFFER;
-    this->aglAttributes [i++] = AGL_ACCELERATED;
-    this->aglAttributes [i++] = AGL_NO_RECOVERY;
-    this->aglAttributes [i++] = AGL_DEPTH_SIZE;
-    this->aglAttributes [i++] = 16;
-    this->aglAttributes [i++] = AGL_NONE;
-    this->draggable = true;
-
-    numDevices = FindGDHandleFromWindow(this->WindowId, &hGD);
-    if (!this->draggable)
-      {
-      if ((numDevices > 1) || (numDevices == 0)) // multiple or no devices
-        {
-        // software renderer
-        // infinite VRAM, infinite textureRAM, not accelerated
-        if (this->fAcceleratedMust)
-          {
-          vtkErrorMacro ("Window spans multiple devices-no HW accel");
-          return;
-          }
-        }
-      else // not draggable on single device
-        {
-        if (!CheckRenderer (hGD, &(this->VRAM), &(this->textureRAM),
-                            &depthSizeSupport, this->fAcceleratedMust))
-          {
-          vtkErrorMacro ("Renderer check failed");
-          return;
-          }
-        }
-    }
-    // else if draggable - must check all devices for presence of
-    // at least one renderer that meets the requirements
-    else if(!CheckAllDeviceRenderers(&(this->VRAM), &(this->textureRAM),
-                                     &depthSizeSupport, this->fAcceleratedMust))
-      {
-      vtkErrorMacro ("Renderer check failed");
-      return;
-      }
-
-    // do agl
-    if ((Ptr) kUnresolvedCFragSymbolAddress == (Ptr) aglChoosePixelFormat)
-      {
-      vtkErrorMacro ("OpenGL not installed");
-      return;
-      }
-    // we successfully passed the renderer checks!
-
-    if ((!this->draggable && (numDevices == 1)))
-      // not draggable on a single device
-      this->fmt = aglChoosePixelFormat (&hGD, 1, this->aglAttributes);
     else
-      this->fmt = aglChoosePixelFormat (NULL, 0, this->aglAttributes);
-    aglReportError (); // cough up any errors encountered
-    if (NULL == this->fmt)
       {
-      vtkErrorMacro("Could not find valid pixel format");
-      return;
-      }
-
-    //this->ContextId = aglCreateContext (this->fmt, aglShareContext);
-    // Create AGL context
-    //if (AGL_BAD_MATCH == aglGetError())
-    this->ContextId = aglCreateContext (this->fmt, 0); // create without sharing
-    aglReportError (); // cough up errors
-    if (NULL == this->ContextId)
-      {
-      vtkErrorMacro ("Could not create context");
-      return;
-      }
-    // attach the CGrafPtr to the context
-    if (!aglSetDrawable (this->ContextId, GetWindowPort (this->WindowId)))
-      {
-      aglReportError();
-      return;
-      }
-
-    if(!aglSetCurrentContext (this->ContextId))
-      // make the context the current context
-      {
-      aglReportError();
-      return;
+      if (noErr != CreateNewWindow (kDocumentWindowClass, windowAttrs,
+        &rectWin, &(this->WindowId)))
+ {
+ vtkErrorMacro("Could not create window, serious error!");
+ return;
+ }
+      int len = strlen("vtkX - Carbon #")
+ + (int)ceil( (double) log10( (double)(count+1) ) )
+ + 1;
+      windowName = new char [ len ];
+      sprintf(windowName,"vtkX - Carbon #%i",count++);
+      this->SetWindowName(windowName);
+      delete [] windowName;
+      this->OwnWindow = 1;
       }
     }
+  SetWRefCon(this->WindowId, (long)this);
+  ShowWindow(this->WindowId);
+  SetPortWindowPort(this->WindowId);
+  this->fAcceleratedMust = false;  //must renderer be accelerated?
+  this->VRAM = 0 * 1048576;    // minimum VRAM
+  this->textureRAM = 0 * 1048576;  // minimum texture RAM
+  this->fmt = 0;      // output pixel format
+  i = 0;
+  this->aglAttributes [i++] = AGL_RGBA;
+  this->aglAttributes [i++] = AGL_DOUBLEBUFFER;
+  this->aglAttributes [i++] = AGL_ACCELERATED;
+  this->aglAttributes [i++] = AGL_NO_RECOVERY;
+  this->aglAttributes [i++] = AGL_DEPTH_SIZE;
+  this->aglAttributes [i++] = 16;
+  this->aglAttributes [i++] = AGL_NONE;
+  this->draggable = true;
+
+  numDevices = FindGDHandleFromWindow(this->WindowId, &hGD);
+  if (!this->draggable)
+    {
+    if ((numDevices > 1) || (numDevices == 0)) // multiple or no devices
+      {
+      // software renderer
+      // infinite VRAM, infinite textureRAM, not accelerated
+      if (this->fAcceleratedMust)
+ {
+ vtkErrorMacro ("Window spans multiple devices-no HW accel");
+ return;
+ }
+      }
+    else // not draggable on single device
+      {
+      if (!CheckRenderer (hGD, &(this->VRAM), &(this->textureRAM),
+     &depthSizeSupport, this->fAcceleratedMust))
+ {
+ vtkErrorMacro ("Renderer check failed");
+ return;
+ }
+      }
+    }
+  // else if draggable - must check all devices for presence of
+  // at least one renderer that meets the requirements
+  else if(!CheckAllDeviceRenderers(&(this->VRAM), &(this->textureRAM),
+                                   &depthSizeSupport, this->fAcceleratedMust))
+    {
+    vtkErrorMacro ("Renderer check failed");
+    return;
+    }
+
+  // do agl
+  if ((Ptr) kUnresolvedCFragSymbolAddress == (Ptr) aglChoosePixelFormat)
+    {
+    vtkErrorMacro ("OpenGL not installed");
+    return;
+    }
+  // we successfully passed the renderer checks!
+  
+  if ((!this->draggable && (numDevices == 1)))
+    // not draggable on a single device
+    this->fmt = aglChoosePixelFormat (&hGD, 1, this->aglAttributes);
+  else
+    this->fmt = aglChoosePixelFormat (NULL, 0, this->aglAttributes);
+  aglReportError (); // cough up any errors encountered
+  if (NULL == this->fmt)
+    {
+    vtkErrorMacro("Could not find valid pixel format");
+    return;
+    }
+  
+  //this->ContextId = aglCreateContext (this->fmt, aglShareContext);
+  // Create AGL context
+  //if (AGL_BAD_MATCH == aglGetError())
+  this->ContextId = aglCreateContext (this->fmt, 0); // create without sharing
+  aglReportError (); // cough up errors
+  if (NULL == this->ContextId)
+    {
+    vtkErrorMacro ("Could not create context");
+    return;
+    }
+  // attach the CGrafPtr to the context
+  if (!aglSetDrawable (this->ContextId, GetWindowPort (this->WindowId)))
+    {
+    aglReportError();
+    return;
+    }
+
+  if(!aglSetCurrentContext (this->ContextId))
+    // make the context the current context
+    {
+    aglReportError();
+    return;
+    }
+
   this->OpenGLInit();
   this->Mapped = 1;
+}
+
+//--------------------------------------------------------------------------
+// Initialize the window for rendering.
+void vtkCarbonRenderWindow::WindowInitialize()
+{
+  int x, y, width, height;
+  x = ((this->Position[0] >= 0) ? this->Position[0] : 5);
+  y = ((this->Position[1] >= 0) ? this->Position[1] : 5);
+  height = ((this->Size[1] > 0) ? this->Size[1] : 300);
+  width = ((this->Size[0] > 0) ? this->Size[0] : 300);
+  
+  // create our own window if not already set
+  this->OwnWindow = 0;
+  this->InitializeApplication();
+  this->CreateAWindow(x,y,width,height);
+    
+  // set the DPI
+  this->SetDPI(72); // this may need to be more clever some day
 }
 
 //--------------------------------------------------------------------------
@@ -744,12 +775,21 @@ void vtkCarbonRenderWindow::Initialize (void)
     {
     return;
     }
-  this->WindowInitialize();
+
+  // now initialize the window
+  if (this->OffScreenRendering) // always fails since OffScreen not done yet
+    {
+    this->InitializeApplication();
+    }
+  else
+    {
+    this->WindowInitialize();
+    }
 }
 
 //--------------------------------------------------------------------------
 void vtkCarbonRenderWindow::UpdateSizeAndPosition(int xPos, int yPos, 
-                                                  int xSize, int ySize)
+ int xSize, int ySize)
 {
   this->Size[0]=xSize;
   this->Size[1]=ySize;
@@ -864,7 +904,7 @@ void vtkCarbonRenderWindow::SetStereoCapableWindow(int capable)
   else
     {
     vtkWarningMacro(<< "Requesting a StereoCapableWindow must be performed "
-                    << "before the window is realized, i.e. before a render.");
+      << "before the window is realized, i.e. before a render.");
     }
 }
 
