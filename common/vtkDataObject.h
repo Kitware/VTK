@@ -183,7 +183,7 @@ public:
   virtual unsigned long GetEstimatedUpdateExtentMemorySize()
     { vtkErrorMacro(
       "Subclass did not implement 'GetEstimatedUpdateExtentMemorySize'");
-    }
+    return 0;}
   
   // Description:
   // Method implemented in the subclasses to make sure the update extent
