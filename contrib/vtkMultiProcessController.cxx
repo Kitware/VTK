@@ -426,6 +426,7 @@ int vtkMultiProcessController::WritePolyData(vtkPolyData *data)
   
   // save the actual length of the data string.
   this->MarshalDataLength = size;
+  writer->Delete();
   
   return 1;
 }
@@ -445,6 +446,7 @@ int vtkMultiProcessController::ReadPolyData(vtkPolyData *object)
   reader->Update();
   
   this->CopyPolyData(reader->GetOutput(), object);
+  reader->Delete();
 
   return 1;
 }
@@ -538,6 +540,8 @@ void vtkMultiProcessController::DeleteAndSetMarshalString(char *str,
   this->MarshalString = str;
   this->MarshalStringLength = strLength;
 }
+
+
 
 
 
