@@ -37,8 +37,6 @@ class vtkMyCallback : public vtkCommand
 public:
   static vtkMyCallback *New() 
     { return new vtkMyCallback; }
-  void Delete()
-    { delete this; }
   virtual void Execute(vtkObject *caller, unsigned long, void*)
     {
       vtkBoxWidget *boxWidget = reinterpret_cast<vtkBoxWidget*>(caller);
