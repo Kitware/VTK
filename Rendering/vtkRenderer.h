@@ -311,7 +311,8 @@ public:
   virtual void WorldToView(double &wx, double &wy, double &wz);
 
   // Description:
-  // Given a pixel location, return the Z value
+  // Given a pixel location, return the Z value. The z value is
+  // normalized (0,1) between the front and back clipping planes.
   double GetZ (int x, int y);
 
   // Description:
