@@ -201,6 +201,7 @@ void vtkPolyDataNormals::Execute()
   for (cellId=0, newPolys->InitTraversal(); newPolys->GetNextCell(npts,pts); 
   cellId++ )
     {
+    if ((cellId % 1000) == 0) this->UpdateProgress ((float) cellId / (float) numPolys);
     poly.ComputeNormal(inPts, npts, pts, n);
     PolyNormals->SetNormal(cellId,n);
     }

@@ -123,6 +123,7 @@ void vtkStripper::Execute()
 
   for ( cellId=0; cellId < numCells; cellId++)
     {
+    if ((cellId % 1000) == 0) this->UpdateProgress ((float) cellId / (float) numCells);
     if ( ! visited[cellId] )
       {
       visited[cellId] = 1;
