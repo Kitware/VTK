@@ -463,8 +463,11 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     }
   strcat(dir, javaDone);
   tfp = fopen(dir, "w");
-  fprintf(tfp, "File: %s\n", fname);
-  fclose(tfp);
+  if ( tfp )
+    {
+    fprintf(tfp, "File: %s\n", fname);
+    fclose(tfp);
+    }
   }
 }
 
