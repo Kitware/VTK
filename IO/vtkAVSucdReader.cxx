@@ -41,7 +41,7 @@
 #include "vtkByteSwap.h"
 #include "vtkCellArray.h"
 
-vtkCxxRevisionMacro(vtkAVSucdReader, "1.7");
+vtkCxxRevisionMacro(vtkAVSucdReader, "1.8");
 vtkStandardNewMacro(vtkAVSucdReader);
 
 vtkAVSucdReader::vtkAVSucdReader()
@@ -257,7 +257,8 @@ void vtkAVSucdReader::ExecuteInformation()
       CalculatedFileLength += 3*4 * this->NumberOfNodes;
       if(this->NumberOfNodeFields)
         {
-        CalculatedFileLength += 2052 +this->NumberOfNodeFields*(12 + 4 * this->NumberOfNodes + 4);
+        CalculatedFileLength += 2052 +
+          this->NumberOfNodeFields*(12 + 4 * this->NumberOfNodes + 4);
         }
       
       if(this->NumberOfCellFields)
@@ -280,8 +281,8 @@ void vtkAVSucdReader::ExecuteInformation()
     const long base_offset = 1 + 6*4;
     char BUFFER2[1024], BUFFER1[1024], label[32];
 
-    long offset = base_offset + 16 * this->NumberOfCells + 4 * this->nlist_nodes +
-      3 * 4 * this->NumberOfNodes;
+    long offset = base_offset + 16 * this->NumberOfCells + 
+      4 * this->nlist_nodes + 3 * 4 * this->NumberOfNodes;
 
     if(this->NumberOfNodeFields)
       {
@@ -321,7 +322,8 @@ void vtkAVSucdReader::ExecuteInformation()
 
     if(this->NumberOfCellFields)
       {
-      offset += 4 * this->NumberOfNodes * this->NumberOfNodeFields + 4 * this->NumberOfNodeFields;
+      offset += 4 * this->NumberOfNodes * this->NumberOfNodeFields + 
+        4 * this->NumberOfNodeFields;
       this->fs->seekg(offset,ios::beg);
       this->fs->read(BUFFER1, sizeof(BUFFER1));
 
@@ -350,7 +352,8 @@ void vtkAVSucdReader::ExecuteInformation()
 
     if(this->NumberOfFields)
       {
-      offset += 4 * this->NumberOfCells * this->NumberOfCellFields + 4 * this->NumberOfCellFields;
+      offset += 4 * this->NumberOfCells * this->NumberOfCellFields + 
+        4 * this->NumberOfCellFields;
       this->fs->seekg(offset,ios::beg);
       this->fs->read(BUFFER1, sizeof(BUFFER1));
       vtkDebugMacro(<< BUFFER1 << endl);
@@ -702,7 +705,8 @@ void vtkAVSucdReader::ReadNodeData()
         if(1) // this->NodeDataInfo[i].veclen == 1)
           {
           ptr = scalars->GetPointer(0);
-          this->ReadFloatBlock(this->NumberOfNodes * this->NodeDataInfo[i].veclen, ptr);
+          this->ReadFloatBlock(this->NumberOfNodes * 
+                               this->NodeDataInfo[i].veclen, ptr);
           }
         else
           {
@@ -747,7 +751,8 @@ void vtkAVSucdReader::ReadNodeData()
       }
     this->fs->get(c); // one more newline to catch
 
-    vtkFloatArray **scalars = new vtkFloatArray * [this->NumberOfNodeComponents];
+    vtkFloatArray **scalars = new 
+      vtkFloatArray * [this->NumberOfNodeComponents];
     for(i=0; i < this->NumberOfNodeComponents; i++)
       {
       j=0;
@@ -809,14 +814,16 @@ void vtkAVSucdReader::ReadCellData()
         if(1) // this->CellDataInfo[i].veclen == 1)
           {
           ptr = scalars->GetPointer(0);
-          this->ReadFloatBlock(this->NumberOfCells * this->CellDataInfo[i].veclen, ptr);
+          this->ReadFloatBlock(this->NumberOfCells * 
+                               this->CellDataInfo[i].veclen, ptr);
           }
         else
           {
           float *ptr = new float[this->NumberOfCells];
           for(j=0; j < this->CellDataInfo[i].veclen; j++)
             {
-            this->fs->seekg(this->CellDataInfo[i].foffset + j*this->NumberOfCells,
+            this->fs->seekg(this->CellDataInfo[i].foffset + 
+                            j*this->NumberOfCells,
                             ios::beg);
             this->ReadFloatBlock(this->NumberOfCells, ptr);
 
@@ -851,7 +858,8 @@ void vtkAVSucdReader::ReadCellData()
       }
     this->fs->get(c); // one more newline to catch
 
-    vtkFloatArray **scalars = new vtkFloatArray * [this->NumberOfCellComponents];
+    vtkFloatArray **scalars = new 
+      vtkFloatArray * [this->NumberOfCellComponents];
     for(i=0; i < this->NumberOfCellComponents; i++)
       {
       j=0;
