@@ -47,7 +47,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 vtkCubeSource* vtkCubeSource::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -94,8 +94,10 @@ void vtkCubeSource::Execute()
   newPoints->Allocate(numPts);
   newNormals = vtkNormals::New();
   newNormals->Allocate(numPts);
+  newNormals->GetData()->SetName("Normals");
   newTCoords = vtkTCoords::New();
   newTCoords->Allocate(numPts);
+  newTCoords->GetData()->SetName("TCoords");
 
   newPolys = vtkCellArray::New();
   newPolys->Allocate(newPolys->EstimateSize(numPolys,4));
