@@ -165,6 +165,7 @@ int vtkPointSet::FindCell(float x[3], vtkCell *cell, int cellId, float tol2,
   if ( ! cell )
     {
     ptId = this->Locator->FindClosestPoint(x);
+    if ( ptId < 0 ) return (-1); //if point completely outside of data
 
     this->GetPointCells(ptId, cellIds);
     if ( cellIds.GetNumberOfIds() > 0 )
