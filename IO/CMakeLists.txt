@@ -23,6 +23,7 @@ vtkBase64OutputStream.cxx
 vtkBase64Utilities.cxx
 vtkCGMWriter.cxx
 vtkDEMReader.cxx
+vtkDICOMImageReader.cxx
 vtkDataCompressor.cxx
 vtkDataObjectReader.cxx
 vtkDataObjectWriter.cxx
@@ -130,8 +131,6 @@ vtkXMLWriter.cxx
 vtkXYZMolReader.cxx
 vtkZLibDataCompressor.cxx
 )
-
-SET(Kit_SRCS ${Kit_SRCS} vtkDICOMImageReader.cxx)
 
 SET_SOURCE_FILES_PROPERTIES(
 vtkDataCompressor
