@@ -11,7 +11,7 @@
 #include "CellList.h"
 #include "LinkList.h"
 
-#define MAX_VERTS 64
+#define MAX_VERTS MAX_CELL_SIZE
 
 class vlPolyData : public vlDataSet 
 {

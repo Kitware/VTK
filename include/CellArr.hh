@@ -37,6 +37,8 @@ public:
   int GetNumCells() {return NumCells;};
   void InitTraversal() {this->Loc=0;};
   void Squeeze() {this->Ia.Squeeze();};
+  int EstimateSize(int numCells, int maxPtsPerCell) 
+    {return numCells*(1+maxPtsPerCell);};
   
 private:
   int NumCells;
