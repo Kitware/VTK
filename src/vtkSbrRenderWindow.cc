@@ -1387,6 +1387,21 @@ void vtkSbrRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
   clip_indicator( this->Fd, CLIP_TO_VIEWPORT);
 }
  
+unsigned char *vtkSbrRenderWindow::GetRGBAPixelData(int x1, int y1, 
+						int x2, int y2,
+						int front)
+{
+  vtkErrorMacro(<< "GetRGBAPixelData() not implemented yet for SB.\n");
+
+  return NULL ;
+}
+
+void vtkSbrRenderWindow::SetRGBAPixelData(int x1, int y1, int x2, int y2,
+				      unsigned char *data,int front)
+{
+  vtkErrorMacro(<< "SetRGBAPixelData() not implemented yet for SB.\n");
+
+}
 
 float *vtkSbrRenderWindow::GetZbufferData( int x1, int y1, int x2, int y2  )
 {

@@ -1040,6 +1040,225 @@ void vtkXglrRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
     }
 }
 
+// Important Note: XGL does not support get operations on alpha values.
+// Therefore, this operation will assign 255 to the alpha value of all
+// pixels read. Until XGL supports alpha read/writes, use GetPixelData()
+unsigned char *vtkXglrRenderWindow::GetRGBAPixelData(int x1, int y1, 
+						 int x2, int y2,
+						 int front)
+{
+  int     current;
+  long    xloop,yloop;
+  int     y_low, y_hi;
+  int     x_low, x_hi;
+  unsigned char   *data = NULL;
+  unsigned char   *p_data = NULL;
+  Xgl_usgn32 *input;
+  Xgl_usgn32 *loc;
+  int     width, height;
+
+  width  = (abs(x2 - x1)+1);
+  height = (abs(y2 - y1)+1);
+
+  if (!this->GetRas)
+    {
+    this->GetRas = (Xgl_ras *)xgl_object_create (xglr_sys_state, 
+						 XGL_MEM_RAS, 0,
+						 XGL_DEV_COLOR_TYPE, 
+						 XGL_COLOR_RGB, 
+						 XGL_RAS_WIDTH, width,
+						 XGL_RAS_HEIGHT, height,
+						 XGL_RAS_DEPTH, 32,
+						 0);
+    this->GetCtx = xgl_object_create (xglr_sys_state, 
+				      XGL_3D_CTX, NULL,
+				      XGL_CTX_DEVICE, this->GetRas,
+				      0);
+    }
+  else
+    {
+    xgl_object_set (this->GetRas, 
+		    XGL_RAS_WIDTH, width,
+		    XGL_RAS_HEIGHT, height,
+		    0);
+    }
+  
+  data = new unsigned char[width*height*4];
+
+  if (y1 < y2)
+    {
+    y_low = y1; 
+    y_hi  = y2;
+    }
+  else
+    {
+    y_low = y2; 
+    y_hi  = y1;
+    }
+
+  if (x1 < x2)
+    {
+    x_low = x1; 
+    x_hi  = x2;
+    }
+  else
+    {
+    x_low = x2; 
+    x_hi  = x1;
+    }
+
+  xgl_object_get (this->WindowRaster, XGL_WIN_RAS_BUF_DRAW, &current);
+
+  // If we have double buffering, we need to get the prevoius draw buffer 
+  if (this->DoubleBuffer && front) 
+    {
+    xgl_object_set (this->WindowRaster,
+		    XGL_WIN_RAS_BUF_DRAW, !current,
+		    0);
+    }
+
+  xgl_object_set(this->GetCtx, XGL_CTX_RENDER_BUFFER, 
+		 XGL_RENDER_DRAW_BUFFER, 0);
+  
+  xgl_object_set(this->WindowRaster, XGL_RAS_SOURCE_BUFFER, 
+		 XGL_BUFFER_SEL_DRAW, 0);
+  
+  xgl_object_set(this->GetCtx, XGL_CTX_NEW_FRAME_ACTION,
+		 XGL_CTX_NEW_FRAME_CLEAR, 0);
+  
+  xgl_context_new_frame (this->GetCtx);
+  
+  // Now copy the draw buffer to our memory raster 
+  xgl_context_copy_buffer (this->GetCtx, NULL, NULL, this->WindowRaster);
+
+  // Get the memory rasters pixel data 
+  xgl_object_get (this->GetRas, XGL_MEM_RAS_IMAGE_BUFFER_ADDR, &input);
+  
+  // For double buffered systems, reset the draw buffer 
+  xgl_object_set (this->WindowRaster, XGL_WIN_RAS_BUF_DRAW, current, 0);
+
+  // now write the binary info one row at a time 
+  p_data = data;
+  for (yloop = y_low; yloop <= y_hi; yloop++)
+    {
+    loc = input + (this->Size[1] - yloop - 1)*this->Size[0];
+    for (xloop = 0; xloop < width; xloop++)
+      {
+      *p_data = *loc & 0x000000ff; p_data++;
+      *p_data = (*loc & 0x0000ff00) >> 8; p_data++;
+      *p_data = (*loc & 0x00ff0000) >> 16; p_data++;
+      *p_data = 255; p_data++;
+      loc++;
+      }
+    }
+  
+  return data;
+}
+
+// Important Note: XGL does not support set operations on alpha values.
+// Therefore, this operation will assign 255 to the alpha value of all
+// pixels written. Until XGL supports alpha read/writes, use SetPixelData()
+void vtkXglrRenderWindow::SetRGBAPixelData(int x1, int y1, int x2, int y2,
+				     unsigned char *data, int front)
+{
+  int     current;
+  int     width, height;
+  int     y_low, y_hi;
+  int     x_low, x_hi;
+  int     xloop,yloop;
+  Xgl_usgn32 *input, *bptr;
+  Xgl_bounds_i2d  rect;
+  Xgl_pt_i2d      pos;
+
+  width  = (abs(x2 - x1)+1);
+  height = (abs(y2 - y1)+1);
+
+  if (!this->SetRas)
+    {
+    this->SetRas = (Xgl_ras *)xgl_object_create (xglr_sys_state, 
+						 XGL_MEM_RAS, 0,
+						 XGL_DEV_COLOR_TYPE, 
+						 XGL_COLOR_RGB, 
+						 XGL_RAS_WIDTH, width,
+						 XGL_RAS_HEIGHT, height,
+						 XGL_RAS_DEPTH, 32,
+						 0);
+    }
+  else
+    {
+    xgl_object_set (this->SetRas, 
+		    XGL_RAS_WIDTH, width,
+		    XGL_RAS_HEIGHT, height,
+		    0);
+    }
+  
+  if (y1 < y2)
+    {
+    y_low = y1; 
+    y_hi  = y2;
+    }
+  else
+    {
+    y_low = y2; 
+    y_hi  = y1;
+    }
+  
+  if (x1 < x2)
+    {
+    x_low = x1; 
+    x_hi  = x2;
+    }
+  else
+    {
+    x_low = x2; 
+    x_hi  = x1;
+    }
+  
+  // Get the memory rasters pixel data 
+  xgl_object_get (this->SetRas,
+		  XGL_MEM_RAS_IMAGE_BUFFER_ADDR, &input);
+  
+  // If we have double buffering, we need to get the prevoius draw buffer 
+  if (this->DoubleBuffer && front) 
+    {
+    xgl_object_get(this->WindowRaster, XGL_WIN_RAS_BUF_DRAW, &current);
+    xgl_object_set(this->WindowRaster,
+		   XGL_WIN_RAS_BUF_DRAW, !current,
+		   0);
+    }
+  
+  for (yloop = 0; yloop < height; yloop++)
+    {
+    bptr = input + (height - yloop - 1)*width;
+    
+    for (xloop = 0; xloop < width; xloop++)
+      {
+      *(bptr)  = *(data++);
+      *(bptr) += ((Xgl_usgn32)(*(data++)))<<8;
+      *(bptr) += ((Xgl_usgn32)(*(data++)))<<16;
+      *(bptr) += ((Xgl_usgn32)(0xff000000)); data++;	// Alpha = 255
+      bptr++;
+      }
+    }
+  
+  pos.x = x_low;
+  pos.y = y_low;
+  
+  rect.xmin = 0;
+  rect.ymin = 0;
+  rect.xmax = width-1;
+  rect.ymax = height-1;
+  
+  // Now copy the draw buffer to our memory raster 
+  xgl_context_copy_buffer (this->Context, &rect, &pos, this->SetRas);
+  
+  // For double buffered systems, reset the draw buffer 
+  if (this->DoubleBuffer && front) 
+    {
+    xgl_object_set (this->WindowRaster, XGL_WIN_RAS_BUF_DRAW, current, 0);
+    }
+}
+
 // Description:
 // Indicates if a StereoOn will require the window to be remapped.
 int vtkXglrRenderWindow::GetRemapWindow(void)
