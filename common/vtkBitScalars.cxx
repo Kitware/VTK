@@ -82,3 +82,11 @@ void vtkBitScalars::GetScalars(vtkIdList& ptId, vtkFloatScalars& fs)
     fs.InsertScalar(i,(float)this->S->GetValue(ptId.GetId(i)));
     }
 }
+
+
+// need to override this GetScalar routine from vtkScalars so it is not
+// hidden
+void vtkBitScalars::GetScalars(int p1, int p2, vtkFloatScalars&fs)
+{
+    this->vtkScalars::GetScalars(p1, p2, fs);
+}
