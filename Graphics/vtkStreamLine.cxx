@@ -22,7 +22,7 @@
 #include "vtkMath.h"
 #include "vtkFloatArray.h"
 
-vtkCxxRevisionMacro(vtkStreamLine, "1.50");
+vtkCxxRevisionMacro(vtkStreamLine, "1.51");
 vtkStandardNewMacro(vtkStreamLine);
 
 // Construct object with step size set to 1.0.
@@ -34,6 +34,12 @@ vtkStreamLine::vtkStreamLine()
 
 void vtkStreamLine::Execute()
 {
+  if ( !this->GetInput() )
+    {
+    vtkErrorMacro("Input not set");
+    return;
+    }
+
   vtkStreamPoint *sPrev, *sPtr;
   vtkPoints *newPts;
   vtkFloatArray *newVectors;

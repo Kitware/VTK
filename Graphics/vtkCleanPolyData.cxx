@@ -19,7 +19,7 @@
 #include "vtkMergePoints.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkCleanPolyData, "1.69");
+vtkCxxRevisionMacro(vtkCleanPolyData, "1.70");
 vtkStandardNewMacro(vtkCleanPolyData);
 
 //---------------------------------------------------------------------------
@@ -109,8 +109,13 @@ void vtkCleanPolyData::ComputeInputUpdateExtents(vtkDataObject *output)
 
 //--------------------------------------------------------------------------
 void vtkCleanPolyData::Execute()
-{
+{  
   vtkPolyData *input = this->GetInput(); //always defined on entry into Execute
+  if ( !input )
+    {
+    vtkErrorMacro("Input not defined");
+    return;
+    }
   vtkPoints   *inPts = input->GetPoints();
   vtkIdType   numPts = input->GetNumberOfPoints();
 

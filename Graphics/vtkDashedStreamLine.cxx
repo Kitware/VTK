@@ -19,7 +19,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkFloatArray.h"
 
-vtkCxxRevisionMacro(vtkDashedStreamLine, "1.36");
+vtkCxxRevisionMacro(vtkDashedStreamLine, "1.37");
 vtkStandardNewMacro(vtkDashedStreamLine);
 
 vtkDashedStreamLine::vtkDashedStreamLine()
@@ -29,6 +29,12 @@ vtkDashedStreamLine::vtkDashedStreamLine()
 
 void vtkDashedStreamLine::Execute()
 {
+  if ( !this->GetInput() )
+    {
+    vtkErrorMacro("Input not set");
+    return;
+    }
+
   vtkStreamPoint *sPrev, *sPtr;
   vtkPoints *newPts;
   vtkFloatArray *newVectors;
