@@ -84,8 +84,8 @@ rem  Build Optimized version (no debug and without incremental linking)
 
 echo beginning vtkdll build at >> %vtk_build_log%
 time /t >> %vtk_build_log%
-cd %vtk_build_tree%
-cd >> %vtk_build_log%\vtkdll
+cd %vtk_build_tree%\vtkdll
+cd >> %vtk_build_log%
 nmake >> %vtk_build_log%
 
 rem  Build vtktcl.dll 
