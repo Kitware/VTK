@@ -40,7 +40,7 @@
 #include "vtkTransform.h"
 #include "vtkImageData.h"
 
-vtkCxxRevisionMacro(vtkImplicitPlaneWidget, "1.13");
+vtkCxxRevisionMacro(vtkImplicitPlaneWidget, "1.14");
 vtkStandardNewMacro(vtkImplicitPlaneWidget);
 
 vtkImplicitPlaneWidget::vtkImplicitPlaneWidget() : vtkPolyDataSourceWidget()
@@ -488,8 +488,15 @@ void vtkImplicitPlaneWidget::OnLeftButtonDown()
   int Y = this->Interactor->GetEventPosition()[1];
 
   // Okay, we can process this. See if we've picked anything.
+  // Make sure it's in the activated renderer
+  vtkRenderer *ren = this->Interactor->FindPokedRenderer(X,Y);
+  if ( ren != this->CurrentRenderer )
+    {
+    this->State = vtkImplicitPlaneWidget::Outside;
+    return;
+    }
+  
   vtkAssemblyPath *path;
-  this->Interactor->FindPokedRenderer(X,Y);
   this->Picker->Pick(X,Y,0.0,this->CurrentRenderer);
   path = this->Picker->GetPath();
 
@@ -563,7 +570,7 @@ void vtkImplicitPlaneWidget::OnMiddleButtonDown()
 
   // Okay, we can process this.
   vtkAssemblyPath *path;
-  this->Interactor->FindPokedRenderer(X,Y);
+  this->CurrentRenderer = this->Interactor->FindPokedRenderer(X,Y);
   this->Picker->Pick(X,Y,0.0,this->CurrentRenderer);
   path = this->Picker->GetPath();
   
@@ -614,7 +621,7 @@ void vtkImplicitPlaneWidget::OnRightButtonDown()
   // Okay, we can process this. Try to pick handles first;
   // if no handles picked, then pick the bounding box.
   vtkAssemblyPath *path;
-  this->Interactor->FindPokedRenderer(X,Y);
+  this->CurrentRenderer = this->Interactor->FindPokedRenderer(X,Y);
   this->Picker->Pick(X,Y,0.0,this->CurrentRenderer);
   path = this->Picker->GetPath();
   if ( path == NULL ) //nothing picked
@@ -671,8 +678,7 @@ void vtkImplicitPlaneWidget::OnMouseMove()
   double focalPoint[4], pickPoint[4], prevPickPoint[4];
   double z, vpn[3];
 
-  vtkRenderer *renderer = this->Interactor->FindPokedRenderer(X,Y);
-  vtkCamera *camera = renderer->GetActiveCamera();
+  vtkCamera *camera = this->CurrentRenderer->GetActiveCamera();
   if ( !camera )
     {
     return;
