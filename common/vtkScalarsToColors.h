@@ -88,6 +88,11 @@ public:
                                        int inputIncrement) = 0;
     
 protected:
+  vtkScalarsToColors() {};
+  ~vtkScalarsToColors() {};
+  vtkScalarsToColors(const vtkScalarsToColors &) {};
+  void operator=(const vtkScalarsToColors &) {};
+  
 };
 
 #endif
