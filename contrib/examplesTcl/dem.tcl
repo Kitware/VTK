@@ -3,8 +3,6 @@ catch {load vtktcl}
 # get the interactor ui
 source ../../examplesTcl/vtkInt.tcl
 
-   vtkMultiThreader rtMultiThreader
-   rtMultiThreader SetGlobalMaximumNumberOfThreads 1 
 # Create the RenderWindow, Renderer and both Actors
 #
 vtkRenderer ren1
