@@ -109,7 +109,6 @@ SOURCE_FILES ( RenderingOpenGL_SRCS
                vtkOpenGLProperty
                vtkOpenGLRenderer
                vtkOpenGLRenderWindow
-               vtkOpenGLStateCache
                vtkOpenGLTexture
                vtkOpenGLVolumeRayCastMapper
                vtkOpenGLVolumeTextureMapper2D
@@ -155,7 +154,6 @@ IF (WIN32)
                vtkWin32OpenGLImageWindow
                vtkWin32OpenGLTextMapper
                vtkWin32TextMapper)
-  WRAP_EXCLUDE_FILES(vtkOpenGLStateCache)
   LINK_LIBRARIES ( ${OPENGL_LIBRARY} )
   IF(MESA_OS_LIBRARY)
     LINK_LIBRARIES( ${MESA_OS_LIBRARY} )
