@@ -37,7 +37,7 @@ class vtkTimerLog;
 #define VTK_ANIMATION_SCENE_PLAYMODE_SEQUENCE 0
 #define VTK_ANIMATION_SCENE_PLAYMODE_REALTIME 1
 
-class VTK_HYBRID_EXPORT vtkAnimationScene: public vtkAnimationCue
+class VTK_COMMON_EXPORT vtkAnimationScene: public vtkAnimationCue
 {
 public:
   vtkTypeRevisionMacro(vtkAnimationScene, vtkAnimationCue);

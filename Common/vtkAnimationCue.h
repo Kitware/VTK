@@ -40,7 +40,7 @@
 
 #include "vtkObject.h"
 
-class VTK_HYBRID_EXPORT vtkAnimationCue: public vtkObject
+class VTK_COMMON_EXPORT vtkAnimationCue: public vtkObject
 {
 public:
   vtkTypeRevisionMacro(vtkAnimationCue,vtkObject);
