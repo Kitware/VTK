@@ -27,7 +27,7 @@
 #include "vtkPolyData.h"
 #include "vtkRungeKutta2.h"
 
-vtkCxxRevisionMacro(vtkPStreamTracer, "1.2");
+vtkCxxRevisionMacro(vtkPStreamTracer, "1.3");
 vtkStandardNewMacro(vtkPStreamTracer);
 
 vtkCxxSetObjectMacro(vtkPStreamTracer, Controller, vtkMultiProcessController);
@@ -308,6 +308,7 @@ void vtkPStreamTracer::Execute()
   if (!this->Controller)
     {
     vtkErrorMacro("No controller assigned. Can not execute.");
+    return;
     }
 
   if (this->Controller->GetNumberOfProcesses() == 1)
@@ -366,4 +367,5 @@ void vtkPStreamTracer::Execute()
 void vtkPStreamTracer::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+  os << indent << "Controller: " << this->Controller << endl;
 }
