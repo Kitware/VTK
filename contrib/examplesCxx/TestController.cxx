@@ -19,125 +19,126 @@
 #define MESSAGE2 -9999
 
 
-void callback1(void *arg, int id)
+void callback1(void *loaclArg, void *remoteArg, int remoteArgLength, int id)
 {
   cerr << "RMI triggered by " << id << " executed call back 1\n";
 }
 
-void callback2(void *arg, int id)
+void callback2(void *localArg, void *remoteArg, int remoteArgLength, int id)
 {
   cerr << "RMI triggered by " << id << " executed call back 2\n";
 }
 
-void callback3(void *arg, int id)
+void callback3(void *localArg, void *remoteArg, int remoteArgLength, int id)
 {
-  char *str = (char*)(arg);
-  cerr << "RMI triggered by " << id << " executed call back 3: " 
+  char *str = (char*)(localArg);
+  char *str2 = (char*)(remoteArg);
+  cerr << "RMI triggered by " << id << "(" << str2 << ") executed call back 3: " 
        << str << "\n";
 }
 
 
 
-VTK_THREAD_RETURN_TYPE process_a( void *vtkNotUsed(proc_arg) )
+void process_a(vtkMultiProcessController *controller,
+	       void *processArg)
 {
-  int myid, otherid;
+  int otherId;
   vtkConeSource *cone = vtkConeSource::New();
   vtkElevationFilter *elev = vtkElevationFilter::New();
-  vtkMultiProcessController *controller;
   int message = MESSAGE1;
   char *arg;
+  int myId;
+
+  // If You do not have a pointer to the controller, 
+  // you can get one with this static method.
+  //controller = vtkMultiProcessController::GetGlobalController();
   
+  myId = controller->GetLocalProcessId();  
   
-  controller = vtkMultiProcessController::RegisterAndGetGlobalController(NULL);
-  myid = controller->GetLocalProcessId();
-  if (myid == 0)
+  if (myId == 0)
     {
-    otherid = 1;
+    otherId = 1;
     }
   else
     {
-    otherid = 0;
+    otherId = 0;
     }
   
   
-  controller = vtkMultiProcessController::RegisterAndGetGlobalController(NULL);
-  
   // first just send an integer to the other process.
   message = MESSAGE1;
-  controller->Send(&message, 1, otherid, 100);
+  controller->Send(&message, 1, otherId, 100);
 
   message = MESSAGE2;
-  controller->Send(&message, 1, otherid, 100);
+  controller->Send(&message, 1, otherId, 100);
 
   // now try to send some polydata
   cone->SetResolution(8);
   elev->SetInput(cone->GetOutput());
   elev->Update();
-  controller->Send(elev->GetOutput(), otherid, 200);
+  controller->Send(elev->GetOutput(), otherId, 200);
   
   // last, set up a RMI call backs
   controller->AddRMI(callback1, NULL, 301);
   controller->AddRMI(callback2, NULL, 302);
   arg = new char[20];
-  strcpy(arg, "Hello World!");
+  strcpy(arg, "Fine, Thank you.");
   controller->AddRMI(callback3, (void*)(arg), 303);
   
   // Wait for the call back to execute.
   // This call will not return.
   controller->ProcessRMIs();
-  
-  controller->UnRegister(NULL);
+
   cone->Delete();
   elev->Delete();
   delete [] arg;
-  
-  return VTK_THREAD_RETURN_VALUE;
 }
 
 
-VTK_THREAD_RETURN_TYPE process_b( void *vtkNotUsed(proc_arg) )
+void process_b(vtkMultiProcessController *controller, void *arg)
 {
-  int myid, otherid;
+  int myId, otherId;
   vtkPolyData *data = vtkPolyData::New();
   vtkRenderer *ren = vtkRenderer::New();
   vtkRenderWindow *renWindow = vtkRenderWindow::New();
   vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
   vtkPolyDataMapper *coneMapper = vtkPolyDataMapper::New();
   int message;
-  vtkMultiProcessController *controller;
     
+  // If You do not have a pointer to the controller, 
+  // you can get one with this static method.
+  //controller = vtkMultiProcessController::GetGlobalController();
   
-  controller = vtkMultiProcessController::RegisterAndGetGlobalController(NULL);
-  myid = controller->GetLocalProcessId();
-  if (myid == 0)
+  myId = controller->GetLocalProcessId();
+  
+  if (myId == 0)
     {
-    otherid = 1;
+    otherId = 1;
     }
   else
     {
-    otherid = 0;
+    otherId = 0;
     }
 
   putenv("DISPLAY=:0.0");
   
   // first receive the integer message.
-  controller->Receive(&message, 1, otherid, 100);  
+  controller->Receive(&message, 1, otherId, 100);  
   cerr << "received message " << message
        << " should be " << MESSAGE1 << endl;
 
-  controller->Receive(&message, 1, otherid, 100);  
+  controller->Receive(&message, 1, otherId, 100);  
   cerr << "received message " << message 
        << " should be " << MESSAGE2 << endl;
   
   // now receive the poly data object
-  controller->Receive(data, otherid, 200);
+  controller->Receive(data, otherId, 200);
   
   // before we display this polydata, fire off some RMIs
-  controller->TriggerRMI(otherid, 303);
-  controller->TriggerRMI(otherid, 302);
-  controller->TriggerRMI(otherid, 301);
-  
-  cerr << "Test 1\n";
+  controller->TriggerRMI(otherId, 301);
+  controller->TriggerRMI(otherId, 302);
+  controller->TriggerRMI(otherId, "How are you?", 303);
+  controller->TriggerRMI(otherId, VTK_BREAK_RMI_TAG);
   
   renWindow->AddRenderer(ren);
   iren->SetRenderWindow(renWindow);
@@ -150,13 +151,11 @@ VTK_THREAD_RETURN_TYPE process_b( void *vtkNotUsed(proc_arg) )
   // assign our actor to the renderer
   ren->AddActor(coneActor);
   
-  cerr << "Test 2\n";
   // draw the resulting scene
   renWindow->Render();
-  cerr << "Test 3\n";
   
   //  Begin mouse interaction
-  iren->Start();
+  // iren->Start();
   
   // Clean up
   ren->Delete();
@@ -164,8 +163,6 @@ VTK_THREAD_RETURN_TYPE process_b( void *vtkNotUsed(proc_arg) )
   iren->Delete();
   coneMapper->Delete();
   coneActor->Delete();
-
-  return VTK_THREAD_RETURN_VALUE;
 }
 
 
@@ -173,17 +170,22 @@ void main( int argc, char *argv[] )
 {
   vtkMultiProcessController *controller;
   
-  controller = vtkMultiProcessController::RegisterAndGetGlobalController(NULL);
+  controller = vtkMultiProcessController::New();
 
   controller->Initialize(argc, argv);
-
   
   controller->SetNumberOfProcesses(2);
   controller->SetMultipleMethod(0, process_a, NULL);
   controller->SetMultipleMethod(1, process_b, NULL);
   controller->MultipleMethodExecute();
 
-  controller->UnRegister(NULL);
+  controller->Delete();
 }
+
+
+
+
+
+
 
 
