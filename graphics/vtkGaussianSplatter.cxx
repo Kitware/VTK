@@ -356,7 +356,7 @@ void vtkGaussianSplatter::Cap(vtkScalars *s)
     {
     for (i=0; i<this->SampleDimensions[0]; i++)
       {
-      s->SetScalar(i+j*this->SampleDimensions[1], this->CapValue);
+      s->SetScalar(i+j*this->SampleDimensions[0], this->CapValue);
       }
     }
   k = this->SampleDimensions[2] - 1;
@@ -365,7 +365,7 @@ void vtkGaussianSplatter::Cap(vtkScalars *s)
     {
     for (i=0; i<this->SampleDimensions[0]; i++)
       {
-      s->SetScalar(idx+i+j*this->SampleDimensions[1], this->CapValue);
+      s->SetScalar(idx+i+j*this->SampleDimensions[0], this->CapValue);
       }
     }
 // j-k planes
