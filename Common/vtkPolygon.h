@@ -141,17 +141,6 @@ public:
                                          float bounds2[3], float tol,
                                          float x[3]);
 
-#ifndef VTK_REMOVE_LEGACY_CODE
-  // Description:
-  // For legacy compatibility. Do not use.
-  int CellBoundary(int subId, float pcoords[3], vtkIdList &pts)
-    {VTK_LEGACY_METHOD(CellBoundary,"3.2"); return this->CellBoundary(subId, pcoords, &pts);}
-  int Triangulate(int index, vtkIdList &ptIds, vtkPoints &pts)
-    {VTK_LEGACY_METHOD(Triangulate,"3.2"); return this->Triangulate(index, &ptIds, &pts);}
-  int Triangulate(vtkIdList &outTris)
-    {VTK_LEGACY_METHOD(Triangulate,"3.2"); return this->Triangulate(&outTris);}
-#endif
-  
 protected:
   vtkPolygon();
   ~vtkPolygon();

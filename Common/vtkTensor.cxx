@@ -73,10 +73,3 @@ vtkTensor::vtkTensor()
     }
 }
 
-#ifndef VTK_REMOVE_LEGACY_CODE
-  // Description:
-  // For legacy compatibility. Do not use.
-  void vtkTensor::DeepCopy(vtkTensor &t)
-    {VTK_LEGACY_METHOD(DeepCopy,"3.2"); this->DeepCopy(&t);}
-#endif
-  

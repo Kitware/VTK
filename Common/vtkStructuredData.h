@@ -108,15 +108,6 @@ public:
   static int ComputeCellId(int dim[3], int ijk[3]) {
     return ijk[2]*(dim[0]-1)*(dim[1]-1) + ijk[1]*(dim[0]-1) + ijk[0];};
 
-#ifndef VTK_REMOVE_LEGACY_CODE
-  // Description:
-  // For legacy compatibility. Do not use.
-  void GetCellPoints(int cellId, vtkIdList &ptIds, int dataDescription, int dim[3])
-    {VTK_LEGACY_METHOD(GetCellPoints,"3.2"); this->GetCellPoints(cellId, &ptIds, dataDescription, dim);}
-  void GetPointCells(int ptId, vtkIdList &cellIds, int dim[3])
-    {VTK_LEGACY_METHOD(GetPointCells,"3.2"); this->GetPointCells(ptId, &cellIds, dim);}
-#endif
-  
 protected:
   vtkStructuredData() {};
   ~vtkStructuredData() {};
