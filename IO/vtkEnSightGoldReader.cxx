@@ -30,7 +30,7 @@
 #include <vtkstd/string>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkEnSightGoldReader, "1.51");
+vtkCxxRevisionMacro(vtkEnSightGoldReader, "1.52");
 vtkStandardNewMacro(vtkEnSightGoldReader);
 
 //BTX
@@ -62,7 +62,7 @@ vtkEnSightGoldReader::~vtkEnSightGoldReader()
 int vtkEnSightGoldReader::ReadGeometryFile(const char* fileName, int timeStep)
 {
   char line[256], subLine[256];
-  int partId, i;
+  int partId, realId, i;
   int lineRead;
   
   // Initialize
@@ -146,7 +146,8 @@ int vtkEnSightGoldReader::ReadGeometryFile(const char* fileName, int timeStep)
     this->NumberOfGeometryParts++;
     this->ReadNextDataLine(line);
     partId = atoi(line) - 1; // EnSight starts #ing at 1.
-    
+    realId = this->InsertNewPartId(partId);
+
     this->ReadNextDataLine(line); // part description line
     char *name = strdup(line);
     this->ReadNextDataLine(line);
@@ -158,28 +159,28 @@ int vtkEnSightGoldReader::ReadGeometryFile(const char* fileName, int timeStep)
         if (strncmp(subLine, "rectilinear",11) == 0)
           {
           // block rectilinear
-          lineRead = this->CreateRectilinearGridOutput(partId, line, name);
+          lineRead = this->CreateRectilinearGridOutput(realId, line, name);
           }
         else if (strncmp(subLine, "uniform",7) == 0)
           {
           // block uniform
-          lineRead = this->CreateImageDataOutput(partId, line, name);
+          lineRead = this->CreateImageDataOutput(realId, line, name);
           }
         else
           {
           // block iblanked
-          lineRead = this->CreateStructuredGridOutput(partId, line, name);
+          lineRead = this->CreateStructuredGridOutput(realId, line, name);
           }
         }
       else
         {
         // block
-        lineRead = this->CreateStructuredGridOutput(partId, line, name);
+        lineRead = this->CreateStructuredGridOutput(realId, line, name);
         }
       }
     else
       {
-      lineRead = this->CreateUnstructuredGridOutput(partId, line, name);
+      lineRead = this->CreateUnstructuredGridOutput(realId, line, name);
       if (lineRead < 0)
         {
         free(name);
@@ -321,7 +322,7 @@ int vtkEnSightGoldReader::ReadScalarsPerNode(const char* fileName, const char* d
                                              int component)
 {
   char line[256], formatLine[256], tempLine[256];
-  int partId, numPts, i, j, numLines, moreScalars;
+  int partId, realId, numPts, i, j, numLines, moreScalars;
   vtkFloatArray *scalars;
   float scalarsRead[6];
   vtkDataSet *output;
@@ -433,7 +434,8 @@ int vtkEnSightGoldReader::ReadScalarsPerNode(const char* fileName, const char* d
     {
     this->ReadNextDataLine(line);
     partId = atoi(line) - 1; // EnSight starts #ing with 1.
-    output = this->GetOutput(partId);
+    realId = this->InsertNewPartId(partId);
+    output = this->GetOutput(realId);
     numPts = output->GetNumberOfPoints();
     if (numPts)
       {
@@ -509,7 +511,7 @@ int vtkEnSightGoldReader::ReadVectorsPerNode(const char* fileName, const char* d
                                              int timeStep, int measured)
 {
   char line[256], formatLine[256], tempLine[256]; 
-  int partId, numPts, i, j, numLines, moreVectors;
+  int partId, realId, numPts, i, j, numLines, moreVectors;
   vtkFloatArray *vectors;
   float vector1[3], vector2[3];
   vtkDataSet *output;
@@ -616,7 +618,8 @@ int vtkEnSightGoldReader::ReadVectorsPerNode(const char* fileName, const char* d
     {
     this->ReadNextDataLine(line);
     partId = atoi(line) - 1; // EnSight starts #ing with 1.
-    output = this->GetOutput(partId);
+    realId = this->InsertNewPartId(partId);
+    output = this->GetOutput(realId);
     numPts = output->GetNumberOfPoints();
     if (numPts)
       {
@@ -653,7 +656,7 @@ int vtkEnSightGoldReader::ReadTensorsPerNode(const char* fileName, const char* d
                                              int timeStep)
 {
   char line[256];
-  int partId, numPts, i, j;
+  int partId, realId, numPts, i, j;
   vtkFloatArray *tensors;
   vtkDataSet *output;
   
@@ -714,7 +717,8 @@ int vtkEnSightGoldReader::ReadTensorsPerNode(const char* fileName, const char* d
     {
     this->ReadNextDataLine(line);
     partId = atoi(line) - 1; // EnSight starts #ing with 1.
-    output = this->GetOutput(partId);
+    realId = this->InsertNewPartId(partId);
+    output = this->GetOutput(realId);
     numPts = output->GetNumberOfPoints();
     if (numPts)
       {
@@ -750,7 +754,7 @@ int vtkEnSightGoldReader::ReadScalarsPerElement(const char* fileName,
                                                 int component)
 {
   char line[256];
-  int partId, numCells, numCellsPerElement, i, idx;
+  int partId, realId, numCells, numCellsPerElement, i, idx;
   vtkFloatArray *scalars;
   int lineRead, elementType;
   float scalar;
@@ -813,7 +817,8 @@ int vtkEnSightGoldReader::ReadScalarsPerElement(const char* fileName,
     {
     this->ReadNextDataLine(line);
     partId = atoi(line) - 1; // EnSight starts #ing with 1.
-    output = this->GetOutput(partId);
+    realId = this->InsertNewPartId(partId);
+    output = this->GetOutput(realId);
     numCells = output->GetNumberOfCells();
     if (numCells)
       {
@@ -861,7 +866,7 @@ int vtkEnSightGoldReader::ReadScalarsPerElement(const char* fileName,
               }
             return 0;
             }
-          idx = this->UnstructuredPartIds->IsId(partId);
+          idx = this->UnstructuredPartIds->IsId(realId);
           numCellsPerElement =
             this->GetCellIds(idx, elementType)->GetNumberOfIds();
           // If the 'partial' keyword was found, we should replace 
@@ -930,7 +935,7 @@ int vtkEnSightGoldReader::ReadVectorsPerElement(const char* fileName,
                                                 int timeStep)
 {
   char line[256];
-  int partId, numCells, numCellsPerElement, i, j, idx;
+  int partId, realId, numCells, numCellsPerElement, i, j, idx;
   vtkFloatArray *vectors;
   int lineRead, elementType;
   float value;
@@ -993,7 +998,8 @@ int vtkEnSightGoldReader::ReadVectorsPerElement(const char* fileName,
     {
     this->ReadNextDataLine(line);
     partId = atoi(line) - 1; // EnSight starts #ing with 1.
-    output = this->GetOutput(partId);
+    realId = this->InsertNewPartId(partId);
+    output = this->GetOutput(realId);
     numCells = output->GetNumberOfCells();
     if (numCells)
       {
@@ -1032,7 +1038,7 @@ int vtkEnSightGoldReader::ReadVectorsPerElement(const char* fileName,
             vectors->Delete();
             return 0;
             }
-          idx = this->UnstructuredPartIds->IsId(partId);
+          idx = this->UnstructuredPartIds->IsId(realId);
           numCellsPerElement =
             this->GetCellIds(idx, elementType)->GetNumberOfIds();
           for (i = 0; i < 3; i++)
@@ -1073,7 +1079,7 @@ int vtkEnSightGoldReader::ReadTensorsPerElement(const char* fileName,
                                                 int timeStep)
 {
   char line[256];
-  int partId, numCells, numCellsPerElement, i, j, idx;
+  int partId, realId, numCells, numCellsPerElement, i, j, idx;
   vtkFloatArray *tensors;
   int lineRead, elementType;
   float value;
@@ -1136,7 +1142,8 @@ int vtkEnSightGoldReader::ReadTensorsPerElement(const char* fileName,
     {
     this->ReadNextDataLine(line);
     partId = atoi(line) - 1; // EnSight starts #ing with 1.
-    output = this->GetOutput(partId);
+    realId = this->InsertNewPartId(partId);
+    output = this->GetOutput(realId);
     numCells = output->GetNumberOfCells();
     if (numCells)
       {
@@ -1175,7 +1182,7 @@ int vtkEnSightGoldReader::ReadTensorsPerElement(const char* fileName,
             tensors->Delete();
             return 0;
             }
-          idx = this->UnstructuredPartIds->IsId(partId);
+          idx = this->UnstructuredPartIds->IsId(realId);
           numCellsPerElement =
             this->GetCellIds(idx, elementType)->GetNumberOfIds();
           for (i = 0; i < 6; i++)

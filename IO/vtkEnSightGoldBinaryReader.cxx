@@ -31,7 +31,7 @@
 #include <ctype.h>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkEnSightGoldBinaryReader, "1.57");
+vtkCxxRevisionMacro(vtkEnSightGoldBinaryReader, "1.58");
 vtkStandardNewMacro(vtkEnSightGoldBinaryReader);
 
 // This is half the precision of an int.
@@ -104,7 +104,7 @@ int vtkEnSightGoldBinaryReader::OpenFile(const char* filename)
 int vtkEnSightGoldBinaryReader::ReadGeometryFile(const char* fileName, int timeStep)
 {
   char line[80], subLine[80];
-  int partId;
+  int partId, realId;
   int lineRead, i;
   
   // Initialize
@@ -209,6 +209,7 @@ int vtkEnSightGoldBinaryReader::ReadGeometryFile(const char* fileName, int timeS
     {
     this->ReadPartId(&partId);
     partId--; // EnSight starts #ing at 1.
+    realId = this->InsertNewPartId(partId);
     if (partId < 0 || partId >= MAXIMUM_PART_ID)
       {
       vtkErrorMacro("Invalid part id; check that ByteOrder is set correctly.");
@@ -226,28 +227,28 @@ int vtkEnSightGoldBinaryReader::ReadGeometryFile(const char* fileName, int timeS
         if (strncmp(subLine, "rectilinear", 11) == 0)
           {
           // block rectilinear
-          lineRead = this->CreateRectilinearGridOutput(partId, line, name);
+          lineRead = this->CreateRectilinearGridOutput(realId, line, name);
           }
         else if (strncmp(subLine, "uniform", 7) == 0)
           {
           // block uniform
-          lineRead = this->CreateImageDataOutput(partId, line, name);
+          lineRead = this->CreateImageDataOutput(realId, line, name);
           }
         else
           {
           // block iblanked
-          lineRead = this->CreateStructuredGridOutput(partId, line, name);
+          lineRead = this->CreateStructuredGridOutput(realId, line, name);
           }
         }
       else
         {
         // block
-        lineRead = this->CreateStructuredGridOutput(partId, line, name);
+        lineRead = this->CreateStructuredGridOutput(realId, line, name);
         }
       }
     else
       {
-      lineRead = this->CreateUnstructuredGridOutput(partId, line, name);
+      lineRead = this->CreateUnstructuredGridOutput(realId, line, name);
       if (lineRead < 0)
         {
         free(name);
@@ -1041,7 +1042,7 @@ int vtkEnSightGoldBinaryReader::ReadScalarsPerNode(const char* fileName,
                                                    int component)
 {
   char line[80];
-  int partId, numPts, i, lineRead;
+  int partId, realId, numPts, i, lineRead;
   vtkFloatArray *scalars;
   float* scalarsRead;
   vtkDataSet *output;
@@ -1103,7 +1104,8 @@ int vtkEnSightGoldBinaryReader::ReadScalarsPerNode(const char* fileName,
         {
         this->ReadPartId(&partId);
         partId--; // EnSight starts #ing with 1.
-        output = this->GetOutput(partId);
+        realId = this->InsertNewPartId(partId);
+        output = this->GetOutput(realId);
         numPts = output->GetNumberOfPoints();
         if (numPts)
           {
@@ -1166,7 +1168,8 @@ int vtkEnSightGoldBinaryReader::ReadScalarsPerNode(const char* fileName,
     {
     this->ReadPartId(&partId);
     partId--; // EnSight starts #ing with 1.
-    output = this->GetOutput(partId);
+    realId = this->InsertNewPartId(partId);
+    output = this->GetOutput(realId);
     numPts = output->GetNumberOfPoints();
     // If the part has no points, then only the part number is listed in
     // the variable file.
@@ -1234,7 +1237,7 @@ int vtkEnSightGoldBinaryReader::ReadVectorsPerNode(const char* fileName,
                                                    int measured)
 {
   char line[80]; 
-  int partId, numPts, i, lineRead;
+  int partId, realId, numPts, i, lineRead;
   vtkFloatArray *vectors;
   float tuple[3];
   float *comp1, *comp2, *comp3;
@@ -1298,7 +1301,8 @@ int vtkEnSightGoldBinaryReader::ReadVectorsPerNode(const char* fileName,
         {
         this->ReadPartId(&partId);
         partId--; // EnSight starts #ing with 1.
-        output = this->GetOutput(partId);
+        realId = this->InsertNewPartId(partId);
+        output = this->GetOutput(realId);
         numPts = output->GetNumberOfPoints();
         if (numPts)
           {
@@ -1352,7 +1356,8 @@ int vtkEnSightGoldBinaryReader::ReadVectorsPerNode(const char* fileName,
     vectors = vtkFloatArray::New();
     this->ReadPartId(&partId);
     partId--; // EnSight starts #ing with 1.
-    output = this->GetOutput(partId);
+    realId = this->InsertNewPartId(partId);
+    output = this->GetOutput(realId);
     numPts = output->GetNumberOfPoints();
     if (numPts)
       {
@@ -1409,7 +1414,7 @@ int vtkEnSightGoldBinaryReader::ReadTensorsPerNode(const char* fileName,
                                                    int timeStep)
 {
   char line[80];
-  int partId, numPts, i, lineRead;
+  int partId, realId, numPts, i, lineRead;
   vtkFloatArray *tensors;
   float *comp1, *comp2, *comp3, *comp4, *comp5, *comp6;
   float tuple[6];
@@ -1460,7 +1465,8 @@ int vtkEnSightGoldBinaryReader::ReadTensorsPerNode(const char* fileName,
         {
         this->ReadPartId(&partId);
         partId--; // EnSight starts #ing with 1.
-        output = this->GetOutput(partId);
+        realId = this->InsertNewPartId(partId);
+        output = this->GetOutput(realId);
         numPts = output->GetNumberOfPoints();
         if (numPts)
           {
@@ -1484,7 +1490,8 @@ int vtkEnSightGoldBinaryReader::ReadTensorsPerNode(const char* fileName,
     {
     this->ReadPartId(&partId);
     partId--; // EnSight starts #ing with 1.
-    output = this->GetOutput(partId);
+    realId = this->InsertNewPartId(partId);
+    output = this->GetOutput(realId);
     numPts = output->GetNumberOfPoints();
     if (numPts)
       {
@@ -1552,7 +1559,7 @@ int vtkEnSightGoldBinaryReader::ReadScalarsPerElement(const char* fileName,
                                                       int component)
 {
   char line[80];
-  int partId, numCells, numCellsPerElement, i, idx;
+  int partId, realId, numCells, numCellsPerElement, i, idx;
   vtkFloatArray *scalars;
   float *scalarsRead;
   int lineRead, elementType;
@@ -1604,7 +1611,8 @@ int vtkEnSightGoldBinaryReader::ReadScalarsPerElement(const char* fileName,
         {
         this->ReadPartId(&partId);
         partId--; // EnSight starts #ing with 1.
-        output = this->GetOutput(partId);
+        realId = this->InsertNewPartId(partId);
+        output = this->GetOutput(realId);
         numCells = output->GetNumberOfCells();
         if (numCells)
           {
@@ -1636,7 +1644,7 @@ int vtkEnSightGoldBinaryReader::ReadScalarsPerElement(const char* fileName,
                   }
                 return 0;
                 }
-              idx = this->UnstructuredPartIds->IsId(partId);
+              idx = this->UnstructuredPartIds->IsId(realId);
               numCellsPerElement = this->GetCellIds(idx, elementType)->
                 GetNumberOfIds();
               this->IFile->seekg(sizeof(float)*numCellsPerElement, ios::cur);
@@ -1664,7 +1672,8 @@ int vtkEnSightGoldBinaryReader::ReadScalarsPerElement(const char* fileName,
     {
     this->ReadPartId(&partId);
     partId--; // EnSight starts #ing with 1.
-    output = this->GetOutput(partId);
+    realId = this->InsertNewPartId(partId);
+    output = this->GetOutput(realId);
     numCells = output->GetNumberOfCells();
     if (numCells)
       {
@@ -1721,7 +1730,7 @@ int vtkEnSightGoldBinaryReader::ReadScalarsPerElement(const char* fileName,
               }
             return 0;
             }
-          idx = this->UnstructuredPartIds->IsId(partId);
+          idx = this->UnstructuredPartIds->IsId(realId);
           numCellsPerElement =
             this->GetCellIds(idx, elementType)->GetNumberOfIds();
           scalarsRead = new float[numCellsPerElement];
@@ -1787,7 +1796,7 @@ int vtkEnSightGoldBinaryReader::ReadVectorsPerElement(const char* fileName,
                                                       int timeStep)
 {
   char line[80];
-  int partId, numCells, numCellsPerElement, i, idx;
+  int partId, realId, numCells, numCellsPerElement, i, idx;
   vtkFloatArray *vectors;
   float *comp1, *comp2, *comp3;
   int lineRead, elementType;
@@ -1840,7 +1849,8 @@ int vtkEnSightGoldBinaryReader::ReadVectorsPerElement(const char* fileName,
         {
         this->ReadPartId(&partId);
         partId--; // EnSight starts #ing with 1.
-        output = this->GetOutput(partId);
+        realId = this->InsertNewPartId(partId);
+        output = this->GetOutput(realId);
         numCells = output->GetNumberOfCells();
         if (numCells)
           {
@@ -1868,7 +1878,7 @@ int vtkEnSightGoldBinaryReader::ReadVectorsPerElement(const char* fileName,
                 this->IS = NULL;
                 return 0;
                 }
-              idx = this->UnstructuredPartIds->IsId(partId);
+              idx = this->UnstructuredPartIds->IsId(realId);
               numCellsPerElement = this->GetCellIds(idx, elementType)->
                 GetNumberOfIds();
               // Skip over comp1, comp2 and comp3
@@ -1897,7 +1907,8 @@ int vtkEnSightGoldBinaryReader::ReadVectorsPerElement(const char* fileName,
     {
     this->ReadPartId(&partId);
     partId--; // EnSight starts #ing with 1.
-    output = this->GetOutput(partId);
+    realId = this->InsertNewPartId(partId);
+    output = this->GetOutput(realId);
     numCells = output->GetNumberOfCells();
     if (numCells)
       {
@@ -1949,7 +1960,7 @@ int vtkEnSightGoldBinaryReader::ReadVectorsPerElement(const char* fileName,
             vectors->Delete();
             return 0;
             }
-          idx = this->UnstructuredPartIds->IsId(partId);
+          idx = this->UnstructuredPartIds->IsId(realId);
           numCellsPerElement =
             this->GetCellIds(idx, elementType)->GetNumberOfIds();
           comp1 = new float[numCellsPerElement];
@@ -2017,7 +2028,7 @@ int vtkEnSightGoldBinaryReader::ReadTensorsPerElement(const char* fileName,
                                                       int timeStep)
 {
   char line[80];
-  int partId, numCells, numCellsPerElement, i, idx;
+  int partId, realId, numCells, numCellsPerElement, i, idx;
   vtkFloatArray *tensors;
   int lineRead, elementType;
   float *comp1, *comp2, *comp3, *comp4, *comp5, *comp6;
@@ -2070,7 +2081,8 @@ int vtkEnSightGoldBinaryReader::ReadTensorsPerElement(const char* fileName,
         {
         this->ReadPartId(&partId);
         partId--; // EnSight starts #ing with 1.
-        output = this->GetOutput(partId);
+        realId = this->InsertNewPartId(partId);
+        output = this->GetOutput(realId);
         numCells = output->GetNumberOfCells();
         if (numCells)
           {
@@ -2098,7 +2110,7 @@ int vtkEnSightGoldBinaryReader::ReadTensorsPerElement(const char* fileName,
                 this->IS = NULL;
                 return 0;
                 }
-              idx = this->UnstructuredPartIds->IsId(partId);
+              idx = this->UnstructuredPartIds->IsId(realId);
               numCellsPerElement = this->GetCellIds(idx, elementType)->
                 GetNumberOfIds();
               // Skip over comp1->comp6
@@ -2127,7 +2139,8 @@ int vtkEnSightGoldBinaryReader::ReadTensorsPerElement(const char* fileName,
     {
     this->ReadPartId(&partId);
     partId--; // EnSight starts #ing with 1.
-    output = this->GetOutput(partId);
+    realId = this->InsertNewPartId(partId);
+    output = this->GetOutput(realId);
     numCells = output->GetNumberOfCells();
     if (numCells)
       {
@@ -2192,7 +2205,7 @@ int vtkEnSightGoldBinaryReader::ReadTensorsPerElement(const char* fileName,
             tensors->Delete();
             return 0;
             }
-          idx = this->UnstructuredPartIds->IsId(partId);
+          idx = this->UnstructuredPartIds->IsId(realId);
           numCellsPerElement =
             this->GetCellIds(idx, elementType)->GetNumberOfIds();
           comp1 = new float[numCellsPerElement];
