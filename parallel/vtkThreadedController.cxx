@@ -369,7 +369,7 @@ void vtkThreadedController::SingleMethodExecute()
 
   // GLOBAL_CONTROLLER will be from thread0 always.
   // GetLocalController will translate to the local controller.
-  this->SetGlobalController(this);
+  vtkMultiProcessController::SetGlobalController(this);
   
   this->MultiThreader->SingleMethodExecute();
 }
@@ -390,7 +390,7 @@ void vtkThreadedController::MultipleMethodExecute()
 
   // GLOBAL_CONTROLLER will be from thread0 always.
   // GetLocalController will translate to the local controller.
-  this->SetGlobalController(this);
+  vtkMultiProcessController::SetGlobalController(this);
 
   this->MultiThreader->SingleMethodExecute();
 }

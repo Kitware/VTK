@@ -42,7 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkExtractPolyDataPiece.h"
 #include "vtkObjectFactory.h"
 #include "vtkOBBDicer.h"
-#include "vtkGhostLevels.h"
+#include "vtkUnsignedCharArray.h"
 
 //------------------------------------------------------------------------------
 vtkExtractPolyDataPiece* vtkExtractPolyDataPiece::New()
@@ -154,22 +154,32 @@ void vtkExtractPolyDataPiece::Execute()
   vtkIdList *pointOwnership;
   vtkCell *cell;
   vtkPoints *newPoints;
-  vtkGhostLevels *cellGhostLevels = NULL;
-  vtkGhostLevels *pointGhostLevels = NULL;
+  vtkUnsignedCharArray* cellGhostLevels = 0;
+  vtkUnsignedCharArray* pointGhostLevels = 0;
   int i, ptId, newId, numPts, numCellPts;
   float *x;
 
+  cout << "Executing." << endl;
   // Pipeline update piece will tell us what to generate.
   ghostLevel = output->GetUpdateGhostLevel();
   piece = output->GetUpdatePiece();
   numPieces = output->GetUpdateNumberOfPieces();
   
+  outPD->CopyAllocate(pd);
+  outCD->CopyAllocate(cd);
+
   if (this->CreateGhostCells)
     {
-    cellGhostLevels = vtkGhostLevels::New();
+    cellGhostLevels = vtkUnsignedCharArray::New();
+    pointGhostLevels = vtkUnsignedCharArray::New();
     cellGhostLevels->Allocate(input->GetNumberOfCells());
-    pointGhostLevels = vtkGhostLevels::New();
     pointGhostLevels->Allocate(input->GetNumberOfPoints());
+    vtkFieldData* field = vtkFieldData::New();
+    output->GetPointData()->SetFieldData(field);
+    field->Delete();
+    field = vtkFieldData::New();
+    output->GetCellData()->SetFieldData(field);
+    field->Delete();
     }
     
   // Break up cells based on which piece they belong to.
@@ -191,10 +201,6 @@ void vtkExtractPolyDataPiece::Execute()
     }
   
   // Filter the cells.
-  outPD->CopyAllocate(pd);
-  outPD->CopyGhostLevelsOff();  
-  outCD->CopyAllocate(cd);
-  outCD->CopyGhostLevelsOff();  
 
   numPts = input->GetNumberOfPoints();
   output->Allocate(input->GetNumberOfCells());
@@ -214,10 +220,10 @@ void vtkExtractPolyDataPiece::Execute()
     if ( cellTags->GetValue(cellId) != -1) // satisfied thresholding
       {
       if (cellGhostLevels)
-	{                
-	cellGhostLevels->InsertNextGhostLevel(
-	  (unsigned char)(cellTags->GetValue(cellId)));
-	}
+ 	{                
+ 	cellGhostLevels->InsertNextValue(
+ 	  (unsigned char)(cellTags->GetValue(cellId)));
+ 	}
  
       cell = input->GetCell(cellId);
       cellPts = cell->GetPointIds();
@@ -230,11 +236,11 @@ void vtkExtractPolyDataPiece::Execute()
           {
           x = input->GetPoint(ptId);
           newId = newPoints->InsertNextPoint(x);
-	  if (pointGhostLevels)
-	    {
-	    pointGhostLevels->InsertNextGhostLevel(
-	      cellTags->GetValue(pointOwnership->GetId(ptId)));
-	    }
+  	  if (pointGhostLevels)
+ 	    {
+ 	    pointGhostLevels->InsertNextValue(
+ 	      cellTags->GetValue(pointOwnership->GetId(ptId)));
+ 	    }
 	  pointMap->SetId(ptId,newId);
           outPD->CopyData(pd,ptId,newId);
           }
@@ -255,15 +261,17 @@ void vtkExtractPolyDataPiece::Execute()
   
   if (cellGhostLevels)
     {
-    output->GetCellData()->SetGhostLevels(cellGhostLevels);
+    output->GetCellData()->GetFieldData()
+      ->AddReplaceArray(cellGhostLevels, "vtkGhostLevels");
     cellGhostLevels->Delete();
-    cellGhostLevels = NULL;
-    }
+    cellGhostLevels = 0;
+     }
   if (pointGhostLevels)
     {
-    output->GetPointData()->SetGhostLevels(pointGhostLevels);
+    output->GetPointData()->GetFieldData()
+       ->AddReplaceArray(pointGhostLevels, "vtkGhostLevels");
     pointGhostLevels->Delete();
-    pointGhostLevels = NULL;
+    pointGhostLevels = 0;
     }
   output->SetPoints(newPoints);
   newPoints->Delete();
@@ -271,6 +279,8 @@ void vtkExtractPolyDataPiece::Execute()
   output->Squeeze();
   cellTags->Delete();
   pointOwnership->Delete();
+
+  cout << "Cell field data: " << output->GetCellData()->GetFieldData() << endl;
 }
 
 void vtkExtractPolyDataPiece::PrintSelf(ostream& os, vtkIndent indent)

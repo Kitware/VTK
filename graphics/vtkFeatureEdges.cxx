@@ -45,6 +45,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkNormals.h"
 #include "vtkMergePoints.h"
 #include "vtkObjectFactory.h"
+#include "vtkUnsignedCharArray.h"
 
 //------------------------------------------------------------------------------
 vtkFeatureEdges* vtkFeatureEdges::New()
@@ -107,9 +108,25 @@ void vtkFeatureEdges::Execute()
   vtkPolyData *output = this->GetOutput();
   vtkPointData *pd=input->GetPointData(), *outPD=output->GetPointData();
   vtkCellData *cd=input->GetCellData(), *outCD=output->GetCellData();
+  unsigned char* ghostLevels=0;
   
   vtkDebugMacro(<<"Executing feature edges");
 
+  vtkDataArray* temp = 0;
+  if (cd->GetFieldData())
+    {
+    temp = cd->GetFieldData()->GetArray("vtkGhostLevels");
+    }
+  if ( (!temp) || (temp->GetDataType() != VTK_UNSIGNED_CHAR)
+    || (temp->GetNumberOfComponents() != 1))
+    {
+    vtkDebugMacro("No appropriate ghost levels field available.");
+    }
+  else
+    {
+    ghostLevels = ((vtkUnsignedCharArray*)temp)->GetPointer(0);
+    }
+  
   //  Check input
   //
   inPts=input->GetPoints();
@@ -203,8 +220,7 @@ void vtkFeatureEdges::Execute()
 
       if ( this->BoundaryEdges && numNei < 1 )
         {
-	if (input->GetCellData()->GetGhostLevels() &&
-	    input->GetCellData()->GetGhostLevels()->GetGhostLevel(cellId) > 0)
+	if (ghostLevels && ghostLevels[cellId] > 0)
 	  {
 	  continue;
 	  }
@@ -227,9 +243,7 @@ void vtkFeatureEdges::Execute()
 	  }
         if ( j >= numNei )
           {
-	  if (input->GetCellData()->GetGhostLevels() &&
-	      input->GetCellData()->GetGhostLevels()->
-	      GetGhostLevel(cellId) > 0)
+	  if (ghostLevels && ghostLevels[cellId] > 0)
 	    {
 	    continue;
 	    }
@@ -250,9 +264,7 @@ void vtkFeatureEdges::Execute()
         if ( vtkMath::Dot(polyNormals->GetNormal(nei),
                           polyNormals->GetNormal(cellId)) <= cosAngle ) 
           {
-	  if (input->GetCellData()->GetGhostLevels() &&
-	      input->GetCellData()->GetGhostLevels()->
-	      GetGhostLevel(cellId) > 0)
+	  if (ghostLevels && ghostLevels[cellId] > 0)
 	    {
 	    continue;
 	    }
@@ -269,8 +281,7 @@ void vtkFeatureEdges::Execute()
         }
       else if ( this->ManifoldEdges )
         {
-	if (input->GetCellData()->GetGhostLevels() &&
-	    input->GetCellData()->GetGhostLevels()->GetGhostLevel(cellId) > 0)
+	if (ghostLevels && ghostLevels[cellId] > 0)
 	  {
 	  continue;
 	  }

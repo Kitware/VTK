@@ -1,11 +1,11 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkGhostLevels.cxx
+  Module:    vtkSimpleImageFilterExample.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
-
+  Thanks:    Thanks to C. Charles Law who developed this class.
 
 Copyright (c) 1993-2001 Ken Martin, Will Schroeder, Bill Lorensen 
 All rights reserved.
@@ -39,41 +39,38 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-#include "vtkGhostLevels.h"
-#include "vtkObjectFactory.h"
+// .NAME vtkSimpleImageFilterExample - 
+// .SECTION Description
 
-//-------------------------------------------------------------------------
-vtkGhostLevels *vtkGhostLevels::New()
+
+#ifndef __vtkSimpleImageFilterExample_h
+#define __vtkSimpleImageFilterExample_h
+
+#include "vtkSimpleImageToImageFilter.h"
+#include "vtkMultiThreader.h"
+
+class VTK_EXPORT vtkSimpleImageFilterExample : 
+  public vtkSimpleImageToImageFilter
 {
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkGhostLevels");
-  if(ret)
-    {
-    return (vtkGhostLevels*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkGhostLevels;
-}
+public:
+  static vtkSimpleImageFilterExample *New();
+  vtkTypeMacro(vtkSimpleImageFilterExample,vtkSimpleImageToImageFilter);
 
-// Construct object with an initial data array of type unsigned char.
-vtkGhostLevels::vtkGhostLevels() 
-{
-  this->SetDataType(VTK_UNSIGNED_CHAR);
-  this->Data->SetNumberOfComponents(1);
-}
+protected:
 
-// Given a list of pt ids, return an array of ghost levels.
-void vtkGhostLevels::GetGhostLevels(vtkIdList *ptIds, vtkGhostLevels *g)
-{
-  int num = ptIds->GetNumberOfIds();
+  vtkSimpleImageFilterExample() {};
+  ~vtkSimpleImageFilterExample() {};
+  vtkSimpleImageFilterExample(const vtkSimpleImageFilterExample&) {};
+  void operator=(const vtkSimpleImageFilterExample&) {};
 
-  for (int i=0; i < num; i++)
-    {
-    g->SetGhostLevel(i, this->GetGhostLevel(ptIds->GetId(i)));
-    }
-}
+  virtual void Execute(vtkImageData* input, vtkImageData* output);
+};
 
-void vtkGhostLevels::PrintSelf(ostream& os, vtkIndent indent)
-{
-  vtkAttributeData::PrintSelf(os,indent);
-}
+#endif
+
+
+
+
+
+
+

@@ -155,22 +155,6 @@ public:
   int GetVectorComponentNormalizeFlag(int comp);
   
   // Description:
-  // Define the component of the field to be used for the ghost level
-  // component.  Because there is only one component, we are not using the
-  // comp parameter. To define the field component to use you specify an array 
-  // name and the component in that array. The (min,max) values are the range
-  // of data in the component you wish to extract.
-  void SetGhostLevelComponent(const char *arrayName, int arrayComp,
-			      int min, int max, int normalize);
-  void SetGhostLevelComponent(const char *arrayName, int arrayComp)
-    {this->SetGhostLevelComponent(arrayName, arrayComp, -1, -1, this->DefaultNormalize);};
-  const char *GetGhostLevelComponentArrayName();
-  int GetGhostLevelComponentArrayComponent();
-  int GetGhostLevelComponentMinRange();
-  int GetGhostLevelComponentMaxRange();
-  int GetGhostLevelComponentNormalizeFlag();
-  
-  // Description:
   // Define the component(s) of the field to be used for the normal
   // components.  Note that the parameter comp must lie between (0,3). To
   // define the field component to use you specify an array name and the

@@ -43,6 +43,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 #include "vtkApproximatingSubdivisionFilter.h"
 #include "vtkEdgeTable.h"
+#include "vtkUnsignedCharArray.h"
 
 // Construct object with number of subdivisions set to 1.
 vtkApproximatingSubdivisionFilter::vtkApproximatingSubdivisionFilter()
@@ -134,7 +135,14 @@ void vtkApproximatingSubdivisionFilter::Execute()
     } // each level
 
   // Get rid of ghost cells if we have to.
-  vtkGhostLevels *ghostLevels = inputDS->GetCellData()->GetGhostLevels();
+  unsigned char* ghostLevels=0;
+  
+  vtkFieldData* fd = inputDS->GetCellData()->GetFieldData();
+  if (fd)
+    {
+    vtkDataArray* temp = fd->GetArray("vtkGhostLevels");
+    ghostLevels = ((vtkUnsignedCharArray*)temp)->GetPointer(0);
+    }
   int updateGhostLevel = output->GetUpdateGhostLevel();
   
   if (input->GetGhostLevel() > updateGhostLevel && ghostLevels != NULL)
@@ -147,7 +155,7 @@ void vtkApproximatingSubdivisionFilter::Execute()
     num = inputDS->GetNumberOfCells();
     for (idx = 0; idx < num; ++idx)
       {
-      if (ghostLevels->GetGhostLevel(idx) <= updateGhostLevel)
+      if (ghostLevels[idx] <= updateGhostLevel)
         {
         idList->InsertNextId(idx);
         }

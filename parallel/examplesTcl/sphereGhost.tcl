@@ -79,43 +79,25 @@ bind .top.f2.s3 <ButtonRelease> {
 }
 
 
-
-
-
-
-
-
-
 vtkSphereSource sphere
   sphere SetThetaResolution 24
   sphere SetPhiResolution 15
 
 
-
-
-
-
-
 vtkExtractPolyDataPiece pieceFilter
     pieceFilter SetInput [sphere GetOutput]
 
-vtkGhostLevelToScalarFilter g2s
-   g2s SetInput [pieceFilter GetOutput]
-
 vtkPolyDataMapper mapper
-  mapper SetInput [g2s GetOutput]
+  mapper SetInput [pieceFilter GetOutput]
   mapper SetPiece $Piece
   mapper SetNumberOfPieces $NumberOfPieces
   mapper SetGhostLevel $GhostLevels
   mapper SetScalarRange 0 $GhostLevels
+  mapper SetScalarModeToUseCellFieldData
   mapper SetColorModeToMapScalars 
-  mapper SetScalarModeToUsePointData
-  mapper SetScalarModeToUseCellData
+  mapper ColorByArrayComponent "vtkGhostLevels" 0
 vtkActor actor
   actor SetMapper mapper
-
-
-
 
 
 vtkSphereSource testSphere
@@ -135,9 +117,15 @@ vtkPolyData pdCopy
 vtkSphereSource glyphSource
     glyphSource SetThetaResolution 8
     glyphSource SetPhiResolution 5
+vtkFieldDataToAttributeDataFilter fd2ad
+    fd2ad SetInput [pieceFilter GetOutput]
+    fd2ad SetInputFieldToPointDataField
+    fd2ad SetOutputAttributeDataToPointData
+    fd2ad SetScalarComponent 0 "vtkGhostLevels" 0
+
 vtkGlyph3D glyph
     #glyph SetInput pdCopy
-    glyph SetInput [g2s GetOutput]
+    glyph SetInput [fd2ad GetOutput]
     glyph SetSource [glyphSource GetOutput]
     glyph SetScaleModeToDataScalingOff
     glyph SetScaleFactor 0.03
@@ -151,8 +139,6 @@ vtkPolyDataMapper pointMapper
     pointMapper SetColorModeToMapScalars 
 vtkActor pointActor
     pointActor SetMapper pointMapper
-
-
 
 
 # Add the actors to the renderer, set the background and size

@@ -49,6 +49,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkVoxel.h"
 #include "vtkWedge.h"
 #include "vtkPyramid.h"
+#include "vtkUnsignedCharArray.h"
 
 
 //----------------------------------------------------------------------------
@@ -162,7 +163,7 @@ void vtkGeometryFilter::Execute()
   vtkCellData *outputCD = output->GetCellData();
   // ghost cell stuff
   unsigned char  updateLevel = (unsigned char)(output->GetUpdateGhostLevel());
-  vtkGhostLevels *levels;
+  vtkDataArray *levels;
   unsigned char  *cellGhostLevels = NULL;
   
   if (numCells == 0)
@@ -184,12 +185,17 @@ void vtkGeometryFilter::Execute()
     }
 
   // Get a pointer to ghost level array (if there is one).
-  levels = input->GetCellData()->GetGhostLevels();
+  vtkFieldData* fd;
+  if ((fd = input->GetCellData()->GetFieldData()))
+    {
+    levels = fd->GetArray("vtkGhostLevels");
+    }
   if (levels)
     {
-    if (levels->GetDataType() != VTK_UNSIGNED_CHAR)
+    if ((levels->GetDataType() != VTK_UNSIGNED_CHAR) ||
+	(levels->GetNumberOfComponents() != 1))
       { // sanity check
-      vtkErrorMacro("Expecting unsigned char levels.");
+      vtkErrorMacro("Expecting unsigned char levels with one component.");
       }  
     cellGhostLevels = (unsigned char *)(levels->GetVoidPointer(0));
     }  
@@ -458,18 +464,23 @@ void vtkGeometryFilter::PolyDataExecute()
   float *x;
   // ghost cell stuff
   unsigned char  updateLevel = (unsigned char)(output->GetUpdateGhostLevel());
-  vtkGhostLevels *levels;
+  vtkDataArray *levels;
   unsigned char  *cellGhostLevels = NULL;
   
   vtkDebugMacro(<<"Executing geometry filter for poly data input");
 
   // Get a pointer to ghost level array (if there is one).
-  levels = input->GetCellData()->GetGhostLevels();
+  vtkFieldData* fd;
+  if ((fd = input->GetCellData()->GetFieldData()))
+    {
+    levels = fd->GetArray("vtkGhostLevels");
+    }
   if (levels)
     {
-    if (levels->GetDataType() != VTK_UNSIGNED_CHAR)
+    if ((levels->GetDataType() != VTK_UNSIGNED_CHAR) ||
+	(levels->GetNumberOfComponents() != 1))
       { // sanity check
-      vtkErrorMacro("Expecting unsigned char levels.");
+      vtkErrorMacro("Expecting unsigned char levels with one component.");
       }  
     cellGhostLevels = (unsigned char *)(levels->GetVoidPointer(0));
     }  
@@ -580,7 +591,7 @@ void vtkGeometryFilter::UnstructuredGridExecute()
   int PixelConvert[4];
   // ghost cell stuff
   unsigned char  updateLevel = (unsigned char)(output->GetUpdateGhostLevel());
-  vtkGhostLevels *levels;
+  vtkDataArray *levels;
   unsigned char  *cellGhostLevels = NULL;  
   
   PixelConvert[0] = 0;
@@ -591,12 +602,17 @@ void vtkGeometryFilter::UnstructuredGridExecute()
   vtkDebugMacro(<<"Executing geometry filter for unstructured grid input");
 
   // Get a pointer to ghost level array (if there is one).
-  levels = input->GetCellData()->GetGhostLevels();
+  vtkFieldData* fd;
+  if ((fd = input->GetCellData()->GetFieldData()))
+    {
+    levels = fd->GetArray("vtkGhostLevels");
+    }
   if (levels)
     {
-    if (levels->GetDataType() != VTK_UNSIGNED_CHAR)
+    if ((levels->GetDataType() != VTK_UNSIGNED_CHAR) ||
+	(levels->GetNumberOfComponents() != 1))
       { // sanity check
-      vtkErrorMacro("Expecting unsigned char levels.");
+      vtkErrorMacro("Expecting unsigned char levels with one component.");
       }  
     cellGhostLevels = (unsigned char *)(levels->GetVoidPointer(0));
     }  
@@ -895,7 +911,7 @@ void vtkGeometryFilter::StructuredGridExecute()
   vtkCellArray *cells;
   // ghost cell stuff
   unsigned char  updateLevel = (unsigned char)(output->GetUpdateGhostLevel());
-  vtkGhostLevels *levels;
+  vtkDataArray *levels;
   unsigned char  *cellGhostLevels = NULL;
   
   cellIds = vtkIdList::New();
@@ -906,12 +922,17 @@ void vtkGeometryFilter::StructuredGridExecute()
   cell = vtkGenericCell::New();
 
   // Get a pointer to ghost level array (if there is one).
-  levels = input->GetCellData()->GetGhostLevels();
+  vtkFieldData* fd;
+  if ((fd = input->GetCellData()->GetFieldData()))
+    {
+    levels = fd->GetArray("vtkGhostLevels");
+    }
   if (levels)
     {
-    if (levels->GetDataType() != VTK_UNSIGNED_CHAR)
+    if ((levels->GetDataType() != VTK_UNSIGNED_CHAR) ||
+	(levels->GetNumberOfComponents() != 1))
       { // sanity check
-      vtkErrorMacro("Expecting unsigned char levels.");
+      vtkErrorMacro("Expecting unsigned char levels with one component.");
       }  
     cellGhostLevels = (unsigned char *)(levels->GetVoidPointer(0));
     }  

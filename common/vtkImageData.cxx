@@ -46,7 +46,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 #include "vtkExtentTranslator.h"
 #include "vtkLargeInteger.h"
-
+#include "vtkUnsignedCharArray.h"
 
 
 //----------------------------------------------------------------------------
@@ -1107,9 +1107,10 @@ void vtkImageData::UpdateData()
   if(this->Piece != this->UpdatePiece ||
      this->NumberOfPieces != this->UpdateNumberOfPieces ||
      this->GhostLevel != this->UpdateGhostLevel ||
-     this->PointData->GetGhostLevels() == NULL)
+     this->PointData->GetFieldData() == NULL ||
+     this->PointData->GetFieldData()->GetArray("vtkGhostLevels"))
     { // Create ghost levels for cells and points.
-    vtkGhostLevels *levels;
+    vtkUnsignedCharArray *levels;
     int zeroExt[6], extent[6];
     int i, j, k, di, dj, dk, dist;
     
@@ -1124,7 +1125,7 @@ void vtkImageData::UpdateData()
 
     // ---- POINTS ----
     // Allocate the appropriate number levels (number of points).
-    levels = vtkGhostLevels::New();
+    levels = vtkUnsignedCharArray::New();
     levels->Allocate((this->Extent[1]-this->Extent[0] + 1) *
 		     (this->Extent[3]-this->Extent[2] + 1) *
 		     (this->Extent[5]-this->Extent[4] + 1));
@@ -1185,11 +1186,18 @@ void vtkImageData::UpdateData()
 	  //cerr << "   " << di << ", " << dj << ", " << dk << endl;
 	  //cerr << dist << endl;
 	  
-	  levels->InsertNextGhostLevel((unsigned char)dist);
+	  levels->InsertNextValue((unsigned char)dist);
 	  }
 	}
       }
-    this->PointData->SetGhostLevels(levels);
+    vtkFieldData* fd;
+    if (!(fd=this->PointData->GetFieldData()))
+      {
+      fd = vtkFieldData::New();
+      this->PointData->SetFieldData(fd);
+      fd->Delete();
+      }
+    fd->AddReplaceArray(levels, "vtkGhostLevels");
     levels->Delete();
     levels = NULL;
   
@@ -1202,7 +1210,7 @@ void vtkImageData::UpdateData()
     
     // ---- CELLS ----
     // Allocate the appropriate number levels (number of cells).
-    levels = vtkGhostLevels::New();
+    levels = vtkUnsignedCharArray::New();
     levels->Allocate((this->Extent[1]-this->Extent[0]) *
 		     (this->Extent[3]-this->Extent[2]) *
 		     (this->Extent[5]-this->Extent[4]));
@@ -1270,11 +1278,17 @@ void vtkImageData::UpdateData()
 	    dist = dk;
 	    }
 
-	  levels->InsertNextGhostLevel((unsigned char)dist);
+	  levels->InsertNextValue((unsigned char)dist);
 	  }
 	}
       }
-    this->CellData->SetGhostLevels(levels);
+    if (!(fd=this->CellData->GetFieldData()))
+      {
+      fd = vtkFieldData::New();
+      this->PointData->SetFieldData(fd);
+      fd->Delete();
+      }
+    fd->AddReplaceArray(levels, "vtkGhostLevels");
     levels->Delete();
     levels = NULL;
     }

@@ -109,7 +109,6 @@ void vtkPolyDataNormals::Execute()
   vtkIdList *cellIds, *edgeNeighbors;
   vtkPolyData *input = this->GetInput();
   vtkPolyData *output = this->GetOutput();
-  int ghostLevel = input->GetUpdateGhostLevel();
   int noCellsNeedVisiting;
   int *Visited;
   vtkPolyData *OldMesh, *NewMesh;
@@ -135,6 +134,7 @@ void vtkPolyDataNormals::Execute()
     output->GetCellData()->PassData(input->GetCellData());
     return;
     }
+  output->GetCellData()->PassData(input->GetCellData());
 
 //
 // Load data into cell structure.  We need two copies: one is a 
@@ -430,7 +430,6 @@ void vtkPolyDataNormals::Execute()
   poly->Delete();
   edgeNeighbors->Delete();
   
-  output->GetCellData()->SetGhostLevels(input->GetCellData()->GetGhostLevels());
 
 }
 

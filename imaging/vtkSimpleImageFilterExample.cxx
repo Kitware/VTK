@@ -1,11 +1,11 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkGhostLevelToScalarFilter.h
+  Module:    vtkSimpleImageFilterExample.cxx
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
-
+  Thanks:    Thanks to C. Charles Law who developed this class.
 
 Copyright (c) 1993-2001 Ken Martin, Will Schroeder, Bill Lorensen 
 All rights reserved.
@@ -39,33 +39,50 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-// .NAME vtkGhostLevelToScalarFilter - Move ghost levels to scalars.
-// .SECTION Description
-// vtkGhostLevelToScalarFilter was created to debug the ghost cells 
-// feature of some sources.  It moves the ghost level values to
-// scalars so that they can be visualized.
+#include "vtkSimpleImageFilterExample.h"
+#include "vtkObjectFactory.h"
 
-#ifndef __vtkGhostLevelToScalarFilter_h
-#define __vtkGhostLevelToScalarFilter_h
-
-#include "vtkDataSetToDataSetFilter.h"
-
-class VTK_EXPORT vtkGhostLevelToScalarFilter : public vtkDataSetToDataSetFilter 
+//------------------------------------------------------------------------------
+vtkSimpleImageFilterExample* vtkSimpleImageFilterExample::New()
 {
-public:
-  vtkTypeMacro(vtkGhostLevelToScalarFilter,vtkDataSetToDataSetFilter);
-  static vtkGhostLevelToScalarFilter *New();
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkSimpleImageFilterExample");
+  if(ret)
+    {
+    return (vtkSimpleImageFilterExample*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkSimpleImageFilterExample;
+}
 
-protected:
-  vtkGhostLevelToScalarFilter() {};
-  ~vtkGhostLevelToScalarFilter() {};
-  vtkGhostLevelToScalarFilter(const vtkGhostLevelToScalarFilter&) {};
-  void operator=(const vtkGhostLevelToScalarFilter&) {};
+template <class IT>
+static void vtkSimpleImageFilterExampleExecute(vtkImageData* input,
+					       vtkImageData* output,
+					       IT* inPtr, IT* outPtr)
+{
+  int dims[3];
+  input->GetDimensions(dims);
+  int size = dims[0]*dims[1]*dims[2];
 
-  void Execute();
-  void CopyLevelsToScalars(vtkGhostLevels *levels, vtkScalars *scalars);
-};
+  for(int i=0; i<size; i++)
+    {
+    outPtr[i] = inPtr[i];
+    }
+}
 
-#endif
+void vtkSimpleImageFilterExample::Execute(vtkImageData* input,
+					  vtkImageData* output)
+{
 
+  void* inPtr = input->GetScalarPointer();
+  void* outPtr = output->GetScalarPointer();
 
+  switch(output->GetScalarType())
+    {
+    vtkTemplateMacro4(vtkSimpleImageFilterExampleExecute, input, output,
+                      (VTK_TT *)(inPtr), (VTK_TT *)(outPtr));
+    default:
+      vtkGenericWarningMacro("Execute: Unknown input ScalarType");
+      return;
+    }
+}

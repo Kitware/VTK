@@ -82,7 +82,6 @@ vtkDataSetAttributes::vtkDataSetAttributes()
   this->TCoords = NULL;
   this->Tensors = NULL;
   this->FieldData = NULL;
-  this->GhostLevels = NULL;
 
   this->CopyScalars = 1;
   this->CopyVectors = 1;
@@ -90,7 +89,6 @@ vtkDataSetAttributes::vtkDataSetAttributes()
   this->CopyTCoords = 1;
   this->CopyTensors = 1;
   this->CopyFieldData = 1;
-  this->CopyGhostLevels = 1;
   
   this->Null3Tuple[0] = this->Null3Tuple[1] = this->Null3Tuple[2] = 0.0;
   this->Null4Tuple[0] = this->Null4Tuple[1] = this->Null4Tuple[2] = this->Null4Tuple[3] = 0;
@@ -106,7 +104,6 @@ vtkDataSetAttributes::vtkDataSetAttributes()
   this->CopyTCoordsEnabled = 0;
   this->CopyTensorsEnabled = 0;
   this->CopyFieldDataEnabled = 0;
-  this->CopyGhostLevelsEnabled = 0;
 
   this->NullTensor = vtkTensor::New();
 }
@@ -185,21 +182,12 @@ void vtkDataSetAttributes::DeepCopy(vtkDataSetAttributes *pd)
     newF->Delete ();
     }
   
-  if ( (data=pd->GetGhostLevels()) != NULL )
-    {
-    newData = data->MakeObject();
-    newData->DeepCopy(data);
-    this->SetGhostLevels((vtkGhostLevels *) newData);
-    newData->Delete();
-    }
-
   this->CopyScalars = pd->CopyScalars;
   this->CopyVectors = pd->CopyVectors;
   this->CopyNormals = pd->CopyNormals;
   this->CopyTCoords = pd->CopyTCoords;
   this->CopyTensors = pd->CopyTensors;
   this->CopyFieldData = pd->CopyFieldData;
-  this->CopyGhostLevels = pd->CopyGhostLevels;
 }
 
 // Shallow copy of data (i.e., use reference counting).
@@ -211,7 +199,6 @@ void vtkDataSetAttributes::ShallowCopy(vtkDataSetAttributes *pd)
   this->SetTCoords(pd->GetTCoords());
   this->SetTensors(pd->GetTensors());
   this->SetFieldData(pd->GetFieldData());
-  this->SetGhostLevels(pd->GetGhostLevels());
 
   this->CopyScalars = pd->CopyScalars;
   this->CopyVectors = pd->CopyVectors;
@@ -219,7 +206,6 @@ void vtkDataSetAttributes::ShallowCopy(vtkDataSetAttributes *pd)
   this->CopyTCoords = pd->CopyTCoords;
   this->CopyTensors = pd->CopyTensors;
   this->CopyFieldData = pd->CopyFieldData;
-  this->CopyGhostLevels = pd->CopyGhostLevels;
 }
 
 // Check object's components for modified times.
@@ -282,15 +268,6 @@ unsigned long int vtkDataSetAttributes::GetMTime()
       }
     }
 
-  if (this->GhostLevels)
-    {
-    otherMTime = this->GhostLevels->GetMTime();
-    if ( otherMTime > mtime)
-      {
-      mtime = otherMTime;
-      }
-    }
-
   return mtime;
 }
 
@@ -341,12 +318,6 @@ void vtkDataSetAttributes::Initialize()
     this->FieldData = NULL;
     }
 
-  if ( this->GhostLevels != NULL)
-    {
-    this->GhostLevels->Delete();
-    this->GhostLevels = NULL;
-    }
-
 }
 
 // Pass entire arrays of input data through to output. Obey the "copy"
@@ -376,10 +347,6 @@ void vtkDataSetAttributes::PassData(vtkDataSetAttributes* pd)
   if ( this->CopyFieldData )
     {
     this->SetFieldData(pd->GetFieldData());
-    }
-  if ( this->CopyGhostLevels )
-    {
-    this->SetGhostLevels(pd->GetGhostLevels());
     }
 }
 
@@ -411,10 +378,6 @@ void vtkDataSetAttributes::PassNoReplaceData(vtkDataSetAttributes* pd)
     {
     this->SetFieldData(pd->GetFieldData());
     }
-  if ( this->CopyGhostLevels && !this->GhostLevels )
-    {
-    this->SetGhostLevels(pd->GetGhostLevels());
-    }
 }
 
 // Allocates point data for point-by-point (or cell-by-cell) copy operation.  
@@ -428,7 +391,6 @@ void vtkDataSetAttributes::CopyAllocate(vtkDataSetAttributes* pd, int sze, int e
   vtkTCoords *t, *newTCoords;
   vtkTensors *tens, *newTensors;
   vtkFieldData *f, *newFieldData;
-  vtkGhostLevels *g, *newGhostLevels;
 
   vtkDataSetAttributes::Initialize();
 //
@@ -498,26 +460,6 @@ void vtkDataSetAttributes::CopyAllocate(vtkDataSetAttributes* pd, int sze, int e
   else
     {
     this->CopyNormalsEnabled = 0;
-    }
-
-  if ( this->CopyGhostLevels && (g = pd->GetGhostLevels()) )
-    {
-    newGhostLevels = (vtkGhostLevels *)g->MakeObject();
-    if (sze > 0)
-      {
-      newGhostLevels->Allocate(sze, ext);
-      }
-    else
-      {
-      newGhostLevels->Allocate(0, ext);
-      }
-    this->SetGhostLevels(newGhostLevels);
-    newGhostLevels->Delete();
-    this->CopyGhostLevelsEnabled = 1;
-    }
-  else
-    {
-    this->CopyGhostLevelsEnabled = 0;
     }
 
   if ( this->CopyTCoords && (t = pd->GetTCoords()) ) 
@@ -602,8 +544,7 @@ void vtkDataSetAttributes::CopyAllocate(vtkDataSetAttributes* pd, int sze, int e
 
   this->AnyEnabled = (this->CopyScalarsEnabled || this->CopyVectorsEnabled || 
                       this->CopyNormalsEnabled || this->CopyTCoordsEnabled ||
-                      this->CopyTensorsEnabled || this->CopyFieldDataEnabled ||
-                      this->CopyGhostLevelsEnabled);
+                      this->CopyTensorsEnabled || this->CopyFieldDataEnabled);
 }
 
 
@@ -639,11 +580,6 @@ void vtkDataSetAttributes::CopyData(vtkDataSetAttributes* fromPd, int fromId, in
   if ( this->CopyTensorsEnabled )
     {
     this->CopyTuple(fromPd->Tensors->GetData(), this->Tensors->GetData(), fromId, toId);
-    }
-
-  if ( this->CopyGhostLevelsEnabled )
-    {
-    this->CopyTuple(fromPd->GhostLevels->GetData(), this->GhostLevels->GetData(), fromId, toId);
     }
 
   if ( this->CopyFieldDataEnabled )
@@ -707,12 +643,6 @@ void vtkDataSetAttributes::InterpolatePoint(vtkDataSetAttributes *fromPd, int to
                            ptIds, weights);
     }
 
-  if ( this->CopyGhostLevelsEnabled )
-    {
-    this->InterpolateTuple(fromPd->GhostLevels->GetData(), this->GhostLevels->GetData(), toId,
-                           ptIds, weights);
-    }
-
   if ( this->CopyFieldDataEnabled )
     {
     int numArrays=this->FieldData->GetNumberOfArrays();
@@ -767,12 +697,6 @@ void vtkDataSetAttributes::InterpolateEdge(vtkDataSetAttributes *fromPd, int toI
   if ( this->CopyTensorsEnabled )
     {
     this->InterpolateTuple(fromPd->Tensors->GetData(), this->Tensors->GetData(), 
-                           toId, p1, p2, t);
-    }
-
-  if ( this->CopyGhostLevelsEnabled )
-    {
-    this->InterpolateTuple(fromPd->GhostLevels->GetData(), this->GhostLevels->GetData(),
                            toId, p1, p2, t);
     }
 
@@ -834,12 +758,6 @@ void vtkDataSetAttributes::InterpolateTime(vtkDataSetAttributes *from1,
                            this->Tensors->GetData(), id, t);
     }
   
-  if ( this->CopyGhostLevelsEnabled )
-    {
-    this->InterpolateTuple(from1->GhostLevels->GetData(), from2->GhostLevels->GetData(),
-			   this->GhostLevels->GetData(), id, t);
-    }
-
   if ( this->CopyFieldDataEnabled )
     {
     int numArrays=this->FieldData->GetNumberOfArrays();
@@ -883,10 +801,6 @@ void vtkDataSetAttributes::Squeeze()
     {
     this->FieldData->Squeeze();
     }
-  if ( this->GhostLevels )
-    {
-    this->GhostLevels->Squeeze();
-    }
 }
 
 // Turn on copying of all data.
@@ -898,7 +812,6 @@ void vtkDataSetAttributes::CopyAllOn()
   this->CopyTCoordsOn();
   this->CopyTensorsOn();
   this->CopyFieldDataOn();
-  this->CopyGhostLevelsOn();
 }
 
 // Turn off copying of all data.
@@ -910,7 +823,6 @@ void vtkDataSetAttributes::CopyAllOff()
   this->CopyTCoordsOff();
   this->CopyTensorsOff();
   this->CopyFieldDataOff();
-  this->CopyGhostLevelsOff();
 }
 
 // Copy a tuple of data from one data array to another. This method (and
@@ -1579,11 +1491,7 @@ unsigned long vtkDataSetAttributes::GetActualMemorySize()
     {
     size += this->FieldData->GetActualMemorySize();
     }
-  if ( this->GhostLevels )
-    {
-    size += this->GhostLevels->GetActualMemorySize();
-    }
-  
+
   return size;
 }
 
@@ -1651,21 +1559,10 @@ void vtkDataSetAttributes::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "FieldData: (none)\n";
     }
   
-  if ( this->GhostLevels )
-    {
-    os << indent << "GhostLevels:\n";
-    this->GhostLevels->PrintSelf(os, indent.GetNextIndent());
-    }
-  else
-    {
-    os << indent << "GhostLevels: (none)\n";
-    }
-
   os << indent << "Copy Scalars: " << (this->CopyScalars ? "On\n" : "Off\n");
   os << indent << "Copy Vectors: " << (this->CopyVectors ? "On\n" : "Off\n");
   os << indent << "Copy Normals: " << (this->CopyNormals ? "On\n" : "Off\n");
   os << indent << "Copy Texture Coordinates: " << (this->CopyTCoords ? "On\n" : "Off\n");
   os << indent << "Copy Tensors: " << (this->CopyTensors ? "On\n" : "Off\n");
   os << indent << "Copy FieldData: " << (this->CopyFieldData ? "On\n" : "Off\n");
-  os << indent << "Copy GhostLevels: " << (this->CopyGhostLevels ? "On\n" : "Off\n");
 }

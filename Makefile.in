@@ -62,6 +62,7 @@ build_local: build_graphics build_imaging
 build_parallel: build_graphics build_imaging
 	cd parallel;     ${MAKE} -${MAKEFLAGS} targets.make
 	cd parallel;     ${MAKE} -${MAKEFLAGS} all
+	cd parallel;	 ${MAKE} -${MAKEFLAGS} pvtk
 
 build_tcl: build_common ${BUILD_TOOLKITS} 
 	cd tcl;        ${MAKE} -${MAKEFLAGS} vtk$(EXEEXT) $(VTK_TCL_SHLIB_TARGET)

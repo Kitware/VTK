@@ -132,8 +132,6 @@ public:
     {this->CharacterizeFile(); return this->NumberOfTCoordsInFile;}
   int GetNumberOfFieldDataInFile()
     {this->CharacterizeFile(); return this->NumberOfFieldDataInFile;}
-  int GetNumberOfGhostLevelsInFile()
-    {this->CharacterizeFile(); return this->NumberOfGhostLevelsInFile;}
   
   // Description:
   // What is the name of the ith attribute of a certain type
@@ -145,7 +143,6 @@ public:
   const char *GetNormalsNameInFile(int i);
   const char *GetTCoordsNameInFile(int i);
   const char *GetFieldDataNameInFile(int i);
-  const char *GetGhostLevelsNameInFile(int i);
   
   // Description:
   // Set the name of the scalar data to extract. If not specified, first 
@@ -165,12 +162,6 @@ public:
   vtkSetStringMacro(TensorsName);
   vtkGetStringMacro(TensorsName);
 
-  // Description:
-  // Set the name of the ghost level data to extract.  If not specified,
-  // first ghost level data encountered is extracted.
-  vtkSetStringMacro(GhostLevelsName);
-  vtkGetStringMacro(GhostLevelsName);
-  
   // Description:
   // Set the name of the normal data to extract. If not specified, first 
   // normal data encountered is extracted.
@@ -286,7 +277,6 @@ protected:
   char *ScalarsName;
   char *VectorsName;
   char *TensorsName;
-  char *GhostLevelsName;
   char *TCoordsName;
   char *NormalsName;
   char *LookupTableName;
@@ -307,7 +297,6 @@ protected:
   int ReadVectorData(vtkDataSetAttributes *a, int num);
   int ReadNormalData(vtkDataSetAttributes *a, int num);
   int ReadTensorData(vtkDataSetAttributes *a, int num);
-  int ReadGhostLevelData(vtkDataSetAttributes *a, int num);
   int ReadCoScalarData(vtkDataSetAttributes *a, int num);
   int ReadLutData(vtkDataSetAttributes *a);
   int ReadTCoordsData(vtkDataSetAttributes *a, int num);
@@ -324,9 +313,6 @@ protected:
   int  NumberOfTensorsInFile;
   char **TensorsNameInFile;
   int TensorsNameAllocSize;
-  int  NumberOfGhostLevelsInFile;
-  char **GhostLevelsNameInFile;
-  int GhostLevelsNameAllocSize;
   int  NumberOfTCoordsInFile;
   char **TCoordsNameInFile;
   int TCoordsNameAllocSize;

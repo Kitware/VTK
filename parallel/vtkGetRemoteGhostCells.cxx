@@ -44,6 +44,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 
 #include "vtkPolyDataWriter.h"
+#include "vtkUnsignedCharArray.h"
 
 vtkGetRemoteGhostCells* vtkGetRemoteGhostCells::New()
 {
@@ -82,7 +83,7 @@ void vtkGetRemoteGhostCells::Execute()
   vtkCellArray *polys;
   vtkIdList *cellIds = vtkIdList::New();
   vtkGenericCell *cell = vtkGenericCell::New();
-  vtkGhostLevels *ghostLevels = vtkGhostLevels::New();
+  vtkUnsignedCharArray* ghostLevels = vtkUnsignedCharArray::New();
   float *myPoints, *remotePoints;
   float tempPoints[3000];
   int numRemotePoints;
@@ -157,13 +158,9 @@ void vtkGetRemoteGhostCells::Execute()
   outputLocator->InitPointInsertion(points, bounds);
   
   polyData->GetPointData()->CopyAllocate(input->GetPointData());
-  polyData->GetPointData()->CopyGhostLevelsOff();
   polyData->GetCellData()->CopyAllocate(input->GetCellData());
-  polyData->GetCellData()->CopyGhostLevelsOff();
   output->GetPointData()->CopyAllocate(input->GetPointData());
-  output->GetPointData()->CopyGhostLevelsOff();
   output->GetCellData()->CopyAllocate(input->GetCellData());
-  output->GetCellData()->CopyGhostLevelsOff();
   
   for (j = 0; j < numPoints; j++)
     {
@@ -175,23 +172,25 @@ void vtkGetRemoteGhostCells::Execute()
   
   for (j = 0; j < polys->GetNumberOfCells(); j++)
     {
-    ghostLevels->InsertNextGhostLevel(0);
+    ghostLevels->InsertNextValue(0);
     output->GetCellData()->CopyData(input->GetCellData(), j, j);
     }
   
   output->SetPoints(points);
   output->SetPolys(polys);
-  output->GetCellData()->SetGhostLevels(ghostLevels);
-  
+
+
   for (gl = 0; gl < ghostLevel; gl++)
     {
+    unsigned char* ghostLevelsArray = ghostLevels->GetPointer(0);
+
     output->DeleteCells();
     output->BuildLinks();
     pointIncr = 0;
     myPoints = new float[output->GetNumberOfPoints()*3];
     for (i = 0; i < output->GetNumberOfCells(); i++)
       {
-      if (output->GetCellData()->GetGhostLevels()->GetGhostLevel(i) == gl)
+      if (ghostLevelsArray[i] == gl)
 	{
 	output->GetCell(i, cell);
 	for (j = 0; j < cell->GetNumberOfPoints(); j++)
@@ -275,8 +274,7 @@ void vtkGetRemoteGhostCells::Execute()
 	      cellId = cellIds->GetId(j);
 	      output->GetCell(cellId, cell);
 	      if ((insertedCells->IsId(cellId) == -1) &&
-		  output->GetCellData()->GetGhostLevels()->
-		  GetGhostLevel(cellId) == 0)
+		  ghostLevelsArray[cellId] == 0)
 		{
 		insertedCells->InsertNextId(cellId);
 		cellIdMap[cellIdCount] = cellId;
@@ -311,7 +309,7 @@ void vtkGetRemoteGhostCells::Execute()
 	    {
 	    remoteCells[id]->InsertNextId(cellIdMap[j]);
 	    newCells->InsertNextId(j);
-	    ghostLevels->InsertNextGhostLevel(gl+1);
+	    ghostLevels->InsertNextValue(gl+1);
 	    output->DeleteCells();
 	    output->BuildLinks();
 	    }
@@ -321,10 +319,19 @@ void vtkGetRemoteGhostCells::Execute()
 	} // if not my process
       } // for all processes
   
-    output->GetCellData()->SetGhostLevels(ghostLevels);
     delete [] myPoints;
     newCells->Reset();
     }
+  
+  if (!output->GetCellData()->GetFieldData())
+    {
+    vtkFieldData* field = vtkFieldData::New();
+    output->GetCellData()->SetFieldData(field);
+    field->Delete();
+    }
+  
+  output->GetCellData()->GetFieldData()
+    ->AddReplaceArray(ghostLevels, "vtkGhostLevels");
   
   points->Delete();
   points = NULL;

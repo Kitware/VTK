@@ -87,7 +87,6 @@ vtkDataReader::vtkDataReader()
   this->ScalarsName = NULL;
   this->VectorsName = NULL;
   this->TensorsName = NULL;
-  this->GhostLevelsName = NULL;
   this->NormalsName = NULL;
   this->TCoordsName = NULL;
   this->LookupTableName = NULL;
@@ -109,9 +108,6 @@ vtkDataReader::vtkDataReader()
   this->NumberOfTensorsInFile = 0;
   this->TensorsNameInFile = NULL;
   this->TensorsNameAllocSize = 0;
-  this->NumberOfGhostLevelsInFile = 0;
-  this->GhostLevelsNameInFile = NULL;
-  this->GhostLevelsNameAllocSize = 0;
   this->NumberOfTCoordsInFile = 0;
   this->TCoordsNameInFile = NULL;
   this->TCoordsNameAllocSize = 0;
@@ -140,10 +136,6 @@ vtkDataReader::~vtkDataReader()
   if (this->TensorsName)
     {
     delete [] this->TensorsName;
-    }
-  if (this->GhostLevelsName)
-    {
-    delete [] this->GhostLevelsName;
     }
   if (this->NormalsName)
     {
@@ -579,16 +571,6 @@ int vtkDataReader::ReadCellData(vtkDataSet *ds, int numCells)
 	}
       }
     //
-    // read ghost levels data
-    //
-    else if ( ! strncmp(line, "ghost_levels", 12) )
-      {
-      if ( ! this->ReadGhostLevelData(a, numCells) )
-	{
-	return 0;
-	}
-      }
-    //
     // read normals data
     //
     else if ( ! strncmp(line, "normals", 7) )
@@ -709,16 +691,6 @@ int vtkDataReader::ReadPointData(vtkDataSet *ds, int numPts)
     else if ( ! strncmp(line, "tensors", 7) )
       {
       if ( ! this->ReadTensorData(a, numPts) )
-	{
-	return 0;
-	}
-      }
-    //
-    // read ghost levels data
-    //
-    else if ( ! strncmp(line, "ghost_levels", 12) )
-      {
-      if ( ! this->ReadGhostLevelData(a, numPts) )
 	{
 	return 0;
 	}
@@ -1365,51 +1337,6 @@ int vtkDataReader::ReadTensorData(vtkDataSetAttributes *a, int numPts)
   return 1;
 }
 
-// Read ghost level point attributes. Return 0 if error.
-int vtkDataReader::ReadGhostLevelData(vtkDataSetAttributes *a, int numPts)
-{
-  int skipGhostLevel=0;
-  char line[256], name[256];
-  vtkDataArray *data;
-
-  if (!(this->ReadString(name) && this->ReadString(line)))
-    {
-    vtkErrorMacro(<<"Cannot read ghost level data!" << " for file: " << this->FileName);
-    return 0;
-    }
-  //
-  // See whether ghost level has been already read or tensor name (if
-  // specified) matches name in file. 
-  //
-  if ( a->GetGhostLevels() != NULL ||
-       (this->GhostLevelsName && strcmp(name,this->GhostLevelsName)) )
-    {
-    skipGhostLevel = 1;
-    }
-
-  data = this->ReadArray(line, numPts, 1);
-  if ( data != NULL )
-    {
-    vtkGhostLevels *ghostLevels=vtkGhostLevels::New();
-    ghostLevels->SetData(data);
-    data->Delete();
-    if ( ! skipGhostLevel )
-      {
-      a->SetGhostLevels(ghostLevels);
-      }
-    ghostLevels->Delete();
-    }
-  else
-    {
-    return 0;
-    }
-
-  float progress = this->GetProgress();
-  this->UpdateProgress(progress + 0.5*(1.0 - progress));
-
-  return 1;
-}
-
 // Read color scalar point attributes. Return 0 if error.
 int vtkDataReader::ReadCoScalarData(vtkDataSetAttributes *a, int numPts)
 {
@@ -1919,16 +1846,6 @@ void vtkDataReader::InitializeCharacteristics()
     this->FieldDataNameInFile = NULL;
     }
 
-  if ( this->GhostLevelsNameInFile )
-    {
-    for (i=0; i<this->NumberOfGhostLevelsInFile; i++)
-      {
-      delete [] this->GhostLevelsNameInFile[i];
-      }
-    this->NumberOfGhostLevelsInFile = 0;
-    delete [] this->GhostLevelsNameInFile;
-    this->GhostLevelsNameInFile = NULL;
-    }
 }
 
 //read entire file, storing important characteristics
@@ -1961,8 +1878,6 @@ int vtkDataReader::CharacterizeFile()
                    this->NormalsNameInFile, this->NormalsNameAllocSize);
     this->CheckFor("tcoords", line, this->NumberOfTCoordsInFile,
                    this->TCoordsNameInFile, this->TCoordsNameAllocSize);
-    this->CheckFor("ghostlevels", line, this->NumberOfGhostLevelsInFile,
-                   this->GhostLevelsNameInFile, this->GhostLevelsNameAllocSize);
     this->CheckFor("fielddata", line, this->NumberOfFieldDataInFile,
                    this->FieldDataNameInFile, this->FieldDataNameAllocSize);
     }
@@ -2093,18 +2008,6 @@ const char *vtkDataReader::GetFieldDataNameInFile(int i)
     return this->FieldDataNameInFile[i];
     }
 }
-const char *vtkDataReader::GetGhostLevelsNameInFile(int i)
-{
-  if ( !this->GhostLevelsNameInFile || 
-       i < 0 || i >= this->NumberOfGhostLevelsInFile )
-    {
-    return NULL;
-    }
-  else
-    {
-    return this->GhostLevelsNameInFile[i];
-    }
-}
 
 void vtkDataReader::PrintSelf(ostream& os, vtkIndent indent)
 {
@@ -2180,15 +2083,6 @@ void vtkDataReader::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Tensors Name: (None)\n";
     }
 
-  if ( this->GhostLevelsName )
-    {
-    os << indent << "Ghost Levels Name: " << this->GhostLevelsName << "\n";
-    }
-  else
-    {
-    os << indent << "Ghost Levels Name: (None)\n";
-    }
-  
   if ( this->TCoordsName )
     {
     os << indent << "Texture Coords Name: " << this->TCoordsName << "\n";

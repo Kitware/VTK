@@ -11,9 +11,9 @@ srcdir        = @srcdir@
 VPATH         = @srcdir@
 
 MPI_OBJ = \
+vtkMPICommunicator \
 vtkMPIController \
-vtkMPIGroup \
-vtkMPICommunicator
+vtkMPIGroup 
 
 ABSTRACT_H = 
 
@@ -23,21 +23,21 @@ ABSTRACT = \
 vtkCommunicator 
 
 CONCRETE = \
-vtkMultiProcessController \
-vtkSharedMemoryCommunicator \
-vtkThreadedController \
-vtkTreeComposite \
+vtkExtractPolyDataPiece \
 vtkGetRemoteGhostCells \
+vtkImageComposite \
+vtkInputPort \
+vtkMultiProcessController \
+vtkOutputPort \
 vtkParallelFactory \
 vtkPieceScalars \
 vtkPipelineSize \
+vtkPPolyDataNormals \
 vtkPSphereSource \
-vtkInputPort \
-vtkOutputPort \
-vtkExtractPolyDataPiece \
-vtkGhostLevelToScalarFilter \
+vtkSharedMemoryCommunicator \
+vtkThreadedController \
+vtkTreeComposite \
 vtkRemoveGhostCells \
-vtkImageComposite \
 ${CONTROLLER_API_OBJ}
 
 
@@ -58,7 +58,7 @@ ${CONTROLLER_API_OBJ}
 @MAKEINCLUDE@ @MAKEQUOTE@targets.make@MAKEQUOTE@
 
 # add in any extra libraies here
-KIT_LIBS =
+KIT_EXTERNAL_LIBS = ${MPI_LIBS}
 
 # standard stuff here
 KIT_OBJ = ${SRC_OBJ}
@@ -72,6 +72,39 @@ VTK_LIB_FILE  = libVTK${ME}${VTK_LIB_EXT}
 TCL_LIB_FILE  = libVTK${ME}Tcl${VTK_LIB_EXT}
 PYTHON_LIB_FILE = libVTK${ME}Python${VTK_LIB_EXT}
 
+#------------------------------------------------------------------------------
+PLDLIBS =  \
+	${USE_PARALLEL_LIBS}	\
+	${USE_LOCAL_LIBS}	\
+	${USE_CONTRIB_LIBS}	\
+	${USE_PATENTED_LIBS}	\
+	${USE_IMAGING_LIBS}	\
+	${USE_GRAPHICS_LIBS}	\
+        -L../common -lVTKCommonTcl -lVTKCommon \
+	${XLIBS} ${GRAPHICS_API_LIBS}  \
+	${TK_LIB} ${TCL_LIB} ${DL_LIBS} \
+	${THREAD_LIBS} ${CONTROLLER_API_LIBS}
+
+
+PCXX_FLAGS = ${USER_CXXFLAGS} ${CPPFLAGS} ${CXXFLAGS} -I${srcdir} \
+	-I${srcdir}/../common -I../common ${TK_INCLUDE} ${TCL_INCLUDE} \
+	${GRAPHICS_API_FLAGS} \
+	${USE_TOOLKIT_FLAGS} ${CONTROLLER_API_FLAGS}
+
+
+tkAppInit.o: tkAppInit.cxx Makefile
+	$(CXX) $(PCXX_FLAGS) -c -o tkAppInit.o $(srcdir)/tkAppInit.cxx
+
+
+#------------------------------------------------------------------------------
+# build the vtk executable
+#
+pvtk: 	@BUILD_PVTK@
+
+build_pvtk: Makefile tkAppInit.o ${TOOLKIT_DEPENDS} 
+	$(CXX)	 -o pvtk tkAppInit.o \
+	-L. ${PCXX_FLAGS} ${VTK_SHLIB_LINK_FLAGS} ${XLDFLAGS} ${PLDLIBS} \
+	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
 
 #------------------------------------------------------------------------------
 # Include the generic stuff here

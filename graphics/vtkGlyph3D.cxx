@@ -45,6 +45,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkNormals.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkUnsignedCharArray.h"
 
 //------------------------------------------------------------------------
 vtkGlyph3D* vtkGlyph3D::New()
@@ -88,7 +89,7 @@ void vtkGlyph3D::Execute()
   vtkScalars *inScalars;
   vtkVectors *inVectors;
   int requestedGhostLevel;
-  vtkGhostLevels *inGhostLevels;
+  unsigned char* inGhostLevels=0;
   vtkNormals *inNormals, *sourceNormals;
   vtkDataArray *newScalarsData, *inScalarsData;
   int numPts, numSourcePts, numSourceCells;
@@ -120,7 +121,23 @@ void vtkGlyph3D::Execute()
   inScalars = pd->GetScalars();
   inVectors = pd->GetVectors();
   inNormals = pd->GetNormals();
-  inGhostLevels = pd->GetGhostLevels();
+
+  vtkFieldData* fd = pd->GetFieldData();
+  vtkDataArray* temp = 0;
+  if (fd)
+    {
+    temp = fd->GetArray("vtkGhostLevels");
+    }
+  if ( (!temp) || (temp->GetDataType() != VTK_UNSIGNED_CHAR)
+    || (temp->GetNumberOfComponents() != 1))
+    {
+    vtkDebugMacro("No appropriate ghost levels field available.");
+    }
+  else
+    {
+    inGhostLevels = ((vtkUnsignedCharArray*)temp)->GetPointer(0);
+    }
+
   requestedGhostLevel = output->GetUpdateGhostLevel();
   
   
@@ -350,8 +367,7 @@ void vtkGlyph3D::Execute()
     // point ghost levels with the glyph filter.  I am not certain 
     // of the usefullness of point ghost levels over 1, but I will have
     // to think about it.
-    if (inGhostLevels && 
-        inGhostLevels->GetGhostLevel(inPtId) > requestedGhostLevel)
+    if (inGhostLevels && inGhostLevels[inPtId] > requestedGhostLevel)
       {
       continue;
       }

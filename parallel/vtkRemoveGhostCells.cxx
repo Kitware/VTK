@@ -41,6 +41,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 #include "vtkRemoveGhostCells.h"
 #include "vtkObjectFactory.h"
+#include "vtkUnsignedCharArray.h"
 
 //------------------------------------------------------------------------------
 vtkRemoveGhostCells* vtkRemoveGhostCells::New()
@@ -70,15 +71,33 @@ void vtkRemoveGhostCells::Execute()
   vtkPolyData *output = this->GetOutput();
   vtkCell *cell;
 
-  vtkDebugMacro(<< "Executing remove ghost cells filter");
+  vtkWarningMacro(<< "Executing remove ghost cells filter");
 
-  if (!input->GetCellData()->GetGhostLevels())
+  cellData = input->GetCellData();
+
+  vtkFieldData* fd = cellData->GetFieldData();
+  if (!fd)
     {
-    vtkErrorMacro(<<"No ghost cells to remove");
+    vtkErrorMacro(<<"No field data found.");
+    output->SetPoints(input->GetPoints());
+    output->SetPolys(input->GetPolys());
+    output->GetPointData()->PassData(input->GetPointData());
+    output->GetCellData()->PassData(input->GetCellData());
+    return;
+    }
+
+  vtkDataArray* temp = fd->GetArray("vtkGhostLevels");
+  if ( (!temp) || (temp->GetDataType() != VTK_UNSIGNED_CHAR)
+    || (temp->GetNumberOfComponents() != 1))
+    {
+    vtkErrorMacro(<<"No proper match for vtkGhostLeves found in the field data.");
+    output->GetPointData()->PassData(input->GetPointData());
+    output->SetPoints(input->GetPoints());
+    output->SetPolys(input->GetPolys());
+    output->GetCellData()->PassData(input->GetCellData());
     return;
     }
      
-  cellData = input->GetCellData();
   numCells = input->GetNumberOfCells();
   newCells = vtkCellArray::New();
   newCells->Allocate(numCells);
@@ -87,10 +106,10 @@ void vtkRemoveGhostCells::Execute()
 
   // Check the ghost level of each cell to determine whether to remove
   // the cell.
-
+  unsigned char* cellGhostLevels = ((vtkUnsignedCharArray*)temp)->GetPointer(0);
   for (cellId=0; cellId < numCells; cellId++)
     {
-    if (cellData->GetGhostLevels()->GetGhostLevel(cellId) < this->GhostLevel)
+    if (cellGhostLevels[cellId] < this->GhostLevel)
       {
       cell = input->GetCell(cellId);
       newCellId = newCells->InsertNextCell(cell);

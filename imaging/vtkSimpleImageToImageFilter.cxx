@@ -1,11 +1,11 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkGhostLevelToScalarFilter.cxx
+  Module:    vtkSimpleImageToImageFilter.cxx
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
-
+  Thanks:    Thanks to C. Charles Law who developed this class.
 
 Copyright (c) 1993-2001 Ken Martin, Will Schroeder, Bill Lorensen 
 All rights reserved.
@@ -39,72 +39,92 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-#include "vtkGhostLevelToScalarFilter.h"
-#include "vtkMath.h"
+#include "vtkSimpleImageToImageFilter.h"
 #include "vtkObjectFactory.h"
 
 
 
 //----------------------------------------------------------------------------
-vtkGhostLevelToScalarFilter* vtkGhostLevelToScalarFilter::New()
+vtkSimpleImageToImageFilter::vtkSimpleImageToImageFilter()
 {
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkGhostLevelToScalarFilter");
-  if(ret)
-    {
-    return (vtkGhostLevelToScalarFilter*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkGhostLevelToScalarFilter;
+  this->NumberOfRequiredInputs = 1;
 }
 
 //----------------------------------------------------------------------------
-void vtkGhostLevelToScalarFilter::CopyLevelsToScalars(vtkGhostLevels *levels,
-						      vtkScalars *scalars)
+vtkSimpleImageToImageFilter::~vtkSimpleImageToImageFilter()
 {
-  int i, num;
-
-  num = levels->GetNumberOfGhostLevels();
-  scalars->Allocate(num);
-  scalars->SetNumberOfScalars(num);
-  for (i = 0; i < num; ++i)
-    {
-    scalars->InsertScalar(i, levels->GetGhostLevel(i));
-    }
 }
 
 //----------------------------------------------------------------------------
-void vtkGhostLevelToScalarFilter::Execute()
+void vtkSimpleImageToImageFilter::SetInput(vtkImageData *input)
 {
-  vtkScalars *newScalars;
-  vtkGhostLevels *ghostLevels;
-  vtkDataSet *input = this->GetInput();
-  
-  // First, copy the input to the output as a starting point
-  this->GetOutput()->CopyStructure( input );
-  this->GetOutput()->GetPointData()->CopyScalarsOff();
-  this->GetOutput()->GetPointData()->PassData(input->GetPointData());
-  this->GetOutput()->GetCellData()->CopyScalarsOff();
-  this->GetOutput()->GetCellData()->PassData(input->GetCellData());
-
-  ghostLevels = input->GetPointData()->GetGhostLevels();
-  if (ghostLevels)
-    {
-    newScalars = vtkScalars::New();
-    this->CopyLevelsToScalars(ghostLevels, newScalars);
-    this->GetOutput()->GetPointData()->SetScalars(newScalars);
-    newScalars->Delete();
-    newScalars = NULL;
-    }
-  
-  ghostLevels = input->GetCellData()->GetGhostLevels();
-  if (ghostLevels)
-    {
-    newScalars = vtkScalars::New();
-    this->CopyLevelsToScalars(ghostLevels, newScalars);
-    this->GetOutput()->GetCellData()->SetScalars(newScalars);
-    newScalars->Delete();
-    newScalars = NULL;
-    }
+  this->vtkProcessObject::SetNthInput(0, input);
 }
 
+//----------------------------------------------------------------------------
+vtkImageData *vtkSimpleImageToImageFilter::GetInput()
+{
+  if (this->NumberOfInputs < 1)
+    {
+    return NULL;
+    }
+  
+  return (vtkImageData *)(this->Inputs[0]);
+}
+
+//----------------------------------------------------------------------------
+// This method can be overriden in a subclass to compute the output
+// Information: WholeExtent, Spacing, Origin, ScalarType and
+// NumberOfScalarComponents.
+void vtkSimpleImageToImageFilter::ExecuteInformation()
+{
+  //????
+  vtkImageData *input = this->GetInput();
+  vtkImageData *output = this->GetOutput();
+
+  // Make sure the Input has been set.
+  if ( input == NULL)
+    {
+    vtkErrorMacro(<< "ExecuteInformation: Input is not set.");
+    return;
+    }
+
+  // Start with some defaults.
+  output->CopyTypeSpecificInformation( input );
+}
+
+
+// By default, simply set the input update extent to match the given output
+// extent
+void vtkSimpleImageToImageFilter::ComputeInputUpdateExtent( int inExt[6], 
+							    int outExt[6] )
+{
+  vtkImageData *input = this->GetInput();
+  // Make sure the Input has been set.
+  if ( input == NULL)
+    {
+    vtkErrorMacro(<< "ComputeInputUpdateExtent: Input is not set.");
+    return;
+    }
+  int* wholeExtent = input->GetWholeExtent();
+  memcpy(inExt,wholeExtent,sizeof(int)*6);
+}
+
+void vtkSimpleImageToImageFilter::Execute()
+{
+
+  vtkDebugMacro("Executing.");
+  vtkImageData* output = this->GetOutput();
+  vtkImageData* input = this->GetInput();
+
+  if (!input)
+    {
+    vtkErrorMacro("No input is specified!");
+    return;
+    }
+
+  output->SetExtent(output->GetWholeExtent());
+  output->AllocateScalars();
+
+  this->Execute(input, output);
+}

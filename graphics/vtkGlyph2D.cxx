@@ -43,6 +43,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkTransform.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkUnsignedCharArray.h"
 
 //------------------------------------------------------------------------
 vtkGlyph2D* vtkGlyph2D::New()
@@ -62,7 +63,7 @@ void vtkGlyph2D::Execute()
   vtkPointData *pd;
   vtkScalars *inScalars;
   vtkVectors *inVectors;
-  vtkGhostLevels *inGhostLevels;
+  unsigned char* inGhostLevels = 0;
   vtkNormals *inNormals, *sourceNormals;
   vtkDataArray *newScalarsData, *inScalarsData;
   int numPts, numSourcePts, numSourceCells;
@@ -95,7 +96,22 @@ void vtkGlyph2D::Execute()
   inScalars = pd->GetScalars();
   inVectors = pd->GetVectors();
   inNormals = pd->GetNormals();
-  inGhostLevels = pd->GetGhostLevels();
+
+  vtkFieldData* fd = pd->GetFieldData();
+  vtkDataArray* temp = 0;
+  if (fd)
+    {
+    temp = fd->GetArray("vtkGhostLevels");
+    }
+  if ( (!temp) || (temp->GetDataType() != VTK_UNSIGNED_CHAR)
+    || (temp->GetNumberOfComponents() != 1))
+    {
+    vtkDebugMacro("No appropriate ghost levels field available.");
+    }
+  else
+    {
+    inGhostLevels = ((vtkUnsignedCharArray*)temp)->GetPointer(0);
+    }
 
   numPts = input->GetNumberOfPoints();
   if (numPts < 1)
@@ -313,7 +329,7 @@ void vtkGlyph2D::Execute()
       }
 
     // Check ghost points.
-    if (inGhostLevels && inGhostLevels->GetGhostLevel(inPtId) > 0)
+    if (inGhostLevels && inGhostLevels[inPtId] > 0)
       {
       continue;
       }

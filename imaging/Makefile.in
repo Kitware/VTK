@@ -46,7 +46,8 @@ vtkImageSpatialFilter \
 vtkImageToImageFilter \
 vtkImageTwoInputFilter \
 vtkImageFourierFilter \
-vtkImagingFactory
+vtkImagingFactory \
+vtkSimpleImageToImageFilter 
 
 CONCRETE = \
 vtkAxisActor2D \
@@ -146,6 +147,7 @@ vtkPolyDataMapper2D \
 vtkPostScriptWriter \
 vtkScalarBarActor \
 vtkScaledTextActor \
+vtkSimpleImageFilterExample \
 vtkTextMapper \
 vtkTIFFReader \
 vtkTIFFWriter \

@@ -18,8 +18,19 @@ AC_ARG_WITH(bsdmake,
          MAKEQUOTE='"',
          MAKEINCLUDE="include"
          MAKEQUOTE='')
+AC_ARG_WITH(tcl,
+         [  --with-tcl           build vtk the tcl based interpreter],
+	 [use_tcl=$withval])
+BUILD_PVTK=""
+AC_ARG_WITH(mpi,
+         [  --with-mpi           create the mpi specific controller],
+	 if test "$withval" = yes -a "$use_tcl" = yes; then
+	 BUILD_PVTK="build_pvtk"
+	 fi,)
+
 AC_SUBST(MAKEINCLUDE)
 AC_SUBST(MAKEQUOTE)
+AC_SUBST(BUILD_PVTK)
 
 AC_CONFIG_SUBDIRS(python tcl java examplesCxx)
 

@@ -281,7 +281,7 @@ void vtkMPIController::SingleMethodExecute()
     {
     if (this->SingleMethod)
       {
-      this->SetGlobalController(this);
+      vtkMultiProcessController::SetGlobalController(this);
       (this->SingleMethod)(this, this->SingleData);
       }
     else
@@ -307,7 +307,7 @@ void vtkMPIController::MultipleMethodExecute()
     {
     if (this->MultipleMethod[i])
       {
-      this->SetGlobalController(this);
+      vtkMultiProcessController::SetGlobalController(this);
       (this->MultipleMethod[i])(this, this->MultipleData[i]);
       }
     else

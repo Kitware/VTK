@@ -44,6 +44,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkGlyphSource2D.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkUnsignedCharArray.h"
 
 //--------------------------------------------------------------------------
 vtkGlyphSource2D* vtkGlyphSource2D::New()

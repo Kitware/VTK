@@ -81,11 +81,6 @@ vtkFieldDataToAttributeDataFilter::vtkFieldDataToAttributeDataFilter()
     this->VectorNormalize[i] = 1; //yes, normalize
     }
 
-  this->GhostLevelArray = NULL;
-  this->GhostLevelArrayComponent = -1; //uninitialized
-  this->GhostLevelComponentRange[0] = this->GhostLevelComponentRange[1] = -1;
-  this->GhostLevelNormalize = 1; //yes, normalize
-  
   for (i=0; i < 3; i++)
     {
     this->NormalArrays[i] = NULL;
@@ -130,11 +125,6 @@ vtkFieldDataToAttributeDataFilter::~vtkFieldDataToAttributeDataFilter()
       {
       delete [] this->VectorArrays[i];
       }
-    }
-  
-  if ( this->GhostLevelArray != NULL )
-    {
-    delete [] this->GhostLevelArray;
     }
   
   for (i=0; i<3; i++)
@@ -222,10 +212,6 @@ void vtkFieldDataToAttributeDataFilter::Execute()
                          this->VectorArrays, 
                          this->VectorArrayComponents, 
                          this->VectorNormalize);
-  this->ConstructGhostLevels(num, fd, attr, this->GhostLevelComponentRange,
-                             this->GhostLevelArray,
-                             this->GhostLevelArrayComponent, 
-                             this->GhostLevelNormalize);
   this->ConstructTensors(num, fd, attr, this->TensorComponentRange,
                          this->TensorArrays, 
                          this->TensorArrayComponents, 
@@ -572,123 +558,6 @@ void vtkFieldDataToAttributeDataFilter::ConstructVectors(int num, vtkFieldData *
     }
 }
 
-// Stuff related to ghost levels --------------------------------------------
-//
-void vtkFieldDataToAttributeDataFilter::SetGhostLevelComponent(const char *arrayName,
-                                                               int arrayComp,
-                                                               int min,
-                                                               int max,
-                                                               int normalize)
-{
-  this->SetArrayName(this, this->GhostLevelArray, arrayName);
-  if ( this->GhostLevelArrayComponent != arrayComp )
-    {
-    this->GhostLevelArrayComponent = arrayComp;
-    this->Modified();
-    }
-  if ( this->GhostLevelComponentRange[0] != min )
-    {
-    this->GhostLevelComponentRange[0] = min;
-    this->Modified();
-    }
-  if ( this->GhostLevelComponentRange[1] != max )
-    {
-    this->GhostLevelComponentRange[1] = max;
-    this->Modified();
-    }
-  if ( this->GhostLevelNormalize != normalize )
-    {
-    this->GhostLevelNormalize = normalize;  
-    this->Modified();
-    }
-}
-
-const char *vtkFieldDataToAttributeDataFilter::GetGhostLevelComponentArrayName()
-{
-  return this->GhostLevelArray;
-}
-
-int vtkFieldDataToAttributeDataFilter::GetGhostLevelComponentArrayComponent()
-{
-  return this->GhostLevelArrayComponent;
-}
-
-int vtkFieldDataToAttributeDataFilter::GetGhostLevelComponentMinRange()
-{
-  return this->GhostLevelComponentRange[0];
-}
-
-int vtkFieldDataToAttributeDataFilter::GetGhostLevelComponentMaxRange()
-{
-  return this->GhostLevelComponentRange[1];
-}
-
-int vtkFieldDataToAttributeDataFilter::GetGhostLevelComponentNormalizeFlag()
-{
-  return this->GhostLevelNormalize;
-}
-
-void vtkFieldDataToAttributeDataFilter::ConstructGhostLevels(int num,
-                                                             vtkFieldData *fd, 
-                                                             vtkDataSetAttributes *attr,
-                                                             int componentRange[2],
-                                                             char *array,
-                                                             int arrayComp,
-                                                             int normalize)
-{
-  int updated;
-  vtkDataArray *fieldArray[1];
-
-  if ( array == NULL )
-    {
-    return;
-    }
-
-  fieldArray[0] = this->GetFieldArray(fd, array, arrayComp);
-  
-  if ( fieldArray[0] == NULL )
-    {
-    vtkErrorMacro(<<"Can't find array requested");
-    return;
-    }
-  
-  updated = this->UpdateComponentRange(fieldArray[0], componentRange);
-
-  if ( num != (componentRange[1] - componentRange[0] + 1))
-    {
-    vtkErrorMacro(<<"Number of ghost levels not consistent");
-    return;
-    }
-  
-  vtkGhostLevels *newGhostLevels = vtkGhostLevels::New();
-  if ( fieldArray[0]->GetNumberOfComponents() == 1 && 
-       fieldArray[0]->GetNumberOfTuples() == num &&
-       !normalize)
-    {
-    newGhostLevels->SetData(fieldArray[0]);
-    }
-  else //have to copy data into created array
-    {
-    newGhostLevels->SetDataType(this->GetComponentsType(1, fieldArray));
-    newGhostLevels->SetNumberOfGhostLevels(num);
-
-
-    if ( this->ConstructArray(newGhostLevels->GetData(), 0, fieldArray[0],
-                              arrayComp, componentRange[0], componentRange[1],
-                              normalize) == 0 )
-      {
-      newGhostLevels->Delete();
-      return;
-      }
-    }
-  
-  attr->SetGhostLevels(newGhostLevels);
-  newGhostLevels->Delete();
-  if ( updated ) //reset for next execution pass
-    {
-    componentRange[0] = componentRange[1] = -1;
-    }
-}
 
 // Stuff related to normals --------------------------------------------
 //
