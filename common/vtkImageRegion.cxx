@@ -364,7 +364,7 @@ void vtkImageRegion::ReleaseData()
 
   if (this->Data)
     {
-    this->Data->Delete();
+    this->Data->UnRegister(this);
     this->Data = NULL;
     }
 
@@ -1028,7 +1028,7 @@ void vtkImageRegion::SetData(vtkImageData *data)
   // delete previous data
   if (this->Data)
     {
-    this->Data->Delete();
+    this->Data->UnRegister(this);
     this->Data = NULL;
     }
 

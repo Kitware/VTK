@@ -93,7 +93,7 @@ unsigned long vtkImageMarchingCubes::GetMTime()
 //----------------------------------------------------------------------------
 void vtkImageMarchingCubes::Execute()
 {
-  vtkImageRegion *inRegion;
+  vtkImageRegion *inRegion = NULL;
   vtkPolyData *output = this->GetOutput();
   int extent[8], estimatedSize;
   int temp, zMin, zMax, chunkMin, chunkMax;
@@ -231,6 +231,12 @@ void vtkImageMarchingCubes::Execute()
     inRegion->SetExtent(3, extent);
     
     this->March(inRegion, chunkMin, chunkMax, numContours, values);
+    // Clean up
+    inRegion->Delete();
+    if (this->Input->ShouldIReleaseData())
+      {
+      this->Input->ReleaseData();
+      }
     }
   
   // Put results in our output
@@ -259,8 +265,6 @@ void vtkImageMarchingCubes::Execute()
   // Recover extra space.
   output->Squeeze();
   
-  // Clean up temporary images.
-  inRegion->Delete();
   // release the locators memory
   this->DeleteLocator();
 }
@@ -330,8 +334,8 @@ static int vtkImageMarchingCubesMakeNewPoint(vtkImageMarchingCubes *self,
 					    float *spacing, float *origin,
 					    float value)
 {
-  int edgeAxis;
-  T *ptrB;
+  int edgeAxis = 0;
+  T *ptrB = NULL;
   float temp, pt[3];
 
   // decode the edge into starting point and axis direction
