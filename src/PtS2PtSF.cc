@@ -79,9 +79,9 @@ void vtkPointSetToPointSetFilter::Initialize()
 {
   if ( this->Input != NULL )
     {
-    vtkDataSet *ds=this->Input->MakeObject();
-    delete this->PointSet;
     // copies input geometry to internal data set
+    vtkDataSet *ds=this->Input->MakeObject();
+    this->PointSet->Delete();
     this->PointSet = ds;
     }
   else

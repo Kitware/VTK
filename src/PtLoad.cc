@@ -215,11 +215,16 @@ void vtkPointLoad::Execute()
       }
     }
 //
-// Update self
+// Update self and free memory
 //
   this->PointData.SetTensors(newTensors);
+  newTensors->Delete();
+
   if ( this->ComputeEffectiveStress)
+    {
     this->PointData.SetScalars(newScalars);
+    newScalars->Delete();
+    }
 }
 
 

@@ -3,8 +3,8 @@
   Program:   Visualization Toolkit
   Module:    Object.cc
   Language:  C++
-  Date:      $Date$
-  Version:   $Revision$
+  Date:      30 Jun 1995
+  Version:   1.19
 
 This file is part of the Visualization Toolkit. No part of this file or its 
 contents may be copied, reproduced or altered in any way without the express

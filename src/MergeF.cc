@@ -115,8 +115,8 @@ void vtkMergeFilter::Initialize()
 {
   if ( this->Geometry )
     {
-    delete this->Geometry;
     // copies input geometry to internal data set
+    this->Geometry->Delete();
     this->Geometry = this->Geometry->MakeObject(); 
     }
   else

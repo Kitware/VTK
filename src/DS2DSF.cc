@@ -35,8 +35,8 @@ void vtkDataSetToDataSetFilter::Initialize()
 {
   if ( this->Input )
     {
-    delete this->DataSet;
     // copies input geometry to internal data set
+    this->DataSet->Delete();
     this->DataSet = this->Input->MakeObject(); 
     }
   else

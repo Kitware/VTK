@@ -22,6 +22,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #ifndef vtkIdList_h
 #define vtkIdList_h
 
+#include "Object.hh"
 #include "IntArray.hh"
 
 class vtkIdList {

@@ -225,6 +225,7 @@ void vtkPointData::CopyAllocate(vtkPointData* pd, int sze, int ext)
     else newScalars = s->MakeObject(s->GetNumberOfScalars());
     newScalars->SetLookupTable(s->GetLookupTable());
     this->SetScalars(newScalars);
+    newScalars->Delete();
     }
 
   if ( this->CopyVectors && (v = pd->GetVectors()) ) 
@@ -232,6 +233,7 @@ void vtkPointData::CopyAllocate(vtkPointData* pd, int sze, int ext)
     if ( sze > 0 ) newVectors = v->MakeObject(sze,ext);
     else newVectors = v->MakeObject(v->GetNumberOfVectors());
     this->SetVectors(newVectors);
+    newVectors->Delete();
     }
 
   if ( this->CopyNormals && (n = pd->GetNormals()) ) 
@@ -239,6 +241,7 @@ void vtkPointData::CopyAllocate(vtkPointData* pd, int sze, int ext)
     if ( sze > 0 ) newNormals = n->MakeObject(sze,ext);
     else newNormals = n->MakeObject(n->GetNumberOfNormals());
     this->SetNormals(newNormals);
+    newNormals->Delete();
     }
 
   if ( this->CopyTCoords && (t = pd->GetTCoords()) ) 
@@ -246,6 +249,7 @@ void vtkPointData::CopyAllocate(vtkPointData* pd, int sze, int ext)
     if ( sze > 0 ) newTCoords = t->MakeObject(sze,t->GetDimension(),ext);
     else newTCoords = t->MakeObject(t->GetNumberOfTCoords(),t->GetDimension());
     this->SetTCoords(newTCoords);
+    newTCoords->Delete();
     }
 
   if ( this->CopyTensors && (tens = pd->GetTensors()) ) 
@@ -253,6 +257,7 @@ void vtkPointData::CopyAllocate(vtkPointData* pd, int sze, int ext)
     if ( sze > 0 ) newTensors = tens->MakeObject(sze,tens->GetDimension(),ext);
     else newTensors = tens->MakeObject(tens->GetNumberOfTensors(),tens->GetDimension());
     this->SetTensors(newTensors);
+    newTensors->Delete();
     }
 
   if ( this->CopyUserDefined && (ud = pd->GetUserDefined()) ) 
@@ -260,6 +265,7 @@ void vtkPointData::CopyAllocate(vtkPointData* pd, int sze, int ext)
     if ( sze > 0 ) newUserDefined = ud->MakeObject(sze,ext);
     else newUserDefined = ud->MakeObject(ud->GetNumberOfUserDefined());
     this->SetUserDefined(newUserDefined);
+    newUserDefined->Delete();
     }
 };
 

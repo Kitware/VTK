@@ -163,13 +163,15 @@ void vtkBooleanStructuredPoints::InitializeBoolean()
   if ( inScalars != NULL )
     {
     newScalars = inScalars->MakeObject(numPts);
+    this->PointData.SetScalars(newScalars);
+    newScalars->Delete();
     }
   else
     {
     newScalars = new vtkFloatScalars(numPts);
+    this->PointData.SetScalars(newScalars);
     }
 
-  this->PointData.SetScalars(newScalars);
 }
 
 // Perform Boolean operations on input volumes

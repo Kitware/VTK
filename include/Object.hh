@@ -30,8 +30,9 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 class vtkObject 
 {
 public:
-  vtkObject();
-  virtual ~vtkObject();
+  vtkObject(); //create a vtk object
+  virtual void Delete(); //delete a vtk object.
+  virtual ~vtkObject(); //use Delete() whenever possible
   virtual char *GetClassName() {return "vtkObject";};
 
   // debugging

@@ -69,8 +69,8 @@ void vtkProbeFilter::Initialize()
 {
   if ( this->Source )
     {
-    if (this->DataSet) delete this->DataSet;
     // copies SOURCE geometry to internal data set
+    if (this->DataSet) this->DataSet->Delete();
     this->DataSet = this->Source->MakeObject(); 
     }
 }

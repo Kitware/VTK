@@ -164,6 +164,7 @@ void vtkTransformStructuredPoints::Execute()
   // Update ourselves
   this->PointData.SetScalars(outScalars);
 
+  outScalars->Delete();
 }
 
 

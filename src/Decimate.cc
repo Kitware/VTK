@@ -150,6 +150,7 @@ void vtkDecimate::Execute()
   Mesh->SetPoints(inPts);
   newPolys = new vtkCellArray(*(inPolys));
   Mesh->SetPolys(newPolys);
+  newPolys->Delete(); //registered by Mesh and preserved
   Mesh->BuildLinks();
 //
 // Create array of vertex errors (initially zero)
@@ -372,13 +373,16 @@ void vtkDecimate::CreateOutput(int numPts, int numTris, int numEliminated,
     }
 
   delete [] map;
-  delete Mesh; //side effect: releases memory consumned by data structures
+  Mesh->Delete();
   this->SetPoints(newPts);
   this->SetPolys(newPolys);
 
+  newPts->Delete();
+  newPolys->Delete();
   if ( this->GenerateErrorScalars )
     {
     this->PointData.SetScalars(newScalars);
+    newScalars->Delete();
     delete [] VertexError;
     }
 }
