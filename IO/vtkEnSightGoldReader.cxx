@@ -29,7 +29,7 @@
 #include <ctype.h>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkEnSightGoldReader, "1.45");
+vtkCxxRevisionMacro(vtkEnSightGoldReader, "1.46");
 vtkStandardNewMacro(vtkEnSightGoldReader);
 
 //----------------------------------------------------------------------------
@@ -1265,7 +1265,7 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
     else if (strncmp(line, "bar3", 4) == 0)
       {
       vtkDebugMacro("bar3");
-      vtkWarningMacro("Only vertex nodes of this element will be read.");
+      vtkDebugMacro("Only vertex nodes of this element will be read.");
       nodeIds = new vtkIdType[2];
       intIds = new int[2];
       
@@ -1382,7 +1382,7 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
       if (strncmp(line, "tria6", 5) == 0)
         {
         vtkDebugMacro("tria6");
-        vtkWarningMacro("Only vertex nodes of this element will be read.");
+        vtkDebugMacro("Only vertex nodes of this element will be read.");
         cellType = vtkEnSightReader::TRIA6;
         }
       else
@@ -1427,7 +1427,7 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
       if (strncmp(line, "quad8", 5) == 0)
         {
         vtkDebugMacro("quad8");
-        vtkWarningMacro("Only vertex nodes of this element will be read.");
+        vtkDebugMacro("Only vertex nodes of this element will be read.");
         cellType = vtkEnSightReader::QUAD8;
         }
       else
@@ -1473,7 +1473,7 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
       if (strncmp(line, "tetra10", 7) == 0)
         {
         vtkDebugMacro("tetra10");
-        vtkWarningMacro("Only vertex nodes of this element will be read.");
+        vtkDebugMacro("Only vertex nodes of this element will be read.");
         cellType = vtkEnSightReader::TETRA10;
         }
       else
@@ -1519,7 +1519,7 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
       if (strncmp(line, "pyramid13", 9) == 0)
         {
         vtkDebugMacro("pyramid13");
-        vtkWarningMacro("Only vertex nodes of this element will be read.");
+        vtkDebugMacro("Only vertex nodes of this element will be read.");
         cellType = vtkEnSightReader::PYRAMID13;
         }
       else
@@ -1565,7 +1565,7 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
       if (strncmp(line, "hexa20", 6) == 0)
         {
         vtkDebugMacro("hexa20");
-        vtkWarningMacro("Only vertex nodes of this element will be read.");
+        vtkDebugMacro("Only vertex nodes of this element will be read.");
         cellType = vtkEnSightReader::HEXA20;
         }
       else
@@ -1613,7 +1613,7 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
       if (strncmp(line, "penta15", 7) == 0)
         {
         vtkDebugMacro("penta15");
-        vtkWarningMacro("Only vertex nodes of this element will be read.");
+        vtkDebugMacro("Only vertex nodes of this element will be read.");
         cellType = vtkEnSightReader::PENTA15;
         }
       else
@@ -1846,7 +1846,7 @@ int vtkEnSightGoldReader::CreateRectilinearGridOutput(int partId,
     }
   if (iblanked)
     {
-    vtkWarningMacro("VTK does not handle blanking for rectilinear grids.");
+    vtkDebugMacro("VTK does not handle blanking for rectilinear grids.");
     for (i = 0; i < numPts; i++)
       {
       this->ReadNextDataLine(line);
@@ -1939,7 +1939,7 @@ int vtkEnSightGoldReader::CreateImageDataOutput(int partId,
   
   if (iblanked)
     {
-    vtkWarningMacro("VTK does not handle blanking for image data.");
+    vtkDebugMacro("VTK does not handle blanking for image data.");
     numPts = dimensions[0] * dimensions[1] * dimensions[2];
     for (i = 0; i < numPts; i++)
       {

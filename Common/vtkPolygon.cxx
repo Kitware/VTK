@@ -27,7 +27,7 @@
 #include "vtkTriangle.h"
 #include "vtkBox.h"
 
-vtkCxxRevisionMacro(vtkPolygon, "1.107");
+vtkCxxRevisionMacro(vtkPolygon, "1.108");
 vtkStandardNewMacro(vtkPolygon);
 
 // Instantiate polygon.
@@ -78,9 +78,7 @@ void vtkPolygon::ComputeNormal(vtkPoints *p, int numPts, vtkIdType *pts,
   n[0] = n[1] = n[2] = 0.0;
   if ( numPts == 2 || numPts == 1 ) 
     {
-      vtkGenericWarningMacro(<< "Cannot compute normal for polygon with " << 
-        numPts << " points.");
-      return;
+    return;
     }
 
   if ( numPts == 3 ) 
