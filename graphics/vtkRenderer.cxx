@@ -423,6 +423,7 @@ void vtkRenderer::ResetCamera(float bounds[6])
 // shouldn't ever need to call this method.
 void vtkRenderer::SetRenderWindow(vtkRenderWindow *renwin)
 {
+  this->VTKWindow = renwin;
   this->RenderWindow = renwin;
 }
 
