@@ -76,7 +76,8 @@ class VTK_EXPORT vtkLODActor : public vtkActor
   void PrintSelf(ostream& os, vtkIndent indent);
 
   virtual void Render(vtkRenderer *ren);
-
+  virtual void Render(vtkRenderer *, vtkMapper *) {};
+  
   // Description:
   // Set/Get the number of random points for the point cloud.
   vtkGetMacro(NumberOfCloudPoints,int);
