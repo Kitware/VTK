@@ -329,6 +329,52 @@ int Vtktkrenderwidget_Init(Tcl_Interp *interp)
 
 
 #ifdef _WIN32
+
+//extern "C" {
+//  LRESULT CALLBACK	TkWinChildProc(HWND hwnd, UINT message,
+//			                                 WPARAM wParam, LPARAM lParam);
+//extern LRESULT CALLBACK	TkWinTopLevelProc(HWND hwnd, UINT message,
+//			                                    WPARAM wParam, LPARAM lParam);
+//  }
+
+LRESULT APIENTRY vtkTkRenderWidgetProc(HWND hWnd, UINT message, 
+                                       WPARAM wParam, LPARAM lParam)
+{
+  LRESULT rval;
+  struct Vtkrenderwidget *self = 
+    (struct Vtkrenderwidget *)GetWindowLong(hWnd,GWL_USERDATA);
+
+  // forward message to Tk handler
+  SetWindowLong(hWnd,GWL_USERDATA,(LONG)((TkWindow *)self->TkWin)->window);
+  if (((TkWindow *)self->TkWin)->parentPtr)
+    {
+    SetWindowLong(hWnd,GWL_WNDPROC,(LONG)TkWinChildProc);
+    rval = TkWinChildProc(hWnd,message,wParam,lParam);
+    }
+  else
+    {
+    SetWindowLong(hWnd,GWL_WNDPROC,(LONG)TkWinTopLevelProc);
+    rval = TkWinTopLevelProc(hWnd,message,wParam,lParam);
+    }
+
+
+  switch (message) 
+    {
+    case WM_DESTROY:
+    case WM_PALETTECHANGED:
+    case WM_QUERYNEWPALETTE:
+      // now do the original vtk proc for some messages
+      SetWindowLong(hWnd,GWL_USERDATA,(LONG)self->RenderWindow);
+      SetWindowLong(hWnd,GWL_WNDPROC,(LONG)self->OldProc);
+      self->OldProc(hWnd,message,wParam,lParam);
+    }
+
+  // now reset to the original config
+  SetWindowLong(hWnd,GWL_USERDATA,(LONG)self);
+  SetWindowLong(hWnd,GWL_WNDPROC,(LONG)vtkTkRenderWidgetProc);
+  return rval;
+}
+
 //-----------------------------------------------------------------------------
 // Creates a render window and forces Tk to use the window.
 static int Vtkrenderwidget_MakeRenderWindow(struct Vtkrenderwidget *self) 
@@ -339,13 +385,13 @@ static int Vtkrenderwidget_MakeRenderWindow(struct Vtkrenderwidget *self)
   Tcl_HashEntry *hPtr;
   int new_flag;
   vtkWin32OglrRenderWindow *renderWindow;
-  
+  TkWinDrawable *twdPtr;
+  HWND parentWin;
+
   if (self->RenderWindow)
     {
     return TCL_OK;
     }
-  
-  dpy = Tk_Display(self->TkWin);
   
   if (winPtr->window != None) 
     {
@@ -356,7 +402,7 @@ static int Vtkrenderwidget_MakeRenderWindow(struct Vtkrenderwidget *self)
     {
     // Make the Render window.
     self->RenderWindow = vtkRenderWidgetMaster.MakeRenderWindow();
-    renderWindow = (vtkWin32OglrRenderWindow *)(renderWindow);
+    renderWindow = (vtkWin32OglrRenderWindow *)(self->RenderWindow);
     vtkTclGetObjectFromPointer(self->Interp, self->RenderWindow,
 			       vtkRenderWindowCommand);
     self->RW = strdup(self->Interp->result);
@@ -364,9 +410,9 @@ static int Vtkrenderwidget_MakeRenderWindow(struct Vtkrenderwidget *self)
     }
   else
     {
-    renderWindow = (vtkWin32OglrRenderWindow *)vtkTclGetPointerFromObject(
-				  self->RW, "vtkWin32OglrRenderWindow");
-    self->RenderWindow = (vtkRenderWindow *)(renderWindow);
+    self->RenderWindow = (vtkRenderWindow *)vtkTclGetPointerFromObject(
+				  self->RW, "vtkRenderWindow");
+    renderWindow = (vtkWin32OglrRenderWindow *)(self->RenderWindow);
     }
   
   // Set the size
@@ -374,20 +420,16 @@ static int Vtkrenderwidget_MakeRenderWindow(struct Vtkrenderwidget *self)
   
   // Set the parent correctly
   // Possibly X dependent
-  /*
-  if ((winPtr->parentPtr == NULL) || (winPtr->flags & TK_TOP_LEVEL)) 
-    {
-    renderWindow->SetParentId(XRootWindow(winPtr->display, winPtr->screenNum));
-    }
-  else 
+  if ((winPtr->parentPtr != NULL) && !(winPtr->flags & TK_TOP_LEVEL)) 
     {
     if (winPtr->parentPtr->window == None) 
       {
       Tk_MakeWindowExist((Tk_Window) winPtr->parentPtr);
       }
-    renderWindow->SetParentId(winPtr->parentPtr->window);
+
+    parentWin = ((TkWinDrawable *)winPtr->parentPtr->window)->window.handle;
+    renderWindow->SetParentId(parentWin);
     }
-    */
   
   // Use the same display
   self->RenderWindow->SetDisplayId(dpy);
@@ -400,8 +442,16 @@ static int Vtkrenderwidget_MakeRenderWindow(struct Vtkrenderwidget *self)
   //renderWindow->GetDesiredColormap());
   
   self->RenderWindow->Render();  
-  //winPtr->window = renderWindow->GetWindowId();
-  //XSelectInput(dpy, winPtr->window, ALL_EVENTS_MASK);
+
+  twdPtr = (TkWinDrawable*) ckalloc(sizeof(TkWinDrawable));
+  twdPtr->type = TWD_WINDOW;
+  twdPtr->window.winPtr = winPtr;
+  twdPtr->window.handle = renderWindow->GetWindowId();
+  self->OldProc = (WNDPROC)GetWindowLong(twdPtr->window.handle,GWL_WNDPROC);
+  SetWindowLong(twdPtr->window.handle,GWL_USERDATA,(LONG)self);
+  SetWindowLong(twdPtr->window.handle,GWL_WNDPROC,(LONG)vtkTkRenderWidgetProc);
+
+  winPtr->window = (Window)twdPtr;
   
   hPtr = Tcl_CreateHashEntry(&winPtr->dispPtr->winTable,
 			     (char *) winPtr->window, &new_flag);
@@ -427,17 +477,17 @@ static int Vtkrenderwidget_MakeRenderWindow(struct Vtkrenderwidget *self)
      */
 
     for (winPtr2 = winPtr->nextPtr; winPtr2 != NULL;
-	 winPtr2 = winPtr2->nextPtr) 
+	       winPtr2 = winPtr2->nextPtr) 
       {
-      //if ((winPtr2->window != None) && !(winPtr2->flags & TK_TOP_LEVEL)) 
-      //{
-      //XWindowChanges changes;
-      //changes.sibling = winPtr2->window;
-      //changes.stack_mode = Below;
-      //XConfigureWindow(winPtr->display, winPtr->window,
-      //		 CWSibling|CWStackMode, &changes);
-      //break;
-      //}
+      if ((winPtr2->window != None) && !(winPtr2->flags & TK_TOP_LEVEL)) 
+        {
+        //XWindowChanges changes;
+        //changes.sibling = winPtr2->window;
+        //changes.stack_mode = Below;
+        //XConfigureWindow(winPtr->display, winPtr->window,
+      	//	 CWSibling|CWStackMode, &changes);
+        break;
+        }
       }
     
     /*
@@ -445,7 +495,7 @@ static int Vtkrenderwidget_MakeRenderWindow(struct Vtkrenderwidget *self)
      * the window to the WM_COLORMAP_WINDOWS property for its top-level.
      */
     if ((winPtr->parentPtr != NULL) &&
-	(winPtr->atts.colormap != winPtr->parentPtr->atts.colormap)) 
+	      (winPtr->atts.colormap != winPtr->parentPtr->atts.colormap)) 
       {
       TkWmAddToColormapWindows(winPtr);
       }
