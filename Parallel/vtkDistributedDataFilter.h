@@ -33,6 +33,17 @@
 //
 // This filter is sometimes called "D3" for "distributed data decomposition".
 //
+// Enhancement: You can set the k-d tree decomposition, rather than
+// have D3 compute it.  This allows you to divide a dataset using
+// the decomposition computed for another dataset.  Obtain a description
+// of the k-d tree cuts this way:
+//
+//    vtkBSPCuts *cuts = D3Object1->GetKdtree()->GetCuts()
+//
+// And set it this way:
+//
+//    D3Object2->GetKdtree()->SetCuts(cuts) 
+//
 // .SECTION Caveats
 // The Execute() method must be called by all processes in the
 // parallel application, or it will hang.  If you are not certain
@@ -40,7 +51,7 @@
 // you may want to use this filter in an explicit execution mode.
 //
 // .SECTION See Also
-// vtkKdTree vtkPKdTree
+// vtkKdTree vtkPKdTree vtkBSPCuts
 
 #ifndef __vtkDistributedDataFilter_h
 #define __vtkDistributedDataFilter_h
@@ -379,6 +390,8 @@ private:
                   int deleteCellLists, vtkDataSet *in, vtkModelMetadata *mmd);
   vtkUnstructuredGrid *ExtractCells(vtkIdList **lists, int nlists, 
                   int deleteCellLists, vtkDataSet *in, vtkModelMetadata *mmd);
+  vtkUnstructuredGrid *ExtractZeroCellGrid(vtkDataSet *in,
+                  vtkModelMetadata *mmd);
 
   void AddMetadata(vtkUnstructuredGrid *grid, vtkModelMetadata *mmd);
 
@@ -430,6 +443,9 @@ private:
   int DivideBoundaryCells;
 
   int Timing;
+
+  int NextProgressStep;
+  double ProgressIncrement;
 
   int UseMinimalMemory;
 
