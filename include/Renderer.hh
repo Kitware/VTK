@@ -146,6 +146,11 @@ public:
   void DisplayToWorld();
   void WorldToDisplay();
 
+  void SetStartRenderMethod(void (*f)(void *), void *arg);
+  void SetEndRenderMethod(void (*f)(void *), void *arg);
+  void SetStartRenderMethodArgDelete(void (*f)(void *));
+  void SetEndRenderMethodArgDelete(void (*f)(void *));
+
 protected:
   vlVolumeRenderer *VolumeRenderer;
   vlCamera *ActiveCamera;
@@ -162,6 +167,13 @@ protected:
   int   Erase;
   float Aspect[2];
   float Center[2];
+
+  void (*StartRenderMethod)(void *);
+  void (*StartRenderMethodArgDelete)(void *);
+  void *StartRenderMethodArg;
+  void (*EndRenderMethod)(void *);
+  void (*EndRenderMethodArgDelete)(void *);
+  void *EndRenderMethodArg;
 };
 
 // Description:
