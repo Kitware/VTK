@@ -8,8 +8,30 @@ IF (NOT TCL_LIBRARY)
   MESSAGE("VTK_WRAP_TCL is ON, but the Tcl library was not found.  Please set TCL_LIBRARY." "Error")
 ENDIF (NOT TCL_LIBRARY)
 
+IF (WIN32)
+  VTK_GET_TCL_TK_VERSION ("TCL_TK_MAJOR_VERSION" "TCL_TK_MINOR_VERSION")
+  IF (TCL_TK_MAJOR_VERSION AND TCL_TK_MINOR_VERSION)
+    FIND_FILE(TK_RESOURCE_FILE 
+              tk.rc 
+              "${VTK_SOURCE_DIR}/Utilities/TclTk/resources/tk${TCL_TK_MAJOR_VERSION}.${TCL_TK_MINOR_VERSION}/win/rc"
+               DOC "The resource file required to add the proper resources to a static Tk build")
+    MARK_AS_ADVANCED(TK_RESOURCE_FILE)
+  ENDIF (TCL_TK_MAJOR_VERSION AND TCL_TK_MINOR_VERSION)
+  IF (TK_RESOURCE_FILE)
+    GET_FILENAME_COMPONENT(TK_RESOURCE_PATH ${TK_RESOURCE_FILE} PATH)
+    INCLUDE_DIRECTORIES(${TK_RESOURCE_PATH})
+    CONFIGURE_FILE(
+      ${VTK_SOURCE_DIR}/Wrapping/Tcl/resources/vtk.rc.in
+      ${VTK_BINARY_DIR}/Wrapping/Tcl/resources/vtk.rc
+    )
+    INCLUDE_DIRECTORIES("${CMAKE_CURRENT_SOURCE_DIR}/resources")
+    SET(VTK_EXE_RESOURCE_FILES 
+        "${VTK_BINARY_DIR}/Wrapping/Tcl/resources/vtk.rc")
+  ENDIF (TK_RESOURCE_FILE)
+ENDIF (WIN32)
+
 # Create the vtk Tcl wrapper executable.
-ADD_EXECUTABLE(vtk vtkTkAppInit.cxx ${TK_RESOURCE_FILE})
+ADD_EXECUTABLE(vtk vtkTkAppInit.cxx ${VTK_EXE_RESOURCE_FILES})
 TARGET_LINK_LIBRARIES (vtk
   vtkCommonTCL
   vtkFilteringTCL
@@ -48,7 +70,7 @@ INSTALL_TARGETS(/bin vtk)
 # Create the pvtk Tcl wrapper executable with MPI support.
 IF (VTK_USE_PARALLEL)
   IF (VTK_USE_MPI)
-    ADD_EXECUTABLE(pvtk vtkParaTkAppInit.cxx ${TK_RESOURCE_FILE})
+    ADD_EXECUTABLE(pvtk vtkParaTkAppInit.cxx ${VTK_EXE_RESOURCE_FILES})
     IF(VTK_USE_CARBON)
       FIND_PROGRAM(VTK_APPLE_RESOURCE Rez /Developer/Tools)
       IF(VTK_APPLE_RESOURCE)

@@ -34,7 +34,9 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkToolkits.h"
 #include "Wrapping/Tcl/vtkTkAppInitConfigure.h"
 
+#ifdef VTK_TCL_TK_COPY_SUPPORT_LIBRARY
 #include <sys/stat.h>
+#endif
 
 #if defined(CMAKE_INTDIR)
 # define VTK_TCL_PACKAGE_DIR VTK_TCL_PACKAGE_DIR_BUILD "/" CMAKE_INTDIR
@@ -196,6 +198,7 @@ void help()
 {
 }
 
+#ifdef VTK_TCL_TK_COPY_SUPPORT_LIBRARY
 int vtkTkAppInitFileExists(const char *filename)
 {
   struct stat fs;
@@ -276,6 +279,7 @@ const char* vtkTkAppInitConvertToUnixSlashes(const char* path, char *unix_path)
   
   return unix_path;
 }
+#endif
 
 int Tcl_AppInit(Tcl_Interp *interp)
 {
@@ -298,11 +302,11 @@ int Tcl_AppInit(Tcl_Interp *interp)
     The above code will also make Tcl/Tk search inside VTK's build/install
     directory, more precisely inside a TclTk/lib sub dir.
     ex: [path to vtk.exe]/TclTk/lib/tcl8.4, [path to vtk.exe]/TclTk/lib/tk8.4
-    If we provide support files in the future, or if they are provided
-    by turn-key apps (ParaView or VolView), this is where they are going to
-    be copied. 
+    Support files are copied to that location when
+    VTK_TCL_TK_COPY_SUPPORT_LIBRARY is ON.
   */
 
+#ifdef VTK_TCL_TK_COPY_SUPPORT_LIBRARY
   int has_tcllibpath_env = getenv("TCL_LIBRARY") ? 1 : 0;
   int has_tklibpath_env = getenv("TK_LIBRARY") ? 1 : 0;
   if (!has_tcllibpath_env || !has_tklibpath_env)
@@ -343,6 +347,7 @@ int Tcl_AppInit(Tcl_Interp *interp)
         }
       }
     }
+#endif
 
   if (Tcl_Init(interp) == TCL_ERROR) 
     {
