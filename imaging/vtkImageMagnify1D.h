@@ -55,6 +55,7 @@ class VTK_EXPORT vtkImageMagnify1D : public vtkImageFilter
 {
 public:
   vtkImageMagnify1D();
+  vtkImageMagnify1D *New() {return new vtkImageMagnify1D;};
   char *GetClassName() {return "vtkImageMagnify1D";};
 
   // Description:

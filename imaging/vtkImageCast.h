@@ -56,6 +56,7 @@ class VTK_EXPORT vtkImageCast : public vtkImageFilter
 {
 public:
   vtkImageCast();
+  vtkImageCast *New() {return new vtkImageCast;};
   char *GetClassName() {return "vtkImageCast";};
 
   

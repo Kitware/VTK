@@ -55,6 +55,7 @@ class VTK_EXPORT vtkImageDilateErode : public vtkImageSpatialFilter
 {
 public:
   vtkImageDilateErode();
+  vtkImageDilateErode *New() {return new vtkImageDilateErode;};
   char *GetClassName() {return "vtkImageDilateErode";};
   void PrintSelf(ostream& os, vtkIndent indent);
   

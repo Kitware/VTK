@@ -62,6 +62,7 @@ class VTK_EXPORT vtkImageShortWriter : public vtkObject
 public:
   vtkImageShortWriter();
   ~vtkImageShortWriter();
+  vtkImageShortWriter *New() {return new vtkImageShortWriter;};
   char *GetClassName() {return "vtkImageShortWriter";};
   void PrintSelf(ostream& os, vtkIndent indent);
   

@@ -56,6 +56,7 @@ class VTK_EXPORT vtkImageDivergence : public vtkImageFilter
 {
 public:
   vtkImageDivergence();
+  vtkImageDivergence *New() {return new vtkImageDivergence;};
   char *GetClassName() {return "vtkImageDivergence";};
   
 protected:

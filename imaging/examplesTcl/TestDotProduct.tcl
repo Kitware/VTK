@@ -43,7 +43,8 @@ magnitude SetInput1 [gradient GetOutput]
 magnitude SetInput2 [gradient GetOutput]
 magnitude ReleaseDataFlagOff
 
-vtkImageXViewer viewer
+#vtkImageXViewer viewer
+vtkImageViewer viewer
 viewer SetAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS $VTK_IMAGE_Z_AXIS
 viewer SetInput [magnitude GetOutput]
 viewer SetCoordinate2 $sliceNumber
@@ -82,7 +83,7 @@ pack .wl.f2.levelLabel .wl.f2.level -side left
 
 
 proc SliceUp {} {
-   global sliceNumber viewer
+   global sliceNumber
    if {$sliceNumber < 92} {set sliceNumber [expr $sliceNumber + 1]}
    puts $sliceNumber
    viewer SetCoordinate2 $sliceNumber
@@ -90,7 +91,7 @@ proc SliceUp {} {
 }
 
 proc SliceDown {} {
-   global sliceNumber viewer
+   global sliceNumber
    if {$sliceNumber > 0} {set sliceNumber [expr $sliceNumber - 1]}
    puts $sliceNumber
    viewer SetCoordinate2 $sliceNumber
@@ -98,19 +99,16 @@ proc SliceDown {} {
 }
 
 proc SetWindow window {
-   global viewer
    viewer SetColorWindow $window
    viewer Render
 }
 
 proc SetLevel level {
-   global viewer
    viewer SetColorLevel $level
    viewer Render
 }
 
 proc SetInverseVideo {} {
-   global viewer
    if { $inverseVideo == 0 } {
       viewer SetWindow -255
    } else {

@@ -57,6 +57,7 @@ class VTK_EXPORT vtkImageNonMaximumSuppression : public vtkImageTwoInputFilter
 {
 public:
   vtkImageNonMaximumSuppression();
+  vtkImageNonMaximumSuppression *New() {return new vtkImageNonMaximumSuppression;};
   char *GetClassName() {return "vtkImageNonMaximumSuppression";};
   
   // Description:

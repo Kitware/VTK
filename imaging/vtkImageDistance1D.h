@@ -54,6 +54,7 @@ class VTK_EXPORT vtkImageDistance1D : public vtkImageFilter
 {
 public:
   vtkImageDistance1D();
+  vtkImageDistance1D *New() {return new vtkImageDistance1D;};
   char *GetClassName() {return "vtkImageDistance1D";};
   
   void InterceptCacheUpdate(vtkImageRegion *region);

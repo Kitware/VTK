@@ -56,6 +56,7 @@ class VTK_EXPORT vtkImageRFFT : public vtkImageDecomposedFilter
 {
 public:
   vtkImageRFFT();
+  vtkImageRFFT *New() {return new vtkImageRFFT;};
   char *GetClassName() {return "vtkImageRFFT";};
 
   void SetDimensionality(int num);

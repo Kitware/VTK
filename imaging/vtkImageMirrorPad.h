@@ -54,6 +54,7 @@ class VTK_EXPORT vtkImageMirrorPad : public vtkImagePadFilter
 {
 public:
   vtkImageMirrorPad();
+  vtkImageMirrorPad *New() {return new vtkImageMirrorPad;};
   char *GetClassName() {return "vtkImageMirrorPad";};
 
 protected:

@@ -59,6 +59,7 @@ class VTK_EXPORT vtkImageFourierWavelet2D : public vtkImageFilter
 {
 public:
   vtkImageFourierWavelet2D();
+  vtkImageFourierWavelet2D *New() {return new vtkImageFourierWavelet2D;};
   char *GetClassName() {return "vtkImageFourierWavelet2D";};
 
   void InitializeWavelets(int dim);

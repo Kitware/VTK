@@ -60,6 +60,7 @@ class VTK_EXPORT vtkImageMean1D : public vtkImageFilter
 {
 public:
   vtkImageMean1D();
+  vtkImageMean1D *New() {return new vtkImageMean1D;};
   char *GetClassName() {return "vtkImageMean1D";};
 
   // Description:

@@ -54,6 +54,7 @@ class VTK_EXPORT vtkImageMIPFilter : public vtkImageFilter
 {
 public:
   vtkImageMIPFilter();
+  vtkImageMIPFilter *New() {return new vtkImageMIPFilter;};
   char *GetClassName() {return "vtkImageMIPFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

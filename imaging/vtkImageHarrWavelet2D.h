@@ -56,6 +56,7 @@ class VTK_EXPORT vtkImageHarrWavelet2D : public vtkImageFilter
 {
 public:
   vtkImageHarrWavelet2D();
+  vtkImageHarrWavelet2D *New() {return new vtkImageHarrWavelet2D;};
   char *GetClassName() {return "vtkImageHarrWavelet2D";};
 
   // Description:

@@ -57,6 +57,7 @@ class VTK_EXPORT vtkImageGradientDerivative : public vtkImageFilter
 {
 public:
   vtkImageGradientDerivative();
+  vtkImageGradientDerivative *New() {return new vtkImageGradientDerivative;};
   char *GetClassName() {return "vtkImageGradientDerivative";};
   
 protected:

@@ -57,6 +57,7 @@ class VTK_EXPORT vtkImageConvolution1D : public vtkImageSpatialFilter
 public:
   vtkImageConvolution1D();
   ~vtkImageConvolution1D();
+  vtkImageConvolution1D *New() {return new vtkImageConvolution1D;};
   char *GetClassName() {return "vtkImageConvolution1D";};
   void PrintSelf(ostream& os, vtkIndent indent);
   
