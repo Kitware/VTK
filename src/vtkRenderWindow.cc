@@ -7,7 +7,7 @@
   Version:   $Revision$
 
 
-Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
+Copyright (c) 1993-1996 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
 The following terms apply to all files associated with the software unless
@@ -263,7 +263,6 @@ void vtkRenderWindow::Render()
 void vtkRenderWindow::DoAARender()
 {
   int i;
-  static vtkMath math;
   
   // handle any anti aliasing
   if (this->AAFrames)
@@ -286,8 +285,8 @@ void vtkRenderWindow::DoAARender()
     for (i = 0; i < AAFrames; i++)
       {
       // jitter the cameras
-      offsets[0] = math.Random() - 0.5;
-      offsets[1] = math.Random() - 0.5;
+      offsets[0] = vtkMath::Random() - 0.5;
+      offsets[1] = vtkMath::Random() - 0.5;
 
       for (this->Renderers.InitTraversal(); 
 	   (aren = this->Renderers.GetNextItem()); )
@@ -394,7 +393,6 @@ void vtkRenderWindow::DoAARender()
 void vtkRenderWindow::DoFDRender()
 {
   int i;
-  static vtkMath math;
   
   // handle any focal depth
   if (this->FDFrames)
@@ -425,8 +423,8 @@ void vtkRenderWindow::DoFDRender()
       {
       int j = 0;
 
-      offsets[0] = math.Random(); // radius
-      offsets[1] = math.Random()*360.0; // angle
+      offsets[0] = vtkMath::Random(); // radius
+      offsets[1] = vtkMath::Random()*360.0; // angle
 
       // store offsets for each renderer 
       for (this->Renderers.InitTraversal(); 

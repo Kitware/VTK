@@ -7,7 +7,7 @@
   Version:   $Revision$
 
 
-Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
+Copyright (c) 1993-1996 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
 The following terms apply to all files associated with the software unless
@@ -58,7 +58,6 @@ void vtkPointSource::Execute()
   float radius, theta, phi, x[3], rho;
   vtkFloatPoints *newPoints;
   vtkCellArray *newVerts;
-  vtkMath math;
   vtkPolyData *output = (vtkPolyData *)this->Output;
   
   vtkDebugMacro(<< "Generating random cloud of points...");
@@ -70,10 +69,10 @@ void vtkPointSource::Execute()
   newVerts->InsertNextCell(this->NumberOfPoints);
   for (i=0; i<this->NumberOfPoints; i++)
     {
-    phi = math.Pi() * math.Random();
-    rho = this->Radius * math.Random();
+    phi = vtkMath::Pi() * vtkMath::Random();
+    rho = this->Radius * vtkMath::Random();
     radius = rho * sin((double)phi);
-    theta = 2.0*math.Pi() * math.Random();
+    theta = 2.0*vtkMath::Pi() * vtkMath::Random();
     x[0] = this->Center[0] + radius * cos((double)theta);
     x[1] = this->Center[1] + radius * sin((double)theta);
     x[2] = this->Center[2] + rho * cos((double)phi);

@@ -7,7 +7,7 @@
   Version:   $Revision$
 
 
-Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
+Copyright (c) 1993-1996 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
 The following terms apply to all files associated with the software unless
@@ -44,8 +44,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkPixel.hh"
 #include "vtkCellArray.hh"
 #include "vtkPointLocator.hh"
-
-static vtkMath math;  
 
 // Description:
 // Deep copy of cell.
@@ -96,7 +94,7 @@ int vtkVoxel::EvaluatePosition(float x[3], float closestPoint[3],
       else pc[i] = pcoords[i];
       }
     this->EvaluateLocation(subId, pc, closestPoint, (float *)w);
-    dist2 = math.Distance2BetweenPoints(closestPoint,x);
+    dist2 = vtkMath::Distance2BetweenPoints(closestPoint,x);
     return 0;
     }
 }

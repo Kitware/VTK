@@ -7,7 +7,7 @@
   Version:   $Revision$
 
 
-Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
+Copyright (c) 1993-1996 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
 The following terms apply to all files associated with the software unless
@@ -45,11 +45,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 vtkStructuredPointsGeometryFilter::vtkStructuredPointsGeometryFilter()
 {
   this->Extent[0] = 0;
-  this->Extent[1] = 100;
+  this->Extent[1] = VTK_LARGE_INTEGER;
   this->Extent[2] = 0;
-  this->Extent[3] = 100;
+  this->Extent[3] = VTK_LARGE_INTEGER;
   this->Extent[4] = 0;
-  this->Extent[5] = 0;
+  this->Extent[5] = VTK_LARGE_INTEGER;
 }
 
 void vtkStructuredPointsGeometryFilter::Execute()

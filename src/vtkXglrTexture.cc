@@ -7,7 +7,7 @@
   Version:   $Revision$
 
 
-Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
+Copyright (c) 1993-1996 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
 The following terms apply to all files associated with the software unless
@@ -240,6 +240,10 @@ void vtkXglrTexture::Load(vtkTexture *txt, vtkXglrRenderer *ren)
     /* Set the depth adjustment factor to 0 */
     this->TDesc.texture_info.mipmap.depth_interp_factor = 0.0;
     
+    /* Max u and Max v frequency */
+    this->TDesc.texture_info.mipmap.max_u_freq = 1.0;
+    this->TDesc.texture_info.mipmap.max_v_freq = 1.0;
+
     /* Set the orientation matrix to identity */
     this->TDesc.texture_info.mipmap.orientation_matrix[0][0] = 1.0;
     this->TDesc.texture_info.mipmap.orientation_matrix[0][1] = 0.0;
@@ -248,7 +252,7 @@ void vtkXglrTexture::Load(vtkTexture *txt, vtkXglrRenderer *ren)
     this->TDesc.texture_info.mipmap.orientation_matrix[2][0] = 0.0;
     this->TDesc.texture_info.mipmap.orientation_matrix[2][1] = 0.0;
 
-    this->TDesc.comp_info.color_info.channel_number[0] = 0;
+    //    this->TDesc.comp_info.color_info.channel_number[0] = 0;
     rDesc = &(this->TDesc.comp_info.color_info.render_component_desc[0]);
     rDesc->comp = XGL_RENDER_COMP_DIFFUSE_COLOR;
     if ((bytesPerPixel == 3)||(bytesPerPixel == 1))
@@ -260,17 +264,10 @@ void vtkXglrTexture::Load(vtkTexture *txt, vtkXglrRenderer *ren)
       }
     else
       {
-      this->TDesc.comp_info.color_info.num_render_comp_desc = 2;
-      this->TDesc.comp_info.color_info.num_channels[0] = 3;
-      this->TDesc.comp_info.color_info.num_channels[1] = 1;
-      this->TDesc.comp_info.color_info.channel_number[1] = 3;
-      rDesc->texture_op = XGL_TEXTURE_OP_REPLACE;
+      this->TDesc.comp_info.color_info.num_render_comp_desc = 1;
+      rDesc->texture_op = XGL_TEXTURE_OP_MODULATE;
       //      rDesc->texture_op = XGL_TEXTURE_OP_MODULATE;
       //      rDesc->texture_op = XGL_TEXTURE_OP_DECAL_INTRINSIC;
-      rDesc = &(this->TDesc.comp_info.color_info.render_component_desc[1]);
-      rDesc->texture_op = XGL_TEXTURE_OP_MODULATE;
-      rDesc->texture_op = XGL_TEXTURE_OP_BLEND;
-      rDesc->texture_op = XGL_TEXTURE_OP_REPLACE;
       }
     
     xgl_object_set(this->TMap, XGL_TMAP_DESCRIPTOR, &this->TDesc, 0);

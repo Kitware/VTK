@@ -7,7 +7,7 @@
   Version:   $Revision$
 
 
-Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
+Copyright (c) 1993-1996 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
 The following terms apply to all files associated with the software unless
@@ -65,10 +65,10 @@ float vtkMath::Random()
   // by Stephen K. Park and Keith W. Miller in Communications of the ACM,
   // 31, 10 (Oct. 1988) pp. 1192-1201.
   // Borrowed from: Fuat C. Baran, Columbia University, 1988.
-  hi = this->Seed / K_Q;
-  lo = this->Seed % K_Q;
-  if ((this->Seed = K_A * lo - K_R * hi) <= 0) Seed += K_M;
-  return ((float) this->Seed / K_M);
+  hi = vtkMath::Seed / K_Q;
+  lo = vtkMath::Seed % K_Q;
+  if ((vtkMath::Seed = K_A * lo - K_R * hi) <= 0) Seed += K_M;
+  return ((float) vtkMath::Seed / K_M);
 }
 
 // Description:
@@ -80,7 +80,7 @@ float vtkMath::Random()
 //
 void vtkMath::RandomSeed(long s)
 {
-  this->Seed = s;
+  vtkMath::Seed = s;
 
   vtkMath::Random();
   vtkMath::Random();
@@ -123,8 +123,8 @@ int vtkMath::SolveLinearSystem(double **A, double *x, int size)
 //
 // Factor and solve matrix
 //
-  if ( this->LUFactorLinearSystem(A, index, size) == 0 ) return 0;
-  this->LUSolveLinearSystem(A,index,x,size);
+  if ( vtkMath::LUFactorLinearSystem(A, index, size) == 0 ) return 0;
+  vtkMath::LUSolveLinearSystem(A,index,x,size);
 
   return 1;
 }
@@ -157,14 +157,14 @@ int vtkMath::InvertMatrix(double **A, double **AI, int size)
 //
 // Factor matrix; then begin solving for inverse one column at a time.
 //
-  if ( this->LUFactorLinearSystem(A, index, size) == 0 ) return 0;
+  if ( vtkMath::LUFactorLinearSystem(A, index, size) == 0 ) return 0;
   
   for ( i=0; i < size; i++ )
     {
     for ( j=0; j < size; j++ ) column[j] = 0.0;
     column[i] = 1.0;
 
-    this->LUSolveLinearSystem(A,index,column,size);
+    vtkMath::LUSolveLinearSystem(A,index,column,size);
 
     for ( j=0; j < size; j++ ) AI[i][j] = column[j];
     }

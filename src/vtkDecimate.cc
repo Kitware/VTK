@@ -7,7 +7,7 @@
   Version:   $Revision$
 
 
-Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
+Copyright (c) 1993-1996 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
 The following terms apply to all files associated with the software unless
@@ -64,7 +64,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 static vtkPlane plane; // eliminate constructor overhead
 static vtkLine line;
 static vtkTriangle triangle;
-static vtkMath math;
 
 static vtkPolyData *Mesh; // operate on this data structure
 static float Pt[3], Normal[3]; // least squares plane point & normal
@@ -171,7 +170,7 @@ void vtkDecimate::Execute()
   error = this->InitialError;
   Distance = error * max;
   Angle = this->InitialFeatureAngle;
-  CosAngle = cos ((double) math.DegreesToRadians() * Angle);
+  CosAngle = cos ((double) vtkMath::DegreesToRadians() * Angle);
   AspectRatio2 = 1.0 / (this->AspectRatio * this->AspectRatio);
   Squawks = 0;
 
@@ -345,7 +344,7 @@ void vtkDecimate::Execute()
     Angle = this->InitialFeatureAngle + iteration*this->FeatureAngleIncrement;
     Angle = ((Angle > this->MaximumFeatureAngle && 
               this->MaximumFeatureAngle > 0.0) ? this->MaximumFeatureAngle : Angle);
-    CosAngle = cos ((double) math.DegreesToRadians() * Angle);
+    CosAngle = cos ((double) vtkMath::DegreesToRadians() * Angle);
 
     } //********************************** outer loop **********************
 //
@@ -657,7 +656,7 @@ int vtkDecimate::BuildLoop (int ptId, unsigned short int numTris, int *tris)
     }
 }
 
-#define FEATURE_ANGLE(tri1,tri2) math.Dot(T->Array[tri1].n, T->Array[tri2].n)
+#define FEATURE_ANGLE(tri1,tri2) vtkMath::Dot(T->Array[tri1].n, T->Array[tri2].n)
 
 //
 //  Compute the polygon normals and edge feature angles around the
@@ -696,12 +695,12 @@ void vtkDecimate::EvaluateLoop (int& vtype, int& numFEdges,
     triangle.TriangleCenter (X, x1, x2, center);
     loopArea += T->Array[i].area;
 
-    math.Cross (v1, v2, normal);
+    vtkMath::Cross (v1, v2, normal);
 //
 //  Get normals.  If null, then normal make no contribution to loop.
 //  The center of the loop is the center of gravity.
 //
-    if ( math.Normalize(normal) != 0.0 ) 
+    if ( vtkMath::Normalize(normal) != 0.0 ) 
       {
       numNormals++;
       for (j=0; j<3; j++) 
@@ -727,7 +726,7 @@ void vtkDecimate::EvaluateLoop (int& vtype, int& numFEdges,
     Normal[j] /= loopArea;
     Pt[j] /= loopArea;
     }
-  if ( math.Normalize(Normal) == 0.0 )
+  if ( vtkMath::Normalize(Normal) == 0.0 )
     {
     this->Stats[VTK_FAILED_ZERO_NORMAL_TEST]++;
     vtype = VTK_COMPLEX_VERTEX;
@@ -810,8 +809,8 @@ int vtkDecimate::CanSplitLoop (vtkLocalVertexPtr fedges[2], int numVerts,
     v21[i] = fedges[1]->x[i] - sPt[i];
     }
 
-  math.Cross (v21,Normal,sN);
-  if ( math.Normalize(sN) == 0.0 ) return 0;
+  vtkMath::Cross (v21,Normal,sN);
+  if ( vtkMath::Normalize(sN) == 0.0 ) return 0;
 //
 //  This plane can only be split if all points of each loop lie on the
 //  same side of the splitting plane.  Also keep track of the minimum 
@@ -1014,12 +1013,12 @@ int vtkDecimate::CheckError ()
       v31[j] = x3[j] - x1[j];
       }
 
-    math.Cross (v31, v21, normal);
+    vtkMath::Cross (v31, v21, normal);
 
-    if ( math.Normalize(normal) != 0.0 ) 
+    if ( vtkMath::Normalize(normal) != 0.0 ) 
       {
       for (j=0; j<3; j++) np[j] = X[j] - x1[j];
-      error = fabs((double) (math.Dot(normal,np)));
+      error = fabs((double) (vtkMath::Dot(normal,np)));
       if ( error < planeError ) planeError = error;
       }
     }

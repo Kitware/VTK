@@ -7,7 +7,7 @@
   Version:   $Revision$
 
 
-Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
+Copyright (c) 1993-1996 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
 The following terms apply to all files associated with the software unless
@@ -56,7 +56,6 @@ void vtkVectorDot::Execute()
 {
   int ptId, numPts;
   vtkFloatScalars *newScalars;
-  vtkMath math;
   vtkDataSet *input=this->Input;
   vtkNormals *inNormals;
   vtkVectors *inVectors;
@@ -94,7 +93,7 @@ void vtkVectorDot::Execute()
     {
     n = inNormals->GetNormal(ptId);
     v = inVectors->GetVector(ptId);
-    s = math.Dot(n,v);
+    s = vtkMath::Dot(n,v);
     if ( s < min ) min = s;
     if ( s > max ) max = s;
     newScalars->InsertScalar(ptId,s);

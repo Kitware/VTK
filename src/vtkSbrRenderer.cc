@@ -7,7 +7,7 @@
   Version:   $Revision$
 
 
-Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
+Copyright (c) 1993-1996 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
 The following terms apply to all files associated with the software unless
@@ -131,13 +131,13 @@ void vtkSbrRenderer::ClearLights (void)
 int vtkSbrRenderer::UpdateLights ()
 {
   vtkLight *light;
-  short cur_light;
+  short curLight;
   float status;
   int count;
 
   // Check if a light is on. If not then make a new light.
   count = 0;
-  cur_light= this->NumberOfLightsBound;
+  curLight= this->NumberOfLightsBound;
 
   for(this->Lights.InitTraversal(); 
       (light = this->Lights.GetNextItem()); )
@@ -157,7 +157,7 @@ int vtkSbrRenderer::UpdateLights ()
     }
 
   count = 0;
-  cur_light= this->NumberOfLightsBound;
+  curLight= this->NumberOfLightsBound;
 
   for (this->Lights.InitTraversal(); (light = this->Lights.GetNextItem()); )
     {
@@ -166,16 +166,16 @@ int vtkSbrRenderer::UpdateLights ()
 
     // if the light is on then define it and bind it. 
     // also make sure we still have room.             
-    if ((status > 0.0)&& (cur_light < MAX_LIGHTS))
+    if ((status > 0.0)&& (curLight < MAX_LIGHTS))
       {
-      light->Render((vtkRenderer *)this,cur_light);
+      light->Render((vtkRenderer *)this,curLight);
       // increment the current light by one 
-      cur_light++;
+      curLight++;
       count++;
       }
     }
   
-  this->NumberOfLightsBound = cur_light;
+  this->NumberOfLightsBound = curLight;
   
   return count;
 }

@@ -7,7 +7,7 @@
   Version:   $Revision$
 
 
-Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
+Copyright (c) 1993-1996 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
 The following terms apply to all files associated with the software unless
@@ -78,7 +78,6 @@ void vtkTensorGlyph::Execute()
   vtkIdList *cellPts;
   int npts, *pts=new int[this->Source->GetMaxCellSize()];
   int ptIncr, cellId;
-  vtkMath math;
   vtkMatrix4x4 matrix;
   float *m[3], w[3], *v[3];
   float m0[3], m1[3], m2[3];
@@ -191,7 +190,7 @@ void vtkTensorGlyph::Execute()
         for (i=0; i<3; i++)
           m[i][j] = tensor->GetComponent(i,j);
 
-      math.Jacobi(m, w, v);
+      vtkMath::Jacobi(m, w, v);
 
       //copy eigenvectors
       xv[0] = v[0][0]; xv[1] = v[1][0]; xv[2] = v[2][0];
@@ -206,9 +205,9 @@ void vtkTensorGlyph::Execute()
         yv[i] = tensor->GetComponent(i,1);
         zv[i] = tensor->GetComponent(i,2);
         }
-      w[0] = math.Normalize(xv);
-      w[1] = math.Normalize(yv);
-      w[2] = math.Normalize(zv);
+      w[0] = vtkMath::Normalize(xv);
+      w[1] = vtkMath::Normalize(yv);
+      w[2] = vtkMath::Normalize(zv);
       }
 
     // compute scale factors

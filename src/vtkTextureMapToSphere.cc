@@ -7,7 +7,7 @@
   Version:   $Revision$
 
 
-Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
+Copyright (c) 1993-1996 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
 The following terms apply to all files associated with the software unless
@@ -59,8 +59,7 @@ void vtkTextureMapToSphere::Execute()
   int numPts=input->GetNumberOfPoints();
   int ptId;
   float *x, rho, r, tc[2], phi, thetaX, thetaY;
-  vtkMath math;
-  double diff, PiOverTwo=math.Pi()/2.0;
+  double diff, PiOverTwo=vtkMath::Pi()/2.0;
 
   vtkDebugMacro(<<"Generating Spherical Texture Coordinates");
 
@@ -94,7 +93,7 @@ void vtkTextureMapToSphere::Execute()
   for ( ptId=0; ptId < numPts; ptId++ )
     {
     x = input->GetPoint(ptId);
-    rho = sqrt((double)math.Distance2BetweenPoints(x,this->Center));
+    rho = sqrt((double)vtkMath::Distance2BetweenPoints(x,this->Center));
     if ( rho != 0.0 )
       {
       // watch for truncation problems
@@ -106,7 +105,7 @@ void vtkTextureMapToSphere::Execute()
       else
         {
         phi = acos((double)(diff/rho));
-        tc[1] = phi / math.Pi();
+        tc[1] = phi / vtkMath::Pi();
         }
       }
     else
@@ -122,7 +121,7 @@ void vtkTextureMapToSphere::Execute()
       if ( fabs((diff=x[0]-this->Center[0])) > r )
         {
         if ( diff > 0.0 ) thetaX = 0.0;
-        else thetaX = math.Pi();
+        else thetaX = vtkMath::Pi();
         }
       else
         {
@@ -146,11 +145,11 @@ void vtkTextureMapToSphere::Execute()
 
     if ( this->PreventSeam )
       {
-      tc[0] = thetaX / math.Pi();
+      tc[0] = thetaX / vtkMath::Pi();
       }
     else
       {
-      tc[0] = thetaX / (2.0*math.Pi());
+      tc[0] = thetaX / (2.0*vtkMath::Pi());
       if ( thetaY < 0.0 )
         {
         tc[0] = 1.0 - tc[0];

@@ -7,7 +7,7 @@
   Version:   $Revision$
 
 
-Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
+Copyright (c) 1993-1996 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
 The following terms apply to all files associated with the software unless
@@ -45,7 +45,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkMath.hh"
 #include "vtkTransform.hh"
 
-static vtkMath math;
 
 // Description:
 // Construct plane perpendicular to z-axis, resolution 1x1, width and height 1.0,
@@ -190,7 +189,7 @@ void vtkPlaneSource::SetNormal(float N[3])
     }
 
   //make sure input is decent
-  if ( math.Normalize(n) == 0.0 )
+  if ( vtkMath::Normalize(n) == 0.0 )
     {
     vtkErrorMacro(<<"Specified zero normal");
     return;
@@ -198,9 +197,9 @@ void vtkPlaneSource::SetNormal(float N[3])
   if ( !this->UpdatePlane(v1,v2) ) return;
   
   //compute rotation vector
-  math.Cross(this->Normal,n,rotVector);
-  if ( math.Normalize(rotVector) == 0.0 ) return; //no rotation
-  theta = acos((double)math.Dot(this->Normal,n)) / math.DegreesToRadians();
+  vtkMath::Cross(this->Normal,n,rotVector);
+  if ( vtkMath::Normalize(rotVector) == 0.0 ) return; //no rotation
+  theta = acos((double)vtkMath::Dot(this->Normal,n)) / vtkMath::DegreesToRadians();
 
   // create rotation matrix
   transform.PostMultiply();
@@ -300,8 +299,8 @@ int vtkPlaneSource::UpdatePlane(float v1[3], float v2[3])
     }
 
   // set plane normal
-  math.Cross(v1,v2,this->Normal);
-  if ( math.Normalize(this->Normal) == 0.0 )
+  vtkMath::Cross(v1,v2,this->Normal);
+  if ( vtkMath::Normalize(this->Normal) == 0.0 )
     {
     vtkErrorMacro(<<"Bad plane coordinate system");
     return 0;

@@ -5,10 +5,8 @@
 
 #include "vtkNewVolumeRenderer.hh"
 #include "vtkRenderWindow.hh"
-#include "vtkMath.hh"
 #include "vtkVoxel.hh"
 
-static vtkMath math;
 
 vtkNewVolumeRenderer::vtkNewVolumeRenderer()
 {

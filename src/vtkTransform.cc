@@ -7,7 +7,7 @@
   Version:   $Revision$
 
 
-Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
+Copyright (c) 1993-1996 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
 The following terms apply to all files associated with the software unless
@@ -39,7 +39,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include <stdlib.h>
-#include <math.h>
 #include "vtkTransform.hh"
 #include "vtkMath.hh"
 
@@ -183,8 +182,7 @@ void vtkTransform::Push ()
 void vtkTransform::RotateX ( float angle)
 {
   vtkMatrix4x4 ctm;
-  vtkMath math;
-  float radians = angle * math.DegreesToRadians();
+  float radians = angle * vtkMath::DegreesToRadians();
   float cosAngle, sinAngle;
 
   if (angle != 0.0) 
@@ -211,8 +209,7 @@ void vtkTransform::RotateX ( float angle)
 void vtkTransform::RotateY ( float angle)
 {
   vtkMatrix4x4 ctm;
-  vtkMath math;
-  float radians = angle * math.DegreesToRadians();
+  float radians = angle * vtkMath::DegreesToRadians();
   float cosAngle, sinAngle;
 
   if (angle != 0.0) 
@@ -239,8 +236,7 @@ void vtkTransform::RotateY ( float angle)
 void vtkTransform::RotateZ (float angle)
 {
   vtkMatrix4x4 ctm;
-  vtkMath math;
-  float radians = angle * math.DegreesToRadians();
+  float radians = angle * vtkMath::DegreesToRadians();
   float cosAngle, sinAngle;
 
   if (angle != 0.0) 
@@ -272,7 +268,6 @@ void vtkTransform::RotateWXYZ ( float angle, float x, float y, float z)
   float   quat[4];
   float   sinAngle;
   float   cosAngle;
-  vtkMath math;
 
   // build a rotation matrix and concatenate it
   quat[0] = angle;
@@ -281,13 +276,13 @@ void vtkTransform::RotateWXYZ ( float angle, float x, float y, float z)
   quat[3] = z;
 
   // convert degrees to radians
-  radians = quat[0] * math.DegreesToRadians() / 2;
+  radians = quat[0] * vtkMath::DegreesToRadians() / 2;
 
   cosAngle = cos (radians);
   sinAngle = sin (radians);
 
   // normalize x, y, z
-  if ( math.Normalize(quat+1) == 0.0 )
+  if ( vtkMath::Normalize(quat+1) == 0.0 )
     {
     vtkErrorMacro(<<"Trying to rotate around zero-length axis");
     return;
@@ -433,7 +428,6 @@ float *vtkTransform::GetOrientation ()
   float   x2, y2, z2;
   float   x3, y3, z3;
   float   x3p, y3p;
-  vtkMath math;
 
   // copy the matrix into local storage
   temp = **this->Stack;
@@ -466,7 +460,7 @@ float *vtkTransform::GetOrientation ()
 
   theta = atan2 (sinTheta, cosTheta);
 
-  y = -theta / math.DegreesToRadians();
+  y = -theta / vtkMath::DegreesToRadians();
 
   // now rotate about x axis
   dot = x2 * x2 + y2 * y2 + z2 * z2;
@@ -490,7 +484,7 @@ float *vtkTransform::GetOrientation ()
 
   phi = atan2 (sinPhi, cosPhi);
 
-  x = phi / math.DegreesToRadians();
+  x = phi / vtkMath::DegreesToRadians();
 
   // finally, rotate about z
   x3p = x3 * cosTheta - z3 * sinTheta;
@@ -511,7 +505,7 @@ float *vtkTransform::GetOrientation ()
 
   alpha = atan2 (sinAlpha, cosAlpha);
 
-  z = alpha / math.DegreesToRadians();
+  z = alpha / vtkMath::DegreesToRadians();
 
   this->Orientation[0] = x;
   this->Orientation[1] = y;
@@ -746,7 +740,6 @@ void vtkTransform::MultiplyVectors(vtkVectors *inVectors, vtkVectors *outVectors
   float *v;
   int ptId, i;
   int numVectors = inVectors->GetNumberOfVectors();
-  vtkMath math;
 
   this->Push();
   this->Inverse();
@@ -762,7 +755,7 @@ void vtkTransform::MultiplyVectors(vtkVectors *inVectors, vtkVectors *outVectors
                 (**this->Stack).Element[i][2] * v[2];
       }
 
-    math.Normalize(newV);
+    vtkMath::Normalize(newV);
     outVectors->InsertNextVector(newV);
     }
   this->Pop();
@@ -782,7 +775,6 @@ void vtkTransform::MultiplyNormals(vtkNormals *inNormals, vtkNormals *outNormals
   float *n;
   int ptId, i;
   int numNormals = inNormals->GetNumberOfNormals();
-  vtkMath math;
 
   this->Push();
   this->Inverse();
@@ -798,7 +790,7 @@ void vtkTransform::MultiplyNormals(vtkNormals *inNormals, vtkNormals *outNormals
                 (**this->Stack).Element[i][2] * n[2];
       }
 
-    math.Normalize(newN);
+    vtkMath::Normalize(newN);
     outNormals->InsertNextNormal(newN);
     }
   this->Pop();

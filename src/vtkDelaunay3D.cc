@@ -7,7 +7,7 @@
   Version:   $Revision$
 
 
-Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
+Copyright (c) 1993-1996 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
 The following terms apply to all files associated with the software unless
@@ -64,7 +64,6 @@ vtkDelaunay3D::vtkDelaunay3D()
 static int InSphere (float x[3], float x1[3], float x2[3], float x3[3],
                      float x4[3])
 {
-  static vtkMath math;
   static vtkTetra tetra;
   float radius2, center[3], dist2;
 
@@ -91,7 +90,6 @@ static int FindTetra(float x[3], int ptIds[4], float p[4][3],
 {
   int i, j, inside, i2, i3, i4;
   vtkIdList pts(4), facePts(3);
-  static vtkMath math;
   vtkIdList neighbors(2);
   float v12[3], vp[3], vx[3], v32[3], n[3], valx, valp, maxValx;
   
@@ -119,18 +117,18 @@ static int FindTetra(float x[3], int ptIds[4], float p[4][3],
       vx[j] = x[j] - p[i2][j];
       }
 
-    if ( math.Normalize(vx) <= tol ) //check for duplicate point
+    if ( vtkMath::Normalize(vx) <= tol ) //check for duplicate point
       {
       NumberOfDuplicatePoints++;
       return -1;
       }
 
-    if ( math.Normalize(vp) <= 1.0e-04 ) continue; //maybe on face
-    math.Cross(v32,v12,n); math.Normalize(n);//face normal
+    if ( vtkMath::Normalize(vp) <= 1.0e-04 ) continue; //maybe on face
+    vtkMath::Cross(v32,v12,n); vtkMath::Normalize(n);//face normal
 
     //see whether point and tetra vertex are on same side of tetra face
-    valp = math.Dot(n,vp);
-    if ( fabs(valx = math.Dot(n,vx)) <= 1.0e-04 ) return tetra;
+    valp = vtkMath::Dot(n,vp);
+    if ( fabs(valx = vtkMath::Dot(n,vx)) <= 1.0e-04 ) return tetra;
 
     if ( (valx < 0.0 && valp > 0.0) || (valx > 0.0 && valp < 0.0)  )
       {
@@ -365,7 +363,6 @@ void vtkDelaunay3D::Execute()
   int nodes[4], pts[4], npts, *tetraPts;
   vtkIdList neighbors(2), cells(64), tetras(5), faces(15);
   float center[3], length, tol;
-  vtkMath math;
   char *tetraUse;
   float bounds[6];
   
@@ -627,7 +624,7 @@ void vtkDelaunay3D::Execute()
             {
             points->GetPoint(p1,x1);
             points->GetPoint(p2,x2);
-            if ( (math.Distance2BetweenPoints(x1,x2)*0.25) <= alpha2 )
+            if ( (vtkMath::Distance2BetweenPoints(x1,x2)*0.25) <= alpha2 )
               {
               edges.InsertEdge(p1,p2);
               pts[0] = p1;

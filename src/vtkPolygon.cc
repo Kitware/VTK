@@ -7,7 +7,7 @@
   Version:   1.31
 
 
-Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
+Copyright (c) 1993-1996 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
 The following terms apply to all files associated with the software unless
@@ -47,7 +47,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkCellArray.hh"
 
 static vtkPlane plane;
-static vtkMath math;
 
 // Description:
 // Deep copy of cell.
@@ -198,14 +197,14 @@ int vtkPolygon::EvaluatePosition(float x[3], float closestPoint[3],
   plane.ProjectPoint(x,p0,n,closestPoint);
 
   for (i=0; i<3; i++) ray[i] = closestPoint[i] - p0[i];
-  pcoords[0] = math.Dot(ray,p10) / (l10*l10);
-  pcoords[1] = math.Dot(ray,p20) / (l20*l20);
+  pcoords[0] = vtkMath::Dot(ray,p10) / (l10*l10);
+  pcoords[1] = vtkMath::Dot(ray,p20) / (l20*l20);
 
   if ( pcoords[0] >= 0.0 && pcoords[0] <= 1.0 &&
   pcoords[1] >= 0.0 && pcoords[1] <= 1.0 &&
   this->PointInPolygon(this->GetBounds(),closestPoint,n) == INSIDE )
     {
-    minDist2 = math.Distance2BetweenPoints(x,closestPoint);
+    minDist2 = vtkMath::Distance2BetweenPoints(x,closestPoint);
     return 1;
     }
 //
@@ -272,11 +271,11 @@ int vtkPolygon::ParameterizePolygon(float *p0, float *p10, float& l10,
     p0[i] = x1[i];
     p10[i] = x2[i] - x1[i];
     }
-  math.Cross (n,p10,p20);
+  vtkMath::Cross (n,p10,p20);
 //
 // Determine lengths of edges
 //
-  if ( (l10=math.Dot(p10,p10)) == 0.0 || (l20=math.Dot(p20,p20)) == 0.0 )
+  if ( (l10=vtkMath::Dot(p10,p10)) == 0.0 || (l20=vtkMath::Dot(p20,p20)) == 0.0 )
     return 0;
 //
 //  Now evalute all polygon points to determine min/max parametric
@@ -290,8 +289,8 @@ int vtkPolygon::ParameterizePolygon(float *p0, float *p10, float& l10,
     {
     x1 = this->Points.GetPoint(i);
     for(j=0; j<3; j++) p[j] = x1[j] - p0[j];
-    s = math.Dot(p,p10) / l10;
-    t = math.Dot(p,p20) / l20;
+    s = vtkMath::Dot(p,p10) / l10;
+    t = vtkMath::Dot(p,p20) / l20;
     sbounds[0] = (s<sbounds[0]?s:sbounds[0]);
     sbounds[1] = (s>sbounds[1]?s:sbounds[1]);
     tbounds[0] = (t<tbounds[0]?t:tbounds[0]);
@@ -308,8 +307,8 @@ int vtkPolygon::ParameterizePolygon(float *p0, float *p10, float& l10,
     p10[i] = p1[i] - p0[i];
     p20[i] = p2[i] - p0[i];
     }
-  l10 = math.Norm(p10);
-  l20 = math.Norm(p20);
+  l10 = vtkMath::Norm(p10);
+  l20 = vtkMath::Norm(p20);
 
   return 1;
 }
@@ -346,7 +345,7 @@ int vtkPolygon::PointInPolygon (float bounds[6], float *x, float *n)
 //
   for (i=0; i<3; i++) ray[i] = ( bounds[2*i+1] - bounds[2*i] )*1.1;
 
-  if ( (rayMag = math.Norm(ray)) == 0.0 )
+  if ( (rayMag = vtkMath::Norm(ray)) == 0.0 )
     return OUTSIDE;
 //
 //  Get the maximum component of the normal.
@@ -411,11 +410,11 @@ int vtkPolygon::PointInPolygon (float bounds[6], float *x, float *n)
 //
     for (rayOK = FALSE; rayOK == FALSE; ) 
       {
-      ray[comps[0]] = math.Random(-rayMag, rayMag);
-      ray[comps[1]] = math.Random(-rayMag, rayMag);
+      ray[comps[0]] = vtkMath::Random(-rayMag, rayMag);
+      ray[comps[1]] = vtkMath::Random(-rayMag, rayMag);
       ray[maxComp] = -(n[comps[0]]*ray[comps[0]] + 
                         n[comps[1]]*ray[comps[1]]) / n[maxComp];
-      if ( (mag = math.Norm(ray)) > rayMag*VTK_TOL ) rayOK = TRUE;
+      if ( (mag = vtkMath::Norm(ray)) > rayMag*VTK_TOL ) rayOK = TRUE;
       }
 //
 //  The ray must be appropriately sized.
@@ -626,8 +625,8 @@ int vtkPolygon::CanSplitLoop (int fedges[2], int numVerts, int *verts,
   s2Pt = this->Points.GetPoint(fedges[1]);
   for (i=0; i<3; i++) v21[i] = s2Pt[i] - sPt[i];
 
-  math.Cross (v21,Normal,sN);
-  if ( (den=math.Norm(sN)) != 0.0 )
+  vtkMath::Cross (v21,Normal,sN);
+  if ( (den=vtkMath::Norm(sN)) != 0.0 )
     for (i=0; i<3; i++)
       sN[i] /= den;
   else
@@ -784,7 +783,7 @@ void vtkPolygon::ComputeWeights(float x[3], float *weights)
   for (sum=0.0, maxDist2=0.0, i=0; i<numPts; i++)
     {
     pt = this->Points.GetPoint(i);
-    weights[i] = math.Distance2BetweenPoints(x,pt);
+    weights[i] = vtkMath::Distance2BetweenPoints(x,pt);
     if ( weights[i] == 0.0 ) //exact hit
       {
       for (int j=0; j<numPts; j++) weights[j] = 0.0;

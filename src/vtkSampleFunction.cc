@@ -7,7 +7,7 @@
   Version:   $Revision$
 
 
-Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
+Copyright (c) 1993-1996 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
 The following terms apply to all files associated with the software unless
@@ -119,7 +119,6 @@ void vtkSampleFunction::Execute()
   vtkFloatNormals *newNormals=NULL;
   int numPts;
   float *p, s, ar[3], origin[3];
-  vtkMath math;
   vtkStructuredPoints *output=(vtkStructuredPoints *)this->Output;
 
   vtkDebugMacro(<< "Sampling implicit function");
@@ -174,7 +173,7 @@ void vtkSampleFunction::Execute()
       {
       p = output->GetPoint(ptId);
       this->ImplicitFunction->FunctionGradient(p, n);
-      math.Normalize(n);
+      vtkMath::Normalize(n);
       newNormals->SetNormal(ptId,n);
       }
     }

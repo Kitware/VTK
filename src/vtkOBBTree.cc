@@ -7,7 +7,7 @@
   Version:   $Revision$
 
 
-Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
+Copyright (c) 1993-1996 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
 The following terms apply to all files associated with the software unless
@@ -42,8 +42,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkMath.hh"
 #include "vtkLine.hh"
 #include "vtkPolyData.hh"
-
-static vtkMath math;
 
 vtkOBBNode::vtkOBBNode()
 {
@@ -101,7 +99,6 @@ void vtkOBBTree::ComputeOBB(vtkFloatPoints *pts, float corner[3], float max[3],
   int numPts, i, pointId;
   float *x, mean[3], xp[3], *v[3], v0[3], v1[3], v2[3];
   float *a[3], a0[3], a1[3], a2[3];
-  static vtkMath math;
   float tMin[3], tMax[3], closest[3], t;
   static vtkLine line;
 
@@ -146,7 +143,7 @@ void vtkOBBTree::ComputeOBB(vtkFloatPoints *pts, float corner[3], float max[3],
   // Extract axes (i.e., eigenvectors) from covariance matrix. 
   //
   v[0] = v0; v[1] = v1; v[2] = v2; 
-  math.Jacobi(a,size,v);
+  vtkMath::Jacobi(a,size,v);
   max[0] = v[0][0]; max[1] = v[1][0]; max[2] = v[2][0];
   mid[0] = v[0][1]; mid[1] = v[1][1]; mid[2] = v[2][1];
   min[0] = v[0][2]; min[1] = v[1][2]; min[2] = v[2][2];
@@ -310,7 +307,7 @@ void vtkOBBTree::BuildTree(vtkIdList *cells, vtkOBBNode *OBBptr, int level)
       {
       // compute split normal
       for (i=0 ; i < 3; i++) n[i] = OBBptr->Axes[splitPlane][i];
-      math.Normalize(n);
+      vtkMath::Normalize(n);
 
       //traverse cells, assigning to appropriate child list as necessary
       for ( i=0; i < numCells; i++ )

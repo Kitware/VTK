@@ -7,7 +7,7 @@
   Version:   1.4
 
 
-Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
+Copyright (c) 1993-1996 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
 The following terms apply to all files associated with the software unless
@@ -38,13 +38,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
+#include <math.h>
 #include "vtkContourFilter.hh"
 #include "vtkFloatScalars.hh"
 #include "vtkCell.hh"
 #include "vtkMergePoints.hh"
 #include "vtkMarchingSquares.hh"
 #include "vtkMarchingCubes.hh"
-#include "vtkMath.hh"
 
 // Description:
 // Construct object with initial range (0,1) and single contour value

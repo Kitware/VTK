@@ -7,7 +7,7 @@
   Version:   $Revision$
 
 
-Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
+Copyright (c) 1993-1996 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
 The following terms apply to all files associated with the software unless
@@ -446,7 +446,6 @@ int vtkSweptSurface::ComputeNumberOfSteps(vtkTransform *t1, vtkTransform *t2,
 {
   float x[4], xTrans1[4], xTrans2[4];
   float dist2, maxDist2;
-  vtkMath math;
   float h, *ar;
   int numSteps, i, j;
   
@@ -461,7 +460,7 @@ int vtkSweptSurface::ComputeNumberOfSteps(vtkTransform *t1, vtkTransform *t2,
     t2->MultiplyPoint(xTrans1,xTrans2);
     if ( xTrans2[3] != 0.0 ) for (j=0; j<3; j++) xTrans2[j] /= xTrans2[3];
 
-    dist2 = math.Distance2BetweenPoints((float *)xTrans1,(float *)xTrans2);
+    dist2 = vtkMath::Distance2BetweenPoints((float *)xTrans1,(float *)xTrans2);
     if ( dist2 > maxDist2 ) maxDist2 = dist2;
     }
 

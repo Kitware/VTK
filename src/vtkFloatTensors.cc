@@ -7,7 +7,7 @@
   Version:   $Revision$
 
 
-Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
+Copyright (c) 1993-1996 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
 The following terms apply to all files associated with the software unless
@@ -64,3 +64,30 @@ vtkFloatTensors& vtkFloatTensors::operator=(const vtkFloatTensors& ft)
   return *this;
 }
 
+void vtkFloatTensors::SetTensor(int id, vtkTensor *t) 
+{
+  id *= this->Dimension*this->Dimension; 
+  
+  for (int j=0; j < this->Dimension; j++) 
+    for (int i=0; i < this->Dimension; i++) 
+      this->T[id+i+t->GetDimension()*j] = t->GetComponent(i,j);
+}
+
+void vtkFloatTensors::InsertTensor(int id, vtkTensor *t) 
+{
+  id *= this->Dimension*this->Dimension; 
+  
+  for (int j=0; j < this->Dimension; j++) 
+    for (int i=0; i < this->Dimension; i++) 
+      this->T.InsertValue(id+i+t->GetDimension()*j,t->GetComponent(i,j));
+}
+
+int vtkFloatTensors::InsertNextTensor(vtkTensor *t) 
+{
+  int id = this->GetNumberOfTensors() + 1;
+  for (int j=0; j < this->Dimension; j++) 
+    for (int i=0; i < this->Dimension; i++) 
+      this->T.InsertNextValue(t->GetComponent(i,j));
+
+  return id;
+}

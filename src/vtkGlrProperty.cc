@@ -1,13 +1,13 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    KglrProp.cc
+  Module:    vtkGlrProperty.cc
   Language:  C++
-  Date:      2/8/94
-  Version:   1.5
+  Date:      $Date$
+  Version:   $Revision$
 
 
-Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
+Copyright (c) 1993-1996 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
 The following terms apply to all files associated with the software unless
@@ -53,15 +53,9 @@ static float mat[] = {
   };
 
 // Description:
-// Implement base class method.
-void vtkGlrProperty::Render(vtkProperty *prop, vtkRenderer *ren)
-{
-  this->Render(prop, (vtkGlrRenderer *)ren);
-}
-
-// Description:
 // Actual property render method.
-void vtkGlrProperty::Render(vtkProperty *prop, vtkGlrRenderer *vtkNotUsed(ren))
+void vtkGlrProperty::Render(vtkProperty *prop, vtkActor *vtkNotUsed(anActor),
+			    vtkRenderer *vtkNotUsed(ren))
 {
   int i, method;
   float Ambient, Diffuse, Specular;

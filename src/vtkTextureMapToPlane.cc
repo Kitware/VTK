@@ -7,7 +7,7 @@
   Version:   $Revision$
 
 
-Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
+Copyright (c) 1993-1996 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
 The following terms apply to all files associated with the software unless
@@ -38,7 +38,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include <math.h>
 #include "vtkTextureMapToPlane.hh"
 #include "vtkMath.hh"
 #include "vtkFloatTCoords.hh"
@@ -67,7 +66,6 @@ vtkTextureMapToPlane::vtkTextureMapToPlane()
 
 void vtkTextureMapToPlane::Execute()
 {
-  vtkMath math;
   float tcoords[2];
   int numPts;
   vtkFloatTCoords *newTCoords;
@@ -100,7 +98,7 @@ void vtkTextureMapToPlane::Execute()
 
     if ( this->AutomaticPlaneGeneration ) this->ComputeNormal();
 
-    math.Normalize (this->Normal);
+    vtkMath::Normalize (this->Normal);
     //
     //  Now project each point onto plane generating s,t texture coordinates
     //
@@ -112,7 +110,7 @@ void vtkTextureMapToPlane::Execute()
       {
       axis[0] = axis[1] = axis[2] = 0.0;
       axis[i] = 1.0;
-      if ( (proj=fabs(math.Dot(this->Normal,axis))) < minProj ) 
+      if ( (proj=fabs(vtkMath::Dot(this->Normal,axis))) < minProj ) 
         {
         minProj = proj;
         dir = i;
@@ -121,10 +119,10 @@ void vtkTextureMapToPlane::Execute()
     axis[0] = axis[1] = axis[2] = 0.0;
     axis[dir] = 1.0;
 
-    math.Cross (this->Normal, axis, tAxis);
-    math.Normalize (tAxis);
+    vtkMath::Cross (this->Normal, axis, tAxis);
+    vtkMath::Normalize (tAxis);
 
-    math.Cross (tAxis, this->Normal, sAxis);
+    vtkMath::Cross (tAxis, this->Normal, sAxis);
     //
     //  Construct projection matrices
     //
@@ -135,8 +133,8 @@ void vtkTextureMapToPlane::Execute()
     bounds = output->GetBounds();
     for (i=0; i<3; i++) axis[i] = bounds[2*i+1] - bounds[2*i];
 
-    s = math.Dot(sAxis,axis);
-    t = math.Dot(tAxis,axis);
+    s = vtkMath::Dot(sAxis,axis);
+    t = vtkMath::Dot(tAxis,axis);
 
     sSf = (this->SRange[1] - this->SRange[0]) / s;
     tSf = (this->TRange[1] - this->TRange[0]) / t;
@@ -149,8 +147,8 @@ void vtkTextureMapToPlane::Execute()
       p = output->GetPoint(i);
       for (j=0; j<3; j++) axis[j] = p[j] - bounds[2*j];
 
-      tcoords[0] = this->SRange[0] + math.Dot(sAxis,axis) * sSf;
-      tcoords[1] = this->TRange[0] + math.Dot(tAxis,axis) * tSf;
+      tcoords[0] = this->SRange[0] + vtkMath::Dot(sAxis,axis) * sSf;
+      tcoords[1] = this->TRange[0] + vtkMath::Dot(tAxis,axis) * tSf;
 
       newTCoords->SetTCoord(i,tcoords);
       }
@@ -166,8 +164,8 @@ void vtkTextureMapToPlane::Execute()
       tAxis[i] = this->Point2[i] - this->Origin[i];
       }
 
-    sDenom = math.Dot(sAxis,sAxis);
-    tDenom = math.Dot(tAxis,tAxis);
+    sDenom = vtkMath::Dot(sAxis,sAxis);
+    tDenom = vtkMath::Dot(tAxis,tAxis);
 
     if ( sDenom == 0.0 || tDenom == 0.0 )
       {
@@ -212,7 +210,6 @@ void vtkTextureMapToPlane::ComputeNormal()
   int dir = 0;
   float length, w, *c1, *c2, *c3, det;
   float *bounds;
-  vtkMath math;
 //
 //  First thing to do is to get an initial normal and point to define
 //  the plane.  Then, use this information to construct better
@@ -270,11 +267,11 @@ void vtkTextureMapToPlane::ComputeNormal()
 //  Solve linear system using Kramers rule
 //
   c1 = m; c2 = m+3; c3 = m+6;
-  if ( (det = math.Determinant3x3 (c1,c2,c3)) <= TOLERANCE )
+  if ( (det = vtkMath::Determinant3x3 (c1,c2,c3)) <= TOLERANCE )
     return;
 
-  this->Normal[0] = math.Determinant3x3 (v,c2,c3) / det;
-  this->Normal[1] = math.Determinant3x3 (c1,v,c3) / det;
+  this->Normal[0] = vtkMath::Determinant3x3 (v,c2,c3) / det;
+  this->Normal[1] = vtkMath::Determinant3x3 (c1,v,c3) / det;
   this->Normal[2] = -1.0; // because of the formulation
 
   return;

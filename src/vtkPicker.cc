@@ -7,7 +7,7 @@
   Version:   $Revision$
 
 
-Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
+Copyright (c) 1993-1996 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
 The following terms apply to all files associated with the software unless
@@ -43,8 +43,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkMath.hh"
 #include "vtkVertex.hh"
 #include "vtkRenderWindow.hh"
-
-static vtkMath math;
 
 // Description:
 // Construct object with initial tolerance of 1/40th of window.
@@ -179,7 +177,7 @@ int vtkPicker::Pick(float selectionX, float selectionY, float selectionZ,
 //
   for (i=0; i<3; i++) ray[i] = this->PickPosition[i] - cameraPos[i];
 
-  if (( rayLength = math.Dot(ray,ray)) == 0.0 ) 
+  if (( rayLength = vtkMath::Dot(ray,ray)) == 0.0 ) 
     {
     vtkWarningMacro("Cannot process points");
     return 0;
@@ -298,7 +296,7 @@ void vtkPicker::IntersectWithLine(float p1[3], float p2[3],
   center = mapper->GetCenter();
 
   for (i=0; i<3; i++) ray[i] = p2[i] - p1[i];
-  if (( rayFactor = math.Dot(ray,ray)) == 0.0 ) return;
+  if (( rayFactor = vtkMath::Dot(ray,ray)) == 0.0 ) return;
   //
   // Project the center point onto the ray and determine its parametric value
   //

@@ -7,7 +7,7 @@
   Version:   $Revision$
 
 
-Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
+Copyright (c) 1993-1996 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
 The following terms apply to all files associated with the software unless
@@ -68,7 +68,6 @@ void vtkFeatureEdges::Execute()
   int numBEdges, numNonManifoldEdges, numFedges;
   float scalar, n[3], *x1, *x2;
   float cosAngle = 0;
-  vtkMath math;
   vtkPolygon poly;
   int lineIds[2];
   int npts, *pts;
@@ -122,7 +121,7 @@ void vtkFeatureEdges::Execute()
       polyNormals->InsertNormal(cellId,n);
       }
 
-    cosAngle = cos ((double) math.DegreesToRadians() * this->FeatureAngle);
+    cosAngle = cos ((double) vtkMath::DegreesToRadians() * this->FeatureAngle);
     }
 
   numBEdges = numNonManifoldEdges = numFedges = 0;
@@ -160,7 +159,7 @@ void vtkFeatureEdges::Execute()
       else if ( this->FeatureEdges && 
 		numNei == 1 && (nei=neighbors.GetId(0)) > cellId ) 
         {
-        if ( math.Dot(polyNormals->GetNormal(nei),polyNormals->GetNormal(cellId)) <= cosAngle ) 
+        if ( vtkMath::Dot(polyNormals->GetNormal(nei),polyNormals->GetNormal(cellId)) <= cosAngle ) 
           {
           numFedges++;
           scalar = 0.66667;

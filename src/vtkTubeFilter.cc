@@ -7,7 +7,7 @@
   Version:   $Revision$
 
 
-Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
+Copyright (c) 1993-1996 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
 The following terms apply to all files associated with the software unless
@@ -71,14 +71,13 @@ void vtkTubeFilter::Execute()
   vtkFloatPoints *newPts;
   vtkFloatNormals *newNormals;
   vtkCellArray *newStrips;
-  vtkMath math;
   int npts, *pts, i1, i2, ptOffset=0;
   float p[3], pNext[3];
   float maxSpeed = 0;
   float *n, normal[3], nP[3];
   float s[3], sNext[3], sPrev[3], w[3];
   double BevelAngle;
-  float theta=2.0*math.Pi()/this->NumberOfSides;
+  float theta=2.0*vtkMath::Pi()/this->NumberOfSides;
   int deleteNormals=0, ptId;
   float sFactor=1.0, range[2];
   vtkPointData *pd, *outPD;
@@ -157,6 +156,10 @@ void vtkTubeFilter::Execute()
 //
     for (j=0; j < npts; j++)
       {
+      if (npts < 2)
+	{
+	vtkErrorMacro(<< "less than two points");
+	}
 
       if ( j == 0 ) //first point
         {
@@ -191,47 +194,60 @@ void vtkTubeFilter::Execute()
 
       n = inNormals->GetNormal(pts[j]);
 
-      if ( math.Normalize(sNext) == 0.0 )
+      if ( vtkMath::Normalize(sNext) == 0.0 )
         {
         vtkErrorMacro(<<"Coincident points!");
         return;
         }
 
       for (i=0; i<3; i++) s[i] = (sPrev[i] + sNext[i]) / 2.0; //average vector
-      math.Normalize(s);
+      // if s is zero then just use sPrev cross n
+      if (vtkMath::Normalize(s) == 0.0)
+	{
+	vtkWarningMacro(<< "using alternate bevel vector");
+	vtkMath::Cross(sPrev,n,s);
+	if (vtkMath::Normalize(s) == 0.0)
+	  {
+	  vtkErrorMacro(<< "using alternate bevel vector");
+	  }
+	}
       
-      if ( (BevelAngle = math.Dot(sNext,sPrev)) > 1.0 ) BevelAngle = 1.0;
+      if ( (BevelAngle = vtkMath::Dot(sNext,sPrev)) > 1.0 ) BevelAngle = 1.0;
       if ( BevelAngle < -1.0 ) BevelAngle = -1.0;
       BevelAngle = acos((double)BevelAngle) / 2.0; //(0->90 degrees)
       if ( (BevelAngle = cos(BevelAngle)) == 0.0 ) BevelAngle = 1.0;
 
       BevelAngle = this->Radius / BevelAngle; //keep tube constant radius
 
-      math.Cross(s,n,w);
-      if ( math.Normalize(w) == 0.0)
+      vtkMath::Cross(s,n,w);
+      if ( vtkMath::Normalize(w) == 0.0)
         {
         vtkErrorMacro(<<"Bad normal s = " << s[0] << " " << s[1] << " " << s[2] << " n = " << n[0] << " " << n[1] << " " << n[2]);
         return;
         }
       
-      math.Cross(w,s,nP); //create orthogonal coordinate system
-      math.Normalize(nP);
+      vtkMath::Cross(w,s,nP); //create orthogonal coordinate system
+      vtkMath::Normalize(nP);
 
       if ( inScalars ) // varying by scalar values
         {
         sFactor = 1.0 + ((this->RadiusFactor - 1.0) * 
                   (inScalars->GetScalar(j) - range[0]) / (range[1]-range[0]));
+	if ((range[1] - range[0]) == 0.0)
+	  {
+	  vtkErrorMacro(<< "Dividing by zero");
+	  }
         }
       else if ( inVectors ) // use flux preserving relationship
         {
-        sFactor = sqrt((double)maxSpeed/math.Norm(inVectors->GetVector(j)));
+        sFactor = 
+	  sqrt((double)maxSpeed/vtkMath::Norm(inVectors->GetVector(j)));
         if ( sFactor > this->RadiusFactor ) sFactor = this->RadiusFactor;
         }
 
       //create points around line
       for (k=0; k < this->NumberOfSides; k++)
         {
-
         for (i=0; i<3; i++) 
           {
           normal[i] = w[i]*cos((double)k*theta) + nP[i]*sin((double)k*theta);

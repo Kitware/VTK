@@ -7,7 +7,7 @@
   Version:   $Revision$
 
 
-Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
+Copyright (c) 1993-1996 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
 The following terms apply to all files associated with the software unless
@@ -45,15 +45,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Description:
 // Implement base class method.
-void vtkSbrProperty::Render(vtkProperty *prop, vtkRenderer *ren)
+void vtkSbrProperty::Render(vtkProperty *prop, vtkActor *vtkNotUsed(anAct),
+			    vtkRenderer *aren)
 {
-  this->Render(prop, (vtkSbrRenderer *)ren);
-}
-
-// Description:
-// Actual property render method.
-void vtkSbrProperty::Render(vtkProperty *prop, vtkSbrRenderer *ren)
-{
+  vtkSbrRenderer *ren = (vtkSbrRenderer *)aren;
   int fd;
   int     style;
   int     shininess;

@@ -7,7 +7,7 @@
   Version:   $Revision$
 
 
-Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
+Copyright (c) 1993-1996 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
 The following terms apply to all files associated with the software unless
@@ -67,7 +67,6 @@ void vtkFeatureVertices::Execute()
   float scalar = 0;
   float *x1, x[3], xPrev[3], xNext[3], cosAngle;
   float vPrev[3], vNext[3];
-  vtkMath math;
   int vertId[1];
   int npts, *pts;
   vtkCellArray *inLines;
@@ -106,7 +105,7 @@ void vtkFeatureVertices::Execute()
 //
 //  Loop over all lines generating boundary, non-manifold, and feature vertices
 //
-  cosAngle = cos ((double) math.DegreesToRadians() * this->FeatureAngle);
+  cosAngle = cos ((double) vtkMath::DegreesToRadians() * this->FeatureAngle);
 
   numBVertices = numNonManifoldVertices = numFvertices = 0;
   for (cellId=0, inLines->InitTraversal(); inLines->GetNextCell(npts,pts); 
@@ -150,8 +149,8 @@ void vtkFeatureVertices::Execute()
             vPrev[j] = vNext[j];
             vNext[j] = xNext[j] - x[j];
             }
-          if ( math.Normalize(vNext) == 0.0 || 
-          math.Dot(vPrev,vNext) <= cosAngle )
+          if ( vtkMath::Normalize(vNext) == 0.0 || 
+          vtkMath::Dot(vPrev,vNext) <= cosAngle )
             {
             numFvertices++;
             scalar = 0.66667;

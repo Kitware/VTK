@@ -7,7 +7,7 @@
   Version:   $Revision$
 
 
-Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
+Copyright (c) 1993-1996 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
 The following terms apply to all files associated with the software unless
@@ -148,15 +148,13 @@ int Contour(T *slice, S *scalars, int imageRange[2], int dims[3], float origin[3
   vtkFloatScalars *floatScalars=NULL;
   int numTriangles=0;
   float s[8];
-  vtkMath math;
   int i, j, k, idx, jOffset, ii, index, *vert, jj, sliceSize=0;
   static int CASE_MASK[8] = {1,2,4,8,16,32,64,128};
   TRIANGLE_CASES *triCase;
   EDGE_LIST  *edge;
   float pts[8][3], grad[8][3];
   float t, *x1, *x2, *n1, *n2;
-  typedef struct {float x[3], n[3];} pointType;
-  pointType point;
+  float point[6];
   vtkByteSwap swap;
   static int edges[12][2] = { {0,1}, {1,2}, {3,2}, {0,3},
                               {4,5}, {5,6}, {7,6}, {4,7},
@@ -323,14 +321,14 @@ int Contour(T *slice, S *scalars, int imageRange[2], int dims[3], float origin[3
             n2 = grad[vert[1]];
             for (jj=0; jj<3; jj++)
               {
-              point.x[jj] = x1[jj] + t * (x2[jj] - x1[jj]);
-              point.n[jj] = n1[jj] + t * (n2[jj] - n1[jj]);
-              if (point.x[ii] < xmin[ii] ) xmin[ii] = point.x[ii];
-              if (point.x[ii] > xmax[ii] ) xmax[ii] = point.x[ii];
+              point[jj] = x1[jj] + t * (x2[jj] - x1[jj]);
+              point[jj+3] = n1[jj] + t * (n2[jj] - n1[jj]);
+              if (point[jj] < xmin[jj] ) xmin[jj] = point[jj];
+              if (point[jj] > xmax[jj] ) xmax[jj] = point[jj];
               }
-            math.Normalize(point.n);
-	    // swap bytes if necc
-	    swap.SwapWrite4BERange((float *)(&point),6,outFP);
+            vtkMath::Normalize(point+3);
+	    // swap bytes if necessary
+	    swap.SwapWrite4BERange(point,6,outFP);
             }
           numTriangles++;
           }//for each triangle

@@ -7,7 +7,7 @@
   Version:   1.1
 
 
-Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
+Copyright (c) 1993-1996 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
 The following terms apply to all files associated with the software unless
@@ -52,7 +52,6 @@ void vtkBrownianPoints::Execute()
 {
   int i, numPts;
   vtkFloatVectors *newVectors;
-  vtkMath math;
   float v[3], norm, speed;
 
   vtkDebugMacro(<< "Executing Brownian filter");
@@ -76,11 +75,11 @@ void vtkBrownianPoints::Execute()
 
   for (i=0; i<numPts; i++)
     {
-    speed = math.Random(this->MinimumSpeed,this->MaximumSpeed);
+    speed = vtkMath::Random(this->MinimumSpeed,this->MaximumSpeed);
     if ( speed != 0.0 )
       {
-      for (i=0; i<3; i++) v[i] = math.Random(0,speed);
-      norm = math.Norm(v);
+      for (i=0; i<3; i++) v[i] = vtkMath::Random(0,speed);
+      norm = vtkMath::Norm(v);
       for (i=0; i<3; i++) v[i] *= (speed / norm);
       }
     else

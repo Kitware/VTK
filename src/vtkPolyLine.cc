@@ -7,7 +7,7 @@
   Version:   $Revision$
 
 
-Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
+Copyright (c) 1993-1996 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
 The following terms apply to all files associated with the software unless
@@ -42,12 +42,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkMath.hh"
 #include "vtkLine.hh"
 #include "vtkCellArray.hh"
-
-//
-// eliminate constructor / destructor calls
-//
-static vtkMath math;
-
 
 // Description:
 // Deep copy of cell.
@@ -95,7 +89,7 @@ int vtkPolyLine::GenerateNormals(vtkPoints *pts, vtkCellArray *lines, vtkFloatNo
 
       for (i=0; i<3; i++) s[i] = p[i] - pPrev[i];
 
-      if ( (n_norm = math.Norm(s)) == 0.0 ) //use arbitrary normal
+      if ( (n_norm = vtkMath::Norm(s)) == 0.0 ) //use arbitrary normal
         {
         norm[0] = norm[1] = 0.0;
         norm[2] = 1.0;
@@ -113,7 +107,7 @@ int vtkPolyLine::GenerateNormals(vtkPoints *pts, vtkCellArray *lines, vtkFloatNo
             break;
             }
           }
-        n_norm = math.Norm(norm);
+        n_norm = vtkMath::Norm(norm);
         for (i=0; i<3; i++) norm[i] /= n_norm;
         }
 
@@ -142,8 +136,8 @@ int vtkPolyLine::GenerateNormals(vtkPoints *pts, vtkCellArray *lines, vtkFloatNo
         sNext[i] = pNext[i] - p[i];
         }
 
-      math.Cross(sPrev,sNext,norm);
-      if ( (n_norm = math.Norm(norm)) != 0.0 ) //okay to use
+      vtkMath::Cross(sPrev,sNext,norm);
+      if ( (n_norm = vtkMath::Norm(norm)) != 0.0 ) //okay to use
         {
         for (i=0; i<3; i++) norm[i] /= n_norm;
         normalComputed[j] = aNormalComputed = 1;
@@ -162,7 +156,7 @@ int vtkPolyLine::GenerateNormals(vtkPoints *pts, vtkCellArray *lines, vtkFloatNo
 
         for (i=0; i<3; i++) s[i] = p[i] - pPrev[i];
 
-        if ( (n_norm = math.Norm(s)) != 0.0 ) //okay to use
+        if ( (n_norm = vtkMath::Norm(s)) != 0.0 ) //okay to use
           {
           aNormalComputed = 1;
 
@@ -176,7 +170,7 @@ int vtkPolyLine::GenerateNormals(vtkPoints *pts, vtkCellArray *lines, vtkFloatNo
               break;
               }
             }
-          n_norm = math.Norm(norm);
+          n_norm = vtkMath::Norm(norm);
           for (i=0; i<3; i++) norm[i] /= n_norm;
 
           break;
@@ -226,7 +220,7 @@ int vtkPolyLine::GenerateNormals(vtkPoints *pts, vtkCellArray *lines, vtkFloatNo
       nPrev = n;
       n = normals->GetNormal(linePts[j]);
 
-      if ( math.Dot(n,nPrev) < 0.0 ) //reversed sense
+      if ( vtkMath::Dot(n,nPrev) < 0.0 ) //reversed sense
         {
         for(i=0; i<3; i++) norm[i] = -n[i];
         normals->InsertNormal(linePts[j],norm);
@@ -247,6 +241,7 @@ int vtkPolyLine::GenerateSlidingNormals(vtkPoints *pts, vtkCellArray *lines, vtk
   int npts, *linePts;
   float sPrev[3], sNext[3], q[3], w[3], normal[3], theta;
   float p[3], pPrev[3], pNext[3];
+  float c[3], f1, f2;
   int i, j, largeRotation;
 //
 //  Loop over all lines
@@ -285,7 +280,7 @@ int vtkPolyLine::GenerateSlidingNormals(vtkPoints *pts, vtkCellArray *lines, vtk
             sNext[i] = sPrev[i];
             }
 
-          if ( math.Normalize(sNext) == 0.0 )
+          if ( vtkMath::Normalize(sNext) == 0.0 )
             {
             vtkErrorMacro(<<"Coincident points in polyline...can't compute normals");
             return 0;
@@ -301,7 +296,7 @@ int vtkPolyLine::GenerateSlidingNormals(vtkPoints *pts, vtkCellArray *lines, vtk
               break;
               }
             }
-          math.Normalize(normal);
+          vtkMath::Normalize(normal);
           normals->InsertNormal(linePts[0],normal);
           }
 
@@ -328,42 +323,59 @@ int vtkPolyLine::GenerateSlidingNormals(vtkPoints *pts, vtkCellArray *lines, vtk
             sNext[i] = pNext[i] - p[i];
             }
 
-          if ( math.Normalize(sNext) == 0.0 )
+          if ( vtkMath::Normalize(sNext) == 0.0 )
             {
             vtkErrorMacro(<<"Coincident points in polyline...can't compute normals");
             return 0;
             }
 
           //compute rotation vector
-          math.Cross(sPrev,normal,w);
-          if ( math.Normalize(w) == 0.0 ) return 0;
+          vtkMath::Cross(sPrev,normal,w);
+          if ( vtkMath::Normalize(w) == 0.0 ) 
+	    {
+	    vtkErrorMacro(<<"normal and sPrev coincident");
+	    return 0;
+	    }
 
           //see whether we rotate greater than 90 degrees.
-          if ( math.Dot(sPrev,sNext) < 0.0 ) largeRotation = 1;
+          if ( vtkMath::Dot(sPrev,sNext) < 0.0 ) largeRotation = 1;
           else largeRotation = 0;
 
           //compute rotation of line segment
-          math.Cross (sNext, sPrev, q);
-          if ( (theta=asin((double)math.Normalize(q))) == 0.0 ) 
+          vtkMath::Cross (sNext, sPrev, q);
+          if ( (theta=asin((double)vtkMath::Normalize(q))) == 0.0 ) 
             { //no rotation, use previous normal
             normals->InsertNormal(linePts[j],normal);
             continue;
             }
           if ( largeRotation )
             {
-            if ( theta > 0.0 ) theta = math.Pi() - theta;
-            else theta = -math.Pi() - theta;
+            if ( theta > 0.0 ) theta = vtkMath::Pi() - theta;
+            else theta = -vtkMath::Pi() - theta;
             }
 
-          //compute projection of rotation of line segment onto rotation vector
-          theta *= math.Dot(q,w) / 2.0;
-
-          //compute new normal
-          for (i=0; i<3; i++) normal[i] = normal[i]*cos((double)theta) + 
-                                          sPrev[i]*sin((double)theta);
-          math.Normalize(normal);
+	  // new method
+          for (i=0; i<3; i++) c[i] = sNext[i] + sPrev[i];
+	  vtkMath::Normalize(c);
+	  f1 = vtkMath::Dot(q,normal);
+	  f2 = 1.0 - f1*f1;
+	  if (f2 > 0.0)
+	    {
+	    f2 = sqrt(1.0 - f1*f1);
+	    }
+	  else
+	    {
+	    f2 = 0.0;
+	    }
+	  vtkMath::Cross(c,q,w);
+	  vtkMath::Cross(sPrev,q,c);
+	  if (vtkMath::Dot(normal,c)*vtkMath::Dot(w,c) < 0)
+	    {
+	    f2 = -1.0*f2;
+	    }
+          for (i=0; i<3; i++) normal[i] = f1*q[i] + f2*w[i];
+	  
           normals->InsertNormal(linePts[j],normal);
-
           }//for this point
         }//else
       }//else if

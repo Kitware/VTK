@@ -7,7 +7,7 @@
   Version:   $Revision$
 
 
-Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
+Copyright (c) 1993-1996 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
 The following terms apply to all files associated with the software unless
@@ -60,7 +60,6 @@ vtkDelaunay2D::vtkDelaunay2D()
 // defined by points (x1, x2, x3). Returns non-zero if inside circle.
 static int InCircle (float x[3], float x1[3], float x2[3], float x3[3])
 {
-  static vtkMath math;
   static vtkTriangle triangle;
   float radius2, center[2], dist2;
 
@@ -83,7 +82,6 @@ static int FindTriangle(float x[3], int ptIds[3], int tri, vtkPolyData *Mesh,
                         vtkFloatPoints *points, float tol)
 {
   int i, j, npts, *pts, inside, i2, i3, nei[2];
-  static vtkMath math;
   vtkIdList neighbors(2);
   float p[3][3], v12[3], vp[3], vx[3], v1[3], v2[3], dp, minProj;
   
@@ -109,18 +107,18 @@ static int FindTriangle(float x[3], int ptIds[3], int tri, vtkPolyData *Mesh,
       vx[j] = x[j] - p[i][j];
       }
 
-    if ( math.Normalize(vx) <= tol ) //check for duplicate point
+    if ( vtkMath::Normalize(vx) <= tol ) //check for duplicate point
       {
       NumberOfDuplicatePoints++;
       return -1;
       }
 
     // create two vectors: normal to edge and vector to point
-    math.Cross(vp,v12,v1); math.Normalize(v1);
-    math.Cross(vx,v12,v2); math.Normalize(v2);
+    vtkMath::Cross(vp,v12,v1); vtkMath::Normalize(v1);
+    vtkMath::Cross(vx,v12,v2); vtkMath::Normalize(v2);
 
     // see if point is on opposite side of edge
-    if ( (dp=math.Dot(v1,v2)) < -1.0e-04 )
+    if ( (dp=vtkMath::Dot(v1,v2)) < -1.0e-04 )
       {
       if ( dp < minProj ) //track edge most orthogonal to point direction
         {
@@ -218,7 +216,6 @@ void vtkDelaunay2D::Execute()
   int nodes[3][3], pts[3], npts, *triPts;
   vtkIdList neighbors(2), cells(64);
   float center[3], radius, tol;
-  vtkMath math;
   char *triUse = NULL;
 
   vtkDebugMacro(<<"Generating 2D Delaunay triangulation");
@@ -254,8 +251,8 @@ void vtkDelaunay2D::Execute()
 
   for (ptId=0; ptId<8; ptId++)
     {
-    x[0] = center[0] + radius*cos((double)(45.0*ptId)*math.DegreesToRadians());
-    x[1] = center[1] + radius*sin((double)(45.0*ptId)*math.DegreesToRadians());
+    x[0] = center[0] + radius*cos((double)(45.0*ptId)*vtkMath::DegreesToRadians());
+    x[1] = center[1] + radius*sin((double)(45.0*ptId)*vtkMath::DegreesToRadians());
     x[2] = 0.0;
     points->SetPoint(numPoints+ptId,x);
     }
@@ -400,7 +397,7 @@ void vtkDelaunay2D::Execute()
               {//see whether edge is shorter than Alpha
               points->GetPoint(p1,x1);
               points->GetPoint(p2,x2);
-              if ( (math.Distance2BetweenPoints(x1,x2)*0.25) <= alpha2 )
+              if ( (vtkMath::Distance2BetweenPoints(x1,x2)*0.25) <= alpha2 )
                 {
                 pointUse[p1] = 1; pointUse[p2] = 1;
                 pts[0] = p1;

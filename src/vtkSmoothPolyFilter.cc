@@ -7,7 +7,7 @@
   Version:   $Revision$
 
 
-Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
+Copyright (c) 1993-1996 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
 The following terms apply to all files associated with the software unless
@@ -80,7 +80,6 @@ typedef struct _vtkLocalVertex
     
 void vtkSmoothPolyFilter::Execute()
 {
-  static vtkMath math; // avoid constructor overhead
   int numPts, numCells;
   int i, j, k, numPolys, numStrips, pass;
   int npts, *pts;
@@ -110,8 +109,9 @@ void vtkSmoothPolyFilter::Execute()
     return;
     }
 
-  CosFeatureAngle = cos((double) math.DegreesToRadians() * this->FeatureAngle);
-  CosEdgeAngle = cos((double) math.DegreesToRadians() * this->EdgeAngle);
+  CosFeatureAngle = 
+    cos((double) vtkMath::DegreesToRadians() * this->FeatureAngle);
+  CosEdgeAngle = cos((double) vtkMath::DegreesToRadians() * this->EdgeAngle);
 
   vtkDebugMacro(<<"Smoothing " << numPts << " vertices, " << numCells 
                << " cells with:\n"
@@ -262,7 +262,7 @@ void vtkSmoothPolyFilter::Execute()
           poly.ComputeNormal(inPts,numNeiPts,neiPts,neiNormal);
 
           if ( this->FeatureEdgeSmoothing &&
-          math.Dot(normal,neiNormal) <= CosFeatureAngle ) 
+          vtkMath::Dot(normal,neiNormal) <= CosFeatureAngle ) 
             {
             edge = VTK_FEATURE_EDGE_VERTEX;
             }
@@ -350,9 +350,9 @@ void vtkSmoothPolyFilter::Execute()
           l1[k] = x2[k] - x1[k];
           l2[k] = x3[k] - x2[k];
           }
-        if ( (lenl1 = math.Normalize(l1)) >= 0.0 &&
-        (lenl2 = math.Normalize(l2)) >= 0.0 &&
-        math.Dot(l1,l2) < CosEdgeAngle)
+        if ( (lenl1 = vtkMath::Normalize(l1)) >= 0.0 &&
+        (lenl2 = vtkMath::Normalize(l2)) >= 0.0 &&
+        vtkMath::Dot(l1,l2) < CosEdgeAngle)
           {
           numFixed++;
           Verts[i].type = VTK_FIXED_VERTEX;
@@ -411,7 +411,7 @@ void vtkSmoothPolyFilter::Execute()
               xNew[k] = x[k] + factor * deltaX[k];
               }
             newPts->SetPoint(i,xNew);
-            if ( (dist = math.Norm(deltaX)) > maxDist )
+            if ( (dist = vtkMath::Norm(deltaX)) > maxDist )
               {
               maxDist = dist;
               }
@@ -434,7 +434,7 @@ void vtkSmoothPolyFilter::Execute()
       {
       inPts->GetPoint(i,x1);
       newPts->GetPoint(i,x2);
-      newScalars->SetScalar(i,sqrt(math.Distance2BetweenPoints(x1,x2)));
+      newScalars->SetScalar(i,sqrt(vtkMath::Distance2BetweenPoints(x1,x2)));
       }
     output->GetPointData()->SetScalars(newScalars);
     newScalars->Delete();

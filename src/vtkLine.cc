@@ -7,7 +7,7 @@
   Version:   $Revision$
 
 
-Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
+Copyright (c) 1993-1996 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
 The following terms apply to all files associated with the software unless
@@ -42,8 +42,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkMath.hh"
 #include "vtkCellArray.hh"
 #include "vtkPointLocator.hh"
-
-static vtkMath math; //avoid lots of construction
 
 // Description:
 // Deep copy of cell.
@@ -119,26 +117,26 @@ int vtkLine::Intersection (float a1[3], float a2[3], float b1[3], float b2[3],
 //
 //   Compute the system (least squares) matrix.
 //
-  sys[0][0] = math.Dot ( a21, a21 );
-  sys[0][1] = -math.Dot ( a21, b21 );
+  sys[0][0] = vtkMath::Dot ( a21, a21 );
+  sys[0][1] = -vtkMath::Dot ( a21, b21 );
   sys[1][0] = sys[0][1];
-  sys[1][1] = math.Dot ( b21, b21 );
+  sys[1][1] = vtkMath::Dot ( b21, b21 );
 //
 //   Compute the least squares system constant term.
 //
-  c[0] = math.Dot ( a21, b1a1 );
-  c[1] = -math.Dot ( b21, b1a1 );
+  c[0] = vtkMath::Dot ( a21, b1a1 );
+  c[1] = -vtkMath::Dot ( b21, b1a1 );
 //
 //  Solve the system of equations
 //
-  if ( (det=math.Determinant2x2(sys[0],sys[1])) <= VTK_TOL )
+  if ( (det=vtkMath::Determinant2x2(sys[0],sys[1])) <= VTK_TOL )
     {
     return ON_LINE;
     }
   else 
     {
-    u = math.Determinant2x2(c,sys[1]) / det;
-    v = math.Determinant2x2(sys[0],c) / det;
+    u = vtkMath::Determinant2x2(c,sys[1]) / det;
+    v = vtkMath::Determinant2x2(sys[0],c) / det;
     }
 //
 //  Check parametric coordinates for intersection.
@@ -245,7 +243,7 @@ float vtkLine::DistanceToLine(float x[3], float p1[3], float p2[3],
 //
   num = p21[0]*(x[0]-p1[0]) + p21[1]*(x[1]-p1[1]) + p21[2]*(x[2]-p1[2]);
 
-  if ( (denom = math.Dot(p21,p21)) < fabs(VTK_TOL*num) ) //numerically bad!
+  if ( (denom = vtkMath::Dot(p21,p21)) < fabs(VTK_TOL*num) ) //numerically bad!
     {
     closest = p1; //arbitrary, point is (numerically) far away
     }
@@ -271,7 +269,7 @@ float vtkLine::DistanceToLine(float x[3], float p1[3], float p2[3],
   closestPoint[1] = closest[1]; 
   closestPoint[2] = closest[2]; 
 
-  return math.Distance2BetweenPoints(closest,x);
+  return vtkMath::Distance2BetweenPoints(closest,x);
 }
 
 //
@@ -291,15 +289,15 @@ float vtkLine::DistanceToLine (float x[3], float p1[3], float p2[3])
     p1p2[i] = p1[i] - p2[i];
     }
 
-  if ( (den=math.Norm(p1p2)) != 0.0 )
+  if ( (den=vtkMath::Norm(p1p2)) != 0.0 )
       for (i=0; i<3; i++)
           p1p2[i] /= den;
   else
-      return math.Dot(np1,np1);
+      return vtkMath::Dot(np1,np1);
 
-  proj = math.Dot(np1,p1p2);
+  proj = vtkMath::Dot(np1,p1p2);
 
-  return (math.Dot(np1,np1) - proj*proj);
+  return (vtkMath::Dot(np1,np1) - proj*proj);
 }
 
 //
@@ -330,7 +328,7 @@ int vtkLine::IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
       x[i] = a1[i] + pcoords[i]*(a2[i]-a1[i]);
       projXYZ[i] = p1[i] + t*(p2[i]-p1[i]);
       }
-    if ( math.Distance2BetweenPoints(x,projXYZ) <= tol*tol )
+    if ( vtkMath::Distance2BetweenPoints(x,projXYZ) <= tol*tol )
       return 1;
     else
       return 0;

@@ -7,7 +7,7 @@
   Version:   1.13
 
 
-Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
+Copyright (c) 1993-1996 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
 The following terms apply to all files associated with the software unless
@@ -71,7 +71,6 @@ void vtkRotationalExtrusionFilter::Execute()
   vtkCellArray *newLines=NULL, *newPolys=NULL, *newStrips=NULL;
   vtkCell *cell, *edge;
   vtkIdList cellIds(VTK_CELL_SIZE), *cellPts;
-  vtkMath math;
   int i, j, k, p1, p2;
   vtkPolyData *output=(vtkPolyData *)this->Output;
   vtkPointData *outPD=output->GetPointData();
@@ -130,7 +129,7 @@ void vtkRotationalExtrusionFilter::Execute()
   // loop assumes rotation around z-axis
   radIncr = this->DeltaRadius / this->Resolution;
   transIncr = this->Translation / this->Resolution;
-  angleIncr = this->Angle / this->Resolution * math.DegreesToRadians();
+  angleIncr = this->Angle / this->Resolution * vtkMath::DegreesToRadians();
   for ( i = 1; i <= this->Resolution; i++ )
     {
     for (ptId=0; ptId < numPts; ptId++)
@@ -141,8 +140,8 @@ void vtkRotationalExtrusionFilter::Execute()
       theta = acos((double)x[0]/radius);
       if ( (psi=asin((double)x[1]/radius)) < 0.0 ) 
         {
-        if ( theta < (math.Pi()/2.0) ) theta = 2.0*math.Pi() + psi;
-        else theta = math.Pi() - psi;
+        if ( theta < (vtkMath::Pi()/2.0) ) theta = 2.0*vtkMath::Pi() + psi;
+        else theta = vtkMath::Pi() - psi;
         }
 
       //increment angle

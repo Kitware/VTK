@@ -7,7 +7,7 @@
   Version:   $Revision$
 
 
-Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
+Copyright (c) 1993-1996 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
 The following terms apply to all files associated with the software unless
@@ -130,15 +130,6 @@ vtkProperty& vtkProperty::operator=(const vtkProperty& p)
   this->Backface = p.Backface;
 
   return *this;
-}
-
-void vtkProperty::Render(vtkRenderer *ren)
-{
-  if (!this->Device)
-    {
-    this->Device = ren->GetRenderWindow()->MakeProperty();
-    }
-  this->Device->Render(this,ren);
 }
 
 void vtkProperty::Render(vtkRenderer *ren, vtkActor *anActor)

@@ -7,7 +7,7 @@
   Version:   $Revision$
 
 
-Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
+Copyright (c) 1993-1996 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
 The following terms apply to all files associated with the software unless
@@ -50,7 +50,6 @@ void vtkWarpTo::Execute()
   float *x, newX[3];
   vtkPointSet *input=(vtkPointSet *)this->Input;
   vtkPointSet *output=(vtkPointSet *)this->Output;
-  static vtkMath math;
   float mag;
   float minMag = 0;
   
@@ -73,7 +72,7 @@ void vtkWarpTo::Execute()
     for (ptId=0; ptId < inPts->GetNumberOfPoints(); ptId++)
       {
       x = inPts->GetPoint(ptId);
-      mag = sqrt(math.Distance2BetweenPoints(this->Position,x));
+      mag = sqrt(vtkMath::Distance2BetweenPoints(this->Position,x));
       if (mag < minMag) minMag = mag;
       }
     }
@@ -86,7 +85,7 @@ void vtkWarpTo::Execute()
     x = inPts->GetPoint(ptId);
     if (this->Absolute)
       {
-      mag = sqrt(math.Distance2BetweenPoints(this->Position,x));
+      mag = sqrt(vtkMath::Distance2BetweenPoints(this->Position,x));
       for (i=0; i<3; i++)
 	{
 	newX[i] = this->ScaleFactor*

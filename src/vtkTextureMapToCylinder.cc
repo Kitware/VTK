@@ -7,7 +7,7 @@
   Version:   $Revision$
 
 
-Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
+Copyright (c) 1993-1996 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
 The following terms apply to all files associated with the software unless
@@ -70,7 +70,6 @@ void vtkTextureMapToCylinder::Execute()
   float *x, tc[2], thetaX, thetaY, closest[3], v[3];
   float axis[3], vP[3], vec[3];
   vtkLine line;
-  vtkMath math;
 
   vtkDebugMacro(<<"Generating Cylindrical Texture Coordinates");
 
@@ -111,21 +110,21 @@ void vtkTextureMapToCylinder::Execute()
 
   //compute axis which is theta (angle measure) origin
   for ( i=0; i < 3; i++ ) axis[i] = this->Point2[i] - this->Point1[i];
-  if ( math.Norm(axis) == 0.0 )
+  if ( vtkMath::Norm(axis) == 0.0 )
     {
     vtkErrorMacro(<<"Bad cylinder axis");
     return;
     }
 
   v[0] = 1.0; v[1] = v[2] = 0.0;
-  math.Cross(axis,v,vP);
-  if ( math.Norm(vP) == 0.0 )
+  vtkMath::Cross(axis,v,vP);
+  if ( vtkMath::Norm(vP) == 0.0 )
     {//must be prependicular
     v[1] = 1.0; v[0] = v[2] = 0.0;
-    math.Cross(axis,v,vP);
+    vtkMath::Cross(axis,v,vP);
     }
-  math.Cross(vP,axis,vec);
-  if ( math.Normalize(vec) == 0.0 )
+  vtkMath::Cross(vP,axis,vec);
+  if ( vtkMath::Normalize(vec) == 0.0 )
     {
     vtkErrorMacro(<<"Bad cylinder axis");
     return;
@@ -139,19 +138,19 @@ void vtkTextureMapToCylinder::Execute()
     line.DistanceToLine(x,this->Point1,this->Point2,tc[1],closest);
 
     for (i=0; i < 3; i++) v[i] = x[i] - closest[i];
-    math.Normalize(v);
+    vtkMath::Normalize(v);
 
-    thetaX = acos ((double)math.Dot(v,vec));
-    math.Cross(vec,v,vP);
-    thetaY = math.Dot(axis,vP); //not really interested in angle, just +/- sign
+    thetaX = acos ((double)vtkMath::Dot(v,vec));
+    vtkMath::Cross(vec,v,vP);
+    thetaY = vtkMath::Dot(axis,vP); //not really interested in angle, just +/- sign
 
     if ( this->PreventSeam )
       {
-      tc[0] = thetaX / math.Pi();
+      tc[0] = thetaX / vtkMath::Pi();
       }
     else
       {
-      tc[0] = thetaX / (2.0*math.Pi());
+      tc[0] = thetaX / (2.0*vtkMath::Pi());
       if ( thetaY < 0.0 )
         {
         tc[0] = 1.0 - tc[0];

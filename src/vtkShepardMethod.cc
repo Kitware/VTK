@@ -7,7 +7,7 @@
   Version:   $Revision$
 
 
-Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
+Copyright (c) 1993-1996 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
 The following terms apply to all files associated with the software unless
@@ -138,7 +138,6 @@ void vtkShepardMethod::Execute()
   int numPts, numNewPts, idx;
   int min[3], max[3];
   int jkFactor;
-  vtkMath math;
   vtkStructuredPoints *output=(vtkStructuredPoints *)this->Output;
 
   vtkDebugMacro(<< "Executing Shepard method");
@@ -200,7 +199,7 @@ void vtkShepardMethod::Execute()
           x[0] = ar[0] * i + origin[0];
           idx = jkFactor*k + this->SampleDimensions[0]*j + i;
 
-          distance2 = math.Distance2BetweenPoints(x,px);
+          distance2 = vtkMath::Distance2BetweenPoints(x,px);
 
           if ( distance2 == 0.0 )
             {

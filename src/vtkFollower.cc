@@ -7,7 +7,7 @@
   Version:   $Revision$
 
 
-Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
+Copyright (c) 1993-1996 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
 The following terms apply to all files associated with the software unless
@@ -93,7 +93,6 @@ void vtkFollower::GetMatrix(vtkMatrix4x4& result)
     float v1[3], v2[3], y_axis[3];
     double theta, dot, mag;
     double cosang;
-    vtkMath math;
     float vn[3];
 
     // calc the direction
@@ -168,13 +167,13 @@ void vtkFollower::GetMatrix(vtkMatrix4x4& result)
 
     // first project the view_up onto the view_plane
     //
-    math.Cross(vup, vn, v1);
-    math.Cross(vn, v1, v1);
+    vtkMath::Cross(vup, vn, v1);
+    vtkMath::Cross(vn, v1, v1);
     
     // then project the y-axis onto the view plane
     //
-    math.Cross(y_axis, vn, v2);
-    math.Cross(vn, v2, v2);
+    vtkMath::Cross(y_axis, vn, v2);
+    vtkMath::Cross(vn, v2, v2);
     
     // then find the angle between the two projected vectors
     //
@@ -195,7 +194,7 @@ void vtkFollower::GetMatrix(vtkMatrix4x4& result)
     
     // now see if the angle is positive or negative
     //
-    math.Cross(v1, v2, v1);
+    vtkMath::Cross(v1, v2, v1);
     dot = v1[0]*vn[0] + v1[1]*vn[1] + v1[2]*vn[2];
     
     twist = (theta);

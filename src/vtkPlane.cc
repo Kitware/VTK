@@ -7,7 +7,7 @@
   Version:   $Revision$
 
 
-Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
+Copyright (c) 1993-1996 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
 The following terms apply to all files associated with the software unless
@@ -41,7 +41,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkPlane.hh"
 #include "vtkMath.hh"
 
-static vtkMath math;
 
 // Description
 // Construct plane passing through origin and normal to z-axis.
@@ -66,7 +65,7 @@ void vtkPlane::ProjectPoint(float x[3], float origin[3], float normal[3], float 
   float t, xo[3];
 
   for (i=0; i<3; i++) xo[i] = x[i] - origin[i];
-  t = math.Dot(normal,xo);
+  t = vtkMath::Dot(normal,xo);
   for (i=0; i<3; i++) xproj[i] = x[i] - t * normal[i];
 }
 
@@ -106,7 +105,7 @@ int vtkPlane::IntersectWithLine(float p1[3], float p2[3], float n[3],
 //
 // Compute denominator.  If ~0, line and plane are parallel.
 // 
-  num = math.Dot(n,p0) - ( n[0]*p1[0] + n[1]*p1[1] + n[2]*p1[2] ) ;
+  num = vtkMath::Dot(n,p0) - ( n[0]*p1[0] + n[1]*p1[1] + n[2]*p1[2] ) ;
   den = n[0]*p21[0] + n[1]*p21[1] + n[2]*p21[2];
 //
 // If denominator with respect to numerator is "zero", then the line and

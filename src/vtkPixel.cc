@@ -7,7 +7,7 @@
   Version:   $Revision$
 
 
-Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
+Copyright (c) 1993-1996 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
 The following terms apply to all files associated with the software unless
@@ -66,7 +66,6 @@ int vtkPixel::EvaluatePosition(float x[3], float closestPoint[3],
   float p[3], p21[3], p31[3];
   float l21, l31, n[3];
   static vtkPolygon vtkAPoly;
-  static vtkMath vtkAMath;
 
   subId = 0;
   pcoords[0] = pcoords[1] = pcoords[2] = 0.0;
@@ -90,18 +89,18 @@ int vtkPixel::EvaluatePosition(float x[3], float closestPoint[3],
     p[i] = x[i] - pt1[i];
     }
 
-  if ( (l21=vtkAMath.Norm(p21)) == 0.0 ) l21 = 1.0;
-  if ( (l31=vtkAMath.Norm(p31)) == 0.0 ) l31 = 1.0;
+  if ( (l21=vtkMath::Norm(p21)) == 0.0 ) l21 = 1.0;
+  if ( (l31=vtkMath::Norm(p31)) == 0.0 ) l31 = 1.0;
 
-  pcoords[0] = vtkAMath.Dot(p21,p) / (l21*l21);
-  pcoords[1] = vtkAMath.Dot(p31,p) / (l31*l31);
+  pcoords[0] = vtkMath::Dot(p21,p) / (l21*l21);
+  pcoords[1] = vtkMath::Dot(p31,p) / (l31*l31);
 
   this->InterpolationFunctions(pcoords, weights);
 
   if ( pcoords[0] >= 0.0 && pcoords[1] <= 1.0 &&
   pcoords[1] >= 0.0 && pcoords[1] <= 1.0 )
     {
-    dist2 = vtkAMath.Distance2BetweenPoints(closestPoint,x); //projection distance
+    dist2 = vtkMath::Distance2BetweenPoints(closestPoint,x); //projection distance
     return 1;
     }
   else
@@ -114,7 +113,7 @@ int vtkPixel::EvaluatePosition(float x[3], float closestPoint[3],
       else pc[i] = pcoords[i];
       }
     this->EvaluateLocation(subId, pc, closestPoint, (float *)w);
-    dist2 = vtkAMath.Distance2BetweenPoints(closestPoint,x);
+    dist2 = vtkMath::Distance2BetweenPoints(closestPoint,x);
     return 0;
     }
 }

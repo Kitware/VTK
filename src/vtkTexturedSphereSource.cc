@@ -7,7 +7,7 @@
   Version:   $Revision$
 
 
-Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
+Copyright (c) 1993-1996 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
 The following terms apply to all files associated with the software unless
@@ -38,7 +38,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include <math.h>
 #include "vtkTexturedSphereSource.hh"
 #include "vtkFloatPoints.hh"
 #include "vtkFloatNormals.hh"
@@ -66,7 +65,6 @@ void vtkTexturedSphereSource::Execute()
   vtkCellArray *newPolys;
   float x[3], deltaPhi, deltaTheta, phi, theta, radius, norm;
   int pts[3];
-  vtkMath math;
   vtkPolyData *output=(vtkPolyData *)this->Output;
   float tc[2];
   
@@ -87,8 +85,8 @@ void vtkTexturedSphereSource::Execute()
   // Create sphere
   //
   // Create intermediate points
-  deltaPhi = math.Pi() / this->PhiResolution;
-  deltaTheta = 2.0 * math.Pi() / this->ThetaResolution;
+  deltaPhi = vtkMath::Pi() / this->PhiResolution;
+  deltaTheta = 2.0 * vtkMath::Pi() / this->ThetaResolution;
   for (i=0; i <= this->ThetaResolution; i++)
     {
     theta = i * deltaTheta;
@@ -102,7 +100,7 @@ void vtkTexturedSphereSource::Execute()
       x[2] = this->Radius * cos((double)phi);
       newPoints->InsertNextPoint(x);
 
-      if ( (norm = math.Norm(x)) == 0.0 ) norm = 1.0;
+      if ( (norm = vtkMath::Norm(x)) == 0.0 ) norm = 1.0;
       x[0] /= norm; x[1] /= norm; x[2] /= norm; 
       newNormals->InsertNextNormal(x);
 

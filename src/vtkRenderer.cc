@@ -7,7 +7,7 @@
   Version:   $Revision$
 
 
-Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
+Copyright (c) 1993-1996 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
 The following terms apply to all files associated with the software unless
@@ -290,7 +290,6 @@ void vtkRenderer::ResetCamera(float bounds[6])
   float center[3];
   float distance;
   float width;
-  vtkMath math;
   float vn[3], *vup;;
 
   if ( this->ActiveCamera != NULL )
@@ -312,12 +311,13 @@ void vtkRenderer::ResetCamera(float bounds[6])
     {
     width = bounds[1] - bounds[0];
     }
-  distance = 0.8*width/tan(this->ActiveCamera->GetViewAngle()*math.Pi()/360.0);
+  distance = 
+    0.8*width/tan(this->ActiveCamera->GetViewAngle()*vtkMath::Pi()/360.0);
   distance = distance + (bounds[5] - bounds[4])/2.0;
 
   // check view-up vector against view plane normal
   vup = this->ActiveCamera->GetViewUp();
-  if ( fabs(math.Dot(vup,vn)) > 0.999 )
+  if ( fabs(vtkMath::Dot(vup,vn)) > 0.999 )
     {
     vtkWarningMacro(<<"Resetting view-up since view plane normal is parallel");
     this->ActiveCamera->SetViewUp(-vup[2], vup[0], vup[1]);

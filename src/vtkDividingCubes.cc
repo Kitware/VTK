@@ -7,7 +7,7 @@
   Version:   $Revision$
 
 
-Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
+Copyright (c) 1993-1996 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
 The following terms apply to all files associated with the software unless
@@ -202,7 +202,6 @@ void vtkDividingCubes::SubDivide(float origin[3], int dim[3], float h[3],
   static vtkVoxel subVoxel;
   static vtkFloatScalars subVoxelScalars(8);
   static vtkFloatNormals subVoxelNormals(8);
-  static vtkMath math;
   subVoxelScalars.ReferenceCountingOff();
   subVoxelScalars.Reset();
   subVoxelNormals.ReferenceCountingOff();
@@ -285,7 +284,7 @@ void vtkDividingCubes::SubDivide(float origin[3], int dim[3], float h[3],
             n[1] += normal[1];
             n[2] += normal[2];
             }
-          math.Normalize(n);
+          vtkMath::Normalize(n);
 
           id = NewPts->InsertNextPoint(p);
           NewVerts->InsertCellPoint(id);

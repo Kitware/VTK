@@ -7,7 +7,7 @@
   Version:   $Revision$
 
 
-Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
+Copyright (c) 1993-1996 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
 The following terms apply to all files associated with the software unless
@@ -70,7 +70,6 @@ int vtkHexahedron::EvaluatePosition(float x[3], float closestPoint[3],
   int i, j;
   float  d, *pt;
   float derivs[24];
-  static vtkMath math;
 //
 //  set initial position for Newton's method
 //
@@ -110,11 +109,11 @@ int vtkHexahedron::EvaluatePosition(float x[3], float closestPoint[3],
 //
 //  compute determinants and generate improvements
 //
-    if ( (d=math.Determinant3x3(rcol,scol,tcol)) == 0.0 ) return -1;
+    if ( (d=vtkMath::Determinant3x3(rcol,scol,tcol)) == 0.0 ) return -1;
 
-    pcoords[0] = params[0] - math.Determinant3x3 (fcol,scol,tcol) / d;
-    pcoords[1] = params[1] - math.Determinant3x3 (rcol,fcol,tcol) / d;
-    pcoords[2] = params[2] - math.Determinant3x3 (rcol,scol,fcol) / d;
+    pcoords[0] = params[0] - vtkMath::Determinant3x3 (fcol,scol,tcol) / d;
+    pcoords[1] = params[1] - vtkMath::Determinant3x3 (rcol,fcol,tcol) / d;
+    pcoords[2] = params[2] - vtkMath::Determinant3x3 (rcol,scol,fcol) / d;
 //
 //  check for convergence
 //
@@ -160,7 +159,7 @@ int vtkHexahedron::EvaluatePosition(float x[3], float closestPoint[3],
       else pc[i] = pcoords[i];
       }
     this->EvaluateLocation(subId, pc, closestPoint, (float *)w);
-    dist2 = math.Distance2BetweenPoints(closestPoint,x);
+    dist2 = vtkMath::Distance2BetweenPoints(closestPoint,x);
     return 0;
     }
 }
@@ -570,7 +569,6 @@ void vtkHexahedron::Derivatives(int vtkNotUsed(subId), float pcoords[3],
 void vtkHexahedron::JacobianInverse(float pcoords[3], double **inverse,
                                     float derivs[24])
 {
-  static vtkMath math;
   int i, j;
   double *m[3], m0[3], m1[3], m2[3];
   float *x;
@@ -597,7 +595,7 @@ void vtkHexahedron::JacobianInverse(float pcoords[3], double **inverse,
     }
 
   // now find the inverse
-  if ( math.InvertMatrix(m,inverse,3) == 0 )
+  if ( vtkMath::InvertMatrix(m,inverse,3) == 0 )
     {
     vtkErrorMacro(<<"Jacobian inverse not found");
     return;

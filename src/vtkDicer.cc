@@ -7,7 +7,7 @@
   Version:   $Revision$
 
 
-Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
+Copyright (c) 1993-1996 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
 The following terms apply to all files associated with the software unless
@@ -54,7 +54,6 @@ void vtkDicer::BuildTree(vtkIdList *ptIds, vtkOBBNode *OBBptr)
 {
   int i, numPts=ptIds->GetNumberOfIds();
   int ptId;
-  static vtkMath math;
   static vtkOBBTree OBB;
 
   float size[3];
@@ -100,7 +99,7 @@ void vtkDicer::BuildTree(vtkIdList *ptIds, vtkOBBNode *OBBptr)
 
     // compute split normal
     for (i=0 ; i < 3; i++) n[i] = OBBptr->Axes[0][i];
-    math.Normalize(n);
+    vtkMath::Normalize(n);
 
     //traverse cells, assigning to appropriate child list as necessary
     for ( i=0; i < numPts; i++ )

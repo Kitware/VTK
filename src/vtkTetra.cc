@@ -7,7 +7,7 @@
   Version:   $Revision$
 
 
-Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
+Copyright (c) 1993-1996 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
 The following terms apply to all files associated with the software unless
@@ -45,7 +45,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkCellArray.hh"
 #include "vtkPointLocator.hh"
 
-static vtkMath math;
 
 // Description:
 // Deep copy of cell.
@@ -80,11 +79,11 @@ int vtkTetra::EvaluatePosition(float x[3], float closestPoint[3],
     c3[i] = pt3[i] - pt4[i];
     }
 
-  if ( (det = math.Determinant3x3(c1,c2,c3)) == 0.0 ) return -1;
+  if ( (det = vtkMath::Determinant3x3(c1,c2,c3)) == 0.0 ) return -1;
 
-  pcoords[0] = math.Determinant3x3 (rhs,c2,c3) / det;
-  pcoords[1] = math.Determinant3x3 (c1,rhs,c3) / det;
-  pcoords[2] = math.Determinant3x3 (c1,c2,rhs) / det;
+  pcoords[0] = vtkMath::Determinant3x3 (rhs,c2,c3) / det;
+  pcoords[1] = vtkMath::Determinant3x3 (c1,rhs,c3) / det;
+  pcoords[2] = vtkMath::Determinant3x3 (c1,c2,rhs) / det;
   p4 = 1.0 - pcoords[0] - pcoords[1] - pcoords[2];
 
   weights[0] = p4;
@@ -426,7 +425,6 @@ float vtkTetra::Circumsphere(float  x1[3], float x2[3], float x3[3],
   double n12[3], n13[3], n14[3], x12[3], x13[3], x14[3];
   double *A[3], rhs[3], sum, diff;
   int i;
-  static vtkMath math;
 //
 //  calculate normals and intersection points of bisecting planes.  
 //
@@ -455,7 +453,7 @@ float vtkTetra::Circumsphere(float  x1[3], float x2[3], float x3[3],
 //
 // Solve system of equations
 //
-  if ( math.SolveLinearSystem(A,rhs,3) == 0 )
+  if ( vtkMath::SolveLinearSystem(A,rhs,3) == 0 )
     {
     center[0] = center[1] = center[2] = 0.0;
     return VTK_LARGE_FLOAT;
@@ -497,7 +495,6 @@ float vtkTetra::Circumsphere(float  x1[3], float x2[3], float x3[3],
 int vtkTetra::BarycentricCoords(float x[3], float  x1[3], float x2[3], 
                                 float x3[3], float x4[3], float bcoords[4])
 {
-  static vtkMath math;
   double *A[4], p[4], a1[4], a2[4], a3[4], a4[4];
   int i;
 
@@ -518,7 +515,7 @@ int vtkTetra::BarycentricCoords(float x[3], float  x1[3], float x2[3],
   A[2] = a3;
   A[3] = a4;
 
-  if ( math.SolveLinearSystem(A,p,4) )
+  if ( vtkMath::SolveLinearSystem(A,p,4) )
     {
     for (i=0; i<4; i++) bcoords[i] = (float) p[i];
     return 1;
@@ -567,7 +564,6 @@ void vtkTetra::InterpolationDerivs(float derivs[12])
 // function derivatives.
 void vtkTetra::JacobianInverse(double **inverse, float derivs[12])
 {
-  static vtkMath math;
   int i, j;
   double *m[3], m0[3], m1[3], m2[3];
   float *x;
@@ -594,7 +590,7 @@ void vtkTetra::JacobianInverse(double **inverse, float derivs[12])
     }
 
   // now find the inverse
-  if ( math.InvertMatrix(m,inverse,3) == 0 )
+  if ( vtkMath::InvertMatrix(m,inverse,3) == 0 )
     {
     vtkErrorMacro(<<"Jacobian inverse not found");
     return;

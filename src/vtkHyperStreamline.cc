@@ -7,7 +7,7 @@
   Version:   1.16
 
 
-Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
+Copyright (c) 1993-1996 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
 The following terms apply to all files associated with the software unless
@@ -258,7 +258,6 @@ static void FixVectors(float **prev, float **current, int iv, int ix, int iy)
   float p0[3], p1[3], p2[3];
   float v0[3], v1[3], v2[3];
   float temp[3];
-  vtkMath math;
   int i;
 
   for (i=0; i<3; i++)
@@ -270,8 +269,8 @@ static void FixVectors(float **prev, float **current, int iv, int ix, int iy)
 
   if ( prev == NULL ) //make sure coord system is right handed
     {
-    math.Cross(v0,v1,temp);
-    if ( math.Dot(v2,temp) < 0.0 )
+    vtkMath::Cross(v0,v1,temp);
+    if ( vtkMath::Dot(v2,temp) < 0.0 )
       {
       for (i=0; i<3; i++) current[i][iy] *= -1.0;
       }
@@ -285,15 +284,15 @@ static void FixVectors(float **prev, float **current, int iv, int ix, int iy)
       p1[i] = prev[i][ix];
       p2[i] = prev[i][iy];
       }
-    if ( math.Dot(p0,v0) < 0.0 )
+    if ( vtkMath::Dot(p0,v0) < 0.0 )
       {
       for (i=0; i<3; i++) current[i][iv] *= -1.0;
       }
-    if ( math.Dot(p1,v1) < 0.0 )
+    if ( vtkMath::Dot(p1,v1) < 0.0 )
       {
       for (i=0; i<3; i++) current[i][ix] *= -1.0;
       }
-    if ( math.Dot(p2,v2) < 0.0 )
+    if ( vtkMath::Dot(p2,v2) < 0.0 )
       {
       for (i=0; i<3; i++) current[i][iy] *= -1.0;
       }
@@ -311,7 +310,6 @@ void vtkHyperStreamline::Execute()
   int i, j, k, ptId, offset, subId, iv, ix, iy;
   vtkCell *cell;
   float ev[3], xNext[3];
-  vtkMath math;
   float d, step, dir, tol2, p[3];
   float *w=new float[input->GetMaxCellSize()], dist2;
   float closestPoint[3];
@@ -395,7 +393,7 @@ void vtkHyperStreamline::Execute()
         }
       }
 
-    math.Jacobi(m, sPtr->w, sPtr->v);
+    vtkMath::Jacobi(m, sPtr->w, sPtr->v);
     FixVectors(NULL, sPtr->v, iv, ix, iy);
 
     if ( inScalars ) 
@@ -458,7 +456,7 @@ void vtkHyperStreamline::Execute()
           }
         }
 
-      math.Jacobi(m, ev, v);
+      vtkMath::Jacobi(m, ev, v);
       FixVectors(sPtr->v, v, iv, ix, iy);
 
       //now compute final position
@@ -505,14 +503,14 @@ void vtkHyperStreamline::Execute()
             }
           }
 
-        math.Jacobi(m, sNext->w, sNext->v);
+        vtkMath::Jacobi(m, sNext->w, sNext->v);
         FixVectors(sPtr->v, sNext->v, iv, ix, iy);
 
         if ( inScalars )
           for (sNext->s=0.0, i=0; i < cell->GetNumberOfPoints(); i++)
             sNext->s += cellScalars.GetScalar(i) * w[i];
 
-        d = sqrt((double)math.Distance2BetweenPoints(sPtr->x,sNext->x));
+        d = sqrt((double)vtkMath::Distance2BetweenPoints(sPtr->x,sNext->x));
         sNext->d = sPtr->d + d;
         }
 
@@ -539,8 +537,7 @@ void vtkHyperStreamline::BuildTube()
   int npts, ptOffset=0;
   float dOffset, x[3], v[3], s, r, r1[3], r2[3], stepLength;
   float xT[3], sFactor, normal[3], w[3];
-  vtkMath math;
-  float theta=2.0*math.Pi()/this->NumberOfSides;
+  float theta=2.0*vtkMath::Pi()/this->NumberOfSides;
   vtkPointData *outPD;
   vtkDataSet *input=this->Input;
   vtkPolyData *output=(vtkPolyData *)this->Output;
@@ -617,7 +614,7 @@ void vtkHyperStreamline::BuildTube()
             }
           id = newPts->InsertNextPoint(xT);
           newVectors->InsertVector(id,v);
-          math.Normalize(normal);
+          vtkMath::Normalize(normal);
           newNormals->InsertNormal(id,normal);
           }
 

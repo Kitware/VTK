@@ -7,7 +7,7 @@
   Version:   $Revision$
 
 
-Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
+Copyright (c) 1993-1996 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
 The following terms apply to all files associated with the software unless
@@ -43,8 +43,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkCellArray.hh"
 #include "vtkPointLocator.hh"
 
-static vtkMath math;
-
 // Description:
 // Deep copy of cell.
 vtkVertex::vtkVertex(const vtkVertex& p)
@@ -65,7 +63,7 @@ int vtkVertex::EvaluatePosition(float x[3], float closestPoint[3],
   X = this->Points.GetPoint(0);
   closestPoint[0] = X[0]; closestPoint[1] = X[1]; closestPoint[2] = X[2];
 
-  dist2 = math.Distance2BetweenPoints(X,x);
+  dist2 = vtkMath::Distance2BetweenPoints(X,x);
   weights[0] = 1.0;
 
   if (dist2 == 0.0)
@@ -136,7 +134,7 @@ int vtkVertex::IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
   X = this->Points.GetPoint(0);
 
   for (i=0; i<3; i++) ray[i] = p2[i] - p1[i];
-  if (( rayFactor = math.Dot(ray,ray)) == 0.0 ) return 0;
+  if (( rayFactor = vtkMath::Dot(ray,ray)) == 0.0 ) return 0;
 //
 //  Project each point onto ray. Determine whether point is within tolerance.
 //

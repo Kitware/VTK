@@ -7,7 +7,7 @@
   Version:   $Revision$
 
 
-Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
+Copyright (c) 1993-1996 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
 The following terms apply to all files associated with the software unless
@@ -128,7 +128,6 @@ void vtkVRMLExporter::WriteALight(vtkLight *aLight, FILE *fp)
 {
   float *pos, *focus, *color;
   float dir[3];
-  vtkMath math;
   
   pos = aLight->GetPosition();
   focus = aLight->GetFocalPoint();
@@ -137,7 +136,7 @@ void vtkVRMLExporter::WriteALight(vtkLight *aLight, FILE *fp)
   dir[0] = focus[0] - pos[0];
   dir[1] = focus[1] - pos[1];
   dir[2] = focus[2] - pos[2];
-  math.Normalize(dir);
+  vtkMath::Normalize(dir);
     
   if (aLight->GetPositional())
     {

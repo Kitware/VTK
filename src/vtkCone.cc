@@ -7,7 +7,7 @@
   Version:   $Revision$
 
 
-Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
+Copyright (c) 1993-1996 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
 The following terms apply to all files associated with the software unless
@@ -52,8 +52,8 @@ vtkCone::vtkCone()
 // Evaluate cone equation.
 float vtkCone::EvaluateFunction(float x[3])
 {
-  static vtkMath math;
-  float tanTheta = (float) tan((double)this->Angle*math.DegreesToRadians());
+  float tanTheta = (float) 
+    tan((double)this->Angle*vtkMath::DegreesToRadians());
   return x[0]*x[0] + x[1]*x[1] - x[2]*tanTheta;
 }
 
@@ -61,8 +61,8 @@ float vtkCone::EvaluateFunction(float x[3])
 // Evaluate cone normal.
 void vtkCone::EvaluateGradient(float x[3], float g[3])
 {
-  static vtkMath math;
-  float tanTheta = (float) tan((double)this->Angle*math.DegreesToRadians());
+  float tanTheta = (float) 
+    tan((double)this->Angle*vtkMath::DegreesToRadians());
   g[0] = 2.0*x[0];
   g[1] = 2.0*x[1];
   g[2] = -tanTheta;

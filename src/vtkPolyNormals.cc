@@ -7,7 +7,7 @@
   Version:   $Revision$
 
 
-Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
+Copyright (c) 1993-1996 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
 The following terms apply to all files associated with the software unless
@@ -80,7 +80,6 @@ void vtkPolyNormals::Execute()
   vtkPoints *inPts;
   vtkCellArray *inPolys, *inStrips, *polys;
   vtkPolygon poly;
-  vtkMath math;
   vtkFloatPoints *newPts = NULL;
   vtkFloatNormals *newNormals;
   vtkPointData *pd, *outPD;
@@ -209,7 +208,7 @@ void vtkPolyNormals::Execute()
 //
   if ( this->Splitting ) 
     {
-    CosAngle = cos ((double) math.DegreesToRadians() * this->FeatureAngle);
+    CosAngle = cos ((double) vtkMath::DegreesToRadians() * this->FeatureAngle);
 //
 //  Splitting will create new points.  Have to create index array to map
 //  new points into old points.
@@ -282,7 +281,7 @@ void vtkPolyNormals::Execute()
   for (i=0; i < numNewPts; i++) 
     {
     vertNormal = newNormals->GetNormal(i);
-    length = math.Norm(vertNormal);
+    length = vtkMath::Norm(vertNormal);
     if (length != 0.0) 
       {
       for (j=0; j < 3; j++) n[j] = vertNormal[j] / length * flipDirection;
@@ -392,7 +391,6 @@ void vtkPolyNormals::MarkAndReplace (int cellId, int n, int replacementPoint)
   int numOldPts, *oldPts;
   int numNewPts, *newPts;
   vtkIdList cellIds(5,10);
-  vtkMath math;
 
   Visited[cellId] = Mark;
   OldMesh->GetCellPoints(cellId,numOldPts,oldPts);
@@ -446,7 +444,7 @@ void vtkPolyNormals::MarkAndReplace (int cellId, int n, int replacementPoint)
       thisNormal = PolyNormals->GetNormal(cellId);
       neiNormal =  PolyNormals->GetNormal(cellIds.GetId(0));
 
-      if ( math.Dot(thisNormal,neiNormal) > CosAngle )
+      if ( vtkMath::Dot(thisNormal,neiNormal) > CosAngle )
         this->MarkAndReplace (cellIds.GetId(0), n, replacementPoint);
       }
     }

@@ -7,7 +7,7 @@
   Version:   $Revision$
 
 
-Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
+Copyright (c) 1993-1996 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
 The following terms apply to all files associated with the software unless
@@ -234,7 +234,6 @@ void vtkStreamer::Integrate()
   int i, j, ptId, offset, subId;
   vtkCell *cell;
   float *v, xNext[3];
-  vtkMath math;
   float d, step, dir, vNext[3], tol2, p[3];
   float *w=new float[input->GetMaxCellSize()], dist2;
   float closestPoint[3];
@@ -320,7 +319,7 @@ void vtkStreamer::Integrate()
         v =  cellVectors.GetVector(i);
         for (j=0; j<3; j++) sPtr->v[j] += v[j] * w[i];
         }
-      sPtr->speed = math.Norm(sPtr->v);
+      sPtr->speed = vtkMath::Norm(sPtr->v);
 
       if ( inScalars ) 
         {
@@ -415,12 +414,12 @@ void vtkStreamer::Integrate()
           v = cellVectors.GetVector(i);
           for (j=0; j < 3; j++) sNext->v[j] += v[j] * w[i];
           }
-        sNext->speed = math.Norm(sNext->v);
+        sNext->speed = vtkMath::Norm(sNext->v);
         if ( inScalars )
           for (sNext->s=0.0, i=0; i < cell->GetNumberOfPoints(); i++)
             sNext->s += cellScalars.GetScalar(i) * w[i];
 
-        d = sqrt((double)math.Distance2BetweenPoints(sPtr->x,sNext->x));
+        d = sqrt((double)vtkMath::Distance2BetweenPoints(sPtr->x,sNext->x));
         sNext->d = sPtr->d + d;
         sNext->t = sPtr->t + (2.0 * d / (sPtr->speed + sNext->speed));
         }

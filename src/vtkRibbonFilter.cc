@@ -7,7 +7,7 @@
   Version:   $Revision$
 
 
-Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
+Copyright (c) 1993-1996 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
 The following terms apply to all files associated with the software unless
@@ -71,7 +71,6 @@ void vtkRibbonFilter::Execute()
   float *n;
   float s[3], sNext[3], sPrev[3], w[3];
   double BevelAngle;
-  vtkMath math;
   float theta;
   int deleteNormals=0, ptId;
   vtkPolyData *input=(vtkPolyData *)this->Input;
@@ -130,7 +129,7 @@ void vtkRibbonFilter::Execute()
 //  Create pairs of points along the line that are later connected into a 
 //  triangle strip.
 //
-  theta = this->Angle * math.DegreesToRadians();
+  theta = this->Angle * vtkMath::DegreesToRadians();
   for (inLines->InitTraversal(); inLines->GetNextCell(npts,pts); )
     {
 //
@@ -173,24 +172,24 @@ void vtkRibbonFilter::Execute()
 
       n = inNormals->GetNormal(pts[j]);
 
-      if ( math.Normalize(sNext) == 0.0 )
+      if ( vtkMath::Normalize(sNext) == 0.0 )
         {
         vtkErrorMacro(<<"Coincident points!");
         return;
         }
 
       for (i=0; i<3; i++) s[i] = (sPrev[i] + sNext[i]) / 2.0; //average vector
-      math.Normalize(s);
+      vtkMath::Normalize(s);
       
-      if ( (BevelAngle = math.Dot(sNext,sPrev)) > 1.0 ) BevelAngle = 1.0;
+      if ( (BevelAngle = vtkMath::Dot(sNext,sPrev)) > 1.0 ) BevelAngle = 1.0;
       if ( BevelAngle < -1.0 ) BevelAngle = -1.0;
       BevelAngle = acos((double)BevelAngle) / 2.0; //(0->90 degrees)
       if ( (BevelAngle = cos(BevelAngle)) == 0.0 ) BevelAngle = 1.0;
 
       BevelAngle = this->Width / BevelAngle;
 
-      math.Cross(s,n,w);
-      if ( math.Normalize(w) == 0.0)
+      vtkMath::Cross(s,n,w);
+      if ( vtkMath::Normalize(w) == 0.0)
         {
         vtkErrorMacro(<<"Bad normal!");
         return;

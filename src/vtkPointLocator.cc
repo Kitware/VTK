@@ -7,7 +7,7 @@
   Version:   $Revision$
 
 
-Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
+Copyright (c) 1993-1996 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
 The following terms apply to all files associated with the software unless
@@ -122,7 +122,6 @@ int vtkPointLocator::FindClosestPoint(float x[3])
   int ijk[3], *nei;
   int MULTIPLES;
   float diff;
-  vtkMath math;
 
   this->BuildLocator(); // will subdivide if modified; otherwise returns
 //
@@ -162,7 +161,7 @@ int vtkPointLocator::FindClosestPoint(float x[3])
           {
           ptId = ptIds->GetId(j);
           pt = this->DataSet->GetPoint(ptId);
-          if ( (dist2 = math.Distance2BetweenPoints(x,pt)) < minDist2 ) 
+          if ( (dist2 = vtkMath::Distance2BetweenPoints(x,pt)) < minDist2 ) 
             {
             closest = ptId;
             minDist2 = dist2;
@@ -205,7 +204,7 @@ int vtkPointLocator::FindClosestPoint(float x[3])
             {
             ptId = ptIds->GetId(j);
             pt = this->DataSet->GetPoint(ptId);
-            if ( (dist2 = math.Distance2BetweenPoints(x,pt)) < minDist2 ) 
+            if ( (dist2 = vtkMath::Distance2BetweenPoints(x,pt)) < minDist2 ) 
               {
               closest = ptId;
               minDist2 = dist2;
@@ -233,7 +232,6 @@ int *vtkPointLocator::MergePoints()
   int ijk[3], *nei;
   int level, lvtk, cno;
   vtkIdList *ptIds;
-  vtkMath math;
 
   vtkDebugMacro(<<"Merging points");
 
@@ -291,7 +289,7 @@ int *vtkPointLocator::MergePoints()
               ptId = ptIds->GetId(j);
               pt = this->DataSet->GetPoint(ptId);
 
-              if ( index[ptId] == -1 && math.Distance2BetweenPoints(p,pt) <= tol2 )
+              if ( index[ptId] == -1 && vtkMath::Distance2BetweenPoints(p,pt) <= tol2 )
                 {
                 index[ptId] = newPtId;
                 }
@@ -617,7 +615,6 @@ int vtkPointLocator::IsInsertedPoint(float x[3])
 //
     int *nei, lvtk, cno, ptId;
     vtkIdList *ptIds;
-    vtkMath math;
     float *pt;
 
     for (lvtk=0; lvtk <= InsertionLevel; lvtk++)
@@ -637,7 +634,7 @@ int vtkPointLocator::IsInsertedPoint(float x[3])
             ptId = ptIds->GetId(j);
             pt = this->Points->GetPoint(ptId);
 
-            if ( math.Distance2BetweenPoints(x,pt) <= this->InsertionTol2 )
+            if ( vtkMath::Distance2BetweenPoints(x,pt) <= this->InsertionTol2 )
               {
               return ptId;
               }
@@ -664,7 +661,6 @@ int vtkPointLocator::FindClosestInsertedPoint(float x[3])
   int ijk[3], *nei;
   int MULTIPLES;
   float diff;
-  vtkMath math;
 //
 //  Make sure candidate point is in bounds.  If not, it is outside.
 //
@@ -702,7 +698,7 @@ int vtkPointLocator::FindClosestInsertedPoint(float x[3])
           {
           ptId = ptIds->GetId(j);
           pt = this->Points->GetPoint(ptId);
-          if ( (dist2 = math.Distance2BetweenPoints(x,pt)) < minDist2 ) 
+          if ( (dist2 = vtkMath::Distance2BetweenPoints(x,pt)) < minDist2 ) 
             {
             closest = ptId;
             minDist2 = dist2;
@@ -745,7 +741,7 @@ int vtkPointLocator::FindClosestInsertedPoint(float x[3])
             {
             ptId = ptIds->GetId(j);
             pt = this->Points->GetPoint(ptId);
-            if ( (dist2 = math.Distance2BetweenPoints(x,pt)) < minDist2 ) 
+            if ( (dist2 = vtkMath::Distance2BetweenPoints(x,pt)) < minDist2 ) 
               {
               closest = ptId;
               minDist2 = dist2;

@@ -7,7 +7,7 @@
   Version:   $Revision$
 
 
-Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
+Copyright (c) 1993-1996 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
 The following terms apply to all files associated with the software unless
@@ -47,7 +47,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkPointLocator.hh"
 
 static vtkPolygon poly;
-static vtkMath math;
 static vtkPlane plane;
 
 // Description:
@@ -108,10 +107,10 @@ int vtkTriangle::EvaluatePosition(float x[3], float closestPoint[3],
     c2[i] = pt2[indices[i]] - pt3[indices[i]];
     }
 
-  if ( (det = math.Determinant2x2(c1,c2)) == 0.0 ) return -1;
+  if ( (det = vtkMath::Determinant2x2(c1,c2)) == 0.0 ) return -1;
 
-  pcoords[0] = math.Determinant2x2 (rhs,c2) / det;
-  pcoords[1] = math.Determinant2x2 (c1,rhs) / det;
+  pcoords[0] = vtkMath::Determinant2x2 (rhs,c2) / det;
+  pcoords[1] = vtkMath::Determinant2x2 (c1,rhs) / det;
   pcoords[2] = 1.0 - pcoords[0] - pcoords[1];
 //
 // Okay, now find closest point to element
@@ -124,7 +123,7 @@ int vtkTriangle::EvaluatePosition(float x[3], float closestPoint[3],
   pcoords[1] >= 0.0 && pcoords[1] <= 1.0 &&
   pcoords[2] >= 0.0 && pcoords[2] <= 1.0 )
     {
-    dist2 = math.Distance2BetweenPoints(closestPoint,x); //projection distance
+    dist2 = vtkMath::Distance2BetweenPoints(closestPoint,x); //projection distance
     return 1;
     }
   else
@@ -134,17 +133,17 @@ int vtkTriangle::EvaluatePosition(float x[3], float closestPoint[3],
 
     if ( pcoords[0] < 0.0 && pcoords[1] < 0.0 )
       {
-      dist2 = math.Distance2BetweenPoints(x,pt3);
+      dist2 = vtkMath::Distance2BetweenPoints(x,pt3);
       for (i=0; i<3; i++) closestPoint[i] = pt3[i];
       }
     else if ( pcoords[1] < 0.0 && pcoords[2] < 0.0 )
       {
-      dist2 = math.Distance2BetweenPoints(x,pt1);
+      dist2 = vtkMath::Distance2BetweenPoints(x,pt1);
       for (i=0; i<3; i++) closestPoint[i] = pt1[i];
       }
     else if ( pcoords[0] < 0.0 && pcoords[2] < 0.0 )
       {
-      dist2 = math.Distance2BetweenPoints(x,pt2);
+      dist2 = vtkMath::Distance2BetweenPoints(x,pt2);
       for (i=0; i<3; i++) closestPoint[i] = pt2[i];
       }
     else if ( pcoords[0] < 0.0 )
@@ -375,9 +374,9 @@ void vtkTriangle::Derivatives(int vtkNotUsed(subId), float vtkNotUsed(pcoords)[3
     v[i] = x2[i] - x0[i];
     }
 
-  math.Cross(n,v10,v20); //creates local y' axis
+  vtkMath::Cross(n,v10,v20); //creates local y' axis
 
-  if ( (lenX=math.Normalize(v10)) <= 0.0 || math.Normalize(v20) <= 0.0 ) //degenerate
+  if ( (lenX=vtkMath::Normalize(v10)) <= 0.0 || vtkMath::Normalize(v20) <= 0.0 ) //degenerate
     {
     for ( j=0; j < dim; j++ )
       for ( i=0; i < 3; i++ )
@@ -387,8 +386,8 @@ void vtkTriangle::Derivatives(int vtkNotUsed(subId), float vtkNotUsed(pcoords)[3
 
   v0[0] = v0[1] = 0.0; //convert points to 2D (i.e., local system)
   v1[0] = lenX; v1[1] = 0.0;
-  v2[0] = math.Dot(v,v10);
-  v2[1] = math.Dot(v,v20);
+  v2[0] = vtkMath::Dot(v,v10);
+  v2[1] = vtkMath::Dot(v,v20);
 
   // Compute interpolation function derivatives
   functionDerivs[0] = -1; //r derivatives
@@ -408,7 +407,7 @@ void vtkTriangle::Derivatives(int vtkNotUsed(subId), float vtkNotUsed(pcoords)[3
   J[1][1] = v2[1] - v0[1];
 
   // Compute inverse Jacobian
-  math.InvertMatrix(J,JI,2);
+  vtkMath::InvertMatrix(J,JI,2);
 
   // Loop over "dim" derivative values. For each set of values, compute derivatives
   // in local system and then transform into modelling system.
@@ -469,7 +468,7 @@ float vtkTriangle::Circumcircle(float  x1[2], float x2[2], float x3[2],
 //
 // Solve system of equations
 //
-  if ( math.SolveLinearSystem(A,rhs,2) == 0 )
+  if ( vtkMath::SolveLinearSystem(A,rhs,2) == 0 )
     {
     center[0] = center[1] = 0.0;
     return VTK_LARGE_FLOAT;
@@ -509,7 +508,6 @@ float vtkTriangle::Circumcircle(float  x1[2], float x2[2], float x3[2],
 int vtkTriangle::BarycentricCoords(float x[2], float  x1[2], float x2[2], 
                                    float x3[2], float bcoords[3])
 {
-  static vtkMath math;
   double *A[3], p[3], a1[3], a2[3], a3[3];
   int i;
 
@@ -528,7 +526,7 @@ int vtkTriangle::BarycentricCoords(float x[2], float  x1[2], float x2[2],
   A[1] = a2;
   A[2] = a3;
 
-  if ( math.SolveLinearSystem(A,p,3) )
+  if ( vtkMath::SolveLinearSystem(A,p,3) )
     {
     for (i=0; i<3; i++) bcoords[i] = (float) p[i];
     return 1;
@@ -556,17 +554,17 @@ int vtkTriangle::ProjectTo2D(float x1[3], float x2[3], float x3[3],
     v31[i] = x3[i] - x1[i];
     }
 
-  if ( (xLen=math.Normalize(v21)) <= 0.0 ) return 0;
+  if ( (xLen=vtkMath::Normalize(v21)) <= 0.0 ) return 0;
 
   // The first point is at (0,0); the next at (xLen,0); compute the other point relative 
   // to the first two.
   v1[0] = v1[1] = 0.0;
   v2[0] = xLen; v2[1] = 0.0;
 
-  math.Cross(n,v21,v);
+  vtkMath::Cross(n,v21,v);
 
-  v3[0] = math.Dot(v31,v21);
-  v3[1] = math.Dot(v31,v);
+  v3[0] = vtkMath::Dot(v31,v21);
+  v3[1] = vtkMath::Dot(v31,v);
 
   return 1;
 }

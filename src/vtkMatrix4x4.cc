@@ -7,7 +7,7 @@
   Version:   $Revision$
 
 
-Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
+Copyright (c) 1993-1996 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
 The following terms apply to all files associated with the software unless
@@ -176,7 +176,6 @@ void vtkMatrix4x4::Invert (vtkMatrix4x4 in,vtkMatrix4x4 & out)
 // Compute the determinant of the matrix and return it.
 float vtkMatrix4x4::Determinant (vtkMatrix4x4 & in)
 {
-  vtkMath math;
   double a1, a2, a3, a4, b1, b2, b3, b4, c1, c2, c3, c4, d1, d2, d3, d4;
 
   // assign to individual variable names to aid selecting
@@ -194,10 +193,10 @@ float vtkMatrix4x4::Determinant (vtkMatrix4x4 & in)
   a4 = in.Element[3][0]; b4 = in.Element[3][1]; 
   c4 = in.Element[3][2]; d4 = in.Element[3][3];
 
-  return a1 * math.Determinant3x3( b2, b3, b4, c2, c3, c4, d2, d3, d4)
-       - b1 * math.Determinant3x3( a2, a3, a4, c2, c3, c4, d2, d3, d4)
-       + c1 * math.Determinant3x3( a2, a3, a4, b2, b3, b4, d2, d3, d4)
-       - d1 * math.Determinant3x3( a2, a3, a4, b2, b3, b4, c2, c3, c4);
+  return a1 * vtkMath::Determinant3x3( b2, b3, b4, c2, c3, c4, d2, d3, d4)
+       - b1 * vtkMath::Determinant3x3( a2, a3, a4, c2, c3, c4, d2, d3, d4)
+       + c1 * vtkMath::Determinant3x3( a2, a3, a4, b2, b3, b4, d2, d3, d4)
+       - d1 * vtkMath::Determinant3x3( a2, a3, a4, b2, b3, b4, c2, c3, c4);
 }
 
 // Description:
@@ -221,7 +220,6 @@ void vtkMatrix4x4::Adjoint (vtkMatrix4x4 & in,vtkMatrix4x4 & out)
 //    The matrix B = (b  ) is the adjoint of A
 //                     ij
 //
-  vtkMath m;
   double a1, a2, a3, a4, b1, b2, b3, b4;
   double c1, c2, c3, c4, d1, d2, d3, d4;
 
@@ -243,25 +241,41 @@ void vtkMatrix4x4::Adjoint (vtkMatrix4x4 & in,vtkMatrix4x4 & out)
 
   // row column labeling reversed since we transpose rows & columns
 
-  out.Element[0][0]  =   m.Determinant3x3( b2, b3, b4, c2, c3, c4, d2, d3, d4);
-  out.Element[1][0]  = - m.Determinant3x3( a2, a3, a4, c2, c3, c4, d2, d3, d4);
-  out.Element[2][0]  =   m.Determinant3x3( a2, a3, a4, b2, b3, b4, d2, d3, d4);
-  out.Element[3][0]  = - m.Determinant3x3( a2, a3, a4, b2, b3, b4, c2, c3, c4);
+  out.Element[0][0]  =   
+    vtkMath::Determinant3x3( b2, b3, b4, c2, c3, c4, d2, d3, d4);
+  out.Element[1][0]  = 
+    - vtkMath::Determinant3x3( a2, a3, a4, c2, c3, c4, d2, d3, d4);
+  out.Element[2][0]  =   
+    vtkMath::Determinant3x3( a2, a3, a4, b2, b3, b4, d2, d3, d4);
+  out.Element[3][0]  = 
+    - vtkMath::Determinant3x3( a2, a3, a4, b2, b3, b4, c2, c3, c4);
+
+  out.Element[0][1]  = 
+    - vtkMath::Determinant3x3( b1, b3, b4, c1, c3, c4, d1, d3, d4);
+  out.Element[1][1]  =   
+    vtkMath::Determinant3x3( a1, a3, a4, c1, c3, c4, d1, d3, d4);
+  out.Element[2][1]  = 
+    - vtkMath::Determinant3x3( a1, a3, a4, b1, b3, b4, d1, d3, d4);
+  out.Element[3][1]  =   
+    vtkMath::Determinant3x3( a1, a3, a4, b1, b3, b4, c1, c3, c4);
         
-  out.Element[0][1]  = - m.Determinant3x3( b1, b3, b4, c1, c3, c4, d1, d3, d4);
-  out.Element[1][1]  =   m.Determinant3x3( a1, a3, a4, c1, c3, c4, d1, d3, d4);
-  out.Element[2][1]  = - m.Determinant3x3( a1, a3, a4, b1, b3, b4, d1, d3, d4);
-  out.Element[3][1]  =   m.Determinant3x3( a1, a3, a4, b1, b3, b4, c1, c3, c4);
+  out.Element[0][2]  =   
+    vtkMath::Determinant3x3( b1, b2, b4, c1, c2, c4, d1, d2, d4);
+  out.Element[1][2]  = 
+    - vtkMath::Determinant3x3( a1, a2, a4, c1, c2, c4, d1, d2, d4);
+  out.Element[2][2]  =   
+    vtkMath::Determinant3x3( a1, a2, a4, b1, b2, b4, d1, d2, d4);
+  out.Element[3][2]  = 
+    - vtkMath::Determinant3x3( a1, a2, a4, b1, b2, b4, c1, c2, c4);
         
-  out.Element[0][2]  =   m.Determinant3x3( b1, b2, b4, c1, c2, c4, d1, d2, d4);
-  out.Element[1][2]  = - m.Determinant3x3( a1, a2, a4, c1, c2, c4, d1, d2, d4);
-  out.Element[2][2]  =   m.Determinant3x3( a1, a2, a4, b1, b2, b4, d1, d2, d4);
-  out.Element[3][2]  = - m.Determinant3x3( a1, a2, a4, b1, b2, b4, c1, c2, c4);
-        
-  out.Element[0][3]  = - m.Determinant3x3( b1, b2, b3, c1, c2, c3, d1, d2, d3);
-  out.Element[1][3]  =   m.Determinant3x3( a1, a2, a3, c1, c2, c3, d1, d2, d3);
-  out.Element[2][3]  = - m.Determinant3x3( a1, a2, a3, b1, b2, b3, d1, d2, d3);
-  out.Element[3][3]  =   m.Determinant3x3( a1, a2, a3, b1, b2, b3, c1, c2, c3);
+  out.Element[0][3]  = 
+    - vtkMath::Determinant3x3( b1, b2, b3, c1, c2, c3, d1, d2, d3);
+  out.Element[1][3]  =   
+    vtkMath::Determinant3x3( a1, a2, a3, c1, c2, c3, d1, d2, d3);
+  out.Element[2][3]  = 
+    - vtkMath::Determinant3x3( a1, a2, a3, b1, b2, b3, d1, d2, d3);
+  out.Element[3][3]  =   
+    vtkMath::Determinant3x3( a1, a2, a3, b1, b2, b3, c1, c2, c3);
 }
 
 vtkMatrix4x4& vtkMatrix4x4::operator= (const vtkMatrix4x4& source)

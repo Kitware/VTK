@@ -7,7 +7,7 @@
   Version:   $Revision$
 
 
-Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
+Copyright (c) 1993-1996 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
 The following terms apply to all files associated with the software unless
@@ -446,7 +446,6 @@ float *vtkCamera::GetOrientation ()
 void vtkCamera::CalcViewTransform()
 {
   vtkMatrix4x4  matrix;
-  vtkMath math;
   float *Rz, Rx[3], Ry[3];
   float p1[4],PRP[4];
   
@@ -461,9 +460,9 @@ void vtkCamera::CalcViewTransform()
   // do the rotation
   // Rz just equals the VPN
   Rz = this->ViewPlaneNormal;
-  math.Cross(this->ViewUp,Rz,Rx);
-  math.Normalize(Rx);
-  math.Cross(Rz,Rx,Ry);
+  vtkMath::Cross(this->ViewUp,Rz,Rx);
+  vtkMath::Normalize(Rx);
+  vtkMath::Cross(Rz,Rx,Ry);
   
   matrix[0][0] = Rx[0];
   matrix[0][1] = Rx[1];
@@ -515,7 +514,6 @@ void vtkCamera::CalcPerspectiveTransform(float aspect,
 {
   vtkMatrix4x4  matrix;
   float DOP[3];
-  vtkMath math;
   float ftemp;
   float *Rz, Rx[3], Ry[3];
   float p1[4],PRP[4];
@@ -532,9 +530,9 @@ void vtkCamera::CalcPerspectiveTransform(float aspect,
   // do the rotation
   // Rz just equals the VPN
   Rz = this->ViewPlaneNormal;
-  math.Cross(this->ViewUp,Rz,Rx);
-  math.Normalize(Rx);
-  math.Cross(Rz,Rx,Ry);
+  vtkMath::Cross(this->ViewUp,Rz,Rx);
+  vtkMath::Normalize(Rx);
+  vtkMath::Cross(Rz,Rx,Ry);
   
   matrix[0][0] = Rx[0];
   matrix[0][1] = Rx[1];
@@ -703,14 +701,13 @@ void vtkCamera::OrthogonalizeViewUp()
 {
   float *normal,*up,temp[3],new_up[3];
   float temp_mag_sq,new_mag_sq,ratio;
-  vtkMath math;
 
   normal=this->ViewPlaneNormal;
   up=this->ViewUp;
-  math.Cross(normal,up,temp);
+  vtkMath::Cross(normal,up,temp);
 
   temp_mag_sq = (SQ_MAG(up));
-  math.Cross(temp,normal,new_up);
+  vtkMath::Cross(temp,normal,new_up);
   new_mag_sq = (SQ_MAG(new_up));
   ratio = sqrt(new_mag_sq/temp_mag_sq);
   this->SetViewUp(new_up[0]*ratio,new_up[1]*ratio,new_up[2]*ratio);

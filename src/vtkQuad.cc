@@ -7,7 +7,7 @@
   Version:   $Revision$
 
 
-Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
+Copyright (c) 1993-1996 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
 The following terms apply to all files associated with the software unless
@@ -41,13 +41,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkQuad.hh"
 #include "vtkPolygon.hh"
 #include "vtkPlane.hh"
-#include "vtkMath.hh"
 #include "vtkCellArray.hh"
 #include "vtkLine.hh"
 #include "vtkPointLocator.hh"
+#include "vtkMath.hh"
 
-static vtkPolygon poly; //just used as hooks into methods
-static vtkMath math;
+static vtkPolygon vtkAPoly; //just used as hooks into methods
 
 // Description:
 // Deep copy of cell.
@@ -74,7 +73,6 @@ int vtkQuad::EvaluatePosition(float x[3], float closestPoint[3],
   float  fcol[2], rcol[2], scol[2];
   float derivs[8];
   static vtkLine line;
-  static vtkPolygon poly;
   static vtkPlane plane;
 
   subId = 0;
@@ -86,7 +84,7 @@ int vtkQuad::EvaluatePosition(float x[3], float closestPoint[3],
   pt2 = this->Points.GetPoint(1);
   pt3 = this->Points.GetPoint(2);
 
-  poly.ComputeNormal (pt1, pt2, pt3, n);
+  vtkAPoly.ComputeNormal (pt1, pt2, pt3, n);
 //
 // Project point to plane
 //
@@ -141,10 +139,10 @@ int vtkQuad::EvaluatePosition(float x[3], float closestPoint[3],
 //
 //  compute determinants and generate improvements
 //
-    if ( (det=math.Determinant2x2(rcol,scol)) == 0.0 ) return -1;
+    if ( (det=vtkMath::Determinant2x2(rcol,scol)) == 0.0 ) return -1;
 
-    pcoords[0] = params[0] - math.Determinant2x2 (fcol,scol) / det;
-    pcoords[1] = params[1] - math.Determinant2x2 (rcol,fcol) / det;
+    pcoords[0] = params[0] - vtkMath::Determinant2x2 (fcol,scol) / det;
+    pcoords[1] = params[1] - vtkMath::Determinant2x2 (rcol,fcol) / det;
 //
 //  check for convergence
 //
@@ -173,7 +171,7 @@ int vtkQuad::EvaluatePosition(float x[3], float closestPoint[3],
   if ( pcoords[0] >= 0.0 && pcoords[0] <= 1.0 &&
        pcoords[1] >= 0.0 && pcoords[1] <= 1.0 )
     {
-    dist2 = math.Distance2BetweenPoints(closestPoint,x); //projection distance
+    dist2 = vtkMath::Distance2BetweenPoints(closestPoint,x); //projection distance
     return 1;
     }
   else
@@ -183,22 +181,22 @@ int vtkQuad::EvaluatePosition(float x[3], float closestPoint[3],
 
     if ( pcoords[0] < 0.0 && pcoords[1] < 0.0 )
       {
-      dist2 = math.Distance2BetweenPoints(x,pt1);
+      dist2 = vtkMath::Distance2BetweenPoints(x,pt1);
       for (i=0; i<3; i++) closestPoint[i] = pt1[i];
       }
     else if ( pcoords[0] > 1.0 && pcoords[1] < 0.0 )
       {
-      dist2 = math.Distance2BetweenPoints(x,pt2);
+      dist2 = vtkMath::Distance2BetweenPoints(x,pt2);
       for (i=0; i<3; i++) closestPoint[i] = pt2[i];
       }
     else if ( pcoords[0] > 1.0 && pcoords[1] > 1.0 )
       {
-      dist2 = math.Distance2BetweenPoints(x,pt3);
+      dist2 = vtkMath::Distance2BetweenPoints(x,pt3);
       for (i=0; i<3; i++) closestPoint[i] = pt3[i];
       }
     else if ( pcoords[0] < 0.0 && pcoords[1] > 1.0 )
       {
-      dist2 = math.Distance2BetweenPoints(x,pt4);
+      dist2 = vtkMath::Distance2BetweenPoints(x,pt4);
       for (i=0; i<3; i++) closestPoint[i] = pt4[i];
       }
     else if ( pcoords[0] < 0.0 )
@@ -413,7 +411,6 @@ int vtkQuad::IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
   float tol2 = tol*tol;
   float closestPoint[3];
   float dist2, weights[4];
-  static vtkPolygon poly;
   static vtkPlane plane;
 
   subId = 0;
@@ -425,7 +422,7 @@ int vtkQuad::IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
   pt2 = this->Points.GetPoint(1);
   pt3 = this->Points.GetPoint(2);
 
-  poly.ComputeNormal (pt1, pt2, pt3, n);
+  vtkAPoly.ComputeNormal (pt1, pt2, pt3, n);
 //
 // Intersect plane of triangle with line
 //
@@ -446,9 +443,9 @@ int vtkQuad::Triangulate(int vtkNotUsed(index), vtkFloatPoints &pts)
   pts.Reset();
 
   // use minimum diagonal (Delaunay triangles)
-  d1 = math.Distance2BetweenPoints(this->Points.GetPoint(0), 
+  d1 = vtkMath::Distance2BetweenPoints(this->Points.GetPoint(0), 
                                    this->Points.GetPoint(2));
-  d2 = math.Distance2BetweenPoints(this->Points.GetPoint(1), 
+  d2 = vtkMath::Distance2BetweenPoints(this->Points.GetPoint(1), 
                                    this->Points.GetPoint(3));
 
   if ( d1 < d2 )
@@ -490,7 +487,7 @@ void vtkQuad::Derivatives(int vtkNotUsed(subId), float pcoords[3],
   x1 = this->Points.GetPoint(1);
   x2 = this->Points.GetPoint(2);
   x3 = this->Points.GetPoint(3);
-  poly.ComputeNormal (x0, x1, x2, n);
+  vtkAPoly.ComputeNormal (x0, x1, x2, n);
 
   for (i=0; i < 3; i++) 
     {
@@ -499,9 +496,9 @@ void vtkQuad::Derivatives(int vtkNotUsed(subId), float pcoords[3],
     vec30[i] = x3[i] - x0[i];
     }
 
-  math.Cross(n,v10,v20); //creates local y' axis
+  vtkMath::Cross(n,v10,v20); //creates local y' axis
 
-  if ( (lenX=math.Normalize(v10)) <= 0.0 || math.Normalize(v20) <= 0.0 ) //degenerate
+  if ( (lenX=vtkMath::Normalize(v10)) <= 0.0 || vtkMath::Normalize(v20) <= 0.0 ) //degenerate
     {
     for ( j=0; j < dim; j++ )
       for ( i=0; i < 3; i++ )
@@ -511,10 +508,10 @@ void vtkQuad::Derivatives(int vtkNotUsed(subId), float pcoords[3],
 
   v0[0] = v0[1] = 0.0; //convert points to 2D (i.e., local system)
   v1[0] = lenX; v1[1] = 0.0;
-  v2[0] = math.Dot(vec20,v10);
-  v2[1] = math.Dot(vec20,v20);
-  v3[0] = math.Dot(vec30,v10);
-  v3[1] = math.Dot(vec30,v20);
+  v2[0] = vtkMath::Dot(vec20,v10);
+  v2[1] = vtkMath::Dot(vec20,v20);
+  v3[0] = vtkMath::Dot(vec30,v10);
+  v3[1] = vtkMath::Dot(vec30,v20);
 
   this->InterpolationDerivs(pcoords, funcDerivs);
 
@@ -532,7 +529,7 @@ void vtkQuad::Derivatives(int vtkNotUsed(subId), float pcoords[3],
             v2[1]*funcDerivs[6] + v3[0]*funcDerivs[7];
 
   // Compute inverse Jacobian
-  math.InvertMatrix(J,JI,2);
+  vtkMath::InvertMatrix(J,JI,2);
 
   // Loop over "dim" derivative values. For each set of values, compute derivatives
   // in local system and then transform into modelling system.

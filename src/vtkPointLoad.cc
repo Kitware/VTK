@@ -7,7 +7,7 @@
   Version:   $Revision$
 
 
-Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
+Copyright (c) 1993-1996 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
 The following terms apply to all files associated with the software unless
@@ -119,7 +119,6 @@ void vtkPointLoad::Execute()
   vtkTensor tensor;
   vtkFloatScalars *newScalars = NULL;
   int numPts;
-  vtkMath math;
   float P, twoPi, xP[3], rho, rho2, rho3, rho5, nu;
   float x, x2, y, y2, z, z2, rhoPlusz2, zPlus2rho, txy, txz, tyz;
   float sx, sy, sz, seff, ar[3], origin[3];
@@ -155,7 +154,7 @@ void vtkPointLoad::Execute()
 // Traverse all points evaluating implicit function at each point. Note that
 // points are evaluated in local coordinate system of applied force.
 //
-  twoPi = 2.0*math.Pi();
+  twoPi = 2.0*vtkMath::Pi();
   P = -this->LoadValue;
 
   for (k=0; k<this->SampleDimensions[2]; k++)
