@@ -21,7 +21,7 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkXMLDataElement, "1.5");
+vtkCxxRevisionMacro(vtkXMLDataElement, "1.6");
 vtkStandardNewMacro(vtkXMLDataElement);
 
 //----------------------------------------------------------------------------
@@ -287,6 +287,12 @@ int vtkXMLDataElement::GetScalarAttribute(const char* name, float& value)
 }
 
 //----------------------------------------------------------------------------
+int vtkXMLDataElement::GetScalarAttribute(const char* name, double& value)
+{
+  return this->GetVectorAttribute(name, 1, &value);
+}
+
+//----------------------------------------------------------------------------
 int vtkXMLDataElement::GetScalarAttribute(const char* name,
                                           unsigned long& value)
 {
@@ -328,6 +334,14 @@ int vtkXMLDataElement::GetVectorAttribute(const char* name, int length,
 //----------------------------------------------------------------------------
 int vtkXMLDataElement::GetVectorAttribute(const char* name, int length,
                                           float* data)
+{
+  return vtkXMLDataElementVectorAttributeParse(this->GetAttribute(name),
+                                               length, data);
+}
+
+//----------------------------------------------------------------------------
+int vtkXMLDataElement::GetVectorAttribute(const char* name, int length,
+                                          double* data)
 {
   return vtkXMLDataElementVectorAttributeParse(this->GetAttribute(name),
                                                length, data);
