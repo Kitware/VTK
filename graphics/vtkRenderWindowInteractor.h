@@ -411,14 +411,14 @@ public:
 
   // Description:
   // External switching between actor and camera mode.
-  void SetActorModeToCamera();
-  void SetActorModeToActor();
+  virtual void SetActorModeToCamera();
+  virtual void SetActorModeToActor();
   vtkGetMacro(ActorMode, int);
   
   // Description:
   // External switching between joystick and trackball mode.
-  void SetTrackballModeToTrackball();
-  void SetTrackballModeToJoystick();
+  virtual void SetTrackballModeToTrackball();
+  virtual void SetTrackballModeToJoystick();
   vtkGetMacro(TrackballMode, int);
   
   // Description:
