@@ -13,9 +13,9 @@ vtkActor model
 vtkOBBTree obb
   obb SetMaxLevel 4
   obb SetNumberOfCellsPerBucket 4
-vtkSpatialRepFilter boxes
+vtkSpatialRepresentationFilter boxes
   boxes SetInput [reader GetOutput]
-  boxes SetSpatialRep obb
+  boxes SetSpatialRepresentation obb
 vtkPolyDataMapper boxMapper
   boxMapper SetInput [boxes GetOutput]
 vtkActor boxActor
