@@ -15,7 +15,7 @@ IF (VTK_USE_RENDERING)
             -B ${VTK_DATA_ROOT}/Baseline/Rendering
             -D ${VTK_DATA_ROOT}/Data)
         ENDFOREACH( tfile )
-      IF(NOT VTK_USE_COCOA)
+      ENDIF(NOT VTK_USE_COCOA)
     ENDIF (VTK_PYTHON_EXE)
   ENDIF (VTK_DATA_ROOT)
 
