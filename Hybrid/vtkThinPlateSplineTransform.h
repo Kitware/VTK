@@ -22,6 +22,10 @@
 // source landmark will be moved to a place close to the corresponding target
 // landmark. The points in between are interpolated smoothly using
 // Bookstein's Thin Plate Spline algorithm.
+//
+// To obtain a correct TPS warp, use the R2LogR kernel if your data is 2D, and
+// the R kernel if your data is 3D. Or you can specify your own RBF. (Hence this
+// class is more general than a pure TPS transform.) 
 // .SECTION Caveats
 // 1) The inverse transform is calculated using an iterative method,
 // and is several times more expensive than the forward transform.
