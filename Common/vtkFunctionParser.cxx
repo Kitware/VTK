@@ -17,7 +17,7 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkFunctionParser, "1.23");
+vtkCxxRevisionMacro(vtkFunctionParser, "1.24");
 vtkStandardNewMacro(vtkFunctionParser);
 
 static double vtkParserVectorErrorResult[3] = { VTK_PARSER_ERROR_RESULT, 
@@ -307,11 +307,28 @@ int vtkFunctionParser::DisambiguateOperators()
       case VTK_PARSER_HYPERBOLIC_SINE:
       case VTK_PARSER_HYPERBOLIC_COSINE:
       case VTK_PARSER_HYPERBOLIC_TANGENT:
+      case VTK_PARSER_SIGN:
         if (tempStack[tempStackPtr] == 1)
           {
           vtkErrorMacro("expecting a scalar, but got a vector");
           return 0;
           }
+        break;
+      case VTK_PARSER_MIN:
+        if (tempStack[tempStackPtr] == 1 || tempStack[tempStackPtr-1] == 1)
+          {
+          vtkErrorMacro("can't apply min to vectors");
+          return 0;
+          }
+        tempStackPtr--;
+        break;
+      case VTK_PARSER_MAX:
+        if (tempStack[tempStackPtr] == 1 || tempStack[tempStackPtr-1] == 1)
+          {
+          vtkErrorMacro("can't apply max to vectors");
+          return 0;
+          }
+        tempStackPtr--;
         break;
       case VTK_PARSER_VECTOR_UNARY_MINUS:
         if (tempStack[tempStackPtr] == 0)
@@ -320,7 +337,7 @@ int vtkFunctionParser::DisambiguateOperators()
           }
         break;
       case VTK_PARSER_DOT_PRODUCT:
-        if (tempStack[tempStackPtr] == 0 || tempStack[tempStackPtr] == 0)
+        if (tempStack[tempStackPtr] == 0 || tempStack[tempStackPtr-1] == 0)
           {
           vtkErrorMacro("dot product does not operate on scalars");
           return 0;
@@ -359,16 +376,35 @@ int vtkFunctionParser::DisambiguateOperators()
         tempStackPtr--;
         break;
       case VTK_PARSER_SCALAR_TIMES_VECTOR:
+        if (tempStack[tempStackPtr] == 0 && tempStack[tempStackPtr-1] == 0)
+          {
+          this->ByteCode[i] = VTK_PARSER_MULTIPLY;
+          }
+        else if (tempStack[tempStackPtr-1] == 1 &&
+                 tempStack[tempStackPtr] == 0)
+          {
+          this->ByteCode[i] = VTK_PARSER_VECTOR_TIMES_SCALAR;
+          }
+        else
+          {
+          vtkErrorMacro("expecting a scalar followed by a vector");
+          return 0;
+          }
+        tempStackPtr--;
+        break;
       case VTK_PARSER_VECTOR_TIMES_SCALAR:
         if (tempStack[tempStackPtr] == 0 && tempStack[tempStackPtr-1] == 0)
           {
           this->ByteCode[i] = VTK_PARSER_MULTIPLY;
           }
-        else if (tempStack[tempStackPtr-1] != 0 ||
-                 tempStack[tempStackPtr] != 1)
+        else if (tempStack[tempStackPtr-1] == 0 &&
+                 tempStack[tempStackPtr] == 1)
           {
-          vtkErrorMacro("scalar multiple expects a scalar followed "
-                        << "by a vector");
+          this->ByteCode[i] = VTK_PARSER_SCALAR_TIMES_VECTOR;
+          }
+        else
+          {
+          vtkErrorMacro("expecting a vector followed by a scalar");
           return 0;
           }
         tempStackPtr--;
@@ -533,6 +569,34 @@ void vtkFunctionParser::Evaluate()
       case VTK_PARSER_HYPERBOLIC_TANGENT:
         this->Stack[stackPosition] = tanh(this->Stack[stackPosition]);
         break;
+      case VTK_PARSER_MIN:
+        if (this->Stack[stackPosition] < this->Stack[stackPosition-1])
+          {
+          this->Stack[stackPosition-1] = this->Stack[stackPosition];
+          }
+        stackPosition--;
+        break;
+      case VTK_PARSER_MAX:
+        if (this->Stack[stackPosition] > this->Stack[stackPosition-1])
+          {
+          this->Stack[stackPosition-1] = this->Stack[stackPosition];
+          }
+        stackPosition--;
+        break;
+      case VTK_PARSER_SIGN:
+        if (this->Stack[stackPosition] < 0)
+          {
+          this->Stack[stackPosition] = -1;
+          }
+        else if (this->Stack[stackPosition] ==  0)
+          {
+          this->Stack[stackPosition] = 0;
+          }
+        else
+          {
+          this->Stack[stackPosition] = 1;
+          }
+        break;
       case VTK_PARSER_VECTOR_UNARY_MINUS:
         this->Stack[stackPosition] = -this->Stack[stackPosition];
         this->Stack[stackPosition-1] = -this->Stack[stackPosition-1];
@@ -584,15 +648,12 @@ void vtkFunctionParser::Evaluate()
         magnitude = sqrt(pow(this->Stack[stackPosition], 2) +
                          pow(this->Stack[stackPosition-1], 2) +
                          pow(this->Stack[stackPosition-2], 2));
-        if (magnitude == 0)
+        if (magnitude != 0)
           {
-          vtkErrorMacro("The magnitude of this vector is zero; can't"
-                        << " normalize");
-          return;
+          this->Stack[stackPosition] /= magnitude;
+          this->Stack[stackPosition-1] /= magnitude;
+          this->Stack[stackPosition-2] /= magnitude;
           }
-        this->Stack[stackPosition] /= magnitude;
-        this->Stack[stackPosition-1] /= magnitude;
-        this->Stack[stackPosition-2] /= magnitude;
         break;
       case VTK_PARSER_IHAT:
         this->Stack[++stackPosition] = 1;
@@ -1022,6 +1083,13 @@ int vtkFunctionParser::CheckSyntax()
   int index = 0, parenthesisCount = 0, currentChar;
   char* ptr;
   int functionNumber, constantNumber;
+  int *expectCommaOnParenthesisCount = new int[this->FunctionLength];
+  int i;
+  
+  for (i = 0; i < this->FunctionLength; i++)
+    {
+    expectCommaOnParenthesisCount[i] = 0;
+    }
   
   while (1)
     {
@@ -1037,6 +1105,7 @@ int vtkFunctionParser::CheckSyntax()
         {
         vtkErrorMacro("Syntax error: unary minus with no operand;"
                       << " see position " << index);
+        delete [] expectCommaOnParenthesisCount;
         return 0;
         }
       }
@@ -1044,12 +1113,18 @@ int vtkFunctionParser::CheckSyntax()
     // Check for math function
     if ((functionNumber = this->GetMathFunctionNumber(index)))
       {
+      if ((functionNumber == VTK_PARSER_MIN) ||
+          (functionNumber == VTK_PARSER_MAX))
+        {
+        expectCommaOnParenthesisCount[parenthesisCount+1] = 1;
+        }
       index += this->GetMathFunctionStringLength(functionNumber);
       currentChar = this->Function[index];
       if ( currentChar != '(' )
         {
         vtkErrorMacro("Syntax error: input to math function not in "
                       << "parentheses; see position " << index);
+        delete [] expectCommaOnParenthesisCount;
         return 0;
         }
       }
@@ -1082,27 +1157,52 @@ int vtkFunctionParser::CheckSyntax()
         {
         vtkErrorMacro("Syntax error: expecting a variable name; "
                       << "see position " << index);
+        delete [] expectCommaOnParenthesisCount;
         return 0;
         }
       index += this->GetVariableNameLength(this->GetOperandNumber(index) -
                                            VTK_PARSER_BEGIN_VARIABLES);
       currentChar = this->Function[index];
       }
+
+    // Check for possible second number from min or max function
+    if (expectCommaOnParenthesisCount[parenthesisCount])
+      {
+      // Check for comma
+      if (currentChar == ',')
+        {
+        expectCommaOnParenthesisCount[parenthesisCount] = 2;
+        index++;
+        continue;
+        }
+      }
     
     // Check for closing parenthesis
     while ( currentChar == ')' )
       {
+      if (expectCommaOnParenthesisCount[parenthesisCount] == 1)
+        {
+        // We can't be closing this function if
+        // expectCommaOnParenthesisCount[..] is still 1; either it was always
+        // 0 or it should have been incremented to 2.
+        vtkErrorMacro("Syntax Error: two parameters separated by commas "
+                      << "expected; see position " << index);
+        delete [] expectCommaOnParenthesisCount;
+        return 0;
+        }
       parenthesisCount--;
       if(parenthesisCount < 0)
         {
         vtkErrorMacro("Syntax Error: mismatched parenthesis; see position " 
                       << index);
+        delete [] expectCommaOnParenthesisCount;
         return 0;
         }
       if( this->Function[index - 1] == '(' )
         {
         vtkErrorMacro("Syntax Error: empty parentheses; see position " 
                       << index);
+        delete [] expectCommaOnParenthesisCount;
         return 0;
         }
       currentChar = this->Function[++index];
@@ -1122,6 +1222,7 @@ int vtkFunctionParser::CheckSyntax()
       {
       vtkErrorMacro("Syntax error: operator expected; see position "
                     << index);
+      delete [] expectCommaOnParenthesisCount;
       return 0;
       }
     
@@ -1135,10 +1236,13 @@ int vtkFunctionParser::CheckSyntax()
     {
     vtkErrorMacro("Syntax Error: missing closing parenthesis; see position " 
                   << index);
+    delete [] expectCommaOnParenthesisCount;
     return 0;
     }
+
   
   // The string is ok
+  delete [] expectCommaOnParenthesisCount;
   return 1;
 }
 
@@ -1216,6 +1320,31 @@ void vtkFunctionParser::BuildInternalSubstringStructure(int beginIndex,
         }
       if (this->IsSubstringCompletelyEnclosed(beginIndex2, endIndex))
         {
+        if ((mathFunctionNum == VTK_PARSER_MIN) ||
+            (mathFunctionNum == VTK_PARSER_MAX))
+          {
+          parenthesisCount = 0;
+          for (i = endIndex-1; i > beginIndex2; i--)
+            {
+            if (this->Function[i] == ')')
+              {
+              parenthesisCount++;
+              }
+            else if (this->Function[i] == '(')
+              {
+              parenthesisCount--;
+              }
+            if (parenthesisCount == 0 && this->Function[i] == ',')
+              {
+              this->BuildInternalSubstringStructure(beginIndex2+1, i-1);
+              this->BuildInternalSubstringStructure(i+1, endIndex-1);
+              this->AddInternalByte(mathFunctionNum);
+              this->StackPointer--;
+              return;
+              }
+            }
+          }
+
         this->BuildInternalSubstringStructure(beginIndex2+1, endIndex-1);
         this->AddInternalByte(mathFunctionNum);
         return;
@@ -1410,6 +1539,18 @@ int vtkFunctionParser::GetMathFunctionNumber(int currentIndex)
   if (strncmp(&this->Function[currentIndex], "atan", 4) == 0)
     {
     return VTK_PARSER_ARCTANGENT;
+    }
+  if (strncmp(&this->Function[currentIndex], "min", 3) == 0)
+    {
+    return VTK_PARSER_MIN;
+    }
+  if (strncmp(&this->Function[currentIndex], "max", 3) == 0)
+    {
+    return VTK_PARSER_MAX;
+    }
+  if (strncmp(&this->Function[currentIndex], "sign", 4) == 0)
+    {
+    return VTK_PARSER_SIGN;
     }
   if (strncmp(&this->Function[currentIndex], "mag", 3) == 0)
     {
