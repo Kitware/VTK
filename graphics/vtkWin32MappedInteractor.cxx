@@ -102,7 +102,7 @@ vtkWin32MappedInteractor::~vtkWin32MappedInteractor()
   if (this->OldBitmap != NULL) 
     {
     ::SelectObject(this->MemoryDC,this->OldBitmap);
-    this->OldBitmap == NULL;
+    this->OldBitmap = NULL;
     }
   if (this->MemoryDC != NULL) 
     {
@@ -251,7 +251,7 @@ void vtkWin32MappedInteractor::MakeIndirectRenderer(int bitmap_width,int bitmap_
     ::SelectObject(this->MemoryDC,this->OldBitmap);
     ReleaseDC(this->WindowId,this->MemoryDC);
     this->MemoryDC = NULL;
-    this->OldBitmap == NULL;
+    this->OldBitmap = NULL;
     }
 	
   if (this->WindowBitmap != NULL) 
