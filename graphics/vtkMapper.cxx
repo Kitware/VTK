@@ -45,6 +45,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Initialize static member that controls global immediate mode rendering
 static int vtkMapperGlobalImmediateModeRendering = 0;
 
+// Initialize static member that controls global z-buffer manipulation
+static int vtkMapperGlobalResolveCoincidentPrimitives = 0;
+
 // Construct with initial range (0,1).
 vtkMapper::vtkMapper()
 {
@@ -65,6 +68,8 @@ vtkMapper::vtkMapper()
   this->Center[0] = this->Center[1] = this->Center[2] = 0.0;
 
   this->RenderTime = 0.0;
+  
+  this->ResolveCoincidentPrimitives = 0;
 }
 
 vtkMapper::~vtkMapper()
@@ -119,6 +124,20 @@ void vtkMapper::SetGlobalImmediateModeRendering(int val)
 int vtkMapper::GetGlobalImmediateModeRendering()
 {
   return vtkMapperGlobalImmediateModeRendering;
+}
+
+void vtkMapper::SetGlobalResolveCoincidentPrimitives(int val)
+{
+  if (val == vtkMapperGlobalResolveCoincidentPrimitives)
+    {
+    return;
+    }
+  vtkMapperGlobalResolveCoincidentPrimitives = val;
+}
+
+int vtkMapper::GetGlobalResolveCoincidentPrimitives()
+{
+  return vtkMapperGlobalResolveCoincidentPrimitives;
 }
 
 // Overload standard modified time function. If lookup table is modified,
@@ -300,7 +319,6 @@ char *vtkMapper::GetScalarModeAsString(void)
     }
 }
 
-
 void vtkMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->vtkAbstractMapper3D::PrintSelf(os,indent);
@@ -319,6 +337,7 @@ void vtkMapper::PrintSelf(ostream& os, vtkIndent indent)
     << (this->ImmediateModeRendering ? "On\n" : "Off\n");
   os << indent << "Global Immediate Mode Rendering: " << 
     (vtkMapperGlobalImmediateModeRendering ? "On\n" : "Off\n");
+
   os << indent << "Scalar Visibility: " 
     << (this->ScalarVisibility ? "On\n" : "Off\n");
 
@@ -330,6 +349,11 @@ void vtkMapper::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Scalar Mode: " << this->GetScalarModeAsString() << endl;
 
   os << indent << "RenderTime: " << this->RenderTime << endl;
+  
+  os << indent << "Resolve Coincident Primitives: " 
+     << (this->ResolveCoincidentPrimitives ? "On\n" : "Off\n");
 
+  os << indent << "Global Resolve Coincident Primitives: " 
+     << (vtkMapperGlobalResolveCoincidentPrimitives ? "On\n" : "Off\n");
 }
 

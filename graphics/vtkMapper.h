@@ -66,6 +66,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // rapidly traversed and rendered by the rendering library. The disadvantage
 // of display lists is that they require additionally memory which may affect
 // the perfomance of the system.
+//
+// Another important feature of the mapper is the ability to shift the
+// z-buffer to resolve coincident primitives. For example, if you'd like to
+// draw a mesh with some edges a different color, and the edges lie on the
+// mesh, this feature can be useful to get nice looking lines. (Set the
+// ResolveCoincidentPrimitives method.)
 
 // .SECTION See Also
 // vtkDataSetMapper vtkPolyDataMapper
@@ -211,6 +217,35 @@ public:
   char *GetScalarModeAsString();
 
   // Description:
+  // Set/Get a global flag that controls whether geometrically coincident
+  // primitives (e.g., a line on top of a polygon) are shifted to avoid
+  // z-buffer resolution (and hence rendering problems). If enabled, the flag
+  // offsets vertices, lines, and polygons/triangle strips slightly (using
+  // z-buffer shifts, not geometric shifts) during the rendering process. By
+  // default, the flag is off. Note: the shifting process is not foolproff
+  // and can introduce z-buffer artifacts. Not all mappers make use of this
+  // flag.
+  static void SetGlobalResolveCoincidentPrimitives(int val);
+  static void GlobalResolveCoincidentPrimitivesOn() {
+    vtkMapper::SetGlobalResolveCoincidentPrimitives(1);};
+  static void GlobalResolveCoincidentPrimitivesOff() {
+    vtkMapper::SetGlobalResolveCoincidentPrimitives(0);};
+  static int  GetGlobalResolveCoincidentPrimitives();
+
+  // Description:
+  // Set/Get a flag that controls whether geometrically coincident
+  // primitives (e.g., a line on top of a polygon) are shifted to
+  // avoid z-buffer resolution (and hence rendering problems). If
+  // enabled, the flag offsets vertices, lines, and polygons/triangle
+  // strips slightly (using z-buffer shifts, not geometric shifts)
+  // during the rendering process. By default, the flag is off. Note:
+  // the shifting process is not foolproff and can introduce z-buffer
+  // artifacts. Not all mappers make use of this flag.
+  vtkSetMacro(ResolveCoincidentPrimitives,int);
+  vtkGetMacro(ResolveCoincidentPrimitives,int);
+  vtkBooleanMacro(ResolveCoincidentPrimitives,int);
+  
+  // Description:
   // Return bounding box (array of six floats) of data expressed as
   // (xmin,xmax, ymin,ymax, zmin,zmax).
   virtual float *GetBounds();
@@ -252,6 +287,7 @@ protected:
   int ImmediateModeRendering;
   int ColorMode;
   int ScalarMode;
+  int ResolveCoincidentPrimitives;
 
   float RenderTime;
 
