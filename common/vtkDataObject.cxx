@@ -333,13 +333,6 @@ long vtkDataObject::GetPipelineMTime()
 }
 
 //----------------------------------------------------------------------------
-void vtkDataObject::PreUpdate() 
-{
-  // For now does nothing
-}
-
-
-//----------------------------------------------------------------------------
 unsigned long vtkDataObject::GetActualMemorySize()
 {
   return this->FieldData->GetActualMemorySize();
