@@ -37,7 +37,7 @@
 #include "vtkSpline.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkSplineWidget, "1.15");
+vtkCxxRevisionMacro(vtkSplineWidget, "1.16");
 vtkStandardNewMacro(vtkSplineWidget);
 
 vtkCxxSetObjectMacro(vtkSplineWidget, HandleProperty, vtkProperty);
@@ -53,7 +53,6 @@ vtkSplineWidget::vtkSplineWidget()
   this->ProjectionNormal = 0;  //default YZ not used
   this->ProjectionPosition = 0.0;
   this->PlaneSource = NULL;
-  this->HandlePositions = NULL;
   this->SplinePositions = NULL;
   this->Closed = 0;
   this->Offset = 0.0;
@@ -85,7 +84,6 @@ vtkSplineWidget::vtkSplineWidget()
 
   // Create the handles along a straight line within the data bounds
   this->NumberOfHandles = 5;
-  this->HandlePositions = new float [this->NumberOfHandles];   
   this->Handle         = new vtkActor* [this->NumberOfHandles];
   this->HandleMapper   = new vtkPolyDataMapper* [this->NumberOfHandles];
   this->HandleGeometry = new vtkSphereSource* [this->NumberOfHandles];
@@ -110,7 +108,6 @@ vtkSplineWidget::vtkSplineWidget()
     this->Handle[i] = vtkActor::New();
     this->Handle[i]->SetMapper(this->HandleMapper[i]);
     position = i / (this->NumberOfHandles - 1.0);
-    this->HandlePositions[i] = static_cast<float>(i);
     x = (1.0-position)*x0 + position*x1;
     y = (1.0-position)*y0 + position*y1;
     z = (1.0-position)*z0 + position*z1;
@@ -203,7 +200,6 @@ vtkSplineWidget::vtkSplineWidget()
 
 vtkSplineWidget::~vtkSplineWidget()
 {
-  delete [] this->HandlePositions;
   delete [] this->SplinePositions;
 
   if ( this->XSpline)
@@ -662,15 +658,13 @@ void vtkSplineWidget::BuildRepresentation()
   this->ZSpline->RemoveAllPoints();
 
   float ctr[3];
-  float position;
   int i;
   for (i=0; i<this->NumberOfHandles; i++)
     {
     this->HandleGeometry[i]->GetCenter(ctr);
-    position = this->HandlePositions[i];
-    this->XSpline->AddPoint(position,ctr[0]);
-    this->YSpline->AddPoint(position,ctr[1]);
-    this->ZSpline->AddPoint(position,ctr[2]);
+    this->XSpline->AddPoint(i,ctr[0]);
+    this->YSpline->AddPoint(i,ctr[1]);
+    this->ZSpline->AddPoint(i,ctr[2]);
     }
 
   this->XSpline->Compute();
@@ -678,6 +672,7 @@ void vtkSplineWidget::BuildRepresentation()
   this->ZSpline->Compute();
 
   vtkPoints* points = this->LineData->GetPoints();
+  float position;
   for (i = 0; i<this->NumberOfSplinePoints; i++)
     {
     position = this->SplinePositions[i];
@@ -809,6 +804,7 @@ void vtkSplineWidget::OnMiddleButtonDown()
   if ( this->Interactor->GetControlKey() )
     {
     this->State = vtkSplineWidget::Spinning;
+    this->CalculateCentroid();
     }
   else
     {
@@ -1104,21 +1100,6 @@ void vtkSplineWidget::Scale(double *p1, double *p2, int vtkNotUsed(X), int Y)
 
 void vtkSplineWidget::Spin(double *p1, double *p2, double *vpn)
 {
-  float center[3] = {0.0,0.0,0.0};
-  float ctr[3];
-  int i;
-  for (i = 0; i<this->NumberOfHandles; i++)
-    {
-    this->HandleGeometry[i]->GetCenter(ctr);
-    center[0] += ctr[0];
-    center[1] += ctr[1];
-    center[2] += ctr[2];
-    }
-
-  center[0] /= this->NumberOfHandles;
-  center[1] /= this->NumberOfHandles;
-  center[2] /= this->NumberOfHandles;
-
   // Mouse motion vector in world space
   double v[3];
   v[0] = p2[0] - p1[0];
@@ -1154,7 +1135,9 @@ void vtkSplineWidget::Spin(double *p1, double *p2, double *vpn)
     }
 
   // Radius vector (from mean center to cursor position)
-  double rv[3] = {p2[0]-center[0], p2[1]-center[1], p2[2]-center[2]};
+  double rv[3] = {p2[0] - this->Centroid[0],
+                  p2[1] - this->Centroid[1],
+                  p2[2] - this->Centroid[2]};
 
   // Distance between center and cursor location
   float rs = vtkMath::Normalize(rv);
@@ -1168,13 +1151,14 @@ void vtkSplineWidget::Spin(double *p1, double *p2, double *vpn)
 
   // Manipulate the transform to reflect the rotation
   this->Transform->Identity();
-  this->Transform->Translate(center[0],center[1],center[2]);
+  this->Transform->Translate(this->Centroid[0],this->Centroid[1],this->Centroid[2]);
   this->Transform->RotateWXYZ(theta,axis);
-  this->Transform->Translate(-center[0],-center[1],-center[2]);
+  this->Transform->Translate(-this->Centroid[0],-this->Centroid[1],-this->Centroid[2]);
 
   // Set the handle points
   float newCtr[3];
-  for (i=0; i<this->NumberOfHandles; i++)
+  float ctr[3];
+  for (int i=0; i<this->NumberOfHandles; i++)
     {
     this->HandleGeometry[i]->GetCenter(ctr);
     this->Transform->TransformPoint(ctr,newCtr);
@@ -1290,19 +1274,9 @@ void vtkSplineWidget::SetNumberOfHandles(int npts)
     vtkGenericWarningMacro(<<"vtkSplineWidget: minimum of 2 points required.");
     return;
     }
-
-  if (npts > this->NumberOfHandles)
-    {
-    delete [] this->HandlePositions;
-    if ( (this->HandlePositions = new float[npts]) == NULL )
-      {
-      vtkErrorMacro(<<"vtkSplineWidget: failed to reallocate HandlePositions.");
-      return;
-      }
-    }
-
-  float radius = this->HandleGeometry[0]->GetRadius();  
-  float factor = static_cast<float>(this->NumberOfHandles)/static_cast<float>(npts);
+      
+  float radius = this->HandleGeometry[0]->GetRadius();
+  float factor = (this->NumberOfHandles - 1.0)/(npts - 1.0);
   this->Initialize();
 
   this->NumberOfHandles = npts;
@@ -1324,7 +1298,6 @@ void vtkSplineWidget::SetNumberOfHandles(int npts)
     this->Handle[i] = vtkActor::New();
     this->Handle[i]->SetMapper(this->HandleMapper[i]);
     this->Handle[i]->SetProperty(this->HandleProperty);
-    this->HandlePositions[i] = static_cast<float>(i);
     x = XSpline->Evaluate(i * factor);
     y = YSpline->Evaluate(i * factor);
     z = ZSpline->Evaluate(i * factor);
@@ -1484,5 +1457,25 @@ float vtkSplineWidget::GetSummedLength()
     }
 
   return sum;
+}
+
+void vtkSplineWidget::CalculateCentroid()
+{
+  this->Centroid[0] = 0.0;
+  this->Centroid[1] = 0.0;
+  this->Centroid[2] = 0.0;
+
+  float ctr[3];
+  for (int i = 0; i<this->NumberOfHandles; i++)
+    {
+    this->HandleGeometry[i]->GetCenter(ctr);
+    this->Centroid[0] += ctr[0];
+    this->Centroid[1] += ctr[1];
+    this->Centroid[2] += ctr[2];
+    }
+
+  this->Centroid[0] /= this->NumberOfHandles;
+  this->Centroid[1] /= this->NumberOfHandles;
+  this->Centroid[2] /= this->NumberOfHandles;
 }
 

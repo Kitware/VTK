@@ -269,7 +269,6 @@ protected:
   vtkSpline *YSpline;
   vtkSpline *ZSpline;
   int NumberOfHandles;
-  float* HandlePositions;
   vtkSpline* CreateDefaultSpline();// default is vtkCardinalSpline
   int Closed;
   float Offset;
@@ -314,6 +313,10 @@ protected:
   vtkProperty *LineProperty;
   vtkProperty *SelectedLineProperty;
   void CreateDefaultProperties();
+
+  // For efficient spinning
+  float Centroid[3];
+  void CalculateCentroid();
 
 private:
   vtkSplineWidget(const vtkSplineWidget&);  //Not implemented
