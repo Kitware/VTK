@@ -69,9 +69,9 @@ int vlQuad::EvaluatePosition(float x[3], float closestPoint[3],
 //
   for (maxComponent=0.0, i=0; i<3; i++)
     {
-    if (n[i] > maxComponent)
+    if (fabs(n[i]) > maxComponent)
       {
-      maxComponent = n[i];
+      maxComponent = fabs(n[i]);
       idx = i;
       }
     }
