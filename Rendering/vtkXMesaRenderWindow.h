@@ -211,6 +211,7 @@ protected:
   int      CursorHidden;
   int      ForceMakeCurrent;
   int      UsingHardware;
+  char    *Capabilities;
 
   // we must keep track of the cursors we are using
   Cursor XCArrow;
@@ -221,7 +222,7 @@ protected:
   Cursor XCSizeNW;
   Cursor XCSizeSE;
   Cursor XCSizeSW;
-
+  
 private:
   vtkXMesaRenderWindow(const vtkXMesaRenderWindow&);  // Not implemented.
   void operator=(const vtkXMesaRenderWindow&);  // Not implemented.

@@ -26,8 +26,8 @@
 #define __vtkXOpenGLRenderWindow_h
 
 #include "vtkOpenGLRenderWindow.h"
-#include <X11/Xlib.h> // Needed for X types in the public interface
-#include <X11/Xutil.h> // Needed for X types in the public interface
+#include <X11/Xlib.h> // Needed for X types used in the public interface
+#include <X11/Xutil.h> // Needed for X types used in the public interface
 
 class vtkIdList;
 class vtkXOpenGLRenderWindowInternal;
@@ -92,8 +92,8 @@ public:
 
   // Description:
   // If called, allow MakeCurrent() to skip cache-check when called.
-  // MakeCurrent() reverts to original behavior of cache-checking
-  // on the next render.
+  // MakeCurrent() reverts to original behavior of cache-checking     
+  // on the next render.     
   void SetForceMakeCurrent();
 
   // Description:
@@ -107,7 +107,7 @@ public:
   // Description:
   // Is this render window using hardware acceleration? 0-false, 1-true
   int IsDirect();
-  
+
   // Description:
   // Xwindow get set functions
   virtual void *GetGenericDisplayId() {return (void *)this->GetDisplayId();};
