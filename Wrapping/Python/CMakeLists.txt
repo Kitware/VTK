@@ -44,7 +44,7 @@ ENDIF (APPLE)
 
 # Link against all the kit wrappers.
 TARGET_LINK_LIBRARIES(vtkpython 
-  ${PYTHON_LIBRARY} 
+  ${VTK_PYTHON_LIBRARIES} 
   vtkCommon 
   vtkFiltering
   vtkIO
@@ -113,7 +113,7 @@ IF (VTK_USE_PARALLEL)
     ENDIF(VTK_USE_CARBON)
 
     TARGET_LINK_LIBRARIES (pvtkpython
-      ${PYTHON_LIBRARY}
+      ${VTK_PYTHON_LIBRARIES}
       vtkCommon
       vtkFiltering
       vtkIO
@@ -259,10 +259,10 @@ IF(PYTHON_EXECUTABLE)
       SET(src "${VTK_SOURCE_DIR}/Wrapping/Python/${file}.py")
       SET(tgt "${VTK_BINARY_DIR}/Wrapping/Python/${file}.py")
       ADD_CUSTOM_COMMAND(SOURCE ${src}
-		         COMMAND ${CMAKE_COMMAND}
+                         COMMAND ${CMAKE_COMMAND}
                          ARGS -E copy ${src} ${tgt}
                          OUTPUTS ${tgt}
-			 TARGET vtkpython_pyc
+                         TARGET vtkpython_pyc
                          COMMENT "source copy")
     ENDFOREACH(file)
     CONFIGURE_FILE(${VTK_SOURCE_DIR}/Wrapping/Python/vtk.pth
@@ -273,8 +273,8 @@ IF(PYTHON_EXECUTABLE)
   WRITE_FILE(${VTK_BINARY_DIR}/Wrapping/Python/compile_all_vtk
         "import compileall\n"
         "compileall.compile_dir('${VTK_BINARY_DIR}/Wrapping/Python')\n"
-	"file = open('${VTK_BINARY_DIR}/Wrapping/Python/vtk_compile_complete', 'w')\n"
-	"file.write('Done')\n")
+        "file = open('${VTK_BINARY_DIR}/Wrapping/Python/vtk_compile_complete', 'w')\n"
+        "file.write('Done')\n")
 
   ADD_CUSTOM_COMMAND(
     SOURCE ${VTK_BINARY_DIR}/Wrapping/Python/compile_all_vtk
