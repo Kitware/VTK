@@ -22,7 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkIdList.h"
 
-vtkCxxRevisionMacro(vtkPointLocator, "1.59");
+vtkCxxRevisionMacro(vtkPointLocator, "1.60");
 vtkStandardNewMacro(vtkPointLocator);
 
 static const int VTK_INITIAL_SIZE=1000;
@@ -465,7 +465,9 @@ struct idsort
 #ifdef _WIN32_WCE
 static int __cdecl idsortcompare(const void *arg1, const void *arg2)
 #else
-static int idsortcompare(const void *arg1, const void *arg2)
+extern "C" 
+{  
+  static int idsortcompare(const void *arg1, const void *arg2)
 #endif
 {
   idsort *v1 = (idsort *)arg1;
@@ -480,6 +482,9 @@ static int idsortcompare(const void *arg1, const void *arg2)
     }
   return 0;  
 }
+#ifndef _WIN32_WCE
+} // close extern "C"
+#endif
 
 void vtkPointLocator::FindDistributedPoints(int N, float x,
                                             float y, float z,
