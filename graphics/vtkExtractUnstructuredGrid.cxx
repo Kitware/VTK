@@ -242,6 +242,7 @@ void vtkExtractUnstructuredGrid::Execute()
             {
             outputPD->CopyData(pd,ptId,newPtId);
             }
+          cellIds->InsertNextId(newPtId);
           }
         }//merging coincident points
       else
