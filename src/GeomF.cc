@@ -79,7 +79,7 @@ void vlGeometryFilter::Execute()
   int numPts=this->Input->GetNumberOfPoints();
   int numCells=this->Input->GetNumberOfCells();
   char *cellVis;
-  vlCell *cell, *face;
+  vlCell *cell, *face, *cellCopy;
   float *x;
   vlIdList *ptIds;
   static vlIdList cellIds(MAX_CELL_SIZE);
@@ -169,9 +169,10 @@ void vlGeometryFilter::Execute()
           break;
 
         case 3:
-          for (j=0; j < cell->GetNumberOfFaces(); j++)
+          cellCopy = cell->MakeObject();
+          for (j=0; j < cellCopy->GetNumberOfFaces(); j++)
             {
-            face = cell->GetFace(j);
+            face = cellCopy->GetFace(j);
             this->Input->GetCellNeighbors(cellId, face->PointIds, cellIds);
             if ( cellIds.GetNumberOfIds() <= 0 || 
             (!allVisible && !cellVis[cellIds.GetId(0)]) )
@@ -187,6 +188,7 @@ void vlGeometryFilter::Execute()
               this->InsertNextCell(face->GetCellType(), npts, pts);
               }
             }
+            delete cellCopy;
           break;
 
         } //switch
