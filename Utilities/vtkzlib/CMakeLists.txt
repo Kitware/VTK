@@ -5,12 +5,12 @@ INCLUDE_DIRECTORIES(${VTKZLIB_SOURCE_DIR})
 
 # source files for zlib
 SET(ZLIB_SRCS
-adler32.c   gzio.c      inftrees.c  uncompr.c
-compress.c  infblock.c  infutil.c   zutil.c
-crc32.c     infcodes.c 
-deflate.c   inffast.c  
-inflate.c   trees.c
-)
+  adler32.c   gzio.c      inftrees.c  uncompr.c
+  compress.c  infblock.c  infutil.c   zutil.c
+  crc32.c     infcodes.c 
+  deflate.c   inffast.c  
+  inflate.c   trees.c
+  )
 
 # for windows add the .def and .rc files to the source list
 IF(WIN32)
@@ -27,9 +27,9 @@ IF(WIN32)
 ENDIF(WIN32)
 
 CONFIGURE_FILE(${VTKZLIB_SOURCE_DIR}/.NoDartCoverage
-               ${VTKZLIB_BINARY_DIR}/.NoDartCoverage)
+  ${VTKZLIB_BINARY_DIR}/.NoDartCoverage)
 CONFIGURE_FILE(${VTKZLIB_SOURCE_DIR}/zlibDllConfig.h.in
-               ${VTKZLIB_BINARY_DIR}/zlibDllConfig.h)
+  ${VTKZLIB_BINARY_DIR}/zlibDllConfig.h)
 
 
 ADD_LIBRARY(vtkzlib ${ZLIB_SRCS})
