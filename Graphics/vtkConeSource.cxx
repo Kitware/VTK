@@ -23,7 +23,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkConeSource, "1.59");
+vtkCxxRevisionMacro(vtkConeSource, "1.60");
 vtkStandardNewMacro(vtkConeSource);
 
 //----------------------------------------------------------------------------
@@ -231,7 +231,7 @@ void vtkConeSource::Execute()
     vtkTransform *t = vtkTransform::New();
     t->Translate(this->Center[0], this->Center[1], this->Center[2]);
     float vMag = vtkMath::Norm(this->Direction);
-    t->RotateWXYZ((float)180.0, this->Direction[0]+vMag/2.0,
+    t->RotateWXYZ((float)180.0, (this->Direction[0]+vMag)/2.0,
                   this->Direction[1]/2.0, this->Direction[2]/2.0);
     float *pts = ((vtkFloatArray *)newPoints->GetData())->GetPointer(0);
     for (i=0; i<numPts; i++, pts+=3)
