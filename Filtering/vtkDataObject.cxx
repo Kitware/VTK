@@ -29,7 +29,7 @@
 #include "vtkInformationIntegerVectorKey.h"
 #include "vtkInformationStringKey.h"
 
-vtkCxxRevisionMacro(vtkDataObject, "1.2.2.12");
+vtkCxxRevisionMacro(vtkDataObject, "1.2.2.13");
 vtkStandardNewMacro(vtkDataObject);
 
 vtkCxxSetObjectMacro(vtkDataObject,Information,vtkInformation);
@@ -79,8 +79,6 @@ vtkDataObject::vtkDataObject()
 
   this->RequestExactExtent = 0;
   
-  this->Locality = 0.0;
-
   this->GarbageCollecting = 0;
 }
 
@@ -196,8 +194,6 @@ void vtkDataObject::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Field Data:\n";
   this->FieldData->PrintSelf(os,indent.GetNextIndent());
-
-  os << indent << "Locality: " << this->Locality << endl;
 }
 
 //----------------------------------------------------------------------------

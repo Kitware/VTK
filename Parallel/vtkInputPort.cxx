@@ -28,7 +28,7 @@
 #include "vtkStructuredPoints.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkInputPort, "1.16.2.1");
+vtkCxxRevisionMacro(vtkInputPort, "1.16.2.2");
 vtkStandardNewMacro(vtkInputPort);
 
 vtkCxxSetObjectMacro(vtkInputPort,Controller, vtkMultiProcessController);
@@ -389,8 +389,6 @@ void vtkInputPort::ExecuteInformation()
                              vtkInputPort::INFORMATION_TRANSFER_TAG);
   output->SetMaximumNumberOfPieces(maxNumPieces);
   output->SetWholeExtent( wholeInformation );
-  // Locality has to be changed too.
-  output->SetLocality(1.0);  
 
   // Save the upstream PMT for execute check (this may not be necessary)
   this->UpStreamMTime = pmt;

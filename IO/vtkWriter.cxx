@@ -18,7 +18,7 @@
 #include "vtkDataObject.h"
 #include "vtkErrorCode.h"
 
-vtkCxxRevisionMacro(vtkWriter, "1.40");
+vtkCxxRevisionMacro(vtkWriter, "1.40.10.1");
 
 // Construct with no start and end write methods or arguments.
 vtkWriter::vtkWriter()
@@ -55,24 +55,11 @@ void vtkWriter::Write()
     return;
     }
 
-  if ( this->NumberOfInputs == 1 )
+  for (idx = 0; idx < this->NumberOfInputs; ++idx)
     {
-    if (this->Inputs[0] != NULL)
+    if (this->Inputs[idx] != NULL)
       {
-      this->Inputs[0]->Update();
-      }
-    }
-  else
-    { 
-    // To avoid serlializing execution of pipelines with ports
-    // we need to sort the inputs by locality (ascending).
-    this->SortInputsByLocality();
-    for (idx = 0; idx < this->NumberOfInputs; ++idx)
-      {
-      if (this->SortedInputs[idx] != NULL)
-        {
-        this->SortedInputs[idx]->Update();
-        }
+      this->Inputs[idx]->Update();
       }
     }
 

@@ -318,13 +318,6 @@ public:
   virtual void DeepCopy(vtkDataObject *src);
 
   // Description:
-  // Locality is used internally by the pipeline update mechanism.
-  // It is used to get parralel execution when a filter has multiple
-  // inputs with ports upstream.
-  vtkSetMacro(Locality, double);
-  vtkGetMacro(Locality, double);
-
-  // Description:
   // An object that will translate pieces into structured extents.
   void SetExtentTranslator(vtkExtentTranslator* translator);
   vtkExtentTranslator* GetExtentTranslator();
@@ -416,13 +409,6 @@ protected:
   // The Maximum MTime of all upstream filters and data objects.
   // This does not include the MTime of this data object.
   unsigned long PipelineMTime;
-
-  // A value indicating whether we have a port upstream and how
-  // many filters removed it is.  
-  // 0.0 : no ports.
-  // 1.0 : my source is a port.
-  // 0.5 : the next upstream filter is a port ...
-  double Locality;  
 
   // Get the executive that manages this data object.
   vtkExecutive* GetExecutive();
