@@ -39,17 +39,17 @@ libVTK$(ME)$(SHLIB_SUFFIX)$(SHLIB_VERSION): ${KIT_OBJ}
 #
 build_tcl: ${TCL_LIB_FILE}
 
-tcl/${ME}Init.cxx: ../tcl/kit_init ${KIT_NEWS}
+tcl/${ME}Init.cxx: ../tcl/kit_init ${KIT_NEWS} Makefile
 	../tcl/kit_init VTK${ME}Tcl ${KIT_NEWS} > tcl/${ME}Init.cxx
 
-libVTK${ME}Tcl.a: tcl/${ME}Init.o ${KIT_LIBS} ${KIT_OBJ} ${KIT_TCL_OBJ} 
-	${AR} cr libVTK${ME}Tcl.a tcl/${ME}Init.o ${KIT_LIBS} ${KIT_TCL_OBJ} ${KIT_OBJ}
+libVTK${ME}Tcl.a: tcl/${ME}Init.o ${KIT_LIBS} ${KIT_TCL_OBJ} 
+	${AR} cr libVTK${ME}Tcl.a tcl/${ME}Init.o ${KIT_LIBS} ${KIT_TCL_OBJ}
 	${RANLIB} libVTK$(ME)Tcl.a
 
-libVTK$(ME)Tcl$(SHLIB_SUFFIX)$(SHLIB_VERSION): tcl/${ME}Init.o ${KIT_LIBS} ${KIT_TCL_OBJ} $(KIT_OBJ)
+libVTK$(ME)Tcl$(SHLIB_SUFFIX)$(SHLIB_VERSION): tcl/${ME}Init.o ${KIT_LIBS} ${KIT_TCL_OBJ}
 	rm -f libVTK$(ME)Tcl$(SHLIB_SUFFIX)$(SHLIB_VERSION)
 	$(SHLIB_LD) -o libVTK$(ME)Tcl$(SHLIB_SUFFIX)$(SHLIB_VERSION) \
-	   tcl/${ME}Init.o ${KIT_LIBS} ${KIT_TCL_OBJ} ${KIT_OBJ}
+	   tcl/${ME}Init.o ${KIT_LIBS} ${KIT_TCL_OBJ}
 
 
 #------------------------------------------------------------------------------

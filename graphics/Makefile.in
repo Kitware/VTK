@@ -199,8 +199,7 @@ vtkWarpScalar.o \
 vtkWarpTo.o \
 vtkWarpVector.o \
 vtkWriter.o \
-vtkXRenderWindow.o \
-vtkXRenderWindowInteractor.o 
+vtkXRenderWindow.o 
 
 # put all vtk classes that are to be wrapped here as tcl/vtkFooTcl.o files
 TCL_OBJ = \
@@ -619,17 +618,22 @@ SHLIB_VERSION = @SHLIB_VERSION@
 VTK_LIB_FILE  = libVTK${ME}@VTK_LIB_EXT@
 TCL_LIB_FILE  = libVTK${ME}Tcl@VTK_LIB_EXT@
 VTK_TEMPLATE_FLAGS = @VTK_TEMPLATE_FLAGS@
-VTK_INLINE_FLAGS = @VTK_INLINE_FLAGS@
-BUILD_TCL         = @BUILD_TCL@
-CLEAN_TCL         = @CLEAN_TCL@
+VTK_INLINE_FLAGS   = @VTK_INLINE_FLAGS@
+BUILD_TCL          = @BUILD_TCL@
+CLEAN_TCL          = @CLEAN_TCL@
 
 # add in any extra libraies here
-KIT_LIBS = tcl/vtkXTclRenderWindowInteractor.o
+KIT_LIBS = 
 
 # standard stuff here
-KIT_OBJ = ${SRC_OBJ} ${SBR_OBJ} ${OGLR_OBJ} ${XGLR_OBJ} ${GLR_OBJ}
-KIT_TCL_OBJ = ${TCL_OBJ} ${TCL_SBR_OBJ} ${TCL_OGLR_OBJ} \
-	${TCL_XGLR_OBJ} ${TCL_GLR_OBJ}
+KIT_OBJ = vtkXRenderWindowInteractor.o ${SRC_OBJ} \
+	${SBR_OBJ} ${OGLR_OBJ} ${XGLR_OBJ} ${GLR_OBJ}
+
+KIT_TCL_OBJ = vtkXRenderTclWindowInteractor.o ${TCL_OBJ} \
+	${TCL_SBR_OBJ} ${TCL_OGLR_OBJ} \
+	${TCL_XGLR_OBJ} ${TCL_GLR_OBJ} ${SRC_OBJ} \
+	${SBR_OBJ} ${OGLR_OBJ} ${XGLR_OBJ} ${GLR_OBJ}
+
 KIT_NEWS = ${TCL_NEWS} ${TCL_SBR_NEWS} ${TCL_OGLR_NEWS} \
 	${TCL_XGLR_NEWS} ${TCL_GLR_NEWS}
 
@@ -661,7 +665,7 @@ KIT_FLAGS = ${SBR_FLAGS} ${XGLR_FLAGS} ${GLR_FLAGS} ${OGLR_FLAGS}
 #
 # concrete classes will pass the last argument of 1 abstract will be 0.
 #
-tcl/vtkXTclRenderWindowInteractor.o: vtkXTclRenderWindowInteractor.cxx
+tcl/vtkXRenderTclWindowInteractor.o: vtkXRenderTclWindowInteractor.cxx
 	${CXX} ${CXX_FLAGS} -c $< -o $@
 
 tcl/vtkActorTcl.cxx: vtkActor.h ../tcl/cpp_parse 

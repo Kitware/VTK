@@ -1760,8 +1760,8 @@ if test "${with_graphics+set}" = set; then
   :
 else
   graphicsdir=graphics
-         USE_GRAPHICS_LIBS="vtkXRenderWindowInteractor.o -L../graphics -lVTKGraphicsTcl"
-         USE_GRAPHICS_DEPENDS="vtkXRenderWindowInteractor.o"
+         USE_GRAPHICS_LIBS="-L../graphics -lVTKGraphicsTcl"
+         USE_GRAPHICS_DEPENDS=""
          USE_GRAPHICS_FLAG="-I$(srcdir)/../graphics -DUSE_GRAPHICS"
 fi
 

@@ -81,9 +81,6 @@ all:  kit_init cpp_parse
 kit_init: kit_init.c
 	$(CC) $(C_FLAGS) -o kit_init $(srcdir)/kit_init.c
 
-vtkXRenderWindowInteractor.o: vtkXRenderWindowInteractor.cxx
-	$(CXX) $(CXX_FLAGS) -c -o vtkXRenderWindowInteractor.o $(srcdir)/vtkXRenderWindowInteractor.cxx
-
 tkAppInit.o: tkAppInit.c
 	$(CC) $(C_FLAGS) -c -o tkAppInit.o $(srcdir)/tkAppInit.c
 
@@ -96,7 +93,7 @@ cpp_parse: concrete.l cpp_parse.y
 # build the vtk executable
 #
 vtk: 	tkAppInit.o ${USE_GRAPHICS_DEPENDS} ${USE_IMAGING_DEPENDS}
-	$(CXX) -o vtk tkAppInit.o vtkXRenderWindowInteractor.o \
+	$(CXX) -o vtk tkAppInit.o \
 	-L. ${XLDFLAGS} ${LDLIBS} \
 	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
 
