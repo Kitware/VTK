@@ -23,7 +23,7 @@
 #include "vtkPolyData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkDelaunay3D, "1.60");
+vtkCxxRevisionMacro(vtkDelaunay3D, "1.61");
 vtkStandardNewMacro(vtkDelaunay3D);
 
 //----------------------------------------------------------------------------
@@ -219,7 +219,7 @@ vtkIdType vtkDelaunay3D::FindEnclosingFaces(float x[3],
   vtkCellLinks *links = Mesh->GetCellLinks();
   int numCells = links->GetNcells(closestPoint);
   vtkIdType *cells = links->GetCells(closestPoint);
-  if ( numCells < 0 ) //shouldn't happen
+  if ( numCells <= 0 ) //shouldn't happen
     {
     this->NumberOfDegeneracies++;
     return 0;

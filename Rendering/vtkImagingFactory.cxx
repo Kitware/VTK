@@ -46,7 +46,7 @@
  #endif
 #endif
 
-vtkCxxRevisionMacro(vtkImagingFactory, "1.20");
+vtkCxxRevisionMacro(vtkImagingFactory, "1.21");
 
 const char *vtkImagingFactoryGetRenderLibrary()
 {
@@ -197,8 +197,7 @@ vtkObject* vtkImagingFactory::CreateInstance(const char* vtkclassname )
       }
     }
 #endif 
-  vtkGenericWarningMacro("Attempting to create an OpenGL or Mesa based object with a VTK that is not linked/configured with Mesa/OpenGL.");
-  abort();
+
   return 0;
 }
 

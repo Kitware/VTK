@@ -54,7 +54,7 @@
 #include "vtkXOpenGLRenderWindow.h"
 #endif
 
-vtkCxxRevisionMacro(vtkGraphicsFactory, "1.25");
+vtkCxxRevisionMacro(vtkGraphicsFactory, "1.26");
 
 const char *vtkGraphicsFactory::GetRenderLibrary()
 {
@@ -200,8 +200,6 @@ vtkObject* vtkGraphicsFactory::CreateInstance(const char* vtkclassname )
     }
 #endif
         
- vtkGenericWarningMacro("Attempting to create an OpenGL  based object with a VTK that is not linked/configured with OpenGL.");
-  abort();
   return 0;
 }
 
