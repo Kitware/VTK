@@ -933,6 +933,11 @@ void vtkRectilinearGrid::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Y Coordinates: " << this->YCoordinates << "\n";
   os << indent << "Z Coordinates: " << this->ZCoordinates << "\n";
 
+  os << indent << "WholeExtent: " << this->WholeExtent[0] << ", "
+     << this->WholeExtent[1] << ", " << this->WholeExtent[2] << ", "
+     << this->WholeExtent[3] << ", " << this->WholeExtent[4] << ", "
+     << this->WholeExtent[5] << endl;
+
   os << indent << "Extent: " << this->Extent[0] << ", "
      << this->Extent[1] << ", " << this->Extent[2] << ", "
      << this->Extent[3] << ", " << this->Extent[4] << ", "

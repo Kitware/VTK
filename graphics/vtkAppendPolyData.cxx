@@ -656,6 +656,15 @@ vtkPolyData *vtkAppendPolyData::GetInput(int idx)
 void vtkAppendPolyData::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkPolyDataToPolyDataFilter::PrintSelf(os,indent);
+
+  if ( this->ParallelStreaming )
+    {
+    os << indent << "ParallelStreamingOn\n";
+    }
+  else
+    {
+    os << indent << "ParallelStreamingOff\n";
+    }
 }
 
 void vtkAppendPolyData::AppendData(vtkDataArray *dest, vtkDataArray *src,

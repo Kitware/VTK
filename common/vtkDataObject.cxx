@@ -441,6 +441,21 @@ int vtkDataObject::VerifyUpdateExtent()
 	   this->UpdateExtent[5] > this->WholeExtent[5] )
 	{
 	vtkErrorMacro( << "Update extent does not lie within whole extent" );
+	vtkErrorMacro( << "Update extent is: " <<
+	this->UpdateExtent[0] << ", " <<
+	this->UpdateExtent[1] << ", " <<
+	this->UpdateExtent[2] << ", " <<
+	this->UpdateExtent[3] << ", " <<
+	this->UpdateExtent[4] << ", " <<
+	this->UpdateExtent[5]);
+	vtkErrorMacro( << "Whole extent is: " <<
+	this->WholeExtent[0] << ", " <<
+	this->WholeExtent[1] << ", " <<
+	this->WholeExtent[2] << ", " <<
+	this->WholeExtent[3] << ", " <<
+	this->WholeExtent[4] << ", " <<
+	this->WholeExtent[5]);
+	
 	retval = 0;
 	}
       break;
@@ -539,8 +554,22 @@ void vtkDataObject::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Global Release Data: " 
      << (vtkDataObjectGlobalReleaseDataFlag ? "On\n" : "Off\n");
 
+  os << indent << "PipelineMTime: " << this->PipelineMTime << endl;
   os << indent << "UpdateTime: " << this->UpdateTime << endl;
   
+  os << indent << "Update Number Of Pieces: " << this->UpdateNumberOfPieces << endl;
+  os << indent << "Update Piece: " << this->UpdatePiece << endl;
+  os << indent << "Maximum Number Of Pieces: " << this->MaximumNumberOfPieces << endl;
+
+  os << indent << "UpdateExtent: " << this->UpdateExtent[0] << ", "
+     << this->UpdateExtent[1] << ", " << this->UpdateExtent[2] << ", "
+     << this->UpdateExtent[3] << ", " << this->UpdateExtent[4] << ", "
+     << this->UpdateExtent[5] << endl;
+  os << indent << "WholeExtent: " << this->WholeExtent[0] << ", "
+     << this->WholeExtent[1] << ", " << this->WholeExtent[2] << ", "
+     << this->WholeExtent[3] << ", " << this->WholeExtent[4] << ", "
+     << this->WholeExtent[5] << endl;
+
   os << indent << "Field Data:\n";
   this->FieldData->PrintSelf(os,indent.GetNextIndent());
 }

@@ -963,24 +963,33 @@ void vtkImageData::PrintSelf(ostream& os, vtkIndent indent)
   
   vtkDataSet::PrintSelf(os,indent);
 
+  os << indent << "ScalarType: " << this->ScalarType << endl;
+  os << indent << "NumberOfScalarComponents: " << 
+    this->NumberOfScalarComponents << endl;
+  os << indent << "Spacing: (" << this->Spacing[0] << ", "
+                               << this->Spacing[1] << ", "
+                               << this->Spacing[2] << ")\n";
+  os << indent << "Origin: (" << this->Origin[0] << ", "
+                              << this->Origin[1] << ", "
+                              << this->Origin[2] << ")\n";
   os << indent << "Dimensions: (" << this->Dimensions[0] << ", "
                                   << this->Dimensions[1] << ", "
                                   << this->Dimensions[2] << ")\n";
-
-  os << indent << "Increments: (" << this->Increments[0];
-  for (idx = 1; idx < 3; ++idx)
-    {
-    os << ", " << this->Increments[idx];
-    }
-  os << ")\n";
-
+  os << indent << "Increments: (" << this->Increments[0] << ", "
+                                  << this->Increments[1] << ", "
+                                  << this->Increments[2] << ")\n";
   os << indent << "Extent: (" << this->Extent[0];
   for (idx = 1; idx < 6; ++idx)
     {
     os << ", " << this->Extent[idx];
     }
   os << ")\n";
-
+  os << indent << "WholeExtent: (" << this->WholeExtent[0];
+  for (idx = 1; idx < 6; ++idx)
+    {
+    os << ", " << this->WholeExtent[idx];
+    }
+  os << ")\n";
 }
 
 //----------------------------------------------------------------------------
