@@ -56,7 +56,7 @@
 
 //-----------------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkUnstructuredGridLinearRayIntegrator, "1.3");
+vtkCxxRevisionMacro(vtkUnstructuredGridLinearRayIntegrator, "1.4");
 vtkStandardNewMacro(vtkUnstructuredGridLinearRayIntegrator);
 
 vtkUnstructuredGridLinearRayIntegrator::vtkUnstructuredGridLinearRayIntegrator()
@@ -449,7 +449,7 @@ float vtkUnstructuredGridLinearRayIntegrator::Psi(float length,
                                                   float attenuation_front,
                                                   float attenuation_back)
 {
-  float difftauD = (float)(length*fabs(attenuation_back - attenuation_front));
+  float difftauD = length*abs((int)(attenuation_back - attenuation_front));
 
   if (difftauD < 1.0e-8f)
     {
