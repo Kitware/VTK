@@ -17,7 +17,7 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkFunctionParser, "1.29");
+vtkCxxRevisionMacro(vtkFunctionParser, "1.30");
 vtkStandardNewMacro(vtkFunctionParser);
 
 static double vtkParserVectorErrorResult[3] = { VTK_PARSER_ERROR_RESULT, 
@@ -540,7 +540,8 @@ void vtkFunctionParser::Evaluate()
           vtkErrorMacro("Trying to take a logarithm of a negative value");
           return;
           }
-        this->Stack[stackPosition] = log(this->Stack[stackPosition])/log(10);
+        this->Stack[stackPosition] = 
+          log(this->Stack[stackPosition])/log((double)10);
         break;
       case VTK_PARSER_SQUARE_ROOT:
         if (this->Stack[stackPosition] < 0)
