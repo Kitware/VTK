@@ -45,6 +45,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 vtkRendererSource::vtkRendererSource()
 {
   this->Input = NULL;
+  this->WholeWindow = 0;
 }
 
 void vtkRendererSource::Execute()
