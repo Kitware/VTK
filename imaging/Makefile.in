@@ -97,6 +97,7 @@ vtkImageSobel2D \
 vtkImageSobel3D \
 vtkImageStaticCache \
 vtkImageThreshold \
+vtkImageTranslateExtent \
 vtkImageVariance3D \
 vtkImageViewer \
 vtkImageWindow \
