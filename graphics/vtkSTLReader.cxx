@@ -293,4 +293,14 @@ void vtkSTLReader::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Filename: " 
      << (this->Filename ? this->Filename : "(none)") << "\n";
+
+  os << indent << "Merging: " << (this->Merging ? "On\n" : "Off\n");
+  if ( this->Locator )
+    {
+    os << indent << "Locator: " << this->Locator << "\n";
+    }
+  else
+    {
+    os << indent << "Locator: (none)\n";
+    }
 }
