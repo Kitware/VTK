@@ -246,7 +246,6 @@ void vtkMatrix4x4::Invert (vtkMatrix4x4 *in,vtkMatrix4x4 *out)
 
 void vtkMatrix4x4::Invert(double inElements[16], double outElements[16])
 {
-  SqMatPtr inElem = (SqMatPtr) inElements;
   SqMatPtr outElem = (SqMatPtr) outElements;
 
   // inverse( original_matrix, inverse_matrix )

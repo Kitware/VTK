@@ -419,7 +419,6 @@ void vtkSource::UpdateInformation()
 {
   unsigned long t1, t2, size;
   int locality, l2, idx;
-  int maxPieces = 1;
   vtkDataObject *pd;
   vtkDataObject *output;
 

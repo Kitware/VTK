@@ -350,7 +350,6 @@ void vtkXRenderWindowInteractorTimer(XtPointer client_data,
   Window root,child;
   int root_x,root_y;
   int x,y;
-  float xf,yf;
   unsigned int keys;
 
   // get the pointer position

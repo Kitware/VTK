@@ -292,9 +292,8 @@ void vtk3DSImporter::ImportLights (vtkRenderer *renderer)
 
 void vtk3DSImporter::ImportProperties (vtkRenderer *vtkNotUsed(renderer))
 {
-  float amb = 0.1, dif = 0.9, spec = 1.0;
+  float amb = 0.1, dif = 0.9;
   float dist_white, dist_diff, phong, phong_size;
-  Colour ambient;
   vtkProperty *property;
   MatProp *m;
 
@@ -317,18 +316,9 @@ void vtk3DSImporter::ImportProperties (vtkRenderer *vtkNotUsed(renderer))
 
     if (dist_diff < dist_white)
       {
-      dif = .1; amb = .8; spec = 1;
-      ambient = m->diffuse;
-      }
-    else
-      {
-      ambient = m->ambient;
+      dif = .1; amb = .8;
       }
 
-    if (m->reflection > 0.0)
-      {
-      spec = (m->specular.red + m->specular.green + m->specular.blue)/3.0;
-      }
     phong_size = 0.7*m->shininess;
     if (phong_size < 1.0)
       {
@@ -557,7 +547,7 @@ static void parse_fog (vtk3DSImporter *importer, Chunk *mainchunk)
 
     (void)read_float(importer);
     (void)read_float(importer);
-    fog_distance = read_float(importer);
+    (void) read_float(importer);
     (void)read_float(importer);
 
     parse_colour (importer, &fog_colour);
@@ -819,7 +809,6 @@ static void parse_n_direct_light (vtk3DSImporter *importer, Chunk *mainchunk)
     Chunk chunk;
     SpotLight *s;
     OmniLight *o;
-    int light_off = 0;
     int spot_flag = 0;
 
     read_point (importer, pos);
@@ -830,8 +819,7 @@ static void parse_n_direct_light (vtk3DSImporter *importer, Chunk *mainchunk)
 
 	if (chunk.end <= mainchunk->end) {
 	    switch (chunk.tag) {
-		case 0x4620: light_off = 1;
-			     break;
+		case 0x4620: break;
 		case 0x4610: parse_dl_spotlight(importer);
 			     spot_flag = 1;
 			     break;

@@ -990,7 +990,6 @@ unsigned long vtkStructuredGrid::GetEstimatedUpdateMemorySize()
 void vtkStructuredGrid::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkPointSet::PrintSelf(os,indent);
-  int idx;
 
   os << indent << "Dimensions: (" << this->Dimensions[0] << ", "
                                   << this->Dimensions[1] << ", "

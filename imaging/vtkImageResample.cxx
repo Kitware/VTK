@@ -232,18 +232,13 @@ static void vtkImageResampleExecuteNI(vtkImageResample *self,
 
   float zPos, yPos, xPos;
   int idxC, idxX, idxY, idxZ;
-  int inIdxX, inIdxY;
   int inMaxX, inMaxY, inMaxZ;
   int maxC, maxX, maxY, maxZ;
   int inIncX, inIncY, inIncZ;
   int outIncX, outIncY, outIncZ;
   unsigned long count = 0;
   unsigned long target;
-  int interpolate;
-  int xMaxIdx, yMaxIdx, zMaxIdx;
   T *inPtrZ, *inPtrY, *inPtrX, *outPtrC;
-  
-  interpolate = self->GetInterpolate();
   
   // find the region to loop over
   maxC = outData->GetNumberOfScalarComponents();
@@ -336,21 +331,17 @@ static void vtkImageResampleExecute2D(vtkImageResample *self,
   float magX = self->GetAxisMagnificationFactor(0);
   float magY = self->GetAxisMagnificationFactor(1);
 
-  float t00, t01, t10, t11, t0, t1;
+  float t00, t01;
   float yPos, xPos;
   int idxC, idxX, idxY, idxZ;
-  int inIdxX, inIdxY;
   int inMaxX, inMaxY, inMaxZ;
   int maxC, maxX, maxY, maxZ;
   int inIncX, inIncY, inIncZ;
   int outIncX, outIncY, outIncZ;
   unsigned long count = 0;
   unsigned long target;
-  int interpolate;
-  int xMaxIdx, yMaxIdx, zMaxIdx;
+  int xMaxIdx, yMaxIdx;
   T *inPtrZ, *inPtrY, *inPtrX, *outPtrC;
-  
-  interpolate = self->GetInterpolate();
   
   // find the region to loop over
   maxC = outData->GetNumberOfScalarComponents();
@@ -519,18 +510,15 @@ static void vtkImageResampleExecute3D(vtkImageResample *self,
   float t00, t01, t10, t11, t0, t1;
   float zPos, yPos, xPos;
   int idxC, idxX, idxY, idxZ;
-  int inIdxX, inIdxY, inIdxZ;
+  int inIdxZ;
   int inMaxX, inMaxY, inMaxZ;
   int maxC, maxX, maxY, maxZ;
   int inIncX, inIncY, inIncZ;
   int outIncX, outIncY, outIncZ;
   unsigned long count = 0;
   unsigned long target;
-  int interpolate;
   int xMaxIdx, yMaxIdx, zMaxIdx;
   T *inPtrZ, *inPtrY, *inPtrX, *outPtrC;
-  
-  interpolate = self->GetInterpolate();
   
   // find the region to loop over
   maxC = outData->GetNumberOfScalarComponents();

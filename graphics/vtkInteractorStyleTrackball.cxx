@@ -169,7 +169,6 @@ void vtkInteractorStyleTrackball::TrackballSpinCamera(int x, int y)
 // pan the camera in trackball (motion sensitive) style
 void vtkInteractorStyleTrackball::TrackballPanCamera(int x, int y)
 {
-  vtkRenderWindowInteractor *rwi = this->Interactor;
   if ((this->OldX != x) || (this->OldY != y))
     {
     if (this->Preprocess)
@@ -972,8 +971,6 @@ void vtkInteractorStyleTrackball::OnChar(int ctrl, int shift,
   // first invoke superclass method
   this->vtkInteractorStyle::OnChar(ctrl,shift,keycode,repeatcount);
 
-  vtkRenderWindowInteractor *rwi = this->Interactor;
-
   // catch additional keycodes
   switch (keycode) 
     {
@@ -1249,7 +1246,6 @@ void vtkInteractorStyleTrackball::OnLeftButtonDown(int ctrl, int shift,
   this->OldY = Y;
   this->UpdateInternalState(ctrl, shift, X, Y);
 
-  vtkRenderWindowInteractor *rwi = this->Interactor;
   this->FindPokedCamera(X, Y);
   this->Preprocess = 1;
   if (this->LeftButtonPressMethod) 

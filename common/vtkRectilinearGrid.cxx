@@ -1066,7 +1066,6 @@ unsigned long vtkRectilinearGrid::GetEstimatedUpdateMemorySize()
 //----------------------------------------------------------------------------
 void vtkRectilinearGrid::PrintSelf(ostream& os, vtkIndent indent)
 {
-  int idx;
   vtkDataSet::PrintSelf(os,indent);
 
   os << indent << "Dimensions: (" << this->Dimensions[0] << ", "

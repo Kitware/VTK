@@ -85,7 +85,7 @@ void vtkImageClip::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 void vtkImageClip::SetOutputWholeExtent(int extent[6])
 {
-  int idx, modified = 0;
+  int idx;
   
   for (idx = 0; idx < 6; ++idx)
     {
@@ -228,7 +228,7 @@ void vtkImageClip::InternalUpdate(vtkDataObject *outObject)
 void vtkImageClip::CopyData(vtkImageData *inData, vtkImageData *outData,
                             int *ext)
 {
-  int idxX, idxY, idxZ, maxY, maxZ;
+  int idxY, idxZ, maxY, maxZ;
   int inIncX, inIncY, inIncZ, rowLength;
   unsigned char *inPtr, *inPtr1, *outPtr;
   

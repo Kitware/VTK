@@ -450,7 +450,6 @@ void vtkPiecewiseFunction::AddSegment( float x1, float val1,
 {
   int	index1, index2;
   int	swap;
-  int	num_points;
   int   distance;
   int   i;
 
@@ -470,7 +469,6 @@ void vtkPiecewiseFunction::AddSegment( float x1, float val1,
     index2 = swap;
     }
 
-  num_points = this->FunctionSize - index2;
   distance = index2 - index1 - 1;
 
   // Loop between index2 and last point and remove points

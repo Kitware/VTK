@@ -687,7 +687,6 @@ void vtkInteractorStyle::OnLeftButtonDown(int ctrl, int shift,
   //
  this->UpdateInternalState(ctrl, shift, X, Y);
   //
-  vtkRenderWindowInteractor *rwi = this->Interactor;
   this->FindPokedCamera(X, Y);
   if (this->LeftButtonPressMethod) 
     {

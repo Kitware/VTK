@@ -526,7 +526,6 @@ int vtkMultiThreader::SpawnThread( vtkThreadFunctionType f, void *UserData )
 #endif
 
   id = 0;
-  int flag_latch;
 
   while ( id < VTK_MAX_THREADS )
     {
