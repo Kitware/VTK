@@ -142,7 +142,6 @@ void vtkMergeFields::Merge(int component, const char* arrayName,
     return;
     }
 
-  Component* before;
   Component* comp = this->FindComponent(component);
   if ( comp )
     {

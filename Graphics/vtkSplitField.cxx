@@ -182,7 +182,6 @@ void vtkSplitField::Split(int component, const char* arrayName)
     return;
     }
 
-  Component* before;
   Component* comp = this->FindComponent(component);
   // If component is already there, just reset the information
   if ( comp )

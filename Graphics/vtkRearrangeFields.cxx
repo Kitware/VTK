@@ -156,7 +156,6 @@ void vtkRearrangeFields::ApplyOperation(Operation* op, vtkDataSet* input,
     return;
     }
   
-  vtkDataArray* da;
   // If the source is specified by name
   if ( op->FieldType == vtkRearrangeFields::NAME )
     {
