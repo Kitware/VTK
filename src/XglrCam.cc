@@ -242,7 +242,7 @@ void vtkXglrCamera::Render(vtkCamera *cam, vtkXglrRenderer *ren)
     xgl_context_new_frame(*context);
     }
 
-  aspect[0] = size[0]/size[1];
+  aspect[0] = ((float)size[0])/((float)size[1]);
   aspect[1] = 1.0;
   
   vdc_bounds.xmin = -1;
