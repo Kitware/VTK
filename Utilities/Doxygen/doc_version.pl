@@ -1,9 +1,12 @@
 #!/usr/bin/env perl
-# Time-stamp: <2001-09-27 09:16:04 barre>
+# Time-stamp: <2001-09-28 11:27:02 barre>
 #
 # Extract VTK version and add it to documentation
 #
 # barre : Sebastien Barre <sebastien@barre.nom.fr>
+#
+# 0.21 (barre) :
+#   - no more --logo defaults
 #
 # 0.2 (barre) :
 #   - update to match the new VTK 4.0 tree
@@ -39,7 +42,7 @@ use Fcntl;
 use Getopt::Long;
 use strict;
 
-my ($VERSION, $PROGNAME, $AUTHOR) = (0.2, $0, "Sebastien Barre");
+my ($VERSION, $PROGNAME, $AUTHOR) = (0.21, $0, "Sebastien Barre");
 $PROGNAME =~ s/^.*[\\\/]//;
 print "$PROGNAME $VERSION, by $AUTHOR\n";
 
@@ -50,8 +53,7 @@ my %default =
   (
    header => "../../Common/vtkVersion.h",
    store => "doc_version.dox",
-   to => "../../../VTK-doxygen",
-   logo => "vtk-logo.gif"
+   to => "../../../VTK-doxygen"
   );
 
 # -------------------------------------------------------------------------
@@ -128,7 +130,7 @@ print DEST_FILE
 
 print DEST_FILE 
   "  \@image html " . $args{"logo"} . "\n"
-  if exists $args{"logo"};
+  if exists $args{"logo"} && -f $args{"logo"};
 
 print DEST_FILE 
   "  $revision\n",
