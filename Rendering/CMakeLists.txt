@@ -326,16 +326,12 @@ IF (VTK_WRAP_TCL)
   ENDIF (VTK_USE_X)
 
   # find the tk internals for win32
-  IF (WIN32)
-    # for builds against the source tree on windows
-    FIND_PATH(TK_XLIB_PATH X11/Xlib.h ${TK_INCLUDE_PATH} ${TK_INCLUDE_PATH}/../xlib)
-    MARK_AS_ADVANCED(TK_XLIB_PATH)
-  ELSE (WIN32)
+  IF (NOT WIN32)
     IF(NOT APPLE)
       SET(RenderingTCL_SRCS ${RenderingTCL_SRCS} 
         vtkXRenderWindowTclInteractor.cxx)
     ENDIF (NOT APPLE)
-  ENDIF (WIN32) 
+  ENDIF (NOT WIN32) 
 
   IF (NOT VTK_DISABLE_TK_INIT)
     VTK_WRAP_TCL(vtkRenderingTCL

@@ -16,10 +16,14 @@
 # include "vtkMPIController.h"
 #endif // VTK_COMPILED_USING_MPI
 
-#include "tk.h"
-
 #include "vtkSystemIncludes.h"
 #include "vtkToolkits.h"
+
+#ifdef VTK_USE_RENDERING
+# include "tk.h"
+#else
+# include "tcl.h"
+#endif
 
 #cmakedefine VTK_MAKE_INSTANTIATOR
 #ifdef VTK_MAKE_INSTANTIATOR
@@ -270,15 +274,11 @@ proc package {args} {\n\
    * then no user-specific startup file will be run under any conditions.
    */
   
-#if (((TK_MAJOR_VERSION == 4)&&(TK_MINOR_VERSION >= 1))||((TK_MAJOR_VERSION == 8)&&(TK_MINOR_VERSION >= 0)))
   Tcl_SetVar(interp,
-           (char *) "tcl_rcFileName",
-           (char *) "~/.vtkrc",
-           TCL_GLOBAL_ONLY);
-#else
-    tcl_RcFileName = (char *) "~/.vtkrc";
-#endif
-    return TCL_OK;
+             (char *) "tcl_rcFileName",
+             (char *) "~/.vtkrc",
+             TCL_GLOBAL_ONLY);
+  return TCL_OK;
 }
 
 

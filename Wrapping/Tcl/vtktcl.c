@@ -39,10 +39,13 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-
-
-#include "tk.h"
 #include "vtkToolkits.h"
+
+#ifdef VTK_USE_RENDERING
+# include "tk.h"
+#else 
+# include "tcl.h"
+#endif
 
 extern int Vtkcommontcl_Init(Tcl_Interp *interp);
 extern int Vtkfilteringtcl_Init(Tcl_Interp *interp);
