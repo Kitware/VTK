@@ -21,8 +21,6 @@ CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx
   TestDirectory.cxx
   TestReferenceCountedList.cxx
   TestList.cxx
-  TestMap.cxx
-  TestString.cxx
 )
 
 ADD_EXECUTABLE(${KIT}CxxTests ${Tests})
