@@ -18,33 +18,8 @@
 
 #include <ft2build.h>
 #include FT_INTERNAL_TYPE1_TYPES_H
+#include FT_INTERNAL_TYPE42_TYPES_H
 #include FT_INTERNAL_OBJECTS_H
-
-
-  /* Cast a FT_Face to a T1_Face if necessary.                           */
-  /* This implementation sucks, but a lot of things should change in the */
-  /* future anyway...                                                    */
-  /*                                                                     */
-  static T1_Face
-  t1_face_check_cast( FT_Face  face )
-  {
-    FT_Module  driver;
-    T1_Face    result = NULL;
-
-
-    if ( face && face->driver != NULL )
-    {
-      driver = (FT_Module)face->driver;
-
-      if ( driver->clazz && driver->clazz->module_name &&
-           ft_strcmp( driver->clazz->module_name, "type1" ) == 0 )
-      {
-        /* correct typecast! */
-        result = (T1_Face)face;
-      }
-    }
-    return result;
-  }
 
 
   /* documentation is in t1tables.h */
@@ -53,14 +28,25 @@
   FT_Get_PS_Font_Info( FT_Face          face,
                        PS_FontInfoRec*  afont_info )
   {
-    FT_Error  error   = FT_Err_Invalid_Argument;
-    T1_Face   t1_face = t1_face_check_cast( face );
+    PS_FontInfo  font_info = NULL;
+    FT_Error     error     = FT_Err_Invalid_Argument;
+    const char*  driver_name;
 
 
-    if ( t1_face != NULL )
+    if ( face && face->driver && face->driver->root.clazz )
     {
-      *afont_info = t1_face->type1.font_info;
-      error       = FT_Err_Ok;
+      driver_name = face->driver->root.clazz->module_name;
+      if ( ft_strcmp( driver_name, "type1" ) == 0 )
+        font_info = &((T1_Face)face)->type1.font_info;
+      else if ( ft_strcmp( driver_name, "t1cid" ) == 0 )
+        font_info = &((CID_Face)face)->cid.font_info;
+      else if ( ft_strcmp( driver_name, "type42" ) == 0 )
+        font_info = &((T42_Face)face)->type1.font_info;
+    }
+    if ( font_info != NULL )
+    {
+      *afont_info = *font_info;
+      error = FT_Err_Ok;
     }
 
     return error;
@@ -80,8 +66,8 @@
 
     if ( face && face->driver && face->driver->root.clazz )
     {
-      /* Currently, only the type1 and cff drivers provide reliable */
-      /* glyph names...                                             */
+      /* Currently, only the type1, type42, and cff drivers provide */
+      /* reliable glyph names...                                    */
 
       /* We could probably hack the TrueType driver to recognize    */
       /* certain cases where the glyph names are most certainly     */
@@ -89,8 +75,9 @@
       /* this will probably happen later...                         */
 
       driver_name = face->driver->root.clazz->module_name;
-      result      = ( ft_strcmp( driver_name, "type1" ) == 0 ||
-                      ft_strcmp( driver_name, "cff"   ) == 0 );
+      result      = ( ft_strcmp( driver_name, "type1"  ) == 0 ||
+                      ft_strcmp( driver_name, "type42" ) == 0 ||
+                      ft_strcmp( driver_name, "cff"    ) == 0 );
     }
 
     return result;

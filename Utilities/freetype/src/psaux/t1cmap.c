@@ -197,12 +197,11 @@
                              FT_UInt32      char_code )
   {
     FT_UInt    result = 0;
-    FT_UInt32  idx;
 
 
-    idx = (FT_UInt32)( char_code - cmap->first );
-    if ( idx < cmap->count )
-      result = cmap->indices[idx];
+    if ( ( char_code >= cmap->first )                  &&
+         ( char_code < ( cmap->first + cmap->count ) ) )
+      result = cmap->indices[char_code];
 
     return result;
   }
@@ -214,7 +213,6 @@
   {
     FT_UInt    result = 0;
     FT_UInt32  char_code = *pchar_code;
-    FT_UInt32  idx;
 
 
     ++char_code;
@@ -222,10 +220,9 @@
     if ( char_code < cmap->first )
       char_code = cmap->first;
 
-    idx = (FT_UInt32)( char_code - cmap->first );
-    for ( ; idx < cmap->count; idx++, char_code++ )
+    for ( ; char_code < ( cmap->first + cmap->count ); char_code++ )
     {
-      result = cmap->indices[idx];
+      result = cmap->indices[char_code];
       if ( result != 0 )
         goto Exit;
     }

@@ -11,14 +11,25 @@
 /*    base_interface                                                       */
 /*    glyph_management                                                     */
 /*    mac_specific                                                         */
+/*    sizes_management                                                     */
+/*    header_file_macros                                                   */
+/*                                                                         */
+/***************************************************************************/
+
+/***************************************************************************/
+/*                                                                         */
+/* <Chapter>                                                               */
+/*    format_specific                                                      */
+/*                                                                         */
+/* <Title>                                                                 */
+/*    Format-Specific API                                                  */
+/*                                                                         */
+/* <Sections>                                                              */
 /*    multiple_masters                                                     */
 /*    truetype_tables                                                      */
 /*    type1_tables                                                         */
 /*    sfnt_names                                                           */
-/*    sizes_management                                                     */
-/*    module_management                                                    */
-/*    system_interface                                                     */
-/*    header_file_macros                                                   */
+/*    bdf_fonts                                                            */
 /*                                                                         */
 /***************************************************************************/
 
@@ -50,6 +61,8 @@
 /*    list_processing                                                      */
 /*    outline_processing                                                   */
 /*    raster                                                               */
+/*    system_interface                                                     */
+/*    module_management                                                    */
 /*                                                                         */
 /***************************************************************************/
 

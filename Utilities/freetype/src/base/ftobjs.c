@@ -402,7 +402,7 @@
     if ( !face || !face->size || !face->glyph )
       return FT_Err_Invalid_Face_Handle;
 
-    if ( glyph_index >= (FT_UInt)face->num_glyphs )
+    if ( glyph_index > (FT_UInt)face->num_glyphs )
       return FT_Err_Invalid_Argument;
 
     slot = face->glyph;
@@ -1676,9 +1676,9 @@
     if ( buffer && buffer_max > 0 )
       ((FT_Byte*)buffer)[0] = 0;
 
-    if ( face                                    &&
-         glyph_index < (FT_UInt)face->num_glyphs &&
-         FT_HAS_GLYPH_NAMES( face )              )
+    if ( face                                     &&
+         glyph_index <= (FT_UInt)face->num_glyphs &&
+         FT_HAS_GLYPH_NAMES( face )               )
     {
       /* now, lookup for glyph name */
       FT_Driver         driver = face->driver;

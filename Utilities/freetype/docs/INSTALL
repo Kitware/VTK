@@ -118,15 +118,15 @@ II. From the command line
 
 
   If you want  to build FreeType 2 in another  directory, you must set
-  two environment  variables, `OJB_DIR'  and `TOP'.  The  former gives
-  the  directory where  the object  files  and the  library should  be
+  two  environment  variables,  `OJB_DIR'  and  `TOP_DIR'.  The former
+  gives the directory where the object files and the library should  be
   created (this directory must exist), the latter the top directory of
   the FreeType 2 source tree.  Example:
 
-    OBJ_DIR=~/freetype2.compiled TOP=~/freetype2 \
-      make -f$TOP/Makefile setup ansi
-    OBJ_DIR=~/freetype2.compiled TOP=~/freetype2 \
-      make -f$TOP/Makefile
+    OBJ_DIR=~/freetype2.compiled TOP_DIR=~/freetype2 \
+      make -f$TOP_DIR/Makefile setup ansi
+    OBJ_DIR=~/freetype2.compiled TOP_DIR=~/freetype2 \
+      make -f$TOP_DIR/Makefile
 
   On  Unix boxes,  calling  `configure' from  the  build directory  is
   sufficient;  it  will  build  a  small   Makefile  which  calls  the

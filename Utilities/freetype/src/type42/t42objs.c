@@ -705,16 +705,6 @@
   }
 
 
-  static void
-  t42_check_size_change( FT_Face  face )
-  {
-    FT_Face  tt_face = ((T42_Face)face)->ttf_face;
-    FT_Size  tt_size = ((T42_Size)face->size)->ttsize;
-    
-    if ( tt_face->size != tt_size )
-      FT_Activate_Size( tt_size );
-  }
-
 
   FT_LOCAL_DEF( FT_Error )
   T42_Size_SetChars( T42_Size    size,
@@ -727,7 +717,7 @@
     T42_Face  t42face = (T42_Face)face;
 
 
-    t42_check_size_change( t42face->ttf_face );
+    FT_Activate_Size(size->ttsize);
     
     return FT_Set_Char_Size( t42face->ttf_face,
                              char_width,
@@ -746,8 +736,7 @@
     T42_Face  t42face = (T42_Face)face;
 
 
-
-    t42_check_size_change( t42face->ttf_face );
+    FT_Activate_Size(size->ttsize);
     
     return FT_Set_Pixel_Sizes( t42face->ttf_face,
                                pixel_width,
@@ -796,10 +785,8 @@
     FT_Error         error;
     T42_GlyphSlot    t42slot = (T42_GlyphSlot)glyph;
     T42_Size         t42size = (T42_Size)size;
-    FT_Face          tt_face = ((T42_Face) glyph->face)->ttf_face;
     FT_Driver_Class  ttclazz = ((T42_Driver)glyph->face->driver)->ttclazz;
 
-    t42_check_size_change( tt_face );
 
     ft_glyphslot_clear( t42slot->ttslot );
     error = ttclazz->load_glyph( t42slot->ttslot,

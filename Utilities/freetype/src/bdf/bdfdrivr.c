@@ -46,6 +46,166 @@ THE SOFTWARE.
 #define FT_COMPONENT  trace_bdfdriver
 
 
+#ifdef FT_CONFIG_OPTION_USE_CMAPS
+
+
+  typedef struct  BDF_CMapRec_
+  {
+    FT_CMapRec        cmap;
+    FT_UInt           num_encodings;
+    BDF_encoding_el*  encodings;
+
+  } BDF_CMapRec, *BDF_CMap;
+
+
+  FT_CALLBACK_DEF( FT_Error )
+  bdf_cmap_init( BDF_CMap  cmap )
+  {
+    BDF_Face  face = (BDF_Face)FT_CMAP_FACE( cmap );
+
+
+    cmap->num_encodings = face->bdffont->glyphs_used;
+    cmap->encodings     = face->en_table;
+
+    return FT_Err_Ok;
+  }
+
+
+  FT_CALLBACK_DEF( void )
+  bdf_cmap_done( BDF_CMap  cmap )
+  {
+    cmap->encodings     = NULL;
+    cmap->num_encodings = 0;
+  }
+
+
+  FT_CALLBACK_DEF( FT_UInt )
+  bdf_cmap_char_index( BDF_CMap   cmap,
+                       FT_UInt32  charcode )
+  {
+    BDF_encoding_el*  encodings = cmap->encodings;
+    FT_UInt           min, max, mid;
+    FT_UInt           result = 0;
+
+
+    min = 0;
+    max = cmap->num_encodings;
+
+    while ( min < max )
+    {
+      FT_UInt32  code;
+
+
+      mid  = ( min + max ) >> 1;
+      code = encodings[mid].enc;
+
+      if ( charcode == code )
+      {
+        result = encodings[mid].glyph + 1;
+        break;
+      }
+
+      if ( charcode < code )
+        max = mid;
+      else
+        min = mid + 1;
+    }
+
+    return result;
+  }
+
+
+  FT_CALLBACK_DEF( FT_UInt )
+  bdf_cmap_char_next( BDF_CMap    cmap,
+                      FT_UInt32  *acharcode )
+  {
+    BDF_encoding_el*  encodings = cmap->encodings;
+    FT_UInt           min, max, mid;
+    FT_UInt32         charcode = *acharcode + 1;
+    FT_UInt           result   = 0;
+
+
+    min = 0;
+    max = cmap->num_encodings;
+
+    while ( min < max )
+    {
+      FT_UInt32  code;
+
+
+      mid  = ( min + max ) >> 1;
+      code = encodings[mid].enc;
+
+      if ( charcode == code )
+      {
+        result = encodings[mid].glyph + 1;
+        goto Exit;
+      }
+
+      if ( charcode < code )
+        max = mid;
+      else
+        min = mid + 1;
+    }
+
+    charcode = 0;
+    if ( min < cmap->num_encodings )
+    {
+      charcode = encodings[min].enc;
+      result   = encodings[min].glyph + 1;
+    }
+
+  Exit:
+    *acharcode = charcode;
+    return result;
+  }
+
+
+  FT_CALLBACK_TABLE_DEF const FT_CMap_ClassRec  bdf_cmap_class =
+  {
+    sizeof( BDF_CMapRec ),
+    (FT_CMap_InitFunc)     bdf_cmap_init,
+    (FT_CMap_DoneFunc)     bdf_cmap_done,
+    (FT_CMap_CharIndexFunc)bdf_cmap_char_index,
+    (FT_CMap_CharNextFunc) bdf_cmap_char_next
+  };
+
+
+#else /* !FT_CONFIG_OPTION_USE_CMAPS */
+
+
+  static FT_UInt
+  BDF_Get_Char_Index( FT_CharMap  charmap,
+                      FT_ULong    char_code )
+  {
+    BDF_Face          face     = (BDF_Face)charmap->face;
+    BDF_encoding_el*  en_table = face->en_table;
+    int               low, high, mid;
+
+
+    FT_TRACE4(( "BDF_Get_Char_Index %ld\n", char_code ));
+
+    low  = 0;
+    high = face->bdffont->glyphs_used - 1;
+
+    while ( low <= high )
+    {
+      mid = ( low + high ) / 2;
+      if ( char_code < en_table[mid].enc )
+        high = mid - 1;
+      else if ( char_code > en_table[mid].enc )
+        low = mid + 1;
+      else
+        return en_table[mid].glyph + 1;
+    }
+
+    return face->bdffont->default_glyph + 1;
+  }
+
+
+#endif /* !FT_CONFIG_OPTION_USE_CMAPS */
+
+
   FT_CALLBACK_DEF( FT_Error )
   BDF_Face_Done( BDF_Face  face )
   {
@@ -182,34 +342,45 @@ THE SOFTWARE.
       if ( FT_NEW_ARRAY( root->available_sizes, 1 ) )
         goto Exit;
 
+      prop = bdf_get_font_property( font, (char *)"AVERAGE_WIDTH" );
+      if ( ( prop != NULL ) && ( prop->value.int32 >= 10 ) )
+        root->available_sizes->width =  prop->value.int32 / 10;
+
       prop = bdf_get_font_property( font, (char *)"PIXEL_SIZE" );
       if ( prop != NULL )
-      {
-        bdf_property_t  *xres = 0, *yres = 0;
-
-
-        xres = bdf_get_font_property( font, (char *)"RESOLUTION_X" );
-        yres = bdf_get_font_property( font, (char *)"RESOLUTION_Y" );
-        if ( ( xres != NULL ) && ( yres != NULL ) )
-        {
-          FT_TRACE4(( "PIXEL_SIZE: %d  RESOLUTION_X: %d  RESOLUTION_Y: %d\n",
-                      prop->value.int32,
-                      xres->value.int32,
-                      yres->value.int32 ));
-          root->available_sizes->width =
-            (FT_Short)( prop->value.int32 * 75 / xres->value.int32 );
-             
-          root->available_sizes->height =
-            (FT_Short)( prop->value.int32 * 75 / yres->value.int32 );
-        }
-      }
+        root->available_sizes->height = prop->value.int32;
       else
       {
-        /* some fonts have broken SIZE declaration (jiskan24.bdf) */
-        FT_ERROR(( "BDF_Face_Init: reading size\n" ));
-        root->available_sizes->width  = (FT_Short)font->point_size ;
-        root->available_sizes->height = (FT_Short)font->point_size ;
+        prop = bdf_get_font_property( font, (char *)"POINT_SIZE" );
+        if ( prop != NULL )
+        {
+          bdf_property_t  *yres;
+
+
+          yres = bdf_get_font_property( font, (char *)"RESOLUTION_Y" );
+          if ( yres != NULL )
+          {
+            FT_TRACE4(( "POINT_SIZE: %d  RESOLUTION_Y: %d\n",
+                        prop->value.int32, yres->value.int32 ));
+            root->available_sizes->height =
+              (FT_Short)( prop->value.int32 * yres->value.int32 / 720 );
+          }
+        }
       }
+
+      if ( root->available_sizes->width == 0 )
+      {
+        if ( root->available_sizes->height == 0 )
+        {
+          /* some fonts have broken SIZE declaration (jiskan24.bdf) */
+          FT_ERROR(( "BDF_Face_Init: reading size\n" ));
+          root->available_sizes->width = (FT_Short)font->point_size;
+        }
+        else
+          root->available_sizes->width = root->available_sizes->height;
+      }
+      if ( root->available_sizes->height == 0 )
+          root->available_sizes->height = root->available_sizes->width;
 
       /* encoding table */
       {
@@ -231,6 +402,7 @@ THE SOFTWARE.
       /* charmaps */
       {
         bdf_property_t  *charset_registry = 0, *charset_encoding = 0;
+        FT_Bool          unicode_charmap  = 0;
 
 
         charset_registry =
@@ -247,25 +419,85 @@ THE SOFTWARE.
             if ( FT_NEW_ARRAY( face->charset_encoding,
                                strlen( charset_encoding->value.atom ) + 1 ) )
               goto Exit;
-            if (FT_NEW_ARRAY( face->charset_registry,
-                              strlen( charset_registry->value.atom ) + 1 ) )
+            if ( FT_NEW_ARRAY( face->charset_registry,
+                               strlen( charset_registry->value.atom ) + 1 ) )
               goto Exit;
             ft_strcpy( face->charset_registry, charset_registry->value.atom );
             ft_strcpy( face->charset_encoding, charset_encoding->value.atom );
+            if ( !ft_strcmp( face->charset_registry, "ISO10646" )     ||
+                 ( !ft_strcmp( face->charset_registry, "ISO8859" ) &&
+                   !ft_strcmp( face->charset_encoding, "1" )       )  )
+              unicode_charmap = 1;
+
+#ifdef FT_CONFIG_OPTION_USE_CMAPS
+
+            {
+              FT_CharMapRec  charmap;
+
+
+              charmap.face        = FT_FACE( face );
+              charmap.encoding    = ft_encoding_none;
+              charmap.platform_id = 0;
+              charmap.encoding_id = 0;
+
+              if ( unicode_charmap )
+              {
+                charmap.encoding    = ft_encoding_unicode;
+                charmap.platform_id = 3;
+                charmap.encoding_id = 1;
+              }
+
+              error = FT_CMap_New( &bdf_cmap_class, NULL, &charmap, NULL );
+
+              /* Select default charmap */
+              if (root->num_charmaps)
+                root->charmap = root->charmaps[0];
+            }
+
+#else /* !FT_CONFIG_OPTION_USE_CMAPS */
 
             face->charmap.encoding    = ft_encoding_none;
             face->charmap.platform_id = 0;
             face->charmap.encoding_id = 0;
+            if ( unicode_charmap )
+            {
+              face->charmap.encoding    = ft_encoding_unicode;
+              face->charmap.platform_id = 3;
+              face->charmap.encoding_id = 1;
+            }
             face->charmap.face        = root;
             face->charmap_handle      = &face->charmap;
 
             root->charmap = face->charmap_handle;
 
+#endif /* !FT_CONFIG_OPTION_USE_CMAPS */
+
             goto Exit;
           }
         }
 
-        /* otherwise assume adobe standard encoding */
+        /* otherwise assume Adobe standard encoding */
+
+#ifdef FT_CONFIG_OPTION_USE_CMAPS
+
+        {
+          FT_CharMapRec  charmap;
+
+
+          charmap.face        = FT_FACE( face );
+          charmap.encoding    = ft_encoding_adobe_standard;
+          charmap.platform_id = 7;
+          charmap.encoding_id = 0;
+
+          error = FT_CMap_New( &bdf_cmap_class, NULL, &charmap, NULL );
+
+          /* Select default charmap */
+          if (root->num_charmaps)
+            root->charmap = root->charmaps[0];
+        }
+
+#else /* !FT_CONFIG_OPTION_USE_CMAPS */
+
         face->charmap.encoding    = ft_encoding_adobe_standard;
         face->charmap.platform_id = 7; /* taken from t1objs.c */
         face->charmap.encoding_id = 0;
@@ -273,6 +505,9 @@ THE SOFTWARE.
         face->charmap_handle      = &face->charmap;
 
         root->charmap = face->charmap_handle;
+
+#endif /* !FT_CONFIG_OPTION_USE_CMAPS */
+
       }
     }
 
@@ -285,8 +520,8 @@ THE SOFTWARE.
   }
 
 
-  static
-  FT_Error  BDF_Set_Pixel_Size( FT_Size  size )
+  static FT_Error
+  BDF_Set_Pixel_Size( FT_Size  size )
   {
     BDF_Face  face = (BDF_Face)FT_SIZE_FACE( size );
     FT_Face   root = FT_FACE( face );
@@ -333,11 +568,14 @@ THE SOFTWARE.
       goto Exit;
     }
 
+    if ( glyph_index > 0 )
+      glyph_index--;
+
     /* slot, bitmap => freetype, glyph => bdflib */
     glyph = face->bdffont->glyphs[glyph_index];
 
-    bitmap->rows      = glyph.bbx.height;
-    bitmap->width     = glyph.bbx.width;
+    bitmap->rows  = glyph.bbx.height;
+    bitmap->width = glyph.bbx.width;
 
     if ( bpp == 1 )
     {
@@ -461,35 +699,6 @@ THE SOFTWARE.
   }
 
 
-  static
-  FT_UInt  BDF_Get_Char_Index( FT_CharMap  charmap,
-                               FT_ULong    char_code )
-  {
-    BDF_Face          face     = (BDF_Face)charmap->face;
-    BDF_encoding_el*  en_table = face->en_table;
-    int               low, high, mid;
-
-
-    FT_TRACE4(( "BDF_Get_Char_Index %ld\n", char_code ));
-
-    low  = 0;
-    high = face->bdffont->glyphs_used - 1;
-
-    while ( low <= high )
-    {
-      mid = ( low + high ) / 2;
-      if ( char_code < en_table[mid].enc )
-        high = mid - 1;
-      else if ( char_code > en_table[mid].enc )
-        low = mid + 1;
-      else
-        return en_table[mid].glyph;
-    }
-
-    return face->bdffont->default_glyph;
-  }
-
-
   FT_CALLBACK_TABLE_DEF
   const FT_Driver_ClassRec  bdf_driver_class =
   {
@@ -508,9 +717,9 @@ THE SOFTWARE.
       (FT_Module_Requester)  0
     },
 
-    sizeof( BDF_FaceRec ),
-    sizeof( FT_SizeRec ),
-    sizeof( FT_GlyphSlotRec ),
+    sizeof ( BDF_FaceRec ),
+    sizeof ( FT_SizeRec ),
+    sizeof ( FT_GlyphSlotRec ),
 
     (FT_Face_InitFunc)        BDF_Face_Init,
     (FT_Face_DoneFunc)        BDF_Face_Done,
@@ -524,7 +733,7 @@ THE SOFTWARE.
 
     (FT_Slot_LoadFunc)        BDF_Glyph_Load,
 
-#ifndef FT_CONFIG_OPTION_USE_CMAPS
+#ifdef FT_CONFIG_OPTION_USE_CMAPS
     (FT_CharMap_CharIndexFunc)0,
 #else
     (FT_CharMap_CharIndexFunc)BDF_Get_Char_Index,
@@ -534,10 +743,10 @@ THE SOFTWARE.
     (FT_Face_AttachFunc)      0,
     (FT_Face_GetAdvancesFunc) 0,
 
-#ifndef FT_CONFIG_OPTION_USE_CMAPS
-    (FT_CharMap_CharNextFunc) 0, /* BDF_Char_Get_Next,*/
-#else
+#ifdef FT_CONFIG_OPTION_USE_CMAPS
     (FT_CharMap_CharNextFunc) 0
+#else
+    (FT_CharMap_CharNextFunc) 0 /* BDF_Get_Next_Char */
 #endif
   };
 

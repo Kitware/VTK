@@ -68,7 +68,7 @@
       if ( item_list )
       {      
         PFR_ExtraItem  extra = item_list;
-        
+
 
         for ( extra = item_list; extra->parser != NULL; extra++ )
         {
@@ -501,11 +501,92 @@
   }                                 
 
 
+  /* load kerning pair data */
+  FT_CALLBACK_DEF( FT_Error )
+  pfr_extra_item_load_kerning_pairs( FT_Byte*     p,
+                                     FT_Byte*     limit,
+                                     PFR_PhyFont  phy_font )
+  {
+    FT_Int        count;
+    FT_UShort     base_adj;
+    FT_UInt       flags;
+    FT_UInt       num_pairs;
+    PFR_KernPair  pairs;
+    FT_Error      error  = 0;
+    FT_Memory     memory = phy_font->memory;
+
+
+    /* XXX: there may be multiple extra items for kerning */
+    if ( phy_font->kern_pairs != NULL )
+      goto Exit;
+
+    FT_TRACE2(( "pfr_extra_item_load_kerning_pairs()\n" ));
+    
+    PFR_CHECK( 4 );
+
+    num_pairs = PFR_NEXT_BYTE( p );
+    base_adj  = PFR_NEXT_SHORT( p );
+    flags     = PFR_NEXT_BYTE( p );
+    
+#ifndef PFR_CONFIG_NO_CHECKS
+    count = 3;
+    
+    if ( flags & PFR_KERN_2BYTE_CHAR )
+      count += 2;
+    
+    if ( flags & PFR_KERN_2BYTE_ADJ )
+      count += 1;
+
+    PFR_CHECK( num_pairs * count );
+#endif
+
+    if ( FT_NEW_ARRAY( pairs, num_pairs ) )
+      goto Exit;
+    
+    phy_font->num_kern_pairs = num_pairs;
+    phy_font->kern_pairs     = pairs;
+    
+    for (count = num_pairs ; count > 0; count--, pairs++ )
+    {
+      if ( flags & PFR_KERN_2BYTE_CHAR )
+      {
+        pairs->glyph1 = PFR_NEXT_USHORT( p );
+        pairs->glyph2 = PFR_NEXT_USHORT( p );
+      }
+      else
+      {
+        pairs->glyph1 = PFR_NEXT_BYTE( p );
+        pairs->glyph2 = PFR_NEXT_BYTE( p );
+      }
+     
+      if ( flags & PFR_KERN_2BYTE_ADJ )
+        pairs->kerning.x = base_adj + PFR_NEXT_SHORT( p );
+      else
+        pairs->kerning.x = base_adj + PFR_NEXT_INT8( p );
+
+      pairs->kerning.y = 0;
+
+      FT_TRACE2(( "kerning %d <-> %d : %ld\n",
+                   pairs->glyph1, pairs->glyph2, pairs->kerning.x ));
+    }
+      
+  Exit:
+    return error;
+  
+  Too_Short:
+    error = PFR_Err_Invalid_Table;
+    FT_ERROR(( "pfr_extra_item_load_kerning_pairs: "
+               "invalid kerning pairs table\n" ));
+    goto Exit;
+  }                                 
+
+
   static const PFR_ExtraItemRec  pfr_phy_font_extra_items[] =
   {
     { 1, (PFR_ExtraItem_ParseFunc) pfr_extra_item_load_bitmap_info },
     { 2, (PFR_ExtraItem_ParseFunc) pfr_extra_item_load_font_id },
     { 3, (PFR_ExtraItem_ParseFunc) pfr_extra_item_load_stem_snaps },
+    { 4, (PFR_ExtraItem_ParseFunc) pfr_extra_item_load_kerning_pairs },
     { 0, NULL }
   };
 
@@ -533,6 +614,9 @@
 
     FT_FREE( phy_font->blue_values );
     phy_font->num_blue_values = 0;
+
+    FT_FREE( phy_font->kern_pairs );
+    phy_font->num_kern_pairs = 0;
   }
   
 

@@ -241,11 +241,12 @@ FT_BEGIN_HEADER
   /*    completely independent from the others; it is the `root' of a set  */
   /*    of objects like fonts, faces, sizes, etc.                          */
   /*                                                                       */
-  /*    It also embeds a system object (see FT_System), as well as a       */
-  /*    scan-line converter object (see FT_Raster).                        */
+  /*    It also embeds a memory manager (see @FT_Memory), as well as a     */
+  /*    scan-line converter object (see @FT_Raster).                       */
   /*                                                                       */
   /* <Note>                                                                */
-  /*    Library objects are created through FT_Init_FreeType().            */
+  /*    Library objects are normally created by @FT_Init_FreeType, and     */
+  /*    destroyed with @FT_Done_FreeType                                   */
   /*                                                                       */
   typedef struct FT_LibraryRec_  *FT_Library;
 
@@ -270,11 +271,7 @@ FT_BEGIN_HEADER
   /*                                                                       */
   /* <Description>                                                         */
   /*    A handle to a given FreeType font driver object.  Each font driver */
-  /*    is able to create faces, sizes, glyph slots, and charmaps from the */
-  /*    resources whose format it supports.                                */
-  /*                                                                       */
-  /*    A driver can support either bitmap, graymap, or scalable font      */
-  /*    formats.                                                           */
+  /*    is a special module capable of creating faces from font files.     */
   /*                                                                       */
   typedef struct FT_DriverRec_*  FT_Driver;
 
@@ -285,10 +282,10 @@ FT_BEGIN_HEADER
   /*    FT_Renderer                                                        */
   /*                                                                       */
   /* <Description>                                                         */
-  /*    A handle to a given FreeType renderer.  A renderer is in charge of */
-  /*    converting a glyph image to a bitmap, when necessary.  Each        */
-  /*    supports a given glyph image format, and one or more target        */
-  /*    surface depths.                                                    */
+  /*    A handle to a given FreeType renderer.  A renderer is a special    */
+  /*    module in charge of converting a glyph image to a bitmap, when     */
+  /*    necessary.  Each renderer supports a given glyph image format, and */
+  /*    one or more target surface depths.                                 */
   /*                                                                       */
   typedef struct FT_RendererRec_*  FT_Renderer;
 
@@ -299,12 +296,21 @@ FT_BEGIN_HEADER
   /*    FT_Face                                                            */
   /*                                                                       */
   /* <Description>                                                         */
-  /*    A handle to a given driver face object.  A face object contains    */
-  /*    all the instance and glyph independent data of a font file         */
-  /*    typeface.                                                          */
+  /*    A handle to a given typographic face object.  A face object models */
+  /*    a given typeface, in a given style.                                */
   /*                                                                       */
-  /*    A face object is created from a resource object through the        */
-  /*    new_face() method of a given driver.                               */
+  /* <Note>                                                                */
+  /*    Each face object also owns a single @FT_GlyphSlot object, as well  */
+  /*    as one or more @FT_Size objects.                                   */
+  /*                                                                       */
+  /*    use @FT_New_Face or @FT_Open_Face to create a new face object from */
+  /*    a given filepathname or a custom input stream.                     */
+  /*                                                                       */
+  /*    use @FT_Done_Face to destroy it (along with its slot and sizes)    */
+  /*                                                                       */
+  /* <Also>                                                                */
+  /*    the @FT_FaceRec details the publicly accessible fields of a given  */
+  /*    face object.                                                       */
   /*                                                                       */
   typedef struct FT_FaceRec_*  FT_Face;
 
@@ -315,12 +321,21 @@ FT_BEGIN_HEADER
   /*    FT_Size                                                            */
   /*                                                                       */
   /* <Description>                                                         */
-  /*    A handle to a given driver size object.  Such an object models the */
-  /*    _resolution_ AND _size_ dependent state of a given driver face     */
-  /*    size.                                                              */
+  /*    A handle to a given size object. Such an object models the         */
+  /*    data that depends on the current _resolution_ and _character_      */
+  /*    _size_ in a given @FT_Face.                                        */
   /*                                                                       */
-  /*    A size object is always created from a given face object.  It is   */
-  /*    discarded automatically by its parent face.                        */
+  /* <Note>                                                                */
+  /*    Each face object owns one or more sizes. There is however a        */
+  /*    single _active_ size for the face at any time that will be         */
+  /*    used by functions like @FT_Load_Glyph, @FT_Get_Kerning, etc...     */
+  /*                                                                       */
+  /*    you can use the @FT_Activate_Size API to change the current        */
+  /*    active size of any given face                                      */
+  /*                                                                       */
+  /* <Also>                                                                */
+  /*   the @FT_SizeRec structure details the publicly accessible fields    */
+  /*   of a given face object.                                             */
   /*                                                                       */
   typedef struct FT_SizeRec_*  FT_Size;
 
@@ -332,11 +347,16 @@ FT_BEGIN_HEADER
   /*                                                                       */
   /* <Description>                                                         */
   /*    A handle to a given `glyph slot'.  A slot is a container where it  */
-  /*    is possible to load any of the glyphs contained within its parent  */
+  /*    is possible to load any one of the glyphs contained in its parent  */
   /*    face.                                                              */
   /*                                                                       */
-  /*    A glyph slot is created from a given face object.  It is discarded */
-  /*    automatically by its parent face.                                  */
+  /*    In other words, each time you call @FT_Load_Glyph or               */
+  /*    @FT_Load_Char, the slot's content is erased by the new glyph data, */
+  /*    i.e. the glyph's metrics, its image (bitmap or outline), and       */
+  /*    other control information                                          */
+  /*                                                                       */
+  /* <Also>                                                                */
+  /*    @FT_GlyphSlotRec details the publicly accessible glyph fields      */
   /*                                                                       */
   typedef struct FT_GlyphSlotRec_*  FT_GlyphSlot;
 
@@ -352,8 +372,20 @@ FT_BEGIN_HEADER
   /*    parent's face.  Some font formats may provide several charmaps per */
   /*    font.                                                              */
   /*                                                                       */
-  /*    A charmap is created from a given face object.  It is discarded    */
-  /*    automatically by its parent face.                                  */
+  /*    Each face object owns zero or more charmaps, but only one of       */
+  /*    them can be "active" and used by @FT_Get_Char_Index or             */
+  /*    @FT_Load_Char                                                      */
+  /*                                                                       */
+  /*    The list of available charmaps in a face is available through the  */
+  /*    "face->num_charmaps" and "face->charmaps" fields of @FT_FaceRec    */
+  /*                                                                       */
+  /*    the currently active charmap is available as "face->charmap".      */
+  /*    You should call @FT_Set_Charmap to change it                       */
+  /*                                                                       */
+  /* <Note>                                                                */
+  /*    when a new face is created (either through @FT_New_Face or         */
+  /*    @FT_Open_Face), the library looks for a Unicode charmap within     */
+  /*    the list and automatically activates it                            */
   /*                                                                       */
   typedef struct FT_CharMapRec_*  FT_CharMap;
 
@@ -365,6 +397,8 @@ FT_BEGIN_HEADER
   /*                                                                       */
   /* <Description>                                                         */
   /*    This macro converts four letter tags into an unsigned long.        */
+  /*     It is used to define "encoding" identifiers (see @FT_Encoding)    */
+  /*                                                                       */
   /*                                                                       */
 #ifndef FT_ENC_TAG
 #define FT_ENC_TAG( value, _x1, _x2, _x3, _x4 ) \
@@ -419,13 +453,13 @@ FT_BEGIN_HEADER
   /*    FT_CharMapRec                                                      */
   /*                                                                       */
   /* <Description>                                                         */
-  /*    The base charmap class.                                            */
+  /*    The base charmap structure.                                        */
   /*                                                                       */
   /* <Fields>                                                              */
   /*    face        :: A handle to the parent face object.                 */
   /*                                                                       */
-  /*    encoding    :: A tag which identifies the charmap.  Use this with  */
-  /*                   FT_Select_Charmap().                                */
+  /*    encoding    :: A @FT_Encoding tag identifying the charmap.  Use    */
+  /*                   this with @FT_Select_Charmap().                     */
   /*                                                                       */
   /*    platform_id :: An ID number describing the platform for the        */
   /*                   following encoding ID.  This comes directly from    */
@@ -435,10 +469,6 @@ FT_BEGIN_HEADER
   /*    encoding_id :: A platform specific encoding number.  This also     */
   /*                   comes from the TrueType specification and should be */
   /*                   emulated similarly.                                 */
-  /*                                                                       */
-  /* <Note>                                                                */
-  /*    We STRONGLY recommmend emulating a Unicode charmap for drivers     */
-  /*    that do not support TrueType or OpenType.                          */
   /*                                                                       */
   typedef struct  FT_CharMapRec_
   {
@@ -466,9 +496,9 @@ FT_BEGIN_HEADER
   /*                                                                       */
   /* <Description>                                                         */
   /*    An opaque handle to an FT_Face_InternalRec structure, used to      */
-  /*    model private data of a given FT_Face object.                      */
+  /*    model private data of a given @FT_Face object.                     */
   /*                                                                       */
-  /*    This field might change between releases of FreeType 2 and are     */
+  /*    This structure might change between releases of FreeType 2 and are */
   /*    not generally available to client applications.                    */
   /*                                                                       */
   typedef struct FT_Face_InternalRec_*  FT_Face_Internal;
@@ -476,7 +506,7 @@ FT_BEGIN_HEADER
 
   /*************************************************************************/
   /*                                                                       */
-  /*                       FreeType base face class                        */
+  /*                       FreeType base face object                       */
   /*                                                                       */
   /* <Struct>                                                              */
   /*    FT_FaceRec                                                         */
@@ -487,11 +517,11 @@ FT_BEGIN_HEADER
   /*                                                                       */
   /* <Fields>                                                              */
   /*    num_faces           :: In the case where the face is located in a  */
-  /*                           collection (i.e., a resource which embeds   */
+  /*                           collection (i.e., a file which embed        */
   /*                           several faces), this is the total number of */
   /*                           faces found in the resource.  1 by default. */
   /*                                                                       */
-  /*    face_index          :: The index of the face in its resource.      */
+  /*    face_index          :: The index of the face in its font file.     */
   /*                           Usually, this is 0 for all normal font      */
   /*                           formats.  It can be more in the case of     */
   /*                           collections (which embed several fonts in a */
@@ -499,7 +529,7 @@ FT_BEGIN_HEADER
   /*                                                                       */
   /*    face_flags          :: A set of bit flags that give important      */
   /*                           information about the face; see the         */
-  /*                           FT_FACE_FLAG_XXX macros for details.        */
+  /*                           FT_FACE_FLAG_XXX constants for details.     */
   /*                                                                       */
   /*    style_flags         :: A set of bit flags indicating the style of  */
   /*                           the face (i.e., italic, bold, underline,    */
@@ -530,15 +560,14 @@ FT_BEGIN_HEADER
   /*                                                                       */
   /*    num_fixed_sizes     :: The number of fixed sizes available in this */
   /*                           face.  This should be set to 0 for scalable */
-  /*                           fonts, unless its resource includes a       */
-  /*                           complete set of glyphs (called a `strike')  */
-  /*                           for the specified size.                     */
+  /*                           fonts, unless its face includes a complete  */
+  /*                           set of glyphs (called a `strike') for the   */
+  /*                           specified sizes.                            */
   /*                                                                       */
   /*    available_sizes     :: An array of sizes specifying the available  */
   /*                           bitmap/graymap sizes that are contained in  */
-  /*                           in the font resource.  Should be set to     */
-  /*                           NULL if the field `num_fixed_sizes' is set  */
-  /*                           to 0.                                       */
+  /*                           in the font face. Should be set to NULL if  */
+  /*                           the field `num_fixed_sizes' is set to 0.    */
   /*                                                                       */
   /*    num_charmaps        :: The total number of character maps in the   */
   /*                           face.                                       */
@@ -546,12 +575,12 @@ FT_BEGIN_HEADER
   /*    charmaps            :: A table of pointers to the face's charmaps. */
   /*                           Used to scan the list of available charmaps */
   /*                           -- this table might change after a call to  */
-  /*                           FT_Attach_File/Stream (e.g. when used to    */
-  /*                           hook an additional encoding/CMap to the     */
-  /*                           face object).                               */
+  /*                           @FT_Attach_File or @FT_Attach_Stream (e.g.  */
+  /*                           when used to hook an additional encoding or */
+  /*                           CMap to the face object).                   */
   /*                                                                       */
   /*    generic             :: A field reserved for client uses.  See the  */
-  /*                           FT_Generic type description.                */
+  /*                           @FT_Generic type description.               */
   /*                                                                       */
   /*    bbox                :: The font bounding box.  Coordinates are     */
   /*                           expressed in font units (see units_per_EM). */
@@ -619,15 +648,6 @@ FT_BEGIN_HEADER
   /*                           underline for this face.  Only relevant for */
   /*                           scalable formats.                           */
   /*                                                                       */
-  /*    driver              :: A handle to the face's parent driver        */
-  /*                           object.                                     */
-  /*                                                                       */
-  /*    memory              :: A handle to the face's parent memory        */
-  /*                           object.  Used for the allocation of         */
-  /*                           subsequent objects.                         */
-  /*                                                                       */
-  /*    stream              :: A handle to the face's stream.              */
-  /*                                                                       */
   /*    glyph               :: The face's associated glyph slot(s).  This  */
   /*                           object is created automatically with a new  */
   /*                           face object.  However, certain kinds of     */
@@ -635,12 +655,9 @@ FT_BEGIN_HEADER
   /*                           can need more than one slot to ease their   */
   /*                           task.                                       */
   /*                                                                       */
-  /*    sizes_list          :: The list of child sizes for this face.      */
+  /*    size                :: the current active size for this face       */
   /*                                                                       */
-  /*    internal            :: A pointer to internal fields of the face    */
-  /*                           object.  These fields can change freely     */
-  /*                           between releases of FreeType and are not    */
-  /*                           publicly available.                         */
+  /*    charmap             :: the current active charmap for this face    */
   /*                                                                       */
   typedef struct  FT_FaceRec_
   {
@@ -786,8 +803,8 @@ FT_BEGIN_HEADER
   /* <Description>                                                         */
   /*    A bit-field constant, used to indicate that a given face contains  */
   /*    kerning information.  When set, this information can be retrieved  */
-  /*    through the function FT_Get_Kerning().  Note that when unset, this */
-  /*    function will always return the kerning vector (0,0).              */
+  /*    through the function @FT_Get_Kerning().  Note that when unset,     */
+  /*    this function will always return the kerning vector (0,0).         */
   /*                                                                       */
 #define FT_FACE_FLAG_KERNING  0x40
 
@@ -806,6 +823,11 @@ FT_BEGIN_HEADER
   /*    where each glyph bitmap is available directly in binary form       */
   /*    without any kind of compression.                                   */
   /*                                                                       */
+  /* <Note>                                                                */
+  /*    This bit flag is deprecated, because even if the bitmaps are       */
+  /*    available directly in the font file, the glyph sub-system is       */
+  /*    very likely to be faster anyway...                                 */
+  /*                                                                       */
 #define FT_FACE_FLAG_FAST_GLYPHS  0x80
 
 
@@ -817,6 +839,7 @@ FT_BEGIN_HEADER
   /* <Description>                                                         */
   /*    A bit-field constant, used to indicate that the font contains      */
   /*    multiple masters and is capable of interpolating between them.     */
+  /*    See the multiple-masters specific API for more details             */
   /*                                                                       */
 #define FT_FACE_FLAG_MULTIPLE_MASTERS  0x100
 
@@ -828,7 +851,7 @@ FT_BEGIN_HEADER
   /*                                                                       */
   /* <Description>                                                         */
   /*    A bit-field constant, used to indicate that the font contains      */
-  /*    glyph names that can be retrieved through FT_Get_Glyph_Name().     */
+  /*    glyph names that can be retrieved through @FT_Get_Glyph_Name().    */
   /*                                                                       */
 #define FT_FACE_FLAG_GLYPH_NAMES  0x200
 
@@ -841,7 +864,7 @@ FT_BEGIN_HEADER
   /* <Description>                                                         */
   /*    This bit field is used internally by FreeType to indicate that     */
   /*    a face's stream was provided by the client application and should  */
-  /*    not be destroyed by FT_Done_Face().                                */
+  /*    not be destroyed by @FT_Done_Face().                               */
   /*                                                                       */
 #define FT_FACE_FLAG_EXTERNAL_STREAM  0x4000
 
@@ -952,7 +975,8 @@ FT_BEGIN_HEADER
   /* @macro: FT_HAS_FAST_GLYPHS (face)                                     */
   /*                                                                       */
   /* @description:                                                         */
-  /*   XXX                                                                 */
+  /*   Deprecated, indicates that the face contains so-called "fast"       */
+  /*   glyph bitmaps.                                                      */
   /*                                                                       */
 #define FT_HAS_FAST_GLYPHS( face ) \
           ( face->face_flags & FT_FACE_FLAG_FAST_GLYPHS )
@@ -1218,8 +1242,8 @@ FT_BEGIN_HEADER
   /*                         when the slot format is                       */
   /*                         ft_glyph_format_bitmap.  Note that the        */
   /*                         address and content of the bitmap buffer can  */
-  /*                         change between calls of FT_Load_Glyph() and a */
-  /*                         few other functions.                          */
+  /*                         change between calls of @FT_Load_Glyph() and  */
+  /*                         a few other functions.                        */
   /*                                                                       */
   /*    bitmap_left       :: This is the bitmap's left bearing expressed   */
   /*                         in integer pixels.  Of course, this is only   */
@@ -1326,7 +1350,7 @@ FT_BEGIN_HEADER
   /*    FT_Init_FreeType                                                   */
   /*                                                                       */
   /* <Description>                                                         */
-  /*    Initializes a new FreeType library object.  The set of drivers     */
+  /*    Initializes a new FreeType library object.  The set of modules     */
   /*    that are registered by this function is determined at build time.  */
   /*                                                                       */
   /* <Output>                                                              */
@@ -1365,8 +1389,8 @@ FT_BEGIN_HEADER
   /*    certain programs implement library initialization in a custom way  */
   /*    that doesn't use `FT_Init_FreeType'.                               */
   /*                                                                       */
-  /*    In such cases it can happen that the library version is not known  */
-  /*    until the library object has been created.                         */
+  /*    In such cases, the library version might not be available before   */
+  /*    the library object has been created.                               */
   /*                                                                       */
   FT_EXPORT( void )
   FT_Library_Version( FT_Library   library,
@@ -1553,6 +1577,9 @@ FT_BEGIN_HEADER
   /*    negative, the function will _not_ return any face handle in        */
   /*    `aface'.  Its return value should be 0 if the font format is       */
   /*    recognized, or non-zero otherwise.                                 */
+  /*                                                                       */
+  /*    Each new face object created with this function also owns a        */
+  /*    default @FT_Size object, accessible as `face->size'                */
   /*                                                                       */
   FT_EXPORT( FT_Error )
   FT_New_Face( FT_Library   library,
@@ -2423,6 +2450,12 @@ FT_BEGIN_HEADER
   /*                                                                       */
   /* <Return>                                                              */
   /*    The glyph index.  0 means `undefined character code'.              */
+  /*                                                                       */
+  /* <Note>                                                                */
+  /*    FreeType computes its own glyph indices which are not necessarily  */
+  /*    the same as used in the font in case the font is based on glyph    */
+  /*    indices.  Reason for this behaviour is to assure that index 0 is   */
+  /*    never used, representing the missing glyph.                        */
   /*                                                                       */
   FT_EXPORT( FT_UInt )
   FT_Get_Char_Index( FT_Face   face,

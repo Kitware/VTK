@@ -189,6 +189,15 @@ FT_BEGIN_HEADER
   
   } PFR_DimensionRec, *PFR_Dimension;
 
+  /************************************************************************/
+
+  typedef struct  PFR_KernPairRec_
+  {
+    FT_UInt    glyph1;
+    FT_UInt    glyph2;
+    FT_Vector  kerning;
+
+  } PFR_KernPairRec, *PFR_KernPair;
 
   /************************************************************************/
 
@@ -221,7 +230,10 @@ FT_BEGIN_HEADER
     FT_UInt            num_chars;
     FT_UInt32          chars_offset;
     PFR_Char           chars;
-  
+
+    FT_UInt            num_kern_pairs;
+    PFR_KernPairRec   *kern_pairs;
+
   } PFR_PhyFontRec, *PFR_PhyFont;
 
 
@@ -236,6 +248,14 @@ FT_BEGIN_HEADER
     PFR_PHY_VERTICAL         = 0x01
 
   } PFR_PhyFlags;
+
+
+  typedef enum PFR_KernFlags_
+  {
+    PFR_KERN_2BYTE_ADJ   = 0x01,
+    PFR_KERN_2BYTE_CHAR  = 0x02
+  
+  } PFR_KernFlags;
 
 
   /************************************************************************/

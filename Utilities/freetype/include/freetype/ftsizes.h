@@ -57,7 +57,7 @@ FT_BEGIN_HEADER
   /*    mostly in order to manage several character pixel sizes of the     */
   /*    same font family and style.  See @FT_New_Size and @FT_Done_Size.   */
   /*                                                                       */
-  /*    Note that @FT_Set_Pixel_Sizes and @FT_Set_Character_Size only      */
+  /*    Note that @FT_Set_Pixel_Sizes and @FT_Set_Char_Size only           */
   /*    modify the contents of the current "active" size; you thus need    */
   /*    to use @FT_Activate_Size to change it.                             */
   /*                                                                       */

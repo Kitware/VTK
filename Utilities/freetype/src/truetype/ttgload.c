@@ -1066,7 +1066,7 @@
             }
           }
 
-          if ( x | y )
+          if ( x || y )
           {
             translate_array( num_new_points,
                              gloader->base.outline.points + num_base_points,

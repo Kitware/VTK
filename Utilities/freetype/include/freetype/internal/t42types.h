@@ -30,40 +30,10 @@
 FT_BEGIN_HEADER
 
 
-  typedef struct  T42_FontRec_ 
-  {
-    /* font info dictionary */
-    PS_FontInfoRec   font_info; 
-
-    /* top-level dictionary */
-    FT_String*       font_name;
-
-    T1_EncodingType  encoding_type; 
-    T1_EncodingRec   encoding;
-
-    FT_Byte*         charstrings_block;
-    FT_Byte*         glyph_names_block;
-
-    FT_Int           num_glyphs;
-    FT_String**      glyph_names;       /* array of glyph names       */
-    FT_Byte**        charstrings;       /* array of glyph charstrings */
-    FT_Int*          charstrings_len;
-
-    FT_Byte          paint_type;
-    FT_Byte          font_type;
-    FT_Matrix        font_matrix; /* From FontMatrix field: a, b, c, d */
-    FT_Vector        font_offset; /* From FontMatrix field: tx, ty */
-    FT_BBox          font_bbox;
-
-    FT_Int           stroke_width;  
-
-  } T42_FontRec, *T42_Font;
-
-
   typedef struct  T42_FaceRec_
   {
     FT_FaceRec     root;
-    T42_FontRec    type42;
+    T1_FontRec     type1;
     const void*    psnames;
     const void*    psaux;
     const void*    afm_data;

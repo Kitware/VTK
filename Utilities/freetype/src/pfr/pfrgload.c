@@ -298,7 +298,7 @@
         PFR_CHECK( 1 );
         mask = PFR_NEXT_BYTE( p );
       }
-      
+
       if ( mask & 1 )
       {
         PFR_CHECK( 2 );
@@ -309,7 +309,7 @@
         PFR_CHECK( 1 );
         x += PFR_NEXT_BYTE( p );
       }
-      
+
       glyph->x_control[i] = x;
 
       mask >>= 1;
@@ -577,13 +577,14 @@
     }
 
     subglyph = glyph->subs + org_count;
-    x_pos    = 0;
-    y_pos    = 0;
 
     for ( i = 0; i < count; i++, subglyph++ )
     {
       FT_UInt  format;
 
+
+      x_pos = 0;
+      y_pos = 0;
 
       PFR_CHECK( 1 );
       format = PFR_NEXT_BYTE( p );
@@ -635,7 +636,7 @@
       default:
         ;
       }
-      
+
       subglyph->x_delta = x_pos;
       subglyph->y_delta = y_pos;
 

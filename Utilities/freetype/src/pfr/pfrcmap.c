@@ -71,7 +71,7 @@
       gchar = cmap->chars + mid;
 
       if ( gchar->char_code == char_code )
-        return mid;
+        return mid + 1;
 
       if ( gchar->char_code < char_code )
         min = mid + 1;
@@ -107,7 +107,10 @@
         {
           result = mid;
           if ( result != 0 )
+          {
+            result++;
             goto Exit;
+          }
 
           char_code++;
           goto Restart;
@@ -127,7 +130,10 @@
         gchar  = cmap->chars + min;
         result = min;
         if ( result != 0 )
+        {
+          result++;
           char_code = gchar->char_code;
+        }
       }
     }
 

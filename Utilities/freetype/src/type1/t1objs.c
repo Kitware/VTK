@@ -485,6 +485,10 @@
 
         if ( clazz )
           FT_CMap_New( clazz, NULL, &charmap, NULL );
+
+        /* Select default charmap */
+        if (root->num_charmaps)
+          root->charmap = root->charmaps[0];
       }
     }
 

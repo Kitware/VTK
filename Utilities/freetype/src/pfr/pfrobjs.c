@@ -120,9 +120,9 @@
          root->face_flags |= FT_FACE_FLAG_FIXED_WIDTH;
 
        if ( phy_font->flags & PFR_PHY_VERTICAL )
-         root->face_flags |= FT_FACE_FLAG_HORIZONTAL;
-       else
          root->face_flags |= FT_FACE_FLAG_VERTICAL;
+       else
+         root->face_flags |= FT_FACE_FLAG_HORIZONTAL;
 
        /* XXX: kerning and embedded bitmap support isn't there yet */
 
@@ -175,7 +175,15 @@
          charmap.encoding    = ft_encoding_unicode;
          
          FT_CMap_New( &pfr_cmap_class_rec, NULL, &charmap, NULL );
+
+         /* Select default charmap */
+         if (root->num_charmaps)
+           root->charmap = root->charmaps[0];
        }
+
+       /* check whether we've loaded any kerning pairs */
+       if ( phy_font->num_kern_pairs )
+         root->face_flags |= FT_FACE_FLAG_KERNING;
      }
 
   Exit:
@@ -217,14 +225,17 @@
   {
     FT_Error     error;
     PFR_Face     face    = (PFR_Face)slot->root.face;
-    PFR_Char     gchar   = face->phy_font.chars + gindex;
+    PFR_Char     gchar;
     FT_Outline*  outline = &slot->root.outline;
     FT_ULong     gps_offset;
 
+    if (gindex > 0)
+      gindex--;
 
     /* check that the glyph index is correct */
     FT_ASSERT( gindex < face->phy_font.num_chars );
 
+    gchar               = face->phy_font.chars + gindex;
     slot->root.format   = ft_glyph_format_outline;
     outline->n_points   = 0;
     outline->n_contours = 0;
@@ -310,5 +321,63 @@
     return error;
   }
 
+
+  /*************************************************************************/
+  /*************************************************************************/
+  /*****                                                               *****/
+  /*****                      KERNING METHOD                           *****/
+  /*****                                                               *****/
+  /*************************************************************************/
+  /*************************************************************************/
+
+  /* XXX: This relies on the font being spec-conformant, i.e., that the
+          kerning pairs are sorted.  We might want to sort it just to make
+          sure */
+
+#undef  PFR_KERN_INDEX
+#define PFR_KERN_INDEX( g1, g2 )  ( ( (FT_ULong)g1 << 16 ) | g2 )
+
+  /* find the kerning for a given glyph pair */
+  FT_LOCAL_DEF( FT_Error )
+  pfr_face_get_kerning( PFR_Face    face,
+                        FT_UInt     glyph1,
+                        FT_UInt     glyph2,
+                        FT_Vector*  kerning )
+  {
+    PFR_PhyFont   phy_font = &face->phy_font;
+    PFR_KernPair  min, mid, max;
+    FT_ULong      idx = PFR_KERN_INDEX( glyph1, glyph2 );
+
+
+    /* simple binary search */
+    min = phy_font->kern_pairs;
+    max = min + phy_font->num_kern_pairs;
+
+    while ( min < max )
+    {
+      FT_ULong  midi;
+
+
+      mid  = min + ( max - min ) / 2;
+      midi = PFR_KERN_INDEX( mid->glyph1, mid->glyph2 );
+
+      if ( midi == idx )
+      {
+        *kerning = mid->kerning;
+        goto Exit;
+      }
+
+      if ( midi < idx )
+        min = mid + 1;
+      else
+        max = mid;
+    }
+
+    kerning->x = 0;
+    kerning->y = 0;
+
+  Exit:
+    return 0;
+  }
 
 /* END */

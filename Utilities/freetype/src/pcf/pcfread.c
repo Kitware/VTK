@@ -716,7 +716,6 @@ THE SOFTWARE.
     }
     FT_Stream_ExitFrame( stream );
 
-    j--;
     if ( FT_NEW_ARRAY( encoding, j ) )
       goto Bail;
 
