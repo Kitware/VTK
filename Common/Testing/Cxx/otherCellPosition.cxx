@@ -66,7 +66,7 @@ int TestOCP(ostream& strm)
     }
   
   vtkPolyVertex *polyVertex = vtkPolyVertex::New();
-  float polyVertexCoords[1], polyVertexWeights[1];
+  float polyVertexCoords[1], polyVertexWeights[2];
   float polyVertexPoint[3][3] = {{10.0, 20.0, 30.0}, {30.0, 20.0, 10.0}, {0, 0, 0}};
   float polyVertexClosest[3];
 
