@@ -40,7 +40,7 @@
 #include <vtkstd/map>
 #include <vtkstd/algorithm>
 
-vtkCxxRevisionMacro(vtkMergeCells, "1.5");
+vtkCxxRevisionMacro(vtkMergeCells, "1.6");
 vtkStandardNewMacro(vtkMergeCells);
 
 vtkCxxSetObjectMacro(vtkMergeCells, UnstructuredGrid, vtkUnstructuredGrid);
@@ -273,7 +273,7 @@ vtkIdType vtkMergeCells::AddNewCellsDataSet(vtkDataSet *set, vtkIdType *idMap)
       vtkstd::pair<vtkstd::map<vtkIdType, vtkIdType>::iterator, bool> inserted =
 
         this->GlobalCellIdMap->IdTypeMap.insert(
-           vtkstd::pair<vtkIdType,vtkIdType>(globalId, nextCellId));
+           vtkstd::map<vtkIdType, vtkIdType>::value_type(globalId, nextCellId));
 
       if (inserted.second)
         {
@@ -359,7 +359,7 @@ vtkIdType vtkMergeCells::AddNewCellsUnstructuredGrid(vtkDataSet *set,
         vtkstd::pair<vtkstd::map<vtkIdType, vtkIdType>::iterator, bool> inserted =
 
         this->GlobalCellIdMap->IdTypeMap.insert(
-            vtkstd::pair<vtkIdType,vtkIdType>(globalId, nextLocalId));
+            vtkstd::map<vtkIdType, vtkIdType>::value_type(globalId, nextLocalId));
 
         if (inserted.second)
           {
@@ -613,7 +613,7 @@ vtkIdType *vtkMergeCells::MapPointsToIdsUsingGlobalIds(vtkDataSet *set)
     vtkstd::pair<vtkstd::map<vtkIdType, vtkIdType>::iterator, bool> inserted =
 
       this->GlobalIdMap->IdTypeMap.insert(
-         vtkstd::pair<vtkIdType,vtkIdType>(globalId, nextNewLocalId));
+         vtkstd::map<vtkIdType, vtkIdType>::value_type(globalId, nextNewLocalId));
 
     if (inserted.second)
       {
@@ -778,7 +778,7 @@ vtkIdType *vtkMergeCells::MapPointsToIdsUsingLocator(vtkDataSet *set)
 
         if (EqClassRep != ptId)
           {
-          newIdMap.insert(vtkstd::pair<vtkIdType,vtkIdType>(EqClassRep, ptId));
+          newIdMap.insert(vtkstd::map<vtkIdType, vtkIdType>::value_type(EqClassRep, ptId));
           }
         }
       }
@@ -794,7 +794,7 @@ vtkIdType *vtkMergeCells::MapPointsToIdsUsingLocator(vtkDataSet *set)
       vtkstd::pair<vtkstd::map<vtkIdType, vtkIdType>::iterator, bool> inserted =
       
         newIdMap.insert(
-          vtkstd::pair<vtkIdType,vtkIdType>(EqClassRep, nextNewLocalId));
+          vtkstd::map<vtkIdType, vtkIdType>::value_type(EqClassRep, nextNewLocalId));
 
       bool newEqClassRep = inserted.second;
       vtkIdType existingMappedId = inserted.first->second;
