@@ -27,7 +27,7 @@ extern "C" {
 #include <setjmp.h>
 }
 
-vtkCxxRevisionMacro(vtkJPEGWriter, "1.18");
+vtkCxxRevisionMacro(vtkJPEGWriter, "1.19");
 vtkStandardNewMacro(vtkJPEGWriter);
 
 vtkCxxSetObjectMacro(vtkJPEGWriter,Result,vtkUnsignedCharArray);
@@ -193,12 +193,16 @@ struct VTK_JPEG_ERROR_MANAGER
 
 typedef struct VTK_JPEG_ERROR_MANAGER* VTK_JPEG_ERROR_PTR;
 
+extern "C" 
+{  
 METHODDEF(void)
   VTK_JPEG_ERROR_EXIT (j_common_ptr cinfo)
 {
   VTK_JPEG_ERROR_PTR jpegErr = (VTK_JPEG_ERROR_PTR) cinfo->err;
   longjmp(jpegErr->setjmp_buffer, 1);
 }
+}
+
 
 // we disable this warning because even though this is a C++ file, between
 // the setjmp and resulting longjmp there should not be any C++ constructors
