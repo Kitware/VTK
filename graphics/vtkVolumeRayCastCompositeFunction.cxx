@@ -59,26 +59,38 @@ static void CastRay_NN_Unshaded( vtkVolumeRayCastCompositeFunction *cast_functio
 				 int num_steps, float pixel_value[6] )
 {
   int             value;
+  unsigned char   *grad_mag_ptr = NULL;
   float           accum_red_intensity;
   float           accum_green_intensity;
   float           accum_blue_intensity;
   float           accum_intensity;
   float           remaining_opacity;
   float           opacity;
+  float           gradient_opacity;
   int             loop;
   int             xinc, yinc, zinc;
   int             voxel[3];
   float           ray_position[3];
   int             prev_voxel[3];
-  float           *OTF;
+  float           *SOTF;
   float           *CTF;
   float           *GTF;
+  float           *GOTF;
   int             offset;
   int             steps_this_ray = 0;
+  int             grad_op_is_constant;
+  float           gradient_opacity_constant;
  
-  OTF =  cast_function->CorrectedOpacityTFArray;
-  CTF =  cast_function->RGBTFArray;
-  GTF =  cast_function->GrayTFArray;
+  SOTF =  cast_function->CorrectedScalarOpacityTFArray;
+  CTF  =  cast_function->RGBTFArray;
+  GTF  =  cast_function->GrayTFArray;
+  GOTF =  cast_function->GradientOpacityTFArray;
+
+  // Get the gradient opacity constant. If this number is greater than
+  // or equal to 0.0, then the gradient opacity transfer function is
+  // a constant at that value, otherwise it is not a constant function
+  gradient_opacity_constant = cast_function->GradientOpacityConstant;
+  grad_op_is_constant = ( gradient_opacity_constant >= 0.0 );
 
   // Move the increments into local variables
   xinc = cast_function->DataIncrement[0];
@@ -100,10 +112,18 @@ static void CastRay_NN_Unshaded( vtkVolumeRayCastCompositeFunction *cast_functio
   accum_blue_intensity    = 0.0;
   remaining_opacity       = 1.0;
 
+  // Get a pointer to the gradient magnitudes for this volume
+  if ( !grad_op_is_constant )
+    grad_mag_ptr = cast_function->GradientMagnitudes;
+
   // Set up the data values for the first pass through the loop
   offset = voxel[2] * zinc + voxel[1] * yinc + voxel[0];
   value = *(data_ptr + offset);
-  opacity = OTF[value];
+  opacity = SOTF[value];
+  if ( grad_op_is_constant )
+    gradient_opacity = gradient_opacity_constant;
+  else 
+    gradient_opacity = GOTF[*(grad_mag_ptr + offset)];
   
   // Keep track of previous voxel to know when we step into a new one
   prev_voxel[0] = voxel[0];
@@ -129,8 +149,17 @@ static void CastRay_NN_Unshaded( vtkVolumeRayCastCompositeFunction *cast_functio
 	{
 	offset = voxel[2] * zinc + voxel[1] * yinc + voxel[0];
 	value = *(data_ptr + offset);
-	opacity = OTF[value];
-	
+	opacity = SOTF[value];
+
+	if ( opacity )
+	  {
+	  if ( grad_op_is_constant )
+	    gradient_opacity = gradient_opacity_constant;
+	  else 
+	    gradient_opacity = GOTF[*(grad_mag_ptr + offset)];
+	  opacity *= gradient_opacity;
+	  }
+
 	prev_voxel[0] = voxel[0];
 	prev_voxel[1] = voxel[1];
 	prev_voxel[2] = voxel[2];
@@ -169,13 +198,23 @@ static void CastRay_NN_Unshaded( vtkVolumeRayCastCompositeFunction *cast_functio
 	{
 	offset = voxel[2] * zinc + voxel[1] * yinc + voxel[0];
 	value = *(data_ptr + offset);
-	opacity = OTF[value];
-	
+	opacity = SOTF[value];
+
+	if ( opacity )
+	  {
+	  if ( grad_op_is_constant )
+	    gradient_opacity = gradient_opacity_constant;
+	  else 
+	    gradient_opacity = GOTF[*(grad_mag_ptr + offset)];	
+	  opacity *= gradient_opacity;
+	  }
+
 	prev_voxel[0] = voxel[0];
 	prev_voxel[1] = voxel[1];
 	prev_voxel[2] = voxel[2];
 	}
-        
+
+
       // Accumulate some light intensity and opacity
       accum_red_intensity   += ( opacity * remaining_opacity * 
 				 CTF[(value)*3] );
@@ -231,19 +270,22 @@ static void CastRay_NN_Shaded( vtkVolumeRayCastCompositeFunction *cast_function,
 			       int num_steps, float pixel_value[6] )
 {
   int             value = 0;
+  unsigned char   *grad_mag_ptr = NULL;
   float           accum_red_intensity;
   float           accum_green_intensity;
   float           accum_blue_intensity;
   float           remaining_opacity;
   float           opacity = 0.0;
+  float           gradient_opacity;
   int             loop;
   int             xinc, yinc, zinc;
   int             voxel[3];
   float           ray_position[3];
   int             prev_voxel[3];
-  float           *OTF;
+  float           *SOTF;
   float           *CTF;
   float           *GTF;
+  float           *GOTF;
   float           *red_d_shade, *green_d_shade, *blue_d_shade;
   float           *red_s_shade, *green_s_shade, *blue_s_shade;
   unsigned short  *encoded_normals;
@@ -252,6 +294,8 @@ static void CastRay_NN_Shaded( vtkVolumeRayCastCompositeFunction *cast_function,
   float           blue_shaded_value  = 0.0;
   int             offset = 0;
   int             steps_this_ray = 0;
+  int             grad_op_is_constant;
+  float           gradient_opacity_constant;
  
   // Get diffuse shading table pointers
   red_d_shade = cast_function->RedDiffuseShadingTable;
@@ -266,14 +310,28 @@ static void CastRay_NN_Shaded( vtkVolumeRayCastCompositeFunction *cast_function,
   // Get a pointer to the encoded normals for this volume
   encoded_normals = cast_function->EncodedNormals;
 
-  // Get the opacity transfer function for this volume (which maps
+  // Get the scalar opacity transfer function for this volume (which maps
   // scalar input values to opacities)
-  OTF =  cast_function->CorrectedOpacityTFArray;
+  SOTF =  cast_function->CorrectedScalarOpacityTFArray;
 
   // Get the color transfer function for this volume (which maps
   // scalar input values to RGB values)
   CTF =  cast_function->RGBTFArray;
   GTF =  cast_function->GrayTFArray;
+
+  // Get the gradient opacity transfer function for this volume (which maps
+  // gradient magnitudes to opacities)
+  GOTF =  cast_function->GradientOpacityTFArray;
+
+  // Get the gradient opacity constant. If this number is greater than
+  // or equal to 0.0, then the gradient opacity transfer function is
+  // a constant at that value, otherwise it is not a constant function
+  gradient_opacity_constant = cast_function->GradientOpacityConstant;
+  grad_op_is_constant = ( gradient_opacity_constant >= 0.0 );
+
+  // Get a pointer to the gradient magnitudes for this volume
+  if ( !grad_op_is_constant )
+    grad_mag_ptr = cast_function->GradientMagnitudes;
 
   // Move the increments into local variables
   xinc = cast_function->DataIncrement[0];
@@ -320,9 +378,26 @@ static void CastRay_NN_Shaded( vtkVolumeRayCastCompositeFunction *cast_function,
 	offset = voxel[2] * zinc + voxel[1] * yinc + voxel[0];
 	value = *(data_ptr + offset);
       
-	opacity = OTF[value];
+	// Get the opacity contributed by the scalar opacity transfer function
+	opacity = SOTF[value];
+
+	// Multiply by the opacity contributed by the gradient magnitude
+	// transfer function (don't both if opacity is already 0)
 	if ( opacity )
-	  red_shaded_value = opacity *  remaining_opacity *
+	  {
+	  if ( grad_op_is_constant )
+	    gradient_opacity = gradient_opacity_constant;
+	  else 
+	    gradient_opacity = GOTF[*(grad_mag_ptr + offset)];
+	  
+	  opacity *= gradient_opacity;
+	  
+	  }
+
+	// Compute the red shaded value (only if there is some opacity)
+	// This is grey-scale so green and blue are the same as red
+	if ( opacity )
+	  red_shaded_value = opacity * remaining_opacity *
 	    ( red_d_shade[*(encoded_normals + offset)] * GTF[value] +
 	      red_s_shade[*(encoded_normals + offset)] );
 	else
@@ -367,7 +442,25 @@ static void CastRay_NN_Shaded( vtkVolumeRayCastCompositeFunction *cast_function,
 	offset = voxel[2] * zinc + voxel[1] * yinc + voxel[0];
 	value = *(data_ptr + offset);
       
-	opacity = OTF[value];
+	// Get the opacity contributed by the scalar opacity transfer function
+	opacity = SOTF[value];
+
+	// Multiply by the opacity contributed by the gradient magnitude
+	// transfer function (don't both if opacity is already 0)
+	if ( opacity )
+	  {
+	  if ( grad_op_is_constant )
+	    gradient_opacity = gradient_opacity_constant;
+	  else 
+	    {
+	    gradient_opacity = GOTF[*(grad_mag_ptr + offset)];
+	    }
+	  
+	  opacity *= gradient_opacity;	  
+	  }	
+
+	// Compute the red, green, and blue shaded value (only if there
+	// is some opacity)
 	if ( opacity )
 	  {
 	  red_shaded_value = opacity *  remaining_opacity *
@@ -379,7 +472,7 @@ static void CastRay_NN_Shaded( vtkVolumeRayCastCompositeFunction *cast_function,
 	  blue_shaded_value = opacity *  remaining_opacity *
 	    ( blue_d_shade[*(encoded_normals + offset)] * CTF[value*3 + 2] +
 	      blue_s_shade[*(encoded_normals + offset)] );
-	  }	
+	  }
 	else
 	  {
 	  red_shaded_value = 0.0;
@@ -444,6 +537,8 @@ static void CastRay_TrilinSample_Unshaded(
 					  float ray_increment[3],
 					  int num_steps, float pixel_value[6] )
 {
+  unsigned char   *grad_mag_ptr = NULL;
+  unsigned char   *gmptr = NULL;
   float           accum_intensity;
   float           accum_red_intensity;
   float           accum_green_intensity;
@@ -458,22 +553,40 @@ static void CastRay_TrilinSample_Unshaded(
   float           A, B, C, D, E, F, G, H;
   int             Binc, Cinc, Dinc, Einc, Finc, Ginc, Hinc;
   T               *dptr;
-  float           *OTF;
+  float           *SOTF;
   float           *CTF;
   float           *GTF;
+  float           *GOTF;
   float           x, y, z, t1, t2, t3;
   int             offset;
   int             steps_this_ray = 0;
+  float           gradient_value;
   float           scalar_value;
+  int             grad_op_is_constant;
+  float           gradient_opacity_constant;
 
-  // Get the opacity transfer function which maps scalar input values
+  // Get the scalar opacity transfer function which maps scalar input values
   // to opacities
-  OTF =  cast_function->CorrectedOpacityTFArray;
+  SOTF =  cast_function->CorrectedScalarOpacityTFArray;
 
   // Get the color transfer function which maps scalar input values
   // to RGB colors
   CTF =  cast_function->RGBTFArray;
   GTF =  cast_function->GrayTFArray;
+
+  // Get the gradient opacity transfer function for this volume (which maps
+  // gradient magnitudes to opacities)
+  GOTF =  cast_function->GradientOpacityTFArray;
+
+  // Get the gradient opacity constant. If this number is greater than
+  // or equal to 0.0, then the gradient opacity transfer function is
+  // a constant at that value, otherwise it is not a constant function
+  gradient_opacity_constant = cast_function->GradientOpacityConstant;
+  grad_op_is_constant = ( gradient_opacity_constant >= 0.0 );
+
+  // Get a pointer to the gradient magnitudes for this volume
+  if ( !grad_op_is_constant )
+    grad_mag_ptr = cast_function->GradientMagnitudes;
 
   // Move the increments into local variables
   xinc = cast_function->DataIncrement[0];
@@ -553,10 +666,38 @@ static void CastRay_TrilinSample_Unshaded(
       else if ( scalar_value > cast_function->TFArraySize - 1 )
 	scalar_value = cast_function->TFArraySize - 1;
       
-      opacity = OTF[(int)scalar_value];
+      opacity = SOTF[(int)scalar_value];
       
       if ( opacity )
 	{
+	gmptr = grad_mag_ptr + offset;
+      
+	A = *(gmptr);
+	B = *(gmptr + Binc);
+	C = *(gmptr + Cinc);
+	D = *(gmptr + Dinc);
+	E = *(gmptr + Einc);
+	F = *(gmptr + Finc);
+	G = *(gmptr + Ginc);
+	H = *(gmptr + Hinc);
+
+	gradient_value = 
+	  A * t1 * t2 * t3 +
+	  B *  x * t2 * t3 +
+	  C * t1 *  y * t3 + 
+	  D *  x *  y * t3 +
+	  E * t1 * t2 *  z + 
+	  F *  x * t2 *  z + 
+	  G * t1 *  y *  z + 
+	  H *  x *  y *  z;
+      
+	if ( gradient_value < 0.0 )
+	  gradient_value = 0.0;
+	else if ( gradient_value > 255.0 )
+	  gradient_value = 255.0;
+
+	opacity *= GOTF[(int)gradient_value];
+
 	red_value   = opacity * GTF[((int)scalar_value)];
 	
 	// Accumulate intensity and opacity for this sample location
@@ -622,10 +763,38 @@ static void CastRay_TrilinSample_Unshaded(
       else if ( scalar_value > cast_function->TFArraySize - 1 )
 	scalar_value = cast_function->TFArraySize - 1;
       
-      opacity = OTF[(int)scalar_value];
+      opacity = SOTF[(int)scalar_value];
       
       if ( opacity )
 	{
+	gmptr = grad_mag_ptr + offset;
+      
+	A = *(gmptr);
+	B = *(gmptr + Binc);
+	C = *(gmptr + Cinc);
+	D = *(gmptr + Dinc);
+	E = *(gmptr + Einc);
+	F = *(gmptr + Finc);
+	G = *(gmptr + Ginc);
+	H = *(gmptr + Hinc);
+
+	gradient_value = 
+	  A * t1 * t2 * t3 +
+	  B *  x * t2 * t3 +
+	  C * t1 *  y * t3 + 
+	  D *  x *  y * t3 +
+	  E * t1 * t2 *  z + 
+	  F *  x * t2 *  z + 
+	  G * t1 *  y *  z + 
+	  H *  x *  y *  z;
+      
+	if ( gradient_value < 0.0 )
+	  gradient_value = 0.0;
+	else if ( gradient_value > 255.0 )
+	  gradient_value = 255.0;
+
+	opacity *= GOTF[(int)gradient_value];
+
 	red_value   = opacity * CTF[((int)scalar_value) * 3    ];
 	green_value = opacity * CTF[((int)scalar_value) * 3 + 1];
 	blue_value  = opacity * CTF[((int)scalar_value) * 3 + 2];
@@ -682,6 +851,8 @@ static void CastRay_TrilinSample_Shaded(
 					float ray_increment[3],
 					int num_steps, float pixel_value[6] )
 {
+  unsigned char   *grad_mag_ptr = NULL;
+  unsigned char   *gmptr = NULL;
   float           accum_red_intensity;
   float           accum_green_intensity;
   float           accum_blue_intensity;
@@ -697,9 +868,10 @@ static void CastRay_TrilinSample_Shaded(
   float           final_rs, final_gs, final_bs;
   int             Binc, Cinc, Dinc, Einc, Finc, Ginc, Hinc;
   T               *dptr;
-  float           *OTF;
+  float           *SOTF;
   float           *CTF;
   float           *GTF;
+  float           *GOTF;
   float           x, y, z, t1, t2, t3;
   float           tA, tB, tC, tD, tE, tF, tG, tH;
   float           *red_d_shade, *green_d_shade, *blue_d_shade;
@@ -708,8 +880,11 @@ static void CastRay_TrilinSample_Shaded(
   float           red_shaded_value, green_shaded_value, blue_shaded_value;
   int             offset;
   int             steps_this_ray = 0;
+  int             gradient_value;
   int             scalar_value;
   float           r, g, b;
+  int             grad_op_is_constant;
+  float           gradient_opacity_constant;
 
   // Get diffuse shading table pointers
   red_d_shade = cast_function->RedDiffuseShadingTable;
@@ -725,14 +900,28 @@ static void CastRay_TrilinSample_Shaded(
   // Get a pointer to the encoded normals for this volume
   encoded_normals = cast_function->EncodedNormals;
 
-  // Get the opacity transfer function which maps scalar input values
+  // Get the scalar opacity transfer function which maps scalar input values
   // to opacities
-  OTF =  cast_function->CorrectedOpacityTFArray;
+  SOTF =  cast_function->CorrectedScalarOpacityTFArray;
 
   // Get the color transfer function which maps scalar input values
   // to RGB values
   CTF =  cast_function->RGBTFArray;
   GTF =  cast_function->GrayTFArray;
+
+  // Get the gradient opacity transfer function for this volume (which maps
+  // gradient magnitudes to opacities)
+  GOTF =  cast_function->GradientOpacityTFArray;
+
+  // Get the gradient opacity constant. If this number is greater than
+  // or equal to 0.0, then the gradient opacity transfer function is
+  // a constant at that value, otherwise it is not a constant function
+  gradient_opacity_constant = cast_function->GradientOpacityConstant;
+  grad_op_is_constant = ( gradient_opacity_constant >= 0.0 );
+
+  // Get a pointer to the gradient magnitudes for this volume
+  if ( !grad_op_is_constant )
+    grad_mag_ptr = cast_function->GradientMagnitudes;
 
   // Move the increments into local variables
   xinc = cast_function->DataIncrement[0];
@@ -762,11 +951,6 @@ static void CastRay_TrilinSample_Shaded(
   Ginc = zinc + yinc;
   Hinc = zinc + xinc + yinc;
   
-   // Compute the values for the first pass through the loop
-  offset = voxel[2] * zinc + voxel[1] * yinc + voxel[0];
-  dptr = data_ptr + offset;
-  nptr = encoded_normals + offset;
-
   // Two cases - we are working with a gray or RGB transfer
   // function - break them up to make it more efficient
   if ( cast_function->ColorChannels == 1 ) 
@@ -792,15 +976,6 @@ static void CastRay_TrilinSample_Shaded(
       G = *(dptr + Ginc);
       H = *(dptr + Hinc);
       
-      A_n = *(nptr);
-      B_n = *(nptr + Binc);
-      C_n = *(nptr + Cinc);
-      D_n = *(nptr + Dinc);
-      E_n = *(nptr + Einc);
-      F_n = *(nptr + Finc);
-      G_n = *(nptr + Ginc);
-      H_n = *(nptr + Hinc);
-
       // Compute our offset in the voxel, and use that to trilinearly
       // interpolate a value
       x = ray_position[0] - (float) voxel[0];
@@ -829,31 +1004,68 @@ static void CastRay_TrilinSample_Shaded(
       else if ( scalar_value > cast_function->TFArraySize - 1 )
 	scalar_value = cast_function->TFArraySize - 1;
       
-      opacity = OTF[scalar_value];
-      
+      opacity = SOTF[scalar_value];
+
+      // If we have some opacity based on the scalar value transfer function,
+      // then multiply by the opacity from the gradient magnitude transfer
+      // function
       if ( opacity )
 	{
-	  final_rd = 
-	    red_d_shade[ A_n ] * tA + red_d_shade[ B_n ] * tB + 	
-	    red_d_shade[ C_n ] * tC + red_d_shade[ D_n ] * tD + 
-	    red_d_shade[ E_n ] * tE + red_d_shade[ F_n ] * tF +	
-	    red_d_shade[ G_n ] * tG + red_d_shade[ H_n ] * tH;
-	  
-	  final_rs = 
-	    red_s_shade[ A_n ] * tA + red_s_shade[ B_n ] * tB + 	
-	    red_s_shade[ C_n ] * tC + red_s_shade[ D_n ] * tD + 
-	    red_s_shade[ E_n ] * tE + red_s_shade[ F_n ] * tF +	
-	    red_s_shade[ G_n ] * tG + red_s_shade[ H_n ] * tH;
-	  	  
-	  r = GTF[(scalar_value)];
+	gmptr = grad_mag_ptr + offset;
+      
+	A = *(gmptr);
+	B = *(gmptr + Binc);
+	C = *(gmptr + Cinc);
+	D = *(gmptr + Dinc);
+	E = *(gmptr + Einc);
+	F = *(gmptr + Finc);
+	G = *(gmptr + Ginc);
+	H = *(gmptr + Hinc);
 
-	  // For this sample we have do not yet have any opacity or
-	  // shaded intensity yet
-	  red_shaded_value   = opacity * ( final_rd * r + final_rs );
-	  
-	  // Accumulate intensity and opacity for this sample location   
-	  accum_red_intensity   += red_shaded_value   * remaining_opacity;
-	  remaining_opacity *= (1.0 - opacity);
+	gradient_value = (int) (
+			    A * tA + B * tB + C * tC + D * tD + 
+			    E * tE + F * tF + G * tG + H * tH );
+	if ( gradient_value < 0 )
+	  gradient_value = 0;
+	else if ( gradient_value > 255 )
+	  gradient_value = 255;
+
+	opacity *= GOTF[gradient_value];
+	}
+
+      // If we have a combined opacity value, then compute the shading
+      if ( opacity )
+	{
+	A_n = *(nptr);
+	B_n = *(nptr + Binc);
+	C_n = *(nptr + Cinc);
+	D_n = *(nptr + Dinc);
+	E_n = *(nptr + Einc);
+	F_n = *(nptr + Finc);
+	G_n = *(nptr + Ginc);
+	H_n = *(nptr + Hinc);
+
+	final_rd = 
+	  red_d_shade[ A_n ] * tA + red_d_shade[ B_n ] * tB + 	
+	  red_d_shade[ C_n ] * tC + red_d_shade[ D_n ] * tD + 
+	  red_d_shade[ E_n ] * tE + red_d_shade[ F_n ] * tF +	
+	  red_d_shade[ G_n ] * tG + red_d_shade[ H_n ] * tH;
+	
+	final_rs = 
+	  red_s_shade[ A_n ] * tA + red_s_shade[ B_n ] * tB + 	
+	  red_s_shade[ C_n ] * tC + red_s_shade[ D_n ] * tD + 
+	  red_s_shade[ E_n ] * tE + red_s_shade[ F_n ] * tF +	
+	  red_s_shade[ G_n ] * tG + red_s_shade[ H_n ] * tH;
+	
+	r = GTF[(scalar_value)];
+
+	// For this sample we have do not yet have any opacity or
+	// shaded intensity yet
+	red_shaded_value   = opacity * ( final_rd * r + final_rs );
+	
+	// Accumulate intensity and opacity for this sample location   
+	accum_red_intensity   += red_shaded_value * remaining_opacity;
+	remaining_opacity *= (1.0 - opacity);
 	}
 
       // Increment our position and compute our voxel location
@@ -890,15 +1102,6 @@ static void CastRay_TrilinSample_Shaded(
       G = *(dptr + Ginc);
       H = *(dptr + Hinc);
       
-      A_n = *(nptr);
-      B_n = *(nptr + Binc);
-      C_n = *(nptr + Cinc);
-      D_n = *(nptr + Dinc);
-      E_n = *(nptr + Einc);
-      F_n = *(nptr + Finc);
-      G_n = *(nptr + Ginc);
-      H_n = *(nptr + Hinc);
-
       // Compute our offset in the voxel, and use that to trilinearly
       // interpolate a value
       x = ray_position[0] - (float) voxel[0];
@@ -927,61 +1130,95 @@ static void CastRay_TrilinSample_Shaded(
       else if ( scalar_value > cast_function->TFArraySize - 1 )
 	scalar_value = cast_function->TFArraySize - 1;
       
-      opacity = OTF[scalar_value];
+      opacity = SOTF[scalar_value];
       
       if ( opacity )
 	{
-	  final_rd = 
-	    red_d_shade[ A_n ] * tA + red_d_shade[ B_n ] * tB + 	
-	    red_d_shade[ C_n ] * tC + red_d_shade[ D_n ] * tD + 
-	    red_d_shade[ E_n ] * tE + red_d_shade[ F_n ] * tF +	
-	    red_d_shade[ G_n ] * tG + red_d_shade[ H_n ] * tH;
-	  
-	  final_gd = 
-	    green_d_shade[ A_n ] * tA + green_d_shade[ B_n ] * tB + 	
-	    green_d_shade[ C_n ] * tC + green_d_shade[ D_n ] * tD + 
-	    green_d_shade[ E_n ] * tE + green_d_shade[ F_n ] * tF +	
-	    green_d_shade[ G_n ] * tG + green_d_shade[ H_n ] * tH;
-	  
-	  final_bd = 
-	    blue_d_shade[ A_n ] * tA + blue_d_shade[ B_n ] * tB + 	
-	    blue_d_shade[ C_n ] * tC + blue_d_shade[ D_n ] * tD + 
-	    blue_d_shade[ E_n ] * tE + blue_d_shade[ F_n ] * tF +	
-	    blue_d_shade[ G_n ] * tG + blue_d_shade[ H_n ] * tH;
-	  
-	  final_rs = 
-	    red_s_shade[ A_n ] * tA + red_s_shade[ B_n ] * tB + 	
-	    red_s_shade[ C_n ] * tC + red_s_shade[ D_n ] * tD + 
-	    red_s_shade[ E_n ] * tE + red_s_shade[ F_n ] * tF +	
-	    red_s_shade[ G_n ] * tG + red_s_shade[ H_n ] * tH;
-	  
-	  final_gs = 
-	    green_s_shade[ A_n ] * tA + green_s_shade[ B_n ] * tB + 	
-	    green_s_shade[ C_n ] * tC + green_s_shade[ D_n ] * tD + 
-	    green_s_shade[ E_n ] * tE + green_s_shade[ F_n ] * tF +	
-	    green_s_shade[ G_n ] * tG + green_s_shade[ H_n ] * tH;
-	  
-	  final_bs = 
-	    blue_s_shade[ A_n ] * tA + blue_s_shade[ B_n ] * tB + 	
-	    blue_s_shade[ C_n ] * tC + blue_s_shade[ D_n ] * tD + 
-	    blue_s_shade[ E_n ] * tE + blue_s_shade[ F_n ] * tF +	
-	    blue_s_shade[ G_n ] * tG + blue_s_shade[ H_n ] * tH;
-	  
-	  r = CTF[(scalar_value) * 3    ];
-	  g = CTF[(scalar_value) * 3 + 1];
-	  b = CTF[(scalar_value) * 3 + 2];
+	gmptr = grad_mag_ptr + offset;
+      
+	A = *(gmptr);
+	B = *(gmptr + Binc);
+	C = *(gmptr + Cinc);
+	D = *(gmptr + Dinc);
+	E = *(gmptr + Einc);
+	F = *(gmptr + Finc);
+	G = *(gmptr + Ginc);
+	H = *(gmptr + Hinc);
 
-	  // For this sample we have do not yet have any opacity or
-	  // shaded intensity yet
-	  red_shaded_value   = opacity * ( final_rd * r + final_rs );
-	  green_shaded_value = opacity * ( final_gd * g + final_gs );
-	  blue_shaded_value  = opacity * ( final_bd * b + final_bs );
-	  
-	  // Accumulate intensity and opacity for this sample location   
-	  accum_red_intensity   += red_shaded_value   * remaining_opacity;
-	  accum_green_intensity += green_shaded_value * remaining_opacity;
-	  accum_blue_intensity  += blue_shaded_value  * remaining_opacity;
-	  remaining_opacity *= (1.0 - opacity);
+	gradient_value = (int) (
+			    A * tA + B * tB + C * tC + D * tD + 
+			    E * tE + F * tF + G * tG + H * tH );
+	if ( gradient_value < 0 )
+	  gradient_value = 0;
+	else if ( gradient_value > 255 )
+	  gradient_value = 255;
+
+	opacity *= GOTF[gradient_value];
+	}
+
+      // If we have a combined opacity value, then compute the shading
+      if ( opacity )
+	{
+	A_n = *(nptr);
+	B_n = *(nptr + Binc);
+	C_n = *(nptr + Cinc);
+	D_n = *(nptr + Dinc);
+	E_n = *(nptr + Einc);
+	F_n = *(nptr + Finc);
+	G_n = *(nptr + Ginc);
+	H_n = *(nptr + Hinc);
+	
+	final_rd = 
+	  red_d_shade[ A_n ] * tA + red_d_shade[ B_n ] * tB + 	
+	  red_d_shade[ C_n ] * tC + red_d_shade[ D_n ] * tD + 
+	  red_d_shade[ E_n ] * tE + red_d_shade[ F_n ] * tF +	
+	  red_d_shade[ G_n ] * tG + red_d_shade[ H_n ] * tH;
+	
+	final_gd = 
+	  green_d_shade[ A_n ] * tA + green_d_shade[ B_n ] * tB + 	
+	  green_d_shade[ C_n ] * tC + green_d_shade[ D_n ] * tD + 
+	  green_d_shade[ E_n ] * tE + green_d_shade[ F_n ] * tF +	
+	  green_d_shade[ G_n ] * tG + green_d_shade[ H_n ] * tH;
+	
+	final_bd = 
+	  blue_d_shade[ A_n ] * tA + blue_d_shade[ B_n ] * tB + 	
+	  blue_d_shade[ C_n ] * tC + blue_d_shade[ D_n ] * tD + 
+	  blue_d_shade[ E_n ] * tE + blue_d_shade[ F_n ] * tF +	
+	  blue_d_shade[ G_n ] * tG + blue_d_shade[ H_n ] * tH;
+	
+	final_rs = 
+	  red_s_shade[ A_n ] * tA + red_s_shade[ B_n ] * tB + 	
+	  red_s_shade[ C_n ] * tC + red_s_shade[ D_n ] * tD + 
+	  red_s_shade[ E_n ] * tE + red_s_shade[ F_n ] * tF +	
+	  red_s_shade[ G_n ] * tG + red_s_shade[ H_n ] * tH;
+	
+	final_gs = 
+	  green_s_shade[ A_n ] * tA + green_s_shade[ B_n ] * tB + 	
+	  green_s_shade[ C_n ] * tC + green_s_shade[ D_n ] * tD + 
+	  green_s_shade[ E_n ] * tE + green_s_shade[ F_n ] * tF +	
+	  green_s_shade[ G_n ] * tG + green_s_shade[ H_n ] * tH;
+	
+	final_bs = 
+	  blue_s_shade[ A_n ] * tA + blue_s_shade[ B_n ] * tB + 	
+	  blue_s_shade[ C_n ] * tC + blue_s_shade[ D_n ] * tD + 
+	  blue_s_shade[ E_n ] * tE + blue_s_shade[ F_n ] * tF +	
+	  blue_s_shade[ G_n ] * tG + blue_s_shade[ H_n ] * tH;
+	
+	r = CTF[(scalar_value) * 3    ];
+	g = CTF[(scalar_value) * 3 + 1];
+	b = CTF[(scalar_value) * 3 + 2];
+	
+	// For this sample we have do not yet have any opacity or
+	// shaded intensity yet
+	red_shaded_value   = opacity * ( final_rd * r + final_rs );
+	green_shaded_value = opacity * ( final_gd * g + final_gs );
+	blue_shaded_value  = opacity * ( final_bd * b + final_bs );
+	
+	// Accumulate intensity and opacity for this sample location   
+	accum_red_intensity   += red_shaded_value   * remaining_opacity;
+	accum_green_intensity += green_shaded_value * remaining_opacity;
+	accum_blue_intensity  += blue_shaded_value  * remaining_opacity;
+	remaining_opacity *= (1.0 - opacity);
 	}
 
       // Increment our position and compute our voxel location
@@ -1039,7 +1276,8 @@ vtkVolumeRayCastCompositeFunction::~vtkVolumeRayCastCompositeFunction()
 void vtkVolumeRayCastCompositeFunction::CastARay( int ray_type, void *data_ptr,
 						  float ray_position[3], 
 						  float ray_increment[3],
-						  int num_steps, float pixel_value[6] )
+						  int num_steps, 
+						  float pixel_value[6] )
 {
   // Cast the ray for the data type and shading/interpolation type
   if ( this->InterpolationType == VTK_NEAREST_INTERPOLATION )
@@ -1049,11 +1287,11 @@ void vtkVolumeRayCastCompositeFunction::CastARay( int ray_type, void *data_ptr,
       // Nearest neighbor and no shading
       switch ( ray_type )
 	{
-	case 0:
+	case VTK_UNSIGNED_CHAR:
 	  CastRay_NN_Unshaded( this, (unsigned char *)data_ptr, ray_position, 
 			       ray_increment, num_steps, pixel_value );
 	  break;
-	case 1:
+	case VTK_UNSIGNED_SHORT:
 	  CastRay_NN_Unshaded( this, (unsigned short *)data_ptr, ray_position, 
 			       ray_increment, num_steps, pixel_value );
 	  break;
@@ -1064,11 +1302,11 @@ void vtkVolumeRayCastCompositeFunction::CastARay( int ray_type, void *data_ptr,
       // Nearest neighbor and shading
       switch ( ray_type )
 	{
-	case 0:
+	case VTK_UNSIGNED_CHAR:
 	  CastRay_NN_Shaded( this, (unsigned char *)data_ptr, ray_position, 
 			     ray_increment, num_steps, pixel_value );
 	  break;
-	case 1:
+	case VTK_UNSIGNED_SHORT:
 	  CastRay_NN_Shaded( this, (unsigned short *)data_ptr, ray_position, 
 			     ray_increment, num_steps, pixel_value );
 	  break;
@@ -1082,13 +1320,13 @@ void vtkVolumeRayCastCompositeFunction::CastARay( int ray_type, void *data_ptr,
       // Trilinear interpolation at vertices and no shading
       switch ( ray_type )
 	{
-	case 0:
+	case VTK_UNSIGNED_CHAR:
 	  CastRay_TrilinSample_Unshaded( this, (unsigned char *)data_ptr, 
 					 ray_position, 
 					 ray_increment, num_steps, 
 					 pixel_value );
 	  break;
-	case 1:
+	case VTK_UNSIGNED_SHORT:
 	  CastRay_TrilinSample_Unshaded( this, (unsigned short *)data_ptr, 
 					 ray_position, 
 					 ray_increment, num_steps, 
@@ -1101,13 +1339,13 @@ void vtkVolumeRayCastCompositeFunction::CastARay( int ray_type, void *data_ptr,
       // Trilinear interpolation and shading
       switch ( ray_type )
 	{
-	case 0:
+	case VTK_UNSIGNED_CHAR:
 	  CastRay_TrilinSample_Shaded( this, (unsigned char *)data_ptr, 
 				       ray_position, 
 				       ray_increment, num_steps, 
 				       pixel_value );
 	  break;
-	case 1:
+	case VTK_UNSIGNED_SHORT:
 	  CastRay_TrilinSample_Shaded( this, (unsigned short *)data_ptr, 
 				       ray_position, 
 				       ray_increment, num_steps, 
@@ -1124,8 +1362,7 @@ void vtkVolumeRayCastCompositeFunction::CastARay( int ray_type, void *data_ptr,
 float vtkVolumeRayCastCompositeFunction::GetZeroOpacityThreshold( vtkVolume 
 								  *vol )
 {
-  return vol->GetVolumeProperty()->GetOpacityTransferFunction()->
-    GetFirstNonZeroValue();
+  return vol->GetVolumeProperty()->GetScalarOpacity()->GetFirstNonZeroValue();
 }
 
 // Description:

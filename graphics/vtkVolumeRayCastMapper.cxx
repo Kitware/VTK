@@ -57,19 +57,19 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Construct a new vtkVolumeRayCastMapper with default values
 vtkVolumeRayCastMapper::vtkVolumeRayCastMapper()
 {
-  this->ViewRays                = NULL;
-  this->ViewRaysSize[0]         = 0;
-  this->ViewRaysSize[1]         = 0;
-  this->RGBAImage               = NULL;
-  this->ZImage                  = NULL;
-  this->SampleDistance          = 1.0;
-  this->RayBounder              = NULL;
-  this->VolumeRayCastFunction   = NULL;
-  this->OpacityTFArray          = NULL;
-  this->RGBTFArray              = NULL;
-  this->GrayTFArray             = NULL;
-  this->CorrectedOpacityTFArray = NULL;
-  this->CorrectedStepSize       = -1;
+  this->ViewRays                      = NULL;
+  this->ViewRaysSize[0]               = 0;
+  this->ViewRaysSize[1]               = 0;
+  this->RGBAImage                     = NULL;
+  this->ZImage                        = NULL;
+  this->SampleDistance                = 1.0;
+  this->RayBounder                    = NULL;
+  this->VolumeRayCastFunction         = NULL;
+  this->ScalarOpacityTFArray          = NULL;
+  this->RGBTFArray                    = NULL;
+  this->GrayTFArray                   = NULL;
+  this->CorrectedScalarOpacityTFArray = NULL;
+  this->CorrectedStepSize             = -1;
 }
 
 // Description:
@@ -128,12 +128,14 @@ void vtkVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume *vol )
     this->GeneralImageInitialization( ren, vol );
     this->InitializeParallelImage( ren );
     this->VolumeRayCastFunction->FunctionInitialize( 
-					       ren, vol, this,
-					       this->OpacityTFArray,
-					       this->CorrectedOpacityTFArray,
-					       this->RGBTFArray,
-					       this->GrayTFArray,
-					       this->TFArraySize );
+				       ren, vol, this,
+				       this->ScalarOpacityTFArray,
+				       this->CorrectedScalarOpacityTFArray,
+				       this->GradientOpacityTFArray,
+				       this->GradientOpacityConstant,
+				       this->RGBTFArray,
+				       this->GrayTFArray,
+				       this->TFArraySize );
 
     this->RenderParallelImage( ren );
     }
@@ -145,12 +147,14 @@ void vtkVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume *vol )
     this->GeneralImageInitialization( ren, vol );
     this->InitializePerspectiveImage( ren );
     this->VolumeRayCastFunction->FunctionInitialize( 
-					       ren, vol, this,
-					       this->OpacityTFArray,
-					       this->CorrectedOpacityTFArray,
-					       this->RGBTFArray,
-					       this->GrayTFArray,
-					       this->TFArraySize );
+				       ren, vol, this,
+				       this->ScalarOpacityTFArray,
+				       this->CorrectedScalarOpacityTFArray,
+				       this->GradientOpacityTFArray,
+				       this->GradientOpacityConstant,
+				       this->RGBTFArray,
+				       this->GrayTFArray,
+				       this->TFArraySize );
     
     this->RenderPerspectiveImage( ren );
     }
@@ -384,7 +388,8 @@ void vtkVolumeRayCastMapper::GeneralImageInitialization( vtkRenderer *ren,
   this->ScalarDataType = 
     this->ScalarInput->GetPointData()->GetScalars()->GetDataType();
     
-  if( (this->ScalarDataType != 0) && (this->ScalarDataType != 1) )
+  if( (this->ScalarDataType != VTK_UNSIGNED_SHORT ) && 
+      (this->ScalarDataType != VTK_UNSIGNED_CHAR ) )
     {
     vtkErrorMacro( << "The scalar data type: " << this->ScalarDataType <<
       " is not supported when volume rendering. Please convert the " <<
@@ -711,10 +716,10 @@ void vtkVolumeRayCastMapper::RenderParallelImage( vtkRenderer *ren )
 	    this->TotalRaysCastPerId[count_loc]++;
 	    
 	    this->VolumeRayCastFunction->CastARay( this->ScalarDataType, 
-						     this->ScalarDataPointer,
-						     ray_info, ray_increment, 
-						     num_samples, 
-						     pixel_value );
+						   this->ScalarDataPointer,
+						   ray_info, ray_increment, 
+						   num_samples, 
+						   pixel_value );
 	    
 	    // Set the pixel value to the value returned by the ray cast
 	    *(iptr++) = pixel_value[0];
@@ -1005,11 +1010,11 @@ void vtkVolumeRayCastMapper::RenderPerspectiveImage( vtkRenderer *ren )
 	    this->TotalRaysCastPerId[count_loc]++;
 	    
 	    this->VolumeRayCastFunction->CastARay( this->ScalarDataType, 
-						     this->ScalarDataPointer,
-						     ray_info, 
-						     ray_increment, 
-						     num_samples, 
-						     pixel_value );
+						   this->ScalarDataPointer,
+						   ray_info, 
+						   ray_increment, 
+						   num_samples, 
+						   pixel_value );
 	    
 	    // Increment the number of samples taken
 	    this->TotalStepsTakenPerId[count_loc] += (int)pixel_value[5];
@@ -1075,15 +1080,32 @@ void vtkVolumeRayCastMapper::UpdateShadingTables( vtkRenderer *ren,
   int                   update_flag;
   int                   shading;
   vtkVolumeProperty     *volume_property;
+  float                 gradient_opacity_bias;
+  float                 gradient_opacity_scale;
+  int                   gradient_opacity_is_constant;
 
   volume_property = vol->GetVolumeProperty();
 
   shading = volume_property->GetShade();
 
+  gradient_opacity_bias  = volume_property->GetGradientOpacityBias();
+  gradient_opacity_scale = volume_property->GetGradientOpacityScale();
+
+  gradient_opacity_is_constant =  
+    ( volume_property->GetGradientOpacity()->GetType() == "Constant" );
+
   // Update the normals if necessary
-  if ( shading && ( this->NormalEncoder.GetEncodedNormals () == NULL ||
-       this->NormalEncoder.GetMTime() < this->ScalarInput->GetMTime() ) )
+  if ( (shading || !gradient_opacity_is_constant ) && 
+       ( this->NormalEncoder.GetEncodedNormals () == NULL ||
+	 this->NormalEncoder.GetMTime() < this->ScalarInput->GetMTime() ||
+	 this->NormalEncoder.GetGradientMagnitudeBias() != 
+		    gradient_opacity_bias ||
+	 this->NormalEncoder.GetGradientMagnitudeScale() !=
+		    gradient_opacity_scale ) )
     {
+cout << "Updating normals!\n";
+    this->NormalEncoder.SetGradientMagnitudeBias( gradient_opacity_bias );
+    this->NormalEncoder.SetGradientMagnitudeScale( gradient_opacity_scale );
     this->NormalEncoder.SetScalarInput( this->ScalarInput );
     this->NormalEncoder.UpdateNormals();
     this->NormalEncoder.Modified();
@@ -1166,37 +1188,49 @@ void vtkVolumeRayCastMapper::UpdateTransferFunctions( vtkRenderer *ren,
 {
   int                       data_type;
   vtkVolumeProperty         *volume_property;
-  vtkPiecewiseFunction      *opacity_transfer_function;
+  vtkPiecewiseFunction      *scalar_opacity_transfer_function;
+  vtkPiecewiseFunction      *gradient_opacity_transfer_function;
   vtkPiecewiseFunction      *gray_transfer_function;
   vtkColorTransferFunction  *rgb_transfer_function;
   int                       color_channels;
-  int                       opacity_tf_needs_updating = 0;
+  int                       scalar_opacity_tf_needs_updating = 0;
+  int                       gradient_opacity_tf_needs_updating = 0;
   int                       rgb_tf_needs_updating = 0;
   int                       gray_tf_needs_updating = 0;
 
   volume_property = vol->GetVolumeProperty();
 
-  // Update the OpacityTFArray if necessary.  This is necessary if
-  // the OpacityTFArray does not exist, or the transfer function has
-  // been modified more recently than the OpacityTFArray has.
-  opacity_transfer_function = volume_property->GetOpacityTransferFunction();
+  // Update the ScalarOpacityTFArray if necessary.  This is necessary if
+  // the ScalarOpacityTFArray does not exist, or the transfer function has
+  // been modified more recently than the ScalarOpacityTFArray has.
+  scalar_opacity_transfer_function = volume_property->GetScalarOpacity();
+  gradient_opacity_transfer_function = volume_property->GetGradientOpacity();
   rgb_transfer_function     = volume_property->GetRGBTransferFunction();
   gray_transfer_function    = volume_property->GetGrayTransferFunction();
   color_channels            = volume_property->GetColorChannels();
 
-
   data_type = this->ScalarInput->GetPointData()->GetScalars()->GetDataType();
 
-  if ( opacity_transfer_function == NULL )
+  if ( scalar_opacity_transfer_function == NULL )
     {
       vtkErrorMacro( << "Error: no transfer function!" );
     }
-  else if ( this->OpacityTFArray == NULL ||
-	    opacity_transfer_function->GetMTime() >
-	    this->OpacityTFArrayMTime ||
-	    volume_property->GetOpacityTransferFunctionMTime() >
-	    this->OpacityTFArrayMTime )
-    opacity_tf_needs_updating = 1;
+  else if ( this->ScalarOpacityTFArray == NULL ||
+	    scalar_opacity_transfer_function->GetMTime() >
+	    this->ScalarOpacityTFArrayMTime ||
+	    volume_property->GetScalarOpacityMTime() >
+	    this->ScalarOpacityTFArrayMTime )
+    scalar_opacity_tf_needs_updating = 1;
+
+  if ( gradient_opacity_transfer_function == NULL )
+    {
+      vtkErrorMacro( << "Error: no gradient magnitude opacity function!" );
+    }
+  else if ( gradient_opacity_transfer_function->GetMTime() >
+	    this->GradientOpacityTFArrayMTime ||
+	    volume_property->GetGradientOpacityMTime() >
+	    this->GradientOpacityTFArrayMTime )
+    gradient_opacity_tf_needs_updating = 1;
 
   switch ( color_channels )
     {
@@ -1226,23 +1260,39 @@ void vtkVolumeRayCastMapper::UpdateTransferFunctions( vtkRenderer *ren,
       break;
     }
 
+  if ( gradient_opacity_tf_needs_updating )
+    {
+    // Get values 0-255 (256 values)
+    gradient_opacity_transfer_function->GetTable(
+					  (float)(0x00),
+					  (float)(0xff),  
+					  (int)(0x100), 
+					  this->GradientOpacityTFArray );
+    if ( gradient_opacity_transfer_function->GetType() == "Constant" )
+      this->GradientOpacityConstant = this->GradientOpacityTFArray[128];
+    else
+      this->GradientOpacityConstant = -1.0;
+
+    this->GradientOpacityTFArrayMTime.Modified();
+    }
+
 
   if (data_type == VTK_UNSIGNED_CHAR)
     {
     this->TFArraySize = (int)(0x100);
 
-    if ( opacity_tf_needs_updating )
+    if ( scalar_opacity_tf_needs_updating )
       {
       // Get values 0-255 (256 values)
-      if ( this->OpacityTFArray )
-	delete this->OpacityTFArray;
+      if ( this->ScalarOpacityTFArray )
+	delete this->ScalarOpacityTFArray;
 
-      this->OpacityTFArray = new float[(int)(0x100)];
-      opacity_transfer_function->GetTable( (float)(0x00),
+      this->ScalarOpacityTFArray = new float[(int)(0x100)];
+      scalar_opacity_transfer_function->GetTable( (float)(0x00),
 					   (float)(0xff),  
 					   (int)(0x100), 
-					   this->OpacityTFArray );
-      this->OpacityTFArrayMTime.Modified();
+					   this->ScalarOpacityTFArray );
+      this->ScalarOpacityTFArrayMTime.Modified();
       }
 
     if ( gray_tf_needs_updating )
@@ -1271,22 +1321,22 @@ void vtkVolumeRayCastMapper::UpdateTransferFunctions( vtkRenderer *ren,
       this->RGBTFArrayMTime.Modified();
       }
     }
-  else if ( data_type = VTK_UNSIGNED_SHORT )
+  else if ( data_type == VTK_UNSIGNED_SHORT )
     {
     this->TFArraySize = (int)(0x10000);
 
-    if ( opacity_tf_needs_updating )
+    if ( scalar_opacity_tf_needs_updating )
       {
       // Get values 0-65535 (65536 values)
-      if ( this->OpacityTFArray )
-	delete this->OpacityTFArray;
+      if ( this->ScalarOpacityTFArray )
+	delete this->ScalarOpacityTFArray;
 
-      this->OpacityTFArray = new float[(int)(0x10000)];
-      opacity_transfer_function->GetTable( (float)(0x0000),
+      this->ScalarOpacityTFArray = new float[(int)(0x10000)];
+      scalar_opacity_transfer_function->GetTable( (float)(0x0000),
 					   (float)(0xffff),  
 					   (int)(0x10000), 
-					   this->OpacityTFArray );
-      this->OpacityTFArrayMTime.Modified();
+					   this->ScalarOpacityTFArray );
+      this->ScalarOpacityTFArrayMTime.Modified();
       }
 
     if ( gray_tf_needs_updating )
@@ -1316,28 +1366,29 @@ void vtkVolumeRayCastMapper::UpdateTransferFunctions( vtkRenderer *ren,
       }
     }
 
-  // check that the corrected opacity transfer function
+  // check that the corrected scalar opacity transfer function
   // is update to date with the current step size.
-  // Update CorrectedOpacityTFArray if it is required.
+  // Update CorrectedScalarOpacityTFArray if it is required.
 
-  if ( opacity_tf_needs_updating )
+  if ( scalar_opacity_tf_needs_updating )
     {
-    if ( this->CorrectedOpacityTFArray )
-      delete this->CorrectedOpacityTFArray;
+    if ( this->CorrectedScalarOpacityTFArray )
+      delete this->CorrectedScalarOpacityTFArray;
 
-    this->CorrectedOpacityTFArray = new float[this->TFArraySize];
+    this->CorrectedScalarOpacityTFArray = new float[this->TFArraySize];
     }
 
-  this->UpdateOpacityTFforSampleSize(ren,vol);
+  this->UpdateScalarOpacityTFforSampleSize(ren,vol);
 }
 
 
 // Description:
 // This method computes the corrected alpha blending for a given
-// step size.  The OpacityTFArray reflects step size 1.
-// The CorrectedOpacityTFArray reflects step size CorrectedStepSize.
-void vtkVolumeRayCastMapper::UpdateOpacityTFforSampleSize(vtkRenderer *ren,
-						      vtkVolume *vol) 
+// step size.  The ScalarOpacityTFArray reflects step size 1.
+// The CorrectedScalarOpacityTFArray reflects step size CorrectedStepSize.
+void vtkVolumeRayCastMapper::UpdateScalarOpacityTFforSampleSize(
+					vtkRenderer *ren,
+				 	vtkVolume *vol) 
 {
   int i;
   int needsRecomputing;
@@ -1362,17 +1413,17 @@ void vtkVolumeRayCastMapper::UpdateOpacityTFforSampleSize(vtkRenderer *ren,
 
   if (!needsRecomputing)
     {
-    // updated opacity xfer function
+    // updated scalar opacity xfer function
     needsRecomputing = needsRecomputing || 
-	this->OpacityTFArrayMTime > this->CorrectedOTFArrayMTime;
+	this->ScalarOpacityTFArrayMTime > this->CorrectedSOTFArrayMTime;
     }
   if (needsRecomputing)
     {
-    this->CorrectedOTFArrayMTime.Modified();
+    this->CorrectedSOTFArrayMTime.Modified();
     this->CorrectedStepSize = ray_scale;
     for (i = 0;i < this->TFArraySize;i++)
       {
-      originalAlpha = *(this->OpacityTFArray+i);
+      originalAlpha = *(this->ScalarOpacityTFArray+i);
 
       // this test is to accelerate the Transfer function correction
 
@@ -1385,7 +1436,7 @@ void vtkVolumeRayCastMapper::UpdateOpacityTFforSampleSize(vtkRenderer *ren,
 	{
 	correctedAlpha = originalAlpha;
 	}
-      *(this->CorrectedOpacityTFArray+i) = correctedAlpha;
+      *(this->CorrectedScalarOpacityTFArray+i) = correctedAlpha;
       }
     }
 }

@@ -215,18 +215,18 @@ protected:
   float                       *GrayTFArray;
   vtkTimeStamp                GrayTFArrayMTime;
 
-  // The opacity transfer function array - for unsigned char data this
+  // The scalar opacity transfer function array - for unsigned char data this
   // is 256 elements, for short or unsigned short it is 65536 elements
   // This is a samples at each scalar value of the opacity transfer
   // function.  A time stamp is kept to know when it needs rebuilding
-  float                       *OpacityTFArray;
-  vtkTimeStamp                OpacityTFArrayMTime;
+  float                       *ScalarOpacityTFArray;
+  vtkTimeStamp                ScalarOpacityTFArrayMTime;
 
-  // The corrected opacity transfer function array - this is identical
+  // The corrected scalar opacity transfer function array - this is identical
   // to the opacity transfer function array when the step size is 1.
   // In other cases, it is corrected to reflect the new material thickness
   // modelled by a step size different than 1.
-  float                       *CorrectedOpacityTFArray;
+  float                       *CorrectedScalarOpacityTFArray;
 
   // CorrectedStepSize is the step size corrently modelled by
   // CorrectedTFArray.  It is used to determine when the 
@@ -234,11 +234,16 @@ protected:
   // in the volume mapper.
   float                       CorrectedStepSize;
 
-  // CorrectedOTFArrayMTime - compared with OpacityTFArrayMTime for update
-  vtkTimeStamp                CorrectedOTFArrayMTime;
+  // CorrectedSOTFArrayMTime - compared with OpacityTFArrayMTime for update
+  vtkTimeStamp                CorrectedSOTFArrayMTime;
 
-  // Number of elements in the transfer function arrays
+  // Number of elements in the rgb, gray, and opacity transfer function arrays
   int                         TFArraySize;
+
+  // The magnitude of gradient opacity transfer function array
+  float                       GradientOpacityTFArray[256];
+  float                       GradientOpacityConstant;
+  vtkTimeStamp                GradientOpacityTFArrayMTime;
 
   // These are variables used by the initialize routines to pass
   // information to the render routines. The initialize routines are
@@ -316,7 +321,7 @@ protected:
 						      vtkVolume *vol );
 
 
-  void UpdateOpacityTFforSampleSize(vtkRenderer *ren, vtkVolume *vol);
+  void UpdateScalarOpacityTFforSampleSize(vtkRenderer *ren, vtkVolume *vol);
 
   vtkRayBounder              *RayBounder;
 };

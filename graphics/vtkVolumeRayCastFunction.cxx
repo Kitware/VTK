@@ -49,18 +49,23 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // image. All Gets are done here for both performance and multithreading
 // reentrant requirements reasons. At the end, the SpecificFunctionInitialize
 // is called to give the subclass a chance to do its thing.
-void vtkVolumeRayCastFunction::FunctionInitialize( vtkRenderer *ren, 
-						   vtkVolume *vol,
-						   vtkVolumeRayCastMapper *mapper,
-						   float *opacity_tf_array,
-						   float *corrected_opacity_tf_array,
-						   float *rgb_tf_array,
-						   float *gray_tf_array,
-						   int tf_array_size )
+void vtkVolumeRayCastFunction::FunctionInitialize( 
+				vtkRenderer *ren, 
+				vtkVolume *vol,
+				vtkVolumeRayCastMapper *mapper,
+				float *scalar_opacity_tf_array,
+				float *corrected_scalar_opacity_tf_array,
+				float *gradient_opacity_tf_array,
+				float gradient_opacity_constant,
+				float *rgb_tf_array,
+				float *gray_tf_array,
+				int tf_array_size )
 {
   // First, just save the stuff that was passed in
-  this->OpacityTFArray          = opacity_tf_array;
-  this->CorrectedOpacityTFArray = corrected_opacity_tf_array;
+  this->ScalarOpacityTFArray    = scalar_opacity_tf_array;
+  this->CorrectedScalarOpacityTFArray = corrected_scalar_opacity_tf_array;
+  this->GradientOpacityTFArray  = gradient_opacity_tf_array;
+  this->GradientOpacityConstant = gradient_opacity_constant;
   this->RGBTFArray              = rgb_tf_array;
   this->GrayTFArray             = gray_tf_array;
   this->TFArraySize             = tf_array_size;
@@ -105,6 +110,10 @@ void vtkVolumeRayCastFunction::FunctionInitialize( vtkRenderer *ren,
   // volume ray cast mapper
   this->EncodedNormals = 
     mapper->GetNormalEncoder()->GetEncodedNormals();
+
+  if ( this->GradientOpacityTFArray )
+    this->GradientMagnitudes = 
+      mapper->GetNormalEncoder()->GetGradientMagnitudes();
 
   // Give the subclass a chance to do any initialization it needs
   // to do
