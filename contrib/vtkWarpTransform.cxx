@@ -49,6 +49,8 @@ void vtkWarpTransform::PrintSelf(ostream& os, vtkIndent indent)
   vtkGeneralTransform::PrintSelf(os, indent);
 
   os << indent << "InverseFlag: " << this->InverseFlag << "\n";
+  os << indent << "InverseTolerance: " << this->InverseTolerance << "\n";
+  os << indent << "InverseIterations: " << this->InverseIterations << "\n";
 }
 
 //----------------------------------------------------------------------------
