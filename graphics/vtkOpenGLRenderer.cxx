@@ -237,6 +237,15 @@ void vtkOpenGLRenderer::DeviceRender(void)
   this->UpdateCamera();
   this->UpdateLights();
 
+  if (this->RenderWindow->GetNumLayers() > 1)
+    {
+    // Find the acceptable range for the z-buffer for this layer and clamp
+    // our geometry to it when we render.
+    float  zbuff_min, zbuff_max;
+    this->RenderWindow->GetLayer(this->Layer, zbuff_min, zbuff_max);
+    glDepthRange(zbuff_min, zbuff_max);
+    }
+
   // set matrix mode for actors 
   glMatrixMode(GL_MODELVIEW);
 
