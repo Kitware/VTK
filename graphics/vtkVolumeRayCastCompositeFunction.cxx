@@ -2574,7 +2574,7 @@ void vtkVolumeRayCastCompositeFunction::SpecificFunctionInitialize(
 // Since there is nothing local to print, just print the object stuff.
 void vtkVolumeRayCastCompositeFunction::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkObject::PrintSelf(os,indent);
+  vtkVolumeRayCastFunction::PrintSelf(os,indent);
 
   os << indent << "Composite Method: " << this->GetCompositeMethodAsString()
      << "\n";
