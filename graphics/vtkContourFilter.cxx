@@ -125,7 +125,7 @@ void vtkContourFilter::Execute()
   vtkFloatPoints *newPts;
   cellScalars.ReferenceCountingOff();
   vtkPolyData *output = this->GetOutput();
-  int numCells, estimatedSize, numScalars;
+  int numCells, estimatedSize;
   vtkPointData *inPd, *outPd;
   
   vtkDebugMacro(<< "Executing contour filter");
