@@ -27,9 +27,9 @@ public:
   vlSetVector2Macro(ValueRange,float);
   vlGetVectorMacro(ValueRange,float);
 
-  vlRGBColor &MapValue(float v);
-  void SetTableValue (int indx, vlRGBColor &rgb_c);
-  vlRGBColor &GetTableValue (int);
+  float *MapValue(float v);
+  void SetTableValue (int indx, float rgb[3]);
+  float *GetTableValue (int);
 
 protected:
   vlRGBArray Table;  
