@@ -19,14 +19,14 @@
 // is the number of components. (A tuple is a row of n components in the
 // matrix.) The field is assumed to be composed of a set of one or more data
 // arrays, where the data in the arrays are of different types (e.g., int,
-// float, char, etc.), and there may be variable numbers of components in
+// double, char, etc.), and there may be variable numbers of components in
 // each array. Note that each data array is assumed to be "m" in length
 // (i.e., number of tuples), which typically corresponds to the number of
 // points or cells in a dataset. Also, each data array must have a
 // character-string name. (This is used to manipulate data.)
 //
 // There are two ways of manipulating and interfacing to fields. You can do
-// it generically by manipulating components/tuples via a float-type data
+// it generically by manipulating components/tuples via a double-type data
 // exchange, or you can do it by grabbing the arrays and manipulating them
 // directly. The former is simpler but performs type conversion, which is bad
 // if your data has non-castable types like (void) pointers, or you lose
