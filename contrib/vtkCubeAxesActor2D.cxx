@@ -175,7 +175,6 @@ int vtkCubeAxesActor2D::RenderOpaqueGeometry(vtkViewport *viewport)
 {
   float bounds[6], slope, minSlope, num, den;
   float pts[8][3], d2, d2Min, min;
-  int *p;
   int i, idx;
   int xIdx, yIdx, zIdx, zIdx2, renderedSomething=0;
   int xAxes, yAxes, zAxes;

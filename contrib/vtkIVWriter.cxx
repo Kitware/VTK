@@ -76,7 +76,6 @@ void vtkIVWriter::WriteData()
 
 void vtkIVWriter::WritePolyData(vtkPolyData *pd, FILE *fp)
 {
-  vtkPointData *pntData;
   vtkPoints *points = NULL;
   int i;
   vtkCellArray *cells;
@@ -88,7 +87,6 @@ void vtkIVWriter::WritePolyData(vtkPolyData *pd, FILE *fp)
   pm->SetInput(pd);
   
   points = pd->GetPoints();
-  pntData = pd->GetPointData();
   colors  = pm->GetColors();
   
   fprintf(fp,"Separator {\n");
