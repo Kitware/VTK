@@ -31,6 +31,19 @@ if { [catch {set VTK_DATA_ROOT $env(VTK_DATA_ROOT)}] != 0} {
    if {$vtkDataFound == 0} then {set VTK_DATA_ROOT "../../../../VTKData" }
 }
 
+if { [catch {set VTK_BASELINE_ROOT $env(VTK_BASELINE_ROOT)}] != 0} { 
+   # then look at command line args
+   set vtkBaselineFound 0
+   for {set i 1} {$i < [expr $argc - 1]} {incr i} {
+      if {[lindex $argv $i] == "-B"} {
+         set vtkBaselineFound 1
+         set VTK_BASELINE_ROOT [lindex $argv [expr $i + 1]]
+      }
+   }
+   # make a final guess at a relativepath
+   if {$vtkBaselineFound == 0} then {set VTK_BASELINE_ROOT $VTK_DATA_ROOT }
+}
+
 set validImageFound 0
 for {set i  1} {$i < [expr $argc - 1]} {incr i} {
    if {[lindex $argv $i] == "-A"} {
@@ -38,7 +51,7 @@ for {set i  1} {$i < [expr $argc - 1]} {incr i} {
    }
    if {[lindex $argv $i] == "-V"} {
       set validImageFound 1
-      set validImage "$VTK_DATA_ROOT/[lindex $argv [expr $i + 1]]"
+      set validImage "$VTK_BASELINE_ROOT/[lindex $argv [expr $i + 1]]"
    }
 }
 
@@ -176,7 +189,6 @@ if {$validImageFound != 0} {
 	       rt_pngw2 SetFileName $validImage.diff.png
 	       rt_pngw2 SetInput [rt_id GetOutput]
 	       rt_pngw2 Write 
-
                
                # write out the difference image scaled and gamma adjusted
                # for the dashboard
