@@ -361,9 +361,11 @@ static void ContourGrid(vtkGridSynchronizedTemplates3D *self,
   int NeedGradients = ComputeGradients || ComputeNormals;
   int jj, g0;
   // We need to know the edgePointId's for interpolating attributes.
-  int edgePtId;
+  int edgePtId, inCellId, outCellId;
   vtkPointData *inPD = self->GetInput()->GetPointData();
+  vtkCellData *inCD = self->GetInput()->GetCellData();
   vtkPointData *outPD = output->GetPointData();  
+  vtkCellData *outCD = output->GetCellData();  
   // Temporary point data.
   float x[3];
   float grad[3];
@@ -472,6 +474,10 @@ static void ContourGrid(vtkGridSynchronizedTemplates3D *self,
         {
 	// Should not impact perfomance here/
 	edgePtId = (j-inExt[2])*incY + (k-inExt[4])*incZ;
+	// Increments are different for cells.
+	// Since the cells are not contoured until the second row of templates,
+	// subtract 1 from i,j,and k.  Note: first cube is formed when i=0, j=1, and k=1.
+	inCellId = (j-inExt[2]-1)*(xdim-1) + (k-inExt[4]-1)*(xdim-1)*(ydim-1);
         
 	p1 = inPtPtrY;
         s1 = inPtrY;
@@ -579,13 +585,16 @@ static void ContourGrid(vtkGridSynchronizedTemplates3D *self,
 	      tablePtr++;
 	      ptIds[2] = *(isect1Ptr + offsets[*tablePtr]);
 	      tablePtr++;
-	      newPolys->InsertNextCell(3,ptIds);
+	      outCellId = newPolys->InsertNextCell(3,ptIds);
+	      outCD->CopyData(inCD, inCellId, outCellId);
 	      }
 	    }
 	  inPtPtrX += 3;
 	  ++inPtrX;
 	  isect2Ptr += 3;
 	  isect1Ptr += 3;
+	  // To keep track of ids for copying cell attributes..
+	  ++inCellId;
 	  }
         inPtPtrY += 3*incY;
         inPtrY += incY;
@@ -648,6 +657,8 @@ void vtkGridSynchronizedTemplates3D::InitializeOutput(int *ext,vtkPolyData *o)
     }
   o->GetPointData()->InterpolateAllocate(this->GetInput()->GetPointData(),
   					 estimatedSize,estimatedSize/2);  
+  o->GetCellData()->CopyAllocate(this->GetInput()->GetCellData(),
+				 estimatedSize,estimatedSize/2);
 
   if (newScalars)
     {
@@ -941,11 +952,14 @@ VTK_THREAD_RETURN_TYPE vtkGridSyncTempThreadedExecute( void *arg )
 //----------------------------------------------------------------------------
 void vtkGridSynchronizedTemplates3D::Execute()
 {
-  int idx, offset, num, ptIdx, newIdx, numCellPts, *cellPts, newCellPts[3];
+  int idx, inId, outId, offset, num, ptIdx, newIdx;
+  int numCellPts, *cellPts, newCellPts[3];
   vtkPolyData *output = this->GetOutput();
   vtkPointData *outPD;
+  vtkCellData *outCD;
   vtkPolyData *threadOut = NULL;
   vtkPointData *threadPD;
+  vtkCellData *threadCD;
   vtkCellArray *threadTris;
   
   if (this->NumberOfThreads <= 1)
@@ -992,6 +1006,9 @@ void vtkGridSynchronizedTemplates3D::Execute()
     outPD = output->GetPointData();
     outPD->CopyAllOn();
     outPD->CopyAllocate(threadOut->GetPointData(), totalPoints, 1000);
+    outCD = output->GetCellData();
+    outCD->CopyAllOn();
+    outCD->CopyAllocate(threadOut->GetCellData(), totalCells, 1000);
     // Now copy all.    
     for (idx = 0; idx < this->NumberOfThreads; ++idx)
       {
@@ -1001,6 +1018,7 @@ void vtkGridSynchronizedTemplates3D::Execute()
 	{
 	offset = output->GetNumberOfPoints();
 	threadPD = threadOut->GetPointData();
+	threadCD = threadOut->GetCellData();
 	num = threadOut->GetNumberOfPoints();
 	for (ptIdx = 0; ptIdx < num; ++ptIdx)
 	  {
@@ -1011,6 +1029,7 @@ void vtkGridSynchronizedTemplates3D::Execute()
 	// copy the triangles.
 	threadTris = threadOut->GetPolys();
 	threadTris->InitTraversal();
+	inId = 0;
 	while (threadTris->GetNextCell(numCellPts, cellPts))
 	  {
 	  // copy and translate
@@ -1019,8 +1038,10 @@ void vtkGridSynchronizedTemplates3D::Execute()
 	    newCellPts[0] = cellPts[0] + offset;
 	    newCellPts[1] = cellPts[1] + offset;
 	    newCellPts[2] = cellPts[2] + offset;
-	    newPolys->InsertNextCell(3, newCellPts); 
+	    outId = newPolys->InsertNextCell(3, newCellPts); 
+	    outCD->CopyData(threadCD, inId, outId);
 	    }
+	  ++inId;
 	  }
 	threadOut->Delete();
 	threadOut = this->Threads[idx] = NULL;         
