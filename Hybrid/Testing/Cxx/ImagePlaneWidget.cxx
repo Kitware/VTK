@@ -22,15 +22,15 @@
 #include "vtkImageMapToColors.h"
 #include "vtkImagePlaneWidget.h"
 #include "vtkImageReader.h"
+#include "vtkLookupTable.h"
 #include "vtkOutlineFilter.h"
 #include "vtkPolyDataMapper.h"
+#include "vtkProperty.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkTextMapper.h"
 #include "vtkVolume16Reader.h"
-#include "vtkProperty.h"
-#include "vtkLookupTable.h"
 
 #include "vtkRegressionTestImage.h"
 #include "vtkDebugLeaks.h"
@@ -60,24 +60,18 @@ int main( int argc, char *argv[] )
 {
   vtkDebugLeaks::PromptUserOff();
 
-  const char *temp=getenv("VTK_DATA_ROOT");
-  char filename[2048];
-  
-  if ( ! temp )
-    {
-    cerr << "ERROR: Please define environment variable VTK_DATA_ROOT\n";
-    return 1;
-    }
-  strcpy(filename,temp);
-  strcat(filename,"/Data/headsq/quarter");
+  char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/headsq/quarter");
 
   vtkVolume16Reader* v16 =  vtkVolume16Reader::New();
     v16->SetDataDimensions( 64, 64);
-    v16->SetDataByteOrderToLittleEndian();
-    v16->SetFilePrefix( filename );
+    v16->SetDataByteOrderToLittleEndian();    
     v16->SetImageRange( 1, 93);
     v16->SetDataSpacing( 3.2, 3.2, 1.5);
+    v16->SetFilePrefix( fname );
+    v16->SetDataMask( 0x7fff);
     v16->Update();
+
+  delete[] fname;
 
   vtkOutlineFilter* outline = vtkOutlineFilter::New();
     outline->SetInput(v16->GetOutput());
