@@ -25,7 +25,7 @@
 #include "vtkQuadraticEdge.h"
 #include "vtkQuadraticQuad.h"
 
-vtkCxxRevisionMacro(vtkQuadraticHexahedron, "1.23");
+vtkCxxRevisionMacro(vtkQuadraticHexahedron, "1.24");
 vtkStandardNewMacro(vtkQuadraticHexahedron);
 
 // Construct the hex with 20 points + 7 extra points for internal
@@ -127,7 +127,9 @@ void vtkQuadraticHexahedron::Subdivide(vtkPointData *inPd, vtkCellData *inCd,
   double weights[20];
   double x[3];
 
-  //Copy point and cell attribute data
+  //Copy point and cell attribute data, first make sure it's empty:
+  this->PointData->Initialize();
+  this->CellData->Initialize();
   this->PointData->CopyAllocate(inPd,27);
   this->CellData->CopyAllocate(inCd,8);
   for (i=0; i<20; i++)

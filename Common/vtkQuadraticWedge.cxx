@@ -26,7 +26,7 @@
 #include "vtkQuadraticQuad.h"
 #include "vtkQuadraticTriangle.h"
 
-vtkCxxRevisionMacro(vtkQuadraticWedge, "1.8");
+vtkCxxRevisionMacro(vtkQuadraticWedge, "1.9");
 vtkStandardNewMacro(vtkQuadraticWedge);
 
 // Construct the wedge with 15 points + 3 extra points for internal
@@ -298,7 +298,9 @@ void vtkQuadraticWedge::Subdivide(vtkPointData *inPd, vtkCellData *inCd,
   double weights[15];
   double x[3];
 
-  //Copy point and cell attribute data
+  //Copy point and cell attribute data, first make sure it's empty:
+  this->PointData->Initialize();
+  this->CellData->Initialize();
   this->PointData->CopyAllocate(inPd,18);
   this->CellData->CopyAllocate(inCd,6);
   for (i=0; i<15; i++)

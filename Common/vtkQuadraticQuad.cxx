@@ -24,7 +24,7 @@
 #include "vtkQuad.h"
 #include "vtkQuadraticEdge.h"
 
-vtkCxxRevisionMacro(vtkQuadraticQuad, "1.21");
+vtkCxxRevisionMacro(vtkQuadraticQuad, "1.22");
 vtkStandardNewMacro(vtkQuadraticQuad);
 
 // Construct the line with two points.
@@ -202,6 +202,9 @@ void vtkQuadraticQuad::InterpolateAttributes(vtkPointData *inPd,
                                              vtkIdType cellId,
                                              double *weights)
 {
+  //Copy point and cell attribute data, first make sure it's empty:
+  this->PointData->Initialize();
+  this->CellData->Initialize();
   this->PointData->CopyAllocate(inPd,9);
   this->CellData->CopyAllocate(inCd,4);
   
