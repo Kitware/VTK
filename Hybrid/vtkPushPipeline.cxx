@@ -31,7 +31,7 @@
 #include "vtkVolumeMapper.h"
 
 #ifdef _MSC_VER
-#pragma warning (push, 3)
+#pragma warning (push, 2)
 #endif
 #include <vector>
 #include <map>
@@ -124,7 +124,7 @@ public:
   vtkPushPipeline *PushPipeline;
 };
 
-vtkCxxRevisionMacro(vtkPushPipeline, "1.12");
+vtkCxxRevisionMacro(vtkPushPipeline, "1.13");
 vtkStandardNewMacro(vtkPushPipeline);
 
 vtkPushPipeline::vtkPushPipeline()

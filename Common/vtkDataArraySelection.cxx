@@ -19,7 +19,7 @@
 #include "vtkObjectFactory.h"
 
 #ifdef _MSC_VER
-#pragma warning (push, 3)
+#pragma warning (push, 2)
 #endif
 
 #include <vector>
@@ -30,7 +30,7 @@
 #pragma warning(pop)
 #endif
 
-vtkCxxRevisionMacro(vtkDataArraySelection, "1.9");
+vtkCxxRevisionMacro(vtkDataArraySelection, "1.10");
 vtkStandardNewMacro(vtkDataArraySelection);
 
 class vtkDataArraySelectionArrayNamesType: public vtkstd::vector<vtkstd::string> {};

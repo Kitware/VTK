@@ -10,7 +10,15 @@
 #ifdef FTGL_DO_NOT_USE_STL
 #include <NoSTL/FTCharToGlyphIndexMap.h>
 #else
+#ifdef _MSC_VER
+#pragma warning (push, 2)
+#endif
+
 #include <map>
+
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
 #ifdef USE_STD_NAMESPACE
 using namespace std;
 #endif
