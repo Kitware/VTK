@@ -116,9 +116,6 @@ vtkLine.cxx
 vtkLocator.cxx
 vtkMapper2D.cxx
 vtkMergePoints.cxx
-vtkMultiBlockDataSet.cxx
-vtkMultiBlockDataSetAlgorithm.cxx
-vtkMultiBlockDataIterator.cxx
 vtkNonLinearCell.cxx
 vtkOrderedTriangulator.cxx
 vtkParametricKlein.cxx
@@ -226,6 +223,7 @@ vtkGenericDataSetToUnstructuredGridFilter
 vtkGenericDataSetToPolyDataFilter
 vtkGenericPointIterator
 vtkGenericSubdivisionErrorMetric
+vtkHierarchicalDataSetAlgorithm
 vtkImageAlgorithm
 vtkImageInPlaceFilter
 vtkImageIterator
