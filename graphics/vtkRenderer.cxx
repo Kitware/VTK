@@ -72,6 +72,7 @@ vtkRenderer::vtkRenderer()
   this->BackingImage = NULL;
   this->LastRenderTimeInSeconds = -1.0;
   
+  this->RenderWindow = NULL;
   this->Lights = vtkLightCollection::New();
   this->Actors = vtkActorCollection::New();
   this->Actors->Register(this);
