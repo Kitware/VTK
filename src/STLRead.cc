@@ -16,15 +16,32 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include <ctype.h>
 #include "STLRead.hh"
 #include "ByteSwap.hh"
+#include "MergePts.hh"
 
 #define ASCII 0
 #define BINARY 1
 
+// Description:
+// Construct object with merging set to true.
+vlSTLReader::vlSTLReader()
+{
+  this->Filename = NULL;
+  this->Merging = 1;
+  this->Locator = NULL;
+  this->SelfCreatedLocator = 0;
+}
+
+vlSTLReader::~vlSTLReader()
+{
+  if (this->Filename) delete [] this->Filename;
+  if (this->SelfCreatedLocator) delete this->Locator;
+}
+
 void vlSTLReader::Execute()
 {
   FILE *fp;
-  vlFloatPoints *newPts;
-  vlCellArray *newPolys;
+  vlFloatPoints *newPts, *mergedPts;
+  vlCellArray *newPolys, *mergedPolys;
 //
 // Initialize
 //
@@ -51,21 +68,59 @@ void vlSTLReader::Execute()
     if ( this->ReadBinarySTL(fp,newPts,newPolys) ) return;
     }
 
-  vlDebugMacro(<< "Read " << newPts->GetNumberOfPoints() << " points");
-  vlDebugMacro(<< "Read " << newPolys->GetNumberOfCells() << " triangles");
+  vlDebugMacro(<< "Read: " 
+               << newPts->GetNumberOfPoints() << " points, "
+               << newPolys->GetNumberOfCells() << " triangles");
 
   fclose(fp);
+//
+// If merging is on, create hash table and merge points/triangles.
+//
+  if ( this->Merging )
+    {
+    int npts, *pts, i, nodes[3];
+
+    mergedPts = new vlFloatPoints(newPts->GetNumberOfPoints()/2);
+    mergedPolys = new vlCellArray(newPolys->GetSize());
+
+    if ( this->Locator == NULL ) this->CreateDefaultLocator();
+    this->Locator->InitPointInsertion (mergedPts, newPts->GetBounds());
+
+    for (newPolys->InitTraversal(); newPolys->GetNextCell(npts,pts); )
+      {
+      for (i=0; i < 3; i++) 
+        nodes[i] = this->Locator->InsertPoint(newPts->GetPoint(pts[i]));
+
+      if ( nodes[0] != nodes[1] && nodes[0] != nodes[2] && 
+      nodes[1] != nodes[2] )
+        mergedPolys->InsertNextCell(3,nodes);
+      }
+
+      delete newPts;
+      delete newPolys;
+
+      vlDebugMacro(<< "Merged to: " 
+                   << mergedPts->GetNumberOfPoints() << " points, " 
+                   << mergedPolys->GetNumberOfCells() << " triangles");
+    }
+  else
+    {
+    mergedPts = newPts;
+    mergedPolys = newPolys;
+    }
 //
 // Since we sized the dynamic arrays arbitrarily to begin with 
 // need to resize them to fit data
 //
-  newPts->Squeeze();
-  newPolys->Squeeze();
+  mergedPts->Squeeze();
+  mergedPolys->Squeeze();
 //
 // Update ourselves
 //
-  this->SetPoints(newPts);
-  this->SetPolys(newPolys);
+  this->SetPoints(mergedPts);
+  this->SetPolys(mergedPolys);
+
+  if (this->Locator) this->Locator->Initialize(); //free storage
 }
 
 int vlSTLReader::ReadBinarySTL(FILE *fp, vlFloatPoints *newPts, vlCellArray *newPolys)
@@ -91,12 +146,12 @@ int vlSTLReader::ReadBinarySTL(FILE *fp, vlFloatPoints *newPts, vlCellArray *new
 //
   if ( (numTris = (int) ulint) <= 0 )
     {
-    vlDebugMacro(<< "Bad binary count (" << numTris << ")");
+    vlDebugMacro(<< "Bad binary count: attempting to correct (" << numTris << ")");
     }
 
   for ( i=0; fread(&facet,48,1,fp) > 0; i++ )
     {
-    fread(&ibuff2,2,1,fp); /* read extra junk */
+    fread(&ibuff2,2,1,fp); //read extra junk
 
     swap.Swap4 (facet.n);
     swap.Swap4 (facet.n+1);
@@ -178,6 +233,27 @@ int vlSTLReader::GetSTLFileType(FILE *fp)
 //
   rewind (fp);
   return type;
+}
+
+// Description:
+// Specify a spatial locator for merging points. By
+// default an instance of vlMergePoints is used.
+void vlSTLReader::SetLocator(vlLocator *locator)
+{
+  if ( this->Locator != locator ) 
+    {
+    if ( this->SelfCreatedLocator ) delete this->Locator;
+    this->SelfCreatedLocator = 0;
+    this->Locator = locator;
+    this->Modified();
+    }
+}
+
+void vlSTLReader::CreateDefaultLocator()
+{
+  if ( this->SelfCreatedLocator ) delete this->Locator;
+  this->Locator = new vlMergePoints;
+  this->SelfCreatedLocator = 1;
 }
 
 void vlSTLReader::PrintSelf(ostream& os, vlIndent indent)
