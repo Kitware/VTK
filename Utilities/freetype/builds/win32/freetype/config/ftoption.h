@@ -19,13 +19,17 @@
 #ifndef __FTOPTION_H__
 #define __FTOPTION_H__
 
+#ifdef _MSC_VER          // MS dev
+ 
+#pragma warning( disable : 4244 ) // conversion [...] possible loss of data
+
 #if ( _MSC_VER >= 1300 ) // Visual studio .NET
 
-#pragma warning( disable : 4244 ) // conversion [...] possible loss of data
 #pragma warning( disable : 4267 ) // same
 #pragma warning( disable : 4311 ) // same for pointer
 #pragma warning( disable : 4312 ) // same for pointer
 
+#endif /* _MSC_VER >= 1300 */ 
 #endif /* _MSC_VER */ 
 
 #include <ft2build.h>
