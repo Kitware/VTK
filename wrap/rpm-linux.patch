@@ -1,0 +1,49 @@
+diff -uNr vtk-orig/user.make vtk/user.make
+--- vtk-orig/user.make	Thu Nov 13 09:25:29 1997
++++ vtk/user.make	Wed Jul 12 12:20:03 2000
+@@ -2,22 +2,22 @@
+ # by configure in system.make.  At a minimum you should set
+ # the following Tcl/Tk values if you are planning to use Tcl/Tk
+ 
+-TCL_INCLUDE=-I/home/ausable/software/src/tcl7.6/tcl7.6/generic
+-TCL_LIB=/common/software/tcl7.6/sun4/5.4/lib/libtcl7.6.a
++TCL_INCLUDE=-I/usr/include
++TCL_LIB=-ltcl
+ 
+-TK_INCLUDE=-I/home/ausable/software/src/tcl7.6/tk4.2/generic
+-TK_LIB=/common/software/tk4.2/sun4/5.4/lib/libtk4.2.a
++TK_INCLUDE=-I/usr/include
++TK_LIB=-ltk
+ 
+-MESA_INCLUDE=-I/home/martink/storage/Mesa-1.2.6/include
+-MESA_LIB=/home/martink/storage/Mesa-1.2.6/lib-sun4-solaris/libMesaGL.a
++# MESA_INCLUDE=-I/home/martink/storage/Mesa-1.2.6/include
++MESA_LIB=-lMesaGL
+ 
+ # for python you must set this 
+-PYTHON_INCLUDES=-I/home/schroede/montnaro/Python-1.4/Include
++PYTHON_INCLUDES=-I/usr/include/python1.5
+ 
+ # Add additional CFLAGS and CXXFLAGS for compilation
+ # uncomment the following two lines to set your own flags
+-#USER_CFLAGS =  
+-#USER_CXXFLAGS = 
++USER_CFLAGS =  -O
++USER_CXXFLAGS = -O
+ 
+ # if you want to try the java support you'll need to set the following
+ # variables to match your environment and uncomment them
+@@ -28,6 +28,13 @@
+ #JAVAH=${JDKHOME}/bin/javah
+ #JAVA_INCLUDES=-I${JDKHOME}/include -I${JDKHOME}/include/solaris
+ #JAVA_CXX_LIB=/common/software/g++-2.7.1/sun4/5.4/lib/libiberty.a /common/software/g++-2.7.1/sun4/5.4/lib/libstdc++.a /common/software/g++-2.7.1/sun4/5.4/lib/gcc-lib/sparc-sun-solaris2.4/2.7.1/libgcc.a
++
++JDKHOME=/usr/local/jdk1.2.2/
++JAVA_CLASS_HOME=../java/
++JAVAC=${JDKHOME}/bin/javac -classpath ${JAVA_CLASS_HOME}
++JAR=${JDKHOME}/bin/jar
++JAVAH=${JDKHOME}/bin/javah
++JAVA_INCLUDES=-I${JDKHOME}/include -I${JDKHOME}/include/linux
+ 
+ 
+ 
