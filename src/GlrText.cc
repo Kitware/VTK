@@ -76,7 +76,7 @@ void vlGlrTexture::Load(vlGlrRenderer *ren)
       }
 
     bytesPerPixel = scalars->GetNumberOfValuesPerPoint();
-    dataPtr = scalars->GetUCharPtr();
+    dataPtr = scalars->GetPtr(0);
 
     // make sure its non null
     if (!dataPtr) 
