@@ -376,6 +376,10 @@ public:
     {
     return this->Value? &SafeBoolDummy::Dummy : 0;
     }
+  SafeBool operator !()
+    {
+    return this->Value? 0 : &SafeBoolDummy::Dummy;
+    }
 protected:
   int Value;
 };
