@@ -71,6 +71,7 @@ IF (VTK_USE_RENDERING)
       teapotHulls
       TenEllip
       testDataSetTriangleFilter
+      TestGraphLayoutFilter
       testQuadricDecimation
       TransformConcatenation
       TransformPolyData

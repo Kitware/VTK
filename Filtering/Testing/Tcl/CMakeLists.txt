@@ -7,13 +7,12 @@ IF (VTK_USE_RENDERING)
     FOREACH ( tfile 
       CSpline
       KSpline
-      TestGraphLayoutFilter
       )
       ADD_TEST(${tfile}-image ${VTK_EXECUTABLE}
         ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
-        ${VTK_SOURCE_DIR}/Hybrid/Testing/Tcl/${tfile}.tcl
+        ${VTK_SOURCE_DIR}/Filtering/Testing/Tcl/${tfile}.tcl
         -D ${VTK_DATA_ROOT}
-        -V Baseline/Hybrid/${tfile}.png
+        -V Baseline/Filtering/${tfile}.png
         -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
     ENDFOREACH( tfile )
   #

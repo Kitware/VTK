@@ -47,6 +47,7 @@ vtkGeometryFilter
 vtkGlyph2D
 vtkGlyph3D
 vtkGlyphSource2D
+vtkGraphLayoutFilter
 vtkHedgeHog
 vtkHull
 vtkHyperStreamline
