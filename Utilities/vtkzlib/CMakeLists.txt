@@ -12,18 +12,18 @@ SET(ZLIB_SRCS
   inflate.c   trees.c
   )
 
-# for windows add the .def and .rc files to the source list
+# for windows add the .def and .rc files to the source list if building shared libs
 IF(WIN32)
   IF(BUILD_SHARED_LIBS)
     SET(ZLIB_DLL 1)
+    IF(NOT UNIX)
+      IF(NOT BORLAND)
+        IF(NOT MINGW)
+          SET(ZLIB_SRCS ${ZLIB_SRCS} zlib.def zlib.rc  )
+        ENDIF(NOT MINGW)
+      ENDIF(NOT BORLAND) 
+    ENDIF(NOT UNIX)   
   ENDIF(BUILD_SHARED_LIBS)
-  IF(NOT UNIX)
-    IF(NOT BORLAND)
-      IF(NOT MINGW)
-        SET(ZLIB_SRCS ${ZLIB_SRCS} zlib.def zlib.rc  )
-      ENDIF(NOT MINGW)
-    ENDIF(NOT BORLAND) 
-  ENDIF(NOT UNIX)   
 ENDIF(WIN32)
 
 CONFIGURE_FILE(${VTKZLIB_SOURCE_DIR}/.NoDartCoverage
