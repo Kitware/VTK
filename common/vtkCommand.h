@@ -98,6 +98,18 @@ public:
         {
         return vtkCommand::PickEvent;
         }
+      if (!strcmp("ExitEvent",event))
+        {
+        return vtkCommand::PickEvent;
+        }
+      if (!strcmp("StartPickEvent",event))
+        {
+        return vtkCommand::StartPickEvent;
+        }
+      if (!strcmp("EndPickEvent",event))
+        {
+        return vtkCommand::EndPickEvent;
+        }
       if (!strcmp("AbortCheckEvent",event))
         {
         return vtkCommand::AbortCheckEvent;
