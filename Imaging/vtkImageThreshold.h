@@ -52,7 +52,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkImageToImageFilter.h"
 
-class VTK_EXPORT vtkImageThreshold : public vtkImageToImageFilter
+class VTK_IMAGING_EXPORT vtkImageThreshold : public vtkImageToImageFilter
 {
 public:
   static vtkImageThreshold *New();

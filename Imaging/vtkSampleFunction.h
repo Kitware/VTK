@@ -57,7 +57,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkStructuredPointsSource.h"
 #include "vtkImplicitFunction.h"
 
-class VTK_EXPORT vtkSampleFunction : public vtkStructuredPointsSource
+class VTK_IMAGING_EXPORT vtkSampleFunction : public vtkStructuredPointsSource
 {
 public:
   vtkTypeMacro(vtkSampleFunction,vtkStructuredPointsSource);

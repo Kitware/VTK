@@ -53,7 +53,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkImageTwoInputFilter.h"
 
-class VTK_EXPORT vtkImageCheckerboard : public vtkImageTwoInputFilter
+class VTK_IMAGING_EXPORT vtkImageCheckerboard : public vtkImageTwoInputFilter
 {
 public:
   static vtkImageCheckerboard *New();

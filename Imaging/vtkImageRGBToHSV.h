@@ -52,7 +52,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkImageToImageFilter.h"
 
-class VTK_EXPORT vtkImageRGBToHSV : public vtkImageToImageFilter
+class VTK_IMAGING_EXPORT vtkImageRGBToHSV : public vtkImageToImageFilter
 {
 public:
   static vtkImageRGBToHSV *New();

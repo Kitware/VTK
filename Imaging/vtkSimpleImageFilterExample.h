@@ -52,7 +52,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkSimpleImageToImageFilter.h"
 
-class VTK_EXPORT vtkSimpleImageFilterExample : 
+class VTK_IMAGING_EXPORT vtkSimpleImageFilterExample : 
   public vtkSimpleImageToImageFilter
 {
 public:

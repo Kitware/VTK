@@ -56,7 +56,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkImageSpatialFilter.h"
 
-class VTK_EXPORT vtkImageHybridMedian2D : public vtkImageSpatialFilter
+class VTK_IMAGING_EXPORT vtkImageHybridMedian2D : public vtkImageSpatialFilter
 {
 public:
   static vtkImageHybridMedian2D *New();

@@ -75,7 +75,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkImageTwoInputFilter.h"
 
-class VTK_EXPORT vtkImageMathematics : public vtkImageTwoInputFilter
+class VTK_IMAGING_EXPORT vtkImageMathematics : public vtkImageTwoInputFilter
 {
 public:
   static vtkImageMathematics *New();

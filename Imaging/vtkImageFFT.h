@@ -55,7 +55,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkImageFourierFilter.h"
 
-class VTK_EXPORT vtkImageFFT : public vtkImageFourierFilter
+class VTK_IMAGING_EXPORT vtkImageFFT : public vtkImageFourierFilter
 {
 public:
   static vtkImageFFT *New();

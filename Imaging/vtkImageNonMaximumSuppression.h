@@ -57,7 +57,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkImageTwoInputFilter.h"
 
-class VTK_EXPORT vtkImageNonMaximumSuppression : public vtkImageTwoInputFilter
+class VTK_IMAGING_EXPORT vtkImageNonMaximumSuppression : public vtkImageTwoInputFilter
 {
 public:
   static vtkImageNonMaximumSuppression *New();

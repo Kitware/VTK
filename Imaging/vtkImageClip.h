@@ -56,7 +56,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // to the data.
 #include "vtkImageToImageFilter.h"
 
-class VTK_EXPORT vtkImageClip : public vtkImageToImageFilter
+class VTK_IMAGING_EXPORT vtkImageClip : public vtkImageToImageFilter
 {
 public:
   static vtkImageClip *New();

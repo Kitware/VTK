@@ -62,7 +62,7 @@ typedef struct{
   } vtkImage2DIslandPixel;
 //ETX
 
-class VTK_EXPORT vtkImageIslandRemoval2D : public vtkImageToImageFilter
+class VTK_IMAGING_EXPORT vtkImageIslandRemoval2D : public vtkImageToImageFilter
 {
 public:
   // Description:

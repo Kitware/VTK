@@ -57,7 +57,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkImageToImageFilter.h"
 #include "vtkScalarsToColors.h"
 
-class VTK_EXPORT vtkImageMapToColors : public vtkImageToImageFilter
+class VTK_IMAGING_EXPORT vtkImageMapToColors : public vtkImageToImageFilter
 {
 public:
   static vtkImageMapToColors *New();

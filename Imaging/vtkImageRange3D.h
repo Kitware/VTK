@@ -54,7 +54,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class vtkImageEllipsoidSource;
 
-class VTK_EXPORT vtkImageRange3D : public vtkImageSpatialFilter
+class VTK_IMAGING_EXPORT vtkImageRange3D : public vtkImageSpatialFilter
 {
 public:
   static vtkImageRange3D *New();

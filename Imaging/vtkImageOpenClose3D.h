@@ -62,7 +62,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkImageToImageFilter.h"
 #include "vtkImageDilateErode3D.h"
 
-class VTK_EXPORT vtkImageOpenClose3D : public vtkImageToImageFilter
+class VTK_IMAGING_EXPORT vtkImageOpenClose3D : public vtkImageToImageFilter
 {
 public:
   // Description:

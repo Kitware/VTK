@@ -52,7 +52,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkImageSource.h"
 
-class VTK_EXPORT vtkImageEllipsoidSource : public vtkImageSource
+class VTK_IMAGING_EXPORT vtkImageEllipsoidSource : public vtkImageSource
 {
 public:
   static vtkImageEllipsoidSource *New();

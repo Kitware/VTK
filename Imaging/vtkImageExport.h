@@ -54,7 +54,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkProcessObject.h"
 #include "vtkImageData.h"
 
-class VTK_EXPORT vtkImageExport : public vtkProcessObject
+class VTK_IMAGING_EXPORT vtkImageExport : public vtkProcessObject
 {
 public:
   static vtkImageExport *New();

@@ -54,7 +54,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkDataSetToStructuredPointsFilter.h"
 
-class VTK_EXPORT vtkVoxelModeller : public vtkDataSetToStructuredPointsFilter 
+class VTK_IMAGING_EXPORT vtkVoxelModeller : public vtkDataSetToStructuredPointsFilter 
 {
 public:
   vtkTypeMacro(vtkVoxelModeller,vtkDataSetToStructuredPointsFilter);

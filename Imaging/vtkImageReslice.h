@@ -88,7 +88,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define VTK_RESLICE_LINEAR 1
 #define VTK_RESLICE_CUBIC 3
 
-class VTK_EXPORT vtkImageReslice : public vtkImageToImageFilter
+class VTK_IMAGING_EXPORT vtkImageReslice : public vtkImageToImageFilter
 {
 public:
   static vtkImageReslice *New();

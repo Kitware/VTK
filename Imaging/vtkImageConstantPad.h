@@ -54,7 +54,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkImagePadFilter.h"
 
-class VTK_EXPORT vtkImageConstantPad : public vtkImagePadFilter
+class VTK_IMAGING_EXPORT vtkImageConstantPad : public vtkImagePadFilter
 {
 public:
   static vtkImageConstantPad *New();

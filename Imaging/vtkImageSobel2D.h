@@ -52,7 +52,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkImageSpatialFilter.h"
 
-class VTK_EXPORT vtkImageSobel2D : public vtkImageSpatialFilter
+class VTK_IMAGING_EXPORT vtkImageSobel2D : public vtkImageSpatialFilter
 {
 public:
   static vtkImageSobel2D *New();

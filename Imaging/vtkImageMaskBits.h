@@ -52,7 +52,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkImageToImageFilter.h"
 #include "vtkImageLogic.h"     // included for the boolean operators
 
-class VTK_EXPORT vtkImageMaskBits : public vtkImageToImageFilter
+class VTK_IMAGING_EXPORT vtkImageMaskBits : public vtkImageToImageFilter
 {
 public:
   static vtkImageMaskBits *New();

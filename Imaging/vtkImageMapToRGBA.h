@@ -53,7 +53,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkImageMapToColors.h"
 
-class VTK_EXPORT vtkImageMapToRGBA : public vtkImageMapToColors
+class VTK_IMAGING_EXPORT vtkImageMapToRGBA : public vtkImageMapToColors
 {
 public:
   static vtkImageMapToRGBA *New();

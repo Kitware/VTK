@@ -55,7 +55,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkImageToImageFilter.h"
 
-class VTK_EXPORT vtkImageSpatialFilter : public vtkImageToImageFilter
+class VTK_IMAGING_EXPORT vtkImageSpatialFilter : public vtkImageToImageFilter
 {
 public:
   static vtkImageSpatialFilter *New();

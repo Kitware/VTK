@@ -74,7 +74,7 @@ public:
 //
 
 
-class VTK_EXPORT vtkImageConnector : public vtkObject
+class VTK_IMAGING_EXPORT vtkImageConnector : public vtkObject
 {
 public:
   static vtkImageConnector *New();

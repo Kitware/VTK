@@ -65,7 +65,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkStructuredPointsToStructuredPointsFilter.h"
 
-class VTK_EXPORT vtkExtractVOI : public vtkStructuredPointsToStructuredPointsFilter
+class VTK_IMAGING_EXPORT vtkExtractVOI : public vtkStructuredPointsToStructuredPointsFilter
 {
 public:
   vtkTypeMacro(vtkExtractVOI,vtkStructuredPointsToStructuredPointsFilter);

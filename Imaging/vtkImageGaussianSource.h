@@ -50,7 +50,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkImageSource.h"
 
-class VTK_EXPORT vtkImageGaussianSource : public vtkImageSource
+class VTK_IMAGING_EXPORT vtkImageGaussianSource : public vtkImageSource
 {
 public:
   static vtkImageGaussianSource *New();

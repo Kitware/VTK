@@ -58,7 +58,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkImageIterateFilter.h"
 
-class VTK_EXPORT vtkImageSkeleton2D : public vtkImageIterateFilter
+class VTK_IMAGING_EXPORT vtkImageSkeleton2D : public vtkImageIterateFilter
 {
 public:
   static vtkImageSkeleton2D *New();

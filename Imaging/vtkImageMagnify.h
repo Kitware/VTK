@@ -51,7 +51,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkImageToImageFilter.h"
 
-class VTK_EXPORT vtkImageMagnify : public vtkImageToImageFilter
+class VTK_IMAGING_EXPORT vtkImageMagnify : public vtkImageToImageFilter
 {
 public:
   static vtkImageMagnify *New();

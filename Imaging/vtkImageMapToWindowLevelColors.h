@@ -58,7 +58,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkImageMapToColors.h"
 
-class VTK_EXPORT vtkImageMapToWindowLevelColors : public vtkImageMapToColors
+class VTK_IMAGING_EXPORT vtkImageMapToWindowLevelColors : public vtkImageMapToColors
 {
 public:
   static vtkImageMapToWindowLevelColors *New();

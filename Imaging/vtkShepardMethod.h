@@ -64,7 +64,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkDataSetToStructuredPointsFilter.h"
 
-class VTK_EXPORT vtkShepardMethod : public vtkDataSetToStructuredPointsFilter 
+class VTK_IMAGING_EXPORT vtkShepardMethod : public vtkDataSetToStructuredPointsFilter 
 {
 public:
   vtkTypeMacro(vtkShepardMethod,vtkDataSetToStructuredPointsFilter);

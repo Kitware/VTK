@@ -77,7 +77,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define VTK_EDT_SAITO_CACHED 0
 #define VTK_EDT_SAITO 1 
 
-class VTK_EXPORT vtkImageEuclideanDistance : public vtkImageDecomposeFilter
+class VTK_IMAGING_EXPORT vtkImageEuclideanDistance : public vtkImageDecomposeFilter
 {
 public:
   static vtkImageEuclideanDistance *New();

@@ -57,7 +57,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkImageToImageFilter.h"
 #include "vtkLookupTable.h"
 
-class VTK_EXPORT vtkImageQuantizeRGBToIndex : public vtkImageToImageFilter
+class VTK_IMAGING_EXPORT vtkImageQuantizeRGBToIndex : public vtkImageToImageFilter
 {
 public:
   static vtkImageQuantizeRGBToIndex *New();

@@ -99,7 +99,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class vtkFloatAray;
 
-class VTK_EXPORT vtkGaussianSplatter : public vtkDataSetToStructuredPointsFilter 
+class VTK_IMAGING_EXPORT vtkGaussianSplatter : public vtkDataSetToStructuredPointsFilter 
 {
 public:
   vtkTypeMacro(vtkGaussianSplatter,vtkDataSetToStructuredPointsFilter);

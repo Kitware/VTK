@@ -55,7 +55,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkImageTwoInputFilter.h"
 
-class VTK_EXPORT vtkImageCorrelation : public vtkImageTwoInputFilter
+class VTK_IMAGING_EXPORT vtkImageCorrelation : public vtkImageTwoInputFilter
 {
 public:
   static vtkImageCorrelation *New();

@@ -51,7 +51,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkImagePadFilter.h"
 
-class VTK_EXPORT vtkImageMirrorPad : public vtkImagePadFilter
+class VTK_IMAGING_EXPORT vtkImageMirrorPad : public vtkImagePadFilter
 {
 public:
   static vtkImageMirrorPad *New();

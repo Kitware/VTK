@@ -50,7 +50,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkImageToImageFilter.h"
 
-class VTK_EXPORT vtkImageShrink3D : public vtkImageToImageFilter
+class VTK_IMAGING_EXPORT vtkImageShrink3D : public vtkImageToImageFilter
 {
 public:
   static vtkImageShrink3D *New();

@@ -51,7 +51,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkImageTwoInputFilter.h"
 
-class VTK_EXPORT vtkImageDifference : public vtkImageTwoInputFilter
+class VTK_IMAGING_EXPORT vtkImageDifference : public vtkImageTwoInputFilter
 {
 public:
   static vtkImageDifference *New();

@@ -50,7 +50,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkImageToImageFilter.h"
 #include "vtkExtentTranslator.h"
 
-class VTK_EXPORT vtkImageDataStreamer : public vtkImageToImageFilter
+class VTK_IMAGING_EXPORT vtkImageDataStreamer : public vtkImageToImageFilter
 {
 public:
   static vtkImageDataStreamer *New();

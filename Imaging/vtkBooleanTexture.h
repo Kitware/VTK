@@ -70,7 +70,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkStructuredPointsSource.h"
 
-class VTK_EXPORT vtkBooleanTexture : public vtkStructuredPointsSource
+class VTK_IMAGING_EXPORT vtkBooleanTexture : public vtkStructuredPointsSource
 {
 public:
   static vtkBooleanTexture *New();

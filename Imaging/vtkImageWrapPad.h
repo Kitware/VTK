@@ -53,7 +53,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkImagePadFilter.h"
 
-class VTK_EXPORT vtkImageWrapPad : public vtkImagePadFilter
+class VTK_IMAGING_EXPORT vtkImageWrapPad : public vtkImagePadFilter
 {
 public:
   static vtkImageWrapPad *New();

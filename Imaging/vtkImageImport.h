@@ -55,7 +55,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkImageSource.h"
 #include "vtkTransform.h"
 
-class VTK_EXPORT vtkImageImport : public vtkImageSource
+class VTK_IMAGING_EXPORT vtkImageImport : public vtkImageSource
 {
 public:
   static vtkImageImport *New();

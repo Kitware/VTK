@@ -96,7 +96,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define VTK_IMAGE_BLEND_MODE_NORMAL    0
 #define VTK_IMAGE_BLEND_MODE_COMPOUND 1
 
-class VTK_EXPORT vtkImageBlend : public vtkImageMultipleInputFilter
+class VTK_IMAGING_EXPORT vtkImageBlend : public vtkImageMultipleInputFilter
 {
 public:
   static vtkImageBlend *New();

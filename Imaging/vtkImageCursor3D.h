@@ -48,7 +48,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkImageInPlaceFilter.h"
 
-class VTK_EXPORT vtkImageCursor3D : public vtkImageInPlaceFilter
+class VTK_IMAGING_EXPORT vtkImageCursor3D : public vtkImageInPlaceFilter
 {
 public:
   static vtkImageCursor3D *New();

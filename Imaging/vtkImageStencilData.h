@@ -54,7 +54,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkDataObject.h"
 
-class VTK_EXPORT vtkImageStencilData : public vtkDataObject
+class VTK_IMAGING_EXPORT vtkImageStencilData : public vtkDataObject
 {
 public:
   static vtkImageStencilData *New();

@@ -59,7 +59,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkImageConnector.h"
 #include "vtkImageToImageFilter.h"
 
-class VTK_EXPORT vtkImageSeedConnectivity : public vtkImageToImageFilter
+class VTK_IMAGING_EXPORT vtkImageSeedConnectivity : public vtkImageToImageFilter
 {
 public:
   static vtkImageSeedConnectivity *New();

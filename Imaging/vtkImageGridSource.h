@@ -49,7 +49,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkImageSource.h"
 
-class VTK_EXPORT vtkImageGridSource : public vtkImageSource
+class VTK_IMAGING_EXPORT vtkImageGridSource : public vtkImageSource
 {
 public:
   static vtkImageGridSource *New();

@@ -110,7 +110,7 @@ typedef struct{
 /******************* End of COMPLEX number stuff ********************/
 //ETX
 
-class VTK_EXPORT vtkImageFourierFilter : public vtkImageDecomposeFilter
+class VTK_IMAGING_EXPORT vtkImageFourierFilter : public vtkImageDecomposeFilter
 {
 public:
   vtkTypeMacro(vtkImageFourierFilter,vtkImageDecomposeFilter);

@@ -52,7 +52,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class vtkWindow;
 
-class VTK_EXPORT vtkWindowToImageFilter : public vtkImageSource
+class VTK_IMAGING_EXPORT vtkWindowToImageFilter : public vtkImageSource
 {
 public:
   static vtkWindowToImageFilter *New();

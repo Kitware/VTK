@@ -68,7 +68,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkImageSpatialFilter.h"
 
-class VTK_EXPORT vtkImageAnisotropicDiffusion3D : public vtkImageSpatialFilter
+class VTK_IMAGING_EXPORT vtkImageAnisotropicDiffusion3D : public vtkImageSpatialFilter
 {
 public:
   static vtkImageAnisotropicDiffusion3D *New();

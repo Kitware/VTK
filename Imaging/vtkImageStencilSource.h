@@ -60,7 +60,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkSource.h"
 #include "vtkImageStencilData.h"
 
-class VTK_EXPORT vtkImageStencilSource : public vtkSource
+class VTK_IMAGING_EXPORT vtkImageStencilSource : public vtkSource
 {
 public:
   static vtkImageStencilSource *New();

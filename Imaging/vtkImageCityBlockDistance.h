@@ -59,7 +59,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkImageDecomposeFilter.h"
 
-class VTK_EXPORT vtkImageCityBlockDistance : public vtkImageDecomposeFilter
+class VTK_IMAGING_EXPORT vtkImageCityBlockDistance : public vtkImageDecomposeFilter
 {
 public:
   static vtkImageCityBlockDistance *New();

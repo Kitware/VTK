@@ -56,7 +56,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkImageSource.h"
 
-class VTK_EXPORT vtkImageMandelbrotSource : public vtkImageSource
+class VTK_IMAGING_EXPORT vtkImageMandelbrotSource : public vtkImageSource
 {
 public:
   static vtkImageMandelbrotSource *New();

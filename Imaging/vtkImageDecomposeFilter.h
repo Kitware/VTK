@@ -53,7 +53,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkImageIterateFilter.h"
 
-class VTK_EXPORT vtkImageDecomposeFilter : public vtkImageIterateFilter
+class VTK_IMAGING_EXPORT vtkImageDecomposeFilter : public vtkImageIterateFilter
 {
 public:
   // Description:

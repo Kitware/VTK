@@ -58,7 +58,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkImageToImageFilter.h"
 #include "vtkImageStencilData.h"
 
-class VTK_EXPORT vtkImageAccumulate : public vtkImageToImageFilter
+class VTK_IMAGING_EXPORT vtkImageAccumulate : public vtkImageToImageFilter
 {
 public:
   static vtkImageAccumulate *New();

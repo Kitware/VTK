@@ -71,7 +71,7 @@ public:
 //
 
 
-class VTK_EXPORT vtkImageCanvasSource2D : public vtkStructuredPoints
+class VTK_IMAGING_EXPORT vtkImageCanvasSource2D : public vtkStructuredPoints
 {
 public:
   // Description:
