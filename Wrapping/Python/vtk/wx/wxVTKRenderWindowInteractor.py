@@ -292,7 +292,7 @@ class wxVTKRenderWindowInteractor(baseClass):
         ctrl, shift = event.ControlDown(), event.ShiftDown()
         self._Iren.SetEventInformationFlipY(event.GetX(), event.GetY(),
                                             ctrl, shift, chr(0), 0, None)
-        if event.GetWheelDelta() > 0:
+        if event.GetWheelRotation() > 0:
             self._Iren.MouseWheelForwardEvent()
         else:
             self._Iren.MouseWheelBackwardEvent()
