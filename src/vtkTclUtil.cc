@@ -3,8 +3,8 @@
   Program:   Visualization Toolkit
   Module:    vtkTclUtil.cc
   Language:  C++
-  Date:      01/18/95
-  Version:   1.2
+  Date:      $Date$
+  Version:   $Revision$
 
 This file is part of the Visualization Toolkit. No part of this file or its
 contents may be copied, reproduced or altered in any way without the express
@@ -14,6 +14,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
 
+#include <stdlib.h>
 #include "vtkTclUtil.hh"
 
 extern Tcl_HashTable vtkInstanceLookup;
@@ -22,6 +23,40 @@ extern Tcl_HashTable vtkCommandLookup;
 
 static int num = 0;
 
+// we do no error checking in this.  We assume that if we were called
+// then tcl must have been able to find the command function and object
+void vtkTclGenericDeleteObject(ClientData cd)
+{
+  char temps[80];
+  Tcl_HashEntry *entry;
+  int (*command)(ClientData, Tcl_Interp *,int, char *[]);
+  char *args[1];
+  char *temp;
+
+  /* set up the args */
+  args[0] = "Delete";
+
+  // lookup the objects name
+  sprintf(temps,"%x",(void *)cd);
+  entry = Tcl_FindHashEntry(&vtkPointerLookup,temps); 
+  temp = (char *)(Tcl_GetHashValue(entry));
+
+  // get the command function and invoke the delete operation
+  entry = Tcl_FindHashEntry(&vtkCommandLookup,temp);
+  command = (int (*)(ClientData,Tcl_Interp *,int,char *[]))Tcl_GetHashValue(entry);
+  command(cd,(Tcl_Interp *)NULL,1,args);
+
+  // now delete the three hash entries
+  Tcl_DeleteHashEntry(entry);
+  entry = Tcl_FindHashEntry(&vtkPointerLookup,temps); 
+  Tcl_DeleteHashEntry(entry);
+  entry = Tcl_FindHashEntry(&vtkInstanceLookup,temp);
+  Tcl_DeleteHashEntry(entry);
+  // finally free the name we got from the hash table
+  // it was created using strdup
+  free (temp);
+}
+  
 vtkTclGetObjectFromPointer(Tcl_Interp *interp,void *temp,
 			  int command(ClientData, Tcl_Interp *,int, char *[]))
 {
