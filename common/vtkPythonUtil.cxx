@@ -52,7 +52,6 @@ public:
   vtkPythonUtil();
   ~vtkPythonUtil();
 
-  PyObject *InstanceDict;
   PyObject *PointerDict;
   PyObject *TypeDict;
 };
@@ -63,7 +62,6 @@ vtkPythonUtil *vtkPythonHash = NULL;
 //--------------------------------------------------------------------
 vtkPythonUtil::vtkPythonUtil()
 {
-  this->InstanceDict = PyDict_New();
   this->PointerDict = PyDict_New();
   this->TypeDict = PyDict_New();
 }
@@ -71,7 +69,6 @@ vtkPythonUtil::vtkPythonUtil()
 //--------------------------------------------------------------------
 vtkPythonUtil::~vtkPythonUtil()
 {
-  Py_DECREF(this->InstanceDict);
   Py_DECREF(this->PointerDict);
   Py_DECREF(this->TypeDict);
 }
@@ -85,7 +82,7 @@ void vtkPythonAddTypeToHash(PyTypeObject *typeObject, char *type)
     }
 
 #ifdef VTKPYTHONDEBUG
-  vtkGenericWarningMacro("Adding an type " << type << " to hash ptr");
+  //  vtkGenericWarningMacro("Adding an type " << type << " to hash ptr");
 #endif  
 
   // lets make sure it isn't already there
@@ -102,12 +99,12 @@ void vtkPythonAddTypeToHash(PyTypeObject *typeObject, char *type)
   Py_DECREF(pyType);
 
 #ifdef VTKPYTHONDEBUG
-  vtkGenericWarningMacro("Added type to hash type = " << typeObject);
+  //  vtkGenericWarningMacro("Added type to hash type = " << typeObject);
 #endif  
 }  
 
 //--------------------------------------------------------------------
-void vtkPythonAddObjectToHash(PyObject *obj, void *ptr)
+void vtkPythonAddObjectToHash(PyObject *obj, vtkObject *ptr)
 {
   if (vtkPythonHash == NULL)
     {
@@ -118,47 +115,35 @@ void vtkPythonAddObjectToHash(PyObject *obj, void *ptr)
   vtkGenericWarningMacro("Adding an object to hash ptr = " << ptr);
 #endif  
 
-  // lets make sure it isn't already there
-  if (PyDict_GetItem(vtkPythonHash->InstanceDict,obj))
-    {
-#ifdef VTKPYTHONDEBUG
-    vtkGenericWarningMacro("Attempt to add an object to the hash when one already exists!!!");
-#endif
-    return;
-    }
-
+  ((PyVTKObject *)obj)->ptr = (vtkObject *)ptr;
   PyObject *pyPtr = PyInt_FromLong((long)ptr);
-
-  PyDict_SetItem(vtkPythonHash->InstanceDict,obj,pyPtr);
   PyDict_SetItem(vtkPythonHash->PointerDict,pyPtr,obj);
-
   Py_DECREF(pyPtr);
 
 #ifdef VTKPYTHONDEBUG
-  vtkGenericWarningMacro("Added object to hash obj= " << obj << " " << ptr);
+  vtkGenericWarningMacro("Added object to hash obj= " << obj << " " 
+			 << ((PyVTKObject *)obj)->ptr);
+);
 #endif  
 }  
 
 //--------------------------------------------------------------------
 void vtkPythonDeleteObjectFromHash(PyObject *obj)
 {
-  PyObject *pyPtr = PyDict_GetItem(vtkPythonHash->InstanceDict,obj);
-
-  if (pyPtr == NULL)
-    {
-    PyErr_Clear();
 #ifdef VTKPYTHONDEBUG
-    vtkGenericWarningMacro("Attempt to delete an object that doesnt exist!!!");
+  vtkGenericWarningMacro("Deleting an object from hash obj = " << obj << " "
+			 << ((PyVTKObject *)obj)->ptr);
+);
 #endif  
-    return;
-    }
 
-  PyDict_DelItem(vtkPythonHash->InstanceDict,obj);
+  void *ptr = (void *)((PyVTKObject *)obj)->ptr;
+  PyObject *pyPtr = PyInt_FromLong((long)ptr);
   PyDict_DelItem(vtkPythonHash->PointerDict,pyPtr);
+  Py_DECREF(pyPtr);  
 }
 
 //--------------------------------------------------------------------
-PyObject *vtkPythonGetObjectFromPointer(void *ptr)
+PyObject *vtkPythonGetObjectFromPointer(vtkObject *ptr)
 {
 #ifdef VTKPYTHONDEBUG
   vtkGenericWarningMacro("Checking into pointer " << ptr);
@@ -190,23 +175,25 @@ PyObject *vtkPythonGetObjectFromPointer(void *ptr)
 }
 
 //--------------------------------------------------------------------
-void *vtkPythonGetPointerFromObject(PyObject *obj, char *result_type)
-{  
-  PyObject *pyPtr = PyDict_GetItem(vtkPythonHash->InstanceDict,obj);
-
-  if (!pyPtr)
+vtkObject *vtkPythonGetPointerFromObject(PyObject *obj, char *result_type)
+{ 
+  // if the type name is in the hash, it is a VTK object
+  if (!PyDict_GetItemString(vtkPythonHash->TypeDict,obj->ob_type->tp_name))
     {
-    PyErr_Clear();
+#ifdef VTKPYTHONDEBUG
+    vtkGenericWarningMacro("Object " << obj << " is not a VTK object!!");
+#endif  
+    PyErr_SetString(PyExc_ValueError,"method requires a VTK object");
     return NULL;
-    }
-  
-  void *ptr = (void *)PyInt_AsLong(pyPtr);
+    }   
+
+  vtkObject *ptr = ((PyVTKObject *)obj)->ptr;
 
 #ifdef VTKPYTHONDEBUG
   vtkGenericWarningMacro("Checking into obj " << obj << " ptr = " << ptr);
 #endif  
 
-  if (((vtkObject *)ptr)->IsA(result_type))
+  if (ptr->IsA(result_type))
     {
 #ifdef VTKPYTHONDEBUG
     vtkGenericWarningMacro("Got obj= " << obj << " ptr= " << ptr << " " << result_type);

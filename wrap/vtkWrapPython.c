@@ -202,7 +202,7 @@ void do_return(FILE *fp)
       fprintf(fp,"      if (temp%i == NULL)\n        {\n",MAX_ARGS);
       fprintf(fp,"        Py_INCREF(Py_None);\n");
       fprintf(fp,"        return Py_None;\n        }\n");
-      fprintf(fp,"      tempH = vtkPythonGetObjectFromPointer((void *)temp%i);\n",
+      fprintf(fp,"      tempH = vtkPythonGetObjectFromPointer((vtkObject *)temp%i);\n",
 	      MAX_ARGS);
       fprintf(fp,"      Py_INCREF(tempH);\n");
       fprintf(fp,"      return tempH;\n");
@@ -358,8 +358,8 @@ void outputFunction2(FILE *fp, FileInfo *data)
       
       /* get the object pointer */
       fprintf(fp,"  %s *op;\n",data->ClassName);
-      fprintf(fp,"  op = (%s *)vtkPythonGetPointerFromObject(self,\"%s\");\n\n",
-	      data->ClassName,data->ClassName);
+      fprintf(fp,"  op = (%s *)((PyVTKObject *)self)->ptr;\n\n",
+	      data->ClassName);
       
       /* find all occurances of this method */
       for (occ = fnum; occ < numberOfWrappedFunctions; occ++)
@@ -642,7 +642,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     fprintf(fp,"{\n  char *typecast;\n\n  PyErr_Clear();\n");
     fprintf(fp,"  if (PyArg_ParseTuple(args, \"s\", &typecast))\n");
     fprintf(fp,"    {\n    char temp20[256];\n");
-    fprintf(fp,"    sprintf(temp20,\"Addr=%%p\",vtkPythonGetPointerFromObject(self, typecast));\n");
+    fprintf(fp,"    sprintf(temp20,\"Addr=%%p\",((PyVTKObject *)self)->ptr);\n");
     fprintf(fp,"    return PyString_FromString(temp20);\n");
     fprintf(fp,"    }\n  return NULL;\n}\n\n");
     }
@@ -675,16 +675,14 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     if (!strcmp("vtkObject",data->ClassName))
       {
       fprintf(fp,"{\n  %s *op;\n  ostrstream buf;\n\n",data->ClassName);
-      fprintf(fp,"  op = (%s *)vtkPythonGetPointerFromObject(self,\"%s\");\n",
-	      data->ClassName,data->ClassName);
+      fprintf(fp,"  op = (%s *)((PyVTKObject *)self)->ptr;\n",data->ClassName);
       fprintf(fp,"  op->Print(buf);\n  buf.put('\\0');\n");
       fprintf(fp,"  fprintf(fp,\"%%s\",buf.str());\n");
       fprintf(fp,"  delete buf.str();\n  return 0;\n}\n\n");
 
       fprintf(fp,"PyObject *Py%s_PyRepr(PyObject *self)\n",data->ClassName);
       fprintf(fp,"{\n  %s *op;\n  PyObject *tempH;\n  ostrstream buf;\n\n",data->ClassName);
-      fprintf(fp,"  op = (%s *)vtkPythonGetPointerFromObject(self,\"%s\");\n",
-	      data->ClassName,data->ClassName);
+      fprintf(fp,"  op = (%s *)((PyVTKObject *)self)->ptr;\n",data->ClassName);
       fprintf(fp,"  op->Print(buf);\n  buf.put('\\0');\n");
       fprintf(fp,"  tempH = PyString_FromString(buf.str());\n");
       fprintf(fp,"  delete buf.str();\n  return tempH;\n}\n\n");
@@ -702,8 +700,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
 
   fprintf(fp,"static void Py%s_PyDelete(PyObject *self)\n",data->ClassName);
   fprintf(fp,"{\n  %s *op;\n",data->ClassName);
-  fprintf(fp,"  op = (%s *)vtkPythonGetPointerFromObject(self,\"%s\");\n",
-	  data->ClassName,data->ClassName);
+  fprintf(fp,"  op = (%s *)((PyVTKObject *)self)->ptr;\n",data->ClassName);
   fprintf(fp,"  vtkPythonDeleteObjectFromHash(self);\n");
   fprintf(fp,"  op->Delete();\n");
   fprintf(fp,"  PyMem_DEL(self);\n}\n\n");
@@ -720,7 +717,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
   fprintf(fp,"  return result;\n}\n\n");
 	
   fprintf(fp,"PyTypeObject Py%sType = {\n",data->ClassName);
-  fprintf(fp,"  PyObject_HEAD_INIT(NULL)\n  0,\n  \"%s\",sizeof(PyObject),\n  0,\n",
+  fprintf(fp,"  PyObject_HEAD_INIT(NULL)\n  0,\n  \"%s\",sizeof(PyVTKObject),\n  0,\n",
 	  data->ClassName);
   fprintf(fp,"  (destructor)Py%s_PyDelete,\n  	(printfunc)Py%s_PyPrint,\n",data->ClassName, data->ClassName);
   fprintf(fp,"  (getattrfunc)Py%s_PyGetAttr,\n  0, 0, (reprfunc)Py%s_PyRepr, 0, 0, 0,\n};\n\n",
@@ -733,14 +730,14 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
   if (data->NumberOfSuperClasses == 0 &&
       strcmp(data->ClassName,"vtkObject") != 0) 
     {
-    fprintf(fp,"  PyErr_SetString(PyExc_RuntimeError,\"The %s is not derived from vtkObject and is therefore not available through Python\");\n  obj = 0;\n\n",data->ClassName);
+    fprintf(fp,"  PyErr_SetString(PyExc_RuntimeError,\"%s is not derived from vtkObject, and not available from Python.\");\n  obj = 0;\n\n",data->ClassName);
     }
   else
     {
     fprintf(fp,"  if ((obj = PyObject_NEW(PyObject, &Py%sType)) == NULL)\n",
 	    data->ClassName);
     fprintf(fp,"    return NULL;\n\n");
-    fprintf(fp,"  vtkPythonAddObjectToHash(obj,(void *)(%s::New()));\n",
+    fprintf(fp,"  vtkPythonAddObjectToHash(obj,%s::New());\n",
 	    data->ClassName);
     }
   fprintf(fp,"  return obj;\n}\n\n");	

@@ -43,10 +43,15 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkTimeStamp.h"
 #include "Python.h"
 
+typedef struct {
+  PyObject_HEAD
+  vtkObject *ptr;
+} PyVTKObject;
+
 extern void vtkPythonAddTypeToHash(PyTypeObject *typeObject, char *type); 
-extern void *vtkPythonGetPointerFromObject(PyObject *obj, char *type);
-extern PyObject *vtkPythonGetObjectFromPointer(void *ptr);
-extern void vtkPythonAddObjectToHash(PyObject *obj, void *anInstance);
+extern vtkObject *vtkPythonGetPointerFromObject(PyObject *obj, char *type);
+extern PyObject *vtkPythonGetObjectFromPointer(vtkObject *ptr);
+extern void vtkPythonAddObjectToHash(PyObject *obj, vtkObject *anInstance);
 extern void vtkPythonDeleteObjectFromHash(PyObject *obj);
 
 extern char *vtkPythonManglePointer(void *ptr, const char *type);
@@ -55,5 +60,3 @@ extern void *vtkPythonUnmanglePointer(char *ptrText, int *len,
 
 extern void vtkPythonVoidFunc(void *);
 extern void vtkPythonVoidFuncArgDelete(void *);
-
-
