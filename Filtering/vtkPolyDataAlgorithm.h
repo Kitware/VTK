@@ -76,16 +76,25 @@ protected:
   ~vtkPolyDataAlgorithm();
 
   // convinience method
-  virtual void ExecuteInformation(vtkInformation *request, 
-                                  vtkInformationVector *inputVector, 
-                                  vtkInformationVector *outputVector);
+  virtual int ExecuteInformation(vtkInformation *request, 
+                                 vtkInformationVector *inputVector, 
+                                 vtkInformationVector *outputVector);
 
   // This is called by the superclass.
   // This is the method you should override.
-  virtual void RequestData(vtkInformation *request, 
-                           vtkInformationVector *inputVector, 
-                           vtkInformationVector *outputVector);
+  virtual int RequestData(vtkInformation *request, 
+                          vtkInformationVector *inputVector, 
+                          vtkInformationVector *outputVector);
   
+  // This is called by the superclass.
+  // This is the method you should override.
+  virtual int ComputeInputUpdateExtent(vtkInformation* request,
+                                       vtkInformationVector* inputVector,
+                                       vtkInformationVector* outputVector) 
+    {
+      return 1;
+    };
+
   // Description:
   // This detects when the UpdateExtent will generate no data.
   // This condition is satisfied when the UpdateExtent has 

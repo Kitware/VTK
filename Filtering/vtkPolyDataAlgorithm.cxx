@@ -22,7 +22,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTrivialProducer.h"
 
-vtkCxxRevisionMacro(vtkPolyDataAlgorithm, "1.2");
+vtkCxxRevisionMacro(vtkPolyDataAlgorithm, "1.3");
 vtkStandardNewMacro(vtkPolyDataAlgorithm);
 
 //----------------------------------------------------------------------------
@@ -89,7 +89,7 @@ int vtkPolyDataAlgorithm::ProcessRequest(vtkInformation* request,
     this->AbortExecute = 0;
     this->Progress = 0.0;
 
-    this->RequestData(request, inputVector, outputVector);
+    int retVal = this->RequestData(request, inputVector, outputVector);
 
     if(!this->AbortExecute)
       {
@@ -100,19 +100,24 @@ int vtkPolyDataAlgorithm::ProcessRequest(vtkInformation* request,
     // Mark the data as up-to-date. I think this should be done in the
     // executive
     output->DataHasBeenGenerated();
-    return 1;
+    return retVal;
+    }
+
+  if(request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
+    {
+    return this->ComputeInputUpdateExtent(request, inputVector, outputVector);
     }
 
   // execute information
   if(request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
     {
-    this->ExecuteInformation(request, inputVector, outputVector);
-    return 1;
+    return this->ExecuteInformation(request, inputVector, outputVector);
     }
 
   return this->Superclass::ProcessRequest(request, inputVector, outputVector);
 }
 
+//----------------------------------------------------------------------------
 int vtkPolyDataAlgorithm::FillOutputPortInformation(
   int vtkNotUsed(port), vtkInformation* info)
 {
@@ -121,6 +126,7 @@ int vtkPolyDataAlgorithm::FillOutputPortInformation(
   return 1;
 }
 
+//----------------------------------------------------------------------------
 int vtkPolyDataAlgorithm::FillInputPortInformation(
   int vtkNotUsed(port), vtkInformation* info)
 {
@@ -128,18 +134,20 @@ int vtkPolyDataAlgorithm::FillInputPortInformation(
   return 1;
 }
 
-void vtkPolyDataAlgorithm::ExecuteInformation(
+//----------------------------------------------------------------------------
+int vtkPolyDataAlgorithm::ExecuteInformation(
   vtkInformation * vtkNotUsed(request),
   vtkInformationVector * vtkNotUsed(inputVector), 
   vtkInformationVector * vtkNotUsed(outputVector))
 {
   // do nothing let subclasses handle it
+  return 1;
 }
 
 //----------------------------------------------------------------------------
 // This is the superclasses style of Execute method.  Convert it into
 // an imaging style Execute method.
-void vtkPolyDataAlgorithm::RequestData(
+int vtkPolyDataAlgorithm::RequestData(
   vtkInformation *request, 
   vtkInformationVector * vtkNotUsed( inputVector ), 
   vtkInformationVector *outputVector)
@@ -163,6 +171,8 @@ void vtkPolyDataAlgorithm::RequestData(
     outputVector->GetInformationObject(outputPort);
   // call ExecuteData
   this->ExecuteData( outInfo->Get(vtkDataObject::DATA_OBJECT()) );
+
+  return 1;
 }
 
 //----------------------------------------------------------------------------
