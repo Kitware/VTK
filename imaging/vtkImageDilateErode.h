@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageFourierBandPass2D.h
+  Module:    vtkImageDilateErode.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -38,40 +38,47 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageFourierBandPass2D - Simple frequency domain band pass.
+// .NAME vtkImageDilateErode - Dilates one value and erodes another.
 // .SECTION Description
-// vtkImageFourierBandPass2D just sets a portion of the image to zero.
-// Input and Output must be floats.
+// vtkImageDilateErode will dilate one value and erode another.
+// It uses an eliptical foot print, and only erodes/dilates on the
+// boundary of the two values.
 
 
+#ifndef __vtkImageDilateErode_h
+#define __vtkImageDilateErode_h
 
-#ifndef __vtkImageFourierBandPass2D_h
-#define __vtkImageFourierBandPass2D_h
 
+#include "vtkImageSpatialFilter.h"
 
-#include "vtkImageFilter.h"
-
-class vtkImageFourierBandPass2D : public vtkImageFilter
+class vtkImageDilateErode : public vtkImageSpatialFilter
 {
 public:
-  vtkImageFourierBandPass2D();
-  char *GetClassName() {return "vtkImageFourierBandPass2D";};
-
-  void SetAxes(int axis0, int axis1);
-  void InterceptCacheUpdate(vtkImageRegion *region);
+  vtkImageDilateErode();
+  char *GetClassName() {return "vtkImageDilateErode";};
+  void PrintSelf(ostream& os, vtkIndent indent);
+  
+  // Set/Get the size of the neighood.
+  void SetKernelSize(int num, int *size);
+  vtkImageSetMacro(KernelSize,int);
   
   // Description:
-  // Set/Get the band to pass. (0->1)
-  vtkSetMacro(LowPass, float);
-  vtkGetMacro(LowPass, float);
-  vtkSetMacro(HighPass, float);
-  vtkGetMacro(HighPass, float);
-  
+  // Set/Get the value to dilate/erode
+  vtkSetMacro(DilateValue, float);
+  vtkGetMacro(DilateValue, float);
+  vtkSetMacro(ErodeValue, float);
+  vtkGetMacro(ErodeValue, float);
+
+  // Description:
+  // Get the Mask used as a footprint.
+  vtkGetObjectMacro(Mask, vtkImageRegion);
   
 protected:
-  float LowPass;
-  float HighPass;
-  
+  float DilateValue;
+  float ErodeValue;
+  vtkImageRegion *Mask;
+    
+  void ExecuteCenter(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
   void Execute(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
 };
 

@@ -112,7 +112,7 @@ void vtkImageFFT1D::InterceptCacheUpdate(vtkImageRegion *region)
     vtkErrorMacro(<< "Only two channels to request 0 and 1");
     }
   
-  region->SetExtent(1, 0);
+  region->SetExtent(0, 1);
 }
 
 //----------------------------------------------------------------------------

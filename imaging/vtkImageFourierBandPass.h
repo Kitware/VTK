@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageDilateErode3D.h
+  Module:    vtkImageFourierBandPass.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -38,46 +38,52 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageDilateErode3D - Dilates one value and erodes another.
+// .NAME vtkImageFourierBandPass - Simple frequency domain band pass.
 // .SECTION Description
-// vtkImageDilateErode3D will dilate one value and erode another.
-// It uses an box foot print, and only erodes/dilates on the
-// boundary of the two values.
+// vtkImageFourierBandPass just sets a portion of the image to zero.
+// Input and Output must be floats.  Dimensionality is set when the
+// axes are set.  Defaults to 2D on X and Y axes.
 
 
-#ifndef __vtkImageDilateErode3D_h
-#define __vtkImageDilateErode3D_h
+
+#ifndef __vtkImageFourierBandPass_h
+#define __vtkImageFourierBandPass_h
 
 
-#include "vtkImageSpatialFilter.h"
+#include "vtkImageFilter.h"
 
-class vtkImageDilateErode3D : public vtkImageSpatialFilter
+class vtkImageFourierBandPass : public vtkImageFilter
 {
 public:
-  vtkImageDilateErode3D();
-  char *GetClassName() {return "vtkImageDilateErode3D";};
-  void PrintSelf(ostream& os, vtkIndent indent);
-  
-  void SetKernelSize(int size){this->SetKernelSize(size,size,size);};
-  void SetKernelSize(int size0, int size1, int size2);
-  
-  // Description:
-  // Set/Get the value to dilate/erode
-  vtkSetMacro(DilateValue, float);
-  vtkGetMacro(DilateValue, float);
-  vtkSetMacro(ErodeValue, float);
-  vtkGetMacro(ErodeValue, float);
+  vtkImageFourierBandPass();
+  char *GetClassName() {return "vtkImageFourierBandPass";};
 
   // Description:
-  // Get the Mask used as a footprint.
-  vtkGetObjectMacro(Mask, vtkImageRegion);
+  // Setting the Axes specifies the dimensionality of the bandpass.
+  // ComponentAxis should not be included.  It is taken care of by this
+  // filter already.
+  void SetAxes(int num, int *axes);
+  vtkImageSetMacro(Axes,int);
+  
+  void InterceptCacheUpdate(vtkImageRegion *region);
+  
+  // Description:
+  // Set/Get the band to pass for each axis.
+  // The components axis is ignored as if it does not exist.
+  // Units: Cyles per world unit (as defined by aspect ratio)
+  void SetLowPass(int num, float *lowPass);
+  vtkImageSetMacro(LowPass, float);
+  void GetLowPass(int num, float *lowPass);
+  vtkImageGetMacro(LowPass, float);
+  void SetHighPass(int num, float *highPass);
+  vtkImageSetMacro(HighPass, float);
+  void GetHighPass(int num, float *highPass);
+  vtkImageGetMacro(HighPass, float);
   
 protected:
-  float DilateValue;
-  float ErodeValue;
-  vtkImageRegion *Mask;
-    
-  void ExecuteCenter(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
+  float LowPass[VTK_IMAGE_DIMENSIONS];
+  float HighPass[VTK_IMAGE_DIMENSIONS];
+  
   void Execute(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
 };
 

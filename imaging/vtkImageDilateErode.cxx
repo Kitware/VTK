@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageDilateErode3D.cxx
+  Module:    vtkImageDilateErode.cxx
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -38,14 +38,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkImageDilateErode3D.h"
+#include "vtkImageDilateErode.h"
 
 
 //----------------------------------------------------------------------------
 // Description:
-// Construct an instance of vtkImageDilateErode3D fitler.
+// Construct an instance of vtkImageDilateErode fitler.
 // By default zero values are dilated.
-vtkImageDilateErode3D::vtkImageDilateErode3D()
+vtkImageDilateErode::vtkImageDilateErode()
 {
   this->DilateValue = 0.0;
   this->ErodeValue = 255.0;
@@ -56,7 +56,7 @@ vtkImageDilateErode3D::vtkImageDilateErode3D()
 
 
 //----------------------------------------------------------------------------
-void vtkImageDilateErode3D::PrintSelf(ostream& os, vtkIndent indent)
+void vtkImageDilateErode::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkImageSpatialFilter::PrintSelf(os,indent);
   os << indent << "Dilate Value: " << this->DilateValue << "\n";
@@ -67,28 +67,26 @@ void vtkImageDilateErode3D::PrintSelf(ostream& os, vtkIndent indent)
 
 //----------------------------------------------------------------------------
 // Description:
-// This method sets the size of the 3d neighborhood.  It also sets the 
-// default mask/footprint (an elipse).
-void 
-vtkImageDilateErode3D::SetKernelSize(int size0, int size1, int size2)
+// This method sets the size of the neighborhood.  It also sets the 
+// default middle of the neighborhood and computes the eliptical foot print.
+void vtkImageDilateErode::SetKernelSize(int num, int *size)
 {
-  unsigned char *ptr0, *ptr1, *ptr2;
+  int idx;
+  double f0, f1, f2;
+  double radius0, radius1, radius2;
   int inc0, inc1, inc2;
   int idx0, idx1, idx2;
-  double f0, f1, f2, radius0, radius1, radius2;
+  unsigned char *ptr0, *ptr1, *ptr2;
   
   
-  this->Modified();
+  // Set the kernel size and middle
+  for (idx = 0; idx < num; ++idx)
+    {
+    this->KernelSize[idx] = size[idx];
+    this->KernelMiddle[idx] = size[idx] / 2;
+    }
   
-  this->KernelSize[0] = size0;
-  this->KernelSize[1] = size1;
-  this->KernelSize[2] = size2;
-
-  this->KernelMiddle[0] = size0 / 2;
-  this->KernelMiddle[1] = size1 / 2;
-  this->KernelMiddle[2] = size2 / 2;
-  
-  // Create the eliptical mask
+  // create the eliptical mask
   if (this->Mask)
     {
     this->Mask->Delete();
@@ -96,7 +94,9 @@ vtkImageDilateErode3D::SetKernelSize(int size0, int size1, int size2)
   this->Mask = new vtkImageRegion;
   this->Mask->SetScalarType(VTK_UNSIGNED_CHAR);
   this->Mask->SetAxes(this->GetAxes());
-  this->Mask->SetExtent(0, size0-1, 0, size1-1, 0, size2-1);
+  this->Mask->SetExtent(0, this->KernelSize[0]-1, 
+			0, this->KernelSize[1]-1, 
+			0, this->KernelSize[2]-1);
   this->Mask->AllocateScalars();
   if ( ! this->Mask->AreScalarsAllocated())
     {
@@ -106,19 +106,19 @@ vtkImageDilateErode3D::SetKernelSize(int size0, int size1, int size2)
     return;
     }
 
-  radius0 = (double)(size0) / 2.0;
-  radius1 = (double)(size1) / 2.0;
-  radius2 = (double)(size2) / 2.0;
+  radius0 = (double)(this->KernelSize[0]) / 2.0;
+  radius1 = (double)(this->KernelSize[1]) / 2.0;
+  radius2 = (double)(this->KernelSize[2]) / 2.0;
 
   this->Mask->GetIncrements(inc0, inc1, inc2);
   ptr2 = (unsigned char *)(this->Mask->GetScalarPointer());
-  for (idx2 = 0; idx2 < size2; ++idx2)
+  for (idx2 = 0; idx2 < this->KernelSize[2]; ++idx2)
     {
     ptr1 = ptr2;
-    for (idx1 = 0; idx1 < size1; ++idx1)
+    for (idx1 = 0; idx1 < this->KernelSize[1]; ++idx1)
       {
       ptr0 = ptr1;
-      for (idx0 = 0; idx0 < size0; ++idx0)
+      for (idx0 = 0; idx0 < this->KernelSize[0]; ++idx0)
 	{
 	// convert xyz to values in the range of [-1,1]
 	f0 = ((double)(idx0) - radius0 + 0.5) / (radius0);
@@ -140,7 +140,7 @@ vtkImageDilateErode3D::SetKernelSize(int size0, int size1, int size2)
       }
     ptr2 += inc2;
     }
-    this->Modified ();
+    this->Modified();
 }
 
 
@@ -151,7 +151,7 @@ vtkImageDilateErode3D::SetKernelSize(int size0, int size1, int size2)
 // If the filter needs to be faster, the function could be duplicated
 // for strictly center (no boundary ) processing.
 template <class T>
-void vtkImageDilateErode3DExecute(vtkImageDilateErode3D *self,
+void vtkImageDilateErodeExecute(vtkImageDilateErode *self,
 					vtkImageRegion *inRegion, T *inPtr, 
 					vtkImageRegion *outRegion, T *outPtr,
 					int boundaryFlag)
@@ -282,7 +282,7 @@ void vtkImageDilateErode3DExecute(vtkImageDilateErode3D *self,
 // templated function for the input and output region types.
 // This function deals with regions that are in the center of the image and 
 // need no boundary checking.
-void vtkImageDilateErode3D::ExecuteCenter(vtkImageRegion *inRegion, 
+void vtkImageDilateErode::ExecuteCenter(vtkImageRegion *inRegion, 
 					  vtkImageRegion *outRegion)
 {
   void *inPtr = inRegion->GetScalarPointer();
@@ -309,27 +309,27 @@ void vtkImageDilateErode3D::ExecuteCenter(vtkImageRegion *inRegion,
   switch (inRegion->GetScalarType())
     {
     case VTK_FLOAT:
-      vtkImageDilateErode3DExecute(this, 
+      vtkImageDilateErodeExecute(this, 
 			  inRegion, (float *)(inPtr), 
 			  outRegion, (float *)(outPtr), 0);
       break;
     case VTK_INT:
-      vtkImageDilateErode3DExecute(this, 
+      vtkImageDilateErodeExecute(this, 
 			  inRegion, (int *)(inPtr), 
 			  outRegion, (int *)(outPtr), 0);
       break;
     case VTK_SHORT:
-      vtkImageDilateErode3DExecute(this, 
+      vtkImageDilateErodeExecute(this, 
 			  inRegion, (short *)(inPtr), 
 			  outRegion, (short *)(outPtr), 0);
       break;
     case VTK_UNSIGNED_SHORT:
-      vtkImageDilateErode3DExecute(this, 
+      vtkImageDilateErodeExecute(this, 
 			  inRegion, (unsigned short *)(inPtr), 
 			  outRegion, (unsigned short *)(outPtr), 0);
       break;
     case VTK_UNSIGNED_CHAR:
-      vtkImageDilateErode3DExecute(this, 
+      vtkImageDilateErodeExecute(this, 
 			  inRegion, (unsigned char *)(inPtr), 
 			  outRegion, (unsigned char *)(outPtr), 0);
       break;
@@ -345,7 +345,7 @@ void vtkImageDilateErode3D::ExecuteCenter(vtkImageRegion *inRegion,
 // This method contains the first switch statement that calls the correct
 // templated function for the input and output region types.
 // It hanldes image boundaries, so the image does not shrink.
-void vtkImageDilateErode3D::Execute(vtkImageRegion *inRegion, 
+void vtkImageDilateErode::Execute(vtkImageRegion *inRegion, 
 					    vtkImageRegion *outRegion)
 {
   void *inPtr = inRegion->GetScalarPointer();
@@ -372,27 +372,27 @@ void vtkImageDilateErode3D::Execute(vtkImageRegion *inRegion,
   switch (inRegion->GetScalarType())
     {
     case VTK_FLOAT:
-      vtkImageDilateErode3DExecute(this, 
+      vtkImageDilateErodeExecute(this, 
 			  inRegion, (float *)(inPtr), 
 			  outRegion, (float *)(outPtr), 1);
       break;
     case VTK_INT:
-      vtkImageDilateErode3DExecute(this, 
+      vtkImageDilateErodeExecute(this, 
 			  inRegion, (int *)(inPtr), 
 			  outRegion, (int *)(outPtr), 1);
       break;
     case VTK_SHORT:
-      vtkImageDilateErode3DExecute(this, 
+      vtkImageDilateErodeExecute(this, 
 			  inRegion, (short *)(inPtr), 
 			  outRegion, (short *)(outPtr), 1);
       break;
     case VTK_UNSIGNED_SHORT:
-      vtkImageDilateErode3DExecute(this, 
+      vtkImageDilateErodeExecute(this, 
 			  inRegion, (unsigned short *)(inPtr), 
 			  outRegion, (unsigned short *)(outPtr), 1);
       break;
     case VTK_UNSIGNED_CHAR:
-      vtkImageDilateErode3DExecute(this, 
+      vtkImageDilateErodeExecute(this, 
 			  inRegion, (unsigned char *)(inPtr), 
 			  outRegion, (unsigned char *)(outPtr), 1);
       break;

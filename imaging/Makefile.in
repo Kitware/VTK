@@ -19,14 +19,14 @@ vtkImageConnectivity.o \
 vtkImageConvolution1D.o \
 vtkImageDecomposedFilter.o \
 vtkImageDilate1D.o \
-vtkImageDilateErode3D.o \
+vtkImageDilateErode.o \
 vtkImageDistance1D.o \
 vtkImageDistance.o \
 vtkImageDyadicFilter.o \
 vtkImageFFT.o \
 vtkImageFFT1D.o \
 vtkImageFilter.o \
-vtkImageFourierBandPass2D.o \
+vtkImageFourierBandPass.o \
 vtkImageFourierFilter.o \
 vtkImageFourierWavelet2D.o \
 vtkImageGaussianSmooth.o \
@@ -64,14 +64,14 @@ tcl/vtkImageConnectivityTcl.o \
 tcl/vtkImageConvolution1DTcl.o \
 tcl/vtkImageDecomposedFilterTcl.o \
 tcl/vtkImageDilate1DTcl.o \
-tcl/vtkImageDilateErode3DTcl.o \
+tcl/vtkImageDilateErodeTcl.o \
 tcl/vtkImageDistance1DTcl.o \
 tcl/vtkImageDistanceTcl.o \
 tcl/vtkImageDyadicFilterTcl.o \
 tcl/vtkImageFFTTcl.o \
 tcl/vtkImageFFT1DTcl.o \
 tcl/vtkImageFilterTcl.o \
-tcl/vtkImageFourierBandPass2DTcl.o \
+tcl/vtkImageFourierBandPassTcl.o \
 tcl/vtkImageFourierFilterTcl.o \
 tcl/vtkImageFourierWavelet2DTcl.o \
 tcl/vtkImageGaussianSmoothTcl.o \
@@ -107,14 +107,14 @@ vtkImageArithmetic.h \
 vtkImageConnectivity.h \
 vtkImageConvolution1D.h \
 vtkImageDilate1D.h \
-vtkImageDilateErode3D.h \
+vtkImageDilateErode.h \
 vtkImageDistance1D.h \
 vtkImageDistance.h \
 vtkImageDyadicFilter.h \
 vtkImageFFT.h \
 vtkImageFFT1D.h \
 vtkImageFilter.h \
-vtkImageFourierBandPass2D.h \
+vtkImageFourierBandPass.h \
 vtkImageFourierFilter.h \
 vtkImageFourierWavelet2D.h \
 vtkImageGaussianSmooth.h \
@@ -220,8 +220,8 @@ tcl/vtkImageDecomposedFilterTcl.cxx: vtkImageDecomposedFilter.h ../tcl/cpp_parse
 tcl/vtkImageDilate1DTcl.cxx: vtkImageDilate1D.h ../tcl/cpp_parse
 	 rm -f tcl/vtkImageDilate1DTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageDilate1D.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageDilate1DTcl.cxx
 
-tcl/vtkImageDilateErode3DTcl.cxx: vtkImageDilateErode3D.h ../tcl/cpp_parse
-	 rm -f tcl/vtkImageDilateErode3DTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageDilateErode3D.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageDilateErode3DTcl.cxx
+tcl/vtkImageDilateErodeTcl.cxx: vtkImageDilateErode.h ../tcl/cpp_parse
+	 rm -f tcl/vtkImageDilateErodeTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageDilateErode.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageDilateErodeTcl.cxx
 
 tcl/vtkImageDistance1DTcl.cxx: vtkImageDistance1D.h ../tcl/cpp_parse
 	 rm -f tcl/vtkImageDistance1DTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageDistance1D.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageDistance1DTcl.cxx
@@ -241,8 +241,8 @@ tcl/vtkImageFFT1DTcl.cxx: vtkImageFFT1D.h ../tcl/cpp_parse
 tcl/vtkImageFilterTcl.cxx: vtkImageFilter.h ../tcl/cpp_parse
 	 rm -f tcl/vtkImageFilterTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageFilter.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageFilterTcl.cxx
 
-tcl/vtkImageFourierBandPass2DTcl.cxx: vtkImageFourierBandPass2D.h ../tcl/cpp_parse
-	 rm -f tcl/vtkImageFourierBandPass2DTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageFourierBandPass2D.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageFourierBandPass2DTcl.cxx
+tcl/vtkImageFourierBandPassTcl.cxx: vtkImageFourierBandPass.h ../tcl/cpp_parse
+	 rm -f tcl/vtkImageFourierBandPassTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageFourierBandPass.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageFourierBandPassTcl.cxx
 
 tcl/vtkImageFourierFilterTcl.cxx: vtkImageFourierFilter.h ../tcl/cpp_parse
 	 rm -f tcl/vtkImageFourierFilterTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageFourierFilter.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageFourierFilterTcl.cxx
