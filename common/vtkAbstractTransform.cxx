@@ -147,7 +147,7 @@ void vtkAbstractTransform::TransformPointsNormalsVectors(vtkPoints *inPts,
 //----------------------------------------------------------------------------
 vtkAbstractTransform *vtkAbstractTransform::GetInverse()
 {
-  this->InverseMutex->Unlock();
+  this->InverseMutex->Lock();
   if (this->MyInverse == NULL)
     {
     // we create a circular reference here, it is dealt with in UnRegister
