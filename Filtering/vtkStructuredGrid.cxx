@@ -28,7 +28,7 @@
 #include "vtkQuad.h"
 #include "vtkVertex.h"
 
-vtkCxxRevisionMacro(vtkStructuredGrid, "1.1");
+vtkCxxRevisionMacro(vtkStructuredGrid, "1.2");
 vtkStandardNewMacro(vtkStructuredGrid);
 
 vtkCxxSetObjectMacro(vtkStructuredGrid,
@@ -97,7 +97,12 @@ void vtkStructuredGrid::CopyStructure(vtkDataSet *ds)
 
   this->DataDescription = sg->DataDescription;
 
+  this->PointVisibility->Delete();
+  this->PointVisibility = vtkStructuredVisibilityConstraint::New();
   this->PointVisibility->ShallowCopy(sg->PointVisibility);
+
+  this->CellVisibility->Delete();
+  this->CellVisibility = vtkStructuredVisibilityConstraint::New();
   this->CellVisibility->ShallowCopy(sg->CellVisibility);
 }
 

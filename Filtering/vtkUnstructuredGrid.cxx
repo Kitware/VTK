@@ -49,7 +49,7 @@
 #include "vtkVoxel.h"
 #include "vtkWedge.h"
 
-vtkCxxRevisionMacro(vtkUnstructuredGrid, "1.1");
+vtkCxxRevisionMacro(vtkUnstructuredGrid, "1.2");
 vtkStandardNewMacro(vtkUnstructuredGrid);
 
 vtkUnstructuredGrid::vtkUnstructuredGrid ()
@@ -188,29 +188,64 @@ void vtkUnstructuredGrid::CopyStructure(vtkDataSet *ds)
   vtkUnstructuredGrid *ug=(vtkUnstructuredGrid *)ds;
   vtkPointSet::CopyStructure(ds);
 
-  this->Connectivity = ug->Connectivity;
-  if (this->Connectivity)
+  if (this->Connectivity != ug->Connectivity)
     {
-    this->Connectivity->Register(this);
+    if ( this->Connectivity )
+      {
+      this->Connectivity->UnRegister(this);
+      }
+    this->Connectivity = ug->Connectivity;
+    if (this->Connectivity)
+      {
+      this->Connectivity->Register(this);
+      }
     }
 
-  this->Links = ug->Links;
-  if (this->Links)
+  if (this->Links != ug->Links)
     {
-    this->Links->Register(this);
+    if ( this->Links )
+      {
+      this->Links->UnRegister(this);
+      }
+    this->Links = ug->Links;
+    if (this->Links)
+      {
+      this->Links->Register(this);
+      }
     }
 
-  this->Types = ug->Types;
-  if (this->Types)
+  if (this->Types != ug->Types)
     {
-    this->Types->Register(this);
+    if ( this->Types )
+      {
+      this->Types->UnRegister(this);
+      }
+    this->Types = ug->Types;
+    if (this->Types)
+      {
+      this->Types->Register(this);
+      }
     }
 
-  this->Locations = ug->Locations;
-  if (this->Locations)
+  if (this->Locations != ug->Locations)
     {
-    this->Locations->Register(this);
+    if ( this->Locations )
+      {
+      this->Locations->UnRegister(this);
+      }
+    this->Locations = ug->Locations;
+    if (this->Locations)
+      {
+      this->Locations->Register(this);
+      }
     }
+
+  // Reset this information to mantain the functionality that was present when
+  // CopyStructure called Initialize, which incorrectly wiped out attribute
+  // data.  Someone MIGHT argue that this isn't the right thing to do.
+  this->Information->Set(vtkDataObject::DATA_PIECE_NUMBER(), -1);
+  this->Information->Set(vtkDataObject::DATA_NUMBER_OF_PIECES(), 0);
+  this->Information->Set(vtkDataObject::DATA_NUMBER_OF_GHOST_LEVELS(), 0);
 }
 
 void vtkUnstructuredGrid::Initialize()
