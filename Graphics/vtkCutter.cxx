@@ -24,7 +24,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCutter, "1.66");
+vtkCxxRevisionMacro(vtkCutter, "1.66.8.1");
 vtkStandardNewMacro(vtkCutter);
 
 // Construct with user-specified implicit function; initial value of 0.0; and
@@ -111,7 +111,6 @@ void vtkCutter::Execute()
 
   if ( numPts < 1 )
     {
-    vtkErrorMacro(<<"No data to cut");
     return;
     }
 

@@ -25,7 +25,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPolyLine.h"
 
-vtkCxxRevisionMacro(vtkStreamTracer, "1.9");
+vtkCxxRevisionMacro(vtkStreamTracer, "1.9.4.1");
 vtkStandardNewMacro(vtkStreamTracer);
 
 const float vtkStreamTracer::EPSILON = 1.0E-12;
@@ -541,7 +541,6 @@ void vtkStreamTracer::Integrate(vtkDataArray* seedSource, vtkIdList* seedIds)
     seedSource->GetTuple(seedIds->GetId(currentLine), point1);
     if (!func->FunctionValues(point1, velocity))
       {
-      vtkWarningMacro("The initial position is not in the input data set.");
       continue;
       }
 
