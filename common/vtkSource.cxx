@@ -234,8 +234,12 @@ void vtkSource::RemoveOutput(vtkDataObject *output)
 
 //----------------------------------------------------------------------------
 // Set an Output of this filter. 
-void vtkSource::SetOutput(int idx, vtkDataObject *output)
+// tricky because we have to manage the double pointers and keep
+// them consistent.
+void vtkSource::SetOutput(int idx, vtkDataObject *newOutput)
 {
+  vtkDataObject *oldOutput;
+  
   if (idx < 0)
     {
     vtkErrorMacro(<< "SetOutput: " << idx << ", cannot set output. ");
@@ -248,26 +252,37 @@ void vtkSource::SetOutput(int idx, vtkDataObject *output)
     }
   
   // does this change anything?
-  if (output == this->Outputs[idx])
+  oldOutput = this->Outputs[idx];
+  if (newOutput == oldOutput)
     {
     return;
     }
   
-  if (this->Outputs[idx])
+  // disconnect first existing source-output relationship.
+  if (oldOutput)
     {
-    this->Outputs[idx]->SetSource(NULL);
-    this->Outputs[idx]->UnRegister(this);
+    oldOutput->SetSource(NULL);
+    oldOutput->UnRegister(this);
     this->Outputs[idx] = NULL;
     }
   
-  if (output)
+  if (newOutput)
     {
-    output->SetSource(this);
-    output->Register(this);
-    }
+    vtkSource *newOutputOldSource = newOutput->GetSource();
 
-  this->Outputs[idx] = output;
-  this->Modified();
+    // Register the newOutput so it does not get deleted.
+    // Don't set the link yet until previous links is disconnected.
+    newOutput->Register(this);
+    
+    // disconnect second existing source-output relationship
+    if (newOutputOldSource)
+      {
+      newOutputOldSource->RemoveOutput(newOutput);
+      }
+    newOutput->SetSource(this);
+    }
+  // now actually make the link that was registered previously.
+  this->Outputs[idx] = newOutput;
 }
 
 //----------------------------------------------------------------------------
