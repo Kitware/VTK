@@ -54,6 +54,7 @@ IF (VTK_USE_RENDERING)
       extractUGrid
       ExtractTensors
       extractVectors
+      fieldToSGrid
       geomFilter
       glyph2D
       hull
