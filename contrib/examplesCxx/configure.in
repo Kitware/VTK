@@ -25,7 +25,9 @@ AC_ARG_WITH(patented,
 
 AC_ARG_WITH(shared,
          [  --with-shared               create shared libraries],
-         [vtk_shared_ok=$withval], [vtk_shared_ok=no])
+         [vtk_shared_ok=$withval],
+	VTK_LIB_FILE="${VTK_LIB_FILE} ${VTK_LIB_FILE}"
+	vtk_shared_ok=no)
 
 AC_SUBST(VTK_LIB_FILE)
 

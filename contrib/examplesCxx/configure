@@ -559,7 +559,8 @@ if test "${with_shared+set}" = set; then
   withval="$with_shared"
   vtk_shared_ok=$withval
 else
-  vtk_shared_ok=no
+  VTK_LIB_FILE="${VTK_LIB_FILE} ${VTK_LIB_FILE}"
+	vtk_shared_ok=no
 fi
 
 
