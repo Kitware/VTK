@@ -27,7 +27,7 @@
 
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.61");
+vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.62");
 vtkStandardNewMacro(vtkGenericEnSightReader);
 
 vtkCxxSetObjectMacro(vtkGenericEnSightReader,TimeSets, 
@@ -759,7 +759,7 @@ void vtkGenericEnSightReader::ExecuteInformation()
 }
 
 //----------------------------------------------------------------------------
-void vtkGenericEnSightReader::AddVariableDescription(char* description)
+void vtkGenericEnSightReader::AddVariableDescription(const char* description)
 {
   int size = this->NumberOfVariables;
   int i;
@@ -799,7 +799,7 @@ void vtkGenericEnSightReader::AddVariableDescription(char* description)
   vtkDebugMacro("description: " << this->VariableDescriptions[size]);
 }
 
-void vtkGenericEnSightReader::AddComplexVariableDescription(char* description)
+void vtkGenericEnSightReader::AddComplexVariableDescription(const char* description)
 {
   int i;
   int size = this->NumberOfComplexVariables;
@@ -870,7 +870,7 @@ int vtkGenericEnSightReader::GetNumberOfVariables(int type)
     }
 }
 
-char* vtkGenericEnSightReader::GetDescription(int n)
+const char* vtkGenericEnSightReader::GetDescription(int n)
 {
   if (n < this->NumberOfVariables)
     {
@@ -879,7 +879,7 @@ char* vtkGenericEnSightReader::GetDescription(int n)
   return NULL;
 }
 
-char* vtkGenericEnSightReader::GetComplexDescription(int n)
+const char* vtkGenericEnSightReader::GetComplexDescription(int n)
 {
   if (n < this->NumberOfComplexVariables)
     {
@@ -888,7 +888,7 @@ char* vtkGenericEnSightReader::GetComplexDescription(int n)
   return NULL;
 }
 
-char* vtkGenericEnSightReader::GetDescription(int n, int type)
+const char* vtkGenericEnSightReader::GetDescription(int n, int type)
 {
   int i, numMatches = 0;
   

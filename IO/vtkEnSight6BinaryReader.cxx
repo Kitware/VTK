@@ -32,7 +32,7 @@
 #include <ctype.h>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkEnSight6BinaryReader, "1.45");
+vtkCxxRevisionMacro(vtkEnSight6BinaryReader, "1.46");
 vtkStandardNewMacro(vtkEnSight6BinaryReader);
 
 //----------------------------------------------------------------------------
@@ -113,7 +113,7 @@ int vtkEnSight6BinaryReader::OpenFile(const char* filename)
 
 
 //----------------------------------------------------------------------------
-int vtkEnSight6BinaryReader::ReadGeometryFile(char* fileName, int timeStep)
+int vtkEnSight6BinaryReader::ReadGeometryFile(const char* fileName, int timeStep)
 {
   char line[80], subLine[80];
   int partId;
@@ -714,7 +714,7 @@ int vtkEnSight6BinaryReader::SkipUnstructuredGrid(char line[256])
 }
 
 //----------------------------------------------------------------------------
-int vtkEnSight6BinaryReader::ReadMeasuredGeometryFile(char* fileName,
+int vtkEnSight6BinaryReader::ReadMeasuredGeometryFile(const char* fileName,
                                                       int timeStep)
 {
   char line[80], subLine[80];
@@ -872,8 +872,8 @@ int vtkEnSight6BinaryReader::ReadMeasuredGeometryFile(char* fileName,
 }
 
 //----------------------------------------------------------------------------
-int vtkEnSight6BinaryReader::ReadScalarsPerNode(char* fileName,
-                                                char* description,
+int vtkEnSight6BinaryReader::ReadScalarsPerNode(const char* fileName,
+                                                const char* description,
                                                 int timeStep, int measured,
                                                 int numberOfComponents,
                                                 int component)
@@ -1126,8 +1126,8 @@ int vtkEnSight6BinaryReader::ReadScalarsPerNode(char* fileName,
 }
 
 //----------------------------------------------------------------------------
-int vtkEnSight6BinaryReader::ReadVectorsPerNode(char* fileName,
-                                                char* description,
+int vtkEnSight6BinaryReader::ReadVectorsPerNode(const char* fileName,
+                                                const char* description,
                                                 int timeStep, int measured)
 {
   char line[80];
@@ -1326,8 +1326,8 @@ int vtkEnSight6BinaryReader::ReadVectorsPerNode(char* fileName,
 }
 
 //----------------------------------------------------------------------------
-int vtkEnSight6BinaryReader::ReadTensorsPerNode(char* fileName,
-                                                char* description,
+int vtkEnSight6BinaryReader::ReadTensorsPerNode(const char* fileName,
+                                                const char* description,
                                                 int timeStep)
 {
   char line[80];
@@ -1492,8 +1492,8 @@ int vtkEnSight6BinaryReader::ReadTensorsPerNode(char* fileName,
 }
 
 //----------------------------------------------------------------------------
-int vtkEnSight6BinaryReader::ReadScalarsPerElement(char* fileName,
-                                                   char* description,
+int vtkEnSight6BinaryReader::ReadScalarsPerElement(const char* fileName,
+                                                   const char* description,
                                                    int timeStep,
                                                    int numberOfComponents,
                                                    int component)
@@ -1692,8 +1692,8 @@ int vtkEnSight6BinaryReader::ReadScalarsPerElement(char* fileName,
 }
 
 //----------------------------------------------------------------------------
-int vtkEnSight6BinaryReader::ReadVectorsPerElement(char* fileName,
-                                                   char* description,
+int vtkEnSight6BinaryReader::ReadVectorsPerElement(const char* fileName,
+                                                   const char* description,
                                                    int timeStep)
 {
   char line[80];
@@ -1876,8 +1876,8 @@ int vtkEnSight6BinaryReader::ReadVectorsPerElement(char* fileName,
 }
 
 //----------------------------------------------------------------------------
-int vtkEnSight6BinaryReader::ReadTensorsPerElement(char* fileName,
-                                                   char* description,
+int vtkEnSight6BinaryReader::ReadTensorsPerElement(const char* fileName,
+                                                   const char* description,
                                                    int timeStep)
 {
   char line[80];

@@ -28,12 +28,38 @@
 
 #include <ctype.h>
 #include <vtkstd/string>
+#include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkEnSightGoldReader, "1.48");
+vtkCxxRevisionMacro(vtkEnSightGoldReader, "1.49");
 vtkStandardNewMacro(vtkEnSightGoldReader);
 
+//BTX
+class UndefPartialInternal
+{
+public:
+  double UndefCoordinates;
+  double UndefBlock;
+  double UndefElementTypes;
+  vtkstd::vector<vtkIdType> PartialCoordinates;
+  vtkstd::vector<vtkIdType> PartialBlock;
+  vtkstd::vector<vtkIdType> PartialElementTypes;
+};
+//ETX
+
 //----------------------------------------------------------------------------
-int vtkEnSightGoldReader::ReadGeometryFile(char* fileName, int timeStep)
+vtkEnSightGoldReader::vtkEnSightGoldReader()
+{
+  this->UndefPartial = new UndefPartialInternal;
+}
+//----------------------------------------------------------------------------
+
+vtkEnSightGoldReader::~vtkEnSightGoldReader()
+{
+  delete UndefPartial;
+}
+
+//----------------------------------------------------------------------------
+int vtkEnSightGoldReader::ReadGeometryFile(const char* fileName, int timeStep)
 {
   char line[256], subLine[256];
   int partId, i;
@@ -171,7 +197,7 @@ int vtkEnSightGoldReader::ReadGeometryFile(char* fileName, int timeStep)
 }
 
 //----------------------------------------------------------------------------
-int vtkEnSightGoldReader::ReadMeasuredGeometryFile(char* fileName,
+int vtkEnSightGoldReader::ReadMeasuredGeometryFile(const char* fileName,
                                                    int timeStep)
 {
   char line[256], subLine[256];
@@ -289,7 +315,7 @@ int vtkEnSightGoldReader::ReadMeasuredGeometryFile(char* fileName,
 }
 
 //----------------------------------------------------------------------------
-int vtkEnSightGoldReader::ReadScalarsPerNode(char* fileName, char* description,
+int vtkEnSightGoldReader::ReadScalarsPerNode(const char* fileName, const char* description,
                                              int timeStep, int measured,
                                              int numberOfComponents,
                                              int component)
@@ -412,6 +438,7 @@ int vtkEnSightGoldReader::ReadScalarsPerNode(char* fileName, char* description,
     if (numPts)
       {
       this->ReadNextDataLine(line); // "coordinates" or "block"
+      int partial = this->CheckForUndefOrPartial(line);
       if (component == 0)
         {
         scalars = vtkFloatArray::New();
@@ -425,11 +452,36 @@ int vtkEnSightGoldReader::ReadScalarsPerNode(char* fileName, char* description,
                                    GetArray(description));
         }
 
-      for (i = 0; i < numPts; i++)
+      // If the keyword 'partial' was found, we should replace unspecified
+      // coordinate to take the value specified in the 'undef' field
+      if( partial )
         {
-        this->ReadNextDataLine(line);
-        scalars->InsertComponent(i, component, atof(line));
+        int l = 0;
+        double val;
+        for (i = 0; i < numPts; i++)
+          {
+          if( i == this->UndefPartial->PartialCoordinates[l] )
+            {
+            this->ReadNextDataLine(line);
+            val = atof( line );
+            }
+          else
+            {
+            val = this->UndefPartial->UndefCoordinates;
+            l++;
+            }
+          scalars->InsertComponent(i, component, val);
+          }
         }
+      else
+        {
+        for (i = 0; i < numPts; i++)
+          {
+          this->ReadNextDataLine(line);
+          scalars->InsertComponent(i, component, atof(line));
+          }
+        }
+
       if (component == 0)
         {
         scalars->SetName(description);
@@ -453,7 +505,7 @@ int vtkEnSightGoldReader::ReadScalarsPerNode(char* fileName, char* description,
 }
 
 //----------------------------------------------------------------------------
-int vtkEnSightGoldReader::ReadVectorsPerNode(char* fileName, char* description,
+int vtkEnSightGoldReader::ReadVectorsPerNode(const char* fileName, const char* description,
                                              int timeStep, int measured)
 {
   char line[256], formatLine[256], tempLine[256]; 
@@ -597,7 +649,7 @@ int vtkEnSightGoldReader::ReadVectorsPerNode(char* fileName, char* description,
 }
 
 //----------------------------------------------------------------------------
-int vtkEnSightGoldReader::ReadTensorsPerNode(char* fileName, char* description,
+int vtkEnSightGoldReader::ReadTensorsPerNode(const char* fileName, const char* description,
                                              int timeStep)
 {
   char line[256];
@@ -691,8 +743,8 @@ int vtkEnSightGoldReader::ReadTensorsPerNode(char* fileName, char* description,
 }
 
 //----------------------------------------------------------------------------
-int vtkEnSightGoldReader::ReadScalarsPerElement(char* fileName,
-                                                char* description,
+int vtkEnSightGoldReader::ReadScalarsPerElement(const char* fileName,
+                                                const char* description,
                                                 int timeStep,
                                                 int numberOfComponents,
                                                 int component)
@@ -796,6 +848,8 @@ int vtkEnSightGoldReader::ReadScalarsPerElement(char* fileName,
                strncmp(line, "END TIME STEP", 13) != 0)
           {
           elementType = this->GetElementType(line);
+          // Check if line contains either 'partial' or 'undef' keyword
+          int partial = this->CheckForUndefOrPartial(line);
           if (elementType == -1)
             {
             vtkErrorMacro("Unknown element type \"" << line << "\"");
@@ -810,12 +864,36 @@ int vtkEnSightGoldReader::ReadScalarsPerElement(char* fileName,
           idx = this->UnstructuredPartIds->IsId(partId);
           numCellsPerElement =
             this->GetCellIds(idx, elementType)->GetNumberOfIds();
-          for (i = 0; i < numCellsPerElement; i++)
+          // If the 'partial' keyword was found, we should replace 
+          // unspecified coordinate with value specified in the 'undef' section
+         if( partial )
             {
-            this->ReadNextDataLine(line);
-            scalar = atof(line);
-            scalars->InsertComponent(this->GetCellIds(idx, elementType)->GetId(i),
-                                     component, scalar);
+            int j = 0;
+            for (i = 0; i < numCellsPerElement; i++)
+              {
+              if( i == this->UndefPartial->PartialElementTypes[j] )
+                {
+                this->ReadNextDataLine(line);
+                scalar = atof(line);
+                }
+              else
+                {
+                scalar = this->UndefPartial->UndefElementTypes;
+                j++; //go on to the next value in the partial list
+                }
+              scalars->InsertComponent( this->GetCellIds(idx, 
+                elementType)->GetId(i), component, scalar);
+              }
+            }
+          else
+            {
+            for (i = 0; i < numCellsPerElement; i++)
+              {
+              this->ReadNextDataLine(line);
+              scalar = atof(line);
+              scalars->InsertComponent( this->GetCellIds(idx, 
+                elementType)->GetId(i), component, scalar);
+              }
             }
           lineRead = this->ReadNextDataLine(line);
           } // end while
@@ -847,8 +925,8 @@ int vtkEnSightGoldReader::ReadScalarsPerElement(char* fileName,
 }
 
 //----------------------------------------------------------------------------
-int vtkEnSightGoldReader::ReadVectorsPerElement(char* fileName,
-                                                char* description,
+int vtkEnSightGoldReader::ReadVectorsPerElement(const char* fileName,
+                                                const char* description,
                                                 int timeStep)
 {
   char line[256];
@@ -990,8 +1068,8 @@ int vtkEnSightGoldReader::ReadVectorsPerElement(char* fileName,
 }
 
 //----------------------------------------------------------------------------
-int vtkEnSightGoldReader::ReadTensorsPerElement(char* fileName,
-                                                char* description,
+int vtkEnSightGoldReader::ReadTensorsPerElement(const char* fileName,
+                                                const char* description,
                                                 int timeStep)
 {
   char line[256];
@@ -1990,6 +2068,77 @@ int vtkEnSightGoldReader::CreateImageDataOutput(int partId,
   // reading next line to check for EOF
   lineRead = this->ReadNextDataLine(line);
   return lineRead;
+}
+
+//----------------------------------------------------------------------------
+int vtkEnSightGoldReader::CheckForUndefOrPartial(const char *line)
+{
+  char undefvar[16];
+  // Look for keyword 'partial' or 'undef':
+  int r = sscanf(line, "%*s %s", undefvar);
+  if( r == 1)
+    {
+    char subline[80];
+    if( strcmp(undefvar, "undef") == 0 )
+      {
+      vtkDebugMacro( "undef: " << line );
+      this->ReadNextDataLine(subline);
+      double val = atof( subline );
+      switch( this->GetSectionType(line) )
+        {
+        case vtkEnSightReader::COORDINATES:
+          this->UndefPartial->UndefCoordinates = val;
+          break;
+        case vtkEnSightReader::BLOCK:
+          this->UndefPartial->UndefBlock = val;
+          break;
+        case vtkEnSightReader::ELEMENT:
+          this->UndefPartial->UndefElementTypes = val;
+          break;
+        default:
+          vtkErrorMacro( << "Unknow section type: " << subline );
+        }
+      return 0; //meaning 'undef', so no other steps is necesserary
+      }
+    else if ( strcmp(undefvar, "partial") == 0 )
+      {
+      vtkDebugMacro( "partial: " << line );
+      this->ReadNextDataLine( subline );
+      int nLines = atoi(subline);
+      vtkIdType val;
+      switch( this->GetSectionType(line) )
+        {
+        case vtkEnSightReader::COORDINATES:
+          for(int i=0; i<nLines; ++i)
+            {
+            this->ReadNextDataLine(subline);
+            val = atoi(subline) - 1; //EnSight start at 1
+            this->UndefPartial->PartialCoordinates.push_back(val);
+            }
+          break;
+        case vtkEnSightReader::BLOCK:
+          for(int i=0; i<nLines; ++i)
+            {
+            this->ReadNextDataLine(subline);
+            val = atoi(subline) - 1; //EnSight start at 1
+            this->UndefPartial->PartialBlock.push_back(val);
+            }
+          break;
+        case vtkEnSightReader::ELEMENT:
+          for(int i=0; i<nLines; ++i)
+            {
+            this->ReadNextDataLine(subline);
+            val = atoi(subline) - 1; //EnSight start at 1
+            this->UndefPartial->PartialElementTypes.push_back(val);
+            }
+          break;
+        default:
+          vtkErrorMacro( << "Unknow section type: " << subline );
+        }
+      return 1; //meaning 'partial', so other steps are necesserary
+      }
+    }
+  return 0;
 }
 
 //----------------------------------------------------------------------------

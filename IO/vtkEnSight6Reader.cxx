@@ -32,7 +32,7 @@
 #include <ctype.h>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkEnSight6Reader, "1.53");
+vtkCxxRevisionMacro(vtkEnSight6Reader, "1.54");
 vtkStandardNewMacro(vtkEnSight6Reader);
 
 //----------------------------------------------------------------------------
@@ -153,7 +153,7 @@ int vtkEnSight6ReaderRead4(const char *line, float *point1)
 }
 
 //----------------------------------------------------------------------------
-int vtkEnSight6Reader::ReadGeometryFile(char* fileName, int timeStep)
+int vtkEnSight6Reader::ReadGeometryFile(const char* fileName, int timeStep)
 {
   char line[256], subLine[256];
   int partId;
@@ -327,7 +327,7 @@ int vtkEnSight6Reader::ReadGeometryFile(char* fileName, int timeStep)
 }
 
 //----------------------------------------------------------------------------
-int vtkEnSight6Reader::ReadMeasuredGeometryFile(char* fileName, int timeStep)
+int vtkEnSight6Reader::ReadMeasuredGeometryFile(const char* fileName, int timeStep)
 {
   char line[256], subLine[256];
   vtkPoints *newPoints;
@@ -455,7 +455,7 @@ int vtkEnSight6Reader::ReadMeasuredGeometryFile(char* fileName, int timeStep)
 }
 
 //----------------------------------------------------------------------------
-int vtkEnSight6Reader::ReadScalarsPerNode(char* fileName, char* description,
+int vtkEnSight6Reader::ReadScalarsPerNode(const char* fileName, const char* description,
                                           int timeStep, int measured,
                                           int numberOfComponents,
                                           int component)
@@ -684,7 +684,7 @@ int vtkEnSight6Reader::ReadScalarsPerNode(char* fileName, char* description,
 }
 
 //----------------------------------------------------------------------------
-int vtkEnSight6Reader::ReadVectorsPerNode(char* fileName, char* description,
+int vtkEnSight6Reader::ReadVectorsPerNode(const char* fileName, const char* description,
                                           int timeStep, int measured)
 {
   char line[256];
@@ -876,7 +876,7 @@ int vtkEnSight6Reader::ReadVectorsPerNode(char* fileName, char* description,
 }
 
 //----------------------------------------------------------------------------
-int vtkEnSight6Reader::ReadTensorsPerNode(char* fileName, char* description,
+int vtkEnSight6Reader::ReadTensorsPerNode(const char* fileName, const char* description,
                                           int timeStep)
 {
   char line[256];
@@ -1022,7 +1022,7 @@ int vtkEnSight6Reader::ReadTensorsPerNode(char* fileName, char* description,
 }
 
 //----------------------------------------------------------------------------
-int vtkEnSight6Reader::ReadScalarsPerElement(char* fileName, char* description,
+int vtkEnSight6Reader::ReadScalarsPerElement(const char* fileName, const char* description,
                                              int timeStep,
                                              int numberOfComponents,
                                              int component)
@@ -1204,7 +1204,7 @@ int vtkEnSight6Reader::ReadScalarsPerElement(char* fileName, char* description,
 }
 
 //----------------------------------------------------------------------------
-int vtkEnSight6Reader::ReadVectorsPerElement(char* fileName, char* description,
+int vtkEnSight6Reader::ReadVectorsPerElement(const char* fileName, const char* description,
                                              int timeStep)
 {
   char line[256];
@@ -1372,7 +1372,7 @@ int vtkEnSight6Reader::ReadVectorsPerElement(char* fileName, char* description,
 }
 
 //----------------------------------------------------------------------------
-int vtkEnSight6Reader::ReadTensorsPerElement(char* fileName, char* description,
+int vtkEnSight6Reader::ReadTensorsPerElement(const char* fileName, const char* description,
                                              int timeStep)
 {
   char line[256];

@@ -37,6 +37,10 @@
 
 #include "vtkEnSightReader.h"
 
+//BTX
+class UndefPartialInternal;
+//ETX
+
 class VTK_IO_EXPORT vtkEnSightGoldReader : public vtkEnSightReader
 {
 public:
@@ -45,23 +49,23 @@ public:
   virtual void PrintSelf(ostream& os, vtkIndent indent);
   
 protected:
-  vtkEnSightGoldReader() {};
-  ~vtkEnSightGoldReader() {};
+  vtkEnSightGoldReader();
+  ~vtkEnSightGoldReader();
   
   // Description:
   // Read the geometry file.  If an error occurred, 0 is returned; otherwise 1.
-  virtual int ReadGeometryFile(char* fileName, int timeStep);
+  virtual int ReadGeometryFile(const char* fileName, int timeStep);
 
   // Description:
   // Read the measured geometry file.  If an error occurred, 0 is returned;
   // otherwise 1.
-  virtual int ReadMeasuredGeometryFile(char* fileName, int timeStep);
+  virtual int ReadMeasuredGeometryFile(const char* fileName, int timeStep);
 
   // Description:
   // Read scalars per node for this dataset.  If an error occurred, 0 is
   // returned; otherwise 1.  If there will be more than one component in
   // the data array, it is assumed that 0 is the first component added.
-  virtual int ReadScalarsPerNode(char* fileName, char* description,
+  virtual int ReadScalarsPerNode(const char* fileName, const char* description,
                                  int timeStep, int measured = 0,
                                  int numberOfComponents = 1,
                                  int component = 0);
@@ -69,33 +73,33 @@ protected:
   // Description:
   // Read vectors per node for this dataset.  If an error occurred, 0 is
   // returned; otherwise 1.
-  virtual int ReadVectorsPerNode(char* fileName, char* description,
+  virtual int ReadVectorsPerNode(const char* fileName, const char* description,
                                  int timeStep, int measured = 0);
 
   // Description:
   // Read tensors per node for this dataset.  If an error occurred, 0 is
   // returned; otherwise 1.
-  virtual int ReadTensorsPerNode(char* fileName, char* description,
+  virtual int ReadTensorsPerNode(const char* fileName, const char* description,
                                  int timeStep);
 
   // Description:
   // Read scalars per element for this dataset.  If an error occurred, 0 is
   // returned; otherwise 1.  If there will be more than one componenet in the
   // data array, it is assumed that 0 is the first component added.
-  virtual int ReadScalarsPerElement(char* fileName, char* description,
+  virtual int ReadScalarsPerElement(const char* fileName, const char* description,
                                     int timeStep, int numberOfComponents = 1,
                                     int component = 0);
 
   // Description:
   // Read vectors per element for this dataset.  If an error occurred, 0 is
   // returned; otherwise 1.
-  virtual int ReadVectorsPerElement(char* fileName, char* description,
+  virtual int ReadVectorsPerElement(const char* fileName, const char* description,
                                     int timeStep);
 
   // Description:
   // Read tensors per element for this dataset.  If an error occurred, 0 is
   // returned; otherwise 1.
-  virtual int ReadTensorsPerElement(char* fileName, char* description,
+  virtual int ReadTensorsPerElement(const char* fileName, const char* description,
                                     int timeStep);
 
   // Description:
@@ -137,6 +141,16 @@ protected:
   // Set/Get the Match file name.
   vtkSetStringMacro(MatchFileName);
   vtkGetStringMacro(MatchFileName);
+
+  // Description:
+  // Skip next line in file if the 'undef' or 'partial' keyword was 
+  // specified after a sectional keyword
+  int CheckForUndefOrPartial(const char *line);
+
+  // Description:
+  // Handle the undef / partial support for EnSight gold
+  UndefPartialInternal* UndefPartial;
+
 private:
   vtkEnSightGoldReader(const vtkEnSightGoldReader&);  // Not implemented.
   void operator=(const vtkEnSightGoldReader&);  // Not implemented.

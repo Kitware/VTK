@@ -31,7 +31,7 @@
 #include <ctype.h>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkEnSightGoldBinaryReader, "1.56");
+vtkCxxRevisionMacro(vtkEnSightGoldBinaryReader, "1.57");
 vtkStandardNewMacro(vtkEnSightGoldBinaryReader);
 
 // This is half the precision of an int.
@@ -101,7 +101,7 @@ int vtkEnSightGoldBinaryReader::OpenFile(const char* filename)
 
 
 //----------------------------------------------------------------------------
-int vtkEnSightGoldBinaryReader::ReadGeometryFile(char* fileName, int timeStep)
+int vtkEnSightGoldBinaryReader::ReadGeometryFile(const char* fileName, int timeStep)
 {
   char line[80], subLine[80];
   int partId;
@@ -895,7 +895,7 @@ int vtkEnSightGoldBinaryReader::SkipImageData(char line[256])
 }
 
 //----------------------------------------------------------------------------
-int vtkEnSightGoldBinaryReader::ReadMeasuredGeometryFile(char* fileName,
+int vtkEnSightGoldBinaryReader::ReadMeasuredGeometryFile(const char* fileName,
                                                          int timeStep)
 {
   char line[80], subLine[80];
@@ -1033,8 +1033,8 @@ int vtkEnSightGoldBinaryReader::ReadMeasuredGeometryFile(char* fileName,
 }
 
 //----------------------------------------------------------------------------
-int vtkEnSightGoldBinaryReader::ReadScalarsPerNode(char* fileName,
-                                                   char* description,
+int vtkEnSightGoldBinaryReader::ReadScalarsPerNode(const char* fileName,
+                                                   const char* description,
                                                    int timeStep,
                                                    int measured,
                                                    int numberOfComponents,
@@ -1228,8 +1228,8 @@ int vtkEnSightGoldBinaryReader::ReadScalarsPerNode(char* fileName,
 }
 
 //----------------------------------------------------------------------------
-int vtkEnSightGoldBinaryReader::ReadVectorsPerNode(char* fileName,
-                                                   char* description,
+int vtkEnSightGoldBinaryReader::ReadVectorsPerNode(const char* fileName,
+                                                   const char* description,
                                                    int timeStep,
                                                    int measured)
 {
@@ -1404,8 +1404,8 @@ int vtkEnSightGoldBinaryReader::ReadVectorsPerNode(char* fileName,
 }
 
 //----------------------------------------------------------------------------
-int vtkEnSightGoldBinaryReader::ReadTensorsPerNode(char* fileName,
-                                                   char* description,
+int vtkEnSightGoldBinaryReader::ReadTensorsPerNode(const char* fileName,
+                                                   const char* description,
                                                    int timeStep)
 {
   char line[80];
@@ -1545,8 +1545,8 @@ int vtkEnSightGoldBinaryReader::ReadTensorsPerNode(char* fileName,
 }
 
 //----------------------------------------------------------------------------
-int vtkEnSightGoldBinaryReader::ReadScalarsPerElement(char* fileName,
-                                                      char* description,
+int vtkEnSightGoldBinaryReader::ReadScalarsPerElement(const char* fileName,
+                                                      const char* description,
                                                       int timeStep,
                                                       int numberOfComponents,
                                                       int component)
@@ -1782,8 +1782,8 @@ int vtkEnSightGoldBinaryReader::ReadScalarsPerElement(char* fileName,
 }
 
 //----------------------------------------------------------------------------
-int vtkEnSightGoldBinaryReader::ReadVectorsPerElement(char* fileName,
-                                                      char* description,
+int vtkEnSightGoldBinaryReader::ReadVectorsPerElement(const char* fileName,
+                                                      const char* description,
                                                       int timeStep)
 {
   char line[80];
@@ -2012,8 +2012,8 @@ int vtkEnSightGoldBinaryReader::ReadVectorsPerElement(char* fileName,
 }
 
 //----------------------------------------------------------------------------
-int vtkEnSightGoldBinaryReader::ReadTensorsPerElement(char* fileName,
-                                                      char* description,
+int vtkEnSightGoldBinaryReader::ReadTensorsPerElement(const char* fileName,
+                                                      const char* description,
                                                       int timeStep)
 {
   char line[80];

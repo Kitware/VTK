@@ -68,6 +68,13 @@ public:
     COMPLEX_SCALAR_PER_ELEMENT = 10,
     COMPLEX_VECTOR_PER_ELEMENT = 11
   };
+
+  enum SectionTypeList
+  {
+    COORDINATES = 0,
+    BLOCK       = 1,
+    ELEMENT     = 2
+  };
   //ETX
 
   // Description:
@@ -100,12 +107,12 @@ protected:
   
   // Description:
   // Read the geometry file.  If an error occurred, 0 is returned; otherwise 1.
-  virtual int ReadGeometryFile(char* fileName, int timeStep) = 0;
+  virtual int ReadGeometryFile(const char* fileName, int timeStep) = 0;
 
   // Description:
   // Read the measured geometry file.  If an error occurred, 0 is returned;
   // otherwise 1.
-  virtual int ReadMeasuredGeometryFile(char* fileName, int timeStep) = 0;
+  virtual int ReadMeasuredGeometryFile(const char* fileName, int timeStep) = 0;
 
   // Description:
   // Read the variable files. If an error occurred, 0 is returned; otherwise 1.
@@ -114,7 +121,7 @@ protected:
   // Description:
   // Read scalars per node for this dataset.  If an error occurred, 0 is
   // returned; otherwise 1.
-  virtual int ReadScalarsPerNode(char* fileName, char* description,
+  virtual int ReadScalarsPerNode(const char* fileName, const char* description,
                                  int timeStep, int measured = 0,
                                  int numberOfComponents = 1,
                                  int component = 0) = 0;
@@ -122,46 +129,46 @@ protected:
   // Description:
   // Read vectors per node for this dataset.  If an error occurred, 0 is
   // returned; otherwise 1.
-  virtual int ReadVectorsPerNode(char* fileName, char* description,
+  virtual int ReadVectorsPerNode(const char* fileName, const char* description,
                                  int timeStep, int measured = 0) = 0;
 
   // Description:
   // Read tensors per node for this dataset.  If an error occurred, 0 is
   // returned; otherwise 1.
-  virtual int ReadTensorsPerNode(char* fileName, char* description,
+  virtual int ReadTensorsPerNode(const char* fileName, const char* description,
                                  int timeStep) = 0;
 
   // Description:
   // Read scalars per element for this dataset.  If an error occurred, 0 is
   // returned; otherwise 1.
-  virtual int ReadScalarsPerElement(char* fileName, char* description,
+  virtual int ReadScalarsPerElement(const char* fileName, const char* description,
                                     int timeStep, int numberOfComponents = 1,
                                     int component = 0) = 0;
 
   // Description:
   // Read vectors per element for this dataset.  If an error occurred, 0 is
   // returned; otherwise 1.
-  virtual int ReadVectorsPerElement(char* fileName, char* description,
+  virtual int ReadVectorsPerElement(const char* fileName, const char* description,
                                     int timeStep) = 0;
 
   // Description:
   // Read tensors per element for this dataset.  If an error occurred, 0 is
   // returned; otherwise 1.
-  virtual int ReadTensorsPerElement(char* fileName, char* description,
+  virtual int ReadTensorsPerElement(const char* fileName, const char* description,
                                     int timeStep) = 0;
 
   // Description:
   // Read an unstructured part (partId) from the geometry file and create a
   // vtkUnstructuredGrid output.  Return 0 if EOF reached.
   virtual int CreateUnstructuredGridOutput(int partId, 
-                                           char line[256],
+                                           char line[80],
                                            const char* name) = 0;
   
   // Description:
   // Read a structured part from the geometry file and create a
   // vtkStructuredGridOutput.  Return 0 if EOF reached.
   virtual int CreateStructuredGridOutput(int partId, 
-                                         char line[256],
+                                         char line[80],
                                          const char* name) = 0;
   
   // Description:
@@ -181,11 +188,11 @@ protected:
   
   // Description:
   // Add another file name to the list for a particular variable type.
-  void AddVariableFileName(char* fileName1, char* fileName2 = NULL);
+  void AddVariableFileName(const char* fileName1, const char* fileName2 = NULL);
   
   // Description:
   // Add another description to the list for a particular variable type.
-  void AddVariableDescription(char* description);
+  void AddVariableDescription(const char* description);
   
   // Description:
   // Record the variable type for the variable line just read.
@@ -194,7 +201,12 @@ protected:
   // Description:
   // Determine the element type from a line read a file.  Return -1 for
   // invalid element type.
-  int GetElementType(char* line);
+  int GetElementType(const char* line);
+
+  // Description:
+  // Determine the section type from a line read a file.  Return -1 for
+  // invalid section type.
+ int GetSectionType(const char *line);
 
   // Description:
   // Replace the *'s in the filename with the given filename number.

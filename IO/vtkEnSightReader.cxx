@@ -28,7 +28,7 @@
 #include <vtkstd/string>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkEnSightReader, "1.53");
+vtkCxxRevisionMacro(vtkEnSightReader, "1.54");
 
 //----------------------------------------------------------------------------
 typedef vtkstd::vector< vtkSmartPointer<vtkIdList> > vtkEnSightReaderCellIdsTypeBase;
@@ -1424,8 +1424,8 @@ int vtkEnSightReader::ReadVariableFiles()
 }
 
 //----------------------------------------------------------------------------
-void vtkEnSightReader::AddVariableFileName(char* fileName1,
-                                           char* fileName2)
+void vtkEnSightReader::AddVariableFileName(const char* fileName1,
+                                           const char* fileName2)
 {
   int size;
   int i;
@@ -1504,7 +1504,7 @@ void vtkEnSightReader::AddVariableFileName(char* fileName1,
 }
 
 //----------------------------------------------------------------------------
-void vtkEnSightReader::AddVariableDescription(char* description)
+void vtkEnSightReader::AddVariableDescription(const char* description)
 {
   int size;
   int i;
@@ -1640,7 +1640,29 @@ void vtkEnSightReader::AddVariableType()
     }
 }
 
-int vtkEnSightReader::GetElementType(char* line)
+//----------------------------------------------------------------------------
+int vtkEnSightReader::GetSectionType(const char *line)
+{
+  if (strncmp(line, "coordinates", 5) == 0)
+    {
+    return vtkEnSightReader::COORDINATES;
+    }
+  else if (strncmp(line, "block", 4) == 0)
+    {
+    return vtkEnSightReader::BLOCK;
+    }
+  else if (this->GetElementType(line) != -1)
+    {
+    return vtkEnSightReader::ELEMENT;
+    }
+  else
+    {
+    return -1;
+    }
+}
+
+//----------------------------------------------------------------------------
+int vtkEnSightReader::GetElementType(const char* line)
 {
   if (strncmp(line, "point", 5) == 0)
     {
