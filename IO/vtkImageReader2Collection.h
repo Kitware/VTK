@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkPNGReader.h
+  Module:    vtkImageReader2Collection.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -39,39 +39,55 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-// .NAME vtkPNGReader - read PNG files
+// .NAME vtkImageReader2Collection - maintain a list of implicit functions
 // .SECTION Description
-// vtkPNGReader is a source object that reads PNG files.
-// It should be able to read most any PNG file
-//
+// vtkImageReader2Collection is an object that creates and manipulates
+// lists of objects of type vtkImplicitFunction. 
 // .SECTION See Also
-// vtkPNGWriter
+// vtkCollection vtkPlaneCollection
 
-#ifndef __vtkPNGReader_h
-#define __vtkPNGReader_h
+#ifndef __vtkImageReader2Collection_h
+#define __vtkImageReader2Collection_h
 
-#include <stdio.h>
+#include "vtkCollection.h"
 #include "vtkImageReader2.h"
 
-class VTK_IO_EXPORT vtkPNGReader : public vtkImageReader2
+class VTK_IO_EXPORT vtkImageReader2Collection : public vtkCollection
 {
 public:
-  static vtkPNGReader *New();
-  vtkTypeMacro(vtkPNGReader,vtkImageReader2);
+  vtkTypeMacro(vtkImageReader2Collection,vtkCollection);
+  static vtkImageReader2Collection *New();
 
-protected:
-  vtkPNGReader() {};
-  ~vtkPNGReader() {};
+  // Description:
+  // Add an implicit function to the list.
+  void AddItem(vtkImageReader2 *);
+
+  // Description:
+  // Get the next implicit function in the list.
+  vtkImageReader2 *GetNextItem();
   
-  // Description: is the given file name a png file?
-  virtual int CanReadFile(const char* fname);
+protected:
+  vtkImageReader2Collection() {};
+  ~vtkImageReader2Collection() {};
+  
 
-  virtual void ExecuteInformation();
-  virtual void ExecuteData(vtkDataObject *out);
 private:
-  vtkPNGReader(const vtkPNGReader&);  // Not implemented.
-  void operator=(const vtkPNGReader&);  // Not implemented.
+  // hide the standard AddItem from the user and the compiler.
+  void AddItem(vtkObject *o) { this->vtkCollection::AddItem(o); };
+
+private:
+  vtkImageReader2Collection(const vtkImageReader2Collection&);  // Not implemented.
+  void operator=(const vtkImageReader2Collection&);  // Not implemented.
 };
+
+inline void vtkImageReader2Collection::AddItem(vtkImageReader2 *f) 
+{
+  this->vtkCollection::AddItem((vtkObject *)f);
+}
+
+inline vtkImageReader2 *vtkImageReader2Collection::GetNextItem() 
+{ 
+  return static_cast<vtkImageReader2*>(this->GetNextItemAsObject());
+}
+
 #endif
-
-

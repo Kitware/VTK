@@ -339,3 +339,52 @@ void vtkPNGReader::ExecuteData(vtkDataObject *output)
     }   
 }
 
+
+int vtkPNGReader::CanReadFile(const char* fname)
+{
+  FILE* fp = fopen(fname, "rb");
+  if(!fp)
+    {
+    fclose(fp);
+    return 0;
+    }
+  unsigned char header[8];
+  fread(header, 1, 8, fp);
+  bool is_png = !png_sig_cmp(header, 0, 8);
+  if(!is_png)
+    {
+    fclose(fp);
+    return 0;
+    }
+  png_structp png_ptr = png_create_read_struct
+    (PNG_LIBPNG_VER_STRING, (png_voidp)NULL,
+     NULL, NULL);
+  if (!png_ptr)
+    {
+    fclose(fp);
+    return 0;
+    }
+  
+  png_infop info_ptr = png_create_info_struct(png_ptr);
+  if (!info_ptr)
+    {
+    png_destroy_read_struct(&png_ptr,
+                            (png_infopp)NULL, (png_infopp)NULL);
+    fclose(fp);
+    return 0;
+    }
+  
+  png_infop end_info = png_create_info_struct(png_ptr);
+  if (!end_info)
+    {
+    png_destroy_read_struct(&png_ptr, &info_ptr,
+                            (png_infopp)NULL);
+    fclose(fp);
+    return 0;
+    }
+  png_destroy_read_struct(&png_ptr, &info_ptr,
+                          (png_infopp)NULL);
+  
+  fclose(fp);
+  return 1; 
+}

@@ -19,6 +19,8 @@ vtkGESignaReader
 vtkGenericEnSightReader
 vtkImageReader
 vtkImageReader2
+vtkImageReader2Factory
+vtkImageReader2Collection
 vtkImageWriter
 vtkIVWriter 
 vtkJPEGReader

@@ -1,10 +1,10 @@
 /*=========================================================================
 
-  Program:   Visualization Toolkit
-  Module:    vtkPNGReader.h
-  Language:  C++
-  Date:      $Date$
-  Version:   $Revision$
+Program:   Visualization Toolkit
+Module:    vtkImageReader2Collection.cxx
+Language:  C++
+Date:      $Date$
+Version:   $Revision$
 
 
 Copyright (c) 1993-2001 Ken Martin, Will Schroeder, Bill Lorensen 
@@ -39,39 +39,23 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-// .NAME vtkPNGReader - read PNG files
-// .SECTION Description
-// vtkPNGReader is a source object that reads PNG files.
-// It should be able to read most any PNG file
-//
-// .SECTION See Also
-// vtkPNGWriter
+#include "vtkImageReader2Collection.h"
+#include "vtkObjectFactory.h"
 
-#ifndef __vtkPNGReader_h
-#define __vtkPNGReader_h
 
-#include <stdio.h>
-#include "vtkImageReader2.h"
 
-class VTK_IO_EXPORT vtkPNGReader : public vtkImageReader2
+//------------------------------------------------------------------------------
+vtkImageReader2Collection* vtkImageReader2Collection::New()
 {
-public:
-  static vtkPNGReader *New();
-  vtkTypeMacro(vtkPNGReader,vtkImageReader2);
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageReader2Collection");
+  if(ret)
+    {
+    return (vtkImageReader2Collection*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkImageReader2Collection;
+}
 
-protected:
-  vtkPNGReader() {};
-  ~vtkPNGReader() {};
-  
-  // Description: is the given file name a png file?
-  virtual int CanReadFile(const char* fname);
-
-  virtual void ExecuteInformation();
-  virtual void ExecuteData(vtkDataObject *out);
-private:
-  vtkPNGReader(const vtkPNGReader&);  // Not implemented.
-  void operator=(const vtkPNGReader&);  // Not implemented.
-};
-#endif
 
 

@@ -194,6 +194,14 @@ public:
   void ComputeInternalFileName(int slice);
   vtkGetStringMacro(InternalFileName);
   
+  // Description:
+  // Return 1 if the reader can read the given file name.
+  // Should be implemented by all sub-classes of vtkImageReader2.
+  virtual int CanReadFile(const char* fname)
+    {
+      return false;
+    }
+
 protected:
   vtkImageReader2();
   ~vtkImageReader2();

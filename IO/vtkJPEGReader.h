@@ -59,6 +59,10 @@ public:
   static vtkJPEGReader *New();
   vtkTypeMacro(vtkJPEGReader,vtkImageReader2);
 
+  // Description:
+  // Is the given file a JPEG file?
+  int CanReadFile(const char* fname);
+  
 protected:
   vtkJPEGReader() {};
   ~vtkJPEGReader() {};

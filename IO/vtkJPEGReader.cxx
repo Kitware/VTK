@@ -44,6 +44,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 extern "C" {
 #include <jpeglib.h>
+#include <setjmp.h>
 }
 
 //-------------------------------------------------------------------------
@@ -239,3 +240,102 @@ void vtkJPEGReader::ExecuteData(vtkDataObject *output)
     }   
 }
 
+
+// create an error handler for jpeg that
+// can longjmp out of the jpeg library 
+struct my_error_mgr 
+{
+  struct jpeg_error_mgr pub;    /* "public" fields */
+  jmp_buf setjmp_buffer;        /* for return to caller */
+};
+
+typedef struct my_error_mgr * my_error_ptr;
+/*
+ * Here's the routine that will replace the standard error_exit method:
+ */
+
+METHODDEF(void)
+my_error_exit (j_common_ptr cinfo)
+{
+  /* cinfo->err really points to a my_error_mgr struct, so coerce pointer */
+  my_error_ptr myerr = (my_error_ptr) cinfo->err;
+
+  /* Return control to the setjmp point */
+  longjmp(myerr->setjmp_buffer, 1);
+}
+
+METHODDEF(void)
+my_emit_message (j_common_ptr cinfo, int)
+{
+  /* cinfo->err really points to a my_error_mgr struct, so coerce pointer */
+  my_error_ptr myerr = (my_error_ptr) cinfo->err;
+
+  /* Return control to the setjmp point */
+  longjmp(myerr->setjmp_buffer, 1);
+}
+
+METHODDEF(void)
+my_format_message (j_common_ptr cinfo, char*)
+{
+  /* cinfo->err really points to a my_error_mgr struct, so coerce pointer */
+  my_error_ptr myerr = (my_error_ptr) cinfo->err;
+
+  /* Return control to the setjmp point */
+  longjmp(myerr->setjmp_buffer, 1);
+}
+
+
+int vtkJPEGReader::CanReadFile(const char* fname)
+{
+  // open the file
+  FILE *fp = fopen(fname, "rb");
+  if (!fp)
+    {
+    return 0;
+    }
+  // read the first two bytes
+  char magic[2];
+  int n = fread(magic, sizeof(magic), 1, fp);
+  if (n != sizeof(magic)) 
+    {
+    fclose(fp);
+    return 0;
+    }
+  // check for the magic stuff:
+  // 0xFF followed by 0xD8
+  if( ( (magic[0] != char(0xFF)) || (magic[1] != char(0xD8)) ))
+    {
+    fclose(fp);
+    return 0;
+    }
+  
+  // magic number is ok, try and read the header
+  struct my_error_mgr jerr;
+  struct jpeg_decompress_struct cinfo;
+  cinfo.err = jpeg_std_error(&jerr.pub);
+  // for any error condition exit
+  jerr.pub.error_exit = my_error_exit;
+  jerr.pub.emit_message = my_emit_message;
+  jerr.pub.output_message = my_error_exit;
+  jerr.pub.format_message = my_format_message;
+  if (setjmp(jerr.setjmp_buffer))
+    {
+    /* If we get here, the JPEG code has signaled an error.
+     * We need to clean up the JPEG object, close the input file, and return.
+     */
+    jpeg_destroy_decompress(&cinfo);
+    fclose(fp);
+    return 0;
+    }
+  /* Now we can initialize the JPEG decompression object. */
+  jpeg_create_decompress(&cinfo);
+  /* Step 2: specify data source (eg, a file) */
+  jpeg_stdio_src(&cinfo, fp);
+  /* Step 3: read file parameters with jpeg_read_header() */
+  jpeg_read_header(&cinfo, TRUE);
+  
+  // if no errors have occurred yet, then it must be jpeg
+  jpeg_destroy_decompress(&cinfo);
+  fclose(fp);
+  return 1;
+}
