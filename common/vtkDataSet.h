@@ -117,6 +117,14 @@ public:
   virtual int GetCellType(int cellId) = 0;
 
   // Description:
+  // Get a list of types of cells in a dataset. The list consists of an array
+  // of types (not necessarily in any order), with a single entry per type.
+  // For example a dataset 5 triangles, 3 lines, and 100 hexahedra would
+  // result a list of three entries, corresponding to the types VTK_TRIANGLE,
+  // VTK_LINE, and VTK_HEXAHEDRON.
+  virtual void GetCellTypes(vtkIdList *types);
+
+  // Description:
   // Topological inquiry to get points defining cell.
   virtual void GetCellPoints(int cellId, vtkIdList& ptIds) = 0;
 

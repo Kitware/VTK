@@ -270,6 +270,21 @@ void vtkDataSet::GetCellNeighbors(int cellId, vtkIdList &ptIds,
     }
 }
 
+void vtkDataSet::GetCellTypes(vtkIdList *types)
+{
+  int cellId, type, numCells=this->GetNumberOfCells();
+
+  types->Reset();
+  for (cellId=0; cellId < numCells; cellId++)
+    {
+    type = this->GetCellType(cellId);
+    if ( ! types->IsId(type) )
+      {
+      types->InsertNextId(type);
+      }
+    }
+}
+
 void vtkDataSet::Squeeze()
 {
   this->PointData.Squeeze();
