@@ -68,7 +68,7 @@ for {set i 0} {$i < [llength $noTest]} {incr i} {
     }
 }
 
-proc decipad { str before total } {
+proc decipadString { str before total } {
     set x [string first "." $str]
     if { $x == -1 } { 
 	set str "${str}.0"
@@ -91,7 +91,7 @@ proc decipad { str before total } {
 }
 
 # Convenience script to pad a string out to a given length
-proc pad { str amount } {
+proc padString { str amount } {
     while { [string length $str] < $amount } {
         set str " $str"
     }
@@ -140,7 +140,7 @@ foreach afile $files {
     # Start by putting the name out - right justify it and pad to 30 characters.
     # This line MUST start with a space so that name conflicts won't occur in
     # grep statements in other files
-    set Name [pad $afile 29]
+    set Name [padString $afile 29]
     puts -nonewline $logFile " $Name - "
     flush stdout
     
@@ -148,9 +148,9 @@ foreach afile $files {
     # Use the tcl time command to get wall time
     vtkTimerLog timer
     set startCPU [timer GetCPUTime]
-    set wallTime [decipad [expr [lindex [time {source $afile} 1] 0] / 1000000.0] 4 9]
+    set wallTime [decipadString [expr [lindex [time {source $afile} 1] 0] / 1000000.0] 4 9]
     set endCPU [timer GetCPUTime]
-    set CPUTime [decipad [expr $endCPU - $startCPU] 3 8]
+    set CPUTime [decipadString [expr $endCPU - $startCPU] 3 8]
     puts -nonewline $logFile "$wallTime wall, $CPUTime cpu, "
     
     vtkWindowToImageFilter w2if
@@ -199,7 +199,7 @@ foreach afile $files {
     imgDiff SetImage [rtpnm GetOutput]
     imgDiff Update
 
-    set imageError [decipad [imgDiff GetThresholdedError] 4 9]
+    set imageError [decipadString [imgDiff GetThresholdedError] 4 9]
 
     # a test has to be off by at least threshold pixels for us to care   
     if {[imgDiff GetThresholdedError] <= $threshold} {
