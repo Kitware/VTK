@@ -83,12 +83,15 @@ main(int argc, char **argv)
 extern Vtkcommontcl_Init(Tcl_Interp *interp);
 #ifdef USE_GRAPHICS
 extern Vtkgraphicstcl_Init(Tcl_Interp *interp);
-#endif
 #ifdef USE_TKWIDGET
 extern Vtktkrenderwidget_Init(Tcl_Interp *interp);
 #endif
+#endif
 #ifdef USE_IMAGING
 extern Vtkimagingtcl_Init(Tcl_Interp *interp);
+#ifdef USE_TKWIDGET
+extern Vtktkimageviewerwidget_Init(Tcl_Interp *interp);
+#endif
 #endif
 #ifdef USE_PATENTED
 extern Vtkpatentedtcl_Init(Tcl_Interp *interp);
@@ -142,13 +145,12 @@ int Tcl_AppInit(Tcl_Interp *interp)
     {
     return TCL_ERROR;
     }
-#endif
 #ifdef USE_TKWIDGET
   if (Vtktkrenderwidget_Init(interp) == TCL_ERROR) 
     {
     return TCL_ERROR;
     }
-  
+#endif
 #endif
 
 #ifdef USE_IMAGING
@@ -156,6 +158,12 @@ int Tcl_AppInit(Tcl_Interp *interp)
     {
     return TCL_ERROR;
     }
+#ifdef USE_TKWIDGET
+  if (Vtktkimageviewerwidget_Init(interp) == TCL_ERROR) 
+    {
+    return TCL_ERROR;
+    }
+#endif
 #endif
 
 #ifdef USE_PATENTED
