@@ -146,6 +146,7 @@ void  vtkWin32RenderWindowInteractor::EndRotate()
   this->State = VTKXI_START;
   this->RenderWindow->SetDesiredUpdateRate(this->StillUpdateRate);
   KillTimer(this->WindowId,this->TimerId);
+  this->RenderWindow->Render();
 }
 
 void  vtkWin32RenderWindowInteractor::StartZoom()
@@ -161,6 +162,7 @@ void  vtkWin32RenderWindowInteractor::EndZoom()
   this->State = VTKXI_START;
   this->RenderWindow->SetDesiredUpdateRate(this->StillUpdateRate);
   KillTimer(this->WindowId,this->TimerId);
+  this->RenderWindow->Render();
 }
 
 void  vtkWin32RenderWindowInteractor::StartPan()
@@ -189,6 +191,7 @@ void  vtkWin32RenderWindowInteractor::EndPan()
   this->State = VTKXI_START;
   this->RenderWindow->SetDesiredUpdateRate(this->StillUpdateRate);
   KillTimer(this->WindowId,this->TimerId);
+  this->RenderWindow->Render();
 }
 
 LRESULT CALLBACK vtkHandleMessage(HWND hWnd,UINT uMsg, WPARAM wParam, LPARAM lParam)
