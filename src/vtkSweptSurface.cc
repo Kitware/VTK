@@ -255,7 +255,9 @@ void vtkSweptSurface::SampleInput(vtkMatrix4x4& m, int inDim[3],
 
         //check and make sure point is inside
         if ( loc[0] >= 0.0 && loc[1] >= 0.0 && loc[2] >= 0.0 &&
-        ijk[0] < inDim[0] && ijk[1] < inDim[1] && ijk[2] < inDim[2] )
+	     (ijk[0] < inDim[0] - 1) && 
+	     (ijk[1] < inDim[1] - 1) && 
+	     (ijk[2] < inDim[2] - 1))
           {
           //get scalar values
           idx = ijk[0] + ijk[1]*inDim[0] + ijk[2]*inSliceSize;
