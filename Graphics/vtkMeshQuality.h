@@ -39,7 +39,6 @@
 #ifndef vtkMeshQuality_h
 #define vtkMeshQuality_h
 
-#include "vtkConfigure.h"
 #include "vtkDataSetToDataSetFilter.h"
 
 class vtkCell;
@@ -52,7 +51,7 @@ class vtkCell;
 class VTK_GRAPHICS_EXPORT vtkMeshQuality : public vtkDataSetToDataSetFilter
 {
 public:
-  void PrintSelf( ostream&, vtkIndent indent );
+  void PrintSelf(ostream& os, vtkIndent indent);
   vtkTypeRevisionMacro(vtkMeshQuality,vtkDataSetToDataSetFilter);
   static vtkMeshQuality* New();
 
