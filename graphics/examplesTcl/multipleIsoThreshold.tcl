@@ -23,24 +23,22 @@ set min [lindex $range 0]
 set max [lindex $range 1]
 set value [expr ($min + $max) / 2.0]
 
-vtkContourFilter cf
-    cf SetInput [pl3d GetOutput]
-    cf SetValue 0 $value
-    cf UseScalarTreeOn
-
 set numberOfContours 5
 set epsilon [expr double($max - $min) / double($numberOfContours * 10)]
 set min [expr $min + $epsilon]
 set max [expr $max - $epsilon]
+vtkContourFilter cf
+    cf SetInput [pl3d GetOutput]
+    cf GenerateValues $numberOfContours $min $max
+    cf UseScalarTreeOn
 
 for {set i 1} { $i <= $numberOfContours } {incr i} {
-  cf SetValue 0 [expr $min + (($i - 1) / double($numberOfContours - 1) )*($max - $min)]
-  cf Update
-  vtkPolyData pd$i
-    pd$i CopyStructure [cf GetOutput]
-    [pd$i GetPointData] DeepCopy [[cf GetOutput] GetPointData]
-  vtkPolyDataMapper mapper$i
-    mapper$i SetInput pd$i
+  vtkThreshold threshold$i
+    threshold$i SetInput [cf GetOutput]
+    set value [expr $min + ($i - 1) * ($max - $min) / double ($numberOfContours - 1)]
+    threshold$i ThresholdBetween [expr $value - $epsilon] [expr $value + $epsilon]
+  vtkDataSetMapper mapper$i
+    mapper$i SetInput [threshold$i GetOutput]
     eval mapper$i SetScalarRange \
       [[[[pl3d GetOutput] GetPointData] GetScalars] GetRange]
   vtkActor actor$i
