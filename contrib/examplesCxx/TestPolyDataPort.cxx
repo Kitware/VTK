@@ -11,7 +11,6 @@
 #include "vtkElevationFilter.h"
 #include "vtkRenderWindowInteractor.h"
 
-
 VTK_THREAD_RETURN_TYPE process_a( void *vtkNotUsed(arg) )
 {
   vtkMultiProcessController *controller;
@@ -40,10 +39,11 @@ VTK_THREAD_RETURN_TYPE process_a( void *vtkNotUsed(arg) )
 }
 
 
-VTK_THREAD_RETURN_TYPE process_b( void *vtkNotUsed(arg) )
+VTK_THREAD_RETURN_TYPE process_b( void *arg )
 {
   vtkMultiProcessController *controller;
   int myid, otherid;
+  char *save_filename = (char*)arg;
   
   putenv("DISPLAY=:0.0");
   
@@ -61,7 +61,7 @@ VTK_THREAD_RETURN_TYPE process_b( void *vtkNotUsed(arg) )
   vtkInputPort *downStreamPort = vtkInputPort::New();
   downStreamPort->SetRemoteProcessId(otherid);
   downStreamPort->SetTag(999);
-  downStreamPort->GetPolyDataOutput()->SetUpdateExtent(0, 2);
+  downStreamPort->GetPolyDataOutput()->SetUpdateExtent(0, 4);
   downStreamPort->Update();  
 
   vtkPolyDataMapper *coneMapper = vtkPolyDataMapper::New();
@@ -72,23 +72,32 @@ VTK_THREAD_RETURN_TYPE process_b( void *vtkNotUsed(arg) )
   
   vtkRenderer *ren = vtkRenderer::New();
   ren->AddActor(coneActor);
+  ren->SetBackground(0.1, 0.3, 0.5);
   
-  vtkRenderWindow *renWindow = vtkRenderWindow::New();
-  renWindow->AddRenderer(ren);
-  renWindow->SetSize( 300, 300 );
+  vtkRenderWindow *renWin = vtkRenderWindow::New();
+  renWin->AddRenderer(ren);
+  renWin->SetSize( 300, 300 );
 
   vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
-  iren->SetRenderWindow(renWindow);  
+  iren->SetRenderWindow(renWin);  
   
   // draw the resulting scene
-  renWindow->Render();
-  
+  renWin->Render();
+
+  // save for the regression test
+  if (save_filename != NULL && save_filename[0] != '\0')
+    {
+    renWin->SetFileName( save_filename );
+    renWin->SaveImageAsPPM();
+    exit( 1 );
+    }
+
   //  Begin mouse interaction
   iren->Start();
   
   // Clean up
   ren->Delete();
-  renWindow->Delete();
+  renWin->Delete();
   iren->Delete();
   downStreamPort->Delete();
   coneMapper->Delete();
@@ -102,16 +111,26 @@ void main( int argc, char *argv[] )
 {
   vtkMultiProcessController *controller;
   int myid;
+  char save_filename[100];
+
+  save_filename[0] = '\0';
+  if( (argc >= 2) && (strcmp("-S", argv[argc-1]) == 0) )
+    {
+    sprintf( save_filename, "%s.cxx.ppm", argv[0] );
+    }
   
   controller = vtkMultiProcessController::RegisterAndGetGlobalController(NULL);
 
   controller->Initialize(argc, argv);
   controller->SetNumberOfProcesses(2);
   controller->SetMultipleMethod(1, process_a, NULL);
-  controller->SetMultipleMethod(0, process_b, NULL);
+  controller->SetMultipleMethod(0, process_b, save_filename);
   controller->MultipleMethodExecute();
 
   controller->UnRegister(NULL);
 }
+
+
+
 
 
