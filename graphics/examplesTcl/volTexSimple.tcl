@@ -51,8 +51,18 @@ renWin SetAbortCheckMethod {TkCheckAbort}
 iren SetUserMethod {wm deiconify .vtkInteract}
 iren Initialize
 
-renWin SetFileName "volTexSimple.tcl.ppm"
-renWin SaveImageAsPPM
+#renWin SetFileName "volTexSimple.tcl.ppm"
+#renWin SaveImageAsPPM
 
 wm withdraw .
+
+
+
+
+
+
+
+
+
+
 
