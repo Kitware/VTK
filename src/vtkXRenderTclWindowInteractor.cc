@@ -80,6 +80,11 @@ vtkXRenderWindowInteractor::vtkXRenderWindowInteractor()
 
 vtkXRenderWindowInteractor::~vtkXRenderWindowInteractor()
 {
+  if (this->Initialized)
+    {
+    Tk_DeleteGenericHandler((Tk_GenericProc *)vtkTclEventProc,
+			    (ClientData)this);
+    }
 }
 
 void  vtkXRenderWindowInteractor::SetWidget(Widget foo)
