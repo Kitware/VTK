@@ -133,7 +133,12 @@ ENDIF(VTK_TCL_CONFIGURATION_TYPES)
 
 # Configure the Tcl package index file for the install tree.
 SET(VTK_TCL_SCRIPT_DIR "[file dirname [info script]]")
-SET(VTK_TCL_LIBRARY_DIR "[file dirname [file dirname [info script]]]")
+IF(UNIX)
+  SET(VTK_TCL_LIBRARY_DIR "[file dirname [file dirname [info script]]]")
+ELSE(UNIX)
+  SET(VTK_TCL_LIBRARY_DIR
+      "[file join [file dirname [file dirname [file dirname [file dirname [info script]]]]] bin]")
+ENDIF(UNIX)
 CONFIGURE_FILE(${VTK_SOURCE_DIR}/Wrapping/Tcl/pkgIndex.tcl.in
                ${VTK_BINARY_DIR}/Wrapping/Tcl/Install/Hide/pkgIndex.tcl
                @ONLY IMMEDIATE)
