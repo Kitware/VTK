@@ -164,11 +164,7 @@ TARGET_LINK_LIBRARIES (vtkIO vtkFiltering
 
 IF (VTK_WRAP_TCL)
   VTK_WRAP_TCL(vtkIOTCL IOTCL_SRCS ${IO_SRCS})
-  IF (APPLE)
-    ADD_LIBRARY(vtkIOTCL SHARED vtkOSXIOTclInit.c ${IOTCL_SRCS})
-  ELSE (APPLE)
-    ADD_LIBRARY(vtkIOTCL ${IOTCL_SRCS})
-  ENDIF (APPLE)
+  ADD_LIBRARY(vtkIOTCL ${IOTCL_SRCS})
   TARGET_LINK_LIBRARIES (vtkIOTCL
                          vtkFilteringTCL
                          vtkIO
