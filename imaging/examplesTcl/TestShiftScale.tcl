@@ -16,14 +16,12 @@ reader SetDataByteOrderToLittleEndian
 reader SetDataExtent 0 255 0 255 1 93
 reader SetFilePrefix "$VTK_DATA/fullHead/headsq"
 reader SetDataMask 0x7fff
-[reader GetOutput] SetMemoryLimit 30
 
 vtkImageShiftScale shiftScale
 shiftScale SetInput [reader GetOutput]
 shiftScale SetShift 0
 shiftScale SetScale 0.5
 shiftScale SetOutputScalarTypeToFloat
-[shiftScale GetOutput] SetMemoryLimit 50
 
 vtkImageShiftScale shiftScale2
 shiftScale2 SetInput [shiftScale GetOutput]
