@@ -141,8 +141,12 @@ int vtkCellTypes::InsertNextCell(unsigned char type, int loc)
 void vtkCellTypes::SetCellTypes(int ncells, vtkUnsignedCharArray *cellTypes, vtkIntArray *cellLocations)
 {
   this->Size = ncells;
+
   this->TypeArray = cellTypes;
+  cellTypes->Register(this);
+
   this->LocationArray = cellLocations;
+  cellLocations->Register(this);
   this->Extend = 1;
   this->MaxId = -1;
 
