@@ -1,7 +1,7 @@
-# Prototype segmentation pipline
+# Test the median filter.
 
 
-set sliceNumber 11
+set sliceNumber 22
 
 set VTK_FLOAT              1
 set VTK_INT                2
@@ -24,66 +24,22 @@ vtkImageShortReader reader;
 #reader DebugOn
 reader SwapBytesOn;
 reader SetDimensions 256 256 93;
-reader SetAspectRatio 1 1 4 0;
 reader SetFilePrefix "../../data/fullHead/headsq";
 reader SetPixelMask 0x7fff;
 
-# there is no shrink2D yet.
-vtkImageShrink3D shrink;
-shrink SetInput [reader GetOutput];
-shrink SetShrinkFactors 4 4 1;
-# Add Max
-shrink AveragingOn;
-shrink ReleaseDataFlagOff;
-
-# ReplaceOut is not working for some reason. debug later..
-vtkImageThreshold thresh1;
-thresh1 SetOutputScalarType $VTK_UNSIGNED_CHAR;
-thresh1 SetInput [reader GetOutput];
-thresh1 ThresholdByUpper 2000.0;
-thresh1 SetInValue 255;
-thresh1 ReplaceInOn;
-thresh1 SetOutValue 0;
-thresh1 ReplaceOutOn;
-
-vtkImageThreshold thresh2;
-thresh2 SetOutputScalarType $VTK_UNSIGNED_CHAR;
-thresh2 SetInput [shrink GetOutput];
-thresh2 ThresholdByUpper 1000.0;
-thresh2 SetInValue 0;
-thresh2 ReplaceInOn;
-
-# connectivity
-
-# We might combine dilate and subtract (bone 1, transition 2, all else 0)
-vtkImageDilateErode3D dilate;
-dilate SetInput [thresh1 GetOutput];
-dilate SetDilateValue 255;
-dilate SetErodeValue 0;
-dilate SetKernelSize 3 3 3;
-
-vtkImageArithmetic subtract;
-subtract SetInput1 [dilate GetOutput];
-subtract SetInput2 [thresh1 GetOutput];
-subtract ReleaseDataFlagOff;
-
-
-# will be an adaptive median with subtract as input too.
 vtkImageMedian median;
-median SetInput [shrink GetOutput];
-median SetKernelSize 5 5 5;
+median SetInput [reader GetOutput];
+median SetKernelSize 7 7 1;
+median ReleaseDataFlagOff;
 
 
-
-
-# here for debugging
 vtkImageXViewer viewer;
 #viewer DebugOn;
 viewer SetAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS $VTK_IMAGE_Z_AXIS;
-viewer SetInput [subtract GetOutput];
+viewer SetInput [median GetOutput];
 viewer SetCoordinate2 $sliceNumber;
-viewer SetColorWindow 255
-viewer SetColorLevel 128
+viewer SetColorWindow 3000
+viewer SetColorLevel 1500
 viewer Render;
 
 
@@ -117,7 +73,7 @@ pack .wl.f2.levelLabel .wl.f2.level -side left
 
 proc SliceUp {} {
    global sliceNumber viewer
-   if {$sliceNumber < 46} {set sliceNumber [expr $sliceNumber + 1]}
+   if {$sliceNumber < 92} {set sliceNumber [expr $sliceNumber + 1]}
    puts $sliceNumber
    viewer SetCoordinate2 $sliceNumber;
    viewer Render;

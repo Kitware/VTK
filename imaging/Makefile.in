@@ -47,7 +47,7 @@ vtkImageRFFT.o \
 vtkImageRFFT1D.o \
 vtkImageScatterPlot.o \
 vtkImageShiftScale.o \
-vtkImageShortReader4D.o \
+vtkImageShortReader.o \
 vtkImageShrink3D.o \
 vtkImageSpatialFilter.o \
 vtkImageThreshold.o \
@@ -92,7 +92,7 @@ tcl/vtkImageRFFTTcl.o \
 tcl/vtkImageRFFT1DTcl.o \
 tcl/vtkImageScatterPlotTcl.o \
 tcl/vtkImageShiftScaleTcl.o \
-tcl/vtkImageShortReader4DTcl.o \
+tcl/vtkImageShortReaderTcl.o \
 tcl/vtkImageShrink3DTcl.o \
 tcl/vtkImageSpatialFilterTcl.o \
 tcl/vtkImageThresholdTcl.o \
@@ -136,7 +136,7 @@ vtkImageRFFT.h \
 vtkImageRFFT1D.h \
 vtkImageScatterPlot.h \
 vtkImageShiftScale.h \
-vtkImageShortReader4D.h \
+vtkImageShortReader.h \
 vtkImageShrink3D.h \
 vtkImageSpatialFilter.h \
 vtkImageThreshold.h \
@@ -305,8 +305,8 @@ tcl/vtkImageScatterPlotTcl.cxx: vtkImageScatterPlot.h ../tcl/cpp_parse
 tcl/vtkImageShiftScaleTcl.cxx: vtkImageShiftScale.h ../tcl/cpp_parse
 	 rm -f tcl/vtkImageShiftScaleTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageShiftScale.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageShiftScaleTcl.cxx
 
-tcl/vtkImageShortReader4DTcl.cxx: vtkImageShortReader4D.h ../tcl/cpp_parse
-	 rm -f tcl/vtkImageShortReader4DTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageShortReader4D.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageShortReader4DTcl.cxx
+tcl/vtkImageShortReaderTcl.cxx: vtkImageShortReader.h ../tcl/cpp_parse
+	 rm -f tcl/vtkImageShortReaderTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageShortReader.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageShortReaderTcl.cxx
 
 tcl/vtkImageShrink3DTcl.cxx: vtkImageShrink3D.h ../tcl/cpp_parse
 	 rm -f tcl/vtkImageShrink3DTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageShrink3D.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageShrink3DTcl.cxx

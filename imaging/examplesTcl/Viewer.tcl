@@ -20,21 +20,21 @@ set VTK_IMAGE_COMPONENT_AXIS     4
 
 # Image pipeline
 
-vtkImageShortReader4D reader;
-#reader DebugOn
+vtkImageShortReader reader;
 reader ReleaseDataFlagOff;
 reader SwapBytesOn;
-reader SetDimensions 256 256 94 1;
+reader SetDimensions 256 256 93;
 reader SetFilePrefix "../../data/fullHead/headsq";
 reader SetPixelMask 0x7fff;
+#reader DebugOn
 
 vtkImageXViewer viewer;
-#viewer DebugOn;
 viewer SetAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS $VTK_IMAGE_Z_AXIS;
 viewer SetInput [reader GetOutput];
 viewer SetCoordinate2 $sliceNumber;
 viewer SetColorWindow 3000
 viewer SetColorLevel 1500
+#viewer DebugOn;
 viewer Render;
 
 
@@ -68,7 +68,7 @@ pack .wl.f2.levelLabel .wl.f2.level -side left
 
 proc SliceUp {} {
    global sliceNumber viewer
-   if {$sliceNumber < 93} {set sliceNumber [expr $sliceNumber + 1]}
+   if {$sliceNumber < 92} {set sliceNumber [expr $sliceNumber + 1]}
    puts $sliceNumber
    viewer SetCoordinate2 $sliceNumber;
    viewer Render;
