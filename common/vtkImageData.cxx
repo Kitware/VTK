@@ -1285,7 +1285,7 @@ void vtkImageData::UpdateData()
     if (!(fd=this->CellData->GetFieldData()))
       {
       fd = vtkFieldData::New();
-      this->PointData->SetFieldData(fd);
+      this->CellData->SetFieldData(fd);
       fd->Delete();
       }
     fd->AddReplaceArray(levels, "vtkGhostLevels");
