@@ -29,7 +29,7 @@
 
 #include <float.h>
 
-vtkCxxRevisionMacro(vtkBandedPolyDataContourFilter, "1.51");
+vtkCxxRevisionMacro(vtkBandedPolyDataContourFilter, "1.52");
 vtkStandardNewMacro(vtkBandedPolyDataContourFilter);
 
 // Construct object.
@@ -594,21 +594,6 @@ int vtkBandedPolyDataContourFilter::RequestData(
           }
         } //for all points and edges
 
-      //Produce contour edges if requested
-      if ( this->GenerateContourEdges )
-        {
-        for (i=0; i < numFullPts; i++)
-          {
-          if ( isContourValue[i] && isContourValue[(i+1)%numFullPts] &&
-               s[i] == s[(i+1)%numFullPts] )
-            {
-            contourEdges->InsertNextCell(2);
-            contourEdges->InsertCellPoint(fullPoly[i]);
-            contourEdges->InsertCellPoint(fullPoly[(i+1)%numFullPts]);
-            }
-          }
-        }
-      
       //Very important: have to find the right starting vertex. The vertex
       //needs to be one where the contour values increase in both directions.
       //Really should check whether the vertex is convex.
@@ -631,6 +616,21 @@ int vtkBandedPolyDataContourFilter::RequestData(
         {
         cellId = this->InsertCell(newPolys,npts,pts,cellId,s[idx],newScalars);
         continue;
+        }
+
+      //Produce contour edges if requested
+      if ( this->GenerateContourEdges )
+        {
+        for (i=0; i < numFullPts; i++)
+          {
+          if ( isContourValue[i] && isContourValue[(i+1)%numFullPts] &&
+               s[i] == s[(i+1)%numFullPts] )
+            {
+            contourEdges->InsertNextCell(2);
+            contourEdges->InsertCellPoint(fullPoly[i]);
+            contourEdges->InsertCellPoint(fullPoly[(i+1)%numFullPts]);
+            }
+          }
         }
 
       //Find the first intersection points in the polygons starting
