@@ -223,9 +223,8 @@ void vtkGeometryFilter::Execute()
             ptId = cell->GetPointId(i);
             x = input->GetPoint(ptId);
 
-            if ( this->Merging && (pt=this->Locator->IsInsertedPoint(x)) < 0 )
+            if ( this->Merging && this->Locator->InsertUniquePoint(x, pt) )
               {
-              pt = this->Locator->InsertNextPoint(x);
               outputPD->CopyData(pd,ptId,pt);
               }
             else if (!this->Merging)
@@ -254,9 +253,8 @@ void vtkGeometryFilter::Execute()
                 {
                 ptId = face->GetPointId(i);
                 x = input->GetPoint(ptId);
-                if (this->Merging && (pt=this->Locator->IsInsertedPoint(x)) <0)
+                if (this->Merging && this->Locator->InsertUniquePoint(x, pt) )
                   {
-                  pt = this->Locator->InsertNextPoint(x);
                   outputPD->CopyData(pd,ptId,pt);
                   }
                 else if (!this->Merging)

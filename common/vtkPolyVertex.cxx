@@ -225,9 +225,8 @@ void vtkPolyVertex::Clip(float value, vtkScalars *cellScalars,
     if ( (!insideOut && s > value) || (insideOut && s <= value) )
       {
       this->Points->GetPoint(i,x);
-      if ( (pts[0] = locator->IsInsertedPoint(x)) < 0 )
+      if ( locator->InsertUniquePoint(x, pts[0]) )
         {
-        pts[0] = locator->InsertNextPoint(x);
         outPd->CopyData(inPd,this->PointIds->GetId(i),pts[0]);
         }
       newCellId = verts->InsertNextCell(1,pts);

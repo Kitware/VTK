@@ -339,10 +339,8 @@ static void ContourVolume(vtkMarchingCubes *self,T *scalars, int dims[3],
                 x[jj] = x1[jj] + t * (x2[jj] - x1[jj]);
                 }
               // check for a new point
-              if ( (ptIds[ii] = locator->IsInsertedPoint (x)) < 0)
+              if ( locator->InsertUniquePoint(x, ptIds[ii]) )
                   {
-                  ptIds[ii] = locator->InsertNextPoint(x);
-
                   if (NeedGradients)
                     {
                     n1 = gradients[vert[0]];

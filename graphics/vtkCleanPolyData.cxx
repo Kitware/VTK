@@ -108,9 +108,8 @@ void vtkCleanPolyData::Execute()
         {
         x = inPts->GetPoint(pts[i]);
 
-        if ( (ptId=this->Locator->IsInsertedPoint(x)) < 0 )
+        if ( this->Locator->InsertUniquePoint(x, ptId) )
           {
-          ptId = this->Locator->InsertNextPoint(x);
           updatedPts[numNewPts++] = ptId;
           outputPD->CopyData(pd,pts[i],ptId);
           }
@@ -136,9 +135,8 @@ void vtkCleanPolyData::Execute()
         {
         x = inPts->GetPoint(pts[i]);
 
-        if ( (ptId=this->Locator->IsInsertedPoint(x)) < 0 )
+        if ( this->Locator->InsertUniquePoint(x, ptId) )
           {
-          ptId = this->Locator->InsertNextPoint(x);
           outputPD->CopyData(pd,pts[i],ptId);
           }
 
@@ -170,9 +168,8 @@ void vtkCleanPolyData::Execute()
         {
         x = inPts->GetPoint(pts[i]);
 
-        if ( (ptId=this->Locator->IsInsertedPoint(x)) < 0 )
+        if ( this->Locator->InsertUniquePoint(x, ptId) )
           {
-          ptId = this->Locator->InsertNextPoint(x);
           outputPD->CopyData(pd,pts[i],ptId);
           }
 
@@ -211,9 +208,8 @@ void vtkCleanPolyData::Execute()
         {
         x = inPts->GetPoint(pts[i]);
 
-        if ( (ptId=this->Locator->IsInsertedPoint(x)) < 0 )
+        if ( this->Locator->InsertUniquePoint(x, ptId) )
           {
-          ptId = this->Locator->InsertNextPoint(x);
           outputPD->CopyData(pd,pts[i],ptId);
           }
 

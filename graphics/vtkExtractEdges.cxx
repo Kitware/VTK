@@ -134,9 +134,8 @@ void vtkExtractEdges::Execute()
         {
         pt2 = edge->PointIds->GetId(i);
 	x = input->GetPoint(pt2);
-        if ( (pts[1]=this->Locator->IsInsertedPoint(x)) < 0 )
+        if ( this->Locator->InsertUniquePoint(x, pts[1]) )
 	  {
-          pts[1] = this->Locator->InsertNextPoint(x);
 	  outPD->CopyData (pd,pt2,pts[1]);
 	  }
         if ( i > 0 && !edgeTable->IsEdge(pt1,pt2) )

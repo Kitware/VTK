@@ -237,15 +237,13 @@ void vtkFeatureEdges::Execute()
       Mesh->GetPoint(p1, x1);
       Mesh->GetPoint(p2, x2);
 
-      if ( (lineIds[0] = this->Locator->IsInsertedPoint(x1)) )
+      if ( this->Locator->InsertUniquePoint(x1, lineIds[0]) )
         {
-        lineIds[0] = this->Locator->InsertNextPoint(x1);
         outPD->CopyData (pd,p1,lineIds[0]);
         }
       
-      if ( (lineIds[1] = this->Locator->IsInsertedPoint(x2)) )
+      if ( this->Locator->InsertUniquePoint(x2, lineIds[1]) )
         {
-        lineIds[1] = this->Locator->InsertNextPoint(x2);
         outPD->CopyData (pd,p2,lineIds[1]);
         }
 

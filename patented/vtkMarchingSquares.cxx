@@ -233,9 +233,8 @@ static void ContourImage(T *scalars, vtkScalars *newScalars, int roi[6], int dir
               {
               x[dir[jj]] = x1[dir[jj]] + t * (x2[dir[jj]] - x1[dir[jj]]);
               }
-            if ( (ptIds[ii] = p->IsInsertedPoint(x)) < 0 )
+            if ( p->InsertUniquePoint(x, ptIds[ii]) )
               {
-              ptIds[ii] = p->InsertNextPoint(x);
               newScalars->InsertScalar(ptIds[ii],value);
               }
             }

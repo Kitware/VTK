@@ -153,10 +153,7 @@ void vtkSTLReader::Execute()
       for (i=0; i < 3; i++) 
         {
         x = newPts->GetPoint(pts[i]);
-        if ( (nodes[i] = this->Locator->IsInsertedPoint(x)) < 0 )
-          {
-          nodes[i] = this->Locator->InsertNextPoint(x);
-          }
+	this->Locator->InsertUniquePoint(x, nodes[i]);
         }
 
       if ( nodes[0] != nodes[1] &&

@@ -180,9 +180,8 @@ void vtkEdgePoints::Execute()
 	      {
 	      x[i] = x0[i] + t * (x1[i] - x0[i]);
 	      }
-            if ( (pts[0] = this->Locator->IsInsertedPoint(x)) < 0 )
+            if ( this->Locator->InsertUniquePoint(x, pts[0]) )
               {
-              pts[0] = this->Locator->InsertNextPoint(x);
               newCellId = newVerts->InsertNextCell(1,pts);
 	      outCd->CopyData(inCd,cellId,newCellId);
               p1 = edge->PointIds->GetId(e0);

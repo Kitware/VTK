@@ -188,9 +188,8 @@ void vtkMCubesReader::Execute()
 
       // swap bytes if necc
       vtkByteSwap::Swap4BERange((float *)(&point),6);
-      if ( (nodes[j] = this->Locator->IsInsertedPoint(point.x)) < 0 )
+      if ( this->Locator->InsertUniquePoint(point.x, nodes[j]) )
         {
-        nodes[j] = this->Locator->InsertNextPoint(point.x);
         if ( this->Normals )
           {
           for (k=0; k<3; k++)

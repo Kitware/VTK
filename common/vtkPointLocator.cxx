@@ -678,6 +678,26 @@ int vtkPointLocator::IsInsertedPoint(float x[3])
   return -1;
 }
 
+
+int vtkPointLocator::InsertUniquePoint(float x[3], int &id)
+{
+  int ptId;
+
+  ptId = this->IsInsertedPoint(x);
+  
+  if (ptId > -1)
+    {
+    id = ptId;
+    return 0;
+    }
+  else
+    {
+    id = this->InsertNextPoint(x);
+    return 1;
+    }
+}
+
+
 // Given a position x, return the id of the point closest to it. This method
 // is used when performing incremental point insertion.
 int vtkPointLocator::FindClosestInsertedPoint(float x[3])

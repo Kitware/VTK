@@ -64,6 +64,14 @@ public:
   // -1.
   int IsInsertedPoint(float x[3]);
 
+  // Description:
+  // Determine whether point given by x[3] has been inserted into points list.
+  // Return 0 if point was already in the list, otherwise return 1. If the
+  // point was not in the list, it will be ADDED.  In either case, the id of
+  // the point (newly inserted or not) is returned in the ptId argument.
+  // Note this combines the functionality of IsInsertedPoint() followed
+  // by a call to InsertNextPoint().
+  int InsertUniquePoint(float x[3], int &ptId);
 };
 
 #endif

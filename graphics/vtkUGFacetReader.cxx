@@ -232,9 +232,8 @@ void vtkUGFacetReader::Execute()
       for (i=0; i < 3; i++) 
         {
         x = newPts->GetPoint(pts[i]);
-        if ( (nodes[i] = this->Locator->IsInsertedPoint(x)) < 0 )
+        if ( this->Locator->InsertUniquePoint(x, nodes[i]) )
           {
-          nodes[i] = this->Locator->InsertNextPoint(x);
           mergedNormals->InsertNormal(nodes[i],newNormals->GetNormal(pts[i]));
           }
         }

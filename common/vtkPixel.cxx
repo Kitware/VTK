@@ -254,9 +254,8 @@ void vtkPixel::Contour(float value, vtkScalars *cellScalars,
 	{
 	x[j] = x1[j] + t * (x2[j] - x1[j]);
 	}
-      if ( (pts[i] = locator->IsInsertedPoint(x)) < 0 )
+      if ( locator->InsertUniquePoint(x, pts[i]) )
         {
-        pts[i] = locator->InsertNextPoint(x);
         if ( outPd ) 
           {
           int p1 = this->PointIds->GetId(vert[0]);
