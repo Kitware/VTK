@@ -7,6 +7,11 @@ int main(int, char** argv)
 {
   int res = 0;
   int len = vtkString::Length(argv[0]);
+  if ( len <= 3 )
+    {
+    cout << "Lenght of the program name should be longer than that" << endl;
+    res = 1;
+    }
   char *dup = vtkString::Duplicate(argv[0]);
   if ( vtkString::Compare(dup, argv[0]) != 0 )
     {
