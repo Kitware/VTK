@@ -1898,6 +1898,11 @@ void vtkVolumeRayCastMapper::PrintSelf(ostream& os, vtkIndent indent)
   vtkVolumeMapper::PrintSelf(os,indent);
 
   os << indent << "Sample Distance: " << this->SampleDistance << "\n";
+  os << indent << "Image Sample Distance: " << this->ImageSampleDistance << "\n";
+  os << indent << "Minimum Image Sample Distance: " << this->MinimumImageSampleDistance << "\n";
+  os << indent << "Maximum Image Sample Distance: " << this->MaximumImageSampleDistance << "\n";
+  os << indent << "Auto Adjust Sample Distances: " << this->AutoAdjustSampleDistances << "\n";
+  os << indent << "Number Of Threads: " << this->NumberOfThreads << "\n";
 
   if ( this->RayBounder )
     {
