@@ -27,7 +27,7 @@
 #include "vtkPointLocator.h"
 #include "vtkTriangle.h"
 
-vtkCxxRevisionMacro(vtkQuad, "1.81");
+vtkCxxRevisionMacro(vtkQuad, "1.82");
 vtkStandardNewMacro(vtkQuad);
 
 static const float VTK_DIVERGED = 1.e6;
@@ -58,6 +58,23 @@ vtkQuad::~vtkQuad()
 static const int VTK_QUAD_MAX_ITERATION=20;
 static const float VTK_QUAD_CONVERGED=1.e-04;
 
+inline static void ComputeNormal(vtkQuad *self, float* &pt1, float* &pt2, 
+                                 float* &pt3, float n[3])
+{
+  pt1 = self->Points->GetPoint(0);
+  pt2 = self->Points->GetPoint(1);
+  pt3 = self->Points->GetPoint(2);
+  vtkTriangle::ComputeNormal (pt1, pt2, pt3, n);
+  
+  // If first three points are co-linear, then use fourth point
+  //
+  if ( n[0] == 0.0 && n[1] == 0.0 && n[2] == 0.0 )
+    {
+    float *pt4 = self->Points->GetPoint(3);
+    vtkTriangle::ComputeNormal (pt2, pt3, pt4, n);
+    }
+}
+
 int vtkQuad::EvaluatePosition(float x[3], float* closestPoint,
                              int& subId, float pcoords[3], 
                              float& dist2, float *weights)
@@ -74,19 +91,18 @@ int vtkQuad::EvaluatePosition(float x[3], float* closestPoint,
 
   subId = 0;
   pcoords[0] = pcoords[1] = params[0] = params[1] = 0.5;
-  //
+
   // Get normal for quadrilateral
   //
   pt1 = this->Points->GetPoint(0);
   pt2 = this->Points->GetPoint(1);
   pt3 = this->Points->GetPoint(2);
-
   vtkTriangle::ComputeNormal (pt1, pt2, pt3, n);
-  //
+
   // Project point to plane
   //
   vtkPlane::ProjectPoint(x,pt1,n,cp);
-  //
+
   // Construct matrices.  Since we have over determined system, need to find
   // which 2 out of 3 equations to use to develop equations. (Any 2 should 
   // work since we've projected point to plane.)
@@ -106,19 +122,18 @@ int vtkQuad::EvaluatePosition(float x[3], float* closestPoint,
       indices[j++] = i;
       }
     }
-  //
+
   // Use Newton's method to solve for parametric coordinates
   //  
   for (iteration=converged=0; !converged
          && (iteration < VTK_QUAD_MAX_ITERATION);
        iteration++) 
     {
-    //
     //  calculate element interpolation functions and derivatives
     //
     this->InterpolationFunctions(pcoords, weights);
     this->InterpolationDerivs(pcoords, derivs);
-    //
+
     //  calculate newton functions
     //
     for (i=0; i<2; i++) 
@@ -140,7 +155,7 @@ int vtkQuad::EvaluatePosition(float x[3], float* closestPoint,
       {
       fcol[j] -= cp[indices[j]];
       }
-    //
+
     //  compute determinants and generate improvements
     //
     if ( (det=vtkMath::Determinant2x2(rcol,scol)) == 0.0 )
@@ -150,7 +165,7 @@ int vtkQuad::EvaluatePosition(float x[3], float* closestPoint,
 
     pcoords[0] = params[0] - vtkMath::Determinant2x2 (fcol,scol) / det;
     pcoords[1] = params[1] - vtkMath::Determinant2x2 (rcol,fcol) / det;
-    //
+
     //  check for convergence
     //
     if ( ((fabs(pcoords[0]-params[0])) < VTK_QUAD_CONVERGED) &&
@@ -164,7 +179,7 @@ int vtkQuad::EvaluatePosition(float x[3], float* closestPoint,
       {
       return -1;
       }
-    //
+
     //  if not converged, repeat
     //
     else 
@@ -173,7 +188,7 @@ int vtkQuad::EvaluatePosition(float x[3], float* closestPoint,
       params[1] = pcoords[1];
       }
     }
-  //
+
   //  if not converged, set the parametric coordinates to arbitrary values
   //  outside of element
   //
@@ -278,7 +293,6 @@ void vtkQuad::EvaluateLocation(int& vtkNotUsed(subId), float pcoords[3],
     }
 }
 
-//
 // Compute iso-parametrix interpolation functions
 //
 void vtkQuad::InterpolationFunctions(float pcoords[3], float sf[4])
@@ -356,7 +370,6 @@ int vtkQuad::CellBoundary(int vtkNotUsed(subId), float pcoords[3],
     }
 }
 
-//
 // Marching (convex) quadrilaterals
 //
 static int edges[4][2] = { {0,1}, {1,2}, {3,2}, {0,3} };
@@ -488,7 +501,7 @@ vtkCell *vtkQuad::GetEdge(int edgeId)
   return this->Line;
 }
 
-// 
+
 // Intersect plane; see whether point is in quadrilateral.
 //
 int vtkQuad::IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
@@ -502,20 +515,11 @@ int vtkQuad::IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
   subId = 0;
   pcoords[0] = pcoords[1] = pcoords[2] = 0.0;
 
-  // Get normal for triangle
-  //
+  // Get the quad normal
   pt1 = this->Points->GetPoint(0);
   pt2 = this->Points->GetPoint(1);
   pt3 = this->Points->GetPoint(2);
-  vtkTriangle::ComputeNormal (pt1, pt2, pt3, n);
-  
-  // If first three points are co-linear, then use fourth point
-  //
-  if ( n[0] == 0.0 && n[1] == 0.0 && n[2] == 0.0 )
-    {
-    pt3 = this->Points->GetPoint(3);
-    vtkTriangle::ComputeNormal (pt1, pt2, pt3, n);
-    }
+  ComputeNormal(this,pt1,pt2,pt3,n);
 
   // Intersect plane of triangle with line
   //
@@ -602,8 +606,8 @@ void vtkQuad::Derivatives(int vtkNotUsed(subId), float pcoords[3],
   x0 = this->Points->GetPoint(0);
   x1 = this->Points->GetPoint(1);
   x2 = this->Points->GetPoint(2);
+  ComputeNormal (this,x0, x1, x2, n);
   x3 = this->Points->GetPoint(3);
-  vtkTriangle::ComputeNormal (x0, x1, x2, n);
 
   for (i=0; i < 3; i++) 
     {
