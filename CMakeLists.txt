@@ -247,7 +247,16 @@ ENDIF (VTK_WRAP_PYTHON)
 # do not add a VTK_WRAP_PYTHON to this if.
 IF(BUILD_TESTING)
  IF (DART_ROOT)
-  FIND_PROGRAM(PYTHON_EXECUTABLE NAMES python2.2 python2.1 python1.6 python1.5 python)
+  FIND_PROGRAM(PYTHON_EXECUTABLE
+    NAMES python2.2 python2.1 python1.6 python1.5 python
+    PATHS
+    [HKEY_LOCAL_MACHINE\\SOFTWARE\\Python\\PythonCore\\2.3\\InstallPath]
+    [HKEY_LOCAL_MACHINE\\SOFTWARE\\Python\\PythonCore\\2.2\\InstallPath]
+    [HKEY_LOCAL_MACHINE\\SOFTWARE\\Python\\PythonCore\\2.1\\InstallPath]
+    [HKEY_LOCAL_MACHINE\\SOFTWARE\\Python\\PythonCore\\2.0\\InstallPath]
+    [HKEY_LOCAL_MACHINE\\SOFTWARE\\Python\\PythonCore\\1.6\\InstallPath]
+    [HKEY_LOCAL_MACHINE\\SOFTWARE\\Python\\PythonCore\\1.5\\InstallPath]
+)
   MARK_AS_ADVANCED(PYTHON_EXECUTABLE)
  ENDIF (DART_ROOT)
 ENDIF(BUILD_TESTING)
