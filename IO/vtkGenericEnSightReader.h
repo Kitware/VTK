@@ -97,7 +97,7 @@ public:
   
   // Description:
   // Set/Get the time value at which to get the value.
-  vtkSetMacro(TimeValue, float);
+  virtual void SetTimeValue(float value);
   vtkGetMacro(TimeValue, float);
 
   // Description:
@@ -288,6 +288,9 @@ protected:
   float TimeValue;
   float MinimumTimeValue;
   float MaximumTimeValue;
+  
+  // Flag for whether TimeValue has been set.
+  int TimeValueInitialized;
   
   vtkDataArrayCollection *TimeSets;
   virtual void SetTimeSets(vtkDataArrayCollection*);

@@ -39,7 +39,7 @@
 #pragma warning(pop)
 #endif
 
-vtkCxxRevisionMacro(vtkEnSightReader, "1.45");
+vtkCxxRevisionMacro(vtkEnSightReader, "1.46");
 
 //----------------------------------------------------------------------------
 typedef vtkstd::vector< vtkSmartPointer<vtkIdList> > vtkEnSightReaderCellIdsTypeBase;
@@ -1051,6 +1051,11 @@ int vtkEnSightReader::ReadCaseFile()
           this->MinimumTimeValue = timeStep;
           this->MaximumTimeValue = timeStep;
           firstTimeStep = 0;
+          // Set this as default TimeValue.
+          if(!this->TimeValueInitialized)
+            {
+            this->SetTimeValue(timeStep);
+            }
           }
         else
           {
