@@ -16,13 +16,15 @@
 
 =========================================================================*/
 #include "vtkPolyDataToImageStencil.h"
-#include "vtkPolyData.h"
+
+#include "vtkImageStencilData.h"
 #include "vtkOBBTree.h"
 #include "vtkObjectFactory.h"
+#include "vtkPolyData.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkPolyDataToImageStencil, "1.4");
+vtkCxxRevisionMacro(vtkPolyDataToImageStencil, "1.5");
 vtkStandardNewMacro(vtkPolyDataToImageStencil);
 
 //----------------------------------------------------------------------------
