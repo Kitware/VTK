@@ -42,6 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkImageDataStreamer.h"
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
+#include "vtkCommand.h"
 
 //----------------------------------------------------------------------------
 
@@ -309,10 +310,7 @@ void vtkImageDataStreamer::UpdateData(vtkDataObject *out)
     output->PrepareForNewData();
     
     // If there is a start method, call it
-    if ( this->StartMethod )
-      {
-      (*this->StartMethod)(this->StartMethodArg);
-      }
+    this->InvokeEvent(vtkCommand::StartEvent,NULL);
 
     // Try to behave gracefully with no input.
     if (input == NULL)
@@ -345,11 +343,7 @@ void vtkImageDataStreamer::UpdateData(vtkDataObject *out)
       this->InformationTime.Modified();
       
       // Call the end method, if there is one
-      if ( this->EndMethod )
-        {
-        (*this->EndMethod)(this->EndMethodArg);
-        }
-      
+      this->InvokeEvent(vtkCommand::EndEvent,NULL);
       return;
       }    
 
@@ -514,10 +508,7 @@ void vtkImageDataStreamer::UpdateData(vtkDataObject *out)
        (!this->IncrementalUpdate) )
     {  
     // Call the end method, if there is one
-    if ( this->EndMethod )
-      {
-      (*this->EndMethod)(this->EndMethodArg);
-      }        
+    this->InvokeEvent(vtkCommand::EndEvent,NULL);
     
     // We are not in the middle of an incremental update - set the
     // process extent to something invalid

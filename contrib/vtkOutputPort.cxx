@@ -42,7 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkInputPort.h"
 #include "vtkMultiProcessController.h"
 #include "vtkObjectFactory.h"
-
+#include "vtkCommand.h"
 
 //----------------------------------------------------------------------------
 vtkOutputPort* vtkOutputPort::New()
@@ -212,17 +212,11 @@ void vtkOutputPort::TriggerUpdate(int remoteProcessId)
   //if (downDataTime < input->GetMTime())
   if (input->GetDataReleased() == 0)
     {
-    if ( this->StartMethod )
-      {
-      (*this->StartMethod)(this->StartMethodArg);
-      }
+    this->InvokeEvent(vtkCommand::StartEvent,NULL);
     // First transfer the new data.
     this->Controller->Send( input, remoteProcessId,
 			    VTK_PORT_DATA_TRANSFER_TAG);
-    if ( this->EndMethod )
-      {
-      (*this->EndMethod)(this->EndMethodArg);
-      }
+    this->InvokeEvent(vtkCommand::EndEvent,NULL);
     
     // Since this time has to be local to downstream process
     // and we have no data, we have to create a time here.

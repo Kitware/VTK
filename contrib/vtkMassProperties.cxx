@@ -41,7 +41,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 #include "vtkMassProperties.h"
 #include "vtkObjectFactory.h"
-
+#include "vtkCommand.h"
 
 
 //------------------------------------------------------------------------------
@@ -123,10 +123,7 @@ void vtkMassProperties::Update()
       {
       input->Update();
       }
-    if ( this->StartMethod )
-      {
-      (*this->StartMethod)(this->StartMethodArg);
-      }
+    this->InvokeEvent(vtkCommand::StartEvent,NULL);
 
     // reset Abort flag
     this->AbortExecute = 0;
@@ -138,10 +135,7 @@ void vtkMassProperties::Update()
       this->UpdateProgress(1.0);
       }
 
-    if ( this->EndMethod )
-      {
-      (*this->EndMethod)(this->EndMethodArg);
-      }
+    this->InvokeEvent(vtkCommand::EndEvent,NULL);
     }
   if ( input->ShouldIReleaseData() )
     {

@@ -97,7 +97,7 @@ public:
 
   void Execute();
   void Update();
-
+  
   void SetInput(vtkPolyData *input);
   vtkPolyData *GetInput();
 

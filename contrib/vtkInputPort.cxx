@@ -48,7 +48,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkStructuredPoints.h"
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
-
+#include "vtkCommand.h"
 
 
 //----------------------------------------------------------------------------
@@ -410,10 +410,7 @@ void vtkInputPort::UpdateData(vtkDataObject *output)
     return;
     }
   
-  if ( this->StartMethod )
-    {
-    (*this->StartMethod)(this->StartMethodArg);
-    }    
+  this->InvokeEvent(vtkCommand::StartEvent,NULL);
 
   // Well here is a bit of a hack.
   // Since the reader will overwrite whole extents, we need to save the whole
@@ -429,10 +426,7 @@ void vtkInputPort::UpdateData(vtkDataObject *output)
   output->SetWholeExtent( wholeExtent );
   output->SetMaximumNumberOfPieces( maxPieces );
 
-  if ( this->EndMethod )
-    {
-    (*this->EndMethod)(this->EndMethodArg);
-    }
+  this->InvokeEvent(vtkCommand::EndEvent,NULL);
 
   // Receive the data time
   this->Controller->Receive( &(this->DataTime), 1, this->RemoteProcessId,

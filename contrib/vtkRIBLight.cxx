@@ -82,7 +82,7 @@ void vtkRIBLight::Render(vtkRenderer *ren, int index)
   // Copy this light's ivars into the light to be rendered
   ref = this->Light->GetReferenceCount();
   this->Light->DeepCopy(this);
-  this->Light->SetDeleteMethod(NULL);
+  //this->Light->SetDeleteMethod(NULL);
   this->Light->SetReferenceCount(ref);
   
   // Render the light
