@@ -82,7 +82,7 @@ if test "$use_oglr" = "yes"; then
 	OGLR_OBJ="\${OGLR_OBJ}"
 
 	if test "$use_mesa_oglr" = "yes"; then
-		OGLR_FLAGS="-I\${MESA_INCLUDE} -DUSE_OGLR"
+		OGLR_FLAGS="\${MESA_INCLUDE} -DUSE_OGLR"
 	else
 		OGLR_FLAGS="-DUSE_OGLR ${OGLR_INCLUDE}"
 	fi

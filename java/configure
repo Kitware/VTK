@@ -2002,7 +2002,7 @@ if test "$use_oglr" = "yes"; then
 
 	if test "$use_mesa_oglr" = "yes"; then
 		OGLR_LIBS="\${MESA_LIB}"
-		OGLR_FLAGS="-I\${MESA_INCLUDE} -DUSE_OGLR"
+		OGLR_FLAGS="\${MESA_INCLUDE} -DUSE_OGLR"
 	else
 		OGLR_LIBS="-lGL"
 		OGLR_FLAGS="-DUSE_OGLR ${OGLR_INCLUDE}"

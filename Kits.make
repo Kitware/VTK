@@ -14,7 +14,7 @@ CC_FLAGS = ${CPPFLAGS} ${CFLAGS} ${VTK_SHLIB_CFLAGS}
 CXX_FLAGS = ${CPPFLAGS} ${VTK_SHLIB_CFLAGS} ${XCFLAGS} ${CXXFLAGS} \
 	${VTK_INLINE_FLAGS} ${VTK_TEMPLATE_FLAGS} -I${srcdir} \
 	${KIT_FLAGS} -I. \
-	 -I${srcdir}/../common -I${TK_INCLUDE} -I${TCL_INCLUDE} \
+	 -I${srcdir}/../common ${TK_INCLUDE} ${TCL_INCLUDE} \
 	-D_HP_NO_FAST_MACROS ${HAVE_SETMON} ${WORDS_BIGENDIAN}
 
 all: ${VTK_LIB_FILE} ${BUILD_TCL} ${BUILD_JAVA}
@@ -60,15 +60,15 @@ libVTK$(ME)Tcl$(SHLIB_SUFFIX)$(SHLIB_VERSION): tcl/${ME}Init.o ${KIT_LIBS} ${KIT
 #------------------------------------------------------------------------------
 # rules for the java library
 #
-build_java: ${JAVA_CLASSES} ${JAVA_CODE} ${JAVA_CODE_ADD} ${JAVA_O} ${JAVA_O_ADD} ${JAVA_WRAP} libVTK${ME}Java${SHLIB_SUFFIX}${SHLIB_VERSION}
+build_java: ${JAVA_CLASSES} ${JAVA_CODE} ${JAVA_CODE_ADD} ${JAVA_O_ADD} ${JAVA_WRAP} libVTK${ME}Java${SHLIB_SUFFIX}${SHLIB_VERSION}
 
 .java.class:
 	${JAVAC} -d ${JAVA_CLASS_HOME} $< 
 
-libVTK$(ME)Java$(SHLIB_SUFFIX)$(SHLIB_VERSION): ${KIT_OBJ} ${JAVA_O} ${JAVA_O_ADD} ${JAVA_WRAP}
+libVTK$(ME)Java$(SHLIB_SUFFIX)$(SHLIB_VERSION): ${KIT_OBJ} ${JAVA_O_ADD} ${JAVA_WRAP}
 	rm -f libVTK$(ME)Java$(SHLIB_SUFFIX)$(SHLIB_VERSION)
 	$(SHLIB_LD) -o libVTK$(ME)Java$(SHLIB_SUFFIX)$(SHLIB_VERSION) \
-	  ${KIT_OBJ} ${JAVA_O} ${JAVA_O_ADD} ${JAVA_WRAP}
+	  ${KIT_OBJ} ${JAVA_O_ADD} ${JAVA_WRAP}
 
 #------------------------------------------------------------------------------
 depend: 
