@@ -25,7 +25,7 @@
 #include "vtkPointData.h"
 #include "vtkRungeKutta2.h"
 
-vtkCxxRevisionMacro(vtkStreamer, "1.90");
+vtkCxxRevisionMacro(vtkStreamer, "1.91");
 vtkCxxSetObjectMacro(vtkStreamer,Integrator,vtkInitialValueProblemSolver);
 
 #define VTK_START_FROM_POSITION 0
@@ -100,7 +100,6 @@ vtkStreamer::~vtkStreamer()
     delete [] this->Streamers;
     }
 
-  this->SetSource(0);
   if (this->Threader)
     {
     this->Threader->Delete();
