@@ -27,8 +27,10 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "Object.hh"
 #include "FPoints.hh"
 #include "FScalars.hh"
-#include "CellArr.hh"
 #include "IdList.hh"
+#include "CellType.hh"
+
+class vlCellArray;
 
 class vlCell : public vlObject
 {
@@ -41,20 +43,36 @@ public:
   // objects, and because they are used internally, do not use memory 
   // reference counting.
 
-  // Number of points in cell
-  int GetNumberOfPoints() {return this->PointIds.GetNumberOfIds();};
+  // Type of cell
+  virtual int GetCellType() = 0;
 
   // Dimensionality of cell (0,1,2, or 3)
-  virtual int CellDimension() = 0;
+  virtual int GetCellDimension() = 0;
+
+  // Point coordinates for cell.
+  vlFloatPoints *GetPoints() {return &this->Points;};
+
+  // Number of points (and other topological entities) in cell
+  int GetNumberOfPoints() {return this->PointIds.GetNumberOfIds();};
+  virtual int GetNumberOfEdges() = 0;
+  virtual int GetNumberOfFaces() = 0;
+
+  // Get topological entities
+  vlIdList *GetPointIds() {return &this->PointIds;};
+  int GetPointId(int ptId) {return this->PointIds.GetId(ptId);};
+  virtual vlCell *GetEdge(int edgeId) = 0;
+  virtual vlCell *GetFace(int faceId) = 0;
 
   // given a point x[3] return inside(=1) or outside(=0) cell; evaluate 
-  // parametric coordinates, sub-cell id (!=0 only if cell is composite), and 
+  // parametric coordinates, sub-cell id (!=0 only if cell is composite),
   // distance squared  of point x[3] to cell (in particular, the sub-cell 
-  // indicated).
-  virtual int EvaluatePosition(float x[3], int& subId, float pcoords[3], float& dist2) = 0;
+  // indicated), and interpolation weights in cell.
+  virtual int EvaluatePosition(float x[3], int& subId, float pcoords[3], 
+                               float& dist2, float weights[MAX_CELL_SIZE]) = 0;
 
   // Determine global coordinate from subId and parametric coordinates
-  virtual void EvaluateLocation(int& subId, float pcoords[3], float x[3]) = 0;
+  virtual void EvaluateLocation(int& subId, float pcoords[3], 
+                                float x[3], float weights[MAX_CELL_SIZE]) = 0;
 
   // Generate contouring primitives
   virtual void Contour(float value, vlFloatScalars *cellScalars, 
@@ -67,12 +85,6 @@ public:
 
   // Quick intersection of cell bounding box.  Returns != 0 for hit.
   char HitBBox(float bounds[6], float origin[3], float dir[3], float coord[3]);
-
-  // Point coordinates for cell.
-  vlFloatPoints *GetPoints() {return &this->Points;};
-
-  // Point ids for cell.
-  vlIdList *GetPointIds() {return &this->PointIds;};
 
   // left public for quick computational access
   vlFloatPoints Points;

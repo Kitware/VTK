@@ -22,6 +22,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "Plane.hh"
 #include "DataSet.hh"
 #include "Triangle.hh"
+#include "CellArr.hh"
 
 #define FAILURE 0
 #define INTERSECTION 2
@@ -138,7 +139,8 @@ void vlPolygon::ComputeNormal(vlFloatPoints *p, float *n)
     }
 }
 
-int vlPolygon::EvaluatePosition(float x[3], int& subId, float pcoords[3], float& minDist2)
+int vlPolygon::EvaluatePosition(float x[3], int& subId, float pcoords[3], 
+                                float& minDist2, float weights[MAX_CELL_SIZE])
 {
   int i;
   float p0[3], p10[3], l10, p20[3], l20, n[3];
@@ -147,6 +149,7 @@ int vlPolygon::EvaluatePosition(float x[3], int& subId, float pcoords[3], float&
   vlMath math;
 
   this->ParameterizePolygon(p0, p10, l10, p20, l20, n);
+  this->ComputeWeights(x,weights);
   plane.ProjectPoint(x,p0,n,xproj);
 
   for (i=0; i<3; i++) ray[i] = xproj[i] - p0[i];
@@ -167,13 +170,14 @@ int vlPolygon::EvaluatePosition(float x[3], int& subId, float pcoords[3], float&
   float pc[3], dist2;
   int ignoreId, numPts;
   vlFloatPoints pts(2);
+  float dummyWeights[MAX_CELL_SIZE];
 
   numPts = this->Points.GetNumberOfPoints();
   for (minDist2=LARGE_FLOAT,i=0; i<numPts - 1; i++)
     {
     line.Points.SetPoint(0,this->Points.GetPoint(i));
     line.Points.SetPoint(1,this->Points.GetPoint(i+1));
-    line.EvaluatePosition(x, ignoreId, pc, dist2);
+    line.EvaluatePosition(x, ignoreId, pc, dist2, dummyWeights);
     if ( dist2 < minDist2 )
       {
       minDist2 = dist2;
@@ -183,7 +187,8 @@ int vlPolygon::EvaluatePosition(float x[3], int& subId, float pcoords[3], float&
   return 0;
 }
 
-void vlPolygon::EvaluateLocation(int& subId, float pcoords[3], float x[3])
+void vlPolygon::EvaluateLocation(int& subId, float pcoords[3], float x[3],
+                                 float weights[MAX_CELL_SIZE])
 {
   int i;
   float p0[3], p10[3], l10, p20[3], l20, n[3];
@@ -193,6 +198,8 @@ void vlPolygon::EvaluateLocation(int& subId, float pcoords[3], float x[3])
     {
     x[i] = p0[i] + pcoords[0]*p10[i] + pcoords[1]*p20[i];
     }
+
+  this->ComputeWeights(x,weights);
 }
 
 //
@@ -695,3 +702,40 @@ void vlPolygon::Contour(float value, vlFloatScalars *cellScalars,
     }
 }
 
+vlCell *vlPolygon::GetEdge(int edgeId)
+{
+  static vlLine line;
+  int numPts=this->Points.GetNumberOfPoints();
+
+  // load point id's
+  line.PointIds.SetId(0,this->PointIds.GetId(edgeId));
+  line.PointIds.SetId(1,this->PointIds.GetId((edgeId+1) % numPts));
+
+  // load coordinates
+  line.Points.SetPoint(0,this->Points.GetPoint(edgeId));
+  line.Points.SetPoint(1,this->Points.GetPoint((edgeId+1) % numPts));
+
+  return &line;
+}
+
+//
+// Compute interpolation weights using 1/(1-r**2) normalized sum.
+//
+void vlPolygon::ComputeWeights(float x[3], float weights[MAX_CELL_SIZE])
+{
+  int i;
+  int numPts=this->Points.GetNumberOfPoints();
+  static vlMath math;
+  float maxDist2, sum, *pt;
+
+  for (maxDist2=0.0, i=0; i<numPts; i++)
+    {
+    pt = this->Points.GetPoint(i);
+    weights[i] = math.Distance2BetweenPoints(x,pt);
+    if ( weights[i] > maxDist2 ) maxDist2 = weights[i];
+    }
+
+  for (sum=0.0, i=0; i<numPts; i++) sum += 1.0 / (1.0 - weights[i]/maxDist2);
+
+  for (i=0; i<numPts; i++) weights[i] /= sum;
+}

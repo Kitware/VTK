@@ -18,7 +18,6 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 //
 #include "PolyData.hh"
 #include "PolyMap.hh"
-#include "CellType.hh"
 #include "Point.hh"
 #include "PolyPts.hh"
 #include "Line.hh"

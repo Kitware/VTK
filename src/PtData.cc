@@ -17,6 +17,11 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // PointData methods
 //
 #include "PtData.hh"
+#include "Cell.hh"
+#include "FScalars.hh"
+#include "FVectors.hh"
+#include "FNormals.hh"
+#include "FTCoords.hh"
 
 vlPointData::vlPointData (const vlPointData& pd)
 {
@@ -81,26 +86,26 @@ vlPointData& vlPointData::operator=(vlPointData& pd)
 //
 // Copy the point data from one point to another
 //
-void vlPointData::CopyData(vlPointData* from_pd, int from_id, int to_id)
+void vlPointData::CopyData(vlPointData* fromPd, int fromId, int toId)
 {
-  if ( this->CopyScalars && from_pd->Scalars && this->Scalars )
+  if ( this->CopyScalars && fromPd->Scalars && this->Scalars )
     {
-    this->Scalars->InsertScalar(to_id,from_pd->Scalars->GetScalar(from_id));
+    this->Scalars->InsertScalar(toId,fromPd->Scalars->GetScalar(fromId));
     }
 
-  if ( this->CopyVectors && from_pd->Vectors && this->Vectors )
+  if ( this->CopyVectors && fromPd->Vectors && this->Vectors )
     {
-    this->Vectors->InsertVector(to_id,from_pd->Vectors->GetVector(from_id));
+    this->Vectors->InsertVector(toId,fromPd->Vectors->GetVector(fromId));
     }
 
-  if ( this->CopyNormals && from_pd->Normals && this->Normals )
+  if ( this->CopyNormals && fromPd->Normals && this->Normals )
     {
-    this->Normals->InsertNormal(to_id,from_pd->Normals->GetNormal(from_id));
+    this->Normals->InsertNormal(toId,fromPd->Normals->GetNormal(fromId));
     }
 
-  if ( this->CopyTCoords && from_pd->TCoords && this->TCoords )
+  if ( this->CopyTCoords && fromPd->TCoords && this->TCoords )
     {
-    this->TCoords->InsertTCoord(to_id,from_pd->TCoords->GetTCoord(from_id));
+    this->TCoords->InsertTCoord(toId,fromPd->TCoords->GetTCoord(fromId));
     }
 }
 
@@ -144,7 +149,7 @@ void vlPointData::Initialize()
 // the input PointData to create (i.e., find initial size of) new objects; otherwise
 // use the sze variable.
 //
-void vlPointData::CopyInitialize(vlPointData* pd, int sFlg, int vFlg, int nFlg, int tFlg, int sze, int ext)
+void vlPointData::CopyInitialize(vlPointData* pd, int sze, int ext, int sFlg, int vFlg, int nFlg, int tFlg)
 {
   vlScalars *s, *newScalars;
   vlVectors *v, *newVectors;
@@ -237,5 +242,78 @@ void vlPointData::PrintSelf(ostream& os, vlIndent indent)
     os << indent << "Copy Texture Coordinates: " << (this->CopyTCoords ? "On\n" : "Off\n");
 
 
+    }
+}
+//
+// Initialize interpolation process
+//
+static vlFloatScalars cellScalars(MAX_CELL_SIZE);
+static vlFloatVectors cellVectors(MAX_CELL_SIZE);
+static vlFloatNormals cellNormals(MAX_CELL_SIZE);
+static vlFloatTCoords cellTCoords(MAX_CELL_SIZE,3);
+
+void vlPointData::InterpolateInitialize(vlPointData* pd, int sze=0, int ext=1000, int sFlg=1, int vFlg=1, int nFlg=1, int tFlg=1)
+{
+  this->CopyInitialize(pd, sze, ext, sFlg, vFlg, nFlg, tFlg);
+
+  if ( pd->TCoords )
+    {
+    cellTCoords.SetDimension(pd->TCoords->GetDimension());
+    }
+}
+
+//
+// Interpolate data from points and interpolation weights
+//
+void vlPointData::InterpolatePoint(vlPointData *fromPd, int toId, vlIdList *ptIds, float *weights)
+{
+  int i, j;
+  float s, *pv, v[3], *pn, n[3], *ptc, tc[3];
+
+  if ( this->CopyScalars && fromPd->Scalars && this->Scalars )
+    {
+    fromPd->Scalars->GetScalars(*ptIds, cellScalars);
+    for (s=0.0, i=0; i < ptIds->GetNumberOfIds(); i++)
+      {
+      s += cellScalars.GetScalar(i) * weights[i];
+      }
+    this->Scalars->InsertScalar(toId,s);
+    }
+
+  if ( this->CopyVectors && fromPd->Vectors && this->Vectors )
+    {
+    fromPd->Vectors->GetVectors(*ptIds, cellVectors);
+    for (v[0]=v[1]=v[2]=0.0, i=0; i < ptIds->GetNumberOfIds(); i++)
+      {
+      pv = cellVectors.GetVector(i);
+      v[0] += pv[0]*weights[i];
+      v[1] += pv[1]*weights[i];
+      v[2] += pv[2]*weights[i];
+      }
+    this->Vectors->InsertVector(toId,v);
+    }
+
+  if ( this->CopyNormals && fromPd->Normals && this->Normals )
+    {
+    fromPd->Normals->GetNormals(*ptIds, cellNormals);
+    for (n[0]=n[1]=n[2]=0.0, i=0; i < ptIds->GetNumberOfIds(); i++)
+      {
+      pn = cellNormals.GetNormal(i);
+      n[0] += pn[0]*weights[i];
+      n[1] += pn[1]*weights[i];
+      n[2] += pn[2]*weights[i];
+      }
+    this->Normals->InsertNormal(toId,n);
+    }
+
+  if ( this->CopyTCoords && fromPd->TCoords && this->TCoords )
+    {
+    fromPd->TCoords->GetTCoords(*ptIds, cellTCoords);
+    for (tc[0]=tc[1]=tc[2]=0.0, i=0; i < ptIds->GetNumberOfIds(); i++)
+      {
+      ptc = cellTCoords.GetTCoord(i);
+      for (j=0; j<cellTCoords.GetDimension(); j++) tc[j] += ptc[0]*weights[i];
+      }
+    this->TCoords->InsertTCoord(toId,tc);
     }
 }

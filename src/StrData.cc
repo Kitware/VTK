@@ -23,6 +23,9 @@ vlStructuredDataSet::vlStructuredDataSet()
   this->Dimensions[1] = 1;
   this->Dimensions[2] = 1;
   this->DataDescription = SINGLE_POINT;
+  
+  this->Blanking = 0;
+  this->PointVisibility = 0;
 }
 
 vlStructuredDataSet::vlStructuredDataSet(const vlStructuredDataSet& sds)
@@ -31,10 +34,14 @@ vlStructuredDataSet::vlStructuredDataSet(const vlStructuredDataSet& sds)
   this->Dimensions[1] = sds.Dimensions[1];
   this->Dimensions[2] = sds.Dimensions[2];
   this->DataDescription = sds.DataDescription;
+
+  this->Blanking = sds.Blanking;
+  this->PointVisibility = sds.PointVisibility;
 }
 
 vlStructuredDataSet::~vlStructuredDataSet()
 {
+  this->Initialize();
 }
 
 
@@ -122,3 +129,49 @@ int vlStructuredDataSet::GetNumberOfPoints()
   return Dimensions[0]*Dimensions[1]*Dimensions[2];
 }
 
+void vlStructuredDataSet::BlankingOn()
+{
+  this->Blanking = 1;
+  this->Modified();
+
+  if ( !this->PointVisibility )
+    {
+    this->PointVisibility = new vlCharArray(this->GetNumberOfPoints(),1000);
+    for (int i=0; i<this->GetNumberOfPoints(); i++)
+      {
+      this->PointVisibility->InsertValue(i,1);
+      }
+    }
+}
+
+void vlStructuredDataSet::BlankingOff()
+{
+  this->Blanking = 0;
+  this->Modified();
+}
+
+void vlStructuredDataSet::BlankPoint(int ptId)
+{
+  if ( !this->PointVisibility ) this->BlankingOn();
+  this->PointVisibility->InsertValue(ptId,0);
+}
+
+void vlStructuredDataSet::UnBlankPoint(int ptId)
+{
+  if ( !this->PointVisibility ) this->BlankingOn();
+  this->PointVisibility->InsertValue(ptId,1);
+}
+
+void vlStructuredDataSet::Initialize()
+{
+  vlDataSet::Initialize();
+
+  this->SetDimensions(1,1,1);
+  this->Blanking = 0;
+
+  if ( this->PointVisibility )
+    {
+    this->PointVisibility->UnRegister((void *)this);
+    this->PointVisibility = 0;
+    }
+}

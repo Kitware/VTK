@@ -20,7 +20,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #define __vlDataSetFilter_h
 
 #include "Filter.hh"
-#include "DataSetF.hh"
+#include "DataSet.hh"
 
 class vlDataSetFilter : public vlFilter 
 {

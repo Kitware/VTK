@@ -220,3 +220,10 @@ void vlStructuredPoints::PrintSelf(ostream& os, vlIndent indent)
     }
 }
 
+void vlStructuredPoints::Initialize()
+{
+  vlStructuredDataSet::Initialize();
+
+  this->SetAspectRatio(1,1,1);
+  this->SetOrigin(0,0,0);
+}

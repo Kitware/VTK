@@ -17,8 +17,10 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 =========================================================================*/
 #include "PolyPts.hh"
 #include "vlMath.hh"
+#include "CellArr.hh"
 
-int vlPolyPoints::EvaluatePosition(float x[3], int& subId, float pcoords[3], float& minDist2)
+int vlPolyPoints::EvaluatePosition(float x[3], int& subId, float pcoords[3], 
+                                   float& minDist2, float weights[MAX_CELL_SIZE])
 {
   int numPts=this->Points.GetNumberOfPoints();
   float *X;
@@ -47,14 +49,22 @@ int vlPolyPoints::EvaluatePosition(float x[3], int& subId, float pcoords[3], flo
     return 0;
     pcoords[0] = -10.0;
     }
+
+  for (i=0; i<numPts; i++) weights[i] = 0.0;
+  weights[subId] = 1.0;
 }
 
-void vlPolyPoints::EvaluateLocation(int& subId, float pcoords[3], float x[3])
+void vlPolyPoints::EvaluateLocation(int& subId, float pcoords[3], 
+                                    float x[3], float weights[MAX_CELL_SIZE])
 {
+  int i;
   float *X = this->Points.GetPoint(subId);
   x[0] = X[0];
   x[1] = X[1];
   x[2] = X[2];
+
+  for (i=0; i<this->GetNumberOfPoints(); i++) weights[i] = 0.0;
+  weights[subId] = 1.0;
 }
 
 void vlPolyPoints::Contour(float value, vlFloatScalars *cellScalars, 
@@ -74,4 +84,3 @@ void vlPolyPoints::Contour(float value, vlFloatScalars *cellScalars,
       }
     }
 }
-

@@ -29,14 +29,22 @@ public:
   vlBrick() {};
   char *GetClassName() {return "vlBrick";};
 
-  int CellDimension() {return 3;};
+  int GetCellType() {return vlBRICK;};
+  int GetCellDimension() {return 3;};
+  int GetNumberOfEdges() {return 12;};
+  int GetNumberOfFaces() {return 6;};
+  vlCell *GetEdge(int edgeId);
+  vlCell *GetFace(int faceId);
+
   void Contour(float value, vlFloatScalars *cellScalars, 
                vlFloatPoints *points, vlCellArray *verts, 
                vlCellArray *lines, vlCellArray *polys, vlFloatScalars *s);
-  int EvaluatePosition(float x[3], int& subId, float pcoords[3], float& dist2);
-  void EvaluateLocation(int& subId, float pcoords[3], float x[3]);
+  int EvaluatePosition(float x[3], int& subId, float pcoords[3],
+                       float& dist2, float weights[MAX_CELL_SIZE]);
+  void EvaluateLocation(int& subId, float pcoords[3], float x[3],
+                        float weights[MAX_CELL_SIZE]);
+
   void ShapeFunctions(float pcoords[3], float sf[8]);
-  void ShapeDerivs(float pcoords[3], float derivs[24]);
 
 };
 

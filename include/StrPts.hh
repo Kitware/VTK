@@ -36,6 +36,7 @@ public:
   float *GetPoint(int ptId);
   vlCell *GetCell(int cellId);
   vlMapper *MakeMapper() {return (vlMapper *)0;};
+  void Initialize();
 
   vlSetVector3Macro(AspectRatio,float);
   vlGetVectorMacro(AspectRatio,float);

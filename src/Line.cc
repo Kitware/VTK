@@ -17,13 +17,14 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 =========================================================================*/
 #include "Line.hh"
 #include "vlMath.hh"
+#include "CellArr.hh"
 
 #define NO_INTERSECTION 1
 #define INTERSECTION 2
 #define ON_LINE 6
 
-int vlLine::EvaluatePosition(float x[3], int& subId, 
-                             float pcoords[3], float& dist2)
+int vlLine::EvaluatePosition(float x[3], int& subId, float pcoords[3],
+                             float& dist2, float weights[MAX_CELL_SIZE])
 {
   float *a1, *a2, a21[3], denom, num, *closestPoint;
   int i, numPts, return_status;
@@ -74,10 +75,14 @@ int vlLine::EvaluatePosition(float x[3], int& subId,
     }
 
   dist2 = math.Distance2BetweenPoints(closestPoint,x);
+  weights[0] = pcoords[0];
+  weights[1] = 1.0 - pcoords[0];
+
   return return_status;
 }
 
-void vlLine::EvaluateLocation(int& subId, float pcoords[3], float x[3])
+void vlLine::EvaluateLocation(int& subId, float pcoords[3], float x[3],
+                              float weights[MAX_CELL_SIZE])
 {
   int i;
   float *a1 = this->Points.GetPoint(0);
@@ -87,6 +92,9 @@ void vlLine::EvaluateLocation(int& subId, float pcoords[3], float x[3])
     {
     x[i] = a1[i] + pcoords[0]*(a2[i] - a1[i]);
     }
+
+  weights[0] = pcoords[0];
+  weights[1] = 1.0 - pcoords[0];
 }
 
 //

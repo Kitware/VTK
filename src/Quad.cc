@@ -21,6 +21,8 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "Plane.hh"
 #include "vlMath.hh"
 #include "Rect.hh"
+#include "CellArr.hh"
+#include "Line.hh"
 
 //
 // Note: the ordering of the Points and PointIds is important.  See text.
@@ -29,7 +31,8 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #define MAX_ITERATION 10
 #define CONVERGED 1.e-03
 
-int vlQuad::EvaluatePosition(float x[3], int& subId, float pcoords[3], float& dist2)
+int vlQuad::EvaluatePosition(float x[3], int& subId, float pcoords[3], 
+                             float& dist2, float weights[MAX_CELL_SIZE])
 {
   int i, j;
   vlPolygon poly;
@@ -42,7 +45,7 @@ int vlQuad::EvaluatePosition(float x[3], int& subId, float pcoords[3], float& di
   int iteration, converged;
   float  params[2];
   float  fcol[2], rcol[3], scol[3];
-  float sf[4], derivs[8];
+  float derivs[8];
 
   subId = 0;
   pcoords[0] = pcoords[1] = pcoords[2] = 0.0;
@@ -84,7 +87,7 @@ int vlQuad::EvaluatePosition(float x[3], int& subId, float pcoords[3], float& di
 //
 //  calculate element shape functions and derivatives
 //
-    this->ShapeFunctions(pcoords, sf);
+    this->ShapeFunctions(pcoords, weights);
     this->ShapeDerivs(pcoords, derivs);
 //
 //  calculate newton functions
@@ -98,7 +101,7 @@ int vlQuad::EvaluatePosition(float x[3], int& subId, float pcoords[3], float& di
       pt = this->Points.GetPoint(i);
       for (j=0; j<2; j++)
         {
-        fcol[j] += pt[indices[j]] * sf[i];
+        fcol[j] += pt[indices[j]] * weights[i];
         rcol[j] += pt[indices[j]] * derivs[i];
         scol[j] += pt[indices[j]] * derivs[i+4];
         }
@@ -110,7 +113,7 @@ int vlQuad::EvaluatePosition(float x[3], int& subId, float pcoords[3], float& di
 //
     if ( (det=math.Determinate2x2(rcol,scol)) == 0.0 )
       {
-      return LARGE_FLOAT;
+      return 0;
       }
 
     pcoords[0] = params[0] - math.Determinate2x2 (fcol,scol) / det;
@@ -158,7 +161,7 @@ int vlQuad::EvaluatePosition(float x[3], int& subId, float pcoords[3], float& di
         if (pcoords[i] < -1.0) pcoords[i] = -1.0;
         if (pcoords[i] > 1.0) pcoords[i] = 1.0;
         }
-      this->EvaluateLocation(subId, pcoords, closestPoint);
+      this->EvaluateLocation(subId, pcoords, closestPoint, weights);
       for(i=0; i<2; i++) pcoords[i] = 0.5*(pcoords[i]+1.0); // shift to (0,1)
       dist2 = math.Distance2BetweenPoints(closestPoint,x);
       return 0;
@@ -166,13 +169,14 @@ int vlQuad::EvaluatePosition(float x[3], int& subId, float pcoords[3], float& di
     }
 }
 
-void vlQuad::EvaluateLocation(int& subId, float pcoords[3], float x[3])
+void vlQuad::EvaluateLocation(int& subId, float pcoords[3], float x[3],
+                              float weights[MAX_CELL_SIZE])
 {
   int i, j;
-  float sf[4], *pt, pc[3];
+  float *pt, pc[3];
 
   for (i=0; i<2; i++) pc[i] = 2.0*pcoords[i] - 1.0; //shift to -1<=r,s,t<=1
-  this->ShapeFunctions(pc, sf);
+  this->ShapeFunctions(pc, weights);
 
   x[0] = x[1] = x[2] = 0.0;
   for (i=0; i<4; i++)
@@ -180,7 +184,7 @@ void vlQuad::EvaluateLocation(int& subId, float pcoords[3], float x[3])
     pt = this->Points.GetPoint(i);
     for (j=0; j<3; j++)
       {
-      x[j] += pt[j] * sf[i];
+      x[j] += pt[j] * weights[i];
       }
     }
 }
@@ -230,10 +234,29 @@ void vlQuad::Contour(float value, vlFloatScalars *cellScalars,
   int i;
   static vlRectangle rect;
 
-  for (i=0; i<4; i++) rect.Points.SetPoint(i,this->Points.GetPoint(i));
+  rect.Points.SetPoint(0,this->Points.GetPoint(0));
+  rect.Points.SetPoint(1,this->Points.GetPoint(1));
+  rect.Points.SetPoint(2,this->Points.GetPoint(3));
+  rect.Points.SetPoint(3,this->Points.GetPoint(2));
 
   rect.Contour(value, cellScalars, points, verts, lines,
                    polys, scalars);
 
 }
+
+vlCell *vlQuad::GetEdge(int edgeId)
+{
+  static vlLine line;
+
+  // load point id's
+  line.PointIds.SetId(0,this->PointIds.GetId(edgeId));
+  line.PointIds.SetId(1,this->PointIds.GetId((edgeId+1) % 4));
+
+  // load coordinates
+  line.Points.SetPoint(0,this->Points.GetPoint(edgeId));
+  line.Points.SetPoint(1,this->Points.GetPoint((edgeId+1) % 4));
+
+  return &line;
+}
+
 

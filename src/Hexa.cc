@@ -19,6 +19,9 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "Hexa.hh"
 #include "vlMath.hh"
 #include "Brick.hh"
+#include "Line.hh"
+#include "Quad.hh"
+#include "CellArr.hh"
 
 //
 // Note: the ordering of the Points and PointIds is important.  See text.
@@ -34,7 +37,8 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #define MAX_ITERATION 10
 #define CONVERGED 1.e-03
 
-int vlHexahedron::EvaluatePosition(float x[3], int& subId, float pcoords[3], float& dist2)
+int vlHexahedron::EvaluatePosition(float x[3], int& subId, float pcoords[3], 
+                                   float& dist2, float weights[MAX_CELL_SIZE])
 {
   int iteration, converged;
   float  params[3];
@@ -43,7 +47,7 @@ int vlHexahedron::EvaluatePosition(float x[3], int& subId, float pcoords[3], flo
   float  d, *pt;
   float closestPoint[3];
   vlMath math;
-  float sf[8], derivs[24];
+  float derivs[24];
 //
 //  set initial position for Newton's method
 //
@@ -58,7 +62,7 @@ int vlHexahedron::EvaluatePosition(float x[3], int& subId, float pcoords[3], flo
 //
 //  calculate element shape functions and derivatives
 //
-    this->ShapeFunctions(pcoords, sf);
+    this->ShapeFunctions(pcoords, weights);
     this->ShapeDerivs(pcoords, derivs);
 //
 //  calculate newton functions
@@ -72,7 +76,7 @@ int vlHexahedron::EvaluatePosition(float x[3], int& subId, float pcoords[3], flo
       pt = this->Points.GetPoint(i);
       for (j=0; j<3; j++)
         {
-        fcol[j] += pt[j] * sf[i];
+        fcol[j] += pt[j] * weights[i];
         rcol[j] += pt[j] * derivs[i];
         scol[j] += pt[j] * derivs[i+8];
         tcol[j] += pt[j] * derivs[i+16];
@@ -138,7 +142,7 @@ int vlHexahedron::EvaluatePosition(float x[3], int& subId, float pcoords[3], flo
         if (pcoords[i] < -1.0) pcoords[i] = -1.0;
         if (pcoords[i] > 1.0) pcoords[i] = 1.0;
         }
-      this->EvaluateLocation(subId, pcoords, closestPoint);
+      this->EvaluateLocation(subId, pcoords, closestPoint, weights);
       for(i=0; i<3; i++) pcoords[i] = 0.5*(pcoords[i]+1.0); // shift to (0,1)
       dist2 = math.Distance2BetweenPoints(closestPoint,x);
       return 0;
@@ -206,13 +210,14 @@ void vlHexahedron::ShapeDerivs(float pcoords[3], float derivs[24])
   derivs[23] = 0.125*rm*sp;
 }
 
-void vlHexahedron::EvaluateLocation(int& subId, float pcoords[3], float x[3])
+void vlHexahedron::EvaluateLocation(int& subId, float pcoords[3], float x[3],
+                                    float weights[MAX_CELL_SIZE])
 {
   int i, j;
-  float sf[8], *pt, pc[3];
+  float *pt, pc[3];
 
   for (i=0;i<3;i++) pc[i] = 2.0*pcoords[i] - 1.0; //shift to -1<=r,s,t<=1
-  this->ShapeFunctions(pc, sf);
+  this->ShapeFunctions(pc, weights);
 
   x[0] = x[1] = x[2] = 0.0;
   for (i=0; i<8; i++)
@@ -220,11 +225,17 @@ void vlHexahedron::EvaluateLocation(int& subId, float pcoords[3], float x[3])
     pt = this->Points.GetPoint(i);
     for (j=0; j<3; j++)
       {
-      x[j] += pt[j] * sf[i];
+      x[j] += pt[j] * weights[i];
       }
     }
 }
 
+static int edges[12][2] = { {0,1}, {1,2}, {2,3}, {3,0},
+                            {4,5}, {5,6}, {6,7}, {7,4},
+                            {0,4}, {1,5}, {3,7}, {2,6}};
+static int faces[6][4] = { {0,4,7,3}, {1,2,6,5},
+                           {0,1,5,4}, {3,7,6,2},
+                           {0,3,2,1}, {4,5,6,7} };
 //
 // Marching cubes case table
 //
@@ -239,9 +250,6 @@ void vlHexahedron::Contour(float value, vlFloatScalars *cellScalars,
   TRIANGLE_CASES *triCase;
   EDGE_LIST  *edge;
   int i, j, index, *vert;
-  static int edges[12][2] = { {0,1}, {1,2}, {2,3}, {3,0},
-                              {4,5}, {5,6}, {6,7}, {7,4},
-                              {0,4}, {1,5}, {3,7}, {2,6}};
   int pts[3];
   float t, *x1, *x2, x[3];
 
@@ -268,4 +276,38 @@ void vlHexahedron::Contour(float value, vlFloatScalars *cellScalars,
       }
     polys->InsertNextCell(3,pts);
     }
+}
+
+vlCell *vlHexahedron::GetEdge(int edgeId)
+{
+  static vlLine line;
+  int *verts;
+
+  verts = edges[edgeId];
+
+  // load point id's
+  line.PointIds.SetId(0,this->PointIds.GetId(verts[0]));
+  line.PointIds.SetId(1,this->PointIds.GetId(verts[1]));
+
+  // load coordinates
+  line.Points.SetPoint(0,this->Points.GetPoint(verts[0]));
+  line.Points.SetPoint(1,this->Points.GetPoint(verts[1]));
+
+  return &line;
+}
+
+vlCell *vlHexahedron::GetFace(int faceId)
+{
+  static vlQuad quad;
+  int *verts, i;
+
+  verts = faces[faceId];
+
+  for (i=0; i<4; i++)
+    {
+    quad.PointIds.SetId(i,this->PointIds.GetId(verts[i]));
+    quad.Points.SetPoint(i,this->Points.GetPoint(verts[i]));
+    }
+
+  return &quad;
 }

@@ -29,13 +29,23 @@ public:
   vlRectangle() {};
   char *GetClassName() {return "vlRectangle";};
 
-  int CellDimension() {return 2;};
+  int GetCellType() {return vlRECTANGLE;};
+  int GetCellDimension() {return 2;};
+  int GetNumberOfEdges() {return 4;};
+  int GetNumberOfFaces() {return 0;};
+  vlCell *GetEdge(int edgeId);
+  vlCell *GetFace(int faceId) {return 0;};
+
   void Contour(float value, vlFloatScalars *cellScalars, 
                vlFloatPoints *points, vlCellArray *verts, 
                vlCellArray *lines, vlCellArray *polys, vlFloatScalars *s);
-  int EvaluatePosition(float x[3], int& subId, float pcoords[3], float& dist2);
-  void EvaluateLocation(int& subId, float pcoords[3], float x[3]);
+  int EvaluatePosition(float x[3], int& subId, float pcoords[3],
+                       float& dist2, float weights[MAX_CELL_SIZE]);
+  void EvaluateLocation(int& subId, float pcoords[3], float x[3],
+                        float weights[MAX_CELL_SIZE]);
 
+
+  void ShapeFunctions(float pcoords[3], float sf[4]);
 };
 
 #endif

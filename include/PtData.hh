@@ -30,14 +30,20 @@ class vlPointData : public vlObject
 public:
   vlPointData() : Scalars(0), Vectors(0), Normals(0), TCoords(0) {};
   void Initialize();
-  void CopyInitialize(vlPointData* pd, int sFlg=1, int vFlg=1, int nFlg=1, int tFlg=1, int sze=0, int ext=1000);
   ~vlPointData();
   char *GetClassName() {return "vlPointData";};
   void PrintSelf(ostream& os, vlIndent indent);
   vlPointData (const vlPointData& pd);
   vlPointData &operator=(vlPointData& pd);
   virtual void Update() {};
-  void CopyData(vlPointData *from_pd, int from_id, int to_id);
+
+  // use to copy data
+  void CopyInitialize(vlPointData* pd, int sze=0, int ext=1000, int sFlg=1, int vFlg=1, int nFlg=1, int tFlg=1);
+  void CopyData(vlPointData *fromPd, int fromId, int toId);
+
+  // use to interpolate data
+  void InterpolateInitialize(vlPointData* pd, int sze=0, int ext=1000, int sFlg=1, int vFlg=1, int nFlg=1, int tFlg=1);
+  void InterpolatePoint(vlPointData *fromPd, int toId, vlIdList *ptIds, float *weights);
 
   vlSetObjectMacro (Scalars, vlScalars);
   vlGetObjectMacro (Scalars, vlScalars);

@@ -20,20 +20,24 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "Polygon.hh"
 #include "Plane.hh"
 #include "vlMath.hh"
+#include "CellArr.hh"
+#include "Line.hh"
 
 //
 // Note: the ordering of the Points and PointIds is important.  See text.
 //
 
-int vlRectangle::EvaluatePosition(float x[3], int& subId, float pcoords[3], float& dist2)
+int vlRectangle::EvaluatePosition(float x[3], int& subId, float pcoords[3], 
+                                  float& dist2, float weights[MAX_CELL_SIZE])
 {
   float *pt1, *pt2, *pt3;
-  vlPolygon poly;
-  vlPlane plane;
+  static vlPolygon poly;
+  static vlPlane plane;
   int i;
   float xProj[3], closestPoint[3], p[3], p21[3], p31[3];
   float l21, l31, n[3];
   vlMath math;
+  float tempPc[2];
 
   subId = 0;
   pcoords[0] = pcoords[1] = pcoords[2] = 0.0;
@@ -67,6 +71,7 @@ int vlRectangle::EvaluatePosition(float x[3], int& subId, float pcoords[3], floa
   pcoords[1] >= 0.0 && pcoords[1] <= 1.0 )
     {
     dist2 = math.Distance2BetweenPoints(xProj,x); //projection distance
+    this->ShapeFunctions(pcoords, weights);
     return 1;
     }
   else
@@ -76,13 +81,14 @@ int vlRectangle::EvaluatePosition(float x[3], int& subId, float pcoords[3], floa
       if (pcoords[i] < 0.0) pcoords[i] = 0.0;
       if (pcoords[i] > 1.0) pcoords[i] = 1.0;
       }
-    this->EvaluateLocation(subId, pcoords, closestPoint);
+    this->EvaluateLocation(subId, pcoords, closestPoint, weights);
     dist2 = math.Distance2BetweenPoints(closestPoint,x);
     return 0;
     }
 }
 
-void vlRectangle::EvaluateLocation(int& subId, float pcoords[3], float x[3])
+void vlRectangle::EvaluateLocation(int& subId, float pcoords[3], float x[3],
+                                   float weights[MAX_CELL_SIZE])
 {
   float *pt1, *pt2, *pt3;
   int i;
@@ -96,11 +102,15 @@ void vlRectangle::EvaluateLocation(int& subId, float pcoords[3], float x[3])
     x[i] = pt1[i] + pcoords[0]*(pt2[i] - pt1[i]) +
                     pcoords[1]*(pt3[i] - pt1[i]);
     }
+
+  this->ShapeFunctions(pcoords, weights);
 }
 
 //
 // Marching (convex) quadrilaterals
 //
+static int edges[4][2] = { {0,1}, {1,3}, {3,2}, {2,0} };
+
 typedef int EDGE_LIST;
 typedef struct {
        EDGE_LIST edges[5];
@@ -134,7 +144,6 @@ void vlRectangle::Contour(float value, vlFloatScalars *cellScalars,
   LINE_CASES *lineCase;
   EDGE_LIST  *edge;
   int i, j, index, *vert;
-  static int edges[4][2] = { {0,1}, {1,2}, {2,3}, {3,0} };
   int pts[2];
   float t, *x1, *x2, x[3];
 
@@ -161,4 +170,37 @@ void vlRectangle::Contour(float value, vlFloatScalars *cellScalars,
       }
     lines->InsertNextCell(2,pts);
     }
+}
+
+vlCell *vlRectangle::GetEdge(int edgeId)
+{
+  static vlLine line;
+  int *verts;
+
+  verts = edges[edgeId];
+
+  // load point id's
+  line.PointIds.SetId(0,this->PointIds.GetId(verts[0]));
+  line.PointIds.SetId(1,this->PointIds.GetId(verts[1]));
+
+  // load coordinates
+  line.Points.SetPoint(0,this->Points.GetPoint(verts[0]));
+  line.Points.SetPoint(1,this->Points.GetPoint(verts[1]));
+
+  return &line;
+}
+//
+// Compute shape functions (similar but different than Quad shape functions)
+//
+void vlRectangle::ShapeFunctions(float pcoords[3], float sf[4])
+{
+  float rm, sm;
+
+  rm = 1. - pcoords[0];
+  sm = 1. - pcoords[1];
+
+  sf[0] = rm * sm;
+  sf[1] = pcoords[0] * sm;
+  sf[2] = rm * pcoords[1];
+  sf[3] = pcoords[0] * pcoords[1];
 }

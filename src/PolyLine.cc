@@ -18,6 +18,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "PolyLine.hh"
 #include "vlMath.hh"
 #include "Line.hh"
+#include "CellArr.hh"
 
 int vlPolyLine::GenerateNormals(vlPoints *pts, vlCellArray *lines, vlFloatNormals *normals)
 {
@@ -90,32 +91,42 @@ int vlPolyLine::GenerateNormals(vlPoints *pts, vlCellArray *lines, vlFloatNormal
 //
 static vlLine line;
 
-int vlPolyLine::EvaluatePosition(float x[3], int& subId, float pcoords[3], float& minDist2)
+int vlPolyLine::EvaluatePosition(float x[3], int& subId, float pcoords[3], 
+                                 float& minDist2, float weights[MAX_CELL_SIZE])
 {
   float pc[3], dist2;
   int ignoreId, i, return_status, status;
+  float lineWeights[2];
 
   pcoords[1] = pcoords[2] = 0.0;
 
   return_status = 0;
+  weights[0] = 0.0;
   for (minDist2=LARGE_FLOAT,i=0; i<this->Points.GetNumberOfPoints()-1; i++)
     {
     line.Points.SetPoint(0,this->Points.GetPoint(i));
     line.Points.SetPoint(1,this->Points.GetPoint(i+1));
-    status = line.EvaluatePosition(x, ignoreId, pc, dist2);
+    status = line.EvaluatePosition(x, ignoreId, pc, dist2, lineWeights);
     if ( dist2 < minDist2 )
       {
       return_status = status;
       subId = i;
       pcoords[0] = pc[0];
       minDist2 = dist2;
+      weights[i] = lineWeights[0];
+      weights[i+1] = lineWeights[1];
+      }
+    else
+      {
+      weights[i+1] = 0.0;
       }
     }
 
   return return_status;
 }
 
-void vlPolyLine::EvaluateLocation(int& subId, float pcoords[3], float x[3])
+void vlPolyLine::EvaluateLocation(int& subId, float pcoords[3], float x[3],
+                                  float weights[MAX_CELL_SIZE])
 {
   int i;
   float *a1 = this->Points.GetPoint(subId);
@@ -148,4 +159,3 @@ void vlPolyLine::Contour(float value, vlFloatScalars *cellScalars,
     }
 
 }
-

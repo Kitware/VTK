@@ -24,8 +24,6 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "Cell.hh"
 #include "Points.hh"
 
-#define MAX_RESOLUTION MAX_VERTS
-
 class vlPolygon : public vlCell
 {
 public:
@@ -36,12 +34,21 @@ public:
   void ComputeNormal(float v1[3], float v2[3], float v3[3], float n[3]);
   void ComputeNormal(vlFloatPoints *p, float n[3]);
 
-  int CellDimension() {return 2;};
+  int GetCellType() {return vlPOLYGON;};
+  int GetCellDimension() {return 2;};
+  int GetNumberOfEdges() {return this->GetNumberOfPoints();};
+  int GetNumberOfFaces() {return 0;};
+  vlCell *GetEdge(int edgeId);
+  vlCell *GetFace(int faceId) {return 0;};
+
   void Contour(float value, vlFloatScalars *cellScalars, 
                vlFloatPoints *points,vlCellArray *verts, 
                vlCellArray *lines, vlCellArray *polys, vlFloatScalars *s);
-  int EvaluatePosition(float x[3], int& subId, float pcoords[3], float& dist2);
-  void EvaluateLocation(int& subId, float pcoords[3], float x[3]);
+  int EvaluatePosition(float x[3], int& subId, float pcoords[3],
+                       float& dist2, float weights[MAX_CELL_SIZE]);
+  void EvaluateLocation(int& subId, float pcoords[3], float x[3],
+                        float weights[MAX_CELL_SIZE]);
+  void ComputeWeights(float x[3], float weights[MAX_CELL_SIZE]);
 
   int ParameterizePolygon(float p0[3], float p10[3], float &l10, 
                           float p20[3], float &l20, float n[3]);

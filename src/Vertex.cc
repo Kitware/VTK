@@ -1,4 +1,3 @@
-
 /*=========================================================================
 
   Program:   Visualization Library
@@ -18,9 +17,10 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 =========================================================================*/
 #include "Point.hh"
 #include "vlMath.hh"
+#include "CellArr.hh"
 
-int vlPoint::EvaluatePosition(float x[3], int& subId, 
-                              float pcoords[3], float& dist2)
+int vlPoint::EvaluatePosition(float x[3], int& subId, float pcoords[3], 
+                              float& dist2, float weights[MAX_CELL_SIZE])
 {
   int numPts;
   float *X;
@@ -33,6 +33,7 @@ int vlPoint::EvaluatePosition(float x[3], int& subId,
   X = this->Points.GetPoint(0);
 
   dist2 = math.Distance2BetweenPoints(X,x);
+  weights[0] = 1.0;
 
   if (dist2 == 0.0)
     {
@@ -46,12 +47,15 @@ int vlPoint::EvaluatePosition(float x[3], int& subId,
     }
 }
 
-void vlPoint::EvaluateLocation(int& subId, float pcoords[3], float x[3])
+void vlPoint::EvaluateLocation(int& subId, float pcoords[3], float x[3],
+                               float weights[MAX_CELL_SIZE])
 {
   float *X = this->Points.GetPoint(0);
   x[0] = X[0];
   x[1] = X[1];
   x[2] = X[2];
+
+  weights[0] = 1.0;
 }
 
 void vlPoint::Contour(float value, vlFloatScalars *cellScalars, 
@@ -67,4 +71,3 @@ void vlPoint::Contour(float value, vlFloatScalars *cellScalars,
     verts->InsertNextCell(1,pts);
     }
 }
-

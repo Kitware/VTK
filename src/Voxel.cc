@@ -18,12 +18,16 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include <math.h>
 #include "Brick.hh"
 #include "vlMath.hh"
+#include "Line.hh"
+#include "Rect.hh"
+#include "CellArr.hh"
 
 //
 // Note: the ordering of the Points and PointIds is important.  See text.
 //
 
-int vlBrick::EvaluatePosition(float x[3], int& subId, float pcoords[3], float& dist2)
+int vlBrick::EvaluatePosition(float x[3], int& subId, float pcoords[3], 
+                              float& dist2, float weights[MAX_CELL_SIZE])
 {
   float *pt1, *pt2, *pt3, *pt4;
   int i;
@@ -51,6 +55,7 @@ int vlBrick::EvaluatePosition(float x[3], int& subId, float pcoords[3], float& d
   pcoords[2] >= 0.0 && pcoords[2] <= 1.0 )
     {
     dist2 = 0.0; // inside brick
+    this->ShapeFunctions(pcoords,weights);
     return 1;
     }
   else
@@ -60,13 +65,14 @@ int vlBrick::EvaluatePosition(float x[3], int& subId, float pcoords[3], float& d
       if (pcoords[i] < 0.0) pcoords[i] = 0.0;
       if (pcoords[i] > 1.0) pcoords[i] = 1.0;
       }
-    this->EvaluateLocation(subId, pcoords, closestPoint);
+    this->EvaluateLocation(subId, pcoords, closestPoint, weights);
     dist2 = math.Distance2BetweenPoints(closestPoint,x);
     return 0;
     }
 }
 
-void vlBrick::EvaluateLocation(int& subId, float pcoords[3], float x[3])
+void vlBrick::EvaluateLocation(int& subId, float pcoords[3], float x[3],
+                               float weights[MAX_CELL_SIZE])
 {
   float *pt1, *pt2, *pt3, *pt4;
   int i;
@@ -82,8 +88,38 @@ void vlBrick::EvaluateLocation(int& subId, float pcoords[3], float x[3])
                     pcoords[1]*(pt3[i] - pt1[i]) +
                     pcoords[2]*(pt4[i] - pt1[i]);
     }
-
+  
+  this->ShapeFunctions(pcoords,weights);
 }
+
+//
+// Compute shape functions
+//
+void vlBrick::ShapeFunctions(float pcoords[3], float sf[8])
+{
+  float rm, sm, tm;
+
+  rm = 1. - pcoords[0];
+  sm = 1. - pcoords[1];
+  tm = 1. - pcoords[2];
+
+  sf[0] = rm * sm * tm;
+  sf[1] = pcoords[0] * sm * tm;
+  sf[2] = rm * pcoords[1] * tm;
+  sf[3] = pcoords[0] * pcoords[1] * tm;
+  sf[4] = rm * sm * pcoords[2];
+  sf[5] = pcoords[0] * sm * pcoords[2];
+  sf[6] = rm * pcoords[1] * pcoords[2];
+  sf[7] = pcoords[0] * pcoords[1] * pcoords[2];
+}
+
+static int edges[12][2] = { {0,1}, {1,3}, {3,2}, {2,0},
+                            {4,5}, {5,7}, {7,6}, {6,4},
+                            {0,4}, {1,5}, {2,6}, {3,7}};
+// define in terms vlRectangle understands
+static int faces[6][4] = { {0,2,4,6}, {1,3,5,7},
+                           {0,1,4,5}, {2,3,6,7},
+                           {0,1,2,3}, {4,5,6,7} };
 
 //
 // Marching cubes case table
@@ -100,9 +136,6 @@ void vlBrick::Contour(float value, vlFloatScalars *cellScalars,
   EDGE_LIST  *edge;
   int i, j, index, *vert;
   static int vertMap[8] = { 0, 1, 3, 2, 4, 5, 7, 6 };
-  static int edges[12][2] = { {0,1}, {1,3}, {3,2}, {2,0},
-                              {4,5}, {5,7}, {7,6}, {6,4},
-                              {0,4}, {1,5}, {2,6}, {3,7}};
   int pts[3];
   float t, *x1, *x2, x[3];
 
@@ -131,3 +164,37 @@ void vlBrick::Contour(float value, vlFloatScalars *cellScalars,
     }
 }
 
+
+vlCell *vlBrick::GetEdge(int edgeId)
+{
+  static vlLine line;
+  int *verts;
+
+  verts = edges[edgeId];
+
+  // load point id's
+  line.PointIds.SetId(0,this->PointIds.GetId(verts[0]));
+  line.PointIds.SetId(1,this->PointIds.GetId(verts[1]));
+
+  // load coordinates
+  line.Points.SetPoint(0,this->Points.GetPoint(verts[0]));
+  line.Points.SetPoint(1,this->Points.GetPoint(verts[1]));
+
+  return &line;
+}
+
+vlCell *vlBrick::GetFace(int faceId)
+{
+  static vlRectangle rect;
+  int *verts, i;
+
+  verts = faces[faceId];
+
+  for (i=0; i<4; i++)
+    {
+    rect.PointIds.SetId(i,this->PointIds.GetId(verts[i]));
+    rect.Points.SetPoint(i,this->Points.GetPoint(verts[i]));
+    }
+
+  return &rect;
+}

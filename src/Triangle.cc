@@ -19,8 +19,11 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "Polygon.hh"
 #include "Plane.hh"
 #include "vlMath.hh"
+#include "CellArr.hh"
+#include "Line.hh"
 
-int vlTriangle::EvaluatePosition(float x[3], int& subId, float pcoords[3], float& dist2)
+int vlTriangle::EvaluatePosition(float x[3], int& subId, float pcoords[3], 
+                                 float& dist2, float weights[MAX_CELL_SIZE])
 {
   int i, j;
   vlPolygon poly;
@@ -72,7 +75,7 @@ int vlTriangle::EvaluatePosition(float x[3], int& subId, float pcoords[3], float
     }
 
   if ( (det = math.Determinate2x2(c1,c2)) == 0.0 )
-    return LARGE_FLOAT;
+    return 0;
 
   pcoords[0] = math.Determinate2x2 (rhs,c2) / det;
   pcoords[1] = math.Determinate2x2 (c1,rhs) / det;
@@ -85,6 +88,9 @@ int vlTriangle::EvaluatePosition(float x[3], int& subId, float pcoords[3], float
   pcoords[2] >= 0.0 && pcoords[2] <= 1.0 )
     {
     dist2 = math.Distance2BetweenPoints(xProj,x); //projection distance
+    weights[0] = pcoords[2];
+    weights[1] = pcoords[0];
+    weights[2] = pcoords[1];
     return 1;
     }
   else
@@ -94,13 +100,14 @@ int vlTriangle::EvaluatePosition(float x[3], int& subId, float pcoords[3], float
       if (pcoords[i] < 0.0) pcoords[i] = 0.0;
       if (pcoords[i] > 1.0) pcoords[i] = 1.0;
       }
-    this->EvaluateLocation(subId, pcoords, closestPoint);
+    this->EvaluateLocation(subId, pcoords, closestPoint, weights);
     dist2 = math.Distance2BetweenPoints(closestPoint,x);
     return 0;
     }
 }
 
-void vlTriangle::EvaluateLocation(int& subId, float pcoords[3], float x[3])
+void vlTriangle::EvaluateLocation(int& subId, float pcoords[3], float x[3],
+                                  float weights[MAX_CELL_SIZE])
 {
   float u3;
   float *pt1, *pt2, *pt3;
@@ -116,6 +123,10 @@ void vlTriangle::EvaluateLocation(int& subId, float pcoords[3], float x[3])
     {
     x[i] = pt1[i]*pcoords[0] + pt2[i]*pcoords[1] + pt3[i]*u3;
     }
+
+  weights[0] = u3;
+  weights[1] = pcoords[0];
+  weights[2] = pcoords[1];
 }
 
 //
@@ -174,4 +185,20 @@ void vlTriangle::Contour(float value, vlFloatScalars *cellScalars,
     lines->InsertNextCell(2,pts);
     }
 }
+
+vlCell *vlTriangle::GetEdge(int edgeId)
+{
+  static vlLine line;
+
+  // load point id's
+  line.PointIds.SetId(0,this->PointIds.GetId(edgeId));
+  line.PointIds.SetId(1,this->PointIds.GetId((edgeId+1) % 3));
+
+  // load coordinates
+  line.Points.SetPoint(0,this->Points.GetPoint(edgeId));
+  line.Points.SetPoint(1,this->Points.GetPoint((edgeId+1) % 3));
+
+  return &line;
+}
+
 
