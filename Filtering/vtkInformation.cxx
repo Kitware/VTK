@@ -31,7 +31,7 @@
 
 #include <vtkstd/map>
 
-vtkCxxRevisionMacro(vtkInformation, "1.4");
+vtkCxxRevisionMacro(vtkInformation, "1.5");
 vtkStandardNewMacro(vtkInformation);
 
 //----------------------------------------------------------------------------
@@ -267,6 +267,34 @@ VTK_INFORMATION_DEFINE_VECTOR_PROPERTY(Integer, int);
 VTK_INFORMATION_DEFINE_VECTOR_PROPERTY(Double, double);
 VTK_INFORMATION_DEFINE_VECTOR_PROPERTY(Key, vtkInformationKey*);
 #undef VTK_INFORMATION_DEFINE_VECTOR_PROPERTY
+
+#define VTK_INFORMATION_DEFINE_VECTOR_VALUE_PROPERTY(name, type)            \
+  void vtkInformation::Set(vtkInformation##name##VectorKey* key,            \
+                           type value1, type value2, type value3,           \
+                           type value4, type value5, type value6)           \
+    {                                                                       \
+    type value[6];                                                          \
+    value[0] = value1;                                                      \
+    value[1] = value2;                                                      \
+    value[2] = value3;                                                      \
+    value[3] = value4;                                                      \
+    value[4] = value5;                                                      \
+    value[5] = value6;                                                      \
+    key->Set(this, value, 6);                                               \
+    }                                                                       \
+  void vtkInformation::Set(vtkInformation##name##VectorKey* key,            \
+                           type value1, type value2, type value3)           \
+    {                                                                       \
+    type value[3];                                                          \
+    value[0] = value1;                                                      \
+    value[1] = value2;                                                      \
+    value[2] = value3;                                                      \
+    key->Set(this, value, 3);                                               \
+    }                                                                       
+
+VTK_INFORMATION_DEFINE_VECTOR_VALUE_PROPERTY(Integer, int);
+VTK_INFORMATION_DEFINE_VECTOR_VALUE_PROPERTY(Double, double);
+#undef VTK_INFORMATION_DEFINE_VECTOR_VALUE_PROPERTY
 
 //----------------------------------------------------------------------------
 vtkInformationKey* vtkInformation::GetKey(vtkInformationKey* key)

@@ -15,12 +15,15 @@
 #include "vtkRTAnalyticSource.h"
 
 #include "vtkImageData.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkPointData.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkRTAnalyticSource, "1.15");
+vtkCxxRevisionMacro(vtkRTAnalyticSource, "1.16");
 vtkStandardNewMacro(vtkRTAnalyticSource);
 
 //----------------------------------------------------------------------------
@@ -42,6 +45,8 @@ vtkRTAnalyticSource::vtkRTAnalyticSource()
   this->YMag = 18;
   this->ZFreq = 40;
   this->ZMag = 5;
+
+  this->SetNumberOfInputPorts(0);
 }
 
 
@@ -89,13 +94,18 @@ void vtkRTAnalyticSource::SetWholeExtent(int xMin, int xMax,
 }
 
 //----------------------------------------------------------------------------
-void vtkRTAnalyticSource::ExecuteInformation()
+void vtkRTAnalyticSource::ExecuteInformation (
+  vtkInformation * vtkNotUsed(request),
+  vtkInformationVector ** vtkNotUsed( inputVector ),
+  vtkInformationVector *outputVector)
 {
-  vtkImageData *output = this->GetOutput();
+  // get the info objects
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
   
-  output->SetWholeExtent(this->WholeExtent);
-  output->SetScalarType(VTK_FLOAT);
-  output->SetNumberOfScalarComponents(1);
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
+               this->WholeExtent,6);
+  outInfo->Set(vtkDataObject::SCALAR_TYPE(),VTK_FLOAT);
+  outInfo->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(),1);
 }
 
 void vtkRTAnalyticSource::ExecuteData(vtkDataObject *output)

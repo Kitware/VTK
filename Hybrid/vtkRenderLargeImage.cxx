@@ -16,11 +16,14 @@
 
 #include "vtkCamera.h"
 #include "vtkImageData.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 
-vtkCxxRevisionMacro(vtkRenderLargeImage, "1.24");
+vtkCxxRevisionMacro(vtkRenderLargeImage, "1.25");
 vtkStandardNewMacro(vtkRenderLargeImage);
 
 vtkCxxSetObjectMacro(vtkRenderLargeImage,Input,vtkRenderer);
@@ -30,6 +33,7 @@ vtkRenderLargeImage::vtkRenderLargeImage()
 {
   this->Input = NULL;
   this->Magnification = 3;
+  this->SetNumberOfInputPorts(0);
 }
 
 //----------------------------------------------------------------------------
@@ -64,8 +68,14 @@ void vtkRenderLargeImage::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 // Description:
 // This method returns the largest region that can be generated.
-void vtkRenderLargeImage::ExecuteInformation()
+void vtkRenderLargeImage::ExecuteInformation (
+  vtkInformation * vtkNotUsed(request),
+  vtkInformationVector ** vtkNotUsed( inputVector ),
+  vtkInformationVector *outputVector)
 {
+  // get the info objects
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+
   if (this->Input == NULL )
     {
     vtkErrorMacro(<<"Please specify a renderer as input!");
@@ -73,23 +83,24 @@ void vtkRenderLargeImage::ExecuteInformation()
     }
 
   // set the extent, if the VOI has not been set then default to
-  this->GetOutput()->SetWholeExtent(0, 
-                       this->Magnification*
-                       this->Input->GetRenderWindow()->GetSize()[0] - 1,
-                       0, 
-                       this->Magnification*
-                       this->Input->GetRenderWindow()->GetSize()[1] - 1,
-                       0, 0);
+  int wExt[6];
+  wExt[0] = 0; wExt[2] = 0; wExt[4] = 0; wExt[5] = 0;
+  wExt[1] = this->Magnification*
+    this->Input->GetRenderWindow()->GetSize()[0] - 1;
+  wExt[3] = this->Magnification*
+    this->Input->GetRenderWindow()->GetSize()[1] - 1;
+  
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), wExt, 6);
 
   // set the spacing
-  this->GetOutput()->SetSpacing(1.0, 1.0, 1.0);
+  outInfo->Set(vtkDataObject::SPACING(),1.0, 1.0, 1.0);
 
   // set the origin.
-  this->GetOutput()->SetOrigin(0.0, 0.0, 0.0);
+  outInfo->Set(vtkDataObject::ORIGIN(),0.0, 0.0, 0.0);
   
   // set the scalar components
-  this->GetOutput()->SetNumberOfScalarComponents(3);
-  this->GetOutput()->SetScalarType(VTK_UNSIGNED_CHAR);
+  outInfo->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(), 3);
+  outInfo->Set(vtkDataObject::SCALAR_TYPE(), VTK_UNSIGNED_CHAR);
 }
 
 

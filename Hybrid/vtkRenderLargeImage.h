@@ -20,15 +20,15 @@
 #ifndef __vtkRenderLargeImage_h
 #define __vtkRenderLargeImage_h
 
-#include "vtkImageSource.h"
+#include "vtkImageAlgorithm.h"
 
 class vtkRenderer;
 
-class VTK_HYBRID_EXPORT vtkRenderLargeImage : public vtkImageSource
+class VTK_HYBRID_EXPORT vtkRenderLargeImage : public vtkImageAlgorithm
 {
 public:
   static vtkRenderLargeImage *New();
-  vtkTypeRevisionMacro(vtkRenderLargeImage,vtkImageSource);
+  vtkTypeRevisionMacro(vtkRenderLargeImage,vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);   
 
   // Description:
@@ -51,7 +51,8 @@ protected:
   int Magnification;
   vtkRenderer *Input;
   void ExecuteData(vtkDataObject *data);
-  void ExecuteInformation();  
+  void ExecuteInformation (vtkInformation *, 
+                           vtkInformationVector **, vtkInformationVector *);  
 private:
   vtkRenderLargeImage(const vtkRenderLargeImage&);  // Not implemented.
   void operator=(const vtkRenderLargeImage&);  // Not implemented.

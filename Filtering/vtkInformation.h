@@ -92,6 +92,11 @@ public:
   // Get/Set an integer-vector-valued entry.
   void Append(vtkInformationIntegerVectorKey* key, int value);
   void Set(vtkInformationIntegerVectorKey* key, int* value, int length);
+  void Set(vtkInformationIntegerVectorKey* key, int value1, 
+           int value2, int value3);
+  void Set(vtkInformationIntegerVectorKey* key, 
+           int value1, int value2, int value3,
+           int value4, int value5, int value6);
   int* Get(vtkInformationIntegerVectorKey* key);
   void Get(vtkInformationIntegerVectorKey* key, int* value);
   int Length(vtkInformationIntegerVectorKey* key);
@@ -109,6 +114,11 @@ public:
   // Get/Set an double-vector-valued entry.
   void Append(vtkInformationDoubleVectorKey* key, double value);
   void Set(vtkInformationDoubleVectorKey* key, double* value, int length);
+  void Set(vtkInformationDoubleVectorKey* key, double value1, 
+           double value2, double value3);
+  void Set(vtkInformationDoubleVectorKey* key, 
+           double value1, double value2, double value3,
+           double value4, double value5, double value6);
   double* Get(vtkInformationDoubleVectorKey* key);
   void Get(vtkInformationDoubleVectorKey* key, double* value);
   int Length(vtkInformationDoubleVectorKey* key);

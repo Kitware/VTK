@@ -27,15 +27,15 @@
 #ifndef __vtkSampleFunction_h
 #define __vtkSampleFunction_h
 
-#include "vtkImageSource.h"
+#include "vtkImageAlgorithm.h"
 
 class vtkImplicitFunction;
 class vtkDataArray;
 
-class VTK_IMAGING_EXPORT vtkSampleFunction : public vtkImageSource
+class VTK_IMAGING_EXPORT vtkSampleFunction : public vtkImageAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkSampleFunction,vtkImageSource);
+  vtkTypeRevisionMacro(vtkSampleFunction,vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -125,7 +125,8 @@ protected:
   virtual void RemoveReferences();
 
   void ExecuteData(vtkDataObject *);
-  void ExecuteInformation();
+  void ExecuteInformation (vtkInformation *, 
+                           vtkInformationVector **, vtkInformationVector *);
   void Cap(vtkDataArray *s);
 
   int OutputScalarType;

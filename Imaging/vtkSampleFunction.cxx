@@ -20,10 +20,13 @@
 #include "vtkImageData.h"
 #include "vtkImplicitFunction.h"
 #include "vtkMath.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkSampleFunction, "1.69");
+vtkCxxRevisionMacro(vtkSampleFunction, "1.70");
 vtkStandardNewMacro(vtkSampleFunction);
 vtkCxxSetObjectMacro(vtkSampleFunction,ImplicitFunction,vtkImplicitFunction);
 
@@ -49,6 +52,8 @@ vtkSampleFunction::vtkSampleFunction()
 
   this->ComputeNormals = 1;
   this->OutputScalarType = VTK_DOUBLE;
+
+  this->SetNumberOfInputPorts(0);
 }
 
 vtkSampleFunction::~vtkSampleFunction() 
@@ -86,17 +91,27 @@ void vtkSampleFunction::SetSampleDimensions(int dim[3])
     }
 }
 
-void vtkSampleFunction::ExecuteInformation()
+void vtkSampleFunction::ExecuteInformation (
+  vtkInformation * vtkNotUsed(request),
+  vtkInformationVector ** vtkNotUsed( inputVector ),
+  vtkInformationVector *outputVector)
 {
+  // get the info objects
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+
   int i;
   double ar[3], origin[3];
-  vtkImageData *output = this->GetOutput();
   
-  output->SetScalarType(VTK_DOUBLE);
-  output->SetNumberOfScalarComponents(1);
-  output->SetWholeExtent(0, this->SampleDimensions[0]-1,
-                         0, this->SampleDimensions[1]-1,
-                         0, this->SampleDimensions[2]-1);
+  outInfo->Set(vtkDataObject::SCALAR_TYPE(),VTK_DOUBLE);
+  outInfo->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(),1);
+
+  int wExt[6];
+  wExt[0] = 0; wExt[2] = 0; wExt[4] = 0;
+  wExt[1] = this->SampleDimensions[0]-1;
+  wExt[3] = this->SampleDimensions[1]-1;
+  wExt[5] = this->SampleDimensions[2]-1;
+  
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), wExt, 6);
   
   for (i=0; i < 3; i++)
     {
@@ -111,8 +126,8 @@ void vtkSampleFunction::ExecuteInformation()
         / (this->SampleDimensions[i] - 1);
       }
     }
-  output->SetOrigin(origin);
-  output->SetSpacing(ar);
+  outInfo->Set(vtkDataObject::ORIGIN(),origin,3);
+  outInfo->Set(vtkDataObject::SPACING(),ar,3);
 }
 
 
@@ -211,7 +226,7 @@ void vtkSampleFunction::ExecuteData(vtkDataObject *outp)
 
 unsigned long vtkSampleFunction::GetMTime()
 {
-  unsigned long mTime=this->vtkSource::GetMTime();
+  unsigned long mTime=this->Superclass::GetMTime();
   unsigned long impFuncMTime;
 
   if ( this->ImplicitFunction != NULL )

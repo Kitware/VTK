@@ -21,13 +21,13 @@
 #ifndef __vtkRTAnalyticSource_h
 #define __vtkRTAnalyticSource_h
 
-#include "vtkImageSource.h"
+#include "vtkImageAlgorithm.h"
 
-class VTK_PARALLEL_EXPORT vtkRTAnalyticSource : public vtkImageSource
+class VTK_PARALLEL_EXPORT vtkRTAnalyticSource : public vtkImageAlgorithm
 {
 public:
   static vtkRTAnalyticSource *New();
-  vtkTypeRevisionMacro(vtkRTAnalyticSource,vtkImageSource);
+  vtkTypeRevisionMacro(vtkRTAnalyticSource,vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -82,7 +82,9 @@ protected:
   double Center[3];
   double Maximum;
 
-  virtual void ExecuteInformation();
+  virtual void ExecuteInformation (vtkInformation *, 
+                                   vtkInformationVector **, 
+                                   vtkInformationVector *);
   virtual void ExecuteData(vtkDataObject *data);
 private:
   vtkRTAnalyticSource(const vtkRTAnalyticSource&);  // Not implemented.

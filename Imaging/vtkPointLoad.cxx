@@ -17,10 +17,13 @@
 #include "vtkFloatArray.h"
 #include "vtkImageData.h"
 #include "vtkMath.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkPointLoad, "1.45");
+vtkCxxRevisionMacro(vtkPointLoad, "1.46");
 vtkStandardNewMacro(vtkPointLoad);
 
 // Construct with ModelBounds=(-1,1,-1,1,-1,1), SampleDimensions=(50,50,50),
@@ -41,6 +44,8 @@ vtkPointLoad::vtkPointLoad()
   this->SampleDimensions[2] = 50;
 
   this->PoissonsRatio = 0.3;
+
+  this->SetNumberOfInputPorts(0);
 }
 
 // Specify the dimensions of the volume. A stress tensor will be computed for
@@ -74,14 +79,20 @@ void vtkPointLoad::SetSampleDimensions(int dim[3])
     }
 }
 
-void vtkPointLoad::ExecuteInformation()
+void vtkPointLoad::ExecuteInformation (
+  vtkInformation * vtkNotUsed(request),
+  vtkInformationVector ** vtkNotUsed( inputVector ),
+  vtkInformationVector *outputVector)
 {
-  vtkImageData *output = this->GetOutput();
+  // get the info objects
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   // use model bounds
-  output->SetOrigin(this->ModelBounds[0],
-                    this->ModelBounds[2],
-                    this->ModelBounds[4]);
+  double origin[3];
+  origin[0] = this->ModelBounds[0];
+  origin[1] = this->ModelBounds[2];
+  origin[2] = this->ModelBounds[4];
+  outInfo->Set(vtkDataObject::ORIGIN(), origin, 3);
 
   // Set volume origin and data spacing
   int i;  
@@ -95,13 +106,17 @@ void vtkPointLoad::ExecuteInformation()
       spacing[i] = 1.0;
       }
     }
-  output->SetSpacing(spacing);
+  outInfo->Set(vtkDataObject::SPACING(),spacing,3);
+
+  int wExt[6];
+  wExt[0] = 0; wExt[2] = 0; wExt[4] = 0;
+  wExt[1] = this->SampleDimensions[0] - 1;
+  wExt[3] = this->SampleDimensions[1] - 1;
+  wExt[5] = this->SampleDimensions[2] - 1;
   
-  output->SetWholeExtent(0, this->SampleDimensions[0] - 1, 
-                         0, this->SampleDimensions[1] - 1, 
-                         0, this->SampleDimensions[2] - 1);
-  output->SetScalarType(VTK_FLOAT);
-  output->SetNumberOfScalarComponents(1);
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), wExt, 6);
+  outInfo->Set(vtkDataObject::SCALAR_TYPE(),VTK_FLOAT);
+  outInfo->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(),1);
 }
 
 //

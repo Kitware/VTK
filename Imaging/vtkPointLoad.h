@@ -27,12 +27,12 @@
 #ifndef __vtkPointLoad_h
 #define __vtkPointLoad_h
 
-#include "vtkImageSource.h"
+#include "vtkImageAlgorithm.h"
 
-class VTK_IMAGING_EXPORT vtkPointLoad :  public vtkImageSource
+class VTK_IMAGING_EXPORT vtkPointLoad :  public vtkImageAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkPointLoad,vtkImageSource);
+  vtkTypeRevisionMacro(vtkPointLoad,vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -79,7 +79,9 @@ protected:
   vtkPointLoad();
   ~vtkPointLoad() {};
 
-  virtual void ExecuteInformation();
+  virtual void ExecuteInformation (vtkInformation *, 
+                                   vtkInformationVector **, 
+                                   vtkInformationVector *);
   virtual void ExecuteData(vtkDataObject *);
 
   double LoadValue;
