@@ -871,7 +871,7 @@ Bool vtkXOpenGLRenderWindowPredProc(Display *vtkNotUsed(disp), XEvent *event,
 
 void *vtkXOpenGLRenderWindow::GetGenericContext()
 {
-#ifdef MESA
+#if defined(MESA) && defined(VTK_OPENGL_HAS_OSMESA)
   if (this->OffScreenRendering)
     {
     return (void *)this->OffScreenContextId;
