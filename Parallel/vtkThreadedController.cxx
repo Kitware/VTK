@@ -69,9 +69,9 @@ private:
   void operator=(const vtkThreadedControllerOutputWindow&);
 };
 
-vtkCxxRevisionMacro(vtkThreadedControllerOutputWindow, "1.15");
+vtkCxxRevisionMacro(vtkThreadedControllerOutputWindow, "1.16");
 
-vtkCxxRevisionMacro(vtkThreadedController, "1.15");
+vtkCxxRevisionMacro(vtkThreadedController, "1.16");
 vtkStandardNewMacro(vtkThreadedController);
 
 void vtkThreadedController::CreateOutputWindow()
@@ -225,6 +225,11 @@ int vtkThreadedController::IsBarrierInProgress=0;
 
 void vtkThreadedController::Barrier()
 {
+  if (this->NumberOfProcesses == 0)
+    {
+    return;
+    }
+
   vtkThreadedController::InitializeBarrier();
 
   // If there was a barrier before this one, we need to
