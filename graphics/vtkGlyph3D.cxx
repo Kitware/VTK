@@ -133,8 +133,12 @@ void vtkGlyph3D::Execute()
     
   // Allocate storage for output PolyData
   //
+  outputPD->CopyScalarsOff();
+  outputPD->CopyVectorsOff();
+  outputPD->CopyNormalsOff();
   if ( this->IndexMode != VTK_INDEXING_OFF )
     {
+    pd = NULL;
     numSourcePts = numSourceCells = 0;
     haveNormals = 1;
     for (numSourcePts=numSourceCells=i=0; i < this->NumberOfSources; i++)
@@ -157,6 +161,10 @@ void vtkGlyph3D::Execute()
     sourceNormals = this->Source[0]->GetPointData()->GetNormals();
     if ( sourceNormals ) haveNormals = 1;
     else haveNormals = 0;
+
+    // Prepare to copy output.
+    pd = this->Source[0]->GetPointData();
+    outputPD->CopyAllocate(pd,numPts*numSourcePts);
     }
 
   newPts = vtkFloatPoints::New();
@@ -180,12 +188,6 @@ void vtkGlyph3D::Execute()
   // Setting up for calls to PolyData::InsertNextCell()
   output->Allocate(numPts*numSourceCells,numPts);
     
-  // Prepare to copy output
-  outputPD->CopyScalarsOff();
-  outputPD->CopyVectorsOff();
-  outputPD->CopyNormalsOff();
-  outputPD->CopyAllocate(pd,numPts*numSourcePts);
-
   //
   // Traverse all Input points, transforming Source points and copying 
   // point attributes.
@@ -308,8 +310,11 @@ void vtkGlyph3D::Execute()
     trans.MultiplyPoints(sourcePts,newPts);
     if ( haveNormals ) trans.MultiplyNormals(sourceNormals,newNormals);
 
-    // Copy point data from source
-    for (i=0; i < numSourcePts; i++) outputPD->CopyData(pd,i,ptIncr+i);
+    // Copy point data from source (if possible)
+    if ( pd ) 
+      {
+      for (i=0; i < numSourcePts; i++) outputPD->CopyData(pd,i,ptIncr+i);
+      }
     }
 
   //
