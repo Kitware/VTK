@@ -52,9 +52,9 @@ vtkCellArray::vtkCellArray (const vtkCellArray& ca)
 // defining the cell.
 int vtkCellArray::GetMaxCellSize()
 {
-  int i, npts, maxSize=0;
+  int i, npts=0, maxSize=0;
 
-  for (i=0; i<this->Ia.GetMaxId(); i+=npts+1)
+  for (i=0; i<this->Ia.GetMaxId(); i+=(npts+1))
     {
     if ( (npts=this->Ia.GetValue(i)) > maxSize )
       maxSize = npts;

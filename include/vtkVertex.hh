@@ -59,8 +59,8 @@ public:
   int GetCellDimension() {return 0;};
   int GetNumberOfEdges() {return 0;};
   int GetNumberOfFaces() {return 0;};
-  vtkCell *GetEdge(int edgeId) {return 0;};
-  vtkCell *GetFace(int faceId) {return 0;};
+  vtkCell *GetEdge(int) {return 0;};
+  vtkCell *GetFace(int) {return 0;};
   int CellBoundary(int subId, float pcoords[3], vtkIdList& pts);
 
   void Contour(float value, vtkFloatScalars *cellScalars, 

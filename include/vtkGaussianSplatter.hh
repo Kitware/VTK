@@ -149,7 +149,7 @@ protected:
   float Gaussian(float x[3]);  
   float EccentricGaussian(float x[3]);  
   float ScalarSampling(float s) {return this->ScaleFactor * s;};
-  float PositionSampling(float s) {return this->ScaleFactor;};
+  float PositionSampling(float) {return this->ScaleFactor;};
   void SetScalar(int idx, float dist2);
 
 };

@@ -329,7 +329,6 @@ void vtkGlrRenderWindow::WindowInitialize (void)
   GLXconfig  *conf;
   XVisualInfo  *v;
   XSetWindowAttributes	attr;
-  Window  wins[2];
   int x,y,width,height;
   XWindowAttributes winattr;
   XSizeHints xsh;
@@ -703,7 +702,6 @@ Visual *vtkGlrRenderWindow::GetDesiredVisual ()
 Colormap vtkGlrRenderWindow::GetDesiredColormap ()
 {
   GLXconfig *conf;
-  XVisualInfo *v;
 
   if (this->ColorMap) return this->ColorMap;
 

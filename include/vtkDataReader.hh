@@ -136,7 +136,7 @@ protected:
   int ReadNormalData(FILE *fp, vtkDataSet *ds, int numPts);
   int ReadTensorData(FILE *fp, vtkDataSet *ds, int numPts);
   int ReadCoScalarData(FILE *fp, vtkDataSet *ds, int numPts);
-  int ReadLutData(FILE *fp, vtkDataSet *ds, int numPts);
+  int ReadLutData(FILE *fp, vtkDataSet *ds);
   int ReadTCoordsData(FILE *fp, vtkDataSet *ds, int numPts);
 };
 

@@ -62,7 +62,7 @@ int vtkFilter::GetDataReleased()
   return 1;
 }
 
-void vtkFilter::SetDataReleased(int flag)
+void vtkFilter::SetDataReleased(int)
 {
   vtk_ErrorMacro(<<"Method should be implemented by subclass!");
 }

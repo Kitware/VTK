@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkAPixmap - scalar data in rgba (color + transparency) form
+// .NAME vtkAPixmap - scalar data in rgba (color + opacity) form
 // .SECTION Description
 // vtkAPixmap is a concrete implementation of vtkScalars. Scalars are
 // represented using three values for color (red, green, blue) plus alpha

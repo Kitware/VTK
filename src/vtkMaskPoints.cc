@@ -100,8 +100,8 @@ void vtkMaskPoints::Execute()
       }
 
     for (ptId = this->Offset; 
-	 (ptId < numPts)&&(id < this->MaximumNumberOfPoints);  
-	 ptId += (1 + math.Random()*cap))
+    (ptId < numPts) && (id < this->MaximumNumberOfPoints);  
+    ptId += (1 + (int)((float)math.Random()*cap)) )
       {
       x =  this->Input->GetPoint(ptId);
       id = newPts->InsertNextPoint(x);

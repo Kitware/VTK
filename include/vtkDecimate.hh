@@ -45,7 +45,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // to the original geometry. The input to vtkDecimate is a vtkPolyData object,
 // and only triangles are treated. If you desire to decimate polygonal
 // meshes, first triangulate the polygons with the vtkTriangleFilter object.
-//    The algorithm proceeds as follows. Each vertex in the triangle
+//
+// The algorithm proceeds as follows. Each vertex in the triangle
 // list is evaluated for local planarity (i.e., the triangles using
 // the vertex are gathered and compared to an "average" plane). If the
 // region is locally planar, that is if the target vertex is within a
@@ -57,7 +58,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // the entire vertex list (this constitutes an iteration). Iterations
 // proceed until a target reduction is reached or a maximum iteration
 // count is exceeded.
-//    There are a number of additional parameters you can set to control the 
+//
+// There are a number of additional parameters you can set to control the 
 // decimation algorithm. The error may be increased over each iteration 
 // with the error increment. Edge preservation may be disabled or enabled.
 // You can turn on/off edge vertex deletion. (Edge vertices are vertices that
@@ -67,7 +69,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // of maximum edge length to minimum edge length. The degree is the number 
 // of triangles using a single vertex. Vertices of high degree are considered
 // "complex" and are never deleted.
-//    This implementation has been adapted for a global error bound decimation
+//
+// This implementation has been adapted for a global error bound decimation
 // criterion. That is, the error is a global bounds on distance to original
 // surface.
 
@@ -263,8 +266,7 @@ protected:
   void CreateOutput(int numPts, int numTris, int numEliminated, 
                     vtkPointData *pd, vtkPoints *inPts);
   int BuildLoop(int ptId, unsigned short int nTris, int* tris);
-  void EvaluateLoop(int ptId, int& vtype, int& numFEdges, 
-                    vtkLocalVertexPtr fedges[]);
+  void EvaluateLoop(int& vtype, int& numFEdges, vtkLocalVertexPtr fedges[]);
   int CanSplitLoop(vtkLocalVertexPtr fedges[2], int numVerts, 
                    vtkLocalVertexPtr verts[], int& n1, vtkLocalVertexPtr l1[], 
                    int& n2, vtkLocalVertexPtr l2[], float& ar);
@@ -272,7 +274,7 @@ protected:
                  vtkLocalVertexPtr *verts, int& n1, vtkLocalVertexPtr *l1, 
                  int& n2, vtkLocalVertexPtr *l2);
   void Triangulate(int numVerts, vtkLocalVertexPtr verts[]);
-  int CheckError(int ptId);
+  int CheckError();
 };
 
 #endif

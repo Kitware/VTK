@@ -425,9 +425,9 @@ void vtkConnectivityFilter::PrintSelf(ostream& os, vtkIndent indent)
     case EXTRACT_LARGEST_REGION:
       os << "(Extract largest region)\n";
       break;
+    }
 
     os << indent << "Color Regions: " << (this->ColorRegions ? "On\n" : "Off\n");
     os << indent << "Maximum Recursion Depth: " << this->MaxRecursionDepth << "\n";
-    }
 }
 

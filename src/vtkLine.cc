@@ -155,7 +155,7 @@ int vtkLine::Intersection (float a1[3], float a2[3], float b1[3], float b2[3],
 
 int vtkLine::CellBoundary(int subId, float pcoords[3], vtkIdList& pts)
 {
-  pts.Reset();
+ pts.Reset();
 
   if ( pcoords[0] >= 0.5 )
     {
@@ -197,6 +197,7 @@ void vtkLine::Contour(float value, vtkFloatScalars *cellScalars,
   VERT_LIST *vert;
   float t, x[3], *x1, *x2;
   int pts[1];
+  lines; polys;
 //
 // Build the case table
 //
@@ -343,6 +344,5 @@ int vtkLine::Triangulate(int index, vtkFloatPoints &pts)
 void vtkLine::Derivatives(int subId, float pcoords[3], float *values, 
                           int dim, float *derivs)
 {
-
 }
 
