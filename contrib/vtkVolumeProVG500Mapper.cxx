@@ -593,6 +593,22 @@ void vtkVolumeProVG500Mapper::UpdateCursor( vtkRenderer *vtkNotUsed(ren), vtkVol
       {
       cursor->SetType( VLICursor::kPlane );
       }
+    
+    cursor->SetColor( VLICursor::kXAxis, 
+                      this->CursorXAxisColor[0],
+                      this->CursorXAxisColor[1],
+                      this->CursorXAxisColor[2] );
+    
+    cursor->SetColor( VLICursor::kYAxis, 
+                      this->CursorYAxisColor[0],
+                      this->CursorYAxisColor[1],
+                      this->CursorYAxisColor[2] );
+    
+    cursor->SetColor( VLICursor::kZAxis, 
+                      this->CursorZAxisColor[0],
+                      this->CursorZAxisColor[1],
+                      this->CursorZAxisColor[2] );
+                      
     }
 
   this->Context->SetCursor( *cursor );

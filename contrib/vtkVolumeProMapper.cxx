@@ -79,7 +79,19 @@ vtkVolumeProMapper::vtkVolumeProMapper()
   this->CursorPosition[0] = 0.0;
   this->CursorPosition[1] = 0.0;
   this->CursorPosition[2] = 0.0;
-
+  
+  this->CursorXAxisColor[0] = 1.0;
+  this->CursorXAxisColor[1] = 0.0;
+  this->CursorXAxisColor[2] = 0.0;
+  
+  this->CursorYAxisColor[0] = 0.0;
+  this->CursorYAxisColor[1] = 1.0;
+  this->CursorYAxisColor[2] = 0.0;
+  
+  this->CursorZAxisColor[0] = 0.0;
+  this->CursorZAxisColor[1] = 0.0;
+  this->CursorZAxisColor[2] = 1.0;
+  
   this->CutPlane                   = 0;
   this->CutPlaneEquation[0]        = 1.0;
   this->CutPlaneEquation[1]        = 0.0;
@@ -222,6 +234,21 @@ void vtkVolumeProMapper::PrintSelf(ostream& os, vtkIndent indent)
     this->CursorPosition[0] << ", " <<
     this->CursorPosition[1] << ", " <<
     this->CursorPosition[0] << ")\n";
+
+  os << indent << "Cursor X Axis Color: (" << 
+    this->CursorXAxisColor[0] << ", " <<
+    this->CursorXAxisColor[1] << ", " <<
+    this->CursorXAxisColor[0] << ")\n";
+
+  os << indent << "Cursor Y Axis Color: (" << 
+    this->CursorYAxisColor[0] << ", " <<
+    this->CursorYAxisColor[1] << ", " <<
+    this->CursorYAxisColor[0] << ")\n";
+
+  os << indent << "Cursor Z Axis Color: (" << 
+    this->CursorZAxisColor[0] << ", " <<
+    this->CursorZAxisColor[1] << ", " <<
+    this->CursorZAxisColor[0] << ")\n";
 
   os << indent << "Cursor Type: " << this->GetCursorTypeAsString() << endl;
 
