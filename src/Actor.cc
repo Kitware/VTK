@@ -21,6 +21,9 @@ This file is part of the vis library
 
 Actor::Actor()
 {
+  mapper = 0;
+  MyProperty = 0;
+
   this->Origin[0] = 0.0;
   this->Origin[1] = 0.0;
   this->Origin[2] = 0.0;
@@ -116,4 +119,20 @@ Actor *ActorCollection::GetMember(int num)
     }
   
   return (elem->Actor);
+}
+
+void Actor::setMapper(Mapper *m)
+{
+  if ( this->mapper != m )
+  {
+    if ( this->mapper ) this->mapper->UnRegister((void *)this);
+    this->mapper = m;
+    m->Register((void *)this);
+//    modified();
+  }
+}
+
+Mapper *Actor::getMapper()
+{
+  return this->mapper;
 }

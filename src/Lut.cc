@@ -21,6 +21,8 @@ LookupTable::LookupTable()
 
 int LookupTable::Initialize(const int sz, const int ext) 
 {
+  int ret_value;
+
   return table.Initialize(sz,ext);
 }
 
@@ -172,8 +174,7 @@ void LookupTable::build()
 
     table[i] = rgb;
   }
-  
-  buildTime.modified();
+  modified();
 }
 
 RGBColor &LookupTable::mapValue(float v)
