@@ -192,9 +192,9 @@ public:
   //BTX
   int InvokeEvent(unsigned long event, void *callData);
   int InvokeEvent(const char *event, void *callData);
+  //ETX
   int InvokeEvent(unsigned long event) { return this->InvokeEvent(event, NULL); };
   int InvokeEvent(const char *event) { return this->InvokeEvent(event, NULL); };
-  //ETX
   
 protected:
   vtkObject(); 
