@@ -31,10 +31,12 @@
 // Define the edge list class--------------------------------------------------
 struct vtkEdge
 {
-  vtkEdge(vtkIdType v1, vtkIdType v2) : V1(v1), V2(v2) {}
+  vtkEdge(vtkIdType v1, vtkIdType v2) : V1(v1), V2(v2), tPos(-1.0), tNeg(-1.0) {}
   
   vtkIdType V1;
   vtkIdType V2;
+  double    tPos; //parametric coordinates where positive maximum error occurs
+  double    tNeg; //parametric coordinates where negative maximum error occurs
 };
 
 class vtkEdgeList : public vtkstd::vector<vtkEdge> {};
@@ -44,7 +46,7 @@ typedef vtkEdgeList::iterator EdgeListIterator;
 
 // Begin vtkProjectedTerrainPath class implementation--------------------------
 //
-vtkCxxRevisionMacro(vtkProjectedTerrainPath, "1.3");
+vtkCxxRevisionMacro(vtkProjectedTerrainPath, "1.4");
 vtkStandardNewMacro(vtkProjectedTerrainPath);
 
 //-----------------------------------------------------------------------------
@@ -172,23 +174,39 @@ int vtkProjectedTerrainPath::RequestData(vtkInformation *,
   // the this->Points array.
   vtkIdType j, npts, *pts;
   this->EdgeList = new EdgeListType;
+  this->PositiveLineError = vtkPriorityQueue::New();
+  this->NegativeLineError = vtkPriorityQueue::New();
   for ( inLines->InitTraversal(); inLines->GetNextCell(npts,pts); )
     {
     for (j=0; j<(npts-1); j++)
       {
       this->EdgeList->push_back(vtkEdge(pts[j],pts[j+1]));
-      this->ComputeError(this->EdgeList->size()-1);
+      this->ComputeError(this->EdgeList->size()-1); //puts edges in queues
       }
     }
-  this->PositiveLineError = vtkPriorityQueue::New();
-  this->NegativeLineError = vtkPriorityQueue::New();
   
   if ( this->ProjectionMode == NONOCCLUDED_PROJECTION )
     {
+    this->RemoveOcclusions();
     }
   else //if ( this->ProjectionMode == HUG_PROJECTION )
     {
+    this->HugTerrain();
     }
+
+  //Okay now dump out the edges from the edge list into the output polydata
+  vtkCellArray *outLines = vtkCellArray::New();
+  outLines->Allocate(outLines->EstimateSize(this->EdgeList->size(),2));
+  for (EdgeListIterator iter=this->EdgeList->begin();
+       iter != this->EdgeList->end();
+       ++iter)
+    {
+    outLines->InsertNextCell(2);
+    outLines->InsertCellPoint(iter->V1);
+    outLines->InsertCellPoint(iter->V2);
+    }
+  output->SetLines(outLines);
+  outLines->Delete();
 
   // Clean up
   delete this->EdgeList;
@@ -199,10 +217,84 @@ int vtkProjectedTerrainPath::RequestData(vtkInformation *,
 }
 
 //-----------------------------------------------------------------------------
+// Remove all intersections of the line segments with the terrain
+void vtkProjectedTerrainPath::RemoveOcclusions()
+{
+  double error;
+  vtkIdType numEdges, eId;
+  if ( this->HeightOffset > 0.0 ) //want path above terrain, eliminate negative errors
+    {
+    for ( numEdges=0; (eId=this->NegativeLineError->Pop(0,error)) >= 0;
+          ++numEdges )
+      {
+      this->SplitEdge(eId,(*this->EdgeList)[eId].tNeg);
+      }
+    }
+  else //want path below terrain, eliminate positive errors
+    {
+    for ( numEdges=0; (eId=this->PositiveLineError->Pop(0,error)) >= 0;
+          ++numEdges )
+      {
+      this->SplitEdge(eId,(*this->EdgeList)[eId].tPos);
+      }
+    }
+}
+
+//-----------------------------------------------------------------------------
+// Adjust the lines so that they hug the terrain within the tolerance specified
+void vtkProjectedTerrainPath::HugTerrain()
+{
+  double error;
+  vtkIdType numEdges, eId;
+  if ( this->HeightOffset > 0.0 ) //want path above terrain
+    {
+    for ( numEdges=0; (eId=this->NegativeLineError->Pop(0,error)) >= 0;
+          ++numEdges )
+      {
+      }
+    }
+  else //want path below terrain
+    {
+    }
+}
+
+
+//-----------------------------------------------------------------------------
+// Splits the indicated edge and reinserts the edges back into the EdgeList as
+// well as the appropriate priority queues.
+void vtkProjectedTerrainPath::SplitEdge(vtkIdType eId, double t)
+{
+  // Get the points defining the edge
+  vtkEdge &e =(*this->EdgeList)[eId];
+  double p1[3], p2[3];
+  this->Points->GetPoint(e.V1,p1);
+  this->Points->GetPoint(e.V2,p2);
+  
+  // Now generate the split point and add it to the list of points
+  double x[3], loc[2];
+  int ij[2];
+  x[0] = p1[0] + t*(p2[0]-p1[0]);
+  x[1] = p1[1] + t*(p2[1]-p1[1]);
+  this->GetImageIndex(x,loc,ij);
+  x[2] = this->GetHeight(loc,ij);
+  vtkIdType pId = this->Points->InsertNextPoint(x);
+  
+  // We will create a new edge and update the old one.
+  vtkIdType v2 = e.V2;
+  e.V2 = pId;
+  this->EdgeList->push_back(vtkEdge(pId,v2));
+  vtkIdType eNew = this->EdgeList->size() - 1;
+
+  // Recompute the errors along the edges
+  this->ComputeError(eId);
+  this->ComputeError(eNew);
+}
+
+//-----------------------------------------------------------------------------
 // Warning: this method may return negative indices. This is expected behavior
 //
 inline void vtkProjectedTerrainPath::GetImageIndex(double x[3], 
-                                                     double loc[2], int ij[2])
+                                                   double loc[2], int ij[2])
 {
   loc[0] = (x[0] - this->Origin[0]) / this->Spacing[0];
   ij[0] = (int) (floor(loc[0]));
@@ -271,18 +363,20 @@ void vtkProjectedTerrainPath::ComputeError(vtkIdType edgeId)
   double negError = VTK_LARGE_FLOAT;
   double posError = -VTK_LARGE_FLOAT;
   double x[3], loc[2], t, zMap, loc1[2], loc2[2], *x1, *x2, error;
-  int ij[2], ij1[2], ij2[2], numInt, i;
+  int ij[2], ij1[2], ij2[2], numInt, i, flip;
   
   // Process the x intersections
   if ( p2[0] >= p1[0] ) //sort along x-axis
     {
     x1 = p1;
     x2 = p2;
+    flip = 0;
     }
   else
     {
     x1 = p2;
     x2 = p1;
+    flip = 1;
     }
   this->GetImageIndex(x1,loc1,ij1);
   this->GetImageIndex(x2,loc2,ij2);
@@ -303,10 +397,12 @@ void vtkProjectedTerrainPath::ComputeError(vtkIdType edgeId)
         if ( error >= 0.0 )
           {
           posError = (error > posError ? error : posError);
+          e.tPos = (flip ? (1-t) : t);
           }
         else
           {
           negError = (error < negError ? error : negError);
+          e.tNeg = (flip ? (1-t) : t);
           }
         } //if lying on image
       } //for all x-intersection points
@@ -317,11 +413,13 @@ void vtkProjectedTerrainPath::ComputeError(vtkIdType edgeId)
     {
     x1 = p1;
     x2 = p2;
+    flip = 0;
     }
   else
     {
     x1 = p2;
     x2 = p1;
+    flip = 1;
     }
   this->GetImageIndex(x1,loc1,ij1);
   this->GetImageIndex(x2,loc2,ij2);
@@ -342,18 +440,26 @@ void vtkProjectedTerrainPath::ComputeError(vtkIdType edgeId)
         if ( error >= 0.0 )
           {
           posError = (error > posError ? error : posError);
+          e.tPos = (flip ? (1-t) : t);
           }
         else
           {
           negError = (error < negError ? error : negError);
+          e.tNeg = (flip ? (1-t) : t);
           }
         } //if lying on image
       } //for all x-intersection points
     } //if x-intersections
 
   // Okay, insert the maximum errors for this edge in the queues
-  this->PositiveLineError->Insert(-posError,edgeId);
-  this->NegativeLineError->Insert(negError,edgeId);
+  if ( posError > 0.0 )
+    {
+    this->PositiveLineError->Insert(-posError,edgeId);
+    }
+  if ( negError < 0.0 )
+    {
+    this->NegativeLineError->Insert(negError,edgeId);
+    }
 }
 
 

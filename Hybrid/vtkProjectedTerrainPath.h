@@ -143,6 +143,9 @@ protected:
   void GetImageIndex(double x[3], double loc[2], int ij[2]);
   double GetHeight(double loc[2], int ij[2]);
   void ComputeError(vtkIdType edgeId);
+  void RemoveOcclusions();
+  void HugTerrain();
+  void SplitEdge(vtkIdType eId, double t);
 
   //ivars that the API addresses
   int    ProjectionMode;

@@ -53,6 +53,7 @@ vtkPolyData terrainPaths
 vtkProjectedTerrainPath projectedPaths
   projectedPaths SetInput terrainPaths
   projectedPaths SetSource [demReader GetOutput]
+  projectedPaths SetProjectionModeToNonOccluded
 
 vtkPolyDataMapper pathMapper
   pathMapper SetInput [projectedPaths GetOutput]
