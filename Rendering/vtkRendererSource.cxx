@@ -24,7 +24,7 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkRenderer.h"
 
-vtkCxxRevisionMacro(vtkRendererSource, "1.46");
+vtkCxxRevisionMacro(vtkRendererSource, "1.47");
 vtkStandardNewMacro(vtkRendererSource);
 
 vtkCxxSetObjectMacro(vtkRendererSource,Input,vtkRenderer);
@@ -35,6 +35,7 @@ vtkRendererSource::vtkRendererSource()
   this->WholeWindow = 0;
   this->RenderFlag = 0;
   this->DepthValues = 0;
+  this->DepthValuesInScalars = 0;
 }
 
 
@@ -56,10 +57,16 @@ void vtkRendererSource::ExecuteData(vtkDataObject *outp)
   vtkImageData *output = this->AllocateOutputData(outp);
   vtkUnsignedCharArray *outScalars = 
     vtkUnsignedCharArray::SafeDownCast(output->GetPointData()->GetScalars());
-  outScalars->SetName("RGBValues");
+  if (this->DepthValuesInScalars)
+    {
+    outScalars->SetName("RGBValues");
+    }
+  else
+    {
+    outScalars->SetName("RGBZValues");
+    }
   vtkRenderWindow *renWin;
   
-
   vtkDebugMacro(<<"Converting points");
 
   if (this->Input == NULL )
@@ -109,29 +116,62 @@ void vtkRendererSource::ExecuteData(vtkDataObject *outp)
   pixels = (this->Input->GetRenderWindow())->GetPixelData((int)x1,(int)y1,
                                                           (int)x2,(int)y2,1);
 
-  // copy scalars over
-  ptr = outScalars->WritePointer(0,numOutPts*3);
-  memcpy(ptr,pixels,3*numOutPts);
+  // allocate scalars
+  int nb_comp = output->GetNumberOfScalarComponents();
+  ptr = outScalars->WritePointer(0, numOutPts * nb_comp);
 
-  // Lets get the ZBuffer also, if requested.
-  if ( this->DepthValues )
+  // copy scalars over (if only RGB is requested, use the pixels directly)
+  if (!this->DepthValuesInScalars)
     {
-    float *zBuf, *zPtr;
-    zBuf = (this->Input->GetRenderWindow())->GetZbufferData((int)x1,(int)y1,
-                                                            (int)x2,(int)y2);
-
-    vtkFloatArray *zArray = vtkFloatArray::New();
-    zArray->Allocate(numOutPts);
-    zArray->SetNumberOfTuples(numOutPts);
-    zPtr = zArray->WritePointer(0, numOutPts);
-    memcpy(zPtr,zBuf,numOutPts*sizeof(float));
-
-    zArray->SetName("ZBuffer");
-    output->GetPointData()->AddArray(zArray);
-    zArray->Delete();
-    delete [] zBuf;
+    memcpy(ptr, pixels, numOutPts * nb_comp);
     }
   
+  // Lets get the ZBuffer also, if requested.
+  if (this->DepthValues || this->DepthValuesInScalars)
+    {
+    float *zBuf = (this->Input->GetRenderWindow())->GetZbufferData(
+      (int)x1,(int)y1, (int)x2,(int)y2);
+
+    // If RGBZ is requested, intermix RGB with shift/scaled Z
+    if (this->DepthValuesInScalars)
+      {
+      float *zptr = zBuf, *zptr_end = zBuf + numOutPts;
+      float min = *zBuf, max = *zBuf;
+      while (zptr < zptr_end)
+        {
+        if (min < *zptr) { min = *zptr; }
+        if (max > *zptr) { max = *zptr; }
+        zptr++;
+        }
+      float scale = 255.0 / (max - min);
+
+      zptr = zBuf;
+      unsigned char *ppixels = pixels;
+      while (zptr < zptr_end)
+        {
+        *ptr++ = *ppixels++;
+        *ptr++ = *ppixels++;
+        *ptr++ = *ppixels++;
+        *ptr++ = static_cast<unsigned char>((*zptr++ - min) * scale);
+        }
+      }
+
+    // If Z is requested as independent array, create it
+    if (this->DepthValues)
+      {
+      vtkFloatArray *zArray = vtkFloatArray::New();
+      zArray->Allocate(numOutPts);
+      zArray->SetNumberOfTuples(numOutPts);
+      float *zPtr = zArray->WritePointer(0, numOutPts);
+      memcpy(zPtr,zBuf,numOutPts*sizeof(float));
+      zArray->SetName("ZBuffer");
+      output->GetPointData()->AddArray(zArray);
+      zArray->Delete();
+      }
+
+    delete [] zBuf;
+    }
+
   delete [] pixels;
 }
 
@@ -153,7 +193,7 @@ void vtkRendererSource::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Whole Window: " << (this->WholeWindow ? "On\n" : "Off\n");
   os << indent << "Depth Values: " << (this->DepthValues ? "On\n" : "Off\n");
-
+  os << indent << "Depth Values In Scalars: " << (this->DepthValuesInScalars ? "On\n" : "Off\n");
 }
 
 
@@ -204,7 +244,7 @@ void vtkRendererSource::UpdateInformation()
   output->SetWholeExtent(0, static_cast<int>(x2-x1), 
                          0, static_cast<int>(y2-y1), 0, 0);
   output->SetScalarType(VTK_UNSIGNED_CHAR);
-  output->SetNumberOfScalarComponents(3);
+  output->SetNumberOfScalarComponents(3 + (this->DepthValuesInScalars ? 1:0));
   
   // Update information on the input and
   // compute information that is general to vtkDataObject.
