@@ -74,7 +74,6 @@ protected:
 void vtkImageDataStreamerExtentStack::Push( int extent[6] )
 {
   int *newStack, newSize;
-  int i;
 
   if ( this->StackSize >= this->StackStorageSize )
     {
