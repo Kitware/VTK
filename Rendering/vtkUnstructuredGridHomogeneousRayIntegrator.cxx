@@ -37,7 +37,7 @@
 
 //-----------------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkUnstructuredGridHomogeneousRayIntegrator, "1.3");
+vtkCxxRevisionMacro(vtkUnstructuredGridHomogeneousRayIntegrator, "1.4");
 vtkStandardNewMacro(vtkUnstructuredGridHomogeneousRayIntegrator);
 
 //-----------------------------------------------------------------------------
@@ -102,8 +102,9 @@ void vtkUnstructuredGridHomogeneousRayIntegrator::GetTransferFunctionTables(vtkD
   for (int c = 0; c < this->NumComponents; c++)
     {
     double *range = scalars->GetRange(c);
-    this->TableShift[c] = (range[1]-range[0])*this->TransferFunctionTableSize;
-    this->TableScale[c] = range[0]*this->TransferFunctionTableSize;
+    this->TableScale[c] = this->TransferFunctionTableSize/(range[1]-range[0]);
+    this->TableShift[c]
+      = -range[0]*this->TransferFunctionTableSize/(range[1]-range[0]);
 
     this->ColorTable[c] = new float[3*this->TransferFunctionTableSize];
     if (this->Property->GetColorChannels(c) == 1)
@@ -187,8 +188,8 @@ void vtkUnstructuredGridHomogeneousRayIntegrator::Integrate(
       for (vtkIdType i = 0; i < numIntersections; i++)
         {
         int table_index
-          = (int)(  this->TableShift[0]*nearIntersections->GetComponent(i, 0)
-                  + this->TableScale[0] );
+          = (int)(  this->TableScale[0]*nearIntersections->GetComponent(i, 0)
+                  + this->TableShift[0] );
         if (table_index < 0)
           {
           table_index = 0;
@@ -213,8 +214,8 @@ void vtkUnstructuredGridHomogeneousRayIntegrator::Integrate(
         {
         float newcolor[4];
         int table_index
-          = (int)(  this->TableShift[0]*nearIntersections->GetComponent(i, 0)
-                  + this->TableScale[0] );
+          = (int)(  this->TableScale[0]*nearIntersections->GetComponent(i, 0)
+                  + this->TableShift[0] );
         if (table_index < 0)
           {
           table_index = 0;
@@ -230,8 +231,17 @@ void vtkUnstructuredGridHomogeneousRayIntegrator::Integrate(
         for (int component = 1; component < this->NumComponents; component++)
           {
           table_index
-            = (int)(  this->TableShift[0]*nearIntersections->GetComponent(i, 0)
-                    + this->TableScale[0] );
+            = (int)(  this->TableScale[component]
+                      *nearIntersections->GetComponent(i, component)
+                    + this->TableShift[component] );
+          if (table_index < 0)
+            {
+            table_index = 0;
+            }
+          if (table_index >= this->TransferFunctionTableSize)
+            {
+            table_index = this->TransferFunctionTableSize-1;
+            }
           c = this->ColorTable[component] + 3*table_index;
           tau = this->AttenuationTable[component][table_index];
           // Here we handle the mixing of material properties.  This never
