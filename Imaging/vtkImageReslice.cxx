@@ -27,7 +27,7 @@
 #include <float.h>
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageReslice, "1.54");
+vtkCxxRevisionMacro(vtkImageReslice, "1.55");
 vtkStandardNewMacro(vtkImageReslice);
 vtkCxxSetObjectMacro(vtkImageReslice, InformationInput, vtkImageData);
 vtkCxxSetObjectMacro(vtkImageReslice,ResliceAxes,vtkMatrix4x4);
@@ -2217,7 +2217,6 @@ void vtkOptimizedExecute(vtkImageReslice *self,
   int idX, idY, idZ;
   int outIncX, outIncY, outIncZ, scalarSize;
   int inExt[6];
-  int inMax[3], inMin[3];
   int inInc[3];
   unsigned long count = 0;
   unsigned long target;
@@ -2270,12 +2269,6 @@ void vtkOptimizedExecute(vtkImageReslice *self,
   // find maximum input range
   inData->GetExtent(inExt);
 
-  for (i = 0; i < 3; i++)
-    {
-    inMin[i] = inExt[2*i];
-    inMax[i] = inExt[2*i+1];
-    }
-  
   target = (unsigned long)
     ((outExt[5]-outExt[4]+1)*(outExt[3]-outExt[2]+1)/50.0);
   target++;
