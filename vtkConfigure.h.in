@@ -1,0 +1,5 @@
+/* what byte order */
+#define VTK_WORDS_BIGENDIAN ${WORDS_BIGENDIAN}
+
+/* Define if you have the <sys/prctl.h> header file.  */
+#define HAVE_SYS_PRCTL_H ${HAVE_SYS_PRCTL_H}
