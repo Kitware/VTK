@@ -90,12 +90,12 @@ void vtkCell::DeepCopy(vtkCell *c)
 #define VTK_LEFT 1
 #define VTK_MIDDLE 2
 
-// Bounding box intersection modified from Graphics Gems Vol I.
-// Note: the intersection ray is assumed normalized, such that
-// valid intersections can only occur between [0,1]. Method returns non-zero
-// value if bounding box is hit. Origin[3] starts the ray, dir[3] is the 
-// components of the ray in the x-y-z directions, coord[3] is the location 
-// of hit, and t is the parametric coordinate along line.
+// Bounding box intersection modified from Graphics Gems Vol I. The method
+// returns a non-zero value if the bounding box is hit. Origin[3] starts
+// the ray, dir[3] is the vector components of the ray in the x-y-z
+// directions, coord[3] is the location of hit, and t is the parametric
+// coordinate along line. (Notes: the intersection ray dir[3] is NOT
+// normalized.  Valid intersections will only occur between 0<=t<=1.)
 char vtkCell::HitBBox (float bounds[6], float origin[3], float dir[3], 
                       float coord[3], float& t)
 {
@@ -103,9 +103,9 @@ char vtkCell::HitBBox (float bounds[6], float origin[3], float dir[3],
   char    quadrant[3];
   int     i, whichPlane=0;
   float   maxT[3], candidatePlane[3];
-//
-//  First find closest planes
-//
+
+  //  First find closest planes
+  //
   for (i=0; i<3; i++) 
     {
     if ( origin[i] < bounds[2*i] ) 
@@ -125,9 +125,9 @@ char vtkCell::HitBBox (float bounds[6], float origin[3], float dir[3],
       quadrant[i] = VTK_MIDDLE;
       }
     }
-//
-//  Check whether origin of ray is inside bbox
-//
+
+  //  Check whether origin of ray is inside bbox
+  //
   if (inside) 
     {
     coord[0] = origin[0];
@@ -137,9 +137,8 @@ char vtkCell::HitBBox (float bounds[6], float origin[3], float dir[3],
     return 1;
     }
   
-//
-//  Calculate parametric distances to plane
-//
+  //  Calculate parametric distances to plane
+  //
   for (i=0; i<3; i++)
     {
     if ( quadrant[i] != VTK_MIDDLE && dir[i] != 0.0 )
@@ -151,9 +150,9 @@ char vtkCell::HitBBox (float bounds[6], float origin[3], float dir[3],
       maxT[i] = -1.0;
       }
     }
-//
-//  Find the largest parametric value of intersection
-//
+
+  //  Find the largest parametric value of intersection
+  //
   for (i=0; i<3; i++)
     {
     if ( maxT[whichPlane] < maxT[i] )
@@ -161,9 +160,9 @@ char vtkCell::HitBBox (float bounds[6], float origin[3], float dir[3],
       whichPlane = i;
       }
     }
-//
-//  Check for valid intersection along line
-//
+
+  //  Check for valid intersection along line
+  //
   if ( maxT[whichPlane] > 1.0 || maxT[whichPlane] < 0.0 )
     {
     return 0;
@@ -172,9 +171,9 @@ char vtkCell::HitBBox (float bounds[6], float origin[3], float dir[3],
     {
     t = maxT[whichPlane];
     }
-//
-//  Intersection point along line is okay.  Check bbox.
-//
+
+  //  Intersection point along line is okay.  Check bbox.
+  //
   for (i=0; i<3; i++) 
     {
     if (whichPlane != i) 
