@@ -90,17 +90,29 @@ public:
   void IncrementLastPointId();
   
   // Description:
+  // Return the total number of components for the point-centered attributes.
+  // \post positive_result: result>0
+  int GetNumberOfComponents();
+  
+  // Description:
+  // Set the total number of components for the point-centered attributes.
+  // \pre positive_count: count>0
+  void SetNumberOfComponents(int count);
+  
+  // Description:
   // Check if a point is already in the point table.
   int CheckPoint(vtkIdType ptId);
 
   // Description:
   // Check for the existence of a point and return its coordinate value.
-  int CheckPoint(vtkIdType ptId, double point[3], double scalar[3]);
+  // \pre scalar_size: sizeof(scalar)==this->GetNumberOfComponents()
+  int CheckPoint(vtkIdType ptId, double point[3], double *scalar);
 
   // Description:
   // Insert point associated with an edge.
   void InsertPoint(vtkIdType ptId, double point[3]);
-  void InsertPointAndScalar(vtkIdType ptId, double pt[3], double s[3]);
+  // \pre: sizeof(s)==GetNumberOfComponents()
+  void InsertPointAndScalar(vtkIdType ptId, double pt[3], double *s);
 
   // Description:
   // Remove a point from the point table.
@@ -116,54 +128,53 @@ class PointEntry
 public:
   vtkIdType PointId;
   double Coord[3];
-  double Scalar[3];  //FIXME
+  double *Scalar;  // point data: all point-centered attributes at this point
+  int numberOfComponents;
+  
   int Reference;  //signed char
-
-  PointEntry() 
-    { 
-    this->Reference = -10;
-
-    this->Coord[0]  = -100;
-    this->Coord[1]  = -100;
-    this->Coord[2]  = -100;
-    this->Scalar[0]  = -200;
-    this->Scalar[1]  = -200;
-    this->Scalar[2]  = -200;
-    }
-  ~PointEntry() {}
-
-  PointEntry(const PointEntry& copy)
+  
+  // Description:
+  // Constructor with a scalar field of `size' doubles.
+  // \pre positive_number_of_components: size>0
+  PointEntry(int size);
+  
+  ~PointEntry()
     {
-    this->PointId  = copy.PointId;
-
-    this->Coord[0]  = copy.Coord[0];
-    this->Coord[1]  = copy.Coord[1];
-    this->Coord[2]  = copy.Coord[2];
-
-    this->Scalar[0] = copy.Scalar[0];
-    this->Scalar[1] = copy.Scalar[1];
-    this->Scalar[2] = copy.Scalar[2];
-
-    this->Reference = copy.Reference;
+      delete[] this->Scalar;
     }
 
-  void operator=(const PointEntry& entry) 
+  PointEntry(const PointEntry &other)
     {
-    if(this == &entry)
+    this->PointId  = other.PointId;
+
+    memcpy(this->Coord,other.Coord,sizeof(double)*3);
+
+    int c=other.numberOfComponents;
+    this->numberOfComponents=c;
+    this->Scalar=new double[c];
+    memcpy(this->Scalar,other.Scalar,sizeof(double)*c);
+    this->Reference = other.Reference;
+    }
+
+  void operator=(const PointEntry &other) 
+    {
+    if(this != &other)
       {
-      return;
+      this->PointId  = other.PointId;
+      
+      memcpy(this->Coord,other.Coord,sizeof(double)*3);
+      
+      int c=other.numberOfComponents;
+      
+      if(this->numberOfComponents!=c)
+        {
+        delete[] this->Scalar;
+        this->Scalar=new double[c];
+        this->numberOfComponents=c;
+        }
+      memcpy(this->Scalar,other.Scalar,sizeof(double)*c);
+      this->Reference = other.Reference;
       }
-    this->PointId  = entry.PointId;
-
-    this->Coord[0] = entry.Coord[0];
-    this->Coord[1] = entry.Coord[1];
-    this->Coord[2] = entry.Coord[2];
-
-    this->Scalar[0] = entry.Scalar[0];
-    this->Scalar[1] = entry.Scalar[1];
-    this->Scalar[2] = entry.Scalar[2];
-
-    this->Reference = entry.Reference;
     }
 };
 
@@ -240,6 +251,8 @@ protected:
   //Use only once !
 //  vtkSetMacro(LastPointId, vtkIdType);
 
+  vtkIdType NumberOfComponents;
+  
 private:
   vtkGenericEdgeTable(const vtkGenericEdgeTable&);  // Not implemented.
   void operator=(const vtkGenericEdgeTable&);  // Not implemented.

@@ -264,18 +264,28 @@ public:
   // not-NULL)
   // - `outCd' is an array of copied cell data of the current cell (if 
   // not-NULL)
-  // Note: the CopyAllocate() method must be invoked on both the output cell
-  // and point data.
+  // `internalPd', `secondaryPd' and `secondaryCd' are initialized by the
+  // filter that call it from `attributes'.
+  // - `internalPd' stores the result of the tessellation pass: the
+  // higher-order cell is tessellated into linear sub-cells.
+  // - `secondaryPd' and `secondaryCd' are used internally as inputs to the
+  // Contour() method on linear sub-cells.
+  // Note: the CopyAllocate() method must be invoked on both `outPd' and
+  // `outCd', from `secondaryPd' and `secondaryCd'.
   //
   // NOTE: `vtkGenericAttributeCollection *attributes' will be replaced by a
   //       `vtkInformation'.
   //
   // \pre values_exist: (values!=0 && f==0) || (values==0 && f!=0)
   // \pre attributes_exist: attributes!=0
+  // \pre tessellator_exists: tess!=0
   // \pre locator_exists: locator!=0
   // \pre verts_exist: verts!=0
   // \pre lines_exist: lines!=0
   // \pre polys_exist: polys!=0
+  // \pre internalPd_exists: internalPd!=0
+  // \pre secondaryPd_exists: secondaryPd!=0
+  // \pre secondaryCd_exists: secondaryCd!=0
   virtual void Contour(vtkContourValues *values,
                        vtkImplicitFunction *f,
                        vtkGenericAttributeCollection *attributes,
@@ -285,7 +295,10 @@ public:
                        vtkCellArray *lines,
                        vtkCellArray *polys,
                        vtkPointData *outPd,
-                       vtkCellData *outCd);
+                       vtkCellData *outCd,
+                       vtkPointData *internalPd,
+                       vtkPointData *secondaryPd,
+                       vtkCellData *secondaryCd);
 
   // Description:
   // Cut (or clip) the current cell with respect to the contour defined by
@@ -307,29 +320,38 @@ public:
   // not-NULL)
   // - `outCd' is an array of copied cell data of the current cell (if
   // not-NULL)
-  // Note: the CopyAllocate() method must be invoked on both the output cell
-  // and point data.
-  // Also, if the output cell data is
-  // non-NULL, the cell data from the clipped cell is passed to the generated
-  // contouring primitives. (Note: the CopyAllocate() method must be invoked on
-  // both the output cell and point data.)
+  // `internalPd', `secondaryPd' and `secondaryCd' are initialized by the
+  // filter that call it from `attributes'.
+  // - `internalPd' stores the result of the tessellation pass: the
+  // higher-order cell is tessellated into linear sub-cells.
+  // - `secondaryPd' and `secondaryCd' are used internally as inputs to the
+  // Clip() method on linear sub-cells.
+  // Note: the CopyAllocate() method must be invoked on both `outPd' and
+  // `outCd', from `secondaryPd' and `secondaryCd'.
   //
   // NOTE: `vtkGenericAttributeCollection *attributes' will be replaced by a
   //       `vtkInformation'.
   //
   // \pre attributes_exist: attributes!=0
+  // \pre tessellator_exists: tess!=0
   // \pre locator_exists: locator!=0
   // \pre connectivity_exists: connectivity!=0
-  virtual void Clip(double value,
+  // \pre internalPd_exists: internalPd!=0
+  // \pre secondaryPd_exists: secondaryPd!=0
+  // \pre secondaryCd_exists: secondaryCd!=0
+  virtual void Clip(double value, 
                     vtkImplicitFunction *f,
                     vtkGenericAttributeCollection *attributes,
                     vtkGenericCellTessellator *tess,
                     int insideOut,
-                    vtkPointLocator *locator,
+                    vtkPointLocator *locator, 
                     vtkCellArray *connectivity,
                     vtkPointData *outPd,
-                    vtkCellData *outCd);
-
+                    vtkCellData *outCd,
+                    vtkPointData *internalPd,
+                    vtkPointData *secondaryPd,
+                    vtkCellData *secondaryCd);
+  
   // Description:
   // Is there an intersection between the current cell and the ray (`p1',`p2')
   // according to a tolerance `tol'? If true, `x' is the global intersection,
@@ -413,14 +435,20 @@ public:
   // linear, the output is just a copy of the current cell.
   // `points', `cellArray', `pd' and `cd' are cumulative output data arrays
   // over cell iterations: they store the result of each call to Tessellate().
+  // `internalPd' is initialized by the calling filter and stores the
+  // result of the tessellation.
   // \pre attributes_exist: attributes!=0
+  // \pre tessellator_exists: tess!=0
   // \pre points_exist: points!=0
   // \pre cellArray_exists: cellArray!=0
+  // \pre internalPd_exists: internalPd!=0
   // \pre pd_exist: pd!=0
   // \pre cd_exists: cd!=0
+  
   virtual void Tessellate(vtkGenericAttributeCollection *attributes, 
                           vtkGenericCellTessellator *tess,
-                          vtkPoints *points, vtkCellArray* cellArray,  
+                          vtkPoints *points, vtkCellArray* cellArray,
+                          vtkPointData *internalPd,
                           vtkPointData *pd, vtkCellData* cd);
 
   // The following methods are for the internals of the tesselation algorithm
@@ -443,9 +471,22 @@ public:
   // \pre valid_size: sizeof(id)==GetNumberOfPoints();
   virtual void GetPointIds(vtkIdType *id) = 0;
 
+  // Description:
+  // Tessellate face `index' of the cell. See Tessellate() for further
+  // explanations.
+  // \pre cell_is_3d: GetDimension()==3
+  // \pre attributes_exist: attributes!=0
+  // \pre tessellator_exists: tess!=0
+  // \pre valid_face: index>=0
+  // \pre points_exist: points!=0
+  // \pre cellArray_exists: cellArray!=0
+  // \pre internalPd_exists: internalPd!=0
+  // \pre pd_exist: pd!=0
+  // \pre cd_exists: cd!=0
   virtual void TriangulateFace(vtkGenericAttributeCollection *attributes,
                                vtkGenericCellTessellator *tess, int index, 
-                               vtkPoints *pts, vtkCellArray *cellArray, 
+                               vtkPoints *points, vtkCellArray *cellArray,
+                               vtkPointData *internalPd,
                                vtkPointData *pd, vtkCellData *cd );
   
   // Description:

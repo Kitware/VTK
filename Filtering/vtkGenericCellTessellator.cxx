@@ -358,7 +358,7 @@ static signed char vtkTessellatorTetraCasesLeft[65][8][4] = {
 };
 
 
-vtkCxxRevisionMacro(vtkGenericCellTessellator, "1.3");
+vtkCxxRevisionMacro(vtkGenericCellTessellator, "1.4");
 vtkStandardNewMacro(vtkGenericCellTessellator);
 vtkCxxSetObjectMacro(vtkGenericCellTessellator, ErrorMetric, vtkGenericSubdivisionErrorMetric);
 //-----------------------------------------------------------------------------
@@ -527,8 +527,8 @@ int vtkTriangleTile::Refine(vtkGenericCellTessellator* tess,
   
   for(i=0, index=0;i<3;i++)
     {
-    // we have to calculate mid point between edge TRIANGLE_EDGES_TABLE[i][0] and
-    // TRIANGLE_EDGES_TABLE[i][1]
+    // we have to calculate mid point between edge TRIANGLE_EDGES_TABLE[i][0]
+    // and TRIANGLE_EDGES_TABLE[i][1]
     l = TRIANGLE_EDGES_TABLE[i][0];
     r = TRIANGLE_EDGES_TABLE[i][1];
 
@@ -624,19 +624,40 @@ int vtkTriangleTile::Refine(vtkGenericCellTessellator* tess,
     // add the cell array to the list
     numTriangleCreated = 0;
     tess->TessellateCellArray->InsertNextCell(3, this->PointId);
-
-    double point[3], scalar[3];
+    
     for(int j=0;j<3;j++)
       {
-      tess->EdgeTable->CheckPoint(this->PointId[j], point, scalar);
-      // There will some be duplicate points during a while but
-      // this is the cost for speed:
-      tess->TessellatePoints->InsertNextTuple( point );
-      tess->TessellateScalars->InsertNextTuple( scalar );
+      tess->CopyPoint(this->PointId[j]);
       }
     }
 
   return numTriangleCreated;
+}
+
+//-----------------------------------------------------------------------------
+// Description:
+// Extract point `pointId' from the edge table to the output point and output
+// point data.
+void vtkGenericCellTessellator::CopyPoint(vtkIdType pointId)
+{
+  double point[3];
+  double *p=this->Scalars;
+  this->EdgeTable->CheckPoint(pointId, point, p);
+  // There will some be duplicate points during a while but
+  // this is the cost for speed:
+  this->TessellatePoints->InsertNextTuple( point );
+//  this->TessellatePointData->InsertNextTuple( tess->Scalars );
+  
+  int c=this->TessellatePointData->GetNumberOfArrays();
+  int i=0;
+  vtkDataArray *attribute;
+  while(i<c)
+    {
+    attribute=this->TessellatePointData->GetArray(i);
+    attribute->InsertNextTuple(p);
+    ++i;
+    p=p+attribute->GetNumberOfComponents();
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -841,15 +862,9 @@ int vtkTetraTile::Refine( vtkGenericCellTessellator* tess,
     numTetraCreated = 0;
     tess->TessellateCellArray->InsertNextCell(4, this->PointId);
     
-    double point[3], scalar[3];
     for(int j=0;j<4;j++)
       {
-      tess->EdgeTable->CheckPoint(this->PointId[j], point, scalar);
-
-      // There will some be duplicate points during a while but
-      // this is the cost for speed:
-      tess->TessellatePoints->InsertNextTuple( point );
-      tess->TessellateScalars->InsertNextTuple( scalar );
+      tess->CopyPoint(this->PointId[j]);
       }
     }
 
@@ -865,7 +880,7 @@ vtkGenericCellTessellator::vtkGenericCellTessellator()
   
   this->TessellatePoints = NULL;
   this->TessellateCellArray = NULL;
-  this->TessellateScalars = NULL;
+  this->TessellatePointData = NULL;
 
   this->EdgeTable = vtkGenericEdgeTable::New();
   //this->EdgeTable->DebugOn();
@@ -876,6 +891,8 @@ vtkGenericCellTessellator::vtkGenericCellTessellator()
   //this->ErrorMetric->DebugOn();
   
   this->CellIterator = 0;
+  this->Scalars=0;
+  this->ScalarsCapacity=0;
 }
 
 //-----------------------------------------------------------------------------
@@ -883,21 +900,23 @@ vtkGenericCellTessellator::~vtkGenericCellTessellator()
 {
   this->EdgeTable->Delete();
   this->SetErrorMetric( 0 );
-  if(this->CellIterator)
+  if(this->CellIterator!=0)
     {
     this->CellIterator->Delete();
+    }
+  if(this->Scalars!=0)
+    {
+    delete[] this->Scalars;
     }
 }
 
 //-----------------------------------------------------------------------------
 // This function is supposed to be called only at toplevel (for passing data
 // from third party to the hash point table)
-void vtkGenericCellTessellator::InsertPointsIntoEdgeTable( vtkTriangleTile &tri )
+void vtkGenericCellTessellator::InsertPointsIntoEdgeTable(vtkTriangleTile &tri)
 {
   double global[3];
-  double scalar[10]; //FIXME: magic number
-  // FB: scalar should be an argument of InsertPointsIntoEdgeTable.
-
+  
   for(int j=0;j<3;j++)
     {
     // Need to check first if point is not already in the hash table
@@ -911,10 +930,11 @@ void vtkGenericCellTessellator::InsertPointsIntoEdgeTable( vtkTriangleTile &tri 
       //this->GenericCell->EvaluateShapeFunction(tri.GetVertex(j), scalar);
 //      this->AttributeCollection->EvaluateTuple(this->GenericCell,tri.GetVertex(j), scalar);
       this->GenericCell->InterpolateTuple(this->AttributeCollection,
-                                          tri.GetVertex(j), scalar);
+                                          tri.GetVertex(j), this->Scalars);
       
       //Put everything in ths point hash table
-      this->EdgeTable->InsertPointAndScalar(tri.GetPointId(j), global, scalar);
+      this->EdgeTable->InsertPointAndScalar(tri.GetPointId(j), global,
+                                            this->Scalars);
       }
     }
 }
@@ -925,9 +945,7 @@ void vtkGenericCellTessellator::InsertPointsIntoEdgeTable( vtkTriangleTile &tri 
 void vtkGenericCellTessellator::InsertPointsIntoEdgeTable(vtkTetraTile &tetra )
 {
   double global[3];
-  double scalar[10]; //FIXME: magic number
-  // FB: see remark in  InsertPointsIntoEdgeTable(vtkTetraTile &)
-
+ 
   for(int j=0;j<4;j++)
     {
     // Need to check first if point is not already in the hash table
@@ -941,11 +959,11 @@ void vtkGenericCellTessellator::InsertPointsIntoEdgeTable(vtkTetraTile &tetra )
       //this->GenericCell->EvaluateShapeFunction(tetra.GetVertex(j), scalar);
 //      this->AttributeCollection->EvaluateTuple(this->GenericCell,tetra.GetVertex(j), scalar);
       this->GenericCell->InterpolateTuple(this->AttributeCollection,
-                                          tetra.GetVertex(j), scalar);
+                                          tetra.GetVertex(j), this->Scalars);
       
       //Put everything in ths point hash table
       this->EdgeTable->InsertPointAndScalar(tetra.GetPointId(j), global,
-                                            scalar);
+                                            this->Scalars);
       }
     }
 }
@@ -956,8 +974,6 @@ void vtkGenericCellTessellator::InsertEdgesIntoEdgeTable(vtkTriangleTile &tri )
 {
   double local[3];
   double global[3];
-  double scalar[10]; //FIXME: magic number
-  // FB: see remark in  InsertPointsIntoEdgeTable(vtkTetraTile &)
   vtkIdType l, r;
   vtkIdType cellId = this->GenericCell->GetId();
 
@@ -1043,9 +1059,9 @@ void vtkGenericCellTessellator::InsertEdgesIntoEdgeTable(vtkTriangleTile &tri )
         // Then scalar value associated with point:  
         //this->GenericCell->EvaluateShapeFunction(local, scalar);
         //this->AttributeCollection->EvaluateTuple(this->GenericCell, local, scalar);
-        this->GenericCell->InterpolateTuple(this->AttributeCollection, local, scalar);
+        this->GenericCell->InterpolateTuple(this->AttributeCollection, local, this->Scalars);
         //Put everything in ths point hash table
-        this->EdgeTable->InsertPointAndScalar(ptId, global, scalar);
+        this->EdgeTable->InsertPointAndScalar(ptId, global, this->Scalars);
         }
       else
         {
@@ -1083,8 +1099,7 @@ void vtkGenericCellTessellator::InsertEdgesIntoEdgeTable( vtkTetraTile &tetra )
 {
   double local[3];
   double global[3];
-  double scalar[10]; //FIXME: magic number
-  // FB: see remark in  InsertPointsIntoEdgeTable(vtkTetraTile &)
+ 
   vtkIdType l, r;
   const vtkIdType cellId = this->GenericCell->GetId();
 
@@ -1164,9 +1179,9 @@ void vtkGenericCellTessellator::InsertEdgesIntoEdgeTable( vtkTetraTile &tetra )
 
         // Then scalar value associated with point:  
         this->GenericCell->InterpolateTuple(this->AttributeCollection, local,
-                                            scalar);
+                                            this->Scalars);
         //Put everything in the point hash table
-        this->EdgeTable->InsertPointAndScalar(ptId, global, scalar);
+        this->EdgeTable->InsertPointAndScalar(ptId, global, this->Scalars);
         }
       else
         {
@@ -1282,7 +1297,7 @@ void vtkGenericCellTessellator::Reset()
   // should be the same amount of points to tessellate
   this->TessellatePoints->Reset();
   this->TessellateCellArray->Reset();
-  this->TessellateScalars->Reset();
+//  this->TessellateScalars->Reset();
 }
 
 //-----------------------------------------------------------------------------
@@ -1304,7 +1319,7 @@ void vtkGenericCellTessellator::Tessellate(vtkGenericAdaptorCell *cell,
                                            vtkGenericAttributeCollection *att,
                                            vtkDoubleArray *points, 
                                            vtkCellArray *cellArray,
-                                           vtkDoubleArray *scalars  )
+                                           vtkPointData *internalPd )
 {
   int i;
   
@@ -1312,7 +1327,7 @@ void vtkGenericCellTessellator::Tessellate(vtkGenericAdaptorCell *cell,
   this->GenericCell = cell;
   this->TessellatePoints = points;
   this->TessellateCellArray = cellArray;
-  this->TessellateScalars = scalars;
+  this->TessellatePointData = internalPd;
   this->AttributeCollection = att;
   if(this->CellIterator==0)
     {
@@ -1349,6 +1364,14 @@ void vtkGenericCellTessellator::Tessellate(vtkGenericAdaptorCell *cell,
     //vtkDebugMacro( << "tetra[order[i]]:" << tetra[order[i]] );
     }
 
+  // Init the edge table
+  
+  cout<<"internalPd->GetNumberOfComponents()="<<internalPd->GetNumberOfComponents()<<endl;
+  
+  this->EdgeTable->SetNumberOfComponents(internalPd->GetNumberOfComponents());
+  
+  this->AllocateScalars(internalPd->GetNumberOfComponents());
+  
   // Pass data to hash table:
   // FIXME some point are already in the hash table we shouldn't try
   // to calculate their associate point/scalar value then.
@@ -1399,8 +1422,8 @@ void vtkGenericCellTessellator::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   os << indent << "GenericCell: " << this->GenericCell << endl;
-  os << indent << "TessellateScalars: " 
-     << this->TessellateScalars << endl;
+  os << indent << "TessellatePointData: " 
+     << this->TessellatePointData << endl;
   os << indent << "TessellateCellArray: " 
      << this->TessellateCellArray << endl;
   os << indent << "TessellatePoints: " 
@@ -1417,7 +1440,7 @@ vtkGenericCellTessellator::TessellateTriangleFace(vtkGenericAdaptorCell *cell,
                                                   vtkIdType index,
                                                   vtkDoubleArray *points,
                                                   vtkCellArray *cellArray,
-                                                  vtkDoubleArray *scalars)
+                                                  vtkPointData *internalPd)
 {
   assert("pre: cell_exixts" && cell!=0);
   assert("pre: valid_cell_type" && ((cell->GetType()==VTK_TETRA)||(cell->GetType()==VTK_QUADRATIC_TETRA||(cell->GetType()==VTK_HIGHER_ORDER_TETRAHEDRON))));
@@ -1427,7 +1450,7 @@ vtkGenericCellTessellator::TessellateTriangleFace(vtkGenericAdaptorCell *cell,
   // Save parameter for later use
   this->TessellateCellArray = cellArray;
   this->TessellatePoints = points;
-  this->TessellateScalars = scalars;
+  this->TessellatePointData = internalPd;
   
   this->Reset(); // reset point cell and scalars
   
@@ -1458,6 +1481,13 @@ vtkGenericCellTessellator::TessellateTriangleFace(vtkGenericAdaptorCell *cell,
     root.SetVertex(i, point);
     root.SetPointId(i, tetra[indexTab[i]]);
     }
+  
+   // Init the edge table
+  this->EdgeTable->SetNumberOfComponents(internalPd->GetNumberOfComponents());
+  
+  this->AllocateScalars(internalPd->GetNumberOfComponents());
+
+  
   this->InsertPointsIntoEdgeTable( root );
   this->InsertEdgesIntoEdgeTable( root );
   this->InternalTessellateTriangle( root );
@@ -1468,7 +1498,7 @@ void vtkGenericCellTessellator::Triangulate(vtkGenericAdaptorCell *cell,
                                             vtkGenericAttributeCollection *att,
                                             vtkDoubleArray *points,
                                             vtkCellArray *cellArray, 
-                                            vtkDoubleArray *scalars)
+                                            vtkPointData *internalPd)
 {
   // Save parameter for later use
   
@@ -1476,7 +1506,7 @@ void vtkGenericCellTessellator::Triangulate(vtkGenericAdaptorCell *cell,
   
   this->TessellatePoints = points;
   this->TessellateCellArray = cellArray;
-  this->TessellateScalars = scalars;
+  this->TessellatePointData = internalPd;
   
   this->AttributeCollection = att;
   
@@ -1501,6 +1531,11 @@ void vtkGenericCellTessellator::Triangulate(vtkGenericAdaptorCell *cell,
     root.SetVertex(i, point);
     root.SetPointId(i, tri[i]);
     }
+  
+  // Init the edge table
+  this->EdgeTable->SetNumberOfComponents(internalPd->GetNumberOfComponents());
+  
+  this->AllocateScalars(internalPd->GetNumberOfComponents());
 
   this->InsertPointsIntoEdgeTable( root );
 
@@ -1883,4 +1918,28 @@ int vtkGenericCellTessellator::GetNumberOfCellsUsingFace( int faceId )
   //else this face is used by another cell
   return 2;
 #endif
+}
+
+//-----------------------------------------------------------------------------
+// Description:
+// Allocate some memory if Scalars does not exists or is smaller than size.
+// \pre positive_size: size>0
+void vtkGenericCellTessellator::AllocateScalars(int size)
+{
+  assert("pre: positive_size" && size>0);
+  
+  if(this->Scalars==0)
+    {
+    this->Scalars=new double[size];
+    this->ScalarsCapacity=size;
+    }
+  else
+    {
+    if(this->ScalarsCapacity<size)
+      {
+      delete[] this->Scalars;
+      this->Scalars=new double[size];
+      this->ScalarsCapacity=size;
+      }
+    }
 }

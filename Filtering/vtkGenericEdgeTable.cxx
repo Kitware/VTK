@@ -31,8 +31,24 @@ static int PRIME_NUMBERS[] = {1, 3, 7, 13, 31, 61, 127,  251,  509,  1021,
 //  1572869,    3145739,    6291469,   12582917,  25165843,
 
 
-vtkCxxRevisionMacro(vtkGenericEdgeTable, "1.3");
+vtkCxxRevisionMacro(vtkGenericEdgeTable, "1.4");
 vtkStandardNewMacro(vtkGenericEdgeTable);
+
+
+// Description:
+// Constructor with a scalar field of `size' doubles.
+// \pre positive_number_of_components: size>0
+vtkGenericEdgeTable::PointEntry::PointEntry(int size)
+{
+  assert("pre: positive_number_of_components" && size>0);
+  this->Reference = -10;
+  
+  this->Coord[0]  = -100;
+  this->Coord[1]  = -100;
+  this->Coord[2]  = -100;
+  this->Scalar=new double[size];
+  this->numberOfComponents=size;
+}
 
 class vtkEdgeTablePoints
 {
@@ -183,6 +199,8 @@ vtkGenericEdgeTable::vtkGenericEdgeTable()
   this->EdgeTable = new vtkEdgeTableEdge;
   this->HashPoints = new vtkEdgeTablePoints;
 
+  this->NumberOfComponents=1;
+  
 #if 1
   this->EdgeTable->Vector.resize(4093);
   this->EdgeTable->Modulo = 4093;
@@ -550,6 +568,24 @@ void vtkGenericEdgeTable::IncrementLastPointId()
 }
 
 //-----------------------------------------------------------------------------
+// Description:
+// Return the total number of components for the point-centered attributes.
+// \post positive_result: result>0
+int vtkGenericEdgeTable::GetNumberOfComponents()
+{
+  return this->NumberOfComponents;
+}
+
+//-----------------------------------------------------------------------------
+// Description:
+// Set the total number of components for the point-centered attributes.
+void vtkGenericEdgeTable::SetNumberOfComponents(int count)
+{
+  assert("pre: positive_count" && count>0);
+  this->NumberOfComponents=count;
+}
+
+//-----------------------------------------------------------------------------
 vtkIdType vtkGenericEdgeTable::HashFunction(vtkIdType ptId)
 {
   //cout << ptId << "," << this->HashPoints->Modulo << "\n";
@@ -601,8 +637,9 @@ int vtkGenericEdgeTable::CheckPoint(vtkIdType ptId)
 // Find point coordinate and scalar associated of point ptId
 //
 int vtkGenericEdgeTable::CheckPoint(vtkIdType ptId, double point[3],
-                                    double scalar[3])
+                                    double *scalar)
 {
+  // pre: sizeof(scalar)==GetNumberOfComponents()
   int index;
   vtkIdType pos = this->HashFunction(ptId);
   assert("check: valid range pos" &&
@@ -628,12 +665,8 @@ int vtkGenericEdgeTable::CheckPoint(vtkIdType ptId, double point[3],
     PointEntry &ent = vect[index];
     if( ent.PointId == ptId )
       {
-      point[0] = ent.Coord[0];
-      point[1] = ent.Coord[1];
-      point[2] = ent.Coord[2];
-      scalar[0] = ent.Scalar[0];
-      scalar[1] = ent.Scalar[1];
-      scalar[2] = ent.Scalar[2];
+      memcpy(point,ent.Coord,sizeof(double)*3);
+      memcpy(scalar,ent.Scalar,sizeof(double)*this->NumberOfComponents);
       return 1;
       }
     }
@@ -666,19 +699,15 @@ void vtkGenericEdgeTable::InsertPoint(vtkIdType ptId, double point[3])
   //Need to check size again
   //Here we just puch_back at the end, 
   //the vector should not be very long and should not contain any empty spot.
-  PointEntry newEntry; // = vect.back();
+  PointEntry newEntry(this->NumberOfComponents); // = vect.back();
   newEntry.PointId = ptId;
-  newEntry.Coord[0] = point[0];
-  newEntry.Coord[1] = point[1];
-  newEntry.Coord[2] = point[2];
+  memcpy(newEntry.Coord,point,sizeof(double)*3);
   newEntry.Reference = 1;
 
 //  vtkDebugMacro( << "Inserting Point:" << ptId << ":" 
 //    << point[0] << "," << point[1] << "," << point[2] );
   vect.push_back( newEntry );
-
 }
-
 
 //-----------------------------------------------------------------------------
 void vtkGenericEdgeTable::RemovePoint(vtkIdType ptId)
@@ -720,8 +749,9 @@ void vtkGenericEdgeTable::RemovePoint(vtkIdType ptId)
 
 //-----------------------------------------------------------------------------
 void vtkGenericEdgeTable::InsertPointAndScalar(vtkIdType ptId, double pt[3],
-                                               double s[3])
+                                               double *s)
 {
+  // sizeof(s)=this->NumberOfComponents
   vtkIdType pos = this->HashFunction(ptId);
 
   //Need to check size first
@@ -762,14 +792,11 @@ void vtkGenericEdgeTable::InsertPointAndScalar(vtkIdType ptId, double pt[3],
 #endif
 
   //We did not find any matching point thus insert it
-  PointEntry newEntry; // = vect.back();
+  
+  PointEntry newEntry(this->NumberOfComponents); // = vect.back();
   newEntry.PointId = ptId;
-  newEntry.Coord[0] = pt[0];
-  newEntry.Coord[1] = pt[1];
-  newEntry.Coord[2] = pt[2];
-  newEntry.Scalar[0] = s[0];
-  newEntry.Scalar[1] = s[1];
-  newEntry.Scalar[2] = s[2];
+  memcpy(newEntry.Coord,pt,sizeof(double)*3);
+  memcpy(newEntry.Scalar,s,sizeof(double)*this->NumberOfComponents);
   newEntry.Reference = 1;
 
   vtkDebugMacro( << "InsertPointAndScalar:" << ptId << ":" 

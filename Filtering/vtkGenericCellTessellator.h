@@ -49,6 +49,7 @@ class vtkGenericSubdivisionErrorMetric;
 class vtkGenericAttributeCollection;
 class vtkGenericAdaptorCell;
 class vtkGenericCellIterator;
+class vtkPointData;
 
 //-----------------------------------------------------------------------------
 //
@@ -77,7 +78,7 @@ public:
                                       vtkIdType index,
                                       vtkDoubleArray *points,
                                       vtkCellArray *cellArray,
-                                      vtkDoubleArray *scalars);
+                                      vtkPointData *internalPd);
 
   // Description:
   // Tessellate a tetrahedron `cell'. The result is a set of smaller linear
@@ -90,7 +91,7 @@ public:
                   vtkGenericAttributeCollection *att,
                   vtkDoubleArray *points,
                   vtkCellArray *cellArray,
-                  vtkDoubleArray *scalars);
+                  vtkPointData *internalPd);
 
   // Description:
   // Triangulate a triangle `cell'.
@@ -102,7 +103,7 @@ public:
                    vtkGenericAttributeCollection *att,
                    vtkDoubleArray *points,
                    vtkCellArray *cellArray,
-                   vtkDoubleArray *scalars);
+                   vtkPointData *internalPd);
 
   // Description:
   // Specify the object to use to compute the error metric.
@@ -124,7 +125,12 @@ public:
 protected:
   vtkGenericCellTessellator();
   ~vtkGenericCellTessellator();
-
+  
+  // Description:
+  // Extract point `pointId' from the edge table to the output point and output
+  // point data.
+  void CopyPoint(vtkIdType pointId);
+  
   // Description:
   //HashTable instead of vtkPointLocator
   vtkGenericEdgeTable *EdgeTable;
@@ -140,6 +146,11 @@ protected:
   // To access the higher order cell from third party library
   vtkGenericAdaptorCell *GenericCell;
 
+  // Description:
+  // Allocate some memory if Scalars does not exists or is smaller than size.
+  // \pre positive_size: size>0
+  void AllocateScalars(int size);
+  
   // Description:
   // Scalar buffer used to save the interpolate values of the attributes
   // The capacity is at least the number of components of the attribute
@@ -159,7 +170,8 @@ protected:
   // To avoid New/Delete
   vtkDoubleArray     *TessellatePoints;  //Allow to use GetPointer
   vtkCellArray       *TessellateCellArray;
-  vtkDoubleArray     *TessellateScalars;
+//  vtkDoubleArray     *TessellateScalars;
+  vtkPointData *TessellatePointData;
 
   // Description:
   // Contains the error metric
