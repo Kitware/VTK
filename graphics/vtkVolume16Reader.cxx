@@ -39,7 +39,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkVolume16Reader.h"
-#include "vtkShortScalars.h"
+#include "vtkUnsignedShortScalars.h"
 
 // Description:
 // Construct object with NULL file prefix; file pattern "%s.%d"; image range 
@@ -228,8 +228,8 @@ vtkStructuredPoints *vtkVolume16Reader::GetImage(int ImageNumber)
 // Read a slice of volume data.
 vtkScalars *vtkVolume16Reader::ReadImage(int sliceNumber)
 {
-  vtkShortScalars *scalars = NULL;
-  short *pixels;
+  vtkUnsignedShortScalars *scalars = NULL;
+  unsigned short *pixels;
   FILE *fp;
   int numPts;
   int status;
@@ -253,7 +253,7 @@ vtkScalars *vtkVolume16Reader::ReadImage(int sliceNumber)
   numPts = this->DataDimensions[0] * this->DataDimensions[1];
 
   // create the short scalars
-  scalars = vtkShortScalars::New();
+  scalars = vtkUnsignedShortScalars::New();
   scalars->Allocate(numPts);
 
   // get a pointer to the data
@@ -279,9 +279,9 @@ vtkScalars *vtkVolume16Reader::ReadImage(int sliceNumber)
 // Read a volume of data.
 vtkScalars *vtkVolume16Reader::ReadVolume(int first, int last)
 {
-  vtkShortScalars *scalars = NULL;
-  short *pixels;
-  short *slice;
+  vtkUnsignedShortScalars *scalars = NULL;
+  unsigned short *pixels;
+  unsigned short *slice;
   FILE *fp;
   int numPts;
   int fileNumber;
@@ -301,10 +301,10 @@ vtkScalars *vtkVolume16Reader::ReadVolume(int first, int last)
   this->ComputeTransformedBounds (bounds);
 
   // get memory for slice
-  slice = new short[numPts];
+  slice = new unsigned short[numPts];
 
   // create the short scalars for all of the images
-  scalars = vtkShortScalars::New();
+  scalars = vtkUnsignedShortScalars::New();
   scalars->Allocate(numPts * numberSlices);
 
   // get a pointer to the scalar data
@@ -354,7 +354,7 @@ vtkScalars *vtkVolume16Reader::ReadVolume(int first, int last)
   else return scalars;
 }
 
-int vtkVolume16Reader:: Read16BitImage (FILE *fp, short *pixels, int xsize, 
+int vtkVolume16Reader:: Read16BitImage (FILE *fp, unsigned short *pixels, int xsize, 
                                         int ysize, int skip, int swapBytes)
 {
   int numShorts = xsize * ysize;
@@ -362,7 +362,7 @@ int vtkVolume16Reader:: Read16BitImage (FILE *fp, short *pixels, int xsize,
 
   if (skip) fseek (fp, skip, 0);
 
-  status = fread (pixels, sizeof (short), numShorts, fp);
+  status = fread (pixels, sizeof (unsigned short), numShorts, fp);
 
   if (status && swapBytes) 
     {
@@ -379,7 +379,7 @@ int vtkVolume16Reader:: Read16BitImage (FILE *fp, short *pixels, int xsize,
 
   if (status && this->DataMask != 0x0000 )
     {
-    short *dataPtr = pixels;
+    unsigned short *dataPtr = pixels;
     int i;
     for (i = 0; i < numShorts; i++, dataPtr++) 
       {
@@ -517,14 +517,14 @@ void vtkVolume16Reader::AdjustSpacingAndOrigin (int dimensions[3], float Spacing
   vtkDebugMacro("Adjusted origin " << origin[0] << ", " << origin[1] << ", " << origin[2]);
 }
 
-void vtkVolume16Reader::TransformSlice (short *slice, short *pixels, int k, int dimensions[3], int bounds[3])
+void vtkVolume16Reader::TransformSlice (unsigned short *slice, unsigned short *pixels, int k, int dimensions[3], int bounds[3])
 {
   int iSize = this->DataDimensions[0];
   int jSize = this->DataDimensions[1];
 
   if (!this->Transform)
     {
-    memcpy (pixels + iSize * jSize * k, slice, iSize * jSize * sizeof (short));
+    memcpy (pixels + iSize * jSize * k, slice, iSize * jSize * sizeof (unsigned short));
     }
   else
     {
