@@ -40,13 +40,13 @@ public:
   float Norm(float x[3]);
   void Normalize(float x[3]);
 
-  float Determinant2x2(float *c1, float *c2);
+  float Determinant2x2(float c1[2], float c2[2]);
   double Determinant2x2(double a, double b, double c, double d);
-  float Determinant3x3(float *c1, float *c2, float *c3);
+  float Determinant3x3(float c1[3], float c2[3], float c3[3]);
   double Determinant3x3(double a1, double a2, double a3, 
                         double b1, double b2, double b3, 
                         double c1, double c2, double c3);
-  float Distance2BetweenPoints(float *x, float *y);
+  float Distance2BetweenPoints(float x[3], float y[3]);
 
   void RandomSeed(long s);  
   float Random();  
@@ -80,7 +80,7 @@ inline void vlMath::Normalize(float x[3])
 
 // Description:
 // Compute Determinant of 2x2 matrix. Two columns of matrix are input.
-inline float vlMath::Determinant2x2(float *c1, float *c2)
+inline float vlMath::Determinant2x2(float c1[2], float c2[2])
 {
   return (c1[0]*c2[1] - c2[0]*c1[1]);
 }
@@ -95,7 +95,7 @@ inline double vlMath::Determinant2x2(double a, double b, double c, double d)
 
 // Description:
 // Compute Determinant of 3x3 matrix. Three columns of matrix are input.
-inline float vlMath::Determinant3x3(float *c1, float *c2, float *c3)
+inline float vlMath::Determinant3x3(float c1[3], float c2[3], float c3[3])
 {
   return c1[0]*c2[1]*c3[2] + c2[0]*c3[1]*c1[2] + c3[0]*c1[1]*c2[2] -
          c1[0]*c3[1]*c2[2] - c2[0]*c1[1]*c3[2] - c3[0]*c2[1]*c1[2];
@@ -117,7 +117,7 @@ inline double vlMath::Determinant3x3(double a1, double a2, double a3,
 
 // Description:
 // Compute distance squared between two points.
-inline float vlMath::Distance2BetweenPoints(float *x, float *y)
+inline float vlMath::Distance2BetweenPoints(float x[3], float y[3])
 {
   return ((x[0]-y[0])*(x[0]-y[0]) + (x[1]-y[1])*(x[1]-y[1]) +
           (x[2]-y[2])*(x[2]-y[2]));
