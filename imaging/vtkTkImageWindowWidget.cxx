@@ -431,16 +431,20 @@ static int vtkTkImageWindowWidget_MakeImageWindow(struct vtkTkImageWindowWidget 
     // Make the ImageWindow window.
     self->ImageWindow = vtkImageWindow::New();
     ImageWindow = self->ImageWindow;
+#ifndef VTK_PYTHON_BUILD
     vtkTclGetObjectFromPointer(self->Interp, self->ImageWindow,
 			       vtkImageWindowCommand);
+#endif
     self->IW = strdup(self->Interp->result);
     self->Interp->result[0] = '\0';
     }
   else
     {
+#ifndef VTK_PYTHON_BUILD
     ImageWindow = (vtkImageWindow *)
       vtkTclGetPointerFromObject(self->IW, "vtkImageWindow", self->Interp,
 				 new_flag);
+#endif
     if (ImageWindow != self->ImageWindow)
       {
       if (self->ImageWindow != NULL)
@@ -592,16 +596,20 @@ vtkTkImageWindowWidget_MakeImageWindow(struct vtkTkImageWindowWidget *self)
     // Make the ImageWindow window.
     self->ImageWindow = vtkImageWindow::New();
     ImageWindow = (vtkXImageWindow *)(self->ImageWindow);
+#ifndef VTK_PYTHON_BUILD
     vtkTclGetObjectFromPointer(self->Interp, self->ImageWindow,
 			       vtkImageWindowCommand);
+#endif
     self->IW = strdup(self->Interp->result);
     self->Interp->result[0] = '\0';
     }
   else
     {
+#ifndef VTK_PYTHON_BUILD
     ImageWindow = (vtkXImageWindow *)
       vtkTclGetPointerFromObject(self->IW, "vtkImageWindow", self->Interp,
 				 new_flag);
+#endif
     if (ImageWindow != self->ImageWindow)
       {
       if (self->ImageWindow != NULL)

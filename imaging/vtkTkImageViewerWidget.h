@@ -55,7 +55,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkTkImageViewerWidget_h
 
 #include "vtkImageViewer.h"
+#include <tcl.h>
+#include <tk.h>
+#ifndef VTK_PYTHON_BUILD
 #include "vtkTclUtil.h"
+#endif
 
 struct vtkTkImageViewerWidget
 {

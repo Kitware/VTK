@@ -57,7 +57,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkTkRenderWidget_h
 
 #include "vtkRenderWindow.h"
+#include <tcl.h>
+#include <tk.h>
+#ifndef VTK_PYTHON_BUILD
 #include "vtkTclUtil.h"
+#endif
 
 struct vtkTkRenderWidget
 {
