@@ -93,6 +93,11 @@ public:
   virtual int *GetPosition() = 0;
 
   // Description:
+  // Set the position of the window in screen coordinates.
+  virtual void SetPosition(int,int);
+  virtual void SetPosition(int a[2]);
+
+  // Description:
   // Get the size of the window in screen coordinates.
   virtual int *GetSize() = 0;
 

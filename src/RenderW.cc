@@ -459,6 +459,28 @@ void vlRenderWindow::SetSize(int a[2])
   this->SetSize(a[0],a[1]);
 }
 
+// Description:
+// Set the size of the window in screen coordinates.
+void vlRenderWindow::SetPosition(int a[2])
+{
+  this->SetPosition(a[0],a[1]);
+}
+// Description:
+// Set the size of the window in screen coordinates.
+void vlRenderWindow::SetPosition(int x, int y)
+{
+  // if we arent mappen then just set the ivars 
+  if (!this->Mapped)
+    {
+    if ((this->Position[0] != x)||(this->Position[1] != y))
+      {
+      this->Modified();
+      }
+    this->Position[0] = x;
+    this->Position[1] = y;
+    }
+}
+
 void vlRenderWindow::PrintSelf(ostream& os, vlIndent indent)
 {
   int *temp;
