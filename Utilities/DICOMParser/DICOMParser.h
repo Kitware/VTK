@@ -225,6 +225,10 @@ class DICOMParser
 
   DICOMMemberCallback<DICOMParser>* TransferSyntaxCB;
 
+ private:
+  DICOMParser(const DICOMParser&);  // Not implemented.
+  void operator=(const DICOMParser&);  // Not implemented.
+
 };
 
 #endif   // DICOMParser_h_

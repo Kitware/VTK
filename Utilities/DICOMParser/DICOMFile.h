@@ -15,6 +15,7 @@
 #include <fstream>
 #include <strstream>
 #include <string>
+#include <stdlib.h> // some platforms need for atol, atoi, etc
 
 #ifdef WIN32
 #pragma warning(pop) 
@@ -242,6 +243,11 @@ class DICOMFile
   // Platform endianness
   //
   char* PlatformEndian;
+
+ private:
+  DICOMFile(const DICOMFile&);  // Not implemented.
+  void operator=(const DICOMFile&);  // Not implemented.
+
 };
 
 
