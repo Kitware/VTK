@@ -179,6 +179,7 @@ class wxVTKRenderWindowInteractor(baseClass):
         EVT_RIGHT_UP(self, self.OnButtonUp)
         EVT_LEFT_UP(self, self.OnButtonUp)
         EVT_MIDDLE_UP(self, self.OnButtonUp)
+        EVT_MOUSEWHEEL(self, self.OnMouseWheel)
         EVT_MOTION(self, self.OnMotion)
 
         EVT_ENTER_WINDOW(self, self.OnEnter)
@@ -287,6 +288,15 @@ class wxVTKRenderWindowInteractor(baseClass):
         if self._ActiveButton and WX_USE_X_CAPTURE:
             self.ReleaseMouse()
 
+    def OnMouseWheel(self,event):
+        ctrl, shift = event.ControlDown(), event.ShiftDown()
+        self._Iren.SetEventInformationFlipY(event.GetX(), event.GetY(),
+                                            ctrl, shift, chr(0), 0, None)
+        if event.GetWheelDelta() > 0:
+            self._Iren.MouseWheelForwardEvent()
+        else:
+            self._Iren.MouseWheelBackwardEvent()
+        
     def OnKeyDown(self,event):
         ctrl, shift = event.ControlDown(), event.ShiftDown()
         keycode, keysym = event.GetKeyCode(), None
