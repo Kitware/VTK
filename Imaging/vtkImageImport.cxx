@@ -398,9 +398,9 @@ void vtkImageImport::LegacyCheckWholeExtent()
     {
     return;
     }
-  
+  int i;
   // Check whether the whole extent has been set.
-  for(int i=0; i < 6; ++i)
+  for(i=0; i < 6; ++i)
     {
     if (this->WholeExtent[i] != 0)
       {
@@ -410,7 +410,7 @@ void vtkImageImport::LegacyCheckWholeExtent()
   
   // The whole extent has not been set.  Copy it from the data extent
   // and issue a warning.
-  for(int i=0; i < 6; ++i)
+  for(i=0; i < 6; ++i)
     {
     this->WholeExtent[i] = this->DataExtent[i];
     }
