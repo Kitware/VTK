@@ -36,6 +36,10 @@ IF(JAVA_COMPILE)
              OUTPUTS ${VTK_BINARY_DIR}/Wrapping/Java/${jfile}.class)
         SET(JAVA_TESTS ${JAVA_TESTS} ${VTK_BINARY_DIR}/Wrapping/Java/${jfile}.class)
       ENDFOREACH(jfile)
+      ADD_TEST(JavaRegression ${JAVA_RUNTIME} 
+               -classpath ${LIBRARY_OUTPUT_PATH}/vtk.jar:${VTK_BINARY_DIR}/Wrapping/Java
+               Regression -D ${VTK_DATA_ROOT}
+                          -V Baseline/Graphics/Cone.png)
     ENDIF(BUILD_TESTING)
 
     ADD_CUSTOM_COMMAND( 
