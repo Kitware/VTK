@@ -55,7 +55,8 @@ class VTK_COMMON_EXPORT vtkCommand
 public:
   // Description:
   // vtkCommand is not a subclass of vtkObject, but it has the same reference
-  // counting semantics. So Delete(), Register(), and UnRegister() are implemented.
+  // counting semantics. So Delete(), Register(), and UnRegister() are 
+  // implemented.
   void Delete() 
     { this->UnRegister(); }
 

@@ -17,12 +17,23 @@
 =========================================================================*/
 // .NAME vtkCallbackCommand - supports function callbacks
 // .SECTION Description
-// vtkCallbackCommand is a good command to use for generic function 
-// callbacks. The function should have the format 
-// void func(vtkObject *,void *clientdata, void *calldata). 
+// Use vtkCallbackCommand for generic function callbacks. That is, this class
+// can be used when you wish to execute a function (of the signature
+// described below) using the Command/Observer design pattern in VTK. 
+// The callback function should have the form
+// <pre>
+// void func(vtkObject*, unsigned long eid, void* clientdata, void *calldata)
+// </pre>
+// where the parameter vtkObject* is the object invoking the event; eid is
+// the event id (see vtkCommand.h); clientdata is special data that should
+// is associated with this instance of vtkCallbackCommand; and calldata is
+// data that the vtkObject::InvokeEvent() may send with the callback. For
+// example, the invocation of the ProgressEvent sends along the progress
+// value as calldata.
+// 
 
 // .SECTION See Also
-// vtkCommand vtkCallCommand
+// vtkCommand vtkOldStyleCallbackCommand
 
 #ifndef __vtkCallbackCommand_h
 #define __vtkCallbackCommand_h
@@ -36,16 +47,21 @@ public:
     {return new vtkCallbackCommand;};
 
   // Description:
-  // Satisfy the superclass API for callbacks.
-  void Execute(vtkObject *caller, unsigned long event, void *callData);
+  // Satisfy the superclass API for callbacks. Recall that the caller is
+  // the instance invoking the event; eid is the event id (see 
+  // vtkCommand.h); and calldata is information sent when the callback
+  // was invoked (e.g., progress value in the vtkCommand::ProgressEvent).
+  void Execute(vtkObject *caller, unsigned long eid, void *callData);
 
   // Description:
-  // Methods to set and get client and callback information.
+  // Methods to set and get client and callback information, and the callback
+  // function.
   void SetClientData(void *cd) 
     {this->ClientData = cd;}
   void* GetClientData()
     {return this->ClientData; }
-  void SetCallback(void (*f)(vtkObject *, unsigned long, void *, void *)) 
+  void SetCallback(void (*f)(vtkObject *caller, unsigned long eid, 
+                             void *clientdata, void *calldata)) 
     {this->Callback = f;}
   void SetClientDataDeleteCallback(void (*f)(void *))
     {this->ClientDataDeleteCallback = f;}

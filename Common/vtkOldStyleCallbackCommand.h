@@ -15,17 +15,21 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkOldStyleCallbackCommand - supports old-style function callbacks for VTK
+// .NAME vtkOldStyleCallbackCommand - supports legacy function callbacks for VTK
 // .SECTION Description
-// vtkOldStyleCallbackCommand is a callback that supports the legacy callbcak
+// vtkOldStyleCallbackCommand is a callback that supports the legacy callback
 // methods found in VTK. For example, the legacy method
 // vtkProcessObject::SetStartMethod() is actually invoked using the
 // command/observer design pattern of VTK, and the vtkOldStyleCallbackCommand
-// is used to provide the legacy functionality. The function should have the
-// format void func(vtkObject *,void *clientdata, void *calldata).
+// is used to provide the legacy functionality. The callback function should
+// have the form void func(void *clientdata), where clientdata is special data
+// that should is associated with this instance of vtkCallbackCommand.
+//
+// .SECTION Caveats
+// This is legacy glue. Please do not use; it will be eventually eliminated.
 
 // .SECTION See Also
-// vtkCommand vtkCallCommand
+// vtkCommand vtkCallbackCommand
 
 #ifndef __vtkOldStyleCallbackCommand_h
 #define __vtkOldStyleCallbackCommand_h
@@ -41,13 +45,13 @@ public:
 
   // Description:
   // Satisfy the superclass API for callbacks.
-  void Execute(vtkObject *,unsigned long, void *);
+  void Execute(vtkObject *invoker, unsigned long eid, void *calldata);
 
   // Description:
   // Methods to set and get client and callback information.
   void SetClientData(void *cd) 
     {this->ClientData = cd;};
-  void SetCallback(void (*f)(void *)) 
+  void SetCallback(void (*f)(void *clientdata)) 
     {this->Callback = f;};
   void SetClientDataDeleteCallback(void (*f)(void *))
     {this->ClientDataDeleteCallback = f;};
