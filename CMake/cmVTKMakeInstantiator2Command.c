@@ -268,7 +268,7 @@ static int InitialPass(void *inf, void *mf, int argc, char *argv[])
       {
       classes[i] = info->CAPI->GetFilenameWithoutExtension(classes[i]);
       }
-    free(srcName);
+    info->CAPI->Free(srcName);
     }    
   
   /* Generate the header */
@@ -291,7 +291,7 @@ static int InitialPass(void *inf, void *mf, int argc, char *argv[])
     {
     if (classes[i])
       {
-      free(classes[i]);
+      info->CAPI->Free(classes[i]);
       }
     }
   
