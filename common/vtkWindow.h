@@ -66,7 +66,7 @@ public:
   virtual void *GetGenericDisplayId() = 0;
   virtual void *GetGenericWindowId()  = 0;
   virtual void *GetGenericParentId()  = 0;
-
+  virtual void *GetGenericContext()   = 0;
   
   // useful for scripting languages
   virtual void SetWindowInfo(char *) = 0;
