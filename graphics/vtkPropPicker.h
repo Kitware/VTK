@@ -65,20 +65,28 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Perform the pick and set the PickedProp ivar.   If something is
-  // picked, a 1 is returned, otherwise 0 is returned.  Use the GetPickedProp
-  // method to get the prop picked.  Props are picked from the renerers list
-  // of pickable Props.
+
+  // Perform the pick and set the PickedProp ivar. If something is picked, a
+  // 1 is returned, otherwise 0 is returned.  Use the GetPickedProp() method
+  // to get the instance of vtkProp that was picked.  Props are picked from
+  // the renderers list of pickable Props.
   int PickProp(float selectionX, float selectionY, vtkRenderer *renderer);  
+
   // Description:
-  // Perform a pick from the collection contents and not the cotents of the renderer
+
+  // Perform a pick from the user-provided list of vtkProps and not from the
+  // list of vtkProps that the render maintains.
   int PickProp(float selectionX, float selectionY, vtkRenderer *renderer, 
 	       vtkPropCollection* pickfrom);  
+
   // Description:
-  // Overide parent Pick function
+  // Overide superclasses' Pick() method.
   int Pick(float selectionX, float selectionY, float selectionZ, 
            vtkRenderer *renderer);  
-  vtkGetObjectMacro(PickedProp, vtkProp);
+
+  // Return the vtkProp that has been picked. If NULL, nothing was picked.
+  vtkGetObjectMacro(Prop, vtkProp);
+
 protected:
   vtkPropPicker();
   ~vtkPropPicker() {};
@@ -87,7 +95,7 @@ protected:
 
   void Initialize();
   
-  vtkProp* PickedProp;
+  vtkProp* Prop;
   vtkPropCollection* PickFromProps;
 };
 

@@ -63,7 +63,7 @@ vtkPropPicker* vtkPropPicker::New()
 // set up for a pick
 void vtkPropPicker::Initialize()
 {
-  this->PickedProp = 0;
+  this->Prop = 0;
   this->vtkPicker::Initialize();
 }
 
@@ -89,13 +89,15 @@ int vtkPropPicker::PickProp(float selectionX, float selectionY,
 
 // Perform pick operation with selection point provided. The z location
 // is recovered from the zBuffer. Always returns 0 since no actors are picked.
-int vtkPropPicker::PickProp(float selectionX, float selectionY, vtkRenderer *renderer)
+int vtkPropPicker::PickProp(float selectionX, float selectionY, 
+                            vtkRenderer *renderer)
 {
   // Invoke start pick method if defined
   if ( this->StartPickMethod ) 
     {
     (*this->StartPickMethod)(this->StartPickMethodArg);
     } 
+
   //  Initialize picking process
   this->Renderer = renderer;
   this->SelectionPoint[0] = selectionX;
@@ -104,9 +106,11 @@ int vtkPropPicker::PickProp(float selectionX, float selectionY, vtkRenderer *ren
   this->Initialize();
 
   // Have the renderer do the hardware pick
-  this->PickedProp = renderer->PickPropFrom(selectionX, selectionY, this->PickFromProps);
+  this->Prop = 
+    renderer->PickPropFrom(selectionX, selectionY, this->PickFromProps);
+
   // If there was a pick then find the world x,y,z for the pick
-  if(this->PickedProp)
+  if(this->Prop)
     {
     // save the start and end methods, so that 
     // vtkWorldPointPicker will not call them
@@ -119,14 +123,16 @@ int vtkPropPicker::PickProp(float selectionX, float selectionY, vtkRenderer *ren
     this->StartPickMethod = SaveStartPickMethod;
     this->EndPickMethod = SaveEndPickMethod;
     } 
+
   if(this->EndPickMethod)
     {
     (*this->EndPickMethod)(this->EndPickMethodArg);
     }
-  // Call Pick on the Prop that was picked, and return 1 for sucess
-  if(this->PickedProp)
+
+  // Call Pick on the Prop that was picked, and return 1 for success
+  if(this->Prop)
     {
-    this->PickedProp->Pick();
+    this->Prop->Pick();
     if ( this->PickMethod )
       {
       (*this->PickMethod)(this->PickMethodArg);
@@ -139,6 +145,6 @@ int vtkPropPicker::PickProp(float selectionX, float selectionY, vtkRenderer *ren
 void vtkPropPicker::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->vtkWorldPointPicker::PrintSelf(os, indent);
-  os << indent << "PickedProp:    " << this->PickedProp << endl;
+  os << indent << "Prop:    " << this->Prop << endl;
   os << indent << "PickFrom List: " << this->PickFromProps << endl;
 }

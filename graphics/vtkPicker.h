@@ -62,9 +62,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .SECTION Caveats
 // vtkPicker and its subclasses will not pick actors that are "unpickable" 
 // (see vtkActor) or are fully transparent.
+
 // .SECTION See Also
-// vtkPicker is used for quick picking. If you desire to pick points
-// or cells, use the subclass vtkPointPicker or vtkCellPicker, respectively.
+// vtkPicker is used for quick picking. If you desire to pick points or
+// cells, use the subclass vtkPointPicker or vtkCellPicker, respectively.  Or
+// you may use hardware picking to pick any type of vtkProp - see
+// vtkPropPicker.
 
 #ifndef __vtkPicker_h
 #define __vtkPicker_h
