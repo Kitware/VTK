@@ -80,7 +80,7 @@ if { $numProcs > 1 } {
 }
 
 # enable user interface interactor
-iren SetUserMethod {wm deiconify .vtkInteract}
+iren AddObserver UserEvent {wm deiconify .vtkInteract}
 iren Initialize
 
 renWin SetWindowName "Process $myProcId"

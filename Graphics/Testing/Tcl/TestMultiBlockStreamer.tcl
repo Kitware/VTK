@@ -120,7 +120,7 @@ Actor10 SetMapper Mapper10
 Ren1 AddActor Actor10
 
 # enable user interface interactor
-iren SetUserMethod {wm deiconify .vtkInteract}
+iren AddObserver UserEvent {wm deiconify .vtkInteract}
 iren Initialize
 
 # prevent the tk window from showing up then start the event loop
