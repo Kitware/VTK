@@ -17,7 +17,6 @@
 =========================================================================*/
 #include "vtkPVGeometryFilter.h"
 #include "vtkGeometryFilter.h"
-#include "vtkExtractEdges.h"
 #include "vtkOutlineSource.h"
 #include "vtkRectilinearGridOutlineFilter.h"
 #include "vtkStructuredGridOutlineFilter.h"
@@ -25,7 +24,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkCommand.h"
 
-vtkCxxRevisionMacro(vtkPVGeometryFilter, "1.8");
+vtkCxxRevisionMacro(vtkPVGeometryFilter, "1.9");
 vtkStandardNewMacro(vtkPVGeometryFilter);
 
 //----------------------------------------------------------------------------
@@ -46,6 +45,10 @@ void vtkPVGeometryFilter::Execute()
   vtkDataSet *input = this->GetInput();
 
   if (input == NULL)
+    {
+    return;
+    }
+  if (input->CheckAttributes())
     {
     return;
     }
@@ -71,8 +74,6 @@ void vtkPVGeometryFilter::Execute()
   if (input->IsA("vtkUnstructuredGrid"))
     {
     this->UnstructuredGridExecute((vtkUnstructuredGrid*)input);
-    // I think this filter is misbehaving.
-    this->GetOutput()->CheckAttributes();
     return;
     }
   if (input->IsA("vtkPolyData"))
@@ -101,10 +102,8 @@ void vtkPVGeometryFilter::Execute()
     }
 
   // We are not stripping unstructured grids ...
-  this->GetInput()->CheckAttributes();
   this->vtkDataSetSurfaceFilter::Execute();
   // I think this filter is misbehaving.
-  this->GetOutput()->CheckAttributes();
   return;
 }
 
@@ -232,46 +231,8 @@ void vtkPVGeometryFilter::RectilinearGridExecute(vtkRectilinearGrid *input)
 //----------------------------------------------------------------------------
 void vtkPVGeometryFilter::UnstructuredGridExecute(vtkUnstructuredGrid *input)
 {
-  vtkIdType numCells, id;
-  int type;
-  vtkPolyData *output = this->GetOutput();
-  
   this->OutlineFlag = 0;
-
-  // Look through the input a see if it is 2D.
-  // I know that having only part of the data may fool us, but so what.
-  numCells = input->GetNumberOfCells();
-  for (id = 0; id < numCells && this->OutlineFlag == 0; ++id)
-    {
-    type = input->GetCellType(id);
-    if (type == VTK_TETRA || type == VTK_VOXEL || type == VTK_HEXAHEDRON
-        || type == VTK_WEDGE || type == VTK_PYRAMID)
-      {
-      this->OutlineFlag = 1;
-      } 
-    }
-
-  // If 2d then default to superclass behavior.
-  if (this->OutlineFlag == 0)
-    {
-    this->vtkDataSetSurfaceFilter::Execute();
-    return;
-    }  
-
-
-  vtkDataSetSurfaceFilter *surface = vtkDataSetSurfaceFilter::New();
-  //vtkGeometryFilter *surface = vtkGeometryFilter::New();
-  surface->SetInput(input);
-  vtkExtractEdges *edges = vtkExtractEdges::New();
-  edges->SetInput(surface->GetOutput());
-  edges->GetOutput()->SetUpdateNumberOfPieces(output->GetUpdateNumberOfPieces());
-  edges->GetOutput()->SetUpdatePiece(output->GetUpdatePiece());
-  edges->GetOutput()->SetUpdateGhostLevel(output->GetUpdateGhostLevel());
-  edges->GetOutput()->Update();
-
-  output->CopyStructure(edges->GetOutput());
-  surface->Delete();
-  edges->Delete();
+  this->vtkDataSetSurfaceFilter::Execute();
 }
 
 //----------------------------------------------------------------------------
