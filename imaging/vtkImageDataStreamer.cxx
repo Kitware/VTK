@@ -103,7 +103,7 @@ vtkImageData *vtkImageDataStreamer::GetInput()
 }
 
 //----------------------------------------------------------------------------
-void vtkImageDataStreamer::PreUpdate(vtkDataObject *out)
+void vtkImageDataStreamer::PreUpdate(vtkDataObject *vtkNotUsed(out))
 {
   // Do nothing here (for now).
 }

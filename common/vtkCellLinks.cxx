@@ -157,7 +157,7 @@ void vtkCellLinks::BuildLinks(vtkDataSet *data)
 {
   int numPts = data->GetNumberOfPoints();
   int numCells = data->GetNumberOfCells();
-  int i, j, cellId;
+  int j, cellId;
   unsigned short *linkLoc;
 
   // fill out lists with number of references to cells
