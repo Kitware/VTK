@@ -93,7 +93,7 @@ proc TestObject {kit objectClass} {
       }
       if {[string range $str 0 2] == "Set"} {
 	 # we found a Set method
-	 regsub "{" $str " " str
+	 regsub "\{" $str " " str
 	 set methodName [lindex $str 0]
 	 # check to see if the Method has arguments
 	 if { [lindex $methodList [expr $idx + 1]] == "with" } {
@@ -631,6 +631,7 @@ proc CheckSubclassRelationship {class subClass subClassKit} {
    set str [getline $fd]
    while { $str != ""} {
       if { [string first "class VTK_EXPORT" $str] != -1} {
+	 regsub "\{" $str " " str
 	 # we have the class definition line.
 	 close $fd
 	 # get the class name

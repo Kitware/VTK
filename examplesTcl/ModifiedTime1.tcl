@@ -17,7 +17,7 @@ source ../examplesTcl/vtkInt.tcl
 # When this is set to 1, the method calls will be echoed, and
 # the mtime results displayed.  When an error is encountered,
 # an interactor will popup.
-set DEBUG 0
+set DEBUG 1
 
 
 
@@ -84,7 +84,7 @@ proc TestObject {kit objectClass} {
 	 set methodClass [string trim [lindex $methodList $idx] ":"]
       }
       if {[string range $str 0 2] == "Set"} {
-	 regsub "{" $str " " str
+	 regsub "\{" $str " " str
 	 # we found a Set method
 	 set methodName [lindex $str 0]
 	 # check to see if the Method has arguments
@@ -586,6 +586,7 @@ proc CheckSubclassRelationship {class subClass subClassKit} {
    set str [getline $fd]
    while { $str != ""} {
       if { [string first "class VTK_EXPORT" $str] != -1} {
+	 regsub "\{" $str " " str
 	 # we have the class definition line.
 	 close $fd
 	 # get the class name
