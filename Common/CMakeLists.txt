@@ -117,6 +117,7 @@ vtkScalarsToColors
 vtkShortArray 
 vtkSource 
 vtkSphericalTransform
+vtkString
 vtkStructuredData 
 vtkStructuredGrid 
 vtkStructuredPoints 
@@ -188,6 +189,7 @@ WRAP_EXCLUDE_FILES(
   vtkImageProgressIterator
   vtkLargeInteger 
   vtkOldStyleCallbackCommand
+  vtkString
 )
 
 IF(VTK_MAKE_INSTANTIATOR)
