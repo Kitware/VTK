@@ -68,6 +68,11 @@ int GetFullPath(char *name, const char *vtkHome, char *fullPath, char *extraPtr[
   if (!stat(fullPath,&statBuff))
     return 1;
 
+  // if control reaches here then it hasn't been found yet
+  sprintf(fullPath,"%s/parallel/%s",vtkHome,name);
+  if (!stat(fullPath,&statBuff))
+    return 1;
+
   // now do extra directories
   for (i = 0; i < extra_num; i++)
     {
