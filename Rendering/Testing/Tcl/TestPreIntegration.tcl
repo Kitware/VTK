@@ -64,10 +64,6 @@ renWin SetSize 300 300
 [ren1 GetActiveCamera] Zoom 1.5
 
 renWin Render
-renWin Render
-renWin Render
-renWin Render
-renWin Render
 
 
 proc TkCheckAbort {} {
