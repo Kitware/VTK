@@ -353,6 +353,11 @@ IF(VTK_USE_X)
   ENDIF(CMAKE_X_CFLAGS)
 ENDIF(VTK_USE_X)
 
+IF(CMAKE_BUILD_TOOL MATCHES "(msdev|devenv|nmake)")
+  # Use the highest warning level for visual studio.
+  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
+ENDIF(CMAKE_BUILD_TOOL MATCHES "(msdev|devenv|nmake)")
+
 #-----------------------------------------------------------------------------
 # Configure OpenGL support.
 IF(VTK_USE_RENDERING)
