@@ -21,6 +21,7 @@
 #include "vtkVolume.h"
 #include "vtkRenderer.h"
 #include "vtkStructuredPoints.h"
+#include "vtkImageToStructuredPoints.h"
 
 class vtkRenderer;
 class vtkVolume;
@@ -83,6 +84,8 @@ public:
   // Description:
   // Set/Get the scalar input data
   vtkSetObjectMacro( ScalarInput, vtkStructuredPoints );
+  void SetScalarInput(vtkImageSource *cache)
+    {this->SetScalarInput(cache->GetImageToStructuredPoints()->GetOutput());}
   virtual vtkStructuredPoints *GetScalarInput() {return this->ScalarInput;};
 
 protected:
