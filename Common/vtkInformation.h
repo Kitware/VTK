@@ -95,6 +95,17 @@ public:
 
   //BTX
   // Description:
+  // Possible values for the FIELD_ASSOCIATION information entry.
+  enum FieldAssociations
+  {
+    FIELD_ASSOCIATION_POINTS,
+    FIELD_ASSOCIATION_CELLS,
+    FIELD_ASSOCIATION_NONE
+  };
+  //ETX
+
+  //BTX
+  // Description:
   // Possible values for the FIELD_OPERATION information entry.
   enum FieldOperations
   {
@@ -111,11 +122,12 @@ public:
   static vtkInformationIntegerKey* INPUT_IS_OPTIONAL();
   static vtkInformationIntegerKey* INPUT_IS_REPEATABLE();
   static vtkInformationInformationVectorKey* INPUT_REQUIRED_FIELDS();
-  static vtkInformationIntegerKey* INPUT_REQUIRED_DATA_TYPE();
+  static vtkInformationStringKey* INPUT_REQUIRED_DATA_TYPE();
   static vtkInformationIntegerKey* DATA_TYPE();
   static vtkInformationInformationVectorKey* OUTPUT_PROVIDED_FIELDS();
   static vtkInformationDataSetKey* DATA_OBJECT();
   static vtkInformationStringKey* FIELD_NAME();
+  static vtkInformationIntegerKey* FIELD_ASSOCIATION();
   static vtkInformationIntegerKey* FIELD_ATTRIBUTE_TYPE();
   static vtkInformationIntegerKey* FIELD_OPERATION();
   static vtkInformationIntegerVectorKey* UPDATE_EXTENT();
