@@ -204,9 +204,9 @@ void vtkLinearExtrusionFilter::Execute()
   // copy points
   for (ptId=0; ptId < numPts; ptId++)
     { 
-    if ( ! (cellId % progressInterval) ) //manage progress / early abort
+    if ( ! (ptId % progressInterval) ) //manage progress / early abort
       {
-      this->UpdateProgress (0.25*cellId/numCells);
+      this->UpdateProgress (0.25*ptId/numPts);
       }
 
     x = inPts->GetPoint(ptId);
