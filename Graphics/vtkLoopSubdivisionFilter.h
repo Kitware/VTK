@@ -47,9 +47,11 @@
 #define __vtkLoopSubdivisionFilter_h
 
 #include "vtkApproximatingSubdivisionFilter.h"
-#include "vtkIntArray.h"
-#include "vtkIdList.h"
-#include "vtkCellArray.h"
+
+class vtkPolyData;
+class vtkIntArray;
+class vtkPoints;
+class vtkIdList;
 
 class VTK_GRAPHICS_EXPORT vtkLoopSubdivisionFilter : public vtkApproximatingSubdivisionFilter
 {

@@ -17,11 +17,13 @@
 =========================================================================*/
 #include "vtkTransformPolyDataFilter.h"
 
+#include "vtkAbstractTransform.h"
 #include "vtkFloatArray.h"
+#include "vtkLinearTransform.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkTransformPolyDataFilter, "1.28");
+vtkCxxRevisionMacro(vtkTransformPolyDataFilter, "1.29");
 vtkStandardNewMacro(vtkTransformPolyDataFilter);
 vtkCxxSetObjectMacro(vtkTransformPolyDataFilter,
                      Transform,vtkAbstractTransform);

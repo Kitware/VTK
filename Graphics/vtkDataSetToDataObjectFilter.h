@@ -48,8 +48,8 @@
 #define __vtkDataSetToDataObjectFilter_h
 
 #include "vtkDataObjectSource.h"
-#include "vtkDataSet.h"
-#include "vtkCollection.h"
+
+class vtkDataSet;
 
 class VTK_GRAPHICS_EXPORT vtkDataSetToDataObjectFilter : public vtkDataObjectSource
 {

@@ -19,10 +19,11 @@
 
 #include "vtkDataSet.h"
 #include "vtkFloatArray.h"
+#include "vtkMergePoints.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkEdgePoints, "1.47");
+vtkCxxRevisionMacro(vtkEdgePoints, "1.48");
 vtkStandardNewMacro(vtkEdgePoints);
 
 // Construct object with contour value of 0.0.

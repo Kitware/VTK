@@ -28,7 +28,6 @@
 #define __vtkDiskSource_h
 
 #include "vtkPolyDataSource.h"
-#include "vtkPolyData.h"
 
 class VTK_GRAPHICS_EXPORT vtkDiskSource : public vtkPolyDataSource 
 {

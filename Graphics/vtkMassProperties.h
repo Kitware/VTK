@@ -37,7 +37,8 @@
 #define __vtkMassProperties_h
 
 #include "vtkProcessObject.h"
-#include "vtkPolyData.h"
+
+class vtkPolyData;
 
 class VTK_GRAPHICS_EXPORT vtkMassProperties : public vtkProcessObject
 {

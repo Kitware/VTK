@@ -34,7 +34,8 @@
 #define __vtkInterpolateDataSetAttributes_h
 
 #include "vtkDataSetToDataSetFilter.h"
-#include "vtkDataSetCollection.h"
+
+class vtkDataSetCollection;
 
 class VTK_GRAPHICS_EXPORT vtkInterpolateDataSetAttributes : public vtkDataSetToDataSetFilter
 {

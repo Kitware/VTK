@@ -19,13 +19,14 @@
 
 #include "vtkFloatArray.h"
 #include "vtkImageData.h"
+#include "vtkImplicitFunction.h"
 #include "vtkMergePoints.h"
 #include "vtkObjectFactory.h"
 #include "vtkOrderedTriangulator.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkVoxel.h"
 
-vtkCxxRevisionMacro(vtkClipVolume, "1.51");
+vtkCxxRevisionMacro(vtkClipVolume, "1.52");
 vtkStandardNewMacro(vtkClipVolume);
 vtkCxxSetObjectMacro(vtkClipVolume,ClipFunction,vtkImplicitFunction);
 

@@ -123,9 +123,12 @@
 #ifndef __vtkDelaunay2D_h
 #define __vtkDelaunay2D_h
 
-#include "vtkPointSet.h"
 #include "vtkPolyDataSource.h"
-#include "vtkAbstractTransform.h"
+
+class vtkAbstractTransform;
+class vtkCellArray;
+class vtkIdList;
+class vtkPointSet;
 
 class VTK_GRAPHICS_EXPORT vtkDelaunay2D : public vtkPolyDataSource
 {

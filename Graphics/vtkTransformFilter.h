@@ -36,7 +36,8 @@
 #define __vtkTransformFilter_h
 
 #include "vtkPointSetToPointSetFilter.h"
-#include "vtkAbstractTransform.h"
+
+class vtkAbstractTransform;
 
 class VTK_GRAPHICS_EXPORT vtkTransformFilter : public vtkPointSetToPointSetFilter
 {

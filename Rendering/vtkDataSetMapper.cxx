@@ -16,11 +16,13 @@
 
 =========================================================================*/
 #include "vtkDataSetMapper.h"
+
 #include "vtkPolyDataMapper.h"
 #include "vtkObjectFactory.h"
 #include "vtkDataSetSurfaceFilter.h"
+#include "vtkDataSet.h"
 
-vtkCxxRevisionMacro(vtkDataSetMapper, "1.62");
+vtkCxxRevisionMacro(vtkDataSetMapper, "1.63");
 vtkStandardNewMacro(vtkDataSetMapper);
 
 vtkDataSetMapper::vtkDataSetMapper()

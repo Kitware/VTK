@@ -23,10 +23,10 @@
 #define __vtkSpherePuzzleArrows_h
 
 #include "vtkPolyDataSource.h"
-#include "vtkSpherePuzzle.h"
 
-class vtkPoints;
 class vtkCellArray;
+class vtkPoints;
+class vtkSpherePuzzle;
 
 class VTK_EXPORT vtkSpherePuzzleArrows : public vtkPolyDataSource 
 {
@@ -41,8 +41,7 @@ public:
   vtkSetVectorMacro(Permutation,int,32);
   vtkGetVectorMacro(Permutation,int,32);
   void SetPermutationComponent(int comp, int val);
-  void SetPermutation(vtkSpherePuzzle *puz) 
-    {this->SetPermutation(puz->GetState());}
+  void SetPermutation(vtkSpherePuzzle *puz);
 
 protected:
   vtkSpherePuzzleArrows();

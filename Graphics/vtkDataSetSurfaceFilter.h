@@ -29,11 +29,10 @@
 #define __vtkDataSetSurfaceFilter_h
 
 #include "vtkDataSetToPolyDataFilter.h"
-#include "vtkStructuredGrid.h"
-#include "vtkImageData.h"
-#include "vtkUnstructuredGrid.h"
 
 class vtkFastGeomQuad; 
+class vtkPointData;
+class vtkPoints;
 
 class VTK_GRAPHICS_EXPORT vtkDataSetSurfaceFilter : public vtkDataSetToPolyDataFilter
 {

@@ -15,14 +15,17 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-
 #include "vtkMeshQuality.h"
-#include "vtkMath.h"
-#include "vtkTetra.h"
-#include "vtkFloatArray.h"
-#include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkMeshQuality, "1.2");
+#include "vtkCellData.h"
+#include "vtkDataSet.h"
+#include "vtkFieldData.h"
+#include "vtkFloatArray.h"
+#include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkTetra.h"
+
+vtkCxxRevisionMacro(vtkMeshQuality, "1.3");
 vtkStandardNewMacro(vtkMeshQuality);
 
 //----------------------------------------------------------------------------

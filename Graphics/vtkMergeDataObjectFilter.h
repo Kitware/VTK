@@ -17,30 +17,31 @@
 =========================================================================*/
 // .NAME vtkMergeDataObjectFilter - merge dataset and data object field to create dataset with attribute data
 // .SECTION Description
-// vtkMergeDataObjectFilter is a filter that merges the field from a 
-// vtkDataObject with a vtkDataSet. The resulting combined dataset can then
-// be processed by other filters (e.g., vtkFieldDataToAttributeDataFilter)
-// to create attribute data like scalars, vectors, etc.
+// vtkMergeDataObjectFilter is a filter that merges the field from a
+// vtkDataObject with a vtkDataSet. The resulting combined dataset can
+// then be processed by other filters (e.g.,
+// vtkFieldDataToAttributeDataFilter) to create attribute data like
+// scalars, vectors, etc.
 //
-// The filter operates as follows. The field data from the vtkDataObject is
-// merged with the input's vtkDataSet and then placed in the output. You can
-// choose to place the field data into the cell data field, the point data field,
-// or the datasets field (i.e., the one inherited from vtkDataSet's
-// superclass vtkDataObject). All this data shuffling occurs via reference
-// counting, therefore memory is not copied.
+// The filter operates as follows. The field data from the
+// vtkDataObject is merged with the input's vtkDataSet and then placed
+// in the output. You can choose to place the field data into the cell
+// data field, the point data field, or the datasets field (i.e., the
+// one inherited from vtkDataSet's superclass vtkDataObject). All this
+// data shuffling occurs via reference counting, therefore memory is
+// not copied.
 //
 // One of the uses of this filter is to allow you to read/generate the
-// structure of a dataset independent of the attributes. So, for example, you
-// could store the dataset geometry/topology in one file, and field data in
-// another. Then use this filter in combination with
-// vtkFieldDataToAttributeData to create a dataset ready for processing in
-// the visualization pipeline.
+// structure of a dataset independent of the attributes. So, for
+// example, you could store the dataset geometry/topology in one file,
+// and field data in another. Then use this filter in combination with
+// vtkFieldDataToAttributeData to create a dataset ready for
+// processing in the visualization pipeline.
 
 #ifndef __vtkMergeDataObjectFilter_h
 #define __vtkMergeDataObjectFilter_h
 
 #include "vtkDataSetToDataSetFilter.h"
-#include "vtkFieldDataToAttributeDataFilter.h"
 
 class VTK_GRAPHICS_EXPORT vtkMergeDataObjectFilter : public vtkDataSetToDataSetFilter
 {
@@ -61,12 +62,9 @@ public:
   // data.
   vtkSetMacro(OutputField,int);
   vtkGetMacro(OutputField,int);
-  void SetOutputFieldToDataObjectField() 
-    {this->SetOutputField(VTK_DATA_OBJECT_FIELD);};
-  void SetOutputFieldToPointDataField() 
-    {this->SetOutputField(VTK_POINT_DATA_FIELD);};
-  void SetOutputFieldToCellDataField() 
-    {this->SetOutputField(VTK_CELL_DATA_FIELD);};
+  void SetOutputFieldToDataObjectField();
+  void SetOutputFieldToPointDataField();
+  void SetOutputFieldToCellDataField();
   
 protected:
   vtkMergeDataObjectFilter();

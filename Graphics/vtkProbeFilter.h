@@ -28,7 +28,8 @@
 #define __vtkProbeFilter_h
 
 #include "vtkDataSetToDataSetFilter.h"
-#include "vtkIdTypeArray.h"
+
+class vtkIdTypeArray;
 
 class VTK_GRAPHICS_EXPORT vtkProbeFilter : public vtkDataSetToDataSetFilter
 {

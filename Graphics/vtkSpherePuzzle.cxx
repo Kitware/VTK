@@ -23,11 +23,12 @@
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 #include "vtkSphereSource.h"
+#include "vtkTransform.h"
 #include "vtkTransformFilter.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkSpherePuzzle, "1.8");
+vtkCxxRevisionMacro(vtkSpherePuzzle, "1.9");
 vtkStandardNewMacro(vtkSpherePuzzle);
 
 //----------------------------------------------------------------------------

@@ -38,7 +38,6 @@
 #define __vtkSplineFilter_h
 
 #include "vtkPolyDataToPolyDataFilter.h"
-#include "vtkSpline.h"
 
 #define VTK_SUBDIVIDE_SPECIFIED 0
 #define VTK_SUBDIVIDE_LENGTH    1
@@ -53,6 +52,7 @@ class vtkCellData;
 class vtkFloatArray;
 class vtkPointData;
 class vtkPoints;
+class vtkSpline;
 
 class VTK_GRAPHICS_EXPORT vtkSplineFilter : public vtkPolyDataToPolyDataFilter
 {

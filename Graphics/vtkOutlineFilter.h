@@ -25,6 +25,7 @@
 #define __vtkOutlineFilter_h
 
 #include "vtkDataSetToPolyDataFilter.h"
+
 class vtkOutlineSource;
 
 class VTK_GRAPHICS_EXPORT vtkOutlineFilter : public vtkDataSetToPolyDataFilter

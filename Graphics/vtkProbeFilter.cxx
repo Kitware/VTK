@@ -16,10 +16,12 @@
 
 =========================================================================*/
 #include "vtkProbeFilter.h"
+
 #include "vtkObjectFactory.h"
 #include "vtkImageData.h"
+#include "vtkIdTypeArray.h"
 
-vtkCxxRevisionMacro(vtkProbeFilter, "1.74");
+vtkCxxRevisionMacro(vtkProbeFilter, "1.75");
 vtkStandardNewMacro(vtkProbeFilter);
 
 //----------------------------------------------------------------------------

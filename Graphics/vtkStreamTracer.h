@@ -67,7 +67,8 @@
 #define __vtkStreamTracer_h
 
 #include "vtkDataSetToPolyDataFilter.h"
-#include "vtkInitialValueProblemSolver.h"
+
+#include "vtkInitialValueProblemSolver.h" // Needed for constants
 
 class vtkDataArray;
 class vtkFloatArray;

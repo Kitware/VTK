@@ -39,7 +39,8 @@
 #define __vtkExtractGeometry_h
 
 #include "vtkDataSetToUnstructuredGridFilter.h"
-#include "vtkImplicitFunction.h"
+
+class vtkImplicitFunction;
 
 class VTK_GRAPHICS_EXPORT vtkExtractGeometry : public vtkDataSetToUnstructuredGridFilter
 {

@@ -54,9 +54,10 @@
 #define __vtkClipVolume_h
 
 #include "vtkStructuredPointsToUnstructuredGridFilter.h"
-#include "vtkImplicitFunction.h"
 
 class vtkCellData;
+class vtkDataArray;
+class vtkIdList;
 class vtkImplicitFunction;
 class vtkMergePoints;
 class vtkOrderedTriangulator;

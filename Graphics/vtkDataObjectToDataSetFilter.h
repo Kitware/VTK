@@ -65,16 +65,16 @@
 #define __vtkDataObjectToDataSetFilter_h
 
 #include "vtkSource.h"
-#include "vtkFieldData.h"
-#include "vtkDataSet.h"
 
+class vtkCellArray;
+class vtkDataArray;
+class vtkDataSet;
 class vtkPointSet;
 class vtkPolyData;
-class vtkStructuredPoints;
-class vtkStructuredGrid;
 class vtkRectilinearGrid;
+class vtkStructuredGrid;
+class vtkStructuredPoints;
 class vtkUnstructuredGrid;
-class vtkCellArray;
 
 class VTK_GRAPHICS_EXPORT vtkDataObjectToDataSetFilter : public vtkSource
 {
@@ -110,8 +110,7 @@ public:
   // SetDataSetType(). Also, GetOutput() will return NULL if the filter
   // aborted due to inconsistent data.)
   vtkDataSet *GetOutput();
-  vtkDataSet *GetOutput(int idx)
-    {return static_cast<vtkDataSet *>(this->vtkSource::GetOutput(idx)); };
+  vtkDataSet *GetOutput(int idx);
   vtkPolyData *GetPolyDataOutput();
   vtkStructuredPoints *GetStructuredPointsOutput();
   vtkStructuredGrid *GetStructuredGridOutput();

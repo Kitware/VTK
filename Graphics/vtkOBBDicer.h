@@ -32,8 +32,11 @@
 #define __vtkOBBDicer_h
 
 #include "vtkDicer.h"
-#include "vtkOBBTree.h"
+
+class vtkOBBNode;
 class vtkShortArray;
+class vtkIdList;
+class vtkPoints;
 
 class VTK_GRAPHICS_EXPORT vtkOBBDicer : public vtkDicer 
 {

@@ -18,10 +18,11 @@
 #include "vtkExtractGeometry.h"
 
 #include "vtkFloatArray.h"
+#include "vtkImplicitFunction.h"
 #include "vtkObjectFactory.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkExtractGeometry, "1.47");
+vtkCxxRevisionMacro(vtkExtractGeometry, "1.48");
 vtkStandardNewMacro(vtkExtractGeometry);
 vtkCxxSetObjectMacro(vtkExtractGeometry,ImplicitFunction,vtkImplicitFunction);
 

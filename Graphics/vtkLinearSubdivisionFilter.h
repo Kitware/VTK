@@ -32,7 +32,11 @@
 #define __vtkLinearSubdivisionFilter_h
 
 #include "vtkInterpolatingSubdivisionFilter.h"
-#include "vtkIntArray.h"
+
+class vtkIntArray;
+class vtkPointData;
+class vtkPoints;
+class vtkPolyData;
 
 class VTK_GRAPHICS_EXPORT vtkLinearSubdivisionFilter : public vtkInterpolatingSubdivisionFilter
 {
@@ -46,7 +50,10 @@ protected:
   vtkLinearSubdivisionFilter () {};
   ~vtkLinearSubdivisionFilter () {};
 
-  void GenerateSubdivisionPoints (vtkPolyData *inputDS, vtkIntArray *edgeData, vtkPoints *outputPts, vtkPointData *outputPD);
+  void GenerateSubdivisionPoints (vtkPolyData *inputDS, 
+                                  vtkIntArray *edgeData, 
+                                  vtkPoints *outputPts, 
+                                  vtkPointData *outputPD);
 
 private:
   vtkLinearSubdivisionFilter(const vtkLinearSubdivisionFilter&);  // Not implemented.

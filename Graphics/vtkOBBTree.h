@@ -53,7 +53,8 @@
 #define __vtkOBBTree_h
 
 #include "vtkCellLocator.h"
-#include "vtkMatrix4x4.h"
+
+class vtkMatrix4x4;
 
 // Special class defines node for the OBB tree
 //

@@ -23,9 +23,10 @@
 #include "vtkObjectFactory.h"
 #include "vtkPlane.h"
 #include "vtkPolyData.h"
+#include "vtkPriorityQueue.h"
 #include "vtkTriangle.h"
 
-vtkCxxRevisionMacro(vtkDecimatePro, "1.71");
+vtkCxxRevisionMacro(vtkDecimatePro, "1.72");
 vtkStandardNewMacro(vtkDecimatePro);
 
 #define VTK_TOLERANCE 1.0e-05
@@ -1655,6 +1656,24 @@ void vtkDecimatePro::DistributeError(float error)
     previousError = this->VertexError->GetValue(this->V->Array[i].id);
     this->VertexError->SetValue(this->V->Array[i].id, previousError+error);
     }
+}
+void vtkDecimatePro::DeleteQueue()
+{
+  if (this->Queue)
+    {
+    this->Queue->Delete();
+    }
+  this->Queue=NULL;
+}
+
+float vtkDecimatePro::DeleteId(vtkIdType id) 
+{
+  return this->Queue->DeleteId(id);
+}
+
+void vtkDecimatePro::Reset() 
+{
+  this->Queue->Reset();
 }
 
 void vtkDecimatePro::PrintSelf(ostream& os, vtkIndent indent)

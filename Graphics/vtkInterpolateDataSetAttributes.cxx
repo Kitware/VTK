@@ -16,14 +16,16 @@
 
 =========================================================================*/
 #include "vtkInterpolateDataSetAttributes.h"
+
+#include "vtkDataSetCollection.h"
+#include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
+#include "vtkRectilinearGrid.h"
 #include "vtkStructuredGrid.h"
 #include "vtkStructuredPoints.h"
 #include "vtkUnstructuredGrid.h"
-#include "vtkRectilinearGrid.h"
-#include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkInterpolateDataSetAttributes, "1.22");
+vtkCxxRevisionMacro(vtkInterpolateDataSetAttributes, "1.23");
 vtkStandardNewMacro(vtkInterpolateDataSetAttributes);
 
 // Create object with no input or output.

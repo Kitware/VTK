@@ -65,9 +65,10 @@
 #define __vtkQuadricClustering_h
 
 #include "vtkPolyDataToPolyDataFilter.h"
-#include "vtkDataSetCollection.h"
 
+class vtkCellArray;
 class vtkFeatureEdges;
+class vtkPoints;
 
 class VTK_GRAPHICS_EXPORT vtkQuadricClustering : public vtkPolyDataToPolyDataFilter
 {

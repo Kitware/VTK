@@ -53,11 +53,12 @@
 #define __vtkContourGrid_h
 
 #include "vtkUnstructuredGridToPolyDataFilter.h"
-#include "vtkContourValues.h"
 
-class vtkScalarTree;
+#include "vtkContourValues.h" // Needed for inline methods
+
 class vtkEdgeTable;
 class vtkPointLocator;
+class vtkScalarTree;
 
 class VTK_GRAPHICS_EXPORT vtkContourGrid : public vtkUnstructuredGridToPolyDataFilter
 {

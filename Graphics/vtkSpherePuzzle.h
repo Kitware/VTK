@@ -23,9 +23,10 @@
 #define __vtkSpherePuzzle_h
 
 #include "vtkPolyDataSource.h"
-#include "vtkTransform.h"
 
 #define VTK_MAX_SPHERE_RESOLUTION 1024
+
+class vtkTransform;
 
 class VTK_EXPORT vtkSpherePuzzle : public vtkPolyDataSource 
 {

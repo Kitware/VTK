@@ -7,3 +7,10 @@ ENDIF (VTK_WRAP_TCL)
 IF (VTK_WRAP_PYTHON)
   SUBDIRS(Python)
 ENDIF (VTK_WRAP_PYTHON)
+
+IF(PYTHON_EXECUTABLE)
+  ADD_TEST(HeaderTesting-Graphics ${PYTHON_EXECUTABLE}
+           ${VTK_SOURCE_DIR}/Common/Testing/HeaderTesting.py
+	   "${VTK_SOURCE_DIR}/Graphics"
+           )
+ENDIF(PYTHON_EXECUTABLE)

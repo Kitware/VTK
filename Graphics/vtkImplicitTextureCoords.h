@@ -50,7 +50,8 @@
 #define __vtkImplicitTextureCoords_h
 
 #include "vtkDataSetToDataSetFilter.h"
-#include "vtkImplicitFunction.h"
+
+class vtkImplicitFunction;
 
 class VTK_GRAPHICS_EXPORT vtkImplicitTextureCoords : public vtkDataSetToDataSetFilter 
 {

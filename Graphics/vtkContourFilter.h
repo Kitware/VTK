@@ -53,10 +53,11 @@
 #define __vtkContourFilter_h
 
 #include "vtkDataSetToPolyDataFilter.h"
-#include "vtkContourValues.h"
-#include "vtkScalarTree.h"
+
+#include "vtkContourValues.h" // Needed for inline methods
 
 class vtkPointLocator;
+class vtkScalarTree;
 
 class VTK_GRAPHICS_EXPORT vtkContourFilter : public vtkDataSetToPolyDataFilter
 {

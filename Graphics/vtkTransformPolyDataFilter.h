@@ -38,7 +38,8 @@
 #define __vtkTransformPolyDataFilter_h
 
 #include "vtkPolyDataToPolyDataFilter.h"
-#include "vtkTransform.h"
+
+class vtkAbstractTransform;
 
 class VTK_GRAPHICS_EXPORT vtkTransformPolyDataFilter : public vtkPolyDataToPolyDataFilter
 {

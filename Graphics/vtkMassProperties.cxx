@@ -16,10 +16,13 @@
 
 =========================================================================*/
 #include "vtkMassProperties.h"
-#include "vtkObjectFactory.h"
-#include "vtkCommand.h"
 
-vtkCxxRevisionMacro(vtkMassProperties, "1.22");
+#include "vtkCommand.h"
+#include "vtkDataObject.h"
+#include "vtkObjectFactory.h"
+#include "vtkPolyData.h"
+
+vtkCxxRevisionMacro(vtkMassProperties, "1.23");
 vtkStandardNewMacro(vtkMassProperties);
 
 #define  VTK_CUBE_ROOT(x) \

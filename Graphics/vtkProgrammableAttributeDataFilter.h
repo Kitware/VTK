@@ -75,7 +75,8 @@
 #define __vtkProgrammableAttributeDataFilter_h
 
 #include "vtkDataSetToDataSetFilter.h"
-#include "vtkDataSetCollection.h"
+
+class vtkDataSetCollection;
 
 class VTK_GRAPHICS_EXPORT vtkProgrammableAttributeDataFilter : public vtkDataSetToDataSetFilter 
 {

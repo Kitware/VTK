@@ -61,7 +61,8 @@
 #define __vtkClipDataSet_h
 
 #include "vtkDataSetToUnstructuredGridFilter.h"
-#include "vtkImplicitFunction.h"
+
+class vtkImplicitFunction;
 
 class vtkPointLocator;
 

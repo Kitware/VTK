@@ -38,7 +38,9 @@
 #define __vtkSubPixelPositionEdgels_h
 
 #include "vtkPolyDataToPolyDataFilter.h"
-#include "vtkStructuredPoints.h"
+
+class vtkStructuredPoints;
+class vtkDataArray;
 
 class VTK_GRAPHICS_EXPORT vtkSubPixelPositionEdgels : public vtkPolyDataToPolyDataFilter
 {

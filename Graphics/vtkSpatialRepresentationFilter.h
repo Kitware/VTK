@@ -57,9 +57,11 @@
 #define __vtkSpatialRepresentationFilter_h
 
 #include "vtkPolyDataSource.h"
-#include "vtkLocator.h"
 
 #define VTK_MAX_SPATIAL_REP_LEVEL 24
+
+class vtkLocator;
+class vtkDataSet;
 
 class VTK_GRAPHICS_EXPORT vtkSpatialRepresentationFilter : public vtkPolyDataSource
 {

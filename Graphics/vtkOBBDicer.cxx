@@ -20,10 +20,11 @@
 #include "vtkDataSet.h"
 #include "vtkIdList.h"
 #include "vtkMath.h"
+#include "vtkOBBTree.h"
 #include "vtkObjectFactory.h"
 #include "vtkShortArray.h"
 
-vtkCxxRevisionMacro(vtkOBBDicer, "1.14");
+vtkCxxRevisionMacro(vtkOBBDicer, "1.15");
 vtkStandardNewMacro(vtkOBBDicer);
 
 void vtkOBBDicer::BuildTree(vtkIdList *ptIds, vtkOBBNode *OBBptr)

@@ -31,7 +31,8 @@
 #define __vtkEdgePoints_h
 
 #include "vtkDataSetToPolyDataFilter.h"
-#include "vtkMergePoints.h"
+
+class vtkMergePoints;
 
 class VTK_GRAPHICS_EXPORT vtkEdgePoints : public vtkDataSetToPolyDataFilter
 {

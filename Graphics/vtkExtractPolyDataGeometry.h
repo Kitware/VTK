@@ -39,7 +39,8 @@
 #define __vtkExtractPolyDataGeometry_h
 
 #include "vtkPolyDataToPolyDataFilter.h"
-#include "vtkImplicitFunction.h"
+
+class vtkImplicitFunction;
 
 class VTK_GRAPHICS_EXPORT vtkExtractPolyDataGeometry : public vtkPolyDataToPolyDataFilter
 {

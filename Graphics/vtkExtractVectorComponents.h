@@ -35,7 +35,8 @@
 #define __vtkExtractVectorComponents_h
 
 #include "vtkSource.h"
-#include "vtkDataSet.h"
+
+class vtkDataSet;
 
 class VTK_GRAPHICS_EXPORT vtkExtractVectorComponents : public vtkSource
 {

@@ -32,11 +32,11 @@
 #define __vtkQuadricDecimation_h
 
 #include "vtkPolyDataToPolyDataFilter.h"
-#include "vtkEdgeTable.h"
-#include "vtkPriorityQueue.h"
-#include "vtkIdList.h"
 
+class vtkEdgeTable;
+class vtkIdList;
 class vtkPointData;
+class vtkPriorityQueue;
 
 class VTK_GRAPHICS_EXPORT vtkQuadricDecimation : public vtkPolyDataToPolyDataFilter
 {

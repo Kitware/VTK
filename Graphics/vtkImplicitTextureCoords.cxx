@@ -19,9 +19,10 @@
 
 #include "vtkDataSet.h"
 #include "vtkFloatArray.h"
+#include "vtkImplicitFunction.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImplicitTextureCoords, "1.42");
+vtkCxxRevisionMacro(vtkImplicitTextureCoords, "1.43");
 vtkStandardNewMacro(vtkImplicitTextureCoords);
 vtkCxxSetObjectMacro(vtkImplicitTextureCoords,SFunction,vtkImplicitFunction);
 vtkCxxSetObjectMacro(vtkImplicitTextureCoords,RFunction,vtkImplicitFunction);
