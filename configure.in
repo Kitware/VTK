@@ -146,7 +146,7 @@ AC_SUBST(BUILD_GEMSVOLUME)
 AC_SUBST(DEPEND_GEMSVOLUME)
 AC_SUBST(CLEAN_GEMSVOLUME)
 
-AC_CONFIG_SUBDIRS(common $tcldir $graphicsdir $imagingdir $borescopedir $volumedir $contribdir $geaedir $gemsipdir $gemsiodir $gemsvolumedir $javadir)
+AC_CONFIG_SUBDIRS(common $tcldir $graphicsdir $imagingdir $patenteddir $borescopedir $volumedir $contribdir $geaedir $gemsipdir $gemsiodir $gemsvolumedir $javadir)
 
 #------------------------------------------------------------------------------
 #       Some make programs require includes to be 

@@ -881,7 +881,7 @@ ac_config_guess=$ac_aux_dir/config.guess
 ac_config_sub=$ac_aux_dir/config.sub
 ac_configure=$ac_aux_dir/configure # This should be Cygnus configure.
 
-subdirs="common $tcldir $graphicsdir $imagingdir $borescopedir $volumedir $contribdir $geaedir $gemsipdir $gemsiodir $gemsvolumedir $javadir"
+subdirs="common $tcldir $graphicsdir $imagingdir $patenteddir $borescopedir $volumedir $contribdir $geaedir $gemsipdir $gemsiodir $gemsvolumedir $javadir"
 
 
 #------------------------------------------------------------------------------
@@ -1181,7 +1181,7 @@ if test "$no_recursion" != yes; then
     esac
   done
 
-  for ac_config_dir in common $tcldir $graphicsdir $imagingdir $borescopedir $volumedir $contribdir $geaedir $gemsipdir $gemsiodir $gemsvolumedir $javadir; do
+  for ac_config_dir in common $tcldir $graphicsdir $imagingdir $patenteddir $borescopedir $volumedir $contribdir $geaedir $gemsipdir $gemsiodir $gemsvolumedir $javadir; do
 
     # Do not complain, so a configure script can configure whichever
     # parts of a large source tree are present.
