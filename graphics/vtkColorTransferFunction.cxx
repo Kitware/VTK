@@ -871,7 +871,7 @@ vtkColorTransferFunctionMapData(vtkColorTransferFunction *self,
 {
   float          x;
   int            i = length;
-  float          *rgb;
+  float          rgb[3];
   unsigned char  *optr = output;
   T              *iptr = input;
   
@@ -884,7 +884,7 @@ vtkColorTransferFunctionMapData(vtkColorTransferFunction *self,
   while (--i >= 0) 
     {
     x = (float) *iptr;
-    rgb = self->GetColor(x);
+    self->GetColor(x, rgb);
     
     if (outFormat == VTK_RGB || outFormat == VTK_RGBA)
       {
