@@ -20,7 +20,7 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkFunctionParser, "1.17");
+vtkCxxRevisionMacro(vtkFunctionParser, "1.18");
 vtkStandardNewMacro(vtkFunctionParser);
 
 static double vtkParserVectorErrorResult[3] = { VTK_PARSER_ERROR_RESULT, 
@@ -935,7 +935,7 @@ void vtkFunctionParser::RemoveSpaces()
   int i, length;
   
   this->FunctionLength = 0;
-  length = strlen(this->Function);
+  length = static_cast<int>(strlen(this->Function));
   
   tempString = new char[length+1];
   for (i = 0; i < length; i++)
@@ -1366,12 +1366,13 @@ int vtkFunctionParser::GetVariableNameLength(int variableNumber)
 {
   if (variableNumber < this->NumberOfScalarVariables)
     {
-    return strlen(this->ScalarVariableNames[variableNumber]);
+    return static_cast<int>(strlen(this->ScalarVariableNames[variableNumber]));
     }
   else
     {
-    return strlen(this->VectorVariableNames[variableNumber -
-                                           this->NumberOfScalarVariables]);
+    return static_cast<int>(strlen(
+      this->VectorVariableNames[variableNumber -
+                               this->NumberOfScalarVariables]));
     }
 }
 

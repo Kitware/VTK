@@ -70,7 +70,7 @@ public:
   virtual int Find(DType a, unsigned long &res) = 0;
 
   // Description:
-  // Find an item in the vector using a comparison routine. 
+  // Find an item in the list using a comparison routine. 
   // Return one if it was found, zero if it was
   // not found. The location of the item is returned in res.
   virtual int Find(DType a, CompareFunction compare, unsigned long &res) = 0;

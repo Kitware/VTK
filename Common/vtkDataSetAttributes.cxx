@@ -33,7 +33,7 @@
 #include "vtkIdTypeArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkDataSetAttributes, "1.59");
+vtkCxxRevisionMacro(vtkDataSetAttributes, "1.60");
 vtkStandardNewMacro(vtkDataSetAttributes);
 
 //--------------------------------------------------------------------------
@@ -1923,7 +1923,7 @@ void vtkDataSetAttributes::FieldList::SetField(int index, vtkDataArray *da)
   this->LUT[index] = lut;
   if (name)
     {
-    int len = strlen(name);
+    int len = static_cast<int>(strlen(name));
     if (len > 0)
       {
       this->Fields[index] = new char[len+1];

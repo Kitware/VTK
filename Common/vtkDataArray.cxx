@@ -33,7 +33,7 @@
 #include "vtkIdList.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkDataArray, "1.48");
+vtkCxxRevisionMacro(vtkDataArray, "1.49");
 
 // Construct object with default tuple dimension (number of components) of 1.
 vtkDataArray::vtkDataArray(vtkIdType numComp)
@@ -65,7 +65,7 @@ void vtkDataArray::SetName(const char* name)
   this->Name = 0;
   if (name)
     {
-    int size = strlen(name);
+    int size = static_cast<int>(strlen(name));
     this->Name = new char[size+1];
     strcpy(this->Name, name);
     }
