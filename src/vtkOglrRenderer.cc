@@ -86,46 +86,18 @@ int vtkOglrRenderer::UpdateActors()
 // Ask volumes to render themselves.
 int vtkOglrRenderer::UpdateVolumes()
 {
-  int count = 0;
-//  int *size;
-  
-  float *zdata = NULL;
-  unsigned char *cdata = NULL;
+  int volume_count=0;    // Number of visible volumes
 
-  // Get the physical window dimensions 
-//  size = this->RenderWindow->GetSize();
-
-  // Store the color and zbuffer data if geometry was rendered
-/****
-  zdata = this->RenderWindow->GetZbufferData( 0, 0, size[0]-1, size[1]-1 );
-  cdata = this->RenderWindow->GetPixelData( 0, 0, size[1]-1, size[1]-1, 0 );
-
-printf("Z: %f\n", *(zdata + size[0]*(size[1]/2) + size[0]/2 ) );
-****/
- 
   // Render the volumes
   if (this->NewVolumeRenderer)
     {
 
-    // If hardware render, clear graphics window
-
-    // Render each volume
-    this->NewVolumeRenderer->Render((vtkRenderer *)this);
-    count++;
-
-    // If hardware render, store color and zbuffer
+    // Render the volume
+    volume_count = this->NewVolumeRenderer->Render((vtkRenderer *)this);
 
     }
 
-  // Merge geometric and volumetric rendering
-
-  // Clean up
-  if( zdata )
-    free( zdata );
-  if( cdata )
-    free( cdata );
-
-  return count;
+  return volume_count;
 }
 
 // Description:
