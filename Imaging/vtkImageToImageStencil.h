@@ -88,8 +88,7 @@ public:
 protected:
   vtkImageToImageStencil();
   ~vtkImageToImageStencil();
-  vtkImageToImageStencil(const vtkImageToImageStencil&)
-    {};
+  vtkImageToImageStencil(const vtkImageToImageStencil&);
   void operator=(const vtkImageToImageStencil&);
 
   void ThreadedExecute(vtkImageStencilData *output,
