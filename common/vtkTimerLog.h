@@ -98,6 +98,10 @@ typedef struct
 } vtkTimerLogEntry;
 //ETX
 
+// The microsoft compiler defines this as a macro, so
+// undefine it here
+#undef GetCurrentTime
+
 class VTK_EXPORT vtkTimerLog : public vtkObject 
 {
 public:
