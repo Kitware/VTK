@@ -66,7 +66,6 @@ vtkTransform::vtkTransform ()
 vtkTransform::vtkTransform (const vtkTransform& t)
 {
   int i, n;
-  vtkMatrix4x4 *stack;
 
   this->PreMultiplyFlag = t.PreMultiplyFlag;
   this->StackSize = t.StackSize;

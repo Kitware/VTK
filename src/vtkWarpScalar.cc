@@ -55,12 +55,14 @@ float *vtkWarpScalar::DataNormal(int id, vtkNormals *normals)
   return normals->GetNormal(id);
 }
 
-float *vtkWarpScalar::InstanceNormal(int id, vtkNormals *normals)
+float *vtkWarpScalar::InstanceNormal(int vtkNotUsed(id), 
+				     vtkNormals *vtkNotUsed(normals))
 {
   return this->Normal;
 }
 
-float *vtkWarpScalar::ZNormal(int id, vtkNormals *normals)
+float *vtkWarpScalar::ZNormal(int vtkNotUsed(id), 
+			      vtkNormals *vtkNotUsed(normals))
 {
   static float zNormal[3]={0.0,0.0,1.0};
   return zNormal;

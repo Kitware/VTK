@@ -100,8 +100,8 @@ int vtkVoxel::EvaluatePosition(float x[3], float closestPoint[3],
     }
 }
 
-void vtkVoxel::EvaluateLocation(int& subId, float pcoords[3], float x[3],
-                                float *weights)
+void vtkVoxel::EvaluateLocation(int& vtkNotUsed(subId), float pcoords[3], 
+				float x[3], float *weights)
 {
   float *pt1, *pt2, *pt3, *pt4;
   int i;
@@ -142,7 +142,8 @@ void vtkVoxel::InterpolationFunctions(float pcoords[3], float sf[8])
   sf[7] = pcoords[0] * pcoords[1] * pcoords[2];
 }
 
-int vtkVoxel::CellBoundary(int subId, float pcoords[3], vtkIdList& pts)
+int vtkVoxel::CellBoundary(int vtkNotUsed(subId), float pcoords[3],
+			   vtkIdList& pts)
 {
   float t1=pcoords[0]-pcoords[1];
   float t2=1.0-pcoords[0]-pcoords[1];
@@ -224,9 +225,10 @@ static int faces[6][4] = { {0,2,4,6}, {1,3,5,7},
 #include "vtkMarchingCubesCases.hh"
 
 void vtkVoxel::Contour(float value, vtkFloatScalars *cellScalars, 
-                      vtkFloatPoints *points,
-                      vtkCellArray *verts, vtkCellArray *lines, 
-                      vtkCellArray *polys, vtkFloatScalars *scalars)
+		       vtkFloatPoints *points,
+		       vtkCellArray *vtkNotUsed(verts), 
+		       vtkCellArray *vtkNotUsed(lines), 
+		       vtkCellArray *polys, vtkFloatScalars *scalars)
 {
   static int CASE_MASK[8] = {1,2,4,8,16,32,64,128};
   TRIANGLE_CASES *triCase;

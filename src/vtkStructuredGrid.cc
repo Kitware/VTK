@@ -121,7 +121,7 @@ void vtkStructuredGrid::Initialize()
   this->Blanking = 0;
 }
 
-int vtkStructuredGrid::GetCellType(int cellId)
+int vtkStructuredGrid::GetCellType(int vtkNotUsed(cellId))
 {
   switch (this->DataDescription)
     {

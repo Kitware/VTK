@@ -90,7 +90,8 @@ int vtkPolyVertex::EvaluatePosition(float x[3], float closestPoint[3],
 
 }
 
-void vtkPolyVertex::EvaluateLocation(int& subId, float pcoords[3], 
+void vtkPolyVertex::EvaluateLocation(int& subId, 
+				     float vtkNotUsed(pcoords)[3], 
                                      float x[3], float *weights)
 {
   int i;
@@ -116,9 +117,10 @@ int vtkPolyVertex::CellBoundary(int subId, float pcoords[3], vtkIdList& pts)
 }
 
 void vtkPolyVertex::Contour(float value, vtkFloatScalars *cellScalars, 
-                           vtkFloatPoints *points, vtkCellArray *verts,
-                           vtkCellArray *lines, vtkCellArray *polys, 
-                           vtkFloatScalars *scalars)
+			    vtkFloatPoints *points, vtkCellArray *verts,
+			    vtkCellArray *vtkNotUsed(lines), 
+			    vtkCellArray *vtkNotUsed(polys), 
+			    vtkFloatScalars *scalars)
 {
   int i, pts[1];
 
@@ -153,7 +155,7 @@ int vtkPolyVertex::IntersectWithLine(float p1[3], float p2[3],
   return 0;
 }
 
-int vtkPolyVertex::Triangulate(int index, vtkFloatPoints &pts)
+int vtkPolyVertex::Triangulate(int vtkNotUsed(index), vtkFloatPoints &pts)
 {
   int subId;
 
@@ -165,8 +167,10 @@ int vtkPolyVertex::Triangulate(int index, vtkFloatPoints &pts)
   return 1;
 }
 
-void vtkPolyVertex::Derivatives(int subId, float pcoords[3], float *values, 
-                            int dim, float *derivs)
+void vtkPolyVertex::Derivatives(int vtkNotUsed(subId), 
+				float vtkNotUsed(pcoords)[3], 
+				float *vtkNotUsed(values), 
+				int dim, float *derivs)
 {
   int i, idx;
 

@@ -95,7 +95,7 @@ void vtkAppendPolyData::Update()
 
   if ( mtime > this->ExecuteTime || this->GetMTime() > this->ExecuteTime )
     {
-    for ( this->InputList.InitTraversal(); pd=this->InputList.GetNextItem(); )
+    for (this->InputList.InitTraversal();(pd=this->InputList.GetNextItem()); )
       {
       if ( pd->GetDataReleased() ) pd->ForceUpdate();
       }

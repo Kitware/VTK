@@ -112,7 +112,7 @@ void vtkBooleanStructuredPoints::Update()
 
   if ( mtime > this->ExecuteTime || this->GetMTime() > this->ExecuteTime )
     {
-    for ( this->InputList.InitTraversal(); ds=this->InputList.GetNextItem(); )
+    for (this->InputList.InitTraversal(); (ds=this->InputList.GetNextItem());)
       {
       if ( ds->GetDataReleased() ) ds->ForceUpdate();
       }

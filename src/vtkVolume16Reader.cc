@@ -111,7 +111,6 @@ void vtkVolume16Reader::Execute()
 vtkStructuredPoints *vtkVolume16Reader::GetImage(int ImageNumber)
 {
   vtkScalars *newScalars;
-  int numberSlices;
   int *dim;
   int dimensions[3];
   vtkStructuredPoints *result;

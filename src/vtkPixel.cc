@@ -124,6 +124,8 @@ void vtkPixel::EvaluateLocation(int& subId, float pcoords[3], float x[3],
   float *pt1, *pt2, *pt3;
   int i;
 
+  subId = 0;
+  
   pt1 = this->Points.GetPoint(0);
   pt2 = this->Points.GetPoint(1);
   pt3 = this->Points.GetPoint(2);
@@ -142,6 +144,8 @@ int vtkPixel::CellBoundary(int subId, float pcoords[3], vtkIdList& pts)
   float t1=pcoords[0]-pcoords[1];
   float t2=1.0-pcoords[0]-pcoords[1];
 
+  if (subId) vtkWarningMacro("subId should be zero");
+  
   pts.Reset();
 
   // compare against two lines in parametric space that divide element
@@ -207,9 +211,11 @@ static LINE_CASES lineCases[] = {
 };
 
 void vtkPixel::Contour(float value, vtkFloatScalars *cellScalars,
-                     vtkFloatPoints *points, vtkCellArray *verts,
-                     vtkCellArray *lines, vtkCellArray *polys, 
-                     vtkFloatScalars *scalars)
+		       vtkFloatPoints *points, 
+		       vtkCellArray *vtkNotUsed(verts),
+		       vtkCellArray *lines, 
+		       vtkCellArray *vtkNotUsed(polys), 
+		       vtkFloatScalars *scalars)
 {
   static int CASE_MASK[4] = {1,2,8,4}; //note difference!
   LINE_CASES *lineCase;
@@ -320,7 +326,7 @@ int vtkPixel::IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
   return 0;
 }
 
-int vtkPixel::Triangulate(int index, vtkFloatPoints &pts)
+int vtkPixel::Triangulate(int vtkNotUsed(index), vtkFloatPoints &pts)
 {
   pts.Reset();
   pts.InsertPoint(0,this->Points.GetPoint(0));
@@ -334,12 +340,16 @@ int vtkPixel::Triangulate(int index, vtkFloatPoints &pts)
   return 1;
 }
 
-void vtkPixel::Derivatives(int subId, float pcoords[3], float *values, 
-                            int dim, float *derivs)
+void vtkPixel::Derivatives(int vtkNotUsed(subId), 
+			   float pcoords[3], 
+			   float *values, 
+			   int dim, float *derivs)
 {
   int i, idx;
 
   // The following code is incorrect. Will be fixed in future release.
+  vtkWarningMacro("This calculation is incorrect");
+  
   for (i=0; i<dim; i++)
     {
     idx = i*dim;

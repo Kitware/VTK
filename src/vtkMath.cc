@@ -182,7 +182,7 @@ int vtkMath::LUFactorLinearSystem(double **A, int *index, int size)
 {
   static double *scale = NULL;
   static maxSize=0;
-  int i, maxI, j, k, idx, ii;
+  int i, maxI, j, k;
   double largest, temp1, temp2, sum;
 //
 // Check on allocation of working vectors

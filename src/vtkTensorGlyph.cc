@@ -150,7 +150,7 @@ void vtkTensorGlyph::Execute()
     outPD->CopyScalarsOn();
     outPD->CopyAllocate(pd,numPts*numSourcePts);
     }
-  if ( sourceNormals = pd->GetNormals() )
+  if ( (sourceNormals = pd->GetNormals()) )
     newNormals = new vtkFloatNormals(numPts*numSourcePts);
 //
 // First copy all topology (transformation independent)

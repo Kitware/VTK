@@ -162,8 +162,8 @@ int vtkTriangle::EvaluatePosition(float x[3], float closestPoint[3],
     }
 }
 
-void vtkTriangle::EvaluateLocation(int& subId, float pcoords[3], float x[3],
-                                  float *weights)
+void vtkTriangle::EvaluateLocation(int& vtkNotUsed(subId), float pcoords[3],
+				   float x[3], float *weights)
 {
   float u3;
   float *pt0, *pt1, *pt2;
@@ -185,7 +185,8 @@ void vtkTriangle::EvaluateLocation(int& subId, float pcoords[3], float x[3],
   weights[2] = pcoords[1];
 }
 
-int vtkTriangle::CellBoundary(int subId, float pcoords[3], vtkIdList& pts)
+int vtkTriangle::CellBoundary(int vtkNotUsed(subId), float pcoords[3],
+			      vtkIdList& pts)
 {
   float t1=pcoords[0]-pcoords[1];
   float t2=0.5*(1.0-pcoords[0])-pcoords[1];
@@ -241,9 +242,11 @@ static LINE_CASES lineCases[] = {
 };
 
 void vtkTriangle::Contour(float value, vtkFloatScalars *cellScalars, 
-                         vtkFloatPoints *points,
-                         vtkCellArray *verts, vtkCellArray *lines, 
-                         vtkCellArray *polys, vtkFloatScalars *scalars)
+			  vtkFloatPoints *points,
+			  vtkCellArray *vtkNotUsed(verts), 
+			  vtkCellArray *lines, 
+			  vtkCellArray *vtkNotUsed(polys), 
+			  vtkFloatScalars *scalars)
 {
   static int CASE_MASK[3] = {1,2,4};
   LINE_CASES *lineCase;
@@ -334,7 +337,7 @@ int vtkTriangle::IntersectWithLine(float p1[3], float p2[3], float tol,
   return 0;
 }
 
-int vtkTriangle::Triangulate(int index, vtkFloatPoints &pts)
+int vtkTriangle::Triangulate(int vtkNotUsed(index), vtkFloatPoints &pts)
 {
   pts.Reset();
   pts.InsertPoint(0,this->Points.GetPoint(0));

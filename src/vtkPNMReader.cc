@@ -171,7 +171,6 @@ vtkStructuredPoints *vtkPNMReader::GetImage(int ImageNum)
 
 vtkColorScalars *vtkPNMReader::ReadImage(int dim[3])
 {
-  vtkScalars *newScalars;
   int type;
   char filename[1024];
   FILE *fp;

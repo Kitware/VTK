@@ -219,8 +219,8 @@ int vtkQuad::EvaluatePosition(float x[3], float closestPoint[3],
     }
 }
 
-void vtkQuad::EvaluateLocation(int& subId, float pcoords[3], float x[3],
-                              float *weights)
+void vtkQuad::EvaluateLocation(int& vtkNotUsed(subId), float pcoords[3], 
+			       float x[3], float *weights)
 {
   int i, j;
   float *pt;
@@ -271,7 +271,8 @@ void vtkQuad::InterpolationDerivs(float pcoords[3], float derivs[8])
   derivs[7] = rm;
 }
 
-int vtkQuad::CellBoundary(int subId, float pcoords[3], vtkIdList& pts)
+int vtkQuad::CellBoundary(int vtkNotUsed(subId), float pcoords[3], 
+			  vtkIdList& pts)
 {
   float t1=pcoords[0]-pcoords[1];
   float t2=1.0-pcoords[0]-pcoords[1];
@@ -341,9 +342,11 @@ static LINE_CASES lineCases[] = {
 };
 
 void vtkQuad::Contour(float value, vtkFloatScalars *cellScalars, 
-                     vtkFloatPoints *points, vtkCellArray *verts, 
-                     vtkCellArray *lines, vtkCellArray *polys, 
-                     vtkFloatScalars *scalars)
+		      vtkFloatPoints *points, 
+		      vtkCellArray *vtkNotUsed(verts), 
+		      vtkCellArray *lines, 
+		      vtkCellArray *vtkNotUsed(polys), 
+		      vtkFloatScalars *scalars)
 {
   static int CASE_MASK[4] = {1,2,4,8};
   LINE_CASES *lineCase;
@@ -432,7 +435,7 @@ int vtkQuad::IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
   return 0;
 }
 
-int vtkQuad::Triangulate(int index, vtkFloatPoints &pts)
+int vtkQuad::Triangulate(int vtkNotUsed(index), vtkFloatPoints &pts)
 {
   float d1, d2;
 

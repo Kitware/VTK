@@ -228,7 +228,7 @@ int vtkPicker::Pick(float selectionX, float selectionY, float selectionZ,
   actors = renderer->GetActors();
   for ( actors->InitTraversal(); (actor=actors->GetNextItem()); )
     {
-    for ( actor->InitPartTraversal(); part=actor->GetNextPart(); )
+    for ( actor->InitPartTraversal(); (part=actor->GetNextPart()); )
       {
       visible = part->GetVisibility();
       pickable = part->GetPickable();
@@ -285,21 +285,23 @@ int vtkPicker::Pick(float selectionX, float selectionY, float selectionZ,
 }
 
 // Intersect data with specified ray.
-void vtkPicker::IntersectWithLine(float p1[3], float p2[3], float tol, 
-                           vtkActor *assem, vtkActor *actor, vtkMapper *mapper)
+void vtkPicker::IntersectWithLine(float p1[3], float p2[3], 
+				  float vtkNotUsed(tol), vtkActor *assem, 
+				  vtkActor *actor, vtkMapper *mapper)
 {
   int i;
   float *center, t, ray[3], rayFactor;
-//
-// Get the data from the modeller
-//
+
+  //
+  // Get the data from the modeller
+  //
   center = mapper->GetCenter();
 
   for (i=0; i<3; i++) ray[i] = p2[i] - p1[i];
   if (( rayFactor = math.Dot(ray,ray)) == 0.0 ) return;
-//
-// Project the center point onto the ray and determine its parametric value
-//
+  //
+  // Project the center point onto the ray and determine its parametric value
+  //
   t = (ray[0]*(center[0]-p1[0]) + ray[1]*(center[1]-p1[1])
           + ray[2]*(center[2]-p1[2])) / rayFactor;
 

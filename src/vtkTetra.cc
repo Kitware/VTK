@@ -124,8 +124,8 @@ int vtkTetra::EvaluatePosition(float x[3], float closestPoint[3],
     }
 }
 
-void vtkTetra::EvaluateLocation(int& subId, float pcoords[3], float x[3],
-                                float *weights)
+void vtkTetra::EvaluateLocation(int& vtkNotUsed(subId), float pcoords[3], 
+				float x[3], float *weights)
 {
   float u4;
   float *pt1, *pt2, *pt3, *pt4;
@@ -150,7 +150,8 @@ void vtkTetra::EvaluateLocation(int& subId, float pcoords[3], float x[3],
   weights[3] = pcoords[2];
 }
 
-int vtkTetra::CellBoundary(int subId, float pcoords[3], vtkIdList& pts)
+int vtkTetra::CellBoundary(int vtkNotUsed(subId), float pcoords[3], 
+			   vtkIdList& pts)
 {
   float t1 = pcoords[0] - pcoords[1];
   float t2 = pcoords[1] - pcoords[2];
@@ -231,9 +232,10 @@ static TRIANGLE_CASES triCases[] = {
 };
 
 void vtkTetra::Contour(float value, vtkFloatScalars *cellScalars, 
-                      vtkFloatPoints *points,
-                      vtkCellArray *verts, vtkCellArray *lines, 
-                      vtkCellArray *polys, vtkFloatScalars *scalars)
+		       vtkFloatPoints *points,
+		       vtkCellArray *vtkNotUsed(verts), 
+		       vtkCellArray *vtkNotUsed(lines), 
+		       vtkCellArray *polys, vtkFloatScalars *scalars)
 {
   static int CASE_MASK[4] = {1,2,4,8};
   TRIANGLE_CASES *triCase;
@@ -361,7 +363,7 @@ int vtkTetra::IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
   return intersection;
 }
 
-int vtkTetra::Triangulate(int index, vtkFloatPoints &pts)
+int vtkTetra::Triangulate(int vtkNotUsed(index), vtkFloatPoints &pts)
 {
   pts.Reset();
   pts.InsertPoint(0,this->Points.GetPoint(0));

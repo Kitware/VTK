@@ -111,7 +111,8 @@ void vtkPLOT3DReader::Execute()
     return;
     }
   if ( this->GetFileType(xyzFp) == ASCII )
-    error = this->ReadASCIIGrid(xyzFp);
+    vtkWarningMacro("reading ascii grid files currently not supported");
+    // error = this->ReadASCIIGrid(xyzFp);
   else
     {
     fclose(xyzFp);
@@ -137,7 +138,8 @@ void vtkPLOT3DReader::Execute()
       }
 
     if ( this->GetFileType(QFp) == ASCII )
-      error = this->ReadASCIISolution(QFp);
+      vtkWarningMacro("reading ascii solution files currently not supported");
+    // error = this->ReadASCIISolution(QFp);
     else
       {
       fclose(QFp);
@@ -165,7 +167,8 @@ void vtkPLOT3DReader::Execute()
       }
 
     if ( this->GetFileType(funcFp) == ASCII )
-      error = this->ReadASCIIFunctionFile(funcFp);
+      vtkWarningMacro("reading ascii function files currently not supported");
+    // error = this->ReadASCIIFunctionFile(funcFp);
     else
       {
       fclose(funcFp);
@@ -207,21 +210,6 @@ void vtkPLOT3DReader::Execute()
     this->Momentum->UnRegister(this);
     this->Momentum = NULL;
     }
-}
-
-int vtkPLOT3DReader::ReadASCIIGrid(FILE *fp)
-{
-  return 1;
-}
-
-int vtkPLOT3DReader::ReadASCIISolution(FILE *fp)
-{
-  return 1;
-}
-
-int vtkPLOT3DReader::ReadASCIIFunctionFile(FILE *fp)
-{
-  return 1;
 }
 
 int vtkPLOT3DReader::ReadBinaryGrid(FILE *fp,vtkStructuredGrid *output)
@@ -378,7 +366,8 @@ int vtkPLOT3DReader::ReadBinarySolution(FILE *fp,vtkStructuredGrid *output)
   newEnergy = new vtkFloatScalars(numPts);
   newMomentum = new vtkFloatVectors(numPts);
 
-  if ( fread (this->TempStorage, sizeof(float), numPts, fp) < numPts ) 
+  if (fread(this->TempStorage, sizeof(float), numPts, fp) < 
+      (unsigned int)numPts ) 
     {
     newDensity->Delete();
     newMomentum->Delete();
@@ -393,7 +382,8 @@ int vtkPLOT3DReader::ReadBinarySolution(FILE *fp,vtkStructuredGrid *output)
       newDensity->SetScalar(i,this->TempStorage[i]);
     }
 
-  if ( fread (this->TempStorage, sizeof(float), 3*this->NumPts, fp) < 3*this->NumPts ) 
+  if (fread(this->TempStorage, sizeof(float), 3*this->NumPts, fp) < 
+      (unsigned int)3*this->NumPts ) 
     {
     newDensity->Delete();
     newMomentum->Delete();
@@ -413,7 +403,8 @@ int vtkPLOT3DReader::ReadBinarySolution(FILE *fp,vtkStructuredGrid *output)
       }
     }
 
-  if ( fread (this->TempStorage, sizeof(float), numPts, fp) < numPts ) 
+  if (fread(this->TempStorage, sizeof(float), numPts, fp) < 
+      (unsigned int)numPts) 
     {
     newDensity->Delete();
     newMomentum->Delete();
@@ -445,15 +436,9 @@ int vtkPLOT3DReader::ReadBinarySolution(FILE *fp,vtkStructuredGrid *output)
   return 0;
 }
 
-int vtkPLOT3DReader::ReadBinaryFunctionFile(FILE *fp)
-{
-  return 1;
-}
-
 //
 // Various PLOT3D functions.....................
 //
-
 void vtkPLOT3DReader::MapFunction(int fNumber,vtkPointData *outputPD)
 {
   switch (fNumber)

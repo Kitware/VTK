@@ -77,7 +77,7 @@ void vtkVolumeRenderer::Render(vtkRenderer *ren)
 
   // Send a render to the volumes
   for (this->Volumes.InitTraversal(), i = 0; 
-       aVolume = this->Volumes.GetNextItem(); i++)
+       (aVolume = this->Volumes.GetNextItem()); i++)
     {
     aVolume->Render();
     }
@@ -124,7 +124,7 @@ void vtkVolumeRenderer::Render(vtkRenderer *ren)
 
       // loop through actors 
       for (this->Volumes.InitTraversal(), i = 0; 
-	   aVolume = this->Volumes.GetNextItem(); i++)
+	   (aVolume = this->Volumes.GetNextItem()); i++)
 	{
 	// if it's invisible, we can skip the rest 
 	if (aVolume->GetVisibility() == 1.0)
@@ -185,7 +185,7 @@ void vtkVolumeRenderer::CalcRayValues(vtkRenderer *ren, float Vecs[6][3],
 
   // loop through actors to calc the front and back clipping planes
   for (this->Volumes.InitTraversal(), i = 0; 
-       aVolume = this->Volumes.GetNextItem(); i++)
+       (aVolume = this->Volumes.GetNextItem()); i++)
     {
     // if it's invisible, we can skip the rest 
     if (aVolume->GetVisibility() == 1.0)

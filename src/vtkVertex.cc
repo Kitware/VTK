@@ -79,7 +79,8 @@ int vtkVertex::EvaluatePosition(float x[3], float closestPoint[3],
     }
 }
 
-void vtkVertex::EvaluateLocation(int& subId, float pcoords[3], float x[3],
+void vtkVertex::EvaluateLocation(int& vtkNotUsed(subId), 
+				 float vtkNotUsed(pcoords)[3], float x[3],
                                  float *weights)
 {
   float *X = this->Points.GetPoint(0);
@@ -90,7 +91,8 @@ void vtkVertex::EvaluateLocation(int& subId, float pcoords[3], float x[3],
   weights[0] = 1.0;
 }
 
-int vtkVertex::CellBoundary(int subId, float pcoords[3], vtkIdList& pts)
+int vtkVertex::CellBoundary(int vtkNotUsed(subId), float pcoords[3], 
+			    vtkIdList& pts)
 {
 
   pts.Reset();
@@ -104,9 +106,11 @@ int vtkVertex::CellBoundary(int subId, float pcoords[3], vtkIdList& pts)
 }
 
 void vtkVertex::Contour(float value, vtkFloatScalars *cellScalars, 
-                      vtkFloatPoints *points,                      
-                      vtkCellArray *verts, vtkCellArray *lines, 
-                      vtkCellArray *polys, vtkFloatScalars *scalars)
+			vtkFloatPoints *points,                      
+			vtkCellArray *verts, 
+			vtkCellArray *vtkNotUsed(lines), 
+			vtkCellArray *vtkNotUsed(polys), 
+			vtkFloatScalars *scalars)
 {
   if ( value == cellScalars->GetScalar(0) )
     {
@@ -158,7 +162,7 @@ int vtkVertex::IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
   return 0;
 }
 
-int vtkVertex::Triangulate(int index, vtkFloatPoints &pts)
+int vtkVertex::Triangulate(int vtkNotUsed(index), vtkFloatPoints &pts)
 {
   pts.Reset();
   pts.InsertPoint(0,this->Points.GetPoint(0));
@@ -166,7 +170,9 @@ int vtkVertex::Triangulate(int index, vtkFloatPoints &pts)
   return 1;
 }
 
-void vtkVertex::Derivatives(int subId, float pcoords[3], float *values, 
+void vtkVertex::Derivatives(int vtkNotUsed(subId), 
+			    float vtkNotUsed(pcoords)[3], 
+			    float *vtkNotUsed(values), 
                             int dim, float *derivs)
 {
   int i, idx;

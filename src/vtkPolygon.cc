@@ -185,8 +185,8 @@ void vtkPolygon::ComputeNormal(vtkFloatPoints *p, float *n)
 }
 
 int vtkPolygon::EvaluatePosition(float x[3], float closestPoint[3],
-                                int& subId, float pcoords[3], 
-                                float& minDist2, float *weights)
+				 int& vtkNotUsed(subId), float pcoords[3], 
+				 float& minDist2, float *weights)
 {
   int i;
   float p0[3], p10[3], l10, p20[3], l20, n[3];
@@ -234,8 +234,8 @@ int vtkPolygon::EvaluatePosition(float x[3], float closestPoint[3],
     }
 }
 
-void vtkPolygon::EvaluateLocation(int& subId, float pcoords[3], float x[3],
-                                  float *weights)
+void vtkPolygon::EvaluateLocation(int& vtkNotUsed(subId), float pcoords[3], 
+				  float x[3], float *weights)
 {
   int i;
   float p0[3], p10[3], l10, p20[3], l20, n[3];
@@ -838,7 +838,7 @@ int vtkPolygon::IntersectWithLine(float p1[3], float p2[3], float tol,float& t,
 
 }
 
-int vtkPolygon::Triangulate(int index, vtkFloatPoints &pts)
+int vtkPolygon::Triangulate(int vtkNotUsed(index), vtkFloatPoints &pts)
 {
   int i, success;
   float *bounds, d;

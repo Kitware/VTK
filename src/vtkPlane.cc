@@ -81,7 +81,7 @@ float vtkPlane::EvaluateFunction(float x[3])
 
 // Description
 // Evaluate function gradient at point x[3].
-void vtkPlane::EvaluateGradient(float x[3], float n[3])
+void vtkPlane::EvaluateGradient(float vtkNotUsed(x)[3], float n[3])
 {
   for (int i=0; i<3; i++) n[i] = this->Normal[i];
 }

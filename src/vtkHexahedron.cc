@@ -218,8 +218,8 @@ void vtkHexahedron::InterpolationDerivs(float pcoords[3], float derivs[24])
   derivs[23] = rm*pcoords[1];
 }
 
-void vtkHexahedron::EvaluateLocation(int& subId, float pcoords[3], float x[3],
-                                     float *weights)
+void vtkHexahedron::EvaluateLocation(int& vtkNotUsed(subId), float pcoords[3],
+				     float x[3], float *weights)
 {
   int i, j;
   float *pt;
@@ -237,7 +237,8 @@ void vtkHexahedron::EvaluateLocation(int& subId, float pcoords[3], float x[3],
     }
 }
 
-int vtkHexahedron::CellBoundary(int subId, float pcoords[3], vtkIdList& pts)
+int vtkHexahedron::CellBoundary(int vtkNotUsed(subId), float pcoords[3], 
+				vtkIdList& pts)
 {
   float t1=pcoords[0]-pcoords[1];
   float t2=1.0-pcoords[0]-pcoords[1];
@@ -319,9 +320,10 @@ static int faces[6][4] = { {0,4,7,3}, {1,2,6,5},
 #include "vtkMarchingCubesCases.hh"
 
 void vtkHexahedron::Contour(float value, vtkFloatScalars *cellScalars, 
-                      vtkFloatPoints *points,
-                      vtkCellArray *verts, vtkCellArray *lines, 
-                      vtkCellArray *polys, vtkFloatScalars *scalars)
+			    vtkFloatPoints *points,
+			    vtkCellArray *vtkNotUsed(verts), 
+			    vtkCellArray *vtkNotUsed(lines), 
+			    vtkCellArray *polys, vtkFloatScalars *scalars)
 {
   static int CASE_MASK[8] = {1,2,4,8,16,32,64,128};
   TRIANGLE_CASES *triCase;
