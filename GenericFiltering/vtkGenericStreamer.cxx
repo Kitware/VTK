@@ -26,7 +26,7 @@
 #include "vtkRungeKutta2.h"
 #include "vtkGenericDataSet.h"
 
-vtkCxxRevisionMacro(vtkGenericStreamer, "1.5");
+vtkCxxRevisionMacro(vtkGenericStreamer, "1.6");
 vtkCxxSetObjectMacro(vtkGenericStreamer,Integrator,vtkInitialValueProblemSolver);
 
 #define VTK_START_FROM_POSITION 0
@@ -454,8 +454,7 @@ void vtkGenericStreamer::Integrate()
   vtkIdType ptId, i;
   int j, offset;
   vtkCell *cell=0;
-  double v[3], *cellVel, derivs[9], xNext[3], vort[3];
-  (void)xNext;  //FIXME
+  double v[3], *cellVel, derivs[9], vort[3];
   double tol2;
   double *w=0;// = new double[input->GetMaxCellSize()];//FIXME
   vtkDoubleArray *cellVectors;
