@@ -2207,7 +2207,7 @@ static void vtkOptimizedPermuteExecuteLinear(vtkImageReslice *self,
 	}
       }
     needInterp[j] = 1;
-    if (newmat[k][j] == 1)
+    if (newmat[k][j] == 1 && int(newmat[k][3]) == newmat[k][3])
       {
       needInterp[j] = 0;
       }
