@@ -46,7 +46,7 @@
 #include "vtkVoxel.h"
 #include "vtkWedge.h"
 
-vtkCxxRevisionMacro(vtkUnstructuredGrid, "1.110");
+vtkCxxRevisionMacro(vtkUnstructuredGrid, "1.111");
 vtkStandardNewMacro(vtkUnstructuredGrid);
 
 vtkUnstructuredGrid::vtkUnstructuredGrid ()
@@ -430,6 +430,51 @@ int vtkUnstructuredGrid::InsertNextCell(int type, int npts, vtkIdType *pts)
   this->Locations->InsertNextValue(this->Connectivity->GetInsertLocation(npts));
   return this->Types->InsertNextValue((unsigned char) type);
 
+}
+
+void vtkUnstructuredGrid::SetCells(int type, vtkCellArray *cells)
+{
+  int i;
+  vtkIdType *pts = 0;
+  vtkIdType npts = 0;
+  
+  // set cell array
+  if ( this->Connectivity )
+    {
+    this->Connectivity->UnRegister(this);
+    }
+  this->Connectivity = cells;
+  if ( this->Connectivity )
+    {
+    this->Connectivity->Register(this);
+    }
+
+  // see whether there are cell types available
+
+  if ( this->Types)
+    {
+    this->Types->UnRegister(this);
+    }
+  this->Types = vtkUnsignedCharArray::New();
+  this->Types->Allocate(cells->GetNumberOfCells(),1000);
+  this->Types->Register(this);
+  this->Types->Delete();
+
+  if ( this->Locations)
+    {
+    this->Locations->UnRegister(this);
+    }
+  this->Locations = vtkIntArray::New();
+  this->Locations->Allocate(cells->GetNumberOfCells(),1000);
+  this->Locations->Register(this);
+  this->Locations->Delete();
+
+  // build types
+  for (i=0, cells->InitTraversal(); cells->GetNextCell(npts,pts); i++)
+    {
+    this->Types->InsertNextValue((unsigned char) type);
+    this->Locations->InsertNextValue(cells->GetTraversalLocation(npts));
+    }
 }
 
 void vtkUnstructuredGrid::SetCells(int *types, vtkCellArray *cells)
