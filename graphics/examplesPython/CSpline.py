@@ -23,7 +23,7 @@ aSplineZ = vtkCardinalSpline()
 
 # generate random points
 
-inputPoints = vtkFloatPoints()
+inputPoints = vtkPoints()
 
 for i in range(numberOfInputPoints):
     x = whrandom.random()
@@ -58,7 +58,7 @@ prop.SetSpecularPower(30)
 
 ren1.AddActor(glyph)
 
-points = vtkFloatPoints()
+points = vtkPoints()
 
 profileData = vtkPolyData()
 

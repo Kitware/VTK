@@ -25,7 +25,7 @@ aTriangularTexture.SetXSize(32)
 aTriangularTexture.SetYSize(32)
   
 
-points = vtkFloatPoints()
+points = vtkPoints()
 points.InsertPoint(0,0.0,0.0,0.0)
 points.InsertPoint(1,1.0,0.0,0.0)
 points.InsertPoint(2,.5,1.0,0.0)
@@ -33,7 +33,7 @@ points.InsertPoint(3,1.0,0.0,0.0)
 points.InsertPoint(4,0.0,0.0,0.0)
 points.InsertPoint(5,.5,-1.0,.5)
 
-tCoords = vtkFloatTCoords()
+tCoords = vtkTCoords()
 tCoords.InsertTCoord(0,0.0,0.0,0.0)
 tCoords.InsertTCoord(1,1.0,0.0,0.0)
 tCoords.InsertTCoord(2,.5,.86602540378443864676,0.0)

@@ -23,7 +23,7 @@ iren.SetRenderWindow(renWin)
 
 # create a scene with one of each cell type
 
-voxelPoints = vtkFloatPoints()
+voxelPoints = vtkPoints()
 voxelPoints.SetNumberOfPoints(8)
 voxelPoints.InsertPoint(0,0,0,0)
 voxelPoints.InsertPoint(1,1,0,0)
@@ -57,7 +57,7 @@ aVoxelActor = vtkActor()
 aVoxelActor.SetMapper(aVoxelMapper)
 aVoxelActor.GetProperty().BackfaceCullingOn()
 
-hexahedronPoints = vtkFloatPoints()
+hexahedronPoints = vtkPoints()
 hexahedronPoints.SetNumberOfPoints(8)
 hexahedronPoints.InsertPoint(0,0,0,0)
 hexahedronPoints.InsertPoint(1,1,0,0)
@@ -93,7 +93,7 @@ aHexahedronActor.AddPosition(2,0,0)
 aHexahedronActor.GetProperty().BackfaceCullingOn()
 
 
-tetraPoints = vtkFloatPoints()
+tetraPoints = vtkPoints()
 tetraPoints.SetNumberOfPoints(4)
 tetraPoints.InsertPoint(0,0,0,0)
 tetraPoints.InsertPoint(1,1,0,0)
@@ -120,7 +120,7 @@ aTetraActor.AddPosition(4,0,0)
 aTetraActor.GetProperty().BackfaceCullingOn()
 
 
-pixelPoints = vtkFloatPoints()
+pixelPoints = vtkPoints()
 pixelPoints.SetNumberOfPoints(4)
 pixelPoints.InsertPoint(0,0,0,0)
 pixelPoints.InsertPoint(1,1,0,0)
@@ -147,7 +147,7 @@ aPixelActor.AddPosition(0,0,2)
 aPixelActor.GetProperty().BackfaceCullingOn()
 
 
-quadPoints = vtkFloatPoints()
+quadPoints = vtkPoints()
 quadPoints.SetNumberOfPoints(4)
 quadPoints.InsertPoint(0,0,0,0)
 quadPoints.InsertPoint(1,1,0,0)
@@ -174,7 +174,7 @@ aQuadActor.AddPosition(2,0,2)
 aQuadActor.GetProperty().BackfaceCullingOn()
 
 
-trianglePoints = vtkFloatPoints()
+trianglePoints = vtkPoints()
 trianglePoints.SetNumberOfPoints(3)
 trianglePoints.InsertPoint(0,0,0,0)
 trianglePoints.InsertPoint(1,1,0,0)
@@ -199,7 +199,7 @@ aTriangleActor.AddPosition(4,0,2)
 aTriangleActor.GetProperty().BackfaceCullingOn()
 
 
-polygonPoints = vtkFloatPoints()
+polygonPoints = vtkPoints()
 polygonPoints.SetNumberOfPoints(4)
 polygonPoints.InsertPoint(0,0,0,0)
 polygonPoints.InsertPoint(1,1,0,0)
@@ -227,7 +227,7 @@ aPolygonActor.AddPosition(6,0,2)
 aPolygonActor.GetProperty().BackfaceCullingOn()
 
 
-triangleStripPoints = vtkFloatPoints()
+triangleStripPoints = vtkPoints()
 triangleStripPoints.SetNumberOfPoints(5)
 triangleStripPoints.InsertPoint(0,0,1,0)
 triangleStripPoints.InsertPoint(1,0,0,0)
@@ -257,7 +257,7 @@ aTriangleStripActor.AddPosition(8,0,2)
 aTriangleStripActor.GetProperty().BackfaceCullingOn()
 
 
-linePoints = vtkFloatPoints()
+linePoints = vtkPoints()
 linePoints.SetNumberOfPoints(2)
 linePoints.InsertPoint(0,0,0,0)
 linePoints.InsertPoint(1,1,1,0)
@@ -280,7 +280,7 @@ aLineActor.AddPosition(0,0,4)
 aLineActor.GetProperty().BackfaceCullingOn()
 
 
-polyLinePoints = vtkFloatPoints()
+polyLinePoints = vtkPoints()
 polyLinePoints.SetNumberOfPoints(3)
 polyLinePoints.InsertPoint(0,0,0,0)
 polyLinePoints.InsertPoint(1,1,1,0)
@@ -306,7 +306,7 @@ aPolyLineActor.AddPosition(2,0,4)
 aPolyLineActor.GetProperty().BackfaceCullingOn()
 
 
-vertexPoints = vtkFloatPoints()
+vertexPoints = vtkPoints()
 vertexPoints.SetNumberOfPoints(1)
 vertexPoints.InsertPoint(0,0,0,0)
 
@@ -327,7 +327,7 @@ aVertexActor.AddPosition(0,0,6)
 aVertexActor.GetProperty().BackfaceCullingOn()
 
 
-polyVertexPoints = vtkFloatPoints()
+polyVertexPoints = vtkPoints()
 polyVertexPoints.SetNumberOfPoints(3)
 polyVertexPoints.InsertPoint(0,0,0,0)
 polyVertexPoints.InsertPoint(1,1,0,0)

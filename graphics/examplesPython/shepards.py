@@ -20,12 +20,12 @@ iren.SetRenderWindow(renWin)
 # create some points
 #
 math = vtkMath()
-points = vtkFloatPoints()
+points = vtkPoints()
 for i in range(0,50):
 	points.InsertPoint(i,math.Random(0,1),math.Random(0,1),math.Random(0,1))
  
 
-scalars = vtkFloatScalars()
+scalars = vtkScalars()
 for i in range(0,50):
 	scalars.InsertScalar(i,math.Random(0,1))
  
