@@ -485,7 +485,6 @@ int vtkPLOT3DReader::ReadBinarySolution(FILE *fp,vtkStructuredGrid *output)
 
 int vtkPLOT3DReader::ReadBinaryFunctionFile(FILE *fp,vtkStructuredGrid *output)
 {
-  vtkScalars *function;
   int numGrids;
 
   if ( this->FileFormat == VTK_WHOLE_MULTI_GRID_NO_IBLANKING )
@@ -509,7 +508,6 @@ int vtkPLOT3DReader::ReadBinaryFunctionFile(FILE *fp,vtkStructuredGrid *output)
 
 int vtkPLOT3DReader::ReadBinaryVectorFunctionFile(FILE *fp,vtkStructuredGrid *output)
 {
-  vtkVectors *vector;
   int numGrids;
 
   if ( this->FileFormat == VTK_WHOLE_MULTI_GRID_NO_IBLANKING )
@@ -872,7 +870,10 @@ void vtkPLOT3DReader::ComputeSwirl(vtkPointData *outputPD)
   swirl->SetNumberOfScalars(this->NumPts);
 
   currentVector = outputPD->GetVectors();
-  currentVector->Register(this);
+  if (currentVector)
+    {
+    currentVector->Register(this);
+    }
 
   this->ComputeVorticity(outputPD);
   vorticity = outputPD->GetVectors();
@@ -902,8 +903,11 @@ void vtkPLOT3DReader::ComputeSwirl(vtkPointData *outputPD)
   vtkDebugMacro(<<"Created swirl scalar");
 
   // reset current vector
-  outputPD->SetVectors(currentVector);
-  currentVector->UnRegister(this);
+  if (currentVector)
+    {
+    outputPD->SetVectors(currentVector);
+    currentVector->UnRegister(this);
+    }
 }
 
 // Vector functions
@@ -1176,7 +1180,7 @@ void vtkPLOT3DReader::ComputePressureGradient(vtkPointData *outputPD)
   vtkVectors *gradient;
   int dims[3], ijsize;
   vtkPoints *points;
-  int i, j, k, idx, idx2;
+  int i, j, k, idx, idx2, ii;
   float g[3], xp[3], xm[3], pp, pm, factor;
   float xxi, yxi, zxi, pxi;
   float xeta, yeta, zeta, peta;
@@ -1196,8 +1200,10 @@ void vtkPLOT3DReader::ComputePressureGradient(vtkPointData *outputPD)
   gradient->SetNumberOfVectors(this->NumPts);
 
   currentScalar = outputPD->GetScalars();
-  currentScalar->Register(this);
-
+  if (currentScalar)
+    {
+    currentScalar->Register(this);
+    }
   this->ComputePressure(outputPD);
   pressure = outputPD->GetScalars();
 
@@ -1216,7 +1222,7 @@ void vtkPLOT3DReader::ComputePressureGradient(vtkPointData *outputPD)
         if ( dims[0] == 1 ) // 2D in this direction
           {
           factor = 1.0;
-          for (i=0; i<3; i++) xp[i] = xm[i] = 0.0;
+          for (ii=0; ii<3; ii++) xp[ii] = xm[ii] = 0.0;
           xp[0] = 1.0; pp = pm = 0.0;
           }
         else if ( i == 0 ) 
@@ -1260,7 +1266,7 @@ void vtkPLOT3DReader::ComputePressureGradient(vtkPointData *outputPD)
         if ( dims[1] == 1 ) // 2D in this direction
           {
           factor = 1.0;
-          for (i=0; i<3; i++) xp[i] = xm[i] = 0.0;
+          for (ii=0; ii<3; ii++) xp[ii] = xm[ii] = 0.0;
           xp[1] = 1.0; pp = pm = 0.0;
           }
         else if ( j == 0 ) 
@@ -1304,7 +1310,7 @@ void vtkPLOT3DReader::ComputePressureGradient(vtkPointData *outputPD)
         if ( dims[2] == 1 ) // 2D in this direction
           {
           factor = 1.0;
-          for (i=0; i<3; i++) xp[i] = xm[i] = 0.0;
+          for (ii=0; ii<3; ii++) xp[ii] = xm[ii] = 0.0;
           xp[2] = 1.0; pp = pm = 0.0;
           }
         else if ( k == 0 ) 
@@ -1388,8 +1394,11 @@ void vtkPLOT3DReader::ComputePressureGradient(vtkPointData *outputPD)
   vtkDebugMacro(<<"Created pressure gradient vector");
 
   // reset current scalar
-  outputPD->SetScalars(currentScalar);
-  currentScalar->UnRegister(this);
+  if (currentScalar)
+    {
+    outputPD->SetScalars(currentScalar);
+    currentScalar->UnRegister(this);
+    }
 }
 
 int vtkPLOT3DReader::GetFileType(FILE *fp)
