@@ -51,7 +51,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkProcessObject.h"
 #include "vtkMultiProcessController.h"
-class vtkPolyData;
 
 
 class VTK_EXPORT vtkUpStreamPort : public vtkProcessObject
@@ -63,7 +62,7 @@ public:
 
   // Description:
   // Should accept vtkDataObjects in the future.
-  void SetInput(vtkPolyData *input);
+  void SetInput(vtkDataObject *input);
   vtkDataObject *GetInput();
   
   // Description:

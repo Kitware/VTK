@@ -45,9 +45,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkCollection.h"
 #include "vtkPolyDataReader.h"
 #include "vtkPolyDataWriter.h"
+#include "vtkStructuredPointsReader.h"
+#include "vtkStructuredPointsWriter.h"
+#include "vtkImageClip.h"
 #include "vtkExtent.h"
 #include "vtkDataInformation.h"
-
+#include "vtkTimerLog.h"
 
 // The special tag used for RMI communication.
 #define VTK_MP_CONTROLLER_RMI_TAG 315167
@@ -73,7 +76,7 @@ public:
 vtkMultiProcessController::vtkMultiProcessController()
 {
   int i;
-  
+
   this->LocalProcessId = 0;
   this->NumberOfProcesses = 1;
   this->MaximumNumberOfProcesses = VTK_MP_CONTROLLER_MAX_PROCESSES;
@@ -90,7 +93,17 @@ vtkMultiProcessController::vtkMultiProcessController()
     {
     this->MultipleMethod[i] = NULL;
     this->MultipleData[i] = NULL;
-    }  
+    }
+
+  this->PolyDataWriteTime = 0.0;
+  this->PolyDataReadTime = 0.0;
+
+  this->SendTime = 0.0;
+  this->SendWaitTime = 0.0;
+
+  this->ReceiveTime = 0.0;
+  this->ReceiveWaitTime = 0.0;
+
 }
 
 //----------------------------------------------------------------------------
@@ -216,6 +229,8 @@ void vtkMultiProcessController::SetMultipleMethod( int index,
 int vtkMultiProcessController::Send(vtkObject *data, int remoteProcessId, 
 				    int tag)
 {
+  vtkTimerLog *log;
+
   if (tag == VTK_MP_CONTROLLER_RMI_TAG)
     {
     vtkWarningMacro("The tag " << tag << " is reserved for RMIs.");
@@ -226,13 +241,21 @@ int vtkMultiProcessController::Send(vtkObject *data, int remoteProcessId,
     }
   if (this->WriteObject(data))
     {
+    log = vtkTimerLog::New();
     // First send the length of the string,
+    log->StartTimer();
     this->Send( &this->MarshalDataLength, 1,      
 		remoteProcessId, tag);
+    log->StopTimer();
+    this->SendWaitTime = log->GetElapsedTime();
     // then send the string.
+    log->StartTimer();
     this->Send( this->MarshalString, this->MarshalDataLength, 
 		remoteProcessId, tag);
+    log->StopTimer();
+    this->SendTime = log->GetElapsedTime();
     
+    log->Delete();
     return 1;
     }
   
@@ -245,13 +268,18 @@ int vtkMultiProcessController::Receive(vtkObject *data,
 			      int remoteProcessId, int tag)
 {
   int dataLength;
-  
+  vtkTimerLog *log = vtkTimerLog::New();
+
   // First receive the data length.
+  log->StartTimer();
   this->Receive( &dataLength, 1, remoteProcessId, tag);
+  log->StopTimer();
+  this->ReceiveWaitTime = log->GetElapsedTime();
 
   if (dataLength <= 0)
     {
     vtkErrorMacro("Bad data length");
+    log->Delete();
     return 0;
     }
   
@@ -263,13 +291,17 @@ int vtkMultiProcessController::Receive(vtkObject *data,
     }
   
   // Receive the string
+  log->StartTimer();
   this->Receive(this->MarshalString, dataLength, 
 		remoteProcessId, tag);
   this->MarshalDataLength = dataLength;
+  log->StopTimer();
+  this->ReceiveTime = log->GetElapsedTime();
   
   this->ReadObject(data);
 
   // we should really look at status to determine success
+  log->Delete();
   return 1;
 }
 
@@ -370,6 +402,10 @@ int vtkMultiProcessController::WriteObject(vtkObject *data)
     {
     return this->WritePolyData((vtkPolyData*)data);
     }  
+  if (strcmp(data->GetClassName(), "vtkImageData") == 0)
+    {
+    return this->WriteImageData((vtkImageData*)data);
+    }  
   if (strcmp(data->GetClassName(), "vtkExtent") == 0 ||
       strcmp(data->GetClassName(), "vtkStructuredExtent") == 0 ||
       strcmp(data->GetClassName(), "vtkUnstructuredExtent") == 0)
@@ -396,6 +432,10 @@ int vtkMultiProcessController::ReadObject(vtkObject *data)
     {
     return this->ReadPolyData((vtkPolyData*)data);
     }
+  if (strcmp(data->GetClassName(), "vtkImageData") == 0)
+    {
+    return this->ReadImageData((vtkImageData*)data);
+    }
   if (strcmp(data->GetClassName(), "vtkExtent") == 0 || 
       strcmp(data->GetClassName(), "vtkStructuredExtent") == 0 ||
       strcmp(data->GetClassName(), "vtkUnstructuredExtent") == 0)
@@ -419,6 +459,101 @@ int vtkMultiProcessController::ReadObject(vtkObject *data)
 
 
 //----------------------------------------------------------------------------
+int vtkMultiProcessController::WriteImageData(vtkImageData *data)
+{
+  char *str;
+  vtkImageClip *clip;
+  vtkStructuredPointsWriter *writer;
+  int *ext;
+  unsigned long size;
+  
+  clip = vtkImageClip::New();
+  clip->SetInput(data);
+  clip->SetOutputWholeExtent(data->GetExtent());
+  writer = vtkStructuredPointsWriter::New();
+  writer->SetFileTypeToBinary();
+  writer->WriteToOutputStringOn();
+  writer->SetInput(clip->GetOutput());
+  
+  // Compute the size
+  // headers and stuff
+  size = 200;
+  // scalars
+  ext = data->GetExtent();
+  size += data->GetScalarSize() * data->GetNumberOfScalarComponents() 
+    * (ext[1]-ext[0]+1) * (ext[3]-ext[2]+1) * (ext[5]-ext[4]+1);
+
+  // use the previous string if it is long enough.
+  if (this->MarshalStringLength < size)
+    {
+    // otherwise allocate a new string
+    str = new char[size];
+    this->DeleteAndSetMarshalString(str, size);
+    str = NULL;
+    }
+  
+  writer->SetOutputString(this->MarshalString, this->MarshalStringLength);
+  writer->Write();
+  size = writer->GetOutputStringLength();
+
+  // we need to put this logic in the Writer.
+  while (size == this->MarshalStringLength)
+    { // Write took all of string. Assume write was truncated.
+    size = size * 2;
+    str = new char[size];
+    this->DeleteAndSetMarshalString(str, size);
+    writer->SetOutputString(str, size);
+    str = NULL;
+
+    vtkWarningMacro("Expanding string length to " << size);
+    writer->Write();
+    size = writer->GetOutputStringLength();
+    }  
+  
+  // save the actual length of the data string.
+  this->MarshalDataLength = size;
+  clip->Delete();
+  writer->Delete();
+  
+  return 1;
+}
+
+//----------------------------------------------------------------------------
+int vtkMultiProcessController::ReadImageData(vtkImageData *object)
+{
+  vtkStructuredPointsReader *reader = vtkStructuredPointsReader::New();
+
+
+  if (this->MarshalString == NULL || this->MarshalStringLength <= 0)
+    {
+    return 0;
+    }
+  
+  reader->ReadFromInputStringOn();
+  reader->SetInputString(this->MarshalString, this->MarshalDataLength);
+  reader->GetOutput()->PreUpdate();
+  reader->GetOutput()->InternalUpdate();
+  
+  this->CopyImageData(reader->GetOutput(), object);
+
+  reader->Delete();
+
+
+  return 1;
+}
+
+//----------------------------------------------------------------------------
+void vtkMultiProcessController::CopyImageData(vtkImageData *src, 
+					      vtkImageData *dest)
+{
+  dest->SetExtent(src->GetExtent());
+  dest->SetNumberOfScalarComponents(src->GetNumberOfScalarComponents());
+  dest->SetScalarType(src->GetScalarType());
+  dest->GetPointData()->SetScalars(src->GetPointData()->GetScalars());
+}
+
+
+//----------------------------------------------------------------------------
 int vtkMultiProcessController::WritePolyData(vtkPolyData *data)
 {
   int numPts, numCells;
@@ -427,7 +562,10 @@ int vtkMultiProcessController::WritePolyData(vtkPolyData *data)
   vtkCellArray *ca;
   vtkPolyDataWriter *writer = vtkPolyDataWriter::New();
   vtkPointData *pd;
+  vtkTimerLog *log = vtkTimerLog::New();
   
+  log->StartTimer();
+
   numCells = data->GetNumberOfCells();
   if (numCells > 0)
     {
@@ -506,15 +644,16 @@ int vtkMultiProcessController::WritePolyData(vtkPolyData *data)
     vtkWarningMacro("Expanding string length to " << size);
     writer->Write();
     size = writer->GetOutputStringLength();
-    }
-
-  //cerr << "actual size: " << size << endl;
-  
+    }  
   
   // save the actual length of the data string.
   this->MarshalDataLength = size;
   writer->Delete();
   
+  log->StopTimer();
+  this->PolyDataWriteTime = log->GetElapsedTime();
+  log->Delete();
+
   return 1;
 }
 
@@ -522,12 +661,15 @@ int vtkMultiProcessController::WritePolyData(vtkPolyData *data)
 int vtkMultiProcessController::ReadPolyData(vtkPolyData *object)
 {
   vtkPolyDataReader *reader = vtkPolyDataReader::New();
-  
+  vtkTimerLog *log;
+
   if (this->MarshalString == NULL || this->MarshalStringLength <= 0)
     {
     return 0;
     }
   
+  log = vtkTimerLog::New();
+  log->StartTimer();
   reader->ReadFromInputStringOn();
   reader->SetInputString(this->MarshalString, this->MarshalDataLength);
   reader->GetOutput()->PreUpdate();
@@ -535,6 +677,10 @@ int vtkMultiProcessController::ReadPolyData(vtkPolyData *object)
   
   this->CopyPolyData(reader->GetOutput(), object);
   reader->Delete();
+
+  log->StopTimer();
+  this->PolyDataReadTime = log->GetElapsedTime();
+  log->Delete();
 
   return 1;
 }
@@ -580,8 +726,6 @@ int vtkMultiProcessController::WriteExtent(vtkExtent *ext)
 int vtkMultiProcessController::ReadExtent(vtkExtent *ext)
 {
   istrstream *fptr;
-  char name[100];
-  int t1, t2;
   
   if (this->MarshalString == NULL || this->MarshalStringLength == 0)
     {
@@ -618,8 +762,6 @@ int vtkMultiProcessController::WriteDataInformation(vtkDataInformation *info)
 int vtkMultiProcessController::ReadDataInformation(vtkDataInformation *info)
 {
   istrstream *fptr;
-  char name[100];
-  int t1, t2;
   
   if (this->MarshalString == NULL || this->MarshalStringLength == 0)
     {

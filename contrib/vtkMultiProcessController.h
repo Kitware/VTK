@@ -52,6 +52,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkObject.h"
 #include "vtkMultiThreader.h"
 class vtkPolyData;
+class vtkImageData;
 class vtkCollection;
 class vtkExtent;
 class vtkDataInformation;
@@ -169,7 +170,17 @@ public:
   // Calling this method gives control to the controller to start
   // processing RMIs.
   void ProcessRMIs();
-  
+
+  // Description:
+  // For perfomance monitoring, reading and writing polydata to strings
+  // are timed.  Access to these times is provided by these methods.
+  vtkGetMacro(PolyDataWriteTime, float);
+  vtkGetMacro(PolyDataReadTime, float);
+  vtkGetMacro(SendWaitTime, float);
+  vtkGetMacro(SendTime, float);
+  vtkGetMacro(ReceiveWaitTime, float);
+  vtkGetMacro(ReceiveTime, float);
+
 protected:
   vtkMultiProcessController();
   ~vtkMultiProcessController();
@@ -206,11 +217,23 @@ protected:
   int ReadPolyData(vtkPolyData *object);
   void CopyPolyData(vtkPolyData *src, vtkPolyData *dest);
 
+  int WriteImageData(vtkImageData *object);
+  int ReadImageData(vtkImageData *object);
+  void CopyImageData(vtkImageData *src, vtkImageData *dest);
+
   int WriteExtent(vtkExtent *ext);
   int ReadExtent(vtkExtent *ext);
 
   int WriteDataInformation(vtkDataInformation *info);
   int ReadDataInformation(vtkDataInformation *info);
+
+  float PolyDataReadTime;
+  float PolyDataWriteTime;
+
+  float SendWaitTime;
+  float SendTime;
+  float ReceiveWaitTime;
+  float ReceiveTime;
 
 };
 

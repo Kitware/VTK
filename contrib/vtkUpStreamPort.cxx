@@ -40,7 +40,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkUpStreamPort.h"
 #include "vtkDownStreamPort.h"
 #include "vtkMultiProcessController.h"
-#include "vtkPolyData.h"
 #include "vtkExtent.h"
 
 //----------------------------------------------------------------------------
@@ -184,7 +183,7 @@ void vtkUpStreamPort::TriggerUpdate(int remoteProcessId)
 
 
 //----------------------------------------------------------------------------
-void vtkUpStreamPort::SetInput(vtkPolyData *input)
+void vtkUpStreamPort::SetInput(vtkDataObject *input)
 {
   this->vtkProcessObject::SetInput(0, input);
 }
