@@ -165,8 +165,8 @@ proc SetAngles3 { dummy } {
 
     renWin Render
 }    
-
-
+SetAngles2 x
+SetAngles3 x
 
 
 
