@@ -23,7 +23,6 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 static vtkMath math;
 static vtkPolygon poly;
 static vtkPlane plane;
-static vtkLine line;
 
 // Description:
 // Deep copy of cell.
@@ -53,7 +52,7 @@ int vtkQuad::EvaluatePosition(float x[3], float closestPoint[3],
   int edge;
 
   subId = 0;
-  pcoords[0] = pcoords[1] = pcoords[2] = params[0] = params[1] = 0.5;
+  pcoords[0] = pcoords[1] = params[0] = params[1] = 0.5;
 //
 // Get normal for quadrilateral
 //
@@ -147,7 +146,7 @@ int vtkQuad::EvaluatePosition(float x[3], float closestPoint[3],
 //
   if ( !converged )
     {
-    pcoords[0] = pcoords[1] =  pcoords[2] = 10.0;
+    pcoords[0] = pcoords[1] = 10.0;
     dist2 = LARGE_FLOAT;
     cout << "Failed to converge\n";
     return 0;
@@ -338,14 +337,18 @@ void vtkQuad::Contour(float value, vtkFloatScalars *cellScalars,
 
 vtkCell *vtkQuad::GetEdge(int edgeId)
 {
+  static vtkLine line;
+  int edgeIdPlus1 = edgeId + 1;
+  
+  if (edgeIdPlus1 > 3) edgeIdPlus1 = 0;
 
   // load point id's
   line.PointIds.SetId(0,this->PointIds.GetId(edgeId));
-  line.PointIds.SetId(1,this->PointIds.GetId((edgeId+1) % 4));
+  line.PointIds.SetId(1,this->PointIds.GetId(edgeIdPlus1));
 
   // load coordinates
   line.Points.SetPoint(0,this->Points.GetPoint(edgeId));
-  line.Points.SetPoint(1,this->Points.GetPoint((edgeId+1) % 4));
+  line.Points.SetPoint(1,this->Points.GetPoint(edgeIdPlus1));
 
   return &line;
 }
@@ -362,7 +365,7 @@ int vtkQuad::IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
   float dist2, weights[MAX_CELL_SIZE];
 
   subId = 0;
-  pcoords[0] = pcoords[1] = pcoords[2] = 0.0;
+  pcoords[0] = pcoords[1] = 0.0;
 //
 // Get normal for triangle
 //
