@@ -104,6 +104,12 @@ void vtkPolyMapper::Render(vtkRenderer *ren, vtkActor *act)
     numPts = input->GetNumberOfPoints();
     } 
 
+  if (numPts == 0)
+    {
+    vtkWarningMacro(<< "No points!");
+    return;
+    }
+  
   if ( this->LookupTable == NULL ) this->CreateDefaultLookupTable();
   this->LookupTable->Build();
   //
