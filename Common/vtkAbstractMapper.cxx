@@ -23,9 +23,20 @@
 #include "vtkPlaneCollection.h"
 #include "vtkTimerLog.h"
 
-vtkCxxRevisionMacro(vtkAbstractMapper, "1.26");
+vtkCxxRevisionMacro(vtkAbstractMapper, "1.27");
 
 vtkCxxSetObjectMacro(vtkAbstractMapper,ClippingPlanes,vtkPlaneCollection);
+
+//-----  This hack needed to compile using gcc3 on OSX until new stdc++.dylib
+#ifdef __APPLE_CC__
+extern "C"
+{void oft_initCom() 
+ {
+   extern void _ZNSt8ios_base4InitC4Ev();
+   _ZNSt8ios_base4InitC4Ev();
+ }
+}
+#endif
 
 // Construct object.
 vtkAbstractMapper::vtkAbstractMapper()

@@ -167,12 +167,18 @@ IF (COMMAND VTK_MAKE_INSTANTIATOR2)
                       ${Graphics_SRCS}
                       EXPORT_MACRO VTK_GRAPHICS_EXPORT
                       HEADER_LOCATION ${VTK_BINARY_DIR})
+
 ELSE (COMMAND VTK_MAKE_INSTANTIATOR2)
   VTK_MAKE_INSTANTIATOR(vtkGraphicsInstantiator GraphicsInstantiator_SRCS
                       ${Graphics_SRCS}
                       EXPORT_MACRO VTK_GRAPHICS_EXPORT
                       HEADER_LOCATION ${VTK_BINARY_DIR})
 ENDIF (COMMAND VTK_MAKE_INSTANTIATOR2)
+
+IF (APPLE)
+  SET (CMAKE_CXX_SHLIB_BUILD_FLAGS "-dynamiclib -init _oft_initGra")
+ENDIF (APPLE)
+
 ADD_LIBRARY(vtkGraphics ${Graphics_SRCS} ${GraphicsInstantiator_SRCS})
 
 # Allow the user to customize their build with some local options
@@ -188,7 +194,7 @@ TARGET_LINK_LIBRARIES (vtkGraphics vtkFiltering)
 IF (VTK_WRAP_TCL)
   VTK_WRAP_TCL(vtkGraphicsTCL GraphicsTCL_SRCS ${Graphics_SRCS})
   IF (APPLE)
-   ADD_LIBRARY(vtkGraphicsTCL SHARED ${GraphicsTCL_SRCS})
+   ADD_LIBRARY(vtkGraphicsTCL SHARED vtkOSXGraphicsTclInit.c ${GraphicsTCL_SRCS})
   ELSE (APPLE)
     ADD_LIBRARY(vtkGraphicsTCL ${GraphicsTCL_SRCS})
   ENDIF (APPLE)

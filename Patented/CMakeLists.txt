@@ -23,12 +23,18 @@ IF (COMMAND VTK_MAKE_INSTANTIATOR2)
                       ${Patented_SRCS}
                       EXPORT_MACRO VTK_PATENTED_EXPORT
                       HEADER_LOCATION ${VTK_BINARY_DIR})
+
 ELSE (COMMAND VTK_MAKE_INSTANTIATOR2)
   VTK_MAKE_INSTANTIATOR(vtkPatentedInstantiator PatentedInstantiator_SRCS
                       ${Patented_SRCS}
                       EXPORT_MACRO VTK_PATENTED_EXPORT
                       HEADER_LOCATION ${VTK_BINARY_DIR})
 ENDIF (COMMAND VTK_MAKE_INSTANTIATOR2)
+
+IF (APPLE)
+  SET (CMAKE_CXX_SHLIB_BUILD_FLAGS "-dynamiclib -init _oft_initPat")
+ENDIF (APPLE)
+
 ADD_LIBRARY(vtkPatented ${Patented_SRCS} ${PatentedInstantiator_SRCS})
 
 # Allow the user to customize their build with some local options
@@ -39,7 +45,7 @@ INCLUDE (${VTK_SOURCE_DIR}/Patented/LocalUserOptions.cmake OPTIONAL)
 IF (VTK_WRAP_TCL)
   VTK_WRAP_TCL(vtkPatentedTCL PatentedTCL_SRCS ${Patented_SRCS})
   IF (APPLE)
-    ADD_LIBRARY(vtkPatentedTCL SHARED ${PatentedTCL_SRCS})
+    ADD_LIBRARY(vtkPatentedTCL SHARED vtkOSXPatentedTclInit.c ${PatentedTCL_SRCS})
   ELSE (APPLE)
     ADD_LIBRARY(vtkPatentedTCL ${PatentedTCL_SRCS})
   ENDIF (APPLE)

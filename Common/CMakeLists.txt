@@ -229,6 +229,11 @@ ELSE (COMMAND VTK_MAKE_INSTANTIATOR2)
 ENDIF (COMMAND VTK_MAKE_INSTANTIATOR2)
 ADD_LIBRARY(vtkCommon ${Common_SRCS} ${CommonInstantiator_SRCS})
 
+
+IF (APPLE)
+  SET (CMAKE_CXX_SHLIB_BUILD_FLAGS "-dynamiclib -init _oft_initCom")
+ENDIF (APPLE)
+
 # Allow the user to customize their build with some local options
 #
 INCLUDE (${VTK_BINARY_DIR}/Common/LocalUserOptions.cmake OPTIONAL)
@@ -240,7 +245,7 @@ INCLUDE (${VTK_SOURCE_DIR}/Common/LocalUserOptions.cmake OPTIONAL)
 IF (VTK_WRAP_TCL)
   VTK_WRAP_TCL(vtkCommonTCL CommonTCL_SRCS ${Common_SRCS})
   IF (APPLE)
-    ADD_LIBRARY(vtkCommonTCL SHARED ${CommonTCL_SRCS} vtkTclUtil.cxx)
+    ADD_LIBRARY(vtkCommonTCL SHARED ${CommonTCL_SRCS} vtkOSXCommonTclInit.c vtkTclUtil.cxx)
   ELSE (APPLE)
     ADD_LIBRARY(vtkCommonTCL ${CommonTCL_SRCS} vtkTclUtil.cxx)
   ENDIF (APPLE)

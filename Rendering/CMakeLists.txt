@@ -272,12 +272,18 @@ IF (COMMAND VTK_MAKE_INSTANTIATOR2)
     ${Rendering_SRCS} ${RenderingOpenGL_SRCS}
     EXPORT_MACRO VTK_RENDERING_EXPORT
     HEADER_LOCATION ${VTK_BINARY_DIR})
+
 ELSE (COMMAND VTK_MAKE_INSTANTIATOR2)
   VTK_MAKE_INSTANTIATOR(vtkRenderingInstantiator RenderingInstantiator_SRCS
     ${Rendering_SRCS} ${RenderingOpenGL_SRCS}
     EXPORT_MACRO VTK_RENDERING_EXPORT
     HEADER_LOCATION ${VTK_BINARY_DIR})
 ENDIF (COMMAND VTK_MAKE_INSTANTIATOR2)
+
+IF (APPLE)
+  SET (CMAKE_CXX_SHLIB_BUILD_FLAGS "-dynamiclib -init _oft_initRen")
+ENDIF (APPLE)
+
 ADD_LIBRARY(vtkRendering 
     ${Rendering_SRCS} 
     ${Rendering_FT_SRCS} 
@@ -368,10 +374,11 @@ IF (VTK_WRAP_TCL)
   ENDIF (NOT VTK_DISABLE_TK_INIT)
 
   IF (APPLE)
-    ADD_LIBRARY(vtkRenderingTCL SHARED ${RenderingTCL_SRCS})
+    ADD_LIBRARY(vtkRenderingTCL SHARED vtkOSXRenderingTclInit.c ${RenderingTCL_SRCS})
   ELSE (APPLE)
     ADD_LIBRARY(vtkRenderingTCL ${RenderingTCL_SRCS})
   ENDIF (APPLE)
+
   TARGET_LINK_LIBRARIES (vtkRenderingTCL
                          vtkGraphicsTCL
                          vtkImagingTCL

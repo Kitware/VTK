@@ -110,6 +110,11 @@ ELSE (COMMAND VTK_MAKE_INSTANTIATOR2)
                       EXPORT_MACRO VTK_FILTERING_EXPORT
                       HEADER_LOCATION ${VTK_BINARY_DIR})
 ENDIF (COMMAND VTK_MAKE_INSTANTIATOR2)
+
+IF (APPLE)
+  SET (CMAKE_CXX_SHLIB_BUILD_FLAGS "-dynamiclib -init _oft_initFil")
+ENDIF (APPLE)
+
 ADD_LIBRARY(vtkFiltering ${Filtering_SRCS} ${FilteringInstantiator_SRCS})
 
 TARGET_LINK_LIBRARIES (vtkFiltering vtkCommon)
@@ -125,7 +130,7 @@ INCLUDE (${VTK_SOURCE_DIR}/Filtering/LocalUserOptions.cmake OPTIONAL)
 IF (VTK_WRAP_TCL)
   VTK_WRAP_TCL(vtkFilteringTCL FilteringTCL_SRCS ${Filtering_SRCS})
   IF (APPLE)
-    ADD_LIBRARY(vtkFilteringTCL SHARED ${FilteringTCL_SRCS})
+    ADD_LIBRARY(vtkFilteringTCL SHARED vtkOSXFilteringTclInit.c ${FilteringTCL_SRCS})
   ELSE (APPLE)
     ADD_LIBRARY(vtkFilteringTCL ${FilteringTCL_SRCS})
   ENDIF (APPLE)

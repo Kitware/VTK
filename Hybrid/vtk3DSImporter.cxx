@@ -29,8 +29,21 @@
 #include "vtkRenderer.h"
 #include "vtkStripper.h"
 
-vtkCxxRevisionMacro(vtk3DSImporter, "1.32");
+vtkCxxRevisionMacro(vtk3DSImporter, "1.33");
 vtkStandardNewMacro(vtk3DSImporter);
+
+//-----  This hack needed to compile using gcc3 on OSX until new stdc++.dylib
+#ifdef __APPLE_CC__
+extern "C"
+{
+  void oft_initHyb() 
+  {
+  extern void _ZNSt8ios_base4InitC4Ev();
+  _ZNSt8ios_base4InitC4Ev();
+  }
+}
+#endif
+
 
 static vtk3DSColour Black = {0.0, 0.0, 0.0};
 static char   obj_name[80] = "";

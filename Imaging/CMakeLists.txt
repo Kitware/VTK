@@ -120,12 +120,18 @@ IF (COMMAND VTK_MAKE_INSTANTIATOR2)
                       ${Imaging_SRCS}
                       EXPORT_MACRO VTK_IMAGING_EXPORT
                       HEADER_LOCATION ${VTK_BINARY_DIR})
+
 ELSE (COMMAND VTK_MAKE_INSTANTIATOR2)
   VTK_MAKE_INSTANTIATOR(vtkImagingInstantiator ImagingInstantiator_SRCS
                       ${Imaging_SRCS}
                       EXPORT_MACRO VTK_IMAGING_EXPORT
                       HEADER_LOCATION ${VTK_BINARY_DIR})
 ENDIF (COMMAND VTK_MAKE_INSTANTIATOR2)
+
+IF (APPLE)
+  SET (CMAKE_CXX_SHLIB_BUILD_FLAGS "-dynamiclib -init _oft_initIma")
+ENDIF (APPLE)
+
 ADD_LIBRARY(vtkImaging ${Imaging_SRCS} ${ImagingInstantiator_SRCS})
 
 # Allow the user to customize their build with some local options
@@ -141,7 +147,7 @@ TARGET_LINK_LIBRARIES (vtkImaging vtkFiltering)
 IF (VTK_WRAP_TCL)
   VTK_WRAP_TCL(vtkImagingTCL ImagingTCL_SRCS ${Imaging_SRCS})
   IF (APPLE)
-    ADD_LIBRARY(vtkImagingTCL SHARED ${ImagingTCL_SRCS})
+    ADD_LIBRARY(vtkImagingTCL SHARED vtkOSXImagingTclInit.c ${ImagingTCL_SRCS})
   ELSE (APPLE)
     ADD_LIBRARY(vtkImagingTCL ${ImagingTCL_SRCS})
   ENDIF (APPLE)

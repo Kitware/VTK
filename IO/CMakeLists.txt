@@ -80,12 +80,18 @@ IF (COMMAND VTK_MAKE_INSTANTIATOR2)
                       ${IO_SRCS}
                       EXPORT_MACRO VTK_IO_EXPORT
                       HEADER_LOCATION ${VTK_BINARY_DIR})
+
 ELSE (COMMAND VTK_MAKE_INSTANTIATOR2)
   VTK_MAKE_INSTANTIATOR(vtkIOInstantiator IOInstantiator_SRCS
                       ${IO_SRCS}
                       EXPORT_MACRO VTK_IO_EXPORT
                       HEADER_LOCATION ${VTK_BINARY_DIR})
 ENDIF (COMMAND VTK_MAKE_INSTANTIATOR2)
+
+IF (APPLE)
+  SET (CMAKE_CXX_SHLIB_BUILD_FLAGS "-dynamiclib -init _oft_initIO")
+ENDIF (APPLE)
+
 ADD_LIBRARY(vtkIO ${IO_SRCS} ${IOInstantiator_SRCS})
 
 # Allow the user to customize their build with some local options
@@ -99,7 +105,7 @@ TARGET_LINK_LIBRARIES (vtkIO vtkFiltering
 IF (VTK_WRAP_TCL)
   VTK_WRAP_TCL(vtkIOTCL IOTCL_SRCS ${IO_SRCS})
   IF (APPLE)
-    ADD_LIBRARY(vtkIOTCL SHARED ${IOTCL_SRCS})
+    ADD_LIBRARY(vtkIOTCL SHARED vtkOSXIOTclInit.c ${IOTCL_SRCS})
   ELSE (APPLE)
     ADD_LIBRARY(vtkIOTCL ${IOTCL_SRCS})
   ENDIF (APPLE)

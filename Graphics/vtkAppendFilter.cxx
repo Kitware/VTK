@@ -20,8 +20,20 @@
 #include "vtkObjectFactory.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkAppendFilter, "1.59");
+vtkCxxRevisionMacro(vtkAppendFilter, "1.60");
 vtkStandardNewMacro(vtkAppendFilter);
+
+//-----  This hack needed to compile using gcc3 on OSX until new stdc++.dylib
+#ifdef __APPLE_CC__
+extern "C"
+{
+  void oft_initGra() 
+  {
+  extern void _ZNSt8ios_base4InitC4Ev();
+  _ZNSt8ios_base4InitC4Ev();
+  }
+}
+#endif
 
 //----------------------------------------------------------------------------
 vtkAppendFilter::vtkAppendFilter()

@@ -75,12 +75,18 @@ IF (COMMAND VTK_MAKE_INSTANTIATOR2)
                       ${Parallel_SRCS}
                       EXPORT_MACRO VTK_PARALLEL_EXPORT
                       HEADER_LOCATION ${VTK_BINARY_DIR})
+
 ELSE (COMMAND VTK_MAKE_INSTANTIATOR2)
   VTK_MAKE_INSTANTIATOR(vtkParallelInstantiator ParallelInstantiator_SRCS
                       ${Parallel_SRCS}
                       EXPORT_MACRO VTK_PARALLEL_EXPORT
                       HEADER_LOCATION ${VTK_BINARY_DIR})
 ENDIF (COMMAND VTK_MAKE_INSTANTIATOR2)
+
+IF (APPLE)
+  SET (CMAKE_CXX_SHLIB_BUILD_FLAGS "-dynamiclib -init _oft_initPar")
+ENDIF (APPLE)
+
 ADD_LIBRARY(vtkParallel ${Parallel_SRCS} ${ParallelInstantiator_SRCS})
 
 IF (VTK_USE_MPI) 
@@ -108,7 +114,12 @@ ENDIF (WIN32)
 
 IF (VTK_WRAP_TCL)
   VTK_WRAP_TCL(vtkParallelTCL ParallelTCL_SRCS ${Parallel_SRCS})
-  ADD_LIBRARY(vtkParallelTCL ${ParallelTCL_SRCS})
+  IF (APPLE)
+    ADD_LIBRARY(vtkParallelTCL SHARED vtkOSXParallelTclInit.c ${ParallelTCL_SRCS})
+  ELSE (APPLE)
+    ADD_LIBRARY(vtkParallelTCL ${ParallelTCL_SRCS})
+  ENDIF (APPLE)
+
   TARGET_LINK_LIBRARIES (vtkParallelTCL vtkParallel vtkIOTCL vtkRenderingTCL)
   INSTALL_TARGETS(/lib/vtk vtkParallelTCL)
 

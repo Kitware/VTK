@@ -40,8 +40,21 @@
 #include "vtkPolyData.h"
 #include "vtkTriangle.h"
 
-vtkCxxRevisionMacro(vtkDecimate, "1.69");
+vtkCxxRevisionMacro(vtkDecimate, "1.70");
 vtkStandardNewMacro(vtkDecimate);
+
+//-----  This hack needed to compile using gcc3 on OSX until new stdc++.dylib
+#ifdef __APPLE_CC__
+extern "C"
+{
+  void oft_initPat() 
+  {
+  extern void _ZNSt8ios_base4InitC4Ev();
+  _ZNSt8ios_base4InitC4Ev();
+  }
+}
+#endif
+
 
 #define VTK_TOLERANCE 1.0e-05
 

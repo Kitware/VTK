@@ -69,12 +69,18 @@ IF (COMMAND VTK_MAKE_INSTANTIATOR2)
                       ${Hybrid_SRCS}
                       EXPORT_MACRO VTK_HYBRID_EXPORT
                       HEADER_LOCATION ${VTK_BINARY_DIR})
+
 ELSE (COMMAND VTK_MAKE_INSTANTIATOR2)
   VTK_MAKE_INSTANTIATOR(vtkHybridInstantiator HybridInstantiator_SRCS
                       ${Hybrid_SRCS}
                       EXPORT_MACRO VTK_HYBRID_EXPORT
                       HEADER_LOCATION ${VTK_BINARY_DIR})
 ENDIF (COMMAND VTK_MAKE_INSTANTIATOR2)
+
+IF (APPLE)
+  SET (CMAKE_CXX_SHLIB_BUILD_FLAGS "-dynamiclib -init _oft_initHyb")
+ENDIF (APPLE)
+
 ADD_LIBRARY(vtkHybrid ${Hybrid_SRCS} ${HybridInstantiator_SRCS})
 
 # Allow the user to customize their build with some local options
@@ -85,7 +91,7 @@ INCLUDE (${VTK_SOURCE_DIR}/Hybrid/LocalUserOptions.cmake OPTIONAL)
 IF (VTK_WRAP_TCL)
   VTK_WRAP_TCL(vtkHybridTCL HybridTCL_SRCS ${Hybrid_SRCS})
   IF (APPLE)
-    ADD_LIBRARY(vtkHybridTCL SHARED ${HybridTCL_SRCS})
+    ADD_LIBRARY(vtkHybridTCL SHARED vtkOSXHybridTclInit.c ${HybridTCL_SRCS})
   ELSE (APPLE)
     ADD_LIBRARY(vtkHybridTCL ${HybridTCL_SRCS})
   ENDIF (APPLE)
