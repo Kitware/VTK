@@ -24,20 +24,23 @@
 // or vtkDelaunay3D.
 //
 // .SECTION Background
-// Delaunay triangulations are unique assuming a random
-// distribution of input points. The 3D Delaunay criterion is as follows:
-// the circumsphere of each tetrahedron contains no other points of the
-// triangulation except for the four points defining the tetrahedron.
-// In application this property is hard to satisfy because objects like
-// cubes are defined by eight points all sharing the same circumsphere
-// (center and radius); hence the Delaunay triangulation is not unique.
-// These so-called degenerate situations are typically resolved by
-// arbitrary selecting a triangulation. This code does something different:
-// it resolves degenerate triangulations by modifying the "InCircumsphere"
-// method to use a slightly smaller radius. Hence, degenerate points are
-// always considered "out" of the circumsphere. This, in combination with
-// an ordering (based on id) of the input points, guarantees a unique
-// triangulation.
+// This work is documented in the technical paper: W.J. Schroeder, B. Geveci,
+// M. Malaterre. Compatible Triangulations of Spatial Decompostions. In
+// Proceedings of Visualization 2004, IEEE Press October 2004.
+//
+// Delaunay triangulations are unique assuming a random distribution of input
+// points. The 3D Delaunay criterion is as follows: the circumsphere of each
+// tetrahedron contains no other points of the triangulation except for the
+// four points defining the tetrahedron.  In application this property is
+// hard to satisfy because objects like cubes are defined by eight points all
+// sharing the same circumsphere (center and radius); hence the Delaunay
+// triangulation is not unique.  These so-called degenerate situations are
+// typically resolved by arbitrary selecting a triangulation. This code does
+// something different: it resolves degenerate triangulations by modifying
+// the "InCircumsphere" method to use a slightly smaller radius. Hence,
+// degenerate points are always considered "out" of the circumsphere. This,
+// in combination with an ordering (based on id) of the input points,
+// guarantees a unique triangulation.
 //
 // There is another related characteristic of Delaunay triangulations. Given
 // a N-dimensional Delaunay triangulation, points lying on a (N-1) dimensional
