@@ -117,39 +117,57 @@ OPTION(VTK_USE_ANSI_STDLIB "Use the ANSI standard iostream library", OFF)
 # Look for the PNG and zlib libraries and header files
 #
 # on windows we have it checked in
-OPTION (PNG_SUPPORT "Add support for the PNG format." ON)
-
 IF (WIN32)
   FIND_LIBRARY(PNG_LIBRARY libpng "${VTK_SOURCE_DIR}/IO/PNG")
   FIND_PATH(PNG_INCLUDE_PATH png.h "${VTK_SOURCE_DIR}/IO/PNG")
   FIND_PATH(ZLIB_INCLUDE_PATH zlib.h  "${VTK_SOURCE_DIR}/IO/PNG")
+  FIND_PATH(ZLIB_LIBRARY libzlib  "${VTK_SOURCE_DIR}/IO/PNG")
 ELSE (WIN32)
   FIND_LIBRARY(PNG_LIBRARY
     NAMES png libpng
     PATHS  
     /usr/lib 
     /usr/local/lib
-    "${VTK_SOURCE_DIR}/IO/png"
+    "${VTK_SOURCE_DIR}/IO/PNG"
   )
   FIND_PATH(PNG_INCLUDE_PATH png.h 
     /usr/include 
     /usr/local/include
-    "${VTK_SOURCE_DIR}/IO/png"
+    "${VTK_SOURCE_DIR}/IO/PNG"
+  )
+  FIND_LIBRARY(ZLIB_LIBRARY
+    NAMES z zlib
+    PATHS  
+    /usr/lib 
+    /usr/local/lib
+    "${VTK_SOURCE_DIR}/IO/PNG"
   )
   FIND_PATH(ZLIB_INCLUDE_PATH zlib.h 
     /usr/include 
     /usr/local/include
-    "${VTK_SOURCE_DIR}/IO/png"
+    "${VTK_SOURCE_DIR}/IO/PNG"
   )
 ENDIF (WIN32)
 
-IF (PNG_SUPPORT)
-  IF (PNG_LIBRARY)
-    IF (PNG_INCLUDE_PATH)
-      IF (ZLIB_INCLUDE_PATH)
-        SET (HAVE_PNG 1)
-        INCLUDE_DIRECTORIES(${PNG_INCLUDE_PATH})
-      ENDIF (ZLIB_INCLUDE_PATH)
-    ENDIF (PNG_INCLUDE_PATH)
-  ENDIF (PNG_LIBRARY)
-ENDIF (PNG_SUPPORT)
+IF (PNG_LIBRARY)
+  IF (PNG_INCLUDE_PATH)
+    IF (ZLIB_INCLUDE_PATH)
+      SET (HAVE_PNG 1)
+      INCLUDE_DIRECTORIES(${PNG_INCLUDE_PATH})
+    ENDIF (ZLIB_INCLUDE_PATH)
+  ENDIF (PNG_INCLUDE_PATH)
+ENDIF (PNG_LIBRARY)
+
+#
+# add include path for general testing header file
+#
+IF (BUILD_TESTING)
+  INCLUDE_DIRECTORIES(${VTK_SOURCE_DIR}/Common/Testing/Cxx)
+ENDIF (BUILD_TESTING)
+
+
+#
+# try to find the data files for VTKData
+#
+FIND_PATH(VTK_DATA_ROOT README.txt ${VTK_SOURCE_DIR}/../VTKData)
+
