@@ -169,6 +169,12 @@ vtkFloatPoints trianglePoints
   trianglePoints InsertPoint 1 1 0 0
   trianglePoints InsertPoint 2 .5 .5 0
 
+vtkFloatTCoords triangleTCoords
+  triangleTCoords SetNumberOfTCoords 3
+  triangleTCoords InsertTCoord 0 1 1 1
+  triangleTCoords InsertTCoord 1 2 2 2
+  triangleTCoords InsertTCoord 2 3 3 3
+
 vtkTriangle aTriangle
   [aTriangle GetPointIds] SetId 0 0
   [aTriangle GetPointIds] SetId 1 1
@@ -178,6 +184,7 @@ vtkUnstructuredGrid aTriangleGrid
   aTriangleGrid Allocate 1 1
   aTriangleGrid InsertNextCell [aTriangle GetCellType] [aTriangle GetPointIds]
   aTriangleGrid SetPoints trianglePoints
+  [aTriangleGrid GetPointData] SetTCoords triangleTCoords
 
 vtkDataSetMapper aTriangleMapper
   aTriangleMapper SetInput aTriangleGrid
@@ -224,6 +231,14 @@ vtkFloatPoints triangleStripPoints
   triangleStripPoints InsertPoint 3 1 0 0
   triangleStripPoints InsertPoint 4 2 1 0
 
+vtkFloatTCoords triangleStripTCoords
+  triangleStripTCoords SetNumberOfTCoords 3
+  triangleStripTCoords InsertTCoord 0 1 1 1
+  triangleStripTCoords InsertTCoord 1 2 2 2
+  triangleStripTCoords InsertTCoord 2 3 3 3
+  triangleStripTCoords InsertTCoord 3 4 4 4
+  triangleStripTCoords InsertTCoord 4 5 5 5
+
 vtkTriangleStrip aTriangleStrip
   [aTriangleStrip GetPointIds] SetNumberOfIds 5
   [aTriangleStrip GetPointIds] SetId 0 0
@@ -236,6 +251,7 @@ vtkUnstructuredGrid aTriangleStripGrid
   aTriangleStripGrid Allocate 1 1
   aTriangleStripGrid InsertNextCell [aTriangleStrip GetCellType] [aTriangleStrip GetPointIds]
   aTriangleStripGrid SetPoints triangleStripPoints
+  [aTriangleStripGrid GetPointData] SetTCoords triangleStripTCoords
 
 vtkDataSetMapper aTriangleStripMapper
   aTriangleStripMapper SetInput aTriangleStripGrid
