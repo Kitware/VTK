@@ -27,7 +27,7 @@
 #ifdef __APPLE_CC__
 extern "C"
 {
-  void oft_initRenWidgets()
+  void oft_initRenderingWidgets()
   {
     extern void _ZNSt8ios_base4InitC4Ev();
     _ZNSt8ios_base4InitC4Ev();

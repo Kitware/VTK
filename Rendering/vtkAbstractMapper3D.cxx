@@ -18,13 +18,13 @@
 #include "vtkAbstractMapper3D.h"
 #include "vtkDataSet.h"
 
-vtkCxxRevisionMacro(vtkAbstractMapper3D, "1.14");
+vtkCxxRevisionMacro(vtkAbstractMapper3D, "1.15");
 
 //-----  This hack needed to compile using gcc3 on OSX until new stdc++.dylib
 #ifdef __APPLE_CC__
 extern "C"
 {
-  void oft_initRen() 
+  void oft_initRendering() 
   {
   extern void _ZNSt8ios_base4InitC4Ev();
   _ZNSt8ios_base4InitC4Ev();
