@@ -15,6 +15,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 =========================================================================*/
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 #include "Renderer.hh"
 #include "RenderW.hh"
 
@@ -55,6 +56,11 @@ void vlRenderer::SetActiveCamera(vlCamera *cam)
   this->ActiveCamera = cam;
 }
 
+vlCamera *vlRenderer::GetActiveCamera()
+{
+  return this->ActiveCamera;
+}
+
 void vlRenderer::AddLights(vlLight *light)
 {
   this->Lights.AddMember(light);
@@ -89,6 +95,7 @@ void vlRenderer::DoCameras()
     cerr << this->GetClassName() << " : No cameras are on, creating one.\n";
     cam1 = this->RenderWindow->MakeCamera();
     this->SetActiveCamera(cam1);
+    this->ResetCamera();
     this->UpdateCameras();
     }
 }
@@ -101,6 +108,63 @@ void vlRenderer::DoActors()
     cerr << "No actors are on.\n";
     }
 }
+
+void vlRenderer::ResetCamera()
+{
+  vlActor *anActor;
+  int num;
+  float *bounds;
+  float all_bounds[6];
+  float center[3];
+  float distance;
+  float width;
+  int visibility;
+
+  all_bounds[0] = all_bounds[2] = all_bounds[4] = 1.0e30;
+  all_bounds[1] = all_bounds[3] = all_bounds[5] = -1.0e30;
+  
+  // loop through actors 
+  for (num = 0; num < this->Actors.GetNumberOfMembers(); num++)
+    {
+    anActor = this->Actors.GetMember(num);
+ 
+    // if it's invisible, we can skip the rest 
+    visibility = anActor->GetVisibility();
+    if (visibility == 1.0)
+      {
+      bounds = anActor->GetBounds();
+ 
+      if (bounds[0] < all_bounds[0]) all_bounds[0] = bounds[0]; 
+      if (bounds[1] > all_bounds[1]) all_bounds[1] = bounds[1]; 
+      if (bounds[2] < all_bounds[2]) all_bounds[2] = bounds[2]; 
+      if (bounds[3] > all_bounds[3]) all_bounds[3] = bounds[3]; 
+      if (bounds[4] < all_bounds[4]) all_bounds[4] = bounds[4]; 
+      if (bounds[5] > all_bounds[5]) all_bounds[5] = bounds[5]; 
+      }
+    }
+  
+
+  // now we have the bounds for all actors
+  center[0] = (all_bounds[0] + all_bounds[1])/2.0;
+  center[1] = (all_bounds[2] + all_bounds[3])/2.0;
+  center[2] = (all_bounds[4] + all_bounds[5])/2.0;
+
+  width = all_bounds[3] - all_bounds[2];
+  if (width < (all_bounds[1] - all_bounds[0]))
+    {
+    width = all_bounds[1] - all_bounds[0];
+    }
+  distance = 0.8*width/tan(this->ActiveCamera->GetViewAngle()*M_PI/360.0);
+  distance = distance + (all_bounds[5] - all_bounds[4])/2.0;
+
+  // update the camera
+  this->ActiveCamera->SetFocalPoint(center);
+  this->ActiveCamera->SetPosition(center[0],center[1],center[2]+distance);
+  this->ActiveCamera->SetViewUp(0,1,0);
+  this->ActiveCamera->SetClippingRange(distance/10.0,distance*5.0);
+}
+  
+  
 
 void vlRenderer::SetRenderWindow(vlRenderWindow *renwin)
 {
