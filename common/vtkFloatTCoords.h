@@ -90,7 +90,7 @@ protected:
 // Get pointer to array of data starting at data position "id".
 inline float *vtkFloatTCoords::GetPointer(const int id)
 {
-  return this->TC->GetPointer(id);
+  return this->TC->GetPointer(this->Dimension*this->Dimension*id);
 }
 
 // Description:
@@ -101,7 +101,7 @@ inline float *vtkFloatTCoords::GetPointer(const int id)
 // this call.
 inline float *vtkFloatTCoords::WritePointer(const int id, const int number)
 {
-  return this->TC->WritePointer(id,this->Dimension*number);
+  return this->TC->WritePointer(this->Dimension*id,this->Dimension*number);
 }
 
 inline void vtkFloatTCoords::SetNumberOfTCoords(int number)

@@ -89,7 +89,7 @@ protected:
 // Get pointer to array of data starting at data position "id".
 inline float *vtkFloatNormals::GetPointer(const int id)
 {
-  return this->N->GetPointer(id);
+  return this->N->GetPointer(3*id);
 }
 
 // Description:
@@ -99,7 +99,7 @@ inline float *vtkFloatNormals::GetPointer(const int id)
 // write. 
 inline float *vtkFloatNormals::WritePointer(const int id, const int number)
 {
-  return this->N->WritePointer(id,3*number);
+  return this->N->WritePointer(3*id,3*number);
 }
 
 inline void vtkFloatNormals::SetNumberOfNormals(int number)

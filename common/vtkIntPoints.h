@@ -92,7 +92,7 @@ protected:
 // Get pointer to array of data starting at data position "id".
 inline int *vtkIntPoints::GetPointer(const int id)
 {
-  return this->P->GetPointer(id);
+  return this->P->GetPointer(3*id);
 }
 
 // Description:
@@ -102,7 +102,7 @@ inline int *vtkIntPoints::GetPointer(const int id)
 // write. 
 inline int *vtkIntPoints::WritePointer(const int id, const int number)
 {
-  return this->P->WritePointer(id,3*number);
+  return this->P->WritePointer(3*id,3*number);
 }
 
 inline void vtkIntPoints::GetPoint(int id, float x[3])

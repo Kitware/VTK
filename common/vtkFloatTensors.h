@@ -100,7 +100,8 @@ inline float *vtkFloatTensors::GetPointer(const int id)
 // Make sure the dimension of the tensor is set prior to issuing this call.
 inline float *vtkFloatTensors::WritePointer(const int id, const int number)
 {
-  return this->T->WritePointer(id,this->Dimension*this->Dimension*number);
+  return this->T->WritePointer(this->Dimension*this->Dimension*id,
+                               this->Dimension*this->Dimension*number);
 }
 
 inline int vtkFloatTensors::Allocate(const int sz, const int dim,const int ext) 
