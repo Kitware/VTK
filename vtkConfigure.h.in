@@ -53,7 +53,7 @@
 #cmakedefine VTK_ISTREAM_SUPPORTS_LONG_LONG
 #cmakedefine VTK_OSTREAM_SUPPORTS_LONG_LONG
 #define VTK_STREAM_EOF_SEVERITY @VTK_STREAM_EOF_SEVERITY@
-
+#cmakedefine VTK_HAVE_SOCKLEN_T
 /*--------------------------------------------------------------------------*/
 /* VTK Platform Configuration                                               */
 

@@ -36,7 +36,7 @@
 #define vtkCloseSocketMacro(sock) (close(sock))
 #endif
 
-vtkCxxRevisionMacro(vtkSocketCommunicator, "1.49");
+vtkCxxRevisionMacro(vtkSocketCommunicator, "1.50");
 vtkStandardNewMacro(vtkSocketCommunicator);
 
 //----------------------------------------------------------------------------
@@ -274,10 +274,10 @@ int vtkSocketCommunicator::GetPort(int sock)
 {
   struct sockaddr_in sockinfo;
   memset(&sockinfo, 0, sizeof(sockinfo));
-#if defined(_WIN32) &&  !defined(__CYGWIN__)
-  int sizebuf = sizeof(sockinfo);
-#else
+#if defined(VTK_HAVE_SOCKLEN_T) 
   socklen_t sizebuf = sizeof(sockinfo);
+#else
+  int sizebuf = sizeof(sockinfo);
 #endif
   if(getsockname(sock, (sockaddr*)&sockinfo, &sizebuf) != 0)
     {
@@ -548,7 +548,7 @@ int vtkSocketCommunicator::ReceiveTagged(void* data, int wordSize,
     if(!this->ReceiveInternal(this->Socket, &recvTag,
         static_cast<int>(sizeof(int))))
       {
-      vtkErrorMacro("Could not receive tag.");
+      vtkErrorMacro("Could not receive tag. " << tag);
       return 0;
       }
     if(this->SwapBytesInReceivedData)

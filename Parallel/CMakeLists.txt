@@ -14,7 +14,25 @@ IF (WIN32)
   ENDIF (NOT BORLAND)
 ENDIF (WIN32)
 
-
+IF("VTK_HAVE_SOCKLEN_T" MATCHES "^VTK_HAVE_SOCKLEN_T$")
+  MESSAGE(STATUS "Checking support for socklen_t type")
+  TRY_COMPILE(VTK_HAVE_SOCKLEN_T
+    ${VTK_BINARY_DIR}/CMakeTmp/SocklenT
+    ${VTK_SOURCE_DIR}/CMake/vtkTestSocklenT.c
+    OUTPUT_VARIABLE OUTPUT)
+  IF(VTK_HAVE_SOCKLEN_T)
+    MESSAGE(STATUS "Checking support for socklen_t type -- yes")
+    SET(VTK_HAVE_SOCKLEN_T 1 CACHE INTERNAL "Support for socklen_t type")
+  ELSE(VTK_HAVE_SOCKLEN_T)
+    MESSAGE(STATUS "Checking support for socklen_t type -- no")
+    SET(VTK_HAVE_SOCKLEN_T 0 CACHE INTERNAL "Support for socklen_t type")
+    WRITE_FILE(${CMAKE_BINARY_DIR}/CMakeError.log
+      "Determining if the compiler supports socklen_t type  "
+      "failed with the following output:\n"
+      "${OUTPUT}\n" APPEND)
+  ENDIF(VTK_HAVE_SOCKLEN_T)
+ENDIF("VTK_HAVE_SOCKLEN_T" MATCHES "^VTK_HAVE_SOCKLEN_T$")
+  
 SET ( Kit_SRCS
 vtkDuplicatePolyData.cxx
 vtkBranchExtentTranslator.cxx
