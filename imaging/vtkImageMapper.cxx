@@ -158,6 +158,9 @@ void vtkImageMapper::Render(vtkViewport* viewport, vtkActor2D* actor)
   // adjusted by so that we can take that into account in the
   // positioning of the actor
   // Now clip to imager extents
+  // initialize PositionAdjustment to zero
+  this->PositionAdjustment[0] = 0;
+  this->PositionAdjustment[1] = 0;
   if (displayExtent[0] < 0) 
     {
     this->PositionAdjustment[0] = -1*displayExtent[0];
