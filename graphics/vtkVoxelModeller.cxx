@@ -122,6 +122,7 @@ void vtkVoxelModeller::Execute()
   float closestPoint[3];
   float voxelHalfWidth[3], origin[3], spacing[3];
   vtkStructuredPoints *output=this->GetOutput();
+
 //
 // Initialize self; create output objects
 //
@@ -203,6 +204,7 @@ void vtkVoxelModeller::Execute()
         }
       }
     }
+  delete [] weights;
 //
 // Update self
 //
