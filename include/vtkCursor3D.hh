@@ -45,6 +45,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // axes lines that meet at the cursor focus, and "shadows" or projections
 // of the axes against the sides of the bounding box. Each of these
 // components can be turned on/off.
+//
+// This filter generates two output datasets. The first (Output) is just the 
+// geometric representation of the cursor. The second (Focus) is a single
+// point at the focal point.
 
 #ifndef __vtkCursor3D_h
 #define __vtkCursor3D_h
@@ -55,6 +59,7 @@ class vtkCursor3D : public vtkPolySource
 {
 public:
   vtkCursor3D();
+  ~vtkCursor3D();
   char *GetClassName() {return "vtkCursor3D";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -106,9 +111,14 @@ public:
   vtkGetMacro(Wrap,int);
   vtkBooleanMacro(Wrap,int);
 
+  // Description:
+  // Get the focus for this filter..
+  vtkPolyData *GetFocus() {return (vtkPolyData *)this->Focus;};
+
 protected:
   void Execute();
 
+  vtkPolyData *Focus;
   float ModelBounds[6];
   float FocalPoint[3];
   int Outline;
