@@ -51,6 +51,20 @@ vtkDataSetReader::vtkDataSetReader()
   this->Reader.SetSource(this);
 }
 
+
+unsigned long int vtkDataSetReader::GetMTime()
+{
+  unsigned long int t1, t2;
+  
+  t1 = this->vtkSource::GetMTime();
+  t2 = this->Reader.GetMTime();
+  if (t2 > t1)
+    {
+    t1 = t2;
+    }
+  return t1;
+}
+
 // Description:
 // Specify file name of vtk data file to read.
 void vtkDataSetReader::SetFileName(char *name) 

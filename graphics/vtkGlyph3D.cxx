@@ -453,6 +453,12 @@ void vtkGlyph3D::Update()
 // done prior to specifying more than one source.
 void vtkGlyph3D::SetNumberOfSources(int num)
 {
+  if (this->NumberOfSources == num)
+    {
+    return;
+    }
+  
+  this->Modified();
   if ( num < 1 ) num = 1;
   this->Source = new vtkPolyData *[num];
   this->NumberOfSources = num;
@@ -467,7 +473,13 @@ void vtkGlyph3D::SetSource(int id, vtkPolyData *pd)
     vtkErrorMacro(<<"Specify index between (0,NumberOfSources-1)");
     return;
     }
-
+  
+  if (this->Source[id] == pd)
+    {
+    return;
+    }
+  
+  this->Modified();
   this->Source[id] = pd;
 }
 

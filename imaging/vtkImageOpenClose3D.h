@@ -67,6 +67,8 @@ public:
   const char *GetClassName() {return "vtkImageOpenClose3D";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
+  unsigned long int GetMTime();
+  
   // Forward Object messages to filter0 and fitler1
   void DebugOn();
   void Modified();

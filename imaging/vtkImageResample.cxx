@@ -89,6 +89,11 @@ void vtkImageResample::SetAxisMagnificationFactor(int axis, float factor)
     return;
     }
   
+  if (this->MagnificationFactors[axis] == factor)
+    {
+    return;
+    }
+  this->Modified();
   this->MagnificationFactors[axis] = factor;
   // Spacing is no longer valid.
   this->OutputSpacing[axis] = 0.0; // Not computed yet.

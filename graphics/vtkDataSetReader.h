@@ -62,6 +62,8 @@ public:
   const char *GetClassName() {return "vtkDataSetReader";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
+  unsigned long int GetMTime();
+  
   void SetFileName(char *name);
   char *GetFileName();
 

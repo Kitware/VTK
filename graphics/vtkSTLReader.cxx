@@ -68,9 +68,13 @@ vtkSTLReader::~vtkSTLReader()
 unsigned long vtkSTLReader::GetMTime()
 {
   unsigned long mTime1=this->vtkPolyDataSource::GetMTime();
-  unsigned long mTime2=this->Locator->GetMTime();
-
-  mTime1 = ( mTime1 > mTime2 ? mTime1 : mTime2 );
+  unsigned long mTime2;
+  
+  if (this->Locator)
+    {
+    mTime2 = this->Locator->GetMTime();
+    mTime1 = ( mTime1 > mTime2 ? mTime1 : mTime2 );
+    }
 
   return mTime1;
 }

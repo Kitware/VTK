@@ -184,6 +184,38 @@ vtkImageCache *vtkImageOpenClose3D::GetCache()
 }
   
 
+//----------------------------------------------------------------------------
+// Description:
+// This method considers the sub filters MTimes when computing this objects
+// MTime
+unsigned long int vtkImageOpenClose3D::GetMTime()
+{
+  unsigned long int t1, t2;
+  
+  t1 = this->vtkImageFilter::GetMTime();
+  if (this->Filter0)
+    {
+    t2 = this->Filter0->GetMTime();
+    if (t2 > t1)
+      {
+      t1 = t2;
+      }
+    }
+  if (this->Filter1)
+    {
+    t2 = this->Filter1->GetMTime();
+    if (t2 > t1)
+      {
+      t1 = t2;
+      }
+    }
+  
+  return t1;
+}
+
+  
+
+
 
 //----------------------------------------------------------------------------
 // Description:
