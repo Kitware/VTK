@@ -80,7 +80,8 @@ public:
   // Initializes the event handlers using an XtAppContext that you have
   // provided.  This assumes that you want to own the event loop.
   virtual void Initialize(XtAppContext app);
-
+  vtkGetMacro( App, XtAppContext );
+  
   // Description:
   // Enable/Disable interactions.  By default interactors are enabled when
   // initialized.  Initialize() must be called prior to enabling/disabling
