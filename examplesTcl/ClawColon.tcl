@@ -9,11 +9,11 @@ set sliceMax 177
 
 
 # Image pipeline
-vtkImageShortReader reader;
+vtkImageSeriesReader reader;
 reader SetFilePrefix "/projects/lorensen/colon/slices/scolon";
 reader ReleaseDataFlagOff;
 reader SwapBytesOn;
-reader SetDimensions 256 256 178;
+reader SetDataDimensions 256 256 178;
 reader SetPixelMask 0x7fff;
 reader SetOutputScalarType $VTK_SHORT;
 reader DebugOn;
@@ -27,7 +27,7 @@ thresh SetOutputScalarType $VTK_UNSIGNED_CHAR;
 thresh SetInputMemoryLimit 5000;
 
 # Set up the path planner
-vtkImageDraw region;
+vtkImagePaint region;
 region SetExtent 0 255 0 255 0 177;
 [thresh GetOutput] UpdateRegion region;
 

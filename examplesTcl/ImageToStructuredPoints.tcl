@@ -19,11 +19,11 @@ planeActor SetMapper planeMapper;
 
 
 
-vtkImageShortReader reader;
+vtkImageSeriesReader reader;
 #reader DebugOn
 reader ReleaseDataFlagOff;
 reader SwapBytesOn;
-reader SetDimensions 256 256 94 1;
+reader SetDataDimensions 256 256 94 1;
 reader SetFilePrefix "../data/fullHead/headsq";
 reader SetPixelMask 0x7fff;
 
