@@ -34,6 +34,7 @@ vtkImageConnector \
 vtkImageConstantPad \
 vtkImageExtractComponents \
 vtkImageFlip \
+vtkImageGaussianSmooth \
 vtkImageHSVToRGB \
 vtkImageLogic \
 vtkImageMathematics \
@@ -81,7 +82,6 @@ vtkTIFFWriter
 #vtkImageFeatureAnd \
 #vtkImageFourierCenter \
 #vtkImageFourierCenter1D \
-#vtkImageGaussianSmooth \
 #vtkImageGaussianSmooth1D \
 #vtkImageGaussianSource \
 #vtkImageGradient \
