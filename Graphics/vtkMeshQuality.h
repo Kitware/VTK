@@ -84,10 +84,22 @@ public:
   // VTK_QUALITY_ASPECT_RATIO, VTK_QUALITY_FROBENIUS_NORM, and VTK_QUALITY_EDGE_RATIO.
   vtkSetMacro(TriangleQualityMeasure,int);
   vtkGetMacro(TriangleQualityMeasure,int);
-  void SetTriangleQualityMeasureToRadiusRatio() { this->SetTriangleQualityMeasure( VTK_QUALITY_RADIUS_RATIO ); }
-  void SetTriangleQualityMeasureToAspectRatio() { this->SetTriangleQualityMeasure( VTK_QUALITY_ASPECT_RATIO ); }
-  void SetTriangleQualityMeasureToFrobeniusNorm() { this->SetTriangleQualityMeasure( VTK_QUALITY_FROBENIUS_NORM ); }
-  void SetTriangleQualityMeasureToEdgeRatio() { this->SetTriangleQualityMeasure( VTK_QUALITY_EDGE_RATIO ); }
+  void SetTriangleQualityMeasureToRadiusRatio()
+    {
+    this->SetTriangleQualityMeasure( VTK_QUALITY_RADIUS_RATIO );
+    }
+  void SetTriangleQualityMeasureToAspectRatio()
+    {
+    this->SetTriangleQualityMeasure( VTK_QUALITY_ASPECT_RATIO );
+    }
+  void SetTriangleQualityMeasureToFrobeniusNorm()
+    {
+    this->SetTriangleQualityMeasure( VTK_QUALITY_FROBENIUS_NORM );
+    }
+  void SetTriangleQualityMeasureToEdgeRatio()
+    {
+    this->SetTriangleQualityMeasure( VTK_QUALITY_EDGE_RATIO );
+    }
 
   // Description:
   // Set/Get the particular estimator used to measure the quality of quadrilaterals.
@@ -98,11 +110,26 @@ public:
   // quadrilateral quality with those.
   vtkSetMacro(QuadQualityMeasure,int);
   vtkGetMacro(QuadQualityMeasure,int);
-  void SetQuadQualityMeasureToRadiusRatio() { this->SetQuadQualityMeasure( VTK_QUALITY_RADIUS_RATIO ); }
-  void SetQuadQualityMeasureToAspectRatio() { this->SetQuadQualityMeasure( VTK_QUALITY_ASPECT_RATIO ); }
-  void SetQuadQualityMeasureToMedFrobeniusNorm() { this->SetQuadQualityMeasure( VTK_QUALITY_MED_FROBENIUS_NORM ); }
-  void SetQuadQualityMeasureToMaxFrobeniusNorm() { this->SetQuadQualityMeasure( VTK_QUALITY_MAX_FROBENIUS_NORM ); }
-  void SetQuadQualityMeasureToEdgeRatio() { this->SetQuadQualityMeasure( VTK_QUALITY_EDGE_RATIO ); }
+  void SetQuadQualityMeasureToRadiusRatio()
+    {
+    this->SetQuadQualityMeasure( VTK_QUALITY_RADIUS_RATIO );
+    }
+  void SetQuadQualityMeasureToAspectRatio()
+    {
+    this->SetQuadQualityMeasure( VTK_QUALITY_ASPECT_RATIO );
+    }
+  void SetQuadQualityMeasureToMedFrobeniusNorm()
+    {
+    this->SetQuadQualityMeasure( VTK_QUALITY_MED_FROBENIUS_NORM );
+    }
+  void SetQuadQualityMeasureToMaxFrobeniusNorm()
+    {
+    this->SetQuadQualityMeasure( VTK_QUALITY_MAX_FROBENIUS_NORM );
+    }
+  void SetQuadQualityMeasureToEdgeRatio()
+    {
+    this->SetQuadQualityMeasure( VTK_QUALITY_EDGE_RATIO );
+    }
 
   // Description:
   // Set/Get the particular estimator used to measure the quality of tetrahedra.
@@ -110,10 +137,22 @@ public:
   // VTK_QUALITY_ASPECT_RATIO, VTK_QUALITY_FROBENIUS_NORM, and VTK_QUALITY_EDGE_RATIO.
   vtkSetMacro(TetQualityMeasure,int);
   vtkGetMacro(TetQualityMeasure,int);
-  void SetTetQualityMeasureToRadiusRatio() { this->SetTetQualityMeasure( VTK_QUALITY_RADIUS_RATIO ); }
-  void SetTetQualityMeasureToAspectRatio() { this->SetTetQualityMeasure( VTK_QUALITY_ASPECT_RATIO ); }
-  void SetTetQualityMeasureToFrobeniusNorm() { this->SetTetQualityMeasure( VTK_QUALITY_FROBENIUS_NORM ); }
-  void SetTetQualityMeasureToEdgeRatio() { this->SetTetQualityMeasure( VTK_QUALITY_EDGE_RATIO ); }
+  void SetTetQualityMeasureToRadiusRatio()
+    {
+    this->SetTetQualityMeasure( VTK_QUALITY_RADIUS_RATIO );
+    }
+  void SetTetQualityMeasureToAspectRatio()
+    {
+    this->SetTetQualityMeasure( VTK_QUALITY_ASPECT_RATIO );
+    }
+  void SetTetQualityMeasureToFrobeniusNorm()
+    {
+    this->SetTetQualityMeasure( VTK_QUALITY_FROBENIUS_NORM );
+    }
+  void SetTetQualityMeasureToEdgeRatio()
+    {
+    this->SetTetQualityMeasure( VTK_QUALITY_EDGE_RATIO );
+    }
 
   // Description:
   // Set/Get the particular estimator used to measure the quality of hexahedra.
@@ -121,8 +160,14 @@ public:
   // VTK_QUALITY_ASPECT_RATIO.
   vtkSetMacro(HexQualityMeasure,int);
   vtkGetMacro(HexQualityMeasure,int);
-  void SetHexQualityMeasureToRadiusRatio() { this->SetHexQualityMeasure( VTK_QUALITY_RADIUS_RATIO ); }
-  void SetHexQualityMeasureToAspectRatio() { this->SetHexQualityMeasure( VTK_QUALITY_ASPECT_RATIO ); }
+  void SetHexQualityMeasureToRadiusRatio()
+    {
+    this->SetHexQualityMeasure( VTK_QUALITY_RADIUS_RATIO );
+    }
+  void SetHexQualityMeasureToAspectRatio()
+    {
+    this->SetHexQualityMeasure( VTK_QUALITY_ASPECT_RATIO );
+    }
 
   // Description:
   // This is a static function used to calculate the radius ratio of a triangle.
@@ -380,7 +425,7 @@ public:
 
 protected:
   vtkMeshQuality();
-  virtual ~vtkMeshQuality();
+  ~vtkMeshQuality();
 
   virtual void Execute();
 

@@ -21,10 +21,6 @@
  * statement of authorship are reproduced on all copies.
  */
 
-#include <vtkPoints.h>
-#include <vtkMath.h>
-#include <vtkTetra.h>
-
 #include "vtkMeshQuality.h"
 #include "vtkObjectFactory.h"
 #include "vtkDataSet.h"
@@ -33,8 +29,11 @@
 #include "vtkDoubleArray.h"
 #include "vtkCell.h"
 #include "vtkCellTypes.h"
+#include "vtkPoints.h"
+#include "vtkMath.h"
+#include "vtkTetra.h"
 
-vtkCxxRevisionMacro(vtkMeshQuality,"1.22");
+vtkCxxRevisionMacro(vtkMeshQuality,"1.23");
 vtkStandardNewMacro(vtkMeshQuality);
 
 typedef double (*CellQualityType)( vtkCell* );
@@ -49,20 +48,27 @@ const char* QualityMeasureNames[] =
   "EdgeRatio"
 };
 
-void vtkMeshQuality::PrintSelf( ostream& os, vtkIndent indent )
+void vtkMeshQuality::PrintSelf(ostream& os, vtkIndent indent )
 {
-  static const char* onStr = "On";
-  static const char* offStr = "Off";
+  const char onStr[] = "On";
+  const char offStr[] = "Off";
 
   this->Superclass::PrintSelf( os, indent );
 
-  os << indent << "SaveCellQuality:   " << (this->SaveCellQuality ? onStr : offStr) << endl;
-  os << indent << "TriangleQualityMeasure: " << QualityMeasureNames[this->TriangleQualityMeasure] << endl;
-  os << indent << "QuadQualityMeasure: " << QualityMeasureNames[this->QuadQualityMeasure] << endl;
-  os << indent << "TetQualityMeasure: " << QualityMeasureNames[this->TetQualityMeasure] << endl;
-  os << indent << "HexQualityMeasure: " << QualityMeasureNames[this->HexQualityMeasure] << endl;
-  os << indent << "Volume: " << (this->Volume ? onStr : offStr) << endl;
-  os << indent << "CompatibilityMode: " << (this->CompatibilityMode ? onStr : offStr) << endl;
+  os << indent << "SaveCellQuality:   "
+     << (this->SaveCellQuality ? onStr : offStr) << endl;
+  os << indent << "TriangleQualityMeasure: "
+     << QualityMeasureNames[this->TriangleQualityMeasure] << endl;
+  os << indent << "QuadQualityMeasure: "
+     << QualityMeasureNames[this->QuadQualityMeasure] << endl;
+  os << indent << "TetQualityMeasure: "
+     << QualityMeasureNames[this->TetQualityMeasure] << endl;
+  os << indent << "HexQualityMeasure: "
+     << QualityMeasureNames[this->HexQualityMeasure] << endl;
+  os << indent << "Volume: " 
+     << (this->Volume ? onStr : offStr) << endl;
+  os << indent << "CompatibilityMode: " 
+     << (this->CompatibilityMode ? onStr : offStr) << endl;
 }
 
 vtkMeshQuality::vtkMeshQuality()
@@ -219,7 +225,7 @@ void vtkMeshQuality::Execute()
   this->UpdateProgress( 0.01 );
   for ( p = 0; p < 20; ++p )
     {
-    for ( inner = 0; ((inner < sz) && (c < N)); ++c, ++inner )
+    for ( inner = 0; (inner < sz && c < N); ++c, ++inner )
       {
       cell = out->GetCell( c );
       V = 0.;
@@ -416,12 +422,11 @@ void vtkMeshQuality::Execute()
 
 double vtkMeshQuality::TriangleRadiusRatio( vtkCell* cell )
 {
-  vtkPoints* p;
   double p0[3],p1[3],p2[3];
   double a[3],b[3],c[3];
   double a1,b1,c1,ab;
-  
-  p = cell->GetPoints();
+ 
+  vtkPoints *p = cell->GetPoints();
   p->GetPoint(0, p0);
   p->GetPoint(1, p1);
   p->GetPoint(2, p2);
@@ -429,15 +434,15 @@ double vtkMeshQuality::TriangleRadiusRatio( vtkCell* cell )
   a[0] = p1[0]-p0[0];
   a[1] = p1[1]-p0[1];
   a[2] = p1[2]-p0[2];
-  
+ 
   b[0] = p2[0]-p1[0];
   b[1] = p2[1]-p1[1];
   b[2] = p2[2]-p1[2];
-  
+ 
   c[0] = p2[0]-p0[0];
   c[1] = p2[1]-p0[1];
   c[2] = p2[2]-p0[2];
-  
+ 
   a1 = sqrt(vtkMath::Dot(a,a));
   b1 = sqrt(vtkMath::Dot(b,b));
   c1 = sqrt(vtkMath::Dot(c,c));
@@ -450,13 +455,12 @@ double vtkMeshQuality::TriangleRadiusRatio( vtkCell* cell )
 
 double vtkMeshQuality::TriangleAspectRatio( vtkCell* cell )
 {
-  vtkPoints* p;
   double p0[3],p1[3],p2[3];
   double a[3],b[3],c[3];
   double a1,b1,c1,hm;
-  static double normal_coeff=sqrt(3.) / 6.;
-  
-  p = cell->GetPoints();
+  const double normal_coeff = sqrt(3.) / 6.;
+ 
+  vtkPoints *p = cell->GetPoints();
   p->GetPoint(0, p0);
   p->GetPoint(1, p1);
   p->GetPoint(2, p2);
@@ -464,15 +468,15 @@ double vtkMeshQuality::TriangleAspectRatio( vtkCell* cell )
   a[0] = p1[0]-p0[0];
   a[1] = p1[1]-p0[1];
   a[2] = p1[2]-p0[2];
-  
+ 
   b[0] = p2[0]-p1[0];
   b[1] = p2[1]-p1[1];
   b[2] = p2[2]-p1[2];
-  
+ 
   c[0] = p2[0]-p0[0];
   c[1] = p2[1]-p0[1];
   c[2] = p2[2]-p0[2];
-  
+ 
   a1 = sqrt(vtkMath::Dot(a,a));
   b1 = sqrt(vtkMath::Dot(b,b));
   c1 = sqrt(vtkMath::Dot(c,c));
@@ -487,13 +491,12 @@ double vtkMeshQuality::TriangleAspectRatio( vtkCell* cell )
 
 double vtkMeshQuality::TriangleFrobeniusNorm( vtkCell* cell )
 {
-  vtkPoints* p;
   double p0[3],p1[3],p2[3];
   double a[3],b[3],c[3];
   double t22;
-  static double normal_coeff=.5 / sqrt(3.);
-  
-  p = cell->GetPoints();
+  const double normal_coeff = .5 / sqrt(3.);
+ 
+  vtkPoints *p = cell->GetPoints();
   p->GetPoint(0, p0);
   p->GetPoint(1, p1);
   p->GetPoint(2, p2);
@@ -501,15 +504,15 @@ double vtkMeshQuality::TriangleFrobeniusNorm( vtkCell* cell )
   a[0] = p1[0]-p0[0];
   a[1] = p1[1]-p0[1];
   a[2] = p1[2]-p0[2];
-  
+ 
   b[0] = p2[0]-p1[0];
   b[1] = p2[1]-p1[1];
   b[2] = p2[2]-p1[2];
-  
+ 
   c[0] = p2[0]-p0[0];
   c[1] = p2[1]-p0[1];
   c[2] = p2[2]-p0[2];
-  
+ 
   t22  = vtkMath::Dot(a,a);
   t22 += vtkMath::Dot(b,b);
   t22 += vtkMath::Dot(c,c);
@@ -521,12 +524,11 @@ double vtkMeshQuality::TriangleFrobeniusNorm( vtkCell* cell )
 
 double vtkMeshQuality::TriangleEdgeRatio( vtkCell* cell )
 {
-  vtkPoints* p;
   double p0[3],p1[3],p2[3];
   double a[3],b[3],c[3];
   double a2,b2,c2,m2,M2;
-  
-  p = cell->GetPoints();
+ 
+  vtkPoints *p = cell->GetPoints();
   p->GetPoint(0, p0);
   p->GetPoint(1, p1);
   p->GetPoint(2, p2);
@@ -534,15 +536,15 @@ double vtkMeshQuality::TriangleEdgeRatio( vtkCell* cell )
   a[0] = p1[0]-p0[0];
   a[1] = p1[1]-p0[1];
   a[2] = p1[2]-p0[2];
-  
+ 
   b[0] = p2[0]-p1[0];
   b[1] = p2[1]-p1[1];
   b[2] = p2[2]-p1[2];
-  
+ 
   c[0] = p2[0]-p0[0];
   c[1] = p2[1]-p0[1];
   c[2] = p2[2]-p0[2];
-  
+ 
   a2 = vtkMath::Dot(a,a);
   b2 = vtkMath::Dot(b,b);
   c2 = vtkMath::Dot(c,c);
@@ -595,15 +597,14 @@ double vtkMeshQuality::TriangleEdgeRatio( vtkCell* cell )
 
 double vtkMeshQuality::QuadRadiusRatio( vtkCell* cell )
 {
-  vtkPoints* p;
   double p0[3],p1[3],p2[3],p3[3];
   double a[3],b[3],c[3],d[3],m[3],n[3];
   double ab[3],bc[3],cd[3],da[3];
   double a2,b2,c2,d2,m2,n2,h2;
   double t0,t1,t2,t3;
-  static double normal_coeff=1. / (2.*sqrt(2.));
-  
-  p = cell->GetPoints();
+  const double normal_coeff = 1. / (2.*sqrt(2.));
+ 
+  vtkPoints *p = cell->GetPoints();
   p->GetPoint(0, p0);
   p->GetPoint(1, p1);
   p->GetPoint(2, p2);
@@ -612,27 +613,27 @@ double vtkMeshQuality::QuadRadiusRatio( vtkCell* cell )
   a[0] = p1[0]-p0[0];
   a[1] = p1[1]-p0[1];
   a[2] = p1[2]-p0[2];
-  
+ 
   b[0] = p2[0]-p1[0];
   b[1] = p2[1]-p1[1];
   b[2] = p2[2]-p1[2];
-  
+ 
   c[0] = p3[0]-p2[0];
   c[1] = p3[1]-p2[1];
   c[2] = p3[2]-p2[2];
-  
+ 
   d[0] = p0[0]-p3[0];
   d[1] = p0[1]-p3[1];
   d[2] = p0[2]-p3[2];
-  
+ 
   m[0] = p2[0]-p0[0];
   m[1] = p2[1]-p0[1];
   m[2] = p2[2]-p0[2];
-  
+ 
   n[0] = p3[0]-p1[0];
   n[1] = p3[1]-p1[1];
   n[2] = p3[2]-p1[2];
-  
+ 
   a2 = vtkMath::Dot(a,a);
   b2 = vtkMath::Dot(b,b);
   c2 = vtkMath::Dot(c,c);
@@ -665,13 +666,12 @@ double vtkMeshQuality::QuadRadiusRatio( vtkCell* cell )
 
 double vtkMeshQuality::QuadAspectRatio( vtkCell* cell )
 {
-  vtkPoints* p;
   double p0[3],p1[3],p2[3],p3[3];
   double a[3],b[3],c[3],d[3],ab[3],cd[3];
   double a1,b1,c1,d1;
   double ma,mb,hm;
-  
-  p = cell->GetPoints();
+ 
+  vtkPoints *p = cell->GetPoints();
   p->GetPoint(0, p0);
   p->GetPoint(1, p1);
   p->GetPoint(2, p2);
@@ -680,19 +680,19 @@ double vtkMeshQuality::QuadAspectRatio( vtkCell* cell )
   a[0] = p1[0]-p0[0];
   a[1] = p1[1]-p0[1];
   a[2] = p1[2]-p0[2];
-  
+ 
   b[0] = p2[0]-p1[0];
   b[1] = p2[1]-p1[1];
   b[2] = p2[2]-p1[2];
-  
+ 
   c[0] = p3[0]-p2[0];
   c[1] = p3[1]-p2[1];
   c[2] = p3[2]-p2[2];
-  
+ 
   d[0] = p0[0]-p3[0];
   d[1] = p0[1]-p3[1];
   d[2] = p0[2]-p3[2];
-  
+ 
   a1 = sqrt(vtkMath::Dot(a,a));
   b1 = sqrt(vtkMath::Dot(b,b));
   c1 = sqrt(vtkMath::Dot(c,c));
@@ -710,13 +710,12 @@ double vtkMeshQuality::QuadAspectRatio( vtkCell* cell )
 
 double vtkMeshQuality::QuadMedFrobeniusNorm( vtkCell* cell )
 {
-  vtkPoints* p;
   double p0[3],p1[3],p2[3],p3[3];
   double a[3],b[3],c[3],d[3],ab[3],bc[3],cd[3],da[3];
   double a2,b2,c2,d2;
   double kappa2;
-  
-  p = cell->GetPoints();
+ 
+  vtkPoints *p = cell->GetPoints();
   p->GetPoint(0, p0);
   p->GetPoint(1, p1);
   p->GetPoint(2, p2);
@@ -725,19 +724,19 @@ double vtkMeshQuality::QuadMedFrobeniusNorm( vtkCell* cell )
   a[0] = p1[0]-p0[0];
   a[1] = p1[1]-p0[1];
   a[2] = p1[2]-p0[2];
-  
+ 
   b[0] = p2[0]-p1[0];
   b[1] = p2[1]-p1[1];
   b[2] = p2[2]-p1[2];
-  
+ 
   c[0] = p3[0]-p2[0];
   c[1] = p3[1]-p2[1];
   c[2] = p3[2]-p2[2];
-  
+ 
   d[0] = p0[0]-p3[0];
   d[1] = p0[1]-p3[1];
   d[2] = p0[2]-p3[2];
-  
+ 
   vtkMath::Cross(a,b,ab);
   vtkMath::Cross(b,c,bc);
   vtkMath::Cross(c,d,cd);
@@ -758,13 +757,12 @@ double vtkMeshQuality::QuadMedFrobeniusNorm( vtkCell* cell )
 
 double vtkMeshQuality::QuadMaxFrobeniusNorm( vtkCell* cell )
 {
-  vtkPoints* p;
   double p0[3],p1[3],p2[3],p3[3];
   double a[3],b[3],c[3],d[3],ab[3],bc[3],cd[3],da[3];
   double a2,b2,c2,d2;
   double kmax,kcur;
-  
-  p = cell->GetPoints();
+ 
+  vtkPoints *p = cell->GetPoints();
   p->GetPoint(0, p0);
   p->GetPoint(1, p1);
   p->GetPoint(2, p2);
@@ -773,19 +771,19 @@ double vtkMeshQuality::QuadMaxFrobeniusNorm( vtkCell* cell )
   a[0] = p1[0]-p0[0];
   a[1] = p1[1]-p0[1];
   a[2] = p1[2]-p0[2];
-  
+ 
   b[0] = p2[0]-p1[0];
   b[1] = p2[1]-p1[1];
   b[2] = p2[2]-p1[2];
-  
+ 
   c[0] = p3[0]-p2[0];
   c[1] = p3[1]-p2[1];
   c[2] = p3[2]-p2[2];
-  
+ 
   d[0] = p0[0]-p3[0];
   d[1] = p0[1]-p3[1];
   d[2] = p0[2]-p3[2];
-  
+ 
   vtkMath::Cross(a,b,ab);
   vtkMath::Cross(b,c,bc);
   vtkMath::Cross(c,d,cd);
@@ -812,12 +810,11 @@ double vtkMeshQuality::QuadMaxFrobeniusNorm( vtkCell* cell )
 
 double vtkMeshQuality::QuadEdgeRatio( vtkCell* cell )
 {
-  vtkPoints* p;
   double p0[3],p1[3],p2[3],p3[3];
   double a[3],b[3],c[3],d[3];
   double a2,b2,c2,d2,mab,Mab,mcd,Mcd,m2,M2;
-  
-  p = cell->GetPoints();
+ 
+  vtkPoints *p = cell->GetPoints();
   p->GetPoint(0, p0);
   p->GetPoint(1, p1);
   p->GetPoint(2, p2);
@@ -826,19 +823,19 @@ double vtkMeshQuality::QuadEdgeRatio( vtkCell* cell )
   a[0] = p1[0]-p0[0];
   a[1] = p1[1]-p0[1];
   a[2] = p1[2]-p0[2];
-  
+ 
   b[0] = p2[0]-p1[0];
   b[1] = p2[1]-p1[1];
   b[2] = p2[2]-p1[2];
-  
+ 
   c[0] = p3[0]-p2[0];
   c[1] = p3[1]-p2[1];
   c[2] = p3[2]-p2[2];
-  
+ 
   d[0] = p0[0]-p3[0];
   d[1] = p0[1]-p3[1];
   d[2] = p0[2]-p3[2];
-  
+ 
   a2 = vtkMath::Dot(a,a);
   b2 = vtkMath::Dot(b,b);
   c2 = vtkMath::Dot(c,c);
@@ -885,13 +882,12 @@ double TetVolume( vtkCell* cell )
 
 double vtkMeshQuality::TetRadiusRatio( vtkCell* cell )
 {
-  vtkPoints* p;
   double p0[3],p1[3],p2[3],p3[3];
   double ab[3],bc[3],ac[3],ad[3],bd[3],cd[3],u[3];
   double abc,abd,acd,bcd,a,b,c,det;
-  static double normal_coeff=1. / 12.;
-  
-  p = cell->GetPoints();
+  const double normal_coeff = 1. / 12.;
+
+  vtkPoints *p = cell->GetPoints();
   p->GetPoint(0, p0);
   p->GetPoint(1, p1);
   p->GetPoint(2, p2);
@@ -900,23 +896,23 @@ double vtkMeshQuality::TetRadiusRatio( vtkCell* cell )
   ab[0] = p1[0]-p0[0];
   ab[1] = p1[1]-p0[1];
   ab[2] = p1[2]-p0[2];
-  
+ 
   bc[0] = p2[0]-p1[0];
   bc[1] = p2[1]-p1[1];
   bc[2] = p2[2]-p1[2];
-  
+ 
   ac[0] = p2[0]-p0[0];
   ac[1] = p2[1]-p0[1];
   ac[2] = p2[2]-p0[2];
-  
+ 
   ad[0] = p3[0]-p0[0];
   ad[1] = p3[1]-p0[1];
   ad[2] = p3[2]-p0[2];
-  
+ 
   bd[0] = p3[0]-p1[0];
   bd[1] = p3[1]-p1[1];
   bd[2] = p3[2]-p1[2];
-  
+ 
   cd[0] = p3[0]-p2[0];
   cd[1] = p3[1]-p2[1];
   cd[2] = p3[2]-p2[2];
@@ -942,14 +938,13 @@ double vtkMeshQuality::TetRadiusRatio( vtkCell* cell )
 
 double vtkMeshQuality::TetAspectRatio( vtkCell* cell )
 {
-  vtkPoints* p;
   double p0[3],p1[3],p2[3],p3[3];
   double ab[3],bc[3],ac[3],ad[3],bd[3],cd[3];
   double t0,t1,t2,t3,t4,t5;
   double ma,mb,mc,hm;
-  static double normal_coeff=sqrt(6.) / 12.;
-  
-  p = cell->GetPoints();
+  const double normal_coeff = sqrt(6.) / 12.;
+ 
+  vtkPoints *p = cell->GetPoints();
   p->GetPoint(0, p0);
   p->GetPoint(1, p1);
   p->GetPoint(2, p2);
@@ -958,23 +953,23 @@ double vtkMeshQuality::TetAspectRatio( vtkCell* cell )
   ab[0] = p1[0]-p0[0];
   ab[1] = p1[1]-p0[1];
   ab[2] = p1[2]-p0[2];
-  
+
   bc[0] = p2[0]-p1[0];
   bc[1] = p2[1]-p1[1];
   bc[2] = p2[2]-p1[2];
-  
+ 
   ac[0] = p2[0]-p0[0];
   ac[1] = p2[1]-p0[1];
   ac[2] = p2[2]-p0[2];
-  
+ 
   ad[0] = p3[0]-p0[0];
   ad[1] = p3[1]-p0[1];
   ad[2] = p3[2]-p0[2];
-  
+ 
   bd[0] = p3[0]-p1[0];
   bd[1] = p3[1]-p1[1];
   bd[2] = p3[2]-p1[2];
-  
+ 
   cd[0] = p3[0]-p2[0];
   cd[1] = p3[1]-p2[1];
   cd[2] = p3[2]-p2[2];
@@ -1002,19 +997,18 @@ double vtkMeshQuality::TetAspectRatio( vtkCell* cell )
   t3 = vtkMath::Norm(bd);
 
   t4 = fabs(vtkMath::Determinant3x3(ab,ac,ad));
-  
+ 
   return normal_coeff * hm * (t0 + t1 + t2 + t3) / t4;
 }
 
 double vtkMeshQuality::TetFrobeniusNorm( vtkCell* cell )
 {
-  vtkPoints* p;
   double p0[3],p1[3],p2[3],p3[3];
   double u[3],v[3],w[3];
   double numerator,radicand;
-  static double normal_exp=1./3.;
-  
-  p = cell->GetPoints();
+  const double normal_exp = 1./3.;
+ 
+  vtkPoints *p = cell->GetPoints();
   p->GetPoint(0, p0);
   p->GetPoint(1, p1);
   p->GetPoint(2, p2);
@@ -1023,11 +1017,11 @@ double vtkMeshQuality::TetFrobeniusNorm( vtkCell* cell )
   u[0] = p1[0]-p0[0];
   u[1] = p1[1]-p0[1];
   u[2] = p1[2]-p0[2];
-  
+ 
   v[0] = p2[0]-p0[0];
   v[1] = p2[1]-p0[1];
   v[2] = p2[2]-p0[2];
-  
+ 
   w[0] = p3[0]-p0[0];
   w[1] = p3[1]-p0[1];
   w[2] = p3[2]-p0[2];
@@ -1049,13 +1043,12 @@ double vtkMeshQuality::TetFrobeniusNorm( vtkCell* cell )
 
 double vtkMeshQuality::TetEdgeRatio( vtkCell* cell )
 {
-  vtkPoints* p;
   double p0[3],p1[3],p2[3],p3[3];
   double u[3],v[3],w[3],x[3],y[3],z[3];
   double a2,b2,c2,d2,e2,f2;
   double m2,M2,mab,mcd,mef,Mab,Mcd,Mef;
-  
-  p = cell->GetPoints();
+ 
+  vtkPoints *p = cell->GetPoints();
   p->GetPoint(0, p0);
   p->GetPoint(1, p1);
   p->GetPoint(2, p2);
@@ -1064,23 +1057,23 @@ double vtkMeshQuality::TetEdgeRatio( vtkCell* cell )
   u[0] = p1[0]-p0[0];
   u[1] = p1[1]-p0[1];
   u[2] = p1[2]-p0[2];
-  
+ 
   v[0] = p2[0]-p1[0];
   v[1] = p2[1]-p1[1];
   v[2] = p2[2]-p1[2];
-  
+ 
   w[0] = p2[0]-p0[0];
   w[1] = p2[1]-p0[1];
   w[2] = p2[2]-p0[2];
-  
+ 
   x[0] = p3[0]-p0[0];
   x[1] = p3[1]-p0[1];
   x[2] = p3[2]-p0[2];
-  
+ 
   y[0] = p3[0]-p1[0];
   y[1] = p3[1]-p1[1];
   y[2] = p3[2]-p1[2];
-  
+ 
   z[0] = p3[0]-p2[0];
   z[1] = p3[1]-p2[1];
   z[2] = p3[2]-p2[2];
