@@ -10,16 +10,48 @@ source $VTK_TCL/vtkInt.tcl
 
 
 vtkSphereSource sphere
-  sphere SetThetaResolution 6
-  sphere SetPhiResolution 5
+  sphere SetThetaResolution 4
+  sphere SetPhiResolution 3
+
+
 
 vtkQuadricDecimation deci
   deci SetInput [sphere GetOutput]
 # max cost set to large number to ensure that we reach the maximum number of
 # collapsed edges we set
-  deci SetMaximumCost 1000
+  deci SetMaximumCost 1000000
   deci SetMaximumCollapsedEdges 1
-  deci DebugOn
+#  deci DebugOn
+
+
+vtkExtractEdges edges
+  edges SetInput [deci GetOutput]
+
+vtkTubeFilter tuber1
+  tuber1 SetInput [edges GetOutput]
+  tuber1 SetNumberOfSides 8
+  tuber1 SetRadius 0.01
+
+vtkPolyDataMapper tubeMapper1
+  tubeMapper1 SetInput [tuber1 GetOutput]
+  
+vtkActor tubeActor1
+  tubeActor1 SetMapper tubeMapper1
+  [tubeActor1 GetProperty] SetColor 0 0 1
+
+
+
+vtkTubeFilter tuber
+  tuber SetInput [deci GetTestOutput]
+  tuber SetNumberOfSides 8
+  tuber SetRadius 0.02
+
+vtkPolyDataMapper tubeMapper
+  tubeMapper SetInput [tuber GetOutput]
+  
+vtkActor tubeActor
+  tubeActor SetMapper tubeMapper
+  [tubeActor GetProperty] SetColor 1 0 0
 
 # ------------------- Create the UI ---------------------
 
@@ -88,5 +120,7 @@ vtkActor actor
 # Add the actors to the renderer, set the background and size
 #
 ren1 AddActor actor
+ren1 AddActor tubeActor1
+ren1 AddActor tubeActor
 
 ren1 SetBackground 1 1 1
