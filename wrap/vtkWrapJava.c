@@ -692,6 +692,13 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
 	    data->ClassName);
   fprintf(fp,"\n}\n");
 
+  /* for vtkRenderWindow we want to add a special method to support */
+  /* native AWT rendering */
+  if (!strcmp("vtkRenderWindow",data->ClassName))
+    {
+    fprintf(fp,"\n#include \"vtkJavaAwt.h\"\n\n");
+    }
+  
   if (!strcmp("vtkObject",data->ClassName))
     {
     fprintf(fp,"\nextern \"C\" JNIEXPORT jstring JNICALL Java_vtk_vtkObject_Print(JNIEnv *env,jobject obj)\n");
