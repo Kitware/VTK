@@ -53,5 +53,10 @@ int PushTest( int argc, char *argv[] )
   pp->AddPusher(reader);
   pp->Run(reader);
 
+  iv->Delete();
+  pp->Delete();
+  reader->Delete();
+  reader2->Delete();
+  
   return (PTCallback::count != 23);
 }

@@ -24,7 +24,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkCoordinate.h"
 
-vtkCxxRevisionMacro(vtkScalarBarWidget, "1.2");
+vtkCxxRevisionMacro(vtkScalarBarWidget, "1.3");
 vtkStandardNewMacro(vtkScalarBarWidget);
 
 vtkScalarBarWidget::vtkScalarBarWidget()
@@ -190,9 +190,9 @@ int vtkScalarBarWidget::ComputeStateBasedOnPosition(int X, int Y,
   return Result;
 }
 
-void vtkScalarBarWidget::SetCursor(int State)
+void vtkScalarBarWidget::SetCursor(int cState)
 {
-  switch (State)
+  switch (cState)
     {
     case vtkScalarBarWidget::AdjustingP1:
       this->Interactor->GetRenderWindow()->SetCurrentCursor(VTK_CURSOR_SIZESW);
@@ -274,34 +274,34 @@ void vtkScalarBarWidget::OnMouseMove()
       ->GetComputedDisplayValue(this->CurrentRenderer);
     pos2 = this->ScalarBarActor->GetPosition2Coordinate()
       ->GetComputedDisplayValue(this->CurrentRenderer);
-    }
   
-  if (this->State == vtkScalarBarWidget::Outside)
-    {
-    // if we are not over the scalar bar, ignore
-    if (X < pos1[0] || X > pos2[0] ||
-        Y < pos1[1] || Y > pos2[1])
+    if (this->State == vtkScalarBarWidget::Outside)
       {
+      // if we are not over the scalar bar, ignore
+      if (X < pos1[0] || X > pos2[0] ||
+          Y < pos1[1] || Y > pos2[1])
+        {
+        return;
+        }
+      // otherwise change our state to inside
+      this->State = vtkScalarBarWidget::Inside;
+      }
+  
+    // if inside, set the cursor to the correct shape
+    if (this->State == vtkScalarBarWidget::Inside)
+      {
+      // if we have left then change cursor back to default
+      if (X < pos1[0] || X > pos2[0] ||
+          Y < pos1[1] || Y > pos2[1])
+        {
+        this->State = vtkScalarBarWidget::Outside;
+        this->Interactor->GetRenderWindow()->SetCurrentCursor(VTK_CURSOR_DEFAULT);
+        return;
+        }
+      // adjust the cursor based on our position
+      this->SetCursor(this->ComputeStateBasedOnPosition(X,Y,pos1,pos2));
       return;
       }
-    // otherwise change our state to inside
-    this->State = vtkScalarBarWidget::Inside;
-    }
-  
-  // if inside, set the cursor to the correct shape
-  if (this->State == vtkScalarBarWidget::Inside)
-    {
-    // if we have left then change cursor back to default
-    if (X < pos1[0] || X > pos2[0] ||
-        Y < pos1[1] || Y > pos2[1])
-      {
-      this->State = vtkScalarBarWidget::Outside;
-      this->Interactor->GetRenderWindow()->SetCurrentCursor(VTK_CURSOR_DEFAULT);
-      return;
-      }
-    // adjust the cursor based on our position
-    this->SetCursor(this->ComputeStateBasedOnPosition(X,Y,pos1,pos2));
-    return;
     }
   
   float XF = X;
@@ -433,3 +433,9 @@ void vtkScalarBarWidget::OnLeftButtonUp()
 
 
 
+void vtkScalarBarWidget::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
+  
+  os << indent << "ScalarBarActor: " << this->ScalarBarActor << "\n";
+}

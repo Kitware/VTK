@@ -103,7 +103,7 @@ public:
   vtkPushPipeline *PushPipeline;
 };
 
-vtkCxxRevisionMacro(vtkPushPipeline, "1.5");
+vtkCxxRevisionMacro(vtkPushPipeline, "1.6");
 vtkStandardNewMacro(vtkPushPipeline);
 
 vtkPushPipeline::vtkPushPipeline()
@@ -442,6 +442,7 @@ void vtkPushPipeline::Run(vtkSource *pusher)
       {
       this->RunState = 3;
       }
+    pmi->Delete();
     }
   // remove the observer now that we are done running
   pusher->RemoveObserver(tag);

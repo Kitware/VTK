@@ -42,6 +42,7 @@ class VTK_HYBRID_EXPORT vtkScalarBarWidget : public vtkInteractorObserver
 public:
   static vtkScalarBarWidget *New();
   vtkTypeRevisionMacro(vtkScalarBarWidget,vtkInteractorObserver);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Get the ScalarBar used by this Widget. One is created automatically.
