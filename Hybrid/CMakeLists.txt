@@ -13,6 +13,7 @@ vtkImageToPolyDataFilter
 vtkIterativeClosestPointTransform
 vtkLandmarkTransform 
 vtkLegendBoxActor 
+vtkLineWidget
 vtkPCAAnalysisFilter
 vtkPolyDataToImageStencil
 vtkProcrustesAlignmentFilter
