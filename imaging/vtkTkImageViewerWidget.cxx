@@ -5,7 +5,6 @@
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
-  Thanks:    Thanks to C. Charles Law who developed this class.
 
 
 Copyright (c) 1993-1996 Ken Martin, Will Schroeder, Bill Lorensen.
@@ -365,7 +364,7 @@ LRESULT APIENTRY vtkTkImageViewerWidgetProc(HWND hWnd, UINT message,
 
     if (message != WM_PAINT)
       {
-      SetWindowLong(hWnd,GWL_USERDATA,(LONG)self->ImageViewerWindow);
+      SetWindowLong(hWnd,GWL_USERDATA,(LONG)self->ImageViewer);
       SetWindowLong(hWnd,GWL_WNDPROC,(LONG)self->OldProc);
       self->OldProc(hWnd,message,wParam,lParam);
       }
@@ -385,7 +384,7 @@ static int vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget 
   TkWindow *winPtr2;
   Tcl_HashEntry *hPtr;
   int new_flag;
-  vtkWin32ImageViewer *ImageViewer;
+  vtkImageWin32Viewer *ImageViewer;
   TkWinDrawable *twdPtr;
   HWND parentWin;
 
@@ -403,9 +402,9 @@ static int vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget 
     {
     // Make the ImageViewer window.
     self->ImageViewer = vtkImageViewer::New();
-    ImageViewer = (vtkWin32ImageViewer *)(self->ImageViewer);
+    ImageViewer = (vtkImageWin32Viewer *)(self->ImageViewer);
     vtkTclGetObjectFromPointer(self->Interp, self->ImageViewer,
-			       vtkImageViewerWindowCommand);
+			       vtkImageViewerCommand);
     self->IV = strdup(self->Interp->result);
     self->Interp->result[0] = '\0';
     }
@@ -413,7 +412,7 @@ static int vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget 
     {
     self->ImageViewer = (vtkImageViewer *)
       vtkTclGetPointerFromObject(self->IV, "vtkImageViewer", self->Interp);
-    ImageViewer = (vtkWin32ImageViewer *)(self->ImageViewer);
+    ImageViewer = (vtkImageWin32Viewer *)(self->ImageViewer);
     }
   
   // Set the size
