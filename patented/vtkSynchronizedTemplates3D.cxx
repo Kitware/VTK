@@ -607,50 +607,54 @@ void vtkSynchronizedTemplates3D::ThreadedExecute(vtkImageData *data,
 //----------------------------------------------------------------------------
 void vtkSynchronizedTemplates3D::ExecuteInformation()
 {
-  vtkImageData *input = this->GetInput();
-  int *ext, dims[3];
-  long numPts, numTris;
-  long sizePt, sizeTri;
+  // Most of this is to compute estimated whole size. Need to
+  // convert to update size, and move to another method. The last
+  // line which sets the maximum number of pieces of the output is
+  // the only necessary thing in here.
 
-  // swag at the output memory size
-  // Outside surface.
-  ext = input->GetWholeExtent();
-  dims[0] = ext[1] - ext[0] + 1;
-  dims[1] = ext[3] - ext[2] + 1;
-  dims[2] = ext[5] - ext[4] + 1;
-  numPts = 2 * (dims[0]*dims[1] + dims[0]*dims[2] + dims[1]*dims[2]);
-  numTris = numPts * 2;
-  // Determine the memory for each point and triangle.
-  sizeTri = 4 * sizeof(int);
-  sizePt = 3 * sizeof(float);
-  if (this->ComputeNormals)
-    {
-    sizePt += 3 * sizeof(float);
-    }
-  if (this->ComputeGradients)
-    {
-    sizePt += 3 * sizeof(float);
-    }
-  if (this->ComputeScalars)
-    {
-    sizePt += sizeof(float);
-    }
-  // Set the whole output estimated memory size in kBytes.
-  // be careful not to overflow.
-  numTris = numTris / 1000;
-  if (numTris == 0)
-    {
-    numTris = 1;
-    }
-  numPts = numPts / 1000;
-  if (numPts == 0)
-    {
-    numPts = 1;
-    }
-  //  this->GetOutput()->SetEstimatedWholeMemorySize(
-  //    numTris*sizeTri + numPts*sizePt);
+  //  vtkImageData *input = this->GetInput();
+  //  int *ext, dims[3];
+  //  long numPts, numTris;
+  //  long sizePt, sizeTri;
 
-  // do this better in the future
+  //  // swag at the output memory size
+  //  // Outside surface.
+  //  ext = input->GetWholeExtent();
+  //  dims[0] = ext[1] - ext[0] + 1;
+  //  dims[1] = ext[3] - ext[2] + 1;
+  //  dims[2] = ext[5] - ext[4] + 1;
+  //  numPts = 2 * (dims[0]*dims[1] + dims[0]*dims[2] + dims[1]*dims[2]);
+  //  numTris = numPts * 2;
+  //  // Determine the memory for each point and triangle.
+  //  sizeTri = 4 * sizeof(int);
+  //  sizePt = 3 * sizeof(float);
+  //  if (this->ComputeNormals)
+  //    {
+  //    sizePt += 3 * sizeof(float);
+  //    }
+  //  if (this->ComputeGradients)
+  //    {
+  //    sizePt += 3 * sizeof(float);
+  //    }
+  //  if (this->ComputeScalars)
+  //    {
+  //    sizePt += sizeof(float);
+  //    }
+  //  // Set the whole output estimated memory size in kBytes.
+  //  // be careful not to overflow.
+  //  numTris = numTris / 1000;
+  //  if (numTris == 0)
+  //    {
+  //    numTris = 1;
+  //    }
+  //  numPts = numPts / 1000;
+  //  if (numPts == 0)
+  //    {
+  //    numPts = 1;
+  //    }
+  //  //  this->GetOutput()->SetEstimatedWholeMemorySize(
+  //  //    numTris*sizeTri + numPts*sizePt);
+
   this->GetOutput()->SetMaximumNumberOfPieces(1000);
 }
 

@@ -96,7 +96,6 @@ void vtkImageDataStreamer::TriggerAsynchronousUpdate()
 //----------------------------------------------------------------------------
 void vtkImageDataStreamer::UpdateData(vtkDataObject *out)
 {
-  int            idx;
   unsigned long  inputMemorySize, newSize;
   vtkImageData   *input = this->GetInput();
   vtkImageData   *output = (vtkImageData*)out;

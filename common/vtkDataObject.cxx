@@ -108,7 +108,7 @@ vtkDataObject::~vtkDataObject()
 // Determine the modified time of this object
 unsigned long int vtkDataObject::GetMTime()
 {
-  unsigned long result, t2;
+  unsigned long result;
 
   result = vtkObject::GetMTime();
   if ( this->FieldData )

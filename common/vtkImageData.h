@@ -302,7 +302,7 @@ public:
   // the correct version of SetExtent rather than just doing a memcpy.
   virtual void ModifyExtentForUpdateExtent();
 
-  void SetMemoryLimit( int x ) 
+  void SetMemoryLimit( int vtkNotUsed(x) ) 
     { vtkErrorMacro( << "Memory limit no longer supported - use streamer" ); };
 
   int GetMemoryLimit() { return 0; };

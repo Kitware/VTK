@@ -344,6 +344,10 @@ public:
   void GetUpdateExtent(int &piece, int &numPieces);
 
   // Description:
+  // We need this here to avoid hiding superclass method
+  vtkGetVector6Macro( UpdateExtent, int );
+
+  // Description:
   // Call superclass method to avoid hiding
   // Since this data type does not use 3D extents, this set method
   // is useless but necessary since vtkDataSetToDataSetFilter does not

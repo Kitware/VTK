@@ -211,7 +211,7 @@ unsigned long vtkRendererSource::GetMTime()
 // Consider renderer for PiplineMTime
 void vtkRendererSource::UpdateInformation()
 {
-  unsigned long t1, t2, size;
+  unsigned long t1, t2;
   vtkStructuredPoints *output = this->GetOutput();
   vtkRenderer *ren = this->GetInput();
   vtkActorCollection *actors;
@@ -240,7 +240,6 @@ void vtkRendererSource::UpdateInformation()
   output->SetWholeExtent(0, x2-x1, 0, y2-y1, 0, 0);
   output->SetScalarType(VTK_UNSIGNED_CHAR);
   output->SetNumberOfScalarComponents(3);
-  size = 1 + (unsigned long)((x2-x1+1) * (y2-y1+1) / 1000);
   
   // Update information on the input and
   // compute information that is general to vtkDataObject.
