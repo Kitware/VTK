@@ -146,10 +146,15 @@ void vtkContourValues::GenerateValues(int numContours, float range[2])
   float val, incr;
   int i;
 
-  numContours = (numContours < 2 ? 2 : numContours);
   this->SetNumberOfContours(numContours);
-
-  incr = (range[1] - range[0]) / (numContours-1);
+  if (numContours == 1)
+    {
+    incr = 0;
+    }
+  else
+    {
+    incr = (range[1] - range[0]) / (numContours-1);
+    }
   for (i=0, val=range[0]; i < numContours; i++, val+=incr)
     {
     this->SetValue(i,val);
