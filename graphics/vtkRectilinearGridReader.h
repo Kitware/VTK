@@ -68,6 +68,8 @@ public:
   // Description:
   // Get and set the output of this reader.
   vtkRectilinearGrid *GetOutput();
+  vtkRectilinearGrid *GetOutput(int idx)
+    {return (vtkRectilinearGrid *) this->vtkSource::GetOutput(idx); };
   void SetOutput(vtkRectilinearGrid *output);
 
 protected:

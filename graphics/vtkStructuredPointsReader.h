@@ -68,6 +68,8 @@ public:
   // Description:
   // Set/Get the output of this reader.
   void SetOutput(vtkStructuredPoints *output);
+  vtkStructuredPoints *GetOutput(int idx)
+    {return (vtkStructuredPoints *) this->vtkSource::GetOutput(idx); };
   vtkStructuredPoints *GetOutput();
   
 protected:

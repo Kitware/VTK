@@ -68,6 +68,8 @@ public:
   // Description:
   // Get the output of this reader.
   vtkUnstructuredGrid *GetOutput();
+  vtkUnstructuredGrid *GetOutput(int idx)
+    {return (vtkUnstructuredGrid *) this->vtkSource::GetOutput(idx); };
   void SetOutput(vtkUnstructuredGrid *output);
   
 protected:

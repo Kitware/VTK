@@ -68,6 +68,8 @@ public:
   // Description:
   // Get the output of this reader.
   vtkPolyData *GetOutput();
+  vtkPolyData *GetOutput(int idx)
+    {return (vtkPolyData *) this->vtkSource::GetOutput(idx); };
   void SetOutput(vtkPolyData *output);
 
 protected:

@@ -68,6 +68,8 @@ public:
   // Description:
   // Get the output field of this reader.
   vtkDataObject *GetOutput();
+  vtkDataObject *GetOutput(int idx)
+    {return this->vtkSource::GetOutput(idx); };
   void SetOutput(vtkDataObject *);
   
 protected:
