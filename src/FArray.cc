@@ -126,7 +126,7 @@ float *vlFloatArray::Resize(const int sz)
 
   if ( (newArray = new float[newSize]) == 0 )
     { 
-    cerr << "Cannot allocate memory\n";
+    vlErrorMacro(<< "Cannot allocate memory\n");
     return 0;
     }
 

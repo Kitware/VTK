@@ -34,32 +34,22 @@ vlObject::~vlObject()
 {
   if (this->RefCount > 0)
     {
-    cerr << this->GetClassName()
-         <<": Trying to delete object with non-zero refCount\n\n";
+    vlErrorMacro(<<": Trying to delete object with non-zero refCount\n\n");
     }
-  if (this->Debug)
-    {
-    cerr << this->GetClassName() << " " << this <<", Destructing!\n\n";
-    }
+
+  vlDebugMacro(<< this <<", Destructing!\n\n");
 }
 
 void vlObject::Register(void *p)
 {
   this->RefCount++;
-  if ( this->Debug )
-    {
-    cerr << this->GetClassName() << " " << this
-         << ", Registered by " << (void *)p << "\n\n";
-    }
+  vlDebugMacro(<< this << ", Registered by " << (void *)p << "\n\n");
 }
 
 void vlObject::UnRegister(void *p)
 {
-  if ( this->Debug )
-    {
-    cerr << this->GetClassName() << " " << this
-         << ", UnRegistered by " << (void *)p << "\n\n";
-    }
+  vlDebugMacro(<< this << ", UnRegistered by " << (void *)p << "\n\n");
+
   if (--this->RefCount <= 0) delete this;
 }
 

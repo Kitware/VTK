@@ -231,6 +231,13 @@ type *Get##name () { \
 // vlDebugMacro(<< "this is debug info" << this->SomeVariable << "\n");
 //
 #define vlDebugMacro(x) \
-  if (Debug) cerr << "In " __FILE__ << ", line " << __LINE__ << "\n   : " x
+  if (Debug) cerr << "In " __FILE__ << ", line " << __LINE__ << "\n" << this->GetClassName() << ": " x
+
+//
+// This macro is used to print out errors
+// vlErrorMacro(<< "Error message" << variable << "\n");
+//
+#define vlErrorMacro(x) \
+  cerr << "In " __FILE__ << ", line " << __LINE__ << "\n" << this->GetClassName() << ": " x
 
 #endif

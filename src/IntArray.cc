@@ -122,7 +122,7 @@ int *vlIntArray::Resize(const int sz)
 
   if ( (newArray = new int[newSize]) == 0 )
     {
-    cerr << "Cannot allocate memory\n";
+    vlErrorMacro(<< "Cannot allocate memory\n");
     return 0;
     }
 

@@ -125,7 +125,7 @@ short *vlShortArray::Resize(const int sz)
 
   if ( (newArray = new short[newSize]) == 0 )
     {
-    cerr << "Cannot allocate memory\n";
+    vlErrorMacro(<< "Cannot allocate memory\n");
     return 0;
     }
 
