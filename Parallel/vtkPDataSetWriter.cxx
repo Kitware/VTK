@@ -190,7 +190,6 @@ void vtkPDataSetWriter::Write()
 ostream *vtkPDataSetWriter::OpenFile()
 {
   ostream *fptr;
-  vtkDataObject *input = this->GetInput();
 
   fptr = new ofstream(this->FileName, ios::out);
 
