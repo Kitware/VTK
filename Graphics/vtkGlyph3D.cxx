@@ -22,7 +22,7 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkFloatArray.h"
 
-vtkCxxRevisionMacro(vtkGlyph3D, "1.102");
+vtkCxxRevisionMacro(vtkGlyph3D, "1.103");
 vtkStandardNewMacro(vtkGlyph3D);
 
 // Construct object with scaling on, scaling mode is by scalar value,
@@ -91,11 +91,17 @@ void vtkGlyph3D::Execute()
   int numberOfSources = this->GetNumberOfSources();
   vtkPolyData *defaultSource = NULL;
   vtkIdTypeArray *pointIds=0;
-  
+
   vtkDebugMacro(<<"Generating glyphs");
 
   pts = vtkIdList::New();
   pts->Allocate(VTK_CELL_SIZE);
+
+  if (!input)
+    {
+    vtkErrorMacro(<<"No input");
+    return;
+    }
 
   pd = input->GetPointData();
   inScalars = pd->GetScalars(this->InputScalarsSelection);
