@@ -63,7 +63,7 @@ build_tcl: build_common ${BUILD_TOOLKITS}
 	cd tcl;        ${MAKE} -${MAKEFLAGS} vtk
 
 build_python: build_common ${BUILD_TOOLKITS}
-	cd python;     ${MAKE} -${MAKEFLAGS} vtkpython
+	cd python;     ${MAKE} -${MAKEFLAGS} all
 
 build_java: build_common ${BUILD_TOOLKITS}
 	cd java;       ${MAKE} -${MAKEFLAGS} vtk
