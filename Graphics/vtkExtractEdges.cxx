@@ -27,7 +27,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkExtractEdges, "1.44");
+vtkCxxRevisionMacro(vtkExtractEdges, "1.45");
 vtkStandardNewMacro(vtkExtractEdges);
 
 // Construct object.
@@ -93,6 +93,8 @@ void vtkExtractEdges::Execute()
   outCD->CopyAllocate(cd,numCells);
   
   cell = vtkGenericCell::New();
+  vtkIdList *edgeIds, *HEedgeIds=vtkIdList::New();
+  vtkPoints *edgePts, *HEedgePts=vtkPoints::New();
   
   // Get our locator for merging points
   //
@@ -120,20 +122,56 @@ void vtkExtractEdges::Execute()
       edge = cell->GetEdge(edgeNum);
       numEdgePts = edge->GetNumberOfPoints();
       
-      for ( i=0; i < numEdgePts; i++, pt1=pt2, pts[0]=pts[1] )
+      // Tessellate higher-order edges
+      if ( ! edge->IsLinear() )
         {
-        pt2 = edge->PointIds->GetId(i);
-        x = input->GetPoint(pt2);
-        if ( this->Locator->InsertUniquePoint(x, pts[1]) )
+        edge->Triangulate(0, HEedgeIds, HEedgePts);
+        edgeIds = HEedgeIds;
+        edgePts = HEedgePts;
+
+        for ( i=0; i < (edgeIds->GetNumberOfIds()/2); i++ )
           {
-          outPD->CopyData (pd,pt2,pts[1]);
+          pt1 = edgeIds->GetId(2*i);
+          pt2 = edgeIds->GetId(2*i+1);
+          x = edgePts->GetPoint(2*i);
+          if ( this->Locator->InsertUniquePoint(x, pts[0]) )
+            {
+            outPD->CopyData (pd,pt1,pts[0]);
+            }
+          x = edgePts->GetPoint(2*i+1);
+          if ( this->Locator->InsertUniquePoint(x, pts[1]) )
+            {
+            outPD->CopyData (pd,pt2,pts[1]);
+            }
+          if ( edgeTable->IsEdge(pt1,pt2) == -1 )
+            {
+            edgeTable->InsertEdge(pt1, pt2);
+            newId = newLines->InsertNextCell(2,pts);
+            outCD->CopyData(cd, cellNum, newId);
+            }
           }
-        if ( i > 0 && edgeTable->IsEdge(pt1,pt2) == -1 )
+        } //if non-linear edge
+
+      else // linear edges
+        {
+        edgeIds = edge->PointIds;
+        edgePts = edge->Points;
+        
+        for ( i=0; i < numEdgePts; i++, pt1=pt2, pts[0]=pts[1] )
           {
-          edgeTable->InsertEdge(pt1, pt2);
-          newId = newLines->InsertNextCell(2,pts);
-          outCD->CopyData(cd, cellNum, newId);
-          }
+          pt2 = edgeIds->GetId(i);
+          x = edgePts->GetPoint(pt2);
+          if ( this->Locator->InsertUniquePoint(x, pts[1]) )
+            {
+            outPD->CopyData (pd,pt2,pts[1]);
+            }
+          if ( i > 0 && edgeTable->IsEdge(pt1,pt2) == -1 )
+            {
+            edgeTable->InsertEdge(pt1, pt2);
+            newId = newLines->InsertNextCell(2,pts);
+            outCD->CopyData(cd, cellNum, newId);
+            }
+          }//if linear edge
         }
       }//for all edges of cell
     }//for all cells
@@ -142,6 +180,8 @@ void vtkExtractEdges::Execute()
 
   //  Update ourselves.
   //
+  HEedgeIds->Delete();
+  HEedgePts->Delete();
   edgeTable->Delete();
   cell->Delete();
 
