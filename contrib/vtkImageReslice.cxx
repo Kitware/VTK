@@ -2419,6 +2419,8 @@ static void vtkOptimizedPermuteExecuteCubic(vtkImageReslice *self,
     {
     delete [] traversal[j];
     delete [] constants[j];
+    delete [] high[j];
+    delete [] low[j];
     }
   delete [] background;
 }
