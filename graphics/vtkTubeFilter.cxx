@@ -123,9 +123,6 @@ void vtkTubeFilter::Execute()
         {
         vtkErrorMacro(<< "No normals for line!\n");
         if (deleteNormals) inNormals->Delete();
-        newPts->Delete();
-        newNormals->Delete();
-        newStrips->Delete();
         return;
         }
       }
