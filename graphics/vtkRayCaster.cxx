@@ -1313,5 +1313,7 @@ void vtkRayCaster::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Bilinear Image Zoom: " << this->BilinearImageZoom << "\n";
 
   os << indent << "Total Render Time: " << this->TotalRenderTime << "\n";
+
+  os << indent << "Number Of Threads: " << this->NumberOfThreads << "\n";
 }
 

@@ -325,6 +325,42 @@ void vtkDataObjectToDataSetFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkSource::PrintSelf(os,indent);
 
+  os << indent << "Data Set Type: ";
+  if ( this->DataSetType == VTK_POLY_DATA )
+    {
+    os << "vtkPolyData\n";
+    }
+  else if ( this->DataSetType == VTK_STRUCTURED_POINTS )
+    {
+    os << "vtkStructuredPoints\n";
+    }
+  else if ( this->DataSetType == VTK_STRUCTURED_GRID )
+    {
+    os << "vtkStructuredGrid\n";
+    }
+  else if ( this->DataSetType == VTK_RECTILINEAR_GRID )
+    {
+    os << "vtkRectilinearGrid\n";
+    }
+  else // if ( this->DataSetType == VTK_UNSTRUCTURED_GRID )
+    {
+    os << "vtkUnstructuredGrid\n";
+    }
+  
+  os << indent << "Dimensions: (" << this->Dimensions[0] << ", "
+                                  << this->Dimensions[1] << ", "
+                                  << this->Dimensions[2] << ")\n";
+
+  os << indent << "Spacing: (" << this->Spacing[0] << ", "
+                               << this->Spacing[1] << ", "
+                               << this->Spacing[2] << ")\n";
+
+  os << indent << "Origin: (" << this->Origin[0] << ", "
+                              << this->Origin[1] << ", "
+                              << this->Origin[2] << ")\n";
+
+  os << indent << "Default Normalize: " 
+     << (this->DefaultNormalize ? "On\n" : "Off\n");
 }
 
 // Stuff related to points --------------------------------------------
