@@ -57,6 +57,7 @@ public:
   // Description:
   // Get the output of this source.
   vtkStructuredGrid *GetOutput() {return (vtkStructuredGrid *)this->Output;};
+
 };
 
 #endif

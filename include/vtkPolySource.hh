@@ -57,6 +57,7 @@ public:
   // Description:
   // Get the output of this source.
   vtkPolyData *GetOutput() {return (vtkPolyData *)this->Output;};
+
 };
 
 #endif

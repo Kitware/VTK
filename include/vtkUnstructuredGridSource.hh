@@ -57,6 +57,7 @@ public:
   // Description:
   // Get the output of this source.
   vtkUnstructuredGrid *GetOutput() {return (vtkUnstructuredGrid *)this->Output;};
+
 };
 
 #endif

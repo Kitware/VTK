@@ -47,12 +47,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkPolyData, vtkUnstructuredGrid), and in some cases, the datasets are 
 // implicitly composed of cells (e.g., vtkStructuredPoints).
 // .SECTION Caveats
-// The #define VTK_MAX_CELL_SIZE represents the maximum number of points
-// that a cell can have. This parameter is used throughout the code to specify
-// sizes of arrays and other structures. As a programmer you must make sure
-// that you do not create cells with more than this number of points. (The 
-// problem usually comes in with variable length objects like polylines, 
-// triangle strips, or polygons).
+// The #define VTK_MAX_CELL_SIZE specifies the maximum number of defining 
+// points for a cell. This parameter is not a hard boundary: in many cases 
+// you can create cells with more points. However there are certain filters
+// (usually recursive) that allocate temporary storage. If these filters treat
+// a cell with more points than VTK_MAX_CELL_SIZE they may truncate data. 
+// Concerns about maximum cell size arise with cells with variable length
+// connectivity lists like polylines, triangle strips, or polygons). We will
+// most likely eliminate this parameter in future releases of vtk.
 
 #ifndef __vtkCell_h
 #define __vtkCell_h

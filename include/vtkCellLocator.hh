@@ -49,7 +49,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkCellLocator to return candidate cells.
 // .SECTION Caveats
 // Many other types of spatial locators have been developed such as 
-// variable depth-octrees and k-d trees. These are often more efficient 
+// variable depth octrees and k-d trees. These are often more efficient 
 // for the operations described here.
 
 #ifndef __vtkCellLocator_h
