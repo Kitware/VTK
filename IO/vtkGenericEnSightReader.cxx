@@ -27,7 +27,7 @@
 
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.58");
+vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.59");
 vtkStandardNewMacro(vtkGenericEnSightReader);
 
 vtkCxxSetObjectMacro(vtkGenericEnSightReader,TimeSets, 
@@ -207,8 +207,8 @@ void vtkGenericEnSightReader::Execute()
       // and another partid is added too.
       vtkDataObject* tmp = this->Reader->GetOutput(i);
       output = tmp->NewInstance();
-      output->ShallowCopy(tmp);
       this->SetNthOutput(i, output); // law: this causes the extra partid bug
+      output->ShallowCopy(tmp);
       output->Delete();
       // Used later.
       //output = NULL;

@@ -26,13 +26,13 @@
 #define __vtkImageCast_h
 
 
-#include "vtkImageToImageFilter.h"
+#include "vtkThreadedImageAlgorithm.h"
 
-class VTK_IMAGING_EXPORT vtkImageCast : public vtkImageToImageFilter
+class VTK_IMAGING_EXPORT vtkImageCast : public vtkThreadedImageAlgorithm
 {
 public:
   static vtkImageCast *New();
-  vtkTypeRevisionMacro(vtkImageCast,vtkImageToImageFilter);
+  vtkTypeRevisionMacro(vtkImageCast,vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -70,10 +70,9 @@ protected:
 
   int ClampOverflow;
   int OutputScalarType;
-  void ExecuteInformation(vtkImageData *inData, vtkImageData *outData);
-  void UpdateData(vtkDataObject *data);
-  void ExecuteInformation(){this->vtkImageToImageFilter::ExecuteInformation();};
-  void ThreadedExecute(vtkImageData *inData, vtkImageData *outData, 
+  void ExecuteInformation (vtkInformation *, vtkInformationVector *, vtkInformationVector *);
+  
+  void ThreadedExecute (vtkImageData *inData, vtkImageData *outData, 
                        int ext[6], int id);
 
 private:

@@ -20,7 +20,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageStencilSource, "1.8");
+vtkCxxRevisionMacro(vtkImageStencilSource, "1.9");
 vtkStandardNewMacro(vtkImageStencilSource);
 
 //----------------------------------------------------------------------------
@@ -94,8 +94,9 @@ void vtkImageStencilSource::ExecuteData(vtkDataObject *out)
 
 //----------------------------------------------------------------------------
 void vtkImageStencilSource::ThreadedExecute(vtkImageStencilData *vtkNotUsed(o),
-                                            int [6], int threadId)
+                                            int extent[6], int threadId)
 {
+  extent = extent; // this silly line avoids compiler warnings
   if (threadId == 0)
     {
     vtkErrorMacro("subclass should override ThreadedExecute!!!");
@@ -111,6 +112,5 @@ int vtkImageStencilSource::FillOutputPortInformation(int port,
     return 0;
     }
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkImageStencilData");
-  info->Set(vtkDataObject::DATA_EXTENT_TYPE(), VTK_3D_EXTENT);
   return 1;
 }

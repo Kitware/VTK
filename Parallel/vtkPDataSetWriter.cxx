@@ -22,7 +22,7 @@
 #include "vtkRectilinearGrid.h"
 #include "vtkErrorCode.h"
 
-vtkCxxRevisionMacro(vtkPDataSetWriter, "1.12");
+vtkCxxRevisionMacro(vtkPDataSetWriter, "1.13");
 vtkStandardNewMacro(vtkPDataSetWriter);
 
 //----------------------------------------------------------------------------
@@ -254,8 +254,9 @@ void vtkPDataSetWriter::Write()
     // I am putting this in here because shallow copy does not copy the
     // UpdateExtentInitializedFlag, and I do not want to touch ShallowCopy
     // in ParaViews release.
+    copy->SetUpdateExtent(0,1,0);
     copy->SetUpdateExtent(input->GetUpdateExtent());
-    copy->SetRequestExactExtent(1);
+    copy->Crop();
     writer->SetInput(vtkDataSet::SafeDownCast(copy));
     writer->Write();
     copy->Delete();

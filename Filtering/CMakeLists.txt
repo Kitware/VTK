@@ -77,6 +77,7 @@ vtkHierarchicalBoxToPolyDataFilter.cxx
 vtkHierarchicalBoxVisitor.cxx
 vtkHierarchicalDataIterator.cxx
 vtkHierarchicalDataSet.cxx
+vtkImageAlgorithm.cxx
 vtkImageData.cxx
 vtkImageInPlaceFilter.cxx
 vtkImageIterator.cxx
@@ -131,6 +132,7 @@ vtkPointSet.cxx
 vtkPointSetSource.cxx
 vtkPointSetToPointSetFilter.cxx
 vtkPolyData.cxx
+vtkPolyDataAlgorithm.cxx
 vtkPolyDataCollection.cxx
 vtkPolyDataSource.cxx
 vtkPolyDataToPolyDataFilter.cxx
@@ -170,6 +172,7 @@ vtkStructuredPointsToStructuredPointsFilter.cxx
 vtkStructuredPointsToUnstructuredGridFilter.cxx
 vtkSuperquadric.cxx
 vtkTetra.cxx
+vtkThreadedImageAlgorithm.cxx
 vtkTriangle.cxx
 vtkTriangleStrip.cxx
 vtkTrivialProducer.cxx
@@ -216,6 +219,7 @@ vtkHierarchicalBoxSource
 vtkHierarchicalBoxToHierarchicalBoxFilter
 vtkHierarchicalBoxToPolyDataFilter
 vtkHierarchicalDataSet
+vtkImageAlgorithm
 vtkImageInPlaceFilter
 vtkImageIterator
 vtkImageMultipleInputFilter
@@ -259,6 +263,7 @@ vtkStructuredPointsSource
 vtkStructuredPointsToPolyDataFilter
 vtkStructuredPointsToStructuredPointsFilter
 vtkStructuredPointsToUnstructuredGridFilter
+vtkThreadedImageAlgorithm
 vtkUnstructuredGridSource
 vtkUnstructuredGridToPolyDataFilter
 vtkUnstructuredGridToUnstructuredGridFilter

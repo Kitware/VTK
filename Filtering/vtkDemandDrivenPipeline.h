@@ -56,39 +56,65 @@ public:
   vtkGetMacro(PipelineMTime, unsigned long);
     
   // Description:
-  // Get the data object storing the output for the given port.
+  // Get/Set the data object storing the output for the given port.
   virtual vtkDataObject* GetOutputData(int port);
   virtual vtkDataObject* GetOutputData(vtkAlgorithm* algorithm, int port);
+  virtual void SetOutputData(int port, vtkDataObject*);
+  virtual void SetOutputData(vtkAlgorithm* algorithm, int port, vtkDataObject*);
+
+  // Description:
+  // Get the data object for an output port of an algorithm.
+  virtual vtkDataObject* GetInputData(vtkAlgorithm* algorithm, 
+                                      int port, int connection);
+  virtual vtkDataObject* GetInputData(int port, int connection);
+
+  // Description:
+  // Set whether the given output port releases data when it is
+  // consumed.  Returns 1 if the the value changes and 0 otherwise.
+  virtual int SetReleaseDataFlag(int port, int n);
+
+  // Description:
+  // Get whether the given output port releases data when it is consumed.
+  virtual int GetReleaseDataFlag(int port);
 
   static vtkInformationKeyVectorKey* DOWNSTREAM_KEYS_TO_COPY();
+  static vtkInformationIntegerKey* REQUEST_DATA_OBJECT();
   static vtkInformationIntegerKey* REQUEST_INFORMATION();
   static vtkInformationIntegerKey* REQUEST_DATA();
   static vtkInformationIntegerKey* FROM_OUTPUT_PORT();
+  static vtkInformationIntegerKey* RELEASE_DATA();
 
-  int UpdateInformation();
-  int UpdateData(int outputPort);
+  virtual int UpdateDataObject();
+  virtual int UpdateInformation();
+  virtual int UpdateData(int outputPort);
+
+  vtkDemandDrivenPipeline* GetConnectedInputExecutive(int port, int index);
+  vtkInformation* GetConnectedInputInformation(int port, int index);
+
 protected:
   vtkDemandDrivenPipeline();
   ~vtkDemandDrivenPipeline();
 
+  virtual int ExecuteDataObject();
   virtual int ExecuteInformation();
   virtual int ExecuteData(int outputPort);
 
-  // By default what keys should be copied from input to output
-  virtual void FillDownstreamKeysToCopy(vtkInformation *);
+  // Put default information in output information objects.
+  virtual void FillDefaultOutputInformation(int port, vtkInformation*);
 
-  vtkDemandDrivenPipeline* GetConnectedInputExecutive(int port, int index);
-  vtkInformation* GetConnectedInputInformation(int port, int index);
+  // Reset the pipeline update values in the given output information object.
+  virtual void ResetPipelineInformation(int port, vtkInformation*);
+
 
   vtkInformation* GetRequestInformation();
   vtkInformationVector* GetInputInformation();
   vtkInformation* GetInputInformation(int port);
   vtkInformationVector* GetOutputInformation();
 
-  vtkDataObject* GetInputData(int port, int index);
   void PrepareDownstreamRequest(vtkInformationIntegerKey* rkey);
   void PrepareUpstreamRequest(vtkInformationIntegerKey* rkey);
-  virtual void CopyDefaultInformation();
+  virtual void CopyDefaultDownstreamInformation();
+  virtual int CheckDataObject(int port);
 
   // Input connection validity checkers.
   int InputCountIsValid();
@@ -123,11 +149,11 @@ protected:
   unsigned long PipelineMTime;
 
   // Time when information or data were last generated.
+  vtkTimeStamp DataObjectTime;
   vtkTimeStamp InformationTime;
   vtkTimeStamp DataTime;
 
-  int InProcessDownstreamRequest;
-  int InProcessUpstreamRequest;
+  int InProcessRequest;
 
 private:
   vtkDemandDrivenPipelineInternals* DemandDrivenInternal;

@@ -16,11 +16,14 @@
 
 #include "vtkImageData.h"
 #include "vtkMath.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkPointData.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkTriangularTexture, "1.25");
+vtkCxxRevisionMacro(vtkTriangularTexture, "1.26");
 vtkStandardNewMacro(vtkTriangularTexture);
 
 // Instantiate object with XSize and YSize = 64; the texture pattern =1
@@ -31,6 +34,7 @@ vtkTriangularTexture::vtkTriangularTexture()
   this->XSize = this->YSize = 64;
   this->TexturePattern = 1;
   this->ScaleFactor = 1.0;
+  this->SetNumberOfInputPorts(0);
 }
 
 void vtkOpaqueAtElementCentroid (int XSize, int YSize, double ScaleFactor, 
@@ -137,13 +141,19 @@ void vtkOpaqueAtVertices (int XSize, int YSize, double ScaleFactor,
 }
 
 //----------------------------------------------------------------------------
-void vtkTriangularTexture::ExecuteInformation()
+void vtkTriangularTexture::ExecuteInformation (
+  vtkInformation * vtkNotUsed(request),
+  vtkInformationVector * vtkNotUsed( inputVector ),
+  vtkInformationVector *outputVector)
 {
-  vtkImageData *output = this->GetOutput();
+  // get the info objects
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
   
-  output->SetWholeExtent(0,this->XSize -1, 0, this->YSize - 1, 0,0);
-  output->SetScalarType(VTK_UNSIGNED_CHAR);
-  output->SetNumberOfScalarComponents(2);
+  int wExt[6] = {0,this->XSize -1, 0, this->YSize - 1, 0,0};
+    
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),wExt,6);
+  outInfo->Set(vtkDataObject::SCALAR_TYPE(),VTK_UNSIGNED_CHAR);
+  outInfo->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(),2);
 }
 
 void vtkTriangularTexture::ExecuteData(vtkDataObject *outp)

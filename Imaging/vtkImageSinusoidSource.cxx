@@ -15,11 +15,14 @@
 #include "vtkImageSinusoidSource.h"
 
 #include "vtkImageData.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageSinusoidSource, "1.35");
+vtkCxxRevisionMacro(vtkImageSinusoidSource, "1.36");
 vtkStandardNewMacro(vtkImageSinusoidSource);
 
 //----------------------------------------------------------------------------
@@ -37,6 +40,7 @@ vtkImageSinusoidSource::vtkImageSinusoidSource()
   this->WholeExtent[2] = 0;  this->WholeExtent[3] = 255;
   this->WholeExtent[4] = 0;  this->WholeExtent[5] = 0;
   
+  this->SetNumberOfInputPorts(0);
 }
 
 void vtkImageSinusoidSource::SetDirection(double v[3])
@@ -119,13 +123,18 @@ void vtkImageSinusoidSource::SetWholeExtent(int xMin, int xMax,
 }
 
 //----------------------------------------------------------------------------
-void vtkImageSinusoidSource::ExecuteInformation()
+void vtkImageSinusoidSource::ExecuteInformation (
+  vtkInformation * vtkNotUsed(request),
+  vtkInformationVector * vtkNotUsed( inputVector ),
+  vtkInformationVector *outputVector)
 {
-  vtkImageData *output = this->GetOutput();
+  // get the info objects
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
-  output->SetWholeExtent(this->WholeExtent);
-  output->SetScalarType(VTK_DOUBLE);
-  output->SetNumberOfScalarComponents(1);
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
+               this->WholeExtent,6);
+  outInfo->Set(vtkDataObject::SCALAR_TYPE(),VTK_DOUBLE);
+  outInfo->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(),1);
 }
 
 void vtkImageSinusoidSource::ExecuteData(vtkDataObject *output)

@@ -22,12 +22,13 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkSmartPointer.h"
 #include "vtkStructuredGrid.h"
 
 #include <ctype.h>
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkPOPReader, "1.18");
+vtkCxxRevisionMacro(vtkPOPReader, "1.19");
 vtkStandardNewMacro(vtkPOPReader);
 
 //----------------------------------------------------------------------------
@@ -663,7 +664,7 @@ void vtkPOPReader::ReadFlow()
 {
   vtkStructuredGrid *output;
   vtkDataArray *array;
-  vtkImageData *uImage, *vImage, *fImage;
+  vtkImageData *fImage;
   int updateExt[6], wholeExt[6], ext[6];
   int idx, u, v, w;
   float *pf, *pu, *pv;
@@ -730,7 +731,6 @@ void vtkPOPReader::ReadFlow()
       }
     }
 
-  uImage = vtkImageData::New();
   // Set up the reader with the appropriate filename.
       if (this->ArrayFileDimensionality == 3)
         {
@@ -750,11 +750,12 @@ void vtkPOPReader::ReadFlow()
         }
   reader->SetHeaderSize(this->UFlowFileOffset * 4 
                   * this->Dimensions[0] * this->Dimensions[1]);
-  wrap->SetOutput(uImage);
+
+  wrap->GetOutput()->SetSource(0);
+  vtkSmartPointer<vtkImageData> uImage = wrap->GetOutput();
   uImage->SetUpdateExtent(ext);
   uImage->Update();
 
-  vImage = vtkImageData::New();
   // Set up the reader with the appropriate filename.
       if (this->ArrayFileDimensionality == 3)
         {
@@ -774,7 +775,8 @@ void vtkPOPReader::ReadFlow()
         }
   reader->SetHeaderSize(this->VFlowFileOffset * 4 
                   * this->Dimensions[0] * this->Dimensions[1]);
-  wrap->SetOutput(vImage);
+  wrap->GetOutput()->SetSource(0);
+  vtkSmartPointer<vtkImageData> vImage = wrap->GetOutput();
   vImage->SetUpdateExtent(ext);
   vImage->Update();
 
@@ -918,10 +920,6 @@ void vtkPOPReader::ReadFlow()
       }
     }
     
-  // Delete 
-  uImage->Delete();
-  vImage->Delete();
-
   array = fImage->GetPointData()->GetScalars();
   array->SetName("Flow");
       

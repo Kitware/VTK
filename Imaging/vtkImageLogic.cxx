@@ -20,12 +20,14 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageLogic, "1.29");
+vtkCxxRevisionMacro(vtkImageLogic, "1.30");
 vtkStandardNewMacro(vtkImageLogic);
 
 //----------------------------------------------------------------------------
 vtkImageLogic::vtkImageLogic()
 {
+  this->SetNumberOfInputPorts(2);
+  this->SetNumberOfOutputPorts(1);
   this->Operation = VTK_AND;
   this->OutputTrueValue = 255;
 }
@@ -208,33 +210,36 @@ void vtkImageLogicExecute2(vtkImageLogic *self, vtkImageData *in1Data,
 // algorithm to fill the output from the inputs.
 // It just executes a switch statement to call the correct function for
 // the regions data types.
-void vtkImageLogic::ThreadedExecute(vtkImageData **inData, 
-                                    vtkImageData *outData,
-                                    int outExt[6], int id)
+void vtkImageLogic::ThreadedRequestData (
+  vtkInformation * vtkNotUsed( request ), 
+  vtkInformationVector * vtkNotUsed( inputVector ), 
+  vtkInformationVector * vtkNotUsed( outputVector ),
+  vtkImageData ***inData, 
+  vtkImageData **outData,
+  int outExt[6], int id)
 {
-  vtkDebugMacro(<< "Execute: inData = " << inData 
-  << ", outData = " << outData);
-  
-  if (inData[0] == NULL)
+  if (inData[0][0] == NULL)
     {
     vtkErrorMacro(<< "Input " << 0 << " must be specified.");
     return;
     }
   
   // this filter expects that input is the same type as output.
-  if (inData[0]->GetScalarType() != outData->GetScalarType())
+  if (inData[0][0]->GetScalarType() != outData[0]->GetScalarType())
     {
-    vtkErrorMacro(<< "Execute: input ScalarType, " << inData[0]->GetScalarType()
-    << ", must match out ScalarType " << outData->GetScalarType());
+    vtkErrorMacro(<< "Execute: input ScalarType, " 
+                  << inData[0][0]->GetScalarType()
+                  << ", must match out ScalarType " 
+                  << outData[0]->GetScalarType());
     return;
     }
   
   if (this->Operation == VTK_NOT || this->Operation == VTK_NOP)
     {
-    switch (inData[0]->GetScalarType())
+    switch (inData[0][0]->GetScalarType())
       {
-      vtkTemplateMacro6(vtkImageLogicExecute1, this, inData[0], 
-                        outData, outExt, id,  static_cast<VTK_TT *>(0));
+      vtkTemplateMacro6(vtkImageLogicExecute1, this, inData[0][0], 
+                        outData[0], outExt, id,  static_cast<VTK_TT *>(0));
       default:
         vtkErrorMacro(<< "Execute: Unknown ScalarType");
         return;
@@ -242,27 +247,27 @@ void vtkImageLogic::ThreadedExecute(vtkImageData **inData,
     }
   else
     {
-    if (inData[1] == NULL)
+    if (inData[1][0] == NULL)
       {
       vtkErrorMacro(<< "Input " << 1 << " must be specified.");
       return;
       }
 
     // this filter expects that inputs that have the same number of components
-    if (inData[0]->GetNumberOfScalarComponents() != 
-        inData[1]->GetNumberOfScalarComponents())
+    if (inData[0][0]->GetNumberOfScalarComponents() != 
+        inData[1][0]->GetNumberOfScalarComponents())
       {
       vtkErrorMacro(<< "Execute: input1 NumberOfScalarComponents, "
-                    << inData[0]->GetNumberOfScalarComponents()
+                    << inData[0][0]->GetNumberOfScalarComponents()
                     << ", must match out input2 NumberOfScalarComponents "
-                    << inData[1]->GetNumberOfScalarComponents());
+                    << inData[1][0]->GetNumberOfScalarComponents());
       return;
       }
 
-    switch (inData[0]->GetScalarType())
+    switch (inData[0][0]->GetScalarType())
       {
-      vtkTemplateMacro7(vtkImageLogicExecute2, this, inData[0], 
-                        inData[1], outData, outExt, id,
+      vtkTemplateMacro7(vtkImageLogicExecute2, this, inData[0][0], 
+                        inData[1][0], outData[0], outExt, id,
                         static_cast<VTK_TT *>(0));
       default:
         vtkErrorMacro(<< "Execute: Unknown ScalarType");

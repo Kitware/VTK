@@ -20,7 +20,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImplicitFunctionToImageStencil, "1.10");
+vtkCxxRevisionMacro(vtkImplicitFunctionToImageStencil, "1.11");
 vtkStandardNewMacro(vtkImplicitFunctionToImageStencil);
 vtkCxxSetObjectMacro(vtkImplicitFunctionToImageStencil,Input, vtkImplicitFunction);
 
@@ -84,7 +84,7 @@ void vtkImplicitFunctionToImageStencil::ThreadedExecute(vtkImageStencilData
       point[1] = idY*spacing[1] + origin[1];
       int state = 1; // inside or outside, start outside
       int r1 = extent[0];
-      int r2;
+      int r2 = extent[1];
 
       if (id == 0)
         { // update progress if we're the main thread

@@ -15,11 +15,14 @@
 #include "vtkImageGridSource.h"
 
 #include "vtkImageData.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageGridSource, "1.10");
+vtkCxxRevisionMacro(vtkImageGridSource, "1.11");
 vtkStandardNewMacro(vtkImageGridSource);
 
 //----------------------------------------------------------------------------
@@ -44,18 +47,24 @@ vtkImageGridSource::vtkImageGridSource()
 
   this->LineValue = 1.0;
   this->FillValue = 0.0;
+  this->SetNumberOfInputPorts(0);
 }
 
 //----------------------------------------------------------------------------
-void vtkImageGridSource::ExecuteInformation()
+void vtkImageGridSource::ExecuteInformation (
+  vtkInformation * vtkNotUsed(request),
+  vtkInformationVector * vtkNotUsed( inputVector ),
+  vtkInformationVector *outputVector)
 {
-  vtkImageData *output = this->GetOutput();
-  
-  output->SetSpacing(this->DataSpacing);
-  output->SetOrigin(this->DataOrigin);
-  output->SetWholeExtent(this->DataExtent);
-  output->SetScalarType(this->DataScalarType);
-  output->SetNumberOfScalarComponents(1);
+  // get the info objects
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+
+  outInfo->Set(vtkDataObject::SPACING(),this->DataSpacing,3);
+  outInfo->Set(vtkDataObject::ORIGIN(),this->DataOrigin,3);
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
+               this->DataExtent,6);
+  outInfo->Set(vtkDataObject::SCALAR_TYPE(),this->DataScalarType);
+  outInfo->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(),1);
 }
 
 //----------------------------------------------------------------------------

@@ -20,13 +20,15 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageHSIToRGB, "1.3");
+vtkCxxRevisionMacro(vtkImageHSIToRGB, "1.4");
 vtkStandardNewMacro(vtkImageHSIToRGB);
 
 //----------------------------------------------------------------------------
 vtkImageHSIToRGB::vtkImageHSIToRGB()
 {
   this->Maximum = 255.0;
+  this->SetNumberOfInputPorts(1);
+  this->SetNumberOfOutputPorts(1);
 }
 
 //----------------------------------------------------------------------------
@@ -135,7 +137,7 @@ void vtkImageHSIToRGBExecute(vtkImageHSIToRGB *self,
 }
 
 //----------------------------------------------------------------------------
-void vtkImageHSIToRGB::ThreadedExecute(vtkImageData *inData, 
+void vtkImageHSIToRGB::ThreadedExecute (vtkImageData *inData, 
                                        vtkImageData *outData,
                                        int outExt[6], int id)
 {

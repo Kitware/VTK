@@ -188,8 +188,9 @@ public:
   virtual void UpdateData(vtkDataObject *output);
 
   // See the vtkAlgorithm for a desciption of what these do
-  int ProcessDownstreamRequest(vtkInformation *, vtkInformationVector *, 
-                                vtkInformationVector *);
+  int ProcessRequest(vtkInformation*,
+                     vtkInformationVector*,
+                     vtkInformationVector*);
 
 protected:
   vtkImplicitModeller();

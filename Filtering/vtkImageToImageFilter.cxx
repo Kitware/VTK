@@ -22,7 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkImageToImageFilter, "1.61");
+vtkCxxRevisionMacro(vtkImageToImageFilter, "1.62");
 
 //----------------------------------------------------------------------------
 vtkImageToImageFilter::vtkImageToImageFilter()
@@ -107,14 +107,7 @@ void vtkImageToImageFilter::ExecuteInformation()
   // Start with some defaults.
   output->CopyTypeSpecificInformation( input );
 
-  vtkDataArray *inArray = input->GetPointData()->GetScalars(this->InputScalarsSelection);
-  if (inArray)
-    {
-    output->SetScalarType(inArray->GetDataType());
-    }
-
   // take this opportunity to modify the defaults
-
   this->ExecuteInformation(input, output);
 }
 

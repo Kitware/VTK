@@ -27,9 +27,12 @@
 #include "vtkObject.h"
 
 class vtkAlgorithm;
+class vtkAlgorithmOutput;
 class vtkAlgorithmToExecutiveFriendship;
 class vtkDataObject;
 class vtkInformation;
+class vtkInformationExecutiveKey;
+class vtkInformationIntegerKey;
 
 class VTK_FILTERING_EXPORT vtkExecutive : public vtkObject
 {
@@ -55,13 +58,28 @@ public:
                                                int port)=0;
 
   // Description:
-  // Get the data object for an output port of an algorithm.
+  // Get/Set the data object for an output port of an algorithm.
   virtual vtkDataObject* GetOutputData(vtkAlgorithm* algorithm, int port)=0;
+  virtual void SetOutputData(vtkAlgorithm* algorithm, int port,
+                             vtkDataObject*)=0;
+
+  // Description:
+  // Get the output port that produces the given data object.
+  virtual vtkAlgorithmOutput* GetProducerPort(vtkDataObject*)=0;
+
+  // Description:
+  // Get the data object for an output port of an algorithm.
+  virtual vtkDataObject* GetInputData(vtkAlgorithm* algorithm, 
+                                      int port, int connection)=0;
 
   // Description:
   // Decrement the count of references to this object and participate
   // in garbage collection.
   virtual void UnRegister(vtkObjectBase* o);
+
+  static vtkInformationExecutiveKey* EXECUTIVE();
+  static vtkInformationIntegerKey* PORT_NUMBER();
+
 protected:
   vtkExecutive();
   ~vtkExecutive();
@@ -77,12 +95,6 @@ protected:
   // Garbage collection support.
   virtual void GarbageCollectionStarting();
   int GarbageCollecting;
-
-  // Get/Set the output data for an output port on an algorithm.
-  virtual void SetOutputDataInternal(vtkAlgorithm* algorithm, int port,
-                                     vtkDataObject* output);
-  virtual vtkDataObject* GetOutputDataInternal(vtkAlgorithm* algorithm,
-                                               int port);
 
   //BTX
   friend class vtkAlgorithmToExecutiveFriendship;

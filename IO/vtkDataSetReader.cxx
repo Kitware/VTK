@@ -26,7 +26,7 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkUnstructuredGridReader.h"
 
-vtkCxxRevisionMacro(vtkDataSetReader, "1.64");
+vtkCxxRevisionMacro(vtkDataSetReader, "1.65");
 vtkStandardNewMacro(vtkDataSetReader);
 
 vtkDataSetReader::vtkDataSetReader()
@@ -100,18 +100,17 @@ void vtkDataSetReader::Execute()
       preader->Update();
       // Can we use the old output?
       output = this->Outputs ? this->Outputs[0] : NULL;
-      if (output && strcmp(output->GetClassName(), "vtkPolyData") == 0)
-        {
-        output->ShallowCopy(preader->GetOutput());
-        }
-      else
+      if(!(output && strcmp(output->GetClassName(), "vtkPolyData") == 0))
         {
         // Hack to make sure that the object is not modified
         // with SetNthOutput. Otherwise, extra executions occur.
         vtkTimeStamp ts = this->MTime;
-        this->SetNthOutput(0, preader->GetOutput());
+        output = vtkPolyData::New();
+        this->SetNthOutput(0, output);
+        output->Delete();
         this->MTime = ts;
         }
+      output->ShallowCopy(preader->GetOutput());
       preader->Delete();
       return;
       }
@@ -140,18 +139,17 @@ void vtkDataSetReader::Execute()
       preader->Update();
       // Can we use the old output?
       output = this->Outputs ? this->Outputs[0] : NULL;
-      if (output && strcmp(output->GetClassName(), "vtkStructuredPoints") == 0)
-        {
-        output->ShallowCopy(preader->GetOutput());
-        }
-      else
+      if(!(output && strcmp(output->GetClassName(), "vtkStructuredPoints") == 0))
         {
         // Hack to make sure that the object is not modified
         // with SetNthOutput. Otherwise, extra executions occur.
         vtkTimeStamp ts = this->MTime;
-        this->SetNthOutput(0, preader->GetOutput());
+        output = vtkStructuredPoints::New();
+        this->SetNthOutput(0, output);
+        output->Delete();
         this->MTime = ts;
         }
+      output->ShallowCopy(preader->GetOutput());
       preader->Delete();
       return;
       }
@@ -180,18 +178,17 @@ void vtkDataSetReader::Execute()
       preader->Update();
       // Can we use the old output?
       output = this->Outputs ? this->Outputs[0] : NULL;
-      if (output && strcmp(output->GetClassName(), "vtkStructuredGrid") == 0)
-        {
-        output->ShallowCopy(preader->GetOutput());
-        }
-      else
+      if(!(output && strcmp(output->GetClassName(), "vtkStructuredGrid") == 0))
         {
         // Hack to make sure that the object is not modified
         // with SetNthOutput. Otherwise, extra executions occur.
         vtkTimeStamp ts = this->MTime;
-        this->SetNthOutput(0, preader->GetOutput());
+        output = vtkStructuredGrid::New();
+        this->SetNthOutput(0, output);
+        output->Delete();
         this->MTime = ts;
         }
+      output->ShallowCopy(preader->GetOutput());
       preader->Delete();
       return;
       }
@@ -220,18 +217,17 @@ void vtkDataSetReader::Execute()
       preader->Update();
       // Can we use the old output?
       output = this->Outputs ? this->Outputs[0] : NULL;
-      if (output && strcmp(output->GetClassName(), "vtkRectilinearGrid") == 0)
-        {
-        output->ShallowCopy(preader->GetOutput());
-        }
-      else
+      if(!(output && strcmp(output->GetClassName(), "vtkRectilinearGrid") == 0))
         {
         // Hack to make sure that the object is not modified
         // with SetNthOutput. Otherwise, extra executions occur.
         vtkTimeStamp ts = this->MTime;
-        this->SetNthOutput(0, preader->GetOutput());
+        output = vtkRectilinearGrid::New();
+        this->SetNthOutput(0, output);
+        output->Delete();
         this->MTime = ts;
         }
+      output->ShallowCopy(preader->GetOutput());
       preader->Delete();
       return;
       }
@@ -260,18 +256,17 @@ void vtkDataSetReader::Execute()
       preader->Update();
       // Can we use the old output?
       output = this->Outputs ? this->Outputs[0] : NULL;
-      if (output && strcmp(output->GetClassName(), "vtkUnstructuredGrid") == 0)
-        {
-        output->ShallowCopy(preader->GetOutput());
-        }
-      else
+      if(!(output && strcmp(output->GetClassName(), "vtkUnstructuredGrid") == 0))
         {
         // Hack to make sure that the object is not modified
         // with SetNthOutput. Otherwise, extra executions occur.
         vtkTimeStamp ts = this->MTime;
-        this->SetNthOutput(0, preader->GetOutput());
+        output = vtkUnstructuredGrid::New();
+        this->SetNthOutput(0, output);
+        output->Delete();
         this->MTime = ts;
         }
+      output->ShallowCopy(preader->GetOutput());
       preader->Delete();
       return;
       }

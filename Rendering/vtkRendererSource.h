@@ -31,15 +31,15 @@
 #ifndef __vtkRendererSource_h
 #define __vtkRendererSource_h
 
-#include "vtkImageSource.h"
+#include "vtkImageAlgorithm.h"
 
 class vtkRenderer;
 
-class VTK_RENDERING_EXPORT vtkRendererSource : public vtkImageSource
+class VTK_RENDERING_EXPORT vtkRendererSource : public vtkImageAlgorithm
 {
 public:
   static vtkRendererSource *New();
-  vtkTypeRevisionMacro(vtkRendererSource,vtkImageSource);
+  vtkTypeRevisionMacro(vtkRendererSource,vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -88,22 +88,13 @@ protected:
   vtkRendererSource();
   ~vtkRendererSource();
 
-#ifdef VTK_USE_EXECUTIVES
-  void AlgorithmExecute(vtkInformation *request, 
+  void RequestData(vtkInformation *request, 
                         vtkInformationVector *inputVector, 
                         vtkInformationVector *outputVector);
-#else
-  virtual void ExecuteData(vtkDataObject *outp);
-  void UpdateInformation();
-#endif  
   
-  virtual int ProcessUpstreamRequest(vtkInformation *, 
+  virtual void ExecuteInformation(vtkInformation *, 
                                       vtkInformationVector *, 
                                       vtkInformationVector *);
-  virtual int ProcessDownstreamRequest(vtkInformation *, 
-                                        vtkInformationVector *, 
-                                        vtkInformationVector *);
-  virtual int FillOutputPortInformation(int port, vtkInformation* info);
 
   vtkRenderer *Input;
   int WholeWindow;

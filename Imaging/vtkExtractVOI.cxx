@@ -16,10 +16,13 @@
 
 #include "vtkCellData.h"
 #include "vtkImageData.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkExtractVOI, "1.37");
+vtkCxxRevisionMacro(vtkExtractVOI, "1.38");
 vtkStandardNewMacro(vtkExtractVOI);
 
 //-----------------------------------------------------------------------------
@@ -34,15 +37,19 @@ vtkExtractVOI::vtkExtractVOI()
 
 //-----------------------------------------------------------------------------
 // Get ALL of the input.
-void vtkExtractVOI::ComputeInputUpdateExtent(int inExt[6], 
-                                             int *)
+void vtkExtractVOI::ComputeInputUpdateExtent (
+  vtkInformation * vtkNotUsed(request),
+  vtkInformationVector *inputVector,
+  vtkInformationVector *vtkNotUsed( outputVector ))
 {
-  // request all of the VOI
-  int *wholeExtent;
+  // get the info objects
+  vtkInformation *inInfo =
+     this->GetInputConnectionInformation(inputVector,0,0);
+
+  // request all of the VOI, (note from Ken why are we not looking at the UE?)
   int i;
-  
-  wholeExtent = this->GetInput()->GetWholeExtent();
-  memcpy(inExt, wholeExtent, 6*sizeof(int));
+  int inExt[6];
+  inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),inExt);
 
   // no need to go outside the VOI
   for (i = 0; i < 3; ++i)
@@ -56,22 +63,31 @@ void vtkExtractVOI::ComputeInputUpdateExtent(int inExt[6],
       inExt[i*2+1] = this->VOI[i*2+1];
       }
     }
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),inExt,6);
 }
 
 //-----------------------------------------------------------------------------
 void 
-vtkExtractVOI::ExecuteInformation(vtkImageData *input, vtkImageData *output)
+vtkExtractVOI::ExecuteInformation (
+  vtkInformation * vtkNotUsed(request),
+  vtkInformationVector *inputVector,
+  vtkInformationVector *outputVector)
 {
+  // get the info objects
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+  vtkInformation *inInfo =
+     this->GetInputConnectionInformation(inputVector,0,0);
+
   int i, outDims[3], voi[6];
   int rate[3];
   int wholeExtent[6];
+  inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), wholeExtent );
   
-  if (this->GetInput() == NULL)
-    {
-    vtkErrorMacro("Missing input");
-    return;
-    }
-  input->GetWholeExtent( wholeExtent );
+  double ar[3], outAR[3];
+  inInfo->Get(vtkDataObject::SPACING(), ar );
+  
+  double origin[3], outOrigin[3];
+  inInfo->Get(vtkDataObject::ORIGIN(), origin );
   
   for ( i=0; i < 6; i++ )
     {
@@ -112,26 +128,36 @@ vtkExtractVOI::ExecuteInformation(vtkImageData *input, vtkImageData *output)
       {
       outDims[i] = 1;
       }
+    outAR[i] = ar[i] * this->SampleRate[i];
+    wholeExtent[i*2] = voi[i*2];
+    wholeExtent[i*2+1] = voi[i*2] + outDims[i] - 1;
+    outOrigin[i] = origin[i] + voi[2*i]*ar[i] - wholeExtent[2*i]*outAR[i];
     }
 
-  // This makes sense for sample rates of 1, 1, 1.
-  wholeExtent[0] = voi[0];
-  wholeExtent[1] = voi[0] + outDims[0] - 1;
-  wholeExtent[2] = voi[2];
-  wholeExtent[3] = voi[2] + outDims[1] - 1;
-  wholeExtent[4] = voi[4];
-  wholeExtent[5] = voi[4] + outDims[2] - 1;
-  
-  output->SetWholeExtent( wholeExtent );
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), wholeExtent ,6);
+  outInfo->Set(vtkDataObject::SPACING(), outAR, 3);
+  outInfo->Set(vtkDataObject::ORIGIN(), outOrigin, 3);
 }
 
 //-----------------------------------------------------------------------------
-void vtkExtractVOI::ExecuteData(vtkDataObject *)
+void vtkExtractVOI::RequestData(
+  vtkInformation * vtkNotUsed( request ), 
+  vtkInformationVector * inputVector, 
+  vtkInformationVector * outputVector)
 {
-  vtkImageData *input=this->GetInput();
+  // get the data objects
+  vtkInformation *outInfo = 
+    outputVector->GetInformationObject(0);
+  vtkImageData *output = vtkImageData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  
+  vtkInformation *inInfo = 
+    this->GetInputConnectionInformation(inputVector, 0, 0);
+  vtkImageData *input = vtkImageData::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  
   vtkPointData *pd=input->GetPointData();
   vtkCellData *cd=input->GetCellData();
-  vtkImageData *output = this->GetOutput();
   output->SetExtent(output->GetWholeExtent());
   vtkPointData *outPD=output->GetPointData();
   vtkCellData *outCD=output->GetCellData();
@@ -139,7 +165,8 @@ void vtkExtractVOI::ExecuteData(vtkDataObject *)
   int newCellId;
   double origin[3], ar[3], outOrigin[3], outAR[3];
   int sliceSize, outSize, jOffset, kOffset, rate[3];
-  int *wholeExtent = input->GetWholeExtent();
+  int wholeExtent[6];
+  inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),wholeExtent);
   int *inExt = input->GetExtent();
   int *outExt = output->GetExtent();
 
@@ -201,8 +228,6 @@ void vtkExtractVOI::ExecuteData(vtkDataObject *)
     outSize *= outDims[i];
     }
   
-  output->SetSpacing(outAR);
-  output->SetOrigin(outOrigin);
   // 
   // If output same as input, just pass data through
   //

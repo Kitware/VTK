@@ -16,20 +16,32 @@
 
 #include "vtkImageData.h"
 #include "vtkImageProgressIterator.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageMagnitude, "1.36");
+vtkCxxRevisionMacro(vtkImageMagnitude, "1.37");
 vtkStandardNewMacro(vtkImageMagnitude);
 
 //----------------------------------------------------------------------------
-// This method tells the superclass that the first axis will collapse.
-void vtkImageMagnitude::ExecuteInformation(vtkImageData *vtkNotUsed(inData), 
-                                           vtkImageData *outData)
+vtkImageMagnitude::vtkImageMagnitude()
 {
-  outData->SetNumberOfScalarComponents(1);
+  this->SetNumberOfInputPorts(1);
+  this->SetNumberOfOutputPorts(1);
+}
+
+void vtkImageMagnitude::ExecuteInformation(
+  vtkInformation       * vtkNotUsed( request ),
+  vtkInformationVector * vtkNotUsed( inputVector ), 
+  vtkInformationVector * outputVector)
+{
+  // get the info objects
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+  outInfo->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(),1);
 }
 
 //----------------------------------------------------------------------------
@@ -78,7 +90,7 @@ void vtkImageMagnitudeExecute(vtkImageMagnitude *self,
 // This method contains a switch statement that calls the correct
 // templated function for the input data type.  The output data
 // must match input type.  This method does handle boundary conditions.
-void vtkImageMagnitude::ThreadedExecute(vtkImageData *inData, 
+void vtkImageMagnitude::ThreadedExecute (vtkImageData *inData, 
                                         vtkImageData *outData,
                                         int outExt[6], int id)
 {

@@ -20,7 +20,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageStencilData, "1.13");
+vtkCxxRevisionMacro(vtkImageStencilData, "1.14");
 vtkStandardNewMacro(vtkImageStencilData);
 
 //----------------------------------------------------------------------------
@@ -106,8 +106,11 @@ void vtkImageStencilData::Initialize()
     }
   this->ExtentListLengths = NULL;
 
-  int extent[6] = {0, -1, 0, -1, 0, -1};
-  this->Information->Set(vtkDataObject::DATA_EXTENT(), extent, 6);
+  if(this->Information)
+    {
+    int extent[6] = {0, -1, 0, -1, 0, -1};
+    this->Information->Set(vtkDataObject::DATA_EXTENT(), extent, 6);
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -232,7 +235,8 @@ void vtkImageStencilData::InternalImageStencilDataCopy(vtkImageStencilData *s)
 // Override from vtkDataObject because we have to handle the Spacing
 // and Origin as well as the UpdateExtent.
 void vtkImageStencilData::PropagateUpdateExtent()
-{  
+{
+#if 0
   // If we need to update due to PipelineMTime, or the fact that our
   // data was released, then propagate the update extent to the source 
   // if there is one.
@@ -250,6 +254,9 @@ void vtkImageStencilData::PropagateUpdateExtent()
   // update the value of this ivar
   this->LastUpdateExtentWasOutsideOfTheExtent = 
     this->UpdateExtentIsOutsideOfTheExtent();
+#else
+  this->Superclass::PropagateUpdateExtent();
+#endif
 }
 
 //----------------------------------------------------------------------------
@@ -257,6 +264,7 @@ void vtkImageStencilData::PropagateUpdateExtent()
 // and Origin as well as the UpdateExtent.
 void vtkImageStencilData::TriggerAsynchronousUpdate()
 {
+#if 0
   // If we need to update due to PipelineMTime, or the fact that our
   // data was released, then propagate the trigger to the source
   // if there is one.
@@ -269,11 +277,15 @@ void vtkImageStencilData::TriggerAsynchronousUpdate()
       this->Source->TriggerAsynchronousUpdate();
       }
     }
+#else
+  this->Superclass::TriggerAsynchronousUpdate();
+#endif
 }
 
 //----------------------------------------------------------------------------
 void vtkImageStencilData::UpdateData()
 {
+#if 0
   // If we need to update due to PipelineMTime, or the fact that our
   // data was released, then propagate the UpdateData to the source
   // if there is one.
@@ -286,6 +298,9 @@ void vtkImageStencilData::UpdateData()
       this->Source->UpdateData(this);
       }
     }
+#else
+  this->Superclass::UpdateData();
+#endif
 }
 
 //----------------------------------------------------------------------------

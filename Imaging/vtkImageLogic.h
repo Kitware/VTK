@@ -34,13 +34,13 @@
 
 
 
-#include "vtkImageTwoInputFilter.h"
+#include "vtkThreadedImageAlgorithm.h"
 
-class VTK_IMAGING_EXPORT vtkImageLogic : public vtkImageTwoInputFilter
+class VTK_IMAGING_EXPORT vtkImageLogic : public vtkThreadedImageAlgorithm
 {
 public:
   static vtkImageLogic *New();
-  vtkTypeRevisionMacro(vtkImageLogic,vtkImageTwoInputFilter);
+  vtkTypeRevisionMacro(vtkImageLogic,vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -58,7 +58,17 @@ public:
   // Set the value to use for true in the output.
   vtkSetMacro(OutputTrueValue, double);
   vtkGetMacro(OutputTrueValue, double);
+
+    // Description:
+  // Set the Input1 of this filter. 
+  virtual void SetInput1(vtkDataObject *input) {
+    this->SetInput(0,input);};
   
+  // Description:
+  // Set the Input2 of this filter.
+  virtual void SetInput2(vtkDataObject *input) {
+    this->SetInput(1,input);};
+
 protected:
   vtkImageLogic();
   ~vtkImageLogic() {};
@@ -66,8 +76,12 @@ protected:
   int Operation;
   double OutputTrueValue;
   
-  void ThreadedExecute(vtkImageData **inDatas, vtkImageData *outData,
-                       int extent[6], int id);
+  void ThreadedRequestData (vtkInformation *request, 
+                            vtkInformationVector *inputVector, 
+                            vtkInformationVector *outputVector,
+                            vtkImageData ***inData, vtkImageData **outData,
+                            int extent[6], int id);
+
 private:
   vtkImageLogic(const vtkImageLogic&);  // Not implemented.
   void operator=(const vtkImageLogic&);  // Not implemented.

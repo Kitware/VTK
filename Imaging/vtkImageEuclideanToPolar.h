@@ -21,13 +21,14 @@
 #define __vtkImageEuclideanToPolar_h
 
 
-#include "vtkImageToImageFilter.h"
+#include "vtkThreadedImageAlgorithm.h"
 
-class VTK_IMAGING_EXPORT vtkImageEuclideanToPolar : public vtkImageToImageFilter
+class VTK_IMAGING_EXPORT vtkImageEuclideanToPolar : public vtkThreadedImageAlgorithm
 {
 public:
   static vtkImageEuclideanToPolar *New();
-  vtkTypeRevisionMacro(vtkImageEuclideanToPolar,vtkImageToImageFilter);
+  vtkTypeRevisionMacro(vtkImageEuclideanToPolar,
+                       vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -43,7 +44,7 @@ protected:
 
   double ThetaMaximum;
   
-  void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
+  void ThreadedExecute (vtkImageData *inData, vtkImageData *outData,
                        int ext[6], int id);
 private:
   vtkImageEuclideanToPolar(const vtkImageEuclideanToPolar&);  // Not implemented.

@@ -15,15 +15,19 @@
 #include "vtkBooleanTexture.h"
 
 #include "vtkImageData.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkPointData.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkBooleanTexture, "1.39");
+vtkCxxRevisionMacro(vtkBooleanTexture, "1.40");
 vtkStandardNewMacro(vtkBooleanTexture);
 
 vtkBooleanTexture::vtkBooleanTexture()
 {
+  this->SetNumberOfInputPorts(0);
   this->Thickness = 0;
 
   this->XSize = this->YSize = 12;
@@ -40,13 +44,25 @@ vtkBooleanTexture::vtkBooleanTexture()
 }
 
 //----------------------------------------------------------------------------
-void vtkBooleanTexture::ExecuteInformation()
+void vtkBooleanTexture::ExecuteInformation (
+  vtkInformation * vtkNotUsed(request),
+  vtkInformationVector * vtkNotUsed( inputVector ),
+  vtkInformationVector *outputVector)
 {
-  vtkImageData *output = this->GetOutput();
+  // get the info objects
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
   
-  output->SetWholeExtent(0,this->XSize -1, 0, this->YSize - 1, 0,0);
-  output->SetScalarType(VTK_UNSIGNED_CHAR);
-  output->SetNumberOfScalarComponents(2);
+  int wExt[6];
+  wExt[0] = 0;
+  wExt[1] = this->XSize - 1;
+  wExt[2] = 0;
+  wExt[3] = this->YSize - 1;
+  wExt[4] = 0;
+  wExt[5] = 0;
+  
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),wExt,6);
+  outInfo->Set(vtkDataObject::SCALAR_TYPE(),VTK_UNSIGNED_CHAR);
+  outInfo->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(),2);
 }
 
 void vtkBooleanTexture::ExecuteData(vtkDataObject *outp)

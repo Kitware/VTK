@@ -16,14 +16,19 @@
 
 #include "vtkImageData.h"
 #include "vtkImageProgressIterator.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageCast, "1.45");
+vtkCxxRevisionMacro(vtkImageCast, "1.46");
 vtkStandardNewMacro(vtkImageCast);
 
 //----------------------------------------------------------------------------
 vtkImageCast::vtkImageCast()
 {
+  this->SetNumberOfInputPorts(1);
+  this->SetNumberOfOutputPorts(1);
   this->OutputScalarType = VTK_FLOAT;
   this->ClampOverflow = 0;
 }
@@ -31,25 +36,14 @@ vtkImageCast::vtkImageCast()
 
 //----------------------------------------------------------------------------
 // Just change the Image type.
-void vtkImageCast::ExecuteInformation(vtkImageData *vtkNotUsed(inData), 
-                                      vtkImageData *outData)
+void vtkImageCast::ExecuteInformation(
+  vtkInformation       * vtkNotUsed( request ),
+  vtkInformationVector * vtkNotUsed( inputVector ), 
+  vtkInformationVector * outputVector)
 {
-  outData->SetScalarType(this->OutputScalarType);
-}
-
-//----------------------------------------------------------------------------
-// The update method first checks to see is a cast is necessary.
-void vtkImageCast::UpdateData(vtkDataObject *data)
-{
-  
-  if (! this->GetInput() || ! this->GetOutput())
-    {
-    vtkErrorMacro("Update: Input or output is not set.");
-    return;
-    }
-  
-  // call the superclass update which will cause an execute.
-  this->vtkImageToImageFilter::UpdateData(data);
+  // get the info objects
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+  outInfo->Set(vtkDataObject::SCALAR_TYPE(),this->OutputScalarType);
 }
 
 //----------------------------------------------------------------------------
@@ -139,13 +133,10 @@ void vtkImageCastExecute(vtkImageCast *self,
 // algorithm to fill the output from the input.
 // It just executes a switch statement to call the correct function for
 // the regions data types.
-void vtkImageCast::ThreadedExecute(vtkImageData *inData, 
+void vtkImageCast::ThreadedExecute (vtkImageData *inData, 
                                    vtkImageData *outData,
                                    int outExt[6], int id)
 {
-  vtkDebugMacro(<< "Execute: inData = " << inData 
-                << ", outData = " << outData);
-  
   switch (inData->GetScalarType())
     {
     vtkTemplateMacro6(vtkImageCastExecute, this, inData, 

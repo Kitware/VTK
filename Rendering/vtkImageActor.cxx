@@ -20,7 +20,7 @@
 #include "vtkRenderer.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImageActor, "1.18");
+vtkCxxRevisionMacro(vtkImageActor, "1.19");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -53,7 +53,6 @@ vtkImageActor::~vtkImageActor()
 {
   if (this->Input)
     {
-    this->Input->RemoveConsumer(this);
     this->GetInput()->UnRegister(this);
     this->Input = NULL;
     }
@@ -363,14 +362,12 @@ void vtkImageActor::SetInput(vtkImageData *args)
     {                                                           
     if (this->Input != NULL) 
       { 
-      this->Input->RemoveConsumer(this);
       this->Input->UnRegister(this); 
       }   
     this->Input = args;                                          
     if (this->Input != NULL) 
       { 
       this->Input->Register(this); 
-      this->Input->AddConsumer(this);
       }     
     this->Modified();                                           
     }                                                           

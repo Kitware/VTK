@@ -15,10 +15,13 @@
 #include "vtkImageMandelbrotSource.h"
 
 #include "vtkImageData.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkImageMandelbrotSource, "1.36");
+vtkCxxRevisionMacro(vtkImageMandelbrotSource, "1.37");
 vtkStandardNewMacro(vtkImageMandelbrotSource);
 
 //----------------------------------------------------------------------------
@@ -52,6 +55,8 @@ vtkImageMandelbrotSource::vtkImageMandelbrotSource()
   this->ProjectionAxes[0] = 0;
   this->ProjectionAxes[1] = 1;
   this->ProjectionAxes[2] = 2;
+
+  this->SetNumberOfInputPorts(0);
 }
 
 //----------------------------------------------------------------------------
@@ -229,14 +234,20 @@ void vtkImageMandelbrotSource::GetSizeCX(double s[4])
 }
 
 //----------------------------------------------------------------------------
-void vtkImageMandelbrotSource::ExecuteInformation()
+void vtkImageMandelbrotSource::ExecuteInformation (
+  vtkInformation * vtkNotUsed(request),
+  vtkInformationVector * vtkNotUsed( inputVector ),
+  vtkInformationVector *outputVector)
 {
+  // get the info objects
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+
   int idx, axis;
   double origin[3];
   double spacing[3];
-  vtkImageData *output = this->GetOutput();
   
-  output->SetWholeExtent(this->WholeExtent);
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
+               this->WholeExtent,6);
   for (idx = 0; idx < 3; ++idx)
     {
     axis = this->ProjectionAxes[idx];
@@ -253,10 +264,10 @@ void vtkImageMandelbrotSource::ExecuteInformation()
       }
     }
 
-  output->SetSpacing(spacing);
-  output->SetOrigin(origin);
-  output->SetNumberOfScalarComponents(1);
-  output->SetScalarType(VTK_FLOAT);
+  outInfo->Set(vtkDataObject::SPACING(),spacing,3);
+  outInfo->Set(vtkDataObject::ORIGIN(),origin,3);
+  outInfo->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(),1);
+  outInfo->Set(vtkDataObject::SCALAR_TYPE(),VTK_FLOAT);
 }
 
 //----------------------------------------------------------------------------

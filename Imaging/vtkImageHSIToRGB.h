@@ -24,13 +24,13 @@
 #ifndef __vtkImageHSIToRGB_h
 #define __vtkImageHSIToRGB_h
 
-#include "vtkImageToImageFilter.h"
+#include "vtkThreadedImageAlgorithm.h"
 
-class VTK_IMAGING_EXPORT vtkImageHSIToRGB : public vtkImageToImageFilter
+class VTK_IMAGING_EXPORT vtkImageHSIToRGB : public vtkThreadedImageAlgorithm
 {
 public:
   static vtkImageHSIToRGB *New();
-  vtkTypeRevisionMacro(vtkImageHSIToRGB,vtkImageToImageFilter);
+  vtkTypeRevisionMacro(vtkImageHSIToRGB,vtkThreadedImageAlgorithm);
 
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -48,7 +48,7 @@ protected:
 
   double Maximum;
   
-  void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
+  void ThreadedExecute (vtkImageData *inData, vtkImageData *outData,
                        int ext[6], int id);
 private:
   vtkImageHSIToRGB(const vtkImageHSIToRGB&);  // Not implemented.

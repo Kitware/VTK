@@ -64,8 +64,11 @@ public:
   void GetUpdateExtent(int &piece, int &numPieces, int &ghostLevel);
 
   // Description:
-  // We need this here to keep from hiding superclass method
-  vtkGetVector6Macro( UpdateExtent, int );
+  // We need this here to avoid hiding superclass method
+  virtual int* GetUpdateExtent();
+  virtual void GetUpdateExtent(int& x0, int& x1, int& y0, int& y1,
+                               int& z0, int& z1);
+  virtual void GetUpdateExtent(int extent[6]);
 
   // Description:
   // Call superclass method to avoid hiding

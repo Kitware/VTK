@@ -71,9 +71,6 @@
 #cmakedefine VTK_USE_CARBON
 #cmakedefine VTK_USE_COCOA
 
-/* Whether to enable the vtkAlgorithm/vtkExecutive-based pipeline.  */
-#cmakedefine VTK_USE_EXECUTIVES
-
 /* Whether we are linking to Tcl/Tk statically.  */
 #cmakedefine VTK_TCL_TK_STATIC
 

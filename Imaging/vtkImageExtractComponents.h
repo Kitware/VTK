@@ -24,13 +24,13 @@
 #define __vtkImageExtractComponents_h
 
 
-#include "vtkImageToImageFilter.h"
+#include "vtkThreadedImageAlgorithm.h"
 
-class VTK_IMAGING_EXPORT vtkImageExtractComponents : public vtkImageToImageFilter
+class VTK_IMAGING_EXPORT vtkImageExtractComponents : public vtkThreadedImageAlgorithm
 {
 public:
   static vtkImageExtractComponents *New();
-  vtkTypeRevisionMacro(vtkImageExtractComponents,vtkImageToImageFilter);
+  vtkTypeRevisionMacro(vtkImageExtractComponents,vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -52,9 +52,10 @@ protected:
   int NumberOfComponents;
   int Components[3];
 
-  void ExecuteInformation(vtkImageData *inData, vtkImageData *outData);
-  void ExecuteInformation(){this->vtkImageToImageFilter::ExecuteInformation();};
-  void ThreadedExecute(vtkImageData *inData, vtkImageData *outData, 
+  void ExecuteInformation (vtkInformation *, vtkInformationVector *, 
+                           vtkInformationVector *);
+  
+  void ThreadedExecute (vtkImageData *inData, vtkImageData *outData, 
                        int ext[6], int id);
 private:
   vtkImageExtractComponents(const vtkImageExtractComponents&);  // Not implemented.

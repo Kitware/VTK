@@ -19,7 +19,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageAnisotropicDiffusion2D, "1.45");
+vtkCxxRevisionMacro(vtkImageAnisotropicDiffusion2D, "1.46");
 vtkStandardNewMacro(vtkImageAnisotropicDiffusion2D);
 
 //----------------------------------------------------------------------------
@@ -149,6 +149,7 @@ void vtkImageAnisotropicDiffusion2D::ThreadedExecute(vtkImageData *inData,
   out->SetExtent(inExt);
   out->SetNumberOfScalarComponents(inData->GetNumberOfScalarComponents());
   out->SetScalarType(VTK_DOUBLE);
+  out->AllocateScalars();
   
   // Loop performing the diffusion
   // Note: region extent could get smaller as the diffusion progresses

@@ -26,14 +26,14 @@
 #define __vtkImageNoiseSource_h
 
 
-#include "vtkImageSource.h"
+#include "vtkImageAlgorithm.h"
 
 
-class VTK_IMAGING_EXPORT vtkImageNoiseSource : public vtkImageSource 
+class VTK_IMAGING_EXPORT vtkImageNoiseSource : public vtkImageAlgorithm 
 {
 public:
   static vtkImageNoiseSource *New();
-  vtkTypeRevisionMacro(vtkImageNoiseSource,vtkImageSource);
+  vtkTypeRevisionMacro(vtkImageNoiseSource,vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -56,7 +56,7 @@ protected:
   double Maximum;
   int WholeExtent[6];
 
-  virtual void ExecuteInformation();
+  virtual void ExecuteInformation (vtkInformation *, vtkInformationVector *, vtkInformationVector *);
   virtual void ExecuteData(vtkDataObject *data);
 private:
   vtkImageNoiseSource(const vtkImageNoiseSource&);  // Not implemented.

@@ -13,11 +13,14 @@
 
 =========================================================================*/
 #include "vtkImageEllipsoidSource.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
 #include "vtkImageData.h"
 
-vtkCxxRevisionMacro(vtkImageEllipsoidSource, "1.27");
+vtkCxxRevisionMacro(vtkImageEllipsoidSource, "1.28");
 vtkStandardNewMacro(vtkImageEllipsoidSource);
 
 //----------------------------------------------------------------------------
@@ -39,6 +42,7 @@ vtkImageEllipsoidSource::vtkImageEllipsoidSource()
   this->OutValue = 0.0;
   
   this->OutputScalarType = VTK_UNSIGNED_CHAR;
+  this->SetNumberOfInputPorts(0);
 }
 
 //----------------------------------------------------------------------------
@@ -101,19 +105,19 @@ void vtkImageEllipsoidSource::GetWholeExtent(int extent[6])
 }
 
 //----------------------------------------------------------------------------
-void vtkImageEllipsoidSource::ExecuteInformation()
+void vtkImageEllipsoidSource::ExecuteInformation (
+  vtkInformation * vtkNotUsed(request),
+  vtkInformationVector * vtkNotUsed( inputVector ),
+  vtkInformationVector *outputVector)
 {
-  vtkImageData *data = this->GetOutput();
+  // get the info objects
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
   
-  data->SetSpacing(1.0, 1.0, 1.0);
-  data->SetWholeExtent(this->WholeExtent);
-  data->SetNumberOfScalarComponents(1);
-  data->SetScalarType(this->OutputScalarType);
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
+               this->WholeExtent, 6);
+  outInfo->Set(vtkDataObject::SCALAR_TYPE(),this->OutputScalarType);
+
 }
-
-
-
-
 
 template <class T>
 void vtkImageEllipsoidSourceExecute(vtkImageEllipsoidSource *self,

@@ -271,14 +271,22 @@ public:
     {this->SetScalarType(VTK_UNSIGNED_CHAR);};
   void SetScalarTypeToChar()
     {this->SetScalarType(VTK_CHAR);};
-  vtkSetMacro(ScalarType, int);
+  void SetScalarType(int);
   int GetScalarType();
   const char* GetScalarTypeAsString() { return vtkImageScalarTypeNameMacro ( this->GetScalarType() ); };
 
   // Description:
+  // Get the pipeline scalar type
+  int GetPipelineScalarType();
+
+  // Description:
+  // Get the pipeline number of scalar components for points.
+  int GetPipelineNumberOfScalarComponents();
+  
+  // Description:
   // Set/Get the number of scalar components for points.
   void SetNumberOfScalarComponents( int n );
-  vtkGetMacro(NumberOfScalarComponents,int);
+  int GetNumberOfScalarComponents();
 
   // Must only be called with vtkImageData (or subclass) as input
   void CopyTypeSpecificInformation( vtkDataObject *image );
@@ -341,13 +349,10 @@ protected:
 
   double Origin[3];
   double Spacing[3];
-  int ScalarType;
-  int NumberOfScalarComponents;
 
   void ComputeIncrements();
-
-  virtual void CopyDownstreamIVarsFromInformation(vtkInformation*);
-  virtual void CopyDownstreamIVarsToInformation(vtkInformation*);
+  virtual void CopyPipelineInformation(vtkInformation* oldPInfo,
+                                       vtkInformation* newPInfo);
 
 private:
   void InternalImageDataCopy(vtkImageData *src);

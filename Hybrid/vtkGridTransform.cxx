@@ -20,7 +20,7 @@
 
 #include "math.h"
 
-vtkCxxRevisionMacro(vtkGridTransform, "1.25");
+vtkCxxRevisionMacro(vtkGridTransform, "1.26");
 vtkStandardNewMacro(vtkGridTransform);
 
 vtkCxxSetObjectMacro(vtkGridTransform,DisplacementGrid,vtkImageData);
@@ -1294,17 +1294,17 @@ void vtkGridTransform::InternalUpdate()
 
   grid->UpdateInformation();
 
-  if (grid->GetNumberOfScalarComponents() != 3)
+  if (grid->GetPipelineNumberOfScalarComponents() != 3)
     {
     vtkErrorMacro(<< "TransformPoint: displacement grid must have 3 components");
     return;
     }
-  if (grid->GetScalarType() != VTK_CHAR &&
-      grid->GetScalarType() != VTK_UNSIGNED_CHAR &&
-      grid->GetScalarType() != VTK_SHORT &&
-      grid->GetScalarType() != VTK_UNSIGNED_SHORT &&
-      grid->GetScalarType() != VTK_FLOAT &&
-      grid->GetScalarType() != VTK_DOUBLE)
+  if (grid->GetPipelineScalarType() != VTK_CHAR &&
+      grid->GetPipelineScalarType() != VTK_UNSIGNED_CHAR &&
+      grid->GetPipelineScalarType() != VTK_SHORT &&
+      grid->GetPipelineScalarType() != VTK_UNSIGNED_SHORT &&
+      grid->GetPipelineScalarType() != VTK_FLOAT &&
+      grid->GetPipelineScalarType() != VTK_DOUBLE)
     {
     vtkErrorMacro(<< "TransformPoint: displacement grid is of unsupported numerical type");
     return;
@@ -1314,7 +1314,7 @@ void vtkGridTransform::InternalUpdate()
   grid->Update();
 
   this->GridPointer = grid->GetScalarPointer();
-  this->GridScalarType = grid->GetScalarType();
+  this->GridScalarType = grid->GetPipelineScalarType();
 
   grid->GetSpacing(this->GridSpacing);
   grid->GetOrigin(this->GridOrigin);

@@ -18,7 +18,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkPolyDataSource, "1.10");
+vtkCxxRevisionMacro(vtkPolyDataSource, "1.11");
 
 //----------------------------------------------------------------------------
 vtkPolyDataSource::vtkPolyDataSource()
@@ -103,7 +103,6 @@ int vtkPolyDataSource::FillOutputPortInformation(int port,
     return 0;
     }
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkPolyData");
-  info->Set(vtkDataObject::DATA_EXTENT_TYPE(), VTK_PIECES_EXTENT);
   return 1;
 }
 

@@ -36,7 +36,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImplicitModeller, "1.87");
+vtkCxxRevisionMacro(vtkImplicitModeller, "1.88");
 vtkStandardNewMacro(vtkImplicitModeller);
 
 struct vtkImplicitModellerAppendInfo
@@ -955,13 +955,11 @@ vtkImplicitModeller::FillInputPortInformation(int port, vtkInformation* info)
   return 1;
 }
 
-int vtkImplicitModeller::ProcessDownstreamRequest(
-  vtkInformation *request, 
-  vtkInformationVector *inputVector, 
-  vtkInformationVector *outputVector)
+//----------------------------------------------------------------------------
+int vtkImplicitModeller::ProcessRequest(vtkInformation* request,
+                                        vtkInformationVector* inputVector,
+                                        vtkInformationVector* outputVector)
 {
-#ifdef VTK_USE_EXECUTIVES
-
   // should we generate the data?
   if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
     {
@@ -972,9 +970,7 @@ int vtkImplicitModeller::ProcessDownstreamRequest(
       return 1;
       }
     }
-#endif
-  return this->Superclass::ProcessDownstreamRequest(request, inputVector,
-                                                    outputVector);
+  return this->Superclass::ProcessRequest(request, inputVector, outputVector);
 }
 
 void vtkImplicitModeller::PrintSelf(ostream& os, vtkIndent indent)

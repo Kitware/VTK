@@ -27,13 +27,13 @@
 #ifndef __vtkImageMandelbrotSource_h
 #define __vtkImageMandelbrotSource_h
 
-#include "vtkImageSource.h"
+#include "vtkImageAlgorithm.h"
 
-class VTK_IMAGING_EXPORT vtkImageMandelbrotSource : public vtkImageSource
+class VTK_IMAGING_EXPORT vtkImageMandelbrotSource : public vtkImageAlgorithm
 {
 public:
   static vtkImageMandelbrotSource *New();
-  vtkTypeRevisionMacro(vtkImageMandelbrotSource,vtkImageSource);
+  vtkTypeRevisionMacro(vtkImageMandelbrotSource,vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);   
   
   // Description:
@@ -121,7 +121,7 @@ protected:
   int ConstantSize;
 
   virtual void ExecuteData(vtkDataObject *outData);
-  virtual void ExecuteInformation();
+  virtual void ExecuteInformation (vtkInformation *, vtkInformationVector *, vtkInformationVector *);
   double EvaluateSet(double p[4]);
 private:
   vtkImageMandelbrotSource(const vtkImageMandelbrotSource&);  // Not implemented.

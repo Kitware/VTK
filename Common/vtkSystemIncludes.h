@@ -46,6 +46,9 @@
 #define vtkFloatingPointType vtkFloatingPointType 
 typedef double vtkFloatingPointType;
 
+// this should be removed at some point
+#define VTK_USE_EXECUTIVES
+
 // Choose an implementation for vtkIdType.
 #define VTK_HAS_ID_TYPE
 #ifdef VTK_USE_64BIT_IDS

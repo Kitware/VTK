@@ -66,29 +66,22 @@ public:
   // Upstream/Downstream requests form the generalized interface
   // through which executives invoke a algorithm's functionality.
   // Upstream requests correspond to information flow from the
-  // algorithm's outputs to its inputs.
+  // algorithm's outputs to its inputs.  Downstream requests
+  // correspond to information flow from the algorithm's inputs to its
+  // outputs.
+  //
+  // A downstream request is defined by the contents of the request
+  // information object.  The input to the request is stored in the
+  // input information vector passed to ProcessRequest.  The results
+  // of an downstream request are stored in the output information
+  // vector passed to ProcessRequest.
   //
   // An upstream request is defined by the contents of the request
   // information object.  The input to the request is stored in the
-  // output information vector passed to ProcessUpstreamRequest.  The
-  // results of an upstream request are stored in the input
-  // information vector passed to ProcessUpstreamRequest.
-  virtual int ProcessUpstreamRequest(vtkInformation* request,
-                                     vtkInformationVector* inInfo,
-                                     vtkInformationVector* outInfo);
-
-  // Description:
-  // Upstream/Downstream requests form the generalized interface
-  // through which executives invoke a algorithm's functionality.
-  // Downstream requests correspond to information flow from the
-  // algorithm's inputs to its outputs.
-  //
-  // An downstream request is defined by the contents of the request
-  // information object.  The input to the request is stored in the
-  // input information vector passed to ProcessDownstreamRequest.  The
-  // results of an downstream request are stored in the output
-  // information vector passed to ProcessDownstreamRequest.
-  virtual int ProcessDownstreamRequest(vtkInformation* request,
+  // output information vector passed to ProcessRequest.  The results
+  // of an upstream request are stored in the input information vector
+  // passed to ProcessRequest.
+  virtual int ProcessRequest(vtkInformation* request,
                                        vtkInformationVector* inInfo,
                                        vtkInformationVector* outInfo);
 
@@ -100,6 +93,15 @@ public:
   vtkInformation* GetInputPortInformation(int port);
 
   // Description:
+  // Get the information object associated with an input connection.  this is
+  // a convienience method that filters can use to reduce duplicated
+  // code. Basically it will look up in the inputVector passed in the port
+  // info and then lookup the conneciton info for the port and connection
+  // passed in.
+  vtkInformation* GetInputConnectionInformation(vtkInformationVector *inInfo,
+                                                int port, int connection);
+  
+  // Description:
   // Get the information object associated with an output port.  There
   // is one output port per output from the algorithm.  Each output
   // port tells executives what kind of upstream requests this
@@ -110,15 +112,6 @@ public:
   // Set/Get the information object associated with this algorithm.
   vtkGetObjectMacro(Information, vtkInformation);
   virtual void SetInformation(vtkInformation*);
-
-  // Description:
-  // Set an input of this algorithm.  The input must correspond to the
-  // output of another algorithm.
-  //
-  // TODO: Accept an actual vtkDataObject instance as input and use it
-  // to establish the pipeline connection to maintain backward
-  // compatability.
-  void SetInput(int index, vtkAlgorithmOutput* input);
 
   // Description:
   // Get the data object that will contain the algorithm output for
@@ -155,6 +148,10 @@ public:
   // Description:
   // Get the number of input currently connected to a port.
   int GetNumberOfInputConnections(int port);
+
+  // Description:
+  // Get the total number of inputs for this algorithm
+  int GetTotalNumberOfInputConnections();
 
   // Description:
   // Get the algorithm output port connected to an input port.
@@ -207,6 +204,26 @@ public:
   static vtkInformationInformationVectorKey* INPUT_CONNECTION_INFORMATION();
   static vtkInformationInformationVectorKey* INPUT_REQUIRED_FIELDS();
   static vtkInformationStringKey* INPUT_REQUIRED_DATA_TYPE();
+
+  // Description:
+  // Conviniance routine to convert from a linrar ordering of input
+  // connections to a port, connecction pair
+  void ConvertTotalInputToPortConnection(int ind, int &port, int &conn);
+  
+
+  //======================================================================
+  //The followling block of code is to support old style VTK applications. If
+  //you are using these calls there are better ways to do it in the new
+  //pipeline
+  //======================================================================
+  
+  // Description:
+  // Turn release data flag on or off for all output ports.
+  void ReleaseDataFlagOn();
+  void ReleaseDataFlagOff();
+
+  //========================================================================
+  
 protected:
   vtkAlgorithm();
   ~vtkAlgorithm();

@@ -16,11 +16,14 @@
 
 #include "vtkCamera.h"
 #include "vtkImageData.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkRenderWindow.h"
 #include "vtkRendererCollection.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkWindowToImageFilter, "1.29");
+vtkCxxRevisionMacro(vtkWindowToImageFilter, "1.30");
 vtkStandardNewMacro(vtkWindowToImageFilter);
 
 //----------------------------------------------------------------------------
@@ -34,6 +37,8 @@ vtkWindowToImageFilter::vtkWindowToImageFilter()
   this->Viewport[1] = 0;
   this->Viewport[2] = 1;
   this->Viewport[3] = 1;
+
+  this->SetNumberOfInputPorts(0);
 }
 
 //----------------------------------------------------------------------------
@@ -61,7 +66,7 @@ void vtkWindowToImageFilter::SetInput(vtkWindow *input)
 //----------------------------------------------------------------------------
 void vtkWindowToImageFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkImageSource::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
   
   if ( this->Input )
     {
@@ -82,7 +87,10 @@ void vtkWindowToImageFilter::PrintSelf(ostream& os, vtkIndent indent)
 
 //----------------------------------------------------------------------------
 // This method returns the largest region that can be generated.
-void vtkWindowToImageFilter::ExecuteInformation()
+void vtkWindowToImageFilter::ExecuteInformation (
+  vtkInformation * vtkNotUsed(request),
+  vtkInformationVector * vtkNotUsed( inputVector ),
+  vtkInformationVector *outputVector)
 {
   if (this->Input == NULL )
     {
@@ -101,26 +109,24 @@ void vtkWindowToImageFilter::ExecuteInformation()
       this->Viewport[3] = 1; 
     }
   
-  vtkImageData *out = this->GetOutput();
-  
  
   // set the extent
   int *size = this->Input->GetSize();
-  out->SetWholeExtent(0, 
-                      int((this->Viewport[2] - this->Viewport[0])*size[0] + 0.5)*this->Magnification - 1,
-                      0, 
-                      int((this->Viewport[3] - this->Viewport[1])*size[1] + 0.5)*this->Magnification - 1,
-                      0, 0);
-  
-  // set the spacing
-  out->SetSpacing(1.0, 1.0, 1.0);
-  
-  // set the origin.
-  out->SetOrigin(0.0, 0.0, 0.0);
-  
-  // set the scalar components
-  out->SetNumberOfScalarComponents(3);
-  out->SetScalarType(VTK_UNSIGNED_CHAR);
+  int wExtent[6];
+  wExtent[0]= 0;
+  wExtent[1] = int((this->Viewport[2] - this->Viewport[0])*size[0] + 0.5)*
+    this->Magnification - 1;
+  wExtent[2] = 0;
+  wExtent[3] = int((this->Viewport[3] - this->Viewport[1])*size[1] + 0.5)*
+    this->Magnification - 1;
+  wExtent[4] = 0;
+  wExtent[5] = 0;
+
+  // get the info objects
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), wExtent, 6);
+  outInfo->Set(vtkDataObject::SCALAR_TYPE(), VTK_UNSIGNED_CHAR);
+  outInfo->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(),3);
 }
 
 

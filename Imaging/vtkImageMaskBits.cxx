@@ -20,11 +20,13 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageMaskBits, "1.16");
+vtkCxxRevisionMacro(vtkImageMaskBits, "1.17");
 vtkStandardNewMacro(vtkImageMaskBits);
 
 vtkImageMaskBits::vtkImageMaskBits()
 {
+  this->SetNumberOfInputPorts(1);
+  this->SetNumberOfOutputPorts(1);
   this->Operation = VTK_AND;
   this->Masks[0] = 0xffffffff;
   this->Masks[1] = 0xffffffff;
@@ -124,18 +126,17 @@ void vtkImageMaskBitsExecute(vtkImageMaskBits *self,
 // This method contains a switch statement that calls the correct
 // templated function for the input data type.  The output data
 // must match input type.  This method does handle boundary conditions.
-void vtkImageMaskBits::ThreadedExecute(vtkImageData *inData, 
+void vtkImageMaskBits::ThreadedExecute (vtkImageData *inData, 
                                         vtkImageData *outData,
                                         int outExt[6], int id)
 {
-  vtkDebugMacro(<< "Execute: inData = " << inData 
-  << ", outData = " << outData);
-  
   // this filter expects that input is the same type as output.
   if (inData->GetScalarType() != outData->GetScalarType())
     {
-    vtkErrorMacro(<< "Execute: input ScalarType, " << inData->GetScalarType()
-    << ", must match out ScalarType " << outData->GetScalarType());
+    vtkErrorMacro(<< "Execute: input ScalarType, " 
+                  << inData->GetScalarType()
+                  << ", must match out ScalarType " 
+                  << outData->GetScalarType());
     return;
     }
   
@@ -186,7 +187,8 @@ void vtkImageMaskBits::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Operation: " << this->Operation << "\n";
-  os << indent << "Masks: (" << this->Masks[0] << ", " << this->Masks[1] << ", "
+  os << indent << "Masks: (" 
+     << this->Masks[0] << ", " << this->Masks[1] << ", "
      << this->Masks[2] << ", " << this->Masks[3] << ")" << endl;
 }
 

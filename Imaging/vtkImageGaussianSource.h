@@ -21,13 +21,13 @@
 #ifndef __vtkImageGaussianSource_h
 #define __vtkImageGaussianSource_h
 
-#include "vtkImageSource.h"
+#include "vtkImageAlgorithm.h"
 
-class VTK_IMAGING_EXPORT vtkImageGaussianSource : public vtkImageSource
+class VTK_IMAGING_EXPORT vtkImageGaussianSource : public vtkImageAlgorithm
 {
 public:
   static vtkImageGaussianSource *New();
-  vtkTypeRevisionMacro(vtkImageGaussianSource,vtkImageSource);
+  vtkTypeRevisionMacro(vtkImageGaussianSource,vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -59,7 +59,7 @@ protected:
   double Center[3];
   double Maximum;
 
-  virtual void ExecuteInformation();
+  virtual void ExecuteInformation (vtkInformation *, vtkInformationVector *, vtkInformationVector *);
   virtual void ExecuteData(vtkDataObject *data);
 private:
   vtkImageGaussianSource(const vtkImageGaussianSource&);  // Not implemented.

@@ -46,8 +46,6 @@ INSTALL_FILES(/lib/vtk .cmake VTKBuildSettings)
 OPTION(BUILD_SHARED_LIBS "Build VTK with shared libraries." OFF)
 SET(VTK_BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS})
 
-OPTION(VTK_USE_EXECUTIVES "Build VTK with the new pipeline" OFF)
-
 #-----------------------------------------------------------------------------
 # Determine the set of VTK kits that should be built.
 OPTION(VTK_USE_RENDERING "Build the vtkRendering kit.  Needed for displaying data." ON)

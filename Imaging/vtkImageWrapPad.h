@@ -26,6 +26,9 @@
 
 #include "vtkImagePadFilter.h"
 
+class vtkInformation;
+class vtkInformationVector;
+
 class VTK_IMAGING_EXPORT vtkImageWrapPad : public vtkImagePadFilter
 {
 public:
@@ -36,10 +39,12 @@ protected:
   vtkImageWrapPad() {};
   ~vtkImageWrapPad() {};
 
-  void ComputeInputUpdateExtent(int inExt[6], int outExt[6]);
-
-  void ThreadedExecute(vtkImageData *inData, vtkImageData *outRegion, 
-                       int ext[6], int id);
+  void ComputeInputUpdateExtent (int inExt[6], int outExt[6], int wExt[6]);
+  void ThreadedRequestData (vtkInformation *request, 
+                            vtkInformationVector *inputVector, 
+                            vtkInformationVector *outputVector,
+                            vtkImageData ***inData, vtkImageData **outData, 
+                            int ext[6], int id);
 private:
   vtkImageWrapPad(const vtkImageWrapPad&);  // Not implemented.
   void operator=(const vtkImageWrapPad&);  // Not implemented.

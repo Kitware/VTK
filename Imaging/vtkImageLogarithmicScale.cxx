@@ -20,13 +20,15 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageLogarithmicScale, "1.24");
+vtkCxxRevisionMacro(vtkImageLogarithmicScale, "1.25");
 vtkStandardNewMacro(vtkImageLogarithmicScale);
 
 //----------------------------------------------------------------------------
 // Constructor sets default values
 vtkImageLogarithmicScale::vtkImageLogarithmicScale()
 {
+  this->SetNumberOfInputPorts(1);
+  this->SetNumberOfOutputPorts(1);
   this->Constant = 10.0;
 }
 
@@ -76,18 +78,17 @@ void vtkImageLogarithmicScaleExecute(vtkImageLogarithmicScale *self,
 // algorithm to fill the output from the input.
 // It just executes a switch statement to call the correct function for
 // the regions data types.
-void vtkImageLogarithmicScale::ThreadedExecute(vtkImageData *inData, 
+void vtkImageLogarithmicScale::ThreadedExecute (vtkImageData *inData, 
                                                vtkImageData *outData,
                                                int outExt[6], int id)
 {
-  vtkDebugMacro(<< "Execute: inData = " << inData 
-  << ", outData = " << outData);
-  
   // this filter expects that input is the same type as output.
   if (inData->GetScalarType() != outData->GetScalarType())
     {
-    vtkErrorMacro(<< "Execute: input ScalarType, " << inData->GetScalarType()
-    << ", must match out ScalarType " << outData->GetScalarType());
+    vtkErrorMacro(<< "Execute: input ScalarType, " 
+                  << inData->GetScalarType()
+                  << ", must match out ScalarType " 
+                  << outData->GetScalarType());
     return;
     }
   

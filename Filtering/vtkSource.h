@@ -119,10 +119,7 @@ public:
   // pipeline calls.  This works with the
   // vtkStreamingDemandDrivenPipeline executive to maintain backward
   // compatibility for filters written as subclasses of vtkSource.
-  virtual int ProcessUpstreamRequest(vtkInformation*,
-                                     vtkInformationVector*,
-                                     vtkInformationVector*);
-  virtual int ProcessDownstreamRequest(vtkInformation*,
+  virtual int ProcessRequest(vtkInformation*,
                                        vtkInformationVector*,
                                        vtkInformationVector*);
 

@@ -19,8 +19,7 @@
 #define __vtkPipelineSize_h
 
 #include "vtkObject.h"
-class vtkSource;
-class vtkDataObject;
+class vtkAlgorithm;
 class vtkPolyDataMapper;
 
 class VTK_PARALLEL_EXPORT vtkPipelineSize : public vtkObject
@@ -36,7 +35,8 @@ public:
   // kilobytes (1024 bytes not 1000) This is only an estimate and the 
   // calculations in here do not take into account the specifics of many
   // sources and filters.
-  unsigned long GetEstimatedSize(vtkDataObject *input);
+  unsigned long GetEstimatedSize(vtkAlgorithm *input, int inputPort, 
+                                 int connection);
 
   // Description:
   // Determine how many subpieces a mapper should use to fit a target memory 
@@ -46,22 +46,20 @@ public:
   
 protected:
   vtkPipelineSize() {};
-  void GenericComputeSourcePipelineSize(vtkSource *src, 
-                                        vtkDataObject *output,
+  void GenericComputeSourcePipelineSize(vtkAlgorithm *src, 
+                                        int outputPort,
                                         unsigned long size[3]);
-  void ComputeSourcePipelineSize(vtkSource *src, 
-                                 vtkDataObject *output,
+  void ComputeSourcePipelineSize(vtkAlgorithm *src, 
+                                 int outputPort,
                                  unsigned long size[3]);
-  void ComputeOutputMemorySize( vtkSource *src,
-                                vtkDataObject *output,
+  void ComputeOutputMemorySize( vtkAlgorithm *src,
+                                int outputPort,
                                 unsigned long *inputSize,
                                 unsigned long size[2] );
-  void GenericComputeOutputMemorySize( vtkSource *src,
-                                       vtkDataObject *output,
+  void GenericComputeOutputMemorySize( vtkAlgorithm *src,
+                                       int outputPort,
                                        unsigned long *inputSize,
                                        unsigned long size[2] );
-  void ComputeDataPipelineSize(vtkDataObject *input,
-                               unsigned long sizes[3]);
 
     
 private:

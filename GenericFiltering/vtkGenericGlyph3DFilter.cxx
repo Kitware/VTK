@@ -24,6 +24,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkDoubleArray.h"
 #include "vtkIdList.h"
 #include "vtkIdTypeArray.h"
+#include "vtkInformation.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
@@ -31,7 +32,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkTransform.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkGenericGlyph3DFilter, "1.3");
+vtkCxxRevisionMacro(vtkGenericGlyph3DFilter, "1.4");
 vtkStandardNewMacro(vtkGenericGlyph3DFilter);
 
 // Construct object with scaling on, scaling mode is by scalar value,
@@ -822,4 +823,29 @@ void vtkGenericGlyph3DFilter::ComputeInputUpdateExtents( vtkDataObject * )
                                     outPd->GetUpdateNumberOfPieces(),
                                     outPd->GetUpdateGhostLevel());
   this->GetInput()->RequestExactExtentOn();
+}
+
+//----------------------------------------------------------------------------
+int vtkGenericGlyph3DFilter
+::FillInputPortInformation(int port, vtkInformation* info)
+{
+  if(!this->Superclass::FillInputPortInformation(port, info))
+    {
+    return 0;
+    }
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataObject");
+
+  // ToDo: once this is converted to the new pipeline the following should be
+  // used instead
+#if 0  
+  if (port == 1)
+    {
+    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPolyData");
+    }
+  else
+    {
+    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkGenericDataSet");
+    }
+#endif
+  return 1;
 }

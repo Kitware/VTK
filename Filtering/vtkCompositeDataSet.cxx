@@ -18,7 +18,7 @@
 #include "vtkCompositeDataVisitor.h"
 #include "vtkDataSet.h"
 
-vtkCxxRevisionMacro(vtkCompositeDataSet, "1.1");
+vtkCxxRevisionMacro(vtkCompositeDataSet, "1.2");
 
 //----------------------------------------------------------------------------
 vtkCompositeDataSet::vtkCompositeDataSet()
@@ -39,20 +39,37 @@ void vtkCompositeDataSet::Initialize()
 //----------------------------------------------------------------------------
 void vtkCompositeDataSet::SetUpdateExtent(int piece, int numPieces, int ghostLevel)
 {
-  this->UpdatePiece = piece;
-  this->UpdateNumberOfPieces = numPieces;
-  this->UpdateGhostLevel = ghostLevel;
-  this->UpdateExtentInitialized = 1;
+  this->SetUpdatePiece(piece);
+  this->SetUpdateNumberOfPieces(numPieces);
+  this->SetUpdateGhostLevel(ghostLevel);
 }
 
 //----------------------------------------------------------------------------
-void vtkCompositeDataSet::GetUpdateExtent(int &piece, int &numPieces, int &ghostLevel)
+void vtkCompositeDataSet::GetUpdateExtent(int& piece, int& numPieces, int& ghostLevel)
 {
-  piece = this->UpdatePiece;
-  numPieces = this->UpdateNumberOfPieces;
-  ghostLevel = this->UpdateGhostLevel;
+  piece = this->GetUpdatePiece();
+  numPieces = this->GetUpdateNumberOfPieces();
+  ghostLevel = this->GetUpdateGhostLevel();
 }
 
+//----------------------------------------------------------------------------
+int* vtkCompositeDataSet::GetUpdateExtent()
+{
+  return this->Superclass::GetUpdateExtent();
+}
+
+//----------------------------------------------------------------------------
+void vtkCompositeDataSet::GetUpdateExtent(int& x0, int& x1, int& y0, int& y1,
+                                          int& z0, int& z1)
+{
+  this->Superclass::GetUpdateExtent(x0, x1, y0, y1, z0, z1);
+}
+
+//----------------------------------------------------------------------------
+void vtkCompositeDataSet::GetUpdateExtent(int extent[6])
+{
+  this->Superclass::GetUpdateExtent(extent);
+}
 
 //----------------------------------------------------------------------------
 void vtkCompositeDataSet::PrintSelf(ostream& os, vtkIndent indent)

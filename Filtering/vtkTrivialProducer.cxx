@@ -14,14 +14,14 @@
 =========================================================================*/
 #include "vtkTrivialProducer.h"
 
-#include "vtkDataObject.h"
+#include "vtkImageData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkGarbageCollector.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkTrivialProducer, "1.1");
+vtkCxxRevisionMacro(vtkTrivialProducer, "1.2");
 vtkStandardNewMacro(vtkTrivialProducer);
 
 //----------------------------------------------------------------------------
@@ -45,30 +45,23 @@ void vtkTrivialProducer::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-void vtkTrivialProducer::SetOutput(vtkDataObject*
-#ifdef VTK_USE_EXECUTIVES
-                                   newOutput
-#endif
-  )
+void vtkTrivialProducer::SetOutput(vtkDataObject*newOutput)
 {
-#ifdef VTK_USE_EXECUTIVES
   vtkDataObject* oldOutput = this->Output;
   if(newOutput != oldOutput)
     {
-    this->Output = newOutput;
     if(newOutput)
       {
       newOutput->Register(this);
-      newOutput->SetProducerPort(this->GetOutputPort(0));
       }
+    this->Output = newOutput;
+    this->GetExecutive()->SetOutputData(this, 0, newOutput);
     if(oldOutput)
       {
-      oldOutput->SetProducerPort(0);
       oldOutput->UnRegister(this);
       }
     this->Modified();
     }
-#endif
 }
 
 //----------------------------------------------------------------------------
@@ -105,25 +98,11 @@ int vtkTrivialProducer::FillOutputPortInformation(int, vtkInformation*)
 }
 
 //----------------------------------------------------------------------------
-int vtkTrivialProducer::ProcessUpstreamRequest(vtkInformation*,
-                                               vtkInformationVector*,
-                                               vtkInformationVector*)
-{
-  return 1;
-}
-
-//----------------------------------------------------------------------------
 int
-vtkTrivialProducer::ProcessDownstreamRequest(vtkInformation* request,
-                                             vtkInformationVector*,
-                                             vtkInformationVector* outputVector)
+vtkTrivialProducer::ProcessRequest(vtkInformation* request,
+                                   vtkInformationVector*,
+                                   vtkInformationVector* outputVector)
 {
-  if(request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()) ||
-     request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
-    {
-    vtkInformation* info = outputVector->GetInformationObject(0);
-    info->Set(vtkDataObject::DATA_OBJECT(), this->Output);
-    }
   if(request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()) &&
      this->Output)
     {
@@ -143,6 +122,15 @@ vtkTrivialProducer::ProcessDownstreamRequest(vtkInformation* request,
       dataInfo->Get(vtkDataObject::DATA_EXTENT(), extent);
       outputInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
                       extent, 6);
+      // for now we only do this for image data, once these ivars are in the
+      // info object we can just do a has check
+      vtkImageData *id = vtkImageData::SafeDownCast(this->Output);
+      if (id)
+        {
+        outputInfo->Set(vtkDataObject::SCALAR_TYPE(),id->GetScalarType());
+        outputInfo->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(),
+                        id->GetNumberOfScalarComponents());
+        }
       }
     }
   if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()) && this->Output)
@@ -162,6 +150,10 @@ void vtkTrivialProducer::ReportReferences(vtkGarbageCollector* collector)
 //----------------------------------------------------------------------------
 void vtkTrivialProducer::RemoveReferences()
 {
-  this->SetOutput(0);
+  if(this->Output)
+    {
+    this->Output->UnRegister(this);
+    this->Output = 0;
+    }
   this->Superclass::RemoveReferences();
 }

@@ -41,13 +41,10 @@ public:
   vtkGenericDataSet *GetInput();
   
 protected:
-  vtkGenericDataSetToUnstructuredGridFilter()
-    {
-      this->NumberOfRequiredInputs = 1;
-    }
-  
+  vtkGenericDataSetToUnstructuredGridFilter();
   ~vtkGenericDataSetToUnstructuredGridFilter() {};
-
+  virtual int FillInputPortInformation(int, vtkInformation*);
+  
 private:
   vtkGenericDataSetToUnstructuredGridFilter(const vtkGenericDataSetToUnstructuredGridFilter&); // Not implemented
   void operator=(const vtkGenericDataSetToUnstructuredGridFilter&); // Not implemented

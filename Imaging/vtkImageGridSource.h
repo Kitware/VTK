@@ -20,13 +20,13 @@
 #ifndef __vtkImageGridSource_h
 #define __vtkImageGridSource_h
 
-#include "vtkImageSource.h"
+#include "vtkImageAlgorithm.h"
 
-class VTK_IMAGING_EXPORT vtkImageGridSource : public vtkImageSource
+class VTK_IMAGING_EXPORT vtkImageGridSource : public vtkImageAlgorithm
 {
 public:
   static vtkImageGridSource *New();
-  vtkTypeRevisionMacro(vtkImageGridSource,vtkImageSource);
+  vtkTypeRevisionMacro(vtkImageGridSource,vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -97,8 +97,11 @@ protected:
   double DataSpacing[3];
   double DataOrigin[3];
 
-  virtual void ExecuteInformation();
+  virtual void ExecuteInformation (vtkInformation *, 
+                                   vtkInformationVector *, 
+                                   vtkInformationVector *);
   virtual void ExecuteData(vtkDataObject *data);
+
 private:
   vtkImageGridSource(const vtkImageGridSource&);  // Not implemented.
   void operator=(const vtkImageGridSource&);  // Not implemented.

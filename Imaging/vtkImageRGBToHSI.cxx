@@ -20,13 +20,15 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageRGBToHSI, "1.3");
+vtkCxxRevisionMacro(vtkImageRGBToHSI, "1.4");
 vtkStandardNewMacro(vtkImageRGBToHSI);
 
 //----------------------------------------------------------------------------
 vtkImageRGBToHSI::vtkImageRGBToHSI()
 {
   this->Maximum = 255.0;
+  this->SetNumberOfInputPorts(1);
+  this->SetNumberOfOutputPorts(1);
 }
 
 //----------------------------------------------------------------------------
@@ -114,7 +116,7 @@ void vtkImageRGBToHSIExecute(vtkImageRGBToHSI *self,
 }
 
 //----------------------------------------------------------------------------
-void vtkImageRGBToHSI::ThreadedExecute(vtkImageData *inData, 
+void vtkImageRGBToHSI::ThreadedExecute (vtkImageData *inData, 
                                          vtkImageData *outData,
                                          int outExt[6], int id)
 {

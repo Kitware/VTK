@@ -54,9 +54,24 @@ public:
                                                int port);
 
   // Description:
-  // Get the data object for an output port of an algorithm.
+  // Get/Set the data object for an output port of an algorithm.
   virtual vtkDataObject* GetOutputData(int port);
   virtual vtkDataObject* GetOutputData(vtkAlgorithm* algorithm, int port);
+  virtual void SetOutputData(int port, vtkDataObject*);
+  virtual void SetOutputData(vtkAlgorithm* algorithm, int port, 
+                             vtkDataObject*);
+
+  // Description:
+  // Get the data object for an output port of an algorithm.
+  virtual vtkDataObject* GetInputData(vtkAlgorithm* algorithm, 
+                                      int port, int connection);
+  virtual vtkDataObject* GetInputData(int port, int connection);
+
+
+  // Description:
+  // Get the output port that produces the given data object.
+  virtual vtkAlgorithmOutput* GetProducerPort(vtkDataObject*);
+
 protected:
   vtkDistributedExecutive();
   ~vtkDistributedExecutive();
@@ -75,11 +90,6 @@ protected:
   virtual void SetAlgorithm(vtkAlgorithm* algorithm);
   vtkAlgorithm* Algorithm;
 
-  // Get/Set the output data for an output port on an algorithm.
-  virtual void SetOutputDataInternal(vtkAlgorithm* algorithm, int port,
-                                     vtkDataObject* output);
-  virtual vtkDataObject* GetOutputDataInternal(vtkAlgorithm* algorithm,
-                                               int port);
 private:
   vtkDistributedExecutive(const vtkDistributedExecutive&);  // Not implemented.
   void operator=(const vtkDistributedExecutive&);  // Not implemented.

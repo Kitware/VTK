@@ -47,8 +47,11 @@ protected:
 
   double Constant;
   
-  void ThreadedExecute(vtkImageData *inData, vtkImageData *outData, 
-                       int outExt[6], int id);
+  void ThreadedRequestData (vtkInformation *request, 
+                            vtkInformationVector *inputVector, 
+                            vtkInformationVector *outputVector,
+                            vtkImageData ***inData, vtkImageData **outData, 
+                            int ext[6], int id);
 private:
   vtkImageConstantPad(const vtkImageConstantPad&);  // Not implemented.
   void operator=(const vtkImageConstantPad&);  // Not implemented.

@@ -22,7 +22,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageToImageStencil, "1.13");
+vtkCxxRevisionMacro(vtkImageToImageStencil, "1.14");
 vtkStandardNewMacro(vtkImageToImageStencil);
 
 //----------------------------------------------------------------------------
@@ -161,7 +161,7 @@ void vtkImageToImageStencil::ThreadedExecute(vtkImageStencilData *data,
 
       int state = 1; // inside or outside, start outside
       int r1 = extent[0];
-      int r2;
+      int r2 = extent[1];
 
       // index into scalar array
       int idS = ((inExt[1] - inExt[0] + 1)*

@@ -20,12 +20,14 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageEuclideanToPolar, "1.26");
+vtkCxxRevisionMacro(vtkImageEuclideanToPolar, "1.27");
 vtkStandardNewMacro(vtkImageEuclideanToPolar);
 
 //----------------------------------------------------------------------------
 vtkImageEuclideanToPolar::vtkImageEuclideanToPolar()
 {
+  this->SetNumberOfInputPorts(1);
+  this->SetNumberOfOutputPorts(1);
   this->ThetaMaximum = 255.0;
 }
 
@@ -83,7 +85,7 @@ void vtkImageEuclideanToPolarExecute(vtkImageEuclideanToPolar *self,
 }
 
 //----------------------------------------------------------------------------
-void vtkImageEuclideanToPolar::ThreadedExecute(vtkImageData *inData, 
+void vtkImageEuclideanToPolar::ThreadedExecute (vtkImageData *inData, 
                                        vtkImageData *outData,
                                        int outExt[6], int id)
 {
@@ -93,8 +95,10 @@ void vtkImageEuclideanToPolar::ThreadedExecute(vtkImageData *inData,
   // this filter expects that input is the same type as output.
   if (inData->GetScalarType() != outData->GetScalarType())
     {
-    vtkErrorMacro(<< "Execute: input ScalarType, " << inData->GetScalarType()
-    << ", must match out ScalarType " << outData->GetScalarType());
+    vtkErrorMacro(<< "Execute: input ScalarType, " 
+                  << inData->GetScalarType()
+                  << ", must match out ScalarType " 
+                  << outData->GetScalarType());
     return;
     }
   
@@ -108,7 +112,8 @@ void vtkImageEuclideanToPolar::ThreadedExecute(vtkImageData *inData,
   switch (inData->GetScalarType())
     {
     vtkTemplateMacro6(vtkImageEuclideanToPolarExecute, this, 
-                      inData, outData, outExt, id, static_cast<VTK_TT *>(0));
+                      inData, outData, outExt, id, 
+                      static_cast<VTK_TT *>(0));
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;

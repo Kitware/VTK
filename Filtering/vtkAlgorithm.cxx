@@ -16,6 +16,7 @@
 
 #include "vtkAlgorithmOutput.h"
 #include "vtkCommand.h"
+#include "vtkDataObject.h"
 #include "vtkGarbageCollector.h"
 #include "vtkInformation.h"
 #include "vtkInformationInformationVectorKey.h"
@@ -29,10 +30,16 @@
 #include <vtkstd/set>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkAlgorithm, "1.1");
+vtkCxxRevisionMacro(vtkAlgorithm, "1.2");
 vtkStandardNewMacro(vtkAlgorithm);
 
 vtkCxxSetObjectMacro(vtkAlgorithm,Information,vtkInformation);
+
+vtkInformationKeyMacro(vtkAlgorithm, INPUT_REQUIRED_DATA_TYPE, String);
+vtkInformationKeyMacro(vtkAlgorithm, INPUT_IS_OPTIONAL, Integer);
+vtkInformationKeyMacro(vtkAlgorithm, INPUT_IS_REPEATABLE, Integer);
+vtkInformationKeyMacro(vtkAlgorithm, INPUT_CONNECTION_INFORMATION, InformationVector);
+vtkInformationKeyMacro(vtkAlgorithm, INPUT_REQUIRED_FIELDS, InformationVector);
 
 //----------------------------------------------------------------------------
 class vtkAlgorithmInternals
@@ -276,36 +283,18 @@ void vtkAlgorithm::SetExecutive(vtkExecutive* executive)
 }
 
 //----------------------------------------------------------------------------
-int vtkAlgorithm::ProcessUpstreamRequest(vtkInformation*,
+int vtkAlgorithm::ProcessRequest(vtkInformation*,
                                          vtkInformationVector* inVector,
                                          vtkInformationVector* outVector)
 {
   if(!inVector)
     {
-    vtkErrorMacro("ProcessUpstreamRequest called with NULL input vector.");
+    vtkErrorMacro("ProcessRequest called with NULL input vector.");
     return 0;
     }
   if(!outVector)
     {
-    vtkErrorMacro("ProcessUpstreamRequest called with NULL output vector.");
-    return 0;
-    }
-  return 1;
-}
-
-//----------------------------------------------------------------------------
-int vtkAlgorithm::ProcessDownstreamRequest(vtkInformation*,
-                                           vtkInformationVector* inVector,
-                                           vtkInformationVector* outVector)
-{
-  if(!inVector)
-    {
-    vtkErrorMacro("ProcessDownstreamRequest called with NULL input vector.");
-    return 0;
-    }
-  if(!outVector)
-    {
-    vtkErrorMacro("ProcessDownstreamRequest called with NULL output vector.");
+    vtkErrorMacro("ProcessRequest called with NULL output vector.");
     return 0;
     }
   return 1;
@@ -358,12 +347,6 @@ void vtkAlgorithm::SetNumberOfOutputPorts(int n)
     }
   this->AlgorithmInternal->OutputPorts.resize(n);
   this->AlgorithmInternal->Outputs.resize(n);
-}
-
-//----------------------------------------------------------------------------
-void vtkAlgorithm::SetInput(int index, vtkAlgorithmOutput* input)
-{
-  this->SetInputConnection(index, input);
 }
 
 //----------------------------------------------------------------------------
@@ -540,6 +523,26 @@ vtkAlgorithmOutput* vtkAlgorithm::GetOutputPort(int port)
   return this->AlgorithmInternal->Outputs[port].GetPointer();
 }
 
+vtkInformation* vtkAlgorithm::GetInputConnectionInformation(
+  vtkInformationVector *inInfo,
+  int port, int connection)
+{
+  vtkInformation* info = inInfo->GetInformationObject(port);
+  if (!info)
+    {
+    return 0;
+    }
+  
+  vtkInformationVector *inVec = 
+    info->Get(vtkAlgorithm::INPUT_CONNECTION_INFORMATION());
+  if (!inVec)
+    {
+    return 0;
+    }
+  
+  return inVec->GetInformationObject(connection);
+}
+
 //----------------------------------------------------------------------------
 vtkInformation* vtkAlgorithm::GetInputPortInformation(int port)
 {
@@ -602,6 +605,18 @@ int vtkAlgorithm::GetNumberOfInputConnections(int port)
     return 0;
     }
   return static_cast<int>(this->AlgorithmInternal->InputPorts[port].size());
+}
+
+//----------------------------------------------------------------------------
+int vtkAlgorithm::GetTotalNumberOfInputConnections()
+{
+  int i;
+  int total = 0;
+  for (i = 0; i < this->GetNumberOfInputPorts(); ++i)
+    {
+    total += this->GetNumberOfInputConnections(i);
+    }
+  return total;
 }
 
 //----------------------------------------------------------------------------
@@ -750,16 +765,49 @@ void vtkAlgorithm::RemoveReferences()
   this->Superclass::RemoveReferences();
 }
 
-//----------------------------------------------------------------------------
-// Define information keys for algorithms.
-#define VTK_ALGORITHM_DEFINE_KEY_METHOD(NAME, type)                         \
-  vtkInformation##type##Key* vtkAlgorithm::NAME()                           \
-    {                                                                       \
-    static vtkInformation##type##Key instance(#NAME, "vtkAlgorithm");       \
-    return &instance;                                                       \
+void vtkAlgorithm::ConvertTotalInputToPortConnection(
+  int ind, int &port, int &conn)
+{
+  port = 0;
+  conn = 0;
+  while (ind && port < this->GetNumberOfInputPorts())
+    {
+    int pNumCon;
+    pNumCon = this->GetNumberOfInputConnections(port);
+    if (ind >= pNumCon)
+      {
+      port++;
+      ind -= pNumCon;
+      }
+    else
+      {
+      return;
+      }
     }
-VTK_ALGORITHM_DEFINE_KEY_METHOD(INPUT_REQUIRED_DATA_TYPE, String);
-VTK_ALGORITHM_DEFINE_KEY_METHOD(INPUT_IS_OPTIONAL, Integer);
-VTK_ALGORITHM_DEFINE_KEY_METHOD(INPUT_IS_REPEATABLE, Integer);
-VTK_ALGORITHM_DEFINE_KEY_METHOD(INPUT_CONNECTION_INFORMATION, InformationVector);
-VTK_ALGORITHM_DEFINE_KEY_METHOD(INPUT_REQUIRED_FIELDS, InformationVector);
+}
+
+//----------------------------------------------------------------------------
+void vtkAlgorithm::ReleaseDataFlagOn()
+{
+  if(vtkDemandDrivenPipeline* ddp =
+     vtkDemandDrivenPipeline::SafeDownCast(this->GetExecutive()))
+    {
+    for(int i=0; i < this->GetNumberOfOutputPorts(); ++i)
+      {
+      ddp->SetReleaseDataFlag(i, 1);
+      }
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkAlgorithm::ReleaseDataFlagOff()
+{
+  if(vtkDemandDrivenPipeline* ddp =
+     vtkDemandDrivenPipeline::SafeDownCast(this->GetExecutive()))
+    {
+    for(int i=0; i < this->GetNumberOfOutputPorts(); ++i)
+      {
+      ddp->SetReleaseDataFlag(i, 0);
+      }
+    }
+}

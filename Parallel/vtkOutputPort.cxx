@@ -23,7 +23,7 @@
 #include "vtkMultiProcessController.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkOutputPort, "1.9");
+vtkCxxRevisionMacro(vtkOutputPort, "1.10");
 vtkStandardNewMacro(vtkOutputPort);
 
 vtkCxxSetObjectMacro(vtkOutputPort,Controller,vtkMultiProcessController);
@@ -96,27 +96,18 @@ void vtkOutputPort::TriggerUpdateInformation(int remoteProcessId)
   // The MTime of the input should also be considered.
   // Important for pipeline parallelism.
   // Include it in the information for efficiency.
-  unsigned long t1, t2;
-  t1 = input->GetMTime();
-#ifdef VTK_USE_EXECUTIVES
+  unsigned long latestMTime;
+  latestMTime = input->GetMTime();
   vtkDemandDrivenPipeline *ddp = 
     vtkDemandDrivenPipeline::SafeDownCast(this->GetExecutive());
   if (ddp)
     {
     ddp->UpdateInformation();
-    t2 = ddp->GetPipelineMTime();
-    input->SetPipelineMTime(t2);
-    }
-  else
+    unsigned long t2 = ddp->GetPipelineMTime();
+    if (t2 > latestMTime)
     {
-    t2 = t1;
+      latestMTime = t2;
     }
-#else
-  t2 = input->GetPipelineMTime();
-#endif
-  if (t1 > t2)
-    {
-    input->SetPipelineMTime(t1);
     }
   
   // Now just send the information downstream.
@@ -128,9 +119,7 @@ void vtkOutputPort::TriggerUpdateInformation(int remoteProcessId)
   this->Controller->Send( wholeInformation, 7,
                           remoteProcessId, vtkInputPort::INFORMATION_TRANSFER_TAG);
   
-  unsigned long mtime = input->GetPipelineMTime();
-  
-  this->Controller->Send( &mtime, 1,
+  this->Controller->Send( &latestMTime, 1,
                           remoteProcessId, vtkInputPort::INFORMATION_TRANSFER_TAG );
 
   int maxNumPieces = input->GetMaximumNumberOfPieces();

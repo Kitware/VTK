@@ -1,7 +1,7 @@
 
 # setup some common things for testing
 vtkObject rtTempObject;
-rtTempObject GlobalWarningDisplayOff;
+#rtTempObject GlobalWarningDisplayOff;
 vtkMath rtExMath
 rtExMath RandomSeed 6
 vtkDebugLeaks rtDebugLeaks

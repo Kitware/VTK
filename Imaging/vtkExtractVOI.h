@@ -36,12 +36,12 @@
 #ifndef __vtkExtractVOI_h
 #define __vtkExtractVOI_h
 
-#include "vtkImageToImageFilter.h"
+#include "vtkImageAlgorithm.h"
 
-class VTK_IMAGING_EXPORT vtkExtractVOI : public vtkImageToImageFilter
+class VTK_IMAGING_EXPORT vtkExtractVOI : public vtkImageAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkExtractVOI,vtkImageToImageFilter);
+  vtkTypeRevisionMacro(vtkExtractVOI,vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -67,10 +67,16 @@ protected:
   vtkExtractVOI();
   ~vtkExtractVOI() {};
 
-  virtual void ComputeInputUpdateExtent(int inExt[6], int outExt[6]);
-  void ExecuteInformation(vtkImageData *input, vtkImageData *output);
-  void ExecuteInformation(){this->vtkImageToImageFilter::ExecuteInformation();};
-  virtual void ExecuteData(vtkDataObject *);
+  virtual void ComputeInputUpdateExtent (vtkInformation *, 
+                                         vtkInformationVector *, 
+                                         vtkInformationVector *);
+  void ExecuteInformation (vtkInformation *, 
+                           vtkInformationVector *, 
+                           vtkInformationVector *);
+  
+  virtual void RequestData(vtkInformation *request, 
+                           vtkInformationVector *inputVector, 
+                           vtkInformationVector *outputVector);
 
   int VOI[6];
   int SampleRate[3];

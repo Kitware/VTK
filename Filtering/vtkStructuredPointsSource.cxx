@@ -20,7 +20,7 @@
 #include "vtkPointData.h"
 #include "vtkStructuredPoints.h"
 
-vtkCxxRevisionMacro(vtkStructuredPointsSource, "1.38");
+vtkCxxRevisionMacro(vtkStructuredPointsSource, "1.39");
 
 //----------------------------------------------------------------------------
 vtkStructuredPointsSource::vtkStructuredPointsSource()
@@ -87,7 +87,6 @@ int vtkStructuredPointsSource::FillOutputPortInformation(int port,
     return 0;
     }
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkStructuredPoints");
-  info->Set(vtkDataObject::DATA_EXTENT_TYPE(), VTK_3D_EXTENT);
   return 1;
 }
 

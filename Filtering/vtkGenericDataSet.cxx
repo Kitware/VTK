@@ -23,7 +23,7 @@
 #include "vtkGenericAdaptorCell.h"
 #include "vtkGenericCellTessellator.h"
 
-vtkCxxRevisionMacro(vtkGenericDataSet, "1.2");
+vtkCxxRevisionMacro(vtkGenericDataSet, "1.3");
 vtkCxxSetObjectMacro(vtkGenericDataSet, Tessellator,vtkGenericCellTessellator);
 
 //----------------------------------------------------------------------------
@@ -57,11 +57,8 @@ void vtkGenericDataSet::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "  Xmin,Xmax: (" <<this->Bounds[0] << ", " << this->Bounds[1] << ")\n";
   os << indent << "  Ymin,Ymax: (" <<this->Bounds[2] << ", " << this->Bounds[3] << ")\n";
   os << indent << "  Zmin,Zmax: (" <<this->Bounds[4] << ", " << this->Bounds[5] << ")\n";
-  os << indent << "Release Data: " << (this->ReleaseDataFlag ? "On\n" : "Off\n")
-;
 
   os << indent << "Tessellator:" << this->Tessellator << endl;
-  
 }
 
 //----------------------------------------------------------------------------
@@ -99,13 +96,11 @@ void vtkGenericDataSet::GetCellTypes(vtkCellTypes *types)
 }
 
 //----------------------------------------------------------------------------
-void vtkGenericDataSet::SetUpdateExtent(int piece, int numPieces,
-                                            int ghostLevel)
+void vtkGenericDataSet::SetUpdateExtent(int piece, int numPieces, int ghostLevel)
 {
-  this->UpdatePiece = piece;
-  this->UpdateNumberOfPieces = numPieces;
-  this->UpdateGhostLevel = ghostLevel;
-  this->UpdateExtentInitialized = 1;
+  this->SetUpdatePiece(piece);
+  this->SetUpdateNumberOfPieces(numPieces);
+  this->SetUpdateGhostLevel(ghostLevel);
 }
 
 //----------------------------------------------------------------------------

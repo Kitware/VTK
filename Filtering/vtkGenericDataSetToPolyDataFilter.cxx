@@ -18,8 +18,16 @@
 #include "vtkGenericDataSetToPolyDataFilter.h"
 
 #include "vtkGenericDataSet.h"
+#include "vtkInformation.h"
 
-vtkCxxRevisionMacro(vtkGenericDataSetToPolyDataFilter, "1.1");
+vtkCxxRevisionMacro(vtkGenericDataSetToPolyDataFilter, "1.2");
+
+vtkGenericDataSetToPolyDataFilter
+::vtkGenericDataSetToPolyDataFilter()
+{
+  this->SetNumberOfInputPorts(1);
+  this->NumberOfRequiredInputs = 1;
+}
 
 //----------------------------------------------------------------------------
 void vtkGenericDataSetToPolyDataFilter::PrintSelf(ostream& os,
@@ -61,4 +69,16 @@ void vtkGenericDataSetToPolyDataFilter::ComputeInputUpdateExtents(vtkDataObject 
   
   this->vtkPolyDataSource::ComputeInputUpdateExtents(output);
   input->RequestExactExtentOn();
+}
+
+//----------------------------------------------------------------------------
+int vtkGenericDataSetToPolyDataFilter
+::FillInputPortInformation(int port, vtkInformation* info)
+{
+  if(!this->Superclass::FillInputPortInformation(port, info))
+    {
+    return 0;
+    }
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkGenericDataSet");
+  return 1;
 }

@@ -16,15 +16,20 @@
 
 #include "vtkImageData.h"
 #include "vtkImageProgressIterator.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageShiftScale, "1.46");
+vtkCxxRevisionMacro(vtkImageShiftScale, "1.47");
 vtkStandardNewMacro(vtkImageShiftScale);
 
 //----------------------------------------------------------------------------
 // Constructor sets default values
 vtkImageShiftScale::vtkImageShiftScale()
 {
+  this->SetNumberOfInputPorts(1);
+  this->SetNumberOfOutputPorts(1);
   this->Shift = 0.0;
   this->Scale = 1.0;
   this->OutputScalarType = -1;
@@ -34,14 +39,16 @@ vtkImageShiftScale::vtkImageShiftScale()
 
 
 //----------------------------------------------------------------------------
-void vtkImageShiftScale::ExecuteInformation(vtkImageData *inData, 
-                                            vtkImageData *outData)
+void vtkImageShiftScale::ExecuteInformation (
+  vtkInformation * vtkNotUsed(request),
+  vtkInformationVector * vtkNotUsed( inputVector ), 
+  vtkInformationVector * outputVector)
 {
-  this->vtkImageToImageFilter::ExecuteInformation( inData, outData );
-
   if (this->OutputScalarType != -1)
     {
-    outData->SetScalarType(this->OutputScalarType);
+    // get the info objects
+    vtkInformation* outInfo = outputVector->GetInformationObject(0);
+    outInfo->Set(vtkDataObject::SCALAR_TYPE(),this->OutputScalarType);
     }
 }
 
@@ -136,7 +143,7 @@ void vtkImageShiftScaleExecute1(vtkImageShiftScale *self,
 // algorithm to fill the output from the input.
 // It just executes a switch statement to call the correct function for
 // the datas data types.
-void vtkImageShiftScale::ThreadedExecute(vtkImageData *inData, 
+void vtkImageShiftScale::ThreadedExecute (vtkImageData *inData, 
                                          vtkImageData *outData,
                                          int outExt[6], int id)
 {

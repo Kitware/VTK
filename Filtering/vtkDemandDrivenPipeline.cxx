@@ -38,8 +38,15 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.2");
+vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.3");
 vtkStandardNewMacro(vtkDemandDrivenPipeline);
+
+vtkInformationKeyMacro(vtkDemandDrivenPipeline, DOWNSTREAM_KEYS_TO_COPY, KeyVector);
+vtkInformationKeyMacro(vtkDemandDrivenPipeline, REQUEST_DATA_OBJECT, Integer);
+vtkInformationKeyMacro(vtkDemandDrivenPipeline, REQUEST_INFORMATION, Integer);
+vtkInformationKeyMacro(vtkDemandDrivenPipeline, REQUEST_DATA, Integer);
+vtkInformationKeyMacro(vtkDemandDrivenPipeline, FROM_OUTPUT_PORT, Integer);
+vtkInformationKeyMacro(vtkDemandDrivenPipeline, RELEASE_DATA, Integer);
 
 //----------------------------------------------------------------------------
 class vtkDemandDrivenPipelineInternals
@@ -60,9 +67,7 @@ public:
 vtkDemandDrivenPipeline::vtkDemandDrivenPipeline()
 {
   this->DemandDrivenInternal = new vtkDemandDrivenPipelineInternals;
-  this->InProcessDownstreamRequest = 0;
-  this->InProcessUpstreamRequest = 0;
-  this->PipelineMTime = 0;
+  this->InProcessRequest = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -76,38 +81,6 @@ void vtkDemandDrivenPipeline::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "PipelineMTime: " << this->PipelineMTime << "\n";
-}
-
-//----------------------------------------------------------------------------
-vtkInformationKeyVectorKey* vtkDemandDrivenPipeline::DOWNSTREAM_KEYS_TO_COPY()
-{
-  static vtkInformationKeyVectorKey instance("DOWNSTREAM_KEYS_TO_COPY",
-                                             "vtkDemandDrivenPipeline");
-  return &instance;
-}
-
-//----------------------------------------------------------------------------
-vtkInformationIntegerKey* vtkDemandDrivenPipeline::REQUEST_INFORMATION()
-{
-  static vtkInformationIntegerKey instance("REQUEST_INFORMATION",
-                                           "vtkDemandDrivenPipeline");
-  return &instance;
-}
-
-//----------------------------------------------------------------------------
-vtkInformationIntegerKey* vtkDemandDrivenPipeline::REQUEST_DATA()
-{
-  static vtkInformationIntegerKey instance("REQUEST_DATA",
-                                           "vtkDemandDrivenPipeline");
-  return &instance;
-}
-
-//----------------------------------------------------------------------------
-vtkInformationIntegerKey* vtkDemandDrivenPipeline::FROM_OUTPUT_PORT()
-{
-  static vtkInformationIntegerKey instance("FROM_OUTPUT_PORT",
-                                           "vtkDemandDrivenPipeline");
-  return &instance;
 }
 
 //----------------------------------------------------------------------------
@@ -183,14 +156,28 @@ vtkInformation* vtkDemandDrivenPipeline::GetInputInformation(int port)
   return this->GetInputInformation()->GetInformationObject(port);
 }
 
-void vtkDemandDrivenPipeline::FillDownstreamKeysToCopy(vtkInformation *info)
+//----------------------------------------------------------------------------
+void vtkDemandDrivenPipeline::FillDefaultOutputInformation(int port,
+                                                           vtkInformation* info)
 {
+  // Add some keys to copy downstream by default.
   info->Append(vtkDemandDrivenPipeline::DOWNSTREAM_KEYS_TO_COPY(),
                vtkDataObject::SCALAR_TYPE());
   info->Append(vtkDemandDrivenPipeline::DOWNSTREAM_KEYS_TO_COPY(),
                vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS());
+
+  // Set the executive pointer and port number on the information
+  // object to tell it what produces it.
+  info->Set(vtkExecutive::EXECUTIVE(), this);
+  info->Set(vtkExecutive::PORT_NUMBER(), port);
 }
 
+//----------------------------------------------------------------------------
+void vtkDemandDrivenPipeline::ResetPipelineInformation(int,
+                                                       vtkInformation* info)
+{
+  info->Remove(RELEASE_DATA());
+}
 
 //----------------------------------------------------------------------------
 vtkInformationVector* vtkDemandDrivenPipeline::GetOutputInformation()
@@ -206,15 +193,14 @@ vtkInformationVector* vtkDemandDrivenPipeline::GetOutputInformation()
   this->DemandDrivenInternal->OutputInformation
     ->SetNumberOfInformationObjects(this->Algorithm->GetNumberOfOutputPorts());
 
-  // then set the keys to always copy the default values for any new
-  // informaiton objects
+  // For any new information obects, fill in default information values.
   for (int i = numberOfInfoObjs; 
        i < this->Algorithm->GetNumberOfOutputPorts();++i)
     {
-    this->FillDownstreamKeysToCopy(
+    this->FillDefaultOutputInformation(i,
       this->DemandDrivenInternal->OutputInformation->GetInformationObject(i));
     }
-  
+
   return this->DemandDrivenInternal->OutputInformation.GetPointer();
 }
 
@@ -268,12 +254,13 @@ int vtkDemandDrivenPipeline::Update(vtkAlgorithm* algorithm, int port)
 }
 
 //----------------------------------------------------------------------------
-int vtkDemandDrivenPipeline::UpdateInformation()
+int vtkDemandDrivenPipeline::UpdateDataObject()
 {
   // Avoid infinite recursion.
-  if(this->InProcessDownstreamRequest)
+#if 0
+  if(this->InProcessRequest)
     {
-    vtkErrorMacro("UpdateInformation invoked during a downstream request.  "
+    vtkErrorMacro("UpdateDataObject invoked during another request.  "
                   "Returning failure to algorithm "
                   << this->Algorithm->GetClassName() << "("
                   << this->Algorithm << ").");
@@ -284,6 +271,84 @@ int vtkDemandDrivenPipeline::UpdateInformation()
       {
       abort();
       }
+    return 0;
+    }
+#endif
+  // The pipeline's MTime starts with this algorithm's MTime.
+  this->PipelineMTime = this->Algorithm->GetMTime();
+
+  // Get the pipeline MTime for all the inputs.
+  for(int i=0; i < this->Algorithm->GetNumberOfInputPorts(); ++i)
+    {
+    for(int j=0; j < this->Algorithm->GetNumberOfInputConnections(i); ++j)
+      {
+      if(vtkDemandDrivenPipeline* e = this->GetConnectedInputExecutive(i, j))
+        {
+        // Propagate the UpdateDataObject call
+        if(!e->UpdateDataObject())
+          {
+          return 0;
+          }
+
+        // We want the maximum PipelineMTime of all inputs.
+        if(e->PipelineMTime > this->PipelineMTime)
+          {
+          this->PipelineMTime = e->PipelineMTime;
+          }
+        }
+      }
+    }
+
+  // Make sure our output data type is up-to-date.
+  int result = 1;
+  if(this->PipelineMTime > this->DataObjectTime.GetMTime())
+    {
+    // Request data type from the algorithm.
+    result = this->ExecuteDataObject();
+
+    // Make sure the data object exists for all output ports.
+    for(int i=0; result && i < this->Algorithm->GetNumberOfOutputPorts(); ++i)
+      {
+      vtkInformation* info = this->GetOutputInformation(i);
+      if(!info->Get(vtkDataObject::DATA_OBJECT()))
+        {
+        result = 0;
+        }
+      }
+
+    if(result)
+      {
+      // Data object is now up to date.
+      this->DataObjectTime.Modified();
+      }
+    }
+
+  return result;
+}
+
+//----------------------------------------------------------------------------
+int vtkDemandDrivenPipeline::UpdateInformation()
+{
+  // Avoid infinite recursion.
+  if(this->InProcessRequest)
+    {
+    vtkErrorMacro("UpdateInformation invoked during another request.  "
+                  "Returning failure to algorithm "
+                  << this->Algorithm->GetClassName() << "("
+                  << this->Algorithm << ").");
+
+    // Tests should fail when this happens because there is a bug in
+    // the code.
+    if(getenv("DASHBOARD_TEST_FROM_CTEST") || getenv("DART_TEST_FROM_DART"))
+      {
+      abort();
+      }
+    return 0;
+    }
+
+  // Do the data-object creation pass before the information pass.
+  if(!this->UpdateDataObject())
+    {
     return 0;
     }
 
@@ -336,9 +401,9 @@ int vtkDemandDrivenPipeline::UpdateInformation()
 int vtkDemandDrivenPipeline::UpdateData(int outputPort)
 {
   // Avoid infinite recursion.
-  if(this->InProcessDownstreamRequest)
+  if(this->InProcessRequest)
     {
-    vtkErrorMacro("UpdateData invoked during a downstream request.  "
+    vtkErrorMacro("UpdateData invoked during another request.  "
                   "Returning failure to algorithm "
                   << this->Algorithm->GetClassName() << "("
                   << this->Algorithm << ").");
@@ -403,6 +468,24 @@ int vtkDemandDrivenPipeline::UpdateData(int outputPort)
     // Request data from the algorithm.
     result = this->ExecuteData(outputPort);
 
+    // Release input data if requested.
+    for(int k=0; k < this->Algorithm->GetNumberOfInputPorts(); ++k)
+      {
+      for(int j=0; j < this->Algorithm->GetNumberOfInputConnections(k); ++j)
+        {
+        vtkInformation* inInfo =
+          this->GetInputInformation(k)
+          ->Get(vtkAlgorithm::INPUT_CONNECTION_INFORMATION())
+          ->GetInformationObject(j);
+        vtkDataObject* dataObject = inInfo->Get(vtkDataObject::DATA_OBJECT());
+        if(dataObject && (dataObject->GetGlobalReleaseDataFlag() ||
+                          inInfo->Get(RELEASE_DATA())))
+          {
+          dataObject->ReleaseData();
+          }
+        }
+      }
+
     // Data are now up to date.
     this->DataTime.Modified();
     }
@@ -410,7 +493,7 @@ int vtkDemandDrivenPipeline::UpdateData(int outputPort)
 }
 
 //----------------------------------------------------------------------------
-void vtkDemandDrivenPipeline::CopyDefaultInformation()
+void vtkDemandDrivenPipeline::CopyDefaultDownstreamInformation()
 { 
   // Setup default information for the outputs.
   if(this->Algorithm->GetNumberOfInputPorts() > 0)
@@ -433,19 +516,42 @@ void vtkDemandDrivenPipeline::CopyDefaultInformation()
 }
 
 //----------------------------------------------------------------------------
+int vtkDemandDrivenPipeline::ExecuteDataObject()
+{
+  this->PrepareDownstreamRequest(REQUEST_DATA_OBJECT());
+
+  this->InProcessRequest = 1;
+  int result = this->Algorithm->ProcessRequest(
+    this->GetRequestInformation(), this->GetInputInformation(),
+    this->GetOutputInformation());
+  this->InProcessRequest = 0;
+
+  // Make sure a valid data object exists for all output ports.
+  for(int i=0; i < this->Algorithm->GetNumberOfOutputPorts(); ++i)
+    {
+    if(!this->CheckDataObject(i))
+      {
+      return 0;
+      }
+    }
+
+  return result;
+}
+
+//----------------------------------------------------------------------------
 int vtkDemandDrivenPipeline::ExecuteInformation()
 {
   this->PrepareDownstreamRequest(REQUEST_INFORMATION());
 
   // Setup default information for the outputs.
-  this->CopyDefaultInformation();
+  this->CopyDefaultDownstreamInformation();
 
-  this->InProcessDownstreamRequest = 1;
-  int result = this->Algorithm->ProcessDownstreamRequest(
+  this->InProcessRequest = 1;
+  int result = this->Algorithm->ProcessRequest(
     this->GetRequestInformation(), this->GetInputInformation(),
     this->GetOutputInformation());
-  
-  this->InProcessDownstreamRequest = 0;
+
+  this->InProcessRequest = 0;
   return result;
 }
 
@@ -454,12 +560,66 @@ int vtkDemandDrivenPipeline::ExecuteData(int outputPort)
 {
   this->PrepareDownstreamRequest(REQUEST_DATA());
   this->GetRequestInformation()->Set(FROM_OUTPUT_PORT(), outputPort);
-  this->InProcessDownstreamRequest = 1;
-  int result = this->Algorithm->ProcessDownstreamRequest(
+  this->InProcessRequest = 1;
+  int result = this->Algorithm->ProcessRequest(
     this->GetRequestInformation(), this->GetInputInformation(),
     this->GetOutputInformation());
-  this->InProcessDownstreamRequest = 0;
+  this->InProcessRequest = 0;
   return result;
+}
+
+//----------------------------------------------------------------------------
+int vtkDemandDrivenPipeline::CheckDataObject(int port)
+{
+  // Check that the given output port has a valid data object.
+  vtkInformation* outInfo =
+    this->GetOutputInformation()->GetInformationObject(port);
+  vtkDataObject* data = outInfo->Get(vtkDataObject::DATA_OBJECT());
+  vtkInformation* portInfo = this->Algorithm->GetOutputPortInformation(port);
+  if(const char* dt = portInfo->Get(vtkDataObject::DATA_TYPE_NAME()))
+    {
+    // The output port specifies a data type.  Make sure the data
+    // object exists and is of the right type.
+    if(!data || !data->IsA(dt))
+      {
+      // Try to create an instance of the correct type.
+      data = this->NewDataObject(dt);
+      this->SetOutputData(this->Algorithm, port, data);
+      if(data)
+        {
+        data->Delete();
+        }
+      }
+    if(!data)
+      {
+      // The algorithm has a bug and did not create the data object.
+      vtkErrorMacro("Algorithm " << this->Algorithm->GetClassName() << "("
+                    << this->Algorithm
+                    << ") did not create output for port " << port
+                    << " when asked by REQUEST_DATA_OBJECT and does not"
+                    << " specify a concrete DATA_TYPE_NAME.");
+      return 0;
+      }
+    return 1;
+    }
+  else if(data)
+    {
+    // The algorithm did not specify its output data type.  Just assume
+    // the data object is of the correct type.
+    return 1;
+    }
+  else
+    {
+    // The algorithm did not specify its output data type and no
+    // object exists.
+    vtkErrorMacro("Algorithm " << this->Algorithm->GetClassName() << "("
+                  << this->Algorithm
+                  << ") did not create output for port " << port
+                  << " when asked by REQUEST_DATA_OBJECT and does not"
+                  << " specify any DATA_TYPE_NAME.");
+    abort();
+    return 0;
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -470,63 +630,15 @@ vtkDataObject* vtkDemandDrivenPipeline::GetOutputData(int port)
     return 0;
     }
 
-  // Make sure the output data object exists.
-  vtkInformation* info = this->GetOutputInformation(port);
-  vtkDataObject* data = this->GetOutputDataInternal(this->Algorithm, port);
+  // Bring the data object up to date.
+  this->UpdateDataObject();
 
-  // If the algorithm specifies the output type, make sure an instance
-  // of the specified type is set as the output.
-  vtkInformation* portInfo = this->Algorithm->GetOutputPortInformation(port);
-  if(const char* dt = portInfo->Get(vtkDataObject::DATA_TYPE_NAME()))
+  // Return the data object.
+  if(vtkInformation* info = this->GetOutputInformation(port))
     {
-    if(!(data && data->IsA(dt)))
-      {
-      // Try to create an instance of the correct type.
-      data = this->NewDataObject(dt);
-      this->SetOutputDataInternal(this->Algorithm, port, data);
-      if(data)
-        {
-        data->Delete();
-        }
-      }
+    return info->Get(vtkDataObject::DATA_OBJECT());
     }
-  else
-    {
-    // The algorithm does not specify the output type, so we cannot
-    // trust that the current output is of the correct type.
-    data = 0;
-    }
-
-  // We may still not have data in the following situations:
-  //  - The algorithm did not specify the output type.
-  //  - The specified output type is abstract (like vtkDataSet).
-  //  - NewDataObject() could not create an instance of the specified type.
-  if(!data)
-    {
-    // We must update information on the pipeline to have the
-    // algorithm create the output.
-    if(this->UpdateInformation())
-      {
-      data = info->Get(vtkDataObject::DATA_OBJECT());
-      if(!data)
-        {
-        // The algorithm has a bug and did not create the data object.
-        vtkErrorMacro("Algorithm " << this->Algorithm->GetClassName() << "("
-                      << this->Algorithm
-                      << ") did not create output for port " << port
-                      << " when asked by REQUEST_INFORMATION.");
-        }
-      }
-    else
-      {
-      // There was an error in pipeline connectivity.
-      vtkErrorMacro("Output data for port " << port << " on algorithm "
-                    << this->Algorithm->GetClassName() << "("
-                    << this->Algorithm << ") does not exist "
-                    "and UpdateInformation failed.");
-      }
-    }
-  return data;
+  return 0;
 }
 
 //----------------------------------------------------------------------------
@@ -534,6 +646,48 @@ vtkDataObject* vtkDemandDrivenPipeline::GetOutputData(vtkAlgorithm* algorithm,
                                                       int port)
 {
   return this->Superclass::GetOutputData(algorithm, port);
+}
+
+//----------------------------------------------------------------------------
+vtkDataObject* vtkDemandDrivenPipeline::GetInputData(vtkAlgorithm* algorithm,
+                                                     int port, int connection)
+{
+  return this->Superclass::GetInputData(algorithm, port, connection);
+}
+
+
+//----------------------------------------------------------------------------
+void vtkDemandDrivenPipeline::SetOutputData(int newPort,
+                                            vtkDataObject* newOutput)
+{
+  if(vtkInformation* info = this->GetOutputInformation(newPort))
+    {
+    if(!newOutput || newOutput->GetPipelineInformation() != info)
+      {
+      if(newOutput)
+        {
+        newOutput->SetPipelineInformation(info);
+        }
+      else if(vtkDataObject* oldOutput = info->Get(vtkDataObject::DATA_OBJECT()))
+        {
+        oldOutput->SetPipelineInformation(0);
+        }
+
+      // Output has changed.  Reset the pipeline information.
+      this->ResetPipelineInformation(newPort, info);
+      }
+    }
+  else
+    {
+    vtkErrorMacro("Could not set output on port " << newPort << ".");
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkDemandDrivenPipeline::SetOutputData(vtkAlgorithm* algorithm, int port,
+                                            vtkDataObject* newOutput)
+{
+  this->Superclass::SetOutputData(algorithm, port, newOutput);
 }
 
 //----------------------------------------------------------------------------
@@ -957,26 +1111,16 @@ vtkDataObject* vtkDemandDrivenPipeline::NewDataObject(const char* type)
 void vtkDemandDrivenPipeline::ReportReferences(vtkGarbageCollector* collector)
 {
   this->Superclass::ReportReferences(collector);
-  
-  // if we have an algorithm then report our references to its data objects 
-  if (this->Algorithm)
-    {
-    for(int i=0; i < this->Algorithm->GetNumberOfOutputPorts(); ++i)
-      {
-      collector->ReportReference(
-      this->GetOutputInformation(i)->Get(vtkDataObject::DATA_OBJECT()),
-      "AlgorithmOutput");
-      }
-    }
+  collector->ReportReference(this->DemandDrivenInternal->InputInformation.GetPointer(),
+                             "Input Information Vector");
+  collector->ReportReference(this->DemandDrivenInternal->OutputInformation.GetPointer(),
+                             "Output Information Vector");
 }
 
 //----------------------------------------------------------------------------
 void vtkDemandDrivenPipeline::RemoveReferences()
 {
-  for(int i=0; i < this->Algorithm->GetNumberOfOutputPorts(); ++i)
-    {
-    this->GetOutputInformation(i)->Remove(vtkDataObject::DATA_OBJECT());
-    }
+  this->DemandDrivenInternal->OutputInformation = 0;
   this->Superclass::RemoveReferences();
 }
 
@@ -1004,4 +1148,35 @@ int vtkDemandDrivenPipeline::NeedToExecuteData(int outputPort)
 
   // We do not need to execute.
   return 0;
+}
+
+//----------------------------------------------------------------------------
+int vtkDemandDrivenPipeline::SetReleaseDataFlag(int port, int n)
+{
+  if(!this->OutputPortIndexInRange(port, "set release data flag on"))
+    {
+    return 0;
+    }
+  vtkInformation* info = this->GetOutputInformation(port);
+  if(this->GetReleaseDataFlag(port) != n)
+    {
+    info->Set(RELEASE_DATA(), n);
+    return 1;
+    }
+  return 0;
+}
+
+//----------------------------------------------------------------------------
+int vtkDemandDrivenPipeline::GetReleaseDataFlag(int port)
+{
+  if(!this->OutputPortIndexInRange(port, "get release data flag from"))
+    {
+    return 0;
+    }
+  vtkInformation* info = this->GetOutputInformation(port);
+  if(!info->Has(RELEASE_DATA()))
+    {
+    info->Set(RELEASE_DATA(), 0);
+    }
+  return info->Get(RELEASE_DATA());
 }

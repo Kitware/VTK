@@ -31,7 +31,7 @@
 #include "vtkVertex.h"
 #include "vtkVoxel.h"
 
-vtkCxxRevisionMacro(vtkUniformGrid, "1.2");
+vtkCxxRevisionMacro(vtkUniformGrid, "1.3");
 vtkStandardNewMacro(vtkUniformGrid);
 
 vtkCxxSetObjectMacro(vtkUniformGrid,
@@ -904,12 +904,6 @@ void vtkUniformGrid::PrintSelf(ostream& os, vtkIndent indent)
     os << ", " << extent[idx];
     }
   os << ")\n";
-  os << indent << "WholeExtent: (" << this->WholeExtent[0];
-  for (idx = 1; idx < 6; ++idx)
-    {
-    os << ", " << this->WholeExtent[idx];
-    }
-  os << ")\n";
 }
 
 //----------------------------------------------------------------------------
@@ -1344,8 +1338,7 @@ unsigned char vtkUniformGrid::GetCellBlanking()
 //----------------------------------------------------------------------------
 void vtkUniformGrid::SetUpdateExtent(int piece, int numPieces, int ghostLevel)
 {
-  this->UpdatePiece = piece;
-  this->UpdateNumberOfPieces = numPieces;
-  this->UpdateGhostLevel = ghostLevel;
-  this->UpdateExtentInitialized = 1;
+  this->SetUpdatePiece(piece);
+  this->SetUpdateNumberOfPieces(numPieces);
+  this->SetUpdateGhostLevel(ghostLevel);
 }

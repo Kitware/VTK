@@ -40,6 +40,7 @@ public:
 protected:
   vtkGenericDataSetSource();
   ~vtkGenericDataSetSource() {}
+  virtual int FillOutputPortInformation(int, vtkInformation*);
   
 private:
   vtkGenericDataSetSource(const vtkGenericDataSetSource&);  // Not implemented.
