@@ -499,16 +499,16 @@ vtkActor probe_actor3
 
 
 
-$ren1 AddActor  probe_actor1
-$ren1 AddActor  probe_actor2
-$ren1 AddActor  probe_actor3
-$ren1 AddActor  outline_actor
-$ren1 AddActor  plane_outline_actor1
-$ren1 AddActor  plane_outline_actor2
-$ren1 AddActor  plane_outline_actor3
+ren1 AddActor  probe_actor1
+ren1 AddActor  probe_actor2
+ren1 AddActor  probe_actor3
+ren1 AddActor  outline_actor
+ren1 AddActor  plane_outline_actor1
+ren1 AddActor  plane_outline_actor2
+ren1 AddActor  plane_outline_actor3
 
-$ren3 AddVolume comp_volume
-$ren3 AddActor  outline_actor
+ren3 AddVolume comp_volume
+ren3 AddActor  outline_actor
 proc TkCheckAbort {} {
   global renWin3
   set foo [$renWin3 GetEventPending]
