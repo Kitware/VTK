@@ -126,7 +126,7 @@ void vtkPointData::CopyData(vtkPointData* fromPd, int fromId, int toId)
 {
   if ( fromPd->Scalars && this->Scalars && this->CopyScalars )
     {
-    if ( this->Scalars->GetNumberOfValuesPerScalar() == 1 ) //single-valued scalar
+    if (strcmp(this->Scalars->GetScalarType(),"ColorScalar"))
       {
       this->Scalars->InsertScalar(toId,fromPd->Scalars->GetScalar(fromId));
       }
