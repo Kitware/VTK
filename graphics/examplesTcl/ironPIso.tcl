@@ -42,7 +42,7 @@ ren1 AddActor isoActor
 ren1 SetBackground 1 1 1
 renWin SetSize 500 500
 ren1 SetBackground 0.1 0.2 0.4
-renWin DoubleBufferOff
+renWin DoubleBufferOn
 iren Initialize
 
 # render the image
