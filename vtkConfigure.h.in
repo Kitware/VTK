@@ -56,8 +56,6 @@
 
 #cmakedefine VTK_USE_ANSI_STDLIB
 
-#cmakedefine VTK_DISPLAY_WIN32_WARNINGS
-
 /* Whether VTK was built to support Carbon or Cocoa on the Mac.  */
 #cmakedefine VTK_USE_CARBON
 #cmakedefine VTK_USE_COCOA
