@@ -1,4 +1,4 @@
-
+%option yylineno
 %{
 /* We do not care of interactive mode */
 #define YY_NEVER_INTERACTIVE 1
