@@ -20,6 +20,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "FNormals.hh"
 #include "FTCoords.hh"
 #include "FTensors.hh"
+#include "Pixmap.hh"
 
 // Description:
 // Construct with copying turned on for all data.
@@ -35,6 +36,7 @@ vlPointData::vlPointData()
   this->CopyScalars = 1;
   this->CopyVectors = 1;
   this->CopyNormals = 1;
+  this->CopyTCoords = 1;
   this->CopyTensors = 1;
   this->CopyUserDefined = 1;
 }
@@ -99,7 +101,16 @@ void vlPointData::CopyData(vlPointData* fromPd, int fromId, int toId)
 {
   if ( fromPd->Scalars && this->Scalars && this->CopyScalars )
     {
-    this->Scalars->InsertScalar(toId,fromPd->Scalars->GetScalar(fromId));
+    if ( this->Scalars->GetNumberOfValuesPerPoint() == 1 ) //single-valued scalar
+      {
+      this->Scalars->InsertScalar(toId,fromPd->Scalars->GetScalar(fromId));
+      }
+    else //color scalar
+      {
+      vlColorScalars *to=(vlColorScalars *)this->Scalars;
+      vlColorScalars *from=(vlColorScalars *)fromPd->Scalars;
+      to->InsertColor(toId,from->GetColor(fromId));
+      }
     }
 
   if ( fromPd->Vectors && this->Vectors && this->CopyVectors )
@@ -212,6 +223,7 @@ void vlPointData::CopyAllocate(vlPointData* pd, int sze, int ext)
     {
     if ( sze > 0 ) newScalars = s->MakeObject(sze,ext);
     else newScalars = s->MakeObject(s->GetNumberOfScalars());
+    newScalars->SetLookupTable(s->GetLookupTable());
     this->SetScalars(newScalars);
     }
 
@@ -250,6 +262,210 @@ void vlPointData::CopyAllocate(vlPointData* pd, int sze, int ext)
     this->SetUserDefined(newUserDefined);
     }
 };
+
+
+// statics avoid constructor/destructor calls
+static vlFloatScalars cellScalars(MAX_CELL_SIZE);
+static vlFloatVectors cellVectors(MAX_CELL_SIZE);
+static vlFloatNormals cellNormals(MAX_CELL_SIZE);
+static vlFloatTCoords cellTCoords(MAX_CELL_SIZE,3);
+static vlFloatTensors cellTensors(MAX_CELL_SIZE,3);
+static vlUserDefined cellUserDefined(MAX_CELL_SIZE);
+static vlPixmap cellColors(MAX_CELL_SIZE);
+
+// Description:
+// Initialize point interpolation.
+void vlPointData::InterpolateAllocate(vlPointData* pd, int sze, int ext)
+{
+  this->CopyAllocate(pd, sze, ext);
+
+  if ( pd->TCoords )
+    {
+    cellTCoords.SetDimension(pd->TCoords->GetDimension());
+    }
+
+  if ( pd->Tensors )
+    {
+    cellTensors.SetDimension(pd->Tensors->GetDimension());
+    }
+}
+
+// Description:
+// Interpolate data from points and interpolation weights.
+void vlPointData::InterpolatePoint(vlPointData *fromPd, int toId, vlIdList *ptIds, float *weights)
+{
+  int i, j;
+  float s, *pv, v[3], *pn, n[3], *ptc, tc[3];
+  static vlTensor tensor(3), &pt=tensor;
+  void *ud;
+
+  if ( fromPd->Scalars && this->Scalars && this->CopyScalars )
+    {
+    if ( this->Scalars->GetNumberOfValuesPerPoint() == 1 ) //single-valued scalar
+      {
+      fromPd->Scalars->GetScalars(*ptIds, cellScalars);
+      for (s=0.0, i=0; i < ptIds->GetNumberOfIds(); i++)
+        {
+        s += cellScalars.GetScalar(i) * weights[i];
+        }
+      this->Scalars->InsertScalar(toId,s);
+      }
+    else //color scalar
+      {
+      unsigned char rgb[3], *prgb;
+      vlColorScalars *to=(vlColorScalars *)this->Scalars;
+      vlColorScalars *from=(vlColorScalars *)fromPd->Scalars;
+
+      from->GetColors(*ptIds, cellColors);
+      for (rgb[0]=rgb[1]=rgb[2]=0, i=0; i < ptIds->GetNumberOfIds(); i++)
+        {
+        prgb = cellColors.GetColor(i);
+        rgb[0] += (unsigned char) ((float)prgb[0]*weights[i]);
+        rgb[1] += (unsigned char) ((float)prgb[1]*weights[i]);
+        rgb[2] += (unsigned char) ((float)prgb[2]*weights[i]);
+        }
+      to->InsertColor(toId,rgb);
+      }
+    }
+
+  if ( fromPd->Vectors && this->Vectors && this->CopyVectors )
+    {
+    fromPd->Vectors->GetVectors(*ptIds, cellVectors);
+    for (v[0]=v[1]=v[2]=0.0, i=0; i < ptIds->GetNumberOfIds(); i++)
+      {
+      pv = cellVectors.GetVector(i);
+      v[0] += pv[0]*weights[i];
+      v[1] += pv[1]*weights[i];
+      v[2] += pv[2]*weights[i];
+      }
+    this->Vectors->InsertVector(toId,v);
+    }
+
+  if ( fromPd->Normals && this->Normals && this->CopyNormals )
+    {
+    fromPd->Normals->GetNormals(*ptIds, cellNormals);
+    for (n[0]=n[1]=n[2]=0.0, i=0; i < ptIds->GetNumberOfIds(); i++)
+      {
+      pn = cellNormals.GetNormal(i);
+      n[0] += pn[0]*weights[i];
+      n[1] += pn[1]*weights[i];
+      n[2] += pn[2]*weights[i];
+      }
+    this->Normals->InsertNormal(toId,n);
+    }
+
+  if ( fromPd->TCoords && this->TCoords && this->CopyTCoords )
+    {
+    fromPd->TCoords->GetTCoords(*ptIds, cellTCoords);
+    for (tc[0]=tc[1]=tc[2]=0.0, i=0; i < ptIds->GetNumberOfIds(); i++)
+      {
+      ptc = cellTCoords.GetTCoord(i);
+      for (j=0; j<cellTCoords.GetDimension(); j++) tc[j] += ptc[0]*weights[i];
+      }
+    this->TCoords->InsertTCoord(toId,tc);
+    }
+
+  if ( fromPd->Tensors && this->Tensors && this->CopyTensors )
+    {
+    fromPd->Tensors->GetTensors(*ptIds, cellTensors);
+    tensor.Initialize();
+    for (i=0; i < ptIds->GetNumberOfIds(); i++)
+      {
+      pt = cellTensors.GetTensor(i);
+      for (j=0; j<cellTensors.GetDimension(); j++) 
+        for (int k=0; k<cellTensors.GetDimension(); k++) 
+          tensor.AddComponent(j,k,pt.GetComponent(j,k)*weights[i]);
+      }
+    this->Tensors->InsertTensor(toId,tensor);
+    }
+
+  if ( fromPd->UserDefined && this->UserDefined && this->CopyUserDefined )
+    {
+    fromPd->UserDefined->GetUserDefined(*ptIds, cellUserDefined);
+    ud = cellUserDefined.Interpolate(weights);
+    this->UserDefined->InsertUserDefined(toId,ud);
+    }
+}
+
+void vlPointData::NullPoint (int ptId)
+{
+  static float null[3] = {0.0, 0.0, 0.0};
+  static unsigned char cnull[3] = {0, 0, 0};
+  static vlTensor nullTensor;
+
+  if ( this->Scalars )
+    {
+    if ( this->Scalars->GetNumberOfValuesPerPoint() == 1 ) //single-valued scalar
+      {
+      this->Scalars->InsertScalar(ptId, 0.0);
+      }
+    else //color scalar
+      {
+      vlColorScalars *to=(vlColorScalars *)this->Scalars;
+      to->InsertColor(ptId,cnull);
+      }
+    }
+
+  if ( this->Vectors )
+    {
+    this->Vectors->InsertVector(ptId,null);
+    }
+
+  if ( this->Normals )
+    {
+    this->Normals->InsertNormal(ptId,null);
+    }
+
+  if ( this->TCoords )
+    {
+    this->TCoords->InsertTCoord(ptId,null);
+    }
+
+  if ( this->Tensors )
+    {
+    this->Tensors->InsertTensor(ptId,nullTensor);
+    }
+
+  if ( this->UserDefined )
+    {
+    this->UserDefined->InsertUserDefined(ptId,NULL);
+    }
+
+}
+
+void vlPointData::Squeeze()
+{
+  if ( this->Scalars ) this->Scalars->Squeeze();
+  if ( this->Vectors ) this->Vectors->Squeeze();
+  if ( this->Normals ) this->Normals->Squeeze();
+  if ( this->TCoords ) this->TCoords->Squeeze();
+  if ( this->Tensors ) this->Tensors->Squeeze();
+  if ( this->UserDefined ) this->UserDefined->Squeeze();
+}
+
+// Description:
+// Turn on copying of all data.
+void vlPointData::CopyAllOn()
+{
+  this->CopyScalarsOn();
+  this->CopyVectorsOn();
+  this->CopyNormalsOn();
+  this->CopyTCoordsOn();
+  this->CopyTensorsOn();
+  this->CopyUserDefinedOn();
+}
+
+// Description:
+// Turn off copying of all data.
+void vlPointData::CopyAllOff()
+{
+  this->CopyScalarsOff();
+  this->CopyVectorsOff();
+  this->CopyNormalsOff();
+  this->CopyTCoordsOff();
+  this->CopyTensorsOff();
+  this->CopyUserDefinedOff();
+}
 
 void vlPointData::PrintSelf(ostream& os, vlIndent indent)
 {
@@ -323,177 +539,3 @@ void vlPointData::PrintSelf(ostream& os, vlIndent indent)
   os << indent << "Copy User Defined: " << (this->CopyUserDefined ? "On\n" : "Off\n");
 
 }
-
-static vlFloatScalars cellScalars(MAX_CELL_SIZE);
-static vlFloatVectors cellVectors(MAX_CELL_SIZE);
-static vlFloatNormals cellNormals(MAX_CELL_SIZE);
-static vlFloatTCoords cellTCoords(MAX_CELL_SIZE,3);
-static vlFloatTensors cellTensors(MAX_CELL_SIZE,3);
-static vlUserDefined cellUserDefined(MAX_CELL_SIZE);
-
-// Description:
-// Initialize point interpolation.
-void vlPointData::InterpolateAllocate(vlPointData* pd, int sze, int ext)
-{
-  this->CopyAllocate(pd, sze, ext);
-
-  if ( pd->TCoords )
-    {
-    cellTCoords.SetDimension(pd->TCoords->GetDimension());
-    }
-
-  if ( pd->Tensors )
-    {
-    cellTensors.SetDimension(pd->Tensors->GetDimension());
-    }
-}
-
-// Description:
-// Interpolate data from points and interpolation weights.
-void vlPointData::InterpolatePoint(vlPointData *fromPd, int toId, vlIdList *ptIds, float *weights)
-{
-  int i, j;
-  float s, *pv, v[3], *pn, n[3], *ptc, tc[3];
-  static vlTensor tensor(3), &pt=tensor;
-  void *ud;
-
-  if ( fromPd->Scalars && this->Scalars && this->CopyScalars )
-    {
-    fromPd->Scalars->GetScalars(*ptIds, cellScalars);
-    for (s=0.0, i=0; i < ptIds->GetNumberOfIds(); i++)
-      {
-      s += cellScalars.GetScalar(i) * weights[i];
-      }
-    this->Scalars->InsertScalar(toId,s);
-    }
-
-  if ( fromPd->Vectors && this->Vectors && this->CopyVectors )
-    {
-    fromPd->Vectors->GetVectors(*ptIds, cellVectors);
-    for (v[0]=v[1]=v[2]=0.0, i=0; i < ptIds->GetNumberOfIds(); i++)
-      {
-      pv = cellVectors.GetVector(i);
-      v[0] += pv[0]*weights[i];
-      v[1] += pv[1]*weights[i];
-      v[2] += pv[2]*weights[i];
-      }
-    this->Vectors->InsertVector(toId,v);
-    }
-
-  if ( fromPd->Normals && this->Normals && this->CopyNormals )
-    {
-    fromPd->Normals->GetNormals(*ptIds, cellNormals);
-    for (n[0]=n[1]=n[2]=0.0, i=0; i < ptIds->GetNumberOfIds(); i++)
-      {
-      pn = cellNormals.GetNormal(i);
-      n[0] += pn[0]*weights[i];
-      n[1] += pn[1]*weights[i];
-      n[2] += pn[2]*weights[i];
-      }
-    this->Normals->InsertNormal(toId,n);
-    }
-
-  if ( fromPd->TCoords && this->TCoords && this->CopyTCoords )
-    {
-    fromPd->TCoords->GetTCoords(*ptIds, cellTCoords);
-    for (tc[0]=tc[1]=tc[2]=0.0, i=0; i < ptIds->GetNumberOfIds(); i++)
-      {
-      ptc = cellTCoords.GetTCoord(i);
-      for (j=0; j<cellTCoords.GetDimension(); j++) tc[j] += ptc[0]*weights[i];
-      }
-    this->TCoords->InsertTCoord(toId,tc);
-    }
-
-  if ( fromPd->Tensors && this->Tensors && this->CopyTensors )
-    {
-    fromPd->Tensors->GetTensors(*ptIds, cellTensors);
-    tensor.Initialize();
-    for (i=0; i < ptIds->GetNumberOfIds(); i++)
-      {
-      pt = cellTensors.GetTensor(i);
-      for (j=0; j<cellTensors.GetDimension(); j++) 
-        for (int k=0; k<cellTensors.GetDimension(); k++) 
-          tensor.AddComponent(j,k,pt.GetComponent(j,k)*weights[i]);
-      }
-    this->Tensors->InsertTensor(toId,tensor);
-    }
-
-  if ( fromPd->UserDefined && this->UserDefined && this->CopyUserDefined )
-    {
-    fromPd->UserDefined->GetUserDefined(*ptIds, cellUserDefined);
-    ud = cellUserDefined.Interpolate(weights);
-    this->UserDefined->InsertUserDefined(toId,ud);
-    }
-}
-
-void vlPointData::NullPoint (int ptId)
-{
-  static float null[3] = {0.0, 0.0, 0.0};
-  static vlTensor nullTensor;
-
-  if ( this->Scalars )
-    {
-    this->Scalars->InsertScalar(ptId, 0.0);
-    }
-
-  if ( this->Vectors )
-    {
-    this->Vectors->InsertVector(ptId,null);
-    }
-
-  if ( this->Normals )
-    {
-    this->Normals->InsertNormal(ptId,null);
-    }
-
-  if ( this->TCoords )
-    {
-    this->TCoords->InsertTCoord(ptId,null);
-    }
-
-  if ( this->Tensors )
-    {
-    this->Tensors->InsertTensor(ptId,nullTensor);
-    }
-
-  if ( this->UserDefined )
-    {
-    this->UserDefined->InsertUserDefined(ptId,NULL);
-    }
-
-}
-
-void vlPointData::Squeeze()
-{
-  if ( this->Scalars ) this->Scalars->Squeeze();
-  if ( this->Vectors ) this->Vectors->Squeeze();
-  if ( this->Normals ) this->Normals->Squeeze();
-  if ( this->TCoords ) this->TCoords->Squeeze();
-  if ( this->Tensors ) this->Tensors->Squeeze();
-  if ( this->UserDefined ) this->UserDefined->Squeeze();
-}
-
-// Description:
-// Turn on copying of all data.
-void vlPointData::CopyAllOn()
-{
-  this->CopyScalarsOn();
-  this->CopyVectorsOn();
-  this->CopyNormalsOn();
-  this->CopyTCoordsOn();
-  this->CopyTensorsOn();
-  this->CopyUserDefinedOn();
-}
-
-// Description:
-// Turn off copying of all data.
-void vlPointData::CopyAllOff()
-{
-  this->CopyScalarsOff();
-  this->CopyVectorsOff();
-  this->CopyNormalsOff();
-  this->CopyTCoordsOff();
-  this->CopyTensorsOff();
-  this->CopyUserDefinedOff();
-}
-

@@ -13,12 +13,21 @@ written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-// .NAME vlScalars - abstract interface to scalar array
+// .NAME vlScalars - abstract interface to array of scalar data
 // .SECTION Description
 // vlScalars provides an abstract interface to an array of scalar data. 
 // The data model for vlScalars is an array accessible by point id.
 // The subclasses of vlScalars are concrete data types (float, int, etc.) 
 // that implement the interface of vlScalars.
+//    Scalars typically provide a single value per point. However, there are
+// types of scalars that have multiple values per point (e.g., vlPixmap or
+// vlAPixmap that provide three and four values per point, respectively).
+// These are used when reading data in rgb and rgba form (e.g., images 
+// and volumes).
+//    Because of the close relationship between scalars and colors, scalars 
+// also maintain in internal lookup table. If provided, this table is used 
+// to map scalars into colors, rather than the lookup table that the vlMapper
+// objects are associated with.
 
 #ifndef __vlScalars_h
 #define __vlScalars_h
@@ -27,12 +36,13 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 class vlIdList;
 class vlFloatScalars;
+class vlLookupTable;
 
 class vlScalars : public vlRefCount 
 {
 public:
   vlScalars();
-  virtual ~vlScalars() {};
+  virtual ~vlScalars();
   char *GetClassName() {return "vlScalars";};
   void PrintSelf(ostream& os, vlIndent indent);
 
@@ -43,6 +53,11 @@ public:
   // Description:
   // Return number of points in array.
   virtual int GetNumberOfScalars() = 0;
+
+  // Description:
+  // Return the number of values per point. Should range between (1,4).
+  // Used to distinguish between color scalars and single-valued ones.
+  virtual int GetNumberOfValuesPerPoint() {return 1;};
 
   // Description:
   // Return a float scalar value for a particular point id.
@@ -68,11 +83,21 @@ public:
   void GetScalars(vlIdList& ptId, vlFloatScalars& fs);
   virtual void ComputeRange();
   float *GetRange();
-  void GetRange(float range[2]);
+  void GetRange(float range[8]);
+
+  // Description:
+  // Create default lookup table. Generally used to create one when none
+  // is available.
+  virtual void CreateDefaultLookupTable();
+
+  void SetLookupTable(vlLookupTable *lut);
+  void SetLookupTable(vlLookupTable& lut) {this->SetLookupTable(&lut);};
+  vlGetObjectMacro(LookupTable,vlLookupTable);
 
 protected:
-  float Range[2];
+  float Range[8];
   vlTimeStamp ComputeTime; // Time at which range computed
+  vlLookupTable *LookupTable;
 };
 
 // These include files are placed here so that if Scalars.hh is included 

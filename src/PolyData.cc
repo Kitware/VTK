@@ -462,7 +462,7 @@ void vlPolyData::Allocate(int numCells, int extSize)
 // vlTRIANGLE, vlQUAD, vlPOLYGON, or vlTRIANGLE_STRIP.  Make sure that
 // the PolyData::Allocate() function has been called first or that vertex,
 // line, polygon, and triangle strip arrays have been supplied.
-
+// Note: will also insert vlPIXEL, but converts it to vlQUAD.
 int vlPolyData::InsertNextCell(int type, int npts, int pts[MAX_CELL_SIZE])
 {
   int id = 0;
@@ -480,6 +480,17 @@ int vlPolyData::InsertNextCell(int type, int npts, int pts[MAX_CELL_SIZE])
     case vlTRIANGLE: case vlQUAD: case vlPOLYGON:
       id = this->Polys->InsertNextCell(npts,pts);
       break;
+
+    case vlPIXEL: //need to rearrange vertices
+      {
+      static int pixPts[4];
+      pixPts[0] = pts[0];
+      pixPts[1] = pts[1];
+      pixPts[2] = pts[3];
+      pixPts[3] = pts[2];
+      id = this->Polys->InsertNextCell(npts,pixPts);
+      break;
+      }
 
     case vlTRIANGLE_STRIP:
       id = this->Strips->InsertNextCell(npts,pts);

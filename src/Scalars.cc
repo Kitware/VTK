@@ -16,11 +16,19 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "Scalars.hh"
 #include "FScalars.hh"
 #include "IdList.hh"
+#include "Lut.hh"
 
 vlScalars::vlScalars()
 {
-  this->Range[0] = 0.0;
-  this->Range[1] = 1.0;
+  this->Range[0] = this->Range[2] = this->Range[4] = this->Range[6] = 0.0;
+  this->Range[1] = this->Range[3] = this->Range[5] = this->Range[7] = 1.0;
+
+  this->LookupTable = NULL;
+}
+
+vlScalars::~vlScalars()
+{
+  if ( this->LookupTable ) this->LookupTable->UnRegister(this);
 }
 
 // Description:
@@ -70,6 +78,24 @@ void vlScalars::GetRange(float range[2])
   range[1] = this->Range[1];
 }
 
+void vlScalars::CreateDefaultLookupTable()
+{
+  if ( this->LookupTable ) this->LookupTable->UnRegister(this);
+  this->LookupTable = new vlLookupTable;
+  this->LookupTable->Register(this);
+}
+
+void vlScalars::SetLookupTable(vlLookupTable *lut)
+{
+  if ( this->LookupTable != lut ) 
+    {
+    if ( this->LookupTable ) this->LookupTable->UnRegister(this);
+    this->LookupTable = lut;
+    this->LookupTable->Register(this);
+    this->Modified();
+    }
+}
+
 void vlScalars::PrintSelf(ostream& os, vlIndent indent)
 {
   float *range;
@@ -79,4 +105,13 @@ void vlScalars::PrintSelf(ostream& os, vlIndent indent)
   os << indent << "Number Of Scalars: " << this->GetNumberOfScalars() << "\n";
   range = this->GetRange();
   os << indent << "Range: (" << range[0] << ", " << range[1] << ")\n";
+  if ( this->LookupTable )
+    {
+    os << indent << "Lookup Table:\n";
+    this->LookupTable->PrintSelf(os,indent.GetNextIndent());
+    }
+  else
+    {
+    os << indent << "LookupTable: (none)\n";
+    }
 }
