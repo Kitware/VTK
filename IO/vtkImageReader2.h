@@ -92,13 +92,13 @@ public:
   
   // Description:
   // Set/Get the spacing of the data in the file.
-  vtkSetVector3Macro(DataSpacing,float);
-  vtkGetVector3Macro(DataSpacing,float);
+  vtkSetVector3Macro(DataSpacing,double);
+  vtkGetVector3Macro(DataSpacing,double);
   
   // Description:
   // Set/Get the origin of the data (location of first pixel in the file).
-  vtkSetVector3Macro(DataOrigin,float);
-  vtkGetVector3Macro(DataOrigin,float);
+  vtkSetVector3Macro(DataOrigin,double);
+  vtkGetVector3Macro(DataOrigin,double);
 
   // Description:
   // Get the size of the header computed by this object.
@@ -217,8 +217,8 @@ protected:
   int DataScalarType;
   unsigned long ManualHeaderSize;
 
-  float DataSpacing[3];
-  float DataOrigin[3];
+  double DataSpacing[3];
+  double DataOrigin[3];
 
   int FileNameSliceOffset;
   int FileNameSliceSpacing;

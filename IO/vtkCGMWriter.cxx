@@ -24,7 +24,7 @@
 #include "vtkCellData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkCGMWriter, "1.14");
+vtkCxxRevisionMacro(vtkCGMWriter, "1.15");
 vtkStandardNewMacro(vtkCGMWriter);
 
 vtkCxxSetObjectMacro(vtkCGMWriter, Viewport, vtkViewport);
@@ -537,7 +537,7 @@ void vtkCGMWriter::WriteData()
   vtkIdType numPts=input->GetNumberOfPoints();
   int i, id, type, npts, size[2];
   vtkIdType *p;
-  float bounds[6], xRange, yRange, x[3], factor[2];
+  double bounds[6], xRange, yRange, x[3], factor[2];
   int color, bpp=1, colorMode;
   unsigned char *ptr, *colors=NULL;
   int rgbColor[3], maxCellSize;

@@ -74,8 +74,8 @@ protected:
 
   vtkTransform *Transform;
 
-  void ComputeTransformedSpacing (float Spacing[3]);
-  void ComputeTransformedOrigin (float origin[3]);
+  void ComputeTransformedSpacing (double Spacing[3]);
+  void ComputeTransformedOrigin (double origin[3]);
   void ComputeTransformedExtent(int inExtent[6],
                                 int outExtent[6]);
   void ComputeTransformedIncrements(int inIncr[3],

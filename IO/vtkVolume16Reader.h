@@ -132,9 +132,9 @@ protected:
   void TransformSlice (unsigned short *slice, unsigned short *pixels, int k, int dimensions[3], int bounds[3]);
   void ComputeTransformedDimensions(int dimensions[3]);
   void ComputeTransformedBounds(int bounds[6]);
-  void ComputeTransformedSpacing(float Spacing[3]);
-  void ComputeTransformedOrigin(float origin[3]);
-  void AdjustSpacingAndOrigin(int dimensions[3], float Spacing[3], float origin[3]);
+  void ComputeTransformedSpacing(double Spacing[3]);
+  void ComputeTransformedOrigin(double origin[3]);
+  void AdjustSpacingAndOrigin(int dimensions[3], double Spacing[3], double origin[3]);
   void ReadImage(int ImageNumber, vtkUnsignedShortArray *);
   void ReadVolume(int FirstImage, int LastImage, vtkUnsignedShortArray *);
   int Read16BitImage(FILE *fp, unsigned short *pixels, int xsize, int ysize, 

@@ -20,7 +20,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkMCubesWriter, "1.31");
+vtkCxxRevisionMacro(vtkMCubesWriter, "1.32");
 vtkStandardNewMacro(vtkMCubesWriter);
 
 // Create object.
@@ -38,7 +38,7 @@ vtkMCubesWriter::~vtkMCubesWriter()
 }
 static void WriteMCubes(FILE *fp, vtkPoints *pts, vtkDataArray *normals, 
                         vtkCellArray *polys);
-static void WriteLimits(FILE *fp, float *bounds);
+static void WriteLimits(FILE *fp, double *bounds);
 
 // Write out data in MOVIE.BYU format.
 void vtkMCubesWriter::WriteData()
@@ -101,22 +101,37 @@ void WriteMCubes(FILE *fp, vtkPoints *pts, vtkDataArray *normals,
   vtkIdType npts;
   vtkIdType *indx = 0;
 
-  //  Write out triangle polygons.  In not a triangle polygon, create triangles.
+  //  Write out triangle polygons.  In not a triangle polygon, create
+  //  triangles.
   //
+  double p[3], n[3];
   for (polys->InitTraversal(); polys->GetNextCell(npts,indx); )
     {
     for (i=0; i < 3; i++)
       {
-      pts->GetPoint(indx[i],&point.x[0]);
-      normals->GetTuple(indx[i],&point.n[0]);
+      pts->GetPoint(indx[i],p);
+      normals->GetTuple(indx[i],n);
+      point.x[0] = (float)p[0];
+      point.x[1] = (float)p[1];
+      point.x[2] = (float)p[2];
+      point.n[0] = (float)n[0];
+      point.n[1] = (float)n[1];
+      point.n[2] = (float)n[2];            
       vtkByteSwap::SwapWrite4BERange((float *) (&point),6,fp);
       }
     }
 }
-void WriteLimits(FILE *fp, float *bounds)
+void WriteLimits(FILE *fp, double *bounds)
 {
-  vtkByteSwap::SwapWrite4BERange((float *) bounds,6,fp);
-  vtkByteSwap::SwapWrite4BERange((float *) bounds,6,fp);
+  float fbounds[6];
+  fbounds[0] = (float)bounds[0];
+  fbounds[1] = (float)bounds[1];
+  fbounds[2] = (float)bounds[2];
+  fbounds[3] = (float)bounds[3];
+  fbounds[4] = (float)bounds[4];
+  fbounds[5] = (float)bounds[5];  
+  vtkByteSwap::SwapWrite4BERange((float *) fbounds,6,fp);
+  vtkByteSwap::SwapWrite4BERange((float *) fbounds,6,fp);
 }
 
 void vtkMCubesWriter::PrintSelf(ostream& os, vtkIndent indent)

@@ -21,7 +21,7 @@
 #include "vtkPointData.h"
 #include "vtkStructuredPoints.h"
 
-vtkCxxRevisionMacro(vtkStructuredPointsReader, "1.55");
+vtkCxxRevisionMacro(vtkStructuredPointsReader, "1.56");
 vtkStandardNewMacro(vtkStructuredPointsReader);
 
 vtkStructuredPointsReader::vtkStructuredPointsReader()
@@ -172,7 +172,7 @@ void vtkStructuredPointsReader::Execute()
 
       else if ( !strncmp(line,"aspect_ratio",12) || !strncmp(line,"spacing",7) )
         {
-        float ar[3];
+        double ar[3];
         if (!(this->Read(ar) && 
               this->Read(ar+1) && 
               this->Read(ar+2)))
@@ -189,7 +189,7 @@ void vtkStructuredPointsReader::Execute()
 
       else if ( ! strncmp(line,"origin",6) )
         {
-        float origin[3];
+        double origin[3];
         if (!(this->Read(origin) && 
               this->Read(origin+1) && 
               this->Read(origin+2)))

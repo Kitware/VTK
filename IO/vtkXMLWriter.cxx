@@ -33,7 +33,7 @@
 # include <io.h> /* unlink */
 #endif
 
-vtkCxxRevisionMacro(vtkXMLWriter, "1.29");
+vtkCxxRevisionMacro(vtkXMLWriter, "1.30");
 vtkCxxSetObjectMacro(vtkXMLWriter, Compressor, vtkDataCompressor);
 
 //----------------------------------------------------------------------------
@@ -1069,7 +1069,8 @@ int vtkXMLWriter::WriteScalarAttribute(const char* name, vtkIdType data)
 int vtkXMLWriter::WriteVectorAttribute(const char* name, int length,
                                        int* data)
 {
-  int res = vtkXMLWriterWriteVectorAttribute(*(this->Stream), name, length, data);
+  int res = 
+    vtkXMLWriterWriteVectorAttribute(*(this->Stream), name, length, data);
   
   this->Stream->flush();
   if (this->Stream->fail())
@@ -1083,7 +1084,23 @@ int vtkXMLWriter::WriteVectorAttribute(const char* name, int length,
 int vtkXMLWriter::WriteVectorAttribute(const char* name, int length,
                                        float* data)
 {
-  int res = vtkXMLWriterWriteVectorAttribute(*(this->Stream), name, length, data);
+  int res = 
+    vtkXMLWriterWriteVectorAttribute(*(this->Stream), name, length, data);
+  
+  this->Stream->flush();
+  if (this->Stream->fail())
+    {
+    this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+    }
+  return res;
+}
+
+//----------------------------------------------------------------------------
+int vtkXMLWriter::WriteVectorAttribute(const char* name, int length,
+                                       double* data)
+{
+  int res = 
+    vtkXMLWriterWriteVectorAttribute(*(this->Stream), name, length, data);
   
   this->Stream->flush();
   if (this->Stream->fail())

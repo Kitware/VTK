@@ -25,7 +25,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-vtkCxxRevisionMacro(vtkMCubesReader, "1.61");
+vtkCxxRevisionMacro(vtkMCubesReader, "1.62");
 vtkStandardNewMacro(vtkMCubesReader);
 
 // Construct object with FlipNormals turned off and Normals set to true.
@@ -70,7 +70,7 @@ void vtkMCubesReader::Execute()
   vtkPoints *newPts;
   vtkCellArray *newPolys;
   vtkFloatArray *newNormals = NULL;
-  float bounds[6];
+  double bounds[6];
   int i, j, k, numPts, numTris;
   typedef struct {float x[3], n[3];} pointType;
   pointType point;
@@ -104,6 +104,7 @@ void vtkMCubesReader::Execute()
   stat (this->FileName, &buf) == 0 )
     {
     // skip first three pairs
+    float fbounds[6];
     fread (dummy, sizeof(float), 2, limitp);
     fread (dummy, sizeof(float), 2, limitp);
     fread (dummy, sizeof(float), 2, limitp);
@@ -111,19 +112,25 @@ void vtkMCubesReader::Execute()
     // next three pairs are x, y, z limits
     for (i = 0; i < 6; i++) 
       {
-      fread (&bounds[i], sizeof (float), 1, limitp);
+      fread (&fbounds[i], sizeof (float), 1, limitp);
       }
     // do swapping if necc
     if (byteOrder == VTK_FILE_BYTE_ORDER_BIG_ENDIAN)
       {
-      vtkByteSwap::Swap4BERange(bounds,6);
+      vtkByteSwap::Swap4BERange(fbounds,6);
       }
     else
       {
-      vtkByteSwap::Swap4LERange(bounds,6);
+      vtkByteSwap::Swap4LERange(fbounds,6);
       }
     fclose (limitp);
-
+    bounds[0] = fbounds[0];
+    bounds[1] = fbounds[1];
+    bounds[2] = fbounds[2];
+    bounds[3] = fbounds[3];
+    bounds[4] = fbounds[4];
+    bounds[5] = fbounds[5];
+    
     // calculate the number of triangles and vertices from file size
     numTris = buf.st_size / (18*sizeof(float)); //3 points + normals
     numPts = numTris * 3;           
@@ -131,8 +138,8 @@ void vtkMCubesReader::Execute()
   else // read data to get bounds
     {
     fseek (fp, this->HeaderSize, 0);
-    bounds[0] = bounds[2] = bounds[4] = VTK_LARGE_FLOAT;
-    bounds[1] = bounds[3] = bounds[5] = -VTK_LARGE_FLOAT;
+    bounds[0] = bounds[2] = bounds[4] = VTK_DOUBLE_MAX;
+    bounds[1] = bounds[3] = bounds[5] = -VTK_DOUBLE_MAX;
     for (i=0; fread(&point, sizeof(pointType), 1, fp); i++) 
       {
       // swap bytes if necc
@@ -184,6 +191,7 @@ void vtkMCubesReader::Execute()
 
   direction = this->FlipNormals ? -1.0 : 1.0;
 
+  double dp[3];
   for ( i=0; i<numTris; i++) 
     {
     for (j=0; j<3; j++) 
@@ -206,7 +214,10 @@ void vtkMCubesReader::Execute()
         {
         vtkByteSwap::Swap4LERange((float *) (&point),6);
         }
-      if ( this->Locator->InsertUniquePoint(point.x, nodes[j]) )
+      dp[0] = point.x[0];
+      dp[1] = point.x[1];
+      dp[2] = point.x[2];
+      if ( this->Locator->InsertUniquePoint(dp, nodes[j]) )
         {
         if ( this->Normals )
           {

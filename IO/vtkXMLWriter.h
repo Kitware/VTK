@@ -275,6 +275,7 @@ protected:
   
   int WriteVectorAttribute(const char* name, int length, int* data);
   int WriteVectorAttribute(const char* name, int length, float* data);
+  int WriteVectorAttribute(const char* name, int length, double* data);
 #ifdef VTK_ID_TYPE_IS_NOT_BASIC_TYPE
   int WriteVectorAttribute(const char* name, int length, vtkIdType* data);
 #endif

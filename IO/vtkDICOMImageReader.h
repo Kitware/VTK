@@ -75,7 +75,7 @@ class VTK_IO_EXPORT vtkDICOMImageReader : public vtkImageReader2
 
   // Description:
   // Returns the pixel spacing.
-  float* GetPixelSpacing();
+  double* GetPixelSpacing();
   
   // Description:
   // Returns the image width.

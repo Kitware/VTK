@@ -67,13 +67,13 @@ public:
 
   // Description:
   // Specify the spacing for the data.
-  vtkSetVector3Macro(DataSpacing,float);
-  vtkGetVectorMacro(DataSpacing,float,3);
+  vtkSetVector3Macro(DataSpacing,double);
+  vtkGetVectorMacro(DataSpacing,double,3);
 
   // Description:
   // Specify the origin for the data.
-  vtkSetVector3Macro(DataOrigin,float);
-  vtkGetVectorMacro(DataOrigin,float,3);
+  vtkSetVector3Macro(DataOrigin,double);
+  vtkGetVectorMacro(DataOrigin,double,3);
 
   // Description:
   // Other objects make use of this method.
@@ -86,8 +86,8 @@ protected:
   char *FilePrefix;
   char *FilePattern;
   int ImageRange[2];
-  float DataSpacing[3];
-  float DataOrigin[3];
+  double DataSpacing[3];
+  double DataOrigin[3];
 private:
   vtkVolumeReader(const vtkVolumeReader&);  // Not implemented.
   void operator=(const vtkVolumeReader&);  // Not implemented.

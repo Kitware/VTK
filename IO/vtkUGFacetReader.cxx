@@ -23,7 +23,7 @@
 #include "vtkPolyData.h"
 #include "vtkShortArray.h"
 
-vtkCxxRevisionMacro(vtkUGFacetReader, "1.45");
+vtkCxxRevisionMacro(vtkUGFacetReader, "1.46");
 vtkStandardNewMacro(vtkUGFacetReader);
 
 // Construct object to extract all parts, and with point merging
@@ -200,7 +200,7 @@ void vtkUGFacetReader::Execute()
     vtkIdType *pts = 0;
     vtkIdType nodes[3];
     vtkIdType npts;
-    float *x;
+    double *x;
 
     mergedPts = vtkPoints::New();
     mergedPts->Allocate(newPts->GetNumberOfPoints()/3);

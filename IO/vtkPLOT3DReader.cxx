@@ -24,7 +24,7 @@
 #include "vtkStructuredGrid.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkPLOT3DReader, "1.79");
+vtkCxxRevisionMacro(vtkPLOT3DReader, "1.80");
 vtkStandardNewMacro(vtkPLOT3DReader);
 
 #define VTK_RHOINF 1.0
@@ -1133,7 +1133,7 @@ void vtkPLOT3DReader::AssignAttribute(int fNumber, vtkStructuredGrid* output,
 
 void vtkPLOT3DReader::ComputeTemperature(vtkStructuredGrid* output)
 {
-  float *m, e, rr, u, v, w, v2, p, d, rrgas;
+  double *m, e, rr, u, v, w, v2, p, d, rrgas;
   vtkIdType i;
   vtkFloatArray *temperature;
 
@@ -1182,7 +1182,7 @@ void vtkPLOT3DReader::ComputeTemperature(vtkStructuredGrid* output)
 
 void vtkPLOT3DReader::ComputePressure(vtkStructuredGrid* output)
 {
-  float *m, e, u, v, w, v2, p, d, rr;
+  double *m, e, u, v, w, v2, p, d, rr;
   vtkIdType i;
   vtkFloatArray *pressure;
 
@@ -1228,7 +1228,7 @@ void vtkPLOT3DReader::ComputePressure(vtkStructuredGrid* output)
 
 void vtkPLOT3DReader::ComputeEnthalpy(vtkStructuredGrid* output)
 {
-  float *m, e, u, v, w, v2, d, rr;
+  double *m, e, u, v, w, v2, d, rr;
   vtkIdType i;
   vtkFloatArray *enthalpy;
 
@@ -1272,7 +1272,7 @@ void vtkPLOT3DReader::ComputeEnthalpy(vtkStructuredGrid* output)
 
 void vtkPLOT3DReader::ComputeKineticEnergy(vtkStructuredGrid* output)
 {
-  float *m, u, v, w, v2, d, rr;
+  double *m, u, v, w, v2, d, rr;
   vtkIdType i;
   vtkFloatArray *kineticEnergy;
 
@@ -1313,7 +1313,7 @@ void vtkPLOT3DReader::ComputeKineticEnergy(vtkStructuredGrid* output)
 
 void vtkPLOT3DReader::ComputeVelocityMagnitude(vtkStructuredGrid* output)
 {
-  float *m, u, v, w, v2, d, rr;
+  double *m, u, v, w, v2, d, rr;
   vtkIdType i;
   vtkFloatArray *velocityMag;
 
@@ -1356,7 +1356,7 @@ void vtkPLOT3DReader::ComputeVelocityMagnitude(vtkStructuredGrid* output)
 
 void vtkPLOT3DReader::ComputeEntropy(vtkStructuredGrid* output)
 {
-  float *m, u, v, w, v2, d, rr, s, p, e;
+  double *m, u, v, w, v2, d, rr, s, p, e;
   vtkIdType i;
   vtkFloatArray *entropy;
 
@@ -1403,7 +1403,7 @@ void vtkPLOT3DReader::ComputeEntropy(vtkStructuredGrid* output)
 void vtkPLOT3DReader::ComputeSwirl(vtkStructuredGrid* output)
 {
   vtkDataArray *vorticity;
-  float d, rr, *m, u, v, w, v2, *vort, s;
+  double d, rr, *m, u, v, w, v2, *vort, s;
   vtkIdType i;
   vtkFloatArray *swirl;
 
@@ -1461,7 +1461,7 @@ void vtkPLOT3DReader::ComputeSwirl(vtkStructuredGrid* output)
 // Vector functions
 void vtkPLOT3DReader::ComputeVelocity(vtkStructuredGrid* output)
 {
-  float *m, v[3], d, rr;
+  double *m, v[3], d, rr;
   vtkIdType i;
   vtkFloatArray *velocity;
 
@@ -1509,11 +1509,11 @@ void vtkPLOT3DReader::ComputeVorticity(vtkStructuredGrid* output)
   int dims[3], ijsize;
   vtkPoints *points;
   int i, j, k, idx, idx2, ii;
-  float vort[3], xp[3], xm[3], vp[3], vm[3], factor;
-  float xxi, yxi, zxi, uxi, vxi, wxi;
-  float xeta, yeta, zeta, ueta, veta, weta;
-  float xzeta, yzeta, zzeta, uzeta, vzeta, wzeta;
-  float aj, xix, xiy, xiz, etax, etay, etaz, zetax, zetay, zetaz;
+  double vort[3], xp[3], xm[3], vp[3], vm[3], factor;
+  double xxi, yxi, zxi, uxi, vxi, wxi;
+  double xeta, yeta, zeta, ueta, veta, weta;
+  double xzeta, yzeta, zzeta, uzeta, vzeta, wzeta;
+  double aj, xix, xiy, xiz, etax, etay, etaz, zetax, zetay, zetaz;
 
   //  Check that the required data is available
   //
@@ -1741,11 +1741,11 @@ void vtkPLOT3DReader::ComputePressureGradient(vtkStructuredGrid* output)
   int dims[3], ijsize;
   vtkPoints *points;
   int i, j, k, idx, idx2, ii;
-  float g[3], xp[3], xm[3], pp, pm, factor;
-  float xxi, yxi, zxi, pxi;
-  float xeta, yeta, zeta, peta;
-  float xzeta, yzeta, zzeta, pzeta;
-  float aj, xix, xiy, xiz, etax, etay, etaz, zetax, zetay, zetaz;
+  double g[3], xp[3], xm[3], pp, pm, factor;
+  double xxi, yxi, zxi, pxi;
+  double xeta, yeta, zeta, peta;
+  double xzeta, yzeta, zzeta, pzeta;
+  double aj, xix, xiy, xiz, etax, etay, etaz, zetax, zetay, zetaz;
 
   //  Check that the required data is available
   //

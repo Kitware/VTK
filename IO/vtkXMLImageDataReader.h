@@ -47,8 +47,8 @@ protected:
   vtkXMLImageDataReader();
   ~vtkXMLImageDataReader();  
   
-  float Origin[3];
-  float Spacing[3];
+  double Origin[3];
+  double Spacing[3];
   
   const char* GetDataSetName();
   void SetOutputExtent(int* extent);

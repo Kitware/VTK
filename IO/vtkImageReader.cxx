@@ -20,7 +20,7 @@
 #include "vtkPointData.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImageReader, "1.111");
+vtkCxxRevisionMacro(vtkImageReader, "1.112");
 vtkStandardNewMacro(vtkImageReader);
 
 vtkCxxSetObjectMacro(vtkImageReader,Transform,vtkTransform);
@@ -88,9 +88,9 @@ void vtkImageReader::PrintSelf(ostream& os, vtkIndent indent)
 void vtkImageReader::ExecuteInformation()
 {
   vtkImageData *output = this->GetOutput();
-  float spacing[3];
+  double spacing[3];
   int extent[6];
-  float origin[3];
+  double origin[3];
   
   
   // set the extent, if the VOI has not been set then default to
@@ -439,16 +439,16 @@ void vtkImageReader::ExecuteData(vtkDataObject *output)
 
 
 
-void vtkImageReader::ComputeTransformedSpacing (float Spacing[3])
+void vtkImageReader::ComputeTransformedSpacing (double Spacing[3])
 {
   if (!this->Transform)
     {
-    memcpy (Spacing, this->DataSpacing, 3 * sizeof (float));
+    memcpy (Spacing, this->DataSpacing, 3 * sizeof (double));
     }
   else
     {
-    float transformedSpacing[3];
-    memcpy (transformedSpacing, this->DataSpacing, 3 * sizeof (float));
+    double transformedSpacing[3];
+    memcpy (transformedSpacing, this->DataSpacing, 3 * sizeof (double));
     this->Transform->TransformVector(transformedSpacing, transformedSpacing);
 
     for (int i = 0; i < 3; i++)
@@ -462,22 +462,22 @@ void vtkImageReader::ComputeTransformedSpacing (float Spacing[3])
 // if the spacing is negative we need to tranlate the origin
 // basically O' = O + spacing*(dim-1) for any axis that would
 // have a negative spaing
-void vtkImageReader::ComputeTransformedOrigin (float origin[3])
+void vtkImageReader::ComputeTransformedOrigin (double origin[3])
 {
   if (!this->Transform)
     {
-    memcpy (origin, this->DataOrigin, 3 * sizeof (float));
+    memcpy (origin, this->DataOrigin, 3 * sizeof (double));
     }
   else
     {
-    float transformedOrigin[3];
-    float transformedSpacing[3];
+    double transformedOrigin[3];
+    double transformedSpacing[3];
     int transformedExtent[6];
     
-    memcpy (transformedSpacing, this->DataSpacing, 3 * sizeof (float));
+    memcpy (transformedSpacing, this->DataSpacing, 3 * sizeof (double));
     this->Transform->TransformVector(transformedSpacing, transformedSpacing);
 
-    memcpy (transformedOrigin, this->DataOrigin, 3 * sizeof (float));
+    memcpy (transformedOrigin, this->DataOrigin, 3 * sizeof (double));
     this->Transform->TransformPoint(transformedOrigin, transformedOrigin);
 
     this->ComputeTransformedExtent(this->DataExtent,transformedExtent);
@@ -501,7 +501,7 @@ void vtkImageReader::ComputeTransformedOrigin (float origin[3])
 void vtkImageReader::ComputeTransformedExtent(int inExtent[6],
                                               int outExtent[6])
 {
-  float transformedExtent[3];
+  double transformedExtent[3];
   int temp;
   int idx;
   int dataExtent[6];
@@ -581,7 +581,7 @@ void vtkImageReader::ComputeTransformedExtent(int inExtent[6],
 void vtkImageReader::ComputeInverseTransformedExtent(int inExtent[6],
                                                      int outExtent[6])
 {
-  float transformedExtent[3];
+  double transformedExtent[3];
   int temp;
   int idx;
   
@@ -671,7 +671,7 @@ void vtkImageReader::ComputeInverseTransformedExtent(int inExtent[6],
 void vtkImageReader::ComputeTransformedIncrements(int inIncr[3],
                                                   int outIncr[3])
 {
-  float transformedIncr[3];
+  double transformedIncr[3];
   
   if (!this->Transform)
     {
@@ -695,7 +695,7 @@ void vtkImageReader::ComputeTransformedIncrements(int inIncr[3],
 void vtkImageReader::ComputeInverseTransformedIncrements(int inIncr[3],
                                                          int outIncr[3])
 {
-  float transformedIncr[3];
+  double transformedIncr[3];
   
   if (!this->Transform)
     {

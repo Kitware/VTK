@@ -29,7 +29,7 @@
 #include <ctype.h>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkEnSightGoldReader, "1.42");
+vtkCxxRevisionMacro(vtkEnSightGoldReader, "1.43");
 vtkStandardNewMacro(vtkEnSightGoldReader);
 
 //----------------------------------------------------------------------------
@@ -1120,7 +1120,7 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
       vtkDebugMacro("coordinates");
       int numPts;
       vtkPoints *points = vtkPoints::New();
-      float point[3];
+      double point[3];
       
       this->ReadNextDataLine(line);
       numPts = atoi(line);
@@ -1649,7 +1649,7 @@ int vtkEnSightGoldReader::CreateStructuredGridOutput(int partId,
   int dimensions[3];
   int i;
   vtkPoints *points = vtkPoints::New();
-  float point[3];
+  double point[3];
   int numPts;
   
   this->NumberOfNewOutputs++;

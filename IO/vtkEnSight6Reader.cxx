@@ -31,7 +31,7 @@
 #include <ctype.h>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkEnSight6Reader, "1.44");
+vtkCxxRevisionMacro(vtkEnSight6Reader, "1.45");
 vtkStandardNewMacro(vtkEnSight6Reader);
 
 //----------------------------------------------------------------------------
@@ -1961,7 +1961,7 @@ int vtkEnSight6Reader::CreateStructuredGridOutput(int partId,
   int dimensions[3];
   int i, j;
   vtkPoints *points = vtkPoints::New();
-  float point[3];
+  double point[3];
   int numPts, numLines, moreCoords, moreBlanking;
   float coords[6];
   int iblanks[10];
@@ -2041,7 +2041,8 @@ int vtkEnSight6Reader::CreateStructuredGridOutput(int partId,
     for (j = 0; j < 6; j++)
       {
       points->GetPoint(i*6+j, point);
-      points->SetPoint(i*6+j, point[0], coords[j], point[2]);
+      points->SetPoint(i*6+j, point[0], 
+                       static_cast<double>(coords[j]), point[2]);
       }
     }
   if (moreCoords != 0)
@@ -2051,7 +2052,8 @@ int vtkEnSight6Reader::CreateStructuredGridOutput(int partId,
       {
       vtkEnSight6ReaderRead4(line+j*12,&coords[j]);
       points->GetPoint(i*6+j, point);
-      points->SetPoint(i*6+j, point[0], coords[j], point[2]);
+      points->SetPoint(i*6+j, point[0], 
+                       static_cast<double>(coords[j]), point[2]);
       }
     }
   for (i = 0; i < numLines; i++)
@@ -2062,7 +2064,8 @@ int vtkEnSight6Reader::CreateStructuredGridOutput(int partId,
     for (j = 0; j < 6; j++)
       {
       points->GetPoint(i*6+j, point);
-      points->SetPoint(i*6+j, point[0], point[1], coords[j]);
+      points->SetPoint(i*6+j, point[0], point[1], 
+                       static_cast<double>(coords[j]));
       }
     }
   if (moreCoords != 0)
@@ -2072,7 +2075,8 @@ int vtkEnSight6Reader::CreateStructuredGridOutput(int partId,
       {
       vtkEnSight6ReaderRead4(line+j*12,&coords[j]);
       points->GetPoint(i*6+j, point);
-      points->SetPoint(i*6+j, point[0], point[1], coords[j]);
+      points->SetPoint(i*6+j, point[0], point[1], 
+                       static_cast<double>(coords[j]));
       }
     }
   

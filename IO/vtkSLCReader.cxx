@@ -20,7 +20,7 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkSLCReader, "1.47");
+vtkCxxRevisionMacro(vtkSLCReader, "1.48");
 vtkStandardNewMacro(vtkSLCReader);
 
 // Constructor for a vtkSLCReader.
@@ -85,7 +85,7 @@ void vtkSLCReader::ExecuteInformation()
 {
   FILE *fp;
   int   temp;
-  float f[3];
+  double f[3];
   int   size[3];
   int   magic_num;
 
@@ -123,9 +123,9 @@ void vtkSLCReader::ExecuteInformation()
   // Skip Over bits_per_voxel Field */
   fscanf( fp, "%d",   &temp );
 
-  fscanf( fp, "%f", f );
-  fscanf( fp, "%f", f+1 );
-  fscanf( fp, "%f", f+2 );
+  fscanf( fp, "%lf", f );
+  fscanf( fp, "%lf", f+1 );
+  fscanf( fp, "%lf", f+2 );
   output->SetSpacing(f);
 
   // Skip Over unit_type, data_origin, and data_modification 
@@ -154,7 +154,7 @@ void vtkSLCReader::ExecuteData(vtkDataObject* )
   int   data_compression;
   int   plane_size;
   int   volume_size;
-  float f[3];
+  double f[3];
   int   size[3];
   int   magic_num;
   int   z_counter;
@@ -198,9 +198,9 @@ void vtkSLCReader::ExecuteData(vtkDataObject* )
   // Skip Over bits_per_voxel Field */
   fscanf( fp, "%d",   &temp );
 
-  fscanf( fp, "%f", f );
-  fscanf( fp, "%f", f+1 );
-  fscanf( fp, "%f", f+2 );
+  fscanf( fp, "%lf", f );
+  fscanf( fp, "%lf", f+1 );
+  fscanf( fp, "%lf", f+2 );
   output->SetSpacing(f);
 
   // Skip Over unit_type, data_origin, and data_modification 

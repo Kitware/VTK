@@ -52,7 +52,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkMoleculeReaderBase, "1.12");
+vtkCxxRevisionMacro(vtkMoleculeReaderBase, "1.13");
 
 static float vtkMoleculeReaderBaseCovRadius[103] = {
 0.32 , 1.6 , 0.68 , 0.352 , 0.832 , 0.72 ,
@@ -299,9 +299,9 @@ int vtkMoleculeReaderBase::MakeBonds(vtkPoints *newPts,
   register int i, j;
   register int nbonds;
   register int nbonds_this_atom;     // this is not used for the moment
-  register float dx, dy, dz;
-  float max, dist;
-  float X[3], Y[3];
+  register double dx, dy, dz;
+  double max, dist;
+  double X[3], Y[3];
   vtkIdType bond[2];
 
   nbonds = 0;
@@ -324,7 +324,10 @@ int vtkMoleculeReaderBase::MakeBonds(vtkPoints *newPts,
        */
 
       /* never bond hydrogens to each other... */
-      if (atype->GetValue(i) == 0 && atype->GetValue(j) == 0) continue;
+      if (atype->GetValue(i) == 0 && atype->GetValue(j) == 0) 
+        {
+        continue;
+        }
 
       dist = vtkMoleculeReaderBaseCovRadius[atype->GetValue(i)] +
         vtkMoleculeReaderBaseCovRadius[atype->GetValue(j)] + 0.56;
@@ -350,11 +353,17 @@ int vtkMoleculeReaderBase::MakeBonds(vtkPoints *newPts,
 
       dy = X[1] - Y[1];
       dist += dy * dy;
-      if(dist > max ) continue;
+      if(dist > max ) 
+        {
+        continue;
+        }
 
       dz = X[2] - Y[2];
       dist += dz * dz;
-      if(dist > max ) continue;
+      if(dist > max ) 
+        {
+        continue;
+        }
 
       bond[1] = j;
       newBonds->InsertNextCell(2, bond);
@@ -373,9 +382,15 @@ int vtkMoleculeReaderBase::MakeAtomType(const char *atype)
   int       anum=0;
 
   a = atype[0];
-  if (islower(a)) a = toupper(a);
+  if (islower(a)) 
+    {
+    a = toupper(a);
+    }
   b = atype[1];
-  if (islower(b)) b = toupper(b);
+  if (islower(b)) 
+    {
+    b = toupper(b);
+    }
   switch (a) 
     {
   case 'A':

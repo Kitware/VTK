@@ -24,7 +24,7 @@
 #endif
 
 
-vtkCxxRevisionMacro(vtkStructuredPointsWriter, "1.39");
+vtkCxxRevisionMacro(vtkStructuredPointsWriter, "1.40");
 vtkStandardNewMacro(vtkStructuredPointsWriter);
 
 //----------------------------------------------------------------------------
@@ -53,7 +53,7 @@ void vtkStructuredPointsWriter::WriteData()
   vtkImageData *input=this->GetInput();
   int dim[3];
   int *ext;
-  float spacing[3], origin[3];
+  double spacing[3], origin[3];
 
   vtkDebugMacro(<<"Writing vtk structured points...");
 

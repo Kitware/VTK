@@ -29,7 +29,7 @@
 #include <vtkstd/vector>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkDICOMImageReader, "1.16");
+vtkCxxRevisionMacro(vtkDICOMImageReader, "1.17");
 vtkStandardNewMacro(vtkDICOMImageReader);
 
 class vtkDICOMImageReaderVector : public vtkstd::vector<vtkstd::string>
@@ -397,7 +397,7 @@ void vtkDICOMImageReader::SetDirectoryName(const char* dn)
   this->Modified(); 
 }
 
-float* vtkDICOMImageReader::GetPixelSpacing()
+double* vtkDICOMImageReader::GetPixelSpacing()
 {
   vtkstd::vector<vtkstd::pair<float, vtkstd::string> > sortedFiles;
     

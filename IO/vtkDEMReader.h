@@ -133,7 +133,9 @@ protected:
   float SpatialResolution[3];
   int ProfileDimension[2];
   int ProfileSeekOffset;
-  void ComputeExtentOriginAndSpacing (int extent[6], float origin[6], float spacing[6]);
+  void ComputeExtentOriginAndSpacing (int extent[6], 
+                                      double origin[6], 
+                                      double spacing[6]);
   int ReadTypeARecord ();
   int ReadProfiles (vtkImageData *data);
   void ExecuteData(vtkDataObject *out);

@@ -24,7 +24,7 @@
 
 #include <stddef.h>
 
-vtkCxxRevisionMacro(vtkPLYWriter, "1.17");
+vtkCxxRevisionMacro(vtkPLYWriter, "1.18");
 vtkStandardNewMacro(vtkPLYWriter);
 
 vtkCxxSetObjectMacro(vtkPLYWriter,LookupTable,vtkScalarsToColors);
@@ -181,9 +181,13 @@ void vtkPLYWriter::WriteData()
   // set up and write the vertex elements
   plyVertex vert;
   vtkPLY::ply_put_element_setup (ply, "vertex");
+  double dpoint[3];
   for (i = 0; i < numPts; i++)
     {
-    inPts->GetPoint(i,vert.x);
+    inPts->GetPoint(i,dpoint);
+    vert.x[0] = static_cast<float>(dpoint[0]);
+    vert.x[1] = static_cast<float>(dpoint[1]);
+    vert.x[2] = static_cast<float>(dpoint[2]);
     if ( pointColors )
       {
       idx = 3*i;
@@ -263,7 +267,7 @@ unsigned char *vtkPLYWriter::GetColors(vtkIdType num,
     }
   else //we will color based on data
     {
-    float *tuple;
+    double *tuple;
     vtkDataArray *da;
     unsigned char *rgb;
     vtkUnsignedCharArray *rgbArray;

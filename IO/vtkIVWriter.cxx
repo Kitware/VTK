@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkIVWriter, "1.29");
+vtkCxxRevisionMacro(vtkIVWriter, "1.30");
 vtkStandardNewMacro(vtkIVWriter);
 
 void vtkIVWriter::WriteData()
@@ -95,7 +95,7 @@ void vtkIVWriter::WritePolyData(vtkPolyData *pd, FILE *fp)
   fprintf(fp,"\t\t\t");
   for (i=0; i<points->GetNumberOfPoints(); i++)
     {
-    float xyz[3];
+    double xyz[3];
     points->GetPoint(i, xyz);
     fprintf(fp, "%g %g %g, ", xyz[0], xyz[1], xyz[2]);
     if (!((i+1)%2))

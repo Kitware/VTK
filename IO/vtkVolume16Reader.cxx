@@ -20,7 +20,7 @@
 #include "vtkTransform.h"
 #include "vtkUnsignedShortArray.h"
 
-vtkCxxRevisionMacro(vtkVolume16Reader, "1.50");
+vtkCxxRevisionMacro(vtkVolume16Reader, "1.51");
 vtkStandardNewMacro(vtkVolume16Reader);
 
 vtkCxxSetObjectMacro(vtkVolume16Reader,Transform,vtkTransform);
@@ -141,8 +141,8 @@ void vtkVolume16Reader::ExecuteData(vtkDataObject *outp)
   int first, last;
   int *dim;
   int dimensions[3];
-  float Spacing[3];
-  float origin[3];
+  double Spacing[3];
+  double origin[3];
 
   vtkImageData *output = this->AllocateOutputData(outp);
   vtkUnsignedShortArray *newScalars = 
@@ -400,16 +400,16 @@ int vtkVolume16Reader:: Read16BitImage (FILE *fp, unsigned short *pixels, int xs
   return 1;
 }
 
-void vtkVolume16Reader::ComputeTransformedSpacing (float Spacing[3])
+void vtkVolume16Reader::ComputeTransformedSpacing (double Spacing[3])
 {
   if (!this->Transform)
     {
-    memcpy (Spacing, this->DataSpacing, 3 * sizeof (float));
+    memcpy (Spacing, this->DataSpacing, 3 * sizeof (double));
     }
   else
     {
-    float transformedSpacing[4];
-    memcpy (transformedSpacing, this->DataSpacing, 3 * sizeof (float));
+    double transformedSpacing[4];
+    memcpy (transformedSpacing, this->DataSpacing, 3 * sizeof (double));
     transformedSpacing[3] = 1.0;
     this->Transform->MultiplyPoint (transformedSpacing, transformedSpacing);
 
@@ -421,16 +421,16 @@ void vtkVolume16Reader::ComputeTransformedSpacing (float Spacing[3])
     }
 }
 
-void vtkVolume16Reader::ComputeTransformedOrigin (float origin[3])
+void vtkVolume16Reader::ComputeTransformedOrigin (double origin[3])
 {
   if (!this->Transform)
     {
-    memcpy (origin, this->DataOrigin, 3 * sizeof (float));
+    memcpy (origin, this->DataOrigin, 3 * sizeof (double));
     }
   else
     {
-    float transformedOrigin[4];
-    memcpy (transformedOrigin, this->DataOrigin, 3 * sizeof (float));
+    double transformedOrigin[4];
+    memcpy (transformedOrigin, this->DataOrigin, 3 * sizeof (double));
     transformedOrigin[3] = 1.0;
     this->Transform->MultiplyPoint (transformedOrigin, transformedOrigin);
 
@@ -444,7 +444,7 @@ void vtkVolume16Reader::ComputeTransformedOrigin (float origin[3])
 
 void vtkVolume16Reader::ComputeTransformedDimensions (int dimensions[3])
 {
-  float transformedDimensions[4];
+  double transformedDimensions[4];
   if (!this->Transform)
     {
     dimensions[0] = this->DataDimensions[0];
@@ -481,7 +481,7 @@ void vtkVolume16Reader::ComputeTransformedDimensions (int dimensions[3])
 
 void vtkVolume16Reader::ComputeTransformedBounds (int bounds[6])
 {
-  float transformedBounds[4];
+  double transformedBounds[4];
 
   if (!this->Transform)
     {
@@ -528,7 +528,7 @@ void vtkVolume16Reader::ComputeTransformedBounds (int bounds[6])
     }
 }
 
-void vtkVolume16Reader::AdjustSpacingAndOrigin (int dimensions[3], float Spacing[3], float origin[3])
+void vtkVolume16Reader::AdjustSpacingAndOrigin (int dimensions[3], double Spacing[3], double origin[3])
 {
   for (int i = 0; i < 3; i++)
     {
@@ -553,7 +553,7 @@ void vtkVolume16Reader::TransformSlice (unsigned short *slice, unsigned short *p
     }
   else
     {
-    float transformedIjk[4], ijk[4];
+    double transformedIjk[4], ijk[4];
     int i, j;
     int xyz[3];
     int index;
@@ -571,9 +571,9 @@ void vtkVolume16Reader::TransformSlice (unsigned short *slice, unsigned short *p
         {
         ijk[0] = i;
         this->Transform->MultiplyPoint (ijk, transformedIjk);
-        xyz[0] = (int) ((float)transformedIjk[0] - bounds[0]);
-        xyz[1] = (int) ((float)transformedIjk[1] - bounds[2]);
-        xyz[2] = (int) ((float)transformedIjk[2] - bounds[4]);
+        xyz[0] = (int) ((double)transformedIjk[0] - bounds[0]);
+        xyz[1] = (int) ((double)transformedIjk[1] - bounds[2]);
+        xyz[2] = (int) ((double)transformedIjk[2] - bounds[4]);
         index = xyz[0] +
                 xyz[1] * xSize +
                 xyz[2] * xySize;

@@ -16,7 +16,7 @@
 #include "vtkDEMReader.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkDEMReader, "1.31");
+vtkCxxRevisionMacro(vtkDEMReader, "1.32");
 vtkStandardNewMacro(vtkDEMReader);
 
 #define VTK_SW  0
@@ -82,7 +82,7 @@ vtkDEMReader::~vtkDEMReader()
 //----------------------------------------------------------------------------
 void vtkDEMReader::ExecuteInformation()
 {
-  float spacing[3], origin[3];
+  double spacing[3], origin[3];
   int extent[6];
 
   if (!this->FileName)
@@ -261,8 +261,8 @@ int vtkDEMReader::ReadTypeARecord ()
 }
 
 void vtkDEMReader::ComputeExtentOriginAndSpacing (int extent[6],
-                                                  float origin[3],
-                                                  float spacing[3])
+                                                  double origin[3],
+                                                  double spacing[3])
 {
   float eastMost, westMost, northMost, southMost;
   float planeConversion;

@@ -24,7 +24,7 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkSTLReader, "1.68");
+vtkCxxRevisionMacro(vtkSTLReader, "1.69");
 vtkStandardNewMacro(vtkSTLReader);
 
 #define VTK_ASCII 0
@@ -141,7 +141,7 @@ void vtkSTLReader::Execute()
     vtkIdType *pts = 0;
     vtkIdType nodes[3];
     vtkIdType npts = 0;
-    float *x;
+    double x[3];
     int nextCell=0;
 
     mergedPts = vtkPoints::New();
@@ -164,7 +164,7 @@ void vtkSTLReader::Execute()
       {
       for (i=0; i < 3; i++) 
         {
-        x = newPts->GetPoint(pts[i]);
+        newPts->GetPoint(pts[i],x);
         this->Locator->InsertUniquePoint(x, nodes[i]);
         }
 
