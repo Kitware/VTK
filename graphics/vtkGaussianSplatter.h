@@ -165,6 +165,21 @@ protected:
   float PositionSampling(float) {return this->ScaleFactor;};
   void SetScalar(int idx, float dist2);
 
+//BTX
+private:
+  vtkScalars *NewScalars;
+  float Radius2;
+  float (vtkGaussianSplatter::*Sample)(float x[3]);
+  float (vtkGaussianSplatter::*SampleFactor)(float s);
+  char *Visited;
+  float Eccentricity2;
+  float *P;
+  float *N;
+  float S;
+  float Origin[3];
+  float Spacing[3];
+//ETX
+
 };
 
 #endif
