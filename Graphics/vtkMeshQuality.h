@@ -24,16 +24,16 @@
 // or hexahedron) of a mesh. These measures of quality are then averaged
 // over the entire mesh. The minimum, average, maximum, and variance
 // of quality for each type of cell is stored in the output mesh's FieldData.
-// The FieldData arrays are named &ldquo;Mesh Triangle Quality,&rdquo
-// &ldquo;Mesh Quadrilateral Quality,&rdquo &ldquo;Mesh Tetrahedron Quality,&rdquo
-// and &ldquo;Mesh Hexahedron Quality,&rdquo. Each array has a single tuple
+// The FieldData arrays are named "Mesh Triangle Quality,"
+// "Mesh Quadrilateral Quality," "Mesh Tetrahedron Quality,"
+// and "Mesh Hexahedron Quality." Each array has a single tuple
 // with 5 components. The first 4 components are the quality statistics
 // mentioned above; the final value is the number of cells of the given type.
 // This final component makes aggregation of statistics for distributed
 // mesh data possible.
 //
 // By default, the per-cell quality is added to the mesh's cell data, in
-// an array named &ldquo;Quality.&rdquo; Cell types not supported by
+// an array named "Quality." Cell types not supported by
 // this filter will have an entry of 0. Use SaveCellQualityOff() to
 // store only the final statistics.
 //
