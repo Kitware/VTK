@@ -114,7 +114,8 @@ vtkThreadedController::vtkThreadedController()
     }  
   
   // Here for debugging intermitent problems
-  this->LogFile = fopen("ThreadedController.log", "w");
+  //this->LogFile = fopen("ThreadedController.log", "w");
+  this->LogFile = NULL;
   
   this->MessageLock = vtkMutexLock::New();
 }
@@ -124,7 +125,10 @@ vtkThreadedController::~vtkThreadedController()
 {
   this->MultiThreader->Delete();
   this->MultiThreader = NULL;
-  fclose(this->LogFile);
+  if (this->LogFile)
+    {
+    fclose(this->LogFile);
+    }
   this->MessageLock->Delete();
 }
 
@@ -156,8 +160,11 @@ void vtkThreadedController::CreateThreadInfoObjects()
     this->Processes[idx] = new vtkThreadedControllerProcessInfo;
     // By default these blocking mutexes are locked.
     // I am assuming it is ok for one thread to lock, and another to unlock.
-    fprintf(this->LogFile, "Block%d: Lock (contruction)\n", idx);
-    fflush(this->LogFile);
+    if (this->LogFile)
+      {
+      fprintf(this->LogFile, "Block%d: Lock (contruction)\n", idx);
+      fflush(this->LogFile);
+      }
     this->Processes[idx]->BlockLock->Lock();
     }
 }
@@ -173,8 +180,11 @@ void vtkThreadedController::DeleteThreadInfoObjects()
     {
     // By default these blocking mutexes are locked.
     // I am assuming it is ok for one thread to lock, and another to unlock.
-    fprintf(this->LogFile, "Block%d: Unlock (destruction)\n", idx);
-    fflush(this->LogFile);
+    if (this->LogFile)
+      {
+      fprintf(this->LogFile, "Block%d: Unlock (destruction)\n", idx);
+      fflush(this->LogFile);
+      }
     this->Processes[idx]->BlockLock->Unlock();
     delete this->Processes[idx];
     this->Processes[idx] = NULL;
@@ -291,18 +301,31 @@ int vtkThreadedController::Send(vtkObject *object, void *data, int length,
   vtkThreadedControllerProcessInfo *snd;
   vtkThreadedControllerProcessInfo *rcv;
 
+    if (this->LogFile)
+      {
+      fprintf(this->LogFile, "%d: Send: object = %d, data = %d, length = %d, remoteId = %d, tag = %d\n",
+	      myIdx, object, data, length, remoteProcessId, tag);
+      fflush(this->LogFile);
+      }
+    
   // Avoid a send and recv starting at the same time.
-  fprintf(this->LogFile, "%d: Message: Lock (send %d->%d) T: %d\n",
-	  myIdx, myIdx, remoteProcessId, tag);
-  fflush(this->LogFile);
-  this->MessageLock->Lock();  
+    if (this->LogFile)
+      {
+      fprintf(this->LogFile, "%d: Message: Lock (send %d->%d) T: %d\n",
+	      myIdx, myIdx, remoteProcessId, tag);
+      fflush(this->LogFile);
+      }
+    this->MessageLock->Lock();  
   
   // Try to get a lock on the recv.
   // Receive always gets blocked first to avoid deadlock
   rcv = this->Processes[remoteProcessId];
-  fprintf(this->LogFile, "%d:     Info%d: Lock (Send %d->%d) T: %d\n", 
-	  myIdx, remoteProcessId, myIdx, remoteProcessId, tag);
-  fflush(this->LogFile);
+  if (this->LogFile)
+    {
+    fprintf(this->LogFile, "%d:     Info%d: Lock (Send %d->%d) T: %d\n", 
+	    myIdx, remoteProcessId, myIdx, remoteProcessId, tag);
+    fflush(this->LogFile);
+    }
   rcv->InfoLock->Lock();
   
   // Look at pending receives to find any matches.
@@ -311,10 +334,12 @@ int vtkThreadedController::Send(vtkObject *object, void *data, int length,
       && !(rcv->Object) == !object)
     {
     // We have a match. A receive is already waiting.
-    fprintf(this->LogFile, "%d:              send %d->%d, T: %d,  Match! \n",
-	    myIdx, myIdx, remoteProcessId, tag);
-    fflush(this->LogFile);    
-    
+    if (this->LogFile)
+      {
+      fprintf(this->LogFile, "%d:              send %d->%d, T: %d,  Match! \n",
+	      myIdx, myIdx, remoteProcessId, tag);
+      fflush(this->LogFile);    
+      }
     // Copy the message.
     if (length > 0 && rcv->Data && data)
       {
@@ -333,39 +358,55 @@ int vtkThreadedController::Send(vtkObject *object, void *data, int length,
     rcv->Tag = 0;
     rcv->RemoteId = VTK_MP_CONTROLLER_INVALID_SOURCE;
     // Release the receive block, so it can return.
-    fprintf(this->LogFile, "%d: Block%d: Unlock (send %d->%d) T: %d\n", 
-	    myIdx, remoteProcessId, myIdx, remoteProcessId, tag);
-    fflush(this->LogFile);
+    if (this->LogFile)
+      {
+      fprintf(this->LogFile, "%d: Block%d: Unlock (send %d->%d) T: %d\n", 
+	      myIdx, remoteProcessId, myIdx, remoteProcessId, tag);
+      fflush(this->LogFile);
+      }
     rcv->BlockLock->Unlock();
     
     // we are done writing/reading the rcv
-    fprintf(this->LogFile, "%d:     Info%d: Unlock (Send %d->%d) T: %d\n", 
-	    myIdx, remoteProcessId, myIdx, remoteProcessId, tag);
-    fflush(this->LogFile);
+    if (this->LogFile)
+      {
+      fprintf(this->LogFile, "%d:     Info%d: Unlock (Send %d->%d) T: %d\n", 
+	      myIdx, remoteProcessId, myIdx, remoteProcessId, tag);
+      fflush(this->LogFile);
+      }
     rcv->InfoLock->Unlock();
-    fprintf(this->LogFile, "%d: Message: Unlock (send %d->%d) T: %d\n",
-	    myIdx, myIdx, remoteProcessId, tag);
-    fflush(this->LogFile);
+    if (this->LogFile)
+      {
+      fprintf(this->LogFile, "%d: Message: Unlock (send %d->%d) T: %d\n",
+	      myIdx, myIdx, remoteProcessId, tag);
+      fflush(this->LogFile);
+      }
     this->MessageLock->Unlock();
     
     return 1;
     }
-  fprintf(this->LogFile, "%d:              send %d->%d, T: %d,  first=>wait\n",
-	  myIdx, myIdx, remoteProcessId, tag);
-  fflush(this->LogFile);
+  if (this->LogFile)
+    {
+    fprintf(this->LogFile, "%d:            send %d->%d, T: %d,  first=>wait\n",
+	    myIdx, myIdx, remoteProcessId, tag);
+    fflush(this->LogFile);
   
-  fprintf(this->LogFile, "%d:     Info%d: Unlock (Send %d->%d) T: %d\n", 
-	  myIdx, remoteProcessId, myIdx, remoteProcessId, tag);
-  fflush(this->LogFile);
+    fprintf(this->LogFile, "%d:     Info%d: Unlock (Send %d->%d) T: %d\n", 
+	    myIdx, remoteProcessId, myIdx, remoteProcessId, tag);
+    fflush(this->LogFile);
+    }
+  
   rcv->InfoLock->Unlock();
   
   // Matching receive has not been initiated.
   // Put message information in "ProcessInfo"
   // Block others before we write our message 
   snd = this->Processes[myIdx];
-  fprintf(this->LogFile, "%d:     Info%d: Lock (Send %d->%d) T: %d\n", 
-	  myIdx, myIdx, myIdx, remoteProcessId, tag);
-  fflush(this->LogFile);
+  if (this->LogFile)
+    {
+    fprintf(this->LogFile, "%d:     Info%d: Lock (Send %d->%d) T: %d\n", 
+	    myIdx, myIdx, myIdx, remoteProcessId, tag);
+    fflush(this->LogFile);
+    }
   snd->InfoLock->Lock();
   snd->SendFlag = 1;
   snd->Object = object;
@@ -373,22 +414,31 @@ int vtkThreadedController::Send(vtkObject *object, void *data, int length,
   snd->DataLength = length;
   snd->Tag = tag;
   snd->RemoteId = remoteProcessId;
-  fprintf(this->LogFile, "%d:     Info%d: Unlock (Send %d->%d) T: %d\n", 
-	  myIdx, myIdx, myIdx, remoteProcessId, tag);
-  fflush(this->LogFile);
+  if (this->LogFile)
+    {
+    fprintf(this->LogFile, "%d:     Info%d: Unlock (Send %d->%d) T: %d\n", 
+	    myIdx, myIdx, myIdx, remoteProcessId, tag);
+    fflush(this->LogFile);
+    }
   snd->InfoLock->Unlock();
   
   // Message in in the Que. Go ahead and start a receive.
-  fprintf(this->LogFile, "%d: Message: Unlock (send %d->%d) T: %d\n",
-	  myIdx, myIdx, remoteProcessId, tag);
-  fflush(this->LogFile);
+  if (this->LogFile)
+    {
+    fprintf(this->LogFile, "%d: Message: Unlock (send %d->%d) T: %d\n",
+	    myIdx, myIdx, remoteProcessId, tag);
+    fflush(this->LogFile);
+    }
   this->MessageLock->Unlock();
   
   // Wait until this data is consumed.
   // I am assuming it is ok for one thread to lock, and another to unlock.
-  fprintf(this->LogFile, "%d: Block%d: Lock (send waiting for a recv) T: %d\n",
-	  myIdx, myIdx, tag);
-  fflush(this->LogFile);
+  if (this->LogFile)
+    {
+    fprintf(this->LogFile, "%d: Block%d: Lock (send waiting for a recv) T: %d\n",
+	    myIdx, myIdx, tag);
+    fflush(this->LogFile);
+    }
   snd->BlockLock->Lock();
   // Transaction has been completed by the receive.
   
@@ -407,10 +457,18 @@ int vtkThreadedController::Receive(vtkObject *object, void *data, int length,
   
   myIdx = this->GetLocalProcessId();
 
-  // Avoid a send and recv starting at the same time.
-  fprintf(this->LogFile, "%d: Message: Lock (recv %d->%d) T: %d\n",
-	  myIdx, remoteProcessId, myIdx, tag);
-  fflush(this->LogFile);
+  if (this->LogFile)
+    {
+    fprintf(this->LogFile, "%d: Recv: object = %d, data = %d, length = %d, remoteId = %d, tag = %d\n",
+	    myIdx, object, data, length, remoteProcessId, tag);
+    fflush(this->LogFile);
+
+    // Avoid a send and recv starting at the same time.
+    fprintf(this->LogFile, "%d: Message: Lock (recv %d->%d) T: %d\n",
+	    myIdx, remoteProcessId, myIdx, tag);
+    fflush(this->LogFile);
+    }
+  
   this->MessageLock->Lock();
   
   // Look at pending sends to find any matches.
@@ -427,17 +485,24 @@ int vtkThreadedController::Receive(vtkObject *object, void *data, int length,
   for (i = start; i <= end; ++i)
     {
     snd = this->Processes[i];
-    fprintf(this->LogFile, "%d:     Info%d: Lock (recv %d->%d) T: %d\n", 
-	    myIdx, i, remoteProcessId, myIdx, tag);
-    fflush(this->LogFile);
+    if (this->LogFile)
+      {
+      fprintf(this->LogFile, "%d:     Info%d: Lock (recv %d->%d) T: %d\n", 
+	      myIdx, i, remoteProcessId, myIdx, tag);
+      fflush(this->LogFile);
+      }
     snd->InfoLock->Lock();
     if (snd->RemoteId == myIdx && snd->SendFlag == 1 && snd->Tag == tag &&
         snd->DataLength == length && !(snd->Object) == !object)
       {
       // We have a match. A send is already waiting.
-      fprintf(this->LogFile, "%d:              recv %d->%d, T: %d,  Match! \n",
-	      myIdx, remoteProcessId, myIdx, tag);
-      fflush(this->LogFile);    
+      if (this->LogFile)
+	{
+	fprintf(this->LogFile, "%d:            recv %d->%d, T: %d,  Match! \n",
+		myIdx, remoteProcessId, myIdx, tag);
+	fflush(this->LogFile);    
+	}
+      
    
       // Copy the message.
       if (length > 0 && snd->Data && data)
@@ -458,38 +523,56 @@ int vtkThreadedController::Receive(vtkObject *object, void *data, int length,
       snd->Tag = 0;
       snd->RemoteId = VTK_MP_CONTROLLER_INVALID_SOURCE;
       // Release the send block, so it can return.
-      fprintf(this->LogFile, "%d: Block%d: Unlock (recv %d->%d) T: %d\n", 
-	      myIdx, i, remoteProcessId, myIdx, tag);
-      fflush(this->LogFile); 
+      if (this->LogFile)
+	{
+	fprintf(this->LogFile, "%d: Block%d: Unlock (recv %d->%d) T: %d\n", 
+		myIdx, i, remoteProcessId, myIdx, tag);
+	fflush(this->LogFile); 
+	}
       snd->BlockLock->Unlock();      
       
       // Free up any locks we have
-      fprintf(this->LogFile, "%d:     Info%d: Unlock (recv %d->%d) T: %d\n", 
-	      myIdx, i, remoteProcessId, myIdx, tag);
-      fflush(this->LogFile);
+      if (this->LogFile)
+	{
+	fprintf(this->LogFile, "%d:     Info%d: Unlock (recv %d->%d) T: %d\n", 
+		myIdx, i, remoteProcessId, myIdx, tag);
+	fflush(this->LogFile);
+	}
       snd->InfoLock->Unlock();
-      fprintf(this->LogFile, "%d: Message: Unlock (recv %d->%d) T: %d\n",
-	      myIdx, remoteProcessId, myIdx, tag);
-      fflush(this->LogFile);
+      if (this->LogFile)
+	{
+	fprintf(this->LogFile, "%d: Message: Unlock (recv %d->%d) T: %d\n",
+		myIdx, remoteProcessId, myIdx, tag);
+	fflush(this->LogFile);
+	}
       this->MessageLock->Unlock();
       
       return 1;
       }
-    fprintf(this->LogFile, "%d:     Info%d: Unlock (recv %d->%d) T: %d\n", 
-	    myIdx, i, remoteProcessId, myIdx, tag);
-    fflush(this->LogFile);
+    if (this->LogFile)
+      {
+      fprintf(this->LogFile, "%d:     Info%d: Unlock (recv %d->%d) T: %d\n", 
+	      myIdx, i, remoteProcessId, myIdx, tag);
+      fflush(this->LogFile);
+      }
     snd->InfoLock->Unlock();
     }
-  fprintf(this->LogFile, "%d:              recv %d->%d, T: %d,  first=>wait\n",
-	  myIdx, remoteProcessId, myIdx, tag);
-  fflush(this->LogFile);    
+  if (this->LogFile)
+    {
+    fprintf(this->LogFile, "%d:            recv %d->%d, T: %d,  first=>wait\n",
+	    myIdx, remoteProcessId, myIdx, tag);
+    fflush(this->LogFile);    
+    }
   
   // Matching send has not been initiated.
   // Put message information in "ProcessInfo"
   rcv = this->Processes[myIdx];
-  fprintf(this->LogFile, "%d:     Info%d: Lock (recv %d->%d) T: %d\n", 
-	  myIdx, myIdx, remoteProcessId, myIdx, tag);
-  fflush(this->LogFile);
+  if (this->LogFile)
+    {
+    fprintf(this->LogFile, "%d:     Info%d: Lock (recv %d->%d) T: %d\n", 
+	    myIdx, myIdx, remoteProcessId, myIdx, tag);
+    fflush(this->LogFile);
+    }
   rcv->InfoLock->Lock();
   rcv->SendFlag = 0;
   rcv->Object = object;
@@ -497,23 +580,32 @@ int vtkThreadedController::Receive(vtkObject *object, void *data, int length,
   rcv->DataLength = length;
   rcv->Tag = tag;
   rcv->RemoteId = remoteProcessId;
-  fprintf(this->LogFile, "%d:     Info%d: Unlock (recv %d->%d) T: %d\n", 
-	  myIdx, myIdx, remoteProcessId, myIdx, tag);
-  fflush(this->LogFile);
+  if (this->LogFile)
+    {
+    fprintf(this->LogFile, "%d:     Info%d: Unlock (recv %d->%d) T: %d\n", 
+	    myIdx, myIdx, remoteProcessId, myIdx, tag);
+    fflush(this->LogFile);
+    }
   rcv->InfoLock->Unlock();
   
   
   // Message request is on the queue.  Go ahead and start a send.
-  fprintf(this->LogFile, "%d: Message: Unlock (recv %d->%d) T: %d\n",
-	  myIdx, remoteProcessId, myIdx, tag);
-  fflush(this->LogFile);
+  if (this->LogFile)
+    {
+    fprintf(this->LogFile, "%d: Message: Unlock (recv %d->%d) T: %d\n",
+	    myIdx, remoteProcessId, myIdx, tag);
+    fflush(this->LogFile);
+    }
   this->MessageLock->Unlock();
   
   // Wait for the send (wait until this data is consumed).
   // I am assuming it is ok for one thread to lock, and another to unlock.
-  fprintf(this->LogFile, "%d: Block%d: Lock (recv waiting for a send) T: %d\n",
-	  myIdx, myIdx, tag);
-  fflush(this->LogFile);
+  if (this->LogFile)
+    {
+    fprintf(this->LogFile, "%d: Block%d: Lock (recv waiting for a send) T: %d\n",
+	    myIdx, myIdx, tag);
+    fflush(this->LogFile);
+    }
   rcv->BlockLock->Lock();
   // Transaction has been completed by the send.
   
@@ -595,7 +687,11 @@ int vtkThreadedController::Receive(float *data, int length,
 int vtkThreadedController::Send(vtkObject *data, int remoteProcessId, 
 				int tag)
 {
-  if (strcmp(data->GetClassName(), "vtkPolyData") == 0)
+  if (strcmp(data->GetClassName(), "vtkPolyData") == 0  ||
+      strcmp(data->GetClassName(), "vtkUnstructuredGrid") == 0  ||
+      strcmp(data->GetClassName(), "vtkStructuredGrid") == 0  ||
+      strcmp(data->GetClassName(), "vtkStructuredPoints") == 0  ||
+      strcmp(data->GetClassName(), "vtkRectilinearGrid") == 0)
     {
     return this->Send(data, NULL, 0, remoteProcessId, tag);
     return 1;
@@ -614,7 +710,11 @@ int vtkThreadedController::Send(vtkObject *data, int remoteProcessId,
 int vtkThreadedController::Receive(vtkObject *data, 
 				   int remoteProcessId, int tag)
 {
-  if (strcmp(data->GetClassName(), "vtkPolyData") == 0)
+  if (strcmp(data->GetClassName(), "vtkPolyData") == 0  ||
+      strcmp(data->GetClassName(), "vtkUnstructuredGrid") == 0  ||
+      strcmp(data->GetClassName(), "vtkStructuredGrid") == 0  ||
+      strcmp(data->GetClassName(), "vtkStructuredPoints") == 0  ||
+      strcmp(data->GetClassName(), "vtkRectilinearGrid") == 0)
     {
     return this->Receive(data, NULL, 0, remoteProcessId, tag);
     return 1;
@@ -639,7 +739,11 @@ void vtkThreadedController::CopyObject(vtkObject *src, vtkObject *dest)
     return;
     }
   
-  if (strcmp(src->GetClassName(), "vtkPolyData") == 0)
+  if (strcmp(src->GetClassName(), "vtkPolyData") == 0  ||
+      strcmp(src->GetClassName(), "vtkUnstructuredGrid") == 0  ||
+      strcmp(src->GetClassName(), "vtkStructuredGrid") == 0  ||
+      strcmp(src->GetClassName(), "vtkStructuredPoints") == 0  ||
+      strcmp(src->GetClassName(), "vtkRectilinearGrid") == 0)
     {
     this->CopyDataSet((vtkDataSet*)src, (vtkDataSet*)dest);
     return;
