@@ -19,7 +19,7 @@ vtkClipDataSet clip
   clip SetValue 1000
 vtkDataSetMapper clipMapper
   clipMapper SetInput [clip GetOutput]
-  clipMapper SetScalarRange 600 1200
+  clipMapper ScalarVisibilityOff
 vtkActor clipActor
   clipActor SetMapper clipMapper
 
@@ -45,7 +45,7 @@ vtkRenderWindowInteractor iren
 ren1 AddActor outlineActor
 ren1 AddActor clipActor
 
-ren1 SetBackground 0.9 .9 .9
+ren1 SetBackground 0 0 0
 renWin SetSize 200 200
 iren Initialize
 
