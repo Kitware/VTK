@@ -37,7 +37,7 @@
 #include <GL/gl.h>
 #endif
 
-vtkCxxRevisionMacro(vtkWin32OpenGLRenderWindow, "1.90");
+vtkCxxRevisionMacro(vtkWin32OpenGLRenderWindow, "1.91");
 vtkStandardNewMacro(vtkWin32OpenGLRenderWindow);
 
 #define VTK_MAX_LIGHTS 8
@@ -202,10 +202,24 @@ void vtkWin32OpenGLRenderWindow::MakeCurrent()
     {
     // Try to avoid doing anything (for performance).
     if (this->ContextId)
-      {
+      { 
       if (wglMakeCurrent(this->DeviceContext, this->ContextId) != TRUE) 
         {
-        vtkErrorMacro("wglMakeCurrent failed in MakeCurrent(), error: " << GetLastError());
+        LPVOID lpMsgBuf;
+        ::FormatMessage( 
+          FORMAT_MESSAGE_ALLOCATE_BUFFER | 
+          FORMAT_MESSAGE_FROM_SYSTEM | 
+          FORMAT_MESSAGE_IGNORE_INSERTS,
+          NULL,
+          GetLastError(),
+          MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
+          (LPTSTR) &lpMsgBuf,
+          0,
+          NULL 
+          );
+        vtkErrorMacro("wglMakeCurrent failed in MakeCurrent(), error: " 
+                      << (LPCTSTR)lpMsgBuf);
+        ::LocalFree( lpMsgBuf );
         }
       }
     vtkWin32OpenGLGlobalContext = this->ContextId;
@@ -1039,8 +1053,6 @@ HDC vtkWin32OpenGLRenderWindow::GetMemoryDC()
 void vtkWin32OpenGLRenderWindow::CleanUpOffScreenRendering(void)
 {
   GdiFlush();
-  DeleteDC(this->MemoryHdc);
-  DeleteObject(this->MemoryBuffer);
   
   // we need to release resources
   vtkRenderer *ren;
@@ -1049,6 +1061,8 @@ void vtkWin32OpenGLRenderWindow::CleanUpOffScreenRendering(void)
     {
     ren->SetRenderWindow(NULL);
     }
+  DeleteDC(this->MemoryHdc);
+  DeleteObject(this->MemoryBuffer);
   if (wglDeleteContext(this->ContextId) != TRUE) 
     {
     vtkErrorMacro("wglDeleteContext failed in CleanUpOffScreenRendering(), error: " << GetLastError());
