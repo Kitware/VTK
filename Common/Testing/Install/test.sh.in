@@ -25,7 +25,7 @@ cleanup()
 install()
 {
     echo "Erasing ${CMAKE_INSTALL_PREFIX}" &&
-    ([ ! -d "${CMAKE_INSTALL_PREFIX}"] || rm -rf "${CMAKE_INSTALL_PREFIX}") &&
+    ([ ! -d "${CMAKE_INSTALL_PREFIX}" ] || rm -rf "${CMAKE_INSTALL_PREFIX}") &&
     mkdir -p "${CMAKE_INSTALL_PREFIX}" &&
     echo "Running make install" &&
     (
