@@ -38,10 +38,16 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkXRenderWindow - rendering window for X Window system
+// .NAME vtkXRenderWindow - a rendering window for the X Window system
 // .SECTION Description
-// vtkXRenderWindow is a concrete implementation of the abstract class
-// vtkRenderWindow. vtkXRenderer interfaces to the X Window system.
+// vtkXRenderWindow is a subclass of the abstract class
+// vtkRenderWindow. vtkXRenderer interfaces to the X Window system and
+// provides some methods that are common to any vtkRenderingWindow
+// subclass that renders under X windows. The vtkXRenderWindowInteractor
+// makes heavy use of these common methods.
+
+// .SECTION see also
+// vtkRenderWindow vtkXRenderWindowInteractor
 
 #ifndef __vtkXRenderWindow_hh
 #define __vtkXRenderWindow_hh

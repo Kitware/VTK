@@ -80,7 +80,7 @@ int *vtkXRenderWindow::GetScreenSize()
 }
 
 // Description:
-// Get the current size of the window.
+// Get the current size of the window in pixels.
 int *vtkXRenderWindow::GetSize(void)
 {
   XWindowAttributes attribs;
@@ -102,7 +102,7 @@ int *vtkXRenderWindow::GetSize(void)
 }
 
 // Description:
-// Get the position in screen coordinates of the window.
+// Get the position in screen coordinates (pixels) of the window.
 int *vtkXRenderWindow::GetPosition(void)
 {
   XWindowAttributes attribs;
@@ -128,7 +128,7 @@ int *vtkXRenderWindow::GetPosition(void)
 }
 
 // Description:
-// Get the window display id.
+// Get this RenderWindow's X display id.
 Display *vtkXRenderWindow::GetDisplayId()
 {
   vtkDebugMacro(<< "Returning DisplayId of " << (void *)this->DisplayId << "\n"); 
@@ -137,7 +137,7 @@ Display *vtkXRenderWindow::GetDisplayId()
 }
 
 // Description:
-// Get the window id.
+// Get this RenderWindow's X window id.
 Window vtkXRenderWindow::GetWindowId()
 {
   vtkDebugMacro(<< "Returning WindowId of " << (void *)this->WindowId << "\n"); 
@@ -146,7 +146,7 @@ Window vtkXRenderWindow::GetWindowId()
 }
 
 // Description:
-// Set the window id to a pre-existing window.
+// Set this RenderWindow's X window id to a pre-existing window.
 void vtkXRenderWindow::SetWindowId(Window arg)
 {
   vtkDebugMacro(<< "Setting WindowId to " << (void *)arg << "\n"); 
@@ -159,7 +159,7 @@ void vtkXRenderWindow::SetWindowId(void *arg)
 }
 
 // Description:
-// Set the window id of the new window once a WindowRemap is done.
+// Specify the X window id to use if a WindowRemap is done.
 void vtkXRenderWindow::SetNextWindowId(Window arg)
 {
   vtkDebugMacro(<< "Setting NextWindowId to " << (void *)arg << "\n"); 
@@ -168,7 +168,8 @@ void vtkXRenderWindow::SetNextWindowId(Window arg)
 }
 
 // Description:
-// Set the display id of the window to a pre-exisiting display id.
+// Set the X display id for this RenderWindow to use to a pre-exisiting 
+// X display id.
 void vtkXRenderWindow::SetDisplayId(Display  *arg)
 {
   vtkDebugMacro(<< "Setting DisplayId to " << (void *)arg << "\n"); 
@@ -181,7 +182,11 @@ void vtkXRenderWindow::SetDisplayId(void *arg)
 }
 
 // Description:
-// Create named interactor type
+// Create an interactor that will work with this renderer.
+// Since all subclasses of this class will be running on
+// machines that are running X-windows. The correct vtkRenderWindowInteractor
+// is the vtkXRenderWindowInteractor. So it creates one, type casts it and 
+// returns it.
 vtkRenderWindowInteractor *vtkXRenderWindow::MakeRenderWindowInteractor()
 {
   this->Interactor = (vtkRenderWindowInteractor *)new vtkXRenderWindowInteractor;
@@ -198,3 +203,4 @@ void vtkXRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Next Window Id: " << this->NextWindowId << "\n";
   os << indent << "Window Id: " << this->GetWindowId() << "\n";
 }
+
