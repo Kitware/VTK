@@ -76,7 +76,7 @@ ren200 ResetCamera
 camera Dolly 1.25
 renWin Render
 
-renWin SetSize 400 400
+renWin SetSize 350 350
 iren Initialize
 
 # render the image
