@@ -32,7 +32,7 @@ public:
   vlFloatVectors(const int sz, const int ext=1000):V(3*sz,3*ext){};
   ~vlFloatVectors() {};
   int Allocate(const int sz, const int ext=1000) {return this->V.Allocate(3*sz,3*ext);};
-  void Initialize() {return this->V.Initialize();};
+  void Initialize() {this->V.Initialize();};
   char *GetClassName() {return "vlFloatVectors";};
 
   // vlVector interface
