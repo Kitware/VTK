@@ -100,6 +100,11 @@ public:
   // made for use in debugging reference loops.
   void ReportReference(vtkObjectBase*, const char*);
 
+  // Description:
+  // Set/Get global garbage collection debugging flag.  When set to 1,
+  // all garbage collection checks will produce debugging information.
+  static void SetGlobalDebugFlag(int flag);
+  static int GetGlobalDebugFlag();
 protected:
   vtkGarbageCollector(vtkGarbageCollectorInternals*);
   ~vtkGarbageCollector();
