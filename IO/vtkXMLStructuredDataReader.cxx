@@ -22,7 +22,7 @@
 #include "vtkXMLDataElement.h"
 #include "vtkXMLDataParser.h"
 
-vtkCxxRevisionMacro(vtkXMLStructuredDataReader, "1.9");
+vtkCxxRevisionMacro(vtkXMLStructuredDataReader, "1.10");
 
 //----------------------------------------------------------------------------
 vtkXMLStructuredDataReader::vtkXMLStructuredDataReader()
@@ -211,6 +211,10 @@ void vtkXMLStructuredDataReader::ReadXMLData()
       {      
       this->ComputeDimensions(this->SubExtent, pieceDims, 1);
       fractions[i+1] = fractions[i] + pieceDims[0]*pieceDims[1]*pieceDims[2];
+      }
+    else
+      {
+      fractions[i+1] = 0;
       }
     }
   if(fractions[this->NumberOfPieces] == 0)
