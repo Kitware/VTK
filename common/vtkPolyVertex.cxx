@@ -140,9 +140,9 @@ int vtkPolyVertex::IntersectWithLine(float p1[3], float p2[3],
                                     float tol, float& t, float x[3], 
                                     float pcoords[3], int& subId)
 {
-  int subTest;
+  int subTest, numPts=this->Points.GetNumberOfPoints();
 
-  for (subId=0; subId<this->Points.GetNumberOfPoints(); subId++)
+  for (subId=0; subId < numPts; subId++)
     {
     this->Vertex.Points.SetPoint(0,this->Points.GetPoint(subId));
 
@@ -191,9 +191,9 @@ void vtkPolyVertex::Clip(float value, vtkScalars *cellScalars,
                          int insideOut)
 {
   float s, x[3];
-  int pts[1], i, newCellId;
+  int pts[1], i, newCellId, numPts=this->Points.GetNumberOfPoints();
 
-  for ( i=0; i < this->Points.GetNumberOfPoints(); i++ )
+  for ( i=0; i < numPts; i++ )
     {
     s = cellScalars->GetScalar(i);
 
@@ -210,3 +210,12 @@ void vtkPolyVertex::Clip(float value, vtkScalars *cellScalars,
       }
     }
 }
+
+// Description:
+// Return the center of the point cloud in parametric coordinates.
+inline int vtkPolyVertex::GetParametricCenter(float pcoords[3])
+{
+  pcoords[0] = pcoords[1] = pcoords[2] = 0.5;
+  return (this->Points.GetNumberOfPoints() / 2);
+}
+

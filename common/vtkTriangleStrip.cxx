@@ -160,11 +160,11 @@ void vtkTriangleStrip::Contour(float value, vtkScalars *cellScalars,
                               vtkPointData *inPd, vtkPointData *outPd,
                               vtkCellData *inCd, int cellId, vtkCellData *outCd)
 {
-  int i;
+  int i, numTris=this->Points.GetNumberOfPoints()-2;
   vtkScalars *triScalars=vtkScalars::New();
   triScalars->SetNumberOfScalars(3);
 
-  for ( i=0; i<this->Points.GetNumberOfPoints()-2; i++)
+  for ( i=0; i < numTris; i++)
     {
     this->Triangle.Points.SetPoint(0,this->Points.GetPoint(i));
     this->Triangle.Points.SetPoint(1,this->Points.GetPoint(i+1));
@@ -223,9 +223,9 @@ int vtkTriangleStrip::IntersectWithLine(float p1[3], float p2[3], float tol,
                                        float& t, float x[3], float pcoords[3],
                                        int& subId)
 {
-  int subTest;
+  int subTest, numTris=this->Points.GetNumberOfPoints()-2;
 
-  for (subId=0; subId<this->Points.GetNumberOfPoints()-2; subId++)
+  for (subId=0; subId < numTris; subId++)
     {
     this->Triangle.Points.SetPoint(0,this->Points.GetPoint(subId));
     this->Triangle.Points.SetPoint(1,this->Points.GetPoint(subId+1));
@@ -241,10 +241,11 @@ int vtkTriangleStrip::IntersectWithLine(float p1[3], float p2[3], float tol,
 int vtkTriangleStrip::Triangulate(int vtkNotUsed(index), vtkIdList &ptIds, 
                                   vtkPoints &pts)
 {
+  int numTris=this->Points.GetNumberOfPoints()-2;
   pts.Reset();
   ptIds.Reset();
 
-  for (int subId=0; subId < this->Points.GetNumberOfPoints()-2; subId++)
+  for (int subId=0; subId < numTris; subId++)
     {
     for ( int i=0; i < 3; i++ )
       {
@@ -306,12 +307,12 @@ void vtkTriangleStrip::Clip(float value, vtkScalars *cellScalars,
                             vtkCellData *inCd, int cellId, vtkCellData *outCd,
                             int insideOut)
 {
-  int i;
+  int i, numTris=this->Points.GetNumberOfPoints()-2;
   int id1, id2, id3;
   vtkScalars *triScalars=vtkScalars::New();
   triScalars->SetNumberOfScalars(3);
 
-  for ( i=0; i < this->Points.GetNumberOfPoints()-2; i++)
+  for ( i=0; i < numTris; i++)
     {
     if (i % 2)
       {
@@ -339,4 +340,12 @@ void vtkTriangleStrip::Clip(float value, vtkScalars *cellScalars,
     }
 
   triScalars->Delete();
+}
+
+// Description:
+// Return the center of the point cloud in parametric coordinates.
+inline int vtkTriangleStrip::GetParametricCenter(float pcoords[3])
+{
+  pcoords[0] = pcoords[1] = 0.333333; pcoords[2] = 0.0;
+  return ((this->Points.GetNumberOfPoints()-2) / 2);
 }

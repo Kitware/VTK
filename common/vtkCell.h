@@ -243,6 +243,7 @@ public:
   void GetBounds(float bounds[6]);
   float *GetBounds();
   float GetLength2();
+  virtual int GetParametricCenter(float pcoords[3]);
 
   // Quick intersection of cell bounding box.  Returns != 0 for hit.
   static char HitBBox(float bounds[6], float origin[3], float dir[3], 
@@ -251,6 +252,9 @@ public:
   // left public for quick computational access
   vtkPoints Points;
   vtkIdList PointIds;
+
+protected:
+  float Bounds[6];
 
 };
 

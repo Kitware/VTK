@@ -88,6 +88,7 @@ public:
   int Triangulate(int index, vtkIdList &ptIds, vtkPoints &pts);
   void Derivatives(int subId, float pcoords[3], float *values, 
                    int dim, float *derivs);
+  int GetParametricCenter(float pcoords[3]);
 
   // tetrahedron specific
   static void TetraCenter(float p1[3], float p2[3], float p3[3], float p4[3], 
@@ -106,6 +107,14 @@ protected:
   vtkTriangle Triangle;
 
 };
+
+// Description:
+// Return the center of the triangle in parametric coordinates.
+inline int vtkTetra::GetParametricCenter(float pcoords[3])
+{
+  pcoords[0] = pcoords[1] = pcoords[2] = 0.25;
+  return 0;
+}
 
 #endif
 

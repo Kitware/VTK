@@ -180,21 +180,20 @@ float *vtkCell::GetBounds ()
 {
   float *x;
   int i, j;
-  static float bounds[6];
 
-  bounds[0] = bounds[2] = bounds[4] =  VTK_LARGE_FLOAT;
-  bounds[1] = bounds[3] = bounds[5] = -VTK_LARGE_FLOAT;
+  this->Bounds[0] = this->Bounds[2] = this->Bounds[4] =  VTK_LARGE_FLOAT;
+  this->Bounds[1] = this->Bounds[3] = this->Bounds[5] = -VTK_LARGE_FLOAT;
 
   for (i=0; i<this->Points.GetNumberOfPoints(); i++)
     {
     x = this->Points.GetPoint(i);
     for (j=0; j<3; j++)
       {
-      if ( x[j] < bounds[2*j] ) bounds[2*j] = x[j];
-      if ( x[j] > bounds[2*j+1] ) bounds[2*j+1] = x[j];
+      if ( x[j] < this->Bounds[2*j] ) this->Bounds[2*j] = x[j];
+      if ( x[j] > this->Bounds[2*j+1] ) this->Bounds[2*j+1] = x[j];
       }
     }
-  return bounds;
+  return this->Bounds;
 }
 
 // Description:
@@ -202,8 +201,8 @@ float *vtkCell::GetBounds ()
 // user provided array.
 void vtkCell::GetBounds(float bounds[6])
 {
-  float *b=this->GetBounds();
-  for (int i=0; i < 6; i++) bounds[i] = b[i];
+  this->GetBounds();
+  for (int i=0; i < 6; i++) bounds[i] = this->Bounds[i];
 }
 
 // Description:
@@ -214,15 +213,26 @@ float vtkCell::GetLength2 ()
   float *bounds;
   int i;
 
-  bounds = this->GetBounds();
-
+  this->GetBounds();
   for (i=0; i<3; i++)
     {
-    diff = bounds[2*i+1] - bounds[2*i];
+    diff = this->Bounds[2*i+1] - this->Bounds[2*i];
     l += diff * diff;
     }
  
   return l;
+}
+
+// Description:
+// Return center of the cell in parametric coordinates.
+// Note that the parametric center is not always located 
+// at (0.5,0.5,0.5). The return value is the subId that
+// the center is in (if a composite cell). If you want the
+// center in x-y-z space, invoke the EvaluateLocation() method.
+int vtkCell::GetParametricCenter(float pcoords[3])
+{
+  pcoords[0] = pcoords[1] = pcoords[2] = 0.5;
+  return 0;
 }
 
 void vtkCell::PrintSelf(ostream& os, vtkIndent indent)

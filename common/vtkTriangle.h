@@ -86,6 +86,7 @@ public:
   int Triangulate(int index, vtkIdList &ptIds, vtkPoints &pts);
   void Derivatives(int subId, float pcoords[3], float *values, 
                    int dim, float *derivs);
+  int GetParametricCenter(float pcoords[3]);
 
   // triangle specific
   static void TriangleCenter(float p1[3], float p2[3], float p3[3], 
@@ -106,6 +107,14 @@ protected:
   vtkLine Line;
 
 };
+
+// Description:
+// Return the center of the triangle in parametric coordinates.
+inline int vtkTriangle::GetParametricCenter(float pcoords[3])
+{
+  pcoords[0] = pcoords[1] = 0.333; pcoords[2] = 0.0;
+  return 0;
+}
 
 // Description:
 // Compute the triangle normal from three points.
