@@ -12,19 +12,6 @@ typedef struct
   void **SourceFiles;
 } cmVTKWrapTclData;
 
-void localFreeArguments(int argc, char **argv)
-{
-  int i;
-  for (i = 0; i < argc; ++i)
-    {
-    free(argv[i]);
-    }
-  if (argv)
-    {
-    free(argv);
-    }
-}
-
 /* this roputine creates the init file */
 static void CreateInitFile(cmLoadedCommandInfo *info,
                            void *mf, const char *libName, 
@@ -174,7 +161,7 @@ static void CreateInitFile(cmLoadedCommandInfo *info,
   info->CAPI->CopyFileIfDifferent(tempOutputFile, outFileName);
   info->CAPI->RemoveFile(tempOutputFile);
   info->CAPI->FreeArguments(numCommands,capcommands);
-  free(tempOutputFile);
+  info->CAPI->Free(tempOutputFile);
   info->CAPI->Free(kitName);
   free(outFileName);
 }
@@ -252,19 +239,20 @@ static int InitialPass(void *inf, void *mf, int argc, char *argv[])
         }
       }
     }
-
+  
   /* get the list of classes for this library */
   if (numSources)
     {
     /* what is the current source dir */
+    const char *cdir = info->CAPI->GetCurrentDirectory(mf);
     char *sourceListValue = 0;
     void *cfile = 0;
     char *newName;
 
     /* was the list already populated */
     const char *def = info->CAPI->GetDefinition(mf, sources[0]);
-    sourceListValue =
-      (char *)malloc(info->CAPI->GetTotalArgumentSize(newArgc,newArgv)+numSources*12);
+    sourceListValue = 
+      (char *)malloc(info->CAPI->GetTotalArgumentSize(newArgc,newArgv)+numSources*12);  
     if (def)
       {
       sprintf(sourceListValue,"%s;%sInit.cxx",def,argv[0]);
@@ -273,21 +261,19 @@ static int InitialPass(void *inf, void *mf, int argc, char *argv[])
       {
       sprintf(sourceListValue,"%sInit.cxx",argv[0]);
       }
-
+    
     for(i = 1; i < numSources; ++i)
-      {
+      {   
       void *curr = info->CAPI->GetSource(mf,sources[i]);
-
+      
       /* if we should wrap the class */
-      if (!curr ||
+      if (!curr || 
           !info->CAPI->SourceFileGetPropertyAsBool(curr,"WRAP_EXCLUDE"))
         {
-        const char *cdir = info->CAPI->GetCurrentDirectory(mf);
         void *file = info->CAPI->CreateSourceFile();
-        char *cdir2, *srcName, *srcRelativePath, *hname;
+        char *srcName;
+        char *hname;
         srcName = info->CAPI->GetFilenameWithoutExtension(sources[i]);
-        srcRelativePath = info->CAPI->GetFilenamePath(sources[i]);
-        
         if (curr)
           {
           int abst = info->CAPI->SourceFileGetPropertyAsBool(curr,"ABSTRACT");
@@ -304,28 +290,14 @@ static int InitialPass(void *inf, void *mf, int argc, char *argv[])
           concrete[numConcrete] = strdup(srcName);
           numConcrete++;
           }
-
-        if (strlen(srcRelativePath)>0)
-          {
-          cdir2   = (char *)malloc(strlen(cdir) + strlen(srcRelativePath) + 2);
-          hname   = (char *)malloc(strlen(cdir) + strlen(srcRelativePath) + strlen(srcName) + 5);
-          newName = (char *)malloc(strlen(srcName)+4);
-          sprintf(cdir2,"%s/%s",     cdir,srcRelativePath);
-          sprintf(hname,"%s/%s/%s.h",cdir,srcRelativePath,srcName);
-          sprintf(newName,"%sTcl",srcName);
-          }
-        else
-          {
-          cdir2   = strdup(cdir);
-          hname   = (char *)malloc(strlen(cdir) + strlen(srcName) + 4);
-          newName = (char *)malloc(strlen(srcName)+4);
-          sprintf(hname,"%s/%s.h",cdir,srcName);
-          sprintf(newName,"%sTcl",srcName);
-          }
-
-        info->CAPI->SourceFileSetName2(file, newName, cdir2, "cxx",0);
-        /* reset this to the new value */
-
+        newName = (char *)malloc(strlen(srcName)+4);
+        sprintf(newName,"%sTcl",srcName);
+        info->CAPI->SourceFileSetName2(file, newName, 
+                             info->CAPI->GetCurrentOutputDirectory(mf),
+                             "cxx",0);
+        
+        hname = (char *)malloc(strlen(cdir) + strlen(srcName) + 4);
+        sprintf(hname,"%s/%s.h",cdir,srcName);
         /* add starting depends */
         info->CAPI->SourceFileAddDepend(file,hname);
         info->CAPI->AddSource(mf,file);
@@ -334,11 +306,9 @@ static int InitialPass(void *inf, void *mf, int argc, char *argv[])
         numWrapped++;
         strcat(sourceListValue,";");
         strcat(sourceListValue,newName);
-        strcat(sourceListValue,".cxx");
+        strcat(sourceListValue,".cxx");        
         free(newName);
-        free(cdir2);
         info->CAPI->Free(srcName);
-        info->CAPI->Free(srcRelativePath);
         }
       }
     /* add the init file */
@@ -364,7 +334,7 @@ static int InitialPass(void *inf, void *mf, int argc, char *argv[])
   
   free(sources);
   free(commands);
-  localFreeArguments(numConcrete,concrete);
+  info->CAPI->FreeArguments(numConcrete,concrete);
   info->CAPI->FreeArguments(newArgc, newArgv);
   return 1;
 }
@@ -384,7 +354,8 @@ static void FinalPass(void *inf, void *mf)
   const char *depends[2];
   int i;
   int numDepends, numArgs;
-
+  const char *cdir = info->CAPI->GetCurrentDirectory(mf);
+  
   /* wrap all the .h files */
   depends[0] = wtcl;
   numDepends = 1;
@@ -397,9 +368,6 @@ static void FinalPass(void *inf, void *mf)
     {
     char *res;
     const char *srcName = info->CAPI->SourceFileGetSourceName(cdata->SourceFiles[i]);
-    const char *cdir = info->CAPI->GetFilenamePath(
-        info->CAPI->SourceFileGetFullPath(cdata->SourceFiles[i]));
-
     char *hname = (char *)malloc(strlen(cdir) + strlen(srcName) + 4);
     sprintf(hname,"%s/%s",cdir,srcName);
     hname[strlen(hname)-3]= '\0';
@@ -411,19 +379,19 @@ static void FinalPass(void *inf, void *mf)
       args[1] = hints;
       numArgs++;
       }
-    args[numArgs] =
+    args[numArgs] = 
       (info->CAPI->SourceFileGetPropertyAsBool(cdata->SourceFiles[i],"ABSTRACT") ?"0" :"1");
     numArgs++;
-    res = (char *)malloc(strlen(cdir) + strlen(srcName) + 6);
-    sprintf(res,"%s/%s.CXX",cdir,srcName);
+    res = (char *)malloc(strlen(info->CAPI->GetCurrentOutputDirectory(mf)) + 
+                         strlen(srcName) + 6);
+    sprintf(res,"%s/%s.cxx",info->CAPI->GetCurrentOutputDirectory(mf),srcName);
     args[numArgs] = res;
     numArgs++;
     info->CAPI->AddCustomCommand(mf, args[0],
-                       wtcl, numArgs, args, numDepends, depends,
+                       wtcl, numArgs, args, numDepends, depends, 
                        1, &res, cdata->LibraryName);
     free(res);
     free(hname);
-    info->CAPI->Free(cdir);
     }
 }
 
