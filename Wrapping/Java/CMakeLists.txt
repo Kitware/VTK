@@ -61,8 +61,8 @@ IF(JAVA_COMPILE)
         SET(src ${LIBRARY_OUTPUT_PATH}/libvtk${kit}Java.dylib)
         SET(tgt ${LIBRARY_OUTPUT_PATH}/libvtk${kit}Java.jnilib)
         ADD_CUSTOM_COMMAND(SOURCE ${src}
-                             COMMAND ${CMAKE_COMMAND}
-                             ARGS -E copy ${src} ${tgt}
+                             COMMAND ln
+                             ARGS -sf ${src} ${tgt}
                              OUTPUTS ${tgt}
                              TARGET VTKJava)
         SET(JAVA_LIBRARIES ${JAVA_LIBRARIES} ${tgt})
