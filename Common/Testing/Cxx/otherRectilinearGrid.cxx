@@ -172,7 +172,7 @@ int TestORG(ostream& strm)
     }
   strm << endl << endl;
 
-  i = 10; j = 15; k = 7;
+  i = 10; j = 15;
   cellId = j * 19 + i;
   vtkCell *cell2D = rg2Dxy->GetCell(cellId);
   strm << "cell2D: " << *cell2D ;
@@ -185,7 +185,7 @@ int TestORG(ostream& strm)
   strm << endl << endl;
 
 
-  i = 10; j = 15; k = 7;
+  i = 10; j = 15;
   cellId = j * 19 + i;
   cell2D = rg2Dxz->GetCell(j * 19 + i);
   strm << "cell2D: " << *cell2D ;
