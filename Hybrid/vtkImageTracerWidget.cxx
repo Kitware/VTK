@@ -37,7 +37,7 @@
 #include "vtkTransformPolyDataFilter.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImageTracerWidget, "1.3");
+vtkCxxRevisionMacro(vtkImageTracerWidget, "1.4");
 vtkStandardNewMacro(vtkImageTracerWidget);
 
 vtkCxxSetObjectMacro(vtkImageTracerWidget, HandleProperty, vtkProperty);
@@ -1010,7 +1010,6 @@ void vtkImageTracerWidget::OnMouseMove()
     else if (this->State == vtkImageTracerWidget::Moving)
       {
       double focalPoint[4], pickPoint[4], prevPickPoint[4];
-      double z, vpn[3];
 
       vtkCamera *camera = this->CurrentRenderer->GetActiveCamera();
       if (!camera){ return; }
