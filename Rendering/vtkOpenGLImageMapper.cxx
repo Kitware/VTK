@@ -26,7 +26,7 @@
 #include "vtkWindow.h"
 #include "vtkgluPickMatrix.h"
 
-#ifdef __APPLE__
+#if defined(__APPLE__) && (defined(VTK_USE_CARBON) || defined(VTK_USE_COCOA))
  #include <OpenGL/gl.h>
 #else
  #include <GL/gl.h>
@@ -34,7 +34,7 @@
 #include <limits.h>
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLImageMapper, "1.54");
+vtkCxxRevisionMacro(vtkOpenGLImageMapper, "1.55");
 vtkStandardNewMacro(vtkOpenGLImageMapper);
 #endif
 

@@ -23,7 +23,7 @@
 #include "vtkOpenGLRenderer.h"
 #include "vtkProperty.h"
 
-#ifdef __APPLE__
+#if defined(__APPLE__) && (defined(VTK_USE_CARBON) || defined(VTK_USE_COCOA))
 #include <OpenGL/gl.h>
 #else
 #include <GL/gl.h>
@@ -31,7 +31,7 @@
 #include <math.h>
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLActor, "1.26");
+vtkCxxRevisionMacro(vtkOpenGLActor, "1.27");
 vtkStandardNewMacro(vtkOpenGLActor);
 #endif
 

@@ -39,7 +39,7 @@
 
 #include <math.h>
 
-#ifdef __APPLE__
+#if defined(__APPLE__) && (defined(VTK_USE_CARBON) || defined(VTK_USE_COCOA))
 #include <OpenGL/gl.h>
 #else
 #include <GL/gl.h>
@@ -47,7 +47,7 @@
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLImageActor, "1.16");
+vtkCxxRevisionMacro(vtkOpenGLImageActor, "1.17");
 vtkStandardNewMacro(vtkOpenGLImageActor);
 #endif
 

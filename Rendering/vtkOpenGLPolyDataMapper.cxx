@@ -48,7 +48,7 @@
 #endif
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-  #ifdef __APPLE__
+  #if defined(__APPLE__) && (defined(VTK_USE_CARBON) || defined(VTK_USE_COCOA))
     #include <OpenGL/gl.h>
   #else
     #include <GL/gl.h>
@@ -59,7 +59,7 @@
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLPolyDataMapper, "1.75");
+vtkCxxRevisionMacro(vtkOpenGLPolyDataMapper, "1.76");
 vtkStandardNewMacro(vtkOpenGLPolyDataMapper);
 #endif
 
