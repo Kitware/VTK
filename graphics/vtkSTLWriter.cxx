@@ -44,15 +44,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 vtkSTLWriter::vtkSTLWriter()
 {
-  this->FileName = NULL;
   this->FileType = VTK_ASCII;
 }
-
-vtkSTLWriter::~vtkSTLWriter()
-{
-  if ( this->FileName ) delete [] this->FileName;
-}
-
 
 void vtkSTLWriter::WriteData()
 {
