@@ -108,7 +108,7 @@ float vtkSpline::Evaluate (float t)
   i--;
 
   // calculate offset within interval
-  t = t - intervals[i];
+  t = (t - intervals[i]) / (intervals[i+1] - intervals[i]);
 
   // evaluate y
   return (t * (t * (t * *(coefficients + i * 4 + 3)
