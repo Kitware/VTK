@@ -56,10 +56,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkObject.h"
 #include "vtkImageWindow.h"
-
-// For placement of origin in the viewer.
-#define VTK_IMAGE_VIEWER_UPPER_LEFT 0
-#define VTK_IMAGE_VIEWER_LOWER_LEFT 1
+#include "vtkRenderWindow.h"
 
 class VTK_RENDERING_EXPORT vtkImageViewer : public vtkObject 
 {
@@ -71,7 +68,7 @@ public:
 
   // Description:
   // Get name of rendering window
-  char *GetWindowName() {return this->ImageWindow->GetWindowName();};
+  char *GetWindowName() {return this->RenderWindow->GetWindowName();};
 
   // Description:
   // Render the resulting image.
@@ -101,44 +98,53 @@ public:
 
   // Description:
   // These are here for using a tk window.
-  void SetDisplayId(void *a) {this->ImageWindow->SetDisplayId(a);};
-  void SetWindowId(void *a) {this->ImageWindow->SetWindowId(a);};
-  void SetParentId(void *a) {this->ImageWindow->SetParentId(a);};
+  void SetDisplayId(void *a) {this->RenderWindow->SetDisplayId(a);};
+  void SetWindowId(void *a) {this->RenderWindow->SetWindowId(a);};
+  void SetParentId(void *a) {this->RenderWindow->SetParentId(a);};
   
   // Description:
   // By default this is a color viewer.  GrayScaleHintOn will improve the
   // appearance of gray scale images on some systems.
-  int GetGrayScaleHint() {return this->ImageWindow->GetGrayScaleHint();};
-  void SetGrayScaleHint(int a) {this->ImageWindow->SetGrayScaleHint(a);};
-  void GrayScaleHintOn() {this->ImageWindow->GrayScaleHintOn();};
-  void GrayScaleHintOff() {this->ImageWindow->GrayScaleHintOff();};
+  int GetGrayScaleHint() 
+    {vtkWarningMacro("GetGrayScaleHint deprecated, not required anymore"); return 0;};
+  void SetGrayScaleHint(int a) 
+    {vtkWarningMacro("SetGrayScaleHint deprecated, not required anymore");};
+  void GrayScaleHintOn()
+    {vtkWarningMacro("GrayScaleHintOn deprecated, not required anymore");};
+  void GrayScaleHintOff()
+    {vtkWarningMacro("GrayScaleHintOff deprecated, not required anymore");};
 
   // Description:
   // Set/Get the position in screen coordinates of the rendering window.
-  int *GetPosition() {return this->ImageWindow->GetPosition();};
-  void SetPosition(int a,int b) {this->ImageWindow->SetPosition(a,b);};
+  int *GetPosition() {return this->RenderWindow->GetPosition();};
+  void SetPosition(int a,int b) {this->RenderWindow->SetPosition(a,b);};
   virtual void SetPosition(int a[2]);
 
   // Description:
   // Set/Get the size of the window in screen coordinates.
-  int *GetSize() {return this->ImageWindow->GetSize();};
-  void SetSize(int a,int b) {this->ImageWindow->SetSize(a,b);};
+  int *GetSize() {return this->RenderWindow->GetSize();};
+  void SetSize(int a,int b) {this->RenderWindow->SetSize(a,b);};
   virtual void SetSize(int a[2]);
   
   // Description:
   // Get the internal Window Imager and Mapper
-  vtkImageWindow *GetImageWindow() {return this->ImageWindow;};
+  vtkImageWindow *GetImageWindow() 
+    {vtkWarningMacro("GetImageWindow deprecated, use GetRenderWindow instead."); return NULL;};
+  vtkImager      *GetImager()
+    {vtkWarningMacro("GetImager deprecated, use GetRenderer instead."); return NULL;};
+
   vtkImageMapper *GetImageMapper() {return this->ImageMapper;};
-  vtkImager      *GetImager() {return this->Imager;};
   vtkActor2D     *GetActor2D() {return this->Actor2D;};
+  vtkRenderWindow *GetRenderWindow() {return this->RenderWindow;};
+  vtkRenderer     *GetRenderer() {return this->Renderer;};
   
 protected:
   vtkImageViewer();
   ~vtkImageViewer();
 
+  vtkRenderWindow *RenderWindow;
+  vtkRenderer *Renderer;
   vtkImageMapper *ImageMapper;
-  vtkImageWindow *ImageWindow;
-  vtkImager      *Imager;
   vtkActor2D     *Actor2D;
 private:
   vtkImageViewer(const vtkImageViewer&);  // Not implemented.

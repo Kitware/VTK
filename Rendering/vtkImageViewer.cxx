@@ -45,7 +45,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 
-//------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 vtkImageViewer* vtkImageViewer::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -64,15 +64,16 @@ vtkImageViewer* vtkImageViewer::New()
 //----------------------------------------------------------------------------
 vtkImageViewer::vtkImageViewer()
 {
-  this->ImageWindow = vtkImageWindow::New();
-  this->Imager      = vtkImager::New();
+  this->RenderWindow = vtkRenderWindow::New();
+  this->Renderer = vtkRenderer::New();
+  
   this->ImageMapper = vtkImageMapper::New();
   this->Actor2D     = vtkActor2D::New();
 
   // setup the pipeline
   this->Actor2D->SetMapper(this->ImageMapper);
-  this->Imager->AddActor2D(this->Actor2D);
-  this->ImageWindow->AddImager(this->Imager);
+  this->Renderer->AddActor2D(this->Actor2D);
+  this->RenderWindow->AddRenderer(this->Renderer);
 }
 
 
@@ -81,17 +82,17 @@ vtkImageViewer::~vtkImageViewer()
 {
   this->ImageMapper->Delete();
   this->Actor2D->Delete();
-  this->Imager->Delete();
-  this->ImageWindow->Delete();
+  this->RenderWindow->Delete();
+  this->Renderer->Delete();
 }
 
 //----------------------------------------------------------------------------
 void vtkImageViewer::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkObject::PrintSelf(os, indent);
-  os << indent << *this->ImageWindow << endl;
-  os << indent << *this->Imager << endl;
   os << indent << *this->ImageMapper << endl;
+  os << indent << *this->RenderWindow << endl;
+  os << indent << *this->Renderer << endl;
 }
 
 
@@ -111,7 +112,7 @@ void vtkImageViewer::SetPosition(int a[2])
 void vtkImageViewer::Render()
 {
   // initialize the size if not set yet
-  if (this->ImageWindow->GetSize()[0] == 0 && this->ImageMapper->GetInput())
+  if (this->RenderWindow->GetSize()[0] == 0 && this->ImageMapper->GetInput())
     {
     // get the size from the mappers input
     this->ImageMapper->GetInput()->UpdateInformation();
@@ -119,9 +120,9 @@ void vtkImageViewer::Render()
     // if it would be smaller than 100 by 100 then limit to 100 by 100
     int xs = ext[1] - ext[0] + 1;
     int ys = ext[3] - ext[2] + 1;
-    this->ImageWindow->SetSize(xs < 150 ? 150 : xs,
-                               ys < 100 ? 100 : ys);
+    this->RenderWindow->SetSize(xs < 150 ? 150 : xs,
+                                ys < 100 ? 100 : ys);
     }
   
-  this->ImageWindow->Render();
+  this->RenderWindow->Render();
 }

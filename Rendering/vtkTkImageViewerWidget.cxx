@@ -46,7 +46,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifdef _WIN32
 #pragma warning ( disable : 4273 )
 #else
-#include "vtkXImageWindow.h"
+#include "vtkXOpenGLRenderWindow.h"
 #endif
 
 #define VTK_ALL_EVENTS_MASK \
@@ -458,7 +458,7 @@ LRESULT APIENTRY vtkTkImageViewerWidgetProc(HWND hWnd, UINT message,
       {
       if (self->ImageViewer)
 	{
-	SetWindowLong(hWnd,GWL_USERDATA,(LONG)self->ImageViewer->GetImageWindow());
+	SetWindowLong(hWnd,GWL_USERDATA,(LONG)self->ImageViewer->GetRenderWindow());
 	SetWindowLong(hWnd,GWL_WNDPROC,(LONG)self->OldProc);
 	CallWindowProc(self->OldProc,hWnd,message,wParam,lParam);
 	}
@@ -481,7 +481,7 @@ static int vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget 
   vtkImageViewer *ImageViewer = NULL;
   TkWinDrawable *twdPtr;
   HWND parentWin;
-  vtkImageWindow *ImageWindow;
+  vtkRenderWindow *ImageWindow;
 
   if (self->ImageViewer)
     {
@@ -555,7 +555,7 @@ static int vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget 
   //ImageViewer->GetDesiredColormap());
   
   self->ImageViewer->Render();  
-  ImageWindow = self->ImageViewer->GetImageWindow();
+  ImageWindow = self->ImageViewer->GetRenderWindow();
 
 #if(TK_MAJOR_VERSION >=  8)
   twdPtr = (TkWinDrawable*)Tk_AttachHWND(self->TkWin, (HWND)ImageWindow->GetGenericWindowId());
@@ -644,7 +644,7 @@ vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget *self)
 {
   Display *dpy;
   vtkImageViewer *ImageViewer;
-  vtkXImageWindow *ImageWindow;
+  vtkXOpenGLRenderWindow *ImageWindow;
   
   if (self->ImageViewer)
     {
@@ -705,7 +705,7 @@ vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget *self)
   
 	
   // get the window
-  ImageWindow = (vtkXImageWindow *)ImageViewer->GetImageWindow();
+  ImageWindow = static_cast<vtkXOpenGLRenderWindow *>(ImageViewer->GetRenderWindow());
   // If the imageviewer has already created it's window, throw up our hands and quit...
   if ( ImageWindow->GetWindowId() != (Window)NULL )
     {
