@@ -34,25 +34,21 @@ set padY [PowerOfTwo $orgY]
 vtkImageConstantPad imagePowerOf2
   imagePowerOf2 SetInput [image GetOutput]
   imagePowerOf2 SetOutputWholeExtent 0 [expr $padX - 1] 0 [expr $padY - 1] 0 0
-  imagePowerOf2 SetNumberOfThreads 1
 
 vtkImageRGBToHSV toHSV
   toHSV SetInput [image GetOutput]
   toHSV ReleaseDataFlagOff
-  toHSV SetNumberOfThreads 1
 
 vtkImageExtractComponents extractImage
   extractImage SetInput [toHSV GetOutput]
   extractImage SetComponents 2
   extractImage ReleaseDataFlagOff
-  extractImage SetNumberOfThreads 1
 
 vtkImageThreshold threshold
   threshold SetInput [extractImage GetOutput]
   threshold ThresholdByUpper 230
   threshold SetInValue 255
   threshold SetOutValue 0
-  threshold SetNumberOfThreads 1
   threshold Update
 
 
@@ -71,19 +67,16 @@ vtkImageSeedConnectivity connect
   eval connect AddSeed $seed2
   eval connect AddSeed $seed3
   eval connect AddSeed $seed4
-  connect SetNumberOfThreads 1
 
 vtkImageGaussianSmooth smooth
   smooth SetDimensionality 2
   smooth SetStandardDeviation 1 1
   smooth SetInput [connect GetOutput]
-  smooth SetNumberOfThreads 1
 
 vtkImageShrink3D shrink
   shrink SetInput [smooth GetOutput]
   shrink SetShrinkFactors 2 2 1
   shrink AveragingOn
-  shrink SetNumberOfThreads 1
 
 vtkImageToStructuredPoints toStructuredPoints
   toStructuredPoints SetInput [shrink GetOutput]
