@@ -179,6 +179,28 @@ int TestFullySpecializedFunction()
 
 //----------------------------------------------------------------------------
 
+/* Test member template of non-template.  */
+
+class NonTemplate
+{
+  void* Pointer;
+public:
+  template <class T> void Set(T* t) { this->Pointer = t; }
+  template <class T> void Get(T*& t) { t = static_cast<T*>(this->Pointer); }
+};
+
+int TestNonTemplateMemberTemplate()
+{
+  int x = 123;
+  int* px = 0;
+  NonTemplate nt;
+  nt.Set(&x);
+  nt.Get(px);
+  return (*px == 123);
+}
+
+//----------------------------------------------------------------------------
+
 /* Test use of standard "bool" type and values.  */
 
 #if !defined(VTK_CXX_SGI_6)
@@ -464,6 +486,7 @@ int main()
 {
   int result = 0;
   DO_TEST(TestFullySpecializedFunction);
+  DO_TEST(TestNonTemplateMemberTemplate);
 #if !defined(VTK_CXX_SGI_6)
   DO_TEST(TestBool);
 #endif
