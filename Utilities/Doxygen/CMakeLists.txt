@@ -21,3 +21,5 @@ IF (BUILD_DOCUMENTATION)
     ${VTK_BINARY_DIR}/Utilities/Doxygen/doc_makeall.sh)
 
 ENDIF (BUILD_DOCUMENTATION)
+
+INCLUDE (${VTK_SOURCE_DIR}/Utilities/Doxygen/LocalUserOptions.cmake OPTIONAL)
