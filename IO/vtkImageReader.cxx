@@ -374,6 +374,8 @@ void vtkImageReader::PrintSelf(ostream& os, vtkIndent indent)
     (this->FilePrefix ? this->FilePrefix : "(none)") << "\n";
   os << indent << "FilePattern: " << 
     (this->FilePattern ? this->FilePattern : "(none)") << "\n";
+  os << indent << "FileNameSliceOffset: " << this->FileNameSliceOffset << "\n";
+  os << indent << "FileNameSliceSpacing: " << this->FileNameSliceSpacing << "\n";
 
   os << indent << "DataScalarType: " 
      << vtkImageScalarTypeNameMacro(this->DataScalarType) << "\n";

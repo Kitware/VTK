@@ -846,4 +846,5 @@ void vtkDataObject::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Locality: " << this->Locality << endl;
   os << indent << "NumberOfConsumers: " << this->NumberOfConsumers << endl;
   os << indent << "ExtentTranslator: (" << this->ExtentTranslator << ")\n";
+  os << indent << "MaximumNumberOfPieces: " << this->MaximumNumberOfPieces << endl;
 }

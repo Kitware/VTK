@@ -731,6 +731,11 @@ void vtkCubeAxesActor2D::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Font Factor: " << this->FontFactor << "\n";
   os << indent << "Inertia: " << this->Inertia << "\n";
   os << indent << "Corner Offset: " << this->CornerOffset << "\n";
+  os << indent << "UseRanges: " << (this->UseRanges ? "On" : "Off") << "\n";
+  os << indent << "Ranges: "
+     << this->Ranges[0] << ", " << this->Ranges[1] << ", "
+     << this->Ranges[2] << ", " << this->Ranges[3] << ", "
+     << this->Ranges[4] << ", " << this->Ranges[5] << "\n";
 }
 
 static int IsInBounds(float x[3], float bounds[6]);
