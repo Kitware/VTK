@@ -23,7 +23,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkFloatArray.h"
 
-vtkCxxRevisionMacro(vtkRectilinearGrid, "1.50");
+vtkCxxRevisionMacro(vtkRectilinearGrid, "1.51");
 vtkStandardNewMacro(vtkRectilinearGrid);
 
 //----------------------------------------------------------------------------
@@ -771,6 +771,10 @@ int vtkRectilinearGrid::ComputeStructuredCoordinates(float x[3], int ijk[3],
       xPrev = tmp;
       }
     if ( x[j] < xPrev || x[j] > xNext )
+      {
+      return 0;
+      }
+    if (x[j] == xNext  && this->Dimensions[j] != 1)
       {
       return 0;
       }
