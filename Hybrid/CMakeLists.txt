@@ -1,6 +1,8 @@
 SOURCE_FILES ( Hybrid_SRCS
 vtk3DSImporter
+vtk3DWidget
 vtkArcPlotter 
+vtkBoxWidget
 vtkCaptionActor2D
 vtkCubeAxesActor2D 
 vtkDepthSortPolyData 
@@ -25,6 +27,10 @@ vtkVideoSource
 vtkVRMLImporter 
 vtkXYPlotActor 
 vtkWeightedTransformFilter 
+)
+
+ABSTRACT_FILES(
+vtk3DWidget
 )
 
 IF (WIN32)

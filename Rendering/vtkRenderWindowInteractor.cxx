@@ -22,7 +22,7 @@
 #include "vtkMath.h"
 #include "vtkOldStyleCallbackCommand.h"
 
-vtkCxxRevisionMacro(vtkRenderWindowInteractor, "1.85");
+vtkCxxRevisionMacro(vtkRenderWindowInteractor, "1.86");
 
 // Construct object so that light follows camera motion.
 vtkRenderWindowInteractor::vtkRenderWindowInteractor()
@@ -131,13 +131,13 @@ void vtkRenderWindowInteractor::SetRenderWindow(vtkRenderWindow *aren)
     }
 }
 
-void vtkRenderWindowInteractor::SetInteractorStyle(vtkInteractorStyle *aren)
+void vtkRenderWindowInteractor::SetInteractorStyle(vtkInteractorStyle *style)
 {
-  if (this->InteractorStyle != aren)
+  if (this->InteractorStyle != style)
     {
     // to avoid destructor recursion
     vtkInteractorStyle *temp = this->InteractorStyle;
-    this->InteractorStyle = aren;
+    this->InteractorStyle = style;
     if (temp != NULL)
       {
       temp->SetInteractor(0);
@@ -372,6 +372,71 @@ void vtkRenderWindowInteractor::FlyToImage(vtkRenderer *ren, float x, float y)
     ren->ResetCameraClippingRange();
     this->RenderWindow->Render();
     }
+}
+
+//----------------------------------------------------------------------------
+vtkRenderer* vtkRenderWindowInteractor::FindPokedRenderer(int x,int y) 
+{
+  vtkRendererCollection *rc;
+  vtkRenderer *aren;
+  vtkRenderer *currentRenderer=NULL, *interactiveren=NULL, *viewportren=NULL;
+  int numRens, i;
+
+  rc = this->RenderWindow->GetRenderers();
+  numRens = rc->GetNumberOfItems();
+  
+  for (i = numRens -1; (i >= 0) && !currentRenderer; i--) 
+    {
+    aren = (vtkRenderer *)rc->GetItemAsObject(i);
+    if (aren->IsInViewport(x,y) && aren->GetInteractive()) 
+      {
+      currentRenderer = aren;
+      }
+
+    if (interactiveren == NULL && aren->GetInteractive())
+      {
+      // Save this renderer in case we can't find one in the viewport that
+      // is interactive.
+      interactiveren = aren;
+      }
+    if (viewportren == NULL && aren->IsInViewport(x, y))
+      {
+      // Save this renderer in case we can't find one in the viewport that 
+      // is interactive.
+      viewportren = aren;
+      }
+    }//for all renderers
+  
+  // We must have a value.  If we found an interactive renderer before, that's
+  // better than a non-interactive renderer.
+  if ( currentRenderer == NULL )
+    {
+    currentRenderer = interactiveren;
+    }
+  
+  // We must have a value.  If we found a renderer that is in the viewport,
+  // that is better than any old viewport (but not as good as an interactive
+  // one).
+  if ( currentRenderer == NULL )
+    {
+    currentRenderer = viewportren;
+    }
+
+  // We must have a value - take anything.
+  if ( currentRenderer == NULL) 
+    {
+    rc->InitTraversal();
+    aren = rc->GetNextItem();
+    currentRenderer = aren;
+    }
+
+  return currentRenderer;
+}
+
+//----------------------------------------------------------------------------
+vtkCamera*  vtkRenderWindowInteractor::FindPokedCamera(int x,int y) 
+{
+  return this->FindPokedRenderer(x,y)->GetActiveCamera();
 }
 
 void vtkRenderWindowInteractor::PrintSelf(ostream& os, vtkIndent indent)

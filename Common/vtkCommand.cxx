@@ -58,6 +58,9 @@ static const char *vtkCommandEventStrings[] = {
   "EndOfDataEvent",
   "ErrorEvent",
   "WarningEvent",
+  "StartInteractionEvent",
+  "InteractionEvent",
+  "EndInteractionEvent",
   NULL
 };
 

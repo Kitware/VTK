@@ -17,10 +17,18 @@
 =========================================================================*/
 // .NAME vtkCommand - superclass for callback/observer methods
 // .SECTION Description
-// vtkCommand is an implementation of the command design pattern that is used
+// vtkCommand is an implementation of the observer/command design pattern that is used
 // in callbacks (such as StartMethod(), ProgressMethod(), and EndMethod()) in
 // VTK. vtkObject implements a Subject/Observer pattern. When a subject needs
-// to notify a observer, it does so using a vtkCommand.
+// to notify a observer, it does so using by invoking vtkObject::AddObserver() and
+// using vtkCommand (or a derived class) to invoke the callback.
+//
+// Commands can be associated with vtkObject or any of its subclasses via the AddObserver()
+// method. Note that event processing can be organized in priority lists, so it is possible
+// to truncate the processing of a particular event by setting the AbortFlag variable.
+
+// .SECTION See Also
+// vtkObject
 
 #ifndef __vtkCommand_h
 #define __vtkCommand_h
@@ -33,39 +41,53 @@ class vtkObject;
 class VTK_COMMON_EXPORT vtkCommand
 {
 public:
-  void Delete() {
-    this->UnRegister(); }
+  // Description:
+  // vtkCommand is not a subclass of vtkObject, but it has the same reference
+  // counting semantics. So Delete(), Register(), and UnRegister() are implemented.
+  void Delete() 
+    { this->UnRegister(); }
 
   // Description:
   // Increase the reference count (mark as used by another object).
   void Register();
-  void Register(vtkObject *) {
-    this->Register(); }
+  void Register(vtkObject *) 
+    { this->Register(); }
   
   // Description:
   // Decrease the reference count (release by another object). This has
   // the same effect as invoking Delete() (i.e., it reduces the reference
   // count by 1).
   void UnRegister();
-  void UnRegister(vtkObject *) {
-    this->UnRegister(); }
+  void UnRegister(vtkObject *) 
+    { this->UnRegister(); }
   
+  // Description:
+  // All derived classes of vtkCommand must implement this method. This is the
+  // method that actually triggers the callback.
   virtual void Execute(vtkObject *caller, unsigned long, void *callData) = 0;
+
+  // Description:
+  // Convenience methods for translating between event names and event ids.
   static const char *GetStringFromEventId(unsigned long event);
   static unsigned long GetEventIdFromString(const char *event);
 
   // Description:  
   // Set/Get the abort flag.  If this is set to true no further commands are
   // executed.
-  void SetAbortFlagPointer(int* f)  { this->AbortFlag = f;}
-  void SetAbortFlag(int f)  { if(this->AbortFlag) *this->AbortFlag = f;}
-  int GetAbortFlag() { return (this->AbortFlag) ? *this->AbortFlag: 0;}
+  void SetAbortFlag(int f)  
+    { if(this->AbortFlag) *this->AbortFlag = f; }
+  int GetAbortFlag() 
+    { return (this->AbortFlag) ? *this->AbortFlag: 0; }
+  void AbortFlagOn() 
+    { this->SetAbortFlag(1); }
+  void AbortFlagOff() 
+    { this->SetAbortFlag(0); }
   
 //BTX
-  // all the currently defined events
-  // developers can use -- vtkCommand::UserEvent + int to
-  // specify their own events. 
-  // if this list is adjusted, be sure to adjust vtkCommandEventStrings
+  // All the currently defined events are listed here.
+  // Developers can use -- vtkCommand::UserEvent + int to
+  // specify their own event ids.
+  // If this list is adjusted, be sure to adjust vtkCommandEventStrings
   // in vtkCommand.cxx to match.
   enum EventIds {
     NoEvent = 0,
@@ -103,14 +125,24 @@ public:
     EndOfDataEvent,
     ErrorEvent,
     WarningEvent,
+    StartInteractionEvent,
+    InteractionEvent,
+    EndInteractionEvent,
     UserEvent = 1000
   };
 //ETX
+
 protected:
   int* AbortFlag;
   int ReferenceCount;      // Number of uses of this object by other objects
-  vtkCommand() { this->AbortFlag = 0; this->ReferenceCount = 1;};
-  virtual ~vtkCommand() {};
+  vtkCommand():AbortFlag(0),ReferenceCount(1) {}
+  virtual ~vtkCommand() {}
+
+  //helper function for manipulating abort flag
+  void SetAbortFlagPointer(int* f)  
+    { this->AbortFlag = f; }
+
+  friend class vtkSubjectHelper;
 };
 
 #endif /* __vtkCommand_h */

@@ -174,9 +174,10 @@ public:
   // and a vtkCommand to execute. It returns an unsigned long tag which
   // can be used later to remove the event or retrieve the command.
   // When events are invoked, the observers are called in the order they
-  // were added.   If a priority value is specified, then the higher 
-  // priority commands are called first.  A command may set an abort
-  // flag to stop processing of the event.
+  // were added. If a priority value is specified, then the higher 
+  // priority commands are called first. A command may set an abort
+  // flag to stop processing of the event. (See vtkCommand.h for more
+  // information.)
   //BTX
   unsigned long AddObserver(unsigned long event, vtkCommand *, float priority=0.0);
   unsigned long AddObserver(const char *event, vtkCommand *, float priority=0.0);
@@ -204,6 +205,7 @@ private:
   //BTX
   friend VTK_COMMON_EXPORT ostream& operator<<(ostream& os, vtkObject& o);
   //ETX
+
 private:
   vtkObject(const vtkObject&);  // Not implemented.
   void operator=(const vtkObject&);  // Not implemented.
