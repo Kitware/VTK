@@ -215,12 +215,13 @@ public:
   // Clean up device contexts, rendering contexts, etc.
   void Clean();
 
+  // Description:
+  // Register a texture name with this render window
+  void RegisterTextureResource (GLuint id);
+
 protected:
   vtkWin32OpenGLRenderWindow();
   ~vtkWin32OpenGLRenderWindow();
-
-  // Register a texture name with this render window
-  void RegisterTextureResource (GLuint id);
 
   HINSTANCE ApplicationInstance;
   HPALETTE  Palette;
