@@ -148,6 +148,7 @@ public:
   // image information, not the data in the cache.
   void GetDimensions(int dimensions[3]);
   void GetDimensions(int &x, int &y, int &z);
+  float *GetCenter();
   void GetCenter(float center[3]);
   void GetCenter(float &x, float &y, float &z);
   void GetBounds(float bounds[6]);
@@ -240,7 +241,8 @@ protected:
   float Origin[3];
   int WholeExtent[6];
   float Bounds[6];
-  
+  float Center[3];
+
   // This is for vtkStructuredPoints compatibility.  
   // These variables are redundant.
   unsigned long PipelineMTime;
