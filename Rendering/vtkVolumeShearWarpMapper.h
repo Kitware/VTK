@@ -19,7 +19,7 @@
 // the shear-warp factorization algorithm.
 
 // .SECTION see also
-// vtkVolumeMapper, vtkOpenGLVolumeShearWarpMapper
+// vtkVolumeMapper vtkOpenGLVolumeShearWarpMapper
 
 // .SECTION Thanks
 // Thanks to Stefan Bruckner for developing and contributing this code
