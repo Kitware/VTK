@@ -281,7 +281,7 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
     glNewList ((GLuint) this->Index, GL_COMPILE);
 #endif
 
-#ifdef VTK_USE_QUARTZ
+#ifdef __APPLE__
     ((vtkQuartzRenderWindow *)(ren->GetRenderWindow()))->RegisterTextureResource(this->Index);
 #else
   #ifdef _WIN32
