@@ -29,7 +29,7 @@
 #include "vtkMath.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkPentagonalPrism, "1.10");
+vtkCxxRevisionMacro(vtkPentagonalPrism, "1.11");
 vtkStandardNewMacro(vtkPentagonalPrism);
 
 static const double VTK_DIVERGED = 1.e6;
@@ -100,15 +100,15 @@ int vtkPentagonalPrism::EvaluatePosition(double x[3], double closestPoint[3],
       {
       fcol[i] = rcol[i] = scol[i] = tcol[i] = 0.0;
       }
-    for (i=0; i<8; i++)
+    for (i=0; i<10; i++)
       {
       this->Points->GetPoint(i, pt);
       for (j=0; j<3; j++)
         {
         fcol[j] += pt[j] * weights[i];
         rcol[j] += pt[j] * derivs[i];
-        scol[j] += pt[j] * derivs[i+8];
-        tcol[j] += pt[j] * derivs[i+16];
+        scol[j] += pt[j] * derivs[i+10];
+        tcol[j] += pt[j] * derivs[i+20];
         }
       }
 
@@ -175,7 +175,7 @@ int vtkPentagonalPrism::EvaluatePosition(double x[3], double closestPoint[3],
     }
   else
     {
-    double pc[3], w[8];
+    double pc[3], w[10];
     if (closestPoint)
       {
       for (i=0; i<3; i++) //only approximate, not really true for warped hexa
