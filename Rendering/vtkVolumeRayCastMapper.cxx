@@ -1296,10 +1296,6 @@ int vtkVolumeRayCastMapper::ComputeRowBounds(vtkVolume   *vol,
   oldImageMemorySize[0] = this->ImageMemorySize[0];
   oldImageMemorySize[1] = this->ImageMemorySize[1];
   
-  int oldImageOrigin[2];
-  oldImageOrigin[0] = this->ImageOrigin[0];
-  oldImageOrigin[1] = this->ImageOrigin[1];
-
   // Swap the row bounds
   int *tmpptr;
   tmpptr = this->RowBounds;
