@@ -91,7 +91,7 @@
 
 "//".* ;
 
-"VTK_EXPORT" ;
+"VTK_"[A-Za-z0-9_]*"EXPORT" ;
 
 "vtkNotUsed"[ ]*"("[^)]*")" ;
 
