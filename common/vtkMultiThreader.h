@@ -10,56 +10,64 @@
 
 #include "vtkObject.h"
 
-
-#ifdef VTK_USE_SPROC
+#ifdef USE_SPROC
 #include <sys/types.h>
 #include <unistd.h>
 #endif
 
-#ifdef VTK_USE_PTHREADS
+#ifdef USE_PTHREADS
 #include <sys/types.h>
 #include <unistd.h>
 #endif
 
-// If VTK_USE_SPROC is defined, then sproc() will be used to create
-// multiple threads on an SGI. If VTK_USE_PTHREADS is defined, then
+// If USE_SPROC is defined, then sproc() will be used to create
+// multiple threads on an SGI. If USE_PTHREADS is defined, then
 // pthread_create() will be used to create multiple threads (on
 // a sun, for example)
 
 // The maximum number of threads allowed
-#ifdef VTK_USE_SPROC
+#ifdef USE_SPROC
 #define VTK_MAX_THREADS              32
 #endif
 
-#ifdef VTK_USE_PTHREADS
+#ifdef USE_PTHREADS
 #define VTK_MAX_THREADS              32
 #endif
 
-#ifndef VTK_USE_SPROC
-#ifndef VTK_USE_PTHREADS
+#ifdef _WIN32
+#define VTK_MAX_THREADS              8
+#endif
+
+#ifndef _WIN32
+#ifndef USE_SPROC
+#ifndef USE_PTHREADS
 #define VTK_MAX_THREADS              1
 #endif
 #endif
+#endif
 
 
-// If VTK_USE_SPROC is defined, then the multithreaded function is
-// of type void. If VTK_USE_PTHREADS is defined, then the multithreaded
+// If USE_PTHREADS is defined, then the multithreaded
 // function is of type void *, and returns NULL
-// If neither are defined, the type is void.
-#ifdef VTK_USE_SPROC
-typedef void vtkThreadFunctionType;
-#define VTK_THREAD_RETURN_TYPE
+// Otherwise the type is void which is correct for WIN32
+// and SPROC
+#ifdef USE_PTHREADS
+typedef void *(*vtkThreadFunctionType)(void *);
+#define VTK_THREAD_RETURN_VALUE  NULL
+#define VTK_THREAD_RETURN_TYPE   void *
 #endif
 
-#ifdef VTK_USE_PTHREADS
-typedef void * vtkThreadFunctionType;
-#define VTK_THREAD_RETURN_TYPE  NULL
+#ifdef _WIN32
+typedef LPTHREAD_START_ROUTINE vtkThreadFunctionType;
+#define VTK_THREAD_RETURN_VALUE 0
+#define VTK_THREAD_RETURN_TYPE DWORD __stdcall
 #endif
 
-#ifndef VTK_USE_SPROC
-#ifndef VTK_USE_PTHREADS
-typedef void vtkThreadFunctionType;
-#define VTK_THREAD_RETURN_TYPE
+#ifndef _WIN32
+#ifndef USE_PTHREADS
+typedef void (*vtkThreadFunctionType)(void *);
+#define VTK_THREAD_RETURN_VALUE
+#define VTK_THREAD_RETURN_TYPE void
 #endif
 #endif
 
@@ -118,12 +126,12 @@ public:
   // This method (and all the methods passed to SetMultipleMethod)
   // must be of type vtkThreadFunctionType and must take a single argument of
   // type void *.
-  void SetSingleMethod( vtkThreadFunctionType (*f)(void *), void *data );
+  void SetSingleMethod(vtkThreadFunctionType, void *data );
  
   // Description:
   // Set the MultipleMethod at the given index to f() and the UserData 
   // field of the ThreadInfoStruct that is passed to it will be data.
-  void SetMultipleMethod( int index, vtkThreadFunctionType (*f)(void *), 
+  void SetMultipleMethod( int index, vtkThreadFunctionType, 
 			  void *data ); 
 //ETX
 
@@ -138,8 +146,8 @@ protected:
 
 //BTX
   // The methods
-  vtkThreadFunctionType      (*SingleMethod)( void *);
-  vtkThreadFunctionType      (*MultipleMethod[VTK_MAX_THREADS])( void *);
+  vtkThreadFunctionType      SingleMethod;
+  vtkThreadFunctionType      MultipleMethod[VTK_MAX_THREADS];
 //ETX
 
   // Internal storage of the data

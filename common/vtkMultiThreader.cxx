@@ -2,13 +2,13 @@
 
 // These are the includes necessary for multithreaded rendering on an SGI
 // using the sproc() call
-#ifdef VTK_USE_SPROC
+#ifdef USE_SPROC
 #include <sys/resource.h>
 #include <sys/prctl.h>
 #include <wait.h>
 #endif
 
-#ifdef VTK_USE_PTHREADS
+#ifdef USE_PTHREADS
 #include <pthread.h>
 #endif
 
@@ -28,26 +28,35 @@ vtkMultiThreader::vtkMultiThreader()
 
   this->SingleMethod = NULL;
 
-#ifdef VTK_USE_SPROC
+#ifdef USE_SPROC
   // Default the number of threads to be the number of available
   // processors if we are using sproc()
   this->ThreadCount             = prctl( PR_MAXPPROCS );
 #endif
 
-#ifdef VTK_USE_PTHREADS
+#ifdef USE_PTHREADS
   // Default the number of threads to be the number of available
   // processors if we are using pthreads()
   this->ThreadCount             = sysconf( _SC_NPROCESSORS_ONLN );
 #endif
 
-#ifndef VTK_USE_SPROC
-#ifndef VTK_USE_PTHREADS
+#ifdef _WIN32
+  {
+    SYSTEM_INFO sysInfo;
+    GetSystemInfo(&sysInfo);
+    this->ThreadCount = sysInfo.dwNumberOfProcessors;
+  }
+#endif
+
+#ifndef _WIN32
+#ifndef USE_SPROC
+#ifndef USE_PTHREADS
   // If we are not multithreading, the number of threads should
   // always be 1
   this->ThreadCount             = 1;
 #endif  
 #endif  
-
+#endif
 }
 
 // Description:
@@ -59,7 +68,7 @@ vtkMultiThreader::~vtkMultiThreader()
 // Description:
 // Set the user defined method that will be run on ThreadCount threads
 // when SingleMethodExecute is called.
-void vtkMultiThreader::SetSingleMethod( vtkThreadFunctionType (*f)(void *), 
+void vtkMultiThreader::SetSingleMethod( vtkThreadFunctionType f, 
 					void *data )
 { 
   this->SingleMethod = f;
@@ -72,8 +81,7 @@ void vtkMultiThreader::SetSingleMethod( vtkThreadFunctionType (*f)(void *),
 // called with index = 0, 1, ..,  ThreadCount-1 to set up all the
 // required user defined methods
 void vtkMultiThreader::SetMultipleMethod( int index, 
-					  vtkThreadFunctionType (*f)(void *), 
-					  void *data )
+					  vtkThreadFunctionType f, void *data )
 { 
   // You can only set the method for 0 through ThreadCount-1
   if ( index >= this->ThreadCount ) {
@@ -91,15 +99,19 @@ void vtkMultiThreader::SetMultipleMethod( int index,
 // Execute the method set as the SingleMethod on ThreadCount threads.
 void vtkMultiThreader::SingleMethodExecute()
 {
-
-#ifdef VTK_USE_SPROC
   int                thread_loop;
+
+#ifdef _WIN32
+  DWORD              threadId;
+  HANDLE             process_id[VTK_MAX_THREADS];
+#endif
+
+#ifdef USE_SPROC
   siginfo_t          info_ptr;
   int                process_id[VTK_MAX_THREADS];
 #endif
 
-#ifdef VTK_USE_PTHREADS
-  int                thread_loop;
+#ifdef USE_PTHREADS
   pthread_t          process_id[VTK_MAX_THREADS];
 #endif
 
@@ -112,7 +124,50 @@ void vtkMultiThreader::SingleMethodExecute()
   // We are using sproc (on SGIs), pthreads(on Suns), or a single thread
   // (the default)  
 
-#ifdef VTK_USE_SPROC
+#ifdef _WIN32
+  // Using CreateThread on a PC
+  //
+  // We want to use CreateThread to start this->ThreadCount - 1 
+  // additional threads which will be used to call this->SingleMethod().
+  // The parent thread will also call this routine.  When it is done,
+  // it will wait for all the children to finish. 
+  //
+  // First, start up the this->ThreadCount-1 processes.  Keep track
+  // of their process ids for use later in the waitid call
+  for (thread_loop = 0; thread_loop < this->ThreadCount-1; thread_loop++ )
+    {
+    this->ThreadInfoArray[thread_loop].UserData    = this->SingleData;
+    this->ThreadInfoArray[thread_loop].ThreadCount = this->ThreadCount;
+    process_id[thread_loop] = 
+      CreateThread(NULL, 0, this->SingleMethod, 
+	     ((void *)(&this->ThreadInfoArray[thread_loop])), 0, &threadId);
+    if (process_id == NULL)
+      {
+      vtkErrorMacro("Error in thread creation !!!");
+      } 
+    }
+  
+  // Now, the parent thread calls this->SingleMethod() itself
+  this->ThreadInfoArray[this->ThreadCount-1].UserData    = this->SingleData;
+  this->ThreadInfoArray[this->ThreadCount-1].ThreadCount = this->ThreadCount;
+  this->SingleMethod( 
+    (void *)(&this->ThreadInfoArray[this->ThreadCount-1]));
+
+  // The parent thread has finished this->SingleMethod() - so now it
+  // waits for each of the other processes to exit
+  for ( thread_loop = 0; thread_loop < this->ThreadCount-1; thread_loop++ )
+    {
+    WaitForSingleObject(process_id[thread_loop], INFINITE);
+    }
+
+  // close the threads
+  for ( thread_loop = 0; thread_loop < this->ThreadCount-1; thread_loop++ )
+    {
+    CloseHandle(process_id[thread_loop]);
+    }
+#endif
+
+#ifdef USE_SPROC
   // Using sproc() on an SGI
   //
   // We want to use sproc to start this->ThreadCount - 1 additional
@@ -145,7 +200,7 @@ void vtkMultiThreader::SingleMethodExecute()
     }
 #endif
 
-#ifdef VTK_USE_PTHREADS
+#ifdef USE_PTHREADS
   // Using POSIX threads
   //
   // We want to use pthread_create to start this->ThreadCount - 1 additional
@@ -184,12 +239,14 @@ pthread_attr_setscope(&attr, PTHREAD_SCOPE_SYSTEM);
     }
 #endif
 
-#ifndef VTK_USE_SPROC
-#ifndef VTK_USE_PTHREADS
+#ifndef _WIN32
+#ifndef USE_SPROC
+#ifndef USE_PTHREADS
   // There is no multi threading, so there is only one thread.
   this->ThreadInfoArray[0].UserData    = this->SingleData;
   this->ThreadInfoArray[0].ThreadCount = this->ThreadCount;
   this->SingleMethod( (void *)(&this->ThreadInfoArray[0]) );
+#endif
 #endif
 #endif
 }
@@ -198,12 +255,17 @@ void vtkMultiThreader::MultipleMethodExecute()
 {
   int                thread_loop;
 
-#ifdef VTK_USE_SPROC
+#ifdef _WIN32
+  DWORD              threadId;
+  HANDLE             process_id[VTK_MAX_THREADS];
+#endif
+
+#ifdef USE_SPROC
   siginfo_t          info_ptr;
   int                process_id[VTK_MAX_THREADS];
 #endif
 
-#ifdef VTK_USE_PTHREADS
+#ifdef USE_PTHREADS
   pthread_t          process_id[VTK_MAX_THREADS];
 #endif
 
@@ -215,10 +277,57 @@ void vtkMultiThreader::MultipleMethodExecute()
       return;
       }
 
-  // We are using sproc (on SGIs), pthreads(on Suns), or a single thread
-  // (the default)  
+  // We are using sproc (on SGIs), pthreads(on Suns), CreateThread
+  // on a PC or a single thread (the default)  
 
-#ifdef VTK_USE_SPROC
+#ifdef _WIN32
+  // Using CreateThread on a PC
+  //
+  // We want to use CreateThread to start this->ThreadCount - 1 
+  // additional threads which will be used to call the ThreadCount-1
+  // methods defined in this->MultipleMethods[](). The parent thread
+  // will call this->MultipleMethods[ThreadCount-1]().  When it is done,
+  // it will wait for all the children to finish. 
+  //
+  // First, start up the this->ThreadCount-1 processes.  Keep track
+  // of their process ids for use later in the waitid call
+  for ( thread_loop = 0; thread_loop < this->ThreadCount-1; thread_loop++ )
+    {
+    this->ThreadInfoArray[thread_loop].UserData = 
+      this->MultipleData[thread_loop];
+    this->ThreadInfoArray[thread_loop].ThreadCount = this->ThreadCount;
+    process_id[thread_loop] = 
+      CreateThread(NULL, 0, this->MultipleMethod[thread_loop], 
+	     ((void *)(&this->ThreadInfoArray[thread_loop])), 0, &threadId);
+    if (process_id == NULL)
+      {
+      vtkErrorMacro("Error in thread creation !!!");
+      } 
+    }
+  
+  // Now, the parent thread calls the last method itself
+  this->ThreadInfoArray[this->ThreadCount-1].UserData = 
+    this->MultipleData[this->ThreadCount-1];
+  this->ThreadInfoArray[this->ThreadCount-1].ThreadCount = this->ThreadCount;
+  (this->MultipleMethod[this->ThreadCount-1])( 
+    (void *)(&this->ThreadInfoArray[this->ThreadCount-1]) );
+
+  // The parent thread has finished its method - so now it
+  // waits for each of the other processes (created with sproc) to
+  // exit
+  for ( thread_loop = 0; thread_loop < this->ThreadCount-1; thread_loop++ )
+    {
+    WaitForSingleObject(process_id[thread_loop], INFINITE);
+    }
+
+  // close the threads
+  for ( thread_loop = 0; thread_loop < this->ThreadCount-1; thread_loop++ )
+    {
+    CloseHandle(process_id[thread_loop]);
+    }
+#endif
+
+#ifdef USE_SPROC
   // Using sproc() on an SGI
   //
   // We want to use sproc to start this->ThreadCount - 1 additional
@@ -255,7 +364,7 @@ void vtkMultiThreader::MultipleMethodExecute()
     }
 #endif
 
-#ifdef VTK_USE_PTHREADS
+#ifdef USE_PTHREADS
   // Using POSIX threads
   //
   // We want to use pthread_create to start this->ThreadCount - 1 additional
@@ -291,12 +400,14 @@ void vtkMultiThreader::MultipleMethodExecute()
     }
 #endif
 
-#ifndef VTK_USE_SPROC
-#ifndef VTK_USE_PTHREADS
+#ifndef _WIN32
+#ifndef USE_SPROC
+#ifndef USE_PTHREADS
   // There is no multi threading, so there is only one thread.
   this->ThreadInfoArray[0].UserData    = this->MultipleData[0];
   this->ThreadInfoArray[0].ThreadCount = this->ThreadCount;
   (this->MultipleMethod[0])( (void *)(&this->ThreadInfoArray[0]) );
+#endif
 #endif
 #endif
 }
