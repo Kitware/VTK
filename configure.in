@@ -58,6 +58,9 @@ AC_SUBST(BUILD_IMAGING)
 AC_SUBST(DEPEND_IMAGING)
 AC_SUBST(CLEAN_IMAGING)
 
+AC_ARG_WITH(tkwidget,
+         [  --with-tkwidget           build the vtkTkRenderWidget class],,)
+
 AC_ARG_WITH(patented,
          [  --with-patented           include the patented classes],
          patenteddir=patented

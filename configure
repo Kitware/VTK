@@ -26,6 +26,8 @@ ac_help="$ac_help
 ac_help="$ac_help
   --without-imaging       do not include the imaging classes"
 ac_help="$ac_help
+  --with-tkwidget           build the vtkTkRenderWidget class"
+ac_help="$ac_help
   --with-patented           include the patented classes"
 ac_help="$ac_help
   --with-volume           include the volume classes"
@@ -632,7 +634,7 @@ else
   yes;
 #endif
 EOF
-if { ac_try='${CC-cc} -E conftest.c'; { (eval echo configure:636: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }; } | egrep yes >/dev/null 2>&1; then
+if { ac_try='${CC-cc} -E conftest.c'; { (eval echo configure:638: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }; } | egrep yes >/dev/null 2>&1; then
   ac_cv_prog_gcc=yes
 else
   ac_cv_prog_gcc=no
@@ -748,6 +750,13 @@ fi
 
 
 
+
+
+# Check whether --with-tkwidget or --without-tkwidget was given.
+if test "${with_tkwidget+set}" = set; then
+  withval="$with_tkwidget"
+  :
+fi
 
 
 # Check whether --with-patented or --without-patented was given.
