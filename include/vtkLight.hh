@@ -42,6 +42,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .SECTION Description
 // vtkLight is a virtual light for 3D rendering. It provides methods to locate
 // and point the light, turn it on and off, and set its brightness and color.
+// In addition to the basic infinite distance point light source atrributes,
+// you can also specify the light attenuation values and cone angle.
+// These attrributes are only used if the light is a positional light.
+// The default is a directional light (e.g. infinite point light source)
+
+// .SECTION see also
+// vtkLightDevice
 
 #ifndef __vtkLight_hh
 #define __vtkLight_hh
@@ -63,53 +70,55 @@ public:
   // Description:
   // Abstract interface to renderer. Each concrete subclass of vtkLight
   // will load its data into graphics system in response to this method
-  // invocation.
+  // invocation. The actual loading is performed by a vtkLightDevice
+  // subclass which will get created automatically.
   virtual void Render(vtkRenderer *ren,int light_index);
 
   // Description:
-  // Set the color of the light.
+  // Set/Get the color of the light.
   vtkSetVector3Macro(Color,float);
   vtkGetVectorMacro(Color,float,3);
 
   // Description:
-  // Set the position of the light.
+  // Set/Get the position of the light.
   vtkSetVector3Macro(Position,float);
   vtkGetVectorMacro(Position,float,3);
 
   // Description:
-  // Set the point at which the light is shining.
+  // Set/Get the point at which the light is shining.
   vtkSetVector3Macro(FocalPoint,float);
   vtkGetVectorMacro(FocalPoint,float,3);
 
   // Description:
-  // Set the brightness of the light.
+  // Set/Get the brightness of the light (from one to zero).
   vtkSetMacro(Intensity,float);
   vtkGetMacro(Intensity,float);
 
   // Description:
-  // Turn the light on/off.
+  // Turn the light on or off.
   vtkSetMacro(Switch,int);
   vtkGetMacro(Switch,int);
   vtkBooleanMacro(Switch,int);
 
   // Description:
-  // Turn positional lighting on/off.
+  // Turn positional lighting on or off.
   vtkSetMacro(Positional,int);
   vtkGetMacro(Positional,int);
   vtkBooleanMacro(Positional,int);
 
   // Description:
-  // Set the exponent of the cosine used in positional lighting.
+  // Set/Get the exponent of the cosine used in positional lighting.
   vtkSetMacro(Exponent,float);
   vtkGetMacro(Exponent,float);
 
   // Description:
-  // Set the lighting cone angle in degrees of a positional light.
+  // Set/Get the lighting cone angle of a positional light in degrees.
   vtkSetMacro(ConeAngle,float);
   vtkGetMacro(ConeAngle,float);
 
   // Description:
-  // Set the quadratic attenuation constants, const linear quad in order.
+  // Set/Get the quadratic attenuation constants. They are specified as
+  // constant, linear, quadratic in that order.
   vtkSetVector3Macro(AttenuationValues,float);
   vtkGetVectorMacro(AttenuationValues,float,3);
 
