@@ -10,11 +10,11 @@
 # and the Tcl/Tk include files.  You must edit these lines to point
 # to the correct locations for your tcl/tk installations
 
-TCL_INCLUDE=-I/home/ausable/software/src/tcl7.5/tcl7.5/generic
-TCL_LIB=/common/software/tcl7.5/sun4/5.4/lib/libtcl7.5.a
+TCL_INCLUDE=-I/home/ausable/software/src/tcl7.6/tcl7.6/generic
+TCL_LIB=/common/software/tcl7.6/sun4/5.4/lib/libtcl7.6.a
 
-TK_INCLUDE=-I/home/ausable/software/src/tcl7.5/tk4.1/generic
-TK_LIB=/common/software/tk4.1/sun4/5.4/lib/libtk4.1.a
+TK_INCLUDE=-I/home/ausable/software/src/tcl7.6/tk4.2/generic
+TK_LIB=/common/software/tk4.2/sun4/5.4/lib/libtk4.2.a
 
 MESA_INCLUDE=-I/home/martink/storage/Mesa-1.2.6/include
 MESA_LIB=/home/martink/storage/Mesa-1.2.6/lib-sun4-solaris/libMesaGL.a
