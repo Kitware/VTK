@@ -228,6 +228,8 @@ void vtkShrinkPolyData::Execute()
  
   output->SetPolys(newPolys);
   newPolys->Delete();
+
+  output->GetCellData()->PassData(input->GetCellData());
 }
 
 

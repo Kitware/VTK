@@ -111,7 +111,7 @@ void vtkGeometryFilter::SetExtent(float *extent)
 
 void vtkGeometryFilter::Execute()
 {
-  int cellId, i, j;
+  int cellId, i, j, newCellId;
   vtkDataSet *input=(vtkDataSet *)this->Input;
   int numPts=input->GetNumberOfPoints();
   int numCells=input->GetNumberOfCells();
@@ -125,9 +125,11 @@ void vtkGeometryFilter::Execute()
   int ptId;
   int npts, pt;
   vtkPointData *pd = input->GetPointData();
+  vtkCellData *cd = input->GetCellData();
   int allVisible;
   vtkPolyData *output = this->GetOutput();
   vtkPointData *outputPD = output->GetPointData();
+  vtkCellData *outputCD = output->GetCellData();
   
   vtkDebugMacro(<<"Executing geometry filter");
 
@@ -185,6 +187,8 @@ void vtkGeometryFilter::Execute()
   newPts->Allocate(numPts,numPts/2);
   output->Allocate(4*numCells,numCells/2);
   outputPD->CopyAllocate(pd,numPts,numPts/2);
+  outputCD->CopyAllocate(cd,numCells,numCells/2);
+
   if ( this->Merging )
     {
     if ( this->Locator == NULL ) this->CreateDefaultLocator();
@@ -222,7 +226,8 @@ void vtkGeometryFilter::Execute()
               }
             pts->InsertId(i,pt);
             }
-          output->InsertNextCell(cell->GetCellType(), *pts);
+          newCellId = output->InsertNextCell(cell->GetCellType(), *pts);
+          outputCD->CopyData(cd,cellId,newCellId);
           break;
 
         case 3:
@@ -252,7 +257,8 @@ void vtkGeometryFilter::Execute()
                   }
                 pts->InsertId(i,pt);
                 }
-              output->InsertNextCell(face->GetCellType(), *pts);
+              newCellId = output->InsertNextCell(face->GetCellType(), *pts);
+	      outputCD->CopyData(cd,cellId,newCellId);
               }
             }
           cellCopy->Delete();

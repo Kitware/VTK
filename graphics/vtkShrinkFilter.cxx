@@ -109,6 +109,8 @@ void vtkShrinkFilter::Execute()
 //
 // Update ourselves and release memory
 //
+  output->GetCellData()->PassData(input->GetCellData());
+
   output->SetPoints(newPts);
   output->Squeeze();
 
