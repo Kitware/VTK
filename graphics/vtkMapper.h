@@ -210,7 +210,6 @@ protected:
   int ScalarVisibility;
   vtkTimeStamp BuildTime;
   float ScalarRange[2];
-  int SelfCreatedLookupTable;
   int ImmediateModeRendering;
   int ColorMode;
   int ScalarMode;

@@ -55,7 +55,6 @@ vtkMapper::vtkMapper()
   this->ScalarVisibility = 1;
   this->ScalarRange[0] = 0.0; this->ScalarRange[1] = 1.0;
 
-  this->SelfCreatedLookupTable = 0;
   this->ImmediateModeRendering = 0;
 
   this->ColorMode = VTK_COLOR_MODE_DEFAULT;
@@ -64,8 +63,10 @@ vtkMapper::vtkMapper()
 
 vtkMapper::~vtkMapper()
 {
-  if ( this->SelfCreatedLookupTable && this->LookupTable != NULL) 
-    this->LookupTable->Delete();
+  if (this->LookupTable)
+    {
+    this->LookupTable->UnRegister(this);
+    }
   if ( this->Colors != NULL ) this->Colors->Delete();
 }
 
@@ -167,9 +168,15 @@ void vtkMapper::SetLookupTable(vtkLookupTable *lut)
 {
   if ( this->LookupTable != lut ) 
     {
-    if ( this->SelfCreatedLookupTable ) this->LookupTable->Delete();
-    this->SelfCreatedLookupTable = 0;
+    if ( this->LookupTable) 
+      {
+      this->LookupTable->UnRegister(this);
+      }
     this->LookupTable = lut;
+    if (lut)
+      {
+      lut->Register(this);
+      }
     this->Modified();
     }
 }
@@ -182,9 +189,11 @@ vtkLookupTable *vtkMapper::GetLookupTable()
 
 void vtkMapper::CreateDefaultLookupTable()
 {
-  if ( this->SelfCreatedLookupTable ) this->LookupTable->Delete();
+  if ( this->LookupTable) 
+    {
+    this->LookupTable->UnRegister(this);
+    }
   this->LookupTable = vtkLookupTable::New();
-  this->SelfCreatedLookupTable = 1;
 }
 
 float *vtkMapper::GetCenter()
