@@ -129,8 +129,8 @@ void vtkTextureMapToBox::SetBox(float xmin, float xmax, float ymin, float ymax,
     this->Modified();
 
     this->Box[0] = xmin; this->Box[1] = xmax; 
-    this->Box[2] = xmin; this->Box[3] = xmax; 
-    this->Box[4] = xmin; this->Box[5] = xmax; 
+    this->Box[2] = ymin; this->Box[3] = ymax; 
+    this->Box[4] = zmin; this->Box[5] = zmax; 
 
     for (int i=0; i<3; i++)
       if ( this->Box[2*i] > this->Box[2*i+1] )
