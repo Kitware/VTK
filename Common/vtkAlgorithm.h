@@ -56,8 +56,7 @@ public:
   // Description:
   // Set this algorithm's executive.  This algorithm is removed from
   // any executive to which it has previously been assigned and then
-  // assigned to the given executive.  A algorithm's executive should
-  // not be changed after pipeline connectivity has been established.
+  // assigned to the given executive.
   virtual void SetExecutive(vtkExecutive* executive);
 
   // Description:
