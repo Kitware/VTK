@@ -374,10 +374,10 @@ int vtkColorHash::InsertUniqueColor(cgmImagePtr im, int r, int g, int b)
   // otherwise, check to see if color exists
   else
     {
-    int numIds=this->Table[index]->GetNumberOfIds();
+    vtkIdType numIds=this->Table[index]->GetNumberOfIds();
     int red, green, blue;
     
-    for (int i=0; i<numIds; i++)
+    for (vtkIdType i=0; i<numIds; i++)
       {
       cgmIndex = this->Table[index]->GetId(i);
       cgmImageColorGet(im, cgmIndex, red, green, blue);
@@ -400,8 +400,8 @@ int vtkColorHash::InsertUniqueColor(cgmImagePtr im, int r, int g, int b)
 int vtkColorHash::GetColorIndex(cgmImagePtr im, int r, int g, int b)
 {
   int index = (65536*r + 256*g * b) % VTK_HASH_INDEX;
-  int cgmIndex;
-  int numIds=this->Table[index]->GetNumberOfIds();
+  vtkIdType cgmIndex;
+  vtkIdType numIds=this->Table[index]->GetNumberOfIds();
   int red, green, blue;
 
   for (int i=0; i<numIds; i++)
@@ -519,9 +519,9 @@ void vtkCGMWriter::WriteData()
   vtkPoints *inPts=input->GetPoints(), *pts;
   vtkGenericCell *cell=vtkGenericCell::New();
   vtkScalars *inScalars=input->GetCellData()->GetScalars();
-  int numCells=input->GetNumberOfCells();
-  int numPts=input->GetNumberOfPoints();
-  int i, id, cellId, type, npts, size[2], *p;
+  vtkIdType numCells=input->GetNumberOfCells(), cellId;
+  vtkIdType numPts=input->GetNumberOfPoints();
+  int i, id, type, npts, size[2], *p;
   float bounds[6], xRange, yRange, x[3], factor[2];
   int color, bpp, colorMode;
   unsigned char rgb[3], *ptr, *colors;

@@ -117,7 +117,7 @@ public:
   // Return the closest point and the cell which is closest to the point x.
   // The closest point is somewhere on a cell, it need not be one of the
   // vertices of the cell.
-  void FindClosestPoint(float x[3], float closestPoint[3], int &cellId,
+  void FindClosestPoint(float x[3], float closestPoint[3], vtkIdType &cellId,
 			int &subId, float& dist2);
   
   // Description:
@@ -131,7 +131,7 @@ public:
   // found, "cell" contains the points and ptIds for the cell "cellId" upon
   // exit.
   void FindClosestPoint(float x[3], float closestPoint[3],
-			vtkGenericCell *cell, int &cellId, int &subId,
+			vtkGenericCell *cell, vtkIdType &cellId, int &subId,
 			float& dist2);
   
   // Description:

@@ -83,9 +83,9 @@ vtkTextureMapToBox::vtkTextureMapToBox()
 void vtkTextureMapToBox::Execute()
 {
   float tc[3];
-  int numPts;
+  vtkIdType numPts, i;
   vtkTCoords *newTCoords;
-  int i, j;
+  int j;
   float *box, *p;
   float min[3], max[3];
   vtkDataSet *input = this->GetInput();

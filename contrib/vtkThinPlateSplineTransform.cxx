@@ -252,7 +252,7 @@ void vtkThinPlateSplineTransform::InternalUpdate()
     return;
     }
 
-  const int N = this->SourceLandmarks->GetNumberOfPoints();
+  const vtkIdType N = this->SourceLandmarks->GetNumberOfPoints();
   const int D = 3; // dimensions
 
   // the output weights matrix
@@ -322,8 +322,8 @@ void vtkThinPlateSplineTransform::InternalUpdate()
     double **U = L;  // reuse the space
     vtkMath::JacobiN(L,N+D+1,values,V);
     MatrixTranspose(V,U,N+D+1,N+D+1);
-    
-    int i,j;
+
+    vtkIdType i, j;
     double maxValue = 0.0; // maximum eigenvalue
     for (i = 0; i < N+D+1; i++)
       {
@@ -376,7 +376,7 @@ void vtkThinPlateSplineTransform::InternalUpdate()
   // misbehave if the user supplied fewer than 3 landmarks
   else // (N < 3)
     {
-    int i,j;
+    vtkIdType i,j;
     // set nonlinear portion of transformation to zero
     for (i = 0; i < N; i++)
       {
@@ -543,7 +543,7 @@ static inline void vtkThinPlateSplineForwardTransformPoint(
   vtkPoints *sourceLandmarks = self->GetSourceLandmarks();
 
   // do the nonlinear stuff
-  for(int i = 0; i < N; i++)
+  for(vtkIdType i = 0; i < N; i++)
     {
     sourceLandmarks->GetPoint(i,p);
     dx = point[0]-p[0]; dy = point[1]-p[1]; dz = point[2]-p[2];
@@ -619,7 +619,7 @@ static inline void vtkThinPlateSplineForwardTransformDerivative(
   vtkPoints *sourceLandmarks = self->GetSourceLandmarks();
 
   // do the nonlinear stuff
-  for(int i = 0; i < N; i++)
+  for(vtkIdType i = 0; i < N; i++)
     {
     sourceLandmarks->GetPoint(i,p);
     dx = point[0]-p[0]; dy = point[1]-p[1]; dz = point[2]-p[2];
@@ -827,8 +827,6 @@ const char *vtkThinPlateSplineTransform::GetBasisAsString()
      }
   return "Unknown";
 }
-
-
 
 
 

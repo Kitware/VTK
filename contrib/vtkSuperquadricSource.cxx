@@ -171,7 +171,7 @@ static const float SQ_SMALL_OFFSET = 0.01;
 void vtkSuperquadricSource::Execute()
 {
   int i, j;
-  int numPts;
+  vtkIdType numPts;
   vtkPoints *newPoints; 
   vtkNormals *newNormals;
   vtkTCoords *newTCoords;
@@ -184,7 +184,8 @@ void vtkSuperquadricSource::Execute()
   float phiLim[2], thetaLim[2];
   float deltaPhiTex, deltaThetaTex;
   int base, pbase;
-  int numStrips, ptsPerStrip;
+  vtkIdType numStrips;
+  int ptsPerStrip;
   int phiSubsegs, thetaSubsegs, phiSegs, thetaSegs;
   int iq, jq, rowOffset;
   float thetaOffset, phiOffset;

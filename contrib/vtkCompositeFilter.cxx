@@ -100,9 +100,9 @@ vtkStructuredPoints *vtkCompositeFilter::GetInput(int idx)
 void vtkCompositeFilter::Execute()
 {
   vtkStructuredPoints *output = this->GetOutput();
-  int numPts = output->GetNumberOfPoints();
+  vtkIdType numPts = output->GetNumberOfPoints, j;
   vtkStructuredPoints *input;
-  int i, j;
+  int i;
   int firstFlag = 1;
   vtkScalars *inPScalars;
   vtkDataArray *inZData;

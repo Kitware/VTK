@@ -309,7 +309,7 @@ void vtkIterativeClosestPointTransform::InternalUpdate()
     vtkDebugMacro(<< "Landmarks step is now : " << step);
     }
 
-  int nb_points = this->Source->GetNumberOfPoints() / step;
+  vtkIdType nb_points = this->Source->GetNumberOfPoints() / step;
 
   // Allocate some points.
   // - closestp is used so that the internal state of LandmarkTransform remains
@@ -333,7 +333,8 @@ void vtkIterativeClosestPointTransform::InternalUpdate()
   vtkTransform *accumulate = vtkTransform::New();
   accumulate->PostMultiply();
 
-  int i, j;
+  vtkIdType i;
+  int j;
   float *p1, *p2;
 
   if (StartByMatchingCentroids)
@@ -383,7 +384,8 @@ void vtkIterativeClosestPointTransform::InternalUpdate()
 
   // Go
   
-  int cell_id,sub_id;
+  vtkIdType cell_id;
+  int sub_id;
   float dist2, totaldist2 = 0;
 
   vtkPoints *temp, *a = points1, *b = points2;
