@@ -80,6 +80,9 @@ inline int vtkRoundFuncMacro(double x)
         t1  = t10 + (y)*(t11-t10);  \
         v   =  t0 + (z)*(t1-t0);
 
+// Forward declaration needed for use by friend declaration below.
+VTK_THREAD_RETURN_TYPE VolumeRayCastMapper_CastRays( void *arg );
+
 class VTK_RENDERING_EXPORT vtkVolumeRayCastMapper : public vtkVolumeMapper
 {
 public:
