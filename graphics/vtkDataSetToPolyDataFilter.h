@@ -59,7 +59,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkDataSetToPolyDataFilter : public vtkPolyDataSource
 {
 public:
-  static vtkDataSetToPolyDataFilter *New();
   vtkTypeMacro(vtkDataSetToPolyDataFilter,vtkPolyDataSource);
 
   // Description:

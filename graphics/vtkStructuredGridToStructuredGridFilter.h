@@ -55,7 +55,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkStructuredGridToStructuredGridFilter : public vtkStructuredGridSource
 {
 public:
-  static vtkStructuredGridToStructuredGridFilter *New();
   vtkTypeMacro(vtkStructuredGridToStructuredGridFilter,vtkStructuredGridSource);
 
   // Description:

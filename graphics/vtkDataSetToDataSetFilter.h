@@ -78,7 +78,6 @@ class VTK_EXPORT vtkDataSetToDataSetFilter : public vtkDataSetSource
 {
 
 public:
-  static vtkDataSetToDataSetFilter *New();
   vtkTypeMacro(vtkDataSetToDataSetFilter,vtkDataSetSource);
 
   // Description:

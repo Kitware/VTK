@@ -39,26 +39,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkRectilinearGridToPolyDataFilter.h"
-#include "vtkObjectFactory.h"
-
-
-
-//------------------------------------------------------------------------------
-vtkRectilinearGridToPolyDataFilter* vtkRectilinearGridToPolyDataFilter::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkRectilinearGridToPolyDataFilter");
-  if(ret)
-    {
-    return (vtkRectilinearGridToPolyDataFilter*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkRectilinearGridToPolyDataFilter;
-}
-
-
-
-
 
 //----------------------------------------------------------------------------
 // Specify the input data or filter.

@@ -41,25 +41,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkImporter.h"
 #include "vtkRendererCollection.h"
-#include "vtkObjectFactory.h"
-
-
-
-//------------------------------------------------------------------------------
-vtkImporter* vtkImporter::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImporter");
-  if(ret)
-    {
-    return (vtkImporter*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkImporter;
-}
-
-
-
 
 vtkImporter::vtkImporter ()
 {

@@ -55,7 +55,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkRectilinearGridToPolyDataFilter : public vtkPolyDataSource
 {
 public:
-  static vtkRectilinearGridToPolyDataFilter *New();
   vtkTypeMacro(vtkRectilinearGridToPolyDataFilter,vtkPolyDataSource);
 
   // Description:

@@ -44,6 +44,11 @@ CONCRETE_H =
 ABSTRACT = \
 vtkAbstractMapper3D \
 vtkApproximatingSubdivisionFilter \
+vtkDataSetToDataSetFilter \
+vtkDataSetToPolyDataFilter \
+vtkDataSetToStructuredGridFilter \
+vtkDataSetToStructuredPointsFilter \
+vtkDataSetToUnstructuredGridFilter \
 vtkDicer \
 vtkEncodedGradientEstimator \
 vtkExporter \
@@ -51,8 +56,17 @@ vtkGraphicsFactory \
 vtkImporter \
 vtkInterpolatingSubdivisionFilter \
 vtkMapper \
+vtkPointSetToPointSetFilter \
+vtkPolyDataToPolyDataFilter \
 vtkProp3D \
+vtkRectilinearGridToPolyDataFilter \
 vtkSpline \
+vtkStructuredGridToPolyDataFilter \
+vtkStructuredGridToStructuredGridFilter \
+vtkStructuredPointsToPolyDataFilter \
+vtkStructuredPointsToStructuredPointsFilter \
+vtkStructuredPointsToUnstructuredGridFilter \
+vtkUnstructuredGridToUnstructuredGridFilter \
 vtkVolumeMapper \
 vtkVolumeRayCastFunction \
 vtkVolumeReader \
@@ -107,11 +121,6 @@ vtkDataSetMapper \
 vtkDataSetReader \
 vtkDataSetSource \
 vtkDataSetToDataObjectFilter \
-vtkDataSetToDataSetFilter \
-vtkDataSetToPolyDataFilter \
-vtkDataSetToStructuredGridFilter \
-vtkDataSetToStructuredPointsFilter \
-vtkDataSetToUnstructuredGridFilter \
 vtkDataSetWriter \
 vtkDataWriter \
 vtkDecimatePro \
@@ -185,7 +194,6 @@ vtkPointDataToCellData \
 vtkPointLoad \
 vtkPointPicker \
 vtkPointSetSource \
-vtkPointSetToPointSetFilter \
 vtkPointSource \
 vtkPolyDataCollection \
 vtkPolyDataConnectivityFilter \
@@ -193,7 +201,6 @@ vtkPolyDataMapper \
 vtkPolyDataNormals \
 vtkPolyDataReader \
 vtkPolyDataSource \
-vtkPolyDataToPolyDataFilter \
 vtkPolyDataWriter \
 vtkProbeFilter \
 vtkProgrammableAttributeDataFilter \
@@ -209,7 +216,6 @@ vtkRayCaster \
 vtkRectilinearGridGeometryFilter \
 vtkRectilinearGridReader \
 vtkRectilinearGridSource \
-vtkRectilinearGridToPolyDataFilter \
 vtkRectilinearGridWriter \
 vtkRecursiveDividingCubes \
 vtkRecursiveSphereDirectionEncoder \
@@ -245,16 +251,11 @@ vtkStructuredGridGeometryFilter \
 vtkStructuredGridOutlineFilter \
 vtkStructuredGridReader \
 vtkStructuredGridSource \
-vtkStructuredGridToPolyDataFilter \
-vtkStructuredGridToStructuredGridFilter \
 vtkStructuredGridWriter \
 vtkStructuredPointsGeometryFilter \
 vtkStructuredPointsCollection \
 vtkStructuredPointsReader \
 vtkStructuredPointsSource \
-vtkStructuredPointsToPolyDataFilter \
-vtkStructuredPointsToStructuredPointsFilter \
-vtkStructuredPointsToUnstructuredGridFilter \
 vtkStructuredPointsWriter \
 vtkSubPixelPositionEdgels \
 vtkTensorGlyph \
@@ -277,7 +278,6 @@ vtkTubeFilter \
 vtkUGFacetReader \
 vtkUnstructuredGridReader \
 vtkUnstructuredGridSource \
-vtkUnstructuredGridToUnstructuredGridFilter \
 vtkUnstructuredGridWriter \
 vtkVRMLExporter \
 vtkVectorDot \

@@ -57,7 +57,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkStructuredPointsToPolyDataFilter : public vtkPolyDataSource
 {
 public:
-  static vtkStructuredPointsToPolyDataFilter *New();
   vtkTypeMacro(vtkStructuredPointsToPolyDataFilter,vtkPolyDataSource);
 
   // Description:

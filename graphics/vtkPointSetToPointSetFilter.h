@@ -72,7 +72,6 @@ class vtkUnstructuredGrid;
 class VTK_EXPORT vtkPointSetToPointSetFilter : public vtkPointSetSource
 {
 public:
-  static vtkPointSetToPointSetFilter *New();
   vtkTypeMacro(vtkPointSetToPointSetFilter,vtkPointSetSource);
   
   // Description:

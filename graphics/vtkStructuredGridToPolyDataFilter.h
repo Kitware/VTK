@@ -55,7 +55,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkStructuredGridToPolyDataFilter : public vtkPolyDataSource
 {
 public:
-  static vtkStructuredGridToPolyDataFilter *New();
   vtkTypeMacro(vtkStructuredGridToPolyDataFilter,vtkPolyDataSource);
 
   // Description:
