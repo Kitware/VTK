@@ -76,6 +76,11 @@ public:
     {
     return this->Object? 0 : &SafeBoolDummy::Dummy;
     }
+
+  // Description:
+  // Report the reference held by the smart pointer to a collector.
+  void Report(vtkGarbageCollector* collector, const char* desc);
+
 protected:
 
   // Initialize smart pointer to given object, but do not increment

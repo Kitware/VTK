@@ -87,6 +87,11 @@ protected:
   void SetAsObjectBase(vtkInformation* info, vtkObjectBase* value);
   vtkObjectBase* GetAsObjectBase(vtkInformation* info);
 
+  // Report the object associated with this key instance in the given
+  // information object to the collector.
+  void ReportAsObjectBase(vtkInformation* info,
+                          vtkGarbageCollector* collector);
+
   // Helper for debug leaks support.
   void ConstructClass(const char*);
 

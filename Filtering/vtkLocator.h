@@ -146,9 +146,6 @@ protected:
   vtkTimeStamp BuildTime;  // time at which locator was built
 
   virtual void ReportReferences(vtkGarbageCollector*);
-  virtual void GarbageCollectionStarting();
-  virtual void RemoveReferences();
-  int GarbageCollectionCheck;
 private:
   vtkLocator(const vtkLocator&);  // Not implemented.
   void operator=(const vtkLocator&);  // Not implemented.

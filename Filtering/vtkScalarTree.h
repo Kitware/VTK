@@ -84,7 +84,6 @@ protected:
   double       ScalarValue; //current scalar value for traversal
 
   virtual void ReportReferences(vtkGarbageCollector*);
-  virtual void RemoveReferences();
 
 private:
   vtkScalarTree(const vtkScalarTree&);  // Not implemented.

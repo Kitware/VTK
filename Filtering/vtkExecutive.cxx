@@ -29,7 +29,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkExecutive, "1.11");
+vtkCxxRevisionMacro(vtkExecutive, "1.12");
 vtkInformationKeyMacro(vtkExecutive, ALGORITHM_AFTER_FORWARD, Integer);
 vtkInformationKeyMacro(vtkExecutive, ALGORITHM_BEFORE_FORWARD, Integer);
 vtkInformationKeyMacro(vtkExecutive, ALGORITHM_DIRECTION, Integer);
@@ -59,7 +59,6 @@ public:
 vtkExecutive::vtkExecutive()
 {
   this->ExecutiveInternal = new vtkExecutiveInternals;
-  this->GarbageCollectionCheck = 1;
   this->Algorithm = 0;
   this->InAlgorithm = 0;
 }
@@ -88,20 +87,13 @@ void vtkExecutive::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 void vtkExecutive::Register(vtkObjectBase* o)
 {
-  this->RegisterInternal(o, this->GarbageCollectionCheck);
+  this->RegisterInternal(o, 1);
 }
 
 //----------------------------------------------------------------------------
 void vtkExecutive::UnRegister(vtkObjectBase* o)
 {
-  this->UnRegisterInternal(o, this->GarbageCollectionCheck);
-}
-
-//----------------------------------------------------------------------------
-void vtkExecutive::GarbageCollectionStarting()
-{
-  this->GarbageCollectionCheck = 0;
-  this->Superclass::GarbageCollectionStarting();
+  this->UnRegisterInternal(o, 1);
 }
 
 //----------------------------------------------------------------------------
@@ -281,21 +273,17 @@ vtkExecutive* vtkExecutive::GetInputExecutive(int port, int index)
 void vtkExecutive::ReportReferences(vtkGarbageCollector* collector)
 {
   // Report reference to our algorithm.
-  collector->ReportReference(this->GetAlgorithm(), "Algorithm");
+  vtkGarbageCollectorReport(collector, this->Algorithm, "Algorithm");
   for(int i=0; i < int(this->ExecutiveInternal->InputInformation.size()); ++i)
     {
-    collector->ReportReference(this->ExecutiveInternal->InputInformation[i],
-                               "Input Information Vector");
+    vtkGarbageCollectorReport(collector,
+                              this->ExecutiveInternal->InputInformation[i],
+                              "Input Information Vector");
     }
-  collector->ReportReference(this->ExecutiveInternal->OutputInformation,
-                             "Output Information Vector");
-}
-
-//----------------------------------------------------------------------------
-void vtkExecutive::RemoveReferences()
-{
-  this->SetAlgorithm(0);
-  this->ExecutiveInternal->OutputInformation = 0;
+  vtkGarbageCollectorReport(collector,
+                            this->ExecutiveInternal->OutputInformation,
+                            "Output Information Vector");
+  this->Superclass::ReportReferences(collector);
 }
 
 //----------------------------------------------------------------------------

@@ -14,10 +14,9 @@
 =========================================================================*/
 #include "vtkInformationObjectBaseKey.h"
 
-#include "vtkGarbageCollector.h"
 #include "vtkInformation.h" // For vtkErrorWithObjectMacro
 
-vtkCxxRevisionMacro(vtkInformationObjectBaseKey, "1.3");
+vtkCxxRevisionMacro(vtkInformationObjectBaseKey, "1.4");
 
 //----------------------------------------------------------------------------
 vtkInformationObjectBaseKey
@@ -80,5 +79,5 @@ void vtkInformationObjectBaseKey::Copy(vtkInformation* from,
 void vtkInformationObjectBaseKey::Report(vtkInformation* info,
                                          vtkGarbageCollector* collector)
 {
-  collector->ReportReference(this->Get(info), this->GetName());
+  this->ReportAsObjectBase(info, collector);
 }

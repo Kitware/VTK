@@ -31,7 +31,7 @@
 #include "vtkIdTypeArray.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkClipVolume, "1.69");
+vtkCxxRevisionMacro(vtkClipVolume, "1.70");
 vtkStandardNewMacro(vtkClipVolume);
 vtkCxxSetObjectMacro(vtkClipVolume,ClipFunction,vtkImplicitFunction);
 
@@ -698,22 +698,7 @@ void vtkClipVolume::PrintSelf(ostream& os, vtkIndent indent)
 void vtkClipVolume::ReportReferences(vtkGarbageCollector* collector)
 {
   this->Superclass::ReportReferences(collector);
-#ifdef VTK_USE_EXECUTIVES
   // These filters share our input and are therefore involved in a
   // reference loop.
-  collector->ReportReference(this->ClipFunction, "ClipFunction");
-#endif
-}
-
-//----------------------------------------------------------------------------
-void vtkClipVolume::RemoveReferences()
-{
-#ifdef VTK_USE_EXECUTIVES
-  if(this->ClipFunction)
-    {
-    this->ClipFunction->Delete();
-    this->ClipFunction = 0;
-    }
-#endif
-  this->Superclass::RemoveReferences();
+  vtkGarbageCollectorReport(collector, this->ClipFunction, "ClipFunction");
 }

@@ -148,10 +148,7 @@ protected:
   void UpdateInputInformationVector();
 
   // Garbage collection support.
-  virtual void GarbageCollectionStarting();
-  int GarbageCollectionCheck;
   virtual void ReportReferences(vtkGarbageCollector*);
-  virtual void RemoveReferences();
 
   virtual void SetAlgorithm(vtkAlgorithm* algorithm);
 

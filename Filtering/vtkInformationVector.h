@@ -77,9 +77,6 @@ protected:
 
   // Garbage collection support.
   virtual void ReportReferences(vtkGarbageCollector*);
-  virtual void RemoveReferences();
-  virtual void GarbageCollectionStarting();
-  int GarbageCollectionCheck;
 private:
   vtkInformationVector(const vtkInformationVector&);  // Not implemented.
   void operator=(const vtkInformationVector&);  // Not implemented.

@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkImplicitDataSet, "1.25");
+vtkCxxRevisionMacro(vtkImplicitDataSet, "1.26");
 vtkStandardNewMacro(vtkImplicitDataSet);
 vtkCxxSetObjectMacro(vtkImplicitDataSet,DataSet,vtkDataSet);
 
@@ -191,16 +191,5 @@ void vtkImplicitDataSet::ReportReferences(vtkGarbageCollector* collector)
   this->Superclass::ReportReferences(collector);
   // These filters share our input and are therefore involved in a
   // reference loop.
-  collector->ReportReference(this->DataSet, "DataSet");
-}
-
-//----------------------------------------------------------------------------
-void vtkImplicitDataSet::RemoveReferences()
-{
-  if(this->DataSet)
-    {
-    this->DataSet->Delete();
-    this->DataSet = 0;
-    }
-  this->Superclass::RemoveReferences();
+  vtkGarbageCollectorReport(collector, this->DataSet, "DataSet");
 }

@@ -44,8 +44,9 @@
 #include "vtkSystemIncludes.h"
 
 class vtkGarbageCollector;
+class vtkGarbageCollectorToObjectBaseFriendship;
 
-class VTK_COMMON_EXPORT vtkObjectBase 
+class VTK_COMMON_EXPORT vtkObjectBase
 {
 public:
   // Description:
@@ -142,13 +143,10 @@ protected:
 
   // See vtkGarbageCollector.h:
   virtual void ReportReferences(vtkGarbageCollector*);
-  virtual void RemoveReferences();
-  virtual void GarbageCollectionStarting();
-  virtual void GarbageCollectionFinishing();
 private:
   //BTX
   friend VTK_COMMON_EXPORT ostream& operator<<(ostream& os, vtkObjectBase& o);
-  friend class vtkGarbageCollector;
+  friend class vtkGarbageCollectorToObjectBaseFriendship;
   //ETX
 protected:
 //BTX

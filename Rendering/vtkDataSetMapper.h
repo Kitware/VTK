@@ -64,7 +64,6 @@ protected:
   vtkPolyDataMapper *PolyDataMapper;
 
   virtual void ReportReferences(vtkGarbageCollector*);
-  virtual void RemoveReferences();
 private:
   vtkDataSetMapper(const vtkDataSetMapper&);  // Not implemented.
   void operator=(const vtkDataSetMapper&);  // Not implemented.

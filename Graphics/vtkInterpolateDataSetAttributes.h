@@ -59,7 +59,6 @@ protected:
   ~vtkInterpolateDataSetAttributes();
 
   virtual void ReportReferences(vtkGarbageCollector*);
-  virtual void RemoveReferences();
 
   void Execute();
   

@@ -59,7 +59,6 @@ protected:
   vtkOBBTree *OBBTree;
 
   virtual void ReportReferences(vtkGarbageCollector*);
-  virtual void RemoveReferences();
   virtual int FillInputPortInformation(int, vtkInformation*);
 private:
   vtkPolyDataToImageStencil(const vtkPolyDataToImageStencil&);  // Not implemented.

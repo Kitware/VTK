@@ -79,7 +79,6 @@ protected:
   ~vtkImplicitWindowFunction();
 
   virtual void ReportReferences(vtkGarbageCollector*);
-  virtual void RemoveReferences();
 
   vtkImplicitFunction *ImplicitFunction;
   double WindowRange[2];

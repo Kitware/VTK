@@ -35,7 +35,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkVolumeRayCastMapper, "1.105");
+vtkCxxRevisionMacro(vtkVolumeRayCastMapper, "1.106");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -1999,22 +1999,8 @@ void vtkVolumeRayCastMapper::PrintSelf(ostream& os, vtkIndent indent)
 void vtkVolumeRayCastMapper::ReportReferences(vtkGarbageCollector* collector)
 {
   this->Superclass::ReportReferences(collector);
-#ifdef VTK_USE_EXECUTIVES
   // These filters share our input and are therefore involved in a
   // reference loop.
-  collector->ReportReference(this->GradientEstimator, "GradientEstimator");
-#endif
-}
-
-//----------------------------------------------------------------------------
-void vtkVolumeRayCastMapper::RemoveReferences()
-{
-#ifdef VTK_USE_EXECUTIVES
-  if(this->GradientEstimator)
-    {
-    this->GradientEstimator->Delete();
-    this->GradientEstimator = 0;
-    }
-#endif
-  this->Superclass::RemoveReferences();
+  vtkGarbageCollectorReport(collector, this->GradientEstimator,
+                            "GradientEstimator");
 }

@@ -87,7 +87,6 @@ protected:
   ~vtkImplicitDataSet();
 
   virtual void ReportReferences(vtkGarbageCollector*);
-  virtual void RemoveReferences();
 
   vtkDataSet *DataSet;
   double OutValue;

@@ -15,62 +15,46 @@
 // .NAME vtkGarbageCollector - Detect and break reference loops
 // .SECTION Description
 // vtkGarbageCollector is used by VTK classes that may be involved in
-// reference counting loops (such as Source <-> Output).  It detects
-// connected components of the reference graph that have been
-// disconnected from the main graph and deletes them.  Objects that
-// use it call CheckReferenceLoops from their UnRegister method and
-// pass themselves as the root for a search.  The garbage collector
-// then uses the ReportReferences method to search the reference graph
-// and construct a net reference count for the object's connected
-// component.  If the net reference count is zero, RemoveReferences is
-// called on all objects to break references and the entire set of
-// objects is then deleted.
+// reference counting loops (such as Algorithm <-> Executive).  It
+// detects strongly connected components of the reference graph that
+// have been leaked deletes them.  The garbage collector uses the
+// ReportReferences method to search the reference graph and construct
+// a net reference count for each connected component.  If the net
+// reference count is zero the entire set of objects is deleted.
+// Deleting each component may leak other components, which are then
+// collected recursively.
 //
 // To enable garbage collection for a class, add these members:
 //
 //  public:
 //   virtual void Register(vtkObjectBase* o)
 //     {
-//     this->RegisterInternal(o, this->GarbageCollectionCheck);
+//     this->RegisterInternal(o, 1);
 //     }
 //   virtual void UnRegister(vtkObjectBase* o)
 //     {
-//     this->UnRegisterInternal(o, this->GarbageCollectionCheck);
+//     this->UnRegisterInternal(o, 1);
 //     }
 //
 //  protected:
-//   // Initialize to 1 in the constructor.
-//   int GarbageCollectionCheck;
 //
 //   virtual void ReportReferences(vtkGarbageCollector* collector)
 //     {
 //     // Report references held by this object that may be in a loop.
 //     this->Superclass::ReportReferences(collector);
-//     collector->ReportReference(this->OtherObject);
+//     vtkGarbageCollectorReport(collector, this->OtherObject, "Other Object");
 //     }
 //
-//   virtual void RemoveReferences()
-//     {
-//     // Remove references to objects reported in ReportReferences.
-//     if(this->OtherObject)
-//       {
-//       this->OtherObject->UnRegister(this);
-//       this->OtherObject = 0;
-//       }
-//     this->Superclass::RemoveReferences();
-//     }
-//
-//   virtual void GarbageCollectionStarting()
-//     {
-//     this->GarbageCollectionCheck = 0;
-//     this->Superclass::GarbageCollectionStarting();
-//     }
+// It is important that the reference be reported using the real
+// pointer or smart pointer instance that holds the reference.  When
+// collecting the garbage collector will actually set this pointer to
+// NULL.  The destructor of the class should be written to deal with
+// this.
 //
 // The implementations should be in the .cxx file in practice.
 //
 // If subclassing from a class that already supports garbage
-// collection, one need only provide the ReportReferences and
-// RemoveReferences methods.
+// collection, one need only provide the ReportReferences method.
 
 #ifndef __vtkGarbageCollector_h
 #define __vtkGarbageCollector_h
@@ -78,7 +62,12 @@
 #include "vtkObject.h"
 #include "vtkGarbageCollectorManager.h" // Needed for singleton initialization.
 
-class vtkGarbageCollectorInternals;
+// This function is a friend of the collector so that it can call the
+// internal report method.
+void VTK_COMMON_EXPORT
+vtkGarbageCollectorReportInternal(vtkGarbageCollector*,
+                                  vtkObjectBase*, void*,
+                                  const char*);
 
 class VTK_COMMON_EXPORT vtkGarbageCollector : public vtkObject
 {
@@ -87,10 +76,41 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Check for a strongly connected component in the reference graph
-  // starting at the given object.  If the net reference count of the
-  // component is zero the component is deleted.
-  static void Check(vtkObjectBase* root);
+  // Collect immediately and include the given object in the reference
+  // graph walk.  This also accounts for any deferred collection
+  // checks.  Strongly connected components in the reference graph are
+  // identified.  Those with a net reference count of zero are
+  // deleted.  When a component is deleted it may remove references to
+  // other components that are not part of the same reference loop but
+  // are held by objects in the original component.  These removed
+  // references are handled as any other and their corresponding
+  // checks may be deferred.  This method keeps collecting until no
+  // deferred collection checks remain.
+  static void Collect();
+
+  // Description:
+  // Collect immediately and include the given object in the reference
+  // graph walk.  This also accounts for any deferred collection
+  // checks.  Strongly connected components in the reference graph are
+  // identified.  Those with a net reference count of zero are
+  // deleted.  When a component is deleted it may remove references to
+  // other components that are not part of the same reference loop but
+  // are held by objects in the original component.  These removed
+  // references are handled as any other and their corresponding
+  // checks may be deferred.  This method does continue collecting in
+  // this case.
+  static void Collect(vtkObjectBase* root);
+
+  // Description:
+  // Get/Set the maximum number of deferred collection checks.  The
+  // default is zero, which means collection always occurs immediately
+  // when a reference is removed from an object.  Decreasing the
+  // number may result in an immediate collection if the number of
+  // deferred checks is larger than the new value.  Setting to a
+  // negative number will allow an unlimited number of checks to be
+  // deferred.
+  static int GetDeferredCollectionLimit();
+  static void SetDeferredCollectionLimit(int limit);
 
   // Description:
   // Called by UnRegister method of an object that supports garbage
@@ -113,20 +133,13 @@ public:
   static int TakeReference(vtkObjectBase* obj);
 
   // Description:
-  // Called by the ReportReferences method of objects in a reference
-  // graph to report an outgoing connection.  The first argument
-  // should point to the reported reference is made.  The second
-  // argument should be a brief description of how the reference is
-  // made for use in debugging reference loops.
-  void ReportReference(vtkObjectBase*, const char*);
-
-  // Description:
   // Set/Get global garbage collection debugging flag.  When set to 1,
   // all garbage collection checks will produce debugging information.
   static void SetGlobalDebugFlag(int flag);
   static int GetGlobalDebugFlag();
+
 protected:
-  vtkGarbageCollector(vtkGarbageCollectorInternals*);
+  vtkGarbageCollector();
   ~vtkGarbageCollector();
 
   // Description:
@@ -137,18 +150,7 @@ protected:
   // Prevent normal vtkObject reference counting behavior.
   virtual void UnRegister(vtkObjectBase*);
 
-  // Forward call to given object.
-  void ForwardReportReferences(vtkObjectBase*);
-  static void ForwardRemoveReferences(vtkObjectBase*);
-  static void ForwardGarbageCollectionStarting(vtkObjectBase*);
-  static void ForwardGarbageCollectionFinishing(vtkObjectBase*);
-
-  // Forward call to the internal implementation.
-  void CheckReferenceLoops(vtkObjectBase* root);
-
 private:
-  // Internal implementation details.
-  vtkGarbageCollectorInternals* Internal;
 
   // Singleton management functions.
   static void ClassInitialize();
@@ -158,12 +160,36 @@ private:
   friend class vtkGarbageCollectorManager;
   //ETX
 
-  //BTX
-  friend class vtkGarbageCollectorInternals;
-  //ETX
+  // Internal report callback and friend function that calls it.
+  virtual void Report(vtkObjectBase* obj, void* ptr, const char* desc)=0;
+  friend void VTK_COMMON_EXPORT
+  vtkGarbageCollectorReportInternal(vtkGarbageCollector*,
+                                    vtkObjectBase*, void*,
+                                    const char*);
+
 private:
   vtkGarbageCollector(const vtkGarbageCollector&);  // Not implemented.
   void operator=(const vtkGarbageCollector&);  // Not implemented.
 };
+
+//BTX
+class vtkSmartPointerBase;
+
+// Description:
+// Function to report a reference held by a smart pointer to a collector.
+void VTK_COMMON_EXPORT
+vtkGarbageCollectorReport(vtkGarbageCollector* collector,
+                          vtkSmartPointerBase& ptr,
+                          const char* desc);
+
+// Description:
+// Function to report a reference held by a raw pointer to a collector.
+template <class T>
+void vtkGarbageCollectorReport(vtkGarbageCollector* collector, T*& ptr,
+                               const char* desc)
+{
+  vtkGarbageCollectorReportInternal(collector, ptr, &ptr, desc);
+}
+//ETX
 
 #endif

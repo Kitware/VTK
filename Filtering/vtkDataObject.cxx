@@ -29,7 +29,7 @@
 #include "vtkInformationIntegerVectorKey.h"
 #include "vtkInformationStringKey.h"
 
-vtkCxxRevisionMacro(vtkDataObject, "1.7");
+vtkCxxRevisionMacro(vtkDataObject, "1.8");
 vtkStandardNewMacro(vtkDataObject);
 
 vtkCxxSetObjectMacro(vtkDataObject,Information,vtkInformation);
@@ -76,8 +76,6 @@ vtkDataObject::vtkDataObject()
   vtkFieldData *fd = vtkFieldData::New();
   this->SetFieldData(fd);
   fd->Delete();
-
-  this->GarbageCollectionCheck = 1;
 }
 
 //----------------------------------------------------------------------------
@@ -368,13 +366,13 @@ void vtkDataObject::SetSource(vtkSource* newSource)
 //----------------------------------------------------------------------------
 void vtkDataObject::Register(vtkObjectBase* o)
 {
-  this->RegisterInternal(o, this->GarbageCollectionCheck);
+  this->RegisterInternal(o, 1);
 }
 
 //----------------------------------------------------------------------------
 void vtkDataObject::UnRegister(vtkObjectBase* o)
 {
-  this->UnRegisterInternal(o, this->GarbageCollectionCheck);
+  this->UnRegisterInternal(o, 1);
 }
 
 //----------------------------------------------------------------------------
@@ -572,37 +570,9 @@ void vtkDataObject::Crop()
 void vtkDataObject::ReportReferences(vtkGarbageCollector* collector)
 {
   this->Superclass::ReportReferences(collector);
-  if(this->Information)
-    {
-    collector->ReportReference(this->Information, "Information");
-    }
-  if(this->PipelineInformation)
-    {
-    collector->ReportReference(this->PipelineInformation, "PipelineInformation");
-    }
-}
-
-//----------------------------------------------------------------------------
-void vtkDataObject::GarbageCollectionStarting()
-{
-  this->GarbageCollectionCheck = 0;
-  this->Superclass::GarbageCollectionStarting();
-}
-
-//----------------------------------------------------------------------------
-void vtkDataObject::RemoveReferences()
-{
-  if(this->PipelineInformation)
-    {
-    this->PipelineInformation->UnRegister(this);
-    this->PipelineInformation = 0;
-    }
-  if(this->Information)
-    {
-    this->Information->UnRegister(this);
-    this->Information = 0;
-    }
-  this->Superclass::RemoveReferences();
+  vtkGarbageCollectorReport(collector, this->Information, "Information");
+  vtkGarbageCollectorReport(collector, this->PipelineInformation,
+                            "PipelineInformation");
 }
 
 //----------------------------------------------------------------------------

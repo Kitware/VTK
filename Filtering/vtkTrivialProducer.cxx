@@ -21,7 +21,7 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkTrivialProducer, "1.5");
+vtkCxxRevisionMacro(vtkTrivialProducer, "1.6");
 vtkStandardNewMacro(vtkTrivialProducer);
 
 //----------------------------------------------------------------------------
@@ -146,16 +146,5 @@ vtkTrivialProducer::ProcessRequest(vtkInformation* request,
 void vtkTrivialProducer::ReportReferences(vtkGarbageCollector* collector)
 {
   this->Superclass::ReportReferences(collector);
-  collector->ReportReference(this->Output, "Output");
-}
-
-//----------------------------------------------------------------------------
-void vtkTrivialProducer::RemoveReferences()
-{
-  if(this->Output)
-    {
-    this->Output->UnRegister(this);
-    this->Output = 0;
-    }
-  this->Superclass::RemoveReferences();
+  vtkGarbageCollectorReport(collector, this->Output, "Output");
 }

@@ -142,7 +142,6 @@ protected:
   ~vtkContourFilter();
 
   virtual void ReportReferences(vtkGarbageCollector*);
-  virtual void RemoveReferences();
 
   virtual int RequestData(vtkInformation* request,
                           vtkInformationVector** inputVector,

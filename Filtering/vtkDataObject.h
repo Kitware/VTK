@@ -408,9 +408,6 @@ protected:
   int GetPortNumber();
 
   virtual void ReportReferences(vtkGarbageCollector*);
-  virtual void RemoveReferences();
-  virtual void GarbageCollectionStarting();
-  int GarbageCollectionCheck;
 
   // Arbitrary extra information associated with this data object.
   vtkInformation* Information;

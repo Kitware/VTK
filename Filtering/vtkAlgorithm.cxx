@@ -30,7 +30,7 @@
 #include <vtkstd/set>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkAlgorithm, "1.8");
+vtkCxxRevisionMacro(vtkAlgorithm, "1.9");
 vtkStandardNewMacro(vtkAlgorithm);
 
 vtkCxxSetObjectMacro(vtkAlgorithm,Information,vtkInformation);
@@ -203,7 +203,6 @@ vtkAlgorithm::vtkAlgorithm()
   this->Progress = 0.0;
   this->ProgressText = NULL;
   this->AlgorithmInternal = new vtkAlgorithmInternals;
-  this->GarbageCollectionCheck = 1;
   this->Information = vtkInformation::New();
   this->Information->Register(this);
   this->Information->Delete();
@@ -705,21 +704,21 @@ vtkExecutive* vtkAlgorithm::CreateDefaultExecutive()
 //----------------------------------------------------------------------------
 void vtkAlgorithm::Register(vtkObjectBase* o)
 {
-  this->RegisterInternal(o, this->GarbageCollectionCheck);
+  this->RegisterInternal(o, 1);
 }
 
 //----------------------------------------------------------------------------
 void vtkAlgorithm::UnRegister(vtkObjectBase* o)
 {
-  this->UnRegisterInternal(o, this->GarbageCollectionCheck);
+  this->UnRegisterInternal(o, 1);
 }
 
 //----------------------------------------------------------------------------
 void vtkAlgorithm::ReportReferences(vtkGarbageCollector* collector)
 {
   this->Superclass::ReportReferences(collector);
-  collector->ReportReference(this->AlgorithmInternal->Executive.GetPointer(),
-                             "Executive");
+  vtkGarbageCollectorReport(collector, this->AlgorithmInternal->Executive,
+                            "Executive");
   vtkstd::vector<vtkAlgorithmInternals::Port>::iterator i;
 
   // Report producers.
@@ -729,7 +728,7 @@ void vtkAlgorithm::ReportReferences(vtkGarbageCollector* collector)
     for(vtkAlgorithmInternals::Port::iterator j = i->begin();
         j != i->end(); ++j)
       {
-      collector->ReportReference(j->Algorithm.GetPointer(), "InputPorts");
+      vtkGarbageCollectorReport(collector, j->Algorithm, "InputPorts");
       }
     }
 
@@ -740,38 +739,12 @@ void vtkAlgorithm::ReportReferences(vtkGarbageCollector* collector)
     for(vtkAlgorithmInternals::Port::iterator j = i->begin();
         j != i->end(); ++j)
       {
-      collector->ReportReference(j->Algorithm.GetPointer(), "OutputPorts");
+      vtkGarbageCollectorReport(collector, j->Algorithm, "OutputPorts");
       }
     }
 }
 
 //----------------------------------------------------------------------------
-void vtkAlgorithm::GarbageCollectionStarting()
-{
-  this->GarbageCollectionCheck = 0;
-  this->Superclass::GarbageCollectionStarting();
-}
-
-//----------------------------------------------------------------------------
-void vtkAlgorithm::RemoveReferences()
-{
-  this->AlgorithmInternal->Executive = 0;
-
-  // Remove all connection-related references without clearing the ports
-  // array.  The destructor of a subclass may still need to access the number
-  // of input or output ports.
-  int i;
-  for(i=0; i < this->GetNumberOfInputPorts(); ++i)
-    {
-    this->AlgorithmInternal->InputPorts[i].clear();
-    }
-  for(i=0; i < this->GetNumberOfOutputPorts(); ++i)
-    {
-    this->AlgorithmInternal->OutputPorts[i].clear();
-    }
-  this->Superclass::RemoveReferences();
-}
-
 void vtkAlgorithm::ConvertTotalInputToPortConnection(
   int ind, int &port, int &conn)
 {

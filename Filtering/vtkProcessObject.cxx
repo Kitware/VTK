@@ -26,7 +26,7 @@
 
 #include "vtkDebugLeaks.h"
 
-vtkCxxRevisionMacro(vtkProcessObject, "1.3");
+vtkCxxRevisionMacro(vtkProcessObject, "1.4");
 
 //----------------------------------------------------------------------------
 
@@ -203,22 +203,8 @@ void vtkProcessObject::ReportReferences(vtkGarbageCollector* collector)
   this->Superclass::ReportReferences(collector);
   for(int i=0; i < this->NumberOfInputs; ++i)
     {
-    collector->ReportReference(this->Inputs[i], "Inputs");
+    vtkGarbageCollectorReport(collector, this->Inputs[i], "Inputs");
     }
-}
-
-//----------------------------------------------------------------------------
-void vtkProcessObject::RemoveReferences()
-{
-  for(int i=0; i < this->NumberOfInputs; ++i)
-    {
-    if(this->Inputs[i])
-      {
-      this->Inputs[i]->UnRegister(this);
-      this->Inputs[i] = 0;
-      }
-    }
-  this->Superclass::RemoveReferences();
 }
 
 //----------------------------------------------------------------------------

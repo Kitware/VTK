@@ -25,7 +25,7 @@
 #include "vtkStructuredPoints.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkInterpolateDataSetAttributes, "1.27");
+vtkCxxRevisionMacro(vtkInterpolateDataSetAttributes, "1.28");
 vtkStandardNewMacro(vtkInterpolateDataSetAttributes);
 
 // Create object with no input or output.
@@ -240,30 +240,10 @@ void vtkInterpolateDataSetAttributes::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-void vtkInterpolateDataSetAttributes::ReportReferences(
-  vtkGarbageCollector* collector)
+void
+vtkInterpolateDataSetAttributes
+::ReportReferences(vtkGarbageCollector* collector)
 {
   this->Superclass::ReportReferences(collector);
-#ifdef VTK_USE_EXECUTIVES
-  vtkCollectionSimpleIterator dit;
-  vtkDataSet *input;
-  for(this->InputList->InitTraversal(dit); 
-      (input = this->InputList->GetNextDataSet(dit)); )
-    {
-    collector->ReportReference(input, "InputList");    
-    }
-#endif
-}
-
-//----------------------------------------------------------------------------
-void vtkInterpolateDataSetAttributes::RemoveReferences()
-{
-#ifdef VTK_USE_EXECUTIVES
-  if (this->InputList)
-    {
-    this->InputList->Delete();
-    this->InputList = NULL;
-    }
-#endif
-  this->Superclass::RemoveReferences();
+  vtkGarbageCollectorReport(collector, this->InputList, "InputList");
 }

@@ -19,7 +19,7 @@
 #include "vtkImageData.h"
 #include "vtkDataSet.h"
 
-vtkCxxRevisionMacro(vtkVolumeMapper, "1.53");
+vtkCxxRevisionMacro(vtkVolumeMapper, "1.54");
 
 // Construct a vtkVolumeMapper with empty scalar input and clipping off.
 vtkVolumeMapper::vtkVolumeMapper()
@@ -166,25 +166,8 @@ void vtkVolumeMapper::PrintSelf(ostream& os, vtkIndent indent)
 void vtkVolumeMapper::ReportReferences(vtkGarbageCollector* collector)
 {
   this->Superclass::ReportReferences(collector);
-#ifdef VTK_USE_EXECUTIVES
   // These filters share our input and are therefore involved in a
   // reference loop.
-  if (this->UseImageClipper)
-    {
-    collector->ReportReference(this->ImageClipper, "ImageClipper");
-    }
-#endif
-}
-
-//----------------------------------------------------------------------------
-void vtkVolumeMapper::RemoveReferences()
-{
-#ifdef VTK_USE_EXECUTIVES
-  if(this->ImageClipper)
-    {
-    this->ImageClipper->Delete();
-    this->ImageClipper = 0;
-    }
-#endif
-  this->Superclass::RemoveReferences();
+  vtkGarbageCollectorReport(collector, this->ImageClipper,
+                            "ImageClipper");
 }

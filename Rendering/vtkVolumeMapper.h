@@ -123,7 +123,6 @@ protected:
   ~vtkVolumeMapper();
 
   virtual void ReportReferences(vtkGarbageCollector*);
-  virtual void RemoveReferences();
 
   // Cropping variables, and a method for converting the world
   // coordinate cropping region planes to voxel coordinates

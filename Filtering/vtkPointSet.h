@@ -98,7 +98,6 @@ protected:
   vtkPointLocator *Locator;
 
   virtual void ReportReferences(vtkGarbageCollector*);
-  virtual void RemoveReferences();
 private:
   vtkPointSet(const vtkPointSet&);  // Not implemented.
   void operator=(const vtkPointSet&);  // Not implemented.

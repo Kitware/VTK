@@ -63,7 +63,6 @@ protected:
   vtkDataObject* Output;
 
   virtual void ReportReferences(vtkGarbageCollector*);
-  virtual void RemoveReferences();
 private:
   vtkTrivialProducer(const vtkTrivialProducer&);  // Not implemented.
   void operator=(const vtkTrivialProducer&);  // Not implemented.

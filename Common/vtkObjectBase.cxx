@@ -134,7 +134,7 @@ void vtkObjectBase::UnRegister(vtkObjectBase* o)
 
 void vtkObjectBase::CollectRevisions(ostream& os)
 {
-  os << "vtkObjectBase 1.10\n";
+  os << "vtkObjectBase 1.11\n";
 }
 
 void vtkObjectBase::PrintRevisions(ostream& os)
@@ -221,7 +221,7 @@ void vtkObjectBase::UnRegisterInternal(vtkObjectBase*, int check)
     // object still exists and is participating in garbage collection.
     // This means either that delayed garbage collection is disabled
     // or the collector has decided it is time to do a check.
-    vtkGarbageCollector::Check(this);
+    vtkGarbageCollector::Collect(this);
     }
 }
 
@@ -229,24 +229,4 @@ void vtkObjectBase::UnRegisterInternal(vtkObjectBase*, int check)
 void vtkObjectBase::ReportReferences(vtkGarbageCollector*)
 {
   // vtkObjectBase has no references to report.
-}
-
-//----------------------------------------------------------------------------
-void vtkObjectBase::RemoveReferences()
-{
-  // vtkObjectBase has no references to remove.
-}
-
-//----------------------------------------------------------------------------
-void vtkObjectBase::GarbageCollectionStarting()
-{
-  // Do not delete this object until garbage collection is finishing.
-  this->Register(this);
-}
-
-//----------------------------------------------------------------------------
-void vtkObjectBase::GarbageCollectionFinishing()
-{
-  // Delete this object now.
-  this->UnRegister(this);
 }

@@ -190,7 +190,6 @@ protected:
   vtkEncodedGradientShader     *GradientShader;
 
   virtual void ReportReferences(vtkGarbageCollector*);
-  virtual void RemoveReferences();
 
   // The distance between sample points along the ray
   double                       SampleDistance;

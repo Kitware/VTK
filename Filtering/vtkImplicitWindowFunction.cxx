@@ -17,7 +17,7 @@
 #include "vtkGarbageCollector.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImplicitWindowFunction, "1.19");
+vtkCxxRevisionMacro(vtkImplicitWindowFunction, "1.20");
 vtkStandardNewMacro(vtkImplicitWindowFunction);
 vtkCxxSetObjectMacro(vtkImplicitWindowFunction,ImplicitFunction,vtkImplicitFunction);
 
@@ -134,22 +134,13 @@ void vtkImplicitWindowFunction::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-void vtkImplicitWindowFunction::ReportReferences(
-  vtkGarbageCollector* collector)
+void
+vtkImplicitWindowFunction
+::ReportReferences(vtkGarbageCollector* collector)
 {
   this->Superclass::ReportReferences(collector);
   // These filters share our input and are therefore involved in a
   // reference loop.
-  collector->ReportReference(this->ImplicitFunction, "ImplicitFunction");
-}
-
-//----------------------------------------------------------------------------
-void vtkImplicitWindowFunction::RemoveReferences()
-{
-  if(this->ImplicitFunction)
-    {
-    this->ImplicitFunction->Delete();
-    this->ImplicitFunction = 0;
-    }
-  this->Superclass::RemoveReferences();
+  vtkGarbageCollectorReport(collector, this->ImplicitFunction,
+                            "ImplicitFunction");
 }

@@ -122,7 +122,6 @@ protected:
   ~vtkSampleFunction();
 
   virtual void ReportReferences(vtkGarbageCollector*);
-  virtual void RemoveReferences();
 
   void ExecuteData(vtkDataObject *);
   void ExecuteInformation (vtkInformation *, 

@@ -266,9 +266,6 @@ protected:
 
   // Garbage collection support.
   virtual void ReportReferences(vtkGarbageCollector*);
-  virtual void RemoveReferences();
-  virtual void GarbageCollectionStarting();
-  int GarbageCollectionCheck;
 private:
   vtkAlgorithmInternals* AlgorithmInternal;
   static void ConnectionAdd(vtkAlgorithm* producer, int producerPort,

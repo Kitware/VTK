@@ -114,7 +114,6 @@ protected:
   void *ExecuteMethodArg;
 
   virtual void ReportReferences(vtkGarbageCollector*);
-  virtual void RemoveReferences();
 
 private:
   // hide the superclass' AddInput() from the user and the compiler

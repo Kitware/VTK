@@ -171,7 +171,6 @@ protected:
   vtkTimeStamp InformationTime;
 
   virtual void ReportReferences(vtkGarbageCollector*);
-  virtual void RemoveReferences();
 
   // Output port information must match the current outputs.
   int FillOutputPortInformation(int, vtkInformation*);

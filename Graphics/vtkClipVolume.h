@@ -167,7 +167,6 @@ protected:
   ~vtkClipVolume();
 
   virtual void ReportReferences(vtkGarbageCollector*);
-  virtual void RemoveReferences();
 
   void Execute();
   void ClipTets(double value, vtkTetra *clipTetra, vtkDataArray *clipScalars, 

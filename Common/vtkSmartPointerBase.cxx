@@ -14,6 +14,8 @@
 =========================================================================*/
 #include "vtkSmartPointerBase.h"
 
+#include "vtkGarbageCollector.h"
+
 //----------------------------------------------------------------------------
 vtkSmartPointerBase::vtkSmartPointerBase():
   Object(0)
@@ -84,6 +86,13 @@ vtkSmartPointerBase::operator=(const vtkSmartPointerBase& r)
   // temporary's destructor unreferences the old object.
   vtkSmartPointerBase(r).Swap(*this);
   return *this;
+}
+
+//----------------------------------------------------------------------------
+void vtkSmartPointerBase::Report(vtkGarbageCollector* collector,
+                                 const char* desc)
+{
+  vtkGarbageCollectorReport(collector, this->Object, desc);
 }
 
 //----------------------------------------------------------------------------

@@ -15,9 +15,8 @@
 #include "vtkInformationExecutiveKey.h"
 
 #include "vtkExecutive.h"
-#include "vtkGarbageCollector.h"
 
-vtkCxxRevisionMacro(vtkInformationExecutiveKey, "1.3");
+vtkCxxRevisionMacro(vtkInformationExecutiveKey, "1.4");
 
 //----------------------------------------------------------------------------
 vtkInformationExecutiveKey::vtkInformationExecutiveKey(const char* name, const char* location):
@@ -67,5 +66,5 @@ void vtkInformationExecutiveKey::Copy(vtkInformation* from,
 void vtkInformationExecutiveKey::Report(vtkInformation* info,
                                         vtkGarbageCollector* collector)
 {
-  collector->ReportReference(this->Get(info), this->GetName());
+  this->ReportAsObjectBase(info, collector);
 }

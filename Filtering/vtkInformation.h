@@ -209,9 +209,11 @@ protected:
 
   // Garbage collection support.
   virtual void ReportReferences(vtkGarbageCollector*);
-  virtual void RemoveReferences();
-  virtual void GarbageCollectionStarting();
-  int GarbageCollectionCheck;
+
+  // Report the object associated with the given key to the collector.
+  void ReportAsObjectBase(vtkInformationKey* key,
+                          vtkGarbageCollector* collector);
+
 private:
   //BTX
   friend class vtkInformationKeyToInformationFriendship;

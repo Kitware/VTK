@@ -31,7 +31,7 @@
 
 #include <vtkstd/map>
 
-vtkCxxRevisionMacro(vtkInformation, "1.6");
+vtkCxxRevisionMacro(vtkInformation, "1.7");
 vtkStandardNewMacro(vtkInformation);
 
 //----------------------------------------------------------------------------
@@ -47,7 +47,6 @@ public:
 vtkInformation::vtkInformation()
 {
   this->Internal = new vtkInformationInternals;
-  this->GarbageCollectionCheck = 1;
 }
 
 //----------------------------------------------------------------------------
@@ -290,8 +289,7 @@ VTK_INFORMATION_DEFINE_VECTOR_PROPERTY(Key, vtkInformationKey*);
     value[1] = value2;                                                      \
     value[2] = value3;                                                      \
     key->Set(this, value, 3);                                               \
-    }                                                                       
-
+    }
 VTK_INFORMATION_DEFINE_VECTOR_VALUE_PROPERTY(Integer, int);
 VTK_INFORMATION_DEFINE_VECTOR_VALUE_PROPERTY(Double, double);
 #undef VTK_INFORMATION_DEFINE_VECTOR_VALUE_PROPERTY
@@ -359,13 +357,13 @@ vtkInformationKey* vtkInformation::GetKey(vtkInformationUnsignedLongKey* key)
 //----------------------------------------------------------------------------
 void vtkInformation::Register(vtkObjectBase* o)
 {
-  this->RegisterInternal(o, this->GarbageCollectionCheck);
+  this->RegisterInternal(o, 1);
 }
 
 //----------------------------------------------------------------------------
 void vtkInformation::UnRegister(vtkObjectBase* o)
 {
-  this->UnRegisterInternal(o, this->GarbageCollectionCheck);
+  this->UnRegisterInternal(o, 1);
 }
 
 //----------------------------------------------------------------------------
@@ -380,15 +378,16 @@ void vtkInformation::ReportReferences(vtkGarbageCollector* collector)
 }
 
 //----------------------------------------------------------------------------
-void vtkInformation::GarbageCollectionStarting()
+void vtkInformation::ReportAsObjectBase(vtkInformationKey* key,
+                                        vtkGarbageCollector* collector)
 {
-  this->GarbageCollectionCheck = 0;
-  this->Superclass::GarbageCollectionStarting();
-}
-
-//----------------------------------------------------------------------------
-void vtkInformation::RemoveReferences()
-{
-  this->Internal->Map.clear();
-  this->Superclass::RemoveReferences();
+  if(key)
+    {
+    vtkInformationInternals::MapType::iterator i =
+      this->Internal->Map.find(key);
+    if(i != this->Internal->Map.end())
+      {
+      vtkGarbageCollectorReport(collector, i->second, key->GetName());
+      }
+    }
 }

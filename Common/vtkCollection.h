@@ -121,7 +121,11 @@ public:
   // Description:
   // Get an iterator to traverse the objects in this collection.
   vtkCollectionIterator* NewIterator();
-  
+
+  // Description:
+  // Participate in garbage collection.
+  virtual void Register(vtkObjectBase* o);
+  virtual void UnRegister(vtkObjectBase* o);
 protected:
   vtkCollection();
   ~vtkCollection();
@@ -135,7 +139,9 @@ protected:
   //BTX
   friend class vtkCollectionIterator;
   //ETX
-  
+
+  // See vtkGarbageCollector.h:
+  virtual void ReportReferences(vtkGarbageCollector* collector);
 private:
   vtkCollection(const vtkCollection&); // Not implemented
   void operator=(const vtkCollection&); // Not implemented

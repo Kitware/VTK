@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkProgrammableAttributeDataFilter, "1.20");
+vtkCxxRevisionMacro(vtkProgrammableAttributeDataFilter, "1.21");
 vtkStandardNewMacro(vtkProgrammableAttributeDataFilter);
 
 vtkProgrammableAttributeDataFilter::vtkProgrammableAttributeDataFilter()
@@ -130,35 +130,11 @@ void vtkProgrammableAttributeDataFilter::PrintSelf(ostream& os, vtkIndent indent
     }
 }
 
-
-
 //----------------------------------------------------------------------------
-void vtkProgrammableAttributeDataFilter::ReportReferences(
-  vtkGarbageCollector* collector)
+void
+vtkProgrammableAttributeDataFilter
+::ReportReferences(vtkGarbageCollector* collector)
 {
   this->Superclass::ReportReferences(collector);
-#ifdef VTK_USE_EXECUTIVES
-  // These filters share our input and are therefore involved in a
-  // reference loop.
-  vtkCollectionSimpleIterator dit;
-  vtkDataSet *input;
-  for(this->InputList->InitTraversal(dit); 
-      (input = this->InputList->GetNextDataSet(dit)); )
-    {
-    collector->ReportReference(input, "ExtraInputs");    
-    }
-#endif
-}
-
-//----------------------------------------------------------------------------
-void vtkProgrammableAttributeDataFilter::RemoveReferences()
-{
-#ifdef VTK_USE_EXECUTIVES
-  if (this->InputList)
-    {
-    this->InputList->Delete();
-    this->InputList = NULL;
-    }
-#endif
-  this->Superclass::RemoveReferences();
+  vtkGarbageCollectorReport(collector, this->InputList, "InputList");
 }

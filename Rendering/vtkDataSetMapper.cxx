@@ -21,7 +21,7 @@
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 
-vtkCxxRevisionMacro(vtkDataSetMapper, "1.67");
+vtkCxxRevisionMacro(vtkDataSetMapper, "1.68");
 vtkStandardNewMacro(vtkDataSetMapper);
 
 vtkDataSetMapper::vtkDataSetMapper()
@@ -189,28 +189,10 @@ unsigned long vtkDataSetMapper::GetMTime()
 void vtkDataSetMapper::ReportReferences(vtkGarbageCollector* collector)
 {
   this->Superclass::ReportReferences(collector);
-#ifdef VTK_USE_EXECUTIVES
   // These filters share our input and are therefore involved in a
   // reference loop.
-  collector->ReportReference(this->GeometryExtractor, "GeometryExtractor");
-  collector->ReportReference(this->PolyDataMapper, "PolyDataMapper");
-#endif
-}
-
-//----------------------------------------------------------------------------
-void vtkDataSetMapper::RemoveReferences()
-{
-#ifdef VTK_USE_EXECUTIVES
-  if(this->GeometryExtractor)
-    {
-    this->GeometryExtractor->Delete();
-    this->GeometryExtractor = 0;
-    }
-  if(this->PolyDataMapper)
-    {
-    this->PolyDataMapper->Delete();
-    this->PolyDataMapper = 0;
-    }
-#endif
-  this->Superclass::RemoveReferences();
+  vtkGarbageCollectorReport(collector, this->GeometryExtractor,
+                            "GeometryExtractor");
+  vtkGarbageCollectorReport(collector, this->PolyDataMapper,
+                            "PolyDataMapper");
 }

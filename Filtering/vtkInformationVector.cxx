@@ -21,7 +21,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkInformationVector, "1.3");
+vtkCxxRevisionMacro(vtkInformationVector, "1.4");
 vtkStandardNewMacro(vtkInformationVector);
 
 class vtkInformationVectorInternals
@@ -35,7 +35,6 @@ public:
 vtkInformationVector::vtkInformationVector()
 {
   this->Internal = new vtkInformationVectorInternals;
-  this->GarbageCollectionCheck = 1;
 }
 
 //----------------------------------------------------------------------------
@@ -149,36 +148,22 @@ void vtkInformationVector::DeepCopy(vtkInformationVector* from)
 //----------------------------------------------------------------------------
 void vtkInformationVector::Register(vtkObjectBase* o)
 {
-  this->RegisterInternal(o, this->GarbageCollectionCheck);
+  this->RegisterInternal(o, 1);
 }
 
 //----------------------------------------------------------------------------
 void vtkInformationVector::UnRegister(vtkObjectBase* o)
 {
-  this->UnRegisterInternal(o, this->GarbageCollectionCheck);
+  this->UnRegisterInternal(o, 1);
 }
 
 //----------------------------------------------------------------------------
 void vtkInformationVector::ReportReferences(vtkGarbageCollector* collector)
 {
   this->Superclass::ReportReferences(collector);
-  vtkInformationVectorInternals::VectorType::const_iterator i;
+  vtkInformationVectorInternals::VectorType::iterator i;
   for(i=this->Internal->Vector.begin(); i != this->Internal->Vector.end(); ++i)
     {
-    collector->ReportReference((*i).GetPointer(), "Entry");
+    vtkGarbageCollectorReport(collector, *i, "Entry");
     }
-}
-
-//----------------------------------------------------------------------------
-void vtkInformationVector::GarbageCollectionStarting()
-{
-  this->GarbageCollectionCheck = 0;
-  this->Superclass::GarbageCollectionStarting();
-}
-
-//----------------------------------------------------------------------------
-void vtkInformationVector::RemoveReferences()
-{
-  this->Internal->Vector.clear();
-  this->Superclass::RemoveReferences();
 }

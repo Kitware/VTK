@@ -96,7 +96,6 @@ protected:
   virtual void RemoveInput(vtkDataObject *input);
 
   virtual void ReportReferences(vtkGarbageCollector*);
-  virtual void RemoveReferences();
 
   // Implement methods required by vtkAlgorithm.
   virtual int FillInputPortInformation(int, vtkInformation*);
