@@ -25,7 +25,7 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.1.2.9");
+vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.1.2.10");
 vtkStandardNewMacro(vtkStreamingDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, CONTINUE_EXECUTING, Integer);
@@ -299,14 +299,8 @@ vtkStreamingDemandDrivenPipeline
             }
           else if(outData->GetExtentType() == VTK_3D_EXTENT)
             {
-            vtkErrorMacro(
-              "Cannot copy default update request from output port "
-              << outputPort << " on algorithm "
-              << this->Algorithm->GetClassName()
-              << "(" << this->Algorithm << ") to input connection "
-              << j << " on input port " << i
-              << " because the output has a structured extent and the"
-              << " input requires an unstructured extent.");
+            // the conversion from structrued requests to unstrcutured
+            // requests is always to request th ewhole extent
             inExec->SetUpdateExtentToWholeExtent(inPort);
             }
           }
