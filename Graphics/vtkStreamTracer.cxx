@@ -25,7 +25,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPolyLine.h"
 
-vtkCxxRevisionMacro(vtkStreamTracer, "1.1");
+vtkCxxRevisionMacro(vtkStreamTracer, "1.2");
 vtkStandardNewMacro(vtkStreamTracer);
 
 const float vtkStreamTracer::EPSILON = 1.0E-12;
@@ -563,9 +563,8 @@ void vtkStreamTracer::Integrate(vtkDataArray* seedSource, vtkIdList* seedIds)
     IntervalInformation delT;
     delT.Unit = TIME_UNIT;
     float propagation = 0.0, step, minStep, maxStep, stepTaken, accumTime=0;
-    float localCoords[3], speed;
+    float speed;
     double cellLength;
-    vtkIdType cellId, subId;
     int retVal=OUT_OF_TIME, tmp;
 
     // Convert intervals to time unit
