@@ -90,7 +90,7 @@ renWin Render
 iren SetUserMethod {wm deiconify .vtkInteract}
 
 renWin Render
-#renWin SetFileName "LOxGrid.tcl.ppm"
+#renWin SetFileName "LOxGridAA.tcl.ppm"
 #renWin SaveImageAsPPM
 
 # prevent the tk window from showing up then start the event loop
