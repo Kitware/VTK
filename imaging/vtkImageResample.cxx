@@ -38,11 +38,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include <math.h>
-
 #include "vtkImageResample.h"
 
 
+// Macro for trilinear interpolation - do four linear interpolations on
+// edges, two linear interpolations between pairs of edges, then a final
+// interpolation between faces
+#define vtkTrilinFuncMacro(v,x,y,z,a,b,c,d,e,f,g,h)         \
+        t00 =   a + (x)*(b-a);      \
+        t01 =   c + (x)*(d-c);      \
+        t10 =   e + (x)*(f-e);      \
+        t11 =   g + (x)*(h-g);      \
+        t0  = t00 + (y)*(t01-t00);  \
+        t1  = t10 + (y)*(t11-t10);  \
+        v   = (T)( t0 + (z)*(t1-t0));
+
+#define vtkBilinFuncMacro(v,x,y,a,b,c,d)         \
+        t00 =   a + (x)*(b-a);      \
+        t01 =   c + (x)*(d-c);      \
+        v  = (T)(t00 + (y)*(t01-t00)); 
 
 //----------------------------------------------------------------------------
 // Constructor: Sets default filter to be identity.
@@ -54,8 +68,9 @@ vtkImageResample::vtkImageResample()
   this->OutputSpacing[0] = 0.0; // not specified
   this->OutputSpacing[1] = 0.0; // not specified
   this->OutputSpacing[2] = 0.0; // not specified
+  this->Interpolate = 1;
+  this->Dimensionality = 3;
 }
-
 
 //----------------------------------------------------------------------------
 void vtkImageResample::SetAxisOutputSpacing(int axis, float spacing)
@@ -136,195 +151,649 @@ float vtkImageResample::GetAxisMagnificationFactor(int axis)
 // This method computes the Region of input necessary to generate outRegion.
 // It assumes offset and size are multiples of Magnify Factors.
 void vtkImageResample::ComputeRequiredInputUpdateExtent(int inExt[6], 
-						int outExt[6])
+                                                        int outExt[6])
 {
   int min, max, axis;
   float factor;
- 
-  axis = this->Iteration;
-  factor = this->GetAxisMagnificationFactor(axis);
 
-  vtkDebugMacro("ComputeInputUpdateExtent (axis " << axis 
-		<< ") factor " << factor);
-  
   memcpy(inExt, outExt, 6 * sizeof(int));
-  
-  min = outExt[axis*2];
-  max = outExt[axis*2+1];
 
-  min = (int)(floor((float)(min) / factor));
-  max = (int)(ceil((float)(max) / factor));
-
-  inExt[axis*2] = min;
-  inExt[axis*2+1] = max;
+  for (axis = 0; axis < 3; axis++)
+    {
+    factor = this->GetAxisMagnificationFactor(axis);
+    
+    vtkDebugMacro("ComputeInputUpdateExtent (axis " << axis 
+                  << ") factor " << factor);    
+    
+    min = outExt[axis*2];
+    max = outExt[axis*2+1];
+    
+    min = (int)(floor((float)(min) / factor));
+    max = (int)(ceil((float)(max) / factor));
+    
+    inExt[axis*2] = min;
+    inExt[axis*2+1] = max;
+    }
 }
 
 
 //----------------------------------------------------------------------------
 // Computes any global image information associated with regions.
-void vtkImageResample::ExecuteImageInformation(vtkImageData *inData, 
-					       vtkImageData *outData) 
+void vtkImageResample::ExecuteInformation() 
 {
   int wholeMin, wholeMax, axis, ext[6];
   float spacing[3], factor;
-
-  axis = this->Iteration;
+  vtkImageData *inData = this->GetInput();
+  vtkImageData *outData = this->GetOutput();
   inData->GetWholeExtent(ext);
-  wholeMin = ext[axis*2];
-  wholeMax = ext[axis*2+1];
-  
   inData->GetSpacing(spacing);
-
-  // Scale the output extent
-  factor = this->GetAxisMagnificationFactor(axis);
-  wholeMin = (int)(ceil((float)(wholeMin) * factor));
-  wholeMax = (int)(floor((float)(wholeMax) * factor));
-
-  // Change the data spacing
-  spacing[axis] /= factor;
-
-  ext[axis*2] = wholeMin;
-  ext[axis*2+1] = wholeMax;
-  outData->SetWholeExtent(ext);
-  outData->SetSpacing(spacing);
   
-  // just in case  the input spacing has changed.
-  if (this->OutputSpacing[axis] != 0.0)
+  for (axis = 0; axis < 3; axis++)
     {
-    // Cause MagnificationFactor to recompute.
-    this->MagnificationFactors[axis] = 0.0;
+    wholeMin = ext[axis*2];
+    wholeMax = ext[axis*2+1];
+    
+    // Scale the output extent
+    factor = this->GetAxisMagnificationFactor(axis);
+    wholeMin = (int)(ceil((float)(wholeMin) * factor));
+    wholeMax = (int)(floor((float)(wholeMax) * factor));
+    
+    // Change the data spacing
+    spacing[axis] /= factor;
+    
+    ext[axis*2] = wholeMin;
+    ext[axis*2+1] = wholeMax;
+    
+    // just in case  the input spacing has changed.
+    if (this->OutputSpacing[axis] != 0.0)
+      {
+      // Cause MagnificationFactor to recompute.
+      this->MagnificationFactors[axis] = 0.0;
+      }
     }
+
+  this->GetOutput()->SetWholeExtent(ext);
+  this->GetOutput()->SetSpacing(spacing);
+  
+  this->GetOutput()->SetOrigin(this->GetInput()->GetOrigin());
+  this->GetOutput()->SetScalarType(this->GetInput()->GetScalarType());
+  this->GetOutput()->SetNumberOfScalarComponents(
+    this->GetInput()->GetNumberOfScalarComponents());
 }
 
 
-
 //----------------------------------------------------------------------------
-// The templated execute function handles all the data types.
-// 2d even though operation is .
-// Note: Slight misalignment (pixel replication is not nearest neighbor).
 template <class T>
-static void vtkImageResampleExecute(vtkImageResample *self,
-			    vtkImageData *inData, T *inPtr, int inExt[6],
-			    vtkImageData *outData, T *outPtr, int outExt[6],
-			    int id)
+static void vtkImageResampleExecuteNI(vtkImageResample *self,
+                                      vtkImageData *inData, 
+                                      T *inPtr, int inExt[6],
+                                      vtkImageData *outData, T *outPtr,
+                                      int outExt[6], int id)
 {
-  int outMin0, outMax0, outMin1, outMax1, outMin2, outMax2;
-  int inMin0, inMax0, inMin1, inMax1, inMin2, inMax2;
-  int outIdx0, outIdx1, outIdx2, inIdx0, temp; 
-  int inInc0, inInc1, inInc2, outInc0, outInc1, outInc2;
-  T *inPtr1, *inPtr2, *outPtr1, *outPtr2, *inPtrC, *outPtrC;
-  float magFactor, factor;
-  int idxC, numC;
+  float magX = self->GetAxisMagnificationFactor(0);
+  float magY = self->GetAxisMagnificationFactor(1);
+  float magZ = self->GetAxisMagnificationFactor(2);
+
+  float zPos, yPos, xPos;
+  int idxC, idxX, idxY, idxZ;
+  int inIdxX, inIdxY;
+  int inMaxX, inMaxY, inMaxZ;
+  int maxC, maxX, maxY, maxZ;
+  int inIncX, inIncY, inIncZ;
+  int outIncX, outIncY, outIncZ;
   unsigned long count = 0;
   unsigned long target;
-  float startProgress;
-
-  startProgress = self->GetIteration()/(float)(self->GetNumberOfIterations());
-
-  temp = 0;
-
-  numC = inData->GetNumberOfScalarComponents();
+  int interpolate;
+  int xMaxIdx, yMaxIdx, zMaxIdx;
+  T *inPtrZ, *inPtrY, *inPtrX, *outPtrC;
   
-  // permute to make the filtered axis come first.
-  self->PermuteExtent(inExt, inMin0, inMax0, 
-		      inMin1, inMax1, inMin2, inMax2);
-  self->PermuteIncrements(inData->GetIncrements(), inInc0, inInc1, inInc2);
-  self->PermuteExtent(outExt, outMin0, outMax0, 
-		      outMin1, outMax1, outMin2, outMax2);
-  self->PermuteIncrements(outData->GetIncrements(), outInc0, outInc1, outInc2);
-
-  // interpolation stuff
-  magFactor = self->GetAxisMagnificationFactor(self->GetIteration());
+  interpolate = self->GetInterpolate();
   
-  target = (unsigned long)((outMax0-outMin0+1)*(numC)
-			   * self->GetNumberOfIterations() / 50.0);
+  // find the region to loop over
+  maxC = outData->GetNumberOfScalarComponents();
+  maxX = outExt[1] - outExt[0];
+  maxY = outExt[3] - outExt[2]; 
+  maxZ = outExt[5] - outExt[4]; 
+  target = (unsigned long)(maxC*(maxZ+1)*(maxY+1)/50.0);
   target++;
+  
+  // Get increments to march through data 
+  inData->GetIncrements(inIncX, inIncY, inIncZ);
+  outData->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
 
-  // Loop through filteredAxisFirst
-  inIdx0 = inMin0;
-  for (outIdx0 = outMin0; outIdx0 <= outMax0; ++outIdx0)
+  inData->GetExtent(idxC, inMaxX, idxC, inMaxY, idxC, inMaxZ);
+  int *wInExt = inData->GetWholeExtent();
+
+  // find the starting sample locations
+  float xStart = (inExt[0] - wInExt[0])*magX;
+  float yStart = (inExt[2] - wInExt[2])*magY;
+  float zStart = (inExt[4] - wInExt[4])*magZ;
+  xStart = xStart - ((int)xStart);
+  yStart = yStart - ((int)yStart);
+  zStart = zStart - ((int)zStart);
+
+  float xFloatInc = 1.0/magX;
+  float yFloatInc = 1.0/magY;  
+  float zFloatInc = 1.0/magZ;
+  
+  // Loop through ouput pixels
+  for (idxC = 0; idxC < maxC; idxC++)
     {
-    // compute the left input pixel for this sample
-    temp = (int)(floor((float)(outIdx0) / magFactor));
-    if (temp != inIdx0)
+    outPtrC = outPtr + idxC;
+    inPtrZ = inPtr + idxC;
+    zPos = zStart;
+    for (idxZ = 0; idxZ <= maxZ; idxZ++)
       {
-      inPtr += inInc0 * (temp - inIdx0);
-      inIdx0 = temp;
-      }
-    // compute the factor for this interpolation
-    factor = ((float)(outIdx0) / magFactor) - (float)(inIdx0);
-    
-    // loop through the other axes
-    outPtrC = outPtr;
-    inPtrC = inPtr;
-    for (idxC = 0; !self->AbortExecute && idxC < numC; ++idxC)
-      {
-      if (!id) 
-	{
-	if (!(count%target))
+      inPtrY = inPtrZ + idxC;
+      yPos = yStart;
+      for (idxY = 0; !self->AbortExecute && idxY <= maxY; idxY++)
+        {
+        if (!id) 
+          {
+          if (!(count%target))
+            {
+            self->UpdateProgress(count/(50.0*target));
+            }
+          count++;
+          }
+        
+        inPtrX = inPtrY;
+        xPos = xStart;
+	for (idxX = 0; idxX <= maxX; idxX++)
 	  {
-	  self->UpdateProgress(count/(50.0*target) + startProgress);
-	  }
-	count++;
-	}
-      inPtr1 = inPtrC;
-      outPtr1 = outPtrC;
+          *outPtrC = (T)*inPtrX;
+          outPtrC += maxC;
+          xPos += xFloatInc;
+          while (xPos >= 1.0 ) 
+            {
+            inPtrX += inIncX;
+            xPos -= 1.0;
+            }
+          }
+        outPtrC += outIncY;
+        yPos += yFloatInc;
+        while (yPos >= 1.0 ) 
+          {
+          inPtrY += inIncY;
+          yPos -= 1.0;
+          }
+        }
+      outPtrC += outIncZ;
+      zPos += zFloatInc;
+      while (zPos >= 1.0) 
+        {
+        inPtrZ += inIncZ;
+        zPos -= 1.0;
+        }
+      }
+    }
+}
 
-      for (outIdx1 = outMin1; outIdx1 <= outMax1; ++outIdx1)
-	{
-	outPtr2 = outPtr1;
-	inPtr2 = inPtr1;
-	for (outIdx2 = outMin2; outIdx2 <= outMax2; ++outIdx2)
-	  {
-	  // compute the interpolation
-	  if (factor < 0.001)
-	    { // special case for one slice
-	    *outPtr2 = *inPtr2;
-	    }
-	  else
-	    {
-	    *outPtr2 = (T)((float)(*inPtr2) 
-			   + (factor * (float)(inPtr2[inInc0] - *inPtr2)));
-	    }
-	  
-	  // increment
-	  inPtr2 += inInc2;
-	  outPtr2 += outInc2;
-	  }
-	inPtr1 += inInc1;
-	outPtr1 += outInc1;
-	}
-      // increment
-      ++inPtrC;
-      ++outPtrC;
+//----------------------------------------------------------------------------
+template <class T>
+static void vtkImageResampleExecute2D(vtkImageResample *self,
+                                      vtkImageData *inData, 
+                                      T *inPtr, int inExt[6],
+                                      vtkImageData *outData, T *outPtr,
+                                      int outExt[6], int id)
+{
+  float magX = self->GetAxisMagnificationFactor(0);
+  float magY = self->GetAxisMagnificationFactor(1);
+
+  float t00, t01, t10, t11, t0, t1;
+  float yPos, xPos;
+  int idxC, idxX, idxY, idxZ;
+  int inIdxX, inIdxY;
+  int inMaxX, inMaxY, inMaxZ;
+  int maxC, maxX, maxY, maxZ;
+  int inIncX, inIncY, inIncZ;
+  int outIncX, outIncY, outIncZ;
+  unsigned long count = 0;
+  unsigned long target;
+  int interpolate;
+  int xMaxIdx, yMaxIdx, zMaxIdx;
+  T *inPtrZ, *inPtrY, *inPtrX, *outPtrC;
+  
+  interpolate = self->GetInterpolate();
+  
+  // find the region to loop over
+  maxC = outData->GetNumberOfScalarComponents();
+  maxX = outExt[1] - outExt[0];
+  maxY = outExt[3] - outExt[2]; 
+  maxZ = outExt[5] - outExt[4]; 
+  target = (unsigned long)(maxC*(maxZ+1)*(maxY+1)/50.0);
+  target++;
+  
+  // Get increments to march through data 
+  inData->GetIncrements(inIncX, inIncY, inIncZ);
+  outData->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
+
+  inData->GetExtent(idxC, inMaxX, idxC, inMaxY, idxC, inMaxZ);
+  int *wInExt = inData->GetWholeExtent();
+
+  // find the starting sample locations
+  float xStart = (inExt[0] - wInExt[0])*magX;
+  float yStart = (inExt[2] - wInExt[2])*magY;
+  xStart = xStart - ((int)xStart);
+  yStart = yStart - ((int)yStart);
+
+  float xFloatInc = 1.0/magX;
+  float yFloatInc = 1.0/magY;
+  
+  // compute the offsets to the other verts
+  int off1 = inIncX;
+  int off2 = inIncY;
+  int off3 = inIncX + inIncY;
+  float A,B,C,D;
+
+  // we need to know what the last x will be without
+  // going out of memory. We use a loop here so
+  // that the same calculations are done. same
+  // accumulated errors etc.
+  xPos = xStart;
+  xMaxIdx = 0;
+  int itmp = 0;
+
+  // we create these arrays to store some value we'll
+  // use when incrementing along the x axis
+  float *XRatios = new float [maxX+1];
+  int *XSteps = new int [maxX+1];
+  float *pXRatios = XRatios;
+  int   *pXSteps = XSteps;
+  
+  for (idxX = 0; idxX <= maxX; idxX++)
+    {
+    xPos += xFloatInc;
+    *pXSteps = 0;
+    while (xPos >= 1.0 ) 
+      {
+      xPos -= 1.0;
+      itmp++;
+      if (itmp >= inMaxX && !xMaxIdx)
+        {
+        xMaxIdx = idxX - 1;
+        }
+      *pXSteps = *pXSteps + 1;
       }
-    // increment (input is handled at front of loop)
-    outPtr += outInc0;
+    *pXRatios = xPos;
+    pXRatios++;
+    pXSteps++;
+    }
+  yPos = yStart;
+  yMaxIdx = -1;
+  itmp = 0;
+  for (idxY = 0; idxY <= maxY; idxY++)
+    {
+    yPos += yFloatInc;
+    while (yPos >= 1.0 ) 
+      {
+      yPos -= 1.0;
+      itmp++;
+      if (itmp >= inMaxY && yMaxIdx == -1)
+        {
+        yMaxIdx = idxY - 1;
+        }
+      }
+    }
+  
+  // Loop through ouput pixels
+  for (idxC = 0; idxC < maxC; idxC++)
+    {
+    outPtrC = outPtr + idxC;
+    inPtrZ = inPtr + idxC;
+    for (idxZ = 0; idxZ <= maxZ; idxZ++)
+      {
+      inPtrY = inPtrZ;
+      yPos = yStart;
+      off2 = inIncY;
+      off3 = inIncX + inIncY;
+      for (idxY = 0; !self->AbortExecute && idxY <= maxY; idxY++)
+        {
+        if (idxY > yMaxIdx)
+          {
+          off2 = 0;
+          off3 = inIncX;
+          }
+        if (!id) 
+          {
+          if (!(count%target))
+            {
+            self->UpdateProgress(count/(50.0*target));
+            }
+          count++;
+          }
+        
+        inPtrX = inPtrY;
+        xPos = xStart;
+        A = *(inPtrX);
+        B = *(inPtrX + off1);
+        C = *(inPtrX + off2);
+        D = *(inPtrX + off3);
+        pXRatios = XRatios;
+        pXSteps = XSteps;
+	for (idxX = 0; idxX <= xMaxIdx; idxX++)
+	  {
+          vtkBilinFuncMacro( *outPtrC, xPos, yPos, A, B, C, D);
+          outPtrC += maxC;
+          xPos = *pXRatios++;
+          if (*pXSteps) 
+            {
+            inPtrX = inPtrX + *pXSteps*inIncX;
+            A = *(inPtrX);
+            B = *(inPtrX + off1);
+            C = *(inPtrX + off2);
+            D = *(inPtrX + off3);
+            }
+          pXSteps++;
+          }
+	for (;idxX <= maxX; idxX++)
+	  {
+          *outPtrC = (T)(B + (yPos)*(D-B));
+          outPtrC += maxC;
+          }
+        outPtrC += outIncY;
+        yPos += yFloatInc;
+        while (yPos >= 1.0 ) 
+          {
+          inPtrY += inIncY;
+          yPos -= 1.0;
+          }
+        }
+      outPtrC += outIncZ;
+      inPtrZ += inIncZ;
+      }
+    }
+  delete [] XRatios;
+  delete [] XSteps;
+}
+
+
+//----------------------------------------------------------------------------
+template <class T>
+static void vtkImageResampleExecute3D(vtkImageResample *self,
+                                      vtkImageData *inData, T *inPtr, 
+                                      int inExt[6],
+                                      vtkImageData *outData, T *outPtr,
+                                      int outExt[6], int id)
+{
+  float magZ = self->GetAxisMagnificationFactor(2);
+  float magX = self->GetAxisMagnificationFactor(0);
+  float magY = self->GetAxisMagnificationFactor(1);
+
+  float t00, t01, t10, t11, t0, t1;
+  float zPos, yPos, xPos;
+  int idxC, idxX, idxY, idxZ;
+  int inIdxX, inIdxY, inIdxZ;
+  int inMaxX, inMaxY, inMaxZ;
+  int maxC, maxX, maxY, maxZ;
+  int inIncX, inIncY, inIncZ;
+  int outIncX, outIncY, outIncZ;
+  unsigned long count = 0;
+  unsigned long target;
+  int interpolate;
+  int xMaxIdx, yMaxIdx, zMaxIdx;
+  T *inPtrZ, *inPtrY, *inPtrX, *outPtrC;
+  
+  interpolate = self->GetInterpolate();
+  
+  // find the region to loop over
+  maxC = outData->GetNumberOfScalarComponents();
+  maxX = outExt[1] - outExt[0];
+  maxY = outExt[3] - outExt[2]; 
+  maxZ = outExt[5] - outExt[4];
+
+  target = (unsigned long)(maxC*(maxZ+1)*(maxY+1)/50.0);
+  target++;
+  
+  // Get increments to march through data 
+  inData->GetIncrements(inIncX, inIncY, inIncZ);
+  outData->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
+
+  inData->GetExtent(idxC, inMaxX, idxC, inMaxY, idxC, inMaxZ);
+  int *wInExt = inData->GetWholeExtent();
+
+  // find the starting sample locations
+  float xStart = (inExt[0] - wInExt[0])*magX;
+  float yStart = (inExt[2] - wInExt[2])*magY;
+  float zStart = (inExt[4] - wInExt[4])*magZ;
+  xStart = xStart - ((int)xStart);
+  yStart = yStart - ((int)yStart);
+  zStart = zStart - ((int)zStart);
+
+  float xFloatInc = 1.0/magX;
+  float yFloatInc = 1.0/magY;
+  float zFloatInc = 1.0/magZ;
+
+  // we create these arrays to store some value we'll
+  // use when incrementing along the x axis
+  float *XRatios = new float [maxX+1];
+  int *XSteps = new int [maxX+1];
+  float *pXRatios = XRatios;
+  int   *pXSteps = XSteps;
+
+  // we need to know what the last x will be without
+  // going out of memory. We use a loop here so
+  // that the same calculations are done. same
+  // accumulated errors etc.
+  xPos = xStart;
+  xMaxIdx = 0;
+  int itmp = 0;
+  for (idxX = 0; idxX <= maxX; idxX++)
+    {
+    xPos += xFloatInc;
+    *pXSteps = 0;
+    while (xPos >= 1.0 ) 
+      {
+      xPos -= 1.0;
+      itmp++;
+      if (itmp >= inMaxX && !xMaxIdx)
+        {
+        xMaxIdx = idxX - 1;
+        }
+      *pXSteps = *pXSteps + 1;
+      }
+    *pXRatios = xPos;
+    pXRatios++;
+    pXSteps++;
+    }
+  yPos = yStart;
+  yMaxIdx = -1;
+  itmp = 0;
+  for (idxY = 0; idxY <= maxY; idxY++)
+    {
+    yPos += yFloatInc;
+    while (yPos >= 1.0 ) 
+      {
+      yPos -= 1.0;
+      itmp++;
+      if (itmp >= inMaxY && yMaxIdx == -1)
+        {
+        yMaxIdx = idxY - 1;
+        }
+      }
+    }
+  zPos = zStart;
+  zMaxIdx = -1;
+  itmp = 0;
+  for (idxZ = 0; idxZ <= maxZ; idxZ++)
+    {
+    zPos += zFloatInc;
+    while (zPos >= 1.0 ) 
+      {
+      zPos -= 1.0;
+      itmp++;
+      if (itmp >= inMaxZ && zMaxIdx == -1)
+        {
+        zMaxIdx = idxZ - 1;
+        }
+      }
+    }
+  
+  // compute the offsets to the other verts
+  int off1 = inIncX;
+  int off2 = inIncY;
+  int off3 = inIncX + inIncY;
+  int off4 = inIncZ;
+  int off5 = inIncZ + inIncX;
+  int off6 = inIncZ + inIncY;
+  int off7 = inIncZ + inIncY + inIncX;
+  float A,B,C,D,E,F,G,H;
+  
+  // Loop through ouput pixels
+  for (idxC = 0; idxC < maxC; idxC++)
+    {
+    zPos = zStart;
+    inPtrZ = inPtr + idxC;
+    outPtrC = outPtr + idxC;
+    off4 = inIncZ;
+    off5 = inIncZ + inIncX;
+    off6 = inIncZ + inIncY;
+    off7 = inIncZ + inIncY + inIncX;
+    for (idxZ = 0; idxZ <= maxZ; idxZ++)
+      {
+      inPtrY = inPtrZ;
+      yPos = yStart;
+      off2 = inIncY;
+      off3 = inIncY + inIncX;
+      if (idxZ > zMaxIdx)
+        {
+        off4 = 0;
+        off5 = inIncX;
+        off6 = inIncY;
+        off7 = inIncY + inIncX;
+        }
+      for (idxY = 0; !self->AbortExecute && idxY <= maxY; idxY++)
+	{
+        if (idxY > yMaxIdx)
+          {
+          off2 = 0;
+          off3 = inIncX;
+          if (idxZ > zMaxIdx)
+            {
+            off6 = 0;
+            off7 = inIncX;
+            }
+          else
+            {
+            off6 = inIncZ;
+            off7 = inIncZ + inIncX;
+            }
+          }
+	if (!id) 
+	  {
+	  if (!(count%target))
+	    {
+	    self->UpdateProgress(count/(50.0*target));
+	    }
+	  count++;
+	  }
+	
+	inPtrX = inPtrY;
+        xPos = xStart;
+        A = *(inPtrX);
+        B = *(inPtrX + off1);
+        C = *(inPtrX + off2);
+        D = *(inPtrX + off3);
+        E = *(inPtrX + off4);
+        F = *(inPtrX + off5);
+        G = *(inPtrX + off6);
+        H = *(inPtrX + off7);
+        pXRatios = XRatios;
+        pXSteps = XSteps;
+	for (idxX = 0; idxX <= xMaxIdx; idxX++)
+	  {
+          vtkTrilinFuncMacro( *outPtrC, xPos, yPos, zPos, 
+                              A, B, C, D, E, F, G, H );
+          outPtrC += maxC;
+          xPos = *pXRatios++;
+          if (*pXSteps) 
+            {
+            inPtrX = inPtrX + *pXSteps*inIncX;
+            A = *(inPtrX);
+            B = *(inPtrX + off1);
+            C = *(inPtrX + off2);
+            D = *(inPtrX + off3);
+            E = *(inPtrX + off4);
+            F = *(inPtrX + off5);
+            G = *(inPtrX + off6);
+            H = *(inPtrX + off7);
+            }
+          pXSteps++;
+          }
+	for (;idxX <= maxX; idxX++)
+	  {
+          vtkBilinFuncMacro( *outPtrC, yPos, zPos, B, D, F, H );
+          outPtrC += maxC;
+          }
+        outPtrC += outIncY;
+        yPos += yFloatInc;
+        while (yPos >= 1.0 ) 
+          {
+          inPtrY += inIncY;
+          yPos -= 1.0;
+          }
+	}
+      outPtrC += outIncZ;
+      zPos += zFloatInc;
+      while (zPos >= 1.0) 
+        {
+        inPtrZ += inIncZ;
+        zPos -= 1.0;
+        }
+      }
+    }
+  delete [] XRatios;
+  delete [] XSteps;
+}
+
+template <class T>
+static void vtkImageResampleExecute(vtkImageResample *self,
+				  vtkImageData *inData, T *inPtr, int inExt[6],
+				  vtkImageData *outData, T *outPtr,
+				  int outExt[6], int id)
+{
+  float magZ = self->GetAxisMagnificationFactor(2);
+
+  if (!self->GetInterpolate())
+    {
+    vtkImageResampleExecuteNI(self, inData, inPtr, inExt,
+                              outData, outPtr, outExt, id);
+    }
+  else
+    {
+    if (magZ == 1.0 || self->GetDimensionality() < 3)
+      {
+      vtkImageResampleExecute2D(self, inData, inPtr, inExt,
+                                outData, outPtr, outExt, id);
+      return;
+      }
+    else
+      {
+      vtkImageResampleExecute3D(self, inData, inPtr, inExt,
+                                outData, outPtr, outExt, id);
+      return;
+      }      
     }
   
 }
 
-    
-//----------------------------------------------------------------------------
-// This method uses the input data to fill the output data.
-// It can handle any type data, but the two datas must have the same 
-// scalar type.
 void vtkImageResample::ThreadedExecute(vtkImageData *inData, 
-				       vtkImageData *outData, 
-				       int outExt[6], int id)
+				      vtkImageData *outData,
+				      int outExt[6], int id)
 {
-  void *inPtr, *outPtr;
   int inExt[6];
-
-  outPtr = outData->GetScalarPointerForExtent(outExt);
   this->ComputeRequiredInputUpdateExtent(inExt,outExt);
-  inPtr = inData->GetScalarPointerForExtent(inExt);
+  void *inPtr = inData->GetScalarPointerForExtent(inExt);
+  void *outPtr = outData->GetScalarPointerForExtent(outExt);
+  
+  vtkDebugMacro(<< "Execute: inData = " << inData 
+  << ", outData = " << outData);
   
   // this filter expects that input is the same type as output.
   if (inData->GetScalarType() != outData->GetScalarType())
     {
     vtkErrorMacro(<< "Execute: input ScalarType, " << inData->GetScalarType()
-         << ", must match out ScalarType " << outData->GetScalarType());
+    << ", must match out ScalarType " << outData->GetScalarType());
     return;
     }
   
@@ -332,53 +801,53 @@ void vtkImageResample::ThreadedExecute(vtkImageData *inData,
     {
     case VTK_DOUBLE:
       vtkImageResampleExecute(this, 
-			      inData, (double *)(inPtr), inExt,
-			      outData, (double *)(outPtr), outExt, id);
+			     inData, (double *)(inPtr), inExt,
+			     outData, (double *)(outPtr), outExt, id);
       break;
     case VTK_FLOAT:
       vtkImageResampleExecute(this, 
-			      inData, (float *)(inPtr), inExt,
-			      outData, (float *)(outPtr), outExt, id);
+			     inData, (float *)(inPtr), inExt,
+			     outData, (float *)(outPtr), outExt, id);
       break;
     case VTK_LONG:
       vtkImageResampleExecute(this, 
-			  inData, (long *)(inPtr), inExt,
-			  outData, (long *)(outPtr), outExt, id);
+			     inData, (long *)(inPtr), inExt,
+			     outData, (long *)(outPtr), outExt, id);
       break;
     case VTK_UNSIGNED_LONG:
       vtkImageResampleExecute(this, 
-			  inData, (unsigned long *)(inPtr), inExt, 
-			  outData, (unsigned long *)(outPtr), outExt, id);
+			     inData, (unsigned long *)(inPtr), inExt,
+			     outData, (unsigned long *)(outPtr), outExt, id);
       break;
     case VTK_INT:
       vtkImageResampleExecute(this, 
-			  inData, (int *)(inPtr), inExt,
-			  outData, (int *)(outPtr), outExt, id);
+			     inData, (int *)(inPtr), inExt,
+			     outData, (int *)(outPtr), outExt, id);
       break;
     case VTK_UNSIGNED_INT:
       vtkImageResampleExecute(this, 
-			  inData, (unsigned int *)(inPtr), inExt, 
-			  outData, (unsigned int *)(outPtr), outExt, id);
+			     inData, (unsigned int *)(inPtr), inExt,
+			     outData, (unsigned int *)(outPtr), outExt, id);
       break;
     case VTK_SHORT:
       vtkImageResampleExecute(this, 
-			  inData, (short *)(inPtr),inExt,
-			  outData, (short *)(outPtr), outExt, id);
+			     inData, (short *)(inPtr), inExt,
+			     outData, (short *)(outPtr), outExt, id);
       break;
     case VTK_UNSIGNED_SHORT:
       vtkImageResampleExecute(this, 
-			  inData, (unsigned short *)(inPtr), inExt, 
-			  outData, (unsigned short *)(outPtr), outExt, id);
+			     inData, (unsigned short *)(inPtr), inExt,
+			     outData, (unsigned short *)(outPtr), outExt, id);
       break;
     case VTK_CHAR:
       vtkImageResampleExecute(this, 
-			  inData, (char *)(inPtr),inExt,
-			  outData, (char *)(outPtr), outExt, id);
+			     inData, (char *)(inPtr), inExt,
+			     outData, (char *)(outPtr), outExt, id);
       break;
     case VTK_UNSIGNED_CHAR:
       vtkImageResampleExecute(this, 
-			  inData, (unsigned char *)(inPtr), inExt, 
-			  outData, (unsigned char *)(outPtr), outExt, id);
+			     inData, (unsigned char *)(inPtr), inExt,
+			     outData, (unsigned char *)(outPtr), outExt, id);
       break;
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
@@ -386,18 +855,10 @@ void vtkImageResample::ThreadedExecute(vtkImageData *inData,
     }
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+void vtkImageResample::PrintSelf(ostream& os, vtkIndent indent)
+{
+  vtkImageToImageFilter::PrintSelf(os,indent);
+  os << indent << "Dimensionality: " << this->Dimensionality << "\n";
+  os << indent << "Interpolate: " << (this->Interpolate ? "On\n" : "Off\n");
+}
 
