@@ -686,13 +686,11 @@ float *vtkTransform::GetPoint()
 {
   if (this->PreMultiplyFlag)
     {
-    this->Stack[0]->Transpose();
     this->Stack[0]->PointMultiply(this->Point,this->Point);
-    this->Stack[0]->Transpose();
     }
   else
     {
-    this->Stack[0]->PointMultiply(this->Point,this->Point);
+    this->Stack[0]->MultiplyPoint(this->Point,this->Point);
     }
   return this->Point;
 }
