@@ -102,7 +102,6 @@ vtkProp3D               GetYRange               301 2
 vtkProp3D               GetZRange               301 2
 vtkPropAssembly         GetBounds               301 6
 vtkProperty             GetColor                301 3
-vtkProp                 GetBounds               301 6
 vtkPyramid              GetEdgeArray            304 2
 vtkPyramid              GetFaceArray            304 4
 vtkQuadricClustering    GetNumberOfDivisions    304 3
