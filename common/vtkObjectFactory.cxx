@@ -1,3 +1,44 @@
+/*=========================================================================
+
+  Program:   Visualization Toolkit
+  Module:    vtkObjectFactory.cxx
+  Language:  C++
+  Date:      $Date$
+  Version:   $Revision$
+
+
+Copyright (c) 1993-2000 Ken Martin, Will Schroeder, Bill Lorensen 
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+ * Redistributions of source code must retain the above copyright notice,
+   this list of conditions and the following disclaimer.
+
+ * Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
+
+ * Neither name of Ken Martin, Will Schroeder, or Bill Lorensen nor the names
+   of any contributors may be used to endorse or promote products derived
+   from this software without specific prior written permission.
+
+ * Modified source versions must be plainly marked as such, and must not be
+   misrepresented as being the original software.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ARE DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE FOR
+ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+=========================================================================*/
 #include "vtkObjectFactory.h"
 #include "vtkObjectFactoryCollection.h"
 #include "vtkDynamicLoader.h"
@@ -5,6 +46,8 @@
 #include "vtkVersion.h"
 #include <stdlib.h>
 #include <ctype.h>
+#include "vtkOverrideInformationCollection.h"
+#include "vtkOverrideInformation.h"
 #include "vtkDebugLeaks.h"
 
 vtkObjectFactoryCollection* vtkObjectFactory::RegisteredFactories = 0;
@@ -278,7 +321,7 @@ void vtkObjectFactory::RegisterFactory(vtkObjectFactory* factory)
   vtkObjectFactory::RegisteredFactories->AddItem(factory);
 }
 
-
+// print ivars to stream
 void vtkObjectFactory::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkObject::PrintSelf(os, indent);
@@ -298,6 +341,7 @@ void vtkObjectFactory::PrintSelf(ostream& os, vtkIndent indent)
   }
 }
 
+// Remove a factory from the list of registered factories.
 void vtkObjectFactory::UnRegisterFactory(vtkObjectFactory* factory)
 { 
   void* lib = factory->LibraryHandle;
@@ -330,7 +374,7 @@ void vtkObjectFactory::UnRegisterAllFactories()
 }
 
 
-
+// Register an override function with a factory.
 void vtkObjectFactory::RegisterOverride(const char* classOverride,
 					const char* subclass,
 					const char* description,
@@ -351,7 +395,7 @@ void vtkObjectFactory::RegisterOverride(const char* classOverride,
   this->OverrideArray[nextIndex].CreateCallback = createFunction;
 }
 
-
+// Create an instance of an object
 vtkObject* vtkObjectFactory::CreateObject(const char* vtkclassname)
 {
   for(int i=0; i < this->OverrideArrayLength; i++)
@@ -405,31 +449,36 @@ int vtkObjectFactory::GetEnableFlag(int index)
   return this->OverrideArray[index].EnabledFlag;
 }
 
-
 const char* vtkObjectFactory::GetDescription(int index)
 {
   return this->OverrideArray[index].Description;
 }
 
-
-
+// Set the enable flag for a class / subclassName pair
 void vtkObjectFactory::SetEnableFlag(int flag,
 				     const char* className,
 				     const char* subclassName)
 {
   for(int i =0; i < this->OverrideArrayLength; i++)
-  {
-    if(strcmp(this->OverrideClassNames[i], className) == 0)
     {
-      if(strcmp(this->OverrideArray[i].OverrideWithName, subclassName) == 0)
+    if(strcmp(this->OverrideClassNames[i], className) == 0)
       {
+      // if subclassName is null, then set on className match
+      if(!subclassName)
+        {
+        this->OverrideArray[i].EnabledFlag = flag;
+        return;
+        }
+      if(strcmp(this->OverrideArray[i].OverrideWithName, subclassName) == 0)
+        {
 	this->OverrideArray[i].EnabledFlag = flag;
 	return;
+        }
       }
     }
-  }
 }
 
+// Get the enable flag for a className/subclassName pair
 int vtkObjectFactory::GetEnableFlag(const char* className,
 				    const char* subclassName)
 {
@@ -446,8 +495,7 @@ int vtkObjectFactory::GetEnableFlag(const char* className,
   return 0;
 }
 
-
-
+// Set the EnabledFlag to 0 for a given classname
 void vtkObjectFactory::Disable(const char* className)
 {
   for(int i =0; i < this->OverrideArrayLength; i++)
@@ -459,8 +507,148 @@ void vtkObjectFactory::Disable(const char* className)
   }
 }
 
+// 1,0 is the class overriden by className
+int vtkObjectFactory::HasOverride(const char* className)
+{
+  for(int i =0; i < this->OverrideArrayLength; i++)
+    {
+    if(strcmp(this->OverrideClassNames[i], className) == 0)
+      {
+      return 1;
+      }
+    }
+  return 0;
+}
+
+// 1,0 is the class overriden by className/subclassName pair
+int vtkObjectFactory::HasOverride(const char* className, 
+                                  const char* subclassName)
+{
+  for(int i =0; i < this->OverrideArrayLength; i++)
+    {
+    if(strcmp(this->OverrideClassNames[i], className) == 0)
+      { 
+      if(strcmp(this->OverrideArray[i].OverrideWithName, subclassName) == 0)
+        {
+        return 1;
+        }
+      }
+    }
+  return 0;
+}
+
 
 vtkObjectFactoryCollection* vtkObjectFactory::GetRegisteredFactories()
 {
   return vtkObjectFactory::RegisteredFactories;
 }
+
+
+// 1,0 is the className overriden by any registered factories
+int vtkObjectFactory::HasOverrideAny(const char* className)
+{
+  vtkObjectFactory* factory = 0;
+  for(vtkObjectFactory::RegisteredFactories->InitTraversal();
+      (factory = vtkObjectFactory::RegisteredFactories->GetNextItem());)
+    {
+    if(factory->HasOverride(className))
+      {
+      return 1;
+      }
+    }
+  return 0;
+}
+
+// Create a helper class to get around
+// only being able to iterate a list only once at the
+// same time.
+class vtkObjectFactoryCollectionIterator : public vtkCollection
+{
+public:
+  vtkObjectFactoryCollectionIterator(vtkCollection* source)
+    {
+      Source = source;
+    }
+  vtkObjectFactory* GetNextItem() 
+    {
+      return vtkObjectFactory::SafeDownCast(this->GetNextItemAsObject());
+    }
+  
+  void InitTraversal()
+    { 
+      this->Current = this->Top = 
+        ((vtkObjectFactoryCollectionIterator*)this->Source)->Top;
+    }
+  vtkCollection* Source;
+};
+
+
+// collect up information about current registered factories  
+vtkOverrideInformationCollection*
+vtkObjectFactory::GetOverrideInformation(const char* name)
+{
+  // create the collection to return
+  vtkOverrideInformationCollection* ret = 
+    vtkOverrideInformationCollection::New();
+  vtkOverrideInformation* overInfo = 0; // info object pointer
+  vtkObjectFactory* factory = 0; // factory pointer for traversal
+  vtkObjectFactoryCollectionIterator* it = 
+    new vtkObjectFactoryCollectionIterator(vtkObjectFactory::RegisteredFactories);
+  for(it->InitTraversal();
+      (factory = it->GetNextItem());)
+    {
+    for(int i =0; i < factory->OverrideArrayLength; i++)
+      {
+      if( strcmp(name, factory->OverrideClassNames[i]) == 0)
+        {
+        // Create a new override info class
+        overInfo = vtkOverrideInformation::New();
+        // Set the class name
+        overInfo->SetClassOverrideName(factory->OverrideClassNames[i]);
+        // Set the override class name
+        overInfo->SetClassOverrideWithName(
+          factory->OverrideArray[i].OverrideWithName);
+        // Set the Description for the override
+        overInfo->SetDescription(factory->OverrideArray[i].Description);
+        // Set the factory for the override
+        overInfo->SetObjectFactory(factory);
+        // add the item to the collection
+        ret->AddItem(overInfo);
+        }
+      }
+    }
+  it->Delete();
+  return ret;
+}
+
+// set enable flag for all registered factories for the given className
+void vtkObjectFactory::SetAllEnableFlags(int flag, 
+                                         const char* className)
+{
+  vtkObjectFactory* factory = 0;
+  for(vtkObjectFactory::RegisteredFactories->InitTraversal();
+      (factory = vtkObjectFactory::RegisteredFactories->GetNextItem());)
+    {
+    factory->SetEnableFlag(flag, className, 0);
+    }
+  
+}
+
+// set enable flag for the first factory that that
+// has an override for className/subclassName pair
+void vtkObjectFactory::SetAllEnableFlags(int flag,
+                                         const char* className,
+                                         const char* subclassName)
+{
+  vtkObjectFactory* factory = 0;
+  for(vtkObjectFactory::RegisteredFactories->InitTraversal();
+      (factory = vtkObjectFactory::RegisteredFactories->GetNextItem());)
+    {
+    factory->SetEnableFlag(flag, className, subclassName);
+    }
+}
+
+
+
+
+  

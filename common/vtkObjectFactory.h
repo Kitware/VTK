@@ -65,16 +65,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObject.h"
 
 class vtkObjectFactoryCollection;
+class vtkOverrideInformationCollection;
 
 class VTK_EXPORT vtkObjectFactory : public vtkObject
 {
 public:  
-  // Methods from vtkObject
-  vtkTypeMacro(vtkObjectFactory,vtkObject);
-  // Description:
-  // Print ObjectFactor to stream.
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
-
   // Class Methods used to interface with the registered factories
   
   // Description:
@@ -101,6 +96,37 @@ public:
   // Return the list of all registered factories.  This is NOT a copy,
   // do not remove items from this list!
   static vtkObjectFactoryCollection* GetRegisteredFactories();
+
+  // Description: 
+  // return 1 if one of the registered factories 
+  // overrides the given class name
+  static int HasOverrideAny(const char* className);
+  
+  // Description:
+  // return a vtkOverrideInformation object collection, NOTE: caller must
+  // call Delete on returned object.
+  static vtkOverrideInformationCollection* 
+    GetOverrideInformation(const char* name);
+  
+  // Description:
+  // Set the enable flag for a given named class for all registered
+  // factories.
+  static void SetAllEnableFlags(int flag, 
+                                const char* className);
+  // Description:
+  // Set the enable flag for a given named class subclass pair
+  // for all registered factories.
+  static void SetAllEnableFlags(int flag, 
+                                const char* className,
+                                const char* subclassName);
+
+  // Instance methods to be used on individual instances of vtkObjectFactory
+  
+  // Methods from vtkObject
+  vtkTypeMacro(vtkObjectFactory,vtkObject);
+  // Description:
+  // Print ObjectFactory to stream.
+  virtual void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // All sub-classes of vtkObjectFactory should must return the version of 
@@ -137,13 +163,21 @@ public:
   virtual const char* GetDescription(int index);
 
   // Description:
-  // Set and Get the Enable flag for the specific override of className
+  // Set and Get the Enable flag for the specific override of className.
+  // if subclassName is null, then it is ignored.
   virtual void SetEnableFlag(int flag,
 			     const char* className,
 			     const char* subclassName);
   virtual int GetEnableFlag(const char* className,
 			    const char* subclassName);
 
+  // Description:
+  // Return 1 if this factory overrides the given class name, 0 otherwise.
+  virtual int HasOverride(const char* className);
+  // Description:
+  // Return 1 if this factory overrides the given class name, 0 otherwise.
+  virtual int HasOverride(const char* className, const char* subclassName);
+  
   // Description:
   // Set all enable flags for the given class to 0.  This will
   // mean that the factory will stop producing class with the given

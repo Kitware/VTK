@@ -29,6 +29,8 @@ vtkLinearTransform \
 vtkImplicitFunction \
 vtkLocator \
 vtkObjectFactory \
+vtkOverrideInformation \
+vtkOverrideInformationCollection \
 vtkPointSet \
 vtkScalarsToColors \
 vtkViewport \
