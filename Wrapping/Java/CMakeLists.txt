@@ -14,18 +14,20 @@ IF(JAVA_COMPILE)
                             vtk
 		       TARGET VTKJava
 		       OUTPUTS ${LIBRARY_OUTPUT_PATH}/vtk.jar)
-    FOREACH(jfile
-            SimpleVTK
-            Regression)
-      ADD_CUSTOM_COMMAND(SOURCE VTKJava
-                       COMMAND ${JAVA_COMPILE}
+    IF(BUILD_TESTING)
+      FOREACH(jfile
+              SimpleVTK
+              Regression)
+        ADD_CUSTOM_COMMAND(SOURCE VTKJava
+                         COMMAND ${JAVA_COMPILE}
                          ARGS -classpath ${LIBRARY_OUTPUT_PATH}/vtk.jar
                               -sourcepath ${VTK_SOURCE_DIR}/Wrapping/Java
                               -d ${VTK_BINARY_DIR}/Wrapping/Java
                               ${VTK_SOURCE_DIR}/Wrapping/Java/${jfile}.java
                          TARGET VTKJava
                          OUTPUTS ${VTK_BINARY_DIR}/Wrapping/Java/${jfile}.class)
-    ENDFOREACH(jfile)
+      ENDFOREACH(jfile)
+    ENDIF(BUILD_TESTING)
   ENDIF(JAVA_ARCHIVE)
 
   TARGET_LINK_LIBRARIES (VTKJava vtkIO vtkGraphics vtkImaging)
