@@ -300,10 +300,10 @@ void vtkTreeComposite::SetRenderWindow(vtkRenderWindow *renWin)
       rens->InitTraversal();
       ren = rens->GetNextItem();
       if (ren)
-	{
-	ren->RemoveObserver(this->ResetCameraTag);
-	ren->RemoveObserver(this->ResetCameraClippingRangeTag);
-	}
+        {
+        ren->RemoveObserver(this->ResetCameraTag);
+        ren->RemoveObserver(this->ResetCameraClippingRangeTag);
+        }
       }
     // Delete the reference.
     this->RenderWindow->UnRegister(this);
@@ -321,42 +321,42 @@ void vtkTreeComposite::SetRenderWindow(vtkRenderWindow *renWin)
       this->RenderWindow->SetAbortCheckMethod(vtkTreeCompositeAbortRenderCheck,
 					      (void*)this);
       if (this->Controller && this->Controller->GetLocalProcessId() == 0)
-	{
-	vtkCallbackCommand *cbc;
+        {
+        vtkCallbackCommand *cbc;
 	
-	cbc= new vtkCallbackCommand;
-	cbc->SetCallback(vtkTreeCompositeStartRender);
-	cbc->SetClientData((void*)this);
-	// renWin will delete the cbc when the observer is removed.
-	this->StartTag = renWin->AddObserver(vtkCommand::StartEvent,cbc);
+        cbc= new vtkCallbackCommand;
+        cbc->SetCallback(vtkTreeCompositeStartRender);
+        cbc->SetClientData((void*)this);
+        // renWin will delete the cbc when the observer is removed.
+        this->StartTag = renWin->AddObserver(vtkCommand::StartEvent,cbc);
 	
-	cbc = new vtkCallbackCommand;
-	cbc->SetCallback(vtkTreeCompositeEndRender);
-	cbc->SetClientData((void*)this);
-	// renWin will delete the cbc when the observer is removed.
-	this->EndTag = renWin->AddObserver(vtkCommand::EndEvent,cbc);
+        cbc = new vtkCallbackCommand;
+        cbc->SetCallback(vtkTreeCompositeEndRender);
+        cbc->SetClientData((void*)this);
+        // renWin will delete the cbc when the observer is removed.
+        this->EndTag = renWin->AddObserver(vtkCommand::EndEvent,cbc);
 	
-	// Will make do with first renderer. (Assumes renderer does not change.)
-	rens = this->RenderWindow->GetRenderers();
-	rens->InitTraversal();
-	ren = rens->GetNextItem();
-	if (ren)
-	  {
-	  cbc = new vtkCallbackCommand;
-	  cbc->SetCallback(vtkTreeCompositeResetCameraClippingRange);
-	  cbc->SetClientData((void*)this);
-	  // ren will delete the cbc when the observer is removed.
-	  this->ResetCameraClippingRangeTag = 
-	    ren->AddObserver(vtkCommand::ResetCameraClippingRangeEvent,cbc);
+        // Will make do with first renderer. (Assumes renderer does not change.)
+        rens = this->RenderWindow->GetRenderers();
+        rens->InitTraversal();
+        ren = rens->GetNextItem();
+        if (ren)
+          {
+          cbc = new vtkCallbackCommand;
+          cbc->SetCallback(vtkTreeCompositeResetCameraClippingRange);
+          cbc->SetClientData((void*)this);
+          // ren will delete the cbc when the observer is removed.
+          this->ResetCameraClippingRangeTag = 
+          ren->AddObserver(vtkCommand::ResetCameraClippingRangeEvent,cbc);
 	  
-	  cbc = new vtkCallbackCommand;
-	  cbc->SetCallback(vtkTreeCompositeResetCamera);
-	  cbc->SetClientData((void*)this);
-	  // ren will delete the cbc when the observer is removed.
-	  this->ResetCameraTag = 
-	    ren->AddObserver(vtkCommand::ResetCameraEvent,cbc);
-	  }
-	}
+          cbc = new vtkCallbackCommand;
+          cbc->SetCallback(vtkTreeCompositeResetCamera);
+          cbc->SetClientData((void*)this);
+          // ren will delete the cbc when the observer is removed.
+          this->ResetCameraTag = 
+          ren->AddObserver(vtkCommand::ResetCameraEvent,cbc);
+          }
+        }
       }
     }
 }
@@ -928,18 +928,18 @@ float* vtkTreeComposite::MagnifyBuffer(float *localPdata, int windowSize[2])
       {
       // Duplicate the row rowp N times.
       for (yi = 0; yi < this->ReductionFactor; ++yi)
-	{
-	pp1 = rowp;
-	for (x = 0; x < xInDim; x++)
-	  {
-	  // Duplicate the pixel p11 N times.
-	  for (xi = 0; xi < this->ReductionFactor; ++xi)
-	    {
-	    *pp2++ = *pp1;
-	    }
-	  ++pp1;
-	  }
-	}
+        {
+        pp1 = rowp;
+        for (x = 0; x < xInDim; x++)
+          {
+          // Duplicate the pixel p11 N times.
+          for (xi = 0; xi < this->ReductionFactor; ++xi)
+            {
+            *pp2++ = *pp1;
+            }
+          ++pp1;
+          }
+        }
       rowp += xInDim;
       }
     }
@@ -954,22 +954,22 @@ float* vtkTreeComposite::MagnifyBuffer(float *localPdata, int windowSize[2])
       {
       // Duplicate the row rowp N times.
       for (yi = 0; yi < this->ReductionFactor; ++yi)
-	{
-	pp1 = rowp;
-	for (x = 0; x < xInDim; x++)
-	  {
-	  // Duplicate the pixel p11 N times.
-	  for (xi = 0; xi < this->ReductionFactor; ++xi)
-	    {
-	    subp = pp1;
-	    *pp2++ = *subp++;
-	    *pp2++ = *subp++;
-	    *pp2++ = *subp++;
-	    *pp2++ = *subp;
-	    }
-	  pp1 += 4;
-	  }
-	}
+        {
+        pp1 = rowp;
+        for (x = 0; x < xInDim; x++)
+          {
+          // Duplicate the pixel p11 N times.
+          for (xi = 0; xi < this->ReductionFactor; ++xi)
+            {
+            subp = pp1;
+            *pp2++ = *subp++;
+            *pp2++ = *subp++;
+            *pp2++ = *subp++;
+            *pp2++ = *subp;
+            }
+          pp1 += 4;
+          }
+        }
       rowp += pInIncY;
       }
     }
@@ -997,17 +997,17 @@ void vtkCompositeImagePair(float *localZdata, float *localPdata,
     while(remoteZdata != pEnd) 
       {
       if (*remoteZdata < *localZdata) 
-	{
-	*localZdata++ = *remoteZdata++;
-	*localPdata++ = *remotePdata++;
-	}
+        {
+        *localZdata++ = *remoteZdata++;
+        *localPdata++ = *remotePdata++;
+        }
       else
-	{
-	++localZdata;
-	++remoteZdata;
-	++localPdata;
-	++remotePdata;
-	}
+        {
+        ++localZdata;
+        ++remoteZdata;
+        ++localPdata;
+        ++remotePdata;
+        }
       }
     } 
   else 
@@ -1016,13 +1016,13 @@ void vtkCompositeImagePair(float *localZdata, float *localPdata,
     for (i = 0; i < total_pixels; i++) 
       {
       if (remoteZdata[i] < localZdata[i]) 
-	{
-	localZdata[i] = remoteZdata[i];
-	for (j = 0; j < pixel_data_size; j++) 
-	  {
-	  localPdata[i*pixel_data_size+j] = remotePdata[i*pixel_data_size+j];
-	  }
-	}
+        {
+        localZdata[i] = remoteZdata[i];
+        for (j = 0; j < pixel_data_size; j++) 
+          {
+          localPdata[i*pixel_data_size+j] = remotePdata[i*pixel_data_size+j];
+          }
+        }
       }
     }
 }
@@ -1037,7 +1037,7 @@ void vtkTreeComposite::Composite()
   int total_pixels;
   int pdata_size, zdata_size;
   int myId, numProcs;
-  int i, id;
+  int i, id, front;
   
   vtkTimerLog *timer = vtkTimerLog::New();
   
@@ -1051,18 +1051,29 @@ void vtkTreeComposite::Composite()
 			  this->RendererSize[0]-1, this->RendererSize[1]-1);  
   zdata_size = total_pixels;
 
+  // If we are process 0 and using double buffering, then we want 
+  // to get the back buffer, otherwise we need to get the front.
+  if (myId == 0)
+    {
+    front = 0;
+    }
+  else
+    {
+    front = 1;
+    }
+
   // Get the pixel data.
   if (this->UseChar) 
     { 
     localPdata = (float*)this->RenderWindow->GetRGBACharPixelData(0,0,
 						  this->RendererSize[0]-1,
-						  this->RendererSize[1]-1, 0);
+						  this->RendererSize[1]-1, front);
     pdata_size = total_pixels;
     } 
   else 
     {
     localPdata = this->RenderWindow->GetRGBAPixelData(0,0,
-			  this->RendererSize[0]-1, this->RendererSize[1]-1, 0);
+			  this->RendererSize[0]-1, this->RendererSize[1]-1, front);
     pdata_size = 4*total_pixels;
     }
   
@@ -1085,31 +1096,31 @@ void vtkTreeComposite::Composite()
     if ((myId % (int)vtkTCPow2(i)) == 0) 
       { // Find participants
       if ((myId % (int)vtkTCPow2(i+1)) < vtkTCPow2(i)) 
-	{
-	// receivers
-	id = myId+vtkTCPow2(i);
+        {
+        // receivers
+        id = myId+vtkTCPow2(i);
 	
-	// only send or receive if sender or receiver id is valid
-	// (handles non-power of 2 cases)
-	if (id < numProcs) 
-	  {
-	  this->Controller->Receive(this->ZData, zdata_size, id, 99);
-	  this->Controller->Receive(this->PData, pdata_size, id, 99);
+        // only send or receive if sender or receiver id is valid
+        // (handles non-power of 2 cases)
+        if (id < numProcs) 
+          {
+          this->Controller->Receive(this->ZData, zdata_size, id, 99);
+          this->Controller->Receive(this->PData, pdata_size, id, 99);
 	  
-	  // notice the result is stored as the local data
-	  vtkCompositeImagePair(localZdata, localPdata,this->ZData,this->PData, 
-				total_pixels, this->UseChar);
-	  }
-	}
+          // notice the result is stored as the local data
+          vtkCompositeImagePair(localZdata, localPdata,this->ZData,this->PData, 
+                                total_pixels, this->UseChar);
+          }
+        }
       else 
-	{
-	id = myId-vtkTCPow2(i);
-	if (id < numProcs) 
-	  {
-	  this->Controller->Send(localZdata, zdata_size, id, 99);
-	  this->Controller->Send(localPdata, pdata_size, id, 99);
-	  }
-	}
+        {
+        id = myId-vtkTCPow2(i);
+        if (id < numProcs) 
+          {
+          this->Controller->Send(localZdata, zdata_size, id, 99);
+          this->Controller->Send(localPdata, pdata_size, id, 99);
+          }
+        }
       }
     }
   
