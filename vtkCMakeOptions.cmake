@@ -111,3 +111,4 @@ ENDIF (UNIX)
 SET (LIBRARY_OUTPUT_PATH ${VTK_BINARY_DIR}/lib/ CACHE PATH "Single output directory for building all libraries.")
 SET (EXECUTABLE_OUTPUT_PATH ${VTK_BINARY_DIR}/bin/ CACHE PATH "Single output directory for building all executables.")
 
+OPTION(VTK_USE_ANSI_STDLIB "Use the ANSI standard iostream library", OFF)

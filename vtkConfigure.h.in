@@ -31,3 +31,5 @@
 #else
 #define VTKSTATIC
 #endif
+
+#cmakedefine VTK_USE_ANSI_STDLIB
