@@ -74,15 +74,23 @@ vtkDepthSortPolyData::~vtkDepthSortPolyData()
 {
   this->Transform->Delete();
   
-  if ( this->Prop3D )
-    {
-    this->Prop3D->Delete();
-    }
-  
   if ( this->Camera )
     {
     this->Camera->Delete();
     }
+
+  //Note: vtkProp3D is not deleted to avoid reference count cycle
+}
+
+// Don't reference count to avoid nasty cycle
+void vtkDepthSortPolyData::SetProp3D(vtkProp3D *prop3d)
+{
+  this->Prop3D = prop3d;
+}
+
+vtkProp3D *vtkDepthSortPolyData::GetProp3D()
+{
+  return this->Prop3D;
 }
 
 typedef struct _vtkSortValues {
@@ -164,6 +172,10 @@ void vtkDepthSortPolyData::Execute()
     this->ComputeProjectionVector(vector, origin);
     }
 
+  // Create temporary input
+  input = vtkPolyData::New();
+  input->CopyStructure(this->GetInput());
+
   // Compute the depth value
   depth = new vtkSortValues [numCells];
   for ( cellId=0; cellId < numCells; cellId++ )
@@ -214,8 +226,8 @@ void vtkDepthSortPolyData::Execute()
     }
 
   // Points are left alone
-  output->SetPoints(input->GetPoints());
-  output->GetPointData()->PassData(input->GetPointData());
+  output->SetPoints(this->GetInput()->GetPoints());
+  output->GetPointData()->PassData(this->GetInput()->GetPointData());
   if ( this->SortScalars )
     {
     output->GetCellData()->SetScalars(sortScalars);
@@ -223,6 +235,7 @@ void vtkDepthSortPolyData::Execute()
     }
 
   // Clean up and get out    
+  input->Delete();
   delete [] depth;
   cell->Delete();
   output->Squeeze();

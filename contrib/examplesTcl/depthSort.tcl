@@ -36,6 +36,7 @@ vtkSphereSource sphere3
     sphere3 SetRadius 0.5
     sphere3 SetCenter -1 0 0
 vtkSphereSource sphere4
+
     sphere4 SetThetaResolution 80
     sphere4 SetPhiResolution 40
     sphere4 SetRadius 0.5
@@ -54,6 +55,8 @@ vtkAppendPolyData appendData
 
 vtkDepthSortPolyData depthSort
     depthSort SetInput [appendData GetOutput]
+    depthSort SetDirectionToBackToFront
+    depthSort SetVector 1 1 1
     depthSort SetCamera camera
     depthSort SortScalarsOn
     depthSort Update
@@ -84,5 +87,4 @@ renWin Render
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .
-
 
