@@ -24,7 +24,7 @@
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkQuadraticQuad, "1.8");
+vtkCxxRevisionMacro(vtkQuadraticQuad, "1.9");
 vtkStandardNewMacro(vtkQuadraticQuad);
 
 // Construct the line with two points.
@@ -415,7 +415,7 @@ void vtkQuadraticQuad::Derivatives(int vtkNotUsed(subId),
 // Clip this quadratic quad using scalar value provided. Like contouring, 
 // except that it cuts the quad to produce other quads and triangles.
 void vtkQuadraticQuad::Clip(float value, 
-                            vtkDataArray* cellScalars, 
+                            vtkDataArray* vtkNotUsed(cellScalars), 
                             vtkPointLocator* locator,
                             vtkCellArray* polys,
                             vtkPointData* inPd, 
