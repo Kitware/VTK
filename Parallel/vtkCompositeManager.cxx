@@ -41,7 +41,7 @@
  #include <mpi.h>
 #endif
 
-vtkCxxRevisionMacro(vtkCompositeManager, "1.55");
+vtkCxxRevisionMacro(vtkCompositeManager, "1.56");
 vtkStandardNewMacro(vtkCompositeManager);
 
 
@@ -618,8 +618,9 @@ void vtkCompositeManager::SatelliteStartRender()
     else
       {
       lc = ren->GetLights();
-      lc->InitTraversal();
-      light = lc->GetNextItem();
+      vtkCollectionSimpleIterator sit;
+      lc->InitTraversal(sit);
+      light = lc->GetNextLight(sit);
   
       cam->SetPosition(renInfo.CameraPosition);
       cam->SetFocalPoint(renInfo.CameraFocalPoint);
@@ -815,8 +816,9 @@ void vtkCompositeManager::StartRender()
     {
     cam = ren->GetActiveCamera();
     lc = ren->GetLights();
-    lc->InitTraversal();
-    light = lc->GetNextItem();
+    vtkCollectionSimpleIterator sit;
+    lc->InitTraversal(sit);
+    light = lc->GetNextLight(sit);
     cam->GetPosition(renInfo.CameraPosition);
     cam->GetFocalPoint(renInfo.CameraFocalPoint);
     cam->GetViewUp(renInfo.CameraViewUp);

@@ -70,7 +70,7 @@ const int vtkParallelRenderManager::REN_INFO_DOUBLE_SIZE =
 const int vtkParallelRenderManager::LIGHT_INFO_DOUBLE_SIZE =
   sizeof(vtkParallelRenderManager::LightInfoDouble)/sizeof(double);
 
-vtkCxxRevisionMacro(vtkParallelRenderManager, "1.23");
+vtkCxxRevisionMacro(vtkParallelRenderManager, "1.24");
 
 vtkParallelRenderManager::vtkParallelRenderManager()
 {
@@ -648,7 +648,8 @@ void vtkParallelRenderManager::StartRender()
       }
 
     vtkLight *light;
-    for (lc->InitTraversal(); (light = lc->GetNextItem()); )
+    vtkCollectionSimpleIterator sit;
+    for (lc->InitTraversal(sit); (light = lc->GetNextLight(sit)); )
       {
       lightInfoDouble.Type = (double)(light->GetLightType());
       light->GetPosition(lightInfoDouble.Position);
@@ -1630,6 +1631,7 @@ void vtkParallelRenderManager::SatelliteStartRender()
   this->ReducedImageSize[1] = winInfoInt.ReducedSize[1];
   this->SetRenderWindowSize();
 
+  vtkCollectionSimpleIterator sit;
   vtkRendererCollection *rens = this->RenderWindow->GetRenderers();
   rens->InitTraversal();
   for (i = 0; i < winInfoInt.NumberOfRenderers; i++)
@@ -1677,14 +1679,14 @@ void vtkParallelRenderManager::SatelliteStartRender()
         cam->ParallelProjectionOff();
         }
       lc = ren->GetLights();
-      lc->InitTraversal();
+      lc->InitTraversal(sit);
       }
 
     for (j = 0; j < renInfoInt.NumberOfLights; j++)
       {
       if (ren != NULL && lc != NULL)
         {
-        vtkLight *light = lc->GetNextItem();
+        vtkLight *light = lc->GetNextLight(sit);
         if (light == NULL)
           {
           // Not enough lights?  Just create them.
@@ -1707,7 +1709,7 @@ void vtkParallelRenderManager::SatelliteStartRender()
     if (ren != NULL)
       {
       vtkLight *light;
-      while ((light = lc->GetNextItem()))
+      while ((light = lc->GetNextLight(sit)))
         {
         // To many lights?  Just remove the extras.
         ren->RemoveLight(light);

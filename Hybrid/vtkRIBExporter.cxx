@@ -40,7 +40,7 @@
 #include "vtkTIFFWriter.h"
 #include "vtkTexture.h"
 
-vtkCxxRevisionMacro(vtkRIBExporter, "1.59");
+vtkCxxRevisionMacro(vtkRIBExporter, "1.60");
 vtkStandardNewMacro(vtkRIBExporter);
 
 typedef double RtColor[3];
@@ -168,8 +168,9 @@ void vtkRIBExporter::WriteData()
   //
   // If there is no light defined, create one
   //
-  lc->InitTraversal();
-  if (lc->GetNextItem() == NULL)
+  vtkCollectionSimpleIterator sit;
+  lc->InitTraversal(sit);
+  if (lc->GetNextLight(sit) == NULL)
     {
     vtkWarningMacro(<< "No light defined, creating one at camera position");
     ren->CreateLight();
@@ -178,7 +179,7 @@ void vtkRIBExporter::WriteData()
   // Create an ambient light
   this->WriteAmbientLight (1);
   int lightCount = 2;
-  for (lc->InitTraversal(); (aLight = lc->GetNextItem()); )
+  for (lc->InitTraversal(sit); (aLight = lc->GetNextLight(sit)); )
     {
     if (aLight->GetSwitch ())
       {

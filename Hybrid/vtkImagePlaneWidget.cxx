@@ -41,7 +41,7 @@
 #include "vtkTextureMapToPlane.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.82");
+vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.83");
 vtkStandardNewMacro(vtkImagePlaneWidget);
 
 vtkCxxSetObjectMacro(vtkImagePlaneWidget, PlaneProperty, vtkProperty);
@@ -729,12 +729,13 @@ void vtkImagePlaneWidget::StartCursor()
   int i;
   if ( path != 0 )
     {
-// Deal with the possibility that we may be using a shared picker
-    path->InitTraversal();
+    // Deal with the possibility that we may be using a shared picker
+    vtkCollectionSimpleIterator sit;
+    path->InitTraversal(sit);
     vtkAssemblyNode *node;
     for ( i = 0; i < path->GetNumberOfItems() && !found ; i++ )
       {
-      node = path->GetNextNode();
+      node = path->GetNextNode(sit);
       if ( node->GetProp() == vtkProp::SafeDownCast(this->TexturePlaneActor) )
         {
         found = 1;
@@ -807,12 +808,13 @@ void vtkImagePlaneWidget::StartSliceMotion()
   int i;
   if ( path != 0 )
     {
-// Deal with the possibility that we may be using a shared picker
-    path->InitTraversal();
+    // Deal with the possibility that we may be using a shared picker
+    vtkCollectionSimpleIterator sit;
+    path->InitTraversal(sit);
     vtkAssemblyNode *node;
     for(i = 0; i< path->GetNumberOfItems() && !found ;i++)
       {
-      node = path->GetNextNode();
+      node = path->GetNextNode(sit);
       if(node->GetProp() == vtkProp::SafeDownCast(this->TexturePlaneActor) )
         {
         found = 1;
@@ -882,12 +884,13 @@ void vtkImagePlaneWidget::StartWindowLevel()
   int i;
   if ( path != 0 )
     {
-// Deal with the possibility that we may be using a shared picker
-    path->InitTraversal();
+    // Deal with the possibility that we may be using a shared picker
+    vtkCollectionSimpleIterator sit;
+    path->InitTraversal(sit);
     vtkAssemblyNode *node;
     for ( i = 0; i < path->GetNumberOfItems() && !found ; i++ )
       {
-      node = path->GetNextNode();
+      node = path->GetNextNode(sit);
       if ( node->GetProp() == vtkProp::SafeDownCast(this->TexturePlaneActor) )
         {
         found = 1;
@@ -1917,13 +1920,13 @@ void vtkImagePlaneWidget::UpdateCursor(int X, int Y )
   int i;
   if ( path  )
     {
-  // Deal with the possibility that we may be using a shared picker
-  //
-    path->InitTraversal();
+    // Deal with the possibility that we may be using a shared picker
+    vtkCollectionSimpleIterator sit;
+    path->InitTraversal(sit);
     vtkAssemblyNode *node;
     for ( i = 0; i< path->GetNumberOfItems() && !found ; i++ )
       {
-      node = path->GetNextNode();
+      node = path->GetNextNode(sit);
       if ( node->GetProp() == vtkProp::SafeDownCast(this->TexturePlaneActor) )
         {
         found = 1;
