@@ -245,8 +245,8 @@ class DICOMFile
   char* PlatformEndian;
 
  private:
-  DICOMFile(const DICOMFile&);  // Not implemented.
-  void operator=(const DICOMFile&);  // Not implemented.
+  DICOMFile(const DICOMFile&);
+  void operator=(const DICOMFile&);  
 
 };
 

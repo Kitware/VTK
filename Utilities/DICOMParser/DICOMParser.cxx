@@ -731,3 +731,13 @@ void DICOMParser::ClearAllDICOMTagCallbacks()
 
   this->Map.clear();
 }
+
+DICOMParser::DICOMParser(const DICOMParser&)
+{
+  std::cerr << "DICOMParser copy constructor should not be called!" << std::endl;
+}
+
+void DICOMParser::operator=(const DICOMParser&)
+{
+  std::cerr << "DICOMParser assignment operator should not be called!" << std::endl;
+}

@@ -53,6 +53,32 @@ DICOMFile::~DICOMFile()
   this->Close();
 }
 
+DICOMFile::DICOMFile(const DICOMFile& in)
+{
+  if (strcmp(in.PlatformEndian, "LittleEndian") == 0)
+    {
+    PlatformEndian = "LittleEndian";
+    }
+  else
+    {
+    PlatformEndian = "BigEndian";
+    }
+  ByteSwap = in.ByteSwap;
+}
+
+void DICOMFile::operator=(const DICOMFile& in)
+{
+  if (strcmp(in.PlatformEndian, "LittleEndian") == 0)
+    {
+    PlatformEndian = "LittleEndian";
+    }
+  else
+    {
+    PlatformEndian = "BigEndian";
+    }
+  ByteSwap = in.ByteSwap;
+}
+
 bool DICOMFile::Open(const char* filename)
 {
   inputStream.open(filename, std::ios::binary | std::ios::in);
