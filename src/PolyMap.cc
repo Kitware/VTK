@@ -109,7 +109,7 @@ void vlPolyMapper::Render(vlRenderer *ren)
         if ( this->Colors == NULL ) 
           {
           this->Colors = colors = (vlColorScalars *) 
-                                new vlPixmap(input->GetNumberOfPoints());
+                                new vlAPixmap(input->GetNumberOfPoints());
           }
         else
           {
