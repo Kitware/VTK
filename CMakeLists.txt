@@ -1,18 +1,4 @@
 PROJECT(VTK)
-BUILD_SHARED_LIBRARIES()
-
-IF (WIN32)
-  SET (LIBRARY_OUTPUT_PATH "../Lib/" CACHE STRING  
-        "Directory for libraries to be built into.")
-  SET (EXECUTABLE_OUTPUT_PATH "../Lib/" 
-CACHE STRING 
-        "Directory for executables to be built into.")
-ELSE (WIN32)
-  SET (LIBRARY_OUTPUT_PATH "" CACHE STRING 
-        "Directory for libraries to be built into.")
-  SET (EXECUTABLE_OUTPUT_PATH "" CACHE STRING 
-        "Directory for executables to be built into.")
-ENDIF (WIN32)
 
 SUBDIRS(Wrapping Common Filtering Imaging Graphics IO)
 
