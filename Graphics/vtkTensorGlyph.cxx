@@ -27,7 +27,7 @@
 #include "vtkPolyData.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkTensorGlyph, "1.49");
+vtkCxxRevisionMacro(vtkTensorGlyph, "1.50");
 vtkStandardNewMacro(vtkTensorGlyph);
 
 // Construct object with scaling on and scale factor 1.0. Eigenvalues are 
@@ -39,8 +39,12 @@ vtkTensorGlyph::vtkTensorGlyph()
   this->ScaleFactor = 1.0;
   this->ExtractEigenvalues = 1;
   this->ColorGlyphs = 1;
+  this->ColorMode = COLOR_BY_SCALARS;
   this->ClampScaling = 0;
   this->MaxScaleFactor = 100;
+  this->ThreeGlyphs = 0;
+  this->Symmetric = 0;
+  this->Length = 1.0;
 }
 
 vtkTensorGlyph::~vtkTensorGlyph()
@@ -68,6 +72,8 @@ void vtkTensorGlyph::Execute()
   int npts;
   vtkIdType *pts;
   vtkIdType ptIncr, cellId;
+  vtkIdType subIncr;
+  int numDirs, dir, eigen_dir, symmetric_dir;
   vtkMatrix4x4 *matrix;
   float *m[3], w[3], *v[3];
   float m0[3], m1[3], m2[3];
@@ -84,6 +90,8 @@ void vtkTensorGlyph::Execute()
     return;
     }
 
+  numDirs = (this->ThreeGlyphs?3:1)*(this->Symmetric+1);
+  
   pts = new vtkIdType[this->GetSource()->GetMaxCellSize()];
   trans = vtkTransform::New();
   matrix = vtkMatrix4x4::New();
@@ -113,73 +121,82 @@ void vtkTensorGlyph::Execute()
   numSourceCells = this->GetSource()->GetNumberOfCells();
 
   newPts = vtkPoints::New();
-  newPts->Allocate(numPts*numSourcePts);
+  newPts->Allocate(numDirs*numPts*numSourcePts);
 
   // Setting up for calls to PolyData::InsertNextCell()
   if ( (sourceCells=this->GetSource()->GetVerts())->GetNumberOfCells() > 0 )
     {
     cells = vtkCellArray::New();
-    cells->Allocate(numPts*sourceCells->GetSize());
+    cells->Allocate(numDirs*numPts*sourceCells->GetSize());
     output->SetVerts(cells);
     cells->Delete();
     }
   if ( (sourceCells=this->GetSource()->GetLines())->GetNumberOfCells() > 0 )
     {
     cells = vtkCellArray::New();
-    cells->Allocate(numPts*sourceCells->GetSize());
+    cells->Allocate(numDirs*numPts*sourceCells->GetSize());
     output->SetLines(cells);
     cells->Delete();
     }
   if ( (sourceCells=this->GetSource()->GetPolys())->GetNumberOfCells() > 0 )
     {
     cells = vtkCellArray::New();
-    cells->Allocate(numPts*sourceCells->GetSize());
+    cells->Allocate(numDirs*numPts*sourceCells->GetSize());
     output->SetPolys(cells);
     cells->Delete();
     }
   if ( (sourceCells=this->GetSource()->GetStrips())->GetNumberOfCells() > 0 )
     {
     cells = vtkCellArray::New();
-    cells->Allocate(numPts*sourceCells->GetSize());
+    cells->Allocate(numDirs*numPts*sourceCells->GetSize());
     output->SetStrips(cells);
     cells->Delete();
     }
 
   // only copy scalar data through
   pd = this->GetSource()->GetPointData();
-  if ( inScalars &&  this->ColorGlyphs ) 
+  // generate scalars if eigenvalues are chosen or if scalars exist.
+  if (this->ColorGlyphs && 
+      ((this->ColorMode == COLOR_BY_EIGENVALUES) || 
+       (inScalars && (this->ColorMode == COLOR_BY_SCALARS)) ) )
     {
     newScalars = vtkFloatArray::New();
-    newScalars->Allocate(numPts*numSourcePts);
+    newScalars->Allocate(numDirs*numPts*numSourcePts);
     }
   else
     {
     outPD->CopyAllOff();
     outPD->CopyScalarsOn();
-    outPD->CopyAllocate(pd,numPts*numSourcePts);
+    outPD->CopyAllocate(pd,numDirs*numPts*numSourcePts);
     }
   if ( (sourceNormals = pd->GetNormals()) )
     {
     newNormals = vtkFloatArray::New();
     newNormals->SetNumberOfComponents(3);
-    newNormals->Allocate(3*numPts*numSourcePts);
+    newNormals->Allocate(numDirs*3*numPts*numSourcePts);
     }
   //
   // First copy all topology (transformation independent)
   //
   for (inPtId=0; inPtId < numPts; inPtId++)
     {
-    ptIncr = inPtId * numSourcePts;
+    ptIncr = numDirs * inPtId * numSourcePts;
     for (cellId=0; cellId < numSourceCells; cellId++)
       {
       cell = this->GetSource()->GetCell(cellId);
       cellPts = cell->GetPointIds();
       npts = cellPts->GetNumberOfIds();
-      for (i=0; i < npts; i++)
+      for (dir=0; dir < numDirs; dir++)
         {
-        pts[i] = cellPts->GetId(i) + ptIncr;
+        // This variable may be removed, but that 
+        // will not improve readability
+        subIncr = ptIncr + dir*numSourcePts;
+        for (i=0; i < npts; i++)
+          {
+          pts[i] = cellPts->GetId(i) + subIncr;
+          }
+        output->InsertNextCell(cell->GetCellType(),npts,pts);
         }
-      output->InsertNextCell(cell->GetCellType(),npts,pts);
       }
     }
   //
@@ -189,13 +206,9 @@ void vtkTensorGlyph::Execute()
 
   for (inPtId=0; inPtId < numPts; inPtId++)
     {
-    ptIncr = inPtId * numSourcePts;
-    
-    trans->Identity();
+    ptIncr = numDirs * inPtId * numSourcePts;
 
-    // translate Source to Input point
-    x = input->GetPoint(inPtId);
-    trans->Translate(x[0], x[1], x[2]);
+    // Translation is postponed
 
     tensor = inTensors->GetTuple(inPtId);
 
@@ -253,17 +266,7 @@ void vtkTensorGlyph::Execute()
         }
       }
 
-    // normalized eigenvectors rotate object
-    matrix->Element[0][0] = xv[0];
-    matrix->Element[0][1] = yv[0];
-    matrix->Element[0][2] = zv[0];
-    matrix->Element[1][0] = xv[1];
-    matrix->Element[1][1] = yv[1];
-    matrix->Element[1][2] = zv[1];
-    matrix->Element[2][0] = xv[2];
-    matrix->Element[2][1] = yv[2];
-    matrix->Element[2][2] = zv[2];
-    trans->Concatenate(matrix);
+    // normalization is postponed
 
     // make sure scale is okay (non-zero) and scale data
     for (maxScale=0.0, i=0; i<3; i++)
@@ -284,30 +287,107 @@ void vtkTensorGlyph::Execute()
         w[i] = maxScale * 1.0e-06;
         }
       }
-    trans->Scale(w[0], w[1], w[2]);
 
-    // multiply points (and normals if available) by resulting matrix
-    trans->TransformPoints(sourcePts,newPts);
-    if ( newNormals )
-      {
-      trans->TransformNormals(sourceNormals,newNormals);
-      }
+    // Now do the real work for each "direction"
 
-    // Copy point data from source
-    if ( inScalars && this->ColorGlyphs ) 
+    for (dir=0; dir < numDirs; dir++) 
       {
-      s = inScalars->GetComponent(inPtId, 0);
-      for (i=0; i < numSourcePts; i++) 
+      eigen_dir = dir%(this->ThreeGlyphs?3:1);
+      symmetric_dir = dir/(this->ThreeGlyphs?3:1);
+        
+      // Remove previous scales ...
+      trans->Identity();
+
+      // translate Source to Input point
+      x = input->GetPoint(inPtId);
+      trans->Translate(x[0], x[1], x[2]);
+
+      // normalized eigenvectors rotate object for eigen direction 0
+      matrix->Element[0][0] = xv[0];
+      matrix->Element[0][1] = yv[0];
+      matrix->Element[0][2] = zv[0];
+      matrix->Element[1][0] = xv[1];
+      matrix->Element[1][1] = yv[1];
+      matrix->Element[1][2] = zv[1];
+      matrix->Element[2][0] = xv[2];
+      matrix->Element[2][1] = yv[2];
+      matrix->Element[2][2] = zv[2];
+      trans->Concatenate(matrix);
+        
+      if (eigen_dir == 1) 
         {
-        newScalars->InsertTuple(ptIncr+i, &s);
+        trans->RotateZ(90.0);
         }
-      }
-    else
-      {
-      for (i=0; i < numSourcePts; i++) 
+
+      if (eigen_dir == 2)
         {
-        outPD->CopyData(pd,i,ptIncr+i);
+        trans->RotateY(-90.0);
         }
+
+      if (this->ThreeGlyphs) 
+        {
+        trans->Scale(w[eigen_dir], this->ScaleFactor, this->ScaleFactor);
+        }
+      else
+        {
+        trans->Scale(w[0], w[1], w[2]);
+        }
+
+      // Mirror second set to the symmetric position
+      if (symmetric_dir == 1)
+        {
+        trans->Scale(-1.,1.,1.);
+        }
+
+      // if the eigenvalue is negative, shift to reverse direction.
+      // The && is there to ensure that we do not change the 
+      // old behaviour of vtkTensorGlyphs (which only used one dir), 
+      // in case there is an oriented glyph, e.g. an arrow.
+      if (w[eigen_dir] < 0 && numDirs > 1) 
+        {
+        trans->Translate(-this->Length, 0., 0.);
+        }
+        
+      // multiply points (and normals if available) by resulting
+      // matrix
+      trans->TransformPoints(sourcePts,newPts); 
+
+      // Apply the transformation to a series of points, 
+      // and append the results to outPts.
+      if ( newNormals )
+        {
+        trans->TransformNormals(sourceNormals,newNormals);
+        }
+        
+        // Copy point data from source
+      if ( this->ColorGlyphs && inScalars && 
+           (this->ColorMode == COLOR_BY_SCALARS) )
+        {
+        s = inScalars->GetComponent(inPtId, 0);
+        for (i=0; i < numSourcePts; i++) 
+          {
+          newScalars->InsertTuple(ptIncr+i, &s);
+          }
+        }
+      else if (this->ColorGlyphs && 
+               (this->ColorMode == COLOR_BY_EIGENVALUES) )
+        {
+        // If ThreeGlyphs is false we use the first (largest) 
+        // eigenvalue as scalar.
+        s = w[eigen_dir];
+        for (i=0; i < numSourcePts; i++) 
+          {
+          newScalars->InsertTuple(ptIncr+i, &s);
+          }
+        }
+      else
+        {
+        for (i=0; i < numSourcePts; i++) 
+          {
+          outPD->CopyData(pd,i,ptIncr+i);
+          }
+        }
+      ptIncr += numSourcePts;
       }
     }
   vtkDebugMacro(<<"Generated " << numPts <<" tensor glyphs");
@@ -360,6 +440,10 @@ void vtkTensorGlyph::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Scale Factor: " << this->ScaleFactor << "\n";
   os << indent << "Extract Eigenvalues: " << (this->ExtractEigenvalues ? "On\n" : "Off\n");
   os << indent << "Color Glyphs: " << (this->ColorGlyphs ? "On\n" : "Off\n");
+  os << indent << "Color Mode: " << this->ColorMode << endl;
   os << indent << "Clamp Scaling: " << (this->ClampScaling ? "On\n" : "Off\n");
   os << indent << "Max Scale Factor: " << this->MaxScaleFactor << "\n";
+  os << indent << "Three Glyphs: " << (this->ThreeGlyphs ? "On\n" : "Off\n");
+  os << indent << "Symmetric: " << (this->Symmetric ? "On\n" : "Off\n");
+  os << indent << "Length: " << this->Length << "\n";
 }
