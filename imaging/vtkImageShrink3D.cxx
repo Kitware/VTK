@@ -67,29 +67,25 @@ void vtkImageShrink3D::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 // Description:
 // This method computes the Region of input necessary to generate outRegion.
-void vtkImageShrink3D::ComputeRequiredInputUpdateExtent()
+void vtkImageShrink3D::ComputeRequiredInputUpdateExtent(int inExt[6], 
+							int outExt[6])
 {
-  int extent[6];
   int idx;
-  
-  this->Output->GetUpdateExtent(extent);
   
   for (idx = 0; idx < 3; ++idx)
     {
     // For Min.
-    extent[idx*2] = extent[idx*2] * this->ShrinkFactors[idx] 
+    inExt[idx*2] = outExt[idx*2] * this->ShrinkFactors[idx] 
       + this->Shift[idx];
     // For Max.
-    extent[idx*2+1] = extent[idx*2+1] * this->ShrinkFactors[idx]
+    inExt[idx*2+1] = outExt[idx*2+1] * this->ShrinkFactors[idx]
       + this->Shift[idx];
     // If we are averaging, we need a little more
     if (this->Averaging)
       {
-      extent[idx*2+1] += this->ShrinkFactors[idx] - 1;
+      inExt[idx*2+1] += this->ShrinkFactors[idx] - 1;
       }
     }
-  
-  this->Input->SetUpdateExtent(extent);
 }
 
 
@@ -224,28 +220,13 @@ void vtkImageShrink3D::ThreadedExecute(vtkImageData *inData,
 				       vtkImageData *outData,
 				       int outExt[6], int id)
 {
-  int idx;
   int inExt[6];
   void *outPtr = outData->GetScalarPointerForExtent(outExt);
   
   vtkDebugMacro(<< "Execute: inData = " << inData 
   << ", outData = " << outData);
 
-  // find the pointer for the input data
-  for (idx = 0; idx < 3; ++idx)
-    {
-    // For Min.
-    inExt[idx*2] = outExt[idx*2] * this->ShrinkFactors[idx] 
-      + this->Shift[idx];
-    // For Max.
-    inExt[idx*2+1] = outExt[idx*2+1] * this->ShrinkFactors[idx]
-      + this->Shift[idx];
-    // If we are averaging, we need a little more
-    if (this->Averaging)
-      {
-      inExt[idx*2+1] += this->ShrinkFactors[idx] - 1;
-      }
-    }
+  this->ComputeRequiredInputUpdateExtent(inExt,outExt);
   void *inPtr = inData->GetScalarPointerForExtent(inExt);
 
   // this filter expects that input is the same type as output.

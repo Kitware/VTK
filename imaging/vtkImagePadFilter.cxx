@@ -127,30 +127,28 @@ void vtkImagePadFilter::ExecuteImageInformation()
 
 //----------------------------------------------------------------------------
 // Just clip the request.  The subclass may need to overwrite this method.
-void vtkImagePadFilter::ComputeRequiredInputUpdateExtent()
+void vtkImagePadFilter::ComputeRequiredInputUpdateExtent(int inExt[6], 
+							 int outExt[6])
 {
   int idx;
-  int extent[6];
   int *wholeExtent;
   
   // handle XYZ
-  this->Output->GetUpdateExtent(extent);
+  memcpy(inExt,outExt,sizeof(int)*6);
+  
   wholeExtent = this->Input->GetWholeExtent();
   // Clip
   for (idx = 0; idx < 3; ++idx)
     {
-    if (extent[idx*2] < wholeExtent[idx*2])
+    if (inExt[idx*2] < wholeExtent[idx*2])
       {
-      extent[idx*2] = wholeExtent[idx*2];
+      inExt[idx*2] = wholeExtent[idx*2];
       }
-    if (extent[idx*2 + 1] > wholeExtent[idx*2 + 1])
+    if (inExt[idx*2 + 1] > wholeExtent[idx*2 + 1])
       {
-      extent[idx*2 + 1] = wholeExtent[idx*2 + 1];
+      inExt[idx*2 + 1] = wholeExtent[idx*2 + 1];
       }
     }
-  this->Input->SetUpdateExtent(extent);
-  
-  // Components are handled automatically (see ExecuteImageInformation)
 }
 
 

@@ -38,7 +38,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkImageRegion.h"
 #include "vtkImageLogic.h"
 #include <math.h>
 
@@ -47,7 +46,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 //----------------------------------------------------------------------------
 vtkImageLogic::vtkImageLogic()
 {
-  this->SetExecutionAxes(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS);
   this->Operation = VTK_AND;
 }
 
@@ -59,69 +57,79 @@ vtkImageLogic::vtkImageLogic()
 // Handles the one input operations
 template <class T>
 static void vtkImageLogicExecute1(vtkImageLogic *self,
-				  vtkImageRegion *in1Region, T *in1Ptr,
-				  vtkImageRegion *outRegion, 
-				  unsigned char *outPtr)
+				  vtkImageData *in1Data, T *in1Ptr,
+				  vtkImageData *outData, 
+				  unsigned char *outPtr,
+				  int outExt[6], int id)
 {
-  int op;
-  int min0, max0, min1, max1;
-  int idx0, idx1;
-  int in1Inc0, in1Inc1;
-  int outInc0, outInc1;
-  T *in1Ptr0, *in1Ptr1;
-  unsigned char *outPtr0, *outPtr1;
+  int idxR, idxY, idxZ;
+  int maxY, maxZ;
+  int inIncX, inIncY, inIncZ;
+  int outIncX, outIncY, outIncZ;
+  int rowLength;
+  unsigned long count = 0;
+  unsigned long target;
   unsigned char trueValue = self->GetOutputTrueValue();
+  int op = self->GetOperation();
 
-  op = self->GetOperation();
   
-  // Get information to march through data 
-  in1Region->GetIncrements(in1Inc0, in1Inc1);
-  outRegion->GetIncrements(outInc0, outInc1);
-  outRegion->GetExtent(min0, max0, min1, max1);
+  // find the region to loop over
+  rowLength = (outExt[1] - outExt[0]+1)*in1Data->GetNumberOfScalarComponents();
+  maxY = outExt[3] - outExt[2]; 
+  maxZ = outExt[5] - outExt[4];
+  target = (unsigned long)((maxZ+1)*(maxY+1)/50.0);
+  target++;
+  
+  // Get increments to march through data 
+  in1Data->GetContinuousIncrements(outExt, inIncX, inIncY, inIncZ);
+  outData->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
 
   // Loop through ouput pixels
-  in1Ptr1 = in1Ptr;
-  outPtr1 = outPtr;
-  for (idx1 = min1; idx1 <= max1; ++idx1)
+  for (idxZ = 0; idxZ <= maxZ; idxZ++)
     {
-    outPtr0 = outPtr1;
-    in1Ptr0 = in1Ptr1;
-    for (idx0 = min0; idx0 <= max0; ++idx0)
+    for (idxY = 0; idxY <= maxY; idxY++)
       {
-      
-      // Pixel operaton
-      switch (op)
+      if (!id) 
 	{
-	case VTK_NOT:
-	  if ( ! *outPtr0)
-	    {
-	    *outPtr0 = trueValue;
-	    }
-	  else
-	    {
-	    *outPtr0 = 0;
-	    }
-	  break;
-	case VTK_NOP:
-	  if (*outPtr0)
-	    {
-	    *outPtr0 = trueValue;
-	    }
-	  else
-	    {
-	    *outPtr0 = 0;
-	    }
-	  break;
+	if (!(count%target)) self->UpdateProgress(count/(50.0*target));
+	count++;
 	}
-      
-      outPtr0 += outInc0;
-      in1Ptr0 += in1Inc0;
+      for (idxR = 0; idxR < rowLength; idxR++)
+	{
+	// Pixel operation
+	switch (op)
+	  {
+	  case VTK_NOT:
+	    if ( ! *outPtr)
+	      {
+	      *outPtr = trueValue;
+	      }
+	    else
+	      {
+	      *outPtr = 0;
+	      }
+	    break;
+	  case VTK_NOP:
+	    if (*outPtr)
+	      {
+	      *outPtr = trueValue;
+	      }
+	    else
+	      {
+	      *outPtr = 0;
+	      }
+	    break;
+	  }
+	outPtr++;
+	in1Ptr++;
+	}
+      outPtr += outIncY;
+      in1Ptr += inIncY;
       }
-    outPtr1 += outInc1;
-    in1Ptr1 += in1Inc1;
+    outPtr += outIncZ;
+    in1Ptr += inIncZ;
     }
 }
-
 
 
 //----------------------------------------------------------------------------
@@ -130,105 +138,113 @@ static void vtkImageLogicExecute1(vtkImageLogic *self,
 // Handles the two input operations
 template <class T>
 static void vtkImageLogicExecute2(vtkImageLogic *self,
-				  vtkImageRegion *in1Region, T *in1Ptr,
-				  vtkImageRegion *in2Region, T *in2Ptr,
-				  vtkImageRegion *outRegion, 
-				  unsigned char *outPtr)
+				  vtkImageData *in1Data, T *in1Ptr,
+				  vtkImageData *in2Data, T *in2Ptr,
+				  vtkImageData *outData, 
+				  unsigned char *outPtr,
+				  int outExt[6], int id)
 {
-  int op;
-  int min0, max0, min1, max1;
-  int idx0, idx1;
-  int in1Inc0, in1Inc1;
-  int in2Inc0, in2Inc1;
-  int outInc0, outInc1;
-  T *in1Ptr0, *in1Ptr1;
-  T *in2Ptr0, *in2Ptr1;
-  unsigned char *outPtr0, *outPtr1;
+  int idxR, idxY, idxZ;
+  int maxY, maxZ;
+  int inIncX, inIncY, inIncZ;
+  int in2IncX, in2IncY, in2IncZ;
+  int outIncX, outIncY, outIncZ;
+  int rowLength;
+  unsigned long count = 0;
+  unsigned long target;
   unsigned char trueValue = self->GetOutputTrueValue();
+  int op = self->GetOperation();
+
   
-  op = self->GetOperation();
+  // find the region to loop over
+  rowLength = (outExt[1] - outExt[0]+1)*in1Data->GetNumberOfScalarComponents();
+  maxY = outExt[3] - outExt[2]; 
+  maxZ = outExt[5] - outExt[4];
+  target = (unsigned long)((maxZ+1)*(maxY+1)/50.0);
+  target++;
   
-  // Get information to march through data 
-  in1Region->GetIncrements(in1Inc0, in1Inc1);
-  in2Region->GetIncrements(in2Inc0, in2Inc1);
-  outRegion->GetIncrements(outInc0, outInc1);
-  outRegion->GetExtent(min0, max0, min1, max1);
+  // Get increments to march through data 
+  in1Data->GetContinuousIncrements(outExt, inIncX, inIncY, inIncZ);
+  in2Data->GetContinuousIncrements(outExt, in2IncX, in2IncY, in2IncZ);
+  outData->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
 
   // Loop through ouput pixels
-  in1Ptr1 = in1Ptr;
-  in2Ptr1 = in2Ptr;
-  outPtr1 = outPtr;
-  for (idx1 = min1; idx1 <= max1; ++idx1)
+  for (idxZ = 0; idxZ <= maxZ; idxZ++)
     {
-    outPtr0 = outPtr1;
-    in1Ptr0 = in1Ptr1;
-    in2Ptr0 = in2Ptr1;
-    for (idx0 = min0; idx0 <= max0; ++idx0)
+    for (idxY = 0; idxY <= maxY; idxY++)
       {
-      
-      // Pixel operaton
-      switch (op)
+      if (!id) 
 	{
-	case VTK_AND:
-	  if (*in1Ptr0 && *in2Ptr0)
-	    {
-	    *outPtr0 = trueValue;
-	    }
-	  else
-	    {
-	    *outPtr0 = 0;
-	    }
-	  break;
-	case VTK_OR:
-	  if (*in1Ptr0 || *in2Ptr0)
-	    {
-	    *outPtr0 = trueValue;
-	    }
-	  else
-	    {
-	    *outPtr0 = 0;
-	    }
-	  break;
-	case VTK_XOR:
-	  if (( ! *in1Ptr0 && *in2Ptr0) || (*in1Ptr0 && ! *in2Ptr0))
-	    {
-	    *outPtr0 = trueValue;
-	    }
-	  else
-	    {
-	    *outPtr0 = 0;
-	    }
-	  break;
-	case VTK_NAND:
-	  if ( ! (*in1Ptr0 && *in2Ptr0))
-	    {
-	    *outPtr0 = trueValue;
-	    }
-	  else
-	    {
-	    *outPtr0 = 0;
-	    }
-	  break;
-	case VTK_NOR:
-	  if ( ! (*in1Ptr0 || *in2Ptr0))
-	    {
-	    *outPtr0 = trueValue;
-	    }
-	  else
-	    {
-	    *outPtr0 = 0;
-	    }
-	  break;
+	if (!(count%target)) self->UpdateProgress(count/(50.0*target));
+	count++;
 	}
-      
-      
-      outPtr0 += outInc0;
-      in1Ptr0 += in1Inc0;
-      in2Ptr0 += in2Inc0;
+      for (idxR = 0; idxR < rowLength; idxR++)
+	{
+	// Pixel operation
+	switch (op)
+	  {
+	  case VTK_AND:
+	    if (*in1Ptr && *in2Ptr)
+	      {
+	      *outPtr = trueValue;
+	      }
+	    else
+	      {
+	      *outPtr = 0;
+	      }
+	    break;
+	  case VTK_OR:
+	    if (*in1Ptr || *in2Ptr)
+	      {
+	      *outPtr = trueValue;
+	      }
+	    else
+	      {
+	      *outPtr = 0;
+	      }
+	    break;
+	  case VTK_XOR:
+	    if (( ! *in1Ptr && *in2Ptr) || (*in1Ptr && ! *in2Ptr))
+	      {
+	      *outPtr = trueValue;
+	      }
+	    else
+	      {
+	      *outPtr = 0;
+	      }
+	    break;
+	  case VTK_NAND:
+	    if ( ! (*in1Ptr && *in2Ptr))
+	      {
+	      *outPtr = trueValue;
+	      }
+	    else
+	      {
+	      *outPtr = 0;
+	    }
+	    break;
+	  case VTK_NOR:
+	    if ( ! (*in1Ptr || *in2Ptr))
+	      {
+	      *outPtr = trueValue;
+	      }
+	    else
+	      {
+	      *outPtr = 0;
+	      }
+	    break;
+	  }
+	outPtr++;
+	in1Ptr++;
+	in2Ptr++;
+	}
+      outPtr += outIncY;
+      in1Ptr += inIncY;
+      in2Ptr += in2IncY;
       }
-    outPtr1 += outInc1;
-    in1Ptr1 += in1Inc1;
-    in2Ptr1 += in2Inc1;
+    outPtr += outIncZ;
+    in1Ptr += inIncZ;
+    in2Ptr += in2IncZ;
     }
 }
 
@@ -240,47 +256,47 @@ static void vtkImageLogicExecute2(vtkImageLogic *self,
 // algorithm to fill the output from the inputs.
 // It just executes a switch statement to call the correct function for
 // the regions data types.
-void vtkImageLogic::Execute(vtkImageRegion *inRegion1, 
-			    vtkImageRegion *inRegion2, 
-			    vtkImageRegion *outRegion)
+void vtkImageLogic::ThreadedExecute(vtkImageData **inData, 
+				    vtkImageData *outData,
+				    int outExt[6], int id)
 {
-  void *in1Ptr = inRegion1->GetScalarPointer();
-  void *outPtr = outRegion->GetScalarPointer();
+  void *in1Ptr = inData[0]->GetScalarPointerForExtent(outExt);
+  void *outPtr = outData->GetScalarPointerForExtent(outExt);
+  
+  vtkDebugMacro(<< "Execute: inData = " << inData 
+		<< ", outData = " << outData);
+  
+  // this filter expects that input is the same type as output.
+  if (inData[0]->GetScalarType() != outData->GetScalarType())
+    {
+    vtkErrorMacro(<< "Execute: input ScalarType, " << inData[0]->GetScalarType()
+    << ", must match out ScalarType " << outData->GetScalarType());
+    return;
+    }
 
   if (this->Operation == VTK_NOT || this->Operation == VTK_NOP)
     {
-    // this filter expects that inputs are the same type as output.
-    if (inRegion1->GetScalarType() != VTK_FLOAT ||
-	outRegion->GetScalarType() != VTK_FLOAT)
-      {
-      vtkErrorMacro(<< "Execute: input ScalarType, "
-        << vtkImageScalarTypeNameMacro(inRegion1->GetScalarType()) 
-        << ", and out ScalarType "
-        << vtkImageScalarTypeNameMacro(outRegion->GetScalarType())
-        << " must be float for choosen operation");
-      return;
-      }
-    switch (inRegion1->GetScalarType())
+    switch (inData[0]->GetScalarType())
       {
       case VTK_FLOAT:
-	vtkImageLogicExecute1(this, inRegion1, (float *)(in1Ptr), 
-			      outRegion, (unsigned char *)(outPtr));
+	vtkImageLogicExecute1(this, inData[0], (float *)(in1Ptr), 
+			      outData, (unsigned char *)(outPtr), outExt, id);
 	break;
       case VTK_INT:
-	vtkImageLogicExecute1(this, inRegion1, (int *)(in1Ptr), 
-			      outRegion, (unsigned char *)(outPtr));
+	vtkImageLogicExecute1(this, inData[0], (int *)(in1Ptr), 
+			      outData, (unsigned char *)(outPtr), outExt, id);
 	break;
       case VTK_SHORT:
-	vtkImageLogicExecute1(this, inRegion1, (short *)(in1Ptr), 
-			      outRegion, (unsigned char *)(outPtr));
+	vtkImageLogicExecute1(this, inData[0], (short *)(in1Ptr), 
+			      outData, (unsigned char *)(outPtr), outExt, id);
 	break;
       case VTK_UNSIGNED_SHORT:
-	vtkImageLogicExecute1(this, inRegion1, (unsigned short *)(in1Ptr), 
-			      outRegion, (unsigned char *)(outPtr));
+	vtkImageLogicExecute1(this, inData[0], (unsigned short *)(in1Ptr), 
+			      outData, (unsigned char *)(outPtr), outExt, id);
 	break;
       case VTK_UNSIGNED_CHAR:
-	vtkImageLogicExecute1(this, inRegion1, (unsigned char *)(in1Ptr), 
-			      outRegion, (unsigned char *)(outPtr));
+	vtkImageLogicExecute1(this, inData[0], (unsigned char *)(in1Ptr), 
+			      outData, (unsigned char *)(outPtr), outExt, id);
 	break;
       default:
 	vtkErrorMacro(<< "Execute: Unknown ScalarType");
@@ -289,43 +305,34 @@ void vtkImageLogic::Execute(vtkImageRegion *inRegion1,
     }
   else
     {
-    void *in2Ptr = inRegion2->GetScalarPointer();
-    // this filter expects that inputs are the same type as output.
-    if (inRegion1->GetScalarType() != outRegion->GetScalarType() ||
-	inRegion2->GetScalarType() != outRegion->GetScalarType())
-      {
-      vtkErrorMacro(<< "Execute: input ScalarTypes, " 
-        << inRegion1->GetScalarType() << " and " << inRegion2->GetScalarType()
-        << ", must match out ScalarType " << outRegion->GetScalarType());
-      return;
-    }
+    void *in2Ptr = inData[1]->GetScalarPointerForExtent(outExt);
     
-    switch (inRegion1->GetScalarType())
+    switch (inData[0]->GetScalarType())
       {
       case VTK_FLOAT:
-	vtkImageLogicExecute2(this, inRegion1, (float *)(in1Ptr), 
-			      inRegion2, (float *)(in2Ptr), 
-			      outRegion, (unsigned char *)(outPtr));
+	vtkImageLogicExecute2(this, inData[0], (float *)(in1Ptr), 
+			      inData[1], (float *)(in2Ptr), 
+			      outData, (unsigned char *)(outPtr), outExt, id);
 	break;
       case VTK_INT:
-	vtkImageLogicExecute2(this, inRegion1, (int *)(in1Ptr), 
-			      inRegion2, (int *)(in2Ptr), 
-			      outRegion, (unsigned char *)(outPtr));
+	vtkImageLogicExecute2(this, inData[0], (int *)(in1Ptr), 
+			      inData[1], (int *)(in2Ptr), 
+			      outData, (unsigned char *)(outPtr), outExt, id);
 	break;
       case VTK_SHORT:
-	vtkImageLogicExecute2(this, inRegion1, (short *)(in1Ptr), 
-			      inRegion2, (short *)(in2Ptr), 
-			      outRegion, (unsigned char *)(outPtr));
+	vtkImageLogicExecute2(this, inData[0], (short *)(in1Ptr), 
+			      inData[1], (short *)(in2Ptr), 
+			      outData, (unsigned char *)(outPtr), outExt, id);
 	break;
       case VTK_UNSIGNED_SHORT:
-	vtkImageLogicExecute2(this, inRegion1, (unsigned short *)(in1Ptr), 
-			      inRegion2, (unsigned short *)(in2Ptr), 
-			      outRegion, (unsigned char *)(outPtr));
+	vtkImageLogicExecute2(this, inData[0], (unsigned short *)(in1Ptr), 
+			      inData[1], (unsigned short *)(in2Ptr), 
+			      outData, (unsigned char *)(outPtr), outExt, id);
 	break;
       case VTK_UNSIGNED_CHAR:
-	vtkImageLogicExecute2(this, inRegion1, (unsigned char *)(in1Ptr), 
-			      inRegion2, (unsigned char *)(in2Ptr), 
-			      outRegion, (unsigned char *)(outPtr));
+	vtkImageLogicExecute2(this, inData[0], (unsigned char *)(in1Ptr), 
+			      inData[1], (unsigned char *)(in2Ptr), 
+			      outData, (unsigned char *)(outPtr), outExt, id);
 	break;
       default:
 	vtkErrorMacro(<< "Execute: Unknown ScalarType");

@@ -72,13 +72,10 @@ void vtkImagePermute::ExecuteImageInformation()
 
 
 //----------------------------------------------------------------------------
-void vtkImagePermute::ComputeRequiredInputUpdateExtent()
+void vtkImagePermute::ComputeRequiredInputUpdateExtent(int inExt[6], 
+						       int outExt[6])
 {
   int idx, axis;
-  int *outExt;
-  int inExt[6];
-  
-  outExt = this->Output->GetUpdateExtent();
 
   for (idx = 0; idx < 3; ++idx)
     {
@@ -86,7 +83,6 @@ void vtkImagePermute::ComputeRequiredInputUpdateExtent()
     inExt[idx*2] = outExt[axis*2];
     inExt[idx*2+1] = outExt[axis*2+1];
     }
-  this->Input->SetUpdateExtent(inExt);
 }
 
 
@@ -170,15 +166,9 @@ void vtkImagePermute::ThreadedExecute(vtkImageData *inData,
 				      vtkImageData *outData,
 				      int outExt[6], int id)
 {
-  int idx, axis;
   int inExt[6];
   
-  for (idx = 0; idx < 3; ++idx)
-    {
-    axis = this->FilteredAxes[idx];
-    inExt[idx*2] = outExt[axis*2];
-    inExt[idx*2+1] = outExt[axis*2+1];
-    }
+  this->ComputeRequiredInputUpdateExtent(inExt,outExt);
   
   void *inPtr = inData->GetScalarPointerForExtent(inExt);
   void *outPtr = outData->GetScalarPointerForExtent(outExt);

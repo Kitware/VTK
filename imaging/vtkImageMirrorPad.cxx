@@ -45,22 +45,21 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 //----------------------------------------------------------------------------
 // Just clip the request.
-void vtkImageMirrorPad::ComputeRequiredInputUpdateExtent()
+void vtkImageMirrorPad::ComputeRequiredInputUpdateExtent(int inExt[6], 
+							 int outExt[6])
 {
   int idx;
-  int extent[6];
   int min, max, imageMin, imageMax;
   int minCycle, maxCycle, minRemainder, maxRemainder, minMirror, maxMirror;
   int *wholeExtent;
   
-  this->Output->GetUpdateExtent(extent);
   wholeExtent = this->Input->GetWholeExtent();
 
   // determine input extent
   for (idx = 0; idx < 3; ++idx)
     {
-    min = extent[idx * 2];
-    max = extent[idx*2 + 1];
+    min = outExt[idx * 2];
+    max = outExt[idx*2 + 1];
     imageMin = wholeExtent[idx * 2];
     imageMax = wholeExtent[idx * 2 + 1];
     // Relative to imageMin;
@@ -122,11 +121,9 @@ void vtkImageMirrorPad::ComputeRequiredInputUpdateExtent()
 	min = (minRemainder < maxRemainder) ? minRemainder : maxRemainder;
 	}
       }
-    extent[idx * 2] = min;
-    extent[idx * 2 + 1] = max;
+    inExt[idx * 2] = min;
+    inExt[idx * 2 + 1] = max;
     }
-  
-  this->Input->SetUpdateExtent(extent);
 }
 
 

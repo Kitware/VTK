@@ -191,8 +191,8 @@ void vtkImageFilter::RecursiveStreamUpdate(vtkImageData *outData,
   
   // Compute the required input region extent.
   // Copy to fill in extent of extra dimensions.
-  this->Input->SetUpdateExtent(this->Output->GetUpdateExtent());
-  this->ComputeRequiredInputUpdateExtent();
+  this->ComputeRequiredInputUpdateExtent(this->Input->GetUpdateExtent(),
+					 this->Output->GetUpdateExtent());
     
   // determine the amount of memory that will be used by the input region.
   memory = this->Input->GetUpdateExtentMemorySize();
@@ -297,8 +297,9 @@ void vtkImageFilter::ExecuteImageInformation()
 // UpdateExtent needed to generate the output UpdateExtent.
 // By default the input is set to the same as the output before this
 // method is called.
-void vtkImageFilter::ComputeRequiredInputUpdateExtent()
+void vtkImageFilter::ComputeRequiredInputUpdateExtent(int inExt[6], int outExt[6])
 {
+  memcpy(inExt,outExt,sizeof(int)*6);
 }
 
 struct vtkImageThreadStruct

@@ -56,8 +56,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkImageSource.h"
 #include "vtkStructuredPoints.h"
 #include "vtkStructuredPointsToImage.h"
-class vtkImageRegion;
-class vtkImageCache;
+#include "vtkImageCache.h"
+#include "vtkMultiThreader.h"
 
 
 class VTK_EXPORT vtkImageMultipleInputFilter : public vtkImageSource
@@ -77,7 +77,7 @@ public:
   void AddInput(vtkStructuredPoints *spts)
     {this->AddInput(spts->GetStructuredPointsToImage()->GetOutput());}
   
-  void InternalUpdate();
+  void InternalUpdate(vtkImageData *outData);
   void UpdateImageInformation();
   unsigned long int GetPipelineMTime();
   
@@ -97,24 +97,32 @@ public:
   vtkGetMacro(Bypass,int);
   vtkBooleanMacro(Bypass,int);
 
+  // Description:
+  // Get/Set the number of threads to create when rendering
+  vtkSetClampMacro( NumberOfThreads, int, 1, VTK_MAX_THREADS );
+  vtkGetMacro( NumberOfThreads, int );
+
+  // subclasses should define this function
+  virtual void ThreadedExecute(vtkImageData **inDatas, 
+			       vtkImageData *outData,
+			       int extent[6], int threadId);
+
 protected:
-  int FilteredAxes[4];
-  int NumberOfFilteredAxes;
   int NumberOfInputs;
   vtkImageCache **Inputs;     // An Array of the inputs to the filter
-  vtkImageRegion **Regions;   // We need an array for inputs.
+  vtkMultiThreader *Threader;
   int Bypass;
   int Updating;
+  int NumberOfThreads;
   
   // Called to allocate the input array.  Copies old inputs.
   void SetNumberOfInputs(int num);
 
-  virtual void SetFilteredAxes(int num, int *axes);
   virtual void ExecuteImageInformation();
-  virtual void ComputeRequiredInputUpdateExtent(int whichInput);
-  virtual void RecursiveLoopExecute(int dim, vtkImageRegion **inRegions,
-				    vtkImageRegion *outRegion);
-  virtual void Execute(vtkImageRegion **inRegions, vtkImageRegion *outRegion);
+  virtual void ComputeRequiredInputUpdateExtent(int inExt[6], int outExt[6],
+						int whichInput);
+  void RecursiveStreamUpdate(vtkImageData *outData, int axis);
+  virtual void Execute(vtkImageData **inDatas, vtkImageData *outData);
 };
 
 #endif

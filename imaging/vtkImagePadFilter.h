@@ -76,7 +76,7 @@ protected:
   int OutputNumberOfScalarComponents;
 
   void ExecuteImageInformation();
-  void ComputeRequiredInputUpdateExtent();
+  void ComputeRequiredInputUpdateExtent(int inExt[6], int outExt[6]);
 };
 
 #endif

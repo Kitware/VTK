@@ -16,15 +16,15 @@ CONCRETE_H =
 
 ABSTRACT = \
 vtkImageFilter \
+vtkImageMultipleInputFilter \
 vtkImagePadFilter \
 vtkImageSpatialFilter \
+vtkImageTwoInputFilter 
 
 #vtkImageCopy \
 #vtkImageDecomposedFilter \
 #vtkImageFourierFilter \
 #vtkImageInPlaceFilter \
-#vtkImageMultipleInputFilter \
-#vtkImageTwoInputFilter \
 #vtkImageTwoOutputFilter
 
 CONCRETE = \
@@ -33,20 +33,22 @@ vtkImageCast \
 vtkImageConnector \
 vtkImageConstantPad \
 vtkImageExtractComponents \
+vtkImageHSVToRGB \
+vtkImageLogic \
 vtkImageMedian3D \
 vtkImageMirrorPad \
 vtkImagePermute \
 vtkImageReader \
+vtkImageRGBToHSV \
+vtkImageSeedConnectivity \
+vtkImageShiftScale \
 vtkImageShrink3D \
+vtkImageThreshold \
 vtkImageViewer \
 vtkImageWriter \
 vtkImageXViewer \
 vtkPNMReader \
 vtkPNMWriter \
-vtkImageRGBToHSV \
-vtkImageSeedConnectivity \
-vtkImageShiftScale \
-vtkImageThreshold \
 vtkTIFFWriter
 
 
@@ -82,7 +84,6 @@ vtkTIFFWriter
 #vtkImageGaussianSource \
 #vtkImageGradient \
 #vtkImageGradientMagnitude \
-#vtkImageHSVToRGB \
 #vtkImageHistogram \
 #vtkImageHistogramEqualization \
 #vtkImageHybridMedian2D \
@@ -91,7 +92,6 @@ vtkTIFFWriter
 #vtkImageIslandRemoval2D \
 #vtkImageLaplacian \
 #vtkImageLogarithmicScale \
-#vtkImageLogic \
 #vtkImageMIPFilter \
 #vtkImageMagnify \
 #vtkImageMagnify1D \

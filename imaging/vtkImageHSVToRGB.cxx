@@ -39,7 +39,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include <math.h>
-#include "vtkImageRegion.h"
 #include "vtkImageHSVToRGB.h"
 
 
@@ -48,136 +47,177 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 vtkImageHSVToRGB::vtkImageHSVToRGB()
 {
   this->Maximum = 255.0;
-  // One pixel at a time. (sssssslowwww)
-  this->SetExecutionAxes(VTK_IMAGE_COMPONENT_AXIS);
 }
 
+
 //----------------------------------------------------------------------------
+// Description:
+// This templated function executes the filter for any type of data.
 template <class T>
 static void vtkImageHSVToRGBExecute(vtkImageHSVToRGB *self,
-				    vtkImageRegion *inRegion, T *inPtr,
-				    vtkImageRegion *outRegion, T *outPtr)
+				    vtkImageData *inData, T *inPtr,
+				    vtkImageData *outData, T *outPtr,
+				    int outExt[6], int id)
 {
-  float R, G, B, H, S, V, r, g, b;
+  int idxX, idxY, idxZ;
+  int maxX, maxY, maxZ;
+  int inIncX, inIncY, inIncZ;
+  int outIncX, outIncY, outIncZ;
+  unsigned long count = 0;
+  unsigned long target;
+  float R, G, B, H, S, V;
   float max = self->GetMaximum();
-  int inInc;
-  int outInc;
+  float temp;
   float third = max / 3.0;;
   
-  inRegion->GetAxisIncrements(VTK_IMAGE_COMPONENT_AXIS, inInc);
-  outRegion->GetAxisIncrements(VTK_IMAGE_COMPONENT_AXIS, outInc);
+  // find the region to loop over
+  maxX = outExt[1] - outExt[0]; 
+  maxY = outExt[3] - outExt[2]; 
+  maxZ = outExt[5] - outExt[4];
+  target = (unsigned long)((maxZ+1)*(maxY+1)/50.0);
+  target++;
   
-  H = (float)(*inPtr);
-  inPtr += inInc;
-  S = (float)(*inPtr);
-  inPtr += inInc;
-  V = (float)(*inPtr);
+  // Get increments to march through data 
+  inData->GetContinuousIncrements(outExt, inIncX, inIncY, inIncZ);
+  outData->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
 
-  // until I get the actual formula, estimate.
-  // compute rgb assuming S = 1.0;
-  if (H >= 0.0 && H <= third) // red -> green
+  // Loop through ouput pixels
+  for (idxZ = 0; idxZ <= maxZ; idxZ++)
     {
-    g = H/third;
-    r = 1.0 - g;
-    b = 0.0;
-    }
-  else if (H >= third && H <= 2.0*third) // green -> blue
-    {
-    b = (H - third)/third;
-    g = 1.0 - b;
-    r = 0.0;
-    }
-  else // blue -> red
-    {
-    r = (H - 2.0 * third)/third;
-    b = 1.0 - r;
-    g = 0.0;
-    }
-  
-  // add Saturation to the equation.
-  S = S / max;
-  r = (1.0 + S*(3.0*r - 1.0))/3.0;
-  g = (1.0 + S*(3.0*g - 1.0))/3.0;
-  b = (1.0 + S*(3.0*b - 1.0))/3.0;
-  
-  // Use value to get actual RGB (max is already in value.
-  R = r * V * 3.0;
-  G = g * V * 3.0;
-  B = b * V * 3.0;
-  
-  // clip below 255
-  if (R > 255.0) R = max;
-  if (G > 255.0) G = max;
-  if (B > 255.0) B = max;
+    for (idxY = 0; idxY <= maxY; idxY++)
+      {
+      if (!id) 
+	{
+	if (!(count%target)) self->UpdateProgress(count/(50.0*target));
+	count++;
+	}
+      for (idxX = 0; idxX <= maxX; idxX++)
+	{
+	// Pixel operation
+	H = (float)(*inPtr); inPtr++;
+	S = (float)(*inPtr); inPtr++;
+	V = (float)(*inPtr); inPtr++;
 
-  // assign output.
-  *outPtr = (T)(R);
-  outPtr += outInc;
-  *outPtr = (T)(G);
-  outPtr += outInc;
-  *outPtr = (T)(B);
+	// until I get the actual formula, estimate.
+	// compute rgb assuming S = 1.0;
+	if (H >= 0.0 && H <= third) // red -> green
+	  {
+	  G = H/third;
+	  R = 1.0 - G;
+	  B = 0.0;
+	  }
+	else if (H >= third && H <= 2.0*third) // green -> blue
+	  {
+	  B = (H - third)/third;
+	  G = 1.0 - B;
+	  R = 0.0;
+	  }
+	else // blue -> red
+	  {
+	  R = (H - 2.0 * third)/third;
+	  B = 1.0 - R;
+	  G = 0.0;
+	  }
+	
+	// add Saturation to the equation.
+	S = S / max;
+	R = S + (1.0 - S)*R;
+	G = S + (1.0 - S)*G;
+	B = S + (1.0 - S)*B;
+	
+	// Use value to get actual RGB 
+	// normalize RGB first then apply value
+	temp = R + G + B; 
+	V = 3 * V / (temp * max);
+	R = R * V;
+	G = G * V;
+	B = B * V;
+	
+	// clip below 255
+	if (R > 255.0) R = max;
+	if (G > 255.0) G = max;
+	if (B > 255.0) B = max;
+	
+	// assign output.
+	*outPtr = (T)(R); outPtr++;
+	*outPtr = (T)(G); outPtr++;
+	*outPtr = (T)(B); outPtr++;
+	}
+      outPtr += outIncY;
+      inPtr += inIncY;
+      }
+    outPtr += outIncZ;
+    inPtr += inIncZ;
+    }
 }
 
-
 //----------------------------------------------------------------------------
-void vtkImageHSVToRGB::Execute(vtkImageRegion *inRegion, 
-			       vtkImageRegion *outRegion)
+void vtkImageHSVToRGB::ThreadedExecute(vtkImageData *inData, 
+					 vtkImageData *outData,
+					 int outExt[6], int id)
 {
-  int min, max;
-  void *inPtr = inRegion->GetScalarPointer();
-  void *outPtr = outRegion->GetScalarPointer();
+  void *inPtr = inData->GetScalarPointerForExtent(outExt);
+  void *outPtr = outData->GetScalarPointerForExtent(outExt);
   
-  if (inRegion->GetScalarType() != outRegion->GetScalarType())
+  vtkDebugMacro(<< "Execute: inData = " << inData 
+		<< ", outData = " << outData);
+  
+  // this filter expects that input is the same type as output.
+  if (inData->GetScalarType() != outData->GetScalarType())
     {
-    vtkErrorMacro("Scalar type of input, " 
-      << vtkImageScalarTypeNameMacro(inRegion->GetScalarType())
-      << ", must match scalar type of output, "
-      << vtkImageScalarTypeNameMacro(outRegion->GetScalarType()));
+    vtkErrorMacro(<< "Execute: input ScalarType, " << inData->GetScalarType()
+                  << ", must match out ScalarType " << outData->GetScalarType());
     return;
     }
-  inRegion->GetAxisExtent(VTK_IMAGE_COMPONENT_AXIS, min, max);
-  if (max - min + 1 < 3)
+  
+  // need three components for input and output
+  if (inData->GetNumberOfScalarComponents() < 3)
     {
     vtkErrorMacro("Input has too few components");
     return;
     }
-  outRegion->GetAxisExtent(VTK_IMAGE_COMPONENT_AXIS, min, max);
-  if (max - min + 1 < 3)
+  if (outData->GetNumberOfScalarComponents() < 3)
     {
     vtkErrorMacro("Output has too few components");
     return;
     }
-  
-  switch (inRegion->GetScalarType())
+
+  switch (inData->GetScalarType())
     {
     case VTK_FLOAT:
-      vtkImageHSVToRGBExecute(this, inRegion, (float *)inPtr, 
-			      outRegion, (float *)outPtr);
-      break;
-    case VTK_SHORT:
-      vtkImageHSVToRGBExecute(this, inRegion, (short *)inPtr, 
-			      outRegion, (short *)outPtr);
+      vtkImageHSVToRGBExecute(this, 
+			      inData, (float *)(inPtr), 
+			      outData, (float *)(outPtr), outExt, id);
       break;
     case VTK_INT:
-      vtkImageHSVToRGBExecute(this, inRegion, (int *)inPtr, 
-			      outRegion, (int *)outPtr);
+      vtkImageHSVToRGBExecute(this, 
+			      inData, (int *)(inPtr), 
+			      outData, (int *)(outPtr), outExt, id);
+      break;
+    case VTK_SHORT:
+      vtkImageHSVToRGBExecute(this, 
+			      inData, (short *)(inPtr), 
+			      outData, (short *)(outPtr), outExt, id);
       break;
     case VTK_UNSIGNED_SHORT:
-      vtkImageHSVToRGBExecute(this, inRegion, (unsigned short *)inPtr, 
-			      outRegion, (unsigned short *)outPtr);
+      vtkImageHSVToRGBExecute(this, 
+			      inData, (unsigned short *)(inPtr), 
+			      outData, (unsigned short *)(outPtr), 
+			      outExt, id);
       break;
     case VTK_UNSIGNED_CHAR:
-      vtkImageHSVToRGBExecute(this, inRegion, (unsigned char*)inPtr, 
-			      outRegion, (unsigned char *)outPtr);
+      vtkImageHSVToRGBExecute(this, 
+			      inData, (unsigned char *)(inPtr), 
+			      outData, (unsigned char *)(outPtr), 
+			      outExt, id);
       break;
     default:
-      vtkErrorMacro("Unknown data type" << inRegion->GetScalarType());
+      vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;
     }
 }
 
-
-
+  
 
 
 

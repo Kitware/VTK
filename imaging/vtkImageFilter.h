@@ -108,11 +108,10 @@ protected:
   vtkMultiThreader *Threader;
   int Bypass;
   int Updating;
-  // The number of threads to use when ray casting
   int NumberOfThreads;
   
   virtual void ExecuteImageInformation();
-  virtual void ComputeRequiredInputUpdateExtent();
+  virtual void ComputeRequiredInputUpdateExtent(int inExt[6],int outExt[6]);
 
   void RecursiveStreamUpdate(vtkImageData *outData, int axis);
   virtual void Execute(vtkImageData *inData, vtkImageData *outData);

@@ -49,13 +49,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkImageTwoInputFilter_h
 #define __vtkImageTwoInputFilter_h
 
-
 #include "vtkImageMultipleInputFilter.h"
-#include "vtkStructuredPointsToImage.h"
-#include "vtkStructuredPoints.h"
-class vtkImageRegion;
-class vtkImageCache;
-
 
 class VTK_EXPORT vtkImageTwoInputFilter : public vtkImageMultipleInputFilter
 {
@@ -76,11 +70,6 @@ public:
   vtkImageCache *GetInput1() {return this->Inputs[0];}
   vtkImageCache *GetInput2() {return this->Inputs[1];}
 
-protected:
-
-  void Execute(vtkImageRegion **inRegions, vtkImageRegion *outRegion);
-  virtual void Execute(vtkImageRegion *inRegion1, vtkImageRegion *inRegion2, 
-		       vtkImageRegion *outRegion);  
 };
 
 #endif
