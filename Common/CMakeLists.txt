@@ -96,6 +96,9 @@ vtkOverrideInformation.cxx
 vtkOverrideInformationCollection.cxx
 vtkParametricBoy.cxx
 vtkParametricConicSpiral.cxx
+vtkParametricCrossCap.cxx
+vtkParametricDini.cxx
+vtkParametricEnneper.cxx
 vtkParametricFigure8Klein.cxx
 vtkParametricFunction.cxx
 vtkParametricKlein.cxx
