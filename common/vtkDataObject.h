@@ -315,8 +315,8 @@ public:
   // Locality is used internally by the pipeline update mechanism.
   // It is used to get parralel execution when a filter has multiple
   // inputs with ports upstream.
-  vtkSetMacro(Locality, int);
-  vtkGetMacro(Locality, int);
+  vtkSetMacro(Locality, float);
+  vtkGetMacro(Locality, float);
 
 protected:
 
