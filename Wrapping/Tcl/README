@@ -1,4 +1,4 @@
-VTK Tcl wrappers (Windows platforms)
+VTK Tcl wrappers
 ===========================================================================
 
 Using VTK inside Tcl/Tk is a two step process :
@@ -8,7 +8,7 @@ I) Load the 'vtktcl' package by issuing the following command before any invocat
 
         package require vtktcl
 
-NOTE: the previous VTK version was built such that the Tcl wrappers were stored in a single DLL file. Windows users were accustomed to issue 'catch { load vtktcl }' in their Tcl scripts to load the VTK commands inside the Tcl interpreter. The Tcl wrappers are now split in numerous DLL files (i.e. shared libraries). Unless a compatibility path is found, you will have to replace any 'catch { load vtktcl }' with the line presented above. A Tcl or Perl script might be posted later to automate this task.
+NOTE: the previous VTK version was built such that the Tcl wrappers were stored in a single DLL (i.e. shared library) file. Windows users were accustomed to issue 'catch { load vtktcl }' in their Tcl scripts to load the VTK commands inside the Tcl interpreter. The Tcl wrappers are now split in numerous DLL files. Unless a compatibility path is found, you will have to replace any 'catch { load vtktcl }' with the line presented above. A Tcl or Perl script might be posted later to automate this task.
 
 =============================
 II) Install the package :
@@ -21,31 +21,43 @@ A pkgIndex.tcl file has been included in this VTK distribution to provide the 'v
 
 The package facility assume that Tcl libraries (and packages) are kept in well-known directories (and their subdirectories). The list of well-known directories is kept in the auto_path Tcl variable. This is initialized by tclsh or wish to include many default directories, including the default Tcl script library directory. For example :
 
+Windows:
 % puts $auto_path
 C:/devel/langages/tcl/8.3/lib/tcl8.3 C:/devel/langages/tcl/8.3/lib C:/devel/langages/tcl/8.3/lib/tk8.3
+
+Linux/Unix:
+root [1003] ~/tmp# wish
+% puts $auto_path
+/usr/lib/tcl8.3 /usr/lib /usr/lib/tk8.3
 
 Now let's see how we can make Tcl aware of the vtktcl package. Two different ways :
 
 o) EITHER copy the pkgIndex.tcl file :
 
-- locate your Tcl install directory (see auto_path) and the lib directory (typically "C:/Program Files/Tcl/lib" or, in my example, "C:/devel/langages/tcl/8.3/lib").
-- create whatever directory inside the lib directory (for example C":/Program Files/Tcl/lib/vtktcl").
+- locate your Tcl install directory (see auto_path) and the lib directory (typically "C:/Program Files/Tcl/lib" or, in my example, "C:/devel/langages/tcl/8.3/lib" for Windows, /usr/lib for Linux/Unix).
+- create whatever directory inside the lib directory (for example C":/Program Files/Tcl/lib/vtktcl" for Windows, /usr/lib/vtk3.3 for Linux/Unix).
 - copy the pkgIndex.tcl file to this directory.
 
 That's it. As the subdirectories inside the lib directory are browsed too, the pkgIndex.tcl file will be found and interpreted. The major disadvantage of this method is that you will have to keep this file up-to-date with modifications made to the pkgIndex.tcl file provided by subsequent VTK distribution (but most probably the VTK binary installer will copy the pkgIndex.tcl file for you).
 
 o) OR Modify the TCLLIBPATH :
 
-This is the way to go :) Tcl provides a way for you to tell the Tcl interpreter to search for pkgIndex.tcl files in any user-specified directory. Just set the TCLLIBPATH environment variable to a set of space-separated directories to search in (warning: use '/' instead of '\'). If you store the VTK sources on your hard disk or if you use the CVS, add the directory holding the pkgIndex.tcl file (Wrapping/Tcl). For example :
+This is the way to go, especially for developpers :) Tcl provides a way for you to tell the Tcl interpreter to search for pkgIndex.tcl files in any user-specified directory. Just set the TCLLIBPATH environment variable to a set of space-separated directories to search in (warning: Windows users shall use '/' instead of '\'). If you store the VTK sources on your hard disk or if you use the CVS, add the directory holding the pkgIndex.tcl file (Wrapping/Tcl) to TCLLIBPATH. For example :
 
+Windows:
 TCLLIBPATH=S:/src/vtk/vtknew/Wrapping/Tcl
-
 Now check auto_path :
-
 % puts $auto_path
 S:/src/vtk/vtknew/Wrapping/Tcl C:/devel/langages/tcl/8.3/lib/tcl8.3 C:/devel/langages/tcl/8.3/lib C:/devel/langages/tcl/8.3/lib/tk8.3
 
-This works (and was expected to :)). 
+Linux/Unix:
+root [1011] ~/tmp# export TCLLIBPATH=/usr/lib/vtk3.3
+root [1012] ~/tmp# wish
+% puts $auto_path
+/usr/lib/vtk3.3 /usr/lib/tcl8.3 /usr/lib /usr/lib/tk8.3
+
+
+This shall do the trick :))
 
 
 Sebastien BARRE (sebastien@barre.nom.fr) 
