@@ -41,6 +41,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 #include "vtkProbeFilter.h"
 #include "vtkObjectFactory.h"
+#include "vtkImageData.h"
 
 //----------------------------------------------------------------------------
 vtkProbeFilter* vtkProbeFilter::New()
