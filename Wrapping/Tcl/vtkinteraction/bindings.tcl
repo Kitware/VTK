@@ -1,5 +1,7 @@
 package provide vtkinteraction 4.0
 
+package provide vtkrendering
+
 namespace eval ::vtk {
 
     namespace export *
