@@ -6,26 +6,21 @@ import java.util.*;
 import vtk.*;
 
 // Example of complex 3D widget in use.
-public class ImagePlaneWidget extends JPanel {
+public class ImagePlaneWidget extends vtkCanvas {
 
   private int width = 512;
   private int height = 512;
-  private vtkCanvas renWin = null;
 
   public ImagePlaneWidget(String path) {
-    setLayout(new BorderLayout());
-
-    renWin = new vtkCanvas();
+    super();
 
     // attach observer to set the render window size after
     // the render window is created...
-    renWin.addWindowSetObserver(new Observer() {
+    addWindowSetObserver(new Observer() {
         public void update(Observable o, Object arg) {
-          renWin.setSize(width, height);
+          setSize(width, height);
         }
       });
-
-    add(renWin, BorderLayout.CENTER);
 
     //Start by loading some data.
     vtkVolume16Reader v16 = new vtkVolume16Reader();
@@ -38,10 +33,15 @@ public class ImagePlaneWidget extends JPanel {
 
     setImageData(v16.GetOutput());
 
+    JPanel p = new JPanel();
+    p.setLayout(new BorderLayout());
+    p.add(this, BorderLayout.CENTER);
+
     JFrame frame = new JFrame("ImagePlaneWidget Test");
     frame.setBounds(10, 10, width, height);
-    frame.getContentPane().add(this, BorderLayout.CENTER);
+    frame.getContentPane().add(p, BorderLayout.CENTER);
     frame.setVisible(true);
+    frame.pack();
 
     frame.addWindowListener(new WindowAdapter() 
       {
@@ -60,7 +60,7 @@ public class ImagePlaneWidget extends JPanel {
     vtkImagePlaneWidget planeWidgetX = new vtkImagePlaneWidget();
     planeWidgetX.DisplayTextOn();
     planeWidgetX.SetInput(id);
-    planeWidgetX.SetInteractor(renWin.getIren());
+    planeWidgetX.SetInteractor(getIren());
     planeWidgetX.SetPlaneOrientationToXAxes();
     planeWidgetX.SetSliceIndex(32);
     planeWidgetX.SetPicker(picker);
@@ -71,7 +71,7 @@ public class ImagePlaneWidget extends JPanel {
     vtkImagePlaneWidget planeWidgetY = new vtkImagePlaneWidget();
     planeWidgetY.DisplayTextOn();
     planeWidgetY.SetInput(id);
-    planeWidgetY.SetInteractor(renWin.getIren());
+    planeWidgetY.SetInteractor(getIren());
     planeWidgetY.SetPlaneOrientationToYAxes();
     planeWidgetY.SetSliceIndex(32);
     planeWidgetY.SetPicker(picker);
@@ -87,7 +87,7 @@ public class ImagePlaneWidget extends JPanel {
     planeWidgetZ.DisplayTextOn();
     planeWidgetZ.SetInput(id);
     planeWidgetZ.TextureInterpolateOff();
-    planeWidgetZ.SetInteractor(renWin.getIren());
+    planeWidgetZ.SetInteractor(getIren());
     planeWidgetZ.SetPlaneOrientationToZAxes();
     planeWidgetZ.SetSliceIndex(46);
     planeWidgetZ.SetPicker(picker);
@@ -106,12 +106,12 @@ public class ImagePlaneWidget extends JPanel {
     vtkActor outlineActor = new vtkActor();
     outlineActor.SetMapper(outlineMapper);
       
-    renWin.GetRenderer().AddActor(outlineActor);
+    GetRenderer().AddActor(outlineActor);
       
     //Add the outline actor to the renderer, set the background and size
-    renWin.GetRenderer().GetCullers().RemoveAllItems();
+    GetRenderer().GetCullers().RemoveAllItems();
       
-    renWin.GetRenderer().SetBackground(0.1, 0.1, 0.2);
+    GetRenderer().SetBackground(0.1, 0.1, 0.2);
       
   }
 
