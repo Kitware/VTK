@@ -98,6 +98,7 @@ int main( int argc, char *argv[] )
   zCoords->Delete();
   rgrid->Delete();
   rgridMapper->Delete();
+  plane->Delete();
   wireActor->Delete();
 
   return !retVal;
