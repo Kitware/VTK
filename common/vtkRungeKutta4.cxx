@@ -159,7 +159,7 @@ float vtkRungeKutta4::ComputeNextStep(float* xprev, float* dxprev,
 
   for(i=0; i<numVals-1; i++)
     {
-    this->Vals[i] = xprev[i] + delT*this->NextDerivs[0][i];
+    this->Vals[i] = xprev[i] + delT*this->NextDerivs[1][i];
     }
   this->Vals[numVals-1] = t + delT;
 
