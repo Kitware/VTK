@@ -56,7 +56,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 //    r - reset camera view
 //    w - turn all actors wireframe
 //    s - turn all actors surface
-//    e - exits
+//    u - execute user defined function
+//    p - pick actor under mouse pointer (if pickable)
+//    3 - toggle in/out of 3D mode (if supported by renderer)
+//    e - exit
 
 #ifndef __vtkXRenderWindowInteractor_h
 #define __vtkXRenderWindowInteractor_h
