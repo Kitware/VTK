@@ -84,9 +84,6 @@ vtkImageWriter::vtkImageWriter()
   this->SetFilePattern("%s.%d");
   
   this->FileLowerLeft = 0;
-
-  // Set a default memory limit of a gigabyte
-  this->MemoryLimit = 1000000; 
 }
 
 
@@ -126,7 +123,6 @@ void vtkImageWriter::PrintSelf(ostream& os, vtkIndent indent)
     (this->FilePattern ? this->FilePattern : "(none)") << "\n";
 
   os << indent << "FileDimensionality: " << this->FileDimensionality << "\n";
-  os << indent << "MemoryLimit: " << this->MemoryLimit << "\n";
 }
 
 
@@ -317,86 +313,14 @@ void vtkImageWriter::RecursiveWrite(int axis, vtkImageData *cache,
   // Propagate the update extent so we can determine pipeline size
   this->GetInput()->PropagateUpdateExtent();
 
-  // Now we can ask how big the pipeline will be
-  inputMemorySize = this->GetInput()->GetEstimatedPipelineMemorySize();
-
-  // will the current request fit into memory
-  // if so the just get the data and write it out
-  if ( inputMemorySize < this->MemoryLimit )
-    {
-    ext = cache->GetUpdateExtent();
-    vtkDebugMacro("Getting input extent: " << ext[0] << ", " << 
-		  ext[1] << ", " << ext[2] << ", " << ext[3] << ", " << 
-		  ext[4] << ", " << ext[5] << endl);
-    cache->Update();
-    data = cache;
-    this->RecursiveWrite(axis,cache,data,file);
-    if (file && fileOpenedHere)
-      {
-      this->WriteFileTrailer(file,cache);
-      file->close();
-      delete file;
-      file = NULL;
-      }
-    return;
-    }
-
-  // if the current request did not fit into memory
-  // the we will split the current axis
-  this->GetInput()->GetAxisUpdateExtent(axis, min, max);
-  
-  vtkDebugMacro("Axes: " << axis << "(" << min << ", " << max 
-  	<< "), UpdateMemory: " << inputMemorySize 
-  	<< ", Limit: " << this->MemoryLimit << endl);
-  
-  if (min == max)
-    {
-    if (axis > 0)
-      {
-      this->RecursiveWrite(axis - 1,cache, file);
-      }
-    else
-      {
-      vtkWarningMacro("MemoryLimit too small for one pixel of information!!");
-      }
-    if (file && fileOpenedHere)
-      {
-      this->WriteFileTrailer(file,cache);
-      file->close();
-      delete file;
-      file = NULL;
-      }
-    return;
-    }
-  
-  mid = (min + max) / 2;
-
-  // if it is the y axis then flip by default
-  if (axis == 1 && !this->FileLowerLeft)
-    {
-    // first half
-    cache->SetAxisUpdateExtent(axis, mid+1, max);
-    this->RecursiveWrite(axis,cache,file);
-    
-    // second half
-    cache->SetAxisUpdateExtent(axis, min, mid);
-    this->RecursiveWrite(axis,cache,file);
-    }
-  else
-    {
-    // first half
-    cache->SetAxisUpdateExtent(axis, min, mid);
-    this->RecursiveWrite(axis,cache,file);
-    
-    // second half
-    cache->SetAxisUpdateExtent(axis, mid+1, max);
-    this->RecursiveWrite(axis,cache,file);
-    }
-    
-  // restore original extent
-  cache->SetAxisUpdateExtent(axis, min, max);
-
-  // if we opened the file here, then we need to close it up
+  // just get the data and write it out
+  ext = cache->GetUpdateExtent();
+  vtkDebugMacro("Getting input extent: " << ext[0] << ", " << 
+                ext[1] << ", " << ext[2] << ", " << ext[3] << ", " << 
+                ext[4] << ", " << ext[5] << endl);
+  cache->Update();
+  data = cache;
+  this->RecursiveWrite(axis,cache,data,file);
   if (file && fileOpenedHere)
     {
     this->WriteFileTrailer(file,cache);
@@ -404,6 +328,7 @@ void vtkImageWriter::RecursiveWrite(int axis, vtkImageData *cache,
     delete file;
     file = NULL;
     }
+  return;
 }
 
 

@@ -48,35 +48,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define __vtkImageDataStreamer_h
 
 #include "vtkImageToImageFilter.h"
-
-//BTX
-// Define a helper class to keep track of a stack of extents 
-class VTK_EXPORT vtkImageDataStreamerExtentStack
-{
-public:
-  vtkImageDataStreamerExtentStack()
-  { this->StackTop = NULL; 
-    this->StackStorageSize = 0;
-    this->StackSize = 0;
-    this->Stack = NULL; };
-
-  ~vtkImageDataStreamerExtentStack()
-  { if ( this->Stack ) { delete [] this->Stack; }; };
-
-  void Push( int extent[6] );
-  void Pop( int extent[6] );
-  void PopAll();
-  
-  int  GetStackSize() { return this->StackSize; };
-
-protected:
-  int    *Stack;
-  int    *StackTop;
-  int    StackSize;
-  int    StackStorageSize;
-};
-//ETX
-
+#include "vtkExtentTranslator.h"
 
 class VTK_EXPORT vtkImageDataStreamer : public vtkImageToImageFilter
 {
@@ -86,77 +58,29 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Set / Get the memory limit in kilobytes.
-  vtkSetMacro(MemoryLimit, unsigned long);
-  vtkGetMacro(MemoryLimit, unsigned long);
-  
-  // Description:
-  // How should the streamer break up extents. Block mode
-  // tries to break an extent up into cube blocks.  It always chooses
-  // the largest axis to split.
-  // Slab mode first breaks up the Z axis.  If it gets to one slice,
-  // then it starts breaking up other axes.
-  void SetSplitModeToBlock()
-    {this->SplitMode = vtkImageDataStreamer::BLOCK_MODE;}
-  void SetSplitModeToXSlab()
-    {this->SplitMode = vtkImageDataStreamer::X_SLAB_MODE;}
- void SetSplitModeToYSlab()
-    {this->SplitMode = vtkImageDataStreamer::Y_SLAB_MODE;}
- void SetSplitModeToZSlab()
-    {this->SplitMode = vtkImageDataStreamer::Z_SLAB_MODE;}
-  
-  // Description:
-  // Need to override since this is where the check for incremental will
-  // be done
-  void UpdateInformation();
+  // Set how many pieces to divide the input into.
+  // void SetNumberOfStreamDivisions(int num);
+  // int GetNumberOfStreamDivisions();
+  vtkSetMacro(NumberOfStreamDivisions,int);
+  vtkGetMacro(NumberOfStreamDivisions,int);
   
   // Description:
   // Need to override since this is where streaming will be done
   void UpdateData( vtkDataObject *out );
 
   // Description:
-  // Need to override and do nothing since it should be triggered during
-  // the update data pass due to streaming
-  void TriggerAsynchronousUpdate();
-
-  // Description:
-  // Is this an incremental streamer? If yes, then each update of this
-  // filter will produce another chunk of the output - update must be called
-  // multiple times to generate the whole output. If no, then one update 
-  // produces all of the output.
-  vtkSetClampMacro( IncrementalUpdate, int, 0, 1 );
-  vtkGetMacro( IncrementalUpdate, int );
-  vtkBooleanMacro( IncrementalUpdate, int );
-
-
+  // Get the extent translator that will be used to split the requests
+  vtkGetObjectMacro(ExtentTranslator,vtkExtentTranslator);
+  vtkSetObjectMacro(ExtentTranslator,vtkExtentTranslator);
+  
 protected:
   vtkImageDataStreamer();
-  ~vtkImageDataStreamer() {};
+  ~vtkImageDataStreamer();
   vtkImageDataStreamer(const vtkImageDataStreamer&) {};
   void operator=(const vtkImageDataStreamer&) {};
-
-  unsigned long  MemoryLimit;
-  int            SplitMode;
-  int            IncrementalUpdate;
-  int            ProcessExtent[6];
-  int            DataWasPassed;
-    
-  vtkImageDataStreamerExtentStack ExtentStack;
-
-//BTX
-
-// Don't change the numbers here - they are used in the code
-// to indicate array indices.
-
-  enum Modes {
-    X_SLAB_MODE=0,
-    Y_SLAB_MODE=1,
-    Z_SLAB_MODE=2,
-    BLOCK_MODE= 3
-  };
-
-//ETX
-
+  
+  vtkExtentTranslator *ExtentTranslator;
+  int            NumberOfStreamDivisions;
 };
 
 

@@ -45,8 +45,8 @@ mapToRGBA SetEndMethod changeLUT
 
 vtkImageDataStreamer imageStreamer
 imageStreamer SetInput [mapToRGBA GetOutput]
-imageStreamer SetMemoryLimit 65
-imageStreamer SetSplitModeToZSlab
+imageStreamer SetNumberOfStreamDivisions 8
+[imageStreamer GetExtentTranslator] SetSplitModeToZSlab
 
 # set the window/level to 255.0/127.5 to view full range
 vtkImageViewer viewer
