@@ -32,7 +32,7 @@ Thanks:    to Yves Starreveld for developing this class
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.16");
+vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.17");
 vtkStandardNewMacro(vtkCarbonRenderWindow);
 
 
@@ -420,7 +420,7 @@ void vtkCarbonRenderWindow::Clean()
 }
 
 //--------------------------------------------------------------------------
-void vtkCarbonRenderWindow::SetWindowName( char * _arg )
+void vtkCarbonRenderWindow::SetWindowName( const char * _arg )
 {
   vtkWindow::SetWindowName(_arg);
   Str255 newTitle = "\p"; // SetWTitle takes a pascal string
