@@ -81,37 +81,37 @@ main(int argc, char **argv)
  */
 
 extern Vtkcommontcl_Init(Tcl_Interp *interp);
-#ifdef USE_GRAPHICS
+#ifdef VTK_USE_GRAPHICS
 extern Vtkgraphicstcl_Init(Tcl_Interp *interp);
-#ifdef USE_TKWIDGET
+#ifdef VTK_USE_TKWIDGET
 extern Vtktkrenderwidget_Init(Tcl_Interp *interp);
 #endif
 #endif
-#ifdef USE_IMAGING
+#ifdef VTK_USE_IMAGING
 extern Vtkimagingtcl_Init(Tcl_Interp *interp);
-#ifdef USE_TKWIDGET
+#ifdef VTK_USE_TKWIDGET
 extern Vtktkimageviewerwidget_Init(Tcl_Interp *interp);
 #endif
 #endif
-#ifdef USE_PATENTED
+#ifdef VTK_USE_PATENTED
 extern Vtkpatentedtcl_Init(Tcl_Interp *interp);
 #endif
-#ifdef USE_CONTRIB
+#ifdef VTK_USE_CONTRIB
 extern Vtkcontribtcl_Init(Tcl_Interp *interp);
 #endif
-#ifdef USE_VOLUME
+#ifdef VTK_USE_VOLUME
 extern Vtkvolumetcl_Init(Tcl_Interp *interp);
 #endif
-#ifdef USE_GEMSVOLUME
+#ifdef VTK_USE_GEMSVOLUME
 extern Vtkgemsvolumetcl_Init(Tcl_Interp *interp);
 #endif
-#ifdef USE_GEAE
+#ifdef VTK_USE_GEAE
 extern Vtkgeaetcl_Init(Tcl_Interp *interp);
 #endif
-#ifdef USE_GEMSIO
+#ifdef VTK_USE_GEMSIO
 extern Vtkgemsiotcl_Init(Tcl_Interp *interp);
 #endif
-#ifdef USE_GEMSIP
+#ifdef VTK_USE_GEMSIP
 extern Vtkgemsiptcl_Init(Tcl_Interp *interp);
 #endif
 
@@ -137,12 +137,12 @@ int Tcl_AppInit(Tcl_Interp *interp)
     return TCL_ERROR;
     }
     
-#ifdef USE_GRAPHICS
+#ifdef VTK_USE_GRAPHICS
   if (Vtkgraphicstcl_Init(interp) == TCL_ERROR) 
     {
     return TCL_ERROR;
     }
-#ifdef USE_TKWIDGET
+#ifdef VTK_USE_TKWIDGET
   if (Vtktkrenderwidget_Init(interp) == TCL_ERROR) 
     {
     return TCL_ERROR;
@@ -150,12 +150,12 @@ int Tcl_AppInit(Tcl_Interp *interp)
 #endif
 #endif
 
-#ifdef USE_IMAGING
+#ifdef VTK_USE_IMAGING
   if (Vtkimagingtcl_Init(interp) == TCL_ERROR) 
     {
     return TCL_ERROR;
     }
-#ifdef USE_TKWIDGET
+#ifdef VTK_USE_TKWIDGET
   if (Vtktkimageviewerwidget_Init(interp) == TCL_ERROR) 
     {
     return TCL_ERROR;
@@ -163,49 +163,49 @@ int Tcl_AppInit(Tcl_Interp *interp)
 #endif
 #endif
 
-#ifdef USE_PATENTED
+#ifdef VTK_USE_PATENTED
   if (Vtkpatentedtcl_Init(interp) == TCL_ERROR) 
     {
     return TCL_ERROR;
     }
 #endif
 
-#ifdef USE_VOLUME
+#ifdef VTK_USE_VOLUME
   if (Vtkvolumetcl_Init(interp) == TCL_ERROR) 
     {
     return TCL_ERROR;
     }
 #endif
 
-#ifdef USE_CONTRIB
+#ifdef VTK_USE_CONTRIB
   if (Vtkcontribtcl_Init(interp) == TCL_ERROR) 
     {
     return TCL_ERROR;
     }
 #endif
 
-#ifdef USE_GEAE
+#ifdef VTK_USE_GEAE
   if (Vtkgeaetcl_Init(interp) == TCL_ERROR) 
     {
     return TCL_ERROR;
     }
 #endif
 
-#ifdef USE_GEMSIP
+#ifdef VTK_USE_GEMSIP
   if (Vtkgemsiptcl_Init(interp) == TCL_ERROR) 
     {
     return TCL_ERROR;
     }
 #endif
 
-#ifdef USE_GEMSIO
+#ifdef VTK_USE_GEMSIO
   if (Vtkgemsiotcl_Init(interp) == TCL_ERROR) 
     {
     return TCL_ERROR;
     }
 #endif
 
-#ifdef USE_GEMSVOLUME
+#ifdef VTK_USE_GEMSVOLUME
   if (Vtkgemsvolumetcl_Init(interp) == TCL_ERROR) 
     {
     return TCL_ERROR;

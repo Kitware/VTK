@@ -101,7 +101,7 @@ vtkImageReader::~vtkImageReader()
 
 void vtkImageReader::SetFileByteOrderToBigEndian()
 {
-#ifndef WORDS_BIGENDIAN
+#ifndef VTK_WORDS_BIGENDIAN
   this->SwapBytesOn();
 #else
   this->SwapBytesOff();
@@ -110,7 +110,7 @@ void vtkImageReader::SetFileByteOrderToBigEndian()
 
 void vtkImageReader::SetFileByteOrderToLittleEndian()
 {
-#ifdef WORDS_BIGENDIAN
+#ifdef VTK_WORDS_BIGENDIAN
   this->SwapBytesOn();
 #else
   this->SwapBytesOff();
@@ -127,7 +127,7 @@ void vtkImageReader::SetFileByteOrder(int byteOrder)
 
 int vtkImageReader::GetFileByteOrder()
 {
-#ifdef WORDS_BIGENDIAN
+#ifdef VTK_WORDS_BIGENDIAN
   if ( this->SwapBytes )
     return VTK_FILE_BYTE_ORDER_LITTLE_ENDIAN;
   else
@@ -142,7 +142,7 @@ int vtkImageReader::GetFileByteOrder()
 
 char *vtkImageReader::GetFileByteOrderAsString()
 {
-#ifdef WORDS_BIGENDIAN
+#ifdef VTK_WORDS_BIGENDIAN
   if ( this->SwapBytes )
     return "LittleEndian";
   else

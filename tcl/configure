@@ -1505,7 +1505,7 @@ USE_TKWIDGET_FLAG=""
   # Check whether --with-tkwidget or --without-tkwidget was given.
 if test "${with_tkwidget+set}" = set; then
   withval="$with_tkwidget"
-  USE_TKWIDGET_FLAG=-DUSE_TKWIDGET
+  USE_TKWIDGET_FLAG=-DVTK_USE_TKWIDGET
 fi
 
 

@@ -20,33 +20,10 @@ BUILD_TCL         = @BUILD_TCL@
 CLEAN_TCL         = @CLEAN_TCL@
 BUILD_JAVA        = @BUILD_JAVA@
 CLEAN_JAVA        = @CLEAN_JAVA@
-BUILD_GRAPHICS    = @BUILD_GRAPHICS@
-DEPEND_GRAPHICS   = @DEPEND_GRAPHICS@
-CLEAN_GRAPHICS    = @CLEAN_GRAPHICS@
-BUILD_IMAGING     = @BUILD_IMAGING@
-DEPEND_IMAGING    = @DEPEND_IMAGING@
-CLEAN_IMAGING     = @CLEAN_IMAGING@
-BUILD_PATENTED    = @BUILD_PATENTED@
-DEPEND_PATENTED   = @DEPEND_PATENTED@
-CLEAN_PATENTED    = @CLEAN_PATENTED@
-BUILD_VOLUME      = @BUILD_VOLUME@
-DEPEND_VOLUME     = @DEPEND_VOLUME@
-CLEAN_VOLUME      = @CLEAN_VOLUME@
-BUILD_CONTRIB     = @BUILD_CONTRIB@
-DEPEND_CONTRIB    = @DEPEND_CONTRIB@
-CLEAN_CONTRIB     = @CLEAN_CONTRIB@
-BUILD_GEAE        = @BUILD_GEAE@
-DEPEND_GEAE       = @DEPEND_GEAE@
-CLEAN_GEAE        = @CLEAN_GEAE@
-BUILD_GEMSIP      = @BUILD_GEMSIP@
-DEPEND_GEMSIP     = @DEPEND_GEMSIP@
-CLEAN_GEMSIP      = @CLEAN_GEMSIP@
-BUILD_GEMSIO      = @BUILD_GEMSIO@
-DEPEND_GEMSIO     = @DEPEND_GEMSIO@
-CLEAN_GEMSIO      = @CLEAN_GEMSIO@
-BUILD_GEMSVOLUME  = @BUILD_GEMSVOLUME@
-DEPEND_GEMSVOLUME = @DEPEND_GEMSVOLUME@
-CLEAN_GEMSVOLUME  = @CLEAN_GEMSVOLUME@
+
+BUILD_TOOLKITS    = @BUILD_TOOLKITS@
+DEPEND_TOOLKITS   = @DEPEND_TOOLKITS@
+CLEAN_TOOLKITS    = @CLEAN_TOOLKITS@
 
 #------------------------------------------------------------------------------
 # Include user-editable defines.
@@ -55,11 +32,8 @@ CLEAN_GEMSVOLUME  = @CLEAN_GEMSVOLUME@
 
 #------------------------------------------------------------------------------
 
-all: targets ${BUILD_TCL} ${BUILD_JAVA} build_common \
-	${BUILD_GRAPHICS} ${BUILD_IMAGING} ${BUILD_VOLUME} \
-	${BUILD_CONTRIB} ${BUILD_GEAE} ${BUILD_GEMSIP} ${BUILD_GEMSIO} \
-	${BUILD_GEMSVOLUME} ${BUILD_PATENTED} \
-	${BUILD_TCL}${BUILD_TCL} ${BUILD_JAVA}${BUILD_JAVA}
+all: targets ${BUILD_TCL} ${BUILD_JAVA} build_common ${BUILD_TOOLKITS} \
+    ${BUILD_TCL}${BUILD_TCL} ${BUILD_JAVA}${BUILD_JAVA}
 
 targets: ${srcdir}/targets.cxx ${srcdir}/makedepend.cxx
 	${CXX} -o targets ${srcdir}/targets.cxx ${srcdir}/makedepend.cxx
@@ -112,24 +86,18 @@ build_contrib: targets ${BUILD_TCL} ${BUILD_JAVA}
 
 # tcl part2
 build_tclbuild_tcl: ${BUILD_TCL} ${BUILD_JAVA} build_common \
-	${BUILD_GRAPHICS} ${BUILD_IMAGING} ${BUILD_VOLUME} \
-	${BUILD_CONTRIB} ${BUILD_GEAE} ${BUILD_GEMSIP} ${BUILD_GEMSIO} \
-	${BUILD_GEMSVOLUME} ${BUILD_PATENTED}
+	${BUILD_TOOLKITS} 
 	cd tcl;        ${MAKE} -${MAKEFLAGS} vtk
 
 # java part2
 build_javabuild_java: ${BUILD_TCL} ${BUILD_JAVA} build_common \
-	${BUILD_GRAPHICS} ${BUILD_IMAGING} ${BUILD_VOLUME} \
-	${BUILD_CONTRIB} ${BUILD_GEAE} ${BUILD_GEMSIP} ${BUILD_GEMSIO} \
-	${BUILD_GEMSVOLUME} ${BUILD_PATENTED}
+	${BUILD_TOOLKITS}
 	cd java;       ${MAKE} -${MAKEFLAGS} vtk
 
 #------------------------------------------------------------------------------
 # generate dpend.make files
 
-depend: ${DEPEND_TCL} ${DEPEND_GRAPHICS} ${DEPEND_IMAGING} ${DEPEND_PATENTED} \
-	${DEPEND_VOLUME} ${DEPEND_GEMSVOLUME} \
-	${DEPEND_CONTRIB} ${DEPEND_GEAE} ${DEPEND_GEMSIP} ${DEPEND_GEMSIO} 
+depend: ${DEPEND_TCL} ${DEPEND_TOOLKITS} 
 	cd common;    ${MAKE} -${MAKEFLAGS} depend
 
 depend_tcl:
@@ -164,9 +132,7 @@ depend_gemsvolume:
 
 #------------------------------------------------------------------------------
 # Clean up all files that were built by make.
-clean: ${CLEAN_TCL} ${CLEAN_JAVA} ${CLEAN_GRAPHICS} ${CLEAN_IMAGING} \
-	${CLEAN_VOLUME} ${CLEAN_GEMSVOLUME} ${CLEAN_PATENTED} \
-	${CLEAN_CONTRIB} ${CLEAN_GEAE} ${CLEAN_GEMSIP} ${CLEAN_GEMSIO} 
+clean: ${CLEAN_TCL} ${CLEAN_JAVA} ${CLEAN_TOOLKITS} 
 	cd common;    ${MAKE} -${MAKEFLAGS} clean
 	rm -f config.cache
 

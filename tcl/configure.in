@@ -122,7 +122,7 @@ AC_SUBST(XGLR_LIBS)
 USE_TKWIDGET_FLAG=""
   AC_ARG_WITH(tkwidget,
          [  --with-tkwidget           build the vtkTkRenderWidget class],
-	 USE_TKWIDGET_FLAG=-DUSE_TKWIDGET)
+	 USE_TKWIDGET_FLAG=-DVTK_USE_TKWIDGET)
 AC_SUBST(USE_TKWIDGET_FLAG)
 
 

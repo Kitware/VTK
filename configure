@@ -864,7 +864,7 @@ EOF
 fi
 
 if test $ac_cv_c_bigendian = yes; then
-  BIGENDIAN="-DWORDS_BIGENDIAN"
+  BIGENDIAN="-DVTK_WORDS_BIGENDIAN"
 fi
 
 
@@ -971,7 +971,7 @@ done
 if test "$use_sbr" = "yes"; then
 	SBR_LIBS="-ldld -lXwindow -lsb -lXhp11"
 	SBR_OBJ="\${SBR_OBJ}"
-	SBR_FLAGS="-DUSE_SBR ${SBR_INCLUDE}"
+	SBR_FLAGS="-DVTK_USE_SBR ${SBR_INCLUDE}"
 else
 	SBR_LIBS=""
 	SBR_OBJ=""
@@ -1034,7 +1034,7 @@ fi
 if test "$use_glr" = "yes"; then
 	GLR_LIBS="-lgl"
 	GLR_OBJ="\${GLR_OBJ}"
-	GLR_FLAGS="-DUSE_GLR ${GLR_INCLUDE}"
+	GLR_FLAGS="-DVTK_USE_GLR ${GLR_INCLUDE}"
 else
 	GLR_LIBS=""
 	GLR_OBJ=""
@@ -1142,10 +1142,10 @@ if test "$use_oglr" = "yes"; then
 
 	if test "$use_mesa_oglr" = "yes"; then
 		OGLR_LIBS="\${MESA_LIB}"
-		OGLR_FLAGS="\${MESA_INCLUDE} -DUSE_OGLR"
+		OGLR_FLAGS="\${MESA_INCLUDE} -DVTK_USE_OGLR"
 	else
 		OGLR_LIBS="-lGL"
-		OGLR_FLAGS="-DUSE_OGLR ${OGLR_INCLUDE}"
+		OGLR_FLAGS="-DVTK_USE_OGLR ${OGLR_INCLUDE}"
 	fi
 else
 	OGLR_LIBS=""
@@ -1247,7 +1247,7 @@ done
 if test "$use_xglr" = "yes"; then
 	XGLR_LIBS="-lxgl"
 	XGLR_OBJ="\${XGLR_OBJ}"
-	XGLR_FLAGS="-DUSE_XGLR -I${XGLR_INCLUDE}"
+	XGLR_FLAGS="-DVTK_USE_XGLR -I${XGLR_INCLUDE}"
 else
 	XGLR_LIBS=""
 	XGLR_OBJ=""
@@ -1328,22 +1328,22 @@ fi
 
 
 
+BUILD_TOOLKITS=""
+CLEAN_TOOLKITS=""
+DEPEND_TOOKITS=""
+
 # Check whether --with-graphics or --without-graphics was given.
 if test "${with_graphics+set}" = set; then
   withval="$with_graphics"
   :
 else
   graphicsdir=graphics
-         BUILD_GRAPHICS=build_graphics
          USE_GRAPHICS_LIBS="-L../graphics -lVTKGraphicsTcl"
-         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I$(srcdir)/../graphics -DUSE_GRAPHICS"
-         DEPEND_GRAPHICS=depend_graphics
-         CLEAN_GRAPHICS=clean_graphics
+         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I$(srcdir)/../graphics -DVTK_USE_GRAPHICS"
+         BUILD_TOOLKITS="${BUILD_TOOLKITS} build_graphics"
+         DEPEND_TOOLKITS="${DEPEND_TOOLKITS} depend_graphics"
+         CLEAN_TOOLKITS="${CLEAN_TOOKLKITS} clean_graphics"
 fi
-
-
-
-
 
 
 # Check whether --with-imaging or --without-imaging was given.
@@ -1352,16 +1352,12 @@ if test "${with_imaging+set}" = set; then
   :
 else
   imagingdir=imaging
-         BUILD_IMAGING=build_imaging
-         DEPEND_IMAGING=depend_imaging
          USE_IMAGING_LIBS="-L../imaging -lVTKImagingTcl"
-         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I$(srcdir)/../imaging -DUSE_IMAGING"
-         CLEAN_IMAGING=clean_imaging
+         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I$(srcdir)/../imaging -DVTK_USE_IMAGING"
+         BUILD_TOOLKITS="${BUILD_TOOLKITS} build_imaging"
+         DEPEND_TOOLKITS="${DEPEND_TOOLKITS} depend_imaging"
+         CLEAN_TOOLKITS="${CLEAN_TOOKLKITS} clean_imaging"
 fi
-
-
-
-
 
 
 # Check whether --with-tkwidget or --without-tkwidget was given.
@@ -1375,108 +1371,84 @@ fi
 if test "${with_patented+set}" = set; then
   withval="$with_patented"
   patenteddir=patented
-         BUILD_PATENTED=build_patented
          USE_PATENTED_LIBS="-L../patented -lVTKPatentedTcl"
-         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I$(srcdir)/../patented -DUSE_PATENTED"
+         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I$(srcdir)/../patented -DVTK_USE_PATENTED"
 else
-  DEPEND_PATENTED=depend_patented
-         CLEAN_PATENTED=clean_patented
+  BUILD_TOOLKITS="${BUILD_TOOLKITS} build_patented"
+         DEPEND_TOOLKITS="${DEPEND_TOOLKITS} depend_patented"
+         CLEAN_TOOLKITS="${CLEAN_TOOKLKITS} clean_patented"
 fi
-
-
-
-
 
 
 # Check whether --with-volume or --without-volume was given.
 if test "${with_volume+set}" = set; then
   withval="$with_volume"
   volumedir=volume
-         BUILD_VOLUME=build_volume
          USE_VOLUME_LIBS="-L../volume -lVTKVolumeTcl"
-         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I$(srcdir)/../volume -DUSE_VOLUME"
-         DEPEND_VOLUME=depend_volume
-         CLEAN_VOLUME=clean_volume
+         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I$(srcdir)/../volume -DVTK_USE_VOLUME"
+         BUILD_TOOLKITS="${BUILD_TOOLKITS} build_volume"
+         DEPEND_TOOLKITS="${DEPEND_TOOLKITS} depend_volume"
+         CLEAN_TOOLKITS="${CLEAN_TOOKLKITS} clean_volume"
 fi
-
-
-
-
 
 
 # Check whether --with-contrib or --without-contrib was given.
 if test "${with_contrib+set}" = set; then
   withval="$with_contrib"
   contribdir=contrib
-         BUILD_CONTRIB=build_contrib
-         DEPEND_CONTRIB=depend_contrib
          USE_CONTRIB_LIBS="-L../contrib -lVTKContribTcl"
-         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I$(srcdir)/../contrib -DUSE_CONTRIB"
-         CLEAN_CONTRIB=clean_contrib
+         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I$(srcdir)/../contrib -DVTK_USE_CONTRIB"
+         BUILD_TOOLKITS="${BUILD_TOOLKITS} build_contrib"
+         DEPEND_TOOLKITS="${DEPEND_TOOLKITS} depend_contrib"
+         CLEAN_TOOLKITS="${CLEAN_TOOKLKITS} clean_contrib"
 fi
-
-
-
-
 
 
 # Check whether --with-geae or --without-geae was given.
 if test "${with_geae+set}" = set; then
   withval="$with_geae"
   geaedir=geae
-         BUILD_GEAE=build_geae
-         DEPEND_GEAE=depend_geae
          USE_GEAE_LIBS="-L../geae -lVTKGeaeTcl"
-         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I$(srcdir)/../geae -DUSE_GEAE"
-         CLEAN_GEAE=clean_geae
+         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I$(srcdir)/../geae -DVTK_USE_GEAE"
+         BUILD_TOOLKITS="${BUILD_TOOLKITS} build_geae"
+         DEPEND_TOOLKITS="${DEPEND_TOOLKITS} depend_geae"
+         CLEAN_TOOLKITS="${CLEAN_TOOKLKITS} clean_geae"
 fi
-
-
-
-
 
 
 # Check whether --with-gemsip or --without-gemsip was given.
 if test "${with_gemsip+set}" = set; then
   withval="$with_gemsip"
   gemsipdir=gemsip
-         BUILD_GEMSIP=build_gemsip
-         DEPEND_GEMSIP=depend_gemsip
          USE_GEMSIP_LIBS="-L../gemsip -lVTKGemsipTcl"
-         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I$(srcdir)/../gemsip -DUSE_GEMSIP"
-         CLEAN_GEMSIP=clean_gemsip
+         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I$(srcdir)/../gemsip -DVTK_USE_GEMSIP"
+         BUILD_TOOLKITS="${BUILD_TOOLKITS} build_gemsip"
+         DEPEND_TOOLKITS="${DEPEND_TOOLKITS} depend_gemsip"
+         CLEAN_TOOLKITS="${CLEAN_TOOKLKITS} clean_gemsip"
 fi
-
-
-
-
 
 
 # Check whether --with-gemsio or --without-gemsio was given.
 if test "${with_gemsio+set}" = set; then
   withval="$with_gemsio"
   gemsiodir=gemsio
-         BUILD_GEMSIO=build_gemsio
-         DEPEND_GEMSIO=depend_gemsio
          USE_GEMSIO_LIBS="-L../gemsio -lVTKGemsioTcl"
-         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I$(srcdir)/../gemsio -DUSE_GEMSIO"
-         CLEAN_GEMSIO=clean_gemsio
+         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I$(srcdir)/../gemsio -DVTK_USE_GEMSIO"
+         BUILD_TOOLKITS="${BUILD_TOOLKITS} build_gemsio"
+         DEPEND_TOOLKITS="${DEPEND_TOOLKITS} depend_gemsio"
+         CLEAN_TOOLKITS="${CLEAN_TOOKLKITS} clean_gemsio"
 fi
-
-
-
-
 
 
 # Check whether --with-gemsvolume or --without-gemsvolume was given.
 if test "${with_gemsvolume+set}" = set; then
   withval="$with_gemsvolume"
   gemsvolumedir=gemsvolume
-         BUILD_GEMSVOLUME=build_gemsvolume
-         DEPEND_GEMSVOLUME=depend_gemsvolume
          USE_GEMSVOLUME_LIBS="-L../gemsvolume -lVTKGemsvolumeTcl"
-         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I$(srcdir)/../gemsvolume -DUSE_GEMSVOLUME"
-         CLEAN_GEMSVOLUME=clean_gemsvolume
+         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I$(srcdir)/../gemsvolume -DVTK_USE_GEMSVOLUME"
+         BUILD_TOOLKITS="${BUILD_TOOLKITS} build_gemsvolume"
+         DEPEND_TOOLKITS="${DEPEND_TOOLKITS} depend_gemsvolume"
+         CLEAN_TOOLKITS="${CLEAN_TOOKLKITS} clean_gemsvolume"
 fi
 
 
@@ -1598,7 +1570,7 @@ else
   ac_save_LIBS="$LIBS"
 LIBS="-ldl  $LIBS"
 cat > conftest.$ac_ext <<EOF
-#line 1602 "configure"
+#line 1574 "configure"
 #include "confdefs.h"
 /* Override any gcc2 internal prototype to avoid an error.  */
 char dlopen();
@@ -1608,7 +1580,7 @@ int t() {
 dlopen()
 ; return 0; }
 EOF
-if { (eval echo configure:1612: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; }; then
+if { (eval echo configure:1584: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; }; then
   rm -rf conftest*
   eval "ac_cv_lib_$ac_lib_var=yes"
 else
@@ -1665,7 +1637,7 @@ else
   ac_save_LIBS="$LIBS"
 LIBS="-lld  $LIBS"
 cat > conftest.$ac_ext <<EOF
-#line 1669 "configure"
+#line 1641 "configure"
 #include "confdefs.h"
 /* Override any gcc2 internal prototype to avoid an error.  */
 char printf();
@@ -1675,7 +1647,7 @@ int t() {
 printf()
 ; return 0; }
 EOF
-if { (eval echo configure:1679: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; }; then
+if { (eval echo configure:1651: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; }; then
   rm -rf conftest*
   eval "ac_cv_lib_$ac_lib_var=yes"
 else
@@ -1753,12 +1725,12 @@ if eval "test \"`echo '$''{'ac_cv_header_$ac_safe'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   cat > conftest.$ac_ext <<EOF
-#line 1757 "configure"
+#line 1729 "configure"
 #include "confdefs.h"
 #include <dld.h>
 EOF
 ac_try="$ac_cpp conftest.$ac_ext >/dev/null 2>conftest.out"
-{ (eval echo configure:1762: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
+{ (eval echo configure:1734: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
 ac_err=`grep -v '^ *+' conftest.out`
 if test -z "$ac_err"; then
   rm -rf conftest*
@@ -2046,12 +2018,12 @@ if eval "test \"`echo '$''{'ac_cv_header_$ac_safe'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   cat > conftest.$ac_ext <<EOF
-#line 2050 "configure"
+#line 2022 "configure"
 #include "confdefs.h"
 #include <$ac_hdr>
 EOF
 ac_try="$ac_cpp conftest.$ac_ext >/dev/null 2>conftest.out"
-{ (eval echo configure:2055: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
+{ (eval echo configure:2027: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
 ac_err=`grep -v '^ *+' conftest.out`
 if test -z "$ac_err"; then
   rm -rf conftest*
@@ -2092,12 +2064,12 @@ if eval "test \"`echo '$''{'ac_cv_header_$ac_safe'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   cat > conftest.$ac_ext <<EOF
-#line 2096 "configure"
+#line 2068 "configure"
 #include "confdefs.h"
 #include <$ac_hdr>
 EOF
 ac_try="$ac_cpp conftest.$ac_ext >/dev/null 2>conftest.out"
-{ (eval echo configure:2101: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
+{ (eval echo configure:2073: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
 ac_err=`grep -v '^ *+' conftest.out`
 if test -z "$ac_err"; then
   rm -rf conftest*
@@ -2131,7 +2103,7 @@ else
   ac_save_LIBS="$LIBS"
 LIBS="-lpthreads  $LIBS"
 cat > conftest.$ac_ext <<EOF
-#line 2135 "configure"
+#line 2107 "configure"
 #include "confdefs.h"
 /* Override any gcc2 internal prototype to avoid an error.  */
 char pthread_create();
@@ -2141,7 +2113,7 @@ int t() {
 pthread_create()
 ; return 0; }
 EOF
-if { (eval echo configure:2145: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; }; then
+if { (eval echo configure:2117: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; }; then
   rm -rf conftest*
   eval "ac_cv_lib_$ac_lib_var=yes"
 else
@@ -2167,7 +2139,7 @@ else
   ac_save_LIBS="$LIBS"
 LIBS="-lpthread  $LIBS"
 cat > conftest.$ac_ext <<EOF
-#line 2171 "configure"
+#line 2143 "configure"
 #include "confdefs.h"
 /* Override any gcc2 internal prototype to avoid an error.  */
 char pthread_create();
@@ -2177,7 +2149,7 @@ int t() {
 pthread_create()
 ; return 0; }
 EOF
-if { (eval echo configure:2181: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; }; then
+if { (eval echo configure:2153: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; }; then
   rm -rf conftest*
   eval "ac_cv_lib_$ac_lib_var=yes"
 else
@@ -2438,33 +2410,9 @@ s%@BUILD_TCL@%$BUILD_TCL%g
 s%@CLEAN_TCL@%$CLEAN_TCL%g
 s%@BUILD_JAVA@%$BUILD_JAVA%g
 s%@CLEAN_JAVA@%$CLEAN_JAVA%g
-s%@DEPEND_GRAPHICS@%$DEPEND_GRAPHICS%g
-s%@BUILD_GRAPHICS@%$BUILD_GRAPHICS%g
-s%@CLEAN_GRAPHICS@%$CLEAN_GRAPHICS%g
-s%@BUILD_IMAGING@%$BUILD_IMAGING%g
-s%@DEPEND_IMAGING@%$DEPEND_IMAGING%g
-s%@CLEAN_IMAGING@%$CLEAN_IMAGING%g
-s%@BUILD_PATENTED@%$BUILD_PATENTED%g
-s%@DEPEND_PATENTED@%$DEPEND_PATENTED%g
-s%@CLEAN_PATENTED@%$CLEAN_PATENTED%g
-s%@BUILD_VOLUME@%$BUILD_VOLUME%g
-s%@DEPEND_VOLUME@%$DEPEND_VOLUME%g
-s%@CLEAN_VOLUME@%$CLEAN_VOLUME%g
-s%@BUILD_CONTRIB@%$BUILD_CONTRIB%g
-s%@DEPEND_CONTRIB@%$DEPEND_CONTRIB%g
-s%@CLEAN_CONTRIB@%$CLEAN_CONTRIB%g
-s%@BUILD_GEAE@%$BUILD_GEAE%g
-s%@DEPEND_GEAE@%$DEPEND_GEAE%g
-s%@CLEAN_GEAE@%$CLEAN_GEAE%g
-s%@BUILD_GEMSIP@%$BUILD_GEMSIP%g
-s%@DEPEND_GEMSIP@%$DEPEND_GEMSIP%g
-s%@CLEAN_GEMSIP@%$CLEAN_GEMSIP%g
-s%@BUILD_GEMSIO@%$BUILD_GEMSIO%g
-s%@DEPEND_GEMSIO@%$DEPEND_GEMSIO%g
-s%@CLEAN_GEMSIO@%$CLEAN_GEMSIO%g
-s%@BUILD_GEMSVOLUME@%$BUILD_GEMSVOLUME%g
-s%@DEPEND_GEMSVOLUME@%$DEPEND_GEMSVOLUME%g
-s%@CLEAN_GEMSVOLUME@%$CLEAN_GEMSVOLUME%g
+s%@BUILD_TOOLKITS@%$BUILD_TOOLKITS%g
+s%@DEPEND_TOOKITS@%$DEPEND_TOOKITS%g
+s%@CLEAN_TOOLKITS@%$CLEAN_TOOLKITS%g
 s%@MAKEINCLUDE@%$MAKEINCLUDE%g
 s%@MAKEQUOTE@%$MAKEQUOTE%g
 s%@VTK_TCL_SHLIB_TARGET@%$VTK_TCL_SHLIB_TARGET%g
