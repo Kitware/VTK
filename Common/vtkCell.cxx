@@ -20,7 +20,7 @@
 #include "vtkMarchingSquaresCases.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkCell, "1.57");
+vtkCxxRevisionMacro(vtkCell, "1.58");
 
 // Construct cell.
 vtkCell::vtkCell()
@@ -40,8 +40,6 @@ vtkCell::~vtkCell()
   this->PointIds->UnRegister(this);
 }
 
-
-//
 // Instantiate cell from outside
 //
 void vtkCell::Initialize(int npts, vtkIdType *pts, vtkPoints *p)
@@ -86,6 +84,8 @@ void vtkCell::DeepCopy(vtkCell *c)
 char vtkCell::HitBBox (float bounds[6], float origin[3], float dir[3], 
                       float coord[3], float& t)
 {
+  vtkGenericWarningMacro(<<"vtkCell::HitBBox() is obsolete. Use vtkBox::IntersectBox() instead. This method will be removed in future versions.");
+
   char    inside=1;
   char    quadrant[3];
   int     i, whichPlane=0;
@@ -340,6 +340,12 @@ static vtkMarchingSquaresLineCases VTK_MARCHING_SQUARES_LINECASES[] = {
 vtkMarchingSquaresLineCases* vtkMarchingSquaresLineCases::GetCases()
 {
   return VTK_MARCHING_SQUARES_LINECASES;
+}
+
+// Usually overridden. Only composite cells do not override this.
+float *vtkCell::GetParametricCoords()
+{
+  return static_cast<float*>(NULL);
 }
 
 //----------------------------------------------------------------------------

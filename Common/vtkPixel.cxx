@@ -29,7 +29,7 @@
 #include "vtkCellData.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkPixel, "1.77");
+vtkCxxRevisionMacro(vtkPixel, "1.78");
 vtkStandardNewMacro(vtkPixel);
 
 // Construct the pixel with four points.
@@ -662,3 +662,10 @@ void vtkPixel::Clip(float value, vtkDataArray *cellScalars,
     }
 }
 
+static float vtkPixelCellPCoords[12] = {0.0,0.0,0.0, 1.0,0.0,0.0,
+                                        0.0,1.0,0.0, 1.0,1.0,0.0};
+
+float *vtkPixel::GetParametricCoords()
+{
+  return vtkPixelCellPCoords;
+}

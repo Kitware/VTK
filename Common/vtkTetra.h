@@ -43,7 +43,6 @@ public:
   // See vtkCell3D API for description of these methods.
   virtual void GetEdgePoints(int edgeId, int* &pts);
   virtual void GetFacePoints(int faceId, int* &pts);
-  virtual float *GetParametricCoords();
 
   // Description:
   // See the vtkCell API for descriptions of these methods.
@@ -72,6 +71,7 @@ public:
   int Triangulate(int index, vtkIdList *ptIds, vtkPoints *pts);
   void Derivatives(int subId, float pcoords[3], float *values, 
                    int dim, float *derivs);
+  virtual float *GetParametricCoords();
 
   // Description:
   // Returns the set of points that are on the boundary of the tetrahedron that

@@ -39,7 +39,7 @@
 #include "vtkConvexPointSet.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkGenericCell, "1.18");
+vtkCxxRevisionMacro(vtkGenericCell, "1.19");
 vtkStandardNewMacro(vtkGenericCell);
 
 // Construct cell.
@@ -169,6 +169,11 @@ void vtkGenericCell::Derivatives(int subId, float pcoords[3], float *values,
 int vtkGenericCell::GetParametricCenter(float pcoords[3])
 {
   return this->Cell->GetParametricCenter(pcoords);
+}
+
+float *vtkGenericCell::GetParametricCoords()
+{
+  return this->Cell->GetParametricCoords();
 }
 
 int vtkGenericCell::IsPrimaryCell()

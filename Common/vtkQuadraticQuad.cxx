@@ -27,7 +27,7 @@
 #include "vtkQuad.h"
 #include "vtkQuadraticEdge.h"
 
-vtkCxxRevisionMacro(vtkQuadraticQuad, "1.16");
+vtkCxxRevisionMacro(vtkQuadraticQuad, "1.17");
 vtkStandardNewMacro(vtkQuadraticQuad);
 
 // Construct the line with two points.
@@ -498,3 +498,11 @@ void vtkQuadraticQuad::InterpolationDerivs(float pcoords[3], float derivs[16])
   derivs[11] =  0.25 * (1.0 - r) - 0.5 * (derivs[14] + derivs[15]);
 }
 
+static float vtkQQuadCellPCoords[24] = {0.0,0.0,0.0, 1.0,0.0,0.0,
+                                        1.0,1.0,0.0, 0.0,1.0,0.0,
+                                        0.5,0.0,0.0, 1.0,0.5,0.0,
+                                        0.5,1.0,0.0, 0.0,0.5,0.0};
+float *vtkQuadraticQuad::GetParametricCoords()
+{
+  return vtkQQuadCellPCoords;
+}

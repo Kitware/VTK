@@ -25,7 +25,7 @@
 #include "vtkPointLocator.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkLine, "1.79");
+vtkCxxRevisionMacro(vtkLine, "1.80");
 vtkStandardNewMacro(vtkLine);
 
 // Construct the line with two points.
@@ -579,4 +579,10 @@ void vtkLine::InterpolationFunctions(float pcoords[3], float weights[2])
 {
   weights[0] = 1.0 - pcoords[0];
   weights[1] = pcoords[0];
+}
+
+static float vtkLineCellPCoords[6] = {0.0,0.0,0.0, 1.0,0.0,0.0};
+float *vtkLine::GetParametricCoords()
+{
+  return vtkLineCellPCoords;
 }

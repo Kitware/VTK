@@ -28,7 +28,7 @@
 // (7,4), (0,4), (1,5), (2,6), (3,7).
 
 // .SECTION See Also
-// vtkQuadraticEdge vtkQUadraticTriangle vtkQuadraticTetra
+// vtkQuadraticEdge vtkQuadraticTriangle vtkQuadraticTetra
 // vtQuadraticQuad
 
 #ifndef __vtkQuadraticHexahedron_h
@@ -71,6 +71,7 @@ public:
   int Triangulate(int index, vtkIdList *ptIds, vtkPoints *pts);
   void Derivatives(int subId, float pcoords[3], float *values, 
                    int dim, float *derivs);
+  virtual float *GetParametricCoords();
 
   // Description:
   // Clip this quadratic hexahedron using scalar value provided. Like 

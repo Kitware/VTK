@@ -284,7 +284,19 @@ public:
   virtual int IsPrimaryCell() {return 1;}
 
 
+  // Description: 
+  // Return a contiguous array of parametric coordinates of the points
+  // defining this cell. In other words, (px,py,pz, px,py,pz, etc..)  The
+  // coordinates are ordered consistent with the definition of the point
+  // ordering for the cell. This method returns a non-NULL pointer when
+  // the cell is a primary type (i.e., IsPrimaryCell() is true). Note that
+  // 3D parametric coordinates are returned no matter what the topological
+  // dimension of the cell.
+  virtual float *GetParametricCoords();
+
+
   // Description:
+  // (Now Obsolete: use vtkBox::IntersectBox() instead.)
   // Bounding box intersection modified from Graphics Gems Vol I. The method
   // returns a non-zero value if the bounding box is hit. Origin[3] starts
   // the ray, dir[3] is the vector components of the ray in the x-y-z

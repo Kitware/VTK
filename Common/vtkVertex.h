@@ -51,6 +51,7 @@ public:
                        float& dist2, float *weights);
   void EvaluateLocation(int& subId, float pcoords[3], float x[3],
                         float *weights);
+  virtual float *GetParametricCoords();
 
   // Description:
   // Given parametric coordinates of a point, return the closest cell

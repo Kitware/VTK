@@ -25,7 +25,7 @@
 #include "vtkPointLocator.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkVertex, "1.58");
+vtkCxxRevisionMacro(vtkVertex, "1.59");
 vtkStandardNewMacro(vtkVertex);
 
 // Construct the vertex with a single point.
@@ -242,10 +242,16 @@ void vtkVertex::Clip(float value, vtkDataArray *cellScalars,
     }
 
 }
-//
+
 // Compute interpolation functions
 //
 void vtkVertex::InterpolationFunctions(float vtkNotUsed(pcoords)[3], float weights[1])
 {
   weights[0] = 1.0;
+}
+
+static float vtkVertexCellPCoords[3] = {0.0,0.0,0.0};
+float *vtkVertex::GetParametricCoords()
+{
+  return vtkVertexCellPCoords;
 }

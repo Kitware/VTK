@@ -78,13 +78,6 @@ public:
   virtual int GetCellDimension() {return 3;}
 
   // Description:
-  // Return a contiguous array of parametric coordinates of the points
-  // defining this cell. In other words, (px,py,pz, px,py,pz, etc..)
-  // The coordinates are ordered consistent with the definition of the
-  // point ordering for the cell.
-  virtual float *GetParametricCoords();
-
-  // Description:
   // Set the tolerance for merging clip intersection points that are near
   // the vertices of cells. This tolerance is used to prevent the generation
   // of degenerate tetrahedra during clipping.

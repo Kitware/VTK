@@ -29,7 +29,7 @@
 #include "vtkPoints.h"
 #include "vtkTriangle.h"
 
-vtkCxxRevisionMacro(vtkQuad, "1.87");
+vtkCxxRevisionMacro(vtkQuad, "1.88");
 vtkStandardNewMacro(vtkQuad);
 
 static const float VTK_DIVERGED = 1.e6;
@@ -916,4 +916,11 @@ void vtkQuad::Clip(float value, vtkDataArray *cellScalars,
     newCellId = polys->InsertNextCell(edge[0],pts);
     outCd->CopyData(inCd,cellId,newCellId);
     }
+}
+
+static float vtkQuadCellPCoords[12] = {0.0,0.0,0.0, 1.0,0.0,0.0,
+                                       1.0,1.0,0.0, 0.0,1.0,0.0};
+float *vtkQuad::GetParametricCoords()
+{
+  return vtkQuadCellPCoords;
 }

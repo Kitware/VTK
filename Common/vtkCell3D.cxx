@@ -26,7 +26,7 @@
 #include "vtkCellArray.h"
 #include "vtkFloatArray.h"
 
-vtkCxxRevisionMacro(vtkCell3D, "1.37");
+vtkCxxRevisionMacro(vtkCell3D, "1.38");
 
 vtkCell3D::vtkCell3D()
 {
@@ -50,12 +50,6 @@ vtkCell3D::~vtkCell3D()
     this->ClipScalars->Delete();
     this->ClipScalars = NULL;
     }
-}
-
-// usually overridden
-float *vtkCell3D::GetParametricCoords()
-{
-  return (float *)this->Points->GetVoidPointer(0);
 }
 
 void vtkCell3D::Clip(float value, vtkDataArray *cellScalars, 
