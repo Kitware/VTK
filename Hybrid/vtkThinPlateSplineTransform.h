@@ -60,7 +60,10 @@ public:
 
   // Description:
   // Specify the radial basis function to use.  The default is
-  // R2LogR which is what most people use as the thin plate spline.
+  // R2LogR which is appropriate for 2D. Use |R| (SetBasisToR) 
+  // if your data is 3D. Alternatively specify your own basis function, 
+  // however this will mean that the transform will no longer be a true 
+  // thin-plate spline.
   void SetBasis(int basis);
   vtkGetMacro(Basis,int);
   void SetBasisToR() { this->SetBasis(VTK_RBF_R); };
