@@ -143,10 +143,7 @@ public:
   // Description:
   // Insert the data component at ith tuple and jth component location. 
   // Note that memory allocation is performed as necessary to hold the data.
-  void InsertComponent(const vtkIdType i, const int j, const float c)
-    {
-      this->InsertValue(i*this->NumberOfComponents + j, static_cast<int>(c));
-    }
+  virtual void InsertComponent(const vtkIdType i, const int j, const float c);
 
   // Description:
   // Get the address of a particular data index. Performs no checks

@@ -391,3 +391,8 @@ vtkIdType vtkIntArray::InsertNextTuple(const double * tuple)
   return this->MaxId / this->NumberOfComponents;
 }
 
+void vtkIntArray::InsertComponent(const vtkIdType i, const int j, 
+				  const float c)
+{
+  this->InsertValue(i*this->NumberOfComponents + j, static_cast<int>(c));
+}
