@@ -259,7 +259,7 @@ void vtkXRenderWindowInteractor::Initialize()
     }
 
   this->WindowId = XtWindow(this->top);
-  ren->Render();
+  ren->Start();
   this->Enable();
   this->Size[0] = size[0];
   this->Size[1] = size[1];

@@ -193,7 +193,7 @@ void vtkXRenderWindowTclInteractor::Initialize()
   position= ren->GetPosition();
   
   size = ren->GetSize();
-  ren->Render();
+  ren->Start();
   this->WindowId = ren->GetWindowId();
   size = ren->GetSize();
 

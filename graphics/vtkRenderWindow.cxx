@@ -74,6 +74,7 @@ vtkRenderWindow::vtkRenderWindow()
   this->PPMImageFilePtr = NULL;
   this->AbortRender = 0;
   this->InAbortCheck = 0;
+  this->InRender = 0;
   this->AbortCheckMethod = NULL;
   this->AbortCheckMethodArg = NULL;
   this->AbortCheckMethodArgDelete = NULL;
@@ -323,6 +324,12 @@ void vtkRenderWindow::Render()
   int x,y;
   float *p1;
 
+  // if we are in the middle of an abort check the return now
+  if (this->InRender)
+    {
+    return;
+    }
+
   vtkDebugMacro(<< "Starting Render Method.\n");
 
   // if we are in the middle of an abort check the return now
@@ -332,6 +339,8 @@ void vtkRenderWindow::Render()
     }
   // reset the Abort flag
   this->AbortRender = 0;
+
+  this->InRender = 1;
   
   if ( this->Interactor && ! this->Interactor->GetInitialized() )
     {
@@ -474,6 +483,7 @@ void vtkRenderWindow::Render()
     this->ResultFrame = NULL;
     }
 
+  this->InRender = 0;
 }
 
 // Handle rendering any antialiased frames.

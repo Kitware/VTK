@@ -347,6 +347,7 @@ protected:
   FILE* PPMImageFilePtr;
   int   AbortRender;
   int   InAbortCheck;
+  int   InRender;
   void (*AbortCheckMethod)(void *);
   void (*AbortCheckMethodArgDelete)(void *);
   void *AbortCheckMethodArg;
