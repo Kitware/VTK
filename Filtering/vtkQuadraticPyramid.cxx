@@ -27,7 +27,7 @@
 #include "vtkQuadraticQuad.h"
 #include "vtkQuadraticTriangle.h"
 
-vtkCxxRevisionMacro(vtkQuadraticPyramid, "1.6");
+vtkCxxRevisionMacro(vtkQuadraticPyramid, "1.7");
 vtkStandardNewMacro(vtkQuadraticPyramid);
 
 //----------------------------------------------------------------------------
@@ -343,7 +343,7 @@ void vtkQuadraticPyramid::Subdivide(vtkPointData *inPd, vtkCellData *inCd,
       s += cellScalars->GetTuple1(i) * weights[i];
       }
     this->Points->SetPoint(13+numMidPts,x);
-    this->CellScalars->SetValue(20+numMidPts,s);
+    this->CellScalars->SetValue(13+numMidPts,s);
     this->PointData->InterpolatePoint(inPd, 13+numMidPts, 
                                       this->PointIds, weights);
     }
