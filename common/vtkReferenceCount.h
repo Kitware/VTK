@@ -74,7 +74,7 @@ public:
   const char *GetClassName() {return "vtkReferenceCount";};
 
   void Register(vtkObject* o);
-  void UnRegister(vtkObject* o);
+  virtual void UnRegister(vtkObject* o);
   int  GetReferenceCount() {return this->ReferenceCount;};
   void ReferenceCountingOff();
 

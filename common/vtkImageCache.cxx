@@ -512,7 +512,23 @@ vtkImageToStructuredPoints *vtkImageCache::GetImageToStructuredPoints()
   
   return this->ImageToStructuredPoints;
 }
-  
+
+//----------------------------------------------------------------------------
+// Check to see if we own an ImageToStructuredPoints which has registered
+// this cache.
+void vtkImageCache::UnRegister(vtkObject* o)
+{
+  // this is the special test. I own ImageToStructuredPoints, but it has registered me.
+  if (this->GetReferenceCount() == 2 && this->ImageToStructuredPoints != NULL &&
+      this->ImageToStructuredPoints->GetInput() == this)
+    {
+    vtkImageToStructuredPoints *temp = this->ImageToStructuredPoints;
+    this->ImageToStructuredPoints = NULL;    
+    temp->Delete();
+    }
+
+  this->vtkReferenceCount::UnRegister(o);  
+}  
 
 
 

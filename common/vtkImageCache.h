@@ -185,6 +185,10 @@ public:
   void GlobalReleaseDataFlagOff() {this->SetGlobalReleaseDataFlag(0);};
   int  GetGlobalReleaseDataFlag();
 
+  // Description:
+  // Needed because not all objects are reference counted.
+  void UnRegister(vtkObject* o);
+  
 protected:
   long MemoryLimit;
   int UpdateExtent[6];
