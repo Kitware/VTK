@@ -29,7 +29,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkExecutive, "1.13");
+vtkCxxRevisionMacro(vtkExecutive, "1.14");
 vtkInformationKeyMacro(vtkExecutive, ALGORITHM_AFTER_FORWARD, Integer);
 vtkInformationKeyMacro(vtkExecutive, ALGORITHM_BEFORE_FORWARD, Integer);
 vtkInformationKeyMacro(vtkExecutive, ALGORITHM_DIRECTION, Integer);
@@ -289,7 +289,7 @@ void vtkExecutive::ReportReferences(vtkGarbageCollector* collector)
 //----------------------------------------------------------------------------
 int vtkExecutive::Update()
 {
-  return this->Update(-1);
+  return this->Update(0);
 }
 
 //----------------------------------------------------------------------------
