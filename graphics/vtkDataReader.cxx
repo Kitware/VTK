@@ -1151,7 +1151,7 @@ int vtkDataReader::ReadScalarData(vtkDataSetAttributes *a, int numPts)
   if (strcmp(this->LowerCase(key), "lookup_table"))
     {
     numComp = atoi(key);
-    if (numComp < 1 || numComp > 4 || !this->ReadString(key))
+    if (numComp < 1 || !this->ReadString(key))
       {
       vtkErrorMacro(<<"Cannot read scalar header!" << " for file: " 
       << this->FileName);
