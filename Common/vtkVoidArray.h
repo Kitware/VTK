@@ -84,6 +84,12 @@ public:
   vtkIdType InsertNextVoidPointer(void* tuple);
 
   // Description:
+  // Reuse already allocated data; make the container look like it is
+  // empty.
+  void Reset()
+    {this->NumberOfPointers = 0;}
+
+  // Description:
   // Resize the array to just fit the inserted memory. Reclaims extra memory.
   void Squeeze() 
     {this->ResizeAndExtend (this->NumberOfPointers);}
