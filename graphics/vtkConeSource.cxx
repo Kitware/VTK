@@ -59,7 +59,7 @@ vtkConeSource::vtkConeSource(int res)
 
 void vtkConeSource::Execute()
 {
-  float angle= 2.0*3.141592654/this->Resolution;
+  float angle;
   int numLines, numPolys, numPts;
   float x[3], xbot;
   int i;
@@ -69,6 +69,7 @@ void vtkConeSource::Execute()
   vtkCellArray *newPolys=0;
   vtkPolyData *output = this->GetOutput();
   
+  if( this->Resolution ) angle= 2.0*3.141592654/this->Resolution;
   //
   // Set things up; allocate memory
   //
