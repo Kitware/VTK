@@ -141,7 +141,7 @@ void vtkRotationalExtrusionFilter::Execute()
       theta = acos((double)x[0]/radius);
       if ( (psi=asin((double)x[1]/radius)) < 0.0 ) 
         {
-        if ( theta > 0.0 ) theta = 2.0*math.Pi() + psi;
+        if ( theta < (math.Pi()/2.0) ) theta = 2.0*math.Pi() + psi;
         else theta = math.Pi() - psi;
         }
 
