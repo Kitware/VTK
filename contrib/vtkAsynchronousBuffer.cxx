@@ -163,7 +163,7 @@ void vtkAsynchronousBuffer::NonblockingUpdateInformation()
     }
   output->SetPipelineMTime(t1);
   // Is it up to date? Really? Oh well.
-  output->SetEstimatedWholeMemorySize(input->GetEstimatedMemorySize());
+  output->SetEstimatedWholeMemorySize(input->GetEstimatedWholeMemorySize());
   // Copy data specific information
   output->CopyInformation(input);
 }
