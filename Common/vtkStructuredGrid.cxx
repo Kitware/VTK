@@ -27,7 +27,7 @@
 #include "vtkQuad.h"
 #include "vtkVertex.h"
 
-vtkCxxRevisionMacro(vtkStructuredGrid, "1.99");
+vtkCxxRevisionMacro(vtkStructuredGrid, "1.100");
 vtkStandardNewMacro(vtkStructuredGrid);
 
 vtkCxxSetObjectMacro(vtkStructuredGrid,
@@ -929,8 +929,8 @@ void vtkStructuredGrid::GetCellNeighbors(vtkIdType cellId, vtkIdList *ptIds,
       return;
 
     case 1: case 2: case 4: //vertex, edge, face neighbors
-      vtkStructuredData::GetCellNeigbors(cellId, ptIds, 
-                                         cellIds, this->GetDimensions());
+      vtkStructuredData::GetCellNeighbors(cellId, ptIds, 
+                                          cellIds, this->GetDimensions());
       break;
       
     default:

@@ -28,7 +28,7 @@
 #include "vtkVertex.h"
 #include "vtkVoxel.h"
 
-vtkCxxRevisionMacro(vtkRectilinearGrid, "1.62");
+vtkCxxRevisionMacro(vtkRectilinearGrid, "1.63");
 vtkStandardNewMacro(vtkRectilinearGrid);
 
 vtkCxxSetObjectMacro(vtkRectilinearGrid,XCoordinates,vtkDataArray);
@@ -892,8 +892,8 @@ void vtkRectilinearGrid::GetCellNeighbors(vtkIdType cellId, vtkIdList *ptIds,
       return;
 
     case 1: case 2: case 4: //vertex, edge, face neighbors
-      vtkStructuredData::GetCellNeigbors(cellId, ptIds, 
-                                         cellIds, this->Dimensions);
+      vtkStructuredData::GetCellNeighbors(cellId, ptIds, 
+                                          cellIds, this->Dimensions);
       break;
       
     default:
