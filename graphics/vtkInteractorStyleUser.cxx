@@ -249,20 +249,7 @@ void  vtkInteractorStyleUser::EndUserInteraction()
 // checks for USERINTERACTION state, then defers to the trackball modes
 void vtkInteractorStyleUser::OnTimer(void) 
 {
-  vtkRenderWindowInteractor *rwi = this->Interactor;
-  if (this->State == VTKIS_USERINTERACTION)
-    {
-    if (this->UserInteractionMethod)
-      {
-      this->OldPos[0] = int(this->OldX);
-      this->OldPos[1] = int(this->OldY);
-      (*this->UserInteractionMethod)(this->UserInteractionMethodArg);
-      this->OldX = this->LastPos[0];
-      this->OldY = this->LastPos[1];
-      rwi->CreateTimer(VTKI_TIMER_UPDATE);
-      }
-    }
-  else
+  if (this->State != VTKIS_USERINTERACTION)
     {
     this->vtkInteractorStyleTrackball::OnTimer();
     }
@@ -321,16 +308,22 @@ void vtkInteractorStyleUser::OnChar(int ctrl, int shift, char keycode,
 }
 
 //----------------------------------------------------------------------------
-// This should not be called if the UserInteractionMode is set, but it
-// seems like it is called on KeyRelease and KeyPress events (XWindows only).
-// So, we use this bug/feature to ensure that the most recent mouse position
-// is used for keystrokes.
 void vtkInteractorStyleUser::OnMouseMove(int ctrl, int shift, int x, int y) 
 {
   if (this->State == VTKIS_USERINTERACTION)
     {
+    this->ShiftKey = shift;
+    this->CtrlKey = ctrl;
     this->LastPos[0] = x;
     this->LastPos[1] = y;
+    this->OldPos[0] = int(this->OldX);
+    this->OldPos[1] = int(this->OldY);
+    if (this->UserInteractionMethod && (x != this->OldX || y != this->OldY))
+      {
+      (*this->UserInteractionMethod)(this->UserInteractionMethodArg);
+      }
+    this->OldX = x;
+    this->OldY = y;
     }
   else
     {
