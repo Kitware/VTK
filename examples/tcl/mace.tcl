@@ -38,7 +38,7 @@ vtkLODActor spikeActor;
 $ren1 AddActors sphereActor;
 $ren1 AddActors spikeActor;
 $ren1 SetBackground 0.1 0.2 0.4;
-$renWin SetSize 500 500;
+$renWin SetSize 300 300;
 
 # render the image
 #
@@ -46,6 +46,8 @@ $iren SetUserMethod {wm deiconify .vtkInteract};
 set cam1 [$ren1 GetActiveCamera];
 $cam1 Zoom 1.4;
 $iren Initialize;
+#$renWin SetFilename "mace.tcl.ppm";
+#$renWin SaveImageAsPPM;
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .

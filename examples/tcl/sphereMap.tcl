@@ -13,7 +13,6 @@ vtkPointSource sphere;
 vtkDelaunay3D del
   del SetInput [sphere GetOutput];
   del SetTolerance 0.01;
-  del DebugOn;
     
 # texture map the sphere
 #
@@ -50,7 +49,6 @@ set iren   [$renWin MakeRenderWindowInteractor];
 $ren1 AddActors triangulation;
 $ren1 SetBackground 1 1 1;
 $renWin SetSize 500 500;
-$renWin Render;
 
 # render the image
 #

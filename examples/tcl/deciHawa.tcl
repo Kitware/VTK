@@ -37,7 +37,7 @@ vtkActor hawaiiActor;
 #
 $ren1 AddActors hawaiiActor;
 $ren1 SetBackground 1 1 1;
-$renWin SetSize 750 750;
+$renWin SetSize 500 500;
 
 # render the image
 #

@@ -22,7 +22,6 @@ vtkVolume16Reader v16;
     v16 SetDataAspectRatio 0.8 0.8 1.5;
     v16 SetImageRange 1 94;
     v16 SetDataMask 0x7fff;
-    v16 DebugOn;
 
 # write isosurface to file
 vtkSliceCubes mcubes;
@@ -30,14 +29,12 @@ vtkSliceCubes mcubes;
     mcubes SetValue 1150;
     mcubes SetFilename "fullHead.tri"
     mcubes SetLimitsFilename "fullHead.lim"
-    mcubes DebugOn;
     mcubes Update;
 
 # read from file
 vtkMCubesReader reader;
-    reader SetFilename "fullHead.tri"
-    reader SetLimitsFilename "fullHead.lim"
-    reader DebugOn;
+reader SetFilename "fullHead.tri"
+reader SetLimitsFilename "fullHead.lim"
 
 vtkPolyMapper mapper;
     mapper SetInput [reader GetOutput];
@@ -50,14 +47,21 @@ vtkActor head;
 #
 $ren1 AddActors head;
 $ren1 SetBackground 1 1 1;
-$renWin SetSize 750 750;
+$renWin SetSize 500 500;
 eval $ren1 SetBackground $slate_grey;
+[$ren1 GetActiveCamera] Zoom 1.5;
+[$ren1 GetActiveCamera] Azimuth 180;
+[$ren1 GetActiveCamera] Elevation -90;
 
 # render the image
 #
 $iren SetUserMethod {wm deiconify .vtkInteract};
 
+$iren Initialize;
+
+#$renWin SetFilename "genHead.tcl.ppm";
+#$renWin SaveImageAsPPM;
+
 # prevent the tk window from showing up then start the event loop
 wm withdraw .
-$iren Initialize;
 

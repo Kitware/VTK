@@ -48,10 +48,8 @@ $renWin SetFilename f1.ppm;
 $prop SetSpecular 1.0;
 $renWin Render;
 
-$renWin SetFilename g1.ppm;
+#$renWin SetFilename specular.tcl.ppm;
 #$renWin SaveImageAsPPM;
-
-puts Done;
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .

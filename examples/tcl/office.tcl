@@ -10,7 +10,6 @@ set iren [$renWin MakeRenderWindowInteractor];
 # read data
 #
 vtkStructuredGridReader reader;
-    reader DebugOn;
     reader SetFilename "../../data/office.vtk"
     reader Update;#force a read to occur
 
@@ -236,27 +235,27 @@ vtkPolyMapper mapStreamers;
 vtkActor streamersActor;
     streamersActor SetMapper mapStreamers;
 
-#$ren1 AddActors table1Actor;
-#$ren1 AddActors table2Actor;
-#$ren1 AddActors FilingCabinet1Actor;
-#$ren1 AddActors FilingCabinet2Actor;
-#$ren1 AddActors bookshelf1TopActor;
-#$ren1 AddActors bookshelf1BottomActor;
-#$ren1 AddActors bookshelf1FrontActor;
-#$ren1 AddActors bookshelf1BackActor;
-#$ren1 AddActors bookshelf1LHSActor;
-#$ren1 AddActors bookshelf1RHSActor;
-#$ren1 AddActors bookshelf2TopActor;
-#$ren1 AddActors bookshelf2BottomActor;
-#$ren1 AddActors bookshelf2FrontActor;
-#$ren1 AddActors bookshelf2BackActor;
-#$ren1 AddActors bookshelf2LHSActor;
-#$ren1 AddActors bookshelf2RHSActor;
-#$ren1 AddActors windowActor;
-#$ren1 AddActors outletActor;
-#$ren1 AddActors inletActor;
+$ren1 AddActors table1Actor;
+$ren1 AddActors table2Actor;
+$ren1 AddActors FilingCabinet1Actor;
+$ren1 AddActors FilingCabinet2Actor;
+$ren1 AddActors bookshelf1TopActor;
+$ren1 AddActors bookshelf1BottomActor;
+$ren1 AddActors bookshelf1FrontActor;
+$ren1 AddActors bookshelf1BackActor;
+$ren1 AddActors bookshelf1LHSActor;
+$ren1 AddActors bookshelf1RHSActor;
+$ren1 AddActors bookshelf2TopActor;
+$ren1 AddActors bookshelf2BottomActor;
+$ren1 AddActors bookshelf2FrontActor;
+$ren1 AddActors bookshelf2BackActor;
+$ren1 AddActors bookshelf2LHSActor;
+$ren1 AddActors bookshelf2RHSActor;
+$ren1 AddActors windowActor;
+$ren1 AddActors outletActor;
+$ren1 AddActors inletActor;
 $ren1 AddActors outlineActor;
-#$ren1 AddActors streamersActor;
+$ren1 AddActors streamersActor;
 
 eval $ren1 SetBackground $slate_grey;
 
@@ -267,12 +266,15 @@ vtkCamera aCamera;
     aCamera CalcViewPlaneNormal;
     aCamera SetViewUp 0.0511273 0.132773 0.989827;
     aCamera SetViewAngle 18.604;
+    aCamera Zoom 1.2;
 
 $ren1 SetActiveCamera aCamera;
 
-$renWin SetSize 750 500;
+$renWin SetSize 500 300;
 $iren SetUserMethod {wm deiconify .vtkInteract};
 $iren Initialize;
+#$renWin SetFilename "office.tcl.ppm";
+#$renWin SaveImageAsPPM;
 
 # interact with data
 wm withdraw .;

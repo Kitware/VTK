@@ -18,7 +18,6 @@ vtkPLOT3DReader pl3d;
     pl3d SetQFilename "../../data/combq.bin"
     pl3d SetScalarFunctionNumber 100;
     pl3d SetVectorFunctionNumber 202;
-    pl3d DebugOn;
     pl3d Update;
 vtkStructuredGridGeometryFilter plane;
     plane SetInput [pl3d GetOutput];
@@ -62,8 +61,7 @@ vtkActor outlineActor;
 $ren1 AddActors outlineActor;
 $ren1 AddActors planeActor;
 $ren1 SetBackground 1 1 1;
-$renWin SetSize 750 750;
-$iren Initialize;
+$renWin SetSize 500 500;
 
 set cam1 [$ren1 GetActiveCamera];
 $cam1 SetClippingRange 3.95297 50;
@@ -71,11 +69,15 @@ $cam1 SetFocalPoint 8.88908 0.595038 29.3342;
 $cam1 SetPosition -12.3332 31.7479 41.2387;
 $cam1 CalcViewPlaneNormal;
 $cam1 SetViewUp 0.060772 -0.319905 0.945498;
+$iren Initialize;
 
 # render the image
 #
 $iren SetUserMethod {wm deiconify .vtkInteract};
 $renWin Render;
+
+#$renWin SetFilename "warpComb.tcl.ppm";
+#$renWin SaveImageAsPPM;
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .

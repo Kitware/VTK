@@ -64,25 +64,18 @@ vtkActor spring;
 $ren1 AddActors spring;
 $ren1 SetBackground 1 1 1;
 $renWin SetSize 500 500;
-$renWin Render;
 
 set cam1 [$ren1 GetActiveCamera];
-#$cam1 SetClippingRange 3.95297 50
-#$cam1 SetFocalPoint 9.71821 0.458166 29.3999
-#$cam1 SetPosition 2.7439 -37.3196 38.7167
-#$cam1 CalcViewPlaneNormal;
-#$cam1 SetViewUp -0.16123 0.264271 0.950876
-
-# render the image
-#
-$iren SetUserMethod {wm deiconify .vtkInteract};
+$cam1 Azimuth 90;
 
 $renWin Render;
+#$renWin SetFilename "spring.tcl.ppm";
+#$renWin SaveImageAsPPM;
+
+$iren SetUserMethod {wm deiconify .vtkInteract};
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .
-
-$iren Start;
 
 
 

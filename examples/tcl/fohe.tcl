@@ -15,10 +15,8 @@ set iren [$renWin MakeRenderWindowInteractor];
 #
 vtkBYUReader byu;
     byu SetGeometryFilename "../../data/fohe.g"
-    byu DebugOn;
 vtkPolyNormals normals;
     normals SetInput [byu GetOutput];
-    normals DebugOn;
 vtkPolyMapper byuMapper;
     byuMapper SetInput [normals GetOutput];
 vtkActor byuActor;
@@ -28,12 +26,15 @@ vtkActor byuActor;
 #
 $ren1 AddActors byuActor;
 $ren1 SetBackground 0.2 0.3 0.4;
-$renWin SetSize 750 750;
+$renWin SetSize 500 500;
 
 # render the image
 #
 $iren SetUserMethod {wm deiconify .vtkInteract};
 $iren Initialize;
+
+#$renWin SetFilename "fohe.tcl.ppm";
+#$renWin SaveImageAsPPM;
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .

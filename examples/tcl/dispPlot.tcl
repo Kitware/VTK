@@ -16,9 +16,7 @@ set iren [$renWin MakeRenderWindowInteractor];
 vtkPolyReader plate;
     plate SetFilename "../../data/plate.vtk";
     plate SetVectorsName "mode8";
-    plate DebugOn;
 vtkWarpVector warp;
-warp DebugOn;
     warp SetInput [plate GetOutput];
     warp SetScaleFactor 0.5;
 vtkGeometryFilter ds2poly;
@@ -27,7 +25,6 @@ vtkCleanPolyData clean;
     clean SetInput [ds2poly GetOutput];
 vtkPolyNormals normals;
     normals SetInput [clean GetOutput];
-    normals DebugOn;
 vtkVectorDot color;
     color SetInput [normals GetOutput];
 vtkLookupTable lut;
@@ -51,16 +48,17 @@ vtkActor plateActor;
 #
 $ren1 AddActors plateActor;
 $ren1 SetBackground 1 1 1;
-$renWin SetSize 750 750;
+$renWin SetSize 500 500;
 
 # render the image
 #
 $iren SetUserMethod {wm deiconify .vtkInteract};
 $iren Initialize;
-$renWin Render;
+
+#$renWin SetFilename "dispPlot.tcl.ppm";
+#$renWin SaveImageAsPPM;
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .
-$iren Start;
 
 

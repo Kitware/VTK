@@ -1,10 +1,10 @@
 # get the interactor ui
 source vtkInt.tcl
 
-# Create rendering stuff
+# Create ren1dering stuff
 vtkRenderMaster rm;
 set renWin [rm MakeRenderWindow];
-set ren [$renWin MakeRenderer];
+set ren1 [$renWin MakeRenderer];
 set iren [$renWin MakeRenderWindowInteractor];
 
 # ingest data file
@@ -33,12 +33,10 @@ vtkSweptSurface sweptSurfaceFilter;
   sweptSurfaceFilter SetSampleDimensions 50 50 40;
   sweptSurfaceFilter SetModelBounds -4.0  6.0  -1.0  6.0  -1.0  3.5;
   sweptSurfaceFilter SetMaximumNumberOfInterpolationSteps 20;
-  sweptSurfaceFilter DebugOn;
 
 vtkContourFilter iso;
   iso SetInput [sweptSurfaceFilter GetOutput];
   iso SetValue 0 0.33;
-  iso DebugOn;
 
 vtkCleanPolyData clean;
   clean SetInput [iso GetOutput];
@@ -54,18 +52,20 @@ vtkActor sweptSurface;
   sweptSurface SetMapper sweptSurfaceMapper;
   [sweptSurface GetProperty] SetColor 0.2510 0.8784 0.8157;
 
-$ren AddActors sweptSurface;
-$ren SetBackground 1 1 1;
+$ren1 AddActors sweptSurface;
+$ren1 SetBackground 1 1 1;
 
-$renWin SetSize 750 750;
-$renWin Render;
+$renWin SetSize 500 500;
 
 $iren SetUserMethod {wm deiconify .vtkInteract};
+[$ren1 GetActiveCamera] Zoom 1.5;
 $iren Initialize;
+
+#$renWin SetFilename "sweptVtk.tcl.ppm";
+#$renWin SaveImageAsPPM;
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .
-$iren Start;
 
 
 

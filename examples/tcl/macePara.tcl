@@ -49,6 +49,9 @@ $cam1 SetParallelScale 1;
 $cam1 Zoom 1.4;
 $iren Initialize;
 
+#$renWin SetFilename "macePara.tcl.ppm";
+#$renWin SaveImageAsPPM;
+
 # prevent the tk window from showing up then start the event loop
 wm withdraw .
 

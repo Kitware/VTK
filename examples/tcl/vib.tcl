@@ -16,10 +16,8 @@ set iren [$renWin MakeRenderWindowInteractor];
 vtkPolyReader plate;
     plate SetFilename "../../data/plate.vtk";
     plate SetVectorsName "mode2";
-    plate DebugOn;
 vtkPolyNormals normals;
     normals SetInput [plate GetOutput];
-    normals DebugOn;
 vtkWarpVector warp;
     warp SetInput [normals GetOutput];
     warp SetScaleFactor 0.5;
@@ -52,6 +50,8 @@ $renWin SetSize 500 500;
 #
 $iren SetUserMethod {wm deiconify .vtkInteract};
 $iren Initialize;
+#$renWin SetFilename "vib.tcl.ppm";
+#$renWin SaveImageAsPPM;
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .

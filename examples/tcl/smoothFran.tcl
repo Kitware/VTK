@@ -15,7 +15,6 @@ set iren [$renWin MakeRenderWindowInteractor];
 #
 vtkCyberReader cyber;
     cyber SetFilename "../../data/fran_cut"
-    cyber DebugOn;
 #7347 triangles remain
 vtkDecimate deci; 
     deci SetInput [cyber GetOutput];
@@ -24,7 +23,6 @@ vtkDecimate deci;
     deci SetInitialError 0.0002;
     deci SetErrorIncrement 0.0005;
     deci SetMaximumIterations 6;
-    deci DebugOn;
 vtkSmoothPolyFilter smooth;
     smooth SetInput [deci GetOutput];
     smooth SetNumberOfIterations 20;
@@ -41,7 +39,7 @@ vtkActor cyberActor;
 #
 $ren1 AddActors cyberActor;
 $ren1 SetBackground 1 1 1;
-$renWin SetSize 750 750;
+$renWin SetSize 500 500;
 
 # render the image
 #
@@ -56,9 +54,10 @@ vtkCamera cam1;
 $ren1 SetActiveCamera cam1;
 
 $iren Initialize;
+#$renWin SetFilename "smoothFran.tcl.ppm";
+#$renWin SaveImageAsPPM;
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .
-$iren Start;
 
 

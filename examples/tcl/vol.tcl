@@ -35,6 +35,10 @@ vol SetInput [reader GetOutput];
 [vol GetLookupTable] SetAlphaRange 0 0.3;
 eval vol SetScalarRange $range;
 
+$renWin Render;
+#$renWin SetFilename "vol.tcl.ppm";
+#$renWin SaveImageAsPPM;
+
 wm withdraw .;
 
 

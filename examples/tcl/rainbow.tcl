@@ -18,7 +18,6 @@ vtkPLOT3DReader pl3d;
     pl3d SetQFilename "../../data/combq.bin"
     pl3d SetScalarFunctionNumber 100;
     pl3d SetVectorFunctionNumber 202;
-    pl3d DebugOn;
     pl3d Update;
 vtkStructuredGridGeometryFilter plane;
     plane SetInput [pl3d GetOutput];
@@ -86,10 +85,9 @@ $ren1 AddActors outlineActor;
 $ren1 AddActors planeActor;
 #$ren1 SetBackground 1 1 1;
 $ren1 SetBackground 0.1 0.2 0.4;
-$renWin SetSize 750 750;
+$renWin SetSize 500 500;
 $renWin DoubleBufferOff;
 $iren Initialize;
-$renWin Render;
 
 set cam1 [$ren1 GetActiveCamera];
 $cam1 SetClippingRange 3.95297 50;
@@ -104,11 +102,11 @@ $iren SetUserMethod {wm deiconify .vtkInteract};
 
 $renWin Render;
 
-$renWin SetFilename "rainbow4.ppm";
-$renWin SaveImageAsPPM;
+#$renWin SetFilename "rainbow.tcl.ppm";
+#$renWin SaveImageAsPPM;
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .
-$iren Start;
+
 
 

@@ -16,15 +16,14 @@ set iren [$renWin MakeRenderWindowInteractor];
 #
 vtkCyberReader cyber;
     cyber SetFilename "../../data/fran_cut";
-    cyber DebugOn;
 vtkPolyMapper cyberMapper;
     cyberMapper SetInput [cyber GetOutput];
 
-vtkPNMReader pnm;
-    pnm SetFilename "../../data/fran_cut.ppm";
+vtkPNMReader pnm1;
+    pnm1 SetFilename "../../data/fran_cut.ppm";
 
 vtkTexture atext;
-  atext SetInput [pnm GetOutput];
+  atext SetInput [pnm1 GetOutput];
   atext InterpolateOn;
 
 vtkActor cyberActor;
@@ -35,12 +34,16 @@ vtkActor cyberActor;
 #
 $ren1 AddActors cyberActor;
 $ren1 SetBackground 1 1 1;
-$renWin SetSize 750 750;
+$renWin SetSize 500 500;
 
 # render the image
 #
 $iren SetUserMethod {wm deiconify .vtkInteract};
+[$ren1 GetActiveCamera] Azimuth 90;
 $iren Initialize;
+
+#$renWin SetFilename "franFace.tcl.ppm";
+#$renWin SaveImageAsPPM;
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .

@@ -18,7 +18,6 @@ vtkPLOT3DReader pl3d;
     pl3d SetQFilename "../../data/bluntfinq.bin"
     pl3d SetScalarFunctionNumber 100;
     pl3d SetVectorFunctionNumber 202;
-    pl3d DebugOn;
     pl3d Update;
 
 # wall
@@ -48,7 +47,6 @@ vtkActor finActor;
 # planes to threshold
 vtkStructuredPointsReader tmap;
   tmap SetFilename "../../data/texThres.vtk";
-  tmap DebugOn;
 vtkTexture texture;
   texture SetInput [tmap GetOutput];
   texture InterpolateOff;
@@ -115,7 +113,7 @@ $ren1 AddActors plane1Actor;
 $ren1 AddActors plane2Actor;
 $ren1 AddActors plane3Actor;
 $ren1 SetBackground 1 1 1;
-$renWin SetSize 750 750;
+$renWin SetSize 500 500;
 
 vtkCamera cam1;
   cam1 SetClippingRange 1.51176 75.5879;
@@ -127,14 +125,15 @@ vtkCamera cam1;
 $ren1 SetActiveCamera cam1;
 
 $iren Initialize;
-$renWin Render;
 
 # render the image
 #
 $iren SetUserMethod {wm deiconify .vtkInteract};
+#$renWin SetFilename "texThresh.tcl.ppm";
+#$renWin SaveImageAsPPM;
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .
-$iren Start;
+
 
 

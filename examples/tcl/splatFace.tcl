@@ -16,10 +16,8 @@ set iren [$renWin MakeRenderWindowInteractor];
 #
 vtkCyberReader cyber;
     cyber SetFilename "../../data/fran_cut"
-    cyber DebugOn;
 vtkPolyNormals normals;
     normals SetInput [cyber GetOutput];
-    normals DebugOn;
 vtkMaskPoints mask;
     mask SetInput [normals GetOutput];
     mask SetOnRatio 50;
@@ -31,7 +29,6 @@ vtkGaussianSplatter splatter;
     splatter NormalWarpingOn;
     splatter SetScaleFactor 1.0;
     splatter SetRadius 0.025;
-    splatter DebugOn;
 vtkContourFilter contour;
     contour SetInput [splatter GetOutput];
     contour SetValue 0 0.25;
@@ -55,7 +52,7 @@ vtkActor cyberActor;
 $ren1 AddActors cyberActor;
 $ren1 AddActors splatActor;
 $ren1 SetBackground 1 1 1;
-$renWin SetSize 750 750;
+$renWin SetSize 500 500;
 $ren1 SetBackground 1 1 1;
 vtkCamera camera;
     camera SetClippingRange 0.0332682 1.66341;
@@ -70,8 +67,9 @@ $ren1 SetActiveCamera camera;
 #
 $iren SetUserMethod {wm deiconify .vtkInteract};
 $renWin Render;
+#$renWin SetFilename "splatFace.tcl.ppm";
+#$renWin SaveImageAsPPM;
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .
-$iren Start;
 

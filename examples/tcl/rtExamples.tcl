@@ -9,27 +9,60 @@ set files [lsort [glob {*.tcl}]];
 
 # remove support files that we know are not examples
 if {[set pos [lsearch $files "vtkInt.tcl"]] != -1} {
-   set files [lreplace $files $pos [expr $pos + 1] ]
+   set files [lreplace $files $pos $pos ]
 }
 if {[set pos [lsearch $files "vtkInclude.tcl"]] != -1} {
-   set files [lreplace $files $pos [expr $pos + 1] ]
+   set files [lreplace $files $pos $pos ]
 }
 if {[set pos [lsearch $files "colors.tcl"]] != -1} {
-   set files [lreplace $files $pos [expr $pos + 1] ]
+   set files [lreplace $files $pos $pos ]
 }
 if {[set pos [lsearch $files "rtExamples.tcl"]] != -1} {
-   set files [lreplace $files $pos [expr $pos + 1] ]
+   set files [lreplace $files $pos $pos ]
 }
+# remove files that are not appropriate or include random sources
+# or just take way too long
 if {[set pos [lsearch $files "Mace.tcl"]] != -1} {
-   set files [lreplace $files $pos [expr $pos + 1] ]
+   set files [lreplace $files $pos $pos ]
 }
+# assembly 2 should be in there
 if {[set pos [lsearch $files "assembly2.tcl"]] != -1} {
-   set files [lreplace $files $pos [expr $pos + 1] ]
+   set files [lreplace $files $pos $pos ]
 }
+if {[set pos [lsearch $files "connPineRoot.tcl"]] != -1} {
+   set files [lreplace $files $pos $pos ]
+}
+if {[set pos [lsearch $files "cylMap.tcl"]] != -1} {
+   set files [lreplace $files $pos $pos ]
+}
+if {[set pos [lsearch $files "deciHawa.tcl"]] != -1} {
+   set files [lreplace $files $pos $pos ]
+}
+if {[set pos [lsearch $files "deciPineRoot.tcl"]] != -1} {
+   set files [lreplace $files $pos $pos ]
+}
+if {[set pos [lsearch $files "deleted.tcl"]] != -1} {
+   set files [lreplace $files $pos $pos ]
+}
+if {[set pos [lsearch $files "genPineRoot.tcl"]] != -1} {
+   set files [lreplace $files $pos $pos ]
+}
+if {[set pos [lsearch $files "mcTest.tcl"]] != -1} {
+   set files [lreplace $files $pos $pos ]
+}
+if {[set pos [lsearch $files "viewMCubesFile.tcl"]] != -1} {
+   set files [lreplace $files $pos $pos ]
+}
+if {[set pos [lsearch $files "tkwin.tcl"]] != -1} {
+   set files [lreplace $files $pos $pos ]
+}
+if {[set pos [lsearch $files "sphereMap.tcl"]] != -1} {
+   set files [lreplace $files $pos $pos ]
+}
+
 
 # now do the tests
 foreach afile $files {
-   puts "Testing file $afile";
    source "$afile";
 
    vtkRendererSource renSrc;
@@ -43,15 +76,13 @@ foreach afile $files {
    imgDiff SetImage [pnm GetOutput];
    imgDiff Update;
 
-   if {[imgDiff GetError] == 0.0} {
-      lappend summary "Passed Test for $afile\n"
-      puts "Passed Test for $afile"
+   if {[imgDiff GetThresholdedError] == 0.0} {
+       puts "Passed Test for $afile"
    } else {
-      lappend summary "Failed Test for $afile\n"
-      puts "Failed Test for $afile"
+       puts "Failed Test for $afile with an error of [imgDiff GetThresholdedError]"
    }
    
    vtkCommand DeleteAllObjects;
 }
 
-puts $summary
+exit

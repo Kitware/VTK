@@ -15,14 +15,11 @@ set iren [$renWin MakeRenderWindowInteractor];
 #
 vtkCyberReader cyber;
     cyber SetFilename "../../data/fran_cut"
-    cyber DebugOn;
 vtkPolyNormals normals;#enable this for cool effect
     normals SetInput [cyber GetOutput];
     normals FlipNormalsOn;
-    normals DebugOn;
 vtkStripper stripper;
     stripper SetInput [cyber GetOutput];
-    stripper DebugOn;
 vtkMaskPolyData mask;
     mask SetInput [stripper GetOutput];
     mask SetOnRatio 2;
@@ -36,7 +33,7 @@ eval [cyberActor GetProperty] SetColor 1.0 0.49 0.25;
 #
 $ren1 AddActors cyberActor;
 $ren1 SetBackground 1 1 1;
-$renWin SetSize 750 750;
+$renWin SetSize 500 500;
 #$ren1 SetBackground 0.1 0.2 0.4;
 $ren1 SetBackground 1 1 1;
 
@@ -51,7 +48,9 @@ vtkCamera cam1;
 $ren1 SetActiveCamera cam1;
 $iren SetUserMethod {wm deiconify .vtkInteract};
 $iren Initialize;
-$renWin Render;
+
+#$renWin SetFilename "stripF.tcl.ppm";
+#$renWin SaveImageAsPPM;
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .

@@ -30,7 +30,6 @@ vtkFloatScalars scalars;
 #
 vtkStructuredPointsReader tmap;
   tmap SetFilename "../../data/texThres.vtk";
-  tmap DebugOn;
 vtkTexture texture;
   texture SetInput [tmap GetOutput];
   texture InterpolateOff;
@@ -64,6 +63,9 @@ $ren1 SetBackground 0.5 0.5 0.5;
 $renWin SetSize 450 450;
 
 $iren Initialize;
+#$renWin SetFilename "testTexThresh.tcl.ppm";
+#$renWin SaveImageAsPPM;
+
 # render the image
 #
 $iren SetUserMethod {wm deiconify .vtkInteract};

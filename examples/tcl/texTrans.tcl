@@ -37,6 +37,9 @@ $iren SetUserMethod {wm deiconify .vtkInteract};
 $renWin SetSize 500 500;
 $renWin Render;
 
+#$renWin SetFilename "texTrans.tcl.ppm";
+#$renWin SaveImageAsPPM;
+
 # prevent the tk window from showing up then start the event loop
 wm withdraw .
 

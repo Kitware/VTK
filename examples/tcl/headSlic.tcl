@@ -23,7 +23,6 @@ vtkVolume16Reader v16;
 vtkContourFilter iso;
     iso SetInput [v16 GetOutput];
     iso GenerateValues 12 500 1150;
-    iso DebugOn;
 vtkPolyMapper isoMapper;
     isoMapper SetInput [iso GetOutput];
     isoMapper ScalarsVisibleOff;
@@ -45,15 +44,13 @@ set outlineProp [outlineActor GetProperty];
 $ren1 AddActors outlineActor;
 $ren1 AddActors isoActor;
 $ren1 SetBackground 1 1 1;
-$renWin SetSize 750 750;
+$renWin SetSize 500 500;
 $ren1 SetBackground 0.1 0.2 0.4;
-$renWin DoubleBufferOff;
 
 $iren Initialize;
 
-#$renWin SetFilename "color9a.ppm";
+#$renWin SetFilename "headSlic.tcl.ppm";
 #$renWin SaveImageAsPPM;
-puts "Done";
 
 $iren SetUserMethod {wm deiconify .vtkInteract};
 

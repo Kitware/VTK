@@ -18,7 +18,6 @@ vtkPLOT3DReader pl3d;
     pl3d SetQFilename "../../data/combq.bin"
     pl3d SetScalarFunctionNumber 100;
     pl3d SetVectorFunctionNumber 202;
-    pl3d DebugOn;
     pl3d Update;
 vtkStructuredGridGeometryFilter plane;
     plane SetInput [pl3d GetOutput];
@@ -42,7 +41,7 @@ vtkActor outlineActor;
 $ren1 AddActors outlineActor;
 $ren1 AddActors planeActor;
 $ren1 SetBackground 1 1 1;
-$renWin SetSize 750 750;
+$renWin SetSize 500 500;
 $iren Initialize;
 
 set cam1 [$ren1 GetActiveCamera];
@@ -62,6 +61,9 @@ for {set j 0} {$j<3} {incr j 1} {
         $renWin Render;
     }
 }
+
+#$renWin SetFilename "movePlane.tcl.ppm";
+#$renWin SaveImageAsPPM;
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .

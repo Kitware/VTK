@@ -17,7 +17,6 @@ vtkPLOT3DReader pl3d;
     pl3d SetQFilename "../../data/combq.bin"
     pl3d SetScalarFunctionNumber 100;
     pl3d SetVectorFunctionNumber 202;
-    pl3d DebugOn;
     pl3d Update;
 vtkContourFilter iso;
     iso SetInput [pl3d GetOutput];
@@ -42,17 +41,14 @@ vtkPolyMapper outlineMapper;
 vtkActor outlineActor;
     outlineActor SetMapper outlineMapper;
 set outlineProp [outlineActor GetProperty];
-#eval $outlineProp SetColor 0 0 0;
 
 # Add the actors to the renderer, set the background and size
 #
 $ren1 AddActors outlineActor;
 $ren1 AddActors isoActor;
 $ren1 SetBackground 1 1 1;
-$renWin SetSize 750 750;
+$renWin SetSize 500 500;
 $ren1 SetBackground 0.1 0.2 0.4;
-$renWin DoubleBufferOff;
-$iren Initialize;
 
 set cam1 [$ren1 GetActiveCamera];
 $cam1 SetClippingRange 3.95297 50
@@ -66,12 +62,10 @@ $cam1 SetViewUp -0.16123 0.264271 0.950876
 $iren SetUserMethod {wm deiconify .vtkInteract};
 
 $renWin Render;
-#$renWin SetFilename "color9c.ppm";
+#$renWin SetFilename "combIso.tcl.ppm";
 #$renWin SaveImageAsPPM;
-puts "Done";
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .
-$iren Start;
 
 

@@ -17,16 +17,16 @@ vtkSphereSource sphere;
 
 # create the spikes using a cone source and the sphere source
 #
-vtkVectorText text;
+vtkVectorText atext;
 set count 3;
-text SetText "Welcome to VTK
+atext SetText "Welcome to VTK
 An exciting new adventure 
 brought to you by over 
 $count monkeys at work for 
 over three years.";
 
 vtkShrinkPolyData shrink;
-shrink SetInput [text GetOutput];
+shrink SetInput [atext GetOutput];
 shrink SetShrinkFactor 0.1;
 
 vtkPolyMapper spikeMapper;
@@ -38,15 +38,15 @@ vtkLODActor spikeActor;
 #
 $ren1 AddActors spikeActor;
 $ren1 SetBackground 0.1 0.2 0.4;
-$renWin SetSize 800 800;
+$renWin SetSize 500 300;
 set cam1 [$ren1 GetActiveCamera];
-$cam1 Zoom 1.4;
+$cam1 Zoom 2.4;
 
 for {} {$count < 27} {} {
    $renWin Render;
    set count [expr $count+1];
    shrink SetShrinkFactor [expr $count / 27.0]; 
-text SetText "Welcome to VTK
+atext SetText "Welcome to VTK
 An exciting new adventure 
 brought to you by over 
 $count monkeys at work for 
@@ -57,6 +57,9 @@ over three years.";
 #
 $iren SetUserMethod {wm deiconify .vtkInteract};
 $iren Initialize;
+
+#$renWin SetFilename "vectext.tcl.ppm";
+#$renWin SaveImageAsPPM;
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .

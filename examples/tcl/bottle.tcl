@@ -45,20 +45,25 @@ vtkRotationalExtrusionFilter extrude;
     extrude SetInput profile;
     extrude SetResolution 60;
     
+#vtkTriangleFilter tf;
+#tf SetInput [extrude GetOutput];
+
+#vtkPolyNormals pn;
+#pn SetInput [tf GetOutput];
+
 vtkPolyMapper map;
     map SetInput [extrude GetOutput];
 
 vtkActor bottle;
     bottle SetMapper map;
     [bottle GetProperty] SetColor 0.3800 0.7000 0.1600;
-[bottle GetProperty] BackfaceCullingOff;
+#[bottle GetProperty] BackfaceCullingOff;
 #[bottle GetProperty] FrontfaceCullingOn;
 
 # Add the actors to the renderer, set the background and size
 #
 $ren1 AddActors bottle;
 $ren1 SetBackground 1 1 1;
-$ren1 TwoSidedLightingOn;
 
 $renWin SetSize 500 500;
 $renWin Render;
@@ -73,6 +78,7 @@ set cam1 [$ren1 GetActiveCamera];
 # render the image
 #
 $iren SetUserMethod {wm deiconify .vtkInteract};
+$iren Initialize;
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .

@@ -17,7 +17,6 @@ set iren [$renWin MakeRenderWindowInteractor];
 #
 vtkPolyReader hawaii;
     hawaii SetFilename "../../data/honolulu.vtk";
-    hawaii DebugOn;
     hawaii Update;
 vtkElevationFilter elevation;
     elevation SetInput [hawaii GetOutput];
@@ -49,8 +48,7 @@ vtkActor hawaiiActor;
 #
 $ren1 AddActors hawaiiActor;
 $ren1 SetBackground 1 1 1;
-$renWin SetSize 750 750;
-#$renWin SetSize 1000 1000;
+$renWin SetSize 500 500;
 $ren1 SetBackground 0.1 0.2 0.4;
 $renWin DoubleBufferOff;
 
@@ -61,12 +59,10 @@ $iren Initialize;
 
 [$ren1 GetActiveCamera] Zoom 1.8;
 $renWin Render;
-#$renWin SetFilename "color10.ppm";
+#$renWin SetFilename "hawaii.tcl.ppm";
 #$renWin SaveImageAsPPM;
-puts "Done";
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .
-$iren Start;
 
 

@@ -46,29 +46,21 @@ vtkCamera camera;
 $ren1 SetActiveCamera camera;
 $renWin Render;
 
-vtkMath math;
-while {1} {
-    for {set i 0} {$i < 112} {incr i} {
-      eval trans AddPosition 0.01 0 0;
-      after 50;
-      $renWin Render;
-    }
-    for {set i 0} {$i < 40} {incr i} {
-      eval trans AddPosition 0 0.05 0;
-      after 50;
-      $renWin Render;
-    }
-    for {set i 0} {$i < 112} {incr i} {
-      eval trans AddPosition -0.01 0 0;
-      after 50;
-      $renWin Render;
-    }
-    if {[math Random 0 1] < 0.5} {trans FlipSOn;
-    } else {trans FlipSOff;}
-    if {[math Random 0 1] < 0.5} {trans FlipTOn;
-    } else {trans FlipTOff;}
+for {set i 0} {$i < 112} {incr i} {
+   eval trans AddPosition 0.01 0 0;
+   $renWin Render;
+}
+for {set i 0} {$i < 40} {incr i} {
+   eval trans AddPosition 0 0.05 0;
+   $renWin Render;
+}
+for {set i 0} {$i < 112} {incr i} {
+   eval trans AddPosition -0.01 0 0;
+   $renWin Render;
 }
 
+#$renWin SetFilename billBoard.tcl.ppm;
+#$renWin SaveImageAsPPM;
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .

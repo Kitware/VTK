@@ -47,7 +47,7 @@ $ren1 AddActors outlineActor;
 $ren1 AddActors isoActor;
 $ren1 SetBackground 1 1 1;
 $ren1 AddLights lgt;
-$renWin SetSize 750 750;
+$renWin SetSize 500 500;
 $ren1 SetBackground 0.1 0.2 0.4;
 $renWin DoubleBufferOff;
 
@@ -64,9 +64,8 @@ eval lgt SetFocalPoint [$cam1 GetFocalPoint];
 $iren SetUserMethod {wm deiconify .vtkInteract};
 
 $renWin Render;
-#$renWin SetFilename "color9b.ppm";
+#$renWin SetFilename "headBone.tcl.ppm";
 #$renWin SaveImageAsPPM;
-puts "Done";
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .

@@ -11,7 +11,6 @@ set iren [$renWin MakeRenderWindowInteractor];
 # read data
 #
 vtkStructuredGridReader reader;
-    reader DebugOn;
     reader SetFilename "../../data/office.vtk"
     reader Update;#force a read to occur
 
@@ -265,18 +264,20 @@ $ren1 AddActors conesActor;
 eval $ren1 SetBackground $slate_grey;
 
 vtkCamera aCamera;
-    aCamera SetClippingRange 0.726079 36.3039;
-    aCamera SetFocalPoint 2.43584 2.15046 1.11104;
-    aCamera SetPosition -4.76183 -10.4426 3.17203;
+    aCamera SetClippingRange 0.7724 39;
+    aCamera SetFocalPoint 1.14798 3.08416 2.47187;
+    aCamera SetPosition -2.64683 -3.55525 3.55848;
     aCamera CalcViewPlaneNormal;
     aCamera SetViewUp 0.0511273 0.132773 0.989827;
-    aCamera SetViewAngle 18.604;
+    aCamera SetViewAngle 15.5033;
 
 $ren1 SetActiveCamera aCamera;
 
-$renWin SetSize 750 500;
+$renWin SetSize 500 300;
 $iren SetUserMethod {wm deiconify .vtkInteract};
 $iren Initialize;
+#$renWin SetFilename "officeStreamPoints.tcl.ppm";
+#$renWin SaveImageAsPPM;
 
 # interact with data
 wm withdraw .;

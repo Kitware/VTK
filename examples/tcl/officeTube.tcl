@@ -11,7 +11,6 @@ set iren [$renWin MakeRenderWindowInteractor];
 # read data
 #
 vtkStructuredGridReader reader;
-    reader DebugOn;
     reader SetFilename "../../data/office.binary.vtk"
     reader Update;#force a read to occur
 
@@ -271,13 +270,16 @@ vtkCamera aCamera;
     aCamera SetPosition -4.76183 -10.4426 3.17203;
     aCamera CalcViewPlaneNormal;
     aCamera SetViewUp 0.0511273 0.132773 0.989827;
-    aCamera SetViewAngle 18.604;
+    aCamera SetViewAngle 18.604; 
+    aCamera Zoom 1.2;
 
 $ren1 SetActiveCamera aCamera;
 
-$renWin SetSize 750 500;
+$renWin SetSize 500 300;
 $iren SetUserMethod {wm deiconify .vtkInteract};
 $iren Initialize;
+#$renWin SetFilename "officeTube.tcl.ppm";
+#$renWin SaveImageAsPPM;
 
 # interact with data
 wm withdraw .;

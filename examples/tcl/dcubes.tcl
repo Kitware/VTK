@@ -15,14 +15,12 @@ set iren [$renWin MakeRenderWindowInteractor];
 #
 vtkStructuredPointsReader reader;
     reader SetFilename "../../data/ironProt.vtk"
-    reader DebugOn;
 #vtkRecursiveDividingCubes iso;
 vtkDividingCubes iso;
     iso SetInput [reader GetOutput];
     iso SetValue 128;
     iso SetDistance 0.5;
     iso SetIncrement 1;
-    iso DebugOn;
 vtkPolyMapper isoMapper;
     isoMapper SetInput [iso GetOutput];
     isoMapper ScalarsVisibleOff;
@@ -43,7 +41,7 @@ vtkActor outlineActor;
 $ren1 AddActors outlineActor;
 $ren1 AddActors isoActor;
 $ren1 SetBackground 1 1 1;
-$renWin SetSize 750 750;
+$renWin SetSize 500 500;
 $ren1 SetBackground 0.1 0.2 0.4;
 
 vtkCamera cam1;
@@ -60,9 +58,8 @@ $iren Initialize;
 #
 $iren SetUserMethod {wm deiconify .vtkInteract};
 
-#$renWin SetFilename "color9d.ppm";
+#$renWin SetFilename "dcubes.tcl.ppm";
 #$renWin SaveImageAsPPM;
-puts "Done";
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .

@@ -81,7 +81,11 @@ $ren1 AddActors coneActor;
 $ren1 AddActors creamActor;
 $ren1 SetBackground 1 1 1;
 $renWin SetSize 500 500;
+[$ren1 GetActiveCamera] Azimuth 90;
 $iren Initialize;
+
+#$renWin SetFilename "iceCream.tcl.ppm";
+#$renWin SaveImageAsPPM;
 
 # render the image
 #

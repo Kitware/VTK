@@ -16,7 +16,6 @@ vtkPLOT3DReader pl3d;
     pl3d SetQFilename "../../data/combq.bin"
     pl3d SetScalarFunctionNumber 100;
     pl3d SetVectorFunctionNumber 202;
-    pl3d DebugOn;
     pl3d Update;
 vtkPlane plane;
     eval plane SetOrigin [[pl3d GetOutput] GetCenter];
@@ -24,10 +23,8 @@ vtkPlane plane;
 vtkCutter planeCut;
     planeCut SetInput [pl3d GetOutput];
     planeCut SetCutFunction plane;
-    planeCut DebugOn;
 vtkCleanPolyData clean;
     clean SetInput [planeCut GetOutput];
-    clean DebugOn;
 vtkProbeFilter probe;
     probe SetInput [clean GetOutput];
     probe SetSource [pl3d GetOutput];
@@ -66,9 +63,7 @@ $ren1 AddActors outlineActor;
 $ren1 AddActors planeActor;
 $ren1 AddActors cutActor;
 $ren1 SetBackground 1 1 1;
-$renWin SetSize 750 750;
-$iren Initialize;
-$renWin Render;
+$renWin SetSize 500 500;
 
 set cam1 [$ren1 GetActiveCamera];
 $cam1 SetClippingRange 3.95297 50
@@ -76,15 +71,17 @@ $cam1 SetFocalPoint 9.71821 0.458166 29.3999
 $cam1 SetPosition 2.7439 -37.3196 38.7167
 $cam1 CalcViewPlaneNormal;
 $cam1 SetViewUp -0.16123 0.264271 0.950876
+$iren Initialize;
 
 # render the image
 #
 $iren SetUserMethod {wm deiconify .vtkInteract};
 
-$renWin Render;
+#$renWin SetFilename "probe.tcl.ppm";
+#$renWin SaveImageAsPPM;
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .
-$iren Start;
+
 
 

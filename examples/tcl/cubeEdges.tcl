@@ -4,7 +4,7 @@ source vtkInt.tcl
 # create a rendering window and renderer
 vtkRenderMaster rm;
 set renWin [rm MakeRenderWindow];
-set ren [$renWin MakeRenderer];
+set ren1 [$renWin MakeRenderer];
 set iren [$renWin MakeRenderWindowInteractor];
 
 vtkConeSource cube;
@@ -15,7 +15,6 @@ vtkCleanPolyData clean;#remove duplicate vertices and edges
   clean SetInput [cube GetOutput];
 vtkExtractEdges extract;
   extract SetInput [clean GetOutput];
-  extract DebugOn;
 vtkTubeFilter tubes;
   tubes SetInput [extract GetOutput];
   tubes SetRadius 0.05;
@@ -37,12 +36,15 @@ vtkActor vertActor;
   [vertActor GetProperty] SetColor 0 0 1;
 
 # assign our actor to the renderer
-$ren AddActors cubeActor;
-$ren AddActors vertActor;
+$ren1 AddActors cubeActor;
+$ren1 AddActors vertActor;
 
 # enable user interface interactor
 $iren SetUserMethod {wm deiconify .vtkInteract};
 $iren Initialize;
+
+#$renWin SetFilename "cubeEdges.tcl.ppm";
+#$renWin SaveImageAsPPM;
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .

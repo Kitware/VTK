@@ -15,11 +15,9 @@ set iren [$renWin MakeRenderWindowInteractor];
 #
 vtkSTLReader reader;
     reader SetFilename ../../data/42400-IDGH.stl;
-    reader DebugOn;
 vtkDicer dicer;
     dicer SetInput [reader GetOutput];
     dicer SetNumberOfPointsPerPiece 1000;
-    dicer DebugOn;
     dicer Update;
 vtkDataSetMapper isoMapper;
     isoMapper SetInput [dicer GetOutput];
@@ -41,7 +39,7 @@ vtkActor outlineActor;
 $ren1 AddActors outlineActor;
 $ren1 AddActors isoActor;
 $ren1 SetBackground 1 1 1;
-$renWin SetSize 750 750;
+$renWin SetSize 500 500;
 eval $ren1 SetBackground $slate_grey;
 
 # render the image
@@ -49,7 +47,9 @@ eval $ren1 SetBackground $slate_grey;
 $iren SetUserMethod {wm deiconify .vtkInteract};
 $renWin Render;
 
+#$renWin SetFilename "dicer.tcl.ppm";
+#$renWin SaveImageAsPPM;
+
 # prevent the tk window from showing up then start the event loop
 wm withdraw .
 
-$iren Start;

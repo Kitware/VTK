@@ -32,12 +32,14 @@ $ren1 AddActors model;
 $ren1 AddActors boxActor;
 $ren1 SetBackground 0.1 0.2 0.4;
 $renWin SetSize 500 500;
-$renWin Render;
+[$ren1 GetActiveCamera] Zoom 1.5;
 
 # render the image
 #
 $iren SetUserMethod {wm deiconify .vtkInteract};
 $iren Initialize;
+#$renWin SetFilename OBBTree.tcl.ppm;
+#$renWin SaveImageAsPPM;
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .

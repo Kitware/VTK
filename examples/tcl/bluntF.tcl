@@ -44,13 +44,6 @@ vtkActor finActor;
     finActor SetMapper finMap;
     eval [finActor GetProperty] SetColor 0.8 0.8 0.8;
 
-# texture map
-vtkBooleanTexture btext;
-    btext SetXSize 20;
-    btext SetXSize 20;
-vtkTexture texture;
-    texture SetInput [btext GetOutput];
-
 # planes to threshold
 vtkStructuredGridGeometryFilter plane1;
     plane1 SetInput [pl3d GetOutput];
@@ -76,15 +69,12 @@ vtkActor plane2Actor;
 vtkStructuredGridGeometryFilter plane3;
     plane3 SetInput [pl3d GetOutput];
     plane3 SetExtent 35 35 0 100 0 100;
-vtkThresholdTextureCoords thresh3;
-    thresh3 SetInput [plane3 GetOutput];
 vtkDataSetMapper plane3Map;
     plane3Map SetInput [plane3 GetOutput];
     eval plane3Map SetScalarRange \
       [[[[pl3d GetOutput] GetPointData] GetScalars] GetRange];
 vtkActor plane3Actor;
     plane3Actor SetMapper plane3Map;
-    plane3Actor SetTexture texture;
 
 # outline
 vtkStructuredGridOutlineFilter outline;

@@ -18,7 +18,6 @@ vtkPLOT3DReader pl3d;
     pl3d SetQFilename "../../data/combq.bin"
     pl3d SetScalarFunctionNumber 100;
     pl3d SetVectorFunctionNumber 202;
-    pl3d DebugOn;
     pl3d Update;
 vtkStructuredGridGeometryFilter plane;
     plane SetInput [pl3d GetOutput];
@@ -64,12 +63,16 @@ eval $outlineProp SetColor $black;
 $ren1 AddActors outlineActor;
 $ren1 AddActors planeActor;
 $ren1 SetBackground 1 1 1;
-$renWin SetSize 750 750;
+$renWin SetSize 500 500;
+$iren Initialize;
+[$ren1 GetActiveCamera] Zoom 1.4;
 
 # render the image
 #
 $iren SetUserMethod {wm deiconify .vtkInteract};
-$iren Initialize;
+$renWin Render;
+#$renWin SetFilename "velProf.tcl.ppm";
+#$renWin SaveImageAsPPM;
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .

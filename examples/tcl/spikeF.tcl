@@ -15,10 +15,8 @@ set iren [$renWin MakeRenderWindowInteractor];
 #
 vtkCyberReader cyber;
     cyber SetFilename "../../data/fran_cut"
-    cyber DebugOn;
 vtkPolyNormals normals;
     normals SetInput [cyber GetOutput];
-    normals DebugOn;
 vtkPolyMapper cyberMapper;
     cyberMapper SetInput [normals GetOutput];
 vtkActor cyberActor;
@@ -58,12 +56,10 @@ $ren1 SetBackground 1 1 1;
 $renWin SetSize 500 500;
 #$renWin SetSize 1000 1000;
 $ren1 SetBackground 0.1 0.2 0.4;
-$renWin DoubleBufferOff;
 
 # render the image
 #
 $iren SetUserMethod {wm deiconify .vtkInteract};
-$iren Initialize;
 set cam1 [$ren1 GetActiveCamera];
 set sphereProp [cyberActor GetProperty];
 set spikeProp [spikeActor GetProperty];
@@ -72,9 +68,8 @@ set spikeProp [spikeActor GetProperty];
 $cam1 Zoom 1.4;
 $cam1 Azimuth 110;
 $renWin Render;
-#$renWin SetFilename "color12.ppm";
+#$renWin SetFilename "spikeF.tcl.ppm";
 #$renWin SaveImageAsPPM;
-puts "Done";
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .
