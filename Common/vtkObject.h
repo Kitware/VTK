@@ -150,6 +150,11 @@ public:
   virtual void UnRegister(vtkObjectBase* o);
 
   // Description:
+  // Return the current reference count of this object.
+  int  GetReferenceCount() 
+    {return this->Superclass::GetReferenceCount();}
+
+  // Description:
   // Allow people to add/remove/invoke observers (callbacks) to any VTK
   // object.  This is an implementation of the subject/observer design
   // pattern. An observer is added by specifying an event to respond to
