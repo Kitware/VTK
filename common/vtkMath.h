@@ -70,32 +70,32 @@ public:
 
   // Description:
   // Dot product of two 3-vectors (float version).
-  static float Dot(float x[3], float y[3]) 
-  {return (x[0]*y[0] + x[1]*y[1] + x[2]*y[2]);};
+  static float Dot(const float x[3], const float y[3]) {
+    return (x[0]*y[0] + x[1]*y[1] + x[2]*y[2]);};
 
   // Description:
   // Dot product of two 3-vectors (double-precision version).
-  static double Dot(double x[3], double y[3])
-  {return (x[0]*y[0] + x[1]*y[1] + x[2]*y[2]);};
+  static double Dot(const double x[3], const double y[3]) {
+    return (x[0]*y[0] + x[1]*y[1] + x[2]*y[2]);};
   
   // Description:
   // Cross product of two 3-vectors. Result vector in z[3].
-  static void Cross(float x[3], float y[3], float z[3]);
+  static void Cross(const float x[3], const float y[3], float z[3]);
 
   // Description:
   // Cross product of two 3-vectors. Result vector in z[3]. (double-precision
   // version)
-  static void Cross(double x[3], double y[3], double z[3]);
+  static void Cross(const double x[3], const double y[3], double z[3]);
 
   // Description:
   // Compute the norm of 3-vector.
-  static float Norm(float x[3])
-  {return sqrt(x[0]*x[0] + x[1]*x[1] + x[2]*x[2]);};
+  static float Norm(const float x[3]) {
+    return sqrt(x[0]*x[0] + x[1]*x[1] + x[2]*x[2]);};
   
   // Description:
   // Compute the norm of 3-vector (double-precision version).
-  static double Norm(double x[3])
-  {return sqrt(x[0]*x[0] + x[1]*x[1] + x[2]*x[2]);};
+  static double Norm(const double x[3]) {
+    return sqrt(x[0]*x[0] + x[1]*x[1] + x[2]*x[2]);};
   
   // Description:
   // Normalize (in place) a 3-vector. Returns norm of vector.
@@ -119,30 +119,33 @@ public:
 
   // Description:
   // Compute distance squared between two points.
-  static float Distance2BetweenPoints(float x[3], float y[3]);
+  static float Distance2BetweenPoints(const float x[3], const float y[3]);
 
   // Description:
   // Compute distance squared between two points (double precision version).
-  static double Distance2BetweenPoints(double x[3], double y[3]);
+  static double Distance2BetweenPoints(const double x[3], const double y[3]);
 
   // Description:
   // Dot product of two 2-vectors. The third (z) component is ignored.
-  static float Dot2D(float x[3], float y[3]) {return (x[0]*y[0] + x[1]*y[1]);};
+  static float Dot2D(const float x[3], const float y[3]) {
+    return (x[0]*y[0] + x[1]*y[1]);};
   
   // Description:
   // Dot product of two 2-vectors. The third (z) component is
   // ignored (double-precision version).
-  static double Dot2D(double x[3], double y[3]) 
-  {return (x[0]*y[0] + x[1]*y[1]);};
+  static double Dot2D(const double x[3], const double y[3]) {
+    return (x[0]*y[0] + x[1]*y[1]);};
 
   // Description:
   // Compute the norm of a 2-vector. Ignores z-component.
-  static float Norm2D(float x[3]) {return sqrt(x[0]*x[0] + x[1]*x[1]);};
+  static float Norm2D(const float x[3]) {
+    return sqrt(x[0]*x[0] + x[1]*x[1]);};
 
   // Description:
   // Compute the norm of a 2-vector. Ignores z-component
   // (double-precision version).
-  static double Norm2D(double x[3]) {return sqrt(x[0]*x[0] + x[1]*x[1]);};
+  static double Norm2D(const double x[3]) {
+    return sqrt(x[0]*x[0] + x[1]*x[1]);};
 
   // Description:
   // Normalize (in place) a 2-vector. Returns norm of vector. Ignores
@@ -156,17 +159,19 @@ public:
 
   // Description:
   // Compute determinant of 2x2 matrix. Two columns of matrix are input.
-  static float Determinant2x2(float c1[2], float c2[2]) 
-  {return (c1[0]*c2[1] - c2[0]*c1[1]);};
+  static float Determinant2x2(const float c1[2], const float c2[2]) {
+    return (c1[0]*c2[1] - c2[0]*c1[1]);};
 
   // Description:
   // Calculate the determinant of a 2x2 matrix: | a b | | c d |
-  static double Determinant2x2(double a, double b, double c, double d)
-  {return (a * d - b * c);};
+  static double Determinant2x2(double a, double b, double c, double d) {
+    return (a * d - b * c);};
 
   // Description:
   // Compute determinant of 3x3 matrix. Three columns of matrix are input.
-  static float Determinant3x3(float c1[3], float c2[3], float c3[3]);
+  static float Determinant3x3(const float c1[3], 
+			      const float c2[3], 
+			      const float c3[3]);
 
   // Description:
   // Calculate the determinent of a 3x3 matrix in the form:
@@ -211,7 +216,7 @@ public:
   // Working memory array tmpSize of length size
   // must be passed in.
   static int LUFactorLinearSystem(double **A, int *index, int size,
-                           double *tmpSize);
+				  double *tmpSize);
 
   // Description:
   // Solve linear equations Ax = b using LU decompostion A = LU where L is
@@ -220,7 +225,8 @@ public:
   // load vector x[0->n-1], and size of square matrix n. Note that A=LU and
   // index[] are generated from method LUFactorLinearSystem). Also, solution
   // vector is written directly over input load vector.
-  static void LUSolveLinearSystem(double **A, int *index, double *x, int size);
+  static void LUSolveLinearSystem(double **A, int *index, 
+				  double *x, int size);
 
   // Description:
   // Estimate the condition number of a LU factored matrix. Used to judge the
@@ -270,7 +276,7 @@ public:
   // roots as one) followed by roots themselves. The value in roots[4] is a
   // integer giving further information about the roots (see return codes for
   // int SolveCubic()).
-  static double* SolveCubic( double c0, double c1, double c2, double c3 );
+  static double* SolveCubic(double c0, double c1, double c2, double c3);
 
   // Description:
   // Solves a quadratic equation c1*t^2 + c2*t + c3 = 0 when c1, c2, and c3
@@ -279,13 +285,13 @@ public:
   // one) followed by roots themselves. Note that roots[3] contains a return
   // code further describing solution - see documentation for SolveCubic()
   // for meaining of return codes.
-  static double* SolveQuadratic( double c0, double c1, double c2 );
+  static double* SolveQuadratic(double c0, double c1, double c2);
 
   // Description:
   // Solves a linear equation c2*t  + c3 = 0 when c2 and c3 are REAL.
   // Solution is motivated by Numerical Recipes In C 2nd Ed.
   // Return array contains number of roots followed by roots themselves.
-  static double* SolveLinear( double c0, double c1 );
+  static double* SolveLinear(double c0, double c1);
 
   // Description:
   // Solves a cubic equation when c0, c1, c2, And c3 Are REAL.  Solution
@@ -299,8 +305,8 @@ public:
   // with complex conjugate solution (real part of root returned in r1,
   // imaginary in r2); (-3)-one real root and a complex conjugate pair
   // (real root in r1 and real part of pair in r2 and imaginary in r3).
-  static int SolveCubic( double c0, double c1, double c2, double c3, 
-			 double *r1, double *r2, double *r3, int *num_roots );
+  static int SolveCubic(double c0, double c1, double c2, double c3, 
+			double *r1, double *r2, double *r3, int *num_roots);
 
   // Description:
   // Solves A Quadratic Equation c1*t^2  + c2*t  + c3 = 0 when 
@@ -308,15 +314,15 @@ public:
   // Solution is motivated by Numerical Recipes In C 2nd Ed.
   // Roots and number of roots are stored in user provided variables
   // r1, r2, num_roots
-  static int SolveQuadratic( double c0, double c1, double c2, 
-			      double *r1, double *r2, int *num_roots );
+  static int SolveQuadratic(double c0, double c1, double c2, 
+			    double *r1, double *r2, int *num_roots);
   
   // Description:
   // Solves a linear equation c2*t + c3 = 0 when c2 and c3 are REAL.
   // Solution is motivated by Numerical Recipes In C 2nd Ed.
   // Root and number of (real) roots are stored in user provided variables
   // r2 and num_roots.
-  static int SolveLinear( double c0, double c1, double *r1, int *num_roots );
+  static int SolveLinear(double c0, double c1, double *r1, int *num_roots);
 
 
   // Description:
@@ -393,27 +399,31 @@ inline double vtkMath::Normalize2D(double x[3])
 }
 
 
-inline float vtkMath::Determinant3x3(float c1[3], float c2[3], float c3[3])
+inline float vtkMath::Determinant3x3(const float c1[3], 
+				     const float c2[3], 
+				     const float c3[3])
 {
   return c1[0]*c2[1]*c3[2] + c2[0]*c3[1]*c1[2] + c3[0]*c1[1]*c2[2] -
          c1[0]*c3[1]*c2[2] - c2[0]*c1[1]*c3[2] - c3[0]*c2[1]*c1[2];
 }
 
 inline double vtkMath::Determinant3x3(double a1, double a2, double a3, 
-                                     double b1, double b2, double b3, 
-                                     double c1, double c2, double c3)
+				      double b1, double b2, double b3, 
+				      double c1, double c2, double c3)
 {
     return ( a1 * vtkMath::Determinant2x2( b2, b3, c2, c3 )
-            - b1 * vtkMath::Determinant2x2( a2, a3, c2, c3 )
-            + c1 * vtkMath::Determinant2x2( a2, a3, b2, b3 ) );
+	   - b1 * vtkMath::Determinant2x2( a2, a3, c2, c3 )
+           + c1 * vtkMath::Determinant2x2( a2, a3, b2, b3 ) );
 }
 
-inline float vtkMath::Distance2BetweenPoints(float x[3], float y[3])
+inline float vtkMath::Distance2BetweenPoints(const float x[3], 
+					     const float y[3])
 {
   return ((x[0]-y[0])*(x[0]-y[0]) + (x[1]-y[1])*(x[1]-y[1]) +
           (x[2]-y[2])*(x[2]-y[2]));
 }
-inline double vtkMath::Distance2BetweenPoints(double x[3], double y[3])
+inline double vtkMath::Distance2BetweenPoints(const double x[3], 
+					      const double y[3])
 {
   return ((x[0]-y[0])*(x[0]-y[0]) + (x[1]-y[1])*(x[1]-y[1]) +
           (x[2]-y[2])*(x[2]-y[2]));

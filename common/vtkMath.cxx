@@ -113,7 +113,7 @@ void vtkMath::RandomSeed(long s)
 }
 
 // Cross product of two 3-vectors. Result vector in z[3].
-void vtkMath::Cross(float x[3], float y[3], float z[3])
+void vtkMath::Cross(const float x[3], const float y[3], float z[3])
 {
   float Zx = x[1]*y[2] - x[2]*y[1]; 
   float Zy = x[2]*y[0] - x[0]*y[2];
@@ -122,7 +122,7 @@ void vtkMath::Cross(float x[3], float y[3], float z[3])
 }
 
 // Cross product of two 3-vectors. Result vector in z[3].
-void vtkMath::Cross(double x[3], double y[3], double z[3])
+void vtkMath::Cross(const double x[3], const double y[3], double z[3])
 {
   double Zx = x[1]*y[2] - x[2]*y[1]; 
   double Zy = x[2]*y[0] - x[0]*y[2];
@@ -473,7 +473,8 @@ int vtkMath::LUFactorLinearSystem(double **A, int *index, int size)
 // load vector x[0->n-1], and size of square matrix n. Note that A=LU and
 // index[] are generated from method LUFactorLinearSystem). Also, solution
 // vector is written directly over input load vector.
-void vtkMath::LUSolveLinearSystem(double **A, int *index, double *x, int size)
+void vtkMath::LUSolveLinearSystem(double **A, int *index, 
+				  double *x, int size)
 {
   int i, j, ii, idx;
   double sum;
@@ -771,7 +772,7 @@ double vtkMath::EstimateMatrixCondition(double **A, int size)
 // Return array contains number of (real) roots (counting multiple roots as one)
 // followed by roots themselves. The value in roots[4] is a integer giving
 // further information about the roots (see return codes for int SolveCubic()).
-double* vtkMath::SolveCubic( double c0, double c1, double c2, double c3) 
+double* vtkMath::SolveCubic( double c0, double c1, double c2, double c3 ) 
 {
   static double roots[5];
   roots[1] = 0.0;
