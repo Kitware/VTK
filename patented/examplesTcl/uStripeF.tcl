@@ -24,10 +24,8 @@ vtkDecimate deci
     deci SetInitialFeatureAngle 45
 vtkPolyDataNormals normals
     normals SetInput [deci GetOutput]
-vtkStripper stripper
-    stripper SetInput [normals GetOutput]
 vtkMaskPolyData mask
-    mask SetInput [stripper GetOutput]
+    mask SetInput [normals GetOutput]
     mask SetOnRatio 2
 vtkPolyDataMapper cyberMapper
     cyberMapper SetInput [mask GetOutput]
