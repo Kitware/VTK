@@ -334,5 +334,6 @@ int main(int argc, char** argv)
   renWin->Delete();
   ugrid->Delete();
   CleanUp(comm, contr);
-  return 0;
+
+  return retVal;
 }
