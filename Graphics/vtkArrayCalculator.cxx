@@ -20,7 +20,7 @@
 #include "vtkDoubleArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkArrayCalculator, "1.21");
+vtkCxxRevisionMacro(vtkArrayCalculator, "1.22");
 vtkStandardNewMacro(vtkArrayCalculator);
 
 vtkArrayCalculator::vtkArrayCalculator()
@@ -229,7 +229,7 @@ void vtkArrayCalculator::Execute()
       }
     else
       {
-      vtkErrorMacro("Invalid array name: " << this->ScalarArrayNames[i]);
+      vtkErrorMacro("Invalid array name: " << this->VectorArrayNames[i]);
       return;
       }
     }
