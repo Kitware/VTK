@@ -29,6 +29,7 @@ EXAMPLES = otherJacobi \
 	otherMatrix4x4 \
 	otherLotkin \
 	otherCellBoundaries \
+	otherCellPosition \
 	otherArrays
   
 CXX_FLAGS = ${CPPFLAGS} ${USER_CXXFLAGS} ${CXXFLAGS} -I${srcdir} \
@@ -52,6 +53,9 @@ otherJacobi: otherJacobi.o rtOtherTestBase.o ${VTKLIB}
 	rtOtherTestBase.o ${LDLIBS} -lm
 otherCellBoundaries: otherCellBoundaries.o rtOtherTestBase.o ${VTKLIB}
 	${CXX} -o otherCellBoundaries ${CXX_FLAGS} otherCellBoundaries.o \
+	rtOtherTestBase.o ${LDLIBS} -lm
+otherCellPosition: otherCellPosition.o rtOtherTestBase.o ${VTKLIB}
+	${CXX} -o otherCellPosition ${CXX_FLAGS} otherCellPosition.o \
 	rtOtherTestBase.o ${LDLIBS} -lm
 otherLotkin: otherLotkin.o rtOtherTestBase.o ${VTKLIB}
 	${CXX} -o otherLotkin ${CXX_FLAGS} otherLotkin.o \
