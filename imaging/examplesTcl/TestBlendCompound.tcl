@@ -36,6 +36,7 @@ vtkImageBlend blend
 blend SetBlendModeToCompound
 blend AddInput [reader1 GetOutput]
 blend AddInput [reader3 GetOutput]
+blend SetOpacity 1 0.4
 blend AddInput [translate GetOutput]
 
 # set the window/level to 255.0/127.5 to view full range

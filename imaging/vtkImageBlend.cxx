@@ -568,8 +568,8 @@ static void vtkImageBlendCompoundExecute(vtkImageBlend *self,
     }
   else
     {
-    minA = inData->GetScalarTypeMin();
-    maxA = inData->GetScalarTypeMax();
+    minA = (float)inData->GetScalarTypeMin();
+    maxA = (float)inData->GetScalarTypeMax();
     }
 
   r = opacity;
@@ -600,12 +600,12 @@ static void vtkImageBlendCompoundExecute(vtkImageBlend *self,
           { 
           for (int idxX = 0; idxX < maxX; idxX++)
             {
-            r = opacity*(inPtr[3]-minA);
+            r = opacity * ((float)inPtr[3] - minA);
             if (r > threshold) 
               {
-              tmpPtr[0] += inPtr[0]*r;
-              tmpPtr[1] += inPtr[1]*r;
-              tmpPtr[2] += inPtr[2]*r;
+              tmpPtr[0] += (float)inPtr[0] * r;
+              tmpPtr[1] += (float)inPtr[1] * r;
+              tmpPtr[2] += (float)inPtr[2] * r;
               tmpPtr[3] += r;
               }
             tmpPtr += 4; 
@@ -618,9 +618,9 @@ static void vtkImageBlendCompoundExecute(vtkImageBlend *self,
           { 
           for (int idxX = 0; idxX < maxX; idxX++)
             {
-            tmpPtr[0] += inPtr[0]*r;
-            tmpPtr[1] += inPtr[1]*r;
-            tmpPtr[2] += inPtr[2]*r;
+            tmpPtr[0] += (float)inPtr[0] * r;
+            tmpPtr[1] += (float)inPtr[1] * r;
+            tmpPtr[2] += (float)inPtr[2] * r;
             tmpPtr[3] += r;
             tmpPtr += 4; 
             inPtr += inC;
@@ -632,12 +632,12 @@ static void vtkImageBlendCompoundExecute(vtkImageBlend *self,
           { 
           for (int idxX = 0; idxX < maxX; idxX++)
             {
-            r = opacity*(inPtr[1]-minA);
+            r = opacity * ((float)inPtr[1] - minA);
             if (r > threshold) 
               {
-              tmpPtr[0] += (*inPtr)*r;
-              tmpPtr[1] += (*inPtr)*r;
-              tmpPtr[2] += (*inPtr)*r;
+              tmpPtr[0] += (float)(*inPtr) * r;
+              tmpPtr[1] += (float)(*inPtr) * r;
+              tmpPtr[2] += (float)(*inPtr) * r;
               tmpPtr[3] += r;
               }
             tmpPtr += 4; 
@@ -650,9 +650,9 @@ static void vtkImageBlendCompoundExecute(vtkImageBlend *self,
           { 
           for (int idxX = 0; idxX < maxX; idxX++)
             {
-            tmpPtr[0] += (*inPtr)*r;
-            tmpPtr[1] += (*inPtr)*r;
-            tmpPtr[2] += (*inPtr)*r;
+            tmpPtr[0] += (float)(*inPtr) * r;
+            tmpPtr[1] += (float)(*inPtr) * r;
+            tmpPtr[2] += (float)(*inPtr) * r;
             tmpPtr[3] += r;
             tmpPtr += 4; 
             inPtr++;
@@ -665,10 +665,10 @@ static void vtkImageBlendCompoundExecute(vtkImageBlend *self,
 	{ 
 	for (int idxX = 0; idxX < maxX; idxX++)
 	  {
-	  r = opacity*(inPtr[1]-minA);
+          r = opacity * ((float)inPtr[1] - minA);
           if (r > threshold) 
             {
-            tmpPtr[0] = (*inPtr)*r;
+            tmpPtr[0] = (float)(*inPtr) * r;
             tmpPtr[1] += r;
             }
           tmpPtr += 2; 
@@ -681,7 +681,7 @@ static void vtkImageBlendCompoundExecute(vtkImageBlend *self,
 	{ 
 	for (int idxX = 0; idxX < maxX; idxX++)
 	  {
-	  tmpPtr[0] = (*inPtr)*r;
+	  tmpPtr[0] = (float)(*inPtr) * r;
           tmpPtr[1] += r;
           tmpPtr += 2; 
 	  inPtr++;
@@ -740,7 +740,7 @@ static void vtkImageBlendCompoundTransferExecute(vtkImageBlend *self,
         {
         for (int idxX = 0; idxX < maxX; idxX++)
           {
-          if (tmpPtr[3] > 0.0) 
+          if (tmpPtr[3] != 0) 
             {
             outPtr[0] = T(tmpPtr[0] / tmpPtr[3]);
             outPtr[1] = T(tmpPtr[1] / tmpPtr[3]);
@@ -758,7 +758,7 @@ static void vtkImageBlendCompoundTransferExecute(vtkImageBlend *self,
         {
         for (int idxX = 0; idxX < maxX; idxX++)
           {
-          if (tmpPtr[1] > 0.0) 
+          if (tmpPtr[1] != 0) 
             {
             *outPtr = T(tmpPtr[0] / tmpPtr[1]);
             }
