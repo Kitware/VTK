@@ -15,9 +15,11 @@
 #include "vtkProgrammableDataObjectSource.h"
 
 #include "vtkDataObject.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkProgrammableDataObjectSource, "1.16");
+vtkCxxRevisionMacro(vtkProgrammableDataObjectSource, "1.17");
 vtkStandardNewMacro(vtkProgrammableDataObjectSource);
 
 // Construct programmable filter with empty execute method.
@@ -27,11 +29,14 @@ vtkProgrammableDataObjectSource::vtkProgrammableDataObjectSource()
   this->ExecuteMethodArg = NULL;
   this->ExecuteMethodArgDelete = NULL;
 
-  this->vtkSource::SetNthOutput(0,vtkDataObject::New());
+  vtkDataObject *output = vtkDataObject::New();
+  this->SetOutput(output);
   // Releasing data for pipeline parallism.
   // Filters will know it is empty. 
-  this->Outputs[0]->ReleaseData();
-  this->Outputs[0]->Delete();
+  output->ReleaseData();
+  output->Delete();
+
+  this->SetNumberOfInputPorts(0);
 }
 
 vtkProgrammableDataObjectSource::~vtkProgrammableDataObjectSource()
@@ -41,16 +46,6 @@ vtkProgrammableDataObjectSource::~vtkProgrammableDataObjectSource()
     {
     (*this->ExecuteMethodArgDelete)(this->ExecuteMethodArg);
     }
-}
-
-vtkDataObject *vtkProgrammableDataObjectSource::GetOutput()
-{
-  if (this->NumberOfOutputs < 1)
-    {
-    return NULL;
-    }
-  
-  return (vtkDataObject *)(this->Outputs[0]);
 }
 
 // Specify the function to use to generate the source data. Note
@@ -80,8 +75,10 @@ void vtkProgrammableDataObjectSource::SetExecuteMethodArgDelete(void (*f)(void *
     }
 }
 
-
-void vtkProgrammableDataObjectSource::Execute()
+int vtkProgrammableDataObjectSource::RequestData(
+  vtkInformation *,
+  vtkInformationVector **,
+  vtkInformationVector *)
 {
   vtkDebugMacro(<<"Executing programmable data object filter");
 
@@ -90,6 +87,8 @@ void vtkProgrammableDataObjectSource::Execute()
     {
     (*this->ExecuteMethod)(this->ExecuteMethodArg);
     }
+
+  return 1;
 }
 
 void vtkProgrammableDataObjectSource::PrintSelf(ostream& os, vtkIndent indent)
@@ -104,6 +103,4 @@ void vtkProgrammableDataObjectSource::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "An ExecuteMethod has NOT been defined\n";
     }
-
 }
-

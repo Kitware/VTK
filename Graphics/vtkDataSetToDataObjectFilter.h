@@ -44,14 +44,14 @@
 #ifndef __vtkDataSetToDataObjectFilter_h
 #define __vtkDataSetToDataObjectFilter_h
 
-#include "vtkDataObjectSource.h"
+#include "vtkDataObjectAlgorithm.h"
 
 class vtkDataSet;
 
-class VTK_GRAPHICS_EXPORT vtkDataSetToDataObjectFilter : public vtkDataObjectSource
+class VTK_GRAPHICS_EXPORT vtkDataSetToDataObjectFilter : public vtkDataObjectAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkDataSetToDataObjectFilter,vtkDataObjectSource);
+  vtkTypeRevisionMacro(vtkDataSetToDataObjectFilter,vtkDataObjectAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -88,17 +88,14 @@ public:
   vtkGetMacro(CellData,int);
   vtkBooleanMacro(CellData,int);
 
-  // Description:
-  // Cast input to DataSet.
-  virtual void SetInput(vtkDataSet *input);
-  vtkDataSet *GetInput();
-
 protected:
   vtkDataSetToDataObjectFilter();
   ~vtkDataSetToDataObjectFilter();
 
-  void Execute(); //generate output data
-  void ComputeInputUpdateExtents(vtkDataObject *output);
+  virtual int RequestData(vtkInformation *, vtkInformationVector **,
+                          vtkInformationVector *); //generate output data
+  virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **,
+                                  vtkInformationVector *);
 
   virtual int FillInputPortInformation(int, vtkInformation*);
   
@@ -114,5 +111,3 @@ private:
 };
 
 #endif
-
-

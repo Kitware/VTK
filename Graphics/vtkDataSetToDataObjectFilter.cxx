@@ -19,23 +19,23 @@
 #include "vtkFieldData.h"
 #include "vtkFloatArray.h"
 #include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkRectilinearGrid.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStructuredGrid.h"
 #include "vtkStructuredPoints.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkDataSetToDataObjectFilter, "1.33");
+vtkCxxRevisionMacro(vtkDataSetToDataObjectFilter, "1.34");
 vtkStandardNewMacro(vtkDataSetToDataObjectFilter);
 
 //----------------------------------------------------------------------------
 // Instantiate object.
 vtkDataSetToDataObjectFilter::vtkDataSetToDataObjectFilter()
 {
-  this->NumberOfRequiredInputs = 1;
-  this->SetNumberOfInputPorts(1);
   this->Geometry = 1;
   this->Topology = 1;
   this->PointData = 1;
@@ -48,9 +48,16 @@ vtkDataSetToDataObjectFilter::~vtkDataSetToDataObjectFilter()
 }
 
 //----------------------------------------------------------------------------
-void vtkDataSetToDataObjectFilter::Execute()
+int vtkDataSetToDataObjectFilter::RequestData(
+  vtkInformation *,
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
-  vtkDataSet *input = this->GetInput();
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkDataSet *input = vtkDataSet::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataObject *output = outInfo->Get(vtkDataObject::DATA_OBJECT());
   vtkFieldData *fd=vtkFieldData::New();
   vtkPoints *pts;
   vtkDataArray *da;
@@ -147,7 +154,7 @@ void vtkDataSetToDataObjectFilter::Execute()
       {
       vtkErrorMacro(<<"Unsupported dataset type!");
       fd->Delete();
-      return;
+      return 1;
       }
     }
   
@@ -250,7 +257,7 @@ void vtkDataSetToDataObjectFilter::Execute()
       {
       vtkErrorMacro(<<"Unsupported dataset type!");
       fd->Delete();
-      return;
+      return 1;
       }
     }
   
@@ -286,39 +293,25 @@ void vtkDataSetToDataObjectFilter::Execute()
       }
     }
 
-  this->GetOutput()->SetFieldData(fd);
+  output->SetFieldData(fd);
   fd->Delete();
+  return 1;
 }
 
 //----------------------------------------------------------------------------
-// Specify the input data or filter.
-void vtkDataSetToDataObjectFilter::SetInput(vtkDataSet *input)
+int vtkDataSetToDataObjectFilter::RequestUpdateExtent(
+  vtkInformation *,
+  vtkInformationVector **inputVector,
+  vtkInformationVector *)
 {
-  this->vtkProcessObject::SetNthInput(0, input);
-}
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(), 0);
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(), 1);
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
+              0);
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::EXACT_EXTENT(), 1);
 
-//----------------------------------------------------------------------------
-// Specify the input data or filter.
-vtkDataSet *vtkDataSetToDataObjectFilter::GetInput()
-{
-  if (this->NumberOfInputs < 1)
-    {
-    return NULL;
-    }
-  
-  return (vtkDataSet *)(this->Inputs[0]);
-}
-
-//----------------------------------------------------------------------------
-void vtkDataSetToDataObjectFilter::ComputeInputUpdateExtents(
-                                            vtkDataObject *vtkNotUsed(output))
-{
-  if (this->GetInput())
-    {
-    // what should we do here?
-    this->GetInput()->SetUpdateExtent(0, 1, 0);
-    this->GetInput()->RequestExactExtentOn();
-    }
+  return 1;
 }
 
 //----------------------------------------------------------------------------
@@ -344,4 +337,3 @@ void vtkDataSetToDataObjectFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Point Data: " << (this->PointData ? "On\n" : "Off\n");
   os << indent << "Cell Data: " << (this->CellData ? "On\n" : "Off\n");
 }
-

@@ -33,13 +33,13 @@
 #ifndef __vtkProgrammableDataObjectSource_h
 #define __vtkProgrammableDataObjectSource_h
 
-#include "vtkSource.h"
+#include "vtkDataObjectAlgorithm.h"
 
-class VTK_GRAPHICS_EXPORT vtkProgrammableDataObjectSource : public vtkSource
+class VTK_GRAPHICS_EXPORT vtkProgrammableDataObjectSource : public vtkDataObjectAlgorithm
 {
 public:
   static vtkProgrammableDataObjectSource *New();
-  vtkTypeRevisionMacro(vtkProgrammableDataObjectSource,vtkSource);
+  vtkTypeRevisionMacro(vtkProgrammableDataObjectSource,vtkDataObjectAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -51,17 +51,12 @@ public:
   // Set the arg delete method. This is used to free user memory.
   void SetExecuteMethodArgDelete(void (*f)(void *));
 
-  // Description:
-  // Get the output data object.
-  vtkDataObject *GetOutput();
-  vtkDataObject *GetOutput(int idx)
-    {return (vtkDataObject *) this->vtkSource::GetOutput(idx); };
-
 protected:
   vtkProgrammableDataObjectSource();
   ~vtkProgrammableDataObjectSource();
 
-  void Execute();
+  virtual int RequestData(vtkInformation *, vtkInformationVector **,
+                          vtkInformationVector *);
 
   void (*ExecuteMethod)(void *); //function to invoke
   void (*ExecuteMethodArgDelete)(void *);
@@ -72,4 +67,3 @@ private:
 };
 
 #endif
-
