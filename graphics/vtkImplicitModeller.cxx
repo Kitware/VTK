@@ -40,7 +40,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include <math.h>
 #include "vtkImplicitModeller.h"
-#include "vtkFloatScalars.h"
+#include "vtkScalars.h"
 
 // Description:
 // Construct with sample dimensions=(50,50,50), and so that model bounds are
@@ -62,7 +62,7 @@ vtkImplicitModeller::vtkImplicitModeller()
   this->SampleDimensions[2] = 50;
 
   this->Capping = 1;
-  this->CapValue = sqrt(VTK_LARGE_FLOAT) / 3.0;
+  this->CapValue = sqrt(1.0e29) / 3.0;
 
   this->DataAppended = 0;
   this->AdjustBounds = 1;
@@ -92,7 +92,7 @@ void vtkImplicitModeller::SetModelBounds(float xmin, float xmax, float ymin,
 void vtkImplicitModeller::StartAppend()
 {
   int numPts;
-  vtkFloatScalars *newScalars;
+  vtkScalars *newScalars;
   int i;
   float maxDistance;
 
@@ -101,7 +101,7 @@ void vtkImplicitModeller::StartAppend()
 
   numPts = this->SampleDimensions[0] * this->SampleDimensions[1] 
            * this->SampleDimensions[2];
-  newScalars = vtkFloatScalars::New(); 
+  newScalars = vtkScalars::New(); 
   newScalars->SetNumberOfScalars(numPts);
   maxDistance = this->CapValue * this->CapValue;//sqrt taken later
   for (i=0; i<numPts; i++) newScalars->SetScalar(i,maxDistance);
@@ -122,7 +122,7 @@ void vtkImplicitModeller::Append(vtkDataSet *input)
   float *bounds, adjBounds[6];
   vtkCell *cell;
   float maxDistance, pcoords[3];
-  vtkFloatScalars *newScalars;
+  vtkScalars *newScalars;
   int idx, subId;
   int min[3], max[3];
   float x[3], prevDistance2, distance2;
@@ -136,7 +136,7 @@ void vtkImplicitModeller::Append(vtkDataSet *input)
   vtkDebugMacro(<< "Appending data");
 
   // Get the output scalars
-  newScalars = (vtkFloatScalars *) (output->GetPointData()->GetScalars());
+  newScalars = (vtkScalars *) (output->GetPointData()->GetScalars());
 
   output->SetDimensions(this->GetSampleDimensions());
   maxDistance = this->ComputeModelBounds();
@@ -196,13 +196,13 @@ void vtkImplicitModeller::Append(vtkDataSet *input)
 // Method completes the append process.
 void vtkImplicitModeller::EndAppend()
 {
-  vtkFloatScalars *newScalars;
+  vtkScalars *newScalars;
   int i, numPts;
   float distance2;
 
   vtkDebugMacro(<< "End append");
 
-  newScalars = (vtkFloatScalars *) (this->GetOutput()->GetPointData()->GetScalars());
+  newScalars = (vtkScalars *) (this->GetOutput()->GetPointData()->GetScalars());
   numPts = newScalars->GetNumberOfScalars();
 //
 // Run through scalars and take square root
@@ -230,7 +230,7 @@ void vtkImplicitModeller::Execute()
   vtkDebugMacro(<< "Executing implicit model");
 
   this->StartAppend();
-  this->Append(this->Input);
+  this->Append((vtkDataSet *)this->Input);
   this->EndAppend();
 }
 
@@ -294,7 +294,7 @@ float vtkImplicitModeller::ComputeModelBounds()
   this->ModelBounds[2] >= this->ModelBounds[3] ||
   this->ModelBounds[4] >= this->ModelBounds[5] )
     {
-    bounds = this->Input->GetBounds();
+    bounds = ((vtkDataSet *)this->Input)->GetBounds();
     }
   else
     {
@@ -373,7 +373,7 @@ void vtkImplicitModeller::SetSampleDimensions(int dim[3])
     }
 }
 
-void vtkImplicitModeller::Cap(vtkFloatScalars *s)
+void vtkImplicitModeller::Cap(vtkScalars *s)
 {
   int i,j,k;
   int idx;

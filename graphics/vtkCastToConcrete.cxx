@@ -100,36 +100,38 @@ void vtkCastToConcrete::Update()
   
 void vtkCastToConcrete::Execute()
 {
+  vtkDataSet *input=(vtkDataSet *)this->Input;
+
   vtkDebugMacro(<<"Casting to concrete type...");
 
-  if ( this->Input->GetDataSetType() == VTK_POLY_DATA )
+  if ( input->GetDataSetType() == VTK_POLY_DATA )
     {
-    this->PolyData->CopyStructure(this->Input);
-    this->PolyData->GetPointData()->PassData(this->Input->GetPointData());
+    this->PolyData->CopyStructure(input);
+    this->PolyData->GetPointData()->PassData(input->GetPointData());
     }
 
-  else if ( this->Input->GetDataSetType() == VTK_STRUCTURED_POINTS )
+  else if ( input->GetDataSetType() == VTK_STRUCTURED_POINTS )
     {
-    this->StructuredPoints->CopyStructure(this->Input);
-    this->StructuredPoints->GetPointData()->PassData(this->Input->GetPointData());
+    this->StructuredPoints->CopyStructure(input);
+    this->StructuredPoints->GetPointData()->PassData(input->GetPointData());
     }
 
-  else if ( this->Input->GetDataSetType() == VTK_STRUCTURED_GRID )
+  else if ( input->GetDataSetType() == VTK_STRUCTURED_GRID )
     {
-    this->StructuredGrid->CopyStructure(this->Input);
-    this->StructuredGrid->GetPointData()->PassData(this->Input->GetPointData());
+    this->StructuredGrid->CopyStructure(input);
+    this->StructuredGrid->GetPointData()->PassData(input->GetPointData());
     }
 
-  else if ( this->Input->GetDataSetType() == VTK_UNSTRUCTURED_GRID )
+  else if ( input->GetDataSetType() == VTK_UNSTRUCTURED_GRID )
     {
-    this->UnstructuredGrid->CopyStructure(this->Input);
-    this->UnstructuredGrid->GetPointData()->PassData(this->Input->GetPointData());
+    this->UnstructuredGrid->CopyStructure(input);
+    this->UnstructuredGrid->GetPointData()->PassData(input->GetPointData());
     }
 
-  else if ( this->Input->GetDataSetType() == VTK_RECTILINEAR_GRID )
+  else if ( input->GetDataSetType() == VTK_RECTILINEAR_GRID )
     {
-    this->RectilinearGrid->CopyStructure(this->Input);
-    this->RectilinearGrid->GetPointData()->PassData(this->Input->GetPointData());
+    this->RectilinearGrid->CopyStructure(input);
+    this->RectilinearGrid->GetPointData()->PassData(input->GetPointData());
     }
 
   else
@@ -147,7 +149,7 @@ vtkDataSet *vtkCastToConcrete::GetOutput()
     {
     vtkErrorMacro(<<"Filter requires input to be set before output can be retrieved");
     }
-  return this->Input;
+  return (vtkDataSet *)this->Input;
 }
 
 // Description:
@@ -161,7 +163,7 @@ vtkPolyData *vtkCastToConcrete::GetPolyDataOutput()
     }
   else
     {
-    if ( this->Input->GetDataSetType() != VTK_POLY_DATA )
+    if ( ((vtkDataSet *)this->Input)->GetDataSetType() != VTK_POLY_DATA )
       {
       vtkErrorMacro(<<"Cannot cast to type requested");
       return NULL;
@@ -182,7 +184,7 @@ vtkStructuredPoints *vtkCastToConcrete::GetStructuredPointsOutput()
     }
   else
     {
-    if ( this->Input->GetDataSetType() != VTK_STRUCTURED_POINTS )
+    if ( ((vtkDataSet *)this->Input)->GetDataSetType() != VTK_STRUCTURED_POINTS )
       {
       vtkErrorMacro(<<"Cannot cast to type requested");
       return NULL;
@@ -203,7 +205,7 @@ vtkStructuredGrid *vtkCastToConcrete::GetStructuredGridOutput()
     }
   else
     {
-    if ( this->Input->GetDataSetType() != VTK_STRUCTURED_GRID )
+    if ( ((vtkDataSet *)this->Input)->GetDataSetType() != VTK_STRUCTURED_GRID )
       {
       vtkErrorMacro(<<"Cannot cast to type requested");
       return NULL;
@@ -224,7 +226,7 @@ vtkUnstructuredGrid *vtkCastToConcrete::GetUnstructuredGridOutput()
     }
   else
     {
-    if ( this->Input->GetDataSetType() != VTK_UNSTRUCTURED_GRID )
+    if ( ((vtkDataSet *)this->Input)->GetDataSetType() != VTK_UNSTRUCTURED_GRID )
       {
       vtkErrorMacro(<<"Cannot cast to type requested");
       return NULL;
@@ -245,7 +247,7 @@ vtkRectilinearGrid *vtkCastToConcrete::GetRectilinearGridOutput()
     }
   else
     {
-    if ( this->Input->GetDataSetType() != VTK_RECTILINEAR_GRID )
+    if ( ((vtkDataSet *)this->Input)->GetDataSetType() != VTK_RECTILINEAR_GRID )
       {
       vtkErrorMacro(<<"Cannot cast to type requested");
       return NULL;

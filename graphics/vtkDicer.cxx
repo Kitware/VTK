@@ -40,7 +40,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkDicer.h"
 #include "vtkMath.h"
-#include "vtkShortScalars.h"
 
 // Description:
 // Create object with 5000 points per piece.
@@ -55,6 +54,7 @@ void vtkDicer::BuildTree(vtkIdList *ptIds, vtkOBBNode *OBBptr)
   int i, numPts=ptIds->GetNumberOfIds();
   int ptId;
   static vtkOBBTree OBB;
+  vtkDataSet *input=(vtkDataSet *)this->Input;
 
   float size[3];
 
@@ -64,7 +64,7 @@ void vtkDicer::BuildTree(vtkIdList *ptIds, vtkOBBNode *OBBptr)
   for ( this->PointsList->Reset(), i=0; i < numPts; i++ )
     {
     ptId = ptIds->GetId(i);
-    this->PointsList->InsertNextPoint(this->Input->GetPoint(ptId));
+    this->PointsList->InsertNextPoint(input->GetPoint(ptId));
     }
 
   //
@@ -107,7 +107,7 @@ void vtkDicer::BuildTree(vtkIdList *ptIds, vtkOBBNode *OBBptr)
     for ( i=0; i < numPts; i++ )
       {
       ptId = ptIds->GetId(i);
-      x = this->Input->GetPoint(ptId);
+      x = input->GetPoint(ptId);
       val = n[0]*(x[0]-p[0]) + n[1]*(x[1]-p[1]) + n[2]*(x[2]-p[2]);
 
       if ( val < 0.0 ) 
@@ -138,12 +138,14 @@ void vtkDicer::Execute()
 {
   int ptId, numPts;
   vtkIdList *ptIds;
-  vtkShortScalars *groupIds;
+  vtkScalars *groupIds;
   vtkOBBNode *root;
+  vtkDataSet *input=(vtkDataSet *)this->Input;
+  vtkDataSet *output=(vtkDataSet *)this->Output;
 
   vtkDebugMacro(<<"Dicing object");
 
-  if ( (numPts = this->Input->GetNumberOfPoints()) < 1 )
+  if ( (numPts = input->GetNumberOfPoints()) < 1 )
     {
     vtkErrorMacro(<<"No data to dice!");
     return;
@@ -152,7 +154,7 @@ void vtkDicer::Execute()
   //
   // Create list of points
   //
-  this->PointsList = vtkFloatPoints::New();
+  this->PointsList = vtkPoints::New();
   this->PointsList->Allocate(numPts);
   ptIds = vtkIdList::New();
   ptIds->SetNumberOfIds(numPts);
@@ -168,7 +170,7 @@ void vtkDicer::Execute()
   // Generate scalar values
   //
   this->PointsList->Delete(); this->PointsList = NULL;
-  groupIds = vtkShortScalars::New();
+  groupIds = vtkScalars::New(VTK_SHORT,1);
   groupIds->SetNumberOfScalars(numPts);
   this->NumberOfPieces = 0;
   this->MarkPoints(root,groupIds);
@@ -178,14 +180,14 @@ void vtkDicer::Execute()
 //
 // Update self
 //
-  this->Output->GetPointData()->CopyScalarsOff();
-  this->Output->GetPointData()->PassData(this->Input->GetPointData());
+  output->GetPointData()->CopyScalarsOff();
+  output->GetPointData()->PassData(input->GetPointData());
 
-  this->Output->GetPointData()->SetScalars(groupIds);
+  output->GetPointData()->SetScalars(groupIds);
   groupIds->Delete();
 }
 
-void vtkDicer::MarkPoints(vtkOBBNode *OBBptr, vtkShortScalars *groupIds)
+void vtkDicer::MarkPoints(vtkOBBNode *OBBptr, vtkScalars *groupIds)
 {
   if ( OBBptr->Kids == NULL ) //leaf OBB
     {

@@ -39,7 +39,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkVolume16Reader.h"
-#include "vtkUnsignedShortScalars.h"
+#include "vtkUnsignedShortArray.h"
 
 // Description:
 // Construct object with NULL file prefix; file pattern "%s.%d"; image range 
@@ -228,7 +228,7 @@ vtkStructuredPoints *vtkVolume16Reader::GetImage(int ImageNumber)
 // Read a slice of volume data.
 vtkScalars *vtkVolume16Reader::ReadImage(int sliceNumber)
 {
-  vtkUnsignedShortScalars *scalars = NULL;
+  vtkScalars *scalars = NULL;
   unsigned short *pixels;
   FILE *fp;
   int numPts;
@@ -253,11 +253,11 @@ vtkScalars *vtkVolume16Reader::ReadImage(int sliceNumber)
   numPts = this->DataDimensions[0] * this->DataDimensions[1];
 
   // create the short scalars
-  scalars = vtkUnsignedShortScalars::New();
+  scalars = vtkScalars::New(VTK_UNSIGNED_SHORT,1);
   scalars->Allocate(numPts);
 
   // get a pointer to the data
-  pixels = scalars->WritePointer(0, numPts);
+  pixels = ((vtkUnsignedShortArray *)scalars->GetData())->WritePointer(0, numPts);
 
   // read the image data
   status = Read16BitImage (fp, pixels, this->DataDimensions[0], this->DataDimensions[1], this->HeaderSize, this->SwapBytes);
@@ -279,7 +279,7 @@ vtkScalars *vtkVolume16Reader::ReadImage(int sliceNumber)
 // Read a volume of data.
 vtkScalars *vtkVolume16Reader::ReadVolume(int first, int last)
 {
-  vtkUnsignedShortScalars *scalars = NULL;
+  vtkScalars *scalars = NULL;
   unsigned short *pixels;
   unsigned short *slice;
   FILE *fp;
@@ -304,11 +304,12 @@ vtkScalars *vtkVolume16Reader::ReadVolume(int first, int last)
   slice = new unsigned short[numPts];
 
   // create the short scalars for all of the images
-  scalars = vtkUnsignedShortScalars::New();
+  scalars = vtkScalars::New(VTK_UNSIGNED_SHORT,1);
   scalars->Allocate(numPts * numberSlices);
 
   // get a pointer to the scalar data
-  pixels = scalars->WritePointer(0, numPts*numberSlices);
+  pixels = ((vtkUnsignedShortArray *)scalars->GetData())->
+                                                WritePointer(0, numPts*numberSlices);
 
   vtkDebugMacro (<< "Creating scalars with " << numPts * numberSlices 
                  << " points.");

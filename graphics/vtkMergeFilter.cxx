@@ -49,7 +49,7 @@ vtkMergeFilter::vtkMergeFilter()
   this->Normals = NULL;
   this->TCoords = NULL;
   this->Tensors = NULL;
-  this->UserDefined = NULL;
+  this->FieldData = NULL;
 }
 
 void vtkMergeFilter::SetGeometry(vtkDataSet *input)
@@ -125,10 +125,10 @@ void vtkMergeFilter::Update()
     dsMtime = this->Tensors->GetMTime();
     if ( dsMtime > mtime ) mtime = dsMtime;
     }
-  if ( this->UserDefined )
+  if ( this->FieldData )
     {
-    this->UserDefined->Update();
-    dsMtime = this->UserDefined->GetMTime();
+    this->FieldData->Update();
+    dsMtime = this->FieldData->GetMTime();
     if ( dsMtime > mtime ) mtime = dsMtime;
     }
   this->Updating = 0;
@@ -146,8 +146,8 @@ void vtkMergeFilter::Update()
       this->TCoords->ForceUpdate();
     if ( this->Tensors && this->Tensors->GetDataReleased() ) 
       this->Tensors->ForceUpdate();
-    if ( this->UserDefined && this->UserDefined->GetDataReleased() ) 
-      this->UserDefined->ForceUpdate();
+    if ( this->FieldData && this->FieldData->GetDataReleased() ) 
+      this->FieldData->ForceUpdate();
 
     if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);
     this->Output->Initialize(); //clear output
@@ -178,28 +178,29 @@ void vtkMergeFilter::Update()
   if ( this->Tensors && this->Tensors->ShouldIReleaseData() ) 
     this->Tensors->ReleaseData();
 
-  if ( this->UserDefined && this->UserDefined->ShouldIReleaseData() ) 
-    this->UserDefined->ReleaseData();
+  if ( this->FieldData && this->FieldData->ShouldIReleaseData() ) 
+    this->FieldData->ReleaseData();
 }
 
 // Merge it all together
 void vtkMergeFilter::Execute()
 {
   int numPts, numScalars=0, numVectors=0, numNormals=0, numTCoords=0;
-  int numTensors=0, numUserDefined=0;
+  int numTensors=0, numTuples=0;
   vtkPointData *pd;
   vtkScalars *scalars = NULL;
   vtkVectors *vectors = NULL;
   vtkNormals *normals = NULL;
   vtkTCoords *tcoords = NULL;
   vtkTensors *tensors = NULL;
-  vtkUserDefined *ud  = NULL;
-  vtkPointData *outputPD = this->Output->GetPointData();
+  vtkFieldData *f = NULL;
+  vtkDataSet *output = (vtkDataSet *)this->Output;
+  vtkPointData *outputPD = output->GetPointData();
   
   vtkDebugMacro(<<"Merging data!");
 
   // geometry needs to be copied
-  this->Output->CopyStructure(this->Geometry);
+  output->CopyStructure(this->Geometry);
   if ( (numPts = this->Geometry->GetNumberOfPoints()) < 1 )
     {
     vtkWarningMacro(<<"Nothing to merge!");
@@ -240,11 +241,11 @@ void vtkMergeFilter::Execute()
     if ( tensors != NULL ) numTensors = tensors->GetNumberOfTensors();
     }
 
-  if ( this->UserDefined ) 
+  if ( this->FieldData ) 
     {
-    pd = this->UserDefined->GetPointData();
-    ud = pd->GetUserDefined();
-    if ( ud != NULL ) numUserDefined = ud->GetNumberOfUserDefined();
+    pd = this->FieldData->GetPointData();
+    f = pd->GetFieldData();
+    if ( f != NULL ) numTuples = f->GetNumberOfTuples();
     }
 
   // merge data only if it is consistent
@@ -263,8 +264,8 @@ void vtkMergeFilter::Execute()
   if ( numPts == numTensors )
     outputPD->SetTensors(tensors);
 
-  if ( numPts == numUserDefined )
-    outputPD->SetUserDefined(ud);
+  if ( numPts == numTuples )
+    outputPD->SetFieldData(f);
 }
 
 void vtkMergeFilter::PrintSelf(ostream& os, vtkIndent indent)
@@ -304,9 +305,9 @@ void vtkMergeFilter::PrintSelf(ostream& os, vtkIndent indent)
   else
     os << indent << "Tensors: (none)\n";
 
-  if ( this->UserDefined )
-    os << indent << "UserDefined: (" << this->UserDefined << ")\n";
+  if ( this->FieldData )
+    os << indent << "Field Data: (" << this->FieldData << ")\n";
   else
-    os << indent << "UserDefined: (none)\n";
+    os << indent << "Field Data: (none)\n";
 }
 

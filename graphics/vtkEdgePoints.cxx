@@ -53,16 +53,17 @@ vtkEdgePoints::vtkEdgePoints()
 void vtkEdgePoints::Execute()
 {
   vtkScalars *inScalars;
-  vtkFloatPoints *newPts;
+  vtkPoints *newPts;
   vtkCellArray *newVerts;
   int cellId, above, below, ptId, i, numEdges, edgeId;
   vtkCell *cell, *edge;
   float range[2];
   float s0, s1, x0[3], x1[3], x[3], r;
-  vtkFloatScalars cellScalars(VTK_CELL_SIZE);
   int pts[1], p1, p2;
+  vtkDataSet *input = (vtkDataSet *)this->Input;
   vtkPolyData *output = this->GetOutput();
-  cellScalars.ReferenceCountingOff();
+  vtkScalars cellScalars;
+  cellScalars.Allocate(VTK_CELL_SIZE); cellScalars.ReferenceCountingOff();
   vtkPointData *inPd, *outPd;
 
   vtkDebugMacro(<< "Generating edge points");
@@ -70,7 +71,7 @@ void vtkEdgePoints::Execute()
   // Initialize and check input
   //
 
-  if ( ! (inScalars = this->Input->GetPointData()->GetScalars()) )
+  if ( ! (inScalars = input->GetPointData()->GetScalars()) )
     {
     vtkErrorMacro(<<"No scalar data to contour");
     return;
@@ -83,15 +84,15 @@ void vtkEdgePoints::Execute()
     return;
     }
 
-  newPts = vtkFloatPoints::New();
+  newPts = vtkPoints::New();
   newPts->Allocate(5000,10000);
   newVerts = vtkCellArray::New();
   newVerts->Allocate(5000,10000);
 
-  this->Locator.InitPointInsertion (newPts, this->Input->GetBounds());
+  this->Locator.InitPointInsertion (newPts, input->GetBounds());
 
   // interpolate data along edge
-  inPd = this->Input->GetPointData();
+  inPd = input->GetPointData();
   outPd = output->GetPointData();
   outPd->InterpolateAllocate(inPd,5000,10000);
 //
@@ -100,9 +101,9 @@ void vtkEdgePoints::Execute()
 // neighbors. If cell id < all edge neigbors ids, then this edge has not
 // yet been visited and is processed.
 //
-  for (cellId=0; cellId<Input->GetNumberOfCells(); cellId++)
+  for (cellId=0; cellId < input->GetNumberOfCells(); cellId++)
     {
-    cell = this->Input->GetCell(cellId);
+    cell = input->GetCell(cellId);
     inScalars->GetScalars(cell->PointIds,cellScalars);
 
     // loop over cell points to check if cell straddles isosurface value

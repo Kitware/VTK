@@ -16,7 +16,7 @@ main ()
     iren->SetRenderWindow(renWin);
 
   vtkPolyData *cube = vtkPolyData::New();
-  vtkFloatPoints *points = vtkFloatPoints::New();
+  vtkPoints *points = vtkPoints::New();
   vtkCellArray *polys = vtkCellArray::New();
   vtkIntScalars *scalars = vtkIntScalars::New();
 

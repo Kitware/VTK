@@ -160,7 +160,7 @@ vtkDelaunay3D::~vtkDelaunay3D()
 // if no tetrahedron found.
 int vtkDelaunay3D::FindTetra(float x[3], int ptIds[4], float p[4][3], 
                              int tetra, vtkUnstructuredGrid *Mesh, 
-                             vtkFloatPoints *points, float tol, int depth)
+                             vtkPoints *points, float tol, int depth)
 {
   int i, j, inside, i2, i3, i4;
   vtkIdList pts(4), facePts(3); facePts.SetNumberOfIds(3);
@@ -252,7 +252,7 @@ int vtkDelaunay3D::FindTetra(float x[3], int ptIds[4], float p[4][3],
 // are returned in the faces list.
 int vtkDelaunay3D::FindEnclosingFaces(float x[3], int tetra, 
                                       vtkUnstructuredGrid *Mesh,
-                                      vtkFloatPoints *points, float tol,
+                                      vtkPoints *points, float tol,
                                       vtkIdList &tetras, vtkIdList &faces,
                                       vtkPointLocator *Locator)
 {
@@ -394,7 +394,7 @@ void vtkDelaunay3D::Execute()
   int tetraNum, tetraId;
   int ptId;
   vtkPoints *inPoints;
-  vtkFloatPoints *points;
+  vtkPoints *points;
   vtkUnstructuredGrid *Mesh;
   vtkPointSet *input=(vtkPointSet *)this->Input;
   vtkUnstructuredGrid *output=(vtkUnstructuredGrid *)this->Output;
@@ -647,13 +647,13 @@ void vtkDelaunay3D::Execute()
 // at the end of the Mesh's point list. That is, InsertPoint() assumes that
 // you will be inserting points between (0,numPtsToInsert-1).
 vtkUnstructuredGrid *vtkDelaunay3D::InitPointInsertion(float center[3], 
-                       float length, int numPtsToInsert, vtkFloatPoints* &points)
+                       float length, int numPtsToInsert, vtkPoints* &points)
 {
   float x[3], bounds[6];
   int pts[4], tetraId;
   vtkUnstructuredGrid *Mesh=vtkUnstructuredGrid::New();
 
-  points = vtkFloatPoints::New();
+  points = vtkPoints::New();
   points->Allocate(numPtsToInsert+6);
 
   if ( length <= 0.0 ) length = 1.0;
@@ -741,14 +741,14 @@ vtkUnstructuredGrid *vtkDelaunay3D::InitPointInsertion(float center[3],
 // (0,numPtsToInsert-1). Make sure that numPtsToInsert is large enough to
 // accomodate this.
 vtkUnstructuredGrid *vtkDelaunay3D::InitPointInsertion(int numPtsToInsert,  
-               int numTetra, vtkFloatPoints &boundingTetraPts, float bounds[6],
-               vtkFloatPoints* &points)
+               int numTetra, vtkPoints &boundingTetraPts, float bounds[6],
+               vtkPoints* &points)
 {
   int i, j, pts[4], ptNum, tetraId;
   float *x;
   vtkUnstructuredGrid *Mesh=vtkUnstructuredGrid::New();
 
-  points = vtkFloatPoints::New();
+  points = vtkPoints::New();
   points->Allocate(numPtsToInsert+numTetra*4); //estimate
 
   if ( this->Locator == NULL ) this->CreateDefaultLocator();
@@ -788,7 +788,7 @@ vtkUnstructuredGrid *vtkDelaunay3D::InitPointInsertion(int numPtsToInsert,
 // completed inserting points, traverse the mesh structure to extract desired
 // tetrahedra (or tetra faces and edges). The holeTetras id list lists all the
 // tetrahedra that are deleted (invalid) in the mesh structure.
-void vtkDelaunay3D::InsertPoint(vtkUnstructuredGrid *Mesh, vtkFloatPoints *points,
+void vtkDelaunay3D::InsertPoint(vtkUnstructuredGrid *Mesh, vtkPoints *points,
                                 int ptId, float x[3], vtkIdList& holeTetras)
 {
   int numFaces, tetraId, nodes[4], i;
@@ -886,7 +886,7 @@ int vtkDelaunay3D::InSphere(float x[3], int tetraId)
 }
 
 // Compute circumsphere and place into array of spheres
-void vtkDelaunay3D::InsertSphere(vtkUnstructuredGrid *Mesh, vtkFloatPoints *points,
+void vtkDelaunay3D::InsertSphere(vtkUnstructuredGrid *Mesh, vtkPoints *points,
                                  int tetraId)
 {
   float *x1, *x2, *x3, *x4, radius2, center[3];

@@ -235,7 +235,7 @@ void vtkVRMLExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
   float tempf2;
   int pointDataWritten = 0;
   vtkPolyDataMapper *pm;
-  vtkColorScalars *colors;
+  vtkScalars *colors;
   float *p;
   unsigned char *c;
   vtkTransform *trans;
@@ -319,7 +319,7 @@ void vtkVRMLExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
     vtkTexture *aTexture = anActor->GetTexture();
     int *size, xsize, ysize, bpp;
     vtkScalars *scalars;
-    vtkColorScalars *mappedScalars;
+    vtkScalars *mappedScalars;
     unsigned char *txtrData;
     
     // make sure it is updated and then get some info
@@ -341,14 +341,13 @@ void vtkVRMLExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
 
     // make sure using unsigned char data of color scalars type
     if (aTexture->GetMapColorScalarsThroughLookupTable () ||
-        (scalars->GetDataType() != VTK_UNSIGNED_CHAR ||
-         scalars->GetScalarType() != VTK_COLOR_SCALAR) )
+        (scalars->GetDataType() != VTK_UNSIGNED_CHAR) )
       {
       mappedScalars = aTexture->GetMappedScalars ();
       }
     else
       {
-      mappedScalars = (vtkColorScalars *) scalars;
+      mappedScalars = scalars;
       }
 
     // we only support 2d texture maps right now
@@ -377,9 +376,9 @@ void vtkVRMLExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
       }
 
     fprintf(fp,"            texture PixelTexture {\n");
-    bpp = mappedScalars->GetNumberOfValuesPerScalar();
+    bpp = mappedScalars->GetNumberOfComponents();
     fprintf(fp,"              image %i %i %i\n", xsize, ysize, bpp);
-    txtrData = mappedScalars->GetPointer(0);
+    txtrData = ((vtkUnsignedCharArray *)mappedScalars->GetData())->GetPointer(0);
     totalValues = xsize*ysize;
     for (i = 0; i < totalValues; i++)
       {
@@ -588,7 +587,7 @@ void vtkVRMLExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
 
 void vtkVRMLExporter::WritePointData(vtkPoints *points, vtkNormals *normals,
 				     vtkTCoords *tcoords, 
-				     vtkColorScalars *colors, FILE *fp)
+				     vtkScalars *colors, FILE *fp)
 {
   float *p;
   int i;
@@ -638,7 +637,7 @@ void vtkVRMLExporter::WritePointData(vtkPoints *points, vtkNormals *normals,
     {
     fprintf(fp,"            color DEF VTKcolors Color {\n");
     fprintf(fp,"              color [\n");
-    for (i = 0; i < colors->GetNumberOfColors(); i++)
+    for (i = 0; i < colors->GetNumberOfScalars(); i++)
       {
       c = colors->GetColor(i);
       fprintf (fp,"           %g %g %g,\n", c[0]/255.0, c[1]/255.0, 

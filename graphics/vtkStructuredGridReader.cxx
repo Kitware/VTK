@@ -142,9 +142,21 @@ char *vtkStructuredGridReader::GetLookupTableName()
   return this->Reader.GetLookupTableName();
 }
 
+// Description:
+// Set the name of the field data to extract. If not specified, uses 
+// first field data encountered in file.
+void vtkStructuredGridReader::SetFieldDataName(char *name) 
+{
+  this->Reader.SetFieldDataName(name);
+}
+char *vtkStructuredGridReader::GetFieldDataName() 
+{
+  return this->Reader.GetFieldDataName();
+}
+
 void vtkStructuredGridReader::Execute()
 {
-  int numPts=0, npts;
+  int numPts=0, npts, numCells=0, ncells;
   char line[256];
   int dimsRead=0;
   vtkStructuredGrid *output=(vtkStructuredGrid *)this->Output;
@@ -193,9 +205,9 @@ void vtkStructuredGridReader::Execute()
       if ( ! strncmp(this->Reader.LowerCase(line),"dimensions",10) )
         {
         int dim[3];
-        if (!(this->Reader.ReadInt(dim) && 
-	      this->Reader.ReadInt(dim+1) && 
-	      this->Reader.ReadInt(dim+2)))
+        if (!(this->Reader.Read(dim) && 
+	      this->Reader.Read(dim+1) && 
+	      this->Reader.Read(dim+2)))
           {
           vtkErrorMacro(<<"Error reading dimensions!");
           this->Reader.CloseVTKFile ();
@@ -204,12 +216,13 @@ void vtkStructuredGridReader::Execute()
 
         numPts = dim[0] * dim[1] * dim[2];
         output->SetDimensions(dim);
+	numCells = output->GetNumberOfCells();
         dimsRead = 1;
         }
 
       else if ( ! strncmp(line,"points",6) )
         {
-        if (!this->Reader.ReadInt(&npts))
+        if (!this->Reader.Read(&npts))
           {
           vtkErrorMacro(<<"Error reading points!");
           this->Reader.CloseVTKFile ();
@@ -219,9 +232,29 @@ void vtkStructuredGridReader::Execute()
         this->Reader.ReadPoints(output, npts);
         }
 
+      else if ( ! strncmp(line, "cell_data", 9) )
+        {
+        if (!this->Reader.Read(&numCells))
+          {
+          vtkErrorMacro(<<"Cannot read cell data!");
+          this->Reader.CloseVTKFile ();
+          return;
+          }
+        
+        if ( ncells != numCells )
+          {
+          vtkErrorMacro(<<"Number of cells don't match!");
+          this->Reader.CloseVTKFile ();
+          return;
+          }
+
+        this->Reader.ReadCellData(output, npts);
+        break; //out of this loop
+        }
+
       else if ( ! strncmp(line, "point_data", 10) )
         {
-        if (!this->Reader.ReadInt(&numPts))
+        if (!this->Reader.Read(&numPts))
           {
           vtkErrorMacro(<<"Cannot read point data!");
           this->Reader.CloseVTKFile ();
@@ -251,15 +284,28 @@ void vtkStructuredGridReader::Execute()
       if ( !output->GetPoints() ) vtkWarningMacro(<<"No points read.");
     }
 
+  else if ( !strncmp(line, "cell_data", 9) )
+    {
+    vtkWarningMacro(<<"No geometry defined in data file!");
+    if (!this->Reader.Read(&ncells))
+      {
+      vtkErrorMacro(<<"Cannot read cell data!");
+      this->Reader.CloseVTKFile ();
+      return;
+      }
+    this->Reader.ReadCellData(output, ncells);
+    }
+
   else if ( !strncmp(line, "point_data", 10) )
     {
     vtkWarningMacro(<<"No geometry defined in data file!");
-    if (!this->Reader.ReadInt(&npts))
+    if (!this->Reader.Read(&npts))
       {
       vtkErrorMacro(<<"Cannot read point data!");
       this->Reader.CloseVTKFile ();
       return;
       }
+    this->Reader.ReadPointData(output, npts);
     }
 
   else 

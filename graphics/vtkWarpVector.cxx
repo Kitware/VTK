@@ -43,7 +43,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 void vtkWarpVector::Execute()
 {
   vtkPoints *inPts;
-  vtkFloatPoints *newPts;
+  vtkPoints *newPts;
   vtkPointData *pd;
   vtkVectors *inVectors;
   int i, ptId, numPts;
@@ -64,7 +64,7 @@ void vtkWarpVector::Execute()
 
   inVectors = pd->GetVectors();
   numPts = inPts->GetNumberOfPoints();
-  newPts = vtkFloatPoints::New();
+  newPts = vtkPoints::New();
   newPts->SetNumberOfPoints(numPts);
 //
 // Loop over all points, adjusting locations

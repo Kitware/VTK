@@ -433,7 +433,7 @@ void vtkCellLocator::MarkParents(void* a, int i, int j, int k,
 
 void vtkCellLocator::GenerateRepresentation(int level, vtkPolyData *pd)
 {
-  vtkFloatPoints *pts;
+  vtkPoints *pts;
   vtkCellArray *polys;
   int l, i, j, k, ii, idx, boundary[3];
   vtkIdList *inside, *Inside[3];
@@ -445,7 +445,7 @@ void vtkCellLocator::GenerateRepresentation(int level, vtkPolyData *pd)
     return;
     }
 
-  pts = vtkFloatPoints::New();
+  pts = vtkPoints::New();
   pts->Allocate(5000);
   polys = vtkCellArray::New();
   polys->Allocate(10000);
@@ -528,7 +528,7 @@ void vtkCellLocator::GenerateRepresentation(int level, vtkPolyData *pd)
 }
 
 void vtkCellLocator::GenerateFace(int face, int numDivs, int i, int j, int k,
-                                  vtkFloatPoints *pts, vtkCellArray *polys)
+                                  vtkPoints *pts, vtkCellArray *polys)
 {
   int ii, ids[4];
   float origin[3], x[3];

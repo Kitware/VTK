@@ -8,7 +8,7 @@ source ../../examplesTcl/vtkInt.tcl
 # create bottle profile
 #
 # draw the arrows
-vtkFloatPoints points
+vtkPoints points
     points InsertNextPoint 1 0 0
     points InsertNextPoint 0.707 0.707 1
     points InsertNextPoint 0 1 2

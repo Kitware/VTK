@@ -69,7 +69,7 @@ void vtkDataSetWriter::WriteData()
 
   vtkDebugMacro(<<"Writing vtk dataset...");
 
-  type = this->Input->GetDataSetType();
+  type = ((vtkDataSet *)this->Input)->GetDataSetType();
   if ( type == VTK_POLY_DATA )
     {
     pwriter.SetInput((vtkPolyData *)this->Input);
@@ -113,6 +113,7 @@ void vtkDataSetWriter::WriteData()
   writer->SetTensorsName(this->TensorsName);
   writer->SetTCoordsName(this->TCoordsName);
   writer->SetLookupTableName(this->LookupTableName);
+  writer->SetFieldDataName(this->FieldDataName);
   writer->SetFileType(this->FileType);
   writer->SetDebug(this->Debug);
   writer->Write();

@@ -19,7 +19,7 @@ vtkTransformPolyDataFilter transF
 
 # Generate random vectors perpendicular to the plane. Also create random scalars.
 # Note the unsual GetInput() & GetOutput() methods.
-vtkProgrammablePointDataFilter randomF
+vtkProgrammableAttributeDataFilter randomF
    randomF SetInput [transF GetOutput]
    randomF SetExecuteMethod randomVectors
 
@@ -27,9 +27,9 @@ proc randomVectors {} {
    set input [randomF GetInput]
    set numPts [$input GetNumberOfPoints]
    vtkMath math
-   vtkFloatPoints newPts
-   vtkFloatScalars scalars
-   vtkFloatVectors vectors
+   vtkPoints newPts
+   vtkScalars scalars
+   vtkVectors vectors
 
    for {set i 0} {$i < $numPts} {incr i} {
 	set x [$input GetPoint $i]

@@ -96,19 +96,18 @@ void vtkGLTexture::Load(vtkRenderer *vtkNotUsed(ren))
       return;
       }
 
-    bytesPerPixel = scalars->GetNumberOfValuesPerScalar();
+    bytesPerPixel = scalars->GetNumberOfComponents();
 
     // make sure using unsigned char data of color scalars type
     if (this->MapColorScalarsThroughLookupTable ||
-        (scalars->GetDataType() != VTK_UNSIGNED_CHAR ||
-	 scalars->GetScalarType() != VTK_COLOR_SCALAR) )
+        scalars->GetDataType() != VTK_UNSIGNED_CHAR )
       {
       dataPtr = this->MapScalarsToColors (scalars);
       bytesPerPixel = 4;
       }
     else
       {
-      dataPtr = ((vtkColorScalars *)scalars)->GetPointer(0);    
+      dataPtr = ((vtkUnsignedCharArray *)scalars->GetData())->GetPointer(0);
       }
 
     // we only support 2d texture maps right now

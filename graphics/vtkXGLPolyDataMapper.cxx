@@ -92,6 +92,7 @@ void vtkXGLPolyDataMapper::Render(vtkRenderer *ren, vtkActor *act)
 {
   int numPts;
   vtkPolyData *input= (vtkPolyData *)this->Input;
+  vtkUnsignedCharArray *c=NULL;
 //
 // make sure that we've been properly initialized
 //
@@ -115,7 +116,7 @@ void vtkXGLPolyDataMapper::Render(vtkRenderer *ren, vtkActor *act)
   if ( this->LookupTable == NULL ) this->CreateDefaultLookupTable();
 
   //
-  // if something has changed regenrate colors and display lists
+  // if something has changed regenerate colors and display lists
   // if required
   //
   if ( this->GetMTime() > this->BuildTime || 
@@ -124,7 +125,7 @@ void vtkXGLPolyDataMapper::Render(vtkRenderer *ren, vtkActor *act)
     {
     // sets this->Colors as side effect
     this->GetColors();
-    this->Build(input,this->Colors);
+    this->Build(input, this->Colors);
     this->BuildTime.Modified();
     }
    
@@ -134,7 +135,7 @@ void vtkXGLPolyDataMapper::Render(vtkRenderer *ren, vtkActor *act)
 }
 
 float *vtkXGLPolyDataMapper::AddVertex(int npts, int pointSize, int *pts,
-				   vtkPoints *p, vtkColorScalars *c,
+				   vtkPoints *p, vtkUnsignedCharArray *c,
 				   vtkTCoords *t)
 {
   float *fTemp;
@@ -184,7 +185,7 @@ float *vtkXGLPolyDataMapper::AddVertex(int npts, int pointSize, int *pts,
 
 float *vtkXGLPolyDataMapper::AddVertexComputeNormal(int npts, int pointSize, 
 						 int *pts, vtkPoints *p, 
-						 vtkColorScalars *c,
+						 vtkUnsignedCharArray *c,
 						 vtkTCoords *t, 
 						 float *polyNorm)
 {
@@ -258,7 +259,7 @@ float *vtkXGLPolyDataMapper::AddVertexComputeNormal(int npts, int pointSize,
 
 float *vtkXGLPolyDataMapper::AddVertexWithNormal(int npts, int pointSize, 
 					      int *pts, vtkPoints *p, 
-					      vtkColorScalars *c,
+					      vtkUnsignedCharArray *c,
 					      vtkTCoords *t, vtkNormals *n,
 					      float *polyNorm)
 {
@@ -321,7 +322,7 @@ float *vtkXGLPolyDataMapper::AddVertexWithNormal(int npts, int pointSize,
 
 // Description:
 // Build the data structure for the XGL PolyDataMapper.
-void vtkXGLPolyDataMapper::Build(vtkPolyData *data, vtkColorScalars *c)
+void vtkXGLPolyDataMapper::Build(vtkPolyData *data, vtkScalars *c)
 {
   vtkCellArray *polys, *strips, *lines, *verts;
   vtkNormals *n;
@@ -374,6 +375,12 @@ void vtkXGLPolyDataMapper::Build(vtkPolyData *data, vtkColorScalars *c)
   p = data->GetPoints();
   n = data->GetPointData()->GetNormals();
   t = data->GetPointData()->GetTCoords();
+  if ( c )
+    {
+    c->InitColorTraversal(act->GetProperty()->GetOpacity(), 
+			  this->LookupTable, this->ColorMode);
+    }
+
   if ( t ) 
     {
     tDim = t->GetDimension();
@@ -521,7 +528,6 @@ void vtkXGLPolyDataMapper::Build(vtkPolyData *data, vtkColorScalars *c)
 void vtkXGLPolyDataMapper::Draw(vtkRenderer *aren, vtkActor *act)
 {
   vtkXGLRenderer *ren = (vtkXGLRenderer *)aren;
-  float tran;
   vtkProperty *prop;
   int polygonsToRender, i;
   
@@ -529,11 +535,8 @@ void vtkXGLPolyDataMapper::Draw(vtkRenderer *aren, vtkActor *act)
 
   this->Context = *(ren->GetContext());
 
-  // get the property 
-  prop = act->GetProperty();
-
   // get the transparency; return if invisible
-  if ( (tran=prop->GetOpacity()) <= 0.0 ) return;
+  if ( act->GetProperty()->GetOpacity()) <= 0.0 ) return;
   
   polygonsToRender = this->NumPolys;
   while (polygonsToRender > 0)

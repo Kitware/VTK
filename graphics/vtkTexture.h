@@ -66,7 +66,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkObject.h"
 #include "vtkStructuredPoints.h"
 #include "vtkLookupTable.h"
-#include "vtkColorScalars.h"
+#include "vtkScalars.h"
 #include "vtkImageCache.h"
 #include "vtkImageToStructuredPoints.h"
 
@@ -107,16 +107,11 @@ public:
 
   // Description:
   // Turn on/off the mapping of color scalars through the lookup table.
-  // The default is Off.
-  //
-  // If Off, unsigned char ColorScalars will be used
-  // directly as texture.
-  //
-  // If On, unsigned char ColorScalars will be mapped through the
-  // lookup table.
-  //
+  // The default is Off. If Off, unsigned char scalars will be used
+  // directly as texture. If On, scalars will be mapped through the
+  // lookup table to generate 4-component unsigned char scalars.
   // This ivar does not affect other scalars like unsigned short, float,
-  // etc. These scalars are always mapped thorugh lookup tables.
+  // etc. These scalars are always mapped through lookup tables.
   vtkGetMacro(MapColorScalarsThroughLookupTable,int);
   vtkSetMacro(MapColorScalarsThroughLookupTable,int);
   vtkBooleanMacro(MapColorScalarsThroughLookupTable,int);
@@ -136,10 +131,10 @@ public:
 
   // Description:
   // Get Mapped Scalars
-  vtkGetObjectMacro(MappedScalars,vtkColorScalars);
+  vtkGetObjectMacro(MappedScalars,vtkScalars);
 
   // Description:
-  // Map scalar values into color scalars
+  // Map scalar values into color scalars.
   unsigned char *MapScalarsToColors (vtkScalars *scalars);
 
 protected:
@@ -149,7 +144,7 @@ protected:
   int   MapColorScalarsThroughLookupTable;
   vtkStructuredPoints *Input;
   vtkLookupTable *LookupTable;
-  vtkColorScalars *MappedScalars;
+  vtkScalars *MappedScalars;
 };
 
 #endif

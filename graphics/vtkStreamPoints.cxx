@@ -50,9 +50,9 @@ vtkStreamPoints::vtkStreamPoints()
 void vtkStreamPoints::Execute()
 {
   vtkStreamPoint *sPrev, *sPtr;
-  vtkFloatPoints *newPts;
-  vtkFloatVectors *newVectors;
-  vtkFloatScalars *newScalars=NULL;
+  vtkPoints *newPts;
+  vtkVectors *newVectors;
+  vtkScalars *newScalars=NULL;
   vtkCellArray *newVerts;
   int i, ptId, j, id;
   int npts = 0;
@@ -62,13 +62,13 @@ void vtkStreamPoints::Execute()
   this->vtkStreamer::Integrate();
   if ( this->NumberOfStreamers <= 0 ) return;
 
-  newPts  = vtkFloatPoints::New();
+  newPts  = vtkPoints::New();
   newPts ->Allocate(1000);
-  newVectors  = vtkFloatVectors::New();
+  newVectors  = vtkVectors::New();
   newVectors ->Allocate(1000);
-  if ( this->Input->GetPointData()->GetScalars() || this->SpeedScalars )
+  if ( ((vtkDataSet *)this->Input)->GetPointData()->GetScalars() || this->SpeedScalars )
     {
-    newScalars = vtkFloatScalars::New();
+    newScalars = vtkScalars::New();
     newScalars->Allocate(1000);
     }
   newVerts = vtkCellArray::New();

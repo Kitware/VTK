@@ -56,13 +56,13 @@ vtkLinkSurfels::vtkLinkSurfels()
 void vtkLinkSurfels::Execute()
 {
   vtkPointData *pd;
-  vtkFloatPoints *newPts=0;
+  vtkPoints *newPts=0;
   vtkCellArray *newLines=0;
-  vtkFloatScalars *inScalars;
-  vtkFloatScalars *outScalars;
+  vtkScalars *inScalars;
+  vtkScalars *outScalars;
   vtkStructuredPoints *input = this->GetInput();
   int numPts;
-  vtkFloatVectors *outVectors;
+  vtkVectors *outVectors;
   vtkPolyData *output = this->GetOutput();
   int *dimensions;
   float *inDataPtr;
@@ -75,7 +75,7 @@ void vtkLinkSurfels::Execute()
   dimensions = input->GetDimensions();
   spacing = input->GetSpacing();
   origin = input->GetOrigin();
-  inScalars = (vtkFloatScalars *)pd->GetScalars();
+  inScalars = (vtkScalars *)pd->GetScalars();
   inVectors = pd->GetVectors();
   if ((numPts=this->Input->GetNumberOfPoints()) < 2 || inScalars == NULL)
     {
@@ -87,10 +87,10 @@ void vtkLinkSurfels::Execute()
   inDataPtr = inScalars->GetPointer(0);
 
   // Finally do edge following to extract the edge data from the Thin image
-  newPts = vtkFloatPoints::New();
+  newPts = vtkPoints::New();
   newLines = vtkCellArray::New();
-  outScalars = vtkFloatScalars::New();
-  outVectors = vtkFloatVectors::New();
+  outScalars = vtkScalars::New();
+  outVectors = vtkVectors::New();
 
   vtkDebugMacro("doing surfel linking\n");
 
@@ -134,9 +134,9 @@ void vtkLinkSurfels::LinkSurfels(int xdim, int ydim, int zdim,
 				 float *image,
 				 vtkVectors *inVectors,
 				 vtkCellArray *newLines, 
-				 vtkFloatPoints *newPts,
-				 vtkFloatScalars *outScalars, 
-				 vtkFloatVectors *outVectors,
+				 vtkPoints *newPts,
+				 vtkScalars *outScalars, 
+				 vtkVectors *outVectors,
 				 float *spacing, float *origin)
 {
 

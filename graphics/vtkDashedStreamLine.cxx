@@ -48,9 +48,9 @@ vtkDashedStreamLine::vtkDashedStreamLine()
 void vtkDashedStreamLine::Execute()
 {
   vtkStreamPoint *sPrev, *sPtr;
-  vtkFloatPoints *newPts;
-  vtkFloatVectors *newVectors;
-  vtkFloatScalars *newScalars=NULL;
+  vtkPoints *newPts;
+  vtkVectors *newVectors;
+  vtkScalars *newScalars=NULL;
   vtkCellArray *newLines;
   int i, ptId, j, pts[2];
   float tOffset, x[3], v[3], r, xPrev[3], vPrev[3], scalarPrev;
@@ -63,13 +63,13 @@ void vtkDashedStreamLine::Execute()
 //
 //  Convert streamer into lines. Lines may be dashed.
 //
-  newPts = vtkFloatPoints::New();
+  newPts = vtkPoints::New();
   newPts->Allocate(1000);
-  newVectors = vtkFloatVectors::New();
+  newVectors = vtkVectors::New();
   newVectors->Allocate(1000);
-  if ( this->Input->GetPointData()->GetScalars() || this->SpeedScalars )
+  if ( ((vtkDataSet *)this->Input)->GetPointData()->GetScalars() || this->SpeedScalars )
     {
-    newScalars = vtkFloatScalars::New();
+    newScalars = vtkScalars::New();
     newScalars->Allocate(1000);
     }
   newLines = vtkCellArray::New();

@@ -153,7 +153,7 @@ protected:
   void TraverseAndMark(int cellId);
 
 private:
-  vtkFloatScalars *CellScalars;
+  vtkScalars *CellScalars;
   vtkIdList *NeighborCellPointIds;
 
 };

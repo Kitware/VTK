@@ -110,11 +110,12 @@ void vtkClipVolume::Execute()
   vtkUnstructuredGrid *clippedOutput = this->GetClippedOutput();
   vtkUnstructuredGrid *outputPtr;
   int cellId, i, j, k, flip, iflip, jflip, kflip;
-  vtkFloatPoints *cellPts;
+  vtkPoints *cellPts;
   vtkScalars *clipScalars;
-  vtkFloatScalars cellScalars(8); cellScalars.ReferenceCountingOff();
+  vtkScalars cellScalars; 
+  cellScalars.Allocate(8); cellScalars.ReferenceCountingOff();
   vtkCell *cell;
-  vtkFloatPoints *newPoints;
+  vtkPoints *newPoints;
   vtkIdList *cellIds;
   float value, s, *x, origin[3], spacing[3];
   int estimatedSize, numCells=input->GetNumberOfCells();
@@ -124,7 +125,7 @@ void vtkClipVolume::Execute()
   int dims[3], dimension, numICells, numJCells, numKCells, sliceSize;
   int above, below;
   vtkIdList tetraIds(20);
-  vtkFloatPoints tetraPts(20); tetraPts.ReferenceCountingOff();
+  vtkPoints tetraPts; tetraPts.Allocate(20); tetraPts.ReferenceCountingOff();
   int ii, jj, pts[4], id, ntetra;
     
   vtkDebugMacro(<< "Clipping volume");
@@ -155,7 +156,7 @@ void vtkClipVolume::Execute()
   estimatedSize = estimatedSize / 1024 * 1024; //multiple of 1024
   if (estimatedSize < 1024) estimatedSize = 1024;
 
-  newPoints = vtkFloatPoints::New();
+  newPoints = vtkPoints::New();
   newPoints->Allocate(estimatedSize/2,estimatedSize/2);
   output->Allocate(estimatedSize*2); //allocate storage for cells
 
@@ -167,7 +168,7 @@ void vtkClipVolume::Execute()
   // and do necessary setup.
   if ( this->ClipFunction )
     {
-    vtkFloatScalars *tmpScalars = vtkFloatScalars::New();
+    vtkScalars *tmpScalars = vtkScalars::New();
     tmpScalars->Allocate(numPts);
     inPD = new vtkPointData(*(input->GetPointData()));//copies original
     if ( this->GenerateClipScalars ) inPD->SetScalars(tmpScalars);
@@ -327,9 +328,9 @@ void vtkClipVolume::Execute()
 // intersection points are injected into triangulation. Because of convex,
 // regular spacing of voxel points, we don't have to worry about constrained
 // Delaunay problems.
-void vtkClipVolume::ClipVoxel(float value, vtkFloatScalars& cellScalars, 
+void vtkClipVolume::ClipVoxel(float value, vtkScalars& cellScalars, 
                               int flip, float origin[3], float spacing[3], 
-                              vtkIdList& cellIds, vtkFloatPoints& cellPts,
+                              vtkIdList& cellIds, vtkPoints& cellPts,
                               vtkPointData *inPD, vtkPointData *outPD)
 {
   float bounds[6], x[3], *xPtr, s1, s2, t, voxelOrigin[3];
@@ -337,7 +338,7 @@ void vtkClipVolume::ClipVoxel(float value, vtkFloatScalars& cellScalars,
   int i, j, k, edgeNum, numPts, numTetras, npts, *pts, tPts[4];
   int numOutTetras, numMergedPts, ptId;
   vtkIdList holeTetras(10), cells(64), mergedPts(12);
-  vtkFloatPoints *points;
+  vtkPoints *points;
   vtkUnstructuredGrid *output=this->GetOutput();
   vtkUnstructuredGrid *clippedOutput=this->GetClippedOutput();
   char *tetraUse;

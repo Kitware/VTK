@@ -14,7 +14,7 @@ vtkRenderWindowInteractor iren
 
 # create triangle strip
 #
-vtkFloatPoints points
+vtkPoints points
     points InsertPoint 0 0.0 0.0 0.0
     points InsertPoint 1 0.0 1.0 0.0
     points InsertPoint 2 1.0 0.0 0.0

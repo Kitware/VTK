@@ -170,11 +170,11 @@ public:
   // Methods available to other objects for forming and manipulating 
   // triangulations.
   vtkUnstructuredGrid *InitPointInsertion(float center[3], float length, 
-					  int numPts, vtkFloatPoints* &pts);
+					  int numPts, vtkPoints* &pts);
   vtkUnstructuredGrid *InitPointInsertion(int numPtsToInsert,  int numTetra,
-                          vtkFloatPoints &boundingTetraPts, float bounds[6],
-                          vtkFloatPoints* &pts);
-  void InsertPoint(vtkUnstructuredGrid *Mesh, vtkFloatPoints *points,
+                          vtkPoints &boundingTetraPts, float bounds[6],
+                          vtkPoints* &pts);
+  void InsertPoint(vtkUnstructuredGrid *Mesh, vtkPoints *points,
 		   int id, float x[3], vtkIdList& holeTetras);
 
 protected:
@@ -190,19 +190,19 @@ protected:
   
   vtkSphereArray *Spheres;   //used to keep track of circumspheres
   int InSphere(float x[3], int tetraId);
-  void InsertSphere(vtkUnstructuredGrid *Mesh, vtkFloatPoints *pts, int tetraId);
+  void InsertSphere(vtkUnstructuredGrid *Mesh, vtkPoints *pts, int tetraId);
 
   int NumberOfDuplicatePoints; //keep track of bad data
   int NumberOfDegeneracies;
 
   int FindEnclosingFaces(float x[3], int tetra, vtkUnstructuredGrid *Mesh,
-			 vtkFloatPoints *points, float tol,
+			 vtkPoints *points, float tol,
 			 vtkIdList &tetras, vtkIdList &faces,
 			 vtkPointLocator *Locator);
   
   int FindTetra(float x[3], int ptIds[4], float p[4][3], 
 		int tetra, vtkUnstructuredGrid *Mesh, 
-		vtkFloatPoints *points, float tol, int depth);
+		vtkPoints *points, float tol, int depth);
 
 };
 

@@ -9,7 +9,7 @@ source ../../examplesTcl/vtkInclude.tcl
 # create test data by hand. Use an alternative creation method for 
 # polygonal data.
 #
-vtkFloatPoints pts
+vtkPoints pts
     pts InsertPoint 0 0 0 0
     pts InsertPoint 1 1 0 0
     pts InsertPoint 2 2 0 0

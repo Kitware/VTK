@@ -59,7 +59,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include <stdio.h>
 #include "vtkPolyDataSource.h"
-#include "vtkFloatPoints.h"
+#include "vtkPoints.h"
 #include "vtkCellArray.h"
 
 class VTK_EXPORT vtkSTLReader : public vtkPolyDataSource 
@@ -97,8 +97,8 @@ protected:
   int SelfCreatedLocator;
 
   void Execute();
-  int ReadBinarySTL(FILE *fp, vtkFloatPoints*, vtkCellArray*);
-  int ReadASCIISTL(FILE *fp, vtkFloatPoints*, vtkCellArray*);
+  int ReadBinarySTL(FILE *fp, vtkPoints*, vtkCellArray*);
+  int ReadASCIISTL(FILE *fp, vtkPoints*, vtkCellArray*);
   int GetSTLFileType(FILE *fp);
 };
 

@@ -41,7 +41,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkFeatureEdges.h"
 #include "vtkMath.h"
 #include "vtkPolygon.h"
-#include "vtkFloatNormals.h"
+#include "vtkNormals.h"
 
 // Description:
 // Construct object with feature angle = 30; all types of edges extracted
@@ -61,8 +61,8 @@ void vtkFeatureEdges::Execute()
 {
   vtkPolyData *input=(vtkPolyData *)this->Input;
   vtkPoints *inPts;
-  vtkFloatPoints *newPts;
-  vtkFloatScalars *newScalars;
+  vtkPoints *newPts;
+  vtkScalars *newScalars;
   vtkCellArray *newLines;
   vtkPolyData Mesh;
   int i, j, numNei, cellId;
@@ -72,7 +72,7 @@ void vtkFeatureEdges::Execute()
   int lineIds[2];
   int npts, *pts;
   vtkCellArray *inPolys;
-  vtkFloatNormals *polyNormals = NULL;
+  vtkNormals *polyNormals = NULL;
   int numPts, nei;
   vtkIdList neighbors(VTK_CELL_SIZE);
   int p1, p2;
@@ -105,9 +105,9 @@ void vtkFeatureEdges::Execute()
 //
 //  Allocate storage for lines/points (arbitrary allocations size)
 //
-  newPts = vtkFloatPoints::New();
+  newPts = vtkPoints::New();
   newPts->Allocate(numPts/10,numPts); 
-  newScalars = vtkFloatScalars::New();
+  newScalars = vtkScalars::New();
   newScalars->Allocate(numPts/10,numPts);
   newLines = vtkCellArray::New();
   newLines->Allocate(numPts/10);
@@ -116,7 +116,7 @@ void vtkFeatureEdges::Execute()
 //
   if ( this->FeatureEdges ) 
     {    
-    polyNormals = vtkFloatNormals::New();
+    polyNormals = vtkNormals::New();
     polyNormals->Allocate(inPolys->GetNumberOfCells());
 
     for (cellId=0, inPolys->InitTraversal(); inPolys->GetNextCell(npts,pts); 

@@ -56,13 +56,13 @@ void vtkPointSource::Execute()
 {
   int i;
   float radius, theta, phi, x[3], rho;
-  vtkFloatPoints *newPoints;
+  vtkPoints *newPoints;
   vtkCellArray *newVerts;
   vtkPolyData *output = (vtkPolyData *)this->Output;
   
   vtkDebugMacro(<< "Generating random cloud of points...");
 
-  newPoints = vtkFloatPoints::New();
+  newPoints = vtkPoints::New();
   newPoints->Allocate(this->NumberOfPoints);
   newVerts = vtkCellArray::New();
   newVerts->Allocate(newVerts->EstimateSize(1,this->NumberOfPoints));

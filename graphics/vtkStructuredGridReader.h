@@ -97,6 +97,9 @@ public:
   void SetLookupTableName(char *name);
   char *GetLookupTableName();
 
+  void SetFieldDataName(char *name);
+  char *GetFieldDataName();
+
 protected:
   void Execute();
   vtkDataReader Reader;

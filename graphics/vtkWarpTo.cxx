@@ -44,7 +44,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 void vtkWarpTo::Execute()
 {
   vtkPoints *inPts;
-  vtkFloatPoints *newPts;
+  vtkPoints *newPts;
   vtkPointData *pd;
   int i, ptId, numPts;
   float *x, newX[3];
@@ -65,7 +65,7 @@ void vtkWarpTo::Execute()
     return;
     }
 
-  newPts = vtkFloatPoints::New(); newPts->SetNumberOfPoints(numPts);
+  newPts = vtkPoints::New(); newPts->SetNumberOfPoints(numPts);
 
   if (this->Absolute)
     {

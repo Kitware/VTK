@@ -40,7 +40,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkPolyDataNormals.h"
 #include "vtkMath.h"
-#include "vtkFloatNormals.h"
+#include "vtkNormals.h"
 #include "vtkPolygon.h"
 #include "vtkTriangleStrip.h"
 
@@ -62,7 +62,7 @@ static  int *Visited;
 static  vtkPolyData *OldMesh, *NewMesh;
 static  int RecursionDepth;
 static  int Mark;    
-static  vtkFloatNormals *PolyNormals;
+static  vtkNormals *PolyNormals;
 static	float	CosAngle;
 static  vtkIdList *Seeds, *Map;
 
@@ -80,8 +80,8 @@ void vtkPolyDataNormals::Execute()
   vtkPoints *inPts;
   vtkCellArray *inPolys, *inStrips, *polys;
   vtkPolygon poly;
-  vtkFloatPoints *newPts = NULL;
-  vtkFloatNormals *newNormals;
+  vtkPoints *newPts = NULL;
+  vtkNormals *newNormals;
   vtkPointData *pd, *outPD;
   float n[3];
   vtkCellArray *newPolys;
@@ -197,7 +197,7 @@ void vtkPolyDataNormals::Execute()
 //
 //  Compute polygon normals
 //
-  PolyNormals = vtkFloatNormals::New();
+  PolyNormals = vtkNormals::New();
   PolyNormals->Allocate(numPolys);
 
   for (cellId=0, newPolys->InitTraversal(); newPolys->GetNextCell(npts,pts); 
@@ -246,7 +246,7 @@ void vtkPolyDataNormals::Execute()
     outPD->CopyNormalsOff();
     outPD->CopyAllocate(pd,numNewPts);
 
-    newPts = vtkFloatPoints::New(); newPts->SetNumberOfPoints(numNewPts);
+    newPts = vtkPoints::New(); newPts->SetNumberOfPoints(numNewPts);
     for (ptId=0; ptId < numNewPts; ptId++)
       {
       oldId = Map->GetId(ptId);
@@ -271,7 +271,7 @@ void vtkPolyDataNormals::Execute()
 
   if ( this->FlipNormals && ! this->Consistency ) flipDirection = -1.0;
 
-  newNormals = vtkFloatNormals::New();
+  newNormals = vtkNormals::New();
   newNormals->SetNumberOfNormals(numNewPts);
   n[0] = n[1] = n[2] = 0.0;
   for (i=0; i < numNewPts; i++) newNormals->SetNormal(i,n);

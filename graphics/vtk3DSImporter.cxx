@@ -200,7 +200,7 @@ vtkPolyData *vtk3DSImporter::GeneratePolyData (Mesh *mesh)
   int i;
   Face	*face;
   vtkCellArray *triangles;
-  vtkFloatPoints *vertices;
+  vtkPoints *vertices;
   vtkPolyData *polyData;
 
   face = mesh->face;
@@ -214,7 +214,7 @@ vtkPolyData *vtk3DSImporter::GeneratePolyData (Mesh *mesh)
     triangles->InsertCellPoint (face->c);
     }
 
-  vertices = vtkFloatPoints::New ();
+  vertices = vtkPoints::New ();
   vertices->Allocate(mesh->vertices);
   for (i = 0; i < mesh->vertices; i++)
     {

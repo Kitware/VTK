@@ -79,7 +79,7 @@ protected:
   void WriteALight(vtkLight *aLight, FILE *fp);
   void WriteAnActor(vtkActor *anActor, FILE *fp);
   void WritePointData(vtkPoints *points, vtkNormals *normals, 
-		      vtkTCoords *tcoords, vtkColorScalars *colors, FILE *fp);
+		      vtkTCoords *tcoords, vtkScalars *colors, FILE *fp);
   char *FileName;
   FILE *FilePointer;
 };

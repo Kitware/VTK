@@ -142,15 +142,26 @@ char *vtkStructuredPointsReader::GetLookupTableName()
   return this->Reader.GetLookupTableName();
 }
 
+// Description:
+// Set the name of the field data to extract. If not specified, uses 
+// first field data encountered in file.
+void vtkStructuredPointsReader::SetFieldDataName(char *name) 
+{
+  this->Reader.SetFieldDataName(name);
+}
+char *vtkStructuredPointsReader::GetFieldDataName() 
+{
+  return this->Reader.GetFieldDataName();
+}
+
 void vtkStructuredPointsReader::Execute()
 {
-  int numPts=0;
+  int numPts=0, numCells=0;
   char line[256];
-  int npts;
+  int npts, ncells;
   int dimsRead=0, arRead=0, originRead=0;
   vtkStructuredPoints *output=(vtkStructuredPoints *)this->Output;
   
-
   vtkDebugMacro(<<"Reading vtk structured points file...");
   if ( this->Debug ) this->Reader.DebugOn();
   else this->Reader.DebugOff();
@@ -196,9 +207,9 @@ void vtkStructuredPointsReader::Execute()
       if ( ! strncmp(this->Reader.LowerCase(line),"dimensions",10) )
         {
         int dim[3];
-        if (!(this->Reader.ReadInt(dim) && 
-	      this->Reader.ReadInt(dim+1) && 
-	      this->Reader.ReadInt(dim+2)))
+        if (!(this->Reader.Read(dim) && 
+	      this->Reader.Read(dim+1) && 
+	      this->Reader.Read(dim+2)))
           {
           vtkErrorMacro(<<"Error reading dimensions!");
           this->Reader.CloseVTKFile ();
@@ -207,15 +218,16 @@ void vtkStructuredPointsReader::Execute()
 
         numPts = dim[0] * dim[1] * dim[2];
         output->SetDimensions(dim);
+	numCells = output->GetNumberOfCells();
         dimsRead = 1;
         }
 
       else if ( !strncmp(line,"aspect_ratio",12) || !strncmp(line,"spacing",7) )
         {
         float ar[3];
-        if (!(this->Reader.ReadFloat(ar) && 
-	      this->Reader.ReadFloat(ar+1) && 
-	      this->Reader.ReadFloat(ar+2)))
+        if (!(this->Reader.Read(ar) && 
+	      this->Reader.Read(ar+1) && 
+	      this->Reader.Read(ar+2)))
           {
           vtkErrorMacro(<<"Error reading spacing!");
           this->Reader.CloseVTKFile ();
@@ -229,9 +241,9 @@ void vtkStructuredPointsReader::Execute()
       else if ( ! strncmp(line,"origin",6) )
         {
         float origin[3];
-        if (!(this->Reader.ReadFloat(origin) && 
-	      this->Reader.ReadFloat(origin+1) && 
-	      this->Reader.ReadFloat(origin+2)))
+        if (!(this->Reader.Read(origin) && 
+	      this->Reader.Read(origin+1) && 
+	      this->Reader.Read(origin+2)))
           {
           vtkErrorMacro(<<"Error reading origin!");
           this->Reader.CloseVTKFile ();
@@ -242,9 +254,29 @@ void vtkStructuredPointsReader::Execute()
         originRead = 1;
         }
 
+      else if ( ! strncmp(line, "cell_data", 9) )
+        {
+        if (!this->Reader.Read(&ncells))
+          {
+          vtkErrorMacro(<<"Cannot read cell data!");
+          this->Reader.CloseVTKFile ();
+          return;
+          }
+        
+        if ( ncells != numCells )
+          {
+          vtkErrorMacro(<<"Number of cells don't match data values!");
+          this->Reader.CloseVTKFile ();
+          return;
+          }
+
+        this->Reader.ReadCellData(output, ncells);
+        break; //out of this loop
+        }
+
       else if ( ! strncmp(line, "point_data", 10) )
         {
-        if (!this->Reader.ReadInt(&npts))
+        if (!this->Reader.Read(&npts))
           {
           vtkErrorMacro(<<"Cannot read point data!");
           this->Reader.CloseVTKFile ();
@@ -275,10 +307,22 @@ void vtkStructuredPointsReader::Execute()
       if ( !originRead ) vtkWarningMacro(<<"No origin read.");
     }
 
+  else if ( !strncmp(line,"cell_data",9) )
+    {
+    vtkWarningMacro(<<"No geometry defined in data file!");
+    if (!this->Reader.Read(&ncells))
+      {
+      vtkErrorMacro(<<"Cannot read cell data!");
+      this->Reader.CloseVTKFile ();
+      return;
+      }
+    this->Reader.ReadCellData(output, numCells);
+    }
+
   else if ( !strncmp(line,"point_data",10) )
     {
     vtkWarningMacro(<<"No geometry defined in data file!");
-    if (!this->Reader.ReadInt(&npts))
+    if (!this->Reader.Read(&npts))
       {
       vtkErrorMacro(<<"Cannot read point data!");
       this->Reader.CloseVTKFile ();

@@ -122,9 +122,9 @@ void vtkGLPolyDataMapper::Draw(vtkRenderer *vtkNotUsed(aren), vtkActor *act)
   vtkProperty *prop;
   vtkPoints *p;
   vtkCellArray *prims[4], *aPrim;
-  vtkColorScalars *c;
+  vtkScalars *c=NULL;
   vtkNormals *n;
-  unsigned char *rgb;
+  unsigned char *rgba;
   int *pts;
   vtkTCoords *t;
   int tDim, primType;
@@ -138,7 +138,6 @@ void vtkGLPolyDataMapper::Draw(vtkRenderer *vtkNotUsed(aren), vtkActor *act)
   
   // if the primitives are invisable then get out of here 
   if (tran <= 0.0) return;
-  clr[3] = (short) ((float)tran*255);
 
   // get the representation (e.g., surface / wireframe / points)
   rep = prop->GetRepresentation();
@@ -193,7 +192,12 @@ void vtkGLPolyDataMapper::Draw(vtkRenderer *vtkNotUsed(aren), vtkActor *act)
 
   // and draw the display list
   p = input->GetPoints();
-  c = this->Colors;
+  if ( this->Colors )
+    {
+    c = this->Colors;
+    c->InitColorTraversal(tran, this->LookupTable, this->ColorMode);
+    }
+    
   prims[0] = input->GetVerts();
   prims[1] = input->GetLines();
   prims[2] = input->GetStrips();
@@ -202,7 +206,7 @@ void vtkGLPolyDataMapper::Draw(vtkRenderer *vtkNotUsed(aren), vtkActor *act)
   t = input->GetPointData()->GetTCoords();
   if ( t ) 
     {
-    tDim = t->GetDimension();
+    tDim = t->GetGetNumberOfComponents();
     if (tDim != 2)
       {
       vtkDebugMacro(<< "Currently only 2d textures are supported.\n");
@@ -272,10 +276,11 @@ void vtkGLPolyDataMapper::Draw(vtkRenderer *vtkNotUsed(aren), vtkActor *act)
 	{
 	if (c) 
 	  {
-	  rgb = c->GetColor(pts[j]);
-	  clr[0] = rgb[0]; 
-	  clr[1] = rgb[1]; 
-	  clr[2] = rgb[2];
+	  rgba = c->GetColor(pts[j]);
+	  clr[0] = rgba[0]; 
+	  clr[1] = rgba[1]; 
+	  clr[2] = rgba[2];
+	  clr[3] = rgba[3];
 	  c4s(clr);
 	  }
 	
@@ -331,10 +336,11 @@ void vtkGLPolyDataMapper::Draw(vtkRenderer *vtkNotUsed(aren), vtkActor *act)
 	  {
 	  if (c) 
 	    {
-	    rgb = c->GetColor(pts[j]);
-	    clr[0] = rgb[0]; 
-	    clr[1] = rgb[1]; 
-	    clr[2] = rgb[2];
+	    rgba = c->GetColor(pts[j]);
+	    clr[0] = rgba[0]; 
+	    clr[1] = rgba[1]; 
+	    clr[2] = rgba[2];
+            clr[3] = rgba[3];
 	    c4s(clr);
 	    }
 	  
@@ -367,10 +373,11 @@ void vtkGLPolyDataMapper::Draw(vtkRenderer *vtkNotUsed(aren), vtkActor *act)
 	  {
 	  if (c) 
 	    {
-	    rgb = c->GetColor(pts[j]);
-	    clr[0] = rgb[0]; 
-	    clr[1] = rgb[1]; 
-	    clr[2] = rgb[2];
+	    rgba = c->GetColor(pts[j]);
+	    clr[0] = rgba[0]; 
+	    clr[1] = rgba[1]; 
+	    clr[2] = rgba[2];
+            clr[3] = rgba[3];
 	    c4s(clr);
 	    }
 	  

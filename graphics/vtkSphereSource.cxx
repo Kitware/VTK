@@ -40,8 +40,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include <math.h>
 #include "vtkSphereSource.h"
-#include "vtkFloatPoints.h"
-#include "vtkFloatNormals.h"
+#include "vtkPoints.h"
+#include "vtkNormals.h"
 #include "vtkMath.h"
 
 // Description:
@@ -64,8 +64,8 @@ void vtkSphereSource::Execute()
   int i, j;
   int numPts;
   int numPolys;
-  vtkFloatPoints *newPoints; 
-  vtkFloatNormals *newNormals;
+  vtkPoints *newPoints; 
+  vtkNormals *newNormals;
   vtkCellArray *newPolys;
   float x[3], n[3], deltaPhi, deltaTheta, phi, theta, radius, norm;
   int pts[3], base;
@@ -78,9 +78,9 @@ void vtkSphereSource::Execute()
   // creating triangles
   numPolys = (this->PhiResolution - 1) * 2 * this->ThetaResolution;
 
-  newPoints = vtkFloatPoints::New();
+  newPoints = vtkPoints::New();
   newPoints->Allocate(numPts);
-  newNormals = vtkFloatNormals::New();
+  newNormals = vtkNormals::New();
   newNormals->Allocate(numPts);
   newPolys = vtkCellArray::New();
   newPolys->Allocate(newPolys->EstimateSize(numPolys,3));

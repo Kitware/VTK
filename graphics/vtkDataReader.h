@@ -40,9 +40,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkDataReader - helper class for objects that read vtk data files
 // .SECTION Description
-// vtkDataReader is a helper class that reads the vtk data file header and 
-// point data (e.g., scalars, vectors, normals, etc.) from a vtk data file. 
-// See text for format.
+// vtkDataReader is a helper class that reads the vtk data file header,
+// dataset type, and attribute data (point and cell attributes such as
+// scalars, vectors, normals, etc.) from a vtk data file.  See text for
+// format.
 
 #ifndef __vtkDataReader_h
 #define __vtkDataReader_h
@@ -50,6 +51,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <stdio.h>
 #include <fstream.h>
 #include "vtkSource.h"
+#include "vtkDataSetAttributes.h"
 
 #define VTK_ASCII 1
 #define VTK_BINARY 2
@@ -127,28 +129,41 @@ public:
   vtkGetStringMacro(LookupTableName);
 
   // Description:
+  // Set the name of the field data to extract. If not specified, uses 
+  // first field data encountered in file.
+  vtkSetStringMacro(FieldDataName);
+  vtkGetStringMacro(FieldDataName);
+
+  // Description:
   // Set/Get the name of the source object that owns this helper instance.
   vtkSetObjectMacro(Source,vtkSource);
   vtkGetObjectMacro(Source,vtkSource);
 
-  // Special methods
+  // Special methods for reading in stuff
   char *LowerCase(char *);
   int OpenVTKFile();
   int ReadHeader();
+  int ReadCellData(vtkDataSet *ds, int numCells);
   int ReadPointData(vtkDataSet *ds, int numPts);
   int ReadPoints(vtkPointSet *ps, int numPts);
   int ReadCells(int size, int *data);
   int ReadCoordinates(vtkRectilinearGrid *rg, int axes, int numCoords);
-  void CloseVTKFile();
+  vtkDataArray *ReadArray(char *dataType, int numTuples, int numComp);
+  vtkFieldData *ReadFieldData(int num);
 
-  // some functions for reading in stuff
+  int Read(char *);
+  int Read(unsigned char *);
+  int Read(short *);
+  int Read(unsigned short *);
+  int Read(int *);
+  int Read(unsigned int *);
+  int Read(long *);
+  int Read(unsigned long *);
+  int Read(float *);
+  int Read(double *);
+  void CloseVTKFile();
   int ReadLine(char result[256]);
   int ReadString(char result[256]);
-  int ReadInt(int *result);
-  int ReadUChar(unsigned char *result);
-  int ReadShort(short *result);
-  int ReadUnsignedShort(unsigned short *result);
-  int ReadFloat(float *result);
   void EatWhiteSpace();
   istream *GetIStream() {return this->IS;};
 
@@ -163,6 +178,7 @@ protected:
   char *TCoordsName;
   char *NormalsName;
   char *LookupTableName;
+  char *FieldDataName;
   char *ScalarLut;
 
   int ReadFromInputString;
@@ -174,13 +190,14 @@ protected:
 
   vtkSource *Source;
 
-  int ReadScalarData(vtkDataSet *ds, int numPts);
-  int ReadVectorData(vtkDataSet *ds, int numPts);
-  int ReadNormalData(vtkDataSet *ds, int numPts);
-  int ReadTensorData(vtkDataSet *ds, int numPts);
-  int ReadCoScalarData(vtkDataSet *ds, int numPts);
-  int ReadLutData(vtkDataSet *ds);
-  int ReadTCoordsData(vtkDataSet *ds, int numPts);
+  int ReadScalarData(vtkDataSetAttributes *a, int num);
+  int ReadVectorData(vtkDataSetAttributes *a, int num);
+  int ReadNormalData(vtkDataSetAttributes *a, int num);
+  int ReadTensorData(vtkDataSetAttributes *a, int num);
+  int ReadCoScalarData(vtkDataSetAttributes *a, int num);
+  int ReadLutData(vtkDataSetAttributes *a);
+  int ReadTCoordsData(vtkDataSetAttributes *a, int num);
+
 };
 
 #endif

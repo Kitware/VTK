@@ -1,10 +1,10 @@
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkFloatPoints.h"
+#include "vtkPoints.h"
 #include "vtkCellArray.h"
-#include "vtkFloatNormals.h"
-#include "vtkFloatScalars.h"
+#include "vtkNormals.h"
+#include "vtkScalars.h"
 #include "vtkPolyData.h"
 #include "vtkGaussianSplatter.h"
 #include "vtkContourFilter.h"
@@ -24,10 +24,10 @@ main ()
     iren->SetRenderWindow(renWin);
 
   // Create single splat point
-  vtkFloatPoints *pts = vtkFloatPoints::New();
+  vtkPoints *pts = vtkPoints::New();
   vtkCellArray *verts = vtkCellArray::New();
-  vtkFloatNormals *norms = vtkFloatNormals::New();
-  vtkFloatScalars *scalars = vtkFloatScalars::New();
+  vtkNormals *norms = vtkNormals::New();
+  vtkScalars *scalars = vtkScalars::New();
 
   x[0] = x[1] = x[2] = 0.0;
   pts->InsertNextPoint(x);

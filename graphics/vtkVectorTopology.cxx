@@ -55,9 +55,9 @@ void vtkVectorTopology::Execute()
   float x[3], pcoords[3], *v;
   vtkCell *cell;
   vtkVectors *inVectors;
-  vtkFloatPoints *newPts;
+  vtkPoints *newPts;
   vtkCellArray *newVerts;
-  vtkDataSet *input=this->Input;
+  vtkDataSet *input=(vtkDataSet *)this->Input;
   vtkPointData *pd=input->GetPointData();
   vtkPolyData *output=(vtkPolyData *)this->Output;
   vtkPointData *outputPD=output->GetPointData();
@@ -74,7 +74,7 @@ void vtkVectorTopology::Execute()
     return;
     }
 
-  newPts = vtkFloatPoints::New();
+  newPts = vtkPoints::New();
   newPts->Allocate(100);
   newVerts = vtkCellArray::New();
   newVerts->Allocate(newVerts->EstimateSize(1,100));
@@ -84,9 +84,9 @@ void vtkVectorTopology::Execute()
 //
   pcoords[0] = pcoords[1] = pcoords[2] = 0.5;
   newVerts->InsertNextCell(100); //temporary count
-  for (cellId=0; cellId<Input->GetNumberOfCells(); cellId++)
+  for (cellId=0; cellId<input->GetNumberOfCells(); cellId++)
     {
-    cell = Input->GetCell(cellId);
+    cell = input->GetCell(cellId);
     npts = cell->GetNumberOfPoints();
     for (i=0; i<3; i++) negative[i] = positive[i] = 0;
     for (i=0; i < npts; i++)

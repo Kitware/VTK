@@ -100,7 +100,7 @@ void vtkOBBTree::DeleteTree(vtkOBBNode *OBBptr)
 // Compute an OBB from the list of points given. Return the corner point
 // and the three axes defining the orientation of the OBB. Also return
 // a sorted list of relative "sizes" of axes for comparison purposes.
-void vtkOBBTree::ComputeOBB(vtkFloatPoints *pts, float corner[3], float max[3],
+void vtkOBBTree::ComputeOBB(vtkPoints *pts, float corner[3], float max[3],
                             float mid[3], float min[3], float size[3])
 {
   int numPts, i, pointId;
@@ -225,7 +225,7 @@ void vtkOBBTree::BuildLocator()
   this->OBBCount = 0;
   this->InsertedPoints = new int[numPts];
   for (i=0; i < numPts; i++) this->InsertedPoints[i] = 0;
-  this->PointsList = vtkFloatPoints::New();
+  this->PointsList = vtkPoints::New();
   this->PointsList->Allocate(numPts);
 
   //
@@ -419,7 +419,7 @@ void vtkOBBTree::BuildTree(vtkIdList *cells, vtkOBBNode *OBBptr, int level)
 
 void vtkOBBTree::GenerateRepresentation(int level, vtkPolyData *pd)
 {
-  vtkFloatPoints *pts;
+  vtkPoints *pts;
   vtkCellArray *polys;
 
   if ( this->Tree == NULL )
@@ -428,7 +428,7 @@ void vtkOBBTree::GenerateRepresentation(int level, vtkPolyData *pd)
     return;
     }
 
-  pts = vtkFloatPoints::New();
+  pts = vtkPoints::New();
   pts->Allocate(5000);
   polys = vtkCellArray::New();
   polys->Allocate(10000);
@@ -442,7 +442,7 @@ void vtkOBBTree::GenerateRepresentation(int level, vtkPolyData *pd)
 }
 
 void vtkOBBTree::GeneratePolygons(vtkOBBNode *OBBptr, int level, int repLevel,
-                                  vtkFloatPoints *pts, vtkCellArray *polys)
+                                  vtkPoints *pts, vtkCellArray *polys)
 
 {
   if ( level == repLevel || (repLevel < 0 && OBBptr->Kids == NULL) )

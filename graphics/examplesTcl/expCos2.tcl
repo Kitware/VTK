@@ -17,9 +17,9 @@ proc bessel {} {
     set XRes 25; set XOrigin -5.0; set XWidth 10.0
     set YRes 40; set YOrigin -5.0; set YWidth 10.0
 
-    vtkFloatPoints newPts
+    vtkPoints newPts
     vtkCellArray newPolys
-    vtkFloatScalars derivs
+    vtkScalars derivs
 
     # Compute points and scalars
     for {set id 0; set j 0} {$j < [expr $YRes+1]} {incr j} {

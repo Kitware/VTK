@@ -12,7 +12,7 @@ vtkRenderWindowInteractor iren
 
 # create bottle profile
 #
-vtkFloatPoints points
+vtkPoints points
     points InsertNextPoint 0 0 0
     points InsertNextPoint 1 0 0
     points InsertNextPoint 1 1 0

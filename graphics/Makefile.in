@@ -65,7 +65,6 @@ vtkStructuredPointsCollection \
 vtkVolumeCollection
 
 ABSTRACT = \
-vtkDataWriter \
 vtkExporter \
 vtkImporter \
 vtkMapper \
@@ -111,6 +110,7 @@ vtkCylinder \
 vtkCylinderSource \
 vtkDashedStreamLine \
 vtkDataReader \
+vtkDataWriter \
 vtkDataSetFilter \
 vtkDataSetMapper \
 vtkDataSetReader \
@@ -136,6 +136,11 @@ vtkExtractVOI \
 vtkExtractVectorComponents \
 vtkFeatureEdges \
 vtkFeatureVertices \
+vtkFieldDataFilter \
+vtkFieldDataReader \
+vtkFieldDataSource \
+vtkFieldDataToDataSet \
+vtkFieldDataWriter \
 vtkFilter \
 vtkFollower \
 vtkGaussianSplatter \
@@ -187,9 +192,9 @@ vtkPolyDataSource \
 vtkPolyDataToPolyDataFilter \
 vtkPolyDataWriter \
 vtkProbeFilter \
-vtkProgrammableSource \
+vtkProgrammableAttributeDataFilter \
 vtkProgrammableFilter \
-vtkProgrammablePointDataFilter \
+vtkProgrammableSource \
 vtkProjectedPolyDataRayBounder \
 vtkProperty \
 vtkQuadric \

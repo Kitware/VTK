@@ -18,7 +18,7 @@ vtkTransformPolyDataFilter transF
    transF SetTransform transform
 
 # Compute Bessel function and derivatives. We'll use a programmable filter
-# for this. Note the unsual GetInput() & GetOutput() methods.
+# for this. Note the unusual GetInput() & GetOutput() methods.
 vtkProgrammableFilter besselF
    besselF SetInput [transF GetOutput]
    besselF SetExecuteMethod bessel
@@ -26,8 +26,8 @@ vtkProgrammableFilter besselF
 proc bessel {} {
    set input [besselF GetPolyDataInput]
    set numPts [$input GetNumberOfPoints]
-   vtkFloatPoints newPts
-   vtkFloatScalars derivs
+   vtkPoints newPts
+   vtkScalars derivs
 
     for {set i 0} {$i < $numPts} {incr i} {
 	set x [$input GetPoint $i]

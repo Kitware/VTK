@@ -136,8 +136,8 @@ static vtkDataSet *ReadFinancialData(char *x, char *y, char *z, char *s)
     return NULL;
     }
 
-  vtkFloatPoints *newPts = vtkFloatPoints::New();
-  vtkFloatScalars *newScalars = vtkFloatScalars::New();
+  vtkPoints *newPts = vtkPoints::New();
+  vtkScalars *newScalars = vtkScalars::New();
 
   for (i=0; i<npts; i++)
     {

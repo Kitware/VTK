@@ -52,7 +52,6 @@ void vtkStripper::Execute()
   int longestStrip, longestLine, cellId, i, j, numCells, numPts;
   int numLines, numStrips, nei;
   vtkCellArray *newStrips=NULL, *inStrips, *newLines=NULL, *inLines, *inPolys;
-  vtkPointData *pd=this->Input->GetPointData();
   int numTriPts, *triPts, numLinePts, *linePts;
   vtkIdList cellIds(this->MaximumLength + 2);
   int *pts, neighbor=0, foundOne;
@@ -61,6 +60,7 @@ void vtkStripper::Execute()
   int numStripPts, *stripPts;
   vtkPolyData *input=(vtkPolyData *)this->Input;
   vtkPolyData *output=(vtkPolyData *)this->Output;
+  vtkPointData *pd=input->GetPointData();
 
   vtkDebugMacro(<<"Executing triangle strip / poly-line filter");
 

@@ -5,7 +5,7 @@ source ../../examplesTcl/vtkInt.tcl
 # create some random points in the unit cube centered at (.5,.5,.5)
 #
 vtkMath math
-vtkFloatPoints points
+vtkPoints points
 for {set i 0} {$i<25} {incr i 1} {
     eval points InsertPoint $i [math Random 0 1] [math Random 0 1] [math Random 0 1]
 }

@@ -64,7 +64,7 @@ void vtkConeSource::Execute()
   float x[3], xbot;
   int i;
   int pts[VTK_CELL_SIZE];
-  vtkFloatPoints *newPoints; 
+  vtkPoints *newPoints; 
   vtkCellArray *newLines=0;
   vtkCellArray *newPolys=0;
   vtkPolyData *output = this->GetOutput();
@@ -97,7 +97,7 @@ void vtkConeSource::Execute()
     newPolys->Allocate(newPolys->EstimateSize(numPolys,this->Resolution));
     break;
   }
-  newPoints = vtkFloatPoints::New();
+  newPoints = vtkPoints::New();
   newPoints->Allocate(numPts);
 //
 // Create cone

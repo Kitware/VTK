@@ -28,7 +28,7 @@ main ()
   vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
     iren->SetRenderWindow(renWin);
 
-  vtkFloatPoints *points = vtkFloatPoints::New();
+  vtkPoints *points = vtkPoints::New();
   for (i=0; i<27; i++) points->InsertPoint(i,x[i]);
   
   vtkUnstructuredGrid *ugrid = vtkUnstructuredGrid::New();

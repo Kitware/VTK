@@ -40,8 +40,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include <ctype.h>
 
-#include "vtkUnsignedCharScalars.h"
-#include "vtkUnsignedShortScalars.h"
 #include "vtkSLCReader.h"
 
 // Description:
@@ -96,9 +94,7 @@ void vtkSLCReader::Execute()
 {
   FILE *fp;
 
-  vtkUnsignedCharScalars *newScalars;
-
-//  vtkUnsignedShortScalars *newScalars;
+  vtkScalars *newScalars;
 
   int	temp;
   int	data_compression;
@@ -159,7 +155,7 @@ void vtkSLCReader::Execute()
 
   plane_size = size[0] * size[1];
   volume_size = plane_size * size[2];
-  newScalars = vtkUnsignedCharScalars::New();
+  newScalars = vtkScalars::New(VTK_UNSIGNED_CHAR,1);
   newScalars->SetNumberOfScalars(volume_size);
 
   // Skip Over Icon
@@ -228,7 +224,6 @@ void vtkSLCReader::Execute()
     for( i=0; i<plane_size; i++ )
     {
     newScalars->SetScalar( (z_counter*plane_size + i), *sptr++ );
-    //      newScalars->SetScalar( (z_counter*plane_size + i), (unsigned short)(*sptr++) );
     }
   }
 

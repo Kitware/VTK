@@ -32,13 +32,13 @@ main ()
   vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
     iren->SetRenderWindow(renWin);
 
-  vtkFloatScalars *xCoords = vtkFloatScalars::New();
+  vtkScalars *xCoords = vtkScalars::New();
   for (i=0; i<47; i++) xCoords->InsertScalar(i,x[i]);
   
-  vtkFloatScalars *yCoords = vtkFloatScalars::New();
+  vtkScalars *yCoords = vtkScalars::New();
   for (i=0; i<33; i++) yCoords->InsertScalar(i,y[i]);
   
-  vtkFloatScalars *zCoords = vtkFloatScalars::New();
+  vtkScalars *zCoords = vtkScalars::New();
   for (i=0; i<44; i++) zCoords->InsertScalar(i,z[i]);
   
   vtkRectilinearGrid *rgrid = vtkRectilinearGrid::New();

@@ -30,11 +30,11 @@ main ()
 
   vtkPlanes *planes = vtkPlanes::New();
     float pts[6] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
-    vtkFloatPoints *points = vtkFloatPoints::New();
+    vtkPoints *points = vtkPoints::New();
         points->InsertPoint (0, pts);
         points->InsertPoint (1, pts + 3);
     float nrms[6] = {1.0, 0.0, 0.0, 0.0, 1.0, 0.0};
-    vtkFloatNormals *normals = vtkFloatNormals::New();
+    vtkNormals *normals = vtkNormals::New();
         normals->InsertNormal (0, nrms);
         normals->InsertNormal (1, nrms + 3);
     planes->SetPoints (points);

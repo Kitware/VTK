@@ -98,8 +98,8 @@ public:
 protected:
   void Execute();
   void LinkEdgels(int xdim, int ydim,float *image, vtkVectors *inVectors,
-		  vtkCellArray *newLines, vtkFloatPoints *newPts,
-		  vtkFloatScalars *outScalars, vtkFloatVectors *outVectors,
+		  vtkCellArray *newLines, vtkPoints *newPts,
+		  vtkScalars *outScalars, vtkVectors *outVectors,
 		  int z);
   float GradientThreshold;
   float PhiThreshold;

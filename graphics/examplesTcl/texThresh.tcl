@@ -78,7 +78,7 @@ vtkDataSetMapper plane2Map
 vtkActor plane2Actor
     plane2Actor SetMapper plane2Map
     plane2Actor SetTexture texture
-[plane2Actor GetProperty] SetOpacity 0.999
+    [plane2Actor GetProperty] SetOpacity 0.999
 
 vtkStructuredGridGeometryFilter plane3
     plane3 SetInput [pl3d GetOutput]
@@ -92,7 +92,7 @@ vtkDataSetMapper plane3Map
 vtkActor plane3Actor
     plane3Actor SetMapper plane3Map
     plane3Actor SetTexture texture
-[plane3Actor GetProperty] SetOpacity 0.999
+    [plane3Actor GetProperty] SetOpacity 0.999
 
 # outline
 vtkStructuredGridOutlineFilter outline

@@ -40,8 +40,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include <math.h>
 #include "vtkLineSource.h"
-#include "vtkFloatPoints.h"
-#include "vtkFloatTCoords.h"
+#include "vtkPoints.h"
+#include "vtkTCoords.h"
 
 vtkLineSource::vtkLineSource(int res)
 {
@@ -63,16 +63,16 @@ void vtkLineSource::Execute()
   float x[3], tc[2], v[3];
   int i, j;
   int pts[2];
-  vtkFloatPoints *newPoints; 
-  vtkFloatTCoords *newTCoords; 
+  vtkPoints *newPoints; 
+  vtkTCoords *newTCoords; 
   vtkCellArray *newLines;
   vtkPolyData *output = this->GetOutput();
   
   vtkDebugMacro(<<"Creating line");
 
-  newPoints = vtkFloatPoints::New();
+  newPoints = vtkPoints::New();
   newPoints->Allocate(numPts);
-  newTCoords = vtkFloatTCoords::New();
+  newTCoords = vtkTCoords::New();
   newTCoords->Allocate(numPts,2);
 
   newLines = vtkCellArray::New();

@@ -15,7 +15,7 @@ vtkRenderWindowInteractor iren
 #
 vtkStructuredPoints plane
   plane SetDimensions 3 3 1
-vtkFloatScalars scalars
+vtkScalars scalars
   scalars InsertScalar 0 0.0
   scalars InsertScalar 1 1.0
   scalars InsertScalar 2 0.0

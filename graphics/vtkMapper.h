@@ -53,14 +53,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkMapper_h
 #define __vtkMapper_h
 
-#include "vtkObject.h"
+#include "vtkProcessObject.h"
 #include "vtkLookupTable.h"
 #include "vtkDataSet.h"
 
 class vtkRenderer;
 class vtkActor;
 
-class VTK_EXPORT vtkMapper : public vtkObject 
+class VTK_EXPORT vtkMapper : public vtkProcessObject
 {
 public:
   vtkMapper();
@@ -70,11 +70,6 @@ public:
   void operator=(const vtkMapper& m);
 
   unsigned long int GetMTime();
-
-  void SetStartRender(void (*f)(void *), void *arg);
-  void SetEndRender(void (*f)(void *), void *arg);
-  void SetStartRenderArgDelete(void (*f)(void *));
-  void SetEndRenderArgDelete(void (*f)(void *));
 
   // Description:
   // Method initiates the mapping process. Generally sent by the actor 
@@ -87,7 +82,7 @@ public:
 
   // Description:
   // Create default lookup table. Generally used to create one when none
-  // is available.
+  // is available with the scalar data.
   virtual void CreateDefaultLookupTable();
 
   // Description:
@@ -95,6 +90,26 @@ public:
   vtkSetMacro(ScalarVisibility,int);
   vtkGetMacro(ScalarVisibility,int);
   vtkBooleanMacro(ScalarVisibility,int);
+
+  // Description:
+  // Control how the scalar data is mapped to colors.  By default
+  // (ColorModeToDefault), scalars that are unsigned char types are treated
+  // as colors, and NOT mapped through the lookup table, while everything
+  // else is.  Setting ColorModeToMapScalars means that all scalar data will
+  // be mapped through the lookup table. Setting ColorModeToLuminance means
+  // that scalars will be converted to luminance (gray values) using the
+  // luminance equation . (The ColorMode ivar is used with vtkScalars to map
+  // scalar data to colors. See vtkScalars::InitColorTraversal() for more
+  // information.)
+  vtkSetMacro(ColorMode,int);
+  vtkGetMacro(ColorMode,int);
+  void SetColorModeToDefault() 
+    {this->SetColorMode(VTK_COLOR_MODE_DEFAULT);};
+  void SetColorModeToMapScalars() 
+    {this->SetColorMode(VTK_COLOR_MODE_MAP_SCALARS);};
+  void SetColorModeToLuminance() 
+    {this->SetColorMode(VTK_COLOR_MODE_LUMINANCE);};
+  char *GetColorModeAsString();
 
   // Description:
   // Turn on/off flag to control whether data is rendered using
@@ -142,25 +157,23 @@ public:
   virtual vtkDataSet *GetInput() {return this->Input;};
 
   // Description:
-  // Calculate and return the point colors for the input.
-  vtkColorScalars *GetColors();
+  // Calculate and return the colors for the input. After invoking this
+  // method, use GetColor() on the scalar to get the scalar values. This
+  // method may return NULL if no color information is available.
+  vtkScalars *GetColors();
   
 protected:
   vtkDataSet *Input;
-  vtkColorScalars *Colors;
+  vtkScalars *Colors;
 
-  void (*StartRender)(void *);
-  void (*StartRenderArgDelete)(void *);
-  void *StartRenderArg;
-  void (*EndRender)(void *);
-  void (*EndRenderArgDelete)(void *);
-  void *EndRenderArg;
   vtkLookupTable *LookupTable;
   int ScalarVisibility;
   vtkTimeStamp BuildTime;
   float ScalarRange[2];
   int SelfCreatedLookupTable;
   int ImmediateModeRendering;
+  int ColorMode;
+  
 };
 
 #endif

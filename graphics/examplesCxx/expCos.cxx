@@ -8,8 +8,8 @@
 #include "vtkPlaneSource.h"
 #include "vtkTransform.h"
 #include "vtkTransformPolyDataFilter.h"
-#include "vtkFloatPoints.h"
-#include "vtkFloatScalars.h"
+#include "vtkPoints.h"
+#include "vtkScalars.h"
 #include "vtkWarpScalar.h"
 #include "vtkDataSetMapper.h"
 #include "vtkPolyData.h"
@@ -44,9 +44,9 @@ main ()
   //
   vtkPolyData *input = transF->GetOutput();
   numPts = input->GetNumberOfPoints();
-  vtkFloatPoints *newPts = vtkFloatPoints::New();
+  vtkPoints *newPts = vtkPoints::New();
     newPts->SetNumberOfPoints(numPts);
-  vtkFloatScalars *derivs = vtkFloatScalars::New();
+  vtkScalars *derivs = vtkScalars::New();
     derivs->SetNumberOfScalars(numPts);
   vtkPolyData *bessel = vtkPolyData::New();
     bessel->CopyStructure(input);

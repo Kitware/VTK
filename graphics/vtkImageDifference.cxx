@@ -39,7 +39,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkImageDifference.h"
-#include "vtkPixmap.h"
 #include "stdlib.h"
 
 // Description:
@@ -67,10 +66,10 @@ void vtkImageDifference::Execute()
   vtkPointData *outPD=output->GetPointData();
   int *dims1, *dims2, sliceSize;
   int row, col, idx;
-  vtkColorScalars *s1, *s2;
-  unsigned char *color1, color2[4], outColor[4];
+  vtkScalars *s1, *s2;
+  float color1[4], color2[4], outColor[4];
   int tr, tg, tb, r1, g1, b1;
-  vtkPixmap *outScalars = vtkPixmap::New();
+  vtkScalars *outScalars = vtkScalars::New(VTK_UNSIGNED_CHAR,3);
   
   vtkDebugMacro(<< "Comparing Images");
 
@@ -89,16 +88,8 @@ void vtkImageDifference::Execute()
     }
 
   // make sure the images are of the correct type
-  if ( pd1->GetScalars()->GetScalarType() != VTK_COLOR_SCALAR ||
-       pd2->GetScalars()->GetScalarType() != VTK_COLOR_SCALAR )
-    {
-    vtkWarningMacro(<< "Scalars must be of type vtkColorScalar.");
-    return;
-    }
-
-  s1 = (vtkColorScalars *)pd1->GetScalars();
-  s2 = (vtkColorScalars *)pd2->GetScalars();
-  outColor[3] = 255;
+  s1 = pd1->GetScalars();
+  s2 = pd2->GetScalars();
   
   //
   // Allocate necessary objects
@@ -117,10 +108,10 @@ void vtkImageDifference::Execute()
       tr = 1000;
       tg = 1000;
       tb = 1000;
-      s2->GetColor(idx+col,color2);
+      s2->GetData()->GetTuple(idx+col,color2);
       
       /* check the exact match pixel */
-      color1 = s1->GetColor(idx+col);
+      s1->GetData()->GetTuple(idx+col,color1);
       vtkImageDifferenceComputeError(color1,color2);
 	
       /* If AllowShift, then we examine neighboring pixels to 
@@ -133,14 +124,14 @@ void vtkImageDifference::Execute()
 	/* check the pixel to the left */
 	if (col)
 	  {
-	  color1 = s1->GetColor(idx + col - 1);
+	  s1->GetData()->GetTuple(idx + col - 1, color1);
 	  vtkImageDifferenceComputeError(color1,color2);
 	  }
 	  
 	  /* check the pixel to the right */
 	if (col < (dims1[0] -1))
 	  {
-	  color1 = s1->GetColor(idx + col + 1);
+	  s1->GetData()->GetTuple(idx + col + 1, color1);
 	  vtkImageDifferenceComputeError(color1,color2);
 	  }
 	
@@ -148,20 +139,20 @@ void vtkImageDifference::Execute()
 	if (row)
 	  {
 	  /* check the exact match pixel */
-	  color1 = s1->GetColor(idx - dims1[0] + col);
+	  s1->GetData()->GetTuple(idx - dims1[0] + col, color1);
 	  vtkImageDifferenceComputeError(color1,color2);
 	  
 	  /* check the pixel to the left */
 	  if (col)
 	    {
-	    color1 = s1->GetColor(idx - dims1[0] + col - 1);
+	    s1->GetData()->GetTuple(idx - dims1[0] + col - 1, color1);
 	    vtkImageDifferenceComputeError(color1,color2);
 	    }
 	    
 	  /* check the pixel to the right */
 	  if (col < (dims1[0] -1))
 	    {
-	    color1 = s1->GetColor(idx - dims1[0] + col + 1);
+	    s1->GetData()->GetTuple(idx - dims1[0] + col + 1, color1);
 	    vtkImageDifferenceComputeError(color1,color2);
 	    }
 	  }
@@ -170,20 +161,20 @@ void vtkImageDifference::Execute()
 	if (row < (dims1[1] - 1))
 	  {
 	  /* check the exact match pixel */
-	  color1 = s1->GetColor(idx + dims1[0] + col);
+	  s1->GetData()->GetTuple(idx + dims1[0] + col, color1);
 	  vtkImageDifferenceComputeError(color1,color2);
 	  
 	  /* check the pixel to the left */
 	  if (col)
 	    {
-	    color1 = s1->GetColor(idx + dims1[0] + col - 1);
+	    s1->GetData()->GetTuple(idx + dims1[0] + col - 1, color1);
 	    vtkImageDifferenceComputeError(color1,color2);
 	    }
 	  
 	  /* check the pixel to the right */
 	  if (col < (dims1[0] -1))
 	    {
-	    color1 = s1->GetColor(idx + dims1[0] + col + 1);
+	    s1->GetData()->GetTuple(idx + dims1[0] + col + 1, color1);
 	    vtkImageDifferenceComputeError(color1,color2);
 	    }
 	  }
@@ -201,7 +192,7 @@ void vtkImageDifference::Execute()
       outColor[2] = tb;
       this->ThresholdedError = 
 	this->ThresholdedError + (tr + tg + tb)/(3.0*255.0);
-      outScalars->InsertNextColor(outColor);
+      outScalars->GetData()->InsertNextTuple(outColor);
       }
     }
 

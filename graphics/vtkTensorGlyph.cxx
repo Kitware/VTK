@@ -40,8 +40,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkTensorGlyph.h"
 #include "vtkTransform.h"
-#include "vtkFloatVectors.h"
-#include "vtkFloatNormals.h"
+#include "vtkVectors.h"
+#include "vtkNormals.h"
 #include "vtkMath.h"
 
 // Description
@@ -69,9 +69,9 @@ void vtkTensorGlyph::Execute()
   vtkPoints *sourcePts;
   vtkNormals *sourceNormals;
   vtkCellArray *sourceCells, *cells;  
-  vtkFloatPoints *newPts;
-  vtkFloatScalars *newScalars=NULL;
-  vtkFloatNormals *newNormals=NULL;
+  vtkPoints *newPts;
+  vtkScalars *newScalars=NULL;
+  vtkNormals *newNormals=NULL;
   float *x, s;
   vtkTransform trans;
   vtkCell *cell;
@@ -85,6 +85,7 @@ void vtkTensorGlyph::Execute()
   float xv[3], yv[3], zv[3];
   float maxScale;
   vtkPointData *pd, *outPD;
+  vtkDataSet *input=(vtkDataSet *)this->Input;
   vtkPolyData *output=(vtkPolyData *)this->Output;
   
   // set up working matrices
@@ -93,11 +94,11 @@ void vtkTensorGlyph::Execute()
 
   vtkDebugMacro(<<"Generating tensor glyphs");
 
-  pd = this->Input->GetPointData();
+  pd = input->GetPointData();
   outPD = output->GetPointData();
   inTensors = pd->GetTensors();
   inScalars = pd->GetScalars();
-  numPts = this->Input->GetNumberOfPoints();
+  numPts = input->GetNumberOfPoints();
 
   if ( !inTensors || numPts < 1 )
     {
@@ -111,7 +112,7 @@ void vtkTensorGlyph::Execute()
   numSourcePts = sourcePts->GetNumberOfPoints();
   numSourceCells = this->Source->GetNumberOfCells();
 
-  newPts = vtkFloatPoints::New();
+  newPts = vtkPoints::New();
   newPts->Allocate(numPts*numSourcePts);
 
   // Setting up for calls to PolyData::InsertNextCell()
@@ -148,7 +149,7 @@ void vtkTensorGlyph::Execute()
   pd = this->Source->GetPointData();
   if ( inScalars &&  this->ColorGlyphs ) 
     {
-    newScalars = vtkFloatScalars::New();
+    newScalars = vtkScalars::New();
     newScalars->Allocate(numPts*numSourcePts);
     }
   else
@@ -159,7 +160,7 @@ void vtkTensorGlyph::Execute()
     }
   if ( (sourceNormals = pd->GetNormals()) )
     {
-    newNormals = vtkFloatNormals::New();
+    newNormals = vtkNormals::New();
     newNormals->Allocate(numPts*numSourcePts);
     }
 //
@@ -189,7 +190,7 @@ void vtkTensorGlyph::Execute()
     trans.Identity();
 
     // translate Source to Input point
-    x = this->Input->GetPoint(inPtId);
+    x = input->GetPoint(inPtId);
     trans.Translate(x[0], x[1], x[2]);
 
     tensor = inTensors->GetTensor(inPtId);

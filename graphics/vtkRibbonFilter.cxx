@@ -40,8 +40,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkMath.h"
 #include "vtkRibbonFilter.h"
-#include "vtkFloatPoints.h"
-#include "vtkFloatNormals.h"
+#include "vtkPoints.h"
+#include "vtkNormals.h"
 #include "vtkPolyLine.h"
 
 // Description:
@@ -69,8 +69,8 @@ void vtkRibbonFilter::Execute()
   vtkCellArray *inLines;
   int numPts = 0;
   int numNewPts = 0;
-  vtkFloatPoints *newPts;
-  vtkFloatNormals *newNormals;
+  vtkPoints *newPts;
+  vtkNormals *newNormals;
   vtkCellArray *newStrips;
   int npts, *pts;
   float p[3], pNext[3];
@@ -113,9 +113,9 @@ void vtkRibbonFilter::Execute()
     {
     vtkPolyLine lineNormalGenerator;
     deleteNormals = 1;
-    inNormals = vtkFloatNormals::New();
+    inNormals = vtkNormals::New();
 
-    ((vtkFloatNormals *)inNormals)->Allocate(numPts);
+    ((vtkNormals *)inNormals)->Allocate(numPts);
     if ( this->UseDefaultNormal )
       {
       for ( i=0; i < numPts; i++)
@@ -125,7 +125,7 @@ void vtkRibbonFilter::Execute()
       }
     else
       {
-      if ( !lineNormalGenerator.GenerateSlidingNormals(inPts,inLines,(vtkFloatNormals*)inNormals) )
+      if ( !lineNormalGenerator.GenerateSlidingNormals(inPts,inLines,(vtkNormals*)inNormals) )
 	{
 	vtkErrorMacro(<< "No normals for line!\n");
 	inNormals->Delete();
@@ -141,9 +141,9 @@ void vtkRibbonFilter::Execute()
     inScalars->GetRange(range);
     }
 
-  newPts = vtkFloatPoints::New();
+  newPts = vtkPoints::New();
   newPts->Allocate(numNewPts);
-  newNormals = vtkFloatNormals::New();
+  newNormals = vtkNormals::New();
   newNormals->Allocate(numNewPts);
   newStrips = vtkCellArray::New();
   newStrips->Allocate(newStrips->EstimateSize(1,numNewPts));

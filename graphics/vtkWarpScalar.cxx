@@ -73,7 +73,7 @@ void vtkWarpScalar::Execute()
   vtkPoints *inPts;
   vtkNormals *inNormals;
   vtkScalars *inScalars;
-  vtkFloatPoints *newPts;
+  vtkPoints *newPts;
   vtkPointData *pd;
   int i, ptId, numPts;
   float *x, *n, s, newX[3];
@@ -111,7 +111,7 @@ void vtkWarpScalar::Execute()
     vtkDebugMacro(<<"Using Normal instance variable");
     }
 
-  newPts = vtkFloatPoints::New();
+  newPts = vtkPoints::New();
   newPts->SetNumberOfPoints(numPts);
 //
 // Loop over all points, adjusting locations

@@ -40,7 +40,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkRendererSource.h"
 #include "vtkRenderWindow.h"
-#include "vtkPixmap.h"
 
 vtkRendererSource::vtkRendererSource()
 {
@@ -51,9 +50,9 @@ vtkRendererSource::vtkRendererSource()
 void vtkRendererSource::Execute()
 {
   int numOutPts;
-  vtkPixmap *outScalars;
+  vtkScalars *outScalars;
   float x1,y1,x2,y2;
-  unsigned char *pixels;
+  unsigned char *pixels, *ptr;
   int dims[3];
   vtkStructuredPoints *output=(vtkStructuredPoints *)this->Output;
 
@@ -91,13 +90,14 @@ void vtkRendererSource::Execute()
 
   // Allocate data.  Scalar type is FloatScalars.
   numOutPts = dims[0] * dims[1];
-  outScalars = vtkPixmap::New();
+  outScalars = vtkScalars::New(VTK_UNSIGNED_CHAR,3);
 
   pixels = (this->Input->GetRenderWindow())->GetPixelData((int)x1,(int)y1,
 							  (int)x2,(int)y2,1);
 
   // copy scalars over
-  memcpy(outScalars->WritePointer(0,numOutPts),pixels,3*numOutPts);
+  ptr = ((vtkUnsignedCharArray *)outScalars->GetData())->WritePointer(0,numOutPts*3);
+  memcpy(ptr,pixels,3*numOutPts);
 
   // Update ourselves
   output->GetPointData()->SetScalars(outScalars);

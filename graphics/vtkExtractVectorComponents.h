@@ -59,6 +59,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkExtractVectorComponents_h
 
 #include "vtkFilter.h"
+#include "vtkDataSet.h"
 
 class VTK_EXPORT vtkExtractVectorComponents : public vtkFilter
 {

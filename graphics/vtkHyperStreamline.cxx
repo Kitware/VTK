@@ -304,7 +304,7 @@ static void FixVectors(float **prev, float **current, int iv, int ix, int iy)
 
 void vtkHyperStreamline::Execute()
 {
-  vtkDataSet *input=this->Input;
+  vtkDataSet *input=(vtkDataSet *)this->Input;
   vtkPointData *pd=input->GetPointData();
   vtkScalars *inScalars;
   vtkTensors *inTensors;
@@ -319,8 +319,8 @@ void vtkHyperStreamline::Execute()
   float *m[3], *v[3];
   float m0[3], m1[3], m2[3];
   float v0[3], v1[3], v2[3];
-  vtkFloatTensors cellTensors(VTK_CELL_SIZE);
-  vtkFloatScalars cellScalars(VTK_CELL_SIZE);
+  vtkTensors cellTensors; cellTensors.Allocate(VTK_CELL_SIZE);
+  vtkScalars cellScalars; cellScalars.Allocate(VTK_CELL_SIZE);
   cellTensors.ReferenceCountingOff();
   cellScalars.ReferenceCountingOff();
   // set up working matrices
@@ -531,10 +531,10 @@ void vtkHyperStreamline::Execute()
 void vtkHyperStreamline::BuildTube()
 {
   vtkHyperPoint *sPrev, *sPtr;
-  vtkFloatPoints *newPts;
-  vtkFloatVectors *newVectors;
-  vtkFloatNormals *newNormals;
-  vtkFloatScalars *newScalars=NULL;
+  vtkPoints *newPts;
+  vtkVectors *newVectors;
+  vtkNormals *newNormals;
+  vtkScalars *newScalars=NULL;
   vtkCellArray *newStrips;
   int i, ptId, j, id, k, i1, i2;
   int npts, ptOffset=0;
@@ -542,7 +542,7 @@ void vtkHyperStreamline::BuildTube()
   float xT[3], sFactor, normal[3], w[3];
   float theta=2.0*vtkMath::Pi()/this->NumberOfSides;
   vtkPointData *outPD;
-  vtkDataSet *input=this->Input;
+  vtkDataSet *input=(vtkDataSet *)this->Input;
   vtkPolyData *output=(vtkPolyData *)this->Output;
   int iv, ix, iy, numIntPts;
 //
@@ -560,16 +560,16 @@ void vtkHyperStreamline::BuildTube()
 //
 // Allocate
 //
-  newPts  = vtkFloatPoints::New();
+  newPts  = vtkPoints::New();
   newPts ->Allocate(2500);
-  if ( this->Input->GetPointData()->GetScalars() )
+  if ( input->GetPointData()->GetScalars() )
     {
-    newScalars = vtkFloatScalars::New();
+    newScalars = vtkScalars::New();
     newScalars->Allocate(2500);
     }
-  newVectors = vtkFloatVectors::New();
+  newVectors = vtkVectors::New();
   newVectors->Allocate(2500);
-  newNormals = vtkFloatNormals::New();
+  newNormals = vtkNormals::New();
   newNormals->Allocate(2500);
   newStrips = vtkCellArray::New();
   newStrips->Allocate(newStrips->EstimateSize(3*this->NumberOfStreamers,

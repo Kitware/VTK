@@ -39,9 +39,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkPlaneSource.h"
-#include "vtkFloatPoints.h"
-#include "vtkFloatNormals.h"
-#include "vtkFloatTCoords.h"
+#include "vtkPoints.h"
+#include "vtkNormals.h"
+#include "vtkTCoords.h"
 #include "vtkMath.h"
 #include "vtkTransform.h"
 
@@ -94,9 +94,9 @@ void vtkPlaneSource::Execute()
   int i, j, ii;
   int numPts;
   int numPolys;
-  vtkFloatPoints *newPoints; 
-  vtkFloatNormals *newNormals;
-  vtkFloatTCoords *newTCoords;
+  vtkPoints *newPoints; 
+  vtkNormals *newNormals;
+  vtkTCoords *newTCoords;
   vtkCellArray *newPolys;
   vtkPolyData *output = this->GetOutput();
   
@@ -114,11 +114,11 @@ void vtkPlaneSource::Execute()
   numPts = (this->XResolution+1) * (this->YResolution+1);
   numPolys = this->XResolution * this->YResolution;
 
-  newPoints = vtkFloatPoints::New();
+  newPoints = vtkPoints::New();
   newPoints->Allocate(numPts);
-  newNormals = vtkFloatNormals::New();
+  newNormals = vtkNormals::New();
   newNormals->Allocate(numPts);
-  newTCoords = vtkFloatTCoords::New();
+  newTCoords = vtkTCoords::New();
   newTCoords->Allocate(numPts,2);
 
   newPolys = vtkCellArray::New();

@@ -42,11 +42,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkVolumeRayCastMapper.h"
 #include "vtkTimerLog.h"
-#include "vtkUnsignedCharScalars.h"
-#include "vtkUnsignedShortScalars.h"
-#include "vtkShortScalars.h"
-#include "vtkIntScalars.h"
-#include "vtkFloatScalars.h"
 #include "vtkRenderer.h"
 #include "vtkMath.h"
 #include "vtkRenderWindow.h"
@@ -388,7 +383,7 @@ void vtkVolumeRayCastMapper::GeneralImageInitialization( vtkRenderer *ren,
   this->RenderZData = ren->GetRayCaster()->GetCurrentZBuffer();
 
   this->ScalarDataPointer = 
-    this->ScalarInput->GetPointData()->GetScalars()->GetVoidPtr(0);
+    this->ScalarInput->GetPointData()->GetScalars()->GetVoidPointer(0);
   this->ScalarDataType = 
     this->ScalarInput->GetPointData()->GetScalars()->GetDataType();
     

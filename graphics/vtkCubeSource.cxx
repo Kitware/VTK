@@ -40,8 +40,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include <math.h>
 #include "vtkCubeSource.h"
-#include "vtkFloatPoints.h"
-#include "vtkFloatNormals.h"
+#include "vtkPoints.h"
+#include "vtkNormals.h"
 
 vtkCubeSource::vtkCubeSource(float xL, float yL, float zL)
 {
@@ -60,8 +60,8 @@ void vtkCubeSource::Execute()
   int numPolys=6, numPts=24;
   int i, j, k;
   int pts[4];
-  vtkFloatPoints *newPoints; 
-  vtkFloatNormals *newNormals;
+  vtkPoints *newPoints; 
+  vtkNormals *newNormals;
   vtkCellArray *newPolys;
   vtkPolyData *output = this->GetOutput();
   
@@ -69,9 +69,9 @@ void vtkCubeSource::Execute()
 //
 // Set things up; allocate memory
 //
-  newPoints = vtkFloatPoints::New();
+  newPoints = vtkPoints::New();
   newPoints->Allocate(numPts);
-  newNormals = vtkFloatNormals::New();
+  newNormals = vtkNormals::New();
   newNormals->Allocate(numPts);
 
   newPolys = vtkCellArray::New();

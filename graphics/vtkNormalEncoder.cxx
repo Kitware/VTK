@@ -39,13 +39,15 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include <math.h>
-
 #include "vtkNormalEncoder.h"
-#include "vtkUnsignedCharScalars.h"
-#include "vtkUnsignedShortScalars.h"
-#include "vtkShortScalars.h"
-#include "vtkIntScalars.h"
-#include "vtkFloatScalars.h"
+#include "vtkCharArray.h"
+#include "vtkUnsignedCharArray.h"
+#include "vtkShortArray.h"
+#include "vtkUnsignedShortArray.h"
+#include "vtkUnsignedIntArray.h"
+#include "vtkLongArray.h"
+#include "vtkUnsignedLongArray.h"
+#include "vtkDoubleArray.h"
 
 // Description:
 // This is the templated function that actually computes the EncodedNormal
@@ -458,54 +460,76 @@ VTK_THREAD_RETURN_TYPE SwitchOnDataType( void *arg )
   vtkNormalEncoder   *encoder;
   int                thread_count;
   int                thread_id;
-  unsigned char      *uc_data_ptr;
-  unsigned short     *us_data_ptr;
-  short              *s_data_ptr;
-  int                *i_data_ptr;
-  float              *f_data_ptr;
+  vtkScalars         *scalars;
 
   thread_id = ((ThreadInfoStruct *)(arg))->ThreadID;
   thread_count = ((ThreadInfoStruct *)(arg))->NumberOfThreads;
   encoder = (vtkNormalEncoder *)(((ThreadInfoStruct *)(arg))->UserData);
+  scalars = encoder->ScalarInput->GetPointData()->GetScalars();
 
   // Find the data type of the ScalarInput and call the correct 
   // templated function to actually compute the normals and magnitudes
 
   switch (encoder->ScalarInput->GetPointData()->GetScalars()->GetDataType())
     {
-    case VTK_UNSIGNED_CHAR:
+    case VTK_CHAR:
       {
-      uc_data_ptr = ((vtkUnsignedCharScalars *)
-		     (encoder->ScalarInput->GetPointData()->GetScalars()))->GetPointer(0);
-      ComputeGradients( encoder, uc_data_ptr, thread_id, thread_count );
+      char *ptr = ((vtkCharArray *) scalars->GetData())->GetPointer(0);
+      ComputeGradients( encoder, ptr, thread_id, thread_count );
       }
     break;
-    case VTK_UNSIGNED_SHORT:
+    case VTK_UNSIGNED_CHAR:
       {
-      us_data_ptr = ((vtkUnsignedShortScalars *)
-		     (encoder->ScalarInput->GetPointData()->GetScalars()))->GetPointer(0);
-      ComputeGradients( encoder, us_data_ptr, thread_id, thread_count );
+      unsigned char *ptr = ((vtkUnsignedCharArray *) scalars->GetData())->GetPointer(0);
+      ComputeGradients( encoder, ptr, thread_id, thread_count );
       }
     break;
     case VTK_SHORT:
       {
-      s_data_ptr = ((vtkShortScalars *)
-		    (encoder->ScalarInput->GetPointData()->GetScalars()))->GetPointer(0);
-      ComputeGradients( encoder, s_data_ptr, thread_id, thread_count );
+      short *ptr = ((vtkShortArray *) scalars->GetData())->GetPointer(0);
+      ComputeGradients( encoder, ptr, thread_id, thread_count );
+      }
+    break;
+    case VTK_UNSIGNED_SHORT:
+      {
+      unsigned short *ptr = ((vtkUnsignedShortArray *) scalars->GetData())->GetPointer(0);
+      ComputeGradients( encoder, ptr, thread_id, thread_count );
       }
     break;
     case VTK_INT:
       {
-      i_data_ptr = ((vtkIntScalars *)
-		    (encoder->ScalarInput->GetPointData()->GetScalars()))->GetPointer(0);
-      ComputeGradients( encoder, i_data_ptr, thread_id, thread_count );
+      int *ptr = ((vtkIntArray *) scalars->GetData())->GetPointer(0);
+      ComputeGradients( encoder, ptr, thread_id, thread_count );
+      }
+    break;
+    case VTK_UNSIGNED_INT:
+      {
+      unsigned int *ptr = ((vtkUnsignedIntArray *) scalars->GetData())->GetPointer(0);
+      ComputeGradients( encoder, ptr, thread_id, thread_count );
+      }
+    break;
+    case VTK_LONG:
+      {
+      long *ptr = ((vtkLongArray *) scalars->GetData())->GetPointer(0);
+      ComputeGradients( encoder, ptr, thread_id, thread_count );
+      }
+    break;
+    case VTK_UNSIGNED_LONG:
+      {
+      unsigned long *ptr = ((vtkUnsignedLongArray *) scalars->GetData())->GetPointer(0);
+      ComputeGradients( encoder, ptr, thread_id, thread_count );
       }
     break;
     case VTK_FLOAT:
       {
-      f_data_ptr = ((vtkFloatScalars *)
-		    (encoder->ScalarInput->GetPointData()->GetScalars()))->GetPointer(0);
-      ComputeGradients( encoder, f_data_ptr, thread_id, thread_count );
+      float *ptr = ((vtkFloatArray *) scalars->GetData())->GetPointer(0);
+      ComputeGradients( encoder, ptr, thread_id, thread_count );
+      }
+    break;
+    case VTK_DOUBLE:
+      {
+      double *ptr = ((vtkDoubleArray *) scalars->GetData())->GetPointer(0);
+      ComputeGradients( encoder, ptr, thread_id, thread_count );
       }
     break;
     default:

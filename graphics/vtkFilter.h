@@ -72,7 +72,7 @@ public:
   void Update();
 
 protected:
-  vtkDataSet *Input;
+  vtkDataObject *Input;
   char Updating;
 
   // Every filter must have execute method.

@@ -55,12 +55,12 @@ vtkVectorDot::vtkVectorDot()
 void vtkVectorDot::Execute()
 {
   int ptId, numPts;
-  vtkFloatScalars *newScalars;
-  vtkDataSet *input=this->Input;
+  vtkScalars *newScalars;
+  vtkDataSet *input=(vtkDataSet *)this->Input;
   vtkNormals *inNormals;
   vtkVectors *inVectors;
   float s, *n, *v, min, max, dR, dS;
-  vtkDataSet *output=this->Output;
+  vtkDataSet *output=(vtkDataSet *)this->Output;
   vtkPointData *pd=input->GetPointData(), *outPD=output->GetPointData();
 //
 // Initialize
@@ -85,7 +85,7 @@ void vtkVectorDot::Execute()
 //
 // Allocate
 //
-  newScalars = vtkFloatScalars::New();
+  newScalars = vtkScalars::New();
   newScalars->Allocate(numPts);
 //
 // Compute initial scalars
@@ -115,7 +115,7 @@ void vtkVectorDot::Execute()
 // Update self and relase memory
 //
   outPD->CopyScalarsOff();
-  outPD->PassData(this->Input->GetPointData());
+  outPD->PassData(input->GetPointData());
 
   outPD->SetScalars(newScalars);
   newScalars->Delete();

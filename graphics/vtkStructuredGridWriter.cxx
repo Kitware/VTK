@@ -72,6 +72,7 @@ void vtkStructuredGridWriter::WriteData()
 
   this->WritePoints(fp, input->GetPoints());
 
+  this->WriteCellData(fp, input);
   this->WritePointData(fp, input);
 
   this->CloseVTKFile(fp);

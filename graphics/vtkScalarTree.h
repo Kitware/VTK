@@ -106,7 +106,7 @@ public:
   // Methods provided for traversing cells based on scalar value
   void InitTraversal(float scalarValue);
   vtkCell *GetNextCell(int& cellId, vtkIdList* &ptIds,
-                       vtkFloatScalars& cellScalars);
+                       vtkScalars& cellScalars);
 
 protected:
   vtkDataSet *DataSet;

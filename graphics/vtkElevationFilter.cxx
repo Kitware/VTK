@@ -40,7 +40,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkElevationFilter.h"
 #include "vtkMath.h"
-#include "vtkFloatScalars.h"
 
 // Description:
 // Construct object with LowPoint=(0,0,0) and HighPoint=(0,0,1). Scalar
@@ -66,16 +65,17 @@ vtkElevationFilter::vtkElevationFilter()
 void vtkElevationFilter::Execute()
 {
   int i, j, numPts;
-  vtkFloatScalars *newScalars;
+  vtkScalars *newScalars;
   float l, *bounds, *x, s, v[3];
   float diffVector[3], diffScalar;
-  
+  vtkDataSet *input = (vtkDataSet *)this->Input;
+
   //
   // Initialize
   //
   vtkDebugMacro(<<"Generating elevation scalars!");
 
-  if ( ((numPts=this->Input->GetNumberOfPoints()) < 1) )
+  if ( ((numPts=input->GetNumberOfPoints()) < 1) )
     {
     vtkErrorMacro(<< "No input!");
     return;
@@ -83,12 +83,12 @@ void vtkElevationFilter::Execute()
 //
 // Allocate
 //
-  newScalars = vtkFloatScalars::New();
+  newScalars = vtkScalars::New();
   newScalars->Allocate(numPts);
 //
 // Set up 1D parametric system
 //
-  bounds = this->Input->GetBounds();
+  bounds = input->GetBounds();
 
   for (i=0; i<3; i++) diffVector[i] = this->HighPoint[i] - this->LowPoint[i];
   if ( (l = vtkMath::Dot(diffVector,diffVector)) == 0.0)
@@ -103,7 +103,7 @@ void vtkElevationFilter::Execute()
   diffScalar = this->ScalarRange[1] - this->ScalarRange[0];
   for (i=0; i<numPts; i++)
     {
-    x = this->Input->GetPoint(i);
+    x = input->GetPoint(i);
     for (j=0; j<3; j++) v[j] = x[j] - this->LowPoint[j];
     s = vtkMath::Dot(v,diffVector) / l;
     s = (s < 0.0 ? 0.0 : s > 1.0 ? 1.0 : s);
@@ -112,10 +112,10 @@ void vtkElevationFilter::Execute()
 //
 // Update self
 //
-  this->Output->GetPointData()->CopyScalarsOff();
-  this->Output->GetPointData()->PassData(this->Input->GetPointData());
+  ((vtkDataSet *)this->Output)->GetPointData()->CopyScalarsOff();
+  ((vtkDataSet *)this->Output)->GetPointData()->PassData(input->GetPointData());
 
-  this->Output->GetPointData()->SetScalars(newScalars);
+  ((vtkDataSet *)this->Output)->GetPointData()->SetScalars(newScalars);
   newScalars->Delete();
 }
 

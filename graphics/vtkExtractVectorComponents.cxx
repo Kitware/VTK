@@ -55,8 +55,8 @@ vtkDataSet *vtkExtractVectorComponents::GetOutput(int i)
   if ( i < 0 || i > 2 )
     {
     vtkErrorMacro(<<"Vector component must be between (0,2)");
-    if ( i < 0 ) return this->Output;
-    if ( i > 2 ) return this->VzComponent;
+    if ( i < 0 ) return (vtkDataSet *)this->Output;
+    if ( i > 2 ) return (vtkDataSet *)this->VzComponent;
     }
 
   if ( this->Output == NULL )
@@ -64,9 +64,9 @@ vtkDataSet *vtkExtractVectorComponents::GetOutput(int i)
     vtkErrorMacro(<<"Abstract filters require input to be set before output can be retrieved");
     }
 
-  if ( i == 0 ) return this->Output;
-  else if ( i == 1 ) return this->VyComponent;
-  else return this->VzComponent;
+  if ( i == 0 ) return (vtkDataSet *)this->Output;
+  else if ( i == 1 ) return (vtkDataSet *)this->VyComponent;
+  else return (vtkDataSet *)this->VzComponent;
 }
 
 // Description:
@@ -80,7 +80,7 @@ vtkDataSet *vtkExtractVectorComponents::GetVxComponent()
     {
     vtkErrorMacro(<<"Abstract filters require input to be set before VxComponent can be retrieved");
     }
-  return this->Output;
+  return (vtkDataSet *)this->Output;
 }
 
 // Description:
@@ -115,37 +115,39 @@ vtkDataSet *vtkExtractVectorComponents::GetVzComponent()
 // Specify the input data or filter.
 void vtkExtractVectorComponents::SetInput(vtkDataSet *input)
 {
-  if ( this->Input != input )
+  vtkDataSet *thisInput=(vtkDataSet *)this->Input;
+
+  if ( thisInput != input )
     {
     vtkDebugMacro(<<" setting Input to " << (void *)input);
-    this->Input = input;
+    thisInput = input;
     this->Modified();
 
-    if ( this->Input == NULL ) return;
+    if ( thisInput == NULL ) return;
 
     if ( ! this->Output )
       {
-      this->Output = this->Input->MakeObject();
+      this->Output = thisInput->MakeObject();
       this->Output->SetSource(this);
-      this->VyComponent = this->Input->MakeObject();
+      this->VyComponent = (vtkDataSet *)thisInput->MakeObject();
       this->VyComponent->SetSource(this);
-      this->VzComponent = this->Input->MakeObject();
+      this->VzComponent = (vtkDataSet *)thisInput->MakeObject();
       this->VzComponent->SetSource(this);
       return;
       }
 
     // since the input has changed we might need to create a new output
-    if (strcmp(this->Output->GetClassName(),this->Input->GetClassName()))
+    if (strcmp(this->Output->GetClassName(),thisInput->GetClassName()))
       {
       this->Output->Delete();
       this->VyComponent->Delete();
       this->VzComponent->Delete();
 
-      this->Output = this->Input->MakeObject();
+      this->Output = thisInput->MakeObject();
       this->Output->SetSource(this);
-      this->VyComponent = this->Input->MakeObject();
+      this->VyComponent = (vtkDataSet *)thisInput->MakeObject();
       this->VyComponent->SetSource(this);
-      this->VzComponent = this->Input->MakeObject();
+      this->VzComponent = (vtkDataSet *)thisInput->MakeObject();
       this->VzComponent->SetSource(this);
 
       vtkWarningMacro(<<" a new output had to be created since the input type changed.");
@@ -190,9 +192,9 @@ void vtkExtractVectorComponents::Update()
 
     if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);
     // clear just point data output because structure is copied from input
-    this->Output->CopyStructure(this->Input);
-    this->VyComponent->CopyStructure(this->Input);
-    this->VzComponent->CopyStructure(this->Input);
+    ((vtkDataSet *)this->Output)->CopyStructure((vtkDataSet *)this->Input);
+    this->VyComponent->CopyStructure((vtkDataSet *)this->Input);
+    this->VzComponent->CopyStructure((vtkDataSet *)this->Input);
     // reset AbortExecute flag and Progress
     this->AbortExecute = 0;
     this->Progress = 0.0;
@@ -211,13 +213,13 @@ void vtkExtractVectorComponents::Execute()
   int i, numVectors = 0;
   float *v;
   vtkVectors *vectors;
-  vtkFloatScalars *vx, *vy, *vz;
+  vtkScalars *vx, *vy, *vz;
   vtkPointData *pd, *outVx, *outVy, *outVz;
 
   vtkDebugMacro(<<"Extracting vector components...");
 
-  pd = this->Input->GetPointData();
-  outVx = this->Output->GetPointData();  
+  pd = ((vtkDataSet *)this->Input)->GetPointData();
+  outVx = ((vtkDataSet *)this->Output)->GetPointData();  
   outVy = this->VyComponent->GetPointData();  
   outVz = this->VzComponent->GetPointData();  
 
@@ -228,9 +230,9 @@ void vtkExtractVectorComponents::Execute()
     return;
     }
 
-  vx = vtkFloatScalars::New(); vx->SetNumberOfScalars(numVectors);
-  vy = vtkFloatScalars::New(); vy->SetNumberOfScalars(numVectors);
-  vz = vtkFloatScalars::New(); vz->SetNumberOfScalars(numVectors);
+  vx = vtkScalars::New(); vx->SetNumberOfScalars(numVectors);
+  vy = vtkScalars::New(); vy->SetNumberOfScalars(numVectors);
+  vz = vtkScalars::New(); vz->SetNumberOfScalars(numVectors);
 
   for (i=0; i<numVectors; i++)
     {

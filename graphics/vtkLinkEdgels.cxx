@@ -54,13 +54,13 @@ vtkLinkEdgels::vtkLinkEdgels()
 void vtkLinkEdgels::Execute()
 {
   vtkPointData *pd;
-  vtkFloatPoints *newPts=0;
+  vtkPoints *newPts=0;
   vtkCellArray *newLines=0;
-  vtkFloatScalars *inScalars;
-  vtkFloatScalars *outScalars;
+  vtkScalars *inScalars;
+  vtkScalars *outScalars;
   vtkStructuredPoints *input = this->GetInput();
   int numPts;
-  vtkFloatVectors *outVectors;
+  vtkVectors *outVectors;
   vtkPolyData *output = this->GetOutput();
   int *dimensions;
   float *CurrMap, *inDataPtr;
@@ -71,22 +71,22 @@ void vtkLinkEdgels::Execute()
 
   pd = input->GetPointData();
   dimensions = input->GetDimensions();
-  inScalars = (vtkFloatScalars *)pd->GetScalars();
+  inScalars = (vtkScalars *)pd->GetScalars();
   inVectors = pd->GetVectors();
-  if ((numPts=this->Input->GetNumberOfPoints()) < 2 || inScalars == NULL)
+  if ((numPts=input->GetNumberOfPoints()) < 2 || inScalars == NULL)
     {
     vtkErrorMacro(<<"No data to transform!");
     return;
     }
 
   // set up the input
-  inDataPtr = inScalars->GetPointer(0);
+  inDataPtr = ((vtkFloatArray *)inScalars->GetData())->GetPointer(0);
 
   // Finally do edge following to extract the edge data from the Thin image
-  newPts = vtkFloatPoints::New();
+  newPts = vtkPoints::New();
   newLines = vtkCellArray::New();
-  outScalars = vtkFloatScalars::New();
-  outVectors = vtkFloatVectors::New();
+  outScalars = vtkScalars::New();
+  outVectors = vtkVectors::New();
 
   vtkDebugMacro("doing edge linking\n");
   //
@@ -119,9 +119,9 @@ void vtkLinkEdgels::Execute()
 void vtkLinkEdgels::LinkEdgels(int xdim, int ydim, float *image, 
 				    vtkVectors *inVectors,
 				    vtkCellArray *newLines, 
-				    vtkFloatPoints *newPts,
-				    vtkFloatScalars *outScalars, 
-				    vtkFloatVectors *outVectors,
+				    vtkPoints *newPts,
+				    vtkScalars *outScalars, 
+				    vtkVectors *outVectors,
 				    int z)
 {
   int **forward;

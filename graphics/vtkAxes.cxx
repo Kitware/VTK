@@ -39,8 +39,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkAxes.h"
-#include "vtkFloatScalars.h"
-#include "vtkFloatNormals.h"
+#include "vtkScalars.h"
+#include "vtkNormals.h"
 
 // Description:
 // Construct with origin=(0,0,0) and scale factor=1.
@@ -56,23 +56,23 @@ vtkAxes::vtkAxes()
 void vtkAxes::Execute()
 {
   int numPts=6, numLines=3;
-  vtkFloatPoints *newPts;
+  vtkPoints *newPts;
   vtkCellArray *newLines;
-  vtkFloatScalars *newScalars;
-  vtkFloatNormals *newNormals;
+  vtkScalars *newScalars;
+  vtkNormals *newNormals;
   float x[3], n[3];
   int ptIds[2];
   vtkPolyData *output = (vtkPolyData *)this->Output;
   
   vtkDebugMacro(<<"Creating x-y-z axes");
 
-  newPts = vtkFloatPoints::New();
+  newPts = vtkPoints::New();
   newPts->Allocate(numPts);
   newLines = new vtkCellArray();
   newLines->Allocate(newLines->EstimateSize(numLines,2));
-  newScalars = vtkFloatScalars::New();
+  newScalars = vtkScalars::New();
   newScalars->Allocate(numPts);
-  newNormals = vtkFloatNormals::New();
+  newNormals = vtkNormals::New();
   newNormals->Allocate(numPts);
 //
 // Create axes

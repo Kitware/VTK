@@ -85,7 +85,7 @@ static int NumberOfDegeneracies;
 // that loe on triangle edges: nei[0] is neighboring triangle id, and nei[1]
 // and nei[2] are the vertices defining the edge.
 static int FindTriangle(float x[3], int ptIds[3], int tri, vtkPolyData *Mesh, 
-                        vtkFloatPoints *points, float tol, int nei[3])
+                        vtkPoints *points, float tol, int nei[3])
 {
   int i, j, npts, *pts, inside, i2, i3, newNei;
   vtkIdList neighbors(2);
@@ -176,7 +176,7 @@ static int FindTriangle(float x[3], int ptIds[3], int tri, vtkPolyData *Mesh,
 // question; x is the coordinates of the inserted point; tri is the current
 // triangle id; Mesh is a pointer to cell structure.
 static void CheckEdge(int ptId, float x[3], int p1, int p2, int tri, 
-              vtkPolyData *Mesh, vtkFloatPoints *points)
+              vtkPolyData *Mesh, vtkPoints *points)
 {
   int i, numNei, nei, npts, *pts, p3;
   float x1[3], x2[3], x3[3];
@@ -237,7 +237,7 @@ void vtkDelaunay2D::Execute()
   int numPoints, numTriangles, i;
   int ptId, tri[4], nei[3], p1, p2;
   vtkPoints *inPoints;
-  vtkFloatPoints *points;
+  vtkPoints *points;
   vtkCellArray *triangles;
   vtkPolyData *Mesh=vtkPolyData::New();
   vtkPointSet *input=(vtkPointSet *)this->Input;
@@ -269,7 +269,7 @@ void vtkDelaunay2D::Execute()
 // Create initial bounding triangulation. Have to create bounding points.
 // Initialize mesh structure.
 //
-  points = vtkFloatPoints::New(); points->SetNumberOfPoints(numPoints+8);
+  points = vtkPoints::New(); points->SetNumberOfPoints(numPoints+8);
   for (ptId=0; ptId < numPoints; ptId++)
     {
     points->SetPoint(ptId,inPoints->GetPoint(ptId));

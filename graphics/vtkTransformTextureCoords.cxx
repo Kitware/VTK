@@ -76,7 +76,8 @@ void vtkTransformTextureCoords::AddPosition(float deltaPosition[3])
 
 void vtkTransformTextureCoords::Execute()
 {
-  vtkDataSet *input=this->Input;
+  vtkDataSet *input=(vtkDataSet *)this->Input;
+  vtkDataSet *output=(vtkDataSet *)this->Output;
   vtkTCoords *inTCoords=input->GetPointData()->GetTCoords();
   vtkTCoords *newTCoords;
   int numPts=input->GetNumberOfPoints();
@@ -94,12 +95,12 @@ void vtkTransformTextureCoords::Execute()
     }
 
   // create same type as input
-  texDim = inTCoords->GetDimension();
-  newTCoords = inTCoords->MakeObject(numPts,texDim);
+  texDim = inTCoords->GetNumberOfComponents();
+  newTCoords = (vtkTCoords *)inTCoords->MakeObject();
+  newTCoords->Allocate(numPts,texDim);
 
   // just pretend texture coordinate is 3D point and use transform object to
   // manipulate
-
   transform.PostMultiply();
   // shift back to origin
   transform.Translate(-this->Origin[0], -this->Origin[1], -this->Origin[2]);
@@ -140,10 +141,10 @@ void vtkTransformTextureCoords::Execute()
   //
   // Update self
   //
-  this->Output->GetPointData()->CopyTCoordsOff();
-  this->Output->GetPointData()->PassData(input->GetPointData());
+  output->GetPointData()->CopyTCoordsOff();
+  output->GetPointData()->PassData(input->GetPointData());
 
-  this->Output->GetPointData()->SetTCoords(newTCoords);
+  output->GetPointData()->SetTCoords(newTCoords);
   newTCoords->Delete();
 }
 

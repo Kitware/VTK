@@ -143,9 +143,21 @@ char *vtkUnstructuredGridReader::GetLookupTableName()
   return this->Reader.GetLookupTableName();
 }
 
+// Description:
+// Set the name of the field data to extract. If not specified, uses 
+// first field data encountered in file.
+void vtkUnstructuredGridReader::SetFieldDataName(char *name) 
+{
+  this->Reader.SetFieldDataName(name);
+}
+char *vtkUnstructuredGridReader::GetFieldDataName() 
+{
+  return this->Reader.GetFieldDataName();
+}
+
 void vtkUnstructuredGridReader::Execute()
 {
-  int numPts=0;
+  int numPts=0, numCells=0;
   char line[256];
   int npts, size, ncells;
   vtkCellArray *cells=NULL;
@@ -196,7 +208,7 @@ void vtkUnstructuredGridReader::Execute()
 
       if ( ! strncmp(this->Reader.LowerCase(line),"points",6) )
         {
-        if (!this->Reader.ReadInt(&numPts))
+        if (!this->Reader.Read(&numPts))
           {
           vtkErrorMacro(<<"Cannot read number of points!");
           this->Reader.CloseVTKFile ();
@@ -212,7 +224,7 @@ void vtkUnstructuredGridReader::Execute()
 
       else if ( !strncmp(line,"cells",5))
         {
-        if (!(this->Reader.ReadInt(&ncells) && this->Reader.ReadInt(&size)))
+        if (!(this->Reader.Read(&ncells) && this->Reader.Read(&size)))
           {
           vtkErrorMacro(<<"Cannot read cells!");
           this->Reader.CloseVTKFile ();
@@ -230,7 +242,7 @@ void vtkUnstructuredGridReader::Execute()
 
       else if (!strncmp(line,"cell_types",5))
         {
-        if (!this->Reader.ReadInt(&ncells))
+        if (!this->Reader.Read(&ncells))
           {
           vtkErrorMacro(<<"Cannot read cell types!");
           this->Reader.CloseVTKFile ();
@@ -255,7 +267,7 @@ void vtkUnstructuredGridReader::Execute()
           {
           for (int i=0; i<ncells; i++)
             {
-            if (!this->Reader.ReadInt(types+i))
+            if (!this->Reader.Read(types+i))
               {
               vtkErrorMacro(<<"Error reading cell types!");
               this->Reader.CloseVTKFile ();
@@ -266,9 +278,29 @@ void vtkUnstructuredGridReader::Execute()
         if ( cells && types ) output->SetCells(types, cells);
         }
 
+      else if ( ! strncmp(line, "cell_data", 9) )
+        {
+        if (!this->Reader.Read(&numCells))
+          {
+          vtkErrorMacro(<<"Cannot read cell data!");
+          this->Reader.CloseVTKFile ();
+          return;
+          }
+        
+        if ( ncells != numCells )
+          {
+          vtkErrorMacro(<<"Number of cells don't match!");
+          this->Reader.CloseVTKFile ();
+          return;
+          }
+
+        this->Reader.ReadCellData(output, ncells);
+        break; //out of this loop
+        }
+
       else if ( ! strncmp(line, "point_data", 10) )
         {
-        if (!this->Reader.ReadInt(&npts))
+        if (!this->Reader.Read(&npts))
           {
           vtkErrorMacro(<<"Cannot read point data!");
           this->Reader.CloseVTKFile ();
@@ -300,7 +332,7 @@ void vtkUnstructuredGridReader::Execute()
   else if ( !strncmp(line, "point_data", 10) )
     {
     vtkWarningMacro(<<"No geometry defined in data file!");
-    if (!this->Reader.ReadInt(&numPts))
+    if (!this->Reader.Read(&numPts))
       {
       vtkErrorMacro(<<"Cannot read point data!");
       this->Reader.CloseVTKFile ();

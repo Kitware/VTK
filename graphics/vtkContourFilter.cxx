@@ -40,7 +40,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include <math.h>
 #include "vtkContourFilter.h"
-#include "vtkFloatScalars.h"
+#include "vtkScalars.h"
 #include "vtkCell.h"
 #include "vtkMergePoints.h"
 #include "vtkContourValues.h"
@@ -97,22 +97,23 @@ void vtkContourFilter::Execute()
   int cellId, i;
   vtkIdList *cellPts;
   vtkScalars *inScalars;
-  vtkFloatScalars cellScalars(VTK_CELL_SIZE);
   vtkCell *cell;
   float range[2];
   vtkCellArray *newVerts, *newLines, *newPolys;
-  vtkFloatPoints *newPts;
-  cellScalars.ReferenceCountingOff();
-  vtkPolyData *output = this->GetOutput();
+  vtkPoints *newPts;
+  vtkDataSet *input=this->GetInput();
+  vtkPolyData *output=this->GetOutput();
   int numCells, estimatedSize;
   vtkPointData *inPd, *outPd;
   int numContours=this->ContourValues->GetNumberOfContours();
   float *values=this->ContourValues->GetValues();
+  vtkScalars cellScalars;
+  cellScalars.ReferenceCountingOff(); cellScalars.Allocate(VTK_CELL_SIZE);
   
   vtkDebugMacro(<< "Executing contour filter");
 
-  numCells = this->Input->GetNumberOfCells();
-  inScalars = this->Input->GetPointData()->GetScalars();
+  numCells = input->GetNumberOfCells();
+  inScalars = input->GetPointData()->GetScalars();
   if ( ! inScalars || numCells < 1 )
     {
     vtkErrorMacro(<<"No data to contour");
@@ -121,11 +122,11 @@ void vtkContourFilter::Execute()
 
   // If structured points, use more efficient algorithms
 #ifdef VTK_USE_PATENTED
-  if ( this->Input->GetDataSetType() == VTK_STRUCTURED_POINTS )
+  if ( input->GetDataSetType() == VTK_STRUCTURED_POINTS )
     {
-    int dim = this->Input->GetCell(0)->GetCellDimension();
+    int dim = input->GetCell(0)->GetCellDimension();
 
-    if ( this->Input->GetCell(0)->GetCellDimension() >= 2 ) 
+    if ( input->GetCell(0)->GetCellDimension() >= 2 ) 
       {
       this->StructuredPointsContour(dim);
       return;
@@ -142,7 +143,7 @@ void vtkContourFilter::Execute()
   estimatedSize = estimatedSize / 1024 * 1024; //multiple of 1024
   if (estimatedSize < 1024) estimatedSize = 1024;
 
-  newPts = vtkFloatPoints::New();
+  newPts = vtkPoints::New();
   newPts->Allocate(estimatedSize,estimatedSize);
   newVerts = vtkCellArray::New();
   newVerts->Allocate(estimatedSize,estimatedSize);
@@ -153,10 +154,10 @@ void vtkContourFilter::Execute()
 
   // locator used to merge potentially duplicate points
   if ( this->Locator == NULL ) this->CreateDefaultLocator();
-  this->Locator->InitPointInsertion (newPts, this->Input->GetBounds());
+  this->Locator->InitPointInsertion (newPts, input->GetBounds());
 
   // interpolate data along edge
-  inPd = this->Input->GetPointData();
+  inPd = input->GetPointData();
   outPd = output->GetPointData();
   outPd->InterpolateAllocate(inPd,estimatedSize,estimatedSize);
 
@@ -166,7 +167,7 @@ void vtkContourFilter::Execute()
     {
     for (cellId=0; cellId < numCells; cellId++)
       {
-      cell = this->Input->GetCell(cellId);
+      cell = input->GetCell(cellId);
       cellPts = cell->GetPointIds();
       inScalars->GetScalars(*cellPts,cellScalars);
 
@@ -181,7 +182,7 @@ void vtkContourFilter::Execute()
   else
     {
     if ( this->ScalarTree == NULL ) this->ScalarTree = new vtkScalarTree;
-    this->ScalarTree->SetDataSet(this->Input);
+    this->ScalarTree->SetDataSet(input);
     //
     // Loop over all contour values.  Then for each contour value, 
     // loop over all cells.
@@ -270,7 +271,7 @@ void vtkContourFilter::StructuredPointsContour(int dim)
     }
   
   thisOutput->CopyStructure(output);
-  *thisOutput->GetPointData() = *output->GetPointData();
+  thisOutput->GetPointData()->ShallowCopy(*output->GetPointData());
   output->Initialize();
 }
 #endif

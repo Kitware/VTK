@@ -51,7 +51,7 @@ vtkWarpLens::vtkWarpLens()
 void vtkWarpLens::Execute()
 {
   vtkPoints *inPts;
-  vtkFloatPoints *newPts;
+  vtkPoints *newPts;
   vtkPointData *pd;
   int i, ptId, numPts;
   float *x, newX[3];
@@ -75,7 +75,8 @@ void vtkWarpLens::Execute()
     return;
     }
 
-  newPts = new vtkFloatPoints(numPts); newPts->SetNumberOfPoints(numPts);
+  newPts = new vtkPoints; 
+  newPts->SetNumberOfPoints(numPts);
 
   //
   // Loop over all points, adjusting locations

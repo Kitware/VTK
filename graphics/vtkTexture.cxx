@@ -125,7 +125,8 @@ void vtkTexture::PrintSelf(ostream& os, vtkIndent indent)
 unsigned char *vtkTexture::MapScalarsToColors (vtkScalars *scalars)
 {
   int numPts = scalars->GetNumberOfScalars ();
-  vtkColorScalars *mappedScalars;
+  vtkScalars *mappedScalars;
+  unsigned char *cptr;
 
   // if there is no lookup table, create one
   if (this->LookupTable == NULL)
@@ -137,26 +138,31 @@ unsigned char *vtkTexture::MapScalarsToColors (vtkScalars *scalars)
   // if there is no pixmap, create one
   if (!this->MappedScalars)
     {
-    this->MappedScalars = new vtkAPixmap(numPts);
+    this->MappedScalars = vtkScalars::New(VTK_UNSIGNED_CHAR,4);
     }      
   
   // if the texture created its own lookup table, set the Table Range
   // to the range of the scalar data.
   if (this->SelfCreatedLookupTable) 
     {
-    this->LookupTable->SetTableRange (scalars->GetRange ());
+    this->LookupTable->SetTableRange (scalars->GetRange());
     }
   
   // map the scalars to colors
-  mappedScalars = (vtkAPixmap *) this->MappedScalars;
+  mappedScalars = this->MappedScalars;
   
-  mappedScalars->SetNumberOfColors(numPts);
+  mappedScalars->SetNumberOfScalars(numPts);
+  unsigned char *ptr=((vtkUnsignedCharArray *)mappedScalars->GetData())->GetPointer(0);
   for (int i = 0; i < numPts; i++)
     {
-    mappedScalars->SetColor(i, this->LookupTable->MapValue(scalars->GetScalar(i)));
+    cptr = this->LookupTable->MapValue(scalars->GetScalar(i));
+    *ptr++ = *cptr++;
+    *ptr++ = *cptr++;
+    *ptr++ = *cptr++;
+    *ptr++ = *cptr;
     }
   
-  return this->MappedScalars->GetPointer(0);
+  return ((vtkUnsignedCharArray *)this->MappedScalars->GetData())->GetPointer(0);
 }
 
 void vtkTexture::Render(vtkRenderer *ren)

@@ -52,8 +52,8 @@ void vtkProbeFilter::Execute()
   vtkCell *cell;
   vtkPointData *pd, *outPD;
   int numPts, subId;
-  vtkDataSet *source=this->Source, *input=this->Input;
-  vtkDataSet *output=this->Output;
+  vtkDataSet *source=this->Source, *input=(vtkDataSet *)this->Input;
+  vtkDataSet *output=(vtkDataSet *)this->Output;
   float pcoords[3], *weights=new float[source->GetMaxCellSize()];
 
   vtkDebugMacro(<<"Probing data");
@@ -128,7 +128,7 @@ void vtkProbeFilter::Update()
     if ( this->Source->GetDataReleased() ) this->Source->ForceUpdate();
 
     if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);
-    this->Output->CopyStructure(this->Input);
+    ((vtkDataSet *)this->Output)->CopyStructure((vtkDataSet *)this->Input);
     // reset AbortExecute flag and Progress
     this->AbortExecute = 0;
     this->Progress = 0.0;

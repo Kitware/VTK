@@ -154,7 +154,7 @@ void vtkSpatialRepresentationFilter::Execute()
 {
   vtkDebugMacro(<<"Building OBB representation");
 
-  this->SpatialRepresentation->SetDataSet(this->Input);
+  this->SpatialRepresentation->SetDataSet((vtkDataSet *)this->Input);
   this->SpatialRepresentation->Update();
   this->Level = this->SpatialRepresentation->GetLevel();
 

@@ -40,7 +40,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include <math.h>
 #include "vtkGaussianSplatter.h"
-#include "vtkFloatScalars.h"
+#include "vtkScalars.h"
 
 // Description:
 // Construct object with dimensions=(50,50,50); automatic computation of 
@@ -90,7 +90,7 @@ void vtkGaussianSplatter::SetModelBounds(float xmin, float xmax, float ymin,
 //
 //  Static variables aid recursion
 //
-static vtkFloatScalars *NewScalars;
+static vtkScalars *NewScalars;
 static float Radius2;
 static float (vtkGaussianSplatter::*Sample)(float x[3]);
 static float (vtkGaussianSplatter::*SampleFactor)(float s);
@@ -108,6 +108,7 @@ void vtkGaussianSplatter::Execute()
   vtkScalars *inScalars=NULL;
   int loc[3], ip, jp, kp, idir, jdir, kdir;
   vtkStructuredPoints *output = this->GetOutput();
+  vtkDataSet *input=(vtkDataSet *)this->Input;
   
   vtkDebugMacro(<< "Splatting data");
   // init a couple variables to prevent compiler warnings
@@ -117,7 +118,7 @@ void vtkGaussianSplatter::Execute()
   //
   //  Make sure points are available
   //
-  if ( (numSplatPts=this->Input->GetNumberOfPoints()) < 1 )
+  if ( (numSplatPts=input->GetNumberOfPoints()) < 1 )
     {
     vtkErrorMacro(<<"No points to splat!");
     return;
@@ -131,7 +132,7 @@ void vtkGaussianSplatter::Execute()
 
   numPts = this->SampleDimensions[0] * this->SampleDimensions[1] 
            * this->SampleDimensions[2];
-  NewScalars = vtkFloatScalars::New(); NewScalars->SetNumberOfScalars(numPts);
+  NewScalars = vtkScalars::New(); NewScalars->SetNumberOfScalars(numPts);
   for (i=0; i<numPts; i++) NewScalars->SetScalar(i,0.0);
 
   Visited = new char[numPts];
@@ -142,7 +143,7 @@ void vtkGaussianSplatter::Execute()
 //
 //  Set up proper function pointers
 //
-  pd = this->Input->GetPointData();
+  pd = input->GetPointData();
   if ( this->NormalWarping && (inNormals=pd->GetNormals()) != NULL )
     Sample = &vtkGaussianSplatter::EccentricGaussian;
   else
@@ -157,9 +158,9 @@ void vtkGaussianSplatter::Execute()
 // For each input point, determine which cell it is in.  Then start
 // the recursive distribution of sampling function.
 //
-  for (ptId=0; ptId < this->Input->GetNumberOfPoints(); ptId++)
+  for (ptId=0; ptId < input->GetNumberOfPoints(); ptId++)
     {
-    P = this->Input->GetPoint(ptId);
+    P = input->GetPoint(ptId);
     if ( inNormals != NULL ) N = inNormals->GetNormal(ptId);
     if ( inScalars != NULL ) S = inScalars->GetScalar(ptId);
 
@@ -200,7 +201,7 @@ void vtkGaussianSplatter::Execute()
     this->Cap(NewScalars);
     }
 
-  vtkDebugMacro(<< "Splatted " << this->Input->GetNumberOfPoints() << " points");
+  vtkDebugMacro(<< "Splatted " << input->GetNumberOfPoints() << " points");
 //
 // Update self and release memeory
 //
@@ -218,6 +219,7 @@ void vtkGaussianSplatter::ComputeModelBounds()
   float *bounds, maxDist;
   int i, adjustBounds=0;
   vtkStructuredPoints *output = this->GetOutput();
+  vtkDataSet *input=(vtkDataSet *)this->Input;
   
   // compute model bounds if not set previously
   if ( this->ModelBounds[0] >= this->ModelBounds[1] ||
@@ -225,7 +227,7 @@ void vtkGaussianSplatter::ComputeModelBounds()
   this->ModelBounds[4] >= this->ModelBounds[5] )
     {
     adjustBounds = 1;
-    bounds = this->Input->GetBounds();
+    bounds = input->GetBounds();
     }
   else
     {
@@ -304,7 +306,7 @@ void vtkGaussianSplatter::SetSampleDimensions(int dim[3])
     }
 }
 
-void vtkGaussianSplatter::Cap(vtkFloatScalars *s)
+void vtkGaussianSplatter::Cap(vtkScalars *s)
 {
   int i,j,k;
   int idx;

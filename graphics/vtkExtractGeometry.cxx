@@ -74,8 +74,9 @@ void vtkExtractGeometry::Execute()
   vtkPointData *pd;
   float *x;
   float multiplier;
-  vtkFloatPoints *newPts;
+  vtkPoints *newPts;
   vtkIdList newCellPts(VTK_CELL_SIZE);
+  vtkDataSet *input = (vtkDataSet *)this->Input;
   vtkUnstructuredGrid *output = this->GetOutput();
   vtkPointData *outputPD = output->GetPointData();
   
@@ -93,20 +94,20 @@ void vtkExtractGeometry::Execute()
 // Loop over all points determining whether they are inside implicit function.
 // Copy if they are.
 //
-  numPts = this->Input->GetNumberOfPoints();
-  numCells = this->Input->GetNumberOfCells();
+  numPts = input->GetNumberOfPoints();
+  numCells = input->GetNumberOfCells();
   pointMap = new int[numPts]; // maps old point ids into new
   for (i=0; i < numPts; i++) pointMap[i] = -1;
 
   output->Allocate(numCells/4); //allocate storage for geometry/topology
-  newPts = vtkFloatPoints::New();
+  newPts = vtkPoints::New();
   newPts->Allocate(numPts/4,numPts);
-  pd = this->Input->GetPointData();
+  pd = input->GetPointData();
   outputPD->CopyAllocate(pd);
   
   for ( ptId=0; ptId < numPts; ptId++ )
     {
-    x = this->Input->GetPoint(ptId);
+    x = input->GetPoint(ptId);
     if ( (this->ImplicitFunction->FunctionValue(x)*multiplier) < 0.0 )
       {
       newId = newPts->InsertNextPoint(x);
@@ -118,9 +119,9 @@ void vtkExtractGeometry::Execute()
 // Now loop over all cells to see whether they are inside implicit
 // function. Copy if they are.
 //
-  for (cellId=0; cellId < this->Input->GetNumberOfCells(); cellId++)
+  for (cellId=0; cellId < input->GetNumberOfCells(); cellId++)
     {
-    cell = this->Input->GetCell(cellId);
+    cell = input->GetCell(cellId);
     cellPts = cell->GetPointIds();
     numCellPts = cell->GetNumberOfPoints();
 

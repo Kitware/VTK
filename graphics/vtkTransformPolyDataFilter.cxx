@@ -39,18 +39,18 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkTransformPolyDataFilter.h"
-#include "vtkFloatNormals.h"
-#include "vtkFloatVectors.h"
+#include "vtkNormals.h"
+#include "vtkVectors.h"
 
 void vtkTransformPolyDataFilter::Execute()
 {
   vtkPoints *inPts;
-  vtkFloatPoints *newPts;
+  vtkPoints *newPts;
   vtkPointData *pd, *outPD;
   vtkVectors *inVectors;
-  vtkFloatVectors *newVectors=NULL;
+  vtkVectors *newVectors=NULL;
   vtkNormals *inNormals;
-  vtkFloatNormals *newNormals=NULL;
+  vtkNormals *newNormals=NULL;
   int numPts;
   vtkPolyData *input=(vtkPolyData *)this->Input;
   vtkPolyData *output=(vtkPolyData *)this->Output;
@@ -79,16 +79,16 @@ void vtkTransformPolyDataFilter::Execute()
     }
 
   numPts = inPts->GetNumberOfPoints();
-  newPts = vtkFloatPoints::New();
+  newPts = vtkPoints::New();
   newPts->Allocate(numPts);
   if ( inVectors ) 
     {
-    newVectors = vtkFloatVectors::New();
+    newVectors = vtkVectors::New();
     newVectors->Allocate(numPts);
     }
   if ( inNormals ) 
     {
-    newNormals = vtkFloatNormals::New();
+    newNormals = vtkNormals::New();
     newNormals->Allocate(numPts);
     }
 //

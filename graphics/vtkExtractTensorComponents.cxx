@@ -40,10 +40,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkExtractTensorComponents.h"
 #include "vtkMath.h"
-#include "vtkFloatScalars.h"
-#include "vtkFloatVectors.h"
-#include "vtkFloatNormals.h"
-#include "vtkFloatTCoords.h"
+#include "vtkScalars.h"
+#include "vtkVectors.h"
+#include "vtkNormals.h"
+#include "vtkTCoords.h"
 
 // Description:
 // Construct object to extract nothing and to not pass tensor data
@@ -81,13 +81,14 @@ void vtkExtractTensorComponents::Execute()
 {
   vtkTensors *inTensors;
   vtkTensor *tensor;
-  vtkPointData *pd = this->Input->GetPointData();
-  vtkPointData *outPD = this->Output->GetPointData();
+  vtkDataSet *input = (vtkDataSet *)this->Input;
+  vtkPointData *pd = input->GetPointData();
+  vtkPointData *outPD = ((vtkDataSet *)this->Output)->GetPointData();
   float s, v[3];
-  vtkFloatScalars *newScalars=NULL;
-  vtkFloatVectors *newVectors=NULL;
-  vtkFloatNormals *newNormals=NULL;
-  vtkFloatTCoords *newTCoords=NULL;
+  vtkScalars *newScalars=NULL;
+  vtkVectors *newVectors=NULL;
+  vtkNormals *newNormals=NULL;
+  vtkTCoords *newTCoords=NULL;
   int ptId, numPts;
   float sx, sy, sz, txy, tyz, txz;
 
@@ -96,7 +97,7 @@ void vtkExtractTensorComponents::Execute()
   vtkDebugMacro(<<"Extracting vector components!");
 
   inTensors = pd->GetTensors();
-  numPts = this->Input->GetNumberOfPoints();
+  numPts = input->GetNumberOfPoints();
 
   if ( !inTensors || numPts < 1 )
     {
@@ -115,25 +116,25 @@ void vtkExtractTensorComponents::Execute()
   if ( this->ExtractScalars )
     {
     outPD->CopyScalarsOff();
-    newScalars = vtkFloatScalars::New();
+    newScalars = vtkScalars::New();
     newScalars->SetNumberOfScalars(numPts);
     }
   if ( this->ExtractVectors ) 
     {
     outPD->CopyVectorsOff();
-    newVectors = vtkFloatVectors::New();
+    newVectors = vtkVectors::New();
     newVectors->SetNumberOfVectors(numPts);
     }
   if ( this->ExtractNormals ) 
     {
     outPD->CopyNormalsOff();
-    newNormals = vtkFloatNormals::New();
+    newNormals = vtkNormals::New();
     newNormals->SetNumberOfNormals(numPts);
     }
   if ( this->ExtractTCoords ) 
     {
     outPD->CopyTCoordsOff();
-    newTCoords = vtkFloatTCoords::New();
+    newTCoords = vtkTCoords::New();
     newTCoords->SetNumberOfTCoords(numPts);
     }
   outPD->PassData(pd);

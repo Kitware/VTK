@@ -94,7 +94,7 @@ void vtkWindowedSincPolyDataFilter::Execute()
   vtkPoints *inPts;
   vtkTriangleFilter *toTris=NULL;
   vtkCellArray *inVerts, *inLines, *inPolys, *inStrips;
-  vtkFloatPoints *newPts[4];
+  vtkPoints *newPts[4];
   vtkMeshVertexPtr Verts;
   vtkPolyData *input=(vtkPolyData *)this->Input;
   vtkPolyData *output=(vtkPolyData *)this->Output;
@@ -135,8 +135,8 @@ void vtkWindowedSincPolyDataFilter::Execute()
 
   if ( this->NumberOfIterations <= 0 ) //don't do anything!
     {
-    this->Output->CopyStructure(this->Input);
-    this->Output->GetPointData()->PassData(this->Input->GetPointData());
+    output->CopyStructure(input);
+    output->GetPointData()->PassData(input->GetPointData());
     vtkWarningMacro(<<"Number of iterations == 0: passing data through unchanged");
     return;
     }
@@ -402,13 +402,13 @@ void vtkWindowedSincPolyDataFilter::Execute()
   // need 4 vectors of points
   zero=0; one=1; two=2; three=3;
 
-  newPts[0] = vtkFloatPoints::New();
+  newPts[0] = vtkPoints::New();
   newPts[0]->SetNumberOfPoints(numPts);
-  newPts[1] = vtkFloatPoints::New();
+  newPts[1] = vtkPoints::New();
   newPts[1]->SetNumberOfPoints(numPts);
-  newPts[2] = vtkFloatPoints::New();
+  newPts[2] = vtkPoints::New();
   newPts[2]->SetNumberOfPoints(numPts);
-  newPts[3] = vtkFloatPoints::New();
+  newPts[3] = vtkPoints::New();
   newPts[3]->SetNumberOfPoints(numPts);
 
   
@@ -621,7 +621,7 @@ void vtkWindowedSincPolyDataFilter::Execute()
 
   if ( this->GenerateErrorScalars )
     {
-    vtkFloatScalars *newScalars = vtkFloatScalars::New();
+    vtkScalars *newScalars = vtkScalars::New();
     newScalars->SetNumberOfScalars(numPts);
     for (i=0; i<numPts; i++)
       {
@@ -635,7 +635,7 @@ void vtkWindowedSincPolyDataFilter::Execute()
 
   if ( this->GenerateErrorVectors )
     {
-    vtkFloatVectors *newVectors = vtkFloatVectors::New();
+    vtkVectors *newVectors = vtkVectors::New();
     newVectors->SetNumberOfVectors(numPts);
     for (i=0; i<numPts; i++)
       {

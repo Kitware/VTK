@@ -65,7 +65,7 @@ vtkSTLReader::~vtkSTLReader()
 void vtkSTLReader::Execute()
 {
   FILE *fp;
-  vtkFloatPoints *newPts, *mergedPts;
+  vtkPoints *newPts, *mergedPts;
   vtkCellArray *newPolys, *mergedPolys;
   vtkPolyData *output=(vtkPolyData *)this->Output;
   
@@ -78,7 +78,7 @@ void vtkSTLReader::Execute()
     return;
     }
 
-  newPts = vtkFloatPoints::New();
+  newPts = vtkPoints::New();
   newPts->Allocate(5000,10000);
   newPolys = vtkCellArray::New();
   newPolys->Allocate(10000,20000);
@@ -109,7 +109,7 @@ void vtkSTLReader::Execute()
     int npts, *pts, i, nodes[3];
     float *x;
 
-    mergedPts = vtkFloatPoints::New();
+    mergedPts = vtkPoints::New();
     mergedPts->Allocate(newPts->GetNumberOfPoints()/2);
     mergedPolys = vtkCellArray::New();
     mergedPolys->Allocate(newPolys->GetSize());
@@ -159,7 +159,7 @@ void vtkSTLReader::Execute()
   output->Squeeze();
 }
 
-int vtkSTLReader::ReadBinarySTL(FILE *fp, vtkFloatPoints *newPts, vtkCellArray *newPolys)
+int vtkSTLReader::ReadBinarySTL(FILE *fp, vtkPoints *newPts, vtkCellArray *newPolys)
 {
   int i, numTris, pts[3];
   unsigned long   ulint;
@@ -219,7 +219,7 @@ int vtkSTLReader::ReadBinarySTL(FILE *fp, vtkFloatPoints *newPts, vtkCellArray *
   return 0;
 }
 
-int vtkSTLReader::ReadASCIISTL(FILE *fp, vtkFloatPoints *newPts, vtkCellArray *newPolys)
+int vtkSTLReader::ReadASCIISTL(FILE *fp, vtkPoints *newPts, vtkCellArray *newPolys)
 {
   char line[256];
   float x[3];

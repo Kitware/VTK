@@ -142,9 +142,21 @@ char *vtkRectilinearGridReader::GetLookupTableName()
   return this->Reader.GetLookupTableName();
 }
 
+// Description:
+// Set the name of the field data to extract. If not specified, uses 
+// first field data encountered in file.
+void vtkRectilinearGridReader::SetFieldDataName(char *name) 
+{
+  this->Reader.SetFieldDataName(name);
+}
+char *vtkRectilinearGridReader::GetFieldDataName() 
+{
+  return this->Reader.GetFieldDataName();
+}
+
 void vtkRectilinearGridReader::Execute()
 {
-  int numPts=0, npts, ncoords;
+  int numPts=0, npts, ncoords, numCells=0, ncells;
   char line[256];
   int dimsRead=0;
   vtkRectilinearGrid *output=(vtkRectilinearGrid *)this->Output;
@@ -193,9 +205,9 @@ void vtkRectilinearGridReader::Execute()
       if ( ! strncmp(this->Reader.LowerCase(line),"dimensions",10) )
         {
         int dim[3];
-        if (!(this->Reader.ReadInt(dim) && 
-	      this->Reader.ReadInt(dim+1) && 
-	      this->Reader.ReadInt(dim+2)))
+        if (!(this->Reader.Read(dim) && 
+	      this->Reader.Read(dim+1) && 
+	      this->Reader.Read(dim+2)))
           {
           vtkErrorMacro(<<"Error reading dimensions!");
           this->Reader.CloseVTKFile ();
@@ -204,12 +216,13 @@ void vtkRectilinearGridReader::Execute()
 
         numPts = dim[0] * dim[1] * dim[2];
         output->SetDimensions(dim);
+	numCells = output->GetNumberOfCells();
         dimsRead = 1;
         }
 
       else if ( ! strncmp(line,"x_coordinate",12) )
         {
-        if (!this->Reader.ReadInt(&ncoords))
+        if (!this->Reader.Read(&ncoords))
           {
           vtkErrorMacro(<<"Error reading x coordinates!");
           this->Reader.CloseVTKFile ();
@@ -221,7 +234,7 @@ void vtkRectilinearGridReader::Execute()
 
       else if ( ! strncmp(line,"y_coordinate",12) )
         {
-        if (!this->Reader.ReadInt(&ncoords))
+        if (!this->Reader.Read(&ncoords))
           {
           vtkErrorMacro(<<"Error reading y coordinates!");
           this->Reader.CloseVTKFile ();
@@ -233,7 +246,7 @@ void vtkRectilinearGridReader::Execute()
 
       else if ( ! strncmp(line,"z_coordinate",12) )
         {
-        if (!this->Reader.ReadInt(&ncoords))
+        if (!this->Reader.Read(&ncoords))
           {
           vtkErrorMacro(<<"Error reading z coordinates!");
           this->Reader.CloseVTKFile ();
@@ -243,9 +256,29 @@ void vtkRectilinearGridReader::Execute()
         this->Reader.ReadCoordinates(output, 2, ncoords);
         }
 
+      else if ( ! strncmp(line, "cell_data", 9) )
+        {
+        if (!this->Reader.Read(&ncells))
+          {
+          vtkErrorMacro(<<"Cannot read cell data!");
+          this->Reader.CloseVTKFile ();
+          return;
+          }
+        
+        if ( ncells != numCells )
+          {
+          vtkErrorMacro(<<"Number of cells don't match!");
+          this->Reader.CloseVTKFile ();
+          return;
+          }
+
+        this->Reader.ReadCellData(output, ncells);
+        break; //out of this loop
+        }
+
       else if ( ! strncmp(line, "point_data", 10) )
         {
-        if (!this->Reader.ReadInt(&npts))
+        if (!this->Reader.Read(&npts))
           {
           vtkErrorMacro(<<"Cannot read point data!");
           this->Reader.CloseVTKFile ();
@@ -289,15 +322,28 @@ void vtkRectilinearGridReader::Execute()
         }
     }
 
+  else if ( !strncmp(line, "cell_data", 9) )
+    {
+    vtkWarningMacro(<<"No geometry defined in data file!");
+    if (!this->Reader.Read(&ncells))
+      {
+      vtkErrorMacro(<<"Cannot read cell data!");
+      this->Reader.CloseVTKFile ();
+      return;
+      }
+    this->Reader.ReadCellData(output, ncells);
+    }
+
   else if ( !strncmp(line, "point_data", 10) )
     {
     vtkWarningMacro(<<"No geometry defined in data file!");
-    if (!this->Reader.ReadInt(&npts))
+    if (!this->Reader.Read(&npts))
       {
       vtkErrorMacro(<<"Cannot read point data!");
       this->Reader.CloseVTKFile ();
       return;
       }
+    this->Reader.ReadPointData(output, npts);
     }
 
   else 

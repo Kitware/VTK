@@ -91,7 +91,7 @@ void vtkBooleanStructuredPoints::Update()
 
   // make sure input is available or output has been created
   if ( this->InputList.GetNumberOfItems() < 1 && 
-  this->Output->GetPointData()->GetScalars() == NULL )
+  ((vtkDataSet *)this->Output)->GetPointData()->GetScalars() == NULL )
     {
     vtkErrorMacro(<< "No input...or appended data...can't execute!");
     return;
@@ -202,11 +202,11 @@ void vtkBooleanStructuredPoints::InitializeBoolean()
 
   if ( inScalars != NULL )
     {
-    newScalars = inScalars->MakeObject(numPts); //copy
+    newScalars = (vtkScalars *)inScalars->MakeObject(); //copy
     }
   else
     {
-    newScalars = vtkFloatScalars::New();
+    newScalars = vtkScalars::New();
     }
   newScalars->SetNumberOfScalars(numPts);
   output->GetPointData()->SetScalars(newScalars);
@@ -243,10 +243,10 @@ void vtkBooleanStructuredPoints::Append(vtkStructuredPoints *sp)
   vtkStructuredPoints *output = (vtkStructuredPoints *)this->Output;
   float *Spacing = output->GetSpacing();
   
-  if ((currentScalars = this->Output->GetPointData()->GetScalars()) == NULL )
+  if ((currentScalars = ((vtkDataSet *)this->Output)->GetPointData()->GetScalars()) == NULL)
     {
     this->InitializeBoolean();
-    currentScalars = this->Output->GetPointData()->GetScalars();
+    currentScalars = ((vtkDataSet *)this->Output)->GetPointData()->GetScalars();
     }
 
   inScalars = sp->GetPointData()->GetScalars();

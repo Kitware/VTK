@@ -49,7 +49,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <stdlib.h>
 #include "vtkPolyDataMapper.h"
 #include "vtkPolyData.h"
-#include "vtkColorScalars.h"
 #include <xgl/xgl.h>
 
 class vtkXGLRenderer;
@@ -63,18 +62,18 @@ public:
   const char *GetClassName() {return "vtkXGLPolyDataMapper";};
 
   virtual void Render(vtkRenderer *ren, vtkActor *a);
-  void Build(vtkPolyData *data, vtkColorScalars *c);
+  void Build(vtkPolyData *data, vtkScalars *c);
   void Draw(vtkRenderer *ren, vtkActor *a);
 
 protected:
   float *AddVertexComputeNormal(int npts, int pointSize, int *pts, 
-				vtkPoints *pt, vtkColorScalars *c, 
+				vtkPoints *pt, vtkUnsignedCharArray *c, 
 				vtkTCoords *t, float *polyNorm);
   float *AddVertexWithNormal(int npts, int pointSize, int *pts, 
-			     vtkPoints *p, vtkColorScalars *c, 
+			     vtkPoints *p, vtkUnsignedCharArray *c, 
 			     vtkTCoords *t, vtkNormals *n, float *polyNorm);
   float *AddVertex(int npts, int pointSize, int *pts, vtkPoints *p, 
-		   vtkColorScalars *c, vtkTCoords *t);
+		   vtkUnsignedCharArray *c, vtkTCoords *t);
   Xgl_3d_ctx Context;
   Xgl_pt_list *PL;
   Xgl_pt_list *PL2; // no normals

@@ -104,7 +104,7 @@ public:
   static vtkOBBTree *New() {return new vtkOBBTree;};
   const char *GetClassName() {return "vtkOBBTree";};
 
-  void ComputeOBB(vtkFloatPoints *pts, float corner[3], float max[3], 
+  void ComputeOBB(vtkPoints *pts, float corner[3], float max[3], 
                   float mid[3], float min[3], float size[3]);
 
   int IntersectWithLine(float a0[3], float a1[3], float& t, 
@@ -118,14 +118,14 @@ public:
 protected:
   vtkOBBNode *Tree;
   void BuildTree(vtkIdList *cells, vtkOBBNode *parent, int level);
-  vtkFloatPoints *PointsList;
+  vtkPoints *PointsList;
   int *InsertedPoints;
   int OBBCount;
   int DeepestLevel;
 
   void DeleteTree(vtkOBBNode *OBBptr);
   void GeneratePolygons(vtkOBBNode *OBBptr, int level, int repLevel, 
-                        vtkFloatPoints* pts, vtkCellArray *polys);
+                        vtkPoints* pts, vtkCellArray *polys);
 
 };
 

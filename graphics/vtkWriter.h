@@ -57,13 +57,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkWriter_h
 #define __vtkWriter_h
 
-#include "vtkObject.h"
-#include "vtkDataSet.h"
+#include "vtkProcessObject.h"
+#include "vtkDataObject.h"
 
 #define VTK_ASCII 1
 #define VTK_BINARY 2
 
-class VTK_EXPORT vtkWriter : public vtkObject 
+class VTK_EXPORT vtkWriter : public vtkProcessObject
 {
 public:
   vtkWriter();
@@ -73,21 +73,10 @@ public:
   virtual void Write();
   void Update();
 
-  void SetStartWrite(void (*f)(void *), void *arg);
-  void SetEndWrite(void (*f)(void *), void *arg);
-  void SetStartWriteArgDelete(void (*f)(void *));
-  void SetEndWriteArgDelete(void (*f)(void *));
-
 protected:
-  vtkDataSet *Input;
-  virtual void WriteData() = 0;
+  virtual void WriteData() = 0; //internal method every subclass must respond to
 
-  void (*StartWrite)(void *);
-  void (*StartWriteArgDelete)(void *);
-  void *StartWriteArg;
-  void (*EndWrite)(void *);
-  void (*EndWriteArgDelete)(void *);
-  void *EndWriteArg;
+  vtkDataObject *Input;
 
 };
 

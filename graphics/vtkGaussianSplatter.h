@@ -124,7 +124,7 @@ public:
 
 protected:
   void Execute();
-  void Cap(vtkFloatScalars *s);
+  void Cap(vtkScalars *s);
 
   int SampleDimensions[3]; // dimensions of volume to splat into
   float Radius; // maximum distance splat propagates (as fraction 0->1)

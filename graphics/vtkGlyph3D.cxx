@@ -40,8 +40,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkGlyph3D.h"
 #include "vtkTransform.h"
-#include "vtkFloatVectors.h"
-#include "vtkFloatNormals.h"
+#include "vtkVectors.h"
+#include "vtkNormals.h"
 #include "vtkMath.h"
 
 // Description
@@ -79,10 +79,10 @@ void vtkGlyph3D::Execute()
   int numPts, numSourcePts, numSourceCells;
   int inPtId, i, index;
   vtkPoints *sourcePts;
-  vtkFloatPoints *newPts;
-  vtkFloatScalars *newScalars=NULL;
-  vtkFloatVectors *newVectors=NULL;
-  vtkFloatNormals *newNormals=NULL;
+  vtkPoints *newPts;
+  vtkScalars *newScalars=NULL;
+  vtkVectors *newVectors=NULL;
+  vtkNormals *newNormals=NULL;
   float *x, *v, vNew[3], s, vMag, value;
   vtkTransform trans;
   vtkCell *cell;
@@ -94,15 +94,16 @@ void vtkGlyph3D::Execute()
   float den;
   vtkPolyData *output = this->GetOutput();
   vtkPointData *outputPD = output->GetPointData();
+  vtkDataSet *input = (vtkDataSet *)this->Input;
   
   vtkDebugMacro(<<"Generating glyphs");
 
-  pd = this->Input->GetPointData();
+  pd = input->GetPointData();
   inScalars = pd->GetScalars();
   inVectors = pd->GetVectors();
   inNormals = pd->GetNormals();
 
-  numPts = this->Input->GetNumberOfPoints();
+  numPts = input->GetNumberOfPoints();
 
   //
   // Check input for consistency
@@ -168,21 +169,21 @@ void vtkGlyph3D::Execute()
     outputPD->CopyAllocate(pd,numPts*numSourcePts);
     }
 
-  newPts = vtkFloatPoints::New();
+  newPts = vtkPoints::New();
   newPts->Allocate(numPts*numSourcePts);
   if ( inScalars || (this->ColorMode == VTK_COLOR_BY_VECTOR && haveVectors))
     {
-    newScalars = vtkFloatScalars::New();
+    newScalars = vtkScalars::New();
     newScalars->Allocate(numPts*numSourcePts);
     }
   if ( haveVectors )
     {
-    newVectors = vtkFloatVectors::New();
+    newVectors = vtkVectors::New();
     newVectors->Allocate(numPts*numSourcePts);
     }
   if ( haveNormals )
     {
-    newNormals = vtkFloatNormals::New();
+    newNormals = vtkNormals::New();
     newNormals->Allocate(numPts*numSourcePts);
     }
 
@@ -260,7 +261,7 @@ void vtkGlyph3D::Execute()
       }
 
     // translate Source to Input point
-    x = this->Input->GetPoint(inPtId);
+    x = input->GetPoint(inPtId);
     trans.Translate(x[0], x[1], x[2]);
 
     if ( haveVectors )

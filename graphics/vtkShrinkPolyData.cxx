@@ -55,7 +55,7 @@ void vtkShrinkPolyData::Execute()
   vtkCellArray *inVerts,*inLines,*inPolys,*inStrips;
   int numNewPts, numNewLines, numNewPolys, polyAllocSize;
   int npts, *pts, newId, newIds[3];
-  vtkFloatPoints *newPoints;
+  vtkPoints *newPoints;
   vtkCellArray *newVerts, *newLines, *newPolys;
   float *p1, *p2, *p3, pt[3];
   vtkPolyData *input =(vtkPolyData *)this->Input;
@@ -101,7 +101,7 @@ void vtkShrinkPolyData::Execute()
 //
 // Allocate
 //
-  newPoints = vtkFloatPoints::New();
+  newPoints = vtkPoints::New();
   newPoints->Allocate(numNewPts);
 
   newVerts = vtkCellArray::New();

@@ -47,6 +47,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .SECTION See Also
 // vtkDataSetWriter vtkPolyDataWriter vtkStructuredGridWriter
 // vtkStructuredPointsWriter vtkUnstructuredGridWriter
+// vtkFieldDataWriter vtkRectilinearGridWriter
 
 #ifndef __vtkDataWriter_h
 #define __vtkDataWriter_h
@@ -58,12 +59,19 @@ class vtkDataSet;
 class vtkPoints;
 class vtkCellArray;
 class vtkScalars;
+class vtkVectors;
+class vtkNormals;
+class vtkTCoords;
+class vtkTensors;
+class vtkDataArray;
 
 class VTK_EXPORT vtkDataWriter : public vtkWriter
 {
 public:
   vtkDataWriter();
   ~vtkDataWriter();
+  static vtkDataWriter *New() {return new vtkDataWriter;};
+  const char *GetClassName() {return "vtkDataWriter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -119,15 +127,25 @@ public:
   vtkSetStringMacro(LookupTableName);
   vtkGetStringMacro(LookupTableName);
 
+  // Description:
+  // Give a name to the field data. If not specified, uses default 
+  // name "field".
+  vtkSetStringMacro(FieldDataName);
+  vtkGetStringMacro(FieldDataName);
+
   FILE *OpenVTKFile();
   int WriteHeader(FILE *fp);
   int WritePoints(FILE *fp, vtkPoints *p);
   int WriteCoordinates(FILE *fp, vtkScalars *coords, int axes);
   int WriteCells(FILE *fp, vtkCellArray *cells, char *label);
+  int WriteCellData(FILE *fp, vtkDataSet *ds);
   int WritePointData(FILE *fp, vtkDataSet *ds);
+  int WriteFieldData(FILE *fp, vtkFieldData *f, int num);
   void CloseVTKFile(FILE *fp);
 
 protected:
+  void WriteData(); //dummy method to allow this class to be instantiated and delegated to
+
   char *FileName;
   char *Header;
   int FileType;
@@ -138,12 +156,15 @@ protected:
   char *TCoordsName;
   char *NormalsName;
   char *LookupTableName;
+  char *FieldDataName;
 
-  int WriteScalarData(FILE *fp, vtkScalars *s, int numPts);
-  int WriteVectorData(FILE *fp, vtkVectors *v, int numPts);
-  int WriteNormalData(FILE *fp, vtkNormals *n, int numPts);
-  int WriteTCoordData(FILE *fp, vtkTCoords *tc, int numPts);
-  int WriteTensorData(FILE *fp, vtkTensors *t, int numPts);
+  int WriteArray(FILE *fp, int dataType, vtkDataArray *data, char *format, 
+		 int num, int numComp);
+  int WriteScalarData(FILE *fp, vtkScalars *s, int num);
+  int WriteVectorData(FILE *fp, vtkVectors *v, int num);
+  int WriteNormalData(FILE *fp, vtkNormals *n, int num);
+  int WriteTCoordData(FILE *fp, vtkTCoords *tc, int num);
+  int WriteTensorData(FILE *fp, vtkTensors *t, int num);
 
 };
 

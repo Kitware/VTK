@@ -63,8 +63,9 @@ vtkTextureMapToCylinder::vtkTextureMapToCylinder()
 
 void vtkTextureMapToCylinder::Execute()
 {
-  vtkFloatTCoords *newTCoords;
-  vtkDataSet *input=this->Input;
+  vtkTCoords *newTCoords;
+  vtkDataSet *input=(vtkDataSet *)this->Input;
+  vtkDataSet *output=(vtkDataSet *)this->Output;
   int numPts=input->GetNumberOfPoints();
   int ptId, i;
   float *x, tc[2], thetaX, thetaY, closest[3], v[3];
@@ -80,7 +81,7 @@ void vtkTextureMapToCylinder::Execute()
 
   if ( this->AutomaticCylinderGeneration )
     {
-    vtkFloatPoints *pts=vtkFloatPoints::New(); pts->SetNumberOfPoints(numPts);
+    vtkPoints *pts=vtkPoints::New(); pts->SetNumberOfPoints(numPts);
     float corner[3], max[3], mid[3], min[3], size[3], l;
     vtkOBBTree OBB;
 
@@ -128,7 +129,7 @@ void vtkTextureMapToCylinder::Execute()
     vtkErrorMacro(<<"Bad cylinder axis");
     return;
     }
-  newTCoords = vtkFloatTCoords::New();
+  newTCoords = vtkTCoords::New();
   newTCoords->Allocate(numPts,2);
 
   //loop over all points computing spherical coordinates
@@ -160,10 +161,10 @@ void vtkTextureMapToCylinder::Execute()
     newTCoords->InsertTCoord(ptId,tc);
     }
 
-  this->Output->GetPointData()->CopyTCoordsOff();
-  this->Output->GetPointData()->PassData(this->Input->GetPointData());
+  output->GetPointData()->CopyTCoordsOff();
+  output->GetPointData()->PassData(input->GetPointData());
 
-  this->Output->GetPointData()->SetTCoords(newTCoords);
+  output->GetPointData()->SetTCoords(newTCoords);
   newTCoords->Delete();
 
 }

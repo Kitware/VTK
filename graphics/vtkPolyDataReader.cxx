@@ -142,6 +142,18 @@ char *vtkPolyDataReader::GetLookupTableName()
   return this->Reader.GetLookupTableName();
 }
 
+// Description:
+// Set the name of the field data to extract. If not specified, uses 
+// first field data encountered in file.
+void vtkPolyDataReader::SetFieldDataName(char *name) 
+{
+  this->Reader.SetFieldDataName(name);
+}
+char *vtkPolyDataReader::GetFieldDataName() 
+{
+  return this->Reader.GetFieldDataName();
+}
+
 void vtkPolyDataReader::Execute()
 {
   int numPts=0;
@@ -193,7 +205,7 @@ void vtkPolyDataReader::Execute()
 
       if ( ! strncmp(this->Reader.LowerCase(line),"points",6) )
         {
-        if (!this->Reader.ReadInt(&numPts))
+        if (!this->Reader.Read(&numPts))
           {
           vtkErrorMacro(<<"Cannot read number of points!");
           this->Reader.CloseVTKFile ();
@@ -206,7 +218,7 @@ void vtkPolyDataReader::Execute()
       else if ( ! strncmp(line,"vertices",8) )
         {
         vtkCellArray *verts = vtkCellArray::New();
-        if (!(this->Reader.ReadInt(&ncells) && this->Reader.ReadInt(&size)))
+        if (!(this->Reader.Read(&ncells) && this->Reader.Read(&size)))
           {
           vtkErrorMacro(<<"Cannot read vertices!");
           this->Reader.CloseVTKFile ();
@@ -222,7 +234,7 @@ void vtkPolyDataReader::Execute()
       else if ( ! strncmp(line,"lines",5) )
         {
         vtkCellArray *lines = vtkCellArray::New();
-        if (!(this->Reader.ReadInt(&ncells) && this->Reader.ReadInt(&size)))
+        if (!(this->Reader.Read(&ncells) && this->Reader.Read(&size)))
           {
           vtkErrorMacro(<<"Cannot read lines!");
           this->Reader.CloseVTKFile ();
@@ -238,7 +250,7 @@ void vtkPolyDataReader::Execute()
       else if ( ! strncmp(line,"polygons",8) )
         {
         vtkCellArray *polys = vtkCellArray::New();
-        if (!(this->Reader.ReadInt(&ncells) && this->Reader.ReadInt(&size)))
+        if (!(this->Reader.Read(&ncells) && this->Reader.Read(&size)))
           {
           vtkErrorMacro(<<"Cannot read polygons!");
           this->Reader.CloseVTKFile ();
@@ -254,7 +266,7 @@ void vtkPolyDataReader::Execute()
       else if ( ! strncmp(line,"triangle_strips",15) )
         {
         vtkCellArray *tris = vtkCellArray::New();
-        if (!(this->Reader.ReadInt(&ncells) && this->Reader.ReadInt(&size)))
+        if (!(this->Reader.Read(&ncells) && this->Reader.Read(&size)))
           {
           vtkErrorMacro(<<"Cannot read triangle strips!");
           this->Reader.CloseVTKFile ();
@@ -267,9 +279,28 @@ void vtkPolyDataReader::Execute()
         vtkDebugMacro(<<"Read " << ncells << " triangle strips");
         }
 
+      else if ( ! strncmp(line, "cell_data", 9) )
+        {
+        if (!this->Reader.Read(&ncells))
+          {
+          vtkErrorMacro(<<"Cannot read cell data!");
+          this->Reader.CloseVTKFile ();
+          return;
+          }
+        
+        if ( ncells != output->GetNumberOfCells() )
+          {
+          vtkErrorMacro(<<"Number of cells don't match number data values!");
+          return;
+          }
+
+        this->Reader.ReadCellData(output, ncells);
+        break; //out of this loop
+        }
+
       else if ( ! strncmp(line, "point_data", 10) )
         {
-        if (!this->Reader.ReadInt(&npts))
+        if (!this->Reader.Read(&npts))
           {
           vtkErrorMacro(<<"Cannot read point data!");
           this->Reader.CloseVTKFile ();
@@ -300,10 +331,23 @@ void vtkPolyDataReader::Execute()
         vtkWarningMacro(<<"No topology read!");
     }
 
+  else if ( !strncmp(line, "cell_data", 9) )
+    {
+    vtkWarningMacro(<<"No geometry defined in data file!");
+    if (!this->Reader.Read(&ncells))
+      {
+      vtkErrorMacro(<<"Cannot read cell data!");
+      this->Reader.CloseVTKFile ();
+      return;
+      }
+
+    this->Reader.ReadCellData(output, ncells);
+    }
+
   else if ( !strncmp(line, "point_data", 10) )
     {
     vtkWarningMacro(<<"No geometry defined in data file!");
-    if (!this->Reader.ReadInt(&numPts))
+    if (!this->Reader.Read(&numPts))
       {
       vtkErrorMacro(<<"Cannot read point data!");
       this->Reader.CloseVTKFile ();

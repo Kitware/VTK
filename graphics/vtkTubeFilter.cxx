@@ -68,8 +68,8 @@ void vtkTubeFilter::Execute()
   vtkVectors *inVectors=NULL;
   int numPts = 0;
   int numNewPts;
-  vtkFloatPoints *newPts;
-  vtkFloatNormals *newNormals;
+  vtkPoints *newPts;
+  vtkNormals *newNormals;
   vtkCellArray *newStrips;
   int npts, *pts, i1, i2, ptOffset=0;
   float p[3], pNext[3];
@@ -109,7 +109,7 @@ void vtkTubeFilter::Execute()
   if ( !(inNormals=pd->GetNormals()) || this->UseDefaultNormal )
     {
     deleteNormals = 1;
-    inNormals = vtkFloatNormals::New();
+    inNormals = vtkNormals::New();
     inNormals->SetNumberOfNormals(numPts);
 
     if ( this->UseDefaultNormal )
@@ -142,9 +142,9 @@ void vtkTubeFilter::Execute()
     maxSpeed = inVectors->GetMaxNorm();
     }
 
-  newPts = vtkFloatPoints::New();
+  newPts = vtkPoints::New();
   newPts->Allocate(numNewPts);
-  newNormals = vtkFloatNormals::New();
+  newNormals = vtkNormals::New();
   newNormals->Allocate(numNewPts);
   newStrips = vtkCellArray::New();
   newStrips->Allocate(newStrips->EstimateSize(1,numNewPts));
@@ -161,7 +161,7 @@ void vtkTubeFilter::Execute()
       single_polyline->InsertNextCell( npts, pts );
     
       if ( !lineNormalGenerator.GenerateSlidingNormals(inPts,single_polyline,
-					  (vtkFloatNormals*)inNormals) )
+					  (vtkNormals*)inNormals) )
       {
         vtkErrorMacro(<< "No normals for line!\n");
         if (deleteNormals) inNormals->Delete();

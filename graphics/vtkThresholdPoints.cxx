@@ -90,36 +90,37 @@ void vtkThresholdPoints::ThresholdBetween(float lower, float upper)
 void vtkThresholdPoints::Execute()
 {
   vtkScalars *inScalars;
-  vtkFloatPoints *newPoints;
+  vtkPoints *newPoints;
   vtkPointData *pd, *outPD;
   vtkCellArray *verts;
   int ptId, pts[1], numPts;
   float *x;
+  vtkDataSet *input=(vtkDataSet *)this->Input;
   vtkPolyData *output=(vtkPolyData *)this->Output;
 
   vtkDebugMacro(<< "Executing threshold points filter");
 
-  if ( ! (inScalars = this->Input->GetPointData()->GetScalars()) )
+  if ( ! (inScalars = input->GetPointData()->GetScalars()) )
     {
     vtkErrorMacro(<<"No scalar data to threshold");
     return;
     }
      
-  numPts = this->Input->GetNumberOfPoints();
-  newPoints = vtkFloatPoints::New();
+  numPts = input->GetNumberOfPoints();
+  newPoints = vtkPoints::New();
   newPoints->Allocate(numPts);
-  pd = this->Input->GetPointData();
+  pd = input->GetPointData();
   outPD = output->GetPointData();
   outPD->CopyAllocate(pd);
   verts = vtkCellArray::New();
   verts->Allocate(verts->EstimateSize(numPts,1));
 
   // Check that the scalars of each point satisfy the threshold criterion
-  for (ptId=0; ptId < this->Input->GetNumberOfPoints(); ptId++)
+  for (ptId=0; ptId < input->GetNumberOfPoints(); ptId++)
     {
     if ( (this->*(this->ThresholdFunction))(inScalars->GetScalar(ptId)) ) 
       {
-      x = this->Input->GetPoint(ptId);
+      x = input->GetPoint(ptId);
       pts[0] = newPoints->InsertNextPoint(x);
       outPD->CopyData(pd,ptId,pts[0]);
       verts->InsertNextCell(1,pts);

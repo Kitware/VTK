@@ -69,9 +69,9 @@ void vtkMCubesReader::Execute()
 {
   FILE *fp;
   FILE *limitp = NULL;
-  vtkFloatPoints *newPts;
+  vtkPoints *newPts;
   vtkCellArray *newPolys;
-  vtkFloatNormals *newNormals = NULL;
+  vtkNormals *newNormals = NULL;
   float bounds[6];
   int i, j, k, numPts, numTris;
   typedef struct {float x[3], n[3];} pointType;
@@ -148,14 +148,14 @@ void vtkMCubesReader::Execute()
 // Now re-read and merge
 //
   rewind (fp);
-  newPts = vtkFloatPoints::New();
+  newPts = vtkPoints::New();
   newPts->Allocate(numPts/3,numPts/3);
   newPolys = vtkCellArray::New();
   newPolys->Allocate(newPolys->EstimateSize(numTris,3));
 
   if ( this->Normals ) 
     {
-    newNormals = vtkFloatNormals::New();
+    newNormals = vtkNormals::New();
     newNormals->Allocate(numPts/3,numPts/3);
     }
   

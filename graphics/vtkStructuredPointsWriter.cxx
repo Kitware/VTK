@@ -77,6 +77,7 @@ void vtkStructuredPointsWriter::WriteData()
   input->GetOrigin(origin);
   fprintf(fp,"ORIGIN %g %g %g\n", origin[0], origin[1], origin[2]);
 
+  this->WriteCellData(fp, input);
   this->WritePointData(fp, input);
 
   this->CloseVTKFile(fp);

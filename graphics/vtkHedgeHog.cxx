@@ -42,9 +42,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 void vtkHedgeHog::Execute()
 {
-  vtkDataSet *input=this->Input;
+  vtkDataSet *input=(vtkDataSet *)this->Input;
   int numPts;
-  vtkFloatPoints *newPts;
+  vtkPoints *newPts;
   vtkPointData *pd;
   vtkVectors *inVectors;
   int i, ptId, pts[2];
@@ -68,7 +68,7 @@ void vtkHedgeHog::Execute()
     }
   outputPD->CopyAllocate(pd, 2*numPts);
 
-  newPts = vtkFloatPoints::New(); newPts->SetNumberOfPoints(2*numPts);
+  newPts = vtkPoints::New(); newPts->SetNumberOfPoints(2*numPts);
   newLines = vtkCellArray::New();
   newLines->Allocate(newLines->EstimateSize(numPts,2));
 //

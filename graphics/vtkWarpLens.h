@@ -38,10 +38,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkWarpLens - deform geometry by applying Lens distortion
+// .NAME vtkWarpLens - deform geometry by applying lens distortion
 // .SECTION Description
 // vtkWarpLens is a filter that modifies point coordinates by moving
-// in accord with a second order Lens distortion model
+// in accord with a second order lens distortion model
 
 #ifndef __vtkWarpLens_h
 #define __vtkWarpLens_h

@@ -18,9 +18,9 @@ main ()
   vtkStructuredGrid *sgrid = vtkStructuredGrid::New();
       sgrid->SetDimensions(dims);
 
-  vtkFloatVectors *vectors = vtkFloatVectors::New();
+  vtkVectors *vectors = vtkVectors::New();
     vectors->Allocate(dims[0]*dims[1]*dims[2]);
-  vtkFloatPoints *points = vtkFloatPoints::New();
+  vtkPoints *points = vtkPoints::New();
     points->Allocate(dims[0]*dims[1]*dims[2]);
   
   deltaZ = 2.0 / (dims[2]-1);

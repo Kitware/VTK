@@ -89,12 +89,12 @@ unsigned long vtkCutter::GetMTime()
 void vtkCutter::Execute()
 {
   int cellId, i, iter;
-  vtkFloatPoints *cellPts;
-  vtkFloatScalars *cellScalars=vtkFloatScalars::New();
+  vtkPoints *cellPts;
+  vtkScalars *cellScalars=vtkScalars::New();
   vtkCell *cell;
   vtkCellArray *newVerts, *newLines, *newPolys;
-  vtkFloatPoints *newPoints;
-  vtkFloatScalars *cutScalars;
+  vtkPoints *newPoints;
+  vtkScalars *cutScalars;
   float value, s;
   vtkPolyData *output = this->GetOutput();
   vtkDataSet *input=this->GetInput();
@@ -127,7 +127,7 @@ void vtkCutter::Execute()
   estimatedSize = estimatedSize / 1024 * 1024; //multiple of 1024
   if (estimatedSize < 1024) estimatedSize = 1024;
 
-  newPoints = vtkFloatPoints::New();
+  newPoints = vtkPoints::New();
   newPoints->Allocate(estimatedSize,estimatedSize/2);
   newVerts = vtkCellArray::New();
   newVerts->Allocate(estimatedSize,estimatedSize/2);
@@ -135,7 +135,7 @@ void vtkCutter::Execute()
   newLines->Allocate(estimatedSize,estimatedSize/2);
   newPolys = vtkCellArray::New();
   newPolys->Allocate(estimatedSize,estimatedSize/2);
-  cutScalars = vtkFloatScalars::New();
+  cutScalars = vtkScalars::New();
   cutScalars->Allocate(numPts);
 
   // Interpolate data along edge. If generating cut scalars, do the necessary setup.

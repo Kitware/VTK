@@ -111,14 +111,14 @@ void vtkXGLTexture::Load(vtkRenderer *aren)
     // make sure using unsigned char data of color scalars type
     if (this->MapColorScalarsThroughLookupTable ||
         (scalars->GetDataType() != VTK_UNSIGNED_CHAR ||
-	 scalars->GetScalarType() != VTK_COLOR_SCALAR) )
+         scalars->GetScalarType() != VTK_COLOR_SCALAR) )
       {
-	dataPtr = this->MapScalarsToColors (scalars);
-	bytesPerPixel = 4;
+      dataPtr = this->MapScalarsToColors (scalars);
+      bytesPerPixel = 4;
       }
     else
       {
-	dataPtr = ((vtkColorScalars *)scalars)->GetPointer(0);    
+      dataPtr = ((vtkUnsignedCharArray *)scalars->GetData())->GetPointer(0);
       }
 
     // we only support 2d texture maps right now
@@ -132,18 +132,18 @@ void vtkXGLTexture::Load(vtkRenderer *aren)
       {
       xsize = size[0];
       if (size[1] == 1)
-	{
-	ysize = size[2];
-	}
+        {
+        ysize = size[2];
+        }
       else
-	{
-	ysize = size[1];
-	if (size[2] != 1)
-	  {
-	  vtkErrorMacro(<< "3D texture maps currently are not supported!\n");
-	  return;
-	  }
-	}
+        {
+        ysize = size[1];
+        if (size[2] != 1)
+          {
+          vtkErrorMacro(<< "3D texture maps currently are not supported!\n");
+          return;
+          }
+        }
       }
 
     if (this->Repeat)
@@ -162,17 +162,17 @@ void vtkXGLTexture::Load(vtkRenderer *aren)
       xgl_object_destroy(this->MipMap);
       }
     this->MipMap = xgl_object_create(xglr_sys_state, XGL_MIPMAP_TEXTURE, 
-				     NULL, 0);
+                                     NULL, 0);
     xgl_object_set(this->MipMap,XGL_MIPMAP_TEXTURE_LEVELS, 1, NULL);
 
     setRas = xgl_object_create (xglr_sys_state, 
-				XGL_MEM_RAS, 0,
-				XGL_DEV_COLOR_TYPE, 
-				XGL_COLOR_RGB, 
-				XGL_RAS_WIDTH, xsize,
-				XGL_RAS_HEIGHT, ysize,
-				XGL_RAS_DEPTH, 32,
-				0);
+                                XGL_MEM_RAS, 0,
+                                XGL_DEV_COLOR_TYPE, 
+                                XGL_COLOR_RGB, 
+                                XGL_RAS_WIDTH, xsize,
+                                XGL_RAS_HEIGHT, ysize,
+                                XGL_RAS_DEPTH, 32,
+                                0);
   
     // Get the memory rasters pixel data 
     xgl_object_get (setRas, XGL_MEM_RAS_IMAGE_BUFFER_ADDR, &input);
@@ -184,25 +184,25 @@ void vtkXGLTexture::Load(vtkRenderer *aren)
       bptr = input + yloop*xsize;
       
       for (xloop = 0; xloop < xsize; xloop++)
-	{
-	if (bytesPerPixel < 3)
-	  {
-	  *(bptr)  = *(dataPtr);
-	  *(bptr) += ((Xgl_usgn32)(*(dataPtr)))<<8;
-	  *(bptr) += ((Xgl_usgn32)(*(dataPtr++)))<<16;
-	  }
-	else
-	  {
-	  *(bptr)  = *(dataPtr++);
-	  *(bptr) += ((Xgl_usgn32)(*(dataPtr++)))<<8;
-	  *(bptr) += ((Xgl_usgn32)(*(dataPtr++)))<<16;
-	  }
-	if ((bytesPerPixel == 4)||(bytesPerPixel == 2))
-	  {
-	  *(bptr) += ((Xgl_usgn32)(*(dataPtr++)))<<24;
-	  }
-	bptr++;
-	}
+        {
+        if (bytesPerPixel < 3)
+          {
+          *(bptr)  = *(dataPtr);
+          *(bptr) += ((Xgl_usgn32)(*(dataPtr)))<<8;
+          *(bptr) += ((Xgl_usgn32)(*(dataPtr++)))<<16;
+          }
+        else
+          {
+          *(bptr)  = *(dataPtr++);
+          *(bptr) += ((Xgl_usgn32)(*(dataPtr++)))<<8;
+          *(bptr) += ((Xgl_usgn32)(*(dataPtr++)))<<16;
+          }
+        if ((bytesPerPixel == 4)||(bytesPerPixel == 2))
+          {
+          *(bptr) += ((Xgl_usgn32)(*(dataPtr++)))<<24;
+          }
+        bptr++;
+        }
       }
 
     xgl_mipmap_texture_build(this->MipMap, setRas, uBound, vBound);
@@ -222,16 +222,16 @@ void vtkXGLTexture::Load(vtkRenderer *aren)
     if (this->Interpolate)
       {
       this->TDesc.texture_info.mipmap.interp_info.filter1 = 
-	XGL_TEXTURE_INTERP_BILINEAR;
+        XGL_TEXTURE_INTERP_BILINEAR;
       this->TDesc.texture_info.mipmap.interp_info.filter2 = 
-	XGL_TEXTURE_INTERP_BILINEAR;
+        XGL_TEXTURE_INTERP_BILINEAR;
       }
     else
       {
       this->TDesc.texture_info.mipmap.interp_info.filter1 = 
-	XGL_TEXTURE_INTERP_POINT;
+        XGL_TEXTURE_INTERP_POINT;
       this->TDesc.texture_info.mipmap.interp_info.filter2 = 
-	XGL_TEXTURE_INTERP_POINT;
+        XGL_TEXTURE_INTERP_POINT;
       }
 
     /* Set the depth adjustment factor to 0 */
@@ -275,8 +275,8 @@ void vtkXGLTexture::Load(vtkRenderer *aren)
 
   // now bind it 
   xgl_object_set(*ren->GetContext(),
-		 XGL_3D_CTX_SURF_FRONT_TMAP_NUM, 1,
-		 XGL_3D_CTX_SURF_FRONT_TMAP, &this->TMap,
-		 XGL_3D_CTX_SURF_FRONT_TMAP_SWITCHES, &(this->Switch),
-		 NULL);
+                 XGL_3D_CTX_SURF_FRONT_TMAP_NUM, 1,
+                 XGL_3D_CTX_SURF_FRONT_TMAP, &this->TMap,
+                 XGL_3D_CTX_SURF_FRONT_TMAP_SWITCHES, &(this->Switch),
+                 NULL);
 }

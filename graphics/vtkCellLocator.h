@@ -102,7 +102,7 @@ protected:
   void GetChildren(int idx, int level, int children[8]);
   int GenerateIndex(int offset, int numDivs, int i, int j, int k, int &idx);
   void GenerateFace(int face, int numDivs, int i, int j, int k,
-                    vtkFloatPoints *pts, vtkCellArray *polys);
+                    vtkPoints *pts, vtkCellArray *polys);
 };
 
 #endif

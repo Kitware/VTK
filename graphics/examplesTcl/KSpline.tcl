@@ -21,7 +21,7 @@ vtkKochanekSpline aSplineZ
 
 # generate random points
 
-vtkFloatPoints inputPoints
+vtkPoints inputPoints
 
 for {set i 0} {$i<$numberOfInputPoints} {incr i 1} {
     set x  [math Random 0 1]
@@ -57,7 +57,7 @@ eval   [glyph GetProperty] SetDiffuseColor $tomato
 ren1 AddActor glyph
 
 
-vtkFloatPoints points
+vtkPoints points
 # create a line
 set tension 0
 set bias 0

@@ -14,8 +14,8 @@ vtkRenderWindowInteractor iren
 
 # create cutting planes
 vtkPlanes planes
-vtkFloatPoints points
-vtkFloatNormals norms
+vtkPoints points
+vtkNormals norms
 
 points InsertPoint 0 0.0 0.0 0.0
 norms InsertNormal 0 0.0 0.0 1.0;    

@@ -51,12 +51,12 @@ vtkContourFilter contour
   contour SetInput [reader GetOutput]
   contour SetValue 0 30.0
 
-vtkFloatPoints points
+vtkPoints points
   points InsertPoint 0 100.0 150.0 130.0
   points InsertPoint 1 100.0 150.0 130.0
   points InsertPoint 2 100.0 150.0 130.0
 
-vtkFloatNormals normals
+vtkNormals normals
   normals InsertNormal 0 1.0 0.0 0.0
   normals InsertNormal 1 0.0 1.0 0.0
   normals InsertNormal 2 0.0 0.0 1.0

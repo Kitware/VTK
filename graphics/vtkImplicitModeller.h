@@ -142,7 +142,7 @@ public:
 
 protected:
   void Execute();
-  void Cap(vtkFloatScalars *s);
+  void Cap(vtkScalars *s);
 
   int SampleDimensions[3];
   float MaximumDistance;

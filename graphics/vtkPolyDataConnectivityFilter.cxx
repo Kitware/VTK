@@ -53,7 +53,7 @@ vtkPolyDataConnectivityFilter::vtkPolyDataConnectivityFilter()
   this->ScalarRange[0] = 0.0;
   this->ScalarRange[1] = 1.0;
 
-  this->CellScalars = vtkFloatScalars::New(); 
+  this->CellScalars = vtkScalars::New(); 
   this->CellScalars->Allocate(8);
 
   this->NeighborCellPointIds = vtkIdList::New();
@@ -70,7 +70,7 @@ vtkPolyDataConnectivityFilter::~vtkPolyDataConnectivityFilter()
 
 static int NumExceededMaxDepth;
 static int *Visited, *PointMap;
-static vtkFloatScalars *NewScalars;
+static vtkScalars *NewScalars;
 static int RecursionDepth;
 static int RegionNumber, PointNumber;    
 static int NumCellsInRegion;
@@ -83,7 +83,7 @@ void vtkPolyDataConnectivityFilter::Execute()
   int cellId, i, j, pt;
   int numPts, numCells;
   vtkPoints *inPts;
-  vtkFloatPoints *newPts;
+  vtkPoints *newPts;
   vtkIdList cellIds(VTK_CELL_SIZE), ptIds(VTK_CELL_SIZE);
   vtkPointData *pd;
   int id, npts, *pts, *cells, n;
@@ -135,9 +135,9 @@ void vtkPolyDataConnectivityFilter::Execute()
   PointMap = new int[numPts];  
   for ( i=0; i < numPts; i++ ) PointMap[i] = -1;
 
-  NewScalars = vtkFloatScalars::New();
+  NewScalars = vtkScalars::New();
   NewScalars->Allocate(numPts);
-  newPts = vtkFloatPoints::New();
+  newPts = vtkPoints::New();
   newPts->Allocate(numPts);
   //
   // Traverse all cells marking those visited.  Each new search

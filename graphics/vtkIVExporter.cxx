@@ -252,7 +252,7 @@ void vtkIVExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
   int npts, *indx;
   float tempf2;
   vtkPolyDataMapper *pm;
-  vtkColorScalars *colors;
+  vtkScalars *colors;
   float *p;
   unsigned char *c;
   vtkTransform *trans;
@@ -294,7 +294,7 @@ void vtkIVExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
     pd = (vtkPolyData *)ds;
     }
 
-  pm = new vtkPolyDataMapper;
+  pm = vtkPolyDataMapper::New();
   pm->SetInput(pd);
   pm->SetScalarRange(anActor->GetMapper()->GetScalarRange());
   pm->SetScalarVisibility(anActor->GetMapper()->GetScalarVisibility());
@@ -336,7 +336,7 @@ void vtkIVExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
     vtkTexture *aTexture = anActor->GetTexture();
     int *size, xsize, ysize, bpp;
     vtkScalars *scalars;
-    vtkColorScalars *mappedScalars;
+    vtkScalars *mappedScalars;
     unsigned char *txtrData;
     int totalValues;
     
@@ -359,14 +359,13 @@ void vtkIVExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
 
     // make sure using unsigned char data of color scalars type
     if (aTexture->GetMapColorScalarsThroughLookupTable () ||
-        (scalars->GetDataType() != VTK_UNSIGNED_CHAR ||
-         scalars->GetScalarType() != VTK_COLOR_SCALAR) )
+    (scalars->GetDataType() != VTK_UNSIGNED_CHAR) )
       {
       mappedScalars = aTexture->GetMappedScalars ();
       }
     else
       {
-      mappedScalars = (vtkColorScalars *) scalars;
+      mappedScalars = scalars;
       }
 
     // we only support 2d texture maps right now
@@ -396,10 +395,10 @@ void vtkIVExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
 
     fprintf(fp, "%sTexture2 {\n", indent);
     indent_more;
-    bpp = mappedScalars->GetNumberOfValuesPerScalar();
+    bpp = mappedScalars->GetNumberOfComponents();
     fprintf(fp, "%simage %d %d %d\n", indent, xsize, ysize, bpp);
     indent_more;
-    txtrData = mappedScalars->GetPointer(0);
+    txtrData = ((vtkUnsignedCharArray *)mappedScalars->GetData())->GetPointer(0);
     totalValues = xsize*ysize;
     fprintf(fp,"%s",indent);
     for (i = 0; i < totalValues; i++)
@@ -539,7 +538,7 @@ void vtkIVExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
 	fprintf(fp,"%s", indent);
 	for (i = 0; i < npts; i++)
 	  {
-	  c = colors->GetColor(indx[i]);
+	  c = ((vtkUnsignedCharArray *)colors->GetData())->GetPointer(4*indx[i]);
 	  fprintf (fp,"%#lx, ", 
 		   ((unsigned long)255 << 24) // opaque
 		   |	(((unsigned long)c[2]) << 16) 
@@ -571,8 +570,7 @@ void vtkIVExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
 }
 
 void vtkIVExporter::WritePointData(vtkPoints *points, vtkNormals *normals,
-				     vtkTCoords *tcoords, 
-				     vtkColorScalars *colors, FILE *fp)
+				     vtkTCoords *tcoords, vtkScalars *colors, FILE *fp)
 {
   float *p;
   int i;
@@ -640,9 +638,9 @@ void vtkIVExporter::WritePointData(vtkPoints *points, vtkNormals *normals,
     fprintf(fp,"%srgba [\n", indent);
 	indent_more;
 	fprintf(fp,"%s", indent);
-    for (i = 0; i < colors->GetNumberOfColors(); i++)
+    for (i = 0; i < colors->GetNumberOfScalars(); i++)
       {
-      c = colors->GetColor(i);
+      c = ((vtkUnsignedCharArray *)colors->GetData())->GetPointer(4*i);
       fprintf (fp,"%#lx, ",
 		   ((unsigned long)255 << 24) | // opaque
 		  (((unsigned long)c[2])<<16) | 

@@ -74,6 +74,7 @@ void vtkRectilinearGridWriter::WriteData()
   this->WriteCoordinates(fp, input->GetYCoordinates(), 1);
   this->WriteCoordinates(fp, input->GetZCoordinates(), 2);
 
+  this->WriteCellData(fp, input);
   this->WritePointData(fp, input);
 
   this->CloseVTKFile(fp);

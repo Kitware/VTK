@@ -154,9 +154,9 @@ public:
 
 protected:
   void Execute();
-  void ClipVoxel(float value, vtkFloatScalars& cellScalars, int flip,
+  void ClipVoxel(float value, vtkScalars& cellScalars, int flip,
                  float origin[3], float spacing[3], vtkIdList& cellIds,
-		 vtkFloatPoints& cellPts, vtkPointData *inPD, vtkPointData* outPD);
+		 vtkPoints& cellPts, vtkPointData *inPD, vtkPointData* outPD);
     
   vtkImplicitFunction *ClipFunction;
   vtkPointLocator *Locator;

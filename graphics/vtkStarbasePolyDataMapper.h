@@ -49,7 +49,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <stdlib.h>
 #include "vtkPolyDataMapper.h"
 #include "vtkPolyData.h"
-#include "vtkColorScalars.h"
 
 class vtkStarbaseRenderer;
 
@@ -62,7 +61,7 @@ public:
   const char *GetClassName() {return "vtkStarbasePolyDataMapper";};
 
   virtual void Render(vtkRenderer *ren, vtkActor *a);
-  void Build(vtkPolyData *, vtkColorScalars *);
+  void Build(vtkPolyData *, vtkScalars *);
   void Draw(vtkRenderer *ren, vtkActor *act);
 
 protected:

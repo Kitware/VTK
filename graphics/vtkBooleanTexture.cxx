@@ -39,7 +39,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkBooleanTexture.h"
-#include "vtkAGraymap.h"
+#include "vtkUnsignedCharArray.h"
 
 vtkBooleanTexture::vtkBooleanTexture()
 {
@@ -61,9 +61,10 @@ vtkBooleanTexture::vtkBooleanTexture()
 void vtkBooleanTexture::Execute()
 {
   int numPts, i, j;
-  vtkAGraymap *newScalars;
+  vtkScalars *newScalars;
   int midILower, midJLower, midIUpper, midJUpper;
   vtkStructuredPoints *output = this->GetOutput();
+  vtkUnsignedCharArray *data;
   
   if ( (numPts = this->XSize * this->YSize) < 1 )
     {
@@ -72,8 +73,9 @@ void vtkBooleanTexture::Execute()
     }
 
   output->SetDimensions(this->XSize,this->YSize,1);
-  newScalars = vtkAGraymap::New();
+  newScalars = vtkScalars::New(VTK_UNSIGNED_CHAR,2);
   newScalars->Allocate(numPts);
+  data = (vtkUnsignedCharArray *)newScalars->GetData();
 //
 // Compute size of various regions
 //
@@ -89,23 +91,50 @@ void vtkBooleanTexture::Execute()
     for (i = 0; i < this->XSize; i++) 
       {
       if (i < midILower && j < midJLower) 
-        newScalars->InsertNextAGrayValue(this->InIn);
+	{
+        data->InsertNextValue(this->InIn[0]);
+        data->InsertNextValue(this->InIn[1]);
+	}
       else if (i > midIUpper && j < midJLower) 
-        newScalars->InsertNextAGrayValue(this->OutIn);
-      else if (i < midILower && j > midJUpper) 
-        newScalars->InsertNextAGrayValue(this->InOut);
-      else if (i > midIUpper && j > midJUpper) 
-        newScalars->InsertNextAGrayValue(this->OutOut);
-      else if ((i >= midILower && i <= midIUpper) && (j >= midJLower && j <= midJUpper)) 
-        newScalars->InsertNextAGrayValue(this->OnOn);
-      else if ((i >= midILower && i <= midIUpper) && j < midJLower) 
-        newScalars->InsertNextAGrayValue(this->OnIn);
-      else if ((i >= midILower && i <= midIUpper) && j > midJUpper) 
-        newScalars->InsertNextAGrayValue(this->OnOut);
-      else if (i < midILower && (j >= midJLower && j <= midJUpper)) 
-        newScalars->InsertNextAGrayValue(this->InOn);
-      else if (i > midIUpper && (j >= midJLower && j <= midJUpper)) 
-        newScalars->InsertNextAGrayValue(this->OutOn);
+	{
+        data->InsertNextValue(this->OutIn[0]);
+        data->InsertNextValue(this->OutIn[1]);
+	}
+      else if (i < midILower && j > midJUpper)
+	{
+        data->InsertNextValue(this->InOut[0]);
+        data->InsertNextValue(this->InOut[1]);
+	}
+      else if (i > midIUpper && j > midJUpper)
+	{
+        data->InsertNextValue(this->OutOut[0]);
+        data->InsertNextValue(this->OutOut[1]);
+	}
+      else if ((i >= midILower && i <= midIUpper) && (j >= midJLower && j <= midJUpper))
+	{
+        data->InsertNextValue(this->OnOn[0]);
+        data->InsertNextValue(this->OnOn[1]);
+	}
+      else if ((i >= midILower && i <= midIUpper) && j < midJLower)
+	{
+        data->InsertNextValue(this->OnIn[0]);
+        data->InsertNextValue(this->OnIn[1]);
+	}
+      else if ((i >= midILower && i <= midIUpper) && j > midJUpper)
+	{
+        data->InsertNextValue(this->OnOut[0]);
+        data->InsertNextValue(this->OnOut[1]);
+	}
+      else if (i < midILower && (j >= midJLower && j <= midJUpper))
+	{
+        data->InsertNextValue(this->InOn[0]);
+        data->InsertNextValue(this->InOn[1]);
+	}
+      else if (i > midIUpper && (j >= midJLower && j <= midJUpper))
+	{
+        data->InsertNextValue(this->OutOn[0]);
+        data->InsertNextValue(this->OutOn[1]);
+	}
       }
     }
 

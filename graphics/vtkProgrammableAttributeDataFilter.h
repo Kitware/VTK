@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkProgrammablePointDataFilter.h
+  Module:    vtkProgrammableAttributeDataFilter.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -38,16 +38,17 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkProgrammablePointDataFilter - manipulate point data via a user-specified function
+// .NAME vtkProgrammableAttributeDataFilter - manipulate attribute (cell and point) data via a user-specified function
 // .SECTION Description
-// vtkProgrammablePointDataFilter is a filter that allows you to write a
-// custom procedure to manipulate point data. For example, you could generate
-// scalars based on a complex formula; convert vectors to normals; compute
-// scalar values as a function of vectors, texture coords, and/or any other
-// point data attribute; and so on. The filter takes multiple inputs (input
-// plus an auxiliary input list), so you can write procedures that combine
-// several datset point attributes. Note that the output of the filter is the
-// same type (topology/geometry) as the input.
+// vtkProgrammableAttributeDataFilter is a filter that allows you to write a
+// custom procedure to manipulate attribute data - either point or cell
+// data. For example, you could generate scalars based on a complex formula;
+// convert vectors to normals; compute scalar values as a function of
+// vectors, texture coords, and/or any other point data attribute; and so
+// on. The filter takes multiple inputs (input plus an auxiliary input list),
+// so you can write procedures that combine several datset point
+// attributes. Note that the output of the filter is the same type
+// (topology/geometry) as the input.
 //
 // The filter works as follows. It operates like any other filter (i.e.,
 // checking and managing modified and execution times, processing Update()
@@ -59,22 +60,24 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 //
 // To use the filter, you write a procedure to process the input datasets,
 // process the data, and generate output data. Typically, this means grabbing
-// the input point data (using GetInput() and maybe GetInputList()),
-// operating on it (creating new point attributes such as scalars, vectors,
-// etc.), and then setting the point attributes in the output dataset (you'll
-// need to use GetOutput() to access the output).  (Note: besides C++, it is
-// possible to do the same thing in Tcl, Java, or other languages that wrap
-// the C++ core.) Remember, proper filter protocol requires that you don't
-// modify the input data - you create new output data from the input.
+// the input point or cell data (using GetInput() and maybe GetInputList()),
+// operating on it (creating new point and cell attributes such as scalars,
+// vectors, etc.), and then setting the point and/or cell attributes in the
+// output dataset (you'll need to use GetOutput() to access the output).
+// (Note: besides C++, it is possible to do the same thing in Tcl, Java, or
+// other languages that wrap the C++ core.) Remember, proper filter protocol
+// requires that you don't modify the input data - you create new output data
+// from the input.
 //
 // .SECTION Caveats
 // This filter operates on any combination of the filter input plus a list of
 // additional inputs (at a minimum you must set the filter input via
 // SetInput()).  It is up to you check whether the input is valid, and to
 // insure that the output is valid. Also, you have to write the control
-// structure for the traversal and operation on the point attribute data.
+// structure for the traversal and operation on the point and cell attribute
+// data.
 //
-// By default the output point data will be copied through from the input
+// By default the output point and cell data will be copied through from the input
 // point data (using reference counting).  You can control this using the
 // output's CopyAllOff() flag, or by using individual flags for each point
 // data field (i.e., scalars, vectors, etc.)
@@ -85,23 +88,23 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // methods of the superclass (e.g., vtkDataSetToDataSetFilter::GetPolyDataOutput)
 // to retrieve output of the correct type.
 //
-// The filter correctlymanages modified time and network execution in most
+// The filter correctly manages modified time and network execution in most
 // cases. However, if you change the definition of the filter function,
 // you'll want to send a manual Modified() method to the filter to force it
 // to reexecute.
 
-#ifndef __vtkProgrammablePointDataFilter_h
-#define __vtkProgrammablePointDataFilter_h
+#ifndef __vtkProgrammableAttributeDataFilter_h
+#define __vtkProgrammableAttributeDataFilter_h
 
 #include "vtkDataSetToDataSetFilter.h"
 #include "vtkDataSetCollection.h"
 
-class VTK_EXPORT vtkProgrammablePointDataFilter : public vtkDataSetToDataSetFilter 
+class VTK_EXPORT vtkProgrammableAttributeDataFilter : public vtkDataSetToDataSetFilter 
 {
 public:
-  vtkProgrammablePointDataFilter();
-  static vtkProgrammablePointDataFilter *New() {return new vtkProgrammablePointDataFilter;};
-  const char *GetClassName() {return "vtkProgrammablePointDataFilter";};
+  vtkProgrammableAttributeDataFilter();
+  static vtkProgrammableAttributeDataFilter *New() {return new vtkProgrammableAttributeDataFilter;};
+  const char *GetClassName() {return "vtkProgrammableAttributeDataFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   void AddInput(vtkDataSet *in);

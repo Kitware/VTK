@@ -39,7 +39,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkBrownianPoints.h"
-#include "vtkFloatVectors.h"
+#include "vtkVectors.h"
 #include "vtkMath.h"
 
 vtkBrownianPoints::vtkBrownianPoints()
@@ -51,18 +51,20 @@ vtkBrownianPoints::vtkBrownianPoints()
 void vtkBrownianPoints::Execute()
 {
   int i, j, numPts;
-  vtkFloatVectors *newVectors;
+  vtkVectors *newVectors;
   float v[3], norm, speed;
+  vtkDataSet *input=(vtkDataSet *)this->Input;
+  vtkDataSet *output=(vtkDataSet *)this->Output;
 
   vtkDebugMacro(<< "Executing Brownian filter");
 
-  if ( ((numPts=this->Input->GetNumberOfPoints()) < 1) )
+  if ( ((numPts=input->GetNumberOfPoints()) < 1) )
     {
     vtkErrorMacro(<< "No input!\n");
     return;
     }
 
-  newVectors = vtkFloatVectors::New();
+  newVectors = vtkVectors::New();
   newVectors->Allocate(numPts);
 //
 // Check consistency of minumum and maximum speed
@@ -93,10 +95,10 @@ void vtkBrownianPoints::Execute()
 //
 // Update ourselves
 //
-  this->Output->GetPointData()->CopyVectorsOff();
-  this->Output->GetPointData()->PassData(this->Input->GetPointData());
+  output->GetPointData()->CopyVectorsOff();
+  output->GetPointData()->PassData(input->GetPointData());
 
-  this->Output->GetPointData()->SetVectors(newVectors);
+  output->GetPointData()->SetVectors(newVectors);
   newVectors->Delete();
 }
 

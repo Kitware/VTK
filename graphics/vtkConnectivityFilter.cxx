@@ -53,7 +53,7 @@ vtkConnectivityFilter::vtkConnectivityFilter()
   this->ScalarRange[0] = 0.0;
   this->ScalarRange[1] = 1.0;
 
-  this->CellScalars = vtkFloatScalars::New(); 
+  this->CellScalars = vtkScalars::New(); 
   this->CellScalars->Allocate(8);
 
   this->NeighborCellPointIds = vtkIdList::New();
@@ -71,7 +71,7 @@ vtkConnectivityFilter::~vtkConnectivityFilter()
 
 static int NumExceededMaxDepth;
 static int *Visited, *PointMap;
-static vtkFloatScalars *NewScalars;
+static vtkScalars *NewScalars;
 static int RecursionDepth;
 static int RegionNumber, PointNumber;    
 static int NumCellsInRegion;
@@ -82,12 +82,13 @@ void vtkConnectivityFilter::Execute()
 {
   int cellId, i, j, pt;
   int numPts, numCells;
-  vtkFloatPoints *newPts;
+  vtkPoints *newPts;
   vtkIdList cellIds(VTK_CELL_SIZE), ptIds(VTK_CELL_SIZE);
   vtkPointData *pd;
   int id;
   int maxCellsInRegion;
   int largestRegionId = 0;
+  vtkDataSet *input=(vtkDataSet *)this->Input;
   vtkUnstructuredGrid *output = this->GetOutput();
   vtkPointData *outputPD = output->GetPointData();
   
@@ -95,8 +96,8 @@ void vtkConnectivityFilter::Execute()
   //
   //  Check input/allocate storage
   //
-  numCells=this->Input->GetNumberOfCells();
-  if ( (numPts=this->Input->GetNumberOfPoints()) < 1 || numCells < 1 )
+  numCells=input->GetNumberOfCells();
+  if ( (numPts=input->GetNumberOfPoints()) < 1 || numCells < 1 )
     {
     vtkDebugMacro(<<"No data to connect!");
     return;
@@ -105,7 +106,7 @@ void vtkConnectivityFilter::Execute()
   //
   // See whether to consider scalar connectivity
   //
-  InScalars = this->Input->GetPointData()->GetScalars();
+  InScalars = input->GetPointData()->GetScalars();
   if ( !this->ScalarConnectivity ) 
     InScalars = NULL;
   else
@@ -122,9 +123,9 @@ void vtkConnectivityFilter::Execute()
   PointMap = new int[numPts];  
   for ( i=0; i < numPts; i++ ) PointMap[i] = -1;
 
-  NewScalars = vtkFloatScalars::New();
+  NewScalars = vtkScalars::New();
   NewScalars->Allocate(numPts);
-  newPts = vtkFloatPoints::New();
+  newPts = vtkPoints::New();
   newPts->Allocate(numPts);
   //
   // Traverse all cells marking those visited.  Each new search
@@ -178,7 +179,7 @@ void vtkConnectivityFilter::Execute()
         pt = this->Seeds.GetId(i);
         if ( pt >= 0 ) 
           {
-          this->Input->GetPointCells(pt,cellIds);
+          input->GetPointCells(pt,cellIds);
           for (j=0; j < cellIds.GetNumberOfIds(); j++) 
             RecursionSeeds->InsertNextId(cellIds.GetId(j));
           }
@@ -212,7 +213,7 @@ void vtkConnectivityFilter::Execute()
 // everything that has been visited.
 //
   //Pass through point data that has been visited
-  pd = this->Input->GetPointData();
+  pd = input->GetPointData();
   if ( this->ColorRegions ) outputPD->CopyScalarsOff();
   outputPD->CopyAllocate(pd);
 
@@ -220,7 +221,7 @@ void vtkConnectivityFilter::Execute()
     {
     if ( PointMap[i] > -1 )
       {
-      newPts->InsertPoint(PointMap[i],this->Input->GetPoint(i));
+      newPts->InsertPoint(PointMap[i],input->GetPoint(i));
       outputPD->CopyData(pd,i,PointMap[i]);
       }
     }
@@ -241,13 +242,13 @@ void vtkConnectivityFilter::Execute()
       {
       if ( Visited[cellId] >= 0 )
         {
-        this->Input->GetCellPoints(cellId, ptIds);
+        input->GetCellPoints(cellId, ptIds);
         for (i=0; i < ptIds.GetNumberOfIds(); i++)
           {
           id = PointMap[ptIds.GetId(i)];
           ptIds.InsertId(i,id);
           }
-        output->InsertNextCell(this->Input->GetCellType(cellId),ptIds);
+        output->InsertNextCell(input->GetCellType(cellId),ptIds);
         }
       }
     }
@@ -268,13 +269,13 @@ void vtkConnectivityFilter::Execute()
           }
         if ( inReg )
           {
-          this->Input->GetCellPoints(cellId, ptIds);
+          input->GetCellPoints(cellId, ptIds);
           for (i=0; i < ptIds.GetNumberOfIds(); i++)
             {
             id = PointMap[ptIds.GetId(i)];
             ptIds.InsertId(i,id);
             }
-          output->InsertNextCell(this->Input->GetCellType(cellId),ptIds);
+          output->InsertNextCell(input->GetCellType(cellId),ptIds);
           }
         }
       }
@@ -285,13 +286,13 @@ void vtkConnectivityFilter::Execute()
       {
       if ( Visited[cellId] == largestRegionId )
         {
-        this->Input->GetCellPoints(cellId, ptIds);
+        input->GetCellPoints(cellId, ptIds);
         for (i=0; i < ptIds.GetNumberOfIds(); i++)
           {
           id = PointMap[ptIds.GetId(i)];
           ptIds.InsertId(i,id);
           }
-        output->InsertNextCell(this->Input->GetCellType(cellId),ptIds);
+        output->InsertNextCell(input->GetCellType(cellId),ptIds);
         }
       }
    }
@@ -321,6 +322,7 @@ void vtkConnectivityFilter::TraverseAndMark (int cellId)
 {
   int j, k, ptId, numPts, numCells;
   vtkIdList ptIds(8,VTK_CELL_SIZE), cellIds(8,VTK_CELL_SIZE);
+  vtkDataSet *input=(vtkDataSet *)this->Input;
 
   Visited[cellId] = RegionNumber;
 
@@ -332,7 +334,7 @@ void vtkConnectivityFilter::TraverseAndMark (int cellId)
     }
 
   NumCellsInRegion++;
-  this->Input->GetCellPoints(cellId, ptIds);
+  input->GetCellPoints(cellId, ptIds);
 
   numPts = ptIds.GetNumberOfIds();
   for (j=0; j < numPts; j++) 
@@ -343,7 +345,7 @@ void vtkConnectivityFilter::TraverseAndMark (int cellId)
       NewScalars->SetScalar(PointMap[ptId], RegionNumber);
       }
      
-    this->Input->GetPointCells(ptId,cellIds);
+    input->GetPointCells(ptId,cellIds);
 
     // check connectivity criterion (geometric + scalar)
     numCells = cellIds.GetNumberOfIds();
@@ -357,7 +359,7 @@ void vtkConnectivityFilter::TraverseAndMark (int cellId)
           int numScalars, ii;
           float s, range[2];
 
-          this->Input->GetCellPoints(cellId,*this->NeighborCellPointIds);
+          input->GetCellPoints(cellId,*this->NeighborCellPointIds);
           InScalars->GetScalars(*this->NeighborCellPointIds,*this->CellScalars);
           numScalars = this->CellScalars->GetNumberOfScalars();
           range[0] = VTK_LARGE_FLOAT; range[1] = -VTK_LARGE_FLOAT;

@@ -112,18 +112,19 @@ void vtkGeometryFilter::SetExtent(float *extent)
 void vtkGeometryFilter::Execute()
 {
   int cellId, i, j;
-  int numPts=this->Input->GetNumberOfPoints();
-  int numCells=this->Input->GetNumberOfCells();
+  vtkDataSet *input=(vtkDataSet *)this->Input;
+  int numPts=input->GetNumberOfPoints();
+  int numCells=input->GetNumberOfCells();
   char *cellVis;
   vtkCell *cell, *face, *cellCopy;
   float *x;
   vtkIdList *ptIds;
   vtkIdList *cellIds = vtkIdList::New();
   vtkIdList *pts = vtkIdList::New();
-  vtkFloatPoints *newPts;
+  vtkPoints *newPts;
   int ptId;
   int npts, pt;
-  vtkPointData *pd = this->Input->GetPointData();
+  vtkPointData *pd = input->GetPointData();
   int allVisible;
   vtkPolyData *output = this->GetOutput();
   vtkPointData *outputPD = output->GetPointData();
@@ -155,12 +156,12 @@ void vtkGeometryFilter::Execute()
         }
       else
         {
-        cell = this->Input->GetCell(cellId);
+        cell = input->GetCell(cellId);
         ptIds = cell->GetPointIds();
         for (i=0; i < ptIds->GetNumberOfIds(); i++) 
           {
           ptId = ptIds->GetId(i);
-          x = this->Input->GetPoint(ptId);
+          x = input->GetPoint(ptId);
 
           if ( (this->PointClipping && (ptId < this->PointMinimum ||
           ptId > this->PointMaximum) ) ||
@@ -180,14 +181,14 @@ void vtkGeometryFilter::Execute()
 //
 // Allocate
 //
-  newPts = vtkFloatPoints::New();
+  newPts = vtkPoints::New();
   newPts->Allocate(numPts,numPts/2);
   output->Allocate(4*numCells,numCells/2);
   outputPD->CopyAllocate(pd,numPts,numPts/2);
   if ( this->Merging )
     {
     if ( this->Locator == NULL ) this->CreateDefaultLocator();
-    this->Locator->InitPointInsertion (newPts, this->Input->GetBounds());
+    this->Locator->InitPointInsertion (newPts, input->GetBounds());
     }
 //
 // Traverse cells to extract geometry
@@ -196,7 +197,7 @@ void vtkGeometryFilter::Execute()
     {
     if ( allVisible || cellVis[cellId] )
       {
-      cell = this->Input->GetCell(cellId);
+      cell = input->GetCell(cellId);
       switch (cell->GetCellDimension())
         {
         // create new points and then cell
@@ -207,7 +208,7 @@ void vtkGeometryFilter::Execute()
           for ( i=0; i < npts; i++)
             {
             ptId = cell->GetPointId(i);
-            x = this->Input->GetPoint(ptId);
+            x = input->GetPoint(ptId);
 
             if ( this->Merging && (pt=this->Locator->IsInsertedPoint(x)) < 0 )
               {
@@ -229,7 +230,7 @@ void vtkGeometryFilter::Execute()
           for (j=0; j < cellCopy->GetNumberOfFaces(); j++)
             {
             face = cellCopy->GetFace(j);
-            this->Input->GetCellNeighbors(cellId, face->PointIds, *cellIds);
+            input->GetCellNeighbors(cellId, face->PointIds, *cellIds);
             if ( cellIds->GetNumberOfIds() <= 0 || 
             (!allVisible && !cellVis[cellIds->GetId(0)]) )
               {
@@ -238,7 +239,7 @@ void vtkGeometryFilter::Execute()
               for ( i=0; i < npts; i++)
                 {
                 ptId = face->GetPointId(i);
-                x = this->Input->GetPoint(ptId);
+                x = input->GetPoint(ptId);
                 if ( this->Merging && (pt=this->Locator->IsInsertedPoint(x)) < 0)
                   {
                   pt = this->Locator->InsertNextPoint(x);

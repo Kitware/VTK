@@ -94,27 +94,28 @@ void vtkThreshold::Execute()
   vtkIdList *newCellPts = vtkIdList::New();
   vtkScalars *inScalars;
   vtkCell *cell;
-  vtkFloatPoints *newPoints;
+  vtkPoints *newPoints;
   vtkPointData *pd, *outPD;
   int i, ptId, newId, numPts, numCellPts;
   float *x;
+  vtkDataSet *input=(vtkDataSet *)this->Input;
   vtkUnstructuredGrid *output= this->GetOutput();
   int keepCell;
   
   vtkDebugMacro(<< "Executing threshold filter");
 
-  if ( ! (inScalars = this->Input->GetPointData()->GetScalars()) )
+  if ( ! (inScalars = input->GetPointData()->GetScalars()) )
     {
     vtkErrorMacro(<<"No scalar data to threshold");
     return;
     }
      
-  numPts = this->Input->GetNumberOfPoints();
+  numPts = input->GetNumberOfPoints();
 
-  output->Allocate(this->Input->GetNumberOfCells());
-  newPoints = vtkFloatPoints::New();
+  output->Allocate(input->GetNumberOfCells());
+  newPoints = vtkPoints::New();
   newPoints->Allocate(numPts);
-  pd = this->Input->GetPointData();
+  pd = input->GetPointData();
   outPD = output->GetPointData();
   outPD->CopyAllocate(pd);
 
@@ -123,9 +124,9 @@ void vtkThreshold::Execute()
   for (i=0; i < numPts; i++) pointMap->SetId(i,-1);
 
   // Check that the scalars of each cell satisfy the threshold criterion
-  for (cellId=0; cellId < this->Input->GetNumberOfCells(); cellId++)
+  for (cellId=0; cellId < input->GetNumberOfCells(); cellId++)
     {
-    cell = this->Input->GetCell(cellId);
+    cell = input->GetCell(cellId);
     cellPts = cell->GetPointIds();
     numCellPts = cell->GetNumberOfPoints();
     
@@ -157,7 +158,7 @@ void vtkThreshold::Execute()
         ptId = cellPts->GetId(i);
         if ( (newId = pointMap->GetId(ptId)) < 0 )
           {
-          x = this->Input->GetPoint(ptId);
+          x = input->GetPoint(ptId);
           newId = newPoints->InsertNextPoint(x);
           pointMap->SetId(ptId,newId);
           outPD->CopyData(pd,ptId,newId);

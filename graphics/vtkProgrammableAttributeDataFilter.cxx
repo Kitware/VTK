@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkProgrammablePointDataFilter.cxx
+  Module:    vtkProgrammableAttributeDataFilter.cxx
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -38,9 +38,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkProgrammablePointDataFilter.h"
+#include "vtkProgrammableAttributeDataFilter.h"
 
-vtkProgrammablePointDataFilter::vtkProgrammablePointDataFilter()
+vtkProgrammableAttributeDataFilter::vtkProgrammableAttributeDataFilter()
 {
   this->ExecuteMethod = NULL;
   this->ExecuteMethodArg = NULL;
@@ -48,7 +48,7 @@ vtkProgrammablePointDataFilter::vtkProgrammablePointDataFilter()
 
 // Description:
 // Add a dataset to the list of data to process.
-void vtkProgrammablePointDataFilter::AddInput(vtkDataSet *ds)
+void vtkProgrammableAttributeDataFilter::AddInput(vtkDataSet *ds)
 {
   if ( ! this->InputList.IsItemPresent(ds) )
     {
@@ -59,7 +59,7 @@ void vtkProgrammablePointDataFilter::AddInput(vtkDataSet *ds)
 
 // Description:
 // Remove a dataset from the list of data to process.
-void vtkProgrammablePointDataFilter::RemoveInput(vtkDataSet *ds)
+void vtkProgrammableAttributeDataFilter::RemoveInput(vtkDataSet *ds)
 {
   if ( this->InputList.IsItemPresent(ds) )
     {
@@ -71,7 +71,7 @@ void vtkProgrammablePointDataFilter::RemoveInput(vtkDataSet *ds)
 // Description:
 // Specify the function to use to operate on the point attribute data. Note
 // that the function takes a single (void *) argument.
-void vtkProgrammablePointDataFilter::SetExecuteMethod(void (*f)(void *), void *arg)
+void vtkProgrammableAttributeDataFilter::SetExecuteMethod(void (*f)(void *), void *arg)
 {
   if ( f != this->ExecuteMethod || arg != this->ExecuteMethodArg )
     {
@@ -88,7 +88,7 @@ void vtkProgrammablePointDataFilter::SetExecuteMethod(void (*f)(void *), void *a
 
 // Description:
 // Set the arg delete method. This is used to free user memory.
-void vtkProgrammablePointDataFilter::SetExecuteMethodArgDelete(void (*f)(void *))
+void vtkProgrammableAttributeDataFilter::SetExecuteMethodArgDelete(void (*f)(void *))
 {
   if ( f != this->ExecuteMethodArgDelete)
     {
@@ -97,7 +97,7 @@ void vtkProgrammablePointDataFilter::SetExecuteMethodArgDelete(void (*f)(void *)
     }
 }
 
-void vtkProgrammablePointDataFilter::Update()
+void vtkProgrammableAttributeDataFilter::Update()
 {
   unsigned long int mtime, dsMtime;
   vtkDataSet *ds;
@@ -141,7 +141,7 @@ void vtkProgrammablePointDataFilter::Update()
       }
 
     if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);
-    this->Output->CopyStructure(this->Input);
+    ((vtkDataSet *)this->Output)->CopyStructure((vtkDataSet *)this->Input);
     // reset AbortExecute flag and Progress
     this->AbortExecute = 0;
     this->Progress = 0.0;
@@ -161,12 +161,16 @@ void vtkProgrammablePointDataFilter::Update()
     if ( ds->ShouldIReleaseData() ) ds->ReleaseData();
 }
 
-void vtkProgrammablePointDataFilter::Execute()
+void vtkProgrammableAttributeDataFilter::Execute()
 {
+  vtkDataSet *input=(vtkDataSet *)this->Input;
+  vtkDataSet *output=(vtkDataSet *)this->Output;
+
   vtkDebugMacro(<<"Executing programmable point data filter");
 
   // Output data is the same as input data by default.
-  this->Output->GetPointData()->PassData(this->Input->GetPointData());
+  output->GetCellData()->PassData(input->GetCellData());
+  output->GetPointData()->PassData(input->GetPointData());
   
   // Now invoke the procedure, if specified.
   if ( this->ExecuteMethod != NULL )
@@ -175,7 +179,7 @@ void vtkProgrammablePointDataFilter::Execute()
     }
 }
 
-void vtkProgrammablePointDataFilter::PrintSelf(ostream& os, vtkIndent indent)
+void vtkProgrammableAttributeDataFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkFilter::PrintSelf(os,indent);
 

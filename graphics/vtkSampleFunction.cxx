@@ -40,8 +40,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkSampleFunction.h"
 #include "vtkMath.h"
-#include "vtkFloatScalars.h"
-#include "vtkFloatNormals.h"
+#include "vtkScalars.h"
+#include "vtkNormals.h"
 
 // Description:
 // Construct with ModelBounds=(-1,1,-1,1,-1,1), SampleDimensions=(50,50,50),
@@ -123,12 +123,12 @@ void vtkSampleFunction::SetModelBounds(float xmin, float xmax, float ymin,
 void vtkSampleFunction::Execute()
 {
   int ptId, i;
-  vtkFloatNormals *newNormals=NULL;
+  vtkNormals *newNormals=NULL;
   int numPts;
   float *p, s, ar[3], origin[3];
   if (this->Scalars == NULL) 
     {
-    this->Scalars = new vtkFloatScalars;
+    this->Scalars = new vtkScalars;
     }
   vtkStructuredPoints *output=(vtkStructuredPoints *)this->Output;
 
@@ -179,7 +179,7 @@ void vtkSampleFunction::Execute()
   if ( this->ComputeNormals )
     {
     float n[3];
-    newNormals = new vtkFloatNormals(numPts); 
+    newNormals = new vtkNormals(); 
     newNormals->SetNumberOfNormals(numPts);
     for (ptId=0; ptId < numPts; ptId++ )
       {

@@ -65,11 +65,11 @@ public:
   // Specify object from which to extract geometry information.
   void SetGeometry(vtkDataSet *input);
   void SetGeometry(vtkDataSet &input) {this->SetGeometry(&input);};
-  vtkDataSet *GetGeometry() {return this->Input;};
+  vtkDataSet *GetGeometry() {return (vtkDataSet *)this->Input;};
 
   // Description:
   // Get the output of this source.
-  vtkDataSet *GetOutput() {return this->Output;};
+  vtkDataSet *GetOutput() {return (vtkDataSet *)this->Output;};
 
   // Description:
   // Specify object from which to extract scalar information.
@@ -97,9 +97,9 @@ public:
   vtkGetObjectMacro(Tensors,vtkDataSet);
 
   // Description:
-  // Specify object from which to extract user defined data.
-  vtkSetObjectMacro(UserDefined,vtkDataSet);
-  vtkGetObjectMacro(UserDefined,vtkDataSet);
+  // Specify object from which to extract field data.
+  vtkSetObjectMacro(FieldData,vtkDataSet);
+  vtkGetObjectMacro(FieldData,vtkDataSet);
 
 protected:
   // Usual data generation method
@@ -111,7 +111,7 @@ protected:
   vtkDataSet *Normals;  // normals
   vtkDataSet *TCoords;  // texture coords
   vtkDataSet *Tensors;  // tensors
-  vtkDataSet *UserDefined;  // user defined
+  vtkDataSet *FieldData;    // field data
 };
 
 #endif

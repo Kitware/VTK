@@ -293,8 +293,8 @@ void vtkCyberReader::Execute()
   int nvertex, npolygon; // out count of items 
   int nlt, nlg, lgPolys; // number of lats and longs in image 
   float	dlt, dlg; 
-  vtkFloatPoints *newPoints;
-  vtkFloatTCoords *newTCoords;
+  vtkPoints *newPoints;
+  vtkTCoords *newTCoords;
   vtkCellArray *newTris;
   float x[3], tc[2];
   int voidLoc;
@@ -336,9 +336,9 @@ void vtkCyberReader::Execute()
   nvertex = ((vtx->lgmax - vtx->lgmin + 1) / vtx->lgresol ) *
             ((vtx->ltmax - vtx->ltmin + 1) / vtx->lgresol );
 
-  newPoints = vtkFloatPoints::New();
+  newPoints = vtkPoints::New();
   newPoints->Allocate(nvertex);
-  newTCoords = vtkFloatTCoords::New();
+  newTCoords = vtkTCoords::New();
   newTCoords->Allocate(nvertex,2);
 //
 //  Generate points

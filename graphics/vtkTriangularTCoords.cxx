@@ -39,7 +39,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkTriangularTCoords.h"
-#include "vtkFloatTCoords.h"
+#include "vtkTCoords.h"
 #include <math.h>
 
 void vtkTriangularTCoords::Execute()
@@ -50,10 +50,10 @@ void vtkTriangularTCoords::Execute()
   vtkPointData *pd;
   vtkCellArray *inPolys,*inStrips;
   int numNewPts, numNewPolys, polyAllocSize;
-  vtkFloatTCoords *newTCoords;
+  vtkTCoords *newTCoords;
   int npts, *pts, newId, newIds[3];
   int errorLogging = 1;
-  vtkFloatPoints *newPoints;
+  vtkPoints *newPoints;
   vtkCellArray *newPolys;
   float *p1, *p2, *p3;
   float tCoords[6];
@@ -94,13 +94,13 @@ void vtkTriangularTCoords::Execute()
 //
 //  Allocate texture data
 //
-  newTCoords = vtkFloatTCoords::New();
-  newTCoords->Allocate(numNewPts,2);
+  newTCoords = vtkTCoords::New(VTK_FLOAT,2);
+  newTCoords->Allocate(numNewPts);
 
 //
 // Allocate
 //
-  newPoints = vtkFloatPoints::New();
+  newPoints = vtkPoints::New();
   newPoints->Allocate(numNewPts);
 
   newPolys = vtkCellArray::New();

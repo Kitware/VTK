@@ -256,7 +256,7 @@ void vtkPLOT3DReader::Execute()
 
 int vtkPLOT3DReader::ReadBinaryGrid(FILE *fp,vtkStructuredGrid *output)
 {
-  vtkFloatPoints *newPts;
+  vtkPoints *newPts;
   int dim[3];
   int i, gridFound, offset, gridSize, maxGridSize;
   float x[3];
@@ -299,7 +299,7 @@ int vtkPLOT3DReader::ReadBinaryGrid(FILE *fp,vtkStructuredGrid *output)
     
   //allocate temporary storage to read into + points
   this->TempStorage = new float[3*this->NumPts];
-  newPts = vtkFloatPoints::New();
+  newPts = vtkPoints::New();
   newPts->SetNumberOfPoints(this->NumPts);
 
   //seek to correct spot and read grid
@@ -336,8 +336,8 @@ int vtkPLOT3DReader::ReadBinaryGrid(FILE *fp,vtkStructuredGrid *output)
 
 int vtkPLOT3DReader::ReadBinarySolution(FILE *fp,vtkStructuredGrid *output)
 {
-  vtkFloatScalars *newDensity, *newEnergy;
-  vtkFloatVectors *newMomentum;
+  vtkScalars *newDensity, *newEnergy;
+  vtkVectors *newMomentum;
   int dim[3];
   int i, gridFound, offset, gridSize, maxGridSize;
   float m[3], params[4];
@@ -406,11 +406,11 @@ int vtkPLOT3DReader::ReadBinarySolution(FILE *fp,vtkStructuredGrid *output)
   this->Time = params[3];
 
   //allocate temporary storage to copy density data into
-  newDensity = vtkFloatScalars::New();
+  newDensity = vtkScalars::New();
   newDensity->SetNumberOfScalars(numPts);
-  newEnergy = vtkFloatScalars::New();
+  newEnergy = vtkScalars::New();
   newEnergy->SetNumberOfScalars(numPts);
-  newMomentum = vtkFloatVectors::New();
+  newMomentum = vtkVectors::New();
   newMomentum->SetNumberOfVectors(numPts);
 
   if (fread(this->TempStorage, sizeof(float), numPts, fp) < 
@@ -485,7 +485,7 @@ int vtkPLOT3DReader::ReadBinarySolution(FILE *fp,vtkStructuredGrid *output)
 
 int vtkPLOT3DReader::ReadBinaryFunctionFile(FILE *fp,vtkStructuredGrid *output)
 {
-  vtkFloatScalars *function;
+  vtkScalars *function;
   int numGrids;
 
   if ( this->FileFormat == VTK_WHOLE_MULTI_GRID_NO_IBLANKING )
@@ -509,7 +509,7 @@ int vtkPLOT3DReader::ReadBinaryFunctionFile(FILE *fp,vtkStructuredGrid *output)
 
 int vtkPLOT3DReader::ReadBinaryVectorFunctionFile(FILE *fp,vtkStructuredGrid *output)
 {
-  vtkFloatVectors *vector;
+  vtkVectors *vector;
   int numGrids;
 
   if ( this->FileFormat == VTK_WHOLE_MULTI_GRID_NO_IBLANKING )
@@ -612,7 +612,7 @@ void vtkPLOT3DReader::ComputeTemperature(vtkPointData *outputPD)
 {
   float *m, e, rr, u, v, w, v2, p, d, rrgas;
   int i;
-  vtkFloatScalars *temperature;
+  vtkScalars *temperature;
 //
 //  Check that the required data is available
 //
@@ -623,7 +623,7 @@ void vtkPLOT3DReader::ComputeTemperature(vtkPointData *outputPD)
     return;
     }
 
-  temperature = vtkFloatScalars::New();
+  temperature = vtkScalars::New();
   temperature->SetNumberOfScalars(this->NumPts);
 //
 //  Compute the temperature
@@ -651,7 +651,7 @@ void vtkPLOT3DReader::ComputePressure(vtkPointData *outputPD)
 {
   float *m, e, u, v, w, v2, p, d, rr;
   int i;
-  vtkFloatScalars *pressure;
+  vtkScalars *pressure;
 //
 //  Check that the required data is available
 //
@@ -662,7 +662,7 @@ void vtkPLOT3DReader::ComputePressure(vtkPointData *outputPD)
     return;
     }
 
-  pressure = vtkFloatScalars::New();
+  pressure = vtkScalars::New();
   pressure->SetNumberOfScalars(this->NumPts);
 //
 //  Compute the pressure
@@ -689,7 +689,7 @@ void vtkPLOT3DReader::ComputeEnthalpy(vtkPointData *outputPD)
 {
   float *m, e, u, v, w, v2, d, rr;
   int i;
-  vtkFloatScalars *enthalpy;
+  vtkScalars *enthalpy;
 //
 //  Check that the required data is available
 //
@@ -700,7 +700,7 @@ void vtkPLOT3DReader::ComputeEnthalpy(vtkPointData *outputPD)
     return;
     }
 
-  enthalpy = vtkFloatScalars::New();
+  enthalpy = vtkScalars::New();
   enthalpy->SetNumberOfScalars(this->NumPts);
 //
 //  Compute the enthalpy
@@ -732,7 +732,7 @@ void vtkPLOT3DReader::ComputeKineticEnergy(vtkPointData *outputPD)
 {
   float *m, u, v, w, v2, d, rr;
   int i;
-  vtkFloatScalars *kineticEnergy;
+  vtkScalars *kineticEnergy;
 //
 //  Check that the required data is available
 //
@@ -742,7 +742,7 @@ void vtkPLOT3DReader::ComputeKineticEnergy(vtkPointData *outputPD)
     return;
     }
 
-  kineticEnergy = vtkFloatScalars::New();
+  kineticEnergy = vtkScalars::New();
   kineticEnergy->SetNumberOfScalars(this->NumPts);
 //
 //  Compute the kinetic energy
@@ -767,7 +767,7 @@ void vtkPLOT3DReader::ComputeVelocityMagnitude(vtkPointData *outputPD)
 {
   float *m, u, v, w, v2, d, rr, e;
   int i;
-  vtkFloatScalars *velocityMag;
+  vtkScalars *velocityMag;
 //
 //  Check that the required data is available
 //
@@ -778,7 +778,7 @@ void vtkPLOT3DReader::ComputeVelocityMagnitude(vtkPointData *outputPD)
     return;
     }
 
-  velocityMag = vtkFloatScalars::New();
+  velocityMag = vtkScalars::New();
   velocityMag->SetNumberOfScalars(this->NumPts);
 //
 //  Compute the velocity magnitude
@@ -810,7 +810,7 @@ void vtkPLOT3DReader::ComputeEntropy(vtkPointData *outputPD)
 {
   float *m, u, v, w, v2, d, rr, s, p, e;
   int i;
-  vtkFloatScalars *entropy;
+  vtkScalars *entropy;
 //
 //  Check that the required data is available
 //
@@ -821,7 +821,7 @@ void vtkPLOT3DReader::ComputeEntropy(vtkPointData *outputPD)
     return;
     }
 
-  entropy = vtkFloatScalars::New();
+  entropy = vtkScalars::New();
   entropy->SetNumberOfScalars(this->NumPts);
 //
 //  Compute the entropy
@@ -851,7 +851,7 @@ void vtkPLOT3DReader::ComputeSwirl(vtkPointData *outputPD)
   vtkVectors *vorticity;
   float d, rr, *m, u, v, w, v2, *vort, s;
   int i;
-  vtkFloatScalars *swirl;
+  vtkScalars *swirl;
 //
 //  Check that the required data is available
 //
@@ -862,7 +862,7 @@ void vtkPLOT3DReader::ComputeSwirl(vtkPointData *outputPD)
     return;
     }
 
-  swirl = vtkFloatScalars::New();
+  swirl = vtkScalars::New();
   swirl->SetNumberOfScalars(this->NumPts);
 
   currentVector = outputPD->GetVectors();
@@ -904,7 +904,7 @@ void vtkPLOT3DReader::ComputeVelocity(vtkPointData *outputPD)
 {
   float *m, v[3], d, rr;
   int i;
-  vtkFloatVectors *velocity;
+  vtkVectors *velocity;
 //
 //  Check that the required data is available
 //
@@ -915,7 +915,7 @@ void vtkPLOT3DReader::ComputeVelocity(vtkPointData *outputPD)
     return;
     }
 
-  velocity = vtkFloatVectors::New();
+  velocity = vtkVectors::New();
   velocity->SetNumberOfVectors(this->NumPts);
 //
 //  Compute the velocity
@@ -938,7 +938,7 @@ void vtkPLOT3DReader::ComputeVelocity(vtkPointData *outputPD)
 void vtkPLOT3DReader::ComputeVorticity(vtkPointData *outputPD)
 {
   vtkVectors *velocity;
-  vtkFloatVectors *vorticity;
+  vtkVectors *vorticity;
   int dims[3], ijsize;
   vtkPoints *points;
   int i, j, k, idx, idx2;
@@ -957,7 +957,7 @@ void vtkPLOT3DReader::ComputeVorticity(vtkPointData *outputPD)
     return;
     }
 
-  vorticity = vtkFloatVectors::New();
+  vorticity = vtkVectors::New();
   vorticity->SetNumberOfVectors(this->NumPts);
 
   this->ComputeVelocity(outputPD);
@@ -1164,7 +1164,7 @@ void vtkPLOT3DReader::ComputePressureGradient(vtkPointData *outputPD)
 {
   vtkScalars *currentScalar;
   vtkScalars *pressure;
-  vtkFloatVectors *gradient;
+  vtkVectors *gradient;
   int dims[3], ijsize;
   vtkPoints *points;
   int i, j, k, idx, idx2;
@@ -1183,7 +1183,7 @@ void vtkPLOT3DReader::ComputePressureGradient(vtkPointData *outputPD)
     return;
     }
 
-  gradient = vtkFloatVectors::New();
+  gradient = vtkVectors::New();
   gradient->SetNumberOfVectors(this->NumPts);
 
   currentScalar = outputPD->GetScalars();

@@ -59,8 +59,8 @@ void vtkSphereTree::Execute()
   int numPolys;
   int numSpheres;
   int npts, *pts;
-  vtkFloatPoints *newPoints;
-  vtkFloatScalars *newScalars;
+  vtkPoints *newPoints;
+  vtkScalars *newScalars;
   float *p0, *p1, *p2;
   vtkPolyData *input =(vtkPolyData *)this->Input;
   vtkPolyData *output=(vtkPolyData *)this->Output;
@@ -73,7 +73,7 @@ void vtkSphereTree::Execute()
   
   // Initialize
   this->Points = input->GetPoints();
-  this->NewPoints = new vtkFloatPoints;
+  this->NewPoints = new vtkPoints;
 
   // Get the polygons that will be converted to spheres
   inPolys = input->GetPolys();
@@ -101,9 +101,9 @@ void vtkSphereTree::Execute()
   // Convert spheres to PolyData for output.
   // Allocate
   numSpheres = this->GetNumberOfSpheres();
-  newPoints = vtkFloatPoints::New();
+  newPoints = vtkPoints::New();
   newPoints->Allocate(numSpheres);
-  newScalars = vtkFloatScalars::New();
+  newScalars = vtkScalars::New();
   newScalars->Allocate(numSpheres);
   printf("%d\n", numSpheres);
   

@@ -11,7 +11,7 @@ source ../../examplesTcl/colors.tcl
 # create some points
 #
 vtkMath math
-vtkFloatPoints points
+vtkPoints points
 for {set i 0} {$i<50} {incr i 1} {
     eval points InsertPoint $i [math Random 0 1] [math Random 0 1] 0.0
 }

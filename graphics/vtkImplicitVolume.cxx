@@ -116,7 +116,7 @@ void vtkImplicitVolume::EvaluateGradient(float x[3], float n[3])
   vtkScalars *scalars;
   int i, ijk[3];
   float pcoords[3], weights[8], *v;
-  static vtkFloatVectors gradient(8);
+  vtkVectors gradient; gradient.SetNumberOfVectors(8);
 
   // See if a volume is defined
   if ( !this->Volume ||

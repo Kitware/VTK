@@ -127,8 +127,8 @@ void vtkOBJExporter::WriteAnActor(vtkActor *anActor, FILE *fpObj, FILE *fpMtl,
   vtkPolyData *pd;
   vtkGeometryFilter *gf = NULL;
   vtkPointData *pntData;
-  vtkFloatPoints *points = NULL;
-  vtkFloatNormals *normals = NULL;
+  vtkPoints *points = NULL;
+  vtkNormals *normals = NULL;
   vtkTCoords *tcoords = NULL;
   int i, i1, i2, idNext;
   vtkProperty *prop;
@@ -170,7 +170,7 @@ void vtkOBJExporter::WriteAnActor(vtkActor *anActor, FILE *fpObj, FILE *fpMtl,
     }
 
   // write out the points
-  points = vtkFloatPoints::New();
+  points = vtkPoints::New();
   trans->MultiplyPoints(pd->GetPoints(),points);
   for (i = 0; i < points->GetNumberOfPoints(); i++)
     {
@@ -184,7 +184,7 @@ void vtkOBJExporter::WriteAnActor(vtkActor *anActor, FILE *fpObj, FILE *fpMtl,
   pntData = pd->GetPointData();
   if (pntData->GetNormals())
     {
-    normals = vtkFloatNormals::New();
+    normals = vtkNormals::New();
     trans->MultiplyNormals(pntData->GetNormals(),normals);
     for (i = 0; i < normals->GetNumberOfNormals(); i++)
       {

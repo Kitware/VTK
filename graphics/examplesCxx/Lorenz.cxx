@@ -58,8 +58,8 @@ main (int argc, char **argv)
   // allocate memory for the slices
   sliceSize = resolution * resolution;
   numPts = sliceSize * resolution;
-  vtkShortScalars *scalars = vtkShortScalars::New();
-  s = scalars->WritePointer(0,numPts);
+  vtkScalars *scalars = vtkScalars::New(VTK_SHORT);
+  s = ((vtkShortArray *)scalars->GetData())->WritePointer(0,numPts);
   for (i=0; i < numPts; i++) s[i] = 0;
 
   printf ("	integrating...\n");

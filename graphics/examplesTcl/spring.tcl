@@ -12,7 +12,7 @@ vtkRenderWindowInteractor iren
 
 # create spring profile (a circle)
 #
-vtkFloatPoints points
+vtkPoints points
     points InsertPoint 0 1.0 0.0 0.0
     points InsertPoint 1 1.0732 0.0 -0.1768
     points InsertPoint 2 1.25 0.0 -0.25

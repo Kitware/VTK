@@ -111,7 +111,7 @@ void vtkStarbasePolyDataMapper::Render(vtkRenderer *ren, vtkActor *act)
 
 // Description:
 // Build the data structure for the starbase polygon PolyDataMapper.
-void vtkStarbasePolyDataMapper::Build(vtkPolyData *data, vtkColorScalars *c)
+void vtkStarbasePolyDataMapper::Build(vtkPolyData *data, vtkScalars *c)
 {
   vtkNormals *normals;
   vtkTCoords *t;
@@ -124,7 +124,7 @@ void vtkStarbasePolyDataMapper::Build(vtkPolyData *data, vtkColorScalars *c)
   t = input->GetPointData()->GetTCoords();
 
   this->DataFlag = 0;
-  if (this->Colors)
+  if (c)
     {
     this->DataFlag += 3;
     }
@@ -167,7 +167,7 @@ void vtkStarbasePolyDataMapper::Draw(vtkRenderer *aren, vtkActor *act)
   vtkProperty *prop;
   vtkPoints *p;
   vtkCellArray *prims[4], *aPrim;
-  vtkColorScalars *c;
+  vtkScalars *c=NULL;
   vtkNormals *n;
   int *pts;
   int fd, primType;
@@ -192,7 +192,11 @@ void vtkStarbasePolyDataMapper::Draw(vtkRenderer *aren, vtkActor *act)
 
   // and draw the display list
   p = input->GetPoints();
-  c = this->Colors;
+  if ( this->Colors )
+    {
+    c = this->Colors;
+    c->InitColorTraversal(tran, this->LookupTable, this->ColorMode);
+    }
   n = input->GetPointData()->GetNormals();
   prims[0] = input->GetVerts();
   prims[1] = input->GetLines();

@@ -72,6 +72,7 @@ void vtkPolyDataWriter::WriteData()
   if (input->GetPolys()) this->WriteCells(fp, input->GetPolys(),"POLYGONS");
   if (input->GetStrips()) this->WriteCells(fp, input->GetStrips(),"TRIANGLE_STRIPS");
 
+  this->WriteCellData(fp, input);
   this->WritePointData(fp, input);
 
   this->CloseVTKFile(fp);

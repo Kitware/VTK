@@ -87,7 +87,7 @@ void vtkReverseSense::Execute()
   if ( this->ReverseNormals && normals )
     {
     int numPoints=input->GetNumberOfPoints();
-    vtkNormals *outNormals=normals->MakeObject(numPoints);
+    vtkNormals *outNormals=(vtkNormals *)normals->MakeObject();
     outNormals->SetNumberOfNormals(numPoints);
     float n[3];
 

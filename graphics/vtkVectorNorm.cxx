@@ -40,7 +40,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include <math.h>
 #include "vtkVectorNorm.h"
-#include "vtkFloatScalars.h"
+#include "vtkScalars.h"
 
 // Description:
 // Construct with normalize flag off.
@@ -52,17 +52,18 @@ vtkVectorNorm::vtkVectorNorm()
 void vtkVectorNorm::Execute()
 {
   int i, numVectors;
-  vtkFloatScalars *newScalars;
+  vtkScalars *newScalars;
   float *v, s, maxScalar;
   vtkPointData *pd, *outPD;
   vtkVectors *inVectors;
+  vtkDataSet *input = (vtkDataSet *)this->Input;
   vtkDataSet *output = this->GetOutput();
   //
   // Initialize
   //
   vtkDebugMacro(<<"Normalizing vectors!");
 
-  pd = this->Input->GetPointData();
+  pd = input->GetPointData();
   outPD = output->GetPointData();
   inVectors = pd->GetVectors();
 
@@ -75,7 +76,7 @@ void vtkVectorNorm::Execute()
 //
 // Allocate
 //
-  newScalars = vtkFloatScalars::New();
+  newScalars = vtkScalars::New();
   newScalars->SetNumberOfScalars(numVectors);
 
   for (maxScalar=0.0, i=0; i < numVectors; i++)

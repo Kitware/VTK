@@ -62,7 +62,7 @@ void vtkCleanPolyData::Execute()
   vtkPointData *pd=input->GetPointData();
   int numPts=input->GetNumberOfPoints();
   vtkPoints *inPts;
-  vtkFloatPoints *newPts;
+  vtkPoints *newPts;
   int numNewPts;
   int *updatedPts= new int[input->GetMaxCellSize()];
   int i, ptId;
@@ -88,9 +88,9 @@ void vtkCleanPolyData::Execute()
 
   // Initialize; compute absolute tolerance from relative given
   this->Locator->SetTolerance(this->Tolerance*input->GetLength());
-  newPts = vtkFloatPoints::New();
+  newPts = vtkPoints::New();
   newPts->Allocate(numPts);
-  this->Locator->InitPointInsertion (newPts, this->Input->GetBounds());
+  this->Locator->InitPointInsertion (newPts, input->GetBounds());
 
   //
   // Begin to adjust topology.

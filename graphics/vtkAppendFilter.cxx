@@ -118,9 +118,9 @@ void vtkAppendFilter::Update()
 void vtkAppendFilter::Execute()
 {
   int scalarsPresent, vectorsPresent, normalsPresent, tcoordsPresent;
-  int tensorsPresent, userDefinedPresent;
+  int tensorsPresent, fieldPresent;
   int numPts, numCells, ptOffset;
-  vtkFloatPoints *newPts;
+  vtkPoints *newPts;
   vtkPointData *pd = NULL;
   vtkIdList ptIds(VTK_CELL_SIZE), newPtIds(VTK_CELL_SIZE);
   int i;
@@ -139,7 +139,7 @@ void vtkAppendFilter::Execute()
   normalsPresent = 1;
   tcoordsPresent = 1;
   tensorsPresent = 1;
-  userDefinedPresent = 1;
+  fieldPresent = 1;
 
   for (this->InputList.InitTraversal(); (ds = this->InputList.GetNextItem()); )
     {
@@ -151,7 +151,7 @@ void vtkAppendFilter::Execute()
     if ( pd->GetNormals() == NULL ) normalsPresent &= 0;
     if ( pd->GetTCoords() == NULL ) tcoordsPresent &= 0;
     if ( pd->GetTensors() == NULL ) tensorsPresent &= 0;
-    if ( pd->GetUserDefined() == NULL ) userDefinedPresent &= 0;
+    if ( pd->GetFieldData() == NULL ) fieldPresent &= 0;
     }
 
   if ( numPts < 1 || numCells < 1 )
@@ -167,10 +167,10 @@ void vtkAppendFilter::Execute()
   if ( !normalsPresent ) outputPD->CopyNormalsOff();
   if ( !tcoordsPresent ) outputPD->CopyTCoordsOff();
   if ( !tensorsPresent ) outputPD->CopyTensorsOff();
-  if ( !userDefinedPresent ) outputPD->CopyUserDefinedOff();
+  if ( !fieldPresent ) outputPD->CopyFieldDataOff();
   outputPD->CopyAllocate(pd,numPts);
 
-  newPts = vtkFloatPoints::New();
+  newPts = vtkPoints::New();
   newPts->SetNumberOfPoints(numPts);
 
   for (ptOffset=0, this->InputList.InitTraversal(); 

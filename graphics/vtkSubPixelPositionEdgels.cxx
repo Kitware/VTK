@@ -49,8 +49,8 @@ void vtkSubPixelPositionEdgels::Execute()
 {
   vtkPolyData *input=(vtkPolyData *)this->Input;
   int numPts=input->GetNumberOfPoints();
-  vtkFloatPoints *newPts;
-  vtkFloatNormals *newNormals;
+  vtkPoints *newPts;
+  vtkNormals *newNormals;
   vtkPoints *inPts;
   vtkVectors *inVectors;
   int ptId;
@@ -69,13 +69,14 @@ void vtkSubPixelPositionEdgels::Execute()
     return;
     }
 
-  newPts = vtkFloatPoints::New();
-  newNormals = vtkFloatNormals::New();
+  newPts = vtkPoints::New();
+  newNormals = vtkNormals::New();
   
   dimensions = this->GradMaps->GetDimensions();
   spacing = this->GradMaps->GetSpacing();
   origin = this->GradMaps->GetOrigin();
-  MapData = ((vtkFloatScalars *)((this->GradMaps->GetPointData())->GetScalars()))->GetPointer(0);
+  MapData = ((vtkFloatArray *)(this->GradMaps->GetPointData())->GetScalars()->GetData())->
+             GetPointer(0);
   inVectors = this->GradMaps->GetPointData()->GetVectors();
 
   //

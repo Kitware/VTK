@@ -97,9 +97,12 @@ public:
   void SetLookupTableName(char *name);
   char *GetLookupTableName();
 
+  void SetFieldDataName(char *name);
+  char *GetFieldDataName();
+
   // Description:
   // Get the output of this source.
-  vtkDataSet *GetOutput() {return this->Output;};
+  vtkDataSet *GetOutput() {return (vtkDataSet *)this->Output;};
 
 protected:
   void Execute();

@@ -50,7 +50,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include <stdio.h>
 #include "vtkStructuredPointsSource.h"
-#include "vtkBitScalars.h"
 
 class VTK_EXPORT vtkSLCReader : public vtkStructuredPointsSource 
 {

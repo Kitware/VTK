@@ -92,14 +92,15 @@ void vtkClipPolyData::Execute()
   vtkPolyData *input = (vtkPolyData *)this->Input;
   vtkPolyData *output = this->GetOutput();
   int cellId, i;
-  vtkFloatPoints *cellPts;
+  vtkPoints *cellPts;
   vtkScalars *clipScalars;
-  vtkFloatScalars cellScalars(VTK_CELL_SIZE); cellScalars.ReferenceCountingOff();
+  vtkScalars cellScalars; 
+  cellScalars.Allocate(VTK_CELL_SIZE); cellScalars.ReferenceCountingOff();
   vtkCell *cell;
   vtkCellArray *newVerts, *newLines, *newPolys, *connList=NULL;
   vtkCellArray *clippedVerts=NULL, *clippedLines=NULL;
   vtkCellArray *clippedPolys=NULL, *clippedList=NULL;
-  vtkFloatPoints *newPoints;
+  vtkPoints *newPoints;
   vtkIdList *cellIds;
   float value, s;
   int estimatedSize, numCells=input->GetNumberOfCells();
@@ -131,7 +132,7 @@ void vtkClipPolyData::Execute()
   estimatedSize = estimatedSize / 1024 * 1024; //multiple of 1024
   if (estimatedSize < 1024) estimatedSize = 1024;
 
-  newPoints = vtkFloatPoints::New();
+  newPoints = vtkPoints::New();
   newPoints->Allocate(numPts,numPts/2);
   newVerts = vtkCellArray::New();
   newVerts->Allocate(estimatedSize,estimatedSize/2);
@@ -148,9 +149,10 @@ void vtkClipPolyData::Execute()
   // and to necessary setup.
   if ( this->ClipFunction )
     {
-    vtkFloatScalars *tmpScalars = vtkFloatScalars::New();
+    vtkScalars *tmpScalars = vtkScalars::New();
     tmpScalars->Allocate(numPts);
-    inPD = new vtkPointData(*(input->GetPointData()));//copies original
+    inPD = vtkPointData::New();
+    inPD->ShallowCopy(*(input->GetPointData()));//copies original
     if ( this->GenerateClipScalars ) inPD->SetScalars(tmpScalars);
     for ( i=0; i < numPts; i++ )
       {

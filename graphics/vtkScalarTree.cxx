@@ -75,10 +75,11 @@ void vtkScalarTree::BuildTree()
   int offset, parentOffset, prod, numNodes;
   int i, j, node, cellId, numScalars, leaf, numParentLeafs;
   vtkCell *cell;
-  vtkFloatScalars cellScalars(100); cellScalars.ReferenceCountingOff();
   vtkIdList *cellPts;
   vtkScalarRange *tree, *parent;
   float *s;
+  vtkScalars cellScalars; cellScalars.ReferenceCountingOff();
+  cellScalars.Allocate(100);
 
   // Check input...see whether we have to rebuild
   //
@@ -131,7 +132,7 @@ void vtkScalarTree::BuildTree()
       cell = this->DataSet->GetCell(cellId);
       cellPts = cell->GetPointIds();
       this->Scalars->GetScalars(*cellPts,cellScalars);
-      s = cellScalars.GetPointer(0);
+      s = ((vtkFloatArray *)cellScalars.GetData())->GetPointer(0);
       numScalars = cellScalars.GetNumberOfScalars();
 
       for ( j=0; j < numScalars; j++ )
@@ -274,7 +275,7 @@ int vtkScalarTree::FindNextLeaf(int childIndex, int childLevel)
 // exhausted. Make sure that InitTraversal() has been invoked first or
 // you'll get erratic behavior.
 vtkCell *vtkScalarTree::GetNextCell(int& cellId, vtkIdList* &cellPts,
-                                    vtkFloatScalars& cellScalars)
+                                    vtkScalars& cellScalars)
 {
   float *s, min=VTK_LARGE_FLOAT, max=(-VTK_LARGE_FLOAT);
   int i, numScalars;
@@ -288,7 +289,7 @@ vtkCell *vtkScalarTree::GetNextCell(int& cellId, vtkIdList* &cellPts,
       cell = this->DataSet->GetCell(this->CellId);
       cellPts = cell->GetPointIds();
       this->Scalars->GetScalars(*cellPts,cellScalars);
-      s = cellScalars.GetPointer(0);
+      s = ((vtkFloatArray *)cellScalars.GetData())->GetPointer(0);
       numScalars = cellScalars.GetNumberOfScalars();
       for (i=0; i < numScalars; i++)
         {

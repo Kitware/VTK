@@ -17,9 +17,9 @@ vtkActor planeActor
     planeActor SetMapper planeMapper
     [planeActor GetProperty] SetRepresentationToWireframe
 # create simple poly data so we can apply glyph
-vtkFloatPoints pts
+vtkPoints pts
     eval pts InsertPoint 0 [plane GetCenter]
-vtkFloatNormals normal
+vtkNormals normal
     eval normal InsertNormal 0 [plane GetNormal]
 vtkPolyData pd
     pd SetPoints pts

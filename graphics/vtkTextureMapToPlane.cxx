@@ -40,7 +40,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkTextureMapToPlane.h"
 #include "vtkMath.h"
-#include "vtkFloatTCoords.h"
+#include "vtkTCoords.h"
 
 // Description:
 // Construct with s,t range=(0,1) and automatic plane generation turned on.
@@ -68,16 +68,17 @@ void vtkTextureMapToPlane::Execute()
 {
   float tcoords[2];
   int numPts;
-  vtkFloatTCoords *newTCoords;
+  vtkTCoords *newTCoords;
   int i, j;
   float *bounds;
   float proj, minProj, axis[3], sAxis[3], tAxis[3];
   int dir = 0;
   float s, t, sSf, tSf, *p;
-  vtkDataSet *output=this->Output;
+  vtkDataSet *input=(vtkDataSet *)this->Input;
+  vtkDataSet *output=(vtkDataSet *)this->Output;
 
   vtkDebugMacro(<<"Generating texture coordinates!");
-  if ( (numPts=this->Input->GetNumberOfPoints()) < 3 && 
+  if ( (numPts=input->GetNumberOfPoints()) < 3 && 
   this->AutomaticPlaneGeneration )
     {
     vtkErrorMacro(<< "Not enough points for automatic plane mapping\n");
@@ -86,7 +87,7 @@ void vtkTextureMapToPlane::Execute()
 //
 //  Allocate texture data
 //
-  newTCoords = vtkFloatTCoords::New();
+  newTCoords = vtkTCoords::New();
   newTCoords->SetNumberOfTCoords(numPts);
 //
 //  Compute least squares plane if on automatic mode; otherwise use
@@ -195,7 +196,7 @@ void vtkTextureMapToPlane::Execute()
 // Update ourselves
 //
   output->GetPointData()->CopyTCoordsOff();
-  output->GetPointData()->PassData(this->Input->GetPointData());
+  output->GetPointData()->PassData(input->GetPointData());
 
   output->GetPointData()->SetTCoords(newTCoords);
   newTCoords->Delete();
@@ -205,7 +206,8 @@ void vtkTextureMapToPlane::Execute()
 
 void vtkTextureMapToPlane::ComputeNormal()
 {
-  int numPts=this->Output->GetNumberOfPoints();
+  vtkDataSet *output=(vtkDataSet *)this->Output;
+  int numPts=output->GetNumberOfPoints();
   float m[9], v[3], *x;
   int i, ptId;
   int dir = 0;
@@ -218,8 +220,8 @@ void vtkTextureMapToPlane::ComputeNormal()
 //  fallback value.
 //
   //  Get minimum width of bounding box.
-  bounds = this->Output->GetBounds();
-  length = this->Output->GetLength();
+  bounds = output->GetBounds();
+  length = output->GetLength();
 
   for (w=length, i=0; i<3; i++)
     {
@@ -246,7 +248,7 @@ void vtkTextureMapToPlane::ComputeNormal()
 
   for (ptId=0; ptId < numPts; ptId++) 
     {
-    x = this->Output->GetPoint(ptId);
+    x = output->GetPoint(ptId);
 
     v[0] += x[0]*x[2];
     v[1] += x[1]*x[2];

@@ -57,7 +57,7 @@ void vtkStructuredGridGeometryFilter::Execute()
   int *dims, dimension, dir[3], diff[3];
   int i, j, k, extent[6];
   int ptIds[4], idx, startIdx;
-  vtkFloatPoints *newPts=0;
+  vtkPoints *newPts=0;
   vtkCellArray *newVerts=0;
   vtkCellArray *newLines=0;
   vtkCellArray *newPolys=0;
@@ -106,7 +106,7 @@ void vtkStructuredGridGeometryFilter::Execute()
 
       if ( input->IsPointVisible(startIdx) )
         {
-        newPts = vtkFloatPoints::New();
+        newPts = vtkPoints::New();
         newPts->Allocate(1);
         newVerts = vtkCellArray::New();
         newVerts->Allocate(newVerts->EstimateSize(1,1));
@@ -129,7 +129,7 @@ void vtkStructuredGridGeometryFilter::Execute()
           break;
           }
         }
-      newPts = vtkFloatPoints::New();
+      newPts = vtkPoints::New();
       newPts->Allocate(totPoints);
       newLines = vtkCellArray::New();
       newLines->Allocate(newLines->EstimateSize(totPoints-1,2));
@@ -178,7 +178,7 @@ void vtkStructuredGridGeometryFilter::Execute()
       totPoints = (diff[dir[0]]+1) * (diff[dir[1]]+1);
       numPolys = diff[dir[0]]  * diff[dir[1]];
 
-      newPts = vtkFloatPoints::New();
+      newPts = vtkPoints::New();
       newPts->Allocate(totPoints);
       newPolys = vtkCellArray::New();
       newPolys->Allocate(newLines->EstimateSize(numPolys,4));
@@ -241,7 +241,7 @@ void vtkStructuredGridGeometryFilter::Execute()
 
       totPoints = (diff[0]+1) * (diff[1]+1) * (diff[2]+1);
 
-      newPts = vtkFloatPoints::New();
+      newPts = vtkPoints::New();
       newPts->Allocate(totPoints);
       newVerts = vtkCellArray::New();
       newVerts->Allocate(newVerts->EstimateSize(totPoints,1));

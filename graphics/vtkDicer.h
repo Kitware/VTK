@@ -93,9 +93,9 @@ protected:
 
   //implementation ivars and methods
   void BuildTree(vtkIdList *ptIds, vtkOBBNode *OBBptr);
-  void MarkPoints(vtkOBBNode *OBBptr, vtkShortScalars *groupIds);
+  void MarkPoints(vtkOBBNode *OBBptr, vtkScalars *groupIds);
   void DeleteTree(vtkOBBNode *OBBptr);
-  vtkFloatPoints *PointsList;
+  vtkPoints *PointsList;
   
 };
 

@@ -27,6 +27,7 @@ vtkDataSetMapper mapper
 
 vtkActor actor
   actor SetMapper mapper
+  [actor GetProperty] SetOpacity 0.5
 
 # Create renderer stuff
 #

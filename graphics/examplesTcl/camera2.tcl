@@ -34,7 +34,7 @@ camActor SetScale 2 2 2
 # draw the arrows
 vtkPolyData pd
 vtkCellArray ca
-vtkFloatPoints fp
+vtkPoints fp
 fp InsertNextPoint 0 1 0
 fp InsertNextPoint 8 1 0
 fp InsertNextPoint 8 2 0
@@ -55,7 +55,7 @@ pd SetPolys ca
 
 vtkPolyData pd2
 vtkCellArray ca2
-vtkFloatPoints fp2
+vtkPoints fp2
 fp2 InsertNextPoint 0 1 0
 fp2 InsertNextPoint 8 1 0
 fp2 InsertNextPoint 8 2 0

@@ -39,7 +39,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkTextureMapToBox.h"
-#include "vtkFloatTCoords.h"
+#include "vtkTCoords.h"
 
 // Description:
 // Construct with r-s-t range=(0,1) and automatic box generation turned on.
@@ -65,28 +65,29 @@ void vtkTextureMapToBox::Execute()
 {
   float tc[3];
   int numPts;
-  vtkFloatTCoords *newTCoords;
+  vtkTCoords *newTCoords;
   int i, j;
   float *box, *p;
   float min[3], max[3];
-  vtkDataSet *output=this->Output;
-  
+  vtkDataSet *input=(vtkDataSet *)this->Input;
+  vtkDataSet *output=(vtkDataSet *)this->Output;
 
   vtkDebugMacro(<<"Generating 3D texture coordinates!");
 //
 //  Allocate texture data
 //
-  if ( (numPts=this->Input->GetNumberOfPoints()) < 1 )
+  if ( (numPts=input->GetNumberOfPoints()) < 1 )
     {
     vtkErrorMacro(<<"No points to texture!");
     return;
     }
 
-  newTCoords = vtkFloatTCoords::New();
+  newTCoords = vtkTCoords::New();
+  newTCoords->SetNumberOfComponents(3);
   newTCoords->SetNumberOfTCoords(numPts);
 
   if ( this->AutomaticBoxGeneration ) 
-    box = this->Input->GetBounds();
+    box = input->GetBounds();
   else
     box = this->Box;
 //
@@ -110,7 +111,7 @@ void vtkTextureMapToBox::Execute()
 // Update ourselves
 //
   output->GetPointData()->CopyTCoordsOff();
-  output->GetPointData()->PassData(this->Input->GetPointData());
+  output->GetPointData()->PassData(input->GetPointData());
 
   output->GetPointData()->SetTCoords(newTCoords);
   newTCoords->Delete();

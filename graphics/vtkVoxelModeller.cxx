@@ -41,7 +41,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <math.h>
 #include <stdio.h>
 #include "vtkVoxelModeller.h"
-#include "vtkBitScalars.h"
 
 // Description:
 // Construct an instance of vtkVoxelModeller with its sample dimensions
@@ -94,13 +93,14 @@ void vtkVoxelModeller::Execute()
   float *bounds, adjBounds[6];
   vtkCell *cell;
   float maxDistance, pcoords[3];
-  vtkBitScalars *newScalars;
+  vtkScalars *newScalars;
   int numPts, idx;
   int subId;
   int min[3], max[3];
   float x[3], distance2;
   int jkFactor;
-  float *weights=new float[this->Input->GetMaxCellSize()];
+  vtkDataSet *input=(vtkDataSet *)this->Input;
+  float *weights=new float[input->GetMaxCellSize()];
   float closestPoint[3];
   float voxelHalfWidth[3], origin[3], spacing[3];
   vtkStructuredPoints *output=(vtkStructuredPoints *)this->Output;
@@ -110,7 +110,7 @@ void vtkVoxelModeller::Execute()
   vtkDebugMacro(<< "Executing Voxel model");
 
   numPts = this->SampleDimensions[0] * this->SampleDimensions[1] * this->SampleDimensions[2];
-  newScalars = vtkBitScalars::New();
+  newScalars = vtkScalars::New(VTK_BIT);
   newScalars->SetNumberOfScalars(numPts);
   for (i=0; i<numPts; i++) newScalars->SetScalar(i,0);
 
@@ -123,9 +123,9 @@ void vtkVoxelModeller::Execute()
 //
 // Traverse all cells; computing distance function on volume points.
 //
-  for (cellNum=0; cellNum < this->Input->GetNumberOfCells(); cellNum++)
+  for (cellNum=0; cellNum < input->GetNumberOfCells(); cellNum++)
     {
-    cell = this->Input->GetCell(cellNum);
+    cell = input->GetCell(cellNum);
     bounds = cell->GetBounds();
     for (i=0; i<3; i++)
       {
@@ -190,7 +190,7 @@ float vtkVoxelModeller::ComputeModelBounds(float origin[3], float spacing[3])
   this->ModelBounds[4] >= this->ModelBounds[5] )
     {
     adjustBounds = 1;
-    bounds = this->Input->GetBounds();
+    bounds = ((vtkDataSet *)this->Input)->GetBounds();
     }
   else
     {
@@ -272,10 +272,11 @@ void vtkVoxelModeller::Write(char *fname)
   int i, j, k;
   float maxDistance, origin[3], spacing[3];
   
-  vtkBitScalars *newScalars;
+  vtkScalars *newScalars;
   int numPts, idx;
   int bitcount;
   unsigned char uc;
+  vtkStructuredPoints *output=(vtkStructuredPoints *)this->Output;
 
   vtkDebugMacro(<< "Writing Voxel model");
 
@@ -284,9 +285,9 @@ void vtkVoxelModeller::Write(char *fname)
   
   numPts = this->SampleDimensions[0] * this->SampleDimensions[1] * this->SampleDimensions[2];
 
-  newScalars = (vtkBitScalars *)this->Output->GetPointData()->GetScalars();
+  newScalars = output->GetPointData()->GetScalars();
 
-  ((vtkStructuredPoints *)(this->Output))->SetDimensions(this->GetSampleDimensions());
+  output->SetDimensions(this->GetSampleDimensions());
   maxDistance = this->ComputeModelBounds(origin,spacing);
 
   fp = fopen(fname,"w");

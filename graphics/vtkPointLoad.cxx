@@ -40,7 +40,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkPointLoad.h"
 #include "vtkMath.h"
-#include "vtkFloatTensors.h"
+#include "vtkTensors.h"
 
 // Description:
 // Construct with ModelBounds=(-1,1,-1,1,-1,1), SampleDimensions=(50,50,50),
@@ -115,9 +115,9 @@ void vtkPointLoad::SetModelBounds(float xmin, float xmax, float ymin,
 void vtkPointLoad::Execute()
 {
   int i, j, k;
-  vtkFloatTensors *newTensors;
+  vtkTensors *newTensors;
   vtkTensor tensor;
-  vtkFloatScalars *newScalars = NULL;
+  vtkScalars *newScalars = NULL;
   int numPts;
   float P, twoPi, xP[3], rho, rho2, rho3, rho5, nu;
   float x, x2, y, y2, z, z2, rhoPlusz2, zPlus2rho, txy, txz, tyz;
@@ -131,11 +131,11 @@ void vtkPointLoad::Execute()
 
   numPts = this->SampleDimensions[0] * this->SampleDimensions[1] 
            * this->SampleDimensions[2];
-  newTensors = vtkFloatTensors::New();
+  newTensors = vtkTensors::New();
   newTensors->Allocate(numPts);
   if ( this->ComputeEffectiveStress ) 
     {
-    newScalars = vtkFloatScalars::New();
+    newScalars = vtkScalars::New();
     newScalars->Allocate(numPts);
     }
 

@@ -51,14 +51,15 @@ vtkMaskPoints::vtkMaskPoints()
 
 void vtkMaskPoints::Execute()
 {
-  vtkFloatPoints *newPts;
+  vtkPoints *newPts;
   vtkPointData *pd;
-  int numPts=this->Input->GetNumberOfPoints();
   int numNewPts;
   float *x;
   int ptId, id;
   vtkPolyData *output = this->GetOutput();
   vtkPointData *outputPD = output->GetPointData();
+  vtkDataSet *input=(vtkDataSet *)this->Input;
+  int numPts=input->GetNumberOfPoints();
   
   //
   // Check input
@@ -71,7 +72,7 @@ void vtkMaskPoints::Execute()
     return;
     }
 
-  pd = this->Input->GetPointData();
+  pd = input->GetPointData();
   id = 0;
   
   //
@@ -82,7 +83,7 @@ void vtkMaskPoints::Execute()
     {
     numNewPts = this->MaximumNumberOfPoints;
     }
-  newPts = vtkFloatPoints::New();
+  newPts = vtkPoints::New();
   newPts->Allocate(numNewPts);
   outputPD->CopyAllocate(pd);
   //
@@ -105,7 +106,7 @@ void vtkMaskPoints::Execute()
     (ptId < numPts) && (id < this->MaximumNumberOfPoints);  
     ptId += (1 + (int)((float)vtkMath::Random()*cap)) )
       {
-      x =  this->Input->GetPoint(ptId);
+      x =  input->GetPoint(ptId);
       id = newPts->InsertNextPoint(x);
       outputPD->CopyData(pd,ptId,id);
       }
@@ -116,7 +117,7 @@ void vtkMaskPoints::Execute()
     (ptId < numPts) && (id < (this->MaximumNumberOfPoints-1));
     ptId += this->OnRatio )
       {
-      x =  this->Input->GetPoint(ptId);
+      x =  input->GetPoint(ptId);
       id = newPts->InsertNextPoint(x);
       outputPD->CopyData(pd,ptId,id);
       }

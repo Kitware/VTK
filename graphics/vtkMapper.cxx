@@ -50,13 +50,6 @@ vtkMapper::vtkMapper()
   this->Input = NULL;
   this->Colors = NULL;
 
-  this->StartRender = NULL;
-  this->StartRenderArgDelete = NULL;
-  this->StartRenderArg = NULL;
-  this->EndRender = NULL;
-  this->EndRenderArgDelete = NULL;
-  this->EndRenderArg = NULL;
-
   this->LookupTable = NULL;
 
   this->ScalarVisibility = 1;
@@ -64,6 +57,8 @@ vtkMapper::vtkMapper()
 
   this->SelfCreatedLookupTable = 0;
   this->ImmediateModeRendering = 0;
+
+  this->ColorMode = VTK_COLOR_MODE_DEFAULT;
 }
 
 vtkMapper::~vtkMapper()
@@ -107,29 +102,22 @@ void vtkMapper::operator=(const vtkMapper& m)
 
   this->SetScalarVisibility(m.ScalarVisibility);
   this->SetScalarRange(m.ScalarRange[0], m.ScalarRange[1]);
-
-  this->SetStartRender(m.StartRender,m.StartRenderArg);
-  this->SetEndRender(m.EndRender,m.EndRenderArg);
 }
 
 // a side effect of this is that this->Colors is also set
 // to the return value
-vtkColorScalars *vtkMapper::GetColors()
+vtkScalars *vtkMapper::GetColors()
 {
-  vtkPointData *pd;
   vtkScalars *scalars;
-  int i, numPts;
-  vtkColorScalars *colors;
   
   // make sure we have an input
   if (!this->Input) return NULL;
     
   // get point data and scalars
-  pd=this->Input->GetPointData();
-  scalars=pd->GetScalars();
+  scalars = this->Input->GetPointData()->GetScalars();
 
   // do we have any scalars ?
-  if (scalars &&  this->ScalarVisibility)
+  if (scalars && this->ScalarVisibility)
     {
     // if the scalars have a lookup table use it instead
     if (scalars->GetLookupTable())
@@ -142,114 +130,22 @@ vtkColorScalars *vtkMapper::GetColors()
       if ( this->LookupTable == NULL ) this->CreateDefaultLookupTable();
       this->LookupTable->Build();
       }
-    }
-  else
-    {
-    // if there are no scalars or if they arn't visible, return
-    if ( this->Colors ) this->Colors->Delete();
-    this->Colors = colors = NULL;
-    return colors;
+
+    // Setup mapper/scalar object for color generation
+    this->LookupTable->SetTableRange(this->ScalarRange);
+    if (this->Colors) this->Colors->Delete();
+    this->Colors = scalars;
+    this->Colors->Register(this);
+    this->Colors->InitColorTraversal(1.0, this->LookupTable, this->ColorMode);
     }
 
-  //
-  // create colors
-  //
-  numPts = this->Input->GetNumberOfPoints();
-  if ( scalars->GetScalarType() != VTK_COLOR_SCALAR )
+  else //scalars not visible
     {
-    if ( this->Colors == NULL ) 
-      {
-      this->Colors = vtkAPixmap::New();
-      this->Colors->Allocate(numPts);
-      }
-    else
-      {
-      int numColors=this->Colors->GetNumberOfColors();
-      if ( numColors < numPts ) this->Colors->Allocate(numPts);
-      }
-    
-    this->LookupTable->SetTableRange(this->ScalarRange);
-    this->Colors->SetNumberOfColors(numPts);
-    for (i=0; i < numPts; i++)
-      {
-      this->Colors->SetColor(i,this->LookupTable->
-			     MapValue(scalars->GetScalar(i)));
-      }
-    
-    colors = this->Colors;
-    }
-  else //color scalar
-    {
-    colors = (vtkColorScalars *)scalars;
-    if (this->Colors)
-      {
-      this->Colors->Delete();
-      }
-    this->Colors = colors;
-    this->Colors->Register(this);
+    if ( this->Colors ) this->Colors->Delete();
+    this->Colors = NULL;
     }
   
-  return colors;
-}
-
-// Description:
-// Specify a function to be called before rendering process begins.
-// Function will be called with argument provided.
-void vtkMapper::SetStartRender(void (*f)(void *), void *arg)
-{
-  if ( f != this->StartRender || arg != this->StartRenderArg )
-    {
-    // delete the current arg if there is one and a delete meth
-    if ((this->StartRenderArg)&&(this->StartRenderArgDelete))
-      {
-      (*this->StartRenderArgDelete)(this->StartRenderArg);
-      }
-    this->StartRender = f;
-    this->StartRenderArg = arg;
-    this->Modified();
-    }
-}
-
-// Description:
-// Specify a method to delete the user specified argument to the 
-// StartRenderMethod. This is an optional capability.
-void vtkMapper::SetStartRenderArgDelete(void (*f)(void *))
-{
-  if ( f != this->StartRenderArgDelete)
-    {
-    this->StartRenderArgDelete = f;
-    this->Modified();
-    }
-}
-
-// Description:
-// Specify a method to delete the user specified argument to the 
-// EndRenderMethod. This is an optional capability.
-void vtkMapper::SetEndRenderArgDelete(void (*f)(void *))
-{
-  if ( f != this->EndRenderArgDelete)
-    {
-    this->EndRenderArgDelete = f;
-    this->Modified();
-    }
-}
-
-// Description:
-// Specify a function to be called when rendering process completes.
-// Function will be called with argument provided.
-void vtkMapper::SetEndRender(void (*f)(void *), void *arg)
-{
-  if ( f != this->EndRender || arg != EndRenderArg )
-    {
-    // delete the current arg if there is one and a delete meth
-    if ((this->EndRenderArg)&&(this->EndRenderArgDelete))
-      {
-      (*this->EndRenderArgDelete)(this->EndRenderArg);
-      }
-    this->EndRender = f;
-    this->EndRenderArg = arg;
-    this->Modified();
-    }
+  return this->Colors;
 }
 
 // Description:
@@ -298,9 +194,27 @@ void vtkMapper::Update()
     }
 }
 
+// Description:
+// Return the method of coloring scalar data.
+char *vtkMapper::GetColorModeAsString(void)
+{
+  if ( this->ColorMode == VTK_COLOR_MODE_LUMINANCE )
+    {
+    return "Luminance";
+    }
+  else if ( this->ColorMode == VTK_COLOR_MODE_MAP_SCALARS ) 
+    {
+    return "MapScalars";
+    }
+  else 
+    {
+    return "Default";
+    }
+}
+
 void vtkMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkObject::PrintSelf(os,indent);
+  vtkProcessObject::PrintSelf(os,indent);
 
   if ( this->Input )
     {
@@ -309,25 +223,6 @@ void vtkMapper::PrintSelf(ostream& os, vtkIndent indent)
   else
     {
     os << indent << "Input: (none)\n";
-    }
-
-  os << indent << "Build Time: " <<this->BuildTime.GetMTime() << "\n";
-  if ( this->StartRender )
-    {
-    os << indent << "Start Render method defined.\n";
-    }
-  else
-    {
-    os << indent << "No Start Render method.\n";
-    }
-
-  if ( this->EndRender )
-    {
-    os << indent << "End Render method defined.\n";
-    }
-  else
-    {
-    os << indent << "No End Render method.\n";
     }
 
   if ( this->LookupTable )
@@ -348,4 +243,7 @@ void vtkMapper::PrintSelf(ostream& os, vtkIndent indent)
 
   float *range = this->GetScalarRange();
   os << indent << "Scalar Range: (" << range[0] << ", " << range[1] << ")\n";
+  
+  os << indent << "Color Mode: " << this->GetColorModeAsString() << endl;
+
 }

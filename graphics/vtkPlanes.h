@@ -50,8 +50,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // inside the convex region.
 //
 // To define the planes you must create two objects: a subclass of 
-// vtkPoints (e.g., vtkFloatPoints) and a subclass of vtkNormals (e.g., 
-// vtkFloatNormals). The points define a point on the plane, and the normals
+// vtkPoints (e.g., vtkPoints) and a subclass of vtkNormals (e.g., 
+// vtkNormals). The points define a point on the plane, and the normals
 // specify plane normals.
 
 #ifndef __vtkPlanes_h

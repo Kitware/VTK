@@ -93,8 +93,9 @@ void vtkUnstructuredGridWriter::WriteData()
     vtkByteSwap::SwapWrite4BERange(types,ncells,fp);
     }
   fprintf (fp,"\n");
-    
   delete [] types;
+
+  this->WriteCellData(fp, input);
   this->WritePointData(fp, input);
 
   this->CloseVTKFile(fp);  

@@ -91,7 +91,7 @@ float vtkShepardMethod::ComputeModelBounds(float origin[3], float spacing[3])
   this->ModelBounds[4] >= this->ModelBounds[5] )
     {
     adjustBounds = 1;
-    bounds = this->Input->GetBounds();
+    bounds = ((vtkDataSet *)this->Input)->GetBounds();
     }
   else
     {
@@ -135,23 +135,24 @@ void vtkShepardMethod::Execute()
   
   float maxDistance, distance2, inScalar;
   vtkScalars *inScalars;
-  vtkFloatScalars *newScalars;
+  vtkScalars *newScalars;
   int numPts, numNewPts, idx;
   int min[3], max[3];
   int jkFactor;
+  vtkDataSet *input=(vtkDataSet *)this->Input;
   vtkStructuredPoints *output=(vtkStructuredPoints *)this->Output;
 
   vtkDebugMacro(<< "Executing Shepard method");
 //
 // Check input
 //
-  if ( (numPts=this->Input->GetNumberOfPoints()) < 1 )
+  if ( (numPts=input->GetNumberOfPoints()) < 1 )
     {
     vtkErrorMacro(<<"Points must be defined!");
     return;
     }
 
-  if ( (inScalars = this->Input->GetPointData()->GetScalars()) == NULL )
+  if ( (inScalars = input->GetPointData()->GetScalars()) == NULL )
     {
     vtkErrorMacro(<<"Scalars must be defined!");
     return;
@@ -162,7 +163,7 @@ void vtkShepardMethod::Execute()
   numNewPts = this->SampleDimensions[0] * this->SampleDimensions[1] 
               * this->SampleDimensions[2];
 
-  newScalars = vtkFloatScalars::New();
+  newScalars = vtkScalars::New();
   newScalars->SetNumberOfScalars(numNewPts);
 
   sum = new float[numNewPts];
@@ -179,7 +180,7 @@ void vtkShepardMethod::Execute()
 //
   for (ptId=0; ptId < numPts; ptId++)
     {
-    px = this->Input->GetPoint(ptId);
+    px = input->GetPoint(ptId);
     inScalar = inScalars->GetScalar(ptId);
     
     for (i=0; i<3; i++) //compute dimensional bounds in data set

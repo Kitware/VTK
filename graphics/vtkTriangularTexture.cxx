@@ -39,8 +39,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkTriangularTexture.h"
-#include "vtkAGraymap.h"
 #include "vtkMath.h"
+#include "vtkUnsignedCharArray.h"
 
 // Description:
 // Instantiate object with XSize and YSize = 64; the texture pattern =1
@@ -53,7 +53,8 @@ vtkTriangularTexture::vtkTriangularTexture()
   this->ScaleFactor = 1.0;
 }
 
-static void OpaqueAtElementCentroid (int XSize, int YSize, float ScaleFactor, vtkAGraymap *newScalars)
+static void OpaqueAtElementCentroid (int XSize, int YSize, float ScaleFactor, 
+				     vtkUnsignedCharArray *newScalars)
 {
   int i, j;
   float opacity;
@@ -85,13 +86,14 @@ static void OpaqueAtElementCentroid (int XSize, int YSize, float ScaleFactor, vt
       if (opacity < .5) opacity = 0.0;
       if (opacity > .5) opacity = 1.0;
       AGrayValue[1] = (unsigned char) (opacity * 255);
-      newScalars->InsertNextAGrayValue (AGrayValue);
+      newScalars->InsertNextValue (AGrayValue[0]);
+      newScalars->InsertNextValue (AGrayValue[1]);
       } 	
     }
 }
 
 static void OpaqueAtVertices (int XSize, int YSize, float ScaleFactor, 
-                              vtkAGraymap *newScalars)
+                              vtkUnsignedCharArray *newScalars)
 {
   int i, j;
   float opacity;
@@ -124,7 +126,8 @@ static void OpaqueAtVertices (int XSize, int YSize, float ScaleFactor,
       if (opacity > .5) opacity = 1.0;
       opacity = 1.0 - opacity;
       AGrayValue[1] = (unsigned char) (opacity * 255);
-      newScalars->InsertNextAGrayValue (AGrayValue);
+      newScalars->InsertNextValue (AGrayValue[0]);
+      newScalars->InsertNextValue (AGrayValue[1]);
       } 	
     }
 }
@@ -132,7 +135,8 @@ static void OpaqueAtVertices (int XSize, int YSize, float ScaleFactor,
 void vtkTriangularTexture::Execute()
 {
   int numPts;
-  vtkAGraymap *newScalars;
+  vtkScalars *newScalars;
+  vtkUnsignedCharArray *data;
   vtkStructuredPoints *output = this->GetOutput();
   
   if ( (numPts = this->XSize * this->YSize) < 1 )
@@ -142,23 +146,23 @@ void vtkTriangularTexture::Execute()
     }
 
   output->SetDimensions(this->XSize,this->YSize,1);
-  newScalars = vtkAGraymap::New();
+  newScalars = vtkScalars::New(VTK_UNSIGNED_CHAR,2);
   newScalars->Allocate(numPts);
+  data = (vtkUnsignedCharArray *)newScalars->GetData();
 
   switch (this->TexturePattern) 
     {
     case 1: // opaque at element vertices
-        OpaqueAtVertices (this->XSize, this->YSize, this->ScaleFactor, 
-                          newScalars);
-	break;
+      OpaqueAtVertices (this->XSize, this->YSize, this->ScaleFactor, data);
+      break;
 
     case 2: // opaque at element centroid
-        OpaqueAtElementCentroid (this->XSize, this->YSize, this->ScaleFactor, 
-                                 newScalars);
-	break;
+      OpaqueAtElementCentroid (this->XSize, this->YSize, this->ScaleFactor, data);
+      break;
 
     case 3: // opaque in rings around vertices
-	break;
+      vtkErrorMacro(<<"Opaque vertex rings not implemented");
+      break;
     }
 
 //

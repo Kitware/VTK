@@ -42,6 +42,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkPolyDataReader.h"
 #include "vtkStructuredPointsReader.h"
 #include "vtkStructuredGridReader.h"
+#include "vtkRectilinearGridReader.h"
 #include "vtkUnstructuredGridReader.h"
 
 
@@ -141,6 +142,18 @@ char *vtkDataSetReader::GetLookupTableName()
   return this->Reader.GetLookupTableName();
 }
 
+// Description:
+// Set the name of the field data to extract. If not specified, uses 
+// first field data encountered in file.
+void vtkDataSetReader::SetFieldDataName(char *name) 
+{
+  this->Reader.SetFieldDataName(name);
+}
+char *vtkDataSetReader::GetFieldDataName() 
+{
+  return this->Reader.GetFieldDataName();
+}
+
 
 void vtkDataSetReader::Execute()
 {
@@ -186,6 +199,7 @@ void vtkDataSetReader::Execute()
       preader->SetTensorsName(this->Reader.GetTensorsName());
       preader->SetTCoordsName(this->Reader.GetTCoordsName());
       preader->SetLookupTableName(this->Reader.GetLookupTableName());
+      preader->SetFieldDataName(this->Reader.GetFieldDataName());
       preader->Update();
       output = preader->GetOutput();
       }
@@ -202,6 +216,7 @@ void vtkDataSetReader::Execute()
       preader->SetTensorsName(this->Reader.GetTensorsName());
       preader->SetTCoordsName(this->Reader.GetTCoordsName());
       preader->SetLookupTableName(this->Reader.GetLookupTableName());
+      preader->SetFieldDataName(this->Reader.GetFieldDataName());
       preader->Update();
       output = preader->GetOutput();
       }
@@ -218,6 +233,24 @@ void vtkDataSetReader::Execute()
       preader->SetTensorsName(this->Reader.GetTensorsName());
       preader->SetTCoordsName(this->Reader.GetTCoordsName());
       preader->SetLookupTableName(this->Reader.GetLookupTableName());
+      preader->SetFieldDataName(this->Reader.GetFieldDataName());
+      preader->Update();
+      output = preader->GetOutput();
+      }
+
+    else if ( ! strncmp(line,"rectilinear_grid",16) )
+      {
+      vtkRectilinearGridReader *preader = vtkRectilinearGridReader::New();
+      preader->SetFileName(this->Reader.GetFileName());
+      preader->SetInputString(this->Reader.GetInputString());
+      preader->SetReadFromInputString(this->Reader.GetReadFromInputString());
+      preader->SetScalarsName(this->Reader.GetScalarsName());
+      preader->SetVectorsName(this->Reader.GetVectorsName());
+      preader->SetNormalsName(this->Reader.GetNormalsName());
+      preader->SetTensorsName(this->Reader.GetTensorsName());
+      preader->SetTCoordsName(this->Reader.GetTCoordsName());
+      preader->SetLookupTableName(this->Reader.GetLookupTableName());
+      preader->SetFieldDataName(this->Reader.GetFieldDataName());
       preader->Update();
       output = preader->GetOutput();
       }
@@ -234,6 +267,7 @@ void vtkDataSetReader::Execute()
       preader->SetTensorsName(this->Reader.GetTensorsName());
       preader->SetTCoordsName(this->Reader.GetTCoordsName());
       preader->SetLookupTableName(this->Reader.GetLookupTableName());
+      preader->SetFieldDataName(this->Reader.GetFieldDataName());
       preader->Update();
       output = preader->GetOutput();
       }
@@ -244,6 +278,17 @@ void vtkDataSetReader::Execute()
       return;
       }
     }
+
+  else if ( !strncmp(this->Reader.LowerCase(line),"field",(unsigned long)5) )
+    {
+    vtkErrorMacro(<<"This object can only read datasets, not fields");
+    }
+  
+  else
+    {
+    vtkErrorMacro(<<"Expecting DATASET keyword, got " << line << " instead");
+    }
+  
   //
   // Create appropriate dataset
   //

@@ -85,20 +85,20 @@ void vtkOpenGLTexture::Load(vtkRenderer *vtkNotUsed(ren))
       return;
       }
 
-    bytesPerPixel = scalars->GetNumberOfValuesPerScalar();
+    bytesPerPixel = scalars->GetNumberOfComponents();
 
     // make sure using unsigned char data of color scalars type
     if (this->MapColorScalarsThroughLookupTable ||
-        (scalars->GetDataType() != VTK_UNSIGNED_CHAR ||
-	 scalars->GetScalarType() != VTK_COLOR_SCALAR) )
+       scalars->GetDataType() != VTK_UNSIGNED_CHAR )
       {
       dataPtr = this->MapScalarsToColors (scalars);
       bytesPerPixel = 4;
       }
     else
       {
-      dataPtr = ((vtkColorScalars *)scalars)->GetPointer(0);    
+      dataPtr = ((vtkUnsignedCharArray *)scalars->GetData())->GetPointer(0);
       }
+
     // we only support 2d texture maps right now
     // so one of the three sizes must be 1, but it 
     // could be any of them, so lets find it
@@ -110,18 +110,18 @@ void vtkOpenGLTexture::Load(vtkRenderer *vtkNotUsed(ren))
       {
       xsize = size[0];
       if (size[1] == 1)
-	{
-	ysize = size[2];
-	}
+        {
+        ysize = size[2];
+        }
       else
-	{
-	ysize = size[1];
-	if (size[2] != 1)
-	  {
-	  vtkErrorMacro(<< "3D texture maps currently are not supported!\n");
-	  return;
-	  }
-	}
+        {
+        ysize = size[1];
+        if (size[2] != 1)
+          {
+          vtkErrorMacro(<< "3D texture maps currently are not supported!\n");
+          return;
+          }
+        }
       }
 
     // xsize and ysize must be a power of 2 in OpenGL
@@ -162,11 +162,11 @@ void vtkOpenGLTexture::Load(vtkRenderer *vtkNotUsed(ren))
       dest = resultData;
 
       for (col = 0; col < ysize; col++)
-	{
-	memcpy(dest,src,srcLength);
-	src += srcLength;
-	dest += rowLength;
-	}
+        {
+        memcpy(dest,src,srcLength);
+        src += srcLength;
+        dest += rowLength;
+        }
       }
 
     // define a display list for this texture
@@ -194,9 +194,9 @@ void vtkOpenGLTexture::Load(vtkRenderer *vtkNotUsed(ren))
     if (this->Interpolate)
       {
       glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
-		       GL_LINEAR);
+                       GL_LINEAR);
       glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER,
-		       GL_LINEAR );
+                       GL_LINEAR );
       }
     else
       {
@@ -221,8 +221,8 @@ void vtkOpenGLTexture::Load(vtkRenderer *vtkNotUsed(ren))
       case 4: format = GL_RGBA; break;
       }
     glTexImage2D( GL_TEXTURE_2D, 0 , bytesPerPixel,
-		  xsize, ysize, 0, format, 
-		  GL_UNSIGNED_BYTE, (const GLvoid *)resultData );
+                  xsize, ysize, 0, format, 
+                  GL_UNSIGNED_BYTE, (const GLvoid *)resultData );
 #ifndef GL_VERSION_1_1
     glEndList ();
 #endif

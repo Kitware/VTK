@@ -39,10 +39,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkBYUReader.h"
-#include "vtkFloatPoints.h"
-#include "vtkFloatVectors.h"
-#include "vtkFloatScalars.h"
-#include "vtkFloatTCoords.h"
+#include "vtkPoints.h"
+#include "vtkVectors.h"
+#include "vtkScalars.h"
+#include "vtkTCoords.h"
 
 vtkBYUReader::vtkBYUReader()
 {
@@ -93,7 +93,7 @@ void vtkBYUReader::ReadGeometryFile(FILE *geomFile, int &numPts)
   int numParts, numPolys, numEdges;
   int partStart, partEnd;
   int i;
-  vtkFloatPoints *newPts;
+  vtkPoints *newPts;
   vtkCellArray *newPolys;
   float x[3];
   vtkIdList pts(VTK_CELL_SIZE);
@@ -134,7 +134,7 @@ void vtkBYUReader::ReadGeometryFile(FILE *geomFile, int &numPts)
 //
 // Allocate data objects
 //
-  newPts = vtkFloatPoints::New();
+  newPts = vtkPoints::New();
   newPts->Allocate(numPts);
   newPolys = vtkCellArray::New();
   newPolys->Allocate(numPolys+numEdges);
@@ -182,7 +182,7 @@ void vtkBYUReader::ReadDisplacementFile(int numPts)
   FILE *dispFp;
   int i;
   float v[3];
-  vtkFloatVectors *newVectors;
+  vtkVectors *newVectors;
   vtkPolyData *output = this->GetOutput();
   
   if ( this->ReadDisplacement && this->DisplacementFileName )
@@ -197,7 +197,7 @@ void vtkBYUReader::ReadDisplacementFile(int numPts)
 //
 // Allocate and read data
 //
-  newVectors = vtkFloatVectors::New();
+  newVectors = vtkVectors::New();
   newVectors->SetNumberOfVectors(numPts);
 
   for (i=0; i<numPts; i++)
@@ -218,7 +218,7 @@ void vtkBYUReader::ReadScalarFile(int numPts)
   FILE *scalarFp;
   int i;
   float s;
-  vtkFloatScalars *newScalars;
+  vtkScalars *newScalars;
   vtkPolyData *output = this->GetOutput();
   
   if ( this->ReadScalar && this->ScalarFileName )
@@ -233,7 +233,7 @@ void vtkBYUReader::ReadScalarFile(int numPts)
 //
 // Allocate and read data
 //
-  newScalars = vtkFloatScalars::New();
+  newScalars = vtkScalars::New();
   newScalars->SetNumberOfScalars(numPts);
 
   for (i=0; i<numPts; i++)
@@ -254,7 +254,7 @@ void vtkBYUReader::ReadTextureFile(int numPts)
   FILE *textureFp;
   int i;
   float t[2];
-  vtkFloatTCoords *newTCoords;
+  vtkTCoords *newTCoords;
   vtkPolyData *output = this->GetOutput();
 
   if ( this->ReadTexture && this->TextureFileName )
@@ -269,7 +269,7 @@ void vtkBYUReader::ReadTextureFile(int numPts)
 //
 // Allocate and read data
 //
-  newTCoords = vtkFloatTCoords::New();
+  newTCoords = vtkTCoords::New();
   newTCoords->SetNumberOfTCoords(numPts);
 
   for (i=0; i<numPts; i++)

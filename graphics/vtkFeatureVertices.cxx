@@ -58,8 +58,8 @@ void vtkFeatureVertices::Execute()
 {
   vtkPolyData *input=(vtkPolyData *)this->Input;
   vtkPoints *inPts;
-  vtkFloatPoints *newPts;
-  vtkFloatScalars *newScalars;
+  vtkPoints *newPts;
+  vtkScalars *newScalars;
   vtkCellArray *newVerts;
   vtkPolyData Mesh;
   int i, j, numCells, cellId, numPts;
@@ -99,9 +99,9 @@ void vtkFeatureVertices::Execute()
 //
 //  Allocate storage for lines/points (arbitrary allocations size)
 //
-  newPts = vtkFloatPoints::New();
+  newPts = vtkPoints::New();
   newPts->Allocate(numPts/10,numPts);
-  newScalars = vtkFloatScalars::New();
+  newScalars = vtkScalars::New();
   newScalars->Allocate(numPts/10,numPts);
   newVerts = vtkCellArray::New();
   newVerts->Allocate(numPts/10);
