@@ -27,15 +27,15 @@
 #define __vtkImageMapToColors_h
 
 
-#include "vtkImageToImageFilter.h"
+#include "vtkThreadedImageAlgorithm.h"
 
 class vtkScalarsToColors;
 
-class VTK_IMAGING_EXPORT vtkImageMapToColors : public vtkImageToImageFilter
+class VTK_IMAGING_EXPORT vtkImageMapToColors : public vtkThreadedImageAlgorithm
 {
 public:
   static vtkImageMapToColors *New();
-  vtkTypeRevisionMacro(vtkImageMapToColors,vtkImageToImageFilter);
+  vtkTypeRevisionMacro(vtkImageMapToColors,vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -72,13 +72,17 @@ protected:
   vtkImageMapToColors();
   ~vtkImageMapToColors();
 
-  void ExecuteInformation(vtkImageData *inData, vtkImageData *outData);
-  void ExecuteInformation() {
-    this->vtkImageToImageFilter::ExecuteInformation(); };
-  void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
-                       int extent[6], int id);
+  void ExecuteInformation (vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   
-  void ExecuteData(vtkDataObject *output);
+  void ThreadedRequestData(vtkInformation *request,
+                           vtkInformationVector **inputVector,
+                           vtkInformationVector *outputVector,
+                           vtkImageData ***inData, vtkImageData **outData,
+                           int extent[6], int id);
+
+  void RequestData(vtkInformation *request,
+                   vtkInformationVector **inputVector,
+                   vtkInformationVector *outputVector);
 
   vtkScalarsToColors *LookupTable;
   int OutputFormat;

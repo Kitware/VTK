@@ -15,11 +15,14 @@
 #include "vtkImageMapToColors.h"
 
 #include "vtkImageData.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkScalarsToColors.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkImageMapToColors, "1.23");
+vtkCxxRevisionMacro(vtkImageMapToColors, "1.24");
 vtkStandardNewMacro(vtkImageMapToColors);
 vtkCxxSetObjectMacro(vtkImageMapToColors,LookupTable,vtkScalarsToColors);
 
@@ -34,7 +37,6 @@ vtkImageMapToColors::vtkImageMapToColors()
   this->DataWasPassed = 0;
 }
 
-
 vtkImageMapToColors::~vtkImageMapToColors()
 {
   if (this->LookupTable != NULL) 
@@ -48,7 +50,7 @@ unsigned long vtkImageMapToColors::GetMTime()
 {
   unsigned long t1, t2;
 
-  t1 = this->vtkImageToImageFilter::GetMTime();
+  t1 = this->Superclass::GetMTime();
   if (this->LookupTable)
     {
     t2 = this->LookupTable->GetMTime();
@@ -62,11 +64,18 @@ unsigned long vtkImageMapToColors::GetMTime()
 
 //----------------------------------------------------------------------------
 // This method checks to see if we can simply reference the input data
-void vtkImageMapToColors::ExecuteData(vtkDataObject *output)
+void vtkImageMapToColors::RequestData(vtkInformation *request,
+                                      vtkInformationVector **inputVector,
+                                      vtkInformationVector *outputVector)
 {
-  vtkImageData *outData = (vtkImageData *)(output);
-  vtkImageData *inData = this->GetInput();
- 
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  vtkImageData *outData = vtkImageData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkImageData *inData = vtkImageData::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   // If LookupTable is null, just pass the data
   if (this->LookupTable == NULL)
     {
@@ -87,14 +96,20 @@ void vtkImageMapToColors::ExecuteData(vtkDataObject *output)
       this->DataWasPassed = 0;
       }
     
-    this->vtkImageToImageFilter::ExecuteData(output);
+    this->Superclass::RequestData(request, inputVector, outputVector);
     }
 }
 
 //----------------------------------------------------------------------------
-void vtkImageMapToColors::ExecuteInformation(vtkImageData *inData, 
-                                             vtkImageData *outData)
+void vtkImageMapToColors::ExecuteInformation (
+  vtkInformation * vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+  // get the info objects
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+
   int numComponents = 4;
 
   switch (this->OutputFormat)
@@ -118,21 +133,20 @@ void vtkImageMapToColors::ExecuteInformation(vtkImageData *inData,
 
   if (this->LookupTable == NULL)
     {
-    if (inData->GetScalarType() != VTK_UNSIGNED_CHAR)
+    if (inInfo->Get(vtkDataObject::SCALAR_TYPE()) != VTK_UNSIGNED_CHAR)
       {
       vtkErrorMacro("ExecuteInformation: No LookupTable was set but input data is not VTK_UNSIGNED_CHAR, therefore input can't be passed through!");
       return;
       }
-    else if (numComponents != inData->GetNumberOfScalarComponents())
+    else if (numComponents != inInfo->Get(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS()))
       {
       vtkErrorMacro("ExecuteInformation: No LookupTable was set but number of components in input doesn't match OutputFormat, therefore input can't be passed through!");
       return;
       }
     }
-  
 
-  outData->SetScalarType(VTK_UNSIGNED_CHAR);
-  outData->SetNumberOfScalarComponents(numComponents);
+  outInfo->Set(vtkDataObject::SCALAR_TYPE(),VTK_UNSIGNED_CHAR);
+  outInfo->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(),numComponents);
 }
 
 //----------------------------------------------------------------------------
@@ -223,15 +237,19 @@ void vtkImageMapToColorsExecute(vtkImageMapToColors *self,
 // This method is passed a input and output data, and executes the filter
 // algorithm to fill the output from the input.
 
-void vtkImageMapToColors::ThreadedExecute(vtkImageData *inData, 
-                                         vtkImageData *outData,
-                                         int outExt[6], int id)
+void vtkImageMapToColors::ThreadedRequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **vtkNotUsed(inputVector),
+  vtkInformationVector *vtkNotUsed(outputVector),
+  vtkImageData ***inData,
+  vtkImageData **outData,
+  int outExt[6], int id)
 {
-  void *inPtr = inData->GetScalarPointerForExtent(outExt);
-  void *outPtr = outData->GetScalarPointerForExtent(outExt);
+  void *inPtr = inData[0][0]->GetScalarPointerForExtent(outExt);
+  void *outPtr = outData[0]->GetScalarPointerForExtent(outExt);
   
-  vtkImageMapToColorsExecute(this, inData, inPtr, 
-                           outData, (unsigned char *)outPtr, outExt, id);
+  vtkImageMapToColorsExecute(this, inData[0][0], inPtr, 
+                             outData[0], (unsigned char *)outPtr, outExt, id);
 }
 
 void vtkImageMapToColors::PrintSelf(ostream& os, vtkIndent indent)

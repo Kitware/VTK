@@ -78,7 +78,8 @@ public:
   // Description:
   // Set/Get the input image to the viewer.
   void SetInput(vtkImageData *in) {this->WindowLevel->SetInput(in);}
-  vtkImageData *GetInput() { return this->WindowLevel->GetInput();}
+  vtkImageData *GetInput()
+    { return vtkImageData::SafeDownCast(this->WindowLevel->GetInput());}
   
   // Description:
   // Return the minimum and maximum z-slice values.

@@ -15,11 +15,13 @@
 #include "vtkImageMapToWindowLevelColors.h"
 
 #include "vtkImageData.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkScalarsToColors.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkImageMapToWindowLevelColors, "1.17");
+vtkCxxRevisionMacro(vtkImageMapToWindowLevelColors, "1.18");
 vtkStandardNewMacro(vtkImageMapToWindowLevelColors);
 
 // Constructor sets default values
@@ -29,17 +31,24 @@ vtkImageMapToWindowLevelColors::vtkImageMapToWindowLevelColors()
   this->Level  = 127.5;
 }
 
-
 vtkImageMapToWindowLevelColors::~vtkImageMapToWindowLevelColors()
 {
 }
 
 //----------------------------------------------------------------------------
 // This method checks to see if we can simply reference the input data
-void vtkImageMapToWindowLevelColors::ExecuteData(vtkDataObject *output)
+void vtkImageMapToWindowLevelColors::RequestData(
+  vtkInformation *request,
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
-  vtkImageData *outData = (vtkImageData *)(output);
-  vtkImageData *inData = this->GetInput();
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+
+  vtkImageData *outData = vtkImageData::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkImageData *inData = vtkImageData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
  
   // If LookupTable is null and window / level produces no change,
   // then just pass the data
@@ -66,39 +75,45 @@ void vtkImageMapToWindowLevelColors::ExecuteData(vtkDataObject *output)
       outData->GetPointData()->SetScalars(NULL);
       this->DataWasPassed = 0;
       }
-    
-    this->vtkImageToImageFilter::ExecuteData(output);
+
+    this->vtkThreadedImageAlgorithm::RequestData(request, inputVector,
+                                                 outputVector);
     }
 }
 
 //----------------------------------------------------------------------------
-void vtkImageMapToWindowLevelColors::ExecuteInformation(vtkImageData *inData, 
-                                             vtkImageData *outData)
+void vtkImageMapToWindowLevelColors::ExecuteInformation(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
   // If LookupTable is null and window / level produces no change,
   // then the data will be passed
   if ( this->LookupTable == NULL &&
-       ( (inData->GetScalarType() == VTK_UNSIGNED_CHAR &&
+       ( (inInfo->Get(vtkDataObject::SCALAR_TYPE()) == VTK_UNSIGNED_CHAR &&
           this->Window == 255 && this->Level == 127.5) ||
-         (inData->GetScalarType() == VTK_UNSIGNED_CHAR &&
+         (inInfo->Get(vtkDataObject::SCALAR_TYPE()) == VTK_UNSIGNED_CHAR &&
           this->Window == 255 && this->Level == 127.5) ) )
     {
-    if (inData->GetScalarType() != VTK_UNSIGNED_CHAR)
+    if (inInfo->Get(vtkDataObject::SCALAR_TYPE()) != VTK_UNSIGNED_CHAR)
       {
       vtkErrorMacro("ExecuteInformation: No LookupTable was set and input data is not VTK_UNSIGNED_CHAR!");
       }
     else
       {
       // no lookup table, pass the input if it was UNSIGNED_CHAR 
-      outData->SetScalarType(VTK_UNSIGNED_CHAR);
-      outData->SetNumberOfScalarComponents(
-                              inData->GetNumberOfScalarComponents());
+      outInfo->Set(vtkDataObject::SCALAR_TYPE(), VTK_UNSIGNED_CHAR);
+      outInfo->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(),
+                   inInfo->Get(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS()));
       }
     }
   else  // the lookup table was set or window / level produces a change
     {
     int numComponents = 4;
-    outData->SetScalarType(VTK_UNSIGNED_CHAR);
+    outInfo->Set(vtkDataObject::SCALAR_TYPE(), VTK_UNSIGNED_CHAR);
     switch (this->OutputFormat)
       {
       case VTK_RGBA:
@@ -117,7 +132,7 @@ void vtkImageMapToWindowLevelColors::ExecuteInformation(vtkImageData *inData,
         vtkErrorMacro("ExecuteInformation: Unrecognized color format.");
         break;
       }
-    outData->SetNumberOfScalarComponents(numComponents);
+    outInfo->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(), numComponents);
     }
 }
 
@@ -159,7 +174,6 @@ void vtkImageMapToWindowLevelClamps ( vtkImageData *data, double w,
     lower = (T) range[1];
     adjustedLower = range[1];
     }
-  
   
   // Set the correct upper value
   if ( f_upper >= range[0])
@@ -379,18 +393,22 @@ void vtkImageMapToWindowLevelColorsExecute(
 // This method is passed a input and output data, and executes the filter
 // algorithm to fill the output from the input.
 
-void vtkImageMapToWindowLevelColors::ThreadedExecute(vtkImageData *inData, 
-                                         vtkImageData *outData,
-                                         int outExt[6], int id)
+void vtkImageMapToWindowLevelColors::ThreadedRequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **vtkNotUsed(inputVector),
+  vtkInformationVector *vtkNotUsed(outputVector),
+  vtkImageData ***inData,
+  vtkImageData **outData,
+  int outExt[6], int id)
 {
-  void *inPtr = inData->GetScalarPointerForExtent(outExt);
-  void *outPtr = outData->GetScalarPointerForExtent(outExt);
+  void *inPtr = inData[0][0]->GetScalarPointerForExtent(outExt);
+  void *outPtr = outData[0]->GetScalarPointerForExtent(outExt);
   
-  switch (inData->GetScalarType())
+  switch (inData[0][0]->GetScalarType())
     {
     vtkTemplateMacro7(vtkImageMapToWindowLevelColorsExecute, this, 
-                      inData, (VTK_TT *)(inPtr), 
-                      outData, (unsigned char *)(outPtr), outExt, id);
+                      inData[0][0], (VTK_TT *)(inPtr), 
+                      outData[0], (unsigned char *)(outPtr), outExt, id);
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;
@@ -404,8 +422,3 @@ void vtkImageMapToWindowLevelColors::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Window: " << this->Window << endl;
   os << indent << "Level: " << this->Level << endl;
 }
-
-
-
-
-
