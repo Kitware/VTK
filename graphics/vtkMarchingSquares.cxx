@@ -227,7 +227,12 @@ void ContourImage(T *scalars, vtkScalars *newScalars, int roi[6], int dir[3],
               newScalars->InsertScalar(ptIds[ii],value);
               }
             }
-          lines->InsertNextCell(2,ptIds);
+          
+          if ( ptIds[0] != ptIds[1] ) //check for degenerate line
+            {
+            lines->InsertNextCell(2,ptIds);
+            }
+
           }//for each line
         }//for all contours
       }//for i

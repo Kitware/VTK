@@ -38,13 +38,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkStripper - create triangle strips
+// .NAME vtkStripper - create triangle strips and/or poly-lines
 // .SECTION Description
-// vtkStripper is a filter that generates triangle strips from input
-// polygons and triangle strips. Input polygons are assumed to be 
-// triangles. (Use vtkTriangleFilter to triangulate non-triangular
-// polygons.) The filter will also pass through vertices and lines, if
-// requested.
+// vtkStripper is a filter that generates triangle strips and/or poly-lines
+// from input polygons, triangle strips, and lines. Input polygons are 
+// assumed to be triangles. (Use vtkTriangleFilter to triangulate 
+// non-triangular polygons.) The filter will pass through (to the output)
+// vertices if they are present in the input poly-data.
+//
+// The ivar MaximumLength can be used to control the maximum
+// allowable triangle strip and poly-line length.
+
+// .SECTION Caveats
+// If triangle strips or poly-lines exist in the input data they will
+// be passed through to the output data. This filter will only construct
+// triangle strips if triangle polygons are available; and will only 
+// construct poly-lines if lines are available.
+
+// .SECTION See Also
+// vtkTriangleFilter
 
 #ifndef __vtkStripper_h
 #define __vtkStripper_h
@@ -59,30 +71,16 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Specify the maximum number of triangles in a triangle strip.
-  vtkSetClampMacro(MaximumStripLength,int,4,VTK_CELL_SIZE-2);
-  vtkGetMacro(MaximumStripLength,int);
-
-  // Description:
-  // Turn on/off passing of vertices through to output.
-  vtkBooleanMacro(PassVerts,int);
-  vtkSetMacro(PassVerts,int);
-  vtkGetMacro(PassVerts,int);
-
-  // Description:
-  // Turn on/off passing of lines through to output.
-  vtkBooleanMacro(PassLines,int);
-  vtkSetMacro(PassLines,int);
-  vtkGetMacro(PassLines,int);
+  // Specify the maximum number of triangles in a triangle strip,
+  // and/or the maximum number of lines in a poly-line.
+  vtkSetClampMacro(MaximumLength,int,4,100000);
+  vtkGetMacro(MaximumLength,int);
 
 protected:
   // Usual data generation method
   void Execute();
 
-  int MaximumStripLength;
-  // control whether vertices and lines are passed through filter
-  int PassVerts;
-  int PassLines;
+  int MaximumLength;
 };
 
 #endif
