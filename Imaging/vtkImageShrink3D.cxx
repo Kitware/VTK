@@ -22,7 +22,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageShrink3D, "1.55");
+vtkCxxRevisionMacro(vtkImageShrink3D, "1.56");
 vtkStandardNewMacro(vtkImageShrink3D);
 
 //----------------------------------------------------------------------------
@@ -247,7 +247,7 @@ void vtkImageShrink3DExecute(vtkImageShrink3D *self,
 
   self->GetShrinkFactors(factor0, factor1, factor2);
   // make sure we don't have a 3D shrinkfactor for a 2D image
-  if (factor2>1 && inData->GetWholeExtent()[5]==0)
+  if (factor2>1 && inData && inData->GetWholeExtent()[5]==0)
     {
     factor2=1;
     }
@@ -554,6 +554,10 @@ void vtkImageShrink3D::ThreadedExecute(vtkImageData *inData,
 
   this->ComputeInputUpdateExtent(inExt,outExt);
   void *inPtr = inData->GetScalarPointerForExtent(inExt);
+  if (!inPtr)
+    {
+    return;
+    }
 
   // this filter expects that input is the same type as output.
   if (inData->GetScalarType() != outData->GetScalarType())
