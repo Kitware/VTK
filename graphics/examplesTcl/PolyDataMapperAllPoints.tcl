@@ -73,7 +73,7 @@ vtkLookupTable lut
   lut SetTableValue 3 1 0 0 1
   lut SetTableValue 4 1 0 1 1
 
-set masks "0 1 2 3 4 5 6 7 10 11 14 15 17 19 21 21 27 31"
+set masks "0 1 2 3 4 5 6 7 10 11 14 15 16 18 20 22 26 30"
 set i 0; set j 0 ; set k 0
 set types "strip triangle"
 foreach type $types {

@@ -2469,7 +2469,8 @@ void vtkOpenGLPolyDataMapper::Draw(vtkRenderer *aren, vtkActor *act)
     n = 0;
     }
   
-  if (!n && input->GetCellData()->GetNormals())
+  cellNormals = 0;
+  if (input->GetCellData()->GetNormals())
     {
     cellNormals = 1;
     n = input->GetCellData()->GetNormals();
@@ -2491,7 +2492,7 @@ void vtkOpenGLPolyDataMapper::Draw(vtkRenderer *aren, vtkActor *act)
 		vtkScalars *, vtkTCoords *, vtkOpenGLRenderer *, int &);
 
   int idx;
-  if (n)
+  if (n && !cellNormals)
     {
     idx = 1;
     }
@@ -2531,12 +2532,12 @@ void vtkOpenGLPolyDataMapper::Draw(vtkRenderer *aren, vtkActor *act)
     case 14: draw0 = vtkOpenGLDrawCST01; break;
     case 15: draw0 = vtkOpenGLDrawNCST013; break;
 
-    case 17: draw0 = vtkOpenGLDrawCN013; break;
-    case 19: draw0 = vtkOpenGLDrawCNS013; break;
-    case 21: draw0 = vtkOpenGLDrawCNT013; break;
-    case 23: draw0 = vtkOpenGLDrawCNST013; break;
-    case 27: draw0 = vtkOpenGLDrawCNCS013; break;
-    case 31: draw0 = vtkOpenGLDrawCNCST013; break;
+    case 16: draw0 = vtkOpenGLDrawCN013; break;
+    case 18: draw0 = vtkOpenGLDrawCNS013; break;
+    case 20: draw0 = vtkOpenGLDrawCNT013; break;
+    case 22: draw0 = vtkOpenGLDrawCNST013; break;
+    case 26: draw0 = vtkOpenGLDrawCNCS013; break;
+    case 30: draw0 = vtkOpenGLDrawCNCST013; break;
     }
 
   // how do we draw lines
@@ -2556,12 +2557,12 @@ void vtkOpenGLPolyDataMapper::Draw(vtkRenderer *aren, vtkActor *act)
     case 11: draw1 = vtkOpenGLDrawNCS013; break;
     case 14: draw1 = vtkOpenGLDrawCST01; break;
     case 15: draw1 = vtkOpenGLDrawNCST013; break;
-    case 17: draw1 = vtkOpenGLDrawCN013; break;
-    case 19: draw1 = vtkOpenGLDrawCNS013; break;
-    case 21: draw1 = vtkOpenGLDrawCNT013; break;
-    case 23: draw1 = vtkOpenGLDrawCNST013; break;
-    case 27: draw1 = vtkOpenGLDrawCNCS013; break;
-    case 31: draw1 = vtkOpenGLDrawCNCST013; break;
+    case 16: draw1 = vtkOpenGLDrawCN013; break;
+    case 18: draw1 = vtkOpenGLDrawCNS013; break;
+    case 20: draw1 = vtkOpenGLDrawCNT013; break;
+    case 22: draw1 = vtkOpenGLDrawCNST013; break;
+    case 26: draw1 = vtkOpenGLDrawCNCS013; break;
+    case 30: draw1 = vtkOpenGLDrawCNCST013; break;
     }
 
   // how do we draw tstrips
@@ -2583,12 +2584,12 @@ void vtkOpenGLPolyDataMapper::Draw(vtkRenderer *aren, vtkActor *act)
     case 11: draw2 = vtkOpenGLDrawNCS013; break;
     case 14: draw2 = vtkOpenGLDrawCST2; break;
     case 15: draw2 = vtkOpenGLDrawNCST013; break;
-    case 17: draw2 = vtkOpenGLDraw2; break;
-    case 19: draw2 = vtkOpenGLDrawS2; break;
-    case 21: draw2 = vtkOpenGLDrawT2; break;
-    case 23: draw2 = vtkOpenGLDrawST2; break;
-    case 27: draw2 = vtkOpenGLDrawCS2; break;
-    case 31: draw2 = vtkOpenGLDrawCST2; break;
+    case 16: draw2 = vtkOpenGLDraw2; break;
+    case 18: draw2 = vtkOpenGLDrawS2; break;
+    case 20: draw2 = vtkOpenGLDrawT2; break;
+    case 22: draw2 = vtkOpenGLDrawST2; break;
+    case 26: draw2 = vtkOpenGLDrawCS2; break;
+    case 30: draw2 = vtkOpenGLDrawCST2; break;
     }
   switch (idx)
     {
@@ -2604,12 +2605,12 @@ void vtkOpenGLPolyDataMapper::Draw(vtkRenderer *aren, vtkActor *act)
     case 11: draw2W = vtkOpenGLDrawNW; break;
     case 14: draw2W = vtkOpenGLDrawTW; break;
     case 15: draw2W = vtkOpenGLDrawNTW; break;
-    case 17: draw2W = vtkOpenGLDrawW; break;
-    case 19: draw2W = vtkOpenGLDrawSW; break;
-    case 21: draw2W = vtkOpenGLDrawTW; break;
-    case 23: draw2W = vtkOpenGLDrawSTW; break;
-    case 27: draw2W = vtkOpenGLDrawW; break;
-    case 31: draw2W = vtkOpenGLDrawTW; break;
+    case 16: draw2W = vtkOpenGLDrawW; break;
+    case 18: draw2W = vtkOpenGLDrawSW; break;
+    case 20: draw2W = vtkOpenGLDrawTW; break;
+    case 22: draw2W = vtkOpenGLDrawSTW; break;
+    case 26: draw2W = vtkOpenGLDrawW; break;
+    case 30: draw2W = vtkOpenGLDrawTW; break;
     }
   
   // how do we draw polys
@@ -2629,12 +2630,12 @@ void vtkOpenGLPolyDataMapper::Draw(vtkRenderer *aren, vtkActor *act)
     case 11: draw3 = vtkOpenGLDrawNCS013; break;
     case 14: draw3 = vtkOpenGLDrawCST3; break;
     case 15: draw3 = vtkOpenGLDrawNCST013; break;
-    case 17: draw3 = vtkOpenGLDrawCN013; break;
-    case 19: draw3 = vtkOpenGLDrawCNS013; break;
-    case 21: draw3 = vtkOpenGLDrawCNT013; break;
-    case 23: draw3 = vtkOpenGLDrawCNST013; break;
-    case 27: draw3 = vtkOpenGLDrawCNCS013; break;
-    case 31: draw3 = vtkOpenGLDrawCNCST013; break;
+    case 16: draw3 = vtkOpenGLDrawCN013; break;
+    case 18: draw3 = vtkOpenGLDrawCNS013; break;
+    case 20: draw3 = vtkOpenGLDrawCNT013; break;
+    case 22: draw3 = vtkOpenGLDrawCNST013; break;
+    case 26: draw3 = vtkOpenGLDrawCNCS013; break;
+    case 30: draw3 = vtkOpenGLDrawCNCST013; break;
     }
 
   // do verts
