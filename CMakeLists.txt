@@ -372,6 +372,9 @@ ENDIF (BUILD_EXAMPLES)
 INSTALL_FILES(/include/vtk .h vtkConfigure vtkToolkits)
 INSTALL_FILES(/lib/vtk .cmake UseVTK)
 
+# Hack for cmake 1.4 module.  It needs the file here.
+INSTALL_FILES(/include/vtk .cmake UseVTK)
+
 INCLUDE (${VTK_BINARY_DIR}/LocalUserOptions.cmake OPTIONAL)
 INCLUDE (${VTK_SOURCE_DIR}/LocalUserOptions.cmake OPTIONAL)
 
