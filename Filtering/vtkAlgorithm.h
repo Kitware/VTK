@@ -120,6 +120,7 @@ public:
   // Set the connection for the given input port index.  Removes
   // any other connections.
   virtual void SetInputConnection(int port, vtkAlgorithmOutput* input);
+  virtual void SetInputConnection(vtkAlgorithmOutput* input);
 
   // Description:
   // Add a connection to the given input port index.
@@ -134,6 +135,8 @@ public:
   // algorithm.  The proxy object can be passed to another algorithm's
   // InputConnection methods to modify pipeline connectivity.
   vtkAlgorithmOutput* GetOutputPort(int index);
+  vtkAlgorithmOutput* GetOutputPort() {
+    return this->GetOutputPort(0); }
 
   // Description:
   // Get the number of input ports used by the algorithm.

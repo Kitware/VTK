@@ -71,6 +71,8 @@ public:
   // Description:
   // Reimplemented from vtkAlgorithm to maintain backward
   // compatibility for vtkProcessObject.
+  virtual void SetInputConnection(vtkAlgorithmOutput* input) {
+    this->vtkAlgorithm::SetInputConnection(input); }
   virtual void SetInputConnection(int port, vtkAlgorithmOutput* input);
   virtual void AddInputConnection(int port, vtkAlgorithmOutput* input);
   virtual void RemoveInputConnection(int port, vtkAlgorithmOutput* input);
