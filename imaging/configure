@@ -541,9 +541,9 @@ fi
 
 # option for handling BSD style makefile includes
 #
-# Check whether --with-mesa or --without-mesa was given.
-if test "${with_mesa+set}" = set; then
-  withval="$with_mesa"
+# Check whether --with-bsdmake or --without-bsdmake was given.
+if test "${with_bsdmake+set}" = set; then
+  withval="$with_bsdmake"
   MAKEINCLUDE=".include"
          MAKEQUOTE='"'
 else

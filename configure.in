@@ -263,7 +263,7 @@ AC_SUBST(CLEAN_TOOLKITS)
 
 # option for handling BSD style makefile includes
 #
-AC_ARG_WITH(mesa,
+AC_ARG_WITH(bsdmake,
          [  --with-bsdmake            uses bsd style makefile includes],
          MAKEINCLUDE=".include"
          MAKEQUOTE='"',
