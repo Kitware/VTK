@@ -71,9 +71,6 @@ vtkUnstructuredGrid* vtkUnstructuredGrid::New()
   return new vtkUnstructuredGrid;
 }
 
-
-
-
 vtkUnstructuredGrid::vtkUnstructuredGrid ()
 {
   this->Vertex = vtkVertex::New();
@@ -131,29 +128,6 @@ void vtkUnstructuredGrid::Allocate (int numCells, int extSize)
   this->Cells->Allocate(numCells,extSize);
   this->Cells->Register(this);
   this->Cells->Delete();
-}
-
-// Shallow construction of object.
-vtkUnstructuredGrid::vtkUnstructuredGrid(const vtkUnstructuredGrid& ug) :
-vtkPointSet(ug)
-{
-  this->Connectivity = ug.Connectivity;
-  if (this->Connectivity)
-    {
-    this->Connectivity->Register(this);
-    }
-
-  this->Cells = ug.Cells;
-  if (this->Cells)
-    {
-    this->Cells->Register(this);
-    }
-
-  this->Links = ug.Links;
-  if (this->Links)
-    {
-    this->Links->Register(this);
-    }
 }
 
 vtkUnstructuredGrid::~vtkUnstructuredGrid()

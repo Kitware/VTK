@@ -69,18 +69,6 @@ vtkDataSet::~vtkDataSet ()
 }
 
 //----------------------------------------------------------------------------
-// Copy constructor.
-vtkDataSet::vtkDataSet (const vtkDataSet& ds) :
-PointData(ds.PointData)
-{
-  for (int i=0; i < 6; i++)
-    {
-    this->Bounds[i] = ds.Bounds[i];
-    }
-  this->ReleaseDataFlag = ds.ReleaseDataFlag;
-}
-
-//----------------------------------------------------------------------------
 void vtkDataSet::Initialize()
 {
   // We don't modify ourselves because the "ReleaseData" methods depend upon

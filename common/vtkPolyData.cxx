@@ -117,48 +117,6 @@ vtkPolyData::vtkPolyData ()
 }
 
 //----------------------------------------------------------------------------
-// Perform shallow construction of vtkPolyData.
-vtkPolyData::vtkPolyData(const vtkPolyData& pd) :
-vtkPointSet(pd)
-{
-  this->Verts = pd.Verts;
-  if (this->Verts)
-    {
-    this->Verts->Register(this);
-    }
-
-  this->Lines = pd.Lines;
-  if (this->Lines)
-    {
-    this->Lines->Register(this);
-    }
-
-  this->Polys = pd.Polys;
-  if (this->Polys)
-    {
-    this->Polys->Register(this);
-    }
-
-  this->Strips = pd.Strips;
-  if (this->Strips)
-    {
-    this->Strips->Register(this);
-    }
- 
-  this->Cells = pd.Cells;
-  if (this->Cells)
-    {
-    this->Cells->Register(this);
-    }
-
-  this->Links = pd.Links;
-  if (this->Links)
-    {
-    this->Links->Register(this);
-    }
-}
-
-//----------------------------------------------------------------------------
 vtkPolyData::~vtkPolyData()
 {
   vtkPolyData::Initialize();

@@ -62,9 +62,6 @@ vtkImageData* vtkImageData::New()
   return new vtkImageData;
 }
 
-
-
-
 //----------------------------------------------------------------------------
 vtkImageData::vtkImageData()
 {
@@ -102,19 +99,6 @@ vtkImageData::vtkImageData()
   this->ExtentTranslator = vtkExtentTranslator::New();
   this->ExtentTranslator->Register(this);
   this->ExtentTranslator->Delete();
-}
-
-//----------------------------------------------------------------------------
-vtkImageData::vtkImageData(const vtkImageData& v) :
-vtkDataSet(v)
-{
-  memcpy( this->Dimensions, v.Dimensions, 3*sizeof(int) );
-  memcpy( this->Extent,     v.Extent,     6*sizeof(int) );
-  memcpy( this->Spacing,    v.Spacing,    3*sizeof(float) );
-  memcpy( this->Origin,     v.Origin,     3*sizeof(float) );
-
-  this->DataDescription = v.DataDescription;
-
 }
 
 //----------------------------------------------------------------------------

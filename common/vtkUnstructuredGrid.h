@@ -172,7 +172,7 @@ public:
 protected:
   vtkUnstructuredGrid();
   ~vtkUnstructuredGrid();
-  vtkUnstructuredGrid(const vtkUnstructuredGrid& ug);
+  vtkUnstructuredGrid(const vtkUnstructuredGrid& ug) {};
   void operator=(const vtkUnstructuredGrid&) {};
 
   // used by GetCell method

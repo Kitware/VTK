@@ -49,23 +49,6 @@ vtkPointSet::vtkPointSet ()
 }
 
 //----------------------------------------------------------------------------
-vtkPointSet::vtkPointSet(const vtkPointSet& ps) :
-vtkDataSet(ps)
-{
-  this->Points = ps.Points;
-  if (this->Points)
-    {
-    this->Points->Register(this);
-    }
-
-  this->Locator = ps.Locator;
-  if (this->Locator)
-    {
-    this->Locator->Register(this);
-    }
-}
-
-//----------------------------------------------------------------------------
 vtkPointSet::~vtkPointSet ()
 {
   this->Initialize();

@@ -61,9 +61,6 @@ vtkRectilinearGrid* vtkRectilinearGrid::New()
   return new vtkRectilinearGrid;
 }
 
-
-
-
 //----------------------------------------------------------------------------
 vtkRectilinearGrid::vtkRectilinearGrid()
 {
@@ -125,44 +122,6 @@ void vtkRectilinearGrid::Initialize()
     {
     this->ZCoordinates->Delete();
     this->ZCoordinates = NULL;
-    }
-}
-
-
-//----------------------------------------------------------------------------
-vtkRectilinearGrid::vtkRectilinearGrid(const vtkRectilinearGrid& v) :
-vtkDataSet(v)
-{
-  this->Dimensions[0] = v.Dimensions[0];
-  this->Dimensions[1] = v.Dimensions[1];
-  this->Dimensions[2] = v.Dimensions[2];
-  this->DataDescription = v.DataDescription;
-
-  if ( this->XCoordinates != v.XCoordinates )
-    {
-    this->XCoordinates = v.XCoordinates;
-    if ( this->XCoordinates )
-      {
-      this->XCoordinates->Register(this);
-      }
-    }
-
-  if ( this->YCoordinates != v.YCoordinates )
-    {
-    this->YCoordinates = v.YCoordinates;
-    if ( this->YCoordinates )
-      {
-      this->YCoordinates->Register(this);
-      }
-    }
-
-  if ( this->ZCoordinates != v.ZCoordinates )
-    {
-    this->ZCoordinates = v.ZCoordinates;
-    if ( this->ZCoordinates )
-      {
-      this->ZCoordinates->Register(this);
-      }
     }
 }
 
