@@ -13,6 +13,34 @@
 #include "vtkActor.h"
 #include "vtkElevationFilter.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkTimerLog.h"
+#include "vtkMath.h"
+
+
+// call back to set the iso surface value.
+void callback(void *arg, int id)
+{ 
+  float val;
+  vtkMultiProcessController *controller;
+  vtkSynchronizedTemplates3D *iso = (vtkSynchronizedTemplates3D*)(arg);
+  
+  controller = vtkMultiProcessController::RegisterAndGetGlobalController(NULL);
+  // receive the iso surface value from the main thread.
+  controller->Receive(&val, 1, id, 100);
+  iso->SetValue(0, val);
+  
+  controller->UnRegister(NULL);
+}
+
+
+// call back to exit program
+// This should really be embedded in the controller.
+void exit_callback(void *arg, int id)
+{ 
+  // clean up controller ?
+  exit(0);
+}
+
 
 
 VTK_THREAD_RETURN_TYPE process( void *vtkNotUsed(arg) )
@@ -53,6 +81,8 @@ VTK_THREAD_RETURN_TYPE process( void *vtkNotUsed(arg) )
     }
   elev = vtkElevationFilter::New();
   elev->SetInput(iso->GetOutput());
+  vtkMath::RandomSeed(myid * 100);
+  val = vtkMath::Random();
   elev->SetScalarRange(val, val+0.001);
 
   if (myid != 0)
@@ -60,7 +90,10 @@ VTK_THREAD_RETURN_TYPE process( void *vtkNotUsed(arg) )
     // Remote process! Send data throug port.
     vtkUpStreamPort *upPort = vtkUpStreamPort::New();
     
-
+    // last, set up a RMI call back to change the iso surface value.
+    controller->AddRMI(callback, (void *)iso, 300);
+    controller->AddRMI(exit_callback, (void *)iso, 666);
+  
     upPort->SetInput(elev->GetPolyDataOutput());
     // the different process ids differentiate between sources.
     upPort->SetTag(999);
@@ -80,6 +113,9 @@ VTK_THREAD_RETURN_TYPE process( void *vtkNotUsed(arg) )
     vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
     vtkPolyDataMapper *mapper = vtkPolyDataMapper::New();
     vtkActor *actor = vtkActor::New();
+    vtkTimerLog *timer = vtkTimerLog::New();
+    vtkCamera *cam = vtkCamera::New();
+    char filename[500];
     
     // This is the main thread: Collect the data and render it.
     app->AddInput(elev->GetPolyDataOutput());
@@ -112,15 +148,56 @@ VTK_THREAD_RETURN_TYPE process( void *vtkNotUsed(arg) )
     // assign our actor to the renderer
     ren->AddActor(actor);
   
-    ren->GetActiveCamera()->SetFocalPoint(100, 100, 65);
-    ren->GetActiveCamera()->SetPosition(100, 450, 65);
-    ren->GetActiveCamera()->SetViewUp(0, 0, -1);
-    ren->GetActiveCamera()->SetViewAngle(30);
-    ren->GetActiveCamera()->ComputeViewPlaneNormal();
-    ren->ResetCameraClippingRange();
-
-    // draw the resulting scene
-    renWindow->Render();
+    cam->SetFocalPoint(100, 100, 65);
+    cam->SetPosition(100, 450, 65);
+    cam->SetViewUp(0, 0, -1);
+    cam->SetViewAngle(30);
+    cam->ComputeViewPlaneNormal();
+    // this was causing an update.
+    //ren->ResetCameraClippingRange();
+    //{
+    //double *range = ren->GetActiveCamera()->GetClippingRange();
+    //cerr << range[0] << ", " << range[1] << endl;
+    //}
+    cam->SetClippingRange(177.0, 536.0);
+    ren->SetActiveCamera(cam);
+    
+    // loop through some iso surface values.
+    val = 500.0;
+    while (val < 1800.0)
+      {
+      cerr << "iso value: " << val << endl;
+      // set the local value
+      iso->SetValue(0, val);
+      for (i = 1; i < numProcs; ++i)
+	{
+	// trigger the RMI to change the iso surface value.
+	controller->TriggerRMI(i, 300);      
+	// send the value
+	controller->Send(&val, 1, i, 100);
+	}
+      
+      timer->StartTimer();
+      app->Update();
+      timer->StopTimer();
+      cerr << "Update " << val << " took " << timer->GetElapsedTime() 
+	   << " seconds\n";
+      
+      // now render the results
+      renWindow->Render();
+      sprintf(filename, "iso%d.ppm", (int)(val));
+      renWindow->SetFileName(filename);
+      renWindow->SaveImageAsPPM();
+      val += 400.0;
+      }
+    
+    // just exit
+    for (i = 1; i < numProcs; ++i)
+      {
+      // trigger the RMI to exit
+      controller->TriggerRMI(i, 666);      
+      }
+    exit(0);
     
     //  Begin mouse interaction
     iren->Start();
@@ -157,5 +234,8 @@ void main( int argc, char *argv[] )
 
   controller->UnRegister(NULL);
 }
+
+
+
 
 
