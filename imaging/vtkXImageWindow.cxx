@@ -273,6 +273,12 @@ unsigned char *vtkXImageWindow::GetPixelData(int x1, int y1,
   return data;
 }
 
+void vtkXImageWindow::Frame()
+{
+  this->SwapBuffers();
+}
+
+
 void vtkXImageWindow::SwapBuffers()
 {
   static int swapFlag = 0;

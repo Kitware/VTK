@@ -126,6 +126,10 @@ public:
   void SwapBuffers();
 
   // Description:
+  // Flush the buffer and swap buffers if necessary.
+  void Frame();
+
+  // Description:
   // Determine the desired depth of the window.
   virtual int      GetDesiredDepth();
   
