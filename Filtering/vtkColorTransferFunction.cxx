@@ -18,7 +18,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPiecewiseFunction.h"
 
-vtkCxxRevisionMacro(vtkColorTransferFunction, "1.51");
+vtkCxxRevisionMacro(vtkColorTransferFunction, "1.52");
 vtkStandardNewMacro(vtkColorTransferFunction);
 
 // Construct a new vtkColorTransferFunction with default values
@@ -305,7 +305,7 @@ unsigned char *vtkColorTransferFunction::MapValue( double x )
   this->UnsignedCharRGBAValue[1] = (unsigned char) (255.0*rgb[1]);
   this->UnsignedCharRGBAValue[2] = (unsigned char) (255.0*rgb[2]);
   this->UnsignedCharRGBAValue[3] = 255;
-  return( this->UnsignedCharRGBAValue );
+  return this->UnsignedCharRGBAValue;
 }
 
 // Returns the RGB color evaluated at the specified location
