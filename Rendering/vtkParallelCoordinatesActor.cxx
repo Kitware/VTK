@@ -19,8 +19,10 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkParallelCoordinatesActor, "1.18");
+vtkCxxRevisionMacro(vtkParallelCoordinatesActor, "1.19");
 vtkStandardNewMacro(vtkParallelCoordinatesActor);
+
+vtkCxxSetObjectMacro(vtkParallelCoordinatesActor,Input,vtkDataObject);
 
 // Instantiate object
 vtkParallelCoordinatesActor::vtkParallelCoordinatesActor()
