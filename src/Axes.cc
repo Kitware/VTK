@@ -30,7 +30,6 @@ vlAxes::vlAxes()
 
 void vlAxes::Execute()
 {
-  int i;
   int numPts=6, numLines=3;
   vlFloatPoints *newPts;
   vlCellArray *newLines;

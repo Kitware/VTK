@@ -66,7 +66,7 @@ vlCell *vlStructuredGrid::GetCell(int cellId)
   static vlQuad quad;
   static vlHexahedron hexa;
   static vlCell *cell;
-  int i, j, k, idx, loc[3], npts;
+  int idx, loc[3], npts;
   int iMin, iMax, jMin, jMax, kMin, kMax;
   int d01 = this->Dimensions[0]*this->Dimensions[1];
   float *x;
@@ -75,7 +75,7 @@ vlCell *vlStructuredGrid::GetCell(int cellId)
   if ( ! this->Points )
     {
     vlErrorMacro (<<"No data");
-    return 0;
+    return NULL;
     }
 
   // 

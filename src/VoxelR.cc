@@ -21,7 +21,6 @@ void vlVoxelReader::Execute()
   FILE *fp;
   vlBitScalars *newScalars;
   int i,numPts;
-  char tmp[80];
   int bitcount;
   unsigned char uc;
   float f[3];

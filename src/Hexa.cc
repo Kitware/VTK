@@ -45,7 +45,7 @@ int vlHexahedron::EvaluatePosition(float x[3], float closestPoint[3],
   int iteration, converged;
   float  params[3];
   float  fcol[3], rcol[3], scol[3], tcol[3];
-  int i,j,numPts,idx;
+  int i, j;
   float  d, *pt;
   vlMath math;
   float derivs[24];

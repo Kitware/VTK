@@ -34,7 +34,7 @@ int vlLine::EvaluatePosition(float x[3], float closestPoint[3],
                              float& dist2, float weights[MAX_CELL_SIZE])
 {
   float *a1, *a2, a21[3], denom, num;
-  int i, numPts, return_status;
+  int i, return_status;
   vlMath math;
   float *closest;
 

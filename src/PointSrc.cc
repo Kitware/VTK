@@ -34,7 +34,6 @@ void vlPointSource::Execute()
   vlFloatPoints *newPoints;
   vlCellArray *newVerts;
   vlMath math;
-  int pts[1];
 
   vlDebugMacro(<< "Executing Brownian filter");
   this->Initialize();

@@ -72,7 +72,7 @@ void vlGlyph3D::Execute()
   vlFloatScalars *newScalars=NULL;
   vlFloatVectors *newVectors=NULL;
   vlFloatNormals *newNormals=NULL;
-  float *x, s, *v, vNew[3];
+  float *x, *v, vNew[3];
   vlTransform trans;
   vlCell *cell;
   vlIdList *cellPts;

@@ -87,7 +87,6 @@ void vlGaussianSplatter::SetModelBounds(float xmin, float xmax, float ymin, floa
 //
 static vlFloatScalars *NewScalars;
 static float Radius2;
-static int Dim[3];
 static float (vlGaussianSplatter::*Sample)(float x[3]);
 static float (vlGaussianSplatter::*SampleFactor)(float s);
 static char *Visited;
@@ -388,7 +387,7 @@ void vlGaussianSplatter::SplitIJK (int i, int idir, int j, int jdir,
 
 void vlGaussianSplatter::SplitIJ (int i, int idir, int j, int jdir, int k)
 {
-  int     idx, ip, jp, kp;
+  int     idx, ip, jp;
   float   cx[3], dist2;
 
   cx[0] = this->Origin[0] + this->AspectRatio[0]*i;
@@ -426,7 +425,7 @@ void vlGaussianSplatter::SplitIJ (int i, int idir, int j, int jdir, int k)
 
 void vlGaussianSplatter::SplitJK (int i, int j, int jdir, int k, int kdir)
 {
-  int     idx, ip, jp, kp;
+  int     idx, jp, kp;
   float   cx[3], dist2;
 
   cx[0] = this->Origin[0] + this->AspectRatio[0]*i;
@@ -463,7 +462,7 @@ void vlGaussianSplatter::SplitJK (int i, int j, int jdir, int k, int kdir)
 
 void vlGaussianSplatter::SplitIK (int i, int idir, int j, int k, int kdir)
 {
-  int     idx, ip, jp, kp;
+  int     idx, ip, kp;
   float   cx[3], dist2;
 
   cx[0] = this->Origin[0] + this->AspectRatio[0]*i;

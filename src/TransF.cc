@@ -21,15 +21,12 @@ void vlTransformFilter::Execute()
 {
   vlPoints *inPts;
   vlFloatPoints *newPts;
-  int i, ptId;
-  float *x, *v, *n, newX[3];
   vlPointData *pd;
   vlVectors *inVectors;
   vlFloatVectors *newVectors=NULL;
   vlNormals *inNormals;
   vlFloatNormals *newNormals=NULL;
   int numPts;
-  vlTransform trans;
 
   vlDebugMacro(<<"Executing transformation");
   this->Initialize();

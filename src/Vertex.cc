@@ -29,7 +29,6 @@ int vlPoint::EvaluatePosition(float x[3], float closestPoint[3],
                               int& subId, float pcoords[3], 
                               float& dist2, float weights[MAX_CELL_SIZE])
 {
-  int numPts;
   float *X;
   vlMath math;
 

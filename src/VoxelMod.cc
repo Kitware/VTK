@@ -99,7 +99,7 @@ void vlVoxelModeller::Execute()
   int numPts, idx;
   int subId;
   int min[3], max[3];
-  float x[3], prevDistance2, distance2;
+  float x[3], distance2;
   int jkFactor;
   float weights[MAX_CELL_SIZE];
   float closestPoint[3];
@@ -266,8 +266,7 @@ void vlVoxelModeller::SetSampleDimensions(int dim[3])
 void vlVoxelModeller::Write(char *fname)
 {
   FILE *fp;
-  int cellNum, i, j, k;
-  float *bounds;
+  int i, j, k;
   float maxDistance;
   vlBitScalars *newScalars;
   int numPts, idx;

@@ -27,8 +27,7 @@ void vlProbeFilter::Execute()
   vlCell *cell;
   vlPointData *pd;
   int numPts, subId;
-  float pcoords[3], dist2, weights[MAX_CELL_SIZE];
-  float closestPoint[3];
+  float pcoords[3], weights[MAX_CELL_SIZE];
 
   vlDebugMacro(<<"Probing data");
   this->Initialize();

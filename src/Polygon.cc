@@ -182,7 +182,6 @@ int vlPolygon::EvaluatePosition(float x[3], float closestPoint[3],
   vlLine line;
   float pc[3], dist2;
   int ignoreId, numPts;
-  vlFloatPoints pts(2);
   float closest[3];
   float dummyWeights[MAX_CELL_SIZE];
 
@@ -303,7 +302,6 @@ int vlPolygon::PointInPolygon (float bounds[6], float *x, float *n)
   int testResult, rayOK, status, numInts, i;
   int iterNumber;
   int maxComp, comps[2];
-  float d2;
   int deltaVotes;
   vlMath math;
   vlLine line;

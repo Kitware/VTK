@@ -35,7 +35,6 @@ int vlTriangleStrip::EvaluatePosition(float x[3], float closestPoint[3],
                                       int& subId, float pcoords[3], 
                                       float& minDist2, float weights[MAX_CELL_SIZE])
 {
-  vlFloatPoints pts(3);
   float pc[3], dist2;
   int ignoreId, i, return_status, status;
   float tempWeights[3], activeWeights[3];

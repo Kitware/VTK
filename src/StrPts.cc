@@ -55,7 +55,7 @@ vlCell *vlStructuredPoints::GetCell(int cellId)
   static vlRectangle rectangle;
   static vlBrick brick;
   static vlCell *cell;
-  int i, j, k, idx, loc[3], npts;
+  int idx, loc[3], npts;
   int iMin, iMax, jMin, jMax, kMin, kMax;
   int d01 = this->Dimensions[0]*this->Dimensions[1];
   float x[3];

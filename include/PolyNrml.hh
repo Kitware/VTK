@@ -66,8 +66,8 @@ public:
   // Description:
   // Control the depth of recursion used in this algorithm. (Some systems
   // have limited stack depth.)
-  vlSetClampMacro(RecursionDepth,int,10,LARGE_INTEGER);
-  vlGetMacro(RecursionDepth,int);
+  vlSetClampMacro(MaxRecursionDepth,int,10,LARGE_INTEGER);
+  vlGetMacro(MaxRecursionDepth,int);
 
 protected:
   // Usual data generation method
@@ -77,7 +77,7 @@ protected:
   int Splitting;
   int Consistency;
   int FlipNormals;
-  int RecursionDepth;
+  int MaxRecursionDepth;
 
   void TraverseAndOrder(int cellId);
   void MarkAndReplace(int cellId, int n, int replacement);

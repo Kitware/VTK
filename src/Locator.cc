@@ -95,7 +95,7 @@ int vlLocator::FindClosestPoint(float x[3])
   int i, j;
   float minDist2, dist2;
   float *pt;
-  int closest, level, ndivs[3];
+  int closest, level;
   int ptId, cno;
   vlIdList *ptIds;
   int ijk[3], *nei;

@@ -37,7 +37,6 @@ void vlCleanPolyData::Execute()
   int numNewPts;
   
   vlPointData *pd;
-  vlLocator *locator;
   vlPoints *inPts;
   int *Index;
   int i, j, count;

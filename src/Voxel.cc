@@ -33,7 +33,6 @@ int vlBrick::EvaluatePosition(float x[3], float closestPoint[3],
 {
   float *pt1, *pt2, *pt3, *pt4;
   int i;
-  float l21, l31, l41;
   vlMath math;  
 
   subId = 0;

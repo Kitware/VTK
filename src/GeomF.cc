@@ -187,8 +187,6 @@ void vlGeometryFilter::Execute()
 
 void vlGeometryFilter::PrintSelf(ostream& os, vlIndent indent)
 {
-  int i;
-
   if (this->ShouldIPrint(vlGeometryFilter::GetClassName()))
     {
     vlDataSetToPolyFilter::PrintSelf(os,indent);

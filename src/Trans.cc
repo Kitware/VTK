@@ -598,8 +598,6 @@ vlTransform::~vlTransform ()
 
 void vlTransform::PrintSelf (ostream& os, vlIndent indent)
 {
-  vlMatrix4x4 ctm;
-
   if (this->ShouldIPrint (vlTransform::GetClassName()))
     {
 	  vlObject::PrintSelf(os, indent);

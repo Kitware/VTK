@@ -27,7 +27,7 @@ vlDataSetMapper::~vlDataSetMapper()
 {
   // delete internally created objects.
   if ( this->GeometryExtractor ) delete this->GeometryExtractor;
-  if ( this->PolyMapper ) this->PolyMapper;
+  if ( this->PolyMapper ) delete this->PolyMapper;
 }
 
 void vlDataSetMapper::SetInput(vlDataSet *in)

@@ -67,8 +67,6 @@ void vlSampleFunction::SetModelBounds(float xmin, float xmax, float ymin, float 
   this->ModelBounds[2] != ymin || this->ModelBounds[3] != ymax ||
   this->ModelBounds[4] != zmin || this->ModelBounds[5] != zmax )
     {
-    float length;
-
     this->Modified();
     this->ModelBounds[0] = xmin;
     this->ModelBounds[1] = xmax;

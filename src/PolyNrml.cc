@@ -27,7 +27,7 @@ vlPolyNormals::vlPolyNormals()
   this->Splitting = 1;
   this->Consistency = 1;
   this->FlipNormals = 0;
-  this->RecursionDepth = 10000;
+  this->MaxRecursionDepth = 10000;
 }
 
 static  int NumFlips=0, NumExceededMaxDepth=0;
@@ -37,19 +37,18 @@ static  int RecursionDepth;
 static  int Mark;    
 static  vlFloatNormals *PolyNormals;
 static	float	CosAngle;
-static  int MaxDepth;
 static  vlIdList *Seeds, *Map;
 
 // Generate normals for polygon meshes
 
 void vlPolyNormals::Execute()
 {
-  int i, j, idx;
+  int i, j;
   int *pts, npts;
   int numNewPts;
   float *polyNormal, *vertNormal, length;
   float flipDirection=1.0;
-  int replacementPoint, numPolys, *polys;
+  int replacementPoint, numPolys;
   int cellId, numPts;
   vlPoints *inPts;
   vlPolygon poly;
@@ -272,7 +271,7 @@ void vlPolyNormals::TraverseAndOrder (int cellId)
 
   Visited[cellId] = Mark; //means that it's been ordered properly
 
-  if ( RecursionDepth++ > MaxDepth ) 
+  if ( RecursionDepth++ > this->MaxRecursionDepth ) 
     {
     Seeds->InsertNextId(cellId);
     NumExceededMaxDepth++;
@@ -410,7 +409,7 @@ void vlPolyNormals::PrintSelf(ostream& os, vlIndent indent)
     os << indent << "Splitting: " << (this->Splitting ? "On\n" : "Off\n");
     os << indent << "Consistency: " << (this->Consistency ? "On\n" : "Off\n"); 
     os << indent << "Flip Normals: " << (this->FlipNormals ? "On\n" : "Off\n");
-    os << indent << "Recursion Depth: " << this->RecursionDepth << "\n";
+    os << indent << "Maximum Recursion Depth: " << this->MaxRecursionDepth << "\n";
    }
 }
 

@@ -17,8 +17,8 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 void vlShrinkPolyData::Execute()
 {
-  int i, j, k;
-  float center[3], *p;
+  int j, k;
+  float center[3];
   vlPoints *inPts;
   vlPointData *pd;
   vlCellArray *inVerts,*inLines,*inPolys,*inStrips;

@@ -151,7 +151,7 @@ void vlTextureMapToPlane::Execute()
 void vlTextureMapToPlane::ComputeNormal()
 {
   int numPts=this->GetNumberOfPoints();
-  float m[9], v[3], *x, d;
+  float m[9], v[3], *x;
   int i, ptId, dir;
   float length, w, *c1, *c2, *c3, det;
   float *bounds;
