@@ -46,8 +46,6 @@ vtkCubeAxesActor2D \
 vtkSurfaceReconstructionFilter \
 vtkVideoSource \
 vtkVolumeProMapper \
-vtkVolumeProVG500Mapper \
-vtkOpenGLVolumeProVG500Mapper \
  ${CONTROLLER_API_OBJ}
 
 
