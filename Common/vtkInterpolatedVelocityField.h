@@ -134,6 +134,8 @@ protected:
 
   int FunctionValues(vtkDataSet* ds, float* x, float* f);
 
+  static const float TOLERANCE_SCALE;
+
 private:
   vtkInterpolatedVelocityField(const vtkInterpolatedVelocityField&);  // Not implemented.
   void operator=(const vtkInterpolatedVelocityField&);  // Not implemented.
