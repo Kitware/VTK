@@ -19,14 +19,12 @@
 #include "vtkObjectFactory.h"
 #include "vtkCommand.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleJoystickCamera, "1.15");
+vtkCxxRevisionMacro(vtkInteractorStyleJoystickCamera, "1.16");
 vtkStandardNewMacro(vtkInteractorStyleJoystickCamera);
 
 //----------------------------------------------------------------------------
 vtkInteractorStyleJoystickCamera::vtkInteractorStyleJoystickCamera() 
 {
-  this->MotionFactor = 10.0;
-  this->State = VTK_INTERACTOR_STYLE_CAMERA_NONE;
 }
 
 //----------------------------------------------------------------------------
@@ -38,138 +36,86 @@ vtkInteractorStyleJoystickCamera::~vtkInteractorStyleJoystickCamera()
 //----------------------------------------------------------------------------
 void vtkInteractorStyleJoystickCamera::OnTimer(void) 
 {
-  vtkRenderWindowInteractor *rwi = this->Interactor;
   switch (this->State) 
     {
-    //-----
-    case VTKIS_START:
-      // JCP Animation control
-      if (this->AnimState == VTKIS_ANIM_ON)
-        {
-                rwi->DestroyTimer();
-                rwi->Render();
-                rwi->CreateTimer(VTKI_TIMER_FIRST);
-         }
-      // JCP Animation control 
-      break;
-      //-----
-    case VTK_INTERACTOR_STYLE_CAMERA_ROTATE:  // rotate with respect to an axis perp to look
+    case VTKIS_ROTATE:
+    case VTKIS_PAN:
+    case VTKIS_ZOOM:
+    case VTKIS_SPIN:
       this->FindPokedCamera(this->LastPos[0], this->LastPos[1]);
-      this->RotateCamera(this->LastPos[0], this->LastPos[1]);
-      rwi->CreateTimer(VTKI_TIMER_UPDATE);
-      break;
-      //-----
-    case VTK_INTERACTOR_STYLE_CAMERA_PAN: // move perpendicular to camera's look vector
-      this->FindPokedCamera(this->LastPos[0], this->LastPos[1]);
-      this->PanCamera(this->LastPos[0], this->LastPos[1]);
-      rwi->CreateTimer(VTKI_TIMER_UPDATE);
-      break;
-      //-----
-    case VTK_INTERACTOR_STYLE_CAMERA_ZOOM:
-      this->FindPokedCamera(this->LastPos[0], this->LastPos[1]);
-      this->DollyCamera(this->LastPos[0], this->LastPos[1]);
-      rwi->CreateTimer(VTKI_TIMER_UPDATE);
-      break;
-      //-----
-    case VTK_INTERACTOR_STYLE_CAMERA_SPIN:
-      this->FindPokedCamera(this->LastPos[0], this->LastPos[1]);
-      this->SpinCamera(this->LastPos[0], this->LastPos[1]);
-      rwi->CreateTimer(VTKI_TIMER_UPDATE);
-      break;
-      //-----
-    case VTKIS_TIMER:
-                rwi->Render();
-      rwi->CreateTimer(VTKI_TIMER_UPDATE);
-      break;
-      //-----
-    default :
-
       break;
     }
+
+  this->Superclass::OnTimer();
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleJoystickCamera::OnMouseMove(int vtkNotUsed(ctrl), 
-                                           int vtkNotUsed(shift),
-                                           int x, int y) 
-{
-  this->LastPos[0] = x;
-  this->LastPos[1] = y;
-}
-
-
-//----------------------------------------------------------------------------
-void vtkInteractorStyleJoystickCamera::OnLeftButtonDown(int ctrl, int shift, 
-                                                int x, int y) 
+void vtkInteractorStyleJoystickCamera::OnLeftButtonDown(int ctrl, 
+                                                        int shift, 
+                                                        int x, 
+                                                        int y) 
 {
   this->FindPokedRenderer(x, y);
-
   if (this->CurrentRenderer == NULL)
     {
-    vtkErrorMacro("CurrentRenderer is NULL");
     return;
     }
 
-  this->UpdateInternalState(ctrl, shift, x, y);
-  
-  if (shift)
+  if (shift) 
     {
-    if (ctrl)
+    if (ctrl) 
       {
       this->StartDolly();
-      this->State = VTK_INTERACTOR_STYLE_CAMERA_ZOOM;
       }
-    else
+    else 
       {
       this->StartPan();
-      this->State = VTK_INTERACTOR_STYLE_CAMERA_PAN;
       }
-    }
+    } 
   else 
     {
-    if (this->CtrlKey)
+    if (ctrl) 
       {
       this->StartSpin();
-      this->State = VTK_INTERACTOR_STYLE_CAMERA_SPIN;
       }
-    else
+    else 
       {
       this->StartRotate();
-      this->State = VTK_INTERACTOR_STYLE_CAMERA_ROTATE;
       }
     }
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleJoystickCamera::OnLeftButtonUp(int vtkNotUsed(ctrl),
-                                                      int vtkNotUsed(shift),
-                                                      int vtkNotUsed(x),
+void vtkInteractorStyleJoystickCamera::OnLeftButtonUp(int vtkNotUsed(ctrl), 
+                                                      int vtkNotUsed(shift), 
+                                                      int vtkNotUsed(x), 
                                                       int vtkNotUsed(y))
 {
-  if (this->State == VTK_INTERACTOR_STYLE_CAMERA_ROTATE) 
+  switch (this->State) 
     {
-    this->EndRotate();
-    } 
-  else if (this->State == VTK_INTERACTOR_STYLE_CAMERA_PAN) 
-    {
-    this->EndPan();
-    } 
-  else if (this->State == VTK_INTERACTOR_STYLE_CAMERA_ZOOM) 
-    {
-    this->EndDolly();
-    } 
-  else 
-    {
-    this->EndSpin();
-    }
+    case VTKIS_DOLLY:
+      this->EndDolly();
+      break;
 
-  this->State = VTK_INTERACTOR_STYLE_CAMERA_NONE;
+    case VTKIS_PAN:
+      this->EndPan();
+      break;
+
+    case VTKIS_SPIN:
+      this->EndSpin();
+      break;
+
+    case VTKIS_ROTATE:
+      this->EndRotate();
+      break;
+    }
 }
 
 //----------------------------------------------------------------------------
 void vtkInteractorStyleJoystickCamera::OnMiddleButtonDown(int vtkNotUsed(ctrl),
                                                           int vtkNotUsed(shift), 
-                                                          int x, int y)
+                                                          int x, 
+                                                          int y)
 {
   this->FindPokedRenderer(x, y);
   if (this->CurrentRenderer == NULL)
@@ -178,7 +124,6 @@ void vtkInteractorStyleJoystickCamera::OnMiddleButtonDown(int vtkNotUsed(ctrl),
     }
   
   this->StartPan();
-  this->State = VTK_INTERACTOR_STYLE_CAMERA_PAN;
 }
 //----------------------------------------------------------------------------
 void vtkInteractorStyleJoystickCamera::OnMiddleButtonUp(int vtkNotUsed(ctrl),
@@ -186,14 +131,19 @@ void vtkInteractorStyleJoystickCamera::OnMiddleButtonUp(int vtkNotUsed(ctrl),
                                                         int vtkNotUsed(x),
                                                         int vtkNotUsed(y)) 
 {
-  this->EndPan();
-  this->State = VTK_INTERACTOR_STYLE_CAMERA_NONE;
+  switch (this->State) 
+    {
+    case VTKIS_PAN:
+      this->EndPan();
+      break;
+    }
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleJoystickCamera::OnRightButtonDown(int vtkNotUsed(ctrl),
-                                                         int vtkNotUsed(shift), 
-                                                         int x, int y)
+void vtkInteractorStyleJoystickCamera::OnRightButtonDown(int ctrl,
+                                                         int shift, 
+                                                         int x, 
+                                                         int y)
 {
   this->FindPokedRenderer(x, y);
   if (this->CurrentRenderer == NULL)
@@ -202,22 +152,23 @@ void vtkInteractorStyleJoystickCamera::OnRightButtonDown(int vtkNotUsed(ctrl),
     }
   
   this->StartZoom();
-  this->State = VTK_INTERACTOR_STYLE_CAMERA_ZOOM;
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleJoystickCamera::OnRightButtonUp(int vtkNotUsed(ctrl),
+void vtkInteractorStyleJoystickCamera::OnRightButtonUp(int vtkNotUsed(ctrl), 
                                                        int vtkNotUsed(shift), 
-                                                       int vtkNotUsed(x),
+                                                       int vtkNotUsed(x), 
                                                        int vtkNotUsed(y))
 {
-  this->EndZoom();
-  this->State = VTK_INTERACTOR_STYLE_CAMERA_NONE;
+  switch (this->State) 
+    {
+    case VTKIS_ZOOM:
+      this->EndZoom();
+      break;
+    }
 }
-
 //----------------------------------------------------------------------------
 void vtkInteractorStyleJoystickCamera::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 }
-
