@@ -141,6 +141,17 @@ protected:
   int *Resize(const int sz);
 };
 
+// In-lined for performance
+inline int vtkIdList::InsertNextId(const int id)
+{
+  if ( this->NumberOfIds >= this->Size )
+    {
+    this->Resize(this->NumberOfIds+1);
+    }
+  this->Ids[this->NumberOfIds++] = id;
+  return this->NumberOfIds-1;
+}
+
 inline int vtkIdList::IsId(int id)
 {
   int *ptr, i;

@@ -113,16 +113,6 @@ void vtkIdList::InsertId(const int i, const int id)
     }
 }
 
-int vtkIdList::InsertNextId(const int id)
-{
-  if ( this->NumberOfIds >= this->Size )
-    {
-    this->Resize(this->NumberOfIds+1);
-    }
-  this->Ids[this->NumberOfIds++] = id;
-  return this->NumberOfIds-1;
-}
-
 int vtkIdList::InsertUniqueId(const int id)
 {
   for (int i=0; i < this->NumberOfIds; i++)
