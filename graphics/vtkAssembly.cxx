@@ -165,7 +165,6 @@ int vtkAssembly::RenderOpaqueGeometry(vtkViewport *ren)
   vtkAssemblyPath *path;
   float fraction;
   int   renderedSomething = 0;
-  vtkMatrix4x4 *oldMatrix;
 
   this->UpdatePaths();
 
@@ -194,8 +193,6 @@ int vtkAssembly::RenderOpaqueGeometry(vtkViewport *ren)
 
 void vtkAssembly::ReleaseGraphicsResources(vtkWindow *renWin)
 {
-  vtkProp3D *prop3D;
-
   this->vtkProp3D::ReleaseGraphicsResources(renWin);
 }
 
@@ -297,7 +294,6 @@ void vtkAssembly::UpdatePaths()
 void vtkAssembly::BuildPaths(vtkAssemblyPaths *paths, vtkAssemblyPath *path)
 {
   vtkProp3D *prop3D;
-  vtkAssemblyPath *childPath;
 
   for ( this->Parts->InitTraversal(); 
         (prop3D = this->Parts->GetNextProp3D()); )

@@ -211,10 +211,6 @@ void vtkMultiProcessController::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ForceDeepCopy: " << this->ForceDeepCopy << endl;
 }
 
-static vtkMultiProcessController *GLOBAL_VTK_MP_CONTROLLER = NULL;
-
-
-
 //----------------------------------------------------------------------------
 void vtkMultiProcessController::SetNumberOfProcesses(int num)
 {

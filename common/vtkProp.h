@@ -148,7 +148,7 @@ public:
   // These methods are used by subclasses to place a matrix (if any) in the
   // prop prior to rendering. Generally used only for picking. See vtkProp3D
   // for more information.
-  virtual void PokeMatrix(vtkMatrix4x4 *matrix) {};
+  virtual void PokeMatrix(vtkMatrix4x4 *vtkNotUsed(matrix)) {};
   virtual vtkMatrix4x4 *GetMatrixPointer() {return NULL;};
 
 //BTX  

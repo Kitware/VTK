@@ -95,8 +95,6 @@ void vtkPicker::MarkPicked(vtkAssemblyPath *path, vtkProp3D *prop3D,
                            float tMin, float mapperPos[3])
 {
   int i;
-  float mapperHPosition[4];
-  float *worldHPosition;
   vtkMapper *mapper;
   vtkVolumeMapper *volumeMapper;
 
@@ -106,9 +104,7 @@ void vtkPicker::MarkPicked(vtkAssemblyPath *path, vtkProp3D *prop3D,
   for (i=0; i < 3; i++) 
     {
     this->MapperPosition[i] = mapperPos[i];
-    mapperHPosition[i] = mapperPos[i];
     }
-  mapperHPosition[3] = 1.0;
   if ( (mapper=vtkMapper::SafeDownCast(m)) != NULL )
     {
     this->DataSet = mapper->GetInput();
@@ -142,7 +138,6 @@ int vtkPicker::Pick(float selectionX, float selectionY, float selectionZ,
                    vtkRenderer *renderer)
 {
   int i;
-  vtkActorCollection *actors;
   vtkProp *prop;
   vtkCamera *camera;
   vtkAbstractMapper3D *mapper;

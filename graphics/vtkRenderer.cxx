@@ -1188,7 +1188,6 @@ vtkAssemblyPath* vtkRenderer::PickProp(float selectionX, float selectionY)
 // Before each Prop is rendered the pick id is incremented
 void vtkRenderer::PickRender(vtkPropCollection *props)
 {
-  double   t1, t2;
   vtkProp  *aProp;
   vtkAssemblyPath *path;
 

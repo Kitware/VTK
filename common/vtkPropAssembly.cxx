@@ -398,7 +398,6 @@ void vtkPropAssembly::BuildPaths(vtkAssemblyPaths *paths,
                                  vtkAssemblyPath *path)
 {
   vtkProp *prop;
-  vtkAssemblyPath *childPath;
 
   for ( this->Parts->InitTraversal(); 
         (prop = this->Parts->GetNextProp()); )
