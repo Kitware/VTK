@@ -88,7 +88,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // NumberOfIterations is a cap on the maximum numper of smoothing passes.
 // The Convergence ivar is a limit on the maximum point motion. If the 
 // maximum motion during an iteration is less than Convergence, then the 
-// filter terminates execution. (Convergence is expressed as a fraction of 
+// smoothing process terminates. (Convergence is expressed as a fraction of 
 // the diagonal of the bounding box.)
 //
 // There are two instance variables that control the generation of error
@@ -126,7 +126,8 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Specify a convergence criterion for the iteration process.
+  // Specify a convergence criterion for the iteration process. Smaller numbers result
+  // in more smoothing iterations.
   vtkSetClampMacro(Convergence,float,0.0,1.0);
   vtkGetMacro(Convergence,float);
 
