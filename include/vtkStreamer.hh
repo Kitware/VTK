@@ -130,6 +130,7 @@ class vtkStreamer : public vtkDataSetToPolyFilter
 {
 public:
   vtkStreamer();
+  ~vtkStreamer();
   char *GetClassName() {return "vtkStreamer";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

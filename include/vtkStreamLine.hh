@@ -65,7 +65,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // instance variable is important because subclasses of vtkStreamLine (e.g.,
 // vtkDashedStreamLine) depend on this value to build their representation.
 // .SECTION See Also
-// vtkStreamer, vtkDashedStreamLine, vtkStreamPoints;
+// vtkStreamer vtkDashedStreamLine vtkStreamPoints
 
 #ifndef __vtkStreamLine_h
 #define __vtkStreamLine_h
@@ -80,8 +80,9 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Specify the length of a line segment. Smaller values result in smoother
-  // appearing streamlines but greater numbers of line primitives.
+  // Specify the length of a line segment. The length is expressed in terms of
+  // elapsed time. Smaller values result in smoother appearing streamlines but
+  // greater numbers of line primitives.
   vtkSetClampMacro(StepLength,float,0.000001,VTK_LARGE_FLOAT);
   vtkGetMacro(StepLength,float);
 
