@@ -142,9 +142,10 @@ void vtkPolyDataStreamer::Execute()
   vtkPolyData *output = this->GetOutput();
   vtkPolyData *copy;
   vtkAppendPolyData *append = vtkAppendPolyData::New();
-  int outPiece, outNumPieces;
+  int outPiece, outNumPieces, outGhost;
   int i;
 
+  outGhost = output->GetUpdateGhostLevel();
   outPiece = output->GetUpdatePiece();
   outNumPieces = output->GetUpdateNumberOfPieces();
   for (i = 0; i < this->NumberOfStreamDivisions; ++i)
@@ -161,6 +162,11 @@ void vtkPolyDataStreamer::Execute()
 
   append->Update();
   output->ShallowCopy(append->GetOutput());
+  // set the piece and number of pieces back to the correct value
+  // since the shallow copy of the append filter has overwritten them.
+  output->SetUpdateNumberOfPieces(outNumPieces );
+  output->SetUpdatePiece(outPiece);
+  output->SetUpdateGhostLevel(outGhost);
   append->Delete();
 }
 
