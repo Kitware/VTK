@@ -117,6 +117,7 @@ void vtkImageFilter::SetInput(vtkImageCache *input)
   if (this->Input)
     {
     this->Input->UnRegister(this);
+    this->Input = NULL;
     }
   
   if (input)
