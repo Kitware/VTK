@@ -130,7 +130,6 @@ vtkGlrRenderWindow::vtkGlrRenderWindow()
   this->WindowId = (Window)NULL;
   this->NextWindowId = (Window)NULL;
   this->ColorMap = (Colormap)0;
-  this->StereoType = VTK_STEREO_CRYSTAL_EYES;
 
   strcpy(this->Name,"Visualization Toolkit - GL");
 }
