@@ -30,6 +30,7 @@ ENDIF (VTK_USE_X)
 # Add all the executables that require rendering
 #
 ADD_EXECUTABLE(TimeRenderer TimeRenderer)
+ADD_EXECUTABLE(TimeRenderer2 TimeRenderer2)
 
 
 

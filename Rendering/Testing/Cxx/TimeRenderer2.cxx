@@ -1,0 +1,80 @@
+#include "vtkRenderer.h"
+#include "vtkRenderWindow.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkActor.h"
+#include "vtkTriangleFilter.h"
+#include "vtkStripper.h"
+#include "vtkTimerLog.h"
+#include "vtkPlaneSource.h"
+
+
+int main( int argc, char *argv[] )
+{
+  // For timings
+  int i;
+  int RES = 200;
+  if (argc > 1)
+    {
+    RES = atoi(argv[1]);
+    }  
+  // create a rendering window and both renderers
+  vtkRenderer *ren1 = vtkRenderer::New();
+  ren1->GetCullers()->InitTraversal();
+  //ren1->RemoveCuller(ren1->GetCullers()->GetNextItem());
+  vtkRenderWindow *renWindow = vtkRenderWindow::New();
+  renWindow->AddRenderer(ren1);
+
+  vtkPlaneSource *plane = vtkPlaneSource::New();
+  plane->SetResolution(RES,RES);
+  
+  vtkPolyDataMapper *mapper;
+  vtkActor *actor;
+  vtkTriangleFilter *tfilter;
+  vtkStripper *stripper;
+
+  mapper = vtkPolyDataMapper::New();
+  actor = vtkActor::New();
+  tfilter = vtkTriangleFilter::New();
+  stripper = vtkStripper::New();
+  
+  tfilter->SetInput(plane->GetOutput());
+  stripper->SetInput(tfilter->GetOutput());
+  mapper->SetInput(stripper->GetOutput());
+  actor->SetMapper(mapper);
+  ren1->AddActor(actor);
+  
+  // set the size of our window
+  renWindow->SetSize(500,500);
+  
+  // set the viewports and background of the renderers
+  //  ren1->SetViewport(0,0,0.5,1);
+  ren1->SetBackground(0.2,0.3,0.5);
+
+  // draw the resulting scene
+  renWindow->Render();
+  ren1->GetActiveCamera()->Azimuth(3);
+  renWindow->Render();
+  // Set up times
+  vtkTimerLog *tl = vtkTimerLog::New();
+  
+  tl->StartTimer();
+  
+  // do a azimuth of the cameras 3 degrees per iteration
+  for (i = 0; i < 360; i += 3) 
+    {
+    ren1->GetActiveCamera()->Azimuth(3);
+    renWindow->Render();
+    }
+
+  tl->StopTimer();
+  
+  cerr << "Wall Time = " << tl->GetElapsedTime() << "\n";
+  cerr << "FrameRate = " << 120.0 / tl->GetElapsedTime() << "\n";
+  cerr << "TriRate = " << RES*RES*2*120 / tl->GetElapsedTime() << "\n";
+
+  // Clean up
+  ren1->Delete();
+  renWindow->Delete();
+  tl->Delete();
+  return 1;
+}
