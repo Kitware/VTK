@@ -60,8 +60,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 #include "vtkImageCachedSource.h"
-#include "vtkImageRegion.h"
 #include "vtkStructuredPointsToImage.h"
+class vtkImageRegion;
+class vtkImageCache;
 
 class VTK_EXPORT vtkImageTwoOutputFilter : public vtkImageCachedSource
 {
@@ -70,52 +71,38 @@ public:
   char *GetClassName() {return "vtkImageTwoOutputFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  virtual void SetInput(vtkImageSource *input);
+  virtual void SetInput(vtkImageCache *input);
   void SetInput(vtkStructuredPoints *spts)
     {this->SetInput(spts->GetStructuredPointsToImage()->GetOutput());}
 
-  void UpdatePointData(int dim, vtkImageRegion *outRegion);
+  void Update(vtkImageRegion *outRegion);
   void UpdateImageInformation(vtkImageRegion *region);
   unsigned long int GetPipelineMTime();
   
   // Description:
   // Get input to this filter.
-  vtkGetObjectMacro(Input,vtkImageSource);
+  vtkGetObjectMacro(Input,vtkImageCache);
 
   // Description:
   // Get the two outputs.
-  vtkImageSource *GetOutput0(){return this->GetOutput();}
-  vtkImageSource *GetOutput1();
-  
-  // Description:
-  // The basic operation is on regions with this dimensionality.  
-  // Filters that operate on pixels would have dimensionality 0.
-  // 2D Image filters would have dimensionality 2.
-  vtkGetMacro(Dimensionality, int);
+  vtkImageCache *GetOutput0(){return this->GetOutput();}
+  vtkImageCache *GetOutput1();
   
 protected:
-  vtkImageSource *Input;     
+  vtkImageCache *Input;     
   // Ouput0 is the same as Output
   vtkImageCache *Output1;
   
   void SetReleaseDataFlag(int value);
   
-  int Dimensionality;
-  // This is set in the subclass constructor and (probably) should not be 
-  // changed.  It indicates the dimensionality of the regions the
-  // execute/update methods expect.  It may be larger than dimensionality
-  // to make the filter faster (this supper class is not efficient at
-  // looping over extra dimensions.
-  int ExecuteDimensionality;
-  
-
   virtual void ComputeOutputImageInformation(vtkImageRegion *inRegion,
 					     vtkImageRegion *outRegion);
   virtual void ComputeRequiredInputRegionExtent(vtkImageRegion *outRegion,
 						vtkImageRegion *inRegion);
 
-  void Execute(int dim, vtkImageRegion *inRegion, 
-	       vtkImageRegion *outRegion0, vtkImageRegion *outRegion1);
+  virtual void RecursiveLoopExecute(int dim, vtkImageRegion *inRegion, 
+				    vtkImageRegion *outRegion0, 
+				    vtkImageRegion *outRegion1);
   virtual void Execute(vtkImageRegion *inRegion, 
 		       vtkImageRegion *outRegion0, vtkImageRegion *outRegion1);
 

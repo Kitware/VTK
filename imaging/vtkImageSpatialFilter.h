@@ -123,7 +123,8 @@ protected:
   void ComputeRequiredInputRegionExtent(vtkImageRegion *outRegion, 
 					vtkImageRegion *inRegion);
   
-  void Execute(int dim, vtkImageRegion *inRegion, vtkImageRegion *outRegion);
+  void RecursiveLoopExecute(int dim, vtkImageRegion *inRegion, 
+			    vtkImageRegion *outRegion);
   // For breaking up into center and boundary ...
   void ExecuteCenter(int dim, vtkImageRegion *inRegion,
 		     vtkImageRegion *outRegion);  

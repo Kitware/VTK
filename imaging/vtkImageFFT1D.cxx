@@ -39,6 +39,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include <math.h>
+#include "vtkImageRegion.h"
 #include "vtkImageFFT1D.h"
 
 
@@ -53,15 +54,12 @@ vtkImageFFT1D::vtkImageFFT1D()
   this->InputRealComponent = 0;
   this->InputImaginaryComponent = 1;
 
+  // Execute does not care that component is hard coded.
+  this->ExecuteDimensionality = 2;
+  
   // To avoid compiler warnings
   _vtkImageComplexMultiplyTemp.Real = 0.0;
 
-  // Execute does not care that component is hard coded.
-  this->ExecuteDimensionality = 2;
-  // Not used.  Here I am ignoring component axis because it
-  // is hard coded. (complex numbers can not be put along any axis)
-  this->Dimensionality = 1;
-  
   // avoid a warning
   _vtkImageComplexMultiplyTemp.Real = 0.0;
 }
@@ -112,7 +110,7 @@ vtkImageFFT1D::ComputeOutputImageInformation(vtkImageRegion *inRegion,
 
 //----------------------------------------------------------------------------
 // Description:
-// Intercepts the caches UpdateRegion to make the region larger than requested.
+// Intercepts the caches Update to make the region larger than requested.
 // We might as well create both real and imaginary components.
 void vtkImageFFT1D::InterceptCacheUpdate(vtkImageRegion *region)
 {

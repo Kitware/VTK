@@ -50,7 +50,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkImageExport_h
 
 #include "vtkObject.h"
-#include "vtkImageSource.h"
+#include "vtkImageCache.h"
 #include "vtkImageRegion.h"
 
 
@@ -65,8 +65,8 @@ public:
   
   // Description:
   // Set/Get the scalar input object from the image pipeline.
-  vtkSetObjectMacro(Input,vtkImageSource);
-  vtkGetObjectMacro(Input,vtkImageSource);
+  vtkSetObjectMacro(Input,vtkImageCache);
+  vtkGetObjectMacro(Input,vtkImageCache);
 
   // Description:
   // This method will specify the data type the memory wanted.
@@ -110,7 +110,7 @@ public:
   
   
 protected:
-  vtkImageSource *Input;
+  vtkImageCache *Input;
   int ScalarType;
   int Extent[VTK_IMAGE_EXTENT_DIMENSIONS];
   int Axes[VTK_IMAGE_DIMENSIONS];

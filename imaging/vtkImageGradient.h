@@ -84,10 +84,12 @@ public:
   // and the number of components in the output vectors.
   // (Input can not use the component axis).
   vtkSetMacro(Dimensionality, int);
+  vtkGetMacro(Dimensionality, int);
   
   
 protected:
   int HandleBoundaries;
+  int Dimensionality;
   
   void ComputeOutputImageInformation(vtkImageRegion *inRegion,
 				     vtkImageRegion *outRegion);

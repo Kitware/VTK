@@ -84,7 +84,7 @@ public:
   // Description:
   // Set/Get the scalar input data
   vtkSetObjectMacro( ScalarInput, vtkStructuredPoints );
-  void SetScalarInput(vtkImageSource *cache)
+  void SetScalarInput(vtkImageCache *cache)
     {this->SetScalarInput(cache->GetImageToStructuredPoints()->GetOutput());}
   virtual vtkStructuredPoints *GetScalarInput() {return this->ScalarInput;};
 

@@ -39,6 +39,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include<math.h>
+#include "vtkImageRegion.h"
+#include "vtkImageCache.h"
 #include "vtkImageOpenClose.h"
 
 //----------------------------------------------------------------------------
@@ -218,7 +220,7 @@ unsigned long int vtkImageOpenClose::GetPipelineMTime()
 //----------------------------------------------------------------------------
 // Description:
 // Set the Input of the filter.
-void vtkImageOpenClose::SetInput(vtkImageSource *input)
+void vtkImageOpenClose::SetInput(vtkImageCache *input)
 {
   this->Input = input;
   this->Modified();

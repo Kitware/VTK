@@ -38,6 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
+#include "vtkImageRegion.h"
 #include "vtkImageShiftScale.h"
 
 
@@ -53,8 +54,6 @@ vtkImageShiftScale::vtkImageShiftScale()
 
   // For better performance, the execute function was written as a 2d.
   this->ExecuteDimensionality = 2;
-  // Pixel operation.
-  this->Dimensionality = 0;
 }
 
 

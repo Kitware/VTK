@@ -51,6 +51,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkWriter.h"
 #include "vtkStructuredPoints.h"
 #include "vtkImageToStructuredPoints.h"
+#include "vtkImageCache.h"
 
 class VTK_EXPORT vtkTIFFWriter : public vtkWriter
 {
@@ -64,7 +65,7 @@ public:
   void SetInput(vtkStructuredPoints *input);
   void SetInput(vtkStructuredPoints &input) {this->SetInput(&input);};
   // Set color scalars ?
-  void SetInput(vtkImageSource *cache)
+  void SetInput(vtkImageCache *cache)
     {this->SetInput(cache->GetImageToStructuredPoints()->GetOutput());}
   vtkStructuredPoints *GetInput() {return (vtkStructuredPoints *)this->Input;};
 

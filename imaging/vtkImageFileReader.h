@@ -63,12 +63,9 @@ public:
   // Set the name of the file to be read.
   void SetFileName(char *fileName);
   
-  
 protected:
-  
-
   void Initialize();
-  void UpdatePointData(vtkImageRegion *outRegion);    
+  void Execute(vtkImageRegion *outRegion);    
 };
 
 #endif

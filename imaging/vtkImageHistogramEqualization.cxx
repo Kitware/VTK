@@ -38,6 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
+#include "vtkImageRegion.h"
 #include "vtkImageHistogramEqualization.h"
 #include <math.h>
 #include <stdlib.h>
@@ -52,7 +53,6 @@ vtkImageHistogramEqualization::vtkImageHistogramEqualization()
   this->SetAxes(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS);
   
   this->ExecuteDimensionality = 2;
-  this->Dimensionality = 2;
 }
 
 //----------------------------------------------------------------------------
@@ -274,7 +274,7 @@ void vtkImageHistogramEqualization::ComputeRequiredInputRegionExtent(
 
 //----------------------------------------------------------------------------
 // Description:
-// Intercepts the caches UpdateRegion to make the region larger than requested.
+// Intercepts the caches Update to make the region larger than requested.
 // We might as well create both real and imaginary components.
 void vtkImageHistogramEqualization::InterceptCacheUpdate(vtkImageRegion *region)
 {

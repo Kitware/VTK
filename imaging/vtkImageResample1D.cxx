@@ -39,6 +39,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include <math.h>
+#include "vtkImageRegion.h"
+#include "vtkImageCache.h"
 #include "vtkImageResample1D.h"
 
 
@@ -54,7 +56,6 @@ vtkImageResample1D::vtkImageResample1D()
 
   // For better performance, the execute function was written as a 2d.
   this->ExecuteDimensionality = 2;
-  this->Dimensionality = 1;
 }
 
 

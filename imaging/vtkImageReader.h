@@ -196,7 +196,6 @@ protected:
   int DataExtent[VTK_IMAGE_EXTENT_DIMENSIONS];
   
   virtual void Initialize();
-  virtual void UpdatePointData(vtkImageRegion *outRegion) = 0;    
   void UpdateFromFile(vtkImageRegion *region);
 };
 

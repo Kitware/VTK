@@ -38,6 +38,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
+#include "vtkImageRegion.h"
+#include "vtkImageCache.h"
 #include "vtkImageDistance1D.h"
 
 //----------------------------------------------------------------------------
@@ -45,14 +47,13 @@ vtkImageDistance1D::vtkImageDistance1D()
 {
   this->SetOutputScalarType(VTK_SHORT);
   
-  this->Dimensionality = 1;
   this->ExecuteDimensionality = 1;
 }
 
 
 //----------------------------------------------------------------------------
 // Description:
-// Intercepts the caches UpdateRegion to make the region larger than requested.
+// Intercepts the caches Update to make the region larger than requested.
 // Create the whole output array.
 void vtkImageDistance1D::InterceptCacheUpdate(vtkImageRegion *region)
 {

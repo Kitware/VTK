@@ -38,6 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
+#include "vtkImageRegion.h"
 #include "vtkImageThreshold.h"
 
 
@@ -58,8 +59,6 @@ vtkImageThreshold::vtkImageThreshold()
 
   // For performance, it was implemented as 2d.
   this->ExecuteDimensionality = 2;
-  // Pixel operation
-  this->Dimensionality = 0;
 }
 
 

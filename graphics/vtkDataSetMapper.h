@@ -53,7 +53,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkGeometryFilter.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRenderer.h"
-#include "vtkImageSource.h"
+#include "vtkImageCache.h"
 #include "vtkImageToStructuredPoints.h"
 
 
@@ -72,7 +72,7 @@ public:
   // Specify the input data to map.
   void SetInput(vtkDataSet *in);
   void SetInput(vtkDataSet& in) {this->SetInput(&in);};
-  void SetInput(vtkImageSource *cache)
+  void SetInput(vtkImageCache *cache)
     {this->SetInput(cache->GetImageToStructuredPoints()->GetOutput());}
   
   // Description:

@@ -43,11 +43,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkImageFilter is a filter class that can hide som of the pipeline 
 // complexity.  This super class will loop over extra dimensions so the
 // subclass can deal with simple low dimensional regions.
-// The subclass can implement a filer in two different ways.  It can
-// create an "Update(vtkImageRegion *out)" method, and get the input
-// region itself. Or, it can create an "Execute(vtkImageRegion *in, *out)"
-// and let the superclass get the input.  The execute method requires the
-// UseExecuteMethod is on and also requires some helper method.  
 // "ComputeRequiredInputExtent(vtkImageRegion *out, *in)" must set the
 // extent of in required to compute out. 
 // The advantage of using the execute method is that this super class
@@ -64,7 +59,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkImageCachedSource.h"
 #include "vtkStructuredPointsToImage.h"
-#include "vtkImageRegion.h"
+class vtkImageRegion;
+class vtkImageCache;
 
 class VTK_EXPORT vtkImageFilter : public vtkImageCachedSource
 {
@@ -73,28 +69,23 @@ public:
   char *GetClassName() {return "vtkImageFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  virtual void SetInput(vtkImageSource *input);
+  virtual void SetInput(vtkImageCache *input);
   void SetInput(vtkStructuredPoints *spts)
     {this->SetInput(spts->GetStructuredPointsToImage()->GetOutput());}
   
-  void UpdatePointData(int dim, vtkImageRegion *outRegion);
+  void Update(vtkImageRegion *outRegion);
   void UpdateImageInformation(vtkImageRegion *region);
   unsigned long int GetPipelineMTime();
   
   // Description:
   // Get input to this filter.
-  vtkGetObjectMacro(Input,vtkImageSource);
+  vtkGetObjectMacro(Input,vtkImageCache);
 
   // Description:
   // Set/Get input memory limit.  Make this smaller to stream.
   vtkSetMacro(InputMemoryLimit,long);
   vtkGetMacro(InputMemoryLimit,long);
 
-  // Description:
-  // This inserts an axis at a specific point.  This is used for the filters
-  // that want to put the component axis at a specific location.
-  void InsertAxis(int num, int axis);
-  
   // Description:
   // Set/Get the order to split region requests if we need to stream
   void SetSplitOrder(int num, int *axes);
@@ -103,14 +94,8 @@ public:
   vtkImageGetMacro(SplitOrder,int);
   int *GetSplitOrder() {return this->SplitOrder;};
 
-  // Description:
-  // The basic operation is on regions with this dimensionality.  
-  // Filters that operate on pixels would have dimensionality 0.
-  // 2D Image filters would have dimensionality 2.
-  vtkGetMacro(Dimensionality, int);
-  
 protected:
-  vtkImageSource *Input;     
+  vtkImageCache *Input;     
   
   int Dimensionality;
   // This is set in the subclass constructor and (probably) should not be 
@@ -120,38 +105,18 @@ protected:
   // looping over extra dimensions.
   int ExecuteDimensionality;
   
-  
-  // Flag toggles between use of execute and update methods.
-  int UseExecuteMethod; 
   int SplitOrder[VTK_IMAGE_DIMENSIONS];
   int NumberOfSplitAxes;
   long InputMemoryLimit;
-
-  // Description:
-  // Specify whether if subclass will use an execute method or an update method
-  vtkSetMacro(UseExecuteMethod,int);
-  vtkGetMacro(UseExecuteMethod,int);
-  vtkBooleanMacro(UseExecuteMethod,int);
-   
-  // Description:
-  // These are conveniance functions for writing filters that have their
-  // own UpdateRegion methods.  They create the region object as well as 
-  // getting the input source to fill it with data.  The extent
-  // of the unspecified dimensions default to [0, 0];
-  // Used in vtkImageScatterPlot.
-  vtkImageRegion *GetInputRegion(int dim, int *extent);    
-
-  // Description:
-  // Recursive for streaming
-  void UpdatePointData2(int dim, vtkImageRegion *inRegion, 
-			vtkImageRegion *outRegion);
-
+  
   virtual void ComputeOutputImageInformation(vtkImageRegion *inRegion,
 					     vtkImageRegion *outRegion);
   virtual void ComputeRequiredInputRegionExtent(vtkImageRegion *outRegion,
 						vtkImageRegion *inRegion);
-  virtual void Execute(int dim, vtkImageRegion *inRegion, 
-		       vtkImageRegion *outRegion);
+  void RecursiveStreamUpdate(vtkImageRegion *inRegion, 
+			     vtkImageRegion *outRegion);
+  virtual void RecursiveLoopExecute(int dim, vtkImageRegion *inRegion, 
+				    vtkImageRegion *outRegion);
   virtual void Execute(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
 };
 

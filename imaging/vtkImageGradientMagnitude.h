@@ -69,10 +69,14 @@ public:
   vtkGetMacro(HandleBoundaries, int);
   vtkBooleanMacro(HandleBoundaries, int);
 
+  // Description:
+  // Determines how the input is interpreted (set of 2d slices ...)
   vtkSetMacro(Dimensionality, int);
+  vtkGetMacro(Dimensionality, int);
   
 protected:
   int HandleBoundaries;
+  int Dimensionality;
   
   void ComputeOutputImageInformation(vtkImageRegion *inRegion,
 				     vtkImageRegion *outRegion);

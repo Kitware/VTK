@@ -385,7 +385,7 @@ void vtkImageXViewer::Render(void)
   region = vtkImageRegion::New();
   region->SetAxes(this->Region.GetAxes());
   region->SetExtent(4, extent);
-  this->Input->UpdateRegion(region);
+  this->Input->Update(region);
   if ( ! region->AreScalarsAllocated())
     {
     vtkErrorMacro(<< "View: Could not get region from input.");

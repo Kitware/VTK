@@ -254,15 +254,16 @@ void vtkImageSpatialFilter::ComputeRequiredInputRegionExtent(
 // This Execute method breaks the regions into pieces that have boundaries
 // and a piece that does not need boundary handling.  It calls subclass
 // defined execute methods for these pieces.
-void vtkImageSpatialFilter::Execute(int dim, vtkImageRegion *inRegion,
-				    vtkImageRegion *outRegion)
+void vtkImageSpatialFilter::RecursiveLoopExecute(int dim, 
+						 vtkImageRegion *inRegion,
+						 vtkImageRegion *outRegion)
 {
   int idx, idx2;
   
   // If a separate center method does not exist, just call subclass method.
   if (this->ExecuteType == VTK_IMAGE_SPATIAL_SUBCLASS)
     {
-    this->vtkImageFilter::Execute(dim, inRegion, outRegion);
+    this->vtkImageFilter::RecursiveLoopExecute(dim, inRegion, outRegion);
     return;
     }
 
@@ -306,7 +307,7 @@ void vtkImageSpatialFilter::Execute(int dim, vtkImageRegion *inRegion,
     outRegion->SetExtent(dim, outCenterExtent);
     this->ComputeRequiredInputRegionExtent(outRegion, inRegion);
     // Just in cass the image is so small there is no center.
-    if (outRegion->GetVolume() > 0)
+    if (! outRegion->IsEmpty())
       {
       this->ExecuteCenter(dim, inRegion, outRegion);
       }
@@ -328,7 +329,7 @@ void vtkImageSpatialFilter::Execute(int dim, vtkImageRegion *inRegion,
 	  extent[idx*2+1] = outCenterExtent[idx*2];
 	  outRegion->SetExtent(dim, extent);
 	  this->ComputeRequiredInputRegionExtent(outRegion, inRegion);
-	  this->vtkImageFilter::Execute(dim, inRegion, outRegion);
+	  this->vtkImageFilter::RecursiveLoopExecute(dim, inRegion, outRegion);
 	  outCenterExtent[idx*2] = outExtentSave[idx*2];
 	  }
 	// for piece right of max
@@ -342,7 +343,7 @@ void vtkImageSpatialFilter::Execute(int dim, vtkImageRegion *inRegion,
 	  extent[idx*2+1] = outExtentSave[idx*2+1];
 	  outRegion->SetExtent(dim, extent);
 	  this->ComputeRequiredInputRegionExtent(outRegion, inRegion);
-	  this->vtkImageFilter::Execute(dim, inRegion, outRegion);
+	  this->vtkImageFilter::RecursiveLoopExecute(dim, inRegion, outRegion);
 	  outCenterExtent[idx*2+1] = outExtentSave[idx*2+1];
 	  }
 	}
@@ -378,7 +379,7 @@ void vtkImageSpatialFilter::ExecuteCenter(int dim,
 
   
   // Terminate recursion?
-  if (dim <= this->Dimensionality)
+  if (dim <= this->ExecuteDimensionality)
     {
     this->ExecuteCenter(inRegion, outRegion);
     return;

@@ -67,9 +67,9 @@ public:
 
   // Description:
   // Rename the inputs.
-  void SetMagnitudeInput(vtkImageSource *input) {this->SetInput1(input);};
+  void SetMagnitudeInput(vtkImageCache *input) {this->SetInput1(input);};
   void SetMagnitudeInput(vtkStructuredPoints *input) {this->SetInput1(input);};
-  void SetVectorInput(vtkImageSource *input) {this->SetInput2(input);};
+  void SetVectorInput(vtkImageCache *input) {this->SetInput2(input);};
   void SetVectorInput(vtkStructuredPoints *input) {this->SetInput2(input);};
   
   // Description:
@@ -82,6 +82,7 @@ public:
   
 protected:
   int HandleBoundaries;
+  int Dimensionality;
 
   void ComputeOutputImageInformation(vtkImageRegion *inRegion1,
 				     vtkImageRegion *inRegion2,

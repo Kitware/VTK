@@ -38,8 +38,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkImageInPlaceFilter.h"
+#include "vtkImageRegion.h"
 #include "vtkImageCache.h"
+#include "vtkImageInPlaceFilter.h"
 
 
 //----------------------------------------------------------------------------
@@ -89,7 +90,7 @@ unsigned long int vtkImageInPlaceFilter::GetPipelineMTime()
 // Description:
 // Set the Input of a filter. If a ScalarType has not been set for this filter,
 // then the ScalarType of the input is used.
-void vtkImageInPlaceFilter::SetInput(vtkImageSource *input)
+void vtkImageInPlaceFilter::SetInput(vtkImageCache *input)
 {
   vtkDebugMacro(<< "SetInput: input = " << input->GetClassName()
 		<< " (" << input << ")");
@@ -119,10 +120,17 @@ void vtkImageInPlaceFilter::SetInput(vtkImageSource *input)
 //----------------------------------------------------------------------------
 // Description:
 // This method is called by the cache.
-// It is not recursive because execute is called imediately.
-void vtkImageInPlaceFilter::UpdatePointData(int dim, vtkImageRegion *outRegion)
+void vtkImageInPlaceFilter::Update(vtkImageRegion *outRegion)
 {
   vtkImageRegion *inRegion;
+
+  // Make sure the subclss has defined the execute dimensionality
+  // It is needed to terminate recursion.
+  if (this->ExecuteDimensionality < 0)
+    {
+    vtkErrorMacro(<< "Subclass has not set ExecuteDimensionality");
+    return;
+    }
 
   // If outBBox is empty return imediately.
   if (outRegion->IsEmpty())
@@ -149,10 +157,16 @@ void vtkImageInPlaceFilter::UpdatePointData(int dim, vtkImageRegion *outRegion)
   inRegion->SetExtent(VTK_IMAGE_DIMENSIONS, outRegion->GetExtent());
   this->ComputeRequiredInputRegionExtent(outRegion, inRegion);
 
-  // No streaming
+  // No streaming for inplace filters
 
   // Use the input to fill the data of the region.
-  this->Input->UpdateRegion(inRegion);
+  this->Input->Update(inRegion);
+  // Make sure we got the input.
+  if ( ! inRegion->AreScalarsAllocated())
+    {
+    vtkErrorMacro("Update: Could not get input");
+    return;
+    }
   
   // Copy  Scalars (by reference if possible) from input to output.
   if ((inRegion->GetData()->GetReferenceCount() > 1) ||
@@ -160,27 +174,30 @@ void vtkImageInPlaceFilter::UpdatePointData(int dim, vtkImageRegion *outRegion)
       (inRegion->GetScalarType() != outRegion->GetScalarType()))
     {
     // we have to copy the data
-    vtkDebugMacro(<< "UpdatePointData: Cannot copy by reference.");
+    vtkDebugMacro(<< "Update: Cannot copy by reference.");
     outRegion->CopyRegionData(inRegion);
     }
   else
     {
     // We can just reference the scalars
-    vtkDebugMacro(<< "UpdatePointData: Copying scalars by reference.");
+    vtkDebugMacro(<< "Update: Copying scalars by reference.");
     outRegion->GetData()->SetScalars(inRegion->GetData()->GetScalars());
     }
 
   // fill the output region 
   // The inRegion is passed just in case.
   if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);
-  this->Execute(dim, inRegion, outRegion);
+  this->RecursiveLoopExecute(VTK_IMAGE_DIMENSIONS, inRegion, outRegion);
   if ( this->EndMethod ) (*this->EndMethod)(this->EndMethodArg);
-
-  // Save the new region in cache.
-  this->Output->CacheRegion(outRegion);
 
   // free the input region
   inRegion->Delete();
+
+  // Save the new region in cache.
+  // I am not happy with the necessity of the call CacheRegion.
+  // Getting the region from the cache originally seems more consistent
+  // and more compatable with the visualization pipeline.
+  this->Output->CacheRegion(outRegion);
 }
 
 
@@ -242,45 +259,47 @@ vtkImageInPlaceFilter::ComputeRequiredInputRegionExtent(vtkImageRegion *outRegio
 // Description:
 // This execute method recursively loops over extra dimensions and
 // calls the subclasses Execute method with lower dimensional regions.
-void vtkImageInPlaceFilter::Execute(int dim, vtkImageRegion *inRegion, 
-				    vtkImageRegion *outRegion)
+void
+vtkImageInPlaceFilter::RecursiveLoopExecute(int dim, vtkImageRegion *inRegion, 
+					    vtkImageRegion *outRegion)
 {
-  int coordinate, axis;
-  int inMin, inMax;
-  int outMin, outMax;
-  
-  
   // Terminate recursion?
   if (dim <= this->ExecuteDimensionality)
     {
     this->Execute(inRegion, outRegion);
     return;
     }
-  
-  // Get the extent of the forth dimension to be eliminated.
-  axis = this->Axes[dim - 1];
-  inRegion->GetAxisExtent(axis, inMin, inMax);
-  outRegion->GetAxisExtent(axis, outMin, outMax);
-
-  // The axis should have the same extent.
-  if (inMin != outMin || inMax != outMax) 
+  else
     {
-    vtkErrorMacro(<< "Execute: Extra axis " << vtkImageAxisNameMacro(axis)
-    << " can not be eliminated");
-    return;
+    int coordinate, axis;
+    int inMin, inMax;
+    int outMin, outMax;
+    
+    // Get the extent of the forth dimension to be eliminated.
+    axis = this->Axes[dim - 1];
+    inRegion->GetAxisExtent(axis, inMin, inMax);
+    outRegion->GetAxisExtent(axis, outMin, outMax);
+    
+    // The axis should have the same extent.
+    if (inMin != outMin || inMax != outMax) 
+      {
+      vtkErrorMacro(<< "Execute: Extra axis " << vtkImageAxisNameMacro(axis)
+      << " can not be eliminated");
+      return;
+      }
+    
+    // loop over the samples along the extra axis.
+    for (coordinate = inMin; coordinate <= inMax; ++coordinate)
+      {
+      // set up the lower dimensional regions.
+      inRegion->SetAxisExtent(axis, coordinate, coordinate);
+      outRegion->SetAxisExtent(axis, coordinate, coordinate);
+      this->RecursiveLoopExecute(dim - 1, inRegion, outRegion);
+      }
+    // restore the original extent
+    inRegion->SetAxisExtent(axis, inMin, inMax);
+    outRegion->SetAxisExtent(axis, outMin, outMax);
     }
-  
-  // loop over the samples along the extra axis.
-  for (coordinate = inMin; coordinate <= inMax; ++coordinate)
-    {
-    // set up the lower dimensional regions.
-    inRegion->SetAxisExtent(axis, coordinate, coordinate);
-    outRegion->SetAxisExtent(axis, coordinate, coordinate);
-    this->vtkImageInPlaceFilter::Execute(dim - 1, inRegion, outRegion);
-    }
-  // restore the original extent
-  inRegion->SetAxisExtent(axis, inMin, inMax);
-  outRegion->SetAxisExtent(axis, outMin, outMax);
 }
 
 
@@ -290,60 +309,13 @@ void vtkImageInPlaceFilter::Execute(int dim, vtkImageRegion *inRegion,
 // Description:
 // The execute method created by the subclass.
 void vtkImageInPlaceFilter::Execute(vtkImageRegion *inRegion, 
-			     vtkImageRegion *outRegion)
+				    vtkImageRegion *outRegion)
 {
   inRegion = outRegion;
-  vtkErrorMacro(<< "Subclass needs to suply an execute function.");
+  vtkErrorMacro(<< "Subclass needs to supply an execute function.");
 }
 
   
-
-
-//============================================================================
-// Stuff for filters that do not use the execute methods..
-//============================================================================
-
-//----------------------------------------------------------------------------
-vtkImageRegion *vtkImageInPlaceFilter::GetInputRegion(int dim, int *extent)
-{
-  int idx;
-  int *imageExtent;
-  vtkImageRegion *region;
-  
-  if ( ! this->Input)
-    {
-    vtkErrorMacro(<< "Input is not set.");
-    return NULL;
-    }
-
-  region = vtkImageRegion::New();
-
-  // This step is just error checking, and may be wastefull.  The Image
-  // Information is automatically computed when UpdateRegion is called.
-  this->Input->UpdateImageInformation(region);
-  region->SetAxes(this->GetAxes());
-  imageExtent = region->GetImageExtent();
-  for (idx = dim; idx < VTK_IMAGE_DIMENSIONS; ++idx)
-    {
-    if (imageExtent[idx*2] > 0 || imageExtent[idx*2 + 1] < 0)
-      {
-      vtkErrorMacro(<< "GetInputRegion: dim = " << dim 
-                    << ", unspecified dimensions do not include 0.");
-      region->Delete();
-      return NULL;
-      }
-    }
-  
-  // Note: This automatically sets the unspecified dimension extent to [0,0]
-  region->SetExtent(dim, extent);
-  this->Input->UpdateRegion(region);
-  
-  return region;
-}
-
-
-
-
 
 
 

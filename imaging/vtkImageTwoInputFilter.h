@@ -43,15 +43,15 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkImageTwoInputFilter is a super class for filters that have two inputs.
 
 
-
-
 #ifndef __vtkImageTwoInputFilter_h
 #define __vtkImageTwoInputFilter_h
 
 
 #include "vtkImageCachedSource.h"
 #include "vtkStructuredPointsToImage.h"
-#include "vtkImageRegion.h"
+class vtkImageRegion;
+class vtkImageCache;
+
 
 class VTK_EXPORT vtkImageTwoInputFilter : public vtkImageCachedSource
 {
@@ -60,69 +60,34 @@ public:
   char *GetClassName() {return "vtkImageTwoInputFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  virtual void SetInput1(vtkImageSource *input);
+  virtual void SetInput1(vtkImageCache *input);
   void SetInput1(vtkStructuredPoints *spts)
     {this->SetInput1(spts->GetStructuredPointsToImage()->GetOutput());}
-  virtual void SetInput2(vtkImageSource *input);
+  virtual void SetInput2(vtkImageCache *input);
   void SetInput2(vtkStructuredPoints *spts)
     {this->SetInput2(spts->GetStructuredPointsToImage()->GetOutput());}
 
   
-  void UpdatePointData(int dim, vtkImageRegion *outRegion);
+  void Update(vtkImageRegion *outRegion);
   void UpdateImageInformation(vtkImageRegion *outRegion);
   unsigned long int GetPipelineMTime();
   
-  vtkSetMacro(UseExecuteMethod,int);
-  vtkGetMacro(UseExecuteMethod,int);
-  vtkBooleanMacro(UseExecuteMethod,int);
-  
   // Description:
   // Get input to this filter.
-  vtkGetObjectMacro(Input1,vtkImageSource);
-  vtkGetObjectMacro(Input2,vtkImageSource);
+  vtkGetObjectMacro(Input1,vtkImageCache);
+  vtkGetObjectMacro(Input2,vtkImageCache);
 
-  // Description:
-  // Set/Get input memory limit.  Make this smaller to stream.
-  vtkSetMacro(InputMemoryLimit,long);
-  vtkGetMacro(InputMemoryLimit,long);
-  
-  // Description:
-  // The basic operation is on regions with this dimensionality.  
-  // Filters that operate on pixels would have dimensionality 0.
-  // 2D Image filters would have dimensionality 2.
-  vtkGetMacro(Dimensionality, int);
-  
 protected:
-  vtkImageSource *Input1;     // One of the inputs to the filter
-  vtkImageSource *Input2;     // One of the inputs to the filter
-  int UseExecuteMethod;       // Use UpdatePointData or Execute method?
+  vtkImageCache *Input1;     // One of the inputs to the filter
+  vtkImageCache *Input2;     // One of the inputs to the filter
 
-  int Dimensionality;
-  // This is set in the subclass constructor and (probably) should not be 
-  // changed.  It indicates the dimensionality of the regions the
-  // execute/update methods expect.  It may be larger than dimensionality
-  // to make the filter faster (this supper class is not efficient at
-  // looping over extra dimensions.
-  int ExecuteDimensionality;
-  
-  long InputMemoryLimit;
-  
-  // Description:
-  // These are conveniance functions for writing filters that have their
-  // own UpdatePointData methods.  They create the region object as well as 
-  // getting the input source to fill it with data.  The extent
-  // of the unspecified dimensions default to [0, 0];
-  // Used in vtkImageScatterPlot.
-  vtkImageRegion *GetInput1Region(int dim, int *extent);    
-  vtkImageRegion *GetInput2Region(int dim, int *extent);    
-  
   virtual void ComputeOutputImageInformation(vtkImageRegion *inRegion1,
 					     vtkImageRegion *inRegion2,
 					     vtkImageRegion *outRegion);
   virtual void ComputeRequiredInputRegionExtent(vtkImageRegion *outRegion,
 						vtkImageRegion *inRegion1,
 						vtkImageRegion *inRegion2);
-  virtual void Execute(int dim, vtkImageRegion *inRegion1,
+  virtual void RecursiveLoopExecute(int dim, vtkImageRegion *inRegion1,
 		       vtkImageRegion *inRegion2, vtkImageRegion *outRegion);
   virtual void Execute(vtkImageRegion *inRegion1, vtkImageRegion *inRegion2, 
 		       vtkImageRegion *outRegion);

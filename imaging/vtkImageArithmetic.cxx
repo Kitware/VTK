@@ -38,6 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
+#include "vtkImageRegion.h"
 #include "vtkImageArithmetic.h"
 
 
@@ -49,8 +50,6 @@ vtkImageArithmetic::vtkImageArithmetic()
   this->Operator = VTK_SUBTRACT;
   
   this->ExecuteDimensionality = 2;
-  // not used. Operation is pixel by pixel.
-  this->Dimensionality = 0;
 }
 
 

@@ -38,6 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
+#include "vtkImageRegion.h"
 #include "vtkImageWrapPad.h"
 
 
@@ -49,8 +50,6 @@ vtkImageWrapPad::vtkImageWrapPad()
 {
   // execute function handles four axes.
   this->ExecuteDimensionality = 4;
-  // Not used
-  this->Dimensionality = 4;
 }
 
 
@@ -88,7 +87,7 @@ vtkImageWrapPad::ComputeRequiredInputRegionExtent(vtkImageRegion *outRegion,
     min += imageMin;
     max = min + width - 1;
     // if request region wraps, we need the whole input 
-    // (unless we make multiple requests! Write UpdateRegion instead??)
+    // (unless we make multiple requests! Write Update instead??)
     if (max > imageMax)
       {
       max = imageMax;

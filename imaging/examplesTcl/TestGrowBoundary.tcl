@@ -21,7 +21,7 @@ set VTK_IMAGE_COMPONENT_AXIS     4
 
 # Image pipeline
 
-vtkImageSeriesReader reader
+vtkImageVolume16Reader reader
         reader DebugOn
 	#reader SetDataByteOrderToBigEndian
 	reader SetDataDimensions 128 128 $numslices 1

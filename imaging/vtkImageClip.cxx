@@ -38,6 +38,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
+#include "vtkImageCache.h"
+#include "vtkImageRegion.h"
 #include "vtkImageClip.h"
 
 
@@ -54,6 +56,7 @@ vtkImageClip::vtkImageClip()
     {
     this->OutputImageExtent[idx] = 0;
     }
+  this->ExecuteDimensionality = VTK_IMAGE_DIMENSIONS;
 }
 
 

@@ -21,7 +21,7 @@ set VTK_IMAGE_COMPONENT_AXIS     4
 
 # Image pipeline
 
-vtkImageSeriesReader reader
+vtkImageVolume16Reader reader
 reader ReleaseDataFlagOff
 reader SetDataByteOrderToLittleEndian
 reader SetDataDimensions 256 256 93

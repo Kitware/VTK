@@ -39,6 +39,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include <math.h>
+#include "vtkImageRegion.h"
 #include "vtkImageShrink3D.h"
 #include "vtkImageCache.h"
 
@@ -56,8 +57,6 @@ vtkImageShrink3D::vtkImageShrink3D()
   this->Averaging = 1;
 
   this->ExecuteDimensionality = 3;
-  // Other dimesionalities can be simulated with specific shrink factors.
-  this->Dimensionality = 3;
 }
 
 //----------------------------------------------------------------------------

@@ -19,7 +19,7 @@ set VTK_IMAGE_COMPONENT_AXIS     4
 set prefix "/home/alyassin2/database/gems/CTangio/CW1/original/i7903CTGE"
 # Image pipeline
 
-vtkImageSeriesReader reader
+vtkImageVolume16Reader reader
 #reader DebugOn
 	reader ReleaseDataFlagOff
 	reader SetDataByteOrderToBigEndian

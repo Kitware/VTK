@@ -39,6 +39,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include <math.h>
+#include "vtkImageRegion.h"
 #include "vtkImageMagnify1D.h"
 
 
@@ -54,7 +55,6 @@ vtkImageMagnify1D::vtkImageMagnify1D()
 
   // For better performance, the execute function was written as a 2d.
   this->ExecuteDimensionality = 2;
-  this->Dimensionality = 1;
 }
 
 

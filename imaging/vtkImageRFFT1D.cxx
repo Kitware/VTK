@@ -39,6 +39,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include <math.h>
+#include "vtkImageRegion.h"
 #include "vtkImageRFFT1D.h"
 
 
@@ -51,14 +52,11 @@ vtkImageRFFT1D::vtkImageRFFT1D()
   // Output is whatever type you want, but defaults to float.
   this->SetOutputScalarType(VTK_FLOAT);
 
-  // To avoid compiler warnings
-  _vtkImageComplexMultiplyTemp.Real = 0.0;
-
   // Execute does not care that component is hard coded.
   this->ExecuteDimensionality = 2;
-  // Not used.  Here I am ignoring component axis because it
-  // is hard coded. (complex numbers can not be put along any axis)
-  this->Dimensionality = 1;
+
+  // To avoid compiler warnings
+  _vtkImageComplexMultiplyTemp.Real = 0.0;
 
   // avoid a warning
   _vtkImageComplexMultiplyTemp.Real = 0.0;
@@ -76,7 +74,7 @@ void vtkImageRFFT1D::SetAxes(int axis)
 
 //----------------------------------------------------------------------------
 // Description:
-// Intercepts the caches UpdateRegion to make the region larger than requested.
+// Intercepts the caches Update to make the region larger than requested.
 // Easier than changing logic of execute function to resemble Fft.
 void vtkImageRFFT1D::InterceptCacheUpdate(vtkImageRegion *region)
 {

@@ -46,6 +46,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 //----------------------------------------------------------------------------
 vtkImageFileReader::vtkImageFileReader()
 {
+  this->ExecuteDimensionality = 4;
 }
 
 //----------------------------------------------------------------------------
@@ -102,7 +103,7 @@ void vtkImageFileReader::SetFileName(char *name)
 //----------------------------------------------------------------------------
 // Description:
 // This function is called by the cache to update a region.
-void vtkImageFileReader::UpdatePointData(vtkImageRegion *region)
+void vtkImageFileReader::Execute(vtkImageRegion *region)
 {
   if ( ! this->Initialized)
     {

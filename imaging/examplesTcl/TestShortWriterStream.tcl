@@ -25,7 +25,7 @@ set VTK_IMAGE_COMPONENT_AXIS     4
 
 # Image pipeline
 
-vtkImageSeriesReader reader
+vtkImageVolume16Reader reader
 #reader DebugOn
 reader SetDataByteOrderToLittleEndian
 reader SetDataDimensions 256 256 93
@@ -51,7 +51,7 @@ writer Write
 
 
 
-vtkImageSeriesReader reader2
+vtkImageVolume16Reader reader2
 #reader2 DebugOn
 reader2 ReleaseDataFlagOff
 reader2 SetDataByteOrderToLittleEndian

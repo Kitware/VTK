@@ -53,7 +53,9 @@ class VTK_EXPORT vtkImageSeriesReader : public vtkImageReader
 public:
   vtkImageSeriesReader();
   ~vtkImageSeriesReader();
-  static vtkImageSeriesReader *New() {return new vtkImageSeriesReader;};
+  static vtkImageSeriesReader *New() {
+    cerr << "Please use vtkImageVolume16Reader instead of vtkImageSeriesReader.  The methods are the same, so a simple script change should do.";
+    return new vtkImageSeriesReader;};
   char *GetClassName() {return "vtkImageSeriesReader";};
   void PrintSelf(ostream& os, vtkIndent indent);   
 
@@ -88,7 +90,7 @@ protected:
   int FileDimensionality;
 
   void Initialize();
-  void UpdatePointData(vtkImageRegion *outRegion);    
+  void Execute(vtkImageRegion *outRegion);    
 };
 
 #endif

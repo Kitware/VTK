@@ -58,7 +58,6 @@ vtkImageAnisotropicDiffusion2D::vtkImageAnisotropicDiffusion2D()
   this->GradientMagnitudeThresholdOff();
 
   this->ExecuteDimensionality = 2;
-  this->Dimensionality = 2;
 }
 
 

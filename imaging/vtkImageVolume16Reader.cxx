@@ -40,6 +40,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
+#include "vtkImageRegion.h"
 #include "vtkImageVolume16Reader.h"
 
 

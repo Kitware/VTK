@@ -57,9 +57,9 @@ vtkImageImport::~vtkImageImport()
 //----------------------------------------------------------------------------
 void vtkImageImport::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkImageSource::PrintSelf(os,indent);
-  os << indent << "ScalarType: " 
-     << vtkImageScalarTypeNameMacro(this->ScalarType) << "\n";
+  vtkImageCachedSource::PrintSelf(os,indent);
+  os << indent << "DataScalarType: " 
+     << vtkImageScalarTypeNameMacro(this->DataScalarType) << "\n";
   os << indent << "Region: (" << this->Region << ")\n";
   this->Region->PrintSelf(os,indent.GetNextIndent());
   os << indent << "Pointer: (" << this->Pointer << ")\n";
@@ -70,21 +70,21 @@ void vtkImageImport::PrintSelf(ostream& os, vtkIndent indent)
 
 
 //----------------------------------------------------------------------------
-void vtkImageImport::SetAxes(int dim, int *axes)
+void vtkImageImport::SetDataAxes(int dim, int *axes)
 {
   this->Region->ReleaseData();
   this->Region->SetAxes(dim, axes);
   // Keep a local copy for macros
-  this->Region->GetAxes(VTK_IMAGE_DIMENSIONS, this->Axes);
+  this->Region->GetAxes(VTK_IMAGE_DIMENSIONS, this->DataAxes);
 }
 
 //----------------------------------------------------------------------------
-void vtkImageImport::SetExtent(int dim, int *extent)
+void vtkImageImport::SetDataExtent(int dim, int *extent)
 {
   this->Region->ReleaseData();
   this->Region->SetExtent(dim, extent);
   // Keep a local copy for macros
-  this->Region->GetExtent(VTK_IMAGE_DIMENSIONS, this->Extent);
+  this->Region->GetExtent(VTK_IMAGE_DIMENSIONS, this->DataExtent);
 }
 
 //----------------------------------------------------------------------------
@@ -119,39 +119,17 @@ void vtkImageImport::InitializeRegion()
     {
     this->Region->ReleaseData();
     // Compute the length of the memory segment.
-    switch (this->ScalarType)
-      {
-      case VTK_FLOAT:
-	length = sizeof(float);
-	break;
-      case VTK_INT:
-	length = sizeof(int);
-	break;
-      case VTK_SHORT:
-	length = sizeof(short);
-	break;
-      case VTK_UNSIGNED_SHORT:
-	length = sizeof(unsigned short);
-	break;
-      case VTK_UNSIGNED_CHAR:
-	length = sizeof(unsigned char);
-	break;
-      default:
-	vtkErrorMacro("Cannot determine ScalarType");
-	return;
-      }
-    length *= this->Region->GetVolume();
-    
+    length = this->Region->GetExtentMemorySize();
     
     // make sure the underlying data object is set correctly
     data = vtkImageData::New();
-    data->SetScalarType(this->ScalarType);
-    data->SetAxes(VTK_IMAGE_DIMENSIONS, this->Axes);
-    data->SetExtent(VTK_IMAGE_DIMENSIONS, this->Extent);
+    data->SetScalarType(this->DataScalarType);
+    data->SetAxes(VTK_IMAGE_DIMENSIONS, this->DataAxes);
+    data->SetExtent(VTK_IMAGE_DIMENSIONS, this->DataExtent);
     
-    this->Region->SetScalarType(this->ScalarType);
-    this->Region->SetAxes(VTK_IMAGE_DIMENSIONS, this->Axes);
-    this->Region->SetExtent(VTK_IMAGE_DIMENSIONS, this->Extent);
+    this->Region->SetScalarType(this->DataScalarType);
+    this->Region->SetAxes(VTK_IMAGE_DIMENSIONS, this->DataAxes);
+    this->Region->SetExtent(VTK_IMAGE_DIMENSIONS, this->DataExtent);
     this->Region->SetData(data);
     
     // copy the memory
@@ -168,10 +146,10 @@ void vtkImageImport::InitializeRegion()
 
 //----------------------------------------------------------------------------
 // Initialize and pass the request to the region/
-void vtkImageImport::UpdateRegion(vtkImageRegion *region)
+void vtkImageImport::Update(vtkImageRegion *region)
 {
   this->InitializeRegion();
-  this->Region->UpdateRegion(region);
+  this->Region->Update(region);
 }
 
 

@@ -53,7 +53,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <iostream.h>
 #include <fstream.h>
 #include "vtkObject.h"
-#include "vtkImageSource.h"
+#include "vtkImageCache.h"
 #include "vtkStructuredPointsToImage.h"
 #include "vtkImageRegion.h"
 
@@ -71,8 +71,8 @@ public:
   
   // Description:
   // Set/Get the input object from the image pipeline.
-  vtkSetObjectMacro(Input,vtkImageSource);
-  vtkGetObjectMacro(Input,vtkImageSource);
+  vtkSetObjectMacro(Input,vtkImageCache);
+  vtkGetObjectMacro(Input,vtkImageCache);
   void SetInput(vtkStructuredPoints *spts)
     {this->SetInput(spts->GetStructuredPointsToImage()->GetOutput());}
   // Description:
@@ -130,7 +130,7 @@ public:
   int SwapBytes;
 
 protected:
-  vtkImageSource *Input;
+  vtkImageCache *Input;
   int WholeImage;
   int Extent[VTK_IMAGE_EXTENT_DIMENSIONS];
   int Axes[VTK_IMAGE_DIMENSIONS];

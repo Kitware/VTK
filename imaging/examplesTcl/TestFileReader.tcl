@@ -9,7 +9,7 @@ source vtkImageInclude.tcl
 
 vtkImageFileReader reader
 reader ReleaseDataFlagOff
-reader SetAxes $VTK_IMAGE_COMPONENT_AXIS $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS 
+reader SetAxes $VTK_IMAGE_COMPONENT_AXIS $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS
 reader SetDataDimensions 3 512 256
 reader SetFileName "../../../data/earth.ppm"
 reader SetDataScalarType $VTK_UNSIGNED_CHAR
@@ -19,9 +19,10 @@ reader SetDataScalarType $VTK_UNSIGNED_CHAR
 vtkImageViewer viewer
 viewer SetAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS $VTK_IMAGE_COMPONENT_AXIS
 viewer SetInput [reader GetOutput]
-viewer SetColorWindow 256
-viewer SetColorLevel 128
+viewer SetColorWindow 160
+viewer SetColorLevel 80
 viewer ColorFlagOn
+viewer SetOriginLocationToUpperLeft
 #viewer DebugOn
 viewer Render
 
@@ -39,8 +40,8 @@ scale .wl.f2.level -from 1 -to 150 -orient horizontal -command SetLevel
 checkbutton .wl.video -text "Inverse Video" -variable inverseVideo -command SetInverseVideo
 
 
-.wl.f1.window set 256
-.wl.f2.level set 128
+.wl.f1.window set 160
+.wl.f2.level set 80
 
 
 pack .wl -side left

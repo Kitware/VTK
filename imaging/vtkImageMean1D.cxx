@@ -39,6 +39,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include <math.h>
+#include "vtkImageRegion.h"
 #include "vtkImageMean1D.h"
 
 
@@ -56,9 +57,6 @@ vtkImageMean1D::vtkImageMean1D()
 
   // For better performance, the execute function was written as a 2d.
   this->ExecuteDimensionality = 2;
-  // The mean is taken over a 1d neighborhood.
-  // Not used.
-  this->Dimensionality = 1;
 }
 
 

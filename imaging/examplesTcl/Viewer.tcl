@@ -8,7 +8,7 @@ source vtkImageInclude.tcl
 
 # Image pipeline
 
-vtkImageSeriesReader reader
+vtkImageVolume16Reader reader
 reader ReleaseDataFlagOff
 reader SetDataByteOrderToLittleEndian
 reader SetDataDimensions 256 256 93
@@ -22,8 +22,9 @@ vtkImageViewer viewer
 #viewer SetAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Z_AXIS $VTK_IMAGE_Y_AXIS
 viewer SetInput [reader GetOutput]
 viewer SetCoordinate2 $sliceNumber
-viewer SetColorWindow 3000
-viewer SetColorLevel 1500
+viewer SetColorWindow 2000
+viewer SetColorLevel 1000
+viewer SetOriginLocationToUpperLeft
 #viewer DebugOn
 viewer Render
 
@@ -45,8 +46,8 @@ scale .wl.f2.level -from 1 -to 1500 -orient horizontal -command SetLevel
 checkbutton .wl.video -text "Inverse Video" -variable inverseVideo -command SetInverseVideo
 
 
-.wl.f1.window set 3000
-.wl.f2.level set 1500
+.wl.f1.window set 2000
+.wl.f2.level set 1000
 
 
 pack .slice .wl -side left

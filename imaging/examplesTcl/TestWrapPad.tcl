@@ -8,7 +8,7 @@ set sliceNumber 22
 
 # Image pipeline
 
-vtkImageSeriesReader reader
+vtkImageVolume16Reader reader
 reader SetDataByteOrderToLittleEndian
 reader SetDataDimensions 256 256 93
 reader SetFilePrefix "../../../data/fullHead/headsq"

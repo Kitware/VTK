@@ -54,9 +54,6 @@ vtkImageDilateErode::vtkImageDilateErode()
   this->SetKernelSize(1,1,1);
 
   this->ExecuteDimensionality = 3;
-  // Boundary handling should make it act like a 2D if needed.
-  // This ivar is not used.
-  this->Dimensionality = 3;
 }
 
 

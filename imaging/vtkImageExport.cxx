@@ -221,7 +221,7 @@ void vtkImageExport::UpdateMemory(void *ptr)
 
   // Note: This may produce a copy warning.  We should disable
   // this warning in some way.
-  this->Input->UpdateRegion(region);
+  this->Input->Update(region);
   
   // check to see if the cache gave us the data the way we wanted.
   needToCopy = 0;

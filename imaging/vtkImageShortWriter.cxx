@@ -324,29 +324,7 @@ void vtkImageShortWriter::WriteRegion(vtkImageRegion *region)
   long memory;
   
   // Compute the amount of memory used by the region.
-  memory = region->GetVolume();
-  switch (this->Input->GetScalarType())
-    {
-    case VTK_FLOAT:
-      memory *= sizeof(float);
-      break;
-    case VTK_INT:
-      memory *= sizeof(int);
-      break;
-    case VTK_SHORT:
-      memory *= sizeof(short);
-      break;
-    case VTK_UNSIGNED_SHORT:
-      memory *= sizeof(unsigned short);
-      break;
-    case VTK_UNSIGNED_CHAR:
-      memory *= sizeof(unsigned char);
-      break;
-    default:
-      vtkWarningMacro(<< "WriteRegion: Unknown type");
-    }
-  // convert to KBytes
-  memory /= 1000;
+  memory = region->GetExtentMemorySize();
   
   // Handle streaming by splitting the request.
   if ( memory > this->InputMemoryLimit)
@@ -372,7 +350,7 @@ void vtkImageShortWriter::WriteRegion(vtkImageRegion *region)
         << vtkImageAxisNameMacro(splitAxis) << ": " << min << "->" << max);
 
       // Request the data anyway
-      this->Input->UpdateRegion(region);
+      this->Input->Update(region);
       this->WriteRegionData(region);
       return;
       }
@@ -392,7 +370,7 @@ void vtkImageShortWriter::WriteRegion(vtkImageRegion *region)
     }
   
   // Get the actual data
-  this->Input->UpdateRegion(region);
+  this->Input->Update(region);
   this->WriteRegionData(region);
 }
 

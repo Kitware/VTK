@@ -19,12 +19,11 @@ set VTK_IMAGE_COMPONENT_AXIS     4
 
 # Image pipeline
 
-vtkImageSeriesReader reader
+vtkImageVolume16Reader reader
 #reader DebugOn
 reader SetDataByteOrderToLittleEndian
 reader SetDataDimensions 256 256 93
 reader SetFilePrefix "../../../data/fullHead/headsq"
-reader SetFlips 0 0 1
 reader SetDataMask 0x7fff
 
 vtkImageResample magnify
@@ -41,6 +40,7 @@ viewer SetInput [magnify GetOutput]
 viewer SetCoordinate2 $sliceNumber
 viewer SetColorWindow 1800
 viewer SetColorLevel 900
+viewer SetOriginLocationToUpperLeft
 viewer Render
 
 

@@ -67,9 +67,12 @@ public:
   // Determines how the input is interpreted (set of 2d slices ...)
   // and cannot be more than 3.
   vtkSetMacro(Dimensionality, int);
+  vtkGetMacro(Dimensionality, int);
   
   
 protected:
+  int Dimensionality;
+  
   void ComputeRequiredInputRegionExtent(vtkImageRegion *outRegion, 
 					vtkImageRegion *inRegion);
   void Execute(vtkImageRegion *inRegion, vtkImageRegion *outRegion);

@@ -55,7 +55,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkDataSetFilter.h"
 #include "vtkDataSet.h"
-#include "vtkImageSource.h"
+#include "vtkImageCache.h"
 
 class VTK_EXPORT vtkDataSetToDataSetFilter : public vtkDataSetFilter
 {
@@ -66,7 +66,7 @@ public:
   vtkDataSetToDataSetFilter() {this->Output = NULL;};
 
   void SetInput(vtkDataSet *input);
-  void SetInput(vtkImageSource *cache)
+  void SetInput(vtkImageCache *cache)
     {this->SetInput(cache->GetImageToStructuredPoints()->GetOutput());}
 
   // filter interface (need to overload because of abstract interface)

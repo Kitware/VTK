@@ -38,6 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
+#include "vtkImageRegion.h"
 #include "vtkImageIslandRemoval2D.h"
 #include "vtkImageCache.h"
 
@@ -59,7 +60,6 @@ vtkImageIslandRemoval2D::vtkImageIslandRemoval2D()
   this->SetIslandValue(0);
 
   this->ExecuteDimensionality = 2;
-  this->Dimensionality = 2;
 }
 
 //----------------------------------------------------------------------------
@@ -82,7 +82,7 @@ void vtkImageIslandRemoval2D::PrintSelf(ostream& os, vtkIndent indent)
 
 //----------------------------------------------------------------------------
 // Description:
-// Intercepts the caches UpdateRegion to make the region larger than requested.
+// Intercepts the caches Update to make the region larger than requested.
 // The whole image is generated when any region is requested.
 void vtkImageIslandRemoval2D::InterceptCacheUpdate(vtkImageRegion *region)
 {

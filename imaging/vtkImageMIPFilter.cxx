@@ -38,6 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
+#include "vtkImageRegion.h"
 #include "vtkImageMIPFilter.h"
 #include <math.h>
 #include <stdlib.h>
@@ -55,8 +56,6 @@ vtkImageMIPFilter::vtkImageMIPFilter()
   this->SetAxes(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS,VTK_IMAGE_Z_AXIS);
 
   this->ExecuteDimensionality = 3;
-  // Input is 3D, output is 2D
-  this->Dimensionality = 3;
 }
 
 //----------------------------------------------------------------------------

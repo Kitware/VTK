@@ -47,12 +47,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkImageImport_h
 #define __vtkImageImport_h
 
-#include "vtkImageSource.h"
+#include "vtkImageCachedSource.h"
 #include "vtkImageRegion.h"
 #include "vtkImageExport.h"
 
 
-class VTK_EXPORT vtkImageImport : public vtkImageSource
+class VTK_EXPORT vtkImageImport : public vtkImageCachedSource
 {
 public:
   vtkImageImport();
@@ -63,28 +63,31 @@ public:
   
   // Description:
   // Set/Get the data type of the imported memory.
-  void SetScalarTypeToFloat(){this->SetScalarType(VTK_FLOAT);}
-  void SetScalarTypeToInt(){this->SetScalarType(VTK_INT);}
-  void SetScalarTypeToShort(){this->SetScalarType(VTK_SHORT);}
-  void SetScalarTypeToUnsignedShort(){this->SetScalarType(VTK_UNSIGNED_SHORT);}
-  void SetScalarTypeToUnsignedChar(){this->SetScalarType(VTK_UNSIGNED_CHAR);}
-  vtkSetMacro(ScalarType, int);
-  vtkGetMacro(ScalarType, int);
+  void SetDataScalarTypeToFloat(){this->SetDataScalarType(VTK_FLOAT);}
+  void SetDataScalarTypeToInt(){this->SetDataScalarType(VTK_INT);}
+  void SetDataScalarTypeToShort(){this->SetDataScalarType(VTK_SHORT);}
+  void SetDataScalarTypeToUnsignedShort()
+    {this->SetDataScalarType(VTK_UNSIGNED_SHORT);}
+  void SetDataScalarTypeToUnsignedChar()
+    {this->SetDataScalarType(VTK_UNSIGNED_CHAR);}
+  vtkSetMacro(DataScalarType, int);
+  vtkGetMacro(DataScalarType, int);
 
   // Description:
   // Set/Get the data order of the imported memory.  The first axis is the
   // inner most loop.
-  void SetAxes(int dim, int *axes);
-  vtkImageSetMacro(Axes, int);
-  void GetAxes(int dim, int *axes){this->Region->GetAxes(dim, axes);};
-  vtkImageGetMacro(Axes, int);
+  void SetDataAxes(int dim, int *axes);
+  vtkImageSetMacro(DataAxes, int);
+  void GetDataAxes(int dim, int *axes){this->Region->GetAxes(dim, axes);};
+  vtkImageGetMacro(DataAxes, int);
   
   // Description:
   // Set/Get the extent of the data.
-  void SetExtent(int dim, int *extent);
-  vtkImageSetExtentMacro(Extent);
-  void GetExtent(int dim, int *extent){this->Region->GetExtent(dim, extent);};
-  vtkImageGetExtentMacro(Extent);
+  void SetDataExtent(int dim, int *extent);
+  vtkImageSetExtentMacro(DataExtent);
+  void GetDataExtent(int dim, int *extent)
+    {this->Region->GetExtent(dim, extent);};
+  vtkImageGetExtentMacro(DataExtent);
   
   // Description:
   // This method should be used when a single chunk of 
@@ -104,7 +107,7 @@ public:
   // It gets the pointer from the exporter, and calls SetPointer.
   // The two filters must be setup properly before this method is called.
   void TestExport(vtkImageExport *export)
-  {this->SetPointer(export->GetPointer());}
+    {this->SetPointer(export->GetPointer());}
 
   // Description:
   // For debugging.
@@ -112,15 +115,16 @@ public:
   
 protected:
   vtkImageRegion *Region;
-  int Axes[VTK_IMAGE_DIMENSIONS];
-  int Extent[VTK_IMAGE_EXTENT_DIMENSIONS];
-  int ScalarType;
+  int DataAxes[VTK_IMAGE_DIMENSIONS];
+  int DataExtent[VTK_IMAGE_EXTENT_DIMENSIONS];
+  int DataScalarType;
   void *Pointer;
   void **Pointers;
   int Initialized;
 
   void InitializeRegion();
-  void UpdateRegion(vtkImageRegion *region);
+
+  void Update(vtkImageRegion *region);
   void UpdateImageInformation(vtkImageRegion *region);
 };
 

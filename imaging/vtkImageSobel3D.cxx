@@ -39,6 +39,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include <math.h>
+#include "vtkImageRegion.h"
 #include "vtkImageSobel3D.h"
 
 
@@ -52,9 +53,6 @@ vtkImageSobel3D::vtkImageSobel3D()
   
   // 4D including component Axis
   this->ExecuteDimensionality = 4;
-  // 3D Ignoring component axis.
-  // Not used at this point.
-  this->Dimensionality = 3;
 }
 
 
@@ -166,7 +164,6 @@ static void vtkImageSobel3DExecute(vtkImageSobel3D *self,
 			    vtkImageRegion *inRegion, T *inPtr, 
 			    vtkImageRegion *outRegion, float *outPtr)
 {
-  int axesNum;
   float r0, r1, r2;
   // For looping though output (and input) pixels.
   int min0, max0, min1, max1, min2, max2;
@@ -183,6 +180,8 @@ static void vtkImageSobel3DExecute(vtkImageSobel3D *self,
   int inImageMin0, inImageMax0, inImageMin1, inImageMax1;
   int inImageMin2, inImageMax2;
 
+  // avoid warings. (unused parameter)
+  self = self;
   
   // Get boundary information 
   inRegion->GetImageExtent(inImageMin0,inImageMax0, 
@@ -194,9 +193,6 @@ static void vtkImageSobel3DExecute(vtkImageSobel3D *self,
   outRegion->GetIncrements(outInc0, outInc1, outInc2); 
   outRegion->GetAxisIncrements(VTK_IMAGE_COMPONENT_AXIS, outIncV);
   outRegion->GetExtent(min0,max0, min1,max1, min2,max2);
-  
-  // Get the dimensionality of the gradient.
-  axesNum = self->GetDimensionality();
   
   // We want the input pixel to correspond to output
   inPtr = (T *)(inRegion->GetScalarPointer(min0,min1,min2));

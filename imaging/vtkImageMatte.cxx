@@ -38,6 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
+#include "vtkImageRegion.h"
 #include "vtkImageMatte.h"
 
 
@@ -49,9 +50,9 @@ vtkImageMatte::vtkImageMatte()
   // Templated fill function only handles 4 dimensions.
   // We should really have a separate SetAxes to overide Dimensionality.
   // Or have execute recursion termination depend on something else.
-  this->Dimensionality = 4;
   this->SetBorderWidths(1, 1);
   this->SetBorderValue(0.0);
+  this->ExecuteDimensionality = VTK_IMAGE_DIMENSIONS;
 }
 
 

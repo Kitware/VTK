@@ -34,8 +34,8 @@ vtkImageContinuousDilate \
 vtkImageContinuousDilate1D \
 vtkImageConvolution1D \
 vtkImageDilateErode \
-vtkImageDistance1D \
 vtkImageDistance \
+vtkImageDistance1D \
 vtkImageDivergence \
 vtkImageDotProduct \
 vtkImageDuotone \
@@ -45,47 +45,43 @@ vtkImageFFT1D \
 vtkImageFileReader \
 vtkImageFlip \
 vtkImageFourierBandPass \
-vtkImageFourierWavelet2D \
 vtkImageGaussianSmooth \
 vtkImageGaussianSmooth1D \
 vtkImageGradient \
 vtkImageGradientMagnitude \
-vtkImageHarrWavelet2D \
 vtkImageHistogram \
 vtkImageHistogramEqualization \
 vtkImageImport \
 vtkImageIslandRemoval2D \
 vtkImageLaplacian \
-vtkImageMagnify1D \
+vtkImageMIPFilter \
 vtkImageMagnify \
+vtkImageMagnify1D \
 vtkImageMagnitude \
 vtkImageMask \
 vtkImageMatte \
 vtkImageMean \
 vtkImageMean1D \
 vtkImageMedian \
-vtkImageMIPFilter \
 vtkImageMirrorPad \
 vtkImageNonMaximumSuppression \
 vtkImageOpenClose \
 vtkImagePaint \
-vtkImageResample \
-vtkImageResample1D \
 vtkImageRDuotone \
 vtkImageRFFT \
 vtkImageRFFT1D \
-vtkImageScatterPlot \
+vtkImageResample \
+vtkImageResample1D \
 vtkImageSeriesReader \
 vtkImageShiftScale \
-vtkImageShortReader \
 vtkImageShortWriter \
 vtkImageShrink3D \
 vtkImageSobel3D \
 vtkImageThreshold \
 vtkImageViewer \
 vtkImageVolume16Reader \
-vtkImageXViewer \
-vtkImageWrapPad 
+vtkImageWrapPad \
+vtkImageXViewer 
 
 #------------------------------------------------------------------------------
 # Include the generated targets

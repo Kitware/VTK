@@ -54,7 +54,6 @@ vtkImageConvolution1D::vtkImageConvolution1D()
 
   // Poor performance, but simple implementation.
   this->ExecuteDimensionality = 1;
-  this->Dimensionality = 1;
 }
 
 

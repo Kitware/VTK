@@ -43,8 +43,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkImageInPlaceFilter is a filter super class that 
 // operates directly on the input region.  The data is copied
 // if the requested region has different extent than the input region
-// or some other object is referencing the input region.
+// or some other object is referencing the input region.  No streaming
+// is available for in-place filters.
 
+// .SECTION See Also
+// vtkImageFilter vtImageMultipleInputFilter vtkImageTwoInputFilter
+// vtkImageTwoOutputFilter
 
 
 #ifndef __vtkImageInPlaceFilter_h
@@ -60,49 +64,27 @@ public:
   char *GetClassName() {return "vtkImageInPlaceFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  virtual void SetInput(vtkImageSource *input);
+  virtual void SetInput(vtkImageCache *input);
   void SetInput(vtkStructuredPoints *spts)
     {this->SetInput(spts->GetStructuredPointsToImage()->GetOutput());}
 
-  void UpdatePointData(int dim, vtkImageRegion *outRegion);
+  void Update(vtkImageRegion *outRegion);
   void UpdateImageInformation(vtkImageRegion *region);
   unsigned long int GetPipelineMTime();
   
   // Description:
   // Get input to this InPlaceFilter.
-  vtkGetObjectMacro(Input,vtkImageSource);
+  vtkGetObjectMacro(Input,vtkImageCache);
   
-  // Description:
-  // The basic operation is on regions with this dimensionality.  
-  // Filters that operate on pixels would have dimensionality 0.
-  // 2D Image filters would have dimensionality 2.
-  vtkGetMacro(Dimensionality, int);
-    
 protected:
-  vtkImageSource *Input;     
+  vtkImageCache *Input;     
 
-  int Dimensionality;
-  // This is set in the subclass constructor and (probably) should not be 
-  // changed.  It indicates the dimensionality of the regions the
-  // execute/update methods expect.  It may be larger than dimensionality
-  // to make the filter faster (this supper class is not efficient at
-  // looping over extra dimensions.
-  int ExecuteDimensionality;
-  
-  // Description:
-  // These are conveniance functions for writing InPlaceFilters that have their
-  // own UpdateRegion methods.  They create the region object as well as 
-  // getting the input source to fill it with data.  The extent
-  // of the unspecified dimensions default to [0, 0];
-  // Used in vtkImageScatterPlot.
-  vtkImageRegion *GetInputRegion(int dim, int *extent);    
-  
   virtual void ComputeOutputImageInformation(vtkImageRegion *inRegion,
 					     vtkImageRegion *outRegion);
   virtual void ComputeRequiredInputRegionExtent(vtkImageRegion *outRegion,
 						vtkImageRegion *inRegion);
-  virtual void Execute(int dim, vtkImageRegion *inRegion, 
-		       vtkImageRegion *outRegion);
+  virtual void RecursiveLoopExecute(int dim, vtkImageRegion *inRegion, 
+				    vtkImageRegion *outRegion);
   virtual void Execute(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
 };
 

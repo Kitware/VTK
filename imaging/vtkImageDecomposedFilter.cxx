@@ -39,6 +39,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include<math.h>
+#include "vtkImageRegion.h"
+#include "vtkImageCache.h"
 #include "vtkImageDecomposedFilter.h"
 
 //----------------------------------------------------------------------------
@@ -137,7 +139,7 @@ void vtkImageDecomposedFilter::Modified()
 //----------------------------------------------------------------------------
 // Description:
 // Set the Input of the filter.
-void vtkImageDecomposedFilter::SetInput(vtkImageSource *input)
+void vtkImageDecomposedFilter::SetInput(vtkImageCache *input)
 {
   this->Input = input;
   this->Modified();
@@ -154,7 +156,7 @@ void vtkImageDecomposedFilter::SetInput(vtkImageSource *input)
 //----------------------------------------------------------------------------
 // Description:
 // Set the Input of the sub pipeline.
-void vtkImageDecomposedFilter::SetInternalInput(vtkImageSource *input)
+void vtkImageDecomposedFilter::SetInternalInput(vtkImageCache *input)
 {
   int idx;
   

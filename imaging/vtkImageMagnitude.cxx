@@ -39,6 +39,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include <math.h>
+#include "vtkImageRegion.h"
 #include "vtkImageMagnitude.h"
 
 
@@ -49,9 +50,6 @@ vtkImageMagnitude::vtkImageMagnitude()
 
   // For better performance, the execute function was written as a 3d.
   this->ExecuteDimensionality = 3;
-  // Here we are counting the component axis (it can be any axis really).
-  // Not used.
-  this->Dimensionality = 1;
 }
 
 //----------------------------------------------------------------------------
@@ -65,8 +63,6 @@ void vtkImageMagnitude::SetAxes(int num, int *axes)
     }
     
   this->vtkImageFilter::SetAxes(1, axes);
-  // execute will handle 3 axes for speed.
-  this->Dimensionality = 3;
 }
 
 //----------------------------------------------------------------------------

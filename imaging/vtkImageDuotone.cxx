@@ -38,6 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
+#include "vtkImageRegion.h"
 #include "vtkImageDuotone.h"
 
 
@@ -59,8 +60,6 @@ vtkImageDuotone::vtkImageDuotone()
 
   // 2 dimensions + Components
   this->ExecuteDimensionality = 3;
-  // Vector operation.
-  this->Dimensionality = 1;
 }
 
 void vtkImageDuotone::PrintSelf(ostream& os, vtkIndent indent)

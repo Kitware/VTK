@@ -213,7 +213,7 @@ void vtkImageMarchingCubes::Execute()
       }
     inRegion->SetExtent(3, extent);
     // Get the chunk from the input
-    this->Input->UpdateRegion(inRegion);
+    this->Input->Update(inRegion);
     
     this->March(inRegion, chunkMin, chunkMax, numContours, values);
     }

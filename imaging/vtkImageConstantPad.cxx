@@ -38,6 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
+#include "vtkImageRegion.h"
 #include "vtkImageConstantPad.h"
 
 
@@ -49,8 +50,6 @@ vtkImageConstantPad::vtkImageConstantPad()
 {
   // execute function handles four axes.
   this->ExecuteDimensionality = 4;
-  // Not used
-  this->Dimensionality = 4;
 }
 
 

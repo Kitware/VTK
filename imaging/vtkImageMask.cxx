@@ -38,6 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
+#include "vtkImageRegion.h"
 #include "vtkImageMask.h"
 
 
@@ -49,8 +50,6 @@ vtkImageMask::vtkImageMask()
   this->MaskedValue = 0.0;
   
   this->ExecuteDimensionality = 2;
-  // not used. Operation is pixel by pixel.
-  this->Dimensionality = 0;
 }
 
 

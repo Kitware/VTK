@@ -40,6 +40,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
+#include "vtkImageRegion.h"
 #include "vtkImageSeriesReader.h"
 
 
@@ -53,6 +54,8 @@ vtkImageSeriesReader::vtkImageSeriesReader()
   this->SetFilePattern("%s.%d");
   this->First = 1;
   this->FileDimensionality = 2;
+
+  this->ExecuteDimensionality = 5;
 }
 
 //----------------------------------------------------------------------------
@@ -197,7 +200,7 @@ void vtkImageSeriesReader::SetFilePattern(char *pattern)
 // It splits up the request into "images", and then reads the images 
 // from the files.  It assumes that the series contains at most
 // 2 dimensions.
-void vtkImageSeriesReader::UpdatePointData(vtkImageRegion *region)
+void vtkImageSeriesReader::Execute(vtkImageRegion *region)
 {
   int idx0, idx1, temp;
   int dataIdx0, dataIdx1;
@@ -274,8 +277,7 @@ void vtkImageSeriesReader::UpdatePointData(vtkImageRegion *region)
 	}
       
       // Open the new file.
-      vtkDebugMacro(<< "UpdatePointData: opening Short file " 
-         << this->FileName);
+      vtkDebugMacro(<< "Update: opening Short file " << this->FileName);
 #ifdef _WIN32
       this->File = new ifstream(this->FileName, ios::in | ios::binary);
 #else

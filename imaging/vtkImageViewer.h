@@ -49,14 +49,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkImageViewer_h
 #define __vtkImageViewer_h
 
-#include    	<fstream.h>
-#include 	<stdlib.h>
-#include 	<iostream.h>
+#include <fstream.h>
+#include <stdlib.h>
+#include <iostream.h>
 
-#include 	"vtkObject.h"
-#include 	"vtkImageSource.h"
-#include 	"vtkImageRegion.h"
-#include  "vtkStructuredPointsToImage.h"
+#include "vtkObject.h"
+#include "vtkImageCache.h"
+#include "vtkImageRegion.h"
+#include "vtkStructuredPointsToImage.h"
 
 // For placement of origin in the viewer.
 #define VTK_IMAGE_VIEWER_UPPER_LEFT 0
@@ -92,8 +92,8 @@ public:
   
   // Description:
   // Set/Get the input to the viewer.
-  vtkSetObjectMacro(Input,vtkImageSource);
-  vtkGetObjectMacro(Input,vtkImageSource);
+  vtkSetObjectMacro(Input,vtkImageCache);
+  vtkGetObjectMacro(Input,vtkImageCache);
   void SetInput(vtkStructuredPoints *spts)
     {this->SetInput(spts->GetStructuredPointsToImage()->GetOutput());}
   
@@ -198,7 +198,7 @@ protected:
   int                  XOffset;
   int                  YOffset;
   int Mapped;
-  vtkImageSource *Input;
+  vtkImageCache *Input;
   int WholeImage;
   // Contains the extent of the region to be displayed.
   vtkImageRegion Region;

@@ -68,9 +68,9 @@ public:
   vtkSetMacro(MaskedValue, float);
   vtkGetMacro(MaskedValue, float);
 
-  void SetImageInput(vtkImageSource *in) {this->SetInput1(in);}
+  void SetImageInput(vtkImageCache *in) {this->SetInput1(in);}
   void SetImageInput(vtkStructuredPoints *in) {this->SetInput1(in);}
-  void SetMaskInput(vtkImageSource *in) {this->SetInput2(in);}
+  void SetMaskInput(vtkImageCache *in) {this->SetInput2(in);}
   void SetMaskInput(vtkStructuredPoints *in) {this->SetInput2(in);}
   
 protected:

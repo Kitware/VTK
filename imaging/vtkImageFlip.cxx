@@ -38,6 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
+#include "vtkImageRegion.h"
 #include "vtkImageFlip.h"
 
 
@@ -46,7 +47,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 vtkImageFlip::vtkImageFlip()
 {
   this->SetAxes(VTK_IMAGE_X_AXIS);
-  this->Dimensionality = 1;
   this->ExecuteDimensionality = 2;
   this->PreserveImageExtent = 0;
 }

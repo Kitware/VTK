@@ -39,6 +39,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include <math.h>
+#include "vtkImageRegion.h"
 #include "vtkImageFourierBandPass.h"
 
 
@@ -57,9 +58,6 @@ vtkImageFourierBandPass::vtkImageFourierBandPass()
   
   // One complex number at a time.
   this->ExecuteDimensionality = 1;
-  // It operates on 1 complex number at a time, but it uses the
-  // location of this number, so that makes this what dimensionality?
-  this->Dimensionality = 1;
 }
 
 
@@ -175,7 +173,7 @@ void vtkImageFourierBandPass::SetAxes(int num, int *axes)
 
 //----------------------------------------------------------------------------
 // Description:
-// Intercepts the caches UpdateRegion to make the region larger than requested.
+// Intercepts the caches Update to make the region larger than requested.
 // We might as well create both real and imaginary components.
 void 
 vtkImageFourierBandPass::InterceptCacheUpdate(vtkImageRegion *region)

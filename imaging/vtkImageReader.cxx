@@ -40,9 +40,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
-#include "vtkImageReader.h"
-#include "vtkImageCache.h"
 #include "vtkByteSwap.h"
+#include "vtkImageRegion.h"
+#include "vtkImageCache.h"
+#include "vtkImageReader.h"
 
 //----------------------------------------------------------------------------
 vtkImageReader::vtkImageReader()
@@ -57,9 +58,6 @@ vtkImageReader::vtkImageReader()
   this->SetAxes(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS,
 		VTK_IMAGE_Z_AXIS, VTK_IMAGE_COMPONENT_AXIS);
 
-  // Arbitrary default value.  This ivar is not used by this object.
-  this->Dimensionality = 4;
-  
   for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
     {
     this->FileIncrements[idx] = 1;
@@ -384,7 +382,7 @@ void vtkImageReader::UpdateImageInformation(vtkImageRegion *region)
     {
     if ( this->Flips[idx])
       {
-      outOrigin[idx] = this->DataOrigin[idx] + 
+      outOrigin[idx] = -this->DataOrigin[idx] -
 	(this->DataSpacing[idx] * this->DataExtent[idx*2+1]);
       }
     else
@@ -731,8 +729,6 @@ void vtkImageReader::UpdateFromFile(vtkImageRegion *region)
 // after this method is called.
 void vtkImageReader::SetDataScalarType(int type)
 {
-  vtkImageCache *cache;
-  
   this->Modified();
   this->DataScalarType = type;
 

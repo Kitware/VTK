@@ -38,6 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
+#include "vtkImageRegion.h"
 #include "vtkImageDotProduct.h"
 
 
@@ -48,8 +49,6 @@ vtkImageDotProduct::vtkImageDotProduct()
   this->SetAxes(VTK_IMAGE_COMPONENT_AXIS);
 
   this->ExecuteDimensionality = 2;
-  // not used. Operation is line by line (vector by vector)
-  this->Dimensionality = 0;
 }
 
 
