@@ -707,7 +707,8 @@ void vtkRenderer::ResetCamera(float bounds[6])
   float distance;
   float width;
   float vn[3], *vup;;
-
+  
+  this->GetActiveCamera();
   if ( this->ActiveCamera != NULL )
     {
     this->ActiveCamera->GetViewPlaneNormal(vn);
