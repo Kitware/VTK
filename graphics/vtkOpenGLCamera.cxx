@@ -69,6 +69,7 @@ int vtkOpenGLCamera::GetDepthBufferSize()
 {
   GLint size;
 
+  size = 0;
   glGetIntegerv( GL_DEPTH_BITS, &size );
   return (int) size;
 }
