@@ -1,2 +1,4 @@
 .git*            export-ignore
 
+*.dsp           -crlf
+*.dsw           -crlf
