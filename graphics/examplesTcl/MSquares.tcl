@@ -20,7 +20,7 @@ vtkContourFilter contours
   contours SetInput [extract GetOutput]
   contours GenerateValues 13 0.0 1.2
 
-vtkPolyMapper contMapper
+vtkPolyDataMapper contMapper
   contMapper SetInput [contours GetOutput]
   contMapper SetScalarRange 0.0 1.2
 
@@ -31,7 +31,7 @@ vtkActor contActor
 vtkOutlineFilter outline
   outline SetInput [sample GetOutput]
 
-vtkPolyMapper outlineMapper
+vtkPolyDataMapper outlineMapper
   outlineMapper SetInput [outline GetOutput]
 
 vtkActor outlineActor

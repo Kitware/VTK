@@ -21,7 +21,7 @@ vtkSampleFunction sample
 vtkContourFilter iso
     iso SetInput [sample GetOutput]
     iso SetValue 0 0.0
-vtkPolyMapper isoMapper
+vtkPolyDataMapper isoMapper
     isoMapper SetInput [iso GetOutput]
     isoMapper ScalarVisibilityOff
 vtkActor isoActor
@@ -30,7 +30,7 @@ vtkActor isoActor
 
 vtkOutlineFilter outline
     outline SetInput [sample GetOutput]
-vtkPolyMapper outlineMapper
+vtkPolyDataMapper outlineMapper
     outlineMapper SetInput [outline GetOutput]
 vtkActor outlineActor
     outlineActor SetMapper outlineMapper

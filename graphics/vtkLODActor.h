@@ -62,7 +62,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkActor.h"
 #include "vtkMaskPoints.h"
 #include "vtkOutlineFilter.h"
-#include "vtkPolyMapper.h"
+#include "vtkPolyDataMapper.h"
 #include "vtkGlyph3D.h"
 #include "vtkPointSource.h"
 
@@ -85,8 +85,8 @@ class VTK_EXPORT vtkLODActor : public vtkActor
 protected:
   vtkPointSource      PointSource;
   vtkGlyph3D          Glyph3D;
-  vtkPolyMapper       *MediumMapper;
-  vtkPolyMapper       *LowMapper;
+  vtkPolyDataMapper       *MediumMapper;
+  vtkPolyDataMapper       *LowMapper;
   vtkMaskPoints       MaskPoints;
   vtkOutlineFilter    OutlineFilter;
   vtkTimeStamp        BuildTime;

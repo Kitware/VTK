@@ -20,7 +20,7 @@ vtkDividingCubes \
 vtkMarchingCubes \
 vtkMarchingSquares \
 vtkSliceCubes \
-vtkSmoothPolyFilter \
+vtkSmoothPolyDataFilter \
 vtkSweptSurface 
 
 #------------------------------------------------------------------------------

@@ -91,7 +91,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkGlyph3D_h
 #define __vtkGlyph3D_h
 
-#include "vtkDataSetToPolyFilter.h"
+#include "vtkDataSetToPolyDataFilter.h"
 
 #define VTK_SCALE_BY_SCALAR 0
 #define VTK_SCALE_BY_VECTOR 1
@@ -104,7 +104,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define VTK_INDEXING_BY_SCALAR 1
 #define VTK_INDEXING_BY_VECTOR 2
 
-class VTK_EXPORT vtkGlyph3D : public vtkDataSetToPolyFilter
+class VTK_EXPORT vtkGlyph3D : public vtkDataSetToPolyDataFilter
 {
 public:
   vtkGlyph3D();

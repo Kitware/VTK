@@ -62,7 +62,7 @@ class vtkCameraDevice;
 class vtkActorDevice;
 class vtkTextureDevice;
 class vtkPropertyDevice;
-class vtkPolyMapperDevice;
+class vtkPolyDataMapperDevice;
 
 // lets define the diferent types of stereo
 #define VTK_STEREO_CRYSTAL_EYES 1

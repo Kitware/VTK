@@ -24,9 +24,9 @@ vtkDecimate deci;
     deci SetErrorIncrement 0.0005
     deci SetMaximumIterations 6
     deci SetInitialFeatureAngle 45
-vtkPolyNormals normals
+vtkPolyDataNormals normals
     normals SetInput [deci GetOutput]
-vtkPolyMapper cyberMapper
+vtkPolyDataMapper cyberMapper
     cyberMapper SetInput [normals GetOutput]
 vtkActor cyberActor
     cyberActor SetMapper cyberMapper

@@ -15,7 +15,7 @@ vtkRenderWindowInteractor iren
 
 # create a cyberware source
 #
-vtkPolyReader reader
+vtkPolyDataReader reader
     reader SetFileName "../../../data/honolulu.vtk"
 vtkDecimate deci; 
     deci SetInput [reader GetOutput]
@@ -25,7 +25,7 @@ vtkDecimate deci;
     deci SetErrorIncrement 0.0005
     deci SetMaximumIterations 6
     deci SetInitialFeatureAngle 45
-vtkPolyMapper hawaiiMapper
+vtkPolyDataMapper hawaiiMapper
     hawaiiMapper SetInput [deci GetOutput]
 vtkActor hawaiiActor
     hawaiiActor SetMapper hawaiiMapper

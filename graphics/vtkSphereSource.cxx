@@ -177,7 +177,7 @@ void vtkSphereSource::Execute()
 
 void vtkSphereSource::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkPolySource::PrintSelf(os,indent);
+  vtkPolyDataSource::PrintSelf(os,indent);
 
   os << indent << "Theta Resolution: " << this->ThetaResolution << "\n";
   os << indent << "Phi Resolution: " << this->PhiResolution << "\n";

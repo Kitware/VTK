@@ -119,7 +119,7 @@ vtkTubeFilter tubes
     tubes SetInput [extract GetOutput]
     tubes SetRadius 0.02
     tubes SetNumberOfSides 6
-vtkPolyMapper mapEdges
+vtkPolyDataMapper mapEdges
     mapEdges SetInput [tubes GetOutput]
 vtkActor edgeActor
     edgeActor SetMapper mapEdges
@@ -137,7 +137,7 @@ vtkSphereSource ball
 vtkGlyph3D balls
     balls SetInput [clipper GetOutput]
     balls SetSource [ball GetOutput]
-vtkPolyMapper mapBalls
+vtkPolyDataMapper mapBalls
     mapBalls SetInput [balls GetOutput]
 vtkActor ballActor
     ballActor SetMapper mapBalls

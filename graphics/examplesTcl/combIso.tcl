@@ -22,10 +22,10 @@ vtkPLOT3DReader pl3d
 vtkContourFilter iso
     iso SetInput [pl3d GetOutput]
     iso SetValue 0 .38
-vtkPolyNormals normals
+vtkPolyDataNormals normals
     normals SetInput [iso GetOutput]
     normals SetFeatureAngle 45
-vtkPolyMapper isoMapper
+vtkPolyDataMapper isoMapper
     isoMapper SetInput [normals GetOutput]
     isoMapper ScalarVisibilityOff
 vtkActor isoActor
@@ -34,7 +34,7 @@ vtkActor isoActor
 
 vtkStructuredGridOutlineFilter outline
     outline SetInput [pl3d GetOutput]
-vtkPolyMapper outlineMapper
+vtkPolyDataMapper outlineMapper
     outlineMapper SetInput [outline GetOutput]
 vtkActor outlineActor
     outlineActor SetMapper outlineMapper

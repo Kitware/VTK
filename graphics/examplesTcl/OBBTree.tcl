@@ -4,7 +4,7 @@ source vtkInt.tcl
 
 vtkSTLReader reader
   reader SetFileName ../../../data/42400-IDGH.stl
-vtkPolyMapper dataMapper
+vtkPolyDataMapper dataMapper
   dataMapper SetInput [reader GetOutput]
 vtkActor model
   model SetMapper dataMapper
@@ -16,7 +16,7 @@ vtkOBBTree obb
 vtkSpatialRepFilter boxes
   boxes SetInput [reader GetOutput]
   boxes SetSpatialRep obb
-vtkPolyMapper boxMapper
+vtkPolyDataMapper boxMapper
   boxMapper SetInput [boxes GetOutput]
 vtkActor boxActor
   boxActor SetMapper boxMapper

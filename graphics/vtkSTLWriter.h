@@ -50,10 +50,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkSTLWriter_h
 
 #include <stdio.h>
-#include "vtkPolyWriter.h"
+#include "vtkPolyDataWriter.h"
 #include "vtkPolyData.h"
 
-class VTK_EXPORT vtkSTLWriter : public vtkPolyWriter
+class VTK_EXPORT vtkSTLWriter : public vtkPolyDataWriter
 {
 public:
   vtkSTLWriter();

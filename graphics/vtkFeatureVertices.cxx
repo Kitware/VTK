@@ -195,7 +195,7 @@ void vtkFeatureVertices::Execute()
 
 void vtkFeatureVertices::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkPolyToPolyFilter::PrintSelf(os,indent);
+  vtkPolyDataToPolyDataFilter::PrintSelf(os,indent);
 
   os << indent << "Feature Angle: " << this->FeatureAngle << "\n";
   os << indent << "Boundary Vertices: " << (this->BoundaryVertices ? "On\n" : "Off\n");

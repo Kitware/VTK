@@ -55,9 +55,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkTriangularTCoords_h
 #define __vtkTriangularTCoords_h
 
-#include "vtkPolyToPolyFilter.h"
+#include "vtkPolyDataToPolyDataFilter.h"
 
-class VTK_EXPORT vtkTriangularTCoords : public vtkPolyToPolyFilter
+class VTK_EXPORT vtkTriangularTCoords : public vtkPolyDataToPolyDataFilter
 {
 public:
   static vtkTriangularTCoords *New() {return new vtkTriangularTCoords;};

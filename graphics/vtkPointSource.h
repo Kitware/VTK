@@ -47,9 +47,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkPointSource_h
 #define __vtkPointSource_h
 
-#include "vtkPolySource.h"
+#include "vtkPolyDataSource.h"
 
-class VTK_EXPORT vtkPointSource : public vtkPolySource 
+class VTK_EXPORT vtkPointSource : public vtkPolyDataSource 
 {
 public:
   vtkPointSource(int numPts=10);

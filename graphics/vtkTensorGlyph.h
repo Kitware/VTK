@@ -71,9 +71,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkTensorGlyph_h
 #define __vtkTensorGlyph_h
 
-#include "vtkDataSetToPolyFilter.h"
+#include "vtkDataSetToPolyDataFilter.h"
 
-class VTK_EXPORT vtkTensorGlyph : public vtkDataSetToPolyFilter
+class VTK_EXPORT vtkTensorGlyph : public vtkDataSetToPolyDataFilter
 {
 public:
   vtkTensorGlyph();

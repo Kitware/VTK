@@ -215,7 +215,7 @@ void vtkFeatureEdges::Execute()
 
 void vtkFeatureEdges::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkPolyToPolyFilter::PrintSelf(os,indent);
+  vtkPolyDataToPolyDataFilter::PrintSelf(os,indent);
 
   os << indent << "Feature Angle: " << this->FeatureAngle << "\n";
   os << indent << "Boundary Edges: " << (this->BoundaryEdges ? "On\n" : "Off\n");

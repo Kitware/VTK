@@ -38,10 +38,10 @@ vtkWarpScalar warp
     warp SetScaleFactor 2.5
 vtkCastToConcrete caster
     caster SetInput [warp GetOutput]
-vtkPolyNormals normals
+vtkPolyDataNormals normals
     normals SetInput [caster GetPolyDataOutput]
     normals SetFeatureAngle 60
-vtkPolyMapper planeMapper
+vtkPolyDataMapper planeMapper
     planeMapper SetInput [normals GetOutput]
     eval planeMapper SetScalarRange [[pl3d GetOutput] GetScalarRange]
 vtkActor planeActor
@@ -49,7 +49,7 @@ vtkActor planeActor
 
 vtkStructuredGridOutlineFilter outline
     outline SetInput [pl3d GetOutput]
-vtkPolyMapper outlineMapper
+vtkPolyDataMapper outlineMapper
     outlineMapper SetInput [outline GetOutput]
 vtkActor outlineActor
     outlineActor SetMapper outlineMapper

@@ -28,7 +28,7 @@ vtkMCubesReader reader
 reader SetFileName "fullHead.tri"
 reader SetLimitsFileName "fullHead.lim"
 
-vtkPolyMapper mapper
+vtkPolyDataMapper mapper
     mapper SetInput [reader GetOutput]
     
 vtkActor head

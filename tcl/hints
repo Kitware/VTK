@@ -28,7 +28,7 @@ vtkPixmap		GetColor	313 4
 vtkPointSet		GetPoint	301 3
 vtkPoints		GetBounds	301 6
 vtkPoints		GetPoint	301 3
-vtkPolyMapper		GetBounds	301 6
+vtkPolyDataMapper		GetBounds	301 6
 vtkProp			GetBounds	301 6
 vtkProp			GetCenter	301 3
 vtkProp			GetXRange	301 2

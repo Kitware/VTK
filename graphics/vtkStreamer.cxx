@@ -460,7 +460,7 @@ void vtkStreamer::ComputeVorticity()
 
 void vtkStreamer::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkDataSetToPolyFilter::PrintSelf(os,indent);
+  vtkDataSetToPolyDataFilter::PrintSelf(os,indent);
 
   if ( this->StartFrom == VTK_START_FROM_POSITION && !this->Source)
     {

@@ -33,7 +33,7 @@ vtkDelaunay2D del
 vtkShrinkPolyData shrink
     shrink SetInput [del GetOutput]
 
-vtkPolyMapper map
+vtkPolyDataMapper map
     map SetInput [shrink GetOutput]
 
 vtkActor triangulation

@@ -171,7 +171,7 @@ void vtkEdgePoints::Execute()
 
 void vtkEdgePoints::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkDataSetToPolyFilter::PrintSelf(os,indent);
+  vtkDataSetToPolyDataFilter::PrintSelf(os,indent);
 
   os << indent << "Contour Value: " << this->Value << "\n";
 }

@@ -67,9 +67,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkPlaneSource_h
 #define __vtkPlaneSource_h
 
-#include "vtkPolySource.h"
+#include "vtkPolyDataSource.h"
 
-class VTK_EXPORT vtkPlaneSource : public vtkPolySource 
+class VTK_EXPORT vtkPlaneSource : public vtkPolyDataSource 
 {
 public:
   vtkPlaneSource();

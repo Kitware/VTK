@@ -51,7 +51,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkDataSetMapper_h
 
 #include "vtkGeometryFilter.h"
-#include "vtkPolyMapper.h"
+#include "vtkPolyDataMapper.h"
 #include "vtkRenderer.h"
 #include "vtkImageSource.h"
 #include "vtkImageToStructuredPoints.h"
@@ -77,7 +77,7 @@ public:
 
 protected:
   vtkGeometryFilter *GeometryExtractor;
-  vtkPolyMapper *PolyMapper;
+  vtkPolyDataMapper *PolyDataMapper;
 };
 
 #endif

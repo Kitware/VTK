@@ -32,7 +32,7 @@ vtkGlyph3D cones
 vtkLookupTable lut
     lut SetHueRange .667 0.0
     lut Build
-vtkPolyMapper vecMapper
+vtkPolyDataMapper vecMapper
     vecMapper SetInput [cones GetOutput]
     vecMapper SetScalarRange 2 10
     vecMapper SetLookupTable lut
@@ -43,7 +43,7 @@ vtkActor vecActor
 vtkContourFilter iso
     iso SetInput [reader GetOutput]
     iso SetValue 0 190
-vtkPolyMapper isoMapper
+vtkPolyDataMapper isoMapper
     isoMapper SetInput [iso GetOutput]
     isoMapper ScalarVisibilityOff
 vtkActor isoActor
@@ -54,7 +54,7 @@ vtkActor isoActor
 # outline
 vtkOutlineFilter outline
     outline SetInput [reader GetOutput]
-vtkPolyMapper outlineMapper
+vtkPolyDataMapper outlineMapper
     outlineMapper SetInput [outline GetOutput]
 vtkActor outlineActor
     outlineActor SetMapper outlineMapper

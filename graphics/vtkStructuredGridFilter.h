@@ -44,7 +44,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkStructuredGrid object as input.
 
 // .SECTION See Also
-// vtkStructuredGridToPolyFilter vtkStructuredGridToStructuredGridFilter
+// vtkStructuredGridToPolyDataFilter vtkStructuredGridToStructuredGridFilter
 
 #ifndef __vtkStructuredGridFilter_h
 #define __vtkStructuredGridFilter_h

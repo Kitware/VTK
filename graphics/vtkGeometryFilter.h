@@ -58,7 +58,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .SECTION Caveats
 // When vtkGeometryFilter extracts cells (or boundaries of cells) it
 // will (by default) merge duplicate vertices. This may cause problems
-// in some cases. For example, if you've run vtkPolyNormals to
+// in some cases. For example, if you've run vtkPolyDataNormals to
 // generate normals, which may split meshes and create duplicate
 // vertices, vtkGeometryFilter will merge these points back
 // together. Turn merging off to prevent this from occuring.
@@ -70,9 +70,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkGeometryFilter_h
 #define __vtkGeometryFilter_h
 
-#include "vtkDataSetToPolyFilter.h"
+#include "vtkDataSetToPolyDataFilter.h"
 
-class VTK_EXPORT vtkGeometryFilter : public vtkDataSetToPolyFilter
+class VTK_EXPORT vtkGeometryFilter : public vtkDataSetToPolyDataFilter
 {
 public:
   vtkGeometryFilter();

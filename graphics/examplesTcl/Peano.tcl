@@ -93,7 +93,7 @@ vtkTubeFilter tube
     tube SetNumberOfSides 6
     tube SetRadius 0.05
 
-vtkPolyMapper map
+vtkPolyDataMapper map
     map SetInput [tube GetOutput]
 
 vtkActor peanoCurve

@@ -39,19 +39,19 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkDataSetMapper.h"
-#include "vtkPolyMapper.h"
+#include "vtkPolyDataMapper.h"
 
 vtkDataSetMapper::vtkDataSetMapper()
 {
   this->GeometryExtractor = NULL;
-  this->PolyMapper = NULL;
+  this->PolyDataMapper = NULL;
 }
 
 vtkDataSetMapper::~vtkDataSetMapper()
 {
   // delete internally created objects.
   if ( this->GeometryExtractor ) this->GeometryExtractor->Delete();
-  if ( this->PolyMapper ) this->PolyMapper->Delete();
+  if ( this->PolyDataMapper ) this->PolyDataMapper->Delete();
 }
 
 void vtkDataSetMapper::SetInput(vtkDataSet *in)
@@ -99,14 +99,14 @@ void vtkDataSetMapper::Render(vtkRenderer *ren, vtkActor *act)
 //
 // Now can create appropriate mapper
 //
-  if ( this->PolyMapper == NULL ) 
+  if ( this->PolyDataMapper == NULL ) 
     {
     vtkGeometryFilter *gf = vtkGeometryFilter::New();
-    vtkPolyMapper *pm = vtkPolyMapper::New();
+    vtkPolyDataMapper *pm = vtkPolyDataMapper::New();
     pm->SetInput(gf->GetOutput());
 
     this->GeometryExtractor = gf;
-    this->PolyMapper = pm;
+    this->PolyDataMapper = pm;
     }
 //
 // For efficiency: if input type is vtkPolyData, there's no need to pass it thru
@@ -114,29 +114,29 @@ void vtkDataSetMapper::Render(vtkRenderer *ren, vtkActor *act)
 //
   if ( ! strcmp(this->Input->GetDataType(),"vtkPolyData") )
     {
-    this->PolyMapper->SetInput((vtkPolyData *)this->Input);
+    this->PolyDataMapper->SetInput((vtkPolyData *)this->Input);
     }
   else
     {
     this->GeometryExtractor->SetInput(this->Input);
-    this->PolyMapper->SetInput(this->GeometryExtractor->GetOutput());
+    this->PolyDataMapper->SetInput(this->GeometryExtractor->GetOutput());
     }
   
   // update ourselves in case something has changed
-  this->PolyMapper->SetLookupTable(this->GetLookupTable());
-  this->PolyMapper->SetScalarVisibility(this->GetScalarVisibility());
-  this->PolyMapper->SetScalarRange(this->GetScalarRange());
+  this->PolyDataMapper->SetLookupTable(this->GetLookupTable());
+  this->PolyDataMapper->SetScalarVisibility(this->GetScalarVisibility());
+  this->PolyDataMapper->SetScalarRange(this->GetScalarRange());
 
-  this->PolyMapper->Render(ren,act);
+  this->PolyDataMapper->Render(ren,act);
 }
 
 void vtkDataSetMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkMapper::PrintSelf(os,indent);
 
-  if ( this->PolyMapper )
+  if ( this->PolyDataMapper )
     {
-    os << indent << "Poly Mapper: (" << this->PolyMapper << ")\n";
+    os << indent << "Poly Mapper: (" << this->PolyDataMapper << ")\n";
     }
   else
     {

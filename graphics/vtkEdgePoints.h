@@ -53,10 +53,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkEdgePoints_h
 #define __vtkEdgePoints_h
 
-#include "vtkDataSetToPolyFilter.h"
+#include "vtkDataSetToPolyDataFilter.h"
 #include "vtkMergePoints.h"
 
-class VTK_EXPORT vtkEdgePoints : public vtkDataSetToPolyFilter
+class VTK_EXPORT vtkEdgePoints : public vtkDataSetToPolyDataFilter
 {
 public:
   vtkEdgePoints();

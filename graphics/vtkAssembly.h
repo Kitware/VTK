@@ -73,7 +73,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // cause program failure.
  
 // .SECTION See Also
-// vtkActor vtkTransform vtkMapper vtkPolyMapper
+// vtkActor vtkTransform vtkMapper vtkPolyDataMapper
 
 #ifndef __vtkAssembly_h
 #define __vtkAssembly_h

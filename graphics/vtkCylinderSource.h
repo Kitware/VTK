@@ -49,9 +49,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkCylinderSource_h
 #define __vtkCylinderSource_h
 
-#include "vtkPolySource.h"
+#include "vtkPolyDataSource.h"
 
-class VTK_EXPORT vtkCylinderSource : public vtkPolySource 
+class VTK_EXPORT vtkCylinderSource : public vtkPolyDataSource 
 {
 public:
   vtkCylinderSource(int res=6);

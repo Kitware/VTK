@@ -22,14 +22,14 @@ vtkDecimate deci
     deci SetErrorIncrement 0.0004
     deci SetMaximumIterations 6
     deci SetInitialFeatureAngle 45
-vtkPolyNormals normals
+vtkPolyDataNormals normals
     normals SetInput [deci GetOutput]
 vtkStripper stripper
     stripper SetInput [normals GetOutput]
 vtkMaskPolyData mask
     mask SetInput [stripper GetOutput]
     mask SetOnRatio 2
-vtkPolyMapper cyberMapper
+vtkPolyDataMapper cyberMapper
     cyberMapper SetInput [mask GetOutput]
 vtkActor cyberActor
     cyberActor SetMapper cyberMapper

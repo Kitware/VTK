@@ -48,10 +48,10 @@ vtkRotationalExtrusionFilter extrude
 #vtkTriangleFilter tf
 #tf SetInput [extrude GetOutput]
 
-#vtkPolyNormals pn
+#vtkPolyDataNormals pn
 #pn SetInput [tf GetOutput]
 
-vtkPolyMapper map
+vtkPolyDataMapper map
     map SetInput [extrude GetOutput]
 
 vtkActor bottle

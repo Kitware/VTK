@@ -280,7 +280,7 @@ void vtkBYUReader::ReadTextureFile(int numPts)
 
 void vtkBYUReader::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkPolySource::PrintSelf(os,indent);
+  vtkPolyDataSource::PrintSelf(os,indent);
 
   os << indent << "Geometry File Name: " 
      << (this->GeometryFileName ? this->GeometryFileName : "(none)") << "\n";

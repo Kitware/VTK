@@ -39,10 +39,10 @@ vtkRotationalExtrusionFilter extrude
 vtkCleanPolyData clean;#get rid of seam
     clean SetInput [extrude GetOutput]
     clean SetTolerance 0.001
-vtkPolyNormals normals
+vtkPolyDataNormals normals
     normals SetInput [clean GetOutput]
     normals SetFeatureAngle 90
-vtkPolyMapper map
+vtkPolyDataMapper map
     map SetInput [normals GetOutput]
 vtkActor sweep
     sweep SetMapper map
@@ -53,7 +53,7 @@ vtkTubeFilter tuber
     tuber SetInput profile
     tuber SetNumberOfSides 6
     tuber SetRadius 0.1
-vtkPolyMapper tubeMapper
+vtkPolyDataMapper tubeMapper
     tubeMapper SetInput [tuber GetOutput]
 vtkActor seam
     seam SetMapper tubeMapper

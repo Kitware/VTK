@@ -39,7 +39,7 @@ vtkActor isoActor
 
 vtkOutlineFilter outline
     outline SetInput [reader GetOutput]
-vtkPolyMapper outlineMapper
+vtkPolyDataMapper outlineMapper
     outlineMapper SetInput [outline GetOutput]
 vtkActor outlineActor
     outlineActor SetMapper outlineMapper

@@ -98,14 +98,14 @@ proc OpenFile {} {
 set reader stl
 vtkSTLReader stl
 vtkBYUReader byu
-vtkPolyReader vtk
-vtkPolyMapper   mapper
+vtkPolyDataReader vtk
+vtkPolyDataMapper   mapper
 vtkActor actor
     actor SetMapper mapper
 
 vtkVectorText banner
     banner SetText "     vtk\nPolygonal Data\n    Viewer"
-vtkPolyMapper bannerMapper
+vtkPolyDataMapper bannerMapper
     bannerMapper SetInput [banner GetOutput]
 vtkActor bannerActor
     bannerActor SetMapper bannerMapper

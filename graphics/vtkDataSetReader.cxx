@@ -39,7 +39,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkDataSetReader.h"
-#include "vtkPolyReader.h"
+#include "vtkPolyDataReader.h"
 #include "vtkStructuredPointsReader.h"
 #include "vtkStructuredGridReader.h"
 #include "vtkUnstructuredGridReader.h"
@@ -174,7 +174,7 @@ void vtkDataSetReader::Execute()
     this->Reader.CloseVTKFile();
     if ( ! strncmp(this->Reader.LowerCase(line),"polydata",8) )
       {
-      vtkPolyReader *preader = vtkPolyReader::New();
+      vtkPolyDataReader *preader = vtkPolyDataReader::New();
       preader->SetFileName(this->Reader.GetFileName());
       preader->SetInputString(this->Reader.GetInputString());
       preader->SetReadFromInputString(this->Reader.GetReadFromInputString());

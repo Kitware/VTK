@@ -13,7 +13,7 @@ vtkRenderWindowInteractor iren
 vtkSTLReader sr
     sr SetFileName ../../../data/42400-IDGH.stl
 
-vtkPolyMapper   stlMapper
+vtkPolyDataMapper   stlMapper
     stlMapper SetInput [sr GetOutput]
 vtkLODActor stlActor
     stlActor SetMapper stlMapper

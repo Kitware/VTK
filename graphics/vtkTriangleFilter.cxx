@@ -113,7 +113,7 @@ void vtkTriangleFilter::Execute()
 
 void vtkTriangleFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkPolyToPolyFilter::PrintSelf(os,indent);
+  vtkPolyDataToPolyDataFilter::PrintSelf(os,indent);
 
   os << indent << "Pass Verts: " << (this->PassVerts ? "On\n" : "Off\n");
   os << indent << "Pass Lines: " << (this->PassLines ? "On\n" : "Off\n");

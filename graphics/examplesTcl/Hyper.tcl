@@ -40,7 +40,7 @@ vtkHyperStreamline s1
 # Map hyperstreamlines
 vtkLogLookupTable lut
     lut SetHueRange .6667 0.0
-vtkPolyMapper s1Mapper
+vtkPolyDataMapper s1Mapper
     s1Mapper SetInput [s1 GetOutput]
     s1Mapper SetLookupTable lut
     ptLoad Update;#force update for scalar range
@@ -59,7 +59,7 @@ vtkHyperStreamline s2
     s2 SetNumberOfSides 18
     s2 SetIntegrationDirection $VTK_INTEGRATE_BOTH_DIRECTIONS
     s2 Update
-vtkPolyMapper s2Mapper
+vtkPolyDataMapper s2Mapper
     s2Mapper SetInput [s2 GetOutput]
     s2Mapper SetLookupTable lut
     ptLoad Update;#force update for scalar range
@@ -78,7 +78,7 @@ vtkHyperStreamline s3
     s3 SetNumberOfSides 18
     s3 SetIntegrationDirection $VTK_INTEGRATE_BOTH_DIRECTIONS
     s3 Update
-vtkPolyMapper s3Mapper
+vtkPolyDataMapper s3Mapper
     s3Mapper SetInput [s3 GetOutput]
     s3Mapper SetLookupTable lut
     ptLoad Update;#force update for scalar range
@@ -97,7 +97,7 @@ vtkHyperStreamline s4
     s4 SetNumberOfSides 18
     s4 SetIntegrationDirection $VTK_INTEGRATE_BOTH_DIRECTIONS
     s4 Update
-vtkPolyMapper s4Mapper
+vtkPolyDataMapper s4Mapper
     s4Mapper SetInput [s4 GetOutput]
     s4Mapper SetLookupTable lut
     ptLoad Update;#force update for scalar range
@@ -112,7 +112,7 @@ vtkStructuredPointsGeometryFilter g
     g SetInput [ptLoad GetOutput]
     g SetExtent 0 100 0 100 0 0
     g Update;#for scalar range
-vtkPolyMapper gm
+vtkPolyDataMapper gm
     gm SetInput [g GetOutput]
     eval gm SetScalarRange [[g GetOutput] GetScalarRange]
 vtkActor ga
@@ -123,7 +123,7 @@ vtkActor ga
 #
 vtkOutlineFilter outline
     outline SetInput [ptLoad GetOutput]
-vtkPolyMapper outlineMapper
+vtkPolyDataMapper outlineMapper
     outlineMapper SetInput [outline GetOutput]
 vtkActor outlineActor
     outlineActor SetMapper outlineMapper
@@ -134,7 +134,7 @@ vtkActor outlineActor
 vtkConeSource coneSrc
     coneSrc  SetRadius .5
     coneSrc  SetHeight 2
-vtkPolyMapper coneMap
+vtkPolyDataMapper coneMap
     coneMap SetInput [coneSrc GetOutput]
 vtkActor coneActor
     coneActor SetMapper coneMap;    

@@ -299,7 +299,7 @@ void vtkLinearExtrusionFilter::Execute()
 
 void vtkLinearExtrusionFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkPolyToPolyFilter::PrintSelf(os,indent);
+  vtkPolyDataToPolyDataFilter::PrintSelf(os,indent);
 
   if ( this->ExtrusionType == VTK_VECTOR_EXTRUSION )
     {

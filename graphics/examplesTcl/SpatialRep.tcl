@@ -19,7 +19,7 @@ vtkSTLReader asource
   asource SetFileName ../../../data/42400-IDGH.stl
 #vtkCyberReader asource
 #  asource SetFileName ../../../data/fran_cut
-vtkPolyMapper dataMapper
+vtkPolyDataMapper dataMapper
   dataMapper SetInput [asource GetOutput]
 vtkActor model
   model SetMapper dataMapper
@@ -34,7 +34,7 @@ vtkCellLocator locator
 vtkSpatialRepFilter boxes
   boxes SetInput [asource GetOutput]
   boxes SetSpatialRep locator
-vtkPolyMapper boxMapper
+vtkPolyDataMapper boxMapper
   boxMapper SetInput [boxes GetOutput]
 #  boxMapper SetInput [boxes GetOutput 2]
 vtkActor boxActor

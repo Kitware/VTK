@@ -92,7 +92,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkDecimate_h
 #define __vtkDecimate_h
 
-#include "vtkPolyToPolyFilter.h"
+#include "vtkPolyDataToPolyDataFilter.h"
 #include "vtkMath.h"
 #include "vtkTriangle.h"
 #include "vtkPlane.h"
@@ -157,7 +157,7 @@ public:
 //
 
 
-class VTK_EXPORT vtkDecimate : public vtkPolyToPolyFilter
+class VTK_EXPORT vtkDecimate : public vtkPolyDataToPolyDataFilter
 {
 public:
   vtkDecimate();

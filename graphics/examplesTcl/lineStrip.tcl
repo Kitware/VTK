@@ -20,7 +20,7 @@ vtkStripper stripper
 vtkTubeFilter tuber
     tuber SetInput [stripper GetOutput]
     tuber SetNumberOfSides 4
-vtkPolyMapper isoMapper
+vtkPolyDataMapper isoMapper
     isoMapper SetInput [tuber GetOutput]
     isoMapper SetScalarRange 600 1200
 vtkActor isoActor
@@ -28,7 +28,7 @@ vtkActor isoActor
 
 vtkOutlineFilter outline
     outline SetInput [v16 GetOutput]
-vtkPolyMapper outlineMapper
+vtkPolyDataMapper outlineMapper
     outlineMapper SetInput [outline GetOutput]
 vtkActor outlineActor
     outlineActor SetMapper outlineMapper

@@ -60,9 +60,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkStructuredGridGeometryFilter_h
 #define __vtkStructuredGridGeometryFilter_h
 
-#include "vtkStructuredGridToPolyFilter.h"
+#include "vtkStructuredGridToPolyDataFilter.h"
 
-class VTK_EXPORT vtkStructuredGridGeometryFilter : public vtkStructuredGridToPolyFilter
+class VTK_EXPORT vtkStructuredGridGeometryFilter : public vtkStructuredGridToPolyDataFilter
 {
 public:
   vtkStructuredGridGeometryFilter();

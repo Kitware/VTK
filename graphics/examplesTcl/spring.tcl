@@ -44,11 +44,11 @@ vtkRotationalExtrusionFilter extrude
     extrude SetDeltaRadius 1.0
     extrude SetAngle 2160.0;#six revolutions
     
-vtkPolyNormals normals
+vtkPolyDataNormals normals
     normals SetInput [extrude GetOutput]
     normals SetFeatureAngle 60
 
-vtkPolyMapper map
+vtkPolyDataMapper map
     map SetInput [normals GetOutput]
 
 vtkActor spring

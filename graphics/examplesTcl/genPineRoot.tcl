@@ -34,7 +34,7 @@ vtkMCubesReader reader
     reader SetFileName "pine_root.tri"
     reader SetLimitsFileName "pine_root.lim"
 
-vtkPolyMapper mapper
+vtkPolyDataMapper mapper
     mapper SetInput [reader GetOutput]
     
 vtkActor a

@@ -48,7 +48,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkStarbaseCamera.h"
 #include "vtkStarbaseLight.h"
 #include "vtkStarbaseActor.h"
-#include "vtkStarbasePolyMapper.h"
+#include "vtkStarbasePolyDataMapper.h"
 
 #define MAX_LIGHTS 16
 

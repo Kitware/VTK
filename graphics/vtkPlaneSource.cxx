@@ -397,7 +397,7 @@ int vtkPlaneSource::UpdatePlane(float v1[3], float v2[3])
 
 void vtkPlaneSource::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkPolySource::PrintSelf(os,indent);
+  vtkPolyDataSource::PrintSelf(os,indent);
 
   os << indent << "X Resolution: " << this->XResolution << "\n";
   os << indent << "Y Resolution: " << this->YResolution << "\n";

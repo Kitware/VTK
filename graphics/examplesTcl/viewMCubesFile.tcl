@@ -25,7 +25,7 @@ vtkMCubesReader reader
     reader SetLimitsFileName $limitsName
     reader DebugOn
 
-vtkPolyMapper mapper
+vtkPolyDataMapper mapper
     mapper SetInput [reader GetOutput]
     
 vtkActor head

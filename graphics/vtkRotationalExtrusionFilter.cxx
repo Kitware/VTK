@@ -291,7 +291,7 @@ void vtkRotationalExtrusionFilter::Execute()
 
 void vtkRotationalExtrusionFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkPolyToPolyFilter::PrintSelf(os,indent);
+  vtkPolyDataToPolyDataFilter::PrintSelf(os,indent);
 
   os << indent << "Resolution: " << this->Resolution << "\n";
   os << indent << "Capping: " << (this->Capping ? "On\n" : "Off\n");

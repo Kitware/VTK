@@ -47,9 +47,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkStructuredGridOutlineFilter_h
 #define __vtkStructuredGridOutlineFilter_h
 
-#include "vtkStructuredGridToPolyFilter.h"
+#include "vtkStructuredGridToPolyDataFilter.h"
 
-class VTK_EXPORT vtkStructuredGridOutlineFilter : public vtkStructuredGridToPolyFilter
+class VTK_EXPORT vtkStructuredGridOutlineFilter : public vtkStructuredGridToPolyDataFilter
 {
 public:
   static vtkStructuredGridOutlineFilter *New() {return new vtkStructuredGridOutlineFilter;};

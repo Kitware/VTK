@@ -48,9 +48,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkExtractEdges_h
 #define __vtkExtractEdges_h
 
-#include "vtkDataSetToPolyFilter.h"
+#include "vtkDataSetToPolyDataFilter.h"
 
-class VTK_EXPORT vtkExtractEdges : public vtkDataSetToPolyFilter
+class VTK_EXPORT vtkExtractEdges : public vtkDataSetToPolyDataFilter
 {
 public:
   vtkExtractEdges();

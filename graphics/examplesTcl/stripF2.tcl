@@ -22,14 +22,14 @@ vtkDecimate deci
     deci SetErrorIncrement 0.0002
     deci SetMaximumError 0.001
     deci SetAspectRatio 20
-vtkPolyNormals normals
+vtkPolyDataNormals normals
     normals SetInput [deci GetOutput]
 vtkStripper stripper
     stripper SetInput [normals GetOutput]
 vtkMaskPolyData mask
     mask SetInput [stripper GetOutput]
     mask SetOnRatio 2
-vtkPolyMapper cyberMapper
+vtkPolyDataMapper cyberMapper
     cyberMapper SetInput [mask GetOutput]
 vtkActor cyberActor
     cyberActor SetMapper cyberMapper

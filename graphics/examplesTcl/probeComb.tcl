@@ -26,12 +26,12 @@ vtkTransform transP1
     transP1 Translate 3.7 0.0 28.37
     transP1 Scale 5 5 5
     transP1 RotateY 90
-vtkTransformPolyFilter tpd1
+vtkTransformPolyDataFilter tpd1
     tpd1 SetInput [plane GetOutput]
     tpd1 SetTransform transP1
 vtkOutlineFilter outTpd1
     outTpd1 SetInput [tpd1 GetOutput]
-vtkPolyMapper mapTpd1
+vtkPolyDataMapper mapTpd1
     mapTpd1 SetInput [outTpd1 GetOutput]
 vtkActor tpd1Actor
     tpd1Actor SetMapper mapTpd1
@@ -41,12 +41,12 @@ vtkTransform transP2
     transP2 Translate 9.2 0.0 31.20
     transP2 Scale 5 5 5
     transP2 RotateY 90
-vtkTransformPolyFilter tpd2
+vtkTransformPolyDataFilter tpd2
     tpd2 SetInput [plane GetOutput]
     tpd2 SetTransform transP2
 vtkOutlineFilter outTpd2
     outTpd2 SetInput [tpd2 GetOutput]
-vtkPolyMapper mapTpd2
+vtkPolyDataMapper mapTpd2
     mapTpd2 SetInput [outTpd2 GetOutput]
 vtkActor tpd2Actor
     tpd2Actor SetMapper mapTpd2
@@ -56,12 +56,12 @@ vtkTransform transP3
     transP3 Translate 13.27 0.0 33.30
     transP3 Scale 5 5 5
     transP3 RotateY 90
-vtkTransformPolyFilter tpd3
+vtkTransformPolyDataFilter tpd3
     tpd3 SetInput [plane GetOutput]
     tpd3 SetTransform transP3
 vtkOutlineFilter outTpd3
     outTpd3 SetInput [tpd3 GetOutput]
-vtkPolyMapper mapTpd3
+vtkPolyDataMapper mapTpd3
     mapTpd3 SetInput [outTpd3 GetOutput]
 vtkActor tpd3Actor
     tpd3Actor SetMapper mapTpd3
@@ -80,7 +80,7 @@ vtkContourFilter contour
     contour SetInput [probe GetOutput]
     eval contour GenerateValues 50 [[pl3d GetOutput] GetScalarRange]
 
-vtkPolyMapper contourMapper
+vtkPolyDataMapper contourMapper
     contourMapper SetInput [contour GetOutput]
     eval contourMapper SetScalarRange [[pl3d GetOutput] GetScalarRange]
 vtkActor planeActor
@@ -88,7 +88,7 @@ vtkActor planeActor
 
 vtkStructuredGridOutlineFilter outline
     outline SetInput [pl3d GetOutput]
-vtkPolyMapper outlineMapper
+vtkPolyDataMapper outlineMapper
     outlineMapper SetInput [outline GetOutput]
 vtkActor outlineActor
     outlineActor SetMapper outlineMapper

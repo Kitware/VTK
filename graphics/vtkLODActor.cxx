@@ -55,8 +55,8 @@ vtkLODActor::vtkLODActor()
   this->Timings[2] = -2; // lowest LOD
   // get a hardware dependent actor and mappers
   this->Device = vtkActor::New();
-  this->MediumMapper = vtkPolyMapper::New();
-  this->LowMapper = vtkPolyMapper::New();
+  this->MediumMapper = vtkPolyDataMapper::New();
+  this->LowMapper = vtkPolyDataMapper::New();
 }
 
 vtkLODActor::~vtkLODActor()

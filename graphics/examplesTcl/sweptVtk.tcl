@@ -10,7 +10,7 @@ vtkRenderWindowInteractor iren
     iren SetRenderWindow renWin
 
 # ingest data file
-vtkPolyReader reader
+vtkPolyDataReader reader
   reader SetFileName "../../../data/vtk.vtk"
 
 # create implicit model of vtk
@@ -40,7 +40,7 @@ vtkContourFilter iso
   iso SetInput [sweptSurfaceFilter GetOutput]
   iso SetValue 0 0.33
 
-vtkPolyMapper sweptSurfaceMapper
+vtkPolyDataMapper sweptSurfaceMapper
   sweptSurfaceMapper SetInput [iso GetOutput]
   sweptSurfaceMapper ScalarVisibilityOff
 

@@ -201,7 +201,7 @@ void vtkCylinderSource::Execute()
 
 void vtkCylinderSource::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkPolySource::PrintSelf(os,indent);
+  vtkPolyDataSource::PrintSelf(os,indent);
 
   os << indent << "Resolution: " << this->Resolution << "\n";
   os << indent << "Height: " << this->Height << "\n";

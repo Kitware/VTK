@@ -12,7 +12,7 @@ SBR_OBJ = \
 vtkStarbaseActor \
 vtkStarbaseCamera \
 vtkStarbaseLight \
-vtkStarbasePolyMapper \
+vtkStarbasePolyDataMapper \
 vtkStarbaseProperty \
 vtkStarbaseRenderWindow \
 vtkStarbaseRenderer \
@@ -22,7 +22,7 @@ GLR_OBJ = \
 vtkGLActor \
 vtkGLCamera \
 vtkGLLight \
-vtkGLPolyMapper \
+vtkGLPolyDataMapper \
 vtkGLProperty \
 vtkGLRenderWindow \
 vtkGLRenderer \
@@ -32,7 +32,7 @@ OGLR_OBJ = \
 vtkOpenGLActor \
 vtkOpenGLCamera \
 vtkOpenGLLight \
-vtkOpenGLPolyMapper \
+vtkOpenGLPolyDataMapper \
 vtkOpenGLProperty \
 vtkOpenGLRenderWindow \
 vtkOpenGLRenderer \
@@ -42,7 +42,7 @@ XGLR_OBJ = \
 vtkXGLActor \
 vtkXGLCamera \
 vtkXGLLight \
-vtkXGLPolyMapper \
+vtkXGLPolyDataMapper \
 vtkXGLProperty \
 vtkXGLRenderWindow \
 vtkXGLRenderer \
@@ -105,7 +105,7 @@ vtkDataSetFilter \
 vtkDataSetMapper \
 vtkDataSetReader \
 vtkDataSetToDataSetFilter \
-vtkDataSetToPolyFilter \
+vtkDataSetToPolyDataFilter \
 vtkDataSetToStructuredGridFilter \
 vtkDataSetToStructuredPointsFilter \
 vtkDataSetToUnstructuredGridFilter \
@@ -169,14 +169,14 @@ vtkPointPicker \
 vtkPointSetFilter \
 vtkPointSetToPointSetFilter \
 vtkPointSource \
-vtkPolyConnectivityFilter \
-vtkPolyFilter \
-vtkPolyMapper \
-vtkPolyNormals \
-vtkPolyReader \
-vtkPolySource \
-vtkPolyToPolyFilter \
-vtkPolyWriter \
+vtkPolyDataConnectivityFilter \
+vtkPolyDataFilter \
+vtkPolyDataMapper \
+vtkPolyDataNormals \
+vtkPolyDataReader \
+vtkPolyDataSource \
+vtkPolyDataToPolyDataFilter \
+vtkPolyDataWriter \
 vtkProbeFilter \
 vtkProperty \
 vtkQuadric \
@@ -184,7 +184,7 @@ vtkRectilinearGridFilter \
 vtkRectilinearGridGeometryFilter \
 vtkRectilinearGridReader \
 vtkRectilinearGridSource \
-vtkRectilinearGridToPolyFilter \
+vtkRectilinearGridToPolyDataFilter \
 vtkRectilinearGridWriter \
 vtkRecursiveDividingCubes \
 vtkRenderWindow \
@@ -218,7 +218,7 @@ vtkStructuredGridGeometryFilter \
 vtkStructuredGridOutlineFilter \
 vtkStructuredGridReader \
 vtkStructuredGridSource \
-vtkStructuredGridToPolyFilter \
+vtkStructuredGridToPolyDataFilter \
 vtkStructuredGridToStructuredGridFilter \
 vtkStructuredGridWriter \
 vtkStructuredPointsFilter \
@@ -241,7 +241,7 @@ vtkThresholdPoints \
 vtkThresholdTextureCoords \
 vtkTIFFWriter \
 vtkTransformFilter \
-vtkTransformPolyFilter \
+vtkTransformPolyDataFilter \
 vtkTransformTextureCoords \
 vtkTriangleFilter \
 vtkTriangularTexture \

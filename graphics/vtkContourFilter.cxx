@@ -81,7 +81,7 @@ vtkContourFilter::~vtkContourFilter()
 // then this object is modified as well.
 unsigned long vtkContourFilter::GetMTime()
 {
-  unsigned long mTime=this->vtkDataSetToPolyFilter::GetMTime();
+  unsigned long mTime=this->vtkDataSetToPolyDataFilter::GetMTime();
   unsigned long contourValuesMTime=this->ContourValues->GetMTime();
 
   mTime = ( contourValuesMTime > mTime ? contourValuesMTime : mTime );
@@ -294,7 +294,7 @@ void vtkContourFilter::CreateDefaultLocator()
 
 void vtkContourFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkDataSetToPolyFilter::PrintSelf(os,indent);
+  vtkDataSetToPolyDataFilter::PrintSelf(os,indent);
 
   this->ContourValues->PrintSelf(os,indent);
 

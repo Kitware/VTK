@@ -40,7 +40,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkVRMLExporter.h"
 #include "vtkGeometryFilter.h"
-#include "vtkPolyMapper.h"
+#include "vtkPolyDataMapper.h"
 #include "vtkMath.h"
 
 vtkVRMLExporter::vtkVRMLExporter()
@@ -216,7 +216,7 @@ void vtkVRMLExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
   int npts, *indx;
   float tempf2;
   int pointDataWritten = 0;
-  vtkPolyMapper *pm;
+  vtkPolyDataMapper *pm;
   vtkColorScalars *colors;
   float *p;
   unsigned char *c;
@@ -254,7 +254,7 @@ void vtkVRMLExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
     pd = (vtkPolyData *)ds;
     }
 
-  pm = vtkPolyMapper::New();
+  pm = vtkPolyDataMapper::New();
   pm->SetInput(pd);
   pm->SetScalarRange(anActor->GetMapper()->GetScalarRange());
   pm->SetScalarVisibility(anActor->GetMapper()->GetScalarVisibility());

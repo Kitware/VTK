@@ -49,7 +49,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkSource
 // vtkAppendPolyData vtkBooleanStructuredPoints vtkExtractVectorComponents
 // vtkMergeFilter vtkDataSetFilter vtkPointSetFilter
-// vtkPolyFilter vtkStructuredGridFilter vtkStructuredPointsFilter
+// vtkPolyDataFilter vtkStructuredGridFilter vtkStructuredPointsFilter
 // vtkUnstructuredGridFilter
 
 #ifndef __vtkFilter_h

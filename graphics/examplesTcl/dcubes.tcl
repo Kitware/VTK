@@ -21,7 +21,7 @@ vtkDividingCubes iso
     iso SetValue 128
     iso SetDistance 0.5
     iso SetIncrement 1
-vtkPolyMapper isoMapper
+vtkPolyDataMapper isoMapper
     isoMapper SetInput [iso GetOutput]
     isoMapper ScalarVisibilityOff
 vtkActor isoActor
@@ -30,7 +30,7 @@ vtkActor isoActor
 
 vtkOutlineFilter outline
     outline SetInput [reader GetOutput]
-vtkPolyMapper outlineMapper
+vtkPolyDataMapper outlineMapper
     outlineMapper SetInput [outline GetOutput]
 vtkActor outlineActor
     outlineActor SetMapper outlineMapper

@@ -125,7 +125,7 @@ void vtkVectorTopology::Execute()
 
 void vtkVectorTopology::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkDataSetToPolyFilter::PrintSelf(os,indent);
+  vtkDataSetToPolyDataFilter::PrintSelf(os,indent);
 
   os << indent << "Distance: " << this->Distance << "\n";
 }

@@ -342,7 +342,7 @@ void vtkTensorGlyph::Update()
 
 void vtkTensorGlyph::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkDataSetToPolyFilter::PrintSelf(os,indent);
+  vtkDataSetToPolyDataFilter::PrintSelf(os,indent);
 
   os << indent << "Source: " << this->Source << "\n";
   os << indent << "Scaling: " << (this->Scaling ? "On\n" : "Off\n");

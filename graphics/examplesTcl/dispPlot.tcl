@@ -13,7 +13,7 @@ vtkRenderWindowInteractor iren
 
 # read a vtk file
 #
-vtkPolyReader plate
+vtkPolyDataReader plate
     plate SetFileName "../../../data/plate.vtk"
     plate SetVectorsName "mode8"
 vtkWarpVector warp
@@ -21,7 +21,7 @@ vtkWarpVector warp
     warp SetScaleFactor 0.5
 vtkCastToConcrete caster
     caster SetInput [warp GetOutput]
-vtkPolyNormals normals
+vtkPolyDataNormals normals
     normals SetInput [caster GetPolyDataOutput]
 vtkVectorDot color
     color SetInput [normals GetOutput]

@@ -47,9 +47,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkOutlineFilter_h
 #define __vtkOutlineFilter_h
 
-#include "vtkDataSetToPolyFilter.h"
+#include "vtkDataSetToPolyDataFilter.h"
 
-class VTK_EXPORT vtkOutlineFilter : public vtkDataSetToPolyFilter
+class VTK_EXPORT vtkOutlineFilter : public vtkDataSetToPolyDataFilter
 {
 public:
   static vtkOutlineFilter *New() {return new vtkOutlineFilter;};

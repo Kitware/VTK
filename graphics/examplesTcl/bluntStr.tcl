@@ -33,7 +33,7 @@ vtkDashedStreamLine streamers
     streamers SetMaximumPropagationTime 25
     streamers SetStepLength 0.25
     streamers Update
-vtkPolyMapper mapStreamers
+vtkPolyDataMapper mapStreamers
     mapStreamers SetInput [streamers GetOutput]
     eval mapStreamers SetScalarRange \
        [[[[pl3d GetOutput] GetPointData] GetScalars] GetRange]
@@ -45,7 +45,7 @@ vtkActor streamersActor
 vtkStructuredGridGeometryFilter wall
     wall SetInput [pl3d GetOutput]
     wall SetExtent 0 100 0 0 0 100
-vtkPolyMapper wallMap
+vtkPolyDataMapper wallMap
     wallMap SetInput [wall GetOutput]
     wallMap ScalarVisibilityOff
 vtkActor wallActor
@@ -57,7 +57,7 @@ vtkActor wallActor
 vtkStructuredGridGeometryFilter fin
     fin SetInput [pl3d GetOutput]
     fin SetExtent 0 100 0 100 0 0
-vtkPolyMapper finMap
+vtkPolyDataMapper finMap
     finMap SetInput [fin GetOutput]
     finMap ScalarVisibilityOff
 vtkActor finActor
@@ -67,7 +67,7 @@ vtkActor finActor
 # outline
 vtkStructuredGridOutlineFilter outline
     outline SetInput [pl3d GetOutput]
-vtkPolyMapper outlineMapper
+vtkPolyDataMapper outlineMapper
     outlineMapper SetInput [outline GetOutput]
 vtkActor outlineActor
     outlineActor SetMapper outlineMapper

@@ -60,9 +60,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkFeatureVertices_h
 #define __vtkFeatureVertices_h
 
-#include "vtkPolyToPolyFilter.h"
+#include "vtkPolyDataToPolyDataFilter.h"
 
-class VTK_EXPORT vtkFeatureVertices : public vtkPolyToPolyFilter
+class VTK_EXPORT vtkFeatureVertices : public vtkPolyDataToPolyDataFilter
 {
 public:
   vtkFeatureVertices();

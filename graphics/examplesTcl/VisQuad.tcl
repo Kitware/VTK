@@ -22,7 +22,7 @@ vtkRenderWindowInteractor iren
     contours SetInput [sample GetOutput]
     contours GenerateValues 5 0.0 1.2
 
-  vtkPolyMapper contMapper
+  vtkPolyDataMapper contMapper
     contMapper SetInput [contours GetOutput]
     contMapper SetScalarRange 0.0 1.2
 
@@ -33,7 +33,7 @@ vtkRenderWindowInteractor iren
   vtkOutlineFilter outline
     outline SetInput [sample GetOutput]
 
-  vtkPolyMapper outlineMapper
+  vtkPolyDataMapper outlineMapper
     outlineMapper SetInput [outline GetOutput]
 
   vtkActor outlineActor

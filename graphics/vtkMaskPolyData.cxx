@@ -197,7 +197,7 @@ void vtkMaskPolyData::Execute()
 
 void vtkMaskPolyData::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkPolyToPolyFilter::PrintSelf(os,indent);
+  vtkPolyDataToPolyDataFilter::PrintSelf(os,indent);
 
   os << indent << "On Ratio: " << this->OnRatio << "\n";
   os << indent << "Offset: " << this->Offset << "\n";

@@ -187,5 +187,5 @@ void vtkTriangularTCoords::Execute()
 
 void vtkTriangularTCoords::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkPolyToPolyFilter::PrintSelf(os,indent);
+  vtkPolyDataToPolyDataFilter::PrintSelf(os,indent);
 }

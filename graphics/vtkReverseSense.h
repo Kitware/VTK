@@ -52,9 +52,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkReverseSense_h
 #define __vtkReverseSense_h
 
-#include "vtkPolyToPolyFilter.h"
+#include "vtkPolyDataToPolyDataFilter.h"
 
-class VTK_EXPORT vtkReverseSense : public vtkPolyToPolyFilter
+class VTK_EXPORT vtkReverseSense : public vtkPolyDataToPolyDataFilter
 {
 public:
   vtkReverseSense();

@@ -47,9 +47,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkTriangleFilter_h
 #define __vtkTriangleFilter_h
 
-#include "vtkPolyToPolyFilter.h"
+#include "vtkPolyDataToPolyDataFilter.h"
 
-class VTK_EXPORT vtkTriangleFilter : public vtkPolyToPolyFilter
+class VTK_EXPORT vtkTriangleFilter : public vtkPolyDataToPolyDataFilter
 {
 public:
   vtkTriangleFilter() : PassVerts(1), PassLines(1) {};

@@ -46,7 +46,7 @@ vtkSampleFunction theConeSample
 vtkContourFilter theConeSurface
     theConeSurface SetInput [theConeSample GetOutput]
     theConeSurface SetValue 0 0.0
-vtkPolyMapper coneMapper
+vtkPolyDataMapper coneMapper
     coneMapper SetInput [theConeSurface GetOutput]
     coneMapper ScalarVisibilityOff
 vtkActor coneActor
@@ -61,7 +61,7 @@ vtkSampleFunction theCreamSample
 vtkContourFilter theCreamSurface
     theCreamSurface SetInput [theCreamSample GetOutput]
     theCreamSurface SetValue 0 0.0
-vtkPolyMapper creamMapper
+vtkPolyDataMapper creamMapper
     creamMapper SetInput [theCreamSurface GetOutput]
     creamMapper ScalarVisibilityOff
 vtkActor creamActor

@@ -54,9 +54,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkFeatureEdges_h
 #define __vtkFeatureEdges_h
 
-#include "vtkPolyToPolyFilter.h"
+#include "vtkPolyDataToPolyDataFilter.h"
 
-class VTK_EXPORT vtkFeatureEdges : public vtkPolyToPolyFilter
+class VTK_EXPORT vtkFeatureEdges : public vtkPolyDataToPolyDataFilter
 {
 public:
   vtkFeatureEdges();

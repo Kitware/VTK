@@ -430,7 +430,7 @@ void makeMakefile(CPcmakerDlg *vals)
     concrete[num_concrete] = strdup("vtkOpenGLCamera");
     concrete_lib[num_concrete] = strdup("graphics");
     num_concrete++;
-    concrete[num_concrete] = strdup("vtkOpenGLPolyMapper");
+    concrete[num_concrete] = strdup("vtkOpenGLPolyDataMapper");
     concrete_lib[num_concrete] = strdup("graphics");
     num_concrete++;
 

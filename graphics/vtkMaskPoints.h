@@ -49,9 +49,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkMaskPoints_h
 #define __vtkMaskPoints_h
 
-#include "vtkDataSetToPolyFilter.h"
+#include "vtkDataSetToPolyDataFilter.h"
 
-class VTK_EXPORT vtkMaskPoints : public vtkDataSetToPolyFilter
+class VTK_EXPORT vtkMaskPoints : public vtkDataSetToPolyDataFilter
 {
 public:
   vtkMaskPoints();

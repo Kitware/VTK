@@ -105,7 +105,7 @@ void vtkReverseSense::Execute()
 
 void vtkReverseSense::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkPolyToPolyFilter::PrintSelf(os,indent);
+  vtkPolyDataToPolyDataFilter::PrintSelf(os,indent);
 
   os << indent << "Reverse Cells: " << (this->ReverseCells ? "On\n" : "Off\n");
   os << indent << "Reverse Normals: " << (this->ReverseNormals ? "On\n" : "Off\n");

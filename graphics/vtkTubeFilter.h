@@ -61,13 +61,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkTubeFilter_h
 #define __vtkTubeFilter_h
 
-#include "vtkPolyToPolyFilter.h"
+#include "vtkPolyDataToPolyDataFilter.h"
 
 #define VTK_VARY_RADIUS_OFF 0
 #define VTK_VARY_RADIUS_BY_SCALAR 1
 #define VTK_VARY_RADIUS_BY_VECTOR 2
 
-class VTK_EXPORT vtkTubeFilter : public vtkPolyToPolyFilter
+class VTK_EXPORT vtkTubeFilter : public vtkPolyDataToPolyDataFilter
 {
 public:
   vtkTubeFilter();

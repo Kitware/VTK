@@ -48,7 +48,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkOpenGLCamera.h"
 #include "vtkOpenGLLight.h"
 #include "vtkOpenGLActor.h"
-#include "vtkOpenGLPolyMapper.h"
+#include "vtkOpenGLPolyDataMapper.h"
 #include "GL/gl.h"
 #include "GL/glu.h"
 

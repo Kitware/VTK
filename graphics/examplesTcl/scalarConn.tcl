@@ -39,7 +39,7 @@ vtkActor contActor
 vtkOutlineFilter outline
   outline SetInput [sample GetOutput]
 
-vtkPolyMapper outlineMapper
+vtkPolyDataMapper outlineMapper
   outlineMapper SetInput [outline GetOutput]
 
 vtkActor outlineActor

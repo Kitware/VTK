@@ -15,7 +15,7 @@ vtkRenderWindowInteractor iren
 
 # read a vtk file
 #
-vtkPolyReader hawaii
+vtkPolyDataReader hawaii
     hawaii SetFileName "../../../data/honolulu.vtk"
     hawaii Update
 vtkElevationFilter elevation

@@ -429,7 +429,7 @@ void vtkCyberReader::Execute()
 
 void vtkCyberReader::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkPolySource::PrintSelf(os,indent);
+  vtkPolyDataSource::PrintSelf(os,indent);
 
   os << indent << "File Name: " 
      << (this->FileName ? this->FileName : "(none)") << "\n";

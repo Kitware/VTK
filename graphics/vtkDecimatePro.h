@@ -102,7 +102,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkDecimatePro_h
 #define __vtkDecimatePro_h
 
-#include "vtkPolyToPolyFilter.h"
+#include "vtkPolyDataToPolyDataFilter.h"
 #include "vtkPriorityQueue.h"
 
 // Special structures for building loops
@@ -159,7 +159,7 @@ public:
 //
 
 
-class VTK_EXPORT vtkDecimatePro : public vtkPolyToPolyFilter
+class VTK_EXPORT vtkDecimatePro : public vtkPolyDataToPolyDataFilter
 {
 public:
   vtkDecimatePro();

@@ -12,7 +12,7 @@ vtkRenderWindowInteractor iren
     iren SetRenderWindow renWin
 
 vtkSphereSource sphere
-vtkPolyMapper sphereMapper
+vtkPolyDataMapper sphereMapper
     sphereMapper SetInput [sphere GetOutput]
 vtkActor sphereActor
     sphereActor SetMapper sphereMapper
@@ -22,7 +22,7 @@ vtkActor sphereActor
     [sphereActor GetProperty] SetColor 1 1 0
 
 vtkCubeSource cube
-vtkPolyMapper cubeMapper
+vtkPolyDataMapper cubeMapper
     cubeMapper SetInput [cube GetOutput]
 vtkActor cubeActor
     cubeActor SetMapper cubeMapper
@@ -30,7 +30,7 @@ vtkActor cubeActor
     [cubeActor GetProperty] SetColor 0 1 1
 
 vtkConeSource cone
-vtkPolyMapper coneMapper
+vtkPolyDataMapper coneMapper
     coneMapper SetInput [cone GetOutput]
 vtkActor coneActor
     coneActor SetMapper coneMapper
@@ -38,7 +38,7 @@ vtkActor coneActor
     [coneActor GetProperty] SetColor 1 0 1
 
 vtkCylinderSource cylinder;#top part
-vtkPolyMapper cylinderMapper
+vtkPolyDataMapper cylinderMapper
     cylinderMapper SetInput [cylinder GetOutput]
 vtkActor cylActor
     cylActor SetMapper cylinderMapper

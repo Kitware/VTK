@@ -48,7 +48,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkXGLCamera.h"
 #include "vtkXGLLight.h"
 #include "vtkXGLActor.h"
-#include "vtkXGLPolyMapper.h"
+#include "vtkXGLPolyDataMapper.h"
 
 // some globals left over from some Sun code
 Xgl_sys_state xglr_sys_state = 0;  // XGLR System State object 

@@ -64,7 +64,7 @@ vtkRenderWindowInteractor::vtkRenderWindowInteractor()
   this->SelfCreatedPicker = 0;
   this->Picker = this->CreateDefaultPicker();
   this->OutlineActor = NULL;
-  this->OutlineMapper = vtkPolyMapper::New();  
+  this->OutlineMapper = vtkPolyDataMapper::New();  
   this->OutlineMapper->SetInput(this->Outline.GetOutput());
   this->PickedRenderer = NULL;
   this->CurrentActor = NULL;

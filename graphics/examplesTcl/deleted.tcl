@@ -6,7 +6,7 @@ vtkRenderWindow renWin
     renWin AddRenderer ren1
 
 vtkSphereSource ls
-vtkPolyMapper pdm
+vtkPolyDataMapper pdm
 pdm SetInput [ls GetOutput]
 vtkActor a1
 a1 SetMapper pdm

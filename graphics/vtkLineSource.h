@@ -47,9 +47,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkLineSource_h
 #define __vtkLineSource_h
 
-#include "vtkPolySource.h"
+#include "vtkPolyDataSource.h"
 
-class VTK_EXPORT vtkLineSource : public vtkPolySource 
+class VTK_EXPORT vtkLineSource : public vtkPolyDataSource 
 {
 public:
   vtkLineSource(int res=1);

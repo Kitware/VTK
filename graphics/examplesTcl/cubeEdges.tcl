@@ -21,7 +21,7 @@ vtkTubeFilter tubes
   tubes SetInput [extract GetOutput]
   tubes SetRadius 0.05
   tubes SetNumberOfSides 6
-vtkPolyMapper mapper
+vtkPolyDataMapper mapper
   mapper SetInput [tubes GetOutput]
 vtkActor cubeActor
   cubeActor SetMapper mapper
@@ -31,7 +31,7 @@ vtkSphereSource sphere
 vtkGlyph3D verts
   verts SetInput [cube GetOutput]
   verts SetSource [sphere GetOutput]
-vtkPolyMapper sphereMapper
+vtkPolyDataMapper sphereMapper
   sphereMapper SetInput [verts GetOutput]
 vtkActor vertActor
   vertActor SetMapper sphereMapper

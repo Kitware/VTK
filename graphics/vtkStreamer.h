@@ -75,7 +75,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkStreamer_h
 #define __vtkStreamer_h
 
-#include "vtkDataSetToPolyFilter.h"
+#include "vtkDataSetToPolyDataFilter.h"
 
 #define VTK_INTEGRATE_FORWARD 0
 #define VTK_INTEGRATE_BACKWARD 1
@@ -123,7 +123,7 @@ public:
 //ETX
 //
 
-class VTK_EXPORT vtkStreamer : public vtkDataSetToPolyFilter
+class VTK_EXPORT vtkStreamer : public vtkDataSetToPolyDataFilter
 {
 public:
   vtkStreamer();

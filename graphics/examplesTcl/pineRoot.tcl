@@ -15,7 +15,7 @@ vtkRenderWindowInteractor iren
 #
 vtkMCubesReader reader
     reader SetFileName "../../../data/pineRoot/pine_root.tri"
-vtkPolyMapper isoMapper
+vtkPolyDataMapper isoMapper
     isoMapper SetInput [reader GetOutput]
     isoMapper ScalarVisibilityOff
 vtkActor isoActor
@@ -24,7 +24,7 @@ vtkActor isoActor
 
 vtkOutlineFilter outline
     outline SetInput [reader GetOutput]
-vtkPolyMapper outlineMapper
+vtkPolyDataMapper outlineMapper
     outlineMapper SetInput [outline GetOutput]
 vtkActor outlineActor
     outlineActor SetMapper outlineMapper

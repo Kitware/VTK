@@ -49,10 +49,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkDiskSource_h
 #define __vtkDiskSource_h
 
-#include "vtkPolySource.h"
+#include "vtkPolyDataSource.h"
 #include "vtkPolyData.h"
 
-class VTK_EXPORT vtkDiskSource : public vtkPolySource 
+class VTK_EXPORT vtkDiskSource : public vtkPolyDataSource 
 {
 public:
   vtkDiskSource();

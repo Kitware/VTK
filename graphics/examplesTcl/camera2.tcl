@@ -25,7 +25,7 @@ vtkAppendPolyData camAPD
 camAPD AddInput [camCBS GetOutput]
 camAPD AddInput [camCS GetOutput]
 
-vtkPolyMapper camMapper
+vtkPolyDataMapper camMapper
     camMapper SetInput [camAPD GetOutput]
 vtkLODActor camActor
     camActor SetMapper camMapper
@@ -145,7 +145,7 @@ vtkTransform arrowT2
 arrowT2 Scale 1 0.6 1
 arrowT2 RotateY 90
 
-vtkTransformPolyFilter arrowTF2
+vtkTransformPolyDataFilter arrowTF2
 arrowTF2 SetInput pd2
 arrowTF2 SetTransform arrowT2
 
@@ -154,7 +154,7 @@ arrowREF SetInput [arrowTF2 GetOutput]
 arrowREF CappingOff
 arrowREF SetResolution 30
 
-vtkPolyMapper spikeMapper
+vtkPolyDataMapper spikeMapper
 spikeMapper SetInput [arrowREF GetOutput]
 
 vtkLODActor a5Actor
@@ -185,7 +185,7 @@ a7Actor SetPosition -9 1 0
 # focal point
 vtkSphereSource fps
 fps SetRadius 0.5
-vtkPolyMapper fpMapper
+vtkPolyDataMapper fpMapper
 fpMapper SetInput [fps GetOutput]
 vtkLODActor fpActor
 fpActor SetMapper fpMapper

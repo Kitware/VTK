@@ -58,11 +58,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkSTLReader_h
 
 #include <stdio.h>
-#include "vtkPolySource.h"
+#include "vtkPolyDataSource.h"
 #include "vtkFloatPoints.h"
 #include "vtkCellArray.h"
 
-class VTK_EXPORT vtkSTLReader : public vtkPolySource 
+class VTK_EXPORT vtkSTLReader : public vtkPolyDataSource 
 {
 public:
   vtkSTLReader();

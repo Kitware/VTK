@@ -132,7 +132,7 @@ void vtkMaskPoints::Execute()
 
 void vtkMaskPoints::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkDataSetToPolyFilter::PrintSelf(os,indent);
+  vtkDataSetToPolyDataFilter::PrintSelf(os,indent);
 
   os << indent << "MaximumNumberOfPoints: " << 
     this->MaximumNumberOfPoints << "\n";

@@ -42,7 +42,7 @@ vtkTensorGlyph ellipsoids
 # Map contour
 vtkLogLookupTable lut
     lut SetHueRange .6667 0.0
-vtkPolyMapper ellipMapper
+vtkPolyDataMapper ellipMapper
     ellipMapper SetInput [ellipsoids GetOutput]
     ellipMapper SetLookupTable lut
     plane Update;#force update for scalar range
@@ -56,7 +56,7 @@ vtkActor ellipActor
 vtkOutlineFilter outline
     outline SetInput [ptLoad GetOutput]
 
-vtkPolyMapper outlineMapper
+vtkPolyDataMapper outlineMapper
     outlineMapper SetInput [outline GetOutput]
 
 vtkActor outlineActor
@@ -69,7 +69,7 @@ vtkActor outlineActor
 vtkConeSource coneSrc
     coneSrc  SetRadius .5
     coneSrc  SetHeight 2
-vtkPolyMapper coneMap
+vtkPolyDataMapper coneMap
     coneMap SetInput [coneSrc GetOutput]
 vtkActor coneActor
     coneActor SetMapper coneMap;    

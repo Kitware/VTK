@@ -15,8 +15,8 @@ vtkAxes testsource
 vtkAxes originsource
 vtkActor test
 vtkActor origin
-vtkPolyMapper originmapper
-vtkPolyMapper testmapper
+vtkPolyDataMapper originmapper
+vtkPolyDataMapper testmapper
 
 originsource SetScaleFactor 4000.0
 originmapper SetInput [originsource GetOutput]

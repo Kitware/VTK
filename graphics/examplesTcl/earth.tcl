@@ -14,7 +14,7 @@ vtkRenderWindowInteractor iren
 vtkTexturedSphereSource tss
 tss SetThetaResolution 18
 tss SetPhiResolution 9
-vtkPolyMapper   earthMapper
+vtkPolyDataMapper   earthMapper
 earthMapper SetInput [tss GetOutput]
 vtkActor earthActor
 earthActor SetMapper earthMapper
@@ -33,7 +33,7 @@ earthActor SetTexture atext
 vtkEarthSource es
 es SetRadius 0.501
 es SetOnRatio 2
-vtkPolyMapper   earth2Mapper
+vtkPolyDataMapper   earth2Mapper
 earth2Mapper SetInput [es GetOutput]
 vtkActor earth2Actor
 earth2Actor SetMapper earth2Mapper

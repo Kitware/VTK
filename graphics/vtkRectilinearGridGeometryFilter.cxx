@@ -319,7 +319,7 @@ void vtkRectilinearGridGeometryFilter::SetExtent(int *extent)
 
 void vtkRectilinearGridGeometryFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkRectilinearGridToPolyFilter::PrintSelf(os,indent);
+  vtkRectilinearGridToPolyDataFilter::PrintSelf(os,indent);
 
   os << indent << "Extent: \n";
   os << indent << "  Imin,Imax: (" << this->Extent[0] << ", " << this->Extent[1] << ")\n";

@@ -37,7 +37,7 @@ vtkPolyData profile
     profile SetPoints points
     profile SetStrips strips
 
-vtkPolyMapper map
+vtkPolyDataMapper map
     map SetInput profile
 
 vtkActor strip

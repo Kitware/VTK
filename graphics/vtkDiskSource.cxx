@@ -117,7 +117,7 @@ void vtkDiskSource::Execute()
 
 void vtkDiskSource::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkPolySource::PrintSelf(os,indent);
+  vtkPolyDataSource::PrintSelf(os,indent);
 
   os << indent << "InnerRadius: " << this->InnerRadius << "\n";
   os << indent << "OuterRadius: " << this->OuterRadius << "\n";

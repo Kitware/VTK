@@ -28,7 +28,7 @@ vtkSphereSource aSphere
 vtkTriangularTCoords tCoords
     tCoords SetInput [aSphere GetOutput]
 
-vtkPolyMapper triangleMapper
+vtkPolyDataMapper triangleMapper
     triangleMapper SetInput [tCoords GetOutput]
 
 vtkTexture aTexture
@@ -48,7 +48,7 @@ vtkCubeSource aCube
     aCube SetXLength .5
     aCube SetYLength .5
 
-vtkPolyMapper aCubeMapper
+vtkPolyDataMapper aCubeMapper
     aCubeMapper SetInput [aCube GetOutput]
 
 set tomato "1.0000 0.3882 0.2784"

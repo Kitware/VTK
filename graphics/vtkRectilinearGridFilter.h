@@ -44,7 +44,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkRectilinearGrid object as input.
 
 // .SECTION See Also
-// vtkRectilinearGridToPolyFilter
+// vtkRectilinearGridToPolyDataFilter
 
 #ifndef __vtkRectilinearGridFilter_h
 #define __vtkRectilinearGridFilter_h

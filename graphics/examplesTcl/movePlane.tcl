@@ -23,7 +23,7 @@ vtkPLOT3DReader pl3d
 vtkStructuredGridGeometryFilter plane
     plane SetInput [pl3d GetOutput]
     plane SetExtent 0 100 0 100 0 0
-vtkPolyMapper planeMapper
+vtkPolyDataMapper planeMapper
     planeMapper SetInput [plane GetOutput]
     planeMapper SetScalarRange 0.197813 0.710419
 vtkActor planeActor
@@ -31,7 +31,7 @@ vtkActor planeActor
 
 vtkStructuredGridOutlineFilter outline
     outline SetInput [pl3d GetOutput]
-vtkPolyMapper outlineMapper
+vtkPolyDataMapper outlineMapper
     outlineMapper SetInput [outline GetOutput]
 vtkActor outlineActor
     outlineActor SetMapper outlineMapper

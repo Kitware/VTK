@@ -56,9 +56,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkCleanPolyData_h
 #define __vtkCleanPolyData_h
 
-#include "vtkPolyToPolyFilter.h"
+#include "vtkPolyDataToPolyDataFilter.h"
 
-class VTK_EXPORT vtkCleanPolyData : public vtkPolyToPolyFilter
+class VTK_EXPORT vtkCleanPolyData : public vtkPolyDataToPolyDataFilter
 {
 public:
   vtkCleanPolyData();

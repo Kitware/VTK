@@ -23,7 +23,7 @@ vtkVolume16Reader v16
 vtkContourFilter iso
     iso SetInput [v16 GetOutput]
     iso GenerateValues 12 500 1150
-vtkPolyMapper isoMapper
+vtkPolyDataMapper isoMapper
     isoMapper SetInput [iso GetOutput]
     isoMapper ScalarVisibilityOff
 vtkActor isoActor
@@ -32,7 +32,7 @@ vtkActor isoActor
 
 vtkOutlineFilter outline
     outline SetInput [v16 GetOutput]
-vtkPolyMapper outlineMapper
+vtkPolyDataMapper outlineMapper
     outlineMapper SetInput [outline GetOutput]
 vtkActor outlineActor
     outlineActor SetMapper outlineMapper

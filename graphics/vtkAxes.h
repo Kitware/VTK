@@ -49,9 +49,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkAxes_h
 #define __vtkAxes_h
 
-#include "vtkPolySource.h"
+#include "vtkPolyDataSource.h"
 
-class VTK_EXPORT vtkAxes : public vtkPolySource 
+class VTK_EXPORT vtkAxes : public vtkPolyDataSource 
 {
 public:
   vtkAxes();

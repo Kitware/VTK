@@ -52,9 +52,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkConeSource_h
 #define __vtkConeSource_h
 
-#include "vtkPolySource.h"
+#include "vtkPolyDataSource.h"
 
-class VTK_EXPORT vtkConeSource : public vtkPolySource 
+class VTK_EXPORT vtkConeSource : public vtkPolyDataSource 
 {
 public:
   vtkConeSource(int res=6);

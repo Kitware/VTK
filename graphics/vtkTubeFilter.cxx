@@ -308,7 +308,7 @@ void vtkTubeFilter::Execute()
 
 void vtkTubeFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkPolyToPolyFilter::PrintSelf(os,indent);
+  vtkPolyDataToPolyDataFilter::PrintSelf(os,indent);
 
   os << indent << "Radius: " << this->Radius << "\n";
   os << indent << "Vary Radius: " << (this->VaryRadius ? "On\n" : "Off\n");

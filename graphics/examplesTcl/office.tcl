@@ -24,7 +24,7 @@ set maxTime [expr 35.0 * $length / $maxVelocity]
 vtkStructuredGridGeometryFilter table1
     table1 SetInput [reader GetOutput]
     table1 SetExtent 11 15 7 9 8 8
-vtkPolyMapper mapTable1
+vtkPolyDataMapper mapTable1
     mapTable1 SetInput [table1 GetOutput]
     mapTable1 ScalarVisibilityOff
 vtkActor table1Actor
@@ -34,7 +34,7 @@ vtkActor table1Actor
 vtkStructuredGridGeometryFilter table2
     table2 SetInput [reader GetOutput]
     table2 SetExtent 11 15 10 12 8 8
-vtkPolyMapper mapTable2
+vtkPolyDataMapper mapTable2
     mapTable2 SetInput [table2 GetOutput]
     mapTable2 ScalarVisibilityOff
 vtkActor table2Actor
@@ -44,7 +44,7 @@ vtkActor table2Actor
 vtkStructuredGridGeometryFilter FilingCabinet1
     FilingCabinet1 SetInput [reader GetOutput]
     FilingCabinet1 SetExtent 15 15 7 9 0 8
-vtkPolyMapper mapFilingCabinet1
+vtkPolyDataMapper mapFilingCabinet1
     mapFilingCabinet1 SetInput [FilingCabinet1 GetOutput]
     mapFilingCabinet1 ScalarVisibilityOff
 vtkActor FilingCabinet1Actor
@@ -54,7 +54,7 @@ vtkActor FilingCabinet1Actor
 vtkStructuredGridGeometryFilter FilingCabinet2
     FilingCabinet2 SetInput [reader GetOutput]
     FilingCabinet2 SetExtent 15 15 10 12 0 8
-vtkPolyMapper mapFilingCabinet2
+vtkPolyDataMapper mapFilingCabinet2
     mapFilingCabinet2 SetInput [FilingCabinet2 GetOutput]
     mapFilingCabinet2 ScalarVisibilityOff
 vtkActor FilingCabinet2Actor
@@ -64,7 +64,7 @@ vtkActor FilingCabinet2Actor
 vtkStructuredGridGeometryFilter bookshelf1Top
     bookshelf1Top SetInput [reader GetOutput]
     bookshelf1Top SetExtent 13 13 0 4 0 11
-vtkPolyMapper mapBookshelf1Top
+vtkPolyDataMapper mapBookshelf1Top
     mapBookshelf1Top SetInput [bookshelf1Top GetOutput]
     mapBookshelf1Top ScalarVisibilityOff
 vtkActor bookshelf1TopActor
@@ -74,7 +74,7 @@ vtkActor bookshelf1TopActor
 vtkStructuredGridGeometryFilter bookshelf1Bottom
     bookshelf1Bottom SetInput [reader GetOutput]
     bookshelf1Bottom SetExtent 20 20 0 4 0 11
-vtkPolyMapper mapBookshelf1Bottom
+vtkPolyDataMapper mapBookshelf1Bottom
     mapBookshelf1Bottom SetInput [bookshelf1Bottom GetOutput]
     mapBookshelf1Bottom ScalarVisibilityOff
 vtkActor bookshelf1BottomActor
@@ -84,7 +84,7 @@ vtkActor bookshelf1BottomActor
 vtkStructuredGridGeometryFilter bookshelf1Front
     bookshelf1Front SetInput [reader GetOutput]
     bookshelf1Front SetExtent 13 20 0 0 0 11
-vtkPolyMapper mapBookshelf1Front
+vtkPolyDataMapper mapBookshelf1Front
     mapBookshelf1Front SetInput [bookshelf1Front GetOutput]
     mapBookshelf1Front ScalarVisibilityOff
 vtkActor bookshelf1FrontActor
@@ -94,7 +94,7 @@ vtkActor bookshelf1FrontActor
 vtkStructuredGridGeometryFilter bookshelf1Back
     bookshelf1Back SetInput [reader GetOutput]
     bookshelf1Back SetExtent 13 20 4 4 0 11
-vtkPolyMapper mapBookshelf1Back
+vtkPolyDataMapper mapBookshelf1Back
     mapBookshelf1Back SetInput [bookshelf1Back GetOutput]
     mapBookshelf1Back ScalarVisibilityOff
 vtkActor bookshelf1BackActor
@@ -104,7 +104,7 @@ vtkActor bookshelf1BackActor
 vtkStructuredGridGeometryFilter bookshelf1LHS
     bookshelf1LHS SetInput [reader GetOutput]
     bookshelf1LHS SetExtent 13 20 0 4 0 0
-vtkPolyMapper mapBookshelf1LHS
+vtkPolyDataMapper mapBookshelf1LHS
     mapBookshelf1LHS SetInput [bookshelf1LHS GetOutput]
     mapBookshelf1LHS ScalarVisibilityOff
 vtkActor bookshelf1LHSActor
@@ -114,7 +114,7 @@ vtkActor bookshelf1LHSActor
 vtkStructuredGridGeometryFilter bookshelf1RHS
     bookshelf1RHS SetInput [reader GetOutput]
     bookshelf1RHS SetExtent 13 20 0 4 11 11
-vtkPolyMapper mapBookshelf1RHS
+vtkPolyDataMapper mapBookshelf1RHS
     mapBookshelf1RHS SetInput [bookshelf1RHS GetOutput]
     mapBookshelf1RHS ScalarVisibilityOff
 vtkActor bookshelf1RHSActor
@@ -124,7 +124,7 @@ vtkActor bookshelf1RHSActor
 vtkStructuredGridGeometryFilter bookshelf2Top
     bookshelf2Top SetInput [reader GetOutput]
     bookshelf2Top SetExtent 13 13 15 19 0 11
-vtkPolyMapper mapBookshelf2Top
+vtkPolyDataMapper mapBookshelf2Top
     mapBookshelf2Top SetInput [bookshelf2Top GetOutput]
     mapBookshelf2Top ScalarVisibilityOff
 vtkActor bookshelf2TopActor
@@ -134,7 +134,7 @@ vtkActor bookshelf2TopActor
 vtkStructuredGridGeometryFilter bookshelf2Bottom
     bookshelf2Bottom SetInput [reader GetOutput]
     bookshelf2Bottom SetExtent 20 20 15 19 0 11
-vtkPolyMapper mapBookshelf2Bottom
+vtkPolyDataMapper mapBookshelf2Bottom
     mapBookshelf2Bottom SetInput [bookshelf2Bottom GetOutput]
     mapBookshelf2Bottom ScalarVisibilityOff
 vtkActor bookshelf2BottomActor
@@ -144,7 +144,7 @@ vtkActor bookshelf2BottomActor
 vtkStructuredGridGeometryFilter bookshelf2Front
     bookshelf2Front SetInput [reader GetOutput]
     bookshelf2Front SetExtent 13 20 15 15 0 11
-vtkPolyMapper mapBookshelf2Front
+vtkPolyDataMapper mapBookshelf2Front
     mapBookshelf2Front SetInput [bookshelf2Front GetOutput]
     mapBookshelf2Front ScalarVisibilityOff
 vtkActor bookshelf2FrontActor
@@ -154,7 +154,7 @@ vtkActor bookshelf2FrontActor
 vtkStructuredGridGeometryFilter bookshelf2Back
     bookshelf2Back SetInput [reader GetOutput]
     bookshelf2Back SetExtent 13 20 19 19 0 11
-vtkPolyMapper mapBookshelf2Back
+vtkPolyDataMapper mapBookshelf2Back
     mapBookshelf2Back SetInput [bookshelf2Back GetOutput]
     mapBookshelf2Back ScalarVisibilityOff
 vtkActor bookshelf2BackActor
@@ -164,7 +164,7 @@ vtkActor bookshelf2BackActor
 vtkStructuredGridGeometryFilter bookshelf2LHS
     bookshelf2LHS SetInput [reader GetOutput]
     bookshelf2LHS SetExtent 13 20 15 19 0 0
-vtkPolyMapper mapBookshelf2LHS
+vtkPolyDataMapper mapBookshelf2LHS
     mapBookshelf2LHS SetInput [bookshelf2LHS GetOutput]
     mapBookshelf2LHS ScalarVisibilityOff
 vtkActor bookshelf2LHSActor
@@ -174,7 +174,7 @@ vtkActor bookshelf2LHSActor
 vtkStructuredGridGeometryFilter bookshelf2RHS
     bookshelf2RHS SetInput [reader GetOutput]
     bookshelf2RHS SetExtent 13 20 15 19 11 11
-vtkPolyMapper mapBookshelf2RHS
+vtkPolyDataMapper mapBookshelf2RHS
     mapBookshelf2RHS SetInput [bookshelf2RHS GetOutput]
     mapBookshelf2RHS ScalarVisibilityOff
 vtkActor bookshelf2RHSActor
@@ -184,7 +184,7 @@ vtkActor bookshelf2RHSActor
 vtkStructuredGridGeometryFilter window
     window SetInput [reader GetOutput]
     window SetExtent 20 20 6 13 10 13
-vtkPolyMapper mapWindow
+vtkPolyDataMapper mapWindow
     mapWindow SetInput [window GetOutput]
     mapWindow ScalarVisibilityOff
 vtkActor windowActor
@@ -194,7 +194,7 @@ vtkActor windowActor
 vtkStructuredGridGeometryFilter outlet
     outlet SetInput [reader GetOutput]
     outlet SetExtent 0 0 9 10 14 16
-vtkPolyMapper mapOutlet
+vtkPolyDataMapper mapOutlet
     mapOutlet SetInput [outlet GetOutput]
     mapOutlet ScalarVisibilityOff
 vtkActor outletActor
@@ -204,7 +204,7 @@ vtkActor outletActor
 vtkStructuredGridGeometryFilter inlet
     inlet SetInput [reader GetOutput]
     inlet SetExtent 0 0 9 10 0 6
-vtkPolyMapper mapInlet
+vtkPolyDataMapper mapInlet
     mapInlet SetInput [inlet GetOutput]
     mapInlet ScalarVisibilityOff
 vtkActor inletActor
@@ -213,7 +213,7 @@ vtkActor inletActor
 
 vtkStructuredGridOutlineFilter outline
     outline SetInput [reader GetOutput]
-vtkPolyMapper mapOutline
+vtkPolyDataMapper mapOutline
     mapOutline SetInput [outline GetOutput]
 vtkActor outlineActor
     outlineActor SetMapper mapOutline
@@ -230,7 +230,7 @@ vtkStreamLine streamers
     streamers SetMaximumPropagationTime 500
     streamers SetStepLength 0.1
     streamers Update
-vtkPolyMapper mapStreamers
+vtkPolyDataMapper mapStreamers
     mapStreamers SetInput [streamers GetOutput]
     eval mapStreamers SetScalarRange \
        [[[[reader GetOutput] GetPointData] GetScalars] GetRange]

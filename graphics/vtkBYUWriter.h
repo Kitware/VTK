@@ -51,10 +51,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkBYUWriter_h
 
 #include <stdio.h>
-#include "vtkPolyWriter.h"
+#include "vtkPolyDataWriter.h"
 #include "vtkPolyData.h"
 
-class VTK_EXPORT vtkBYUWriter : public vtkPolyWriter
+class VTK_EXPORT vtkBYUWriter : public vtkPolyDataWriter
 {
 public:
   vtkBYUWriter();

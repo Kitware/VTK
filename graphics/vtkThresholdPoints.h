@@ -50,9 +50,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkThresholdPoints_h
 #define __vtkThresholdPoints_h
 
-#include "vtkDataSetToPolyFilter.h"
+#include "vtkDataSetToPolyDataFilter.h"
 
-class VTK_EXPORT vtkThresholdPoints : public vtkDataSetToPolyFilter
+class VTK_EXPORT vtkThresholdPoints : public vtkDataSetToPolyDataFilter
 {
 public:
   vtkThresholdPoints();

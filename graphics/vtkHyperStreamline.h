@@ -70,7 +70,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkHyperStreamline_h
 #define __vtkHyperStreamline_h
 
-#include "vtkDataSetToPolyFilter.h"
+#include "vtkDataSetToPolyDataFilter.h"
 
 #define VTK_INTEGRATE_FORWARD 0
 #define VTK_INTEGRATE_BACKWARD 1
@@ -122,7 +122,7 @@ public:
 //ETX - end tcl exclude
 //
 
-class VTK_EXPORT vtkHyperStreamline : public vtkDataSetToPolyFilter
+class VTK_EXPORT vtkHyperStreamline : public vtkDataSetToPolyDataFilter
 {
 public:
   vtkHyperStreamline();

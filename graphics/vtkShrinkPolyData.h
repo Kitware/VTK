@@ -54,9 +54,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkShrinkPolyData_h
 #define __vtkShrinkPolyData_h
 
-#include "vtkPolyToPolyFilter.h"
+#include "vtkPolyDataToPolyDataFilter.h"
 
-class VTK_EXPORT vtkShrinkPolyData : public vtkPolyToPolyFilter 
+class VTK_EXPORT vtkShrinkPolyData : public vtkPolyDataToPolyDataFilter 
 {
 public:
   vtkShrinkPolyData(float sf=0.5);

@@ -84,7 +84,7 @@ void vtkOutlineSource::Execute()
 
 void vtkOutlineSource::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkPolySource::PrintSelf(os,indent);
+  vtkPolyDataSource::PrintSelf(os,indent);
 
   os << indent << "Bounds: (" << this->Bounds[0] << ", " 
      << this->Bounds[1] << ") (" << this->Bounds[2] << ") ("

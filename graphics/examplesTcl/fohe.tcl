@@ -15,9 +15,9 @@ vtkRenderWindowInteractor iren
 #
 vtkBYUReader byu
     byu SetGeometryFileName "../../../data/fohe.g"
-vtkPolyNormals normals
+vtkPolyDataNormals normals
     normals SetInput [byu GetOutput]
-vtkPolyMapper byuMapper
+vtkPolyDataMapper byuMapper
     byuMapper SetInput [normals GetOutput]
 vtkActor byuActor
     byuActor SetMapper byuMapper

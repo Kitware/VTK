@@ -19,7 +19,7 @@ vtkClipPolyData clipper
     clipper SetClipFunction plane
     clipper GenerateClipScalarsOn
     clipper SetValue 0.0
-vtkPolyMapper clipMapper
+vtkPolyDataMapper clipMapper
     clipMapper SetInput [clipper GetOutput]
     clipMapper ScalarVisibilityOff
 vtkActor clipActor

@@ -18,17 +18,17 @@ set value [expr ($min + $max) / 2.0]
 vtkContourFilter cf
     cf SetInput [pl3d GetOutput]
     cf SetValue 0 $value
-vtkPolyMapper cutMapper
-    cutMapper SetInput [cf GetOutput]
-    eval cutMapper SetScalarRange \
+vtkPolyDataMapper cfMapper
+    cfMapper SetInput [cf GetOutput]
+    eval cfMapper SetScalarRange \
       [[[[pl3d GetOutput] GetPointData] GetScalars] GetRange]
-vtkActor cutActor
-    cutActor SetMapper cutMapper
+vtkActor cfActor
+    cfActor SetMapper cfMapper
 
 #outline
 vtkStructuredGridOutlineFilter outline
     outline SetInput [pl3d GetOutput]
-vtkPolyMapper outlineMapper
+vtkPolyDataMapper outlineMapper
     outlineMapper SetInput [outline GetOutput]
 vtkActor outlineActor
     outlineActor SetMapper outlineMapper
@@ -46,7 +46,7 @@ vtkRenderWindowInteractor iren
 # Add the actors to the renderer, set the background and size
 #
 ren1 AddActor outlineActor
-ren1 AddActor cutActor
+ren1 AddActor cfActor
 ren1 SetBackground 1 1 1
 renWin SetSize 500 500
 

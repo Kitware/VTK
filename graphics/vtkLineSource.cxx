@@ -114,7 +114,7 @@ void vtkLineSource::Execute()
 
 void vtkLineSource::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkPolySource::PrintSelf(os,indent);
+  vtkPolyDataSource::PrintSelf(os,indent);
 
   os << indent << "Resolution: " << this->Resolution << "\n";
 

@@ -685,7 +685,7 @@ void vtkHyperStreamline::BuildTube()
 
 void vtkHyperStreamline::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkDataSetToPolyFilter::PrintSelf(os,indent);
+  vtkDataSetToPolyDataFilter::PrintSelf(os,indent);
 
   if ( this->StartFrom == VTK_START_FROM_POSITION )
     {

@@ -55,7 +55,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // actually created.
 //
 // The point merging does not take into account that the same point may have
-// different normals. For example, running vtkPolyNormals after vtkContourFilter
+// different normals. For example, running vtkPolyDataNormals after vtkContourFilter
 // may split triangles because of the FeatureAngle ivar. Subsequent reading with
 // vtkMCubesReader will merge the points and use the first point's normal. For the
 // most part, this is undesirable.
@@ -72,11 +72,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkMCubesReader_h
 
 #include <stdio.h>
-#include "vtkPolySource.h"
+#include "vtkPolyDataSource.h"
 #include "vtkFloatPoints.h"
 #include "vtkCellArray.h"
 
-class VTK_EXPORT vtkMCubesReader : public vtkPolySource 
+class VTK_EXPORT vtkMCubesReader : public vtkPolyDataSource 
 {
 public:
   vtkMCubesReader();
@@ -98,7 +98,7 @@ public:
   // Description:
   // Specify whether to flip normals in opposite direction. Flipping ONLY changes
   // the direction of the normal vector. Contrast this with flipping in
-  // vtkPolyNormals which flips both the normal and the cell point order.
+  // vtkPolyDataNormals which flips both the normal and the cell point order.
   vtkSetMacro(FlipNormals,int);
   vtkGetMacro(FlipNormals,int);
   vtkBooleanMacro(FlipNormals,int);

@@ -142,7 +142,7 @@ void vtkThresholdPoints::Execute()
 
 void vtkThresholdPoints::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkDataSetToPolyFilter::PrintSelf(os,indent);
+  vtkDataSetToPolyDataFilter::PrintSelf(os,indent);
 
   os << indent << "Lower Threshold: " << this->LowerThreshold << "\n";;
   os << indent << "Upper Threshold: " << this->UpperThreshold << "\n";;

@@ -233,6 +233,6 @@ void vtkShrinkPolyData::Execute()
 
 void vtkShrinkPolyData::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkPolyToPolyFilter::PrintSelf(os,indent);
+  vtkPolyDataToPolyDataFilter::PrintSelf(os,indent);
   os << indent << "Shrink Factor: " << this->ShrinkFactor << "\n";
 }

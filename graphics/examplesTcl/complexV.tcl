@@ -21,7 +21,7 @@ vtkHedgeHog hhog
 vtkLookupTable lut
 #    lut SetHueRange .667 0.0
     lut Build
-vtkPolyMapper hhogMapper
+vtkPolyDataMapper hhogMapper
     hhogMapper SetInput [hhog GetOutput]
     hhogMapper SetScalarRange 50 550
     hhogMapper SetLookupTable lut
@@ -30,7 +30,7 @@ vtkActor hhogActor
 
 vtkOutlineFilter outline
     outline SetInput [reader GetOutput]
-vtkPolyMapper outlineMapper
+vtkPolyDataMapper outlineMapper
     outlineMapper SetInput [outline GetOutput]
 vtkActor outlineActor
     outlineActor SetMapper outlineMapper

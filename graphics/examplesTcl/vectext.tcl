@@ -29,7 +29,7 @@ vtkShrinkPolyData shrink
 shrink SetInput [atext GetOutput]
 shrink SetShrinkFactor 0.1
 
-vtkPolyMapper spikeMapper
+vtkPolyDataMapper spikeMapper
     spikeMapper SetInput [shrink GetOutput]
 vtkActor spikeActor
     spikeActor SetMapper spikeMapper

@@ -48,7 +48,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // through.
 
 // .SECTION See Also
-// vtkDataSetMapper vtkPolyMapper
+// vtkDataSetMapper vtkPolyDataMapper
 
 #ifndef __vtkMapper_h
 #define __vtkMapper_h

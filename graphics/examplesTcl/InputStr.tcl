@@ -13,7 +13,7 @@ vtkRenderWindowInteractor iren
 
 # read a vtk file
 #
-vtkPolyReader plate
+vtkPolyDataReader plate
 plate ReadFromInputStringOn
 plate SetInputString {# vtk DataFile Version 1.0
 Vibrational modes of plate
@@ -1302,7 +1302,7 @@ vtkWarpVector warp
     warp SetScaleFactor 0.5
 vtkCastToConcrete caster
     caster SetInput [warp GetOutput]
-vtkPolyNormals normals
+vtkPolyDataNormals normals
     normals SetInput [caster GetPolyDataOutput]
 vtkVectorDot color
     color SetInput [normals GetOutput]

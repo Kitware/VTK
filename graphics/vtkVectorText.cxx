@@ -40,8 +40,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkVectorText.h"
 #include "vtkFloatPoints.h"
-#include "vtkTransformPolyFilter.h"
-#include "vtkPolyReader.h"
+#include "vtkTransformPolyDataFilter.h"
+#include "vtkPolyDataReader.h"
 
 char *VTK_VECTOR_TEXT_33 = "11 0.438482 "
 "0.28000 -0.07186 0.43164 -0.07143 0.27689 0.07714 0.43472 0.07714 0.32000 0.20134 "
@@ -1752,7 +1752,7 @@ void vtkVectorText::Execute()
   
 void vtkVectorText::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkPolySource::PrintSelf(os,indent);
+  vtkPolyDataSource::PrintSelf(os,indent);
 
   os << indent << "Text: " << (this->Text ? this->Text : "(none)") << "\n";
 }

@@ -41,10 +41,10 @@ vtkActor cutActor
 vtkContourFilter iso
     iso SetInput [reader GetOutput]
     iso SetValue 0 0.7
-vtkPolyNormals normals
+vtkPolyDataNormals normals
     normals SetInput [iso GetOutput]
     normals SetFeatureAngle 45
-vtkPolyMapper isoMapper
+vtkPolyDataMapper isoMapper
     isoMapper SetInput [normals GetOutput]
     isoMapper ScalarVisibilityOff
 vtkActor isoActor
@@ -65,7 +65,7 @@ vtkTubeFilter streamTube
     streamTube SetRadius 0.025
     streamTube SetNumberOfSides 6
     streamTube SetVaryRadius $VTK_VARY_RADIUS_BY_VECTOR
-vtkPolyMapper mapStreamTube
+vtkPolyDataMapper mapStreamTube
     mapStreamTube SetInput [streamTube GetOutput]
     eval mapStreamTube SetScalarRange \
        [[[[reader GetOutput] GetPointData] GetScalars] GetRange]
@@ -75,7 +75,7 @@ vtkActor streamTubeActor
 
 vtkOutlineFilter outline
     outline SetInput [reader GetOutput]
-vtkPolyMapper outlineMapper
+vtkPolyDataMapper outlineMapper
     outlineMapper SetInput [outline GetOutput]
 vtkActor outlineActor
     outlineActor SetMapper outlineMapper

@@ -62,9 +62,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkVectorTopology_h
 #define __vtkVectorTopology_h
 
-#include "vtkDataSetToPolyFilter.h"
+#include "vtkDataSetToPolyDataFilter.h"
 
-class VTK_EXPORT vtkVectorTopology : public vtkDataSetToPolyFilter
+class VTK_EXPORT vtkVectorTopology : public vtkDataSetToPolyDataFilter
 {
 public:
   vtkVectorTopology();

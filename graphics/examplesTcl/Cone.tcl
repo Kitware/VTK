@@ -10,7 +10,7 @@ set iren [renWin MakeRenderWindowInteractor]
 # create an actor and give it cone geometry
 vtkConeSource cone
   cone SetResolution 8
-vtkPolyMapper coneMapper
+vtkPolyDataMapper coneMapper
   coneMapper SetInput [cone GetOutput]
 vtkActor coneActor
   coneActor SetMapper coneMapper

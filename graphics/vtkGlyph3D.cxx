@@ -438,7 +438,7 @@ vtkPolyData *vtkGlyph3D::GetSource(int id)
 
 void vtkGlyph3D::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkDataSetToPolyFilter::PrintSelf(os,indent);
+  vtkDataSetToPolyDataFilter::PrintSelf(os,indent);
 
   if ( this->NumberOfSources < 2 )
     {

@@ -47,9 +47,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkCubeSource_h
 #define __vtkCubeSource_h
 
-#include "vtkPolySource.h"
+#include "vtkPolyDataSource.h"
 
-class VTK_EXPORT vtkCubeSource : public vtkPolySource 
+class VTK_EXPORT vtkCubeSource : public vtkPolyDataSource 
 {
 public:
   vtkCubeSource(float xL=1.0, float yL=1.0, float zL=1.0);

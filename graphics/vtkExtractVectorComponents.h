@@ -49,7 +49,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .SECTION Caveats
 // This filter is unusual in that it creates multiple outputs. As a result,
 // it cannot take advantage of the convenience classes (e.g., 
-// vtkPolyToPolyFilter) for deriving concrete filters. Instead, it overloads 
+// vtkPolyDataToPolyDataFilter) for deriving concrete filters. Instead, it overloads 
 // the Update() method of its superclasses and provides methods for retrieving
 // the output.
 //

@@ -25,7 +25,7 @@ vtkPLOT3DReader pl3d
 vtkStructuredGridGeometryFilter wall
     wall SetInput [pl3d GetOutput]
     wall SetExtent 0 100 0 0 0 100
-vtkPolyMapper wallMap
+vtkPolyDataMapper wallMap
     wallMap SetInput [wall GetOutput]
     wallMap ScalarVisibilityOff
 vtkActor wallActor
@@ -37,7 +37,7 @@ vtkActor wallActor
 vtkStructuredGridGeometryFilter fin
     fin SetInput [pl3d GetOutput]
     fin SetExtent 0 100 0 100 0 0
-vtkPolyMapper finMap
+vtkPolyDataMapper finMap
     finMap SetInput [fin GetOutput]
     finMap ScalarVisibilityOff
 vtkActor finActor
@@ -48,7 +48,7 @@ vtkActor finActor
 vtkStructuredGridGeometryFilter plane1
     plane1 SetInput [pl3d GetOutput]
     plane1 SetExtent 10 10 0 100 0 100
-vtkPolyMapper plane1Map
+vtkPolyDataMapper plane1Map
     plane1Map SetInput [plane1 GetOutput]
     set pl3dPtData [[pl3d GetOutput] GetPointData]
     set pl3dScalars [$pl3dPtData GetScalars]
@@ -59,7 +59,7 @@ vtkActor plane1Actor
 vtkStructuredGridGeometryFilter plane2
     plane2 SetInput [pl3d GetOutput]
     plane2 SetExtent 25 25 0 100 0 100
-vtkPolyMapper plane2Map
+vtkPolyDataMapper plane2Map
     plane2Map SetInput [plane2 GetOutput]
     eval plane2Map SetScalarRange \
       [[[[pl3d GetOutput] GetPointData] GetScalars] GetRange]
@@ -79,7 +79,7 @@ vtkActor plane3Actor
 # outline
 vtkStructuredGridOutlineFilter outline
     outline SetInput [pl3d GetOutput]
-vtkPolyMapper outlineMapper
+vtkPolyDataMapper outlineMapper
     outlineMapper SetInput [outline GetOutput]
 vtkActor outlineActor
     outlineActor SetMapper outlineMapper

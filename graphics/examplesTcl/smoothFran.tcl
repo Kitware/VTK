@@ -23,12 +23,12 @@ vtkDecimate deci;
     deci SetInitialError 0.0002
     deci SetErrorIncrement 0.0005
     deci SetMaximumIterations 6
-vtkSmoothPolyFilter smooth
+vtkSmoothPolyDataFilter smooth
     smooth SetInput [deci GetOutput]
     smooth SetNumberOfIterations 20
-vtkPolyNormals normals
+vtkPolyDataNormals normals
     normals SetInput [smooth GetOutput]
-vtkPolyMapper cyberMapper
+vtkPolyDataMapper cyberMapper
     cyberMapper SetInput [normals GetOutput]
 vtkActor cyberActor
     cyberActor SetMapper cyberMapper

@@ -15,7 +15,7 @@ vtkElevationFilter colorIt
 vtkCastToConcrete cast
   cast SetInput [colorIt GetOutput]
 
-vtkPolyMapper mapper
+vtkPolyDataMapper mapper
   mapper SetInput [cast GetPolyDataOutput] 
 
 vtkActor actor

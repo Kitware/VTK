@@ -48,7 +48,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 //
 // vtkConnectivityFilter is generalized to handle any type of input dataset.
 // It generates output data of type vtkUnstructuredGrid. If you know that your
-// input type is vtkPolyData, you may wish to use vtkPolyConnectivityFilter.
+// input type is vtkPolyData, you may wish to use vtkPolyDataConnectivityFilter.
 //
 // The behavior of vtkConnectivityFilter can be modified by turning on the 
 // boolean ivar ScalarConnectivity. If this flag is on, the connectivity
@@ -62,7 +62,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // be contoured or processed by other visualization filters.
 
 // .SECTION See Also
-// vtkPolyConnectivityFilter
+// vtkPolyDataConnectivityFilter
 
 #ifndef __vtkConnectivityFilter_h
 #define __vtkConnectivityFilter_h

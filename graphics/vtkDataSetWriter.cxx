@@ -39,7 +39,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkDataSetWriter.h"
-#include "vtkPolyWriter.h"
+#include "vtkPolyDataWriter.h"
 #include "vtkStructuredPointsWriter.h"
 #include "vtkStructuredGridWriter.h"
 #include "vtkUnstructuredGridWriter.h"
@@ -59,7 +59,7 @@ void vtkDataSetWriter::SetInput(vtkDataSet *input)
 void vtkDataSetWriter::WriteData()
 {
   char *type;
-  vtkPolyWriter pwriter;
+  vtkPolyDataWriter pwriter;
   vtkStructuredPointsWriter spwriter;
   vtkStructuredGridWriter sgwriter;
   vtkUnstructuredGridWriter ugwriter;

@@ -59,9 +59,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkRectilinearGridGeometryFilter_h
 #define __vtkRectilinearGridGeometryFilter_h
 
-#include "vtkRectilinearGridToPolyFilter.h"
+#include "vtkRectilinearGridToPolyDataFilter.h"
 
-class VTK_EXPORT vtkRectilinearGridGeometryFilter : public vtkRectilinearGridToPolyFilter
+class VTK_EXPORT vtkRectilinearGridGeometryFilter : public vtkRectilinearGridToPolyDataFilter
 {
 public:
   vtkRectilinearGridGeometryFilter();

@@ -11,7 +11,7 @@ vtkPlaneSource plane
     plane SetYResolution 100
 vtkTransform transform
    transform Scale 10 10 1
-vtkTransformPolyFilter transF
+vtkTransformPolyDataFilter transF
    transF SetInput [plane GetOutput]
    transF SetTransform transform
    transF Update

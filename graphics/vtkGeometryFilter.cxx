@@ -293,7 +293,7 @@ void vtkGeometryFilter::CreateDefaultLocator()
 
 void vtkGeometryFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkDataSetToPolyFilter::PrintSelf(os,indent);
+  vtkDataSetToPolyDataFilter::PrintSelf(os,indent);
 
   os << indent << "Point Minimum : " << this->PointMinimum << "\n";
   os << indent << "Point Maximum : " << this->PointMaximum << "\n";

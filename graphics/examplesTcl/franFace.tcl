@@ -15,7 +15,7 @@ vtkRenderWindowInteractor iren
 #
 vtkCyberReader cyber
     cyber SetFileName "../../../data/fran_cut"
-vtkPolyMapper cyberMapper
+vtkPolyDataMapper cyberMapper
     cyberMapper SetInput [cyber GetOutput]
 
 vtkPNMReader pnm1

@@ -24,7 +24,7 @@ vtkStructuredGridGeometryFilter plane
     plane SetInput [pl3d GetOutput]
     plane SetExtent 1 100 1 100 7 7
 vtkLookupTable lut
-vtkPolyMapper planeMapper
+vtkPolyDataMapper planeMapper
     planeMapper SetLookupTable lut
     planeMapper SetInput [plane GetOutput]
     planeMapper SetScalarRange 0.197813 0.710419
@@ -33,7 +33,7 @@ vtkActor planeActor
 
 vtkStructuredGridOutlineFilter outline
     outline SetInput [pl3d GetOutput]
-vtkPolyMapper outlineMapper
+vtkPolyDataMapper outlineMapper
     outlineMapper SetInput [outline GetOutput]
 vtkActor outlineActor
     outlineActor SetMapper outlineMapper

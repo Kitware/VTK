@@ -1362,7 +1362,7 @@ void vtkDecimatePro::DistributeError(float error)
 
 void vtkDecimatePro::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkPolyToPolyFilter::PrintSelf(os,indent);
+  vtkPolyDataToPolyDataFilter::PrintSelf(os,indent);
 
   os << indent << "Target Reduction: " << this->TargetReduction << "\n";
   os << indent << "Feature Angle: " << this->FeatureAngle << "\n";

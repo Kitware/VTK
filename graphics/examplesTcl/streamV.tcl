@@ -35,7 +35,7 @@ vtkTubeFilter tubes
 vtkLookupTable lut
     lut SetHueRange .667 0.0
     lut Build
-vtkPolyMapper streamerMapper
+vtkPolyDataMapper streamerMapper
     streamerMapper SetInput [tubes GetOutput]
     streamerMapper SetScalarRange 2 10
     streamerMapper SetLookupTable lut
@@ -46,7 +46,7 @@ vtkActor streamerActor
 vtkContourFilter iso
     iso SetInput [reader GetOutput]
     iso SetValue 0 190
-vtkPolyMapper isoMapper
+vtkPolyDataMapper isoMapper
     isoMapper SetInput [iso GetOutput]
     isoMapper ScalarVisibilityOff
 vtkActor isoActor
@@ -57,7 +57,7 @@ vtkActor isoActor
 # outline
 vtkOutlineFilter outline
     outline SetInput [reader GetOutput]
-vtkPolyMapper outlineMapper
+vtkPolyDataMapper outlineMapper
     outlineMapper SetInput [outline GetOutput]
 vtkActor outlineActor
     outlineActor SetMapper outlineMapper

@@ -165,7 +165,7 @@ void vtkCubeSource::SetBounds(float bounds[6])
 
 void vtkCubeSource::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkPolySource::PrintSelf(os,indent);
+  vtkPolyDataSource::PrintSelf(os,indent);
 
   os << indent << "X Length: " << this->XLength << "\n";
   os << indent << "Y Length: " << this->YLength << "\n";

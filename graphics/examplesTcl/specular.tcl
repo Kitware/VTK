@@ -16,7 +16,7 @@ vtkRenderWindowInteractor iren
 vtkSphereSource sphere
 sphere SetThetaResolution 30
 sphere SetPhiResolution 30
-vtkPolyMapper   sphereMapper
+vtkPolyDataMapper   sphereMapper
     sphereMapper SetInput [sphere GetOutput]
 vtkLODActor sphereActor
     sphereActor SetMapper sphereMapper

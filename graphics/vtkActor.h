@@ -102,7 +102,7 @@ class VTK_EXPORT vtkActor : public vtkProp
   // Description:
   // This is the method that is used to connect an actor to the end of a
   // visualization pipeline, i.e. the mapper. This should be a subclass
-  // of vtkMapper. Typically vtkPolyMapper and vtkDataSetMapper will
+  // of vtkMapper. Typically vtkPolyDataMapper and vtkDataSetMapper will
   // be used.
   vtkSetObjectMacro(Mapper,vtkMapper);
 

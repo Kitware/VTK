@@ -55,7 +55,7 @@ vtkPolyData triangle
     triangle SetPoints points
     [triangle GetPointData]  SetTCoords tCoords
 
-vtkPolyMapper triangleMapper
+vtkPolyDataMapper triangleMapper
     triangleMapper SetInput triangle
 
 vtkTexture aTexture

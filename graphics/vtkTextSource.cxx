@@ -367,7 +367,7 @@ void vtkTextSource::Execute()
 
 void vtkTextSource::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkPolySource::PrintSelf(os,indent);
+  vtkPolyDataSource::PrintSelf(os,indent);
 
   os << indent << "Text: " << (this->Text ? this->Text : "(none)") << "\n";
 }

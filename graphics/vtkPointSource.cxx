@@ -91,7 +91,7 @@ void vtkPointSource::Execute()
 
 void vtkPointSource::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkPolySource::PrintSelf(os,indent);
+  vtkPolyDataSource::PrintSelf(os,indent);
 
   os << indent << "Number Of Points: " << this->NumberOfPoints << "\n";
   os << indent << "Radius: " << this->Radius << "\n";

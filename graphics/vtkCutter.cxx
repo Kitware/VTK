@@ -275,7 +275,7 @@ void vtkCutter::CreateDefaultLocator()
 
 void vtkCutter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkDataSetToPolyFilter::PrintSelf(os,indent);
+  vtkDataSetToPolyDataFilter::PrintSelf(os,indent);
 
   os << indent << "Cut Function: " << this->CutFunction << "\n";
 

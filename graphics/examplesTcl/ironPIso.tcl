@@ -18,7 +18,7 @@ vtkStructuredPointsReader reader
 vtkContourFilter iso
     iso SetInput [reader GetOutput]
     iso SetValue 0 128
-vtkPolyMapper isoMapper
+vtkPolyDataMapper isoMapper
     isoMapper SetInput [iso GetOutput]
     isoMapper ScalarVisibilityOff
 vtkActor isoActor
@@ -28,7 +28,7 @@ eval $isoProp SetColor $bisque
 
 vtkOutlineFilter outline
     outline SetInput [reader GetOutput]
-vtkPolyMapper outlineMapper
+vtkPolyDataMapper outlineMapper
     outlineMapper SetInput [outline GetOutput]
 vtkActor outlineActor
     outlineActor SetMapper outlineMapper

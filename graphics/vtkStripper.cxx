@@ -312,7 +312,7 @@ void vtkStripper::Execute()
 
 void vtkStripper::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkPolyToPolyFilter::PrintSelf(os,indent);
+  vtkPolyDataToPolyDataFilter::PrintSelf(os,indent);
 
   os << indent << "Maximum Length: " << this->MaximumLength << "\n";
 

@@ -4,7 +4,7 @@ catch {load vtktcl}
 vtkVolumeRenderer volRen
 vtkVolume vol
 vtkStructuredPointsReader reader
-vtkPolyMapper outlineMapper
+vtkPolyDataMapper outlineMapper
 vtkOutlineFilter outline
 
 vtkRenderer ren1

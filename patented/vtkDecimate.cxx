@@ -1066,7 +1066,7 @@ int vtkDecimate::CheckError ()
 
 void vtkDecimate::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkPolyToPolyFilter::PrintSelf(os,indent);
+  vtkPolyDataToPolyDataFilter::PrintSelf(os,indent);
 
   os << indent << "Target Reduction: " << this->TargetReduction << "\n";
   os << indent << "Initial Error: " << this->InitialError << "\n";

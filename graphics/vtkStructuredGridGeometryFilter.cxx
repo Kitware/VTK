@@ -334,7 +334,7 @@ void vtkStructuredGridGeometryFilter::SetExtent(int *extent)
 
 void vtkStructuredGridGeometryFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkStructuredGridToPolyFilter::PrintSelf(os,indent);
+  vtkStructuredGridToPolyDataFilter::PrintSelf(os,indent);
 
   os << indent << "Extent: \n";
   os << indent << "  Imin,Imax: (" << this->Extent[0] << ", " << this->Extent[1] << ")\n";

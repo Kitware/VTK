@@ -13,10 +13,10 @@ vtkRenderWindowInteractor iren
 
 # read a vtk file
 #
-vtkPolyReader plate
+vtkPolyDataReader plate
     plate SetFileName "../../../data/plate.vtk"
     plate SetVectorsName "mode2"
-vtkPolyNormals normals
+vtkPolyDataNormals normals
     normals SetInput [plate GetOutput]
 vtkWarpVector warp
     warp SetInput [normals GetOutput]
@@ -33,7 +33,7 @@ vtkActor plateActor
 #
 vtkOutlineFilter outline
     outline SetInput [plate GetOutput]
-vtkPolyMapper spikeMapper
+vtkPolyDataMapper spikeMapper
     spikeMapper SetInput [outline GetOutput]
 vtkActor outlineActor
     outlineActor SetMapper spikeMapper

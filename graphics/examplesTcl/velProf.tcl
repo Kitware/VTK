@@ -37,7 +37,7 @@ vtkWarpVector warp
     warp SetScaleFactor 0.005
 vtkCastToConcrete caster
     caster SetInput [warp GetOutput]
-vtkPolyNormals normals
+vtkPolyDataNormals normals
     normals SetInput [caster GetPolyDataOutput]
     normals SetFeatureAngle 60
 vtkDataSetMapper planeMapper
@@ -51,7 +51,7 @@ vtkActor planeActor
 
 vtkStructuredGridOutlineFilter outline
     outline SetInput [pl3d GetOutput]
-vtkPolyMapper outlineMapper
+vtkPolyDataMapper outlineMapper
     outlineMapper SetInput [outline GetOutput]
 vtkActor outlineActor
     outlineActor SetMapper outlineMapper

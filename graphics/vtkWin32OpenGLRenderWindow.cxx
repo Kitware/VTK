@@ -52,7 +52,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkOpenGLCamera.h"
 #include "vtkOpenGLActor.h"
 #include "vtkOpenGLLight.h"
-#include "vtkOpenGLPolyMapper.h"
+#include "vtkOpenGLPolyDataMapper.h"
 
 #define MAX_LIGHTS 8
 

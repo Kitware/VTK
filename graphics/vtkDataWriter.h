@@ -45,7 +45,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // See text for various formats.
 
 // .SECTION See Also
-// vtkDataSetWriter vtkPolyWriter vtkStructuredGridWriter
+// vtkDataSetWriter vtkPolyDataWriter vtkStructuredGridWriter
 // vtkStructuredPointsWriter vtkUnstructuredGridWriter
 
 #ifndef __vtkDataWriter_h

@@ -38,7 +38,7 @@ vtkTexture texture
 vtkBYUReader byu
     byu SetGeometryFileName "../../../data/motor.g"
     byu SetPartNumber 1
-vtkPolyNormals normals
+vtkPolyDataNormals normals
     normals SetInput [byu GetOutput]
 vtkImplicitTextureCoords tex1
     tex1 SetInput [normals GetOutput]
@@ -54,7 +54,7 @@ vtkActor byuActor
 vtkBYUReader byu2
     byu2 SetGeometryFileName "../../../data/motor.g"
     byu2 SetPartNumber 2
-vtkPolyNormals normals2
+vtkPolyDataNormals normals2
     normals2 SetInput [byu2 GetOutput]
 vtkImplicitTextureCoords tex2
     tex2 SetInput [normals2 GetOutput]
@@ -70,7 +70,7 @@ vtkActor byuActor2
 vtkBYUReader byu3
     byu3 SetGeometryFileName "../../../data/motor.g"
     byu3 SetPartNumber 3
-vtkPolyNormals normals3
+vtkPolyDataNormals normals3
     normals3 SetInput [byu3 GetOutput]
 vtkImplicitTextureCoords tex3
     tex3 SetInput [normals3 GetOutput]
@@ -86,7 +86,7 @@ vtkActor byuActor3
 vtkBYUReader byu4
     byu4 SetGeometryFileName "../../../data/motor.g"
     byu4 SetPartNumber 4
-vtkPolyNormals normals4
+vtkPolyDataNormals normals4
     normals4 SetInput [byu4 GetOutput]
 vtkImplicitTextureCoords tex4
     tex4 SetInput [normals4 GetOutput]
@@ -102,7 +102,7 @@ vtkActor byuActor4
 vtkBYUReader byu5
     byu5 SetGeometryFileName "../../../data/motor.g"
     byu5 SetPartNumber 5
-vtkPolyNormals normals5
+vtkPolyDataNormals normals5
     normals5 SetInput [byu5 GetOutput]
 vtkImplicitTextureCoords tex5
     tex5 SetInput [normals5 GetOutput]

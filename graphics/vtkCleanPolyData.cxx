@@ -270,7 +270,7 @@ void vtkCleanPolyData::CreateDefaultLocator()
 
 void vtkCleanPolyData::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkPolyToPolyFilter::PrintSelf(os,indent);
+  vtkPolyDataToPolyDataFilter::PrintSelf(os,indent);
 
   os << indent << "Tolerance: " << this->Tolerance << "\n";
 }

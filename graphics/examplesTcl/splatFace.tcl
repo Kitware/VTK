@@ -15,7 +15,7 @@ vtkRenderWindowInteractor iren
 #
 vtkCyberReader cyber
     cyber SetFileName "../../../data/fran_cut"
-vtkPolyNormals normals
+vtkPolyDataNormals normals
     normals SetInput [cyber GetOutput]
 vtkMaskPoints mask
     mask SetInput [normals GetOutput]
@@ -31,14 +31,14 @@ vtkGaussianSplatter splatter
 vtkContourFilter contour
     contour SetInput [splatter GetOutput]
     contour SetValue 0 0.25
-vtkPolyMapper splatMapper
+vtkPolyDataMapper splatMapper
     splatMapper SetInput [contour GetOutput]
     splatMapper ScalarVisibilityOff
 vtkActor splatActor
     splatActor SetMapper splatMapper
     eval [splatActor GetProperty] SetColor 1.0 0.49 0.25
 
-vtkPolyMapper cyberMapper
+vtkPolyDataMapper cyberMapper
     cyberMapper SetInput [cyber GetOutput]
     cyberMapper ScalarVisibilityOff
 vtkActor cyberActor

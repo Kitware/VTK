@@ -79,9 +79,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkRotationalExtrusionFilter_h
 #define __vtkRotationalExtrusionFilter_h
 
-#include "vtkPolyToPolyFilter.h"
+#include "vtkPolyDataToPolyDataFilter.h"
 
-class VTK_EXPORT vtkRotationalExtrusionFilter : public vtkPolyToPolyFilter 
+class VTK_EXPORT vtkRotationalExtrusionFilter : public vtkPolyDataToPolyDataFilter 
 {
 public:
   vtkRotationalExtrusionFilter();

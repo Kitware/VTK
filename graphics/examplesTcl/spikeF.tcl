@@ -15,9 +15,9 @@ vtkRenderWindowInteractor iren
 #
 vtkCyberReader cyber
     cyber SetFileName "../../../data/fran_cut"
-vtkPolyNormals normals
+vtkPolyDataNormals normals
     normals SetInput [cyber GetOutput]
-vtkPolyMapper cyberMapper
+vtkPolyDataMapper cyberMapper
     cyberMapper SetInput [normals GetOutput]
 vtkActor cyberActor
     cyberActor SetMapper cyberMapper
@@ -33,7 +33,7 @@ vtkConeSource cone
     cone SetResolution 6
 vtkTransform transform
     transform Translate 0.5 0.0 0.0
-vtkTransformPolyFilter transformF
+vtkTransformPolyDataFilter transformF
     transformF SetInput [cone GetOutput]
     transformF SetTransform transform
 vtkGlyph3D glyph
@@ -42,7 +42,7 @@ vtkGlyph3D glyph
     glyph SetVectorModeToUseNormal
     glyph SetScaleModeToScaleByVector
     glyph SetScaleFactor 0.004
-vtkPolyMapper spikeMapper
+vtkPolyDataMapper spikeMapper
     spikeMapper SetInput [glyph GetOutput]
 vtkActor spikeActor
     spikeActor SetMapper spikeMapper

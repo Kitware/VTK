@@ -52,7 +52,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // visualization pipeline. This is necessary for some objects 
 // (e.g., vtkProbeFilter) that require point coordinates as input.
 // .SECTION See Also
-// vtkTransform vtkTransformPolyFilter vtkActor
+// vtkTransform vtkTransformPolyDataFilter vtkActor
 // .EXAMPLE XFormSph.cc
 
 #ifndef __vtkTransformFilter_h

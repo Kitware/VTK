@@ -76,7 +76,7 @@ void vtkMCubesWriter::WriteData()
   normals = input->GetPointData()->GetNormals();
   if (normals == NULL )
     {
-    vtkErrorMacro(<<"No normals to write!: use vtkPolyNormals to generate them");
+    vtkErrorMacro(<<"No normals to write!: use vtkPolyDataNormals to generate them");
     return;
     }
 
@@ -136,7 +136,7 @@ void WriteLimits(FILE *fp, float *bounds)
 
 void vtkMCubesWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkPolyWriter::PrintSelf(os,indent);
+  vtkPolyDataWriter::PrintSelf(os,indent);
 
   os << indent << "File Name: " 
      << (this->FileName ? this->FileName : "(none)") << "\n";

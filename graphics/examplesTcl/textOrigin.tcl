@@ -5,14 +5,14 @@ source vtkInt.tcl
 # pipeline
 vtkAxes axes
     axes SetOrigin 0 0 0
-vtkPolyMapper axesMapper
+vtkPolyDataMapper axesMapper
     axesMapper SetInput [axes GetOutput]
 vtkActor axesActor
     axesActor SetMapper axesMapper
 
 vtkVectorText atext
     atext SetText "Origin"
-vtkPolyMapper textMapper
+vtkPolyDataMapper textMapper
     textMapper SetInput [atext GetOutput]
 vtkFollower textActor
     textActor SetMapper textMapper

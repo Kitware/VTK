@@ -12,9 +12,9 @@ vtkRenderWindowInteractor iren
     iren SetRenderWindow renWin
 
 # create lines
-vtkPolyReader reader
+vtkPolyDataReader reader
     reader SetFileName "../../../data/hello.vtk"
-vtkPolyMapper lineMapper
+vtkPolyDataMapper lineMapper
     lineMapper SetInput [reader GetOutput]
 vtkActor lineActor
     lineActor SetMapper lineMapper
@@ -29,7 +29,7 @@ vtkImplicitModeller imp
 vtkContourFilter contour
     contour SetInput [imp GetOutput]
     contour SetValue 0 0.25
-vtkPolyMapper impMapper
+vtkPolyDataMapper impMapper
     impMapper SetInput [contour GetOutput]
     impMapper ScalarVisibilityOff
 vtkActor impActor;  

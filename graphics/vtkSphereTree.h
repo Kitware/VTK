@@ -50,7 +50,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include <math.h>
 #include <stdlib.h>
-#include "vtkPolyToPolyFilter.h"
+#include "vtkPolyDataToPolyDataFilter.h"
 
 
 
@@ -79,7 +79,7 @@ struct vtkSphereTreeSphere
  
 
 
-class VTK_EXPORT vtkSphereTree : public vtkPolyToPolyFilter
+class VTK_EXPORT vtkSphereTree : public vtkPolyDataToPolyDataFilter
 {
 public:
   vtkSphereTree();

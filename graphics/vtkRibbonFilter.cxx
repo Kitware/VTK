@@ -243,7 +243,7 @@ void vtkRibbonFilter::Execute()
 
 void vtkRibbonFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkPolyToPolyFilter::PrintSelf(os,indent);
+  vtkPolyDataToPolyDataFilter::PrintSelf(os,indent);
 
   os << indent << "Width: " << this->Width << "\n";
   os << indent << "Angle: " << this->Angle << "\n";

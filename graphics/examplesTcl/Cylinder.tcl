@@ -15,7 +15,7 @@ vtkCylinderSource cone
 #vtkDiskSource cone
 #cone SetInnerRadius 1.0
 #cone SetOuterRadius 1.0
-vtkPolyMapper coneMapper
+vtkPolyDataMapper coneMapper
     coneMapper SetInput [cone GetOutput]
 vtkActor coneActor
     coneActor SetMapper coneMapper

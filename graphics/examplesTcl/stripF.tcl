@@ -15,7 +15,7 @@ vtkRenderWindowInteractor iren
 #
 vtkCyberReader cyber
     cyber SetFileName "../../../data/fran_cut"
-vtkPolyNormals normals;#enable this for cool effect
+vtkPolyDataNormals normals;#enable this for cool effect
     normals SetInput [cyber GetOutput]
     normals FlipNormalsOn
 vtkStripper stripper
@@ -23,7 +23,7 @@ vtkStripper stripper
 vtkMaskPolyData mask
     mask SetInput [stripper GetOutput]
     mask SetOnRatio 2
-vtkPolyMapper cyberMapper
+vtkPolyDataMapper cyberMapper
     cyberMapper SetInput [mask GetOutput]
 vtkActor cyberActor
     cyberActor SetMapper cyberMapper

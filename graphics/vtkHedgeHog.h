@@ -47,9 +47,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkHedgeHog_h
 #define __vtkHedgeHog_h
 
-#include "vtkDataSetToPolyFilter.h"
+#include "vtkDataSetToPolyDataFilter.h"
 
-class VTK_EXPORT vtkHedgeHog : public vtkDataSetToPolyFilter
+class VTK_EXPORT vtkHedgeHog : public vtkDataSetToPolyDataFilter
 {
 public:
   vtkHedgeHog() : ScaleFactor(1.0) {};

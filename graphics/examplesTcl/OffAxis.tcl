@@ -15,7 +15,7 @@ vtkRenderWindowInteractor iren
 # create a sphere source and actor
 #
 vtkSphereSource sphere
-vtkPolyMapper   sphereMapper
+vtkPolyDataMapper   sphereMapper
     sphereMapper SetInput [sphere GetOutput]
 vtkActor sphereActor
     sphereActor SetMapper sphereMapper
@@ -29,7 +29,7 @@ vtkGlyph3D glyph
     glyph SetVectorModeToUseNormal
     glyph SetScaleModeToScaleByVector
     glyph SetScaleFactor 0.25
-vtkPolyMapper spikeMapper
+vtkPolyDataMapper spikeMapper
     spikeMapper SetInput [glyph GetOutput]
 vtkActor spikeActor
     spikeActor SetMapper spikeMapper

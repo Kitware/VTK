@@ -38,7 +38,7 @@ vtkActor cutActor
 vtkStructuredGridGeometryFilter compPlane
     compPlane SetInput [pl3d GetOutput]
     compPlane SetExtent 0 100 0 100 9 9
-vtkPolyMapper planeMapper
+vtkPolyDataMapper planeMapper
     planeMapper SetInput [compPlane GetOutput]
     planeMapper ScalarVisibilityOff
 vtkActor planeActor
@@ -49,7 +49,7 @@ vtkActor planeActor
 #outline
 vtkStructuredGridOutlineFilter outline
     outline SetInput [pl3d GetOutput]
-vtkPolyMapper outlineMapper
+vtkPolyDataMapper outlineMapper
     outlineMapper SetInput [outline GetOutput]
 vtkActor outlineActor
     outlineActor SetMapper outlineMapper

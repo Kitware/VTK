@@ -11,7 +11,7 @@ vtkPlaneSource plane
     plane SetCenter 3 2 1
     plane SetNormal 1 2 3
     plane Update
-vtkPolyMapper planeMapper
+vtkPolyDataMapper planeMapper
     planeMapper SetInput [plane GetOutput]
 vtkActor planeActor
     planeActor SetMapper planeMapper
@@ -30,14 +30,14 @@ vtkConeSource cone
 vtkTransform transform
     transform Scale .2 .2 .2
     transform Translate 0.5 0.0 0.0
-vtkTransformPolyFilter transformF
+vtkTransformPolyDataFilter transformF
     transformF SetInput [cone GetOutput]
     transformF SetTransform transform
 vtkGlyph3D glyph
     glyph SetInput pd
     glyph SetSource [transformF GetOutput]
     glyph SetVectorModeToUseNormal
-vtkPolyMapper mapGlyph
+vtkPolyDataMapper mapGlyph
     mapGlyph SetInput [glyph GetOutput]
 vtkActor glyphActor
     glyphActor SetMapper mapGlyph

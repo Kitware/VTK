@@ -24,7 +24,7 @@ vtkVolume16Reader v16
 vtkMarchingCubes iso
     iso SetInput [v16 GetOutput]
     iso SetValue 0 1150
-vtkPolyMapper isoMapper
+vtkPolyDataMapper isoMapper
     isoMapper SetInput [iso GetOutput]
     isoMapper ScalarVisibilityOff
 vtkActor isoActor
@@ -34,7 +34,7 @@ eval $isoProp SetColor $antique_white
 
 vtkOutlineFilter outline
     outline SetInput [v16 GetOutput]
-vtkPolyMapper outlineMapper
+vtkPolyDataMapper outlineMapper
     outlineMapper SetInput [outline GetOutput]
 vtkActor outlineActor
     outlineActor SetMapper outlineMapper
