@@ -41,6 +41,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 #include "vtkInteractorStyleJoystickCamera.h"
 #include "vtkObjectFactory.h"
+#include "vtkCommand.h"
 
 //----------------------------------------------------------------------------
 vtkInteractorStyleJoystickCamera *vtkInteractorStyleJoystickCamera::New() 
@@ -136,6 +137,11 @@ void vtkInteractorStyleJoystickCamera::OnMouseMove(int vtkNotUsed(ctrl),
 void vtkInteractorStyleJoystickCamera::OnLeftButtonDown(int ctrl, int shift, 
 						int x, int y) 
 {
+  if (this->HasObserver(vtkCommand::LeftButtonPressEvent)) 
+    {
+    this->InvokeEvent(vtkCommand::LeftButtonPressEvent,NULL);
+    return;
+    }
   this->FindPokedRenderer(x, y);
 
   if (this->CurrentRenderer == NULL)
@@ -197,6 +203,11 @@ void vtkInteractorStyleJoystickCamera::OnMiddleButtonDown(int vtkNotUsed(ctrl),
 							  int vtkNotUsed(shift), 
 							  int x, int y)
 {
+  if (this->HasObserver(vtkCommand::MiddleButtonPressEvent)) 
+    {
+    this->InvokeEvent(vtkCommand::MiddleButtonPressEvent,NULL);
+    return;
+    }
   this->FindPokedRenderer(x, y);
   if (this->CurrentRenderer == NULL)
     {
@@ -221,6 +232,11 @@ void vtkInteractorStyleJoystickCamera::OnRightButtonDown(int vtkNotUsed(ctrl),
 							 int vtkNotUsed(shift), 
 							 int x, int y)
 {
+  if (this->HasObserver(vtkCommand::RightButtonPressEvent)) 
+    {
+    this->InvokeEvent(vtkCommand::RightButtonPressEvent,NULL);
+    return;
+    }
   this->FindPokedRenderer(x, y);
   if (this->CurrentRenderer == NULL)
     {
