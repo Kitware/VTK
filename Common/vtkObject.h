@@ -19,20 +19,21 @@
 // .SECTION Description
 // vtkObject is the base class for most objects in the visualization
 // toolkit. vtkObject provides methods for tracking modification time,
-// debugging, printing, and event callbacks. Most objects created within the
-// VTK framework should be a subclass of vtkObject or one of its children.
-// The few exceptions tend to be very small helper classes that usually never
-// get instantiated or situations where multiple inheritance gets in the way.
-// vtkObject also performs reference counting: objects that are reference
-// counted exist as long as another object uses them. Once the last reference
-// to a reference counted object is removed, the object will spontaneously
-// destruct. 
+// debugging, printing, and event callbacks. Most objects created
+// within the VTK framework should be a subclass of vtkObject or one
+// of its children.  The few exceptions tend to be very small helper
+// classes that usually never get instantiated or situations where
+// multiple inheritance gets in the way.  vtkObject also performs
+// reference counting: objects that are reference counted exist as
+// long as another object uses them. Once the last reference to a
+// reference counted object is removed, the object will spontaneously
+// destruct.
 
 // .SECTION Caveats
-// Note: in VTK objects should always be created with the New() method and
-// deleted with the Delete() method. VTK objects cannot be allocated off the
-// stack (i.e., automatic objects) because the constructor is a protected
-// method.
+// Note: in VTK objects should always be created with the New() method
+// and deleted with the Delete() method. VTK objects cannot be
+// allocated off the stack (i.e., automatic objects) because the
+// constructor is a protected method.
 
 // .SECTION See also
 // vtkCommand vtkTimeStamp
@@ -40,10 +41,9 @@
 #ifndef __vtkObject_h
 #define __vtkObject_h
 
-#include "vtkIndent.h"
-#include "vtkTimeStamp.h"
-#include "vtkSetGet.h"
 #include "vtkObjectBase.h"
+#include "vtkSetGet.h"
+#include "vtkTimeStamp.h"
 
 class vtkSubjectHelper;
 class vtkCommand;
@@ -51,6 +51,10 @@ class vtkCommand;
 class VTK_COMMON_EXPORT vtkObject : public vtkObjectBase
 {
 public:
+//BTX
+  typedef vtkObjectBase Superclass;
+//ETX
+
   // Description:
   // Return the class name as a string. This method is defined
   // in all subclasses of vtkObject with the vtkTypeRevisionMacro found
@@ -75,12 +79,6 @@ public:
   // defined in all subclasses of vtkObject with the vtkTypeRevisionMacro 
   // found in vtkSetGet.h.
   static vtkObject *SafeDownCast(vtkObject *o);
-
-  // Description:
-  // Delete a VTK object.  This method should always be used to delete
-  // an object when the New() method was used to create it. Using the
-  // C++ delete method will not work with reference counting.
-  //virtual void Delete();
 
   // Description:
   // Create an object with Debug turned off, modified time initialized 
@@ -126,18 +124,11 @@ public:
   virtual unsigned long GetMTime();
 
   // Description:
-  // Print an object to an ostream. This is the method to call
-  // when you wish to see print the internal state of an object.
-  void Print(ostream& os);
-
-  // Description:
   // Methods invoked by print to print information about the object
   // including superclasses. Typically not called by the user (use
   // Print() instead) but used in the hierarchical print process to
   // combine the output of several classes.
   virtual void PrintSelf(ostream& os, vtkIndent indent);
-  virtual void PrintHeader(ostream& os, vtkIndent indent);
-  virtual void PrintTrailer(ostream& os, vtkIndent indent);
 
   // Description:
   // This is a global flag that controls whether any debug, warning
@@ -150,22 +141,13 @@ public:
   
   // Description:
   // Increase the reference count (mark as used by another object).
-  //virtual void Register(vtkObjectBase* o);
+  virtual void Register(vtkObjectBase* o);
 
   // Description:
   // Decrease the reference count (release by another object). This has
   // the same effect as invoking Delete() (i.e., it reduces the reference
   // count by 1).
   virtual void UnRegister(vtkObjectBase* o);
-
-  // Description:
-  // Return the current reference count of this object.
-  int  GetReferenceCount() 
-    {return this->ReferenceCount;}
-
-  // Description:
-  // Sets the reference count. (This is very dangerous, use with care.)
-  void SetReferenceCount(int);
 
   // Description:
   // Allow people to add/remove/invoke observers (callbacks) to any VTK
@@ -179,8 +161,10 @@ public:
   // flag to stop processing of the event. (See vtkCommand.h for more
   // information.)
   //BTX
-  unsigned long AddObserver(unsigned long event, vtkCommand *, float priority=0.0);
-  unsigned long AddObserver(const char *event, vtkCommand *, float priority=0.0);
+  unsigned long AddObserver(unsigned long event, vtkCommand *, 
+                            float priority=0.0);
+  unsigned long AddObserver(const char *event, vtkCommand *, 
+                            float priority=0.0);
   vtkCommand *GetCommand(unsigned long tag);
   void InvokeEvent(unsigned long event, void *callData);
   void InvokeEvent(const char *event, void *callData);
@@ -203,11 +187,6 @@ protected:
   unsigned char Debug;     // Enable debug messages
   vtkTimeStamp MTime;      // Keep track of modification time
   vtkSubjectHelper *SubjectHelper;
-
-private:
-  //BTX
-  friend VTK_COMMON_EXPORT ostream& operator<<(ostream& os, vtkObject& o);
-  //ETX
 
 private:
   vtkObject(const vtkObject&);  // Not implemented.

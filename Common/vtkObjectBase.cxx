@@ -108,20 +108,9 @@ void vtkObjectBase::SetReferenceCount(int ref)
 
 // Description:
 // Increase the reference count (mark as used by another object).
-void vtkObjectBase::Register(vtkObjectBase* o)
+void vtkObjectBase::Register(vtkObjectBase*)
 {
   this->ReferenceCount++;
-  if ( o )
-    {
-    vtkBaseDebugMacro(<< "Registered by " << this->GetClassName() 
-                      << " " << o->GetClassName() << " (" << o 
-                      << "), ReferenceCount = " << this->ReferenceCount);
-    }
-  else
-    {
-    vtkBaseDebugMacro(<< "Registered by NULL, ReferenceCount = " 
-                      << this->ReferenceCount);
-    }               
   if (this->ReferenceCount <= 0)
     {
     delete this;
@@ -160,5 +149,5 @@ void vtkObjectBase::UnRegister(vtkObjectBase* o)
 
 void vtkObjectBase::CollectRevisions(ostream& os)
 {
-  os << "vtkObjectBase 1.2\n";
+  os << "vtkObjectBase 1.3\n";
 }

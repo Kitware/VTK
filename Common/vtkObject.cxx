@@ -16,8 +16,10 @@
 
 =========================================================================*/
 #include "vtkObject.h"
+
 #include "vtkDebugLeaks.h"
 #include "vtkCommand.h"
+#include "vtkTimeStamp.h"
 
 // Initialize static member that controls warning display
 static int vtkObjectGlobalWarningDisplay = 1;
@@ -95,15 +97,6 @@ protected:
 };
 
 // ------------------------------------vtkObject----------------------
-// This operator allows all subclasses of vtkObject to be printed via <<.
-// It in turn invokes the Print method, which in turn will invoke the
-// PrintSelf method that all objects should define, if they have anything
-// interesting to print out.
-ostream& operator<<(ostream& os, vtkObject& o)
-{
-  o.Print(os);
-  return os;
-}
 
 vtkObject *vtkObject::New() 
 {
@@ -152,27 +145,13 @@ unsigned long int vtkObject::GetMTime()
   return this->MTime.GetMTime();
 }
 
-void vtkObject::Print(ostream& os)
-{
-  vtkIndent indent;
-
-  this->PrintHeader(os,0); 
-  this->PrintSelf(os, indent.GetNextIndent());
-  this->PrintTrailer(os,0);
-}
-
-void vtkObject::PrintHeader(ostream& os, vtkIndent indent)
-{
-  os << indent << this->GetClassName() << " (" << this << ")\n";
-}
-
 // Chaining method to print an object's instance variables, as well as
 // its superclasses.
 void vtkObject::PrintSelf(ostream& os, vtkIndent indent)
 {
   os << indent << "Debug: " << (this->Debug ? "On\n" : "Off\n");
   os << indent << "Modified Time: " << this->GetMTime() << "\n";
-  os << indent << "Reference Count: " << this->ReferenceCount << "\n";
+  this->Superclass::PrintSelf(os, indent);
   if ( this->SubjectHelper )
     {
     this->SubjectHelper->PrintSelf(os,indent);
@@ -181,11 +160,6 @@ void vtkObject::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "Registered Events: (none)\n";
     }
-}
-
-void vtkObject::PrintTrailer(ostream& os, vtkIndent indent)
-{
-  os << indent << "\n";
 }
 
 // Turn debugging output on.
@@ -220,33 +194,21 @@ void vtkObject::BreakOnError()
 }
 
 // Description:
-// Sets the reference count (use with care)
-void vtkObject::SetReferenceCount(int ref)
-{
-  this->ReferenceCount = ref;
-  vtkDebugMacro(<< "Reference Count set to " << this->ReferenceCount);
-}
-
-// Description:
 // Increase the reference count (mark as used by another object).
-// void vtkObject::Register(vtkObjectBase* o)
-// {
-//   this->ReferenceCount++;
-//   if ( o )
-//     {
-//     vtkDebugMacro(<< "Registered by " << o->GetClassName() << " (" << o 
-//                   << "), ReferenceCount = " << this->ReferenceCount);
-//     }
-//   else
-//     {
-//     vtkDebugMacro(<< "Registered by NULL, ReferenceCount = " 
-//                   << this->ReferenceCount);
-//     }               
-//   if (this->ReferenceCount <= 0)
-//     {
-//     delete this;
-//     }
-// }
+void vtkObject::Register(vtkObjectBase* o)
+{
+  if ( o )
+    {
+    vtkDebugMacro(<< "Registered by " << o->GetClassName() << " (" << o 
+                  << "), ReferenceCount = " << this->ReferenceCount+1);
+    }
+  else
+    {
+    vtkDebugMacro(<< "Registered by NULL, ReferenceCount = " 
+                  << this->ReferenceCount+1);
+    }               
+  this->Superclass::Register(o);
+}
 
 // Description:
 // Decrease the reference count (release by another object).
@@ -296,7 +258,7 @@ vtkObject *vtkObject::SafeDownCast(vtkObject *o)
 
 void vtkObject::CollectRevisions(ostream& os)
 {
-  os << "vtkObject 1.76\n";
+  os << "vtkObject 1.77\n";
 }
 
 //----------------------------------Command/Observer stuff-------------------

@@ -17,28 +17,35 @@
 =========================================================================*/
 // .NAME vtkObjectBase - abstract base class for most VTK objects
 // .SECTION Description
-// vtkObjectBase is the base class for all reference counted classes in
-// the VTK. These classes include vtkCommand and vtkContainer. 
-// vtkObject performs reference counting: objects that are reference
-// counted exist as long as another object uses them. Once the last reference
-// to a reference counted object is removed, the object will spontaneously
-// destruct. 
-
+// vtkObjectBase is the base class for all reference counted classes
+// in the VTK. These classes include vtkCommand classes, vtkContainer
+// classes, and vtkObject classes.
+//
+// vtkObjectBase performs reference counting: objects that are
+// reference counted exist as long as another object uses them. Once
+// the last reference to a reference counted object is removed, the
+// object will spontaneously destruct.
+// 
+// Constructor and destructor of the subclasses of vtkObjectBase
+// should be protected, so that only New() and UnRegister() actually
+// call them. Debug leaks can be used to see if there are any objects
+// left with nonzero reference count.
+//
 // .SECTION Caveats
-// Note: in VTK objects should always be created with the New() method and
-// deleted with the Delete() method. VTK objects cannot be allocated off the
-// stack (i.e., automatic objects) because the constructor is a protected
-// method.
-
+// Note: Objects of subclasses of vtkObjectBase should always be
+// created with the New() method and deleted with the Delete()
+// method. They cannot be allocated off the stack (i.e., automatic
+// objects) because the constructor is a protected method.
+//
 // .SECTION See also
 // vtkObject vtkCommand vtkContainer
 
 #ifndef __vtkObjectBase_h
 #define __vtkObjectBase_h
 
+#include "vtkWin32Header.h"
 #include "vtkIndent.h"
-#include "vtkTimeStamp.h"
-#include "vtkSetGet.h"
+#include "vtkSystemIncludes.h"
 
 class VTK_COMMON_EXPORT vtkObjectBase 
 {
