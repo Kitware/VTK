@@ -158,7 +158,7 @@ int vtkPointLocator::FindClosestPoint(float x[3])
 {
   int i, j;
   float minDist2, dist2;
-  float pt[3];
+  float *pt;
   int closest, level;
   int ptId, cno;
   vtkIdList *ptIds;
@@ -205,7 +205,7 @@ int vtkPointLocator::FindClosestPoint(float x[3])
         for (j=0; j < ptIds->GetNumberOfIds(); j++) 
           {
           ptId = ptIds->GetId(j);
-          this->DataSet->GetPoint(ptId, pt);
+          pt = this->DataSet->GetPoint(ptId);
           if ( (dist2 = vtkMath::Distance2BetweenPoints(x,pt)) < minDist2 ) 
             {
             closest = ptId;
@@ -235,7 +235,7 @@ int vtkPointLocator::FindClosestPoint(float x[3])
         for (j=0; j < ptIds->GetNumberOfIds(); j++) 
           {
           ptId = ptIds->GetId(j);
-          this->DataSet->GetPoint(ptId, pt);
+          pt = this->DataSet->GetPoint(ptId);
           if ( (dist2 = vtkMath::Distance2BetweenPoints(x,pt)) < minDist2 ) 
             {
             closest = ptId;
@@ -248,6 +248,204 @@ int vtkPointLocator::FindClosestPoint(float x[3])
 
   return closest;
 }
+
+
+
+int vtkPointLocator::FindClosestPointWithinRadius(float radius, float x[3], float& dist2)
+  {
+  return FindClosestPointWithinRadius(radius, x, this->DataSet->GetLength(), dist2);
+  }
+
+
+int vtkPointLocator::FindClosestPointWithinRadius(float radius, float x[3], 
+                                                  float inputDataLength,
+                                                  float& dist2)
+{
+  int i, j, closest = -1;
+  float *pt;
+  int ptId, cno;
+  vtkIdList *ptIds;
+  int ijk[3], *nei;
+  float minDist2;
+  
+  float refinedRadius, radius2, refinedRadius2, distance2ToBucket;
+  float distance2ToCellBounds, cellBounds[6], currentRadius;
+  float distance2ToDataBounds, maxDistance;
+  int ii, radiusLevels[3], radiusLevel, prevMinLevel[3], prevMaxLevel[3];
+
+  this->BuildLocator(); // will subdivide if modified; otherwise returns
+
+  dist2 = -1.0;
+  radius2 = radius*radius;
+  minDist2 = 1.01*radius2;   // something slightly bigger....
+  
+  vtkDataArray *pointData = ((vtkPointSet *)this->DataSet)->GetPoints()->GetData();
+  int flag = 1;
+
+  //
+  //  Find bucket point is in.  
+  //
+  for (j=0; j<3; j++) 
+    {
+    ijk[j] = (int)(((x[j] - this->Bounds[2*j]) / 
+        (this->Bounds[2*j+1] - this->Bounds[2*j])) * (this->Divisions[j]-1));
+
+    if (ijk[j] < 0)
+      {
+      ijk[j] = 0;
+      }
+    else if (ijk[j] >= this->Divisions[j])
+      { 
+      ijk[j] = this->Divisions[j] - 1;
+      }
+    }
+
+  // Start by searching the bucket that the point is in.
+  //
+  if ( (ptIds = this->HashTable[ijk[0] + ijk[1]*this->Divisions[0] + 
+    ijk[2]*this->Divisions[0]*this->Divisions[1]]) != NULL )
+    {
+    for (j=0; j < ptIds->GetNumberOfIds(); j++) 
+      {
+      ptId = ptIds->GetId(j);
+      if (flag)
+        {
+        pt = pointData->GetTuple(ptId);
+        }
+      else
+        {
+        pt = this->DataSet->GetPoint(ptId);
+        }
+      if ( (dist2 = vtkMath::Distance2BetweenPoints(x,pt)) < minDist2 ) 
+        {
+        closest = ptId;
+        minDist2 = dist2;
+        }
+      }
+    }
+
+
+  // Now, search only those buckets that are within a radius. The radius used
+  // is the smaller of sqrt(dist2) and the radius that is passed in. To avoid
+  // checking a large number of buckets unnecessarily, if the radius is
+  // larger than the dimensions of a bucket, we search outward using a
+  // simple heuristic of rings.  This heuristic ends up collecting inner
+  // buckets multiple times, but this only happens in the case where these
+  // buckets are empty, so they are discarded quickly.
+  //
+  if (dist2 < radius2 && dist2 >= 0.0)
+    {
+    refinedRadius = sqrt(dist2);
+    refinedRadius2 = dist2;
+    }
+  else
+    {
+    refinedRadius = radius;
+    refinedRadius2 = radius2;
+    }
+
+  if (inputDataLength)
+    {
+    distance2ToDataBounds = this->Distance2ToBounds(x, this->Bounds);
+    maxDistance = sqrt(distance2ToDataBounds) + inputDataLength;
+    if (refinedRadius > maxDistance)
+      {
+      refinedRadius = maxDistance;
+      refinedRadius2 = maxDistance*maxDistance;
+      }
+    }
+
+  for (i = 0; i < 3; i++)  
+    {
+    radiusLevels[i] = (int)(refinedRadius/this->H[i]);
+    if (radiusLevels[i] > this->Divisions[i] / 2)
+      {
+      radiusLevels[i] = this->Divisions[i] / 2;
+      }
+    }
+
+  radiusLevel = radiusLevels[0];
+  radiusLevel = radiusLevels[1] > radiusLevel ? radiusLevels[1] : radiusLevel;
+  radiusLevel = radiusLevels[2] > radiusLevel ? radiusLevels[2] : radiusLevel;
+  if (radiusLevel == 0)
+    {
+    radiusLevel = 1;
+    }
+
+  // radius schedule increases the radius each iteration, this is currently
+  // implemented by decreasing ii by 1 each iteration.  another alternative
+  // is to double the radius each iteration, i.e. ii = ii >> 1
+  // In practice, reducing ii by one has been found to be more efficient.
+  int numberOfBucketsPerPlane;
+  numberOfBucketsPerPlane = this->Divisions[0]*this->Divisions[1];
+  prevMinLevel[0] = prevMaxLevel[0] = ijk[0];
+  prevMinLevel[1] = prevMaxLevel[1] = ijk[1];
+  prevMinLevel[2] = prevMaxLevel[2] = ijk[2];
+  for (ii=radiusLevel; ii >= 1; ii--)   
+    {
+    currentRadius = refinedRadius; // used in if at bottom of this for loop
+    
+    // Build up a list of buckets that are arranged in rings
+    this->GetOverlappingBuckets(x, refinedRadius/ii, prevMinLevel,
+                                prevMaxLevel);
+    
+    for (i=0; i<this->Buckets->GetNumberOfNeighbors(); i++) 
+      {
+      nei = this->Buckets->GetPoint(i);
+
+      // do we still need to test this bucket?
+      if (this->Distance2ToBucket(x, nei) < refinedRadius2)
+        {
+        ptIds = this->HashTable[nei[0] + nei[1]*this->Divisions[0] + 
+          nei[2]*numberOfBucketsPerPlane];
+
+        for (j=0; j < ptIds->GetNumberOfIds(); j++) 
+          {
+          ptId = ptIds->GetId(j);
+          if (flag)
+            {
+            pt = pointData->GetTuple(ptId);
+            }
+          else
+            {
+            pt = this->DataSet->GetPoint(ptId);
+            }
+          if ( (dist2 = vtkMath::Distance2BetweenPoints(x,pt)) < minDist2 ) 
+            {
+            closest = ptId;
+            minDist2 = dist2;
+            refinedRadius = sqrt(minDist2);
+            refinedRadius2 = minDist2;
+            }
+          }//for each pt in bucket
+        }//if bucket is within the current best distance
+      }//for each overlapping bucket
+
+    // don't want to checker a smaller radius than we just checked so update
+    // ii appropriately
+    if (refinedRadius < currentRadius && ii > 2) //always check ii==1
+      {
+      ii = (int)((float)ii * (refinedRadius / currentRadius)) + 1;
+      if (ii < 2)
+        {
+        ii = 2;
+        }
+      }
+    }//for each radius in the radius schedule
+  
+  if ((closest != -1) && (minDist2 <= radius2))
+    {
+    dist2 = minDist2;
+    }
+  else
+    {
+    closest = -1;
+    }
+
+  return closest;
+  }
+
+
 
 struct idsort
 {
@@ -618,6 +816,7 @@ void vtkPointLocator::FindClosestNPoints(int N, float x[3],vtkIdList *result)
   delete [] res;
 }
 
+
 void vtkPointLocator::FindPointsWithinRadius(float R, float x,
                                              float y, float z,
                                              vtkIdList *result)
@@ -628,6 +827,8 @@ void vtkPointLocator::FindPointsWithinRadius(float R, float x,
   p[2] = z;
   this->FindPointsWithinRadius(R,p,result);
 }
+
+
 
 void vtkPointLocator::FindPointsWithinRadius(float R, float x[3],
                                              vtkIdList *result)
@@ -904,6 +1105,102 @@ void vtkPointLocator::GetOverlappingBuckets(float x[3], int ijk[3],
       }
     }
 }
+
+//
+// Internal method to find those buckets that are within distance specified
+// only those buckets outside of level radiuses of ijk are returned
+void vtkPointLocator::GetOverlappingBuckets(float x[3], float dist, 
+                                           int prevMinLevel[3],
+                                           int prevMaxLevel[3])
+{
+  int i, j, k, nei[3], minLevel[3], maxLevel[3];
+  int leafStart, kFactor, jFactor;
+  int jkSkipFlag, kSkipFlag;
+
+  // Initialize
+  this->Buckets->Reset();
+
+  // Determine the range of indices in each direction
+  for (i=0; i < 3; i++)
+    {
+    minLevel[i] = (int) ((float) (((x[i]-dist) - this->Bounds[2*i])
+                                  / this->H[i]));
+    maxLevel[i] = (int) ((float) (((x[i]+dist) - this->Bounds[2*i])
+                                  / this->H[i]));
+    
+    if ( minLevel[i] < 0 )
+      {
+      minLevel[i] = 0;
+      }
+    else if (minLevel[i] >= this->Divisions[i] )
+      {
+      minLevel[i] = this->Divisions[i] - 1;
+      }
+    if ( maxLevel[i] >= this->Divisions[i] )
+      {
+      maxLevel[i] = this->Divisions[i] - 1;
+      }
+    else if ( maxLevel[i] < 0 )
+      {
+      maxLevel[i] = 0;
+      }
+    }
+
+
+  if (minLevel[0] == prevMinLevel[0] && maxLevel[0] == prevMaxLevel[0] &&
+      minLevel[1] == prevMinLevel[1] && maxLevel[1] == prevMaxLevel[1] &&
+      minLevel[2] == prevMinLevel[2] && maxLevel[2] == prevMaxLevel[2] )
+    {
+    return;
+    }
+
+
+  for ( k= minLevel[2]; k <= maxLevel[2]; k++ ) 
+    {
+    kFactor = k*this->Divisions[0]*this->Divisions[1];
+    if (k >= prevMinLevel[2] && k <= prevMaxLevel[2])
+      {
+      kSkipFlag = 1;
+      }
+    else
+      {
+      kSkipFlag = 0;
+      }
+    for ( j= minLevel[1]; j <= maxLevel[1]; j++ ) 
+      {
+      if (kSkipFlag && j >= prevMinLevel[1] && j <= prevMaxLevel[1])
+        {
+        jkSkipFlag = 1;
+        }
+      else
+        {
+        jkSkipFlag = 0;
+        }
+      jFactor = j*this->Divisions[0];
+      for ( i= minLevel[0]; i <= maxLevel[0]; i++ ) 
+        {
+        if ( jkSkipFlag && i == prevMinLevel[0] )
+          {
+          i = prevMaxLevel[0];
+          continue;
+          }
+        // if this bucket has any cells, add it to the list
+        if (this->HashTable[i + jFactor + kFactor])
+          {
+          nei[0]=i; nei[1]=j; nei[2]=k;
+          this->Buckets->InsertNextPoint(nei);
+          }
+        }
+      }
+    }
+
+  prevMinLevel[0] = minLevel[0];
+  prevMinLevel[1] = minLevel[1];
+  prevMinLevel[2] = minLevel[2];
+  prevMaxLevel[0] = maxLevel[0];
+  prevMaxLevel[1] = maxLevel[1];
+  prevMaxLevel[2] = maxLevel[2];
+  }
 
 
 // Initialize the point insertion process. The newPts is an object representing
@@ -1426,6 +1723,82 @@ void vtkPointLocator::GenerateFace(int face, int i, int j, int k,
     }
 
   polys->InsertNextCell(4,ids);
+}
+
+
+// Calculate the distance between the point x to the bucket "nei".
+//
+// WARNING!!!!! Be very careful altering this routine.  Simple changes to this
+// routine can make is 25% slower!!!!
+//
+float vtkPointLocator::Distance2ToBucket(float x[3], int nei[3])
+{
+  float bounds[6];
+
+  bounds[0] =     nei[0]*this->H[0] + this->Bounds[0];
+  bounds[1] = (nei[0]+1)*this->H[0] + this->Bounds[0];
+  bounds[2] =     nei[1]*this->H[1] + this->Bounds[2];
+  bounds[3] = (nei[1]+1)*this->H[1] + this->Bounds[2];
+  bounds[4] =     nei[2]*this->H[2] + this->Bounds[4];
+  bounds[5] = (nei[2]+1)*this->H[2] + this->Bounds[4];
+
+  return this->Distance2ToBounds(x, bounds);
+}
+
+// Calculate the distance between the point x and the specified bounds
+//
+// WARNING!!!!! Be very careful altering this routine.  Simple changes to this
+// routine can make is 25% slower!!!!
+float vtkPointLocator::Distance2ToBounds(float x[3], float bounds[6])
+{
+  float distance;
+  float deltas[3];
+
+  // Are we within the bounds?
+  if (x[0] >= bounds[0] && x[0] <= bounds[1]
+    && x[1] >= bounds[2] && x[1] <= bounds[3]
+    && x[2] >= bounds[4] && x[2] <= bounds[5])
+    {
+    return 0.0;
+    }
+
+  deltas[0] = deltas[1] = deltas[2] = 0.0;
+
+  // dx
+  //
+  if (x[0] < bounds[0])
+    {
+    deltas[0] = bounds[0] - x[0];
+    }
+  else if (x[0] > bounds[1])
+    {
+    deltas[0] = x[0] - bounds[1];
+    }
+
+  // dy
+  //
+  if (x[1] < bounds[2])
+    {
+    deltas[1] = bounds[2] - x[1];
+    }
+  else if (x[1] > bounds[3])
+    {
+    deltas[1] = x[1] - bounds[3];
+    }
+
+  // dz
+  //
+  if (x[2] < bounds[4])
+    {
+    deltas[2] = bounds[4] - x[2];
+    }
+  else if (x[2] > bounds[5])
+    {
+    deltas[2] = x[2] - bounds[5];
+    }
+
+  distance = vtkMath::Dot(deltas, deltas);
+  return distance;
 }
 
 

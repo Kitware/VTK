@@ -96,6 +96,10 @@ public:
   virtual int FindClosestPoint(float x[3]);
   int FindClosestPoint(float x, float y, float z);
 
+  int FindClosestPointWithinRadius(float radius, float x[3], float& dist2);
+  int FindClosestPointWithinRadius(float radius, float x[3], 
+    float inputDataLength, float& dist2);
+
   // Description:
   // Initialize the point insertion process. The newPts is an object
   // representing point coordinates into which incremental insertion methods
@@ -195,8 +199,12 @@ protected:
   // place points in appropriate buckets
   void GetBucketNeighbors(int ijk[3], int ndivs[3], int level);
   void GetOverlappingBuckets(float x[3], int ijk[3], float dist, int level);
+  void GetOverlappingBuckets(float x[3], float dist, int prevMinLevel[3],
+                                           int prevMaxLevel[3]);
   void GenerateFace(int face, int i, int j, int k, 
                     vtkPoints *pts, vtkCellArray *polys);
+  float Distance2ToBucket(float x[3], int nei[3]);
+  float Distance2ToBounds(float x[3], float bounds[6]);
 
   vtkPoints *Points; // Used for merging points
   int Divisions[3]; // Number of sub-divisions in x-y-z directions
