@@ -30,14 +30,18 @@
 # VTK_USE_ANSI_STDLIB       - ANSI-style streams.
 # VTK_USE_CARBON            - Carbon support on Macintosh.
 # VTK_USE_COCOA             - Cocoa support on Macintosh.
+# VTK_USE_HYBRID            - Build vtkHybrid kit.
 # VTK_USE_MATROX_IMAGING    - Matrox imaging video support in vtkHybrid.
 # VTK_USE_MPI               - MPI support compiled in vtkParallel.
+# VTK_USE_PARALLEL          - Build vtkParallel kit.
+# VTK_USE_PATENTED          - Build vtkPatented kit.
+# VTK_USE_RENDERING         - Build vtkRendering kit.
 # VTK_USE_VIDEO_FOR_WINDOWS - Video for windows support in vtkHybrid.
 # VTK_USE_VOLUMEPRO         - VolumePro support compiled in vtkRendering.
 # VTK_USE_X                 - X window support compiled in vtkRendering.
-# VTK_WRAP_TCL              - Tcl wrapping.
-# VTK_WRAP_PYTHON           - Python wrapping.
 # VTK_WRAP_JAVA             - Java wrapping.
+# VTK_WRAP_PYTHON           - Python wrapping.
+# VTK_WRAP_TCL              - Tcl wrapping.
 #
 # VTK_TCL_EXE               - Location of Tcl wrapper executable.
 # VTK_PYTHON_EXE            - Location of Python wrapper executable.
@@ -195,14 +199,18 @@ SET(VTK_USE_64BIT_IDS "@VTK_USE_64BIT_IDS@")
 SET(VTK_USE_ANSI_STDLIB "@VTK_USE_ANSI_STDLIB@")
 SET(VTK_USE_CARBON "@VTK_USE_CARBON@")
 SET(VTK_USE_COCOA "@VTK_USE_COCOA@")
-SET(VTK_USE_MPI "@VTK_USE_MPI@")
-SET(VTK_USE_VOLUMEPRO "@VTK_USE_VOLUMEPRO@")
+SET(VTK_USE_HYBRID "@VTK_USE_HYBRID@")
 SET(VTK_USE_MATROX_IMAGING "@VTK_USE_MATROX_IMAGING@")
+SET(VTK_USE_MPI "@VTK_USE_MPI@")
+SET(VTK_USE_PARALLEL "@VTK_USE_PARALLEL@")
+SET(VTK_USE_PATENTED "@VTK_USE_PATENTED@")
+SET(VTK_USE_RENDERING "@VTK_USE_RENDERING@")
 SET(VTK_USE_VIDEO_FOR_WINDOWS "@VTK_USE_VIDEO_FOR_WINDOWS@")
+SET(VTK_USE_VOLUMEPRO "@VTK_USE_VOLUMEPRO@")
 SET(VTK_USE_X "@VTK_USE_X@")
-SET(VTK_WRAP_TCL "@VTK_WRAP_TCL@")
-SET(VTK_WRAP_PYTHON "@VTK_WRAP_PYTHON@")
 SET(VTK_WRAP_JAVA "@VTK_WRAP_JAVA@")
+SET(VTK_WRAP_PYTHON "@VTK_WRAP_PYTHON@")
+SET(VTK_WRAP_TCL "@VTK_WRAP_TCL@")
 
 # The VTK executable locations.
 SET(VTK_TCL_EXE "@VTK_TCL_EXE_CONFIG@")
