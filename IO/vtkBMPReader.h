@@ -39,7 +39,6 @@
 #ifndef __vtkBMPReader_h
 #define __vtkBMPReader_h
 
-#include <stdio.h>
 #include "vtkImageReader.h"
 
 class VTK_IO_EXPORT vtkBMPReader : public vtkImageReader

@@ -32,7 +32,8 @@
 #define __vtkPolyDataReader_h
 
 #include "vtkDataReader.h"
-#include "vtkPolyData.h"
+
+class vtkPolyData;
 
 class VTK_IO_EXPORT vtkPolyDataReader : public vtkDataReader
 {

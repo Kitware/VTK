@@ -29,9 +29,7 @@
 #ifndef __vtkSTLWriter_h
 #define __vtkSTLWriter_h
 
-#include <stdio.h>
 #include "vtkPolyDataWriter.h"
-#include "vtkPolyData.h"
 
 class VTK_IO_EXPORT vtkSTLWriter : public vtkPolyDataWriter
 {

@@ -65,7 +65,6 @@ WARRANTY OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
 #ifndef __vtkPLY_h
 #define __vtkPLY_h
 
-#include <stdio.h>
 #include <stddef.h>
 #include "vtkObject.h"
 

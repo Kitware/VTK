@@ -25,7 +25,6 @@
 #ifndef __vtkSLCReader_h
 #define __vtkSLCReader_h
 
-#include <stdio.h>
 #include "vtkImageReader2.h"
 
 class VTK_IO_EXPORT vtkSLCReader : public vtkImageReader2 

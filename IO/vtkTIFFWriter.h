@@ -22,7 +22,6 @@
 #ifndef __vtkTIFFWriter_h
 #define __vtkTIFFWriter_h
 
-#include <stdio.h>
 #include "vtkImageWriter.h"
 
 class VTK_IO_EXPORT vtkTIFFWriter : public vtkImageWriter

@@ -50,10 +50,7 @@
 #ifndef __vtkMCubesReader_h
 #define __vtkMCubesReader_h
 
-#include <stdio.h>
 #include "vtkPolyDataSource.h"
-#include "vtkPoints.h"
-#include "vtkCellArray.h"
 
 #define VTK_FILE_BYTE_ORDER_BIG_ENDIAN 0
 #define VTK_FILE_BYTE_ORDER_LITTLE_ENDIAN 1

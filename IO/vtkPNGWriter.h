@@ -28,6 +28,9 @@
 
 #include "vtkImageWriter.h"
 
+class vtkImageData;
+class vtkUnsignedCharArray;
+
 class VTK_IO_EXPORT vtkPNGWriter : public vtkImageWriter
 {
 public:

@@ -27,7 +27,8 @@
 #define __vtkRectilinearGridWriter_h
 
 #include "vtkDataWriter.h"
-#include "vtkRectilinearGrid.h"
+
+class vtkRectilinearGrid;
 
 class VTK_IO_EXPORT vtkRectilinearGridWriter : public vtkDataWriter
 {

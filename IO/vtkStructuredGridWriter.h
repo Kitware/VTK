@@ -27,7 +27,8 @@
 #define __vtkStructuredGridWriter_h
 
 #include "vtkDataWriter.h"
-#include "vtkStructuredGrid.h"
+
+class vtkStructuredGrid;
 
 class VTK_IO_EXPORT vtkStructuredGridWriter : public vtkDataWriter
 {

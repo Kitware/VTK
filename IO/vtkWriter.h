@@ -37,7 +37,8 @@
 #define __vtkWriter_h
 
 #include "vtkProcessObject.h"
-#include "vtkDataObject.h"
+
+class vtkDataObject;
 
 #define VTK_ASCII 1
 #define VTK_BINARY 2

@@ -26,7 +26,8 @@
 #define __vtkImageReader2Collection_h
 
 #include "vtkCollection.h"
-#include "vtkImageReader2.h"
+
+class vtkImageReader2;
 
 class VTK_IO_EXPORT vtkImageReader2Collection : public vtkCollection
 {
@@ -55,15 +56,5 @@ private:
   vtkImageReader2Collection(const vtkImageReader2Collection&);  // Not implemented.
   void operator=(const vtkImageReader2Collection&);  // Not implemented.
 };
-
-inline void vtkImageReader2Collection::AddItem(vtkImageReader2 *f) 
-{
-  this->vtkCollection::AddItem((vtkObject *)f);
-}
-
-inline vtkImageReader2 *vtkImageReader2Collection::GetNextItem() 
-{ 
-  return static_cast<vtkImageReader2*>(this->GetNextItemAsObject());
-}
 
 #endif

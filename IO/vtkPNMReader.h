@@ -36,7 +36,6 @@
 #ifndef __vtkPNMReader_h
 #define __vtkPNMReader_h
 
-#include <stdio.h>
 #include "vtkImageReader.h"
 
 class VTK_IO_EXPORT vtkPNMReader : public vtkImageReader

@@ -35,13 +35,13 @@
 #define __vtkDataSetReader_h
 
 #include "vtkDataReader.h"
-#include "vtkDataSet.h"
 
+class vtkDataSet;
 class vtkPolyData;
-class vtkStructuredPoints;
-class vtkStructuredGrid;
-class vtkUnstructuredGrid;
 class vtkRectilinearGrid;
+class vtkStructuredGrid;
+class vtkStructuredPoints;
+class vtkUnstructuredGrid;
 
 class VTK_IO_EXPORT vtkDataSetReader : public vtkDataReader
 {
@@ -55,8 +55,7 @@ public:
   // to know the type of the data, the FileName must be set before GetOutput 
   // is applied.
   vtkDataSet *GetOutput();
-  vtkDataSet *GetOutput(int idx)
-    {return static_cast<vtkDataSet *>(this->vtkSource::GetOutput(idx)); };
+  vtkDataSet *GetOutput(int idx);
 
   // Description:
   // Get the output as various concrete types. This method is typically used

@@ -32,7 +32,6 @@
 #ifndef __vtkGESignaReader_h
 #define __vtkGESignaReader_h
 
-#include <stdio.h>
 #include "vtkMedicalImageReader2.h"
 
 class VTK_IO_EXPORT vtkGESignaReader : public vtkMedicalImageReader2

@@ -26,7 +26,8 @@
 #define __vtkPolyDataWriter_h
 
 #include "vtkDataWriter.h"
-#include "vtkPolyData.h"
+
+class vtkPolyData;
 
 class VTK_IO_EXPORT vtkPolyDataWriter : public vtkDataWriter
 {

@@ -35,10 +35,10 @@
 #ifndef __vtkSTLReader_h
 #define __vtkSTLReader_h
 
-#include <stdio.h>
 #include "vtkPolyDataSource.h"
-#include "vtkPoints.h"
-#include "vtkCellArray.h"
+
+class vtkPoints;
+class vtkCellArray;
 
 class VTK_IO_EXPORT vtkSTLReader : public vtkPolyDataSource 
 {

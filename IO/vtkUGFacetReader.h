@@ -24,9 +24,9 @@
 #ifndef __vtkUGFacetReader_h
 #define __vtkUGFacetReader_h
 
-#include <stdio.h>
 #include "vtkPolyDataSource.h"
-#include "vtkShortArray.h"
+
+class vtkShortArray;
 
 class VTK_IO_EXPORT vtkUGFacetReader : public vtkPolyDataSource 
 {

@@ -32,7 +32,8 @@
 #define __vtkRectilinearGridReader_h
 
 #include "vtkDataReader.h"
-#include "vtkRectilinearGrid.h"
+
+class vtkRectilinearGrid;
 
 class VTK_IO_EXPORT vtkRectilinearGridReader : public vtkDataReader
 {

@@ -26,7 +26,6 @@
 #ifndef __vtkJPEGReader_h
 #define __vtkJPEGReader_h
 
-#include <stdio.h>
 #include "vtkImageReader2.h"
 
 class VTK_IO_EXPORT vtkJPEGReader : public vtkImageReader2

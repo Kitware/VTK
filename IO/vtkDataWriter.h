@@ -29,7 +29,6 @@
 #ifndef __vtkDataWriter_h
 #define __vtkDataWriter_h
 
-#include <stdio.h>
 #include "vtkWriter.h"
 
 class vtkDataSet;

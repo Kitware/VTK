@@ -45,7 +45,6 @@
 #ifndef __vtkVolumeReader_h
 #define __vtkVolumeReader_h
 
-#include <stdio.h>
 #include "vtkStructuredPointsSource.h"
 
 class VTK_IO_EXPORT vtkVolumeReader : public vtkStructuredPointsSource

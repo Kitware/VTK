@@ -26,7 +26,7 @@
 #define __vtkUnstructuredGridWriter_h
 
 #include "vtkDataWriter.h"
-#include "vtkUnstructuredGrid.h"
+class vtkUnstructuredGrid;
 
 class VTK_IO_EXPORT vtkUnstructuredGridWriter : public vtkDataWriter
 {

@@ -34,7 +34,6 @@
 #ifndef __vtkMCubesWriter_h
 #define __vtkMCubesWriter_h
 
-#include <stdio.h>
 #include "vtkPolyDataWriter.h"
 
 class VTK_IO_EXPORT vtkMCubesWriter : public vtkPolyDataWriter

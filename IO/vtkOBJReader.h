@@ -25,7 +25,6 @@
 #ifndef __vtkOBJReader_h
 #define __vtkOBJReader_h
 
-#include <stdio.h>
 #include "vtkPolyDataSource.h"
 
 class VTK_IO_EXPORT vtkOBJReader : public vtkPolyDataSource 

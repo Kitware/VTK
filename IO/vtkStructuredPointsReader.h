@@ -32,7 +32,8 @@
 #define __vtkStructuredPointsReader_h
 
 #include "vtkDataReader.h"
-#include "vtkStructuredPoints.h"
+
+class vtkStructuredPoints;
 
 class VTK_IO_EXPORT vtkStructuredPointsReader : public vtkDataReader
 {

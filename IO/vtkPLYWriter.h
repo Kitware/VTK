@@ -35,6 +35,7 @@
 #include "vtkPolyDataWriter.h"
 
 class vtkScalarsToColors;
+class vtkDataSetAttributes;
 
 #define VTK_LITTLE_ENDIAN 0
 #define VTK_BIG_ENDIAN    1

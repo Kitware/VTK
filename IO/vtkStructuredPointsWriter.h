@@ -26,7 +26,8 @@
 #define __vtkStructuredPointsWriter_h
 
 #include "vtkDataWriter.h"
-#include "vtkImageData.h"
+
+class vtkImageData;
 
 class VTK_IO_EXPORT vtkStructuredPointsWriter : public vtkDataWriter
 {

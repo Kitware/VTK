@@ -21,7 +21,8 @@
 #define __vtkEnSightReader_h
 
 #include "vtkDataSetSource.h"
-#include "vtkCollection.h"
+
+class vtkCollection;
 
 // element types
 #define VTK_ENSIGHT_POINT               0

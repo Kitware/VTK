@@ -28,8 +28,8 @@
 #ifndef __vtkDEMReader_h
 #define __vtkDEMReader_h
 
-#include <stdio.h>
 #include "vtkImageSource.h"
+
 class VTK_IO_EXPORT vtkDEMReader : public vtkImageSource
 {
 public:

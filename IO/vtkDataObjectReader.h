@@ -32,7 +32,8 @@
 #define __vtkDataObjectReader_h
 
 #include "vtkDataReader.h"
-#include "vtkDataObject.h"
+
+class vtkDataObject;
 
 class VTK_IO_EXPORT vtkDataObjectReader : public vtkDataReader
 {

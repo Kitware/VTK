@@ -50,7 +50,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef __vtkTIFFReader_h
 #define __vtkTIFFReader_h
 
-#include <stdio.h>
 #include "vtkImageReader2.h"
 
 //BTX

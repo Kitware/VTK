@@ -78,10 +78,9 @@
 #ifndef __vtkPLOT3DReader_h
 #define __vtkPLOT3DReader_h
 
-#include <stdio.h>
 #include "vtkStructuredGridSource.h"
-#include "vtkIntArray.h"
 
+class vtkIntArray;
 class vtkFloatArray;
 
 // file formats
