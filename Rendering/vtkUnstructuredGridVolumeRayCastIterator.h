@@ -37,8 +37,7 @@ class vtkIdList;
 class vtkDoubleArray;
 class vtkDataArray;
 
-class VTK_RENDERING_EXPORT vtkUnstructuredGridVolumeRayCastIterator
-  : public vtkObject
+class VTK_RENDERING_EXPORT vtkUnstructuredGridVolumeRayCastIterator : public vtkObject
 {
 public:
   vtkTypeRevisionMacro(vtkUnstructuredGridVolumeRayCastIterator, vtkObject);

@@ -33,7 +33,7 @@
 #include "vtkVolumeProperty.h"
 #include "vtkUnstructuredGridVolumeRayCastIterator.h"
 
-vtkCxxRevisionMacro(vtkUnstructuredGridBunykRayCastFunction, "1.28");
+vtkCxxRevisionMacro(vtkUnstructuredGridBunykRayCastFunction, "1.29");
 vtkStandardNewMacro(vtkUnstructuredGridBunykRayCastFunction);
 
 #define VTK_BUNYKRCF_NUMLISTS 100000
@@ -76,7 +76,6 @@ public:
   vtkTypeRevisionMacro(vtkUnstructuredGridBunykRayCastIterator,
                        vtkUnstructuredGridVolumeRayCastIterator);
   static vtkUnstructuredGridBunykRayCastIterator *New();
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
 
   void Initialize(int x, int y);
 
@@ -100,9 +99,13 @@ protected:
   vtkUnstructuredGridBunykRayCastFunction::Intersection *IntersectionPtr;
   vtkUnstructuredGridBunykRayCastFunction::Triangle     *CurrentTriangle;
   vtkIdType                                              CurrentTetra;
+
+private:
+  vtkUnstructuredGridBunykRayCastIterator(const vtkUnstructuredGridBunykRayCastIterator&);  // Not implemented
+  void operator=(const vtkUnstructuredGridBunykRayCastIterator&);  // Not implemented
 };
 
-vtkCxxRevisionMacro(vtkUnstructuredGridBunykRayCastIterator, "1.28");
+vtkCxxRevisionMacro(vtkUnstructuredGridBunykRayCastIterator, "1.29");
 vtkStandardNewMacro(vtkUnstructuredGridBunykRayCastIterator);
 
 vtkUnstructuredGridBunykRayCastIterator::vtkUnstructuredGridBunykRayCastIterator()
@@ -113,15 +116,6 @@ vtkUnstructuredGridBunykRayCastIterator::vtkUnstructuredGridBunykRayCastIterator
 vtkUnstructuredGridBunykRayCastIterator::~vtkUnstructuredGridBunykRayCastIterator()
 {
   this->SetRayCastFunction(NULL);
-}
-
-void vtkUnstructuredGridBunykRayCastIterator::PrintSelf(ostream &os, vtkIndent indent)
-{
-  this->Superclass::PrintSelf(os, indent);
-
-  os << indent << "RayPosition: (" << this->RayPosition[0]
-     << ", " << this->RayPosition[1] << ")" << endl;
-  os << indent << "RayCastFunction: " << this->RayCastFunction << endl;
 }
 
 void vtkUnstructuredGridBunykRayCastIterator::Initialize(int x, int y)
