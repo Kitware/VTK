@@ -24,7 +24,6 @@ vtkImageShrink3D shrink
 shrink SetInput [reader GetOutput]
 shrink SetShrinkFactors 2 2 2
 shrink AveragingOn
-shrink SetInputMemoryLimit 50
 #shrink DebugOn
 
 vtkImageViewer viewer
