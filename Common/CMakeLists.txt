@@ -332,6 +332,7 @@ ENDIF(LOCALUSERMACRODEFINED)
 
 INSTALL_FILES(/include/vtk .h
   vtkCellType
+  vtkDataArrayTemplate
   vtkIOStream
   vtkIOStreamFwd
   vtkSetGet
@@ -367,6 +368,7 @@ IF(VTK_WRAP_JAVA)
 ENDIF(VTK_WRAP_JAVA)
 
 INSTALL_FILES(/include/vtk .txx
+  vtkDataArrayTemplate
   vtkImageIterator
   vtkImageProgressIterator
 )
