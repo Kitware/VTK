@@ -48,17 +48,24 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // (Note: the texture coordinates are referred to as r-s-t coordinates).
 //
 // The texture coordinates are automatically normalized to lie between (0,1). 
-// Thus, no matter what the implicit functions evaluate to, the resulting texture 
-// coordinates lie between (0,1), with the zero implicit function value mapped 
-// to the 0.5 texture coordinates value. Depending upon the maximum 
-// negative/positive implicit function values, the full (0,1) range may not be 
-// occupied (i.e., the positive/negative ranges are mapped using the same scale 
-// factor).
+// Thus, no matter what the implicit functions evaluate to, the resulting 
+// texture coordinates lie between (0,1), with the zero implicit function 
+// value mapped to the 0.5 texture coordinates value. Depending upon the 
+// maximum negative/positive implicit function values, the full (0,1) range 
+// may not be occupied (i.e., the positive/negative ranges are mapped using 
+// the same scale factor).
+//
+// A boolean variable InvertTexture is available to flip the texture 
+// coordinates around 0.5 (value 1.0 becomes 0.0, 0.25->0.75). This is 
+// equivalent to flipping the texture map (but a whole lot easier).
+
 // .SECTION Caveats
 // You can use the transformation capabilities of vtkImplicitFunction to
 // orient, translate, and scale the implicit functions. Also, the dimension of 
 // the texture coordinates is implicitly defined by the number of implicit 
 // functions defined.
+// .SECTION See Also
+// vtkImplicitFunction vtkTexture vtkBooleanTexture
 
 #ifndef __vtkImplicitTextureCoords_h
 #define __vtkImplicitTextureCoords_h
@@ -88,12 +95,19 @@ public:
   vtkSetObjectMacro(TFunction,vtkImplicitFunction);
   vtkGetObjectMacro(TFunction,vtkImplicitFunction);
 
+  // Description:
+  // Specify a implicit function to compute the t texture coordinate.
+  vtkSetMacro(FlipTexture,int);
+  vtkGetMacro(FlipTexture,int);
+  vtkBooleanMacro(FlipTexture,int);
+
 protected:
   void Execute();
 
   vtkImplicitFunction *RFunction;
   vtkImplicitFunction *SFunction;
   vtkImplicitFunction *TFunction;
+  int FlipTexture;
 };
 
 #endif

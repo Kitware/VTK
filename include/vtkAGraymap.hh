@@ -100,8 +100,10 @@ protected:
 inline void vtkAGraymap::SetColor(int i, unsigned char rgba[4]) 
 {
   float g = 0.30*rgba[0] + 0.59*rgba[1] + 0.11*rgba[2];
+  g = (g > 255.0 ? 255.0 : g);
+
   i *= 2; 
-  this->S[i] = (unsigned char)((g < 1.0 ? g : 1.0)*255);
+  this->S[i] = (unsigned char)g;
   this->S[i+1] = rgba[3]; 
 }
 
@@ -111,8 +113,10 @@ inline void vtkAGraymap::SetColor(int i, unsigned char rgba[4])
 inline void vtkAGraymap::InsertColor(int i, unsigned char rgba[4]) 
 {
   float g = 0.30*rgba[0] + 0.59*rgba[1] + 0.11*rgba[2];
+  g = (g > 255.0 ? 255.0 : g);
+
   this->S.InsertValue(2*i+1, rgba[3]);
-  this->S[2*i] = (unsigned char)((g < 1.0 ? g : 1.0)*255);
+  this->S[2*i] = (unsigned char)g;
 }
 
 // Description:
@@ -122,9 +126,10 @@ inline int vtkAGraymap::InsertNextColor(unsigned char rgba[4])
 {
   int id;
   float g = 0.30*rgba[0] + 0.59*rgba[1] + 0.11*rgba[2];
+  g = (g > 255.0 ? 255.0 : g);
 
-  id = this->S.InsertNextValue(rgba[3]);
-  this->S.InsertNextValue((unsigned char)(g*255));
+  id = this->S.InsertNextValue((unsigned char)g);
+  this->S.InsertNextValue(rgba[3]);
 
   return id/2;
 }

@@ -88,7 +88,7 @@ void vtkGlrTexture::Load(vtkTexture *txt, vtkGlrRenderer *ren)
     unsigned char *dataPtr;
     int rowLength;
     unsigned char *resultData;
-    int xsize, ysize;
+    int xsize, ysize, col, row;
 
     // get some info
     size = txt->GetInput()->GetDimensions();
@@ -143,13 +143,12 @@ void vtkGlrTexture::Load(vtkTexture *txt, vtkGlrRenderer *ren)
     // the best idea is to make your size a multiple of 4
     // so that this conversion will never be done.
     rowLength = ((xsize*bytesPerPixel +3 )/4)*4;
-    if (rowLength == xsize*bytesPerPixel)
+    if (rowLength == xsize*bytesPerPixel && bytesPerPixel == 1 )
       {
       resultData = dataPtr;
       }
-    else
+    else //have to create our own local data
       {
-      int col;
       unsigned char *src,*dest;
       int srcLength;
 
@@ -159,12 +158,34 @@ void vtkGlrTexture::Load(vtkTexture *txt, vtkGlrRenderer *ren)
       src = dataPtr;
       dest = resultData;
 
-      for (col = 0; col < ysize; col++)
+      for (row = 0; row < ysize; row++)
 	{
 	memcpy(dest,src,srcLength);
 	src += srcLength;
 	dest += rowLength;
 	}
+      }
+
+    // gl orders things as abgr; vtk has reverse order; need to swap
+    if ( bytesPerPixel > 1 )
+      {
+      int i, idx;
+      unsigned char b, *b1, *b2;
+      for (row=0; row < ysize; row++)
+        {
+        for (col=0; col < xsize; col++)
+          {
+          for (i=0; i<(bytesPerPixel/2); i++)
+            {
+            idx = row*rowLength + col*bytesPerPixel;
+            b1 = resultData + idx + i;
+            b2 = resultData + idx + (bytesPerPixel-i-1);
+            b = *b1;
+            *b1 = *b2;
+            *b2 = b;
+            }
+          }
+        }
       }
 
     if (txt->GetInterpolate())

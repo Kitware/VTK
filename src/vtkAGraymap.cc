@@ -113,8 +113,8 @@ void vtkAGraymap::SetAGrayValue(int i, unsigned char ga[2])
 // checking and will allocate additional memory if necessary.
 void vtkAGraymap::InsertAGrayValue(int i, unsigned char ga[2]) 
 {
-  this->S.InsertValue(2*i+1, ga[0]);
-  this->S[2*i] = ga[1];
+  this->S.InsertValue(2*i+1, ga[1]);
+  this->S[2*i] = ga[0];
 }
 
 // Description:
@@ -124,8 +124,8 @@ int vtkAGraymap::InsertNextAGrayValue(unsigned char ga[2])
 {
   int id;
 
-  id = this->S.InsertNextValue(ga[1]);
-  this->S.InsertNextValue(ga[0]);
+  id = this->S.InsertNextValue(ga[0]);
+  this->S.InsertNextValue(ga[1]);
 
   return id/2;
 }

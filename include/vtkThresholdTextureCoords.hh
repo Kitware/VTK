@@ -42,11 +42,18 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .SECTION Description
 // vtkThresholdTextureCoords is a filter that generates texture coordinates for
 // any input dataset type given a threshold criterion. The criterion can take 
-// three forms: greater than a particular value, less than a particular value,
-// or between two values. If the threshold criterion is satisfied, the texture
-// coordinate component is set to 1.0. Otherwise, it is set to 0.0.
+// three forms: greater than a particular value (ThresholdByUpper()), less than 
+// a particular value (ThresholdByLower(), or between two values 
+// (ThresholdBetween(). If the threshold criterion is satisfied, the "in" texture
+// coordinate will be set (this can be specified by the user). If the threshold
+// criterion is not satisfied the "out" is set.
+// .SECTION Caveats
+// There is a texture map - texThres.vtk - that can be used in conjunction
+// with this filter. This map defines a "transparent" region for texture 
+// coordinates 0<=r<0.5, and an opaque full intensity map for texture coordinates
+// 0.5<r<=1.0. There is a small transition region for r=0.5.
 // .SECTION See Also
-// vtkThreshold, vtkThresholdPoints
+// vtkThreshold vtkThresholdPoints
 
 #ifndef __vtkThresholdTextureCoords_h
 #define __vtkThresholdTextureCoords_h
@@ -67,8 +74,21 @@ public:
   vtkGetMacro(UpperThreshold,float);
   vtkGetMacro(LowerThreshold,float);
 
+  // Description:
+  // Set the desired dimension of the texture map.
   vtkSetClampMacro(TextureDimension,int,1,3);
   vtkGetMacro(TextureDimension,int);
+
+  // Description:
+  // Set the texture coordinate value for point satisfying threshold criterion.
+  vtkSetVector3Macro(InTextureCoord,float);
+  vtkGetVectorMacro(InTextureCoord,float,3);
+
+  // Description:
+  // Set the texture coordinate value for point NOT satisfying threshold
+  //  criterion.
+  vtkSetVector3Macro(OutTextureCoord,float);
+  vtkGetVectorMacro(OutTextureCoord,float,3);
 
 protected:
   // Usual data generation method
@@ -78,6 +98,9 @@ protected:
   float UpperThreshold;
 
   int TextureDimension;
+
+  float InTextureCoord[3];
+  float OutTextureCoord[3];
 
   //BTX
   int (vtkThresholdTextureCoords::*ThresholdFunction)(float s);

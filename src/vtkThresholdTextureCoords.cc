@@ -41,7 +41,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkThresholdTextureCoords.hh"
 
 // Construct with lower threshold=0, upper threshold=1, threshold 
-// function=upper, and texture dimension = 2.
+// function=upper, and texture dimension = 2. The "out" texture coordinate
+// is (0.25,0,0); the "in" texture coordinate is (0.75,0,0).
 vtkThresholdTextureCoords::vtkThresholdTextureCoords()
 {
   this->LowerThreshold = 0.0;
@@ -49,6 +50,14 @@ vtkThresholdTextureCoords::vtkThresholdTextureCoords()
   this->TextureDimension = 2;
 
   this->ThresholdFunction = &vtkThresholdTextureCoords::Upper;
+
+  this->OutTextureCoord[0] = 0.25;
+  this->OutTextureCoord[1] = 0.0;
+  this->OutTextureCoord[2] = 0.0;
+
+  this->InTextureCoord[0] = 0.75;
+  this->InTextureCoord[1] = 0.0;
+  this->InTextureCoord[2] = 0.0;
 }
 
 // Description:
@@ -93,7 +102,6 @@ void vtkThresholdTextureCoords::Execute()
   int numPts;
   vtkFloatTCoords *newTCoords;
   int ptId;
-  float inTC[3], outTC[3];
   vtkScalars *inScalars;
   vtkDataSet *input=this->Input;
   vtkDataSet *output=this->Output;
@@ -108,19 +116,17 @@ void vtkThresholdTextureCoords::Execute()
      
   numPts = input->GetNumberOfPoints();
   newTCoords = new vtkFloatTCoords(this->TextureDimension);
-  inTC[0] = inTC[1] = inTC[2] = 1.0;
-  outTC[0] = outTC[1] = outTC[2] = 0.0;
 
-  // Check that the scalars of each cell satisfy the threshold criterion
-  for (ptId=0; ptId < input->GetNumberOfCells(); ptId++)
+  // Check that the scalars of each point satisfy the threshold criterion
+  for (ptId=0; ptId < numPts; ptId++)
     {
     if ( ((this->*(this->ThresholdFunction))(inScalars->GetScalar(ptId))) )
       {
-      newTCoords->InsertTCoord(ptId,inTC);
+      newTCoords->InsertTCoord(ptId,this->InTextureCoord);
       }
     else //doesn't satisfy criterion
       {
-      newTCoords->InsertTCoord(ptId,outTC);
+      newTCoords->InsertTCoord(ptId,this->OutTextureCoord);
       }
 
     } //for all points
@@ -148,4 +154,12 @@ void vtkThresholdTextureCoords::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Lower Threshold: " << this->LowerThreshold << "\n";;
   os << indent << "Upper Threshold: " << this->UpperThreshold << "\n";;
   os << indent << "Texture Dimension: " << this->TextureDimension << "\n";;
+
+  os << indent << "Out Texture Coordinate: (" << this->OutTextureCoord[0] 
+     << ", " << this->OutTextureCoord[1]
+     << ", " << this->OutTextureCoord[2] << ")\n";
+
+  os << indent << "In Texture Coordinate: (" << this->InTextureCoord[0] 
+     << ", " << this->InTextureCoord[1]
+     << ", " << this->InTextureCoord[2] << ")\n";
 }

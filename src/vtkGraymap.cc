@@ -79,7 +79,9 @@ void vtkGraymap::GetColor(int id, unsigned char rgba[4])
 void vtkGraymap::SetColor(int id, unsigned char rgba[4])
 {
   float g = 0.30*rgba[0] + 0.59*rgba[1] + 0.11*rgba[2];
-  this->S[id] = (unsigned char)((g < 1.0 ? g : 1.0)*255);
+  g = (g > 255.0 ? 255.0 : g);
+
+  this->S[id] = (unsigned char)g;
 }
 
 // Description:
@@ -88,7 +90,9 @@ void vtkGraymap::SetColor(int id, unsigned char rgba[4])
 void vtkGraymap::InsertColor(int id, unsigned char rgba[4])
 {
   float g = 0.30*rgba[0] + 0.59*rgba[1] + 0.11*rgba[2];
-  this->S.InsertValue(id,(unsigned char)(g*255));
+  g = (g > 255.0 ? 255.0 : g);
+
+  this->S.InsertValue(id,(unsigned char)g);
 }
 
 // Description:
@@ -97,7 +101,9 @@ void vtkGraymap::InsertColor(int id, unsigned char rgba[4])
 int vtkGraymap::InsertNextColor(unsigned char rgba[4])
 {
   float g = 0.30*rgba[0] + 0.59*rgba[1] + 0.11*rgba[2];
-  int id = this->S.InsertNextValue((unsigned char)(g*255));
+  g = (g > 255.0 ? 255.0 : g);
+
+  int id = this->S.InsertNextValue((unsigned char)g);
   return id;
 }
 

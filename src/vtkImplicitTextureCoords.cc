@@ -41,12 +41,15 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkImplicitTextureCoords.hh"
 
 // Description:
-// Create object with texture dimension=2 and no r-s-t implicit functions defined.
+// Create object with texture dimension=2 and no r-s-t implicit functions
+// defined and FlipTexture turned off.
 vtkImplicitTextureCoords::vtkImplicitTextureCoords()
 {
   this->RFunction = NULL;
   this->SFunction = NULL;
   this->TFunction = NULL;
+
+  this->FlipTexture = 0;
 }
 
 void vtkImplicitTextureCoords::Execute()
@@ -137,6 +140,7 @@ void vtkImplicitTextureCoords::Execute()
       }
     }
 
+  if ( this->FlipTexture ) for (i=0; i<tcoordDim; i++) scale[i] *= (-1.0);
   for (ptId=0; ptId<numPts; ptId++)
     {
     tc = newTCoords->GetTCoord(ptId);
