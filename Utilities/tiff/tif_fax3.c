@@ -485,7 +485,7 @@ Fax3SetupState(TIFF* tif)
         if (sp->rw_mode == O_RDONLY) {  /* 1d/2d decoding */
                 Fax3DecodeState* dsp = DecoderState(tif);
                 uint32 nruns = needsRefLine ?
-                     2*TIFFroundup(rowpixels,32) : rowpixels;
+                     2*TIFFroundup(rowpixels,32) : (uint32)rowpixels;
 
                 dsp->runs = (uint32*) _TIFFmalloc((2*nruns+3)*sizeof (uint32));
                 if (dsp->runs == NULL) {
