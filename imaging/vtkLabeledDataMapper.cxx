@@ -62,6 +62,20 @@ vtkLabeledDataMapper::vtkLabeledDataMapper()
   this->TextMappers = NULL;
 }
 
+// Release any graphics resources that are being consumed by this actor.
+// The parameter window could be used to determine which graphic
+// resources to release.
+void vtkLabeledDataMapper::ReleaseGraphicsResources(vtkWindow *win)
+{
+  if (this->TextMappers != NULL )
+    {
+    for (int i=0; i < this->NumberOfLabels; i++)
+      {
+      this->TextMappers[i]->ReleaseGraphicsResources(win);
+      }
+    }
+}
+
 vtkLabeledDataMapper::~vtkLabeledDataMapper()
 {
   if (this->LabelFormat)
@@ -82,7 +96,24 @@ vtkLabeledDataMapper::~vtkLabeledDataMapper()
 }
 
 void vtkLabeledDataMapper::RenderOverlay(vtkViewport *viewport, 
-					  vtkActor2D *actor)
+					 vtkActor2D *actor)
+{
+  int i;
+  vtkDataSet *input=this->GetInput();
+
+  if ( ! input )
+    {
+    vtkErrorMacro(<<"Need input data to render labels");
+    return;
+    }
+  for (i=0; i<this->NumberOfLabels; i++)
+    {
+    this->TextMappers[i]->RenderOverlay(viewport, actor);
+    }
+}
+
+void vtkLabeledDataMapper::RenderOpaqueGeometry(vtkViewport *viewport, 
+						vtkActor2D *actor)
 {
   int i, j, numComp, pointIdLabels, activeComp;
   char string[1024], format[1024];
@@ -105,7 +136,7 @@ void vtkLabeledDataMapper::RenderOverlay(vtkViewport *viewport,
 
   // Check to see whether we have to rebuild everything
   if ( this->GetMTime() > this->BuildTime || 
-  input->GetMTime() > this->BuildTime ) 
+       input->GetMTime() > this->BuildTime ) 
     {
     vtkDebugMacro(<<"Rebuilding labels");
 
@@ -242,7 +273,7 @@ void vtkLabeledDataMapper::RenderOverlay(vtkViewport *viewport,
     this->Input->GetPoint(i,x);
     actor->GetPositionCoordinate()->SetCoordinateSystemToWorld();
     actor->GetPositionCoordinate()->SetValue(x);
-    this->TextMappers[i]->RenderOverlay(viewport, actor);
+    this->TextMappers[i]->RenderOpaqueGeometry(viewport, actor);
     }
 }
 
