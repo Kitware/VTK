@@ -86,6 +86,14 @@ void vtkImageStencilData::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkDataObject::PrintSelf(os,indent);
 
+  os << indent << "Extent: (" 
+     << this->Extent[0] << ", "
+     << this->Extent[1] << ", "
+     << this->Extent[2] << ", "
+     << this->Extent[3] << ", "
+     << this->Extent[4] << ", "
+     << this->Extent[5] << ")\n";
+
   os << indent << "Spacing: (" 
      << this->Spacing[0] << ", "
      << this->Spacing[1] << ", "
