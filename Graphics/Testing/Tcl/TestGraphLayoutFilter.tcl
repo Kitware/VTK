@@ -46,6 +46,7 @@ pd SetLines lines
 
 vtkGraphLayoutFilter layout2D
     layout2D SetInput pd
+    layout2D SetMaxNumberOfIterations 100
     layout2D ThreeDimensionalLayoutOff
     layout2D AutomaticBoundsComputationOff
     layout2D SetGraphBounds -2.0 0.0 -1.0 1.0 -1.0 1.0
