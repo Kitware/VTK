@@ -42,7 +42,7 @@
 
 #include "vtkDataSetToPolyDataFilter.h"
 
-#include "vtkContourValues.h"
+#include "vtkContourValues.h" // Needed for inline methods
 
 #define VTK_SORT_BY_VALUE 0
 #define VTK_SORT_BY_CELL 1
