@@ -44,6 +44,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkLine.h"
 #include "vtkQuad.h"
 #include "vtkHexahedron.h"
+#include "vtkExtentTranslator.h"
 #include "vtkObjectFactory.h"
 
 
@@ -717,52 +718,20 @@ void vtkStructuredGrid::GetCellPoints(int cellId, vtkIdList *ptIds)
 void vtkStructuredGrid::SetUpdateExtent(int piece, int numPieces,
 					int ghostLevel)
 {
-  int ext[6], zdim, min, max, oldZMin, oldZMax;
+  int ext[6];
   
-  // Lets just divide up the z axis.
+  this->UpdateInformation();
   this->GetWholeExtent(ext);
-  zdim = ext[5] - ext[4] + 1;
-  
-  oldZMin = ext[4];
-  oldZMax = ext[5];
-  
-  if (piece >= zdim)
-    {
-    // empty
-    this->SetUpdateExtent(0, -1, 0, -1, 0, -1);
-    return;
-    }
-  
-  if (numPieces > zdim)
-    {
-    numPieces = zdim;
-    }
-  
-  min = ext[4] + piece * zdim / numPieces;
-  max = ext[4] + (piece+1) * zdim / numPieces - 1;
-  
-  ext[4] = min;
-  ext[5] = max;
+  this->ExtentTranslator->SetWholeExtent(ext);
+  this->ExtentTranslator->SetPiece(piece);
+  this->ExtentTranslator->SetNumberOfPieces(numPieces);
+  this->ExtentTranslator->SetGhostLevel(ghostLevel);
+  this->ExtentTranslator->PieceToExtent();
+  this->SetUpdateExtent(this->ExtentTranslator->GetExtent());
 
-  if (ext[4] - ghostLevel >= oldZMin)
-    {
-    ext[4] = ext[4] - ghostLevel;
-    }
-  else
-    {
-    ext[4] = oldZMin;
-    }
-  
-  if (ext[5] + ghostLevel <= oldZMax)
-    {
-    ext[5] = ext[5] + ghostLevel;
-    }
-  else
-    {
-    ext[5] = oldZMax;
-    }
-  
-  this->SetUpdateExtent(ext);
+  this->UpdatePiece = piece;
+  this->UpdateNumberOfPieces = numPieces;
+  this->UpdateGhostLevel = ghostLevel;
 }
 
 //----------------------------------------------------------------------------
