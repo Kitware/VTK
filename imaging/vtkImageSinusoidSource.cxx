@@ -154,7 +154,7 @@ void vtkImageSinusoidSource::Execute(vtkImageData *data)
   int outIncX, outIncY, outIncZ;
   int *outExt;
   float sum;
-  float yContrib, zContrib;
+  float yContrib, zContrib, xContrib;
   unsigned long count = 0;
   unsigned long target;
   
@@ -180,7 +180,7 @@ void vtkImageSinusoidSource::Execute(vtkImageData *data)
   // Loop through ouput pixels
   for (idxZ = 0; idxZ <= maxZ; idxZ++)
     {
-    zContrib = this->Direction[2] - (idxZ + outExt[4]);
+    zContrib = this->Direction[2] * (idxZ + outExt[4]);
     for (idxY = 0; !this->AbortExecute && idxY <= maxY; idxY++)
       {
       if (!(count%target))
@@ -188,12 +188,12 @@ void vtkImageSinusoidSource::Execute(vtkImageData *data)
 	this->UpdateProgress(count/(50.0*target));
 	}
       count++;
-      yContrib = this->Direction[1] - (idxY + outExt[2]);
+      yContrib = this->Direction[1] * (idxY + outExt[2]);
       for (idxX = 0; idxX <= maxX; idxX++)
 	{
+	xContrib = this->Direction[0] * (float)(idxX + outExt[0]);
 	// find dot product
-	sum = zContrib + yContrib;
-	sum = sum + (float)(idxX + outExt[0]) * this->Direction[0];
+	sum = zContrib + yContrib + xContrib;
 	
 	*outPtr = this->Amplitude * 
 	  cos((6.2831853 * sum / this->Period) - this->Phase);
