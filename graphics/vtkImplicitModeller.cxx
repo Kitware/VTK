@@ -63,6 +63,8 @@ vtkImplicitModeller::vtkImplicitModeller()
 
   this->Capping = 1;
   this->CapValue = sqrt(VTK_LARGE_FLOAT) / 3.0;
+
+  this->DataAppended = 0;
 }
 
 void vtkImplicitModeller::SetModelBounds(float xmin, float xmax, float ymin, 
@@ -80,15 +82,46 @@ void vtkImplicitModeller::SetModelBounds(float xmin, float xmax, float ymin,
   this->SetModelBounds(bounds);
 }
 
-void vtkImplicitModeller::Execute()
+// Description:
+// Initialize the filter for appending data. You must invoke the
+// StartAppend() method before doing successive Appends(). It's also a
+// good idea to manually specify the model bounds; otherwise the input
+// bounds for the data will be used.
+void vtkImplicitModeller::StartAppend()
+{
+  int numPts;
+  vtkFloatScalars *newScalars;
+  int i;
+  float maxDistance;
+
+  vtkDebugMacro(<< "Initializing data");
+  this->DataAppended = 1;
+
+  numPts = this->SampleDimensions[0] * this->SampleDimensions[1] 
+           * this->SampleDimensions[2];
+  newScalars = vtkFloatScalars::New(); 
+  newScalars->SetNumberOfScalars(numPts);
+  maxDistance = this->CapValue * this->CapValue;//sqrt taken later
+  for (i=0; i<numPts; i++) newScalars->SetScalar(i,maxDistance);
+
+  this->GetOutput()->GetPointData()->SetScalars(newScalars);
+  newScalars->Delete();
+}
+
+// Description:
+// Append a data set to the existing output. To use this function,
+// you'll have to invoke the StartAppend() method before doing
+// successive appends. It's also a good idea to specify the model
+// bounds; otherwise the input model bounds is used. When you've
+// finished appending, use the EndAppend() method.
+void vtkImplicitModeller::Append(vtkDataSet *input)
 {
   int cellNum, i, j, k;
   float *bounds, adjBounds[6];
   vtkCell *cell;
   float maxDistance, pcoords[3];
   vtkFloatScalars *newScalars;
-  int numPts, idx;
-  int subId;
+  int idx, subId;
   int min[3], max[3];
   float x[3], prevDistance2, distance2;
   int jkFactor;
@@ -96,15 +129,12 @@ void vtkImplicitModeller::Execute()
   vtkStructuredPoints *output = this->GetOutput();
   float *Spacing;
   float *origin;
-  float *weights=new float[this->Input->GetMaxCellSize()];
+  float *weights=new float[input->GetMaxCellSize()];
   
-  vtkDebugMacro(<< "Executing implicit model");
+  vtkDebugMacro(<< "Appending data");
 
-  numPts = this->SampleDimensions[0] * this->SampleDimensions[1] 
-           * this->SampleDimensions[2];
-  newScalars = vtkFloatScalars::New(); newScalars->SetNumberOfScalars(numPts);
-  maxDistance = this->CapValue*this->CapValue;//sqrt taken later
-  for (i=0; i<numPts; i++) newScalars->SetScalar(i,maxDistance);
+  // Get the output scalars
+  newScalars = (vtkFloatScalars *) (output->GetPointData()->GetScalars());
 
   output->SetDimensions(this->GetSampleDimensions());
   maxDistance = this->ComputeModelBounds();
@@ -114,9 +144,9 @@ void vtkImplicitModeller::Execute()
   //
   // Traverse all cells; computing distance function on volume points.
   //
-  for (cellNum=0; cellNum < this->Input->GetNumberOfCells(); cellNum++)
+  for (cellNum=0; cellNum < input->GetNumberOfCells(); cellNum++)
     {
-    cell = this->Input->GetCell(cellNum);
+    cell = input->GetCell(cellNum);
     bounds = cell->GetBounds();
     for (i=0; i<3; i++)
       {
@@ -156,6 +186,22 @@ void vtkImplicitModeller::Execute()
         }
       }
     }
+
+  delete [] weights;
+}
+
+// Description:
+// Method completes the append process.
+void vtkImplicitModeller::EndAppend()
+{
+  vtkFloatScalars *newScalars;
+  int i, numPts;
+  float distance2;
+
+  vtkDebugMacro(<< "End append");
+
+  newScalars = (vtkFloatScalars *) (this->GetOutput()->GetPointData()->GetScalars());
+  numPts = newScalars->GetNumberOfScalars();
 //
 // Run through scalars and take square root
 //
@@ -165,19 +211,67 @@ void vtkImplicitModeller::Execute()
     newScalars->SetScalar(i,sqrt(distance2));
     }
 //
-// If capping is turned on, set the distances of the outside of the volume
+// If capping is turned on, set the distances of the outside faces of the volume
 // to the CapValue.
 //
   if ( this->Capping )
     {
     this->Cap(newScalars);
     }
-//
-// Update self and release memory
-//
-  output->GetPointData()->SetScalars(newScalars);
-  newScalars->Delete();
-  delete [] weights;
+
+  this->ExecuteTime.Modified();
+  this->SetDataReleased(0);
+}
+
+void vtkImplicitModeller::Execute()
+{
+  vtkDebugMacro(<< "Executing implicit model");
+
+  this->StartAppend();
+  this->Append(this->Input);
+  this->EndAppend();
+}
+
+// Description:
+// Special update methods handles possibility of appending data.
+void vtkImplicitModeller::Update()
+{
+  // make sure input is available
+  if ( !this->Input && ! this->DataAppended)
+    {
+    vtkErrorMacro(<< "No input...or data appended...can't execute!");
+    return;
+    }
+
+  // prevent chasing our tail
+  if (this->Updating) return;
+
+  if ( this->Input )
+    {
+    this->DataAppended = 0;
+
+    this->Updating = 1;
+    this->Input->Update();
+    this->Updating = 0;
+
+    if (this->Input->GetMTime() > this->ExecuteTime ||
+    this->GetMTime() > this->ExecuteTime )
+      {
+      if ( this->Input->GetDataReleased() )
+        {
+        this->Input->ForceUpdate();
+        }
+
+      if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);
+      this->Output->Initialize(); //clear output
+      this->Execute();
+      this->ExecuteTime.Modified();
+      this->SetDataReleased(0);
+      if ( this->EndMethod ) (*this->EndMethod)(this->EndMethodArg);
+      }
+
+    if ( this->Input->ShouldIReleaseData() ) this->Input->ReleaseData();
+    }
 }
 
 // Description:

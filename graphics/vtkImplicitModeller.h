@@ -99,6 +99,12 @@ public:
   vtkSetMacro(CapValue,float);
   vtkGetMacro(CapValue,float);
 
+  // Special methods allow sequential appending of data to the output.
+  void Update();
+  void StartAppend();
+  void Append(vtkDataSet *input);
+  void EndAppend();
+
 protected:
   void Execute();
   void Cap(vtkFloatScalars *s);
@@ -108,6 +114,7 @@ protected:
   float ModelBounds[6];
   int Capping;
   float CapValue;
+  int DataAppended;
 };
 
 #endif
