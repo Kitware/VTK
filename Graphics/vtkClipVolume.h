@@ -73,7 +73,7 @@ class vtkUnstructuredGrid;
 class vtkCell;
 class vtkTetra;
 class vtkCellArray;
-class vtkIntArray;
+class vtkIdTypeArray;
 class vtkUnsignedCharArray;
 
 class VTK_GRAPHICS_EXPORT vtkClipVolume : public vtkStructuredPointsToUnstructuredGridFilter
@@ -196,11 +196,11 @@ private:
   vtkIdType             NumberOfCells;
   vtkCellArray          *Connectivity;
   vtkUnsignedCharArray  *Types;
-  vtkIntArray           *Locations;
+  vtkIdTypeArray        *Locations;
   vtkIdType             NumberOfClippedCells;
   vtkCellArray          *ClippedConnectivity;
   vtkUnsignedCharArray  *ClippedTypes;
-  vtkIntArray           *ClippedLocations;
+  vtkIdTypeArray        *ClippedLocations;
 
 private:
   vtkClipVolume(const vtkClipVolume&);  // Not implemented.
