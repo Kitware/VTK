@@ -25,7 +25,7 @@
 #include "vtkPointData.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkAppendFilter, "1.71");
+vtkCxxRevisionMacro(vtkAppendFilter, "1.72");
 vtkStandardNewMacro(vtkAppendFilter);
 
 //----------------------------------------------------------------------------
@@ -268,7 +268,7 @@ int vtkAppendFilter::RequestData(
 }
 
 //----------------------------------------------------------------------------
-int vtkAppendFilter::FillInputPortInformation(int port, vtkInformation *info)
+int vtkAppendFilter::FillInputPortInformation(int, vtkInformation *info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
   info->Set(vtkAlgorithm::INPUT_IS_REPEATABLE(), 1);
