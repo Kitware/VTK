@@ -18,8 +18,11 @@ vtkDecimatePro deci
     deci SetInput [fran GetOutput]
     deci SetTargetReduction 0.9
     deci PreserveTopologyOn
+vtkSmoothPolyDataFilter smoother
+    smoother SetInput [deci GetOutput]
+    smoother SetNumberOfIterations 50
 vtkPolyDataNormals normals
-    normals SetInput [fran GetOutput]
+    normals SetInput [smoother GetOutput]
     normals FlipNormalsOn
 vtkPolyDataMapper franMapper
     franMapper SetInput [normals GetOutput]
@@ -56,6 +59,5 @@ iren Initialize
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .
-
 
 
