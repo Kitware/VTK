@@ -25,7 +25,7 @@
 #include "vtkPointData.h"
 #include "vtkPointSet.h"
 
-vtkCxxRevisionMacro(vtkWeightedTransformFilter, "1.17");
+vtkCxxRevisionMacro(vtkWeightedTransformFilter, "1.18");
 vtkStandardNewMacro(vtkWeightedTransformFilter);
 
 // helper functions.  Can't easily get to these in Matrix4x4 as written.
@@ -58,12 +58,6 @@ vtkWeightedTransformFilter::vtkWeightedTransformFilter()
   this->WeightArray = NULL;
   this->CellDataTransformIndexArray = NULL;
   this->TransformIndexArray = NULL;
-  
-  // we use methods so that strings get dynamically allocated
-  this->SetCellDataWeightArray("");
-  this->SetWeightArray("");
-  this->SetCellDataTransformIndexArray("");
-  this->SetTransformIndexArray("");
 }
 
 //----------------------------------------------------------------------------
