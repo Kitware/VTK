@@ -117,7 +117,7 @@ void vtkSubPixelPositionEdgels::Move(int xdim, int ydim, int zdim,
   float vec[3];
   float valn, valp;
   float mag;
-  float a,b,c,root;
+  float a,b,c;
   float xp, yp, zp;
   float xn, yn, zn;
   int xi, yi, zi, i;
@@ -176,11 +176,13 @@ void vtkSubPixelPositionEdgels::Move(int xdim, int ydim, int zdim,
       c = mag;
       b = (valp - valn)/2.0;
       a = (valp - c - b);
-      root = -0.5*b/a;
-      if (root > 1.0) root = 1.0;
-      if (root < -1.0) root = -1.0;
-      result[0] += vec[0]*root;
-      result[1] += vec[1]*root;
+      // assign the root to c because MSVC5.0 optimizer has problems with this
+      // function
+      c = -0.5*b/a;
+      if (c > 1.0) c = 1.0;
+      if (c < -1.0) c = -1.0;
+      result[0] += vec[0]*c;
+      result[1] += vec[1]*c;
       
       // now calc the normal, trilinear interp of vectors
       xi = (int)result[0];
@@ -231,6 +233,7 @@ void vtkSubPixelPositionEdgels::Move(int xdim, int ydim, int zdim,
       xi = (int)xp;
       yi = (int)yp;
       zi = (int)zp;
+
       valp = 
 	img[xi +xdim*(yi +zi*ydim)]*(1.0 -xp +xi)*(1.0 -yp +yi)*(1.0 -zp +zi) +
 	img[1 +xi + xdim*(yi + zi*ydim)]*(xp -xi)*(1.0 -yp +yi)*(1.0 -zp +zi) +
@@ -262,13 +265,22 @@ void vtkSubPixelPositionEdgels::Move(int xdim, int ydim, int zdim,
       c = mag;
       b = (valp - valn)/2.0;
       a = (valp - c - b);
-      root = -0.5*b/a;
-      if (root > 1.0) root = 1.0;
-      if (root < -1.0) root = -1.0;
-      result[0] += vec[0]*root;
-      result[1] += vec[1]*root;
-      result[2] += vec[2]*root;
-      
+
+      // assign the root to c because MSVC5.0 optimizer has problems with this
+      // function
+      c = -0.5*b/a;
+      if (c > 1.0) 
+        {
+        c = 1.0;
+        }
+      if (c < -1.0) 
+        {
+        c = -1.0;
+        }
+      result[0] = result[0] + vec[0]*c;
+      result[1] = result[1] + vec[1]*c;
+      result[2] = result[2] + vec[2]*c;
+
       // now calc the normal, trilinear interp of vectors
       xi = (int)result[0];
       yi = (int)result[1];
@@ -276,6 +288,7 @@ void vtkSubPixelPositionEdgels::Move(int xdim, int ydim, int zdim,
       xn = result[0];
       yn = result[1];
       zn = result[2];
+
       for (i = 0; i < 3; i++)
 	{
 	resultNormal[i] = 
@@ -297,6 +310,7 @@ void vtkSubPixelPositionEdgels::Move(int xdim, int ydim, int zdim,
 	  (xn -xi)*(yn -yi)*(zn -zi);
 	}
       vtkMath::Normalize(resultNormal);
+
       }
     }
 }
