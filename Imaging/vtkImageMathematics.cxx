@@ -18,7 +18,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageMathematics, "1.44");
+vtkCxxRevisionMacro(vtkImageMathematics, "1.45");
 vtkStandardNewMacro(vtkImageMathematics);
 
 //----------------------------------------------------------------------------
@@ -48,6 +48,12 @@ void vtkImageMathematics::ExecuteInformation(vtkImageData **inDatas,
       this->Operation == VTK_MIN || this->Operation == VTK_MAX || 
       this->Operation == VTK_ATAN2) 
     {
+       
+    if (this->GetInput(1) == NULL)
+      {
+      vtkErrorMacro(<< "Second input must be specified for this operation.");
+      }
+       
     ext2 = this->GetInput(1)->GetWholeExtent();
     for (idx = 0; idx < 3; ++idx)
       {
