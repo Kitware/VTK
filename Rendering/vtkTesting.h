@@ -69,7 +69,7 @@ struct VTK_RENDERING_EXPORT vtkTestUtilities
 };
 //ETX
 
-class VTK_COMMON_EXPORT vtkTesting : public vtkObject
+class VTK_RENDERING_EXPORT vtkTesting : public vtkObject
 {
 public:
   static vtkTesting *New();
@@ -96,7 +96,7 @@ public:
 
   // Description:
   // Perform the test and return result.
-  int RegressionTest(float thresh);
+  virtual int RegressionTest(float thresh);
 
   // Description:
   // Set and get the render window that will be used for regression testing.
