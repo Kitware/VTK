@@ -711,7 +711,7 @@ void vtkGridSynchronizedTemplates3D::ThreadedExecute(int *exExt, int threadId)
   vtkPolyData *output = this->GetOutput();
   int *dims = this->GetInput()->GetDimensions();
   int *inUpdateExtent = input->GetUpdateExtent();
-  long dataSize, estimatedSize;
+  long dataSize;
   vtkScalars *newScalars;
   vtkNormals *newNormals;
   vtkVectors *newGradients;
@@ -903,7 +903,6 @@ void vtkGridSynchronizedTemplates3D::ExecuteInformation()
 {
   vtkStructuredGrid *input = this->GetInput();
   int *ext, dims[3];
-  long t1, t2;
   long numPts, numTris;
   long sizePt, sizeTri;
 
