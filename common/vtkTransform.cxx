@@ -338,6 +338,7 @@ void vtkTransform::RotateZ (float angle)
     }
 }
 
+
 // Creates a matrix that rotates angle degrees about an axis
 // through the origin and x, y, z. It then concatenates
 // this matrix with the current transformation matrix.
@@ -698,19 +699,21 @@ float *vtkTransform::GetOrientationWXYZ ()
   double ScratchPad[16]; // for passing to vtkMatrix4x4 methods
   SqMatPtr ScratchPadMatrix = (SqMatPtr) ScratchPad; // for local manipulation
   float	scaleX, scaleY, scaleZ;
-  vtkTransform *temp1 = vtkTransform::New();
+  double temp1[16];
+  SqMatPtr temp1Matrix = (SqMatPtr) temp1;
   float quat[4];
   float mag;
   
-  vtkIdentityMatrix::MakeIdentity(ScratchPad);
-
-  // copy the matrix into local storage
-  temp1->SetMatrix(**this->Stack);
-
   // get scale factors
   this->GetScale (scaleX, scaleY, scaleZ);
-  temp1->Scale(1.0/scaleX,1.0/scaleY,1.0/scaleZ);
-  vtkMatrix4x4::DeepCopy(ScratchPad,*temp1->Stack);
+  if (scaleX != 1.0 || scaleY != 1.0 || scaleZ != 1.0) 
+    {
+    vtkIdentityMatrix::MakeIdentity(temp1);
+    temp1Matrix[0][0] = 1.0 / scaleX;
+    temp1Matrix[1][1] = 1.0 / scaleY;
+    temp1Matrix[2][2] = 1.0 / scaleZ;
+    vtkTransform::Multiply4x4(&(*this->Stack)->Element[0][0], temp1, ScratchPad);
+    }
   
   quat[0] = 0.25*(1.0 + ScratchPadMatrix[0][0] + 
 		  ScratchPadMatrix[1][1] 
@@ -742,15 +745,15 @@ float *vtkTransform::GetOrientationWXYZ ()
       quat[1] = 0;
       quat[2] = 0.5*(1.0 - ScratchPadMatrix[2][2]);
       if (quat[2] > 0.0001)
-	{
-	quat[2] = sqrt(quat[2]);
-	quat[3] = ScratchPadMatrix[2][1]/(2.0*quat[2]);
-	}
+        {
+        quat[2] = sqrt(quat[2]);
+        quat[3] = ScratchPadMatrix[2][1]/(2.0*quat[2]);
+        }
       else
-	{
-	quat[2] = 0;
-	quat[3] = 1;
-	}
+        {
+        quat[2] = 0;
+        quat[3] = 1;
+        }
       }
     }
   
@@ -772,7 +775,6 @@ float *vtkTransform::GetOrientationWXYZ ()
     this->ReturnValue[3] = 1;
     }
   
-  temp1->Delete();
   return this->ReturnValue;
 
 } // vtkTransform::GetOrientationWXYZ 
@@ -833,6 +835,12 @@ vtkMatrix4x4 *vtkTransform::GetMatrixPointer()
 void vtkTransform::SetMatrix(vtkMatrix4x4 &m)
 {
   (*this->Stack)->DeepCopy(&m);
+}
+
+// Set the current matrix directly.
+void vtkTransform::SetMatrix(double Elements[16])
+{
+  (*this->Stack)->DeepCopy(Elements);
 }
 
 // Creates an identity matrix and makes it the current transformation matrix.
@@ -898,25 +906,24 @@ void vtkTransform::Multiply4x4(vtkMatrix4x4 *a, vtkMatrix4x4 *b,
   double Accum[4][4];
 
   for (i = 0; i < 4; i++) 
-  {
-    for (k = 0; k < 4; k++) 
     {
-      Accum[i][k] = 0.0;
-      Accum[i][k] += a->Element[i][0] * b->Element[0][k];
-      Accum[i][k] += a->Element[i][1] * b->Element[1][k];
-      Accum[i][k] += a->Element[i][2] * b->Element[2][k];
-      Accum[i][k] += a->Element[i][3] * b->Element[3][k];
+    for (k = 0; k < 4; k++) 
+      {
+      Accum[i][k] = a->Element[i][0] * b->Element[0][k] +
+        a->Element[i][1] * b->Element[1][k] +
+        a->Element[i][2] * b->Element[2][k] +
+        a->Element[i][3] * b->Element[3][k];
+      }
     }
-  }
 
   // Copy to final dest
   for (i = 0; i < 4; i++)
-  {
+    {
     c->Element[i][0] = Accum[i][0];
     c->Element[i][1] = Accum[i][1];
     c->Element[i][2] = Accum[i][2];
     c->Element[i][3] = Accum[i][3];
-  }
+    }
   c->Modified();
 }
 
@@ -933,22 +940,22 @@ void vtkTransform::Multiply4x4(double a[16], double b[16], double c[16])
     {
     for (k = 0; k < 4; k++) 
       {
-      Accum[i][k] = 0.0;
-      for (j = 0; j < 4; j++) 
-        {
-        Accum[i][k] += aMat[i][j] * bMat[j][k];
-        }
+      Accum[i][k] = aMat[i][0] * bMat[0][k] +
+                    aMat[i][1] * bMat[1][k] +
+                    aMat[i][2] * bMat[2][k] +
+                    aMat[i][3] * bMat[3][k];
       }
     }
 
   // Copy to final dest
   for (i = 0; i < 4; i++)
-  {
-    for (j = 0; j < 4; j++)
     {
-    cMat[i][j] = Accum[i][j];
+    cMat[i][0] = Accum[i][0];
+    cMat[i][1] = Accum[i][1];
+    cMat[i][2] = Accum[i][2];
+    cMat[i][3] = Accum[i][3];
     }
-  }
+
 }
 
 // Transposes the current transformation matrix.

@@ -127,6 +127,7 @@ class VTK_EXPORT vtkTransform : public vtkObject
   void RotateWXYZ ( float angle, float x, float y, float z);
 //ETX
   void RotateWXYZ (double angle, double x, double y, double z);
+
   // Description:
   // Scales the current transformation matrix in the x, y and z directions.
   // A scale factor of zero will automatically be replaced with one.
@@ -198,6 +199,10 @@ class VTK_EXPORT vtkTransform : public vtkObject
   // Description:
   // Set the current matrix directly (copies m).
   void SetMatrix(vtkMatrix4x4& m);
+
+  // Description:
+  // Set the current matrix directly (copies Elements).
+  void SetMatrix(double Elements[16]);
 
   // Description:
   // Returns the current transformation matrix.
