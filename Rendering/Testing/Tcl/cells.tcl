@@ -541,6 +541,9 @@ vtkVRMLExporter vrml
   vrml SetEndWrite {vrml SetFileName /a/acells.wrl}
   vrml SetSpeed 5.5
 
+vtkOOGLExporter oogl
+  oogl SetInput renWin
+  oogl SetFileName cells.oogl
 
 #
 # If the current directory is writable, then test the witers
@@ -557,6 +560,8 @@ if {[catch {set channel [open test.tmp w]}] == 0 } {
    file delete -force cells.mtl
    vrml Write
    file delete -force cells.wrl
+   #oogl Write
+   #file delete -force cells.oogl
    
    if { [info command vtkRIBExporter] != "" } {
       rib Write

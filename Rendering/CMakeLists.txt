@@ -49,6 +49,7 @@ vtkLightKit
 vtkMapper
 vtkMapperCollection
 vtkOBJExporter 
+vtkOOGLExporter
 vtkParallelCoordinatesActor
 vtkPicker
 vtkPointPicker
