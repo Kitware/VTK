@@ -63,6 +63,7 @@ vtkDataArray::vtkDataArray(int numComp)
   buf << vtkDataArray::ArrayNamePostfix << ends; 
   vtkDataArray::ArrayNamePostfix++;
   this->SetName(buf.str());
+  delete[] buf.str();
   DataArrayCritSec.Unlock();
 }
 
