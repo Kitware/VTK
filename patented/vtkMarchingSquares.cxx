@@ -132,7 +132,7 @@ void vtkMarchingSquares::SetImageRange(int imin, int imax, int jmin, int jmax,
 // Contouring filter specialized for images
 //
 template <class T>
-void ContourImage(T *scalars, vtkScalars *newScalars, int roi[6], int dir[3],
+static void ContourImage(T *scalars, vtkScalars *newScalars, int roi[6], int dir[3],
                   int start[2], int end[2], int offset[3], float ar[3], 
                   float origin[3], float *values, int numValues, 
                   vtkPointLocator *p, vtkCellArray *lines)
