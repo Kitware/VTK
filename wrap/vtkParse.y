@@ -48,7 +48,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkParse.h"
     
   FileInfo data;
-  FunctionInfo *currentFunction;
+  static FunctionInfo *currentFunction;
 
   FILE *fhint;
   char temps[2048];

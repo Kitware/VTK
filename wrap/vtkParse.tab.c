@@ -8,7 +8,7 @@
 #include "vtkParse.h"
     
   FileInfo data;
-  FunctionInfo *currentFunction;
+  static FunctionInfo *currentFunction;
 
   FILE *fhint;
   char temps[2048];
@@ -80,7 +80,7 @@ typedef union
 #include <memory.h>
 #endif
 
-#ifndef _WIN32
+#ifndef WIN32
 #include <values.h>
 #endif
 
