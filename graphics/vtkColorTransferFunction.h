@@ -61,6 +61,7 @@ public:
   static vtkColorTransferFunction *New() {
     return new vtkColorTransferFunction;};
   const char *GetClassName() {return "vtkColorTransferFunction";};
+  void DeepCopy( vtkColorTransferFunction *f );
 
   // Description:
   // Print method for vtkColorTransferFunction

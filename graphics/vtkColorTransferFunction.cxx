@@ -318,3 +318,13 @@ void vtkColorTransferFunction::SetClamping(int val) {
 int vtkColorTransferFunction::GetClamping() {
   return this->Clamping;
 }
+
+void vtkColorTransferFunction::DeepCopy( vtkColorTransferFunction *f )
+{
+  this->Red->DeepCopy(f->GetRedFunction());
+  this->Green->DeepCopy(f->GetGreenFunction());
+  this->Blue->DeepCopy(f->GetBlueFunction());
+  
+  this->Clamping     = f->Clamping;
+  this->UpdateRange();
+}
