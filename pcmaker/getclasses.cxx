@@ -2027,8 +2027,8 @@ void doMSCTclHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
   fprintf(fp,"\n");
   fprintf(fp,"################################################################################\n");
   fprintf(fp,"\n");
-  fprintf(fp,"\"$(OUTDIR)\\vtkTclUtil.obj\" : \"%s\\common\\vtkTclUtil.cxx\" \"$(OUTDIR)\"\n",
-	  vals->m_WhereVTK);
+  fprintf(fp,"\"$(OUTDIR)\\vtkTclUtil.obj\" : \"%s\\common\\vtkTclUtil.cxx\" \"%s\\common\\vtkTclUtil.h\" \"%s\\common\\vtkCommand.h\" \"$(OUTDIR)\"\n",
+	  vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
   fprintf(fp,"  $(CPP) $(CPP_PROJ) \"%s\\common\\vtkTclUtil.cxx\"\n\n",vals->m_WhereVTK);
   if (vals->m_Graphics)
     {
@@ -2318,7 +2318,7 @@ void doBorTclHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
   fprintf(fp,"\n");
   fprintf(fp,"################################################################################\n");
   fprintf(fp,"\n");
-  fprintf(fp,"$(OUTDIR)\\vtkTclUtil.obj : $(WHEREVTK)\\common\\vtkTclUtil.cxx \n");
+  fprintf(fp,"$(OUTDIR)\\vtkTclUtil.obj : $(WHEREVTK)\\common\\vtkTclUtil.cxx $(WHEREVTK)\\common\\vtkTclUtil.h $(WHEREVTK)\\common\\vtkCommand.h\n");
   fprintf(fp,"  $(CPP) @&&|\n");
   fprintf(fp,"-o$(OUTDIR)\\vtkTclUtil.obj  $(WHEREVTK)\\common\\vtkTclUtil.cxx\n\n");
   fprintf(fp,"|  \n");
