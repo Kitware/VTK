@@ -51,6 +51,7 @@ vtkEdgeTable.cxx
 vtkErrorCode.cxx
 vtkExtentSplitter.cxx
 vtkExtentTranslator.cxx
+vtkFastNumericConversion.cxx
 vtkFileOutputWindow.cxx
 vtkFloatArray.cxx
 vtkFunctionParser.cxx
