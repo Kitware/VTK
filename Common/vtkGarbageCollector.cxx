@@ -25,7 +25,7 @@
 
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkGarbageCollector, "1.20");
+vtkCxxRevisionMacro(vtkGarbageCollector, "1.21");
 
 class vtkGarbageCollectorSingleton;
 
@@ -453,6 +453,10 @@ void vtkGarbageCollectorImpl::FindComponents(vtkObjectBase* root)
 }
 
 //----------------------------------------------------------------------------
+#if defined(_MSC_VER) && _MSC_VER < 1300
+# pragma warning (push)
+# pragma warning (disable: 4702) // bogus unreachable code warning
+#endif
 vtkGarbageCollectorImpl::Entry*
 vtkGarbageCollectorImpl::MaybeVisit(vtkObjectBase* obj)
 {
@@ -471,6 +475,9 @@ vtkGarbageCollectorImpl::MaybeVisit(vtkObjectBase* obj)
     return *i;
     }
 }
+#if defined(_MSC_VER) && _MSC_VER < 1300
+# pragma warning (pop)
+#endif
 
 //----------------------------------------------------------------------------
 vtkGarbageCollectorImpl::Entry*
