@@ -51,10 +51,11 @@ public:
   vtkGetVectorMacro(ModelBounds,float,6);
 
   // Description:
-  // Specify the position of cursor focus. If translation mode is on,
+  // Set/Get the position of cursor focus. If translation mode is on,
   // then the entire cursor (including bounding box, cursor, and shadows)
   // is translated. Otherwise, the focal point will either be clamped to the
-  // bounding box, or wrapped, if Wrap is on.
+  // bounding box, or wrapped, if Wrap is on. (Note: this behavior requires
+  // that the bounding box is set prior to the focal point.)
   void SetFocalPoint(float x[3]);
   void SetFocalPoint(float x, float y, float z)
     {
