@@ -1,4 +1,3 @@
-
 /************************************************************************
  *
  * File: otherArrays.cxx
@@ -37,13 +36,16 @@ void ComparatorCommand(ostream& strm) {
 #include "vtkFloatArray.h"
 #include "vtkDoubleArray.h"
 
+#define SIZE 1000
+
 template <class T, class A>
 static int doArrayTest (ostream& strm, T *ptr, A *array, int size)
 {
   T *ptr2;
-  float tuple1[size/100];
-  double tuple3[size/100];
+  float tuple1[SIZE/100];
+  double tuple3[SIZE/100];
   float *tuple2;
+  int i;
   
   strm << "\tSetArray...";
   ptr->SetArray(array, size, 1); 
@@ -73,7 +75,7 @@ static int doArrayTest (ostream& strm, T *ptr, A *array, int size)
   strm << "\tGetTuple(i)...";
   tuple2 = ptr->GetTuple (2);
   int passed = 1;
-  for (int i = 0; i < 10; i++)
+  for (i = 0; i < 10; i++)
     {
     strm << *(tuple2 + i) << " ";
     if (*(tuple2 + i) != (20 + i))
@@ -88,7 +90,7 @@ static int doArrayTest (ostream& strm, T *ptr, A *array, int size)
   strm << "\tGetTuple(i, float *tuple)...";
   ptr->GetTuple (3, tuple1);
   passed = 1;
-  for (int i = 0; i < 10; i++)
+  for (i = 0; i < 10; i++)
     {
     strm << tuple1[i] << " ";
     if (tuple1[i] != (30 + i))
@@ -103,7 +105,7 @@ static int doArrayTest (ostream& strm, T *ptr, A *array, int size)
   strm << "\tGetTuple(i, double *tuple)...";
   ptr->GetTuple (4, tuple3);
   passed = 1;
-  for (int i = 0; i < 10; i++)
+  for (i = 0; i < 10; i++)
     {
     strm << tuple3[i] << " ";
     if (tuple3[i] != (40 + i))
@@ -117,10 +119,10 @@ static int doArrayTest (ostream& strm, T *ptr, A *array, int size)
 
   strm << "\tSetTuple(i, float *tuple)...";
   ptr->SetTuple (99, tuple1);
-  for (int i=0; i < 10; i++) tuple1[i] = 0;
+  for (i=0; i < 10; i++) tuple1[i] = 0;
   ptr->GetTuple (99, tuple1);
   passed = 1;
-  for (int i = 0; i < 10; i++)
+  for (i = 0; i < 10; i++)
     {
     strm << tuple1[i] << " ";
     if (tuple1[i] != (30 + i))
@@ -134,10 +136,10 @@ static int doArrayTest (ostream& strm, T *ptr, A *array, int size)
 
   strm << "\tSetTuple(i, double *tuple)...";
   ptr->SetTuple (99, tuple3);
-  for (int i=0; i < 10; i++) tuple3[i] = 0;
+  for (i=0; i < 10; i++) tuple3[i] = 0;
   ptr->GetTuple (99, tuple3);
   passed = 1;
-  for (int i = 0; i < 10; i++)
+  for (i = 0; i < 10; i++)
     {
     strm << tuple3[i] << " ";
     if (tuple3[i] != (40 + i))
@@ -151,10 +153,10 @@ static int doArrayTest (ostream& strm, T *ptr, A *array, int size)
 
   strm << "\tInsertTuple(i, float *tuple)...";
   ptr->InsertTuple (100, tuple1);
-  for (int i=0; i < 10; i++) tuple1[i] = 0;
+  for (i=0; i < 10; i++) tuple1[i] = 0;
   ptr->GetTuple (100, tuple1);
   passed = 1;
-  for (int i = 0; i < 10; i++)
+  for (i = 0; i < 10; i++)
     {
     strm << tuple1[i] << " ";
     if (tuple1[i] != (30 + i))
@@ -168,10 +170,10 @@ static int doArrayTest (ostream& strm, T *ptr, A *array, int size)
 
   strm << "\tInsertTuple(i, double *tuple)...";
   ptr->InsertTuple (100, tuple3);
-  for (int i=0; i < 10; i++) tuple3[i] = 0;
+  for (i=0; i < 10; i++) tuple3[i] = 0;
   ptr->GetTuple (100, tuple3);
   passed = 1;
-  for (int i = 0; i < 10; i++)
+  for (i = 0; i < 10; i++)
     {
     strm << tuple3[i] << " ";
     if (tuple3[i] != (40 + i))
@@ -185,10 +187,10 @@ static int doArrayTest (ostream& strm, T *ptr, A *array, int size)
 
   strm << "\tInsertNextTuple(float *tuple)...";
   ptr->InsertNextTuple (tuple1);
-  for (int i=0; i < 10; i++) tuple1[i] = 0;
+  for (i=0; i < 10; i++) tuple1[i] = 0;
   ptr->GetTuple (101, tuple1);
   passed = 1;
-  for (int i = 0; i < 10; i++)
+  for (i = 0; i < 10; i++)
     {
     strm << tuple1[i] << " ";
     if (tuple1[i] != (30 + i))
@@ -202,10 +204,10 @@ static int doArrayTest (ostream& strm, T *ptr, A *array, int size)
 
   strm << "\tInsertNextTuple(double *tuple)...";
   ptr->InsertNextTuple (tuple3);
-  for (int i=0; i < 10; i++) tuple3[i] = 0;
+  for (i=0; i < 10; i++) tuple3[i] = 0;
   ptr->GetTuple (102, tuple3);
   passed = 1;
-  for (int i = 0; i < 10; i++)
+  for (i = 0; i < 10; i++)
     {
     strm << tuple3[i] << " ";
     if (tuple3[i] != (40 + i))
@@ -219,17 +221,18 @@ static int doArrayTest (ostream& strm, T *ptr, A *array, int size)
 
   strm << "\tPrintSelf...";
   strm << *ptr;
-}
 
+  return 0;
+}
 
 void Test(ostream& strm)
 {
   {
   strm << "Test CharArray" << endl;
   vtkCharArray *ptr = vtkCharArray::New();
-  char *array = new char[1000];
-  for (int i = 0; i < 1000; i++) *(array + i ) = i;
-  doArrayTest (strm, ptr, array, 1000);
+  char *array = new char[SIZE];
+  for (int i = 0; i < SIZE; i++) *(array + i ) = i;
+  doArrayTest (strm, ptr, array, SIZE);
   ptr->Delete();
   delete []array;
   }
@@ -237,9 +240,9 @@ void Test(ostream& strm)
   {
   strm << "Test UnsignedCharArray" << endl;
   vtkUnsignedCharArray *ptr = vtkUnsignedCharArray::New();
-  unsigned char *array = new unsigned char[1000];
-  for (int i = 0; i < 1000; i++) *(array + i ) = i;
-  doArrayTest (strm, ptr, array, 1000);
+  unsigned char *array = new unsigned char[SIZE];
+  for (int i = 0; i < SIZE; i++) *(array + i ) = i;
+  doArrayTest (strm, ptr, array, SIZE);
   ptr->Delete();
   delete []array;
   }
@@ -247,9 +250,9 @@ void Test(ostream& strm)
   {
   strm << "Test IntArray" << endl;
   vtkIntArray *ptr = vtkIntArray::New();
-  int *array = new int[1000];
-  for (int i = 0; i < 1000; i++) *(array + i ) = i;
-  doArrayTest (strm, ptr, array, 1000);
+  int *array = new int[SIZE];
+  for (int i = 0; i < SIZE; i++) *(array + i ) = i;
+  doArrayTest (strm, ptr, array, SIZE);
   ptr->Delete();
   delete []array;
   }
@@ -257,9 +260,9 @@ void Test(ostream& strm)
   {
   strm << "Test UnsignedIntArray" << endl;
   vtkUnsignedIntArray *ptr = vtkUnsignedIntArray::New();
-  unsigned int *array = new unsigned int[1000];
-  for (int i = 0; i < 1000; i++) *(array + i ) = i;
-  doArrayTest (strm, ptr, array, 1000);
+  unsigned int *array = new unsigned int[SIZE];
+  for (int i = 0; i < SIZE; i++) *(array + i ) = i;
+  doArrayTest (strm, ptr, array, SIZE);
   ptr->Delete();
   delete []array;
   }
@@ -267,9 +270,9 @@ void Test(ostream& strm)
   {
   strm << "Test LongArray" << endl;
   vtkLongArray *ptr = vtkLongArray::New();
-  long *array = new long[1000];
-  for (int i = 0; i < 1000; i++) *(array + i ) = i;
-  doArrayTest (strm, ptr, array, 1000);
+  long *array = new long[SIZE];
+  for (int i = 0; i < SIZE; i++) *(array + i ) = i;
+  doArrayTest (strm, ptr, array, SIZE);
   ptr->Delete();
   delete []array;
   }
@@ -277,9 +280,9 @@ void Test(ostream& strm)
   {
   strm << "Test UnsignedLongArray" << endl;
   vtkUnsignedLongArray *ptr = vtkUnsignedLongArray::New();
-  unsigned long *array = new unsigned long[1000];
-  for (int i = 0; i < 1000; i++) *(array + i ) = i;
-  doArrayTest (strm, ptr, array, 1000);
+  unsigned long *array = new unsigned long[SIZE];
+  for (int i = 0; i < SIZE; i++) *(array + i ) = i;
+  doArrayTest (strm, ptr, array, SIZE);
   ptr->Delete();
   delete []array;
   }
@@ -287,9 +290,9 @@ void Test(ostream& strm)
   {
   strm << "Test ShortArray" << endl;
   vtkShortArray *ptr = vtkShortArray::New();
-  short *array = new short[1000];
-  for (int i = 0; i < 1000; i++) *(array + i ) = i;
-  doArrayTest (strm, ptr, array, 1000);
+  short *array = new short[SIZE];
+  for (int i = 0; i < SIZE; i++) *(array + i ) = i;
+  doArrayTest (strm, ptr, array, SIZE);
   ptr->Delete();
   delete []array;
   }
@@ -297,9 +300,9 @@ void Test(ostream& strm)
   {
   strm << "Test UnsignedShortArray" << endl;
   vtkUnsignedShortArray *ptr = vtkUnsignedShortArray::New();
-  unsigned short *array = new unsigned short[1000];
-  for (int i = 0; i < 1000; i++) *(array + i ) = i;
-  doArrayTest (strm, ptr, array, 1000);
+  unsigned short *array = new unsigned short[SIZE];
+  for (int i = 0; i < SIZE; i++) *(array + i ) = i;
+  doArrayTest (strm, ptr, array, SIZE);
   ptr->Delete();
   delete []array;
   }
@@ -307,9 +310,9 @@ void Test(ostream& strm)
   {
   strm << "Test FloatArray" << endl;
   vtkFloatArray *ptr = vtkFloatArray::New();
-  float *array = new float[1000];
-  for (int i = 0; i < 1000; i++) *(array + i ) = i;
-  doArrayTest (strm, ptr, array, 1000);
+  float *array = new float[SIZE];
+  for (int i = 0; i < SIZE; i++) *(array + i ) = i;
+  doArrayTest (strm, ptr, array, SIZE);
   ptr->Delete();
   delete []array;
   }
@@ -317,9 +320,9 @@ void Test(ostream& strm)
   {
   strm << "Test DoubleArray" << endl;
   vtkDoubleArray *ptr = vtkDoubleArray::New();
-  double *array = new double[1000];
-  for (int i = 0; i < 1000; i++) *(array + i ) = i;
-  doArrayTest (strm, ptr, array, 1000);
+  double *array = new double[SIZE];
+  for (int i = 0; i < SIZE; i++) *(array + i ) = i;
+  doArrayTest (strm, ptr, array, SIZE);
   ptr->Delete();
   delete []array;
   }
