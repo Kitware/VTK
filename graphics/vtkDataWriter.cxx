@@ -203,7 +203,11 @@ ostream *vtkDataWriter::OpenVTKFile()
       }
     else
       { 
+#ifdef _WIN32
       fptr = new ofstream(this->FileName, ios::out | ios::binary);
+#else
+      fptr = new ofstream(this->FileName, ios::out);
+#endif
       }
     }
 
