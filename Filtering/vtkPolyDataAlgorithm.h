@@ -94,10 +94,7 @@ protected:
   // This is the method you should override.
   virtual int RequestUpdateExtent(vtkInformation*,
                                   vtkInformationVector**,
-                                  vtkInformationVector*)
-    {
-      return 1;
-    };
+                                  vtkInformationVector*);
 
   // Description:
   // This method is the old style execute method

@@ -22,7 +22,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTrivialProducer.h"
 
-vtkCxxRevisionMacro(vtkPolyDataAlgorithm, "1.18");
+vtkCxxRevisionMacro(vtkPolyDataAlgorithm, "1.19");
 vtkStandardNewMacro(vtkPolyDataAlgorithm);
 
 //----------------------------------------------------------------------------
@@ -134,6 +134,25 @@ int vtkPolyDataAlgorithm::RequestInformation(
   vtkInformationVector* vtkNotUsed(outputVector))
 {
   // do nothing let subclasses handle it
+  return 1;
+}
+
+//----------------------------------------------------------------------------
+int vtkPolyDataAlgorithm::RequestUpdateExtent(
+  vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector,
+  vtkInformationVector* vtkNotUsed(outputVector))
+{
+  int numInputPorts = this->GetNumberOfInputPorts();
+  for (int i=0; i<numInputPorts; i++)
+    {
+    int numInputConnections = this->GetNumberOfInputConnections(i);
+    for (int j=0; j<numInputConnections; j++)
+      {
+      vtkInformation* inputInfo = inputVector[i]->GetInformationObject(j);
+      inputInfo->Set(vtkStreamingDemandDrivenPipeline::EXACT_EXTENT(), 1);
+      }
+    }
   return 1;
 }
 

@@ -22,7 +22,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTrivialProducer.h"
 
-vtkCxxRevisionMacro(vtkUnstructuredGridAlgorithm, "1.3");
+vtkCxxRevisionMacro(vtkUnstructuredGridAlgorithm, "1.4");
 vtkStandardNewMacro(vtkUnstructuredGridAlgorithm);
 
 //----------------------------------------------------------------------------
@@ -134,6 +134,25 @@ int vtkUnstructuredGridAlgorithm::RequestInformation(
   vtkInformationVector* vtkNotUsed(outputVector))
 {
   // do nothing let subclasses handle it
+  return 1;
+}
+
+//----------------------------------------------------------------------------
+int vtkUnstructuredGridAlgorithm::RequestUpdateExtent(
+  vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector,
+  vtkInformationVector* vtkNotUsed(outputVector))
+{
+  int numInputPorts = this->GetNumberOfInputPorts();
+  for (int i=0; i<numInputPorts; i++)
+    {
+    int numInputConnections = this->GetNumberOfInputConnections(i);
+    for (int j=0; j<numInputConnections; j++)
+      {
+      vtkInformation* inputInfo = inputVector[i]->GetInformationObject(j);
+      inputInfo->Set(vtkStreamingDemandDrivenPipeline::EXACT_EXTENT(), 1);
+      }
+    }
   return 1;
 }
 
