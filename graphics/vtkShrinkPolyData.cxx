@@ -142,7 +142,7 @@ void vtkShrinkPolyData::Execute()
       newVerts->InsertCellPoint(newId);
       pointData->CopyData(pd,pts[j],newId);
       }    
-    abortExecute = GetAbortExecute();
+    abortExecute = this->GetAbortExecute();
     }
   this->UpdateProgress (0.10);
 
@@ -175,7 +175,7 @@ void vtkShrinkPolyData::Execute()
 
       newLines->InsertNextCell(2,newIds);
       }
-    abortExecute = GetAbortExecute();
+    abortExecute = this->GetAbortExecute();
     }
   this->UpdateProgress (0.25);
 
@@ -209,7 +209,7 @@ void vtkShrinkPolyData::Execute()
       newPolys->InsertCellPoint(newId);
       pointData->CopyData(pd,pts[j],newId);
       }
-    abortExecute = GetAbortExecute();
+    abortExecute = this->GetAbortExecute();
     }
   this->UpdateProgress (0.75);
 
@@ -258,7 +258,7 @@ void vtkShrinkPolyData::Execute()
         }
       newPolys->InsertNextCell(3,newIds);
       }
-    abortExecute = GetAbortExecute();
+    abortExecute = this->GetAbortExecute();
     }
 
   // Update self and release memory
