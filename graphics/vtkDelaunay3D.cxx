@@ -466,6 +466,7 @@ int vtkDelaunay3D::FindEnclosingFaces(float x[3], int tetra,
     Mesh->GetCellPoints(tetraId, npts, tetraPts);
     for (j=0; j<4; j++)
       {
+      this->References[tetraPts[j]]--;
       Mesh->RemoveReferenceToCell(tetraPts[j],tetraId);
       }
     }
@@ -549,6 +550,8 @@ void vtkDelaunay3D::Execute()
       }
     
     }//for all points
+
+  this->EndPointInsertion();
 
   vtkDebugMacro(<<"Triangulated " << numPoints <<" points, " 
                 << this->NumberOfDuplicatePoints << " of which were duplicates");
@@ -883,6 +886,10 @@ vtkUnstructuredGrid *vtkDelaunay3D::InitPointInsertion(float center[3],
   points->Delete();
   Mesh->BuildLinks();
 
+  // Keep track of change in references to points
+  this->References = new int [numPtsToInsert+6];
+  memset(this->References, 0, (numPtsToInsert+6)*sizeof(int));
+
   return Mesh;
 }
 
@@ -937,6 +944,10 @@ vtkUnstructuredGrid *vtkDelaunay3D::InitPointInsertion(int numPtsToInsert,
   points->Delete();
   Mesh->BuildLinks();
 
+  // Keep track of change in references to points
+  this->References = new int [points->GetNumberOfPoints()];
+  memset(this->References, 0, points->GetNumberOfPoints()*sizeof(int));
+
   return Mesh;
 }
   
@@ -961,10 +972,11 @@ void vtkDelaunay3D::InsertPoint(vtkUnstructuredGrid *Mesh, vtkPoints *points,
   faces->Allocate(15);
 
   // Find faces containing point. (Faces are found by deleting
-  // one or more tetrahedra "containing" point.) Tetrahedron contain point when 
-  // they satisfy Delaunay criterion. (More than one tetra may contain
-  // a point if the point is on or near an edge or face.) For each face, create 
-  // a tetrahedron. (The locator helps speed search of points in tetras.)
+  // one or more tetrahedra "containing" point.) Tetrahedron contain point
+  // when they satisfy Delaunay criterion. (More than one tetra may contain
+  // a point if the point is on or near an edge or face.) For each face, 
+  // create a tetrahedron. (The locator helps speed search of points 
+  // in tetras.)
   tetraId = Mesh->GetNumberOfCells() - 1;
 
   if ( (numFaces=this->FindEnclosingFaces(x, tetraId, Mesh, points,
@@ -988,15 +1000,22 @@ void vtkDelaunay3D::InsertPoint(vtkUnstructuredGrid *Mesh, vtkPoints *points,
         {
         tetraId = tetras->GetId(tetraNum);
         Mesh->ReplaceCell(tetraId, 4, nodes);
-        for (i=0; i < 4; i++)
-          {
-          Mesh->ResizeCellList(nodes[i],1);
-          Mesh->AddReferenceToCell(nodes[i],tetraId);
-          }
         }
       else
         {
-        tetraId = Mesh->InsertNextLinkedCell(VTK_TETRA, 4, nodes);
+        tetraId = Mesh->InsertNextCell(VTK_TETRA,4,nodes);
+        }
+      
+      // Update data structures
+      for (i=0; i<4; i++)
+        {
+        if ( this->References[nodes[i]] >= 0 )
+          {
+          Mesh->ResizeCellList(nodes[i],5);
+          this->References[nodes[i]] -= 5;
+          }
+        this->References[nodes[i]]++;
+        Mesh->AddReferenceToCell(nodes[i],tetraId);
         }
 
       this->InsertSphere(Mesh, points, tetraId);
@@ -1094,7 +1113,8 @@ void vtkDelaunay3D::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Alpha: " << this->Alpha << "\n";
   os << indent << "Tolerance: " << this->Tolerance << "\n";
   os << indent << "Offset: " << this->Offset << "\n";
-  os << indent << "Bounding Triangulation: " << (this->BoundingTriangulation ? "On\n" : "Off\n");
+  os << indent << "Bounding Triangulation: " 
+     << (this->BoundingTriangulation ? "On\n" : "Off\n");
 
   if ( this->Locator )
     {
@@ -1103,6 +1123,15 @@ void vtkDelaunay3D::PrintSelf(ostream& os, vtkIndent indent)
   else
     {
     os << indent << "Locator: (none)\n";
+    }
+}
+
+void vtkDelaunay3D::EndPointInsertion()
+{
+  if (this->References)
+    {
+    delete [] this->References;
+    this->References = NULL;
     }
 }
 

@@ -80,7 +80,7 @@ vtkClipVolume::vtkClipVolume(vtkImplicitFunction *cf)
   this->Mesh = NULL;
 
   this->MeshLocator = vtkMergePoints::New();
-  this->MeshLocator->SetDivisions(3,3,3);
+  this->MeshLocator->SetDivisions(2,2,2);
   this->MeshLocator->AutomaticOff();
   
   this->Triangulator = vtkDelaunay3D::New();
@@ -481,8 +481,8 @@ void vtkClipVolume::ClipVoxel(float value, vtkScalars *cellScalars,
     }//for eight voxel corner points
   
   // For each edge intersection point, insert into triangulation. Edge
-  // intersections come from clipping value. Have to be careful of intersections
-  // near exisiting points (causes bad Delaunay behavior).
+  // intersections come from clipping value. Have to be careful of 
+  // intersections near exisiting points (causes bad Delaunay behavior).
   for (edgeNum=0; edgeNum < 12; edgeNum++)
     {
     s1 = cellScalars->GetScalar(edges[edgeNum][0]);
@@ -523,6 +523,8 @@ void vtkClipVolume::ClipVoxel(float value, vtkScalars *cellScalars,
 
       }//if edge intersects value
     }//for all edges
+  
+  this->Triangulator->EndPointInsertion();
 
   // Begin classification of tetrahedra. First initialize in/out array.
   numTetras = this->Mesh->GetNumberOfCells();

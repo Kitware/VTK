@@ -156,7 +156,7 @@ public:
 
   // Description:
   // Set / get a spatial locator for merging points. By default, 
-  // an instance of vtkMergePoints is used.
+  // an instance of vtkPointLocator is used.
   void SetLocator(vtkPointLocator *locator);
   vtkGetObjectMacro(Locator,vtkPointLocator);
 
@@ -208,7 +208,13 @@ public:
   void InsertPoint(vtkUnstructuredGrid *Mesh, vtkPoints *points,
 		   int id, float x[3], vtkIdList *holeTetras);
 
-  
+  // Description:
+  // Invoke this method after all points have been inserted. The purpose of
+  // the method is to clean up internal data structures. Note that the 
+  // (vtkUnstructuredGrid *)Mesh returned from InitPointInsertion() is NOT
+  // deleted, you still are responsible for cleaning that up.
+  void EndPointInsertion();
+
   // Description:
   // Return the MTime also considering the locator.
   unsigned long GetMTime();
@@ -227,8 +233,8 @@ public:
     {return this->InitPointInsertion(numPtsToInsert, numTetra, 
   				   &boundingTetraPts, bounds, pts);};
   void InsertPoint(vtkUnstructuredGrid *Mesh, vtkPoints *points,
-  		   int id, float x[3], vtkIdList &holeTetras) {
-    this->InsertPoint(Mesh, points, id, x, &holeTetras);}; 
+  		   int id, float x[3], vtkIdList &holeTetras) 
+    {this->InsertPoint(Mesh, points, id, x, &holeTetras);}; 
     
 protected:
   vtkDelaunay3D();
@@ -251,6 +257,9 @@ protected:
 
   int NumberOfDuplicatePoints; //keep track of bad data
   int NumberOfDegeneracies;
+
+  // Keep track of number of references to points to avoid new/delete calls
+  int *References;
 
   int FindEnclosingFaces(float x[3], int tetra, vtkUnstructuredGrid *Mesh,
 			 vtkPoints *points, float tol,
