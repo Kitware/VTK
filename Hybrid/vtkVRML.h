@@ -73,6 +73,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <iostream.h>
 #endif
 
+#ifdef __BORLANDC__
+// seems to be missing from new.h and new for borland
+void* operator new[](unsigned int,void *v)
+{
+  return v;
+}
+#endif
+
 #include <string.h>
 
 #include "vtkWin32Header.h"
@@ -90,6 +98,8 @@ struct vtkVRMLAllocator
   static vtkHeap *Heap;
 };
 
+
+  
 template <class T> 
 class VTK_HYBRID_EXPORT VectorType
 {
@@ -131,32 +141,32 @@ public:
     }
   void Reserve(int newSize)
     {
-    T *temp;
-    int oldSize;
-    if(newSize >= Allocated)
-      {
-      oldSize=Allocated;
-      Allocated=newSize+DEFAULTINCREMENT;
-      temp=Data;
-      if (!this->UseNew)
-	{
-	void* mem = vtkVRMLAllocator::AllocateMemory(Allocated*sizeof(T));
-	Data=new(mem) T[Allocated];
-	}
-      else
-	{
-	Data=new T[Allocated];
-	}
-      if(Data==(T *)'\0')
-	{
-	return;
-	}
-      memcpy((void*)Data, (void*)temp, oldSize*sizeof(T));
-      if (this->UseNew)
-	{
-	delete[] temp;
-	}
-      }
+      T *temp;
+      int oldSize;
+      if(newSize >= Allocated)
+        {
+        oldSize=Allocated;
+        Allocated=newSize+DEFAULTINCREMENT;
+        temp=Data;
+        if (!this->UseNew)
+          {
+          void* mem = vtkVRMLAllocator::AllocateMemory(Allocated*sizeof(T));
+          Data=new(mem) T[Allocated];
+          }
+        else
+          {
+          Data=new T[Allocated];
+          }
+        if(Data==(T *)'\0')
+          {
+          return;
+          }
+        memcpy((void*)Data, (void*)temp, oldSize*sizeof(T));
+        if (this->UseNew)
+          {
+          delete[] temp;
+          }
+        }
     }
   
   void Demand(int newSize)
