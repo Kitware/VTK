@@ -17,7 +17,10 @@
 // vtkParametricKlein generates a "classical" representation of a Klein
 // bottle.  A Klein bottle is a closed surface with no interior and only one
 // surface.  It is unrealisable in 3 dimensions without intersecting
-// surfaces.
+// surfaces.  It can be
+// realised in 4 dimensions by considering the map \f$ F:R^2 \rightarrow R^4 \f$  given by:
+//
+// - \f$ f(u,v) = ((r*cos(v)+a)*cos(u),(r*cos(v)+a)*sin(u),r*sin(v)*cos(u/2),r*sin(v)*sin(u/2)) \f$
 //
 // The classical representation of the immersion in \f$ R^3\f$ is returned by this function.
 //
@@ -55,8 +58,8 @@ public:
   //
   // This function performs the mapping \f$ f(u,v) \rightarrow (x,y,x) \f$, returning it
   // as Pt. It also returns the partial derivatives Du and Dv.
-  // \f$ Pt = (x, y, z), Du = (dx/du, dy/du, dz/du), Dv = (dx/dv, dy/dv, dz/dv) \f$.
-  // Then the normal is \f$ N = Du X Dv \f$.
+  // \f$ Pt = (x, y, z), Du = (dx/du, dy/du, dz/du), Dv = (dx/dv, dy/dv, dz/dv) \f$ .
+  // Then the normal is \f$ N = Du X Dv \f$ .
   virtual void Evaluate(double uvw[3], double Pt[3], double Duvw[9]);
 
   // Description:
