@@ -13,6 +13,8 @@ ac_default_prefix=/usr/local
 # Any additions from configure.in:
 ac_help="$ac_help
   --with-bsdmake            uses bsd style makefile includes"
+ac_help="$ac_help
+  --with-patented           include the patented classes"
 
 # Initialize some variables set by options.
 # The variables have the same names as the options, with
@@ -543,6 +545,21 @@ fi
 
 
 
+# Check whether --with-patented or --without-patented was given.
+if test "${with_patented+set}" = set; then
+  withval="$with_patented"
+  if test "$withval" = yes; then
+         USE_PATENTED_GRAPHICS_PYTHON_TARGET="libVTKPatentedPython$(SHLIB_SUFFIX) : ../graphics/libVTKGraphics$(VTK_LIB_EXT)"
+         USE_PATENTED_GRAPHICS_TCL_TARGET="libVTKPatentedTcl$(SHLIB_SUFFIX) : ../graphics/libVTKGraphics$(VTK_LIB_EXT)"
+         USE_PATENTED_GRAPHICS_LIBS="../graphics/libVTKGraphics$(VTK_LIB_EXT)"
+         fi
+fi
+
+
+
+
+
+
 ac_aux_dir=
 for ac_dir in $srcdir $srcdir/.. $srcdir/../..; do
   if test -f $ac_dir/install-sh; then
@@ -709,6 +726,9 @@ s%@infodir@%$infodir%g
 s%@mandir@%$mandir%g
 s%@MAKEINCLUDE@%$MAKEINCLUDE%g
 s%@MAKEQUOTE@%$MAKEQUOTE%g
+s%@USE_PATENTED_GRAPHICS_PYTHON_TARGET@%$USE_PATENTED_GRAPHICS_PYTHON_TARGET%g
+s%@USE_PATENTED_GRAPHICS_TCL_TARGET@%$USE_PATENTED_GRAPHICS_TCL_TARGET%g
+s%@USE_PATENTED_GRAPHICS_LIBS@%$USE_PATENTED_GRAPHICS_LIBS%g
 s%@subdirs@%$subdirs%g
 
 CEOF

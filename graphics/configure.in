@@ -11,6 +11,18 @@ AC_ARG_WITH(tkwidget,
          fi)
 AC_SUBST(TKWIDGET)
 
+AC_ARG_WITH(patented,
+         [  --with-patented           include the patented classes],
+	 if test "$withval" = yes; then
+         USE_GRAPHICS_PATENTED_PYTHON_TARGET="libVTKGraphicsPython$(SHLIB_SUFFIX) : ../patented/libVTKPatented$(VTK_LIB_EXT)"
+         USE_GRAPHICS_PATENTED_TCL_TARGET="libVTKGraphicsTcl$(SHLIB_SUFFIX) : ../patented/libVTKPatented$(VTK_LIB_EXT)"
+         USE_GRAPHICS_PATENTED_LIBS="../patented/libVTKPatented$(VTK_LIB_EXT)"
+         fi,)
+
+AC_SUBST(USE_GRAPHICS_PATENTED_PYTHON_TARGET)
+AC_SUBST(USE_GRAPHICS_PATENTED_TCL_TARGET)
+AC_SUBST(USE_GRAPHICS_PATENTED_LIBS)
+
 if test ! -r targets.make
 then
     echo "Copying $srcdir/targets.make to build directory"

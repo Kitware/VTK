@@ -14,6 +14,8 @@ ac_default_prefix=/usr/local
 ac_help="$ac_help
   --with-tkwidget           build the vtkTkRenderWidget class"
 ac_help="$ac_help
+  --with-patented           include the patented classes"
+ac_help="$ac_help
   --with-bsdmake            uses bsd style makefile includes"
 
 # Initialize some variables set by options.
@@ -534,6 +536,21 @@ fi
 
 
 
+# Check whether --with-patented or --without-patented was given.
+if test "${with_patented+set}" = set; then
+  withval="$with_patented"
+  if test "$withval" = yes; then
+         USE_GRAPHICS_PATENTED_PYTHON_TARGET="libVTKGraphicsPython$(SHLIB_SUFFIX) : ../patented/libVTKPatented$(VTK_LIB_EXT)"
+         USE_GRAPHICS_PATENTED_TCL_TARGET="libVTKGraphicsTcl$(SHLIB_SUFFIX) : ../patented/libVTKPatented$(VTK_LIB_EXT)"
+         USE_GRAPHICS_PATENTED_LIBS="../patented/libVTKPatented$(VTK_LIB_EXT)"
+         fi
+fi
+
+
+
+
+
+
 if test ! -r targets.make
 then
     echo "Copying $srcdir/targets.make to build directory"
@@ -722,6 +739,9 @@ s%@oldincludedir@%$oldincludedir%g
 s%@infodir@%$infodir%g
 s%@mandir@%$mandir%g
 s%@TKWIDGET@%$TKWIDGET%g
+s%@USE_GRAPHICS_PATENTED_PYTHON_TARGET@%$USE_GRAPHICS_PATENTED_PYTHON_TARGET%g
+s%@USE_GRAPHICS_PATENTED_TCL_TARGET@%$USE_GRAPHICS_PATENTED_TCL_TARGET%g
+s%@USE_GRAPHICS_PATENTED_LIBS@%$USE_GRAPHICS_PATENTED_LIBS%g
 s%@MAKEINCLUDE@%$MAKEINCLUDE%g
 s%@MAKEQUOTE@%$MAKEQUOTE%g
 s%@subdirs@%$subdirs%g
