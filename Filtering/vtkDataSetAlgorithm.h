@@ -95,21 +95,21 @@ protected:
 
   // This is called by the superclass.
   // This is the method you should override.
-  virtual int ExecuteInformation(vtkInformation* request, 
-                                 vtkInformationVector* inputVector, 
-                                 vtkInformationVector* outputVector) {return 1;};
+  virtual int ExecuteInformation(vtkInformation*, 
+                                 vtkInformationVector*, 
+                                 vtkInformationVector*) {return 1;};
 
   // This is called by the superclass.
   // This is the method you should override.
-  virtual int RequestData(vtkInformation* request, 
-                          vtkInformationVector* inputVector, 
-                          vtkInformationVector* outputVector) {return 1;};
+  virtual int RequestData(vtkInformation*, 
+                          vtkInformationVector*, 
+                          vtkInformationVector*) {return 1;};
 
   // This is called by the superclass.
   // This is the method you should override.
-  virtual int ComputeInputUpdateExtent(vtkInformation* request,
-                                       vtkInformationVector* inputVector,
-                                       vtkInformationVector* outputVector) 
+  virtual int ComputeInputUpdateExtent(vtkInformation*,
+                                       vtkInformationVector*,
+                                       vtkInformationVector*) 
     {
       return 1;
     };

@@ -33,7 +33,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkContourFilter, "1.106");
+vtkCxxRevisionMacro(vtkContourFilter, "1.107");
 vtkStandardNewMacro(vtkContourFilter);
 vtkCxxSetObjectMacro(vtkContourFilter,ScalarTree,vtkScalarTree);
 
@@ -94,7 +94,7 @@ unsigned long vtkContourFilter::GetMTime()
 // General contouring filter.  Handles arbitrary input.
 //
 int vtkContourFilter::RequestData(
-  vtkInformation* request, 
+  vtkInformation*, 
   vtkInformationVector* inputVector , 
   vtkInformationVector* outputVector)
 {

@@ -28,7 +28,7 @@
 #include "vtkTrivialProducer.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkDataSetAlgorithm, "1.1");
+vtkCxxRevisionMacro(vtkDataSetAlgorithm, "1.2");
 vtkStandardNewMacro(vtkDataSetAlgorithm);
 
 //----------------------------------------------------------------------------
@@ -169,7 +169,7 @@ int vtkDataSetAlgorithm::ProcessRequest(
 
 //----------------------------------------------------------------------------
 int vtkDataSetAlgorithm::CreateOutput(
-  vtkInformation* request, 
+  vtkInformation*, 
   vtkInformationVector* inputVector , 
   vtkInformationVector* outputVector)
 {

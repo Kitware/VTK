@@ -35,7 +35,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkKitwareContourFilter, "1.35");
+vtkCxxRevisionMacro(vtkKitwareContourFilter, "1.36");
 vtkStandardNewMacro(vtkKitwareContourFilter);
 
 // Construct object with initial range (0,1) and single contour value
@@ -272,7 +272,7 @@ int vtkKitwareContourFilter::RequestData(
     }
 
   // otherwise just use the normal one
-  this->Superclass::RequestData(request, inputVector, outputVector);
+  return this->Superclass::RequestData(request, inputVector, outputVector);
 }
 
 
