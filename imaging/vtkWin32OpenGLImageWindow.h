@@ -106,7 +106,7 @@ public:
   virtual void SetWindowName(char *);
   
   //BTX
-  virtual void *GetGenericDisplayId() {return NULL;};
+  virtual void *GetGenericDisplayId() {return (void *)this->ContextId;};
   virtual void *GetGenericWindowId()  {return (void *)this->WindowId;};
   virtual void *GetGenericParentId()  {return (void *)this->ParentId;};
   virtual void *GetGenericContext()   {return (void *)this->DeviceContext;};

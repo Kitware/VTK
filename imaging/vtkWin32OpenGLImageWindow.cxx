@@ -77,7 +77,7 @@ void vtkWin32OpenGLImageWindow::Render()
   this->vtkImageWindow::Render();
 }
 
-  void vtkWin32OpenGLImageWindow::Clean()
+void vtkWin32OpenGLImageWindow::Clean()
 {
   /* finish OpenGL rendering */
   if (this->ContextId) 
@@ -185,7 +185,7 @@ void vtkWin32OpenGLImageWindow::SetPosition(int x, int y)
 
 static void vtkWin32OpenGLSwapBuffers(HDC hdc)
 {
-  SwapBuffers(hdc);
+  this->SwapBuffers(hdc);
 }
 
 // End the rendering process and display the image.

@@ -42,6 +42,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 void vtkXTextMapper::SetFontSize(int size)
 {
+  int newSize;
+
   // Make sure that the font size matches an available X font size.
   // This routine assumes that some standard X fonts are installed.
   switch (size)
@@ -53,40 +55,45 @@ void vtkXTextMapper::SetFontSize(int size)
     case 14:
     case 18:
     case 24:
-      this->FontSize = size;
-      return;
+      newSize = size;
+      break;
 
     // In between sizes use next larger size
     case 9:
-      this->FontSize = 10;
+      newSize = 10;
       break;
     case 11:
-      this->FontSize = 12;
+      newSize = 12;
       break;
     case 13:
-      this->FontSize = 14;
+      newSize = 14;
       break;
     case 15:
     case 16:
     case 17:
-      this->FontSize = 18;
+      newSize = 18;
       break;
     case 19:
     case 20:
     case 21:
     case 22:
     case 23:
-      this->FontSize = 24;
+      newSize = 24;
       break;
 
     // catch the values outside the font range 
     default:
-      if (size < 8) this->FontSize = 8;
-      else if (size > 24)this->FontSize  = 24;
-      else this->FontSize = 12;   // just in case we missed something above
+      if (size < 8) newSize = 8;
+      else if (size > 24) newSize  = 24;
+      else newSize = 12;   // just in case we missed something above
       break;
     }
-
+  
+  if (this->FontSize != newSize)
+    {
+      this->FontSize = newSize;
+      this->FontMTime.Modified();
+    }
   return;
 }
 
@@ -127,8 +134,6 @@ void vtkXTextMapper::GetSize(vtkViewport* viewport, int *size)
   // Get the window info
   vtkWindow*  window = viewport->GetVTKWindow();
   Display* displayId = (Display*) window->GetGenericDisplayId();
-  GC gc = (GC) window->GetGenericContext();
-  Window windowId = (Window) window->GetGenericWindowId();
 
   // Set up the font name string. Note: currently there is no checking to see
   // if we've exceeded the fontname length.

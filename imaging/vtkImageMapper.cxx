@@ -46,7 +46,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkOpenGLImageMapper.h"
 #include "vtkWin32ImageMapper.h"
 #else
-  #include "vtkXImageMapper.h"
+#ifdef VTK_USE_OGLR
+#include "vtkOpenGLImageMapper.h"
+#endif
+#include "vtkXImageMapper.h"
 #endif
 
 #include "vtkActor2D.h"
@@ -97,6 +100,9 @@ vtkImageMapper* vtkImageMapper::New()
   return vtkOpenGLImageMapper::New();
   return vtkWin32ImageMapper::New();
 #else
+#ifdef VTK_USE_OGLR
+  return vtkOpenGLImageMapper::New();
+#endif
   return vtkXImageMapper::New();
 #endif
 

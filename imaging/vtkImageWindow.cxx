@@ -45,6 +45,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
   #include "vtkWin32OpenGLImageWindow.h"
   #include "vtkWin32ImageWindow.h"
 #else
+#ifdef VTK_USE_OGLR
+  #include "vtkOpenGLImageWindow.h"
+#endif
   #include "vtkXImageWindow.h"
 #endif
 
@@ -164,7 +167,11 @@ vtkImageWindow* vtkImageWindow::New()
   return vtkWin32OpenGLImageWindow::New();
   return vtkWin32ImageWindow::New();
 #else
+#ifdef VTK_USE_OGLR
+  return vtkOpenGLImageWindow::New();
+#else
     return vtkXImageWindow::New();
+#endif
 #endif
 }
 

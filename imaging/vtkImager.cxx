@@ -45,10 +45,16 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifdef _WIN32
   #include "vtkOpenGLImager.h"
 #endif
+#ifdef VTK_USE_OGLR
+  #include "vtkOpenGLImager.h"
+#endif
 
 vtkImager* vtkImager::New()
 {
 #ifdef _WIN32
+  return vtkOpenGLImager::New();
+#endif
+#ifdef VTK_USE_OGLR
   return vtkOpenGLImager::New();
 #endif
   return new vtkImager;

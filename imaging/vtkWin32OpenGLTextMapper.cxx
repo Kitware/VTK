@@ -40,11 +40,128 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkWin32OpenGLTextMapper.h"
 #include <GL/gl.h>
 
+struct vtkFontStruct
+{
+  vtkWindow *Window;
+  int   Italic;
+  int	Bold;
+  int   FontSize;
+  int   FontFamily;
+  int   ListBase;
+};
+  
+static vtkFontStruct *cache[10] = {NULL,NULL,NULL,NULL,NULL,
+				   NULL,NULL,NULL,NULL,NULL};
+static numCached = 0;
+
+int vtkWin32OpenGLTextMapper::GetListBaseForFont(vtkTextMapper *tm, 
+						 vtkViewport *vp, 
+						 HDC hdc)
+{
+  int i, j;
+  vtkWindow *win = vp->GetVTKWindow();
+
+  // has the font been cached ?
+  for (i = 0; i < numCached; i++)
+    {
+    if (cache[i]->Window == win &&
+	cache[i]->Italic == tm->GetItalic() &&
+	cache[i]->Bold == tm->GetBold() &&
+	cache[i]->FontSize == tm->GetFontSize() &&
+	cache[i]->FontFamily == tm->GetFontFamily())
+      {
+      // make this the most recently used
+      if (i != 0)
+	{
+	vtkFontStruct *tmp = cache[i];
+	for (j = i-1; j >= 0; j--)
+	  {
+	  cache[j+1] = cache[j];
+	  }
+	cache[0] = tmp;
+	}
+      return cache[0]->ListBase;
+      }
+    }
+  
+  HDC hdc = (HDC) window->GetGenericContext();
+
+  // OK the font is not cached
+  // so we need to make room for a new font
+  if (numCached == 10)
+    {
+    wglMakeCurrent((HDC)cache[9]->Window->GetGenericContext(), 
+		   (HGLRC)cache[9]->Window->GetGenericDisplayId());
+    glDeleteLists(cache[9]->ListBase,255);
+    wglMakeCurrent(hdc, (HGLRC)win->GetGenericDisplayId());
+    numCached = 9;
+    }
+
+  // add the new font
+  if (!cache[numCached])
+    {
+    cache[numCached] = new vtkFontStruct;
+    int done = 0;
+    cache[numCached]->ListBase = 1000;
+    do 
+      {
+      done = 1;
+      cache[numCached]->ListBase += 260;
+      for (i = 0; i < numCached; i++)
+	{
+	if (cache[i]->ListBase == cache[numCached]->ListBase)
+	  {
+	  done = 0;
+	  }
+	}
+      }
+    while (!done);
+    }
+  
+  // set the other info and build the font
+  cache[numCached]->Window = win;
+  cache[numCached]->Italic = tm->GetItalic();
+  cache[numCached]->Bold = tm->GetBold();
+  cache[numCached]->FontSize = tm->GetFontSize();
+  cache[numCached]->FontFamily = tm->GetFontFamily();
+  wglUseFontBitmaps(hdc, 0, 255, cache[numCached]->ListBase); 
+  
+  // now resort the list
+  vtkFontStruct *tmp = cache[numCached];
+  for (i = numCached-1; i >= 0; i--)
+    {
+    cache[i+1] = cache[i];
+    }
+  cache[0] = tmp;
+  numCached++;
+  return cache[0]->ListBase;
+}
+
+void vtkWin32OpenGLTextMapper::ReleaseGraphicsResources(vtkWindow *win)
+{
+  int i,j;
+  
+  // free up any cached font associated with this window
+  // has the font been cached ?
+  for (i = 0; i < numCached; i++)
+    {
+    if (cache[i]->Window == win)
+      {
+      glDeleteLists(cache[i]->ListBase,255);
+      delete cache[i];
+      // resort them
+      numCached--;
+      for (j = i; j < numCached; j++)
+	{
+	cache[j] = cache[j+1];
+	}
+      cache[numCached] = NULL;
+      }
+    }
+}
+
 vtkWin32OpenGLTextMapper::vtkWin32OpenGLTextMapper()
 {
-  static listBase = 1000;
-  this->ListBase = listBase;
-  listBase += 1000;
 }
 
 void vtkWin32OpenGLTextMapper::RenderOpaqueGeometry(vtkViewport* viewport, 
@@ -129,18 +246,8 @@ void vtkWin32OpenGLTextMapper::RenderOpaqueGeometry(vtkViewport* viewport,
   glOrtho(0,vsize[0] -1, 0, vsize[1] -1, 0, 1);
   glDisable( GL_LIGHTING);
 
-  // Check to see whether we have to rebuild anything
-  if ( this->FontMTime > this->OpenGLBuildTime)
-    {
-    // Get the window information for display
-    vtkWindow*  window = viewport->GetVTKWindow();
-    // Get the device context from the window
-    HDC hdc = (HDC) window->GetGenericContext();
-    wglUseFontBitmaps(hdc, 0, 255, this->ListBase); 
-    this->OpenGLBuildTime.Modified();
-    }
+  glListBase(vtkWin32OpenGLTextMapper::GetListBaseForFont(this,viewport));
   
-  glListBase (this->ListBase); 
   // Set the colors for the shadow
   if (this->Shadow)
     {

@@ -65,9 +65,17 @@ public:
   void RenderOpaqueGeometry(vtkViewport* viewport, vtkActor2D* actor);
   void RenderOverlay(vtkViewport* viewport, vtkActor2D* actor) {};
 
+  // Description:
+  // Release any graphics resources that are being consumed by this actor.
+  // The parameter window could be used to determine which graphic
+  // resources to release.
+  virtual void ReleaseGraphicsResources(vtkWindow *);
+
+  // Description:
+  // An internal function used for caching font display lists.
+  static int GetListBaseForFont(vtkTextMapper *tm, vtkViewport *vp, HDC);
+
 protected:
-  int ListBase;
-  vtkTimeStamp  OpenGLBuildTime;
 };
 
 

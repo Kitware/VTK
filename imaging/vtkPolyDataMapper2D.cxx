@@ -44,6 +44,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
   #include "vtkOpenGLPolyDataMapper2D.h"
   #include "vtkWin32PolyDataMapper2D.h"
 #else
+#ifdef VTK_USE_OGLR
+  #include "vtkOpenGLPolyDataMapper2D.h"
+#endif
   #include "vtkXPolyDataMapper2D.h"
 #endif
 
@@ -86,7 +89,11 @@ vtkPolyDataMapper2D *vtkPolyDataMapper2D::New()
     return vtkOpenGLPolyDataMapper2D::New();
     return vtkWin32PolyDataMapper2D::New();
 #else
+#ifdef VTK_USE_OGLR
+    return vtkOpenGLPolyDataMapper2D::New();
+#else
     return vtkXPolyDataMapper2D::New();
+#endif
 #endif
 }
 
