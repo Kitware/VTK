@@ -19,11 +19,13 @@
 #include "vtkFloatArray.h"
 #include "vtkIdList.h"
 #include "vtkImplicitFunction.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkExtractGeometry, "1.56");
+vtkCxxRevisionMacro(vtkExtractGeometry, "1.57");
 vtkStandardNewMacro(vtkExtractGeometry);
 vtkCxxSetObjectMacro(vtkExtractGeometry,ImplicitFunction,vtkImplicitFunction);
 
@@ -62,8 +64,21 @@ unsigned long vtkExtractGeometry::GetMTime()
   return mTime;
 }
 
-void vtkExtractGeometry::Execute()
+int vtkExtractGeometry::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkDataSet *input = vtkDataSet::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkUnstructuredGrid *output = vtkUnstructuredGrid::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   vtkIdType ptId, numPts, numCells, i, cellId, newCellId, newId, *pointMap;
   vtkIdList *cellPts;
   vtkCell *cell;
@@ -72,10 +87,8 @@ void vtkExtractGeometry::Execute()
   double multiplier;
   vtkPoints *newPts;
   vtkIdList *newCellPts;
-  vtkDataSet *input = this->GetInput();
   vtkPointData *pd = input->GetPointData();
   vtkCellData *cd = input->GetCellData();
-  vtkUnstructuredGrid *output = this->GetOutput();
   vtkPointData *outputPD = output->GetPointData();
   vtkCellData *outputCD = output->GetCellData();
   int npts;
@@ -85,7 +98,7 @@ void vtkExtractGeometry::Execute()
   if ( ! this->ImplicitFunction )
     {
     vtkErrorMacro(<<"No implicit function specified");
-    return;
+    return 1;
     }
 
   newCellPts = vtkIdList::New();
@@ -255,6 +268,14 @@ void vtkExtractGeometry::Execute()
     }
 
   output->Squeeze();
+
+  return 1;
+}
+
+int vtkExtractGeometry::FillInputPortInformation(int, vtkInformation *info)
+{
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
+  return 1;
 }
 
 void vtkExtractGeometry::PrintSelf(ostream& os, vtkIndent indent)

@@ -35,14 +35,14 @@
 #ifndef __vtkExtractGeometry_h
 #define __vtkExtractGeometry_h
 
-#include "vtkDataSetToUnstructuredGridFilter.h"
+#include "vtkUnstructuredGridAlgorithm.h"
 
 class vtkImplicitFunction;
 
-class VTK_GRAPHICS_EXPORT vtkExtractGeometry : public vtkDataSetToUnstructuredGridFilter
+class VTK_GRAPHICS_EXPORT vtkExtractGeometry : public vtkUnstructuredGridAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkExtractGeometry,vtkDataSetToUnstructuredGridFilter);
+  vtkTypeRevisionMacro(vtkExtractGeometry,vtkUnstructuredGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -81,7 +81,9 @@ protected:
   ~vtkExtractGeometry();
 
   // Usual data generation method
-  void Execute();
+  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+
+  virtual int FillInputPortInformation(int port, vtkInformation *info);
 
   vtkImplicitFunction *ImplicitFunction;
   int ExtractInside;
