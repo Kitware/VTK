@@ -47,6 +47,7 @@ vtkDataSetToPolyDataAlgorithm.cxx
 vtkDataSetToPolyDataFilter.cxx
 vtkDataSetToStructuredGridFilter.cxx
 vtkDataSetToStructuredPointsFilter.cxx
+vtkDataSetToUnstructuredGridAlgorithm.cxx
 vtkDataSetToUnstructuredGridFilter.cxx
 vtkDemandDrivenPipeline.cxx
 vtkEmptyCell.cxx
