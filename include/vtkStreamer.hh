@@ -123,7 +123,7 @@ public:
   int Extend;             // grow array by this amount
   float Direction;        // integration direction
 };
-//ETX - end tcl exclude
+//ETX
 //
 
 class vtkStreamer : public vtkDataSetToPolyFilter
