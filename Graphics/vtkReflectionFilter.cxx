@@ -17,11 +17,13 @@
 #include "vtkCellData.h"
 #include "vtkGenericCell.h"
 #include "vtkIdList.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkReflectionFilter, "1.15");
+vtkCxxRevisionMacro(vtkReflectionFilter, "1.16");
 vtkStandardNewMacro(vtkReflectionFilter);
 
 //---------------------------------------------------------------------------
@@ -47,11 +49,22 @@ void vtkReflectionFilter::FlipVector(double tuple[3], int mirrorDir[3])
 }
 
 //---------------------------------------------------------------------------
-void vtkReflectionFilter::Execute()
+int vtkReflectionFilter::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkDataSet *input = vtkDataSet::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkUnstructuredGrid *output = vtkUnstructuredGrid::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   vtkIdType i;
-  vtkDataSet *input = this->GetInput();
-  vtkUnstructuredGrid *output = this->GetOutput();
   vtkPointData *inPD = input->GetPointData();
   vtkPointData *outPD = output->GetPointData();
   vtkCellData *inCD = input->GetCellData();
@@ -248,6 +261,15 @@ void vtkReflectionFilter::Execute()
   output->SetPoints(outPoints);
   outPoints->Delete();
   output->CheckAttributes();
+
+  return 1;
+}
+
+//---------------------------------------------------------------------------
+int vtkReflectionFilter::FillInputPortInformation(int, vtkInformation *info)
+{
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
+  return 1;
 }
 
 //---------------------------------------------------------------------------

@@ -22,14 +22,14 @@
 #ifndef __vtkReflectionFilter_h
 #define __vtkReflectionFilter_h
 
-#include "vtkDataSetToUnstructuredGridFilter.h"
+#include "vtkUnstructuredGridAlgorithm.h"
 
-class VTK_GRAPHICS_EXPORT vtkReflectionFilter : public vtkDataSetToUnstructuredGridFilter
+class VTK_GRAPHICS_EXPORT vtkReflectionFilter : public vtkUnstructuredGridAlgorithm
 {
 public:
   static vtkReflectionFilter *New();
   
-  vtkTypeRevisionMacro(vtkReflectionFilter, vtkDataSetToUnstructuredGridFilter);
+  vtkTypeRevisionMacro(vtkReflectionFilter, vtkUnstructuredGridAlgorithm);
   void PrintSelf(ostream &os, vtkIndent indent);
   
 //BTX
@@ -78,7 +78,8 @@ protected:
   vtkReflectionFilter();
   ~vtkReflectionFilter();
   
-  void Execute();
+  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int FillInputPortInformation(int port, vtkInformation *info);
 
   int Plane;
   double Center;
