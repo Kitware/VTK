@@ -49,11 +49,27 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define vtkCloseSocketMacro(sock) (close(sock))
 #endif
 
+// These macros are used to decrease the number of lines 
+// not covered during testing (macros count as one line)
 #define vtkSCCheckForError \
   if ( checkForError(remoteProcessId, this->NumberOfProcesses) ) \
     { \
     return 0; \
     } 
+
+#define vtkSCSendError \
+  if (sent == -1) \
+    { \
+    vtkGenericWarningMacro("Could not send message."); \
+    return 0; \
+    } 
+
+#define vtkSCReceiveError \
+  if (received == -1) \
+    { \
+    vtkErrorMacro("Could not receive message."); \
+    return 0; \
+    }
 
 //------------------------------------------------------------------------------
 vtkSocketCommunicator* vtkSocketCommunicator::New()
@@ -121,19 +137,11 @@ static int SendMessage(T* data, int length, int tag, int sock)
   int totalLength = length*sizeof(T);
   int sent;
   sent = send(sock, (char*)data, totalLength, 0);
-  if (sent == -1)
-    {
-    vtkGenericWarningMacro("Could not send message.");
-    return 0;
-    }
+  vtkSCSendError;
   while ( sent < totalLength )
     {
     sent += send ( sock, (char*)data+sent, totalLength-sent, 0 );
-    if (sent == -1)
-      {
-      vtkGenericWarningMacro("Could not send message.");
-      return 0;
-      }
+    vtkSCSendError;
     }
 
   return 1;
@@ -145,8 +153,7 @@ int vtkSocketCommunicator::Send(int *data, int length, int remoteProcessId,
 {
   vtkSCCheckForError;
 
-  vtkDebugMacro("Sending a message of length " << length*sizeof(int) 
-		<< " bytes.");
+  vtkDebugMacro("Sending a message of length "<<length*sizeof(int)<<" bytes.");
   return SendMessage(data, length, tag, this->Socket);
 }
 
@@ -156,8 +163,7 @@ int vtkSocketCommunicator::Send(unsigned long *data, int length,
 {
   vtkSCCheckForError;
 
-  vtkDebugMacro("Sending a message of length " << length*sizeof(unsigned long) 
-		<< " bytes.");
+  vtkDebugMacro("Sending a message of length "<<length*sizeof(unsigned long)<<" bytes.");
   return SendMessage(data, length, tag, this->Socket);
 }
 //----------------------------------------------------------------------------
@@ -166,8 +172,7 @@ int vtkSocketCommunicator::Send(char *data, int length,
 {
   vtkSCCheckForError;
 
-  vtkDebugMacro("Sending a message of length " << length*sizeof(char) 
-		<< " bytes.");
+  vtkDebugMacro("Sending a message of length "<<length*sizeof(char)<<" bytes.");
   return SendMessage(data, length, tag, this->Socket);
 }
 
@@ -177,8 +182,7 @@ int vtkSocketCommunicator::Send(unsigned char *data, int length,
 {
   vtkSCCheckForError;
 
-  vtkDebugMacro("Sending a message of length " << length*sizeof(unsigned char) 
-		<< " bytes.");
+  vtkDebugMacro("Sending a message of length "<<length*sizeof(unsigned char)<<" bytes.");
   return SendMessage(data, length, tag, this->Socket);
 }
 
@@ -188,8 +192,7 @@ int vtkSocketCommunicator::Send(float *data, int length,
 {
   vtkSCCheckForError;
 
-  vtkDebugMacro("Sending a message of length " << length*sizeof(float) 
-		<< " bytes.");
+  vtkDebugMacro("Sending a message of length "<<length*sizeof(float)<<" bytes.");
   return SendMessage(data, length, tag, this->Socket);
 }
 
@@ -199,8 +202,7 @@ int vtkSocketCommunicator::Send(double *data, int length,
 {
   vtkSCCheckForError;
 
-  vtkDebugMacro("Sending a message of length " << length*sizeof(double) 
-		<< " bytes.");
+  vtkDebugMacro("Sending a message of length "<<length*sizeof(double)<<" bytes.");
   return SendMessage(data, length, tag, this->Socket);
 }
 
@@ -210,8 +212,7 @@ int vtkSocketCommunicator::Send(vtkIdType *data, int length,
 {
   vtkSCCheckForError;
 
-  vtkDebugMacro("Sending a message of length " << length*sizeof(vtkIdType) 
-		<< " bytes.");
+  vtkDebugMacro("Sending a message of length "<<length*sizeof(vtkIdType)<<" bytes.");
   return SendMessage(data, length, tag, this->Socket);
 }
 
@@ -244,19 +245,11 @@ int vtkSocketCommunicator::ReceiveMessage( char *data, int size, int length,
   int received;
 
   received = recv( this->Socket, data, totalLength, 0 );
-  if (received == -1)
-    {
-    vtkErrorMacro("Could not receive message.");
-    return 0;
-    }
+  vtkSCReceiveError;
   while ( received < totalLength )
     {
     received += recv( this->Socket, &(data[received]), totalLength-received, 0 );
-    if (received == -1)
-      {
-      vtkErrorMacro("Could not receive message.");
-      return 0;
-      }
+    vtkSCReceiveError;
     }
 
   // Unless we're dealing with chars, then check byte ordering

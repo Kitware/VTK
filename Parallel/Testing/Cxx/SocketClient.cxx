@@ -17,7 +17,8 @@ static const int scMsgLength = 10;
 
 static void CleanUp(vtkSocketCommunicator* comm, vtkSocketController* contr)
 {
-  comm->CloseConnection();
+  // This will close the connection as well as delete 
+  // the communicator
   comm->Delete();
   contr->Delete();
 }
