@@ -34,6 +34,14 @@ class vlActor : public vlObject
   vlSetMacro(Visibility,int);
   vlBooleanMacro(Visibility,int);
 
+  vlGetMacro(Pickable,int);
+  vlSetMacro(Pickable,int);
+  vlBooleanMacro(Pickable,int);
+
+  vlGetMacro(Dragable,int);
+  vlSetMacro(Dragable,int);
+  vlBooleanMacro(Dragable,int);
+
   void GetCompositeMatrix(float mat[4][4]);
   void SetMapper(vlMapper *m);
   vlMapper *GetMapper();
@@ -47,6 +55,8 @@ protected:
   float Orientation[3];
   float Scale[3];
   int   Visibility;
+  int   Pickable;
+  int   Dragable;
 };
 
 #endif
