@@ -332,7 +332,7 @@ void vtkImageMarchingCubes::Execute()
 // b0 = 0 => no boundary conditions
 // b0 = +1 => pixel is on x axis maximum of region.
 template <class T>
-static void vtkImageMarchingCubesComputePointGradient(T *ptr, float *g,
+void vtkImageMarchingCubesComputePointGradient(T *ptr, float *g,
 					     int inc0, int inc1, int inc2,
 					     short b0, short b1, short b2)
 {
@@ -380,7 +380,7 @@ static void vtkImageMarchingCubesComputePointGradient(T *ptr, float *g,
 //----------------------------------------------------------------------------
 // This method interpolates verticies to make a new point.
 template <class T>
-static int vtkImageMarchingCubesMakeNewPoint(vtkImageMarchingCubes *self,
+int vtkImageMarchingCubesMakeNewPoint(vtkImageMarchingCubes *self,
 					    int idx0, int idx1, int idx2,
 					    int inc0, int inc1, int inc2,
 					    T *ptr, int edge, 
@@ -557,7 +557,7 @@ static int vtkImageMarchingCubesMakeNewPoint(vtkImageMarchingCubes *self,
 //----------------------------------------------------------------------------
 // This method runs marching cubes on one cube.
 template <class T>
-static void vtkImageMarchingCubesHandleCube(vtkImageMarchingCubes *self,
+void vtkImageMarchingCubesHandleCube(vtkImageMarchingCubes *self,
 					   int cellX, int cellY, int cellZ,
 					   vtkImageData *inData,
 					   T *ptr, int numContours, float *values)
@@ -643,7 +643,7 @@ static void vtkImageMarchingCubesHandleCube(vtkImageMarchingCubes *self,
 
 //----------------------------------------------------------------------------
 template <class T>
-static void vtkImageMarchingCubesMarch(vtkImageMarchingCubes *self,
+void vtkImageMarchingCubesMarch(vtkImageMarchingCubes *self,
 				      vtkImageData *inData, T *ptr,
 				      int chunkMin, int chunkMax,
                                       int numContours, float *values)

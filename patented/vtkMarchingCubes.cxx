@@ -110,7 +110,7 @@ unsigned long vtkMarchingCubes::GetMTime()
 // Calculate the gradient using central difference.
 // NOTE: We calculate the negative of the gradient for efficiency
 template <class T>
-static void ComputePointGradient(int i, int j, int k, T *s, int dims[3], 
+void ComputePointGradient(int i, int j, int k, T *s, int dims[3], 
                           int sliceSize, float Spacing[3], float n[3])
 {
   float sp, sm;
@@ -180,7 +180,7 @@ static void ComputePointGradient(int i, int j, int k, T *s, int dims[3],
 // Contouring filter specialized for volumes and "short int" data values.  
 //
 template <class T>
-static void ContourVolume(vtkMarchingCubes *self,T *scalars, int dims[3], 
+void ContourVolume(vtkMarchingCubes *self,T *scalars, int dims[3], 
                           float origin[3], float Spacing[3],
                           vtkPointLocator *locator, vtkScalars *newScalars, 
                           vtkVectors *newGradients, 
