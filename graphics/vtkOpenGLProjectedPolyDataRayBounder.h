@@ -86,7 +86,6 @@ public:
 protected:
   vtkOpenGLProjectedPolyDataRayBounder();
   ~vtkOpenGLProjectedPolyDataRayBounder();
-  vtkOpenGLProjectedPolyDataRayBounder(const vtkOpenGLProjectedPolyDataRayBounder&) {};
   void operator=(const vtkOpenGLProjectedPolyDataRayBounder&) {};
 
   GLuint    DisplayList;

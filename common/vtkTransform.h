@@ -56,16 +56,19 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // By default the initial matrix is the identity matrix.
 
 // .SECTION See Also
-// vtkLinearTransformConcatenation vtkMatrix4x4 vtkTransformCollection 
-// vtkTransformFilter vtkTransformPolyDataFilter vtkProjectionTransform
+// vtkMatrix4x4 vtkTransformCollection vtkTransformFilter
+// vtkTransformPolyDataFilter
 
 #ifndef __vtkTransform_h
 #define __vtkTransform_h
 
-#include "vtkLinearTransform.h"
+#include "vtkGeneralTransform.h"
 #include "vtkMatrix4x4.h"
+#include "vtkPoints.h"
+#include "vtkNormals.h"
+#include "vtkVectors.h"
 
-class VTK_EXPORT vtkTransform : public vtkLinearTransform
+class VTK_EXPORT vtkTransform : public vtkGeneralTransform
 {
  public:
   // Description:
@@ -74,8 +77,19 @@ class VTK_EXPORT vtkTransform : public vtkLinearTransform
   // creates an identity matrix as the top matrix on the stack.
   static vtkTransform *New();
 
-  vtkTypeMacro(vtkTransform,vtkLinearTransform);
+  vtkTypeMacro(vtkTransform,vtkGeneralTransform);
   void PrintSelf (ostream& os, vtkIndent indent);
+
+  // Description:
+  // Linear transformations (the perspective portion of
+  // the 4x4 matrix is ignored).
+  void TransformPoint(const float in[3], float out[3]);
+  void TransformPoint(const double in[3], double out[3]);
+  void TransformPoints(vtkPoints *inPts, vtkPoints *outPts);
+  void TransformNormals(vtkPoints *inPts, vtkPoints *outPts,
+			vtkNormals *inNms, vtkNormals *outNms);
+  void TransformVectors(vtkPoints *inPts, vtkPoints *outPts,
+			vtkVectors *inVrs, vtkVectors *outVrs);
 
   // Description:
   // Make a new transform of the same type.
@@ -93,13 +107,13 @@ class VTK_EXPORT vtkTransform : public vtkLinearTransform
   // Description:
   // Sets the internal state of the transform to post multiply. All
   // subsequent matrix operations will occur after those already represented
-  // in the current transformation matrix.  The default is PreMultiply.
+  // in the current transformation matrix.
   void PostMultiply ();
 
   // Description:
   // Sets the internal state of the transform to pre multiply. All subsequent
   // matrix operations will occur before those already represented in the
-  // current transformation matrix.  The default is PreMultiply.
+  // current transformation matrix.
   void PreMultiply ();
 
   // Description:
@@ -149,7 +163,7 @@ class VTK_EXPORT vtkTransform : public vtkLinearTransform
 
   // Description:
   // Obtain the transpose of the current transformation matrix.
-  void GetTranspose(vtkMatrix4x4 *transpose);
+  void GetTranspose (vtkMatrix4x4 *transpose);
 
   // Description:
   // Invert the current transformation matrix.
@@ -158,7 +172,7 @@ class VTK_EXPORT vtkTransform : public vtkLinearTransform
   // Return an inverse transform which will always update itself
   // to match this transform.
   vtkGeneralTransform *GetInverse() { 
-    return vtkLinearTransform::GetInverse(); }
+    return vtkGeneralTransform::GetInverse(); }
 
   // Description:
   // Return the inverse of the current transformation matrix.
@@ -205,11 +219,19 @@ class VTK_EXPORT vtkTransform : public vtkLinearTransform
 
   // Description:
   // Set the current matrix directly (copies m).
-  void SetMatrix(vtkMatrix4x4 *m);
+  void SetMatrix(vtkMatrix4x4& m);
 
   // Description:
   // Set the current matrix directly (copies Elements).
   void SetMatrix(double Elements[16]);
+
+  // Description:
+  // Returns the current transformation matrix.
+  vtkMatrix4x4 *GetMatrixPointer();
+  
+  // Description:
+  // Returns the current transformation matrix.
+  void GetMatrix (vtkMatrix4x4 *m);
 
   // Description:
   // Concatenates the input matrix with the current transformation matrix.
@@ -220,34 +242,41 @@ class VTK_EXPORT vtkTransform : public vtkLinearTransform
   void Concatenate(double Elements[16]);
 
   // Description:
-  // Multiply a (x,y,z,w) point by the transform and store the result in out.
-  // If you want to transform an (x,y,z) point, use TransformPoint instead. 
-  void MultiplyPoint (float in[4],float out[4]) {
-    this->Matrix->MultiplyPoint(in,out);};
-  void MultiplyPoint (double in[4],double out[4]) {      
-    this->Matrix->MultiplyPoint(in,out);};
+  // Multiplies matrices a and b and stores the result in c.
+  void Multiply4x4(vtkMatrix4x4 *a, vtkMatrix4x4 *b, vtkMatrix4x4 *c);
+  void Multiply4x4(double a[16], double b[16], double c[16]);
 
   // Description:
-  // This method is deprecated.  Use TransformPoints instead.
-  void MultiplyPoints(vtkPoints *inPts, vtkPoints *outPts) {
-    this->TransformPoints(inPts,outPts); };
+  // Multiply a xyzw point by the transform and store the result in out.
+  void MultiplyPoint (float in[4],float out[4]) {
+    this->Stack[0]->MultiplyPoint(in,out);};
+  void MultiplyPoint (double in[4],double out[4]) {      
+    this->Stack[0]->MultiplyPoint(in,out);};
+
+  // Description:
+  // Multiplies a list of points (inPts) by the current transformation matrix.
+  // Transformed points are appended to the output list (outPts).
+  void MultiplyPoints(vtkPoints *inPts, vtkPoints *outPts);
   
   // Description:
-  // This method is deprecated.  Use TransformVectors instead.
-  void MultiplyVectors(vtkVectors *inVectors, vtkVectors *outVectors) {
-    this->TransformVectors(inVectors,outVectors); };
+  // Multiplies a list of vectors (inVectors) by the current transformation 
+  // matrix. The transformed vectors are appended to the output list 
+  // (outVectors). This is a special multiplication, since these are vectors. 
+  // It multiplies vectors by the transposed inverse of the matrix, ignoring 
+  // the translational components.
+  void MultiplyVectors(vtkVectors *inVectors, vtkVectors *outVectors);
 
   // Description:
-  // This method is deprecated.  Use TransformNormals instead.
-  void MultiplyNormals(vtkNormals *inNormals, vtkNormals *outNormals) {
-    this->TransformNormals(inNormals,outNormals); };
+  // Multiplies a list of normals (inNormals) by the current transformation 
+  // matrix. The transformed normals are appended to the output list 
+  // (outNormals). This is a special multiplication, since these are normals.
+  void MultiplyNormals(vtkNormals *inNormals, vtkNormals *outNormals);
 
   // Description:
   // Returns the result of multiplying the currently set Point by the current 
   // transformation matrix. Point is expressed in homogeneous coordinates.
   // The setting of the PreMultiplyFlag will determine if the Point is
-  // Pre or Post multiplied.  In most cases, you should use 
-  // TransformFloatPoint or TransformDoublePoint instead.
+  // Pre or Post multiplied.
   float *GetPoint();
   double *GetDoublePoint();
   void GetPoint(float p[4]);
@@ -262,23 +291,15 @@ class VTK_EXPORT vtkTransform : public vtkLinearTransform
   void DeepCopy(vtkGeneralTransform *t);
 
   // Description:
-  // Returns the current transformation matrix.
-  vtkMatrix4x4& GetMatrix() {return *(this->GetMatrixPointer());};
-  void GetMatrix(vtkMatrix4x4 *m);
-
-  // Description:
   // For legacy compatibility. Do not use.
-  void GetMatrix(vtkMatrix4x4 &m){this->GetMatrix(&m);};
-  void Multiply4x4(vtkMatrix4x4 *a, vtkMatrix4x4 *b, vtkMatrix4x4 *c) {
-    vtkMatrix4x4::Multiply4x4(a,b,c); }; 
-  void Multiply4x4(double a[16], double b[16], double c[16]) {
-    vtkMatrix4x4::Multiply4x4(a,b,c); }; 
-  void Multiply4x4(vtkMatrix4x4 &a, vtkMatrix4x4 &b, vtkMatrix4x4 &c) {
-    vtkMatrix4x4::Multiply4x4(&a,&b,&c); }; 
-  void Concatenate(vtkMatrix4x4 &matrix){this->Concatenate(&matrix);};
-  void SetMatrix(vtkMatrix4x4 &m){this->SetMatrix(&m);};
-  void GetTranspose (vtkMatrix4x4 &transpose){this->GetTranspose(&transpose);};
-  void GetInverse(vtkMatrix4x4& inverse){this->GetInverse(&inverse);};
+  void Multiply4x4(vtkMatrix4x4 &a, vtkMatrix4x4 &b, vtkMatrix4x4 &c)
+    {this->Multiply4x4(&a,&b,&c);}
+  void Concatenate(vtkMatrix4x4 &matrix){this->Concatenate(&matrix);}
+  void GetMatrix (vtkMatrix4x4 &m){this->GetMatrix(&m);}
+  void GetTranspose (vtkMatrix4x4 &transpose){this->GetTranspose(&transpose);}
+  void GetInverse(vtkMatrix4x4& inverse){this->GetInverse(&inverse);}
+  vtkMatrix4x4& GetMatrix() {return *(this->GetMatrixPointer());}
+  
   
 protected:
   vtkTransform ();
@@ -294,5 +315,6 @@ protected:
   double DoublePoint[4];
   float ReturnValue[4];
 };
+
 
 #endif

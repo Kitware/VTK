@@ -46,7 +46,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // are not actually concatenated, but this is simulated by passing each
 // input point through each transform in turn.
 // .SECTION see also
-// vtkPerspectiveTransformConcatenation vtkLinearTransformConcatenation
+// vtkGeneralTransform
 
 
 #ifndef __vtkGeneralTransformConcatenation_h
@@ -68,24 +68,45 @@ public:
   void Concatenate(vtkGeneralTransform *transform);
 
   // Description:
-  // Sets the internal state of the transform to post multiply. All
-  // subsequent matrix operations will occur after those already represented
-  // in the current transformation matrix.  The default is PreMultiply.
+  // Set the order in which subsequent concatenations will be
+  // applied.
+  void PreMultiply();
   void PostMultiply();
 
   // Description:
-  // Sets the internal state of the transform to pre multiply. All subsequent
-  // matrix operations will occur before those already represented in the
-  // current transformation matrix.  The default is PreMultiply.
-  void PreMultiply();
+  // Apply the transformation to a coordinate.  You can use the same 
+  // array to store both the input and output point.
+  void TransformPoint(const float in[3], float out[3]);
+  void TransformPoint(const double in[3], double out[3]);
 
   // Description:
-  // Invert the transformation. 
-  void Inverse();
+  // Apply the transformation to a series of points, and append the
+  // results to outPts.  
+  void TransformPoints(vtkPoints *inPts, vtkPoints *outPts);
+
+  // Description:
+  // Apply the transformation to a series of normals, and append the
+  // results to outNms.  The outPts must have been calculated beforehand.
+  // The inPts and outPts are required in order for nonlinear transformations
+  // to be properly supported.
+  void TransformNormals(vtkPoints *inPts, vtkPoints *outPts, 
+			vtkNormals *inNms, vtkNormals *outNms);
+  
+  // Description:
+  // Apply the transformation to a series of vectors, and append the
+  // results to outVrs.  The outPts must have been calculated beforehand.
+  // The inPts and outPts are required in order for nonlinear transformations
+  // to be properly supported.
+  void TransformVectors(vtkPoints *inPts, vtkPoints *outPts, 
+			vtkVectors *inVrs, vtkVectors *outVrs);
 
   // Description:
   // Create an identity transformation.
   void Identity();
+
+  // Description:
+  // Invert the transformation.
+  void Inverse();
 
   // Description:
   // Make another transform of the same type.
@@ -103,31 +124,19 @@ public:
   // Update the concatenated transform.
   void Update();
 
-  // Description:
-  // This will calculate the transformation without calling Update.
-  // Meant for use only within other VTK classes.
-  void InternalTransformPoint(const float in[3], float out[3]);
-
-  // Description:
-  // This will calculate the transformation as well as its derivative
-  // without calling Update.  Meant for use only within other VTK
-  // classes.
-  void InternalTransformDerivative(const float in[3], float out[3],
-				   float derivative[3][3]);
-
 protected:
   vtkGeneralTransformConcatenation();
   ~vtkGeneralTransformConcatenation();
   vtkGeneralTransformConcatenation(const vtkGeneralTransformConcatenation&) {};
   void operator=(const vtkGeneralTransformConcatenation&) {};
 
-  int InverseFlag;
   int PreMultiplyFlag;
+  int InverseFlag;
 
   int NumberOfTransforms;
   int MaxNumberOfTransforms;
   vtkGeneralTransform **TransformList;
-  vtkGeneralTransform **InverseList;
+  vtkGeneralTransform **InverseTransformList;
 };
 
 //BTX

@@ -18,8 +18,8 @@ ABSTRACT_H =
 
 CONCRETE_H = 
 
-ABSTRACT = \
-vtkWarpTransform
+ABSTRACT = 
+
 
 CONCRETE = \
 vtkDEMReader \
@@ -29,7 +29,6 @@ vtkIVWriter \
 vtkMassProperties \
 vtkOBJReader \
 vtkProjectedTexture \
-vtkQuaternionTransform \
 vtkRenderLargeImage \
 vtkRIBExporter \
 vtkRIBLight \
@@ -43,7 +42,6 @@ vtkSurfaceReconstructionFilter \
 vtkVideoSource \
 vtkVolumeProMapper \
 vtkThinPlateSplineTransform \
-vtkLandmarkTransform \
 ${CONTROLLER_API_OBJ}
 
 #vtkOutputPort \

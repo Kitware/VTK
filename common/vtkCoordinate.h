@@ -109,8 +109,6 @@ public:
   void SetCoordinateSystemToView() {this->SetCoordinateSystem(VTK_VIEW);}
   void SetCoordinateSystemToWorld() {this->SetCoordinateSystem(VTK_WORLD);}
     
-  const char *GetCoordinateSystemAsString ();
-
   // Description:
   // Set/get the value of this coordinate. This can be thought of as
   // the position of this coordinate in its coordinate system.

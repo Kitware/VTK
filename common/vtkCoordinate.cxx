@@ -84,51 +84,34 @@ vtkCoordinate::~vtkCoordinate()
   this->SetViewport(NULL);
 }
 
-const char *vtkCoordinate::GetCoordinateSystemAsString()
-{
-  switch (this->CoordinateSystem)
-    {
-    case VTK_DISPLAY:
-      return "Display";
-    case VTK_NORMALIZED_DISPLAY:
-      return "Normalized Display";
-    case VTK_VIEWPORT:
-      return "Viewport";
-    case VTK_NORMALIZED_VIEWPORT:
-      return "Normalized Viewport";
-    case VTK_VIEW:
-      return "View";
-    case VTK_WORLD:
-      return "World";
-    default:
-	return "UNKNOWN!";
-    }
-}
-
 void vtkCoordinate::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->vtkObject::PrintSelf(os,indent);
 
+  char posString[64];
+  switch (this->CoordinateSystem)
+    {
+    case VTK_DISPLAY:
+      strcpy(posString, "Display"); break;
+    case VTK_NORMALIZED_DISPLAY:
+      strcpy(posString, "Normalized Display"); break;
+    case VTK_VIEWPORT:
+      strcpy(posString, "Viewport"); break;
+    case VTK_NORMALIZED_VIEWPORT:
+      strcpy(posString, "Normalized Viewport"); break;
+    case VTK_VIEW:
+      strcpy(posString, "View"); break;
+    case VTK_WORLD:
+      strcpy(posString, "World"); break;
+    default:
+	strcpy(posString, "UNKNOWN!"); break;
+    }
 
-  os << indent << "Coordinate System: " << this->GetCoordinateSystemAsString() << "\n";
+  os << indent << "Coordinate System: " << posString << "\n";
   os << indent << "Value: (" << this->Value[0] << "," 
      << this->Value[1] << "," << this->Value[2] << ")\n";
-  if (this->ReferenceCoordinate)
-    {
-    os << indent << "ReferenceCoordinate: " << this->ReferenceCoordinate << "\n";
-    }
-  else
-    {
-    os << indent << "ReferenceCoordinate: (none)\n";
-    }
-  if (this->Viewport)
-    {
-    os << indent << "Viewport: " << this->Viewport << "\n";
-    }
-  else
-    {
-    os << indent << "Viewport: (none)\n";
-    }
+  os << indent << "ReferenceCoordinate: " << this->ReferenceCoordinate << "\n";
+  os << indent << "Viewport: " << this->Viewport << "\n";
 }
 
 
@@ -206,7 +189,7 @@ float *vtkCoordinate::GetComputedWorldValue(vtkViewport* viewport)
     ival = this->ReferenceCoordinate->GetComputedDisplayValue(viewport);
     RefValue[0] = (float)(ival[0]);
     RefValue[1] = (float)(ival[1]);
-    RefValue[2] = 0.0;
+    RefValue[2] = (float)(ival[2]);
     
     // convert to current coordinate system
     switch (this->CoordinateSystem)
@@ -257,7 +240,6 @@ float *vtkCoordinate::GetComputedWorldValue(vtkViewport* viewport)
     float *RefValue;
     
     RefValue = this->ReferenceCoordinate->GetComputedWorldValue(viewport);
-
     val[0] += RefValue[0];
     val[1] += RefValue[1];
     val[2] += RefValue[2];

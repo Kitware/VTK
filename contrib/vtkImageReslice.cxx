@@ -144,10 +144,9 @@ unsigned long int vtkImageReslice::GetMTime()
     {
     time = this->ResliceTransform->GetMTime();
     mTime = ( time > mTime ? time : mTime );
-    if (this->ResliceTransform->IsA("vtkPerspectiveTransform"))
+    if (strcmp(this->ResliceTransform->GetClassName(),"vtkTransform") == 0)
       {
-      time = ((vtkPerspectiveTransform *)this->ResliceTransform)
-	->GetMatrixPointer()->GetMTime();
+      time = ((vtkTransform *)this->ResliceTransform)->GetMatrixPointer()->GetMTime();
       mTime = ( time > mTime ? time : mTime );
       }    
     }
@@ -201,11 +200,11 @@ vtkMatrix4x4 *vtkImageReslice::GetIndexMatrix()
     transform->SetMatrix(*this->GetResliceAxes());
     }
   if (this->GetResliceTransform() && 
-      this->ResliceTransform->IsA("vtkPerspectiveTransform"))
+      strcmp(this->GetResliceTransform()->GetClassName(),"vtkTransform") == 0)
     {
     transform->PostMultiply();
-    transform->Concatenate(((vtkPerspectiveTransform *)
-			    this->GetResliceTransform())->GetMatrixPointer());
+    transform->Concatenate(((vtkTransform *)this->GetResliceTransform())->\
+			   GetMatrixPointer());
     }
   
   // the outMatrix takes OutputData indices to OutputData coordinates,
@@ -236,17 +235,11 @@ vtkMatrix4x4 *vtkImageReslice::GetIndexMatrix()
 void vtkImageReslice::ComputeInputUpdateExtent(int inExt[6], 
 					       int outExt[6])
 {
-  
-
-  if (this->ResliceTransform)
-    {
-    this->ResliceTransform->Update();
-    if (!this->ResliceTransform->IsA("vtkPerspectiveTransform"))
-      { // set the input to the whole extent if the transform
-	// is nonlinear
-      this->GetInput()->GetWholeExtent(inExt);
-      return;
-      }
+  if (this->ResliceTransform && 
+      strcmp(this->ResliceTransform->GetClassName(),"vtkTransform") != 0)
+    { // check for a nonlinear transform
+    this->GetInput()->GetWholeExtent(inExt);
+    return;
     }
 
   if (this->GetOptimization())
@@ -381,12 +374,12 @@ void vtkImageReslice::ExecuteInformation(vtkImageData *input,
     {
     transform->SetMatrix(*this->GetResliceAxes());
     }
-  if (this->ResliceTransform && 
-      this->ResliceTransform->IsA("vtkPerspectiveTransform"))
+  if (this->GetResliceTransform() && 
+      strcmp(this->GetResliceTransform()->GetClassName(),"vtkTransform") == 0)
     {
     transform->PostMultiply();
-    transform->Concatenate(((vtkPerspectiveTransform *)this->ResliceTransform)
-			   ->GetMatrixPointer());
+    transform->Concatenate(((vtkTransform *)this->GetResliceTransform())->\
+			   GetMatrixPointer());
     }
   
   vtkMatrix4x4 *matrix = transform->GetMatrixPointer();
@@ -421,7 +414,7 @@ invertible");
     {
     for (j = 0; j < 4; j++)
       {
-      matrix->SetElement(i,j,mat2[i][j]);
+      matrix->SetElement(i,j,mat2[j][i]);
       }
     }
 
@@ -1270,12 +1263,13 @@ static void vtkImageResliceExecute(vtkImageReslice *self,
   int (*interpolate)(float *point, T *inPtr, T *outPtr,
                      T *background, int numscalars,
                      int inExt[6], int inInc[3]);
+  vtkGeneralTransform *transform;
 
-  vtkGeneralTransform *transform = self->GetResliceTransform();
+  transform = self->GetResliceTransform();
 
   // if the transform is a vtkTransform, we will simply concatenate
   // it with the ResliceMatrix
-  if (transform && transform->IsA("vtkPerspectiveTransform"))
+  if (transform && strcmp(transform->GetClassName(),"vtkTransform") == 0)
     {
     transform = 0;
     }
@@ -1337,7 +1331,7 @@ static void vtkImageResliceExecute(vtkImageReslice *self,
 	  outPoint[1] = inPoint[1]*outSpacing[1] + outOrigin[1];
 	  outPoint[2] = inPoint[2]*outSpacing[2] + outOrigin[2];
 
-	  transform->InternalTransformPoint(outPoint,inPoint);
+	  transform->TransformPoint(outPoint,inPoint);
 	  
 	  inPoint[0] = (inPoint[0] - inOrigin[0])/inSpacing[0];
 	  inPoint[1] = (inPoint[1] - inOrigin[1])/inSpacing[1];
@@ -1368,7 +1362,7 @@ void vtkImageReslice::ThreadedExecute(vtkImageData *inData,
 {
   if (this->GetOptimization() && 
       !(this->ResliceTransform && 
-	!this->ResliceTransform->IsA("vtkPerspectiveTransform")))
+	strcmp(this->ResliceTransform->GetClassName(),"vtkTransform") != 0))
     {
     this->OptimizedThreadedExecute(inData,outData,outExt,id);
     return;

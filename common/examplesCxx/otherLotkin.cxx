@@ -143,48 +143,6 @@ void Test(ostream& strm)
     strm << endl;
     }
   strm << "Test vtkMath::InvertMatrix Complete" << endl;
-
-  matrix[0][0] = 1.00000;
-  matrix[0][1] = 1.00000;
-  matrix[0][2] = 1.00000;
-  matrix[0][3] = 1.00000;
-  matrix[0][4] = 1.00000;
-  matrix[1][0] = 0.500000;
-  matrix[1][1] = 1.0 / 3.0;
-  matrix[1][2] = 0.250000;
-  matrix[1][3] = 0.200000;
-  matrix[1][4] = 1.0 / 6.0;
-  matrix[2][0] = 1.0 / 3.0;
-  matrix[2][1] = 0.250000;
-  matrix[2][2] = 0.200000;
-  matrix[2][3] = 1.0 / 6.0;
-  matrix[2][4] = 1.0 / 7.0;
-  matrix[3][0] = 0.250000;
-  matrix[3][1] = 0.200000;
-  matrix[3][2] = 1.0 / 6.0;
-  matrix[3][3] = 1.0 / 7.0;
-  matrix[3][4] = 0.125000;
-  matrix[4][0] = 0.200000;
-  matrix[4][1] = 1.0 / 6.0;
-  matrix[4][2] = 1.0 / 7.0;
-  matrix[4][3] = 0.125000;
-  matrix[4][4] = 1.0 / 9.0;
-
-  strm << "vtkMath:LUFactorLinearSystem(double **, int *, int, double *)" << endl;
-  vtkMath::LUFactorLinearSystem (lotkin, tmpIntSpace, 5, tmpDoubleSpace);
-
-  for (j = 0; j < 5; j++)
-    {
-    strm << "\t";
-    for (i = 0; i < 5; i++)
-      {
-      strm << matrix[j][i] << ", ";
-      }
-    strm << endl;
-    }
-  
-  strm << "vtkMath:EstimateMatrixCondition(double **, int)" << endl;
-  strm << "Condition is: " << vtkMath::EstimateMatrixCondition (lotkin, 5) << endl;
 }
 
 

@@ -48,10 +48,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #ifdef _WIN32
 #include "vtkWin32OpenGLRenderWindow.h"
-#define VTK_TK_EXPORT __declspec( dllexport ) 
 #else
 #include "vtkXRenderWindow.h"
-#define VTK_TK_EXPORT
 #endif
 
 #define VTK_ALL_EVENTS_MASK \
@@ -363,8 +361,8 @@ static void vtkTkRenderWidget_EventProc(ClientData clientData,
 //----------------------------------------------------------------------------
 // vtkTkRenderWidget_Init
 // Called upon system startup to create vtkTkRenderWidget command.
-extern "C" {int VTK_TK_EXPORT Vtktkrenderwidget_Init(Tcl_Interp *interp);}
-int VTK_TK_EXPORT Vtktkrenderwidget_Init(Tcl_Interp *interp)
+extern "C" {VTK_EXPORT int Vtktkrenderwidget_Init(Tcl_Interp *interp);}
+int Vtktkrenderwidget_Init(Tcl_Interp *interp)
 {
   if (Tcl_PkgProvide(interp, "Vtktkrenderwidget", "1.2") != TCL_OK) 
     {

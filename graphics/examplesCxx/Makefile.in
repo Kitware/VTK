@@ -68,17 +68,14 @@ EXAMPLES = VisQuad \
 	probe \
 	quadricCut \
 	singleSplat \
-	spCellData \
 	stCone \
 	tcutSph \
 	vtkLogo \
-	volProt \
-	otherCoordinate
+	volProt
   
 CXX_FLAGS = ${CPPFLAGS} ${USER_CXXFLAGS} ${CXXFLAGS} -I${srcdir} \
 	${KIT_FLAGS} -I. ${GRAPHICS_API_FLAGS} \
-	 -I${srcdir}/../../common -I${srcdir}/../../common/examplesCxx \
-	-I${srcdir}/.. \
+	 -I${srcdir}/../../common -I${srcdir}/.. \
 	-I${srcdir}/../../imaging
 
 VTKLIB = ${VTK_LIB_FILE}
@@ -92,11 +89,6 @@ LDLIBS = ${VTK_LIB_FILE} ${XLIBS} ${GRAPHICS_API_LIBS} ${DL_LIBS} ${THREAD_LIBS}
 #
 
 all: ${EXAMPLES}
-
-otherCoordinate: otherCoordinate.o ../../common/examplesCxx/rtOtherTestBase.o ${VTKLIB}
-	${CXX} -o otherCoordinate ${CXX_FLAGS} otherCoordinate.o \
-	../../common/examplesCxx/rtOtherTestBase.o ${LDLIBS} \
-	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
 
 VisQuad: VisQuad.o ${VTKLIB}
 	${CXX} -o VisQuad ${CXX_FLAGS} VisQuad.o ${XLDFLAGS} ${LDLIBS} \
