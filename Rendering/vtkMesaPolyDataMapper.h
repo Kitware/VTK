@@ -48,16 +48,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef __vtkMesaPolyDataMapper_h
 #define __vtkMesaPolyDataMapper_h
 
+#include "GL/gl_mangle.h"
+#include "GL/gl.h"
+
 #include "vtkPolyDataMapper.h"
 #include <stdlib.h>
 #include "vtkToolkits.h"
 
-#ifdef VTK_MANGLE_MESA
-#define USE_MGL_NAMESPACE
-#include "mesagl.h"
-#else
-#include "GL/gl.h"
-#endif
 
 class vtkProperty;
 class vtkRenderWindow;

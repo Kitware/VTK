@@ -54,12 +54,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endif
 #include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLImageActor.h"
-#ifndef VTK_IMPLEMENT_MESA_CXX
 #ifdef __APPLE__
 #include <OpenGL/gl.h>
 #else
 #include <GL/gl.h>
-#endif
 #endif
 #include "vtkObjectFactory.h"
 

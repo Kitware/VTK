@@ -51,12 +51,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <stdlib.h>
 #include "vtkRenderWindow.h"
-#ifndef VTK_IMPLEMENT_MESA_CXX
 #ifdef __APPLE__
 #include <OpenGL/gl.h>
 #else
 #include <GL/gl.h>
-#endif
 #endif
 
 class vtkIdList;

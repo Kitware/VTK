@@ -48,6 +48,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef __vtkMesaImageWindow_h
 #define __vtkMesaImageWindow_h
 
+#include "GL/glx_mangle.h"
+#include "GL/glx.h"
+#include "GL/osmesa.h"
+
 #include <stdlib.h>
 #include <X11/X.h>
 #include <X11/Xlib.h>
@@ -55,13 +59,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkToolkits.h"
 #include "vtkXImageWindow.h"
 
-#ifdef VTK_MANGLE_MESA
-#define USE_MGL_NAMESPACE
-#include "mesaglx.h"
-#else
-#include "GL/glx.h"
-#include "GL/osmesa.h"
-#endif
 
 
 class VTK_EXPORT vtkMesaImageWindow : public vtkXImageWindow

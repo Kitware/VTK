@@ -39,8 +39,10 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-// Make sure this is first, so any includes of gl.h can be stoped if needed
+// This keeps the New method from being defined in included cxx file.
 #define VTK_IMPLEMENT_MESA_CXX
+#include "GL/gl_mangle.h"
+#include "GL/gl.h"
 
 #include <math.h>
 #include "vtkToolkits.h"
@@ -52,13 +54,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkCuller.h"
 
 
-
-#ifdef VTK_MANGLE_MESA
-#define USE_MGL_NAMESPACE
-#include "mesagl.h"
-#else
-#include "GL/gl.h"
-#endif
 // make sure this file is included before the #define takes place
 // so we don't get two vtkMesaImageActor classes defined.
 #include "vtkOpenGLImageActor.h"

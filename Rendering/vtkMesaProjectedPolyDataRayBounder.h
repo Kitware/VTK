@@ -57,16 +57,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef __vtkMesaProjectedPolyDataRayBounder_h
 #define __vtkMesaProjectedPolyDataRayBounder_h
 
+
 #include "vtkToolkits.h"
 #include "vtkProjectedPolyDataRayBounder.h"
 #include "vtkPolyData.h"
-
-#ifdef VTK_MANGLE_MESA
-#define USE_MGL_NAMESPACE
-#include "mesagl.h"
-#else
-#include "GL/gl.h"
-#endif
 
 class vtkWindow;
 

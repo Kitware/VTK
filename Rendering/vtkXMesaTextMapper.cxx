@@ -38,19 +38,16 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
+#include "GL/gl_mangle.h"
+#include "GL/glx_mangle.h"
+#include "GL/gl.h"
+#include "GL/glx.h"
+#include "GL/osmesa.h"
+
 #include "vtkToolkits.h"
 #include "vtkXMesaTextMapper.h"
 #include "vtkObjectFactory.h"
 
-#ifdef VTK_MANGLE_MESA
-#define USE_MGL_NAMESPACE
-#include "mesagl.h"
-#include "mesaglx.h"
-#else
-#include "GL/gl.h"
-#include "GL/glx.h"
-#include "GL/osmesa.h"
-#endif
 
 static void
 vtkFillBitmap (Display *dpy, Window win, GC gc,

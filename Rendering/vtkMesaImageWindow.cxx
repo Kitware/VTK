@@ -39,16 +39,12 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
+#include "GL/gl_mangle.h"
+#include "GL/gl.h"
+
 #include "vtkMesaImageWindow.h"
 #include "vtkMesaImager.h"
 #include "vtkObjectFactory.h"
-
-#ifdef VTK_MANGLE_MESA
-#define USE_MGL_NAMESPACE
-#include "mesagl.h"
-#else
-#include "GL/gl.h"
-#endif
 
 
 //------------------------------------------------------------------------------

@@ -52,16 +52,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef __vtkMesaVolumeRayCastMapper_h
 #define __vtkMesaVolumeRayCastMapper_h
 
+#include "GL/gl_mangle.h"
+#include "GL/gl.h"
+
 #include "vtkVolumeRayCastMapper.h"
 #include <stdlib.h>
 #include "vtkToolkits.h"
 
-#ifdef VTK_MANGLE_MESA
-#define USE_MGL_NAMESPACE
-#include "mesagl.h"
-#else
-#include "GL/gl.h"
-#endif
 
 class VTK_EXPORT vtkMesaVolumeRayCastMapper : public vtkVolumeRayCastMapper
 {

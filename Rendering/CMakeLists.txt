@@ -202,7 +202,6 @@ IF (VTK_MANGLE_MESA)
                  vtkMesaLight
                  vtkMesaPolyDataMapper
                  vtkMesaPolyDataMapper2D
-                 vtkMesaProjectedPolyDataRayBounder
                  vtkMesaProperty
                  vtkMesaRenderer
                  vtkMesaTexture
@@ -210,6 +209,7 @@ IF (VTK_MANGLE_MESA)
                  vtkMesaVolumeTextureMapper2D
                  vtkMesaImageWindow
                  vtkMesaRenderWindow
+                 vtkXMesaRenderWindow
                  vtkXMesaTextMapper
                 )
 

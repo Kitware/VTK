@@ -42,137 +42,96 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // .NAME vtkMesaRenderWindow - Mesa rendering window
 // .SECTION Description
 // vtkMesaRenderWindow is a concrete implementation of the abstract class
-// vtkRenderWindow. vtkMesaRenderer interfaces to the Mesa graphics
-// library. Application programmers should normally use vtkRenderWindow
-// instead of the Mesa specific version.
+// vtkRenderWindow. It uses the mangle openGL namespace mgl, so Mesa render 
+// windows can be created in the same program as openGL render windows.
 
 #ifndef __vtkMesaRenderWindow_h
 #define __vtkMesaRenderWindow_h
 
-#include <stdlib.h>
-#include <X11/Xlib.h>
-#include <X11/Xutil.h>
-#include "vtkToolkits.h"
-#include "vtkXRenderWindow.h"
-
-// include Mesa header files
-#ifdef VTK_MANGLE_MESA
-#define USE_MGL_NAMESPACE
-#include "mesagl.h"
-#include "mesaglx.h"
+#include "GL/gl_mangle.h"
+#ifdef __APPLE__
+#include <Mesa/gl.h>
 #else
-#include "GL/gl.h"
-#include "GL/glx.h"
-#endif
-
-// version 3.2 and newer do not #define MESA, so 
-// look for the only #define in gl.h that is unique to 
-// mesa, and if defined, then define MESA
-#ifdef GL_MESA_window_pos
-#define MESA
+#include <GL/gl.h>
 #endif
 
 
-// if we really have the mesa headers then include off screen rendering
-#ifdef MESA
-#ifndef VTK_MANGLE_MESA
-#include "GL/osmesa.h"
-#endif
-#endif
+
+#include <stdlib.h>
+#include "vtkRenderWindow.h"
 
 class vtkIdList;
 
-class VTK_EXPORT vtkMesaRenderWindow : public vtkOpenGLRenderWindow
+class VTK_EXPORT vtkMesaRenderWindow : public vtkRenderWindow
 {
 protected:
-// If mesa is not defined it means that vtk was configured with-mesa
-// but found non-mesa header files, so define OffScreenContextId as
-// a void*, so this class will compile anyway.
-#ifdef MESA
-  OSMesaContext OffScreenContextId;
-#else
-  void* OffScreenContextId;
-#endif
-  GLXContext ContextId;
+  int MultiSamples;
+  long OldMonitorSetting;
 
 public:
-  static vtkMesaRenderWindow *New();
-  vtkTypeMacro(vtkMesaRenderWindow,vtkOpenGLRenderWindow);
+  vtkTypeMacro(vtkMesaRenderWindow,vtkRenderWindow);
   void PrintSelf(ostream& os, vtkIndent indent);
+  static vtkMesaRenderWindow *New();
+  
+  // Description:
+  // Set/Get the maximum number of multisamples
+  static void SetGlobalMaximumNumberOfMultiSamples(int val);
+  static int  GetGlobalMaximumNumberOfMultiSamples();
 
   // Description:
-  // Begin the rendering process.
-  virtual void Start(void);
+  // Set / Get the number of multisamples to use for hardware antialiasing.
+  vtkSetMacro(MultiSamples,int);
+  vtkGetMacro(MultiSamples,int);
 
   // Description:
-  // End the rendering process and display the image.
-  virtual void Frame(void);
+  // Update system if needed due to stereo rendering.
+  virtual void StereoUpdate();
 
   // Description:
-  // Specify various window parameters.
-  virtual void WindowConfigure(void);
+  // Set/Get the pixel data of an image, transmitted as RGBRGB... 
+  virtual unsigned char *GetPixelData(int x,int y,int x2,int y2,int front);
+  virtual void SetPixelData(int x,int y,int x2,int y2,unsigned char *,
+			    int front);
 
   // Description:
-  // Initialize the window for rendering.
-  virtual void WindowInitialize(void);
+  // Set/Get the pixel data of an image, transmitted as RGBARGBA... 
+  virtual float *GetRGBAPixelData(int x,int y,int x2,int y2,int front);
+  virtual void SetRGBAPixelData(int x,int y,int x2,int y2,float *,int front,
+                                int blend=0);
+  virtual void ReleaseRGBAPixelData(float *data);
+  virtual unsigned char *GetRGBACharPixelData(int x,int y,int x2,int y2,
+					      int front);
+  virtual void SetRGBACharPixelData(int x,int y,int x2,int y2,unsigned char *,
+				    int front, int blend=0);  
 
   // Description:
-  // Initialize the rendering window.
-  virtual void Initialize(void);
-
-  // Description:
-  // Change the window to fill the entire screen.
-  virtual void SetFullScreen(int);
-
-  // Description:
-  // Resize the window.
-  virtual void WindowRemap(void);
-
-  // Description:
-  // Set the preferred window size to full screen.
-  virtual void PrefFullScreen(void);
-
-  // Description:
-  // Specify the size of the rendering window.
-  virtual void SetSize(int,int);
-  virtual void SetSize(int a[2]) {this->SetSize(a[0], a[1]);};
-
-  // Description:
-  // Get the X properties of an ideal rendering window.
-  virtual Colormap GetDesiredColormap();
-  virtual Visual  *GetDesiredVisual();
-  virtual XVisualInfo     *GetDesiredVisualInfo();
-  virtual int      GetDesiredDepth();
-
-  // Description:
-  // Prescribe that the window be created in a stereo-capable mode. This
-  // method must be called before the window is realized. This method
-  // overrides the superclass method since this class can actually check
-  // whether the window has been realized yet.
-  virtual void SetStereoCapableWindow(int capable);
+  // Set/Get the zbuffer data from an image
+  virtual float *GetZbufferData( int x1, int y1, int x2, int y2 );
+  virtual void SetZbufferData( int x1, int y1, int x2, int y2, float *buffer );
 
   // Description:
   // Make this window the current Mesa context.
-  void MakeCurrent();
+  void MakeCurrent() = 0;
   
   // Description:
-  // Override the default implementation so that we can actively switch between
-  // on and off screen rendering.
-  virtual void SetOffScreenRendering(int i);
-  
-  // Description:
-  // Xwindow get set functions
-  virtual void *GetGenericWindowId();
-  virtual void *GetGenericContext();
+  // Register a texture name with this render window.
+  void RegisterTextureResource (GLuint id);
 
+  // Description:
+  // Get the size of the depth buffer.
+  int GetDepthBufferSize();
+  
+  // Description:
+  // Initialize OpenGL for this window.
+  virtual void OpenGLInit();
+ 
 protected:
-  void *OffScreenWindow;
-  int ScreenDoubleBuffer;
-  int ScreenMapped;
   vtkMesaRenderWindow();
   ~vtkMesaRenderWindow();
   vtkMesaRenderWindow(const vtkMesaRenderWindow&);
   void operator=(const vtkMesaRenderWindow&);
+
+  vtkIdList *TextureResourceIds;
 };
 
 #endif

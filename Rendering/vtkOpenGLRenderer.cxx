@@ -47,10 +47,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkOpenGLLight.h"
 #include "vtkCuller.h"
 
-// if this .cxx file is being used to implement
-// the mesa renderer, then do not include GL/gl.h
-// because with the mesa renderer we need to include
-// mesagl.h instead
 #ifndef VTK_IMPLEMENT_MESA_CXX
 #ifdef __APPLE__
 #include <OpenGL/gl.h>
