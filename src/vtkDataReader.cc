@@ -894,7 +894,8 @@ int vtkDataReader::ReadCoScalarData(FILE *fp, vtkDataSet *ds, int numPts)
 // Read texture coordinates point attributes. Return 0 if error.
 int vtkDataReader::ReadTCoordsData(FILE *fp, vtkDataSet *ds, int numPts)
 {
-  int retStat, i, dim, skipTCoord;
+  int retStat, i, dim;
+  int skipTCoord = 0;
   char line[257], name[257];
   vtkByteSwap swap;
 
