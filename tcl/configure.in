@@ -430,6 +430,13 @@ AC_ARG_WITH(imaging,
          USE_IMAGING_LIBS="-L../imaging -lVTKImagingTcl"
          USE_IMAGING_FLAG="-I$(srcdir)/../imaging -DUSE_IMAGING")
 
+AC_ARG_WITH(volume,
+         [  --without-volume       do not include the volume classes],
+         [vtk_use_volume=no], 
+         [vtk_use_volume=yes] 
+         USE_VOLUME_LIBS="-L../volume -lVTKVolumeTcl"
+         USE_VOLUME_FLAG="-I$(srcdir)/../volume -DUSE_VOLUME")
+
 AC_ARG_WITH(borescope,
          [  --with-borescope        include the borescope classes],
          [vtk_use_borescope=yes] 
@@ -439,6 +446,7 @@ AC_ARG_WITH(borescope,
 
 USE_GRAPHICS_DEPENDS=""
 USE_IMAGING_DEPENDS=""
+USE_VOLUME_DEPENDS=""
 USE_BORESCOPE_DEPENDS=""
 COMMON_DEPENDS=""
 
@@ -457,6 +465,9 @@ else
     if test "$vtk_use_imaging" = "yes"; then
        USE_IMAGING_DEPENDS="../imaging/libVTKImagingTcl.a"
     fi
+    if test "$vtk_use_volume" = "yes"; then
+       USE_VOLUME_DEPENDS="../volume/libVTKVolumeTcl.a"
+    fi
     if test "$vtk_use_borescope" = "yes"; then
        USE_BORESCOPE_DEPENDS="../borescope/libVTKBorescopeTcl.a"
     fi
@@ -469,6 +480,10 @@ AC_SUBST(USE_GRAPHICS_DEPENDS)
 AC_SUBST(USE_IMAGING_FLAG)
 AC_SUBST(USE_IMAGING_LIBS)
 AC_SUBST(USE_IMAGING_DEPENDS)
+
+AC_SUBST(USE_VOLUME_FLAG)
+AC_SUBST(USE_VOLUME_LIBS)
+AC_SUBST(USE_VOLUME_DEPENDS)
 
 AC_SUBST(USE_BORESCOPE_FLAG)
 AC_SUBST(USE_BORESCOPE_LIBS)
