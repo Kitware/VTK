@@ -89,15 +89,10 @@ void vtkImageDecomposedFilter::PrintSelf(ostream& os, vtkIndent indent) {
 void vtkImageDecomposedFilter::DeleteFilters()
 {
   int idx;
-  vtkImageFilter *lastFilter = this->Filters[this->NumberOfFilteredAxes];
   
-  // Don't delete the cache if it is ours.
-  if (lastFilter && (lastFilter->GetOutput() == this->GetOutput()))
-    {
-    lastFilter->SetCache(NULL);
-    this->GetOutput()->SetSource(this);
-    }
-  
+  // The last filter has the same cache as this object.
+  this->Filters[3]->SetCache(NULL);
+    
   for (idx = 0; idx < 4; ++idx)
     {
     if (this->Filters[idx])
