@@ -568,7 +568,7 @@ if {[catch {set channel [open test.tmp w]}] == 0 } {
    if { [info command vtkRIBExporter] != "" } {
       rib Write
       file delete -force cells.rib
-      file delete -force [glob -nocomplain cells_*_*.tif]
+      eval file delete -force [glob -nocomplain cells_*_*.tif]
    }
 }
 
