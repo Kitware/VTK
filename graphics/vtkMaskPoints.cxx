@@ -105,6 +105,8 @@ void vtkMaskPoints::Execute()
 
   // Traverse points and copy
   //
+  int abort=0;
+  int progressInterval=numPts/20 +1;
   if ( this->RandomMode ) // retro mode
     {
     float cap;
@@ -119,23 +121,33 @@ void vtkMaskPoints::Execute()
       }
 
     for (ptId = this->Offset; 
-    (ptId < numPts) && (id < this->MaximumNumberOfPoints);  
+    (ptId < numPts) && (id < this->MaximumNumberOfPoints) && !abort;  
     ptId += (1 + (int)((float)vtkMath::Random()*cap)) )
       {
       x =  input->GetPoint(ptId);
       id = newPts->InsertNextPoint(x);
       outputPD->CopyData(pd,ptId,id);
+      if ( ! (id % progressInterval) ) //abort/progress
+        {
+        this->UpdateProgress (0.5*id/numPts);
+        abort = this->GetAbortExecute();
+        }
       }
     }
   else // a.r. mode
     {
     for ( ptId = this->Offset; 
-    (ptId < numPts) && (id < (this->MaximumNumberOfPoints-1));
+    (ptId < numPts) && (id < (this->MaximumNumberOfPoints-1)) && !abort;
     ptId += this->OnRatio )
       {
       x =  input->GetPoint(ptId);
       id = newPts->InsertNextPoint(x);
       outputPD->CopyData(pd,ptId,id);
+      if ( ! (id % progressInterval) ) //abort/progress
+        {
+        this->UpdateProgress (0.5*id/numPts);
+        abort = this->GetAbortExecute();
+        }
       }
     }
 
@@ -146,8 +158,13 @@ void vtkMaskPoints::Execute()
     vtkCellArray *verts = vtkCellArray::New();
     verts->Allocate(verts->EstimateSize(1,id+1));
     verts->InsertNextCell(id+1);
-    for ( ptId=0; ptId<(id+1); ptId++)
+    for ( ptId=0; ptId<(id+1) && !abort; ptId++)
       {
+      if ( ! (ptId % progressInterval) ) //abort/progress
+        {
+        this->UpdateProgress (0.5+0.5*ptId/(id+1));
+        abort = this->GetAbortExecute();
+        }
       verts->InsertCellPoint(ptId);
       }
     output->SetVerts(verts);
@@ -173,8 +190,8 @@ void vtkMaskPoints::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Generate Vertices: " 
      << (this->GenerateVertices ? "On\n" : "Off\n");
-  os << indent << "MaximumNumberOfPoints: " << 
-    this->MaximumNumberOfPoints << "\n";
+  os << indent << "MaximumNumberOfPoints: " 
+     << this->MaximumNumberOfPoints << "\n";
   os << indent << "On Ratio: " << this->OnRatio << "\n";
   os << indent << "Offset: " << this->Offset << "\n";
   os << indent << "Random Mode: " << (this->RandomMode ? "On\n" : "Off\n");
