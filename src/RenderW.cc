@@ -31,6 +31,7 @@ vlRenderWindow::vlRenderWindow()
   OldScreen[4] = 1;
   Mapped = 0;
   DoubleBuffer = 1;
+  StereoRender = 0;
 
   strcpy(this->Name,"Visualization Library");
 }
@@ -87,6 +88,8 @@ void vlRenderWindow::PrintSelf(ostream& os, vlIndent indent)
     os << indent << "Renderers:\n";
     this->Renderers.PrintSelf(os,indent.GetNextIndent());
     os << indent << "Size: (" << temp[0] << ", " << temp[1] << ")\n";
+    os << indent << "Stereo Render: " 
+      << (this->StereoRender ? "On\n":"Off\n");
     }
 }
 
