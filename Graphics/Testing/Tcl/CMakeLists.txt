@@ -87,6 +87,8 @@ IF (VTK_USE_RENDERING)
       socbal
       spatialRepAll
       splitVectors
+      stereoDresdenMace
+      StreamPolyData
       stripF
       subdividePointData
       subDivideTetra
