@@ -294,8 +294,8 @@ VolumeTextureMapper2D_TraverseVolume( T *data_ptr,
           case 0:
             clipLow  = (int) croppingBounds[2];
             clipHigh = (int) croppingBounds[3];
-            tmpFlag =    (i<croppingBounds[0])?(0):(1+(i>=croppingBounds[1]));
-            tmpFlag+= 9*((k<croppingBounds[4])?(0):(1+(k>=croppingBounds[5])));
+            tmpFlag =    (*xAxis<croppingBounds[0])?(0):(1+(*xAxis>=croppingBounds[1]));
+            tmpFlag+= 9*((*zAxis<croppingBounds[4])?(0):(1+(*zAxis>=croppingBounds[5])));
             flag[0]  = croppingFlags&(1<<(tmpFlag));
             flag[1]  = croppingFlags&(1<<(tmpFlag+3));
             flag[2]  = croppingFlags&(1<<(tmpFlag+6));
@@ -303,8 +303,8 @@ VolumeTextureMapper2D_TraverseVolume( T *data_ptr,
           case 1:
             clipLow  = (int)croppingBounds[0];
             clipHigh = (int)croppingBounds[1];
-            tmpFlag = 3*((j<croppingBounds[2])?(0):(1+(j>=croppingBounds[3])));
-            tmpFlag+= 9*((k<croppingBounds[4])?(0):(1+(k>=croppingBounds[5])));
+            tmpFlag = 3*((*yAxis<croppingBounds[2])?(0):(1+(*yAxis>=croppingBounds[3])));
+            tmpFlag+= 9*((*zAxis<croppingBounds[4])?(0):(1+(*zAxis>=croppingBounds[5])));
             flag[0]  = croppingFlags&(1<<(tmpFlag));
             flag[1]  = croppingFlags&(1<<(tmpFlag+1));
             flag[2]  = croppingFlags&(1<<(tmpFlag+2));
@@ -312,8 +312,8 @@ VolumeTextureMapper2D_TraverseVolume( T *data_ptr,
           case 2:
             clipLow  = (int)croppingBounds[0];
             clipHigh = (int)croppingBounds[1];
-            tmpFlag = 3*((j<croppingBounds[2])?(0):(1+(j>=croppingBounds[3])));
-            tmpFlag+= 9*((k<croppingBounds[4])?(0):(1+(k>=croppingBounds[5])));
+            tmpFlag = 3*((*yAxis<croppingBounds[2])?(0):(1+(*yAxis>=croppingBounds[3])));
+            tmpFlag+= 9*((*zAxis<croppingBounds[4])?(0):(1+(*zAxis>=croppingBounds[5])));
             flag[0]  = croppingFlags&(1<<(tmpFlag));
             flag[1]  = croppingFlags&(1<<(tmpFlag+1));
             flag[2]  = croppingFlags&(1<<(tmpFlag+2));
@@ -913,12 +913,33 @@ void vtkVolumeTextureMapper2D::GenerateTexturesAndRenderQuads()
 void vtkVolumeTextureMapper2D::InitializeRender( vtkRenderer *ren,
 						 vtkVolume *vol )
 {
-  float vpn[3];
+  float vpn[3], pos[3];
 
-  ren->GetActiveCamera()->GetViewPlaneNormal( vpn );
+  // Take the vpn, convert it to volume coordinates, and find the major direction
+  vtkMatrix4x4 *volMatrix = vtkMatrix4x4::New();
+  volMatrix->DeepCopy( vol->GetMatrix() );
+  vtkTransform *worldToVoxelsTransform = vtkTransform::New();
+  worldToVoxelsTransform->SetMatrix( volMatrix );
 
-  // Fudge this for now - fix later to determine what major direction is
-  // in the case of volume movement in perspective.
+  // Create a transform that will account for the scaling and translation of
+  // the scalar data. The is the volume to voxels matrix.
+  vtkTransform *voxelsTransform = vtkTransform::New();
+  
+  voxelsTransform->Identity();
+  voxelsTransform->Translate(this->GetInput()->GetOrigin());
+  voxelsTransform->Scale(this->GetInput()->GetSpacing());
+  
+  // Now concatenate the volume's matrix with this scalar data matrix
+  worldToVoxelsTransform->PreMultiply();
+  worldToVoxelsTransform->Concatenate( voxelsTransform->GetMatrix() );
+  worldToVoxelsTransform->Inverse();
+  
+  ren->GetActiveCamera()->GetViewPlaneNormal(vpn);
+  ren->GetActiveCamera()->GetPosition(pos);
+  
+  worldToVoxelsTransform->TransformVectorAtPoint( vpn, pos, vpn );
+  
+                                                  
   if ( fabs(vpn[0]) >= fabs(vpn[1]) && fabs(vpn[0]) >= fabs(vpn[2]) )
     {
     this->MajorDirection = 
