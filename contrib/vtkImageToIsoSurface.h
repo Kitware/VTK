@@ -49,6 +49,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkImageSource.h"
 #include "vtkPolySource.h"
+#include "vtkStructuredPointsToImage.h"
 
 #define VTK_MAX_CONTOURS 256
 
@@ -64,7 +65,9 @@ public:
   // Set/Get the source of the vector field.
   vtkSetObjectMacro(Input, vtkImageSource);
   vtkGetObjectMacro(Input, vtkImageSource);
-
+  void SetInput(vtkStructuredPoints *spts)
+    {this->SetInput(spts->GetStructuredPointsToImage()->GetOutput());}
+  
   // Description:
   // Set/Get the computation of scalars.
   vtkSetMacro(ComputeScalars, int);

@@ -43,6 +43,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkImageRegion.h"
 
 //----------------------------------------------------------------------------
+// Description:
+// Construct object with initial range (0,1) and single contour value
+// of 0.0. ComputeNormal is on, ComputeGradients is off and ComputeScalars is on.
 vtkImageToIsoSurface::vtkImageToIsoSurface()
 {
   for (int i=0; i<VTK_MAX_CONTOURS; i++) this->Values[i] = 0.0;
@@ -50,9 +53,9 @@ vtkImageToIsoSurface::vtkImageToIsoSurface()
   this->NumberOfContours = 1;
   this->Range[0] = 0.0;
   this->Range[1] = 1.0;
-  this->ComputeScalars = 0;
-  this->ComputeNormals = 0;
+  this->ComputeNormals = 1;
   this->ComputeGradients = 0;
+  this->ComputeScalars = 1;
 
   this->LocatorPointIds = NULL;
   this->InputMemoryLimit = 10000;  // 10 mega Bytes
