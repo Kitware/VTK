@@ -27,7 +27,7 @@
 #include "vtkStructuredPoints.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkDataSetAlgorithm, "1.8");
+vtkCxxRevisionMacro(vtkDataSetAlgorithm, "1.9");
 vtkStandardNewMacro(vtkDataSetAlgorithm);
 
 //----------------------------------------------------------------------------
@@ -171,13 +171,13 @@ int vtkDataSetAlgorithm::ProcessRequest(
   // execute information
   if(request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
     {
-    return this->ExecuteInformation(request, inputVector, outputVector);
+    return this->RequestInformation(request, inputVector, outputVector);
     }
 
   // set update extent
  if(request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
     {
-    return this->ComputeInputUpdateExtent(request, inputVector, outputVector);
+    return this->RequestUpdateExtent(request, inputVector, outputVector);
     }
   return this->Superclass::ProcessRequest(request, inputVector, outputVector);
 }
