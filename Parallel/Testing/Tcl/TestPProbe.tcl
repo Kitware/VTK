@@ -1,15 +1,22 @@
 # ParaView Version 0.5
 
 package require vtk
-package require vtkinteraction
+
+if { [ info command vtkMesaRenderer ] != "" } {
+    vtkGraphicsFactory _graphics_fact
+    _graphics_fact SetUseMesaClasses 1
+    _graphics_fact Delete
+}
+
 # create a rendering window and renderer
 vtkRenderer Ren1
 	Ren1 SetBackground .5 .8 1
 vtkRenderWindow renWin
 	renWin AddRenderer Ren1
 	renWin SetSize 529 586
-vtkRenderWindowInteractor iren
-	iren SetRenderWindow renWin
+        if { $myProcId > 0 } {
+           renWin OffScreenRenderingOn
+        }
 
 # camera parameters
 set camera [Ren1 GetActiveCamera]
@@ -78,10 +85,6 @@ if { $numProcs > 1 } {
     compManager SetRenderWindow renWin 
         compManager InitializePieces
 }
-
-# enable user interface interactor
-iren AddObserver UserEvent {wm deiconify .vtkInteract}
-iren Initialize
 
 renWin SetWindowName "Process $myProcId"
 
