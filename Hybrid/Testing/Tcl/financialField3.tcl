@@ -105,6 +105,10 @@ vtkDataObjectToDataSetFilter do2ds
 vtkRearrangeFields rf
     rf SetInput [do2ds GetOutput]
     rf AddOperation MOVE $scalar DATA_OBJECT POINT_DATA
+    rf RemoveOperation MOVE $scalar DATA_OBJECT POINT_DATA
+    rf AddOperation MOVE $scalar DATA_OBJECT POINT_DATA
+    rf RemoveAllOperations
+    rf AddOperation MOVE $scalar DATA_OBJECT POINT_DATA
     rf Update
     set max [lindex [[[[rf GetOutput] GetPointData] GetArray $scalar] GetRange 0] 1]
 
@@ -120,10 +124,13 @@ vtkAssignAttribute aa
     aa Assign resArray SCALARS POINT_DATA
     aa Update
 
+vtkRearrangeFields rf2
+    rf2 SetInput [aa GetOutput]
+    rf2 AddOperation COPY SCALARS POINT_DATA DATA_OBJECT
 
 # construct pipeline for original population
 vtkGaussianSplatter popSplatter
-    popSplatter SetInput [aa GetOutput]
+    popSplatter SetInput [rf2 GetOutput]
     popSplatter SetSampleDimensions 50 50 50
     popSplatter SetRadius 0.05
     popSplatter ScalarWarpingOff
