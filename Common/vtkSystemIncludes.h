@@ -77,6 +77,7 @@ using std::fstream;
 
 #define VTK_HAS_ID_TYPE
 #ifdef VTK_USE_64BIT_IDS
+#  define VTK_ID_TYPE_IS_NOT_BASIC_TYPE
 #  ifdef _WIN32
 typedef __int64 vtkIdType;
 
