@@ -78,6 +78,8 @@ vtkCubeAxesActor2D::vtkCubeAxesActor2D()
   sprintf(this->LabelFormat,"%s","%-#6.3g");
   this->FontFactor = 1.0;
   this->CornerOffset = 0.05;
+  this->Inertia = 1;
+  this->RenderCount = 0;
 
   this->XAxisVisibility = 1;
   this->YAxisVisibility = 1;
@@ -203,104 +205,127 @@ int vtkCubeAxesActor2D::RenderOpaqueGeometry(vtkViewport *viewport)
     return 0;
     }
 
-  // Okay, we have a bounding box, maybe clipped and scaled, that is visible.
-  // We setup the axes depending on the fly mode.
-  if ( this->FlyMode == VTK_FLY_CLOSEST_TRIAD )
+  // Take into account the inertia. Process only so often.
+  if ( this->RenderCount++ == 0 || !(this->RenderCount % this->Inertia) )
     {
-    // Loop over points and find the closest point to the camera
-    min = VTK_LARGE_FLOAT;
-    for (i=0; i < 8; i++)
+    // Okay, we have a bounding box, maybe clipped and scaled, that is visible.
+    // We setup the axes depending on the fly mode.
+    if ( this->FlyMode == VTK_FLY_CLOSEST_TRIAD )
       {
-      if ( pts[i][2] < min )
+      // Loop over points and find the closest point to the camera
+      min = VTK_LARGE_FLOAT;
+      for (i=0; i < 8; i++)
         {
-        idx = i;
-        min = pts[i][2];
+        if ( pts[i][2] < min )
+          {
+          idx = i;
+          min = pts[i][2];
+          }
         }
+
+      // Setup the three axes to be drawn
+      xAxes = 0;
+      xIdx = Conn[idx][0];
+      yAxes = 1;
+      yIdx = Conn[idx][1];
+      zAxes = 2;
+      zIdx = idx;
+      zIdx2 = Conn[idx][2];
       }
-    
-    // Setup the three axes to be drawn
-    xAxes = 0;
-    xIdx = Conn[idx][0];
-    yAxes = 1;
-    yIdx = Conn[idx][1];
-    zAxes = 2;
-    zIdx = idx;
-    zIdx2 = Conn[idx][2];
-    }
+    else
+      {
+      float e1[2], e2[2], e3[2];
+
+      // Find distance to origin
+      d2Min = VTK_LARGE_FLOAT;
+      for (i=0; i < 8; i++)
+        {
+        d2 = pts[i][0]*pts[i][0] + pts[i][1]*pts[i][1];
+        if ( d2 < d2Min )
+          {
+          d2Min = d2;
+          idx = i;
+          }
+        }
+
+      // find minimum slope point connected to closest point and on 
+      // right side (in projected coordinates). This is the first edge.
+      minSlope = VTK_LARGE_FLOAT;
+      for (xIdx=0, i=0; i<3; i++)
+        {
+        num = (pts[Conn[idx][i]][1] - pts[idx][1]);
+        den = (pts[Conn[idx][i]][0] - pts[idx][0]);
+        if ( den != 0.0 )
+          {
+          slope = num / den;
+          }
+        if ( slope < minSlope && den > 0 )
+          {
+          xIdx = Conn[idx][i];
+          yIdx = Conn[idx][(i+1)%3];
+          zIdx = Conn[idx][(i+2)%3];
+          xAxes = i;
+          minSlope = slope;
+          }
+        }
+
+      // find edge (connected to closest point) on opposite side
+      for ( i=0; i<2; i++)
+        {
+        e1[i] = (pts[xIdx][i] - pts[idx][i]);
+        e2[i] = (pts[yIdx][i] - pts[idx][i]);
+        e3[i] = (pts[zIdx][i] - pts[idx][i]);
+        }
+      vtkMath::Normalize2D(e1);
+      vtkMath::Normalize2D(e2);
+      vtkMath::Normalize2D(e3);
+
+      if ( vtkMath::Dot2D(e1,e2) < vtkMath::Dot2D(e1,e3) )
+        {
+        yAxes = (xAxes + 1) % 3;
+        }
+      else
+        {
+        yIdx = zIdx;
+        yAxes = (xAxes + 2) % 3;
+        }
+
+      // Find the final point by determining which global x-y-z axes have not 
+      // been represented, and then determine the point closest to the viewer.
+      zAxes = (xAxes != 0 && yAxes != 0 ? 0 :
+              (xAxes != 1 && yAxes != 1 ? 1 : 2));
+      if ( pts[Conn[xIdx][zAxes]][2] < pts[Conn[yIdx][zAxes]][2] )
+        {
+        zIdx = xIdx;
+        zIdx2 = Conn[xIdx][zAxes];
+        }
+      else
+        {
+        zIdx = yIdx;
+        zIdx2 = Conn[yIdx][zAxes];
+        }
+      }//else boundary edges fly mode
+    this->InertiaAxes[0] = idx;
+    this->InertiaAxes[1] = xIdx;
+    this->InertiaAxes[2] = yIdx;
+    this->InertiaAxes[3] = zIdx;
+    this->InertiaAxes[4] = zIdx2;
+    this->InertiaAxes[5] = xAxes;
+    this->InertiaAxes[6] = yAxes;
+    this->InertiaAxes[7] = zAxes;
+    } //inertia
   else
     {
-    float e1[2], e2[2], e3[2];
-
-    // Find distance to origin
-    d2Min = VTK_LARGE_FLOAT;
-    for (i=0; i < 8; i++)
-      {
-      d2 = pts[i][0]*pts[i][0] + pts[i][1]*pts[i][1];
-      if ( d2 < d2Min )
-        {
-        d2Min = d2;
-        idx = i;
-        }
-      }
-
-    // find minimum slope point connected to closest point and on 
-    // right side (in projected coordinates). This is the first edge.
-    minSlope = VTK_LARGE_FLOAT;
-    for (xIdx=0, i=0; i<3; i++)
-      {
-      num = (pts[Conn[idx][i]][1] - pts[idx][1]);
-      den = (pts[Conn[idx][i]][0] - pts[idx][0]);
-      if ( den != 0.0 )
-        {
-        slope = num / den;
-        }
-      if ( slope < minSlope && den > 0 )
-        {
-        xIdx = Conn[idx][i];
-        yIdx = Conn[idx][(i+1)%3];
-        zIdx = Conn[idx][(i+2)%3];
-        xAxes = i;
-        minSlope = slope;
-        }
-      }
-
-    // find edge (connected to closest point) on opposite side
-    for ( i=0; i<2; i++)
-      {
-      e1[i] = (pts[xIdx][i] - pts[idx][i]);
-      e2[i] = (pts[yIdx][i] - pts[idx][i]);
-      e3[i] = (pts[zIdx][i] - pts[idx][i]);
-      }
-    vtkMath::Normalize2D(e1);
-    vtkMath::Normalize2D(e2);
-    vtkMath::Normalize2D(e3);
-      
-    if ( vtkMath::Dot2D(e1,e2) < vtkMath::Dot2D(e1,e3) )
-      {
-      yAxes = (xAxes + 1) % 3;
-      }
-    else
-      {
-      yIdx = zIdx;
-      yAxes = (xAxes + 2) % 3;
-      }
-
-    // Find the final point by determining which global x-y-z axes has not been
-    // represented, and then determine the point closest to the viewer.
-    zAxes = (xAxes != 0 && yAxes != 0 ? 0 :
-            (xAxes != 1 && yAxes != 1 ? 1 : 2));
-    if ( pts[Conn[xIdx][zAxes]][2] < pts[Conn[yIdx][zAxes]][2] )
-      {
-      zIdx = xIdx;
-      zIdx2 = Conn[xIdx][zAxes];
-      }
-    else
-      {
-      zIdx = yIdx;
-      zIdx2 = Conn[yIdx][zAxes];
-      }
-    }//else boundary edges fly mode
-
+    idx = this->InertiaAxes[0];
+    xIdx = this->InertiaAxes[1];
+    yIdx = this->InertiaAxes[2];
+    zIdx = this->InertiaAxes[3];
+    zIdx2 = this->InertiaAxes[4];
+    xAxes = this->InertiaAxes[5];
+    yAxes = this->InertiaAxes[6];
+    zAxes = this->InertiaAxes[7];
+    }
+  
   // Setup the axes for plotting
   float xCoords[4], yCoords[4], zCoords[4], xRange[2], yRange[2], zRange[2];
   this->AdjustAxes(pts, bounds, idx, xIdx, yIdx, zIdx, zIdx2, 
@@ -619,6 +644,7 @@ void vtkCubeAxesActor2D::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Shadow: " << (this->Shadow ? "On\n" : "Off\n");
   os << indent << "Label Format: " << this->LabelFormat << "\n";
   os << indent << "Font Factor: " << this->FontFactor << "\n";
+  os << indent << "Inertia: " << this->Inertia << "\n";
   os << indent << "Corner Offset: " << this->CornerOffset << "\n";
 }
 

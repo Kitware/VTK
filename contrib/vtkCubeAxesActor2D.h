@@ -190,6 +190,13 @@ public:
   vtkGetMacro(FontFactor, float);
 
   // Description:
+  // Set/Get the inertial factor that controls how often (i.e, how
+  // many renders) the axes can switch position (jump from one axes 
+  // to another).
+  vtkSetClampMacro(Inertia, int, 1, VTK_LARGE_INTEGER);
+  vtkGetMacro(Inertia, float);
+
+  // Description:
   // Specify an offset value to "pull back" the axes from the corner at
   // which they are joined to avoid overlap of axes labels. The 
   // "COrnerOffset" is the fraction of the axis length to pull back.
@@ -243,7 +250,10 @@ protected:
   char  *LabelFormat;
   float FontFactor;
   float CornerOffset;
-
+  int   Inertia;
+  int   RenderCount;
+  int   InertiaAxes[8];
+  
   int RenderSomething;
   
   // various helper methods
