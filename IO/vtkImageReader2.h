@@ -197,7 +197,7 @@ public:
   // Description:
   // Return 1 if the reader can read the given file name.
   // Should be implemented by all sub-classes of vtkImageReader2.
-  virtual int CanReadFile(const char* fname)
+  virtual int CanReadFile(const char* vtkNotUsed(fname))
     {
       return 0;
     }
