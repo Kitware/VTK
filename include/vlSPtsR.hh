@@ -26,13 +26,16 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "SPtsSrc.hh"
 #include "vlDataR.hh"
 
-class vlStructuredPointsReader : public vlStructuredPointsSource, public vlDataReader
+class vlStructuredPointsReader : public vlStructuredPointsSource
 {
 public:
   vlStructuredPointsReader();
   ~vlStructuredPointsReader();
   char *GetClassName() {return "vlStructuredPointsReader";};
   void PrintSelf(ostream& os, vlIndent indent);
+
+  // overload because of vlDataReader ivar
+  unsigned long int GetMTime();
 
   // Description:
   // Specify file name of vl structured points data file to read.
@@ -42,6 +45,7 @@ public:
 protected:
   void Execute();
   char *Filename;
+  vlDataReader Reader;
 };
 
 #endif

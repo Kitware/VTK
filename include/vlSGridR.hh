@@ -26,13 +26,16 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "SGridSrc.hh"
 #include "vlDataR.hh"
 
-class vlStructuredGridReader : public vlStructuredGridSource, public vlDataReader
+class vlStructuredGridReader : public vlStructuredGridSource
 {
 public:
   vlStructuredGridReader();
   ~vlStructuredGridReader();
   char *GetClassName() {return "vlStructuredGridReader";};
   void PrintSelf(ostream& os, vlIndent indent);
+
+  // overload because of vlDataReader ivar
+  unsigned long int GetMTime();
 
   // Description:
   // Specify file name of vl structured grid data file to read.
@@ -42,6 +45,7 @@ public:
 protected:
   void Execute();
   char *Filename;
+  vlDataReader Reader;
 
 };
 

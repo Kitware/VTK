@@ -26,13 +26,16 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "UGridSrc.hh"
 #include "vlDataR.hh"
 
-class vlUnstructuredGridReader : public vlUnstructuredGridSource, public vlDataReader
+class vlUnstructuredGridReader : public vlUnstructuredGridSource
 {
 public:
   vlUnstructuredGridReader();
   ~vlUnstructuredGridReader();
   char *GetClassName() {return "vlUnstructuredGridReader";};
   void PrintSelf(ostream& os, vlIndent indent);
+
+  // overload because of vlDataReader ivar
+  unsigned long int GetMTime();
 
   // Description:
   // Specify file name of vl unstructured grid data file to read.
@@ -42,6 +45,7 @@ public:
 protected:
   void Execute();
   char *Filename;
+  vlDataReader Reader;
 
 };
 
