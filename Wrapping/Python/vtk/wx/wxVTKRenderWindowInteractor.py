@@ -382,15 +382,15 @@ def wxVTKRenderWindowInteractorConeExample():
     frame = wxFrame(None, -1, "wxRenderWindow", size=wxSize(400,400))
     widget = wxVTKRenderWindowInteractor(frame, -1)
 
-    # these two calls could be replaced by widget.Enable();
-    # widget.Initialize() invokes RenderWindow.Render()
-    # which causes a flash when a wxVTKRWI-using window is created
-    # In short:
-    # 1. it is more correct (API-wise) to call Initialize and Start
-    # 2. it is more pragmatic to call widget.Enable()
-    # 3. it's your call
-    widget.Initialize()
-    widget.Start()
+    # It would be more correct (API-wise) to call widget.Initialize() and
+    # widget.Start() here, but Initialize() calls RenderWindow.Render().
+    # That Render() call will get through before we can setup the 
+    # RenderWindow() to render via the wxWidgets-created context; this
+    # causes flashing on some platforms and downright breaks things on
+    # other platforms.  Instead, we call widget.Enable().  This means
+    # that the RWI::Initialized ivar is not set, but in THIS SPECIFIC CASE,
+    # that doesn't matter.
+    widget.Enable(1)
 
     widget.AddObserver("ExitEvent", lambda o,e,f=frame: f.Close())
 
@@ -411,7 +411,8 @@ def wxVTKRenderWindowInteractorConeExample():
     # show the window
     
     # on some platforms, this SetSize() is necessary to cause an OnPaint()
-    # when the event loop begins
+    # when the event loop begins; else we get an empty window until we 
+    # force a redraw.
     frame.SetSize((640,480))
     frame.Show(1)
 
