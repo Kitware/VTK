@@ -607,7 +607,7 @@ virtual float *Get##name() \
 //
 #define vtkTypeMacro(thisClass,superclass) \
   typedef superclass Superclass; \
-  virtual const char *GetClassName() {return #thisClass;} \
+  virtual const char *GetClassName() const {return #thisClass;} \
   static int IsTypeOf(const char *type) \
   { \
     if ( !strcmp(#thisClass,type) ) \

@@ -39,7 +39,7 @@ class VTK_COMMON_EXPORT vtkAbstractIterator
 public:
   // Description:
   // Return the class name as a string.
-  virtual const char* GetClassName() { return "vtkAbstractIterator"; }
+  virtual const char* GetClassName() const { return "vtkAbstractIterator"; }
 
   // Description:
   // The counterpart to New(), Delete simply calls UnRegister to lower the
