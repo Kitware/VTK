@@ -246,9 +246,14 @@ void vtkDebugLeaks::ConstructClass(const char* name)
 
 void vtkDebugLeaks::DestructClass(const char* p)
 {
-  if(!vtkDebugLeaks::MemoryTable->DecrementCount(p))
+  // Due to globals being deleted, this table may already have
+  // been deleted.
+  if(vtkDebugLeaks::MemoryTable)
     {
-    vtkGenericWarningMacro("Deleting unknown object: " << p);
+    if(!vtkDebugLeaks::MemoryTable->DecrementCount(p))
+      {
+      vtkGenericWarningMacro("Deleting unknown object: " << p);
+      }
     }
 }
 
