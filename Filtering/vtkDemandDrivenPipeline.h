@@ -29,6 +29,7 @@ class vtkInformation;
 class vtkInformationIntegerKey;
 class vtkInformationVector;
 class vtkInformationKeyVectorKey;
+class vtkInformationUnsignedLongKey;
 
 class VTK_FILTERING_EXPORT vtkDemandDrivenPipeline : public vtkExecutive
 {
@@ -36,6 +37,11 @@ public:
   static vtkDemandDrivenPipeline* New();
   vtkTypeRevisionMacro(vtkDemandDrivenPipeline,vtkExecutive);
   void PrintSelf(ostream& os, vtkIndent indent);
+
+  // Description:
+  // Generalized interface for asking the executive to fullfill update
+  // requests.
+  virtual int ProcessRequest(vtkInformation* request);
 
   // Description:
   // Bring the algorithm's outputs up-to-date.  Returns 1 for success
@@ -60,9 +66,11 @@ public:
   static vtkInformationIntegerKey* REQUEST_DATA_OBJECT();
   static vtkInformationIntegerKey* REQUEST_INFORMATION();
   static vtkInformationIntegerKey* REQUEST_DATA();
-  static vtkInformationIntegerKey* FROM_OUTPUT_PORT();
   static vtkInformationIntegerKey* RELEASE_DATA();
+  static vtkInformationIntegerKey* REQUEST_PIPELINE_MODIFIED_TIME();
+  static vtkInformationUnsignedLongKey* PIPELINE_MODIFIED_TIME();
 
+  virtual int UpdatePipelineMTime();
   virtual int UpdateDataObject();
   virtual int UpdateInformation();
   virtual int UpdateData(int outputPort);

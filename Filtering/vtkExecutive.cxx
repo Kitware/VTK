@@ -28,8 +28,13 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkExecutive, "1.6");
+vtkCxxRevisionMacro(vtkExecutive, "1.7");
+vtkInformationKeyMacro(vtkExecutive, ALGORITHM_AFTER_FORWARD, Integer);
+vtkInformationKeyMacro(vtkExecutive, ALGORITHM_BEFORE_FORWARD, Integer);
+vtkInformationKeyMacro(vtkExecutive, ALGORITHM_DIRECTION, Integer);
 vtkInformationKeyMacro(vtkExecutive, EXECUTIVE, Executive);
+vtkInformationKeyMacro(vtkExecutive, FORWARD_DIRECTION, Integer);
+vtkInformationKeyMacro(vtkExecutive, FROM_OUTPUT_PORT, Integer);
 vtkInformationKeyMacro(vtkExecutive, PORT_NUMBER, Integer);
 
 //----------------------------------------------------------------------------
@@ -55,6 +60,7 @@ vtkExecutive::vtkExecutive()
   this->ExecutiveInternal = new vtkExecutiveInternals;
   this->GarbageCollecting = 0;
   this->Algorithm = 0;
+  this->InAlgorithm = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -311,6 +317,26 @@ int vtkExecutive::Update(int)
 }
 
 //----------------------------------------------------------------------------
+int vtkExecutive::GetNumberOfInputPorts()
+{
+  if(this->Algorithm)
+    {
+    return this->Algorithm->GetNumberOfInputPorts();
+    }
+  return 0;
+}
+
+//----------------------------------------------------------------------------
+int vtkExecutive::GetNumberOfOutputPorts()
+{
+  if(this->Algorithm)
+    {
+    return this->Algorithm->GetNumberOfOutputPorts();
+    }
+  return 0;
+}
+
+//----------------------------------------------------------------------------
 int vtkExecutive::InputPortIndexInRange(int port, const char* action)
 {
   // Make sure the algorithm is set.
@@ -434,4 +460,111 @@ vtkDataObject* vtkExecutive::GetInputData(int port, int index)
     {
     return 0;
     }
+}
+
+//----------------------------------------------------------------------------
+int vtkExecutive::ProcessRequest(vtkInformation* request)
+{
+  if(request->Has(FORWARD_DIRECTION()))
+    {
+    // Request will be forwarded.
+    if(request->Get(FORWARD_DIRECTION()) == vtkExecutive::RequestUpstream)
+      {
+      if(this->Algorithm && request->Get(ALGORITHM_BEFORE_FORWARD()))
+        {
+        if(!this->CallAlgorithm(request, vtkExecutive::RequestUpstream))
+          {
+          return 0;
+          }
+        }
+      if(!this->ForwardUpstream(request))
+        {
+        return 0;
+        }
+      if(this->Algorithm && request->Get(ALGORITHM_AFTER_FORWARD()))
+        {
+        if(!this->CallAlgorithm(request, vtkExecutive::RequestDownstream))
+          {
+          return 0;
+          }
+        }
+      }
+    if(request->Get(FORWARD_DIRECTION()) == vtkExecutive::RequestDownstream)
+      {
+      vtkErrorMacro("Downstream forwarding not yet implemented.");
+      return 0;
+      }
+    }
+  else
+    {
+    // Request will not be forwarded.
+    vtkErrorMacro("Non-forwarded requests are not yet implemented.");
+    return 0;
+    }
+  return 1;
+}
+
+//----------------------------------------------------------------------------
+int vtkExecutive::ForwardDownstream(vtkInformation*)
+{
+  vtkErrorMacro("ForwardDownstream not yet implemented.");
+  return 0;
+}
+
+//----------------------------------------------------------------------------
+int vtkExecutive::ForwardUpstream(vtkInformation* request)
+{
+  int result = 1;
+  vtkSmartPointer<vtkInformation> r = vtkSmartPointer<vtkInformation>::New();
+  for(int i=0; i < this->GetNumberOfInputPorts(); ++i)
+    {
+    for(int j=0; j < this->Algorithm->GetNumberOfInputConnections(i); ++j)
+      {
+      if(vtkExecutive* e = this->GetInputExecutive(i, j))
+        {
+        vtkAlgorithmOutput* input = this->Algorithm->GetInputConnection(i, j);
+        r->Copy(request);
+        r->Set(FROM_OUTPUT_PORT(), input->GetIndex());
+        if(!e->ProcessRequest(r))
+          {
+          result = 0;
+          }
+        }
+      }
+    }
+  return result;
+}
+
+//----------------------------------------------------------------------------
+void vtkExecutive::CopyDefaultInformationDownstream(vtkInformation*)
+{
+  // Nothing copied by default in vtkExecutive.
+}
+
+//----------------------------------------------------------------------------
+void vtkExecutive::CopyDefaultInformationUpstream(vtkInformation*)
+{
+  // Nothing copied by default in vtkExecutive.
+}
+
+//----------------------------------------------------------------------------
+int vtkExecutive::CallAlgorithm(vtkInformation* request, int direction)
+{
+  vtkSmartPointer<vtkInformation> ar = vtkSmartPointer<vtkInformation>::New();
+  ar->Copy(request);
+  ar->Set(ALGORITHM_DIRECTION(), direction);
+  if(direction == vtkExecutive::RequestUpstream)
+    {
+    this->CopyDefaultInformationUpstream(ar);
+    }
+  else
+    {
+    this->CopyDefaultInformationDownstream(ar);
+    }
+  this->InAlgorithm = 1;
+  int result = this->Algorithm->ProcessRequest(ar,
+                                               this->GetInputInformation(),
+                                               this->GetOutputInformation());
+  this->InAlgorithm = 0;
+  return result;
 }

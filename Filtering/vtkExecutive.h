@@ -47,6 +47,11 @@ public:
   vtkAlgorithm* GetAlgorithm();
 
   // Description:
+  // Generalized interface for asking the executive to fullfill update
+  // requests.
+  virtual int ProcessRequest(vtkInformation* request);
+
+  // Description:
   // Bring the algorithm's outputs up-to-date.  Returns 1 for success
   // and 0 for failure.
   virtual int Update();
@@ -91,6 +96,22 @@ public:
   // Information key to store a port number in an information object.
   static vtkInformationIntegerKey* PORT_NUMBER();
 
+  // Description:
+  // Information key to store the output port number from which a
+  // request is made.
+  static vtkInformationIntegerKey* FROM_OUTPUT_PORT();
+
+  // Description:
+  // Keys to program vtkExecutive::ProcessRequest with the default
+  // behavior for unknown requests.
+  static vtkInformationIntegerKey* ALGORITHM_BEFORE_FORWARD();
+  static vtkInformationIntegerKey* ALGORITHM_AFTER_FORWARD();
+  static vtkInformationIntegerKey* ALGORITHM_DIRECTION();
+  static vtkInformationIntegerKey* FORWARD_DIRECTION();
+  //BTX
+  enum { RequestUpstream, RequestDownstream };
+  //ETX
+
 protected:
   vtkExecutive();
   ~vtkExecutive();
@@ -99,10 +120,21 @@ protected:
   int InputPortIndexInRange(int port, const char* action);
   int OutputPortIndexInRange(int port, const char* action);
 
+  // Get the number of input/output ports for the algorithm.  Returns
+  // 0 if no algorithm is set.
+  int GetNumberOfInputPorts();
+  int GetNumberOfOutputPorts();
+
   // Access methods to arguments passed to vtkAlgorithm::ProcessRequest.
   vtkInformation* GetRequestInformation();
   vtkInformationVector** GetInputInformation();
   vtkInformationVector* GetOutputInformation();
+
+  virtual int ForwardDownstream(vtkInformation* request);
+  virtual int ForwardUpstream(vtkInformation* request);
+  virtual void CopyDefaultInformationDownstream(vtkInformation* request);
+  virtual void CopyDefaultInformationUpstream(vtkInformation* request);
+  virtual int CallAlgorithm(vtkInformation* request, int direction);
 
   // Put default information in output information objects.
   virtual void FillDefaultOutputInformation(int port, vtkInformation*)=0;
@@ -126,6 +158,9 @@ protected:
 
   // The algorithm managed by this executive.
   vtkAlgorithm* Algorithm;
+
+  // Flag set when the algorithm is processing a request.
+  int InAlgorithm;
 
 private:
   vtkExecutiveInternals* ExecutiveInternal;

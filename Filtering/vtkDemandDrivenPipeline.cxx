@@ -24,6 +24,7 @@
 #include "vtkInformation.h"
 #include "vtkInformationIntegerKey.h"
 #include "vtkInformationKeyVectorKey.h"
+#include "vtkInformationUnsignedLongKey.h"
 #include "vtkInformationVector.h"
 #include "vtkInstantiator.h"
 #include "vtkObjectFactory.h"
@@ -38,15 +39,16 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.8");
+vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.9");
 vtkStandardNewMacro(vtkDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkDemandDrivenPipeline, DOWNSTREAM_KEYS_TO_COPY, KeyVector);
 vtkInformationKeyMacro(vtkDemandDrivenPipeline, REQUEST_DATA_OBJECT, Integer);
 vtkInformationKeyMacro(vtkDemandDrivenPipeline, REQUEST_INFORMATION, Integer);
 vtkInformationKeyMacro(vtkDemandDrivenPipeline, REQUEST_DATA, Integer);
-vtkInformationKeyMacro(vtkDemandDrivenPipeline, FROM_OUTPUT_PORT, Integer);
 vtkInformationKeyMacro(vtkDemandDrivenPipeline, RELEASE_DATA, Integer);
+vtkInformationKeyMacro(vtkDemandDrivenPipeline, REQUEST_PIPELINE_MODIFIED_TIME, Integer);
+vtkInformationKeyMacro(vtkDemandDrivenPipeline, PIPELINE_MODIFIED_TIME, UnsignedLong);
 
 //----------------------------------------------------------------------------
 vtkDemandDrivenPipeline::vtkDemandDrivenPipeline()
@@ -64,6 +66,85 @@ void vtkDemandDrivenPipeline::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "PipelineMTime: " << this->PipelineMTime << "\n";
+}
+
+//----------------------------------------------------------------------------
+int vtkDemandDrivenPipeline::ProcessRequest(vtkInformation* request)
+{
+  // Look for specially supported requests.
+  if(this->Algorithm && request->Has(REQUEST_PIPELINE_MODIFIED_TIME()))
+    {
+    // Update inputs first.
+    if(!this->ForwardUpstream(request))
+      {
+      return 0;
+      }
+
+    // The pipeline's MTime starts with this algorithm's MTime.
+    this->PipelineMTime = this->Algorithm->GetMTime();
+
+    // We want the maximum PipelineMTime of all inputs.
+    for(int i=0; i < this->Algorithm->GetNumberOfInputPorts(); ++i)
+      {
+      for(int j=0; j < this->Algorithm->GetNumberOfInputConnections(i); ++j)
+        {
+        vtkInformation* info = this->GetInputInformation(i, j);
+        unsigned long mtime = info->Get(PIPELINE_MODIFIED_TIME());
+        if(mtime > this->PipelineMTime)
+          {
+          this->PipelineMTime = mtime;
+          }
+        }
+      }
+
+    // Set the pipeline mtime for all outputs.
+    for(int j=0; j < this->Algorithm->GetNumberOfOutputPorts(); ++j)
+      {
+      vtkInformation* info = this->GetOutputInformation(j);
+      info->Set(PIPELINE_MODIFIED_TIME(), this->PipelineMTime);
+      }
+
+    return 1;
+    }
+
+  if(this->Algorithm && request->Has(REQUEST_DATA_OBJECT()))
+    {
+    // Update inputs first.
+    if(!this->ForwardUpstream(request))
+      {
+      return 0;
+      }
+
+    // Make sure our output data type is up-to-date.
+    int result = 1;
+    if(this->PipelineMTime > this->DataObjectTime.GetMTime())
+      {
+      // Request data type from the algorithm.
+      result = this->ExecuteDataObject();
+
+      // Make sure the data object exists for all output ports.
+      for(int i=0;
+          result && i < this->Algorithm->GetNumberOfOutputPorts(); ++i)
+        {
+        vtkInformation* info = this->GetOutputInformation(i);
+        if(!info->Get(vtkDataObject::DATA_OBJECT()))
+          {
+          result = 0;
+          }
+        }
+
+      if(result)
+        {
+        // Data object is now up to date.
+        this->DataObjectTime.Modified();
+        }
+      }
+
+    return result;
+    }
+
+  // Let the superclass handle other requests.
+  return this->Superclass::ProcessRequest(request);
 }
 
 //----------------------------------------------------------------------------
@@ -156,76 +237,37 @@ int vtkDemandDrivenPipeline::Update(int port)
 }
 
 //----------------------------------------------------------------------------
+int vtkDemandDrivenPipeline::UpdatePipelineMTime()
+{
+  // Setup the request for pipeline modification time.
+  vtkSmartPointer<vtkInformation> r = vtkSmartPointer<vtkInformation>::New();
+  r->Set(REQUEST_PIPELINE_MODIFIED_TIME(), 1);
+
+  // The request is forwarded upstream through the pipeline.
+  r->Set(vtkExecutive::FORWARD_DIRECTION(), vtkExecutive::RequestUpstream);
+
+  // Send the request.
+  return this->ProcessRequest(r);
+}
+
+//----------------------------------------------------------------------------
 int vtkDemandDrivenPipeline::UpdateDataObject()
 {
-  // Avoid infinite recursion.
-#if 0
-  if(this->InProcessRequest)
+  // Update the pipeline mtime first.
+  if(!this->UpdatePipelineMTime())
     {
-    vtkErrorMacro("UpdateDataObject invoked during another request.  "
-                  "Returning failure to algorithm "
-                  << this->Algorithm->GetClassName() << "("
-                  << this->Algorithm << ").");
-
-    // Tests should fail when this happens because there is a bug in
-    // the code.
-    if(getenv("DASHBOARD_TEST_FROM_CTEST") || getenv("DART_TEST_FROM_DART"))
-      {
-      abort();
-      }
     return 0;
     }
-#endif
-  // The pipeline's MTime starts with this algorithm's MTime.
-  this->PipelineMTime = this->Algorithm->GetMTime();
 
-  // Get the pipeline MTime for all the inputs.
-  for(int i=0; i < this->Algorithm->GetNumberOfInputPorts(); ++i)
-    {
-    for(int j=0; j < this->Algorithm->GetNumberOfInputConnections(i); ++j)
-      {
-      if(vtkDemandDrivenPipeline* e = this->GetConnectedInputExecutive(i, j))
-        {
-        // Propagate the UpdateDataObject call
-        if(!e->UpdateDataObject())
-          {
-          return 0;
-          }
+  // Setup the request for data object creation.
+  vtkSmartPointer<vtkInformation> r = vtkSmartPointer<vtkInformation>::New();
+  r->Set(REQUEST_DATA_OBJECT(), 1);
 
-        // We want the maximum PipelineMTime of all inputs.
-        if(e->PipelineMTime > this->PipelineMTime)
-          {
-          this->PipelineMTime = e->PipelineMTime;
-          }
-        }
-      }
-    }
+  // The request is forwarded upstream through the pipeline.
+  r->Set(vtkExecutive::FORWARD_DIRECTION(), vtkExecutive::RequestUpstream);
 
-  // Make sure our output data type is up-to-date.
-  int result = 1;
-  if(this->PipelineMTime > this->DataObjectTime.GetMTime())
-    {
-    // Request data type from the algorithm.
-    result = this->ExecuteDataObject();
-
-    // Make sure the data object exists for all output ports.
-    for(int i=0; result && i < this->Algorithm->GetNumberOfOutputPorts(); ++i)
-      {
-      vtkInformation* info = this->GetOutputInformation(i);
-      if(!info->Get(vtkDataObject::DATA_OBJECT()))
-        {
-        result = 0;
-        }
-      }
-
-    if(result)
-      {
-      // Data object is now up to date.
-      this->DataObjectTime.Modified();
-      }
-    }
-
-  return result;
+  // Send the request.
+  return this->ProcessRequest(r);
 }
 
 //----------------------------------------------------------------------------
@@ -254,10 +296,7 @@ int vtkDemandDrivenPipeline::UpdateInformation()
     return 0;
     }
 
-  // The pipeline's MTime starts with this algorithm's MTime.
-  this->PipelineMTime = this->Algorithm->GetMTime();
-
-  // Get the pipeline MTime for all the inputs.
+  // Update inputs first.
   for(int i=0; i < this->Algorithm->GetNumberOfInputPorts(); ++i)
     {
     for(int j=0; j < this->Algorithm->GetNumberOfInputConnections(i); ++j)
@@ -268,12 +307,6 @@ int vtkDemandDrivenPipeline::UpdateInformation()
         if(!e->UpdateInformation())
           {
           return 0;
-          }
-
-        // We want the maximum PipelineMTime of all inputs.
-        if(e->PipelineMTime > this->PipelineMTime)
-          {
-          this->PipelineMTime = e->PipelineMTime;
           }
         }
       }
