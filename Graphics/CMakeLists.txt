@@ -74,6 +74,7 @@ vtkGlyphSource2D.cxx
 vtkGraphLayoutFilter.cxx
 vtkHierarchicalDataSetGeometryFilter.cxx
 vtkHedgeHog.cxx
+vtkHierarchicalDataLevelFilter.cxx
 vtkHull.cxx
 vtkHyperStreamline.cxx
 vtkIdFilter.cxx
