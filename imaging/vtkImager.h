@@ -87,7 +87,7 @@ public:
   
   // Description:
   // Erase the contents of the imager in the window.
-  void Erase(){vtkErrorMacro(<<"vtkImager::Erase - Not implemented!");};
+  virtual void Erase(){vtkErrorMacro(<<"vtkImager::Erase - Not implemented!");};
 
 protected:
   vtkImager();
