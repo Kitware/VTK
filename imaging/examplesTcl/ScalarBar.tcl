@@ -45,14 +45,13 @@ vtkActor sphereActor
 
 # Create a scalar bar
 vtkScalarBarActor scalarBar
-scalarBar SetLookupTable [mapper GetLookupTable]
-scalarBar SetTitle "Temperature"
-[scalarBar GetPositionCoordinate] SetCoordinateSystemToNormalizedViewport
-[scalarBar GetPositionCoordinate] SetValue 0.1 0.01
-scalarBar SetOrientationToHorizontal
-scalarBar SetWidth 0.8
-scalarBar SetHeight 0.17
-
+    scalarBar SetLookupTable [mapper GetLookupTable]
+    scalarBar SetTitle "Temperature"
+    [scalarBar GetPositionCoordinate] SetCoordinateSystemToNormalizedViewport
+    [scalarBar GetPositionCoordinate] SetValue 0.1 0.01
+    scalarBar SetOrientationToHorizontal
+    scalarBar SetWidth 0.8
+    scalarBar SetHeight 0.17
 
 # Create graphics stuff
 # Create the RenderWindow, Renderer and both Actors
