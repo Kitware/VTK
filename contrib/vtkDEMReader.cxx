@@ -134,7 +134,7 @@ void vtkDEMReader::Execute()
 
   if (output->GetScalarType() != VTK_FLOAT)
     {
-    vtkErrorMacro("Execute: This source only outputs ints");
+    vtkErrorMacro("Execute: This source only outputs floats.");
     return;
     }
   
