@@ -58,7 +58,7 @@ IF (VTK_DATA_ROOT)
              ${VTK_SOURCE_DIR}/Common/Testing/Tcl/prtImageTest.tcl
              ${VTK_SOURCE_DIR}/Parallel/Testing/Tcl/TestPProbe.tcl
              -D ${VTK_DATA_ROOT}
-             -V Baseline/Parallel/TestPPRobe.png
+             -V Baseline/Parallel/TestPProbe.png
              -A ${VTK_SOURCE_DIR}/Wrapping/Tcl
              ${VTK_MPI_POSTFLAGS})
   ELSE(PVTK_EXECUTABLE AND UNIX)
