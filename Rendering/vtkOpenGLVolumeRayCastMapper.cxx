@@ -29,7 +29,7 @@
 #include "vtkRenderer.h"
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLVolumeRayCastMapper, "1.12");
+vtkCxxRevisionMacro(vtkOpenGLVolumeRayCastMapper, "1.13");
 vtkStandardNewMacro(vtkOpenGLVolumeRayCastMapper);
 #endif
 
@@ -195,14 +195,14 @@ void vtkOpenGLVolumeRayCastMapper::RenderTexture( vtkVolume *vol,
     if ( newTextureSize[0] >= 32 && newTextureSize[1] >= 32 )
       {
       // How many tiles in x?
-      int xLimit = 1 + 
+      int xLimit = 1 + static_cast<int>(
         static_cast<float>(this->ImageInUseSize[0]) / 
-        static_cast<float>((newTextureSize[0]-2));
+        static_cast<float>((newTextureSize[0]-2)));
       
       // How many tiles in y?
-      int yLimit = 1 + 
+      int yLimit = 1 + static_cast<int>(
         static_cast<float>(this->ImageInUseSize[1]) / 
-        static_cast<float>((newTextureSize[1]-2));
+        static_cast<float>((newTextureSize[1]-2)));
       
       // Create memory for the new texture
       unsigned char *newTexture = 
@@ -224,8 +224,10 @@ void vtkOpenGLVolumeRayCastMapper::RenderTexture( vtkVolume *vol,
         vy1 = static_cast<float>(jj) / static_cast<float>(yLimit);
         vy2 = static_cast<float>(jj+1) / static_cast<float>(yLimit);
         
-        py1 = vy1 * static_cast<float>(this->ImageInUseSize[1]);        
-        pySize = 2 - py1 + vy2 * static_cast<float>(this->ImageInUseSize[1]-1);
+        py1 = static_cast<int>(vy1 * static_cast<float>(
+                                 this->ImageInUseSize[1]));
+        pySize = static_cast<int>(2 - py1 + vy2 * static_cast<float>(
+                                    this->ImageInUseSize[1]-1));
         if ( py1 + pySize > this->ImageInUseSize[1] )
           {
           pySize = this->ImageInUseSize[1] - py1;
@@ -243,8 +245,10 @@ void vtkOpenGLVolumeRayCastMapper::RenderTexture( vtkVolume *vol,
           vx1 = static_cast<float>(ii) / static_cast<float>(xLimit);
           vx2 = static_cast<float>(ii+1) / static_cast<float>(xLimit);
         
-          px1 = vx1 * static_cast<float>(this->ImageInUseSize[0]);        
-          pxSize = 2 - px1 + vx2 * static_cast<float>(this->ImageInUseSize[0]-1);
+          px1 = static_cast<int>(vx1 * static_cast<float>(
+                                   this->ImageInUseSize[0]);        
+          pxSize = static_cast<int>(2 - px1 + vx2 * static_cast<float>(
+                                      this->ImageInUseSize[0]-1));
           if ( px1 + pxSize > this->ImageInUseSize[0] )
             {
             pxSize = this->ImageInUseSize[0] - px1;

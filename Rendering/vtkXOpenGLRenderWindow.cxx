@@ -76,12 +76,14 @@ vtkXOpenGLRenderWindowInternal::vtkXOpenGLRenderWindowInternal(
   this->OffScreenWindow = NULL;
   this->ScreenMapped = rw->GetMapped();
   this->ScreenDoubleBuffer = rw->GetDoubleBuffer();
-#endif  
+#else
+  rw = 0;
+#endif
 }
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.19");
+vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.20");
 vtkStandardNewMacro(vtkXOpenGLRenderWindow);
 #endif
 
