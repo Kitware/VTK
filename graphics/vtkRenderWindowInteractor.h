@@ -431,6 +431,12 @@ public:
   vtkSetVector2Macro(Size,int);
   vtkGetVector2Macro(Size,int);
   
+  // Description:
+  // Return the CurrentRenderer. This is the renderer that was selected
+  // by the latest FindPokedRenderer call.
+  vtkGetObjectMacro(CurrentRenderer,vtkRenderer);
+  
+  
 protected:
   vtkRenderWindow *RenderWindow;
   vtkCamera   *CurrentCamera;
