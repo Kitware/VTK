@@ -22,7 +22,6 @@ Run yacc like this:
 
 Modify vtkParse.tab.c:
   - remove TABs
-  - Change int variables yystate, yyn, and yytoken to short.
 */
 
 
@@ -41,6 +40,7 @@ Modify vtkParse.tab.c:
 /* Disable warnings in generated code. */
 #if defined(_MSC_VER)
 # pragma warning (disable: 4127) /* conditional expression is constant */
+# pragma warning (disable: 4244) /* conversion to smaller integer type */
 #endif
 
 int yylex(void);
