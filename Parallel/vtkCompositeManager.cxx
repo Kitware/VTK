@@ -22,7 +22,7 @@
 #include "vtkToolkits.h"
 #include "vtkFloatArray.h"
 #include "vtkUnsignedCharArray.h"
-#include "vtkTreeCompositer.h"
+#include "vtkCompressCompositer.h"
 #include "vtkObjectFactory.h"
 
 #ifdef _WIN32
@@ -35,7 +35,7 @@
  #include <mpi.h>
 #endif
 
-vtkCxxRevisionMacro(vtkCompositeManager, "1.27");
+vtkCxxRevisionMacro(vtkCompositeManager, "1.28");
 vtkStandardNewMacro(vtkCompositeManager);
 
 // Structures to communicate render info.
@@ -76,7 +76,7 @@ struct vtkCompositeRendererInfo
 //-------------------------------------------------------------------------
 vtkCompositeManager::vtkCompositeManager()
 {
-  this->Compositer = vtkTreeCompositer::New();
+  this->Compositer = vtkCompressCompositer::New();
   this->Compositer->Register(this);
   this->Compositer->Delete();
 
@@ -705,6 +705,8 @@ void vtkCompositeManager::StartRender()
   // Turn swap buffers off before the render so the end render method has a chance
   // to add to the back buffer.
   renWin->SwapBuffersOff();
+
+  vtkTimerLog::MarkStartEvent("Render Geometry");
 }
 
 //-------------------------------------------------------------------------
@@ -713,7 +715,9 @@ void vtkCompositeManager::EndRender()
   if (!this->UseCompositing)
     {
     return;
-    }  
+    }
+
+  vtkTimerLog::MarkEndEvent("Render Geometry");
 
   if (this->FirstRender)
     {
@@ -1187,10 +1191,12 @@ void vtkCompositeManager::Composite()
 
   // Get the z buffer.
   timer->StartTimer();
+  vtkTimerLog::MarkStartEvent("GetZBuffer");
   this->RenderWindow->GetZbufferData(0,0,
                                      this->RendererSize[0]-1, 
                                      this->RendererSize[1]-1,
                                      this->LocalZData);  
+  vtkTimerLog::MarkEndEvent("GetZBuffer");
 
   // If we are process 0 and using double buffering, then we want 
   // to get the back buffer, otherwise we need to get the front.
@@ -1208,28 +1214,34 @@ void vtkCompositeManager::Composite()
     {
     if (this->LocalPData->GetNumberOfComponents() == 4)
       {
+      vtkTimerLog::MarkStartEvent("Get RGBA Char Buffer");
       this->RenderWindow->GetRGBACharPixelData(0,0,
                              this->RendererSize[0]-1,
                              this->RendererSize[1]-1, 
                              front,
                              static_cast<vtkUnsignedCharArray*>(this->LocalPData));
+      vtkTimerLog::MarkEndEvent("Get RGBA Char Buffer");
       }
     else if (this->LocalPData->GetNumberOfComponents() == 3)
       {
+      vtkTimerLog::MarkStartEvent("Get RGB Char Buffer");
       this->RenderWindow->GetPixelData(0,0,
                                this->RendererSize[0]-1,
                                this->RendererSize[1]-1, 
                                front,
                                static_cast<vtkUnsignedCharArray*>(this->LocalPData));
+      vtkTimerLog::MarkEndEvent("Get RGB Char Buffer");
       }
     } 
   else 
     {
+    vtkTimerLog::MarkStartEvent("Get RGBA Float Buffer");
     this->RenderWindow->GetRGBAPixelData(0,0,
                            this->RendererSize[0]-1, 
                            this->RendererSize[1]-1, 
                            front,
                            static_cast<vtkFloatArray*>(this->LocalPData));
+    vtkTimerLog::MarkEndEvent("Get RGBA Float Buffer");
     }
   
   timer->StopTimer();
@@ -1239,9 +1251,12 @@ void vtkCompositeManager::Composite()
   
   // Let the subclass use its owns composite algorithm to
   // collect the results into "localPData" on process 0.
+  vtkTimerLog::MarkStartEvent("Composite Buffers");
   this->Compositer->CompositeBuffer(this->LocalPData, this->LocalZData,
                                     this->PData, this->ZData);
     
+  vtkTimerLog::MarkEndEvent("Composite Buffers");
+
   timer->StopTimer();
   this->CompositeTime = timer->GetElapsedTime();
     
@@ -1267,7 +1282,9 @@ void vtkCompositeManager::Composite()
         magPdata = vtkFloatArray::New();
         }
       magPdata->SetNumberOfComponents(this->LocalPData->GetNumberOfComponents());
+      vtkTimerLog::MarkStartEvent("Magnify Buffer");
       this->MagnifyBuffer(this->LocalPData, magPdata, windowSize);
+      vtkTimerLog::MarkEndEvent("Magnify Buffer");
       
       vtkRenderer* renderer =
         ((vtkRenderer*)this->RenderWindow->GetRenderers()->GetItemAsObject(0));
@@ -1290,30 +1307,38 @@ void vtkCompositeManager::Composite()
         }
       if (this->LocalPData->GetNumberOfComponents() == 4)
         {
+        vtkTimerLog::MarkStartEvent("Set RGBA Char Buffer");
         this->RenderWindow->SetRGBACharPixelData(0, 0, windowSize[0]-1, 
                                   windowSize[1]-1, buf, 0);
+        vtkTimerLog::MarkEndEvent("Set RGBA Char Buffer");
         }
       else if (this->LocalPData->GetNumberOfComponents() == 3)
         {
+        vtkTimerLog::MarkStartEvent("Set RGB Char Buffer");
         this->RenderWindow->SetPixelData(0, 0, windowSize[0]-1, 
                                   windowSize[1]-1, buf, 0);
+        vtkTimerLog::MarkEndEvent("Set RGB Char Buffer");
         }
       } 
     else 
       {
       if (magPdata)
         {
+        vtkTimerLog::MarkStartEvent("Set RGBA Float Buffer");
         this->RenderWindow->SetRGBAPixelData(0, 0, windowSize[0]-1, 
                                 windowSize[1]-1,
                                 static_cast<vtkFloatArray*>(magPdata), 
                                 0);
+        vtkTimerLog::MarkEndEvent("Set RGBA Float Buffer");
         }
       else
         {
+        vtkTimerLog::MarkStartEvent("Set RGBA Float Buffer");
         this->RenderWindow->SetRGBAPixelData(0, 0, windowSize[0]-1, 
                                 windowSize[1]-1,
                                 static_cast<vtkFloatArray*>(this->LocalPData), 
                                 0);
+        vtkTimerLog::MarkEndEvent("Set RGBA Float Buffer");
         }
       }
     timer->StopTimer();
