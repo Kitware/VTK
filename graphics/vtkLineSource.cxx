@@ -80,7 +80,7 @@ void vtkLineSource::Execute()
 {
   int numLines=this->Resolution;
   int numPts=this->Resolution+1;
-  float x[3], tc[2], v[3];
+  float x[3], tc[3], v[3];
   int i, j;
   vtkPoints *newPoints; 
   vtkTCoords *newTCoords; 
@@ -105,6 +105,7 @@ void vtkLineSource::Execute()
     }
 
   tc[1] = 0.0;
+  tc[2] = 0.0;
   for (i=0; i<numPts; i++) 
     {
     tc[0] = ((float)i/this->Resolution);
