@@ -221,7 +221,7 @@ void vtkRIBExporter::WriteData()
   vtkAssemblyPath *apath;
   for (ac->InitTraversal(); (anActor = ac->GetNextActor()); )
     {
-    for (anActor->InitPathTraversal(); apath=anActor->GetNextPath(); )
+    for (anActor->InitPathTraversal(); (apath=anActor->GetNextPath()); )
       {
       node = apath->GetLastNode();
       if ( node->GetProp()->GetVisibility () )
