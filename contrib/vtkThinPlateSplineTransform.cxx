@@ -7,7 +7,7 @@
   Version:   $Revision$
   Thanks:    Thanks to David G. Gobbi who developed this class 
              based on code from vtkThinPlateSplineMeshWarp.cxx
-	     written Tim Hutton.
+	     written by Tim Hutton.
 
 Copyright (c) 1993-2000 Ken Martin, Will Schroeder, Bill Lorensen.
 
@@ -61,64 +61,69 @@ vtkThinPlateSplineTransform* vtkThinPlateSplineTransform::New()
 //------------------------------------------------------------------------
 // some dull matrix things
 
-static inline double** NewMatrix(int x,int y) 
+static inline double** NewMatrix(int x, int y) 
 {
   double** m = new double*[x];
-  for(int i=0;i<x;i++) 
+  for(int i = 0; i < x; i++) 
     {
     m[i] = new double[y];
     }
   return m;
 }
-static inline void DeleteMatrix(double** m,int x,int vtkNotUsed(y)) 
+
+static inline void DeleteMatrix(double** m, int x, int vtkNotUsed(y)) 
 {
-  for(int i=0;i<x;i++) 
+  for(int i = 0; i < x; i++) 
     {
     delete [] m[i]; // OK, we don't actually need y
     }
   delete [] m;
 }
-static inline void FillMatrixWithZeros(double** m,int x,int y) 
+
+static inline void FillMatrixWithZeros(double** m, int x, int y) 
 {
   int i,j; 
-  for(i=0;i<x;i++) 
+  for(i = 0; i < x; i++) 
     {
-    for(j=0;j<y;j++) 
+    for(j = 0; j < y; j++) 
       {
-      m[i][j]=0.0;
+      m[i][j] = 0.0;
       }
     }
 }
-static inline void MatrixMultiply(double** a,double** b,double** c,
-				  int ar,int ac,int br,int bc) 
+
+static inline void MatrixMultiply(double** a, double** b, double** c,
+				  int ar, int ac, int br, int bc) 
 {
-  if(ac!=br) 
+  if(ac != br) 
     {
     return;	// ac must equal br otherwise we can't proceed
     }
 	
   // c must have size ar*bc (we assume this)
-  const int cr=ar,cc=bc;
+  const int cr = ar;
+  const int cc = bc;
   int row,col,i;
-  for(row=0;row<cr;row++) 
+  for(row = 0; row < cr; row++) 
     {
-    for(col=0;col<cc;col++) 
+    for(col = 0; col < cc; col++) 
       {
-      c[row][col]=0.0;
-      for(i=0;i<ac;i++)
+      c[row][col] = 0.0;
+      for(i = 0; i < ac; i++)
         {
         c[row][col] += a[row][i]*b[i][col];
         }
       }
     }
 }
+
 /* useful little debugging tool
 static inline void PrintMatrix(double **m, int x, int y)
 {
   int i,j; 
-  for(i=0;i<x;i++) 
+  for(i = 0; i < x; i++) 
     {
-    for(j=0;j<y;j++) 
+    for(j = 0; j < y; j++) 
       {
       cerr << m[i][j] << ((j != y-1) ? " " : "\n");
       }
@@ -149,7 +154,7 @@ vtkThinPlateSplineTransform::vtkThinPlateSplineTransform()
   this->UpdateRequired = 0;
   this->NumberOfPoints = 0;
   this->MatrixW = NULL;
-  this->MatrixWMutex = vtkMutexLock::New();
+  this->UpdateMutex = vtkMutexLock::New();
 }
 
 //------------------------------------------------------------------------
@@ -168,7 +173,7 @@ vtkThinPlateSplineTransform::~vtkThinPlateSplineTransform()
     DeleteMatrix(this->MatrixW,this->NumberOfPoints+3+1,3);
     this->MatrixW = NULL;
     }
-  this->MatrixWMutex->Delete();
+  this->UpdateMutex->Delete();
 }
 
 //------------------------------------------------------------------------
@@ -281,6 +286,80 @@ void vtkThinPlateSplineTransform::TransformPoints(vtkPoints *in,
     }
 }
 
+//----------------------------------------------------------------------------
+// transform the normals using the derivative of the transformation
+
+static void LinearSolve3x3(float A[3][3], float x[3]);
+static void Transpose3x3(float A[3][3]);
+
+void vtkThinPlateSplineTransform::TransformNormals(vtkPoints *inPts,
+					     vtkPoints *vtkNotUsed(outPts),
+						   vtkNormals *inNms, 
+						   vtkNormals *outNms)
+{
+  if (this->AutoUpdate)
+    {
+    this->Update();
+    }
+
+  float matrix[3][3];
+  float point[3];
+  float normal[3];
+  float r;
+
+  int i;
+  int n = inNms->GetNumberOfNormals();
+
+  for (i = 0; i < n; i++)
+    {
+    inNms->GetNormal(i,normal);
+    inPts->GetPoint(i,point);
+
+    this->TransformDerivatives(point,point,matrix);
+    Transpose3x3(matrix);
+    LinearSolve3x3(matrix,normal);
+    vtkMath::Normalize(normal);
+
+    outNms->InsertNextNormal(normal);
+    }
+}
+
+//----------------------------------------------------------------------------
+// transform vectors by transforming the two end points
+
+void vtkThinPlateSplineTransform::TransformVectors(vtkPoints *inPts,
+						   vtkPoints *outPts,
+						   vtkVectors *inVrs, 
+						   vtkVectors *outVrs)
+{
+  if (this->AutoUpdate)
+    {
+    this->Update();
+    }
+
+  int i;
+  int n = inVrs->GetNumberOfVectors();
+  float vect[3];
+  float point[3];
+
+  for (i = 0; i < n; i++)
+    {
+    inVrs->GetVector(i,vect);
+    inPts->GetPoint(i,point);
+    point[0] += vect[0];
+    point[1] += vect[1];
+    point[2] += vect[2];
+
+    this->ForwardTransformPoint(point,vect);
+    outPts->GetPoint(i,point);
+    vect[0] -= point[0];
+    vect[1] -= point[1];
+    vect[2] -= point[2];
+
+    outVrs->InsertNextVector(vect);
+    }
+}
+
 //------------------------------------------------------------------------
 unsigned long vtkThinPlateSplineTransform::GetMTime()
 {
@@ -309,24 +388,29 @@ unsigned long vtkThinPlateSplineTransform::GetMTime()
 //------------------------------------------------------------------------
 void vtkThinPlateSplineTransform::Update()
 {
-  if (this->SourceLandmarks==NULL || this->TargetLandmarks==NULL)
+  // Lock so that threads don't collide.  The first thread will succeed
+  // in the update, the other threads will wait until the lock is released
+  // and then find that the update has already been done.
+  this->UpdateMutex->Lock();
+
+  if (this->SourceLandmarks == NULL || this->TargetLandmarks == NULL)
     {
     // gotta ensure thread safety with those instance variables...
-    this->MatrixWMutex->Lock();
     if (this->MatrixW)
       {
       DeleteMatrix(this->MatrixW,this->NumberOfPoints+3+1,3);
       }
     this->MatrixW = NULL;
     this->NumberOfPoints = 0;
-    this->MatrixWMutex->Unlock();
+    this->UpdateMutex->Unlock();
     return;
     }
 
   if (this->UpdateTime.GetMTime() > this->GetMTime() && 
       this->UpdateRequired == 0)
     {
-    // already up-to-date! 
+    // already up-to-date!
+    this->UpdateMutex->Unlock();
     return;
     }
 
@@ -373,21 +457,16 @@ void vtkThinPlateSplineTransform::Update()
   int r,c;
   float p[3],p2[3];
   float dx,dy,dz;
-  for(r=0;r<N;r++)
+  for(r = 0; r < N; r++)
     {
     this->SourceLandmarks->GetPoint(r,p);
-    // fill in the top-right corner of L (Q)
-    L[r][N] = 1.0;
-    L[r][N+1] = p[0];
-    L[r][N+2] = p[1];
-    L[r][N+3] = p[2];
-    // fill in the bottom-left corner of L (Q transposed)
-    L[N][r] = 1.0;
-    L[N+1][r] = p[0];
-    L[N+2][r] = p[1];
-    L[N+3][r] = p[2];
+    // fill in the top-right and bottom-left corners of L (Q)
+    L[N][r] = L[r][N] = 1.0;
+    L[N+1][r] = L[r][N+1] = p[0];
+    L[N+2][r] = L[r][N+2] = p[1];
+    L[N+3][r] = L[r][N+3] = p[2];
     // fill in the top-left corner of L (K), using symmetry
-    for(c=0;c<r;c++)
+    for(c = 0; c < r; c++)
       {
       this->SourceLandmarks->GetPoint(c,p2);
       dx = p[0]-p2[0]; dy = p[1]-p2[1]; dz = p[2]-p2[2];
@@ -397,7 +476,7 @@ void vtkThinPlateSplineTransform::Update()
 
   // build X
   FillMatrixWithZeros(X,N+D+1,D);
-  for(r=0;r<N;r++)
+  for(r = 0; r < N; r++)
     {
     this->TargetLandmarks->GetPoint(r,p);
     X[r][0] = p[0];
@@ -421,18 +500,17 @@ void vtkThinPlateSplineTransform::Update()
   DeleteMatrix(L,N+D+1,N+D+1);
   DeleteMatrix(X,N+D+1,D);
 
-  // ensure thread safety for instance variables
-  this->MatrixWMutex->Lock();
   if (this->MatrixW)
     {
     DeleteMatrix(this->MatrixW,this->NumberOfPoints+D+1,D);
     }
   this->MatrixW = W;
   this->NumberOfPoints = N;
-  this->MatrixWMutex->Unlock();
 
   this->UpdateTime.Modified();
   this->UpdateRequired = 0;
+
+  this->UpdateMutex->Unlock();
 }
 
 //------------------------------------------------------------------------
@@ -442,24 +520,16 @@ void vtkThinPlateSplineTransform::Update()
 void vtkThinPlateSplineTransform::ForwardTransformPoint(const float point[3],
 							float output[3])
 {
-  // make sure another thread doesn't mess us up by Updating MatrixW
-  // while we are using it to compute a transformation...
-  this->MatrixWMutex->Lock();
-
   int N = this->NumberOfPoints;
   double **W = this->MatrixW;
   double *C = this->MatrixW[N]; 
   double **A = &this->MatrixW[N+1];
 
-  float x,y,z;
   float dx,dy,dz;
   float p[3];
   double U;
 
-  // start with the affine transformation
-  x = C[0] + point[0]*A[0][0] + point[1]*A[1][0] + point[2]*A[2][0];
-  y = C[1] + point[0]*A[0][1] + point[1]*A[1][1] + point[2]*A[2][1];
-  z = C[2] + point[0]*A[0][2] + point[1]*A[1][2] + point[2]*A[2][2];
+  double x = 0, y = 0, z = 0; 
 
   // do the nonlinear stuff
   for(int i = 0; i < N; i++)
@@ -472,11 +542,14 @@ void vtkThinPlateSplineTransform::ForwardTransformPoint(const float point[3],
     z += U*W[i][2];
     }
 
+  // finish off with the affine transformation
+  x += C[0] + point[0]*A[0][0] + point[1]*A[1][0] + point[2]*A[2][0];
+  y += C[1] + point[0]*A[0][1] + point[1]*A[1][1] + point[2]*A[2][1];
+  z += C[2] + point[0]*A[0][2] + point[1]*A[1][2] + point[2]*A[2][2];
+
   output[0] = x;
   output[1] = y;
   output[2] = z;
-
-  this->MatrixWMutex->Unlock();
 }
 
 //----------------------------------------------------------------------------
@@ -485,10 +558,6 @@ void vtkThinPlateSplineTransform::TransformDerivatives(const float point[3],
 						       float output[3],
 						       float derivatives[3][3])
 {
-  // make sure another thread doesn't mess us up by Updating MatrixW
-  // while we are using it to compute a transformation...
-  this->MatrixWMutex->Lock();
-
   int N = this->NumberOfPoints;
   double **W = this->MatrixW;
   double *C = this->MatrixW[N]; 
@@ -497,21 +566,11 @@ void vtkThinPlateSplineTransform::TransformDerivatives(const float point[3],
   float dx,dy,dz;
   float p[3];
   double r, f, U, Ux, Uy, Uz;
+  double x = 0, y = 0, z = 0; 
 
-  // start with the affine transformation
-  output[0] = C[0] + point[0]*A[0][0] + point[1]*A[1][0] + point[2]*A[2][0];
-  output[1] = C[1] + point[0]*A[0][1] + point[1]*A[1][1] + point[2]*A[2][1];
-  output[2] = C[2] + point[0]*A[0][2] + point[1]*A[1][2] + point[2]*A[2][2];
-
-  derivatives[0][0] = A[0][0];
-  derivatives[0][1] = A[1][0];
-  derivatives[0][2] = A[2][0];
-  derivatives[1][0] = A[0][1];
-  derivatives[1][1] = A[1][1];
-  derivatives[1][2] = A[2][1];
-  derivatives[2][0] = A[0][2];
-  derivatives[2][1] = A[1][2];
-  derivatives[2][2] = A[2][2];
+  derivatives[0][0] = derivatives[0][1] = derivatives[0][2] = 0;
+  derivatives[1][0] = derivatives[1][1] = derivatives[1][2] = 0;
+  derivatives[2][0] = derivatives[2][1] = derivatives[2][2] = 0;
 
   // do the nonlinear stuff
   for(int i = 0; i < N; i++)
@@ -531,9 +590,9 @@ void vtkThinPlateSplineTransform::TransformDerivatives(const float point[3],
     Uy = f*dy;
     Uz = f*dz;
 
-    output[0] += U*W[i][0];
-    output[1] += U*W[i][1];
-    output[2] += U*W[i][2];
+    x += U*W[i][0];
+    y += U*W[i][1];
+    z += U*W[i][2];
 
     derivatives[0][0] += Ux*W[i][0];
     derivatives[0][1] += Uy*W[i][0];
@@ -546,42 +605,159 @@ void vtkThinPlateSplineTransform::TransformDerivatives(const float point[3],
     derivatives[2][2] += Uz*W[i][2];
     }
 
-  this->MatrixWMutex->Unlock();
+  // finish with the affine transformation
+  x += C[0] + point[0]*A[0][0] + point[1]*A[1][0] + point[2]*A[2][0];
+  y += C[1] + point[0]*A[0][1] + point[1]*A[1][1] + point[2]*A[2][1];
+  z += C[2] + point[0]*A[0][2] + point[1]*A[1][2] + point[2]*A[2][2];
+
+  output[0] = x;
+  output[1] = y;
+  output[2] = z;
+
+  derivatives[0][0] += A[0][0];
+  derivatives[0][1] += A[1][0];
+  derivatives[0][2] += A[2][0];
+  derivatives[1][0] += A[0][1];
+  derivatives[1][1] += A[1][1];
+  derivatives[1][2] += A[2][1];
+  derivatives[2][0] += A[0][2];
+  derivatives[2][1] += A[1][2];
+  derivatives[2][2] += A[2][2];
 }  
 
 //----------------------------------------------------------------------------
-// helper function for newton's method: solves Ay = x for y
-static void LinearSolve3x3(float A[3][3], float x[3], float y[3])
+// helper function, swap two 3-vectors
+template <class T>
+inline static void SwapVectors(T v1[3], T v2[3])
+{
+  T tmpvec[3];
+  memcpy(tmpvec,v1,3*sizeof(T));
+  memcpy(v1,v2,3*sizeof(T));
+  memcpy(v2,tmpvec,3*sizeof(T));
+}
+
+//----------------------------------------------------------------------------
+// unrolled LU factorization of a 3x3 matrix with pivoting
+static int LUFactor3x3(float A[3][3], int index[3])
+{
+  int i,maxI;
+  float tmp,largest;
+  float scale[3];
+
+  // Loop over rows to get implicit scaling information
+
+  for ( i = 0; i < 3; i++ ) 
+    {
+    largest =  fabs(A[i][0]);
+    if ((tmp = fabs(A[i][1])) > largest)
+      {
+      largest = tmp;
+      }
+    if ((tmp = fabs(A[i][2])) > largest)
+      {
+      largest = tmp;
+      }
+    scale[i] = 1.0/largest;
+    }
+  
+  // Loop over all columns using Crout's method
+
+  // first column
+  largest = scale[0]*fabs(A[0][0]);
+  maxI = 0;
+  if ((tmp = scale[1]*fabs(A[1][0])) >= largest) 
+    {
+    largest = tmp;
+    maxI = 1;
+    }
+  if ((tmp = scale[2]*fabs(A[2][0])) >= largest) 
+    {
+    maxI = 2;
+    }
+  if (maxI != 0) 
+    {
+    SwapVectors(A[maxI],A[0]);
+    scale[maxI] = scale[0];
+    }
+  index[0] = maxI;
+
+  tmp = 1.0 / A[0][0];
+  A[1][0] *= tmp;
+  A[2][0] *= tmp;
+    
+  // second column
+  A[1][1] -= A[1][0]*A[0][1];
+  A[2][1] -= A[2][0]*A[0][1];
+  largest = scale[1]*fabs(A[1][1]);
+  maxI = 1;
+  if ((tmp = scale[2]*fabs(A[2][1])) >= largest) 
+    {
+    maxI = 2;
+    SwapVectors(A[2],A[1]);
+    scale[2] = scale[1];
+    }
+  index[1] = maxI;
+  tmp = 1.0 / A[1][1];
+  A[2][1] *= tmp;
+
+  // third column
+  A[1][2] -= A[1][0]*A[0][2];
+  A[2][2] -= A[2][0]*A[0][2] + A[2][1]*A[1][2];
+  largest = scale[2]*fabs(A[2][2]);
+  index[2] = 2;
+}
+
+//----------------------------------------------------------------------------
+// backsubsitution with an LU-decomposed matrix
+static int LUSolve3x3(float A[3][3], int index[3], float x[3])
+{
+  float sum;
+
+  // forward substitution
+  
+  sum = x[index[0]];
+  x[index[0]] = x[0];
+  x[0] = sum;
+
+  sum = x[index[1]];
+  x[index[1]] = x[1];
+  x[1] = sum - A[1][0]*x[0];
+
+  sum = x[index[2]];
+  x[index[2]] = x[2];
+  x[2] = sum - A[2][0]*x[0] - A[2][1]*x[1];
+
+  // back substitution
+  
+  x[2] = x[2]/A[2][2];
+  x[1] = (x[1] - A[1][2]*x[2])/A[1][1];
+  x[0] = (x[0] - A[0][1]*x[1] - A[0][2]*x[2])/A[0][0];
+}  
+
+//----------------------------------------------------------------------------
+// helper function for newton's method: solves Ay = x for y, 
+// the result is placed in x, the matrix A is destroyed
+static void LinearSolve3x3(float A[3][3], float x[3])
 {
   int index[3];
-  double xtmp[3];
-  double AD[3][3];
-  double *Atmp[3];
 
-  AD[0][0] = A[0][0];
-  AD[0][1] = A[0][1];
-  AD[0][2] = A[0][2];
-  AD[1][0] = A[1][0];
-  AD[1][1] = A[1][1];
-  AD[1][2] = A[1][2];
-  AD[2][0] = A[2][0];
-  AD[2][1] = A[2][1];
-  AD[2][2] = A[2][2];
+  LUFactor3x3(A,index);
+  LUSolve3x3(A,index,x);
+}
 
-  Atmp[0] = AD[0];
-  Atmp[1] = AD[1];
-  Atmp[2] = AD[2];
-
-  xtmp[0] = x[0];
-  xtmp[1] = x[1];
-  xtmp[2] = x[2];
-
-  vtkMath::LUFactorLinearSystem(Atmp,index,3);
-  vtkMath::LUSolveLinearSystem(Atmp,index,xtmp,3);
-
-  y[0] = xtmp[0];
-  y[1] = xtmp[1];
-  y[2] = xtmp[2];
+//----------------------------------------------------------------------------
+static void Transpose3x3(float A[3][3])
+{
+  float tmp;
+  tmp = A[0][1];
+  A[1][0] = A[0][1];
+  A[0][1] = tmp;
+  tmp = A[0][2];
+  A[2][0] = A[0][2];
+  A[0][2] = tmp;
+  tmp = A[1][2];
+  A[2][1] = A[1][2];
+  A[1][2] = tmp;
 }
 
 //----------------------------------------------------------------------------
@@ -592,7 +768,6 @@ void vtkThinPlateSplineTransform::InverseTransformPoint(const float point[3],
 							float outPoint[3])
 {
   float inverse[3];
-  float trypoint[3];
   float delta[3];
   float derivatives[3][3];
 
@@ -608,15 +783,15 @@ void vtkThinPlateSplineTransform::InverseTransformPoint(const float point[3],
   for (i = 0; i < n; i++)
     {    
     // put the inverse point back through the transform
-    this->TransformDerivatives(inverse,trypoint,derivatives);
+    this->TransformDerivatives(inverse,delta,derivatives);
 
     // how far off are we?
-    trypoint[0] -= point[0];
-    trypoint[1] -= point[1];
-    trypoint[2] -= point[2];
+    delta[0] -= point[0];
+    delta[1] -= point[1];
+    delta[2] -= point[2];
 
     // here is the critical step in Newton's method
-    LinearSolve3x3(derivatives,trypoint,delta);
+    LinearSolve3x3(derivatives,delta);
 
     inverse[0] -= delta[0];
     inverse[1] -= delta[1];

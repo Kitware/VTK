@@ -196,32 +196,14 @@ void vtkGeneralTransformConcatenation::TransformPoint(const float input[3],
     {
     for (i = this->NumberOfTransforms-1; i >= 0; i--)
       {
-      if (this->InverseTransformList[i]->GetAutoUpdate())
-	{
-	this->InverseTransformList[i]->AutoUpdateOff();
-	this->InverseTransformList[i]->TransformPoint(output,output);
-	this->InverseTransformList[i]->AutoUpdateOn();
-	}
-      else
-	{
-	this->InverseTransformList[i]->TransformPoint(output,output);
-	}
+      this->InverseTransformList[i]->TransformPoint(output,output);
       }
     }
   else
     {
     for (i = 0; i < this->NumberOfTransforms; i++)
       {
-      if (this->TransformList[i]->GetAutoUpdate())
-	{
-	this->TransformList[i]->AutoUpdateOff();
-	this->TransformList[i]->TransformPoint(output,output);
-	this->TransformList[i]->AutoUpdateOn();
-	}
-      else
-	{
-	this->TransformList[i]->TransformPoint(output,output);
-	}
+      this->TransformList[i]->TransformPoint(output,output);
       }
     }
 }    
@@ -235,36 +217,23 @@ void vtkGeneralTransformConcatenation::TransformPoint(const double input[3],
   output[1] = input[1];
   output[2] = input[2];
 
+  if (this->AutoUpdate)
+    {
+    this->Update();
+    }
+
   if (this->InverseFlag)
     {
     for (i = this->NumberOfTransforms-1; i >= 0; i--)
       {
-      if (this->InverseTransformList[i]->GetAutoUpdate())
-	{
-	this->InverseTransformList[i]->AutoUpdateOff();
-	this->InverseTransformList[i]->TransformPoint(output,output);
-	this->InverseTransformList[i]->AutoUpdateOn();
-	}
-      else
-	{
-	this->InverseTransformList[i]->TransformPoint(output,output);
-	}
+      this->InverseTransformList[i]->TransformPoint(output,output);
       }
     }
   else
     {
     for (i = 0; i < this->NumberOfTransforms; i++)
       {
-      if (this->TransformList[i]->GetAutoUpdate())
-	{
-	this->TransformList[i]->AutoUpdateOff();
-	this->TransformList[i]->TransformPoint(output,output);
-	this->TransformList[i]->AutoUpdateOn();
-	}
-      else
-	{
-	this->TransformList[i]->TransformPoint(output,output);
-	}
+      this->TransformList[i]->TransformPoint(output,output);
       }
     }
 }    
@@ -274,8 +243,14 @@ void vtkGeneralTransformConcatenation::TransformPoints(vtkPoints *in,
 						       vtkPoints *out)
 {
   int i,j;
+  float point[3];
   int n = in->GetNumberOfPoints();
   int m = out->GetNumberOfPoints();
+
+  if (this->AutoUpdate)
+    {
+    this->Update();
+    }
 
   if (this->NumberOfTransforms == 0)
     {
@@ -286,54 +261,29 @@ void vtkGeneralTransformConcatenation::TransformPoints(vtkPoints *in,
     return;
     }      
 
-  vtkPoints *points;
-  vtkPoints *tmpPoints = NULL;
-
-  if (this->NumberOfTransforms > 1)
-    {
-    tmpPoints = vtkPoints::New();
-    tmpPoints->SetNumberOfPoints(n);
-    }
-
-  points = in;
   if (this->InverseFlag)
     {
-    for (i = this->NumberOfTransforms-1; i >= 0; i--)
+    for (j = 0; j < n; j++)
       {
-      this->InverseTransformList[i]->TransformPoints(points,out);
-      if (i == 0)
+      in->GetPoint(j,point);
+      for (i = this->NumberOfTransforms-1; i >= 0; i--)
 	{
-	break;
+	this->InverseTransformList[i]->TransformPoint(point,point);
 	}
-      points = tmpPoints;
-      for (j = 0; j < n; j++)
-	{
-	points->SetPoint(j,out->GetPoint(j+m));
-	}
-      out->SetNumberOfPoints(m);
+      out->InsertNextPoint(point);
       }
     }
   else
     {
-    for (i = 0; i < this->NumberOfTransforms; i++)
+    for (j = 0; j < n; j++)
       {
-      this->TransformList[i]->TransformPoints(points,out);
-      if (i == this->NumberOfTransforms+1)
+      in->GetPoint(j,point);
+      for (i = 0; i < this->NumberOfTransforms; i++)
 	{
-	break;
+	this->TransformList[i]->TransformPoint(point,point);
 	}
-      points = tmpPoints;
-      for (j = 0; j < n; j++)
-	{
-	points->SetPoint(j,out->GetPoint(j+m));
-	}
-      out->SetNumberOfPoints(m);
+      out->InsertNextPoint(point);
       }
-    }
-
-  if (tmpPoints)
-    {
-    tmpPoints->Delete();
     }
 }
 
@@ -347,6 +297,11 @@ void vtkGeneralTransformConcatenation::TransformNormals(vtkPoints *inPts,
   int n = inNms->GetNumberOfNormals();
   int m = outNms->GetNumberOfNormals();
 
+  if (this->AutoUpdate)
+    {
+    this->Update();
+    }
+
   if (this->NumberOfTransforms == 0)
     {
     for (j = 0; j < n; j++)
@@ -357,18 +312,12 @@ void vtkGeneralTransformConcatenation::TransformNormals(vtkPoints *inPts,
     }      
 
   vtkNormals *normals;
-  vtkNormals *tmpNormals = NULL;
-
-  if (this->NumberOfTransforms > 1)
-    {
-    tmpNormals = vtkNormals::New();
-    tmpNormals->SetNumberOfNormals(n);
-    }
+  vtkNormals *tmpNormals = vtkNormals::New();
 
   normals = inNms;
   if (this->InverseFlag)
     {
-    for (i = this->NumberOfTransforms-1; i >= 0; i--)
+    for (i = this->NumberOfTransforms-1; ; i--)
       {
       this->InverseTransformList[i]->TransformNormals(inPts,outPts,
 						      normals,outNms);
@@ -377,9 +326,10 @@ void vtkGeneralTransformConcatenation::TransformNormals(vtkPoints *inPts,
 	break;
 	}
       normals = tmpNormals;
+      normals->SetNumberOfNormals(0);
       for (j = 0; j < n; j++)
 	{
-	normals->SetNormal(j,outNms->GetNormal(j+m));
+	normals->InsertNextNormal(outNms->GetNormal(j+m));
 	}
       outNms->SetNumberOfNormals(m);
       }
@@ -390,23 +340,21 @@ void vtkGeneralTransformConcatenation::TransformNormals(vtkPoints *inPts,
       {
       this->TransformList[i]->TransformNormals(inPts,outPts,
 					       normals,outNms);
-      if (i == this->NumberOfTransforms+1)
+      if (i == this->NumberOfTransforms)
 	{
 	break;
 	}
       normals = tmpNormals;
+      normals->SetNumberOfNormals(0);
       for (j = 0; j < n; j++)
 	{
-	normals->SetNormal(j,outNms->GetNormal(j+m));
+	normals->InsertNextNormal(outNms->GetNormal(j+m));
 	}
       outNms->SetNumberOfNormals(m);
       }
     }
 
-  if (tmpNormals)
-    {
-    tmpNormals->Delete();
-    }
+  tmpNormals->Delete();
 }
 
 //----------------------------------------------------------------------------
@@ -429,18 +377,12 @@ void vtkGeneralTransformConcatenation::TransformVectors(vtkPoints *inPts,
     }      
 
   vtkVectors *vectors;
-  vtkVectors *tmpVectors = NULL;
-
-  if (this->NumberOfTransforms > 1)
-    {
-    tmpVectors = vtkVectors::New();
-    tmpVectors->SetNumberOfVectors(n);
-    }
+  vtkVectors *tmpVectors = vtkVectors::New();
 
   vectors = inVrs;
   if (this->InverseFlag)
     {
-    for (i = this->NumberOfTransforms-1; i >= 0; i--)
+    for (i = this->NumberOfTransforms-1; ; i--)
       {
       this->InverseTransformList[i]->TransformVectors(inPts,outPts,
 						      vectors,outVrs);
@@ -449,36 +391,35 @@ void vtkGeneralTransformConcatenation::TransformVectors(vtkPoints *inPts,
 	break;
 	}
       vectors = tmpVectors;
+      vectors->SetNumberOfVectors(0);
       for (j = 0; j < n; j++)
 	{
-	vectors->SetVector(j,outVrs->GetVector(j+m));
+	vectors->InsertNextVector(outVrs->GetVector(j+m));
 	}
       outVrs->SetNumberOfVectors(m);
       }
     }
   else
     {
-    for (i = 0; i < this->NumberOfTransforms; i++)
+    for (i = 0; ; i++)
       {
       this->TransformList[i]->TransformVectors(inPts,outPts,
 					       vectors,outVrs);
-      if (i == this->NumberOfTransforms+1)
+      if (i == this->NumberOfTransforms)
 	{
 	break;
 	}
       vectors = tmpVectors;
+      vectors->SetNumberOfVectors(0);      
       for (j = 0; j < n; j++)
 	{
-	vectors->SetVector(j,outVrs->GetVector(j+m));
+	vectors->InsertNextVector(outVrs->GetVector(j+m));
 	}
       outVrs->SetNumberOfVectors(m);
       }
     }
 
-  if (tmpVectors)
-    {
-    tmpVectors->Delete();
-    }
+  tmpVectors->Delete();
 }
 
 //----------------------------------------------------------------------------

@@ -160,10 +160,8 @@ void vtkGeneralTransformInverse::TransformPoint(const double input[3],
 //----------------------------------------------------------------------------
 void vtkGeneralTransformInverse::TransformPoints(vtkPoints *in, vtkPoints *out)
 {
-  int autoUpdate = this->AutoUpdate;
   if (this->AutoUpdate)
     {
-    this->AutoUpdate = 0;
     this->Update();
     }
 
@@ -180,8 +178,6 @@ void vtkGeneralTransformInverse::TransformPoints(vtkPoints *in, vtkPoints *out)
     }      
 
   this->InverseTransform->TransformPoints(in,out);
-
-  this->AutoUpdate = autoUpdate;
 }
 
 //----------------------------------------------------------------------------
@@ -190,10 +186,8 @@ void vtkGeneralTransformInverse::TransformNormals(vtkPoints *inPts,
 						  vtkNormals *in, 
 						  vtkNormals *out)
 {
-  int autoUpdate = this->AutoUpdate;
   if (this->AutoUpdate)
     {
-    this->AutoUpdate = 0;
     this->Update();
     }
 
@@ -210,8 +204,6 @@ void vtkGeneralTransformInverse::TransformNormals(vtkPoints *inPts,
     }      
 
   this->InverseTransform->TransformNormals(inPts,outPts,in,out);
-
-  this->AutoUpdate = autoUpdate;
 }
 
 //----------------------------------------------------------------------------
@@ -220,10 +212,8 @@ void vtkGeneralTransformInverse::TransformVectors(vtkPoints *inPts,
 						  vtkVectors *in, 
 						  vtkVectors *out)
 {
-  int autoUpdate = this->AutoUpdate;
   if (this->AutoUpdate)
     {
-    this->AutoUpdate = 0;
     this->Update();
     }
 
@@ -240,8 +230,6 @@ void vtkGeneralTransformInverse::TransformVectors(vtkPoints *inPts,
     }      
 
   this->InverseTransform->TransformVectors(inPts,outPts,in,out);
-
-  this->AutoUpdate = autoUpdate;
 }
 
 //----------------------------------------------------------------------------

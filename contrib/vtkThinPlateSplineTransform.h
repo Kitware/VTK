@@ -7,7 +7,7 @@
   Version:   $Revision$
   Thanks:    Thanks to David G. Gobbi who developed this class 
              based on code from vtkThinPlateSplineMeshWarp.cxx
-	     written Tim Hutton.
+	     written by Tim Hutton.
 
 Copyright (c) 1993-2000 Ken Martin, Will Schroeder, Bill Lorensen.
 
@@ -47,15 +47,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // landmark. The points in between are interpolated smoothly using
 // Bookstein's Thin Plate Spline algorithm.
 //
-// The filter takes three inputs: the polygonal mesh to be warped (use
-// SetInput), the source landmarks (SetSourceLandmarks) and the target
-// Landmarks (SetTargetLandmarks).  There is one parameter (Sigma) that
-// controls the 'stiffness' of the spline (default is 1.0).
-//
-// The topology of the mesh is not altered, only the geometry (the location
-// of the points). 
 // .SECTION see also
-// vtkGridTransform
+// vtkGeneralTransform
 
 
 #ifndef __vtkThinPlateSplineTransform_h
@@ -86,22 +79,31 @@ public:
   vtkGetObjectMacro(SourceLandmarks,vtkPoints);
 
   // Description:
-  // Set the target landmarks for the warp
+  // Set the target landmarks for the warp.
   void SetTargetLandmarks(vtkPoints *target);
   vtkGetObjectMacro(TargetLandmarks,vtkPoints);
 
   // Description:
   // Apply the transformation.
   void TransformPoint(const float in[3], float out[3]);
-  void TransformPoint(const double in[3], double out[3])
-    {
-    vtkGeneralTransform::TransformPoint(in, out);  
-    }
-  ;
+  void TransformPoint(const double in[3], double out[3]) {
+    vtkGeneralTransform::TransformPoint(in, out); };
 
   // Description:
   // Apply the transform to a series of points.
   void TransformPoints(vtkPoints *inPts, vtkPoints *outPts);
+
+  // Description:
+  // Apply the transform to a series of normals (you must call
+  // TransformPoints first to get the outPts).
+  void TransformNormals(vtkPoints *inPts, vtkPoints *outPts,
+			vtkNormals *inNms, vtkNormals *outNms);
+
+  // Description:
+  // Apply the transform to a series of vectors (you must call
+  // TransformPoints first to get the outPts).
+  void TransformVectors(vtkPoints *inPts, vtkPoints *outPts,
+			vtkVectors *inVrs, vtkVectors *outVrs);
 
   // Description:
   // Create an identity transformation.  This simply calls
@@ -160,7 +162,8 @@ protected:
   vtkTimeStamp UpdateTime;
   int NumberOfPoints;
   double **MatrixW;
-  vtkMutexLock *MatrixWMutex;
+
+  vtkMutexLock *UpdateMutex;
 };
 
 #endif
