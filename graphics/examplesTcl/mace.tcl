@@ -14,7 +14,7 @@ vtkRenderWindowInteractor iren
 # create a sphere source and actor
 #
 vtkSphereSource sphere
-sphere SetPhiResolution 100
+
 vtkPolyDataMapper   sphereMapper
     sphereMapper SetInput [sphere GetOutput]
     sphereMapper GlobalImmediateModeRenderingOn
@@ -45,7 +45,6 @@ renWin SetSize 300 300
 # render the image
 #
 iren SetUserMethod {wm deiconify .vtkInteract}
-iren SetExitMethod {vtkCommand DeleteAllObjects; exit}
 
 set cam1 [ren1 GetActiveCamera]
 $cam1 Zoom 1.4
