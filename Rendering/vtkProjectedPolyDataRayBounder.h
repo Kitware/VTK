@@ -39,28 +39,12 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-// .NAME vtkProjectedPolyDataRayBounder - Bound a ray according to polydata
-// .SECTION Description
-// The vtkProjectedPolyDataRayBounder can be used to clip viewing rays
-// against the polygons in a vtkPolyData. This is done by projecting the
-// vtkPolyData twice - first capturing a near Z buffer, then capturing 
-// a far Z buffer. The values from the Z buffers are decoded according to
-// the current viewing transformation, and the decoded pairs of values
-// (near,far) are returned as distance from the view point for perspective
-// viewing, or distance from the view plane for parallel viewing.
-// 
-
-// .SECTION see also
-// vtkOpenGLProjectedPolyDataRayBounder
+// .NAME vtkProjectedPolyDataRayBounder - obsolete class
 
 #ifndef __vtkProjectedPolyDataRayBounder_h
 #define __vtkProjectedPolyDataRayBounder_h
 
-#include "vtkObject.h"
-#include "vtkRenderer.h"
-#include "vtkPolyData.h"
-#include "vtkVolume.h"
-#include "vtkActor.h"
+
 #include "vtkRayBounder.h"
 
 class VTK_EXPORT vtkProjectedPolyDataRayBounder : public vtkRayBounder
@@ -69,54 +53,32 @@ public:
   vtkTypeMacro(vtkProjectedPolyDataRayBounder,vtkRayBounder);
   void PrintSelf(ostream& os, vtkIndent indent);
   
-  // Description:
-  // New method for the class which will return the correct type of 
-  // ProjectPolyDataRayBounder
-  static vtkProjectedPolyDataRayBounder *New();
-
-  // Description:
-  // Get the ray bounds given a renderer. The ray bounds are a two 
-  // dimensional array of (near,far) values, with the width and height of
-  // the array being equal to the width and height of the current viewport
-  // in pixel.
-  float *GetRayBounds( vtkRenderer *ren );
-
-  // Description:
-  // Set/Get the PolyData that will be projected for clipping
-  vtkSetObjectMacro( PolyData, vtkPolyData );
-  vtkGetObjectMacro( PolyData, vtkPolyData );
+  static vtkProjectedPolyDataRayBounder *New() 
+    {return new vtkProjectedPolyDataRayBounder;};
   
-  // Description:
-  // Set a matrix source as either an actor or a volume. If a matrix
-  // source is set, then the PolyData will first be transformed according
-  // to the matrix of the given actor or volume.
-  void SetMatrixSource( vtkActor *actor );
-  void SetMatrixSource( vtkVolume *volume );
 
-  // Description:
-  // Return the MTime also considering the ivars' MTimes.
-  unsigned long GetMTime();
+  float *GetRayBounds( vtkRenderer *ren )
+    {vtkErrorMacro("vtkRayBounder and all subclasses have been obsoleted.");
+    return NULL;};
+  
+  void SetPolyData( vtkPolyData *p )
+    {vtkErrorMacro("vtkRayBounder and all subclasses have been obsoleted.");}
+  
+  vtkPolyData *GetPolyData()
+    {vtkErrorMacro("vtkRayBounder and all subclasses have been obsoleted.");
+    return NULL;};
+
+  void SetMatrixSource( vtkActor *actor )
+    {vtkErrorMacro("vtkRayBounder and all subclasses have been obsoleted.");}
+  
+  void SetMatrixSource( vtkVolume *volume )
+    {vtkErrorMacro("vtkRayBounder and all subclasses have been obsoleted.");}
 
 protected:
   vtkProjectedPolyDataRayBounder();
   ~vtkProjectedPolyDataRayBounder();
   vtkProjectedPolyDataRayBounder(const vtkProjectedPolyDataRayBounder&);
   void operator=(const vtkProjectedPolyDataRayBounder&);
-
-  vtkPolyData   *PolyData;
-  vtkActor      *ActorMatrixSource;
-  vtkVolume     *VolumeMatrixSource;
-
-  vtkTimeStamp  BuildTime;
-
-  // Description:
-  // Create a display list from the poly data.
-  virtual void Build( vtkPolyData *pdata );
-
-  // Description:
-  // Render the display list and create the near and far buffers
-  virtual float *Draw( vtkRenderer *ren, vtkMatrix4x4 *matrix );
-
 };
 
 #endif

@@ -57,7 +57,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkXOpenGLRenderWindow.h"
 #include "vtkOpenGLTexture.h"
 #include "vtkOpenGLVolumeTextureMapper2D.h"
-#include "vtkOpenGLProjectedPolyDataRayBounder.h"
 #include "vtkOpenGLVolumeRayCastMapper.h"
 #endif
 
@@ -72,7 +71,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkMesaRenderWindow.h"
 #include "vtkMesaTexture.h"
 #include "vtkMesaVolumeTextureMapper2D.h"
-#include "vtkMesaProjectedPolyDataRayBounder.h"
 #endif
 
 #ifdef _WIN32
@@ -87,7 +85,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkOpenGLTexture.h"
 #include "vtkOpenGLVolumeTextureMapper2D.h"
 #include "vtkOpenGLVolumeRayCastMapper.h"
-#include "vtkOpenGLProjectedPolyDataRayBounder.h"
 #include "vtkWin32RenderWindowInteractor.h"
 #else
 #ifdef VTK_USE_QUARTZ
@@ -102,7 +99,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkOpenGLTexture.h"
 #include "vtkOpenGLVolumeTextureMapper2D.h"
 #include "vtkOpenGLVolumeRayCastMapper.h"
-#include "vtkOpenGLProjectedPolyDataRayBounder.h"
 #include "vtkQuartzRenderWindowInteractor.h"
 #else
 #include "vtkXRenderWindowInteractor.h"
@@ -253,10 +249,6 @@ vtkObject* vtkGraphicsFactory::CreateInstance(const char* vtkclassname )
       {
       return vtkOpenGLPolyDataMapper::New();
       }
-    if(strcmp(vtkclassname, "vtkProjectedPolyDataRayBounder") == 0)
-      {
-      return vtkOpenGLProjectedPolyDataRayBounder::New();
-      }
     if(strcmp(vtkclassname, "vtkRenderer") == 0)
       {
       return vtkOpenGLRenderer::New();
@@ -302,10 +294,6 @@ vtkObject* vtkGraphicsFactory::CreateInstance(const char* vtkclassname )
     if(strcmp(vtkclassname, "vtkPolyDataMapper") == 0)
       {
       return vtkMesaPolyDataMapper::New();
-      }
-    if(strcmp(vtkclassname, "vtkProjectedPolyDataRayBounder") == 0)
-      {
-      return vtkMesaProjectedPolyDataRayBounder::New();
       }
     if(strcmp(vtkclassname, "vtkRenderer") == 0)
       {

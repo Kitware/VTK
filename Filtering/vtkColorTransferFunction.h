@@ -139,74 +139,13 @@ public:
   // Description:
   // Returns a list of all nodes
   float *GetDataPointer() {return this->Function;};
-  
+
   // Description:
   // map a set of scalars through the lookup table
   virtual void MapScalarsThroughTable2(void *input, unsigned char *output,
                                      int inputDataType, int numberOfValues,
                                      int inputIncrement, int outputIncrement);
-
-
   
-
-  // **********************************************************
-  // **********************************************************
-  // These are all deprecated functions - do not use!
-  // **********************************************************
-  // **********************************************************
-  
-  // Description:
-  // Deprecated method, use GetColor() instead.
-  float *GetValue( float x )
-    {VTK_LEGACY_METHOD(GetValue,"3.2"); return this->GetColor(x); }
-
-  // Description:
-  // Deprecated functions (after VTK 3.1.2) Don't use.
-  // Get GetSize() instead;
-  int  GetTotalSize();
-  int  GetRedSize(); 
-  int  GetGreenSize();
-  int  GetBlueSize();
-
-  // Description:
-  // Deprecated functions (after VTK 3.1.2) Don't use.
-  // Use AddRGBPoint() or AddHSVPoint instead
-  void AddRedPoint( float x, float r );
-  void AddGreenPoint( float x, float g );
-  void AddBluePoint( float x, float b );
-
-  // Description:
-  // Depricated functions (after VTK 3.1.2) Don't use.
-  // Use RemovePoint() instead
-  void RemoveRedPoint( float x );
-  void RemoveGreenPoint( float x );
-  void RemoveBluePoint( float x );
-  void RemoveRGBPoint( float x );
-
-  // Description:
-  // Depricated functions (after VTK 3.1.2) Don't use.
-  // Use AddSegment() instead
-  void AddRedSegment( float x1, float r1, float x2, float r2 );
-  void AddGreenSegment( float x1, float g1, float x2, float g2 );
-  void AddBlueSegment( float x1, float b1, float x2, float b2 );
-
-  // Description:
-  // Depricated functions (after VTK 3.1.2) Don't use.
-  // These methods never functioned. There are no
-  // alternative methods.
-  virtual void SetRange(float, float) {};
-  void SetRange(float rng[2]) {this->SetRange(rng[0],rng[1]);};
-
-  // Description:
-  // Depricated functions (after VTK 3.1.2) Don't use.
-  // The color transfer function is no longer stored as
-  // three independent piecewise functions. You can use GetFunction()
-  // to get the list of all nodes
-  vtkPiecewiseFunction *GetRedFunction(){return this->Red;};
-  vtkPiecewiseFunction *GetGreenFunction(){return this->Green;};
-  vtkPiecewiseFunction *GetBlueFunction(){return this->Blue;};
-
-
 protected:
   vtkColorTransferFunction();
   ~vtkColorTransferFunction();
@@ -245,6 +184,14 @@ protected:
   vtkTimeStamp BuildTime;
   unsigned char *Table;
   int TableSize;
+  
+  // Description:
+  // Set the range of scalars being mapped. The set has no functionality
+  // in this subclass of vtkScalarsToColors.
+  virtual void SetRange(float, float) {};
+  void SetRange(float rng[2]) {this->SetRange(rng[0],rng[1]);};
+
+
 };
 
 #endif

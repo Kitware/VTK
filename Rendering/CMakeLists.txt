@@ -105,7 +105,6 @@ SOURCE_FILES ( RenderingOpenGL_SRCS
                vtkOpenGLLight
                vtkOpenGLPolyDataMapper
                vtkOpenGLPolyDataMapper2D
-               vtkOpenGLProjectedPolyDataRayBounder
                vtkOpenGLProperty
                vtkOpenGLRenderer
                vtkOpenGLRenderWindow
