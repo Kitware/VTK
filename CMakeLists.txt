@@ -255,6 +255,7 @@ VTK_THIRD_PARTY_OPTION(ZLIB zlib)
 VTK_THIRD_PARTY_OPTION(JPEG jpeg)
 VTK_THIRD_PARTY_OPTION(PNG  png)
 VTK_THIRD_PARTY_OPTION(TIFF tiff)
+VTK_THIRD_PARTY_OPTION(EXPAT expat)
 #-----------------------------------------------------------------------------
 
 IF (VTK_WRAP_TCL)
