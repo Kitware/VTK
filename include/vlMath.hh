@@ -9,7 +9,7 @@
 class vlMath
 {
 public:
-  vlMath();
+  vlMath() {this->Seed = 1177;};
   float Pi() {return 3.14159265358979;};
   float DegreesToRadians() {return 0.018977369;};
   float Dot(float x[3], float y[3]) 
