@@ -15,13 +15,18 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkInteractorEventRecorder - record VTK events to a file; play them back to an object
+// .NAME vtkInteractorEventRecorder - record and play VTK events passing through a vtkRenderWindowInteractor
 
 // .SECTION Description
 // vtkInteractorEventRecorder records all VTK events invoked from a
 // vtkRenderWindowInteractor. The events are recorded to a
 // file. vtkInteractorEventRecorder can also be used to play those events
-// back and invoke them on an vtkRenderWindowInteractor.
+// back and invoke them on an vtkRenderWindowInteractor. (Note: the events
+// can also be played back from a file or string.)
+//
+// The format of the event file is simple. It is:
+//  EventName X Y ctrl shift keycode repeatCount keySym
+// The format also allows "#" comments.
 
 // .SECTION See Also
 // vtkInteractorObserver vtkCallback
@@ -67,12 +72,28 @@ public:
   // Rewind to the beginning of the file.
   void Rewind();
 
+  // Description:
+  // Enable reading from an InputString as compared to the default
+  // behavior, which is to read from a file.
+  vtkSetMacro(ReadFromInputString,int);
+  vtkGetMacro(ReadFromInputString,int);
+  vtkBooleanMacro(ReadFromInputString,int);
+
+  // Description:
+  // Set/Get the string to read from.
+  vtkSetStringMacro(InputString);
+  vtkGetStringMacro(InputString);
+
 protected:
   vtkInteractorEventRecorder();
   ~vtkInteractorEventRecorder();
 
   // file to read/write from
   char *FileName;
+  
+  // control whether to read from string
+  int ReadFromInputString;
+  char *InputString;
 
   // for reading and writing
   istream *InputStream;

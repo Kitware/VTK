@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkRenderWindowInteractor.h"
 
-vtkCxxRevisionMacro(vtkInteractorEventRecorder, "1.3");
+vtkCxxRevisionMacro(vtkInteractorEventRecorder, "1.4");
 vtkStandardNewMacro(vtkInteractorEventRecorder);
 
 float vtkInteractorEventRecorder::StreamVersion = 1.0;
@@ -41,6 +41,8 @@ vtkInteractorEventRecorder::vtkInteractorEventRecorder()
   this->InputStream = NULL;
   this->OutputStream = NULL;
 
+  this->ReadFromInputString = 0;
+  this->InputString = NULL;
 }
 
 vtkInteractorEventRecorder::~vtkInteractorEventRecorder()
@@ -121,9 +123,11 @@ void vtkInteractorEventRecorder::Record()
         delete this->OutputStream;
         return;
         }
-      *this->OutputStream << "# StreamVersion " << vtkInteractorEventRecorder::StreamVersion << "\n";
+      *this->OutputStream << "# StreamVersion " 
+                          << vtkInteractorEventRecorder::StreamVersion << "\n";
       }
     
+    vtkDebugMacro(<<"Recording");
     this->State = vtkInteractorEventRecorder::Recording;
     }
 }
@@ -132,14 +136,34 @@ void vtkInteractorEventRecorder::Play()
 {
   if ( this->State == vtkInteractorEventRecorder::Start )
     {
-    if ( ! this->InputStream ) //need to open file
+    if ( this->ReadFromInputString )
       {
-      this->InputStream = new ifstream(this->FileName, ios::in);
+      vtkDebugMacro(<< "Reading from InputString");
+      int len;
+      if ( this->InputString == NULL || (len = strlen(this->InputString) <= 0) )
+        {
+        vtkErrorMacro(<< "No input string specified");
+        return;
+        }
+      this->InputStream = new istrstream(this->InputString, len);
       if (this->InputStream->fail())
         {
-        vtkErrorMacro(<< "Unable to open file: "<< this->FileName);
+        vtkErrorMacro(<< "Unable to read from string");
         delete this->InputStream;
         return;
+        }
+      }
+    else
+      {
+      if ( ! this->InputStream ) //need to open file
+        {
+        this->InputStream = new ifstream(this->FileName, ios::in);
+        if (this->InputStream->fail())
+          {
+          vtkErrorMacro(<< "Unable to open file: "<< this->FileName);
+          delete this->InputStream;
+          return;
+          }
         }
       }
 
@@ -157,7 +181,6 @@ void vtkInteractorEventRecorder::Play()
       *this->InputStream >> event;
 
       // Quick skip comment
-
       if (*event == '#')
         {
         this->InputStream->getline(buffer, 512);
@@ -341,6 +364,18 @@ void vtkInteractorEventRecorder::PrintSelf(ostream& os, vtkIndent indent)
   if (this->FileName)
     {
     os << indent << "File Name: " << this->FileName << "\n";
+    }
+
+  os << indent << "ReadFromInputString: " 
+     << (this->ReadFromInputString ? "On\n" : "Off\n");
+
+  if ( this->InputString )
+    {
+    os << indent << "Input String: " << this->InputString << "\n";
+    }
+  else
+    {
+    os << indent << "Input String: (None)\n";
     }
 }
 
