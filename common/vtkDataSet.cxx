@@ -57,16 +57,12 @@ vtkDataSet::vtkDataSet ()
 
   this->PointData = vtkPointData::New();
   this->CellData = vtkCellData::New();
-  
-  // Support neighbor operations
-  this->OtherCells = vtkIdList::New();
 }
 
 vtkDataSet::~vtkDataSet ()
 {
   this->PointData->Delete();
   this->CellData->Delete();
-  this->OtherCells->Delete();
 }
 
 // Copy constructor.
@@ -246,6 +242,8 @@ void vtkDataSet::GetCellNeighbors(int cellId, vtkIdList *ptIds,
                                   vtkIdList *cellIds)
 {
   int i, numPts;
+  vtkIdList *otherCells = vtkIdList::New();
+  otherCells->Allocate(VTK_CELL_SIZE);
 
   // load list with candidate cells, remove current cell
   this->GetPointCells(ptIds->GetId(0), cellIds);
@@ -256,10 +254,12 @@ void vtkDataSet::GetCellNeighbors(int cellId, vtkIdList *ptIds,
     {
     for ( numPts=ptIds->GetNumberOfIds(), i=1; i < numPts; i++)
       {
-      this->GetPointCells(ptIds->GetId(i), this->OtherCells);
-      cellIds->IntersectWith(*this->OtherCells);
+      this->GetPointCells(ptIds->GetId(i), otherCells);
+      cellIds->IntersectWith(*otherCells);
       }
     }
+  
+  otherCells->Delete();
 }
 
 void vtkDataSet::GetCellTypes(vtkCellTypes *types)

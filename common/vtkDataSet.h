@@ -331,9 +331,6 @@ protected:
   float Bounds[6];  // (xmin,xmax, ymin,ymax, zmin,zmax) geometric bounds
   float ScalarRange[2];
   float Center[3];
-
-  // Supports the GetCellNeighbors() method
-  vtkIdList *OtherCells;
 };
 
 inline void vtkDataSet::GetPoint(int id, float x[3])
