@@ -243,6 +243,13 @@ public:
   vtkBooleanMacro(TextureInterpolate,int);
 
   // Description:
+  // Control the visibility of the actual texture mapped reformatted plane.
+  // in some cases you may only want the plane outline for example.
+  virtual void SetTextureVisibility(int);
+  vtkGetMacro(TextureVisibility,int);
+  vtkBooleanMacro(TextureVisibility,int);
+  
+  // Description:
   // Grab the polydata (including points) that defines the plane.  The
   // polydata consists of (res+1)*(res+1) points, and res*res quadrilateral
   // polygons, where res is the resolution of the plane. These point values
@@ -358,6 +365,9 @@ protected:
   vtkImagePlaneWidget();
   ~vtkImagePlaneWidget();
 
+  int TextureVisibility;
+  
+
 //BTX - manage the state of the widget
   int State;
   enum WidgetState
@@ -386,13 +396,13 @@ protected:
   void AddObservers();
 
   // ProcessEvents() dispatches to these methods.
-  void OnMouseMove();
-  void OnLeftButtonDown();
-  void OnLeftButtonUp();
-  void OnMiddleButtonDown();
-  void OnMiddleButtonUp();
-  void OnRightButtonDown();
-  void OnRightButtonUp();
+  virtual void OnMouseMove();
+  virtual void OnLeftButtonDown();
+  virtual void OnLeftButtonUp();
+  virtual void OnMiddleButtonDown();
+  virtual void OnMiddleButtonUp();
+  virtual void OnRightButtonDown();
+  virtual void OnRightButtonUp();
 
   // controlling ivars
   int   Interaction; // Is the widget responsive to mouse events  
