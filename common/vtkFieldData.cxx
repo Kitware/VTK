@@ -42,12 +42,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkFieldData.h"
 #include "vtkObjectFactory.h"
 
-vtkFieldData::Iterator::Iterator(vtkFieldData* dsa, 
-				 const int* list, 
-				 unsigned int listSize)
+vtkFieldData::BasicIterator::BasicIterator(const int* list, 
+					   unsigned int listSize)
 {
-  this->Fields = dsa;
-  dsa->Register(0);
   if (list)
     {
     if (listSize>0)
@@ -63,31 +60,42 @@ vtkFieldData::Iterator::Iterator(vtkFieldData* dsa,
     }
   else
     {
+    this->ListSize = 0;
+    }
+  this->Position = 0;
+}
+
+vtkFieldData::Iterator::Iterator(vtkFieldData* dsa, const int* list, 
+				 unsigned int listSize)
+  : vtkFieldData::BasicIterator(list, listSize)
+{
+  this->Fields = dsa;
+  dsa->Register(0);
+  if (!list)
+    {
     this->ListSize = dsa->GetNumberOfArrays();
     this->List = new int[this->ListSize];
     for(int i=0; i<this->ListSize; i++) { this->List[i] = i; }
     }
-  this->Position = 0;
   this->Detached = 0;
+}
+
+vtkFieldData::BasicIterator::BasicIterator()
+{
+  this->List  = 0;
+  this->ListSize = 0;
 }
 
 vtkFieldData::Iterator::Iterator()
 {
   this->Detached = 0;
-  this->List  = 0;
-  this->ListSize = 0;
   this->Fields = 0;
 }
 
-vtkFieldData::Iterator::Iterator(const vtkFieldData::Iterator& source)
+vtkFieldData::BasicIterator::BasicIterator(const vtkFieldData::BasicIterator& 
+					   source)
 {
-  this->Detached = source.Detached;
   this->ListSize = source.ListSize;
-  this->Fields = source.Fields;
-  if (this->Fields && !this->Detached)
-    {
-    this->Fields->Register(0);
-    }
 
   if (this->ListSize > 0)
     {
@@ -100,8 +108,19 @@ vtkFieldData::Iterator::Iterator(const vtkFieldData::Iterator& source)
     }
 }
 
-vtkFieldData::Iterator& vtkFieldData::Iterator::operator=(
-  const vtkFieldData::Iterator& source)
+vtkFieldData::Iterator::Iterator(const vtkFieldData::Iterator& source)
+  : vtkFieldData::BasicIterator(source)
+{
+  this->Detached = source.Detached;
+  this->Fields = source.Fields;
+  if (this->Fields && !this->Detached)
+    {
+    this->Fields->Register(0);
+    }
+}
+
+vtkFieldData::BasicIterator& vtkFieldData::BasicIterator::operator=(
+  const vtkFieldData::BasicIterator& source)
 {
   if (this == &source)
     {
@@ -109,16 +128,6 @@ vtkFieldData::Iterator& vtkFieldData::Iterator::operator=(
     }
   delete[] this->List;
   this->ListSize = source.ListSize;
-  if (this->Fields && !this->Detached)
-    {
-    this->Fields->UnRegister(0);
-    }
-  this->Fields = source.Fields;
-  this->Detached = source.Detached;
-  if (this->Fields && !this->Detached)
-    {
-    this->Fields->Register(0);
-    }
   if (this->ListSize > 0)
     {
     this->List = new int[this->ListSize];
@@ -131,13 +140,38 @@ vtkFieldData::Iterator& vtkFieldData::Iterator::operator=(
   return *this;
 }
 
+vtkFieldData::Iterator& vtkFieldData::Iterator::operator=(
+  const vtkFieldData::Iterator& source)
+{
+  if (this == &source)
+    {
+    return *this;
+    }
+  this->BasicIterator::operator=(source);
+  if (this->Fields && !this->Detached)
+    {
+    this->Fields->UnRegister(0);
+    }
+  this->Fields = source.Fields;
+  this->Detached = source.Detached;
+  if (this->Fields && !this->Detached)
+    {
+    this->Fields->Register(0);
+    }
+  return *this;
+}
+
+vtkFieldData::BasicIterator::~BasicIterator()
+{
+  delete[] this->List;
+}
+
 vtkFieldData::Iterator::~Iterator()
 {
   if (this->Fields && !this->Detached)
     {
     this->Fields->UnRegister(0);
     }
-  delete[] this->List;
 }
 
 void vtkFieldData::Iterator::DetachFieldData()
@@ -149,7 +183,7 @@ void vtkFieldData::Iterator::DetachFieldData()
     }
 }
 
-int vtkFieldData::Iterator::IsInList(int index)
+int vtkFieldData::BasicIterator::IsInList(int index)
 {
   for(int i=0; i<this->ListSize; i++)
     {

@@ -213,53 +213,62 @@ void vtkDataSetAttributes::CopyAllOff()
 // Deep copy of data (i.e., create new data arrays and
 // copy from input data). Note that attribute data is
 // not copied.
-void vtkDataSetAttributes::DeepCopy(vtkDataSetAttributes *pd)
+void vtkDataSetAttributes::DeepCopy(vtkFieldData *fd)
 {
   this->Initialize(); //free up memory
 
   // Invoke parent's DeepCopy with a default iterator
   // This will copy all the existing fields.
   // 
-  this->vtkFieldData::DeepCopy(pd);
+  this->vtkFieldData::DeepCopy(fd);
 
-  // Copy the active attributes from source
-  int index;
-  for(int attributeType=0; attributeType<NUM_ATTRIBUTES; attributeType++)
+  vtkDataSetAttributes* dsa = vtkDataSetAttributes::SafeDownCast(fd);
+  if (dsa)
     {
-    index = pd->AttributeIndices[attributeType];
+    // Copy the active attributes from source
+    int index;
+    for(int attributeType=0; attributeType<NUM_ATTRIBUTES; attributeType++)
+      {
+    index = dsa->AttributeIndices[attributeType];
     if (index != -1)
       {
-      this->SetActiveAttribute(pd->GetArrayName(index), attributeType);
+      this->SetActiveAttribute(dsa->GetArrayName(index), attributeType);
       }
-    this->CopyAttributeFlags[attributeType] = pd->CopyAttributeFlags[attributeType];
+    this->CopyAttributeFlags[attributeType] = dsa->CopyAttributeFlags[attributeType];
+      }
+    this->CopyFieldFlags(dsa);
     }
-  this->CopyFieldFlags(pd);
 }
 
 // Shallow copy of data (i.e., use reference counting).
-void vtkDataSetAttributes::ShallowCopy(vtkDataSetAttributes *pd)
+void vtkDataSetAttributes::ShallowCopy(vtkFieldData *fd)
 {
   // Invoke parent's shallow copy
-  this->vtkFieldData::ShallowCopy(pd);
+  this->vtkFieldData::ShallowCopy(fd);
 
-  // Copy the active attributes from source as well as the attribute
-  // data
-  int index;
-  for(int attributeType=0; attributeType<NUM_ATTRIBUTES; attributeType++)
+  vtkDataSetAttributes* dsa = vtkDataSetAttributes::SafeDownCast(fd);
+  if (dsa)
     {
-    index = pd->AttributeIndices[attributeType];
-    if (index != -1)
+    // Copy the active attributes from source as well as the attribute
+    // data
+    int index;
+    for(int attributeType=0; attributeType<NUM_ATTRIBUTES; attributeType++)
       {
-      this->SetActiveAttribute(pd->GetArrayName(index), attributeType);
-      this->Attributes[attributeType] = pd->Attributes[attributeType];
-      if (this->Attributes[attributeType])
-        {
-        this->Attributes[attributeType]->Register(this);
-        }
+      index = dsa->AttributeIndices[attributeType];
+      if (index != -1)
+	{
+	this->SetActiveAttribute(dsa->GetArrayName(index), attributeType);
+	this->Attributes[attributeType] = dsa->Attributes[attributeType];
+	if (this->Attributes[attributeType])
+	  {
+	  this->Attributes[attributeType]->Register(this);
+	  }
+	}
+      this->CopyAttributeFlags[attributeType] = 
+	dsa->CopyAttributeFlags[attributeType];
       }
-    this->CopyAttributeFlags[attributeType] = pd->CopyAttributeFlags[attributeType];
+    this->CopyFieldFlags(dsa);
     }
-  this->CopyFieldFlags(pd);
 }
 
 // Initialize all of the object's data to NULL
@@ -288,8 +297,8 @@ void vtkDataSetAttributes::Initialize()
 
 // This method is used to determine which arrays
 // will be copied to this object after PassData or PassNoReplaceData
-vtkFieldData::Iterator  vtkDataSetAttributes::ComputeRequiredArrays(
-                                              vtkDataSetAttributes* pd)
+vtkFieldData::BasicIterator  vtkDataSetAttributes::ComputeRequiredArrays(
+  vtkDataSetAttributes* pd)
 {
   // We need to do some juggling to find the number of arrays
   // which will be passed.
@@ -355,7 +364,7 @@ vtkFieldData::Iterator  vtkDataSetAttributes::ComputeRequiredArrays(
         }
       }
     }
-  vtkFieldData::Iterator it(pd, copyFlags, numArrays);
+  vtkFieldData::BasicIterator it(copyFlags, numArrays);
   delete[] copyFlags;
   return it;
 }
@@ -374,7 +383,7 @@ void vtkDataSetAttributes::PassData(vtkDataSetAttributes* pd)
   // 1> in the list of _fields_ to be copied or
   // 2> in the list of _attributes_ to be copied.
   // Note that NULL data arrays are not copied
-  vtkFieldData::Iterator it = this->ComputeRequiredArrays(pd);
+  vtkFieldData::BasicIterator it = this->ComputeRequiredArrays(pd);
 
   if ( it.GetListSize() > this->NumberOfArrays )
     {
@@ -396,9 +405,10 @@ void vtkDataSetAttributes::PassData(vtkDataSetAttributes* pd)
       }
     }
 
-  for(vtkDataArray* da=it.Begin(); !it.End(); da=it.Next())
+  int i;
+  for(i=it.BeginIndex(); !it.End(); i=it.NextIndex())
     {
-    this->AddArray(da);
+    this->AddArray(pd->GetArray(i));
     }
 
   int index;
@@ -458,13 +468,14 @@ void vtkDataSetAttributes::CopyAllocate(vtkDataSetAttributes* pd, int sze,
     this->TargetIndices[i] = -1;
     }
 
+  vtkDataArray* da=0;
   // If we are not copying on self
   if ( pd != this )
     {
-    vtkDataArray* da;
-    for(da=this->RequiredArrays.Begin(); !this->RequiredArrays.End(); 
-	da=this->RequiredArrays.Next())
+    for(i=this->RequiredArrays.BeginIndex(); !this->RequiredArrays.End(); 
+	i=this->RequiredArrays.NextIndex())
       {
+      da = pd->GetArray(i);
       newDA = da->MakeObject();
       newDA->SetName(da->GetName());
       if ( sze > 0 )
@@ -476,8 +487,7 @@ void vtkDataSetAttributes::CopyAllocate(vtkDataSetAttributes* pd, int sze,
 	newDA->Allocate(da->GetNumberOfTuples());
 	}
       newDA->SetLookupTable(da->GetLookupTable());
-      this->TargetIndices[this->RequiredArrays.GetCurrentIndex()] = 
-	this->AddArray(newDA);
+      this->TargetIndices[i] = this->AddArray(newDA);
       newDA->Delete();
       }
 
@@ -497,15 +507,12 @@ void vtkDataSetAttributes::CopyAllocate(vtkDataSetAttributes* pd, int sze,
     }
   else
     {
-    vtkDataArray* da;
-    int index;
-    this->RequiredArrays.DetachFieldData();
-    for(da=this->RequiredArrays.Begin(); !this->RequiredArrays.End(); 
-	da=this->RequiredArrays.Next())
+    for(i=this->RequiredArrays.BeginIndex(); !this->RequiredArrays.End(); 
+	i=this->RequiredArrays.NextIndex())
       {
+      da = pd->GetArray(i);
       da->Resize(sze);
-      index = this->RequiredArrays.GetCurrentIndex();
-      this->TargetIndices[index] = index;
+      this->TargetIndices[i] = i;
       }
     }
 }
@@ -542,12 +549,12 @@ void vtkDataSetAttributes::RemoveArray(int index)
 void vtkDataSetAttributes::CopyData(vtkDataSetAttributes* fromPd, int fromId, 
                                     int toId)
 {
-  vtkDataArray* da;
-  for(da=this->RequiredArrays.Begin(); !this->RequiredArrays.End(); 
-      da=this->RequiredArrays.Next())
+  int i;
+  for(i=this->RequiredArrays.BeginIndex(); !this->RequiredArrays.End(); 
+      i=this->RequiredArrays.NextIndex())
     {
-    this->CopyTuple(da, this->GetArray(
-      this->TargetIndices[this->RequiredArrays.GetCurrentIndex()]), fromId, toId);
+    this->CopyTuple(fromPd->Data[i], this->Data[this->TargetIndices[i]], 
+		    fromId, toId);
     }
 }
 
@@ -563,12 +570,12 @@ void vtkDataSetAttributes::InterpolatePoint(vtkDataSetAttributes *fromPd,
                                             int toId, vtkIdList *ptIds, 
                                             float *weights)
 {
-  vtkDataArray* da;
-  for(da=this->RequiredArrays.Begin(); !this->RequiredArrays.End(); 
-      da=this->RequiredArrays.Next())
+  int i;
+  for(i=this->RequiredArrays.BeginIndex(); !this->RequiredArrays.End(); 
+      i=this->RequiredArrays.NextIndex())
     {
-    this->InterpolateTuple(da, 
-                           this->GetArray(this->TargetIndices[this->RequiredArrays.GetCurrentIndex()]), 
+    this->InterpolateTuple(fromPd->Data[i], 
+			   this->Data[this->TargetIndices[i]], 
                            toId, ptIds, weights);
     }
 }
@@ -577,15 +584,15 @@ void vtkDataSetAttributes::InterpolatePoint(vtkDataSetAttributes *fromPd,
 // interpolation factor, t, along the edge. The weight ranges from (0,1), 
 // with t=0 located at p1. Make sure that the method InterpolateAllocate() 
 // has been invoked before using this method.
-void vtkDataSetAttributes::InterpolateEdge(vtkDataSetAttributes *fromPd, int toId,
-                                   int p1, int p2, float t)
+void vtkDataSetAttributes::InterpolateEdge(vtkDataSetAttributes *fromPd, 
+					   int toId, int p1, int p2, float t)
 {
-  vtkDataArray* da;
-  for(da=this->RequiredArrays.Begin(); !this->RequiredArrays.End(); 
-      da=this->RequiredArrays.Next())
+  int i;
+  for(i=this->RequiredArrays.BeginIndex(); !this->RequiredArrays.End(); 
+      i=this->RequiredArrays.NextIndex())
     {
-    this->InterpolateTuple(da, 
-                           this->GetArray(this->TargetIndices[this->RequiredArrays.GetCurrentIndex()]), 
+    this->InterpolateTuple(fromPd->Data[i], 
+			   this->Data[this->TargetIndices[i]], 
                            toId, p1, p2, t);
     }
 }

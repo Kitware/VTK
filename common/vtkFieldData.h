@@ -155,7 +155,7 @@ public:
 
   // Description:
   // Copy a field by creating new data arrays (i.e., duplicate storage).
-  void DeepCopy(vtkFieldData *da);
+  virtual void DeepCopy(vtkFieldData *da);
 
   // Description:
   // Copy a field by reference counting the data arrays.
@@ -339,33 +339,17 @@ protected:
 
 //BTX
 
-public:  
-  class VTK_EXPORT Iterator
+public:
+
+  class VTK_EXPORT BasicIterator
   {
   public:
+    BasicIterator();
+    BasicIterator(const BasicIterator& source);
+    BasicIterator(const int* list, unsigned int listSize);
+    BasicIterator& operator=(const BasicIterator& source);
+    virtual ~BasicIterator();
 
-    Iterator();
-    Iterator(const Iterator& source);
-    Iterator& operator=(const Iterator& source);
-    ~Iterator();
-    Iterator(vtkFieldData* dsa, const int* list=0, 
-	     unsigned int listSize=0);
-
-    vtkDataArray* Begin()
-      {
-	this->Position = -1;
-	return this->Next();
-      }
-    int End() const
-      {
-	return (this->Position >= this->ListSize);
-      }
-    vtkDataArray* Next()
-      {
-	this->Position++;
-	return (this->End() ? 0 : 
-		Fields->GetArray(this->List[this->Position]));
-      }
     int GetListSize() const
       {
 	return this->ListSize;
@@ -374,15 +358,56 @@ public:
       {
 	return this->List[this->Position];
       }
-
-    void DetachFieldData();
-
+    int BeginIndex()
+      {
+	this->Position = -1;
+	return this->NextIndex();
+      }
+    int End() const
+      {
+	return (this->Position >= this->ListSize);
+      }
+    int NextIndex()
+      {
+	this->Position++;
+	return (this->End() ? -1 : this->List[this->Position]);
+      }
+    
   protected:
     int IsInList(int index);
 
     int* List;
     int ListSize;
     int Position;
+  };
+
+  class VTK_EXPORT Iterator : public BasicIterator
+  {
+  public:
+
+    Iterator();
+    Iterator(const Iterator& source);
+    Iterator& operator=(const Iterator& source);
+    virtual ~Iterator();
+    Iterator(vtkFieldData* dsa, const int* list=0, 
+	     unsigned int listSize=0);
+
+    vtkDataArray* Begin()
+      {
+	this->Position = -1;
+	return this->Next();
+      }
+
+    vtkDataArray* Next()
+      {
+	this->Position++;
+	return (this->End() ? 0 : 
+		Fields->GetArray(this->List[this->Position]));
+      }
+
+    void DetachFieldData();
+
+  protected:
     vtkFieldData* Fields;
     int Detached;
   };

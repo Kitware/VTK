@@ -66,7 +66,7 @@ public:
   // Construct object with copying turned on for all data.
   static vtkDataSetAttributes *New();
   
-  vtkTypeMacro(vtkDataSetAttributes,vtkObject);
+  vtkTypeMacro(vtkDataSetAttributes,vtkFieldData);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -138,11 +138,11 @@ public:
   // Description:
   // Deep copy of data (i.e., create new data arrays and
   // copy from input data).
-  void DeepCopy(vtkDataSetAttributes *pd);
+  virtual void DeepCopy(vtkFieldData *pd);
 
   // Description:
   // Shallow copy of data (i.e., use reference counting).
-  void ShallowCopy(vtkDataSetAttributes *pd);
+  virtual void ShallowCopy(vtkFieldData *pd);
 
   // Description:
   // Set/Get the scalar data.
@@ -376,7 +376,7 @@ protected:
   int NumberOfFieldFlags; //the number of fields not to be copied
 
 //BTX
-  vtkFieldData::Iterator RequiredArrays;
+  vtkFieldData::BasicIterator RequiredArrays;
 //ETX
 
   int* TargetIndices;
@@ -395,7 +395,7 @@ private:
 
 //BTX
 
-  vtkFieldData::Iterator  ComputeRequiredArrays(vtkDataSetAttributes* pd);
+  vtkFieldData::BasicIterator  ComputeRequiredArrays(vtkDataSetAttributes* pd);
 
 //ETX
 
