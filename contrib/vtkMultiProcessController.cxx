@@ -356,6 +356,13 @@ void vtkMultiProcessController::TriggerRMI(int remoteProcessId, int rmiTag)
 {
   int message[2];
   
+  // Deal with sending RMI to ourself here for now.
+  if (remoteProcessId == this->LocalProcessId)
+    {
+    this->ProcessRMI(remoteProcessId, rmiTag);
+    return;
+    }
+
   // It is important for the remote process to know what process invoked it.
   // Multiple processes might try to invoke the method at the same time.
   // The remote method will know where to get additional args.
@@ -368,41 +375,13 @@ void vtkMultiProcessController::TriggerRMI(int remoteProcessId, int rmiTag)
 //----------------------------------------------------------------------------
 void vtkMultiProcessController::ProcessRMIs()
 {
-  vtkMultiProcessControllerRMI *rmi;
   int message[2];
-  int rmiTag, remoteProcessId, found;
   
   while (1)
     {
     this->Receive(message, 2, 
 		  VTK_MP_CONTROLLER_ANY_SOURCE, VTK_MP_CONTROLLER_RMI_TAG);
-    rmiTag = message[0];
-    remoteProcessId = message[1];
-    
-    // find the rmi
-    found = 0;
-    this->RMIs->InitTraversal();
-    while ( !found &&
-	   (rmi = (vtkMultiProcessControllerRMI*)(this->RMIs->GetNextItemAsObject())) )
-      {
-      if (rmi->Tag == rmiTag)
-	{
-	found = 1;
-	}
-      }
-    
-    if ( ! found)
-      {
-      vtkErrorMacro("Process " << this->LocalProcessId << 
-		    " Could not find RMI with tag " << rmiTag);
-      }
-    else
-      {
-      if ( rmi->Method )
-	{
-	(*rmi->Method)(rmi->Argument, remoteProcessId);
-	}     
-      }
+    this->ProcessRMI(message[1], message[0]);
     
     // check for break
     if (this->BreakFlag)
@@ -413,6 +392,36 @@ void vtkMultiProcessController::ProcessRMIs()
     }
 }
 
+//----------------------------------------------------------------------------
+void vtkMultiProcessController::ProcessRMI(int remoteProcessId, int rmiTag)
+{
+  vtkMultiProcessControllerRMI *rmi;
+  int found = 0;
+
+  // find the rmi
+  this->RMIs->InitTraversal();
+  while ( !found &&
+   (rmi = (vtkMultiProcessControllerRMI*)(this->RMIs->GetNextItemAsObject())) )
+    {
+    if (rmi->Tag == rmiTag)
+      {
+      found = 1;
+      }
+    }
+  
+  if ( ! found)
+    {
+    vtkErrorMacro("Process " << this->LocalProcessId << 
+		  " Could not find RMI with tag " << rmiTag);
+    }
+  else
+    {
+    if ( rmi->Method )
+      {
+      (*rmi->Method)(rmi->Argument, remoteProcessId);
+      }     
+    }
+}
 
 //----------------------------------------------------------------------------
 // Internal method.  Assumes responsibility for deleting the string
@@ -510,7 +519,6 @@ int vtkMultiProcessController::ReadObject(vtkObject *data)
 //----------------------------------------------------------------------------
 int vtkMultiProcessController::WriteImageData(vtkImageData *data)
 {
-  char *str;
   vtkImageClip *clip;
   vtkStructuredPointsWriter *writer;
   int *ext, size;

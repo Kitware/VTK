@@ -219,7 +219,7 @@ protected:
   // their update loop. (same as ProcessRMIs)
   int BreakFlag;
 
-// convenience method
+  // convenience method
   void DeleteAndSetMarshalString(char *str, int strLength);
   
   // Write and read from marshal string
@@ -241,6 +241,8 @@ protected:
   int WriteDataInformation(vtkDataInformation *info);
   int ReadDataInformation(vtkDataInformation *info);
 
+  void ProcessRMI(int remoteProcessId, int rmiTag);
+
   float ReadTime;
   float WriteTime;
 
@@ -253,5 +255,12 @@ protected:
 
 
 #endif
+
+
+
+
+
+
+
 
 
