@@ -28,8 +28,8 @@ class vtkTkRenderWidget(Tkinter.Widget):
     generate a stereo-capable window.
     """
     def __init__(self, master, cnf={}, **kw):
-        try: # check for VTK_WIDGET_PATH environment variable
-	    tkWidgetPath = os.environ['VTK_WIDGET_PATH']
+        try: # check for VTK_TK_WIDGET_PATH environment variable
+	    tkWidgetPath = os.environ['VTK_TK_WIDGET_PATH']
         except KeyError:
             tkWidgetPath = "."
 
@@ -216,6 +216,7 @@ class vtkTkRenderWidget(Tkinter.Widget):
     def Zoom(self,x,y):
         if self.__RendererFound:
 
+            renderer = self.__CurrentRenderer
             camera = self.__CurrentCamera
 
             zoomFactor = math.pow(1.02,(0.5*(y - self.__LastY)))
@@ -224,10 +225,8 @@ class vtkTkRenderWidget(Tkinter.Widget):
                 parallelScale = camera.GetParallelScale() * zoomFactor
                 camera.SetParallelScale(parallelScale)
             else:
-                (minRange,maxRange) = camera.GetClippingRange() 
-                camera.SetClippingRange(minRange/zoomFactor,
-                                        maxRange/zoomFactor)
                 camera.Dolly(zoomFactor)
+                renderer.ResetCameraClippingRange()
 
             self.__LastX = x
             self.__LastY = y
