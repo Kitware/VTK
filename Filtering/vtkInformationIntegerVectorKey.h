@@ -52,6 +52,12 @@ protected:
   // The required length of the vector value (-1 is no restriction).
   int RequiredLength;
 
+  // Description:
+  // Get the address at which the actual value is stored.  This is
+  // meant for use from a debugger to add watches and is therefore not
+  // a public method.
+  int* GetWatchAddress(vtkInformation* info);
+
 private:
   vtkInformationIntegerVectorKey(const vtkInformationIntegerVectorKey&);  // Not implemented.
   void operator=(const vtkInformationIntegerVectorKey&);  // Not implemented.

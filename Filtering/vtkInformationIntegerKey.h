@@ -44,6 +44,13 @@ public:
   // object for this key, the value is removed from the second.
   virtual void Copy(vtkInformation* from, vtkInformation* to);
 
+protected:
+  // Description:
+  // Get the address at which the actual value is stored.  This is
+  // meant for use from a debugger to add watches and is therefore not
+  // a public method.
+  int* GetWatchAddress(vtkInformation* info);
+
 private:
   vtkInformationIntegerKey(const vtkInformationIntegerKey&);  // Not implemented.
   void operator=(const vtkInformationIntegerKey&);  // Not implemented.
