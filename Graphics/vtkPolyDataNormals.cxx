@@ -389,6 +389,10 @@ void vtkPolyDataNormals::Execute()
   output->SetPolys(newPolys);
   newPolys->Delete();
 
+  // copy the original vertices and lines to the output
+  output->SetVerts(input->GetVerts());
+  output->SetLines(input->GetLines());
+                   
   this->OldMesh->Delete();
   this->NewMesh->Delete();
 }
