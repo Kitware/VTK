@@ -84,7 +84,7 @@ void vtkPiecewiseFunction::Initialize()
 {
   if ( this->Function)
     {
-    delete this->Function;
+    delete [] this->Function;
     }
 
   this->ArraySize     	 = 64;
