@@ -92,7 +92,8 @@ LDLIBS = -L../common -lVTKCommonTcl ${USE_GRAPHICS_LIBS}	\
 				    ${USE_PATENTED_LIBS}		\
 				    ${XLIBS} ${OGLR_LIBS} ${GLR_LIBS} \
 				    ${SBR_LIBS} ${XGLR_LIBS} \
-				    ${TK_LIB} ${TCL_LIB} ${DL_LIBS}
+				    ${TK_LIB} ${TCL_LIB} ${DL_LIBS} \
+				    @THREAD_LIBS@
 
 CXX_FLAGS = ${CPPFLAGS} ${VTK_SHLIB_CFLAGS} ${XCFLAGS} ${CXXFLAGS} \
 	${VTK_INLINE_FLAGS} ${VTK_TEMPLATE_FLAGS} -I${srcdir} \
@@ -132,7 +133,7 @@ vtk: 	Makefile tkAppInit.o ${COMMON_DEPENDS} ${USE_GRAPHICS_DEPENDS} \
 	${USE_GEMSIO_DEPENDS} ${USE_GEMSVOLUME_DEPENDS} \
 	${USE_PATENTED_DEPENDS}
 	$(CXX) -o vtk tkAppInit.o \
-	-L. ${XLDFLAGS} ${LDLIBS} \
+	-L. @VTK_SHLIB_LINK_FLAGS@ ${XLDFLAGS} ${LDLIBS} \
 	${XLIBS} -lXext ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
 
 
