@@ -378,3 +378,79 @@ void vtkTetra::Derivatives(int subId, float pcoords[3], float *values,
 
 }
 
+// Description:
+// Compute the center of the tetrahedron,
+void vtkTetra::TetraCenter(float p1[3], float p2[3], float p3[3],
+                           float p4[3], float center[3])
+{
+  center[0] = (p1[0]+p2[0]+p3[0]+p4[0]) / 4.0;
+  center[1] = (p1[1]+p2[1]+p3[1]+p4[1]) / 4.0;
+  center[2] = (p1[2]+p2[2]+p3[2]+p4[2]) / 4.0;
+}
+
+#define VTK_DOT(x,y) x[0]*y[0] + x[1]*y[1] + x[2]*y[2]
+
+// Description:
+// Compute the circumcenter (center[3]) and radius (method return value) of
+// a tetrahedron defined by the four points x1, x2, x3, and x4.
+float vtkTetra::Circumsphere(float  x1[3], float x2[3], float x3[3], 
+                             float x4[3], float center[3])
+{
+  double n12[3], n13[3], n14[3], x12[3], x13[3], x14[3];
+  double *A[3], rhs[3], sum, diff;
+  int i;
+  static vtkMath math;
+//
+//  calculate normals and intersection points of bisecting planes.  
+//
+  for (i=0; i<3; i++) 
+    {
+    n12[i] = x2[i] - x1[i];
+    n13[i] = x3[i] - x1[i];
+    n14[i] = x4[i] - x1[i];
+    x12[i] = (x2[i] + x1[i]) / 2.0;
+    x13[i] = (x3[i] + x1[i]) / 2.0;
+    x14[i] = (x4[i] + x1[i]) / 2.0;
+    }
+//
+//  Compute solutions to the intersection of two bisecting lines
+//  (3-eqns. in 3-unknowns).
+//
+//  form system matrices
+//
+  A[0] = n12;
+  A[1] = n13;
+  A[2] = n14;
+
+  rhs[0] = VTK_DOT(n12,x12); 
+  rhs[1] = VTK_DOT(n13,x13);
+  rhs[2] = VTK_DOT(n14,x14);
+//
+// Solve system of equations
+//
+  if ( math.SolveLinearSystem(A,rhs,3) == 0 )
+    {
+    center[0] = center[1] = center[2] = 0.0;
+    return VTK_LARGE_FLOAT;
+    }
+  else
+    {
+    for (i=0; i<3; i++) center[i] = rhs[i];
+    }
+
+  //determine average value of radius squared
+  for (sum=0, i=0; i<3; i++) 
+    {
+    diff = x1[i] - rhs[i];
+    sum += diff*diff;
+    diff = x2[i] - rhs[i];
+    sum += diff*diff;
+    diff = x3[i] - rhs[i];
+    sum += diff*diff;
+    diff = x4[i] - rhs[i];
+    sum += diff*diff;
+    }
+
+  return (float)(sum / 4.0);
+}
+#undef VTK_DOT
