@@ -1,3 +1,5 @@
+catch {load vtktcl}
+
 # Create dashed streamlines
 
 source ../../examplesTcl/vtkInt.tcl
