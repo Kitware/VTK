@@ -179,7 +179,7 @@ void GetIncludes(DEPENDS_STRUCT *dependsEntry, const char *vtkHome )
   IS = new ifstream(dependsEntry->name);
 
   // search for includes
-  while (!IS->eof())
+  while (!IS->eof() && !IS->fail())
     {
     IS->getline(line,255);
     // do we have an include
