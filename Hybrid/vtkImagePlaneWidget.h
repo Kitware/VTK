@@ -300,7 +300,7 @@ public:
   // alternatively, to the lut of another vtkImgePlaneWidget.  In this way,
   // a set of three orthogonal planes can share the same lut so that
   // window-levelling is performed uniformly among planes.  The default
-  // internal lut can be re-set/allocated by setting to 0 (NULL).
+  // internal lut can be re- set/allocated by setting to 0 (NULL).
   virtual void SetLookupTable(vtkLookupTable*);
   vtkGetObjectMacro(LookupTable,vtkLookupTable);
 
@@ -391,8 +391,6 @@ protected:
   float CurrentLevel;
   int   ResliceInterpolate;
   int   TextureInterpolate;
-  int   UserPickerEnabled;
-  int   UserLookupTableEnabled;
   int   UserControlledLookupTable;
   int   DisplayText;
 
@@ -426,9 +424,10 @@ protected:
   vtkTextureMapToPlane *TexturePlaneCoords;
   vtkDataSetMapper     *TexturePlaneMapper;
   vtkActor             *TexturePlaneActor;
-  vtkLookupTable       *LookupTable;
   vtkImageMapToColors  *ColorMap;
   vtkTexture           *Texture;
+  vtkLookupTable       *LookupTable;
+  vtkLookupTable       *CreateDefaultLookupTable();
 
   // Properties used to control the appearance of selected objects and
   // the manipulator in general.  The plane property is actually that for

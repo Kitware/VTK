@@ -44,7 +44,7 @@
 #include "vtkTextureMapToPlane.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.57");
+vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.58");
 vtkStandardNewMacro(vtkImagePlaneWidget);
 
 vtkCxxSetObjectMacro(vtkImagePlaneWidget, PlaneProperty, vtkProperty);
@@ -67,8 +67,6 @@ vtkImagePlaneWidget::vtkImagePlaneWidget() : vtkPolyDataSourceWidget()
   this->CurrentLevel             = 0.5;
   this->TextureInterpolate       = 1;
   this->ResliceInterpolate       = VTK_LINEAR_RESLICE;
-  this->UserPickerEnabled        = 0;
-  this->UserLookupTableEnabled   = 0;
   this->UserControlledLookupTable= 0;
   this->DisplayText              = 0;
   this->CurrentCursorPosition[0] = 0;
@@ -85,12 +83,9 @@ vtkImagePlaneWidget::vtkImagePlaneWidget() : vtkPolyDataSourceWidget()
   this->PlaneOutlinePolyData = vtkPolyData::New();
   this->PlaneOutlineMapper   = vtkPolyDataMapper::New();
   this->PlaneOutlineActor    = vtkActor::New();
-  this->PlaneOutlineActor->PickableOff();
-  this->PlaneOutlineActor->GetProperty()->SetRepresentationToWireframe();
 
   // Represent the resliced image plane
   //
-  this->LookupTable        = vtkLookupTable::New();
   this->ColorMap           = vtkImageMapToColors::New();
   this->Reslice            = vtkImageReslice::New();
   this->ResliceAxes        = vtkMatrix4x4::New();
@@ -100,6 +95,7 @@ vtkImagePlaneWidget::vtkImagePlaneWidget() : vtkPolyDataSourceWidget()
   this->TexturePlaneActor  = vtkActor::New();
   this->Transform          = vtkTransform::New();
   this->ImageData          = 0;
+  this->LookupTable        = 0;
 
   // Represent the cross hair cursor
   //
@@ -144,6 +140,8 @@ vtkImagePlaneWidget::vtkImagePlaneWidget() : vtkPolyDataSourceWidget()
   this->PlanePicker->SetTolerance(0.005); //need some fluff
   this->PlanePicker->AddPickList(this->TexturePlaneActor);
   this->PlanePicker->PickFromListOn();
+  this->PlanePicker->Register(this);
+  this->PlanePicker->Delete();
 
   // Set up the initial properties
   //
@@ -162,13 +160,9 @@ vtkImagePlaneWidget::~vtkImagePlaneWidget()
   this->PlaneOutlinePolyData->Delete();
   this->PlaneSource->Delete();
 
-  if ( !this->UserPickerEnabled )
+  if ( this->PlanePicker )
     {
-    this->PlanePicker->Delete();
-    }
-  else
-    {
-    this->PlanePicker = 0;
+    this->PlanePicker->UnRegister(this);
     }
 
   if ( this->PlaneProperty )
@@ -195,13 +189,9 @@ vtkImagePlaneWidget::~vtkImagePlaneWidget()
   this->Transform->Delete();
   this->Reslice->Delete();
 
-  if ( !this->UserLookupTableEnabled )
+  if ( this->LookupTable )
     {
-    this->LookupTable->Delete();
-    }
-  else
-    {
-    this->LookupTable = 0;
+    this->LookupTable->UnRegister(this);
     }
 
   this->TexturePlaneCoords->Delete();
@@ -427,7 +417,8 @@ void vtkImagePlaneWidget::PrintSelf(ostream& os, vtkIndent indent)
 
   if ( this->PlaneProperty )
     {
-    os << indent << "Plane Property: " << this->PlaneProperty << "\n";
+    os << indent << "Plane Property:\n";
+    this->PlaneProperty->PrintSelf(os,indent.GetNextIndent());
     }
   else
     {
@@ -436,8 +427,8 @@ void vtkImagePlaneWidget::PrintSelf(ostream& os, vtkIndent indent)
 
   if ( this->SelectedPlaneProperty )
     {
-    os << indent << "Selected Plane Property: "
-       << this->SelectedPlaneProperty << "\n";
+    os << indent << "Selected Plane Property:\n";
+    this->SelectedPlaneProperty->PrintSelf(os,indent.GetNextIndent());
     }
   else
     {
@@ -446,8 +437,8 @@ void vtkImagePlaneWidget::PrintSelf(ostream& os, vtkIndent indent)
 
   if ( this->LookupTable )
     {
-    os << indent << "LookupTable: "
-       << this->LookupTable << "\n";
+    os << indent << "LookupTable:\n";
+    this->LookupTable->PrintSelf(os,indent.GetNextIndent());
     }
   else
     {
@@ -456,8 +447,8 @@ void vtkImagePlaneWidget::PrintSelf(ostream& os, vtkIndent indent)
 
   if ( this->CursorProperty )
     {
-    os << indent << "Cursor Property: "
-       << this->CursorProperty << "\n";
+    os << indent << "Cursor Property:\n";
+    this->CursorProperty->PrintSelf(os,indent.GetNextIndent());
     }
   else
     {
@@ -466,8 +457,8 @@ void vtkImagePlaneWidget::PrintSelf(ostream& os, vtkIndent indent)
 
   if ( this->MarginProperty )
     {
-    os << indent << "Margin Property: "
-       << this->MarginProperty << "\n";
+    os << indent << "Margin Property:\n";
+    this->MarginProperty->PrintSelf(os,indent.GetNextIndent());
     }
   else
     {
@@ -476,8 +467,8 @@ void vtkImagePlaneWidget::PrintSelf(ostream& os, vtkIndent indent)
 
   if ( this->TexturePlaneProperty )
     {
-    os << indent << "TexturePlane Property: "
-       << this->TexturePlaneProperty << "\n";
+    os << indent << "TexturePlane Property:\n";
+    this->TexturePlaneProperty->PrintSelf(os,indent.GetNextIndent());
     }
   else
     {
@@ -500,15 +491,15 @@ void vtkImagePlaneWidget::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Plane Orientation: " << this->PlaneOrientation << "\n";
   os << indent << "Reslice Interpolate: " << this->ResliceInterpolate << "\n";
-  os << indent << "Texture Interpolate: " 
+  os << indent << "Texture Interpolate: "
      << (this->TextureInterpolate ? "On\n" : "Off\n") ;
-  os << indent << "Restrict Plane To Volume: " 
+  os << indent << "Restrict Plane To Volume: "
      << (this->RestrictPlaneToVolume ? "On\n" : "Off\n") ;
   os << indent << "Display Text: "
      << (this->DisplayText ? "On\n" : "Off\n") ;
   os << indent << "Interaction: "
      << (this->Interaction ? "On\n" : "Off\n") ;
-  os << indent << "User Controlled Lookup Table: " 
+  os << indent << "User Controlled Lookup Table: "
      << (this->UserControlledLookupTable ? "On\n" : "Off\n") ;
 }
 
@@ -873,11 +864,6 @@ void vtkImagePlaneWidget::OnMouseMove()
 
 void vtkImagePlaneWidget::WindowLevel(int X, int Y)
 {
-  if ( ! this->LookupTable )
-    {
-    return;
-    }
-
   float range[2];
   this->LookupTable->GetTableRange(range);
   float window = range[1] - range[0];
@@ -1419,77 +1405,64 @@ void vtkImagePlaneWidget::SetResliceInterpolate(int i)
 
 void vtkImagePlaneWidget::SetPicker(vtkCellPicker* picker)
 {
-  if ( this->UserPickerEnabled )
+  if (this->PlanePicker != picker)
     {
+    // to avoid destructor recursion
+    vtkCellPicker *temp = this->PlanePicker;
     this->PlanePicker = picker;
-    if (picker == 0 ) //reset and allocate an internal picker
+    if (temp != 0)
       {
-      this->PlanePicker = vtkCellPicker::New();
-      this->UserPickerEnabled = 0;
+      temp->UnRegister(this);
+      }
+    if (this->PlanePicker != 0)
+      {
+      this->PlanePicker->Register(this);
+      this->PlanePicker->SetTolerance(0.005); //need some fluff
+      this->PlanePicker->AddPickList(this->TexturePlaneActor);
+      this->PlanePicker->PickFromListOn();
       }
     }
-  else
-    {
-    if (picker != 0 )
-      {
-      this->PlanePicker->Delete();
-      this->PlanePicker = picker;
-      this->UserPickerEnabled = 1;
-      }
-    else
-      {
-      return;
-      }
-    }
+}
 
-  this->PlanePicker->SetTolerance(0.005); //need some fluff
-  this->PlanePicker->AddPickList(this->TexturePlaneActor);
-  this->PlanePicker->PickFromListOn();
+vtkLookupTable* vtkImagePlaneWidget::CreateDefaultLookupTable()
+{
+  vtkLookupTable* lut = vtkLookupTable::New();
+  lut->Register(this);
+  lut->Delete();
+  lut->SetNumberOfColors( 256);
+  lut->SetHueRange( 0, 0);
+  lut->SetSaturationRange( 0, 0);
+  lut->SetValueRange( 0 ,1);
+  lut->SetAlphaRange( 1, 1);
+  lut->Build();
+  return lut;
 }
 
 void vtkImagePlaneWidget::SetLookupTable(vtkLookupTable* table)
 {
-  if ( this->UserLookupTableEnabled )
+  if (this->LookupTable != table)
     {
+    // to avoid destructor recursion
+    vtkLookupTable *temp = this->LookupTable;
     this->LookupTable = table;
-    if ( table == 0 ) //reset and allocate an internal lut
+    if (temp != 0)
       {
-      this->LookupTable = vtkLookupTable::New();
-      this->UserLookupTableEnabled = 0;
+      temp->UnRegister(this);
       }
-    }
-  else
-    {
-    if ( table != 0 )
+    if (this->LookupTable != 0)
       {
-      this->LookupTable->Delete();
-      this->LookupTable = table;
-      this->UserLookupTableEnabled = 1;
+      this->LookupTable->Register(this);
       }
-    else
+    else  //create a default lut
       {
-      return;
+      this->LookupTable = this->CreateDefaultLookupTable();
       }
     }
 
-  if (!this->UserControlledLookupTable)
-    {
-    this->LookupTable->SetNumberOfColors( 256);
-    this->LookupTable->SetHueRange( 0, 0);
-    this->LookupTable->SetSaturationRange( 0, 0);
-    this->LookupTable->SetValueRange( 0 ,1);
-    this->LookupTable->SetAlphaRange( 1, 1);
-    this->LookupTable->Build();
-    }
   this->ColorMap->SetLookupTable(this->LookupTable);
   this->Texture->SetLookupTable(this->LookupTable);
 
-  if( !this->ImageData )
-    {
-    return;
-    }
-
-  if (!this->UserControlledLookupTable)
+  if( this->ImageData && !this->UserControlledLookupTable)
     {
     float range[2];
     this->ImageData->GetScalarRange(range);
@@ -2228,16 +2201,9 @@ void vtkImagePlaneWidget::GeneratePlaneOutline()
 
 void vtkImagePlaneWidget::GenerateTexturePlane()
 {
-  if (!this->UserControlledLookupTable)
-    {
-    this->LookupTable->SetNumberOfColors( 256);
-    this->LookupTable->SetHueRange( 0, 0);
-    this->LookupTable->SetSaturationRange( 0, 0);
-    this->LookupTable->SetValueRange( 0 ,1);
-    this->LookupTable->SetAlphaRange( 1, 1);
-    this->LookupTable->Build();
-    }
   this->SetResliceInterpolate(this->ResliceInterpolate);
+
+  this->LookupTable = this->CreateDefaultLookupTable();
 
   this->ColorMap->SetLookupTable(this->LookupTable);
   this->ColorMap->SetOutputFormatToRGBA();
