@@ -50,6 +50,7 @@ vtkImageToStructuredPoints::vtkImageToStructuredPoints()
   this->InputMemoryLimit = 50000000;  // A very big image indeed.
   this->SetSplitOrder(VTK_IMAGE_TIME_AXIS, VTK_IMAGE_Z_AXIS,
 		      VTK_IMAGE_Y_AXIS, VTK_IMAGE_X_AXIS);
+  this->Coordinate3 = 0;
 }
 
 
@@ -122,13 +123,21 @@ void vtkImageToStructuredPoints::Execute()
   // Determine the bounds of the region we are converting
   if (this->WholeImage)
     {
-    region->GetImageBounds3d(regionBounds);
+    region->GetImageBounds4d(regionBounds);
+    if (this->Coordinate3<regionBounds[6] || this->Coordinate3>regionBounds[7])
+      {
+      vtkWarningMacro(<< "Coordinate3 = " << this->Coordinate3 
+              << ", is not in bounds [" << regionBounds[6] << ", "
+              << regionBounds[7] << "]. Using value "<< regionBounds[6]);
+      this->Coordinate3 = regionBounds[6];
+      }
     }
   else
     {
-    this->Region.GetBounds3d(regionBounds);
+    this->Region.GetBounds4d(regionBounds);
     }
-  regionBounds[6] = regionBounds[7] = this->Region.GetDefaultCoordinate3();
+  // make sure last axis has only one sample.
+  regionBounds[6] = regionBounds[7] = this->Coordinate3;
   region->SetBounds4d(regionBounds);
 
   // Update the data for the region.

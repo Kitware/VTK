@@ -80,8 +80,6 @@ public:
   void GetBounds(int *bounds){this->Region.GetBounds3d(bounds);};
   void GetBounds(int &min0,int &max0,int &min1,int &max1,int &min2,int &max2)
   {this->Region.GetBounds3d(min0,max0,min1,max1,min2,max2);};
-  void SetDefaultCoordinate3(int v)
-  {this->Region.SetDefaultCoordinate3(v); this->Modified();};
 
   // Description:
   // Set the coordinate system which determines how bounds are interpreted.
@@ -101,14 +99,21 @@ public:
   {this->SplitOrder.SetAxes4d(axis0,axis1,axis2,axis3);};
   
   // Description:
+  // This object will stream to keep the input regions below this limit.
   vtkSetMacro(InputMemoryLimit,int);
   vtkGetMacro(InputMemoryLimit,int);
+
+  // Description:
+  // Which coordinate to use for the fourth dimension. (slice)
+  vtkSetMacro(Coordinate3,int);
+  vtkGetMacro(Coordinate3,int);
   
   void Update();
   
 protected:
   vtkImageSource *Input;
   int WholeImage;
+  int Coordinate3;
   vtkImageRegion Region;
   vtkImageRegion SplitOrder;
   int InputMemoryLimit;
