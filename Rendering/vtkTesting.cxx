@@ -27,12 +27,53 @@
 #include "vtkTimerLog.h"
 #include "vtkSmartPointer.h"
 #include "vtkImageClip.h"
-#include "vtkTestUtilities.h"
+#include "vtkToolkits.h"
 #include <sys/stat.h>
 
 vtkStandardNewMacro(vtkTesting);
-vtkCxxRevisionMacro(vtkTesting, "1.22");
+vtkCxxRevisionMacro(vtkTesting, "1.23");
 vtkCxxSetObjectMacro(vtkTesting, RenderWindow, vtkRenderWindow);
+
+
+char* vtkTestingGetArgOrEnvOrDefault(const char* arg, 
+                                     int argc, char* argv[], 
+                                     const char* env, 
+                                     const char *def)
+{
+  int index = -1;
+  
+  for (int i = 0; i < argc; i++)
+    {
+    if (strcmp(arg, argv[i]) == 0 && i < argc - 1)
+      {
+      index = i + 1;
+      }
+    }
+
+  char* value;
+
+  if (index != -1) 
+    {
+    value = new char[strlen(argv[index]) + 1];
+    strcpy(value, argv[index]);
+    }
+  else 
+    {
+    char *foundenv = getenv(env);
+    if (foundenv)
+      {
+      value = new char[strlen(foundenv) + 1];
+      strcpy(value, foundenv);
+      }
+    else
+      {
+      value = new char[strlen(def) + 1];
+      strcpy(value, def);
+      }
+    }
+  
+  return value;
+} 
 
 vtkTesting::vtkTesting()
 {
@@ -80,9 +121,16 @@ const char *vtkTesting::GetDataRoot()
       }
     }
 
-  char *dr = vtkTestUtilities::GetArgOrEnvOrDefault(
+#ifdef VTK_DATA_ROOT 
+  char *dr = vtkTestingGetArgOrEnvOrDefault(
+    "-D", this->Args.size(), argv, "VTK_DATA_ROOT", 
+    VTK_DATA_ROOT);
+#else
+  char *dr = vtkTestingGetArgOrEnvOrDefault(
     "-D", this->Args.size(), argv, "VTK_DATA_ROOT", 
     "../../../../VTKData");
+#endif
+  
   this->SetDataRoot(dr);
   delete [] dr;
   
@@ -109,7 +157,7 @@ const char *vtkTesting::GetTempDirectory()
       argv[i] = strdup(this->Args[i].c_str());
       }
     }
-  char *td = vtkTestUtilities::GetArgOrEnvOrDefault(
+  char *td = vtkTestingGetArgOrEnvOrDefault(
       "-T", this->Args.size(), argv, "VTK_TEMP_DIR", 
       "../../../Testing/Temporary");
   this->SetTempDirectory(td);
@@ -145,7 +193,7 @@ const char *vtkTesting::GetValidImageFileName()
       }
     }
   
-  char * baseline = vtkTestUtilities::GetArgOrEnvOrDefault(
+  char * baseline = vtkTestingGetArgOrEnvOrDefault(
     "-B", this->Args.size(), argv, 
     "VTK_BASELINE_ROOT", this->GetDataRoot());
   vtkstd::string viname = baseline;
@@ -329,7 +377,7 @@ int vtkTesting::RegressionTest(vtkImageData* image, double thresh, ostream& os)
     char* vImage = new char[strlen(tmpDir) + validName.size() + 30];
     sprintf(vImage, "%s/%s", tmpDir, validName.c_str());
     vtkPNGWriter *rt_pngw = vtkPNGWriter::New();
-    rt_pngw->SetFileName(vImage);
+    rt_pngw->SetFileName(this->ValidImageFileName);
     rt_pngw->SetInput(image);
     rt_pngw->Write();
     rt_pngw->Delete();
