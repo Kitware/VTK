@@ -50,6 +50,11 @@ vtkPiecewiseFunction::vtkPiecewiseFunction()
   this->FunctionSize  	 = 0;
   this->FunctionRange[0] = 0;
   this->FunctionRange[1] = 0;
+
+  for (int i=0; i < this->ArraySize*2; i++)
+    {
+    this->Function[i] = 0.0;
+    }
 }
 
 // Destruct a vtkPiecewiseFunction
@@ -93,6 +98,11 @@ void vtkPiecewiseFunction::Initialize()
   this->FunctionSize  	 = 0;
   this->FunctionRange[0] = 0;
   this->FunctionRange[1] = 0;
+
+  for (int i=0; i < this->ArraySize*2; i++)
+    {
+    this->Function[i] = 0.0;
+    }
 }
 
 
