@@ -46,18 +46,6 @@
 // direction) for achieving this effect is provided by the
 // ImagePlaneWidgets.
 //
-// .SECTION Caveats
-// Since the displayed image is placed at a depth corresponding to the
-// z-coordinate of the particular image slice, you should reset the
-// camera clipping planes after each call to SetZSlice() to avoid
-// unintentional clipping of the image data, i.e.
-// 
-// viewer->SetZSlice( slice );
-// viewer->GetRenderer()->ResetCameraClippingRange();
-//
-// If you do not call ResetCameraClippingRange() on the viewer's
-// renderer, the viewer may show a blank image at some ZSlice
-// settings.
 
 // .SECTION See Also
 // vtkRenderWindow vtkRenderer vtkImageActor vtkImageMapToWindowLevelColors
