@@ -1,5 +1,6 @@
 package require vtk
 package require vtkinteraction
+package require vtkCSCSBase
 
 vtkRenderer ren1
 vtkRenderWindow renWin
@@ -16,7 +17,9 @@ vtkActor model
   [model GetProperty] SetColor 1 0 0
   model VisibilityOn
 
-set locators "vtkPointLocator vtkCellLocator vtkOBBTree"
+set locators "vtkOBBTree"
+#set locators "vtkPointLocator vtkCellLocator vtkOBBTree"
+
 set i 1
 foreach locator $locators {
 $locator locator$i
@@ -39,19 +42,20 @@ vtkActor boxActor$i
 #
 ren1 AddActor model
 ren1 SetBackground 0.1 0.2 0.4
-renWin SetSize 400 160
+renWin SetSize 200 160
 
 # render the image
 #
 iren AddObserver UserEvent {wm deiconify .vtkInteract}
 vtkCamera camera
-  camera SetPosition 148.579 136.352 214.961 
-  camera SetFocalPoint 151.889 86.3178 223.333 
+  camera SetPosition 148.579 106.352 214.961
+  camera SetFocalPoint 151.889 86.3178 223.333
   camera SetViewAngle 30
   camera SetViewUp 0 0 -1
   camera SetClippingRange 1 100
 ren1 SetActiveCamera camera
 renWin Render
+ren1 ResetCamera
 iren Initialize
 
 # prevent the tk window from showing up then start the event loop

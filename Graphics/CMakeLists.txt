@@ -133,6 +133,7 @@ vtkReflectionFilter.cxx
 vtkReverseSense.cxx
 vtkRibbonFilter.cxx
 vtkRotationalExtrusionFilter.cxx
+vtkRotationFilter.cxx
 vtkRuledSurfaceFilter.cxx
 vtkSelectPolyData.cxx
 vtkShrinkFilter.cxx

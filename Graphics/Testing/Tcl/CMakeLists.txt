@@ -148,6 +148,7 @@ IF (VTK_USE_RENDERING)
       TestQuadricClustering
       TestRectilinearGridToTetrahedra
       testReflect
+      TestRotate
       TestRuledSurface
       TestRuledSurface2
       TestSpherePuzzle
