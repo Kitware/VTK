@@ -173,6 +173,9 @@ void vtkProbeFilter::Execute()
 //----------------------------------------------------------------------------
 void vtkProbeFilter::ExecuteInformation()
 {
+  // Copy whole extent ...
+  this->vtkSource::ExecuteInformation();
+
   if (this->GetInput() == NULL || this->GetSource() == NULL)
     {
     vtkErrorMacro("Missing input or source");
