@@ -163,7 +163,7 @@ protected:
 //BTX
   enum VectorModes {
     MAGNITUDE=0,
-    COMPONENT=1,
+    COMPONENT=1
   };
 //ETX
 
