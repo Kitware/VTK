@@ -62,6 +62,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkCuller.h"
 
+#define VTK_CULLER_SORT_NONE          0
+#define VTK_CULLER_SORT_FRONT_TO_BACK 1
+#define VTK_CULLER_SORT_BACK_TO_FRONT 2
+
 class vtkProp;
 class vtkRenderer;
 
@@ -87,6 +91,21 @@ public:
   vtkGetMacro( MaximumCoverage, float );
 
   // Description:
+  // Set the sorting style - none, front-to-back or back-to-front
+  // The default is none
+  vtkSetClampMacro( SortingStyle, int,
+	VTK_CULLER_SORT_NONE, VTK_CULLER_SORT_BACK_TO_FRONT );
+  vtkGetMacro(SortingStyle,int);
+  void SetSortingStyleToNone()
+	{this->SetSortingStyle(VTK_CULLER_SORT_NONE);};
+  void SetSortingStyleToBackToFront()
+    {this->SetSortingStyle(VTK_CULLER_SORT_BACK_TO_FRONT);};
+  void SetSortingStyleToFrontToBack()
+    {this->SetSortingStyle(VTK_CULLER_SORT_FRONT_TO_BACK);};
+  char *GetSortingStyleAsString(void);
+
+//BTX
+  // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
   // DO NOT USE THESE METHODS OUTSIDE OF THE RENDERING PROCESS
   // Perform the cull operation
@@ -94,11 +113,35 @@ public:
   // the render process
   float Cull( vtkRenderer *ren, vtkProp **propList,
 	      int& listLength, int& initialized );
+//ETX
 
 protected:
 
   float        MinimumCoverage;
   float        MaximumCoverage;
+  int          SortingStyle;
 };
+
+// Description:
+// Return the sorting style as a descriptive character string.
+inline char *vtkFrustumCoverageCuller::GetSortingStyleAsString(void)
+{
+  if( this->SortingStyle == VTK_CULLER_SORT_NONE )
+    {
+    return "None";
+    }
+  if( this->SortingStyle == VTK_CULLER_SORT_FRONT_TO_BACK )
+    {
+    return "Front To Back";
+    }
+  if( this->SortingStyle == VTK_CULLER_SORT_BACK_TO_FRONT )
+    {
+    return "Back To Front";
+    }
+  else
+    {
+    return "Unknown";
+    }
+}
                                          
 #endif

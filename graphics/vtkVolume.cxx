@@ -348,6 +348,7 @@ int vtkVolume::RenderTranslucentGeometry( vtkViewport *vp )
     {
     renderedSomething = 1;
     this->Mapper->Render( (vtkRenderer *)vp, this );
+    this->EstimatedRenderTime += this->Mapper->GetTimeToDraw();
     }
 
   return renderedSomething;

@@ -47,6 +47,7 @@ vtkFrustumCoverageCuller::vtkFrustumCoverageCuller()
 {
   this->MinimumCoverage = 0.0001;
   this->MaximumCoverage = 1.0;
+  this->SortingStyle    = VTK_CULLER_SORT_NONE;
 }
 
 // The coverage is computed for each prop, and a resulting allocated
@@ -69,6 +70,15 @@ float vtkFrustumCoverageCuller::Cull( vtkRenderer *ren,
   float               full_w, full_h, part_w, part_h;
   float               *allocatedTimeList;
   int                 last_non_zero;
+  float               *distanceList;
+  int                 index;
+  float               tmp;
+
+  // We will create a center distance entry for each prop in the list
+  // If SortingStyle is set to BackToFront or FrontToBack we will then
+  // sort the props that have a non-zero AllocatedRenderTime by their
+  // center distance
+  distanceList = new float[listLength];
 
   // We will return the total time of all props. This is used for
   // normalization.
@@ -96,7 +106,7 @@ float vtkFrustumCoverageCuller::Cull( vtkRenderer *ren,
       }
     else
       {
-      previous_time = prop->GetAllocatedRenderTime();
+      previous_time = prop->GetRenderTimeMultiplier();
       }
       
     // Get the bounds of the prop and compute an enclosing sphere
@@ -145,8 +155,15 @@ float vtkFrustumCoverageCuller::Cull( vtkRenderer *ren,
 	  {
 	  screen_bounds[i] = d - radius;
 	  }
+
+	// The fifth plane is the near plane - use the distance to 
+	// the center (d) as the value to sort by
+	if ( i == 4 )
+	  {
+	  distanceList[propLoop] = d;
+	  }
 	}
-	
+      
       // If the prop wasn't culled during the plane tests...
       if ( coverage > 0.0 )
 	{
@@ -208,12 +225,12 @@ float vtkFrustumCoverageCuller::Cull( vtkRenderer *ren,
       
     // Multiply the new allocated time by the previous allocated time
     coverage *= previous_time;
-    prop->SetAllocatedRenderTime( coverage );
+    prop->SetRenderTimeMultiplier( coverage );
       
     // Save this in our array of allocated times which matches the
-    // prop array
+    // prop array. Also save the center distance
     allocatedTimeList[propLoop] = coverage;
-      
+  
     // Add the time for this prop to the total time
     total_time += coverage;
     }
@@ -233,10 +250,12 @@ float vtkFrustumCoverageCuller::Cull( vtkRenderer *ren,
     if ( allocatedTimeList[propLoop] == 0.0 )
       {
       allocatedTimeList[propLoop] = allocatedTimeList[last_non_zero];
-      propList[propLoop] = propList[last_non_zero];
+      distanceList[propLoop]      = distanceList[last_non_zero];
+      propList[propLoop]          = propList[last_non_zero];
 
-      propList[last_non_zero] = NULL;
+      propList[last_non_zero]          = NULL;
       allocatedTimeList[last_non_zero] = 0.0;
+      distanceList[last_non_zero]      = 0.0;
 
       while ( last_non_zero >= 0 && allocatedTimeList[last_non_zero] == 0.0 )
 	{
@@ -248,10 +267,55 @@ float vtkFrustumCoverageCuller::Cull( vtkRenderer *ren,
   // Compute the new list length
   listLength = last_non_zero + 1;
 
+  // Now reorder the list if sorting is on
+  // Do it by a simple bubble sort - there probably aren't that
+  // many props....
+  
+  if ( this->SortingStyle == VTK_CULLER_SORT_FRONT_TO_BACK )
+    {
+    for ( propLoop = 0; propLoop <= last_non_zero; propLoop++ )
+      {
+      index = propLoop;
+      while ( (index - 1) >= 0 && distanceList[index] < distanceList[index-1] )
+	{
+	tmp = distanceList[index-1];
+	distanceList[index-1] = distanceList[index];
+	distanceList[index] = tmp;
+
+	prop = propList[index-1];
+	propList[index-1] = propList[index];
+	propList[index] = prop;
+
+	index--;
+	}
+      }
+    }
+
+  if ( this->SortingStyle == VTK_CULLER_SORT_BACK_TO_FRONT )
+    {
+    for ( propLoop = 0; propLoop <= last_non_zero; propLoop++ )
+      {
+      index = propLoop;
+      while ( (index - 1) >= 0 && distanceList[index] > distanceList[index-1] )
+	{
+	tmp = distanceList[index-1];
+	distanceList[index-1] = distanceList[index];
+	distanceList[index] = tmp;
+
+	prop = propList[index-1];
+	propList[index-1] = propList[index];
+	propList[index] = prop;
+
+	index--;
+	}
+      }
+    }
+
   // The allocated render times are now initialized
   initialized = 1;
   
   delete [] allocatedTimeList;
+  delete [] distanceList;
 
   return total_time;
 }
@@ -265,4 +329,8 @@ void vtkFrustumCoverageCuller::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Maximum Coverage: " 
      << this->MaximumCoverage << endl;
+
+  os << indent << "Sorting Style: "
+     << this->GetSortingStyleAsString() << endl;
+
 }

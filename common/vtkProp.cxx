@@ -55,6 +55,8 @@ void vtkProp::PrintSelf(ostream& os, vtkIndent indent)
      << this->AllocatedRenderTime << endl;
   os << indent << "EstimatedRenderTime: " 
      << this->EstimatedRenderTime << endl;
+  os << indent << "RenderTimeMultiplier: " 
+     << this->RenderTimeMultiplier << endl;
   os << indent << "Visibility: " << (this->Visibility ? "On\n" : "Off\n");
 }
 

@@ -198,12 +198,22 @@ public:
   // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
   vtkGetMacro(AllocatedRenderTime, float);
 
+  // Description:
+  // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
+  // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
+  // Get/Set the multiplier for the render time. This is used
+  // for culling and is a number between 0 and 1. It is used
+  // to create the allocated render time value.
+  void SetRenderTimeMultiplier( float t ) { this->RenderTimeMultiplier = t; };
+  vtkGetMacro(RenderTimeMultiplier, float);
+
 //ETX
 
 protected:
   int Visibility;
   float AllocatedRenderTime;
   float EstimatedRenderTime;
+  float RenderTimeMultiplier;
 };
 
 #endif

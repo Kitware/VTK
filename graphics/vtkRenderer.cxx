@@ -366,7 +366,7 @@ void vtkRenderer::AllocateTime()
 
     // If we don't have an outer cull method in any of the cullers,
     // then the allocated render time has not yet been initialized
-    renderTime = (initialized)?(aProp->GetAllocatedRenderTime()):(1.0);
+    renderTime = (initialized)?(aProp->GetRenderTimeMultiplier()):(1.0);
 
     // We need to divide by total time so that the total rendering time
     // (all prop's AllocatedRenderTime added together) would be equal
