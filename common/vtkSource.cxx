@@ -164,9 +164,11 @@ void vtkSource::Update()
 void vtkSource::UpdateInformation()
 {
   unsigned long t1, t2;
-  int idx;
+  int           idx;
   vtkDataObject *input;
   vtkDataObject *output;
+  float         maxLocality = 0.0;
+  float         locality;
 
   // Watch out for loops in the pipeline
   if ( this->Updating )
@@ -195,6 +197,13 @@ void vtkSource::UpdateInformation()
       input->UpdateInformation();
       this->Updating = 0;
       
+      // Compute the max locality of the inputs.
+      locality = input->GetLocality();
+      if (locality > maxLocality)
+        {
+        maxLocality = locality;
+        }
+
       // What is the PipelineMTime of this input? Compare this against
       // our current computation to find the largest one.
       t2 = input->GetPipelineMTime();
@@ -213,6 +222,8 @@ void vtkSource::UpdateInformation()
         }
       }
     }
+  locality = maxLocality * 0.5;
+
 
   // Call ExecuteInformation for subclass specific information.
   // Since UpdateInformation propagates all the way up the pipeline,
@@ -227,6 +238,7 @@ void vtkSource::UpdateInformation()
       if (output)
         {
         output->SetPipelineMTime(t1);
+        output->SetLocality(locality);
         }  
       }
     
@@ -336,13 +348,17 @@ void vtkSource::UpdateData(vtkDataObject *vtkNotUsed(output))
       }
     }
   else
-    {
+    { // To avoid serlializing execution of pipelines with ports
+    // we need to sort the inputs by locality (ascending).
+    this->SortInputsByLocality();
     for (idx = 0; idx < this->NumberOfInputs; ++idx)
       {
-      if (this->Inputs[idx] != NULL)
+      if (this->SortedInputs[idx] != NULL)
 	{
-	this->Inputs[idx]->PropagateUpdateExtent();
-	this->Inputs[idx]->UpdateData();
+        vtkErrorMacro("input " << idx << " : " << this->SortedInputs[idx]
+                      << " has locality " << this->SortedInputs[idx]->GetLocality()); 
+	this->SortedInputs[idx]->PropagateUpdateExtent();
+	this->SortedInputs[idx]->UpdateData();
 	}
       }
     }

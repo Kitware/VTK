@@ -73,6 +73,8 @@ vtkProcessObject::vtkProcessObject()
   this->NumberOfInputs = 0;
   this->NumberOfRequiredInputs = 0;
   this->Inputs = NULL;
+  this->SortedInputs = NULL;
+  this->SortedInputs2 = NULL;
 }
 
 // Destructor for the vtkProcessObject class
@@ -99,6 +101,8 @@ vtkProcessObject::~vtkProcessObject()
       {
       this->Inputs[idx]->UnRegister(this);
       this->Inputs[idx] = NULL;
+      this->SortedInputs[idx] = NULL;
+      this->SortedInputs2[idx] = NULL;
       }
     }
   if (this->Inputs)
@@ -106,6 +110,10 @@ vtkProcessObject::~vtkProcessObject()
     delete [] this->Inputs;
     this->Inputs = NULL;
     this->NumberOfInputs = 0;
+    delete [] this->SortedInputs;
+    this->SortedInputs = NULL;
+    delete [] this->SortedInputs2;
+    this->SortedInputs2 = NULL;
     }
 }
 
@@ -144,10 +152,16 @@ void vtkProcessObject::SetNumberOfInputs(int num)
     delete [] this->Inputs;
     this->Inputs = NULL;
     this->NumberOfInputs = 0;
+    delete [] this->SortedInputs;
+    this->SortedInputs = NULL;
+    delete [] this->SortedInputs2;
+    this->SortedInputs2 = NULL;
     }
   
   // Set the new arrays
   this->Inputs = inputs;
+  this->SortedInputs = new vtkDataObjectPointer[num];
+  this->SortedInputs2 = new vtkDataObjectPointer[num];
   
   this->NumberOfInputs = num;
   this->Modified();
@@ -409,6 +423,83 @@ void vtkProcessObject::RemoveAllInputs()
     this->Modified();
     }
 }
+
+void vtkProcessObject::SortInputsByLocality()
+{
+  int i1, i2;
+  int l1, l2;
+  // length starts at 1 and doubles every pass.
+  int length;
+  vtkDataObject **tmp;
+  
+  // Copy inputs over to sorted array.
+  memcpy(this->SortedInputs, this->Inputs, 
+         this->NumberOfInputs * sizeof(void*));
+
+  length = 1;
+  while (length < this->NumberOfInputs)
+    {  
+    i1 = 0;
+    while (i1 < this->NumberOfInputs)
+      {
+      l1 = length;
+      i2 = i1 + l1;
+      if (i2 > this->NumberOfInputs)
+        { // Piece one has all the remaining entries.
+        l1 = this->NumberOfInputs - i1;
+        i2 = this->NumberOfInputs;
+        l2 = 0;
+        }
+      else
+        { // l2 is the smaller of the remainder or the current length.
+        l2 = this->NumberOfInputs - i2;
+        if (l2 > length)
+          {
+          l2 = length;
+          }
+        }
+      this->SortMerge(this->SortedInputs+i1, l1, 
+                      this->SortedInputs+i2, l2,
+                      this->SortedInputs2+i1);
+      i1 = i2 + l2;
+      }
+    // swap the two arrays
+    tmp = this->SortedInputs;
+    this->SortedInputs = this->SortedInputs2;
+    this->SortedInputs2 = tmp;
+    length *= 2;
+    }
+}
+
+void vtkProcessObject::SortMerge(vtkDataObject **a1, int l1,
+                                 vtkDataObject **a2, int l2,
+                                 vtkDataObject **results)
+{
+  while (l1 > 0 || l2 > 0)
+    {
+    if (l2 == 0)
+      {
+      *results++ = *a1++;
+      --l1;
+      }
+    else if (l1 == 0)
+      {
+      *results++ = *a2++;
+      --l2;
+      }
+    else if ((*a1)->GetLocality() < (*a2)->GetLocality())
+      {
+      *results++ = *a1++;
+      --l1;
+      }
+    else
+      {
+      *results++ = *a2++;
+      --l2;
+      }
+    }
+}
+
 
 void vtkProcessObject::PrintSelf(ostream& os, vtkIndent indent)
 {

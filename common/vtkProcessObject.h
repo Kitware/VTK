@@ -180,6 +180,17 @@ protected:
   int NumberOfInputs;
   int NumberOfRequiredInputs;
   vtkDataObject **Inputs;     //An array of the inputs to the filter
+  // Temporary arrays used internally.  
+  // It is only valid after SortInputsByLocality is called.
+  vtkDataObject **SortedInputs;   // Inputs sorted by locality
+  // We need a second array for an effficeint search.  
+  // This array is never valid.
+  vtkDataObject **SortedInputs2;   
+  void SortInputsByLocality();
+  // A helper method for quicksort.
+  void SortMerge(vtkDataObject **a1, int l1,
+                 vtkDataObject **a2, int l2,
+                 vtkDataObject **results);
 
   // Called to allocate the input array.  Copies old inputs.
   void SetNumberOfInputs(int num);

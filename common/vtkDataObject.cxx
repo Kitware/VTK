@@ -106,6 +106,8 @@ vtkDataObject::vtkDataObject()
 
   // First update, the update extent will be set to the whole extent.
   this->UpdateExtentInitialized = 0;
+
+  this->Locality = 0.0;
 }
 
 //----------------------------------------------------------------------------
