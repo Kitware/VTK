@@ -838,6 +838,10 @@ void vtkColorTransferFunction::PrintSelf(ostream& os, vtkIndent indent)
 
 void vtkColorTransferFunction::DeepCopy( vtkColorTransferFunction *f )
 {
+  delete [] this->Function;
+  delete [] this->Table;
+  this->TableSize = 0;
+
   this->Clamping       = f->Clamping;
   this->ColorSpace     = f->ColorSpace;
   this->FunctionSize   = f->FunctionSize;
