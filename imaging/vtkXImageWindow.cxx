@@ -41,12 +41,70 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkXImageWindow.h"
 
 
-unsigned char *vtkXImageWindow::GetPixelData(int x1, int y1, int x2, int y2, int)
+void vtkXImageWindow::GetShiftsAndMasks(int &rshift, int &gshift, 
+					int &bshift,
+					unsigned long &rmask,
+					unsigned long &gmask,
+					unsigned long &bmask)
+{
+  XWindowAttributes winAttribs;
+  XVisualInfo temp1;
+
+  XGetWindowAttributes(this->DisplayId, this->WindowId, &winAttribs);
+  temp1.visualid = winAttribs.visual->visualid;
+  int nvisuals = 0;
+  XVisualInfo* visuals = 
+    XGetVisualInfo(this->DisplayId, VisualIDMask, &temp1, &nvisuals);   
+  if (nvisuals == 0)  vtkErrorMacro(<<"Could not get color masks");
+  
+  rmask = visuals->red_mask;
+  gmask = visuals->green_mask;
+  bmask = visuals->blue_mask;
+  
+  XFree(visuals);
+
+  // Compute the shifts needed to align the color masks with the 
+  // pixels
+  rshift = 0;
+  gshift = 0;
+  bshift = 0;
+  unsigned long tmp;
+
+  tmp = rmask;
+  while (tmp != 0)
+    {
+    tmp = tmp >> 1;
+    rshift++;
+    }
+  rshift -= 8;
+  tmp = gmask;
+  while (tmp != 0)
+    {
+    tmp = tmp >> 1;
+    gshift++;
+    }
+  gshift -= 8;
+  tmp = bmask;
+  while (tmp != 0)
+    {
+    tmp = tmp >> 1;
+    bshift++;
+    }
+  bshift -= 8;
+}
+
+
+unsigned char *vtkXImageWindow::GetPixelData(int x1, int y1, 
+					     int x2, int y2, int)
 {
   vtkDebugMacro (<< "Getting pixel data...");
 
   int width  = (abs(x2 - x1)+1);
   int height = (abs(y2 - y1)+1);
+  int rshift, gshift, bshift;
+  unsigned long rmask, gmask, bmask;
+
+  this->GetShiftsAndMasks(rshift,gshift,bshift,rmask,gmask,bmask);
 
   // Get the XImage
   XImage* image = XGetImage(this->DisplayId, this->WindowId, x1, y1,
@@ -99,9 +157,9 @@ unsigned char *vtkXImageWindow::GetPixelData(int x1, int y1, int x2, int y2, int
     for (xloop = x_low; xloop <= x_hi ; xloop++)
       {
       pixel = XGetPixel(image, xloop, yloop);
-      *p_data = (pixel & 0x000000ff); p_data++;
-      *p_data = (pixel & 0x0000ff00) >> 8; p_data++;
-      *p_data = (pixel & 0x00ff0000) >> 16; p_data++;
+      *p_data = (pixel & rmask) >> rshift; p_data++;
+      *p_data = (pixel & gmask) >> gshift; p_data++;
+      *p_data = (pixel & bmask) >> bshift; p_data++;
       }
     }
  

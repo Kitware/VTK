@@ -151,6 +151,10 @@ public:
   // vtkRenderWindow, the last argument is provided, but currently not used.
   unsigned char *GetPixelData(int x1, int y1, int x2, int y2, int);
 
+  void GetShiftsAndMasks(int &rshift, int &gshift, int &bshift,
+			 unsigned long &rmask, unsigned long &gmask,
+			 unsigned long &bmask);
+
 protected:
   // X stuff
   Window               ParentId;
