@@ -12,6 +12,9 @@ reader Update
 
 set readerOutput [reader GetOutput]
 $readerOutput SetOrigin -63 -63 -46
+
+# Disconnect the output from its reader.  First get an extra reference.
+$readerOutput Register {}
 $readerOutput SetSource {}
 
 # Create transfer functions for opacity and color
@@ -34,6 +37,9 @@ vtkVolumeProperty volumeProperty
 vtkVolumeTextureMapper2D volumeMapper
     volumeMapper SetInput $readerOutput
     volumeMapper SetMaximumStorageSize 10000000
+
+# The data object is now referenced by the connection.
+$readerOutput UnRegister {}
 
 vtkVolume volume
     volume SetMapper volumeMapper
