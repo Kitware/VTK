@@ -152,7 +152,7 @@ profileCMapper SetInput [profileCTubes GetOutput]
 
 vtkActor profileC
   profileC SetMapper profileCMapper
-eval  [profileC GetProperty] SetDiffuseColor $banana
+eval  [profileC GetProperty] SetDiffuseColor $peacock
   [profileC GetProperty] SetSpecular .3
   [profileC GetProperty] SetSpecularPower 30
 
