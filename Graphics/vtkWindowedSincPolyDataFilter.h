@@ -182,6 +182,12 @@ public:
   vtkBooleanMacro(BoundarySmoothing,int);
 
   // Description:
+  // Smooth non-manifold vertices.
+  vtkSetMacro(NonManifoldSmoothing,int);
+  vtkGetMacro(NonManifoldSmoothing,int);
+  vtkBooleanMacro(NonManifoldSmoothing,int);
+  
+  // Description:
   // Turn on/off the generation of scalar distance values.
   vtkSetMacro(GenerateErrorScalars,int);
   vtkGetMacro(GenerateErrorScalars,int);
@@ -205,6 +211,7 @@ public:
   float FeatureAngle;
   float EdgeAngle;
   int BoundarySmoothing;
+  int NonManifoldSmoothing;
   int GenerateErrorScalars;
   int GenerateErrorVectors;
 private:

@@ -25,7 +25,7 @@
 #include "vtkTriangle.h"
 #include "vtkTriangleFilter.h"
 
-vtkCxxRevisionMacro(vtkWindowedSincPolyDataFilter, "1.29");
+vtkCxxRevisionMacro(vtkWindowedSincPolyDataFilter, "1.30");
 vtkStandardNewMacro(vtkWindowedSincPolyDataFilter);
 
 // Construct object with number of iterations 20; passband .1;
@@ -42,6 +42,7 @@ vtkWindowedSincPolyDataFilter::vtkWindowedSincPolyDataFilter()
   this->EdgeAngle = 15.0;
   this->FeatureEdgeSmoothing = 0;
   this->BoundarySmoothing = 1;
+  this->NonManifoldSmoothing = 0;
 
   this->GenerateErrorScalars = 0;
   this->GenerateErrorVectors = 0;
@@ -110,6 +111,8 @@ void vtkWindowedSincPolyDataFilter::Execute()
                << (this->BoundarySmoothing ? "On\n" : "Off\n")
                << "\tFeature Edge Smoothing "
                << (this->FeatureEdgeSmoothing ? "On\n" : "Off\n")
+               << "\tNonmanifold Smoothing "
+               << (this->NonManifoldSmoothing ? "On\n" : "Off\n")
                << "\tError Scalars "
                << (this->GenerateErrorScalars ? "On\n" : "Off\n")
                << "\tError Vectors "
@@ -261,30 +264,36 @@ void vtkWindowedSincPolyDataFilter::Execute()
 
         else if ( numNei >= 2 )
           {
-          // check to make sure that this edge hasn't been marked already
-          for (j=0; j < numNei; j++)
+          // non-manifold case, check nonmanifold smoothing state
+          if (!this->NonManifoldSmoothing)
             {
-            if ( neighbors->GetId(j) < cellId )
+            // check to make sure that this edge hasn't been marked already
+            for (j=0; j < numNei; j++)
               {
-              break;
+              if ( neighbors->GetId(j) < cellId )
+                {
+                break;
+                }
               }
-            }
-          if ( j >= numNei )
-            {
-            edge = VTK_FEATURE_EDGE_VERTEX;
+            if ( j >= numNei )
+              {
+              edge = VTK_FEATURE_EDGE_VERTEX;
+              }
             }
           }
 
         else if ( numNei == 1 && (nei=neighbors->GetId(0)) > cellId ) 
           {
-          vtkPolygon::ComputeNormal(inPts,npts,pts,normal);
-          Mesh->GetCellPoints(nei,numNeiPts,neiPts);
-          vtkPolygon::ComputeNormal(inPts,numNeiPts,neiPts,neiNormal);
-
-          if ( this->FeatureEdgeSmoothing &&
-          vtkMath::Dot(normal,neiNormal) <= CosFeatureAngle ) 
+          if (this->FeatureEdgeSmoothing)
             {
-            edge = VTK_FEATURE_EDGE_VERTEX;
+            vtkPolygon::ComputeNormal(inPts,npts,pts,normal);
+            Mesh->GetCellPoints(nei,numNeiPts,neiPts);
+            vtkPolygon::ComputeNormal(inPts,numNeiPts,neiPts,neiNormal);
+
+            if ( vtkMath::Dot(normal,neiNormal) <= CosFeatureAngle ) 
+              {
+              edge = VTK_FEATURE_EDGE_VERTEX;
+              }
             }
           }
         else // a visited edge; skip rest of analysis
@@ -364,6 +373,7 @@ void vtkWindowedSincPolyDataFilter::Execute()
 
       else if ( (npts = Verts[i].edges->GetNumberOfIds()) != 2 )
         {
+        // can only smooth edges on 2-manifold surfaces
         Verts[i].type = VTK_FIXED_VERTEX;
         numFixed++;
         }
@@ -739,6 +749,7 @@ void vtkWindowedSincPolyDataFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Feature Angle: " << this->FeatureAngle << "\n";
   os << indent << "Edge Angle: " << this->EdgeAngle << "\n";
   os << indent << "Boundary Smoothing: " << (this->BoundarySmoothing ? "On\n" : "Off\n");
+  os << indent << "Nonmanifold Smoothing: " << (this->NonManifoldSmoothing ? "On\n" : "Off\n");
   os << indent << "Generate Error Scalars: " << (this->GenerateErrorScalars ? "On\n" : "Off\n");
   os << indent << "Generate Error Vectors: " << (this->GenerateErrorVectors ? "On\n" : "Off\n");
 }
