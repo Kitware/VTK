@@ -18,7 +18,7 @@ vtkRenderWindowInteractor iren
   iren SetRenderWindow renWin1
 
 [importer GetRenderer] SetBackground 0.1 0.2 0.4
-[importer GetRenderWindow] SetSize 100 100
+[importer GetRenderWindow] SetSize 125 125
 
 #
 # the importer created the renderer
@@ -48,7 +48,7 @@ wm withdraw .
 
 vtkRenderLargeImage renderLarge
   renderLarge SetInput ren1
-  renderLarge SetMagnification 5
+  renderLarge SetMagnification 4
   renderLarge Update
 
 vtkImageViewer viewer
