@@ -66,6 +66,7 @@ vtkTextMapper::vtkTextMapper()
 void vtkTextMapper::ShallowCopy(vtkTextMapper *tm)
 {
   this->SetInput(tm->GetInput());
+  this->SetClippingPlanes(m->GetClippingPlanes());
   this->SetFontSize(tm->GetFontSize());
   this->SetBold(tm->GetBold());
   this->SetItalic(tm->GetItalic());

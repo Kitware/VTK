@@ -66,10 +66,6 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Perform a Shallow copy of this object
-  void ShallowCopy(vtkAbstractMapper *m);
-
-  // Description:
   // Override Modifiedtime as we have added Clipping planes
   virtual unsigned long GetMTime();
 

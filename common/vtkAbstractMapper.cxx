@@ -62,11 +62,6 @@ vtkAbstractMapper::~vtkAbstractMapper()
     }
 }
 
-void vtkAbstractMapper::ShallowCopy(vtkAbstractMapper *m)
-{
-  this->SetClippingPlanes(m->GetClippingPlanes());
-}
-
 // Description:
 // Override Modifiedtime as we have added Clipping planes
 unsigned long vtkAbstractMapper::GetMTime()

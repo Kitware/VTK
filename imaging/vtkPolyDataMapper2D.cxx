@@ -62,6 +62,7 @@ vtkPolyDataMapper2D::vtkPolyDataMapper2D()
 void vtkPolyDataMapper2D::ShallowCopy(vtkPolyDataMapper2D *m)
 {
   this->SetLookupTable(m->GetLookupTable());
+  this->SetClippingPlanes(m->GetClippingPlanes());
   this->SetColorMode(m->GetColorMode());
   this->SetScalarVisibility(m->GetScalarVisibility());
   this->SetScalarRange(m->GetScalarRange());

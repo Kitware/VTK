@@ -203,7 +203,7 @@ unsigned long vtkMapper::GetMTime()
 void vtkMapper::ShallowCopy(vtkMapper *m)
 {
   this->SetLookupTable(m->GetLookupTable());
-
+  this->SetClippingPlanes(m->GetClippingPlanes());
   this->SetScalarVisibility(m->GetScalarVisibility());
   this->SetScalarRange(m->GetScalarRange());
   this->SetColorMode(m->GetColorMode());
