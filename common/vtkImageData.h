@@ -253,7 +253,7 @@ public:
   // Reallocates and copies to set the Extent to the UpdateExtent.
   // This is used internally when the exact extent is requested, 
   // and the source generated more than the update extent. 
-  void Crop();
+  virtual void Crop();
 
   // Description:
   // Return the actual size of the data in kilobytes. This number

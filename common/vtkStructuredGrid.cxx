@@ -1058,6 +1058,111 @@ void vtkStructuredGrid::GetScalarRange(float range[2])
   this->ComputeTime.Modified();
 }
 
+
+//----------------------------------------------------------------------------
+void vtkStructuredGrid::Crop()
+{
+  int i, j, k;
+  int uExt[6];
+
+  // If the update extent is larger than the extent, 
+  // we cannot do anything about it here.
+  for (i = 0; i < 3; ++i)
+    {
+    uExt[i*2] = this->UpdateExtent[i*2];
+    if (uExt[i*2] < this->Extent[i*2])
+      {
+      uExt[i*2] = this->Extent[i*2];
+      }
+    uExt[i*2+1] = this->UpdateExtent[i*2+1];
+    if (uExt[i*2+1] > this->Extent[i*2+1])
+      {
+      uExt[i*2+1] = this->Extent[i*2+1];
+      }
+    }
+  
+  // If extents already match, then we need to do nothing.
+  if (this->Extent[0] == uExt[0] && this->Extent[1] == uExt[1]
+      && this->Extent[2] == uExt[2] && this->Extent[3] == uExt[3]
+      && this->Extent[4] == uExt[4] && this->Extent[5] == uExt[5])
+    {
+    return;
+    }
+  else
+    {
+    vtkStructuredGrid *newGrid;
+    vtkPointData *inPD, *outPD;
+    vtkCellData *inCD, *outCD;
+    int outSize, jOffset, kOffset;
+    vtkIdType idx, newId;
+    vtkPoints *newPts, *inPts;
+    int inInc1, inInc2;
+
+    vtkDebugMacro(<< "Cropping Grid");
+
+    newGrid = vtkStructuredGrid::New();
+    inPD  = this->GetPointData();
+    inCD  = this->GetCellData();
+    outPD = newGrid->GetPointData();
+    outCD = newGrid->GetCellData();
+    inPts = this->GetPoints();
+
+    // Allocate necessary objects
+    //
+    newGrid->SetExtent(uExt);
+    outSize = (uExt[1]-uExt[0]+1)*(uExt[3]-uExt[2]+1)*(uExt[5]-uExt[4]+1);
+    newPts = (vtkPoints *) inPts->MakeObject(); 
+    newPts->SetNumberOfPoints(outSize);
+    outPD->CopyAllocate(inPD,outSize,outSize);
+    outCD->CopyAllocate(inCD,outSize,outSize);
+
+    // Traverse this data and copy point attributes to output
+    newId = 0;
+    inInc1 = (this->Extent[1]-this->Extent[0]+1);
+    inInc2 = inInc1*(this->Extent[3]-this->Extent[2]+1);
+    for ( k=uExt[4]; k <= uExt[5]; ++k)
+      { 
+      kOffset = (k - this->Extent[4]) * inInc2;
+      for ( j=uExt[2]; j <= uExt[3]; ++j)
+        {
+        jOffset = (j - this->Extent[2]) * inInc1;
+        for ( i=uExt[0]; i <= uExt[1]; ++i)
+          {
+          idx = (i - this->Extent[0]) + jOffset + kOffset;
+          newPts->SetPoint(newId,inPts->GetPoint(idx));
+          outPD->CopyData(inPD, idx, newId++);
+          }
+        }
+      }
+
+    // Traverse input data and copy cell attributes to output
+    newId = 0;
+    inInc1 = (this->Extent[1] - this->Extent[0]);
+    inInc2 = inInc1*(this->Extent[3] - this->Extent[2]);
+    for ( k=uExt[4]; k < uExt[5]; ++k )
+      {
+      kOffset = (k - this->Extent[4]) * inInc2;
+      for ( j=uExt[2]; j < uExt[3]; ++j )
+        {
+        jOffset = (j - this->Extent[2]) * inInc1;
+        for ( i=uExt[0]; i < uExt[1]; ++i )
+          {
+          idx = (i - this->Extent[0]) + jOffset + kOffset;
+          outCD->CopyData(inCD, idx, newId++);
+          }
+        }
+      }
+
+    this->SetExtent(uExt);
+    this->SetPoints(newPts);
+    newPts->Delete();
+    outPD->ShallowCopy(inPD);
+    outCD->ShallowCopy(inCD);
+    newGrid->Delete();
+    }
+}
+
+
 //----------------------------------------------------------------------------
 void vtkStructuredGrid::PrintSelf(ostream& os, vtkIndent indent)
 {
