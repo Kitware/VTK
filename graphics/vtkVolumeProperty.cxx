@@ -109,6 +109,7 @@ float vtkVolumeProperty::GetGradientOpacityBias( )
 {
   vtkErrorMacro( << "This is an obsolete method.\n" <<
     "Get the opacity bias from the vtkEncodedGradientEstimator" );
+  return 0.0;
 }
 
 unsigned long int vtkVolumeProperty::GetMTime()
