@@ -180,6 +180,10 @@ public:
   // generates ghost levels if necessary.
   virtual void UpdateData();
 
+  // Description:
+  // The extent type is a 3D extent
+  int GetExtentType() { return VTK_3D_EXTENT; }
+
 protected:
   vtkStructuredGrid();
   ~vtkStructuredGrid();
@@ -190,9 +194,6 @@ protected:
   vtkQuad *Quad;  
   vtkHexahedron *Hexahedron;
   vtkEmptyCell *EmptyCell;
-
-  // The extent type is a 3D extent
-  int GetExtentType() { return VTK_3D_EXTENT; }
   
   // Description:
   // Reallocates and copies to set the Extent to the UpdateExtent.
