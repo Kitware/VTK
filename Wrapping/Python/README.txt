@@ -36,10 +36,10 @@ Installation
   modules.
 
     (1) If you are building VTK from source and want to use the
-    VTK-Python packages alone, i.e. you dont want to use VTK via C++,
+    VTK-Python packages alone, i.e. you don't want to use VTK via C++,
     Tcl, etc., then simply use the "vtkpython" interpreter that is
     built with VTK.  This is a Python interpreter that is linked to
-    the relavant VTK libraries and sets the PYTHONPATH internally to
+    the relevant VTK libraries and sets the PYTHONPATH internally to
     the correct locations.  So, all you need to do is use "vtkpython"
     instead of "python".  Naturally this will work only if you retain
     your build tree and don't change the directories where VTK was
@@ -104,11 +104,11 @@ VTK-Python interpreters
   some platforms and compilers a special Python interpreter is
   distributed along with VTK.  This new interpreter is called
   'vtkpython' and is the recommended way of running VTK-Python
-  problems.  If the vanilla Python interpreter is good enough and
-  works well for you please use it but if you run into severe problems
-  you might want to give vtkpython a try.  Incidentally, to see what
-  the problems are with the vanilla Python interpreter on some
-  platforms read this thread:
+  scripts.  If the vanilla Python interpreter is good enough and works
+  well for you, please use it.  However if you run into severe
+  problems you might want to give vtkpython a try.  Incidentally, to
+  see what the problems are with the vanilla Python interpreter on
+  some platforms read this thread:
  
 http://public.kitware.com/pipermail/vtk-developers/2002-May/001536.html
 
@@ -174,7 +174,7 @@ Structure/Usage
     rendering, hybrid, patented and parallel:
 
     These are the optional kits.  Unlike the Tcl packages importing
-    these kits *will not* import all the reqiuired kits in as well.
+    these kits *will not* import all the required kits in as well.
     For the rationale behind this please read this mail and also the
     thread here:
 
