@@ -37,7 +37,7 @@
 #include "vtkTransformCollection.h"
 #include "vtkVoxel.h"
 
-vtkCxxRevisionMacro(vtkSweptSurface, "1.82");
+vtkCxxRevisionMacro(vtkSweptSurface, "1.83");
 vtkStandardNewMacro(vtkSweptSurface);
 
 vtkCxxSetObjectMacro(vtkSweptSurface,Transforms, vtkTransformCollection);
@@ -233,8 +233,9 @@ void vtkSweptSurface::ExecuteData(vtkDataObject *)
   //
   // Sample data at each point in path
   //
-  this->Transforms->InitTraversal();
-  transform2 = this->Transforms->GetNextItem();
+  vtkCollectionSimpleIterator sit;
+  this->Transforms->InitTraversal(sit);
+  transform2 = this->Transforms->GetNextTransform(sit);
   transform2->GetMatrix(t->GetMatrix());
 
   this->GetRelativePosition(*t,actorOrigin,position2);
@@ -243,7 +244,7 @@ void vtkSweptSurface::ExecuteData(vtkDataObject *)
   for (transNum=0; transNum < (numTransforms-1); transNum++)
     {
     transform1 = transform2;
-    transform2 = this->Transforms->GetNextItem();
+    transform2 = this->Transforms->GetNextTransform(sit);
     transform2->GetMatrix(t->GetMatrix());
 
     //
@@ -516,11 +517,12 @@ unsigned long int vtkSweptSurface::GetMTime()
   unsigned long mtime=this->Superclass::GetMTime();
   unsigned long int transMtime;
   vtkTransform *t;
+  vtkCollectionSimpleIterator sit;
 
   if (this->Transforms != NULL)
     {
-    for (this->Transforms->InitTraversal(); 
-         (t = this->Transforms->GetNextItem()); )
+    for (this->Transforms->InitTraversal(sit); 
+         (t = this->Transforms->GetNextTransform(sit)); )
       {
       transMtime = t->GetMTime();
       if ( transMtime > mtime )
@@ -598,8 +600,9 @@ void vtkSweptSurface::ComputeBounds(double origin[3], double spacing[3],
       return;
       }
         
-    this->Transforms->InitTraversal();
-    transform2 = this->Transforms->GetNextItem();
+    vtkCollectionSimpleIterator sit;
+    this->Transforms->InitTraversal(sit);
+    transform2 = this->Transforms->GetNextTransform(sit);
     transform2->GetMatrix(t->GetMatrix());
     this->GetRelativePosition(*t,actorOrigin,position2);
     t->GetOrientation(orient2);
@@ -631,7 +634,7 @@ void vtkSweptSurface::ComputeBounds(double origin[3], double spacing[3],
 
     for (transNum=0; transNum < (numTransforms-1); transNum++)
       {
-      transform2 = this->Transforms->GetNextItem();
+      transform2 = this->Transforms->GetNextTransform(sit);
       transform2->GetMatrix(t->GetMatrix());
       for (i = 0; i < 3; i++)
         {

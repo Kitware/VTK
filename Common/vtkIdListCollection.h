@@ -44,6 +44,14 @@ public:
   // Get the ith dataset in the list.
   vtkIdList *GetItem(int i) { 
     return static_cast<vtkIdList *>(this->GetItemAsObject(i));};
+
+  //BTX
+  // Description: 
+  // Reentrant safe way to get an object in a collection. Just pass the
+  // same cookie back and forth. 
+  vtkIdList *GetNextIdList(vtkCollectionSimpleIterator &cookie) {
+    return static_cast<vtkIdList *>(this->GetNextItemAsObject(cookie));};
+  //ETX
   
 protected:
   vtkIdListCollection() {};

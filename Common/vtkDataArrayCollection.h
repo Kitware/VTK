@@ -31,20 +31,28 @@ public:
   vtkTypeRevisionMacro(vtkDataArrayCollection,vtkCollection);
 
   // Description:
-  // Add a dataset to the list.
+  // Add a dataarray to the list.
   void AddItem(vtkDataArray *ds) {
     this->vtkCollection::AddItem((vtkObject *)ds);};
   
   // Description:
-  // Get the next dataset in the list.
+  // Get the next dataarray in the list.
   vtkDataArray *GetNextItem() { 
     return static_cast<vtkDataArray *>(this->GetNextItemAsObject());};
 
   // Description:
-  // Get the ith dataset in the list.
+  // Get the ith dataarray in the list.
   vtkDataArray *GetItem(int i) { 
     return static_cast<vtkDataArray *>(this->GetItemAsObject(i));};
   
+  //BTX
+  // Description: 
+  // Reentrant safe way to get an object in a collection. Just pass the
+  // same cookie back and forth. 
+  vtkDataArray *GetNextDataArray(vtkCollectionSimpleIterator &cookie) {
+    return static_cast<vtkDataArray *>(this->GetNextItemAsObject(cookie));};
+  //ETX
+
 protected:
   vtkDataArrayCollection() {};
   ~vtkDataArrayCollection() {};

@@ -43,6 +43,14 @@ public:
   // list is reached.
   vtkTransform *GetNextItem();
 
+  //BTX
+  // Description: 
+  // Reentrant safe way to get an object in a collection. Just pass the
+  // same cookie back and forth. 
+  vtkTransform *GetNextTransform(vtkCollectionSimpleIterator &cookie) {
+    return static_cast<vtkTransform *>(this->GetNextItemAsObject(cookie));};
+  //ETX
+
 protected:
   vtkTransformCollection() {};
   ~vtkTransformCollection() {};

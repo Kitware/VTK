@@ -41,7 +41,17 @@ public:
   // is exhausted.
   vtkStructuredPoints *GetNextItem() {
     return static_cast<vtkStructuredPoints *>(this->GetNextItemAsObject());};
-  
+
+    //BTX
+  // Description: 
+  // Reentrant safe way to get an object in a collection. Just pass the
+  // same cookie back and forth. 
+  vtkStructuredPoints *GetNextStructuredPoints(
+    vtkCollectionSimpleIterator &cookie) {
+    return static_cast<vtkStructuredPoints *>(
+      this->GetNextItemAsObject(cookie));};
+  //ETX
+
 protected:
   vtkStructuredPointsCollection() {};
   ~vtkStructuredPointsCollection() {};
