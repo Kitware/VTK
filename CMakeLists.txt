@@ -173,6 +173,7 @@ INCLUDE (${CMAKE_ROOT}/Modules/Dart.cmake)
 
 # Add the testing directories
 IF(BUILD_TESTING)
+    ENABLE_TESTING()
     SUBDIRS(Common/Testing Filtering/Testing Graphics/Testing 
             Imaging/Testing IO/Testing)
 
