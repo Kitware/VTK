@@ -201,13 +201,13 @@ void vtkOpenGLImageWindow::MakeDefaultWindow()
     this->OwnDisplay = 1;
     }
 
-  v = this->GetDesiredVisualInfo();
   attr.override_redirect = False;
     
   // create our own window ? 
   this->WindowCreated = 0;
   if (!this->WindowId)
     {
+    v = this->GetDesiredVisualInfo();
     this->ColorMap = XCreateColormap(this->DisplayId,
 				     RootWindow( this->DisplayId, v->screen),
 				     v->visual, AllocNone );
@@ -243,8 +243,8 @@ void vtkOpenGLImageWindow::MakeDefaultWindow()
     XGetWindowAttributes(this->DisplayId,
 			 this->WindowId,&winattr);
     matcher.visualid = XVisualIDFromVisual(winattr.visual);
-    XFree(v);
-    v = XGetVisualInfo(this->DisplayId, VisualIDMask,
+    matcher.screen = DefaultScreen(DisplayId);
+    v = XGetVisualInfo(this->DisplayId, VisualIDMask | VisualScreenMask,
 		       &matcher, &nItems);
     }
 
