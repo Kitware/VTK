@@ -153,6 +153,7 @@ proc GeneratePlotFiles { theTest currentTime } {
     while { $i >= 0 && $done == 0 } {
 	if { [lindex $timelist $i] == "-1" } {
 	    set timelist [lrange $timelist 0 [expr $i - 1]]
+	    incr i -1
 	} else {
 	    set done 1
 	}
