@@ -103,15 +103,24 @@ public:
   int GetNumberOfArrays();
 
   // Description:
-  // Return the ith array in the field. A NULL is returned if the 
+  // Return the ith array in the field. A NULL is returned if the
   // index i is out of range.
   vtkDataArray *GetArray(int i);
 
   // Description:
-  // Return the array containing the ith component of the field. The 
-  // return value is an integer number n 0<=n<this->NumberOfArrays. Also, 
-  // an integer value is returned indicating the component in the array 
-  // is returned. Method returns -1 if specified component is not 
+  // Add an array to the end of the array list, return the new array index
+  int AddArray(vtkDataArray *array);
+
+  // Description:
+  // Add an array to the end of the array list, and set the name
+  // return the new array index
+  int AddArray(vtkDataArray *array, char *name);
+
+  // Description:
+  // Return the array containing the ith component of the field. The
+  // return value is an integer number n 0<=n<this->NumberOfArrays. Also,
+  // an integer value is returned indicating the component in the array
+  // is returned. Method returns -1 if specified component is not
   // in the field.
   int GetArrayContainingComponent(int i, int& arrayComp);
 
@@ -120,7 +129,12 @@ public:
   vtkDataArray *GetArray(char *arrayName);
 
   // Description:
-  // Set/Get the name for an array of data. 
+  // Return the array with the name given. Returns NULL is array not found.
+  // Also returns index of array if found, -1 otherwise
+  vtkDataArray *GetArray(char *arrayName, int &index);
+
+  // Description:
+  // Set/Get the name for an array of data.
   void SetArrayName(int i,char *name);
   char *GetArrayName(int i);
 

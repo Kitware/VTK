@@ -250,15 +250,15 @@ void vtkFieldData::SetArray(int i, vtkDataArray *data)
 {
   int numComp;
 
-  if ( i < 0 ) 
+  if ( i < 0 )
     {
     i = 0;
     }
-  else if (i >= this->NumberOfArrays) 
+  else if (i >= this->NumberOfArrays)
     {
     this->SetNumberOfArrays(i+1);
     }
-  
+
   if ( this->Data[i] != data )
     {
     this->Modified();
@@ -596,17 +596,38 @@ int vtkFieldData::GetArrayContainingComponent(int i, int& arrayComp)
 vtkDataArray *vtkFieldData::GetArray(char *arrayName)
 {
   int i;
-  char *name;
+  return this->GetArray(arrayName, i);
+}
 
+vtkDataArray *vtkFieldData::GetArray(char *arrayName, int &index)
+{
+  int i;
+  char *name;
+  index = -1;
   for (i=0; i < this->NumberOfArrays; i++)
     {
     name = this->GetArrayName(i);
     if ( name && arrayName && !strcmp(name,arrayName) )
       {
+      index = i;
       return this->GetArray(i);
       }
     }
   return NULL;
+}
+
+int vtkFieldData::AddArray(vtkDataArray *array)
+{
+  int n = this->NumberOfArrays;
+  this->SetArray(n,array);
+  return n;
+}
+
+int vtkFieldData::AddArray(vtkDataArray *array, char *name)
+{
+  int n = this->AddArray(array);
+  this->SetArrayName(n,name);
+  return n;
 }
 
 unsigned long vtkFieldData::GetActualMemorySize()
@@ -626,7 +647,7 @@ unsigned long vtkFieldData::GetActualMemorySize()
 
 void vtkFieldData::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkObject::PrintSelf(os,indent);    
+  vtkObject::PrintSelf(os,indent);
 
   os << indent << "Number Of Arrays: " << this->GetNumberOfArrays() << "\n";
   for (int i=0; i<this->NumberOfArrays; i++)
