@@ -56,7 +56,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 class VTK_EXPORT vtkInteractorStyleTrackball : public vtkInteractorStyle 
 {
-  typedef vtkInteractorStyle inherited;
 public:
   vtkInteractorStyleTrackball();
   ~vtkInteractorStyleTrackball();
