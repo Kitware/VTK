@@ -662,7 +662,7 @@ int vtkDataReader::ReadTensorData(FILE *fp, vtkDataSet *ds, int numPts)
           return 0;
           }
         tensor = t;
-        tensors->SetTensor(i,tensor);
+        tensors->SetTensor(i,&tensor);
         }
       }
     if ( ! skipTensor ) ds->GetPointData()->SetTensors(tensors);
