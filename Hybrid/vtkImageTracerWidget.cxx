@@ -37,7 +37,7 @@
 #include "vtkTransformPolyDataFilter.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImageTracerWidget, "1.8");
+vtkCxxRevisionMacro(vtkImageTracerWidget, "1.9");
 vtkStandardNewMacro(vtkImageTracerWidget);
 
 vtkCxxSetObjectMacro(vtkImageTracerWidget, HandleProperty, vtkProperty);
@@ -118,6 +118,11 @@ vtkImageTracerWidget::vtkImageTracerWidget()
   this->SelectedLineProperty = NULL;
   this->CreateDefaultProperties();
 
+  // initialize ivars
+  this->Handle = 0;
+  this->HandleGeometry = 0;
+  this->HandleMapper = 0;
+  
   // Create one handle
   this->AllocateHandles(1);
   this->AdjustHandlePosition(0,this->HandleGeometryGenerator->GetCenter());
@@ -129,6 +134,7 @@ vtkImageTracerWidget::vtkImageTracerWidget()
 
   this->PlaceFactor = 1.0;
   this->PlaceWidget(bounds);
+
 }
 
 vtkImageTracerWidget::~vtkImageTracerWidget()
@@ -139,7 +145,22 @@ vtkImageTracerWidget::~vtkImageTracerWidget()
     this->HandleMapper[i]->Delete();
     this->Handle[i]->Delete();
     }
-
+  if (this->Handle)
+    {
+    delete [] this->Handle;
+    this->Handle = 0;
+    }
+  if (this->HandleGeometry)
+    {
+    delete [] this->HandleGeometry;
+    this->HandleGeometry = 0;
+    }
+  if (this->HandleMapper)
+    {
+    delete [] this->HandleMapper;
+    this->HandleMapper = 0;
+    }
+  
   if (this->HandleProperty)
     {
     this->HandleProperty->Delete();
@@ -1161,9 +1182,21 @@ void vtkImageTracerWidget::ResetHandles(void)
 
   this->NumberOfHandles = 0;
 
-  delete [] this->Handle;
-  delete [] this->HandleMapper;
-  delete [] this->HandleGeometry;
+  if (this->Handle)
+    {
+    delete [] this->Handle;
+    this->Handle = 0;
+    }
+  if (this->HandleGeometry)
+    {
+    delete [] this->HandleGeometry;
+    this->HandleGeometry = 0;
+    }
+  if (this->HandleMapper)
+    {
+    delete [] this->HandleMapper;
+    this->HandleMapper = 0;
+    }
 }
 
 void vtkImageTracerWidget::Snap(double* pos) // overwrites pos
