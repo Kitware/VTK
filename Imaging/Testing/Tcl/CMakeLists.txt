@@ -22,10 +22,12 @@ IF (VTK_USE_RENDERING)
         TestButterworthHighPass
         TestCache
         TestCityBlockDistance
+        TestConvolve
         TestCorrelation
         TestDilateErode3D
         TestDivergence
         TestDotProduct
+        TestEuclideanDistance
         TestEuclideanToPolar
         TestGradient
         TestGradientMagnitude
