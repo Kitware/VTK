@@ -134,7 +134,7 @@ static void vtkImageMagnifyExecute(vtkImageMagnify *self,
   int interpSetup;
   int *wExtent;
   T *minInPtr; 
-  int *inDimensions;
+  int inDimensions[3];
   
   interpolate = self->GetInterpolate();
   magX = self->GetMagnificationFactors()[0];
@@ -157,7 +157,9 @@ static void vtkImageMagnifyExecute(vtkImageMagnify *self,
   // where do we have to stop interpolations due to boundaries
   wExtent = inData->GetExtent();
   minInPtr = (T*)inData->GetScalarPointer(wExtent[0],wExtent[2],wExtent[4]);
-  inDimensions = inData->GetDimensions();
+  inDimensions[0] = wExtent[1] - wExtent[0] + 1;
+  inDimensions[1] = wExtent[3] - wExtent[2] + 1;
+  inDimensions[2] = wExtent[5] - wExtent[4] + 1;
   
   // Loop through ouput pixels
   for (idxC = 0; idxC < maxC; idxC++)
@@ -207,18 +209,27 @@ static void vtkImageMagnifyExecute(vtkImageMagnify *self,
 	      
 	      dataP = *inPtrX;
 
-	      if ((numPixels+1)%inDimensions[0]) tiX = 0;
-	      else
+	      if ((numPixels+1)%inDimensions[0]) 
 		{
 		tiX = inIncX;
 		}
-	      if ((numPixels/inDimensions[0] + 1)%inDimensions[1]) tiY = 0;
 	      else
+		{
+		tiX = 0;
+		}
+	      if ((numPixels/inDimensions[0] + 1)%inDimensions[1]) 
 		{
 		tiY = inIncY;
 		}
+	      else
+		{
+		tiY = 0;
+		}
 	      if (((numPixels/inDimensions[0])/inDimensions[1] + 1) >= 
-		  inDimensions[2]) tiZ = 0;
+		  inDimensions[2]) 
+		{
+		tiZ = 0;
+		}
 	      else
 		{
 		tiZ = inIncZ;
