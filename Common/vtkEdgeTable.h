@@ -138,7 +138,7 @@ public:
   // Description: 
   // Similar to above, but fills a void* pointer if InitEdgeInsertion()
   // has been called with storeAttributes==2. A NULL pointer value
-  // is filled otherwise.  Returns -1 if edge does not exist.
+  // is filled otherwise.  Returns 0 if list is exhausted.
   int GetNextEdge(vtkIdType &p1, vtkIdType &p2, void* &ptr);
 
   // Description:

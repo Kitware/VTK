@@ -21,7 +21,7 @@
 #include "vtkVoidArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkEdgeTable, "1.35");
+vtkCxxRevisionMacro(vtkEdgeTable, "1.36");
 vtkStandardNewMacro(vtkEdgeTable);
 
 // Instantiate object based on maximum point id.
@@ -459,9 +459,8 @@ vtkIdType vtkEdgeTable::GetNextEdge(vtkIdType &p1, vtkIdType &p2)
 }
 
 // Traverse list of edges in table. Return the edge as (p1,p2), where p1 and
-// p2 are point id's. Method return value is <0 if the list is exhausted;
-// otherwise a valid id >=0. The value of p1 is guaranteed to be <= p2. The
-// return value is an id that can be used for accessing attributes.
+// p2 are point id's. The value of p1 is guaranteed to be <= p2. The
+// return value is either 1 for success or 0 if the list is exhausted.
 int vtkEdgeTable::GetNextEdge(vtkIdType &p1, vtkIdType &p2, void* &ptr)
 {
   for ( ; this->Position[0] <= this->TableMaxId; 
@@ -480,10 +479,10 @@ int vtkEdgeTable::GetNextEdge(vtkIdType &p1, vtkIdType &p2, void* &ptr)
         {
           ptr = NULL;
         }
-      return 0;
+      return 1;
       }
     }
-  return (-1);
+  return 0;
 }
 
 vtkIdList **vtkEdgeTable::Resize(vtkIdType sz)
