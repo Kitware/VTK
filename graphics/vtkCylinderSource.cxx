@@ -50,6 +50,7 @@ vtkCylinderSource::vtkCylinderSource (int res)
   this->Height = 1.0;
   this->Radius = 0.5;
   this->Capping = 1;
+  this->Center[0] = this->Center[1] = this->Center[2] = 0.0;
 }
 
 void vtkCylinderSource::Execute()
