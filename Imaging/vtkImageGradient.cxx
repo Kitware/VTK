@@ -254,7 +254,12 @@ void vtkImageGradient::ThreadedExecute(vtkImageData *inData,
   
   vtkDebugMacro(<< "Execute: inData = " << inData 
 		<< ", outData = " << outData);
-  
+
+  if (!id)
+    {
+    outData->GetPointData()->GetActiveScalars()->SetName("Gradient");
+    }
+
   // this filter expects that input is the same type as output.
   if (outData->GetScalarType() != VTK_FLOAT)
     {
