@@ -322,26 +322,54 @@ char *get_format_string()
 
 void outputFunction2(FILE *fp, FileInfo *data)
 {
-  int i, j, fnum, occ;
+  int i, j, fnum, occ, backnum, first;
   FunctionInfo *theFunc;
-  
+  FunctionInfo *backFunc;
+
+  /* first create external type declarations for all object
+     return types */
+  for (fnum = 0; fnum < numberOfWrappedFunctions; fnum++)
+    {
+    theFunc = wrappedFunctions[fnum];
+    currentFunction = theFunc;
+
+    /* check for object return types */
+    if ((theFunc->ReturnType%1000 == 309)||
+	(theFunc->ReturnType%1000 == 109))
+      {
+      first = 1;
+      /* check that we haven't done this type (no duplicate declarations) */
+      for (backnum = fnum-1; backnum >= 0; backnum--) 
+	{
+        backFunc = wrappedFunctions[backnum];
+	if (((backFunc->ReturnType%1000 == 309)||
+	     (backFunc->ReturnType%1000 == 109)) &&
+	    (strcmp(theFunc->ReturnClass,backFunc->ReturnClass) == 0))
+	  {
+	  first = 0;
+	  break;
+	  }
+	}
+      /* this is the first time this type has been returned */
+      if (first)
+	{
+	fprintf(fp,"\n");
+	handle_vtkobj_return(fp);
+	}
+      }
+    }
+
   /* for each function in the array */
   for (fnum = 0; fnum < numberOfWrappedFunctions; fnum++)
     {
     /* make sure we haven't already done one of these */
     theFunc = wrappedFunctions[fnum];
     currentFunction = theFunc;
+
     if (theFunc->Name)
       {
       fprintf(fp,"\n");
       
-      /* does this return a vtkObject if so must do special stuff */
-      if ((theFunc->ReturnType%1000 == 309)||
-	  (theFunc->ReturnType%1000 == 109))
-	{
-	handle_vtkobj_return(fp);
-	}
-
       fprintf(fp,"static PyObject *Py%s_%s(PyObject *self, PyObject *args)\n",
 	      data->ClassName,currentFunction->Name);
       fprintf(fp,"{\n");
