@@ -18,7 +18,7 @@
      a license grant from Kitware. Contact:
          Ken Martin
          Kitware
-         469 Clifton Corporate Parkway,
+         28 Corporate Drive Suite 204,
          Clifton Park, NY 12065
          Phone:1-518-371-3971 
      for more information.
@@ -45,7 +45,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkSynchronizedTemplates2D, "1.35");
+vtkCxxRevisionMacro(vtkSynchronizedTemplates2D, "1.36");
 vtkStandardNewMacro(vtkSynchronizedTemplates2D);
 
 //----------------------------------------------------------------------------
