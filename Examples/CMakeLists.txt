@@ -20,6 +20,7 @@ IF(VTK_BINARY_DIR)
       --build-project VTKLOCAL
       --build-options -DVTK_DIR:PATH=${VTK_BINARY_DIR}
       --test-command
+      ${CMAKE_COMMAND} -E chdir ${EXECUTABLE_OUTPUT_PATH}
       ${VTK_BINARY_DIR}/Examples/Build/vtkLocal/bin/vtkLocalTest
       )
     ADD_TEST(Example-vtkMy ${CMAKE_CTEST_COMMAND}
@@ -32,6 +33,7 @@ IF(VTK_BINARY_DIR)
       --build-project VTKLOCAL
       --build-options -DVTK_DIR:PATH=${VTK_BINARY_DIR}
       --test-command
+      ${CMAKE_COMMAND} -E chdir ${EXECUTABLE_OUTPUT_PATH}
       ${VTK_BINARY_DIR}/Examples/Build/vtkMy/bin/vtkmyEx1
       )
   ENDIF(BUILD_TESTING)
