@@ -308,15 +308,35 @@ void vtkImageMagnify::ThreadedExecute(vtkImageData *inData,
   
   switch (inData->GetScalarType())
     {
+    case VTK_DOUBLE:
+      vtkImageMagnifyExecute(this, 
+			     inData, (double *)(inPtr), inExt,
+			     outData, (double *)(outPtr), outExt, id);
+      break;
     case VTK_FLOAT:
       vtkImageMagnifyExecute(this, 
 			     inData, (float *)(inPtr), inExt,
 			     outData, (float *)(outPtr), outExt, id);
       break;
+    case VTK_LONG:
+      vtkImageMagnifyExecute(this, 
+			     inData, (long *)(inPtr), inExt,
+			     outData, (long *)(outPtr), outExt, id);
+      break;
+    case VTK_UNSIGNED_LONG:
+      vtkImageMagnifyExecute(this, 
+			     inData, (unsigned long *)(inPtr), inExt,
+			     outData, (unsigned long *)(outPtr), outExt, id);
+      break;
     case VTK_INT:
       vtkImageMagnifyExecute(this, 
 			     inData, (int *)(inPtr), inExt,
 			     outData, (int *)(outPtr), outExt, id);
+      break;
+    case VTK_UNSIGNED_INT:
+      vtkImageMagnifyExecute(this, 
+			     inData, (unsigned int *)(inPtr), inExt,
+			     outData, (unsigned int *)(outPtr), outExt, id);
       break;
     case VTK_SHORT:
       vtkImageMagnifyExecute(this, 
@@ -327,6 +347,11 @@ void vtkImageMagnify::ThreadedExecute(vtkImageData *inData,
       vtkImageMagnifyExecute(this, 
 			     inData, (unsigned short *)(inPtr), inExt,
 			     outData, (unsigned short *)(outPtr), outExt, id);
+      break;
+    case VTK_CHAR:
+      vtkImageMagnifyExecute(this, 
+			     inData, (char *)(inPtr), inExt,
+			     outData, (char *)(outPtr), outExt, id);
       break;
     case VTK_UNSIGNED_CHAR:
       vtkImageMagnifyExecute(this, 

@@ -205,13 +205,29 @@ void vtkImageFlip::ThreadedExecute(vtkImageData *inData,
   
   switch (outData->GetScalarType())
     {
+    case VTK_DOUBLE:
+      vtkImageFlipExecute(this, id, inData, inExt, 
+			  outData, outExt, (double *)(outPtr));
+      break;
     case VTK_FLOAT:
       vtkImageFlipExecute(this, id, inData, inExt, 
 			  outData, outExt, (float *)(outPtr));
       break;
+    case VTK_LONG:
+      vtkImageFlipExecute(this, id, inData, inExt, 
+			  outData, outExt, (long *)(outPtr));
+      break;
+    case VTK_UNSIGNED_LONG:
+      vtkImageFlipExecute(this, id, inData, inExt, 
+			  outData, outExt, (unsigned long *)(outPtr));
+      break;
     case VTK_INT:
       vtkImageFlipExecute(this, id, inData, inExt, 
 			  outData, outExt, (int *)(outPtr));
+      break;
+    case VTK_UNSIGNED_INT:
+      vtkImageFlipExecute(this, id, inData, inExt, 
+			  outData, outExt, (unsigned int *)(outPtr));
       break;
     case VTK_SHORT:
       vtkImageFlipExecute(this, id, inData, inExt, 
@@ -224,6 +240,10 @@ void vtkImageFlip::ThreadedExecute(vtkImageData *inData,
     case VTK_UNSIGNED_CHAR:
       vtkImageFlipExecute(this, id, inData, inExt, 
 			  outData, outExt, (unsigned char *)(outPtr));
+      break;
+    case VTK_CHAR:
+      vtkImageFlipExecute(this, id, inData, inExt, 
+			  outData, outExt, (char *)(outPtr));
       break;
     default:
       vtkErrorMacro(<< "Execute: Unknown input ScalarType");

@@ -474,8 +474,20 @@ void vtkBMPReader::Execute(vtkImageData *data)
   outPtr = data->GetScalarPointer();
   switch (data->GetScalarType())
     {
+    case VTK_DOUBLE:
+      vtkBMPReaderUpdate2(this, data, (double *)(outPtr));
+      break;
     case VTK_FLOAT:
       vtkBMPReaderUpdate2(this, data, (float *)(outPtr));
+      break;
+    case VTK_UNSIGNED_LONG:
+      vtkBMPReaderUpdate2(this, data, (unsigned long *)(outPtr));
+      break;
+    case VTK_LONG:
+      vtkBMPReaderUpdate2(this, data, (long *)(outPtr));
+      break;
+    case VTK_UNSIGNED_INT:
+      vtkBMPReaderUpdate2(this, data, (unsigned int *)(outPtr));
       break;
     case VTK_INT:
       vtkBMPReaderUpdate2(this, data, (int *)(outPtr));
@@ -488,6 +500,9 @@ void vtkBMPReader::Execute(vtkImageData *data)
       break;
     case VTK_UNSIGNED_CHAR:
       vtkBMPReaderUpdate2(this, data, (unsigned char *)(outPtr));
+      break;
+    case VTK_CHAR:
+      vtkBMPReaderUpdate2(this, data, (char *)(outPtr));
       break;
     default:
       vtkErrorMacro(<< "Execute: Unknown data type");

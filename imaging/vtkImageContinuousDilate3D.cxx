@@ -313,13 +313,33 @@ void vtkImageContinuousDilate3D::ThreadedExecute(vtkImageData *inData,
 
   switch (inData->GetScalarType())
     {
+    case VTK_DOUBLE:
+      vtkImageContinuousDilate3DExecute(this, mask, inData, (double *)(inPtr), 
+				outData, outExt, (double *)(outPtr), id);
+      break;
     case VTK_FLOAT:
       vtkImageContinuousDilate3DExecute(this, mask, inData, (float *)(inPtr), 
 				outData, outExt, (float *)(outPtr), id);
       break;
+    case VTK_LONG:
+      vtkImageContinuousDilate3DExecute(this, mask, inData, (long *)(inPtr), 
+				outData, outExt, (long*)(outPtr), id);
+      break;
+    case VTK_UNSIGNED_LONG:
+      vtkImageContinuousDilate3DExecute(this, mask, inData, 
+                                        (unsigned long *)(inPtr), 
+                                        outData, outExt, 
+                                        (unsigned long*)(outPtr), id);
+      break;
     case VTK_INT:
       vtkImageContinuousDilate3DExecute(this, mask, inData, (int *)(inPtr), 
 				outData, outExt, (int*)(outPtr), id);
+      break;
+    case VTK_UNSIGNED_INT:
+      vtkImageContinuousDilate3DExecute(this, mask, inData, 
+                                        (unsigned int *)(inPtr), 
+                                        outData, outExt, 
+                                        (unsigned int*)(outPtr), id);
       break;
     case VTK_SHORT:
       vtkImageContinuousDilate3DExecute(this, mask, inData, (short *)(inPtr), 
@@ -329,6 +349,11 @@ void vtkImageContinuousDilate3D::ThreadedExecute(vtkImageData *inData,
       vtkImageContinuousDilate3DExecute(this, mask, 
 				inData, (unsigned short *)(inPtr), 
 				outData, outExt, (unsigned short *)(outPtr),id);
+      break;
+    case VTK_CHAR:
+      vtkImageContinuousDilate3DExecute(this, mask, 
+				inData, (char *)(inPtr), 
+				outData, outExt, (char *)(outPtr),id);
       break;
     case VTK_UNSIGNED_CHAR:
       vtkImageContinuousDilate3DExecute(this, mask, 

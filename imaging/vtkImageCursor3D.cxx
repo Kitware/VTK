@@ -136,13 +136,29 @@ void vtkImageCursor3D::Execute(vtkImageData *vtkNotUsed(inData),
   
   switch (outData->GetScalarType())
     {
+    case VTK_DOUBLE:
+      vtkImageCursor3DExecute(this, 
+			      outData, (double *)(ptr));
+      break;
     case VTK_FLOAT:
       vtkImageCursor3DExecute(this, 
 			      outData, (float *)(ptr));
       break;
+    case VTK_LONG:
+      vtkImageCursor3DExecute(this, 
+			      outData, (long *)(ptr));
+      break;
+    case VTK_UNSIGNED_LONG:
+      vtkImageCursor3DExecute(this, 
+			      outData, (unsigned long *)(ptr));
+      break;
     case VTK_INT:
       vtkImageCursor3DExecute(this, 
 			      outData, (int *)(ptr));
+      break;
+    case VTK_UNSIGNED_INT:
+      vtkImageCursor3DExecute(this, 
+			      outData, (unsigned int *)(ptr));
       break;
     case VTK_SHORT:
       vtkImageCursor3DExecute(this, 
@@ -151,6 +167,10 @@ void vtkImageCursor3D::Execute(vtkImageData *vtkNotUsed(inData),
     case VTK_UNSIGNED_SHORT:
       vtkImageCursor3DExecute(this, 
 			      outData, (unsigned short *)(ptr));
+      break;
+    case VTK_CHAR:
+      vtkImageCursor3DExecute(this, 
+			      outData, (char *)(ptr));
       break;
     case VTK_UNSIGNED_CHAR:
       vtkImageCursor3DExecute(this, 

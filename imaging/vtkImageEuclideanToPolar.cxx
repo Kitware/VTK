@@ -153,15 +153,37 @@ void vtkImageEuclideanToPolar::ThreadedExecute(vtkImageData *inData,
 
   switch (inData->GetScalarType())
     {
+    case VTK_DOUBLE:
+      vtkImageEuclideanToPolarExecute(this, 
+			      inData, (double *)(inPtr), 
+			      outData, (double *)(outPtr), outExt, id);
+      break;
     case VTK_FLOAT:
       vtkImageEuclideanToPolarExecute(this, 
 			      inData, (float *)(inPtr), 
 			      outData, (float *)(outPtr), outExt, id);
       break;
+    case VTK_LONG:
+      vtkImageEuclideanToPolarExecute(this, 
+			      inData, (long *)(inPtr), 
+			      outData, (long *)(outPtr), outExt, id);
+      break;
+    case VTK_UNSIGNED_LONG:
+      vtkImageEuclideanToPolarExecute(this, 
+			      inData, (unsigned long *)(inPtr), 
+			      outData, (unsigned long *)(outPtr), 
+			      outExt, id);
+      break;
     case VTK_INT:
       vtkImageEuclideanToPolarExecute(this, 
 			      inData, (int *)(inPtr), 
 			      outData, (int *)(outPtr), outExt, id);
+      break;
+    case VTK_UNSIGNED_INT:
+      vtkImageEuclideanToPolarExecute(this, 
+			      inData, (unsigned int *)(inPtr), 
+			      outData, (unsigned int *)(outPtr), 
+			      outExt, id);
       break;
     case VTK_SHORT:
       vtkImageEuclideanToPolarExecute(this, 
@@ -173,6 +195,11 @@ void vtkImageEuclideanToPolar::ThreadedExecute(vtkImageData *inData,
 			      inData, (unsigned short *)(inPtr), 
 			      outData, (unsigned short *)(outPtr), 
 			      outExt, id);
+      break;
+    case VTK_CHAR:
+      vtkImageEuclideanToPolarExecute(this, 
+			      inData, (char *)(inPtr), 
+			      outData, (char *)(outPtr), outExt, id);
       break;
     case VTK_UNSIGNED_CHAR:
       vtkImageEuclideanToPolarExecute(this, 

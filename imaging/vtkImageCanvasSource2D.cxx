@@ -172,11 +172,27 @@ void vtkImageCanvasSource2D::FillBox(int min0, int max0, int min1, int max1)
   ptr = this->ImageData->GetScalarPointer(min0, min1, 0);
   switch (this->ImageData->GetScalarType())
     {
+    case VTK_DOUBLE:
+      vtkImageCanvasSource2DFillBox(this->ImageData, this->DrawColor, 
+			   (double *)(ptr), min0,max0, min1,max1);
+      break;
     case VTK_FLOAT:
       vtkImageCanvasSource2DFillBox(this->ImageData, this->DrawColor, 
 			   (float *)(ptr), min0,max0, min1,max1);
       break;
+    case VTK_LONG:
+      vtkImageCanvasSource2DFillBox(this->ImageData, this->DrawColor, 
+			   (unsigned long *)(ptr), min0,max0, min1,max1);
+      break;
+    case VTK_UNSIGNED_LONG:
+      vtkImageCanvasSource2DFillBox(this->ImageData, this->DrawColor, 
+			   (long *)(ptr), min0,max0, min1,max1);
+      break;
     case VTK_INT:
+      vtkImageCanvasSource2DFillBox(this->ImageData, this->DrawColor, 
+			   (unsigned int *)(ptr), min0,max0, min1,max1);
+      break;
+    case VTK_UNSIGNED_INT:
       vtkImageCanvasSource2DFillBox(this->ImageData, this->DrawColor, 
 			   (int *)(ptr), min0,max0, min1,max1);
       break;
@@ -191,6 +207,10 @@ void vtkImageCanvasSource2D::FillBox(int min0, int max0, int min1, int max1)
     case VTK_UNSIGNED_CHAR:
       vtkImageCanvasSource2DFillBox(this->ImageData, this->DrawColor, 
 			   (unsigned char *)(ptr), min0,max0, min1,max1);
+      break;
+    case VTK_CHAR:
+      vtkImageCanvasSource2DFillBox(this->ImageData, this->DrawColor, 
+			   (char *)(ptr), min0,max0, min1,max1);
       break;
     default:
       vtkErrorMacro(<< "FillBox: Cannot handle ScalarType.");

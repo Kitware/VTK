@@ -209,15 +209,35 @@ void vtkImageDivergence::ThreadedExecute(vtkImageData *inData,
   
   switch (inData->GetScalarType())
     {
+    case VTK_DOUBLE:
+      vtkImageDivergenceExecute(this, 
+				inData, (double *)(inPtr), 
+				outData, (double *)(outPtr), outExt, id);
+      break;
     case VTK_FLOAT:
       vtkImageDivergenceExecute(this, 
 				inData, (float *)(inPtr), 
 				outData, (float *)(outPtr), outExt, id);
       break;
+    case VTK_LONG:
+      vtkImageDivergenceExecute(this, 
+				inData, (long *)(inPtr), 
+				outData, (long *)(outPtr), outExt, id);
+      break;
+    case VTK_UNSIGNED_LONG:
+      vtkImageDivergenceExecute(this, 
+				inData, (unsigned long *)(inPtr), 
+				outData, (unsigned long *)(outPtr), outExt, id);
+      break;
     case VTK_INT:
       vtkImageDivergenceExecute(this, 
 				inData, (int *)(inPtr), 
 				outData, (int *)(outPtr), outExt, id);
+      break;
+    case VTK_UNSIGNED_INT:
+      vtkImageDivergenceExecute(this, 
+				inData, (unsigned int *)(inPtr), 
+				outData, (unsigned int *)(outPtr), outExt, id);
       break;
     case VTK_SHORT:
       vtkImageDivergenceExecute(this, 
@@ -228,6 +248,11 @@ void vtkImageDivergence::ThreadedExecute(vtkImageData *inData,
       vtkImageDivergenceExecute(this, 
 				inData, (unsigned short *)(inPtr), 
 				outData, (unsigned short *)(outPtr), outExt, id);
+      break;
+    case VTK_CHAR:
+      vtkImageDivergenceExecute(this, 
+				inData, (char *)(inPtr), 
+				outData, (char *)(outPtr), outExt, id);
       break;
     case VTK_UNSIGNED_CHAR:
       vtkImageDivergenceExecute(this, 

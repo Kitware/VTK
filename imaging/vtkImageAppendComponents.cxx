@@ -160,16 +160,40 @@ void vtkImageAppendComponents::ThreadedExecute(vtkImageData **inData,
 	
 	switch (inData[idx1]->GetScalarType())
 	  {
+	  case VTK_DOUBLE:
+	    vtkImageAppendComponentsExecute(this, inData[idx1],
+				    (double *)(inPtr), inComp,
+				    outData, (double *)(outPtr), 
+				    outComp, outExt, id);
+	    break;
 	  case VTK_FLOAT:
 	    vtkImageAppendComponentsExecute(this, inData[idx1],
 				    (float *)(inPtr), inComp,
 				    outData, (float *)(outPtr), 
 				    outComp, outExt, id);
 	    break;
+	  case VTK_LONG:
+	    vtkImageAppendComponentsExecute(this, inData[idx1], 
+				    (long *)(inPtr), inComp,
+				    outData, (long *)(outPtr),
+				    outComp, outExt, id);
+	    break;
+	  case VTK_UNSIGNED_LONG:
+	    vtkImageAppendComponentsExecute(this, inData[idx1], 
+				    (unsigned long *)(inPtr), inComp,
+				    outData, (unsigned long *)(outPtr),
+				    outComp, outExt, id);
+	    break;
 	  case VTK_INT:
 	    vtkImageAppendComponentsExecute(this, inData[idx1], 
 				    (int *)(inPtr), inComp,
 				    outData, (int *)(outPtr),
+				    outComp, outExt, id);
+	    break;
+	  case VTK_UNSIGNED_INT:
+	    vtkImageAppendComponentsExecute(this, inData[idx1], 
+				    (unsigned int *)(inPtr), inComp,
+				    outData, (unsigned int *)(outPtr),
 				    outComp, outExt, id);
 	    break;
 	  case VTK_SHORT:
@@ -188,6 +212,12 @@ void vtkImageAppendComponents::ThreadedExecute(vtkImageData **inData,
 	    vtkImageAppendComponentsExecute(this, inData[idx1], 
 				    (unsigned char *)(inPtr), inComp,
 				    outData, (unsigned char *)(outPtr),
+				    outComp, outExt, id);
+	    break;
+	  case VTK_CHAR:
+	    vtkImageAppendComponentsExecute(this, inData[idx1], 
+				    (char *)(inPtr), inComp,
+				    outData, (char *)(outPtr),
 				    outComp, outExt, id);
 	    break;
 	  default:

@@ -272,17 +272,32 @@ void vtkImageGaussianSmooth::ExecuteAxis(int axis,
   // trick to account for the scalar type of the output(used to be only float)
   switch (outData->GetScalarType())
     {
+    case VTK_DOUBLE:
+      outIncA *= sizeof(double);
+      break;
     case VTK_FLOAT:
       outIncA *= sizeof(float);
       break;
+    case VTK_LONG:
+      outIncA *= sizeof(long);
+      break;
+    case VTK_UNSIGNED_LONG:
+      outIncA *= sizeof(unsigned long);
+      break;
     case VTK_INT:
       outIncA *= sizeof(int);
+      break;
+    case VTK_UNSIGNED_INT:
+      outIncA *= sizeof(unsigned int);
       break;
     case VTK_SHORT:
       outIncA *= sizeof(short);
       break;
     case VTK_UNSIGNED_SHORT:
       outIncA *= sizeof(unsigned short);
+      break;
+    case VTK_CHAR:
+      outIncA *= sizeof(char);
       break;
     case VTK_UNSIGNED_CHAR:
       outIncA *= sizeof(unsigned char);
@@ -346,17 +361,43 @@ void vtkImageGaussianSmooth::ExecuteAxis(int axis,
     inPtr = inData->GetScalarPointer(coords);
     switch (inData->GetScalarType())
       {
+      case VTK_DOUBLE:
+	vtkImageGaussianSmoothExecute(this, axis, kernel, kernelSize,
+				      inData, (double *)(inPtr),
+				      outData, outExt, (double *)(outPtr),
+				      pcycle, target, pcount, total);
+	break;
       case VTK_FLOAT:
 	vtkImageGaussianSmoothExecute(this, axis, kernel, kernelSize,
 				      inData, (float *)(inPtr),
 				      outData, outExt, (float *)(outPtr),
 				      pcycle, target, pcount, total);
 	break;
+      case VTK_LONG:
+	vtkImageGaussianSmoothExecute(this, axis, kernel, kernelSize,
+				      inData, (long *)(inPtr),
+				      outData, outExt, (long *)(outPtr),
+				      pcycle, target, pcount, total);
+	break;
+      case VTK_UNSIGNED_LONG:
+	vtkImageGaussianSmoothExecute(this, axis, kernel, kernelSize,
+			      inData, (unsigned long *)(inPtr),
+			      outData, outExt, (unsigned long *)(outPtr),
+			      pcycle, target, pcount, total);
+				      
+	break;
       case VTK_INT:
 	vtkImageGaussianSmoothExecute(this, axis, kernel, kernelSize,
 				      inData, (int *)(inPtr),
 				      outData, outExt, (int *)(outPtr),
 				      pcycle, target, pcount, total);
+	break;
+      case VTK_UNSIGNED_INT:
+	vtkImageGaussianSmoothExecute(this, axis, kernel, kernelSize,
+			      inData, (unsigned int *)(inPtr),
+			      outData, outExt, (unsigned int *)(outPtr),
+			      pcycle, target, pcount, total);
+				      
 	break;
       case VTK_SHORT:
 	vtkImageGaussianSmoothExecute(this, axis, kernel, kernelSize,
@@ -370,6 +411,12 @@ void vtkImageGaussianSmooth::ExecuteAxis(int axis,
 			      outData, outExt, (unsigned short *)(outPtr),
 			      pcycle, target, pcount, total);
 				      
+	break;
+      case VTK_CHAR:
+	vtkImageGaussianSmoothExecute(this, axis, kernel, kernelSize,
+				      inData, (char *)(inPtr),
+				      outData, outExt, (char *)(outPtr),
+				      pcycle, target, pcount, total);
 	break;
       case VTK_UNSIGNED_CHAR:
 	vtkImageGaussianSmoothExecute(this, axis, kernel, kernelSize,
