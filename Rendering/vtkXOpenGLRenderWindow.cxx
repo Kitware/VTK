@@ -87,7 +87,7 @@ vtkXOpenGLRenderWindowInternal::vtkXOpenGLRenderWindowInternal(
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.47");
+vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.48");
 vtkStandardNewMacro(vtkXOpenGLRenderWindow);
 #endif
 
@@ -404,15 +404,6 @@ void vtkXOpenGLRenderWindow::WindowInitialize (void)
       }
     
     this->Internal->ContextId = glXCreateContext(this->DisplayId, v, 0, GL_TRUE);
-
-    if (this->HasObserver(vtkCommand::ExitEvent))
-      {
-        this->InvokeEvent(vtkCommand::ExitEvent, NULL);
-      }
-    else
-      {
-        cout <<"no exit event" << endl;
-      }
 
     if(!this->Internal->ContextId)
       {
