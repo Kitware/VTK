@@ -26,18 +26,12 @@ const char* FONT_INFO = "/usr/share/fonts/truetype/arial.ttf";
 const char* FONT_FILE = "/Users/henry/Development/PROJECTS/FTGL/ftglcvs/FTGL/demo/arial.ttf";
 const char* FONT_INFO = "/Users/henry/Development/PROJECTS/FTGL/ftglcvs/FTGL/demo/arial.ttf";
 #else
-#ifdef _HPUX_SOURCE
-const char* FONT_FILE = "/usr/lib/X11/fonts/ttf.st/typefaces/univer.ttf";
-const char* FONT_INFO = "/usr/lib/X11/fonts/ttf.st/typefaces/courie.ttf";
-#else
 #ifdef WIN32
 const char* FONT_FILE = "C:\\WINNT\\Fonts\\arial.ttf";
 const char* FONT_INFO = "C:\\WINNT\\Fonts\\arial.ttf";
 #else
-#error yo
 const char* FONT_FILE = "arial.ttf";
 const char* FONT_INFO = "arial.ttf";
-#endif
 #endif
 #endif
 #endif
