@@ -74,7 +74,10 @@ void vtkPriorityQueue::Allocate(const int sz, const int ext)
 // Desctructor for the vtkPriorityQueue class
 vtkPriorityQueue::~vtkPriorityQueue()
 {
-  this->ItemLocation->Delete();
+  if (this->ItemLocation)
+    {
+    this->ItemLocation->Delete();
+    }
   if ( this->Array != NULL )
     {
     delete [] this->Array;
