@@ -218,7 +218,7 @@ IF (VTK_MANGLE_MESA)
                  vtkXMesaRenderWindow
                  vtkXMesaTextMapper
                 )
-
+    ABSTRACT_FILES(vtkMesaRenderWindow)
     LINK_LIBRARIES (${MESA_LIBRARY})
     IF(MESA_OS_LIBRARY)
       LINK_LIBRARIES( ${MESA_OS_LIBRARY} )
