@@ -86,17 +86,7 @@ protected:
 
 private:
   //BTX
-#ifdef _WIN32
-#ifdef VTKDLL
-  friend __declspec(dllexport) 
-    ostream& operator<<(ostream& os, vtkObject& o);  
-#else
-  friend __declspec(dllimport) 
-     ostream& operator<<(ostream& os, vtkObject& o);
-#endif
-#else  
-  friend ostream& operator<<(ostream& os, vtkObject& o);
-#endif 
+  friend VTK_EXPORT ostream& operator<<(ostream& os, vtkObject& o);
   //ETX
 };
 
