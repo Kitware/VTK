@@ -211,7 +211,7 @@ vtkIdType vtkPointLocator::FindClosestPoint(const float x[3])
   for (j=0; j<3; j++) 
     {
     ijk[j] = (int)(((x[j] - this->Bounds[2*j]) / 
-        (this->Bounds[2*j+1] - this->Bounds[2*j])) * (this->Divisions[j]-1));
+        (this->Bounds[2*j+1] - this->Bounds[2*j])) * this->Divisions[j]);
 
     if (ijk[j] < 0)
       {
@@ -331,7 +331,7 @@ vtkIdType vtkPointLocator::FindClosestPointWithinRadius(float radius,
   for (j=0; j<3; j++) 
     {
     ijk[j] = (int)(((x[j] - this->Bounds[2*j]) / 
-        (this->Bounds[2*j+1] - this->Bounds[2*j])) * (this->Divisions[j]-1));
+        (this->Bounds[2*j+1] - this->Bounds[2*j])) * this->Divisions[j]);
 
     if (ijk[j] < 0)
       {
@@ -611,7 +611,11 @@ void vtkPointLocator::FindDistributedPoints(int N, const float x[3],
   for (j=0; j<3; j++) 
     {
     ijk[j] = (int)(((x[j] - this->Bounds[2*j]) / 
-        (this->Bounds[2*j+1] - this->Bounds[2*j])) * (this->Divisions[j]-1));
+          (this->Bounds[2*j+1] - this->Bounds[2*j])) * this->Divisions[j]);
+    if (ijk[j] >= this->Divisions[j])
+      {
+      ijk[j] = this->Divisions[j] - 1;
+      }
     }
 
   // there are two steps, first a simple expanding wave of buckets until
@@ -759,7 +763,7 @@ void vtkPointLocator::FindClosestNPoints(int N, const float x[3],
   for (j=0; j<3; j++) 
     {
     ijk[j] = (int)(((x[j] - this->Bounds[2*j]) / 
-        (this->Bounds[2*j+1] - this->Bounds[2*j])) * (this->Divisions[j]-1));
+        (this->Bounds[2*j+1] - this->Bounds[2*j])) * this->Divisions[j]);
 
     if (ijk[j] < 0)
       {
@@ -896,7 +900,7 @@ void vtkPointLocator::FindPointsWithinRadius(float R, const float x[3],
   for (j=0; j<3; j++) 
     {
     ijk[j] = (int)(((x[j] - this->Bounds[2*j]) / 
-        (this->Bounds[2*j+1] - this->Bounds[2*j])) * (this->Divisions[j]-1));
+        (this->Bounds[2*j+1] - this->Bounds[2*j])) * this->Divisions[j]);
 
     if (ijk[j] < 0)
       {
@@ -1037,7 +1041,11 @@ void vtkPointLocator::BuildLocator()
     for (j=0; j<3; j++) 
       {
       ijk[j] = (int) ((float) ((x[j] - this->Bounds[2*j]) / 
-                        (this->Bounds[2*j+1] - this->Bounds[2*j])) * (ndivs[j]- 1));
+                        (this->Bounds[2*j+1] - this->Bounds[2*j])) * ndivs[j]);
+      if (ijk[j] >= this->Divisions[j])
+        {
+        ijk[j] = this->Divisions[j] - 1;
+        }
       }
 
     idx = ijk[0] + ijk[1]*ndivs[0] + ijk[2]*product;
@@ -1127,9 +1135,9 @@ void vtkPointLocator::GetOverlappingBuckets(vtkNeighborPoints* buckets,
   for (i=0; i < 3; i++)
     {
     minLevel[i] = (int) ((float) (((x[i]-dist) - this->Bounds[2*i]) / 
-        (this->Bounds[2*i+1] - this->Bounds[2*i])) * (this->Divisions[i] - 1));
+        (this->Bounds[2*i+1] - this->Bounds[2*i])) * this->Divisions[i]);
     maxLevel[i] = (int) ((float) (((x[i]+dist) - this->Bounds[2*i]) / 
-        (this->Bounds[2*i+1] - this->Bounds[2*i])) * (this->Divisions[i] - 1));
+        (this->Bounds[2*i+1] - this->Bounds[2*i])) * this->Divisions[i]);
 
     if ( minLevel[i] < 0 )
       {
@@ -1374,7 +1382,11 @@ vtkIdType vtkPointLocator::InsertNextPoint(const float x[3])
   for (i=0; i<3; i++)
     {
     ijk[i] = (int) ((float) ((x[i] - this->Bounds[2*i]) / 
-        (this->Bounds[2*i+1] - this->Bounds[2*i])) * (this->Divisions[i] - 1));
+        (this->Bounds[2*i+1] - this->Bounds[2*i])) * this->Divisions[i]);
+    if (ijk[i] >= this->Divisions[i])
+      {
+      ijk[i] = this->Divisions[i] - 1;
+      }
     }
 
   idx = ijk[0] + ijk[1]*this->Divisions[0] + 
@@ -1410,7 +1422,11 @@ void vtkPointLocator::InsertPoint(vtkIdType ptId, const float x[3])
   for (i=0; i<3; i++)
     {
     ijk[i] = (int) ((float) ((x[i] - this->Bounds[2*i]) / 
-        (this->Bounds[2*i+1] - this->Bounds[2*i])) * (this->Divisions[i] - 1));
+       (this->Bounds[2*i+1] - this->Bounds[2*i])) * this->Divisions[i]);
+    if (ijk[i] >= this->Divisions[i])
+      {
+      ijk[i] = this->Divisions[i] - 1;
+      }
     }
 
   idx = ijk[0] + ijk[1]*this->Divisions[0] + 
@@ -1441,7 +1457,11 @@ vtkIdType vtkPointLocator::IsInsertedPoint(const float x[3])
   for (i=0; i<3; i++)
     {
     ijk[i] = (int) ((float) ((x[i] - this->Bounds[2*i]) / 
-        (this->Bounds[2*i+1] - this->Bounds[2*i])) * (this->Divisions[i] - 1));
+        (this->Bounds[2*i+1] - this->Bounds[2*i])) * this->Divisions[i]);
+    if (ijk[i] >= this->Divisions[i])
+      {
+      ijk[i] = this->Divisions[i] - 1;
+      }
     }
 
   // Check the list of points in that bucket for merging.  Also need to 
@@ -1535,7 +1555,11 @@ vtkIdType vtkPointLocator::FindClosestInsertedPoint(const float x[3])
   for (j=0; j<3; j++) 
     {
     ijk[j] = (int)(((x[j] - this->Bounds[2*j]) / 
-        (this->Bounds[2*j+1] - this->Bounds[2*j])) * (this->Divisions[j]-1));
+        (this->Bounds[2*j+1] - this->Bounds[2*j])) * this->Divisions[j]);
+    if (ijk[j] >= this->Divisions[j])
+      {
+      ijk[j] = this->Divisions[j] - 1;
+      }
     }
 
   //  Need to search this bucket for closest point.  If there are no
@@ -1637,7 +1661,11 @@ vtkIdList *vtkPointLocator::GetPointsInBucket(const float x[3],
   for (i=0; i<3; i++) 
     {
     ijk[i] = (int)(((x[i] - this->Bounds[2*i]) / 
-        (this->Bounds[2*i+1] - this->Bounds[2*i])) * (this->Divisions[i]-1));
+        (this->Bounds[2*i+1] - this->Bounds[2*i])) * this->Divisions[i]);
+    if (ijk[i] >= this->Divisions[i])
+      {
+      ijk[i] = this->Divisions[i] - 1;
+      }
     }
   
   // Get the id list, if any

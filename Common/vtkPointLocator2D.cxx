@@ -182,7 +182,11 @@ int vtkPointLocator2D::FindClosestPoint(float x[2])
   for (j=0; j<2; j++) 
     {
     ijk[j] = (int)(((x[j] - this->Bounds[2*j]) / 
-        (this->Bounds[2*j+1] - this->Bounds[2*j])) * (this->Divisions[j]-1));
+       (this->Bounds[2*j+1] - this->Bounds[2*j])) * this->Divisions[j]);
+    if (ijk[j] >= this->Divisions[j])
+      {
+      ijk[j] = this->Divisions[j] - 1;
+      }
     }
   //
   //  Need to search this bucket for closest point.  If there are no
@@ -362,7 +366,11 @@ void vtkPointLocator2D::FindDistributedPoints(int N, float x[2],
   for (j=0; j<2; j++) 
     {
     ijk[j] = (int)(((x[j] - this->Bounds[2*j]) / 
-        (this->Bounds[2*j+1] - this->Bounds[2*j])) * (this->Divisions[j]-1));
+        (this->Bounds[2*j+1] - this->Bounds[2*j])) * this->Divisions[j]);
+    if (ijk[j] >= this->Divisions[j])
+      {
+      ijk[j] = this->Divisions[j] - 1;
+      }
     }
 
   // there are two steps, first a simple expanding wave of buckets until
@@ -513,7 +521,11 @@ void vtkPointLocator2D::FindClosestNPoints(int N, float x[2],vtkIdList *result)
   for (j=0; j<2; j++) 
     {
     ijk[j] = (int)(((x[j] - this->Bounds[2*j]) / 
-        (this->Bounds[2*j+1] - this->Bounds[2*j])) * (this->Divisions[j]-1));
+        (this->Bounds[2*j+1] - this->Bounds[2*j])) * this->Divisions[j]);
+    if (ijk[j] >= this->Divisions[j])
+      {
+      ijk[j] = this->Divisions[j] - 1;
+      }
     }
 
   // there are two steps, first a simple expanding wave of buckets until
@@ -644,7 +656,11 @@ void vtkPointLocator2D::FindPointsWithinRadius(float R, float x[2],
   for (j=0; j<2; j++) 
     {
     ijk[j] = (int)(((x[j] - this->Bounds[2*j]) / 
-        (this->Bounds[2*j+1] - this->Bounds[2*j])) * (this->Divisions[j]-1));
+        (this->Bounds[2*j+1] - this->Bounds[2*j])) * this->Divisions[j]);
+    if (ijk[j] >= this->Divisions[j])
+      {
+      ijk[j] = this->Divisions[j] - 1;
+      }
     }
 
   // get all buckets within a distance
@@ -774,7 +790,11 @@ void vtkPointLocator2D::BuildLocator()
     for (j=0; j<2; j++) 
       {
       ijk[j] = (int) ((float) ((x[j] - this->Bounds[2*j]) / 
-                        (this->Bounds[2*j+1] - this->Bounds[2*j])) * (ndivs[j]- 1));
+              (this->Bounds[2*j+1] - this->Bounds[2*j])) * ndivs[j]);
+      if (ijk[j] >= ndivs[j])
+        {
+        ijk[j] = ndivs[j] - 1;
+        }
       }
 
     idx = ijk[0] + ijk[1]*ndivs[0];
@@ -854,9 +874,9 @@ void vtkPointLocator2D::GetOverlappingBuckets(float x[2], int ijk[2],
   for (i=0; i < 2; i++)
     {
     minLevel[i] = (int) ((float) (((x[i]-dist) - this->Bounds[2*i]) / 
-        (this->Bounds[2*i+1] - this->Bounds[2*i])) * (this->Divisions[i] - 1));
+        (this->Bounds[2*i+1] - this->Bounds[2*i])) * this->Divisions[i]);
     maxLevel[i] = (int) ((float) (((x[i]+dist) - this->Bounds[2*i]) / 
-        (this->Bounds[2*i+1] - this->Bounds[2*i])) * (this->Divisions[i] - 1));
+        (this->Bounds[2*i+1] - this->Bounds[2*i])) * this->Divisions[i]);
 
     if ( minLevel[i] < 0 )
       {
@@ -898,7 +918,11 @@ int vtkPointLocator2D::IsInsertedPoint(float x[2])
   for (i=0; i<2; i++)
     {
     ijk[i] = (int) ((float) ((x[i] - this->Bounds[2*i]) / 
-        (this->Bounds[2*i+1] - this->Bounds[2*i])) * (this->Divisions[i] - 1));
+        (this->Bounds[2*i+1] - this->Bounds[2*i])) * this->Divisions[i]);
+    if (ijk[i] >= this->Divisions[i])
+      {
+      ijk[i] = this->Divisions[i] - 1;
+      }
     }
 
   idx = ijk[0] + ijk[1]*this->Divisions[0];
