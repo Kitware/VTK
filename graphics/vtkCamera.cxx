@@ -274,6 +274,7 @@ void vtkCamera::SetDirectionOfProjection(double x, double y, double z)
   this->DirectionOfProjection[2] = z;
 
   // set focal point to match
+  this->Distance = this->Distance*10;
   this->SetDistance(this->Distance);
 }
 
@@ -515,7 +516,7 @@ void vtkCamera::Zoom(double amount)
     return;
     }
   
-  if (this->ParallelScale)
+  if (this->ParallelProjection)
     {
     this->SetParallelScale(this->ParallelScale/amount);
     }
