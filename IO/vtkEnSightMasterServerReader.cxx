@@ -19,7 +19,17 @@
 
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkEnSightMasterServerReader, "1.5");
+#ifdef _MSC_VER
+#pragma warning (push, 3)
+#endif
+
+#include <string>
+
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
+
+vtkCxxRevisionMacro(vtkEnSightMasterServerReader, "1.6");
 vtkStandardNewMacro(vtkEnSightMasterServerReader);
 
 static int vtkEnSightMasterServerReaderStartsWith(const char* str1, const char* str2)
@@ -97,23 +107,27 @@ int vtkEnSightMasterServerReader::DetermineFileName(int piece)
     vtkErrorMacro("A case file name must be specified.");
     return VTK_ERROR;
     }
+  vtkstd::string sfilename;
   if (this->FilePath)
     {
-    strcpy(line, this->FilePath);
-    strcat(line, this->CaseFileName);
-    vtkDebugMacro("full path to case file: " << line);
+    sfilename = this->FilePath;
+    sfilename += this->CaseFileName;
+    vtkDebugMacro("full path to case file: " << sfilename.c_str());
     }
   else
     {
-    strcpy(line, this->CaseFileName);
+    sfilename = this->CaseFileName;
+    }
+  
+  this->IS = new ifstream(sfilename.c_str(), ios::in);
+  if (this->IS->fail())
+    {
+    vtkErrorMacro("Unable to open file: " << sfilename.c_str());
+    delete this->IS;
+    this->IS = NULL;
+    return 0;
     }
 
-  this->IS = new ifstream(line, ios::in);;
-  if ( this->IS->fail() )
-    {
-    vtkErrorMacro("Cannot open file: " << line);
-    return VTK_ERROR;
-    }
   char result[1024];
 
   int servers       = 0;

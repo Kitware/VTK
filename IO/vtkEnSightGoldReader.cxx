@@ -28,9 +28,19 @@
 #include "vtkStructuredGrid.h"
 #include "vtkUnstructuredGrid.h"
 
+#ifdef _MSC_VER
+#pragma warning (push, 3)
+#endif
+
+#include <string>
+
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
+
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkEnSightGoldReader, "1.34");
+vtkCxxRevisionMacro(vtkEnSightGoldReader, "1.35");
 vtkStandardNewMacro(vtkEnSightGoldReader);
 
 //----------------------------------------------------------------------------
@@ -47,21 +57,22 @@ int vtkEnSightGoldReader::ReadGeometryFile(char* fileName, int timeStep)
     vtkErrorMacro("A GeometryFileName must be specified in the case file.");
     return 0;
     }
+  vtkstd::string sfilename;
   if (this->FilePath)
     {
-    strcpy(line, this->FilePath);
-    strcat(line, fileName);
-    vtkDebugMacro("full path to geometry file: " << line);
+    sfilename = this->FilePath;
+    sfilename += fileName;
+    vtkDebugMacro("full path to geometry file: " << sfilename.c_str());
     }
   else
     {
-    strcpy(line, fileName);
+    sfilename = fileName;
     }
   
-  this->IS = new ifstream(line, ios::in);
+  this->IS = new ifstream(sfilename.c_str(), ios::in);
   if (this->IS->fail())
     {
-    vtkErrorMacro("Unable to open file: " << line);
+    vtkErrorMacro("Unable to open file: " << sfilename.c_str());
     delete this->IS;
     this->IS = NULL;
     return 0;
@@ -182,21 +193,22 @@ int vtkEnSightGoldReader::ReadMeasuredGeometryFile(char* fileName,
     vtkErrorMacro("A MeasuredFileName must be specified in the case file.");
     return 0;
     }
+  vtkstd::string sfilename;
   if (this->FilePath)
     {
-    strcpy(line, this->FilePath);
-    strcat(line, fileName);
-    vtkDebugMacro("full path to measured geometry file: " << line);
+    sfilename = this->FilePath;
+    sfilename += fileName;
+    vtkDebugMacro("full path to measured geometry file: " << sfilename.c_str());
     }
   else
     {
-    strcpy(line, fileName);
+    sfilename = fileName;
     }
   
-  this->IS = new ifstream(line, ios::in);
+  this->IS = new ifstream(sfilename.c_str(), ios::in);
   if (this->IS->fail())
     {
-    vtkErrorMacro("Unable to open file: " << line);
+    vtkErrorMacro("Unable to open file: " << sfilename.c_str());
     delete this->IS;
     this->IS = NULL;
     return 0;
@@ -299,21 +311,22 @@ int vtkEnSightGoldReader::ReadScalarsPerNode(char* fileName, char* description,
     vtkErrorMacro("NULL ScalarPerNode variable file name");
     return 0;
     }
+  vtkstd::string sfilename;
   if (this->FilePath)
     {
-    strcpy(line, this->FilePath);
-    strcat(line, fileName);
-    vtkDebugMacro("full path to scalar per node file: " << line);
+    sfilename = this->FilePath;
+    sfilename += fileName;
+    vtkDebugMacro("full path to scalar per node file: " << sfilename.c_str());
     }
   else
     {
-    strcpy(line, fileName);
+    sfilename = fileName;
     }
   
-  this->IS = new ifstream(line, ios::in);
+  this->IS = new ifstream(sfilename.c_str(), ios::in);
   if (this->IS->fail())
     {
-    vtkErrorMacro("Unable to open file: " << line);
+    vtkErrorMacro("Unable to open file: " << sfilename.c_str());
     delete this->IS;
     this->IS = NULL;
     return 0;
@@ -450,21 +463,22 @@ int vtkEnSightGoldReader::ReadVectorsPerNode(char* fileName, char* description,
     vtkErrorMacro("NULL VectorPerNode variable file name");
     return 0;
     }
+  vtkstd::string sfilename;
   if (this->FilePath)
     {
-    strcpy(line, this->FilePath);
-    strcat(line, fileName);
-    vtkDebugMacro("full path to vector per node file: " << line);
+    sfilename = this->FilePath;
+    sfilename += fileName;
+    vtkDebugMacro("full path to vector per node file: " << sfilename.c_str());
     }
   else
     {
-    strcpy(line, fileName);
+    sfilename = fileName;
     }
   
-  this->IS = new ifstream(line, ios::in);
+  this->IS = new ifstream(sfilename.c_str(), ios::in);
   if (this->IS->fail())
     {
-    vtkErrorMacro("Unable to open file: " << line);
+    vtkErrorMacro("Unable to open file: " << sfilename.c_str());
     delete this->IS;
     this->IS = NULL;
     return 0;
@@ -581,21 +595,22 @@ int vtkEnSightGoldReader::ReadTensorsPerNode(char* fileName, char* description,
     vtkErrorMacro("NULL TensorPerNode variable file name");
     return 0;
     }
+  vtkstd::string sfilename;
   if (this->FilePath)
     {
-    strcpy(line, this->FilePath);
-    strcat(line, fileName);
-    vtkDebugMacro("full path to tensor per node file: " << line);
+    sfilename = this->FilePath;
+    sfilename += fileName;
+    vtkDebugMacro("full path to tensor per node file: " << sfilename.c_str());
     }
   else
     {
-    strcpy(line, fileName);
+    sfilename = fileName;
     }
   
-  this->IS = new ifstream(line, ios::in);
+  this->IS = new ifstream(sfilename.c_str(), ios::in);
   if (this->IS->fail())
     {
-    vtkErrorMacro("Unable to open file: " << line);
+    vtkErrorMacro("Unable to open file: " << sfilename.c_str());
     delete this->IS;
     this->IS = NULL;
     return 0;
@@ -672,21 +687,22 @@ int vtkEnSightGoldReader::ReadScalarsPerElement(char* fileName,
     vtkErrorMacro("NULL ScalarPerElement variable file name");
     return 0;
     }
+  vtkstd::string sfilename;
   if (this->FilePath)
     {
-    strcpy(line, this->FilePath);
-    strcat(line, fileName);
-    vtkDebugMacro("full path to scalar per element file: " << line);
+    sfilename = this->FilePath;
+    sfilename += fileName;
+    vtkDebugMacro("full path to scalar per element file: " << sfilename.c_str());
     }
   else
     {
-    strcpy(line, fileName);
+    sfilename = fileName;
     }
   
-  this->IS = new ifstream(line, ios::in);
+  this->IS = new ifstream(sfilename.c_str(), ios::in);
   if (this->IS->fail())
     {
-    vtkErrorMacro("Unable to open file: " << line);
+    vtkErrorMacro("Unable to open file: " << sfilename.c_str());
     delete this->IS;
     this->IS = NULL;
     return 0;
@@ -812,21 +828,22 @@ int vtkEnSightGoldReader::ReadVectorsPerElement(char* fileName,
     vtkErrorMacro("NULL VectorPerElement variable file name");
     return 0;
     }
+  vtkstd::string sfilename;
   if (this->FilePath)
     {
-    strcpy(line, this->FilePath);
-    strcat(line, fileName);
-    vtkDebugMacro("full path to vector per element file: " << line);
+    sfilename = this->FilePath;
+    sfilename += fileName;
+    vtkDebugMacro("full path to vector per element file: " << sfilename.c_str());
     }
   else
     {
-    strcpy(line, fileName);
+    sfilename = fileName;
     }
   
-  this->IS = new ifstream(line, ios::in);
+  this->IS = new ifstream(sfilename.c_str(), ios::in);
   if (this->IS->fail())
     {
-    vtkErrorMacro("Unable to open file: " << line);
+    vtkErrorMacro("Unable to open file: " << sfilename.c_str());
     delete this->IS;
     this->IS = NULL;
     return 0;
@@ -942,21 +959,22 @@ int vtkEnSightGoldReader::ReadTensorsPerElement(char* fileName,
     vtkErrorMacro("NULL TensorPerElement variable file name");
     return 0;
     }
+  vtkstd::string sfilename;
   if (this->FilePath)
     {
-    strcpy(line, this->FilePath);
-    strcat(line, fileName);
-    vtkDebugMacro("full path to tensor per element file: " << line);
+    sfilename = this->FilePath;
+    sfilename += fileName;
+    vtkDebugMacro("full path to tensor per element file: " << sfilename.c_str());
     }
   else
     {
-    strcpy(line, fileName);
+    sfilename = fileName;
     }
   
-  this->IS = new ifstream(line, ios::in);
+  this->IS = new ifstream(sfilename.c_str(), ios::in);
   if (this->IS->fail())
     {
-    vtkErrorMacro("Unable to open file: " << line);
+    vtkErrorMacro("Unable to open file: " << sfilename.c_str());
     delete this->IS;
     this->IS = NULL;
     return 0;
