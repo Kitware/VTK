@@ -192,9 +192,6 @@ void vtkImageDifference::Execute()
       }
     }
 
-  this->Error = this->Error/sliceSize;
-  this->ThresholdedError = this->ThresholdedError/sliceSize;
-
   outPD->SetScalars(outScalars);
   outScalars->Delete();
 }
