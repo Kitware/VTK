@@ -15,11 +15,14 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 =========================================================================*/
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <X11/X.h>
 #include <X11/keysym.h>
 #include "XInter.hh"
+#include "XRenWin.hh"
 #include "Actor.hh"
 #include <X11/Shell.h>
+#include <math.h>
 
 typedef struct
 {
@@ -44,8 +47,10 @@ XrmOptionDescRec Desc[] =
 
 
 // states
-#define VLXI_START 0
+#define VLXI_START  0
 #define VLXI_ROTATE 1
+#define VLXI_ZOOM   2
+#define VLXI_PAN    3
 
 
 // Description:
@@ -53,6 +58,7 @@ XrmOptionDescRec Desc[] =
 vlXInteractiveRenderer::vlXInteractiveRenderer()
 {
   this->State = VLXI_START;
+  this->App = 0;
 }
 
 vlXInteractiveRenderer::~vlXInteractiveRenderer()
@@ -62,6 +68,15 @@ vlXInteractiveRenderer::~vlXInteractiveRenderer()
 void  vlXInteractiveRenderer::Start()
 {
   XtAppMainLoop(this->App);
+}
+
+// Description:
+// Initializes the event handlers
+void vlXInteractiveRenderer::Initialize(XtAppContext app)
+{
+  this->App = app;
+
+  this->Initialize();
 }
 
 // Description:
@@ -87,6 +102,11 @@ void vlXInteractiveRenderer::Initialize()
     }
 
   /* do initialization stuff if not initialized yet */
+  if (this->App)
+    {
+    any_initialized = 1;
+    app = this->App;
+    }
   if (!any_initialized)
     {
     XtToolkitInitialize();
@@ -124,11 +144,13 @@ void vlXInteractiveRenderer::Initialize()
   /* add callback */
   XSync(display,False);
   ren->SetWindowId(XtWindow(this->top));
+  ren->Render();
   XtAddEventHandler(this->top,
 		    KeyPressMask | ButtonPressMask | ExposureMask |
 		    StructureNotifyMask | ButtonReleaseMask,
 		    False,vlXInteractiveRendererCallback,(XtPointer)this);
-  this->UpdateSize(size[0],size[1]);
+  this->Size[0] = size[0];
+  this->Size[1] = size[1];
 }
 
 void vlXInteractiveRenderer::PrintSelf(ostream& os, vlIndent indent)
@@ -143,31 +165,62 @@ void vlXInteractiveRenderer::PrintSelf(ostream& os, vlIndent indent)
 void  vlXInteractiveRenderer::UpdateSize(int x,int y)
 {
   // if the size changed send this on to the RenderWindow
-  if ((x != this->Size[0])&&(y != this->Size[1]))
+  if ((x != this->Size[0])||(y != this->Size[1]))
     {
+    this->Size[0] = x;
+    this->Size[1] = y;
     this->RenderWindow->SetSize(x,y);
     }
 
-  this->Size[0] = x;
-  this->Size[1] = y;
-  this->Center[0] = x/2.0;
-  this->Center[1] = y/2.0;
-  this->DeltaAzimuth = -20.0/x;
-  this->DeltaElevation = 20.0/y;
 }
  
 void  vlXInteractiveRenderer::StartRotate()
 {
   if (this->State != VLXI_START) return;
-
   this->State = VLXI_ROTATE;
   XtAppAddTimeOut(this->App,10,vlXInteractiveRendererTimer,(XtPointer)this);
 }
-
 void  vlXInteractiveRenderer::EndRotate()
 {
   if (this->State != VLXI_ROTATE) return;
+  this->State = VLXI_START;
+}
 
+void  vlXInteractiveRenderer::StartZoom()
+{
+  if (this->State != VLXI_START) return;
+  this->State = VLXI_ZOOM;
+  XtAppAddTimeOut(this->App,10,vlXInteractiveRendererTimer,(XtPointer)this);
+}
+void  vlXInteractiveRenderer::EndZoom()
+{
+  if (this->State != VLXI_ZOOM) return;
+  this->State = VLXI_START;
+}
+
+void  vlXInteractiveRenderer::StartPan()
+{
+  float *FocalPoint;
+  float *Result;
+
+  if (this->State != VLXI_START) return;
+
+  this->State = VLXI_PAN;
+
+  // calculate the focal depth since we'll be using it a lot
+  FocalPoint = this->CurrentCamera->GetFocalPoint();
+      
+  this->CurrentRenderer->SetWorldPoint(FocalPoint[0],FocalPoint[1],
+				       FocalPoint[2],1.0);
+  this->CurrentRenderer->WorldToDisplay();
+  Result = this->CurrentRenderer->GetDisplayPoint();
+  this->FocalDepth = Result[2];
+
+  XtAppAddTimeOut(this->App,10,vlXInteractiveRendererTimer,(XtPointer)this);
+}
+void  vlXInteractiveRenderer::EndPan()
+{
+  if (this->State != VLXI_PAN) return;
   this->State = VLXI_START;
 }
 
@@ -192,7 +245,21 @@ void vlXInteractiveRendererCallback(Widget w,XtPointer client_data,
       {
       switch (((XButtonEvent *)event)->button)
 	{
-	case Button1 : me->StartRotate(); break;
+	case Button1 : 
+          me->FindPokedCamera(((XButtonEvent*)event)->x,
+			      ((XButtonEvent*)event)->y);
+	  me->StartRotate(); 
+	  break;
+	case Button2 : 
+          me->FindPokedCamera(((XButtonEvent*)event)->x,
+			      ((XButtonEvent*)event)->y);
+	  me->StartPan(); 
+	  break;
+	case Button3 : 
+          me->FindPokedCamera(((XButtonEvent*)event)->x,
+			      ((XButtonEvent*)event)->y);
+	  me->StartZoom(); 
+	  break;
 	}
       }
       break;
@@ -202,6 +269,8 @@ void vlXInteractiveRendererCallback(Widget w,XtPointer client_data,
       switch (((XButtonEvent *)event)->button)
 	{
 	case Button1 : me->EndRotate(); break;
+	case Button2 : me->EndPan(); break;
+	case Button3 : me->EndZoom(); break;
 	}
       }
       break;
@@ -217,20 +286,15 @@ void vlXInteractiveRendererCallback(Widget w,XtPointer client_data,
 	case XK_e : exit(1); break;
 	case XK_w :
 	  {
-	  vlRendererCollection *rc;
 	  vlActorCollection *ac;
-	  vlRenderer *aren;
 	  vlActor *anActor;
 	  
-	  rc = me->RenderWindow->GetRenderers();
-	  
-	  for (rc->InitTraversal(); aren = rc->GetNextItem(); )
+          me->FindPokedRenderer(((XKeyEvent*)event)->x,
+				((XKeyEvent*)event)->y);
+	  ac = me->CurrentRenderer->GetActors();
+	  for (ac->InitTraversal(); anActor = ac->GetNextItem(); )
 	    {
-	    ac = aren->GetActors();
-	    for (ac->InitTraversal(); anActor = ac->GetNextItem(); )
-	      {
-	      anActor->GetProperty()->SetWireframe();
-	      }
+	    anActor->GetProperty()->SetWireframe();
 	    }
 	  
 	  me->RenderWindow->Render();
@@ -239,20 +303,15 @@ void vlXInteractiveRendererCallback(Widget w,XtPointer client_data,
 
 	case XK_s :
 	  {
-	  vlRendererCollection *rc;
 	  vlActorCollection *ac;
-	  vlRenderer *aren;
 	  vlActor *anActor;
 	  
-	  rc = me->RenderWindow->GetRenderers();
-	  
-	  for (rc->InitTraversal(); aren = rc->GetNextItem(); )
+          me->FindPokedRenderer(((XKeyEvent*)event)->x,
+			       ((XKeyEvent*)event)->y);
+	  ac = me->CurrentRenderer->GetActors();
+	  for (ac->InitTraversal(); anActor = ac->GetNextItem(); )
 	    {
-	    ac = aren->GetActors();
-	    for (ac->InitTraversal(); anActor = ac->GetNextItem(); )
-	      {
-	      anActor->GetProperty()->SetSurface();
-	      }
+	    anActor->GetProperty()->SetSurface();
 	    }
 	  
 	  me->RenderWindow->Render();
@@ -283,16 +342,81 @@ void vlXInteractiveRendererTimer(XtPointer client_data,XtIntervalId *id)
 		    &root,&child,&root_x,&root_y,&x,&y,&keys);
       xf = (x - me->Center[0]) * me->DeltaAzimuth;
       yf = (y - me->Center[1]) * me->DeltaElevation;
-      me->Camera->Azimuth(xf);
-      me->Camera->Elevation(yf);
-      me->Camera->OrthogonalizeViewUp();
-      if ( me->Light && me->LightFollowCamera )
+      me->CurrentCamera->Azimuth(xf);
+      me->CurrentCamera->Elevation(yf);
+      me->CurrentCamera->OrthogonalizeViewUp();
+      if (me->LightFollowCamera)
 	{
-	me->Light->SetPosition(me->Camera->GetPosition());
+	/* get the first light */
+	me->CurrentLight->SetPosition(me->CurrentCamera->GetPosition());
 	}
       me->RenderWindow->Render();
       XtAppAddTimeOut(me->App,10,vlXInteractiveRendererTimer,client_data);
       break;
+    case VLXI_PAN :
+      {
+      float  FPoint[3];
+      float *PPoint;
+      float  APoint[3];
+      float  RPoint[4];
 
+      // get the current focal point and position
+      memcpy(FPoint,me->CurrentCamera->GetFocalPoint(),sizeof(float)*3);
+      PPoint = me->CurrentCamera->GetPosition();
+
+      // get the pointer position
+      XQueryPointer(XtDisplay(me->top),XtWindow(me->top),
+		    &root,&child,&root_x,&root_y,&x,&y,&keys);
+
+      APoint[0] = x;
+      APoint[1] = me->Size[1] - y;
+      APoint[2] = me->FocalDepth;
+      me->CurrentRenderer->SetDisplayPoint(APoint);
+      me->CurrentRenderer->DisplayToWorld();
+      memcpy(RPoint,me->CurrentRenderer->GetWorldPoint(),sizeof(float)*4);
+      if (RPoint[3])
+	{
+	RPoint[0] = RPoint[0]/RPoint[3];
+	RPoint[1] = RPoint[1]/RPoint[3];
+	RPoint[2] = RPoint[2]/RPoint[3];
+	}
+
+      /*
+       * Compute a translation vector, moving everything 1/10 
+       * the distance to the cursor. (Arbitrary scale factor)
+       */
+      me->CurrentCamera->SetFocalPoint(
+	(FPoint[0]-RPoint[0])/10.0 + FPoint[0],
+	(FPoint[1]-RPoint[1])/10.0 + FPoint[1],
+	(FPoint[2]-RPoint[2])/10.0 + FPoint[2]);
+      me->CurrentCamera->SetPosition(
+	(FPoint[0]-RPoint[0])/10.0 + PPoint[0],
+	(FPoint[1]-RPoint[1])/10.0 + PPoint[1],
+	(FPoint[2]-RPoint[2])/10.0 + PPoint[2]);
+      
+      me->RenderWindow->Render();
+      XtAppAddTimeOut(me->App,10,vlXInteractiveRendererTimer,client_data);
+      }
+      break;
+    case VLXI_ZOOM :
+      {
+      float zoomFactor;
+      float *clippingRange;
+
+      // get the pointer position
+      XQueryPointer(XtDisplay(me->top),XtWindow(me->top),
+		    &root,&child,&root_x,&root_y,&x,&y,&keys);
+      yf = (y - me->Center[1])/(float)me->Center[1];
+      zoomFactor = pow(1.1,yf);
+      clippingRange = me->CurrentCamera->GetClippingRange();
+      me->CurrentCamera->SetClippingRange(clippingRange[0]/zoomFactor,
+					  clippingRange[1]/zoomFactor);
+      me->CurrentCamera->Zoom(zoomFactor);
+      me->RenderWindow->Render();
+      XtAppAddTimeOut(me->App,10,vlXInteractiveRendererTimer,client_data);
+      }
+      break;
     }
 }  
+
+

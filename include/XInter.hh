@@ -37,7 +37,6 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // now we define the C++ class
 
 #include "Interact.hh"
-#include "XRenWin.hh"
 #include <X11/StringDefs.h>
 #include <X11/Intrinsic.h>
 
@@ -50,22 +49,22 @@ public:
   void PrintSelf(ostream& os, vlIndent indent);
 
   virtual void Initialize();
+  virtual void Initialize(XtAppContext app);
   virtual void Start();
   void UpdateSize(int,int);
   void StartRotate();
   void EndRotate();
-
+  void StartZoom();
+  void EndZoom();
+  void StartPan();
+  void EndPan();
+  
   friend void vlXInteractiveRendererCallback(Widget,XtPointer,
 					     XEvent *,Boolean *);
   friend void vlXInteractiveRendererTimer(XtPointer,XtIntervalId *);
 
 protected:
   Widget top;
-  float Center[2];
-  int Size[2];
-  float DeltaAzimuth;
-  float DeltaElevation;
-  int   State;
   XtAppContext App;
 };
 
