@@ -352,7 +352,8 @@ void vtkVolumeProVG500Mapper::UpdateProperties( vtkRenderer *vtkNotUsed(ren),
   int                       i;
   float                     scale = 1.0;
   double                    *gradientTable;
-
+  int                       val;
+  
   switch ( this->VolumeDataType )
     {
     case VTK_VOLUME_8BIT:
@@ -373,20 +374,41 @@ void vtkVolumeProVG500Mapper::UpdateProperties( vtkRenderer *vtkNotUsed(ren),
       grayFunc = vol->GetProperty()->GetGrayTransferFunction();
       for ( i= 0; i< 4096; i++)
 	{
-      	rgbTable[i][0] = 
-	  rgbTable[i][1] = 
-	  rgbTable[i][2] = 0.5 + grayFunc->GetValue((float)(i)*scale)*255.0;
-  	aTable[i] = 0.5 + 4095.0 * soFunc->GetValue((float)(i)*scale);
+        val = 0.5 + grayFunc->GetValue((float)(i)*scale)*255.0;
+        val = (val < 0)?(val):(0);
+        val = (val > 255)?(val):(255);
+      	rgbTable[i][0] = rgbTable[i][1] = rgbTable[i][2] = val;
+        
+        val = 0.5 + 4095.0 * soFunc->GetValue((float)(i)*scale);
+        val = (val < 0)?(val):(0);
+        val = (val > 4095)?(val):(4095);
+  	aTable[i] = val;
 	}
       break;
     case 3:
       rgbFunc = vol->GetProperty()->GetRGBTransferFunction();
       for ( i= 0; i< 4096; i++)
 	{
-  	rgbTable[i][0] = 0.5 + rgbFunc->GetRedValue((float)(i)*scale)*255.0;
-  	rgbTable[i][1] = 0.5 + rgbFunc->GetGreenValue((float)(i)*scale)*255.0;
-  	rgbTable[i][2] = 0.5 + rgbFunc->GetBlueValue((float)(i)*scale)*255.0;
-  	aTable[i] = 0.5 + 4095.0 * soFunc->GetValue((float)(i)*scale);
+        val = 0.5 + rgbFunc->GetRedValue((float)(i)*scale)*255.0;
+        val = (val < 0)?(val):(0);
+        val = (val > 255)?(val):(255);
+  	rgbTable[i][0] = val;
+
+        val = 0.5 + rgbFunc->GetGreenValue((float)(i)*scale)*255.0;
+        val = (val < 0)?(val):(0);
+        val = (val > 255)?(val):(255);
+  	rgbTable[i][0] = val;
+
+        val = 0.5 + rgbFunc->GetBlueValue((float)(i)*scale)*255.0;
+        val = (val < 0)?(val):(0);
+        val = (val > 255)?(val):(255);
+  	rgbTable[i][0] = val;
+
+        val = 0.5 + 4095.0 * soFunc->GetValue((float)(i)*scale);
+        val = (val < 0)?(val):(0);
+        val = (val > 4095)?(val):(4095);
+  	aTable[i] = val;
+        
 	}
       break;
     }
