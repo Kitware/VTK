@@ -33,6 +33,17 @@ conjunction with the timeout on the select call to implement a
 timeout for program even when it closes stdout and stderr.
 */
 
+/*
+
+TODO:
+
+We cannot create the pipeline of processes in suspended states.  How
+do we cleanup processes already started when one fails to load?  Right
+now we are just killing them, which is probably not the right thing to
+do.
+
+*/
+
 #include <stdio.h>     /* snprintf */
 #include <stdlib.h>    /* malloc, free */
 #include <string.h>    /* strdup, strerror, memset */
@@ -1013,20 +1024,31 @@ int kwsysProcessCreate(kwsysProcess* cp, int index,
     kwsysProcessChildErrorExit(si->error[1]);
     }
 
-  /* Close the write end of the error pipe.  */
-  close(si->error[1]);
-  si->error[1] = 0;
+  /* We are done with the error reporting pipe write end.  */
+  kwsysProcessCleanupDescriptor(&si->error[1]);
 
   /* Block until the child's exec call succeeds and closes the error
      pipe or writes data to the pipe to report an error.  */
   {
-  int n;
-  /* Keep trying to read until the operation is not interrupted.  */
-  while(((n = read(si->error[0], cp->ErrorMessage,
-                   KWSYSPE_PIPE_BUFFER_SIZE)) < 0) && (errno == EINTR));
-  close(si->error[0]);
-  si->error[0] = 0;
-  if(n > 0)
+  int total = 0;
+  int n = 1;
+  /* Read the entire error message up to the length of our buffer.  */
+  while(total < KWSYSPE_PIPE_BUFFER_SIZE && n > 0)
+    {
+    /* Keep trying to read until the operation is not interrupted.  */
+    while(((n = read(si->error[0], cp->ErrorMessage+total,
+                     KWSYSPE_PIPE_BUFFER_SIZE-total)) < 0) &&
+          (errno == EINTR));
+    if(n > 0)
+      {
+      total += n;
+      }
+    }
+
+  /* We are done with the error reporting pipe read end.  */
+  kwsysProcessCleanupDescriptor(&si->error[0]);
+
+  if(total > 0)
     {
     /* The child failed to execute the process.  */
     return 0;
