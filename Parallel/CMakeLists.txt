@@ -59,7 +59,7 @@ IF (VTK_WRAP_TCL)
                          vtkFilteringTCL 
                          vtkCommonTCL
                          ${TCL_LIBRARY})
-  INSTALL_TARGETS(/lib vtkParallelTCL)
+  INSTALL_TARGETS(/lib/vtk vtkParallelTCL)
 
   IF (VTK_USE_MPI)
 
@@ -136,7 +136,7 @@ IF (VTK_WRAP_PYTHON)
   TARGET_LINK_LIBRARIES (vtkParallelPython 
                          debug ${PYTHON_DEBUG_LIBRARY} 
                          optimized ${PYTHON_LIBRARY})
-  INSTALL_TARGETS(/lib vtkParallelPython)
+  INSTALL_TARGETS(/lib/vtk vtkParallelPython)
 ENDIF (VTK_WRAP_PYTHON)
 
 IF (VTK_WRAP_JAVA)
@@ -149,7 +149,7 @@ IF (VTK_WRAP_JAVA)
                          vtkGraphicsJava 
                          vtkRenderingJava
                          vtkIOJava)
-  INSTALL_TARGETS(/lib vtkParallelJava)
+  INSTALL_TARGETS(/lib/vtk vtkParallelJava)
 ENDIF (VTK_WRAP_JAVA)
 
 LINK_LIBRARIES (
@@ -162,5 +162,5 @@ vtkFiltering
 vtkCommon 
 )
 
-INSTALL_TARGETS(/lib vtkParallel)
+INSTALL_TARGETS(/lib/vtk vtkParallel)
 INSTALL_FILES(/include/vtk .h Parallel_SRCS)

@@ -27,7 +27,7 @@ IF (VTK_WRAP_TCL)
                          vtkGraphicsTCL vtkImagingTCL vtkFilteringTCL 
                          vtkCommonTCL
                          ${TCL_LIBRARY})
-  INSTALL_TARGETS(/lib vtkPatentedTCL)
+  INSTALL_TARGETS(/lib/vtk vtkPatentedTCL)
 ENDIF (VTK_WRAP_TCL)
 
 # if we are wrapping into Python then add the library and extra 
@@ -48,7 +48,7 @@ IF (VTK_WRAP_PYTHON)
   TARGET_LINK_LIBRARIES (vtkPatentedPython 
                          debug ${PYTHON_DEBUG_LIBRARY} 
                          optimized ${PYTHON_LIBRARY})
-  INSTALL_TARGETS(/lib vtkPatentedPython)
+  INSTALL_TARGETS(/lib/vtk vtkPatentedPython)
 ENDIF (VTK_WRAP_PYTHON)
 
 # if we are wrapping into Java then add the library and extra 
@@ -59,7 +59,7 @@ IF (VTK_WRAP_JAVA)
   ADD_LIBRARY(vtkPatentedJava PatentedJava_SRCS)
   TARGET_LINK_LIBRARIES (vtkPatentedJava vtkCommonJava vtkFilteringJava
                          vtkImagingJava vtkGraphicsJava)
-  INSTALL_TARGETS(/lib vtkPatentedJava)
+  INSTALL_TARGETS(/lib/vtk vtkPatentedJava)
 ENDIF (VTK_WRAP_JAVA)
 
 LINK_LIBRARIES (
@@ -72,5 +72,5 @@ vtkPatented
 )
 
 
-INSTALL_TARGETS(/lib vtkPatented)
+INSTALL_TARGETS(/lib/vtk vtkPatented)
 INSTALL_FILES(/include/vtk .h Patented_SRCS)

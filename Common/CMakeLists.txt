@@ -183,7 +183,7 @@ IF (VTK_WRAP_TCL)
   VTK_WRAP_TCL(vtkCommonTCL CommonTCL_SRCS Common_SRCS)
   ADD_LIBRARY(vtkCommonTCL CommonTCL_SRCS vtkTclUtil)
   TARGET_LINK_LIBRARIES (vtkCommonTCL ${TCL_LIBRARY})
-  INSTALL_TARGETS(/lib vtkCommonTCL)
+  INSTALL_TARGETS(/lib/vtk vtkCommonTCL)
 ENDIF (VTK_WRAP_TCL)
 
 # if we are wrapping into Python then add the library and extra 
@@ -199,7 +199,7 @@ IF (VTK_WRAP_PYTHON)
   TARGET_LINK_LIBRARIES (vtkCommonPython 
                          debug ${PYTHON_DEBUG_LIBRARY} 
                          optimized ${PYTHON_LIBRARY})
-  INSTALL_TARGETS(/lib vtkCommonPython)
+  INSTALL_TARGETS(/lib/vtk vtkCommonPython)
 ENDIF (VTK_WRAP_PYTHON)
 
 # if we are wrapping into Java then add the library and extra 
@@ -208,11 +208,16 @@ ENDIF (VTK_WRAP_PYTHON)
 IF (VTK_WRAP_JAVA)
   VTK_WRAP_JAVA(vtkCommonJava CommonJava_SRCS Common_SRCS)
   ADD_LIBRARY(vtkCommonJava CommonJava_SRCS vtkJavaUtil)
-  INSTALL_TARGETS(/lib vtkCommonJava)
+  INSTALL_TARGETS(/lib/vtk vtkCommonJava)
 ENDIF (VTK_WRAP_JAVA)
 
 LINK_LIBRARIES (vtkCommon )
 
-INSTALL_TARGETS(/lib vtkCommon)
-INSTALL_FILES(/include/vtk .h Common_SRCS)
+INSTALL_TARGETS(/lib/vtk vtkCommon)
+INSTALL_FILES(/include/vtk .h Common_SRCS 
+  vtkCellType
+  vtkSetGet 
+  vtkSystemIncludes
+  vtkWin32Header 
+  )
 

@@ -295,7 +295,7 @@ IF (VTK_WRAP_TCL)
     TARGET_LINK_LIBRARIES (vtkRenderingTCL ${TK_LIBRARY})
   ENDIF (TK_LIBRARY)
 
-  INSTALL_TARGETS(/lib vtkRenderingTCL)
+  INSTALL_TARGETS(/lib/vtk vtkRenderingTCL)
 ENDIF (VTK_WRAP_TCL)
 
 # if we are wrapping into Python then add the library and extra 
@@ -327,7 +327,7 @@ IF (VTK_WRAP_PYTHON)
   TARGET_LINK_LIBRARIES (vtkRenderingPython 
                          debug ${PYTHON_DEBUG_LIBRARY} 
                          optimized ${PYTHON_LIBRARY})
-  INSTALL_TARGETS(/lib vtkRenderingPython)
+  INSTALL_TARGETS(/lib/vtk vtkRenderingPython)
   IF (TK_LIBRARY)
      SOURCE_FILES(RenderingPythonTkWidgets_SRCS 
         vtkTkWidgetsInit
@@ -339,7 +339,7 @@ IF (VTK_WRAP_PYTHON)
      TARGET_LINK_LIBRARIES (vtkRenderingPythonTkWidgets 
                             ${TCL_LIBRARY}
                             ${TK_LIBRARY})
-     INSTALL_TARGETS(/lib vtkRenderingPythonTkWidgets)
+     INSTALL_TARGETS(/lib/vtk vtkRenderingPythonTkWidgets)
   ENDIF (TK_LIBRARY)
 
 ENDIF (VTK_WRAP_PYTHON)
@@ -361,7 +361,7 @@ IF (VTK_WRAP_JAVA)
     TARGET_LINK_LIBRARIES (vtkRenderingJava ${JAVA_AWT_LIBRARY})
   ENDIF (JAVA_AWT_LIBRARY)
 
-  INSTALL_TARGETS(/lib vtkRenderingJava)
+  INSTALL_TARGETS(/lib/vtk vtkRenderingJava)
 ENDIF (VTK_WRAP_JAVA)
 
 LINK_LIBRARIES (
@@ -378,5 +378,9 @@ LINK_LIBRARIES(${CMAKE_X_LIBS})
 ADD_DEFINITIONS(${CMAKE_X_CFLAGS})
 ENDIF(VTK_USE_X)
 
-INSTALL_TARGETS(/lib vtkRendering)
-INSTALL_FILES(/include/vtk .h Rendering_SRCS)
+INSTALL_TARGETS(/lib/vtk vtkRendering)
+INSTALL_FILES(/include/vtk .h Rendering_SRCS vtkRender)
+
+CONFIGURE_FILE(
+${VTK_SOURCE_DIR}/Rendering/tkInternals/.NoDartCoverage 
+${VTK_BINARY_DIR}/Rendering/tkInternals/.NoDartCoverage)

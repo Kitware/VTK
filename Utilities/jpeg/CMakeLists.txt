@@ -39,3 +39,4 @@ ENDIF (WIN32)
 
 ADD_LIBRARY(vtkjpeg systemdependent_SRCS common_SRCS compression_SRCS decompression_SRCS)
 
+INSTALL_TARGETS(/lib/vtk vtkjpeg)

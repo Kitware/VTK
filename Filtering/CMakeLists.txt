@@ -88,7 +88,7 @@ IF (VTK_WRAP_TCL)
   VTK_WRAP_TCL(vtkFilteringTCL FilteringTCL_SRCS Filtering_SRCS)
   ADD_LIBRARY(vtkFilteringTCL FilteringTCL_SRCS)
   TARGET_LINK_LIBRARIES (vtkFilteringTCL vtkCommonTCL ${TCL_LIBRARY})
-  INSTALL_TARGETS(/lib vtkFilteringTCL)
+  INSTALL_TARGETS(/lib/vtk vtkFilteringTCL)
 ENDIF (VTK_WRAP_TCL)
 
 # if we are wrapping into Python then add the library and extra 
@@ -105,7 +105,7 @@ IF (VTK_WRAP_PYTHON)
   TARGET_LINK_LIBRARIES (vtkFilteringPython 
                          debug ${PYTHON_DEBUG_LIBRARY} 
                          optimized ${PYTHON_LIBRARY})
-  INSTALL_TARGETS(/lib vtkFilteringPython)
+  INSTALL_TARGETS(/lib/vtk vtkFilteringPython)
 ENDIF (VTK_WRAP_PYTHON)
 
 # if we are wrapping into Java then add the library and extra 
@@ -115,7 +115,7 @@ IF (VTK_WRAP_JAVA)
   VTK_WRAP_JAVA(vtkFilteringJava FilteringJava_SRCS Filtering_SRCS)
   ADD_LIBRARY(vtkFilteringJava FilteringJava_SRCS)
   TARGET_LINK_LIBRARIES (vtkFilteringJava vtkCommonJava )
-  INSTALL_TARGETS(/lib vtkFilteringJava)
+  INSTALL_TARGETS(/lib/vtk vtkFilteringJava)
 ENDIF (VTK_WRAP_JAVA)
 
 LINK_LIBRARIES (
@@ -123,5 +123,5 @@ vtkCommon
 vtkFiltering 
 )
 
-INSTALL_TARGETS(/lib vtkFiltering)
+INSTALL_TARGETS(/lib/vtk vtkFiltering)
 INSTALL_FILES(/include/vtk .h Filtering_SRCS)
