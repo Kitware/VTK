@@ -126,8 +126,8 @@ int TIFFInternal::Initialize()
 {
   if ( this->Image )
     {
-    if ( !TIFFGetField(this->Image, TIFFTAG_IMAGEWIDTH, &this->Width) &&
-         TIFFGetField(this->Image, TIFFTAG_IMAGELENGTH, &this->Height) )
+    if ( !TIFFGetField(this->Image, TIFFTAG_IMAGEWIDTH, &this->Width) ||
+         !TIFFGetField(this->Image, TIFFTAG_IMAGELENGTH, &this->Height) )
       {
       return 0;
       }
