@@ -26,7 +26,7 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkString.h"
 
-vtkCxxRevisionMacro(vtkEnSightCompoundReader, "1.1");
+vtkCxxRevisionMacro(vtkEnSightCompoundReader, "1.2");
 vtkStandardNewMacro(vtkEnSightCompoundReader);
 
 //----------------------------------------------------------------------------
@@ -71,6 +71,10 @@ void vtkEnSightCompoundReader::Execute()
     this->Reader = vtkGenericEnSightReader::New();
     }
   this->Reader->SetCaseFileName(this->PieceCaseFileName);
+  if ( !this->Reader->GetFilePath() )
+    {
+    this->Reader->SetFilePath( this->GetFilePath() );
+    }
   this->Superclass::Execute();
 }
 
@@ -167,10 +171,6 @@ int vtkEnSightCompoundReader::DetermineFileName(int piece)
   this->MaxNumberOfPieces = numberservers;
   delete this->IS;
   this->IS = 0;
-  if ( this->GetOutput() )
-    {
-    this->GetOutput()->Print(cout);
-    }
   return VTK_OK;
 }
 
