@@ -18,6 +18,7 @@ IF (VTK_USE_RENDERING)
       sweepAuto
       sweptVtk
       sync3dAll
+      TestDiscreteMarchingCubes
       TestGridSynchronizedTemplates3D
       TestImageMarchingCubes
       TestMarchingSquares
@@ -48,5 +49,5 @@ ADD_TEST(PrintSelf-Patented ${TCL_TCLSH}
 
 ADD_TEST(TestSetObjectMacro-Patented ${TCL_TCLSH}
          ${VTK_SOURCE_DIR}/Common/Testing/Tcl/FindString.tcl
-	 "${VTK_SOURCE_DIR}/Patented/vtk\\\\*.h"
-	 "vtkSetObjectMacro")
+         "${VTK_SOURCE_DIR}/Patented/vtk\\\\*.h"
+         "vtkSetObjectMacro")
