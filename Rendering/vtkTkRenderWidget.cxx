@@ -854,7 +854,7 @@ static int vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget *self)
     renderWindow = (vtkWin32OpenGLRenderWindow *)(self->RenderWindow);
 #ifndef VTK_PYTHON_BUILD
     vtkTclGetObjectFromPointer(self->Interp, self->RenderWindow,
-                               vtkRenderWindowCommand);
+                               "vtkRenderWindow");
 #endif
     self->RW = strdup(self->Interp->result);
     self->Interp->result[0] = '\0';

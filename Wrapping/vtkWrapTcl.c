@@ -211,7 +211,7 @@ void return_result(FILE *fp)
       break;
     case 109:
     case 309:  
-      fprintf(fp,"    vtkTclGetObjectFromPointer(interp,(void *)temp%i,%sCommand);\n",MAX_ARGS,currentFunction->ReturnClass);
+      fprintf(fp,"      vtkTclGetObjectFromPointer(interp,(void *)temp%i,\"%s\");\n",MAX_ARGS,currentFunction->ReturnClass);
       break;
 
     /* handle functions returning vectors */
@@ -223,17 +223,6 @@ void return_result(FILE *fp)
       break;
     default:
       fprintf(fp,"    Tcl_SetResult(interp, (char *) \"unable to return result.\", TCL_VOLATILE);\n");
-      break;
-    }
-}
-
-void handle_return_prototype(FILE *fp)
-{
-  switch (currentFunction->ReturnType%1000)
-    {
-    case 109:
-    case 309:  
-      fprintf(fp,"    int %sCommand(ClientData, Tcl_Interp *, int, char *[]);\n",currentFunction->ReturnClass);
       break;
     }
 }
@@ -451,7 +440,7 @@ void outputFunction(FILE *fp, FileInfo *data)
       }
     output_temp(fp, MAX_ARGS,currentFunction->ReturnType,
                 currentFunction->ReturnClass, 0);
-    handle_return_prototype(fp);
+
     /* only use the error variable if we have arguments to parse */
     if (currentFunction->NumberOfArguments)
       {

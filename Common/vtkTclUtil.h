@@ -37,8 +37,7 @@ extern VTKTCL_EXPORT void vtkTclGenericDeleteObject(ClientData cd);
 
 extern VTKTCL_EXPORT void 
 vtkTclGetObjectFromPointer(Tcl_Interp *interp, void *temp,
-                           int (*command)(ClientData, 
-                                          Tcl_Interp *,int, char *[]));
+                           const char *targetType);
 
 extern VTKTCL_EXPORT void *
 vtkTclGetPointerFromObject(const char *name, const char *result_type,

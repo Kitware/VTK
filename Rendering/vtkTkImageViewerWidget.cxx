@@ -567,7 +567,7 @@ static int vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget 
     self->ImageViewer = imgViewer = vtkImageViewer::New();
 #ifndef VTK_PYTHON_BUILD
     vtkTclGetObjectFromPointer(self->Interp, self->ImageViewer,
-                               vtkImageViewerCommand);
+                               "vtkImageViewer");
 #endif
     ckfree (self->IV);
     self->IV = strdup(self->Interp->result);

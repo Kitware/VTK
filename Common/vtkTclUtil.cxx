@@ -242,8 +242,9 @@ vtkTclUpdateCommand(Tcl_Interp *interp, char *name,  vtkObject *temp)
 
 VTKTCL_EXPORT void
 vtkTclGetObjectFromPointer(Tcl_Interp *interp, void *temp1,
-                           int (*command)(ClientData, Tcl_Interp *,int, char *[]))
+                           const char *targetType)
 {
+  int (*command)(ClientData, Tcl_Interp *,int, char *[]) = 0;
   int is_new;
   vtkObject *temp = (vtkObject *)temp1;
   char temps[80];
@@ -299,6 +300,40 @@ vtkTclGetObjectFromPointer(Tcl_Interp *interp, void *temp1,
       {
       vtkTclCommandStruct *cs = (vtkTclCommandStruct *)cinf.clientData;
       command = cs->CommandFunction;
+      }
+    }
+  // if the class command wasn;t found try the target return type command
+  if (!command && targetType)
+    {
+    if (tstr)
+      {
+      free(tstr);
+      }
+    tstr = strdup(targetType);
+    if (Tcl_GetCommandInfo(interp,tstr,&cinf))
+      {
+      if (cinf.clientData)
+        {
+        vtkTclCommandStruct *cs = (vtkTclCommandStruct *)cinf.clientData;
+        command = cs->CommandFunction;
+        }
+      }
+    }
+  // if we still do not havbe a match then try vtkObject
+  if (!command)
+    {
+    if (tstr)
+      {
+      free(tstr);
+      }
+    tstr = strdup("vtkObject");
+    if (Tcl_GetCommandInfo(interp,tstr,&cinf))
+      {
+      if (cinf.clientData)
+        {
+        vtkTclCommandStruct *cs = (vtkTclCommandStruct *)cinf.clientData;
+        command = cs->CommandFunction;
+        }
       }
     }
   if (tstr)
