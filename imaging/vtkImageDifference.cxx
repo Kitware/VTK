@@ -47,7 +47,7 @@ vtkImageDifference::vtkImageDifference()
 {
   this->Error = 0;
   this->ThresholdedError = 0.0;
-  this->Threshold = 51;
+  this->Threshold = 16;
   this->AllowShift = 1;
 }
 
@@ -58,7 +58,29 @@ vtkImageDifference::vtkImageDifference()
   r1 = abs(((int)(c1)[0] - (int)(c2)[0])); \
   g1 = abs(((int)(c1)[1] - (int)(c2)[1])); \
   b1 = abs(((int)(c1)[2] - (int)(c2)[2]));\
-  if ((r1+g1+b1) < (tr+tg+tb)) { tr = r1; tg = g1; tb = b1; }
+  if ((r1+g1+b1) < (tr+tg+tb)) { tr = r1; tg = g1; tb = b1; } \
+  if ((idx0 > inMinX) && (idx0 < inMaxX) && \
+      (idx1 > inMinY) && (idx1 < inMaxY)) \
+    {\
+  ar1 = (int)(c1)[0]; \
+  ag1 = (int)(c1)[1]; \
+  ab1 = (int)(c1)[2]; \
+  ar2 = (int)(c2)[0] + (c2 - in1Inc0)[0] + (c2 + in1Inc0)[0] + \
+        (c2-in2Inc1)[0] + (c2-in2Inc1-in2Inc0)[0] + (c2-in2Inc1+in2Inc0)[0] + \
+        (c2+in2Inc1)[0] + (c2+in2Inc1-in2Inc0)[0] + (c2+in2Inc1+in2Inc0)[0]; \
+  ag2 = (int)(c2)[1] + (c2 - in2Inc0)[1] + (c2 + in2Inc0)[1] + \
+        (c2-in2Inc1)[1] + (c2-in2Inc1-in2Inc0)[1] + (c2-in2Inc1+in2Inc0)[1] + \
+        (c2+in2Inc1)[1] + (c2+in2Inc1-in2Inc0)[1] + (c2+in2Inc1+in2Inc0)[1]; \
+  ab2 = (int)(c2)[2] + (c2 - in2Inc0)[2] + (c2 + in2Inc0)[2] + \
+        (c2-in2Inc1)[2] + (c2-in2Inc1-in2Inc0)[2] + (c2-in2Inc1+in2Inc0)[2] + \
+        (c2+in2Inc1)[2] + (c2+in2Inc1-in2Inc0)[2] + (c2+in2Inc1+in2Inc0)[2]; \
+  r1 = abs(ar1 - ar2/9); \
+  g1 = abs(ag1 - ag2/9); \
+  b1 = abs(ab1 - ab2/9); \
+  if ((r1+g1+b1) < (tr+tg+tb)) { tr = r1; tg = g1; tb = b1; } \
+    }
+
+
 
 
 //----------------------------------------------------------------------------
@@ -78,8 +100,8 @@ void vtkImageDifference::ComputeRequiredInputUpdateExtent(int inExt[6],
   // grow input whole extent.
   for (idx = 0; idx < 2; ++idx)
     {
-    inExt[idx*2] -= 1;
-    inExt[idx*2+1] += 1;
+    inExt[idx*2] -= 2;
+    inExt[idx*2+1] += 2;
 
     // we must clip extent with whole extent is we hanlde boundaries.
     if (inExt[idx*2] < wholeExtent[idx*2])
@@ -107,6 +129,7 @@ void vtkImageDifference::ThreadedExecute(vtkImageData **inData,
   int in2Inc0, in2Inc1, in2Inc2;
   int outInc0, outInc1, outInc2;
   int tr, tg, tb, r1, g1, b1;
+  int ar1, ag1, ab1, ar2, ag2, ab2;
   int inMinX, inMaxX, inMinY, inMaxY;
   int *inExt;
 
@@ -156,6 +179,8 @@ void vtkImageDifference::ThreadedExecute(vtkImageData **inData,
   min2 = outExt[4];  max2 = outExt[5];
   
   inExt = inData[0]->GetExtent();
+  // we set min and Max to be one pixel in from actual values to support 
+  // the 3x3 averaging we do
   inMinX = inExt[0]; inMaxX = inExt[1];
   inMinY = inExt[2]; inMaxY = inExt[3];
 
@@ -171,7 +196,6 @@ void vtkImageDifference::ThreadedExecute(vtkImageData **inData,
       outPtr0 = outPtr1;
       for (idx0 = min0; idx0 <= max0; ++idx0)
 	{
-
 	tr = 1000;
 	tg = 1000;
 	tb = 1000;
@@ -183,11 +207,10 @@ void vtkImageDifference::ThreadedExecute(vtkImageData **inData,
 	   find the least difference.  This feature is used to 
 	   allow images to shift slightly between different graphics
 	   systems, like between opengl and starbase. */
-	
 	if (this->AllowShift) 
 	  {
 	  /* lower row */
-	  if (idx1 > inMinY)
+ 	  if (idx1 > inMinY)
 	    {
 	    vtkImageDifferenceComputeError(in1Ptr0-in1Inc1,in2Ptr0);
 	    if (idx0 > inMinX)
