@@ -114,9 +114,9 @@ protected:
   ~vtkDemandDrivenPipeline();
 
   // Helper methods to send requests to the algorithm.
-  virtual int ExecuteDataObject();
-  virtual int ExecuteInformation();
-  virtual int ExecuteData(int outputPort);
+  virtual int ExecuteDataObject(vtkInformation* request);
+  virtual int ExecuteInformation(vtkInformation* request);
+  virtual int ExecuteData(vtkInformation* request);
 
   // Copy information for the given request.
   virtual void CopyDefaultInformation(vtkInformation* request, int direction);

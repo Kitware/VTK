@@ -50,7 +50,7 @@ protected:
   ~vtkCachedStreamingDemandDrivenPipeline();
 
   virtual int NeedToExecuteData(int outputPort);
-  virtual int ExecuteData(int outputPort);
+  virtual int ExecuteData(vtkInformation* request);
   
   int CacheSize;
   

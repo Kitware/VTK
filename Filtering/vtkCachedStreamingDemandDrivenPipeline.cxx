@@ -25,7 +25,7 @@
 #include "vtkInformationVector.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkCachedStreamingDemandDrivenPipeline, "1.3");
+vtkCxxRevisionMacro(vtkCachedStreamingDemandDrivenPipeline, "1.4");
 vtkStandardNewMacro(vtkCachedStreamingDemandDrivenPipeline);
 
 
@@ -260,17 +260,17 @@ int vtkCachedStreamingDemandDrivenPipeline::NeedToExecuteData(int outputPort)
 
 
 //----------------------------------------------------------------------------
-int vtkCachedStreamingDemandDrivenPipeline::ExecuteData(int outputPort)
+int vtkCachedStreamingDemandDrivenPipeline::ExecuteData(vtkInformation* request)
 {
   // only works for one in one out algorithms
-  if (outputPort != 0)
+  if (request->Get(FROM_OUTPUT_PORT()) != 0)
     {
     vtkErrorMacro("vtkCachedStreamingDemandDrivenPipeline can only be used for algorithms with one output and one input");
     return 0;
     }
   
   // first do the ususal thing
-  int result = this->Superclass::ExecuteData(outputPort);
+  int result = this->Superclass::ExecuteData(request);
   
   // then save the newly generated data
   unsigned long bestTime = VTK_LARGE_INTEGER;
@@ -293,7 +293,7 @@ int vtkCachedStreamingDemandDrivenPipeline::ExecuteData(int outputPort)
       }
     }
 
-  vtkInformation* outInfo = this->GetOutputInformation(outputPort);
+  vtkInformation* outInfo = this->GetOutputInformation(0);
   vtkDataObject* dataObject = outInfo->Get(vtkDataObject::DATA_OBJECT());
   if (this->Data[bestIdx] == NULL)
     {

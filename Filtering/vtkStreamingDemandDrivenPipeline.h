@@ -166,7 +166,7 @@ protected:
 
   // Setup default information on the output after the algorithm
   // executes information.
-  virtual int ExecuteInformation();
+  virtual int ExecuteInformation(vtkInformation* request);
 
   // Copy information for the given request.
   virtual void CopyDefaultInformation(vtkInformation* request, int direction);

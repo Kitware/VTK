@@ -27,7 +27,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 
-vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.14");
+vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.15");
 vtkStandardNewMacro(vtkStreamingDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, CONTINUE_EXECUTING, Integer);
@@ -186,10 +186,12 @@ int vtkStreamingDemandDrivenPipeline::UpdateWholeExtent()
 }
 
 //----------------------------------------------------------------------------
-int vtkStreamingDemandDrivenPipeline::ExecuteInformation()
+int
+vtkStreamingDemandDrivenPipeline
+::ExecuteInformation(vtkInformation* request)
 {
   // Let the superclass make the request to the algorithm.
-  if(this->Superclass::ExecuteInformation())
+  if(this->Superclass::ExecuteInformation(request))
     {
     for(int i=0; i < this->Algorithm->GetNumberOfOutputPorts(); ++i)
       {

@@ -29,7 +29,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkExecutive, "1.17");
+vtkCxxRevisionMacro(vtkExecutive, "1.18");
 vtkInformationKeyMacro(vtkExecutive, ALGORITHM_AFTER_FORWARD, Integer);
 vtkInformationKeyMacro(vtkExecutive, ALGORITHM_BEFORE_FORWARD, Integer);
 vtkInformationKeyMacro(vtkExecutive, ALGORITHM_DIRECTION, Integer);
@@ -519,7 +519,6 @@ int vtkExecutive::ForwardDownstream(vtkInformation*)
 int vtkExecutive::ForwardUpstream(vtkInformation* request)
 {
   int result = 1;
-  vtkSmartPointer<vtkInformation> r = vtkSmartPointer<vtkInformation>::New();
   for(int i=0; i < this->GetNumberOfInputPorts(); ++i)
     {
     for(int j=0; j < this->Algorithm->GetNumberOfInputConnections(i); ++j)
@@ -527,12 +526,13 @@ int vtkExecutive::ForwardUpstream(vtkInformation* request)
       if(vtkExecutive* e = this->GetInputExecutive(i, j))
         {
         vtkAlgorithmOutput* input = this->Algorithm->GetInputConnection(i, j);
-        r->Copy(request);
-        r->Set(FROM_OUTPUT_PORT(), input->GetIndex());
-        if(!e->ProcessRequest(r))
+        int port = request->Get(FROM_OUTPUT_PORT());
+        request->Set(FROM_OUTPUT_PORT(), input->GetIndex());
+        if(!e->ProcessRequest(request))
           {
           result = 0;
           }
+        request->Set(FROM_OUTPUT_PORT(), port);
         }
       }
     }
@@ -612,15 +612,14 @@ void vtkExecutive::CopyDefaultInformation(vtkInformation* request,
 //----------------------------------------------------------------------------
 int vtkExecutive::CallAlgorithm(vtkInformation* request, int direction)
 {
-  vtkSmartPointer<vtkInformation> ar = vtkSmartPointer<vtkInformation>::New();
-  ar->Copy(request);
-  ar->Set(ALGORITHM_DIRECTION(), direction);
-  this->CopyDefaultInformation(ar, direction);
+  request->Set(ALGORITHM_DIRECTION(), direction);
+  this->CopyDefaultInformation(request, direction);
   this->InAlgorithm = 1;
-  int result = this->Algorithm->ProcessRequest(ar,
+  int result = this->Algorithm->ProcessRequest(request,
                                                this->GetInputInformation(),
                                                this->GetOutputInformation());
   this->InAlgorithm = 0;
+  request->Remove(ALGORITHM_DIRECTION());
   return result;
 }
 
