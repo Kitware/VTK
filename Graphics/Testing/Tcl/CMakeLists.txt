@@ -142,6 +142,7 @@ IF (VTK_USE_RENDERING)
       TestGraphLayoutFilter
       TestMultiBlockStreamer
       TestQuadricClustering
+      TestRectilinearGridToTetrahedra
       testReflect
       TestRuledSurface
       TestRuledSurface2

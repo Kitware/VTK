@@ -108,6 +108,7 @@ vtkQuadricDecimation.cxx
 vtkQuantizePolyDataPoints.cxx
 vtkRearrangeFields.cxx
 vtkRectilinearGridGeometryFilter.cxx
+vtkRectilinearGridToTetrahedra.cxx
 vtkRecursiveDividingCubes.cxx
 vtkReflectionFilter.cxx
 vtkReverseSense.cxx
