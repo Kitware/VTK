@@ -275,11 +275,29 @@ void vtkPolyDataMapper2D::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Lookup Table: (none)\n";
     }
 
-  os << indent << "Scalar Mode: " << this->ScalarMode << "\n";
-
   os << indent << "Scalar Visibility: " 
     << (this->ScalarVisibility ? "On\n" : "Off\n");
 
+  os << indent << "Scalar Mode: ";
+  switch ( this->ScalarMode )
+    {
+    case VTK_SCALAR_MODE_DEFAULT:
+      os << "Default" << endl;
+      break;
+    case VTK_SCALAR_MODE_USE_POINT_DATA:
+      os << "Use point data" << endl;
+      break;
+    case VTK_SCALAR_MODE_USE_CELL_DATA:
+      os << "Use cell data" << endl;
+      break;
+    case VTK_SCALAR_MODE_USE_POINT_FIELD_DATA:
+      os << "Use point field data" << endl;
+      break;
+    case VTK_SCALAR_MODE_USE_CELL_FIELD_DATA:
+      os << "Use cell field data" << endl;
+      break;
+    }
+  
   float *range = this->GetScalarRange();
   os << indent << "Scalar Range: (" << range[0] << ", " << range[1] << ")\n";
   os << indent << "UseLookupTableScalarRange: " << this->UseLookupTableScalarRange << "\n";
