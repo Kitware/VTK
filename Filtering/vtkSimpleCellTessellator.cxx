@@ -365,7 +365,7 @@ static signed char vtkTessellatorTetraCasesLeft[65][8][4] = {
 };
 
 
-vtkCxxRevisionMacro(vtkSimpleCellTessellator, "1.18");
+vtkCxxRevisionMacro(vtkSimpleCellTessellator, "1.19");
 vtkStandardNewMacro(vtkSimpleCellTessellator);
 //-----------------------------------------------------------------------------
 //
@@ -1658,8 +1658,8 @@ void vtkSimpleCellTessellator::InsertEdgesIntoEdgeTable(vtkTriangleTile &tri )
           doSubdivision = tri.GetSubdivisionLevel() < this->GetFixedSubdivisions();
           if(!doSubdivision) // fixed subdivision is done, need adaptive one?
             {
-            doSubdivision = this->NeedEdgeSubdivision(leftPoint,midPoint,rightPoint,
-                                                      alpha);
+            doSubdivision = this->RequiresEdgeSubdivision(leftPoint,midPoint,
+                                                          rightPoint,alpha);
             }
           }
         } // first doSubdivision
@@ -1843,8 +1843,8 @@ void vtkSimpleCellTessellator::InsertEdgesIntoEdgeTable( vtkTetraTile &tetra )
           doSubdivision = tetra.GetSubdivisionLevel() < this->GetFixedSubdivisions();
           if(!doSubdivision) // fixed subdivision is done, need adaptive one?
             {
-            doSubdivision = this->NeedEdgeSubdivision(leftPoint,midPoint,rightPoint,
-                                                      alpha);
+            doSubdivision = this->RequiresEdgeSubdivision(leftPoint,midPoint,
+                                                          rightPoint,alpha);
             }
           }
         
