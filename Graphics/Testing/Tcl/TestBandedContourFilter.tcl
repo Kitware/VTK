@@ -152,7 +152,7 @@ ren1 AddActor actor
 ren1 SetBackground 0 0 0
 renWin SetSize 300 80
 renWin Render
-[ren1 GetActiveCamera] Zoom 5
+[ren1 GetActiveCamera] Zoom 3
 renWin Render
 iren Initialize
 

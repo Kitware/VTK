@@ -120,7 +120,6 @@ foreach type $types {
 }
 renWin SetSize 480 480
 ren1 SetBackground .7 .3 .1
-[ren1 GetActiveCamera] Dolly 1.5
 ren1 ResetCameraClippingRange
 
 renWin Render

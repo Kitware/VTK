@@ -108,6 +108,7 @@ eval  [profile GetProperty] SetDiffuseColor 1 1 0.7
 
 ren1 AddActor profile
 [ren1 GetActiveCamera] Dolly 1.5
+ren1 ResetCamera
 ren1 ResetCameraClippingRange
 renWin SetSize 400 400
 

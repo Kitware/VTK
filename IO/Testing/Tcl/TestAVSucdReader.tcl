@@ -34,7 +34,7 @@ ren1 AddActor AVSActor2
 renWin SetSize 300 150
 iren Initialize
 renWin Render
-[ren1 GetActiveCamera] Zoom 3.0
+[ren1 GetActiveCamera] Zoom 2
 
 iren AddObserver UserEvent {wm deiconify .vtkInteract}
 

@@ -92,7 +92,7 @@ ren1 SetBackground 0 0 0
 
 renWin SetSize 250 150
 renWin Render
-[ren1 GetActiveCamera] Zoom 2.5
+[ren1 GetActiveCamera] Zoom 1.5
 renWin Render
 
 iren AddObserver UserEvent {wm deiconify .vtkInteract}

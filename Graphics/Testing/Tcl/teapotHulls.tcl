@@ -66,7 +66,6 @@ renWin SetSize 500 500
 
 iren Initialize
 renWin Render
-[ren1 GetActiveCamera] Zoom 1.5
 renWin Render
 
 # prevent the tk window from showing up then start the event loop

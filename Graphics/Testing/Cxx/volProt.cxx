@@ -259,7 +259,7 @@ int volProt( int argc, char *argv[] )
 
   renWin->SetSize(400,350);
 
-  ren->GetActiveCamera()->Zoom(2.0);
+  ren->GetActiveCamera()->Zoom(1.5);
   
   renWin->Render();
 
