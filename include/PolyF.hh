@@ -10,11 +10,11 @@
 class vlPolyFilter : public vlFilter {
 public:
   vlPolyFilter() : Input(0) {};
-  virtual ~vlPolyFilter();
+  ~vlPolyFilter();
   virtual void SetInput(vlPolyData *in);
   virtual vlPolyData* GetInput();
-  virtual void Execute();
-  virtual void Update();
+  void Execute();
+  void Update();
 protected:
   vlPolyData *Input;
 

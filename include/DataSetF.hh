@@ -7,14 +7,15 @@
 #include "Filter.h"
 #include "DataSetF.h"
 
-class vlDataSetFilter : virtual public vlFilter {
+class vlDataSetFilter : public vlFilter 
+{
 public:
   vlDataSetFilter();
   ~vlDataSetFilter();
   virtual void SetInput(vlDataSet *in);
   virtual vlDataSet*  GetInput();
-  virtual void Execute();
-  virtual void Update();
+  void Execute();
+  void Update();
 protected:
   vlDataSet *Input;
 

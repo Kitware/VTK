@@ -7,10 +7,10 @@
 #include "PolyF.h"
 #include "PolyData.h"
 
-class vlPolyToPolyFilter : public vlPolyFilter, public vlPolyData {
+class vlPolyToPolyFilter : public vlPolyFilter, public vlPolyData 
+{
 public:
   void Update();
-
 };
 
 #endif

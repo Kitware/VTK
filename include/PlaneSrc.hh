@@ -6,7 +6,8 @@
 
 #include "PolySrc.h"
 
-class vlPlaneSource : public vlPolySource {
+class vlPlaneSource : public vlPolySource 
+{
 public:
   vlPlaneSource() : XRes(1), YRes(1) {};
   vlPlaneSource(const int xR, const int yR) {XRes=xR; YRes=yR;};

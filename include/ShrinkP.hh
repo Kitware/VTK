@@ -6,11 +6,12 @@
 
 #include "P2PF.h"
 
-class vlShrinkPolyData : public vlPolyToPolyFilter {
+class vlShrinkPolyData : public vlPolyToPolyFilter 
+{
 public:
   vlShrinkPolyData() {this->ShrinkFactor = 0.5;};
-  virtual ~vlShrinkPolyData() {};
-  virtual void Execute();
+  ~vlShrinkPolyData() {};
+  void Execute();
   void SetShrinkFactor(float sf);
   float GetShrinkFactor();
 private:

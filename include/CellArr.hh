@@ -6,10 +6,12 @@
 
 #include "IntArray.h"
 
-class vlCellArray : public vlObject {
+class vlCellArray : public vlObject 
+{
 public:
   vlCellArray() : NumCells(0), Loc(0) {};
-  int Initialize(const int sz, const int ext=1000) {return this->Ia.Initialize(sz,ext);};
+  int Initialize(const int sz, const int ext=1000) 
+    {return this->Ia.Initialize(sz,ext);};
   vlCellArray (const int sz, const int ext=1000):NumCells(0),Loc(0),Ia(sz,ext){};
   ~vlCellArray() {};
   int GetNextCell(int& npts, int* &pts)

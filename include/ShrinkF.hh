@@ -7,11 +7,12 @@
 #include "DataSetF.h"
 #include "PolyData.h"
 
-class vlShrinkFilter : public vlDataSetFilter, public vlPolyData {
+class vlShrinkFilter : public vlDataSetFilter, public vlPolyData 
+{
 public:
   vlShrinkFilter(const float sf=0.5) {this->ShrinkFactor = sf;};
-  virtual ~vlShrinkFilter() {};
-  virtual void Execute();
+  ~vlShrinkFilter() {};
+  void Execute();
 private:
   float ShrinkFactor;
 };

@@ -11,14 +11,15 @@
 #include "FTriple.h"
 #include "IdList.h"
 
-class vlFloatScalars : public vlObject {
+class vlFloatScalars : public vlObject 
+{
 public:
   vlFloatScalars();
   int Initialize(const int sz, const int ext=1000) {return S.Initialize(sz,ext);};
   vlFloatScalars(const vlFloatScalars& fs);
   vlFloatScalars(const int sz, const int ext);
   vlFloatScalars(vlFloatArray& fa);
-  virtual ~vlFloatScalars();
+  ~vlFloatScalars();
   int NumScalars();
   void Reset();
   vlFloatScalars &operator=(const vlFloatScalars& fs);

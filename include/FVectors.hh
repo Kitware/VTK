@@ -11,14 +11,15 @@
 #include "FTriple.h"
 #include "IdList.h"
 
-class vlFloatVectors : public vlObject {
+class vlFloatVectors : public vlObject 
+{
 public:
   vlFloatVectors();
   int Initialize(const int sz, const int ext=1000) {return this->V.Initialize(3*sz,3*ext);};
   vlFloatVectors(const vlFloatVectors& fp);
   vlFloatVectors(const int sz, const int ext);
   vlFloatVectors(vlFloatArray& fa);
-  virtual ~vlFloatVectors();
+  ~vlFloatVectors();
   int NumVectors();
   void Reset();
   vlFloatVectors &operator=(const vlFloatVectors& fp);
@@ -31,9 +32,9 @@ public:
   vlFloatTriple &operator[](const int i) 
     {this->Ft.X = this->V.GetPtr(3*i); return this->Ft;};
   void insertVector(const int i, vlFloatTriple &ft) {
-      this->V.InsertValue(3*i+2, Ft.X[2]);
-      this->V[3*i] =  Ft.X[0];
-      this->V[3*i+1] =  Ft.X[1];
+      this->V.InsertValue(3*i+2, ft.X[2]);
+      this->V[3*i] =  ft.X[0];
+      this->V[3*i+1] =  ft.X[1];
   }
   void InsertVector(const int i, float *x) {
       this->V.InsertValue(3*i+2, x[2]);

@@ -7,9 +7,10 @@
 #include "Source.h"
 #include "PolyData.h"
 
-class vlPolySource : public vlSource, public vlPolyData {
+class vlPolySource : public vlSource, public vlPolyData 
+{
 public:
-  virtual void Update();
+  void Update();
 };
 
 #endif

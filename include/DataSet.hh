@@ -11,11 +11,12 @@
 
 #define MAX_CELL_SIZE 128
 
-class vlDataSet : virtual public vlObject {
+class vlDataSet : virtual public vlObject 
+{
 public:
   vlDataSet();
   vlDataSet(const vlDataSet& ds);
-  virtual ~vlDataSet();
+  ~vlDataSet();
   virtual int NumCells() = 0;
   virtual int NumPoints() = 0;
   virtual int CellDimension(int cellId) = 0;

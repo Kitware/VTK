@@ -11,14 +11,15 @@
 #include "FTriple.h"
 #include "IdList.h"
 
-class vlFloatTCoords : public vlObject {
+class vlFloatTCoords : public vlObject 
+{
 public:
   vlFloatTCoords();
   int Initialize(const int sz, const int dim=2, const int ext=1000) {return this->TC.Initialize(dim*sz,dim*ext);};
   vlFloatTCoords(const vlFloatTCoords& tc);
   vlFloatTCoords(const int sz, const int d=2, const int ext=1000);
   vlFloatTCoords(vlFloatArray& fa);
-  virtual ~vlFloatTCoords();
+  ~vlFloatTCoords();
   int NumTCoords();
   void Reset();
   vlFloatTCoords &operator=(const vlFloatTCoords& ftc);

@@ -13,17 +13,18 @@
 
 #define MAX_VERTS 64
 
-class vlPolyData : virtual public vlDataSet {
+class vlPolyData : public vlDataSet 
+{
 public:
   /* dataset interface */
   vlPolyData();
   vlPolyData(const vlPolyData& pd);
-  virtual ~vlPolyData();
-  virtual int NumCells();
-  virtual int NumPoints();
+  ~vlPolyData();
+  int NumCells();
+  int NumPoints();
   int CellDimension(int cellId);
   void CellPoints(int cellId, vlIdList& ptId);
-  virtual void Initialize();
+  void Initialize();
   void PointCoords(vlIdList& ptId, vlFloatPoints& fp);
 
   /* PolyData specific */

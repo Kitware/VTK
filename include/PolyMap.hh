@@ -8,13 +8,14 @@
 #include "PolyData.h"
 #include "Renderer.h"
 
-class vlPolyMapper : public vlMapper {
+class vlPolyMapper : public vlMapper 
+{
 public:
   vlPolyMapper();
-  virtual ~vlPolyMapper();
+  ~vlPolyMapper();
+  void Render(Renderer *ren);
   virtual void SetInput(vlPolyData *in);
   virtual vlPolyData* GetInput();
-  virtual void Render(Renderer *ren);
 
 protected:
   vlPolyData *Input;
