@@ -23,7 +23,7 @@
 
 #include "vtkMPI.h"
 
-vtkCxxRevisionMacro(vtkMPICommunicator, "1.32");
+vtkCxxRevisionMacro(vtkMPICommunicator, "1.33");
 vtkStandardNewMacro(vtkMPICommunicator);
 
 vtkCxxSetObjectMacro(vtkMPICommunicator,Group,vtkMPIGroup);
@@ -57,7 +57,7 @@ MPI_Datatype vtkMPICommunicatorGetMPIType()
 #elif defined(MPI_LONG_LONG)
   return MPI_LONG_LONG;
 #else
-  vtkGenericWarningMacro("This systems MPI doesnt seem to support 64 bit ids
+  vtkGenericWarningMacro("This systems MPI doesnt seem to support 64 bit ids \
 and you have 64 bit IDs turned on. Please call Berk.");
   return MPI_INT;
 #endif
