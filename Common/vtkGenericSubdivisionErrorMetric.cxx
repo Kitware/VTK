@@ -19,7 +19,7 @@
 #include "vtkGenericAttributeCollection.h"
 #include "vtkGenericAdaptorCell.h"
 
-vtkCxxRevisionMacro(vtkGenericSubdivisionErrorMetric,"1.1");
+vtkCxxRevisionMacro(vtkGenericSubdivisionErrorMetric,"1.2");
 vtkStandardNewMacro(vtkGenericSubdivisionErrorMetric);
 
 vtkCxxSetObjectMacro(vtkGenericSubdivisionErrorMetric, GenericCell,vtkGenericAdaptorCell);
@@ -191,5 +191,8 @@ void vtkGenericSubdivisionErrorMetric::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Error: "  << this->Error << endl;
+  
+  os << indent << "AttributeCollection: "  << this->AttributeCollection << endl;
+  os << indent << "GenericCell: "  << this->GenericCell << endl;
 }
 
