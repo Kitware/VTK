@@ -56,7 +56,8 @@ public:
   void ThresholdByUpper(float upper);
 
   // Description:
-  // Criterion is cells whose scalars are between lower and upper thresholds.
+  // Criterion is cells whose scalars are between lower and upper thresholds
+  // (inclusive of the end values).
   void ThresholdBetween(float lower, float upper);
 
   // Description:

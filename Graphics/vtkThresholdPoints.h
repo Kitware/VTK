@@ -37,15 +37,16 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:
-  // Criterion is cells whose scalars are less than lower threshold.
+  // Criterion is cells whose scalars are less or equal to lower threshold.
   void ThresholdByLower(float lower);
 
   // Description:
-  // Criterion is cells whose scalars are less than upper threshold.
+  // Criterion is cells whose scalars are greater or equal to upper threshold.
   void ThresholdByUpper(float upper);
 
   // Description:
-  // Criterion is cells whose scalars are between lower and upper thresholds.
+  // Criterion is cells whose scalars are between lower and upper thresholds
+  // (inclusive of the end values).
   void ThresholdBetween(float lower, float upper);
 
   // Description:
