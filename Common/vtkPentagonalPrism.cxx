@@ -29,7 +29,7 @@
 #include "vtkMath.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkPentagonalPrism, "1.15");
+vtkCxxRevisionMacro(vtkPentagonalPrism, "1.16");
 vtkStandardNewMacro(vtkPentagonalPrism);
 
 static const double VTK_DIVERGED = 1.e6;
@@ -376,9 +376,22 @@ int vtkPentagonalPrism::CellBoundary(int subId, double pcoords[3],
   v[1] = pcoords[1] - a[1];
   
   double dot = vtkMath::Dot2D(v, u);
-  dot /= vtkMath::Norm2D( u );
+  double uNorm = vtkMath::Norm2D( u );
+  if (uNorm)
+    {
+    dot /= uNorm;
+    }
   dot = (v[0]*v[0] + v[1]*v[1]) - dot*dot;
-  dot = sqrt( dot );
+  // mathematically dot must be >= zero but, suprise suprise, it can actually
+  // be negative
+  if (dot > 0)
+    {
+    dot = sqrt( dot );
+    }
+  else
+    {
+    dot = 0;
+    }
   int *verts;
 
   if(pcoords[2] < 0.5)
