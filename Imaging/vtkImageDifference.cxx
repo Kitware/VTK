@@ -20,7 +20,7 @@
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageDifference, "1.31");
+vtkCxxRevisionMacro(vtkImageDifference, "1.31.8.1");
 vtkStandardNewMacro(vtkImageDifference);
 
 // Construct object to extract all of the input data.
@@ -329,7 +329,7 @@ void vtkImageDifference::ExecuteInformation(vtkImageData **inputs,
   
   // Make sure the Input has been set.
   // we require that input 1 be set.
-  if ( ! inputs[0] || ! inputs[1])
+  if ( this->NumberOfInputs < 2 || ! inputs[0] || ! inputs[1])
     {
     vtkErrorMacro(<< "ExecuteInformation: Input is not set.");
     return;
