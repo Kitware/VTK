@@ -46,11 +46,6 @@ viewer SetColorWindow 1000
 viewer SetColorLevel 300
 #viewer DebugOn
 
-puts [pnm Print]
-pnm UpdateInformation
-#puts [pnm Print]
-
-
 # make interface
 source WindowLevelInterface.tcl
 
