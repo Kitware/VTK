@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkObject - implement selected glu functionality
+// .NAME vtkgluPickMatrix - implement selected glu functionality
 // .SECTION Description
 // This file implements selected glu functionality to avoid 
 // system dependencies on glu.
