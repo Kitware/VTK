@@ -59,8 +59,8 @@ public:
 
   // Description:
   // Set/Get the pixel data of an image, transmitted as RGBRGB... 
-  virtual unsigned char *GetPixelData(int x,int y,int x2,int y2);
-  virtual void SetPixelData(int x,int y,int x2,int y2,unsigned char *);
+  virtual unsigned char *GetPixelData(int x,int y,int x2,int y2, int front);
+  virtual void SetPixelData(int x,int y,int x2,int y2,unsigned char *, int front);
 
   // Xwindow stuff
   int      GetDesiredDepth();

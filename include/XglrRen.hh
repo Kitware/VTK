@@ -26,6 +26,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include <X11/Xutil.h>
 #include "Renderer.hh"
 #include <xgl/xgl.h>
+#include "XglrRenW.hh"
 
 #define MAX_LIGHTS 12
 
