@@ -55,7 +55,7 @@ CONECT 1963 1895
 // "Known" atoms...
 char atomType[] = {'H','C','N','O','S'};
 static unsigned char colorMap[5][3] = 
-{255,255,255, 125,125,125, 58,144,255, 255,0,0, 255,246,0};
+{{255,255,255}, {125,125,125}, {58,144,255}, {255,0,0}, {255,246,0}};
 #define MINSCALAR 0.0
 #define MAXSCALAR 5.0
 #define MAXTYPE 5
