@@ -278,6 +278,7 @@ INSTALL_FILES(/include/vtk .h
   vtkSmartPointer
   vtkSystemIncludes
   vtkWin32Header
+  vtkWindows
 )
 
 IF(VTK_WRAP_TCL)
