@@ -109,7 +109,7 @@ inline void vlCharArray::operator+=(const unsigned char c)
 // not do automatic resizing - user's responsibility to range check.
 inline unsigned char& vlCharArray::operator[](const int i)
 {
-  if (i > this->MaxId) this->MaxId = 1;
+  if (i > this->MaxId) this->MaxId = i;
   return this->Array[i];
 }
 
