@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkOglrRenderer.hh
+  Module:    vtkSbrPolyMapper.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -38,39 +38,35 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkOglrRenderer - OpenGL renderer
+// .NAME vtkSbrPolyMapper - a PolyMapper for the HP starbase library
 // .SECTION Description
-// vtkOglrRenderer is a concrete implementation of the abstract class
-// vtkRenderer. vtkOglrRenderer interfaces to the OpenGL graphics library.
+// vtkSbrPolyMapper is a subclass of vtkPolyMapperDevice. 
+// vtkSbrPolyMapper is a PolyMapper for the HP starbase rendering library.
 
-#ifndef __vtkOglrRenderer_hh
-#define __vtkOglrRenderer_hh
+#ifndef __vtkSbrPolyMapper_hh
+#define __vtkSbrPolyMapper_hh
 
 #include <stdlib.h>
-#include "vtkRenderer.hh"
+#include "vtkPolyMapperDevice.hh"
+#include "vtkPolyData.hh"
+#include "vtkColorScalars.hh"
 
-class vtkOglrRenderer : public vtkRenderer
+class vtkSbrRenderer;
+
+class vtkSbrPolyMapper : public vtkPolyMapperDevice
 {
- protected:
-  int NumberOfLightsBound;
+public:
+  vtkSbrPolyMapper();
+  virtual ~vtkSbrPolyMapper();
+  char *GetClassName() {return "vtkSbrPolyMapper";};
 
- public:
-  vtkOglrRenderer();
+  void Build(vtkPolyData *, vtkColorScalars *);
+  void Draw(vtkRenderer *ren, vtkActor *act);
 
-  void Render(void); // overides base 
-  char *GetClassName() {return "vtkOglrRenderer";};
-  void PrintSelf(ostream& os, vtkIndent indent);
-
-  void ClearLights(void);
-  int UpdateActors(void);
-  int UpdateCameras(void);
-  int UpdateLights(void);
-
-  // stereo related stuff
-  virtual float *GetCenter();
-  virtual void DisplayToView(); 
-  virtual void ViewToDisplay(); 
-  virtual int  IsInViewport(int x,int y); 
+protected:
+  float *Prim;
+  int   DataFlag;
 };
 
 #endif
+

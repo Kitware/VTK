@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkOglrRenderer.hh
+  Module:    vtkOglrPolyMapper.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -38,39 +38,39 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkOglrRenderer - OpenGL renderer
+// .NAME vtkOglrPolyMapper - a PolyMapper for the OpenGL library
 // .SECTION Description
-// vtkOglrRenderer is a concrete implementation of the abstract class
-// vtkRenderer. vtkOglrRenderer interfaces to the OpenGL graphics library.
+// vtkOglrPolyMapper is a subclass of vtkPolyMapperDevice. 
+// vtkOglrPolyMapper is a geometric PolyMapper for the OpenGL 
+// rendering library.
 
-#ifndef __vtkOglrRenderer_hh
-#define __vtkOglrRenderer_hh
+#ifndef __vtkOglrPolyMapper_hh
+#define __vtkOglrPolyMapper_hh
 
 #include <stdlib.h>
-#include "vtkRenderer.hh"
 
-class vtkOglrRenderer : public vtkRenderer
+#ifdef _WIN32
+#include <windows.h>
+#endif
+#include <GL/gl.h>
+
+#include "vtkPolyMapperDevice.hh"
+
+class vtkOglrRenderer;
+class vtkProperty;
+
+class vtkOglrPolyMapper : public vtkPolyMapperDevice
 {
- protected:
-  int NumberOfLightsBound;
-
  public:
-  vtkOglrRenderer();
+  vtkOglrPolyMapper();
+  char *GetClassName() {return "vtkOglrPolyMapper";};
 
-  void Render(void); // overides base 
-  char *GetClassName() {return "vtkOglrRenderer";};
-  void PrintSelf(ostream& os, vtkIndent indent);
-
-  void ClearLights(void);
-  int UpdateActors(void);
-  int UpdateCameras(void);
-  int UpdateLights(void);
-
-  // stereo related stuff
-  virtual float *GetCenter();
-  virtual void DisplayToView(); 
-  virtual void ViewToDisplay(); 
-  virtual int  IsInViewport(int x,int y); 
+  void Build(vtkPolyData *, vtkColorScalars *);
+  void Draw(vtkRenderer *ren, vtkActor *a);
+  
+  //BTX  begine tcl exclude
+  GLenum GetLmcolorMode(vtkProperty *prop);
+  //ETX
 };
 
 #endif

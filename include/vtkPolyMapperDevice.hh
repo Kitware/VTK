@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkOglrRenderer.hh
+  Module:    vtkPolyMapperDevice.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -38,39 +38,50 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkOglrRenderer - OpenGL renderer
+// .NAME vtkPolyMapperDevice - abstract interface for geometric data
 // .SECTION Description
-// vtkOglrRenderer is a concrete implementation of the abstract class
-// vtkRenderer. vtkOglrRenderer interfaces to the OpenGL graphics library.
+// vtkPolyMapperDevice is an abstract specification for objects that 
+// interface to the polygonal based rendering libraries. Subclasses of
+// vtkPolyMapperDevice interface indirectly to a renderer during its two
+// pass rendering process. In the first pass (Build()), the 
+// vtkPolyMapperDevice object is asked to build its data from its input 
+// polygonal data. In the next pass (Draw()), the object is asked to load
+// its data into the graphics pipeline. Typically the user will never 
+// encounter this object or its subclasses. It is used to interface
+// the Mappers to the underlying graphics library. 
 
-#ifndef __vtkOglrRenderer_hh
-#define __vtkOglrRenderer_hh
+// .SECTION see also
+// vtkPolyMapper
 
-#include <stdlib.h>
-#include "vtkRenderer.hh"
+#ifndef __vtkPolyMapperDevice_hh
+#define __vtkPolyMapperDevice_hh
 
-class vtkOglrRenderer : public vtkRenderer
+#include "vtkObject.hh"
+
+class vtkPolyData;
+class vtkColorScalars;
+class vtkRenderer;
+class vtkActor;
+
+class vtkPolyMapperDevice : public vtkObject
 {
- protected:
-  int NumberOfLightsBound;
-
  public:
-  vtkOglrRenderer();
-
-  void Render(void); // overides base 
-  char *GetClassName() {return "vtkOglrRenderer";};
+  vtkPolyMapperDevice();
+  char *GetClassName() {return "vtkPolyMapperDevice";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  void ClearLights(void);
-  int UpdateActors(void);
-  int UpdateCameras(void);
-  int UpdateLights(void);
+  // Description:
+  // Build appropriate graphical data representation for the
+  // particular library.
+  virtual void Build(vtkPolyData *data, vtkColorScalars *c) = 0;
 
-  // stereo related stuff
-  virtual float *GetCenter();
-  virtual void DisplayToView(); 
-  virtual void ViewToDisplay(); 
-  virtual int  IsInViewport(int x,int y); 
+  // Description:
+  // Load data into a specific graphics library.
+  virtual void Draw(vtkRenderer *ren, vtkActor *a) = 0;
+
+ protected:
+  vtkPolyData *Data;
+  vtkColorScalars *Colors;
 };
 
 #endif

@@ -51,6 +51,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkPolyData.hh"
 #include "vtkRenderer.hh"
 
+class vtkPolyMapperDevice;
+
 class vtkPolyMapper : public vtkMapper 
 {
 public:
@@ -59,7 +61,7 @@ public:
   char *GetClassName() {return "vtkPolyMapper";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  void Render(vtkRenderer *ren);
+  void Render(vtkRenderer *ren, vtkActor *a);
   float *GetBounds();
 
   // Description:
@@ -92,10 +94,7 @@ public:
   vtkBooleanMacro(StripsVisibility,int);
 
 protected:
-  vtkGeometryPrimitive *Verts;
-  vtkGeometryPrimitive *Lines;
-  vtkGeometryPrimitive *Polys;
-  vtkGeometryPrimitive *Strips;
+  vtkPolyMapperDevice  *Device;
 
   vtkColorScalars *Colors;
 
@@ -103,7 +102,6 @@ protected:
   int LinesVisibility;
   int PolysVisibility;
   int StripsVisibility;
-
 };
 
 #endif

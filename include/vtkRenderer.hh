@@ -55,12 +55,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkRenderer_hh
 #define __vtkRenderer_hh
 
-#include "vtkObject.hh"
 #include "vtkMatrix4x4.hh"
 #include "vtkLightCollection.hh"
 #include "vtkCamera.hh"
 #include "vtkActor.hh"
-#include "vtkGeometryPrimitive.hh"
 
 class vtkRenderWindow;
 class vtkVolumeRenderer;
@@ -112,14 +110,6 @@ public:
   // Create an image. Subclasses of vtkRenderer must implement this method.
   virtual void Render() = 0;
 
-  // Description:
-  // Get a device specific geometry representation. vtkMapper and its
-  // subclasses need to get device specific GeometryPrimitives to
-  // render their polygons, lines, triangle strips and vertices.
-  // This method, which must be supplied by all subclasses of vtkRenderer,
-  // takes a string indicating what type of primitive to create.
-  virtual vtkGeometryPrimitive *GetPrimitive(char *) = 0;
-  
   // Description:
   // Ask all actors to build and draw themselves.
   virtual int UpdateActors(void) = 0;

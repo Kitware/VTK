@@ -61,7 +61,6 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   void Render(void);
-  vtkGeometryPrimitive *GetPrimitive(char *);
   void ClearLights(void);
   int UpdateActors(void);
   int UpdateCameras(void);

@@ -61,7 +61,7 @@ public:
   ~vtkDataSetMapper();
   char *GetClassName() {return "vtkDataSetMapper";};
   void PrintSelf(ostream& os, vtkIndent indent);
-  void Render(vtkRenderer *ren);
+  void Render(vtkRenderer *ren, vtkActor *act);
   float *GetBounds();
 
   // Description:

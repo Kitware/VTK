@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkOglrRenderer.hh
+  Module:    vtkGlrPolyMapper.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -38,39 +38,30 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkOglrRenderer - OpenGL renderer
+// .NAME vtkGlrPolyMapper - a PolyMapper for the SGI gl library
 // .SECTION Description
-// vtkOglrRenderer is a concrete implementation of the abstract class
-// vtkRenderer. vtkOglrRenderer interfaces to the OpenGL graphics library.
+// vtkGlrPolyMapper is a subclass of vtkPolyMapperDevice. vtkGlrPolyMapper is
+// a geometric PolyMapper for the Silicon Graphics gl rendering library.
 
-#ifndef __vtkOglrRenderer_hh
-#define __vtkOglrRenderer_hh
+#ifndef __vtkGlrPolyMapper_hh
+#define __vtkGlrPolyMapper_hh
 
 #include <stdlib.h>
-#include "vtkRenderer.hh"
+#include "vtkPolyMapperDevice.hh"
 
-class vtkOglrRenderer : public vtkRenderer
+class vtkGlrRenderer;
+class vtkProperty;
+
+class vtkGlrPolyMapper : public vtkPolyMapperDevice
 {
- protected:
-  int NumberOfLightsBound;
-
  public:
-  vtkOglrRenderer();
+  vtkGlrPolyMapper();
+  char *GetClassName() {return "vtkGlrPolyMapper";};
 
-  void Render(void); // overides base 
-  char *GetClassName() {return "vtkOglrRenderer";};
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void Build(vtkPolyData *, vtkColorScalars *);
+  void Draw(vtkRenderer *ren, vtkActor *act);
 
-  void ClearLights(void);
-  int UpdateActors(void);
-  int UpdateCameras(void);
-  int UpdateLights(void);
-
-  // stereo related stuff
-  virtual float *GetCenter();
-  virtual void DisplayToView(); 
-  virtual void ViewToDisplay(); 
-  virtual int  IsInViewport(int x,int y); 
+  int GetLmcolorMode(vtkProperty *prop);
 };
 
 #endif

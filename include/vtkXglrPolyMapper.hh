@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkOglrRenderer.hh
+  Module:    vtkXglrPolyMapper.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -38,39 +38,47 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkOglrRenderer - OpenGL renderer
+// .NAME vtkXglrPolyMapper - a PolyMapper for Suns XGL library
 // .SECTION Description
-// vtkOglrRenderer is a concrete implementation of the abstract class
-// vtkRenderer. vtkOglrRenderer interfaces to the OpenGL graphics library.
+// vtkXglrPolyMapper is a subclass of vtkPolyMapperDevice.
+// vtkXglrPolyMapper is a geometric PolyMapper for Suns XGL rendering library.
 
-#ifndef __vtkOglrRenderer_hh
-#define __vtkOglrRenderer_hh
+#ifndef __vtkXglrPolyMapper_hh
+#define __vtkXglrPolyMapper_hh
 
 #include <stdlib.h>
-#include "vtkRenderer.hh"
+#include "vtkPolyMapperDevice.hh"
+#include "vtkPolyData.hh"
+#include "vtkColorScalars.hh"
+#include <xgl/xgl.h>
 
-class vtkOglrRenderer : public vtkRenderer
+class vtkXglrRenderer;
+
+class vtkXglrPolyMapper : public vtkPolyMapperDevice
 {
- protected:
-  int NumberOfLightsBound;
+public:
+  vtkXglrPolyMapper();
+  virtual ~vtkXglrPolyMapper();
+  char *GetClassName() {return "vtkXglrPolyMapper";};
 
- public:
-  vtkOglrRenderer();
+  void Build(vtkPolyData *data, vtkColorScalars *c);
+  void Draw(vtkRenderer *ren, vtkActor *a);
 
-  void Render(void); // overides base 
-  char *GetClassName() {return "vtkOglrRenderer";};
-  void PrintSelf(ostream& os, vtkIndent indent);
-
-  void ClearLights(void);
-  int UpdateActors(void);
-  int UpdateCameras(void);
-  int UpdateLights(void);
-
-  // stereo related stuff
-  virtual float *GetCenter();
-  virtual void DisplayToView(); 
-  virtual void ViewToDisplay(); 
-  virtual int  IsInViewport(int x,int y); 
+protected:
+  float *AddVertexWithNormal(int npts, int pointSize, int *pts, 
+			     vtkPoints *p, vtkColorScalars *c, 
+			     vtkTCoords *t, vtkNormals *n, float *polyNorm);
+  float *AddVertex(int npts, int pointSize, int *pts, vtkPoints *p, 
+		   vtkColorScalars *c, vtkTCoords *t);
+  Xgl_3d_ctx Context;
+  Xgl_pt_list *PL;
+  Xgl_pt_list *PL2; // no normals
+  int   NumPolys;
+  int   NumStrips;
+  int   NumLines;
+  int   NumVerts;
+  int   DataSize;
+  
 };
 
 #endif

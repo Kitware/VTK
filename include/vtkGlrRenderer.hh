@@ -65,7 +65,6 @@ class vtkGlrRenderer : public vtkRenderer
   char *GetClassName() {return "vtkGlrRenderer";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  vtkGeometryPrimitive *GetPrimitive(char *);
   void ClearLights(void);
   int UpdateActors(void);
   int UpdateCameras(void);

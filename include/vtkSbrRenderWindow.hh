@@ -67,6 +67,7 @@ public:
   vtkActorDevice    *MakeActor();
   vtkPropertyDevice *MakeProperty();
   vtkTextureDevice  *MakeTexture();
+  vtkPolyMapperDevice *MakePolyMapper();
 
   void Start(void);
   void Frame(void);

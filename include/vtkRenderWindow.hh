@@ -61,6 +61,7 @@ class vtkCameraDevice;
 class vtkActorDevice;
 class vtkTextureDevice;
 class vtkPropertyDevice;
+class vtkPolyMapperDevice;
 
 // lets define the diferent types of stereo
 #define VTK_STEREO_CRYSTAL_EYES 1
@@ -129,6 +130,12 @@ public:
   // the correct type of vtkTextureDevice.
   virtual vtkTextureDevice     *MakeTexture() = 0;
 
+  // Description:
+  // Create a device specific PolyMapper. This is used by vtkPolyMapper
+  // to convert vtkPolyData into the appropriate primitive calls
+  // for the Rendering library in question.
+  virtual vtkPolyMapperDevice *MakePolyMapper() = 0;
+  
   // Description:
   // Create an interactor to control renderers in this window. We need
   // to know what type of interactor to create, because we might be in
