@@ -34,7 +34,7 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkExtentTranslator.h"
 
-vtkCxxRevisionMacro(vtkPDataSetReader, "1.32");
+vtkCxxRevisionMacro(vtkPDataSetReader, "1.33");
 vtkStandardNewMacro(vtkPDataSetReader);
 
 //----------------------------------------------------------------------------
@@ -958,7 +958,6 @@ int vtkPDataSetReader::RequestData(vtkInformation* request,
       vtkErrorMacro("We do not handle vtkRectilinear yet.");
       return 0;
     }
-  return 1;
 }
 
 
