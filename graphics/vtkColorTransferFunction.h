@@ -108,6 +108,7 @@ public:
   // Description:
   // Fills in a table of n function values between x1 and x2
   void GetTable( float x1, float x2, int n, float* table );
+  const unsigned char *GetTable( float x1, float x2, int n);
 
   // Description:
   // Construct a color transfer function from a table. Function range is
@@ -231,6 +232,9 @@ protected:
   vtkPiecewiseFunction	*Red;
   vtkPiecewiseFunction	*Green;
   vtkPiecewiseFunction	*Blue;
+  vtkTimeStamp BuildTime;
+  unsigned char *Table;
+  int TableSize;
 };
 
 #endif
