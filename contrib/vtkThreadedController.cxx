@@ -149,10 +149,11 @@ void vtkThreadedController::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-void vtkThreadedController::Initialize(int argc, char *argv[])
+void vtkThreadedController::Initialize(int vtkNotUsed(argc), char *argv[])
 {
   this->Modified();
   
+  argv = argv;
   this->NumberOfProcesses = this->MultiThreader->GetNumberOfThreads();
 }
   
@@ -285,9 +286,8 @@ void vtkThreadedController::MultipleMethodExecute()
 // set,  once before me could be in a funky state.
 int vtkThreadedController::GetLocalProcessId()
 {
-  int idx;
-  
 #ifdef VTK_USE_PTHREADS  
+  int idx;
   pthread_t pid = pthread_self();
   for (idx = 0; idx < this->NumberOfProcesses; ++idx)
     {
@@ -300,6 +300,7 @@ int vtkThreadedController::GetLocalProcessId()
   vtkErrorMacro("Could Not Find my process id.");
   return -1;
 #elif defined VTK_USE_SPROC
+  int idx;
   pid_t pid = PRDA->sys_prda.prda_sys.t_pid;
   for (idx = 0; idx < this->NumberOfProcesses; ++idx)
     {
