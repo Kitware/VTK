@@ -1,3 +1,6 @@
+## Test the rotational extrusion filter and tube generator. Sweep a spiral
+## curve to generate a tube.
+
 # get the interactor ui
 source vtkInt.tcl
 
@@ -27,18 +30,37 @@ vtkPolyData profile;
     profile SetPoints points;
     profile SetLines lines;
 
+#create the tunnel
 vtkRotationalExtrusionFilter extrude;
     extrude SetInput profile;
     extrude SetAngle 360;
-    
+    extrude SetResolution 80;
+vtkCleanPolyData clean;#get rid of seam
+    clean SetInput [extrude GetOutput];
+    clean SetTolerance 0.001;
+    clean DebugOn;
+vtkPolyNormals normals;
+    normals SetInput [clean GetOutput];
+    normals SetFeatureAngle 90;
+    normals DebugOn;
 vtkPolyMapper map;
-    map SetInput [extrude GetOutput];
-
+    map SetInput [normals GetOutput];
 vtkActor sweep;
     sweep SetMapper map;
     [sweep GetProperty] SetColor 0.3800 0.7000 0.1600;
 
-# First create the render master
+#create the seam
+vtkTubeFilter tuber;
+    tuber SetInput profile;
+    tuber SetNumberOfSides 6;
+    tuber SetRadius 0.1;
+vtkPolyMapper tubeMapper;
+    tubeMapper SetInput [tuber GetOutput];
+vtkActor seam;
+    seam SetMapper tubeMapper;
+    [seam GetProperty] SetColor 1.0000 0.3882 0.2784
+
+# Create graphics stuff
 vtkRenderMaster rm;
 
 # Now create the RenderWindow, Renderer and both Actors
@@ -50,6 +72,7 @@ set iren   [$renWin MakeRenderWindowInteractor];
 # Add the actors to the renderer, set the background and size
 #
 $ren1 AddActors sweep;
+$ren1 AddActors seam;
 $ren1 SetBackground 1 1 1;
 $ren1 TwoSidedLightingOn;
 

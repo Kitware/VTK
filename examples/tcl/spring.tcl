@@ -44,11 +44,8 @@ vtkRotationalExtrusionFilter extrude;
     extrude SetDeltaRadius 1.0;
     extrude SetAngle 2160.0;#six revolutions
     
-vtkTriangleFilter triangles;
-    triangles SetInput [extrude GetOutput];
-
 vtkPolyNormals normals;
-    normals SetInput [triangles GetOutput];
+    normals SetInput [extrude GetOutput];
     normals SetFeatureAngle 60;
 
 vtkPolyMapper map;
