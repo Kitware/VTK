@@ -99,14 +99,14 @@ public:
   int GetNumberOfParameters() { return this->NumberOfParameters; };
 
   // Description:
+  // Initialize the minimizer.  This will reset the number of parameters to
+  // zero so that the minimizer can be reused.
+  void Initialize();
+
+  // Description:
   // Iterate until the minimum is found to within the specified tolerance,
   // or until the MaxIterations has been reached. 
   virtual void Minimize();
-
-  // Description:
-  // Initialize the minimization (this must be called before Iterate,
-  // but is not necessary before Minimize).
-  virtual int Initialize();
 
   // Description:
   // Perform one iteration of minimization.  Returns zero if the tolerance
@@ -133,6 +133,14 @@ public:
   // is not necessarily the same as the number of function evaluations.
   vtkGetMacro(Iterations,int);
 
+//BTX
+  // Description:
+  // Virtual constructor creates an object of the same type as this one.
+  // This method is commented out until someone makes a vtkAbstractMinimizer
+  // base class for the vtkAmoebaMinimizer.
+  // virtual vtkMinimizer *MakeObject() { return vtkAmoebaMinimizer::New(); };
+//ETX
+
 protected:
   vtkAmoebaMinimizer();
   ~vtkAmoebaMinimizer();
@@ -154,7 +162,6 @@ protected:
   double Tolerance;
   int MaxIterations;
   int Iterations;
-  int NeedsInitialization;
 
 private:
 // specific to amoeba simplex minimization 
