@@ -151,38 +151,19 @@ public:
   // Default is an instance of vtkPropPicker.
   virtual vtkAbstractPropPicker *CreateDefaultPicker();
 
+#ifndef VTK_REMOVE_LEGACY_CODE
   // Description:
-  // Specify a method to be executed prior to the pick operation.
+  // For legacy compatibility.  Do not use.
   void SetStartPickMethod(void (*f)(void *), void *arg);
-
-  // Description:
-  // Called when a void* argument is being discarded.  Lets the user free it.
   void SetStartPickMethodArgDelete(void (*f)(void *));
-
-  // Description:
-  // Specify a method to be executed after the pick operation.
   void SetEndPickMethod(void (*f)(void *), void *arg);
-
-  // Description:
-  // Called when a void* argument is being discarded.  Lets the user free it.
   void SetEndPickMethodArgDelete(void (*f)(void *));
-
-  // Description:
-  // Set the user method. This method is invoked on a "u" keypress.
   void SetUserMethod(void (*f)(void *), void *arg);
-
-  // Description:
-  // Called when a void* argument is being discarded.  Lets the user free it.
   void SetUserMethodArgDelete(void (*f)(void *));
-
-  // Description:
-  // Set the exit method. This method is invoked on a "e" or "q" keypress.
   void SetExitMethod(void (*f)(void *), void *arg);
-
-  // Description:
-  // Called when a void* argument is being discarded.  Lets the user free it.
   void SetExitMethodArgDelete(void (*f)(void *));
-
+#endif
+  
   // Description:
   // These methods correspond to the the Exit, User and Pick
   // callbacks. They allow for the Style to invoke them.
@@ -385,7 +366,10 @@ protected:
   int   EventSize[2];
   int   Size[2];
   
-  // user methods that can be used to override default behavior
+  // These should be removed when the Set*Method methods that are
+  // deprecated above are removed.  We don't want these inside the
+  // check for VTK_REMOVE_LEGACY_CODE because it will change the size
+  // of the object.
   unsigned long StartPickTag;
   unsigned long EndPickTag;
   unsigned long UserTag;

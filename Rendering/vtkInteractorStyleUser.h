@@ -45,90 +45,37 @@ public:
   vtkTypeRevisionMacro(vtkInteractorStyleUser,vtkInteractorStyle);
   void PrintSelf(ostream& os, vtkIndent indent);
   
+#ifndef VTK_REMOVE_LEGACY_CODE
   // Description:
-  // Set a method that will be called every time the mouse is
-  // moved.  You can use GetLastPos() to determine the position of
-  // the cursor in display coordinates, and GetOldPos() to determine
-  // the previous position.  Use GetButton() to query which mouse
-  // button is being held down.  This should be used in conjunction
-  // with SetButtonPressMethod()/SetButtonReleaseMethod() or with the
-  // individual SetXXButtonPressMethods in vtkInteractorStyle.
+  // For legacy compatibility.  Do not use.
   void SetMouseMoveMethod(void (*f)(void *), void *arg);
   void SetMouseMoveMethodArgDelete(void (*f)(void *));
-
-  // Description:
-  // Set a method that will be called whenever a mouse button is
-  // pressed.  Use GetButton() to query which button was pressed.
-  // This simply calls SetLeftButtonPressMethod(method), 
-  // SetMiddleButtonPressMethod(method), 
-  // SetRightButtonPressMethod(method).
   void SetButtonPressMethod(void (*f)(void *), void *arg);
   void SetButtonPressMethodArgDelete(void (*f)(void *));
-
-  // Description:
-  // Set a method that will be called whenever a mouse button is
-  // released.  Use GetButton() to query which button was released.
-  // This simply calls SetLeftButtonReleaseMethod(method), 
-  // SetMiddleButtonReleaseMethod(method), 
-  // SetRightButtonReleaseMethod(method).
   void SetButtonReleaseMethod(void (*f)(void *), void *arg);
   void SetButtonReleaseMethodArgDelete(void (*f)(void *));
-
-  // Description:
-  // Set a method that will be called every time a key is pressed.
-  // Use GetKeySym() to find out which key was pressed.  They keystroke
-  // is also converted into a character, which can be retrieved using
-  // GetChar().
   void SetKeyPressMethod(void (*f)(void *), void *arg);
   void SetKeyPressMethodArgDelete(void (*f)(void *));
-
-  // Description:
-  // Set a method that will be called every time a key is released.
-  // Use GetKeySym to find out which key was released.  They keystroke
-  // is also converted into a character, which can be retrieved using
-  // GetChar().
   void SetKeyReleaseMethod(void (*f)(void *), void *arg);
   void SetKeyReleaseMethodArgDelete(void (*f)(void *));
-
-  // Description:
-  // Set a method that will be called every time a character is
-  // received.  This is not the same as the KeyPress method, which
-  // is called when any key (including shift or control) is pressed.
-  // Use GetChar() to find out which char was received.
   void SetCharMethod(void (*f)(void *), void *arg);
   void SetCharMethodArgDelete(void (*f)(void *));
-
-  // Description:
-  // Set methods that will be called when the size of the render
-  // window changes (this method is called just before the window
-  // re-renders after the size change).  Call GetSize() on the
-  // interactor to find out the new size.
   void SetConfigureMethod(void (*f)(void *), void *arg);
   void SetConfigureMethodArgDelete(void (*f)(void *));
-
-  // Description:
-  // Set methods that will be called when some part of the render
-  // window is exposed.
   void SetExposeMethod(void (*f)(void *), void *arg);
   void SetExposeMethodArgDelete(void (*f)(void *));
-
-  // Description:
-  // Set methods to be called when the mouse enters or leaves
-  // the window.  Use GetLastPos() to determine where the mouse
-  // pointer was when the event occurred.
   void SetEnterMethod(void (*f)(void *), void *arg);
   void SetEnterMethodArgDelete(void (*f)(void *));
   void SetLeaveMethod(void (*f)(void *), void *arg);
   void SetLeaveMethodArgDelete(void (*f)(void *));
-
-  // Description:
-  // Set a method that will be called continuously at a fairly rapid
-  // rate (fast enough to be used for interaction).  For this method
-  // to work, it must be called after the RenderWindowInteractor
-  // has been Initialized.
   void SetTimerMethod(void (*f)(void *), void *arg);
   void SetTimerMethodArgDelete(void (*f)(void *));
-
+  void SetUserInteractionMethod(void (*f)(void *), void *arg);
+  void SetUserInteractionMethodArgDelete(void (*f)(void *));
+  void StartUserInteraction();
+  void EndUserInteraction();
+#endif
+  
   // Description:
   // Get the most recent mouse position during mouse motion.  
   // In your user interaction method, you must use this to track
@@ -161,21 +108,6 @@ public:
   // Get the mouse button that was last pressed inside the window
   // (returns zero when the button is released).
   vtkGetMacro(Button,int);
-
-  // Description:
-  // This method behaves just like OnTimer, but is only called if 
-  // StartUserInteraction has been called.  This method cannot be
-  // used in conjunction with SetMouseMoveMethod.  Deprecated,
-  // do not use.
-  void SetUserInteractionMethod(void (*f)(void *), void *arg);
-  void SetUserInteractionMethodArgDelete(void (*f)(void *));
-
-  // Description: 
-  // Start/Stop user interaction mode.  You must not call these methods
-  // before you have Initialized the vtkRenderWindowInteractor.  Deprecated,
-  // do not use.
-  void StartUserInteraction();
-  void EndUserInteraction();
 
   // Description:
   // Generic event bindings
@@ -227,9 +159,11 @@ protected:
   unsigned long TimerTag;
   unsigned long UserTag;
 
+#ifndef VTK_REMOVE_LEGACY_CODE
   void vtkSetOldCallback(unsigned long &tag, unsigned long event, 
                          void (*f)(void *), void *arg);
   void vtkSetOldDelete(unsigned long tag, void (*f)(void *));
+#endif
 private:
   vtkInteractorStyleUser(const vtkInteractorStyleUser&);  // Not implemented.
   void operator=(const vtkInteractorStyleUser&);  // Not implemented.

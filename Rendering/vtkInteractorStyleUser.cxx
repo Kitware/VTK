@@ -20,9 +20,13 @@
 #include "vtkCellPicker.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkObjectFactory.h"
-#include "vtkOldStyleCallbackCommand.h"
+#include "vtkCommand.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleUser, "1.29");
+#ifndef VTK_REMOVE_LEGACY_CODE
+#include "vtkOldStyleCallbackCommand.h"
+#endif
+
+vtkCxxRevisionMacro(vtkInteractorStyleUser, "1.30");
 vtkStandardNewMacro(vtkInteractorStyleUser);
 
 //----------------------------------------------------------------------------
@@ -69,233 +73,6 @@ void vtkInteractorStyleUser::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Char: " << this->Char << "\n";
   os << indent << "KeySym: " << this->KeySym << "\n";
   os << indent << "Button: " << this->Button << "\n";
-}
-
-void vtkInteractorStyleUser::vtkSetOldCallback(unsigned long &tag, 
-                                               unsigned long event, 
-                                               void (*f)(void *), void *arg)
-{
-  if ( tag )
-    {
-    this->RemoveObserver(tag);
-    }
-  
-  if ( f )
-    {
-    vtkOldStyleCallbackCommand *cbc = vtkOldStyleCallbackCommand::New();
-    cbc->Callback = f;
-    cbc->ClientData = arg;
-    tag = this->AddObserver(event,cbc);
-    cbc->Delete();
-    }
-}
-
-void vtkInteractorStyleUser::vtkSetOldDelete(unsigned long tag, void (*f)(void *))
-{
-  vtkOldStyleCallbackCommand *cmd = 
-    (vtkOldStyleCallbackCommand *)this->GetCommand(tag);
-  if (cmd)
-    {
-    cmd->SetClientDataDeleteCallback(f);
-    }
-}
-
-//----------------------------------------------------------------------------
-void vtkInteractorStyleUser::SetMouseMoveMethod(void (*f)(void *), 
-                                                void *arg)
-{
-  this->vtkSetOldCallback(this->MouseMoveTag,
-                          vtkCommand::MouseMoveEvent,f,arg);
-}
-
-//----------------------------------------------------------------------------
-// Called when a void* argument is being discarded.  Lets the user free it.
-void vtkInteractorStyleUser::SetMouseMoveMethodArgDelete(void (*f)(void *))
-{
-  this->vtkSetOldDelete(this->MouseMoveTag, f);
-}
-
-//----------------------------------------------------------------------------
-void vtkInteractorStyleUser::SetButtonPressMethod(void (*f)(void *), 
-                                                  void *arg)
-{
-  this->SetLeftButtonPressMethod(f,arg);
-  this->SetMiddleButtonPressMethod(f,arg);
-  this->SetRightButtonPressMethod(f,arg);
-}
-
-//----------------------------------------------------------------------------
-// Called when a void* argument is being discarded.  Lets the user free it.
-void vtkInteractorStyleUser::SetButtonPressMethodArgDelete(void (*f)(void *))
-{
-  this->SetLeftButtonPressMethodArgDelete(f);
-  this->SetMiddleButtonPressMethodArgDelete(f);
-  this->SetRightButtonPressMethodArgDelete(f);
-}
-
-//----------------------------------------------------------------------------
-void vtkInteractorStyleUser::SetButtonReleaseMethod(void (*f)(void *), 
-                                                    void *arg)
-{
-  this->SetLeftButtonReleaseMethod(f,arg);
-  this->SetMiddleButtonReleaseMethod(f,arg);
-  this->SetRightButtonReleaseMethod(f,arg);
-}
-
-//----------------------------------------------------------------------------
-// Called when a void* argument is being discarded.  Lets the user free it.
-void vtkInteractorStyleUser::SetButtonReleaseMethodArgDelete(void (*f)(void *))
-{
-  this->SetLeftButtonReleaseMethodArgDelete(f);
-  this->SetMiddleButtonReleaseMethodArgDelete(f);
-  this->SetRightButtonReleaseMethodArgDelete(f);
-}
-
-//----------------------------------------------------------------------------
-void vtkInteractorStyleUser::SetKeyPressMethod(void (*f)(void *), void *arg)
-{
-  this->vtkSetOldCallback(this->KeyPressTag,
-                          vtkCommand::KeyPressEvent,f,arg);
-}
-
-//----------------------------------------------------------------------------
-// Called when a void* argument is being discarded.  Lets the user free it.
-void vtkInteractorStyleUser::SetKeyPressMethodArgDelete(void (*f)(void *))
-{
-  this->vtkSetOldDelete(this->KeyPressTag, f);
-}
-
-//----------------------------------------------------------------------------
-void vtkInteractorStyleUser::SetKeyReleaseMethod(void (*f)(void *), void *arg)
-{
-  this->vtkSetOldCallback(this->KeyReleaseTag,
-                          vtkCommand::KeyReleaseEvent,f,arg);
-}
-
-//----------------------------------------------------------------------------
-// Called when a void* argument is being discarded.  Lets the user free it.
-void vtkInteractorStyleUser::SetKeyReleaseMethodArgDelete(void (*f)(void *))
-{
-  this->vtkSetOldDelete(this->KeyReleaseTag, f);
-}
-
-//----------------------------------------------------------------------------
-void vtkInteractorStyleUser::SetEnterMethod(void (*f)(void *), void *arg)
-{
-  this->vtkSetOldCallback(this->EnterTag,
-                          vtkCommand::EnterEvent,f,arg);
-}
-
-//----------------------------------------------------------------------------
-// Called when a void* argument is being discarded.  Lets the user free it.
-void vtkInteractorStyleUser::SetEnterMethodArgDelete(void (*f)(void *))
-{
-  this->vtkSetOldDelete(this->EnterTag, f);
-}
-
-//----------------------------------------------------------------------------
-void vtkInteractorStyleUser::SetLeaveMethod(void (*f)(void *), void *arg)
-{
-  this->vtkSetOldCallback(this->LeaveTag,
-                          vtkCommand::LeaveEvent,f,arg);
-}
-
-//----------------------------------------------------------------------------
-// Called when a void* argument is being discarded.  Lets the user free it.
-void vtkInteractorStyleUser::SetLeaveMethodArgDelete(void (*f)(void *))
-{
-  this->vtkSetOldDelete(this->LeaveTag, f);
-}
-
-//----------------------------------------------------------------------------
-void vtkInteractorStyleUser::SetExposeMethod(void (*f)(void *), void *arg)
-{
-  this->vtkSetOldCallback(this->ExposeTag,
-                          vtkCommand::ExposeEvent,f,arg);
-}
-
-//----------------------------------------------------------------------------
-// Called when a void* argument is being discarded.  Lets the user free it.
-void vtkInteractorStyleUser::SetExposeMethodArgDelete(void (*f)(void *))
-{
-  this->vtkSetOldDelete(this->ExposeTag, f);
-}
-
-//----------------------------------------------------------------------------
-void vtkInteractorStyleUser::SetConfigureMethod(void (*f)(void *), void *arg)
-{
-  this->vtkSetOldCallback(this->ConfigureTag,
-                          vtkCommand::ConfigureEvent,f,arg);
-}
-
-//----------------------------------------------------------------------------
-// Called when a void* argument is being discarded.  Lets the user free it.
-void vtkInteractorStyleUser::SetConfigureMethodArgDelete(void (*f)(void *))
-{
-  this->vtkSetOldDelete(this->ConfigureTag, f);
-}
-
-//----------------------------------------------------------------------------
-void vtkInteractorStyleUser::SetCharMethod(void (*f)(void *), void *arg)
-{
-  this->vtkSetOldCallback(this->CharTag,
-                          vtkCommand::CharEvent,f,arg);
-}
-
-//----------------------------------------------------------------------------
-// Called when a void* argument is being discarded.  Lets the user free it.
-void vtkInteractorStyleUser::SetCharMethodArgDelete(void (*f)(void *))
-{
-  this->vtkSetOldDelete(this->CharTag, f);
-}
-
-//----------------------------------------------------------------------------
-void vtkInteractorStyleUser::SetTimerMethod(void (*f)(void *), void *arg)
-{
-  this->vtkSetOldCallback(this->TimerTag,
-                          vtkCommand::TimerEvent,f,arg);
-}
-
-//----------------------------------------------------------------------------
-// Called when a void* argument is being discarded.  Lets the user free it.
-void vtkInteractorStyleUser::SetTimerMethodArgDelete(void (*f)(void *))
-{
-  this->vtkSetOldDelete(this->TimerTag, f);
-}
-
-//----------------------------------------------------------------------------
-void vtkInteractorStyleUser::SetUserInteractionMethod(void (*f)(void *), 
-                                                      void *arg)
-{
-  this->vtkSetOldCallback(this->UserTag,
-                          vtkCommand::UserEvent,f,arg);
-}
-
-//----------------------------------------------------------------------------
-// Called when a void* argument is being discarded.  Lets the user free it.
-void vtkInteractorStyleUser::SetUserInteractionMethodArgDelete(void (*f)(void *))
-{
-  this->vtkSetOldDelete(this->UserTag, f);
-}
-
-//----------------------------------------------------------------------------
-void  vtkInteractorStyleUser::StartUserInteraction() 
-{
-  if (this->State != VTKIS_NONE) 
-    {
-    return;
-    }
-  this->StartState(VTKIS_USERINTERACTION);
-}
-
-//----------------------------------------------------------------------------
-void  vtkInteractorStyleUser::EndUserInteraction() 
-{
-  if (this->State != VTKIS_USERINTERACTION) 
-    {
-    return;
-    }
-  this->StopState();
 }
 
 //----------------------------------------------------------------------------
@@ -367,7 +144,6 @@ void vtkInteractorStyleUser::OnKeyRelease()
 //----------------------------------------------------------------------------
 void vtkInteractorStyleUser::OnChar() 
 {
-  // do nothing if a KeyPressMethod has been set,
   // otherwise pass the OnChar to the vtkInteractorStyle.
   if (this->HasObserver(vtkCommand::CharEvent)) 
     {
@@ -587,5 +363,259 @@ void vtkInteractorStyleUser::OnLeave()
     }
 }
 
+#ifndef VTK_REMOVE_LEGACY_CODE
+//----------------------------------------------------------------------------
+void vtkInteractorStyleUser::vtkSetOldCallback(unsigned long &tag, 
+                                               unsigned long event, 
+                                               void (*f)(void *), void *arg)
+{
+  if ( tag )
+    {
+    this->RemoveObserver(tag);
+    }
+  
+  if ( f )
+    {
+    vtkOldStyleCallbackCommand *cbc = vtkOldStyleCallbackCommand::New();
+    cbc->Callback = f;
+    cbc->ClientData = arg;
+    tag = this->AddObserver(event,cbc);
+    cbc->Delete();
+    }
+}
 
+//----------------------------------------------------------------------------
+void vtkInteractorStyleUser::vtkSetOldDelete(unsigned long tag, void (*f)(void *))
+{
+  vtkOldStyleCallbackCommand *cmd = 
+    (vtkOldStyleCallbackCommand *)this->GetCommand(tag);
+  if (cmd)
+    {
+    cmd->SetClientDataDeleteCallback(f);
+    }
+}
 
+//----------------------------------------------------------------------------
+void vtkInteractorStyleUser::SetMouseMoveMethod(void (*f)(void *), 
+                                                void *arg)
+{
+  VTK_LEGACY_METHOD(SetMouseMoveMethod, "4.2");
+  this->vtkSetOldCallback(this->MouseMoveTag,
+                          vtkCommand::MouseMoveEvent,f,arg);
+}
+
+//----------------------------------------------------------------------------
+// Called when a void* argument is being discarded.  Lets the user free it.
+void vtkInteractorStyleUser::SetMouseMoveMethodArgDelete(void (*f)(void *))
+{
+  VTK_LEGACY_METHOD(SetMouseMoveMethodArgDelete, "4.2");
+  this->vtkSetOldDelete(this->MouseMoveTag, f);
+}
+
+//----------------------------------------------------------------------------
+void vtkInteractorStyleUser::SetButtonPressMethod(void (*f)(void *), 
+                                                  void *arg)
+{
+  VTK_LEGACY_METHOD(SetButtonPressMethod, "4.2");
+  this->SetLeftButtonPressMethod(f,arg);
+  this->SetMiddleButtonPressMethod(f,arg);
+  this->SetRightButtonPressMethod(f,arg);
+}
+
+//----------------------------------------------------------------------------
+// Called when a void* argument is being discarded.  Lets the user free it.
+void vtkInteractorStyleUser::SetButtonPressMethodArgDelete(void (*f)(void *))
+{
+  VTK_LEGACY_METHOD(SetButtonPressMethodArgDelete, "4.2");
+  this->SetLeftButtonPressMethodArgDelete(f);
+  this->SetMiddleButtonPressMethodArgDelete(f);
+  this->SetRightButtonPressMethodArgDelete(f);
+}
+
+//----------------------------------------------------------------------------
+void vtkInteractorStyleUser::SetButtonReleaseMethod(void (*f)(void *), 
+                                                    void *arg)
+{
+  VTK_LEGACY_METHOD(SetButtonReleaseMethod, "4.2");
+  this->SetLeftButtonReleaseMethod(f,arg);
+  this->SetMiddleButtonReleaseMethod(f,arg);
+  this->SetRightButtonReleaseMethod(f,arg);
+}
+
+//----------------------------------------------------------------------------
+// Called when a void* argument is being discarded.  Lets the user free it.
+void vtkInteractorStyleUser::SetButtonReleaseMethodArgDelete(void (*f)(void *))
+{
+  VTK_LEGACY_METHOD(SetButtonReleaseMethodArgDelete, "4.2");
+  this->SetLeftButtonReleaseMethodArgDelete(f);
+  this->SetMiddleButtonReleaseMethodArgDelete(f);
+  this->SetRightButtonReleaseMethodArgDelete(f);
+}
+
+//----------------------------------------------------------------------------
+void vtkInteractorStyleUser::SetKeyPressMethod(void (*f)(void *), void *arg)
+{
+  VTK_LEGACY_METHOD(SetKeyPressMethod, "4.2");
+  this->vtkSetOldCallback(this->KeyPressTag,
+                          vtkCommand::KeyPressEvent,f,arg);
+}
+
+//----------------------------------------------------------------------------
+// Called when a void* argument is being discarded.  Lets the user free it.
+void vtkInteractorStyleUser::SetKeyPressMethodArgDelete(void (*f)(void *))
+{
+  VTK_LEGACY_METHOD(SetKeyPressMethodArgDelete, "4.2");
+  this->vtkSetOldDelete(this->KeyPressTag, f);
+}
+
+//----------------------------------------------------------------------------
+void vtkInteractorStyleUser::SetKeyReleaseMethod(void (*f)(void *), void *arg)
+{
+  VTK_LEGACY_METHOD(SetKeyReleaseMethod, "4.2");
+  this->vtkSetOldCallback(this->KeyReleaseTag,
+                          vtkCommand::KeyReleaseEvent,f,arg);
+}
+
+//----------------------------------------------------------------------------
+// Called when a void* argument is being discarded.  Lets the user free it.
+void vtkInteractorStyleUser::SetKeyReleaseMethodArgDelete(void (*f)(void *))
+{
+  VTK_LEGACY_METHOD(SetKeyReleaseMethodArgDelete, "4.2");
+  this->vtkSetOldDelete(this->KeyReleaseTag, f);
+}
+
+//----------------------------------------------------------------------------
+void vtkInteractorStyleUser::SetEnterMethod(void (*f)(void *), void *arg)
+{
+  VTK_LEGACY_METHOD(SetEnterMethod, "4.2");
+  this->vtkSetOldCallback(this->EnterTag,
+                          vtkCommand::EnterEvent,f,arg);
+}
+
+//----------------------------------------------------------------------------
+// Called when a void* argument is being discarded.  Lets the user free it.
+void vtkInteractorStyleUser::SetEnterMethodArgDelete(void (*f)(void *))
+{
+  VTK_LEGACY_METHOD(SetEnterMethodArgDelete, "4.2");
+  this->vtkSetOldDelete(this->EnterTag, f);
+}
+
+//----------------------------------------------------------------------------
+void vtkInteractorStyleUser::SetLeaveMethod(void (*f)(void *), void *arg)
+{
+  VTK_LEGACY_METHOD(SetLeaveMethod, "4.2");
+  this->vtkSetOldCallback(this->LeaveTag,
+                          vtkCommand::LeaveEvent,f,arg);
+}
+
+//----------------------------------------------------------------------------
+// Called when a void* argument is being discarded.  Lets the user free it.
+void vtkInteractorStyleUser::SetLeaveMethodArgDelete(void (*f)(void *))
+{
+  VTK_LEGACY_METHOD(SetLeaveMethodArgDelete, "4.2");
+  this->vtkSetOldDelete(this->LeaveTag, f);
+}
+
+//----------------------------------------------------------------------------
+void vtkInteractorStyleUser::SetExposeMethod(void (*f)(void *), void *arg)
+{
+  VTK_LEGACY_METHOD(SetExposeMethod, "4.2");
+  this->vtkSetOldCallback(this->ExposeTag,
+                          vtkCommand::ExposeEvent,f,arg);
+}
+
+//----------------------------------------------------------------------------
+// Called when a void* argument is being discarded.  Lets the user free it.
+void vtkInteractorStyleUser::SetExposeMethodArgDelete(void (*f)(void *))
+{
+  VTK_LEGACY_METHOD(SetExposeMethodArgDelete, "4.2");
+  this->vtkSetOldDelete(this->ExposeTag, f);
+}
+
+//----------------------------------------------------------------------------
+void vtkInteractorStyleUser::SetConfigureMethod(void (*f)(void *), void *arg)
+{
+  VTK_LEGACY_METHOD(SetConfigureMethod, "4.2");
+  this->vtkSetOldCallback(this->ConfigureTag,
+                          vtkCommand::ConfigureEvent,f,arg);
+}
+
+//----------------------------------------------------------------------------
+// Called when a void* argument is being discarded.  Lets the user free it.
+void vtkInteractorStyleUser::SetConfigureMethodArgDelete(void (*f)(void *))
+{
+  VTK_LEGACY_METHOD(SetConfigureMethodArgDelete, "4.2");
+  this->vtkSetOldDelete(this->ConfigureTag, f);
+}
+
+//----------------------------------------------------------------------------
+void vtkInteractorStyleUser::SetCharMethod(void (*f)(void *), void *arg)
+{
+  VTK_LEGACY_METHOD(SetCharMethod, "4.2");
+  this->vtkSetOldCallback(this->CharTag,
+                          vtkCommand::CharEvent,f,arg);
+}
+
+//----------------------------------------------------------------------------
+// Called when a void* argument is being discarded.  Lets the user free it.
+void vtkInteractorStyleUser::SetCharMethodArgDelete(void (*f)(void *))
+{
+  VTK_LEGACY_METHOD(SetCharMethodArgDelete, "4.2");
+  this->vtkSetOldDelete(this->CharTag, f);
+}
+
+//----------------------------------------------------------------------------
+void vtkInteractorStyleUser::SetTimerMethod(void (*f)(void *), void *arg)
+{
+  VTK_LEGACY_METHOD(SetTimerMethod, "4.2");
+  this->vtkSetOldCallback(this->TimerTag,
+                          vtkCommand::TimerEvent,f,arg);
+}
+
+//----------------------------------------------------------------------------
+// Called when a void* argument is being discarded.  Lets the user free it.
+void vtkInteractorStyleUser::SetTimerMethodArgDelete(void (*f)(void *))
+{
+  VTK_LEGACY_METHOD(SetTimerMethodArgDelete, "4.2");
+  this->vtkSetOldDelete(this->TimerTag, f);
+}
+
+//----------------------------------------------------------------------------
+void vtkInteractorStyleUser::SetUserInteractionMethod(void (*f)(void *), 
+                                                      void *arg)
+{
+  VTK_LEGACY_METHOD(SetUserInteractionMethod, "4.2");
+  this->vtkSetOldCallback(this->UserTag,
+                          vtkCommand::UserEvent,f,arg);
+}
+
+//----------------------------------------------------------------------------
+// Called when a void* argument is being discarded.  Lets the user free it.
+void vtkInteractorStyleUser::SetUserInteractionMethodArgDelete(void (*f)(void *))
+{
+  VTK_LEGACY_METHOD(SetUserInteractionMethodArgDelete, "4.2");
+  this->vtkSetOldDelete(this->UserTag, f);
+}
+
+//----------------------------------------------------------------------------
+void  vtkInteractorStyleUser::StartUserInteraction() 
+{
+  VTK_LEGACY_METHOD(StartUserInteraction, "4.2");
+  if (this->State != VTKIS_NONE) 
+    {
+    return;
+    }
+  this->StartState(VTKIS_USERINTERACTION);
+}
+
+//----------------------------------------------------------------------------
+void  vtkInteractorStyleUser::EndUserInteraction() 
+{
+  VTK_LEGACY_METHOD(EndUserInteraction, "4.2");
+  if (this->State != VTKIS_USERINTERACTION) 
+    {
+    return;
+    }
+  this->StopState();
+}
+#endif

@@ -235,8 +235,9 @@ public:
   virtual void StartTimer();
   virtual void EndTimer();
 
+#ifndef VTK_REMOVE_LEGACY_CODE
   // Description:
-  // Callbacks so that the application can override the default behaviour.
+  // For legacy compatibility.  Do not use.
   void SetLeftButtonPressMethod(void (*f)(void *), void *arg);
   void SetLeftButtonPressMethodArgDelete(void (*f)(void *));
   void SetLeftButtonReleaseMethod(void (*f)(void *), void *arg);
@@ -249,6 +250,7 @@ public:
   void SetRightButtonPressMethodArgDelete(void (*f)(void *));
   void SetRightButtonReleaseMethod(void (*f)(void *), void *arg);
   void SetRightButtonReleaseMethodArgDelete(void (*f)(void *));
+#endif
 
   // Description:
   // When picking successfully selects an actor, this method highlights the
@@ -299,6 +301,10 @@ protected:
   int                PropPicked;      // bool: prop picked?
   float              PickColor[3];    // support 2D picking
 
+  // These should be removed when the Set*Method methods that are
+  // deprecated above are removed.  We don't want these inside the
+  // check for VTK_REMOVE_LEGACY_CODE because it will change the size
+  // of the object.
   unsigned long LeftButtonPressTag;
   unsigned long LeftButtonReleaseTag;
   unsigned long MiddleButtonPressTag;
