@@ -116,7 +116,9 @@ public:
   // Description:
   // OnChar implements keybaord functions, but subclasses can override this 
   // behaviour
-  virtual void OnChar(int ctrl, int shift, char keycode, int repeatcount);
+  virtual void OnChar   (int ctrl, int shift, char keycode, int repeatcount);
+  virtual void OnKeyDown(int ctrl, int shift, char keycode, int repeatcount) {};
+  virtual void OnKeyUp  (int ctrl, int shift, char keycode, int repeatcount) {};
 
   // Description:
   // OnTimer calls RotateCamera, RotateActor etc which should be overridden by

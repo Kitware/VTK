@@ -1032,7 +1032,6 @@ void vtkInteractorStyle::RotateCamera(int x, int y)
   this->CurrentCamera->Azimuth(rxf);
   this->CurrentCamera->Elevation(ryf);
   this->CurrentCamera->OrthogonalizeViewUp();
-  this->CurrentRenderer->ResetCameraClippingRange();
   if (rwi->GetLightFollowCamera())
     {
     this->CurrentLight->SetPosition(this->CurrentCamera->GetPosition());
