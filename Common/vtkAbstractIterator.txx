@@ -66,18 +66,12 @@ vtkAbstractIterator<KeyType,DataType>::vtkAbstractIterator()
 { 
   this->ReferenceCount = 1;
   this->Container = 0;
-#ifdef VTK_DEBUG_LEAKS
-  vtkDebugLeaks::ConstructClass(this->GetClassName());
-#endif
 }
 
 template<class KeyType, class DataType>
 vtkAbstractIterator<KeyType,DataType>::~vtkAbstractIterator() 
 {
   this->SetContainer(0);
-#ifdef VTK_DEBUG_LEAKS
-  vtkDebugLeaks::DestructClass(this->GetClassName());
-#endif
 }
 
 template<class KeyType, class DataType>
