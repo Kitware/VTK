@@ -19,10 +19,7 @@ vtkVolume16Reader v16
 vtkThreshold threshold
   threshold SetInput [v16 GetOutput]
   threshold ThresholdBetween 400 700
-
-threshold AllScalarsOff
-
-threshold DebugOn
+  threshold AllScalarsOff
 
 vtkContourFilter contour
   contour SetInput [threshold GetOutput]
