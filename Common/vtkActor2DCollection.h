@@ -69,6 +69,13 @@ class VTK_COMMON_EXPORT vtkActor2DCollection : public vtkPropCollection
   // Sort and then render the collection of 2D actors.  
   void RenderOverlay(vtkViewport* viewport);
 
+  //BTX
+  // Description: 
+  // Reentrant safe way to get an object in a collection. Just pass the
+  // same cookie back and forth. 
+  vtkActor2D *GetNextActor2D(vtkCollectionSimpleIterator &cookie) {
+    return static_cast<vtkActor2D *>(this->GetNextItemAsObject(cookie));};
+  //ETX
 
 protected:
   vtkActor2DCollection() {};
