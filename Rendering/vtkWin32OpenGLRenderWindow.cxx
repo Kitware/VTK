@@ -35,7 +35,7 @@
 #include <GL/gl.h>
 #endif
 
-vtkCxxRevisionMacro(vtkWin32OpenGLRenderWindow, "1.126");
+vtkCxxRevisionMacro(vtkWin32OpenGLRenderWindow, "1.127");
 vtkStandardNewMacro(vtkWin32OpenGLRenderWindow);
 
 #define VTK_MAX_LIGHTS 8
@@ -922,10 +922,17 @@ int *vtkWin32OpenGLRenderWindow::GetSize(void)
       RECT rect;
 
       //  Find the current window size 
-      GetClientRect(this->WindowId, &rect);
-    
-      this->Size[0] = rect.right;
-      this->Size[1] = rect.bottom;
+      if (GetClientRect(this->WindowId, &rect))
+         {    
+         this->Size[0] = rect.right;
+         this->Size[1] = rect.bottom;
+         }
+      else 
+         {
+         this->Size[0] = 0;
+         this->Size[1] = 0;
+         }
+
     }
 
   return(this->vtkOpenGLRenderWindow::GetSize());
