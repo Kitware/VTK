@@ -27,13 +27,13 @@
 #define __vtkImageResample_h
 
 
-#include "vtkImageToImageFilter.h"
+#include "vtkImageReslice.h"
 
-class VTK_IMAGING_EXPORT vtkImageResample : public vtkImageToImageFilter
+class VTK_IMAGING_EXPORT vtkImageResample : public vtkImageReslice
 {
 public:
   static vtkImageResample *New();
-  vtkTypeRevisionMacro(vtkImageResample,vtkImageToImageFilter);
+  vtkTypeRevisionMacro(vtkImageResample,vtkImageReslice);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -46,17 +46,11 @@ public:
   // Zero is a reserved value indicating values have not been computed.
   void SetAxisMagnificationFactor(int axis, float factor);
   float GetAxisMagnificationFactor(int axis);
-
-  // Description:
-  // Turn interpolation on and off (pixel replication is used when off).
-  vtkSetMacro(Interpolate,int);
-  vtkGetMacro(Interpolate,int);
-  vtkBooleanMacro(Interpolate,int);
   
   // Description:
   // Dimensionality is the number of axes which are considered during
   // execution. To process images dimensionality would be set to 2.
-  // This has the same effect as setting the output spacing of the third
+  // This has the same effect as setting the magnification of the third
   // axis to 1.0
   vtkSetMacro(Dimensionality,int);
   vtkGetMacro(Dimensionality,int);
@@ -67,14 +61,11 @@ protected:
 
   float MagnificationFactors[3];
   float OutputSpacing[3];
-  int Interpolate;
   int Dimensionality;
   
-  void ComputeInputUpdateExtent(int inExt[6], int outExt[6]);
   void ExecuteInformation(vtkImageData *inData, vtkImageData *outData);
-  void ExecuteInformation(){this->vtkImageToImageFilter::ExecuteInformation();};
-  void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
-                       int extent[6], int id);
+  void ExecuteInformation(){this->Superclass::ExecuteInformation();};
+
 private:
   vtkImageResample(const vtkImageResample&);  // Not implemented.
   void operator=(const vtkImageResample&);  // Not implemented.
