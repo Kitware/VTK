@@ -2073,7 +2073,7 @@ void vtkDataReader::CheckFor(const char* name, char *line, int &num,
     sscanf(line, "%*s %s", nameOfAttribute);
     if ( nameOfAttribute )
       {
-      array[num-1] = new char [strlen(nameOfAttribute)];
+      array[num-1] = new char [strlen(nameOfAttribute)+1];
       strcpy(array[num-1],nameOfAttribute);
       }
     }//found one
