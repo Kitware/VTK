@@ -55,13 +55,12 @@ set noTest {
     mccases.tcl mccasesui.tcl InteractorDemo.tcl
     rtExamples.tcl polyViewer.tcl KeyFrame.tcl cameraKey.tcl timing.tcl 
     Decimate.tcl connPineRoot.tcl deciHawa.tcl 
-    deciPineRoot.tcl deleted.tcl mcTest.tcl viewMCubesFile.tcl
+    deciPineRoot.tcl deleted.tcl viewMCubesFile.tcl
     volTkInteractor.tcl spikeColor.tcl tkwin.tcl backdrop.tcl
-    ShotNoiseInclude.tcl TestFeatureAnd.tcl TestHistogram.tcl 
-    TestHistogramEqualization.tcl TestMIPFilter.tcl
-    TestSubsample3D.tcl
+    ShotNoiseInclude.tcl 
     TkImageViewerInteractor.tcl TkViewer.tcl TkViewer2.tcl
     Timing.tcl WindowLevelInterface.tcl
+    vtkHistogramWidget.tcl
     vtkImageInclude.tcl rtProcessCPUTimes.tcl CPUTimeTable.tcl}
 
 for {set i 0} {$i < [llength $noTest]} {incr i} {
