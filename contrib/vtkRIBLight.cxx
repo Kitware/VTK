@@ -44,7 +44,7 @@ vtkRIBLight::vtkRIBLight ()
 {
   this->Shadows = 0;
   // create a vtkLight that can be rendered
-  this->Light = vtkLight::New ();;
+  this->Light = vtkLight::New ();
 }
 
 vtkRIBLight::~vtkRIBLight()
