@@ -60,6 +60,7 @@ LINK_LIBRARIES ( png zlib )
 
 # Allow the user to customize their build with some local options
 #
+INCLUDE (${VTK_BINARY_DIR}/IO/LocalUserOptions.cmake OPTIONAL) 
 INCLUDE (${VTK_SOURCE_DIR}/IO/LocalUserOptions.cmake OPTIONAL) 
 
 # if we are wrapping into Tcl then add the library and extra 
