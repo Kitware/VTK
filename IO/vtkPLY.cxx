@@ -51,6 +51,7 @@ WARRANTY OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
 
 #include "vtkPLY.h"
 #include "vtkHeap.h"
+#include "vtkByteSwap.h"
 
 #include <stddef.h>
 
@@ -583,7 +584,7 @@ void vtkPLY::ply_put_element(PlyFile *plyfile, void *elem_ptr)
         item_size = ply_type_size[prop->count_internal];
         get_stored_item ((void *) item, prop->count_internal,
                          &int_val, &uint_val, &double_val);
-        write_binary_item (fp, int_val, uint_val, double_val,
+        write_binary_item (plyfile, int_val, uint_val, double_val,
                            prop->count_external);
         list_count = uint_val;
         item_ptr = (char **) (elem_data + prop->offset);
@@ -592,7 +593,7 @@ void vtkPLY::ply_put_element(PlyFile *plyfile, void *elem_ptr)
         for (k = 0; k < list_count; k++) {
           get_stored_item ((void *) item, prop->internal_type,
                            &int_val, &uint_val, &double_val);
-          write_binary_item (fp, int_val, uint_val, double_val,
+          write_binary_item (plyfile, int_val, uint_val, double_val,
                              prop->external_type);
           item += item_size;
         }
@@ -602,7 +603,7 @@ void vtkPLY::ply_put_element(PlyFile *plyfile, void *elem_ptr)
         item_size = ply_type_size[prop->internal_type];
         get_stored_item ((void *) item, prop->internal_type,
                          &int_val, &uint_val, &double_val);
-        write_binary_item (fp, int_val, uint_val, double_val,
+        write_binary_item (plyfile, int_val, uint_val, double_val,
                            prop->external_type);
       }
     }
@@ -1671,7 +1672,7 @@ void vtkPLY::binary_get_element(PlyFile *plyfile, char *elem_ptr)
     if (prop->is_list) {       /* a list */
 
       /* get and store the number of items in the list */
-      get_binary_item (fp, prop->count_external,
+      get_binary_item (plyfile, prop->count_external,
                       &int_val, &uint_val, &double_val);
       if (store_it) {
         item = elem_data + prop->count_offset;
@@ -1701,7 +1702,7 @@ void vtkPLY::binary_get_element(PlyFile *plyfile, char *elem_ptr)
 
         /* read items and store them into the array */
         for (k = 0; k < list_count; k++) {
-          get_binary_item (fp, prop->external_type,
+          get_binary_item (plyfile, prop->external_type,
                           &int_val, &uint_val, &double_val);
           if (store_it) {
             store_item (item, prop->internal_type,
@@ -1713,7 +1714,7 @@ void vtkPLY::binary_get_element(PlyFile *plyfile, char *elem_ptr)
 
     }
     else {                     /* not a list */
-      get_binary_item (fp, prop->external_type,
+      get_binary_item (plyfile, prop->external_type,
                       &int_val, &uint_val, &double_val);
       if (store_it) {
         item = elem_data + prop->offset;
@@ -1914,14 +1915,14 @@ Entry:
   type       - data type to write out
 ******************************************************************************/
 
-void vtkPLY::write_binary_item(
-  FILE *fp,
-  int int_val,
-  unsigned int uint_val,
-  double double_val,
-  int type
+void vtkPLY::write_binary_item(PlyFile *plyfile,
+                               int int_val,
+                               unsigned int uint_val,
+                               double double_val,
+                               int type
 )
 {
+  FILE *fp = plyfile->fp;
   unsigned char uchar_val;
   char char_val;
   unsigned short ushort_val;
@@ -1935,9 +1936,15 @@ void vtkPLY::write_binary_item(
       break;
     case PLY_SHORT:
       short_val = int_val;
+      plyfile->file_type == PLY_BINARY_BE ?
+        vtkByteSwap::Swap2BE(&short_val) :
+        vtkByteSwap::Swap2LE(&short_val);
       fwrite (&short_val, 2, 1, fp);
       break;
     case PLY_INT:
+      plyfile->file_type == PLY_BINARY_BE ?
+        vtkByteSwap::Swap4BE(&int_val) :
+        vtkByteSwap::Swap4LE(&int_val);
       fwrite (&int_val, 4, 1, fp);
       break;
     case PLY_UCHAR:
@@ -1945,17 +1952,29 @@ void vtkPLY::write_binary_item(
       fwrite (&uchar_val, 1, 1, fp);
       break;
     case PLY_USHORT:
+      plyfile->file_type == PLY_BINARY_BE ?
+        vtkByteSwap::Swap2BE(&ushort_val) :
+        vtkByteSwap::Swap2LE(&ushort_val);
       ushort_val = uint_val;
       fwrite (&ushort_val, 2, 1, fp);
       break;
     case PLY_UINT:
+      plyfile->file_type == PLY_BINARY_BE ?
+        vtkByteSwap::Swap4BE(&uint_val) :
+        vtkByteSwap::Swap4LE(&uint_val);
       fwrite (&uint_val, 4, 1, fp);
       break;
     case PLY_FLOAT:
       float_val = double_val;
+      plyfile->file_type == PLY_BINARY_BE ?
+        vtkByteSwap::Swap4BE(&float_val) :
+        vtkByteSwap::Swap4LE(&float_val);
       fwrite (&float_val, 4, 1, fp);
       break;
     case PLY_DOUBLE:
+      plyfile->file_type == PLY_BINARY_BE ?
+        vtkByteSwap::Swap8BE(&double_val) :
+        vtkByteSwap::Swap8LE(&double_val);
       fwrite (&double_val, 8, 1, fp);
       break;
     default:
@@ -2164,7 +2183,7 @@ Exit:
 ******************************************************************************/
 
 void vtkPLY::get_binary_item(
-  FILE *fp,
+  PlyFile *plyfile,
   int type,
   int *int_val,
   unsigned int *uint_val,
@@ -2178,49 +2197,67 @@ void vtkPLY::get_binary_item(
 
   switch (type) {
     case PLY_CHAR:
-      fread (ptr, 1, 1, fp);
+      fread (ptr, 1, 1, plyfile->fp);
       *int_val = *((char *) ptr);
       *uint_val = *int_val;
       *double_val = *int_val;
       break;
     case PLY_UCHAR:
-      fread (ptr, 1, 1, fp);
+      fread (ptr, 1, 1, plyfile->fp);
       *uint_val = *((unsigned char *) ptr);
       *int_val = *uint_val;
       *double_val = *uint_val;
       break;
     case PLY_SHORT:
-      fread (ptr, 2, 1, fp);
+      fread (ptr, 2, 1, plyfile->fp);
+      plyfile->file_type == PLY_BINARY_BE ?
+        vtkByteSwap::Swap2BE((short *) ptr) :
+        vtkByteSwap::Swap2LE((short *) ptr);
       *int_val = *((short int *) ptr);
       *uint_val = *int_val;
       *double_val = *int_val;
       break;
     case PLY_USHORT:
-      fread (ptr, 2, 1, fp);
+      fread (ptr, 2, 1, plyfile->fp);
+      plyfile->file_type == PLY_BINARY_BE ?
+        vtkByteSwap::Swap2BE((unsigned short *) ptr) :
+        vtkByteSwap::Swap2LE((unsigned short *) ptr);
       *uint_val = *((unsigned short int *) ptr);
       *int_val = *uint_val;
       *double_val = *uint_val;
       break;
     case PLY_INT:
-      fread (ptr, 4, 1, fp);
+      fread (ptr, 4, 1, plyfile->fp);
+      plyfile->file_type == PLY_BINARY_BE ?
+        vtkByteSwap::Swap4BE((int *) ptr) :
+        vtkByteSwap::Swap4LE((int *) ptr);
       *int_val = *((int *) ptr);
       *uint_val = *int_val;
       *double_val = *int_val;
       break;
     case PLY_UINT:
-      fread (ptr, 4, 1, fp);
+      fread (ptr, 4, 1, plyfile->fp);
+      plyfile->file_type == PLY_BINARY_BE ?
+        vtkByteSwap::Swap4BE((int *) ptr) :
+        vtkByteSwap::Swap4LE((int *) ptr);
       *uint_val = *((unsigned int *) ptr);
       *int_val = *uint_val;
       *double_val = *uint_val;
       break;
     case PLY_FLOAT:
-      fread (ptr, 4, 1, fp);
+      fread (ptr, 4, 1, plyfile->fp);
+      plyfile->file_type == PLY_BINARY_BE ?
+        vtkByteSwap::Swap4BE((float *) ptr) :
+        vtkByteSwap::Swap4LE((float *) ptr);
       *double_val = *((float *) ptr);
       *int_val = (int) *double_val;
       *uint_val = (unsigned int) *double_val;
       break;
     case PLY_DOUBLE:
-      fread (ptr, 8, 1, fp);
+      fread (ptr, 8, 1, plyfile->fp);
+      plyfile->file_type == PLY_BINARY_BE ?
+        vtkByteSwap::Swap8BE((double *) ptr) :
+        vtkByteSwap::Swap8LE((double *) ptr);
       *double_val = *((double *) ptr);
       *int_val = (int) *double_val;
       *uint_val = (unsigned int) *double_val;

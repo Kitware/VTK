@@ -191,7 +191,7 @@ public:
   static void write_scalar_type (FILE *, int);
   static char **get_words(FILE *, int *, char **);
   static char **old_get_words(FILE *, int *);
-  static void write_binary_item(FILE *, int, unsigned int, double, int);
+  static void write_binary_item(PlyFile *, int, unsigned int, double, int);
   static void write_ascii_item(FILE *, int, unsigned int, double, int);
   static double old_write_ascii_item(FILE *, char *, int);
   static void add_element(PlyFile *, char **, int);
@@ -203,7 +203,7 @@ public:
   static void get_stored_item( void *, int, int *, unsigned int *, double *);
   static double get_item_value(char *, int);
   static void get_ascii_item(char *, int, int *, unsigned int *, double *);
-  static void get_binary_item(FILE *, int, int *, unsigned int *, double *);
+  static void get_binary_item(PlyFile *, int, int *, unsigned int *, double *);
   static void ascii_get_element(PlyFile *, char *);
   static void binary_get_element(PlyFile *, char *);
   static char *my_alloc(int, int, const char *);

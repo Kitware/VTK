@@ -19,6 +19,7 @@
 
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
+#include "vtkPointData.h"
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 #include "vtkPLY.h"
@@ -27,7 +28,7 @@
 #include <ctype.h>
 #include <stddef.h>
 
-vtkCxxRevisionMacro(vtkPLYReader, "1.14");
+vtkCxxRevisionMacro(vtkPLYReader, "1.15");
 vtkStandardNewMacro(vtkPLYReader);
 
 #ifndef true
@@ -54,6 +55,9 @@ vtkPLYReader::~vtkPLYReader()
 
 typedef struct _plyVertex {
   float x[3];             // the usual 3-space position of a vertex
+  unsigned char red;
+  unsigned char green;
+  unsigned char blue;
 } plyVertex;
 
 typedef struct _plyFace {
@@ -74,6 +78,9 @@ void vtkPLYReader::Execute()
      0, 0, 0, 0},
     {"z", PLY_FLOAT, PLY_FLOAT, static_cast<int>(offsetof(plyVertex,x[2])), 
      0, 0, 0, 0},
+    {"red", PLY_UCHAR, PLY_UCHAR, static_cast<int>(offsetof(plyVertex,red)), 0, 0, 0, 0},
+    {"green", PLY_UCHAR, PLY_UCHAR, static_cast<int>(offsetof(plyVertex,green)), 0, 0, 0, 0},
+    {"blue", PLY_UCHAR, PLY_UCHAR, static_cast<int>(offsetof(plyVertex,blue)), 0, 0, 0, 0},
   };
   PlyProperty faceProps[] = {
     {"vertex_indices", PLY_INT, PLY_INT, 
@@ -125,9 +132,10 @@ void vtkPLYReader::Execute()
 
   // Check for optional attribute data. We can handle intensity; and the
   // triplet red, green, blue.
-  unsigned char intensityAvailable=false, RGBAvailable=false;
+  unsigned char intensityAvailable=false, RGBCellsAvailable=false, RGBPointsAvailable=false;
   vtkUnsignedCharArray *intensity=NULL;
-  vtkUnsignedCharArray *RGB=NULL;
+  vtkUnsignedCharArray *RGBCells=NULL;
+  vtkUnsignedCharArray *RGBPoints=NULL;
   if ( (elem = vtkPLY::find_element (ply, "face")) != NULL &&
        vtkPLY::find_property (elem, "intensity", &index) != NULL )
     {
@@ -144,12 +152,24 @@ void vtkPLYReader::Execute()
        vtkPLY::find_property (elem, "green", &index) != NULL &&
        vtkPLY::find_property (elem, "blue", &index) != NULL )
     {
-    RGB = vtkUnsignedCharArray::New();
-    RGB->SetName("RGB");
-    RGBAvailable = true;
-    output->GetCellData()->AddArray(RGB);
+    RGBCells = vtkUnsignedCharArray::New();
+    RGBCells->SetName("RGB");
+    RGBCellsAvailable = true;
+    output->GetCellData()->AddArray(RGBCells);
     output->GetCellData()->SetActiveScalars("RGB");
-    RGB->Delete();
+    RGBCells->Delete();
+    }
+
+  if ( (elem = vtkPLY::find_element (ply, "vertex")) != NULL &&
+       vtkPLY::find_property (elem, "red", &index) != NULL &&
+       vtkPLY::find_property (elem, "green", &index) != NULL &&
+       vtkPLY::find_property (elem, "blue", &index) != NULL )
+    {
+    RGBPoints = vtkUnsignedCharArray::New();
+    RGBPointsAvailable = true;
+    RGBPoints->SetName("RGB");
+    output->GetPointData()->SetScalars(RGBPoints);
+    RGBPoints->Delete();
     }
 
   // Okay, now we can grab the data
@@ -167,16 +187,29 @@ void vtkPLYReader::Execute()
       vtkPoints *pts = vtkPoints::New();
       pts->SetDataTypeToFloat();
       pts->SetNumberOfPoints(numPts);
-      float *ptsPtr = ((vtkFloatArray *)pts->GetData())->GetPointer(0);
       
       // Setup to read the PLY elements
       vtkPLY::ply_get_property (ply, elemName, &vertProps[0]);
       vtkPLY::ply_get_property (ply, elemName, &vertProps[1]);
       vtkPLY::ply_get_property (ply, elemName, &vertProps[2]);
 
-      for (j=0; j < numPts; j++, ptsPtr+=3) 
+      if ( RGBPointsAvailable )
         {
-        vtkPLY::ply_get_element (ply, (void *) ptsPtr);
+        vtkPLY::ply_get_property (ply, elemName, &vertProps[3]);
+        vtkPLY::ply_get_property (ply, elemName, &vertProps[4]);
+        vtkPLY::ply_get_property (ply, elemName, &vertProps[5]);
+        RGBPoints->SetNumberOfComponents(3);
+        RGBPoints->SetNumberOfTuples(numPts);
+        }
+      plyVertex vertex;
+      for (j=0; j < numPts; j++) 
+        {
+        vtkPLY::ply_get_element (ply, (void *) &vertex);
+        pts->SetPoint (j, vertex.x);
+        if ( RGBPointsAvailable )
+          {
+          RGBPoints->SetTuple3(j,vertex.red,vertex.green,vertex.blue);
+          }
         }
       output->SetPoints(pts);
       pts->Delete();
@@ -197,16 +230,16 @@ void vtkPLYReader::Execute()
       if ( intensityAvailable )
         {
         vtkPLY::ply_get_property (ply, elemName, &faceProps[1]);
-        RGB->SetNumberOfComponents(1);
-        RGB->SetNumberOfTuples(numPolys);
+        RGBCells->SetNumberOfComponents(1);
+        RGBCells->SetNumberOfTuples(numPolys);
         }
-      if ( RGBAvailable )
+      if ( RGBCellsAvailable )
         {
         vtkPLY::ply_get_property (ply, elemName, &faceProps[2]);
         vtkPLY::ply_get_property (ply, elemName, &faceProps[3]);
         vtkPLY::ply_get_property (ply, elemName, &faceProps[4]);
-        RGB->SetNumberOfComponents(3);
-        RGB->SetNumberOfTuples(numPolys);
+        RGBCells->SetNumberOfComponents(3);
+        RGBCells->SetNumberOfTuples(numPolys);
         }
       
       // grab all the face elements
@@ -224,11 +257,11 @@ void vtkPLYReader::Execute()
           {
           intensity->SetValue(j,face.intensity);
           }
-        if ( RGBAvailable )
+        if ( RGBCellsAvailable )
           {
-          RGB->SetValue(3*j,face.red);
-          RGB->SetValue(3*j+1,face.green);
-          RGB->SetValue(3*j+2,face.blue);
+          RGBCells->SetValue(3*j,face.red);
+          RGBCells->SetValue(3*j+1,face.green);
+          RGBCells->SetValue(3*j+2,face.blue);
           }
         }
       output->SetPolys(polys);
