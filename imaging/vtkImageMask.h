@@ -73,7 +73,7 @@ public:
   void SetMaskedOutputValue(float v1, float v2) 
     {float v[2]; v[0]=v1; v[1]=v2; this->SetMaskedOutputValue(2, v);}
   void SetMaskedOutputValue(float v1, float v2, float v3) 
-    {float v[2]; v[0]=v1; v[1]=v2; v[2]=v3; this->SetMaskedOutputValue(3, v);}
+    {float v[3]; v[0]=v1; v[1]=v2; v[2]=v3; this->SetMaskedOutputValue(3, v);}
   float *GetMaskedOutputValue() {return this->MaskedOutputValue;}
   int GetMaskedOutputValueLength() {return this->MaskedOutputValueLength;}
 
