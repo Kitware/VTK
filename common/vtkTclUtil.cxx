@@ -7,7 +7,7 @@
   Version:   $Revision$
 
 
-Copyright (c) 1993-1998 Ken Martin, Will Schroeder, Bill Lorensen.
+Copyright (c) 1993-1999 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
 The following terms apply to all files associated with the software unless
@@ -465,13 +465,13 @@ int vtkTclNewInstanceCommand(ClientData cd, Tcl_Interp *interp,
 
   if ((argv[1][0] >= '0')&&(argv[1][0] <= '9'))
     {
-    interp->result = "vtk object names must start with a letter.";
+    sprintf (interp->result, "%s: vtk object cannot start with a numeric.", argv[1]);
     return TCL_ERROR;
     }
 
   if (Tcl_FindHashEntry(&vtkInstanceLookup,argv[1]))
     {
-    interp->result = "a vtk object with that name already exists.";
+    sprintf (interp->result, "%s: a vtk object with that name already exists.", argv[1]);;
     return TCL_ERROR;
     }
 
