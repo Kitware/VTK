@@ -1,5 +1,4 @@
-IF (HAVE_PNG)
- IF (VTK_USE_RENDERING)
+IF (VTK_USE_RENDERING)
 
   #
   # Add tests, with the data
@@ -7,6 +6,9 @@ IF (HAVE_PNG)
   IF (VTK_DATA_ROOT)
     FOREACH ( tfile 
       financialField2
+      largeImageOffset
+      largeImageParallel
+      VRMLImporter
       )
       ADD_TEST(${tfile}-image ${VTK_EXECUTABLE}
         ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
@@ -21,6 +23,5 @@ IF (HAVE_PNG)
   ELSE (VTK_DATA_ROOT)
   ENDIF (VTK_DATA_ROOT)
 
- ENDIF (VTK_USE_RENDERING)
-ENDIF (HAVE_PNG)
+ENDIF (VTK_USE_RENDERING)
 
