@@ -69,7 +69,9 @@ public:
 
   // Description:
   // Returns a pointer to the data stored in the table.
+  // Fills from a pointer to data stored in a similar table.
   float *GetDataPointer() {return this->Function;};
+  void FillFromDataPointer(int, float*);
 
   // Description:
   // Returns the min and max point locations of the function.

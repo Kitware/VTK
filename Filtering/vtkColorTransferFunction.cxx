@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPiecewiseFunction.h"
 
-vtkCxxRevisionMacro(vtkColorTransferFunction, "1.43");
+vtkCxxRevisionMacro(vtkColorTransferFunction, "1.44");
 vtkStandardNewMacro(vtkColorTransferFunction);
 
 // Construct a new vtkColorTransferFunction with default values
@@ -1075,5 +1075,20 @@ void vtkColorTransferFunction::MapScalarsThroughTable2(void *input,
     }
 }
 
+void vtkColorTransferFunction::FillFromDataPointer(int nb, float *ptr)
+{
+  if (nb <= 0 || !ptr)
+    {
+    return;
+    }
 
+  this->RemoveAllPoints();
+
+  while (nb)
+    {
+    this->AddRGBPoint(ptr[0], ptr[1], ptr[2], ptr[3]);
+    ptr += 4;
+    nb--;
+    }
+}
 

@@ -115,7 +115,9 @@ public:
     
   // Description:
   // Returns a list of all nodes
+  // Fills from a pointer to data stored in a similar list of nodes.
   float *GetDataPointer() {return this->Function;};
+  void FillFromDataPointer(int, float*);
 
   // Description:
   // map a set of scalars through the lookup table

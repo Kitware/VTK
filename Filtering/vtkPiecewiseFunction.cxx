@@ -19,7 +19,7 @@
 #include "vtkSource.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPiecewiseFunction, "1.32");
+vtkCxxRevisionMacro(vtkPiecewiseFunction, "1.33");
 vtkStandardNewMacro(vtkPiecewiseFunction);
 
 // Construct a new vtkPiecewiseFunction with default values
@@ -738,6 +738,23 @@ void vtkPiecewiseFunction::IncreaseArraySize()
     }
 
   delete [] old_function;
+}
+
+void vtkPiecewiseFunction::FillFromDataPointer(int nb, float *ptr)
+{
+  if (nb <= 0 || !ptr)
+    {
+    return;
+    }
+
+  this->RemoveAllPoints();
+
+  while (nb)
+    {
+    this->AddPoint(ptr[0], ptr[1]);
+    ptr += 2;
+    nb--;
+    }
 }
 
 // Print method for tkPiecewiseFunction
