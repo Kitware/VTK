@@ -19,6 +19,7 @@
 #include "vtkInformationDoubleKey.h"
 #include "vtkInformationDoubleVectorKey.h"
 #include "vtkInformationExecutivePortKey.h"
+#include "vtkInformationExecutivePortVectorKey.h"
 #include "vtkInformationInformationKey.h"
 #include "vtkInformationInformationVectorKey.h"
 #include "vtkInformationIntegerKey.h"
@@ -32,7 +33,7 @@
 
 #include <vtkstd/map>
 
-vtkCxxRevisionMacro(vtkInformation, "1.10");
+vtkCxxRevisionMacro(vtkInformation, "1.11");
 vtkStandardNewMacro(vtkInformation);
 
 //----------------------------------------------------------------------------
@@ -399,6 +400,66 @@ int vtkInformation::GetPort(vtkInformationExecutivePortKey* key)
 
 //----------------------------------------------------------------------------
 int vtkInformation::Has(vtkInformationExecutivePortKey* key)
+{
+  return key->Has(this);
+}
+
+//----------------------------------------------------------------------------
+void vtkInformation::Append(vtkInformationExecutivePortVectorKey* key,
+                            vtkExecutive* executive, int port)
+{
+  key->Append(this, executive, port);
+}
+
+//----------------------------------------------------------------------------
+void vtkInformation::Remove(vtkInformationExecutivePortVectorKey* key,
+                            vtkExecutive* executive, int port)
+{
+  key->Remove(this, executive, port);
+}
+
+//----------------------------------------------------------------------------
+void vtkInformation::Set(vtkInformationExecutivePortVectorKey* key,
+                         vtkExecutive** executives, int* ports, int length)
+{
+  key->Set(this, executives, ports, length);
+}
+
+//----------------------------------------------------------------------------
+vtkExecutive**
+vtkInformation::GetExecutives(vtkInformationExecutivePortVectorKey* key)
+{
+  return key->GetExecutives(this);
+}
+
+//----------------------------------------------------------------------------
+int*
+vtkInformation::GetPorts(vtkInformationExecutivePortVectorKey* key)
+{
+  return key->GetPorts(this);
+}
+
+//----------------------------------------------------------------------------
+void vtkInformation::Get(vtkInformationExecutivePortVectorKey* key,
+                         vtkExecutive** executives, int* ports)
+{
+  key->Get(this, executives, ports);
+}
+
+//----------------------------------------------------------------------------
+int vtkInformation::Length(vtkInformationExecutivePortVectorKey* key)
+{
+  return key->Length(this);
+}
+
+//----------------------------------------------------------------------------
+void vtkInformation::Remove(vtkInformationExecutivePortVectorKey* key)
+{
+  key->Remove(this);
+}
+
+//----------------------------------------------------------------------------
+int vtkInformation::Has(vtkInformationExecutivePortVectorKey* key)
 {
   return key->Has(this);
 }

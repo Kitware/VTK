@@ -106,6 +106,7 @@ vtkInformationDataObjectKey.cxx
 vtkInformationDoubleKey.cxx
 vtkInformationDoubleVectorKey.cxx
 vtkInformationExecutivePortKey.cxx
+vtkInformationExecutivePortVectorKey.cxx
 vtkInformationInformationKey.cxx
 vtkInformationInformationVectorKey.cxx
 vtkInformationIntegerKey.cxx
@@ -247,6 +248,7 @@ vtkInformationDataObjectKey
 vtkInformationDoubleKey
 vtkInformationDoubleVectorKey
 vtkInformationExecutivePortKey
+vtkInformationExecutivePortVectorKey
 vtkInformationInformationKey
 vtkInformationInformationVectorKey
 vtkInformationIntegerKey

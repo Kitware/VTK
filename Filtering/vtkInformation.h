@@ -33,6 +33,7 @@ class vtkInformationDataObjectKey;
 class vtkInformationDoubleKey;
 class vtkInformationDoubleVectorKey;
 class vtkInformationExecutivePortKey;
+class vtkInformationExecutivePortVectorKey;
 class vtkInformationInformationKey;
 class vtkInformationInformationVectorKey;
 class vtkInformationIntegerKey;
@@ -212,6 +213,22 @@ public:
   int GetPort(vtkInformationExecutivePortKey* key);
   void Remove(vtkInformationExecutivePortKey* key);
   int Has(vtkInformationExecutivePortKey* key);
+
+  // Description:
+  // Get/Set an entry storing a vector of vtkExecutive/port number pairs.
+  void Append(vtkInformationExecutivePortVectorKey* key,
+              vtkExecutive* executive, int port);
+  void Remove(vtkInformationExecutivePortVectorKey* key,
+              vtkExecutive* executive, int port);
+  void Set(vtkInformationExecutivePortVectorKey* key,
+           vtkExecutive** executives, int* ports, int length);
+  vtkExecutive** GetExecutives(vtkInformationExecutivePortVectorKey* key);
+  int* GetPorts(vtkInformationExecutivePortVectorKey* key);
+  void Get(vtkInformationExecutivePortVectorKey* key,
+           vtkExecutive** executives, int* ports);
+  int Length(vtkInformationExecutivePortVectorKey* key);
+  void Remove(vtkInformationExecutivePortVectorKey* key);
+  int Has(vtkInformationExecutivePortVectorKey* key);
 
   // Description:
   // Upcast the given key instance.
