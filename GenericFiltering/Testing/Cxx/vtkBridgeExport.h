@@ -22,6 +22,10 @@
 
 #include "vtkSystemIncludes.h"
 
+#if 1
+# define VTK_BRIDGE_EXPORT
+#else
+
 #if defined(WIN32) && defined(VTK_BUILD_SHARED_LIBS)
 
  #if defined(vtkBridge_EXPORTS)
@@ -32,5 +36,7 @@
 #else
  #define VTK_BRIDGE_EXPORT
 #endif
+
+#endif //#if 1
 
 #endif
