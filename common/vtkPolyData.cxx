@@ -1590,7 +1590,10 @@ void vtkPolyData::GetCellNeighbors(int cellId, vtkIdList *ptIds,
       int currid = allCells[0];
       for (i = 1; i < index; i++)
 	{
-	  if (allCells[i] == currid) continue;
+	  if (allCells[i] == currid)
+	    {
+	    continue;
+	    }
 	  cellIds->InsertNextId(currid);
 	  currid = allCells[i];
 	}

@@ -112,7 +112,7 @@ float vtkRungeKutta2::ComputeNextStep(float* xprev, float* dxprev,
   this->Vals[numVals-1] = t + delT/2.0;
 
   // Obtain the derivatives at x_i + dt/2 * dx_i
-  if (!this->FunctionSet->FunctionValues(this->Vals, Derivs))
+  if (!this->FunctionSet->FunctionValues(this->Vals, this->Derivs))
     {
     return -1;
     }
