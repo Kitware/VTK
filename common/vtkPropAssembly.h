@@ -47,20 +47,19 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // A vtkPropAssembly object can be used in place of an vtkProp since it is a
 // subclass of vtkProp. The difference is that vtkPropAssembly maintains a
 // list of other prop and prop assembly instances (its "parts") that form the
-// assembly. Then, any operation that modifies the parent assembly will
-// modify all its parts.  Note that this process is recursive: you can create
-// groups consisting of prop assemblies to arbitrary depth.
+// assembly. Note that this process is recursive: you can create groups 
+// consisting of prop assemblies to arbitrary depth.
 //
-// vtkPropAssembly's and vtkProp's that compose a prop assembly need not be 
-// added to a renderer's list of props, as long as the parent assembly is in the
-// prop list. This is because they are automatically renderered 
-// during the hierarchical traversal process.
+// vtkPropAssembly's and vtkProp's that compose a prop assembly need not be
+// added to a renderer's list of props, as long as the parent assembly is in
+// the prop list. This is because they are automatically renderered during
+// the hierarchical traversal process.
 
 // .SECTION Caveats
-// Assemblies can consist of hierarchies of assemblies, where one actor or
-// assembly used in one hierarchy is also used in other hierarchies. However, 
-// make that there are no cycles (e.g., parent->child->parent), this will
-// cause program failure.
+// vtkPropAssemblies can consist of hierarchies of assemblies, where one
+// actor or assembly used in one hierarchy is also used in other
+// hierarchies. However, make that there are no cycles (e.g.,
+// parent->child->parent), this will cause program failure.
  
 // .SECTION See Also
 // vtkProp3D vtkActor vtkAssembly vtkActor2D vtkVolume
@@ -95,12 +94,9 @@ public:
   vtkPropCollection *GetParts();
   
   // Description:
-  // Render this assembly and all its parts. 
-  // The rendering process is recursive.
-  // Note that a mapper need not be defined. If not defined, then no geometry 
-  // will be drawn for this assembly. This allows you to create "logical"
-  // assemblies; that is, assemblies that only serve to group and transform
-  // its parts.
+  // Render this assembly and all its parts.  The rendering process is
+  // recursive. The parts of each assembly are rendered only if the
+  // visibility for the prop is turned on.
   int RenderOpaqueGeometry(vtkViewport *ren);
   int RenderTranslucentGeometry(vtkViewport *ren);
   int InitializeRayCasting(vtkViewport *);
