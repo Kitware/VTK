@@ -111,12 +111,11 @@ void vlContourFilter::Execute()
 // Update ourselves.  Because we don't know upfront how many verts, lines,
 // polys we've created, take care to reclaim memory. 
 //
-  newPoints->Squeeze();
   this->SetPoints(newPoints);
+  this->PointData.SetScalars(newScalars);
 
   if (newVerts->GetNumberOfCells()) 
     {
-    newVerts->Squeeze();    
     this->SetVerts(newVerts);
     }
   else
@@ -126,7 +125,6 @@ void vlContourFilter::Execute()
 
   if (newLines->GetNumberOfCells()) 
     {
-    newLines->Squeeze();    
     this->SetLines(newLines);
     }
   else
@@ -136,7 +134,6 @@ void vlContourFilter::Execute()
 
   if (newPolys->GetNumberOfCells()) 
     {
-    newPolys->Squeeze();    
     this->SetPolys(newPolys);
     }
   else
@@ -144,7 +141,7 @@ void vlContourFilter::Execute()
     delete newPolys;
     }
 
-  this->PointData.SetScalars(newScalars);
+  this->Squeeze();
 }
 
 void vlContourFilter::PrintSelf(ostream& os, vlIndent indent)
