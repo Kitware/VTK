@@ -386,8 +386,9 @@ void vtkPointLocator::BuildLocator()
     for (j=0; j<3; j++) 
       {
       ijk[j] = (int) ((float) ((x[j] - this->Bounds[2*j])*0.999 / 
-                        (this->Bounds[2*j+1] - this->Bounds[2*j])) * ndivs[j]);
+                        (this->Bounds[2*j+1] - this->Bounds[2*j])) * (ndivs[j]- 1));
       }
+
     idx = ijk[0] + ijk[1]*ndivs[0] + ijk[2]*product;
     bucket = this->HashTable[idx];
     if ( ! bucket )
@@ -529,8 +530,9 @@ int vtkPointLocator::InsertNextPoint(float x[3])
   for (i=0; i<3; i++)
     {
     ijk[i] = (int) ((float) ((x[i] - this->Bounds[2*i])*0.999 / 
-             (this->Bounds[2*i+1] - this->Bounds[2*i])) * this->Divisions[i]);
+             (this->Bounds[2*i+1] - this->Bounds[2*i])) * (this->Divisions[i] - 1));
     }
+
   idx = ijk[0] + ijk[1]*this->Divisions[0] + 
         ijk[2]*this->Divisions[0]*this->Divisions[1];
 
@@ -564,8 +566,9 @@ void vtkPointLocator::InsertPoint(int ptId, float x[3])
   for (i=0; i<3; i++)
     {
     ijk[i] = (int) ((float) ((x[i] - this->Bounds[2*i])*0.999 / 
-             (this->Bounds[2*i+1] - this->Bounds[2*i])) * this->Divisions[i]);
+             (this->Bounds[2*i+1] - this->Bounds[2*i])) * (this->Divisions[i] - 1));
     }
+
   idx = ijk[0] + ijk[1]*this->Divisions[0] + 
         ijk[2]*this->Divisions[0]*this->Divisions[1];
 
@@ -595,8 +598,9 @@ int vtkPointLocator::IsInsertedPoint(float x[3])
   for (i=0; i<3; i++)
     {
     ijk[i] = (int) ((float) ((x[i] - this->Bounds[2*i])*0.999 / 
-             (this->Bounds[2*i+1] - this->Bounds[2*i])) * this->Divisions[i]);
+             (this->Bounds[2*i+1] - this->Bounds[2*i])) * (this->Divisions[i] - 1));
     }
+
   idx = ijk[0] + ijk[1]*this->Divisions[0] + 
         ijk[2]*this->Divisions[0]*this->Divisions[1];
 
