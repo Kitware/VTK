@@ -88,7 +88,7 @@ void vtkCellDerivatives::Execute()
     }
 
   if ( !inVectors || (this->TensorMode == VTK_TENSOR_MODE_PASS_TENSORS &&
-	      this->VectorMode != VTK_VECTOR_MODE_COMPUTE_VORTICITY) )
+              this->VectorMode != VTK_VECTOR_MODE_COMPUTE_VORTICITY) )
     {
     computeVectorDerivs = 0;
     }
@@ -105,12 +105,13 @@ void vtkCellDerivatives::Execute()
     {
     float pcoords[3], derivs[9], w[3], *scalars, *vectors;
     float a00, a01, a02, a10, a11, a12, a20, a21, a22;
-    vtkCell *cell;
+    vtkGenericCell *cell = vtkGenericCell::New();
     int cellId;
     vtkScalars *cellScalars=vtkScalars::New(); 
     cellScalars->Allocate(VTK_CELL_SIZE);
     vtkVectors *cellVectors=vtkVectors::New(); 
     cellVectors->Allocate(VTK_CELL_SIZE);
+    vtkTensor *tens = vtkTensor::New();
 
     // Assume that (0.5,0.5,0.5) is the (parametric) center of the cell
     pcoords[0] = pcoords[1] = pcoords[2] = 0.5; 
@@ -119,60 +120,71 @@ void vtkCellDerivatives::Execute()
     for (cellId=0; cellId < numCells; cellId++)
       {
       if ( ! (cellId % 20000) ) 
-	{
+        {
         vtkDebugMacro(<<"Computing cell #" << cellId);
-	this->UpdateProgress ((float)cellId/numCells);
-	}
+        this->UpdateProgress ((float)cellId/numCells);
+        }
 
-      cell = input->GetCell(cellId);
+      input->GetCell(cellId, cell);
       
       if ( computeScalarDerivs )
-	{
+        {
         inScalars->GetScalars(cell->PointIds, cellScalars);
-	scalars = ((vtkFloatArray *)cellScalars->GetData())->GetPointer(0);
-	cell->Derivatives(0, pcoords, scalars, 1, derivs);
-	outVectors->SetVector(cellId, derivs);
-	}
+        scalars = ((vtkFloatArray *)cellScalars->GetData())->GetPointer(0);
+        cell->Derivatives(0, pcoords, scalars, 1, derivs);
+        outVectors->SetVector(cellId, derivs);
+        }
 
       if ( computeVectorDerivs )
-	{
+        {
         inVectors->GetVectors(cell->PointIds, cellVectors);
-	vectors = ((vtkFloatArray *)cellVectors->GetData())->GetPointer(0);
-	cell->Derivatives(0, pcoords, vectors, 3, derivs);
+        vectors = ((vtkFloatArray *)cellVectors->GetData())->GetPointer(0);
+        cell->Derivatives(0, pcoords, vectors, 3, derivs);
 
-	// Insert appropriate tensor
+        // Insert appropriate tensor
         if ( this->TensorMode == VTK_TENSOR_MODE_COMPUTE_GRADIENT)
-	  {
-	  outTensors->InsertTensor(cellId, derivs[0], derivs[1], derivs[2],
-				   derivs[3], derivs[4], derivs[5],	 
-				   derivs[6], derivs[6], derivs[7]);
-	  }
+          {
+          tens->SetComponent(0,0, derivs[0]);
+          tens->SetComponent(0,1, derivs[1]);
+          tens->SetComponent(0,2, derivs[2]);
+          tens->SetComponent(1,0, derivs[3]);
+          tens->SetComponent(1,1, derivs[4]);
+          tens->SetComponent(1,2, derivs[5]);
+          tens->SetComponent(2,0, derivs[6]);
+          tens->SetComponent(2,1, derivs[7]);
+          tens->SetComponent(2,2, derivs[8]);
+          
+          outTensors->InsertTensor(cellId, tens);
+          }
         else // this->TensorMode == VTK_TENSOR_MODE_COMPUTE_STRAIN
-	  {
-	  a00 = derivs[0];
-	  a01 = 0.5*(derivs[1]+derivs[3]);
-	  a02 = 0.5*(derivs[2]+derivs[6]);
-	  a10 = a01;
-	  a11 = derivs[4];
-	  a12 = 0.5*(derivs[5]+derivs[7]);
-	  a20 = a02;
-	  a21 = a12;
-	  a22 = derivs[8];
-	  outTensors->InsertTensor(cellId, a00, a01, a02,
-				   a10, a11, a12,
-				   a20, a21, a22);
-	  }
+          {
+          tens->SetComponent(0,0, derivs[0]);
+          tens->SetComponent(0,1, 0.5*(derivs[1]+derivs[3]));
+          tens->SetComponent(0,2, 0.5*(derivs[2]+derivs[6]));
+          tens->SetComponent(1,0, 0.5*(derivs[1]+derivs[3]));
+          tens->SetComponent(1,1, derivs[4]);
+          tens->SetComponent(1,2, 0.5*(derivs[5]+derivs[7]));
+          tens->SetComponent(2,0, 0.5*(derivs[2]+derivs[6]));
+          tens->SetComponent(2,1, 0.5*(derivs[5]+derivs[7]));
+          tens->SetComponent(2,2, derivs[8]);
+          
+          outTensors->InsertTensor(cellId, tens);
+          }
 
-	if ( this->VectorMode == VTK_VECTOR_MODE_COMPUTE_VORTICITY )
-	  {
-	  w[0] = derivs[7] - derivs[5];
-	  w[0] = derivs[2] - derivs[6];
-	  w[0] = derivs[3] - derivs[1];
-	  outVectors->SetVector(cellId, w);
-	  }
-	}
-
+        if ( this->VectorMode == VTK_VECTOR_MODE_COMPUTE_VORTICITY )
+          {
+          w[0] = derivs[7] - derivs[5];
+          w[1] = derivs[2] - derivs[6];
+          w[2] = derivs[3] - derivs[1];
+          outVectors->SetVector(cellId, w);
+          }
+        }
       }//for all cells
+
+    cell->Delete();
+    cellScalars->Delete();
+    cellVectors->Delete();
+    tens->Delete();
     }//if something to compute
 
   // Pass appropriate data through to output
