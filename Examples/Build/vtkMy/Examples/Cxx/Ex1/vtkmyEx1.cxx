@@ -4,19 +4,28 @@
 
 int main( int argc, char *argv[] )
 {
- vtkBar *bar = vtkBar::New();
- bar->Print(cout);
- bar->Delete();
 
- vtkBar2 *bar2 = vtkBar2::New();
- bar2->Print(cout);
- bar2->Delete();
+  cout << "Create vtkBar object and print it." << endl;
+  
+  vtkBar *bar = vtkBar::New();
+  bar->Print(cout);
+  bar->Delete();
+  
+  cout << "Create vtkBar2 object and print it." << endl;
+  
+  vtkBar2 *bar2 = vtkBar2::New();
+  bar2->Print(cout);
+  bar2->Delete();
+  
+  cout << "Create vtkImageFoo object and print it." << endl;
+  
+  vtkImageFoo *imagefoo = vtkImageFoo::New();
+  imagefoo->Print(cout);
+  imagefoo->Delete();
+  
+  cout << "Looks good ?" << endl;
 
- vtkImageFoo *imagefoo = vtkImageFoo::New();
- imagefoo->Print(cout);
- imagefoo->Delete();
-
- return 0;
+  return 0;
 }
 
 
