@@ -114,6 +114,13 @@ void vtkPolyDataConnectivityFilter::Execute()
   //  Check input/allocate storage
   //
   inPts = input->GetPoints();
+
+  if (inPts == NULL)
+    {
+    vtkErrorMacro("No points!");
+    return;
+    }
+
   numPts = inPts->GetNumberOfPoints();
   numCells = input->GetNumberOfCells();
 
