@@ -66,7 +66,6 @@ void vtkImageSinusoidSource::SetDirection(float *v)
 void vtkImageSinusoidSource::SetDirection(float v0, float v1, float v2)
 {
   float sum;
-  int idx;
 
   sum = v0*v0 + v1*v1 + v2*v2;
 
