@@ -32,7 +32,7 @@
 #include <vtkstd/stack>
 #include <vtkstd/map>
 
-vtkCxxRevisionMacro(vtkOrderedTriangulator, "1.63");
+vtkCxxRevisionMacro(vtkOrderedTriangulator, "1.64");
 vtkStandardNewMacro(vtkOrderedTriangulator);
 
 #ifdef _WIN32_WCE
@@ -192,7 +192,7 @@ struct OTTetra
   // The following are used during point insertion
   int CurrentPointId; //indicated current point being inserted
   enum TetraClassification 
-    {Inside=0,Outside=1,All=2,InCavity=3,OutsideCavity=4};
+    {Inside=0,Outside=1,All=2,InCavity=3,OutsideCavity=4,Exterior=5};
   TetraClassification Type;
 
   // Supporting triangulation operators 
@@ -692,10 +692,22 @@ inline OTTetra::TetraClassification OTTetra::DetermineType()
     this->Type = OTTetra::Inside;
     return OTTetra::Inside;
     }
-  else
+  else if ( (this->Points[0]->Type == OTPoint::Outside || 
+             this->Points[0]->Type == OTPoint::Boundary ) &&
+            (this->Points[1]->Type == OTPoint::Outside || 
+             this->Points[1]->Type == OTPoint::Boundary ) &&
+            (this->Points[2]->Type == OTPoint::Outside || 
+             this->Points[2]->Type == OTPoint::Boundary ) &&
+            (this->Points[3]->Type == OTPoint::Outside || 
+             this->Points[3]->Type == OTPoint::Boundary ) )
     {
     this->Type = OTTetra::Outside;
     return OTTetra::Outside;
+    }
+  else
+    {
+    this->Type = OTTetra::Exterior;
+    return OTTetra::Exterior;
     }
 }
 
