@@ -14,7 +14,7 @@ vtkRenderWindowInteractor iren
     iren SetRenderWindow renWin
 
 vtkGenericEnSightReader reader
-    reader SetCaseFileName "C:/EnSightFiles/elements6/elements6.case"
+    reader SetCaseFileName $VTK_DATA/EnSight/elements6.case
     reader Update
 
 vtkGeometryFilter geom
