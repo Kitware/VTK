@@ -23,8 +23,11 @@
 // <p> The minumum (and ideal) quality ratio is 1.0 for regular tetrahedra,
 // i.e. all sides of equal length.  Larger values indicate poorer mesh
 // quality.  The resulting quality values (and the tetrahedron volumes)
-// are set as the Scalars of the FieldData of the output.  This class was
-// developed by Leila Baghdadi at the John P. Robarts Research Institute.
+// are set as the Scalars of the FieldData of the output.  
+
+// .SECTION Thanks
+// This class was developed by Leila Baghdadi, Hanif Ladak, and
+// David Steinman at the Imaging Research Labs, Robarts Research Institute.
 
 #ifndef __vtkMeshQuality_h
 #define __vtkMeshQuality_h
